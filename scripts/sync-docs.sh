@@ -43,7 +43,7 @@ for VERSION in "${VERSIONS[@]}"; do
   mkdir -p "$TARGET_DIR/origin"
 
   # Copy Korean translated docs
-  cp -r "$SOURCE_KO"/*.md "$TARGET_DIR/"
+  find "$SOURCE_KO" -maxdepth 1 -name "*.md" -exec cp {} "$TARGET_DIR/" \;
 
   # Copy origin documentation.md for sidebar generation
   if [ -f "$SOURCE_ORIGIN/documentation.md" ]; then
