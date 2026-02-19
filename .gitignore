@@ -97,3 +97,11 @@ coverage/
 
 # Optional stylelint cache
 .stylelintcache
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
