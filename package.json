@@ -35,7 +35,7 @@
     "@docusaurus/types": "^3.7.0",
     "@easyops-cn/docusaurus-search-local": "^0.49.2",
     "react": "^19.2.3",
-    "react-dom": "^19.1.0",
+    "react-dom": "^19.2.3",
     "remark-gfm": "^4.0.1",
     "typescript": "^5.8.3"
   }
