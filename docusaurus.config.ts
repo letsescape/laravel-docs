@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import remarkGithubAlerts from './src/remark/github-alerts';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -77,6 +78,8 @@ const config: Config = {
             path: '8.x',
           },
         },
+        // GitHub-style alerts (> [!NOTE]) → Docusaurus admonitions 변환
+        beforeDefaultRemarkPlugins: [remarkGithubAlerts],
         // 기타 설정
         editUrl: 'https://github.com/letsescape/laravel-docs-web/tree/main/',
       },
@@ -225,6 +228,8 @@ const config: Config = {
         'yaml',
         'sql',
         'markup',
+        'jsx',
+        'typescript',
       ],
     },
   } satisfies Preset.ThemeConfig,

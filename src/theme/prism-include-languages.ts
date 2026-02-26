@@ -25,6 +25,8 @@ export default function prismIncludeLanguages(
   PrismObject.languages.env = PrismObject.languages.ini;
   PrismObject.languages.vue = PrismObject.languages.markup;
   PrismObject.languages.shell = PrismObject.languages.bash;
+  PrismObject.languages.apache = PrismObject.languages.apacheconf;
+  PrismObject.languages.dockerfile = PrismObject.languages.docker;
 
   delete (globalThis as Optional<typeof globalThis, 'Prism'>).Prism;
   if (typeof PrismBefore !== 'undefined') {
