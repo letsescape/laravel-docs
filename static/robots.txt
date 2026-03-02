@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /search
+Sitemap: https://laravel.chanhyung.kim/sitemap.xml
