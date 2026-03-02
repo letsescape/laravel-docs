@@ -35,6 +35,21 @@ export default function Home() {
         <meta name="twitter:title" content="라라벨 - 웹 장인을 위한 PHP 프레임워크" />
         <meta name="twitter:description" content="라라벨은 표현력이 풍부하고 우아한 문법을 갖춘 PHP 웹 애플리케이션 프레임워크입니다. 사소한 부분에 얽매이지 않고 창작에만 집중할 수 있습니다." />
         <meta name="twitter:image" content={`${url}/img/laravel-home.png`} />
+
+        {/* WebSite + SearchAction JSON-LD */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Laravel 한국어 문서',
+            url: url,
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: `${url}/search?q={search_term_string}`,
+              'query-input': 'required name=search_term_string',
+            },
+          })}
+        </script>
       </Head>
       <main>
         <Hero />
