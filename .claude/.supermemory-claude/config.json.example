@@ -1,5 +1,5 @@
 {
   "apiKey": "sm_...",
-  "repoContainerTag": "base",
+  "repoContainerTag": "laravel-docs",
   "signalExtraction": true
 }
