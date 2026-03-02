@@ -1,3 +1,8 @@
+---
+title: HTTP 요청 (HTTP Requests) - Laravel 11.x 한국어 문서
+description: '라라벨의 `Illuminate\Http\Request` 클래스는 현재 애플리케이션에서 처리 중인 HTTP 요청과, 요청에 함께 전달된 입력값, 쿠키, 파일 등을 객체지향적으로 다룰 수 있는 방법을 제공합니다.'
+keywords: [라라벨 HTTP 요청, Laravel requests, Laravel 11.x]
+---
 # HTTP 요청 (HTTP Requests)
 
 - [소개](#introduction)

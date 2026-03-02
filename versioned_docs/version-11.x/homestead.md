@@ -1,3 +1,8 @@
+---
+title: 라라벨 Homestead (Laravel Homestead) - Laravel 11.x 한국어 문서
+description: '라라벨은 전체 PHP 개발 경험이 즐거울 수 있도록, 로컬 개발 환경까지 포함해 모두를 쉽게 만들어 주고자 합니다. Laravel Homestead는 공식적으로 제공되는, 미리 구성된 Vagrant 박스로, 여러분의 로컬 컴퓨터에 PHP, 웹 서버, 또는 그 외 서버용...'
+keywords: [라라벨 Homestead, Laravel Homestead, Laravel 11.x]
+---
 # 라라벨 Homestead (Laravel Homestead)
 
 - [소개](#introduction)

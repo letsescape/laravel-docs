@@ -1,3 +1,8 @@
+---
+title: 유효성 검증 (Validation) - Laravel 11.x 한국어 문서
+description: '라라벨은 애플리케이션으로 들어오는 데이터를 검증할 수 있는 다양한 방법을 제공합니다. 가장 일반적으로는 모든 HTTP 요청 객체에 사용할 수 있는 `validate` 메서드를 이용합니다. 하지만, 본 문서에서는 그 외에도 여러 유효성 검증 방식에 대해 다룹니다.'
+keywords: [라라벨 유효성 검사, Laravel validation, Laravel 11.x]
+---
 # 유효성 검증 (Validation)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 로컬라이제이션 (Localization) - Laravel 11.x 한국어 문서
+description: '> [!NOTE] > 기본적으로 라라벨 애플리케이션 스캐폴딩에는 `lang` 디렉터리가 포함되어 있지 않습니다. 라라벨의 언어 파일을 직접 커스터마이징하려면 `lang:publish` 아티즌 명령어를 사용해 퍼블리싱할 수 있습니다.'
+keywords: [라라벨 다국어 처리, Laravel localization, Laravel 11.x]
+---
 # 로컬라이제이션 (Localization)
 
 - [소개](#introduction)

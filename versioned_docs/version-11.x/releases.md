@@ -1,3 +1,8 @@
+---
+title: 릴리즈 노트 (Release Notes) - Laravel 11.x 한국어 문서
+description: '라라벨과 그 외의 공식 패키지들은 시맨틱 버전 관리(Semantic Versioning)을 따릅니다. 주요 프레임워크 릴리즈는 매년(대략 1분기)에, 마이너 및 패치 릴리즈는 매주 나올 수 있습니다.'
+keywords: [라라벨 릴리스 노트, Laravel release notes, Laravel 11.x]
+---
 # 릴리즈 노트 (Release Notes)
 
 - [버전 관리 방식](#versioning-scheme)

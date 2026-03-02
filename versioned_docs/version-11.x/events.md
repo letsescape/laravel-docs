@@ -1,3 +1,8 @@
+---
+title: 이벤트 (Events) - Laravel 11.x 한국어 문서
+description: '라라벨의 이벤트는 간단한 옵저버 패턴(Observer Pattern) 구현을 제공하여, 애플리케이션 내에서 발생하는 다양한 이벤트를 구독하고 리스닝할 수 있도록 해줍니다.'
+keywords: [라라벨 이벤트, Laravel events, Laravel 11.x]
+---
 # 이벤트 (Events)
 
 - [소개](#introduction)

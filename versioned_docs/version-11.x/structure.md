@@ -1,3 +1,8 @@
+---
+title: 디렉터리 구조 (Directory Structure) - Laravel 11.x 한국어 문서
+description: '기본적으로 제공되는 라라벨 애플리케이션 구조는 소규모부터 대규모 애플리케이션까지 모두에 적합한 훌륭한 출발점을 제공합니다. 하지만, 여러분은 마음대로 애플리케이션의 구조를 변경해서 사용할 수 있습니다. 라라벨은 클래스가 어떤 위치에 있든지 거의 제한을 두지 않습니다.'
+keywords: [라라벨 디렉터리 구조, Laravel directory structure, Laravel 11.x]
+---
 # 디렉터리 구조 (Directory Structure)
 
 - [소개](#introduction)

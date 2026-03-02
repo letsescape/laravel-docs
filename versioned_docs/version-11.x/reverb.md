@@ -1,3 +1,8 @@
+---
+title: 라라벨 리버브 (Laravel Reverb) - Laravel 11.x 한국어 문서
+description: Laravel Reverb는 매우 빠르고 확장 가능한 실시간 WebSocket 통신을 여러분의 라라벨 애플리케이션에 직접 제공합니다. 또한 라라벨이 제공하는 기존 이벤트 브로드캐스팅 도구와도 완벽하게 통합됩니다.
+keywords: [라라벨 Reverb, Laravel Reverb WebSocket, Laravel 11.x]
+---
 # 라라벨 리버브 (Laravel Reverb)
 
 - [소개](#introduction)

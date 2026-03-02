@@ -1,3 +1,8 @@
+---
+title: 동시성 (Concurrency) - Laravel 11.x 한국어 문서
+description: '> [!WARNING] > 라라벨의 `Concurrency` 파사드는 현재 베타 버전으로, 커뮤니티 피드백을 수집하는 중입니다.'
+keywords: [라라벨 동시성, Laravel concurrency, Laravel 11.x]
+---
 # 동시성 (Concurrency)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 작업 스케줄링 (Task Scheduling) - Laravel 11.x 한국어 문서
+description: '과거에는 서버에서 예약해야 하는 각 작업마다 cron 설정 항목을 따로 작성해야 했을 것입니다. 하지만 이렇게 하면 작업 스케줄이 버전 관리 대상에서 벗어나 관리가 어려워지고, 기존 cron 항목을 확인하거나 새로운 항목을 추가하려면 서버에 SSH로 접속해야 하는 번거로움이...'
+keywords: [라라벨 작업 스케줄링, Laravel scheduling, Laravel 11.x]
+---
 # 작업 스케줄링 (Task Scheduling)
 
 - [소개](#introduction)

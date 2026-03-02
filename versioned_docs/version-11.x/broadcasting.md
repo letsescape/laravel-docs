@@ -1,3 +1,8 @@
+---
+title: 브로드캐스팅 (Broadcasting) - Laravel 11.x 한국어 문서
+description: '현대 웹 애플리케이션에서는 WebSocket을 이용해 실시간으로 사용자 인터페이스를 업데이트하는 경우가 많습니다. 서버에서 어떤 데이터가 변경되면, WebSocket 연결을 통해 메시지가 전송되어 클라이언트에서 처리할 수 있습니다.'
+keywords: [라라벨 브로드캐스팅, Laravel broadcasting, Laravel 11.x]
+---
 # 브로드캐스팅 (Broadcasting)
 
 - [소개](#introduction)

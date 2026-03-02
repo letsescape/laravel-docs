@@ -1,3 +1,8 @@
+---
+title: 라라벨 세일 (Laravel Sail) - Laravel 11.x 한국어 문서
+description: 'Laravel Sail은 라라벨의 기본 Docker 개발 환경과 상호작용할 수 있는 가볍고 간단한 커맨드라인 인터페이스(CLI)입니다. Sail을 사용하면 Docker에 대해 사전 지식이 없어도 PHP, MySQL, Redis로 라라벨 애플리케이션을 쉽게 시작할 수 있습니다.'
+keywords: [라라벨 Sail, Laravel Sail Docker, Laravel 11.x]
+---
 # 라라벨 세일 (Laravel Sail)
 
 - [소개](#introduction)

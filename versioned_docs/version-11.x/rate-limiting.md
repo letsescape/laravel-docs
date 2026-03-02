@@ -1,3 +1,8 @@
+---
+title: 속도 제한 (Rate Limiting) - Laravel 11.x 한국어 문서
+description: '라라벨에는 애플리케이션의 [캐시](cache)와 함께 사용할 수 있는 간단한 속도 제한 추상화 기능이 내장되어 있습니다. 이를 활용하면 일정 시간 동안 특정 동작을 손쉽게 제한할 수 있습니다.'
+keywords: [라라벨 속도 제한, Laravel rate limiting, Laravel 11.x]
+---
 # 속도 제한 (Rate Limiting)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: 시작하기 (Eloquent: Getting Started) - Laravel 11.x 한국어 문서'
+description: '라라벨은 Eloquent라는 ORM(Object-Relational Mapper, 객체 관계 매퍼)을 포함하고 있습니다. Eloquent를 사용하면 데이터베이스와 상호작용하는 작업이 훨씬 쉽고 즐거워집니다.'
+keywords: [라라벨 Eloquent ORM, Laravel Eloquent, Laravel 11.x]
+---
 # Eloquent: 시작하기 (Eloquent: Getting Started)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 프로세스 (Processes) - Laravel 11.x 한국어 문서
+description: 라라벨은 Symfony Process 컴포넌트를 기반으로 간결하고 직관적인 API를 제공합니다. 이를 통해 라라벨 애플리케이션에서 외부 프로세스를 손쉽게 실행할 수 있습니다.
+keywords: [라라벨 프로세스, Laravel processes, Laravel 11.x]
+---
 # 프로세스 (Processes)
 
 - [소개](#introduction)

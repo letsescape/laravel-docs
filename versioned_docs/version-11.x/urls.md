@@ -1,3 +1,8 @@
+---
+title: URL 생성 (URL Generation) - Laravel 11.x 한국어 문서
+description: '라라벨은 애플리케이션에서 URL을 생성할 수 있도록 도와주는 다양한 헬퍼를 제공합니다. 이 헬퍼들은 주로 템플릿에서 링크를 만들거나, API 응답에 링크를 포함시키거나, 애플리케이션의 다른 위치로 리디렉션 응답을 보낼 때 유용하게 사용할 수 있습니다.'
+keywords: [라라벨 URL 생성, Laravel URL generation, Laravel 11.x]
+---
 # URL 생성 (URL Generation)
 
 - [소개](#introduction)

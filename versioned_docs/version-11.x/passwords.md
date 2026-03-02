@@ -1,3 +1,8 @@
+---
+title: 비밀번호 재설정 (Resetting Passwords) - Laravel 11.x 한국어 문서
+description: '대부분의 웹 애플리케이션은 사용자가 잊어버린 비밀번호를 재설정할 수 있는 방법을 제공합니다. 라라벨은 매번 직접 이 기능을 구현하지 않아도 되도록, 비밀번호 재설정 링크 전송과 안전한 비밀번호 재설정 서비스를 편리하게 제공합니다.'
+keywords: [라라벨 비밀번호 재설정, Laravel password reset, Laravel 11.x]
+---
 # 비밀번호 재설정 (Resetting Passwords)
 
 - [소개](#introduction)

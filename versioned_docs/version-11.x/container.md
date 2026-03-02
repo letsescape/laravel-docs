@@ -1,3 +1,8 @@
+---
+title: 서비스 컨테이너 (Service Container) - Laravel 11.x 한국어 문서
+description: '라라벨의 서비스 컨테이너는 클래스 간의 의존성 관리와 의존성 주입(dependency injection)을 위한 강력한 도구입니다. "의존성 주입"이란, 클래스가 필요로 하는 의존 객체를 직접 생성하지 않고, 생성자 또는 (경우에 따라) "세터(setter)" 메서드를 통해...'
+keywords: [라라벨 서비스 컨테이너, Laravel service container, Laravel 11.x]
+---
 # 서비스 컨테이너 (Service Container)
 
 - [소개](#introduction)

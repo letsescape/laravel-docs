@@ -1,3 +1,8 @@
+---
+title: 인가 (Authorization) - Laravel 11.x 한국어 문서
+description: '라라벨은 기본적인 인증 서비스 외에도, 주어진 리소스에 대해 사용자의 행동을 인가(권한 부여)할 수 있는 간단한 방법을 제공합니다. 예를 들어, 사용자가 인증되었다고 해도, 애플리케이션에서 관리하는 특정 Eloquent 모델이나 데이터베이스 레코드를 업데이트하거나 삭제할...'
+keywords: [라라벨 권한 부여, Laravel authorization, Laravel 11.x]
+---
 # 인가 (Authorization)
 
 - [소개](#introduction)

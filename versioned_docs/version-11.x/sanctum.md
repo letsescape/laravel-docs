@@ -1,3 +1,8 @@
+---
+title: 라라벨 생텀 (Laravel Sanctum) - Laravel 11.x 한국어 문서
+description: '라라벨 Sanctum은 SPA(싱글 페이지 애플리케이션), 모바일 애플리케이션, 그리고 간단한 토큰 기반 API를 위한 매우 가벼운 인증 시스템을 제공합니다. Sanctum을 사용하면 애플리케이션의 각 사용자가 자신의 계정에 대해 여러 개의 API 토큰을 생성할 수 있습니다.'
+keywords: [라라벨 Sanctum, Laravel Sanctum API, Laravel 11.x]
+---
 # 라라벨 생텀 (Laravel Sanctum)
 
 - [소개](#introduction)

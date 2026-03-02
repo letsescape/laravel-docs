@@ -1,3 +1,8 @@
+---
+title: 배포 (Deployment) - Laravel 11.x 한국어 문서
+description: '라라벨 애플리케이션을 프로덕션 환경에 배포할 준비가 되었다면, 애플리케이션이 최대한 효율적으로 동작하도록 하기 위해 신경 쓸 중요한 사항들이 있습니다. 이 문서에서는 라라벨 애플리케이션을 적절히 배포하기 위한 주요 출발점을 다룹니다.'
+keywords: [라라벨 배포, Laravel deployment, Laravel 11.x]
+---
 # 배포 (Deployment)
 
 - [소개](#introduction)

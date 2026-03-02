@@ -1,3 +1,8 @@
+---
+title: 라라벨 폴리오 (Laravel Folio) - Laravel 11.x 한국어 문서
+description: 'Laravel Folio는 라라벨 애플리케이션에서 라우팅을 더욱 쉽게 만들어주는 강력한 페이지 기반 라우터입니다. Laravel Folio를 사용하면, 단순히 애플리케이션의 resources/views/pages 디렉터리에 Blade 템플릿을 생성하는 것만으로도 쉽고 빠르게...'
+keywords: [라라벨 Folio, Laravel Folio, Laravel 11.x]
+---
 # 라라벨 폴리오 (Laravel Folio)
 
 - [소개](#introduction)

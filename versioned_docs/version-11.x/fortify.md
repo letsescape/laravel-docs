@@ -1,3 +1,8 @@
+---
+title: 라라벨 포티파이 (Laravel Fortify) - Laravel 11.x 한국어 문서
+description: 'Laravel Fortify는 라라벨을 위한 프론트엔드에 독립적인 인증 백엔드 구현체입니다. Fortify는 로그인, 회원가입, 비밀번호 재설정, 이메일 인증 등 라라벨의 모든 인증 기능을 구현하는 데 필요한 라우트와 컨트롤러를 자동으로 등록합니다.'
+keywords: [라라벨 Fortify, Laravel Fortify, Laravel 11.x]
+---
 # 라라벨 포티파이 (Laravel Fortify)
 
 - [소개](#introduction)

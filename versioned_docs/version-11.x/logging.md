@@ -1,3 +1,8 @@
+---
+title: 로깅 (Logging) - Laravel 11.x 한국어 문서
+description: '애플리케이션에서 어떤 일이 일어나고 있는지 더 잘 파악할 수 있도록, 라라벨은 파일, 시스템 에러 로그, 슬랙(Slack) 등 다양한 위치에 로그 메시지를 기록할 수 있는 강력한 로깅 서비스를 제공합니다. 이를 통해 전체 팀과 중요 정보를 쉽게 공유할 수 있습니다.'
+keywords: [라라벨 로깅, Laravel logging, Laravel 11.x]
+---
 # 로깅 (Logging)
 
 - [소개](#introduction)

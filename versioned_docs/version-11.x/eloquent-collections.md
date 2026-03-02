@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: 컬렉션 (Eloquent: Collections) - Laravel 11.x 한국어 문서'
+description: 'Eloquent의 모든 메서드 중, 여러 개의 모델 결과를 반환하는 경우에는 항상 Illuminate\Database\Eloquent\Collection 클래스의 인스턴스를 반환합니다.'
+keywords: [라라벨 Eloquent 컬렉션, Laravel Eloquent collections, Laravel 11.x]
+---
 # Eloquent: 컬렉션 (Eloquent: Collections)
 
 - [소개](#introduction)

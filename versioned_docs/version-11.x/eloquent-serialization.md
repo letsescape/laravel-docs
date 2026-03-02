@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: 직렬화 (Eloquent: Serialization) - Laravel 11.x 한국어 문서'
+description: '라라벨로 API를 개발할 때에는 모델과 연관관계 데이터를 배열이나 JSON 형태로 변환해야 할 때가 많습니다. Eloquent는 이러한 변환 작업을 매우 간편하게 해주는 여러 메서드들을 제공할 뿐만 아니라, 직렬화된 모델에 어떤 속성을 포함할지 제어할 수 있는 기능도 함께...'
+keywords: [라라벨 Eloquent 직렬화, Laravel Eloquent serialization, Laravel 11.x]
+---
 # Eloquent: 직렬화 (Eloquent: Serialization)
 
 - [소개](#introduction)

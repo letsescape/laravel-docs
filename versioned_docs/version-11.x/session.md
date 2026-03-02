@@ -1,3 +1,8 @@
+---
+title: HTTP 세션 (HTTP Session) - Laravel 11.x 한국어 문서
+description: 'HTTP 기반 애플리케이션은 상태를 저장하지 못하기 때문에, 세션은 여러 요청에 걸쳐 사용자에 대한 정보를 저장할 수 있는 방법을 제공합니다. 이 사용자 정보는 일반적으로 추후의 요청에서 접근할 수 있는 영속적인 저장소(백엔드)에 보관됩니다.'
+keywords: [라라벨 세션, Laravel session, Laravel 11.x]
+---
 # HTTP 세션 (HTTP Session)
 
 - [소개](#introduction)

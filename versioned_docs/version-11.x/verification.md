@@ -1,3 +1,8 @@
+---
+title: 이메일 인증 (Email Verification) - Laravel 11.x 한국어 문서
+description: '많은 웹 애플리케이션에서는 사용자에게 애플리케이션을 사용하기 전에 이메일 주소를 인증하도록 요구합니다. 라라벨은 이 기능을 애플리케이션마다 직접 구현할 필요 없이, 이메일 인증 요청의 전송과 검증을 간편하게 처리할 수 있는 내장 서비스를 제공합니다.'
+keywords: [라라벨 이메일 인증, Laravel email verification, Laravel 11.x]
+---
 # 이메일 인증 (Email Verification)
 
 - [소개](#introduction)

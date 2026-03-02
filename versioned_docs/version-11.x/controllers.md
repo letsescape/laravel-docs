@@ -1,3 +1,8 @@
+---
+title: 컨트롤러 (Controllers) - Laravel 11.x 한국어 문서
+description: '모든 요청 처리 로직을 라우트 파일의 클로저로 작성하는 대신, "컨트롤러" 클래스를 사용해 이러한 동작을 구성할 수 있습니다. 컨트롤러는 서로 관련된 요청 처리 코드를 하나의 클래스로 묶어줄 수 있습니다.'
+keywords: [라라벨 컨트롤러, Laravel controllers, Laravel 11.x]
+---
 # 컨트롤러 (Controllers)
 
 - [소개](#introduction)

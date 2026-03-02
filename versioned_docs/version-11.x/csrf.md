@@ -1,3 +1,8 @@
+---
+title: CSRF 보호 (CSRF Protection) - Laravel 11.x 한국어 문서
+description: '크로스 사이트 요청 위조(Cross-site request forgery, CSRF)는 인증된 사용자를 가장하여 무단 명령을 실행하게 만드는 악의적인 공격 기법 중 하나입니다.'
+keywords: [라라벨 CSRF 보호, Laravel CSRF protection, Laravel 11.x]
+---
 # CSRF 보호 (CSRF Protection)
 
 - [소개](#csrf-introduction)

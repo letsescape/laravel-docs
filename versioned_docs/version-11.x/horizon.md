@@ -1,3 +1,8 @@
+---
+title: 라라벨 호라이즌 (Laravel Horizon) - Laravel 11.x 한국어 문서
+description: '> [!NOTE] > 라라벨 호라이즌을 시작하기 전에, 라라벨 기본 [큐 서비스](/docs/11.x/queues)에 대해 충분히 숙지하는 것이 좋습니다. 호라이즌은 라라벨 큐에 추가적인 기능을 제공하므로, 기본 큐 기능을 잘 모르면 혼란스러울 수 있습니다.'
+keywords: [라라벨 Horizon, Laravel Horizon, Laravel 11.x]
+---
 # 라라벨 호라이즌 (Laravel Horizon)
 
 - [소개](#introduction)

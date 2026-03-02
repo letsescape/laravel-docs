@@ -1,3 +1,8 @@
+---
+title: 메일 (Mail) - Laravel 11.x 한국어 문서
+description: '이메일을 보내는 것은 결코 복잡할 필요가 없습니다. 라라벨은 널리 사용되는 Symfony Mailer 컴포넌트를 기반으로 한 깔끔하고 단순한 이메일 API를 제공합니다. 라라벨과 Symfony Mailer는 SMTP, Mailgun, Postmark, Resend,...'
+keywords: [라라벨 메일, Laravel mail, Laravel 11.x]
+---
 # 메일 (Mail)
 
 - [소개](#introduction)

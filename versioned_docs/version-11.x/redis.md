@@ -1,3 +1,8 @@
+---
+title: 레디스 (Redis) - Laravel 11.x 한국어 문서
+description: 'Redis는 오픈 소스의 고급 키-값 저장소입니다. 종종 데이터 구조 서버라고 불리기도 하는데, 이는 키에 문자열, 해시, 리스트, 셋, 정렬된 셋 등 다양한 데이터 구조를 저장할 수 있기 때문입니다.'
+keywords: [라라벨 Redis, Laravel Redis, Laravel 11.x]
+---
 # 레디스 (Redis)
 
 - [소개](#introduction)

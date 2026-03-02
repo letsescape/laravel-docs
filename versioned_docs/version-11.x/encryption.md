@@ -1,3 +1,8 @@
+---
+title: 암호화 (Encryption) - Laravel 11.x 한국어 문서
+description: 라라벨의 암호화 서비스는 OpenSSL을 활용하여 AES-256 및 AES-128 알고리즘으로 텍스트를 암호화하고 복호화할 수 있는 단순하고 편리한 인터페이스를 제공합니다.
+keywords: [라라벨 암호화, Laravel encryption, Laravel 11.x]
+---
 # 암호화 (Encryption)
 
 - [소개](#introduction)

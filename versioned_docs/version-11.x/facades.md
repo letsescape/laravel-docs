@@ -1,3 +1,8 @@
+---
+title: 파사드 (Facades) - Laravel 11.x 한국어 문서
+description: '라라벨 공식 문서 전반에서, 라라벨의 기능과 상호작용하는 예제 코드에 “파사드(facade)”가 자주 등장하는 것을 볼 수 있습니다. 파사드는 애플리케이션의 서비스 컨테이너에 등록된 클래스를 “정적(static)” 인터페이스처럼 사용할 수 있게 해주는 기능입니다.'
+keywords: [라라벨 파사드, Laravel facades, Laravel 11.x]
+---
 # 파사드 (Facades)
 
 - [소개](#introduction)

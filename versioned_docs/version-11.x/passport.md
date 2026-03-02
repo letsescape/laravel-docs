@@ -1,3 +1,8 @@
+---
+title: 라라벨 패스포트 (Laravel Passport) - Laravel 11.x 한국어 문서
+description: Laravel Passport는 라라벨 애플리케이션에서 몇 분 만에 사용할 수 있는 완전한 OAuth2 서버 구현체를 제공합니다. Passport는 Andy Millington과 Simon Hamp가 관리하는 League OAuth2 server를 기반으로 구축되었습니다.
+keywords: [라라벨 Passport, Laravel Passport OAuth, Laravel 11.x]
+---
 # 라라벨 패스포트 (Laravel Passport)
 
 - [소개](#introduction)

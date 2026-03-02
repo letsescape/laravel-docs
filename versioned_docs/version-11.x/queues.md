@@ -1,3 +1,8 @@
+---
+title: 큐 (Queues) - Laravel 11.x 한국어 문서
+description: '웹 애플리케이션을 개발하다 보면, 업로드된 CSV 파일을 파싱하거나 저장하는 등 일반적인 웹 요청 중에 처리하기에는 시간이 너무 오래 걸리는 작업이 있을 수 있습니다. 다행히도 라라벨은 이러한 작업을 쉽게 백그라운드에서 처리할 수 있도록 큐에 담아 실행하는 잡 작업을...'
+keywords: [라라벨 큐, Laravel queues, Laravel 11.x]
+---
 # 큐 (Queues)
 
 - [소개](#introduction)

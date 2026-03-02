@@ -1,3 +1,8 @@
+---
+title: 해싱 (Hashing) - Laravel 11.x 한국어 문서
+description: '라라벨의 Hash 파사드는 사용자 비밀번호를 저장하기 위해 안전한 Bcrypt 및 Argon2 해싱 기능을 제공합니다. 라라벨 애플리케이션 스타터 키트 중 하나를 사용한다면, 회원가입 및 인증에서는 기본적으로 Bcrypt가 사용됩니다.'
+keywords: [라라벨 해싱, Laravel hashing, Laravel 11.x]
+---
 # 해싱 (Hashing)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 라라벨 엔보이 (Laravel Envoy) - Laravel 11.x 한국어 문서
+description: 'Laravel Envoy는 원격 서버에서 반복적으로 실행하는 태스크를 간편하게 처리하는 도구입니다. Blade 스타일의 문법을 사용해, 배포 작업, Artisan 명령 실행 등 다양한 작업을 손쉽게 설정할 수 있습니다.'
+keywords: [라라벨 Envoy, Laravel Envoy, Laravel 11.x]
+---
 # 라라벨 엔보이 (Laravel Envoy)
 
 - [소개](#introduction)

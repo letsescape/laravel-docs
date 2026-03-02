@@ -1,3 +1,8 @@
+---
+title: 미들웨어 (Middleware) - Laravel 11.x 한국어 문서
+description: '미들웨어는 애플리케이션에 들어오는 HTTP 요청을 검사하고 필터링할 수 있도록 도와주는 편리한 기능입니다. 예를 들어, 라라벨에는 사용자가 인증되었는지 확인하는 미들웨어가 포함되어 있습니다.'
+keywords: [라라벨 미들웨어, Laravel middleware, Laravel 11.x]
+---
 # 미들웨어 (Middleware)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: HTTP 테스트 (HTTP Tests) - Laravel 11.x 한국어 문서
+description: '라라벨은 애플리케이션에 HTTP 요청을 보내고 응답을 검사하는 데 매우 직관적인 API를 제공합니다. 예를 들어, 아래에 정의된 기능 테스트(feature test) 코드를 살펴보면 다음과 같습니다.'
+keywords: [라라벨 HTTP 테스트, Laravel HTTP tests, Laravel 11.x]
+---
 # HTTP 테스트 (HTTP Tests)
 
 - [소개](#introduction)

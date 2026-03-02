@@ -1,3 +1,8 @@
+---
+title: 파일 스토리지 (File Storage) - Laravel 11.x 한국어 문서
+description: '라라벨은 Frank de Jonge가 만든 훌륭한 Flysystem PHP 패키지 덕분에 매우 강력한 파일시스템 추상화를 제공합니다. 라라벨의 Flysystem 통합 기능을 활용하면 로컬 파일시스템, SFTP, Amazon S3 등 다양한 스토리지를 간편하게 사용할 수...'
+keywords: [라라벨 파일 스토리지, Laravel filesystem, Laravel 11.x]
+---
 # 파일 스토리지 (File Storage)
 
 - [소개](#introduction)

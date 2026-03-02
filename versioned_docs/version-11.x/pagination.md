@@ -1,3 +1,8 @@
+---
+title: '데이터베이스: 페이지네이션 (Database: Pagination) - Laravel 11.x 한국어 문서'
+description: 다른 프레임워크에서는 페이지네이션 기능을 구현하는 것이 번거롭고 복잡하게 느껴질 수 있습니다. 라라벨에서는 더 쉽고 직관적으로 페이지네이션을 이용할 수 있도록 설계되었습니다.
+keywords: [라라벨 페이지네이션, Laravel pagination, Laravel 11.x]
+---
 # 데이터베이스: 페이지네이션 (Database: Pagination)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: HTTP 리디렉션 (HTTP Redirects) - Laravel 11.x 한국어 문서
+description: '리디렉션 응답은 Illuminate\Http\RedirectResponse 클래스의 인스턴스이며, 사용자를 다른 URL로 이동시키는 데 필요한 적절한 헤더를 포함합니다. RedirectResponse 인스턴스를 생성하는 방법에는 여러 가지가 있습니다.'
+keywords: [라라벨 리다이렉트, Laravel redirects, Laravel 11.x]
+---
 # HTTP 리디렉션 (HTTP Redirects)
 
 - [리디렉션 생성하기](#creating-redirects)

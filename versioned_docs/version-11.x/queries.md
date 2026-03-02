@@ -1,3 +1,8 @@
+---
+title: '데이터베이스: 쿼리 빌더 (Database: Query Builder) - Laravel 11.x 한국어 문서'
+description: '라라벨의 데이터베이스 쿼리 빌더는 데이터베이스 쿼리를 쉽고 유연하게 작성하고 실행할 수 있는 직관적인 인터페이스를 제공합니다. 이 기능을 이용하면 애플리케이션에서 대부분의 데이터베이스 작업을 수행할 수 있으며, 라라벨이 지원하는 모든 데이터베이스 시스템과 완벽하게 호환됩니다.'
+keywords: [라라벨 쿼리 빌더, Laravel query builder, Laravel 11.x]
+---
 # 데이터베이스: 쿼리 빌더 (Database: Query Builder)
 
 - [소개](#introduction)

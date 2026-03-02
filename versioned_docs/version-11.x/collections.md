@@ -1,3 +1,8 @@
+---
+title: 컬렉션 (Collections) - Laravel 11.x 한국어 문서
+description: 'Illuminate\Support\Collection 클래스는 데이터 배열을 처리할 때 유연하고 편리한 래퍼를 제공합니다. 아래 예제를 확인해 보세요. collect 헬퍼를 사용해 배열로부터 새로운 컬렉션 인스턴스를 생성한 후, 각 요소에 strtoupper 함수를 적용하고...'
+keywords: [라라벨 컬렉션, Laravel collections, Laravel 11.x]
+---
 # 컬렉션 (Collections)
 
 - [소개](#introduction)

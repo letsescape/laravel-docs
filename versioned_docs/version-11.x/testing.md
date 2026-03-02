@@ -1,3 +1,8 @@
+---
+title: '테스트: 시작하기 (Testing: Getting Started) - Laravel 11.x 한국어 문서'
+description: '라라벨은 테스트를 염두에 두고 설계되었습니다. 실제로 Pest와 PHPUnit을 이용한 테스트가 기본적으로 지원되며, 애플리케이션에는 이미 phpunit.xml 파일이 준비되어 있습니다.'
+keywords: [라라벨 테스팅, Laravel testing, Laravel 11.x]
+---
 # 테스트: 시작하기 (Testing: Getting Started)
 
 - [소개](#introduction)

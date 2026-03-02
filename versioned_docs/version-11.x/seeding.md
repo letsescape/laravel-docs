@@ -1,3 +1,8 @@
+---
+title: '데이터베이스: 시딩 (Database: Seeding) - Laravel 11.x 한국어 문서'
+description: 라라벨은 시더 클래스(Seeder Class)를 이용해 데이터베이스에 데이터를 쉽게 삽입(시딩)할 수 있는 기능을 제공합니다. 모든 시더 클래스는 database/seeders 디렉터리에 저장됩니다. 기본적으로 DatabaseSeeder 클래스가 미리 정의되어 있습니다.
+keywords: [라라벨 시딩, Laravel seeding, Laravel 11.x]
+---
 # 데이터베이스: 시딩 (Database: Seeding)
 
 - [소개](#introduction)

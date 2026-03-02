@@ -1,3 +1,8 @@
+---
+title: 라라벨 믹스 (Laravel Mix) - Laravel 11.x 한국어 문서
+description: '라라벨 믹스는 Laracasts의 창립자인 Jeffrey Way가 개발한 패키지로, webpack과 함께 사용할 때 라라벨 애플리케이션의 빌드 과정을 간결하게 정의할 수 있는 직관적인 API를 제공합니다.'
+keywords: [라라벨 Mix, Laravel Mix, Laravel 11.x]
+---
 # 라라벨 믹스 (Laravel Mix)
 
 - [소개](#introduction)

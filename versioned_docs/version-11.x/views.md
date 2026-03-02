@@ -1,3 +1,8 @@
+---
+title: 뷰 (Views) - Laravel 11.x 한국어 문서
+description: 라우트나 컨트롤러에서 완전한 HTML 문서 문자열을 직접 반환하는 것은 현실적으로 효율적이지 않습니다. 다행히도 뷰(View)를 사용하면 모든 HTML을 별도의 파일에 손쉽게 분리하여 관리할 수 있습니다.
+keywords: [라라벨 뷰, Laravel views, Laravel 11.x]
+---
 # 뷰 (Views)
 
 - [소개](#introduction)

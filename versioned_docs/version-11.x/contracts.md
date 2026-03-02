@@ -1,3 +1,8 @@
+---
+title: 컨트랙트 (Contracts) - Laravel 11.x 한국어 문서
+description: '라라벨의 "컨트랙트(contracts)"는 프레임워크가 제공하는 핵심 서비스의 동작을 명확히 정의한 일련의 인터페이스 집합입니다. 예를 들어, Illuminate\Contracts\Queue\Queue 컨트랙트는 작업 큐잉 시스템에 필요한 메서드를 정의하고,...'
+keywords: [라라벨 Contracts, Laravel contracts, Laravel 11.x]
+---
 # 컨트랙트 (Contracts)
 
 - [소개](#introduction)

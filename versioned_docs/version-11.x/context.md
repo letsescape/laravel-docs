@@ -1,3 +1,8 @@
+---
+title: 컨텍스트 (Context) - Laravel 11.x 한국어 문서
+description: 'Laravel의 "컨텍스트" 기능을 사용하면 애플리케이션 내에서 처리되는 요청, 작업(job), 명령어(command) 전반에 걸쳐 정보를 저장하고, 조회하며, 공유할 수 있습니다. 이렇게 저장한 정보는 애플리케이션이 기록하는 로그에도 자동으로 포함됩니다.'
+keywords: [라라벨 Context, Laravel context, Laravel 11.x]
+---
 # 컨텍스트 (Context)
 
 - [소개](#introduction)

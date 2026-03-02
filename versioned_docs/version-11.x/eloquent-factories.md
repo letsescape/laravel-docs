@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: 팩토리 (Eloquent: Factories) - Laravel 11.x 한국어 문서'
+description: '애플리케이션을 테스트하거나 데이터베이스 시딩(Seed)을 진행할 때, 데이터베이스에 몇 개의 레코드를 삽입해야 할 수 있습니다. 라라벨은 Eloquent 모델마다 기본 속성을 정의할 수 있는 모델 팩토리 기능을 제공하여, 각 컬럼 값을 일일이 수동으로 지정하지 않아도 됩니다.'
+keywords: [라라벨 모델 팩토리, Laravel model factories, Laravel 11.x]
+---
 # Eloquent: 팩토리 (Eloquent: Factories)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 업그레이드 안내서 (Upgrade Guide) - Laravel 11.x 한국어 문서
+description: '<div class="content-list" markdown="1">'
+keywords: [라라벨 업그레이드 가이드, Laravel upgrade guide, Laravel 11.x]
+---
 # 업그레이드 안내서 (Upgrade Guide)
 
 - [10.x에서 11.0으로 업그레이드하기](#upgrade-11.0)

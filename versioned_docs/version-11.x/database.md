@@ -1,3 +1,8 @@
+---
+title: '데이터베이스: 시작하기 (Database: Getting Started) - Laravel 11.x 한국어 문서'
+description: '현대의 거의 모든 웹 애플리케이션은 데이터베이스와 상호작용합니다. 라라벨은 다양한 지원 데이터베이스에 대해 Raw SQL, 유창한 쿼리 빌더, Eloquent ORM을 사용하여 데이터베이스 작업을 매우 쉽게 할 수 있도록 도와줍니다.'
+keywords: [라라벨 데이터베이스, Laravel database, Laravel 11.x]
+---
 # 데이터베이스: 시작하기 (Database: Getting Started)
 
 - [소개](#introduction)

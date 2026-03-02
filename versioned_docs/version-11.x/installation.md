@@ -1,5 +1,8 @@
 ---
 slug: /
+title: 설치 (Installation) - Laravel 11.x 한국어 문서
+description: '라라벨(Laravel)은 표현력이 뛰어나고 우아한 문법을 가진 웹 애플리케이션 프레임워크입니다. 웹 프레임워크란 애플리케이션 개발을 위한 구조와 출발점을 제공해 주어, 여러분이 세부적인 부분에 신경 쓰지 않고도 멋진 것을 만드는 데 집중할 수 있도록 돕는 역할을 합니다.'
+keywords: [라라벨 설치, Laravel installation, Laravel 11.x]
 ---
 
 # 설치 (Installation)

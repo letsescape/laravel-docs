@@ -1,3 +1,8 @@
+---
+title: 기여 가이드 (Contribution Guide) - Laravel 11.x 한국어 문서
+description: '라라벨은 적극적인 협업을 장려하기 위해 단순한 버그 리포트뿐 아니라 직접적인 pull request 제출을 강력히 권장합니다. pull request는 반드시 "ready for review"(검토 가능) 상태로 표시되고(즉, "draft" 상태가 아니어야 함), 새로운...'
+keywords: [라라벨 기여 가이드, Laravel contribution guide, Laravel 11.x]
+---
 # 기여 가이드 (Contribution Guide)
 
 - [버그 리포트](#bug-reports)

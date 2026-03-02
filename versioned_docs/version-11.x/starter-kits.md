@@ -1,3 +1,8 @@
+---
+title: 스타터 키트 (Starter Kits) - Laravel 11.x 한국어 문서
+description: '새로운 라라벨 애플리케이션을 빠르게 시작할 수 있도록, 라라벨에서는 인증과 애플리케이션 스타터 키트를 제공합니다. 이 스타터 키트는 애플리케이션에서 사용자 등록 및 인증에 필요한 라우트, 컨트롤러, 뷰 등을 자동으로 만들어줍니다.'
+keywords: [라라벨 스타터 킷, Laravel starter kits, Laravel 11.x]
+---
 # 스타터 키트 (Starter Kits)
 
 - [소개](#introduction)
