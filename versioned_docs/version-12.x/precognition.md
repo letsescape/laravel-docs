@@ -1,3 +1,8 @@
+---
+title: 프리코그니션 (Precognition) - Laravel 12.x 한국어 문서
+description: 'Laravel Precognition은 미래의 HTTP 요청 결과를 미리 예측할 수 있게 해주는 기능입니다. Precognition의 주요 활용 사례 중 하나는 프론트엔드 JavaScript 애플리케이션에서 백엔드 유효성 검증 규칙을 중복 작성하지 않고도 "실시간" 유효성...'
+keywords: [라라벨 Precognition, Laravel Precognition, Laravel 12.x]
+---
 # 프리코그니션 (Precognition)
 
 - [소개](#introduction)

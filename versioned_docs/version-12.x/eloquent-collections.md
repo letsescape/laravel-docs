@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: 컬렉션 (Eloquent: Collections) - Laravel 12.x 한국어 문서'
+description: '여러 개의 모델이 반환되는 모든 Eloquent 메서드는 Illuminate\Database\Eloquent\Collection 클래스의 인스턴스를 반환합니다. 이는 get 메서드로 데이터를 조회하거나, 모델 간 연관관계를 통해 접근할 때도 마찬가지입니다.'
+keywords: [라라벨 Eloquent 컬렉션, Laravel Eloquent collections, Laravel 12.x]
+---
 # Eloquent: 컬렉션 (Eloquent: Collections)
 
 - [소개](#introduction)

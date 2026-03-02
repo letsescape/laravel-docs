@@ -1,3 +1,8 @@
+---
+title: 배포 (Deployment) - Laravel 12.x 한국어 문서
+description: '라라벨 애플리케이션을 실제 운영 환경에 배포할 준비가 되었다면, 애플리케이션이 최대한 효율적으로 동작하도록 몇 가지 중요한 점을 챙겨야 합니다. 이 문서에서는 라라벨 애플리케이션을 올바르게 배포하기 위한 필수 사항들을 소개합니다.'
+keywords: [라라벨 배포, Laravel deployment, Laravel 12.x]
+---
 # 배포 (Deployment)
 
 - [소개](#introduction)

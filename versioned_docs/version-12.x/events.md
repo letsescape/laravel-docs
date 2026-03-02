@@ -1,3 +1,8 @@
+---
+title: 이벤트 (Events) - Laravel 12.x 한국어 문서
+description: '라라벨의 이벤트 기능은 단순한 옵저버 패턴을 구현하여, 애플리케이션 내에서 발생하는 다양한 이벤트를 구독하고 감지할 수 있도록 해줍니다. 이벤트 클래스는 보통 app/Events 디렉토리에, 해당 이벤트를 처리하는 리스너는 app/Listeners 디렉토리에 위치합니다.'
+keywords: [라라벨 이벤트, Laravel events, Laravel 12.x]
+---
 # 이벤트 (Events)
 
 - [소개](#introduction)

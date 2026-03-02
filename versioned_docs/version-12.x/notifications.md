@@ -1,3 +1,8 @@
+---
+title: 알림 (Notifications) - Laravel 12.x 한국어 문서
+description: '이메일 전송을 지원하는 것에 더해, 라라벨은 이메일, SMS(Vonage - 이전 Nexmo), 그리고 Slack 등 다양한 전달 채널을 통한 알림 전송을 지원합니다. 이 밖에도 커뮤니티에서 제작한 다양한 알림 채널을 통해 수십 가지 채널로 알림을 보낼 수 있습니다! 또한...'
+keywords: [라라벨 알림, Laravel notifications, Laravel 12.x]
+---
 # 알림 (Notifications)
 
 - [소개](#introduction)

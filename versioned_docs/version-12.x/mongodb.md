@@ -1,3 +1,8 @@
+---
+title: 몽고DB (MongoDB) - Laravel 12.x 한국어 문서
+description: 'MongoDB는 가장 널리 사용되는 NoSQL 문서 지향 데이터베이스 중 하나로, 높은 쓰기 부하(분석 작업이나 IoT에 유용)와 높은 가용성(자동 장애 조치가 가능한 복제 세트를 쉽게 설정)에서 강점을 가집니다.'
+keywords: [라라벨 MongoDB, Laravel MongoDB, Laravel 12.x]
+---
 # 몽고DB (MongoDB)
 
 - [소개](#introduction)

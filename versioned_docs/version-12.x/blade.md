@@ -1,3 +1,8 @@
+---
+title: 블레이드 템플릿 (Blade Templates) - Laravel 12.x 한국어 문서
+description: 'Blade는 Laravel에 기본 내장된 간단하면서도 강력한 템플릿 엔진입니다. 일부 PHP 템플릿 엔진과 달리, Blade는 템플릿에서 일반 PHP 코드를 사용하는 것을 제한하지 않습니다.'
+keywords: [라라벨 블레이드, Laravel Blade templates, Laravel 12.x]
+---
 # 블레이드 템플릿 (Blade Templates)
 
 - [소개](#introduction)

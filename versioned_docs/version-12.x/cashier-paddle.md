@@ -1,3 +1,8 @@
+---
+title: '라라벨 Cashier, Paddle (Laravel Cashier (Paddle)) - Laravel 12.x 한국어 문서'
+description: '> [!WARNING] > 이 문서는 Cashier Paddle 2.x와 Paddle Billing의 연동에 대한 내용입니다. 아직 Paddle Classic을 사용하고 계시다면 Cashier Paddle 1.x 문서를 참고하시기 바랍니다.'
+keywords: [라라벨 Cashier Paddle, Laravel Cashier Paddle, Laravel 12.x]
+---
 # 라라벨 Cashier, Paddle (Laravel Cashier (Paddle))
 
 - [소개](#introduction)

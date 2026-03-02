@@ -1,3 +1,8 @@
+---
+title: '테스트: 시작하기 (Testing: Getting Started) - Laravel 12.x 한국어 문서'
+description: '라라벨은 테스트를 염두에 두고 설계된 프레임워크입니다. 실제로, Pest와 PHPUnit을 활용한 테스트를 기본적으로 지원하며, 여러분의 애플리케이션에는 이미 phpunit.xml 파일이 미리 설정되어 있습니다.'
+keywords: [라라벨 테스팅, Laravel testing, Laravel 12.x]
+---
 # 테스트: 시작하기 (Testing: Getting Started)
 
 - [소개](#introduction)

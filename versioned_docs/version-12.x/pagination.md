@@ -1,3 +1,8 @@
+---
+title: '데이터베이스: 페이지네이션 (Database: Pagination) - Laravel 12.x 한국어 문서'
+description: '다른 프레임워크에서는 페이지네이션이 매우 번거로울 수 있습니다. 라라벨이 제공하는 페이지네이션 방식이 여러분에게 신선함을 줄 수 있기를 바랍니다. 라라벨의 페이지네이터는 쿼리 빌더 및 Eloquent ORM과 통합되어, 데이터베이스 레코드의 페이지네이션을 별도의 설정 없이...'
+keywords: [라라벨 페이지네이션, Laravel pagination, Laravel 12.x]
+---
 # 데이터베이스: 페이지네이션 (Database: Pagination)
 
 - [소개](#introduction)

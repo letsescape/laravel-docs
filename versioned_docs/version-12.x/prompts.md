@@ -1,3 +1,8 @@
+---
+title: 프롬프트 (Prompts) - Laravel 12.x 한국어 문서
+description: 'Laravel Prompts는 명령줄 애플리케이션에서 아름답고 사용자 친화적인 폼을 손쉽게 추가할 수 있게 해주는 PHP 패키지입니다. 브라우저에서 흔히 볼 수 있는 플레이스홀더 텍스트, 유효성 검증과 같은 기능도 지원합니다.'
+keywords: [라라벨 Prompts, Laravel Prompts CLI, Laravel 12.x]
+---
 # 프롬프트 (Prompts)
 
 - [소개](#introduction)

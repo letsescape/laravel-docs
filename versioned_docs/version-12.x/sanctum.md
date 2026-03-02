@@ -1,3 +1,8 @@
+---
+title: 라라벨 생텀 (Laravel Sanctum) - Laravel 12.x 한국어 문서
+description: 'Laravel Sanctum은 SPA(싱글 페이지 애플리케이션), 모바일 애플리케이션, 그리고 간단한 토큰 기반 API를 위한 매우 가볍고 간단한 인증 시스템을 제공합니다.'
+keywords: [라라벨 Sanctum, Laravel Sanctum API, Laravel 12.x]
+---
 # 라라벨 생텀 (Laravel Sanctum)
 
 - [소개](#introduction)

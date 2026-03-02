@@ -1,3 +1,8 @@
+---
+title: 에러 처리 (Error Handling) - Laravel 12.x 한국어 문서
+description: '새로운 라라벨 프로젝트를 시작하면, 에러 및 예외 처리가 이미 사전 구성되어 있습니다. 하지만 언제든지 애플리케이션의 bootstrap/app.php 파일에서 withExceptions 메서드를 사용해 애플리케이션이 예외를 보고하고 렌더링하는 방식을 직접 제어할 수 있습니다.'
+keywords: [라라벨 에러 처리, Laravel error handling, Laravel 12.x]
+---
 # 에러 처리 (Error Handling)
 
 - [소개](#introduction)

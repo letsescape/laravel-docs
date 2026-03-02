@@ -1,3 +1,8 @@
+---
+title: 콘솔 테스트 (Console Tests) - Laravel 12.x 한국어 문서
+description: 'HTTP 테스트를 간소화하는 것 외에도, 라라벨은 애플리케이션의 [커스텀 콘솔 명령어](/docs/12.x/artisan)를 테스트할 수 있는 간단한 API도 제공합니다.'
+keywords: [라라벨 콘솔 테스트, Laravel console tests, Laravel 12.x]
+---
 # 콘솔 테스트 (Console Tests)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: '라라벨 Cashier, Stripe (Laravel Cashier (Stripe)) - Laravel 12.x 한국어 문서'
+description: Laravel Cashier Stripe는 Stripe의 구독(Subscription) 결제 서비스를 쉽고 유연하게 다룰 수 있도록 도와주는 인터페이스를 제공합니다. Cashier를 사용하면 반복적인 구독 결제 관련 코드 대부분을 직접 작성하지 않아도 됩니다.
+keywords: [라라벨 결제, Laravel billing, Laravel 12.x]
+---
 # 라라벨 Cashier, Stripe (Laravel Cashier (Stripe))
 
 - [소개](#introduction)

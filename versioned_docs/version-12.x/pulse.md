@@ -1,3 +1,8 @@
+---
+title: 라라벨 펄스 (Laravel Pulse) - Laravel 12.x 한국어 문서
+description: 'Laravel Pulse는 애플리케이션의 성능 및 사용 현황을 한눈에 파악할 수 있도록 도와줍니다. Pulse를 사용하면 느린 작업이나 엔드포인트 같은 병목 현상을 추적하거나, 가장 활발한 사용자를 쉽게 찾을 수 있습니다.'
+keywords: [라라벨 Pulse, Laravel Pulse monitoring, Laravel 12.x]
+---
 # 라라벨 펄스 (Laravel Pulse)
 
 - [소개](#introduction)

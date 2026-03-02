@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: 시작하기 (Eloquent: Getting Started) - Laravel 12.x 한국어 문서'
+description: 'Laravel에는 Eloquent라는 객체-관계 매퍼(ORM)가 포함되어 있어 데이터베이스와 상호작용하는 작업이 매우 즐거워집니다. Eloquent를 사용할 때, 각 데이터베이스 테이블에는 해당 테이블과 연동되는 "모델"이 지정됩니다.'
+keywords: [라라벨 Eloquent ORM, Laravel Eloquent, Laravel 12.x]
+---
 # Eloquent: 시작하기 (Eloquent: Getting Started)
 
 - [소개](#introduction)

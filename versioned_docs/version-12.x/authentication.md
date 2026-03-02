@@ -1,3 +1,8 @@
+---
+title: 인증 (Authentication) - Laravel 12.x 한국어 문서
+description: '많은 웹 애플리케이션에서는 사용자가 애플리케이션에 인증하고 "로그인"할 수 있는 방법을 제공합니다. 이런 인증 기능을 웹 애플리케이션에 구현하는 것은 복잡하고 보안상 위험 요소가 될 수 있습니다.'
+keywords: [라라벨 인증, Laravel authentication, Laravel 12.x]
+---
 # 인증 (Authentication)
 
 - [소개](#introduction)

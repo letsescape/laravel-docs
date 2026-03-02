@@ -1,3 +1,8 @@
+---
+title: 뷰 (Views) - Laravel 12.x 한국어 문서
+description: 라우트나 컨트롤러에서 전체 HTML 문서를 문자열로 직접 반환하는 것은 현실적으로 비효율적입니다. 다행히 뷰를 사용하면 모든 HTML 코드를 별도의 파일에 편리하게 분리할 수 있습니다.
+keywords: [라라벨 뷰, Laravel views, Laravel 12.x]
+---
 # 뷰 (Views)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 라우팅 (Routing) - Laravel 12.x 한국어 문서
+description: '가장 기본적인 라라벨 라우트는 URI와 클로저(익명함수)를 받으며, 복잡한 라우팅 설정 파일 없이도 매우 간단하게 라우트와 동작을 정의할 수 있는 직관적인 방식을 제공합니다.'
+keywords: [라라벨 라우팅, Laravel routing, Laravel 12.x]
+---
 # 라우팅 (Routing)
 
 - [기본 라우팅](#basic-routing)

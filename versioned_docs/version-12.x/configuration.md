@@ -1,3 +1,8 @@
+---
+title: 설정 (Configuration) - Laravel 12.x 한국어 문서
+description: '라라벨 프레임워크의 모든 설정 파일은 `config` 디렉터리에 저장됩니다. 각 옵션에 대한 설명이 포함되어 있으니, 이 파일들을 자유롭게 살펴보고 어떤 옵션을 사용할 수 있는지 익혀보시기 바랍니다.'
+keywords: [라라벨 설정, Laravel configuration, Laravel 12.x]
+---
 # 설정 (Configuration)
 
 - [소개](#introduction)

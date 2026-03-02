@@ -1,3 +1,8 @@
+---
+title: 라라벨 믹스 (Laravel Mix) - Laravel 12.x 한국어 문서
+description: 'Laravel Mix는 Laracasts의 제작자인 Jeffrey Way가 개발한 패키지로, 라라벨 애플리케이션에서 여러 가지 일반적인 CSS 및 JavaScript 전처리기를 사용해 webpack 빌드 단계를 정의할 수 있는 직관적인 API를 제공합니다.'
+keywords: [라라벨 Mix, Laravel Mix, Laravel 12.x]
+---
 # 라라벨 믹스 (Laravel Mix)
 
 - [소개](#introduction)

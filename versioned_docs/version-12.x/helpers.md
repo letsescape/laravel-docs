@@ -1,3 +1,8 @@
+---
+title: 헬퍼 함수 (Helpers) - Laravel 12.x 한국어 문서
+description: '라라벨은 다양한 전역 "헬퍼" PHP 함수들을 제공합니다. 이 함수들 중 상당수는 프레임워크 자체에서도 사용되지만, 여러분이 필요하다면 애플리케이션에서 자유롭게 활용할 수 있습니다.'
+keywords: [라라벨 헬퍼 함수, Laravel helpers, Laravel 12.x]
+---
 # 헬퍼 함수 (Helpers)
 
 - [소개](#introduction)

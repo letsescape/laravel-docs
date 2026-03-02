@@ -1,3 +1,8 @@
+---
+title: '에셋 번들링, Vite (Asset Bundling (Vite)) - Laravel 12.x 한국어 문서'
+description: 'Vite는 매우 빠른 개발 환경을 제공하고, 코드를 프로덕션용으로 번들링해주는 최신 프론트엔드 빌드 도구입니다. 라라벨로 애플리케이션을 개발할 때 일반적으로 Vite를 활용하여 애플리케이션의 CSS, 자바스크립트 파일을 프로덕션 환경에 적합한 에셋으로 번들링합니다.'
+keywords: [라라벨 Vite, Laravel Vite, Laravel 12.x]
+---
 # 에셋 번들링, Vite (Asset Bundling (Vite))
 
 - [소개](#introduction)

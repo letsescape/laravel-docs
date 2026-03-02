@@ -1,3 +1,8 @@
+---
+title: 큐 (Queues) - Laravel 12.x 한국어 문서
+description: '웹 애플리케이션을 개발하다 보면, 예를 들어 업로드된 CSV 파일을 파싱해서 저장하는 작업처럼 일반적인 웹 요청 동안 처리하기에는 시간이 너무 오래 걸리는 작업이 발생할 수 있습니다.'
+keywords: [라라벨 큐, Laravel queues, Laravel 12.x]
+---
 # 큐 (Queues)
 
 - [소개](#introduction)

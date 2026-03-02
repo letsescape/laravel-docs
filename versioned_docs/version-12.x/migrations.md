@@ -1,3 +1,8 @@
+---
+title: '데이터베이스: 마이그레이션 (Database: Migrations) - Laravel 12.x 한국어 문서'
+description: '마이그레이션(Migration)은 데이터베이스의 버전 관리를 가능하게 해주는 도구로, 팀원들과 애플리케이션의 데이터베이스 스키마 정의를 쉽고 명확하게 공유할 수 있도록 도와줍니다.'
+keywords: [라라벨 마이그레이션, Laravel migrations, Laravel 12.x]
+---
 # 데이터베이스: 마이그레이션 (Database: Migrations)
 
 - [소개](#introduction)

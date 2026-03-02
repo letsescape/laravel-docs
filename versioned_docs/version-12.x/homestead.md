@@ -1,3 +1,8 @@
+---
+title: 라라벨 홈스테드 (Laravel Homestead) - Laravel 12.x 한국어 문서
+description: '라라벨은 로컬 개발 환경을 포함하여 전체 PHP 개발 경험이 즐거울 수 있도록 노력합니다. Laravel Homestead는 공식적으로 제공되는 Vagrant 박스이며, 별도의 PHP, 웹 서버 또는 기타 서버 소프트웨어를 여러분의 로컬 컴퓨터에 설치하지 않고도 쾌적한 개발...'
+keywords: [라라벨 Homestead, Laravel Homestead, Laravel 12.x]
+---
 # 라라벨 홈스테드 (Laravel Homestead)
 
 - [소개](#introduction)

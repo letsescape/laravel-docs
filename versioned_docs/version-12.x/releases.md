@@ -1,3 +1,8 @@
+---
+title: 릴리즈 노트 (Release Notes) - Laravel 12.x 한국어 문서
+description: '라라벨 및 라라벨의 공식 패키지들은 Semantic Versioning(시맨틱 버저닝) 규칙을 따릅니다. 프레임워크의 주요(메이저) 릴리즈는 매년(대략 1분기)에 한 번씩 배포되며, 마이너 및 패치 릴리즈는 매주라도 배포될 수 있습니다.'
+keywords: [라라벨 릴리스 노트, Laravel release notes, Laravel 12.x]
+---
 # 릴리즈 노트 (Release Notes)
 
 - [버전 관리 방식](#versioning-scheme)

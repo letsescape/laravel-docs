@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: 접근자 & 캐스팅 (Eloquent: Mutators & Casting) - Laravel 12.x 한국어 문서'
+description: '접근자(accessor), 변경자(mutator), 속성 변환(Attribute Casting)을 사용하면, Eloquent 모델 인스턴스에서 속성 값을 조회하거나 설정할 때 해당 값을 원하는 방식으로 변환할 수 있습니다.'
+keywords: [라라벨 Eloquent 뮤테이터, Laravel Eloquent mutators, Laravel 12.x]
+---
 # Eloquent: 접근자 & 캐스팅 (Eloquent: Mutators & Casting)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: API 리소스 (Eloquent: API Resources) - Laravel 12.x 한국어 문서'
+description: 'API를 개발할 때, Eloquent 모델과 실제로 애플리케이션 사용자에게 반환되는 JSON 응답 사이에 변환 계층이 필요할 수 있습니다. 예를 들어, 특정 사용자 그룹에는 일부 속성만 표시하고 싶거나, 항상 모델의 특정 연관관계를 JSON 표현에 포함하고 싶을 수도 있습니다.'
+keywords: [라라벨 API 리소스, Laravel API resources, Laravel 12.x]
+---
 # Eloquent: API 리소스 (Eloquent: API Resources)
 
 - [소개](#introduction)

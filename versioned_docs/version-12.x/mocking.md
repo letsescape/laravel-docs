@@ -1,3 +1,8 @@
+---
+title: 모킹 (Mocking) - Laravel 12.x 한국어 문서
+description: '라라벨 애플리케이션을 테스트할 때, 실제로 실행되지 않기를 원하는 애플리케이션의 특정 부분을 "목(mock)" 처리하고 싶을 때가 있습니다. 예를 들어, 이벤트를 디스패치(dispatch)하는 컨트롤러를 테스트할 때 이벤트 리스너가 실제로 실행되지 않게 모킹함으로써, 해당...'
+keywords: [라라벨 모킹, Laravel mocking, Laravel 12.x]
+---
 # 모킹 (Mocking)
 
 - [소개](#introduction)

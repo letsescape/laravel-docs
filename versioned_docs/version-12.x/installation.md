@@ -1,5 +1,8 @@
 ---
 slug: /
+title: 설치 (Installation) - Laravel 12.x 한국어 문서
+description: '라라벨은 표현력이 뛰어나고 우아한 문법을 제공하는 웹 애플리케이션 프레임워크입니다. 웹 프레임워크는 애플리케이션을 만들 때 활용할 수 있는 구조와 출발점을 제공하므로, 복잡한 세부 사항에 신경 쓰지 않고도 멋진 기능 개발에 집중할 수 있습니다.'
+keywords: [라라벨 설치, Laravel installation, Laravel 12.x]
 ---
 
 # 설치 (Installation)

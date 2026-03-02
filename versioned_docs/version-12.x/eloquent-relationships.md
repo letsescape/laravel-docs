@@ -1,3 +1,8 @@
+---
+title: 'Eloquent: 연관관계 (Eloquent: Relationships) - Laravel 12.x 한국어 문서'
+description: '데이터베이스 테이블은 서로 관계를 맺고 있는 경우가 많습니다. 예를 들어, 블로그 게시글에는 여러 개의 댓글이 달릴 수 있고, 주문 정보는 해당 주문을 한 사용자와 연결되어 있을 수 있습니다.'
+keywords: [라라벨 Eloquent 관계, Laravel Eloquent relationships, Laravel 12.x]
+---
 # Eloquent: 연관관계 (Eloquent: Relationships)
 
 - [소개](#introduction)

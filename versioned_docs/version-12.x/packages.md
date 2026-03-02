@@ -1,3 +1,8 @@
+---
+title: 패키지 개발 (Package Development) - Laravel 12.x 한국어 문서
+description: '패키지는 라라벨에 기능을 추가하는 주요 방법입니다. 예를 들어 Carbon과 같이 날짜를 다루는 뛰어난 도구이거나, Spatie의 Laravel Media Library처럼 Eloquent 모델에 파일을 연관시킬 수 있게 해주는 패키지 등이 있습니다.'
+keywords: [라라벨 패키지 개발, Laravel packages, Laravel 12.x]
+---
 # 패키지 개발 (Package Development)
 
 - [소개](#introduction)

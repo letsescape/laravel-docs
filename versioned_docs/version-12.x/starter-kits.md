@@ -1,3 +1,8 @@
+---
+title: 스타터 킷 (Starter Kits) - Laravel 12.x 한국어 문서
+description: '여러분이 새로운 라라벨 애플리케이션을 더욱 빠르게 시작할 수 있도록, 라라벨에서는 애플리케이션 스타터 킷을 제공합니다. 이 스타터 킷은 라라벨 애플리케이션을 구축할 때 필요한 회원가입, 인증 등의 라우트, 컨트롤러, 뷰를 미리 포함하여 개발을 좀 더 빠르게 시작할 수 있도록...'
+keywords: [라라벨 스타터 킷, Laravel starter kits, Laravel 12.x]
+---
 # 스타터 킷 (Starter Kits)
 
 - [소개](#introduction)

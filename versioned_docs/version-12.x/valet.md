@@ -1,3 +1,8 @@
+---
+title: 라라벨 발렛 (Laravel Valet) - Laravel 12.x 한국어 문서
+description: '> [!NOTE] > macOS 또는 Windows에서 라라벨 애플리케이션을 더 쉽게 개발하고 싶으신가요? Laravel Herd를 확인해보세요. Herd는 라라벨 개발에 필요한 모든 것(Valet, PHP, Composer 등)을 포함하고 있어 바로 시작할 수 있습니다.'
+keywords: [라라벨 Valet, Laravel Valet, Laravel 12.x]
+---
 # 라라벨 발렛 (Laravel Valet)
 
 - [소개](#introduction)

@@ -1,3 +1,8 @@
+---
+title: 라라벨 핀트 (Laravel Pint) - Laravel 12.x 한국어 문서
+description: '라라벨 핀트는 미니멀리스트를 위한 라라벨의 의견이 반영된(의견 기반의) PHP 코드 스타일 자동 수정 도구입니다. Pint는 PHP CS Fixer를 기반으로 하며, 여러분의 코드 스타일을 깨끗하고 일관되게 유지할 수 있도록 간단하게 도와줍니다.'
+keywords: [라라벨 Pint, Laravel Pint code style, Laravel 12.x]
+---
 # 라라벨 핀트 (Laravel Pint)
 
 - [소개](#introduction)

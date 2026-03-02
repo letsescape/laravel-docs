@@ -1,3 +1,8 @@
+---
+title: HTTP 클라이언트 (HTTP Client) - Laravel 12.x 한국어 문서
+description: 라라벨은 Guzzle HTTP 클라이언트를 감싸는 간결하고 직관적인 API를 제공합니다. 이를 통해 다른 웹 애플리케이션과 통신하기 위한 외부 HTTP 요청을 아주 빠르게 만들 수 있습니다.
+keywords: [라라벨 HTTP 클라이언트, Laravel HTTP client, Laravel 12.x]
+---
 # HTTP 클라이언트 (HTTP Client)
 
 - [소개](#introduction)

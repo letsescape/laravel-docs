@@ -1,3 +1,8 @@
+---
+title: 서비스 프로바이더 (Service Providers) - Laravel 12.x 한국어 문서
+description: '서비스 프로바이더는 모든 라라벨 애플리케이션 부트스트래핑(초기화 작업)이 이루어지는 중심입니다. 여러분이 직접 만든 애플리케이션 역시, 라라벨이 제공하는 모든 핵심 서비스들도 모두 서비스 프로바이더를 통해 부트스트랩됩니다.'
+keywords: [라라벨 서비스 프로바이더, Laravel service providers, Laravel 12.x]
+---
 # 서비스 프로바이더 (Service Providers)
 
 - [소개](#introduction)

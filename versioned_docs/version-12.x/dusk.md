@@ -1,3 +1,8 @@
+---
+title: 라라벨 더스크 (Laravel Dusk) - Laravel 12.x 한국어 문서
+description: 'Laravel Dusk는 표현력 있고 사용하기 쉬운 브라우저 자동화 및 테스트 API를 제공합니다. 기본적으로 Dusk는 여러분의 로컬 컴퓨터에 JDK나 Selenium을 설치할 필요가 없습니다. 대신, Dusk는 독립형 ChromeDriver 설치를 활용합니다.'
+keywords: [라라벨 Dusk, Laravel Dusk browser testing, Laravel 12.x]
+---
 # 라라벨 더스크 (Laravel Dusk)
 
 - [소개](#introduction)

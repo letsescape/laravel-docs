@@ -1,3 +1,8 @@
+---
+title: 라라벨 호라이즌 (Laravel Horizon) - Laravel 12.x 한국어 문서
+description: '> [!NOTE] > 라라벨 Horizon을 본격적으로 학습하시기 전에, 라라벨의 기본 큐 서비스에 대해 먼저 익혀두시기 바랍니다. Horizon은 라라벨의 큐 시스템을 확장하여 추가적인 기능을 제공하며, 기본 큐 기능을 잘 모른다면 혼란스러울 수 있습니다.'
+keywords: [라라벨 Horizon, Laravel Horizon, Laravel 12.x]
+---
 # 라라벨 호라이즌 (Laravel Horizon)
 
 - [소개](#introduction)

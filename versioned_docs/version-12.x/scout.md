@@ -1,3 +1,8 @@
+---
+title: 라라벨 스카우트 (Laravel Scout) - Laravel 12.x 한국어 문서
+description: '라라벨 Scout는 Eloquent 모델에 전문 검색(Full-text Search) 기능을 추가할 수 있는, 드라이버 기반의 간단한 솔루션을 제공합니다. Scout는 모델 옵저버를 활용해 Eloquent 레코드가 변경될 때마다 검색 인덱스를 자동으로 동기화해줍니다.'
+keywords: [라라벨 Scout, Laravel Scout search, Laravel 12.x]
+---
 # 라라벨 스카우트 (Laravel Scout)
 
 - [소개](#introduction)

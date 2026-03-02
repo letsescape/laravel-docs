@@ -1,3 +1,8 @@
+---
+title: 라라벨 페넌트 (Laravel Pennant) - Laravel 12.x 한국어 문서
+description: 'Laravel Pennant는 불필요한 부분을 걷어낸 단순하고 가벼운 기능 플래그(feature flag) 패키지입니다. 기능 플래그를 사용하면 새로운 애플리케이션 기능을 점진적으로 안정적으로 배포할 수 있고, 인터페이스 디자인 A/B 테스트, 트렁크 기반 개발 전략 지원 등...'
+keywords: [라라벨 Pennant, Laravel Pennant feature flags, Laravel 12.x]
+---
 # 라라벨 페넌트 (Laravel Pennant)
 
 - [소개](#introduction)

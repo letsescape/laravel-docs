@@ -1,3 +1,8 @@
+---
+title: 라라벨 엔보이 (Laravel Envoy) - Laravel 12.x 한국어 문서
+description: 'Laravel Envoy는 원격 서버에서 자주 실행하는 작업을 손쉽게 실행할 수 있도록 도와주는 도구입니다. Blade 스타일 문법을 사용하여 배포, 아티즌 명령어 실행 등 다양한 작업을 쉽고 간단하게 정의할 수 있습니다.'
+keywords: [라라벨 Envoy, Laravel Envoy, Laravel 12.x]
+---
 # 라라벨 엔보이 (Laravel Envoy)
 
 - [소개](#introduction)

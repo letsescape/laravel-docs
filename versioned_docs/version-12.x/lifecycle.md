@@ -1,3 +1,8 @@
+---
+title: 요청 라이프사이클 (Request Lifecycle) - Laravel 12.x 한국어 문서
+description: '현실 세계에서 어떤 도구를 사용할 때, 그 도구가 어떻게 동작하는지 이해하면 더욱 자신감 있게 다룰 수 있습니다. 애플리케이션 개발도 다르지 않습니다. 개발 도구가 어떻게 작동하는지 알면, 작업할 때 훨씬 편안하고 자신감을 가질 수 있습니다.'
+keywords: [라라벨 요청 라이프사이클, Laravel request lifecycle, Laravel 12.x]
+---
 # 요청 라이프사이클 (Request Lifecycle)
 
 - [소개](#introduction)

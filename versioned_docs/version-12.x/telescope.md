@@ -1,3 +1,8 @@
+---
+title: 라라벨 텔레스코프 (Laravel Telescope) - Laravel 12.x 한국어 문서
+description: 'Laravel Telescope는 로컬 라라벨 개발 환경에 매우 유용한 도구입니다. Telescope는 애플리케이션으로 들어오는 요청, 예외, 로그 엔트리, 데이터베이스 쿼리, 큐 작업, 메일, 알림, 캐시 작업, 스케줄된 작업, 변수 덤프 등 다양한 정보를 직관적으로 확인할...'
+keywords: [라라벨 Telescope, Laravel Telescope, Laravel 12.x]
+---
 # 라라벨 텔레스코프 (Laravel Telescope)
 
 - [소개](#introduction)

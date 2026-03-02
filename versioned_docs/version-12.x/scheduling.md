@@ -1,3 +1,8 @@
+---
+title: 작업 스케줄링 (Task Scheduling) - Laravel 12.x 한국어 문서
+description: '과거에는 서버에서 스케줄링해야 하는 각 작업마다 크론(cron) 설정을 직접 추가해야 했습니다. 하지만 이 방식을 사용하면 스케줄 정보가 소스 제어에 포함되지 않아 관리가 번거롭고, 기존 크론 엔트리를 확인하거나 새로운 엔트리를 추가하려면 SSH로 서버에 직접 접속해야 합니다.'
+keywords: [라라벨 작업 스케줄링, Laravel scheduling, Laravel 12.x]
+---
 # 작업 스케줄링 (Task Scheduling)
 
 - [소개](#introduction)

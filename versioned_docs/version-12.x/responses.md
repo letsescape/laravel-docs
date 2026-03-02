@@ -1,3 +1,8 @@
+---
+title: HTTP 응답 (HTTP Responses) - Laravel 12.x 한국어 문서
+description: 모든 라우트와 컨트롤러는 사용자의 브라우저로 다시 전송할 응답을 반환해야 합니다. 라라벨에서는 여러 가지 방식으로 응답을 반환할 수 있습니다. 가장 기본적인 방법은 라우트 또는 컨트롤러에서 문자열을 반환하는 것입니다.
+keywords: [라라벨 HTTP 응답, Laravel responses, Laravel 12.x]
+---
 # HTTP 응답 (HTTP Responses)
 
 - [응답 생성](#creating-responses)

@@ -1,3 +1,8 @@
+---
+title: 디렉터리 구조 (Directory Structure) - Laravel 12.x 한국어 문서
+description: 라라벨의 기본 애플리케이션 구조는 대규모 또는 소규모 애플리케이션 모두에 이상적인 출발점을 제공하도록 설계되어 있습니다. 하지만 원하는 대로 자유롭게 애플리케이션 구조를 변경하셔도 됩니다.
+keywords: [라라벨 디렉터리 구조, Laravel directory structure, Laravel 12.x]
+---
 # 디렉터리 구조 (Directory Structure)
 
 - [소개](#introduction)

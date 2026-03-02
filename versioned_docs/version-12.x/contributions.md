@@ -1,3 +1,8 @@
+---
+title: 기여 가이드 (Contribution Guide) - Laravel 12.x 한국어 문서
+description: '라라벨은 활발한 협업을 촉진하기 위해 단순한 버그 리포트보다는 풀 리퀘스트(Pull Request)를 적극적으로 권장합니다. 풀 리퀘스트는 "검토 준비 완료(ready for review)" 상태(즉, "초안(draft)" 상태가 아님)로 표시되고, 새로운 기능의 모든...'
+keywords: [라라벨 기여 가이드, Laravel contribution guide, Laravel 12.x]
+---
 # 기여 가이드 (Contribution Guide)
 
 - [버그 리포트](#bug-reports)

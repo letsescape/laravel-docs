@@ -1,3 +1,8 @@
+---
+title: 라라벨 소셜라이트 (Laravel Socialite) - Laravel 12.x 한국어 문서
+description: '기본 폼 기반 인증 외에도, 라라벨은 Laravel Socialite를 사용하여 여러 OAuth 제공자를 통한 간편하고 편리한 인증 방식도 제공합니다. 현재 Socialite는 Facebook, X, LinkedIn, Google, GitHub, GitLab,...'
+keywords: [라라벨 Socialite, Laravel Socialite OAuth, Laravel 12.x]
+---
 # 라라벨 소셜라이트 (Laravel Socialite)
 
 - [소개](#introduction)

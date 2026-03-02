@@ -1,3 +1,8 @@
+---
+title: 컨텍스트 (Context) - Laravel 12.x 한국어 문서
+description: '라라벨의 "컨텍스트" 기능을 사용하면 애플리케이션 내부에서 실행되는 요청, 작업(job), 명령어 전반에 걸쳐 정보를 캡처(저장), 조회, 공유할 수 있습니다. 이렇게 저장된 정보는 애플리케이션에서 기록하는 로그에도 메타데이터로 포함되어, 로그가 작성되기 전 실행된 코드의...'
+keywords: [라라벨 Context, Laravel context, Laravel 12.x]
+---
 # 컨텍스트 (Context)
 
 - [소개](#introduction)

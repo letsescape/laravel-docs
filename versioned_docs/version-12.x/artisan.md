@@ -1,3 +1,8 @@
+---
+title: 아티즌 콘솔 (Artisan Console) - Laravel 12.x 한국어 문서
+description: '아티즌(Artisan)은 라라벨에 기본 포함된 명령줄 인터페이스입니다. 아티즌은 애플리케이션 루트 디렉터리에 artisan 스크립트로 존재하며, 애플리케이션을 개발하는 동안 유용하게 사용할 수 있는 다양한 명령어를 제공합니다.'
+keywords: [라라벨 아티즌, Laravel Artisan CLI, Laravel 12.x]
+---
 # 아티즌 콘솔 (Artisan Console)
 
 - [소개](#introduction)

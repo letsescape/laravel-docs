@@ -1,3 +1,8 @@
+---
+title: 데이터베이스 테스트 (Database Testing) - Laravel 12.x 한국어 문서
+description: '라라벨은 데이터베이스를 사용하는 애플리케이션의 테스트를 더 쉽고 편리하게 진행할 수 있도록 다양한 도구와 어서션을 제공합니다. 또한, 라라벨의 모델 팩토리와 시더를 활용하면, Eloquent 모델과 연관관계를 통해 테스트 데이터베이스 레코드를 손쉽게 생성할 수 있습니다.'
+keywords: [라라벨 데이터베이스 테스트, Laravel database testing, Laravel 12.x]
+---
 # 데이터베이스 테스트 (Database Testing)
 
 - [소개](#introduction)

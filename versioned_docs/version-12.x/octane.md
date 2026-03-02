@@ -1,3 +1,8 @@
+---
+title: 라라벨 옥테인 (Laravel Octane) - Laravel 12.x 한국어 문서
+description: '라라벨 Octane은 FrankenPHP, Open Swoole, Swoole, RoadRunner 등 고성능 애플리케이션 서버를 사용하여 애플리케이션의 성능을 크게 향상시켜줍니다.'
+keywords: [라라벨 Octane, Laravel Octane, Laravel 12.x]
+---
 # 라라벨 옥테인 (Laravel Octane)
 
 - [소개](#introduction)

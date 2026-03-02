@@ -1,3 +1,8 @@
+---
+title: 문자열 (Strings) - Laravel 12.x 한국어 문서
+description: '라라벨은 문자열 값을 다루기 위한 다양한 함수들을 제공합니다. 이러한 함수들 중 많은 부분이 프레임워크 자체에서 사용되지만, 필요하다면 여러분도 직접 애플리케이션에서 자유롭게 사용할 수 있습니다.'
+keywords: [라라벨 문자열 처리, Laravel strings, Laravel 12.x]
+---
 # 문자열 (Strings)
 
 - [소개](#introduction)

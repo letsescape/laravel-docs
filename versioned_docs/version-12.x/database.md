@@ -1,3 +1,8 @@
+---
+title: '데이터베이스: 시작하기 (Database: Getting Started) - Laravel 12.x 한국어 문서'
+description: '대부분의 현대 웹 애플리케이션은 데이터베이스와 상호작용합니다. 라라벨은 원시 SQL, 유연한 쿼리 빌더, 그리고 Eloquent ORM을 이용해 다양한 지원 데이터베이스와 쉽게 연동할 수 있도록 해줍니다. 현재 라라벨은 다음 5가지 데이터베이스에 대해 공식적으로 지원합니다.'
+keywords: [라라벨 데이터베이스, Laravel database, Laravel 12.x]
+---
 # 데이터베이스: 시작하기 (Database: Getting Started)
 
 - [소개](#introduction)
