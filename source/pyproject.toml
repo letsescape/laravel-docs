@@ -1,5 +1,5 @@
 [project]
-name = "laravel-docs-source"
+name = "laravel-docs-translation"
 version = "0.1.0"
 description = "Laravel 문서 번역 자동화 도구"
 authors = [
@@ -8,10 +8,8 @@ authors = [
 license = {text = "MIT"}
 requires-python = ">=3.11"
 dependencies = [
-    "python-dotenv",
-    "openai",
-    "requests",
-    "tiktoken",
+    "python-dotenv>=1.0,<2",
+    "openai>=1.0,<2",
 ]
 
 [project.scripts]

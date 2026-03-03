@@ -171,12 +171,13 @@ $RECYCLE.BIN/
 .windsurf/*
 
 # Claude
+.claude/.supermemory-claude/config.json
 .claude/commands/speckit.*
 .claude/hooks/.permissions-checked
 .claude/memory/*
 !.claude/memory/.gitkeep
+.claude/plans
 .claude/settings.local.json
-.claude/.supermemory-claude/config.json
 
 # Codex
 .codex/commands/speckit.*
