@@ -55,6 +55,17 @@ def update_branch_docs(branch, temp_dir, excluded_files, docs_dir):
 
         # 원본 마크다운 파일 목록 가져오기
         md_files = [f for f in os.listdir(temp_dir) if f.endswith(".md")]
+        new_files_set = set(md_files)
+
+        # upstream에서 제거된 stale 파일 삭제
+        if os.path.exists(origin_dir):
+            for existing in os.listdir(origin_dir):
+                if existing.endswith(".md") and existing not in new_files_set:
+                    os.remove(os.path.join(origin_dir, existing))
+                    stale_translated = os.path.join(docs_dir, existing)
+                    if os.path.exists(stale_translated):
+                        os.remove(stale_translated)
+                    print(f"  삭제: {existing} (upstream에서 제거됨)")
 
         # 각 마크다운 파일 복사
         for file_name in md_files:

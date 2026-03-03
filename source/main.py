@@ -57,7 +57,9 @@ def main():
     print("\n[1] 브랜치별 문서 처리")
     for branch in branches:
         docs_dir = get_docs_dir(branch)
-        update_branch_docs(branch, temp_dir, excluded_files, docs_dir)
+        if not update_branch_docs(branch, temp_dir, excluded_files, docs_dir):
+            print(f"경고: {branch} 브랜치 문서 업데이트 실패, 건너뜀")
+            continue
 
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)

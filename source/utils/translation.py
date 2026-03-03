@@ -1,26 +1,33 @@
 import os
+import re
 import time
 
 import openai
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
 
 from utils.common import retry, timeout
-from utils.filtering import filter_markdown
-from utils.token_counter import get_token_count
 
 SOURCE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+_cached_client = None
+_cached_model = None
+_cached_prompt = None
 
 
 def get_translation_client():
     """
     Retrieve an AI translation client and model name based on environment variables.
-    
+
     Returns:
         tuple: A tuple containing the AI client instance and the model name.
-    
+
     Raises:
         ValueError: If required environment variables are missing or if the translation provider is unsupported.
     """
+    global _cached_client, _cached_model
+    if _cached_client is not None:
+        return _cached_client, _cached_model
+
     provider = os.environ.get("TRANSLATION_PROVIDER", "openai").lower()
     model = os.environ.get("TRANSLATION_MODEL", "gpt-4.1")
 
@@ -29,9 +36,7 @@ def get_translation_client():
         if not api_key:
             raise ValueError("OPENAI_API_KEY 미설정")
 
-        openai.api_key = api_key
-        client = openai.OpenAI()
-        return client, model
+        client = openai.OpenAI(api_key=api_key)
 
     elif provider == "azure":
         api_key = os.environ.get("AZURE_OPENAI_API_KEY")
@@ -46,52 +51,64 @@ def get_translation_client():
             api_version=api_version,
             azure_endpoint=endpoint
         )
-        return client, model
 
     else:
         raise ValueError(f"미지원 번역 제공자: {provider}")
+
+    _cached_client = client
+    _cached_model = model
+    return client, model
+
+
+def _get_system_prompt():
+    """시스템 프롬프트를 캐싱하여 반환"""
+    global _cached_prompt
+    if _cached_prompt is None:
+        prompt_path = os.path.join(SOURCE_DIR, "prompt.md")
+        with open(prompt_path, 'r', encoding='utf-8') as f:
+            _cached_prompt = f.read()
+    return _cached_prompt
 
 
 def translate_text_with_openai(text_to_translate, system_prompt):
     """
     Translates the given text using an AI chat completion API and a specified system prompt.
-    
+
     Parameters:
         text_to_translate (str): The text to be translated.
         system_prompt (str): The system prompt guiding the translation.
-    
+
     Returns:
         str: The translated text.
-    
+
     Raises:
-        Exception: If the API call fails.
+        ValueError: If the API returns an empty response.
     """
     client, model = get_translation_client()
     system_message = ChatCompletionSystemMessageParam(role="system", content=system_prompt)
     user_message = ChatCompletionUserMessageParam(role="user", content=text_to_translate)
 
-    # 번역 요청
     response = client.chat.completions.create(
         model=model,
         messages=[system_message, user_message]
     )
-    return response.choices[0].message.content
+
+    result = response.choices[0].message.content
+    if result is None:
+        raise ValueError("API returned empty content")
+    return result
 
 
 @retry(max_attempts=3, delay=3, backoff=2, exceptions=(Exception,))
 @timeout(seconds=1000)
-def translate_file(source_file, target_file, source_lang="en", target_lang="ko"):
+def translate_file(source_file, target_file):
     """
-    Translates a markdown file from the source language to the target language using the OpenAI API and saves the result.
-    
-    Reads the source markdown file, applies version-based filtering, constructs a system prompt, and translates the content in a single API call. The translated content is written to the specified target file. Handles rate limiting and general exceptions during the translation process.
-    
+    Translates a markdown file from English to Korean using the OpenAI API and saves the result.
+
     Parameters:
         source_file (str): Path to the source markdown file.
         target_file (str): Path where the translated file will be saved.
-        source_lang (str): Source language code (default: "en").
-        target_lang (str): Target language code (default: "ko").
-    
+
     Returns:
         bool: True if translation succeeds and the file is saved; False if the source file is empty.
     """
@@ -105,34 +122,9 @@ def translate_file(source_file, target_file, source_lang="en", target_lang="ko")
 
         print(f"번역 시작: {source_file}")
 
-        # 버전 정보 추출
-        version = None
-        abs_target_path = os.path.abspath(target_file).replace("\\", "/")
-        if '/version-8.x/' in abs_target_path:
-            version = '8.x'
-        elif '/version-9.x/' in abs_target_path:
-            version = '9.x'
-        elif '/version-10.x/' in abs_target_path:
-            version = '10.x'
-        elif '/version-11.x/' in abs_target_path:
-            version = '11.x'
-        elif '/version-12.x/' in abs_target_path:
-            version = '12.x'
-        elif '/version-master/' in abs_target_path:
-            version = 'master'
-
-        content = filter_markdown(content, version)
-
-        # 시스템 프롬프트 설정
-        prompt_path = os.path.join(SOURCE_DIR, "prompt.md")
-        with open(prompt_path, 'r', encoding='utf-8') as f:
-            system_prompt_template = f.read()
-        system_prompt = system_prompt_template.format(source_lang=source_lang, target_lang=target_lang)
-
-        content_tokens = get_token_count(content)
-        print(f"{source_file}: {content_tokens:,} 토큰")
-
+        system_prompt = _get_system_prompt()
         translated_content = translate_text_with_openai(content, system_prompt)
+
         with open(target_file, 'w', encoding='utf-8') as f:
             f.write(translated_content)
 

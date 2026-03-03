@@ -1,3 +1,4 @@
+import shlex
 import subprocess
 import time
 from functools import wraps
@@ -96,15 +97,19 @@ def run_command(command, cwd=None):
     """명령어를 실행하고 결과를 반환
 
     Args:
-        command: 실행할 명령어
+        command: 실행할 명령어 (문자열 또는 리스트)
         cwd: 명령어를 실행할 디렉토리 (기본값: None)
 
     Returns:
         str: 명령어 실행 결과
     """
+    if isinstance(command, str):
+        args = shlex.split(command)
+    else:
+        args = list(command)
+
     result = subprocess.run(
-        command,
-        shell=True,
+        args,
         check=True,
         text=True,
         capture_output=True,
