@@ -41,10 +41,6 @@ const config: Config = {
     // locales: ['ko', 'en'],
   },
 
-  headTags: [
-    { tagName: 'meta', attributes: { name: 'google-site-verification', content: 'GOOGLE_VERIFICATION_CODE' } },
-  ],
-
   // 테마 설정
   themes: [],
 
@@ -104,25 +100,7 @@ const config: Config = {
           containerId: 'GTM-MDN4L5LV',
         },
         sitemap: {
-          changefreq: 'weekly',
-          priority: 0.5,
           ignorePatterns: ['/search/**'],
-          createSitemapItems: async (params) => {
-            const {defaultCreateSitemapItems, ...rest} = params;
-            const items = await defaultCreateSitemapItems(rest);
-            return items.map((item) => {
-              if (item.url.includes('/docs/12.x/')) {
-                item.priority = 0.8;
-              } else if (item.url.includes('/docs/11.x/')) {
-                item.priority = 0.5;
-                item.changefreq = 'monthly';
-              }
-              if (item.url === 'https://laravel.chanhyung.kim/') {
-                item.priority = 1.0;
-              }
-              return item;
-            });
-          },
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -144,10 +122,16 @@ const config: Config = {
 
     // SEO 메타데이터
     metadata: [
-      {name: 'keywords', content: '라라벨, Laravel, PHP 프레임워크, 웹 개발, 한국어 문서'},
+      {name: 'keywords', content: '라라벨, Laravel, PHP 프레임워크, 웹 개발, 한글 문서, 튜토리얼, 시작하기'},
+      {name: 'description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
       {property: 'og:type', content: 'website'},
-      {property: 'og:site_name', content: '라라벨 한국어 문서'},
+      {property: 'og:title', content: '라라벨 한국어 문서 - PHP 웹 프레임워크'},
+      {property: 'og:description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
+      {property: 'og:image', content: 'https://laravel.chanhyung.kim/img/logo.png'},
       {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: '라라벨 한국어 문서 - PHP 웹 프레임워크'},
+      {name: 'twitter:description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
+      {name: 'twitter:image', content: 'https://laravel.chanhyung.kim/img/logo.png'},
     ],
 
     // Algolia DocSearch 설정
