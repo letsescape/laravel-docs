@@ -33,7 +33,7 @@ function detectLanguage(code: string): string {
 
   // Blade ({{ }} pattern in first few lines)
   const firstFewLines = trimmed.split('\n').slice(0, 5).join('\n');
-  if (/\{\{.*\}\}/.test(firstFewLines) && /</.test(firstFewLines)) {
+  if (/\{\{[^}]*\}\}/.test(firstFewLines) && /</.test(firstFewLines)) {
     return 'blade';
   }
 
