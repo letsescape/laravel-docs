@@ -1,99 +1,199 @@
 # Dependencies
-node_modules/
 .yarn/
 .pnp.*
+.npm
 
 # Production
 /build/
 /dist/
+.netlify/
+.vercel/
+.now/
 
 # Generated files
+.docusaurus
 .docusaurus/
 .cache-loader/
 .cache/
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# IDE specific files
-# VSCode
-.vscode/
-.history/
-*.code-workspace
-
-# JetBrains IDEs
-.idea/
-.idea_modules/
-*.iml
-*.iws
-*.ipr
-out/
-
-# Sublime Text
-*.sublime-workspace
-*.sublime-project
-
-# Vim
-*.swp
-*.swo
-
-# OS specific files
-# macOS
-.DS_Store
-.DS_Store?
-.AppleDouble
-.LSOverride
-Icon
-._*
-.Spotlight-V100
-.Trashes
-
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-*.stackdump
-[Dd]esktop.ini
-$RECYCLE.BIN/
-
-# Temporary files
 tmp/
 temp/
 
 # TypeScript
 tsconfig.tsbuildinfo
-
-# Coverage directory used by tools like istanbul
+.eslintcache
+.stylelintcache
 coverage/
 *.lcov
 
-# Docusaurus specific
-.docusaurus
+# Distribution / packaging
+.Python
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Deployment services
-.netlify/
-.vercel/
-.now/
+jspm_packages/
+node_modules/
+vendor/
 
-# Optional npm cache directory
-.npm
+*.class
+*.jar
+*.war
+*.ear
+target/
+hs_err_pid*
 
-# Optional eslint cache
-.eslintcache
+# env
+.env
+.env.bak
+.env.backup
+.env.local
+.env.local.*
+.env.production
+.env.production.*
+ENV/
+venv/
+venv.bak/
+.venv/
 
-# Optional stylelint cache
-.stylelintcache
+# Cloud
+.serverless/
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+.terragrunt-cache/
+.pulumi/
+.aws/
+.azure/
+.gcloud/
+
+# Database
+*.db
+*.sql
+*.bak
+*.sqlite
+
+# Docker
+Dockerfile.local
+docker-compose.override.yml
+docker-compose.local.yml
+.docker/
+
+# Cache
+/temp/
+/tmp/
+*.cache
+*.tmp
+*.swp
+*.swo
+
+# Log
+*.log
+*.log.*
+
+# Key
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+secrets/
+.secrets
+.secrets/
+auth.json
+credentials.json
+
+# IDE
+.idea/
+.idea_modules/
+.vscode/
+.history/
+*.code-workspace
+.fleet/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-project
+*.sublime-workspace
+*.iml
+*.iws
+*.ipr
+out/
+
+# OS
+.AppleDouble
+.DS_Store*
+.LSOverride
+.Spotlight-V100
+.Trashes
+._*
+
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Icon?
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# AI Agent
+.agents/*
+.augment/*
+.amazonq/*
+.codebuddy/*
+.cursor/*
+.gemini/*
+.kilocode/*
+.opencode/*
+.qwen/*
+.roo/*
+.windsurf/*
+
+# Claude
+.claude/.supermemory-claude/config.json
+.claude/commands/speckit.*
+.claude/hooks/.permissions-checked
+.claude/memory/*
+!.claude/memory/.gitkeep
+.claude/plans
+.claude/settings.local.json
+
+# Codex
+.codex/commands/speckit.*
+.codex/memory/*
+!.codex/memory/.gitkeep
+
+# GitHub
+.github/agents/*
+!.github/agents/*.agent.md
+.github/prompts/*
+
+# Agent-OS
+.agent-os/
+agent-os/
+
+# Spec-Kit
+.specify/
+.speckit/
+specs/
