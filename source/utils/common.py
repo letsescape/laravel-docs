@@ -72,21 +72,20 @@ def timeout(seconds=600):
         def wrapper(*args, **kwargs):
             import signal
 
+            if not hasattr(signal, 'SIGALRM'):
+                return func(*args, **kwargs)
+
             def handler(signum, frame):
                 raise TimeoutError(f"함수 실행이 {seconds}초를 초과했습니다.")
 
-            # 타임아웃 설정
-            signal.signal(signal.SIGALRM, handler)
+            old_handler = signal.signal(signal.SIGALRM, handler)
             signal.alarm(seconds)
 
             try:
-                result = func(*args, **kwargs)
-                signal.alarm(0)  # 타이머 재설정
-                return result
-            except TimeoutError:
-                raise
+                return func(*args, **kwargs)
             finally:
-                signal.alarm(0)  # 타이머 재설정
+                signal.alarm(0)
+                signal.signal(signal.SIGALRM, old_handler)
 
         return wrapper
 

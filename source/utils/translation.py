@@ -92,6 +92,9 @@ def translate_text_with_openai(text_to_translate, system_prompt):
         messages=[system_message, user_message]
     )
 
+    if not response.choices:
+        raise ValueError("API returned empty choices")
+
     result = response.choices[0].message.content
     if result is None:
         raise ValueError("API returned empty content")

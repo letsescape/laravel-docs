@@ -21,7 +21,7 @@ def clone_laravel_docs(temp_dir, original_repo):
             shutil.rmtree(temp_dir)
 
         # 원본 저장소 클론
-        run_command(f"git clone {original_repo} {temp_dir}")
+        run_command(["git", "clone", original_repo, temp_dir])
         return True
     except Exception as e:
         print(f"Laravel 클론 오류 발생: {e}")
