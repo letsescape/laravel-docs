@@ -6,7 +6,6 @@
 [![Laravel Version](https://img.shields.io/packagist/v/laravel/framework)](https://packagist.org/packages/laravel/framework)
 [![Last Updated](https://img.shields.io/github/last-commit/letsescape/laravel-docs-web/main?label=Last%20Updated)](https://github.com/letsescape/laravel-docs-web/commits/main)
 [![License](https://img.shields.io/github/license/letsescape/laravel-docs-web)](https://github.com/letsescape/laravel-docs-web/blob/main/LICENSE)
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/letsescape/laravel-docs-web?utm_source=oss&utm_medium=github&utm_campaign=letsescape%2Flaravel-docs-web&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 [라라벨 공식 문서](https://laravel.com) | [라라벨 한국어 문서](https://laravel.chanhyung.kim)
 
@@ -16,14 +15,8 @@
 
 라라벨 한국어 문서를 [Docusaurus](https://docusaurus.io) & [GitHub Pages](https://pages.github.com)를 사용하여 배포합니다.
 
-이 프로젝트는 번역된 문서를 웹사이트로 배포하고, 문서 번역은 [laravel-docs-source](https://github.com/kimchanhyung98/laravel-docs-source)에서 처리합니다.
-
-### 문서 필터링
-
-마크다운 번역 문서에 다음과 같은 필터링을 적용합니다.
-
-- 현재는 문서를 직접 수정하여 필터링을 적용했습니다.
-- [문서 필터링 이슈](https://github.com/kimchanhyung98/laravel-docs-source/issues/13) 참조
+- 지원 버전 : `master`, `12.x`, `11.x`, `10.x`, `9.x`, `8.x`
+- 업데이트 주기 : 매일 04시 (KST) [#](.github/workflows/update-docs.yml#L5)
 
 ## 실행
 
@@ -39,7 +32,37 @@ docusaurus start
 npm run generate-sidebars
 ```
 
+### 번역 실행
+
+1. `source/.env.example` 파일을 복사하여 `source/.env` 파일을 만들고 번역 제공자를 설정합니다.
+
+   ```dotenv
+   # OpenAI
+   TRANSLATION_PROVIDER=openai
+   TRANSLATION_MODEL=gpt-4.1
+
+   OPENAI_API_KEY=your_openai_api_key
+   ```
+
+   ```dotenv
+   # Azure OpenAI
+   TRANSLATION_PROVIDER=azure
+   TRANSLATION_MODEL=gpt-4.1
+
+   AZURE_OPENAI_API_KEY=your_azure_api_key
+   AZURE_OPENAI_API_VERSION=2025-05-01-preview
+   AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
+   ```
+
+2. 의존성 설치 및 번역 실행
+
+   ```bash
+   cd source
+   uv sync         # 의존성 설치
+   uv run main.py  # 번역 실행
+   ```
+
 ## 라이선스
 
-- 문서 웹사이트 코드: MIT License
+- 문서 웹사이트 코드 : MIT License
 - 라라벨 문서 : MIT License `(Copyright (c) Taylor Otwell)`
