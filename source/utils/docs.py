@@ -51,7 +51,6 @@ def update_branch_docs(branch, temp_dir, excluded_files, docs_dir):
 
         # 디렉토리가 없으면 생성
         os.makedirs(origin_dir, exist_ok=True)
-        os.makedirs(docs_dir, exist_ok=True)
 
         # 원본 마크다운 파일 목록 가져오기
         md_files = [f for f in os.listdir(temp_dir) if f.endswith(".md")]
