@@ -45,7 +45,7 @@ def update_branch_docs(branch, temp_dir, excluded_files, docs_dir):
         bool: True if the update succeeds, False if an error occurs.
     """
     try:
-        run_command(f"git checkout {branch}", cwd=temp_dir)
+        run_command(["git", "checkout", branch], cwd=temp_dir)
 
         origin_dir = os.path.join(docs_dir, "origin")
 
