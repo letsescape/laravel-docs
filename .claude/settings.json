@@ -6,6 +6,10 @@
     "pr": ""
   },
   "permissions": {
+    "allow": [
+      "Bash(agent-browser:*)",
+      "Bash(npx agent-browser:*)"
+    ],
     "deny": [
       "Read(.env)",
       "Read(**/*.pem)",
