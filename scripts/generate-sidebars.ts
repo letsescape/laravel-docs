@@ -101,7 +101,7 @@ versions.forEach(version => {
       const sidebar = parseSidebar(docContent, version);
 
       // Set first category to be expanded by default
-      if (sidebar.tutorialSidebar.length > 0) {
+      if (sidebar.tutorialSidebar.length > 1 && sidebar.tutorialSidebar[1].type === 'category') {
         (sidebar.tutorialSidebar[1] as SidebarCategory).collapsed = false;
       }
 
