@@ -103,6 +103,7 @@ docker-compose.local.yml
 *.tmp
 *.swp
 *.swo
+.pytest_cache/
 
 # Log
 *.log
