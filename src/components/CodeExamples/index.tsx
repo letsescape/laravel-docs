@@ -1,9 +1,26 @@
-import React, { useState } from 'react';
+import React, {useState, type ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import styles from './styles.module.css';
 
-const codeExamples = [
+interface CodeBlock {
+  title: string;
+  language: string;
+  code: string;
+}
+
+interface CodeExample {
+  id: string;
+  title: string;
+  description: string;
+  code: CodeBlock[];
+  link: {
+    text: string;
+    url: string;
+  };
+}
+
+const codeExamples: CodeExample[] = [
   {
     id: 'authentication',
     title: '인증',
@@ -132,7 +149,7 @@ foreach (Flight::all() as $flight) {
   },
 ];
 
-export default function CodeExamples() {
+export default function CodeExamples(): ReactNode {
   const [activeTab, setActiveTab] = useState(codeExamples[0].id);
 
   const activeExample = codeExamples.find(example => example.id === activeTab);
