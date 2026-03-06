@@ -14,7 +14,7 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-RUN npm install -g serve@latest
+RUN npm install -g serve@latest && npm cache clean --force
 
 COPY --from=build /app/build ./build
 

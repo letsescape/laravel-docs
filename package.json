@@ -28,6 +28,9 @@
     "url": "https://github.com/letsescape/laravel-docs-web/issues"
   },
   "homepage": "https://github.com/letsescape/laravel-docs-web#readme",
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "@docusaurus/core": "^3.9.2",
     "@docusaurus/module-type-aliases": "^3.9.2",
