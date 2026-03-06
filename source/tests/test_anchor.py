@@ -16,6 +16,10 @@ class TestExtractAnchorDefinitions:
         text = '<a name="basic-routing"/>'
         assert extract_anchor_definitions(text) == {"basic-routing"}
 
+    def test_self_closing_with_space(self):
+        text = '<a name="basic-routing" />'
+        assert extract_anchor_definitions(text) == {"basic-routing"}
+
     def test_multiple_anchors(self):
         text = (
             '<a name="introduction"></a>\n'

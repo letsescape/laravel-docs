@@ -11,7 +11,7 @@ def extract_anchor_definitions(markdown_text):
     Returns:
         set: 앵커 이름 집합
     """
-    pattern = r'<a\s+name=["\']([^"\']+)["\']\s*(?:>|/>)'
+    pattern = r'<a\s+name=["\']([^"\']+)["\']\s*/?>'
     return set(re.findall(pattern, markdown_text))
 
 
