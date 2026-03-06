@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from utils.docs import clone_laravel_docs, update_branch_docs
 from utils.git import get_git_changes, add_files_to_git
+from utils.sidebar import generate_all_sidebars
 from utils.translation import translate_file
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,7 +42,7 @@ def main():
     original_repo = "https://github.com/laravel/docs.git"
     temp_dir = os.path.join(REPO_ROOT, "temp")
     branches = ["master", "12.x", "11.x", "10.x", "9.x", "8.x"]
-    excluded_files = ["license.md", "readme.md"]
+    excluded_files = ["license.md", "readme.md", "documentation.md"]
     try:
         translation_delay = int(os.environ.get("TRANSLATION_DELAY", "10"))
         if translation_delay <= 0:
@@ -64,7 +65,10 @@ def main():
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
-    print("\n[2] 변경된 파일 번역")
+    print("\n[2] 사이드바 생성")
+    generate_all_sidebars(branches, REPO_ROOT)
+
+    print("\n[3] 변경된 파일 번역")
     processed_files = set()
     changed_files = get_git_changes(REPO_ROOT)
 
