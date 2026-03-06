@@ -1,0 +1,50 @@
+{
+  "version.label": {
+    "message": "11.x",
+    "description": "The label for version 11.x"
+  },
+  "sidebar.tutorialSidebar.category.Prologue": {
+    "message": "프롤로그",
+    "description": "The label for category 'Prologue' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Getting Started": {
+    "message": "시작하기",
+    "description": "The label for category 'Getting Started' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Architecture Concepts": {
+    "message": "아키텍처 개념",
+    "description": "The label for category 'Architecture Concepts' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.The Basics": {
+    "message": "기본 사항",
+    "description": "The label for category 'The Basics' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Digging Deeper": {
+    "message": "심화 학습",
+    "description": "The label for category 'Digging Deeper' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Security": {
+    "message": "보안",
+    "description": "The label for category 'Security' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Database": {
+    "message": "데이터베이스",
+    "description": "The label for category 'Database' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Eloquent ORM": {
+    "message": "Eloquent ORM",
+    "description": "The label for category 'Eloquent ORM' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Testing": {
+    "message": "테스팅",
+    "description": "The label for category 'Testing' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Packages": {
+    "message": "패키지",
+    "description": "The label for category 'Packages' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.link.API Documentation": {
+    "message": "API 문서",
+    "description": "The label for link 'API Documentation' in sidebar 'tutorialSidebar', linking to 'https://api.laravel.com/docs/11.x'"
+  }
+}

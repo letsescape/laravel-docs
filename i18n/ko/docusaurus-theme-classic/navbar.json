@@ -1,0 +1,10 @@
+{
+  "logo.alt": {
+    "message": "Laravel Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.문서": {
+    "message": "문서",
+    "description": "Navbar item with label 문서"
+  }
+}
