@@ -2,8 +2,6 @@ import json
 import os
 import tempfile
 
-import pytest
-
 from utils.sidebar import generate_all_sidebars, generate_sidebar, parse_documentation_md
 
 SAMPLE_DOC = """- ## Prologue
