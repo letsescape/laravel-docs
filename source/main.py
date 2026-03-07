@@ -70,6 +70,7 @@ def main():
 
     print("\n[3] 변경된 파일 번역")
     processed_files = set()
+    failed_files = []
     changed_files = get_git_changes(REPO_ROOT)
 
     if not changed_files:
@@ -123,8 +124,17 @@ def main():
                 continue
 
             # 번역 실행
-            translate_file(source_path, target_path)
+            try:
+                translate_file(source_path, target_path)
+            except Exception as e:
+                print(f"번역 실패: {file_key} - {type(e).__name__}")
+                failed_files.append(file_key)
             time.sleep(translation_delay)
+
+    if failed_files:
+        print(f"\n[WARNING] {len(failed_files)}개 파일 번역 실패:")
+        for f in failed_files:
+            print(f"  - {f}")
 
     add_files_to_git(REPO_ROOT)
     print("\n갱신 완료")

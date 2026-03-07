@@ -7,6 +7,11 @@ from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUs
 from utils.anchor import validate_anchors
 from utils.common import retry, timeout
 
+
+class AnchorValidationError(Exception):
+    """앵커 검증 실패 시 발생하는 예외. retry 데코레이터가 재시도할 수 있도록 예외로 처리."""
+    pass
+
 SOURCE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 _cached_client = None
@@ -117,8 +122,10 @@ def translate_file(source_file, target_file):
         target_file (str): Path where the translated file will be saved.
 
     Returns:
-        bool: True if translation succeeds and the file is saved; False if the source file is empty
-              or anchor validation fails.
+        bool: True if translation succeeds and the file is saved; False if the source file is empty.
+
+    Raises:
+        AnchorValidationError: If anchor validation fails (triggers retry).
     """
     try:
         with open(source_file, 'r', encoding='utf-8') as f:
@@ -135,10 +142,11 @@ def translate_file(source_file, target_file):
 
         is_valid, errors = validate_anchors(content, translated_content)
         if not is_valid:
-            print(f"앵커 검증 실패: {source_file}")
+            error_msg = f"앵커 검증 실패: {source_file}"
             for error in errors:
-                print(f"  - {error}")
-            return False
+                error_msg += f"\n  - {error}"
+            print(error_msg)
+            raise AnchorValidationError(error_msg)
 
         with open(target_file, 'w', encoding='utf-8') as f:
             f.write(translated_content)
