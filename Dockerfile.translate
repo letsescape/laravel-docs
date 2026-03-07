@@ -13,8 +13,6 @@ COPY source/pyproject.toml source/uv.lock source/
 RUN cd source && uv sync --frozen --no-dev
 
 COPY source/ source/
-COPY versioned_docs/ versioned_docs/
-COPY versioned_sidebars/ versioned_sidebars/
 
 WORKDIR /app/source
 
