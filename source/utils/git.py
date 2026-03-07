@@ -54,7 +54,7 @@ def add_files_to_git(repo_root):
         bool: True if the files were successfully added to the staging area, False otherwise.
     """
     try:
-        run_command("git add versioned_docs/", cwd=repo_root)
+        run_command("git add versioned_docs/ versioned_sidebars/", cwd=repo_root)
         return True
     except subprocess.CalledProcessError as e:
         print(f"Git 파일 추가 오류 발생: {e}")

@@ -4,7 +4,13 @@ import time
 import openai
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
 
+from utils.anchor import validate_anchors
 from utils.common import retry, timeout
+
+
+class AnchorValidationError(Exception):
+    """앵커 검증 실패 시 발생하는 예외. retry 데코레이터가 재시도할 수 있도록 예외로 처리."""
+    pass
 
 SOURCE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -107,12 +113,19 @@ def translate_file(source_file, target_file):
     """
     Translates a markdown file from English to Korean using the OpenAI API and saves the result.
 
+    After translation, validates that all internal anchors from the original file are preserved
+    and that all anchor references in the translated file point to valid anchor definitions.
+    If validation fails, the translated file is not saved.
+
     Parameters:
         source_file (str): Path to the source markdown file.
         target_file (str): Path where the translated file will be saved.
 
     Returns:
         bool: True if translation succeeds and the file is saved; False if the source file is empty.
+
+    Raises:
+        AnchorValidationError: If anchor validation fails (triggers retry).
     """
     try:
         with open(source_file, 'r', encoding='utf-8') as f:
@@ -126,6 +139,14 @@ def translate_file(source_file, target_file):
 
         system_prompt = _get_system_prompt()
         translated_content = translate_text_with_openai(content, system_prompt)
+
+        is_valid, errors = validate_anchors(content, translated_content)
+        if not is_valid:
+            error_msg = f"앵커 검증 실패: {source_file}"
+            for error in errors:
+                error_msg += f"\n  - {error}"
+            print(error_msg)
+            raise AnchorValidationError(error_msg)
 
         with open(target_file, 'w', encoding='utf-8') as f:
             f.write(translated_content)

@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from utils.docs import clone_laravel_docs, update_branch_docs
 from utils.git import get_git_changes, add_files_to_git
+from utils.sidebar import generate_all_sidebars
 from utils.translation import translate_file
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,7 +42,7 @@ def main():
     original_repo = "https://github.com/laravel/docs.git"
     temp_dir = os.path.join(REPO_ROOT, "temp")
     branches = ["master", "12.x", "11.x", "10.x", "9.x", "8.x"]
-    excluded_files = ["license.md", "readme.md"]
+    excluded_files = ["license.md", "readme.md", "documentation.md"]
     try:
         translation_delay = int(os.environ.get("TRANSLATION_DELAY", "10"))
         if translation_delay <= 0:
@@ -64,8 +65,12 @@ def main():
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
-    print("\n[2] 변경된 파일 번역")
+    print("\n[2] 사이드바 생성")
+    generate_all_sidebars(branches, REPO_ROOT)
+
+    print("\n[3] 변경된 파일 번역")
     processed_files = set()
+    failed_files = []
     changed_files = get_git_changes(REPO_ROOT)
 
     if not changed_files:
@@ -119,8 +124,17 @@ def main():
                 continue
 
             # 번역 실행
-            translate_file(source_path, target_path)
+            try:
+                translate_file(source_path, target_path)
+            except Exception as e:
+                print(f"번역 실패: {file_key} - {type(e).__name__}: {e}")
+                failed_files.append(file_key)
             time.sleep(translation_delay)
+
+    if failed_files:
+        print(f"\n[WARNING] {len(failed_files)}개 파일 번역 실패:")
+        for f in failed_files:
+            print(f"  - {f}")
 
     add_files_to_git(REPO_ROOT)
     print("\n갱신 완료")

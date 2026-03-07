@@ -1,9 +1,27 @@
-import React from 'react';
-import clsx from 'clsx';
+import React, {type ReactNode} from 'react';
 import Link from '@docusaurus/Link';
 import styles from './styles.module.css';
 
-const packages = [
+interface Package {
+  name: string;
+  description: string;
+  free: boolean;
+  link: string;
+}
+
+interface StarterKitLink {
+  text: string;
+  url: string;
+}
+
+interface StarterKit {
+  title: string;
+  description: string;
+  free: boolean;
+  links: StarterKitLink[];
+}
+
+const packages: Package[] = [
   { name: 'Scout', description: 'Eloquent 모델 검색', free: true, link: '/docs/12.x/scout' },
   { name: 'Octane', description: '고성능 앱 서버', free: true, link: '/docs/12.x/octane' },
   { name: 'Reverb', description: '빠르고 확장 가능한 웹소켓', free: true, link: '/docs/12.x/reverb' },
@@ -20,7 +38,7 @@ const packages = [
   { name: 'Pulse', description: '성능 인사이트', free: true, link: '/docs/12.x/pulse' },
 ];
 
-const starterKits = [
+const starterKits: StarterKit[] = [
   {
     title: 'React 스타터 킷',
     description: 'Laravel, Inertia, React로 애플리케이션을 만드는 데 필요한 모든 것을 제공합니다.',
@@ -50,39 +68,7 @@ const starterKits = [
   },
 ];
 
-const products = [
-  {
-    title: 'Cloud',
-    description: 'PHP 애플리케이션 배포 및 호스팅을 위한 완전 관리형 인프라 플랫폼.',
-    pricing: '월 $0.00부터 시작하는 요금제',
-    isNew: true,
-    link: { text: '지금 배포하기', url: 'https://cloud.laravel.com' },
-  },
-  {
-    title: 'Forge',
-    description: 'DigitalOcean, Vultr, Amazon, Hetzner 등에서 앱을 위한 서버 관리.',
-    pricing: '월 $12.00부터 시작하는 요금제',
-    isNew: false,
-    link: { text: '시작하기', url: 'https://forge.laravel.com' },
-  },
-  {
-    title: 'Nightwatch',
-    description: '라라벨 애플리케이션 성능에 대한 타의 추종을 불허하는 모니터링 및 인사이트.',
-    pricing: '곧 가격 공개 예정',
-    isNew: false,
-    isSoon: true,
-    link: { text: '대기자 명단 참여', url: 'https://nightwatch.laravel.com' },
-  },
-  {
-    title: 'Nova',
-    description: '라라벨을 사용하여 프로덕션 수준의 관리자 패널을 구축하는 가장 간단하고 빠른 방법.',
-    pricing: '$99.00부터 시작하는 라이센스',
-    isNew: false,
-    link: { text: '라이센스 구매', url: 'https://nova.laravel.com' },
-  },
-];
-
-export default function Features() {
+export default function Features(): ReactNode {
   return (
     <section className={styles.features}>
       <div className="container">

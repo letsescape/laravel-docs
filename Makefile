@@ -62,7 +62,7 @@ init: ## 프로젝트 환경 설정
 		docker compose up -d; \
 	fi
 	@echo "[init] installing npm packages..."
-	@docker run --rm -v $$(pwd):/app -w /app node:22-alpine sh -c "apk add --no-cache git && npm install"
+	@docker run --rm -v $$(pwd):/app -w /app node:24-alpine sh -c "apk add --no-cache git && npm install"
 
 speckit: ## speckit 설치 (기본값: claude)
 	@if ! command -v specify >/dev/null 2>&1; then \
