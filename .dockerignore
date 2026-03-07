@@ -1,0 +1,11 @@
+node_modules
+build
+.docusaurus
+.git
+.github
+.husky
+source
+.env*
+*.md
+!versioned_docs/**/*.md
+!docs/**/*.md
