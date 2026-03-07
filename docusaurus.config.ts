@@ -127,17 +127,11 @@ const config: Config = {
       respectPrefersColorScheme: true,  // 사용자 시스템 설정 존중
     },
 
-    // SEO 메타데이터
+    // SEO 메타데이터 (언어 중립 항목만, 로케일별 메타데이터는 src/theme/Root.tsx에서 처리)
     metadata: [
-      {name: 'keywords', content: '라라벨, Laravel, PHP 프레임워크, 웹 개발, 한글 문서, 튜토리얼, 시작하기'},
-      {name: 'description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
       {property: 'og:type', content: 'website'},
-      {property: 'og:title', content: '라라벨 한국어 문서 - PHP 웹 프레임워크'},
-      {property: 'og:description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
       {property: 'og:image', content: 'https://laravel.chanhyung.kim/img/logo.png'},
       {name: 'twitter:card', content: 'summary_large_image'},
-      {name: 'twitter:title', content: '라라벨 한국어 문서 - PHP 웹 프레임워크'},
-      {name: 'twitter:description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
       {name: 'twitter:image', content: 'https://laravel.chanhyung.kim/img/logo.png'},
     ],
 
@@ -148,6 +142,8 @@ const config: Config = {
       // Public API key: it is safe to commit it
       apiKey: '9490c4a274419bf3d76145ab91c89b14',
       indexName: 'laravel-chanhyung',
+      // 로케일 및 버전별 검색 필터링
+      contextualSearch: true,
       // 검색 결과 페이지 경로 설정
       searchPagePath: 'search',
       // 사용자 검색 분석 기능 활성화
