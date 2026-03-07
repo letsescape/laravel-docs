@@ -17,6 +17,7 @@
       "items": [
         "installation",
         "configuration",
+        "ai",
         "structure",
         "frontend",
         "starter-kits",
@@ -78,6 +79,7 @@
         "processes",
         "queues",
         "rate-limiting",
+        "search",
         "strings",
         "scheduling"
       ]
@@ -121,6 +123,16 @@
         "eloquent-resources",
         "eloquent-serialization",
         "eloquent-factories"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "AI",
+      "collapsed": true,
+      "items": [
+        "ai-sdk",
+        "mcp",
+        "boost"
       ]
     },
     {
