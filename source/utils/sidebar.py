@@ -53,7 +53,7 @@ def parse_documentation_md(content, version):
             })
 
     # Set second category to be expanded by default (first is Prologue, kept collapsed)
-    if len(sidebar["tutorialSidebar"]) > 1:
+    if len(sidebar["tutorialSidebar"]) > 1 and sidebar["tutorialSidebar"][1].get("type") == "category":
         sidebar["tutorialSidebar"][1]["collapsed"] = False
 
     return sidebar
