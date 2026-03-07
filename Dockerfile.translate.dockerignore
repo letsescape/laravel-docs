@@ -1,0 +1,16 @@
+node_modules/
+.git/
+.idea/
+.vscode/
+.claude/
+.codex/
+.gemini/
+build/
+dist/
+.docusaurus/
+source/.venv/
+source/.pytest_cache/
+*.log
+.env
+.env.*
+!.env.example

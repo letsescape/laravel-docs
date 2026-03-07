@@ -1,0 +1,11 @@
+services:
+  translate:
+    build:
+      context: .
+      dockerfile: Dockerfile.translate
+    env_file:
+      - path: source/.env
+        required: false
+    volumes:
+      - ./versioned_docs:/app/versioned_docs
+      - ./versioned_sidebars:/app/versioned_sidebars
