@@ -127,7 +127,7 @@ def main():
             try:
                 translate_file(source_path, target_path)
             except Exception as e:
-                print(f"번역 실패: {file_key} - {type(e).__name__}")
+                print(f"번역 실패: {file_key} - {type(e).__name__}: {e}")
                 failed_files.append(file_key)
             time.sleep(translation_delay)
 
