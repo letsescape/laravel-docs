@@ -1,20 +1,39 @@
 /**
  * Script to generate sidebar files for each version based on origin/documentation.md files
  */
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Versions to process
-const versions = ['8.x', '9.x', '10.x', '11.x', '12.x'];
+const versions: string[] = ['8.x', '9.x', '10.x', '11.x', '12.x'];
+
+interface SidebarCategory {
+  type: 'category';
+  label: string;
+  collapsed: boolean;
+  items: string[];
+}
+
+interface SidebarLink {
+  type: 'link';
+  label: string;
+  href: string;
+}
+
+type SidebarItem = SidebarCategory | SidebarLink;
+
+interface Sidebar {
+  tutorialSidebar: SidebarItem[];
+}
 
 // Function to parse documentation.md and create sidebar structure
-function parseSidebar(docContent, version) {
+function parseSidebar(docContent: string, version: string): Sidebar {
   const lines = docContent.split('\n');
-  const sidebar = {
+  const sidebar: Sidebar = {
     tutorialSidebar: []
   };
 
-  let currentCategory = null;
+  let currentCategory: SidebarCategory | null = null;
 
   for (const line of lines) {
     // Match main category
@@ -33,7 +52,6 @@ function parseSidebar(docContent, version) {
     // Match items within a category
     const itemMatch = line.match(/^\s+- \[(.+)\]\(\/docs\/\{\{version\}\}\/(.+)\)$/);
     if (itemMatch && currentCategory) {
-      const itemLabel = itemMatch[1];
       let itemPath = itemMatch[2];
 
       // Remove any anchor links from the path (e.g., 'starter-kits#laravel-breeze' -> 'starter-kits')
@@ -83,8 +101,8 @@ versions.forEach(version => {
       const sidebar = parseSidebar(docContent, version);
 
       // Set first category to be expanded by default
-      if (sidebar.tutorialSidebar.length > 0) {
-        sidebar.tutorialSidebar[1].collapsed = false;
+      if (sidebar.tutorialSidebar.length > 1 && sidebar.tutorialSidebar[1].type === 'category') {
+        (sidebar.tutorialSidebar[1] as SidebarCategory).collapsed = false;
       }
 
       fs.writeFileSync(sidebarOutputPath, JSON.stringify(sidebar, null, 2));
