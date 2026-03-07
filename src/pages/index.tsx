@@ -1,16 +1,13 @@
-import React from 'react';
+import React, {type ReactNode} from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Head from '@docusaurus/Head';
 
-// Import custom components
 import Hero from '@site/src/components/Hero';
 import Features from '@site/src/components/Features';
 import CodeExamples from '@site/src/components/CodeExamples';
-import Community from '@site/src/components/Community';
-import CallToAction from '@site/src/components/CallToAction';
 
-export default function Home() {
+export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   const {url} = siteConfig;
 
@@ -40,8 +37,6 @@ export default function Home() {
         <Hero />
         <Features />
         <CodeExamples />
-        {/*<Community />*/}
-        {/*<CallToAction />*/}
       </main>
     </Layout>
   );
