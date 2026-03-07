@@ -37,8 +37,8 @@ def extract_anchor_references(markdown_text):
         set: 참조된 앵커 이름 집합
     """
     cleaned = _strip_code_blocks(markdown_text)
-    pattern = r'\[[^\]]*\]\(#([^)]+)\)'
-    return set(re.findall(pattern, cleaned))
+    pattern = r'\[[^\]]*\]\(#([^\s)]+)'
+    return set(ref.strip() for ref in re.findall(pattern, cleaned) if ref.strip())
 
 
 def validate_anchors(original_text, translated_text):
