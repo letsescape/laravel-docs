@@ -1,5 +1,3 @@
-import pytest
-
 from utils.anchor import extract_anchor_definitions, extract_anchor_references, validate_anchors
 
 
@@ -41,6 +39,20 @@ class TestExtractAnchorDefinitions:
         text = '<a href="https://example.com">link</a>'
         assert extract_anchor_definitions(text) == set()
 
+    def test_ignores_anchors_in_fenced_code_block(self):
+        text = (
+            '<a name="real-anchor"></a>\n'
+            '## Real Section\n\n'
+            '```html\n'
+            '<a name="code-anchor"></a>\n'
+            '```\n'
+        )
+        assert extract_anchor_definitions(text) == {"real-anchor"}
+
+    def test_ignores_anchors_in_inline_code(self):
+        text = 'Use `<a name="inline-anchor">` to define anchors.'
+        assert extract_anchor_definitions(text) == set()
+
 
 class TestExtractAnchorReferences:
     def test_basic_reference(self):
@@ -74,6 +86,15 @@ class TestExtractAnchorReferences:
     def test_empty_link_text(self):
         text = "[](#anchor)"
         assert extract_anchor_references(text) == {"anchor"}
+
+    def test_ignores_references_in_fenced_code_block(self):
+        text = (
+            '- [Real](#real-ref)\n\n'
+            '```markdown\n'
+            '- [Example](#code-ref)\n'
+            '```\n'
+        )
+        assert extract_anchor_references(text) == {"real-ref"}
 
 
 class TestValidateAnchors:
@@ -128,6 +149,22 @@ class TestValidateAnchors:
         assert len(errors) == 1
         assert "installation" in errors[0]
 
+    def test_extra_anchor_in_translation(self):
+        """Translation should not have anchors that don't exist in original."""
+        original = (
+            '<a name="introduction"></a>\n'
+            '## Introduction\n'
+        )
+        translated = (
+            '<a name="introduction"></a>\n'
+            '## 소개 (Introduction)\n\n'
+            '<a name="hallucinated-section"></a>\n'
+            '### 환각 섹션\n'
+        )
+        is_valid, errors = validate_anchors(original, translated)
+        assert is_valid is False
+        assert any("hallucinated-section" in e for e in errors)
+
     def test_translated_anchor_name(self):
         """Anchor name should not be translated to Korean."""
         original = (
@@ -140,7 +177,7 @@ class TestValidateAnchors:
         )
         is_valid, errors = validate_anchors(original, translated)
         assert is_valid is False
-        assert len(errors) >= 1
+        assert len(errors) == 2  # missing original + extra translated
 
     def test_no_anchors_in_either(self):
         original = "# Title\n\nSome content."
