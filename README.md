@@ -71,6 +71,16 @@ docker run -p 3000:3000 laravel-docs
    uv run main.py  # 번역 실행
    ```
 
+### Docker로 번역 실행
+
+1. `source/.env.example` 파일을 복사하여 `source/.env` 파일을 만들고 번역 제공자를 설정합니다.
+
+2. Docker로 번역 실행
+
+   ```bash
+   docker compose run --rm translate
+   ```
+
 ## 라이선스
 
 - 문서 웹사이트 코드 : MIT License
