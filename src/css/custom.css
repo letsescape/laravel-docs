@@ -5,7 +5,6 @@
  */
 
 /* You can override the default Infima variables here. */
-/* TEST COMMENT - CUSTOM CSS IS WORKING */
 :root {
   --ifm-color-primary: #f53003;
   --ifm-color-primary-dark: #dd2b03;
@@ -158,23 +157,6 @@ svg[class*="text-laravel-red"] {
 
 /* Ensure all paths in SVGs with text-laravel-red class use the theme color */
 svg[class*="text-laravel-red"] path {
-  fill: var(--svg-logo-color) !important;
-}
-
-/* SVG class-based styling */
-.text-laravel-red {
-  color: var(--svg-logo-color) !important;
-}
-
-/* Direct SVG element styling */
-svg[class*="text-laravel-red"] {
-  color: var(--svg-logo-color) !important;
-}
-
-/* Target logo SVGs specifically */
-.navbar__logo svg path,
-.footer__logo svg path,
-.heroLogo svg path {
   fill: var(--svg-logo-color) !important;
 }
 

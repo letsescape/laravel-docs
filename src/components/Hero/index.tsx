@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {type ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import styles from './styles.module.css';
 
-export default function Hero() {
+export default function Hero(): ReactNode {
   return (
     <section className={styles.hero}>
       <div className="container">

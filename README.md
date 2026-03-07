@@ -20,16 +20,25 @@
 
 ## 실행
 
+> Node.js 24 이상이 필요합니다. (`.nvmrc` 참고)
+
 ```bash
 npm install
-docusaurus start
+npm start
 ```
 
-문서의 목차(사이드바)를 자동으로 생성하려면 다음 명령을 실행합니다.  
-이 스크립트는 `versioned_docs/version-{버전}/origin/documentation.md` 파일을 분석하여 각 버전에 대한 사이드바 구조를 생성합니다.
+사이드바 생성 및 타입 검사:
 
 ```bash
 npm run generate-sidebars
+npm run typecheck
+```
+
+### Docker 실행
+
+```bash
+docker build -t laravel-docs .
+docker run -p 3000:3000 laravel-docs
 ```
 
 ### 번역 실행
@@ -60,6 +69,16 @@ npm run generate-sidebars
    cd source
    uv sync         # 의존성 설치
    uv run main.py  # 번역 실행
+   ```
+
+### Docker로 번역 실행
+
+1. `source/.env.example` 파일을 복사하여 `source/.env` 파일을 만들고 번역 제공자를 설정합니다.
+
+2. Docker로 번역 실행
+
+   ```bash
+   docker compose run --rm translate
    ```
 
 ## 라이선스
