@@ -31,7 +31,7 @@ def parse_documentation_md(content, version):
             continue
 
         # Match items within a category: - [Label](/docs/{{version}}/path)
-        item_match = re.match(r'^\s+- \[.+\]\(/docs/\{\{version\}\}/(.+)\)$', line)
+        item_match = re.match(r'^\s+- \[[^\]]+\]\(/docs/\{\{version\}\}/([^)]+)\)$', line)
         if item_match and current_category:
             item_path = item_match[1]
             # Remove anchor links (e.g., 'starter-kits#laravel-breeze' -> 'starter-kits')
