@@ -13,7 +13,7 @@ const bannerMessages: Record<string, string> = {
   ja: 'このドキュメントは現在翻訳中です。一部のページが韓国語で表示される場合があります。',
 };
 
-function Root({children}: {children: React.ReactNode}): React.ReactElement {
+function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactElement {
   const {i18n} = useDocusaurusContext();
   const currentLocale = i18n.currentLocale;
   const keywords = keywordsByLocale[currentLocale] ?? keywordsByLocale.ko;
