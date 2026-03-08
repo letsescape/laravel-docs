@@ -4,55 +4,57 @@
 - [설치](#installation)
 - [사용 가능한 프롬프트](#available-prompts)
     - [텍스트](#text)
-    - [텍스트에어리어](#textarea)
+    - [텍스트 영역](#textarea)
+    - [숫자](#number)
     - [비밀번호](#password)
     - [확인](#confirm)
     - [선택](#select)
-    - [멀티 선택](#multiselect)
-    - [자동완성 제안](#suggest)
+    - [다중 선택](#multiselect)
+    - [추천](#suggest)
     - [검색](#search)
-    - [멀티 검색](#multisearch)
+    - [다중 검색](#multisearch)
     - [일시정지](#pause)
 - [유효성 검증 전 입력값 변환](#transforming-input-before-validation)
 - [폼](#forms)
-- [정보성 메시지](#informational-messages)
+- [정보 메시지](#informational-messages)
 - [테이블](#tables)
 - [스핀](#spin)
-- [진행 표시줄](#progress)
-- [터미널 지우기](#clear)
-- [터미널 관련 주의사항](#terminal-considerations)
+- [진행률 바](#progress)
+- [터미널 초기화](#clear)
+- [터미널 관련 고려 사항](#terminal-considerations)
 - [지원되지 않는 환경 및 대체 동작](#fallbacks)
+- [테스트](#testing)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
-[Laravel Prompts](https://github.com/laravel/prompts)는 명령줄 애플리케이션에서 아름답고 사용자 친화적인 폼을 손쉽게 추가할 수 있게 해주는 PHP 패키지입니다. 브라우저에서 흔히 볼 수 있는 플레이스홀더 텍스트, 유효성 검증과 같은 기능도 지원합니다.
+[Laravel Prompts](https://github.com/laravel/prompts)는 명령줄 애플리케이션에 브라우저와 유사한 플레이스홀더 텍스트 및 유효성 검증 등 아름답고 사용자 친화적인 폼을 쉽게 추가할 수 있도록 해주는 PHP 패키지입니다.
 
 <img src="https://laravel.com/img/docs/prompts-example.png" />
 
-Laravel Prompts는 [아티즌 콘솔 명령어](/docs/12.x/artisan#writing-commands)에서 사용자 입력을 받을 때 특히 유용하지만, 모든 종류의 커맨드라인 PHP 프로젝트에서도 사용할 수 있습니다.
+Laravel Prompts는 [Artisan 콘솔 명령어](/docs/12.x/artisan#writing-commands)에서 사용자 입력을 받을 때 특히 유용하지만, 모든 명령줄 기반 PHP 프로젝트에서 사용할 수 있습니다.
 
 > [!NOTE]
-> Laravel Prompts는 macOS, Linux, 그리고 Windows(WSL 포함)를 지원합니다. 추가 정보는 [지원되지 않는 환경 및 대체 동작](#fallbacks) 문서를 참고하시기 바랍니다.
+> Laravel Prompts는 macOS, Linux, Windows(WSL 환경)를 지원합니다. 더 자세한 내용은 [지원되지 않는 환경 및 대체 동작](#fallbacks) 문서를 참고하세요.
 
 <a name="installation"></a>
-## 설치
+## 설치 (Installation)
 
-Laravel Prompts는 최신 라라벨 릴리즈에 이미 포함되어 있습니다.
+Laravel Prompts는 최신 Laravel 릴리스에 기본 포함되어 있습니다.
 
-또한, Composer 패키지 매니저를 사용해 다른 PHP 프로젝트에서도 별도로 설치할 수 있습니다.
+다른 PHP 프로젝트에도 Composer 패키지 관리자를 이용해 설치할 수 있습니다:
 
 ```shell
 composer require laravel/prompts
 ```
 
 <a name="available-prompts"></a>
-## 사용 가능한 프롬프트
+## 사용 가능한 프롬프트 (Available Prompts)
 
 <a name="text"></a>
-### 텍스트
+### 텍스트 (Text)
 
-`text` 함수를 사용하면 질문을 표시하고 사용자의 입력을 받아 그 값을 반환합니다.
+`text` 함수는 지정한 질문을 사용자에게 표시하고, 입력값을 받아 반환합니다:
 
 ```php
 use function Laravel\Prompts\text;
@@ -60,7 +62,7 @@ use function Laravel\Prompts\text;
 $name = text('What is your name?');
 ```
 
-플레이스홀더 텍스트, 기본값, 추가 안내문도 함께 제공할 수 있습니다.
+플레이스홀더 텍스트, 기본값, 추가 안내 문구도 설정할 수 있습니다:
 
 ```php
 $name = text(
@@ -72,9 +74,9 @@ $name = text(
 ```
 
 <a name="text-required"></a>
-#### 값 필수 입력
+#### 필수 입력값 지정
 
-입력이 반드시 필요한 경우, `required` 인수를 전달하면 됩니다.
+입력이 반드시 필요하다면, `required` 인수를 전달하세요:
 
 ```php
 $name = text(
@@ -83,7 +85,7 @@ $name = text(
 );
 ```
 
-유효성 검증 메시지를 직접 지정하고 싶다면 문자열을 전달할 수도 있습니다.
+유효성 검증 메시지를 사용자 지정하려면 문자열을 전달할 수도 있습니다:
 
 ```php
 $name = text(
@@ -95,7 +97,7 @@ $name = text(
 <a name="text-validation"></a>
 #### 추가 유효성 검증
 
-추가적인 유효성 검증 로직이 필요하다면, `validate` 인수에 클로저(익명 함수)를 전달할 수 있습니다.
+추가적인 유효성 검증이 필요하다면, `validate` 인수에 클로저(익명 함수)를 전달할 수 있습니다:
 
 ```php
 $name = text(
@@ -108,9 +110,9 @@ $name = text(
 );
 ```
 
-이 클로저는 사용자가 입력한 값을 전달받으며, 에러 메시지를 반환하거나 유효성 검증이 통과되면 `null`을 반환해야 합니다.
+이 클로저는 사용자가 입력한 값을 전달받아, 에러 메시지를 반환하거나 유효하다면 `null`을 반환합니다.
 
-또 다른 방법으로, Laravel의 강력한 [validator](/docs/12.x/validation)를 사용할 수도 있습니다. 이를 위해서는 속성명과 원하는 유효성 규칙이 들어 있는 배열을 `validate` 인수로 제공하면 됩니다.
+또는, Laravel의 [유효성 검증기](/docs/12.x/validation) 기능을 사용할 수도 있습니다. 이 경우 검증할 속성명과 검증 규칙이 포함된 배열을 `validate` 인수로 전달하면 됩니다:
 
 ```php
 $name = text(
@@ -120,9 +122,9 @@ $name = text(
 ```
 
 <a name="textarea"></a>
-### 텍스트에어리어
+### 텍스트 영역 (Textarea)
 
-`textarea` 함수는 질문을 표시하고, 멀티라인 텍스트 입력 창을 통해 사용자의 입력을 받은 뒤 그 값을 반환합니다.
+`textarea` 함수는 사용자가 여러 줄로 입력할 수 있는 textarea로 질문을 던지고, 입력값을 받아 반환합니다:
 
 ```php
 use function Laravel\Prompts\textarea;
@@ -130,7 +132,7 @@ use function Laravel\Prompts\textarea;
 $story = textarea('Tell me a story.');
 ```
 
-플레이스홀더 텍스트, 기본값, 추가 안내문도 포함할 수 있습니다.
+플레이스홀더, 기본값, 추가 안내 문구도 설정 가능합니다:
 
 ```php
 $story = textarea(
@@ -141,9 +143,9 @@ $story = textarea(
 ```
 
 <a name="textarea-required"></a>
-#### 값 필수 입력
+#### 필수 입력값 지정
 
-입력이 반드시 필요한 경우, `required` 인수를 전달하면 됩니다.
+입력이 필수인 경우, `required` 인수를 사용합니다:
 
 ```php
 $story = textarea(
@@ -152,7 +154,7 @@ $story = textarea(
 );
 ```
 
-유효성 검증 메시지를 직접 지정하고 싶다면 문자열을 전달할 수도 있습니다.
+유효성 메시지를 직접 지정하려면 문자열을 입력하세요:
 
 ```php
 $story = textarea(
@@ -164,7 +166,7 @@ $story = textarea(
 <a name="textarea-validation"></a>
 #### 추가 유효성 검증
 
-추가적인 유효성 검증 로직이 필요하다면, `validate` 인수에 클로저를 전달할 수 있습니다.
+추가 유효성 검증이 필요하다면, `validate` 인수에 클로저를 전달할 수 있습니다:
 
 ```php
 $story = textarea(
@@ -177,9 +179,9 @@ $story = textarea(
 );
 ```
 
-이 클로저는 입력된 값을 전달받으며, 에러 메시지를 반환하거나 유효하면 `null`을 반환합니다.
+이 클로저는 입력값을 받아 에러 메시지 또는 `null`을 반환합니다.
 
-또 다른 방법으로, Laravel의 [validator](/docs/12.x/validation)를 사용할 수도 있습니다. 배열 형식으로 속성명과 유효성 규칙을 전달하면 됩니다.
+또는 Laravel [유효성 검증기](/docs/12.x/validation)를 사용할 수 있습니다:
 
 ```php
 $story = textarea(
@@ -188,10 +190,80 @@ $story = textarea(
 );
 ```
 
-<a name="password"></a>
-### 비밀번호
+<a name="number"></a>
+### 숫자 (Number)
 
-`password` 함수는 `text` 함수와 비슷하지만, 사용자가 입력하는 내용이 콘솔에 표시되지 않고 마스킹(masking) 처리됩니다. 비밀번호와 같이 민감한 정보를 입력받을 때 유용합니다.
+`number` 함수는 질문을 표시하고, 숫자 입력을 받아 반환합니다. 사용자는 위/아래 방향키로 숫자를 조정할 수 있습니다:
+
+```php
+use function Laravel\Prompts\number;
+
+$number = number('How many copies would you like?');
+```
+
+플레이스홀더, 기본값, 안내 문구도 사용할 수 있습니다:
+
+```php
+$name = number(
+    label: 'How many copies would you like?',
+    placeholder: '5',
+    default: 1,
+    hint: 'This will be determine how many copies to create.'
+);
+```
+
+<a name="number-required"></a>
+#### 필수 입력값 지정
+
+입력이 필수인 경우, `required` 인수를 사용합니다:
+
+```php
+$copies = number(
+    label: 'How many copies would you like?',
+    required: true
+);
+```
+
+유효성 메시지를 직접 지정하려면 문자열을 입력하세요:
+
+```php
+$copies = number(
+    label: 'How many copies would you like?',
+    required: 'A number of copies is required.'
+);
+```
+
+<a name="number-validation"></a>
+#### 추가 유효성 검증
+
+추가 유효성 검증이 필요하면, `validate` 인수에 클로저를 전달할 수 있습니다:
+
+```php
+$copies = number(
+    label: 'How many copies would you like?',
+    validate: fn (?int $value) => match (true) {
+        $value < 1 => 'At least one copy is required.',
+        $value > 100 => 'You may not create more than 100 copies.',
+        default => null
+    }
+);
+```
+
+클로저는 입력값을 받아서 에러 메시지나 `null`을 반환합니다.
+
+또는 Laravel [유효성 검증기](/docs/12.x/validation)를 활용할 수 있습니다:
+
+```php
+$copies = number(
+    label: 'How many copies would you like?',
+    validate: ['copies' => 'required|integer|min:1|max:100']
+);
+```
+
+<a name="password"></a>
+### 비밀번호 (Password)
+
+`password` 함수는 `text` 함수와 비슷하지만, 사용자가 입력하는 값이 콘솔에서 마스킹(숨김) 처리됩니다. 비밀번호 등 민감한 정보를 입력받을 때 유용합니다:
 
 ```php
 use function Laravel\Prompts\password;
@@ -199,7 +271,7 @@ use function Laravel\Prompts\password;
 $password = password('What is your password?');
 ```
 
-플레이스홀더 텍스트, 추가 안내문도 지정할 수 있습니다.
+플레이스홀더와 안내 문구도 추가할 수 있습니다:
 
 ```php
 $password = password(
@@ -210,9 +282,9 @@ $password = password(
 ```
 
 <a name="password-required"></a>
-#### 값 필수 입력
+#### 필수 입력값 지정
 
-입력이 반드시 필요하다면, `required` 인수를 전달하면 됩니다.
+입력이 필수라면 `required` 인수를 사용하세요:
 
 ```php
 $password = password(
@@ -221,7 +293,7 @@ $password = password(
 );
 ```
 
-유효성 검증 메시지를 커스터마이즈하고 싶다면 문자열도 전달할 수 있습니다.
+메시지를 직접 지정하려면 문자열을 입력합니다:
 
 ```php
 $password = password(
@@ -233,7 +305,7 @@ $password = password(
 <a name="password-validation"></a>
 #### 추가 유효성 검증
 
-추가적으로 유효성 검증이 필요하다면, `validate` 인수에 클로저를 전달하면 됩니다.
+추가 검증이 필요하다면, `validate` 인수에 클로저를 사용할 수 있습니다:
 
 ```php
 $password = password(
@@ -245,9 +317,9 @@ $password = password(
 );
 ```
 
-클로저는 입력받은 값을 인수로 받아, 유효하지 않으면 에러 메시지를, 유효할 땐 `null`을 반환해야 합니다.
+클로저는 입력값을 받아 에러 메시지 또는 `null`을 반환합니다.
 
-또는 Laravel의 [validator](/docs/12.x/validation)를 사용할 수도 있습니다. 배열로 속성명과 유효성 규칙을 전달하세요.
+또는 Laravel [유효성 검증기](/docs/12.x/validation)를 사용할 수 있습니다:
 
 ```php
 $password = password(
@@ -257,9 +329,9 @@ $password = password(
 ```
 
 <a name="confirm"></a>
-### 확인
+### 확인 (Confirm)
 
-사용자에게 "예/아니오"로 대답하는 확인 질문을 하고 싶을 때는 `confirm` 함수를 사용하면 됩니다. 사용자는 화살표 키 또는 `y`, `n` 키로 답을 선택할 수 있습니다. 이 함수는 `true` 또는 `false`를 반환합니다.
+사용자에게 "예/아니오" 형태의 확인을 요청하고 싶을 때 `confirm` 함수를 사용할 수 있습니다. 사용자는 방향키나 `y`, `n` 키로 선택합니다. 결과는 `true` 또는 `false`로 반환됩니다.
 
 ```php
 use function Laravel\Prompts\confirm;
@@ -267,7 +339,7 @@ use function Laravel\Prompts\confirm;
 $confirmed = confirm('Do you accept the terms?');
 ```
 
-기본 선택값, "예"/"아니오" 표시 텍스트, 추가 안내문도 지정할 수 있습니다.
+기본값, "Yes"/"No" 버튼의 텍스트, 안내문도 지정할 수 있습니다:
 
 ```php
 $confirmed = confirm(
@@ -280,9 +352,9 @@ $confirmed = confirm(
 ```
 
 <a name="confirm-required"></a>
-#### "예" 선택 요구
+#### "예" 필수 선택
 
-필요하다면, 사용자가 반드시 "예"를 선택하도록 `required` 인수를 전달할 수 있습니다.
+필요하다면 사용자가 반드시 "예"를 선택하도록 요구할 수 있습니다. 이때 `required` 인수를 전달하세요:
 
 ```php
 $confirmed = confirm(
@@ -291,7 +363,7 @@ $confirmed = confirm(
 );
 ```
 
-유효성 검증 메시지를 커스터마이즈하고 싶다면 문자열로 전달할 수도 있습니다.
+메시지를 사용자 정의하려면 문자열로 지정할 수도 있습니다:
 
 ```php
 $confirmed = confirm(
@@ -301,9 +373,9 @@ $confirmed = confirm(
 ```
 
 <a name="select"></a>
-### 선택
+### 선택 (Select)
 
-미리 정의된 여러 항목 중 하나를 사용자가 선택하도록 해야 한다면, `select` 함수를 사용하면 됩니다.
+사용자가 미리 정해진 항목 중에서 하나를 선택하도록 하려면 `select` 함수를 사용할 수 있습니다:
 
 ```php
 use function Laravel\Prompts\select;
@@ -314,7 +386,7 @@ $role = select(
 );
 ```
 
-기본 선택값, 추가 안내문도 지정할 수 있습니다.
+기본 선택값과 안내 문구도 지정할 수 있습니다:
 
 ```php
 $role = select(
@@ -325,7 +397,7 @@ $role = select(
 );
 ```
 
-`options` 인수에 연관 배열(associative array)을 전달하면 선택한 항목의 키가 반환됩니다.
+연관 배열을 `options` 인수에 전달하면, 선택된 key가 반환됩니다:
 
 ```php
 $role = select(
@@ -339,7 +411,7 @@ $role = select(
 );
 ```
 
-5개 이상의 옵션이 있을 경우 스크롤이 생기며, `scroll` 인수를 통해 보이는 옵션의 개수를 조절할 수 있습니다.
+최대 5개의 옵션이 리스트에 표시되며, 스크롤이 필요한 경우 `scroll` 인수로 제한을 변경할 수 있습니다:
 
 ```php
 $role = select(
@@ -352,7 +424,7 @@ $role = select(
 <a name="select-validation"></a>
 #### 추가 유효성 검증
 
-다른 프롬프트 함수들과 달리, `select` 함수는 아무것도 선택하지 않는 상황이 없으므로 `required` 인수를 지원하지 않습니다. 하지만 특정 옵션은 선택하지 못하도록 하고 싶다면, `validate` 인수에 클로저를 전달할 수 있습니다.
+`select` 함수는 기본적으로 `required` 인수를 지원하지 않습니다(아무 것도 선택하지 않을 수 없기 때문). 하지만 특정 항목을 보이지만 선택을 막고 싶다면, `validate` 인수에 클로저를 전달할 수 있습니다:
 
 ```php
 $role = select(
@@ -369,12 +441,12 @@ $role = select(
 );
 ```
 
-`options`가 연관 배열이면 클로저에는 선택된 키가, 일반 배열이면 값이 전달됩니다. 유효하지 않은 경우 에러 메시지를, 유효하면 `null`을 반환합니다.
+`options` 인수가 연관 배열이면 선택된 키를, 배열이면 값을 반환합니다. 클로저는 에러 메시지나 `null`을 반환할 수 있습니다.
 
 <a name="multiselect"></a>
-### 멀티 선택
+### 다중 선택 (Multi-select)
 
-여러 옵션을 동시에 선택할 수 있도록 하려면, `multiselect` 함수를 사용하면 됩니다.
+여러 옵션 중 복수 개를 선택하게 하려면 `multiselect` 함수를 사용하세요:
 
 ```php
 use function Laravel\Prompts\multiselect;
@@ -385,7 +457,7 @@ $permissions = multiselect(
 );
 ```
 
-기본 선택값, 추가 안내문도 함께 지정할 수 있습니다.
+기본 선택값과 안내 문구도 지정할 수 있습니다:
 
 ```php
 use function Laravel\Prompts\multiselect;
@@ -398,7 +470,7 @@ $permissions = multiselect(
 );
 ```
 
-`options`에 연관 배열을 전달하면 값이 아닌 선택한 옵션의 키가 반환됩니다.
+연관 배열을 `options`로 전달하면 선택된 옵션의 키가 반환됩니다:
 
 ```php
 $permissions = multiselect(
@@ -413,7 +485,7 @@ $permissions = multiselect(
 );
 ```
 
-5개 이상의 옵션에서 스크롤이 활성화되며, `scroll` 인수를 통해 표시 개수를 조정할 수 있습니다.
+5개까지 옵션이 표시되고, 스크롤 수를 `scroll` 인수로 변경할 수 있습니다:
 
 ```php
 $categories = multiselect(
@@ -424,9 +496,9 @@ $categories = multiselect(
 ```
 
 <a name="multiselect-required"></a>
-#### 값 입력 필수 요구
+#### 값 선택 필수화
 
-기본적으로 사용자는 0개 이상의 옵션을 선택할 수 있습니다. 하지만 한 개 이상 꼭 선택하도록 하려면, `required` 인수를 추가하면 됩니다.
+기본적으로 0개 이상의 항목을 선택할 수 있습니다. 최소 1개 이상을 필수로 선택하도록 하려면 `required` 인수를 사용하세요:
 
 ```php
 $categories = multiselect(
@@ -436,7 +508,7 @@ $categories = multiselect(
 );
 ```
 
-유효성 검증 메시지를 직접 지정하고 싶다면, `required` 인수에 문자열을 전달할 수 있습니다.
+검증 메시지를 직접 넣으려면, 문자열로 `required`를 전달할 수 있습니다:
 
 ```php
 $categories = multiselect(
@@ -449,7 +521,7 @@ $categories = multiselect(
 <a name="multiselect-validation"></a>
 #### 추가 유효성 검증
 
-특정 옵션을 선택하지 못하도록 제한하고 싶다면, `validate` 인수에 클로저를 전달할 수 있습니다.
+특정 옵션을 선택하지 못하게 하려면 `validate` 인수에 클로저를 전달하세요:
 
 ```php
 $permissions = multiselect(
@@ -466,12 +538,12 @@ $permissions = multiselect(
 );
 ```
 
-`options`가 연관 배열이면 클로저로 선택된 키 배열이 전달되고, 일반 배열이면 값 배열이 전달됩니다. 검증 실패 시 에러 메시지, 통과 시 `null`을 반환합니다.
+연관 배열을 사용한다면 선택된 키들이, 단순 배열이면 값들이 전달됩니다. 반환값은 에러 메시지 또는 `null`입니다.
 
 <a name="suggest"></a>
-### 자동완성 제안
+### 추천 (Suggest)
 
-`suggest` 함수는 가능한 선택지를 자동완성으로 미리 보여줄 수 있습니다. 자동완성 힌트와 관계없이, 사용자는 원하는 모든 값을 직접 입력할 수 있습니다.
+`suggest` 함수는 자동완성 후보를 제공할 수 있습니다. 자동완성 후보와 상관없이 사용자는 임의의 답변도 입력할 수 있습니다:
 
 ```php
 use function Laravel\Prompts\suggest;
@@ -479,7 +551,7 @@ use function Laravel\Prompts\suggest;
 $name = suggest('What is your name?', ['Taylor', 'Dayle']);
 ```
 
-또는 두 번째 인수로 클로저를 전달할 수 있습니다. 이 클로저는 사용자가 문자를 입력할 때마다 호출되며, 현재까지 입력된 값을 받아 자동완성으로 보여줄 옵션 배열을 반환해야 합니다.
+또는, 두 번째 인수로 클로저를 전달해 사용자가 입력할 때마다 자동완성 후보를 동적으로 제시할 수도 있습니다:
 
 ```php
 $name = suggest(
@@ -489,7 +561,7 @@ $name = suggest(
 )
 ```
 
-플레이스홀더 텍스트, 기본값, 추가 안내문도 지정할 수 있습니다.
+플레이스홀더, 기본값, 안내 문구도 지정할 수 있습니다:
 
 ```php
 $name = suggest(
@@ -502,9 +574,9 @@ $name = suggest(
 ```
 
 <a name="suggest-required"></a>
-#### 값 필수 입력
+#### 필수 입력값 지정
 
-입력값이 필수라면, `required` 인수를 전달하세요.
+값 입력이 필수라면 `required`를 사용합니다:
 
 ```php
 $name = suggest(
@@ -514,7 +586,7 @@ $name = suggest(
 );
 ```
 
-유효성 검증 메시지를 커스터마이즈하고 싶다면 문자열을 전달할 수도 있습니다.
+메시지 지정도 가능합니다:
 
 ```php
 $name = suggest(
@@ -527,7 +599,7 @@ $name = suggest(
 <a name="suggest-validation"></a>
 #### 추가 유효성 검증
 
-추가 유효성 검증이 필요하다면, `validate` 인수에 클로저를 전달하세요.
+추가 검증이 필요하다면 클로저를 활용하세요:
 
 ```php
 $name = suggest(
@@ -541,9 +613,7 @@ $name = suggest(
 );
 ```
 
-클로저는 사용자의 입력값을 받고, 에러 메시지를 반환하거나 검증 통과 시 `null`을 반환합니다.
-
-또 다른 방법으로 Laravel의 [validator](/docs/12.x/validation)를 쓸 수 있습니다. 속성명과 검증 규칙이 담긴 배열을 넣으세요.
+또는 [유효성 검증기](/docs/12.x/validation)를 사용할 수 있습니다:
 
 ```php
 $name = suggest(
@@ -554,9 +624,9 @@ $name = suggest(
 ```
 
 <a name="search"></a>
-### 검색
+### 검색 (Search)
 
-사용자가 선택할 수 있는 항목이 많은 경우, `search` 함수는 사용자가 직접 검색어를 입력해 결과를 필터링한 후, 화살표 키로 원하는 항목을 선택할 수 있게 해줍니다.
+옵션이 많을 때, `search` 함수는 사용자가 검색어를 입력해 목록을 필터링한 후, 원하는 항목을 선택할 수 있게 해줍니다:
 
 ```php
 use function Laravel\Prompts\search;
@@ -569,9 +639,9 @@ $id = search(
 );
 ```
 
-이 클로저는 사용자가 지금까지 입력한 텍스트를 받으며, 옵션 배열을 반환해야 합니다. 연관 배열로 값을 반환하면 선택된 옵션의 키를, 그렇지 않으면 값을 반환합니다.
+클로저는 입력된 검색어를 받아 옵션 배열을 반환해야 합니다. 연관 배열 반환 시 선택된 키, 단순 배열이면 값을 반환합니다.
 
-값 자체를 반환하도록 필터링할 때는, 배열이 연관 배열이 되지 않도록 `array_values` 함수나 Collection의 `values` 메서드를 사용하는 것이 좋습니다.
+값을 반환하는 배열을 필터링할 때는 배열이 연관 배열로 변경되지 않도록 `array_values` 함수나 컬렉션의 `values` 메서드를 같이 사용하세요:
 
 ```php
 $names = collect(['Taylor', 'Abigail']);
@@ -585,7 +655,7 @@ $selected = search(
 );
 ```
 
-플레이스홀더 텍스트, 추가 안내문도 제공할 수 있습니다.
+플레이스홀더, 안내 문구도 추가할 수 있습니다:
 
 ```php
 $id = search(
@@ -598,7 +668,7 @@ $id = search(
 );
 ```
 
-5개의 옵션까지는 스크롤이 보이지 않으며, `scroll` 인수로 표시 개수를 조정할 수 있습니다.
+최대 5개 항목이 표시되며, `scroll` 인수로 조정할 수 있습니다:
 
 ```php
 $id = search(
@@ -611,10 +681,9 @@ $id = search(
 ```
 
 <a name="search-validation"></a>
-
 #### 추가 유효성 검증
 
-추가적인 유효성 검증 로직을 수행하고 싶다면, `validate` 인수에 클로저를 전달하면 됩니다.
+추가 검증이 필요하다면 `validate` 인수에 클로저를 사용할 수 있습니다:
 
 ```php
 $id = search(
@@ -632,12 +701,12 @@ $id = search(
 );
 ```
 
-`options` 클로저가 연관 배열(associative array)을 반환하는 경우, 해당 클로저는 선택된 키(key)를 인수로 받습니다. 그렇지 않다면 값(value)을 받게 됩니다. 클로저는 에러 메시지를 반환하거나, 검증이 통과한 경우에는 `null`을 반환할 수 있습니다.
+연관 배열 반환인 경우 선택된 키, 값 배열이면 선택된 값을 전달받습니다.
 
 <a name="multisearch"></a>
-### 멀티서치(Multi-search)
+### 다중 검색 (Multi-search)
 
-검색 가능한 옵션이 많고, 사용자가 여러 항목을 선택해야 하는 경우, `multisearch` 함수를 통해 사용자가 검색어를 입력해 결과를 필터링하고, 방향키와 스페이스바로 여러 옵션을 선택할 수 있습니다.
+검색 가능한 여러 옵션 중 복수 항목을 선택해야 한다면 `multisearch` 함수를 사용하세요. 사용자는 검색어로 목록을 필터링하고, 방향키와 스페이스바로 원하는 항목을 선택할 수 있습니다.
 
 ```php
 use function Laravel\Prompts\multisearch;
@@ -650,23 +719,23 @@ $ids = multisearch(
 );
 ```
 
-클로저는 사용자가 지금까지 입력한 텍스트를 받아서, 옵션 배열을 반환해야 합니다. 연관 배열을 반환하면 선택된 옵션의 키(key)가 반환되고, 그 외에는 값(value)들이 반환됩니다.
+클로저는 입력된 검색어를 받아 배열을 반환해야 하며, 연관 배열이면 선택된 키 배열, 값 배열이면 선택된 값 배열을 반환합니다.
 
-값을 반환하는 배열을 필터링하는 경우 `array_values` 함수나 컬렉션의 `values` 메서드를 사용해 배열이 연관 배열이 되지 않도록 해야 합니다.
+배열이 연관 배열이 되지 않도록, 값 배열 필터 시 `array_values` 또는 컬렉션의 `values` 메서드를 사용하세요:
 
 ```php
 $names = collect(['Taylor', 'Abigail']);
 
 $selected = multisearch(
     label: 'Search for the users that should receive the mail',
-    options: fn ($name) => $names
+    options: fn (string $value) => $names
         ->filter(fn ($name) => Str::contains($name, $value, ignoreCase: true))
         ->values()
         ->all(),
 );
 ```
 
-플레이스홀더(placeholder) 텍스트나 안내(hint) 문구도 추가할 수 있습니다.
+플레이스홀더와 안내 문구도 추가할 수 있습니다:
 
 ```php
 $ids = multisearch(
@@ -679,7 +748,7 @@ $ids = multisearch(
 );
 ```
 
-최대 5개의 옵션이 스크롤 없이 표시되며, 옵션이 더 많아지면 리스트가 스크롤됩니다. 표시되는 옵션 수를 `scroll` 인수로 지정하여 변경할 수 있습니다.
+5개까지 표시되고, `scroll` 인수로 조정할 수 있습니다:
 
 ```php
 $ids = multisearch(
@@ -692,9 +761,9 @@ $ids = multisearch(
 ```
 
 <a name="multisearch-required"></a>
-#### 값 필수 지정
+#### 값 선택 필수화
 
-기본적으로 사용자는 0개 이상의 옵션을 선택할 수 있습니다. 필수로 하나 이상 선택하게 하려면 `required` 인수를 사용하면 됩니다.
+기본적으로 0개 이상의 항목을 선택할 수 있습니다. 하나 이상을 필수로 요구하려면 `required` 인수를 사용하세요:
 
 ```php
 $ids = multisearch(
@@ -706,7 +775,7 @@ $ids = multisearch(
 );
 ```
 
-유효성 메시지를 사용자가 원하는 문구로 변경하고 싶다면, `required`에 문자열을 전달할 수도 있습니다.
+문자열로 메시지를 지정할 수도 있습니다:
 
 ```php
 $ids = multisearch(
@@ -721,7 +790,7 @@ $ids = multisearch(
 <a name="multisearch-validation"></a>
 #### 추가 유효성 검증
 
-추가적인 유효성 검증 로직이 필요하다면, `validate` 인수에 클로저를 전달할 수 있습니다.
+검증이 필요하면 클로저를 `validate` 인수에 전달하세요:
 
 ```php
 $ids = multisearch(
@@ -739,12 +808,12 @@ $ids = multisearch(
 );
 ```
 
-`options` 클로저가 연관 배열을 반환하면, 선택된 키(key)들이 전달되고, 그렇지 않은 경우 선택된 값(value)들이 전달됩니다. 클로저는 에러 메시지를 반환하거나, 검증이 통과하면 `null`을 반환할 수 있습니다.
+연관 배열이면 선택된 키 배열, 값 배열이면 선택된 값 배열을 전달받습니다. 반환값은 에러 메시지 또는 `null`입니다.
 
 <a name="pause"></a>
-### 일시정지(Pause)
+### 일시정지 (Pause)
 
-`pause` 함수는 사용자에게 정보를 보여준 뒤 ENTER(엔터) 또는 RETURN 키를 눌러 진행을 확인할 때 사용할 수 있습니다.
+`pause` 함수는 중간 안내 메시지를 표시하고, 사용자가 Enter/Return을 눌러 진행하도록 합니다:
 
 ```php
 use function Laravel\Prompts\pause;
@@ -753,9 +822,9 @@ pause('Press ENTER to continue.');
 ```
 
 <a name="transforming-input-before-validation"></a>
-## 유효성 검증 전 입력 값 변환
+## 유효성 검증 전 입력값 변환 (Transforming Input Before Validation)
 
-때로는 프롬프트 입력 값을 유효성 검증 전에 가공하고 싶을 수 있습니다. 예를 들어, 입력받은 문자열의 공백을 제거하려 할 때가 있습니다. 이를 위해 다수의 프롬프트 함수에서는 `transform` 인수를 제공하며, 클로저를 받을 수 있습니다.
+입력값에서 앞뒤 공백을 제거하는 등, 유효성 검증 전에 입력값을 가공(변환)하고 싶을 때가 있습니다. 이를 위해 많은 프롬프트 함수들은 `transform` 인수를 지원합니다. 이 인수는 클로저를 받아 입력값을 조작하게 할 수 있습니다:
 
 ```php
 $name = text(
@@ -770,9 +839,9 @@ $name = text(
 ```
 
 <a name="forms"></a>
-## 폼(Forms)
+## 폼 (Forms)
 
-여러 개의 프롬프트를 순차적으로 표시하여 정보를 수집한 후 추가 작업이 필요한 경우가 자주 있습니다. `form` 함수를 활용하면 사용자가 차례로 입력을 진행할 수 있는 프롬프트 그룹을 만들 수 있습니다.
+여러 개의 프롬프트를 순차적으로 보여주며 정보를 받은 후, 이후에 추가 동작을 수행하고 싶을 때가 많습니다. `form` 함수를 사용하면 여러 프롬프트를 그룹화하여 한 번에 사용자로부터 입력을 받을 수 있습니다:
 
 ```php
 use function Laravel\Prompts\form;
@@ -784,7 +853,7 @@ $responses = form()
     ->submit();
 ```
 
-`submit` 메서드는 폼 내 모든 프롬프트의 응답을 숫자 인덱스 배열로 반환합니다. 각 프롬프트에 `name` 인수를 지정하면 해당 이름으로 응답 값을 가져올 수 있습니다.
+`submit` 메서드는 폼의 응답값들을 숫자 인덱스 배열로 반환합니다. 하지만, 각 프롬프트에 `name` 인수를 부여하여 해당 이름의 키로 결과를 가져올 수도 있습니다:
 
 ```php
 use App\Models\User;
@@ -806,9 +875,9 @@ User::create([
 ]);
 ```
 
-`form` 함수를 사용하는 가장 큰 장점은 사용자가 `CTRL + U` 단축키를 이용해 이전 프롬프트로 돌아갈 수 있다는 점입니다. 덕분에 사용자는 입력을 취소하지 않아도 실수를 바로잡거나 선택을 변경할 수 있습니다.
+`form` 함수의 가장 큰 장점은 사용자가 `CTRL + U` 단축키로 이전 프롬프트 단계로 돌아가 잘못된 입력을 수정하거나 선택을 변경할 수 있다는 점입니다. 사용자는 입력을 취소하지 않고도 전체 폼을 다시 시작할 필요 없이 개별 항목을 바로 수정할 수 있습니다.
 
-폼 내에서 프롬프트를 더 세부적으로 제어하고 싶다면, 프롬프트 함수를 직접 호출하는 대신 `add` 메서드를 사용할 수 있습니다. `add` 메서드는 사용자가 입력한 이전 응답값을 모두 인수로 전달합니다.
+폼 내부 프롬프트를 더 세밀하게 제어하고 싶을 때는, 각 프롬프트 함수 대신 `add` 메서드를 사용할 수 있습니다. 이때 기존 응답값들이 인수로 전달됩니다:
 
 ```php
 use function Laravel\Prompts\form;
@@ -826,9 +895,9 @@ outro("Your name is {$responses['name']} and you are {$responses['age']} years o
 ```
 
 <a name="informational-messages"></a>
-## 정보 메시지
+## 정보 메시지 (Informational Messages)
 
-`note`, `info`, `warning`, `error`, `alert` 함수들을 사용해 다양한 정보 메시지를 사용자에게 보여줄 수 있습니다.
+`note`, `info`, `warning`, `error`, `alert` 함수들은 다양한 정보성 메시지를 보여주기 위해 사용할 수 있습니다:
 
 ```php
 use function Laravel\Prompts\info;
@@ -837,9 +906,9 @@ info('Package installed successfully.');
 ```
 
 <a name="tables"></a>
-## 테이블 표시
+## 테이블 (Tables)
 
-`table` 함수를 사용하면 여러 행과 열의 데이터를 손쉽게 표 형태로 표시할 수 있습니다. 컬럼(헤더) 이름과 데이터만 넘겨주면 됩니다.
+`table` 함수는 여러 행과 열로 구성된 데이터를 쉽게 표시할 수 있게 해줍니다. 컬럼(header) 이름 배열과 데이터 배열만 넘기면 됩니다:
 
 ```php
 use function Laravel\Prompts\table;
@@ -851,26 +920,26 @@ table(
 ```
 
 <a name="spin"></a>
-## 스핀(Spin)
+## 스핀 (Spin)
 
-`spin` 함수는 지정된 콜백이 실행되는 동안 진행 중임을 나타내는 스피너와 옵션 메시지를 함께 표시합니다. 완료 후 콜백의 결과를 반환합니다.
+`spin` 함수는 작업이 진행 중일 때 스피너와 함께 선택적 메시지를 표시하며, 지정한 콜백이 끝나면 결과값을 반환합니다. 주로 시간이 소요되는 작업을 진행중임을 표시할 때 사용합니다:
 
 ```php
 use function Laravel\Prompts\spin;
 
 $response = spin(
-    message: 'Fetching response...',
-    callback: fn () => Http::get('http://example.com')
+    callback: fn () => Http::get('http://example.com'),
+    message: 'Fetching response...'
 );
 ```
 
 > [!WARNING]
-> `spin` 기능에서 스피너 애니메이션을 제대로 표시하려면 `pcntl` PHP 확장이 필요합니다. 이 확장이 없으면 스피너는 정적인 형태로 나타납니다.
+> 스피너 애니메이션을 표시하려면 PHP의 [PCNTL](https://www.php.net/manual/en/book.pcntl.php) 확장 모듈이 설치되어 있어야 합니다. 해당 확장이 없으면 정적인 스피너가 표시됩니다.
 
 <a name="progress"></a>
-## 진행률 표시줄(Progress Bars)
+## 진행률 바 (Progress Bars)
 
-작업을 오래 실행할 경우, 현재 작업의 진행 상태를 사용자에게 안내하기 위해 진행률 표시줄(progress bar)을 사용하는 것이 유용합니다. `progress` 함수를 사용하면 주어진 이터러블 값을 반복할 때마다 진행률 바가 표시되고, 반복마다 자동으로 진척도를 갱신합니다.
+시간이 오래 걸리는 작업을 진행할 때, 사용자가 작업 완료 상태를 알 수 있도록 `progress` 함수를 활용할 수 있습니다. 이 함수는 주어진 반복가능(Iterable) 객체를 순회하면서 자동으로 진행률 바를 그려줍니다:
 
 ```php
 use function Laravel\Prompts\progress;
@@ -882,9 +951,9 @@ $users = progress(
 );
 ```
 
-`progress` 함수는 map 함수처럼 동작하며, 각 반복에서 콜백이 반환한 값을 담은 배열을 반환합니다.
+`progress` 함수는 map 함수처럼 동작하며, 콜백 반환값으로 이루어진 배열을 반환합니다.
 
-콜백 함수에서 `Laravel\Prompts\Progress` 인스턴스를 받을 수도 있으며, 이를 통해 각 반복마다 레이블이나 힌트 메시지를 동적으로 변경할 수 있습니다.
+콜백 함수에서 `Laravel\Prompts\Progress` 인스턴스를 받아, 각 반복마다 라벨과 안내 문구를 동적으로 수정할 수도 있습니다:
 
 ```php
 $users = progress(
@@ -901,7 +970,7 @@ $users = progress(
 );
 ```
 
-진행률 표시를 더 세밀하게 제어할 필요가 있다면, 우선 전체 반복 횟수를 지정하고, 각 항목 처리 후 `advance` 메서드로 직접 진행률을 올릴 수 있습니다.
+진행률 막대를 수동으로 제어하고 싶을 때에는, 먼저 처리해야 할 총 반복 횟수(steps)를 지정하고, 각 항목 처리 후 `advance` 메서드로 직접 진행률을 증가시킬 수 있습니다:
 
 ```php
 $progress = progress(label: 'Updating users', steps: 10);
@@ -920,9 +989,9 @@ $progress->finish();
 ```
 
 <a name="clear"></a>
-## 터미널 화면 지우기
+## 터미널 초기화 (Clearing the Terminal)
 
-`clear` 함수를 사용하면 사용자의 터미널 화면을 지울 수 있습니다.
+`clear` 함수는 사용자의 터미널 화면을 초기화할 수 있습니다:
 
 ```php
 use function Laravel\Prompts\clear;
@@ -931,32 +1000,32 @@ clear();
 ```
 
 <a name="terminal-considerations"></a>
-## 터미널 관련 참고 사항
+## 터미널 관련 고려 사항 (Terminal Considerations)
 
 <a name="terminal-width"></a>
 #### 터미널 너비
 
-라벨, 옵션, 검증 메시지 등 문자열의 길이가 사용자의 터미널 "열(column)" 수를 초과하면 자동으로 잘려서 표시됩니다. 사용자들이 좁은 터미널을 사용한다면 이 문자열들의 길이를 최소화하는 것이 좋습니다. 일반적으로 80자 터미널을 고려해 74자 이하가 안전한 최대 길이입니다.
+라벨, 옵션, 검증 메시지 등의 길이가 사용자의 터미널 열(Columns) 수를 초과할 경우, 해당 텍스트는 화면에 맞게 자동으로 잘립니다. 사용자가 좁은 터미널에서 사용할 수 있음을 고려해 이 텍스트의 길이를 너무 길게 만들지 않는 것이 좋습니다. 일반적으로 80자 터미널을 지원하기 위해 74자 이내가 안전합니다.
 
 <a name="terminal-height"></a>
 #### 터미널 높이
 
-`scroll` 인수를 받는 프롬프트의 경우, 터미널 높이와 유효성 메시지 표시 공간을 감안해 옵션 목록의 길이가 자동으로 조정됩니다.
+`scroll` 인수를 지원하는 프롬프트에서, 설정한 표시 라인 개수는 터미널 높이에 맞게 자동으로 조정됩니다. 유효성 메시지 표시 공간 또한 고려됩니다.
 
 <a name="fallbacks"></a>
-## 지원되지 않는 환경과 대체 구현(Fallbacks)
+## 지원되지 않는 환경 및 대체 동작 (Unsupported Environments and Fallbacks)
 
-Laravel Prompts는 macOS, Linux, Windows(WSL 환경)를 지원합니다. 하지만 Windows의 PHP에서는 기술적 한계로 WSL 환경이 아니면 Laravel Prompts를 사용할 수 없습니다.
+Laravel Prompts는 macOS, Linux, Windows(WSL 환경)를 지원합니다. Windows의 PHP 환경 제약으로 인해, 현재 WSL 이외의 Windows 환경에서는 Laravel Prompts를 사용할 수 없습니다.
 
-이런 이유로 Laravel Prompts는 [Symfony Console Question Helper](https://symfony.com/doc/current/components/console/helpers/questionhelper.html)와 같은 대체 구현(Fallback)을 지원합니다.
+이러한 이유로, Laravel Prompts는 대체 구현체(예: [Symfony Console Question Helper](https://symfony.com/doc/current/components/console/helpers/questionhelper.html))로 대체 동작이 가능하도록 설계되어 있습니다.
 
 > [!NOTE]
-> 라라벨 프레임워크와 함께 Laravel Prompts를 사용할 때는, 각 프롬프트별 대체 구현이 이미 사전 설정되어 있으므로, 지원되지 않는 환경에서 자동으로 적용됩니다.
+> Laravel 프레임워크에서 Prompts를 사용할 경우, 각 프롬프트별 대체 구현이 미리 설정되어 있어 지원되지 않는 환경에서 자동으로 활성화됩니다.
 
 <a name="fallback-conditions"></a>
-#### Fallback 사용 조건
+#### 대체 동작 활성화 조건
 
-라라벨을 사용하지 않거나, fallback 동작의 발동 조건을 직접 제어해야 할 경우, `Prompt` 클래스의 `fallbackWhen` 정적 메서드에 불리언 값을 전달하면 됩니다.
+Laravel이 아닌 환경에서 실행하거나, 대체 동작 시점을 커스텀으로 제어하려면, `Prompt` 클래스의 `fallbackWhen` 정적 메서드에 불리언 값을 전달하세요:
 
 ```php
 use Laravel\Prompts\Prompt;
@@ -967,9 +1036,9 @@ Prompt::fallbackWhen(
 ```
 
 <a name="fallback-behavior"></a>
-#### Fallback 동작 정의
+#### 대체 동작 방식 커스텀
 
-라라벨을 사용하지 않거나, 개별 프롬프트 클래스의 fallback 동작을 직접 변경하고 싶을 때는 `fallbackUsing` 정적 메서드에 클로저를 전달할 수 있습니다.
+Laravel 환경이 아니거나, 대체 동작 자체를 커스텀 하고 싶다면 각 프롬프트 클래스의 `fallbackUsing` 정적 메서드에 클로저를 전달할 수 있습니다:
 
 ```php
 use Laravel\Prompts\TextPrompt;
@@ -1001,4 +1070,50 @@ TextPrompt::fallbackUsing(function (TextPrompt $prompt) use ($input, $output) {
 });
 ```
 
-각 프롬프트 클래스별로 fallback을 개별적으로 설정해야 하며, 클로저는 해당 프롬프트 클래스 인스턴스를 전달받고, 그에 맞는 적절한 값을 반환해야 합니다.
+이 대체 동작은 각 프롬프트 클래스별로 따로 설정해야 합니다. 해당 클로저는 프롬프트 클래스 인스턴스를 인수로 받아 적절한 반환값을 돌려야 합니다.
+
+<a name="testing"></a>
+## 테스트 (Testing)
+
+Laravel은 명령어에서 기대하는 프롬프트 메시지가 제대로 출력되는지 확인할 수 있도록 다양한 테스트 메서드를 제공합니다:
+
+```php tab=Pest
+test('report generation', function () {
+    $this->artisan('report:generate')
+        ->expectsPromptsInfo('Welcome to the application!')
+        ->expectsPromptsWarning('This action cannot be undone')
+        ->expectsPromptsError('Something went wrong')
+        ->expectsPromptsAlert('Important notice!')
+        ->expectsPromptsIntro('Starting process...')
+        ->expectsPromptsOutro('Process completed!')
+        ->expectsPromptsTable(
+            headers: ['Name', 'Email'],
+            rows: [
+                ['Taylor Otwell', 'taylor@example.com'],
+                ['Jason Beggs', 'jason@example.com'],
+            ]
+        )
+        ->assertExitCode(0);
+});
+```
+
+```php tab=PHPUnit
+public function test_report_generation(): void
+{
+    $this->artisan('report:generate')
+        ->expectsPromptsInfo('Welcome to the application!')
+        ->expectsPromptsWarning('This action cannot be undone')
+        ->expectsPromptsError('Something went wrong')
+        ->expectsPromptsAlert('Important notice!')
+        ->expectsPromptsIntro('Starting process...')
+        ->expectsPromptsOutro('Process completed!')
+        ->expectsPromptsTable(
+            headers: ['Name', 'Email'],
+            rows: [
+                ['Taylor Otwell', 'taylor@example.com'],
+                ['Jason Beggs', 'jason@example.com'],
+            ]
+        )
+        ->assertExitCode(0);
+}
+```

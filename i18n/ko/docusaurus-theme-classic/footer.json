@@ -13,11 +13,11 @@
   },
   "link.item.label.Getting Started": {
     "message": "시작하기",
-    "description": "The label of footer link with label=Getting Started linking to /docs/12.x/intro"
+    "description": "The label of footer link with label=Getting Started linking to /docs/12.x"
   },
   "link.item.label.Architecture Concepts": {
     "message": "아키텍처 개념",
-    "description": "The label of footer link with label=Architecture Concepts linking to /docs/12.x/architecture/container"
+    "description": "The label of footer link with label=Architecture Concepts linking to /docs/12.x/container"
   },
   "link.item.label.Laravel Korea": {
     "message": "Laravel Korea",

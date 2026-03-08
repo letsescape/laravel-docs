@@ -13,11 +13,11 @@
   },
   "link.item.label.Getting Started": {
     "message": "Getting Started",
-    "description": "The label of footer link with label=Getting Started linking to /docs/12.x/intro"
+    "description": "The label of footer link with label=Getting Started linking to /docs/12.x"
   },
   "link.item.label.Architecture Concepts": {
     "message": "Architecture Concepts",
-    "description": "The label of footer link with label=Architecture Concepts linking to /docs/12.x/architecture/container"
+    "description": "The label of footer link with label=Architecture Concepts linking to /docs/12.x/container"
   },
   "link.item.label.Laravel Korea": {
     "message": "Laravel Korea",

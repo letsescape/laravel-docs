@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import autoLanguagePlugin from './src/remark/auto-language-plugin';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -25,6 +26,7 @@ const config: Config = {
 
   // MDX 파싱 오류를 무시하도록 설정
   markdown: {
+    format: 'detect',
     mdx1Compat: {
       comments: false,
       admonitions: false,
@@ -69,6 +71,10 @@ const config: Config = {
         includeCurrentVersion: false,
         lastVersion: '12.x',
         versions: {
+          'master': {
+            label: 'master',
+            path: 'master',
+          },
           '12.x': {
             label: '12.x',
             path: '12.x',
@@ -92,6 +98,7 @@ const config: Config = {
         },
         // 기타 설정
         editUrl: 'https://github.com/letsescape/laravel-docs-web/tree/main/',
+        remarkPlugins: [autoLanguagePlugin],
       },
     ],
   ],
@@ -190,11 +197,11 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/docs/12.x/intro',
+              to: '/docs/12.x',
             },
             {
               label: 'Architecture Concepts',
-              to: '/docs/12.x/architecture/container',
+              to: '/docs/12.x/container',
             },
           ],
         },
@@ -207,21 +214,24 @@ const config: Config = {
             },
           ],
         },
-        {
-          title: 'More',
-          items: [
-            {
-              label: 'GitHub',
-              href: 'https://github.com/letsescape/laravel-docs-web',
-            },
-          ],
-        },
       ],
       copyright: `Copyright © 2025 kimchanhyung98. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+      additionalLanguages: [
+        'php',
+        'bash',
+        'ini',
+        'nginx',
+        'docker',
+        'apacheconf',
+        'json',
+        'yaml',
+        'sql',
+        'markup',
+      ],
     },
   } satisfies Preset.ThemeConfig,
 };
