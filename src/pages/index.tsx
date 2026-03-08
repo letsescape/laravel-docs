@@ -31,18 +31,21 @@ const homePageMeta: Record<string, {title: string; description: string; keywords
 export default function Home(): ReactNode {
   const {siteConfig, i18n} = useDocusaurusContext();
   const {url} = siteConfig;
-  const meta = homePageMeta[i18n.currentLocale] ?? homePageMeta.ko;
+  const currentLocale = i18n.currentLocale;
+  const defaultLocale = i18n.defaultLocale;
+  const meta = homePageMeta[currentLocale] ?? homePageMeta.ko;
+  const pageUrl = currentLocale === defaultLocale ? url : `${url}/${currentLocale}`;
 
   return (
     <Layout title={meta.title} description={meta.description}>
       <Head>
         <meta name="keywords" content={meta.keywords} />
-        <link rel="canonical" href={url} />
+        <link rel="canonical" href={pageUrl} />
 
         <meta property="og:type" content="website" />
         <meta property="og:title" content={meta.title} />
         <meta property="og:description" content={meta.description} />
-        <meta property="og:url" content={url} />
+        <meta property="og:url" content={pageUrl} />
         <meta property="og:site_name" content={siteConfig.title} />
         <meta property="og:image" content={`${url}/img/laravel-home.png`} />
         <meta property="og:image:alt" content={meta.imageAlt} />
