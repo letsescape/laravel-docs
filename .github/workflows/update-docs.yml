@@ -1,8 +1,8 @@
 name: update-docs
 
 on:
-  schedule:
-    - cron: '0 19 * * *'
+#  schedule:
+#    - cron: '0 19 * * *'
   workflow_dispatch:
 
 concurrency:
