@@ -7,7 +7,7 @@ import autoLanguagePlugin from './src/remark/auto-language-plugin';
 
 const config: Config = {
   title: 'Laravel',
-  tagline: '라라벨',
+  tagline: '라라벨 - 웹 장인을 위한 PHP 프레임워크',
   favicon: 'img/favicon.png',
 
   // Set the production url of your site here
@@ -33,6 +33,30 @@ const config: Config = {
       headingIds: false,
     },
   },
+
+  // SEO: 구조화된 데이터 (JSON-LD)
+  headTags: [
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'application/ld+json',
+      },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Laravel 한국어 문서',
+        url: 'https://laravel.chanhyung.kim',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://laravel.chanhyung.kim/search?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      }),
+    },
+  ],
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -109,6 +133,12 @@ const config: Config = {
       {
         docs: false, // 플러그인으로 대체
         blog: false,
+        sitemap: {
+          lastmod: 'date',
+          changefreq: 'weekly',
+          priority: 0.5,
+          filename: 'sitemap.xml',
+        },
         gtag: {
           trackingID: 'G-P3YFWCWEBP',
           anonymizeIP: true,
@@ -138,6 +168,8 @@ const config: Config = {
     // og:image/twitter:image는 themeConfig.image가 기본값으로 제공하며, 페이지별로 Head에서 오버라이드
     metadata: [
       {property: 'og:type', content: 'website'},
+      {property: 'og:image:width', content: '2400'},
+      {property: 'og:image:height', content: '1260'},
       {name: 'twitter:card', content: 'summary_large_image'},
     ],
 
