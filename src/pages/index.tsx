@@ -30,7 +30,7 @@ export default function Home(): ReactNode {
   const {url} = siteConfig;
   const currentLocale = i18n.currentLocale;
   const defaultLocale = i18n.defaultLocale;
-  const meta = homePageMeta[currentLocale] ?? homePageMeta.ko;
+  const meta = homePageMeta[currentLocale] ?? homePageMeta[defaultLocale];
   const pageUrl = currentLocale === defaultLocale ? url : `${url}/${currentLocale}`;
 
   return (

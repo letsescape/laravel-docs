@@ -15,8 +15,8 @@ const bannerMessages: Record<string, string> = {
 
 function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactElement {
   const {i18n} = useDocusaurusContext();
-  const currentLocale = i18n.currentLocale;
-  const keywords = keywordsByLocale[currentLocale] ?? keywordsByLocale.ko;
+  const {currentLocale, defaultLocale} = i18n;
+  const keywords = keywordsByLocale[currentLocale] ?? keywordsByLocale[defaultLocale];
   const bannerMessage = bannerMessages[currentLocale];
 
   return (
