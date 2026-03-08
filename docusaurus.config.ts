@@ -186,7 +186,7 @@ const config: Config = {
           items: [
             {
               label: '시작하기',
-              to: '/docs/12.x/installation',
+              to: '/docs/12.x',
             },
             {
               label: '아키텍처 개념',
