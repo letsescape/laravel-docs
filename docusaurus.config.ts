@@ -39,8 +39,21 @@ const config: Config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'ko',
-    locales: ['ko'],
-    // locales: ['ko', 'en'],
+    locales: ['en', 'ko', 'ja'],
+    localeConfigs: {
+      en: {
+        htmlLang: 'en',
+        label: 'English',
+      },
+      ko: {
+        htmlLang: 'ko',
+        label: '한국어',
+      },
+      ja: {
+        htmlLang: 'ja',
+        label: '日本語',
+      },
+    },
   },
 
   // 테마 설정
@@ -121,18 +134,11 @@ const config: Config = {
       respectPrefersColorScheme: true,  // 사용자 시스템 설정 존중
     },
 
-    // SEO 메타데이터
+    // SEO 메타데이터 (언어 중립 항목만, 로케일별 메타데이터는 src/theme/Root.tsx에서 처리)
+    // og:image/twitter:image는 themeConfig.image가 기본값으로 제공하며, 페이지별로 Head에서 오버라이드
     metadata: [
-      {name: 'keywords', content: '라라벨, Laravel, PHP 프레임워크, 웹 개발, 한글 문서, 튜토리얼, 시작하기'},
-      {name: 'description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
       {property: 'og:type', content: 'website'},
-      {property: 'og:title', content: '라라벨 한국어 문서 - PHP 웹 프레임워크'},
-      {property: 'og:description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
-      {property: 'og:image', content: 'https://laravel.chanhyung.kim/img/logo.png'},
       {name: 'twitter:card', content: 'summary_large_image'},
-      {name: 'twitter:title', content: '라라벨 한국어 문서 - PHP 웹 프레임워크'},
-      {name: 'twitter:description', content: '라라벨 프레임워크의 설치 방법, 기본 사용법, 주요 기능들을 한글로 쉽게 배우고 시작하세요.'},
-      {name: 'twitter:image', content: 'https://laravel.chanhyung.kim/img/logo.png'},
     ],
 
     // Algolia DocSearch 설정
@@ -142,6 +148,8 @@ const config: Config = {
       // Public API key: it is safe to commit it
       apiKey: '9490c4a274419bf3d76145ab91c89b14',
       indexName: 'laravel-chanhyung',
+      // 로케일 및 버전별 검색 필터링
+      contextualSearch: true,
       // 검색 결과 페이지 경로 설정
       searchPagePath: 'search',
       // 사용자 검색 분석 기능 활성화
@@ -160,7 +168,7 @@ const config: Config = {
         {
           to: '/docs/12.x',
           position: 'left',
-          label: '문서',
+          label: 'Docs',
         },
         {
           type: 'docsVersionDropdown',
@@ -185,33 +193,24 @@ const config: Config = {
       },
       links: [
         {
-          title: '문서',
+          title: 'Docs',
           items: [
             {
-              label: '시작하기',
+              label: 'Getting Started',
               to: '/docs/12.x',
             },
             {
-              label: '아키텍처 개념',
+              label: 'Architecture Concepts',
               to: '/docs/12.x/container',
             },
           ],
         },
         {
-          title: '커뮤니티',
+          title: 'Community',
           items: [
             {
               label: 'Laravel Korea',
               href: 'https://laravel.kr',
-            },
-          ],
-        },
-        {
-          title: '더 보기',
-          items: [
-            {
-              label: 'GitHub',
-              href: 'https://github.com/letsescape/laravel-docs-web',
             },
           ],
         },

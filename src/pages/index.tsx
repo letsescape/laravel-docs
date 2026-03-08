@@ -1,5 +1,6 @@
 import React, {type ReactNode} from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import {translate} from '@docusaurus/Translate';
 import Layout from '@theme/Layout';
 import Head from '@docusaurus/Head';
 
@@ -8,29 +9,41 @@ import Features from '@site/src/components/Features';
 import CodeExamples from '@site/src/components/CodeExamples';
 
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
+  const {siteConfig, i18n} = useDocusaurusContext();
   const {url} = siteConfig;
+  const {currentLocale, defaultLocale} = i18n;
+  const pageUrl = currentLocale === defaultLocale ? url : `${url}/${currentLocale}`;
+
+  const title = translate({
+    id: 'homepage.title',
+    message: '라라벨 - 웹 장인을 위한 PHP 프레임워크',
+    description: 'The title for the homepage',
+  });
+  const description = translate({
+    id: 'homepage.description',
+    message: '라라벨은 표현력이 풍부하고 우아한 문법을 갖춘 PHP 웹 애플리케이션 프레임워크입니다. 사소한 부분에 얽매이지 않고 창작에만 집중할 수 있습니다.',
+    description: 'The description for the homepage',
+  });
+  const imageAlt = translate({
+    id: 'homepage.imageAlt',
+    message: '라라벨 - 웹 장인을 위한 PHP 프레임워크',
+    description: 'The image alt text for the homepage',
+  });
 
   return (
-    <Layout
-      title={`라라벨 - 웹 장인을 위한 PHP 프레임워크`}
-      description="라라벨은 표현력이 풍부하고 우아한 문법을 갖춘 PHP 웹 애플리케이션 프레임워크입니다. 사소한 부분에 얽매이지 않고 창작에만 집중할 수 있습니다.">
+    <Layout title={title} description={description}>
       <Head>
-        {/* 기본 메타 태그 */}
-        <meta name="keywords" content="라라벨, Laravel, PHP 프레임워크, PHP artisan, PHP, 웹 개발, 한글 문서, 튜토리얼, 시작하기" />
-        <link rel="canonical" href={url} />
+        <link rel="canonical" href={pageUrl} />
 
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="라라벨 - 웹 장인을 위한 PHP 프레임워크" />
-        <meta property="og:description" content="라라벨은 표현력이 풍부하고 우아한 문법을 갖춘 PHP 웹 애플리케이션 프레임워크입니다. 사소한 부분에 얽매이지 않고 창작에만 집중할 수 있습니다." />
-        <meta property="og:url" content={url} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={pageUrl} />
         <meta property="og:site_name" content={siteConfig.title} />
         <meta property="og:image" content={`${url}/img/laravel-home.png`} />
-        <meta property="og:image:alt" content="라라벨 - 웹 장인을 위한 PHP 프레임워크" />
+        <meta property="og:image:alt" content={imageAlt} />
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="라라벨 - 웹 장인을 위한 PHP 프레임워크" />
-        <meta name="twitter:description" content="라라벨은 표현력이 풍부하고 우아한 문법을 갖춘 PHP 웹 애플리케이션 프레임워크입니다. 사소한 부분에 얽매이지 않고 창작에만 집중할 수 있습니다." />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={`${url}/img/laravel-home.png`} />
       </Head>
       <main>

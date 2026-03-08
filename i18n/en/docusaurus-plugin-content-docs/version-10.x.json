@@ -1,0 +1,50 @@
+{
+  "version.label": {
+    "message": "10.x",
+    "description": "The label for version 10.x"
+  },
+  "sidebar.tutorialSidebar.category.Prologue": {
+    "message": "Prologue",
+    "description": "The label for category 'Prologue' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Getting Started": {
+    "message": "Getting Started",
+    "description": "The label for category 'Getting Started' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Architecture Concepts": {
+    "message": "Architecture Concepts",
+    "description": "The label for category 'Architecture Concepts' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.The Basics": {
+    "message": "The Basics",
+    "description": "The label for category 'The Basics' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Digging Deeper": {
+    "message": "Digging Deeper",
+    "description": "The label for category 'Digging Deeper' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Security": {
+    "message": "Security",
+    "description": "The label for category 'Security' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Database": {
+    "message": "Database",
+    "description": "The label for category 'Database' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Eloquent ORM": {
+    "message": "Eloquent ORM",
+    "description": "The label for category 'Eloquent ORM' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Testing": {
+    "message": "Testing",
+    "description": "The label for category 'Testing' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Packages": {
+    "message": "Packages",
+    "description": "The label for category 'Packages' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.link.API Documentation": {
+    "message": "API Documentation",
+    "description": "The label for link 'API Documentation' in sidebar 'tutorialSidebar', linking to 'https://api.laravel.com/docs/10.x'"
+  }
+}

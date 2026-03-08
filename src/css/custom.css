@@ -16,6 +16,11 @@
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 
+  /* Translation banner color variables */
+  --translation-banner-bg: #fef3cd;
+  --translation-banner-text: #856404;
+  --translation-banner-border: #ffc107;
+
   /* SVG logo color variables */
   --svg-logo-color: #f53003;
 }
@@ -30,6 +35,11 @@
   --ifm-color-primary-lighter: #ff3624;
   --ifm-color-primary-lightest: #ff5a4c;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+
+  /* Translation banner color variables for dark mode */
+  --translation-banner-bg: #4d3800;
+  --translation-banner-text: #fef3cd;
+  --translation-banner-border: #ffb600;
 
   /* SVG logo color variables for dark mode */
   --svg-logo-color: #f61500;
@@ -186,4 +196,14 @@ svg:not(.navbar__logo):not(.footer__logo) path:not([fill="currentColor"]) {
 [data-theme='dark'] .button--primary:hover {
   background-color: var(--ifm-color-primary-dark);
   border-color: var(--ifm-color-primary-dark);
+}
+
+/* Translation banner styling */
+.translation-banner {
+  background: var(--translation-banner-bg);
+  color: var(--translation-banner-text);
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 14px;
+  border-bottom: 1px solid var(--translation-banner-border);
 }
