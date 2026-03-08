@@ -2,6 +2,7 @@ import React from 'react';
 import Head from '@docusaurus/Head';
 import Translate, {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import ChatBot from '@site/src/components/ChatBot';
 
 function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactElement {
   const {i18n} = useDocusaurusContext();
@@ -29,6 +30,7 @@ function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactEle
         </div>
       )}
       {children}
+      <ChatBot />
     </>
   );
 }
