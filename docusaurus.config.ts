@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import autoLanguagePlugin from './src/remark/auto-language-plugin';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -80,6 +81,7 @@ const config: Config = {
         },
         // 기타 설정
         editUrl: 'https://github.com/letsescape/laravel-docs-web/tree/main/',
+        remarkPlugins: [autoLanguagePlugin],
       },
     ],
   ],
@@ -215,6 +217,18 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+      additionalLanguages: [
+        'php',
+        'bash',
+        'ini',
+        'nginx',
+        'docker',
+        'apacheconf',
+        'json',
+        'yaml',
+        'sql',
+        'markup',
+      ],
     },
   } satisfies Preset.ThemeConfig,
 };
