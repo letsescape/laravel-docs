@@ -556,5 +556,25 @@
   "theme.tags.tagsPageTitle": {
     "message": "Tags",
     "description": "The title of the tag list page"
+  },
+  "homepage.title": {
+    "message": "Laravel - The PHP Framework for Web Artisans",
+    "description": "The title for the homepage"
+  },
+  "homepage.description": {
+    "message": "Laravel is a PHP web application framework with expressive, elegant syntax. Focus on creating without sweating the small things.",
+    "description": "The description for the homepage"
+  },
+  "homepage.imageAlt": {
+    "message": "Laravel - The PHP Framework for Web Artisans",
+    "description": "The image alt text for the homepage"
+  },
+  "theme.keywords": {
+    "message": "Laravel, PHP framework, PHP artisan, PHP, web development, documentation, tutorial, getting started",
+    "description": "The keywords meta tag for the site"
+  },
+  "theme.translationBanner.message": {
+    "message": "This documentation is currently being translated. Some pages may appear in Korean.",
+    "description": "The message for the translation banner shown on non-default locale pages"
   }
 }

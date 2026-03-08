@@ -556,5 +556,25 @@
   "theme.tags.tagsPageTitle": {
     "message": "태그",
     "description": "The title of the tag list page"
+  },
+  "theme.keywords": {
+    "message": "라라벨, Laravel, PHP 프레임워크, PHP artisan, PHP, 웹 개발, 한글 문서, 튜토리얼, 시작하기",
+    "description": "The keywords meta tag for the site"
+  },
+  "theme.translationBanner.message": {
+    "message": "이 문서는 현재 번역 중입니다. 일부 페이지가 영어로 표시될 수 있습니다.",
+    "description": "The message for the translation banner shown on non-default locale pages"
+  },
+  "homepage.title": {
+    "message": "라라벨 - 웹 장인을 위한 PHP 프레임워크",
+    "description": "The title for the homepage"
+  },
+  "homepage.description": {
+    "message": "라라벨은 표현력이 풍부하고 우아한 문법을 갖춘 PHP 웹 애플리케이션 프레임워크입니다. 사소한 부분에 얽매이지 않고 창작에만 집중할 수 있습니다.",
+    "description": "The description for the homepage"
+  },
+  "homepage.imageAlt": {
+    "message": "라라벨 - 웹 장인을 위한 PHP 프레임워크",
+    "description": "The image alt text for the homepage"
   }
 }
