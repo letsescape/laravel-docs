@@ -43,7 +43,7 @@ function detectLanguage(code: string): string {
   }
 
   // JSON
-  if (/^\s*[\[{]/.test(firstLine) && /"/.test(trimmed.slice(0, 200))) {
+  if (/^[\[{]/.test(firstLine) && /"/.test(trimmed.slice(0, 200))) {
     return 'json';
   }
 
