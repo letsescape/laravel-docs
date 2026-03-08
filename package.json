@@ -39,9 +39,11 @@
     "@docusaurus/types": "^3.9.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "@types/mdast": "^4.0.4",
     "husky": "^9.1.7",
     "tsx": "^4.21.0"
   }
