@@ -1,5 +1,6 @@
 import React, {useState, useRef, useEffect, useCallback, type ReactNode} from 'react';
 import clsx from 'clsx';
+import {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './styles.module.css';
 
@@ -58,16 +59,21 @@ export default function ChatBot(): ReactNode {
         return response.json();
       })
       .then(data => {
-        const botMessage: Message = {
-          role: 'assistant',
-          content: data.answer ?? data.message ?? data.response ?? '',
-        };
+        const content = data.answer ?? data.message ?? data.response ?? '';
+        if (!content) {
+          throw new Error('Empty response');
+        }
+        const botMessage: Message = {role: 'assistant', content};
         setMessages(prev => [...prev, botMessage]);
       })
       .catch(() => {
         const errorMessage: Message = {
           role: 'assistant',
-          content: '죄송합니다. 응답을 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+          content: translate({
+            id: 'chatbot.errorMessage',
+            message: '죄송합니다. 응답을 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            description: 'Error message shown when the chatbot API request fails',
+          }),
           isError: true,
         };
         setMessages(prev => [...prev, errorMessage]);
@@ -108,7 +114,11 @@ export default function ChatBot(): ReactNode {
           <div className={styles.chatMessages}>
             {messages.length === 0 && (
               <div className={clsx(styles.message, styles.botMessage)}>
-                Laravel에 대해 궁금한 점을 질문해주세요!
+                {translate({
+                  id: 'chatbot.welcomeMessage',
+                  message: 'Laravel에 대해 궁금한 점을 질문해주세요!',
+                  description: 'Welcome message shown when the chatbot is first opened',
+                })}
               </div>
             )}
             {messages.map((msg, idx) => (
@@ -143,7 +153,11 @@ export default function ChatBot(): ReactNode {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="질문을 입력하세요..."
+              placeholder={translate({
+                id: 'chatbot.inputPlaceholder',
+                message: '질문을 입력하세요...',
+                description: 'Placeholder text for the chatbot input field',
+              })}
               disabled={isLoading}
             />
             <button
