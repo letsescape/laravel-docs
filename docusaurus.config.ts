@@ -56,6 +56,10 @@ const config: Config = {
         includeCurrentVersion: false,
         lastVersion: '12.x',
         versions: {
+          'master': {
+            label: 'master',
+            path: 'master',
+          },
           '12.x': {
             label: '12.x',
             path: '12.x',
@@ -182,11 +186,11 @@ const config: Config = {
           items: [
             {
               label: '시작하기',
-              to: '/docs/12.x/intro',
+              to: '/docs/12.x/installation',
             },
             {
               label: '아키텍처 개념',
-              to: '/docs/12.x/architecture/container',
+              to: '/docs/12.x/container',
             },
           ],
         },
