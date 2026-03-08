@@ -38,7 +38,7 @@ function detectLanguage(code: string): string {
   }
 
   // HTML/XML
-  if (/^(<\?xml|<!DOCTYPE|<html|<head|<body|<div|<form|<table|<ul|<ol|<p |<p>|<a |<span|<img|<link|<meta|<style|<script)/.test(firstLine)) {
+  if (/^(<\?xml|<!DOCTYPE|<html|<head|<body|<div|<form|<table|<ul|<ol|<p|<a|<span|<img|<link|<meta|<style|<script)/.test(firstLine)) {
     return 'html';
   }
 
