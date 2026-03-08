@@ -128,11 +128,10 @@ const config: Config = {
     },
 
     // SEO 메타데이터 (언어 중립 항목만, 로케일별 메타데이터는 src/theme/Root.tsx에서 처리)
+    // og:image/twitter:image는 themeConfig.image가 기본값으로 제공하며, 페이지별로 Head에서 오버라이드
     metadata: [
       {property: 'og:type', content: 'website'},
-      {property: 'og:image', content: 'https://laravel.chanhyung.kim/img/logo.png'},
       {name: 'twitter:card', content: 'summary_large_image'},
-      {name: 'twitter:image', content: 'https://laravel.chanhyung.kim/img/logo.png'},
     ],
 
     // Algolia DocSearch 설정
@@ -162,7 +161,7 @@ const config: Config = {
         {
           to: '/docs/12.x',
           position: 'left',
-          label: '문서',
+          label: 'Docs',
         },
         {
           type: 'docsVersionDropdown',
@@ -187,20 +186,20 @@ const config: Config = {
       },
       links: [
         {
-          title: '문서',
+          title: 'Docs',
           items: [
             {
-              label: '시작하기',
+              label: 'Getting Started',
               to: '/docs/12.x/intro',
             },
             {
-              label: '아키텍처 개념',
+              label: 'Architecture Concepts',
               to: '/docs/12.x/architecture/container',
             },
           ],
         },
         {
-          title: '커뮤니티',
+          title: 'Community',
           items: [
             {
               label: 'Laravel Korea',
@@ -209,7 +208,7 @@ const config: Config = {
           ],
         },
         {
-          title: '더 보기',
+          title: 'More',
           items: [
             {
               label: 'GitHub',

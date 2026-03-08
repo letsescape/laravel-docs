@@ -1,23 +1,23 @@
 {
-  "link.title.문서": {
+  "link.title.Docs": {
     "message": "ドキュメント",
-    "description": "The title of the footer links column with title=문서 in the footer"
+    "description": "The title of the footer links column with title=Docs in the footer"
   },
-  "link.title.커뮤니티": {
+  "link.title.Community": {
     "message": "コミュニティ",
-    "description": "The title of the footer links column with title=커뮤니티 in the footer"
+    "description": "The title of the footer links column with title=Community in the footer"
   },
-  "link.title.더 보기": {
+  "link.title.More": {
     "message": "その他",
-    "description": "The title of the footer links column with title=더 보기 in the footer"
+    "description": "The title of the footer links column with title=More in the footer"
   },
-  "link.item.label.시작하기": {
+  "link.item.label.Getting Started": {
     "message": "はじめに",
-    "description": "The label of footer link with label=시작하기 linking to /docs/12.x/intro"
+    "description": "The label of footer link with label=Getting Started linking to /docs/12.x/intro"
   },
-  "link.item.label.아키텍처 개념": {
+  "link.item.label.Architecture Concepts": {
     "message": "アーキテクチャ",
-    "description": "The label of footer link with label=아키텍처 개념 linking to /docs/12.x/architecture/container"
+    "description": "The label of footer link with label=Architecture Concepts linking to /docs/12.x/architecture/container"
   },
   "link.item.label.Laravel Korea": {
     "message": "Laravel Korea",

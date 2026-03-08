@@ -19,7 +19,7 @@ function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactEle
         <meta name="keywords" content={keywords} />
       </Head>
       {currentLocale !== defaultLocale && (
-        <div className="translation-banner">
+        <div className="translation-banner" role="status">
           <Translate
             id="theme.translationBanner.message"
             description="The message for the translation banner shown on non-default locale pages"

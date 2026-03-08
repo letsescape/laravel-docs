@@ -35,7 +35,6 @@ export default function Home(): ReactNode {
       <Head>
         <link rel="canonical" href={pageUrl} />
 
-        <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={pageUrl} />
@@ -43,7 +42,6 @@ export default function Home(): ReactNode {
         <meta property="og:image" content={`${url}/img/laravel-home.png`} />
         <meta property="og:image:alt" content={imageAlt} />
 
-        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={`${url}/img/laravel-home.png`} />
