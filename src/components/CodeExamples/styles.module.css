@@ -19,7 +19,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #f53003;
+  color: var(--ifm-color-primary);
   margin-bottom: 0.75rem;
 }
 
@@ -91,7 +91,7 @@
 }
 
 .tabButton:hover {
-  color: #f53003;
+  color: var(--ifm-color-primary);
   background-color: rgba(255, 255, 255, 0.03);
 }
 
@@ -100,8 +100,8 @@
 }
 
 .activeTab {
-  color: #f53003;
-  border-bottom-color: #f53003;
+  color: var(--ifm-color-primary);
+  border-bottom-color: var(--ifm-color-primary);
 }
 
 .codeContent {
@@ -147,7 +147,7 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #f53003;
+  background-color: var(--ifm-color-primary);
   color: white;
   font-size: 0.75rem;
   font-weight: 700;
@@ -196,7 +196,7 @@
   align-items: center;
   gap: 0.4rem;
   margin-top: 1rem;
-  color: #f53003;
+  color: var(--ifm-color-primary);
   font-weight: 600;
   font-size: 0.9rem;
   text-decoration: none;
@@ -210,7 +210,7 @@
 
 .docsLink:hover {
   text-decoration: none;
-  color: #ff6b47;
+  color: var(--ifm-color-primary-light);
 }
 
 .docsLink:hover .linkArrow {

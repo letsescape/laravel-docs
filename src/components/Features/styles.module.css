@@ -19,7 +19,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #f53003;
+  color: var(--ifm-color-primary);
   margin-bottom: 0.75rem;
 }
 
@@ -104,8 +104,8 @@
   font-weight: 700;
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
-  background-color: rgba(245, 48, 3, 0.15);
-  color: #f53003;
+  background-color: rgba(var(--ifm-color-primary-rgb), 0.15);
+  color: var(--ifm-color-primary);
   margin-left: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -136,12 +136,12 @@
 
 .starterKitCard:hover {
   transform: translateY(-3px);
-  border-color: rgba(245, 48, 3, 0.2);
+  border-color: rgba(var(--ifm-color-primary-rgb), 0.2);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme='light'] .starterKitCard:hover {
-  border-color: rgba(245, 48, 3, 0.3);
+  border-color: rgba(var(--ifm-color-primary-rgb), 0.3);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
@@ -187,7 +187,7 @@
 }
 
 .primaryLink {
-  color: #f53003;
+  color: var(--ifm-color-primary);
 }
 
 .secondaryLink {
@@ -204,7 +204,7 @@
 }
 
 .primaryLink:hover, .secondaryLink:hover {
-  color: #ff6b47;
+  color: var(--ifm-color-primary-light);
   text-decoration: none;
 }
 
@@ -243,7 +243,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: #f53003;
+  color: var(--ifm-color-primary);
   font-weight: 600;
   font-size: 0.9rem;
   text-decoration: none;
@@ -253,7 +253,7 @@
 
 .learnMoreLink:hover {
   text-decoration: none;
-  color: #ff6b47;
+  color: var(--ifm-color-primary-light);
 }
 
 .learnMoreLink:hover .linkArrow {
