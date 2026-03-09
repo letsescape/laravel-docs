@@ -51,13 +51,13 @@ Homestead는 모든 Windows, macOS 또는 Linux 시스템에서 실행되며 Ngi
 <a name="included-software"></a>
 ### 포함된 소프트웨어
 
-<style>
+<style>{`
     #software-list > ul {
         column-count: 2; -moz-column-count: 2; -webkit-column-count: 2;
         column-gap: 5em; -moz-column-gap: 5em; -webkit-column-gap: 5em;
         line-height: 1.9;
     }
-</style>
+`}</style>
 
 <div id="software-list" markdown="1">
 
@@ -96,13 +96,13 @@ Homestead는 모든 Windows, macOS 또는 Linux 시스템에서 실행되며 Ngi
 <a name="optional-software"></a>
 ### 선택적 소프트웨어
 
-<style>
+<style>{`
     #software-list > ul {
         column-count: 2; -moz-column-count: 2; -webkit-column-count: 2;
         column-gap: 5em; -moz-column-gap: 5em; -webkit-column-gap: 5em;
         line-height: 1.9;
     }
-</style>
+`}</style>
 
 <div id="software-list" markdown="1">
 

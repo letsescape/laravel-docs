@@ -91,7 +91,7 @@ $translated = $collection->toLocale('es');
 
 나머지 컬렉션 문서의 대부분에서는 `Collection` 클래스에서 사용할 수 있는 각 메서드에 대해 설명합니다. 이러한 모든 메서드는 기본 배열을 원활하게 조작하기 위해 연결될 수 있다는 점을 기억하세요. 게다가 거의 모든 메서드는 새로운 `Collection` 인스턴스를 반환하므로 필요할 때 컬렉션의 원본을 보존할 수 있습니다.
 
-<style>
+<style>{`
     .collection-method-list > p {
         columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
     }
@@ -102,7 +102,7 @@ $translated = $collection->toLocale('es');
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-</style>
+`}</style>
 
 <div class="collection-method-list" markdown="1">
 
@@ -267,7 +267,7 @@ $translated = $collection->toLocale('es');
 <a name="method-listing"></a>
 ## 메서드 목록 (Method Listing)
 
-<style>
+<style>{`
     .collection-method code {
         font-size: 14px;
     }
@@ -275,10 +275,10 @@ $translated = $collection->toLocale('es');
     .collection-method:not(.first-collection-method) {
         margin-top: 50px;
     }
-</style>
+`}</style>
 
 <a name="method-after"></a>
-#### `after()` {.collection-method .first-collection-method}
+#### `after()`
 
 `after` 메서드는 주어진 항목 뒤에 있는 항목을 반환합니다. 주어진 항목을 찾을 수 없거나 마지막 항목인 경우 `null`가 반환됩니다.
 
@@ -313,7 +313,7 @@ collect([2, 4, 6, 8])->after(function (int $item, int $key) {
 ```
 
 <a name="method-all"></a>
-#### `all()` {.collection-method}
+#### `all()`
 
 `all` 메서드는 컬렉션이 나타내는 기본 배열을 반환합니다.
 
@@ -324,12 +324,12 @@ collect([1, 2, 3])->all();
 ```
 
 <a name="method-average"></a>
-#### `average()` {.collection-method}
+#### `average()`
 
 [avg](#method-avg) 메서드의 별칭입니다.
 
 <a name="method-avg"></a>
-#### `avg()` {.collection-method}
+#### `avg()`
 
 `avg` 메서드는 지정된 키의 [평균 값](https://en.wikipedia.org/wiki/Average)을 반환합니다.
 
@@ -349,7 +349,7 @@ $average = collect([1, 1, 2, 4])->avg();
 ```
 
 <a name="method-before"></a>
-#### `before()` {.collection-method}
+#### `before()`
 
 `before` 메서드는 [after](#method-after) 메서드와 반대입니다. 주어진 항목 앞에 있는 항목을 반환합니다. 주어진 항목을 찾을 수 없거나 첫 번째 항목인 경우 `null`가 반환됩니다.
 
@@ -376,7 +376,7 @@ collect([2, 4, 6, 8])->before(function (int $item, int $key) {
 ```
 
 <a name="method-chunk"></a>
-#### `chunk()` {.collection-method}
+#### `chunk()`
 
 `chunk` 메서드는 컬렉션을 지정된 크기의 여러 개의 작은 컬렉션으로 나눕니다.
 
@@ -403,7 +403,7 @@ $chunks->all();
 ```
 
 <a name="method-chunkwhile"></a>
-#### `chunkWhile()` {.collection-method}
+#### `chunkWhile()`
 
 `chunkWhile` 메서드는 지정된 콜백 평가에 따라 컬렉션을 여러 개의 작은 컬렉션으로 나눕니다. 클로저에 전달된 `$chunk` 변수는 이전 요소를 검사하는 데 사용될 수 있습니다:
 
@@ -420,7 +420,7 @@ $chunks->all();
 ```
 
 <a name="method-collapse"></a>
-#### `collapse()` {.collection-method}
+#### `collapse()`
 
 `collapse` 메서드는 배열 또는 컬렉션 컬렉션을 단일 플랫 컬렉션으로 축소합니다.
 
@@ -439,7 +439,7 @@ $collapsed->all();
 ```
 
 <a name="method-collapsewithkeys"></a>
-#### `collapseWithKeys()` {.collection-method}
+#### `collapseWithKeys()`
 
 `collapseWithKeys` 메서드는 배열 또는 컬렉션 모음을 단일 컬렉션으로 평면화하여 원래 키를 그대로 유지합니다. 컬렉션이 이미 플랫인 경우 빈 컬렉션을 반환합니다.
 
@@ -462,7 +462,7 @@ $collapsed->all();
 ```
 
 <a name="method-collect"></a>
-#### `collect()` {.collection-method}
+#### `collect()`
 
 `collect` 메서드는 현재 컬렉션에 있는 항목이 포함된 새 `Collection` 인스턴스를 반환합니다.
 
@@ -500,7 +500,7 @@ $collection->all();
 > `collect` 메서드는 `Enumerable` 인스턴스가 있고 지연되지 않은 컬렉션 인스턴스가 필요할 때 특히 유용합니다. `collect()`는 `Enumerable` 컨트랙트의 일부이므로 이를 사용하여 `Collection` 인스턴스를 안전하게 얻을 수 있습니다.
 
 <a name="method-combine"></a>
-#### `combine()` {.collection-method}
+#### `combine()`
 
 `combine` 메서드는 컬렉션의 값을 키로 다른 배열 또는 컬렉션의 값과 결합합니다.
 
@@ -515,7 +515,7 @@ $combined->all();
 ```
 
 <a name="method-concat"></a>
-#### `concat()` {.collection-method}
+#### `concat()`
 
 `concat` 메서드는 주어진 배열이나 컬렉션의 값을 다른 컬렉션의 끝에 추가합니다:
 
@@ -532,7 +532,7 @@ $concatenated->all();
 `concat` 메서드는 원래 컬렉션에 연결된 항목의 키를 수치적으로 다시 인덱싱합니다. 연관 컬렉션의 키를 유지하려면 [merge](#method-merge) 메서드를 참조하세요.
 
 <a name="method-contains"></a>
-#### `contains()` {.collection-method}
+#### `contains()`
 
 `contains` 메서드는 컬렉션에 특정 항목이 포함되어 있는지 여부를 확인합니다. 주어진 진실 테스트와 일치하는 요소가 컬렉션에 존재하는지 확인하기 위해 `contains` 메서드에 클로저를 전달할 수 있습니다.
 
@@ -578,7 +578,7 @@ $collection->contains('product', 'Bookcase');
 `contains`의 반대에 대해서는 [doesntContain](#method-doesntcontain) 메서드를 참조하세요.
 
 <a name="method-containsstrict"></a>
-#### `containsStrict()` {.collection-method}
+#### `containsStrict()`
 
 이 메서드는 [contains](#method-contains) 메서드와 동일한 서명을 갖습니다. 그러나 모든 값은 "엄격한" 비교를 사용하여 비교됩니다.
 
@@ -586,7 +586,7 @@ $collection->contains('product', 'Bookcase');
 > 이 메서드의 동작은 [Eloquent 컬렉션](/docs/12.x/eloquent-collections#method-contains)을 사용할 때 수정됩니다.
 
 <a name="method-count"></a>
-#### `count()` {.collection-method}
+#### `count()`
 
 `count` 메서드는 컬렉션에 있는 총 항목 수를 반환합니다.
 
@@ -599,7 +599,7 @@ $collection->count();
 ```
 
 <a name="method-countBy"></a>
-#### `countBy()` {.collection-method}
+#### `countBy()`
 
 `countBy` 메서드는 컬렉션에서 값의 발생 횟수를 계산합니다. 기본적으로 이 메서드는 모든 요소의 발생 횟수를 계산하므로 컬렉션에 있는 요소의 특정 "유형"을 계산할 수 있습니다.
 
@@ -628,7 +628,7 @@ $counted->all();
 ```
 
 <a name="method-crossjoin"></a>
-#### `crossJoin()` {.collection-method}
+#### `crossJoin()`
 
 `crossJoin` 메서드는 주어진 배열 또는 컬렉션 사이에서 컬렉션의 값을 교차 조인하여 가능한 모든 순열을 포함하는 데카르트 곱을 반환합니다.
 
@@ -669,7 +669,7 @@ $matrix->all();
 ```
 
 <a name="method-dd"></a>
-#### `dd()` {.collection-method}
+#### `dd()`
 
 `dd` 메서드는 컬렉션의 항목을 덤프하고 스크립트 실행을 종료합니다.
 
@@ -689,7 +689,7 @@ $collection->dd();
 스크립트 실행을 중지하지 않으려면 대신 [dump](#method-dump) 메서드를 사용하세요.
 
 <a name="method-diff"></a>
-#### `diff()` {.collection-method}
+#### `diff()`
 
 `diff` 메서드는 해당 값을 기반으로 컬렉션을 다른 컬렉션 또는 일반 PHP `array`와 비교합니다. 이 메서드는 주어진 컬렉션에 존재하지 않는 원래 컬렉션의 값을 반환합니다:
 
@@ -707,7 +707,7 @@ $diff->all();
 > 이 메서드의 동작은 [Eloquent 컬렉션](/docs/12.x/eloquent-collections#method-diff)을 사용할 때 수정됩니다.
 
 <a name="method-diffassoc"></a>
-#### `diffAssoc()` {.collection-method}
+#### `diffAssoc()`
 
 `diffAssoc` 메서드는 키와 값을 기반으로 컬렉션을 다른 컬렉션이나 일반 PHP `array`와 비교합니다. 이 메서드는 주어진 컬렉션에 존재하지 않는 원래 컬렉션의 키/값 쌍을 반환합니다.
 
@@ -731,7 +731,7 @@ $diff->all();
 ```
 
 <a name="method-diffassocusing"></a>
-#### `diffAssocUsing()` {.collection-method}
+#### `diffAssocUsing()`
 
 `diffAssoc`와 달리 `diffAssocUsing`는 인덱스 비교를 위해 사용자 제공 콜백 함수를 허용합니다.
 
@@ -756,7 +756,7 @@ $diff->all();
 콜백은 0보다 작거나 같거나 큰 정수를 반환하는 비교 함수여야 합니다. 자세한 내용은 `diffAssocUsing` 메서드가 내부적으로 활용하는 PHP 함수인 [array_diff_uassoc](https://www.php.net/array_diff_uassoc#refsect1-function.array-diff-uassoc-parameters)에 대한 PHP 설명서를 참조하세요.
 
 <a name="method-diffkeys"></a>
-#### `diffKeys()` {.collection-method}
+#### `diffKeys()`
 
 `diffKeys` 메서드는 해당 키를 기반으로 컬렉션을 다른 컬렉션 또는 일반 PHP `array`와 비교합니다. 이 메서드는 주어진 컬렉션에 존재하지 않는 원래 컬렉션의 키/값 쌍을 반환합니다.
 
@@ -782,7 +782,7 @@ $diff->all();
 ```
 
 <a name="method-doesntcontain"></a>
-#### `doesntContain()` {.collection-method}
+#### `doesntContain()`
 
 `doesntContain` 메서드는 컬렉션에 지정된 항목이 포함되어 있지 않은지 여부를 확인합니다. 주어진 진실 테스트와 일치하는 요소가 컬렉션에 존재하지 않는지 확인하기 위해 `doesntContain` 메서드에 클로저를 전달할 수 있습니다.
 
@@ -826,12 +826,12 @@ $collection->doesntContain('product', 'Bookcase');
 `doesntContain` 메서드는 항목 값을 확인할 때 "느슨한" 비교를 사용합니다. 즉, 정수 값이 있는 문자열은 동일한 값의 정수와 동일한 것으로 간주됩니다.
 
 <a name="method-doesntcontainstrict"></a>
-#### `doesntContainStrict()` {.collection-method}
+#### `doesntContainStrict()`
 
 이 메서드는 [doesntContain](#method-doesntcontain) 메서드와 동일한 시그니처를 갖습니다. 그러나 모든 값은 "엄격한" 비교를 사용하여 비교됩니다.
 
 <a name="method-dot"></a>
-#### `dot()` {.collection-method}
+#### `dot()`
 
 `dot` 메서드는 다차원 컬렉션을 "점" 표기법을 사용하여 깊이를 나타내는 단일 수준 컬렉션으로 평면화합니다.
 
@@ -846,7 +846,7 @@ $flattened->all();
 ```
 
 <a name="method-dump"></a>
-#### `dump()` {.collection-method}
+#### `dump()`
 
 `dump` 메서드는 컬렉션의 항목을 덤프합니다.
 
@@ -866,7 +866,7 @@ $collection->dump();
 컬렉션을 덤프한 후 스크립트 실행을 중지하려면 [dd](#method-dd) 메서드를 대신 사용하세요.
 
 <a name="method-duplicates"></a>
-#### `duplicates()` {.collection-method}
+#### `duplicates()`
 
 `duplicates` 메서드는 컬렉션에서 중복 값을 검색하고 반환합니다.
 
@@ -893,12 +893,12 @@ $employees->duplicates('position');
 ```
 
 <a name="method-duplicatesstrict"></a>
-#### `duplicatesStrict()` {.collection-method}
+#### `duplicatesStrict()`
 
 이 메서드는 [duplicates](#method-duplicates) 메서드와 동일한 시그니처를 갖습니다. 그러나 모든 값은 "엄격한" 비교를 사용하여 비교됩니다.
 
 <a name="method-each"></a>
-#### `each()` {.collection-method}
+#### `each()`
 
 `each` 메서드는 컬렉션의 항목을 반복하고 각 항목을 클로저에 전달합니다.
 
@@ -921,7 +921,7 @@ $collection->each(function (int $item, int $key) {
 ```
 
 <a name="method-eachspread"></a>
-#### `eachSpread()` {.collection-method}
+#### `eachSpread()`
 
 `eachSpread` 메서드는 컬렉션의 항목을 반복하여 중첩된 각 항목 값을 지정된 콜백에 전달합니다.
 
@@ -942,7 +942,7 @@ $collection->eachSpread(function (string $name, int $age) {
 ```
 
 <a name="method-ensure"></a>
-#### `ensure()` {.collection-method}
+#### `ensure()`
 
 `ensure` 메서드는 컬렉션의 모든 요소가 지정된 유형 또는 유형 목록인지 확인하는 데 사용할 수 있습니다. 그렇지 않으면 `UnexpectedValueException`가 발생합니다.
 
@@ -962,7 +962,7 @@ return $collection->ensure('int');
 > `ensure` 메서드는 나중에 다른 유형의 요소가 컬렉션에 추가되지 않는다고 보장하지 않습니다.
 
 <a name="method-every"></a>
-#### `every()` {.collection-method}
+#### `every()`
 
 `every` 메서드는 컬렉션의 모든 요소가 주어진 진실 테스트를 통과하는지 확인하는 데 사용할 수 있습니다.
 
@@ -987,7 +987,7 @@ $collection->every(function (int $value, int $key) {
 ```
 
 <a name="method-except"></a>
-#### `except()` {.collection-method}
+#### `except()`
 
 `except` 메서드는 지정된 키가 있는 항목을 제외하고 컬렉션의 모든 항목을 반환합니다.
 
@@ -1007,7 +1007,7 @@ $filtered->all();
 > 이 메서드의 동작은 [Eloquent 컬렉션](/docs/12.x/eloquent-collections#method-except)을 사용할 때 수정됩니다.
 
 <a name="method-filter"></a>
-#### `filter()` {.collection-method}
+#### `filter()`
 
 `filter` 메서드는 주어진 콜백을 사용하여 컬렉션을 필터링하여 주어진 진실성 테스트를 통과한 항목만 유지합니다.
 
@@ -1036,7 +1036,7 @@ $collection->filter()->all();
 `filter`의 반대에 대해서는 [reject](#method-reject) 메서드를 참조하세요.
 
 <a name="method-first"></a>
-#### `first()` {.collection-method}
+#### `first()`
 
 `first` 메서드는 주어진 진실성 테스트를 통과한 컬렉션의 첫 번째 요소를 반환합니다.
 
@@ -1057,7 +1057,7 @@ collect([1, 2, 3, 4])->first();
 ```
 
 <a name="method-first-or-fail"></a>
-#### `firstOrFail()` {.collection-method}
+#### `firstOrFail()`
 
 `firstOrFail` 메서드는 `first` 메서드와 동일합니다. 그러나 결과가 없으면 `Illuminate\Support\ItemNotFoundException` 예외가 발생합니다.
 
@@ -1078,7 +1078,7 @@ collect([])->firstOrFail();
 ```
 
 <a name="method-first-where"></a>
-#### `firstWhere()` {.collection-method}
+#### `firstWhere()`
 
 `firstWhere` 메서드는 주어진 키/값 쌍이 있는 컬렉션의 첫 번째 요소를 반환합니다.
 
@@ -1112,7 +1112,7 @@ $collection->firstWhere('age');
 ```
 
 <a name="method-flatmap"></a>
-#### `flatMap()` {.collection-method}
+#### `flatMap()`
 
 `flatMap` 메서드는 컬렉션을 반복하고 각 값을 지정된 클로저에 전달합니다. 클로저는 항목을 자유롭게 수정하고 반환할 수 있으므로 수정된 항목의 새로운 컬렉션을 형성합니다. 그런 다음 배열은 한 수준씩 평면화됩니다.
 
@@ -1133,7 +1133,7 @@ $flattened->all();
 ```
 
 <a name="method-flatten"></a>
-#### `flatten()` {.collection-method}
+#### `flatten()`
 
 `flatten` 메서드는 다차원 컬렉션을 단일 차원으로 평면화합니다.
 
@@ -1185,7 +1185,7 @@ $products->values()->all();
 이 예에서 깊이를 제공하지 않고 `flatten`를 호출하면 중첩 배열도 평면화되어 `['iPhone 6S', 'Apple', 'Galaxy S7', 'Samsung']`가 생성됩니다. 깊이를 제공하면 중첩 배열이 평면화될 수준 수를 지정할 수 있습니다.
 
 <a name="method-flip"></a>
-#### `flip()` {.collection-method}
+#### `flip()`
 
 `flip` 메서드는 컬렉션의 키를 해당 값으로 바꿉니다.
 
@@ -1200,7 +1200,7 @@ $flipped->all();
 ```
 
 <a name="method-forget"></a>
-#### `forget()` {.collection-method}
+#### `forget()`
 
 `forget` 메서드는 해당 키를 사용하여 컬렉션에서 항목을 제거합니다.
 
@@ -1222,7 +1222,7 @@ $collection->forget(['name', 'framework']);
 > 대부분의 다른 컬렉션 메서드와 달리 `forget`는 수정된 새 컬렉션을 반환하지 않습니다. 호출된 컬렉션을 수정하고 반환합니다.
 
 <a name="method-forpage"></a>
-#### `forPage()` {.collection-method}
+#### `forPage()`
 
 `forPage` 메서드는 주어진 페이지 번호에 나타날 항목이 포함된 새 컬렉션을 반환합니다. 이 메서드는 페이지 번호를 첫 번째 인수로, 페이지당 표시할 항목 수를 두 번째 인수로 받아들입니다.
 
@@ -1237,7 +1237,7 @@ $chunk->all();
 ```
 
 <a name="method-fromjson"></a>
-#### `fromJson()` {.collection-method}
+#### `fromJson()`
 
 정적 `fromJson` 메서드는 `json_decode` PHP 함수를 사용하여 지정된 JSON 문자열을 디코딩하여 새 컬렉션 인스턴스를 생성합니다.
 
@@ -1254,7 +1254,7 @@ $collection = Collection::fromJson($json);
 ```
 
 <a name="method-get"></a>
-#### `get()` {.collection-method}
+#### `get()`
 
 `get` 메서드는 주어진 키에 있는 항목을 반환합니다. 키가 존재하지 않으면 `null`가 반환됩니다.
 
@@ -1287,7 +1287,7 @@ $collection->get('email', function () {
 ```
 
 <a name="method-groupby"></a>
-#### `groupBy()` {.collection-method}
+#### `groupBy()`
 
 `groupBy` 메서드는 주어진 키를 기준으로 컬렉션의 항목을 그룹화합니다.
 
@@ -1378,7 +1378,7 @@ $result = $data->groupBy(['skill', function (array $item) {
 ```
 
 <a name="method-has"></a>
-#### `has()` {.collection-method}
+#### `has()`
 
 `has` 메서드는 주어진 키가 컬렉션에 존재하는지 확인합니다.
 
@@ -1399,7 +1399,7 @@ $collection->has(['amount', 'price']);
 ```
 
 <a name="method-hasany"></a>
-#### `hasAny()` {.collection-method}
+#### `hasAny()`
 
 `hasAny` 메서드는 주어진 키 중 컬렉션에 존재하는 키가 있는지 확인합니다.
 
@@ -1416,7 +1416,7 @@ $collection->hasAny(['name', 'price']);
 ```
 
 <a name="method-hasmany"></a>
-#### `hasMany()` {.collection-method}
+#### `hasMany()`
 
 `hasMany` 메서드는 컬렉션에 여러 항목이 포함되어 있는지 확인합니다.
 
@@ -1442,7 +1442,7 @@ collect([
 ```
 
 <a name="method-hassole"></a>
-#### `hasSole()` {.collection-method}
+#### `hasSole()`
 
 `hasSole` 메서드는 컬렉션에 단일 항목이 포함되어 있는지 확인하고 선택적으로 주어진 기준과 일치합니다.
 
@@ -1461,7 +1461,7 @@ collect([1, 2, 3])->hasSole(fn (int $item) => $item === 2);
 ```
 
 <a name="method-implode"></a>
-#### `implode()` {.collection-method}
+#### `implode()`
 
 `implode` 메서드는 컬렉션의 항목을 결합합니다. 해당 인수는 컬렉션의 항목 유형에 따라 달라집니다. 컬렉션에 배열이나 개체가 포함된 경우 결합하려는 속성의 키와 값 사이에 배치하려는 "접착제" 문자열을 전달해야 합니다.
 
@@ -1495,7 +1495,7 @@ $collection->implode(function (array $item, int $key) {
 ```
 
 <a name="method-intersect"></a>
-#### `intersect()` {.collection-method}
+#### `intersect()`
 
 `intersect` 메서드는 지정된 배열이나 컬렉션에 없는 원래 컬렉션의 모든 값을 제거합니다. 결과 컬렉션은 원래 컬렉션의 키를 유지합니다.
 
@@ -1513,7 +1513,7 @@ $intersect->all();
 > 이 메서드의 동작은 [Eloquent 컬렉션](/docs/12.x/eloquent-collections#method-intersect)을 사용할 때 수정됩니다.
 
 <a name="method-intersectusing"></a>
-#### `intersectUsing()` {.collection-method}
+#### `intersectUsing()`
 
 `intersectUsing` 메서드는 값을 비교하는 사용자 지정 콜백을 사용하여 지정된 배열이나 컬렉션에 없는 원본 컬렉션의 모든 값을 제거합니다. 결과 컬렉션은 원래 컬렉션의 키를 유지합니다.
 
@@ -1530,7 +1530,7 @@ $intersect->all();
 ```
 
 <a name="method-intersectAssoc"></a>
-#### `intersectAssoc()` {.collection-method}
+#### `intersectAssoc()`
 
 `intersectAssoc` 메서드는 원본 컬렉션을 다른 컬렉션 또는 배열과 비교하여 지정된 모든 컬렉션에 존재하는 키/값 쌍을 반환합니다.
 
@@ -1553,7 +1553,7 @@ $intersect->all();
 ```
 
 <a name="method-intersectassocusing"></a>
-#### `intersectAssocUsing()` {.collection-method}
+#### `intersectAssocUsing()`
 
 `intersectAssocUsing` 메서드는 원래 컬렉션을 다른 컬렉션이나 배열과 비교하여 두 컬렉션에 모두 존재하는 키/값 쌍을 반환하고, 사용자 지정 비교 콜백을 사용하여 키와 값이 같은지 확인합니다.
 
@@ -1578,7 +1578,7 @@ $intersect->all();
 ```
 
 <a name="method-intersectbykeys"></a>
-#### `intersectByKeys()` {.collection-method}
+#### `intersectByKeys()`
 
 `intersectByKeys` 메서드는 지정된 배열이나 컬렉션에 없는 원본 컬렉션에서 모든 키와 해당 값을 제거합니다.
 
@@ -1597,7 +1597,7 @@ $intersect->all();
 ```
 
 <a name="method-isempty"></a>
-#### `isEmpty()` {.collection-method}
+#### `isEmpty()`
 
 컬렉션이 비어 있으면 `isEmpty` 메서드는 `true`를 반환합니다. 그렇지 않으면 `false`가 반환됩니다.
 
@@ -1608,7 +1608,7 @@ collect([])->isEmpty();
 ```
 
 <a name="method-isnotempty"></a>
-#### `isNotEmpty()` {.collection-method}
+#### `isNotEmpty()`
 
 컬렉션이 비어 있지 않으면 `isNotEmpty` 메서드는 `true`를 반환합니다. 그렇지 않으면 `false`가 반환됩니다.
 
@@ -1619,7 +1619,7 @@ collect([])->isNotEmpty();
 ```
 
 <a name="method-join"></a>
-#### `join()` {.collection-method}
+#### `join()`
 
 `join` 메서드는 컬렉션의 값을 문자열과 결합합니다. 이 메서드의 두 번째 인수를 사용하면 최종 요소를 문자열에 추가하는 방식을 지정할 수도 있습니다.
 
@@ -1632,7 +1632,7 @@ collect([])->join(', ', ' and '); // ''
 ```
 
 <a name="method-keyby"></a>
-#### `keyBy()` {.collection-method}
+#### `keyBy()`
 
 `keyBy` 메서드는 주어진 키로 컬렉션의 키를 지정합니다. 여러 항목에 동일한 키가 있는 경우 마지막 항목만 새 컬렉션에 나타납니다.
 
@@ -1672,7 +1672,7 @@ $keyed->all();
 ```
 
 <a name="method-keys"></a>
-#### `keys()` {.collection-method}
+#### `keys()`
 
 `keys` 메서드는 컬렉션의 모든 키를 반환합니다.
 
@@ -1690,7 +1690,7 @@ $keys->all();
 ```
 
 <a name="method-last"></a>
-#### `last()` {.collection-method}
+#### `last()`
 
 `last` 메서드는 주어진 진실성 테스트를 통과한 컬렉션의 마지막 요소를 반환합니다.
 
@@ -1711,7 +1711,7 @@ collect([1, 2, 3, 4])->last();
 ```
 
 <a name="method-lazy"></a>
-#### `lazy()` {.collection-method}
+#### `lazy()`
 
 `lazy` 메서드는 기본 항목 배열에서 새 [LazyCollection](#lazy-collections) 인스턴스를 반환합니다.
 
@@ -1740,12 +1740,12 @@ $count = $hugeCollection
 컬렉션을 `LazyCollection`로 변환하면 엄청난 양의 추가 메모리를 할당할 필요가 없습니다. 원래 컬렉션은 여전히 ​​_its_ 값을 메모리에 유지하지만 후속 필터는 그렇지 않습니다. 따라서 컬렉션 결과를 필터링할 때 사실상 추가 메모리가 할당되지 않습니다.
 
 <a name="method-macro"></a>
-#### `macro()` {.collection-method}
+#### `macro()`
 
 정적 `macro` 메서드를 사용하면 런타임에 `Collection` 클래스에 메서드를 추가할 수 있습니다. 자세한 내용은 [컬렉션 확장](#extending-collections) 문서를 참조하세요.
 
 <a name="method-make"></a>
-#### `make()` {.collection-method}
+#### `make()`
 
 정적 `make` 메서드는 새 컬렉션 인스턴스를 생성합니다. [컬렉션 생성](#creating-collections) 섹션을 참조하세요.
 
@@ -1756,7 +1756,7 @@ $collection = Collection::make([1, 2, 3]);
 ```
 
 <a name="method-map"></a>
-#### `map()` {.collection-method}
+#### `map()`
 
 `map` 메서드는 컬렉션을 반복하고 각 값을 지정된 콜백에 전달합니다. 콜백은 항목을 자유롭게 수정하고 반환하여 수정된 항목의 새로운 컬렉션을 형성합니다.
 
@@ -1776,7 +1776,7 @@ $multiplied->all();
 > 대부분의 다른 컬렉션 메서드와 마찬가지로 `map`는 새 컬렉션 인스턴스를 반환합니다. 호출된 컬렉션을 수정하지 않습니다. 원본 컬렉션을 변환하려면 [transform](#method-transform) 메서드를 사용하세요.
 
 <a name="method-mapinto"></a>
-#### `mapInto()` {.collection-method}
+#### `mapInto()`
 
 `mapInto()` 메서드는 컬렉션을 반복하여 생성자에 값을 전달하여 지정된 클래스의 새 인스턴스를 만듭니다.
 
@@ -1801,7 +1801,7 @@ $currencies->all();
 ```
 
 <a name="method-mapspread"></a>
-#### `mapSpread()` {.collection-method}
+#### `mapSpread()`
 
 `mapSpread` 메서드는 컬렉션의 항목을 반복하여 중첩된 각 항목 값을 지정된 클로저에 전달합니다. 클로저는 항목을 자유롭게 수정하고 반환할 수 있으므로 수정된 항목의 새로운 컬렉션을 형성합니다.
 
@@ -1820,7 +1820,7 @@ $sequence->all();
 ```
 
 <a name="method-maptogroups"></a>
-#### `mapToGroups()` {.collection-method}
+#### `mapToGroups()`
 
 `mapToGroups` 메서드는 주어진 클로저에 따라 컬렉션의 항목을 그룹화합니다. 클로저는 단일 키/값 쌍을 포함하는 연관 배열을 반환해야 하며, 따라서 그룹화된 값의 새로운 컬렉션을 형성해야 합니다.
 
@@ -1859,7 +1859,7 @@ $grouped->get('Sales')->all();
 ```
 
 <a name="method-mapwithkeys"></a>
-#### `mapWithKeys()` {.collection-method}
+#### `mapWithKeys()`
 
 `mapWithKeys` 메서드는 컬렉션을 반복하고 각 값을 지정된 콜백에 전달합니다. 콜백은 단일 키/값 쌍을 포함하는 연관 배열을 반환해야 합니다.
 
@@ -1892,7 +1892,7 @@ $keyed->all();
 ```
 
 <a name="method-max"></a>
-#### `max()` {.collection-method}
+#### `max()`
 
 `max` 메서드는 주어진 키의 최대값을 반환합니다.
 
@@ -1910,7 +1910,7 @@ $max = collect([1, 2, 3, 4, 5])->max();
 ```
 
 <a name="method-median"></a>
-#### `median()` {.collection-method}
+#### `median()`
 
 `median` 메서드는 지정된 키의 [중앙값](https://en.wikipedia.org/wiki/Median)을 반환합니다.
 
@@ -1930,7 +1930,7 @@ $median = collect([1, 1, 2, 4])->median();
 ```
 
 <a name="method-merge"></a>
-#### `merge()` {.collection-method}
+#### `merge()`
 
 `merge` 메서드는 주어진 배열이나 컬렉션을 원래 컬렉션과 병합합니다. 지정된 항목의 문자열 키가 원래 컬렉션의 문자열 키와 일치하면 지정된 항목의 값이 원래 컬렉션의 값을 덮어씁니다.
 
@@ -1957,7 +1957,7 @@ $merged->all();
 ```
 
 <a name="method-mergerecursive"></a>
-#### `mergeRecursive()` {.collection-method}
+#### `mergeRecursive()`
 
 `mergeRecursive` 메서드는 지정된 배열 또는 컬렉션을 원래 컬렉션과 재귀적으로 병합합니다. 지정된 항목의 문자열 키가 원래 컬렉션의 문자열 키와 일치하면 이러한 키의 값이 배열로 병합되고 이는 재귀적으로 수행됩니다.
 
@@ -1976,7 +1976,7 @@ $merged->all();
 ```
 
 <a name="method-min"></a>
-#### `min()` {.collection-method}
+#### `min()`
 
 `min` 메서드는 주어진 키의 최소값을 반환합니다.
 
@@ -1994,7 +1994,7 @@ $min = collect([1, 2, 3, 4, 5])->min();
 ```
 
 <a name="method-mode"></a>
-#### `mode()` {.collection-method}
+#### `mode()`
 
 `mode` 메서드는 지정된 키의 [모드 값](https://en.wikipedia.org/wiki/Mode_(statistics))을 반환합니다.
 
@@ -2018,7 +2018,7 @@ $mode = collect([1, 1, 2, 2])->mode();
 ```
 
 <a name="method-multiply"></a>
-#### `multiply()` {.collection-method}
+#### `multiply()`
 
 `multiply` 메서드는 컬렉션의 모든 항목에 대해 지정된 수의 복사본을 생성합니다.
 
@@ -2041,7 +2041,7 @@ $users = collect([
 ```
 
 <a name="method-nth"></a>
-#### `nth()` {.collection-method}
+#### `nth()`
 
 `nth` 메서드는 모든 n번째 요소로 구성된 새 컬렉션을 만듭니다.
 
@@ -2062,7 +2062,7 @@ $collection->nth(4, 1);
 ```
 
 <a name="method-only"></a>
-#### `only()` {.collection-method}
+#### `only()`
 
 `only` 메서드는 지정된 키를 사용하여 컬렉션의 항목을 반환합니다.
 
@@ -2087,7 +2087,7 @@ $filtered->all();
 > 이 메서드의 동작은 [Eloquent 컬렉션](/docs/12.x/eloquent-collections#method-only)을 사용할 때 수정됩니다.
 
 <a name="method-pad"></a>
-#### `pad()` {.collection-method}
+#### `pad()`
 
 `pad` 메서드는 배열이 지정된 크기에 도달할 때까지 주어진 값으로 배열을 채웁니다. 이 메서드는 [array_pad](https://secure.php.net/manual/en/function.array-pad.php) PHP 함수처럼 작동합니다.
 
@@ -2110,7 +2110,7 @@ $filtered->all();
 ```
 
 <a name="method-partition"></a>
-#### `partition()` {.collection-method}
+#### `partition()`
 
 `partition` 메서드는 PHP 배열 구조 분해와 결합되어 주어진 진실 테스트를 통과하는 요소를 그렇지 않은 요소와 분리할 수 있습니다.
 
@@ -2134,7 +2134,7 @@ $equalOrAboveThree->all();
 > 이 메서드의 동작은 [Eloquent 컬렉션](/docs/12.x/eloquent-collections#method-partition)과 상호 작용할 때 수정됩니다.
 
 <a name="method-percentage"></a>
-#### `percentage()` {.collection-method}
+#### `percentage()`
 
 `percentage` 메서드를 사용하면 컬렉션에서 특정 진실성 테스트를 통과한 항목의 비율을 빠르게 확인할 수 있습니다.
 
@@ -2155,7 +2155,7 @@ $percentage = $collection->percentage(fn (int $value) => $value === 1, precision
 ```
 
 <a name="method-pipe"></a>
-#### `pipe()` {.collection-method}
+#### `pipe()`
 
 `pipe` 메서드는 컬렉션을 주어진 클로저에 전달하고 실행된 클로저의 결과를 반환합니다:
 
@@ -2170,7 +2170,7 @@ $piped = $collection->pipe(function (Collection $collection) {
 ```
 
 <a name="method-pipeinto"></a>
-#### `pipeInto()` {.collection-method}
+#### `pipeInto()`
 
 `pipeInto` 메서드는 지정된 클래스의 새 인스턴스를 생성하고 컬렉션을 생성자에 전달합니다.
 
@@ -2195,7 +2195,7 @@ $resource->collection->all();
 ```
 
 <a name="method-pipethrough"></a>
-#### `pipeThrough()` {.collection-method}
+#### `pipeThrough()`
 
 `pipeThrough` 메서드는 컬렉션을 주어진 클로저 배열에 전달하고 실행된 클로저의 결과를 반환합니다.
 
@@ -2217,7 +2217,7 @@ $result = $collection->pipeThrough([
 ```
 
 <a name="method-pluck"></a>
-#### `pluck()` {.collection-method}
+#### `pluck()`
 
 `pluck` 메서드는 지정된 키에 대한 모든 값을 검색합니다.
 
@@ -2287,7 +2287,7 @@ $plucked->all();
 ```
 
 <a name="method-pop"></a>
-#### `pop()` {.collection-method}
+#### `pop()`
 
 `pop` 메서드는 컬렉션에서 마지막 항목을 제거하고 반환합니다. 컬렉션이 비어 있으면 `null`가 반환됩니다.
 
@@ -2318,7 +2318,7 @@ $collection->all();
 ```
 
 <a name="method-prepend"></a>
-#### `prepend()` {.collection-method}
+#### `prepend()`
 
 `prepend` 메서드는 컬렉션의 시작 부분에 항목을 추가합니다.
 
@@ -2345,7 +2345,7 @@ $collection->all();
 ```
 
 <a name="method-pull"></a>
-#### `pull()` {.collection-method}
+#### `pull()`
 
 `pull` 메서드는 해당 키를 사용하여 컬렉션에서 항목을 제거하고 반환합니다.
 
@@ -2362,7 +2362,7 @@ $collection->all();
 ```
 
 <a name="method-push"></a>
-#### `push()` {.collection-method}
+#### `push()`
 
 `push` 메서드는 컬렉션의 끝에 항목을 추가합니다.
 
@@ -2389,7 +2389,7 @@ $collection->all();
 ```
 
 <a name="method-put"></a>
-#### `put()` {.collection-method}
+#### `put()`
 
 `put` 메서드는 컬렉션에 지정된 키와 값을 설정합니다.
 
@@ -2404,7 +2404,7 @@ $collection->all();
 ```
 
 <a name="method-random"></a>
-#### `random()` {.collection-method}
+#### `random()`
 
 `random` 메서드는 컬렉션에서 임의의 항목을 반환합니다.
 
@@ -2441,7 +2441,7 @@ $random->all();
 ```
 
 <a name="method-range"></a>
-#### `range()` {.collection-method}
+#### `range()`
 
 `range` 메서드는 지정된 범위 사이의 정수를 포함하는 컬렉션을 반환합니다.
 
@@ -2454,7 +2454,7 @@ $collection->all();
 ```
 
 <a name="method-reduce"></a>
-#### `reduce()` {.collection-method}
+#### `reduce()`
 
 `reduce` 메서드는 컬렉션을 단일 값으로 줄여 각 반복의 결과를 후속 반복에 전달합니다.
 
@@ -2501,7 +2501,7 @@ $collection->reduce(function (int $carry, int $value, string $key) use ($ratio) 
 ```
 
 <a name="method-reduce-spread"></a>
-#### `reduceSpread()` {.collection-method}
+#### `reduceSpread()`
 
 `reduceSpread` 메서드는 컬렉션을 값 배열로 줄여 각 반복의 결과를 후속 반복에 전달합니다. 이 메서드는 `reduce` 메서드와 유사합니다. 그러나 여러 초기값을 허용할 수 있습니다.
 
@@ -2520,7 +2520,7 @@ $collection->reduce(function (int $carry, int $value, string $key) use ($ratio) 
 ```
 
 <a name="method-reject"></a>
-#### `reject()` {.collection-method}
+#### `reject()`
 
 `reject` 메서드는 주어진 클로저를 사용하여 컬렉션을 필터링합니다. 결과 컬렉션에서 항목을 제거해야 하는 경우 클로저는 `true`를 반환해야 합니다.
 
@@ -2539,7 +2539,7 @@ $filtered->all();
 `reject` 메서드의 반대에 대해서는 [filter](#method-filter) 메서드를 참조하세요.
 
 <a name="method-replace"></a>
-#### `replace()` {.collection-method}
+#### `replace()`
 
 `replace` 메서드는 `merge`와 유사하게 동작합니다. 그러나 문자열 키가 있는 일치 항목을 덮어쓰는 것 외에도 `replace` 메서드는 일치하는 숫자 키가 있는 컬렉션의 항목도 덮어씁니다.
 
@@ -2554,7 +2554,7 @@ $replaced->all();
 ```
 
 <a name="method-replacerecursive"></a>
-#### `replaceRecursive()` {.collection-method}
+#### `replaceRecursive()`
 
 `replaceRecursive` 메서드는 `replace`와 유사하게 동작하지만 배열로 반복되고 내부 값에 동일한 대체 프로세스를 적용합니다.
 
@@ -2580,7 +2580,7 @@ $replaced->all();
 ```
 
 <a name="method-reverse"></a>
-#### `reverse()` {.collection-method}
+#### `reverse()`
 
 `reverse` 메서드는 원래 키를 유지하면서 컬렉션 항목의 순서를 반대로 바꿉니다.
 
@@ -2603,7 +2603,7 @@ $reversed->all();
 ```
 
 <a name="method-search"></a>
-#### `search()` {.collection-method}
+#### `search()`
 
 `search` 메서드는 컬렉션에서 지정된 값을 검색하고 해당 값이 있으면 해당 키를 반환합니다. 항목을 찾을 수 없으면 `false`가 반환됩니다.
 
@@ -2634,7 +2634,7 @@ collect([2, 4, 6, 8])->search(function (int $item, int $key) {
 ```
 
 <a name="method-select"></a>
-#### `select()` {.collection-method}
+#### `select()`
 
 `select` 메서드는 SQL `SELECT` 문과 유사하게 컬렉션에서 지정된 키를 선택합니다.
 
@@ -2655,7 +2655,7 @@ $users->select(['name', 'role']);
 ```
 
 <a name="method-shift"></a>
-#### `shift()` {.collection-method}
+#### `shift()`
 
 `shift` 메서드는 컬렉션에서 첫 번째 항목을 제거하고 반환합니다.
 
@@ -2686,7 +2686,7 @@ $collection->all();
 ```
 
 <a name="method-shuffle"></a>
-#### `shuffle()` {.collection-method}
+#### `shuffle()`
 
 `shuffle` 메서드는 컬렉션의 항목을 무작위로 섞습니다.
 
@@ -2701,7 +2701,7 @@ $shuffled->all();
 ```
 
 <a name="method-skip"></a>
-#### `skip()` {.collection-method}
+#### `skip()`
 
 `skip` 메서드는 컬렉션 시작 부분에서 지정된 수의 요소가 제거된 새 컬렉션을 반환합니다.
 
@@ -2716,7 +2716,7 @@ $collection->all();
 ```
 
 <a name="method-skipuntil"></a>
-#### `skipUntil()` {.collection-method}
+#### `skipUntil()`
 
 `skipUntil` 메서드는 지정된 콜백이 `false`를 반환하는 동안 컬렉션의 항목을 건너뜁니다. 콜백이 `true`를 반환하면 컬렉션의 나머지 모든 항목이 새 컬렉션으로 반환됩니다.
 
@@ -2748,7 +2748,7 @@ $subset->all();
 > 지정된 값을 찾을 수 없거나 콜백이 `true`를 반환하지 않는 경우 `skipUntil` 메서드는 빈 컬렉션을 반환합니다.
 
 <a name="method-skipwhile"></a>
-#### `skipWhile()` {.collection-method}
+#### `skipWhile()`
 
 `skipWhile` 메서드는 지정된 콜백이 `true`를 반환하는 동안 컬렉션의 항목을 건너뜁니다. 콜백이 `false`를 반환하면 컬렉션의 나머지 모든 항목이 새 컬렉션으로 반환됩니다.
 
@@ -2768,7 +2768,7 @@ $subset->all();
 > 콜백이 `false`를 반환하지 않으면 `skipWhile` 메서드는 빈 컬렉션을 반환합니다.
 
 <a name="method-slice"></a>
-#### `slice()` {.collection-method}
+#### `slice()`
 
 `slice` 메서드는 지정된 인덱스에서 시작하는 컬렉션 조각을 반환합니다.
 
@@ -2795,7 +2795,7 @@ $slice->all();
 반환된 슬라이스는 기본적으로 키를 유지합니다. 원래 키를 유지하지 않으려면 [values](#method-values) 메서드를 사용하여 다시 색인을 생성할 수 있습니다.
 
 <a name="method-sliding"></a>
-#### `sliding()` {.collection-method}
+#### `sliding()`
 
 `sliding` 메서드는 컬렉션에 있는 항목의 "슬라이딩 창" 뷰을 나타내는 새로운 청크 컬렉션을 반환합니다.
 
@@ -2830,7 +2830,7 @@ $chunks->toArray();
 ```
 
 <a name="method-sole"></a>
-#### `sole()` {.collection-method}
+#### `sole()`
 
 `sole` 메서드는 주어진 진실성 테스트를 통과한 컬렉션의 첫 번째 요소를 반환합니다. 단, 진실성 테스트가 정확히 하나의 요소와 일치하는 경우에만 해당됩니다.
 
@@ -2870,12 +2870,12 @@ $collection->sole();
 컬렉션에 `sole` 메서드에서 반환해야 하는 요소가 없으면 `\Illuminate\Collections\ItemNotFoundException` 예외가 발생합니다. 반환해야 하는 요소가 두 개 이상인 경우 `\Illuminate\Collections\MultipleItemsFoundException`가 발생합니다.
 
 <a name="method-some"></a>
-#### `some()` {.collection-method}
+#### `some()`
 
 [contains](#method-contains) 메서드의 별칭입니다.
 
 <a name="method-sort"></a>
-#### `sort()` {.collection-method}
+#### `sort()`
 
 `sort` 메서드는 컬렉션을 정렬합니다. 정렬된 컬렉션은 원래 배열 키를 유지하므로 다음 예에서는 [values](#method-values) 메서드를 사용하여 키를 연속 번호가 지정된 인덱스로 재설정합니다.
 
@@ -2895,7 +2895,7 @@ $sorted->values()->all();
 > 중첩된 배열 또는 객체 컬렉션을 정렬해야 하는 경우 [sortBy](#method-sortby) 및 [sortByDesc](#method-sortbydesc) 메서드를 참조하세요.
 
 <a name="method-sortby"></a>
-#### `sortBy()` {.collection-method}
+#### `sortBy()`
 
 `sortBy` 메서드는 주어진 키를 기준으로 컬렉션을 정렬합니다. 정렬된 컬렉션은 원래 배열 키를 유지하므로 다음 예에서는 [values](#method-values) 메서드를 사용하여 키를 연속 번호가 지정된 인덱스로 재설정합니다.
 
@@ -3020,12 +3020,12 @@ $sorted->values()->all();
 ```
 
 <a name="method-sortbydesc"></a>
-#### `sortByDesc()` {.collection-method}
+#### `sortByDesc()`
 
 이 메서드는 [sortBy](#method-sortby) 메서드와 동일한 시그니처를 갖지만 컬렉션을 반대 순서로 정렬합니다.
 
 <a name="method-sortdesc"></a>
-#### `sortDesc()` {.collection-method}
+#### `sortDesc()`
 
 이 메서드는 [sort](#method-sort) 메서드와 반대 순서로 컬렉션을 정렬합니다.
 
@@ -3042,7 +3042,7 @@ $sorted->values()->all();
 `sort`와 달리 `sortDesc`에 클로저를 전달할 수 없습니다. 대신 [sort](#method-sort) 메서드를 사용하고 비교를 거꾸로 해야 합니다.
 
 <a name="method-sortkeys"></a>
-#### `sortKeys()` {.collection-method}
+#### `sortKeys()`
 
 `sortKeys` 메서드는 기본 연관 배열의 키를 기준으로 컬렉션을 정렬합니다.
 
@@ -3067,12 +3067,12 @@ $sorted->all();
 ```
 
 <a name="method-sortkeysdesc"></a>
-#### `sortKeysDesc()` {.collection-method}
+#### `sortKeysDesc()`
 
 이 메서드는 [sortKeys](#method-sortkeys) 메서드와 동일한 서명을 갖지만 컬렉션을 반대 순서로 정렬합니다.
 
 <a name="method-sortkeysusing"></a>
-#### `sortKeysUsing()` {.collection-method}
+#### `sortKeysUsing()`
 
 `sortKeysUsing` 메서드는 콜백을 사용하여 기본 연관 배열의 키를 기준으로 컬렉션을 정렬합니다.
 
@@ -3099,7 +3099,7 @@ $sorted->all();
 콜백은 0보다 작거나 같거나 큰 정수를 반환하는 비교 함수여야 합니다. 자세한 내용은 `sortKeysUsing` 메서드가 내부적으로 활용하는 PHP 함수인 [uksort](https://www.php.net/manual/en/function.uksort.php#refsect1-function.uksort-parameters)의 PHP 문서를 참조하세요.
 
 <a name="method-splice"></a>
-#### `splice()` {.collection-method}
+#### `splice()`
 
 `splice` 메서드는 지정된 인덱스에서 시작하는 항목 조각을 제거하고 반환합니다.
 
@@ -3150,7 +3150,7 @@ $collection->all();
 ```
 
 <a name="method-split"></a>
-#### `split()` {.collection-method}
+#### `split()`
 
 `split` 메서드는 컬렉션을 지정된 수의 그룹으로 나눕니다.
 
@@ -3165,7 +3165,7 @@ $groups->all();
 ```
 
 <a name="method-splitin"></a>
-#### `splitIn()` {.collection-method}
+#### `splitIn()`
 
 `splitIn` 메서드는 컬렉션을 지정된 수의 그룹으로 나누어 비종단 그룹을 완전히 채우고 나머지를 최종 그룹에 할당합니다.
 
@@ -3180,7 +3180,7 @@ $groups->all();
 ```
 
 <a name="method-sum"></a>
-#### `sum()` {.collection-method}
+#### `sum()`
 
 `sum` 메서드는 컬렉션에 있는 모든 항목의 합계를 반환합니다.
 
@@ -3220,7 +3220,7 @@ $collection->sum(function (array $product) {
 ```
 
 <a name="method-take"></a>
-#### `take()` {.collection-method}
+#### `take()`
 
 `take` 메서드는 지정된 수의 항목이 포함된 새 컬렉션을 반환합니다.
 
@@ -3247,7 +3247,7 @@ $chunk->all();
 ```
 
 <a name="method-takeuntil"></a>
-#### `takeUntil()` {.collection-method}
+#### `takeUntil()`
 
 `takeUntil` 메서드는 지정된 콜백이 `true`를 반환할 때까지 컬렉션의 항목을 반환합니다.
 
@@ -3279,7 +3279,7 @@ $subset->all();
 > 지정된 값을 찾을 수 없거나 콜백이 `true`를 반환하지 않는 경우 `takeUntil` 메서드는 컬렉션의 모든 항목을 반환합니다.
 
 <a name="method-takewhile"></a>
-#### `takeWhile()` {.collection-method}
+#### `takeWhile()`
 
 `takeWhile` 메서드는 지정된 콜백이 `false`를 반환할 때까지 컬렉션의 항목을 반환합니다.
 
@@ -3299,7 +3299,7 @@ $subset->all();
 > 콜백이 `false`를 반환하지 않으면 `takeWhile` 메서드는 컬렉션의 모든 항목을 반환합니다.
 
 <a name="method-tap"></a>
-#### `tap()` {.collection-method}
+#### `tap()`
 
 `tap` 메서드는 컬렉션을 지정된 콜백에 전달하여 특정 지점에서 컬렉션을 "탭"하고 컬렉션 자체에 영향을 주지 않으면서 항목에 대해 작업을 수행할 수 있도록 합니다. 그런 다음 컬렉션은 `tap` 메서드에 의해 반환됩니다.
 
@@ -3315,7 +3315,7 @@ collect([2, 4, 3, 1, 5])
 ```
 
 <a name="method-times"></a>
-#### `times()` {.collection-method}
+#### `times()`
 
 정적 `times` 메서드는 지정된 클로저를 지정된 횟수만큼 호출하여 새 컬렉션을 생성합니다.
 
@@ -3330,7 +3330,7 @@ $collection->all();
 ```
 
 <a name="method-toarray"></a>
-#### `toArray()` {.collection-method}
+#### `toArray()`
 
 `toArray` 메서드는 컬렉션을 일반 PHP `array`로 변환합니다. 컬렉션의 값이 [Eloquent](/docs/12.x/eloquent) 모델인 경우 모델도 배열로 변환됩니다.
 
@@ -3350,7 +3350,7 @@ $collection->toArray();
 > `toArray`는 또한 `Arrayable`의 인스턴스인 컬렉션의 모든 중첩 개체를 배열로 변환합니다. 컬렉션의 기본이 되는 원시 배열을 얻으려면 대신 [all](#method-all) 메서드를 사용하세요.
 
 <a name="method-tojson"></a>
-#### `toJson()` {.collection-method}
+#### `toJson()`
 
 `toJson` 메서드는 컬렉션을 JSON 직렬화된 문자열로 변환합니다.
 
@@ -3363,7 +3363,7 @@ $collection->toJson();
 ```
 
 <a name="method-to-pretty-json"></a>
-#### `toPrettyJson()` {.collection-method}
+#### `toPrettyJson()`
 
 `toPrettyJson` 메서드는 `JSON_PRETTY_PRINT` 옵션을 사용하여 컬렉션을 형식이 지정된 JSON 문자열로 변환합니다.
 
@@ -3374,7 +3374,7 @@ $collection->toPrettyJson();
 ```
 
 <a name="method-transform"></a>
-#### `transform()` {.collection-method}
+#### `transform()`
 
 `transform` 메서드는 컬렉션을 반복하고 컬렉션의 각 항목에 대해 지정된 콜백을 호출합니다. 컬렉션의 항목은 콜백에서 반환된 값으로 대체됩니다.
 
@@ -3394,7 +3394,7 @@ $collection->all();
 > 대부분의 다른 컬렉션 메서드와 달리 `transform`는 컬렉션 자체를 수정합니다. 대신 새 컬렉션을 생성하려면 [map](#method-map) 메서드를 사용하세요.
 
 <a name="method-undot"></a>
-#### `undot()` {.collection-method}
+#### `undot()`
 
 `undot` 메서드는 "점" 표기법을 사용하는 1차원 컬렉션을 다차원 컬렉션으로 확장합니다.
 
@@ -3431,7 +3431,7 @@ $person->toArray();
 ```
 
 <a name="method-union"></a>
-#### `union()` {.collection-method}
+#### `union()`
 
 `union` 메서드는 주어진 배열을 컬렉션에 추가합니다. 주어진 배열에 원래 컬렉션에 이미 있는 키가 포함되어 있으면 원래 컬렉션의 값이 선호됩니다.
 
@@ -3446,7 +3446,7 @@ $union->all();
 ```
 
 <a name="method-unique"></a>
-#### `unique()` {.collection-method}
+#### `unique()`
 
 `unique` 메서드는 컬렉션의 모든 고유 항목을 반환합니다. 반환된 컬렉션은 원래 배열 키를 유지하므로 다음 예에서는 [values](#method-values) 메서드를 사용하여 키를 연속 번호가 지정된 인덱스로 재설정합니다.
 
@@ -3508,12 +3508,12 @@ $unique->values()->all();
 > 이 메서드의 동작은 [Eloquent 컬렉션](/docs/12.x/eloquent-collections#method-unique)을 사용할 때 수정됩니다.
 
 <a name="method-uniquestrict"></a>
-#### `uniqueStrict()` {.collection-method}
+#### `uniqueStrict()`
 
 이 메서드는 [unique](#method-unique) 메서드와 동일한 시그니처를 갖습니다. 그러나 모든 값은 "엄격한" 비교를 사용하여 비교됩니다.
 
 <a name="method-unless"></a>
-#### `unless()` {.collection-method}
+#### `unless()`
 
 `unless` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가되지 않는 한 지정된 콜백을 실행합니다. `unless` 메서드에 제공된 컬렉션 인스턴스와 첫 번째 인수는 클로저에 제공됩니다.
 
@@ -3552,17 +3552,17 @@ $collection->all();
 `unless`의 반대에 대해서는 [when](#method-when) 메서드를 참조하세요.
 
 <a name="method-unlessempty"></a>
-#### `unlessEmpty()` {.collection-method}
+#### `unlessEmpty()`
 
 [whenNotEmpty](#method-whennotempty) 메서드의 별칭입니다.
 
 <a name="method-unlessnotempty"></a>
-#### `unlessNotEmpty()` {.collection-method}
+#### `unlessNotEmpty()`
 
 [whenEmpty](#method-whenempty) 메서드의 별칭입니다.
 
 <a name="method-unwrap"></a>
-#### `unwrap()` {.collection-method}
+#### `unwrap()`
 
 정적 `unwrap` 메서드는 해당되는 경우 주어진 값에서 컬렉션의 기본 항목을 반환합니다.
 
@@ -3581,7 +3581,7 @@ Collection::unwrap('John Doe');
 ```
 
 <a name="method-value"></a>
-#### `value()` {.collection-method}
+#### `value()`
 
 `value` 메서드는 컬렉션의 첫 번째 요소에서 지정된 값을 검색합니다.
 
@@ -3597,7 +3597,7 @@ $value = $collection->value('price');
 ```
 
 <a name="method-values"></a>
-#### `values()` {.collection-method}
+#### `values()`
 
 `values` 메서드는 키가 연속된 정수로 재설정된 새 컬렉션을 반환합니다.
 
@@ -3620,7 +3620,7 @@ $values->all();
 ```
 
 <a name="method-when"></a>
-#### `when()` {.collection-method}
+#### `when()`
 
 `when` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가될 때 지정된 콜백을 실행합니다. `when` 메서드에 제공된 컬렉션 인스턴스와 첫 번째 인수는 클로저에 제공됩니다.
 
@@ -3659,7 +3659,7 @@ $collection->all();
 `when`의 반대에 대해서는 [unless](#method-unless) 메서드를 참조하세요.
 
 <a name="method-whenempty"></a>
-#### `whenEmpty()` {.collection-method}
+#### `whenEmpty()`
 
 `whenEmpty` 메서드는 컬렉션이 비어 있을 때 지정된 콜백을 실행합니다.
 
@@ -3704,7 +3704,7 @@ $collection->all();
 `whenEmpty`의 반대에 대해서는 [whenNotEmpty](#method-whennotempty) 메서드를 참조하세요.
 
 <a name="method-whennotempty"></a>
-#### `whenNotEmpty()` {.collection-method}
+#### `whenNotEmpty()`
 
 `whenNotEmpty` 메서드는 컬렉션이 비어 있지 않을 때 지정된 콜백을 실행합니다.
 
@@ -3749,7 +3749,7 @@ $collection->all();
 `whenNotEmpty`의 반대에 대해서는 [whenEmpty](#method-whenempty) 메서드를 참조하세요.
 
 <a name="method-where"></a>
-#### `where()` {.collection-method}
+#### `where()`
 
 `where` 메서드는 주어진 키/값 쌍으로 컬렉션을 필터링합니다.
 
@@ -3775,7 +3775,7 @@ $filtered->all();
 
 `where` 메서드는 항목 값을 확인할 때 "느슨한" 비교를 사용합니다. 즉, 정수 값이 있는 문자열은 동일한 값의 정수와 동일한 것으로 간주됩니다. "엄격한" 비교를 사용하여 필터링하려면 [whereStrict](#method-wherestrict) 메서드를 사용하고, `null` 값을 필터링하려면 [whereNull](#method-wherenull) 및 [whereNotNull](#method-wherenotnull) 메서드를 사용하세요.
 
-선택적으로 비교 연산자를 두 번째 매개변수로 전달할 수도 있습니다. 지원되는 연산자는 '===', '!==', '!=', '==', '=', '<>', '>', '<', '>=' 및 '<='입니다.
+선택적으로 비교 연산자를 두 번째 매개변수로 전달할 수도 있습니다. 지원되는 연산자는 `===`, `!==`, `!=`, `==`, `=`, `<>`, `>`, `<`, `>=` 및 `<=`입니다.
 
 ```php
 $collection = collect([
@@ -3797,12 +3797,12 @@ $filtered->all();
 ```
 
 <a name="method-wherestrict"></a>
-#### `whereStrict()` {.collection-method}
+#### `whereStrict()`
 
 이 메서드는 [where](#method-where) 메서드와 동일한 서명을 갖습니다. 그러나 모든 값은 "엄격한" 비교를 사용하여 비교됩니다.
 
 <a name="method-wherebetween"></a>
-#### `whereBetween()` {.collection-method}
+#### `whereBetween()`
 
 `whereBetween` 메서드는 지정된 항목 값이 지정된 범위 내에 있는지 확인하여 컬렉션을 필터링합니다.
 
@@ -3829,7 +3829,7 @@ $filtered->all();
 ```
 
 <a name="method-wherein"></a>
-#### `whereIn()` {.collection-method}
+#### `whereIn()`
 
 `whereIn` 메서드는 지정된 배열 내에 포함된 지정된 항목 값이 없는 컬렉션에서 요소를 제거합니다.
 
@@ -3856,12 +3856,12 @@ $filtered->all();
 `whereIn` 메서드는 항목 값을 확인할 때 "느슨한" 비교를 사용합니다. 즉, 정수 값이 있는 문자열은 동일한 값의 정수와 동일한 것으로 간주됩니다. "엄격한" 비교를 사용하여 필터링하려면 [whereInStrict](#method-whereinstrict) 메서드를 사용하세요.
 
 <a name="method-whereinstrict"></a>
-#### `whereInStrict()` {.collection-method}
+#### `whereInStrict()`
 
 이 메서드는 [whereIn](#method-wherein) 메서드와 동일한 서명을 갖습니다. 그러나 모든 값은 "엄격한" 비교를 사용하여 비교됩니다.
 
 <a name="method-whereinstanceof"></a>
-#### `whereInstanceOf()` {.collection-method}
+#### `whereInstanceOf()`
 
 `whereInstanceOf` 메서드는 주어진 클래스 유형으로 컬렉션을 필터링합니다.
 
@@ -3883,7 +3883,7 @@ $filtered->all();
 ```
 
 <a name="method-wherenotbetween"></a>
-#### `whereNotBetween()` {.collection-method}
+#### `whereNotBetween()`
 
 `whereNotBetween` 메서드는 지정된 항목 값이 지정된 범위를 벗어나는지 확인하여 컬렉션을 필터링합니다.
 
@@ -3909,7 +3909,7 @@ $filtered->all();
 ```
 
 <a name="method-wherenotin"></a>
-#### `whereNotIn()` {.collection-method}
+#### `whereNotIn()`
 
 `whereNotIn` 메서드는 지정된 배열 내에 포함된 지정된 항목 값이 있는 컬렉션에서 요소를 제거합니다.
 
@@ -3936,12 +3936,12 @@ $filtered->all();
 `whereNotIn` 메서드는 항목 값을 확인할 때 "느슨한" 비교를 사용합니다. 즉, 정수 값이 있는 문자열은 동일한 값의 정수와 동일한 것으로 간주됩니다. "엄격한" 비교를 사용하여 필터링하려면 [whereNotInStrict](#method-wherenotinstrict) 메서드를 사용하세요.
 
 <a name="method-wherenotinstrict"></a>
-#### `whereNotInStrict()` {.collection-method}
+#### `whereNotInStrict()`
 
 이 메서드는 [whereNotIn](#method-wherenotin) 메서드와 동일한 서명을 갖습니다. 그러나 모든 값은 "엄격한" 비교를 사용하여 비교됩니다.
 
 <a name="method-wherenotnull"></a>
-#### `whereNotNull()` {.collection-method}
+#### `whereNotNull()`
 
 `whereNotNull` 메서드는 주어진 키가 `null`가 아닌 컬렉션에서 항목을 반환합니다.
 
@@ -3969,7 +3969,7 @@ $filtered->all();
 ```
 
 <a name="method-wherenull"></a>
-#### `whereNull()` {.collection-method}
+#### `whereNull()`
 
 `whereNull` 메서드는 지정된 키가 `null`인 컬렉션에서 항목을 반환합니다.
 
@@ -3994,7 +3994,7 @@ $filtered->all();
 ```
 
 <a name="method-wrap"></a>
-#### `wrap()` {.collection-method}
+#### `wrap()`
 
 정적 `wrap` 메서드는 해당되는 경우 컬렉션에 지정된 값을 래핑합니다.
 
@@ -4021,7 +4021,7 @@ $collection->all();
 ```
 
 <a name="method-zip"></a>
-#### `zip()` {.collection-method}
+#### `zip()`
 
 `zip` 메서드는 주어진 배열의 값을 해당 인덱스에 있는 원본 컬렉션의 값과 함께 병합합니다.
 
@@ -4138,7 +4138,7 @@ LazyCollection::make(function () {
 
 `Collection` 클래스에서 사용할 수 있는 거의 모든 메서드는 `LazyCollection` 클래스에서도 사용할 수 있습니다. 이 두 클래스는 모두 다음 메서드를 정의하는 `Illuminate\Support\Enumerable` 컨트랙트를 구현합니다.
 
-<style>
+<style>{`
     .collection-method-list > p {
         columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
     }
@@ -4149,7 +4149,7 @@ LazyCollection::make(function () {
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-</style>
+`}</style>
 
 <div class="collection-method-list" markdown="1">
 
@@ -4276,7 +4276,7 @@ LazyCollection::make(function () {
 `Enumerable` 컨트랙트에 정의된 메서드 외에도 `LazyCollection` 클래스에는 다음 메서드가 포함되어 있습니다.
 
 <a name="method-takeUntilTimeout"></a>
-#### `takeUntilTimeout()` {.collection-method}
+#### `takeUntilTimeout()`
 
 `takeUntilTimeout` 메서드는 지정된 시간까지 값을 열거하는 새로운 지연 컬렉션을 반환합니다. 그 이후에는 컬렉션의 열거가 중지됩니다.
 
@@ -4311,7 +4311,7 @@ Invoice::pending()->cursor()
 ```
 
 <a name="method-tapEach"></a>
-#### `tapEach()` {.collection-method}
+#### `tapEach()`
 
 `each` 메서드는 컬렉션의 각 항목에 대해 지정된 콜백을 즉시 호출하는 반면, `tapEach` 메서드는 항목이 목록에서 하나씩 제거될 때 지정된 콜백만 호출합니다.
 
@@ -4330,7 +4330,7 @@ $array = $lazyCollection->take(3)->all();
 ```
 
 <a name="method-throttle"></a>
-#### `throttle()` {.collection-method}
+#### `throttle()`
 
 `throttle` 메서드는 지정된 시간(초) 후에 각 값이 반환되도록 지연 컬렉션을 조절합니다. 이 메서드는 들어오는 요청의 속도를 제한하는 외부 API와 상호 작용할 수 있는 상황에 특히 유용합니다.
 
@@ -4346,7 +4346,7 @@ User::where('vip', true)
 ```
 
 <a name="method-remember"></a>
-#### `remember()` {.collection-method}
+#### `remember()`
 
 `remember` 메서드는 이미 열거된 모든 값을 기억하고 후속 컬렉션 열거에서 해당 값을 다시 검색하지 않는 새로운 지연 컬렉션을 반환합니다.
 
@@ -4364,7 +4364,7 @@ $users->take(20)->all();
 ```
 
 <a name="method-with-heartbeat"></a>
-#### `withHeartbeat()` {.collection-method}
+#### `withHeartbeat()`
 
 `withHeartbeat` 메서드를 사용하면 지연 컬렉션이 열거되는 동안 정기적인 시간 간격으로 콜백을 실행할 수 있습니다. 이는 잠금 확장 또는 진행률 업데이트 전송과 같이 정기적인 유지 관리 작업이 필요한 장기 실행 작업에 특히 유용합니다.
 

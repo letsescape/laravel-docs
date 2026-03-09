@@ -43,7 +43,7 @@ $names = User::all()->reject(function (User $user) {
 
 또한 `Illuminate\Database\Eloquent\Collection` 클래스는 모델 컬렉션 관리에 도움이 되는 메서드의 상위 집합을 제공합니다. 대부분의 메소드는 `Illuminate\Database\Eloquent\Collection` 인스턴스를 반환합니다. 그러나 `modelKeys`와 같은 일부 메서드는 `Illuminate\Support\Collection` 인스턴스를 반환합니다.
 
-<style>
+<style>{`
     .collection-method-list > p {
         columns: 14.4em 1; -moz-columns: 14.4em 1; -webkit-columns: 14.4em 1;
     }
@@ -62,7 +62,7 @@ $names = User::all()->reject(function (User $user) {
     .collection-method:not(.first-collection-method) {
         margin-top: 50px;
     }
-</style>
+`}</style>
 
 <div class="collection-method-list" markdown="1">
 
@@ -93,7 +93,7 @@ $names = User::all()->reject(function (User $user) {
 </div>
 
 <a name="method-append"></a>
-#### `append($attributes)` {.수집 방법 .첫 번째 수집 방법}
+#### `append($attributes)`
 
 `append` 메소드는 컬렉션의 모든 모델에 대해 속성이 [추가](/docs/12.x/eloquent-serialization#appending-values-to-json)되어야 함을 나타내는 데 사용될 수 있습니다. 이 메소드는 속성 배열 또는 단일 속성을 허용합니다.
 
@@ -104,7 +104,7 @@ $users->append(['team', 'is_admin']);
 ```
 
 <a name="method-contains"></a>
-#### `contains($key, $operator = null, $value = null)` {.collection-method}
+#### `contains($key, $operator = null, $value = null)`
 
 `contains` 메소드는 주어진 모델 인스턴스가 컬렉션에 포함되어 있는지 확인하는 데 사용될 수 있습니다. 이 메서드는 기본 키 또는 모델 인스턴스를 허용합니다.
 
@@ -115,7 +115,7 @@ $users->contains(User::find(1));
 ```
 
 <a name="method-diff"></a>
-#### `diff($items)` {.collection-method}
+#### `diff($items)`
 
 `diff` 메소드는 지정된 컬렉션에 없는 모든 모델을 반환합니다.
 
@@ -126,7 +126,7 @@ $users = $users->diff(User::whereIn('id', [1, 2, 3])->get());
 ```
 
 <a name="method-except"></a>
-#### `except($keys)` {.collection-method}
+#### `except($keys)`
 
 `except` 메소드는 지정된 기본 키가 없는 모든 모델을 반환합니다.
 
@@ -135,7 +135,7 @@ $users = $users->except([1, 2, 3]);
 ```
 
 <a name="method-find"></a>
-#### `find($key)` {.collection-method}
+#### `find($key)`
 
 `find` 메소드는 지정된 키와 일치하는 기본 키가 있는 모델을 반환합니다. `$key`가 모델 인스턴스인 경우 `find`는 기본 키와 일치하는 모델을 반환하려고 시도합니다. `$key`가 키 배열인 경우 `find`는 지정된 배열에 기본 키가 있는 모든 모델을 반환합니다.
 
@@ -146,7 +146,7 @@ $user = $users->find(1);
 ```
 
 <a name="method-find-or-fail"></a>
-#### `findOrFail($key)` {.collection-method}
+#### `findOrFail($key)`
 
 `findOrFail` 메소드는 지정된 키와 일치하는 기본 키가 있는 모델을 반환하거나 컬렉션에서 일치하는 모델을 찾을 수 없는 경우 `Illuminate\Database\Eloquent\ModelNotFoundException` 예외를 발생시킵니다.
 
@@ -157,7 +157,7 @@ $user = $users->findOrFail(1);
 ```
 
 <a name="method-fresh"></a>
-#### `fresh($with = [])` {.collection-method}
+#### `fresh($with = [])`
 
 `fresh` 메서드는 데이터베이스에서 컬렉션에 있는 각 모델의 새 인스턴스를 검색합니다. 또한 지정된 관계가 모두 즉시 로드됩니다.
 
@@ -168,7 +168,7 @@ $users = $users->fresh('comments');
 ```
 
 <a name="method-intersect"></a>
-#### `intersect($items)` {.collection-method}
+#### `intersect($items)`
 
 `intersect` 메소드는 지정된 컬렉션에도 존재하는 모든 모델을 반환합니다.
 
@@ -179,7 +179,7 @@ $users = $users->intersect(User::whereIn('id', [1, 2, 3])->get());
 ```
 
 <a name="method-load"></a>
-#### `load($relations)` {.collection-method}
+#### `load($relations)`
 
 `load` 메소드는 컬렉션의 모든 모델에 대해 지정된 관계를 로드합니다.
 
@@ -192,7 +192,7 @@ $users->load(['comments', 'posts' => fn ($query) => $query->where('active', 1)])
 ```
 
 <a name="method-loadMissing"></a>
-#### `loadMissing($relations)` {.collection-method}
+#### `loadMissing($relations)`
 
 `loadMissing` 메소드는 관계가 아직 로드되지 않은 경우 컬렉션의 모든 모델에 대해 지정된 관계를 로드합니다.
 
@@ -205,7 +205,7 @@ $users->loadMissing(['comments', 'posts' => fn ($query) => $query->where('active
 ```
 
 <a name="method-modelKeys"></a>
-#### `modelKeys()` {.collection-method}
+#### `modelKeys()`
 
 `modelKeys` 메서드는 컬렉션의 모든 모델에 대한 기본 키를 반환합니다.
 
@@ -216,7 +216,7 @@ $users->modelKeys();
 ```
 
 <a name="method-makeVisible"></a>
-#### `makeVisible($attributes)` {.collection-method}
+#### `makeVisible($attributes)`
 
 `makeVisible` 메서드는 일반적으로 컬렉션의 각 모델에 "숨겨진" [속성을 표시](/docs/12.x/eloquent-serialization#hiding-attributes-from-json)합니다.
 
@@ -225,7 +225,7 @@ $users = $users->makeVisible(['address', 'phone_number']);
 ```
 
 <a name="method-makeHidden"></a>
-#### `makeHidden($attributes)` {.collection-method}
+#### `makeHidden($attributes)`
 
 `makeHidden` 메서드는 컬렉션의 각 모델에서 일반적으로 "표시"되는 [속성을 숨깁니다](/docs/12.x/eloquent-serialization#hiding-attributes-from-json):
 
@@ -234,7 +234,7 @@ $users = $users->makeHidden(['address', 'phone_number']);
 ```
 
 <a name="method-mergeVisible"></a>
-#### `mergeVisible($attributes)` {.collection-method}
+#### `mergeVisible($attributes)`
 
 `mergeVisible` 메소드는 기존 가시 속성을 유지하면서 [추가 속성을 표시](/docs/12.x/eloquent-serialization#hiding-attributes-from-json)합니다.
 
@@ -243,7 +243,7 @@ $users = $users->mergeVisible(['middle_name']);
 ```
 
 <a name="method-mergeHidden"></a>
-#### `mergeHidden($attributes)` {.collection-method}
+#### `mergeHidden($attributes)`
 
 `mergeHidden` 방법은 기존 숨겨진 속성을 유지하면서 [추가 속성을 숨깁니다](/docs/12.x/eloquent-serialization#hiding-attributes-from-json):
 
@@ -252,7 +252,7 @@ $users = $users->mergeHidden(['last_login_at']);
 ```
 
 <a name="method-only"></a>
-#### `only($keys)` {.collection-method}
+#### `only($keys)`
 
 `only` 메소드는 지정된 기본 키가 있는 모든 모델을 반환합니다.
 
@@ -261,7 +261,7 @@ $users = $users->only([1, 2, 3]);
 ```
 
 <a name="method-partition"></a>
-#### `partition` {.collection-method}
+#### `partition`
 
 `partition` 메소드는 `Illuminate\Database\Eloquent\Collection` 컬렉션 인스턴스를 포함하는 `Illuminate\Support\Collection` 인스턴스를 반환합니다.
 
@@ -274,7 +274,7 @@ dump($partition[1]::class); // Illuminate\Database\Eloquent\Collection
 ```
 
 <a name="method-setAppends"></a>
-#### `setAppends($attributes)` {.collection-method}
+#### `setAppends($attributes)`
 
 `setAppends` 메서드는 컬렉션의 각 모델에 대한 모든 [추가된 속성](/docs/12.x/eloquent-serialization#appending-values-to-json)을 일시적으로 재정의합니다.
 
@@ -283,7 +283,7 @@ $users = $users->setAppends(['is_admin']);
 ```
 
 <a name="method-setVisible"></a>
-#### `setVisible($attributes)` {.collection-method}
+#### `setVisible($attributes)`
 
 `setVisible` 메서드는 컬렉션의 각 모델에 표시되는 모든 속성을 [일시적으로 재정의](/docs/12.x/eloquent-serialization#temporarily-modifying-attribute-visibility)합니다.
 
@@ -292,7 +292,7 @@ $users = $users->setVisible(['id', 'name']);
 ```
 
 <a name="method-setHidden"></a>
-#### `setHidden($attributes)` {.collection-method}
+#### `setHidden($attributes)`
 
 `setHidden` 메서드는 컬렉션의 각 모델에 대한 모든 숨겨진 속성을 [일시적으로 재정의](/docs/12.x/eloquent-serialization#temporarily-modifying-attribute-visibility)합니다.
 
@@ -301,7 +301,7 @@ $users = $users->setHidden(['email', 'password', 'remember_token']);
 ```
 
 <a name="method-toquery"></a>
-#### `toQuery()` {.collection-method}
+#### `toQuery()`
 
 `toQuery` 메소드는 컬렉션 모델의 기본 키에 대한 `whereIn` 제약 조건을 포함하는 Eloquent 쿼리 빌더 인스턴스를 반환합니다.
 
@@ -316,7 +316,7 @@ $users->toQuery()->update([
 ```
 
 <a name="method-unique"></a>
-#### `unique($key = null, $strict = false)` {.collection-method}
+#### `unique($key = null, $strict = false)`
 
 `unique` 메서드는 컬렉션의 고유한 모델을 모두 반환합니다. 컬렉션의 다른 모델와 동일한 기본 키를 가진 모든 모델이 제거됩니다.
 
@@ -325,7 +325,7 @@ $users = $users->unique();
 ```
 
 <a name="method-withoutAppends"></a>
-#### `withoutAppends()` {.collection-method}
+#### `withoutAppends()`
 
 `withoutAppends` 메서드는 컬렉션의 각 모델에서 모든 [추가된 속성](/docs/12.x/eloquent-serialization#appending-values-to-json)을 일시적으로 제거합니다.
 
