@@ -30,7 +30,7 @@
 추가적으로, MongoDB는 공식적으로 MongoDB에서 유지보수하는 `mongodb/laravel-mongodb` 패키지를 통해 지원합니다. 자세한 정보는 [Laravel MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/) 문서를 참고하세요.
 
 <a name="configuration"></a>
-### 설정 (Configuration)
+### 설정
 
 Laravel의 데이터베이스 서비스 설정은 애플리케이션의 `config/database.php` 설정 파일에 위치합니다. 이 파일에서 모든 데이터베이스 연결을 정의할 수 있으며, 기본으로 사용할 연결도 지정할 수 있습니다. 이 파일의 대부분의 설정 옵션들은 애플리케이션의 환경 변수 값에 의해 제어됩니다. 대부분의 Laravel이 지원하는 데이터베이스 시스템 예제들이 이 파일에 포함되어 있습니다.
 
@@ -80,7 +80,7 @@ driver://username:password@host:port/database?options
 편의상, Laravel에서는 여러 설정값 대신 이러한 URL로 데이터베이스를 연결할 수 있습니다. `url`(또는 환경 변수 `DB_URL`) 옵션이 존재한다면, 해당 값을 통해 연결 및 인증 정보를 추출해 사용합니다.
 
 <a name="read-and-write-connections"></a>
-### 읽기 및 쓰기 연결 (Read and Write Connections)
+### 읽기 및 쓰기 연결
 
 가끔 SELECT 쿼리에는 한 데이터베이스 연결을, INSERT/UPDATE/DELETE 쿼리에는 다른 연결을 사용하고 싶을 수 있습니다. Laravel은 이 구성을 손쉽게 지원하며, 원시 쿼리나 쿼리 빌더, Eloquent ORM을 사용할 때도 항상 올바른 연결을 사용합니다.
 
@@ -264,7 +264,7 @@ DB::unprepared('update users set votes = 100 where name = "Dries"');
 > unprepared 쿼리는 파라미터를 바인딩하지 않으므로 SQL 인젝션 공격에 취약할 수 있습니다. 사용자 입력이 포함된 unprepared 쿼리는 절대 사용해서는 안 됩니다.
 
 <a name="implicit-commits-in-transactions"></a>
-#### 암시적 커밋(Implicit Commits)
+#### 암시적 커밋
 
 트랜잭션 내에서 `statement`나 `unprepared` 메서드를 사용할 때는 [암시적 커밋](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)을 발생시키는 쿼리를 주의하세요. 이런 쿼리는 데이터베이스 엔진이 트랜잭션 전체를 간접적으로 커밋하여, Laravel이 트랜잭션 레벨을 제대로 인지하지 못하게 됩니다. 예를 들어, 테이블을 생성하는 쿼리 등이 이에 해당합니다:
 
@@ -361,7 +361,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         DB::whenQueryingForLongerThan(500, function (Connection $connection, QueryExecuted $event) {
-            // 개발팀에 알림 전송 등...
+            // Notify development team...
         });
     }
 }

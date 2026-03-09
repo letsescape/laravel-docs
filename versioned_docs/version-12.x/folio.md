@@ -1,4 +1,4 @@
-# Laravel Folio
+# Laravel Folio (Laravel Folio)
 
 - [소개](#introduction)
 - [설치](#installation)
@@ -44,9 +44,9 @@ php artisan folio:install
 ```
 
 <a name="page-paths-uris"></a>
-### 페이지 경로 / URI (Page Paths / URIs)
+### 페이지 경로 / URI
 
-기본적으로 Folio는 애플리케이션의 `resources/views/pages` 디렉터리에서 페이지를 제공합니다. 하지만 Folio 서비스 프로바이더의 `boot` 메서드에서 이 디렉터리들을 커스터마이즈할 수 있습니다.
+기본적으로 Folio는 애플리케이션의 `resources/views/pages` 디렉터리에서 페이지를 제공합니다. 하지만 Folio 서비스 프로바이더의 `boot` 메서드에서 이 디렉터리들을 사용자 지정할 수 있습니다.
 
 예를 들어, 동일한 Laravel 애플리케이션 내에서 여러 Folio 경로를 지정하는 것이 편리할 때가 있습니다. 애플리케이션의 "admin" 영역을 위한 별도의 Folio 페이지 디렉터리와 나머지 페이지용 디렉터리를 분리해서 사용할 수도 있죠.
 
@@ -70,7 +70,7 @@ Folio::path(resource_path('views/pages/admin'))
 ```
 
 <a name="subdomain-routing"></a>
-### 서브도메인 라우팅 (Subdomain Routing)
+### 서브도메인 라우팅
 
 들어오는 요청의 서브도메인에 따라 페이지를 라우팅할 수도 있습니다. 예를 들어, `admin.example.com`의 요청을 나머지 Folio 페이지들과 다른 디렉터리로 라우팅하고 싶을 때가 있죠. 이럴 때는 `Folio::path`를 호출한 후 `domain` 메서드를 함께 호출하면 됩니다:
 
@@ -93,7 +93,7 @@ Folio::domain('{account}.example.com')
 <a name="creating-routes"></a>
 ## 라우트 생성하기 (Creating Routes)
 
-Folio에 마운트된 디렉터리에 Blade 템플릿을 배치하면 Folio 라우트를 생성할 수 있습니다. 기본적으로 Folio는 `resources/views/pages` 디렉터리를 마운트하지만, Folio 서비스 프로바이더의 `boot` 메서드에서 이 디렉터리들을 커스터마이즈할 수 있습니다.
+Folio에 마운트된 디렉터리에 Blade 템플릿을 배치하면 Folio 라우트를 생성할 수 있습니다. 기본적으로 Folio는 `resources/views/pages` 디렉터리를 마운트하지만, Folio 서비스 프로바이더의 `boot` 메서드에서 이 디렉터리들을 사용자 지정할 수 있습니다.
 
 Blade 템플릿을 Folio 마운트 디렉터리에 두면, 바로 브라우저에서 접근할 수 있습니다. 예를 들어, `pages/schedule.blade.php`에 있는 페이지는 `http://example.com/schedule`에서 접근할 수 있습니다.
 
@@ -104,7 +104,7 @@ php artisan folio:list
 ```
 
 <a name="nested-routes"></a>
-### 중첩 라우트 (Nested Routes)
+### 중첩 라우트
 
 중첩 라우트는 Folio 디렉터리 내에 하나 이상의 하위 디렉터리를 생성해 만들 수 있습니다. 예를 들어 `/user/profile` URL로 접근 가능한 페이지를 만들고 싶다면, `pages/user` 디렉터리 내에 `profile.blade.php` 템플릿을 생성하세요:
 
@@ -115,7 +115,7 @@ php artisan folio:page user/profile
 ```
 
 <a name="index-routes"></a>
-### 인덱스 라우트 (Index Routes)
+### 인덱스 라우트
 
 특정 페이지를 디렉터리 내의 "인덱스"로 지정하고 싶을 때가 있습니다. Folio 디렉터리에 `index.blade.php` 템플릿을 배치하면, 해당 디렉터리의 루트 URL 요청이 그 페이지로 라우팅됩니다:
 
@@ -183,7 +183,7 @@ php artisan folio:page "users/[User]"
 </div>
 ```
 
-#### 키 커스터마이징
+#### 키 사용자 지정
 
 바인딩 된 Eloquent 모델을 `id` 컬럼이 아닌 다른 컬럼을 사용해 조회하고 싶을 때가 있습니다. 이 경우, 페이지 파일명에서 컬럼명을 지정할 수 있습니다. 예를 들어, `[Post:slug].blade.php`는 `id` 대신 `slug` 컬럼으로 바인딩을 시도합니다.
 
@@ -200,7 +200,7 @@ php artisan folio:page "users/[.App.Models.User]"
 ```
 
 <a name="soft-deleted-models"></a>
-### 소프트 삭제된 모델 (Soft Deleted Models)
+### 소프트 삭제된 모델
 
 기본적으로 암묵적 모델 바인딩 시, 소프트 삭제된 모델은 조회되지 않습니다. 그렇지만 원한다면, 페이지 템플릿 내에서 `withTrashed` 함수를 호출하여 소프트 삭제된 모델도 조회할 수 있도록 Folio에 지시할 수 있습니다:
 
@@ -221,9 +221,9 @@ withTrashed();
 <a name="render-hooks"></a>
 ## 렌더 훅 (Render Hooks)
 
-기본적으로 Folio는 페이지의 Blade 템플릿 내용을 HTTP 응답으로 반환합니다. 하지만 페이지 템플릿 내에서 `render` 함수를 호출해 응답을 커스터마이징할 수 있습니다.
+기본적으로 Folio는 페이지의 Blade 템플릿 내용을 HTTP 응답으로 반환합니다. 하지만 페이지 템플릿 내에서 `render` 함수를 호출해 응답을 사용자 지정할 수 있습니다.
 
-`render` 함수는 클로저를 인자로 받으며, 이 클로저는 Folio가 렌더링하는 `View` 인스턴스를 전달받습니다. 이를 통해 추가 데이터를 뷰에 전달하거나 전체 응답을 커스터마이징할 수 있습니다. 또한 클로저는 다른 라우트 파라미터나 모델 바인딩 값들도 인자로 제공합니다:
+`render` 함수는 클로저를 인자로 받으며, 이 클로저는 Folio가 렌더링하는 `View` 인스턴스를 전달받습니다. 이를 통해 추가 데이터를 뷰에 전달하거나 전체 응답을 사용자 지정할 수 있습니다. 또한 클로저는 다른 라우트 파라미터나 모델 바인딩 값들도 인자로 제공합니다:
 
 ```php
 <?php

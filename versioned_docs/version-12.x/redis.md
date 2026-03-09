@@ -8,7 +8,7 @@
 - [Redis와 상호작용하기](#interacting-with-redis)
     - [트랜잭션](#transactions)
     - [파이프라이닝 명령어](#pipelining-commands)
-- [Pub / Sub](#pubsub)
+- [발행 / 구독 (Pub / Sub)](#pubsub)
 
 <a name="introduction"></a>
 ## 소개 (Introduction)
@@ -100,7 +100,7 @@ composer require predis/predis
 ```
 
 <a name="clusters"></a>
-### 클러스터 (Clusters)
+### 클러스터
 
 애플리케이션이 여러 대의 Redis 서버로 구성된 클러스터를 사용하는 경우, Redis 설정에서 `clusters` 키에 이 클러스터들을 정의해야 합니다. 이 설정 키는 기본적으로 존재하지 않으므로, 애플리케이션의 `config/database.php` 설정 파일에 직접 추가해야 합니다.
 
@@ -353,7 +353,7 @@ $redis = Redis::connection();
 ```
 
 <a name="transactions"></a>
-### 트랜잭션 (Transactions)
+### 트랜잭션
 
 `Redis` 파사드의 `transaction` 메서드는 Redis의 `MULTI`와 `EXEC` 명령어를 간편하게 감싸주는 래퍼입니다. `transaction` 메서드는 하나의 클로저(익명 함수)를 받아, 이 클로저로 Redis 연결 인스턴스를 전달합니다. 클로저 내부에서는 원하는 만큼 명령어를 실행할 수 있고, 해당 명령어들은 모두 하나의 원자적(atomic) 트랜잭션으로 실행됩니다.
 
@@ -394,7 +394,7 @@ LUA, 2, 'first-counter', 'second-counter');
 > Redis 스크립팅에 관한 더 자세한 내용은 [Redis 공식 문서](https://redis.io/commands/eval)를 참고하세요.
 
 <a name="pipelining-commands"></a>
-### 파이프라이닝 명령어 (Pipelining Commands)
+### 파이프라이닝 명령어
 
 수십 개의 Redis 명령어를 실행해야 할 때, 각각을 서버에 따로따로 전송하면 네트워크 비용이 큽니다. 이럴 때는 `pipeline` 메서드를 사용하세요. `pipeline` 메서드는 Redis 인스턴스를 인수로 받는 클로저를 전달받아, 해당 클로저 내에서 수행한 모든 명령어를 한 번에 처리합니다. 명령어들은 실행 순서를 그대로 유지합니다.
 
@@ -410,7 +410,7 @@ Facades\Redis::pipeline(function (Redis $pipe) {
 ```
 
 <a name="pubsub"></a>
-## Pub / Sub
+## 발행 / 구독 (Pub / Sub)
 
 Laravel은 Redis의 `publish` 및 `subscribe` 명령어에 대한 편리한 인터페이스를 제공합니다. 이 명령어들은 특정 "채널"에 대해 메시지를 듣고(publish: 송신, subscribe: 수신) 보낼 수 있도록 해줍니다. 다른 애플리케이션이나, 심지어 다른 언어로도 메시지를 동일 채널로 발행할 수 있으므로, 애플리케이션 또는 프로세스 간의 손쉬운 통신이 가능합니다.
 

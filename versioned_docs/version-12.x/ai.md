@@ -11,23 +11,23 @@
     - [에이전트 통합](#agents-integration)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
-Laravel은 AI 지원 및 에이전트 기반 개발에 가장 적합한 프레임워크라는 점에서 독보적인 위치를 차지하고 있습니다. [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenCode](https://opencode.ai), [Cursor](https://cursor.com), [GitHub Copilot](https://github.com/features/copilot)과 같은 AI 코딩 에이전트의 등장으로 개발자가 코드를 작성하는 방식이 크게 변화했습니다. 이러한 도구들은 전체 기능 생성, 복잡한 문제 디버깅, 빠른 코드 리팩토링까지 이전과는 비교할 수 없는 속도로 작업할 수 있도록 도와주지만, 그 효과는 여러분의 코드베이스를 얼마나 잘 이해하느냐에 크게 달려 있습니다.
+Laravel은 AI 지원 개발과 에이전트 기반 개발(agentic development)에 특히 잘 맞는 프레임워크입니다. [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenCode](https://opencode.ai), [Cursor](https://cursor.com), [GitHub Copilot](https://github.com/features/copilot) 같은 AI 코딩 에이전트의 등장으로 개발자가 코드를 작성하는 방식은 크게 달라졌습니다. 이런 도구는 전체 기능을 만들고, 복잡한 문제를 디버깅하고, 코드를 빠르게 리팩터링할 수 있게 해주지만, 실제 효과는 코드베이스를 얼마나 잘 이해하느냐에 크게 좌우됩니다.
 
 <a name="why-laravel-for-ai-development"></a>
 ### AI 개발에 Laravel이 적합한 이유
 
-Laravel이 제공하는 명확한 규칙(convention)과 체계적인 구조는 AI 지원 개발에 매우 이상적입니다. 예를 들어, AI 에이전트에게 컨트롤러를 추가하라고 하면, 어디에 파일을 두어야 할지 정확히 알고 작업합니다. 새로운 마이그레이션이 필요할 때도, 파일명이나 위치가 예측 가능하여 혼란이 없습니다. 이러한 일관성 덕분에, 다른 유연한 프레임워크에서는 자주 문제가 되는 ‘추측’이 완전히 사라집니다.
+Laravel이 제공하는 명확한 관례(convention)와 체계적인 구조는 AI 지원 개발에 매우 잘 맞습니다. 예를 들어 AI 에이전트에게 컨트롤러를 추가하라고 하면, 파일을 어디에 두어야 하는지 정확히 알고 작업합니다. 새로운 마이그레이션이 필요할 때도 파일명과 위치를 쉽게 예측할 수 있습니다. 이런 일관성 덕분에 더 유연한 프레임워크에서 자주 발생하는 추측성 작업이 크게 줄어듭니다.
 
 디렉토리 구조 외에도, Laravel의 직관적인 문법과 방대한 공식 문서는 AI 에이전트가 정확하고 Laravel다운 코드를 생성하는 데 중요한 맥락 정보를 제공합니다. Eloquent 연관관계, Form Request, 미들웨어(Middleware) 등 많은 기능들이 패턴화되어 있어 AI가 쉽게 이해하고 재현할 수 있습니다. 그 결과, AI가 생성한 코드는 마치 숙련된 Laravel 개발자가 작성한 것처럼 자연스러우며, 단순한 PHP 코드 조각을 이어붙인 수준이 아닙니다.
 
 <a name="laravel-boost"></a>
-## Laravel Boost
+## Laravel Boost (Laravel Boost)
 
 [Laravel Boost](https://github.com/laravel/boost)는 AI 코딩 에이전트와 여러분의 Laravel 애플리케이션 사이를 연결해주는 도구입니다. Boost는 MCP(Model Context Protocol) 서버로, AI 에이전트가 애플리케이션의 구조, 데이터베이스, 라우트 등 깊은 정보를 파악할 수 있게 돕는 15개 이상의 특화 도구를 제공합니다. Boost를 설치하면, AI 에이전트는 범용 코드 도우미에서 여러분의 애플리케이션을 이해하는 ‘Laravel 전문가’로 변신합니다.
 
-Boost가 제공하는 세 가지 주요 기능은 다음과 같습니다: 애플리케이션 점검 및 상호작용을 위한 MCP 도구 모음, Laravel에 특화된 조합형 AI 가이드라인, 17,000개 이상의 Laravel 관련 지식을 담고 있는 강력한 문서화 API입니다.
+Boost가 제공하는 세 가지 핵심 기능은 다음과 같습니다. 애플리케이션을 점검하고 상호작용할 수 있는 MCP 도구 모음, Laravel에 특화된 조합형 AI 가이드라인, 그리고 17,000개 이상의 Laravel 관련 지식을 담은 강력한 문서 API입니다.
 
 <a name="installation"></a>
 ### 설치
@@ -44,7 +44,7 @@ composer require laravel/boost --dev
 php artisan boost:install
 ```
 
-설치 프로그램은 사용 중인 IDE와 AI 에이전트를 자동으로 감지하여, 프로젝트에 필요한 통합 기능을 직접 선택할 수 있도록 도와줍니다. 설치가 완료되면, `.mcp.json`과 같은 MCP 호환 에디터용 설정 파일과 AI 맥락용 가이드라인 파일이 자동으로 생성됩니다.
+설치 프로그램은 사용 중인 IDE와 AI 에이전트를 자동으로 감지해 프로젝트에 필요한 통합 기능을 직접 선택할 수 있게 해줍니다. 설치가 끝나면 `.mcp.json` 같은 MCP 호환 에디터용 설정 파일과 AI 컨텍스트용 가이드라인 파일이 자동으로 생성됩니다.
 
 > [!NOTE]
 > `.mcp.json`, `CLAUDE.md`, `boost.json`와 같이 생성된 설정 파일들은 개발자마다 각자 환경을 구성하도록 `.gitignore`에 추가해도 무방합니다.
@@ -72,7 +72,7 @@ Boost는 Model Context Protocol을 통해 AI 에이전트에게 다양한 도구
 
 Boost는 Laravel 에코시스템에 최적화된 방대한 AI 가이드라인을 기본 제공합니다. 이 가이드라인은 AI 에이전트에게 Laravel다운 코드 작성법, 프레임워크 규칙 준수, 자주 발생하는 실수 방지법 등을 안내합니다. 또한 조합형(composable), 버전 인식(version-aware) 방식으로, 사용 중인 패키지 버전에 맞춘 지침이 제공됩니다.
 
-가이드라인은 Laravel 자체뿐 아니라, 다음을 포함한 16개 이상의 라이브러리와 패키지에 대해 준비되어 있습니다.
+가이드라인은 Laravel 자체뿐 아니라 다음을 포함한 16개 이상의 라이브러리와 패키지에 대해 제공됩니다.
 
 <div class="content-list" markdown="1">
 

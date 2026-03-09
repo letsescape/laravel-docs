@@ -117,7 +117,7 @@ Schedule::job(new Heartbeat)->everyFiveMinutes();
 use App\Jobs\Heartbeat;
 use Illuminate\Support\Facades\Schedule;
 
-// "heartbeats" 큐와 "sqs" 연결을 사용하여 작업을 디스패치
+// Dispatch the job to the "heartbeats" queue on the "sqs" connection...
 Schedule::job(new Heartbeat, 'heartbeats', 'sqs')->everyFiveMinutes();
 ```
 
@@ -188,12 +188,12 @@ Schedule::exec('node /home/forge/script.js')->daily();
 ```php
 use Illuminate\Support\Facades\Schedule;
 
-// 매주 월요일 오후 1시에 한 번 실행
+// Run once per week on Monday at 1 PM...
 Schedule::call(function () {
     // ...
 })->weekly()->mondays()->at('13:00');
 
-// 평일 08:00~17:00 시간대에 매시간 실행
+// Run hourly from 8 AM to 5 PM on weekdays...
 Schedule::command('foo')
     ->weekdays()
     ->hourly()
@@ -537,7 +537,7 @@ Schedule::command('report:generate')
 > `emailOutputTo`, `emailOutputOnFailure`, `sendOutputTo`, `appendOutputTo`는 `command` 및 `exec` 메서드로 예약된 작업에서만 사용할 수 있습니다.
 
 <a name="task-hooks"></a>
-## 작업 훅(Hook) (Task Hooks)
+## 작업 훅 (Task Hooks)
 
 `before`와 `after` 메서드를 이용하면, 예약 작업 실행 전/후에 별도 코드를 실행시킬 수 있습니다:
 
@@ -547,10 +547,10 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('emails:send')
     ->daily()
     ->before(function () {
-        // 작업이 곧 실행됩니다...
+        // The task is about to execute...
     })
     ->after(function () {
-        // 작업이 실행 완료되었습니다...
+        // The task has executed...
     });
 ```
 
@@ -560,10 +560,10 @@ Schedule::command('emails:send')
 Schedule::command('emails:send')
     ->daily()
     ->onSuccess(function () {
-        // 작업이 성공적으로 완료됨
+        // The task succeeded...
     })
     ->onFailure(function () {
-        // 작업이 실패함
+        // The task failed...
     });
 ```
 
@@ -575,10 +575,10 @@ use Illuminate\Support\Stringable;
 Schedule::command('emails:send')
     ->daily()
     ->onSuccess(function (Stringable $output) {
-        // 작업이 성공적으로 완료됨
+        // The task succeeded...
     })
     ->onFailure(function (Stringable $output) {
-        // 작업이 실패함
+        // The task failed...
     });
 ```
 

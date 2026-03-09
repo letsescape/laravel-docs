@@ -21,7 +21,7 @@ Laravel로 애플리케이션을 만들 때 프론트엔드 개발을 하는 주
 ## PHP 사용하기 (Using PHP)
 
 <a name="php-and-blade"></a>
-### PHP와 Blade (PHP and Blade)
+### PHP와 Blade
 
 과거에는 대부분의 PHP 애플리케이션이 데이터베이스에서 데이터를 받아와서, PHP `echo`문이 삽입된 간단한 HTML 템플릿을 렌더링하여 브라우저에 HTML을 출력했습니다:
 
@@ -91,7 +91,7 @@ new class extends Component
 Laravel에 처음 입문하셨다면, 먼저 [뷰](/docs/12.x/views)와 [Blade](/docs/12.x/blade)의 기본 사용법을 익히신 후, 공식 [Laravel Livewire 문서](https://livewire.laravel.com/docs)를 참고해 Livewire 컴포넌트로 상호작용이 가능한 애플리케이션을 만들어 보시길 추천합니다.
 
 <a name="php-starter-kits"></a>
-### 스타터 키트 (Starter Kits)
+### 스타터 키트
 
 PHP와 Livewire로 프론트엔드를 구축하고 싶다면, [Livewire 스타터 키트](/docs/12.x/starter-kits)를 이용해 애플리케이션 개발을 더욱 빠르게 시작할 수 있습니다.
 
@@ -158,7 +158,7 @@ export default function Show({ user }) {
 애플리케이션에 서버 사이드 렌더링(Server-Side Rendering)이 필요해서 Inertia 도입이 우려된다면 걱정하지 않으셔도 됩니다. Inertia는 [서버 사이드 렌더링 지원](https://inertiajs.com/server-side-rendering)을 제공합니다. 또한, [Laravel Cloud](https://cloud.laravel.com)나 [Laravel Forge](https://forge.laravel.com)에서 앱을 배포하면 Inertia의 서버 사이드 렌더링 프로세스를 손쉽게 항상 실행되도록 설정할 수 있습니다.
 
 <a name="inertia-starter-kits"></a>
-### 스타터 키트 (Starter Kits)
+### 스타터 키트
 
 Inertia와 React / Svelte / Vue를 활용해 프론트엔드를 만들고 싶으신가요? [React, Svelte, Vue 애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 활용해 프로젝트의 개발을 바로 시작해 보세요. 이 스타터 키트들은 Inertia, React / Svelte / Vue, [Tailwind](https://tailwindcss.com), [Vite](https://vitejs.dev)를 이용한 프론트엔드 및 백엔드 인증 플로우 기본 구조를 미리 제공하므로, 여러분의 다음 아이디어 개발에 바로 집중할 수 있습니다.
 

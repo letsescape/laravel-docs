@@ -118,11 +118,11 @@ $environment = App::environment();
 
 ```php
 if (App::environment('local')) {
-    // 환경이 local입니다.
+    // The environment is local
 }
 
 if (App::environment(['local', 'staging'])) {
-    // 환경이 local 또는 staging입니다...
+    // The environment is either local OR staging...
 }
 ```
 
@@ -231,7 +231,7 @@ $value = Config::get('app.timezone');
 
 $value = config('app.timezone');
 
-// 구성 값이 없을 경우 기본값을 반환...
+// Retrieve a default value if the configuration value does not exist...
 $value = config('app.timezone', 'Asia/Seoul');
 ```
 
@@ -386,7 +386,7 @@ php artisan up
 ```
 
 > [!NOTE]
-> 기본 유지보수 모드 템플릿은 `resources/views/errors/503.blade.php`에 직접 정의하여 커스터마이즈할 수 있습니다.
+> 기본 유지보수 모드 템플릿은 `resources/views/errors/503.blade.php`에 직접 정의하여 사용자 지정할 수 있습니다.
 
 <a name="maintenance-mode-queues"></a>
 #### 유지보수 모드와 큐

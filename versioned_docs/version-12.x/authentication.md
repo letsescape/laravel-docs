@@ -1,30 +1,30 @@
-# 인증(Authentication)
+# 인증 (Authentication)
 
 - [소개](#introduction)
     - [스타터 키트](#starter-kits)
-    - [데이터베이스 고려사항](#introduction-database-considerations)
-    - [에코시스템 개요](#ecosystem-overview)
+    - [데이터베이스 고려 사항](#introduction-database-considerations)
+    - [생태계 개요](#ecosystem-overview)
 - [인증 빠른 시작](#authentication-quickstart)
     - [스타터 키트 설치](#install-a-starter-kit)
-    - [인증된 사용자 정보 조회](#retrieving-the-authenticated-user)
-    - [라우트 보호하기](#protecting-routes)
-    - [로그인 시도 제한](#login-throttling)
-- [사용자 수동 인증하기](#authenticating-users)
-    - [사용자 기억하기](#remembering-users)
-    - [기타 인증 방식](#other-authentication-methods)
-- [HTTP Basic 인증](#http-basic-authentication)
-    - [Stateless HTTP Basic 인증](#stateless-http-basic-authentication)
+    - [인증된 사용자 검색](#retrieving-the-authenticated-user)
+    - [라우트 보호](#protecting-routes)
+    - [로그인 속도 제한](#login-throttling)
+- [수동으로 사용자 인증하기](#authenticating-users)
+    - [기억하는 사용자](#remembering-users)
+    - [기타 인증 방법](#other-authentication-methods)
+- [HTTP 기본 인증](#http-basic-authentication)
+    - [세션 없는 HTTP 기본 인증](#stateless-http-basic-authentication)
 - [로그아웃](#logging-out)
-    - [다른 기기의 세션 무효화](#invalidating-sessions-on-other-devices)
-- [비밀번호 재확인](#password-confirmation)
-    - [설정](#password-confirmation-configuration)
+    - [다른 장치의 세션 무효화](#invalidating-sessions-on-other-devices)
+- [비밀번호 확인](#password-confirmation)
+    - [구성](#password-confirmation-configuration)
     - [라우팅](#password-confirmation-routing)
     - [라우트 보호](#password-confirmation-protecting-routes)
-- [커스텀 가드 추가](#adding-custom-guards)
-    - [클로저 요청 가드](#closure-request-guards)
-- [커스텀 사용자 제공자 추가](#adding-custom-user-providers)
+- [사용자 지정 Guard 추가](#adding-custom-guards)
+    - [클로저 Request Guard](#closure-request-guards)
+- [사용자 지정 User Provider 추가](#adding-custom-user-providers)
     - [User Provider 계약](#the-user-provider-contract)
-    - [Authenticatable 계약](#the-authenticatable-contract)
+    - [인증 가능한 계약](#the-authenticatable-contract)
 - [자동 비밀번호 재해싱](#automatic-password-rehashing)
 - [소셜 인증](/docs/12.x/socialite)
 - [이벤트](#events)
@@ -32,93 +32,96 @@
 <a name="introduction"></a>
 ## 소개 (Introduction)
 
-많은 웹 애플리케이션에서는 사용자가 애플리케이션에 인증(Authentication)하고 "로그인"할 수 있는 방법을 제공합니다. 웹 애플리케이션에서 이 기능을 구현하는 것은 복잡할 수 있으며, 잠재적으로 보안적인 위험도 존재합니다. 이러한 이유로, Laravel은 인증을 빠르고, 안전하며, 쉽게 구현할 수 있도록 필요한 도구들을 제공합니다.
+많은 웹 애플리케이션은 사용자가 애플리케이션에 인증하고 "로그인"할 수 있는 기능을 제공합니다. 하지만 이 기능을 직접 구현하는 일은 복잡할 뿐 아니라 보안상 위험도 따를 수 있습니다. Laravel은 인증 기능을 빠르고, 안전하고, 간단하게 구현할 수 있도록 필요한 도구를 제공합니다.
 
-Laravel의 인증 기능은 기본적으로 "가드(guard)"와 "프로바이더(provider)"로 구성되어 있습니다. 가드는 각 요청에 대해 사용자가 어떻게 인증되는지 정의합니다. 예를 들어, Laravel에는 세션 저장소와 쿠키를 이용하여 상태를 유지하는 `session` 가드가 기본으로 포함되어 있습니다.
+Laravel의 인증 기능은 크게 `guard`와 `provider`로 구성됩니다. `guard`는 각 요청에서 사용자를 어떻게 인증할지 정의합니다. 예를 들어 Laravel에는 세션 저장소와 쿠키로 상태를 유지하는 `session` guard가 기본 제공됩니다.
 
-프로바이더는 영속 저장소(예: 데이터베이스)에서 사용자를 어떻게 조회할지 정의합니다. Laravel은 [Eloquent](/docs/12.x/eloquent)와 데이터베이스 쿼리 빌더를 이용한 사용자 조회를 지원합니다. 하지만, 애플리케이션의 필요에 따라 추가적인 프로바이더를 자유롭게 정의할 수 있습니다.
+`provider`는 영구 저장소에서 사용자를 어떻게 조회할지 정의합니다. Laravel은 [Eloquent](/docs/12.x/eloquent)와 데이터베이스 쿼리 빌더를 사용한 사용자 조회를 지원하며, 필요하다면 애플리케이션에 맞는 provider를 추가로 정의할 수도 있습니다.
 
-애플리케이션의 인증 구성 파일은 `config/auth.php`에 위치합니다. 이 파일은 Laravel의 인증 서비스 동작을 세밀하게 조정할 수 있는 다양한 옵션들과, 각 옵션에 대한 충분한 설명을 담고 있습니다.
+애플리케이션의 인증 구성 파일은 `config/auth.php`에 있습니다. 이 파일에는 Laravel 인증 서비스의 동작을 조정하기 위한 잘 문서화된 몇 가지 옵션이 포함되어 있습니다.
 
 > [!NOTE]
-> 가드(guard)와 프로바이더(provider)는 "역할(roles)"과 "권한(permissions)"과는 다릅니다. 퍼미션 기반으로 사용자 행위를 인가(authorization)하는 방법은 [인가(authorization)](/docs/12.x/authorization) 문서를 참고하시기 바랍니다.
+> `guard`와 `provider`를 "역할(role)"이나 "권한(permission)"과 혼동하면 안 됩니다. 권한을 기준으로 사용자 동작을 제어하는 방법은 [인가](/docs/12.x/authorization) 문서를 참고하세요.
 
 <a name="starter-kits"></a>
 ### 스타터 키트
 
-빠르게 시작하고 싶으신가요? 새로 생성한 Laravel 애플리케이션에서 [Laravel 애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 설치하세요. 데이터베이스 마이그레이션 후, 브라우저에서 `/register` 또는 애플리케이션에 할당된 다른 URL에 접근하면, 스타터 키트가 인증 시스템 전체를 자동으로 구성해드립니다!
+빠르게 시작하고 싶다면 새 Laravel 애플리케이션에 [Laravel 애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 설치하세요. 데이터베이스 마이그레이션을 실행한 뒤 브라우저에서 `/register` 또는 애플리케이션에 연결된 다른 URL로 이동하면 됩니다. 스타터 키트가 전체 인증 시스템의 기본 구조를 자동으로 준비해 줍니다.
 
-**실제 프로젝트에서 스타터 키트를 사용하지 않더라도, [스타터 키트](/docs/12.x/starter-kits)를 설치해 보는 것은 Laravel의 인증 기능 구현 방식을 익히기에 매우 좋은 학습 기회가 될 수 있습니다.** 스타터 키트에는 인증 컨트롤러, 라우트, 뷰 파일이 모두 포함되어 있으므로, 이 파일들의 코드를 참고하여 Laravel 인증 시스템을 어떻게 구현하면 되는지 직접 확인하실 수 있습니다.
+**최종 Laravel 애플리케이션에서 스타터 키트를 사용하지 않더라도 [스타터 키트](/docs/12.x/starter-kits)를 한 번 설치해 보면 실제 Laravel 프로젝트에서 인증 기능이 어떻게 구성되는지 배우는 데 큰 도움이 됩니다.** Laravel 스타터 키트에는 인증용 컨트롤러, 라우트, 뷰가 포함되어 있으므로 관련 파일의 코드를 살펴보면 Laravel의 인증 기능이 어떻게 구현되는지 이해할 수 있습니다.
 
 <a name="introduction-database-considerations"></a>
-### 데이터베이스 고려사항
+### 데이터베이스 고려 사항
 
-기본적으로 Laravel은 `app/Models` 디렉터리에 `App\Models\User` [Eloquent 모델](/docs/12.x/eloquent)을 제공합니다. 이 모델은 기본 Eloquent 인증 드라이버와 함께 사용할 수 있습니다.
+기본적으로 Laravel에는 `app/Models` 디렉터리에 `App\Models\User` [Eloquent 모델](/docs/12.x/eloquent)가 포함되어 있습니다. 이 모델은 기본 Eloquent 인증 드라이버와 함께 사용될 수 있습니다.
 
-Eloquent를 사용하지 않는 경우, Laravel 쿼리 빌더를 사용하는 `database` 인증 프로바이더를 사용할 수 있습니다. 만약 MongoDB를 사용한다면, MongoDB 공식 [Laravel 사용자 인증 문서](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/user-authentication/)를 참고하세요.
+애플리케이션이 Eloquent를 사용하지 않는 경우 Laravel 쿼리 빌더를 사용하는 `database` 인증 provider를 사용할 수 있습니다. 애플리케이션이 MongoDB를 사용하는 경우 MongoDB의 공식 [Laravel 사용자 인증 문서](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/user-authentication/)를 확인하세요.
 
-`App\Models\User` 모델을 위한 데이터베이스 스키마를 만들 때, 비밀번호 컬럼의 길이가 최소 60자 이상인지 확인해야 합니다. 물론, 새 Laravel 애플리케이션에 포함된 `users` 테이블 마이그레이션에는 이미 이보다 긴 컬럼이 생성됩니다.
+`App\Models\User` 모델에 대한 데이터베이스 스키마를 빌드할 때 비밀번호 열 길이가 60자 이상인지 확인하세요. 물론 새로운 Laravel 애플리케이션에 포함된 `users` 테이블 마이그레이션은 이미 이 길이를 초과하는 열을 생성합니다.
 
-또한, `users`(또는 이에 상응하는) 테이블에는 100자 길이의 nullable string 타입 `remember_token` 컬럼이 있어야 합니다. 이 컬럼은 사용자가 "로그인 상태 유지(remember me)" 옵션을 선택할 때 토큰을 저장하는 데 사용됩니다. 역시, 새 Laravel 애플리케이션의 기본 `users` 테이블 마이그레이션에 이 컬럼이 포함되어 있습니다.
+또한 `users`(또는 이에 상응하는) 테이블에 100자의 null 허용 문자열 `remember_token` 열이 포함되어 있는지 확인해야 합니다. 이 열은 애플리케이션에 로그인할 때 "기억하기" 옵션을 선택한 사용자를 위한 토큰을 저장하는 데 사용됩니다. 다시 말하지만, 새 Laravel 애플리케이션에 포함된 기본 `users` 테이블 마이그레이션에는 이미 이 열이 포함되어 있습니다.
 
 <a name="ecosystem-overview"></a>
-### 에코시스템 개요
+### 생태계 개요
 
-Laravel은 인증과 관련된 여러 패키지를 제공합니다. 계속하기에 앞서, Laravel의 전체 인증 에코시스템을 살펴보고 각 패키지가 어떤 역할을 하는지 간략하게 알아보겠습니다.
+Laravel은 인증과 관련된 여러 패키지를 제공합니다. 계속하기 전에 Laravel의 전반적인 인증 생태계를 살펴보고 각 패키지가 어떤 목적에 맞는지 정리해 보겠습니다.
 
-먼저, 인증이 어떻게 동작하는지 생각해보겠습니다. 웹 브라우저를 사용할 때, 사용자는 로그인 폼에 아이디와 비밀번호를 입력합니다. 이 정보가 올바르면 애플리케이션은 인증된 사용자 정보를 [세션](/docs/12.x/session)에 저장합니다. 브라우저에는 세션 ID가 담긴 쿠키가 발급되고, 이후의 모든 요청에서는 이 세션 ID를 통해 사용자를 올바른 세션과 연관지을 수 있습니다. 세션 쿠키가 수신된 후, 애플리케이션은 세션 ID로 세션 데이터를 조회하고, 세션 내에 인증 정보가 저장되어 있음을 확인하여 해당 사용자를 "인증된 상태"로 간주합니다.
+먼저 인증 작동 방식을 고려하세요. 웹 브라우저를 사용할 때 사용자는 로그인 양식을 통해 사용자 이름과 비밀번호를 제공합니다. 이러한 자격 증명이 올바른 경우 애플리케이션은 인증된 사용자에 대한 정보를 사용자의 [세션](/docs/12.x/session)에 저장합니다. 브라우저에 발행된 쿠키에는 세션 ID가 포함되어 있어 애플리케이션에 대한 후속 요청이 사용자를 올바른 세션과 연결할 수 있습니다. 세션 쿠키가 수신된 후 애플리케이션은 세션 ID를 기반으로 세션 데이터를 검색하고 인증 정보가 세션에 저장되었음을 확인하며 사용자를 "인증된" 것으로 간주합니다.
 
-반면, 원격 서비스가 API에 접근해야 할 경우에는 브라우저가 없기 때문에 쿠키를 사용하지 않습니다. 원격 서비스는 매 요청마다 API 토큰을 함께 보내며, 애플리케이션은 이 토큰을 유효 토큰 목록과 비교하여 해당 요청이 정당한 사용자에 의한 것임을 판단하고 "인증" 처리를 합니다.
+원격 서비스가 API에 액세스하기 위해 인증해야 하는 경우 웹 브라우저가 없기 때문에 일반적으로 쿠키가 인증에 사용되지 않습니다. 대신 원격 서비스는 각 요청마다 API 토큰을 API로 보냅니다. 애플리케이션은 유효한 API 토큰 테이블에 대해 들어오는 토큰의 유효성을 검사하고 해당 API 토큰과 연결된 사용자가 수행하는 요청을 "인증"할 수 있습니다.
 
+<a name="laravels-built-in-browser-authentication-services"></a>
 #### Laravel의 내장 브라우저 인증 서비스
 
-Laravel은 주로 `Auth` 및 `Session` 파사드를 통해 접근할 수 있는 내장 인증 및 세션 서비스를 제공합니다. 이 기능들은 웹 브라우저에서 시작된 요청에 대해 쿠키 기반 인증을 지원하며, 사용자의 자격 증명 확인 및 인증 처리용 메서드들을 제공합니다. 또한, 적절한 인증 정보를 사용자의 세션에 자동으로 저장하고 세션 쿠키를 발급합니다. 이러한 서비스의 사용법은 본 문서에서 자세히 다룹니다.
+Laravel에는 보통 `Auth`와 `Session` 파사드로 접근하는 내장 인증 및 세션 서비스가 포함되어 있습니다. 이 기능은 웹 브라우저에서 시작된 요청에 대해 쿠키 기반 인증을 제공합니다. 이를 통해 사용자의 자격 증명을 검증하고 사용자를 인증할 수 있습니다. 또한 필요한 인증 데이터를 자동으로 사용자 세션에 저장하고 세션 쿠키도 발급합니다. 이러한 서비스를 사용하는 방법은 이 문서 전체에서 설명합니다.
 
 **애플리케이션 스타터 키트**
 
-이 문서에서 다루는 것처럼, 인증 서비스를 수동으로 이용하여 직접 인증 레이어를 구축할 수도 있지만, 빠르고 쉽게 시작할 수 있도록 전체 인증 레이어에 대한 현대적이고 견고한 구조를 갖춘 [무료 스타터 키트](/docs/12.x/starter-kits)를 제공합니다.
+이 문서에서 설명하는 것처럼 이러한 인증 서비스와 직접 상호작용해 애플리케이션만의 인증 계층을 구축할 수도 있습니다. 다만 더 빠르게 시작할 수 있도록 전체 인증 계층을 현대적인 형태로 미리 구성해 주는 [무료 스타터 키트](/docs/12.x/starter-kits)도 제공됩니다.
 
+<a name="laravels-api-authentication-services"></a>
 #### Laravel의 API 인증 서비스
 
-Laravel은 API 토큰 관리 및 토큰 기반 인증 요청 처리를 돕는 두 가지 선택적 패키지, [Passport](/docs/12.x/passport)와 [Sanctum](/docs/12.x/sanctum)을 제공합니다. 이 라이브러리들과 Laravel 기본 쿠키 기반 인증 라이브러리는 상호 배타적이지 않습니다. 이 라이브러리들은 주로 API 토큰 인증에 집중하며, 기본 인증 서비스는 브라우저 쿠키 기반 인증에 집중합니다. 많은 애플리케이션에서는 두 방식을 모두 사용할 수 있습니다.
+Laravel은 API 토큰을 관리하고 API 토큰으로 들어오는 요청을 인증하는 데 도움이 되는 두 가지 선택적 패키지, [Passport](/docs/12.x/passport)와 [Sanctum](/docs/12.x/sanctum)을 제공합니다. 이 라이브러리들과 Laravel의 내장 쿠키 기반 인증 라이브러리는 서로 배타적이지 않습니다. 이 라이브러리들은 주로 API 토큰 인증에 초점을 맞추고, 내장 인증 서비스는 쿠키 기반 브라우저 인증에 초점을 맞춥니다. 많은 애플리케이션이 Laravel의 내장 쿠키 기반 인증 서비스와 Laravel의 API 인증 패키지 중 하나를 함께 사용합니다.
 
 **Passport**
 
-Passport는 OAuth2 인증 프로바이더로, 다양한 OAuth2 "grant type"을 지원해 여러 종류의 토큰을 발급할 수 있습니다. 일반적으로 API 인증을 위한 강력하고 복잡한 패키지입니다. 하지만, 대부분 애플리케이션은 OAuth2 명세에서 제공하는 복잡한 기능이 필요한 것은 아니며, 사용자는 물론 개발자에게도 혼란을 줄 수 있습니다. 특히 단일 페이지 애플리케이션(SPA)이나 모바일 애플리케이션 인증에 Passport 같은 OAuth2 기반 인증 프로바이더를 사용할 때 많은 개발자들이 혼란을 겪곤 합니다.
+Passport는 여러 종류의 토큰을 발급할 수 있는 다양한 OAuth2 `grant type`을 제공하는 OAuth2 인증 패키지입니다. 전반적으로 API 인증에 적합한 강력하고 복잡한 패키지지만, 대부분의 애플리케이션은 OAuth2 사양이 제공하는 복잡한 기능 전체를 필요로 하지 않습니다. 그래서 사용자와 개발자 모두에게 다소 혼란을 줄 수 있습니다. 또한 역사적으로 개발자들은 Passport 같은 OAuth2 솔루션으로 SPA나 모바일 애플리케이션을 어떻게 인증해야 하는지 자주 헷갈려 했습니다.
 
 **Sanctum**
 
-OAuth2의 복잡함과 개발자 혼란을 해결하기 위해, 더 단순하고 직관적인 인증 패키지를 만들고자 했습니다. 그 결과가 바로 [Laravel Sanctum](/docs/12.x/sanctum)이며, 웹 UI와 API를 동시에 제공하는 애플리케이션, 백엔드와 분리된 SPA, 모바일 앱까지 다양한 경우에 권장되는 인증 패키지입니다.
+OAuth2의 복잡성과 그로 인한 개발자 혼란에 대응하기 위해, 우리는 웹 브라우저에서 오는 자사 웹 요청과 토큰 기반 API 요청을 모두 처리할 수 있는 더 단순하고 효율적인 인증 패키지를 만들었습니다. 그 결과가 [Laravel Sanctum](/docs/12.x/sanctum)입니다. Sanctum은 API와 함께 자사 웹 UI를 제공하는 애플리케이션, 백엔드 Laravel 애플리케이션과 별도로 존재하는 SPA, 그리고 모바일 클라이언트를 제공하는 애플리케이션에서 우선적으로 고려할 만한 인증 패키지입니다.
 
-Laravel Sanctum은 웹/ API 하이브리드 인증 패키지로, 애플리케이션 전체의 인증 과정을 관리할 수 있습니다. 즉, Sanctum이 요청을 받으면 먼저 세션 쿠키가 포함되어 있는지 확인하여 인증된 세션이 존재하는지 체크합니다(이때 앞서 설명한 Laravel 기본 인증 서비스를 활용합니다). 만약 세션 쿠키로 인증되지 않았다면, 요청에 API 토큰이 있는지 검사하여 API 토큰으로 인증을 시도합니다. 이 과정의 자세한 동작 원리는 Sanctum의 ["동작 방식"](/docs/12.x/sanctum#how-it-works) 문서를 참고하시기 바랍니다.
+Laravel Sanctum은 애플리케이션의 전체 인증 과정을 관리할 수 있는 하이브리드 웹/API 인증 패키지입니다. Sanctum 기반 애플리케이션이 요청을 받으면, 먼저 해당 요청에 인증된 세션을 가리키는 세션 쿠키가 포함되어 있는지 확인합니다. 이를 위해 Sanctum은 앞서 설명한 Laravel의 내장 인증 서비스를 호출합니다. 요청이 세션 쿠키로 인증되지 않았다면, Sanctum은 API 토큰이 포함되어 있는지 검사합니다. API 토큰이 있으면 그 토큰으로 요청을 인증합니다. 이 과정에 대한 자세한 내용은 Sanctum의 ["작동 방식"](/docs/12.x/sanctum#how-it-works) 문서를 참고하세요.
 
-#### 요약 및 인증 스택 선택
+<a name="summary-choosing-your-stack"></a>
+#### 요약 및 스택 선택
 
-정리하자면, 웹 브라우저를 통해 접근하는 모놀리식 Laravel 애플리케이션이라면 Laravel의 내장 인증 서비스를 사용하면 됩니다.
+요약하면, 브라우저를 사용하여 애플리케이션에 액세스하고 모놀리식 Laravel 애플리케이션을 구축하는 경우 애플리케이션은 Laravel의 내장 인증 서비스를 사용하게 됩니다.
 
-외부 서비스가 이용하는 API를 제공해야 한다면, [Passport](/docs/12.x/passport)와 [Sanctum](/docs/12.x/sanctum) 중에서 API 토큰 인증 방식을 선택할 수 있습니다. 대부분의 경우, Sanctum은 API 인증, SPA 인증, 모바일 인증을 모두 지원하는 단순하고 완전한 솔루션이므로 기본적으로 Sanctum 사용을 권장합니다. 물론 "권한(Scope)"이나 "기능(Ability)" 지원도 포함됩니다.
+다음으로, 애플리케이션이 제3자가 사용할 API를 제공하는 경우 [Passport](/docs/12.x/passport) 또는 [Sanctum](/docs/12.x/sanctum) 중에서 선택하여 애플리케이션에 API 토큰 인증을 제공합니다. 일반적으로 Sanctum는 "범위" 또는 "능력" 지원을 포함하여 API 인증, SPA 인증 및 모바일 인증을 위한 간단하고 완전한 솔루션이므로 가능한 경우 선호되어야 합니다.
 
-SPA가 Laravel 백엔드에서 동작하는 경우, [Laravel Sanctum](/docs/12.x/sanctum)을 사용해야 합니다. Sanctum을 사용할 때에는 [인증 관련 라우트를 직접 구현](#authenticating-users)하거나, [Laravel Fortify](/docs/12.x/fortify)를 이용하여 회원가입, 비밀번호 재설정, 이메일 인증 등 다양한 기능을 제공하는 헤드리스 인증 백엔드 서비스를 사용할 수 있습니다.
+Laravel 백엔드로 구동되는 단일 페이지 애플리케이션(SPA)을 구축하는 경우에는 [Laravel Sanctum](/docs/12.x/sanctum)을 사용하는 것이 좋습니다. Sanctum을 사용할 때는 [백엔드 인증 라우트를 직접 구현](#authenticating-users)하거나, 회원가입, 비밀번호 재설정, 이메일 인증 같은 기능을 위한 라우트와 컨트롤러를 제공하는 헤드리스 인증 백엔드 서비스인 [Laravel Fortify](/docs/12.x/fortify)를 활용할 수 있습니다.
 
-어플리케이션에 OAuth2 명세의 모든 기능이 꼭 필요하다면 Passport를 선택할 수 있습니다.
+애플리케이션에 OAuth2 사양에서 제공하는 모든 기능이 절대적으로 필요한 경우 Passport를 선택할 수 있습니다.
 
-빠르게 시작하고 싶다면, [애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 이용하는 것이 Laravel 인증 스택을 가장 손쉽게 적용하는 방법입니다.
+빠르게 시작하고 싶다면, Laravel이 권장하는 내장 인증 스택을 이미 적용한 새 애플리케이션을 시작하는 방법으로 [애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 추천합니다.
 
 <a name="authentication-quickstart"></a>
 ## 인증 빠른 시작 (Authentication Quickstart)
 
 > [!WARNING]
-> 이 문서는 UI 스캐폴딩이 포함된 [Laravel 애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 통한 사용자 인증 방법을 설명합니다. 인증 시스템과 직접 통합하고 싶다면, [사용자 수동 인증하기](#authenticating-users) 문서를 참고하세요.
+> 문서의 이 부분에서는 빠르게 시작할 수 있도록 UI scaffolding이 포함된 [Laravel 애플리케이션 스타터 키트](/docs/12.x/starter-kits)로 사용자를 인증하는 방법을 설명합니다. Laravel의 인증 시스템과 직접 통합하려면 [사용자 수동 인증](#authenticating-users) 문서를 참고하세요.
 
 <a name="install-a-starter-kit"></a>
 ### 스타터 키트 설치
 
-먼저, [Laravel 애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 설치하세요. 스타터 키트는 인증 시스템을 손쉽게 도입할 수 있도록 아름답게 디자인된 출발점을 제공합니다.
+먼저 [Laravel 애플리케이션 스타터 키트를 설치](/docs/12.x/starter-kits)해야 합니다. 당사의 스타터 키트는 새로운 Laravel 애플리케이션에 인증을 통합하기 위한 아름답게 디자인된 시작점을 제공합니다.
 
 <a name="retrieving-the-authenticated-user"></a>
-### 인증된 사용자 정보 조회
+### 인증된 사용자 검색
 
-스타터 키트로 애플리케이션을 만들고, 사용자가 등록 및 인증할 수 있게 했다면, 현재 인증된 사용자의 정보를 활용하는 경우가 많습니다. 요청을 처리할 때는 `Auth` 파사드의 `user` 메서드를 통해 인증된 사용자에 접근할 수 있습니다:
+스타터 킷에서 애플리케이션을 작성하고 사용자가 애플리케이션에 등록하고 인증할 수 있도록 허용한 후에는 현재 인증된 사용자와 상호작용해야 하는 경우가 많습니다. 들어오는 요청을 처리하는 동안 `Auth` 파사드의 `user` 메서드를 통해 인증된 사용자에 접근할 수 있습니다:
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -130,7 +133,7 @@ $user = Auth::user();
 $id = Auth::id();
 ```
 
-또한, 사용자가 인증된 이후에는 `Illuminate\Http\Request` 인스턴스를 통해서도 인증된 사용자에 접근할 수 있습니다. 컨트롤러 메서드에는 타입 힌트가 자동으로 주입되므로, `Illuminate\Http\Request` 오브젝트를 타입 힌트하면 `user` 메서드로 어느 컨트롤러에서나 인증된 사용자에 편리하게 접근할 수 있습니다:
+또는 사용자가 인증되면 `Illuminate\Http\Request` 인스턴스를 통해 인증된 사용자에 액세스할 수 있습니다. 타입힌트 클래스가 컨트롤러 메서드에 자동으로 삽입된다는 점을 기억하세요. `Illuminate\Http\Request` 객체를 타입힌트하면 요청의 `user` 메서드를 통해 애플리케이션의 모든 컨트롤러 메서드에서 인증된 사용자에 편리하게 액세스할 수 있습니다.
 
 ```php
 <?php
@@ -156,9 +159,10 @@ class FlightController extends Controller
 }
 ```
 
-#### 현재 사용자가 인증 상태인지 확인하기
+<a name="determining-if-the-current-user-is-authenticated"></a>
+#### 현재 사용자가 인증되었는지 확인
 
-들어오는 HTTP 요청을 수행한 사용자가 인증된 상태인지 확인하려면, `Auth` 파사드의 `check` 메서드를 사용할 수 있습니다. 이 메서드는 사용자가 인증되어 있다면 `true`를 반환합니다:
+들어오는 HTTP 요청을 하는 사용자가 인증되었는지 확인하려면 `Auth` 파사드의 `check` 메서드를 사용할 수 있습니다. 이 메서드는 사용자가 인증되면 `true`를 반환합니다.
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -169,12 +173,12 @@ if (Auth::check()) {
 ```
 
 > [!NOTE]
-> 사용자가 인증 상태인지 `check` 메서드로 직접 확인할 수도 있지만, 보통은 미들웨어를 통해 사용자가 인증된 상태임을 보장합니다. 자세한 사용법은 [라우트 보호하기](/docs/12.x/authentication#protecting-routes) 문서를 확인하세요.
+> `check` 메서드를 사용하여 사용자가 인증되었는지 확인할 수 있더라도 일반적으로 특정 라우트 / 컨트롤러에 대한 사용자 액세스를 허용하기 전에 미들웨어를 사용하여 사용자가 인증되었는지 확인합니다. 이에 대해 자세히 알아보려면 [라우트 보호](/docs/12.x/authentication#protecting-routes) 문서를 확인하세요.
 
 <a name="protecting-routes"></a>
-### 라우트 보호하기
+### 라우트 보호
 
-[라우트 미들웨어](/docs/12.x/middleware)를 사용하면, 인증된 사용자만 특정 라우트에 접근할 수 있도록 제한할 수 있습니다. Laravel은 `Illuminate\Auth\Middleware\Authenticate` 클래스를 alias로 지정한 `auth` 미들웨어를 기본 제공하므로, 해당 미들웨어를 라우트에 바로 적용하면 됩니다:
+[라우트 미들웨어](/docs/12.x/middleware)는 인증된 사용자만 특정 라우트에 액세스하도록 허용하는 데 사용할 수 있습니다. Laravel은 `Illuminate\Auth\Middleware\Authenticate` 클래스의 [미들웨어 별칭](/docs/12.x/middleware#middleware-aliases)인 `auth` 미들웨어를 기본 제공합니다. 이 미들웨어는 이미 Laravel에 의해 내부적으로 별칭이 지정되어 있으므로 미들웨어를 라우트 정의에 연결하기만 하면 됩니다.
 
 ```php
 Route::get('/flights', function () {
@@ -182,9 +186,10 @@ Route::get('/flights', function () {
 })->middleware('auth');
 ```
 
+<a name="redirecting-unauthenticated-users"></a>
 #### 인증되지 않은 사용자 리디렉션
 
-`auth` 미들웨어가 인증되지 않은 사용자를 감지하면, 자동으로 사용자를 `login` [네임드 라우트](/docs/12.x/routing#named-routes)로 리디렉션합니다. 이 동작은 애플리케이션의 `bootstrap/app.php` 파일 내에서 `redirectGuestsTo` 메서드로 변경할 수 있습니다:
+`auth` 미들웨어가 인증되지 않은 사용자를 감지하면 사용자를 `login` [라우트](/docs/12.x/routing#named-routes)로 리디렉션합니다. 애플리케이션의 `bootstrap/app.php` 파일 내에서 `redirectGuestsTo` 메서드를 사용하여 이 동작을 수정할 수 있습니다.
 
 ```php
 use Illuminate\Http\Request;
@@ -197,9 +202,10 @@ use Illuminate\Http\Request;
 })
 ```
 
+<a name="redirecting-authenticated-users"></a>
 #### 인증된 사용자 리디렉션
 
-`guest` 미들웨어가 인증된 사용자를 감지하면, 사용자를 `dashboard` 또는 `home` 네임드 라우트로 리디렉션합니다. 이 동작도 `redirectUsersTo` 메서드로 변경할 수 있습니다:
+`guest` 미들웨어가 인증된 사용자를 감지하면 사용자를 `dashboard` 또는 `home` 이름의 라우트로 리디렉션합니다. 애플리케이션의 `bootstrap/app.php` 파일에서 `redirectUsersTo` 메서드를 사용하면 이 동작을 변경할 수 있습니다.
 
 ```php
 use Illuminate\Http\Request;
@@ -212,9 +218,10 @@ use Illuminate\Http\Request;
 })
 ```
 
-#### 가드 지정하기
+<a name="specifying-a-guard"></a>
+#### 가드 지정
 
-라우트에 `auth` 미들웨어를 적용할 때, 어떤 "가드"를 사용할 것인지 지정할 수 있습니다. 지정한 가드는 `auth.php` 설정 파일의 `guards` 배열 내 키와 일치해야 합니다:
+`auth` 미들웨어를 라우트에 연결할 때 사용자를 인증하는 데 사용해야 하는 "가드"를 지정할 수도 있습니다. 지정된 가드는 `auth.php` 구성 파일의 `guards` 배열에 있는 키 중 하나와 일치해야 합니다.
 
 ```php
 Route::get('/flights', function () {
@@ -223,19 +230,19 @@ Route::get('/flights', function () {
 ```
 
 <a name="login-throttling"></a>
-### 로그인 시도 제한
+### 로그인 제한
 
-[애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 사용하는 경우, 로그인 시도에 자동으로 속도 제한이 적용됩니다. 여러 번 잘못된 자격 증명을 입력하면, 기본적으로 1분간 로그인 시도가 차단됩니다. 이 제한은 사용자 이름/이메일 및 IP 주소 별로 개별적으로 적용됩니다.
+[애플리케이션 스타터 키트](/docs/12.x/starter-kits) 중 하나를 사용하는 경우 로그인 시도에 속도 제한이 자동으로 적용됩니다. 기본적으로 사용자는 여러 번 시도한 후에도 올바른 자격 증명을 제공하지 못하면 1분 동안 로그인할 수 없습니다. 제한은 사용자의 사용자 이름/이메일 주소 및 IP 주소에 따라 고유합니다.
 
 > [!NOTE]
-> 애플리케이션의 다른 라우트에도 속도 제한을 적용하고 싶다면 [속도 제한 문서](/docs/12.x/routing#rate-limiting)를 참고하세요.
+> 애플리케이션에서 다른 라우트의 속도를 제한하려면 [속도 제한 문서](/docs/12.x/routing#rate-limiting)를 확인하세요.
 
 <a name="authenticating-users"></a>
-## 사용자 수동 인증하기 (Manually Authenticating Users)
+## 수동으로 사용자 인증 (Manually Authenticating Users)
 
-[애플리케이션 스타터 키트](/docs/12.x/starter-kits)에 포함된 인증 스캐폴딩을 반드시 사용해야 하는 것은 아닙니다. 만약 해당 스캐폴딩을 사용하지 않는다면, Laravel 인증 클래스를 직접 사용해 사용자 인증을 처리해야 합니다. 걱정하지 마세요, 매우 간단합니다!
+Laravel의 [애플리케이션 스타터 키트](/docs/12.x/starter-kits)에 포함된 인증 scaffolding을 반드시 사용할 필요는 없습니다. 이를 사용하지 않기로 했다면 Laravel의 인증 클래스를 직접 사용해 사용자 인증을 관리하면 됩니다. 생각보다 어렵지 않습니다.
 
-`Auth` [파사드](/docs/12.x/facades)를 통해 Laravel의 인증 서비스에 접근할 수 있으니, 클래스 상단에 `Auth` 파사드를 import하세요. 이제 `attempt` 메서드를 살펴보겠습니다. 이 메서드는 일반적으로 애플리케이션의 "로그인" 폼 요청을 처리할 때 사용합니다. 인증에 성공하면, [세션](/docs/12.x/session)을 재생성하여 [세션 고정 공격(session fixation)](https://en.wikipedia.org/wiki/Session_fixation)을 방지하세요:
+Laravel의 인증 서비스는 `Auth` [파사드](/docs/12.x/facades)를 통해 사용하므로, 먼저 클래스 상단에서 `Auth` 파사드를 가져와야 합니다. 다음으로 `attempt` 메서드를 살펴보겠습니다. `attempt` 메서드는 보통 애플리케이션의 로그인 폼에서 들어온 인증 시도를 처리할 때 사용합니다. 인증에 성공했다면 [세션 고정](https://en.wikipedia.org/wiki/Session_fixation)을 방지하기 위해 사용자의 [세션](/docs/12.x/session)을 다시 생성해야 합니다.
 
 ```php
 <?php
@@ -271,17 +278,18 @@ class LoginController extends Controller
 }
 ```
 
-`attempt` 메서드는 키/값 쌍의 배열을 첫 번째 인수로 받습니다. 배열의 값들은 데이터베이스의 사용자 정보를 찾는 데 사용됩니다. 위 예시에서는 `email` 컬럼 값으로 사용자를 조회합니다. 사용자가 존재하면 데이터베이스에 저장된 해시된 비밀번호와, 배열로 전달된 `password` 값을 비교합니다. 요청으로 입력받은 `password` 값은 별도로 해시할 필요 없습니다. 프레임워크가 자동으로 해시하여 데이터베이스의 값과 비교합니다. 두 해시가 일치하면 사용자의 인증 세션이 시작됩니다.
+`attempt` 메서드는 키/값 쌍의 배열을 첫 번째 인수로 허용합니다. 배열의 값은 데이터베이스 테이블에서 사용자를 찾는 데 사용됩니다. 따라서 위의 예에서는 `email` 열의 값으로 사용자를 검색합니다. 사용자가 발견되면 데이터베이스에 저장된 해시된 비밀번호는 배열을 통해 메서드에 전달된 `password` 값과 비교됩니다. 들어오는 요청의 `password` 값을 해시하면 안 됩니다. 프레임워크가 값을 데이터베이스의 해시된 비밀번호와 비교하기 전에 자동으로 해시하기 때문입니다. 두 개의 해시된 비밀번호가 일치하면 사용자에 대해 인증된 세션이 시작됩니다.
 
-Laravel 인증 서비스는 가드(guard)의 "provider" 설정에 따라 데이터베이스에서 사용자를 조회합니다. 기본 `config/auth.php` 파일은 Eloquent 사용자 제공자를 지정하고, 사용자를 조회할 때 `App\Models\User` 모델을 사용하도록 설정되어 있습니다. 애플리케이션에 따라 해당 값들을 자유롭게 수정할 수 있습니다.
+Laravel의 인증 서비스는 인증 guard의 `provider` 설정을 기준으로 데이터베이스에서 사용자를 조회한다는 점을 기억하세요. 기본 `config/auth.php` 설정 파일에는 Eloquent user provider가 지정되어 있으며, 사용자를 조회할 때 `App\Models\User` 모델을 사용합니다. 애플리케이션 요구 사항에 따라 이 값은 변경할 수 있습니다.
 
-`attempt` 메서드는 인증 성공 시 `true`, 실패 시 `false`를 반환합니다.
+인증이 성공하면 `attempt` 메서드는 `true`를 반환합니다. 그렇지 않으면 `false`가 반환됩니다.
 
-`intended` 리디렉션 메서드는 인증 미들웨어에 차단되기 직전 사용자가 접근을 시도했던 URL로 리디렉션합니다. 만약 목적지가 없다면 대체 URI를 지정할 수도 있습니다.
+Laravel의 리디렉터가 제공하는 `intended` 메서드는 인증 미들웨어에 의해 차단되기 전에 액세스를 시도했던 URL로 사용자를 리디렉션합니다. 의도한 대상을 사용할 수 없는 경우 대체 URI가 이 메서드에 제공될 수 있습니다.
 
+<a name="specifying-additional-conditions"></a>
 #### 추가 조건 지정
 
-사용자 이메일 및 비밀번호 외에도 인증 조건에 추가 쿼리 조건을 더할 수 있습니다. 단순하게 인증 조건 배열에 원하는 값을 더해 `attempt` 메서드에 전달하면 됩니다. 예를 들어, 사용자가 "활성(active)" 계정인지 확인할 수도 있습니다:
+원하는 경우 사용자의 이메일 및 비밀번호 외에 추가 쿼리 조건을 인증 쿼리에 추가할 수도 있습니다. 이를 달성하려면 `attempt` 메서드에 전달된 배열에 쿼리 조건을 추가하기만 하면 됩니다. 예를 들어, 사용자가 "활성"으로 표시되어 있는지 확인할 수 있습니다.
 
 ```php
 if (Auth::attempt(['email' => $email, 'password' => $password, 'active' => 1])) {
@@ -289,7 +297,7 @@ if (Auth::attempt(['email' => $email, 'password' => $password, 'active' => 1])) 
 }
 ```
 
-복잡한 쿼리 조건이 필요하다면, 자격 증명 배열에 클로저를 추가할 수 있습니다. 이 클로저는 쿼리 인스턴스를 받아, 애플리케이션에 맞는 쿼리 커스터마이징이 가능합니다:
+복잡한 쿼리 조건의 경우 자격 증명 배열에 클로저를 제공할 수 있습니다. 이 클로저는 쿼리 인스턴스와 함께 호출되므로 애플리케이션의 요구 사항에 따라 쿼리를 사용자 지정할 수 있습니다.
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
@@ -304,9 +312,9 @@ if (Auth::attempt([
 ```
 
 > [!WARNING]
-> 위의 예시에서 `email`은 필수 옵션이 아니라 예시일 뿐입니다. 데이터베이스에서 "사용자 이름" 역할을 하는 컬럼명을 사용하세요.
+> 이 예에서 `email`는 필수 옵션이 아니며 단지 예로서 사용됩니다. 데이터베이스 테이블의 "사용자 이름"에 해당하는 열 이름을 사용해야 합니다.
 
-두 번째 인수로 클로저를 전달하는 `attemptWhen` 메서드를 사용하면, 인증 전 후보 사용자를 보다 정교하게 검사할 수 있습니다. 클로저는 후보 사용자를 받아, 인증 가능 여부에 따라 `true` 또는 `false`를 반환해야 합니다:
+두 번째 인수로 클로저를 수신하는 `attemptWhen` 메서드는 실제로 사용자를 인증하기 전에 잠재적인 사용자에 대한 보다 광범위한 검사를 수행하는 데 사용될 수 있습니다. 클로저는 잠재적인 사용자를 수신하고 사용자가 인증될 수 있는지 여부를 나타내기 위해 `true` 또는 `false`를 반환해야 합니다.
 
 ```php
 if (Auth::attemptWhen([
@@ -319,11 +327,12 @@ if (Auth::attemptWhen([
 }
 ```
 
-#### 특정 가드 인스턴스 사용
+<a name="accessing-specific-guard-instances"></a>
+#### 특정 가드 인스턴스에 액세스
 
-`Auth` 파사드의 `guard` 메서드를 이용하면, 인증에 사용할 가드 인스턴스를 직접 지정할 수 있습니다. 이를 통해 애플리케이션의 각 영역에서 별도의 인증 모델 혹은 사용자 테이블을 기반으로 인증을 관리할 수 있습니다.
+`Auth` 파사드의 `guard` 메서드를 통해, 사용자를 인증할 때 어떤 가드 인스턴스를 활용하고 싶은지 지정할 수 있습니다. 이를 통해 완전히 별도의 인증 가능한 모델 또는 사용자 테이블을 사용하여 애플리케이션의 개별 부분에 대한 인증을 관리할 수 있습니다.
 
-`guard` 메서드에 전달하는 이름은 `auth.php` 설정 파일의 guard 이름과 일치해야 합니다:
+`guard` 메서드에 전달된 가드 이름은 `auth.php` 구성 파일에 구성된 가드 중 하나와 일치해야 합니다.
 
 ```php
 if (Auth::guard('admin')->attempt($credentials)) {
@@ -334,9 +343,9 @@ if (Auth::guard('admin')->attempt($credentials)) {
 <a name="remembering-users"></a>
 ### 사용자 기억하기
 
-많은 웹 애플리케이션에서는 로그인 폼에 "로그인 상태 유지(remember me)" 체크박스를 제공합니다. 이 기능을 구현하려면, `attempt` 메서드의 두 번째 인수로 boolean 값을 전달하면 됩니다.
+많은 웹 애플리케이션은 로그인 양식에 "기억하기" 확인란을 제공합니다. 애플리케이션에 "기억하기" 기능을 제공하려면 부울 값을 `attempt` 메서드의 두 번째 인수로 전달할 수 있습니다.
 
-이 값이 `true`라면, Laravel은 사용자가 직접 로그아웃하기 전까지 인증 상태를 유지합니다. 이를 위해 `users` 테이블에는 문자열 타입의 `remember_token` 컬럼이 반드시 존재해야 하며, 기본 마이그레이션에는 이 컬럼이 이미 포함되어 있습니다:
+이 값이 `true`이면 Laravel은 사용자의 인증 상태를 무기한 유지하거나 수동으로 로그아웃할 때까지 유지합니다. `users` 테이블에는 "기억하기" 토큰을 저장하는 데 사용되는 문자열 `remember_token` 열이 포함되어야 합니다. 새로운 Laravel 애플리케이션에 포함된 `users` 테이블 마이그레이션에는 이미 다음 열이 포함되어 있습니다.
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -346,7 +355,7 @@ if (Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
 }
 ```
 
-"로그인 상태 유지" 기능이 있다면, 현재 인증 사용자가 해당 쿠키로 인증되었는지 `viaRemember` 메서드로 확인할 수 있습니다:
+애플리케이션이 "기억하기" 기능을 제공하는 경우 `viaRemember` 메서드를 사용하여 현재 인증된 사용자가 "기억하기" 쿠키를 사용하여 인증되었는지 확인할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -357,11 +366,12 @@ if (Auth::viaRemember()) {
 ```
 
 <a name="other-authentication-methods"></a>
-### 기타 인증 방식
+### 기타 인증 방법
 
+<a name="authenticate-a-user-instance"></a>
 #### 사용자 인스턴스 인증
 
-이미 존재하는 사용자 인스턴스를 현재 인증 사용자로 지정하려면, `Auth` 파사드의 `login` 메서드에 해당 인스턴스를 전달하면 됩니다. 이 인스턴스는 반드시 `Illuminate\Contracts\Auth\Authenticatable` [계약](/docs/12.x/contracts)을 구현하고 있어야 하며, 기본 `App\Models\User` 모델에는 이미 구현되어 있습니다. 이 방식은 예를 들어, 사용자가 회원가입 직후 바로 인증 처리해야 할 때 유용합니다:
+기존 사용자 인스턴스를 현재 인증된 사용자로 설정해야 하는 경우 사용자 인스턴스를 `Auth` 파사드의 `login` 메서드에 전달할 수 있습니다. 지정된 사용자 인스턴스는 `Illuminate\Contracts\Auth\Authenticatable` [계약](/docs/12.x/contracts)의 구현이어야 합니다. Laravel에 포함된 `App\Models\User` 모델은 이미 이 인터페이스를 구현합니다. 이 인증 방법은 사용자가 애플리케이션에 등록한 직후와 같이 유효한 사용자 인스턴스가 이미 있는 경우에 유용합니다.
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -369,35 +379,37 @@ use Illuminate\Support\Facades\Auth;
 Auth::login($user);
 ```
 
-또한, `login` 메서드의 두 번째 인수로 boolean 값을 전달하면 "로그인 상태 유지" 기능이 적용됩니다. 즉, 사용자가 명시적으로 로그아웃할 때까지 인증 세션이 유지됩니다:
+`login` 메서드의 두 번째 인수로 부울 값을 전달할 수 있습니다. 이 값은 인증된 세션에 "기억하기" 기능이 필요한지 여부를 나타냅니다. 이는 세션이 무기한으로 인증되거나 사용자가 애플리케이션에서 수동으로 로그아웃할 때까지 인증된다는 것을 기억하세요.
 
 ```php
 Auth::login($user, $remember = true);
 ```
 
-필요에 따라 인증 전에 사용할 가드를 지정할 수도 있습니다:
+필요한 경우 `login` 메서드를 호출하기 전에 인증 가드를 지정할 수 있습니다.
 
 ```php
 Auth::guard('admin')->login($user);
 ```
 
-#### 사용자 ID로 인증
+<a name="authenticate-a-user-by-id"></a>
+#### ID로 사용자 인증
 
-데이터베이스에서 사용자의 기본 키(primary key)로 사용자 인증을 하려면, `loginUsingId` 메서드를 사용할 수 있습니다. 이 메서드는 인증하려는 사용자의 기본 키를 인수로 받습니다:
+데이터베이스 레코드의 기본 키를 사용하여 사용자를 인증하려면 `loginUsingId` 메서드를 사용할 수 있습니다. 이 메서드는 인증하려는 사용자의 기본 키를 허용합니다.
 
 ```php
 Auth::loginUsingId(1);
 ```
 
-또한, `loginUsingId` 메서드의 `remember` 인수로 boolean 값을 전달하여 "로그인 상태 유지" 여부도 지정할 수 있습니다:
+`loginUsingId` 메서드의 `remember` 인수에 부울 값을 전달할 수 있습니다. 이 값은 인증된 세션에 "기억하기" 기능이 필요한지 여부를 나타냅니다. 이는 세션이 무기한으로 인증되거나 사용자가 애플리케이션에서 수동으로 로그아웃할 때까지 인증된다는 것을 기억하세요.
 
 ```php
 Auth::loginUsingId(1, remember: true);
 ```
 
-#### 1회성 인증
+<a name="authenticate-a-user-once"></a>
+#### 한 번만 사용자 인증하기
 
-`once` 메서드를 사용하면, 한 번의 요청에서만 사용자 인증을 처리할 수 있습니다. 이 메서드는 세션이나 쿠키를 사용하지 않으며, `Login` 이벤트도 발생시키지 않습니다:
+`once` 메서드를 사용하면 단일 요청에 한해 사용자를 인증할 수 있습니다. 이 메서드를 호출할 때는 세션이나 쿠키를 사용하지 않으며, `Login` 이벤트도 디스패치되지 않습니다.
 
 ```php
 if (Auth::once($credentials)) {
@@ -406,9 +418,9 @@ if (Auth::once($credentials)) {
 ```
 
 <a name="http-basic-authentication"></a>
-## HTTP Basic 인증 (HTTP Basic Authentication)
+## HTTP 기본 인증 (HTTP Basic Authentication)
 
-[HTTP Basic 인증](https://en.wikipedia.org/wiki/Basic_access_authentication)은 별도의 "로그인" 화면을 구성할 필요 없이, 사용자를 인증하는 빠른 방법입니다. 먼저, `auth.basic` [미들웨어](/docs/12.x/middleware)를 라우트에 적용하세요. 이 미들웨어는 Laravel 프레임워크에 기본 포함되어 있으므로 별도의 정의가 필요 없습니다:
+[HTTP 기본 인증](https://en.wikipedia.org/wiki/Basic_access_authentication)은 전용 "로그인" 페이지를 설정하지 않고도 애플리케이션 사용자를 인증하는 빠른 방법을 제공합니다. 시작하려면 `auth.basic` [미들웨어](/docs/12.x/middleware)를 라우트에 연결하세요. `auth.basic` 미들웨어는 Laravel 프레임워크에 포함되어 있으므로 정의할 필요가 없습니다.
 
 ```php
 Route::get('/profile', function () {
@@ -416,20 +428,22 @@ Route::get('/profile', function () {
 })->middleware('auth.basic');
 ```
 
-미들웨어가 라우트에 적용되면, 해당 라우트에 브라우저로 접근할 때 자동으로 자격 증명 입력창이 표시됩니다. 기본적으로 `auth.basic` 미들웨어는 `users` 데이터베이스 테이블의 `email` 컬럼이 사용자 "아이디"로 사용된다고 가정합니다.
+미들웨어를 라우트에 연결하면, 브라우저로 해당 라우트에 접근할 때 자격 증명 입력 창이 자동으로 표시됩니다. 기본적으로 `auth.basic` 미들웨어는 `users` 데이터베이스 테이블의 `email` 컬럼을 사용자의 "사용자 이름"으로 간주합니다.
 
-#### FastCGI 사용 시 주의사항
+<a name="a-note-on-fastcgi"></a>
+#### FastCGI에 대한 참고 사항
 
-[PHP FastCGI](https://www.php.net/manual/en/install.fpm.php)와 Apache를 함께 사용한다면, HTTP Basic 인증이 제대로 동작하지 않을 수 있습니다. 이런 경우, 애플리케이션의 `.htaccess` 파일에 다음 라인을 추가하세요:
+[PHP FastCGI](https://www.php.net/manual/en/install.fpm.php) 및 Apache를 사용하여 Laravel 애플리케이션을 제공하는 경우 HTTP 기본 인증이 올바르게 작동하지 않을 수 있습니다. 이러한 문제를 해결하기 위해 애플리케이션의 `.htaccess` 파일에 다음 줄을 추가할 수 있습니다.
 
 ```apache
 RewriteCond %{HTTP:Authorization} ^(.+)$
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 ```
 
-### Stateless HTTP Basic 인증
+<a name="stateless-http-basic-authentication"></a>
+### 세션 없는 HTTP 기본 인증
 
-세션에 사용자 식별자 쿠키를 남기지 않고 HTTP Basic 인증을 사용할 수도 있습니다. 주로 API 요청에 HTTP 인증을 적용할 때 유용합니다. [미들웨어](/docs/12.x/middleware)를 정의할 때 `onceBasic` 메서드를 호출하세요. 이 메서드가 응답을 반환하지 않는다면, 요청이 애플리케이션의 다음 단계로 전달됩니다:
+세션에 사용자 식별 쿠키를 저장하지 않고 HTTP 기본 인증을 사용할 수도 있습니다. 이 방식은 애플리케이션 API 요청을 HTTP 인증으로 처리하려는 경우에 특히 유용합니다. 이를 위해 `onceBasic` 메서드를 호출하는 [미들웨어를 정의](/docs/12.x/middleware)하세요. `onceBasic` 메서드가 응답을 반환하지 않으면 요청은 애플리케이션의 다음 처리 단계로 계속 전달됩니다.
 
 ```php
 <?php
@@ -456,7 +470,7 @@ class AuthenticateOnceWithBasicAuth
 }
 ```
 
-다음으로, 방금 만든 미들웨어를 라우트에 적용하세요:
+다음으로 미들웨어를 라우트에 연결합니다.
 
 ```php
 Route::get('/api/user', function () {
@@ -467,9 +481,9 @@ Route::get('/api/user', function () {
 <a name="logging-out"></a>
 ## 로그아웃 (Logging Out)
 
-사용자를 수동으로 로그아웃 처리하려면, `Auth` 파사드의 `logout` 메서드를 사용하세요. 이 메서드는 인증 정보를 사용자 세션에서 제거하므로, 이후의 요청은 인증되지 않은 상태가 됩니다.
+애플리케이션에서 사용자를 수동으로 로그아웃하려면 `Auth` 파사드가 제공하는 `logout` 메서드를 사용하면 됩니다. 그러면 이후 요청에서는 더 이상 인증된 사용자로 처리되지 않도록 세션에서 인증 정보가 제거됩니다.
 
-`logout` 호출 외에도, 세션 무효화 및 [CSRF 토큰](/docs/12.x/csrf)을 재생성하는 것이 좋습니다. 로그아웃 후에는 보통 애플리케이션의 루트로 사용자를 리디렉션합니다:
+`logout` 메서드를 호출하는 것 외에도 사용자 세션을 무효화하고 [CSRF 토큰](/docs/12.x/csrf)을 다시 생성하는 것이 좋습니다. 사용자를 로그아웃한 후 일반적으로 사용자를 애플리케이션의 루트로 리디렉션합니다.
 
 ```php
 use Illuminate\Http\Request;
@@ -492,11 +506,11 @@ public function logout(Request $request): RedirectResponse
 ```
 
 <a name="invalidating-sessions-on-other-devices"></a>
-### 다른 기기의 세션 무효화
+### 다른 장치의 세션 무효화
 
-Laravel은 또한 인증된 현재 기기는 유지한 채, 동일 사용자의 다른 기기 세션만 무효화(로그아웃)할 수 있는 기능을 제공합니다. 이 기능은 보통 사용자가 비밀번호를 변경할 때, 다른 모든 기기에서는 세션을 무효화하면서 현재 기기는 로그인 상태를 유지하고자 할 때 사용합니다.
+Laravel은 현재 사용 중인 기기의 세션은 유지한 채, 다른 기기에서 활성 상태인 사용자 세션만 무효화하고 로그아웃시키는 기능도 제공합니다. 이 기능은 사용자가 비밀번호를 변경하거나 갱신할 때, 현재 기기에서는 계속 로그인 상태를 유지하면서 다른 기기의 세션만 끊고 싶을 때 주로 사용합니다.
 
-우선, `Illuminate\Session\Middleware\AuthenticateSession` 미들웨어가 해당 라우트에 포함되어 있어야 합니다. 일반적으로 이 미들웨어를 라우트 그룹에 지정하여 애플리케이션의 대부분 라우트에 적용합니다. 기본적으로 이 미들웨어는 `auth.session` [미들웨어 alias](/docs/12.x/middleware#middleware-aliases)를 통해 라우트에 붙일 수 있습니다:
+시작하기 전에 세션 인증이 필요한 라우트에 `Illuminate\Session\Middleware\AuthenticateSession` 미들웨어가 포함되어 있는지 확인해야 합니다. 일반적으로는 이 미들웨어를 라우트 그룹에 배치해 애플리케이션의 여러 라우트에 한꺼번에 적용합니다. 기본적으로 `AuthenticateSession` 미들웨어는 `auth.session` [미들웨어 별칭](/docs/12.x/middleware#middleware-aliases)으로 라우트에 연결할 수 있습니다.
 
 ```php
 Route::middleware(['auth', 'auth.session'])->group(function () {
@@ -506,7 +520,7 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
 });
 ```
 
-그런 다음, `Auth` 파사드의 `logoutOtherDevices` 메서드를 사용하세요. 이 메서드는 사용자의 현재 비밀번호 확인이 필요하니, 별도의 입력 폼을 제공해야 합니다:
+그다음 `Auth` 파사드가 제공하는 `logoutOtherDevices` 메서드를 사용할 수 있습니다. 이 메서드를 사용하려면 사용자가 현재 비밀번호를 다시 입력해 확인해야 하므로, 애플리케이션에서도 이를 받을 수 있는 입력 폼을 제공해야 합니다.
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -514,27 +528,28 @@ use Illuminate\Support\Facades\Auth;
 Auth::logoutOtherDevices($currentPassword);
 ```
 
-`logoutOtherDevices` 메서드를 호출하면, 해당 사용자의 다른 모든 기기 세션이 완전히 무효화되어, 이전에 인증된 모든 가드에서 로그아웃됩니다.
+`logoutOtherDevices` 메서드가 호출되면 사용자의 다른 세션은 완전히 무효화됩니다. 즉, 이전에 인증된 모든 가드에서 "로그아웃"됩니다.
 
 <a name="password-confirmation"></a>
-## 비밀번호 재확인 (Password Confirmation)
+## 비밀번호 확인 (Password Confirmation)
 
-애플리케이션을 만들다 보면, 사용자가 보안 영역으로 이동하거나 중요한 작업을 하기 전에 비밀번호를 한 번 더 입력 받는 경우가 있습니다. Laravel은 이 과정을 쉽게 구현할 수 있는 내장 미들웨어를 제공합니다. 이 기능을 이용하려면, 비밀번호 재확인 요청 뷰를 보여주는 라우트와, 비밀번호 검증 후 목적지로 리디렉션하는 라우트 두 개를 정의해야 합니다.
+애플리케이션을 만들다 보면, 특정 작업을 수행하기 전에 또는 민감한 영역으로 이동시키기 전에 사용자에게 비밀번호를 다시 확인하도록 요구해야 할 때가 있습니다. Laravel은 이 과정을 쉽게 구현할 수 있도록 관련 미들웨어를 기본으로 제공합니다. 이 기능을 구현하려면 두 개의 라우트를 정의해야 합니다. 하나는 비밀번호 확인을 요청하는 뷰를 보여주는 라우트이고, 다른 하나는 입력한 비밀번호를 검증한 뒤 사용자를 원래 의도한 위치로 리디렉션하는 라우트입니다.
 
 > [!NOTE]
-> 아래 문서는 비밀번호 재확인 기능을 직접 연동하는 방법을 설명합니다. 더 빠르게 시작하고 싶다면 [Laravel 애플리케이션 스타터 키트](/docs/12.x/starter-kits)도 해당 기능을 지원합니다!
+> 다음 문서에서는 Laravel의 비밀번호 확인 기능과 직접 통합하는 방법을 설명합니다. 그러나 더 빨리 시작하고 싶다면 [Laravel 애플리케이션 스타터 키트](/docs/12.x/starter-kits)에 이 기능에 대한 지원이 포함되어 있습니다!
 
 <a name="password-confirmation-configuration"></a>
-### 설정
+### 구성
 
-비밀번호를 재확인한 후에는 기본적으로 3시간 동안 다시 확인하지 않아도 됩니다. 재확인 주기를 변경하고 싶다면, 애플리케이션의 `config/auth.php` 파일에서 `password_timeout` 값을 수정하세요.
+비밀번호를 한 번 확인하면 이후 3시간 동안은 다시 비밀번호를 묻지 않습니다. 이 시간은 애플리케이션의 `config/auth.php` 설정 파일에서 `password_timeout` 값을 변경해 조정할 수 있습니다.
 
 <a name="password-confirmation-routing"></a>
 ### 라우팅
 
-#### 비밀번호 재확인 폼
+<a name="the-password-confirmation-form"></a>
+#### 비밀번호 확인 양식
 
-먼저, 사용자에게 비밀번호를 입력받는 뷰를 띄우는 라우트를 정의합니다:
+먼저, 사용자에게 비밀번호 확인을 요청하는 뷰를 표시하도록 라우트를 정의합니다.
 
 ```php
 Route::get('/confirm-password', function () {
@@ -542,11 +557,12 @@ Route::get('/confirm-password', function () {
 })->middleware('auth')->name('password.confirm');
 ```
 
-이 라우트에서 반환하는 뷰에는 `password` 필드가 포함된 폼이 있어야 합니다. 또한, 보호된 영역이므로 비밀번호를 재입력해야 한다는 안내문도 뷰에 포함하세요.
+예상할 수 있듯이, 이 라우트가 반환하는 뷰에는 `password` 필드를 포함한 폼이 있어야 합니다. 또한 사용자가 보호된 영역으로 들어가려는 중이므로 비밀번호 확인이 필요하다는 안내 문구를 뷰에 함께 표시하면 됩니다.
 
-#### 비밀번호 검증 처리
+<a name="confirming-the-password"></a>
+#### 비밀번호 확인
 
-다음으로, "비밀번호 확인" 폼으로부터의 요청을 처리할 라우트를 정의합니다. 이 라우트는 비밀번호를 검증한 뒤 사용자를 목적지로 리디렉션합니다:
+다음으로 "비밀번호 확인" 뷰의 폼 요청을 처리할 라우트를 정의합니다. 이 라우트는 비밀번호를 검증하고 사용자를 원래 의도한 위치로 리디렉션하는 역할을 합니다.
 
 ```php
 use Illuminate\Http\Request;
@@ -565,11 +581,12 @@ Route::post('/confirm-password', function (Request $request) {
 })->middleware(['auth', 'throttle:6,1']);
 ```
 
-이 라우트는 먼저, 요청에서 입력받은 `password`가 인증된 사용자의 비밀번호와 일치하는지 검증합니다. 비밀번호가 맞으면, Laravel 세션에 사용자가 재확인 과정을 마쳤음을 기록해야 합니다. `passwordConfirmed` 메서드는 사용자의 세션에 재확인된 시각을 기록합니다. 마지막으로, 사용자를 원래 목적지로 리디렉션합니다.
+계속하기 전에 이 라우트가 하는 일을 조금 더 자세히 살펴보겠습니다. 먼저 요청의 `password` 필드 값이 현재 인증된 사용자의 비밀번호와 실제로 일치하는지 확인합니다. 비밀번호가 유효하면, 사용자가 비밀번호 확인을 마쳤다는 사실을 Laravel 세션에 기록해야 합니다. `passwordConfirmed` 메서드는 사용자가 마지막으로 비밀번호를 확인한 시점을 나타내는 타임스탬프를 세션에 저장합니다. 마지막으로 사용자를 원래 가려던 목적지로 리디렉션합니다.
 
+<a name="password-confirmation-protecting-routes"></a>
 ### 라우트 보호
 
-비밀번호를 최근에 재확인해야만 접근할 수 있는 라우트에는 `password.confirm` 미들웨어를 적용해야 합니다. 이 미들웨어는 기본 Laravel 설치에 포함되어 있으며, 사용자의 접근 목적지를 세션에 저장한 뒤, 비밀번호 재확인이 필요하면 `password.confirm` [네임드 라우트](/docs/12.x/routing#named-routes)로 리디렉션합니다:
+최근에 비밀번호를 확인한 사용자만 접근할 수 있어야 하는 라우트에는 `password.confirm` 미들웨어를 할당해야 합니다. 이 미들웨어는 Laravel 기본 설치에 포함되어 있으며, 사용자가 비밀번호를 확인한 뒤 원래 가려던 위치로 돌아갈 수 있도록 세션에 의도한 목적지를 자동으로 저장합니다. 목적지를 저장한 뒤에는 사용자를 `password.confirm` [이름 있는 라우트](/docs/12.x/routing#named-routes)로 리디렉션합니다.
 
 ```php
 Route::get('/settings', function () {
@@ -582,9 +599,9 @@ Route::post('/settings', function () {
 ```
 
 <a name="adding-custom-guards"></a>
-## 커스텀 가드 추가 (Adding Custom Guards)
+## 사용자 지정 Guard 추가 (Adding Custom Guards)
 
-직접 인증 가드를 정의하려면, `Auth` 파사드의 `extend` 메서드를 사용하세요. 이 코드는 [서비스 프로바이더](/docs/12.x/providers)에 두는 것이 좋습니다. Laravel에 기본 포함된 `AppServiceProvider`에 코드를 추가해봅시다:
+`Auth` 파사드의 `extend` 메서드를 사용하면 직접 인증 guard를 정의할 수 있습니다. 이 메서드는 [서비스 프로바이더](/docs/12.x/providers) 안에서 호출해야 합니다. Laravel은 기본으로 `AppServiceProvider`를 제공하므로 여기에 코드를 추가하면 됩니다.
 
 ```php
 <?php
@@ -614,7 +631,7 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
-위 예시와 같이, `extend`에 전달한 콜백은 반드시 `Illuminate\Contracts\Auth\Guard` 구현체를 반환해야 합니다. 해당 인터페이스의 몇 가지 메서드를 구현하면 커스텀 가드를 정의할 수 있습니다. 커스텀 가드를 정의한 후에는, `auth.php`의 `guards` 설정에서 해당 가드를 사용할 수 있습니다:
+위 예제에서 보듯, `extend` 메서드에 전달하는 콜백은 `Illuminate\Contracts\Auth\Guard` 구현을 반환해야 합니다. 이 인터페이스에는 사용자 지정 guard를 만들 때 구현해야 할 메서드가 정의되어 있습니다. guard를 정의한 뒤에는 `auth.php` 설정 파일의 `guards` 설정에서 이를 참조할 수 있습니다.
 
 ```php
 'guards' => [
@@ -626,11 +643,11 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 <a name="closure-request-guards"></a>
-### 클로저 요청 가드
+### 클로저 Request Guard
 
-HTTP 요청 기반의 커스텀 인증 시스템을 가장 간단하게 구현하려면, `Auth::viaRequest` 메서드를 사용할 수 있습니다. 이 메서드는 단일 클로저로 인증 프로세스를 정의할 수 있게 해줍니다.
+사용자 지정 HTTP 요청 기반 인증 시스템을 구현하는 가장 간단한 방법은 `Auth::viaRequest` 메서드를 사용하는 것입니다. 이 메서드를 사용하면 하나의 클로저로 인증 과정을 빠르게 정의할 수 있습니다.
 
-`AppServiceProvider`의 `boot` 메서드 내에서 `Auth::viaRequest`를 호출하여 사용하세요. 첫 번째 인자는 인증 드라이버 이름(원하는 문자열 사용 가능), 두 번째 인자는 요청을 받아 인증에 성공하면 사용자 인스턴스를, 실패하면 `null`을 반환하는 클로저입니다:
+시작하려면 애플리케이션의 `AppServiceProvider` `boot` 메서드 안에서 `Auth::viaRequest` 메서드를 호출하세요. 첫 번째 인수는 인증 드라이버 이름이며, 사용자 지정 guard를 설명하는 임의의 문자열이면 됩니다. 두 번째 인수는 들어오는 HTTP 요청을 받아 사용자 인스턴스를 반환하는 클로저이며, 인증에 실패하면 `null`을 반환해야 합니다.
 
 ```php
 use App\Models\User;
@@ -648,7 +665,7 @@ public function boot(): void
 }
 ```
 
-커스텀 인증 드라이버도 다른 가드처럼 `auth.php` 설정 파일에서 지정할 수 있습니다:
+사용자 지정 인증 드라이버를 정의한 뒤에는 `auth.php` 설정 파일의 `guards` 항목에서 해당 드라이버를 사용할 수 있습니다.
 
 ```php
 'guards' => [
@@ -658,7 +675,7 @@ public function boot(): void
 ],
 ```
 
-그리고 해당 가드를 라우트의 인증 미들웨어로 지정하면 됩니다:
+마지막으로 인증 미들웨어를 라우트에 적용할 때 이 guard를 참조하면 됩니다.
 
 ```php
 Route::middleware('auth:api')->group(function () {
@@ -667,9 +684,9 @@ Route::middleware('auth:api')->group(function () {
 ```
 
 <a name="adding-custom-user-providers"></a>
-## 커스텀 사용자 제공자 추가 (Adding Custom User Providers)
+## 사용자 지정 User Provider 추가 (Adding Custom User Providers)
 
-전통적인 관계형 데이터베이스 외에 다른 방식으로 사용자를 저장한다면, Laravel에 커스텀 사용자 제공자(user provider)를 직접 추가해야 합니다. 이를 위해 `Auth` 파사드의 `provider` 메서드를 사용해 커스텀 제공자를 등록할 수 있습니다. 해당 제공자는 반드시 `Illuminate\Contracts\Auth\UserProvider`를 구현해야 합니다:
+사용자 정보를 저장할 때 전통적인 관계형 데이터베이스를 사용하지 않는다면, 자체 인증 user provider를 사용하도록 Laravel을 확장해야 합니다. 사용자 지정 user provider를 정의하려면 `Auth` 파사드의 `provider` 메서드를 사용합니다. 이때 등록하는 콜백은 `Illuminate\Contracts\Auth\UserProvider` 구현을 반환해야 합니다.
 
 ```php
 <?php
@@ -699,7 +716,7 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
-`provider` 메서드로 등록 후, 이제 이 제공자를 `auth.php` 설정 파일에서 사용할 수 있습니다. 먼저, 새 드라이버를 사용하는 `provider`를 정의합니다:
+`provider` 메서드로 provider를 등록한 뒤에는 `auth.php` 설정 파일에서 새 user provider를 사용하도록 전환할 수 있습니다. 먼저 새 드라이버를 사용하는 `provider`를 정의합니다.
 
 ```php
 'providers' => [
@@ -709,7 +726,7 @@ class AppServiceProvider extends ServiceProvider
 ],
 ```
 
-마지막으로, 필요한 가드에서 이 제공자를 사용하도록 설정합니다:
+마지막으로 `guards` 설정에서 이 provider를 참조하면 됩니다.
 
 ```php
 'guards' => [
@@ -723,9 +740,9 @@ class AppServiceProvider extends ServiceProvider
 <a name="the-user-provider-contract"></a>
 ### User Provider 계약
 
-`Illuminate\Contracts\Auth\UserProvider` 구현체는 영속 저장소(예: MySQL, MongoDB 등)에서 `Illuminate\Contracts\Auth\Authenticatable` 객체를 불러오는 역할을 담당합니다. 이 두 인터페이스를 통해 사용자 데이터 저장 방식 또는 인증 사용자 클래스를 무엇을 사용하든, Laravel 인증 메커니즘은 동일하게 동작할 수 있습니다.
+`Illuminate\Contracts\Auth\UserProvider` 구현은 MySQL, MongoDB 같은 영구 저장소에서 `Illuminate\Contracts\Auth\Authenticatable` 구현을 가져오는 역할을 합니다. 이 두 인터페이스 덕분에 Laravel의 인증 메커니즘은 사용자 데이터가 어떻게 저장되는지, 인증된 사용자를 어떤 클래스가 표현하는지와 관계없이 일관되게 동작할 수 있습니다.
 
-`Illuminate\Contracts\Auth\UserProvider` 계약은 다음과 같습니다:
+`Illuminate\Contracts\Auth\UserProvider` 계약을 살펴보겠습니다.
 
 ```php
 <?php
@@ -743,17 +760,22 @@ interface UserProvider
 }
 ```
 
-- `retrieveById`는 주로 MySQL의 auto-increment ID 등 사용자 키를 받아 해당하는 `Authenticatable` 객체를 반환합니다.
-- `retrieveByToken`은 고유 `$identifier` 및 "로그인 상태 유지(remember me)" `$token` 값으로 사용자를 반환하며, 보통 데이터베이스의 `remember_token` 컬럼을 사용합니다.
-- `updateRememberToken`은 `$user` 인스턴스의 `remember_token` 값을 새 `$token`으로 업데이트합니다. 일반적으로 "로그인 상태 유지" 인증 성공이나 로그아웃 시 새 토큰이 할당됩니다.
-- `retrieveByCredentials`는 `Auth::attempt` 메서드에 전달된 자격 증명 배열(예: `username` 등)로 데이터를 조회합니다. 이 메서드는 패스워드 검증을 하지 않고, 지정한 값으로 사용자를 조회해 반환합니다.
-- `validateCredentials`는 `$user`와 `$credentials`를 비교해 인증 여부를 결정합니다. 보통 `Hash::check`로 `$user->getAuthPassword()`와 `$credentials['password']` 값을 비교합니다. 올바르면 `true`, 틀리면 `false`를 반환합니다.
-- `rehashPasswordIfRequired`는 필요한 경우, `$user`의 비밀번호를 재해싱합니다. 예를 들어, `Hash::needsRehash`로 판별 후 필요하면 `Hash::make`로 재해싱 및 저장하면 됩니다.
+`retrieveById` 메서드는 일반적으로 MySQL 데이터베이스의 자동 증가 ID처럼 사용자를 나타내는 키를 받습니다. 이 메서드는 해당 ID와 일치하는 `Authenticatable` 구현을 조회해 반환해야 합니다.
+
+`retrieveByToken` 메서드는 일반적으로 `remember_token` 같은 데이터베이스 컬럼에 저장된 고유한 `$identifier`와 "기억하기" `$token`을 사용해 사용자를 조회합니다. 앞선 메서드와 마찬가지로, 이 메서드도 일치하는 토큰 값을 가진 `Authenticatable` 구현을 반환해야 합니다.
+
+`updateRememberToken` 메서드는 `$user` 인스턴스의 `remember_token` 값을 새로운 `$token`으로 갱신합니다. "기억하기" 인증이 성공했거나 사용자가 로그아웃할 때는 새로운 토큰이 사용자에게 할당됩니다.
+
+`retrieveByCredentials` 메서드는 애플리케이션 인증 시 `Auth::attempt` 메서드에 전달된 자격 증명 배열을 받습니다. 이 메서드는 해당 자격 증명과 일치하는 사용자를 기본 영구 저장소에서 조회해야 합니다. 일반적으로는 `$credentials['username']` 값과 일치하는 "사용자 이름"을 기준으로 `where` 조건을 추가해 사용자 레코드를 찾습니다. 이 메서드는 `Authenticatable` 구현을 반환해야 합니다. **이 메서드에서 비밀번호 검증이나 인증 자체를 시도해서는 안 됩니다.**
+
+`validateCredentials` 메서드는 사용자를 인증하기 위해 주어진 `$user`와 `$credentials`를 비교해야 합니다. 예를 들어 이 메서드는 일반적으로 `Hash::check` 메서드를 사용해 `$user->getAuthPassword()` 값과 `$credentials['password']` 값을 비교합니다. 반환값은 비밀번호가 유효한지를 나타내는 `true` 또는 `false`여야 합니다.
+
+`rehashPasswordIfRequired` 메서드는 필요하고 지원되는 경우 지정된 `$user`의 비밀번호를 다시 해시해야 합니다. 예를 들어 이 메서드는 일반적으로 `Hash::needsRehash` 메서드를 사용해 `$credentials['password']` 값을 다시 해시해야 하는지 판단합니다. 다시 해시가 필요하면 `Hash::make` 메서드로 비밀번호를 새로 해시하고, 기본 영구 저장소에 있는 사용자 레코드도 함께 갱신해야 합니다.
 
 <a name="the-authenticatable-contract"></a>
-### Authenticatable 계약
+### 인증 가능한 계약
 
-`UserProvider`의 각 메서드를 살펴보았으니, 이번에는 `Authenticatable` 계약을 살펴봅시다. 사용자 제공자는 `retrieveById`, `retrieveByToken`, `retrieveByCredentials` 메서드에서 이 인터페이스의 구현체를 반환해야 합니다:
+이제 `UserProvider`의 각 메서드를 살펴봤으니 `Authenticatable` 계약을 보겠습니다. user provider는 `retrieveById`, `retrieveByToken`, `retrieveByCredentials` 메서드에서 이 인터페이스를 구현한 객체를 반환해야 합니다.
 
 ```php
 <?php
@@ -772,28 +794,24 @@ interface Authenticatable
 }
 ```
 
-이 인터페이스는 단순합니다:
-- `getAuthIdentifierName`은 사용자에 대한 "기본 키" 컬럼명을,
-- `getAuthIdentifier`은 사용자의 "기본 키" 값을,
-- `getAuthPasswordName`은 비밀번호 컬럼명을,
-- `getAuthPassword`는 해시된 비밀번호 값을 반환합니다.
+이 인터페이스는 비교적 단순합니다. `getAuthIdentifierName` 메서드는 사용자의 "기본 키" 컬럼 이름을 반환해야 하고, `getAuthIdentifier` 메서드는 사용자의 "기본 키" 값을 반환해야 합니다. MySQL 백엔드를 사용한다면 대개 사용자 레코드에 할당된 자동 증가 기본 키가 여기에 해당합니다. `getAuthPasswordName` 메서드는 사용자 비밀번호 컬럼의 이름을 반환해야 하며, `getAuthPassword` 메서드는 해시된 비밀번호 값을 반환해야 합니다.
 
-이 인터페이스를 통해 어떤 ORM 또는 저장소 추상화 계층이든 동일하게 인증 시스템이 동작할 수 있습니다. Laravel에서는 `app/Models` 디렉터리 내 `App\Models\User` 클래스가 이미 이 인터페이스를 구현하고 있습니다.
+이 인터페이스를 사용하면 어떤 ORM이나 저장소 추상화 계층을 사용하든 인증 시스템이 모든 "사용자" 클래스에서 동작할 수 있습니다. 기본적으로 Laravel에는 `app/Models` 디렉터리에 이 인터페이스를 구현한 `App\Models\User` 클래스가 포함되어 있습니다.
 
 <a name="automatic-password-rehashing"></a>
 ## 자동 비밀번호 재해싱 (Automatic Password Rehashing)
 
-Laravel의 기본 비밀번호 해싱 알고리즘은 bcrypt입니다. bcrypt의 "work factor"는 애플리케이션의 `config/hashing.php` 또는 `BCRYPT_ROUNDS` 환경 변수로 조정할 수 있습니다.
+Laravel의 기본 비밀번호 해싱 알고리즘은 bcrypt입니다. bcrypt 해시의 "작업 요소"는 애플리케이션의 `config/hashing.php` 구성 파일 또는 `BCRYPT_ROUNDS` 환경 변수를 통해 조정할 수 있습니다.
 
-CPU/GPU 성능이 올라갈수록 bcrypt work factor도 점진적으로 올려주는 것이 좋습니다. work factor가 변경된 경우, 사용자가 Laravel 스타터 키트나 [수동 인증](#authenticating-users) 시도(즉, `attempt` 메서드 사용)로 인증하면, 비밀번호를 자동으로 재해싱할 수 있습니다.
+일반적으로 bcrypt 작업 계수는 CPU나 GPU의 처리 성능이 향상됨에 따라 시간이 지나면서 높여야 합니다. 애플리케이션의 bcrypt 작업 계수를 늘리면, 사용자가 Laravel 스타터 키트를 통해 로그인할 때나 `attempt` 메서드로 [사용자를 수동 인증](#authenticating-users)할 때 Laravel이 사용자 비밀번호를 자동으로 다시 해시합니다.
 
-자동 재해싱은 애플리케이션 운영에 별다른 영향을 주지 않으나, 이 기능을 비활성화하려면 `hashing` 설정 파일을 퍼블리시한 후,
+대부분의 경우 자동 비밀번호 재해싱이 애플리케이션 동작에 문제를 일으키지는 않습니다. 하지만 필요하다면 `hashing` 설정 파일을 게시한 뒤 이 동작을 비활성화할 수 있습니다.
 
 ```shell
 php artisan config:publish hashing
 ```
 
-설정 파일에서 `rehash_on_login` 옵션을 `false`로 두면 됩니다:
+구성 파일이 게시되면 `rehash_on_login` 구성 값을 `false`로 설정할 수 있습니다.
 
 ```php
 'rehash_on_login' => false,
@@ -802,24 +820,24 @@ php artisan config:publish hashing
 <a name="events"></a>
 ## 이벤트 (Events)
 
-Laravel은 인증 과정에서 다양한 [이벤트](/docs/12.x/events)를 발생시킵니다. 다음 이벤트에 대해 [리스너를 정의](/docs/12.x/events)할 수 있습니다:
+Laravel은 인증 과정에서 다양한 [이벤트](/docs/12.x/events)를 디스패치합니다. 다음 이벤트에 대해 [리스너를 정의](/docs/12.x/events)할 수 있습니다.
 
 <div class="overflow-auto">
 
-| 이벤트명                                    |
-| -------------------------------------------- |
-| `Illuminate\Auth\Events\Registered`            |
-| `Illuminate\Auth\Events\Attempting`            |
-| `Illuminate\Auth\Events\Authenticated`         |
-| `Illuminate\Auth\Events\Login`                 |
-| `Illuminate\Auth\Events\Failed`                |
-| `Illuminate\Auth\Events\Validated`             |
-| `Illuminate\Auth\Events\Verified`              |
-| `Illuminate\Auth\Events\Logout`                |
-| `Illuminate\Auth\Events\CurrentDeviceLogout`   |
-| `Illuminate\Auth\Events\OtherDeviceLogout`     |
-| `Illuminate\Auth\Events\Lockout`               |
-| `Illuminate\Auth\Events\PasswordReset`         |
+| 이벤트 이름 |
+| --------------------------------- |
+| `Illuminate\Auth\Events\Registered` |
+| `Illuminate\Auth\Events\Attempting` |
+| `Illuminate\Auth\Events\Authenticated` |
+| `Illuminate\Auth\Events\Login` |
+| `Illuminate\Auth\Events\Failed` |
+| `Illuminate\Auth\Events\Validated` |
+| `Illuminate\Auth\Events\Verified` |
+| `Illuminate\Auth\Events\Logout` |
+| `Illuminate\Auth\Events\CurrentDeviceLogout` |
+| `Illuminate\Auth\Events\OtherDeviceLogout` |
+| `Illuminate\Auth\Events\Lockout` |
+| `Illuminate\Auth\Events\PasswordReset` |
 | `Illuminate\Auth\Events\PasswordResetLinkSent` |
 
 </div>

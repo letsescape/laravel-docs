@@ -13,7 +13,7 @@
 - [패키지 언어 파일 덮어쓰기](#overriding-package-language-files)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
 > [!NOTE]
 > 기본적으로, Laravel 애플리케이션 골격에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자화하려면 `lang:publish` Artisan 명령어로 해당 파일들을 배포할 수 있습니다.
@@ -114,7 +114,7 @@ public function boot(): void
 > pluralizer의 언어를 변경하는 경우, 반드시 Eloquent 모델의 [테이블 이름](/docs/12.x/eloquent#table-names)을 명시적으로 정의해야 합니다.
 
 <a name="defining-translation-strings"></a>
-## 번역 문자열 정의하기
+## 번역 문자열 정의하기 (Defining Translation Strings)
 
 <a name="using-short-keys"></a>
 ### 짧은 키 사용하기
@@ -160,7 +160,7 @@ return [
 다른 번역 파일명과 충돌하는 키를 정의해서는 안 됩니다. 예를 들어 `__('Action')`을 "NL" 로케일에서 번역하려 할 때 `nl/action.php` 파일이 존재하고 `nl.json` 파일은 없으면, 해당 번역자는 `nl/action.php` 파일 전체를 반환하게 됩니다.
 
 <a name="retrieving-translation-strings"></a>
-## 번역 문자열 가져오기
+## 번역 문자열 가져오기 (Retrieving Translation Strings)
 
 `__` 헬퍼 함수를 이용해 언어 파일에서 번역 문자열을 가져올 수 있습니다. 짧은 키 방식을 사용할 경우, `.`(닷) 구문으로 파일명과 키를 함께 전달합니다. 예를 들어 `lang/en/messages.php` 파일 내 `welcome` 키 값을 가져올 때:
 
@@ -272,7 +272,7 @@ echo trans_choice('time.minutes_ago', 5, ['value' => 5]);
 ```
 
 <a name="overriding-package-language-files"></a>
-## 패키지 언어 파일 덮어쓰기
+## 패키지 언어 파일 덮어쓰기 (Overriding Package Language Files)
 
 일부 패키지는 자체 언어 파일을 포함하여 배포합니다. 패키지 코어 파일을 직접 수정하는 대신, `lang/vendor/{package}/{locale}` 디렉터리에 파일을 두어 번역 문자열을 덮어쓸 수 있습니다.
 

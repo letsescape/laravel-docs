@@ -19,7 +19,7 @@
 - [Markdown 메일러블](#markdown-mailables)
     - [Markdown 메일러블 생성](#generating-markdown-mailables)
     - [Markdown 메시지 작성](#writing-markdown-messages)
-    - [컴포넌트 커스터마이즈](#customizing-the-components)
+    - [컴포넌트 사용자 지정](#customizing-the-components)
 - [메일 발송](#sending-mail)
     - [메일 큐잉](#queueing-mail)
 - [메일러블 렌더링](#rendering-mailables)
@@ -674,10 +674,10 @@ public function attachments(): array
 당연히 첨부 데이터가 Amazon S3 등 원격 파일 스토리지에 저장되어 있을 수도 있습니다. Laravel에서는 애플리케이션의 [파일시스템 디스크](/docs/12.x/filesystem)에 저장된 데이터를 기반으로 첨부 인스턴스를 만들 수 있습니다.
 
 ```php
-// 기본 디스크의 파일 첨부
+// Create an attachment from a file on your default disk...
 return Attachment::fromStorage($this->path);
 
-// 특정 디스크의 파일 첨부
+// Create an attachment from a file on a specific disk...
 return Attachment::fromStorageDisk('backblaze', $this->path);
 ```
 
@@ -687,7 +687,7 @@ return Attachment::fromStorageDisk('backblaze', $this->path);
 return Attachment::fromData(fn () => $this->content, 'Photo Name');
 ```
 
-첨부파일의 이름이나 MIME 타입을 커스터마이즈하려면 `as` 와 `withMime` 메서드를 활용하세요.
+첨부파일의 이름이나 MIME 타입을 사용자 지정하려면 `as` 와 `withMime` 메서드를 활용하세요.
 
 ```php
 return Attachment::fromPath('/path/to/file')
@@ -752,7 +752,7 @@ Amazon SES로 메일을 보낼 경우, `metadata` 메서드를 사용해 [SES "t
 <a name="customizing-the-symfony-message"></a>
 ### Symfony 메시지 커스텀
 
-Laravel의 메일 기능은 Symfony Mailer를 기반으로 제공합니다. Laravel에서는 이메일 전송 전에 Symfony Message 인스턴스에 대해 실행될 커스텀 콜백을 등록할 수 있어, 메시지를 더욱 상세하게 커스터마이즈할 수 있습니다. 이를 위해 `Envelope` 정의에서 `using` 파라미터를 사용하세요.
+Laravel의 메일 기능은 Symfony Mailer를 기반으로 제공합니다. Laravel에서는 이메일 전송 전에 Symfony Message 인스턴스에 대해 실행될 커스텀 콜백을 등록할 수 있어, 메시지를 더욱 상세하게 사용자 지정할 수 있습니다. 이를 위해 `Envelope` 정의에서 `using` 파라미터를 사용하세요.
 
 ```php
 use Illuminate\Mail\Mailables\Envelope;
@@ -867,9 +867,9 @@ This is the panel content.
 ```
 
 <a name="customizing-the-components"></a>
-### 컴포넌트 커스터마이즈
+### 컴포넌트 사용자 지정
 
-Markdown 메일 컴포넌트를 애플리케이션에 가져와 원하는 대로 커스터마이즈할 수 있습니다. 컴포넌트는 `vendor:publish` Artisan 명령어로 `laravel-mail` 에셋 태그로 퍼블리시할 수 있습니다.
+Markdown 메일 컴포넌트를 애플리케이션에 가져와 원하는 대로 사용자 지정할 수 있습니다. 컴포넌트는 `vendor:publish` Artisan 명령어로 `laravel-mail` 에셋 태그로 퍼블리시할 수 있습니다.
 
 ```shell
 php artisan vendor:publish --tag=laravel-mail
@@ -878,7 +878,7 @@ php artisan vendor:publish --tag=laravel-mail
 이 명령을 실행하면, Markdown 메일 컴포넌트가 `resources/views/vendor/mail` 디렉토리에 복사됩니다. `mail` 디렉토리에는 각각 `html`과 `text` 디렉토리가 있으며, 각 템플릿 컴포넌트의 내용이 포함되어 있습니다. 이 컴포넌트들은 자유롭게 수정하여 사용할 수 있습니다.
 
 <a name="customizing-the-css"></a>
-#### CSS 커스터마이즈
+#### CSS 사용자 지정
 
 컴포넌트를 내보낸 후에는, `resources/views/vendor/mail/html/themes` 디렉토리에 생성된 `default.css` 파일을 수정해 스타일을 바꿀 수 있습니다. 이렇게 하면, 스타일이 자동으로 HTML 마크업에 인라인 CSS로 적용되어 반영됩니다.
 

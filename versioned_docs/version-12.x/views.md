@@ -91,7 +91,7 @@ return view('admin.profile', $data);
 <a name="creating-the-first-available-view"></a>
 ### 가장 먼저 존재하는 뷰 생성하기
 
-`View` 파사드의 `first` 메서드를 사용하면, 주어진 뷰 목록 중에서 실제로 존재하는 가장 첫 번째 뷰를 반환할 수 있습니다. 이는 애플리케이션이나 패키지에서 뷰를 커스터마이즈(재정의)할 때 유용하게 활용됩니다:
+`View` 파사드의 `first` 메서드를 사용하면, 주어진 뷰 목록 중에서 실제로 존재하는 가장 첫 번째 뷰를 반환할 수 있습니다. 이는 애플리케이션이나 패키지에서 뷰를 사용자 지정(재정의)할 때 유용하게 활용됩니다:
 
 ```php
 use Illuminate\Support\Facades\View;
@@ -197,10 +197,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 클래스 기반 컴포저 사용
+        // Using class-based composers...
         Facades\View::composer('profile', ProfileComposer::class);
 
-        // 클로저(익명 함수) 기반 컴포저 사용
+        // Using closure-based composers...
         Facades\View::composer('welcome', function (View $view) {
             // ...
         });
@@ -270,7 +270,7 @@ Facades\View::composer('*', function (View $view) {
 ```
 
 <a name="view-creators"></a>
-### 뷰 크리에이터 (View Creators)
+### 뷰 크리에이터
 
 뷰 "크리에이터(creator)"는 뷰 컴포저와 매우 유사하지만, 뷰가 렌더링되기 직전이 아니라 뷰 인스턴스가 생성되자마자 즉시 실행된다는 점이 다릅니다. 뷰 크리에이터를 등록하려면 `creator` 메서드를 사용합니다:
 
