@@ -426,7 +426,7 @@ Schema::table('users', function (Blueprint $table) {
 
 스키마 작성기 청사진은 데이터베이스 테이블에 추가할 수 있는 다양한 유형의 열에 해당하는 다양한 방법을 제공합니다. 사용 가능한 각 방법은 아래 표에 나열되어 있습니다.
 
-<style>
+<style>{`
     .collection-method-list > p {
         columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
     }
@@ -445,7 +445,7 @@ Schema::table('users', function (Blueprint $table) {
     .collection-method:not(.first-collection-method) {
         margin-top: 50px;
     }
-</style>
+`}</style>
 
 <a name="booleans-method-list"></a>
 #### 부울 유형
@@ -588,7 +588,7 @@ Schema::table('users', function (Blueprint $table) {
 </div>
 
 <a name="column-method-bigIncrements"></a>
-#### `bigIncrements()` {.수집 방법 .첫 번째 수집 방법}
+#### `bigIncrements()`
 
 `bigIncrements` 메소드는 자동 증가 `UNSIGNED BIGINT`(기본 키) 해당 열을 생성합니다.
 
@@ -597,7 +597,7 @@ $table->bigIncrements('id');
 ```
 
 <a name="column-method-bigInteger"></a>
-#### `bigInteger()` {.collection-method}
+#### `bigInteger()`
 
 `bigInteger` 메소드는 `BIGINT` 해당 열을 생성합니다.
 
@@ -606,7 +606,7 @@ $table->bigInteger('votes');
 ```
 
 <a name="column-method-binary"></a>
-#### `binary()` {.collection-method}
+#### `binary()`
 
 `binary` 메소드는 `BLOB` 해당 열을 생성합니다.
 
@@ -623,7 +623,7 @@ $table->binary('data', length: 16, fixed: true); // BINARY(16)
 ```
 
 <a name="column-method-boolean"></a>
-#### `boolean()` {.collection-method}
+#### `boolean()`
 
 `boolean` 메소드는 `BOOLEAN` 해당 열을 생성합니다.
 
@@ -632,7 +632,7 @@ $table->boolean('confirmed');
 ```
 
 <a name="column-method-char"></a>
-#### `char()` {.collection-method}
+#### `char()`
 
 `char` 메소드는 주어진 길이의 `CHAR` 해당 열을 생성합니다.
 
@@ -641,7 +641,7 @@ $table->char('name', length: 100);
 ```
 
 <a name="column-method-dateTimeTz"></a>
-#### `dateTimeTz()` {.collection-method}
+#### `dateTimeTz()`
 
 `dateTimeTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `DATETIME`(시간대 포함) 해당 열을 생성합니다.
 
@@ -650,7 +650,7 @@ $table->dateTimeTz('created_at', precision: 0);
 ```
 
 <a name="column-method-dateTime"></a>
-#### `dateTime()` {.collection-method}
+#### `dateTime()`
 
 `dateTime` 메소드는 선택적 소수 초 정밀도를 사용하여 `DATETIME`에 해당하는 열을 생성합니다.
 
@@ -659,7 +659,7 @@ $table->dateTime('created_at', precision: 0);
 ```
 
 <a name="column-method-date"></a>
-#### `date()` {.collection-method}
+#### `date()`
 
 `date` 메소드는 `DATE` 해당 열을 생성합니다.
 
@@ -668,7 +668,7 @@ $table->date('created_at');
 ```
 
 <a name="column-method-decimal"></a>
-#### `decimal()` {.collection-method}
+#### `decimal()`
 
 `decimal` 메소드는 주어진 정밀도(총 자릿수)와 소수 자릿수(십진수)를 사용하여 `DECIMAL`에 해당하는 열을 생성합니다.
 
@@ -677,7 +677,7 @@ $table->decimal('amount', total: 8, places: 2);
 ```
 
 <a name="column-method-double"></a>
-#### `double()` {.collection-method}
+#### `double()`
 
 `double` 메소드는 `DOUBLE` 해당 열을 생성합니다.
 
@@ -686,7 +686,7 @@ $table->double('amount');
 ```
 
 <a name="column-method-enum"></a>
-#### `enum()` {.collection-method}
+#### `enum()`
 
 `enum` 메소드는 주어진 유효한 값을 사용하여 `ENUM`에 해당하는 열을 생성합니다.
 
@@ -703,7 +703,7 @@ $table->enum('difficulty', Difficulty::cases());
 ```
 
 <a name="column-method-float"></a>
-#### `float()` {.collection-method}
+#### `float()`
 
 `float` 메소드는 지정된 정밀도로 `FLOAT`에 해당하는 열을 생성합니다.
 
@@ -712,7 +712,7 @@ $table->float('amount', precision: 53);
 ```
 
 <a name="column-method-foreignId"></a>
-#### `foreignId()` {.collection-method}
+#### `foreignId()`
 
 `foreignId` 메소드는 `UNSIGNED BIGINT` 해당 열을 생성합니다.
 
@@ -721,7 +721,7 @@ $table->foreignId('user_id');
 ```
 
 <a name="column-method-foreignIdFor"></a>
-#### `foreignIdFor()` {.collection-method}
+#### `foreignIdFor()`
 
 `foreignIdFor` 메소드는 지정된 모델 클래스에 대해 `{column}_id` 해당 열을 추가합니다. 열 유형은 모델 키 유형에 따라 `UNSIGNED BIGINT`, `CHAR(36)` 또는 `CHAR(26)`입니다.
 
@@ -730,7 +730,7 @@ $table->foreignIdFor(User::class);
 ```
 
 <a name="column-method-foreignUlid"></a>
-#### `foreignUlid()` {.collection-method}
+#### `foreignUlid()`
 
 `foreignUlid` 메소드는 `ULID` 해당 열을 생성합니다.
 
@@ -739,7 +739,7 @@ $table->foreignUlid('user_id');
 ```
 
 <a name="column-method-foreignUuid"></a>
-#### `foreignUuid()` {.collection-method}
+#### `foreignUuid()`
 
 `foreignUuid` 메소드는 `UUID` 해당 열을 생성합니다.
 
@@ -748,7 +748,7 @@ $table->foreignUuid('user_id');
 ```
 
 <a name="column-method-geography"></a>
-#### `geography()` {.collection-method}
+#### `geography()`
 
 `geography` 메소드는 지정된 공간 유형 및 SRID(공간 참조 시스템 식별자)를 사용하여 `GEOGRAPHY`에 해당하는 열을 생성합니다.
 
@@ -760,7 +760,7 @@ $table->geography('coordinates', subtype: 'point', srid: 4326);
 > 공간 유형 지원은 데이터베이스 드라이버에 따라 다릅니다. 데이터베이스 설명서를 참조하세요. 응용 프로그램이 PostgreSQL 데이터베이스를 활용하는 경우 `geography` 방법을 사용하기 전에 [PostGIS](https://postgis.net) 확장을 설치해야 합니다.
 
 <a name="column-method-geometry"></a>
-#### `geometry()` {.collection-method}
+#### `geometry()`
 
 `geometry` 메소드는 지정된 공간 유형 및 SRID(공간 참조 시스템 식별자)를 사용하여 `GEOMETRY`에 해당하는 열을 생성합니다.
 
@@ -772,7 +772,7 @@ $table->geometry('positions', subtype: 'point', srid: 0);
 > 공간 유형 지원은 데이터베이스 드라이버에 따라 다릅니다. 데이터베이스 설명서를 참조하세요. 응용 프로그램이 PostgreSQL 데이터베이스를 활용하는 경우 `geometry` 방법을 사용하기 전에 [PostGIS](https://postgis.net) 확장을 설치해야 합니다.
 
 <a name="column-method-id"></a>
-#### `id()` {.collection-method}
+#### `id()`
 
 `id` 메서드는 `bigIncrements` 메서드의 별칭입니다. 기본적으로 이 메소드는 `id` 열을 생성합니다. 그러나 열에 다른 이름을 할당하려면 열 이름을 전달할 수 있습니다.
 
@@ -781,7 +781,7 @@ $table->id();
 ```
 
 <a name="column-method-increments"></a>
-#### `increments()` {.collection-method}
+#### `increments()`
 
 `increments` 메소드는 자동 증가 `UNSIGNED INTEGER` 해당 열을 기본 키로 생성합니다.
 
@@ -790,7 +790,7 @@ $table->increments('id');
 ```
 
 <a name="column-method-integer"></a>
-#### `integer()` {.collection-method}
+#### `integer()`
 
 `integer` 메소드는 `INTEGER` 해당 열을 생성합니다.
 
@@ -799,7 +799,7 @@ $table->integer('votes');
 ```
 
 <a name="column-method-ipAddress"></a>
-#### `ipAddress()` {.collection-method}
+#### `ipAddress()`
 
 `ipAddress` 메소드는 `VARCHAR` 해당 열을 생성합니다.
 
@@ -810,7 +810,7 @@ $table->ipAddress('visitor');
 PostgreSQL를 사용하면 `INET` 열이 생성됩니다.
 
 <a name="column-method-json"></a>
-#### `json()` {.collection-method}
+#### `json()`
 
 `json` 메소드는 `JSON` 해당 열을 생성합니다.
 
@@ -821,7 +821,7 @@ $table->json('options');
 SQLite를 사용하면 `TEXT` 열이 생성됩니다.
 
 <a name="column-method-jsonb"></a>
-#### `jsonb()` {.collection-method}
+#### `jsonb()`
 
 `jsonb` 메소드는 `JSONB` 해당 열을 생성합니다.
 
@@ -832,7 +832,7 @@ $table->jsonb('options');
 SQLite를 사용하면 `TEXT` 열이 생성됩니다.
 
 <a name="column-method-longText"></a>
-#### `longText()` {.collection-method}
+#### `longText()`
 
 `longText` 메소드는 `LONGTEXT` 해당 열을 생성합니다.
 
@@ -847,7 +847,7 @@ $table->longText('data')->charset('binary'); // LONGBLOB
 ```
 
 <a name="column-method-macAddress"></a>
-#### `macAddress()` {.collection-method}
+#### `macAddress()`
 
 `macAddress` 메소드는 MAC 주소를 보유하기 위한 열을 생성합니다. PostgreSQL와 같은 일부 데이터베이스 시스템에는 이러한 유형의 데이터에 대한 전용 열 유형이 있습니다. 다른 데이터베이스 시스템에서는 해당 문자열 열을 사용합니다.
 
@@ -856,7 +856,7 @@ $table->macAddress('device');
 ```
 
 <a name="column-method-mediumIncrements"></a>
-#### `mediumIncrements()` {.collection-method}
+#### `mediumIncrements()`
 
 `mediumIncrements` 메소드는 자동 증가 `UNSIGNED MEDIUMINT` 해당 열을 기본 키로 생성합니다.
 
@@ -865,7 +865,7 @@ $table->mediumIncrements('id');
 ```
 
 <a name="column-method-mediumInteger"></a>
-#### `mediumInteger()` {.collection-method}
+#### `mediumInteger()`
 
 `mediumInteger` 메소드는 `MEDIUMINT` 해당 열을 생성합니다.
 
@@ -874,7 +874,7 @@ $table->mediumInteger('votes');
 ```
 
 <a name="column-method-mediumText"></a>
-#### `mediumText()` {.collection-method}
+#### `mediumText()`
 
 `mediumText` 메소드는 `MEDIUMTEXT` 해당 열을 생성합니다.
 
@@ -889,7 +889,7 @@ $table->mediumText('data')->charset('binary'); // MEDIUMBLOB
 ```
 
 <a name="column-method-morphs"></a>
-#### `morphs()` {.collection-method}
+#### `morphs()`
 
 `morphs` 메소드는 `{column}_id` 해당 컬럼과 `{column}_type` `VARCHAR` 해당 컬럼을 추가하는 편의 메소드이다. `{column}_id`의 열 유형은 모델 키 유형에 따라 `UNSIGNED BIGINT`, `CHAR(36)` 또는 `CHAR(26)`입니다.
 
@@ -900,7 +900,7 @@ $table->morphs('taggable');
 ```
 
 <a name="column-method-nullableMorphs"></a>
-#### `nullableMorphs()` {.collection-method}
+#### `nullableMorphs()`
 
 이 방법은 [morphs](#column-method-morphs) 방법과 유사합니다. 그러나 생성된 열은 "nullable"입니다.
 
@@ -909,7 +909,7 @@ $table->nullableMorphs('taggable');
 ```
 
 <a name="column-method-nullableUlidMorphs"></a>
-#### `nullableUlidMorphs()` {.collection-method}
+#### `nullableUlidMorphs()`
 
 이 방법은 [ulidMorphs](#column-method-ulidMorphs) 방법과 유사합니다. 그러나 생성된 열은 "nullable"입니다.
 
@@ -918,7 +918,7 @@ $table->nullableUlidMorphs('taggable');
 ```
 
 <a name="column-method-nullableUuidMorphs"></a>
-#### `nullableUuidMorphs()` {.collection-method}
+#### `nullableUuidMorphs()`
 
 이 방법은 [uuidMorphs](#column-method-uuidMorphs) 방법과 유사합니다. 그러나 생성된 열은 "nullable"입니다.
 
@@ -927,7 +927,7 @@ $table->nullableUuidMorphs('taggable');
 ```
 
 <a name="column-method-rememberToken"></a>
-#### `rememberToken()` {.collection-method}
+#### `rememberToken()`
 
 `rememberToken` 메서드는 현재 "기억하기"[인증 토큰](/docs/12.x/authentication#remembering-users)을 저장하기 위한 nullable `VARCHAR(100)` 해당 열을 생성합니다.
 
@@ -936,7 +936,7 @@ $table->rememberToken();
 ```
 
 <a name="column-method-set"></a>
-#### `set()` {.collection-method}
+#### `set()`
 
 `set` 메소드는 주어진 유효한 값 목록을 사용하여 `SET`에 해당하는 열을 생성합니다.
 
@@ -945,7 +945,7 @@ $table->set('flavors', ['strawberry', 'vanilla']);
 ```
 
 <a name="column-method-smallIncrements"></a>
-#### `smallIncrements()` {.collection-method}
+#### `smallIncrements()`
 
 `smallIncrements` 메소드는 자동 증가 `UNSIGNED SMALLINT` 해당 열을 기본 키로 생성합니다.
 
@@ -954,7 +954,7 @@ $table->smallIncrements('id');
 ```
 
 <a name="column-method-smallInteger"></a>
-#### `smallInteger()` {.collection-method}
+#### `smallInteger()`
 
 `smallInteger` 메소드는 `SMALLINT` 해당 열을 생성합니다.
 
@@ -963,7 +963,7 @@ $table->smallInteger('votes');
 ```
 
 <a name="column-method-softDeletesTz"></a>
-#### `softDeletesTz()` {.collection-method}
+#### `softDeletesTz()`
 
 `softDeletesTz` 메소드는 선택적 소수 초 정밀도를 사용하여 null 허용 `deleted_at` `TIMESTAMP`(시간대 포함) 해당 열을 추가합니다. 이 열은 Eloquent의 "일시 삭제" 기능에 필요한 `deleted_at` 타임스탬프를 저장하기 위한 것입니다.
 
@@ -972,7 +972,7 @@ $table->softDeletesTz('deleted_at', precision: 0);
 ```
 
 <a name="column-method-softDeletes"></a>
-#### `softDeletes()` {.collection-method}
+#### `softDeletes()`
 
 `softDeletes` 메서드는 선택적 소수 초 정밀도를 사용하여 null 허용 `deleted_at` `TIMESTAMP` 해당 열을 추가합니다. 이 열은 Eloquent의 "일시 삭제" 기능에 필요한 `deleted_at` 타임스탬프를 저장하기 위한 것입니다.
 
@@ -981,7 +981,7 @@ $table->softDeletes('deleted_at', precision: 0);
 ```
 
 <a name="column-method-string"></a>
-#### `string()` {.collection-method}
+#### `string()`
 
 `string` 메소드는 지정된 길이의 `VARCHAR` 해당 열을 생성합니다.
 
@@ -990,7 +990,7 @@ $table->string('name', length: 100);
 ```
 
 <a name="column-method-text"></a>
-#### `text()` {.collection-method}
+#### `text()`
 
 `text` 메소드는 `TEXT` 해당 열을 생성합니다.
 
@@ -1005,7 +1005,7 @@ $table->text('data')->charset('binary'); // BLOB
 ```
 
 <a name="column-method-timeTz"></a>
-#### `timeTz()` {.collection-method}
+#### `timeTz()`
 
 `timeTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `TIME`(시간대 포함) 해당 열을 생성합니다.
 
@@ -1014,7 +1014,7 @@ $table->timeTz('sunrise', precision: 0);
 ```
 
 <a name="column-method-time"></a>
-#### `time()` {.collection-method}
+#### `time()`
 
 `time` 메소드는 선택적 소수 초 정밀도를 사용하여 `TIME`에 해당하는 열을 생성합니다.
 
@@ -1023,7 +1023,7 @@ $table->time('sunrise', precision: 0);
 ```
 
 <a name="column-method-timestampTz"></a>
-#### `timestampTz()` {.collection-method}
+#### `timestampTz()`
 
 `timestampTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `TIMESTAMP`(시간대 포함) 해당 열을 생성합니다.
 
@@ -1032,7 +1032,7 @@ $table->timestampTz('added_at', precision: 0);
 ```
 
 <a name="column-method-timestamp"></a>
-#### `timestamp()` {.collection-method}
+#### `timestamp()`
 
 `timestamp` 메소드는 선택적 소수 초 정밀도를 사용하여 `TIMESTAMP`에 해당하는 열을 생성합니다.
 
@@ -1041,7 +1041,7 @@ $table->timestamp('added_at', precision: 0);
 ```
 
 <a name="column-method-timestampsTz"></a>
-#### `timestampsTz()` {.collection-method}
+#### `timestampsTz()`
 
 `timestampsTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `created_at` 및 `updated_at` `TIMESTAMP`(시간대 포함) 해당 열을 생성합니다.
 
@@ -1050,7 +1050,7 @@ $table->timestampsTz(precision: 0);
 ```
 
 <a name="column-method-timestamps"></a>
-#### `timestamps()` {.collection-method}
+#### `timestamps()`
 
 `timestamps` 메소드는 선택적 소수 초 정밀도를 사용하여 `created_at` 및 `updated_at` `TIMESTAMP` 해당 열을 생성합니다.
 
@@ -1059,7 +1059,7 @@ $table->timestamps(precision: 0);
 ```
 
 <a name="column-method-tinyIncrements"></a>
-#### `tinyIncrements()` {.collection-method}
+#### `tinyIncrements()`
 
 `tinyIncrements` 메소드는 자동 증가 `UNSIGNED TINYINT` 해당 열을 기본 키로 생성합니다.
 
@@ -1068,7 +1068,7 @@ $table->tinyIncrements('id');
 ```
 
 <a name="column-method-tinyInteger"></a>
-#### `tinyInteger()` {.collection-method}
+#### `tinyInteger()`
 
 `tinyInteger` 메소드는 `TINYINT` 해당 열을 생성합니다.
 
@@ -1077,7 +1077,7 @@ $table->tinyInteger('votes');
 ```
 
 <a name="column-method-tinyText"></a>
-#### `tinyText()` {.collection-method}
+#### `tinyText()`
 
 `tinyText` 메소드는 `TINYTEXT` 해당 열을 생성합니다.
 
@@ -1092,7 +1092,7 @@ $table->tinyText('data')->charset('binary'); // TINYBLOB
 ```
 
 <a name="column-method-unsignedBigInteger"></a>
-#### `unsignedBigInteger()` {.collection-method}
+#### `unsignedBigInteger()`
 
 `unsignedBigInteger` 메소드는 `UNSIGNED BIGINT` 해당 열을 생성합니다.
 
@@ -1101,7 +1101,7 @@ $table->unsignedBigInteger('votes');
 ```
 
 <a name="column-method-unsignedInteger"></a>
-#### `unsignedInteger()` {.collection-method}
+#### `unsignedInteger()`
 
 `unsignedInteger` 메소드는 `UNSIGNED INTEGER` 해당 열을 생성합니다.
 
@@ -1110,7 +1110,7 @@ $table->unsignedInteger('votes');
 ```
 
 <a name="column-method-unsignedMediumInteger"></a>
-#### `unsignedMediumInteger()` {.collection-method}
+#### `unsignedMediumInteger()`
 
 `unsignedMediumInteger` 메소드는 `UNSIGNED MEDIUMINT` 해당 열을 생성합니다.
 
@@ -1119,7 +1119,7 @@ $table->unsignedMediumInteger('votes');
 ```
 
 <a name="column-method-unsignedSmallInteger"></a>
-#### `unsignedSmallInteger()` {.collection-method}
+#### `unsignedSmallInteger()`
 
 `unsignedSmallInteger` 메소드는 `UNSIGNED SMALLINT` 해당 열을 생성합니다.
 
@@ -1128,7 +1128,7 @@ $table->unsignedSmallInteger('votes');
 ```
 
 <a name="column-method-unsignedTinyInteger"></a>
-#### `unsignedTinyInteger()` {.collection-method}
+#### `unsignedTinyInteger()`
 
 `unsignedTinyInteger` 메소드는 `UNSIGNED TINYINT` 해당 열을 생성합니다.
 
@@ -1137,7 +1137,7 @@ $table->unsignedTinyInteger('votes');
 ```
 
 <a name="column-method-ulidMorphs"></a>
-#### `ulidMorphs()` {.collection-method}
+#### `ulidMorphs()`
 
 `ulidMorphs` 메서드는 `{column}_id` `CHAR(26)` 해당 열과 `{column}_type` `VARCHAR` 해당 열을 추가하는 편의 메서드입니다.
 
@@ -1148,7 +1148,7 @@ $table->ulidMorphs('taggable');
 ```
 
 <a name="column-method-uuidMorphs"></a>
-#### `uuidMorphs()` {.collection-method}
+#### `uuidMorphs()`
 
 `uuidMorphs` 메서드는 `{column}_id` `CHAR(36)` 해당 열과 `{column}_type` `VARCHAR` 해당 열을 추가하는 편의 메서드입니다.
 
@@ -1159,7 +1159,7 @@ $table->uuidMorphs('taggable');
 ```
 
 <a name="column-method-ulid"></a>
-#### `ulid()` {.collection-method}
+#### `ulid()`
 
 `ulid` 메소드는 `ULID` 해당 열을 생성합니다.
 
@@ -1168,7 +1168,7 @@ $table->ulid('id');
 ```
 
 <a name="column-method-uuid"></a>
-#### `uuid()` {.collection-method}
+#### `uuid()`
 
 `uuid` 메소드는 `UUID` 해당 열을 생성합니다.
 
@@ -1177,7 +1177,7 @@ $table->uuid('id');
 ```
 
 <a name="column-method-vector"></a>
-#### `vector()` {.collection-method}
+#### `vector()`
 
 `vector` 메소드는 `vector` 해당 열을 생성합니다.
 
@@ -1192,7 +1192,7 @@ Schema::ensureVectorExtensionExists();
 ```
 
 <a name="column-method-year"></a>
-#### `year()` {.collection-method}
+#### `year()`
 
 `year` 메소드는 `YEAR` 해당 열을 생성합니다.
 

@@ -1370,7 +1370,7 @@ $browser->scrollIntoView('.selector')
 
 Dusk는 애플리케이션에 대해 수행할 수 있는 다양한 어설션을 제공합니다. 사용 가능한 모든 어설션은 아래 목록에 문서화되어 있습니다.
 
-<style>
+<style>{`
     .collection-method-list > p {
         columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
     }
@@ -1381,7 +1381,7 @@ Dusk는 애플리케이션에 대해 수행할 수 있는 다양한 어설션을
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-</style>
+`}</style>
 
 <div class="collection-method-list" markdown="1">
 
@@ -2166,23 +2166,25 @@ $browser->assertAuthenticatedAs($user);
 
 Dusk를 사용하면 [Vue 컴포넌트](https://vuejs.org) 데이터의 상태에 대한 어설션도 수행할 수 있습니다. 예를 들어 애플리케이션에 다음 Vue 컴포넌트가 포함되어 있다고 가정해 보겠습니다.
 
+```
 // HTML...
 
-<profile 황혼="프로필 컴포넌트"></profile>
+<profile dusk="profile-component"></profile>
 
 // Component Definition...
 
-Vue.comComponent('프로필', {
-        템플릿: '<div>{{ user.name }}</div>',
+Vue.component('profile', {
+    template: '<div>{{ user.name }}</div>',
 
-데이터: 함수 () {
-            반환 {
-                사용자: {
-                    이름: '테일러'
-                }
-            };
-        }
-    });
+    data: function () {
+        return {
+            user: {
+                name: 'Taylor'
+            }
+        };
+    }
+});
+```
 
 다음과 같이 Vue 구성요소의 상태를 주장할 수 있습니다.
 

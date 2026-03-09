@@ -946,7 +946,7 @@ The credit card number field is required when payment type is credit card.
 
 다음은 사용 가능한 모든 유효성 검사 규칙과 해당 기능의 목록입니다.
 
-<style>
+<style>{`
     .collection-method-list > p {
         columns: 10.8em 3; -moz-columns: 10.8em 3; -webkit-columns: 10.8em 3;
     }
@@ -957,7 +957,7 @@ The credit card number field is required when payment type is credit card.
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-</style>
+`}</style>
 
 #### 부울
 
@@ -1224,7 +1224,7 @@ use Illuminate\Validation\Rule;
 <a name="rule-alpha"></a>
 #### 알파
 
-유효성 검사 대상 필드는 [\p{L}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=) 및 [\p{M}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=)에 포함된 전체 유니코드 알파벳 문자여야 합니다.
+유효성 검사 대상 필드는 [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=) 및 [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=)에 포함된 전체 유니코드 알파벳 문자여야 합니다.
 
 이 유효성 검사 규칙을 ASCII 범위(`a-z` 및 `A-Z`)의 문자로 제한하려면 유효성 검사 규칙에 `ascii` 옵션을 제공할 수 있습니다.
 
@@ -1235,7 +1235,7 @@ use Illuminate\Validation\Rule;
 <a name="rule-alpha-dash"></a>
 #### alpha_dash
 
-유효성 검사 대상 필드는 [\p{L}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [\p{M}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), [\p{N}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)에 포함된 전체 유니코드 영숫자 문자와 ASCII 대시(`-`) 및 ASCII 밑줄(`_`)이어야 합니다.
+유효성 검사 대상 필드는 [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), [`\p{N}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)에 포함된 전체 유니코드 영숫자 문자와 ASCII 대시(`-`) 및 ASCII 밑줄(`_`)이어야 합니다.
 
 이 유효성 검사 규칙을 ASCII 범위(`a-z`, `A-Z` 및 `0-9`)의 문자로 제한하려면 유효성 검사 규칙에 `ascii` 옵션을 제공할 수 있습니다.
 
@@ -1246,7 +1246,7 @@ use Illuminate\Validation\Rule;
 <a name="rule-alpha-num"></a>
 #### alpha_num
 
-유효성 검사 대상 필드는 [\p{L}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [\p{M}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=) 및 [\p{N}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)에 포함된 전체 유니코드 영숫자 문자여야 합니다.
+유효성 검사 대상 필드는 [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=) 및 [`\p{N}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)에 포함된 전체 유니코드 영숫자 문자여야 합니다.
 
 이 유효성 검사 규칙을 ASCII 범위(`a-z`, `A-Z` 및 `0-9`)의 문자로 제한하려면 유효성 검사 규칙에 `ascii` 옵션을 제공할 수 있습니다.
 

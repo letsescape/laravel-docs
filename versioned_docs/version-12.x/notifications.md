@@ -524,7 +524,7 @@ public function toMail(object $notifiable): MailMessage
 
 이 예제에서는 인사말, 텍스트 라인, 콜 투 액션, 그리고 또 다른 텍스트 라인을 등록합니다. `MailMessage` 객체가 제공하는 이러한 메서드들은 작은 트랜잭션 이메일을 간단하고 빠르게 포맷팅할 수 있게 해줍니다. 그런 다음 메일 채널이 메시지 컴포넌트를 아름답고 반응형인 HTML 이메일 템플릿과 텍스트 전용 대응 템플릿으로 변환합니다. 다음은 `mail` 채널에서 생성된 이메일 예시입니다.
 
-<img src="https://laravel.com/img/docs/notification-example-2.png">
+<img src="https://laravel.com/img/docs/notification-example-2.png" />
 
 > [!NOTE]
 > 메일 알림을 보낼 때 `config/app.php` 설정 파일에서 `name` 설정 옵션을 설정했는지 확인하세요. 이 값은 메일 알림 메시지의 헤더와 푸터에 사용됩니다.

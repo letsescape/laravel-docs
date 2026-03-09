@@ -1008,7 +1008,7 @@ class BasicTest extends TestCase
 
 Laravel의 `Illuminate\Testing\TestResponse` 클래스는 애플리케이션을 테스트할 때 활용할 수 있는 다양한 사용자 지정 어설션 방법을 제공합니다. 이러한 어설션은 `json`, `get`, `post`, `put` 및 `delete` 테스트 메서드에서 반환된 응답에서 액세스할 수 있습니다.
 
-<style>
+<style>{`
     .collection-method-list > p {
         columns: 14.4em 2; -moz-columns: 14.4em 2; -webkit-columns: 14.4em 2;
     }
@@ -1019,7 +1019,7 @@ Laravel의 `Illuminate\Testing\TestResponse` 클래스는 애플리케이션을 
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-</style>
+`}</style>
 
 <div class="collection-method-list" markdown="1">
 
