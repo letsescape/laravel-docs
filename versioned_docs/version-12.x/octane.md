@@ -169,7 +169,7 @@ php artisan octane:start --server=frankenphp --caddyfile=/path/to/your/Caddyfile
 ```shell
 ./vendor/bin/sail shell
 
-# Sail 셸 내부에서...
+# Within the Sail shell...
 ./vendor/bin/rr get-binary
 ```
 
@@ -515,7 +515,7 @@ $this->app->singleton(Service::class, function (Application $app) {
     return new Service(fn () => $app['request']);
 });
 
-// 또는...
+// Or...
 
 $service->method($request->input('name'));
 ```
@@ -618,7 +618,7 @@ php artisan octane:start --workers=4 --task-workers=6
 `concurrently` 메서드에 전달할 작업 개수는 Swoole의 과제 시스템(task system) 제한에 따라 1024개를 넘지 않도록 해야 합니다.
 
 <a name="ticks-and-intervals"></a>
-## 틱(Tick)과 간격(Interval)
+## 틱(Tick)과 간격 (Ticks and Intervals)
 
 > [!WARNING]
 > 이 기능은 [Swoole](#swoole)이 필요합니다.
@@ -658,7 +658,7 @@ Cache::store('octane')->put('framework', 'Laravel', 30);
 > Octane 캐시에 허용되는 최대 항목 수는 애플리케이션의 `octane` 설정 파일에서 지정할 수 있습니다.
 
 <a name="cache-intervals"></a>
-### 캐시 간격(Interval)
+### 캐시 간격
 
 라라벨의 기본 캐시 시스템 메서드 외에도, Octane 캐시 드라이버는 간격 기반(interval based) 캐시 기능을 지원합니다. 이 캐시는 지정한 시간 간격마다 자동으로 최신 값으로 갱신되며, 보통 서비스 프로바이더의 `boot` 메서드 내에서 정의해야 합니다. 아래 예시는 5초마다 새 값으로 갱신되는 캐시를 만듭니다:
 

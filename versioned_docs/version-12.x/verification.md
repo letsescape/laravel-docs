@@ -12,7 +12,7 @@
 - [이벤트](#events)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
 많은 웹 애플리케이션은 사용자가 애플리케이션을 사용하기 전에 이메일 주소를 인증하도록 요구합니다. 각 애플리케이션마다 이 기능을 직접 구현하도록 강요하지 않고, Laravel은 이메일 인증 요청을 보내고 검증할 수 있는 편리한 내장 서비스를 제공합니다.
 
@@ -57,7 +57,7 @@ event(new Registered($user));
 다음으로, `users` 테이블에 사용자의 이메일이 인증된 날짜와 시간을 저장할 `email_verified_at` 컬럼이 있어야 합니다. 보통 Laravel이 기본 제공하는 `0001_01_01_000000_create_users_table.php` 마이그레이션 파일에 포함되어 있습니다.
 
 <a name="verification-routing"></a>
-## 라우팅
+## 라우팅 (Routing)
 
 이메일 인증을 적절히 구현하려면 세 가지 라우트를 정의해야 합니다. 첫 번째는 사용자가 회원가입 후 Laravel이 발송한 인증 이메일에서 인증 링크를 클릭하라는 알림을 표시하기 위한 라우트입니다.
 
@@ -122,14 +122,14 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 ```php
 Route::get('/profile', function () {
-    // 인증 완료된 사용자만 접근 가능...
+    // Only verified users may access this route...
 })->middleware(['auth', 'verified']);
 ```
 
 인증되지 않은 사용자가 이 미들웨어가 할당된 라우트에 접근하려 하면 자동으로 `verification.notice` [이름 있는 라우트](/docs/12.x/routing#named-routes)로 리디렉션됩니다.
 
 <a name="customization"></a>
-## 사용자 정의
+## 사용자 정의 (Customization)
 
 <a name="verification-email-customization"></a>
 #### 인증 이메일 사용자 정의
@@ -143,7 +143,7 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 
 /**
- * 부트스트랩 애플리케이션 서비스.
+ * Bootstrap any application services.
  */
 public function boot(): void
 {
@@ -162,6 +162,6 @@ public function boot(): void
 > 메일 알림에 대해 더 알아보려면 [메일 알림 문서](/docs/12.x/notifications#mail-notifications)를 참고하세요.
 
 <a name="events"></a>
-## 이벤트
+## 이벤트 (Events)
 
 [Laravel 애플리케이션 스타터 키트](/docs/12.x/starter-kits)를 사용하는 경우, 이메일 인증 과정 중에 Laravel은 `Illuminate\Auth\Events\Verified` [이벤트](/docs/12.x/events)를 발송합니다. 만약 애플리케이션에서 이메일 인증을 수동으로 처리한다면, 인증 완료 후 이 이벤트를 수동으로 발생시키는 것도 고려해 보세요.

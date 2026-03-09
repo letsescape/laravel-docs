@@ -672,7 +672,7 @@ protected function casts(): array
 암호화된 문자열은 평문보다 더 길고, 정확한 길이를 예측할 수 없으므로, 해당 컬럼은 `TEXT` 타입이나 그보다 큰 타입으로 지정해야 합니다. 또한, 값이 암호화되어 저장되므로, 이 값을 기준으로 쿼리하거나 검색하는 것은 불가능합니다.
 
 <a name="key-rotation"></a>
-#### 키 교체(Key Rotation)
+#### 키 교체
 
 Laravel은 애플리케이션의 `app` 설정 파일에 정의된 `key` 값을 사용해서 문자열을 암호화합니다. 보통 이 값은 `APP_KEY` 환경 변수와 일치합니다. 애플리케이션의 암호화 키를 교체해야 한다면, [안전하게 교체하는 방법](/docs/12.x/encryption#gracefully-rotating-encryption-keys)을 참고하세요.
 
@@ -991,7 +991,7 @@ public function compare(
 ```
 
 <a name="castables"></a>
-### 캐스터블(Castables)
+### 캐스터블
 
 애플리케이션의 값 객체가 자신만의 커스텀 캐스트 클래스를 결정하도록 구성할 수 있습니다. 커스텀 캐스트 클래스를 모델에 직접 지정하는 대신, 값 객체 클래스 자체가 `Illuminate\Contracts\Database\Eloquent\Castable` 인터페이스를 구현하고 있으면 됩니다:
 

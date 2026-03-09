@@ -13,7 +13,7 @@
     - [벡터 저장 및 인덱싱](#storing-and-indexing-vectors)
     - [유사도 기반 쿼리](#querying-by-similarity)
 - [결과 재정렬](#reranking-results)
-- [Laravel Scout](#laravel-scout)
+- [Laravel Scout (Laravel Scout)](#laravel-scout)
     - [데이터베이스 엔진](#database-engine)
     - [서드파티 엔진](#third-party-engines)
 - [기술 혼합 활용하기](#combining-techniques)
@@ -36,7 +36,7 @@
 정확한 키워드가 아니라 *의미*로 결과를 매칭해야 할 땐, AI 기반 의미 검색을 사용합니다. `whereVectorSimilarTo` 쿼리 빌더 메서드는 PostgreSQL의 `pgvector` 확장 기능을 활용한 벡터 임베딩(vector embedding)을 사용합니다. 예를 들어, "best wineries in Napa Valley"를 검색하면 "Top Vineyards to Visit"라는 제목의 글도 결과로 보여줄 수 있습니다. (단어는 겹치지 않아도 의미가 비슷함.) 벡터 검색은 PostgreSQL과 `pgvector` 확장, 그리고 [Laravel AI SDK](/docs/12.x/ai-sdk)가 필요합니다.
 
 <a name="introduction-reranking"></a>
-#### 재정렬(Reranking)
+#### 재정렬
 
 Laravel의 [AI SDK](/docs/12.x/ai-sdk)는 AI 모델을 사용해 쿼리에 대한 의미적 관련도 순으로 결과 집합을 재정렬하는 기능을 제공합니다. 재정렬 기능은 빠른 1차 검색 결과(예: 전문 검색) 이후, 관련성에 따라 결과를 다시 정렬하는 2차 처리로 사용할 때 특히 강력합니다. 이를 통해 속도와 의미 기반 정확도를 모두 얻을 수 있습니다.
 
@@ -121,7 +121,7 @@ use Illuminate\Support\Str;
 $embedding = Str::of('Napa Valley has great wine.')->toEmbeddings();
 ```
 
-여러 개의 입력값에 대해 임베딩을 한 번에 생성하고 싶다면(이 경우 임베딩 제공자에 대한 API 호출이 1회로 줄어 훨씬 효율적임), `Embeddings` 클래스를 사용하세요.
+여러 입력값에 대한 임베딩을 한 번에 생성하고 싶다면, 이 경우 임베딩 provider에 대한 API 호출이 1회로 줄어 훨씬 효율적이므로 `Embeddings` 클래스를 사용하세요.
 
 ```php
 use Laravel\Ai\Embeddings;
@@ -134,12 +134,12 @@ $response = Embeddings::for([
 $response->embeddings; // [[0.123, 0.456, ...], [0.789, 0.012, ...]]
 ```
 
-임베딩 제공자 설정, 임베딩의 차원 수 커스터마이징, 캐싱 등은 [AI SDK 문서](/docs/12.x/ai-sdk#embeddings)를 참고하세요.
+임베딩 provider 설정, 임베딩 차원 수 사용자 지정, 캐싱 등은 [AI SDK 문서](/docs/12.x/ai-sdk#embeddings)를 참고하세요.
 
 <a name="storing-and-indexing-vectors"></a>
 ### 벡터 저장 및 인덱싱
 
-벡터 임베딩을 저장하려면, 마이그레이션에서 `vector` 컬럼 타입을 정의하고 임베딩 제공자의 출력 차원 수(예: OpenAI의 `text-embedding-3-small` 모델은 1536)를 맞춰줘야 합니다. 이 컬럼에는 `index`를 설정해 HNSW(계층적 네비게이블 스몰 월드) 인덱스를 생성하는 것이 좋은데, 대규모 데이터셋에서 유사도 검색 시 성능이 크게 향상됩니다.
+벡터 임베딩을 저장하려면 마이그레이션에서 `vector` 컬럼 타입을 정의하고, 임베딩 provider의 출력 차원 수(예: OpenAI의 `text-embedding-3-small` 모델은 1536)에 맞춰야 합니다. 또한 이 컬럼에는 `index`를 설정해 HNSW(계층적 네비게이블 스몰 월드) 인덱스를 생성하는 것이 좋습니다. 대규모 데이터셋에서 유사도 검색 성능이 크게 향상됩니다.
 
 ```php
 Schema::ensureVectorExtensionExists();
@@ -180,7 +180,7 @@ $documents = Document::query()
     ->get();
 ```
 
-편의 기능으로, 임베딩 배열 대신 문자열을 바로 넣으면 Laravel이 자동으로 설정된 임베딩 제공자를 통해 쿼리 임베딩을 생성합니다. 즉, 사용자의 검색어를 직접 넘겨도 수동 변환 없이 동작합니다.
+편의상 임베딩 배열 대신 문자열을 바로 넘기면 Laravel이 자동으로 설정된 임베딩 provider를 사용해 쿼리 임베딩을 생성합니다. 즉, 사용자의 검색어를 직접 전달해도 수동 변환 없이 동작합니다.
 
 ```php
 $documents = Document::query()
@@ -219,10 +219,10 @@ $articles = Article::all()
     ->rerank('body', 'Laravel tutorials');
 ```
 
-재정렬 제공자 설정 및 옵션 등 자세한 내용은 [AI SDK 문서](/docs/12.x/ai-sdk#reranking)를 참고하세요.
+리랭킹 provider 설정 및 옵션 등 자세한 내용은 [AI SDK 문서](/docs/12.x/ai-sdk#reranking)를 참고하세요.
 
 <a name="laravel-scout"></a>
-## Laravel Scout
+## Laravel Scout (Laravel Scout)
 
 위에서 소개한 검색 방식들은 코드에서 직접 쿼리 빌더 메서드를 호출해 사용하는 방법입니다. [Laravel Scout](/docs/12.x/scout)는 조금 다릅니다. Eloquent 모델에 `Searchable` 트레이트를 추가하면, Scout가 레코드 생성·수정·삭제 시 자동으로 검색 인덱스와 동기화해주기 때문에 모델이 항상 검색 가능하도록 관리가 편리합니다.
 

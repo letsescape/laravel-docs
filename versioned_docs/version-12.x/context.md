@@ -18,9 +18,9 @@
 Laravel의 "컨텍스트" 기능은 애플리케이션 내에서 실행되는 요청, 작업(job), 명령어 전반에 걸쳐 정보를 캡처하고, 가져오고, 공유할 수 있게 해줍니다. 이렇게 캡처된 정보는 애플리케이션에서 작성하는 로그에도 포함되어, 로그가 기록되기 전에 실행된 코드의 수행 이력에 대한 깊은 통찰을 제공하며, 분산 시스템 전체의 실행 흐름을 추적할 수 있게 합니다.
 
 <a name="how-it-works"></a>
-### 작동 방식 (How it Works)
+### 작동 방식
 
-Laravel의 컨텍스트 기능을 이해하는 가장 좋은 방법은 내장된 로깅 기능을 활용하여 실제로 작동하는 예를 보는 것입니다. 시작하려면 `Context` 퍼사드를 사용해 [컨텍스트에 정보 추가하기](#capturing-context)부터 해봅니다. 이 예에서는 모든 들어오는 요청마다 요청 URL과 고유한 추적 ID를 컨텍스트에 추가하는 [미들웨어](/docs/12.x/middleware)를 사용합니다:
+Laravel의 컨텍스트 기능을 이해하는 가장 좋은 방법은 내장된 로깅 기능을 활용하여 실제로 작동하는 예를 보는 것입니다. 시작하려면 `Context` 파사드를 사용해 [컨텍스트에 정보 추가하기](#capturing-context)부터 해봅니다. 이 예에서는 모든 들어오는 요청마다 요청 URL과 고유한 추적 ID를 컨텍스트에 추가하는 [미들웨어](/docs/12.x/middleware)를 사용합니다:
 
 ```php
 <?php
@@ -63,11 +63,11 @@ User authenticated. {"auth_id":27} {"url":"https://example.com/login","trace_id"
 컨텍스트에 추가된 정보는 큐에 디스패치된 작업에도 적용됩니다. 예를 들어, 컨텍스트에 정보를 추가한 후에 `ProcessPodcast` 작업을 큐에 디스패치한다고 가정해봅시다:
 
 ```php
-// 미들웨어 안에서...
+// In our middleware...
 Context::add('url', $request->url());
 Context::add('trace_id', Str::uuid()->toString());
 
-// 컨트롤러 안에서...
+// In our controller...
 ProcessPodcast::dispatch($podcast);
 ```
 
@@ -105,7 +105,7 @@ Processing podcast. {"podcast_id":95} {"url":"https://example.com/login","trace_
 <a name="capturing-context"></a>
 ## 컨텍스트 캡처하기 (Capturing Context)
 
-`Context` 퍼사드의 `add` 메서드를 사용해 현재 컨텍스트에 정보를 저장할 수 있습니다:
+`Context` 파사드의 `add` 메서드를 사용해 현재 컨텍스트에 정보를 저장할 수 있습니다:
 
 ```php
 use Illuminate\Support\Facades\Context;
@@ -147,7 +147,7 @@ Context::decrement('records_added', 5);
 ```
 
 <a name="conditional-context"></a>
-#### 조건부 컨텍스트 (Conditional Context)
+#### 조건부 컨텍스트
 
 `when` 메서드는 주어진 조건에 따라 컨텍스트에 데이터를 추가할 때 사용됩니다. 조건이 `true`일 때 호출되는 첫 번째 클로저, `false`일 때 호출되는 두 번째 클로저를 전달할 수 있습니다:
 
@@ -163,7 +163,7 @@ Context::when(
 ```
 
 <a name="scoped-context"></a>
-#### 범위 지정 컨텍스트 (Scoped Context)
+#### 범위 지정 컨텍스트
 
 `scope` 메서드는 지정된 콜백 함수 실행 동안 컨텍스트를 일시적으로 변경하고, 콜백 실행이 끝난 후 원래 상태로 복원하는 방법을 제공합니다. 콜백 실행 중 병합할 추가 데이터는 두 번째와 세 번째 인수로 전달할 수 있습니다.
 
@@ -202,7 +202,7 @@ Context::allHidden();
 > 스코프 내부에서 컨텍스트 안 객체를 수정하면, 해당 변경이 스코프 외부에도 반영됩니다.
 
 <a name="stacks"></a>
-### 스택 (Stacks)
+### 스택
 
 컨텍스트는 스택이라는 기능을 제공하는데, 이는 추가된 순서대로 데이터를 저장하는 리스트입니다. `push` 메서드를 호출해 스택에 정보를 추가할 수 있습니다:
 
@@ -227,7 +227,7 @@ Context::get('breadcrumbs');
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\DB;
 
-// AppServiceProvider.php 내에서...
+// In AppServiceProvider.php...
 DB::listen(function ($event) {
     Context::push('queries', [$event->time, $event->sql]);
 });
@@ -259,7 +259,7 @@ return Context::stackContains('breadcrumbs', function ($value) {
 <a name="retrieving-context"></a>
 ## 컨텍스트 가져오기 (Retrieving Context)
 
-`Context` 퍼사드의 `get` 메서드를 사용해 컨텍스트에서 정보를 가져올 수 있습니다:
+`Context` 파사드의 `get` 메서드를 사용해 컨텍스트에서 정보를 가져올 수 있습니다:
 
 ```php
 use Illuminate\Support\Facades\Context;
@@ -309,7 +309,7 @@ $data = Context::all();
 ```
 
 <a name="determining-item-existence"></a>
-### 항목 존재 여부 확인 (Determining Item Existence)
+### 항목 존재 여부 확인
 
 `has`와 `missing` 메서드를 사용해 주어진 키에 컨텍스트 값이 저장되어 있는지 확인할 수 있습니다:
 
@@ -399,7 +399,7 @@ Context::forgetHidden(/* ... */);
 예를 들어, 애플리케이션 미들웨어에서 들어오는 HTTP 요청의 `Accept-Language` 헤더를 기반으로 `app.locale` 설정 값을 지정한다고 가정해봅시다. 컨텍스트 이벤트를 활용하면 이 값을 요청 동안 캡처하고, 큐에서 복원하여, 큐에서 실행되는 알림 등이 올바른 `app.locale` 설정을 사용할 수 있도록 할 수 있습니다. 이 과정에서 [숨겨진 데이터](#hidden-context)를 함께 사용합니다. 아래 문서를 통해 구현 예를 확인할 수 있습니다.
 
 <a name="dehydrating"></a>
-### 비활성화(Dehydrating)
+### 비활성화
 
 작업이 큐에 디스패치될 때마다, 컨텍스트의 데이터는 "비활성화"되어 작업 페이로드와 함께 캡처됩니다. `Context::dehydrating` 메서드를 통해 비활성화 과정 동안 호출될 클로저를 등록할 수 있습니다. 이 클로저 내에서 큐 작업과 함께 공유할 데이터를 수정할 수 있습니다.
 
@@ -422,10 +422,10 @@ public function boot(): void
 ```
 
 > [!NOTE]
-> `dehydrating` 콜백 안에서 `Context` 퍼사드 사용은 권장하지 않습니다. 현재 프로세스의 컨텍스트가 변경될 수 있으므로, 반드시 콜백에 전달된 저장소 인스턴스에서만 작업하세요.
+> `dehydrating` 콜백 안에서 `Context` 파사드 사용은 권장하지 않습니다. 현재 프로세스의 컨텍스트가 변경될 수 있으므로, 반드시 콜백에 전달된 저장소 인스턴스에서만 작업하세요.
 
 <a name="hydrated"></a>
-### 활성화(Hydrated)
+### 활성화
 
 큐에 디스패치된 작업이 실행되기 시작할 때, 작업과 함께 공유된 컨텍스트가 현재 컨텍스트로 "활성화"됩니다. `Context::hydrated` 메서드를 통해 활성화 과정에서 호출될 클로저를 등록할 수 있습니다.
 
@@ -450,4 +450,4 @@ public function boot(): void
 ```
 
 > [!NOTE]
-> `hydrated` 콜백 내에서 `Context` 퍼사드를 직접 사용하지 말고, 반드시 콜백에 전달된 저장소 인스턴스를 통해만 작업하세요.
+> `hydrated` 콜백 내에서 `Context` 파사드를 직접 사용하지 말고, 반드시 콜백에 전달된 저장소 인스턴스를 통해만 작업하세요.

@@ -1,9 +1,9 @@
-# Laravel Mix
+# Laravel Mix (Laravel Mix)
 
 - [소개](#introduction)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
 > [!WARNING]
 > Laravel Mix는 더 이상 활발하게 유지 관리되지 않는 레거시 패키지입니다. 현대적인 대안으로 [Vite](/docs/12.x/vite)를 사용할 수 있습니다.

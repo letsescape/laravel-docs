@@ -13,14 +13,14 @@
 - [리소스 응답](#resource-responses)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
 API를 구축할 때, Eloquent 모델과 실제로 애플리케이션 사용자에게 반환되는 JSON 응답 사이에 위치하는 변환 계층이 필요할 수 있습니다. 예를 들어, 특정 사용자 집합에 대해서만 일부 속성을 노출하거나, 항상 특정 연관관계를 모델의 JSON 표현에 포함하고 싶을 때가 있습니다. Eloquent의 리소스 클래스는 이러한 모델과 모델 컬렉션을 JSON으로 변환하는 과정을 더욱 표현력 있고 쉽게 처리할 수 있도록 해줍니다.
 
 물론, Eloquent 모델 또는 컬렉션의 `toJson` 메서드를 사용하여 언제든지 JSON으로 변환할 수 있습니다. 그러나 Eloquent 리소스는 모델과 그 연관관계의 JSON 직렬화에 대해 더 세밀하고 강력한 제어를 제공합니다.
 
 <a name="generating-resources"></a>
-## 리소스 생성
+## 리소스 생성 (Generating Resources)
 
 리소스 클래스를 생성하려면 `make:resource` Artisan 명령어를 사용하면 됩니다. 기본적으로 생성된 리소스는 애플리케이션의 `app/Http/Resources` 디렉토리에 위치하게 됩니다. 리소스 클래스는 `Illuminate\Http\Resources\Json\JsonResource` 클래스를 확장합니다:
 
@@ -42,10 +42,10 @@ php artisan make:resource UserCollection
 ```
 
 <a name="concept-overview"></a>
-## 개념 개요
+## 개념 개요 (Concept Overview)
 
 > [!NOTE]
-> 이 부분은 리소스 및 리소스 컬렉션의 고수준 개요입니다. 리소스가 제공하는 커스터마이징과 강력한 기능을 더 깊이 이해하려면 문서의 다른 섹션도 꼭 읽어보시기 바랍니다.
+> 이 부분은 리소스 및 리소스 컬렉션의 고수준 개요입니다. 리소스가 제공하는 사용자 지정과 강력한 기능을 더 깊이 이해하려면 문서의 다른 섹션도 꼭 읽어보시기 바랍니다.
 
 리소스를 직접 작성하는 다양한 방법을 살펴보기 전에, 먼저 Laravel에서 리소스가 어떻게 사용되는지 간단히 살펴보겠습니다. 리소스 클래스는 JSON 구조로 변환되어야 하는 단일 모델을 나타냅니다. 예를 들어, 다음은 간단한 `UserResource` 클래스입니다:
 
@@ -171,7 +171,7 @@ return User::all()->toResourceCollection(CustomUserCollection::class);
 <a name="custom-resource-collections"></a>
 #### 커스텀 리소스 컬렉션
 
-기본적으로 리소스 컬렉션은 추가적인 커스텀 메타 데이터를 반환할 수 없습니다. 컬렉션과 함께 반환해야 하는 메타 데이터를 커스터마이징하고 싶을 때에는, 전용 리소스 컬렉션 클래스를 생성해야 합니다:
+기본적으로 리소스 컬렉션은 추가적인 커스텀 메타 데이터를 반환할 수 없습니다. 컬렉션과 함께 반환해야 하는 메타 데이터를 사용자 지정하고 싶을 때에는, 전용 리소스 컬렉션 클래스를 생성해야 합니다:
 
 ```shell
 php artisan make:resource UserCollection
@@ -260,11 +260,11 @@ Route::get('/users', function () {
 ```
 
 <a name="customizing-the-underlying-resource-class"></a>
-#### 기본 리소스 클래스 커스터마이징
+#### 기본 리소스 클래스 사용자 지정
 
 보통, 리소스 컬렉션의 `$this->collection` 속성은 컬렉션의 각 아이템을 단수형 리소스 클래스에 매핑한 결과로 자동 세팅됩니다. 단수형 리소스 클래스는 컬렉션 클래스의 이름에서 마지막 `Collection` 부분을 제외한 이름으로 추정됩니다. 추가적으로, 단수형 리소스 클래스 이름에는 `Resource` 접미사가 붙거나 붙지 않을 수 있습니다.
 
-예를 들어, `UserCollection`은 주어진 사용자 인스턴스들을 `UserResource` 리소스로 매핑합니다. 이 동작을 커스터마이징하려면, 컬렉션 리소스의 `$collects` 속성을 오버라이드하면 됩니다:
+예를 들어, `UserCollection`은 주어진 사용자 인스턴스들을 `UserResource` 리소스로 매핑합니다. 이 동작을 사용자 지정하려면, 컬렉션 리소스의 `$collects` 속성을 오버라이드하면 됩니다:
 
 ```php
 <?php
@@ -285,7 +285,7 @@ class UserCollection extends ResourceCollection
 ```
 
 <a name="writing-resources"></a>
-## 리소스 작성
+## 리소스 작성 (Writing Resources)
 
 > [!NOTE]
 > 아직 [개념 개요](#concept-overview)를 읽지 않았다면, 이 문서를 계속 읽기 전에 먼저 해당 내용을 살펴볼 것을 권장합니다.
@@ -373,7 +373,7 @@ Route::get('/users', function () {
 });
 ```
 
-컬렉션과 함께 반환할 메타 데이터를 커스터마이징해야 한다면, 직접 리소스 컬렉션 클래스를 정의해야 합니다:
+컬렉션과 함께 반환할 메타 데이터를 사용자 지정해야 한다면, 직접 리소스 컬렉션 클래스를 정의해야 합니다:
 
 ```php
 <?php
@@ -596,9 +596,9 @@ return User::paginate()->toResourceCollection();
 ```
 
 <a name="customizing-the-pagination-information"></a>
-#### 페이지네이션 정보 커스터마이징
+#### 페이지네이션 정보 사용자 지정
 
-페이지네이션 결과의 `links` 또는 `meta`에 포함될 정보를 커스터마이징하고자 한다면, 리소스에 `paginationInformation` 메서드를 정의할 수 있습니다. 이 메서드는 `$paginated` 데이터와, `links` 및 `meta` 키를 포함하는 `$default` 정보 배열을 인자로 받습니다:
+페이지네이션 결과의 `links` 또는 `meta`에 포함될 정보를 사용자 지정하고자 한다면, 리소스에 `paginationInformation` 메서드를 정의할 수 있습니다. 이 메서드는 `$paginated` 데이터와, `links` 및 `meta` 키를 포함하는 `$default` 정보 배열을 인자로 받습니다:
 
 ```php
 /**
@@ -896,7 +896,7 @@ return User::all()
 ```
 
 <a name="resource-responses"></a>
-## 리소스 응답
+## 리소스 응답 (Resource Responses)
 
 앞서 살펴본 것처럼, 리소스는 라우트와 컨트롤러에서 직접 반환할 수 있습니다:
 
@@ -908,7 +908,7 @@ Route::get('/user/{id}', function (string $id) {
 });
 ```
 
-하지만 때로는 클라이언트로 전송되기 전에 HTTP 응답을 커스터마이즈해야 할 수도 있습니다. 이를 위한 두 가지 방법이 있습니다. 첫째, 리소스에 `response` 메서드를 체이닝할 수 있습니다. 이 메서드는 `Illuminate\Http\JsonResponse` 인스턴스를 반환하므로, 응답의 헤더를 완전히 제어할 수 있습니다:
+하지만 때로는 클라이언트로 전송되기 전에 HTTP 응답을 사용자 지정해야 할 수도 있습니다. 이를 위한 두 가지 방법이 있습니다. 첫째, 리소스에 `response` 메서드를 체이닝할 수 있습니다. 이 메서드는 `Illuminate\Http\JsonResponse` 인스턴스를 반환하므로, 응답의 헤더를 완전히 제어할 수 있습니다:
 
 ```php
 use App\Http\Resources\UserResource;

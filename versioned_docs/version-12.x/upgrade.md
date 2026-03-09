@@ -45,7 +45,7 @@
 > 가능한 모든 변경 사항(브레이킹 체인지)을 문서화하려고 하였습니다. 일부 변경 사항은 프레임워크의 생소한 부분에 해당하므로, 실제로는 일부만이 여러분의 애플리케이션에 영향을 줄 수 있습니다. 시간을 아끼고 싶으신가요? [Laravel Shift](https://laravelshift.com/)를 사용해 애플리케이션 업그레이드를 자동화할 수 있습니다.
 
 <a name="updating-dependencies"></a>
-### 의존성 업데이트 (Updating Dependencies)
+### 의존성 업데이트
 
 **영향 가능성: 높음**
 
@@ -67,7 +67,7 @@
 Carbon 2.x 지원이 제거되었습니다. 모든 Laravel 12 애플리케이션은 이제 반드시 [Carbon 3.x](https://carbon.nesbot.com/guide/getting-started/migration.html)를 필요로 합니다.
 
 <a name="updating-the-laravel-installer"></a>
-### Laravel 인스톨러 업데이트 (Updating the Laravel Installer)
+### Laravel 인스톨러 업데이트
 
 Laravel 인스톨러 CLI 도구를 사용해 새로운 Laravel 애플리케이션을 생성하고 있다면, 인스톨러 설치본을 Laravel 12.x 및 [새로운 Laravel 스타터 키트](https://laravel.com/starter-kits)와 호환되도록 업데이트해야 합니다. 만약 `composer global require` 명령어로 Laravel 인스톨러를 설치했다면, 아래 명령어로 인스톨러를 업데이트할 수 있습니다:
 
@@ -82,7 +82,7 @@ composer global update laravel/installer
 ```
 
 ```shell tab=Windows PowerShell
-# 관리자 권한으로 실행하세요...
+# Run as administrator...
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.4'))
 ```
 
@@ -93,7 +93,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 또는, [Laravel Herd](https://herd.laravel.com)의 번들로 포함된 인스톨러를 사용 중이라면, Herd 설치본을 최신 릴리즈로 업데이트해야 합니다.
 
 <a name="authentication"></a>
-### 인증 (Authentication)
+### 인증
 
 <a name="updated-databasetokenrepository-constructor-signature"></a>
 #### `DatabaseTokenRepository` 생성자 시그니처 변경
@@ -103,10 +103,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 `Illuminate\Auth\Passwords\DatabaseTokenRepository` 클래스의 생성자에서 `$expires` 파라미터는 이제 분(minute) 단위가 아닌 **초(second)** 단위로 입력해야 합니다.
 
 <a name="concurrency"></a>
-### 동시성 (Concurrency)
+### 동시성
 
 <a name="concurrency-result-index-mapping"></a>
-#### 동시성 결과 인덱스 매핑 (Concurrency Result Index Mapping)
+#### 동시성 결과 인덱스 매핑
 
 **영향 가능성: 낮음**
 
@@ -122,10 +122,10 @@ $result = Concurrency::run([
 ```
 
 <a name="container"></a>
-### 컨테이너 (Container)
+### 컨테이너
 
 <a name="container-class-dependency-resolution"></a>
-#### 컨테이너 클래스 의존성 해석 (Container Class Dependency Resolution)
+#### 컨테이너 클래스 의존성 해석
 
 **영향 가능성: 낮음**
 
@@ -147,23 +147,23 @@ $example->date === null;
 ```
 
 <a name="database"></a>
-### 데이터베이스 (Database)
+### 데이터베이스
 
 <a name="multi-schema-database-inspecting"></a>
-#### 멀티 스키마 데이터베이스 검사 (Multi-Schema Database Inspecting)
+#### 멀티 스키마 데이터베이스 검사
 
 **영향 가능성: 낮음**
 
 `Schema::getTables()`, `Schema::getViews()`, `Schema::getTypes()` 메서드가 이제 기본적으로 **모든 스키마의 결과**를 반환합니다. 특정 스키마만 조회하려면 `schema` 인수를 전달할 수 있습니다:
 
 ```php
-// 모든 스키마의 테이블 가져오기...
+// All tables on all schemas...
 $tables = Schema::getTables();
 
-// 'main' 스키마의 테이블만 가져오기...
+// All tables on the 'main' schema...
 $tables = Schema::getTables(schema: 'main');
 
-// 'main', 'blog' 스키마의 테이블 가져오기...
+// All tables on the 'main' and 'blog' schemas...
 $tables = Schema::getTables(schema: ['main', 'blog']);
 ```
 
@@ -183,7 +183,7 @@ $tables = Schema::getTableListing(schema: 'main', schemaQualified: false);
 `db:table` 및 `db:show` 명령어도 이제 MySQL, MariaDB, SQLite에서 PostgreSQL과 SQL Server와 동일하게 모든 스키마의 결과를 출력합니다.
 
 <a name="database-constructor-signature-changes"></a>
-#### 데이터베이스 관련 생성자 시그니처 변경 (Database Constructor Signature Changes)
+#### 데이터베이스 관련 생성자 시그니처 변경
 
 **영향 가능성: 매우 낮음**
 
@@ -231,7 +231,7 @@ $prefix = $connection->getTablePrefix();
 ### Eloquent
 
 <a name="models-and-uuidv7"></a>
-#### 모델과 UUIDv7 (Models and UUIDv7)
+#### 모델과 UUIDv7
 
 **영향 가능성: 중간**
 
@@ -245,10 +245,10 @@ use Illuminate\Database\Eloquent\Concerns\HasVersion4Uuids as HasUuids; // [tl! 
 `HasVersion7Uuids` 트레잇은 제거되었습니다. 기존에 이 트레잇을 사용했다면, 동일 동작을 하는 `HasUuids` 트레잇으로 교체해야 합니다.
 
 <a name="requests"></a>
-### 요청 (Requests)
+### 요청
 
 <a name="nested-array-request-merging"></a>
-#### 중첩 배열 요청 병합 (Nested Array Request Merging)
+#### 중첩 배열 요청 병합
 
 **영향 가능성: 낮음**
 
@@ -261,30 +261,30 @@ $request->mergeIfMissing([
 ```
 
 <a name="routing"></a>
-### 라우팅 (Routing)
+### 라우팅
 
 <a name="route-precedence"></a>
-#### 라우트 우선순위 (Route Precedence)
+#### 라우트 우선순위
 
 **영향 가능성: 낮음**
 
 여러 라우트에 동일한 이름이 지정된 경우, **캐시된 라우팅과 캐시되지 않은 라우팅의 동작이 통일**되었습니다. 이제 캐시되지 않은 라우팅 역시 동일 라우트명이 여러 개 있을 때 첫 번째로 등록된 라우트를 매칭합니다.
 
 <a name="storage"></a>
-### 스토리지 (Storage)
+### 스토리지
 
 <a name="local-filesystem-disk-default-root-path"></a>
-#### 로컬 파일시스템 디스크 기본 루트 경로 (Local Filesystem Disk Default Root Path)
+#### 로컬 파일시스템 디스크 기본 루트 경로
 
 **영향 가능성: 낮음**
 
 파일시스템 설정에서 `local` 디스크를 명시적으로 정의하지 않은 경우, Laravel은 이제 local 디스크의 루트를 `storage/app/private`로 기본 설정합니다. 기존에는 `storage/app`이 기본이었습니다. 따라서, `Storage::disk('local')`로 읽고 쓸 때 기본적으로 `storage/app/private` 경로가 사용됩니다. 예전 동작으로 되돌리고 싶으면, `local` 디스크를 직접 정의하고 원하는 루트 경로를 설정하면 됩니다.
 
 <a name="validation"></a>
-### 유효성 검증 (Validation)
+### 유효성 검증
 
 <a name="image-validation"></a>
-#### SVG가 제외된 이미지 유효성 검증 (Image Validation Now Excludes SVGs)
+#### SVG가 제외된 이미지 유효성 검증
 
 **영향 가능성: 낮음**
 
@@ -295,11 +295,11 @@ use Illuminate\Validation\Rules\File;
 
 'photo' => 'required|image:allow_svg'
 
-// 또는...
+// Or...
 'photo' => ['required', File::image(allowSvg: true)],
 ```
 
 <a name="miscellaneous"></a>
-### 기타 참고 (Miscellaneous)
+### 기타 참고
 
 `laravel/laravel` [GitHub 저장소](https://github.com/laravel/laravel)의 변경 이력도 참고하시기 바랍니다. 이들 변경 사항은 꼭 따라야 하는 것은 아니지만, 애플리케이션 소스와 맞춰두면 좋을 수 있습니다. 일부 내용은 본 업그레이드 가이드에서 다루지만, 설정 파일이나 주석 등의 변화는 직접 포함되지 않을 수 있습니다. [GitHub 비교 도구](https://github.com/laravel/laravel/compare/11.x...12.x)를 사용해 변경 내역을 쉽게 확인하고, 필요한 업데이트만 선택적으로 반영할 수 있습니다.

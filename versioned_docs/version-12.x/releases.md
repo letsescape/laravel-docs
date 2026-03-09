@@ -2,7 +2,7 @@
 
 - [버전 관리 정책](#versioning-scheme)
 - [지원 정책](#support-policy)
-- [Laravel 12](#laravel-12)
+- [Laravel 12 (Laravel 12)](#laravel-12)
 
 <a name="versioning-scheme"></a>
 ## 버전 관리 정책 (Versioning Scheme)
@@ -12,7 +12,7 @@ Laravel과 주요 1차 제공 패키지들은 [시맨틱 버전 관리(Semantic 
 애플리케이션이나 패키지에서 Laravel 프레임워크 및 컴포넌트를 참조할 때는 반드시 `^12.0`과 같은 버전 제약 조건을 사용하시기 바랍니다. Laravel의 주요 릴리즈에는 호환성이 깨지는 변경 사항이 포함될 수 있기 때문입니다. 그러나, 새로운 주요 릴리즈로 하루 이내에 업그레이드할 수 있도록 항상 최선을 다하고 있습니다.
 
 <a name="named-arguments"></a>
-#### 네임드 인수 (Named Arguments)
+#### 네임드 인수
 
 [네임드 인수(named arguments)](https://www.php.net/manual/en/functions.arguments.php#functions.named-arguments)는 Laravel의 하위 호환성 정책에 포함되지 않습니다. 필요에 따라 Laravel 코드베이스 개선을 위해 함수 인수명을 변경할 수 있습니다. 따라서, Laravel 메서드를 호출할 때 네임드 인수를 사용할 경우 인수명이 향후 변경될 수 있음을 유념하시고 신중하게 사용해야 합니다.
 
@@ -33,27 +33,25 @@ Laravel과 주요 1차 제공 패키지들은 [시맨틱 버전 관리(Semantic 
 </div>
 
 <div class="version-colors">
-```
-<div class="end-of-life">
-    <div class="color-box"></div>
-    <div>지원 종료</div>
+    <div class="end-of-life">
+        <div class="color-box"></div>
+        <div>지원 종료</div>
 </div>
-<div class="security-fixes">
-    <div class="color-box"></div>
-    <div>보안 수정만 제공</div>
-</div>
-```
+    <div class="security-fixes">
+        <div class="color-box"></div>
+        <div>보안 수정만 제공</div>
+    </div>
 </div>
 
 (*) 지원되는 PHP 버전
 
 <a name="laravel-12"></a>
-## Laravel 12
+## Laravel 12 (Laravel 12)
 
 Laravel 12는 기존 Laravel 11.x의 개선 사항을 바탕으로 업스트림 의존성 업데이트와 함께 React, Svelte, Vue, Livewire에 대한 새로운 스타터 키트(starter kits)를 도입하였습니다. 이 스타터 키트에는 사용자인증을 위한 [WorkOS AuthKit](https://authkit.com)을 옵션으로 제공합니다. WorkOS로 제공되는 스타터 키트는 소셜 인증, 패스키(passkey), SSO(싱글 사인온) 지원을 포함합니다.
 
 <a name="minimal-breaking-changes"></a>
-### 최소한의 호환성 깨짐 (Minimal Breaking Changes)
+### 최소한의 호환성 깨짐
 
 이번 릴리즈 주기에서는 호환성이 깨지는 변경을 최소화하는 데 중점을 두었습니다. 대신, 기존 애플리케이션에 영향을 주지 않으면서 연중 지속적으로 품질 개선을 제공하는 것에 전념했습니다.
 

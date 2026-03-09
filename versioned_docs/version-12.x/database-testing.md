@@ -12,7 +12,7 @@
 Laravel은 데이터베이스를 사용하는 애플리케이션을 보다 쉽게 테스트할 수 있도록 다양한 유용한 도구와 어설션(assertion)을 제공합니다. 또한, Laravel의 모델 팩토리와 시더(seeder)를 이용하면 애플리케이션의 Eloquent 모델과 연관관계를 활용해 테스트용 데이터베이스 레코드를 손쉽게 생성할 수 있습니다. 이 문서에서는 이러한 강력한 기능에 대해 자세히 알아봅니다.
 
 <a name="resetting-the-database-after-each-test"></a>
-### 각 테스트 후 데이터베이스 초기화 (Resetting the Database After Each Test)
+### 각 테스트 후 데이터베이스 초기화
 
 본격적으로 진행하기 전에, 각 테스트가 끝난 후 이전 테스트 데이터가 다음 테스트에 영향을 주지 않도록 데이터베이스를 초기화하는 방법에 대해 살펴보겠습니다. Laravel에서 제공하는 `Illuminate\Foundation\Testing\RefreshDatabase` 트레이트가 이 작업을 자동으로 처리합니다. 테스트 클래스에 해당 트레이트를 적용하여 사용하면 됩니다:
 
@@ -101,15 +101,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 pest()->use(RefreshDatabase::class);
 
 test('orders can be created', function () {
-    // DatabaseSeeder 실행...
+    // Run the DatabaseSeeder...
     $this->seed();
 
-    // 특정 시더 실행...
+    // Run a specific seeder...
     $this->seed(OrderStatusSeeder::class);
 
     // ...
 
-    // 여러 시더 배열 실행...
+    // Run an array of specific seeders...
     $this->seed([
         OrderStatusSeeder::class,
         TransactionStatusSeeder::class,
@@ -137,15 +137,15 @@ class ExampleTest extends TestCase
      */
     public function test_orders_can_be_created(): void
     {
-        // DatabaseSeeder 실행...
+        // Run the DatabaseSeeder...
         $this->seed();
 
-        // 특정 시더 실행...
+        // Run a specific seeder...
         $this->seed(OrderStatusSeeder::class);
 
         // ...
 
-        // 여러 시더 배열 실행...
+        // Run an array of specific seeders...
         $this->seed([
             OrderStatusSeeder::class,
             TransactionStatusSeeder::class,

@@ -63,7 +63,7 @@ $result = Process::run('ls -la')->throwIf($condition);
 ```
 
 <a name="process-options"></a>
-### 프로세스 옵션 (Process Options)
+### 프로세스 옵션
 
 프로세스를 호출하기 전에 동작을 사용자 정의해야 할 수도 있습니다. Laravel에서는 작업 디렉터리, 타임아웃, 환경 변수와 같은 다양한 프로세스 옵션을 손쉽게 조정할 수 있습니다.
 
@@ -107,7 +107,7 @@ $result = Process::timeout(60)->idleTimeout(30)->run('bash import.sh');
 ```
 
 <a name="environment-variables"></a>
-#### 환경 변수(Environment Variables)
+#### 환경 변수
 
 `env` 메서드를 사용하여 프로세스에 환경 변수를 제공할 수 있습니다. 호출된 프로세스는 시스템에 정의된 모든 환경 변수도 상속합니다:
 
@@ -126,7 +126,7 @@ $result = Process::forever()
 ```
 
 <a name="tty-mode"></a>
-#### TTY 모드(TTY Mode)
+#### TTY 모드
 
 `tty` 메서드를 사용하면 프로세스에 TTY 모드를 활성화할 수 있습니다. 이를 통해 프로세스의 입력 및 출력을 프로그램의 입력 및 출력에 연결할 수 있어, Vim, Nano와 같은 에디터를 프로세스로 열 수도 있습니다:
 
@@ -138,7 +138,7 @@ Process::forever()->tty()->run('vim');
 > TTY 모드는 Windows에서 지원되지 않습니다.
 
 <a name="process-output"></a>
-### 프로세스 출력 (Process Output)
+### 프로세스 출력
 
 앞서 설명했듯이, 프로세스 결과의 `output`(stdout), `errorOutput`(stderr) 메서드를 통해 프로세스 출력을 확인할 수 있습니다:
 
@@ -179,7 +179,7 @@ $result = Process::quietly()->run('bash import.sh');
 ```
 
 <a name="process-pipelines"></a>
-### 파이프라인 (Pipelines)
+### 파이프라인
 
 때로는 한 프로세스의 출력을 다른 프로세스의 입력으로 삼고 싶을 때가 있습니다. 이를 일반적으로 "파이핑"이라 합니다. `Process` 파사드에서 제공하는 `pipe` 메서드는 이 작업을 매우 쉽게 처리할 수 있습니다. `pipe` 메서드는 파이프 내의 프로세스들을 동기적으로 실행하고, 파이프라인의 마지막 프로세스 결과를 반환합니다:
 
@@ -197,7 +197,7 @@ if ($result->successful()) {
 }
 ```
 
-파이프라인을 구성하는 각 프로세스를 커스터마이징할 필요가 없다면, 단순히 명령어 문자열 배열만 전달할 수도 있습니다:
+파이프라인을 구성하는 각 프로세스를 사용자 지정할 필요가 없다면, 단순히 명령어 문자열 배열만 전달할 수도 있습니다:
 
 ```php
 $result = Process::pipe([
@@ -436,10 +436,10 @@ test('process is invoked', function () {
 
     $response = $this->get('/import');
 
-    // 간단한 프로세스 assertion...
+    // Simple process assertion...
     Process::assertRan('bash import.sh');
 
-    // 혹은 프로세스 설정값을 검사...
+    // Or, inspecting the process configuration...
     Process::assertRan(function (PendingProcess $process, ProcessResult $result) {
         return $process->command === 'bash import.sh' &&
                $process->timeout === 60;
@@ -465,10 +465,10 @@ class ExampleTest extends TestCase
 
         $response = $this->get('/import');
 
-        // 간단한 프로세스 assertion...
+        // Simple process assertion...
         Process::assertRan('bash import.sh');
 
-        // 혹은 프로세스 설정값을 검사...
+        // Or, inspecting the process configuration...
         Process::assertRan(function (PendingProcess $process, ProcessResult $result) {
             return $process->command === 'bash import.sh' &&
                    $process->timeout === 60;
@@ -507,7 +507,7 @@ Process::fake([
 ]);
 ```
 
-만약 종료 코드나 에러 출력을 커스터마이징할 필요가 없다면, 단순히 문자열로 페이크 결과를 지정할 수도 있습니다:
+만약 종료 코드나 에러 출력을 사용자 지정할 필요가 없다면, 단순히 문자열로 페이크 결과를 지정할 수도 있습니다:
 
 ```php
 Process::fake([
@@ -647,9 +647,9 @@ Process::fake([
     'ls *' => 'Test output...',
 ]);
 
-// 페이크 결과 반환...
+// Fake response is returned...
 Process::run('ls -la');
 
-// 예외 발생...
+// An exception is thrown...
 Process::run('bash import.sh');
 ```

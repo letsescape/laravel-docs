@@ -21,13 +21,13 @@
 - [프로그램적으로 명령어 실행](#programmatically-executing-commands)
     - [명령어에서 명령어 호출](#calling-commands-from-other-commands)
 - [시그널 처리](#signal-handling)
-- [스텁(stub) 커스터마이징](#stub-customization)
+- [스텁(stub) 사용자 지정](#stub-customization)
 - [이벤트](#events)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
-Artisan은 Laravel에 기본 포함된 커맨드 라인 인터페이스입니다. Artisan은 애플리케이션의 루트에 `artisan` 스크립트로 존재하며, 애플리케이션을 구축하는 동안 도움을 줄 수 있는 다양한 유용한 명령어를 제공합니다. 사용 가능한 모든 Artisan 명령어 목록을 확인하려면 `list` 명령어를 사용할 수 있습니다:
+Artisan은 Laravel에 기본 포함된 command line interface(CLI)입니다. Artisan은 애플리케이션 루트에 있는 `artisan` 스크립트로 제공되며, 애플리케이션을 구축하는 동안 도움이 되는 다양한 명령어를 제공합니다. 사용 가능한 모든 Artisan 명령어 목록을 확인하려면 `list` 명령어를 사용하면 됩니다:
 
 ```shell
 php artisan list
@@ -42,14 +42,14 @@ php artisan help migrate
 <a name="laravel-sail"></a>
 #### Laravel Sail
 
-[Laravel Sail](/docs/12.x/sail)을 로컬 개발 환경으로 사용하는 경우, Artisan 명령어를 실행할 땐 반드시 `sail` 커맨드를 사용해야 합니다. Sail은 애플리케이션의 Docker 컨테이너 내에서 Artisan 명령어를 실행합니다:
+[Laravel Sail](/docs/12.x/sail)을 로컬 개발 환경으로 사용하는 경우 Artisan 명령어를 실행할 때 `sail` 명령을 사용해야 합니다. Sail은 애플리케이션의 Docker 컨테이너 안에서 Artisan 명령어를 실행합니다:
 
 ```shell
 ./vendor/bin/sail artisan list
 ```
 
 <a name="tinker"></a>
-### Tinker (REPL)
+### Tinker
 
 [Laravel Tinker](https://github.com/laravel/tinker)는 Laravel 프레임워크용 강력한 REPL(Read–Eval–Print Loop)로, [PsySH](https://github.com/bobthecow/psysh) 패키지를 기반으로 합니다.
 
@@ -68,7 +68,7 @@ composer require laravel/tinker
 <a name="usage"></a>
 #### 사용법
 
-Tinker를 통해 Eloquent 모델, 작업(jobs), 이벤트 등 애플리케이션 전체와 커맨드 라인에서 상호작용할 수 있습니다. Tinker 환경에 진입하려면 `tinker` Artisan 명령어를 실행하세요.
+Tinker를 사용하면 Eloquent 모델, job, 이벤트 등 애플리케이션 전체와 명령줄에서 상호작용할 수 있습니다. Tinker 환경에 들어가려면 `tinker` Artisan 명령어를 실행하세요.
 
 ```shell
 php artisan tinker
@@ -84,7 +84,7 @@ php artisan vendor:publish --provider="Laravel\Tinker\TinkerServiceProvider"
 > `dispatch` 헬퍼 함수와 `Dispatchable` 클래스의 `dispatch` 메서드는 잡을 큐에 넣기 위해 가비지 컬렉션에 의존합니다. 따라서 Tinker에서 잡을 디스패치할 때는 `Bus::dispatch`나 `Queue::push`를 사용해야 합니다.
 
 <a name="command-allow-list"></a>
-#### 허용 명령어 목록(Allow List)
+#### 허용 명령어 목록
 
 Tinker는 쉘 내에서 실행할 수 있는 Artisan 명령어를 "허용 목록"을 통해 제한합니다. 기본적으로 `clear-compiled`, `down`, `env`, `inspire`, `migrate`, `migrate:install`, `up`, `optimize` 명령어만 실행할 수 있습니다. 더 많은 명령어를 허용하려면 `tinker.php` 설정 파일의 `commands` 배열에 추가하세요.
 
@@ -95,9 +95,9 @@ Tinker는 쉘 내에서 실행할 수 있는 Artisan 명령어를 "허용 목록
 ```
 
 <a name="classes-that-should-not-be-aliased"></a>
-#### 에일리어싱하지 않을 클래스 지정
+#### 별칭 처리하지 않을 클래스 지정
 
-일반적으로 Tinker는 상호작용하는 클래스들을 자동으로 에일리어싱(별칭)합니다. 하지만 특정 클래스는 절대로 에일리어싱하지 않도록 제한할 수도 있습니다. `tinker.php` 설정 파일의 `dont_alias` 배열에 클래스를 추가해 지정할 수 있습니다:
+일반적으로 Tinker는 상호작용하는 클래스를 자동으로 별칭 처리(alias)합니다. 하지만 특정 클래스는 절대로 별칭 처리하지 않도록 제한할 수도 있습니다. `tinker.php` 설정 파일의 `dont_alias` 배열에 클래스를 추가하면 됩니다:
 
 ```php
 'dont_alias' => [
@@ -106,9 +106,9 @@ Tinker는 쉘 내에서 실행할 수 있는 Artisan 명령어를 "허용 목록
 ```
 
 <a name="writing-commands"></a>
-## 명령어 작성
+## 명령어 작성 (Writing Commands)
 
-Artisan이 기본 제공하는 명령어 외에도, 직접 커스텀 명령어를 만들 수 있습니다. 명령어 클래스는 보통 `app/Console/Commands` 디렉터리에 저장하지만, [다른 디렉터리에서도 Artisan 명령어를 스캔](#registering-commands)하도록 지정하면 자유롭게 경로를 설정할 수 있습니다.
+Artisan이 기본 제공하는 명령어 외에도 직접 사용자 지정 명령어를 만들 수 있습니다. 명령어 클래스는 보통 `app/Console/Commands` 디렉터리에 저장하지만, [다른 디렉터리도 Artisan 명령어 대상으로 스캔](#registering-commands)하도록 지정하면 자유롭게 경로를 정할 수 있습니다.
 
 <a name="generating-commands"></a>
 ### 명령어 생성
@@ -165,7 +165,7 @@ class SendEmails extends Command
 > 코드 재사용성을 높이기 위해, 콘솔 명령어는 최대한 간결하게 작성하고 애플리케이션 서비스에 실제 작업을 위임하는 것이 좋습니다. 위 예제에서 이메일 전송의 “실제 작업”을 서비스 클래스에 맡긴 모습을 볼 수 있습니다.
 
 <a name="exit-codes"></a>
-#### 종료 코드(Exit Codes)
+#### 종료 코드
 
 `handle` 메서드에서 아무것도 반환하지 않고 정상적으로 명령어가 실행된 경우, 명령어는 ‘0’ 종료 코드(성공)를 반환합니다. 하지만 필요하다면 `handle` 메서드에서 직접 정수형 반환값을 지정해 종료 코드를 컨트롤할 수 있습니다:
 
@@ -259,7 +259,7 @@ php artisan mail:send 1 --isolated=12
 <a name="lock-id"></a>
 #### 락 ID 지정
 
-기본적으로 라라벨은 명령어 이름을 기반으로 락에 사용할 문자열 키를 생성합니다. 하지만 `isolatableId` 메서드를 명령어 클래스에 정의하면, 인수나 옵션 값을 포함하여 이 키를 커스터마이징할 수 있습니다:
+기본적으로 라라벨은 명령어 이름을 기반으로 락에 사용할 문자열 키를 생성합니다. 하지만 `isolatableId` 메서드를 명령어 클래스에 정의하면, 인수나 옵션 값을 포함하여 이 키를 사용자 지정할 수 있습니다:
 
 ```php
 /**
@@ -274,14 +274,14 @@ public function isolatableId(): string
 <a name="lock-expiration-time"></a>
 #### 락 만료 시간
 
-기본적으로 isolation 락은 명령어가 종료될 때 만료되며, 만약 중단 등으로 정상 종료되지 않으면 1시간 후 만료됩니다. 락 만료 시간을 커스터마이징하려면 `isolationLockExpiresAt` 메서드를 정의하세요:
+기본적으로 isolation 락은 명령어가 종료될 때 만료되며, 만약 중단 등으로 정상 종료되지 않으면 1시간 후 만료됩니다. 락 만료 시간을 사용자 지정하려면 `isolationLockExpiresAt` 메서드를 정의하세요:
 
 ```php
 use DateTimeInterface;
 use DateInterval;
 
 /**
- * 락의 만료 시점 반환
+ * Determine when an isolation lock expires for the command.
  */
 public function isolationLockExpiresAt(): DateTimeInterface|DateInterval
 {
@@ -290,7 +290,7 @@ public function isolationLockExpiresAt(): DateTimeInterface|DateInterval
 ```
 
 <a name="defining-input-expectations"></a>
-## 입력 기대 정의
+## 입력 기대 정의 (Defining Input Expectations)
 
 콘솔 명령어 작성 시에는, 사용자의 입력을 인수(argument)나 옵션(option)으로 받아야 할 때가 많습니다. Laravel은 명령어의 `signature` 속성을 통해 입력의 이름, 인수, 옵션을 라우트 시그니처와 유사한 문법으로 일관성 있게 정의할 수 있도록 지원합니다.
 
@@ -311,10 +311,10 @@ protected $signature = 'mail:send {user}';
 인수를 선택적으로 만들거나 기본값을 설정할 수도 있습니다:
 
 ```php
-// 선택적 인수
+// Optional argument...
 'mail:send {user?}'
 
-// 선택적 인수 + 기본값
+// Optional argument with default value...
 'mail:send {user=foo}'
 ```
 
@@ -457,7 +457,7 @@ class SendEmails extends Command implements PromptsForMissingInput
 }
 ```
 
-Laravel이 필수 인수를 직접 받아야 할 때, 인수 이름이나 설명에 기반하여 자동으로 질문을 생성해 사용자의 입력을 요청합니다. 질문을 커스터마이징하고 싶다면 `promptForMissingArgumentsUsing` 메서드를 구현하여, 인수 이름을 키로 가지는 질문 문자열의 배열을 반환하세요:
+Laravel이 필수 인수를 직접 받아야 할 때, 인수 이름이나 설명에 기반하여 자동으로 질문을 생성해 사용자의 입력을 요청합니다. 질문을 사용자 지정하고 싶다면 `promptForMissingArgumentsUsing` 메서드를 구현하여, 인수 이름을 키로 가지는 질문 문자열의 배열을 반환하세요:
 
 ```php
 /**
@@ -525,7 +525,7 @@ protected function afterPromptingForMissingArguments(InputInterface $input, Outp
 ```
 
 <a name="command-io"></a>
-## 명령어 I/O
+## 명령어 I/O (Command I/O)
 
 <a name="retrieving-input"></a>
 ### 입력값 가져오기
@@ -551,10 +551,10 @@ $arguments = $this->arguments();
 옵션도 마찬가지로 단일 옵션 값을 `option`으로, 전체 옵션을 배열로는 `options` 메서드로 얻을 수 있습니다:
 
 ```php
-// 특정 옵션 값 조회
+// Retrieve a specific option...
 $queueName = $this->option('queue');
 
-// 모든 옵션값 배열로 조회
+// Retrieve all options as an array...
 $options = $this->options();
 ```
 
@@ -610,7 +610,7 @@ if ($this->confirm('Do you wish to continue?', true)) {
 ```
 
 <a name="auto-completion"></a>
-#### 자동완성(Auto-Completion)
+#### 자동완성
 
 `anticipate` 메서드는 사용자가 입력 중일 때 자동완성 힌트를 제공할 수 있습니다. 사용자는 힌트와 무관하게 아무 값이나 입력할 수 있습니다:
 
@@ -688,10 +688,10 @@ $this->line('Display this on the screen');
 공백 줄을 생성하고 싶으면 `newLine` 메서드를 사용하세요:
 
 ```php
-// 한 줄 공백
+// Write a single blank line...
 $this->newLine();
 
-// 세 줄 공백
+// Write three blank lines...
 $this->newLine(3);
 ```
 
@@ -710,7 +710,7 @@ $this->table(
 ```
 
 <a name="progress-bars"></a>
-#### 진행률 표시줄(Progress Bar)
+#### 진행률 표시줄
 
 실행 시간이 긴 작업에서는 진행 상황을 시각적으로 보여주면 좋습니다. `withProgressBar`를 사용하면, 지정한 이터러블 값을 순회할 때마다 진행률이 자동으로 표시됩니다:
 
@@ -744,7 +744,7 @@ $bar->finish();
 > 더 고급 기능이 필요하다면 [Symfony Progress Bar 컴포넌트 공식 문서](https://symfony.com/doc/current/components/console/helpers/progressbar.html)를 참고하세요.
 
 <a name="registering-commands"></a>
-## 명령어 등록
+## 명령어 등록 (Registering Commands)
 
 기본적으로 Laravel은 `app/Console/Commands` 디렉터리에 있는 모든 명령어를 자동으로 등록합니다. 하지만 필요에 따라 `bootstrap/app.php` 파일의 `withCommands` 메서드를 이용해 다른 디렉터리도 스캔하도록 지정할 수 있습니다:
 
@@ -767,7 +767,7 @@ use App\Domain\Orders\Commands\SendEmails;
 Artisan이 부팅되면, 애플리케이션의 모든 명령어가 [서비스 컨테이너](/docs/12.x/container)에서 해결(resolve)되어 Artisan에 등록됩니다.
 
 <a name="programmatically-executing-commands"></a>
-## 프로그램적으로 명령어 실행
+## 프로그램적으로 명령어 실행 (Programmatically Executing Commands)
 
 CLI 환경이 아닌 곳에서 Artisan 명령어를 실행하고자 할 때도 있습니다. 예를 들어 라우트나 컨트롤러 내부에서 Artisan 명령어를 호출하고 싶을 때, `Artisan` 파사드의 `call` 메서드를 사용할 수 있습니다. `call` 메서드는 첫 번째 인수로 명령어 시그니처명 또는 클래스명, 두 번째 인수로 파라미터 배열을 받으며, 반환값은 종료 코드입니다:
 
@@ -871,7 +871,7 @@ $this->callSilently('mail:send', [
 ```
 
 <a name="signal-handling"></a>
-## 시그널 처리
+## 시그널 처리 (Signal Handling)
 
 운영체제는 실행 중인 프로세스에 시그널을 보낼 수 있습니다. 예를 들어 `SIGTERM`은 프로그램에 종료를 요청할 때 사용됩니다. Artisan 콘솔 명령어에서 이런 시그널을 감지하고 특정 코드를 실행하려면 `trap` 메서드를 사용할 수 있습니다:
 
@@ -900,7 +900,7 @@ $this->trap([SIGTERM, SIGQUIT], function (int $signal) {
 ```
 
 <a name="stub-customization"></a>
-## 스텁(stub) 커스터마이징
+## 스텁(stub) 사용자 지정 (Stub Customization)
 
 Artisan 콘솔의 `make` 명령어들은 컨트롤러, 잡(jobs), 마이그레이션, 테스트 등 다양한 클래스를 생성하는 데 사용됩니다. 이 클래스 생성은 미리 작성된 "stub" 파일을 기반으로, 입력에 따라 값이 채워져 만들어집니다. 보다 세밀하게 Artisan에서 생성하는 파일을 조정하고 싶다면, `stub:publish` 명령어로 가장 일반적인 스텁파일을 애플리케이션으로 복사해 수정할 수 있습니다:
 
@@ -911,7 +911,7 @@ php artisan stub:publish
 퍼블리시된 스텁은 애플리케이션 루트에 `stubs` 디렉터리로 저장됩니다. 이 파일들을 수정하면, 해당 `make` 명령어로 생성하는 클래스에 곧바로 반영됩니다.
 
 <a name="events"></a>
-## 이벤트
+## 이벤트 (Events)
 
 Artisan은 명령어 실행 시 세 가지 이벤트를 디스패치합니다: `Illuminate\Console\Events\ArtisanStarting`, `Illuminate\Console\Events\CommandStarting`, `Illuminate\Console\Events\CommandFinished`.  
 `ArtisanStarting` 이벤트는 Artisan이 시작하는 즉시 디스패치됩니다. 이어서 명령어 실행 직전에는 `CommandStarting`, 명령어 실행이 끝나면 `CommandFinished` 이벤트가 각각 디스패치됩니다.

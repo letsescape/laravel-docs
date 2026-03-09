@@ -3,8 +3,8 @@
 - [소개](#csrf-introduction)
 - [CSRF 요청 방지](#preventing-csrf-requests)
     - [URI 제외하기](#csrf-excluding-uris)
-- [X-CSRF-Token](#csrf-x-csrf-token)
-- [X-XSRF-Token](#csrf-x-xsrf-token)
+- [X-CSRF-TOKEN (X-CSRF-TOKEN)](#csrf-x-csrf-token)
+- [X-XSRF-TOKEN (X-XSRF-TOKEN)](#csrf-x-xsrf-token)
 
 <a name="csrf-introduction"></a>
 ## 소개 (Introduction)
@@ -90,7 +90,7 @@ Route::get('/token', function (Request $request) {
 > 편의를 위해, [테스트 실행](/docs/12.x/testing) 시에는 CSRF 미들웨어가 모든 라우트에서 자동으로 비활성화됩니다.
 
 <a name="csrf-x-csrf-token"></a>
-## X-CSRF-TOKEN
+## X-CSRF-TOKEN (X-CSRF-TOKEN)
 
 CSRF 토큰을 `POST` 파라미터로 확인하는 것 외에도, `Illuminate\Foundation\Http\Middleware\ValidateCsrfToken` 미들웨어(기본적으로 `web` 미들웨어 그룹에 포함)는 `X-CSRF-TOKEN` 요청 헤더 값을 검사합니다. 아래와 같이 토큰을 HTML `meta` 태그에 저장할 수도 있습니다:
 
@@ -109,7 +109,7 @@ $.ajaxSetup({
 ```
 
 <a name="csrf-x-xsrf-token"></a>
-## X-XSRF-TOKEN
+## X-XSRF-TOKEN (X-XSRF-TOKEN)
 
 Laravel은 현재 CSRF 토큰 값을 암호화된 `XSRF-TOKEN` 쿠키에 저장해서, 프레임워크가 생성하는 각 응답마다 함께 전송합니다. 이 쿠키 값을 읽어 `X-XSRF-TOKEN` 요청 헤더로 설정할 수 있습니다.
 

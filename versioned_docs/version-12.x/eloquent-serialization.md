@@ -20,7 +20,7 @@ Laravel로 API를 개발할 때, 모델과 연관관계(relationships)를 배열
 ## 모델과 컬렉션 직렬화 (Serializing Models and Collections)
 
 <a name="serializing-to-arrays"></a>
-### 배열로 직렬화 (Serializing to Arrays)
+### 배열로 직렬화
 
 모델과 로드된 [연관관계](/docs/12.x/eloquent-relationships)를 배열로 변환하려면 `toArray` 메서드를 사용합니다. 이 메서드는 재귀적으로 동작하여 모든 속성과 연관관계(연관관계의 연관관계까지 포함)를 배열로 변환합니다:
 
@@ -49,7 +49,7 @@ return $users->toArray();
 ```
 
 <a name="serializing-to-json"></a>
-### JSON으로 직렬화 (Serializing to JSON)
+### JSON으로 직렬화
 
 모델을 JSON으로 변환하려면 `toJson` 메서드를 사용합니다. `toArray`와 마찬가지로, `toJson`도 재귀적으로 모든 속성과 연관관계를 JSON으로 변환합니다. 또한 [PHP에서 지원하는](https://secure.php.net/manual/en/function.json-encode.php) 모든 JSON 인코딩 옵션을 지정할 수 있습니다:
 
@@ -97,7 +97,7 @@ use Illuminate\Database\Eloquent\Model;
 class User extends Model
 {
     /**
-     * 직렬화 시 숨겨져야 할 속성.
+     * The attributes that should be hidden for serialization.
      *
      * @var array<string>
      */
@@ -120,7 +120,7 @@ use Illuminate\Database\Eloquent\Model;
 class User extends Model
 {
     /**
-     * 배열에 표시되어야 할 속성.
+     * The attributes that should be visible in arrays.
      *
      * @var array
      */
@@ -171,7 +171,7 @@ use Illuminate\Database\Eloquent\Model;
 class User extends Model
 {
     /**
-     * 사용자가 관리자인지 여부를 반환.
+     * Determine if the user is an administrator.
      */
     protected function isAdmin(): Attribute
     {
@@ -194,7 +194,7 @@ use Illuminate\Database\Eloquent\Model;
 class User extends Model
 {
     /**
-     * 배열 형태에 추가할 접근자의 목록.
+     * The accessors to append to the model's array form.
      *
      * @var array
      */
@@ -227,13 +227,13 @@ return $user->withoutAppends()->toArray();
 ## 날짜 직렬화 (Date Serialization)
 
 <a name="customizing-the-default-date-format"></a>
-#### 기본 날짜 포맷 커스터마이즈
+#### 기본 날짜 포맷 사용자 지정
 
-기본 날짜 직렬화 형식을 커스터마이즈하려면 `serializeDate` 메서드를 오버라이드하면 됩니다. 이 메서드는 데이터베이스에 날짜가 저장되는 형식에는 영향을 주지 않습니다:
+기본 날짜 직렬화 형식을 사용자 지정하려면 `serializeDate` 메서드를 오버라이드하면 됩니다. 이 메서드는 데이터베이스에 날짜가 저장되는 형식에는 영향을 주지 않습니다:
 
 ```php
 /**
- * 배열 / JSON 직렬화를 위한 날짜 포맷 정의.
+ * Prepare a date for array / JSON serialization.
  */
 protected function serializeDate(DateTimeInterface $date): string
 {
@@ -242,7 +242,7 @@ protected function serializeDate(DateTimeInterface $date): string
 ```
 
 <a name="customizing-the-date-format-per-attribute"></a>
-#### 각 속성별 날짜 포맷 커스터마이즈
+#### 각 속성별 날짜 포맷 사용자 지정
 
 특정 일러퀀트 날짜 속성별로 직렬화 포맷을 정의하려면, 모델의 [캐스트 선언](/docs/12.x/eloquent-mutators#attribute-casting)에서 날짜 포맷을 지정하면 됩니다:
 

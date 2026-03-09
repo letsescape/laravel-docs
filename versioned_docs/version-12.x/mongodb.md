@@ -1,4 +1,4 @@
-# MongoDB
+# MongoDB (MongoDB)
 
 - [소개](#introduction)
 - [설치](#installation)
@@ -25,7 +25,7 @@ composer require mongodb/laravel-mongodb
 ## 설치 (Installation)
 
 <a name="mongodb-driver"></a>
-### MongoDB 드라이버 (MongoDB Driver)
+### MongoDB 드라이버
 
 MongoDB 데이터베이스에 연결하려면 `mongodb` PHP 확장(extension)이 필요합니다. 로컬 개발 환경에서 [Laravel Herd](https://herd.laravel.com)를 사용하거나 `php.new`로 PHP를 설치한 경우, 이미 이 확장이 시스템에 설치되어 있습니다. 하지만 수동으로 확장을 설치해야 한다면, PECL을 통해 설치할 수 있습니다:
 
@@ -36,7 +36,7 @@ pecl install mongodb
 MongoDB PHP 확장 설치에 관한 자세한 내용은 [MongoDB PHP 확장 설치 가이드](https://www.php.net/manual/en/mongodb.installation.php)를 참고하세요.
 
 <a name="starting-a-mongodb-server"></a>
-### MongoDB 서버 시작하기 (Starting a MongoDB Server)
+### MongoDB 서버 시작하기
 
 MongoDB Community Server는 로컬에서 MongoDB를 실행할 때 사용할 수 있으며, Windows, macOS, Linux 또는 Docker 컨테이너로 설치 가능합니다. MongoDB 설치 방법은 [공식 MongoDB Community 설치 가이드](https://docs.mongodb.com/manual/administration/install-community/)를 참고하세요.
 
@@ -57,7 +57,7 @@ MONGODB_DATABASE="laravel_app"
 ```
 
 <a name="install-the-laravel-mongodb-package"></a>
-### Laravel MongoDB 패키지 설치 (Install the Laravel MongoDB Package)
+### Laravel MongoDB 패키지 설치
 
 마지막으로, Composer를 사용해 Laravel MongoDB 패키지를 설치하세요:
 
