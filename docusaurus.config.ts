@@ -56,10 +56,6 @@ const config: Config = {
         includeCurrentVersion: false,
         lastVersion: '12.x',
         versions: {
-          'master': {
-            label: 'master',
-            path: 'master',
-          },
           '12.x': {
             label: '12.x',
             path: '12.x',
