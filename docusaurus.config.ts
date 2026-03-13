@@ -5,6 +5,8 @@ import autoLanguagePlugin from './src/remark/auto-language-plugin';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+const siteName = 'Laravel 한국어 문서';
+
 const config: Config = {
   title: 'Laravel',
   tagline: '라라벨',
@@ -19,7 +21,7 @@ const config: Config = {
       innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'Laravel 한국어 문서',
+        name: siteName,
         url: 'https://laravel.chanhyung.kim',
         potentialAction: {
           '@type': 'SearchAction',
@@ -157,7 +159,7 @@ const config: Config = {
     // og:image/twitter:image는 themeConfig.image가 기본값으로 제공하며, 페이지별로 Head에서 오버라이드
     metadata: [
       {property: 'og:type', content: 'website'},
-      {property: 'og:site_name', content: 'Laravel 한국어 문서'},
+      {property: 'og:site_name', content: siteName},
       {property: 'og:image:width', content: '1200'},
       {property: 'og:image:height', content: '630'},
       {name: 'twitter:card', content: 'summary_large_image'},
