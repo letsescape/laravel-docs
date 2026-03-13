@@ -5,10 +5,35 @@ import autoLanguagePlugin from './src/remark/auto-language-plugin';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+const siteName = 'Laravel 한국어 문서';
+
 const config: Config = {
   title: 'Laravel',
   tagline: '라라벨',
   favicon: 'img/favicon.png',
+
+  headTags: [
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'application/ld+json',
+      },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: siteName,
+        url: 'https://laravel.chanhyung.kim',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://laravel.chanhyung.kim/search?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      }),
+    },
+  ],
 
   // Set the production url of your site here
   url: 'https://laravel.chanhyung.kim',
@@ -120,8 +145,8 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/logo.png',
+    // OG 이미지 기본값 (문서 페이지에 적용)
+    image: 'img/laravel-docs.png',
 
     // 다크 모드 설정
     colorMode: {
@@ -134,6 +159,9 @@ const config: Config = {
     // og:image/twitter:image는 themeConfig.image가 기본값으로 제공하며, 페이지별로 Head에서 오버라이드
     metadata: [
       {property: 'og:type', content: 'website'},
+      {property: 'og:site_name', content: siteName},
+      {property: 'og:image:width', content: '1200'},
+      {property: 'og:image:height', content: '630'},
       {name: 'twitter:card', content: 'summary_large_image'},
     ],
 
