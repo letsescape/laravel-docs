@@ -41,6 +41,8 @@ export default function Home(): ReactNode {
         <meta property="og:site_name" content={siteConfig.title} />
         <meta property="og:image" content={`${url}/img/laravel-home.png`} />
         <meta property="og:image:alt" content={imageAlt} />
+        <meta property="og:image:width" content="2400" />
+        <meta property="og:image:height" content="1260" />
 
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
