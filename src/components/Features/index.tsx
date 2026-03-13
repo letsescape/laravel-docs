@@ -73,8 +73,8 @@ export default function Features(): ReactNode {
     <section className={styles.features}>
       <div className="container">
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>생태계</h2>
-          <h3 className={styles.sectionSubtitle}>강력한 생태계를 갖춘 PHP 프레임워크</h3>
+          <span className={styles.sectionLabel}>생태계</span>
+          <h2 className={styles.sectionTitle}>강력한 생태계를 갖춘 PHP 프레임워크</h2>
           <p className={styles.sectionDescription}>
             라라벨은 모든 현대적인 웹 애플리케이션에 필요한 공통 기능에 대한 우아한 솔루션을 기본 제공합니다.
             자체 패키지는 특정 문제에 대한 의견이 담긴 솔루션을 제공하므로 바퀴를 다시 발명할 필요가 없습니다.
@@ -85,7 +85,8 @@ export default function Features(): ReactNode {
           {packages.map((pkg, idx) => (
             <Link key={idx} to={pkg.link} className={styles.packageItem}>
               <span className={styles.packageName}>
-                {pkg.name} {pkg.free && <span className={styles.freeTag}>무료</span>}
+                {pkg.name}
+                {pkg.free && <span className={styles.freeTag}>무료</span>}
               </span>
               <span className={styles.packageDescription}>{pkg.description}</span>
             </Link>
@@ -93,11 +94,16 @@ export default function Features(): ReactNode {
         </div>
 
         <div className={styles.starterKitsSection}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionLabel}>스타터 킷</span>
+            <h2 className={styles.sectionTitle}>빠르게 시작하기</h2>
+          </div>
           <div className={styles.starterKitsGrid}>
             {starterKits.map((kit, idx) => (
               <div key={idx} className={styles.starterKitCard}>
                 <h4 className={styles.starterKitTitle}>
-                  {kit.title} {kit.free && <span className={styles.freeTag}>무료</span>}
+                  {kit.title}
+                  {kit.free && <span className={styles.freeTag}>무료</span>}
                 </h4>
                 <p className={styles.starterKitDescription}>{kit.description}</p>
                 <div className={styles.starterKitLinks}>
@@ -110,6 +116,7 @@ export default function Features(): ReactNode {
                       className={linkIdx === 0 ? styles.primaryLink : styles.secondaryLink}
                     >
                       {link.text}
+                      <span className={styles.linkArrow}>→</span>
                     </a>
                   ))}
                 </div>
@@ -125,6 +132,7 @@ export default function Features(): ReactNode {
               </p>
               <Link to="/docs/스타터-킷" className={styles.learnMoreLink}>
                 스타터 킷에 대해 더 알아보기
+                <span className={styles.linkArrow}>→</span>
               </Link>
             </div>
           </div>

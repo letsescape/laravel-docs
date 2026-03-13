@@ -23,6 +23,9 @@
 
   /* SVG logo color variables */
   --svg-logo-color: #f53003;
+
+  /* RGB components for rgba() usage */
+  --ifm-color-primary-rgb: 245, 48, 3;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -43,6 +46,9 @@
 
   /* SVG logo color variables for dark mode */
   --svg-logo-color: #f61500;
+
+  /* RGB components for rgba() usage in dark mode */
+  --ifm-color-primary-rgb: 246, 21, 0;
 }
 
 /* Logo styling */
@@ -50,61 +56,19 @@
   height: 30px;
 }
 
-/* SVG logo styling using CSS variables */
+/* SVG logo styling for navbar and footer */
 .navbar__logo svg,
-.footer__logo svg,
-.heroLogo svg,
-.hero-svg-logo {
+.footer__logo svg {
   color: var(--svg-logo-color);
 }
 
-/* SVG path styling */
 .navbar__logo svg path,
-.footer__logo svg path,
-.heroLogo svg path,
-.hero-svg-logo path,
-svg path[fill="currentColor"] {
+.footer__logo svg path {
   fill: var(--svg-logo-color) !important;
 }
 
-/* SVG logo styling based on browser inspection */
-svg[width="1280"][height="308"][fill="none"] path {
-  fill: var(--svg-logo-color) !important;
-}
-
-/* More specific selectors for SVG logo */
-svg[width][height][fill="none"] path[fill="currentColor"] {
-  fill: var(--svg-logo-color) !important;
-}
-
-/* Target SVGs with inline width and height attributes */
-svg[width][height] path {
-  fill: var(--svg-logo-color) !important;
-}
-
-/* Target SVG root elements */
-svg:root path[fill="currentColor"] {
-  fill: var(--svg-logo-color) !important;
-}
-
-/* Target SVG elements with specific attributes */
-svg[width="1280"][height="308"] {
-  color: var(--svg-logo-color) !important;
-}
-
-/* Dark mode SVG styling */
-[data-theme='dark'] svg[width="1280"][height="308"] {
-  color: var(--svg-logo-color) !important;
-}
-
-[data-theme='dark'] svg.text-laravel-red {
-  color: var(--svg-logo-color) !important;
-}
-
-/* Class-based selectors for SVG logo */
 .navbar-logo svg path,
-.footer-logo svg path,
-.heroLogo svg path {
+.footer-logo svg path {
   fill: var(--svg-logo-color) !important;
 }
 
@@ -148,31 +112,6 @@ svg[width="1280"][height="308"] {
 
 .footer__bottom {
   margin-bottom: 1.5rem;
-}
-
-/* Hero SVG logo styling */
-.hero-svg-logo {
-  color: var(--svg-logo-color);
-}
-
-/* SVG class-based styling */
-.text-laravel-red {
-  color: var(--svg-logo-color) !important;
-}
-
-/* Direct SVG element styling */
-svg[class*="text-laravel-red"] {
-  color: var(--svg-logo-color) !important;
-}
-
-/* Ensure all paths in SVGs with text-laravel-red class use the theme color */
-svg[class*="text-laravel-red"] path {
-  fill: var(--svg-logo-color) !important;
-}
-
-/* Override for specific SVG paths that should not be colored */
-svg:not(.navbar__logo):not(.footer__logo) path:not([fill="currentColor"]) {
-  fill: none !important;
 }
 
 /* Button and link hover effects */
