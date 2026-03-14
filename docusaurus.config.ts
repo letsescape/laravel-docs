@@ -7,7 +7,7 @@ import autoLanguagePlugin from './src/remark/auto-language-plugin';
 
 const config: Config = {
   title: 'Laravel',
-  tagline: '라라벨 - 웹 장인을 위한 PHP 프레임워크',
+  tagline: '라라벨',
   favicon: 'img/favicon.png',
 
   // Set the production url of your site here
