@@ -38,8 +38,7 @@ export default function Home(): ReactNode {
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={pageUrl} />
-        <meta property="og:site_name" content={siteConfig.title} />
-        {/* 메인 페이지 전용 OG 이미지 (laravel-home.png: 2400x1260, 문서 페이지 기본값: 1200x630) */}
+        {/* 메인 페이지 전용 OG 이미지 - 문서 페이지 기본값(themeConfig.image)을 오버라이드 */}
         <meta property="og:image" content={`${url}/img/laravel-home.png`} />
         <meta property="og:image:alt" content={imageAlt} />
         <meta property="og:image:width" content="2400" />

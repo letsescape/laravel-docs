@@ -160,8 +160,6 @@ const config: Config = {
     metadata: [
       {property: 'og:type', content: 'website'},
       {property: 'og:site_name', content: siteName},
-      {property: 'og:image:width', content: '1200'},
-      {property: 'og:image:height', content: '630'},
       {name: 'twitter:card', content: 'summary_large_image'},
     ],
 
