@@ -1,8 +1,10 @@
-import React from 'react';
+import React, {lazy, Suspense} from 'react';
 import Head from '@docusaurus/Head';
 import Translate, {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import ChatBot from '@site/src/components/ChatBot';
+import ChatBotErrorBoundary from '@site/src/components/ChatBot/ChatBotErrorBoundary';
+
+const ChatBot = lazy(() => import('@site/src/components/ChatBot'));
 
 function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactElement {
   const {siteConfig, i18n} = useDocusaurusContext();
@@ -55,7 +57,11 @@ function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactEle
         </div>
       )}
       {children}
-      <ChatBot />
+      <ChatBotErrorBoundary>
+        <Suspense fallback={null}>
+          <ChatBot />
+        </Suspense>
+      </ChatBotErrorBoundary>
     </>
   );
 }
