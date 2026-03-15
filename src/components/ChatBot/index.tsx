@@ -10,10 +10,9 @@ interface Message {
   isError?: boolean;
 }
 
-const CHATBOT_API_URL = 'https://jbuch2jbxl.execute-api.ap-northeast-2.amazonaws.com/laravel-docs';
-
 export default function ChatBot(): ReactNode {
-  const {i18n} = useDocusaurusContext();
+  const {siteConfig, i18n} = useDocusaurusContext();
+  const chatbotApiUrl = siteConfig.customFields?.chatbotApiUrl as string;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -44,7 +43,7 @@ export default function ChatBot(): ReactNode {
     setInput('');
     setIsLoading(true);
 
-    fetch(CHATBOT_API_URL, {
+    fetch(chatbotApiUrl, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({

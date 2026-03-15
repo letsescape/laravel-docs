@@ -24,6 +24,11 @@ const config: Config = {
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
+  customFields: {
+    chatbotApiUrl: process.env.CHATBOT_API_URL
+      || 'https://jbuch2jbxl.execute-api.ap-northeast-2.amazonaws.com/laravel-docs',
+  },
+
   // MDX 파싱 오류를 무시하도록 설정
   markdown: {
     format: 'detect',
