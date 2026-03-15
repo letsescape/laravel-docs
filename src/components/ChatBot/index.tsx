@@ -49,6 +49,14 @@ export default function ChatBot(): ReactNode {
       body: JSON.stringify({
         message: trimmed,
         locale: i18n.currentLocale,
+        // TODO: Lambda에서 context를 활용하여 현재 페이지 맥락 기반 응답 생성
+        // - pageTitle: 현재 문서 제목으로 관련 섹션 우선 참조
+        // - pagePath: 문서 버전/경로로 정확한 버전의 답변 제공
+        // - 예: "이 페이지에서 설명하는 걸 쉽게 알려줘" 같은 맥락 질문 지원
+        context: {
+          pageTitle: document.title,
+          pagePath: window.location.pathname,
+        },
       }),
     })
       .then(response => {
@@ -93,7 +101,7 @@ export default function ChatBot(): ReactNode {
   );
 
   return (
-    <>
+    <div data-nosnippet data-pagefind-ignore>
       {isOpen && (
         <div className={styles.chatWindow} role="dialog" aria-label="AI Chat">
           <div className={styles.chatHeader}>
@@ -186,6 +194,6 @@ export default function ChatBot(): ReactNode {
           )}
         </svg>
       </button>
-    </>
+    </div>
   );
 }
