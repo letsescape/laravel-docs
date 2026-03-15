@@ -12,29 +12,6 @@ const config: Config = {
   tagline: '라라벨',
   favicon: 'img/favicon.png',
 
-  headTags: [
-    {
-      tagName: 'script',
-      attributes: {
-        type: 'application/ld+json',
-      },
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: siteName,
-        url: 'https://laravel.chanhyung.kim',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: 'https://laravel.chanhyung.kim/search?q={search_term_string}',
-          },
-          'query-input': 'required name=search_term_string',
-        },
-      }),
-    },
-  ],
-
   // Set the production url of your site here
   url: 'https://laravel.chanhyung.kim',
   // Set the /<baseUrl>/ pathname under which your site is served
@@ -151,7 +128,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // OG 이미지 기본값 (문서 페이지에 적용)
+    // OG 이미지 사이트 기본값 (메인 페이지에서는 별도 이미지로 오버라이드)
     image: 'img/laravel-docs.png',
 
     // 다크 모드 설정
