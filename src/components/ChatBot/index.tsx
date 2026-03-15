@@ -10,6 +10,13 @@ interface Message {
   isError?: boolean;
 }
 
+const SUGGESTED_QUESTIONS = [
+  {icon: '\u{1F4D6}', text: 'Eloquent ORM이란?', id: 'chatbot.suggestion.eloquent'},
+  {icon: '\u26A1', text: '라우팅 설정 방법', id: 'chatbot.suggestion.routing'},
+  {icon: '\u{1F527}', text: '마이그레이션 명령어', id: 'chatbot.suggestion.migration'},
+  {icon: '\u{1F510}', text: '인증 시스템 구성', id: 'chatbot.suggestion.auth'},
+];
+
 export default function ChatBot(): ReactNode {
   const {siteConfig, i18n} = useDocusaurusContext();
   const chatbotApiUrl = siteConfig.customFields?.chatbotApiUrl as string;
@@ -34,61 +41,74 @@ export default function ChatBot(): ReactNode {
     }
   }, [isOpen]);
 
+  const sendMessage = useCallback(
+    (text: string) => {
+      setMessages(prev => [...prev, {role: 'user', content: text}]);
+      setInput('');
+      setIsLoading(true);
+
+      fetch(chatbotApiUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          message: text,
+          locale: i18n.currentLocale,
+          // TODO: Lambda에서 context를 활용하여 현재 페이지 맥락 기반 응답 생성
+          // - pageTitle: 현재 문서 제목으로 관련 섹션 우선 참조
+          // - pagePath: 문서 버전/경로로 정확한 버전의 답변 제공
+          // - 예: "이 페이지에서 설명하는 걸 쉽게 알려줘" 같은 맥락 질문 지원
+          context: {
+            pageTitle: document.title,
+            pagePath: window.location.pathname,
+          },
+        }),
+      })
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          const content = data.answer ?? data.message ?? data.response ?? '';
+          if (!content) throw new Error('Empty response');
+          setMessages(prev => [...prev, {role: 'assistant', content}]);
+        })
+        .catch(() => {
+          setMessages(prev => [
+            ...prev,
+            {
+              role: 'assistant',
+              content: translate({
+                id: 'chatbot.errorMessage',
+                message: '죄송합니다. 응답을 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+                description: 'Error message shown when the chatbot API request fails',
+              }),
+              isError: true,
+            },
+          ]);
+        })
+        .finally(() => setIsLoading(false));
+    },
+    [chatbotApiUrl, i18n.currentLocale],
+  );
+
   const handleSubmit = useCallback(() => {
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;
+    sendMessage(trimmed);
+  }, [input, isLoading, sendMessage]);
 
-    const userMessage: Message = {role: 'user', content: trimmed};
-    setMessages(prev => [...prev, userMessage]);
+  const handleSuggestionClick = useCallback(
+    (text: string) => {
+      if (isLoading) return;
+      sendMessage(text);
+    },
+    [isLoading, sendMessage],
+  );
+
+  const handleClear = useCallback(() => {
+    setMessages([]);
     setInput('');
-    setIsLoading(true);
-
-    fetch(chatbotApiUrl, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        message: trimmed,
-        locale: i18n.currentLocale,
-        // TODO: Lambda에서 context를 활용하여 현재 페이지 맥락 기반 응답 생성
-        // - pageTitle: 현재 문서 제목으로 관련 섹션 우선 참조
-        // - pagePath: 문서 버전/경로로 정확한 버전의 답변 제공
-        // - 예: "이 페이지에서 설명하는 걸 쉽게 알려줘" 같은 맥락 질문 지원
-        context: {
-          pageTitle: document.title,
-          pagePath: window.location.pathname,
-        },
-      }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        const content = data.answer ?? data.message ?? data.response ?? '';
-        if (!content) {
-          throw new Error('Empty response');
-        }
-        const botMessage: Message = {role: 'assistant', content};
-        setMessages(prev => [...prev, botMessage]);
-      })
-      .catch(() => {
-        const errorMessage: Message = {
-          role: 'assistant',
-          content: translate({
-            id: 'chatbot.errorMessage',
-            message: '죄송합니다. 응답을 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-            description: 'Error message shown when the chatbot API request fails',
-          }),
-          isError: true,
-        };
-        setMessages(prev => [...prev, errorMessage]);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [input, isLoading, i18n.currentLocale]);
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -106,27 +126,66 @@ export default function ChatBot(): ReactNode {
         <div className={styles.chatWindow} role="dialog" aria-label="AI Chat">
           <div className={styles.chatHeader}>
             <span className={styles.chatHeaderTitle}>Laravel AI Assistant</span>
-            <button
-              className={styles.chatCloseButton}
-              onClick={() => setIsOpen(false)}
-              aria-label="Close chat"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+            <div className={styles.chatHeaderActions}>
+              {messages.length > 0 && (
+                <button
+                  className={styles.chatClearButton}
+                  onClick={handleClear}
+                  aria-label={translate({
+                    id: 'chatbot.clearChat',
+                    message: '대화 초기화',
+                    description: 'Clear chat history button label',
+                  })}
+                  title={translate({
+                    id: 'chatbot.clearChat',
+                    message: '대화 초기화',
+                    description: 'Clear chat history button tooltip',
+                  })}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                  </svg>
+                </button>
+              )}
+              <button
+                className={styles.chatCloseButton}
+                onClick={() => setIsOpen(false)}
+                aria-label="Close chat"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className={styles.chatMessages}>
             {messages.length === 0 && (
-              <div className={clsx(styles.message, styles.botMessage)}>
-                {translate({
-                  id: 'chatbot.welcomeMessage',
-                  message: 'Laravel에 대해 궁금한 점을 질문해주세요!',
-                  description: 'Welcome message shown when the chatbot is first opened',
-                })}
-              </div>
+              <>
+                <div className={clsx(styles.message, styles.botMessage)}>
+                  {translate({
+                    id: 'chatbot.welcomeMessage',
+                    message: 'Laravel에 대해 궁금한 점을 질문해주세요!',
+                    description: 'Welcome message shown when the chatbot is first opened',
+                  })}
+                </div>
+                <div className={styles.suggestions}>
+                  {SUGGESTED_QUESTIONS.map(q => (
+                    <button
+                      key={q.id}
+                      className={styles.suggestionChip}
+                      onClick={() => handleSuggestionClick(
+                        translate({id: q.id, message: q.text}),
+                      )}
+                      disabled={isLoading}
+                    >
+                      <span className={styles.suggestionIcon}>{q.icon}</span>
+                      {translate({id: q.id, message: q.text})}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
             {messages.map((msg, idx) => (
               <div
@@ -137,6 +196,10 @@ export default function ChatBot(): ReactNode {
                   msg.isError && styles.errorMessage,
                 )}
               >
+                {/* TODO: Phase 2 - Markdown 렌더링 + 관련 문서 페이지 링크 자동 연결
+                    - react-markdown 또는 @mdx-js/react 도입
+                    - 코드 블록 syntax highlighting (prism-react-renderer 활용)
+                    - 문서 내부 링크 자동 감지 및 <Link> 컴포넌트로 변환 */}
                 {msg.content}
               </div>
             ))}
