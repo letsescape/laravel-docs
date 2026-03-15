@@ -26,6 +26,8 @@ export default function ChatBot(): ReactNode {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const chatWindowRef = useRef<HTMLDivElement>(null);
+  const chatButtonRef = useRef<HTMLButtonElement>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -39,6 +41,43 @@ export default function ChatBot(): ReactNode {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
     }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        chatButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !chatWindowRef.current) return;
+    const chatWindow = chatWindowRef.current;
+    const focusableSelector = 'button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex="-1"])';
+
+    const handleTabTrap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusable = chatWindow.querySelectorAll<HTMLElement>(focusableSelector);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    chatWindow.addEventListener('keydown', handleTabTrap);
+    return () => chatWindow.removeEventListener('keydown', handleTabTrap);
   }, [isOpen]);
 
   const sendMessage = useCallback(
@@ -123,7 +162,7 @@ export default function ChatBot(): ReactNode {
   return (
     <div data-nosnippet data-pagefind-ignore>
       {isOpen && (
-        <div className={styles.chatWindow} role="dialog" aria-label="AI Chat">
+        <div ref={chatWindowRef} className={styles.chatWindow} role="dialog" aria-label="AI Chat" aria-modal="true">
           <div className={styles.chatHeader}>
             <span className={styles.chatHeaderTitle}>Laravel AI Assistant</span>
             <div className={styles.chatHeaderActions}>
@@ -212,6 +251,13 @@ export default function ChatBot(): ReactNode {
                 </div>
               </div>
             )}
+            <div aria-live="polite" className={styles.srOnly}>
+              {messages.length > 0 && messages[messages.length - 1].role === 'assistant'
+                ? messages[messages.length - 1].content
+                : isLoading
+                  ? translate({id: 'chatbot.loading', message: '응답 생성 중...', description: 'Screen reader loading text'})
+                  : ''}
+            </div>
             <div ref={messagesEndRef} />
           </div>
 
@@ -245,6 +291,7 @@ export default function ChatBot(): ReactNode {
       )}
 
       <button
+        ref={chatButtonRef}
         className={styles.chatButton}
         onClick={() => setIsOpen(prev => !prev)}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
