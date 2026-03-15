@@ -34,30 +34,6 @@ const config: Config = {
     },
   },
 
-  // SEO: 구조화된 데이터 (JSON-LD)
-  headTags: [
-    {
-      tagName: 'script',
-      attributes: {
-        type: 'application/ld+json',
-      },
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'Laravel 한국어 문서',
-        url: 'https://laravel.chanhyung.kim',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: 'https://laravel.chanhyung.kim/search?q={search_term_string}',
-          },
-          'query-input': 'required name=search_term_string',
-        },
-      }),
-    },
-  ],
-
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
@@ -135,8 +111,8 @@ const config: Config = {
         blog: false,
         sitemap: {
           lastmod: 'date',
-          changefreq: 'weekly',
-          priority: 0.5,
+          changefreq: null,
+          priority: null,
           filename: 'sitemap.xml',
         },
         gtag: {
@@ -155,7 +131,7 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/logo.png',
+    image: 'img/laravel-home.png',
 
     // 다크 모드 설정
     colorMode: {
@@ -168,8 +144,6 @@ const config: Config = {
     // og:image/twitter:image는 themeConfig.image가 기본값으로 제공하며, 페이지별로 Head에서 오버라이드
     metadata: [
       {property: 'og:type', content: 'website'},
-      {property: 'og:image:width', content: '2400'},
-      {property: 'og:image:height', content: '1260'},
       {name: 'twitter:card', content: 'summary_large_image'},
     ],
 
