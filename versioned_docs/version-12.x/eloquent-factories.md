@@ -80,7 +80,7 @@ class UserFactory extends Factory
 ## 모델 팩토리 정의하기 (Defining Model Factories)
 
 <a name="generating-factories"></a>
-### 팩토리 생성 (Generating Factories)
+### 팩토리 생성
 
 팩토리를 생성하려면 `make:factory` [Artisan 명령어](/docs/12.x/artisan)를 실행하십시오.
 
@@ -140,7 +140,7 @@ class FlightFactory extends Factory
 ```
 
 <a name="factory-states"></a>
-### 팩토리 상태(State) (Factory States)
+### 팩토리 상태
 
 상태(State) 변경 메서드를 활용하면, 팩토리에서 임의의 조합으로 적용할 수 있는 별도의 속성 변형을 정의할 수 있습니다. 예를 들어, `Database\Factories\UserFactory`에서 기본 속성 중 하나를 수정하는 `suspended` 상태 메서드를 추가할 수 있습니다.
 
@@ -174,7 +174,7 @@ $user = User::factory()->trashed()->create();
 ```
 
 <a name="factory-callbacks"></a>
-### 팩토리 콜백 (Factory Callbacks)
+### 팩토리 콜백
 
 팩토리 콜백은 `afterMaking` 및 `afterCreating` 메서드를 사용해 등록하며, 모델 생성(메모리상 또는 DB 저장) 후 추가 동작을 수행할 수 있게 해줍니다. 팩토리 클래스에 `configure` 메서드를 정의하여 이 콜백을 등록할 수 있으며, 팩토리 인스턴스가 생성될 때 Laravel이 자동으로 호출합니다:
 
@@ -229,7 +229,7 @@ public function suspended(): Factory
 ## 팩토리를 이용한 모델 생성 (Creating Models Using Factories)
 
 <a name="instantiating-models"></a>
-### 모델 인스턴스화 (Instantiating Models)
+### 모델 인스턴스화
 
 팩토리를 정의한 후에는, 모델에 포함된 `Illuminate\Database\Eloquent\Factories\HasFactory` 트레이트의 정적 `factory` 메서드를 이용해 해당 모델의 팩토리 인스턴스를 만들 수 있습니다. 몇 가지 모델 생성 예시를 살펴보겠습니다. 먼저, `make` 메서드를 사용하여 데이터베이스에 저장하지 않고 모델 인스턴스만 생성할 수 있습니다:
 
@@ -246,7 +246,7 @@ $users = User::factory()->count(3)->make();
 ```
 
 <a name="applying-states"></a>
-#### 상태(State) 적용하기
+#### 상태 적용하기
 
 정의한 [상태](#factory-states)를 원하는 모델에 적용할 수도 있습니다. 여러 상태 변환을 적용하고 싶다면, 상태 변환 메서드를 연속해서 호출하면 됩니다:
 
@@ -277,17 +277,17 @@ $user = User::factory()->state([
 > 팩토리를 사용해 모델을 생성할 때는 [대량 할당 보호](/docs/12.x/eloquent#mass-assignment)가 자동으로 비활성화됩니다.
 
 <a name="persisting-models"></a>
-### 모델 저장 (Persisting Models)
+### 모델 저장
 
 `create` 메서드는 모델 인스턴스를 생성한 후 Eloquent의 `save` 메서드를 통해 데이터베이스에 저장합니다:
 
 ```php
 use App\Models\User;
 
-// App\Models\User 인스턴스 한 개 생성...
+// Create a single App\Models\User instance...
 $user = User::factory()->create();
 
-// App\Models\User 인스턴스 세 개 생성...
+// Create three App\Models\User instances...
 $users = User::factory()->count(3)->create();
 ```
 
@@ -300,7 +300,7 @@ $user = User::factory()->create([
 ```
 
 <a name="sequences"></a>
-### 시퀀스(Sequence)
+### 시퀀스
 
 여러 모델을 생성하면서 특정 속성 값을 번갈아가며 지정하고 싶을 때가 있습니다. 이럴 때는 상태 변환을 시퀀스로 지정할 수 있습니다. 예를 들어, 생성되는 각 유저의 `admin` 컬럼 값을 차례로 `Y`, `N`으로 반복해서 할당하려면 다음과 같이 하면 됩니다:
 
@@ -538,7 +538,7 @@ $user = User::factory()
 ```
 
 <a name="polymorphic-relationships"></a>
-### 폴리모픽 연관관계 (Polymorphic Relationships)
+### 폴리모픽 연관관계
 
 [폴리모픽 연관관계](/docs/12.x/eloquent-relationships#polymorphic-relationships) 역시 팩토리를 사용해 생성할 수 있습니다. 폴리모픽 morphMany 관계는 일반적인 hasMany 관계와 동일하게 팩토리를 활용하면 됩니다. 예를 들어, `App\Models\Post` 모델이 `App\Models\Comment`와 morphMany 관계를 가질 때:
 

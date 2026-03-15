@@ -48,7 +48,7 @@ php artisan make:test UserTest --unit
 ```
 
 > [!NOTE]
-> 테스트 스텁은 [스텁 커스터마이징](/docs/12.x/artisan#stub-customization)을 통해 수정할 수 있습니다.
+> 테스트 스텁은 [스텁 사용자 지정](/docs/12.x/artisan#stub-customization)을 통해 수정할 수 있습니다.
 
 테스트가 생성되면, Pest 또는 PHPUnit을 이용해 테스트를 작성할 수 있습니다. 테스트 실행은 터미널에서 `vendor/bin/pest`, `vendor/bin/phpunit`, 또는 `php artisan test` 명령어로 수행합니다:
 
@@ -108,7 +108,7 @@ php artisan test --testsuite=Feature --stop-on-failure
 ```
 
 <a name="running-tests-in-parallel"></a>
-### 병렬로 테스트 실행 (Running Tests in Parallel)
+### 병렬로 테스트 실행
 
 기본적으로 Laravel과 Pest / PHPUnit은 한 개의 프로세스 안에서 순차적으로 테스트를 실행합니다. 하지만 테스트를 여러 프로세스에서 동시에 실행하면 테스트 소요 시간을 크게 단축할 수 있습니다. 먼저, `brianium/paratest` Composer 패키지를 "dev" 의존성으로 설치해야 합니다. 그리고 `test` Artisan 명령어 실행 시 `--parallel` 옵션을 추가합니다:
 
@@ -170,7 +170,7 @@ class AppServiceProvider extends ServiceProvider
             // ...
         });
 
-        // 테스트 데이터베이스가 생성될 때 실행됩니다...
+        // Executed when a test database is created...
         ParallelTesting::setUpTestDatabase(function (string $database, int $token) {
             Artisan::call('db:seed');
         });
@@ -191,12 +191,10 @@ class AppServiceProvider extends ServiceProvider
 
 애플리케이션의 테스트 코드 다른 어느 곳에서든, 현재 병렬 프로세스의 "토큰"에 접근하고 싶다면 `token` 메서드를 사용할 수 있습니다. 이 토큰은 개별 테스트 프로세스를 식별하는 고유한 문자열이며, 병렬 테스트 실행 환경에서 자원을 구분 관리하는 데 사용할 수 있습니다. 예를 들어, Laravel은 각 병렬 테스트 프로세스에서 생성하는 테스트 데이터베이스 이름 끝에 이 토큰을 자동으로 붙입니다:
 
-```
-$token = ParallelTesting::token();
-```
+    $token = ParallelTesting::token();
 
 <a name="reporting-test-coverage"></a>
-### 테스트 커버리지 리포트 (Reporting Test Coverage)
+### 테스트 커버리지 리포트
 
 > [!WARNING]
 > 이 기능을 사용하려면 [Xdebug](https://xdebug.org) 또는 [PCOV](https://pecl.php.net/package/pcov)가 필요합니다.
@@ -217,7 +215,7 @@ php artisan test --coverage --min=80.3
 ```
 
 <a name="profiling-tests"></a>
-### 테스트 프로파일링 (Profiling Tests)
+### 테스트 프로파일링
 
 Artisan 테스트 러너는 애플리케이션에서 가장 느린 테스트 목록을 확인할 수 있는 편리한 기능도 제공합니다. `test` 명령어에 `--profile` 옵션을 추가하면, 가장 오래 걸리는 상위 10개의 테스트 목록을 확인할 수 있어, 테스트 속도를 향상시켜야 하는 부분을 쉽게 파악할 수 있습니다:
 

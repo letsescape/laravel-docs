@@ -156,7 +156,7 @@ class UserControllerTest extends TestCase
 > `Request` 파사드는 목 처리하지 않는 것이 좋습니다. 대신, 테스트를 실행할 때 [HTTP 테스트 메서드](/docs/12.x/http-tests)인 `get`이나 `post` 등으로 원하는 입력을 전달하면 됩니다. `Config` 파사드 역시 목 처리하기보다는, 테스트 내에서 `Config::set` 메서드를 호출해 값을 지정하세요.
 
 <a name="facade-spies"></a>
-### 파사드 스파이(Spy)
+### 파사드 스파이
 
 파사드에 대해 [스파이(Spy)](http://docs.mockery.io/en/latest/reference/spies.html)하고 싶을 경우, 해당 파사드에서 `spy` 메서드를 호출할 수 있습니다. 스파이는 목과 유사하지만, 테스트 코드 실행 도중의 모든 상호작용을 기록해두었다가 어서션에 활용할 수 있습니다:
 
@@ -198,7 +198,7 @@ public function test_values_are_stored_in_cache(): void
 
 ```php tab=Pest
 test('time can be manipulated', function () {
-    // 미래로 이동...
+    // Travel into the future...
     $this->travel(5)->milliseconds();
     $this->travel(5)->seconds();
     $this->travel(5)->minutes();
@@ -207,13 +207,13 @@ test('time can be manipulated', function () {
     $this->travel(5)->weeks();
     $this->travel(5)->years();
 
-    // 과거로 이동...
+    // Travel into the past...
     $this->travel(-5)->hours();
 
-    // 명시적 시간으로 이동...
+    // Travel to an explicit time...
     $this->travelTo(now()->minus(hours: 6));
 
-    // 현재 시간으로 되돌아오기...
+    // Return back to the present time...
     $this->travelBack();
 });
 ```
@@ -221,7 +221,7 @@ test('time can be manipulated', function () {
 ```php tab=PHPUnit
 public function test_time_can_be_manipulated(): void
 {
-    // 미래로 이동...
+    // Travel into the future...
     $this->travel(5)->milliseconds();
     $this->travel(5)->seconds();
     $this->travel(5)->minutes();
@@ -230,13 +230,13 @@ public function test_time_can_be_manipulated(): void
     $this->travel(5)->weeks();
     $this->travel(5)->years();
 
-    // 과거로 이동...
+    // Travel into the past...
     $this->travel(-5)->hours();
 
-    // 명시적 시간으로 이동...
+    // Travel to an explicit time...
     $this->travelTo(now()->minus(hours: 6));
 
-    // 현재 시간으로 되돌아오기...
+    // Return back to the present time...
     $this->travelBack();
 }
 ```
@@ -245,11 +245,11 @@ public function test_time_can_be_manipulated(): void
 
 ```php
 $this->travel(5)->days(function () {
-    // 5일 뒤의 미래에서 무언가를 테스트...
+    // Test something five days into the future...
 });
 
 $this->travelTo(now()->mins(days: 10), function () {
-    // 특정 시점에서 무언가를 테스트...
+    // Test something during a given moment...
 });
 ```
 
@@ -258,12 +258,12 @@ $this->travelTo(now()->mins(days: 10), function () {
 ```php
 use Illuminate\Support\Carbon;
 
-// 시간을 고정하고, 클로저 실행 후 정상 시간으로 복귀...
+// Freeze time and resume normal time after executing closure...
 $this->freezeTime(function (Carbon $time) {
     // ...
 });
 
-// 초 단위로 시간을 고정하고, 클로저 실행 후 정상 시간으로 복귀...
+// Freeze time at the current second and resume normal time after executing closure...
 $this->freezeSecond(function (Carbon $time) {
     // ...
 })

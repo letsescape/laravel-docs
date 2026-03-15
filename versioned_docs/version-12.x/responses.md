@@ -51,7 +51,7 @@ Route::get('/', function () {
 
 일반적으로 라우트 액션에서는 단순한 문자열이나 배열만 반환하지 않고, 보통은 `Illuminate\Http\Response` 인스턴스나 [뷰](/docs/12.x/views)를 반환합니다.
 
-완전한 `Response` 인스턴스를 반환하면 응답의 HTTP 상태 코드나 헤더를 원하는 대로 커스터마이즈할 수 있습니다. `Response` 인스턴스는 `Symfony\Component\HttpFoundation\Response` 클래스를 상속받아 HTTP 응답 생성을 위한 다양한 메서드를 제공합니다:
+완전한 `Response` 인스턴스를 반환하면 응답의 HTTP 상태 코드나 헤더를 원하는 대로 사용자 지정할 수 있습니다. `Response` 인스턴스는 `Symfony\Component\HttpFoundation\Response` 클래스를 상속받아 HTTP 응답 생성을 위한 다양한 메서드를 제공합니다:
 
 ```php
 Route::get('/home', function () {
@@ -205,7 +205,7 @@ Route::get('/dashboard', function () {
 
 ```php
 Route::post('/user/profile', function () {
-    // 요청 유효성 검사...
+    // Validate the request...
 
     return back()->withInput();
 });
@@ -223,7 +223,7 @@ return redirect()->route('login');
 라우트에 매개변수가 필요한 경우, 두 번째 인자로 전달하면 됩니다:
 
 ```php
-// URI가 /profile/{id}인 라우트의 경우
+// For a route with the following URI: /profile/{id}
 
 return redirect()->route('profile', ['id' => 1]);
 ```
@@ -234,16 +234,16 @@ return redirect()->route('profile', ['id' => 1]);
 "Eloquent 모델의 ID" 파라미터가 필요한 라우트에 리다이렉트할 때는, 직접 ID가 아닌 모델 객체를 전달할 수 있습니다. 그러면 ID가 자동으로 추출되어 사용됩니다:
 
 ```php
-// URI가 /profile/{id}인 라우트의 경우
+// For a route with the following URI: /profile/{id}
 
 return redirect()->route('profile', [$user]);
 ```
 
-라우트 파라미터에 들어갈 값을 커스터마이즈하고 싶다면, 라우트 정의에서 컬럼명을 지정(`/profile/{id:slug}`)하거나, Eloquent 모델에서 `getRouteKey` 메서드를 오버라이드할 수 있습니다:
+라우트 파라미터에 들어갈 값을 사용자 지정하고 싶다면, 라우트 정의에서 컬럼명을 지정(`/profile/{id:slug}`)하거나, Eloquent 모델에서 `getRouteKey` 메서드를 오버라이드할 수 있습니다:
 
 ```php
 /**
- * 모델의 라우트 키 값을 반환합니다.
+ * Get the value of the model's route key.
  */
 public function getRouteKey(): mixed
 {
@@ -386,7 +386,7 @@ Route::get('/stream', function () {
             echo $string;
             ob_flush();
             flush();
-            sleep(2); // 청크 간 지연 시뮬레이션...
+            sleep(2); // Simulate delay between chunks...
         }
     }, 200, ['X-Accel-Buffering' => 'no']);
 });
@@ -731,7 +731,7 @@ const loadUsers = () => {
 ```
 
 <a name="event-streams"></a>
-### 이벤트 스트림 (SSE)
+### 이벤트 스트림
 
 `eventStream` 메서드는 `text/event-stream` 콘텐츠 타입을 사용해 서버 전송 이벤트(Server-Sent Events, SSE) 스트림 응답을 반환할 수 있습니다. 이 메서드는 클로저를 인자로 받아, 해당 클로저에서 스트림에 반환할 응답을 [yield](https://www.php.net/manual/en/language.generators.overview.php)하면 됩니다:
 
@@ -747,7 +747,7 @@ Route::get('/chat', function () {
 });
 ```
 
-이벤트의 이름을 커스터마이즈하려면, `StreamedEvent` 클래스의 인스턴스를 `yield`할 수 있습니다:
+이벤트의 이름을 사용자 지정하려면, `StreamedEvent` 클래스의 인스턴스를 `yield`할 수 있습니다:
 
 ```php
 use Illuminate\Http\StreamedEvent;
@@ -857,7 +857,7 @@ source.addEventListener('update', (event) => {
 });
 ```
 
-최종 이벤트를 커스터마이즈하려면, `eventStream` 메서드의 `endStreamWith` 인자로 `StreamedEvent` 인스턴스를 전달할 수 있습니다:
+최종 이벤트를 사용자 지정하려면, `eventStream` 메서드의 `endStreamWith` 인자로 `StreamedEvent` 인스턴스를 전달할 수 있습니다:
 
 ```php
 return response()->eventStream(function () {
@@ -896,7 +896,7 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * 애플리케이션 서비스 부트스트랩.
+     * Bootstrap any application services.
      */
     public function boot(): void
     {

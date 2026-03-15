@@ -71,10 +71,6 @@ const config: Config = {
         includeCurrentVersion: false,
         lastVersion: '12.x',
         versions: {
-          'master': {
-            label: 'master',
-            path: 'master',
-          },
           '12.x': {
             label: '12.x',
             path: '12.x',
@@ -109,6 +105,12 @@ const config: Config = {
       {
         docs: false, // 플러그인으로 대체
         blog: false,
+        sitemap: {
+          lastmod: 'date',
+          changefreq: null,
+          priority: null,
+          filename: 'sitemap.xml',
+        },
         gtag: {
           trackingID: 'G-P3YFWCWEBP',
           anonymizeIP: true,
@@ -125,7 +127,7 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/logo.png',
+    image: 'img/laravel-home.png',
 
     // 다크 모드 설정
     colorMode: {

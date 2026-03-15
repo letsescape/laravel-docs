@@ -21,12 +21,12 @@
 - [이벤트](#events)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
 [Laravel Reverb](https://github.com/laravel/reverb)는 매우 빠르고 확장 가능한 실시간 WebSocket 통신을 라라벨 애플리케이션에 직접 제공하며, Laravel의 기존 [이벤트 브로드캐스팅 도구](/docs/12.x/broadcasting)와 원활하게 통합할 수 있습니다.
 
 <a name="installation"></a>
-## 설치
+## 설치 (Installation)
 
 Reverb는 `install:broadcasting` Artisan 명령어를 사용하여 설치할 수 있습니다:
 
@@ -35,7 +35,7 @@ php artisan install:broadcasting
 ```
 
 <a name="configuration"></a>
-## 구성
+## 구성 (Configuration)
 
 내부적으로 `install:broadcasting` Artisan 명령어는 `reverb:install` 명령어를 실행하여, 합리적인 기본 구성 옵션과 함께 Reverb를 설치합니다. 구성 변경이 필요한 경우, Reverb의 환경 변수 또는 `config/reverb.php` 구성 파일을 수정하여 설정할 수 있습니다.
 
@@ -109,7 +109,7 @@ Herd 및 Valet 도메인은 `localhost`로 해석되기 때문에, 위 명령을
 ```
 
 <a name="running-server"></a>
-## 서버 실행
+## 서버 실행 (Running the Server)
 
 Reverb 서버는 `reverb:start` Artisan 명령어로 실행할 수 있습니다:
 
@@ -158,7 +158,7 @@ php artisan reverb:restart
 ```
 
 <a name="monitoring"></a>
-## 모니터링
+## 모니터링 (Monitoring)
 
 Reverb는 [Laravel Pulse](/docs/12.x/pulse)와의 통합 기능을 통해 모니터링할 수 있습니다. Reverb의 Pulse 통합을 활성화하면, 서버에서 처리 중인 연결 수와 메시지 수를 추적할 수 있습니다.
 
@@ -194,7 +194,7 @@ use Laravel\Reverb\Pulse\Recorders\ReverbMessages;
 연결 활동은 주기적으로 새로운 업데이트를 폴링하여 기록됩니다. 이 정보가 Pulse 대시보드에 올바르게 렌더링되려면, Reverb 서버에서 `pulse:check` 데몬을 실행해야 합니다. [수평 확장된](#scaling) 구성에서는 단 한 서버에서만 이 데몬을 실행하면 됩니다.
 
 <a name="production"></a>
-## 프로덕션 환경에서 Reverb 실행
+## 프로덕션 환경에서 Reverb 실행 (Running Reverb in Production)
 
 WebSocket 서버의 지속적인 실행 특성 때문에, 서버와 호스팅 환경을 최적화하여 사용할 수 있는 리소스 범위 내에서 Reverb 서버가 최적의 연결 수를 처리할 수 있도록 해야 합니다.
 
@@ -319,7 +319,7 @@ REVERB_SCALING_ENABLED=true
 Reverb 스케일링 옵션을 활성화하고 Redis 서버를 구성했다면, Redis 서버와 통신 가능한 여러 대의 서버에서 `reverb:start` 명령어를 실행하기만 하면 됩니다. 이 Reverb 서버들은 로드 밸런서 뒤에 둬서, 수신 요청이 여러 서버에 고르게 분산되도록 배치합니다.
 
 <a name="events"></a>
-## 이벤트
+## 이벤트 (Events)
 
 Reverb는 연결 및 메시지 처리의 라이프사이클 동안 내부적으로 이벤트를 디스패치(dispatch)합니다. 이러한 이벤트에 [리스너를 등록](/docs/12.x/events)하여, 연결 관리나 메시지 교환 시 특정 동작을 수행할 수 있습니다.
 

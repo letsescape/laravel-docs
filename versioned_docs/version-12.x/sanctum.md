@@ -66,7 +66,7 @@ php artisan install:api
 ## 설정 (Configuration)
 
 <a name="overriding-default-models"></a>
-### 기본 모델 오버라이딩 (Overriding Default Models)
+### 기본 모델 오버라이딩
 
 일반적으로 필요하지 않지만, 내부적으로 Sanctum에서 사용하는 `PersonalAccessToken` 모델을 확장할 수도 있습니다:
 
@@ -101,7 +101,7 @@ public function boot(): void
 > 여러분의 1st-party SPA를 인증하는 방법으로는 API 토큰을 사용하지 마십시오. 대신 Sanctum의 [SPA 인증 기능](#spa-authentication)을 이용하세요.
 
 <a name="issuing-api-tokens"></a>
-### API 토큰 발급 (Issuing API Tokens)
+### API 토큰 발급
 
 Sanctum을 이용해 API 토큰(개인 접근 토큰)을 발급하여 API 요청을 인증할 수 있습니다. API 토큰을 사용하여 요청할 때에는 `Authorization` 헤더에 `Bearer` 토큰 형식으로 해당 토큰을 포함해야 합니다.
 
@@ -137,7 +137,7 @@ foreach ($user->tokens as $token) {
 ```
 
 <a name="token-abilities"></a>
-### 토큰 권한(Abilities) (Token Abilities)
+### 토큰 권한
 
 Sanctum을 사용하면 발급된 토큰에 "권한(abilities)"을 부여할 수 있습니다. 권한(abilities)은 OAuth의 "스코프(scopes)"와 유사한 역할을 합니다. `createToken` 메서드의 두 번째 인수로 문자열 배열로 권한을 지정할 수 있습니다:
 
@@ -158,7 +158,7 @@ if ($user->tokenCant('server:update')) {
 ```
 
 <a name="token-ability-middleware"></a>
-#### 토큰 권한 미들웨어 (Token Ability Middleware)
+#### 토큰 권한 미들웨어
 
 Sanctum에는 토큰에 특정 권한이 부여되어 있는지 검증할 수 있는 두 가지 미들웨어도 포함되어 있습니다. 우선, 아래와 같이 애플리케이션의 `bootstrap/app.php` 파일에 미들웨어 별칭을 정의하세요:
 
@@ -178,7 +178,7 @@ use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
 ```php
 Route::get('/orders', function () {
-    // 토큰이 "check-status"와 "place-orders" 권한을 모두 가지고 있음...
+    // Token has both "check-status" and "place-orders" abilities...
 })->middleware(['auth:sanctum', 'abilities:check-status,place-orders']);
 ```
 
@@ -186,7 +186,7 @@ Route::get('/orders', function () {
 
 ```php
 Route::get('/orders', function () {
-    // 토큰이 "check-status" 또는 "place-orders" 권한 중 하나만 가지고 있어도 허용...
+    // Token has the "check-status" or "place-orders" ability...
 })->middleware(['auth:sanctum', 'ability:check-status,place-orders']);
 ```
 
@@ -207,7 +207,7 @@ return $request->user()->id === $server->user_id &&
 처음에는 1st-party UI에서 시작된 요청에 대해 `tokenCan`이 항상 `true`를 반환한다는 점이 다소 이상하게 느껴질 수 있습니다. 그러나 이렇게 하면 항상 API 토큰이 존재한다고 가정하고 언제든지 `tokenCan`을 통해 검사할 수 있기 때문에, UI에서 요청했든, 외부에서 API 요청이 들어왔든 관계없이 인가 정책 내에서 보다 일관적으로 사용할 수 있습니다.
 
 <a name="protecting-routes"></a>
-### 라우트 보호 (Protecting Routes)
+### 라우트 보호
 
 모든 들어오는 요청이 인증되어야 하는 라우트를 보호하려면, 해당 라우트에 `sanctum` 인증 가드를 적용하세요(`routes/web.php`, `routes/api.php` 등). 이 가드는 쿠키 인증(상태 세션) 요청이나, 외부 애플리케이션의 유효한 API 토큰 요청 모두를 인증합니다.
 
@@ -222,23 +222,23 @@ Route::get('/user', function (Request $request) {
 ```
 
 <a name="revoking-tokens"></a>
-### 토큰 폐기(Revoking Tokens)
+### 토큰 폐기
 
 토큰을 폐기(revoke)하려면, `Laravel\Sanctum\HasApiTokens` 트레이트에서 제공하는 `tokens` 연관관계를 통해 데이터베이스에서 해당 토큰을 삭제하면 됩니다:
 
 ```php
-// 모든 토큰 폐기
+// Revoke all tokens...
 $user->tokens()->delete();
 
-// 현재 요청에 사용된 토큰 폐기
+// Revoke the token that was used to authenticate the current request...
 $request->user()->currentAccessToken()->delete();
 
-// 특정 토큰 폐기
+// Revoke a specific token...
 $user->tokens()->where('id', $tokenId)->delete();
 ```
 
 <a name="token-expiration"></a>
-### 토큰 만료 (Token Expiration)
+### 토큰 만료
 
 기본적으로 Sanctum 토큰은 만료되지 않으며, [토큰 폐기](#revoking-tokens)를 통해서만 무효화할 수 있습니다. 그러나 애플리케이션의 API 토큰에 만료 시간을 설정하고 싶다면, 설정 파일의 `sanctum`에서 `expiration` 옵션을 통해 설정할 수 있습니다. 이 값(분 단위) 동안 토큰이 유효합니다:
 
@@ -273,7 +273,7 @@ Sanctum은 Laravel로 구동되는 API와 통신해야 하는 SPA(single page ap
 > SPA와 API는 반드시 같은 최상위 도메인을 공유해야 합니다. 다른 서브도메인이라도 괜찮습니다. 또한, 요청시 반드시 `Accept: application/json` 헤더와 `Referer` 또는 `Origin` 헤더를 함께 전송해야 합니다.
 
 <a name="spa-configuration"></a>
-### 설정 (Configuration)
+### 설정
 
 <a name="configuring-your-first-party-domains"></a>
 #### 1st-party 도메인 구성
@@ -323,7 +323,7 @@ axios.defaults.withXSRFToken = true;
 ```
 
 <a name="spa-authenticating"></a>
-### 인증 절차 (Authenticating)
+### 인증 절차
 
 <a name="csrf-protection"></a>
 #### CSRF 보호
@@ -351,7 +351,7 @@ CSRF 보호가 초기화된 후에는 Laravel 애플리케이션의 `/login` 라
 > `/login` 엔드포인트를 직접 구현할 수도 있지만, 반드시 Laravel의 표준 [세션 기반 인증 서비스](/docs/12.x/authentication#authenticating-users)를 사용해야 합니다. 이는 보통 `web` 인증 가드를 뜻합니다.
 
 <a name="protecting-spa-routes"></a>
-### 라우트 보호 (Protecting Routes)
+### 라우트 보호
 
 SPA에서 들어오는 모든 요청이 인증되도록 하려면 `routes/api.php`의 API 라우트에 `sanctum` 인증 가드를 적용해야 합니다. 이 가드는 SPA로부터 들어오는 상태 유지(session) 요청, 그리고 다른 외부 요청(토큰 활용) 모두를 인증합니다:
 
@@ -413,7 +413,7 @@ window.Echo = new Echo({
 Sanctum 토큰은 모바일 애플리케이션의 API 요청 인증에도 사용할 수 있습니다. 모바일 애플리케이션에서의 인증 방식은 외부(서드파티) API 인증과 거의 동일하지만, API 토큰 발급 과정에 작은 차이가 있습니다.
 
 <a name="issuing-mobile-api-tokens"></a>
-### API 토큰 발급 (Issuing API Tokens)
+### API 토큰 발급
 
 우선, 사용자의 이메일/사용자명, 비밀번호, 그리고 디바이스명(device name)을 받아 새로운 Sanctum 토큰과 교환해 주는 라우트를 만들어야 합니다. 여기서 device name은 단순한 정보 제공용이며, 사용자가 인식하기 쉬운 이름(예: 'Nuno의 iPhone 12')을 넣을 수 있습니다.
 
@@ -450,7 +450,7 @@ Route::post('/sanctum/token', function (Request $request) {
 > 모바일 애플리케이션을 위한 토큰을 발급할 때도 [토큰 권한(abilities)](#token-abilities)을 지정할 수 있습니다.
 
 <a name="protecting-mobile-api-routes"></a>
-### 라우트 보호 (Protecting Routes)
+### 라우트 보호
 
 앞서 설명한 것처럼, 모든 들어오는 요청을 인증하려면 대상 라우트에 `sanctum` 인증 가드를 적용하십시오:
 
@@ -461,15 +461,15 @@ Route::get('/user', function (Request $request) {
 ```
 
 <a name="revoking-mobile-api-tokens"></a>
-### 토큰 폐기 (Revoking Tokens)
+### 토큰 폐기
 
 모바일 기기에 발급한 API 토큰을 사용자가 직접 폐기할 수 있도록 하려면, 웹 애플리케이션의 "계정 설정" 화면 등에서 토큰을 이름과 함께 나열하고, "폐기" 버튼을 제공하면 됩니다. 사용자가 버튼을 클릭하면 해당 토큰을 데이터베이스에서 삭제할 수 있습니다. `Laravel\Sanctum\HasApiTokens` 트레이트의 `tokens` 연관관계를 통해 사용자 토큰에 접근할 수 있습니다:
 
 ```php
-// 모든 토큰 폐기
+// Revoke all tokens...
 $user->tokens()->delete();
 
-// 특정 토큰 폐기
+// Revoke a specific token...
 $user->tokens()->where('id', $tokenId)->delete();
 ```
 

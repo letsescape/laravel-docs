@@ -26,7 +26,7 @@
 ## 컨트롤러 작성 (Writing Controllers)
 
 <a name="basic-controllers"></a>
-### 기본 컨트롤러 (Basic Controllers)
+### 기본 컨트롤러
 
 새 컨트롤러를 빠르게 생성하려면 `make:controller` Artisan 명령어를 사용할 수 있습니다. 기본적으로 모든 컨트롤러는 `app/Http/Controllers` 디렉토리에 저장됩니다.
 
@@ -72,7 +72,7 @@ Route::get('/user/{id}', [UserController::class, 'show']);
 > 컨트롤러가 반드시 베이스 클래스를 상속할 필요는 **없습니다**. 하지만, 모든 컨트롤러에서 공통으로 사용할 메서드를 포함하는 베이스 컨트롤러 클래스를 상속하는 것이 편리할 때도 있습니다.
 
 <a name="single-action-controllers"></a>
-### 단일 액션 컨트롤러 (Single Action Controllers)
+### 단일 액션 컨트롤러
 
 컨트롤러 액션이 특별히 복잡하다면, 단일 액션을 전담하는 컨트롤러 클래스를 따로 만드는 것이 더 편리할 수 있습니다. 이를 위해 컨트롤러 내에 단일 `__invoke` 메서드를 정의하면 됩니다.
 
@@ -108,7 +108,7 @@ php artisan make:controller ProvisionServer --invokable
 ```
 
 > [!NOTE]
-> 컨트롤러 스텁은 [스텁 커스터마이징](/docs/12.x/artisan#stub-customization)을 통해 사용자 정의할 수 있습니다.
+> 컨트롤러 스텁은 [스텁 사용자 지정](/docs/12.x/artisan#stub-customization)을 통해 사용자 정의할 수 있습니다.
 
 <a name="controller-middleware"></a>
 ## 컨트롤러 미들웨어 (Controller Middleware)
@@ -223,9 +223,9 @@ Route::softDeletableResources([
 </div>
 
 <a name="customizing-missing-model-behavior"></a>
-#### 모델 미존재 시 동작 커스터마이징
+#### 모델 미존재 시 동작 사용자 지정
 
-보통, 암묵적으로 바인딩된 리소스 모델을 찾을 수 없을 때는 404 HTTP 응답이 반환됩니다. 그러나, 리소스 라우트 정의 시 `missing` 메서드를 호출하여 이 동작을 커스터마이징할 수 있습니다. `missing` 메서드는 암묵적으로 바인딩된 모델이 각 리소스의 라우트에서 발견되지 않았을 때 실행할 클로저를 받습니다.
+보통, 암묵적으로 바인딩된 리소스 모델을 찾을 수 없을 때는 404 HTTP 응답이 반환됩니다. 그러나, 리소스 라우트 정의 시 `missing` 메서드를 호출하여 이 동작을 사용자 지정할 수 있습니다. `missing` 메서드는 암묵적으로 바인딩된 모델이 각 리소스의 라우트에서 발견되지 않았을 때 실행할 클로저를 받습니다.
 
 ```php
 use App\Http\Controllers\PhotoController;
@@ -274,7 +274,7 @@ php artisan make:controller PhotoController --model=Photo --resource --requests
 ```
 
 <a name="restful-partial-resource-routes"></a>
-### 부분 리소스 라우트 (Partial Resource Routes)
+### 부분 리소스 라우트
 
 리소스 라우트를 선언할 때, 전체 기본 액션 대신 컨트롤러가 처리할 액션만 부분적으로 지정할 수 있습니다.
 
@@ -320,7 +320,7 @@ php artisan make:controller PhotoController --api
 ```
 
 <a name="restful-nested-resources"></a>
-### 중첩 리소스 (Nested Resources)
+### 중첩 리소스
 
 때때로 한 리소스에 중첩된 하위 리소스가 필요할 수 있습니다. 예를 들어, 하나의 사진에는 여러 개의 댓글이 달릴 수 있습니다. 이러한 중첩 리소스를 위해 라우트 선언 시 "점(dot) 표기법"을 사용합니다.
 
@@ -337,7 +337,7 @@ Route::resource('photos.comments', PhotoCommentController::class);
 ```
 
 <a name="scoping-nested-resources"></a>
-#### 중첩 리소스의 범위 지정(Scoping)
+#### 중첩 리소스의 범위 지정
 
 Laravel의 [암묵적 모델 바인딩(implicit model binding)](/docs/12.x/routing#implicit-model-binding-scoping) 기능을 활용하면, 중첩된 리소스가 부모 모델에 속하는지 자동으로 확인하고 바인딩할 수 있습니다. 중첩 리소스를 정의할 때 `scoped` 메서드를 사용하면 자동 범위 지정을 활성화하고, 자식 리소스를 어떤 필드로 조회할지 지정할 수 있습니다. 자세한 내용은 [리소스 라우트 범위 지정](#restful-scoping-resource-routes) 문서를 참고하세요.
 
@@ -369,7 +369,7 @@ Route::resource('photos.comments', CommentController::class)->shallow();
 </div>
 
 <a name="restful-naming-resource-routes"></a>
-### 리소스 라우트 명명 (Naming Resource Routes)
+### 리소스 라우트 명명
 
 기본적으로, 모든 리소스 컨트롤러의 액션에는 라우트 이름이 자동으로 부여됩니다. 그러나, `names` 배열을 전달하여 원하는 라우트 이름으로 오버라이드할 수 있습니다.
 
@@ -382,7 +382,7 @@ Route::resource('photos', PhotoController::class)->names([
 ```
 
 <a name="restful-naming-resource-route-parameters"></a>
-### 리소스 라우트 파라미터 명명 (Naming Resource Route Parameters)
+### 리소스 라우트 파라미터 명명
 
 `Route::resource`는 리소스 이름의 "단수형"을 사용해 기본적으로 라우트 파라미터를 생성합니다. 이 동작은 `parameters` 메서드를 통해 리소스별로 변경할 수 있습니다. `parameters`에는 리소스 이름과 파라미터 이름을 매핑한 연관 배열을 전달합니다.
 
@@ -401,7 +401,7 @@ Route::resource('users', AdminUserController::class)->parameters([
 ```
 
 <a name="restful-scoping-resource-routes"></a>
-### 리소스 라우트 범위 지정 (Scoping Resource Routes)
+### 리소스 라우트 범위 지정
 
 Laravel의 [스코프드(범위 지정된) 암묵적 모델 바인딩](/docs/12.x/routing#implicit-model-binding-scoping) 기능을 활용하면, 중첩된 모델의 부모-자식 소속이 자동으로 검증됩니다. `scoped` 메서드로 자식 리소스를 어떤 필드로 조회할지 지정할 수 있습니다.
 
@@ -422,7 +422,7 @@ Route::resource('photos.comments', PhotoCommentController::class)->scoped([
 사용자 정의 키(예: slug)로 암묵 바인딩할 때, Laravel은 부모 모델의 연관관계 이름(예시에서는 `comments`)을 자동으로 추정해 쿼리 범위를 지정합니다. 즉, 위 예시에서는 `Photo` 모델에 `comments`라는 연관관계가 있어야 하며, 이를 통해 `Comment` 모델을 자동으로 조회합니다.
 
 <a name="restful-localizing-resource-uris"></a>
-### 리소스 URI 현지화 (Localizing Resource URIs)
+### 리소스 URI 현지화
 
 기본적으로 `Route::resource`는 영어 동사와 복수화 규칙(plural rule)을 사용해 리소스 URI를 생성합니다. `create`와 `edit` 액션의 동사를 현지화해야 한다면, `Route::resourceVerbs` 메서드를 사용할 수 있습니다. 이 설정은 애플리케이션의 `App\Providers\AppServiceProvider` 내의 `boot` 메서드에서 지정할 수 있습니다.
 
@@ -439,7 +439,7 @@ public function boot(): void
 }
 ```
 
-Laravel의 복수화(pluralizer) 기능은 [여러 언어를 지원](https://laravel.com/docs/12.x/localization#pluralization-language)하며, 필요에 따라 설정할 수 있습니다. 동사와 복수화 언어를 커스터마이즈하면, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`은 아래와 같은 URI를 생성합니다.
+Laravel의 복수화(pluralizer) 기능은 [여러 언어를 지원](https://laravel.com/docs/12.x/localization#pluralization-language)하며, 필요에 따라 설정할 수 있습니다. 동사와 복수화 언어를 사용자 지정하면, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`은 아래와 같은 URI를 생성합니다.
 
 ```text
 /publicacion/crear
@@ -448,7 +448,7 @@ Laravel의 복수화(pluralizer) 기능은 [여러 언어를 지원](https://lar
 ```
 
 <a name="restful-supplementing-resource-controllers"></a>
-### 리소스 컨트롤러 보완 (Supplementing Resource Controllers)
+### 리소스 컨트롤러 보완
 
 리소스 컨트롤러에 기본 리소스 라우트 외에 추가적인 라우트를 더해야 하는 경우, 반드시 `Route::resource` 호출 **이전**에 직접 라우트를 정의해야 합니다. 그렇지 않으면 `resource`에서 생성된 라우트가 추가 라우트보다 우선 처리되어 의도와 다르게 동작할 수 있습니다.
 
@@ -463,7 +463,7 @@ Route::resource('photos', PhotoController::class);
 > 컨트롤러의 책임을 명확하게 유지하세요. 일반적인 리소스 액션 외에 별도의 메서드가 자주 필요하다면, 컨트롤러를 두 개의 더 작은 컨트롤러로 분리하는 것이 더 좋을 수 있습니다.
 
 <a name="singleton-resource-controllers"></a>
-### 싱글턴 리소스 컨트롤러 (Singleton Resource Controllers)
+### 싱글턴 리소스 컨트롤러
 
 애플리케이션 내에는 단일 인스턴스만 존재할 수 있는 리소스가 있을 수 있습니다. 예를 들어, 사용자 "프로필"은 수정할 수 있지만 하나만 존재하며, 이미지의 "썸네일"도 한 개만 존재해야 할 수 있습니다. 이런 리소스는 "싱글턴 리소스(singleton resource)"라고 하며, 오직 하나의 인스턴스만 허용합니다. 이 경우, `"singleton"` 리소스 컨트롤러를 등록할 수 있습니다.
 
@@ -505,7 +505,7 @@ Route::singleton('photos.thumbnail', ThumbnailController::class);
 </div>
 
 <a name="creatable-singleton-resources"></a>
-#### 생성 가능한 싱글턴 리소스 (Creatable Singleton Resources)
+#### 생성 가능한 싱글턴 리소스
 
 경우에 따라, 싱글턴 리소스에 대한 생성(create) 및 저장(store) 라우트가 필요할 수 있습니다. 이럴 때는 싱글턴 리소스 라우트 등록 시 `creatable` 메서드를 호출합니다.
 
@@ -535,7 +535,7 @@ Route::singleton(...)->destroyable();
 ```
 
 <a name="api-singleton-resources"></a>
-#### API 싱글턴 리소스 (API Singleton Resources)
+#### API 싱글턴 리소스
 
 `apiSingleton` 메서드는 API에서 사용할 싱글턴 리소스를 등록할 때 사용합니다. 이 경우 `create`와 `edit` 라우트가 등록되지 않습니다.
 
@@ -548,9 +548,8 @@ Route::apiSingleton('profile', ProfileController::class);
 ```php
 Route::apiSingleton('photos.thumbnail', ProfileController::class)->creatable();
 ```
-
 <a name="middleware-and-resource-controllers"></a>
-### 미들웨어 및 리소스 컨트롤러 (Middleware and Resource Controllers)
+### 미들웨어 및 리소스 컨트롤러
 
 Laravel은 리소스 또는 싱글턴 리소스 라우트에서, 전체 또는 특정 메서드에 미들웨어를 할당할 수 있도록 `middleware`, `middlewareFor`, `withoutMiddlewareFor` 메서드를 지원합니다. 이 메서드들은 각 리소스 액션별로 미들웨어 적용을 세밀하게 제어할 수 있게 합니다.
 
@@ -612,7 +611,7 @@ Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
 ## 의존성 주입과 컨트롤러 (Dependency Injection and Controllers)
 
 <a name="constructor-injection"></a>
-#### 생성자 인젝션 (Constructor Injection)
+#### 생성자 인젝션
 
 Laravel의 [서비스 컨테이너](/docs/12.x/container)는 모든 컨트롤러 인스턴스를 생성할 때 사용됩니다. 따라서, 컨트롤러 생성자에서 타입힌트된 어떤 의존성(dependency)도 주입받을 수 있습니다. 명시한 의존성은 자동으로 주입되어 컨트롤러 인스턴스에서 사용할 수 있습니다.
 
@@ -635,7 +634,7 @@ class UserController extends Controller
 ```
 
 <a name="method-injection"></a>
-#### 메서드 인젝션 (Method Injection)
+#### 메서드 인젝션
 
 생성자 인젝션뿐만 아니라, 컨트롤러의 메서드에서도 의존성을 타입힌트로 지정할 수 있습니다. 대표적인 예로, `Illuminate\Http\Request` 인스턴스를 컨트롤러 메서드에 주입하는 경우가 많습니다.
 

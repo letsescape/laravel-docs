@@ -5,8 +5,11 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import ChatBot from '@site/src/components/ChatBot';
 
 function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactElement {
-  const {i18n} = useDocusaurusContext();
+  const {siteConfig, i18n} = useDocusaurusContext();
   const {currentLocale, defaultLocale} = i18n;
+  const siteUrl = siteConfig.url;
+  const localePath = currentLocale === defaultLocale ? '' : `/${currentLocale}`;
+  const baseUrl = `${siteUrl}${localePath}`;
 
   const keywords = translate({
     id: 'theme.keywords',
@@ -14,10 +17,32 @@ function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactEle
     description: 'The keywords meta tag for the site',
   });
 
+  const siteName = translate({
+    id: 'theme.siteName',
+    message: 'Laravel 한국어 문서',
+    description: 'The site name for JSON-LD structured data',
+  });
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteName,
+    url: baseUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${baseUrl}/search?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  });
+
   return (
     <>
       <Head>
         <meta name="keywords" content={keywords} />
+        <script type="application/ld+json">{jsonLd}</script>
       </Head>
       {currentLocale !== defaultLocale && (
         <div className="translation-banner" role="status">

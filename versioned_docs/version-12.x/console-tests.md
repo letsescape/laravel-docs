@@ -6,12 +6,12 @@
 - [콘솔 이벤트](#console-events)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
 HTTP 테스트를 단순화하는 것 외에도, Laravel은 애플리케이션에서 작성한 [사용자 정의 콘솔 명령어](/docs/12.x/artisan)를 테스트할 수 있도록 간단한 API를 제공합니다.
 
 <a name="success-failure-expectations"></a>
-## 성공 / 실패 결과 예측
+## 성공 / 실패 결과 예측 (Success / Failure Expectations)
 
 먼저, Artisan 명령어의 종료 코드(exit code)에 대한 검증(assertion)을 어떻게 작성하는지 살펴보겠습니다. 이를 위해 테스트 내에서 `artisan` 메서드를 사용해 Artisan 명령어를 실행한 뒤, `assertExitCode` 메서드를 이용하여명령어가 특정 종료 코드로 완료되었는지 검증할 수 있습니다:
 
@@ -46,7 +46,7 @@ $this->artisan('inspire')->assertFailed();
 ```
 
 <a name="input-output-expectations"></a>
-## 입력 / 출력 예측
+## 입력 / 출력 예측 (Input / Output Expectations)
 
 Laravel에서는 콘솔 명령어에서 사용자 입력을 쉽게 "모킹(mock)"할 수 있도록 `expectsQuestion` 메서드를 제공합니다. 또한, 명령어가 출력할 것으로 기대되는 종료 코드와 텍스트를 각각 `assertExitCode`와 `expectsOutput` 메서드로 지정할 수 있습니다. 예를 들어, 다음과 같은 콘솔 명령어를 생각해보세요:
 

@@ -30,7 +30,7 @@
 ## 예외 처리 (Handling Exceptions)
 
 <a name="reporting-exceptions"></a>
-### 예외 리포팅 (Reporting Exceptions)
+### 예외 리포팅
 
 Laravel에서 예외 리포팅은 예외를 로그로 남기거나 [Sentry](https://github.com/getsentry/sentry-laravel), [Flare](https://flareapp.io)와 같은 외부 서비스로 전송할 때 사용합니다. 기본적으로는 [로깅](/docs/12.x/logging) 설정에 따라 예외가 기록되지만, 원한다면 다른 방법으로 리포팅할 수도 있습니다.
 
@@ -63,10 +63,10 @@ use App\Exceptions\InvalidOrderException;
 ```
 
 > [!NOTE]
-> 특정 예외의 리포팅 방식을 커스터마이즈하려면 [리포터블 예외](/docs/12.x/errors#renderable-exceptions) 기능도 활용할 수 있습니다.
+> 특정 예외의 리포팅 방식을 사용자 지정하려면 [리포터블 예외](/docs/12.x/errors#renderable-exceptions) 기능도 활용할 수 있습니다.
 
 <a name="global-log-context"></a>
-#### 전역 로그 컨텍스트 (Global Log Context)
+#### 전역 로그 컨텍스트
 
 가능한 경우, Laravel은 현재 사용자 ID를 모든 예외 로그 메시지의 부가 정보로 자동 추가합니다. `bootstrap/app.php` 파일 내에서 `context` 예외 메서드를 사용하여 직접 원하는 전역 컨텍스트 데이터를 정의할 수 있습니다. 이 정보는 애플리케이션에서 작성한 모든 예외 로그 메시지에 포함됩니다:
 
@@ -79,7 +79,7 @@ use App\Exceptions\InvalidOrderException;
 ```
 
 <a name="exception-log-context"></a>
-#### 예외 개별 로그 컨텍스트 (Exception Log Context)
+#### 예외 개별 로그 컨텍스트
 
 모든 로그 메시지에 컨텍스트를 추가하는 것도 유용하지만, 경우에 따라 특정 예외와 관련된 추가 컨텍스트 정보를 로그에 포함하고 싶을 수 있습니다. 애플리케이션의 특정 예외 클래스에 `context` 메서드를 정의하면, 해당 예외가 로그에 기록될 때마다 이 메서드에서 반환하는 데이터가 포함됩니다:
 
@@ -95,7 +95,7 @@ class InvalidOrderException extends Exception
     // ...
 
     /**
-     * 예외의 컨텍스트 정보 반환
+     * Get the exception's context information.
      *
      * @return array<string, mixed>
      */
@@ -107,7 +107,7 @@ class InvalidOrderException extends Exception
 ```
 
 <a name="the-report-helper"></a>
-#### `report` 헬퍼 (The `report` Helper)
+#### `report` 헬퍼
 
 때로는 예외를 리포트해야 하지만 현재 요청 처리는 계속 이어가고 싶을 수 있습니다. 이런 경우 `report` 헬퍼 함수를 사용하면 에러 페이지를 렌더링하지 않고도 예외만 빠르게 리포트할 수 있습니다:
 
@@ -115,7 +115,7 @@ class InvalidOrderException extends Exception
 public function isValid(string $value): bool
 {
     try {
-        // 값을 유효성 검사...
+        // Validate the value...
     } catch (Throwable $e) {
         report($e);
 
@@ -125,7 +125,7 @@ public function isValid(string $value): bool
 ```
 
 <a name="deduplicating-reported-exceptions"></a>
-#### 중복 예외 리포트 방지 (Deduplicating Reported Exceptions)
+#### 중복 예외 리포트 방지
 
 애플리케이션 곳곳에서 `report` 함수를 사용하다 보면, 동일한 예외가 여러 번 리포트되어 로그에 중복 기록될 수 있습니다.
 
@@ -142,20 +142,20 @@ public function isValid(string $value): bool
 ```php
 $original = new RuntimeException('Whoops!');
 
-report($original); // 기록됨
+report($original); // reported
 
 try {
     throw $original;
 } catch (Throwable $caught) {
-    report($caught); // 무시됨
+    report($caught); // ignored
 }
 
-report($original); // 무시됨
-report($caught); // 무시됨
+report($original); // ignored
+report($caught); // ignored
 ```
 
 <a name="exception-log-levels"></a>
-### 예외 로그 레벨 (Exception Log Levels)
+### 예외 로그 레벨
 
 애플리케이션의 [로그](/docs/12.x/logging)에 메시지가 쓰일 때, 해당 메시지는 [로그 레벨](/docs/12.x/logging#log-levels)과 함께 기록되어 중요도 또는 심각도를 나타냅니다.
 
@@ -173,7 +173,7 @@ use Psr\Log\LogLevel;
 ```
 
 <a name="ignoring-exceptions-by-type"></a>
-### 타입별 예외 무시 (Ignoring Exceptions by Type)
+### 타입별 예외 무시
 
 애플리케이션을 만들다 보면, 절대 리포트하지 않고 싶은 예외 타입이 있을 수 있습니다. 이런 예외는 `bootstrap/app.php` 파일에서 `dontReport` 예외 메서드로 무시할 수 있습니다. 이 메서드에 지정된 클래스들은 리포트 대상에서 제외됩니다. 단, 렌더링 커스텀 로직은 계속 적용할 수 있습니다:
 
@@ -228,7 +228,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 ```
 
 <a name="rendering-exceptions"></a>
-### 예외 렌더링 (Rendering Exceptions)
+### 예외 렌더링
 
 기본적으로 Laravel 예외 핸들러는 예외를 HTTP 응답으로 자동 변환합니다. 하지만 특정 예외 타입에 대해 직접 커스텀 렌더링 클로저를 등록할 수도 있습니다. `bootstrap/app.php` 파일에서 `render` 예외 메서드를 사용하면 가능합니다.
 
@@ -263,7 +263,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 ```
 
 <a name="rendering-exceptions-as-json"></a>
-#### 예외의 JSON 렌더링 (Rendering Exceptions as JSON)
+#### 예외의 JSON 렌더링
 
 예외를 렌더링할 때 Laravel은 요청의 `Accept` 헤더를 기준으로 HTML 혹은 JSON 응답을 자동 결정합니다. 만약 이 판단 로직을 커스텀하고 싶다면, `shouldRenderJsonWhen` 메서드를 사용할 수 있습니다:
 
@@ -283,9 +283,9 @@ use Throwable;
 ```
 
 <a name="customizing-the-exception-response"></a>
-#### 예외 응답 전체 커스터마이즈 (Customizing the Exception Response)
+#### 예외 응답 전체 사용자 지정
 
-드물게, 예외 핸들러가 렌더링하는 전체 HTTP 응답을 커스터마이즈해야 할 때가 있습니다. 이때는 `respond` 메서드에 클로저를 등록할 수 있습니다:
+드물게, 예외 핸들러가 렌더링하는 전체 HTTP 응답을 사용자 지정해야 할 때가 있습니다. 이때는 `respond` 메서드에 클로저를 등록할 수 있습니다:
 
 ```php
 use Symfony\Component\HttpFoundation\Response;
@@ -304,7 +304,7 @@ use Symfony\Component\HttpFoundation\Response;
 ```
 
 <a name="renderable-exceptions"></a>
-### 리포터블 & 렌더러블 예외 (Reportable and Renderable Exceptions)
+### 리포터블 & 렌더러블 예외
 
 예외별 커스텀 리포팅, 렌더링 동작을 `bootstrap/app.php` 파일이 아니라, 개별 예외 클래스 안에서 직접 정의할 수도 있습니다. 예외 클래스에 `report` 및 `render` 메서드가 있으면 Laravel이 자동으로 호출합니다:
 
@@ -320,7 +320,7 @@ use Illuminate\Http\Response;
 class InvalidOrderException extends Exception
 {
     /**
-     * 예외 리포트
+     * Report the exception.
      */
     public function report(): void
     {
@@ -328,7 +328,7 @@ class InvalidOrderException extends Exception
     }
 
     /**
-     * 예외를 HTTP 응답으로 렌더링
+     * Render the exception as an HTTP response.
      */
     public function render(Request $request): Response
     {
@@ -341,11 +341,11 @@ class InvalidOrderException extends Exception
 
 ```php
 /**
- * 예외를 HTTP 응답으로 렌더링
+ * Render the exception as an HTTP response.
  */
 public function render(Request $request): Response|bool
 {
-    if (/** 예외의 커스텀 렌더링 필요 여부 판단 */) {
+    if (/** Determine if the exception needs custom rendering */) {
 
         return response(/* ... */);
     }
@@ -358,11 +358,11 @@ public function render(Request $request): Response|bool
 
 ```php
 /**
- * 예외 리포트
+ * Report the exception.
  */
 public function report(): bool
 {
-    if (/** 예외의 커스텀 리포팅 필요 여부 판단 */) {
+    if (/** Determine if the exception needs custom reporting */) {
 
         // ...
 
@@ -377,7 +377,7 @@ public function report(): bool
 > `report` 메서드에 필요한 의존성은 타입힌트만 하면 Laravel의 [서비스 컨테이너](/docs/12.x/container)를 통해 자동 주입됩니다.
 
 <a name="throttling-reported-exceptions"></a>
-### 예외 리포트 제한(Throttling) (Throttling Reported Exceptions)
+### 예외 리포트 제한
 
 애플리케이션에서 정말 많은 양의 예외를 리포트해야 하는 경우, 실제로 로그로 기록하거나 외부 에러 트래킹 서비스로 보내는 예외의 양을 제한하고 싶을 수 있습니다.
 
@@ -426,7 +426,7 @@ use Throwable;
 })
 ```
 
-기본적으로 제한 키(rate limit key)는 예외의 클래스를 사용합니다. 직접 키를 커스터마이즈하려면 `Limit`의 `by` 메서드를 사용하면 됩니다:
+기본적으로 제한 키(rate limit key)는 예외의 클래스를 사용합니다. 직접 키를 사용자 지정하려면 `Limit`의 `by` 메서드를 사용하면 됩니다:
 
 ```php
 use Illuminate\Broadcasting\BroadcastException;
@@ -472,9 +472,9 @@ abort(404);
 ```
 
 <a name="custom-http-error-pages"></a>
-### 커스텀 HTTP 에러 페이지 (Custom HTTP Error Pages)
+### 커스텀 HTTP 에러 페이지
 
-Laravel은 다양한 HTTP 상태 코드 별 커스텀 에러 페이지를 쉽게 만들 수 있도록 지원합니다. 예를 들어, 404 상태 코드용 에러 페이지를 커스터마이즈하려면 `resources/views/errors/404.blade.php` 뷰 템플릿을 생성하세요. 이 뷰는 애플리케이션에서 발생하는 모든 404 에러에 대해 렌더링됩니다. 이 디렉터리 내의 뷰 파일명은 각 HTTP 상태 코드와 일치해야 합니다. `abort` 함수에서 발생한 `Symfony\Component\HttpKernel\Exception\HttpException` 인스턴스는 `$exception` 변수로 뷰에 전달됩니다:
+Laravel은 다양한 HTTP 상태 코드 별 커스텀 에러 페이지를 쉽게 만들 수 있도록 지원합니다. 예를 들어, 404 상태 코드용 에러 페이지를 사용자 지정하려면 `resources/views/errors/404.blade.php` 뷰 템플릿을 생성하세요. 이 뷰는 애플리케이션에서 발생하는 모든 404 에러에 대해 렌더링됩니다. 이 디렉터리 내의 뷰 파일명은 각 HTTP 상태 코드와 일치해야 합니다. `abort` 함수에서 발생한 `Symfony\Component\HttpKernel\Exception\HttpException` 인스턴스는 `$exception` 변수로 뷰에 전달됩니다:
 
 ```blade
 <h2>{{ $exception->getMessage() }}</h2>
@@ -487,7 +487,7 @@ php artisan vendor:publish --tag=laravel-errors
 ```
 
 <a name="fallback-http-error-pages"></a>
-#### 폴백 HTTP 에러 페이지 (Fallback HTTP Error Pages)
+#### 폴백 HTTP 에러 페이지
 
 특정 HTTP 상태 코드에 맞는 별도 페이지가 없을 경우를 대비해, 일련의 상태 코드(예: 4xx, 5xx)용 "폴백" 에러 페이지를 정의할 수도 있습니다. 이를 위해 `resources/views/errors` 디렉터리에 `4xx.blade.php`와 `5xx.blade.php` 템플릿을 각각 생성하면 됩니다.
 

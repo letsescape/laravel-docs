@@ -52,7 +52,7 @@ composer require laravel/prompts
 ## 사용 가능한 프롬프트 (Available Prompts)
 
 <a name="text"></a>
-### 텍스트 (Text)
+### 텍스트
 
 `text` 함수는 지정한 질문을 사용자에게 표시하고, 입력값을 받아 반환합니다:
 
@@ -122,7 +122,7 @@ $name = text(
 ```
 
 <a name="textarea"></a>
-### 텍스트 영역 (Textarea)
+### 텍스트 영역
 
 `textarea` 함수는 사용자가 여러 줄로 입력할 수 있는 textarea로 질문을 던지고, 입력값을 받아 반환합니다:
 
@@ -191,7 +191,7 @@ $story = textarea(
 ```
 
 <a name="number"></a>
-### 숫자 (Number)
+### 숫자
 
 `number` 함수는 질문을 표시하고, 숫자 입력을 받아 반환합니다. 사용자는 위/아래 방향키로 숫자를 조정할 수 있습니다:
 
@@ -261,7 +261,7 @@ $copies = number(
 ```
 
 <a name="password"></a>
-### 비밀번호 (Password)
+### 비밀번호
 
 `password` 함수는 `text` 함수와 비슷하지만, 사용자가 입력하는 값이 콘솔에서 마스킹(숨김) 처리됩니다. 비밀번호 등 민감한 정보를 입력받을 때 유용합니다:
 
@@ -329,7 +329,7 @@ $password = password(
 ```
 
 <a name="confirm"></a>
-### 확인 (Confirm)
+### 확인
 
 사용자에게 "예/아니오" 형태의 확인을 요청하고 싶을 때 `confirm` 함수를 사용할 수 있습니다. 사용자는 방향키나 `y`, `n` 키로 선택합니다. 결과는 `true` 또는 `false`로 반환됩니다.
 
@@ -373,7 +373,7 @@ $confirmed = confirm(
 ```
 
 <a name="select"></a>
-### 선택 (Select)
+### 선택
 
 사용자가 미리 정해진 항목 중에서 하나를 선택하도록 하려면 `select` 함수를 사용할 수 있습니다:
 
@@ -444,7 +444,7 @@ $role = select(
 `options` 인수가 연관 배열이면 선택된 키를, 배열이면 값을 반환합니다. 클로저는 에러 메시지나 `null`을 반환할 수 있습니다.
 
 <a name="multiselect"></a>
-### 다중 선택 (Multi-select)
+### 다중 선택
 
 여러 옵션 중 복수 개를 선택하게 하려면 `multiselect` 함수를 사용하세요:
 
@@ -541,7 +541,7 @@ $permissions = multiselect(
 연관 배열을 사용한다면 선택된 키들이, 단순 배열이면 값들이 전달됩니다. 반환값은 에러 메시지 또는 `null`입니다.
 
 <a name="suggest"></a>
-### 추천 (Suggest)
+### 추천
 
 `suggest` 함수는 자동완성 후보를 제공할 수 있습니다. 자동완성 후보와 상관없이 사용자는 임의의 답변도 입력할 수 있습니다:
 
@@ -624,7 +624,7 @@ $name = suggest(
 ```
 
 <a name="search"></a>
-### 검색 (Search)
+### 검색
 
 옵션이 많을 때, `search` 함수는 사용자가 검색어를 입력해 목록을 필터링한 후, 원하는 항목을 선택할 수 있게 해줍니다:
 
@@ -648,7 +648,7 @@ $names = collect(['Taylor', 'Abigail']);
 
 $selected = search(
     label: 'Search for the user that should receive the mail',
-    options: fn ($value) => $names
+    options: fn (string $value) => $names
         ->filter(fn ($name) => Str::contains($name, $value, ignoreCase: true))
         ->values()
         ->all(),
@@ -704,7 +704,7 @@ $id = search(
 연관 배열 반환인 경우 선택된 키, 값 배열이면 선택된 값을 전달받습니다.
 
 <a name="multisearch"></a>
-### 다중 검색 (Multi-search)
+### 다중 검색
 
 검색 가능한 여러 옵션 중 복수 항목을 선택해야 한다면 `multisearch` 함수를 사용하세요. 사용자는 검색어로 목록을 필터링하고, 방향키와 스페이스바로 원하는 항목을 선택할 수 있습니다.
 
@@ -811,7 +811,7 @@ $ids = multisearch(
 연관 배열이면 선택된 키 배열, 값 배열이면 선택된 값 배열을 전달받습니다. 반환값은 에러 메시지 또는 `null`입니다.
 
 <a name="pause"></a>
-### 일시정지 (Pause)
+### 일시정지
 
 `pause` 함수는 중간 안내 메시지를 표시하고, 사용자가 Enter/Return을 눌러 진행하도록 합니다:
 

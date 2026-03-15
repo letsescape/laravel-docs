@@ -28,12 +28,12 @@
     - [`Rules` 디렉토리](#the-rules-directory)
 
 <a name="introduction"></a>
-## 소개
+## 소개 (Introduction)
 
 기본 Laravel 애플리케이션 구조는 대규모 및 소규모 애플리케이션 모두에 훌륭한 출발점을 제공합니다. 그러나 애플리케이션을 원하는 대로 자유롭게 구성할 수 있습니다. Laravel은 Composer로 클래스가 자동 로드되는 한, 특정 클래스가 어디에 위치해야 하는지에 대해 거의 제약을 두지 않습니다.
 
 <a name="the-root-directory"></a>
-## 루트 디렉토리
+## 루트 디렉토리 (The Root Directory)
 
 <a name="the-root-app-directory"></a>
 ### `app` 디렉토리
@@ -98,7 +98,7 @@
 `vendor` 디렉토리에는 [Composer](https://getcomposer.org) 의존성이 저장됩니다.
 
 <a name="the-app-directory"></a>
-## App 디렉토리
+## App 디렉토리 (The App Directory)
 
 애플리케이션 대부분은 `app` 디렉토리에 위치합니다. 기본적으로 이 디렉토리는 `App` 네임스페이스가 적용되며, Composer에 의해 [PSR-4 자동 로딩 표준](https://www.php-fig.org/psr/psr-4/)을 사용해 자동 로드됩니다.
 
