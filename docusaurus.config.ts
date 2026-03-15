@@ -130,6 +130,12 @@ const config: Config = {
       {
         docs: false, // 플러그인으로 대체
         blog: false,
+        sitemap: {
+          lastmod: 'date',
+          changefreq: null,
+          priority: null,
+          filename: 'sitemap.xml',
+        },
         gtag: {
           trackingID: 'G-P3YFWCWEBP',
           anonymizeIP: true,
