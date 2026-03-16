@@ -33,11 +33,6 @@ export default function ChatBot(): ReactNode {
   const chatButtonRef = useRef<HTMLButtonElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // chatbotApiUrl이 설정되지 않으면 챗봇을 렌더링하지 않음
-  if (!chatbotApiUrl) {
-    return null;
-  }
-
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
   }, []);
@@ -183,6 +178,11 @@ export default function ChatBot(): ReactNode {
     },
     [handleSubmit],
   );
+
+  // chatbotApiUrl이 설정되지 않으면 챗봇을 렌더링하지 않음
+  if (!chatbotApiUrl) {
+    return null;
+  }
 
   return (
     <div data-nosnippet data-pagefind-ignore>
