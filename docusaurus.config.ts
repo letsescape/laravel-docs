@@ -5,7 +5,7 @@ import autoLanguagePlugin from './src/remark/auto-language-plugin';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
-const siteName = 'Laravel 한국어 문서';
+const siteName = 'Laravel Documentation';
 
 const config: Config = {
   title: 'Laravel',
