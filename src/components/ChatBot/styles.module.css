@@ -258,7 +258,7 @@
 
 .suggestionChip:hover:not(:disabled) {
   border-color: var(--ifm-color-primary);
-  background-color: var(--ifm-color-primary-lightest);
+  background-color: var(--ifm-color-primary);
   color: #fff;
 }
 

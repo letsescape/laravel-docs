@@ -5,10 +5,13 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './styles.module.css';
 
 interface Message {
+  id: number;
   role: 'user' | 'assistant';
   content: string;
   isError?: boolean;
 }
+
+let nextMessageId = 0;
 
 const SUGGESTED_QUESTIONS = [
   {icon: '\u{1F4D6}', text: 'Eloquent ORM이란?', id: 'chatbot.suggestion.eloquent'},
@@ -19,7 +22,7 @@ const SUGGESTED_QUESTIONS = [
 
 export default function ChatBot(): ReactNode {
   const {siteConfig, i18n} = useDocusaurusContext();
-  const chatbotApiUrl = siteConfig.customFields?.chatbotApiUrl as string;
+  const chatbotApiUrl = siteConfig.customFields?.chatbotApiUrl as string | undefined;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -28,6 +31,12 @@ export default function ChatBot(): ReactNode {
   const inputRef = useRef<HTMLInputElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
   const chatButtonRef = useRef<HTMLButtonElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // chatbotApiUrl이 설정되지 않으면 챗봇을 렌더링하지 않음
+  if (!chatbotApiUrl) {
+    return null;
+  }
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -43,17 +52,21 @@ export default function ChatBot(): ReactNode {
     }
   }, [isOpen]);
 
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    chatButtonRef.current?.focus();
+  }, []);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setIsOpen(false);
-        chatButtonRef.current?.focus();
+        handleClose();
       }
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
+  }, [isOpen, handleClose]);
 
   useEffect(() => {
     if (!isOpen || !chatWindowRef.current) return;
@@ -82,13 +95,19 @@ export default function ChatBot(): ReactNode {
 
   const sendMessage = useCallback(
     (text: string) => {
-      setMessages(prev => [...prev, {role: 'user', content: text}]);
+      const userMsg: Message = {id: nextMessageId++, role: 'user', content: text};
+      setMessages(prev => [...prev, userMsg]);
       setInput('');
       setIsLoading(true);
+
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
 
       fetch(chatbotApiUrl, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
+        signal: controller.signal,
         body: JSON.stringify({
           message: text,
           locale: i18n.currentLocale,
@@ -109,12 +128,15 @@ export default function ChatBot(): ReactNode {
         .then(data => {
           const content = data.answer ?? data.message ?? data.response ?? '';
           if (!content) throw new Error('Empty response');
-          setMessages(prev => [...prev, {role: 'assistant', content}]);
+          setMessages(prev => [...prev, {id: nextMessageId++, role: 'assistant', content}]);
         })
-        .catch(() => {
+        .catch((error) => {
+          if (error.name === 'AbortError') return;
+          console.error('[ChatBot] API request failed:', error);
           setMessages(prev => [
             ...prev,
             {
+              id: nextMessageId++,
               role: 'assistant',
               content: translate({
                 id: 'chatbot.errorMessage',
@@ -145,8 +167,11 @@ export default function ChatBot(): ReactNode {
   );
 
   const handleClear = useCallback(() => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
     setMessages([]);
     setInput('');
+    setIsLoading(false);
   }, []);
 
   const handleKeyDown = useCallback(
@@ -162,9 +187,25 @@ export default function ChatBot(): ReactNode {
   return (
     <div data-nosnippet data-pagefind-ignore>
       {isOpen && (
-        <div ref={chatWindowRef} className={styles.chatWindow} role="dialog" aria-label="AI Chat" aria-modal="true">
+        <div
+          ref={chatWindowRef}
+          className={styles.chatWindow}
+          role="dialog"
+          aria-label={translate({
+            id: 'chatbot.dialogLabel',
+            message: 'AI 채팅',
+            description: 'ARIA label for the chat dialog',
+          })}
+          aria-modal="true"
+        >
           <div className={styles.chatHeader}>
-            <span className={styles.chatHeaderTitle}>Laravel AI Assistant</span>
+            <span className={styles.chatHeaderTitle}>
+              {translate({
+                id: 'chatbot.headerTitle',
+                message: 'Laravel AI Assistant',
+                description: 'Chat window header title',
+              })}
+            </span>
             <div className={styles.chatHeaderActions}>
               {messages.length > 0 && (
                 <button
@@ -188,8 +229,12 @@ export default function ChatBot(): ReactNode {
               )}
               <button
                 className={styles.chatCloseButton}
-                onClick={() => setIsOpen(false)}
-                aria-label="Close chat"
+                onClick={handleClose}
+                aria-label={translate({
+                  id: 'chatbot.closeChat',
+                  message: '채팅 닫기',
+                  description: 'Close chat button label',
+                })}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -226,9 +271,9 @@ export default function ChatBot(): ReactNode {
                 </div>
               </>
             )}
-            {messages.map((msg, idx) => (
+            {messages.map((msg) => (
               <div
-                key={idx}
+                key={msg.id}
                 className={clsx(
                   styles.message,
                   msg.role === 'user' ? styles.userMessage : styles.botMessage,
@@ -280,7 +325,11 @@ export default function ChatBot(): ReactNode {
               className={styles.sendButton}
               onClick={handleSubmit}
               disabled={isLoading || !input.trim()}
-              aria-label="Send message"
+              aria-label={translate({
+                id: 'chatbot.sendMessage',
+                message: '메시지 보내기',
+                description: 'Send message button label',
+              })}
             >
               <svg className={styles.sendIcon} viewBox="0 0 24 24" fill="currentColor">
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -294,7 +343,10 @@ export default function ChatBot(): ReactNode {
         ref={chatButtonRef}
         className={styles.chatButton}
         onClick={() => setIsOpen(prev => !prev)}
-        aria-label={isOpen ? 'Close chat' : 'Open chat'}
+        aria-label={isOpen
+          ? translate({id: 'chatbot.closeChat', message: '채팅 닫기', description: 'Close chat button label'})
+          : translate({id: 'chatbot.openChat', message: '채팅 열기', description: 'Open chat button label'})
+        }
       >
         <svg className={styles.chatButtonIcon} viewBox="0 0 24 24" fill="currentColor">
           {isOpen ? (
