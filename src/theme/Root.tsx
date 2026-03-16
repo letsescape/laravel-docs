@@ -40,6 +40,7 @@ function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactEle
   return (
     <>
       <Head>
+        <meta property="og:site_name" content={siteName} />
         <meta name="keywords" content={keywords} />
         <script type="application/ld+json">{jsonLd}</script>
       </Head>

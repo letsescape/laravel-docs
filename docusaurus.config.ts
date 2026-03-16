@@ -126,8 +126,8 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/laravel-home.png',
+    // OG 이미지 사이트 기본값 (메인 페이지에서는 별도 이미지로 오버라이드)
+    image: 'img/laravel-docs.png',
 
     // 다크 모드 설정
     colorMode: {
