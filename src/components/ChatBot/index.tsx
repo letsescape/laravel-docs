@@ -112,7 +112,7 @@ export default function ChatBot(): ReactNode {
           // - 예: "이 페이지에서 설명하는 걸 쉽게 알려줘" 같은 맥락 질문 지원
           context: {
             pageTitle: document.title,
-            pagePath: window.location.pathname,
+            pagePath: globalThis.location.pathname,
           },
         }),
       })
@@ -187,10 +187,10 @@ export default function ChatBot(): ReactNode {
   return (
     <div data-nosnippet data-pagefind-ignore>
       {isOpen && (
-        <div
+        <dialog
           ref={chatWindowRef}
           className={styles.chatWindow}
-          role="dialog"
+          open
           aria-label={translate({
             id: 'chatbot.dialogLabel',
             message: 'AI 채팅',
@@ -297,11 +297,12 @@ export default function ChatBot(): ReactNode {
               </div>
             )}
             <div aria-live="polite" className={styles.srOnly}>
-              {messages.length > 0 && messages[messages.length - 1].role === 'assistant'
-                ? messages[messages.length - 1].content
-                : isLoading
-                  ? translate({id: 'chatbot.loading', message: '응답 생성 중...', description: 'Screen reader loading text'})
-                  : ''}
+              {(() => {
+                const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+                if (lastMsg?.role === 'assistant') return lastMsg.content;
+                if (isLoading) return translate({id: 'chatbot.loading', message: '응답 생성 중...', description: 'Screen reader loading text'});
+                return '';
+              })()}
             </div>
             <div ref={messagesEndRef} />
           </div>
@@ -336,7 +337,7 @@ export default function ChatBot(): ReactNode {
               </svg>
             </button>
           </div>
-        </div>
+        </dialog>
       )}
 
       <button
