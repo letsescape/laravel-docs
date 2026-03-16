@@ -2,6 +2,7 @@ import React, {useState, useRef, useEffect, useCallback, type ReactNode} from 'r
 import clsx from 'clsx';
 import {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import {useLocation} from '@docusaurus/router';
 import styles from './styles.module.css';
 
 interface Message {
@@ -10,8 +11,6 @@ interface Message {
   content: string;
   isError?: boolean;
 }
-
-let nextMessageId = 0;
 
 const SUGGESTED_QUESTIONS = [
   {icon: '\u{1F4D6}', text: 'Eloquent ORM이란?', id: 'chatbot.suggestion.eloquent'},
@@ -22,6 +21,7 @@ const SUGGESTED_QUESTIONS = [
 
 export default function ChatBot(): ReactNode {
   const {siteConfig, i18n} = useDocusaurusContext();
+  const location = useLocation();
   const chatbotApiUrl = siteConfig.customFields?.chatbotApiUrl as string | undefined;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -32,6 +32,7 @@ export default function ChatBot(): ReactNode {
   const chatWindowRef = useRef<HTMLDivElement>(null);
   const chatButtonRef = useRef<HTMLButtonElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const nextMessageIdRef = useRef(0);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -90,7 +91,7 @@ export default function ChatBot(): ReactNode {
 
   const sendMessage = useCallback(
     (text: string) => {
-      const userMsg: Message = {id: nextMessageId++, role: 'user', content: text};
+      const userMsg: Message = {id: nextMessageIdRef.current++, role: 'user', content: text};
       setMessages(prev => [...prev, userMsg]);
       setInput('');
       setIsLoading(true);
@@ -99,7 +100,7 @@ export default function ChatBot(): ReactNode {
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
-      fetch(chatbotApiUrl, {
+      fetch(chatbotApiUrl!, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         signal: controller.signal,
@@ -112,7 +113,7 @@ export default function ChatBot(): ReactNode {
           // - 예: "이 페이지에서 설명하는 걸 쉽게 알려줘" 같은 맥락 질문 지원
           context: {
             pageTitle: document.title,
-            pagePath: globalThis.location.pathname,
+            pagePath: location.pathname,
           },
         }),
       })
@@ -121,9 +122,10 @@ export default function ChatBot(): ReactNode {
           return response.json();
         })
         .then(data => {
+          if (controller.signal.aborted) return;
           const content = data.answer ?? data.message ?? data.response ?? '';
           if (!content) throw new Error('Empty response');
-          setMessages(prev => [...prev, {id: nextMessageId++, role: 'assistant', content}]);
+          setMessages(prev => [...prev, {id: nextMessageIdRef.current++, role: 'assistant', content}]);
         })
         .catch((error) => {
           if (error.name === 'AbortError') return;
@@ -131,7 +133,7 @@ export default function ChatBot(): ReactNode {
           setMessages(prev => [
             ...prev,
             {
-              id: nextMessageId++,
+              id: nextMessageIdRef.current++,
               role: 'assistant',
               content: translate({
                 id: 'chatbot.errorMessage',
@@ -142,9 +144,13 @@ export default function ChatBot(): ReactNode {
             },
           ]);
         })
-        .finally(() => setIsLoading(false));
+        .finally(() => {
+          if (!controller.signal.aborted) {
+            setIsLoading(false);
+          }
+        });
     },
-    [chatbotApiUrl, i18n.currentLocale],
+    [chatbotApiUrl, i18n.currentLocale, location.pathname],
   );
 
   const handleSubmit = useCallback(() => {
@@ -182,6 +188,14 @@ export default function ChatBot(): ReactNode {
   // chatbotApiUrl이 설정되지 않으면 챗봇을 렌더링하지 않음
   if (!chatbotApiUrl) {
     return null;
+  }
+
+  const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+  let ariaLiveText = '';
+  if (lastMsg?.role === 'assistant') {
+    ariaLiveText = lastMsg.content;
+  } else if (isLoading) {
+    ariaLiveText = translate({id: 'chatbot.loading', message: '응답 생성 중...', description: 'Screen reader loading text'});
   }
 
   return (
@@ -297,12 +311,7 @@ export default function ChatBot(): ReactNode {
               </div>
             )}
             <div aria-live="polite" className={styles.srOnly}>
-              {(() => {
-                const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
-                if (lastMsg?.role === 'assistant') return lastMsg.content;
-                if (isLoading) return translate({id: 'chatbot.loading', message: '응답 생성 중...', description: 'Screen reader loading text'});
-                return '';
-              })()}
+              {ariaLiveText}
             </div>
             <div ref={messagesEndRef} />
           </div>
