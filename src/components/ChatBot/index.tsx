@@ -22,7 +22,8 @@ const SUGGESTED_QUESTIONS = [
 export default function ChatBot(): ReactNode {
   const {siteConfig, i18n} = useDocusaurusContext();
   const location = useLocation();
-  const chatbotApiUrl = siteConfig.customFields?.chatbotApiUrl as string | undefined;
+  const rawApiUrl = siteConfig.customFields?.chatbotApiUrl;
+  const chatbotApiUrl = typeof rawApiUrl === 'string' ? rawApiUrl : undefined;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -33,6 +34,14 @@ export default function ChatBot(): ReactNode {
   const chatButtonRef = useRef<HTMLButtonElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const nextMessageIdRef = useRef(0);
+  const isSendingRef = useRef(false);
+
+  // unmount 시 in-flight 요청 cleanup
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
@@ -91,6 +100,9 @@ export default function ChatBot(): ReactNode {
 
   const sendMessage = useCallback(
     (text: string) => {
+      if (isSendingRef.current) return;
+      isSendingRef.current = true;
+
       const userMsg: Message = {id: nextMessageIdRef.current++, role: 'user', content: text};
       setMessages(prev => [...prev, userMsg]);
       setInput('');
@@ -145,6 +157,7 @@ export default function ChatBot(): ReactNode {
           ]);
         })
         .finally(() => {
+          isSendingRef.current = false;
           if (!controller.signal.aborted) {
             setIsLoading(false);
           }
@@ -170,6 +183,7 @@ export default function ChatBot(): ReactNode {
   const handleClear = useCallback(() => {
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
+    isSendingRef.current = false;
     setMessages([]);
     setInput('');
     setIsLoading(false);
@@ -210,7 +224,6 @@ export default function ChatBot(): ReactNode {
             message: 'AI 채팅',
             description: 'ARIA label for the chat dialog',
           })}
-          aria-modal="true"
         >
           <div className={styles.chatHeader}>
             <span className={styles.chatHeaderTitle}>
