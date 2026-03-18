@@ -24,7 +24,7 @@
 - [테스트 시 Vite 비활성화](#disabling-vite-in-tests)
 - [서버 사이드 렌더링(SSR)](#ssr)
 - [스크립트와 스타일 태그 속성](#script-and-style-attributes)
-  - [Content Security Policy (CSP) Nonce](#content-security-csp-nonce)
+  - [Content Security Policy (CSP) Nonce](#content-security-policy-csp-nonce)
   - [Subresource Integrity (SRI)](#subresource-integrity-sri)
   - [임의 속성](#arbitrary-attributes)
 - [고급 커스터마이징](#advanced-customization)

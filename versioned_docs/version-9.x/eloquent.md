@@ -433,7 +433,7 @@ Model::shouldBeStrict(! $this->app->isProduction());
 <a name="retrieving-models"></a>
 ## 모델 조회하기
 
-모델과 [연관된 데이터베이스 테이블](/docs/9.x/migrations#writing-migrations)을 만들었다면, 이제 데이터베이스에서 데이터를 조회할 준비가 된 것입니다. 각 Eloquent 모델은 [강력한 쿼리 빌더](/docs/9.x/queries)로서, 모델과 연결된 테이블에 대해 유연하게 쿼리를 작성할 수 있습니다. 모델의 `all` 메서드는 해당 테이블에 있는 모든 레코드를 조회합니다.
+모델과 [연관된 데이터베이스 테이블](/docs/9.x/migrations#generating-migrations)을 만들었다면, 이제 데이터베이스에서 데이터를 조회할 준비가 된 것입니다. 각 Eloquent 모델은 [강력한 쿼리 빌더](/docs/9.x/queries)로서, 모델과 연결된 테이블에 대해 유연하게 쿼리를 작성할 수 있습니다. 모델의 `all` 메서드는 해당 테이블에 있는 모든 레코드를 조회합니다.
 
 ```
 use App\Models\Flight;

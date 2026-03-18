@@ -9,7 +9,7 @@
 <a name="introduction"></a>
 ## 소개 (Introduction)
 
-Laravel은 애플리케이션의 [캐시](cache)와 함께 사용할 수 있는 간단한 요청 제한 추상화 기능을 제공합니다. 이를 통해 지정된 시간 동안 특정 동작을 손쉽게 제한할 수 있습니다.
+Laravel은 애플리케이션의 [캐시](/docs/12.x/cache)와 함께 사용할 수 있는 간단한 요청 제한 추상화 기능을 제공합니다. 이를 통해 지정된 시간 동안 특정 동작을 손쉽게 제한할 수 있습니다.
 
 > [!NOTE]
 > 들어오는 HTTP 요청의 요청 제한(rate limiting)에 관심이 있으시다면, [rate limiter 미들웨어 문서](/docs/12.x/routing#rate-limiting)를 참고하시기 바랍니다.

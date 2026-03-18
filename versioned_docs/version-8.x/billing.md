@@ -1533,7 +1533,7 @@ $user = User::create([
 ```
 
 > [!NOTE]
-> 청구 가능 모델 클래스 정의에 [date cast](/docs/8.x/eloquent-mutators##date-casting)에서 `trial_ends_at` 속성을 날짜로 변환하는 캐스팅 설정을 꼭 추가하세요.
+> 청구 가능 모델 클래스 정의에 [date cast](/docs/8.x/eloquent-mutators#date-casting)에서 `trial_ends_at` 속성을 날짜로 변환하는 캐스팅 설정을 꼭 추가하세요.
 
 Cashier에서는 이런 체험을 '일반(generic) 체험'으로 부르며, 아직 실제 구독과 연결되지 않은 상태입니다. 청구 가능 모델 인스턴스의 `onTrial` 메서드는 현재 날짜가 `trial_ends_at` 값보다 이전일 때 `true`를 반환합니다.
 

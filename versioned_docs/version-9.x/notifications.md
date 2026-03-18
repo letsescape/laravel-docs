@@ -36,7 +36,6 @@
 - [SMS 알림](#sms-notifications)
     - [사전 준비 사항](#sms-prerequisites)
     - [SMS 알림 포매팅](#formatting-sms-notifications)
-    - [숏코드 알림 포매팅](#formatting-shortcode-notifications)
     - ["From" 번호 커스터마이징](#customizing-the-from-number)
     - [클라이언트 참조 추가](#adding-a-client-reference)
     - [SMS 알림 라우팅](#routing-sms-notifications)

@@ -300,7 +300,7 @@ class Flight extends Model
 <a name="retrieving-models"></a>
 ## 모델 조회
 
-모델과 [연관된 데이터베이스 테이블](/docs/8.x/migrations#writing-migrations)을 생성했다면, 이제 데이터베이스에서 데이터를 조회할 준비가 된 것입니다. 각각의 Eloquent 모델은 매우 강력한 [쿼리 빌더](/docs/8.x/queries) 역할을 하며, 해당 모델이 매핑된 테이블에 대해 자유롭게 쿼리를 작성할 수 있습니다. 모델의 `all` 메서드를 사용하면 모델과 관련된 테이블의 모든 레코드를 가져옵니다.
+모델과 [연관된 데이터베이스 테이블](/docs/8.x/migrations#generating-migrations)을 생성했다면, 이제 데이터베이스에서 데이터를 조회할 준비가 된 것입니다. 각각의 Eloquent 모델은 매우 강력한 [쿼리 빌더](/docs/8.x/queries) 역할을 하며, 해당 모델이 매핑된 테이블에 대해 자유롭게 쿼리를 작성할 수 있습니다. 모델의 `all` 메서드를 사용하면 모델과 관련된 테이블의 모든 레코드를 가져옵니다.
 
 ```
 use App\Models\Flight;

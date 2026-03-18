@@ -370,7 +370,7 @@ $name = $request->input('user.name');
 <a name="retrieving-stringable-input-values"></a>
 #### Stringable 입력값 가져오기
 
-입력값을 `string` 타입이 아닌 [`Illuminate\Support\Stringable`](/docs/10.x/helpers#fluent-strings) 객체로 받고 싶다면, `string` 메서드를 이용하세요.
+입력값을 `string` 타입이 아닌 [`Illuminate\Support\Stringable`](/docs/10.x/strings#fluent-strings) 객체로 받고 싶다면, `string` 메서드를 이용하세요.
 
 ```
 $name = $request->string('name')->trim();

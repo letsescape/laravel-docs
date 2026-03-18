@@ -1712,7 +1712,7 @@ $response->assertSessionHasErrors([
 <a name="assert-session-has-errors-in"></a>
 #### assertSessionHasErrorsIn
 
-특정 [에러 백](error bag)에서, 지정한 `$keys`가 오류를 포함하고 있는지 확인합니다. `$keys`가 연관 배열이면, 에러 백 안에서 각 필드(키)에 대해 특정 오류 메시지(값)가 존재하는지 검증합니다.
+특정 에러 백(error bag)에서, 지정한 `$keys`가 오류를 포함하고 있는지 확인합니다. `$keys`가 연관 배열이면, 에러 백 안에서 각 필드(키)에 대해 특정 오류 메시지(값)가 존재하는지 검증합니다.
 
 ```
 $response->assertSessionHasErrorsIn($errorBag, $keys = [], $format = null);

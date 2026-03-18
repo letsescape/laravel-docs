@@ -55,7 +55,7 @@
 [Arr::sort](#method-array-sort)
 [Arr::sortDesc](#method-array-sort-desc)
 [Arr::sortRecursive](#method-array-sort-recursive)
-[Arr::sortRecursiveDesc](#method-array-sort-recursive-desc)
+[Arr::sortRecursiveDesc](#method-array-sort-recursive)
 [Arr::take](#method-array-take)
 [Arr::toCssClasses](#method-array-to-css-classes)
 [Arr::toCssStyles](#method-array-to-css-styles)
@@ -2073,7 +2073,7 @@ logger('Debug message');
 logger('User has logged in.', ['id' => $user->id]);
 ```
 
-아무런 값을 전달하지 않고 호출하면 [로거 객체](/docs/10.x/errors#logging) 인스턴스를 반환합니다.
+아무런 값을 전달하지 않고 호출하면 [로거 객체](/docs/10.x/logging) 인스턴스를 반환합니다.
 
 ```
 logger()->error('You are not allowed here.');

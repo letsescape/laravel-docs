@@ -135,7 +135,7 @@ Queue::route(ProcessPodcast::class, connection: 'redis', queue: 'podcasts');
 
 Laravel 13은 프레임워크 전반에서 1차 제공 PHP 속성 지원을 계속 확장하고 있습니다. 이를 통해 자주 사용하는 설정과 동작 관련 요소를 더 선언적으로, 그리고 클래스와 메서드 가까이에 배치할 수 있습니다.
 
-대표적으로 [`#[Middleware]`](/docs/13.x/controllers#controller-middleware), [`#[Authorize]`](/docs/13.x/controllers#authorize-attribute) 같은 컨트롤러 및 인가 속성과, [`#[Tries]`](/docs/13.x/queues#max-job-attempts-and-timeout), [`#[Backoff]`](/docs/13.x/queues#dealing-with-failed-jobs), [`#[Timeout]`](/docs/13.x/queues#max-job-attempts-and-timeout), [`#[FailOnTimeout]`](/docs/13.x/queues#failing-on-timeout) 같은 큐 작업 제어 속성이 추가되었습니다.
+대표적으로 [`#[Middleware]`](/docs/13.x/controllers#controller-middleware), [`#[Authorize]`](/docs/13.x/controllers#authorization-attributes) 같은 컨트롤러 및 인가 속성과, [`#[Tries]`](/docs/13.x/queues#max-job-attempts-and-timeout), [`#[Backoff]`](/docs/13.x/queues#dealing-with-failed-jobs), [`#[Timeout]`](/docs/13.x/queues#max-job-attempts-and-timeout), [`#[FailOnTimeout]`](/docs/13.x/queues#failing-on-timeout) 같은 큐 작업 제어 속성이 추가되었습니다.
 
 예를 들어 이제 컨트롤러 미들웨어와 정책 검사를 클래스와 메서드에 직접 선언할 수 있습니다:
 

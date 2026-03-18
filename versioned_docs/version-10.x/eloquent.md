@@ -415,7 +415,7 @@ Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
 <a name="retrieving-models"></a>
 ## 모델 조회하기
 
-모델과 [관련 데이터베이스 테이블](/docs/10.x/migrations#writing-migrations)을 생성했다면, 데이터베이스에서 데이터를 조회할 준비가 끝난 것입니다. 각 Eloquent 모델은 강력한 [쿼리 빌더](/docs/10.x/queries)처럼 작동하므로, 메서드 체이닝을 통해 모델과 연결된 테이블을 유연하게 조회할 수 있습니다. `all` 메서드를 사용하면 해당 모델과 연결된 테이블의 모든 레코드를 한 번에 가져올 수 있습니다.
+모델과 [관련 데이터베이스 테이블](/docs/10.x/migrations#generating-migrations)을 생성했다면, 데이터베이스에서 데이터를 조회할 준비가 끝난 것입니다. 각 Eloquent 모델은 강력한 [쿼리 빌더](/docs/10.x/queries)처럼 작동하므로, 메서드 체이닝을 통해 모델과 연결된 테이블을 유연하게 조회할 수 있습니다. `all` 메서드를 사용하면 해당 모델과 연결된 테이블의 모든 레코드를 한 번에 가져올 수 있습니다.
 
 ```
 use App\Models\Flight;

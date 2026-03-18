@@ -8,7 +8,7 @@
     - [AI 가이드라인](#ai-guidelines)
     - [에이전트 스킬](#agent-skills)
     - [문서 검색](#documentation-search)
-    - [에이전트 통합](#agents-integration)
+    - [에이전트 통합](#agent-integration)
 
 <a name="introduction"></a>
 ## 소개 (Introduction)

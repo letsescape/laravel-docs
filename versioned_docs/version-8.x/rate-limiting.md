@@ -9,10 +9,10 @@
 <a name="introduction"></a>
 ## 소개
 
-라라벨은 애플리케이션의 [캐시](cache) 기능과 연동하여, 정해진 시간 동안 특정 작업의 실행 횟수를 간편하게 제한할 수 있는 쉬운 속도 제한(rate limiting) 추상화를 제공합니다.
+라라벨은 애플리케이션의 [캐시](/docs/8.x/cache) 기능과 연동하여, 정해진 시간 동안 특정 작업의 실행 횟수를 간편하게 제한할 수 있는 쉬운 속도 제한(rate limiting) 추상화를 제공합니다.
 
 > [!TIP]
-> 만약 외부에서 들어오는 HTTP 요청을 제한하고 싶으시다면, [속도 제한 미들웨어 문서](routing#rate-limiting)를 참고하시기 바랍니다.
+> 만약 외부에서 들어오는 HTTP 요청을 제한하고 싶으시다면, [속도 제한 미들웨어 문서](/docs/8.x/routing#rate-limiting)를 참고하시기 바랍니다.
 
 <a name="cache-configuration"></a>
 ### 캐시 설정
