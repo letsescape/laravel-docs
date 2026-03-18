@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Versions to process
-const versions = ['8.x', '9.x', '10.x', '11.x', '12.x'];
+const versions = ['8.x', '9.x', '10.x', '11.x', '12.x', '13.x'];
 
 // Function to parse documentation.md and create sidebar structure
 function parseSidebar(docContent, version) {

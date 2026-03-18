@@ -49,13 +49,17 @@ const config: Config = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'default',
-        path: 'versioned_docs/version-12.x',
+        path: 'versioned_docs/version-13.x',
         routeBasePath: 'docs',
-        sidebarPath: './versioned_sidebars/version-12.x-sidebars.json',
+        sidebarPath: './versioned_sidebars/version-13.x-sidebars.json',
         // 버전 관리 설정
         includeCurrentVersion: false,
-        lastVersion: '12.x',
+        lastVersion: '13.x',
         versions: {
+          '13.x': {
+            label: '13.x',
+            path: '13.x',
+          },
           '12.x': {
             label: '12.x',
             path: '12.x',
@@ -151,7 +155,7 @@ const config: Config = {
       },
       items: [
         {
-          to: '/docs/12.x',
+          to: '/docs/13.x',
           position: 'left',
           label: '문서',
         },
@@ -182,11 +186,11 @@ const config: Config = {
           items: [
             {
               label: '시작하기',
-              to: '/docs/12.x',
+              to: '/docs/13.x',
             },
             {
               label: '아키텍처 개념',
-              to: '/docs/12.x/container',
+              to: '/docs/13.x/container',
             },
           ],
         },

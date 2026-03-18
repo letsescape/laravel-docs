@@ -1,0 +1,182 @@
+{
+  "tutorialSidebar": [
+    {
+      "type": "category",
+      "label": "서문 (Prologue)",
+      "collapsed": true,
+      "items": [
+        "releases",
+        "upgrade",
+        "contributions"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "시작하기 (Getting Started)",
+      "collapsed": false,
+      "items": [
+        "installation",
+        "configuration",
+        "ai",
+        "structure",
+        "frontend",
+        "starter-kits",
+        "deployment"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "아키텍처 개념 (Architecture Concepts)",
+      "collapsed": true,
+      "items": [
+        "lifecycle",
+        "container",
+        "providers",
+        "facades"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "기본 (The Basics)",
+      "collapsed": true,
+      "items": [
+        "routing",
+        "middleware",
+        "csrf",
+        "controllers",
+        "requests",
+        "responses",
+        "views",
+        "blade",
+        "vite",
+        "urls",
+        "session",
+        "validation",
+        "errors",
+        "logging"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "더 깊이 파기 (Digging Deeper)",
+      "collapsed": true,
+      "items": [
+        "artisan",
+        "broadcasting",
+        "cache",
+        "collections",
+        "concurrency",
+        "context",
+        "contracts",
+        "events",
+        "filesystem",
+        "helpers",
+        "http-client",
+        "localization",
+        "mail",
+        "notifications",
+        "packages",
+        "processes",
+        "queues",
+        "rate-limiting",
+        "search",
+        "strings",
+        "scheduling"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "보안 (Security)",
+      "collapsed": true,
+      "items": [
+        "authentication",
+        "authorization",
+        "verification",
+        "encryption",
+        "hashing",
+        "passwords"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "데이터베이스 (Database)",
+      "collapsed": true,
+      "items": [
+        "database",
+        "queries",
+        "pagination",
+        "migrations",
+        "seeding",
+        "redis",
+        "mongodb"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Eloquent ORM",
+      "collapsed": true,
+      "items": [
+        "eloquent",
+        "eloquent-relationships",
+        "eloquent-collections",
+        "eloquent-mutators",
+        "eloquent-resources",
+        "eloquent-serialization",
+        "eloquent-factories"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "AI",
+      "collapsed": true,
+      "items": [
+        "ai-sdk",
+        "mcp",
+        "boost"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "테스트 (Testing)",
+      "collapsed": true,
+      "items": [
+        "testing",
+        "http-tests",
+        "console-tests",
+        "dusk",
+        "database-testing",
+        "mocking"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "패키지 (Packages)",
+      "collapsed": true,
+      "items": [
+        "billing",
+        "cashier-paddle",
+        "dusk",
+        "envoy",
+        "fortify",
+        "folio",
+        "homestead",
+        "horizon",
+        "mix",
+        "octane",
+        "passport",
+        "pennant",
+        "pint",
+        "precognition",
+        "prompts",
+        "pulse",
+        "reverb",
+        "sail",
+        "sanctum",
+        "scout",
+        "socialite",
+        "telescope",
+        "valet"
+      ]
+    }
+  ]
+}
