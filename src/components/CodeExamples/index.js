@@ -25,7 +25,7 @@ $user = Auth::user();`,
     ],
     link: {
       text: '인증 문서 읽기',
-      url: '/docs/12.x/인증',
+      url: '/docs/13.x/authentication',
     },
   },
   {
@@ -59,7 +59,7 @@ foreach (Flight::all() as $flight) {
     ],
     link: {
       text: 'Eloquent 문서 읽기',
-      url: '/docs/12.x/eloquent',
+      url: '/docs/13.x/eloquent',
     },
   },
   {
@@ -95,7 +95,7 @@ foreach (Flight::all() as $flight) {
     ],
     link: {
       text: '유효성 검사 문서 읽기',
-      url: '/docs/12.x/유효성-검사',
+      url: '/docs/13.x/validation',
     },
   },
   {
@@ -127,7 +127,7 @@ foreach (Flight::all() as $flight) {
     ],
     link: {
       text: '테스팅 문서 읽기',
-      url: '/docs/12.x/테스팅',
+      url: '/docs/13.x/testing',
     },
   },
 ];

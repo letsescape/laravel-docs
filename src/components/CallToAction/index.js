@@ -13,12 +13,12 @@ export default function CallToAction() {
           <div className={styles.ctaButtons}>
             <Link
               className="button button--primary button--lg"
-              to="/docs/시작하기">
+              to="/docs/13.x">
               문서 읽기
             </Link>
             <Link
               className="button button--outline button--lg"
-              to="/docs/배포">
+              to="/docs/13.x/deployment">
               지금 배포하기
             </Link>
           </div>
