@@ -1,36 +1,36 @@
 # Precognition
 
-- [Introduction](#introduction)
-- [Live Validation](#live-validation)
-    - [Using Vue](#using-vue)
-    - [Using React](#using-react)
-    - [Using Alpine and Blade](#using-alpine)
-    - [Configuring Axios](#configuring-axios)
-- [Validating Arrays](#validating-arrays)
-- [Customizing Validation Rules](#customizing-validation-rules)
-- [Handling File Uploads](#handling-file-uploads)
-- [Managing Side-Effects](#managing-side-effects)
-- [Testing](#testing)
+- [소개](#introduction)
+- [라이브 유효성 검증](#live-validation)
+    - [Vue 사용하기](#using-vue)
+    - [React 사용하기](#using-react)
+    - [Alpine과 Blade 사용하기](#using-alpine)
+    - [Axios 설정하기](#configuring-axios)
+- [배열 유효성 검증](#validating-arrays)
+- [유효성 검증 규칙 사용자 지정](#customizing-validation-rules)
+- [파일 업로드 처리](#handling-file-uploads)
+- [부수효과 관리](#managing-side-effects)
+- [테스트](#testing)
 
 <a name="introduction"></a>
-## Introduction
+## 소개 (Introduction)
 
-Laravel Precognition allows you to anticipate the outcome of a future HTTP request. One of the primary use cases of Precognition is the ability to provide "live" validation for your frontend JavaScript application without having to duplicate your application's backend validation rules.
+Laravel Precognition은 미래의 HTTP 요청 결과를 예측할 수 있도록 해줍니다. Precognition의 주요 활용 사례 중 하나는, 프론트엔드 JavaScript 애플리케이션에서 "라이브" 유효성 검증(live validation)을 제공할 수 있다는 점입니다. 이로 인해 백엔드 유효성 검증 규칙을 프론트엔드에 중복해서 구현할 필요가 없습니다.
 
-When Laravel receives a "precognitive request", it will execute all of the route's middleware and resolve the route's controller dependencies, including validating [form requests](/docs/{{version}}/validation#form-request-validation) - but it will not actually execute the route's controller method.
+Laravel이 "precognitive request"를 받으면, 해당 라우트의 모든 미들웨어를 실행하고 컨트롤러의 의존성(유효성 검증이 포함된 [폼 리퀘스트](/docs/13.x/validation#form-request-validation))을 해결합니다. 하지만 실제 컨트롤러 메서드는 실행하지 않습니다.
 
 > [!NOTE]
-> As of Inertia 2.3, Precognition support is built-in. Please consult the [Inertia Forms documentation](https://inertiajs.com/docs/v2/the-basics/forms) for more information. Earlier Inertia versions require Precognition 0.x.
+> Inertia 2.3부터 Precognition이 내장 지원됩니다. 자세한 내용은 [Inertia Forms 문서](https://inertiajs.com/docs/v2/the-basics/forms)를 참고하세요. 더 이전 버전의 Inertia는 Precognition 0.x가 필요합니다.
 
 <a name="live-validation"></a>
-## Live Validation
+## 라이브 유효성 검증 (Live Validation)
 
 <a name="using-vue"></a>
-### Using Vue
+### Vue 사용하기
 
-Using Laravel Precognition, you can offer live validation experiences to your users without having to duplicate your validation rules in your frontend Vue application. To illustrate how it works, let's build a form for creating new users within our application.
+Laravel Precognition을 사용하면, 프론트엔드 Vue 애플리케이션에서 유효성 검증 규칙을 중복하지 않고도 사용자에게 라이브 유효성 검증 경험을 제공할 수 있습니다. 작동 방식을 보여주기 위해, 새로운 사용자를 생성하는 폼을 예제로 만들어 보겠습니다.
 
-First, to enable Precognition for a route, the `HandlePrecognitiveRequests` middleware should be added to the route definition. You should also create a [form request](/docs/{{version}}/validation#form-request-validation) to house the route's validation rules:
+먼저, Precognition을 라우트에서 활성화하려면 `HandlePrecognitiveRequests` 미들웨어를 라우트 정의에 추가해야 합니다. 그리고 해당 라우트의 유효성 검증 규칙을 담을 [폼 리퀘스트](/docs/13.x/validation#form-request-validation) 클래스를 생성하세요.
 
 ```php
 use App\Http\Requests\StoreUserRequest;
@@ -41,15 +41,15 @@ Route::post('/users', function (StoreUserRequest $request) {
 })->middleware([HandlePrecognitiveRequests::class]);
 ```
 
-Next, you should install the Laravel Precognition frontend helpers for Vue via NPM:
+그 다음, 프론트엔드에서 Vue용 Laravel Precognition 헬퍼를 NPM으로 설치합니다.
 
 ```shell
 npm install laravel-precognition-vue
 ```
 
-With the Laravel Precognition package installed, you can now create a form object using Precognition's `useForm` function, providing the HTTP method (`post`), the target URL (`/users`), and the initial form data.
+이제 Precognition 패키지를 설치했다면, Precognition의 `useForm` 함수를 사용해 폼 객체를 생성할 수 있습니다. 여기에는 HTTP 메서드(`post`), 대상 URL(`/users`), 그리고 초기 폼 데이터가 필요합니다.
 
-Then, to enable live validation, invoke the form's `validate` method on each input's `change` event, providing the input's name:
+라이브 유효성 검증을 활성화하려면, `change` 이벤트에서 해당 input의 이름과 함께 폼의 `validate` 메서드를 호출하면 됩니다.
 
 ```vue
 <script setup>
@@ -93,13 +93,13 @@ const submit = () => form.submit();
 </template>
 ```
 
-Now, as the form is filled by the user, Precognition will provide live validation output powered by the validation rules in the route's form request. When the form's inputs are changed, a debounced "precognitive" validation request will be sent to your Laravel application. You may configure the debounce timeout by calling the form's `setValidationTimeout` function:
+이제 사용자가 폼을 입력할 때 Precognition이 라우트의 폼 리퀘스트에 정의된 유효성 검증 규칙을 기반으로 라이브 유효성 검증 결과를 제공합니다. 입력값이 변경되면 디바운스된 "precognitive" 검증 요청이 Laravel 애플리케이션으로 전송됩니다. 디바운스 대기 시간을 `setValidationTimeout` 함수로 설정할 수 있습니다.
 
 ```js
 form.setValidationTimeout(3000);
 ```
 
-When a validation request is in-flight, the form's `validating` property will be `true`:
+유효성 검증 요청이 진행 중일 땐, `validating` 속성이 `true`가 됩니다.
 
 ```html
 <div v-if="form.validating">
@@ -107,7 +107,7 @@ When a validation request is in-flight, the form's `validating` property will be
 </div>
 ```
 
-Any validation errors returned during a validation request or a form submission will automatically populate the form's `errors` object:
+유효성 검증 중 혹은 폼 제출 시 반환된 오류는 자동으로 `errors` 객체에 채워집니다.
 
 ```html
 <div v-if="form.invalid('email')">
@@ -115,7 +115,7 @@ Any validation errors returned during a validation request or a form submission 
 </div>
 ```
 
-You can determine if the form has any errors using the form's `hasErrors` property:
+폼에 오류가 존재하는지 확인하고 싶다면 `hasErrors` 속성을 사용하세요.
 
 ```html
 <div v-if="form.hasErrors">
@@ -123,7 +123,7 @@ You can determine if the form has any errors using the form's `hasErrors` proper
 </div>
 ```
 
-You may also determine if an input has passed or failed validation by passing the input's name to the form's `valid` and `invalid` functions, respectively:
+개별 input이 유효한지 또는 무효한지 확인하고 싶을 때는, 해당 input 이름을 `valid` 또는 `invalid` 함수에 각각 전달하세요.
 
 ```html
 <span v-if="form.valid('email')">
@@ -136,9 +136,9 @@ You may also determine if an input has passed or failed validation by passing th
 ```
 
 > [!WARNING]
-> A form input will only appear as valid or invalid once it has changed and a validation response has been received.
+> 폼 input의 값이 변경되고 유효성 검증 응답을 받을 때에만 해당 input이 유효(valid) 또는 무효(invalid)로 표시됩니다.
 
-If you are validating a subset of a form's inputs with Precognition, it can be useful to manually clear errors. You may use the form's `forgetError` function to achieve this:
+Precognition으로 폼의 일부 필드만 검증하고 있다면, 오류를 직접 지워야 할 때가 있습니다. 이럴 때는 `forgetError` 함수를 사용할 수 있습니다.
 
 ```html
 <input
@@ -152,9 +152,9 @@ If you are validating a subset of a form's inputs with Precognition, it can be u
 >
 ```
 
-As we have seen, you can hook into an input's `change` event and validate individual inputs as the user interacts with them; however, you may need to validate inputs that the user has not yet interacted with. This is common when building a "wizard", where you want to validate all visible inputs, whether the user has interacted with them or not, before moving to the next step.
+이처럼 사용자의 input 이벤트(change)에 후킹해 개별 input을 검증할 수 있습니다. 하지만, 사용자가 아직 조작하지 않은 항목까지 한 번에 검증해야 하는 경우도 있습니다. 대표적으로 "위저드" 인터페이스에서, 다음 단계로 넘어가기 전 모든 표시된 input을 검증해야 할 경우입니다.
 
-To do this with Precognition, you should call the `validate` method passing the field names you wish to validate to the `only` configuration key. You may handle the validation result with `onSuccess` or `onValidationError` callbacks:
+이럴 때는, `validate` 메서드에 검증이 필요한 필드 이름을 `only` 옵션으로 전달하면 됩니다. 그리고 검증 성공 또는 검증 오류에 대한 처리를 각각 `onSuccess`, `onValidationError` 콜백에서 할 수 있습니다.
 
 ```html
 <button
@@ -167,7 +167,7 @@ To do this with Precognition, you should call the `validate` method passing the 
 >Next Step</button>
 ```
 
-Of course, you may also execute code in reaction to the response to the form submission. The form's `submit` function returns an Axios request promise. This provides a convenient way to access the response payload, reset the form inputs on successful submission, or handle a failed request:
+물론, 폼 제출(response)에 대한 처리가 필요하다면, `submit` 함수는 Axios 요청 프라미스를 반환하므로, 이를 이용해 응답 데이터 접근, 폼 초기화, 오류 처리 등을 할 수 있습니다.
 
 ```js
 const submit = () => form.submit()
@@ -181,7 +181,7 @@ const submit = () => form.submit()
     });
 ```
 
-You may determine if a form submission request is in-flight by inspecting the form's `processing` property:
+폼이 전송되는 중인지 확인하려면 `processing` 속성을 확인하세요.
 
 ```html
 <button :disabled="form.processing">
@@ -190,11 +190,11 @@ You may determine if a form submission request is in-flight by inspecting the fo
 ```
 
 <a name="using-react"></a>
-### Using React
+### React 사용하기
 
-Using Laravel Precognition, you can offer live validation experiences to your users without having to duplicate your validation rules in your frontend React application. To illustrate how it works, let's build a form for creating new users within our application.
+Laravel Precognition을 이용하면, 프론트엔드 React 애플리케이션에서도 유효성 검증 규칙을 중복할 필요 없이 라이브 유효성 검증을 구현할 수 있습니다. 새로운 사용자를 생성하는 폼 예제로 살펴보겠습니다.
 
-First, to enable Precognition for a route, the `HandlePrecognitiveRequests` middleware should be added to the route definition. You should also create a [form request](/docs/{{version}}/validation#form-request-validation) to house the route's validation rules:
+먼저, Precognition을 라우트에서 활성화하려면 `HandlePrecognitiveRequests` 미들웨어를 라우트에 추가하고, 유효성 검증 규칙을 정의하는 [폼 리퀘스트](/docs/13.x/validation#form-request-validation)를 생성하세요.
 
 ```php
 use App\Http\Requests\StoreUserRequest;
@@ -205,15 +205,15 @@ Route::post('/users', function (StoreUserRequest $request) {
 })->middleware([HandlePrecognitiveRequests::class]);
 ```
 
-Next, you should install the Laravel Precognition frontend helpers for React via NPM:
+다음으로, React용 Laravel Precognition 헬퍼를 NPM으로 설치하세요.
 
 ```shell
 npm install laravel-precognition-react
 ```
 
-With the Laravel Precognition package installed, you can now create a form object using Precognition's `useForm` function, providing the HTTP method (`post`), the target URL (`/users`), and the initial form data.
+Precognition 패키지 설치 후에는, Precognition의 `useForm` 함수를 사용해 폼 객체를 생성할 수 있습니다. 이때 HTTP 메서드(`post`), 대상 URL(`/users`), 그리고 초기 폼 데이터를 전달합니다.
 
-To enable live validation, you should listen to each input's `change` and `blur` event. In the `change` event handler, you should set the form's data with the `setData` function, passing the input's name and new value. Then, in the `blur` event handler invoke the form's `validate` method, providing the input's name:
+라이브 유효성 검증을 활성화하려면, 각 input의 `change`와 `blur` 이벤트를 리스닝해야 합니다. `change` 핸들러에서는 `setData`로 폼 데이터를 업데이트하고, `blur` 핸들러에서 `validate`를 호출하면 됩니다.
 
 ```jsx
 import { useForm } from 'laravel-precognition-react';
@@ -258,31 +258,31 @@ export default function Form() {
 };
 ```
 
-Now, as the form is filled by the user, Precognition will provide live validation output powered by the validation rules in the route's form request. When the form's inputs are changed, a debounced "precognitive" validation request will be sent to your Laravel application. You may configure the debounce timeout by calling the form's `setValidationTimeout` function:
+이제 사용자 입력이 들어올 때 Precognition이 라우트의 폼 리퀘스트에 정의된 유효성 검증을 실시간으로 수행합니다. 입력값이 변경될 때마다 디바운스된 precognitive 유효성 검증 요청이 Laravel로 전송됩니다. 디바운스 대기 시간은 `setValidationTimeout` 함수로 조절할 수 있습니다.
 
 ```js
 form.setValidationTimeout(3000);
 ```
 
-When a validation request is in-flight, the form's `validating` property will be `true`:
+유효성 검증 요청 중일 때는, `validating` 속성이 `true`가 됩니다.
 
 ```jsx
 {form.validating && <div>Validating...</div>}
 ```
 
-Any validation errors returned during a validation request or a form submission will automatically populate the form's `errors` object:
+검증 오류가 반환될 경우, 해당 오류는 자동으로 폼의 `errors` 객체에 채워집니다.
 
 ```jsx
 {form.invalid('email') && <div>{form.errors.email}</div>}
 ```
 
-You can determine if the form has any errors using the form's `hasErrors` property:
+폼에 오류가 있는지 판단하려면 `hasErrors` 속성을 사용하세요.
 
 ```jsx
 {form.hasErrors && <div><!-- ... --></div>}
 ```
 
-You may also determine if an input has passed or failed validation by passing the input's name to the form's `valid` and `invalid` functions, respectively:
+특정 input에 대해 검증 결과가 유효 또는 무효인지, 각각 `valid`와 `invalid` 함수로 확인할 수 있습니다.
 
 ```jsx
 {form.valid('email') && <span>✅</span>}
@@ -291,9 +291,9 @@ You may also determine if an input has passed or failed validation by passing th
 ```
 
 > [!WARNING]
-> A form input will only appear as valid or invalid once it has changed and a validation response has been received.
+> input이 변경되고 유효성 응답이 올 때에만 유효 또는 무효로 표시됩니다.
 
-If you are validating a subset of a form's inputs with Precognition, it can be useful to manually clear errors. You may use the form's `forgetError` function to achieve this:
+Precognition으로 폼의 일부 input만 검증하고 있다면, 오류를 수동으로 지울 수 있는데, `forgetError` 함수를 사용하세요.
 
 ```jsx
 <input
@@ -307,9 +307,9 @@ If you are validating a subset of a form's inputs with Precognition, it can be u
 >
 ```
 
-As we have seen, you can hook into an input's `blur` event and validate individual inputs as the user interacts with them; however, you may need to validate inputs that the user has not yet interacted with. This is common when building a "wizard", where you want to validate all visible inputs, whether the user has interacted with them or not, before moving to the next step.
+이처럼 input의 `blur` 이벤트 등을 활용해 개별 input을 검증할 수 있습니다. 하지만, 아직 사용자가 입력하지 않은 필드도 검증해야 하는 시나리오, 예를 들어 "위저드"에서 모든 표시된 필드를 검증해야 하는 상황도 있습니다.
 
-To do this with Precognition, you should call the `validate` method passing the field names you wish to validate to the `only` configuration key. You may handle the validation result with `onSuccess` or `onValidationError` callbacks:
+이럴 때는 `validate` 메서드의 `only` 옵션에 필드명을 배열로 전달하고, 결과 처리를 `onSuccess`, `onValidationError` 콜백에서 할 수 있습니다.
 
 ```jsx
 <button
@@ -322,7 +322,7 @@ To do this with Precognition, you should call the `validate` method passing the 
 >Next Step</button>
 ```
 
-Of course, you may also execute code in reaction to the response to the form submission. The form's `submit` function returns an Axios request promise. This provides a convenient way to access the response payload, reset the form's inputs on a successful form submission, or handle a failed request:
+또한, 폼 제출 후 결과에 따라 코드 실행이 필요하다면, `submit` 함수가 Axios 요청 프라미스를 반환하므로 이를 활용해 응답 처리, 폼 초기화, 실패 처리 등이 가능합니다.
 
 ```js
 const submit = (e) => {
@@ -340,7 +340,7 @@ const submit = (e) => {
 };
 ```
 
-You may determine if a form submission request is in-flight by inspecting the form's `processing` property:
+폼 전송이 진행 중인지 여부는 `processing` 속성으로 확인할 수 있습니다.
 
 ```html
 <button disabled={form.processing}>
@@ -349,11 +349,11 @@ You may determine if a form submission request is in-flight by inspecting the fo
 ```
 
 <a name="using-alpine"></a>
-### Using Alpine and Blade
+### Alpine과 Blade 사용하기
 
-Using Laravel Precognition, you can offer live validation experiences to your users without having to duplicate your validation rules in your frontend Alpine application. To illustrate how it works, let's build a form for creating new users within our application.
+Laravel Precognition을 활용하면, Alpine 기반의 프론트엔드 애플리케이션에서도 유효성 검증 규칙을 중복하지 않고 라이브 유효성 검증을 구현할 수 있습니다. 아래는 사용자 생성 폼을 예시로 설명합니다.
 
-First, to enable Precognition for a route, the `HandlePrecognitiveRequests` middleware should be added to the route definition. You should also create a [form request](/docs/{{version}}/validation#form-request-validation) to house the route's validation rules:
+먼저 Precognition을 라우트에서 활성화하려면 `HandlePrecognitiveRequests` 미들웨어를 라우트에 추가하고, 검증 규칙을 담은 [폼 리퀘스트](/docs/13.x/validation#form-request-validation)를 생성해야 합니다.
 
 ```php
 use App\Http\Requests\CreateUserRequest;
@@ -364,13 +364,13 @@ Route::post('/users', function (CreateUserRequest $request) {
 })->middleware([HandlePrecognitiveRequests::class]);
 ```
 
-Next, you should install the Laravel Precognition frontend helpers for Alpine via NPM:
+이후, Alpine용 Precognition 프론트엔드 헬퍼를 NPM으로 설치합니다.
 
 ```shell
 npm install laravel-precognition-alpine
 ```
 
-Then, register the Precognition plugin with Alpine in your `resources/js/app.js` file:
+그리고 `resources/js/app.js` 파일에서 Precognition 플러그인을 Alpine에 등록합니다.
 
 ```js
 import Alpine from 'alpinejs';
@@ -382,9 +382,9 @@ Alpine.plugin(Precognition);
 Alpine.start();
 ```
 
-With the Laravel Precognition package installed and registered, you can now create a form object using Precognition's `$form` "magic", providing the HTTP method (`post`), the target URL (`/users`), and the initial form data.
+Precognition 패키지 설치와 등록이 끝났다면, `$form` "매직"을 이용해 폼 객체를 생성할 수 있습니다. 이때 HTTP 메서드(`post`), 대상 URL(`/users`), 그리고 초기 폼 데이터를 넘겨줍니다.
 
-To enable live validation, you should bind the form's data to its relevant input and then listen to each input's `change` event. In the `change` event handler, you should invoke the form's `validate` method, providing the input's name:
+라이브 유효성 검증을 적용하려면, 폼의 데이터를 각 input에 바인딩하고, 각 input의 `change` 이벤트에서 `validate` 메서드를 호출해야 합니다.
 
 ```html
 <form x-data="{
@@ -422,13 +422,13 @@ To enable live validation, you should bind the form's data to its relevant input
 </form>
 ```
 
-Now, as the form is filled by the user, Precognition will provide live validation output powered by the validation rules in the route's form request. When the form's inputs are changed, a debounced "precognitive" validation request will be sent to your Laravel application. You may configure the debounce timeout by calling the form's `setValidationTimeout` function:
+이제 폼이 입력될 때 Precognition이 라우트의 폼 리퀘스트에 정의된 유효성 검증으로 실시간 피드백을 제공합니다. 입력값이 변경될 때마다 디바운스된 검증 요청이 Laravel로 전송됩니다. 대기 시간은 `setValidationTimeout` 함수로 조절 가능합니다.
 
 ```js
 form.setValidationTimeout(3000);
 ```
 
-When a validation request is in-flight, the form's `validating` property will be `true`:
+유효성 검증 요청 중일 때는 `validating` 속성이 `true`가 됩니다.
 
 ```html
 <template x-if="form.validating">
@@ -436,7 +436,7 @@ When a validation request is in-flight, the form's `validating` property will be
 </template>
 ```
 
-Any validation errors returned during a validation request or a form submission will automatically populate the form's `errors` object:
+유효성 검증 오류는 자동으로 `errors` 객체에 반영됩니다.
 
 ```html
 <template x-if="form.invalid('email')">
@@ -444,7 +444,7 @@ Any validation errors returned during a validation request or a form submission 
 </template>
 ```
 
-You can determine if the form has any errors using the form's `hasErrors` property:
+폼 전체에 오류가 있는지 `hasErrors` 속성으로 체크할 수 있습니다.
 
 ```html
 <template x-if="form.hasErrors">
@@ -452,7 +452,7 @@ You can determine if the form has any errors using the form's `hasErrors` proper
 </template>
 ```
 
-You may also determine if an input has passed or failed validation by passing the input's name to the form's `valid` and `invalid` functions, respectively:
+input의 검증 성공 또는 실패 여부는 각각 `valid`, `invalid` 함수를 이용해 확인합니다.
 
 ```html
 <template x-if="form.valid('email')">
@@ -465,11 +465,9 @@ You may also determine if an input has passed or failed validation by passing th
 ```
 
 > [!WARNING]
-> A form input will only appear as valid or invalid once it has changed and a validation response has been received.
+> input이 변경되고 유효성 검증 응답이 반환되어야만 유효 또는 무효로 표시됩니다.
 
-As we have seen, you can hook into an input's `change` event and validate individual inputs as the user interacts with them; however, you may need to validate inputs that the user has not yet interacted with. This is common when building a "wizard", where you want to validate all visible inputs, whether the user has interacted with them or not, before moving to the next step.
-
-To do this with Precognition, you should call the `validate` method passing the field names you wish to validate to the `only` configuration key. You may handle the validation result with `onSuccess` or `onValidationError` callbacks:
+이처럼 input의 `change` 이벤트로 실시간 검증이 가능하지만, 아직 손대지 않은 input까지 포함해 전체 검증이 필요할 때(예: 위저드에서 다음 단계로 이동 전), `validate` 메서드에서 검증할 필드명을 `only` 옵션에 배열로 넘기고, 결과는 `onSuccess`, `onValidationError` 콜백으로 처리할 수 있습니다.
 
 ```html
 <button
@@ -482,7 +480,7 @@ To do this with Precognition, you should call the `validate` method passing the 
 >Next Step</button>
 ```
 
-You may determine if a form submission request is in-flight by inspecting the form's `processing` property:
+폼 제출 요청 중 여부는 `processing` 속성으로 확인합니다.
 
 ```html
 <button :disabled="form.processing">
@@ -491,9 +489,9 @@ You may determine if a form submission request is in-flight by inspecting the fo
 ```
 
 <a name="repopulating-old-form-data"></a>
-#### Repopulating Old Form Data
+#### 이전 폼 데이터 자동 채우기
 
-In the user creation example discussed above, we are using Precognition to perform live validation; however, we are performing a traditional server-side form submission to submit the form. So, the form should be populated with any "old" input and validation errors returned from the server-side form submission:
+위의 사용자 등록 예제에서는 Precognition으로 라이브 유효성 검증만 사용하고 폼 제출은 전통적인 서버 사이드 제출로 처리하고 있습니다. 그래서, 제출 오류가 발생하면 기존 입력값(`old input`)과 서버에서 반환된 유효성 검증 오류를 폼에 채워주어야 합니다.
 
 ```html
 <form x-data="{
@@ -504,7 +502,7 @@ In the user creation example discussed above, we are using Precognition to perfo
 }">
 ```
 
-Alternatively, if you would like to submit the form via XHR you may use the form's `submit` function, which returns an Axios request promise:
+반대로, 폼 제출을 XHR로 처리하려면 `submit` 함수를 사용하면 됩니다. 이 함수는 Axios 요청 프라미스를 반환합니다.
 
 ```html
 <form
@@ -530,9 +528,9 @@ Alternatively, if you would like to submit the form via XHR you may use the form
 ```
 
 <a name="configuring-axios"></a>
-### Configuring Axios
+### Axios 설정하기
 
-The Precognition validation libraries use the [Axios](https://github.com/axios/axios) HTTP client to send requests to your application's backend. For convenience, the Axios instance may be customized if required by your application. For example, when using the `laravel-precognition-vue` library, you may add additional request headers to each outgoing request in your application's `resources/js/app.js` file:
+Precognition의 라이브러리들은 HTTP 요청을 애플리케이션 백엔드에 전송할 때 [Axios](https://github.com/axios/axios) HTTP 클라이언트를 사용합니다. 필요하다면 Axios 인스턴스를 사용자 지정할 수 있습니다. 예를 들어, `laravel-precognition-vue` 라이브러리를 사용할 때는 `resources/js/app.js`에서 각 요청에 추가 헤더를 지정할 수 있습니다.
 
 ```js
 import { client } from 'laravel-precognition-vue';
@@ -540,7 +538,7 @@ import { client } from 'laravel-precognition-vue';
 client.axios().defaults.headers.common['Authorization'] = authToken;
 ```
 
-Or, if you already have a configured Axios instance for your application, you may tell Precognition to use that instance instead:
+또는 이미 사용자 지정된 Axios 인스턴스가 있다면, Precognition에 해당 인스턴스를 사용하도록 설정할 수도 있습니다.
 
 ```js
 import Axios from 'axios';
@@ -553,9 +551,9 @@ client.use(window.axios)
 ```
 
 <a name="validating-arrays"></a>
-## Validating Arrays
+## 배열 유효성 검증 (Validating Arrays)
 
-You may use wildcards to validate fields within arrays or nested objects. Each `*` matches a single path segment:
+배열이나 중첩 객체 내의 필드를 검증해야 할 때, 와일드카드(*)를 사용할 수 있습니다. 각각의 `*`는 경로 세그먼트 하나를 의미합니다.
 
 ```js
 // Validate email for all users in an array...
@@ -569,11 +567,11 @@ form.validate('users.*.*');
 ```
 
 <a name="customizing-validation-rules"></a>
-## Customizing Validation Rules
+## 유효성 검증 규칙 사용자 지정 (Customizing Validation Rules)
 
-It is possible to customize the validation rules executed during a precognitive request by using the request's `isPrecognitive` method.
+precognitive 요청이 올 때, `isPrecognitive` 메서드를 활용해 유효성 검증 규칙을 사용자 지정할 수 있습니다.
 
-For example, on a user creation form, we may want to validate that a password is "uncompromised" only on the final form submission. For precognitive validation requests, we will simply validate that the password is required and has a minimum of 8 characters. Using the `isPrecognitive` method, we can customize the rules defined by our form request:
+예를 들어, 사용자 등록 폼에서는 최종 제출 시에만 비밀번호의 "uncompromised(유출되지 않았는지)" 검증을 하고 싶고, precognitive 요청에는 필수 및 최소 길이 확인만 하고 싶을 때, `isPrecognitive`를 활용해 폼 리퀘스트의 규칙을 다음과 같이 변경할 수 있습니다.
 
 ```php
 <?php
@@ -606,11 +604,11 @@ class StoreUserRequest extends FormRequest
 ```
 
 <a name="handling-file-uploads"></a>
-## Handling File Uploads
+## 파일 업로드 처리 (Handling File Uploads)
 
-By default, Laravel Precognition does not upload or validate files during a precognitive validation request. This ensure that large files are not unnecessarily uploaded multiple times.
+기본적으로 Precognition은 precognitive 유효성 검증 요청 시 파일을 업로드하거나 검증하지 않습니다. 이로 인해 큰 파일이 불필요하게 여러 번 업로드되는 것을 방지할 수 있습니다.
 
-Because of this behavior, you should ensure that your application [customizes the corresponding form request's validation rules](#customizing-validation-rules) to specify the field is only required for full form submissions:
+따라서, [해당 폼 리퀘스트의 유효성 검증 규칙을 사용자 지정](#customizing-validation-rules)하여 파일 필드는 전체 폼 제출시에만 필수로 처리되도록 해야 합니다.
 
 ```php
 /**
@@ -632,18 +630,18 @@ protected function rules()
 }
 ```
 
-If you would like to include files in every validation request, you may invoke the `validateFiles` function on your client-side form instance:
+모든 유효성 검증 요청마다 파일을 포함시키고 싶다면, 클라이언트 측 폼 인스턴스에서 `validateFiles` 함수를 호출하면 됩니다.
 
 ```js
 form.validateFiles();
 ```
 
 <a name="managing-side-effects"></a>
-## Managing Side-Effects
+## 부수효과 관리 (Managing Side-Effects)
 
-When adding the `HandlePrecognitiveRequests` middleware to a route, you should consider if there are any side-effects in _other_ middleware that should be skipped during a precognitive request.
+`HandlePrecognitiveRequests` 미들웨어를 라우트에 추가할 때, precognitive 요청 중에는 건너뛰는 것이 적절한 부수효과(사이드이펙트)를 발생시키는 다른 미들웨어가 있는지 반드시 고려해야 합니다.
 
-For example, you may have a middleware that increments the total number of "interactions" each user has with your application, but you may not want precognitive requests to be counted as an interaction. To accomplish this, we may check the request's `isPrecognitive` method before incrementing the interaction count:
+예를 들어, 사용자가 애플리케이션과 상호작용할 때마다 총 "상호작용(interaction)" 개수를 증가시키는 미들웨어가 있는데, precognitive 요청은 상호작용 횟수에 포함하고 싶지 않은 경우가 있을 수 있습니다. 이런 상황에서는 상호작용 카운트 전에 요청의 `isPrecognitive` 여부를 체크하면 됩니다.
 
 ```php
 <?php
@@ -671,11 +669,11 @@ class InteractionMiddleware
 ```
 
 <a name="testing"></a>
-## Testing
+## 테스트 (Testing)
 
-If you would like to make precognitive requests in your tests, Laravel's `TestCase` includes a `withPrecognition` helper which will add the `Precognition` request header.
+테스트에서 precognitive 요청을 보내려면, Laravel의 `TestCase`에서 제공하는 `withPrecognition` 헬퍼를 사용하면 됩니다. 이 헬퍼는 `Precognition` 요청 헤더를 추가합니다.
 
-Additionally, if you would like to assert that a precognitive request was successful, e.g., did not return any validation errors, you may use the `assertSuccessfulPrecognition` method on the response:
+또한 precognitive 요청이 성공적으로 처리되었는지(즉, 유효성 검증 에러가 없는지) 확인하려면, 응답 객체의 `assertSuccessfulPrecognition` 메서드를 사용할 수 있습니다.
 
 ```php tab=Pest
 it('validates registration form with precognition', function () {

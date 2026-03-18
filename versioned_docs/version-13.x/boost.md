@@ -1,58 +1,58 @@
-# Laravel Boost
+# Laravel Boost (Laravel Boost)
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-    - [Keeping Boost Resources Updated](#keeping-boost-resources-updated)
-    - [Set Up Your Agents](#set-up-your-agents)
-- [MCP Server](#mcp-server)
-    - [Available MCP Tools](#available-mcp-tools)
-    - [Manually Registering the MCP Server](#manually-registering-the-mcp-server)
-- [AI Guidelines](#ai-guidelines)
-    - [Available AI Guidelines](#available-ai-guidelines)
-    - [Adding Custom AI Guidelines](#adding-custom-ai-guidelines)
-    - [Overriding Boost AI Guidelines](#overriding-boost-ai-guidelines)
-    - [Third-Party Package AI Guidelines](#third-party-package-ai-guidelines)
-- [Agent Skills](#agent-skills)
-    - [Available Skills](#available-skills)
-    - [Custom Skills](#custom-skills)
-    - [Overriding Skills](#overriding-skills)
-    - [Third-Party Package Skills](#third-party-package-skills)
-- [Guidelines vs. Skills](#guidelines-vs-skills)
-- [Documentation API](#documentation-api)
-- [Extending Boost](#extending-boost)
-    - [Adding Support for Other IDEs / AI Agents](#adding-support-for-other-ides-ai-agents)
+- [소개](#introduction)
+- [설치](#installation)
+    - [Boost 리소스 최신 상태 유지](#keeping-boost-resources-updated)
+    - [에이전트 설정](#set-up-your-agents)
+- [MCP 서버](#mcp-server)
+    - [사용 가능한 MCP 도구](#available-mcp-tools)
+    - [MCP 서버 수동 등록](#manually-registering-the-mcp-server)
+- [AI 가이드라인](#ai-guidelines)
+    - [사용 가능한 AI 가이드라인](#available-ai-guidelines)
+    - [사용자 정의 AI 가이드라인 추가](#adding-custom-ai-guidelines)
+    - [Boost AI 가이드라인 오버라이드](#overriding-boost-ai-guidelines)
+    - [서드파티 패키지 AI 가이드라인](#third-party-package-ai-guidelines)
+- [에이전트 스킬](#agent-skills)
+    - [사용 가능한 스킬](#available-skills)
+    - [사용자 정의 스킬](#custom-skills)
+    - [스킬 오버라이드](#overriding-skills)
+    - [서드파티 패키지 스킬](#third-party-package-skills)
+- [가이드라인 vs. 스킬](#guidelines-vs-skills)
+- [문서화 API](#documentation-api)
+- [Boost 확장](#extending-boost)
+    - [기타 IDE/AI 에이전트 지원 추가](#adding-support-for-other-ides-ai-agents)
 
 <a name="introduction"></a>
-## Introduction
+## 소개 (Introduction)
 
-Laravel Boost accelerates AI-assisted development by providing the essential guidelines and agent skills that help AI agents write high-quality Laravel applications that adhere to Laravel best practices.
+Laravel Boost는 AI 에이전트가 Laravel 베스트 프랙티스에 따라 고품질의 Laravel 애플리케이션을 작성할 수 있도록 필수 가이드라인과 에이전트 스킬을 제공하여 AI 기반 개발을 가속화합니다.
 
-Boost also provides a powerful Laravel ecosystem documentation API that combines a built-in MCP tool with an extensive knowledge base containing over 17,000 pieces of Laravel-specific information, all enhanced by semantic search capabilities using embeddings for precise, context-aware results. Boost instructs AI agents like Claude Code and Cursor to use this API to learn about the latest Laravel features and best practices.
+Boost는 또한 내장된 MCP 도구와 17,000개 이상의 Laravel 관련 정보가 포함된 방대한 지식 베이스가 결합된 강력한 Laravel 에코시스템 문서화 API를 제공합니다. 이 API는 임베딩 기반의 시맨틱 검색 기능을 활용하여 정밀하고 상황에 맞는 결과를 제공합니다. Boost는 Claude Code 및 Cursor와 같은 AI 에이전트가 최신 Laravel 기능과 베스트 프랙티스를 학습할 수 있도록 이 API 활용을 안내합니다.
 
 <a name="installation"></a>
-## Installation
+## 설치 (Installation)
 
-Laravel Boost can be installed via Composer:
+Laravel Boost는 Composer를 통해 설치할 수 있습니다.
 
 ```shell
 composer require laravel/boost --dev
 ```
 
-Next, install the MCP server and coding guidelines:
+그다음 MCP 서버와 코딩 가이드라인을 설치하세요.
 
 ```shell
 php artisan boost:install
 ```
 
-The `boost:install` command will generate the relevant agent guideline and skill files for the coding agents you selected during the installation process.
+`boost:install` 명령어는 설치 과정에서 선택한 코딩 에이전트용으로 적절한 에이전트 가이드라인 및 스킬 파일을 생성합니다.
 
-Once Laravel Boost has been installed, you're ready to start coding with Cursor, Claude Code, or your AI agent of choice.
+Laravel Boost 설치가 완료되면, Cursor, Claude Code, 또는 원하는 AI 에이전트와 함께 코딩을 바로 시작할 수 있습니다.
 
 > [!NOTE]
-> Feel free to add the generated MCP configuration file (`.mcp.json`), guideline files (`CLAUDE.md`, `AGENTS.md`, `junie/`, etc.), and the `boost.json` configuration file to your application's `.gitignore`, as these files are automatically regenerated when running `boost:install` and `boost:update`.
+> 생성된 MCP 구성 파일(`.mcp.json`), 가이드라인 파일들(`CLAUDE.md`, `AGENTS.md`, `junie/` 등), 그리고 `boost.json` 구성 파일은 `.gitignore`에 자유롭게 추가하셔도 됩니다. 이러한 파일들은 `boost:install` 및 `boost:update` 실행 시 자동으로 다시 생성됩니다.
 
 <a name="set-up-your-agents"></a>
-### Set Up Your Agents
+### 에이전트 설정
 
 ```text tab=Cursor
 1. Open the command palette (`Cmd+Shift+P` or `Ctrl+Shift+P`)
@@ -93,15 +93,15 @@ gemini mcp add -s project -t stdio laravel-boost php artisan boost:mcp
 ```
 
 <a name="keeping-boost-resources-updated"></a>
-### Keeping Boost Resources Updated
+### Boost 리소스 최신 상태 유지
 
-You may want to periodically update your local Boost resources (AI guidelines and skills) to ensure they reflect the latest versions of the Laravel ecosystem packages you have installed. To do so, you can use the `boost:update` Artisan command.
+설치된 Laravel 에코시스템 패키지의 최신 버전을 반영하기 위해, 로컬 Boost 리소스(AI 가이드라인 및 스킬)를 주기적으로 업데이트하는 것이 좋습니다. 이를 위해 `boost:update` Artisan 명령어를 사용할 수 있습니다.
 
 ```shell
 php artisan boost:update
 ```
 
-You may also automate this process by adding it to your Composer "post-update-cmd" scripts:
+이 과정을 자동화하고 싶다면 Composer의 "post-update-cmd" 스크립트에 아래와 같이 추가할 수 있습니다.
 
 ```json
 {
@@ -114,36 +114,36 @@ You may also automate this process by adding it to your Composer "post-update-cm
 ```
 
 <a name="mcp-server"></a>
-## MCP Server
+## MCP 서버 (MCP Server)
 
-Laravel Boost provides an MCP (Model Context Protocol) server that exposes tools for AI agents to interact with your Laravel application. These tools give agents the ability to inspect your application's structure, query the database, execute code, and more.
+Laravel Boost는 AI 에이전트가 Laravel 애플리케이션과 상호작용할 수 있도록 지원하는 MCP(Model Context Protocol) 서버를 제공합니다. 이 서버는 에이전트가 애플리케이션 구조를 탐색하고, 데이터베이스를 쿼리하며, 코드를 실행하는 등 다양한 기능을 제공합니다.
 
 <a name="available-mcp-tools"></a>
-### Available MCP Tools
+### 사용 가능한 MCP 도구
 
-| Name                 | Notes                                                                                                       |
-| -------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Application Info     | Read PHP & Laravel versions, database engine, list of ecosystem packages with versions, and Eloquent models |
-| Browser Logs         | Read logs and errors from the browser                                                                       |
-| Database Connections | Inspect available database connections, including the default connection                                    |
-| Database Query       | Execute a query against the database                                                                        |
-| Database Schema      | Read the database schema                                                                                    |
-| Get Absolute URL     | Convert relative path URIs to absolute so agents generate valid URLs                                        |
-| Last Error           | Read the last error from the application's log files                                                        |
-| Read Log Entries     | Read the last N log entries                                                                                 |
-| Search Docs          | Query the Laravel hosted documentation API service to retrieve documentation based on installed packages    |
+| 이름                        | 설명                                                                                                    |
+| --------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Application Info            | PHP & Laravel 버전, 데이터베이스 엔진, 에코시스템 패키지 목록(버전 포함), Eloquent 모델 정보 조회        |
+| Browser Logs                | 브라우저로부터 로그 및 에러 읽기                                                                       |
+| Database Connections        | 사용 가능한 데이터베이스 연결(기본 연결 포함) 탐색                                                     |
+| Database Query              | 데이터베이스에 쿼리 실행                                                                               |
+| Database Schema             | 데이터베이스 스키마 읽기                                                                               |
+| Get Absolute URL            | 상대 URI 경로를 절대 경로로 변환하여 에이전트가 유효한 URL을 생성할 수 있도록 지원                      |
+| Last Error                  | 애플리케이션 로그 파일에서 최근 에러 읽기                                                              |
+| Read Log Entries            | 최근 N개의 로그 항목 읽기                                                                              |
+| Search Docs                 | 설치된 패키지에 따른 문서를 Laravel 호스팅 문서 API 서비스에서 검색                                    |
 
 <a name="manually-registering-the-mcp-server"></a>
-### Manually Registering the MCP Server
+### MCP 서버 수동 등록
 
-Sometimes you may need to manually register the Laravel Boost MCP server with your editor of choice. You should register the MCP server using the following details:
+에디터에서 Laravel Boost MCP 서버를 수동으로 등록해야 하는 경우, 다음 정보를 참고하여 등록하시기 바랍니다.
 
 <table>
 <tr><td><strong>Command</strong></td><td><code>php</code></td></tr>
 <tr><td><strong>Args</strong></td><td><code>artisan boost:mcp</code></td></tr>
 </table>
 
-JSON example:
+JSON 예시:
 
 ```json
 {
@@ -157,58 +157,58 @@ JSON example:
 ```
 
 <a name="ai-guidelines"></a>
-## AI Guidelines
+## AI 가이드라인 (AI Guidelines)
 
-AI guidelines are composable instruction files that are loaded upfront to provide AI agents with essential context about Laravel ecosystem packages. These guidelines contain core conventions, best practices, and framework-specific patterns that help agents generate consistent, high-quality code.
+AI 가이드라인은 AI 에이전트가 Laravel 에코시스템 패키지에 대한 중대한 컨텍스트를 사전에 제공받을 수 있게 만들어진 조합 가능한 지침 파일입니다. 이 가이드라인들은 핵심 규칙, 베스트 프랙티스, 프레임워크별 패턴이 포함되어 있어 일관되고 품질 높은 코드를 생성할 수 있도록 도와줍니다.
 
 <a name="available-ai-guidelines"></a>
-### Available AI Guidelines
+### 사용 가능한 AI 가이드라인
 
-Laravel Boost includes AI guidelines for the following packages and frameworks. The `core` guidelines provide generic, generalized advice to the AI for the given package that is applicable across all versions.
+Laravel Boost에는 아래 패키지 및 프레임워크용 AI 가이드라인이 포함되어 있습니다. `core` 가이드라인은 AI에게 패키지별 일반적이고 범용적인 권고 사항을 제공합니다.
 
-| Package           | Versions Supported     |
-| ----------------- | ---------------------- |
-| Core & Boost      | core                   |
-| Laravel Framework | core, 10.x, 11.x, 12.x |
-| Livewire          | core, 2.x, 3.x, 4.x    |
-| Flux UI           | core, free, pro        |
-| Folio             | core                   |
-| Herd              | core                   |
-| Inertia Laravel   | core, 1.x, 2.x, 3.x    |
-| Inertia React     | core, 1.x, 2.x, 3.x    |
-| Inertia Vue       | core, 1.x, 2.x, 3.x    |
-| Inertia Svelte    | core, 1.x, 2.x, 3.x    |
-| MCP               | core                   |
-| Pennant           | core                   |
-| Pest              | core, 3.x, 4.x         |
-| PHPUnit           | core                   |
-| Pint              | core                   |
-| Sail              | core                   |
-| Tailwind CSS      | core, 3.x, 4.x         |
-| Livewire Volt     | core                   |
-| Wayfinder         | core                   |
-| Enforce Tests     | conditional            |
+| 패키지             | 지원 버전                  |
+| ------------------- | ------------------------- |
+| Core & Boost        | core                      |
+| Laravel Framework   | core, 10.x, 11.x, 12.x    |
+| Livewire            | core, 2.x, 3.x, 4.x       |
+| Flux UI             | core, free, pro           |
+| Folio               | core                      |
+| Herd                | core                      |
+| Inertia Laravel     | core, 1.x, 2.x, 3.x       |
+| Inertia React       | core, 1.x, 2.x, 3.x       |
+| Inertia Vue         | core, 1.x, 2.x, 3.x       |
+| Inertia Svelte      | core, 1.x, 2.x, 3.x       |
+| MCP                 | core                      |
+| Pennant             | core                      |
+| Pest                | core, 3.x, 4.x            |
+| PHPUnit             | core                      |
+| Pint                | core                      |
+| Sail                | core                      |
+| Tailwind CSS        | core, 3.x, 4.x            |
+| Livewire Volt       | core                      |
+| Wayfinder           | core                      |
+| Enforce Tests       | conditional               |
 
-> **Note:** To keep your AI guidelines up-to-date, see the [Keeping Boost Resources Updated](#keeping-boost-resources-updated) section.
+> **참고:** AI 가이드라인을 최신 상태로 유지하려면 [Boost 리소스 최신 상태 유지](#keeping-boost-resources-updated) 절을 참고하세요.
 
 <a name="adding-custom-ai-guidelines"></a>
-### Adding Custom AI Guidelines
+### 사용자 정의 AI 가이드라인 추가
 
-To augment Laravel Boost with your own custom AI guidelines, add `.blade.php` or `.md` files to your application's `.ai/guidelines/*` directory. These files will automatically be included with Laravel Boost's guidelines when you run `boost:install`.
+맞춤형 AI 가이드라인을 Boost에 추가하려면, `.ai/guidelines/*` 디렉터리에 `.blade.php` 혹은 `.md` 파일을 추가하세요. 이 파일들은 `boost:install` 실행 시 Boost의 기본 가이드라인과 함께 자동으로 포함됩니다.
 
 <a name="overriding-boost-ai-guidelines"></a>
-### Overriding Boost AI Guidelines
+### Boost AI 가이드라인 오버라이드
 
-You can override Boost's built-in AI guidelines by creating your own custom guidelines with matching file paths. When you create a custom guideline that matches an existing Boost guideline path, Boost will use your custom version instead of the built-in one.
+Boost 기본 가이드라인과 동일한 경로로 사용자 정의 가이드라인 파일을 생성하면 Boost의 내장 가이드라인을 오버라이드할 수 있습니다. 경로가 일치하는 커스텀 가이드라인이 있으면 Boost는 기본 대신 여러분의 버전을 사용합니다.
 
-For example, to override Boost's "Inertia React v2 Form Guidance" guidelines, create a file at `.ai/guidelines/inertia-react/2/forms.blade.php`. When you run `boost:install`, Boost will include your custom guideline instead of the default one.
+예를 들어, Boost의 “Inertia React v2 Form Guidance” 가이드라인을 오버라이드하려면 `.ai/guidelines/inertia-react/2/forms.blade.php` 경로에 파일을 만들어두세요. `boost:install` 수행 시, Boost는 기본이 아닌 여러분의 가이드라인을 포함하게 됩니다.
 
 <a name="third-party-package-ai-guidelines"></a>
-### Third-Party Package AI Guidelines
+### 서드파티 패키지 AI 가이드라인
 
-If you maintain a third-party package and would like Boost to include AI guidelines for it, you can do so by adding a `resources/boost/guidelines/core.blade.php` file to your package. When users of your package run `php artisan boost:install`, Boost will automatically load your guidelines.
+여러분이 서드파티 패키지의 유지자라면, Boost에서 해당 패키지용 AI 가이드라인을 포함하려면 패키지에 `resources/boost/guidelines/core.blade.php` 파일을 추가하세요. 여러분의 패키지 사용자가 `php artisan boost:install`을 실행하면 Boost가 자동으로 이 가이드라인을 로드합니다.
 
-AI guidelines should provide a short overview of what your package does, outline any required file structure or conventions, and explain how to create or use its main features (with example commands or code snippets). Keep them concise, actionable, and focused on best practices so AI can generate correct code for your users. Here is an example:
+AI 가이드라인에는 패키지의 기능을 간략하게 설명하고, 필요한 파일구조/규칙, 주요 기능의 생성 및 사용 방법(예시 코드/명령어 포함)을 안내하세요. 간결하고 실용적이어야 하며, 베스트 프랙티스에 초점을 맞추어 AI가 사용자를 위해 올바른 코드를 생성할 수 있게 해야 합니다. 아래는 예시입니다.
 
 ```php
 ## Package Name
@@ -228,58 +228,58 @@ $result = PackageName::featureTwo($param1, $param2);
 ```
 
 <a name="agent-skills"></a>
-## Agent Skills
+## 에이전트 스킬 (Agent Skills)
 
-[Agent Skills](https://agentskills.io/home) are lightweight, targeted knowledge modules that agents can activate on-demand when working on specific domains. Unlike guidelines, which are loaded upfront, skills allow detailed patterns and best practices to be loaded only when relevant, reducing context bloat and improving the relevance of AI-generated code.
+[에이전트 스킬](https://agentskills.io/home)은 특정 도메인 작업에 특화된 경량 지식 모듈로, 필요할 때마다 AI 에이전트가 활성화합니다. 가이드라인이 기본적으로 모두 로드되는 것과 달리, 스킬은 관련 작업이 발생할 때만 상세 패턴과 베스트 프랙티스를 로드하여 컨텍스트 오염을 줄이고, AI가 더 관련성 높은 코드를 생성할 수 있도록 돕습니다.
 
-When you run `boost:install` and select skills as a feature, skills are automatically installed based on the packages detected in your `composer.json`. For example, if your project includes `livewire/livewire`, the `livewire-development` skill will be installed automatically.
+`boost:install` 명령 및 스킬 기능 선택 시, `composer.json`에서 감지된 패키지 기반으로 자동으로 스킬이 설치됩니다. 예를 들어, 프로젝트에 `livewire/livewire`가 있다면 `livewire-development` 스킬이 함께 설치됩니다.
 
 <a name="available-skills"></a>
-### Available Skills
+### 사용 가능한 스킬
 
-| Skill                      | Package        |
-| -------------------------- | -------------- |
-| fluxui-development         | Flux UI        |
-| folio-routing              | Folio          |
-| inertia-react-development  | Inertia React  |
-| inertia-svelte-development | Inertia Svelte |
-| inertia-vue-development    | Inertia Vue    |
-| livewire-development       | Livewire       |
-| mcp-development            | MCP            |
-| pennant-development        | Pennant        |
-| pest-testing               | Pest           |
-| tailwindcss-development    | Tailwind CSS   |
-| volt-development           | Volt           |
-| wayfinder-development      | Wayfinder      |
+| 스킬                     | 패키지         |
+| ------------------------ | -------------- |
+| fluxui-development       | Flux UI        |
+| folio-routing            | Folio          |
+| inertia-react-development | Inertia React  |
+| inertia-svelte-development| Inertia Svelte |
+| inertia-vue-development  | Inertia Vue    |
+| livewire-development     | Livewire       |
+| mcp-development          | MCP            |
+| pennant-development      | Pennant        |
+| pest-testing             | Pest           |
+| tailwindcss-development  | Tailwind CSS   |
+| volt-development         | Volt           |
+| wayfinder-development    | Wayfinder      |
 
-> **Note:** To keep your skills up-to-date, see the [Keeping Boost Resources Updated](#keeping-boost-resources-updated) section.
+> **참고:** 스킬을 최신으로 유지하려면 [Boost 리소스 최신 상태 유지](#keeping-boost-resources-updated) 절을 참조하세요.
 
 <a name="custom-skills"></a>
-### Custom Skills
+### 사용자 정의 스킬
 
-To create your own custom skills, add a `SKILL.md` file to your application's `.ai/skills/{skill-name}/` directory. When you run `boost:update`, your custom skills will be installed alongside Boost's built-in skills.
+사용자 정의 스킬을 만들려면, `.ai/skills/{skill-name}/` 디렉터리 내에 `SKILL.md` 파일을 추가하세요. `boost:update` 실행 시, Boost 내장 스킬과 함께 여러분의 커스텀 스킬도 설치됩니다.
 
-For example, to create a custom skill for your application's domain logic:
+예를 들어, 도메인 로직용 스킬을 만들고 싶다면 다음과 같은 경로로 파일을 생성합니다.
 
 ```
 .ai/skills/creating-invoices/SKILL.md
 ```
 
 <a name="overriding-skills"></a>
-### Overriding Skills
+### 스킬 오버라이드
 
-You can override Boost's built-in skills by creating your own custom skills with matching names. When you create a custom skill that matches an existing Boost skill name, Boost will use your custom version instead of the built-in one.
+Boost 기본 스킬과 이름이 동일한 사용자 정의 스킬을 생성하면, 내장 스킬 대신 여러분의 커스텀 스킬이 사용됩니다.
 
-For example, to override Boost's `livewire-development` skill, create a file at `.ai/skills/livewire-development/SKILL.md`. When you run `boost:update`, Boost will include your custom skill instead of the default one.
+예를 들어 Boost의 `livewire-development` 스킬을 오버라이드하려면 `.ai/skills/livewire-development/SKILL.md` 파일을 만들면 됩니다. `boost:update` 실행 시, 커스텀 스킬이 우선적으로 반영됩니다.
 
 <a name="third-party-package-skills"></a>
-### Third-Party Package Skills
+### 서드파티 패키지 스킬
 
-If you maintain a third-party package and would like Boost to include skills for it, you can do so by adding a `resources/boost/skills/{skill-name}/SKILL.md` file to your package. When users of your package run `php artisan boost:install`, Boost will automatically install your skills based on user preference.
+여러분이 서드파티 패키지의 유지자라면, Boost에 해당 패키지용 스킬을 포함하려면 패키지에 `resources/boost/skills/{skill-name}/SKILL.md` 파일을 추가하세요. 패키지 사용자가 `php artisan boost:install`을 실행할 때, 사용자 선택에 따라 여러분의 스킬이 자동 설치됩니다.
 
-Boost Skills support the [Agent Skills format](https://agentskills.io/what-are-skills) and should be structured as a folder containing a `SKILL.md` file with YAML frontmatter and Markdown instructions. The `SKILL.md` file must include required frontmatter (`name` and `description`) and can optionally include scripts, templates, and reference materials.
+Boost 스킬은 [Agent Skills 포맷](https://agentskills.io/what-are-skills)을 지원하며, 폴더 내에 YAML 프론트매터 및 Markdown 설명이 포함된 `SKILL.md` 파일로 구성해야 합니다. 이 파일은 반드시 `name`과 `description` 프론트매터가 포함되어야 하며, 스크립트·템플릿·참고자료 등을 추가할 수 있습니다.
 
-Skills should outline any required file structure or conventions, and explain how to create or use its main features (with example commands or code snippets). Keep them concise, actionable, and focused on best practices so AI can generate correct code for your users:
+스킬에는 필요한 파일 구조나 규칙, 주요 기능의 생성 및 사용법(예제 코드, 명령어 등)을 안내하세요. 간결하고 실용적이어야 하며, 베스트 프랙티스 중심으로 AI가 사용자를 위한 올바른 코드를 생성할 수 있도록 해야 합니다.
 
 ```markdown
 ---
@@ -301,54 +301,54 @@ $result = PackageName::featureTwo($param1, $param2);
 ```
 
 <a name="guidelines-vs-skills"></a>
-## Guidelines vs. Skills
+## 가이드라인 vs. 스킬 (Guidelines vs. Skills)
 
-Laravel Boost provides two distinct ways to give AI agents context about your application: **guidelines** and **skills**.
+Laravel Boost는 애플리케이션에 대한 AI 에이전트의 컨텍스트 부여를 위해 **가이드라인**과 **스킬**이라는 두 가지 방식을 제공합니다.
 
-**Guidelines** are loaded upfront when the AI agent starts, providing essential context about Laravel conventions and best practices that apply broadly across your codebase.
+**가이드라인**은 AI 에이전트 시작 시 사전에 로드되어, Laravel 규약 및 베스트 프랙티스 등 넓은 범위에서 반드시 필요한 컨텍스트를 제공합니다.
 
-**Skills** are activated on-demand when working on specific tasks, containing detailed patterns for particular domains (like Livewire components or Pest tests). Loading skills only when relevant reduces context bloat and improves code quality.
+**스킬**은 Livewire 컴포넌트 작성이나 Pest 테스트처럼 특정 작업을 수행할 때 온디맨드 방식으로 활성화되며, 해당 도메인에 대한 상세한 구현 패턴을 담고 있습니다. 스킬을 필요할 때만 로드함으로써, 컨텍스트 오버로드를 줄이고 코드 품질을 높일 수 있습니다.
 
-| Aspect      | Guidelines                        | Skills                           |
-| ----------- | --------------------------------- | -------------------------------- |
-| **Loaded**  | Upfront, always present           | On-demand, when relevant         |
-| **Scope**   | Broad, foundational               | Focused, task-specific           |
-| **Purpose** | Core conventions & best practices | Detailed implementation patterns |
+| 구분        | 가이드라인                        | 스킬                               |
+| ----------- | --------------------------------- | ----------------------------------- |
+| **적용 시점** | 사전 전체 로드                     | 필요 시 개별 온디맨드 로드           |
+| **범위**    | 광범위, 기초적                     | 집중적, 태스크 특화                  |
+| **목적**    | 핵심 규약 및 베스트 프랙티스        | 상세 구현 패턴 및 실무 사례           |
 
 <a name="documentation-api"></a>
-## Documentation API
+## 문서화 API (Documentation API)
 
-Laravel Boost includes a Documentation API that provides AI agents with access to an extensive knowledge base containing over 17,000 pieces of Laravel-specific information. The API uses semantic search with embeddings to deliver precise, context-aware results.
+Laravel Boost에는 17,000건 이상의 Laravel 관련 정보를 담은 방대한 지식 베이스에 접근할 수 있는 문서화 API가 포함되어 있습니다. 이 API는 임베딩(embeddings) 기반의 시맨틱 검색을 통해 정밀하고 상황에 맞는 결과를 제공합니다.
 
-The `Search Docs` MCP tool allows agents to query the Laravel hosted documentation API service to retrieve documentation based on your installed packages. Boost's AI guidelines and skills will automatically instruct your coding agent to use this API.
+`Search Docs` MCP 도구를 활용하면, 에이전트가 설치된 패키지에 맞는 문서를 Laravel 호스팅 문서 API 서비스에서 실시간으로 검색할 수 있습니다. Boost의 AI 가이드라인과 스킬은 코딩 에이전트가 이 API를 활용하도록 자동 안내합니다.
 
-| Package           | Versions Supported |
-| ----------------- | ------------------ |
-| Laravel Framework | 10.x, 11.x, 12.x   |
-| Filament          | 2.x, 3.x, 4.x, 5.x |
-| Flux UI           | 2.x Free, 2.x Pro  |
-| Inertia           | 1.x, 2.x           |
-| Livewire          | 1.x, 2.x, 3.x, 4.x |
-| Nova              | 4.x, 5.x           |
-| Pest              | 3.x, 4.x           |
-| Tailwind CSS      | 3.x, 4.x           |
+| 패키지             | 지원 버전              |
+| ------------------- | --------------------- |
+| Laravel Framework   | 10.x, 11.x, 12.x      |
+| Filament            | 2.x, 3.x, 4.x, 5.x    |
+| Flux UI             | 2.x Free, 2.x Pro     |
+| Inertia             | 1.x, 2.x              |
+| Livewire            | 1.x, 2.x, 3.x, 4.x    |
+| Nova                | 4.x, 5.x              |
+| Pest                | 3.x, 4.x              |
+| Tailwind CSS        | 3.x, 4.x              |
 
 <a name="extending-boost"></a>
-## Extending Boost
+## Boost 확장 (Extending Boost)
 
-Boost works with many popular IDEs and AI agents out of the box. If your coding tool isn't supported yet, you can create your own agent and integrate it with Boost.
+Boost는 주요 IDE와 AI 에이전트에서 바로 사용할 수 있도록 지원합니다. 만약 아직 지원되지 않는 코딩 도구를 사용한다면, 새로운 에이전트를 직접 구현하여 Boost와 연동할 수 있습니다.
 
 <a name="adding-support-for-other-ides-ai-agents"></a>
-### Adding Support for Other IDEs / AI Agents
+### 기타 IDE/AI 에이전트 지원 추가
 
-To add support for a new IDE or AI agent, create a class that extends `Laravel\Boost\Install\Agents\Agent` and implement one or more of the following contracts depending on what you need:
+새로운 IDE 또는 AI 에이전트를 지원하려면, `Laravel\Boost\Install\Agents\Agent`를 상속하는 클래스를 만들고, 필요한 경우 아래의 컨트랙트 중 하나 이상을 구현하세요.
 
-- `Laravel\Boost\Contracts\SupportsGuidelines` - Adds support for AI guidelines.
-- `Laravel\Boost\Contracts\SupportsMcp` - Adds support for MCP.
-- `Laravel\Boost\Contracts\SupportsSkills` - Adds support for Agent Skills.
+- `Laravel\Boost\Contracts\SupportsGuidelines` — AI 가이드라인 지원 추가
+- `Laravel\Boost\Contracts\SupportsMcp` — MCP 지원 추가
+- `Laravel\Boost\Contracts\SupportsSkills` — 에이전트 스킬 지원 추가
 
 <a name="writing-the-agent"></a>
-#### Writing the Agent
+#### 에이전트 작성 예시
 
 ```php
 <?php
@@ -368,12 +368,12 @@ class CustomAgent extends Agent implements SupportsGuidelines, SupportsMcp, Supp
 }
 ```
 
-For an example implementation, see [ClaudeCode.php](https://github.com/laravel/boost/blob/main/src/Install/Agents/ClaudeCode.php).
+구현 예시는 [ClaudeCode.php](https://github.com/laravel/boost/blob/main/src/Install/Agents/ClaudeCode.php)를 참고하세요.
 
 <a name="registering-the-agent"></a>
-#### Registering the Agent
+#### 에이전트 등록
 
-Register your custom agent in the `boot` method of your application's `App\Providers\AppServiceProvider`:
+여러분의 커스텀 에이전트를 애플리케이션의 `App\Providers\AppServiceProvider`의 `boot` 메서드에서 등록하세요.
 
 ```php
 use Laravel\Boost\Boost;
@@ -384,4 +384,4 @@ public function boot(): void
 }
 ```
 
-Once registered, your agent will be available for selection when running `php artisan boost:install`.
+등록이 완료되면, `php artisan boost:install` 명령 실행 시 해당 에이전트를 선택할 수 있습니다.

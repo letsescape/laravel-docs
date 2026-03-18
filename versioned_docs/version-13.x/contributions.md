@@ -1,29 +1,29 @@
-# Contribution Guide
+# 기여 가이드 (Contribution Guide)
 
-- [Bug Reports](#bug-reports)
-- [Support Questions](#support-questions)
-- [Core Development Discussion](#core-development-discussion)
-- [Which Branch?](#which-branch)
-- [Compiled Assets](#compiled-assets)
-- [AI-Generated Contributions](#ai-generated-contributions)
-- [Security Vulnerabilities](#security-vulnerabilities)
-- [Coding Style](#coding-style)
+- [버그 리포트](#bug-reports)
+- [지원 질문](#support-questions)
+- [코어 개발 토론](#core-development-discussion)
+- [어떤 브랜치로 보내야 하나요?](#which-branch)
+- [컴파일된 에셋](#compiled-assets)
+- [AI 생성 기여물](#ai-generated-contributions)
+- [보안 취약점](#security-vulnerabilities)
+- [코딩 스타일](#coding-style)
     - [PHPDoc](#phpdoc)
     - [StyleCI](#styleci)
-- [Code of Conduct](#code-of-conduct)
+- [행동 강령](#code-of-conduct)
 
 <a name="bug-reports"></a>
-## Bug Reports
+## 버그 리포트 (Bug Reports)
 
-To encourage active collaboration, Laravel strongly encourages pull requests, not just bug reports. Pull requests will only be reviewed when marked as "ready for review" (not in the "draft" state) and all tests for new features are passing. Lingering, non-active pull requests left in the "draft" state will be closed after a few days.
+활발한 협업을 장려하기 위해 Laravel은 단순한 버그 리포트보다 **pull request 제출을 강력히 권장**합니다. Pull request는 "draft" 상태가 아니라 **"ready for review" 상태로 표시되고**, 새 기능과 관련된 **모든 테스트가 통과했을 때만 검토**됩니다. "draft" 상태로 오래 방치된 비활성 Pull request는 며칠 후 자동으로 닫힙니다.
 
-However, if you file a bug report, your issue should contain a title and a clear description of the issue. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a bug report is to make it easy for yourself - and others - to replicate the bug and develop a fix.
+하지만 버그 리포트를 작성하는 경우, 이슈에는 **제목과 문제에 대한 명확한 설명**이 반드시 포함되어야 합니다. 또한 가능한 한 **관련 정보와 문제를 재현할 수 있는 코드 예제**를 함께 제공해야 합니다. 버그 리포트의 목표는 **자신과 다른 사람들이 버그를 쉽게 재현하고 수정할 수 있도록 돕는 것**입니다.
 
-Remember, bug reports are created in the hope that others with the same problem will be able to collaborate with you on solving it. Do not expect that the bug report will automatically see any activity or that others will jump to fix it. Creating a bug report serves to help yourself and others start on the path of fixing the problem. If you want to chip in, you can help out by fixing [any bugs listed in our issue trackers](https://github.com/issues?q=is%3Aopen+is%3Aissue+label%3Abug+user%3Alaravel). You must be authenticated with GitHub to view all of Laravel's issues.
+버그 리포트는 동일한 문제를 겪는 다른 사람들과 함께 해결하기 위해 작성된다는 점을 기억하십시오. 버그 리포트가 자동으로 활발히 처리되거나 다른 사람이 바로 수정해 줄 것이라고 기대해서는 안 됩니다. 버그 리포트를 작성하는 것은 문제 해결을 시작하기 위한 출발점입니다. 직접 기여하고 싶다면 [issue tracker에 등록된 버그](https://github.com/issues?q=is%3Aopen+is%3Aissue+label%3Abug+user%3Alaravel)를 수정하는 데 도움을 줄 수 있습니다. Laravel의 모든 이슈를 보려면 GitHub에 로그인되어 있어야 합니다.
 
-If you notice improper DocBlock, PHPStan, or IDE warnings while using Laravel, do not create a GitHub issue. Instead, please submit a pull request to fix the problem.
+Laravel을 사용하는 동안 **부적절한 DocBlock, PHPStan, 또는 IDE 경고**를 발견했다면 GitHub 이슈를 생성하지 마십시오. 대신 해당 문제를 수정하는 **pull request를 제출**해 주십시오.
 
-The Laravel source code is managed on GitHub, and there are repositories for each of the Laravel projects:
+Laravel의 소스 코드는 GitHub에서 관리되며, 각 Laravel 프로젝트마다 별도의 저장소가 존재합니다.
 
 <div class="content-list" markdown="1">
 
@@ -57,9 +57,9 @@ The Laravel source code is managed on GitHub, and there are repositories for eac
 </div>
 
 <a name="support-questions"></a>
-## Support Questions
+## 지원 질문 (Support Questions)
 
-Laravel's GitHub issue trackers are not intended to provide Laravel help or support. Instead, use one of the following channels:
+Laravel의 GitHub 이슈 트래커는 **Laravel 사용 방법에 대한 도움이나 지원을 제공하기 위한 용도**가 아닙니다. 대신 다음 채널 중 하나를 이용하십시오.
 
 <div class="content-list" markdown="1">
 
@@ -74,51 +74,54 @@ Laravel's GitHub issue trackers are not intended to provide Laravel help or supp
 </div>
 
 <a name="core-development-discussion"></a>
-## Core Development Discussion
+## 코어 개발 토론 (Core Development Discussion)
 
-You may propose new features or improvements of existing Laravel behavior in the Laravel framework repository's [GitHub discussion board](https://github.com/laravel/framework/discussions). If you propose a new feature, please be willing to implement at least some of the code that would be needed to complete the feature.
+새로운 기능 제안이나 기존 Laravel 동작에 대한 개선 제안은 Laravel framework 저장소의 [GitHub discussion board](https://github.com/laravel/framework/discussions)에서 할 수 있습니다. 새로운 기능을 제안하는 경우, 해당 기능을 완성하는 데 필요한 코드의 일부라도 **직접 구현할 의지**가 있어야 합니다.
 
-Informal discussion regarding bugs, new features, and implementation of existing features takes place in the `#internals` channel of the [Laravel Discord server](https://discord.gg/laravel). Taylor Otwell, the maintainer of Laravel, is typically present in the channel on weekdays from 8am-5pm (UTC-06:00 or America/Chicago), and sporadically present in the channel at other times.
+버그, 새로운 기능, 기존 기능의 구현 방식에 대한 비공식 토론은 [Laravel Discord server](https://discord.gg/laravel)의 `#internals` 채널에서 이루어집니다. Laravel의 유지 관리자인 Taylor Otwell은 일반적으로 평일 오전 8시부터 오후 5시까지(UTC-06:00 또는 America/Chicago) 해당 채널에 접속해 있으며, 그 외 시간에도 간헐적으로 참여합니다.
 
 <a name="which-branch"></a>
-## Which Branch?
+## 어떤 브랜치로 보내야 하나요? (Which Branch?)
 
-**All** bug fixes should be sent to the latest version that supports bug fixes (currently `12.x`). Bug fixes should **never** be sent to the `master` branch unless they fix features that exist only in the upcoming release.
+**모든** 버그 수정은 **버그 수정이 지원되는 최신 버전 브랜치**로 보내야 합니다(현재 `12.x`). 버그 수정은 **다음 릴리스에서만 존재하는 기능을 수정하는 경우가 아니라면 절대 `master` 브랜치로 보내면 안 됩니다.**
 
-**Minor** features that are **fully backward compatible** with the current release may be sent to the latest stable branch (currently `12.x`).
+현재 릴리스와 **완전히 하위 호환(backward compatible)** 되는 **작은 기능 추가**는 **최신 안정 브랜치**로 보낼 수 있습니다(현재 `12.x`).
 
-**Major** new features or features with breaking changes should always be sent to the `master` branch, which contains the upcoming release.
+**대규모 새 기능** 또는 **호환성을 깨는 변경 사항(breaking changes)** 이 포함된 기능은 항상 **다음 릴리스를 포함하는 `master` 브랜치**로 보내야 합니다.
 
 <a name="compiled-assets"></a>
-## Compiled Assets
+## 컴파일된 에셋 (Compiled Assets)
 
-If you are submitting a change that will affect a compiled file, such as most of the files in `resources/css` or `resources/js` of the `laravel/laravel` repository, do not commit the compiled files. Due to their large size, they cannot realistically be reviewed by a maintainer. This could be exploited as a way to inject malicious code into Laravel. In order to defensively prevent this, all compiled files will be generated and committed by Laravel maintainers.
+`laravel/laravel` 저장소의 `resources/css` 또는 `resources/js` 대부분의 파일처럼 **컴파일된 파일에 영향을 주는 변경 사항**을 제출하는 경우, **컴파일된 파일은 커밋하지 마십시오.**  
+
+컴파일된 파일은 용량이 크기 때문에 유지 관리자가 현실적으로 검토하기 어렵습니다. 또한 이는 Laravel에 **악성 코드를 삽입하는 공격 경로**로 악용될 수 있습니다. 이러한 문제를 방지하기 위해 **모든 컴파일된 파일은 Laravel 유지 관리자가 직접 생성하고 커밋합니다.**
 
 <a name="ai-generated-contributions"></a>
-## AI-Generated Contributions
+## AI 생성 기여물 (AI-Generated Contributions)
 
-We appreciate every pull request submitted to Laravel. However, contributions that are primarily AI-generated without thoughtful human review and consideration are not acceptable.
+Laravel에 제출되는 모든 pull request에 감사드립니다. 그러나 충분한 사람의 검토와 숙고 없이 대부분이 AI로 생성된 기여물은 허용되지 않습니다.
 
-If you choose to use AI tools to assist with your contribution, the resulting code **must** be thoroughly reviewed, tested, and understood by you before submitting.
+기여 과정에서 AI 도구를 사용하기로 했다면, 제출 전에 결과 코드를 반드시 직접 충분히 검토하고, 테스트하고, 이해해야 합니다.
 
-**Mass opening issues or pull requests that are entirely AI-generated will not be tolerated.** Such pull requests will be closed without review, and the contributing user may be blocked from the repository.
+**전적으로 AI가 생성한 이슈나 pull request를 대량으로 여는 행위는 허용되지 않습니다.** 이러한 pull request는 검토 없이 닫히며, 기여한 사용자는 저장소에서 차단될 수 있습니다.
 
-We encourage contributors to familiarize themselves with the existing codebase, engage with the community, and submit pull requests that reflect their own understanding and careful consideration of the problem they are solving.
+기여자는 기존 코드베이스를 충분히 살펴보고, 커뮤니티와 소통하며, 자신이 해결하려는 문제를 스스로 이해하고 신중히 고려한 흔적이 드러나는 pull request를 제출해 주시기 바랍니다.
 
 <a name="security-vulnerabilities"></a>
-## Security Vulnerabilities
+## 보안 취약점 (Security Vulnerabilities)
 
-If you discover a security vulnerability within Laravel, please send an email to Taylor Otwell at <a href="mailto:taylor@laravel.com">taylor@laravel.com</a>. All security vulnerabilities will be promptly addressed.
+Laravel에서 보안 취약점을 발견한 경우, Taylor Otwell에게 이메일로 알려주십시오: <a href="mailto:taylor@laravel.com">taylor@laravel.com</a>.  
+모든 보안 취약점은 신속하게 처리됩니다.
 
 <a name="coding-style"></a>
-## Coding Style
+## 코딩 스타일 (Coding Style)
 
-Laravel follows the [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) coding standard and the [PSR-4](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md) autoloading standard.
+Laravel은 [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) 코딩 표준과 [PSR-4](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md) 자동 로딩 표준을 따릅니다.
 
 <a name="phpdoc"></a>
 ### PHPDoc
 
-Below is an example of a valid Laravel documentation block. Note that the `@param` attribute is followed by two spaces, the argument type, two more spaces, and finally the variable name:
+다음은 올바른 Laravel 문서 블록의 예시입니다. `@param` 속성 뒤에는 **두 칸의 공백**, **인수 타입**, **다시 두 칸의 공백**, 그리고 **변수 이름**이 순서대로 위치합니다.
 
 ```php
 /**
@@ -137,7 +140,7 @@ public function bind($abstract, $concrete = null, $shared = false)
 }
 ```
 
-When the `@param` or `@return` attributes are redundant due to the use of native types, they can be removed:
+`@param` 또는 `@return` 속성이 **native 타입 선언으로 인해 중복되는 경우**에는 제거할 수 있습니다.
 
 ```php
 /**
@@ -149,7 +152,7 @@ public function handle(AudioProcessor $processor): void
 }
 ```
 
-However, when the native type is generic, please specify the generic type through the use of the `@param` or `@return` attributes:
+하지만 native 타입이 **제네릭 타입인 경우**에는 `@param` 또는 `@return` 속성을 사용하여 제네릭 타입을 명시해야 합니다.
 
 ```php
 /**
@@ -168,18 +171,18 @@ public function attachments(): array
 <a name="styleci"></a>
 ### StyleCI
 
-Don't worry if your code styling isn't perfect! [StyleCI](https://styleci.io/) will automatically merge any style fixes into the Laravel repository after pull requests are merged. This allows us to focus on the content of the contribution and not the code style.
+코드 스타일이 완벽하지 않아도 걱정하지 마십시오! [StyleCI](https://styleci.io/)가 Pull request가 병합된 후 자동으로 코드 스타일 수정 사항을 Laravel 저장소에 반영합니다. 덕분에 우리는 코드 스타일보다 **기여 내용 자체에 집중**할 수 있습니다.
 
 <a name="code-of-conduct"></a>
-## Code of Conduct
+## 행동 강령 (Code of Conduct)
 
-The Laravel code of conduct is derived from the Ruby code of conduct. Any violations of the code of conduct may be reported to Taylor Otwell (taylor@laravel.com):
+Laravel의 행동 강령은 Ruby의 행동 강령을 기반으로 합니다. 행동 강령 위반 사항은 Taylor Otwell(taylor@laravel.com)에게 보고할 수 있습니다.
 
 <div class="content-list" markdown="1">
 
-- Participants will be tolerant of opposing views.
-- Participants must ensure that their language and actions are free of personal attacks and disparaging personal remarks.
-- When interpreting the words and actions of others, participants should always assume good intentions.
-- Behavior that can be reasonably considered harassment will not be tolerated.
+- 참여자는 서로 다른 의견에 대해 관용적인 태도를 가져야 합니다.
+- 참여자는 개인 공격이나 비하 발언이 없는 언어와 행동을 사용해야 합니다.
+- 다른 사람의 말과 행동을 해석할 때는 항상 선의를 가정해야 합니다.
+- 합리적으로 괴롭힘으로 간주될 수 있는 행동은 용납되지 않습니다.
 
 </div>

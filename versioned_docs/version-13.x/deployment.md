@@ -1,30 +1,30 @@
-# Deployment
+# 배포 (Deployment)
 
-- [Introduction](#introduction)
-- [Server Requirements](#server-requirements)
-- [Server Configuration](#server-configuration)
+- [소개](#introduction)
+- [서버 요구사항](#server-requirements)
+- [서버 설정](#server-configuration)
     - [Nginx](#nginx)
     - [FrankenPHP](#frankenphp)
-    - [Directory Permissions](#directory-permissions)
-- [Optimization](#optimization)
-    - [Caching Configuration](#optimizing-configuration-loading)
-    - [Caching Events](#caching-events)
-    - [Caching Routes](#optimizing-route-loading)
-    - [Caching Views](#optimizing-view-loading)
-- [Reloading Services](#reloading-services)
-- [Debug Mode](#debug-mode)
-- [The Health Route](#the-health-route)
-- [Deploying With Laravel Cloud or Forge](#deploying-with-cloud-or-forge)
+    - [디렉터리 권한](#directory-permissions)
+- [최적화](#optimization)
+    - [설정 캐싱](#optimizing-configuration-loading)
+    - [이벤트 캐싱](#caching-events)
+    - [라우트 캐싱](#optimizing-route-loading)
+    - [뷰 캐싱](#optimizing-view-loading)
+- [서비스 재시작](#reloading-services)
+- [디버그 모드](#debug-mode)
+- [헬스(Health) 라우트](#the-health-route)
+- [Laravel Cloud 또는 Forge로 배포하기](#deploying-with-cloud-or-forge)
 
 <a name="introduction"></a>
-## Introduction
+## 소개 (Introduction)
 
-When you're ready to deploy your Laravel application to production, there are some important things you can do to make sure your application is running as efficiently as possible. In this document, we'll cover some great starting points for making sure your Laravel application is deployed properly.
+Laravel 애플리케이션을 프로덕션 환경에 배포할 준비가 되었다면, 애플리케이션이 최대한 효율적으로 동작할 수 있도록 하기 위해 반드시 확인해야 할 중요한 사항들이 있습니다. 이 문서에서는 Laravel 애플리케이션을 올바르게 배포할 수 있도록 도와주는 유용한 시작 지점을 다룹니다.
 
 <a name="server-requirements"></a>
-## Server Requirements
+## 서버 요구사항 (Server Requirements)
 
-The Laravel framework has a few system requirements. You should ensure that your web server has the following minimum PHP version and extensions:
+Laravel 프레임워크는 몇 가지 시스템 요구사항이 있습니다. 웹 서버가 다음의 최소 PHP 버전 및 확장 모듈을 갖추고 있는지 반드시 확인해야 합니다.
 
 <div class="content-list" markdown="1">
 
@@ -46,14 +46,14 @@ The Laravel framework has a few system requirements. You should ensure that your
 </div>
 
 <a name="server-configuration"></a>
-## Server Configuration
+## 서버 설정 (Server Configuration)
 
 <a name="nginx"></a>
 ### Nginx
 
-If you are deploying your application to a server that is running Nginx, you may use the following configuration file as a starting point for configuring your web server. Most likely, this file will need to be customized depending on your server's configuration. **If you would like assistance in managing your server, consider using a fully-managed Laravel platform like [Laravel Cloud](https://cloud.laravel.com).**
+서버에서 Nginx를 사용하여 애플리케이션을 배포하는 경우, 웹 서버 설정의 시작점으로 아래 설정 파일을 참고할 수 있습니다. 대부분 서버 환경에 따라 해당 파일을 사용자 지정해야 할 필요가 있습니다. **서버 관리에 도움이 필요하다면 [Laravel Cloud](https://cloud.laravel.com)와 같은 완전 관리형 Laravel 플랫폼 사용을 고려해 보십시오.**
 
-Please ensure, like the configuration below, your web server directs all requests to your application's `public/index.php` file. You should never attempt to move the `index.php` file to your project's root, as serving the application from the project root will expose many sensitive configuration files to the public Internet:
+아래 예시와 같이, 모든 요청이 애플리케이션의 `public/index.php` 파일로 라우팅되도록 웹 서버를 설정해야 합니다. `index.php` 파일을 프로젝트 루트로 이동시키는 시도는 절대 하지 마십시오. 프로젝트 루트에서 애플리케이션을 서비스하면 많은 민감한 설정 파일들이 외부에 노출될 수 있습니다.
 
 ```nginx
 server {
@@ -94,109 +94,109 @@ server {
 <a name="frankenphp"></a>
 ### FrankenPHP
 
-[FrankenPHP](https://frankenphp.dev/) may also be used to serve your Laravel applications. FrankenPHP is a modern PHP application server written in Go. To serve a Laravel PHP application using FrankenPHP, you may simply invoke its `php-server` command:
+[FrankenPHP](https://frankenphp.dev/)를 사용하여 Laravel 애플리케이션을 서비스할 수도 있습니다. FrankenPHP는 Go 언어로 작성된 최신 PHP 애플리케이션 서버입니다. FrankenPHP를 이용해 Laravel PHP 애플리케이션을 서비스하려면, 아래와 같이 `php-server` 명령어를 실행하면 됩니다.
 
 ```shell
 frankenphp php-server -r public/
 ```
 
-To take advantage of more powerful features supported by FrankenPHP, such as its [Laravel Octane](/docs/{{version}}/octane) integration, HTTP/3, modern compression, or the ability to package Laravel applications as standalone binaries, please consult FrankenPHP's [Laravel documentation](https://frankenphp.dev/docs/laravel/).
+HTTP/3, 최신 압축, Laravel Octane 연동 등 FrankenPHP가 지원하는 고급 기능이나, Laravel 애플리케이션을 독립 실행형 바이너리로 패키징하는 것과 같은 기능을 활용하려면 FrankenPHP의 [Laravel 문서](https://frankenphp.dev/docs/laravel/)를 참고하십시오.
 
 <a name="directory-permissions"></a>
-### Directory Permissions
+### 디렉터리 권한
 
-Laravel will need to write to the `bootstrap/cache` and `storage` directories, so you should ensure the web server process owner has permission to write to these directories.
+Laravel은 `bootstrap/cache`와 `storage` 디렉터리에 파일을 쓸 수 있어야 하므로, 웹 서버 프로세스 소유자가 해당 디렉터리에 쓸 수 있는 권한을 갖고 있는지 반드시 확인해야 합니다.
 
 <a name="optimization"></a>
-## Optimization
+## 최적화 (Optimization)
 
-When deploying your application to production, there are a variety of files that should be cached, including your configuration, events, routes, and views. Laravel provides a single, convenient `optimize` Artisan command that will cache all of these files. This command should typically be invoked as part of your application's deployment process:
+애플리케이션을 프로덕션 환경에 배포할 때는, 설정, 이벤트, 라우트, 뷰 등 다양한 파일을 캐싱하는 것이 권장됩니다. Laravel은 이 모든 파일을 한 번에 캐싱할 수 있는 편리한 `optimize` Artisan 명령어를 제공합니다. 이 명령어는 일반적으로 배포 과정의 일부로 실행해야 합니다.
 
 ```shell
 php artisan optimize
 ```
 
-The `optimize:clear` method may be used to remove all of the cache files generated by the `optimize` command as well as all keys in the default cache driver:
+`optimize:clear` 명령어는 `optimize` 명령어로 생성된 모든 캐시 파일과 기본 캐시 드라이버의 모든 키를 제거할 수 있습니다.
 
 ```shell
 php artisan optimize:clear
 ```
 
-In the following documentation, we will discuss each of the granular optimization commands that are executed by the `optimize` command.
+이후 문서에서는 `optimize` 명령어에서 실행되는 각 세부 최적화 명령어에 대해 다룹니다.
 
 <a name="optimizing-configuration-loading"></a>
-### Caching Configuration
+### 설정 캐싱
 
-When deploying your application to production, you should make sure that you run the `config:cache` Artisan command during your deployment process:
+프로덕션 환경에 애플리케이션을 배포할 때는, 배포 과정 중에 반드시 `config:cache` Artisan 명령어를 실행해야 합니다.
 
 ```shell
 php artisan config:cache
 ```
 
-This command will combine all of Laravel's configuration files into a single, cached file, which greatly reduces the number of trips the framework must make to the filesystem when loading your configuration values.
+이 명령어를 실행하면 Laravel의 모든 설정 파일이 하나의 캐시 파일로 병합되어, 설정 값을 불러올 때 프레임워크가 파일 시스템에 접근하는 횟수를 크게 줄일 수 있습니다.
 
 > [!WARNING]
-> If you execute the `config:cache` command during your deployment process, you should be sure that you are only calling the `env` function from within your configuration files. Once the configuration has been cached, the `.env` file will not be loaded and all calls to the `env` function for `.env` variables will return `null`.
+> 배포 과정에서 `config:cache` 명령어를 실행했다면, 반드시 설정 파일 내에서만 `env` 함수를 사용해야 합니다. 설정이 캐시된 이후에는 `.env` 파일이 더 이상 로드되지 않으며, 해당 시점 이후 `.env` 변수를 불러오려는 `env` 함수 호출은 모두 `null`을 반환합니다.
 
 <a name="caching-events"></a>
-### Caching Events
+### 이벤트 캐싱
 
-You should cache your application's auto-discovered event to listener mappings during your deployment process. This can be accomplished by invoking the `event:cache` Artisan command during deployment:
+배포 과정 중에, 애플리케이션에서 자동으로 탐지된 이벤트와 리스너 매핑 정보를 캐싱해야 합니다. 이를 위해 배포 과정에서 `event:cache` Artisan 명령어를 실행하면 됩니다.
 
 ```shell
 php artisan event:cache
 ```
 
 <a name="optimizing-route-loading"></a>
-### Caching Routes
+### 라우트 캐싱
 
-If you are building a large application with many routes, you should make sure that you are running the `route:cache` Artisan command during your deployment process:
+많은 라우트를 사용하는 대형 애플리케이션을 개발하는 경우, 배포 과정에 `route:cache` Artisan 명령어를 반드시 실행해야 합니다.
 
 ```shell
 php artisan route:cache
 ```
 
-This command reduces all of your route registrations into a single method call within a cached file, improving the performance of route registration when registering hundreds of routes.
+이 명령어는 모든 라우트 등록을 하나의 메서드 호출로 축약해서 캐시 파일로 저장하며, 수백 개의 라우트를 등록할 때 성능을 크게 개선합니다.
 
 <a name="optimizing-view-loading"></a>
-### Caching Views
+### 뷰 캐싱
 
-When deploying your application to production, you should make sure that you run the `view:cache` Artisan command during your deployment process:
+프로덕션 환경에 배포할 때는, 배포 과정에 반드시 `view:cache` Artisan 명령어를 실행해야 합니다.
 
 ```shell
 php artisan view:cache
 ```
 
-This command precompiles all your Blade views so they are not compiled on demand, improving the performance of each request that returns a view.
+이 명령어는 모든 Blade 뷰를 미리 컴파일하여, 요청 시 뷰를 즉석에서 컴파일하지 않아도 되어 각 요청의 응답 성능이 향상됩니다.
 
 <a name="reloading-services"></a>
-## Reloading Services
+## 서비스 재시작 (Reloading Services)
 
 > [!NOTE]
-> When deploying to [Laravel Cloud](https://cloud.laravel.com), it is not necessary to use the `reload` command, as gracefully reloading of all services is handled automatically.
+> [Laravel Cloud](https://cloud.laravel.com) 환경에서는 `reload` 명령어를 사용할 필요가 없습니다. 모든 서비스의 정상적인 재시작이 자동으로 처리됩니다.
 
-After deploying a new version of your application, any long-running services such as queue workers, Laravel Reverb, or Laravel Octane should be reloaded / restarted to use the new code. Laravel provides a single `reload` Artisan command that will terminate these services:
+애플리케이션의 새 버전을 배포한 후에는, queue 워커, Laravel Reverb, Laravel Octane 등과 같은 장기 실행 서비스들이 새로운 코드를 반영할 수 있도록 반드시 재시작해야 합니다. Laravel은 이 서비스들을 종료시키는 단일 `reload` Artisan 명령어를 제공합니다.
 
 ```shell
 php artisan reload
 ```
 
-If you are not using [Laravel Cloud](https://cloud.laravel.com), you should manually  configure a process monitor that can detect when your reloadable processes exit and automatically restart them.
+[Laravel Cloud](https://cloud.laravel.com)를 사용하지 않는 경우, 재시작이 필요한 프로세스가 종료되는 것을 감지하고 자동으로 재시작할 수 있도록 프로세스 모니터를 직접 구성해야 합니다.
 
 <a name="debug-mode"></a>
-## Debug Mode
+## 디버그 모드 (Debug Mode)
 
-The debug option in your `config/app.php` configuration file determines how much information about an error is actually displayed to the user. By default, this option is set to respect the value of the `APP_DEBUG` environment variable, which is stored in your application's `.env` file.
+`config/app.php` 설정 파일의 debug 옵션은 에러 발생 시 사용자에게 얼마나 자세한 정보를 보여줄지를 결정합니다. 기본적으로 이 옵션은 애플리케이션의 `.env` 파일에 저장된 `APP_DEBUG` 환경 변수 값을 따릅니다.
 
 > [!WARNING]
-> **In your production environment, this value should always be `false`. If the `APP_DEBUG` variable is set to `true` in production, you risk exposing sensitive configuration values to your application's end users.**
+> **프로덕션 환경에서는 반드시 이 값을 `false`로 설정해야 합니다. 만약 `APP_DEBUG`가 프로덕션 환경에서 `true`로 되어 있다면, 민감한 설정 정보가 최종 사용자에게 노출될 위험이 있습니다.**
 
 <a name="the-health-route"></a>
-## The Health Route
+## 헬스(Health) 라우트 (The Health Route)
 
-Laravel includes a built-in health check route that can be used to monitor the status of your application. In production, this route may be used to report the status of your application to an uptime monitor, load balancer, or orchestration system such as Kubernetes.
+Laravel은 애플리케이션의 상태를 점검할 수 있는 기본 헬스 체크(health check) 라우트를 제공합니다. 프로덕션 환경에서는 이 라우트를 이용하여 업타임 모니터, 로드 밸런서, 또는 Kubernetes와 같은 오케스트레이션 시스템에 애플리케이션의 상태를 보고할 수 있습니다.
 
-By default, the health check route is served at `/up` and will return a 200 HTTP response if the application has booted without exceptions. Otherwise, a 500 HTTP response will be returned. You may configure the URI for this route in your application's `bootstrap/app` file:
+기본적으로 헬스 체크 라우트는 `/up`에서 서비스되며, 애플리케이션이 예외 없이 부팅된 경우 HTTP 200 응답을 반환합니다. 그렇지 않으면, HTTP 500 응답을 반환하게 됩니다. 이 라우트의 URI는 애플리케이션의 `bootstrap/app` 파일에서 설정할 수 있습니다.
 
 ```php
 ->withRouting(
@@ -207,21 +207,21 @@ By default, the health check route is served at `/up` and will return a 200 HTTP
 )
 ```
 
-When HTTP requests are made to this route, Laravel will also dispatch a `Illuminate\Foundation\Events\DiagnosingHealth` event, allowing you to perform additional health checks relevant to your application. Within a [listener](/docs/{{version}}/events) for this event, you may check your application's database or cache status. If you detect a problem with your application, you may simply throw an exception from the listener.
+이 라우트에 HTTP 요청이 오면, Laravel은 또한 `Illuminate\Foundation\Events\DiagnosingHealth` 이벤트를 디스패치합니다. 이를 통해 애플리케이션에서 추가적인 상태 점검을 할 수 있습니다. 이 이벤트의 [리스너](/docs/13.x/events) 내부에서 데이터베이스나 캐시 상태를 점검할 수 있으며, 문제가 감지되었다면 리스너에서 예외를 던지면 됩니다.
 
 <a name="deploying-with-cloud-or-forge"></a>
-## Deploying With Laravel Cloud or Forge
+## Laravel Cloud 또는 Forge로 배포하기 (Deploying With Laravel Cloud or Forge)
 
 <a name="laravel-cloud"></a>
 #### Laravel Cloud
 
-If you would like a fully-managed, auto-scaling deployment platform tuned for Laravel, check out [Laravel Cloud](https://cloud.laravel.com). Laravel Cloud is a robust deployment platform for Laravel, offering managed compute, databases, caches, and object storage.
+완전 관리형, 자동 확장 배포 플랫폼을 원한다면 [Laravel Cloud](https://cloud.laravel.com)를 확인해 보십시오. Laravel Cloud는 관리형 컴퓨트, 데이터베이스, 캐시, 오브젝트 스토리지를 제공하는 강력한 Laravel 배포 플랫폼입니다.
 
-Launch your Laravel application on Cloud and fall in love with the scalable simplicity. Laravel Cloud is fine-tuned by Laravel's creators to work seamlessly with the framework so you can keep writing your Laravel applications exactly like you're used to.
+Laravel Cloud에서 애플리케이션을 시작하고, 확장 가능한 간편함에 반해보십시오. Laravel Cloud는 Laravel 제작진이 프레임워크와 매끄럽게 통합되도록 미세 조정하였으므로, 이전과 동일하게 편하게 Laravel 애플리케이션을 개발할 수 있습니다.
 
 <a name="laravel-forge"></a>
 #### Laravel Forge
 
-If you prefer to manage your own servers but aren't comfortable configuring all of the various services needed to run a robust Laravel application, [Laravel Forge](https://forge.laravel.com) is a VPS server management platform for Laravel applications.
+서버를 직접 관리하고 싶지만, 강력한 Laravel 애플리케이션 실행을 위해 필요한 다양한 서비스를 직접 설정하는 것이 어렵다면, [Laravel Forge](https://forge.laravel.com)는 Laravel 애플리케이션을 위한 VPS 서버 관리 플랫폼입니다.
 
-Laravel Forge can create servers on various infrastructure providers such as DigitalOcean, Linode, AWS, and more. In addition, Forge installs and manages all of the tools needed to build robust Laravel applications, such as Nginx, MySQL, Redis, Memcached, Beanstalk, and more.
+Laravel Forge는 DigitalOcean, Linode, AWS 등 다양한 인프라 제공업체에서 서버를 생성할 수 있으며, Nginx, MySQL, Redis, Memcached, Beanstalk 등 강력한 Laravel 애플리케이션 구성을 위해 필요한 모든 도구를 설치 및 관리해줍니다.

@@ -1,53 +1,55 @@
 # Laravel Pint
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Running Pint](#running-pint)
-- [Configuring Pint](#configuring-pint)
-    - [Presets](#presets)
-    - [Rules](#rules)
-    - [Excluding Files / Folders](#excluding-files-or-folders)
-- [Continuous Integration](#continuous-integration)
+- [소개](#introduction)
+- [설치](#installation)
+- [Pint 실행](#running-pint)
+- [Pint 설정](#configuring-pint)
+    - [프리셋](#presets)
+    - [규칙](#rules)
+    - [커스텀 규칙](#custom-rules)
+    - [`Pint/phpdoc_type_annotations_only`](#phpdoc-type-annotations-only)
+    - [파일/폴더 제외](#excluding-files-or-folders)
+- [지속적 통합(CI)](#continuous-integration)
     - [GitHub Actions](#running-tests-on-github-actions)
 
 <a name="introduction"></a>
-## Introduction
+## 소개 (Introduction)
 
-[Laravel Pint](https://github.com/laravel/pint) is an opinionated PHP code style fixer for minimalists. Pint is built on top of [PHP CS Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) and makes it simple to ensure that your code style stays clean and consistent.
+[Laravel Pint](https://github.com/laravel/pint)는 미니멀리스트를 위한 명확한 기준의 PHP 코드 스타일 자동 정리 도구입니다. Pint는 [PHP CS Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer)를 기반으로 하며, 코드 스타일이 항상 깔끔하고 일관되게 유지되도록 손쉽게 도와줍니다.
 
-Pint is automatically installed with all new Laravel applications so you may start using it immediately. By default, Pint does not require any configuration and will fix code style issues in your code by following the opinionated coding style of Laravel.
+Pint는 모든 신규 Laravel 애플리케이션에 자동으로 포함되어 있으므로 즉시 사용할 수 있습니다. 기본적으로 별도의 설정 없이도 동작하며, Laravel의 견해를 반영한 코드 스타일을 따라 코드 내의 스타일 문제를 자동으로 수정합니다.
 
 <a name="installation"></a>
-## Installation
+## 설치 (Installation)
 
-Pint is included in recent releases of the Laravel framework, so installation is typically unnecessary. However, for older applications, you may install Laravel Pint via Composer:
+Pint는 최근 릴리즈된 Laravel 프레임워크에 기본 포함되어 있으므로 일반적으로 별도 설치가 필요하지 않습니다. 그러나 구버전 애플리케이션에서는 Composer를 통해 Laravel Pint를 설치할 수 있습니다:
 
 ```shell
 composer require laravel/pint --dev
 ```
 
 <a name="running-pint"></a>
-## Running Pint
+## Pint 실행 (Running Pint)
 
-You can instruct Pint to fix code style issues by invoking the `pint` binary that is available in your project's `vendor/bin` directory:
+Pint로 코드 스타일 문제를 수정하려면, 프로젝트의 `vendor/bin` 디렉터리에 있는 `pint` 바이너리를 실행하면 됩니다:
 
 ```shell
 ./vendor/bin/pint
 ```
 
-If you would like Pint to run in parallel mode (experimental) for improved performance, you may use the `--parallel` option:
+성능 향상을 위해 Pint를 병렬(parallel) 모드(실험적)로 실행하고 싶다면, `--parallel` 옵션을 사용할 수 있습니다:
 
 ```shell
 ./vendor/bin/pint --parallel
 ```
 
-Parallel mode also allows you to specify the maximum number of processes to run via the `--max-processes` option. If this option is not provided, Pint will use every available core on your machine:
+병렬 모드에서는 추가로 `--max-processes` 옵션을 통해 동시에 실행할 최대 프로세스 수를 지정할 수 있습니다. 옵션을 지정하지 않으면 Pint는 시스템의 모든 사용 가능한 코어를 사용합니다:
 
 ```shell
 ./vendor/bin/pint --parallel --max-processes=4
 ```
 
-You may also run Pint on specific files or directories:
+또한 특정 파일이나 디렉터리에만 Pint를 실행할 수도 있습니다:
 
 ```shell
 ./vendor/bin/pint app/Models
@@ -55,40 +57,40 @@ You may also run Pint on specific files or directories:
 ./vendor/bin/pint app/Models/User.php
 ```
 
-Pint will display a thorough list of all of the files that it updates. You can view even more detail about Pint's changes by providing the `-v` option when invoking Pint:
+Pint는 업데이트된 모든 파일의 상세 목록을 출력합니다. 변경 내역을 더 자세히 보고 싶다면, `-v` 옵션을 추가하여 실행할 수 있습니다:
 
 ```shell
 ./vendor/bin/pint -v
 ```
 
-If you would like Pint to simply inspect your code for style errors without actually changing the files, you may use the `--test` option. Pint will return a non-zero exit code if any code style errors are found:
+Pint가 실제로 파일을 변경하지 않고, 코드 스타일 오류만 검사하도록 하려면 `--test` 옵션을 사용할 수 있습니다. 코드 스타일 오류가 발견되면 Pint는 0이 아닌 종료 코드를 반환합니다:
 
 ```shell
 ./vendor/bin/pint --test
 ```
 
-If you would like Pint to only modify the files that differ from the provided branch according to Git, you may use the `--diff=[branch]` option. This can be effectively used in your CI environment (like GitHub actions) to save time by only inspecting new or modified files:
+Git 기준으로 지정한 브랜치와 다른 파일만 Pint가 수정하도록 하려면, `--diff=[branch]` 옵션을 사용할 수 있습니다. 이는 CI 환경(GitHub Actions 등)에서 새로운 파일이나 변경된 파일만 검사하여 시간을 절약하는 데 효과적입니다:
 
 ```shell
 ./vendor/bin/pint --diff=main
 ```
 
-If you would like Pint to only modify the files that have uncommitted changes according to Git, you may use the `--dirty` option:
+또한 Git에서 커밋되지 않은 변경이 있는 파일만 Pint가 수정하도록 하려면 `--dirty` 옵션을 사용할 수 있습니다:
 
 ```shell
 ./vendor/bin/pint --dirty
 ```
 
-If you would like Pint to fix any files with code style errors but also exit with a non-zero exit code if any errors were fixed, you may use the `--repair` option:
+코드 스타일 오류가 있는 파일을 수정하되, 오류를 수정한 경우에는 0이 아닌 종료 코드로 종료하도록 하려면 `--repair` 옵션을 사용할 수 있습니다:
 
 ```shell
 ./vendor/bin/pint --repair
 ```
 
 <a name="configuring-pint"></a>
-## Configuring Pint
+## Pint 설정 (Configuring Pint)
 
-As previously mentioned, Pint does not require any configuration. However, if you wish to customize the presets, rules, or inspected folders, you may do so by creating a `pint.json` file in your project's root directory:
+앞서 언급했듯, Pint는 별도의 설정 없이도 사용할 수 있습니다. 하지만 프리셋(preset), 규칙(rules), 검사할 폴더를 커스텀하고 싶다면, 프로젝트 루트 디렉터리에 `pint.json` 파일을 생성해 원하는 대로 설정할 수 있습니다:
 
 ```json
 {
@@ -96,22 +98,22 @@ As previously mentioned, Pint does not require any configuration. However, if yo
 }
 ```
 
-In addition, if you wish to use a `pint.json` from a specific directory, you may provide the `--config` option when invoking Pint:
+또한 특정 디렉터리에 있는 `pint.json` 파일을 사용하려면, Pint 실행 시 `--config` 옵션을 추가로 제공할 수 있습니다:
 
 ```shell
 ./vendor/bin/pint --config vendor/my-company/coding-style/pint.json
 ```
 
 <a name="presets"></a>
-### Presets
+### 프리셋
 
-Presets define a set of rules that can be used to fix code style issues in your code. By default, Pint uses the `laravel` preset, which fixes issues by following the opinionated coding style of Laravel. However, you may specify a different preset by providing the `--preset` option to Pint:
+프리셋(preset)은 코드 스타일을 자동으로 맞춰줄 규칙들의 집합을 의미합니다. 기본적으로 Pint는 `laravel` 프리셋을 사용하며, 이 설정은 Laravel의 코드 스타일을 기준으로 스타일 문제를 자동 정리합니다. 다른 프리셋을 사용하고 싶다면 Pint 실행 시 `--preset` 옵션을 통해 지정할 수 있습니다:
 
 ```shell
 ./vendor/bin/pint --preset psr12
 ```
 
-If you wish, you may also set the preset in your project's `pint.json` file:
+또는, 프로젝트의 `pint.json` 파일에서 프리셋을 지정해줄 수도 있습니다:
 
 ```json
 {
@@ -119,14 +121,14 @@ If you wish, you may also set the preset in your project's `pint.json` file:
 }
 ```
 
-Pint's currently supported presets are: `laravel`, `per`, `psr12`, `symfony`, and `empty`.
+현재 Pint가 지원하는 프리셋은 다음과 같습니다: `laravel`, `per`, `psr12`, `symfony`, `empty`.
 
 <a name="rules"></a>
-### Rules
+### 규칙
 
-Rules are style guidelines that Pint will use to fix code style issues in your code. As mentioned above, presets are predefined groups of rules that should be perfect for most PHP projects, so you typically will not need to worry about the individual rules they contain.
+규칙(rule)은 Pint가 코드 스타일을 자동으로 수정할 때 적용하는 세부 지침입니다. 앞서 설명한 대로, 프리셋에는 보통 PHP 프로젝트에 적합한 규칙들이 미리 지정되어 있으므로, 개별 규칙을 신경 쓰지 않아도 됩니다.
 
-However, if you wish, you may enable or disable specific rules in your `pint.json` file or use the `empty` preset and define the rules from scratch:
+그러나 원하는 경우, 프로젝트의 `pint.json` 파일에서 특정 규칙을 직접 활성화하거나 비활성화할 수 있으며, 또는 `empty` 프리셋으로 시작해서 원하는 규칙만 직접 추가할 수도 있습니다:
 
 ```json
 {
@@ -142,17 +144,17 @@ However, if you wish, you may enable or disable specific rules in your `pint.jso
 }
 ```
 
-Pint is built on top of [PHP CS Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer). Therefore, you may use any of its rules to fix code style issues in your project: [PHP CS Fixer Configurator](https://mlocati.github.io/php-cs-fixer-configurator).
+Pint는 [PHP CS Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) 위에 구축되어 있으므로, PHP CS Fixer의 모든 규칙을 사용할 수 있습니다: [PHP CS Fixer Configurator](https://mlocati.github.io/php-cs-fixer-configurator).
 
 <a name="custom-rules"></a>
-#### Custom Rules
+#### 커스텀 규칙
 
-In addition to PHP CS Fixer rules, Pint provides custom rules prefixed with `Pint/`. These rules are not enabled by default, but you may enable them in your `pint.json` file.
+PHP CS Fixer 규칙 외에도, Pint는 `Pint/` 접두사가 붙은 자체 커스텀 규칙을 제공합니다. 이 규칙들은 기본적으로 활성화되어 있지 않지만, `pint.json` 파일에서 직접 켤 수 있습니다.
 
 <a name="phpdoc-type-annotations-only"></a>
 ##### `Pint/phpdoc_type_annotations_only`
 
-This rule removes all comments and docblock prose from your code, keeping only lines that contain `@` annotations such as `@param`, `@return`, `@var`, `@phpstan-type`, etc:
+이 규칙은 코드에서 모든 주석과 docblock 설명 문장을 제거하고, `@param`, `@return`, `@var`, `@phpstan-type` 같은 `@` 어노테이션이 포함된 줄만 남깁니다:
 
 ```php
 /**
@@ -163,13 +165,13 @@ This rule removes all comments and docblock prose from your code, keeping only l
 public function posts(): HasMany
 ```
 
-Single-line comments and block comments without `@` annotations are removed entirely. If you would like to keep a specific comment, you may prefix it with `@note`, `@warning`, or `@todo`:
+`@` 어노테이션이 없는 한 줄 주석과 블록 주석은 완전히 제거됩니다. 특정 주석을 유지하고 싶다면 `@note`, `@warning`, `@todo` 접두사를 붙일 수 있습니다:
 
 ```php
 // @note This comment will be preserved.
 ```
 
-To enable this rule, add it to your `pint.json` file:
+이 규칙을 활성화하려면 `pint.json` 파일에 추가하세요:
 
 ```json
 {
@@ -181,12 +183,12 @@ To enable this rule, add it to your `pint.json` file:
 ```
 
 > [!NOTE]
-> This rule automatically skips files in the `config` directory, as configuration files typically rely on comments for documentation.
+> 이 규칙은 설정 파일이 대체로 주석에 문서화를 의존하기 때문에, `config` 디렉터리 안의 파일은 자동으로 건너뜁니다.
 
 <a name="excluding-files-or-folders"></a>
-### Excluding Files / Folders
+### 파일/폴더 제외
 
-By default, Pint will inspect all `.php` files in your project except those in the `vendor` directory. If you wish to exclude more folders, you may do so using the `exclude` configuration option:
+기본적으로 Pint는 프로젝트 내의 모든 `.php` 파일을 검사하지만, `vendor` 디렉터리 내부는 제외합니다. 더 많은 폴더를 제외하고 싶다면, `exclude` 설정 옵션을 사용할 수 있습니다:
 
 ```json
 {
@@ -196,7 +198,7 @@ By default, Pint will inspect all `.php` files in your project except those in t
 }
 ```
 
-If you wish to exclude all files that contain a given name pattern, you may do so using the `notName` configuration option:
+특정 이름 패턴을 가진 파일 모두를 제외하려면, `notName` 옵션을 쓸 수 있습니다:
 
 ```json
 {
@@ -206,7 +208,7 @@ If you wish to exclude all files that contain a given name pattern, you may do s
 }
 ```
 
-If you would like to exclude a file by providing an exact path to the file, you may do so using the `notPath` configuration option:
+정확한 경로를 지정해서 파일 하나만 제외하려면, `notPath` 옵션을 사용할 수 있습니다:
 
 ```json
 {
@@ -217,12 +219,12 @@ If you would like to exclude a file by providing an exact path to the file, you 
 ```
 
 <a name="continuous-integration"></a>
-## Continuous Integration
+## 지속적 통합 (Continuous Integration)
 
 <a name="running-tests-on-github-actions"></a>
 ### GitHub Actions
 
-To automate linting your project with Laravel Pint, you can configure [GitHub Actions](https://github.com/features/actions) to run Pint whenever new code is pushed to GitHub. First, be sure to grant "Read and write permissions" to workflows within GitHub at **Settings > Actions > General > Workflow permissions**. Then, create a `.github/workflows/lint.yml` file with the following content:
+Laravel Pint로 프로젝트 린트(코드 스타일 검사)를 자동화하려면 [GitHub Actions](https://github.com/features/actions)를 구성하여 새 코드가 GitHub에 push될 때마다 Pint를 실행할 수 있습니다. 먼저 GitHub의 **Settings > Actions > General > Workflow permissions**에서 워크플로우에 "Read and write permissions" 권한을 부여하세요. 그런 다음 다음과 같이 `.github/workflows/lint.yml` 파일을 생성하세요:
 
 ```yaml
 name: Fix Code Style

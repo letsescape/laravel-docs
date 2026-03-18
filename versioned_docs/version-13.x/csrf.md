@@ -1,23 +1,23 @@
-# CSRF Protection
+# CSRF 보호 (CSRF Protection)
 
-- [Introduction](#csrf-introduction)
-- [Preventing CSRF Requests](#preventing-csrf-requests)
-    - [Origin Verification](#origin-verification)
-    - [Excluding URIs](#csrf-excluding-uris)
-- [X-CSRF-Token](#csrf-x-csrf-token)
-- [X-XSRF-Token](#csrf-x-xsrf-token)
+- [소개](#csrf-introduction)
+- [CSRF 요청 방지](#preventing-csrf-requests)
+    - [Origin 검증](#origin-verification)
+    - [URI 제외하기](#csrf-excluding-uris)
+- [X-CSRF-TOKEN](#csrf-x-csrf-token)
+- [X-XSRF-TOKEN](#csrf-x-xsrf-token)
 
 <a name="csrf-introduction"></a>
-## Introduction
+## 소개 (Introduction)
 
-Cross-site request forgeries are a type of malicious exploit whereby unauthorized commands are performed on behalf of an authenticated user. Thankfully, Laravel makes it easy to protect your application from [cross-site request forgery](https://en.wikipedia.org/wiki/Cross-site_request_forgery) (CSRF) attacks.
+크로스 사이트 요청 위조(Cross-site request forgery, CSRF)는 인증된 사용자를 가장해 무단 명령을 실행하는 악의적 공격 유형입니다. 다행히도, Laravel은 [크로스 사이트 요청 위조](https://en.wikipedia.org/wiki/Cross-site_request_forgery) 공격으로부터 애플리케이션을 간편하게 보호할 수 있도록 지원합니다.
 
 <a name="csrf-explanation"></a>
-#### An Explanation of the Vulnerability
+#### 취약점 설명
 
-In case you're not familiar with cross-site request forgeries, let's discuss an example of how this vulnerability can be exploited. Imagine your application has a `/user/email` route that accepts a `POST` request to change the authenticated user's email address. Most likely, this route expects an `email` input field to contain the email address the user would like to begin using.
+크로스 사이트 요청 위조(CSRF)에 익숙하지 않다면, 이 취약점이 어떻게 악용될 수 있는지 예를 들어 살펴보겠습니다. 예를 들어, 여러분의 애플리케이션에 인증된 사용자의 이메일 주소를 변경하는 `POST` 요청을 받는 `/user/email` 라우트가 있다고 가정해 보겠습니다. 이 라우트는 일반적으로 사용자가 변경하고 싶어하는 새 이메일 주소를 `email` 입력 필드로 받습니다.
 
-Without CSRF protection, a malicious website could create an HTML form that points to your application's `/user/email` route and submits the malicious user's own email address:
+만약 CSRF 보호 기능이 없다면, 악성 웹사이트가 여러분의 애플리케이션의 `/user/email` 라우트로 연결되는 HTML 폼을 만들고, 공격자의 이메일 주소를 입력값으로 제출할 수 있습니다:
 
 ```blade
 <form action="https://your-application.com/user/email" method="POST">
@@ -29,22 +29,22 @@ Without CSRF protection, a malicious website could create an HTML form that poin
 </script>
 ```
 
-If the malicious website automatically submits the form when the page is loaded, the malicious user only needs to lure an unsuspecting user of your application to visit their website and their email address will be changed in your application.
+만약 위와 같이 악성 웹사이트가 페이지가 로드될 때 폼을 자동으로 제출하도록 하면, 공격자는 아무것도 모르는 사용자가 자신의 웹사이트를 방문하도록 유도하기만 하면 인증된 사용자의 이메일 주소가 공격자 소유의 이메일로 바뀔 수 있습니다.
 
-To prevent this vulnerability, we need to inspect every incoming `POST`, `PUT`, `PATCH`, or `DELETE` request for a secret session value that the malicious application is unable to access.
+이런 취약점을 막기 위해서는, 들어오는 모든 `POST`, `PUT`, `PATCH`, `DELETE` 요청에 대해, 외부 악성 애플리케이션이 접근할 수 없는 비밀 세션 값을 검사해야 합니다.
 
 <a name="preventing-csrf-requests"></a>
-## Preventing CSRF Requests
+## CSRF 요청 방지 (Preventing CSRF Requests)
 
-The `Illuminate\Foundation\Http\Middleware\PreventRequestForgery` [middleware](/docs/{{version}}/middleware), which is included in the `web` middleware group by default, protects your application from cross-site request forgeries using a two-layer approach.
+기본적으로 `web` 미들웨어 그룹에 포함되는 `Illuminate\Foundation\Http\Middleware\PreventRequestForgery` [미들웨어](/docs/13.x/middleware)는 두 단계 방식으로 애플리케이션을 크로스 사이트 요청 위조로부터 보호합니다.
 
-First, the middleware checks the browser's `Sec-Fetch-Site` header. Modern browsers automatically set this header on every request, indicating whether it originated from the same origin, the same site, or a cross-site source. If the header indicates the request came from the same origin, the request is allowed immediately without any token verification.
+먼저, 이 미들웨어는 브라우저의 `Sec-Fetch-Site` 헤더를 확인합니다. 최신 브라우저는 모든 요청에 이 헤더를 자동으로 포함하며, 요청이 동일 출처, 동일 사이트, 또는 교차 사이트에서 시작되었는지를 나타냅니다. 이 헤더가 동일 출처에서 온 요청임을 나타내면 토큰 검증 없이 즉시 요청을 허용합니다.
 
-If origin verification does not pass — for example, because the request comes from an older browser that doesn't send the `Sec-Fetch-Site` header or because the connection is not secure — the middleware falls back to traditional CSRF token validation.
+Origin 검증을 통과하지 못하면, 예를 들어 오래된 브라우저가 `Sec-Fetch-Site` 헤더를 보내지 않거나 연결이 보안되지 않은 경우에는, 미들웨어가 기존의 CSRF 토큰 검증 방식으로 되돌아갑니다.
 
-Laravel automatically generates a CSRF "token" for each active [user session](/docs/{{version}}/session) managed by the application. This token is used to verify that the authenticated user is the person actually making the requests to the application. Since this token is stored in the user's session and changes each time the session is regenerated, a malicious application is unable to access it.
+Laravel은 애플리케이션이 관리하는 활성 [사용자 세션](/docs/13.x/session)마다 자동으로 CSRF "토큰"을 생성합니다. 이 토큰은 인증된 사용자가 실제로 애플리케이션에 요청을 보내고 있는지 검증하는 데 사용됩니다. 이 토큰은 사용자의 세션에 저장되며 세션이 재생성될 때마다 변경되기 때문에, 악성 애플리케이션이 이 토큰에 접근할 수 없습니다.
 
-The current session's CSRF token can be accessed via the request's session or via the `csrf_token` helper function:
+현재 세션의 CSRF 토큰은 요청의 세션이나 `csrf_token` 헬퍼 함수로 얻을 수 있습니다:
 
 ```php
 use Illuminate\Http\Request;
@@ -58,7 +58,7 @@ Route::get('/token', function (Request $request) {
 });
 ```
 
-Anytime you define a "POST", "PUT", "PATCH", or "DELETE" HTML form in your application, you should include a hidden CSRF `_token` field in the form so that the CSRF protection middleware can validate the request. For convenience, you may use the `@csrf` Blade directive to generate the hidden token input field:
+애플리케이션에서 "POST", "PUT", "PATCH", "DELETE"와 같은 HTML 폼을 작성할 때마다, 폼 안에 숨겨진 CSRF `_token` 필드를 반드시 포함해야 CSRF 보호 미들웨어가 요청을 검증할 수 있습니다. 편의를 위해 `@csrf` Blade 지시어를 사용하면, 숨겨진 토큰 입력 필드를 손쉽게 생성할 수 있습니다:
 
 ```blade
 <form method="POST" action="/profile">
@@ -70,16 +70,16 @@ Anytime you define a "POST", "PUT", "PATCH", or "DELETE" HTML form in your appli
 ```
 
 <a name="csrf-tokens-and-spas"></a>
-#### CSRF Tokens & SPAs
+#### CSRF 토큰과 SPA
 
-If you are building an SPA that is utilizing Laravel as an API backend, you should consult the [Laravel Sanctum documentation](/docs/{{version}}/sanctum) for information on authenticating with your API and protecting against CSRF vulnerabilities.
+만약 Laravel을 API 백엔드로 사용하는 SPA(싱글 페이지 애플리케이션)를 개발 중이라면, API 인증 및 CSRF 공격 방지에 관한 자세한 내용은 [Laravel Sanctum 문서](/docs/13.x/sanctum)를 참고하시기 바랍니다.
 
 <a name="origin-verification"></a>
-### Origin Verification
+### Origin 검증
 
-As discussed above, Laravel's request forgery middleware first checks the `Sec-Fetch-Site` header to determine if the request is from the same origin. By default, if this check does not pass, the middleware falls back to CSRF token validation.
+앞서 설명한 것처럼 Laravel의 요청 위조 방지 미들웨어는 먼저 `Sec-Fetch-Site` 헤더를 검사해 요청이 동일 출처에서 온 것인지 판단합니다. 기본적으로 이 검사를 통과하지 못하면 미들웨어는 CSRF 토큰 검증으로 되돌아갑니다.
 
-However, if you would like to rely solely on origin verification and disable the CSRF token fallback entirely, you may do so using the `preventRequestForgery` method in your application's `bootstrap/app.php` file:
+하지만 Origin 검증만 사용하고 CSRF 토큰 폴백을 완전히 비활성화하고 싶다면, 애플리케이션의 `bootstrap/app.php` 파일에서 `preventRequestForgery` 메서드를 사용하면 됩니다:
 
 ```php
 ->withMiddleware(function (Middleware $middleware): void {
@@ -87,12 +87,12 @@ However, if you would like to rely solely on origin verification and disable the
 })
 ```
 
-When using origin-only mode, requests that fail origin verification will receive a `403` HTTP response instead of the `419` response typically associated with CSRF token mismatches.
+origin-only 모드를 사용할 때 Origin 검증에 실패한 요청은 일반적인 CSRF 토큰 불일치 시 반환되는 `419` 응답 대신 `403` HTTP 응답을 받습니다.
 
 > [!WARNING]
-> The `Sec-Fetch-Site` header is only sent by browsers over secure (HTTPS) connections. If your application is not served over HTTPS, origin verification will not be available and the middleware will fall back to CSRF token validation.
+> `Sec-Fetch-Site` 헤더는 브라우저가 보안 연결(HTTPS)에서만 전송합니다. 애플리케이션이 HTTPS로 제공되지 않는다면 Origin 검증은 사용할 수 없으며, 미들웨어는 CSRF 토큰 검증으로 되돌아갑니다.
 
-If your application needs to accept requests from subdomains (for example, `dashboard.example.com` accepting requests from `example.com`), you may allow same-site requests in addition to same-origin requests:
+애플리케이션이 서브도메인에서 오는 요청도 허용해야 한다면, 예를 들어 `dashboard.example.com`이 `example.com`에서 오는 요청을 받아야 한다면, 동일 출처뿐 아니라 동일 사이트 요청도 허용할 수 있습니다:
 
 ```php
 ->withMiddleware(function (Middleware $middleware): void {
@@ -101,11 +101,11 @@ If your application needs to accept requests from subdomains (for example, `dash
 ```
 
 <a name="csrf-excluding-uris"></a>
-### Excluding URIs From CSRF Protection
+### CSRF 보호에서 URI 제외하기
 
-Sometimes you may wish to exclude a set of URIs from CSRF protection. For example, if you are using [Stripe](https://stripe.com) to process payments and are utilizing their webhook system, you will need to exclude your Stripe webhook handler route from CSRF protection since Stripe will not know what CSRF token to send to your routes.
+특정 URI 경로를 CSRF 보호에서 제외하고 싶을 때가 있습니다. 예를 들어, [Stripe](https://stripe.com)를 이용해 결제를 처리하고, 그들의 웹훅(Webhook) 시스템을 사용할 경우, Stripe가 CSRF 토큰 값을 모르는 상태에서 요청을 보내므로, Stripe 웹훅을 처리하는 라우트는 CSRF 보호 대상에서 반드시 제외해야 합니다.
 
-Typically, you should place these kinds of routes outside of the `web` middleware group that Laravel applies to all routes in the `routes/web.php` file. However, you may also exclude specific routes by providing their URIs to the `preventRequestForgery` method in your application's `bootstrap/app.php` file:
+이런 종류의 라우트는 보통 Laravel이 `routes/web.php` 파일 내 모든 라우트에 적용하는 `web` 미들웨어 그룹 바깥에 배치하는 것이 일반적입니다. 하지만 애플리케이션의 `bootstrap/app.php` 파일에서 `preventRequestForgery` 메서드에 제외하고 싶은 URI를 지정해 특정 라우트만 선택적으로 제외할 수도 있습니다:
 
 ```php
 ->withMiddleware(function (Middleware $middleware): void {
@@ -118,18 +118,18 @@ Typically, you should place these kinds of routes outside of the `web` middlewar
 ```
 
 > [!NOTE]
-> For convenience, the CSRF middleware is automatically disabled for all routes when [running tests](/docs/{{version}}/testing).
+> 편의를 위해, [테스트 실행](/docs/13.x/testing) 시에는 CSRF 미들웨어가 모든 라우트에서 자동으로 비활성화됩니다.
 
 <a name="csrf-x-csrf-token"></a>
 ## X-CSRF-TOKEN
 
-In addition to checking for the CSRF token as a POST parameter, the `PreventRequestForgery` middleware will also check for the `X-CSRF-TOKEN` request header. You could, for example, store the token in an HTML `meta` tag:
+CSRF 토큰을 `POST` 파라미터로 확인하는 것 외에도 `PreventRequestForgery` 미들웨어는 `X-CSRF-TOKEN` 요청 헤더 값도 검사합니다. 예를 들어 아래와 같이 토큰을 HTML `meta` 태그에 저장할 수 있습니다:
 
 ```blade
 <meta name="csrf-token" content="{{ csrf_token() }}">
 ```
 
-Then, you can instruct a library like jQuery to automatically add the token to all request headers. This provides simple, convenient CSRF protection for your AJAX based applications using legacy JavaScript technology:
+그런 뒤, jQuery와 같은 라이브러리에 토큰을 모든 요청 헤더에 자동으로 포함하도록 설정할 수 있습니다. 이렇게 하면 기존 JavaScript 기술을 사용하는 AJAX 기반 애플리케이션에서도 간단하게 CSRF 보호를 적용할 수 있습니다:
 
 ```js
 $.ajaxSetup({
@@ -142,9 +142,9 @@ $.ajaxSetup({
 <a name="csrf-x-xsrf-token"></a>
 ## X-XSRF-TOKEN
 
-Laravel stores the current CSRF token in an encrypted `XSRF-TOKEN` cookie that is included with each response generated by the framework. You can use the cookie value to set the `X-XSRF-TOKEN` request header.
+Laravel은 현재 CSRF 토큰 값을 암호화된 `XSRF-TOKEN` 쿠키에 저장해서, 프레임워크가 생성하는 각 응답마다 함께 전송합니다. 이 쿠키 값을 읽어 `X-XSRF-TOKEN` 요청 헤더로 설정할 수 있습니다.
 
-This cookie is primarily sent as a developer convenience since some JavaScript frameworks and libraries, like Angular and Axios, automatically place its value in the `X-XSRF-TOKEN` header on same-origin requests.
+이 쿠키는 주로 개발자 편의를 위해 제공되며, Angular나 Axios 같은 일부 JavaScript 프레임워크 및 라이브러리는 동일 출처(Same-origin) 요청 시 쿠키 값을 자동으로 `X-XSRF-TOKEN` 헤더에 포함시킵니다.
 
 > [!NOTE]
-> By default, the `resources/js/bootstrap.js` file includes the Axios HTTP library which will automatically send the `X-XSRF-TOKEN` header for you.
+> 기본적으로 `resources/js/bootstrap.js` 파일에는 Axios HTTP 라이브러리가 포함되어 있으며, 이 라이브러리는 자동으로 `X-XSRF-TOKEN` 헤더를 전송합니다.
