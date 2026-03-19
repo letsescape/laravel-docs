@@ -14,9 +14,7 @@ export default function Index(): ReactNode {
   const {currentLocale, defaultLocale} = i18n;
 
   useEffect(() => {
-    const baseUrl = siteConfig.baseUrl.endsWith('/')
-      ? siteConfig.baseUrl.slice(0, -1)
-      : siteConfig.baseUrl;
+    const baseUrl = siteConfig.baseUrl.replace(/\/$/, '');
     const localePrefix = currentLocale === defaultLocale ? '' : `/${currentLocale}`;
     const target = `${baseUrl}${localePrefix}/`;
 
