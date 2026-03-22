@@ -1,0 +1,25 @@
+.wrapper {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: 100%;
+}
+
+.wrapper svg {
+  height: 100%;
+  width: auto;
+}
+
+
+@media (max-width: 1100px) {
+  .wrapper {
+    right: 30px;
+  }
+}
+
+@media (max-width: 939px) {
+  .wrapper {
+    display: none;
+  }
+}

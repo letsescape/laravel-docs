@@ -4,9 +4,12 @@ import {translate} from '@docusaurus/Translate';
 import Layout from '@theme/Layout';
 import Head from '@docusaurus/Head';
 
-import Hero from '@site/src/components/Hero';
-import Features from '@site/src/components/Features';
-import CodeExamples from '@site/src/components/CodeExamples';
+import HeroSection from '@site/src/components/HomePage/HeroSection';
+import FrameworkSection from '@site/src/components/HomePage/FrameworkSection';
+import CloudPreviewSection from '@site/src/components/HomePage/CloudPreviewSection';
+import NightwatchFrontendSection from '@site/src/components/HomePage/NightwatchSection';
+import CTASection from '@site/src/components/HomePage/CTASection';
+import EventsSection from '@site/src/components/HomePage/EventsSection';
 
 export default function Home(): ReactNode {
   const {siteConfig, i18n} = useDocusaurusContext();
@@ -33,6 +36,7 @@ export default function Home(): ReactNode {
   return (
     <Layout title={title} description={description}>
       <Head>
+        <html data-page="home" />
         <link rel="canonical" href={pageUrl} />
 
         <meta property="og:title" content={title} />
@@ -49,9 +53,12 @@ export default function Home(): ReactNode {
         <meta name="twitter:image" content={`${url}/img/laravel-home.png`} />
       </Head>
       <main>
-        <Hero />
-        <Features />
-        <CodeExamples />
+        <HeroSection />
+        <FrameworkSection />
+        <CloudPreviewSection />
+        <NightwatchFrontendSection />
+        <CTASection />
+        <EventsSection />
       </main>
     </Layout>
   );

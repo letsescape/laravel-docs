@@ -1,0 +1,192 @@
+.footer {
+  border-top: 1px solid #e5e5e5;
+  background: #fff;
+  color: #171717;
+}
+
+.footerInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 0;
+}
+
+@media (min-width: 768px) {
+  .footerInner {
+    padding: 4rem 2rem 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .footerInner {
+    padding: 6rem 4rem 0;
+  }
+}
+
+.footerMain {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+@media (min-width: 1024px) {
+  .footerMain {
+    flex-direction: row;
+    gap: 3rem;
+  }
+}
+
+/* Left brand column */
+.footerBrand {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .footerBrand {
+    width: 25%;
+    flex-shrink: 0;
+  }
+}
+
+.footerLogo {
+  margin-bottom: 1.5rem;
+  width: 42px;
+  height: 42px;
+}
+
+.footerTagline {
+  font-size: 1.375rem;
+  font-weight: 500;
+  color: #f53003;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Social icons */
+.socialList {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0;
+}
+
+@media (min-width: 1024px) {
+  .socialList {
+    margin: 4rem 0;
+  }
+}
+
+.socialLink {
+  color: #171717;
+  transition: color 0.1s;
+  display: flex;
+}
+
+.socialLink:hover {
+  color: #404040;
+}
+
+/* Copyright */
+.footerCopyright {
+  margin: 0;
+}
+
+.copyrightList {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.copyrightText {
+  color: #737373;
+  font-size: 1rem;
+}
+
+.copyrightLink {
+  color: #737373;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: color 0.1s;
+}
+
+.copyrightLink:hover {
+  color: #404040;
+  text-decoration: none;
+}
+
+/* Right nav columns */
+.footerNav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .footerNav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: auto;
+    flex: 1;
+  }
+}
+
+.footerNavCol {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .footerNavCol {
+    margin-top: 0;
+    min-width: 164px;
+  }
+}
+
+.footerNavTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #171717;
+  margin-bottom: 1.5rem;
+}
+
+.footerNavList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footerNavLink {
+  color: #737373;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: color 0.1s;
+}
+
+.footerNavLink:hover {
+  color: #404040;
+  text-decoration: none;
+}
+
+/* Large wordmark */
+.footerWordmark {
+  margin-top: 6rem;
+  margin-bottom: 0;
+  line-height: 0;
+  transform: scale(1.1);
+  transform-origin: bottom center;
+}
+
+.footerWordmarkSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+}

@@ -63,7 +63,7 @@
 .footer__logo svg path,
 .heroLogo svg path,
 .hero-svg-logo path,
-svg path[fill="currentColor"] {
+svg:not(.btn-arrow-icon) path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
@@ -73,17 +73,17 @@ svg[width="1280"][height="308"][fill="none"] path {
 }
 
 /* More specific selectors for SVG logo */
-svg[width][height][fill="none"] path[fill="currentColor"] {
+svg[width][height][fill="none"]:not(.btn-arrow-icon) path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
 /* Target SVGs with inline width and height attributes */
-svg[width][height] path {
+:not(.hero-illustration) > svg[width][height]:not(.btn-arrow-icon):not(.social-icon):not(.fe-svg):not(.laravel-icon) path {
   fill: var(--svg-logo-color) !important;
 }
 
 /* Target SVG root elements */
-svg:root path[fill="currentColor"] {
+svg:root:not(.btn-arrow-icon) path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
@@ -171,9 +171,10 @@ svg[class*="text-laravel-red"] path {
 }
 
 /* Override for specific SVG paths that should not be colored */
-svg:not(.navbar__logo):not(.footer__logo) path:not([fill="currentColor"]) {
+svg:not(.navbar__logo):not(.footer__logo):not(.btn-arrow-icon):not(.laravel-icon):not(.fe-svg):not(.social-icon) path:not([fill="currentColor"]) {
   fill: none !important;
 }
+
 
 /* Button and link hover effects */
 .button--primary:hover {
@@ -196,6 +197,29 @@ svg:not(.navbar__logo):not(.footer__logo) path:not([fill="currentColor"]) {
 [data-theme='dark'] .button--primary:hover {
   background-color: var(--ifm-color-primary-dark);
   border-color: var(--ifm-color-primary-dark);
+}
+
+/* Homepage: always force light appearance regardless of dark mode setting */
+html[data-page='home'],
+html[data-page='home'][data-theme='dark'] {
+  --ifm-background-color: #fff;
+  --ifm-background-surface-color: #fff;
+  --ifm-font-color-base: #1c1e21;
+  --ifm-font-color-secondary: #6b7280;
+  --ifm-color-emphasis-200: #e5e7eb;
+  --ifm-color-emphasis-300: #d1d5db;
+  --ifm-navbar-background-color: #fff;
+  --ifm-navbar-link-color: #1c1e21;
+  --ifm-navbar-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  color-scheme: light;
+}
+
+/* Hide color mode toggle on homepage */
+html[data-page='home'] .navbar .clean-btn[class*='toggle'],
+html[data-page='home'] .navbar .navbar__items--right > div[class*='colorMode'],
+html[data-page='home'] .navbar button[class*='toggleButton'],
+html[data-page='home'] .navbar [class*='colorModeToggle'] {
+  display: none !important;
 }
 
 /* Translation banner styling */
