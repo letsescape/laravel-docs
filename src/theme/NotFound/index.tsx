@@ -5,7 +5,7 @@ import Layout from '@theme/Layout';
 import NotFoundContent from '@theme/NotFound/Content';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
-export default function Index(): ReactNode {
+export default function NotFound(): ReactNode {
   const title = translate({
     id: 'theme.NotFound.title',
     message: 'Page Not Found',
