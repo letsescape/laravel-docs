@@ -194,6 +194,10 @@
     "message": "Redirecting to the main page.",
     "description": "The 2nd paragraph of the 404 page"
   },
+  "theme.NotFound.goHome": {
+    "message": "Go to main page →",
+    "description": "Link text to go back to the main page from the 404 page"
+  },
   "theme.navbar.mobileLanguageDropdown.label": {
     "message": "Languages",
     "description": "The label for the mobile language switcher dropdown"

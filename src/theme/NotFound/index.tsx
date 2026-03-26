@@ -13,23 +13,32 @@ export default function NotFound(): ReactNode {
   const {siteConfig, i18n} = useDocusaurusContext();
   const {currentLocale, defaultLocale} = i18n;
 
-  useEffect(() => {
-    const baseUrl = siteConfig.baseUrl.replace(/\/$/, '');
-    const localePrefix = currentLocale === defaultLocale ? '' : `/${currentLocale}`;
-    const target = `${baseUrl}${localePrefix}/`;
+  const baseUrl = siteConfig.baseUrl.replace(/\/$/, '');
+  const localePrefix =
+    currentLocale === defaultLocale ? '' : `/${currentLocale}`;
+  const target = `${baseUrl}${localePrefix}/`;
 
+  useEffect(() => {
     const timeout = window.setTimeout(() => {
       window.location.replace(target);
     }, 3000);
 
     return () => window.clearTimeout(timeout);
-  }, [currentLocale, defaultLocale, siteConfig.baseUrl]);
+  }, [target]);
 
   return (
     <>
       <PageMetadata title={title} />
       <Layout>
         <NotFoundContent />
+        <div className="container margin-top--md margin-bottom--lg">
+          <a href={target}>
+            {translate({
+              id: 'theme.NotFound.goHome',
+              message: 'Go to main page →',
+            })}
+          </a>
+        </div>
       </Layout>
     </>
   );

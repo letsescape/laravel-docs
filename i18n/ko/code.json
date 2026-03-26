@@ -198,6 +198,10 @@
     "message": "메인 페이지로 이동합니다.",
     "description": "The 2nd paragraph of the 404 page"
   },
+  "theme.NotFound.goHome": {
+    "message": "메인 페이지로 이동 →",
+    "description": "Link text to go back to the main page from the 404 page"
+  },
   "theme.TOCCollapsible.toggleButtonLabel": {
     "message": "이 페이지에서",
     "description": "The label used by the button on the collapsible TOC component"

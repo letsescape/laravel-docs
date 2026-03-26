@@ -198,6 +198,10 @@
     "message": "メインページに移動します。",
     "description": "The 2nd paragraph of the 404 page"
   },
+  "theme.NotFound.goHome": {
+    "message": "メインページへ移動 →",
+    "description": "Link text to go back to the main page from the 404 page"
+  },
   "theme.TOCCollapsible.toggleButtonLabel": {
     "message": "このページの見出し",
     "description": "The label used by the button on the collapsible TOC component"
