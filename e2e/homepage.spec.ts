@@ -156,7 +156,8 @@ test.describe('Homepage — Desktop (1280px)', () => {
     // FD-8
     test('FD-8: 코드 내용', async ({page}) => {
       const codePanel = page.getByRole('tabpanel', {name: 'web.php'});
-      await expect(codePanel).toContainText("Route::get('/dashboard'");
+      // 코드가 lazy load 되므로 충분한 시간 대기
+      await expect(codePanel).toContainText("Route::get('/dashboard'", {timeout: 15000});
     });
 
     // FD-9

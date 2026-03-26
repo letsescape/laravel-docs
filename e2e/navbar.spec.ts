@@ -37,6 +37,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
   test('N-3a: Framework > Explore Laravel', async ({page}) => {
     await page.getByRole('button', {name: 'Framework'}).click();
     const menu = page.locator('[id$="content-framework"]');
+    await expect(menu).toBeVisible({timeout: 10000});
     await expect(menu.getByRole('heading', {name: 'Explore Laravel'})).toBeVisible();
 
     const items = [
@@ -333,8 +334,10 @@ test.describe('Navbar — Mobile (430px)', () => {
   // N-19
   test('N-19: 드로어 > Framework 아코디언', async ({page}) => {
     await page.getByRole('button', {name: /Open navigation menu/i}).click();
+    // 드로어가 열릴 때까지 대기
+    await page.locator('button:visible', {hasText: 'Framework'}).first().waitFor({state: 'visible', timeout: 10000});
     // Framework 아코디언 열기
-    await page.getByRole('button', {name: 'Framework'}).click();
+    await page.locator('button:visible', {hasText: 'Framework'}).first().click();
 
     const items = ['Overview', 'Starter Kits', 'Release Notes', 'Documentation', 'Laravel Learn'];
     for (const item of items) {
@@ -345,7 +348,10 @@ test.describe('Navbar — Mobile (430px)', () => {
   // N-20
   test('N-20: 드로어 > Products 아코디언', async ({page}) => {
     await page.getByRole('button', {name: /Open navigation menu/i}).click();
-    await page.getByRole('button', {name: 'Products'}).click();
+    // 드로어가 열릴 때까지 대기
+    await page.locator('button:visible', {hasText: 'Products'}).first().waitFor({state: 'visible', timeout: 10000});
+    // Products 아코디언 열기 — 드로어 내 visible 버튼 클릭
+    await page.locator('button:visible', {hasText: 'Products'}).first().click();
 
     const items = ['Laravel Cloud', 'Forge', 'Nightwatch', 'Nova'];
     for (const item of items) {
