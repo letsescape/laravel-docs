@@ -1,8 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
 /**
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
  */
+
+/* Prevent horizontal scrolling site-wide */
+body {
+  overflow-x: hidden;
+}
+
 
 /* You can override the default Infima variables here. */
 :root {
@@ -58,42 +66,42 @@
   color: var(--svg-logo-color);
 }
 
-/* SVG path styling */
+/* SVG path styling - excludes hero illustration via :not() */
 .navbar__logo svg path,
 .footer__logo svg path,
 .heroLogo svg path,
 .hero-svg-logo path,
-svg path[fill="currentColor"] {
+:not(.hero-illustration-svg) > svg:not(.cta-arrow-icon) path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
 /* SVG logo styling based on browser inspection */
-svg[width="1280"][height="308"][fill="none"] path {
+:not(.hero-illustration-svg) > svg[width="1280"][height="308"][fill="none"] path {
   fill: var(--svg-logo-color) !important;
 }
 
 /* More specific selectors for SVG logo */
-svg[width][height][fill="none"] path[fill="currentColor"] {
+:not(.hero-illustration-svg) > svg[width][height][fill="none"] path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
 /* Target SVGs with inline width and height attributes */
-svg[width][height] path {
+:not(.hero-illustration-svg) > svg[width][height]:not(.footer-social-svg):not(.cta-arrow-icon) path {
   fill: var(--svg-logo-color) !important;
 }
 
 /* Target SVG root elements */
-svg:root path[fill="currentColor"] {
+:not(.hero-illustration-svg) > svg:root:not(.cta-arrow-icon) path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
 /* Target SVG elements with specific attributes */
-svg[width="1280"][height="308"] {
+:not(.hero-illustration-svg) > svg[width="1280"][height="308"] {
   color: var(--svg-logo-color) !important;
 }
 
 /* Dark mode SVG styling */
-[data-theme='dark'] svg[width="1280"][height="308"] {
+[data-theme='dark'] :not(.hero-illustration-svg) > svg[width="1280"][height="308"] {
   color: var(--svg-logo-color) !important;
 }
 
@@ -170,10 +178,27 @@ svg[class*="text-laravel-red"] path {
   fill: var(--svg-logo-color) !important;
 }
 
-/* Override for specific SVG paths that should not be colored */
-svg:not(.navbar__logo):not(.footer__logo) path:not([fill="currentColor"]) {
+/* Override for specific SVG paths that should not be colored.
+   Excludes hero illustration and cloud dashboard illustration. */
+.homepage :not(.hero-illustration-svg):not(.cloud-illust-inner):not(.frontend-stack-card-inner):not(.footer-brand) > svg:not(.navbar__logo):not(.footer__logo):not(.cloud-dashboard-svg):not(.badge-icon):not(.cloud-check-icon):not(.cloud-arrow-icon):not(.cloud-grain-overlay):not(.frontend-card-icon):not(.explore-btn-icon) path:not([fill="currentColor"]) {
   fill: none !important;
 }
+
+/* Allow SVG icon fills inside homepage sections */
+.homepage svg.check-icon path,
+.homepage .explore-link svg path,
+.homepage .cta-primary svg.cta-arrow-icon path,
+.homepage .cta-secondary svg.cta-arrow-icon path {
+  fill: currentColor !important;
+}
+
+/* Restore all fills inside cloud dashboard SVG illustration */
+.cloud-dashboard-svg path[fill="#fefefe"] { fill: #fefefe !important; }
+.cloud-dashboard-svg path[fill="#fff"] { fill: #fff !important; }
+.cloud-dashboard-svg path[fill="#fafafa"] { fill: #fafafa !important; }
+.cloud-dashboard-svg path[fill="#d4d4d4"] { fill: #d4d4d4 !important; }
+.cloud-dashboard-svg path[fill="#d9d9d9"] { fill: #d9d9d9 !important; }
+.cloud-dashboard-svg path[fill="url(#cloud-icon-gradient)"] { fill: url(#cloud-icon-gradient) !important; }
 
 /* Button and link hover effects */
 .button--primary:hover {
@@ -207,3 +232,15 @@ svg:not(.navbar__logo):not(.footer__logo) path:not([fill="currentColor"]) {
   font-size: 14px;
   border-bottom: 1px solid var(--translation-banner-border);
 }
+
+/* Hide default Docusaurus footer on homepage */
+body.homepage-layout footer.footer {
+  display: none !important;
+}
+
+/* Fallback: ensure hero illustration paths respect their original fill attributes.
+   This catches any remaining overrides from the global SVG rules above. */
+.hero-illustration-wrapper .hero-illustration-svg path[fill="currentColor"] {
+  fill: currentColor !important;
+}
+
