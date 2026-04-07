@@ -31,11 +31,12 @@ test.describe('SEO', () => {
   });
 
   test('page has JSON-LD structured data', async ({page}) => {
-    const jsonLd = page.locator('script[type="application/ld+json"]');
+    const jsonLd = page.locator('script[type="application/ld+json"]').first();
     await expect(jsonLd).toBeAttached();
 
     const content = await jsonLd.textContent();
-    const data = JSON.parse(content);
+    expect(content).not.toBeNull();
+    const data = JSON.parse(content!);
     expect(data['@type']).toBe('WebSite');
     expect(data).toHaveProperty('potentialAction');
   });
