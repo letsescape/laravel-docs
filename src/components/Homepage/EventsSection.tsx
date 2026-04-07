@@ -99,9 +99,9 @@ export default function EventsSection(): ReactNode {
   // Re-enable animation after instant jump
   React.useEffect(() => {
     if (!animate) {
-      // Force reflow then re-enable
-      trackRef.current?.getBoundingClientRect();
-      setAnimate(true);
+      requestAnimationFrame(() => {
+        setAnimate(true);
+      });
     }
   }, [animate]);
 

@@ -6,10 +6,8 @@
  * work well for content-centric websites.
  */
 
-/* Prevent horizontal scrolling site-wide */
-body {
-  overflow-x: hidden;
-}
+/* Horizontal overflow is handled on .homepage wrapper in homepage.css,
+   not globally on body, to avoid breaking position: sticky and other layouts. */
 
 
 /* You can override the default Infima variables here. */

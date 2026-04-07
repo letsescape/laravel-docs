@@ -33,8 +33,43 @@ export default function HeroSection(): ReactNode {
       }
     });
 
+    // Add Taylor Otwell avatar inside the blue circle node
+    const blueCircle = svg.querySelector('circle[fill="#2563eb"]');
+    if (blueCircle) {
+      const ns = 'http://www.w3.org/2000/svg';
+      const xlinkNs = 'http://www.w3.org/1999/xlink';
+      const defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(ns, 'defs'), svg.firstChild);
+
+      // Create image element in defs
+      const img = document.createElementNS(ns, 'image');
+      img.setAttribute('id', 'hero-avatar-img');
+      img.setAttribute('width', '512');
+      img.setAttribute('height', '512');
+      img.setAttribute('preserveAspectRatio', 'none');
+      img.setAttributeNS(xlinkNs, 'href', '/images/home/taylor-otwell.avif');
+      defs.appendChild(img);
+
+      // Create pattern that uses the image
+      const pattern = document.createElementNS(ns, 'pattern');
+      pattern.setAttribute('id', 'hero-avatar-pattern');
+      pattern.setAttribute('width', '1');
+      pattern.setAttribute('height', '1');
+      pattern.setAttribute('patternContentUnits', 'objectBoundingBox');
+      const use = document.createElementNS(ns, 'use');
+      use.setAttributeNS(xlinkNs, 'href', '#hero-avatar-img');
+      use.setAttribute('transform', 'scale(.00195) rotate(-45) translate(-258 104)');
+      use.classList.add('grayscale');
+      pattern.appendChild(use);
+      defs.appendChild(pattern);
+
+      // Apply pattern fill to blue circle
+      blueCircle.setAttribute('fill', 'url(#hero-avatar-pattern)');
+      (blueCircle as SVGElement).style.setProperty('fill', 'url(#hero-avatar-pattern)', 'important');
+    }
+
     // Fix "Cloud" text on the blue floor: gray #737373 is invisible on blue background.
     // The static SVG has "Cloud" in gray, but it should be white like the original site.
+    // Note: children indices match the hero-illustration.svg structure (grid, base, building).
     const building = svg.children[1]?.children[2];
     if (building) {
       for (let i = 0; i < building.children.length; i++) {
