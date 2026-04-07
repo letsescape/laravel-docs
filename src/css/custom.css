@@ -98,7 +98,8 @@
   color: var(--svg-logo-color);
 }
 
-/* SVG path styling - excludes hero illustration via :not() */
+/* SVG path styling - excludes hero illustration via :not()
+   TODO: Refactor to opt-in .svg-themed class instead of broad selectors with :not() exclusions */
 .navbar__logo svg path,
 .footer__logo svg path,
 .heroLogo svg path,
@@ -288,6 +289,16 @@ svg[class*="text-laravel-red"] path {
     flex: 0 0 auto !important;
   }
 
+  /* Override Infima hiding .navbar__item at 996px - show all right items */
+  .navbar__items--right > * {
+    display: flex !important;
+  }
+
+  /* Then hide only version/locale dropdowns */
+  .navbar__items--right .dropdown--hoverable {
+    display: none !important;
+  }
+
   /* Position dropdown triggers closer to logo */
   .nav-dropdowns-wrapper {
     flex: 1;
@@ -295,14 +306,8 @@ svg[class*="text-laravel-red"] path {
     justify-content: flex-start;
   }
 
-  /* Hide version, locale, color toggle - show only search */
-  .navbar__items--right .dropdown--hoverable,
-  .navbar__items--right .colorModeToggle_x44X {
-    display: none !important;
-  }
-
   /* Search: icon only */
-  .navbar__items--right .navbarSearchContainer_Bca1 {
+  .navbar__items--right [class*="navbarSearchContainer"] {
     display: block !important;
   }
 }
@@ -338,7 +343,7 @@ svg[class*="text-laravel-red"] path {
   }
 }
 
-/* Hide default Docusaurus footer and navbar on homepage */
+/* Hide default Docusaurus footer on homepage */
 body.homepage-layout footer.footer {
   display: none !important;
 }

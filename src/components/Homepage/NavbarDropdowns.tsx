@@ -20,7 +20,11 @@ const ALL_PARTNERS = [
 ];
 
 function getRandomPartners(count: number) {
-  const shuffled = [...ALL_PARTNERS].sort(() => Math.random() - 0.5);
+  const shuffled = [...ALL_PARTNERS];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
   return shuffled.slice(0, count);
 }
 
@@ -238,11 +242,9 @@ export default function NavbarDropdowns(): ReactNode {
           <div className="nav-dropdown-inner nav-products-grid">
             <a href="https://cloud.laravel.com" className="nav-product-card nav-product-card--dark">
               <div className="nav-product-header">
-                <svg viewBox="0 0 180 40" fill="none" className="nav-product-logo">
-                  <text x="0" y="28" fill="white" fontSize="16" fontWeight="300" letterSpacing="-0.02em" fontFamily="system-ui, sans-serif">
-                    <tspan fontWeight="600">Laravel</tspan> Cloud
-                  </text>
-                </svg>
+                <span className="nav-product-logo" style={{color: 'white', fontSize: '16px', fontWeight: 300, letterSpacing: '-0.02em'}}>
+                  <span style={{fontWeight: 600}}>Laravel</span> Cloud
+                </span>
               </div>
               <p className="nav-product-desc">The fastest way to deploy and scale Laravel applications</p>
               <span className="nav-product-cta nav-product-cta--blue">
@@ -253,9 +255,7 @@ export default function NavbarDropdowns(): ReactNode {
             </a>
             <a href="https://forge.laravel.com" className="nav-product-card nav-product-card--light">
               <div className="nav-product-header">
-                <svg viewBox="0 0 180 40" fill="none" className="nav-product-logo">
-                  <text x="0" y="28" fill="currentColor" fontSize="18" fontWeight="800" letterSpacing="-0.03em" fontFamily="system-ui, sans-serif">FORGE</text>
-                </svg>
+                <span className="nav-product-logo" style={{fontSize: '18px', fontWeight: 800, letterSpacing: '-0.03em'}}>FORGE</span>
               </div>
               <p className="nav-product-desc nav-product-desc--dark">Next-level server management with unparalleled control</p>
               <span className="nav-product-cta nav-product-cta--blue">
@@ -266,9 +266,7 @@ export default function NavbarDropdowns(): ReactNode {
             </a>
             <a href="https://nightwatch.laravel.com" className="nav-product-card nav-product-card--dark nav-product-card--nightwatch">
               <div className="nav-product-header">
-                <svg viewBox="0 0 180 40" fill="none" className="nav-product-logo">
-                  <text x="0" y="28" fill="white" fontSize="14" fontWeight="600" letterSpacing="0.08em" fontFamily="system-ui, sans-serif">NIGHTWATCH</text>
-                </svg>
+                <span className="nav-product-logo" style={{color: 'white', fontSize: '14px', fontWeight: 600, letterSpacing: '0.08em'}}>NIGHTWATCH</span>
               </div>
               <p className="nav-product-desc">Full observability and monitoring for Laravel apps</p>
               <span className="nav-product-cta nav-product-cta--green">
