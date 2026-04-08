@@ -87,20 +87,12 @@ function highlightPhp(code: string): ReactNode[] {
         continue;
       }
 
-      // HTML attribute names (context-dependent)
-      const htmlAttrMatch = remaining.match(/^([a-zA-Z-]+)(?==)/);
-      if (htmlAttrMatch && line.includes('<')) {
-        pushToken(htmlAttrMatch[1], 'syn-html-attr');
-        remaining = remaining.slice(htmlAttrMatch[1].length);
-        continue;
-      }
-
-      // HTML attribute strings (context-dependent)
-      const htmlAttrStr = tokens.length > 0 && remaining.match(/^("(?:[^"\\]|\\.)*")/);
-      if (htmlAttrStr && line.includes('<')) {
-        pushToken(htmlAttrStr[1], 'syn-type');
-        remaining = remaining.slice(htmlAttrStr[1].length);
-        continue;
+      // HTML attribute names and strings (context-dependent)
+      if (line.includes('<')) {
+        const htmlAttrMatch = remaining.match(/^([a-zA-Z-]+)(?==)/);
+        if (htmlAttrMatch) { pushToken(htmlAttrMatch[1], 'syn-html-attr'); remaining = remaining.slice(htmlAttrMatch[1].length); continue; }
+        const htmlAttrStr = tokens.length > 0 && remaining.match(/^("(?:[^"\\]|\\.)*")/);
+        if (htmlAttrStr) { pushToken(htmlAttrStr[1], 'syn-type'); remaining = remaining.slice(htmlAttrStr[1].length); continue; }
       }
 
       // PHP keywords with namespace handling
@@ -121,29 +113,15 @@ function highlightPhp(code: string): ReactNode[] {
 
       // PHP attributes #[Name(...)]
       const attrMatch = remaining.match(/^(#\[)([A-Z][a-zA-Z0-9_]*)/);
-      if (attrMatch) {
-        pushToken(attrMatch[1]);
-        pushToken(attrMatch[2]);
-        remaining = remaining.slice(attrMatch[0].length);
-        continue;
-      }
+      if (attrMatch) { pushToken(attrMatch[1]); pushToken(attrMatch[2]); remaining = remaining.slice(attrMatch[0].length); continue; }
 
-      // Property/method access after ->
-      const memberMatch = remaining.match(/^(->)([a-zA-Z_][a-zA-Z0-9_]*)/);
-      if (memberMatch) {
-        const isMethod = remaining[memberMatch[0].length] === '(';
-        pushToken(memberMatch[1], 'syn-operator');
-        pushToken(memberMatch[2], isMethod ? 'syn-method' : 'syn-variable');
-        remaining = remaining.slice(memberMatch[0].length);
-        continue;
-      }
-
-      // Static calls ::
-      const staticMatch = remaining.match(/^(::)([a-zA-Z_][a-zA-Z0-9_]*)/);
-      if (staticMatch) {
-        pushToken(staticMatch[1], 'syn-operator');
-        pushToken(staticMatch[2], 'syn-method');
-        remaining = remaining.slice(staticMatch[0].length);
+      // Member access (-> or ::) with method/property detection
+      const accessMatch = remaining.match(/^(->|::)([a-zA-Z_][a-zA-Z0-9_]*)/);
+      if (accessMatch) {
+        pushToken(accessMatch[1], 'syn-operator');
+        const isMember = accessMatch[1] === '->' && remaining[accessMatch[0].length] !== '(';
+        pushToken(accessMatch[2], isMember ? 'syn-variable' : 'syn-method');
+        remaining = remaining.slice(accessMatch[0].length);
         continue;
       }
 
@@ -300,17 +278,16 @@ Flight::create([
     name: 'Validation',
     files: [
       {
-        name: 'PostController.php',
-        code: `class PostController
+        name: 'StorePostRequest.php',
+        code: `class StorePostRequest extends FormRequest
 {
-    public function store(Request $request)
+    public function rules(): array
     {
-        $validated = $request->validate([
+        return [
             'title' => 'required|max:255',
             'content' => 'required',
-        ]);
-
-        // ...
+            'category_id' => 'exists:categories,id',
+        ];
     }
 }`,
       },
@@ -332,16 +309,14 @@ Flight::create([
     name: 'Storage',
     files: [
       {
-        name: 'PostController.php',
-        code: `class PostController
-{
-    public function store(Request $request)
-    {
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('images', 'public');
-        }
-    }
-}`,
+        name: 'PhotoController.php',
+        code: `use Illuminate\\Support\\Facades\\Storage;
+
+$path = $request->file('avatar')->store('avatars', 'public');
+
+Storage::disk('s3')->put('reports/annual.pdf', $contents);
+
+$url = Storage::temporaryUrl('file.jpg', now()->addMinutes(5));`,
       },
     ],
   },
@@ -361,16 +336,14 @@ Flight::create([
 }`,
       },
       {
-        name: 'PostController.php',
-        code: `class PostController
-{
-    public function store(Request $request)
-    {
-        $post = Post::create($request->all());
+        name: 'web.php',
+        code: `Route::post('/posts', function (Request $request) {
+    $post = Post::create($request->validated());
 
-        ProcessPost::dispatch($post);
-    }
-}`,
+    ProcessPost::dispatch($post);
+
+    return redirect('/posts');
+});`,
       },
     ],
   },
