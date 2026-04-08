@@ -60,14 +60,12 @@ test.describe('Navbar — Desktop (1280px)', () => {
 
   test('N-3a: Framework > Explore Laravel', async ({page}) => {
     await openDropdown(page, 'framework');
-    const menu = page.locator('#content-framework');
-    await expect(menu.getByRole('heading', {name: 'Explore Laravel'})).toBeVisible();
+    await expect(page.locator('#content-framework').getByRole('heading', {name: 'Explore Laravel'})).toBeVisible();
   });
 
   test('N-3b: Framework > Latest packages', async ({page}) => {
     await openDropdown(page, 'framework');
-    const menu = page.locator('#content-framework');
-    await expect(menu.getByRole('heading', {name: 'Latest packages'})).toBeVisible();
+    await expect(page.locator('#content-framework').getByRole('heading', {name: 'Latest packages'})).toBeVisible();
   });
 
   test('N-3c: Framework > Documentation', async ({page}) => {
@@ -81,8 +79,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
 
   test('N-3d: Framework > Starter kits', async ({page}) => {
     await openDropdown(page, 'framework');
-    const menu = page.locator('#content-framework');
-    await expect(menu.getByRole('link', {name: /Starter kits/i})).toBeVisible();
+    await expect(page.locator('#content-framework').getByRole('link', {name: /Starter kits/i})).toBeVisible();
   });
 
   test('N-4: Products 드롭다운 열기', async ({page}) => {

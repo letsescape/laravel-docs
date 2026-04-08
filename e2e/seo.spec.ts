@@ -1,33 +1,30 @@
 import {test, expect} from '@playwright/test';
 
+// Helper: meta 태그의 attribute 존재 검증
+async function expectMetaAttribute(page: any, selector: string, attr: string, pattern: RegExp) {
+  await expect(page.locator(selector)).toHaveAttribute(attr, pattern);
+}
+
 test.describe('SEO', () => {
   test.beforeEach(async ({page}) => {
     await page.goto('/');
   });
 
-  test('page has meta description', async ({page}) => {
-    const metaDescription = page.locator('meta[name="description"]');
-    await expect(metaDescription).toHaveAttribute('content', /.+/);
-  });
-
-  test('page has og:title meta tag', async ({page}) => {
-    const ogTitle = page.locator('meta[property="og:title"]');
-    await expect(ogTitle).toHaveAttribute('content', /.+/);
-  });
-
-  test('page has og:description meta tag', async ({page}) => {
-    const ogDescription = page.locator('meta[property="og:description"]');
-    await expect(ogDescription).toHaveAttribute('content', /.+/);
-  });
-
-  test('page has og:image meta tag', async ({page}) => {
-    const ogImage = page.locator('meta[property="og:image"]');
-    await expect(ogImage).toHaveAttribute('content', /laravel-home\.png/);
-  });
+  for (const {name, selector, pattern} of [
+    {name: 'meta description', selector: 'meta[name="description"]', pattern: /.+/},
+    {name: 'og:title', selector: 'meta[property="og:title"]', pattern: /.+/},
+    {name: 'og:description', selector: 'meta[property="og:description"]', pattern: /.+/},
+    {name: 'og:image', selector: 'meta[property="og:image"]', pattern: /laravel-home\.png/},
+    {name: 'og:site_name', selector: 'meta[property="og:site_name"]', pattern: /.+/},
+    {name: 'keywords', selector: 'meta[name="keywords"]', pattern: /Laravel/i},
+  ]) {
+    test(`page has ${name} meta tag`, async ({page}) => {
+      await expectMetaAttribute(page, selector, 'content', pattern);
+    });
+  }
 
   test('page has canonical link', async ({page}) => {
-    const canonical = page.locator('link[rel="canonical"]');
-    await expect(canonical).toHaveAttribute('href', /.+/);
+    await expectMetaAttribute(page, 'link[rel="canonical"]', 'href', /.+/);
   });
 
   test('page has JSON-LD structured data', async ({page}) => {
@@ -42,20 +39,7 @@ test.describe('SEO', () => {
   });
 
   test('page has twitter meta tags', async ({page}) => {
-    const twitterTitle = page.locator('meta[name="twitter:title"]');
-    await expect(twitterTitle).toHaveAttribute('content', /.+/);
-
-    const twitterDescription = page.locator('meta[name="twitter:description"]');
-    await expect(twitterDescription).toHaveAttribute('content', /.+/);
-  });
-
-  test('page has og:site_name meta tag', async ({page}) => {
-    const ogSiteName = page.locator('meta[property="og:site_name"]');
-    await expect(ogSiteName).toHaveAttribute('content', /.+/);
-  });
-
-  test('page has keywords meta tag', async ({page}) => {
-    const keywords = page.locator('meta[name="keywords"]');
-    await expect(keywords).toHaveAttribute('content', /Laravel/i);
+    await expectMetaAttribute(page, 'meta[name="twitter:title"]', 'content', /.+/);
+    await expectMetaAttribute(page, 'meta[name="twitter:description"]', 'content', /.+/);
   });
 });
