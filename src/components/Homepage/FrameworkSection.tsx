@@ -1,5 +1,5 @@
 import React, {useState, useCallback, type ReactNode} from 'react';
-import {CheckIcon} from './SharedIcons';
+import {CheckIcon, ArrowIcon} from './SharedIcons';
 import './homepage.css';
 
 function LaravelFileIcon(): ReactNode {
@@ -171,14 +171,11 @@ const categories: CodeCategory[] = [
       },
       {
         name: 'UserController.php',
-        code: `class FlightController
+        code: `#[Middleware('auth')]
+#[Authorize('view', 'flight')]
+public function show(Flight $flight): View
 {
-    #[Middleware('auth')]
-    #[Authorize('view', 'flight')]
-    public function show(Flight $flight): View
-    {
-        return view('dashboard', ['user' => $user]);
-    }
+    return view('dashboard', ['user' => $user]);
 }`,
       },
     ],
@@ -279,16 +276,13 @@ Flight::create([
     files: [
       {
         name: 'StorePostRequest.php',
-        code: `class StorePostRequest extends FormRequest
+        code: `public function rules(): array
 {
-    public function rules(): array
-    {
-        return [
-            'title' => 'required|max:255',
-            'content' => 'required',
-            'category_id' => 'exists:categories,id',
-        ];
-    }
+    return [
+        'title' => 'required|max:255',
+        'content' => 'required',
+        'category_id' => 'exists:categories,id',
+    ];
 }`,
       },
       {
@@ -416,30 +410,25 @@ export default function FrameworkSection(): ReactNode {
     const el = codePanelRef.current;
     if (!el) return;
 
-    const wheelHandler = (e: WheelEvent) => {
-      const canScrollY = el.scrollHeight > el.clientHeight;
-      const canScrollX = el.scrollWidth > el.clientWidth;
-      if (!canScrollY && !canScrollX) return;
+    const getScrollState = () => ({
+      canY: el.scrollHeight > el.clientHeight,
+      canX: el.scrollWidth > el.clientWidth,
+    });
 
-      // Shift+Wheel converts vertical to horizontal
+    const isAtBoundary = (pos: number, size: number, total: number, delta: number) =>
+      (pos <= 0 && delta < 0) || (pos + size >= total && delta > 0);
+
+    const wheelHandler = (e: WheelEvent) => {
+      const {canY, canX} = getScrollState();
+      if (!canY && !canX) return;
+
       const dx = e.shiftKey && e.deltaX === 0 ? e.deltaY : e.deltaX;
       const dy = e.shiftKey && e.deltaX === 0 ? 0 : e.deltaY;
 
-      let shouldPrevent = false;
+      const preventY = canY && dy !== 0 && !isAtBoundary(el.scrollTop, el.clientHeight, el.scrollHeight, dy);
+      const preventX = canX && dx !== 0 && !isAtBoundary(el.scrollLeft, el.clientWidth, el.scrollWidth, dx);
 
-      if (canScrollY && dy !== 0) {
-        const atTop = el.scrollTop <= 0 && dy < 0;
-        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight && dy > 0;
-        if (!atTop && !atBottom) shouldPrevent = true;
-      }
-
-      if (canScrollX && dx !== 0) {
-        const atLeft = el.scrollLeft <= 0 && dx < 0;
-        const atRight = el.scrollLeft + el.clientWidth >= el.scrollWidth && dx > 0;
-        if (!atLeft && !atRight) shouldPrevent = true;
-      }
-
-      if (shouldPrevent) {
+      if (preventY || preventX) {
         e.preventDefault();
         e.stopPropagation();
         el.scrollTop += dy;
@@ -447,34 +436,25 @@ export default function FrameworkSection(): ReactNode {
       }
     };
 
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchStartScrollLeft = 0;
-    let touchStartScrollTop = 0;
+    let touchStart = {x: 0, y: 0, scrollLeft: 0, scrollTop: 0};
 
     const touchStartHandler = (e: TouchEvent) => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      touchStartScrollLeft = el.scrollLeft;
-      touchStartScrollTop = el.scrollTop;
+      touchStart = {x: e.touches[0].clientX, y: e.touches[0].clientY, scrollLeft: el.scrollLeft, scrollTop: el.scrollTop};
     };
 
     const touchMoveHandler = (e: TouchEvent) => {
-      const canScrollY = el.scrollHeight > el.clientHeight;
-      const canScrollX = el.scrollWidth > el.clientWidth;
-      if (!canScrollY && !canScrollX) return;
+      const {canY, canX} = getScrollState();
+      if (!canY && !canX) return;
 
-      const dx = touchStartX - e.touches[0].clientX;
-      const dy = touchStartY - e.touches[0].clientY;
+      const dx = touchStart.x - e.touches[0].clientX;
+      const dy = touchStart.y - e.touches[0].clientY;
 
-      if (Math.abs(dx) > Math.abs(dy) && canScrollX) {
+      if (Math.abs(dx) > Math.abs(dy) && canX) {
         e.preventDefault();
-        el.scrollLeft = touchStartScrollLeft + dx;
-      } else if (canScrollY) {
-        const newTop = touchStartScrollTop + dy;
-        const atTop = newTop <= 0 && dy < 0;
-        const atBottom = newTop + el.clientHeight >= el.scrollHeight && dy > 0;
-        if (!atTop && !atBottom) {
+        el.scrollLeft = touchStart.scrollLeft + dx;
+      } else if (canY) {
+        const newTop = touchStart.scrollTop + dy;
+        if (!isAtBoundary(newTop, el.clientHeight, el.scrollHeight, dy)) {
           e.preventDefault();
           el.scrollTop = newTop;
         }
@@ -509,9 +489,7 @@ export default function FrameworkSection(): ReactNode {
             </ul>
             <a href="https://laravel.com/docs/" className="explore-btn">
               Explore the framework
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" className="explore-btn-icon">
-                <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clipRule="evenodd" />
-              </svg>
+              <ArrowIcon className="explore-btn-icon" />
             </a>
           </div>
 
