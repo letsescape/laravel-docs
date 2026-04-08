@@ -2,6 +2,12 @@ import {test, expect} from '@playwright/test';
 
 // 로컬 사이트를 대상으로 테스트 (playwright.config.ts의 baseURL 사용)
 
+// Helper: 가로 스크롤 없음 검증
+async function expectNoHorizontalScroll(page: any, maxWidth: number) {
+  const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(scrollWidth).toBeLessThanOrEqual(maxWidth);
+}
+
 // =============================================================================
 // 데스크톱 (1280px)
 // =============================================================================
@@ -82,8 +88,7 @@ test.describe('Homepage — Tablet (768px)', () => {
   });
 
   test('HR-1: 가로 스크롤 없음', async ({page}) => {
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(scrollWidth).toBeLessThanOrEqual(768);
+    await expectNoHorizontalScroll(page, 768);
   });
 
   test('HR-2: 히어로 텍스트 표시', async ({page}) => {
@@ -114,7 +119,6 @@ test.describe('Homepage — Mobile (430px)', () => {
   });
 
   test('HR-5: 가로 스크롤 없음', async ({page}) => {
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(scrollWidth).toBeLessThanOrEqual(430);
+    await expectNoHorizontalScroll(page, 430);
   });
 });

@@ -15,6 +15,24 @@ async function openDropdown(page: any, name: string) {
   await expect(page.locator(contentId)).toBeVisible({timeout: 5000});
 }
 
+// Helper: 모바일 오버레이에서 서브메뉴 열고 항목 검증
+async function openMobileSubmenuAndVerify(page: any, menuName: string, expectedItems: string[]) {
+  await page.locator('.nav-mobile-hamburger').click();
+  await page.locator('.nav-mobile-menu-item', {hasText: menuName}).first().click();
+  await page.waitForTimeout(400);
+  for (const item of expectedItems) {
+    await expect(page.locator('.nav-mobile-subitem', {hasText: item})).toBeVisible();
+  }
+}
+
+// Helper: 모바일 오버레이에서 직접 링크 검증
+async function verifyMobileDirectLink(page: any, linkText: string, expectedHref: string) {
+  await page.locator('.nav-mobile-hamburger').click();
+  const link = page.locator('a.nav-mobile-menu-item', {hasText: linkText});
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute('href', expectedHref);
+}
+
 // =============================================================================
 // 데스크톱 (1280px)
 // =============================================================================
@@ -140,44 +158,23 @@ test.describe('Navbar — Mobile (430px)', () => {
   });
 
   test('N-19: Framework 서브메뉴', async ({page}) => {
-    await page.locator('.nav-mobile-hamburger').click();
-    await page.locator('.nav-mobile-menu-item', {hasText: 'Framework'}).first().click();
-    await page.waitForTimeout(400);
-    for (const item of ['Overview', 'Starter Kits', 'Release Notes', 'Documentation', 'Laravel Learn']) {
-      await expect(page.locator('.nav-mobile-subitem', {hasText: item})).toBeVisible();
-    }
+    await openMobileSubmenuAndVerify(page, 'Framework', ['Overview', 'Starter Kits', 'Release Notes', 'Documentation', 'Laravel Learn']);
   });
 
   test('N-20: Products 서브메뉴', async ({page}) => {
-    await page.locator('.nav-mobile-hamburger').click();
-    await page.locator('.nav-mobile-menu-item', {hasText: 'Products'}).first().click();
-    await page.waitForTimeout(400);
-    for (const item of ['Laravel Cloud', 'Forge', 'Nightwatch', 'Nova']) {
-      await expect(page.locator('.nav-mobile-subitem', {hasText: item})).toBeVisible();
-    }
+    await openMobileSubmenuAndVerify(page, 'Products', ['Laravel Cloud', 'Forge', 'Nightwatch', 'Nova']);
   });
 
   test('N-21: Resources 서브메뉴', async ({page}) => {
-    await page.locator('.nav-mobile-hamburger').click();
-    await page.locator('.nav-mobile-menu-item', {hasText: 'Resources'}).first().click();
-    await page.waitForTimeout(400);
-    for (const item of ['Blog', 'Partners', 'Careers', 'Trust', 'Legal', 'Status']) {
-      await expect(page.locator('.nav-mobile-subitem', {hasText: item})).toBeVisible();
-    }
+    await openMobileSubmenuAndVerify(page, 'Resources', ['Blog', 'Partners', 'Careers', 'Trust', 'Legal', 'Status']);
   });
 
   test('N-22: Events 직접 링크', async ({page}) => {
-    await page.locator('.nav-mobile-hamburger').click();
-    const link = page.locator('a.nav-mobile-menu-item', {hasText: 'Events'});
-    await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('href', '/community');
+    await verifyMobileDirectLink(page, 'Events', '/community');
   });
 
   test('N-23: Docs 직접 링크', async ({page}) => {
-    await page.locator('.nav-mobile-hamburger').click();
-    const link = page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'});
-    await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('href', '/docs');
+    await verifyMobileDirectLink(page, 'Docs', '/docs');
   });
 
   test('N-24: 서브메뉴 뒤로가기', async ({page}) => {
