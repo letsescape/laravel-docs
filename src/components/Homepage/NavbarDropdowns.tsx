@@ -50,7 +50,7 @@ export default function NavbarDropdowns(): ReactNode {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSubMenu, setMobileSubMenu] = useState<string | null>(null);
   const [mobileThemeMode, setMobileThemeMode] = useState<'light' | 'dark' | 'system'>('system');
-  const {colorMode, setColorMode} = useColorMode();
+  const {setColorMode} = useColorMode();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Sync mobileThemeMode with stored preference on mount
@@ -89,7 +89,10 @@ export default function NavbarDropdowns(): ReactNode {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const canHover = typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches;
+  const [canHover, setCanHover] = useState(false);
+  useEffect(() => {
+    setCanHover(window.matchMedia?.('(hover: hover)').matches ?? false);
+  }, []);
 
   const toggleDropdown = useCallback((name: DropdownName) => {
     setOpenDropdown(prev => (prev === name ? null : name));
