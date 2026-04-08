@@ -15,6 +15,28 @@ function LaravelFileIcon(): ReactNode {
   );
 }
 
+/** Token rule: regex pattern, className, and optional capture group index */
+type TokenRule = [RegExp, string | undefined, number?];
+
+const SIMPLE_RULES: TokenRule[] = [
+  [/^(\/\/.*)/, 'syn-comment'],
+  [/^(\/?>)/, 'syn-html-tag'],
+  [/^(\{\{|\}\})/, 'syn-function'],
+  [/^(@(?:if|else|elseif|endif|foreach|endforeach|for|endfor|while|endwhile|unless|endunless|isset|endisset|empty|endempty|auth|endauth|guest|endguest|section|endsection|yield|extends|include|push|endpush|php|endphp|forelse|endforelse))\b/, 'syn-type'],
+  [/^('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")/, 'syn-string'],
+  [/^(\d+(?:\.\d+)?)\b/, 'syn-number'],
+  [/^(return|if|else|foreach|for|while|throw|catch|try|switch|case|break|continue)\b/, 'syn-control'],
+  [/^(string|int|float|bool|array|void|null|mixed|never|true|false|self)\b/, 'syn-type'],
+  [/^(\$this)\b/, 'syn-type'],
+  [/^(\$[a-zA-Z_][a-zA-Z0-9_]*)/, 'syn-variable'],
+  [/^([A-Z][a-zA-Z0-9_]*)/, 'syn-class'],
+  [/^(=>)/, undefined],
+  [/^(<\?php)/, 'syn-keyword'],
+  [/^(echo|print|isset|unset|empty|die|exit|list)\b/, 'syn-function'],
+  [/^([a-z_][a-zA-Z0-9_]*)(?=:)/, 'syn-named-arg'],
+  [/^([a-z_][a-zA-Z0-9_]*)\s*(?=\()/, 'syn-function'],
+];
+
 /** Simple PHP syntax highlighter */
 function highlightPhp(code: string): ReactNode[] {
   const lines = code.split('\n');
@@ -24,14 +46,18 @@ function highlightPhp(code: string): ReactNode[] {
     let remaining = line;
     let keyIdx = 0;
 
+    const pushToken = (text: string, cls?: string) => {
+      tokens.push(cls ? <span key={keyIdx++} className={cls}>{text}</span> : <span key={keyIdx++}>{text}</span>);
+    };
+
     if (inBlockComment) {
       const endIdx = remaining.indexOf('*/');
       if (endIdx !== -1) {
-        tokens.push(<span key={keyIdx++} className="syn-comment">{remaining.slice(0, endIdx + 2)}</span>);
+        pushToken(remaining.slice(0, endIdx + 2), 'syn-comment');
         remaining = remaining.slice(endIdx + 2);
         inBlockComment = false;
       } else {
-        tokens.push(<span key={keyIdx++} className="syn-comment">{remaining}</span>);
+        pushToken(remaining, 'syn-comment');
         return <React.Fragment key={lineIdx}>{lineIdx > 0 && '\n'}{tokens}</React.Fragment>;
       }
     }
@@ -42,159 +68,63 @@ function highlightPhp(code: string): ReactNode[] {
       if (blockCommentMatch) {
         const endIdx = remaining.indexOf('*/', blockCommentMatch[1].length);
         if (endIdx !== -1) {
-          tokens.push(<span key={keyIdx++} className="syn-comment">{remaining.slice(0, endIdx + 2)}</span>);
+          pushToken(remaining.slice(0, endIdx + 2), 'syn-comment');
           remaining = remaining.slice(endIdx + 2);
         } else {
-          tokens.push(<span key={keyIdx++} className="syn-comment">{remaining}</span>);
+          pushToken(remaining, 'syn-comment');
           inBlockComment = true;
           remaining = '';
         }
         continue;
       }
 
-      // Single-line comment
-      const commentMatch = remaining.match(/^(\/\/.*)/);
-      if (commentMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-comment">{commentMatch[1]}</span>);
-        remaining = remaining.slice(commentMatch[1].length);
-        continue;
-      }
-
-      // HTML tags
+      // HTML tags (multi-capture)
       const htmlTagMatch = remaining.match(/^(<\/?)([\w-]+)/);
       if (htmlTagMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-html-tag">{htmlTagMatch[1]}</span>);
-        tokens.push(<span key={keyIdx++} className="syn-html-tag">{htmlTagMatch[2]}</span>);
+        pushToken(htmlTagMatch[1], 'syn-html-tag');
+        pushToken(htmlTagMatch[2], 'syn-html-tag');
         remaining = remaining.slice(htmlTagMatch[0].length);
         continue;
       }
 
-      const htmlCloseMatch = remaining.match(/^(\/?>)/);
-      if (htmlCloseMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-html-tag">{htmlCloseMatch[1]}</span>);
-        remaining = remaining.slice(htmlCloseMatch[1].length);
-        continue;
-      }
-
-      // HTML attribute names
+      // HTML attribute names (context-dependent)
       const htmlAttrMatch = remaining.match(/^([a-zA-Z-]+)(?==)/);
       if (htmlAttrMatch && line.includes('<')) {
-        tokens.push(<span key={keyIdx++} className="syn-html-attr">{htmlAttrMatch[1]}</span>);
+        pushToken(htmlAttrMatch[1], 'syn-html-attr');
         remaining = remaining.slice(htmlAttrMatch[1].length);
         continue;
       }
 
-      // Blade echo braces {{ }}
-      const bladeEchoMatch = remaining.match(/^(\{\{|\}\})/);
-      if (bladeEchoMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-function">{bladeEchoMatch[1]}</span>);
-        remaining = remaining.slice(bladeEchoMatch[1].length);
-        continue;
-      }
-
-      // Blade directives
-      const bladeMatch = remaining.match(/^(@(?:if|else|elseif|endif|foreach|endforeach|for|endfor|while|endwhile|unless|endunless|isset|endisset|empty|endempty|auth|endauth|guest|endguest|section|endsection|yield|extends|include|push|endpush|php|endphp|forelse|endforelse))\b/);
-      if (bladeMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-type">{bladeMatch[1]}</span>);
-        remaining = remaining.slice(bladeMatch[1].length);
-        continue;
-      }
-
-      // HTML attribute strings (after =)
+      // HTML attribute strings (context-dependent)
       const htmlAttrStr = tokens.length > 0 && remaining.match(/^("(?:[^"\\]|\\.)*")/);
       if (htmlAttrStr && line.includes('<')) {
-        tokens.push(<span key={keyIdx++} className="syn-type">{htmlAttrStr[1]}</span>);
+        pushToken(htmlAttrStr[1], 'syn-type');
         remaining = remaining.slice(htmlAttrStr[1].length);
         continue;
       }
 
-      // Strings (single or double quoted)
-      const strMatch = remaining.match(/^('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")/);
-      if (strMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-string">{strMatch[1]}</span>);
-        remaining = remaining.slice(strMatch[1].length);
-        continue;
-      }
-
-      // Numbers
-      const numMatch = remaining.match(/^(\d+(?:\.\d+)?)\b/);
-      if (numMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-number">{numMatch[1]}</span>);
-        remaining = remaining.slice(numMatch[1].length);
-        continue;
-      }
-
-      // Control flow keywords
-      const ctrlMatch = remaining.match(/^(return|if|else|foreach|for|while|throw|catch|try|switch|case|break|continue)\b/);
-      if (ctrlMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-control">{ctrlMatch[1]}</span>);
-        remaining = remaining.slice(ctrlMatch[1].length);
-        continue;
-      }
-
-      // PHP type keywords
-      const typeMatch = remaining.match(/^(string|int|float|bool|array|void|null|mixed|never|true|false|self)\b/);
-      if (typeMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-type">{typeMatch[1]}</span>);
-        remaining = remaining.slice(typeMatch[1].length);
-        continue;
-      }
-
-      // PHP keywords
+      // PHP keywords with namespace handling
       const kwMatch = remaining.match(/^(use|namespace|class|function|public|private|protected|new|extends|implements|static|readonly)\b/);
       if (kwMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-keyword">{kwMatch[1]}</span>);
+        pushToken(kwMatch[1], 'syn-keyword');
         remaining = remaining.slice(kwMatch[1].length);
-        // After use/namespace, treat the namespace path (excluding last segment) as plain text
         if (kwMatch[1] === 'use' || kwMatch[1] === 'namespace') {
           const nsMatch = remaining.match(/^( )((?:[A-Za-z_][A-Za-z0-9_]*\\)+)/);
           if (nsMatch) {
             tokens.push(nsMatch[1]);
-            tokens.push(<span key={keyIdx++} className={kwMatch[1] === 'namespace' ? 'syn-class' : undefined}>{nsMatch[2]}</span>);
+            pushToken(nsMatch[2], kwMatch[1] === 'namespace' ? 'syn-class' : undefined);
             remaining = remaining.slice(nsMatch[0].length);
           }
         }
         continue;
       }
 
-      // $this keyword
-      const thisMatch = remaining.match(/^(\$this)\b/);
-      if (thisMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-type">{thisMatch[1]}</span>);
-        remaining = remaining.slice(thisMatch[1].length);
-        continue;
-      }
-
-      // PHP variables
-      const varMatch = remaining.match(/^(\$[a-zA-Z_][a-zA-Z0-9_]*)/);
-      if (varMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-variable">{varMatch[1]}</span>);
-        remaining = remaining.slice(varMatch[1].length);
-        continue;
-      }
-
       // PHP attributes #[Name(...)]
       const attrMatch = remaining.match(/^(#\[)([A-Z][a-zA-Z0-9_]*)/);
       if (attrMatch) {
-        tokens.push(<span key={keyIdx++}>{attrMatch[1]}</span>);
-        tokens.push(<span key={keyIdx++}>{attrMatch[2]}</span>);
+        pushToken(attrMatch[1]);
+        pushToken(attrMatch[2]);
         remaining = remaining.slice(attrMatch[0].length);
-        continue;
-      }
-
-      // Class/type references (PascalCase words)
-      const classMatch = remaining.match(/^([A-Z][a-zA-Z0-9_]*)/);
-      if (classMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-class">{classMatch[1]}</span>);
-        remaining = remaining.slice(classMatch[1].length);
-        continue;
-      }
-
-      // Fat arrow =>
-      const fatArrowMatch = remaining.match(/^(=>)/);
-      if (fatArrowMatch) {
-        tokens.push(<span key={keyIdx++}>{fatArrowMatch[1]}</span>);
-        remaining = remaining.slice(2);
         continue;
       }
 
@@ -202,8 +132,8 @@ function highlightPhp(code: string): ReactNode[] {
       const memberMatch = remaining.match(/^(->)([a-zA-Z_][a-zA-Z0-9_]*)/);
       if (memberMatch) {
         const isMethod = remaining[memberMatch[0].length] === '(';
-        tokens.push(<span key={keyIdx++} className="syn-operator">{memberMatch[1]}</span>);
-        tokens.push(<span key={keyIdx++} className={isMethod ? 'syn-method' : 'syn-variable'}>{memberMatch[2]}</span>);
+        pushToken(memberMatch[1], 'syn-operator');
+        pushToken(memberMatch[2], isMethod ? 'syn-method' : 'syn-variable');
         remaining = remaining.slice(memberMatch[0].length);
         continue;
       }
@@ -211,43 +141,24 @@ function highlightPhp(code: string): ReactNode[] {
       // Static calls ::
       const staticMatch = remaining.match(/^(::)([a-zA-Z_][a-zA-Z0-9_]*)/);
       if (staticMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-operator">{staticMatch[1]}</span>);
-        tokens.push(<span key={keyIdx++} className="syn-method">{staticMatch[2]}</span>);
+        pushToken(staticMatch[1], 'syn-operator');
+        pushToken(staticMatch[2], 'syn-method');
         remaining = remaining.slice(staticMatch[0].length);
         continue;
       }
 
-      // PHP tag
-      const phpTag = remaining.match(/^(<\?php)/);
-      if (phpTag) {
-        tokens.push(<span key={keyIdx++} className="syn-keyword">{phpTag[1]}</span>);
-        remaining = remaining.slice(phpTag[1].length);
-        continue;
+      // Try simple rules (single-capture patterns)
+      let matched = false;
+      for (const [regex, cls] of SIMPLE_RULES) {
+        const m = remaining.match(regex);
+        if (m) {
+          pushToken(m[0], cls);
+          remaining = remaining.slice(m[0].length);
+          matched = true;
+          break;
+        }
       }
-
-      // PHP language constructs that look like functions
-      const constructMatch = remaining.match(/^(echo|print|isset|unset|empty|die|exit|list)\b/);
-      if (constructMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-function">{constructMatch[1]}</span>);
-        remaining = remaining.slice(constructMatch[1].length);
-        continue;
-      }
-
-      // Named arguments: word followed by :
-      const namedArgMatch = remaining.match(/^([a-z_][a-zA-Z0-9_]*)(?=:)/);
-      if (namedArgMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-named-arg">{namedArgMatch[1]}</span>);
-        remaining = remaining.slice(namedArgMatch[1].length);
-        continue;
-      }
-
-      // Function calls: word followed by (
-      const funcMatch = remaining.match(/^([a-z_][a-zA-Z0-9_]*)\s*(?=\()/);
-      if (funcMatch) {
-        tokens.push(<span key={keyIdx++} className="syn-function">{funcMatch[0]}</span>);
-        remaining = remaining.slice(funcMatch[0].length);
-        continue;
-      }
+      if (matched) continue;
 
       // Default: consume one character
       tokens.push(remaining[0]);
