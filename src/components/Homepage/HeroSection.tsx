@@ -310,7 +310,7 @@ export default function HeroSection(): ReactNode {
               Laravel is batteries-included so everyone can{' '}<span className="hero-subtitle-br" />build and ship web apps at ridiculous speed.
             </p>
             <div className="hero-buttons">
-              <a href="/docs" className="hero-btn-secondary">
+              <a href="/docs/12.x" className="hero-btn-secondary">
                 View framework docs
               </a>
             </div>
