@@ -30,7 +30,7 @@ function getRandomPartners(count: number) {
   return shuffled.slice(0, count);
 }
 
-function ChevronDown({open}: {open: boolean}) {
+function ChevronDown({open}: {open: boolean}): ReactNode {
   return (
     <svg
       width="20"
@@ -91,7 +91,8 @@ export default function NavbarDropdowns(): ReactNode {
 
   const [canHover, setCanHover] = useState(false);
   useEffect(() => {
-    setCanHover(window.matchMedia?.('(hover: hover)').matches ?? false);
+    const mq = window.matchMedia?.('(hover: hover)');
+    setCanHover(mq ? mq.matches : false);
   }, []);
 
   const toggleDropdown = useCallback((name: DropdownName) => {
@@ -126,7 +127,7 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Framework */}
       {isOpen('framework') && (
-        <div id="content-framework" data-state={dataState('framework')} className="nav-dropdown-panel" onMouseEnter={canHover ? cancelClose : undefined} onMouseLeave={canHover ? scheduleClose : undefined}>
+        <div id="content-framework" data-state={dataState('framework')} className="nav-dropdown-panel" {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-framework-grid">
             {/* Explore Laravel */}
             <div className="nav-dd-col">
@@ -243,7 +244,7 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Products */}
       {isOpen('products') && (
-        <div id="content-products" data-state={dataState('products')} className="nav-dropdown-panel" onMouseEnter={canHover ? cancelClose : undefined} onMouseLeave={canHover ? scheduleClose : undefined}>
+        <div id="content-products" data-state={dataState('products')} className="nav-dropdown-panel" {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-products-grid">
             <a href="https://cloud.laravel.com" className="nav-product-card nav-product-card--dark">
               <div className="nav-product-header">
@@ -286,7 +287,7 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Resources */}
       {isOpen('resources') && (
-        <div id="content-resources" data-state={dataState('resources')} className="nav-dropdown-panel" onMouseEnter={canHover ? cancelClose : undefined} onMouseLeave={canHover ? scheduleClose : undefined}>
+        <div id="content-resources" data-state={dataState('resources')} className="nav-dropdown-panel" {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-resources-grid">
             {/* Company */}
             <div className="nav-dd-col nav-resources-company">
@@ -385,7 +386,7 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Events */}
       {isOpen('events') && (
-        <div id="content-events" data-state={dataState('events')} className="nav-dropdown-panel" onMouseEnter={canHover ? cancelClose : undefined} onMouseLeave={canHover ? scheduleClose : undefined}>
+        <div id="content-events" data-state={dataState('events')} className="nav-dropdown-panel" {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-events-grid">
             {/* Upcoming events list */}
             <div className="nav-dd-col nav-events-upcoming">
