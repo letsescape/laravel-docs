@@ -587,8 +587,8 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Mobile fullscreen overlay */}
       {mobileMenuOpen && (
-        <div className="nav-mobile-overlay" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
-          <div className="nav-mobile-fullscreen" onClick={e => e.stopPropagation()}>
+        <div className="nav-mobile-overlay" role="button" tabIndex={0} onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setMobileMenuOpen(false); setMobileSubMenu(null); } }}>
+          <div className="nav-mobile-fullscreen" role="presentation" onClick={e => e.stopPropagation()}>
             {/* Main menu */}
             <div className="nav-mobile-panel" style={{transform: mobileSubMenu ? 'translateX(-100%)' : 'translateX(0)'}}>
               <div className="nav-mobile-top">
