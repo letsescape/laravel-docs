@@ -30,7 +30,7 @@ function getRandomPartners(count: number) {
   return shuffled.slice(0, count);
 }
 
-function ChevronDown({open}: {open: boolean}): ReactNode {
+function ChevronDown({open}: Readonly<{open: boolean}>): ReactNode {
   return (
     <svg
       width="20"
@@ -91,7 +91,7 @@ export default function NavbarDropdowns(): ReactNode {
 
   const [canHover, setCanHover] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia?.('(hover: hover)');
+    const mq = globalThis.matchMedia?.('(hover: hover)');
     setCanHover(mq ? mq.matches : false);
   }, []);
 
@@ -545,7 +545,7 @@ export default function NavbarDropdowns(): ReactNode {
           try {
             if (next === 'system') {
               localStorage.removeItem('theme');
-              const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+              const prefersDark = globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false;
               setColorMode(prefersDark ? 'dark' : 'light');
             } else {
               localStorage.setItem('theme', next);
