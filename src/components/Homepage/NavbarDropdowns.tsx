@@ -21,8 +21,10 @@ const ALL_PARTNERS = [
 
 function getRandomPartners(count: number) {
   const shuffled = [...ALL_PARTNERS];
+  const randomBytes = new Uint32Array(shuffled.length);
+  crypto.getRandomValues(randomBytes);
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = randomBytes[i] % (i + 1);
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled.slice(0, count);
