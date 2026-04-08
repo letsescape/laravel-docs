@@ -866,7 +866,8 @@
   letter-spacing: -0.01em;
 }
 
-.feature-list .check-icon {
+.feature-list .check-icon,
+.cloud-check-icon {
   color: var(--hp-accent);
   flex-shrink: 0;
   margin-top: 3px;
@@ -875,7 +876,9 @@
 }
 
 .homepage .feature-list .check-icon path,
-.homepage .explore-btn-icon {
+.homepage .explore-btn-icon,
+.homepage .cloud-check-icon path,
+.homepage .cloud-arrow-icon path {
   fill: currentColor !important;
 }
 
@@ -903,14 +906,16 @@
   text-decoration: none !important;
 }
 
-.explore-btn-icon {
+.explore-btn-icon,
+.cloud-arrow-icon {
   width: 16px;
   height: 16px;
   color: var(--hp-accent);
   transition: transform 0.1s;
 }
 
-.explore-btn:hover .explore-btn-icon {
+.explore-btn:hover .explore-btn-icon,
+.explore-btn:hover .cloud-arrow-icon {
   transform: translate(1px, -1px);
 }
 
@@ -1352,42 +1357,18 @@
   gap: 0.625rem;
 }
 
-.cloud-feature-list li span {
+.cloud-feature-list li span,
+.nightwatch-feature-list li span {
   font-size: 1rem;
   line-height: 1.3;
   letter-spacing: -0.01em;
   color: var(--hp-text);
 }
 
-.cloud-check-icon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  margin-top: 3px;
-  color: var(--hp-accent);
-}
-
-.homepage .cloud-check-icon path {
-  fill: currentColor !important;
-}
-
-.cloud-btn-wrapper {
+.cloud-btn-wrapper,
+.nightwatch-btn-wrapper,
+.frontend-btn-wrapper {
   margin-top: 1.5rem;
-}
-
-.cloud-arrow-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--hp-accent);
-  transition: transform 0.1s;
-}
-
-.homepage .cloud-arrow-icon path {
-  fill: currentColor !important;
-}
-
-.explore-btn:hover .cloud-arrow-icon {
-  transform: translate(1px, -1px);
 }
 
 /* Cloud illustration */
@@ -1679,7 +1660,8 @@
   z-index: 0;
 }
 
-.nightwatch-noise-overlay {
+.nightwatch-noise-overlay,
+.frontend-noise-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -1688,7 +1670,8 @@
   pointer-events: none;
 }
 
-.nightwatch-grid {
+.nightwatch-grid,
+.frontend-grid {
   position: relative;
   z-index: 2;
   display: flex;
@@ -1742,16 +1725,6 @@
   align-items: flex-start;
 }
 
-.nightwatch-feature-list li span {
-  font-size: 1rem;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-  color: var(--hp-text);
-}
-
-.nightwatch-btn-wrapper {
-  margin-top: 1.5rem;
-}
 
 .nightwatch-img {
   width: 100%;
@@ -1775,29 +1748,6 @@
   background: radial-gradient(60% 50% at 40% 100%, rgba(245, 48, 3, 0.20), transparent);
   pointer-events: none;
   z-index: 0;
-}
-
-.frontend-noise-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
-
-.frontend-grid {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  flex: 1;
-}
-
-
-.frontend-btn-wrapper {
-  margin-top: 1.5rem;
 }
 
 /* Stacked cards area */
