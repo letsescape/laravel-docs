@@ -828,7 +828,10 @@
   }
 }
 
-.framework-info h3 {
+.framework-info h3,
+.cloud-card-content h3,
+.nightwatch-info h3,
+.frontend-info h3 {
   font-size: 1.875rem;
   font-weight: 400;
   margin-bottom: 0.75rem;
@@ -836,7 +839,10 @@
   letter-spacing: -0.025em;
 }
 
-.framework-info p {
+.framework-info p,
+.cloud-card-content p,
+.nightwatch-info p,
+.frontend-info p {
   font-size: 1rem;
   color: var(--hp-text-secondary);
   line-height: 1.5;
@@ -1331,21 +1337,6 @@
   }
 }
 
-.cloud-card-content h3 {
-  font-size: 1.875rem;
-  font-weight: 400;
-  margin-bottom: 0.75rem;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
-}
-
-.cloud-card-content p {
-  font-size: 1rem;
-  color: var(--hp-text-secondary);
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  letter-spacing: -0.01em;
-}
 
 .cloud-feature-list {
   list-style: none;
@@ -1735,21 +1726,6 @@
 
 /* nightwatch-img base styles merged below */
 
-.nightwatch-info h3 {
-  font-size: 1.875rem;
-  font-weight: 400;
-  margin-bottom: 0.75rem;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
-}
-
-.nightwatch-info p {
-  font-size: 1rem;
-  color: var(--hp-text-secondary);
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  letter-spacing: -0.01em;
-}
 
 .nightwatch-feature-list {
   list-style: none;
@@ -1819,21 +1795,6 @@
   flex: 1;
 }
 
-.frontend-info h3 {
-  font-size: 1.875rem;
-  font-weight: 400;
-  margin-bottom: 0.75rem;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
-}
-
-.frontend-info p {
-  font-size: 1rem;
-  color: var(--hp-text-secondary);
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  letter-spacing: -0.01em;
-}
 
 .frontend-btn-wrapper {
   margin-top: 1.5rem;

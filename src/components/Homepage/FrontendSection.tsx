@@ -1,48 +1,5 @@
-import React, {useId, type ReactNode} from 'react';
-
-function NoiseOverlay(): ReactNode {
-  const id = useId();
-  const filterId = `noise-filter-${id}`;
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      className="frontend-noise-overlay"
-      width="100%"
-      height="100%"
-      preserveAspectRatio="none"
-    >
-      <defs>
-        <filter id={filterId}>
-          <feTurbulence
-            type="turbulence"
-            baseFrequency="3"
-            numOctaves="1"
-            stitchTiles="stitch"
-            result="noise"
-          />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 3 0"
-            result="coloredNoise"
-          />
-        </filter>
-      </defs>
-      <rect width="100%" height="100%" filter={`url(#${filterId})`} />
-    </svg>
-  );
-}
-
-function ArrowIcon(): ReactNode {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="cloud-arrow-icon">
-      <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clipRule="evenodd" />
-    </svg>
-  );
-}
+import React, {type ReactNode} from 'react';
+import {ArrowIcon, NoiseOverlay} from './SharedIcons';
 
 /* Stroke-based outline icons matching laravel.com style */
 function SvelteIcon(): ReactNode {
@@ -97,7 +54,7 @@ export default function FrontendSection(): ReactNode {
   return (
     <section className="frontend-section">
         <div className="frontend-section-gradient" />
-        <NoiseOverlay />
+        <NoiseOverlay className="frontend-noise-overlay" />
         <div className="frontend-grid">
           <div className="frontend-info">
             <h3>The best partner to any{' '}<br className="tablet-br" />front-end</h3>
