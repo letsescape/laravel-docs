@@ -61,8 +61,10 @@
 }
 
 .navbar__inner {
-  justify-content: center !important;
-  gap: 16rem !important;
+  justify-content: space-between !important;
+  max-width: 1340px !important;
+  margin: 0 auto !important;
+  padding: 0 1.5rem !important;
 }
 
 .navbar__items:not(.navbar__items--right) {
@@ -266,8 +268,8 @@ svg[class*="text-laravel-red"] path {
   border-bottom: 1px solid var(--translation-banner-border);
 }
 
-/* Tablet navbar: logo left, menu center, search right */
-@media (min-width: 768px) and (max-width: 1024px) {
+/* Tablet navbar: logo left, dropdown triggers right */
+@media (min-width: 768px) and (max-width: 1279px) {
   /* Override Docusaurus hiding of navbar items at 996px */
   .navbar > .navbar__inner > .navbar__items:not(.navbar__items--right) > * {
     display: flex !important;
@@ -285,30 +287,16 @@ svg[class*="text-laravel-red"] path {
     flex: 1 !important;
   }
 
+  /* Hide all Docusaurus right items — mode toggle lives inside NavbarDropdowns */
   .navbar__items--right {
-    flex: 0 0 auto !important;
-  }
-
-  /* Override Infima hiding .navbar__item at 996px - show all right items */
-  .navbar__items--right > * {
-    display: flex !important;
-  }
-
-  /* Then hide only version/locale dropdowns */
-  .navbar__items--right .dropdown--hoverable {
     display: none !important;
   }
 
-  /* Position dropdown triggers closer to logo */
+  /* Position dropdown triggers */
   .nav-dropdowns-wrapper {
     flex: 1;
     display: flex !important;
     justify-content: flex-start;
-  }
-
-  /* Search: icon only */
-  .navbar__items--right [class*="navbarSearchContainer"] {
-    display: block !important;
   }
 }
 

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useCallback, useMemo, type ReactNode} from 'react';
+import React, {useState, useEffect, useRef, useCallback, type ReactNode} from 'react';
 import {useColorMode} from '@docusaurus/theme-common';
 import './homepage.css';
 
@@ -63,7 +63,10 @@ export default function NavbarDropdowns(): ReactNode {
     }
   }, []);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const randomPartners = useMemo(() => getRandomPartners(6), []);
+  const [randomPartners, setRandomPartners] = useState(() => ALL_PARTNERS.slice(0, 6));
+  useEffect(() => {
+    setRandomPartners(getRandomPartners(6));
+  }, []);
 
   const cancelClose = useCallback(() => {
     if (closeTimerRef.current) {
@@ -76,6 +79,14 @@ export default function NavbarDropdowns(): ReactNode {
     cancelClose();
     closeTimerRef.current = setTimeout(() => setOpenDropdown(null), 150);
   }, [cancelClose]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -102,6 +113,22 @@ export default function NavbarDropdowns(): ReactNode {
   const isOpen = (name: DropdownName) => openDropdown === name;
   const dataState = (name: DropdownName) => (isOpen(name) ? 'open' : 'closed');
 
+  const adjustPanelPosition = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return;
+    const computed = getComputedStyle(el);
+    if (computed.position === 'fixed') return;
+    el.style.left = '0';
+    const rect = el.getBoundingClientRect();
+    const margin = 16;
+    if (rect.right > window.innerWidth - margin) {
+      const overflow = rect.right - window.innerWidth + margin;
+      el.style.left = `-${overflow}px`;
+    }
+    if (rect.left < margin) {
+      el.style.left = `${margin - rect.left + parseFloat(el.style.left || '0')}px`;
+    }
+  }, []);
+
   return (
     <div ref={wrapperRef} className="nav-dropdowns-wrapper">
       {/* Dropdown triggers */}
@@ -127,7 +154,7 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Framework */}
       {isOpen('framework') && (
-        <div id="content-framework" data-state={dataState('framework')} className="nav-dropdown-panel" {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
+        <div id="content-framework" data-state={dataState('framework')} className="nav-dropdown-panel" ref={adjustPanelPosition} {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-framework-grid">
             {/* Explore Laravel */}
             <div className="nav-dd-col">
@@ -147,7 +174,7 @@ export default function NavbarDropdowns(): ReactNode {
                     <span className="nav-dd-item-desc">Read the latest changes</span>
                   </div>
                 </a></li>
-                <li><a href="/learn" className="nav-dd-item-link">
+                <li><a href="https://laravel.com/learn" className="nav-dd-item-link">
                   <img src="/img/nav/fw-learn.png" alt="" className="nav-dd-icon" />
                   <div>
                     <span className="nav-dd-item-name">Laravel Learn</span>
@@ -160,14 +187,14 @@ export default function NavbarDropdowns(): ReactNode {
             <div className="nav-dd-col">
               <h3 className="nav-dd-heading">Latest packages</h3>
               <ul className="nav-dd-list">
-                <li><a href="/ai" className="nav-dd-item-link">
+                <li><a href="https://laravel.com/ai" className="nav-dd-item-link">
                   <img src="/img/nav/fw-ai-sdk.png" alt="" className="nav-dd-icon" />
                   <div>
                     <span className="nav-dd-item-name">AI SDK</span>
                     <span className="nav-dd-item-desc">Build AI-powered applications</span>
                   </div>
                 </a></li>
-                <li><a href="/ai/boost" className="nav-dd-item-link">
+                <li><a href="https://laravel.com/ai/boost" className="nav-dd-item-link">
                   <img src="/img/nav/fw-boost.png" alt="" className="nav-dd-icon" />
                   <div>
                     <span className="nav-dd-item-name">Boost</span>
@@ -226,7 +253,7 @@ export default function NavbarDropdowns(): ReactNode {
               </a>
             </div>
             {/* Starter kits */}
-            <a href="/starter-kits" className="nav-dd-col nav-dd-col-starter">
+            <a href="https://laravel.com/starter-kits" className="nav-dd-col nav-dd-col-starter">
               <span className="nav-dd-starter-label">
                 <span>Starter kits</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" className="nav-dd-starter-arrow">
@@ -244,7 +271,7 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Products */}
       {isOpen('products') && (
-        <div id="content-products" data-state={dataState('products')} className="nav-dropdown-panel" {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
+        <div id="content-products" data-state={dataState('products')} className="nav-dropdown-panel" ref={adjustPanelPosition} {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-products-grid">
             <a href="https://cloud.laravel.com" className="nav-product-card nav-product-card--dark">
               <div className="nav-product-header">
@@ -287,19 +314,19 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Resources */}
       {isOpen('resources') && (
-        <div id="content-resources" data-state={dataState('resources')} className="nav-dropdown-panel" {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
+        <div id="content-resources" data-state={dataState('resources')} className="nav-dropdown-panel" ref={adjustPanelPosition} {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-resources-grid">
             {/* Company */}
             <div className="nav-dd-col nav-resources-company">
               <h3 className="nav-dd-heading">Company</h3>
               <ul className="nav-dd-list nav-dd-list-simple">
-                <li><a href="/blog" className="nav-dd-link nav-dd-doc-link">
+                <li><a href="https://laravel.com/blog" className="nav-dd-link nav-dd-doc-link">
                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M13.1667 7.58333V1.5H1.5V12.5833C1.5 13.7339 2.43274 14.6667 3.58333 14.6667H15.25M13.1667 7.58333V12.5833C13.1667 13.7339 14.0994 14.6667 15.25 14.6667M13.1667 7.58333H16.3333V12.5833C16.3333 13.7339 15.4006 14.6667 14.25 14.6667M4.41667 10.5H10.25M4.83333 3.83333H9.83333V8H4.83333V3.83333Z" stroke="currentColor" strokeLinecap="square"/>
                   </svg>
                   Blog
                 </a></li>
-                <li><a href="/careers" className="nav-dd-link nav-dd-doc-link">
+                <li><a href="https://laravel.com/careers" className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M7.99984 8.3335V10.0002M7.99984 8.3335H13.9998M7.99984 8.3335H1.99984M5.33317 5.00016V2.3335H10.6665V5.00016M14.3332 13.6668H1.66797V5.00016H14.3332V13.6668Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -311,7 +338,7 @@ export default function NavbarDropdowns(): ReactNode {
                   </svg>
                   Trust
                 </a></li>
-                <li><a href="/legal" className="nav-dd-link nav-dd-doc-link">
+                <li><a href="https://laravel.com/legal" className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M7.99984 1.6665V13.6665M7.99984 13.6665H4.33317M7.99984 13.6665H11.6665M1.6665 3.6665H5.6665L6.6665 2.99984H9.33317L10.6665 3.6665H14.3332M3.6665 3.6665L1.6665 9.99984C3.05112 10.7843 4.28189 10.7843 5.6665 9.99984L3.6665 3.6665ZM12.3332 3.6665L10.3332 9.99984C11.7178 10.7843 12.9486 10.7843 14.3332 9.99984L12.3332 3.6665Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -350,7 +377,7 @@ export default function NavbarDropdowns(): ReactNode {
                   <li key={p.slug}><a href={`/partners/${p.slug}`} className="nav-dd-link">{p.name}</a></li>
                 ))}
               </ul>
-              <a href="/partners" className="nav-dd-link nav-dd-viewall" style={{display: 'flex', alignItems: 'center', gap: 4, marginTop: 'auto'}}>
+              <a href="https://laravel.com/partners" className="nav-dd-link nav-dd-viewall" style={{display: 'flex', alignItems: 'center', gap: 4, marginTop: 'auto'}}>
                 View all
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" /></svg>
               </a>
@@ -359,7 +386,7 @@ export default function NavbarDropdowns(): ReactNode {
             <div className="nav-dd-col nav-resources-featured">
               <h3 className="nav-dd-heading">Featured article</h3>
               <div className="nav-featured-wrap">
-                <a href="/blog/scheduled-autoscaling-for-laravel-cloud" className="nav-featured-article">
+                <a href="https://laravel.com/blog/scheduled-autoscaling-for-laravel-cloud" className="nav-featured-article">
                   <div className="nav-featured-thumb">
                     <img
                       alt=""
@@ -386,7 +413,7 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Events */}
       {isOpen('events') && (
-        <div id="content-events" data-state={dataState('events')} className="nav-dropdown-panel" {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
+        <div id="content-events" data-state={dataState('events')} className="nav-dropdown-panel" ref={adjustPanelPosition} {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-events-grid">
             {/* Upcoming events list */}
             <div className="nav-dd-col nav-events-upcoming">
@@ -453,7 +480,7 @@ export default function NavbarDropdowns(): ReactNode {
                   </a>
                 </li>
               </ul>
-              <a href="/community" className="nav-dd-link nav-dd-viewall" style={{display: 'flex', alignItems: 'center', gap: 4, marginTop: 8}}>
+              <a href="https://laravel.com/community" className="nav-dd-link nav-dd-viewall" style={{display: 'flex', alignItems: 'center', gap: 4, marginTop: 8}}>
                 View all
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" /></svg>
               </a>
@@ -587,12 +614,12 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Mobile fullscreen overlay */}
       {mobileMenuOpen && (
-        <div className="nav-mobile-overlay" role="button" tabIndex={0} onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setMobileMenuOpen(false); setMobileSubMenu(null); } }}>
+        <div className="nav-mobile-overlay" role="button" tabIndex={0} onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMobileMenuOpen(false); setMobileSubMenu(null); } }}>
           <div className="nav-mobile-fullscreen" role="presentation" onClick={e => e.stopPropagation()}>
             {/* Main menu */}
             <div className="nav-mobile-panel" style={{transform: mobileSubMenu ? 'translateX(-100%)' : 'translateX(0)'}}>
               <div className="nav-mobile-top">
-                <a href="/" className="nav-mobile-logo">
+                <a href="https://laravel.com" className="nav-mobile-logo">
                   <img src="/img/logotype.min.svg" alt="Laravel" className="nav-logo-img" />
                 </a>
                 <button className="nav-mobile-close" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} aria-label="Close menu">
@@ -610,7 +637,7 @@ export default function NavbarDropdowns(): ReactNode {
                     </svg>
                   </button>
                 ))}
-                <a href="/community" className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
+                <a href="https://laravel.com/community" className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
                   <span>Events</span>
                 </a>
                 <a href="/docs/12.x" className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
@@ -640,7 +667,7 @@ export default function NavbarDropdowns(): ReactNode {
                   <a href="https://laravel.com/starter-kits" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Starter Kits</a>
                   <a href="/docs/12.x/releases" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Release Notes</a>
                   <a href="/docs/12.x" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Documentation</a>
-                  <a href="/learn" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Laravel Learn</a>
+                  <a href="https://laravel.com/learn" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Laravel Learn</a>
                 </>}
                 {mobileSubMenu === 'products' && <>
                   <a href="https://cloud.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Laravel Cloud</a>
@@ -649,11 +676,11 @@ export default function NavbarDropdowns(): ReactNode {
                   <a href="https://nova.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Nova</a>
                 </>}
                 {mobileSubMenu === 'resources' && <>
-                  <a href="/blog" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Blog</a>
-                  <a href="/partners" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Partners</a>
-                  <a href="/careers" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Careers</a>
+                  <a href="https://laravel.com/blog" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Blog</a>
+                  <a href="https://laravel.com/partners" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Partners</a>
+                  <a href="https://laravel.com/careers" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Careers</a>
                   <a href="https://trust.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Trust</a>
-                  <a href="/legal" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Legal</a>
+                  <a href="https://laravel.com/legal" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Legal</a>
                   <a href="https://status.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Status</a>
                 </>}
               </nav>
