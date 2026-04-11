@@ -51,9 +51,45 @@
   --svg-logo-color: #f61500;
 }
 
+/* Allow dropdown panels to overflow navbar */
+.navbar, .navbar__inner {
+  overflow: visible !important;
+}
+
+.navbar__inner {
+  align-items: center !important;
+}
+
+.navbar__inner {
+  justify-content: space-between !important;
+  max-width: 1340px !important;
+  margin: 0 auto !important;
+  padding: 0 1.5rem !important;
+}
+
+.navbar__items:not(.navbar__items--right) {
+  flex: none !important;
+}
+
+.navbar__items--right {
+  flex: none !important;
+}
+
 /* Logo styling */
-.navbar-logo {
-  height: 30px;
+.navbar-logo,
+.navbar__logo img {
+  height: 22px !important;
+}
+
+.navbar__brand {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.navbar__logo {
+  display: flex !important;
+  align-items: center !important;
 }
 
 /* SVG logo styling using CSS variables */
@@ -64,12 +100,13 @@
   color: var(--svg-logo-color);
 }
 
-/* SVG path styling - excludes hero illustration via :not() */
+/* SVG path styling - excludes hero illustration via :not()
+   TODO: Refactor to opt-in .svg-themed class instead of broad selectors with :not() exclusions */
 .navbar__logo svg path,
 .footer__logo svg path,
 .heroLogo svg path,
 .hero-svg-logo path,
-:not(.hero-illustration-svg) > svg:not(.cta-arrow-icon) path[fill="currentColor"] {
+:not(.hero-illustration-svg):not(.nav-social-icon) > svg:not(.cta-arrow-icon):not(.nav-dd-doc-icon) path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
@@ -79,17 +116,17 @@
 }
 
 /* More specific selectors for SVG logo */
-:not(.hero-illustration-svg) > svg[width][height][fill="none"] path[fill="currentColor"] {
+:not(.hero-illustration-svg):not(.nav-social-icon) > svg[width][height][fill="none"]:not(.nav-dd-doc-icon) path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
 /* Target SVGs with inline width and height attributes */
-:not(.hero-illustration-svg) > svg[width][height]:not(.footer-social-svg):not(.cta-arrow-icon) path {
+:not(.hero-illustration-svg):not(.nav-social-icon) > svg[width][height]:not(.footer-social-svg):not(.cta-arrow-icon):not(.nav-dd-doc-icon):not(.nav-mobile-chevron) path {
   fill: var(--svg-logo-color) !important;
 }
 
 /* Target SVG root elements */
-:not(.hero-illustration-svg) > svg:root:not(.cta-arrow-icon) path[fill="currentColor"] {
+:not(.hero-illustration-svg):not(.nav-social-icon) > svg:root:not(.cta-arrow-icon):not(.nav-dd-doc-icon) path[fill="currentColor"] {
   fill: var(--svg-logo-color) !important;
 }
 
@@ -231,10 +268,74 @@ svg[class*="text-laravel-red"] path {
   border-bottom: 1px solid var(--translation-banner-border);
 }
 
+/* Tablet navbar: logo left, dropdown triggers right */
+@media (min-width: 768px) and (max-width: 1279px) {
+  /* Override Docusaurus hiding of navbar items at 996px */
+  .navbar > .navbar__inner > .navbar__items:not(.navbar__items--right) > * {
+    display: flex !important;
+  }
+
+  .navbar > .navbar__inner > .navbar__items:not(.navbar__items--right) > .navbar__toggle {
+    display: none !important;
+  }
+
+  .navbar__inner {
+    gap: 0 !important;
+  }
+
+  .navbar__items:not(.navbar__items--right) {
+    flex: 1 !important;
+  }
+
+  /* Hide all Docusaurus right items — mode toggle lives inside NavbarDropdowns */
+  .navbar__items--right {
+    display: none !important;
+  }
+
+  /* Position dropdown triggers */
+  .nav-dropdowns-wrapper {
+    flex: 1;
+    display: flex !important;
+    justify-content: flex-start;
+  }
+}
+
+/* Mobile navbar: logo left, hamburger right */
+@media (max-width: 767px) {
+  .navbar__inner {
+    justify-content: space-between !important;
+    gap: 0 !important;
+  }
+
+  .navbar__items:not(.navbar__items--right) {
+    flex: 1 !important;
+  }
+
+  .navbar__toggle {
+    display: none !important;
+  }
+
+  .navbar__items--right {
+    display: none !important;
+  }
+
+  /* 2-line hamburger icon */
+  .navbar__toggle svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .navbar__toggle svg path {
+    d: path("M4 11h22M4 21h22");
+    stroke-width: 2.5px;
+  }
+}
+
 /* Hide default Docusaurus footer on homepage */
 body.homepage-layout footer.footer {
   display: none !important;
 }
+
 
 /* Fallback: ensure hero illustration paths respect their original fill attributes.
    This catches any remaining overrides from the global SVG rules above. */
