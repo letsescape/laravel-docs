@@ -9,8 +9,9 @@ import NavbarMobileSidebarToggle from '@theme/Navbar/MobileSidebar/Toggle';
 import NavbarLogo from '@theme/Navbar/Logo';
 import NavbarSearch from '@theme/Navbar/Search';
 import {useLocation} from '@docusaurus/router';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import NavbarDropdowns from '@site/src/components/Homepage/NavbarDropdowns';
-import styles from './styles.module.css';
+import './styles.module.css';
 
 function useNavbarItems() {
   return useThemeConfig().navbar.items as any[];
@@ -54,7 +55,8 @@ export default function NavbarContent(): React.ReactNode {
   const [leftItems, rightItems] = splitNavbarItems(items);
   const searchBarItem = items.find((item: any) => item.type === 'search');
   const location = useLocation();
-  const isHomepage = location.pathname === '/' || location.pathname === '' || location.pathname === '/index.html';
+  const homeUrl = useBaseUrl('/');
+  const isHomepage = location.pathname === homeUrl || location.pathname === homeUrl.replace(/\/$/, '') || location.pathname === '/index.html';
 
   return (
     <>

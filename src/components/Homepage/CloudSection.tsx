@@ -1,4 +1,5 @@
 import React, {useState, useEffect, type ReactNode} from 'react';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import {CheckIcon, ArrowIcon} from './SharedIcons';
 
 function IdlingIcon(): ReactNode {
@@ -215,10 +216,11 @@ function AutoscaleIllustration(): ReactNode {
 }
 
 function PreviewIllustration(): ReactNode {
+  const previewSvgUrl = useBaseUrl('/img/preview-environments.svg');
   return (
     <div className="preview-illustration" aria-hidden="true">
       <img
-        src="/img/preview-environments.svg"
+        src={previewSvgUrl}
         alt=""
         className="preview-svg"
         loading="lazy"

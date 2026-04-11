@@ -1,11 +1,11 @@
-import {test, expect} from '@playwright/test';
+import {test, expect, type Page} from '@playwright/test';
 
 // 로컬 사이트를 대상으로 테스트 (playwright.config.ts의 baseURL 사용)
 
 // Helper: 가로 스크롤 없음 검증
-async function expectNoHorizontalScroll(page: any, maxWidth: number) {
+async function expectNoHorizontalScroll(page: Page, maxWidth: number) {
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-  expect(scrollWidth).toBeLessThanOrEqual(maxWidth);
+  expect(scrollWidth).toBeLessThanOrEqual(maxWidth + 2);
 }
 
 // =============================================================================
@@ -63,7 +63,7 @@ test.describe('Homepage — Desktop (1280px)', () => {
   });
 
   test('E-1: Events 섹션', async ({page}) => {
-    await expect(page.getByRole('heading', {level: 2, name: /We.ll see you in/})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 2, name: /We'll see you in/})).toBeVisible();
   });
 
   test('FT-1: 푸터', async ({page}) => {

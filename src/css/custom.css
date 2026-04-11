@@ -318,17 +318,6 @@ svg[class*="text-laravel-red"] path {
   .navbar__items--right {
     display: none !important;
   }
-
-  /* 2-line hamburger icon */
-  .navbar__toggle svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .navbar__toggle svg path {
-    d: path("M4 11h22M4 21h22");
-    stroke-width: 2.5px;
-  }
 }
 
 /* Hide default Docusaurus footer on homepage */

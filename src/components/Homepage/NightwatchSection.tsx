@@ -1,7 +1,9 @@
 import React, {type ReactNode} from 'react';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import {CheckIcon, ArrowIcon, NoiseOverlay} from './SharedIcons';
 
 export default function NightwatchSection(): ReactNode {
+  const dashboardUrl = useBaseUrl('/images/home/nightwatch-dashboard.avif');
   return (
     <section className="nightwatch-section">
         <div className="nightwatch-section-gradient" />
@@ -38,7 +40,7 @@ export default function NightwatchSection(): ReactNode {
           <div className="nightwatch-img-outer">
             <div className="nightwatch-img-wrapper">
               <img
-                src="/images/home/nightwatch-dashboard.avif"
+                src={dashboardUrl}
                 alt="Nightwatch dashboard screenshot"
                 className="nightwatch-img"
                 loading="lazy"

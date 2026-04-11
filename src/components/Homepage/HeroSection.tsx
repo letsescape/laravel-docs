@@ -1,15 +1,24 @@
 import React, {useEffect, useRef, useState, type ReactNode} from 'react';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 export default function HeroSection(): ReactNode {
   const [svgContent, setSvgContent] = useState<string>('');
   const svgRef = useRef<HTMLDivElement>(null);
+  const heroSvgUrl = useBaseUrl('/images/home/hero-illustration.svg');
+  const avatarUrl = useBaseUrl('/images/home/taylor-otwell.avif');
+  const heroFallbackUrl = useBaseUrl('/images/home/hero-illustration.png');
 
   useEffect(() => {
-    fetch('/images/home/hero-illustration.svg')
-      .then(res => res.text())
+    const controller = new AbortController();
+    fetch(heroSvgUrl, {signal: controller.signal})
+      .then(res => {
+        if (!res.ok) throw new Error(`Failed to fetch SVG: ${res.status}`);
+        return res.text();
+      })
       .then(text => setSvgContent(text))
       .catch(() => {});
-  }, []);
+    return () => controller.abort();
+  }, [heroSvgUrl]);
 
   // Set up animations and interactivity after SVG loads
   useEffect(() => {
@@ -46,7 +55,7 @@ export default function HeroSection(): ReactNode {
       img.setAttribute('width', '512');
       img.setAttribute('height', '512');
       img.setAttribute('preserveAspectRatio', 'none');
-      img.setAttributeNS(xlinkNs, 'href', '/images/home/taylor-otwell.avif');
+      img.setAttributeNS(xlinkNs, 'href', avatarUrl);
       defs.appendChild(img);
 
       // Create pattern that uses the image
@@ -331,7 +340,7 @@ export default function HeroSection(): ReactNode {
           ) : (
             <img
               className="hero-illustration-svg"
-              src="/images/home/hero-illustration.png"
+              src={heroFallbackUrl}
               alt=""
             />
           )}

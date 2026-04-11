@@ -1,6 +1,5 @@
-import React, {useState, useCallback, type ReactNode} from 'react';
+import React, {useState, type ReactNode} from 'react';
 import {CheckIcon, ArrowIcon} from './SharedIcons';
-import './homepage.css';
 
 function LaravelFileIcon(): ReactNode {
   return (
@@ -171,11 +170,14 @@ const categories: CodeCategory[] = [
       },
       {
         name: 'UserController.php',
-        code: `#[Middleware('auth')]
-#[Authorize('view', 'flight')]
-public function show(Flight $flight): View
+        code: `class FlightController
 {
-    return view('dashboard', ['user' => $user]);
+    #[Middleware('auth')]
+    #[Authorize('view', 'flight')]
+    public function show(Flight $flight): View
+    {
+        return view('dashboard', ['user' => $user]);
+    }
 }`,
       },
     ],
@@ -275,14 +277,18 @@ Flight::create([
     name: 'Validation',
     files: [
       {
-        name: 'StorePostRequest.php',
-        code: `public function rules(): array
+        name: 'PostController.php',
+        code: `class PostController
 {
-    return [
-        'title' => 'required|max:255',
-        'content' => 'required',
-        'category_id' => 'exists:categories,id',
-    ];
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'content' => 'required',
+        ]);
+
+        // ...
+    }
 }`,
       },
       {
@@ -303,14 +309,16 @@ Flight::create([
     name: 'Storage',
     files: [
       {
-        name: 'PhotoController.php',
-        code: `use Illuminate\\Support\\Facades\\Storage;
-
-$path = $request->file('avatar')->store('avatars', 'public');
-
-Storage::disk('s3')->put('reports/annual.pdf', $contents);
-
-$url = Storage::temporaryUrl('file.jpg', now()->addMinutes(5));`,
+        name: 'PostController.php',
+        code: `class PostController
+{
+    public function store(Request $request)
+    {
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('images', 'public');
+        }
+    }
+}`,
       },
     ],
   },
@@ -330,14 +338,16 @@ $url = Storage::temporaryUrl('file.jpg', now()->addMinutes(5));`,
 }`,
       },
       {
-        name: 'web.php',
-        code: `Route::post('/posts', function (Request $request) {
-    $post = Post::create($request->validated());
+        name: 'PostController.php',
+        code: `class PostController
+{
+    public function store(Request $request)
+    {
+        $post = Post::create($request->all());
 
-    ProcessPost::dispatch($post);
-
-    return redirect('/posts');
-});`,
+        ProcessPost::dispatch($post);
+    }
+}`,
       },
     ],
   },

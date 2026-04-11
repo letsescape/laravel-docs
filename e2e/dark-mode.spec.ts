@@ -1,7 +1,7 @@
-import {test, expect} from '@playwright/test';
+import {test, expect, type Page} from '@playwright/test';
 
 // Helper: color scheme을 설정하고 페이지 로드 후 테마 검증
-async function emulateAndVerifyTheme(page: any, colorScheme: 'dark' | 'light') {
+async function emulateAndVerifyTheme(page: Page, colorScheme: 'dark' | 'light') {
   await page.emulateMedia({colorScheme});
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', colorScheme);

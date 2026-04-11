@@ -1,4 +1,5 @@
 import React, {type ReactNode} from 'react';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 const products = [
   {name: 'Cloud', url: 'https://cloud.laravel.com'},
@@ -54,6 +55,8 @@ const partners = [
 ];
 
 export default function FooterSection(): ReactNode {
+  const legalUrl = useBaseUrl('/legal');
+  const wordmarkUrl = useBaseUrl('/img/title_large.svg');
   return (
     <footer className="hp-footer">
       <div className="container">
@@ -112,7 +115,7 @@ export default function FooterSection(): ReactNode {
             </div>
             <div className="footer-brand-bottom">
               <span>&copy; 2026 Laravel</span>
-              <a href="/legal">Legal</a>
+              <a href={legalUrl}>Legal</a>
               <a href="https://status.laravel.com/" target="_blank" rel="noopener noreferrer">Status</a>
             </div>
           </div>
@@ -178,7 +181,7 @@ export default function FooterSection(): ReactNode {
         {/* Laravel wordmark */}
         <div className="footer-wordmark">
           <img
-            src="/img/title_large.svg"
+            src={wordmarkUrl}
             alt="Laravel"
             className="footer-wordmark-img"
           />

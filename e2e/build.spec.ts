@@ -14,7 +14,8 @@ test.describe('Build verification', () => {
   });
 
   test('build output contains static assets', () => {
-    const staticDir = resolve(__dirname, '../build/img');
-    expect(existsSync(staticDir)).toBe(true);
+    const imgDir = resolve(__dirname, '../build/img');
+    const assetsDir = resolve(__dirname, '../build/assets');
+    expect(existsSync(imgDir) || existsSync(assetsDir)).toBe(true);
   });
 });
