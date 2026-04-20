@@ -194,6 +194,12 @@ $RECYCLE.BIN/
 .agent-os/
 agent-os/
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # Spec-Kit
 .specify/
 .speckit/

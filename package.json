@@ -14,6 +14,8 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "generate-sidebars": "tsx scripts/generate-sidebars.ts",
     "prepare": "husky"
   },
@@ -43,6 +45,7 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/mdast": "^4.0.4",
     "husky": "^9.1.7",
     "tsx": "^4.21.0"
