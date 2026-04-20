@@ -185,6 +185,7 @@ $RECYCLE.BIN/
 !.claude/memory/.gitkeep
 .claude/plans
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 .remember
 
 # Codex
