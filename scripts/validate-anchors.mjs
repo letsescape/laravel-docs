@@ -62,15 +62,65 @@ function htmlPathFor(url) {
 }
 
 // fenced code block과 inline code를 제거해 코드 샘플 안의 link-like 텍스트가
-// 실제 링크로 오검출되는 것을 막는다. lazy match로 블록을 최소 단위로 소모.
+// 실제 링크로 오검출되는 것을 막는다. indexOf 기반 단순 스캔으로 정규식을
+// 쓰지 않아 ReDoS 위험이 원천 차단된다.
 function stripCode(src) {
-  return src.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
+  let out = '';
+  let i = 0;
+  while (i < src.length) {
+    if (src[i] === '`' && src[i + 1] === '`' && src[i + 2] === '`') {
+      const end = src.indexOf('```', i + 3);
+      if (end < 0) return out;
+      i = end + 3;
+      continue;
+    }
+    if (src[i] === '`') {
+      const end = src.indexOf('`', i + 1);
+      const nl = src.indexOf('\n', i + 1);
+      // inline code는 개행을 넘지 않는다 (CommonMark)
+      if (end < 0 || (nl >= 0 && nl < end)) {
+        out += src[i++];
+        continue;
+      }
+      i = end + 1;
+      continue;
+    }
+    out += src[i++];
+  }
+  return out;
 }
 
-// `[text](url)` 또는 `[text](url "title")` 형태.
-// 모든 문자 클래스가 단순 negated set이고 인접한 반복이 겹치는 문자를 공유하지
-// 않으므로 backtracking이 선형적이다(ReDoS 안전).
-const LINK_RE = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+// `[text](url)` 또는 `[text](url "title")` 패턴을 추출한다.
+// 정규식 백트래킹(예: SonarQube S5852)에 의한 슈퍼리니어 런타임 가능성을
+// 제거하기 위해 순수 indexOf 탐색만 사용한다.
+function extractLinkHrefs(src) {
+  const hrefs = [];
+  let i = 0;
+  while (i < src.length) {
+    const lb = src.indexOf('[', i);
+    if (lb < 0) break;
+    const rb = src.indexOf(']', lb + 1);
+    if (rb < 0) break;
+    if (src[rb + 1] !== '(') {
+      i = rb + 1;
+      continue;
+    }
+    const rp = src.indexOf(')', rb + 2);
+    if (rp < 0) break;
+    let raw = src.slice(rb + 2, rp);
+    // title suffix 제거: 첫 공백/탭/개행 이후는 href가 아님
+    for (let j = 0; j < raw.length; j++) {
+      const c = raw.charCodeAt(j);
+      if (c === 32 || c === 9 || c === 10 || c === 13) {
+        raw = raw.slice(0, j);
+        break;
+      }
+    }
+    if (raw.length > 0) hrefs.push(raw);
+    i = rp + 1;
+  }
+  return hrefs;
+}
 
 if (!existsSync(BUILD_ROOT)) {
   console.error('[validate-anchors] build/ not found. Run `npm run build` first.');
@@ -99,10 +149,16 @@ for (const md of walkMd(DOCS_ROOT)) {
   const versionMatch = srcUrl.match(/^\/docs\/([^/]+)\//);
   const srcVersion = versionMatch ? versionMatch[1] : null;
 
-  for (const match of src.matchAll(LINK_RE)) {
-    const href = match[1];
+  for (const href of extractLinkHrefs(src)) {
     if (!href.includes('#')) continue; // not an anchor reference
-    if (/^(https?:|mailto:)/i.test(href)) continue; // external
+    const lower = href.toLowerCase();
+    if (
+      lower.startsWith('http://') ||
+      lower.startsWith('https://') ||
+      lower.startsWith('mailto:')
+    ) {
+      continue; // external
+    }
 
     let targetUrl;
     let anchor;
