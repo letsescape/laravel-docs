@@ -6,6 +6,7 @@ import replacePlaceholdersPlugin from './src/remark/replace-placeholders';
 import anchorMappingPlugin from './src/remark/anchor-mapping';
 import githubAdmonitionPlugin from './src/remark/github-admonition';
 import styleJsxCleanupPlugin from './src/remark/style-jsx-cleanup';
+import methodClassPlugin from './src/remark/method-class';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -108,6 +109,7 @@ const config: Config = {
           styleJsxCleanupPlugin,
           githubAdmonitionPlugin,
           anchorMappingPlugin,
+          methodClassPlugin,
           replacePlaceholdersPlugin,
           autoLanguagePlugin,
         ],
