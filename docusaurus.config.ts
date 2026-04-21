@@ -4,6 +4,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 import autoLanguagePlugin from './src/remark/auto-language-plugin';
 import replacePlaceholdersPlugin from './src/remark/replace-placeholders';
 import anchorMappingPlugin from './src/remark/anchor-mapping';
+import githubAdmonitionPlugin from './src/remark/github-admonition';
+import styleJsxCleanupPlugin from './src/remark/style-jsx-cleanup';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -103,6 +105,8 @@ const config: Config = {
         // 기타 설정
         editUrl: 'https://github.com/letsescape/laravel-docs-web/tree/main/',
         remarkPlugins: [
+          styleJsxCleanupPlugin,
+          githubAdmonitionPlugin,
           anchorMappingPlugin,
           replacePlaceholdersPlugin,
           autoLanguagePlugin,
