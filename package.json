@@ -47,5 +47,8 @@
     "@types/mdast": "^4.0.4",
     "husky": "^9.1.7",
     "tsx": "^4.21.0"
+  },
+  "overrides": {
+    "webpack": "5.99.9"
   }
 }
