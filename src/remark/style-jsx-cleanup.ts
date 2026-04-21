@@ -26,8 +26,8 @@ export default function styleJsxCleanupPlugin(): Transformer<Root> {
         return;
       }
       node.value = node.value
-        .replace(OPEN_RE, '<style>')
-        .replace(CLOSE_RE, '</style>');
+        .replaceAll(OPEN_RE, '<style>')
+        .replaceAll(CLOSE_RE, '</style>');
     });
   };
 }
