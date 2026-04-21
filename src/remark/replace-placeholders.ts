@@ -7,9 +7,11 @@ import {visit} from 'unist-util-visit';
  * 파일 경로에서 버전 세그먼트를 추출.
  * 예: ".../versioned_docs/version-11.x/mcp.md" → "11.x"
  */
+const VERSION_RE = /versioned_docs[/\\]version-([^/\\]+)[/\\]/;
+
 function extractVersion(filePath: string | undefined): string | null {
   if (!filePath) return null;
-  const m = filePath.match(/versioned_docs[/\\]version-([^/\\]+)[/\\]/);
+  const m = VERSION_RE.exec(filePath);
   return m ? m[1] : null;
 }
 

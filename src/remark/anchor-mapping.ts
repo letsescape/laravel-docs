@@ -1,5 +1,5 @@
 import type {Transformer} from 'unified';
-import type {Heading, Html, Paragraph, Root} from 'mdast';
+import type {Html, Paragraph, Root} from 'mdast';
 import {visit} from 'unist-util-visit';
 
 const ANCHOR_RE = /<a\s+name=["']([^"']+)["']\s*(?:\/?>|>\s*<\/a>)/;
@@ -27,9 +27,9 @@ export default function anchorMappingPlugin(): Transformer<Root> {
     visit(tree, 'paragraph', (para: Paragraph, index, parent) => {
       if (!parent || index == null) return;
       const first = para.children[0];
-      if (!first || first.type !== 'html') return;
+      if (first?.type !== 'html') return;
 
-      const m = (first as Html).value.match(ANCHOR_RE);
+      const m = ANCHOR_RE.exec((first as Html).value);
       if (!m) return;
       const anchorId = m[1];
 
@@ -38,14 +38,13 @@ export default function anchorMappingPlugin(): Transformer<Root> {
       for (let j = index + 1; j < siblings.length; j++) {
         const next = siblings[j];
         if (next.type === 'heading') {
-          const h = next as Heading & {data?: Record<string, unknown>};
           // `data.hProperties.id` 주입 → mdast-to-hast 단계에서 HTML id 속성으로 포함.
           // 브라우저의 앵커 스크롤(`#id`)이 실제로 동작하도록 한다.
           // (Docusaurus 내부 broken-anchor 검증기는 heading text 기반 slug만 수집해
           //  false positive 경고를 낼 수 있으므로, config에서 `onBrokenAnchors: 'ignore'`로 완화.)
-          const data = (h.data ?? {}) as Record<string, unknown>;
+          const data = (next.data ?? {}) as Record<string, unknown>;
           const hProps = (data.hProperties ?? {}) as Record<string, unknown>;
-          h.data = {
+          next.data = {
             ...data,
             id: anchorId,
             hProperties: {...hProps, id: anchorId},

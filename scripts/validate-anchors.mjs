@@ -33,6 +33,9 @@ const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DOCS_ROOT = join(REPO_ROOT, 'versioned_docs');
 const BUILD_ROOT = join(REPO_ROOT, 'build');
 
+// 단순 anchored 패턴, 단일 quantifier — ReDoS 우려 없음. 모듈 스코프에 한 번만 생성.
+const VERSION_URL_RE = /^\/docs\/([^/]+)\//;
+
 function walkMd(dir, acc = []) {
   for (const entry of readdirSync(dir, {withFileTypes: true})) {
     const full = join(dir, entry.name);
@@ -90,8 +93,17 @@ function stripCode(src) {
   return out;
 }
 
+// `[text](url "title")`의 title 부분을 잘라낸 href만 반환한다.
+function stripTitleSuffix(raw) {
+  for (let j = 0; j < raw.length; j++) {
+    const c = raw.codePointAt(j);
+    if (c === 32 || c === 9 || c === 10 || c === 13) return raw.slice(0, j);
+  }
+  return raw;
+}
+
 // `[text](url)` 또는 `[text](url "title")` 패턴을 추출한다.
-// 정규식 백트래킹(예: SonarQube S5852)에 의한 슈퍼리니어 런타임 가능성을
+// 정규식 백트래킹(SonarQube S5852)에 의한 슈퍼리니어 런타임 가능성을
 // 제거하기 위해 순수 indexOf 탐색만 사용한다.
 function extractLinkHrefs(src) {
   const hrefs = [];
@@ -107,15 +119,7 @@ function extractLinkHrefs(src) {
     }
     const rp = src.indexOf(')', rb + 2);
     if (rp < 0) break;
-    let raw = src.slice(rb + 2, rp);
-    // title suffix 제거: 첫 공백/탭/개행 이후는 href가 아님
-    for (let j = 0; j < raw.length; j++) {
-      const c = raw.charCodeAt(j);
-      if (c === 32 || c === 9 || c === 10 || c === 13) {
-        raw = raw.slice(0, j);
-        break;
-      }
-    }
+    const raw = stripTitleSuffix(src.slice(rb + 2, rp));
     if (raw.length > 0) hrefs.push(raw);
     i = rp + 1;
   }
@@ -146,7 +150,7 @@ const broken = [];
 for (const md of walkMd(DOCS_ROOT)) {
   const src = stripCode(readFileSync(md, 'utf-8'));
   const srcUrl = toUrlPath(md);
-  const versionMatch = srcUrl.match(/^\/docs\/([^/]+)\//);
+  const versionMatch = VERSION_URL_RE.exec(srcUrl);
   const srcVersion = versionMatch ? versionMatch[1] : null;
 
   for (const href of extractLinkHrefs(src)) {
