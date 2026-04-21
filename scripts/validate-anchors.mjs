@@ -19,16 +19,19 @@
  *   node scripts/validate-anchors.mjs
  *
  * 종료 코드:
- *   0 — true broken 0건
- *   1 — true broken 1건 이상 발견 (상세 리스트 출력)
+ *   0 — 검증 실패 0건
+ *   1 — 검증 실패 1건 이상 (id 누락 또는 타겟 HTML 누락). 상세 리스트 출력.
+ *   2 — build/ 디렉토리 없음 (선행 빌드 필요).
  */
-import {readFileSync, existsSync, readdirSync, statSync} from 'node:fs';
+import {readFileSync, existsSync, readdirSync} from 'node:fs';
 import {join, relative} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const REPO_ROOT = new URL('..', import.meta.url).pathname;
+// `new URL(...).pathname`은 Windows에서 `/C:/...` 형태이거나 공백이 `%20`으로
+// 인코딩되어 fs API가 해석하지 못한다. fileURLToPath로 플랫폼 중립 경로를 얻는다.
+const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DOCS_ROOT = join(REPO_ROOT, 'versioned_docs');
 const BUILD_ROOT = join(REPO_ROOT, 'build');
-const SLUG_ROOT_FILE = 'installation.md'; // `slug: /` 매핑 파일 (링크 치환 반영)
 
 function walkMd(dir, acc = []) {
   for (const entry of readdirSync(dir, {withFileTypes: true})) {
@@ -45,36 +48,62 @@ function walkMd(dir, acc = []) {
 }
 
 function toUrlPath(mdAbsPath) {
-  const rel = relative(DOCS_ROOT, mdAbsPath);
-  const parts = rel.split('/');
-  const versionDir = parts[0]; // version-12.x
-  const version = versionDir.replace('version-', '');
-  const tail = parts.slice(1).join('/').replace(/\.md$/, '');
+  const rel = relative(DOCS_ROOT, mdAbsPath).split(/[\\/]/);
+  const version = rel[0].replace('version-', '');
+  const tail = rel.slice(1).join('/').replace(/\.md$/, '');
   if (tail === 'installation') return `/docs/${version}/`;
   return `/docs/${version}/${tail}/`;
 }
 
 function htmlPathFor(url) {
-  return join(BUILD_ROOT, url, 'index.html');
+  // url은 항상 `/`로 시작. leading slash를 제거해 join이 항상 BUILD_ROOT 내부에
+  // 머무르게 한다(POSIX의 path.join도 안전하지만 명시적으로 처리).
+  return join(BUILD_ROOT, url.replace(/^\//, ''), 'index.html');
 }
 
-const LINK_RE = /\[[^\]]*\]\(((?:#[^)]+)|(?:\/docs\/[^)]+#[^)]+))\)/g;
+// fenced code block과 inline code를 제거해 코드 샘플 안의 link-like 텍스트가
+// 실제 링크로 오검출되는 것을 막는다. lazy match로 블록을 최소 단위로 소모.
+function stripCode(src) {
+  return src.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
+}
+
+// `[text](url)` 또는 `[text](url "title")` 형태.
+// 모든 문자 클래스가 단순 negated set이고 인접한 반복이 겹치는 문자를 공유하지
+// 않으므로 backtracking이 선형적이다(ReDoS 안전).
+const LINK_RE = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
 
 if (!existsSync(BUILD_ROOT)) {
   console.error('[validate-anchors] build/ not found. Run `npm run build` first.');
   process.exit(2);
 }
 
+const htmlCache = new Map();
+function readHtml(path) {
+  let cached = htmlCache.get(path);
+  if (cached === undefined) {
+    cached = readFileSync(path, 'utf-8');
+    htmlCache.set(path, cached);
+  }
+  return cached;
+}
+
 let total = 0;
 let ok = 0;
 let missingHtml = 0;
+let idNotFound = 0;
 const broken = [];
 
 for (const md of walkMd(DOCS_ROOT)) {
-  const src = readFileSync(md, 'utf-8');
+  const src = stripCode(readFileSync(md, 'utf-8'));
   const srcUrl = toUrlPath(md);
+  const versionMatch = srcUrl.match(/^\/docs\/([^/]+)\//);
+  const srcVersion = versionMatch ? versionMatch[1] : null;
+
   for (const match of src.matchAll(LINK_RE)) {
     const href = match[1];
+    if (!href.includes('#')) continue; // not an anchor reference
+    if (/^(https?:|mailto:)/i.test(href)) continue; // external
+
     let targetUrl;
     let anchor;
     if (href.startsWith('#')) {
@@ -84,16 +113,17 @@ for (const md of walkMd(DOCS_ROOT)) {
       const hashIdx = href.indexOf('#');
       let path = href.slice(0, hashIdx);
       anchor = href.slice(hashIdx + 1);
-      // `{{version}}` 치환 (remark 플러그인과 동일)
-      const srcVersionMatch = srcUrl.match(/^\/docs\/([^/]+)\//);
-      if (srcVersionMatch) {
-        path = path.replaceAll('{{version}}', srcVersionMatch[1]);
+      if (srcVersion) path = path.replaceAll('{{version}}', srcVersion);
+      // 상대 경로는 현재 파일의 버전 루트 기준으로 해석
+      if (!path.startsWith('/') && srcVersion) {
+        path = `/docs/${srcVersion}/${path}`;
       }
-      // `/docs/<ver>/installation` → `/docs/<ver>/` (remark 플러그인과 동일)
+      // remark 플러그인과 동일한 `/installation` → `/` 재작성
       path = path.replace(/^(\/docs\/[^/]+\/)installation$/, '$1');
       if (!path.endsWith('/')) path += '/';
       targetUrl = path;
     }
+
     total++;
     const hp = htmlPathFor(targetUrl);
     if (!existsSync(hp)) {
@@ -101,20 +131,20 @@ for (const md of walkMd(DOCS_ROOT)) {
       broken.push({md: relative(REPO_ROOT, md), src: srcUrl, target: targetUrl, anchor, reason: 'target HTML missing'});
       continue;
     }
-    const html = readFileSync(hp, 'utf-8');
+    const html = readHtml(hp);
     if (html.includes(`id="${anchor}"`)) {
       ok++;
     } else {
+      idNotFound++;
       broken.push({md: relative(REPO_ROOT, md), src: srcUrl, target: targetUrl, anchor, reason: 'id not found in HTML'});
     }
   }
 }
 
-const trueBroken = broken.length - missingHtml;
 console.log(`Total anchor links:  ${total}`);
 console.log(`  OK (id in HTML):   ${ok}`);
 console.log(`  Target HTML gone:  ${missingHtml}`);
-console.log(`  True broken:       ${trueBroken}`);
+console.log(`  id not found:      ${idNotFound}`);
 
 if (broken.length) {
   console.log('\nBroken details:');
