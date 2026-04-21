@@ -25,6 +25,12 @@ tsconfig.tsbuildinfo
 coverage/
 *.lcov
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # Distribution / packaging
 .Python
 __pycache__/
@@ -103,7 +109,6 @@ docker-compose.local.yml
 *.tmp
 *.swp
 *.swo
-.pytest_cache/
 
 # Log
 *.log
@@ -172,13 +177,16 @@ $RECYCLE.BIN/
 .windsurf/*
 
 # Claude
-.claude/.supermemory-claude/config.json
+**/CLAUDE.md
+!/CLAUDE.md
 .claude/commands/speckit.*
 .claude/hooks/.permissions-checked
 .claude/memory/*
 !.claude/memory/.gitkeep
 .claude/plans
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
+.remember
 
 # Codex
 .codex/commands/speckit.*
@@ -198,3 +206,6 @@ agent-os/
 .specify/
 .speckit/
 specs/
+
+# etc
+.cmux
