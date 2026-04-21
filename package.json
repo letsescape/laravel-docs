@@ -15,6 +15,7 @@
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
     "generate-sidebars": "tsx scripts/generate-sidebars.ts",
+    "validate-anchors": "node scripts/validate-anchors.mjs",
     "prepare": "husky"
   },
   "repository": {

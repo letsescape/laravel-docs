@@ -2,6 +2,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import autoLanguagePlugin from './src/remark/auto-language-plugin';
+import replacePlaceholdersPlugin from './src/remark/replace-placeholders';
+import anchorMappingPlugin from './src/remark/anchor-mapping';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -23,8 +25,14 @@ const config: Config = {
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
+  // Docusaurus의 broken-anchor 검증기는 heading 텍스트 기반 slug만 수집하고
+  // `data.hProperties.id`(anchor-mapping 플러그인이 주입한 실제 HTML id)를 인식하지 못해
+  // 대량의 false positive 경고를 낸다. 실제 브라우저 앵커 동작은 HTML id 기반이라 정상.
+  // 진짜 broken anchor는 별도 검증 스크립트(scripts/validate-anchors.mjs)로 잡는다.
+  onBrokenAnchors: 'ignore',
 
-  // MDX 파싱 오류를 무시하도록 설정
+  // Docusaurus 확장 문법({#id}, admonitions 등)과 CommonMark 자동 감지를 위해 detect 유지.
+  // Blade/Livewire 특수문자는 Prism 코드 블록 내에서 토큰화되므로 실제 렌더링에 영향 없음.
   markdown: {
     format: 'detect',
     mdx1Compat: {
@@ -94,7 +102,24 @@ const config: Config = {
         },
         // 기타 설정
         editUrl: 'https://github.com/letsescape/laravel-docs-web/tree/main/',
-        remarkPlugins: [autoLanguagePlugin],
+        remarkPlugins: [
+          anchorMappingPlugin,
+          replacePlaceholdersPlugin,
+          autoLanguagePlugin,
+        ],
+        // origin/ 하위는 Laravel 원본 보관용. `{{version}}` 등 서버사이드 템플릿이
+        // 남아있어 문서로 렌더링하면 링크가 깨지므로 사이트에서 제외.
+        // documentation.md는 사이드바 시드(generate-sidebars.ts가 origin/documentation.md를 읽음)
+        // 이며 문서 페이지로 노출할 필요가 없고, 미번역 버전이 링크 깨짐의 원인이 되므로 제외.
+        exclude: [
+          '**/origin/**',
+          '**/documentation.md',
+          // Docusaurus 기본 exclude 유지
+          '**/_*.{js,jsx,ts,tsx,md,mdx}',
+          '**/_*/**',
+          '**/*.test.{js,jsx,ts,tsx}',
+          '**/__tests__/**',
+        ],
       },
     ],
   ],
