@@ -264,7 +264,7 @@ export default function HeroSection(): ReactNode {
               p.setAttribute('fill', 'white');
               (p as SVGElement).style.cssText += 'fill: white !important;';
             } else if ((p as SVGElement).dataset.origFill !== undefined) {
-              p.setAttribute('fill', (p as SVGElement).dataset.origFill);
+              p.setAttribute('fill', (p as SVGElement).dataset.origFill!);
               (p as SVGElement).style.cssText = (p as SVGElement).style.cssText.replace(/fill:\s*white\s*!important;?/g, '');
             }
           });

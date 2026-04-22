@@ -7,7 +7,7 @@ import {codeExamples} from './data';
 export default function CodeExamples(): ReactNode {
   const [activeTab, setActiveTab] = useState(codeExamples[0].id);
 
-  const activeExample = codeExamples.find(example => example.id === activeTab);
+  const activeExample = codeExamples.find(example => example.id === activeTab) ?? codeExamples[0];
 
   return (
     <section className={styles.codeExamples}>

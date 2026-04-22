@@ -22,11 +22,13 @@ const config: Config = {
   projectName: 'laravel-docs-web', // Usually your repo name.
 
   onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
 
   // MDX 파싱 오류를 무시하도록 설정
   markdown: {
     format: 'detect',
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
     mdx1Compat: {
       comments: false,
       admonitions: false,
@@ -159,7 +161,6 @@ const config: Config = {
     },
 
     navbar: {
-      title: null,
       logo: {
         alt: 'Laravel Logo',
         src: 'img/title_large.svg',
