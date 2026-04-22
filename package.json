@@ -36,10 +36,10 @@
   },
   "dependencies": {
     "@docusaurus/core": "^3.10.0",
-    "@docusaurus/module-type-aliases": "^3.9.2",
-    "@docusaurus/preset-classic": "^3.9.2",
+    "@docusaurus/module-type-aliases": "^3.10.0",
+    "@docusaurus/preset-classic": "^3.10.0",
     "@docusaurus/tsconfig": "^3.10.0",
-    "@docusaurus/types": "^3.9.2",
+    "@docusaurus/types": "^3.10.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.5",
     "typescript": "^6.0.3",

@@ -27,7 +27,6 @@ const config: Config = {
   projectName: 'laravel-docs-web', // Usually your repo name.
 
   onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
   // Docusaurus의 broken-anchor 검증기는 heading 텍스트 기반 slug만 수집하고
   // `data.hProperties.id`(anchor-mapping 플러그인이 주입한 실제 HTML id)를 인식하지 못해
   // 대량의 false positive 경고를 낸다. 실제 브라우저 앵커 동작은 HTML id 기반이라 정상.
@@ -38,6 +37,9 @@ const config: Config = {
   // Blade/Livewire 특수문자는 Prism 코드 블록 내에서 토큰화되므로 실제 렌더링에 영향 없음.
   markdown: {
     format: 'detect',
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
     mdx1Compat: {
       comments: false,
       admonitions: false,
@@ -190,7 +192,6 @@ const config: Config = {
     },
 
     navbar: {
-      title: null,
       logo: {
         alt: 'Laravel Logo',
         src: 'img/title_large.svg',

@@ -30,6 +30,9 @@ coverage/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.playwright-mcp
+/*.png
+/*.jpg
 
 # Distribution / packaging
 .Python
