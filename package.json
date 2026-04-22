@@ -52,6 +52,6 @@
     "tsx": "^4.21.0"
   },
   "overrides": {
-    "webpack": "5.99.9"
+    "webpackbar": "^7.0.0"
   }
 }
