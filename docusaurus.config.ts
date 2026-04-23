@@ -23,6 +23,10 @@ const config: Config = {
 
   onBrokenLinks: 'warn',
 
+  customFields: {
+    chatbotApiUrl: process.env.CHATBOT_API_URL,
+  },
+
   // MDX 파싱 오류를 무시하도록 설정
   markdown: {
     format: 'detect',

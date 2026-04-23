@@ -18,8 +18,13 @@
 tmp/
 temp/
 
-# TypeScript
+# TypeScript compiled output
 tsconfig.tsbuildinfo
+*.tsbuildinfo
+/docusaurus.config.js
+/sidebars.js
+/scripts/**/*.js
+/src/**/*.js
 .eslintcache
 .stylelintcache
 coverage/
