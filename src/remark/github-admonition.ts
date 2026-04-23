@@ -14,6 +14,16 @@ const TYPE_MAP: Record<string, string> = {
   CAUTION: 'warning',
 };
 
+function mergeClassNames(existing: unknown, added: string[]): Array<string | number> {
+  const current = Array.isArray(existing)
+    ? existing.filter((value): value is string | number => typeof value === 'string' || typeof value === 'number')
+    : typeof existing === 'string' || typeof existing === 'number'
+      ? [existing]
+      : [];
+
+  return [...current, ...added];
+}
+
 /**
  * GitHub Flavored Markdown의 alert 문법 `> [!NOTE]` 계열을
  * Docusaurus admonition 스타일로 매핑하는 remark 플러그인.
@@ -57,9 +67,7 @@ export default function githubAdmonitionPlugin(): Transformer<Root> {
         ...data,
         hProperties: {
           ...hProps,
-          className: Array.isArray(existingClass)
-            ? [...(existingClass as unknown[]), ...added]
-            : added,
+          className: mergeClassNames(existingClass, added),
           'data-admonition-type': type,
         },
       };

@@ -4,6 +4,16 @@ import {visit} from 'unist-util-visit';
 
 const METHOD_ANCHOR_RE = /<a\s+name=["']method-[^"']+["']\s*(?:\/?>|>\s*<\/a>)/;
 
+function mergeClassNames(existing: unknown, added: string[]): Array<string | number> {
+  const current = Array.isArray(existing)
+    ? existing.filter((value): value is string | number => typeof value === 'string' || typeof value === 'number')
+    : typeof existing === 'string' || typeof existing === 'number'
+      ? [existing]
+      : [];
+
+  return [...current, ...added];
+}
+
 /**
  * Laravel 공식 문서의 "메서드 목록" 페이지에서 각 메서드 섹션 헤딩에
  * `.collection-method` 클래스를 자동 부여하는 remark 플러그인.
@@ -57,9 +67,7 @@ export default function methodClassPlugin(): Transformer<Root> {
           ...data,
           hProperties: {
             ...hProps,
-            className: Array.isArray(existing)
-              ? [...(existing as unknown[]), ...added]
-              : added,
+            className: mergeClassNames(existing, added),
           },
         };
         break;

@@ -453,7 +453,7 @@ PUT/PATCH | `/profile`                        | update       | profile.update
 Route::singleton('photos.thumbnail', ThumbnailController::class);
 ```
 
-이 예제에서는 `photos` 리소스는 [표준 리소스 라우트](#actions-handled-by-resource-controller)를 모두 갖지만, `thumbnail` 리소스는 다음과 같이 싱글턴 리소스로 등록됩니다.
+이 예제에서는 `photos` 리소스는 [표준 리소스 라우트](#actions-handled-by-resource-controllers)를 모두 갖지만, `thumbnail` 리소스는 다음과 같이 싱글턴 리소스로 등록됩니다.
 
 | Verb      | URI                              | 액션    | 라우트 이름               |
 |-----------|----------------------------------|---------|--------------------------|

@@ -4302,7 +4302,7 @@ logger('Debug message');
 logger('User has logged in.', ['id' => $user->id]);
 ```
 
-함수에 인수를 전달하지 않으면 [로거 인스턴스](/docs/9.x/errors#logging)가 반환됩니다.
+함수에 인수를 전달하지 않으면 [로거 인스턴스](/docs/9.x/logging)가 반환됩니다.
 
 ```
 logger()->error('You are not allowed here.');

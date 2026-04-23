@@ -251,7 +251,7 @@ npm install --save-dev chokidar
 php artisan octane:start --workers=4
 ```
 
-Swoole 애플리케이션 서버를 사용하는 경우, ["태스크 워커"](concurrent-tasks)를 몇 개 실행할지도 추가로 지정할 수 있습니다.
+Swoole 애플리케이션 서버를 사용하는 경우, ["태스크 워커"](#concurrent-tasks)를 몇 개 실행할지도 추가로 지정할 수 있습니다.
 
 ```bash
 php artisan octane:start --workers=4 --task-workers=6

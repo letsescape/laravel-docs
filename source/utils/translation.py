@@ -6,6 +6,7 @@ from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUs
 
 from utils.anchor import validate_anchors
 from utils.common import retry, timeout
+from utils.markdown import sanitize_markdown_for_mdx
 
 
 class AnchorValidationError(Exception):
@@ -17,6 +18,47 @@ SOURCE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _cached_client = None
 _cached_model = None
 _cached_prompt = None
+
+
+def split_text_into_chunks(text, max_chunk_size):
+    """텍스트를 지정된 최대 길이 기준으로 나누되 코드 펜스 내부에서는 자르지 않습니다."""
+    if max_chunk_size <= 0:
+        raise ValueError("max_chunk_size must be positive")
+
+    if len(text) <= max_chunk_size:
+        return [text]
+
+    chunks = []
+    current_chunk = []
+    current_size = 0
+    in_code_block = False
+    fence_delimiter = None
+
+    for line in text.splitlines(keepends=True):
+        stripped = line.lstrip()
+        fence_marker = stripped[:3] if stripped.startswith(("```", "~~~")) else None
+        line_size = len(line)
+
+        if (
+            not in_code_block
+            and current_chunk
+            and current_size + line_size > max_chunk_size
+        ):
+            chunks.append("".join(current_chunk))
+            current_chunk = []
+            current_size = 0
+
+        current_chunk.append(line)
+        current_size += line_size
+
+        if fence_marker and (not in_code_block or fence_marker == fence_delimiter):
+            in_code_block = not in_code_block
+            fence_delimiter = fence_marker if in_code_block else None
+
+    if current_chunk:
+        chunks.append("".join(current_chunk))
+
+    return chunks
 
 
 def get_translation_client():
@@ -138,7 +180,22 @@ def translate_file(source_file, target_file):
         print(f"번역 시작: {source_file}")
 
         system_prompt = _get_system_prompt()
-        translated_content = translate_text_with_openai(content, system_prompt)
+        chunk_size_env = os.environ.get("TRANSLATION_CHUNK_SIZE", "6000")
+        try:
+            chunk_size = int(chunk_size_env)
+            if chunk_size <= 0:
+                raise ValueError
+        except ValueError:
+            print("TRANSLATION_CHUNK_SIZE 환경 변수 값이 유효하지 않음. 기본값 6000 사용.")
+            chunk_size = 6000
+
+        translated_chunks = []
+        chunks = split_text_into_chunks(content, chunk_size)
+        for idx, chunk in enumerate(chunks, start=1):
+            print(f"청크 번역 중: {idx}/{len(chunks)}")
+            translated_chunks.append(translate_text_with_openai(chunk, system_prompt))
+
+        translated_content = sanitize_markdown_for_mdx("".join(translated_chunks))
 
         is_valid, errors = validate_anchors(content, translated_content)
         if not is_valid:

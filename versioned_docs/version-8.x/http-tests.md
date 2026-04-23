@@ -162,7 +162,7 @@ class ExampleTest extends TestCase
 }
 ```
 
-라라벨의 세션은 일반적으로 현재 인증된 사용자의 상태를 저장하는 데 사용됩니다. 이를 위해 `actingAs` 헬퍼 메서드를 이용하면, 특정 사용자를 현재 사용자로 인증할 수 있습니다. 예를 들어, [모델 팩토리](/docs/8.x/database-testing#writing-factories)를 이용해 사용자를 생성하고 인증할 수 있습니다.
+라라벨의 세션은 일반적으로 현재 인증된 사용자의 상태를 저장하는 데 사용됩니다. 이를 위해 `actingAs` 헬퍼 메서드를 이용하면, 특정 사용자를 현재 사용자로 인증할 수 있습니다. 예를 들어, [모델 팩토리](/docs/8.x/database-testing#defining-model-factories)를 이용해 사용자를 생성하고 인증할 수 있습니다.
 
 ```
 <?php
@@ -717,7 +717,6 @@ $view->assertSee('Taylor');
 [assertSessionHasNoErrors](#assert-session-has-no-errors)
 [assertSessionDoesntHaveErrors](#assert-session-doesnt-have-errors)
 [assertSessionMissing](#assert-session-missing)
-[assertSimilarJson](#assert-similar-json)
 [assertStatus](#assert-status)
 [assertSuccessful](#assert-successful)
 [assertUnauthorized](#assert-unauthorized)

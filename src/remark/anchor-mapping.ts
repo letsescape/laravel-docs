@@ -46,7 +46,6 @@ export default function anchorMappingPlugin(): Transformer<Root> {
           const hProps = (data.hProperties ?? {}) as Record<string, unknown>;
           next.data = {
             ...data,
-            id: anchorId,
             hProperties: {...hProps, id: anchorId},
           };
           break;
