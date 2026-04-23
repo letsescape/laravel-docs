@@ -573,6 +573,226 @@
     "message": "Laravel - The PHP Framework for Web Artisans",
     "description": "The image alt text for the homepage"
   },
+  "homepage.cta.title.part1": {
+    "message": "Create without limits.",
+    "description": "CTA 제목 앞"
+  },
+  "homepage.cta.title.part2": {
+    "message": "What will you ship?",
+    "description": "CTA 제목 뒤"
+  },
+  "homepage.cta.deploy": {
+    "message": "Deploy on Cloud",
+    "description": "CTA - 클라우드 배포 버튼"
+  },
+  "homepage.cta.docs": {
+    "message": "View framework docs",
+    "description": "CTA - 프레임워크 문서 보기"
+  },
+  "homepage.cloud.badge.idling": {
+    "message": "Idling",
+    "description": "Cloud 상태 - 유휴"
+  },
+  "homepage.cloud.badge.scalingUp": {
+    "message": "Scaling up",
+    "description": "Cloud 상태 - 스케일 업"
+  },
+  "homepage.cloud.badge.scalingDown": {
+    "message": "Scaling down",
+    "description": "Cloud 상태 - 스케일 다운"
+  },
+  "homepage.cloud.title": {
+    "message": "Laravel Cloud takes you from local to live in seconds",
+    "description": "Cloud 카드 제목"
+  },
+  "homepage.cloud.desc": {
+    "message": "Stop guessing how many servers you need. Autoscale under load and hibernate when idle. Only pay for what you actually use.",
+    "description": "Cloud 카드 설명"
+  },
+  "homepage.cloud.feature.dashboard": {
+    "message": "Full control via dashboard or CLI",
+    "description": "Cloud 기능 1"
+  },
+  "homepage.cloud.feature.databases": {
+    "message": "Instantly add databases, workers, cache, and storage",
+    "description": "Cloud 기능 2"
+  },
+  "homepage.cloud.cta": {
+    "message": "Explore Laravel Cloud",
+    "description": "Cloud CTA 링크"
+  },
+  "homepage.preview.title": {
+    "message": "Check pull requests from your team (or agents) in preview environments",
+    "description": "Preview 카드 제목"
+  },
+  "homepage.preview.desc": {
+    "message": "Review every change in Cloud's zero-risk, production-like preview environment before it ever hits your main branch.",
+    "description": "Preview 카드 설명"
+  },
+  "homepage.preview.feature.ghActions": {
+    "message": "Integrates seamlessly with GitHub Actions",
+    "description": "Preview 기능 1"
+  },
+  "homepage.preview.feature.migrations": {
+    "message": "Safely test migrations and heavy changes",
+    "description": "Preview 기능 2"
+  },
+  "homepage.preview.cta": {
+    "message": "Explore Preview Environments",
+    "description": "Preview CTA 링크"
+  },
+  "homepage.events.label": {
+    "message": "Events",
+    "description": "Events 섹션 라벨"
+  },
+  "homepage.events.title.city": {
+    "message": "Events",
+    "description": "Events 섹션 제목 - 강조 단어"
+  },
+  "homepage.events.title.suffix": {
+    "message": " bring us together",
+    "description": "Events 섹션 제목 접미사 (강조 단어 뒤에 옴)"
+  },
+  "homepage.events.desc": {
+    "message": "Laravel is best known for its amazing community, where online friendships transform into real-world connections at Laracons, Lives, and meetups in over 34 countries.",
+    "description": "Events 섹션 설명"
+  },
+  "homepage.events.cta": {
+    "message": "Find nearby meetups",
+    "description": "Events CTA 링크"
+  },
+  "homepage.events.ticket": {
+    "message": "Claim your ticket",
+    "description": "이벤트 티켓 CTA"
+  },
+  "homepage.events.nav.prev": {
+    "message": "Previous event",
+    "description": "이벤트 캐러셀 이전 버튼 aria-label"
+  },
+  "homepage.events.nav.next": {
+    "message": "Next event",
+    "description": "이벤트 캐러셀 다음 버튼 aria-label"
+  },
+  "homepage.frontend.title": {
+    "message": "The perfect partner for any frontend",
+    "description": "Frontend 섹션 제목"
+  },
+  "homepage.frontend.desc": {
+    "message": "Use Laravel and Inertia to effortlessly build frontend experiences with React, Vue, and Svelte. Or speed up frontend development with Livewire.",
+    "description": "Frontend 섹션 설명"
+  },
+  "homepage.frontend.cta": {
+    "message": "Explore frontend",
+    "description": "Frontend CTA 링크"
+  },
+  "homepage.hero.title.part1": {
+    "message": "The clean stack for",
+    "description": "Hero H1 앞부분"
+  },
+  "homepage.hero.title.part2": {
+    "message": "Artisans and agents.",
+    "description": "Hero H1 뒷부분"
+  },
+  "homepage.hero.subtitle.part1": {
+    "message": "Laravel is batteries-included so everyone can",
+    "description": "Hero 서브타이틀 앞부분"
+  },
+  "homepage.hero.subtitle.part2": {
+    "message": "build and ship web apps at ridiculous speed.",
+    "description": "Hero 서브타이틀 뒷부분"
+  },
+  "homepage.hero.cta.viewDocs": {
+    "message": "View framework docs",
+    "description": "Hero CTA 버튼"
+  },
+  "homepage.nightwatch.title": {
+    "message": "Monitor and resolve issues with Nightwatch",
+    "description": "Nightwatch 섹션 제목"
+  },
+  "homepage.nightwatch.desc": {
+    "message": "Laravel Nightwatch gives your team complete observability, so you can catch application errors and key performance issues before anyone notices.",
+    "description": "Nightwatch 섹션 설명"
+  },
+  "homepage.nightwatch.feature.fix": {
+    "message": "Fix errors and performance issues with recommended solutions",
+    "description": "Nightwatch 기능 1"
+  },
+  "homepage.nightwatch.feature.trace": {
+    "message": "Trace requests, jobs, logs, commands, cache, and more",
+    "description": "Nightwatch 기능 2"
+  },
+  "homepage.nightwatch.feature.mcp": {
+    "message": "Let agents fix code directly with Nightwatch MCP",
+    "description": "Nightwatch 기능 3"
+  },
+  "homepage.nightwatch.cta": {
+    "message": "Explore Nightwatch",
+    "description": "Nightwatch CTA 링크"
+  },
+  "homepage.nightwatch.img.alt": {
+    "message": "Nightwatch dashboard screenshot",
+    "description": "Nightwatch 대시보드 이미지 alt"
+  },
+  "homepage.ai.heading.prefix": {
+    "message": "Ship web apps with the ",
+    "description": "AI 섹션 헤딩 앞부분"
+  },
+  "homepage.ai.heading.enabled": {
+    "message": "AI-enabled",
+    "description": "AI 섹션 헤딩 - AI 활성"
+  },
+  "homepage.ai.heading.ready": {
+    "message": "AI-ready",
+    "description": "AI 섹션 헤딩 - AI 준비"
+  },
+  "homepage.ai.toggle.aria": {
+    "message": "Toggle AI",
+    "description": "AI 토글 버튼 aria-label"
+  },
+  "homepage.ai.heading.framework": {
+    "message": "framework.",
+    "description": "AI 섹션 헤딩 - 프레임워크"
+  },
+  "homepage.ai.subtext": {
+    "message": "We're ready when you're ready",
+    "description": "AI 섹션 서브텍스트"
+  },
+  "homepage.framework.heading.part1": {
+    "message": "A framework for",
+    "description": "Framework 섹션 제목 앞"
+  },
+  "homepage.framework.heading.part2": {
+    "message": "developers and agents",
+    "description": "Framework 섹션 제목 뒤"
+  },
+  "homepage.framework.desc": {
+    "message": "Laravel has opinions on everything: routing, queues, authentication, and more. That's thousands of decisions an agent doesn't have to make. The result? Clean code anyone can understand.",
+    "description": "Framework 섹션 설명"
+  },
+  "homepage.framework.feature.starterKits": {
+    "message": "Starter kits for React, Vue, and Svelte",
+    "description": "기능 목록 - 스타터 키트"
+  },
+  "homepage.framework.feature.aiSdk": {
+    "message": "AI SDK and AI assistant Boost",
+    "description": "기능 목록 - AI SDK"
+  },
+  "homepage.framework.feature.orm": {
+    "message": "Database ORM, queues, routing, and more",
+    "description": "기능 목록 - ORM"
+  },
+  "homepage.framework.feature.ecosystem": {
+    "message": "Ecosystem of 30+ open source packages",
+    "description": "기능 목록 - 에코시스템"
+  },
+  "homepage.framework.cta": {
+    "message": "Explore the framework",
+    "description": "Framework CTA 링크"
+  },
+  "homepage.framework.tabs.aria": {
+    "message": "Code categories",
+    "description": "카테고리 탭 aria-label"
+  },
   "theme.keywords": {
     "message": "Laravel, PHP framework, PHP artisan, PHP, web development, documentation, tutorial, getting started",
     "description": "The keywords meta tag for the site"

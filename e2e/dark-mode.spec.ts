@@ -37,12 +37,20 @@ test.describe('Dark mode', () => {
   test('does not render the bright hero fallback image while the hero SVG is still loading', async ({page}) => {
     await page.emulateMedia({colorScheme: 'dark'});
 
-    let releaseSvgRequest: (() => void) | undefined;
+    let releaseSvgRequest!: () => void;
+    let resolveSvgRequestStarted!: () => void;
     const holdSvgRequest = new Promise<void>(resolve => {
       releaseSvgRequest = resolve;
     });
+    const svgRequestStarted = new Promise<void>(resolve => {
+      resolveSvgRequestStarted = resolve;
+    });
+    const svgResponse = page.waitForResponse(response =>
+      response.url().includes('/images/home/hero-illustration.svg'),
+    );
 
     await page.route('**/images/home/hero-illustration.svg', async route => {
+      resolveSvgRequestStarted();
       await holdSvgRequest;
       await route.continue();
     });
@@ -50,12 +58,12 @@ test.describe('Dark mode', () => {
     await page.goto('/', {waitUntil: 'domcontentloaded'});
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await expect(page.locator('.hero-text-section')).toBeVisible();
-    await page.waitForTimeout(500);
+    await svgRequestStarted;
 
     const fallbackImage = page.locator('img.hero-illustration-svg[src*="hero-illustration.png"]');
     await expect(fallbackImage).toHaveCount(0);
 
-    releaseSvgRequest?.();
-    await page.waitForLoadState('networkidle');
+    releaseSvgRequest();
+    await svgResponse;
   });
 });
