@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState, type ReactNode} from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Translate from '@docusaurus/Translate';
 
 export default function HeroSection(): ReactNode {
   const [svgContent, setSvgContent] = useState<string>('');
@@ -314,13 +315,19 @@ export default function HeroSection(): ReactNode {
         {/* child 1: hero text section */}
         <section className="hero-text-section">
           <div className="hero-text-inner">
-            <h1 className="hero-h1">The clean stack for{' '}<span className="hero-h1-br" />Artisans and agents.</h1>
+            <h1 className="hero-h1">
+              <Translate id="homepage.hero.title.part1" description="Hero H1 앞부분">Artisan과 에이전트를 위한</Translate>
+              {' '}<span className="hero-h1-br" />
+              <Translate id="homepage.hero.title.part2" description="Hero H1 뒷부분">군더더기 없는 스택.</Translate>
+            </h1>
             <p className="hero-subtitle">
-              Laravel is batteries-included so everyone can{' '}<span className="hero-subtitle-br" />build and ship web apps at ridiculous speed.
+              <Translate id="homepage.hero.subtitle.part1" description="Hero 서브타이틀 앞부분">Laravel은 필요한 것이 모두 갖춰져 있어, 누구나</Translate>
+              {' '}<span className="hero-subtitle-br" />
+              <Translate id="homepage.hero.subtitle.part2" description="Hero 서브타이틀 뒷부분">놀라울 만큼 빠르게 웹 앱을 만들고 출시할 수 있습니다.</Translate>
             </p>
             <div className="hero-buttons">
               <a href="/docs/12.x" className="hero-btn-secondary">
-                View framework docs
+                <Translate id="homepage.hero.cta.viewDocs" description="Hero CTA 버튼">프레임워크 문서 보기</Translate>
               </a>
             </div>
           </div>

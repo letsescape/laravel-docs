@@ -1,4 +1,5 @@
 import React, {type ReactNode} from 'react';
+import Translate from '@docusaurus/Translate';
 import {ArrowIcon, NoiseOverlay} from './SharedIcons';
 
 /* Stroke-based outline icons matching laravel.com style */
@@ -57,15 +58,19 @@ export default function FrontendSection(): ReactNode {
         <NoiseOverlay className="frontend-noise-overlay" />
         <div className="frontend-grid">
           <div className="frontend-info">
-            <h3>The best partner to any{' '}<br className="tablet-br" />front-end</h3>
+            <h3>
+              <Translate id="homepage.frontend.title" description="Frontend 섹션 제목">
+                어떤 프런트엔드와도 어울리는 최고의 파트너
+              </Translate>
+            </h3>
             <p>
-              Easily craft frontend experiences with{' '}<br className="tablet-br" />React, Vue, or Svelte
-              alongside Laravel{' '}<br className="desktop-only-br" /><br className="tablet-br" />and Inertia. Or, accelerate your front-end{' '}<br className="tablet-br" />
-              development with Livewire.
+              <Translate id="homepage.frontend.desc" description="Frontend 섹션 설명">
+                Laravel과 Inertia로 React, Vue, Svelte를 활용한 프런트엔드 경험을 손쉽게 만들어 보세요. 또는 Livewire로 프런트엔드 개발 속도를 끌어올릴 수 있습니다.
+              </Translate>
             </p>
             <div className="frontend-btn-wrapper">
-              <a href="https://laravel.com/docs/frontend" className="explore-btn">
-                Explore front-ends
+              <a href="/docs/12.x/frontend" className="explore-btn">
+                <Translate id="homepage.frontend.cta" description="Frontend CTA 링크">프런트엔드 살펴보기</Translate>
                 <ArrowIcon />
               </a>
             </div>

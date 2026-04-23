@@ -1,4 +1,5 @@
 import React, {useState, useRef, useCallback, useEffect, type ReactNode} from 'react';
+import Translate, {translate} from '@docusaurus/Translate';
 import {ArrowIcon} from './SharedIcons';
 
 const events = [
@@ -7,6 +8,7 @@ const events = [
     date: 'May 26-27',
     year: '2026',
     city: 'Tokyo',
+    cityKo: '도쿄',
     country: 'JP',
     ticketUrl: 'https://laravellive.jp/en',
     image: '/images/home/event-japan.webp',
@@ -18,6 +20,7 @@ const events = [
     date: 'Jun 18-19',
     year: '2026',
     city: 'London',
+    cityKo: '런던',
     country: 'UK',
     ticketUrl: 'https://laravellive.uk/',
     image: '/images/home/event-uk.webp',
@@ -29,6 +32,7 @@ const events = [
     date: 'Jul 28-29',
     year: '2026',
     city: 'Boston',
+    cityKo: '보스턴',
     country: 'US',
     ticketUrl: 'https://laracon.us',
     image: '/images/home/event-us.webp',
@@ -41,6 +45,7 @@ const events = [
     date: 'Aug 20-21',
     year: '2026',
     city: 'Copenhagen',
+    cityKo: '코펜하겐',
     country: 'DK',
     ticketUrl: 'https://laravellive.dk/',
     image: '/images/home/event-dk.webp',
@@ -64,19 +69,19 @@ export default function EventsSection(): ReactNode {
   const activeEvent = events[realIndex];
 
   // City slide-up animation
-  const [displayCity, setDisplayCity] = useState(activeEvent.city);
+  const [displayCity, setDisplayCity] = useState(activeEvent.cityKo);
   const [cityAnimating, setCityAnimating] = useState(false);
 
   useEffect(() => {
-    if (activeEvent.city !== displayCity) {
+    if (activeEvent.cityKo !== displayCity) {
       setCityAnimating(true);
       const timer = setTimeout(() => {
-        setDisplayCity(activeEvent.city);
+        setDisplayCity(activeEvent.cityKo);
         setCityAnimating(false);
       }, 200);
       return () => clearTimeout(timer);
     }
-  }, [activeEvent.city, displayCity]);
+  }, [activeEvent.cityKo, displayCity]);
 
   const handleTransitionEnd = useCallback(() => {
     isTransitioning.current = false;
@@ -119,23 +124,25 @@ export default function EventsSection(): ReactNode {
         <div className="container">
           <div className="events-label">
             <span className="events-bracket">[</span>
-            <span>Events</span>
+            <span><Translate id="homepage.events.label" description="Events 섹션 라벨">Events</Translate></span>
             <span className="events-bracket">]</span>
           </div>
-          <h2>We'll see you in{' '}
+          <h2>
             <span className="events-city-wrapper">
               <span className={`events-city-highlight ${cityAnimating ? 'events-city--out' : 'events-city--in'}`}>
                 {displayCity}
               </span>
             </span>
+            <Translate id="homepage.events.title.suffix" description="Events 섹션 제목 접미사 (도시명 뒤에 옴)">에서 만나요</Translate>
           </h2>
           <p className="events-description">
-            Laravel is best known for its amazing community,{' '}<br className="mobile-br" />where online friendships{' '}<br className="tablet-br" />transform{' '}<br className="desktop-only-br" />
-            into real-{' '}<br className="mobile-br" />world connections at Laracons, Lives, and{' '}<br className="mobile-br" />meetups in over{' '}<br className="tablet-br" />34 countries.
+            <Translate id="homepage.events.desc" description="Events 섹션 설명">
+              라라벨은 멋진 커뮤니티로 유명합니다. 온라인에서 시작된 우정이 34개가 넘는 국가의 Laracon, Live, 밋업에서 실제 만남으로 이어집니다.
+            </Translate>
           </p>
           <div className="events-link-wrapper">
-            <a href="/events" className="explore-btn">
-              Find nearby meetups
+            <a href="https://laravel.com/events" className="explore-btn" target="_blank" rel="noopener noreferrer">
+              <Translate id="homepage.events.cta" description="Events CTA 링크">근처 밋업 찾기</Translate>
               <ArrowIcon />
             </a>
           </div>
@@ -167,7 +174,7 @@ export default function EventsSection(): ReactNode {
                       <div className="events-slide-meta">
                         <div className="events-slide-date">{event.date}</div>
                         <div className="events-slide-year">{event.year}</div>
-                        <div className="events-slide-city">{event.city}</div>
+                        <div className="events-slide-city">{event.cityKo}</div>
                         <div className="events-slide-country">{event.country}</div>
                       </div>
                     </div>
@@ -177,7 +184,7 @@ export default function EventsSection(): ReactNode {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Claim your ticket
+                      <Translate id="homepage.events.ticket" description="이벤트 티켓 CTA">티켓 받기</Translate>
                       <ArrowIcon />
                     </a>
                   </div>
@@ -186,10 +193,10 @@ export default function EventsSection(): ReactNode {
             ))}
           </div>
 
-          <button className="events-nav-btn events-nav-btn--prev" onClick={goPrev} aria-label="Previous event" type="button">
+          <button className="events-nav-btn events-nav-btn--prev" onClick={goPrev} aria-label={translate({id: 'homepage.events.nav.prev', message: '이전 이벤트', description: '이벤트 캐러셀 이전 버튼 aria-label'})} type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
-          <button className="events-nav-btn events-nav-btn--next" onClick={goNext} aria-label="Next event" type="button">
+          <button className="events-nav-btn events-nav-btn--next" onClick={goNext} aria-label={translate({id: 'homepage.events.nav.next', message: '다음 이벤트', description: '이벤트 캐러셀 다음 버튼 aria-label'})} type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
           </button>
         </div>
