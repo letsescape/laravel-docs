@@ -1,3 +1,7 @@
+// Homepage 컴포넌트들의 <Translate> / translate() 메시지는 컴포넌트 내
+// 기본값으로 한국어 카피를 담고 있다. 번역 파일로 분리해 관리하려면
+//   npx docusaurus write-translations --locale ko
+// 을 실행해 i18n/ko/code.json 에 추출한 뒤 운영하면 된다.
 import React, {useEffect, useRef, useState, type ReactNode} from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import Translate from '@docusaurus/Translate';
