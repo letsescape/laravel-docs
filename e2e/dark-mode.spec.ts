@@ -33,4 +33,29 @@ test.describe('Dark mode', () => {
   test('light mode can be activated via color scheme emulation', async ({page}) => {
     await emulateAndVerifyTheme(page, 'light');
   });
+
+  test('does not render the bright hero fallback image while the hero SVG is still loading', async ({page}) => {
+    await page.emulateMedia({colorScheme: 'dark'});
+
+    let releaseSvgRequest: (() => void) | undefined;
+    const holdSvgRequest = new Promise<void>(resolve => {
+      releaseSvgRequest = resolve;
+    });
+
+    await page.route('**/images/home/hero-illustration.svg', async route => {
+      await holdSvgRequest;
+      await route.continue();
+    });
+
+    await page.goto('/', {waitUntil: 'domcontentloaded'});
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('.hero-text-section')).toBeVisible();
+    await page.waitForTimeout(500);
+
+    const fallbackImage = page.locator('img.hero-illustration-svg[src*="hero-illustration.png"]');
+    await expect(fallbackImage).toHaveCount(0);
+
+    releaseSvgRequest?.();
+    await page.waitForLoadState('networkidle');
+  });
 });

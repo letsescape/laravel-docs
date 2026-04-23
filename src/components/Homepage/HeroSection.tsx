@@ -4,6 +4,7 @@ import Translate from '@docusaurus/Translate';
 
 export default function HeroSection(): ReactNode {
   const [svgContent, setSvgContent] = useState<string>('');
+  const [svgStatus, setSvgStatus] = useState<'loading' | 'loaded' | 'failed'>('loading');
   const svgRef = useRef<HTMLDivElement>(null);
   const heroSvgUrl = useBaseUrl('/images/home/hero-illustration.svg');
   const avatarUrl = useBaseUrl('/images/home/taylor-otwell.avif');
@@ -11,13 +12,21 @@ export default function HeroSection(): ReactNode {
 
   useEffect(() => {
     const controller = new AbortController();
+    setSvgStatus('loading');
+    setSvgContent('');
     fetch(heroSvgUrl, {signal: controller.signal})
       .then(res => {
         if (!res.ok) throw new Error(`Failed to fetch SVG: ${res.status}`);
         return res.text();
       })
-      .then(text => setSvgContent(text))
-      .catch(() => {});
+      .then(text => {
+        setSvgContent(text);
+        setSvgStatus('loaded');
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setSvgStatus('failed');
+      });
     return () => controller.abort();
   }, [heroSvgUrl]);
 
@@ -344,13 +353,13 @@ export default function HeroSection(): ReactNode {
               className="hero-illustration-svg"
               dangerouslySetInnerHTML={{__html: svgContent}}
             />
-          ) : (
+          ) : svgStatus === 'failed' ? (
             <img
               className="hero-illustration-svg"
               src={heroFallbackUrl}
               alt=""
             />
-          )}
+          ) : null}
         </div>
 
         {/* child 3: grain noise overlay */}
