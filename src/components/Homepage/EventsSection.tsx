@@ -1,4 +1,4 @@
-import React, {useState, useRef, useCallback, useEffect, type ReactNode} from 'react';
+import React, {useState, useRef, useCallback, type ReactNode} from 'react';
 import Translate, {translate} from '@docusaurus/Translate';
 import {ArrowIcon} from './SharedIcons';
 
@@ -65,23 +65,9 @@ export default function EventsSection(): ReactNode {
   // Build slides: [clone-last, ...originals, clone-first]
   const slides = [events[total - 1], ...events, events[0]];
 
-  const realIndex = ((pos - 1) % total + total) % total;
-  const activeEvent = events[realIndex];
-
-  // City slide-up animation
-  const [displayCity, setDisplayCity] = useState(activeEvent.cityKo);
-  const [cityAnimating, setCityAnimating] = useState(false);
-
-  useEffect(() => {
-    if (activeEvent.cityKo !== displayCity) {
-      setCityAnimating(true);
-      const timer = setTimeout(() => {
-        setDisplayCity(activeEvent.cityKo);
-        setCityAnimating(false);
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [activeEvent.cityKo, displayCity]);
+  // 캐러셀 비활성 동안 displayCity / cityAnimating 애니메이션 상태 제거.
+  // 재활성 시 H2 의 <Translate id="homepage.events.title.city"> 자리를
+  // {displayCity} 로 돌리고 관련 state / useEffect 를 복구할 것.
 
   const handleTransitionEnd = useCallback(() => {
     isTransitioning.current = false;
@@ -129,11 +115,11 @@ export default function EventsSection(): ReactNode {
           </div>
           <h2>
             <span className="events-city-wrapper">
-              <span className={`events-city-highlight ${cityAnimating ? 'events-city--out' : 'events-city--in'}`}>
-                {displayCity}
+              <span className="events-city-highlight events-city--in">
+                <Translate id="homepage.events.title.city" description="Events 섹션 제목 - 강조 단어">이벤트</Translate>
               </span>
             </span>
-            <Translate id="homepage.events.title.suffix" description="Events 섹션 제목 접미사 (도시명 뒤에 옴)">에서 만나요</Translate>
+            <Translate id="homepage.events.title.suffix" description="Events 섹션 제목 접미사 (강조 단어 뒤에 옴)">에서 만나요</Translate>
           </h2>
           <p className="events-description">
             <Translate id="homepage.events.desc" description="Events 섹션 설명">
@@ -149,7 +135,8 @@ export default function EventsSection(): ReactNode {
         </div>
       </section>
 
-      {/* Carousel - single track, slides overflow into viewport gutters */}
+      {/* Carousel - 일시 비활성화 (단일 트랙, 슬라이드가 뷰포트 거터로 넘침) */}
+      {false && (
       <section className="events-carousel-section">
         <div className="events-carousel-container">
           <div
@@ -201,6 +188,7 @@ export default function EventsSection(): ReactNode {
           </button>
         </div>
       </section>
+      )}
     </>
   );
 }
