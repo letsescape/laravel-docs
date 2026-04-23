@@ -1,5 +1,6 @@
 import React, {type ReactNode} from 'react';
 import Translate from '@docusaurus/Translate';
+import Link from '@docusaurus/Link';
 import {ArrowIcon, NoiseOverlay} from './SharedIcons';
 
 /* Stroke-based outline icons matching laravel.com style */
@@ -69,10 +70,10 @@ export default function FrontendSection(): ReactNode {
               </Translate>
             </p>
             <div className="frontend-btn-wrapper">
-              <a href="/docs/12.x/frontend" className="explore-btn">
+              <Link to="/docs/12.x/frontend" className="explore-btn">
                 <Translate id="homepage.frontend.cta" description="Frontend CTA 링크">프런트엔드 살펴보기</Translate>
                 <ArrowIcon />
-              </a>
+              </Link>
             </div>
           </div>
 

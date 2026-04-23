@@ -2,6 +2,9 @@ import React, {useState, useRef, useCallback, type ReactNode} from 'react';
 import Translate, {translate} from '@docusaurus/Translate';
 import {ArrowIcon} from './SharedIcons';
 
+// 캐러셀 일시 비활성 플래그. 재활성 시 true 로 변경.
+const SHOW_CAROUSEL = false;
+
 const events = [
   {
     name: 'Laravel Live Japan',
@@ -136,7 +139,7 @@ export default function EventsSection(): ReactNode {
       </section>
 
       {/* Carousel - 일시 비활성화 (단일 트랙, 슬라이드가 뷰포트 거터로 넘침) */}
-      {false && (
+      {SHOW_CAROUSEL && (
       <section className="events-carousel-section">
         <div className="events-carousel-container">
           <div
