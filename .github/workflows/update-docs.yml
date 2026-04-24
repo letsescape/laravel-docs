@@ -28,11 +28,11 @@ jobs:
         run: uv python install 3.11
 
       - name: Install dependencies
-        working-directory: source
+        working-directory: .github/docs-updater
         run: uv sync
 
       - name: Run update script
-        working-directory: source
+        working-directory: .github/docs-updater
         run: uv run python main.py
         timeout-minutes: 180
         env:

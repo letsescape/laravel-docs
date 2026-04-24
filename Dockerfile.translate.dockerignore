@@ -8,8 +8,8 @@ node_modules/
 build/
 dist/
 .docusaurus/
-source/.venv/
-source/.pytest_cache/
+.github/docs-updater/.venv/
+.github/docs-updater/.pytest_cache/
 *.log
 .env
 .env.*

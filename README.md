@@ -42,7 +42,7 @@ docker run -p 3000:3000 laravel-docs
 
 ### 번역 실행
 
-1. `source/.env.example` 파일을 복사하여 `source/.env` 파일을 만들고 번역 제공자를 설정합니다.
+1. `.github/docs-updater/.env.example` 파일을 복사하여 `.github/docs-updater/.env` 파일을 만들고 번역 제공자를 설정합니다.
 
    ```dotenv
    # OpenAI
@@ -65,14 +65,14 @@ docker run -p 3000:3000 laravel-docs
 2. 의존성 설치 및 번역 실행
 
    ```bash
-   cd source
+   cd .github/docs-updater
    uv sync         # 의존성 설치
    uv run main.py  # 번역 실행
    ```
 
 ### Docker로 번역 실행
 
-1. `source/.env.example` 파일을 복사하여 `source/.env` 파일을 만들고 번역 제공자를 설정합니다.
+1. `.github/docs-updater/.env.example` 파일을 복사하여 `.github/docs-updater/.env` 파일을 만들고 번역 제공자를 설정합니다.
 
 2. Docker로 번역 실행
 
