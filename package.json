@@ -16,7 +16,6 @@
     "typecheck": "tsc",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "generate-sidebars": "tsx scripts/generate-sidebars.ts",
     "prepare": "husky"
   },
   "repository": {
@@ -47,7 +46,6 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@types/mdast": "^4.0.4",
-    "husky": "^9.1.7",
-    "tsx": "^4.21.0"
+    "husky": "^9.1.7"
   }
 }

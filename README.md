@@ -27,10 +27,9 @@ npm install
 npm start
 ```
 
-사이드바 생성 및 타입 검사:
+타입 검사:
 
 ```bash
-npm run generate-sidebars
 npm run typecheck
 ```
 
