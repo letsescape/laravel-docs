@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 import tempfile
 
 import main
@@ -306,3 +307,77 @@ def test_main_returns_nonzero_when_clone_fails(monkeypatch):
     monkeypatch.setattr(main, "clone_docs", lambda *_args: False)
 
     assert main.main() == 1
+
+
+def test_main_retries_rate_limit_once(monkeypatch):
+    class FakeRateLimitError(Exception):
+        pass
+
+    attempts = []
+
+    def fake_translate_file(_source_path, _target_path):
+        attempts.append("attempt")
+        if len(attempts) == 1:
+            raise FakeRateLimitError("rate limit")
+        return True
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        repo_root = Path(tmpdir)
+        updater_root = repo_root / ".github" / "docs-updater"
+        source_dir = updater_root / "source" / "version-12.x"
+        source_dir.mkdir(parents=True)
+        (source_dir / "routing.md").write_text("# Routing\n", encoding="utf-8")
+
+        monkeypatch.setattr(main, "REPO_ROOT", repo_root)
+        monkeypatch.setattr(main, "UPDATER_ROOT", updater_root)
+        monkeypatch.setattr(main.openai, "RateLimitError", FakeRateLimitError)
+        monkeypatch.setattr(main, "BRANCHES", [])
+        monkeypatch.setattr(main, "clone_docs", lambda *_args: True)
+        monkeypatch.setattr(main, "generate_sidebars", lambda *_args: True)
+        monkeypatch.setattr(main, "get_changed_source_files", lambda *_args: [
+            ".github/docs-updater/source/version-12.x/routing.md",
+        ])
+        monkeypatch.setattr(main, "read_translation_delay", lambda: 0)
+        monkeypatch.setattr(main, "translate_file", fake_translate_file)
+        monkeypatch.setattr(main, "stage_outputs", lambda *_args: True)
+        monkeypatch.setattr(main.time, "sleep", lambda *_args: None)
+
+        assert main.main() == 0
+
+    assert len(attempts) == 2
+
+
+def test_main_reports_failure_when_rate_limit_retry_fails(monkeypatch):
+    class FakeRateLimitError(Exception):
+        pass
+
+    attempts = []
+
+    def fake_translate_file(_source_path, _target_path):
+        attempts.append("attempt")
+        raise FakeRateLimitError("rate limit")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        repo_root = Path(tmpdir)
+        updater_root = repo_root / ".github" / "docs-updater"
+        source_dir = updater_root / "source" / "version-12.x"
+        source_dir.mkdir(parents=True)
+        (source_dir / "routing.md").write_text("# Routing\n", encoding="utf-8")
+
+        monkeypatch.setattr(main, "REPO_ROOT", repo_root)
+        monkeypatch.setattr(main, "UPDATER_ROOT", updater_root)
+        monkeypatch.setattr(main.openai, "RateLimitError", FakeRateLimitError)
+        monkeypatch.setattr(main, "BRANCHES", [])
+        monkeypatch.setattr(main, "clone_docs", lambda *_args: True)
+        monkeypatch.setattr(main, "generate_sidebars", lambda *_args: True)
+        monkeypatch.setattr(main, "get_changed_source_files", lambda *_args: [
+            ".github/docs-updater/source/version-12.x/routing.md",
+        ])
+        monkeypatch.setattr(main, "read_translation_delay", lambda: 0)
+        monkeypatch.setattr(main, "translate_file", fake_translate_file)
+        monkeypatch.setattr(main, "stage_outputs", lambda *_args: True)
+        monkeypatch.setattr(main.time, "sleep", lambda *_args: None)
+
+        assert main.main() == 1
+
+    assert len(attempts) == 2

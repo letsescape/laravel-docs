@@ -495,9 +495,13 @@ def main():
         try:
             translate_file(source_path, target_path)
         except openai.RateLimitError:
+            print(f"  RateLimitError 발생. 30초 대기 후 재시도합니다: {file_key}")
             time.sleep(30)
-            failed_files.append(file_key)
-            print(f"  번역 실패: {file_key} - RateLimitError")
+            try:
+                translate_file(source_path, target_path)
+            except Exception as error:
+                failed_files.append(file_key)
+                print(f"  재시도 실패: {file_key} - {type(error).__name__}: {error}")
         except Exception as error:
             failed_files.append(file_key)
             print(f"  번역 실패: {file_key} - {type(error).__name__}: {error}")
