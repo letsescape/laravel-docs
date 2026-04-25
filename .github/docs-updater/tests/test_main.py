@@ -76,16 +76,16 @@ def test_parse_documentation_md_creates_sidebar():
 
 def test_generate_sidebar_writes_versioned_sidebar_json():
     with tempfile.TemporaryDirectory() as tmpdir:
-        origin_dir = os.path.join(tmpdir, "versioned_docs", "version-12.x", "origin")
-        os.makedirs(origin_dir)
+        source_dir = os.path.join(tmpdir, "source", "version-12.x")
+        os.makedirs(source_dir)
         with open(
-            os.path.join(origin_dir, "documentation.md"),
+            os.path.join(source_dir, "documentation.md"),
             "w",
             encoding="utf-8",
         ) as f:
             f.write("- ## Prologue\n    - [Release Notes](/docs/{{version}}/releases)\n")
 
-        assert main.generate_sidebar(tmpdir, "12.x") is True
+        assert main.generate_sidebar(tmpdir, "12.x", updater_root=tmpdir) is True
 
         output = os.path.join(tmpdir, "versioned_sidebars", "version-12.x-sidebars.json")
         with open(output, encoding="utf-8") as f:
@@ -145,7 +145,9 @@ def test_translate_file_validates_after_joined_translation(monkeypatch):
     monkeypatch.setattr(main, "get_system_prompt", lambda: "prompt")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        source_dir = os.path.join(tmpdir, "versioned_docs", "version-12.x", "origin")
+        source_dir = os.path.join(
+            tmpdir, ".github", "docs-updater", "source", "version-12.x"
+        )
         os.makedirs(source_dir)
         source_file = os.path.join(source_dir, "routing.md")
         target_file = os.path.join(tmpdir, "versioned_docs", "version-12.x", "routing.md")
@@ -158,43 +160,76 @@ def test_translate_file_validates_after_joined_translation(monkeypatch):
             assert '<a name="intro"></a>' in f.read()
 
 
-def test_sync_branch_docs_removes_stale_origin_and_translation():
+def test_sync_branch_docs_removes_stale_source_cache_and_translation():
     with tempfile.TemporaryDirectory() as tmpdir:
         upstream = os.path.join(tmpdir, "upstream")
+        source_dir = os.path.join(
+            tmpdir, ".github", "docs-updater", "source", "version-12.x"
+        )
         docs_dir = os.path.join(tmpdir, "versioned_docs", "version-12.x")
-        origin_dir = os.path.join(docs_dir, "origin")
         os.makedirs(upstream)
-        os.makedirs(origin_dir)
+        os.makedirs(source_dir)
+        os.makedirs(docs_dir)
 
         with open(os.path.join(upstream, "routing.md"), "w", encoding="utf-8") as f:
             f.write("# Routing\n")
         with open(os.path.join(upstream, "license.md"), "w", encoding="utf-8") as f:
             f.write("license\n")
-        with open(os.path.join(origin_dir, "old.md"), "w", encoding="utf-8") as f:
+        with open(os.path.join(source_dir, "old.md"), "w", encoding="utf-8") as f:
             f.write("old\n")
         with open(os.path.join(docs_dir, "old.md"), "w", encoding="utf-8") as f:
             f.write("old translated\n")
 
-        main.sync_branch_docs(upstream, docs_dir, {"license.md"})
+        main.sync_branch_docs(upstream, source_dir, docs_dir, {"license.md"})
 
-        assert os.path.exists(os.path.join(origin_dir, "routing.md"))
+        assert os.path.exists(os.path.join(source_dir, "routing.md"))
         assert os.path.exists(os.path.join(docs_dir, "license.md"))
-        assert not os.path.exists(os.path.join(origin_dir, "old.md"))
+        assert not os.path.exists(os.path.join(source_dir, "old.md"))
         assert not os.path.exists(os.path.join(docs_dir, "old.md"))
 
 
-def test_extract_changed_origin_files_from_git_status():
+def test_sync_branch_docs_replaces_version_placeholder_in_excluded_rendered_files():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        upstream = os.path.join(tmpdir, "upstream")
+        source_dir = os.path.join(
+            tmpdir, ".github", "docs-updater", "source", "version-11.x"
+        )
+        docs_dir = os.path.join(tmpdir, "versioned_docs", "version-11.x")
+        os.makedirs(upstream)
+
+        with open(
+            os.path.join(upstream, "documentation.md"),
+            "w",
+            encoding="utf-8",
+        ) as f:
+            f.write("- [Routing](/docs/{{version}}/routing)\n")
+
+        main.sync_branch_docs(upstream, source_dir, docs_dir, {"documentation.md"})
+
+        rendered_file = os.path.join(docs_dir, "documentation.md")
+        source_file = os.path.join(source_dir, "documentation.md")
+        with open(rendered_file, encoding="utf-8") as f:
+            rendered = f.read()
+        with open(source_file, encoding="utf-8") as f:
+            source = f.read()
+
+        assert "/docs/11.x/routing" in rendered
+        assert "{{version}}" not in rendered
+        assert "/docs/{{version}}/routing" in source
+
+
+def test_extract_changed_source_files_from_git_status():
     status = (
-        " M versioned_docs/version-12.x/origin/routing.md\n"
-        "?? versioned_docs/version-11.x/origin/new.md\n"
+        " M .github/docs-updater/source/version-12.x/routing.md\n"
+        "?? .github/docs-updater/source/version-11.x/new.md\n"
         " M versioned_docs/version-12.x/routing.md\n"
-        " D versioned_docs/version-10.x/origin/old.md\n"
+        " D .github/docs-updater/source/version-10.x/old.md\n"
     )
 
-    assert main.extract_changed_origin_files(status) == [
-        "versioned_docs/version-10.x/origin/old.md",
-        "versioned_docs/version-11.x/origin/new.md",
-        "versioned_docs/version-12.x/origin/routing.md",
+    assert main.extract_changed_source_files(status) == [
+        ".github/docs-updater/source/version-10.x/old.md",
+        ".github/docs-updater/source/version-11.x/new.md",
+        ".github/docs-updater/source/version-12.x/routing.md",
     ]
 
 

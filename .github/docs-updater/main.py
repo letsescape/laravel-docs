@@ -72,17 +72,22 @@ def docs_dir_for(repo_root, branch):
     return Path(repo_root) / "versioned_docs" / f"version-{branch}"
 
 
-def sync_branch_docs(upstream_dir, docs_dir, excluded_files):
+def source_dir_for(updater_root, branch):
+    return Path(updater_root) / "source" / f"version-{branch}"
+
+
+def sync_branch_docs(upstream_dir, source_dir, docs_dir, excluded_files):
     upstream_path = Path(upstream_dir)
+    source_path = Path(source_dir)
     docs_path = Path(docs_dir)
-    origin_path = docs_path / "origin"
-    origin_path.mkdir(parents=True, exist_ok=True)
+    version = source_path.name.removeprefix("version-")
+    source_path.mkdir(parents=True, exist_ok=True)
     docs_path.mkdir(parents=True, exist_ok=True)
 
     markdown_files = sorted(path.name for path in upstream_path.glob("*.md"))
     current_files = set(markdown_files)
 
-    for existing in origin_path.glob("*.md"):
+    for existing in source_path.glob("*.md"):
         if existing.name not in current_files:
             existing.unlink()
             translated = docs_path / existing.name
@@ -93,9 +98,11 @@ def sync_branch_docs(upstream_dir, docs_dir, excluded_files):
     excluded = {name.lower() for name in excluded_files}
     for filename in markdown_files:
         source = upstream_path / filename
-        shutil.copy2(source, origin_path / filename)
+        shutil.copy2(source, source_path / filename)
         if filename.lower() in excluded:
-            shutil.copy2(source, docs_path / filename)
+            content = source.read_text(encoding="utf-8")
+            rendered = replace_version_placeholder(content, version)
+            (docs_path / filename).write_text(rendered, encoding="utf-8")
 
 
 def parse_documentation_md(content, version):
@@ -139,15 +146,9 @@ def parse_documentation_md(content, version):
     return sidebar
 
 
-def generate_sidebar(repo_root, version):
+def generate_sidebar(repo_root, version, updater_root=UPDATER_ROOT):
     repo_path = Path(repo_root)
-    source = (
-        repo_path
-        / "versioned_docs"
-        / f"version-{version}"
-        / "origin"
-        / "documentation.md"
-    )
+    source = source_dir_for(updater_root, version) / "documentation.md"
     target = repo_path / "versioned_sidebars" / f"version-{version}-sidebars.json"
 
     if not source.exists():
@@ -161,15 +162,15 @@ def generate_sidebar(repo_root, version):
     return True
 
 
-def generate_sidebars(repo_root, branches=BRANCHES):
+def generate_sidebars(repo_root, branches=BRANCHES, updater_root=UPDATER_ROOT):
     ok = True
     for branch in branches:
         if branch != "master":
-            ok = generate_sidebar(repo_root, branch) and ok
+            ok = generate_sidebar(repo_root, branch, updater_root=updater_root) and ok
     return ok
 
 
-def extract_changed_origin_files(status_output):
+def extract_changed_source_files(status_output):
     changed = set()
     for line in status_output.splitlines():
         if not line.strip() or len(line) < 4:
@@ -180,15 +181,18 @@ def extract_changed_origin_files(status_output):
             path = path.rsplit(" -> ", 1)[1]
 
         normalized = path.replace("\\", "/")
-        if re.match(r"^versioned_docs/version-[^/]+/origin/[^/]+\.md$", normalized):
+        if re.match(
+            r"^\.github/docs-updater/source/version-[^/]+/[^/]+\.md$",
+            normalized,
+        ):
             changed.add(normalized)
 
     return sorted(changed)
 
 
-def get_changed_origin_files(repo_root):
+def get_changed_source_files(repo_root):
     status = run_command(["git", "status", "--porcelain"], cwd=repo_root)
-    return extract_changed_origin_files(status)
+    return extract_changed_source_files(status)
 
 
 def replace_version_placeholder(content, version):
@@ -342,7 +346,7 @@ def translate_markdown_content(content, system_prompt, max_lines=MAX_CHUNK_LINES
 
 def extract_version_from_path(path):
     normalized = str(path).replace("\\", "/")
-    match = re.search(r"versioned_docs/version-([^/]+)/origin/", normalized)
+    match = re.search(r"\.github/docs-updater/source/version-([^/]+)/", normalized)
     return match.group(1) if match else None
 
 
@@ -380,9 +384,12 @@ def translate_file(source_file, target_file, max_lines=MAX_CHUNK_LINES):
     return True
 
 
-def parse_origin_file_path(path):
+def parse_source_file_path(path):
     normalized = str(path).replace("\\", "/")
-    match = re.match(r"^versioned_docs/version-([^/]+)/origin/([^/]+\.md)$", normalized)
+    match = re.match(
+        r"^\.github/docs-updater/source/version-([^/]+)/([^/]+\.md)$",
+        normalized,
+    )
     if not match:
         return None, None
     return match.group(1), match.group(2)
@@ -390,7 +397,16 @@ def parse_origin_file_path(path):
 
 def stage_outputs(repo_root):
     try:
-        run_command(["git", "add", "versioned_docs/", "versioned_sidebars/"], cwd=repo_root)
+        run_command(
+            [
+                "git",
+                "add",
+                ".github/docs-updater/source/",
+                "versioned_docs/",
+                "versioned_sidebars/",
+            ],
+            cwd=repo_root,
+        )
         return True
     except subprocess.CalledProcessError as error:
         print(f"변경 사항 정리 실패: {error}")
@@ -423,7 +439,12 @@ def main():
         for branch in BRANCHES:
             try:
                 checkout_branch(temp_dir, branch)
-                sync_branch_docs(temp_dir, docs_dir_for(repo_root, branch), EXCLUDED_FILES)
+                sync_branch_docs(
+                    temp_dir,
+                    source_dir_for(UPDATER_ROOT, branch),
+                    docs_dir_for(repo_root, branch),
+                    EXCLUDED_FILES,
+                )
                 print(f"  동기화 완료: {branch}")
             except Exception as error:
                 has_errors = True
@@ -439,14 +460,14 @@ def main():
     print("[4] 변경 문서 번역")
     failed_files = []
     processed = set()
-    changed_files = get_changed_origin_files(repo_root)
+    changed_files = get_changed_source_files(repo_root)
     delay = read_translation_delay()
 
     if not changed_files:
         print("  번역할 변경 문서 없음")
 
     for relative_path in changed_files:
-        branch, filename = parse_origin_file_path(relative_path)
+        branch, filename = parse_source_file_path(relative_path)
         if not branch or not filename:
             continue
 
