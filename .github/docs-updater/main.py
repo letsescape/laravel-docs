@@ -16,7 +16,7 @@ UPDATER_ROOT = Path(__file__).resolve().parent
 UPSTREAM_REPO = "https://github.com/laravel/docs.git"
 BRANCHES = ["master", "12.x", "11.x", "10.x", "9.x", "8.x"]
 EXCLUDED_FILES = {"license.md", "readme.md", "documentation.md"}
-MAX_CHUNK_LINES = 700
+MAX_CHUNK_LINES = 400
 
 _cached_client = None
 _cached_model = None
@@ -122,7 +122,7 @@ def parse_documentation_md(content, version):
             continue
 
         item = re.match(
-            r"^\s+- \[[^\]]+\]\(/docs/\{\{version\}\}/([^)]+)\)$",
+            r"^\s+- \[[^\]]+\]\(/docs/\{\{\s*version\s*\}\}/([^)]+)\)$",
             line,
         )
         if item and current_category:
@@ -216,6 +216,7 @@ def split_markdown_chunks(content, max_lines=MAX_CHUNK_LINES):
     chunks = []
     current = []
     in_fence = False
+    overflow_limit = max_lines + max(10, max_lines // 5)
 
     for line in lines:
         current.append(line)
@@ -223,7 +224,13 @@ def split_markdown_chunks(content, max_lines=MAX_CHUNK_LINES):
         if _is_fence_line(line):
             in_fence = not in_fence
 
-        if not in_fence and len(current) >= max_lines and not line.strip():
+        if in_fence:
+            continue
+
+        if len(current) >= max_lines and not line.strip():
+            chunks.append("".join(current))
+            current = []
+        elif len(current) >= overflow_limit:
             chunks.append("".join(current))
             current = []
 
@@ -234,7 +241,7 @@ def split_markdown_chunks(content, max_lines=MAX_CHUNK_LINES):
 
 
 def _strip_code(text):
-    text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+    text = re.sub(r"```.*?```|~~~.*?~~~", "", text, flags=re.DOTALL)
     return re.sub(r"`[^`]+`", "", text)
 
 

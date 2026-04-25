@@ -13,6 +13,10 @@ def test_replace_version_placeholder_uses_branch_version():
     )
 
 
+def test_default_chunk_line_limit_is_conservative():
+    assert main.MAX_CHUNK_LINES == 400
+
+
 def test_split_markdown_chunks_uses_blank_boundaries_after_line_limit():
     content = "\n".join(
         [
@@ -57,6 +61,53 @@ def test_split_markdown_chunks_does_not_split_inside_fenced_code():
     assert any("```php\n$items" in chunk and "];\n```" in chunk for chunk in chunks)
 
 
+def test_split_markdown_chunks_does_not_split_inside_tilde_fenced_code():
+    content = "\n".join(
+        [
+            "intro",
+            "",
+            "~~~php",
+            "$items = [",
+            "",
+            "    'first',",
+            "];",
+            "~~~",
+            "",
+            "outro",
+            "",
+        ]
+    )
+
+    chunks = main.split_markdown_chunks(content, max_lines=3)
+
+    assert "".join(chunks) == content
+    assert any("~~~php\n$items" in chunk and "];\n~~~" in chunk for chunk in chunks)
+
+
+def test_split_markdown_chunks_falls_back_without_blank_boundaries():
+    content = "".join(f"line {index}\n" for index in range(30))
+
+    chunks = main.split_markdown_chunks(content, max_lines=3)
+
+    assert "".join(chunks) == content
+    assert all(len(chunk.splitlines()) <= 13 for chunk in chunks)
+
+
+def test_split_markdown_chunks_waits_for_fence_close_before_fallback():
+    content = "intro\n\n```text\n" + "".join(
+        f"line {index}\n" for index in range(20)
+    ) + "```\n\noutro\n"
+
+    chunks = main.split_markdown_chunks(content, max_lines=3)
+
+    assert "".join(chunks) == content
+    assert any(
+        chunk.startswith("intro\n\n```text\n")
+        and "line 19\n```\n" in chunk
+        for chunk in chunks
+    )
+
+
 def test_parse_documentation_md_creates_sidebar():
     content = (
         "- ## Prologue\n"
@@ -72,6 +123,14 @@ def test_parse_documentation_md_creates_sidebar():
     assert sidebar["tutorialSidebar"][1]["collapsed"] is False
     assert sidebar["tutorialSidebar"][1]["items"] == ["installation"]
     assert sidebar["tutorialSidebar"][2]["href"] == "https://api.laravel.com/docs/12.x"
+
+
+def test_parse_documentation_md_accepts_spaced_version_placeholder():
+    content = "- ## Getting Started\n    - [Installation](/docs/{{ version }}/installation)\n"
+
+    sidebar = main.parse_documentation_md(content, "12.x")
+
+    assert sidebar["tutorialSidebar"][0]["items"] == ["installation"]
 
 
 def test_generate_sidebar_writes_versioned_sidebar_json():
@@ -101,6 +160,16 @@ def test_validate_anchors_rejects_missing_anchor():
 
     assert is_valid is False
     assert any("intro" in error for error in errors)
+
+
+def test_validate_anchors_ignores_tilde_fenced_blocks():
+    source = '~~~html\n<a name="example"></a>\n~~~\n'
+    translated = "~~~html\n<!-- translated example -->\n~~~\n"
+
+    is_valid, errors = main.validate_anchors(source, translated)
+
+    assert is_valid is True
+    assert errors == []
 
 
 def test_prepare_translation_content_replaces_version_only():
