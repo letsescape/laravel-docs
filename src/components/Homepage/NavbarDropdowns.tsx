@@ -4,6 +4,9 @@ import './homepage.css';
 
 type DropdownName = 'framework' | 'products' | 'resources' | 'events';
 
+// Resources / Events 드롭다운 일시 비활성 플래그. 재활성 시 true 로 변경.
+const SHOW_DISABLED_NAV = false;
+
 const ALL_PARTNERS = [
   { name: 'Steadfast Collective', slug: 'steadfast-collective' },
   { name: 'Tighten', slug: 'tighten' },
@@ -133,7 +136,8 @@ export default function NavbarDropdowns(): ReactNode {
     <div ref={wrapperRef} className="nav-dropdowns-wrapper">
       {/* Dropdown triggers */}
       <div className="nav-dropdown-triggers">
-        {(['framework', 'products', 'resources', 'events'] as DropdownName[]).map(name => (
+        {/* Resources/Events 메뉴 일시 비활성화 */}
+        {(['framework', 'products'] as DropdownName[]).map(name => (
           <button
             key={name}
             id={`trigger-${name}`}
@@ -312,8 +316,8 @@ export default function NavbarDropdowns(): ReactNode {
         </div>
       )}
 
-      {/* Resources */}
-      {isOpen('resources') && (
+      {/* Resources (일시 비활성화) */}
+      {SHOW_DISABLED_NAV && isOpen('resources') && (
         <div id="content-resources" data-state={dataState('resources')} className="nav-dropdown-panel" ref={adjustPanelPosition} {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-resources-grid">
             {/* Company */}
@@ -411,8 +415,8 @@ export default function NavbarDropdowns(): ReactNode {
         </div>
       )}
 
-      {/* Events */}
-      {isOpen('events') && (
+      {/* Events (일시 비활성화) */}
+      {SHOW_DISABLED_NAV && isOpen('events') && (
         <div id="content-events" data-state={dataState('events')} className="nav-dropdown-panel" ref={adjustPanelPosition} {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-events-grid">
             {/* Upcoming events list */}
@@ -629,7 +633,8 @@ export default function NavbarDropdowns(): ReactNode {
                 </button>
               </div>
               <nav className="nav-mobile-menu">
-                {(['framework', 'products', 'resources'] as const).map(name => (
+                {/* Resources/Events 일시 비활성화 */}
+                {(['framework', 'products'] as const).map(name => (
                   <button key={name} className="nav-mobile-menu-item" onClick={() => setMobileSubMenu(name)}>
                     <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c0c0c0" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="nav-mobile-chevron">
@@ -637,9 +642,11 @@ export default function NavbarDropdowns(): ReactNode {
                     </svg>
                   </button>
                 ))}
+                {/*
                 <a href="https://laravel.com/community" className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
                   <span>Events</span>
                 </a>
+                */}
                 <a href="/docs/12.x" className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
                   <span>Docs</span>
                 </a>
@@ -675,7 +682,8 @@ export default function NavbarDropdowns(): ReactNode {
                   <a href="https://nightwatch.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Nightwatch</a>
                   <a href="https://nova.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Nova</a>
                 </>}
-                {mobileSubMenu === 'resources' && <>
+                {/* Resources 서브메뉴 일시 비활성화 (메인 메뉴에서 진입 경로 제거됨) */}
+                {SHOW_DISABLED_NAV && mobileSubMenu === 'resources' && <>
                   <a href="https://laravel.com/blog" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Blog</a>
                   <a href="https://laravel.com/partners" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Partners</a>
                   <a href="https://laravel.com/careers" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Careers</a>

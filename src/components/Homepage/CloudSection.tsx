@@ -1,5 +1,6 @@
 import React, {useState, useEffect, type ReactNode} from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Translate from '@docusaurus/Translate';
 import {CheckIcon, ArrowIcon} from './SharedIcons';
 
 function IdlingIcon(): ReactNode {
@@ -30,9 +31,24 @@ function ScalingDownIcon(): ReactNode {
 }
 
 const BADGES = [
-  {label: 'Idling', icon: <IdlingIcon />, accent: '#2563EB99'},
-  {label: 'Scaling up', icon: <ScalingUpIcon />, accent: '#05966999'},
-  {label: 'Scaling down', icon: <ScalingDownIcon />, accent: '#F59E0B99'},
+  {
+    key: 'idling',
+    label: <Translate id="homepage.cloud.badge.idling" description="Cloud 상태 - 유휴">유휴 중</Translate>,
+    icon: <IdlingIcon />,
+    accent: '#2563EB99',
+  },
+  {
+    key: 'scalingUp',
+    label: <Translate id="homepage.cloud.badge.scalingUp" description="Cloud 상태 - 스케일 업">스케일 업 중</Translate>,
+    icon: <ScalingUpIcon />,
+    accent: '#05966999',
+  },
+  {
+    key: 'scalingDown',
+    label: <Translate id="homepage.cloud.badge.scalingDown" description="Cloud 상태 - 스케일 다운">스케일 다운 중</Translate>,
+    icon: <ScalingDownIcon />,
+    accent: '#F59E0B99',
+  },
 ] as const;
 
 function AutoscaleIllustration(): ReactNode {
@@ -52,7 +68,7 @@ function AutoscaleIllustration(): ReactNode {
         <div className="cloud-badge-container">
           {BADGES.map((badge, idx) => (
             <div
-              key={badge.label}
+              key={badge.key}
               className={`cloud-status-badge ${idx === activeIdx ? 'cloud-status-badge--active' : ''}`}
               style={{'--badge-accent': badge.accent} as React.CSSProperties}
             >
@@ -237,24 +253,29 @@ export default function CloudSection(): ReactNode {
           {/* Cloud card */}
           <div className="cloud-card">
             <div className="cloud-card-content">
-              <h3>Laravel Cloud takes you{' '}<br className="tablet-br" />from local{' '}<br className="mobile-br" />to live in{' '}<br className="tablet-br" />seconds</h3>
+              <h3>
+                <Translate id="homepage.cloud.title" description="Cloud 카드 제목">
+                  Laravel Cloud로 로컬에서 라이브까지 단 몇 초 만에
+                </Translate>
+              </h3>
               <p>
-                No more guessing how many servers you{' '}<br className="tablet-br" />need: autoscale up under load
-                and{' '}<br className="tablet-br" />hibernate when{' '}<br className="desktop-only-br" />idle. Only pay for what{' '}<br className="tablet-br" />you actually use.
+                <Translate id="homepage.cloud.desc" description="Cloud 카드 설명">
+                  필요한 서버 수를 추측할 필요가 없습니다. 부하가 몰리면 자동으로 스케일 업되고, 유휴 상태에는 절전 모드로 전환됩니다. 실제로 사용한 만큼만 비용을 내세요.
+                </Translate>
               </p>
               <ul className="cloud-feature-list">
                 <li>
                   <CheckIcon className="cloud-check-icon" />
-                  <span>Full control via dashboard or CLI</span>
+                  <span><Translate id="homepage.cloud.feature.dashboard" description="Cloud 기능 1">대시보드 또는 CLI를 통한 완전한 제어</Translate></span>
                 </li>
                 <li>
                   <CheckIcon className="cloud-check-icon" />
-                  <span>Instantly add databases, workers,{' '}<br className="tablet-br" />cache, and storage</span>
+                  <span><Translate id="homepage.cloud.feature.databases" description="Cloud 기능 2">데이터베이스, 워커, 캐시, 스토리지 즉시 추가</Translate></span>
                 </li>
               </ul>
               <div className="cloud-btn-wrapper">
                 <a href="https://cloud.laravel.com" className="explore-btn">
-                  Explore Laravel Cloud
+                  <Translate id="homepage.cloud.cta" description="Cloud CTA 링크">Laravel Cloud 살펴보기</Translate>
                   <ArrowIcon />
                 </a>
               </div>
@@ -267,19 +288,24 @@ export default function CloudSection(): ReactNode {
           {/* Preview card */}
           <div className="preview-card">
             <div className="cloud-card-content">
-              <h3>Check pull requests from{' '}<br className="tablet-br" />your{' '}<br className="mobile-br" />team (or agents) in{' '}<br className="tablet-br" />preview{' '}<br className="mobile-br" />environments</h3>
+              <h3>
+                <Translate id="homepage.preview.title" description="Preview 카드 제목">
+                  팀(또는 에이전트)의 풀 리퀘스트를 프리뷰 환경에서 확인하세요
+                </Translate>
+              </h3>
               <p>
-                Review every change in Cloud's zero-risk,{' '}<br className="tablet-br" />production-{' '}<br className="mobile-br" />like{' '}<br className="desktop-only-br" />preview
-                environment{' '}<br className="tablet-br" />before it ever hits your main{' '}<br className="mobile-br" />branch.
+                <Translate id="homepage.preview.desc" description="Preview 카드 설명">
+                  메인 브랜치에 병합하기 전, 실제 운영 환경과 똑같이 동작하는 Cloud 프리뷰 환경에서 모든 변경을 안전하게 검토하세요.
+                </Translate>
               </p>
               <ul className="cloud-feature-list">
                 <li>
                   <CheckIcon className="cloud-check-icon" />
-                  <span>Integrates seamlessly with GitHub{' '}<br className="tablet-br" />Actions</span>
+                  <span><Translate id="homepage.preview.feature.ghActions" description="Preview 기능 1">GitHub Actions와 원활한 통합</Translate></span>
                 </li>
                 <li>
                   <CheckIcon className="cloud-check-icon" />
-                  <span>Test migrations and heavy changes{' '}<br className="tablet-br" />safely</span>
+                  <span><Translate id="homepage.preview.feature.migrations" description="Preview 기능 2">마이그레이션과 대규모 변경을 안전하게 테스트</Translate></span>
                 </li>
               </ul>
               <div className="cloud-btn-wrapper">
@@ -287,7 +313,7 @@ export default function CloudSection(): ReactNode {
                   href="https://cloud.laravel.com/docs/preview-environments"
                   className="explore-btn"
                 >
-                  Explore Preview Environments
+                  <Translate id="homepage.preview.cta" description="Preview CTA 링크">프리뷰 환경 살펴보기</Translate>
                   <ArrowIcon />
                 </a>
               </div>

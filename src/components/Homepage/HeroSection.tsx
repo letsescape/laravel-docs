@@ -1,8 +1,15 @@
+// Homepage 컴포넌트들의 <Translate> / translate() 메시지는 컴포넌트 내
+// 기본값으로 한국어 카피를 담고 있다. 번역 파일로 분리해 관리하려면
+//   npx docusaurus write-translations --locale ko
+// 을 실행해 i18n/ko/code.json 에 추출한 뒤 운영하면 된다.
 import React, {useEffect, useRef, useState, type ReactNode} from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Translate from '@docusaurus/Translate';
+import Link from '@docusaurus/Link';
 
 export default function HeroSection(): ReactNode {
   const [svgContent, setSvgContent] = useState<string>('');
+  const [svgStatus, setSvgStatus] = useState<'loading' | 'loaded' | 'failed'>('loading');
   const svgRef = useRef<HTMLDivElement>(null);
   const heroSvgUrl = useBaseUrl('/images/home/hero-illustration.svg');
   const avatarUrl = useBaseUrl('/images/home/taylor-otwell.avif');
@@ -10,13 +17,21 @@ export default function HeroSection(): ReactNode {
 
   useEffect(() => {
     const controller = new AbortController();
+    setSvgStatus('loading');
+    setSvgContent('');
     fetch(heroSvgUrl, {signal: controller.signal})
       .then(res => {
         if (!res.ok) throw new Error(`Failed to fetch SVG: ${res.status}`);
         return res.text();
       })
-      .then(text => setSvgContent(text))
-      .catch(() => {});
+      .then(text => {
+        setSvgContent(text);
+        setSvgStatus('loaded');
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setSvgStatus('failed');
+      });
     return () => controller.abort();
   }, [heroSvgUrl]);
 
@@ -314,14 +329,20 @@ export default function HeroSection(): ReactNode {
         {/* child 1: hero text section */}
         <section className="hero-text-section">
           <div className="hero-text-inner">
-            <h1 className="hero-h1">The clean stack for{' '}<span className="hero-h1-br" />Artisans and agents.</h1>
+            <h1 className="hero-h1">
+              <Translate id="homepage.hero.title.part1" description="Hero H1 앞부분">Artisan과 에이전트를 위한</Translate>
+              {' '}<span className="hero-h1-br" />
+              <Translate id="homepage.hero.title.part2" description="Hero H1 뒷부분">군더더기 없는 스택.</Translate>
+            </h1>
             <p className="hero-subtitle">
-              Laravel is batteries-included so everyone can{' '}<span className="hero-subtitle-br" />build and ship web apps at ridiculous speed.
+              <Translate id="homepage.hero.subtitle.part1" description="Hero 서브타이틀 앞부분">Laravel은 필요한 것이 모두 갖춰져 있어, 누구나</Translate>
+              {' '}<span className="hero-subtitle-br" />
+              <Translate id="homepage.hero.subtitle.part2" description="Hero 서브타이틀 뒷부분">놀라울 만큼 빠르게 웹 앱을 만들고 출시할 수 있습니다.</Translate>
             </p>
             <div className="hero-buttons">
-              <a href="/docs/12.x" className="hero-btn-secondary">
-                View framework docs
-              </a>
+              <Link to="/docs/12.x" className="hero-btn-secondary">
+                <Translate id="homepage.hero.cta.viewDocs" description="Hero CTA 버튼">프레임워크 문서 보기</Translate>
+              </Link>
             </div>
           </div>
         </section>
@@ -337,13 +358,13 @@ export default function HeroSection(): ReactNode {
               className="hero-illustration-svg"
               dangerouslySetInnerHTML={{__html: svgContent}}
             />
-          ) : (
+          ) : svgStatus === 'failed' ? (
             <img
               className="hero-illustration-svg"
               src={heroFallbackUrl}
               alt=""
             />
-          )}
+          ) : null}
         </div>
 
         {/* child 3: grain noise overlay */}

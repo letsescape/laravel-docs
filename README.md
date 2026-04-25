@@ -16,7 +16,7 @@
 라라벨 한국어 문서를 [Docusaurus](https://docusaurus.io) & [GitHub Pages](https://pages.github.com)를 사용하여 배포합니다.
 
 - 지원 버전 : `master`, `12.x`, `11.x`, `10.x`, `9.x`, `8.x`
-- 업데이트 주기 : 매일 04시 (KST) [#](.github/workflows/update-docs.yml#L5)
+- 문서 갱신 : GitHub Actions `update-docs` 워크플로우 수동 실행 [#](.github/workflows/update-docs.yml)
 
 ## 실행
 
@@ -27,10 +27,9 @@ npm install
 npm start
 ```
 
-사이드바 생성 및 타입 검사:
+타입 검사:
 
 ```bash
-npm run generate-sidebars
 npm run typecheck
 ```
 
@@ -41,14 +40,16 @@ docker build -t laravel-docs .
 docker run -p 3000:3000 laravel-docs
 ```
 
-### 번역 실행
+### 문서 갱신
 
-1. `source/.env.example` 파일을 복사하여 `source/.env` 파일을 만들고 번역 제공자를 설정합니다.
+문서 갱신은 GitHub Actions에서만 실행합니다.
+
+1. GitHub 저장소 Secrets에 번역 제공자와 API 키를 설정합니다.
 
    ```dotenv
    # OpenAI
    TRANSLATION_PROVIDER=openai
-   TRANSLATION_MODEL=gpt-4.1
+   TRANSLATION_MODEL=gpt-5
 
    OPENAI_API_KEY=your_openai_api_key
    ```
@@ -56,30 +57,16 @@ docker run -p 3000:3000 laravel-docs
    ```dotenv
    # Azure OpenAI
    TRANSLATION_PROVIDER=azure
-   TRANSLATION_MODEL=gpt-4.1
+   TRANSLATION_MODEL=gpt-5
 
    AZURE_OPENAI_API_KEY=your_azure_api_key
    AZURE_OPENAI_API_VERSION=2025-05-01-preview
    AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
    ```
 
-2. 의존성 설치 및 번역 실행
+2. GitHub Actions의 `update-docs` 워크플로우를 수동 실행합니다.
 
-   ```bash
-   cd source
-   uv sync         # 의존성 설치
-   uv run main.py  # 번역 실행
-   ```
-
-### Docker로 번역 실행
-
-1. `source/.env.example` 파일을 복사하여 `source/.env` 파일을 만들고 번역 제공자를 설정합니다.
-
-2. Docker로 번역 실행
-
-   ```bash
-   docker compose run --rm translate
-   ```
+워크플로우는 `.github/docs-updater`에서 `uv sync --frozen` 후 `uv run python main.py`를 실행하고, 원문 캐시와 변경된 `versioned_docs/`, `versioned_sidebars/`를 커밋합니다.
 
 ## 라이선스
 

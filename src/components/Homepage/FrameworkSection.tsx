@@ -1,4 +1,6 @@
 import React, {useState, type ReactNode} from 'react';
+import Translate, {translate} from '@docusaurus/Translate';
+import Link from '@docusaurus/Link';
 import {CheckIcon, ArrowIcon} from './SharedIcons';
 
 function LaravelFileIcon(): ReactNode {
@@ -380,23 +382,29 @@ export function AIFrameworkSection(): ReactNode {
     <section className="ai-framework-section hp-section hp-section-bordered">
       <div className="container">
         <h2 className="ai-heading">
-          Ship web apps with the<br />
+          <Translate id="homepage.ai.heading.prefix" description="AI 섹션 헤딩 앞부분">웹 앱을 출시하세요,&nbsp;</Translate><br />
           <span className="ai-heading-line2">
-            {aiEnabled ? 'AI‑enabled' : 'AI‑ready'}{' '}
+            {aiEnabled
+              ? <Translate id="homepage.ai.heading.enabled" description="AI 섹션 헤딩 - AI 활성">AI가 탑재된</Translate>
+              : <Translate id="homepage.ai.heading.ready" description="AI 섹션 헤딩 - AI 준비">AI를 맞을 준비가 된</Translate>
+            }{' '}
             <button
               className={`ai-toggle-inline ${aiEnabled ? 'ai-toggle--on' : ''}`}
               onClick={() => setAiEnabled(prev => !prev)}
               aria-pressed={aiEnabled}
-              aria-label="Toggle AI"
+              aria-label={translate({id: 'homepage.ai.toggle.aria', message: 'AI 활성화 토글', description: 'AI 토글 버튼 aria-label'})}
             >
               <span className="ai-toggle-track">
                 <span className="ai-toggle-thumb" />
               </span>
             </button>
-            <br className="mobile-br" />{' '}framework
+            <br className="mobile-br" />{' '}
+            <Translate id="homepage.ai.heading.framework" description="AI 섹션 헤딩 - 프레임워크">프레임워크로.</Translate>
           </span>
         </h2>
-        <p className={`ai-subtext ${aiEnabled ? 'ai-subtext--hidden' : ''}`}>We're ready when you're ready</p>
+        <p className={`ai-subtext ${aiEnabled ? 'ai-subtext--hidden' : ''}`}>
+          <Translate id="homepage.ai.subtext" description="AI 섹션 서브텍스트">여러분이 준비됐을 때, 우리도 준비되어 있습니다</Translate>
+        </p>
       </div>
     </section>
   );
@@ -487,26 +495,32 @@ export default function FrameworkSection(): ReactNode {
       <div className="container framework-container">
         <div className="framework-grid">
           <div className="framework-info">
-            <h3>A framework for{' '}<br className="not-mobile-br" />developers{' '}<br className="mobile-br" />and agents</h3>
+            <h3>
+              <Translate id="homepage.framework.heading.part1" description="Framework 섹션 제목 앞">개발자와</Translate>
+              {' '}<br className="not-mobile-br" />
+              <Translate id="homepage.framework.heading.part2" description="Framework 섹션 제목 뒤">에이전트를 위한 프레임워크</Translate>
+            </h3>
             <p>
-              Laravel has opinions on everything: routing, queues,{' '}<br className="tablet-br" /><br className="mobile-br" />authentication, and more. That's thousands of{' '}<br className="tablet-br" />decisions{' '}<br className="mobile-br" />an agent doesn't have to make. The result? Clean code{' '}<br className="mobile-br" />that anyone can understand.
+              <Translate id="homepage.framework.desc" description="Framework 섹션 설명">
+                Laravel은 라우팅, 큐, 인증 등 모든 영역에 분명한 기준을 제시합니다. 에이전트가 고민할 필요 없는 수천 가지 결정이 이미 정해져 있다는 뜻이죠. 결과는? 누구나 읽을 수 있는 깔끔한 코드입니다.
+              </Translate>
             </p>
             <ul className="feature-list">
-              <li><CheckIcon /> Starter kits for React, Vue, and Svelte</li>
-              <li><CheckIcon /> AI SDK and Boost AI assistant</li>
-              <li><CheckIcon /> Database ORM, queues, routing, and more</li>
-              <li><CheckIcon /> Open source ecosystem of over 30 packages</li>
+              <li><CheckIcon /> <Translate id="homepage.framework.feature.starterKits" description="기능 목록 - 스타터 키트">React, Vue, Svelte용 스타터 키트</Translate></li>
+              <li><CheckIcon /> <Translate id="homepage.framework.feature.aiSdk" description="기능 목록 - AI SDK">AI SDK와 AI 어시스턴트 Boost</Translate></li>
+              <li><CheckIcon /> <Translate id="homepage.framework.feature.orm" description="기능 목록 - ORM">데이터베이스 ORM, 큐, 라우팅 등</Translate></li>
+              <li><CheckIcon /> <Translate id="homepage.framework.feature.ecosystem" description="기능 목록 - 에코시스템">30개가 넘는 오픈소스 패키지 생태계</Translate></li>
             </ul>
-            <a href="https://laravel.com/docs/" className="explore-btn">
-              Explore the framework
+            <Link to="/docs/12.x" className="explore-btn">
+              <Translate id="homepage.framework.cta" description="Framework CTA 링크">프레임워크 살펴보기</Translate>
               <ArrowIcon className="explore-btn-icon" />
-            </a>
+            </Link>
           </div>
 
           <div className="code-area">
             {/* Category tabs - pill style */}
             <div className="category-tabs-wrapper">
-              <ul className="category-tabs" role="toolbar" aria-label="Code categories">
+              <ul className="category-tabs" role="toolbar" aria-label={translate({id: 'homepage.framework.tabs.aria', message: '코드 카테고리', description: '카테고리 탭 aria-label'})}>
                 {categories.map((cat, idx) => (
                   <li key={cat.name} className="category-tab-item">
                     {idx === activeCategory && (
