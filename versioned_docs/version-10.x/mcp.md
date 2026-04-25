@@ -269,7 +269,7 @@ class CurrentWeatherTool extends Tool
 
 JSON Schema definitions provide a basic structure for tool arguments, but you may also want to enforce more complex validation rules.
 
-Laravel MCP integrates seamlessly with Laravel's [validation features](/docs/{{version}}/validation). You may validate incoming tool arguments within your tool's `handle` method:
+Laravel MCP integrates seamlessly with Laravel's [validation features](/docs/10.x/validation). You may validate incoming tool arguments within your tool's `handle` method:
 
 ```php
 <?php
@@ -312,7 +312,7 @@ $validated = $request->validate([
 <a name="tool-dependency-injection"></a>
 #### Tool Dependency Injection
 
-The Laravel [service container](/docs/{{version}}/container) is used to resolve all tools. As a result, you are able to type-hint any dependencies your tool may need in its constructor. The declared dependencies will automatically be resolved and injected into the tool instance:
+The Laravel [service container](/docs/10.x/container) is used to resolve all tools. As a result, you are able to type-hint any dependencies your tool may need in its constructor. The declared dependencies will automatically be resolved and injected into the tool instance:
 
 ```php
 <?php
@@ -629,7 +629,7 @@ class DescribeWeatherPrompt extends Prompt
 
 Prompt arguments are automatically validated based on their definition, but you may also want to enforce more complex validation rules.
 
-Laravel MCP integrates seamlessly with Laravel's [validation features](/docs/{{version}}/validation). You may validate incoming prompt arguments within your prompt's `handle` method:
+Laravel MCP integrates seamlessly with Laravel's [validation features](/docs/10.x/validation). You may validate incoming prompt arguments within your prompt's `handle` method:
 
 ```php
 <?php
@@ -671,7 +671,7 @@ $validated = $request->validate([
 <a name="prompt-dependency-injection"></a>
 ### Prompt Dependency Injection
 
-The Laravel [service container](/docs/{{version}}/container) is used to resolve all prompts. As a result, you are able to type-hint any dependencies your prompt may need in its constructor. The declared dependencies will automatically be resolved and injected into the prompt instance:
+The Laravel [service container](/docs/10.x/container) is used to resolve all prompts. As a result, you are able to type-hint any dependencies your prompt may need in its constructor. The declared dependencies will automatically be resolved and injected into the prompt instance:
 
 ```php
 <?php
@@ -923,7 +923,7 @@ class WeatherGuidelinesResource extends Resource
 <a name="resource-dependency-injection"></a>
 ### Resource Dependency Injection
 
-The Laravel [service container](/docs/{{version}}/container) is used to resolve all resources. As a result, you are able to type-hint any dependencies your resource may need in its constructor. The declared dependencies will automatically be resolved and injected into the resource instance:
+The Laravel [service container](/docs/10.x/container) is used to resolve all resources. As a result, you are able to type-hint any dependencies your resource may need in its constructor. The declared dependencies will automatically be resolved and injected into the resource instance:
 
 ```php
 <?php
@@ -1064,12 +1064,12 @@ return Response::error('Unable to fetch weather data for the specified location.
 
 You can authenticate web MCP servers with middleware just like you  would for routes. This will require a user to authenticate before using any capability of the server.
 
-There are two ways to authenticate access to your MCP server: simple, token based authentication via [Laravel Sanctum](/docs/{{version}}/sanctum), or any other arbitrary API tokens which are passed via the `Authorization` HTTP header. Or, you may authenticate via OAuth using [Laravel Passport](/docs/{{version}}/passport).
+There are two ways to authenticate access to your MCP server: simple, token based authentication via [Laravel Sanctum](/docs/10.x/sanctum), or any other arbitrary API tokens which are passed via the `Authorization` HTTP header. Or, you may authenticate via OAuth using [Laravel Passport](/docs/10.x/passport).
 
 <a name="oauth"></a>
 ### OAuth 2.1
 
-The most robust way to protect your web-based MCP servers is with OAuth through [Laravel Passport](/docs/{{version}}/passport).
+The most robust way to protect your web-based MCP servers is with OAuth through [Laravel Passport](/docs/10.x/passport).
 
 When authenticating your MCP server via OAuth, you will invoke the `Mcp::oauthRoutes` method in your `routes/ai.php` file to register the required OAuth2 discovery and client registration routes. Then, apply Passport's `auth:api` middleware to your `Mcp::web` route in your `routes/ai.php` file:
 
@@ -1085,7 +1085,7 @@ Mcp::web('/mcp/weather', WeatherExample::class)
 
 #### New Passport Installation
 
-If your application is not already using Laravel Passport, start by following Passport's  [installation and deployment steps](/docs/{{version}}/passport#installation). You should have an `OAuthenticatable` model, new authentication guard, and passport keys before moving on.
+If your application is not already using Laravel Passport, start by following Passport's  [installation and deployment steps](/docs/10.x/passport#installation). You should have an `OAuthenticatable` model, new authentication guard, and passport keys before moving on.
 
 Next, you should publish Laravel MCP's provided Passport authorization view:
 
@@ -1126,12 +1126,12 @@ Laravel MCP, via the `Mcp::oauthRoutes()` method discussed above, adds, advertis
 
 OAuth2.1 is the documented authentication mechanism in the Model Context Protocol specification, and is the most widely supported among MCP clients. For that reason, we recommend using Passport when possible.
 
-If your application is already using [Sanctum](/docs/{{version}}/sanctum) then adding Passport may be cumbersome. In this instance, we recommend using Sanctum without Passport until you have a clear, necessary requirement to use an MCP client that only supports OAuth.
+If your application is already using [Sanctum](/docs/10.x/sanctum) then adding Passport may be cumbersome. In this instance, we recommend using Sanctum without Passport until you have a clear, necessary requirement to use an MCP client that only supports OAuth.
 
 <a name="sanctum"></a>
 ### Sanctum
 
-If you would like to protect your MCP server using [Sanctum](/docs/{{version}}/sanctum), simply add Sanctum's authentication middleware to your server in your `routes/ai.php` file. Then, ensure your MCP clients provide a `Authorization: Bearer <token>` header to ensure successful authentication:
+If you would like to protect your MCP server using [Sanctum](/docs/10.x/sanctum), simply add Sanctum's authentication middleware to your server in your `routes/ai.php` file. Then, ensure your MCP clients provide a `Authorization: Bearer <token>` header to ensure successful authentication:
 
 ```php
 use App\Mcp\Servers\WeatherExample;
@@ -1149,7 +1149,7 @@ If your application issues its own custom API tokens, you may authenticate your 
 <a name="authorization"></a>
 ## Authorization
 
-You may access the currently authenticated user via the `$request->user()` method, allowing you to perform [authorization checks](/docs/{{version}}/authorization) within your MCP tools and resources:
+You may access the currently authenticated user via the `$request->user()` method, allowing you to perform [authorization checks](/docs/10.x/authorization) within your MCP tools and resources:
 
 ```php
 use Laravel\Mcp\Request;

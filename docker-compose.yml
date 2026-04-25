@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.translate
     env_file:
-      - path: source/.env
+      - path: .github/docs-updater/.env
         required: false
     volumes:
       - ./versioned_docs:/app/versioned_docs

@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 
 COPY . .
-RUN npm run generate-sidebars && npm run typecheck && npm run build
+RUN npm run typecheck && npm run build
 
 FROM node:24-alpine
 

@@ -8,12 +8,12 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
 WORKDIR /app
 
-COPY source/pyproject.toml source/uv.lock source/
+COPY .github/docs-updater/pyproject.toml .github/docs-updater/uv.lock .github/docs-updater/
 
-RUN cd source && uv sync --frozen --no-dev
+RUN cd .github/docs-updater && uv sync --frozen --no-dev
 
-COPY source/ source/
+COPY .github/docs-updater/ .github/docs-updater/
 
-WORKDIR /app/source
+WORKDIR /app/.github/docs-updater
 
 CMD ["uv", "run", "python", "main.py"]
