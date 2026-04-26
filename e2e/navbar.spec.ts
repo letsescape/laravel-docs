@@ -75,6 +75,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
     for (const item of ['Installation', 'Agent Setup', 'Eloquent ORM', 'Artisan Console', 'Routing']) {
       await expect(menu.getByRole('link', {name: item})).toBeVisible();
     }
+    await expect(menu.getByRole('link', {name: 'Installation'})).toHaveAttribute('href', '/docs/12.x/');
   });
 
   test('N-3d: Framework > Starter kits', async ({page}) => {
@@ -86,12 +87,9 @@ test.describe('Navbar — Desktop (1280px)', () => {
     await openDropdown(page, 'products');
   });
 
-  test('N-5: Resources 드롭다운 열기', async ({page}) => {
-    await openDropdown(page, 'resources');
-  });
-
-  test('N-6: Events 드롭다운 열기', async ({page}) => {
-    await openDropdown(page, 'events');
+  test('N-5: 비활성 메뉴 미노출', async ({page}) => {
+    await expect(page.locator('#trigger-resources')).toHaveCount(0);
+    await expect(page.locator('#trigger-events')).toHaveCount(0);
   });
 
   test('N-7: Docs 링크', async ({page}) => {
@@ -117,9 +115,11 @@ test.describe('Navbar — Tablet (768px)', () => {
   });
 
   test('N-14: 메뉴 항목 표시', async ({page}) => {
-    for (const name of ['framework', 'products', 'resources', 'events']) {
+    for (const name of ['framework', 'products']) {
       await expect(page.locator(`#trigger-${name}`)).toBeVisible();
     }
+    await expect(page.locator('#trigger-resources')).toHaveCount(0);
+    await expect(page.locator('#trigger-events')).toHaveCount(0);
   });
 
   test('N-15: 햄버거 숨김', async ({page}) => {
@@ -162,12 +162,10 @@ test.describe('Navbar — Mobile (430px)', () => {
     await openMobileSubmenuAndVerify(page, 'Products', ['Laravel Cloud', 'Forge', 'Nightwatch', 'Nova']);
   });
 
-  test('N-21: Resources 서브메뉴', async ({page}) => {
-    await openMobileSubmenuAndVerify(page, 'Resources', ['Blog', 'Partners', 'Careers', 'Trust', 'Legal', 'Status']);
-  });
-
-  test('N-22: Events 직접 링크', async ({page}) => {
-    await verifyMobileDirectLink(page, 'Events', 'https://laravel.com/community');
+  test('N-21: 비활성 모바일 메뉴 미노출', async ({page}) => {
+    await page.locator('.nav-mobile-hamburger').click();
+    await expect(page.locator('.nav-mobile-menu-item', {hasText: 'Resources'})).toHaveCount(0);
+    await expect(page.locator('.nav-mobile-menu-item', {hasText: 'Events'})).toHaveCount(0);
   });
 
   test('N-23: Docs 직접 링크', async ({page}) => {

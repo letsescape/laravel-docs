@@ -547,29 +547,52 @@
   stroke: #fff;
 }
 
-/* @starting-style for entry animations */
-@starting-style {
-  .hero-illustration-svg .starting\:opacity-0,
-  .hero-illustration-svg .starting-opacity-0 {
+/* Entry animations for Tailwind starting:* classes in the static SVG. */
+@keyframes hero-start-fade-y-2 {
+  from {
     opacity: 0;
-  }
-
-  .hero-illustration-svg .starting\:translate-y-2,
-  .hero-illustration-svg .motion-safe\:starting\:translate-y-2 {
     translate: 0 0.5rem;
   }
-
-  .hero-illustration-svg .starting\:translate-y-\[20px\] {
-    translate: 0 20px;
+  to {
+    opacity: 1;
+    translate: 0 0;
   }
+}
 
-  .hero-illustration-svg .starting\:blur-lg {
+@keyframes hero-start-card {
+  from {
+    opacity: 0;
+    translate: 0 20px;
     filter: blur(16px);
   }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    filter: none;
+  }
+}
 
-  .hero-illustration-svg .motion-safe\:starting\:translate-y-\[calc\(\(var\(--index\)\+1\)\*-20px\)\] {
+@keyframes hero-start-floor {
+  from {
+    opacity: 0;
     translate: 0 calc((var(--index) + 1) * -20px);
   }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.hero-illustration-svg .starting\:opacity-0.motion-safe\:starting\:translate-y-2 {
+  animation: hero-start-fade-y-2 500ms 300ms both;
+}
+
+.hero-illustration-svg .starting-opacity-0.starting\:translate-y-\[20px\].starting\:blur-lg {
+  animation: hero-start-card 500ms both;
+}
+
+.hero-illustration-svg .starting\:opacity-0.motion-safe\:starting\:translate-y-\[calc\(\(var\(--index\)\+1\)\*-20px\)\] {
+  animation: hero-start-floor 500ms calc(var(--index) * 100ms) both;
 }
 
 /* Grain overlay */

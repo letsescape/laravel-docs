@@ -7,6 +7,7 @@ import anchorMappingPlugin from './src/remark/anchor-mapping';
 import githubAdmonitionPlugin from './src/remark/github-admonition';
 import styleJsxCleanupPlugin from './src/remark/style-jsx-cleanup';
 import methodClassPlugin from './src/remark/method-class';
+import stripPandocAttrsPlugin from './src/remark/strip-pandoc-attrs';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -112,16 +113,19 @@ const config: Config = {
           githubAdmonitionPlugin,
           anchorMappingPlugin,
           methodClassPlugin,
+          stripPandocAttrsPlugin,
           replacePlaceholdersPlugin,
           autoLanguagePlugin,
         ],
         // origin/ 하위는 Laravel 원본 보관용. `{{version}}` 등 서버사이드 템플릿이
         // 남아있어 문서로 렌더링하면 링크가 깨지므로 사이트에서 제외.
-        // documentation.md는 사이드바 시드(generate-sidebars.ts가 origin/documentation.md를 읽음)
-        // 이며 문서 페이지로 노출할 필요가 없고, 미번역 버전이 링크 깨짐의 원인이 되므로 제외.
+        // documentation.md는 사이드바 시드이며 문서 페이지로 노출할 필요가 없다.
+        // readme.md는 installation.md의 `slug: /`와 같은 버전 루트 경로를 만들어
+        // `/docs/<version>/` 중복 라우트 경고를 내므로 사이트에서 제외.
         exclude: [
           '**/origin/**',
           '**/documentation.md',
+          '**/readme.md',
           // Docusaurus 기본 exclude 유지
           '**/_*.{js,jsx,ts,tsx,md,mdx}',
           '**/_*/**',
