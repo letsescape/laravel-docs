@@ -20,11 +20,11 @@ test.describe('Homepage — Desktop (1280px)', () => {
 
   test('H-1: 메인 헤드라인', async ({page}) => {
     const h1 = page.getByRole('heading', {level: 1});
-    await expect(h1).toContainText('Artisans and agents');
+    await expect(h1).toContainText('Artisan과 에이전트를 위한');
   });
 
   test('H-2: 서브 텍스트', async ({page}) => {
-    await expect(page.getByText('batteries-included')).toBeVisible();
+    await expect(page.getByText('놀라울 만큼 빠르게')).toBeVisible();
   });
 
   test('H-3: View framework docs 버튼', async ({page}) => {
@@ -33,11 +33,11 @@ test.describe('Homepage — Desktop (1280px)', () => {
   });
 
   test('AF-1: AI Framework 섹션 헤딩', async ({page}) => {
-    await expect(page.getByRole('heading', {level: 2, name: /Ship web apps with the/})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 2, name: /웹 앱을 출시하세요/})).toBeVisible();
   });
 
   test('FD-1: 프레임워크 상세 헤딩', async ({page}) => {
-    await expect(page.getByRole('heading', {level: 3, name: /framework for developers and agents/})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 3, name: /에이전트를 위한 프레임워크/})).toBeVisible();
   });
 
   test('FD-4: 코드 카테고리 탭', async ({page}) => {
@@ -47,23 +47,23 @@ test.describe('Homepage — Desktop (1280px)', () => {
   });
 
   test('CL-1: Laravel Cloud 섹션', async ({page}) => {
-    await expect(page.getByRole('heading', {level: 3, name: /Laravel Cloud takes you from local to live/})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 3, name: /Laravel Cloud로 로컬에서 라이브까지/})).toBeVisible();
   });
 
   test('NW-1: Nightwatch 섹션', async ({page}) => {
-    await expect(page.getByRole('heading', {level: 3, name: /Monitor and fix issues with Nightwatch/})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 3, name: /Nightwatch로 이슈를 모니터링/})).toBeVisible();
   });
 
   test('FE-1: Frontend 섹션', async ({page}) => {
-    await expect(page.getByRole('heading', {level: 3, name: /The best partner to any front-end/})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 3, name: /어떤 프런트엔드와도/})).toBeVisible();
   });
 
   test('CT-1: CTA 섹션', async ({page}) => {
-    await expect(page.getByRole('heading', {level: 2, name: /Create without limits/})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 2, name: /한계 없이 만들어 보세요/})).toBeVisible();
   });
 
   test('E-1: Events 섹션', async ({page}) => {
-    await expect(page.getByRole('heading', {level: 2, name: /We'll see you in/})).toBeVisible();
+    await expect(page.getByRole('heading', {level: 2, name: /이벤트.*만나요/})).toBeVisible();
   });
 
   test('FT-1: 푸터', async ({page}) => {
