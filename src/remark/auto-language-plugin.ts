@@ -80,6 +80,10 @@ function detectLanguage(code: string): string {
   return 'php';
 }
 
+const LANG_ALIASES: Record<string, string> = {
+  blade: 'markup',
+};
+
 export default function autoLanguagePlugin(): Transformer<Root> {
   return (tree) => {
     visit(tree, 'code', (node: Code) => {
@@ -88,6 +92,9 @@ export default function autoLanguagePlugin(): Transformer<Root> {
         if (detected) {
           node.lang = detected;
         }
+      }
+      if (node.lang && LANG_ALIASES[node.lang]) {
+        node.lang = LANG_ALIASES[node.lang];
       }
     });
   };

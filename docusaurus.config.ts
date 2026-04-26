@@ -7,6 +7,7 @@ import anchorMappingPlugin from './src/remark/anchor-mapping';
 import githubAdmonitionPlugin from './src/remark/github-admonition';
 import styleJsxCleanupPlugin from './src/remark/style-jsx-cleanup';
 import methodClassPlugin from './src/remark/method-class';
+import stripPandocAttrsPlugin from './src/remark/strip-pandoc-attrs';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -112,6 +113,7 @@ const config: Config = {
           githubAdmonitionPlugin,
           anchorMappingPlugin,
           methodClassPlugin,
+          stripPandocAttrsPlugin,
           replacePlaceholdersPlugin,
           autoLanguagePlugin,
         ],
