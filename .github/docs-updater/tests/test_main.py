@@ -229,6 +229,48 @@ def test_prepare_translation_content_replaces_version_only():
     assert "/docs/11.x/queues" in result
 
 
+def test_prepare_translation_content_normalizes_known_broken_anchor_reference():
+    content = (
+        "- [Agents Integration](#agents-integration)\n\n"
+        '<a name="agent-integration"></a>\n'
+        "### Agents Integration\n"
+    )
+
+    result = main.prepare_translation_content(content, "13.x")
+
+    assert "#agents-integration" not in result
+    assert "#agent-integration" in result
+
+
+def test_ensure_docs_front_matter_adds_installation_slug():
+    result = main.ensure_docs_front_matter("# 설치\n", "installation.md")
+
+    assert result.startswith("---\nslug: /\n---\n\n# 설치\n")
+
+
+def test_ensure_docs_front_matter_preserves_existing_front_matter():
+    content = "---\nslug: /\n---\n\n# 설치\n"
+
+    assert main.ensure_docs_front_matter(content, "installation.md") == content
+
+
+def test_normalize_anchor_spacing_adds_blank_before_anchor():
+    content = "문단입니다.\n<a name=\"intro\"></a>\n## Intro\n"
+
+    result = main.normalize_anchor_spacing(content)
+
+    assert result == "문단입니다.\n\n<a name=\"intro\"></a>\n## Intro\n"
+
+
+def test_finalize_translation_content_combines_anchor_spacing_and_installation_slug():
+    content = "# 설치\n\n문단입니다.\n<a name=\"intro\"></a>\n## Intro\n"
+
+    result = main.finalize_translation_content(content, "installation.md")
+
+    assert result.startswith("---\nslug: /\n---\n\n# 설치\n")
+    assert "\n\n<a name=\"intro\"></a>\n## Intro\n" in result
+
+
 def test_translate_markdown_content_splits_long_documents(monkeypatch):
     calls = []
 
@@ -302,6 +344,31 @@ def test_translate_file_validates_after_joined_translation(monkeypatch):
 
         with open(target_file, encoding="utf-8") as f:
             assert '<a name="intro"></a>' in f.read()
+
+
+def test_translate_file_adds_installation_slug(monkeypatch):
+    def fake_translate(text, system_prompt):
+        return text.replace("Installation", "설치")
+
+    monkeypatch.setattr(main, "translate_text", fake_translate)
+    monkeypatch.setattr(main, "get_system_prompt", lambda: "prompt")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        source_dir = os.path.join(
+            tmpdir, ".github", "docs-updater", "source", "version-13.x"
+        )
+        os.makedirs(source_dir)
+        source_file = os.path.join(source_dir, "installation.md")
+        target_file = os.path.join(
+            tmpdir, "versioned_docs", "version-13.x", "installation.md"
+        )
+        with open(source_file, "w", encoding="utf-8") as f:
+            f.write("# Installation\n")
+
+        assert main.translate_file(source_file, target_file) is True
+
+        with open(target_file, encoding="utf-8") as f:
+            assert f.read().startswith("---\nslug: /\n---\n\n# 설치\n")
 
 
 def test_sync_branch_docs_removes_stale_source_cache_and_translation():

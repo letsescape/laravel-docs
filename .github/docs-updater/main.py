@@ -224,8 +224,36 @@ def replace_version_placeholder(content, version):
     return re.sub(r"\{\{\s*version\s*\}\}", version, content)
 
 
+def normalize_known_anchor_references(content):
+    if (
+        "#agents-integration" in content
+        and '<a name="agent-integration"></a>' in content
+        and '<a name="agents-integration"></a>' not in content
+    ):
+        content = content.replace("#agents-integration", "#agent-integration")
+    return content
+
+
 def prepare_translation_content(content, version):
-    return replace_version_placeholder(content, version)
+    return normalize_known_anchor_references(
+        replace_version_placeholder(content, version)
+    )
+
+
+def ensure_docs_front_matter(content, filename):
+    if filename != "installation.md" or content.startswith("---\n"):
+        return content
+
+    return f"---\nslug: /\n---\n\n{content}"
+
+
+def normalize_anchor_spacing(content):
+    return re.sub(r"(?<!\n)\n(<a\s+name=[\"'][^\"']+[\"']\s*/?>)", r"\n\n\1", content)
+
+
+def finalize_translation_content(content, filename):
+    content = normalize_anchor_spacing(content)
+    return ensure_docs_front_matter(content, filename)
 
 
 def _is_fence_line(line):
@@ -498,6 +526,7 @@ def translate_file(source_file, target_file, max_lines=MAX_CHUNK_LINES):
             message += f"\n  - {error}"
         raise AnchorValidationError(message)
 
+    translated = finalize_translation_content(translated, source_path.name)
     target_path.parent.mkdir(parents=True, exist_ok=True)
     target_path.write_text(translated, encoding="utf-8")
     print(f"번역 완료: {source_path} -> {target_path}")
@@ -549,6 +578,7 @@ def try_reuse_translation(
         if not is_valid:
             continue
 
+        reused = finalize_translation_content(reused, source_path.name)
         target_path.parent.mkdir(parents=True, exist_ok=True)
         target_path.write_text(reused, encoding="utf-8")
         print(f"  번역 재사용: {branch}/{source_path.name} <- {candidate}/{source_path.name}")
