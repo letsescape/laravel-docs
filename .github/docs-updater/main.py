@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import time
@@ -17,6 +18,7 @@ UPSTREAM_REPO = "https://github.com/laravel/docs.git"
 BRANCHES = ["master", "13.x", "12.x", "11.x", "10.x", "9.x", "8.x"]
 EXCLUDED_FILES = {"license.md", "readme.md", "documentation.md"}
 MAX_CHUNK_LINES = 400
+CLI_TRANSLATION_PROVIDERS = {"cli", "ai-cli", "local"}
 REUSABLE_TRANSLATION_BRANCHES = ["13.x", "12.x", "11.x", "10.x", "9.x", "8.x", "master"]
 
 _cached_client = None
@@ -166,8 +168,7 @@ def generate_sidebar(repo_root, version, updater_root=UPDATER_ROOT):
 def generate_sidebars(repo_root, branches=BRANCHES, updater_root=UPDATER_ROOT):
     ok = True
     for branch in branches:
-        if branch != "master":
-            ok = generate_sidebar(repo_root, branch, updater_root=updater_root) and ok
+        ok = generate_sidebar(repo_root, branch, updater_root=updater_root) and ok
     return ok
 
 
@@ -192,8 +193,31 @@ def extract_changed_source_files(status_output):
 
 
 def get_changed_source_files(repo_root):
-    status = run_command(["git", "status", "--porcelain"], cwd=repo_root)
+    status = run_command(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        cwd=repo_root,
+    )
     return extract_changed_source_files(status)
+
+
+def get_translation_source_files(repo_root, branches=BRANCHES, updater_root=None):
+    repo_path = Path(repo_root)
+    updater_path = Path(updater_root) if updater_root is not None else UPDATER_ROOT
+    required = set(get_changed_source_files(repo_path))
+
+    for branch in branches:
+        source_dir = source_dir_for(updater_path, branch)
+        docs_dir = docs_dir_for(repo_path, branch)
+        if not source_dir.exists():
+            continue
+
+        for source in source_dir.glob("*.md"):
+            if source.name.lower() in EXCLUDED_FILES:
+                continue
+            if not (docs_dir / source.name).exists():
+                required.add(source.relative_to(repo_path).as_posix())
+
+    return sorted(required)
 
 
 def replace_version_placeholder(content, version):
@@ -242,8 +266,45 @@ def split_markdown_chunks(content, max_lines=MAX_CHUNK_LINES):
 
 
 def _strip_code(text):
-    text = re.sub(r"```.*?```|~~~.*?~~~", "", text, flags=re.DOTALL)
-    return re.sub(r"`[^`]+`", "", text)
+    stripped_lines = []
+    in_fence = False
+    fence_marker = None
+
+    for line in text.splitlines(keepends=True):
+        stripped = line.lstrip()
+        marker = stripped[:3]
+        if marker in {"```", "~~~"}:
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker
+            elif marker == fence_marker:
+                in_fence = False
+                fence_marker = None
+            continue
+
+        if in_fence:
+            continue
+
+        stripped_lines.append(_strip_inline_code(line))
+
+    return "".join(stripped_lines)
+
+
+def _strip_inline_code(line):
+    output = []
+    index = 0
+    while index < len(line):
+        if line[index] == "`":
+            end = line.find("`", index + 1)
+            newline = line.find("\n", index + 1)
+            if end >= 0 and (newline < 0 or end < newline):
+                index = end + 1
+                continue
+
+        output.append(line[index])
+        index += 1
+
+    return "".join(output)
 
 
 def extract_anchor_definitions(markdown):
@@ -312,6 +373,53 @@ def get_translation_client():
     return _cached_client, _cached_model
 
 
+def read_cli_timeout():
+    try:
+        return int(os.environ.get("TRANSLATION_CLI_TIMEOUT", "1800"))
+    except ValueError as error:
+        raise ValueError("TRANSLATION_CLI_TIMEOUT 값이 유효하지 않습니다.") from error
+
+
+def build_cli_prompt(text, system_prompt):
+    return (
+        "아래 시스템 지침을 엄격히 따르고, 번역된 Markdown 본문만 출력하세요.\n\n"
+        "[시스템 지침]\n"
+        f"{system_prompt.rstrip()}\n\n"
+        "[번역할 원문]\n"
+        f"{text}"
+    )
+
+
+def translate_text_with_cli(text, system_prompt):
+    command = os.environ.get("TRANSLATION_CLI_COMMAND")
+    if not command:
+        raise ValueError("TRANSLATION_CLI_COMMAND 미설정")
+
+    args = shlex.split(command)
+    if not args:
+        raise ValueError("TRANSLATION_CLI_COMMAND 미설정")
+
+    try:
+        result = subprocess.run(
+            args,
+            input=build_cli_prompt(text, system_prompt),
+            text=True,
+            capture_output=True,
+            check=True,
+            timeout=read_cli_timeout(),
+        )
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError("번역 CLI 실행 시간이 초과되었습니다.") from error
+    except subprocess.CalledProcessError as error:
+        stderr = (error.stderr or "").strip()
+        message = f"번역 CLI 실행 실패: {stderr}" if stderr else "번역 CLI 실행 실패"
+        raise RuntimeError(message) from error
+
+    if not result.stdout.strip():
+        raise ValueError("CLI returned empty content")
+    return result.stdout
+
+
 def get_system_prompt():
     global _cached_prompt
     if _cached_prompt is None:
@@ -320,6 +428,10 @@ def get_system_prompt():
 
 
 def translate_text(text, system_prompt):
+    provider = os.environ.get("TRANSLATION_PROVIDER", "openai").lower()
+    if provider in CLI_TRANSLATION_PROVIDERS:
+        return translate_text_with_cli(text, system_prompt)
+
     client, model = get_translation_client()
     response = client.chat.completions.create(
         model=model,
@@ -390,6 +502,59 @@ def translate_file(source_file, target_file, max_lines=MAX_CHUNK_LINES):
     target_path.write_text(translated, encoding="utf-8")
     print(f"번역 완료: {source_path} -> {target_path}")
     return True
+
+
+def reusable_translation_branches(target_branch):
+    return [
+        branch
+        for branch in REUSABLE_TRANSLATION_BRANCHES
+        if branch != target_branch
+    ]
+
+
+def has_literal_version_reference(content, version):
+    without_placeholders = re.sub(r"\{\{\s*version\s*\}\}", "", content)
+    return version in without_placeholders
+
+
+def try_reuse_translation(
+    source_file,
+    target_file,
+    branch,
+    repo_root,
+    updater_root=None,
+):
+    source_path = Path(source_file)
+    target_path = Path(target_file)
+    updater_path = Path(updater_root) if updater_root is not None else UPDATER_ROOT
+    source = source_path.read_text(encoding="utf-8")
+
+    for candidate in reusable_translation_branches(branch):
+        candidate_source = source_dir_for(updater_path, candidate) / source_path.name
+        candidate_target = docs_dir_for(repo_root, candidate) / source_path.name
+
+        if not candidate_source.exists() or not candidate_target.exists():
+            continue
+        if candidate_source.read_text(encoding="utf-8") != source:
+            continue
+        if has_literal_version_reference(source, candidate):
+            continue
+
+        translated = candidate_target.read_text(encoding="utf-8")
+        reused = translated.replace(candidate, branch)
+        is_valid, _errors = validate_anchors(
+            prepare_translation_content(source, branch),
+            reused,
+        )
+        if not is_valid:
+            continue
+
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        target_path.write_text(reused, encoding="utf-8")
+        print(f"  번역 재사용: {branch}/{source_path.name} <- {candidate}/{source_path.name}")
+        return True
+
+    return False
 
 
 def parse_source_file_path(path):
@@ -468,7 +633,7 @@ def main():
     print("[4] 변경 문서 번역")
     failed_files = []
     processed = set()
-    changed_files = get_changed_source_files(repo_root)
+    changed_files = get_translation_source_files(repo_root)
     delay = read_translation_delay()
 
     if not changed_files:
@@ -494,12 +659,14 @@ def main():
 
         target_path = docs_dir_for(repo_root, branch) / filename
         try:
-            translate_file(source_path, target_path)
+            if not try_reuse_translation(source_path, target_path, branch, repo_root):
+                translate_file(source_path, target_path)
         except openai.RateLimitError:
             print(f"  RateLimitError 발생. 30초 대기 후 재시도합니다: {file_key}")
             time.sleep(30)
             try:
-                translate_file(source_path, target_path)
+                if not try_reuse_translation(source_path, target_path, branch, repo_root):
+                    translate_file(source_path, target_path)
             except Exception as error:
                 failed_files.append(file_key)
                 print(f"  재시도 실패: {file_key} - {type(error).__name__}: {error}")

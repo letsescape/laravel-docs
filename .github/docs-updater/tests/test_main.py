@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
 
 import main
@@ -195,6 +196,23 @@ def test_validate_anchors_ignores_tilde_fenced_blocks():
     assert errors == []
 
 
+def test_validate_anchors_keeps_anchors_after_unmatched_inline_backtick():
+    source = (
+        "Use the `using` method`:\n\n"
+        "```php\n"
+        "Route::get('/orders');\n"
+        "```\n\n"
+        '<a name="retrieving-tokens"></a>\n'
+        "## Retrieving Tokens\n"
+    )
+    translated = source.replace("Retrieving Tokens", "토큰 조회")
+
+    is_valid, errors = main.validate_anchors(source, translated)
+
+    assert is_valid is True
+    assert errors == []
+
+
 def test_prepare_translation_content_replaces_version_only():
     content = (
         "# Title {.kept}\n\n"
@@ -225,6 +243,40 @@ def test_translate_markdown_content_splits_long_documents(monkeypatch):
 
     assert len(calls) == 3
     assert result == "A1\nA2\n\nB1\nB2\n\nC1\nC2\n"
+
+
+def test_translate_text_uses_cli_provider(monkeypatch):
+    calls = []
+
+    def fake_run(args, **kwargs):
+        calls.append((args, kwargs))
+        return subprocess.CompletedProcess(args, 0, stdout="번역 결과\n", stderr="")
+
+    monkeypatch.setenv("TRANSLATION_PROVIDER", "cli")
+    monkeypatch.setenv("TRANSLATION_CLI_COMMAND", "ai translate")
+    monkeypatch.setattr(main.subprocess, "run", fake_run)
+
+    assert main.translate_text("# Hello\n", "system prompt") == "번역 결과\n"
+
+    args, kwargs = calls[0]
+    assert args == ["ai", "translate"]
+    assert "system prompt" in kwargs["input"]
+    assert "# Hello\n" in kwargs["input"]
+    assert kwargs["text"] is True
+    assert kwargs["capture_output"] is True
+    assert kwargs["check"] is True
+
+
+def test_translate_text_cli_requires_command(monkeypatch):
+    monkeypatch.setenv("TRANSLATION_PROVIDER", "cli")
+    monkeypatch.delenv("TRANSLATION_CLI_COMMAND", raising=False)
+
+    try:
+        main.translate_text("# Hello\n", "system prompt")
+    except ValueError as error:
+        assert "TRANSLATION_CLI_COMMAND" in str(error)
+    else:
+        raise AssertionError("expected TRANSLATION_CLI_COMMAND error")
 
 
 def test_translate_file_validates_after_joined_translation(monkeypatch):
@@ -323,6 +375,107 @@ def test_extract_changed_source_files_from_git_status():
         ".github/docs-updater/source/version-11.x/new.md",
         ".github/docs-updater/source/version-12.x/routing.md",
     ]
+
+
+def test_get_changed_source_files_includes_untracked_files(monkeypatch):
+    calls = []
+
+    def fake_run_command(args, cwd=None):
+        calls.append((args, cwd))
+        return "?? .github/docs-updater/source/version-13.x/new.md\n"
+
+    monkeypatch.setattr(main, "run_command", fake_run_command)
+
+    assert main.get_changed_source_files("/repo") == [
+        ".github/docs-updater/source/version-13.x/new.md",
+    ]
+    assert calls == [
+        (
+            ["git", "status", "--porcelain", "--untracked-files=all"],
+            "/repo",
+        )
+    ]
+
+
+def test_get_translation_source_files_includes_missing_targets(monkeypatch):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        repo_root = Path(tmpdir)
+        updater_root = repo_root / ".github" / "docs-updater"
+        source_dir = updater_root / "source" / "version-master"
+        source_dir.mkdir(parents=True)
+        (source_dir / "routing.md").write_text("# Routing\n", encoding="utf-8")
+
+        monkeypatch.setattr(main, "get_changed_source_files", lambda _repo: [])
+
+        assert main.get_translation_source_files(
+            repo_root,
+            branches=["master"],
+            updater_root=updater_root,
+        ) == [".github/docs-updater/source/version-master/routing.md"]
+
+
+def test_try_reuse_translation_rewrites_version_placeholder_output():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        repo_root = Path(tmpdir)
+        updater_root = repo_root / ".github" / "docs-updater"
+        raw = (
+            '<a name="intro"></a>\n'
+            "See [Routing](/docs/{{version}}/routing#intro).\n"
+        )
+
+        source_13 = updater_root / "source" / "version-13.x"
+        source_12 = updater_root / "source" / "version-12.x"
+        target_12 = repo_root / "versioned_docs" / "version-12.x"
+        for directory in (source_13, source_12, target_12):
+            directory.mkdir(parents=True)
+
+        (source_13 / "routing.md").write_text(raw, encoding="utf-8")
+        (source_12 / "routing.md").write_text(raw, encoding="utf-8")
+        (target_12 / "routing.md").write_text(
+            '<a name="intro"></a>\nSee [라우팅](/docs/12.x/routing#intro).\n',
+            encoding="utf-8",
+        )
+
+        target_13 = repo_root / "versioned_docs" / "version-13.x" / "routing.md"
+
+        assert main.try_reuse_translation(
+            source_13 / "routing.md",
+            target_13,
+            "13.x",
+            repo_root,
+            updater_root=updater_root,
+        ) is True
+        assert "/docs/13.x/routing#intro" in target_13.read_text(encoding="utf-8")
+
+
+def test_try_reuse_translation_skips_literal_candidate_version():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        repo_root = Path(tmpdir)
+        updater_root = repo_root / ".github" / "docs-updater"
+        raw = "This text intentionally mentions 12.x.\n"
+
+        source_13 = updater_root / "source" / "version-13.x"
+        source_12 = updater_root / "source" / "version-12.x"
+        target_12 = repo_root / "versioned_docs" / "version-12.x"
+        for directory in (source_13, source_12, target_12):
+            directory.mkdir(parents=True)
+
+        (source_13 / "upgrade.md").write_text(raw, encoding="utf-8")
+        (source_12 / "upgrade.md").write_text(raw, encoding="utf-8")
+        (target_12 / "upgrade.md").write_text(
+            "이 문장은 의도적으로 12.x를 언급합니다.\n",
+            encoding="utf-8",
+        )
+        target_13 = repo_root / "versioned_docs" / "version-13.x" / "upgrade.md"
+
+        assert main.try_reuse_translation(
+            source_13 / "upgrade.md",
+            target_13,
+            "13.x",
+            repo_root,
+            updater_root=updater_root,
+        ) is False
+        assert not target_13.exists()
 
 
 def test_main_returns_nonzero_when_clone_fails(monkeypatch):
