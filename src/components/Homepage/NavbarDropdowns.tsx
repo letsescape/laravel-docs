@@ -218,7 +218,7 @@ export default function NavbarDropdowns(): ReactNode {
             <div className="nav-dd-col nav-dd-col-docs">
               <h3 className="nav-dd-heading">Documentation</h3>
               <ul className="nav-dd-list nav-dd-list-simple">
-                <li><a href="/docs/12.x/installation" className="nav-dd-link nav-dd-doc-link">
+                <li><a href="/docs/12.x/" className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M4.3335 5.00016L5.66683 6.3335L4.3335 7.66683M6.3335 7.66683H7.66683M2.3335 2.3335H13.6668V13.6668H2.3335V2.3335Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
