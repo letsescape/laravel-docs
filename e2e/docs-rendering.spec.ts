@@ -4,6 +4,7 @@ test.describe('Docs rendering', () => {
   test('version root renders the installation document, not README', async ({page}) => {
     const response = await page.goto('/docs/12.x');
     expect(response?.ok()).toBe(true);
+    expect(response?.request().redirectedFrom()).toBeNull();
 
     await expect(page.getByRole('heading', {level: 1})).toContainText('설치');
     await expect(page.getByText('Laravel 문서의 온라인 버전')).toHaveCount(0);

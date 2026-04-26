@@ -55,11 +55,6 @@ function sendFile(req, res, filePath, statusCode = 200) {
   createReadStream(filePath).pipe(res);
 }
 
-function redirect(res, location) {
-  res.writeHead(302, {location});
-  res.end();
-}
-
 function notFound(req, res) {
   const html404 = join(BUILD_ROOT, '404.html');
   if (existsSync(html404)) {
@@ -82,7 +77,9 @@ const server = createServer((req, res) => {
     return;
   }
 
-  const url = new URL(req.url || '/', `http://${req.headers.host || `${host}:${port}`}`);
+  const fallbackHost = `${host}:${port}`;
+  const requestHost = req.headers.host || fallbackHost;
+  const url = new URL(req.url || '/', `http://${requestHost}`);
   const pathFromRoot = safeJoin(BUILD_ROOT, url.pathname.replace(/^\/+/, ''));
   if (!pathFromRoot) {
     notFound(req, res);
@@ -92,10 +89,6 @@ const server = createServer((req, res) => {
   if (existsSync(pathFromRoot)) {
     const stat = statSync(pathFromRoot);
     if (stat.isDirectory()) {
-      if (!url.pathname.endsWith('/')) {
-        redirect(res, `${url.pathname}/${url.search}`);
-        return;
-      }
       const indexPath = join(pathFromRoot, 'index.html');
       if (existsSync(indexPath)) {
         sendFile(req, res, indexPath);

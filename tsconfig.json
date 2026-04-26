@@ -1,10 +1,21 @@
 {
-  "extends": "@docusaurus/tsconfig",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "noEmit": true,
     "baseUrl": ".",
+    "paths": {
+      "@site/*": ["./*"]
+    },
+    "skipLibCheck": true,
     "ignoreDeprecations": "6.0",
-    "resolveJsonModule": true,
-    "esModuleInterop": true
+    "resolveJsonModule": true
   },
   "exclude": ["build"]
 }
