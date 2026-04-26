@@ -332,3 +332,74 @@ body.homepage-layout footer.footer {
   fill: currentColor !important;
 }
 
+/*
+ * Laravel-style admonitions
+ * ─────────────────────────
+ * `src/remark/github-admonition.ts`는 `> [!NOTE]` 계열 blockquote에
+ * `.admonition`, `.admonition-info`(note/tip/important) 또는
+ * `.admonition-warning`(warning/caution) 클래스를 주입한다.
+ * 여기서는 Laravel 공식 docs 사이트와 시각적으로 정합되도록 2가지 색 체계
+ * (#8D54C5 정보 / #F53003 경고) 박스 + 좌측 원형 아이콘을 부여한다.
+ */
+blockquote.admonition {
+  margin: 0 0 1rem 0;
+  padding: 0.75rem 1rem;
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+  background: transparent;
+  border: 1px solid var(--admonition-border, rgba(0, 0, 0, 0.12));
+  border-left: none;
+  border-radius: 6px;
+  color: inherit;
+}
+
+blockquote.admonition::before {
+  content: '';
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
+  background-color: var(--admonition-icon-bg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 55% 55%;
+  margin-top: 0.125rem;
+}
+
+blockquote.admonition > :first-child {
+  margin-top: 0;
+}
+blockquote.admonition > :last-child {
+  margin-bottom: 0;
+}
+
+blockquote.admonition-info {
+  --admonition-icon-bg: #8D54C5;
+  --admonition-border: rgba(141, 84, 197, 0.25);
+  background: rgba(141, 84, 197, 0.06);
+  /* Laravel info icon: small circle-lamp shape (extracted from laravel.com) */
+  background-image: none;
+}
+blockquote.admonition-info::before {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='21' viewBox='0 0 16 21' fill='none'><path d='M5 20H11M5.5 14H10.5M15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 10.7924 2.63505 13.2029 5 14.3264V17H11V14.3264C13.3649 13.2029 15 10.7924 15 8Z' stroke='%23FDFDFC' stroke-width='1.5' stroke-linecap='square'/></svg>");
+}
+
+blockquote.admonition-warning {
+  --admonition-icon-bg: #F53003;
+  --admonition-border: rgba(245, 48, 3, 0.25);
+  background: rgba(245, 48, 3, 0.06);
+}
+blockquote.admonition-warning::before {
+  /* Laravel warning icon: vertical bar + dot (exclamation mark) */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='2' height='18' viewBox='0 0 2 18' fill='none'><path d='M1 17V16.99M1 1V13' stroke='%23FDFDFC' stroke-width='2' stroke-linecap='square'/></svg>");
+}
+
+[data-theme='dark'] blockquote.admonition-info {
+  --admonition-border: rgba(141, 84, 197, 0.45);
+  background: rgba(141, 84, 197, 0.15);
+}
+[data-theme='dark'] blockquote.admonition-warning {
+  --admonition-border: rgba(245, 48, 3, 0.45);
+  background: rgba(245, 48, 3, 0.15);
+}

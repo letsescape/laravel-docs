@@ -76,7 +76,7 @@ php artisan dusk:install
 다음으로, 애플리케이션의 `.env` 파일에 `APP_URL` 환경 변수를 설정해야 합니다. 이 값은 브라우저에서 애플리케이션에 접근할 때 사용하는 URL과 일치해야 합니다.
 
 > [!NOTE]  
-> [Laravel Sail](/docs/11.x/sail)로 개발 환경을 관리하는 경우, [Dusk 테스트 설정 및 실행](#laravel-dusk)에 관한 Sail 공식 문서도 참고하시기 바랍니다.
+> [Laravel Sail](/docs/11.x/sail)로 개발 환경을 관리하는 경우, [Dusk 테스트 설정 및 실행](/docs/11.x/sail#laravel-dusk)에 관한 Sail 공식 문서도 참고하시기 바랍니다.
 
 <a name="managing-chromedriver-installations"></a>
 ### ChromeDriver 설치 관리
@@ -300,7 +300,7 @@ php artisan dusk --group=foo
 ```
 
 > [!NOTE]  
-> [Laravel Sail](/docs/11.x/sail)로 개발 환경을 관리한다면, [Dusk 테스트 설정 및 실행](#laravel-dusk) 문서를 꼭 참고하세요.
+> [Laravel Sail](/docs/11.x/sail)로 개발 환경을 관리한다면, [Dusk 테스트 설정 및 실행](/docs/11.x/sail#laravel-dusk) 문서를 꼭 참고하세요.
 
 <a name="manually-starting-chromedriver"></a>
 #### ChromeDriver 수동 실행

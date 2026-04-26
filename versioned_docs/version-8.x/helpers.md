@@ -3646,7 +3646,7 @@ logger('Debug message');
 logger('User has logged in.', ['id' => $user->id]);
 ```
 
-함수에 아무 값도 전달하지 않으면 [logger](/docs/8.x/errors#logging) 인스턴스가 반환됩니다.
+함수에 아무 값도 전달하지 않으면 [logger](/docs/8.x/logging) 인스턴스가 반환됩니다.
 
 ```
 logger()->error('You are not allowed here.');

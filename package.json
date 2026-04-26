@@ -16,6 +16,7 @@
     "typecheck": "tsc",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "validate-anchors": "node scripts/validate-anchors.mjs",
     "prepare": "husky"
   },
   "repository": {
@@ -47,5 +48,8 @@
     "@playwright/test": "^1.58.2",
     "@types/mdast": "^4.0.4",
     "husky": "^9.1.7"
+  },
+  "overrides": {
+    "webpackbar": "^7.0.0"
   }
 }
