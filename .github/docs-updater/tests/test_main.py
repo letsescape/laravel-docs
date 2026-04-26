@@ -18,6 +18,15 @@ def test_default_chunk_line_limit_is_conservative():
     assert main.MAX_CHUNK_LINES == 400
 
 
+def test_branch_targets_cover_master_and_supported_versions():
+    assert main.BRANCHES == ["master", "13.x", "12.x", "11.x", "10.x", "9.x", "8.x"]
+
+
+def test_reusable_translation_branches_excludes_target_branch():
+    assert "13.x" not in main.reusable_translation_branches("13.x")
+    assert main.reusable_translation_branches("13.x")[0] == "12.x"
+
+
 def test_split_markdown_chunks_uses_blank_boundaries_after_line_limit():
     content = "\n".join(
         [
@@ -151,6 +160,19 @@ def test_generate_sidebar_writes_versioned_sidebar_json():
         with open(output, encoding="utf-8") as f:
             data = json.load(f)
         assert data["tutorialSidebar"][0]["items"] == ["releases"]
+
+
+def test_generate_sidebars_includes_master(monkeypatch):
+    calls = []
+
+    def fake_generate_sidebar(repo_root, version, updater_root=main.UPDATER_ROOT):
+        calls.append((repo_root, version, updater_root))
+        return True
+
+    monkeypatch.setattr(main, "generate_sidebar", fake_generate_sidebar)
+
+    assert main.generate_sidebars("/repo", branches=["master", "13.x"]) is True
+    assert [call[1] for call in calls] == ["master", "13.x"]
 
 
 def test_validate_anchors_rejects_missing_anchor():

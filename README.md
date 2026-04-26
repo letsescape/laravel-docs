@@ -15,7 +15,7 @@
 
 라라벨 한국어 문서를 [Docusaurus](https://docusaurus.io) & [GitHub Pages](https://pages.github.com)를 사용하여 배포합니다.
 
-- 지원 버전 : `master`, `12.x`, `11.x`, `10.x`, `9.x`, `8.x`
+- 지원 버전 : `master`, `13.x`, `12.x`, `11.x`, `10.x`, `9.x`, `8.x`
 - 문서 갱신 : GitHub Actions `update-docs` 워크플로우 수동 실행 [#](.github/workflows/update-docs.yml)
 
 ## 실행

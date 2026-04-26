@@ -14,9 +14,10 @@ from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUs
 REPO_ROOT = Path(__file__).resolve().parents[2]
 UPDATER_ROOT = Path(__file__).resolve().parent
 UPSTREAM_REPO = "https://github.com/laravel/docs.git"
-BRANCHES = ["master", "12.x", "11.x", "10.x", "9.x", "8.x"]
+BRANCHES = ["master", "13.x", "12.x", "11.x", "10.x", "9.x", "8.x"]
 EXCLUDED_FILES = {"license.md", "readme.md", "documentation.md"}
 MAX_CHUNK_LINES = 400
+REUSABLE_TRANSLATION_BRANCHES = ["13.x", "12.x", "11.x", "10.x", "9.x", "8.x", "master"]
 
 _cached_client = None
 _cached_model = None
