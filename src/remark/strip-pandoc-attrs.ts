@@ -2,7 +2,20 @@ import type {Transformer} from 'unified';
 import type {Heading, Root, Text} from 'mdast';
 import {visit} from 'unist-util-visit';
 
-const PANDOC_ATTR_RE = /\s*\{\.[^}]+\}\s*$/;
+function stripTrailingPandocAttrs(value: string): string {
+  const trimmed = value.trimEnd();
+  if (!trimmed.endsWith('}')) return value;
+
+  const attrStart = trimmed.lastIndexOf('{.');
+  if (attrStart < 0) return value;
+
+  const attrBody = trimmed.slice(attrStart + 2, -1);
+  if (!attrBody || attrBody.includes('{') || attrBody.includes('}') || attrBody.includes('\n')) {
+    return value;
+  }
+
+  return trimmed.slice(0, attrStart).trimEnd();
+}
 
 /**
  * Pandoc 속성 문법(`{.foo .bar}`)이 헤딩 끝에 평문으로 노출되는 현상을 제거.
@@ -18,8 +31,7 @@ export default function stripPandocAttrsPlugin(): Transformer<Root> {
       const last = node.children[node.children.length - 1];
       if (last?.type !== 'text') return;
       const textNode = last as Text;
-      if (!PANDOC_ATTR_RE.test(textNode.value)) return;
-      textNode.value = textNode.value.replace(PANDOC_ATTR_RE, '');
+      textNode.value = stripTrailingPandocAttrs(textNode.value);
       if (!textNode.value) node.children.pop();
     });
   };
