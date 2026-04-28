@@ -8,8 +8,14 @@ import githubAdmonitionPlugin from './src/remark/github-admonition';
 import styleJsxCleanupPlugin from './src/remark/style-jsx-cleanup';
 import methodClassPlugin from './src/remark/method-class';
 import stripPandocAttrsPlugin from './src/remark/strip-pandoc-attrs';
+import versions from './versions.json';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
+
+// `versions.json`을 단일 출처로 사용해 새 버전 출시 시 한 곳만 갱신하면 footer/navbar/
+// lastVersion/path/sidebarPath가 자동으로 따라가도록 한다. master는 임시 버전이므로
+// 안정 버전 후보에서 제외하고, 첫 번째 항목을 LATEST_STABLE로 사용한다.
+const LATEST_STABLE = versions.find((v) => v !== 'master') ?? versions[0];
 
 const config: Config = {
   title: 'Laravel',
@@ -78,42 +84,15 @@ const config: Config = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'default',
-        path: 'versioned_docs/version-13.x',
+        path: `versioned_docs/version-${LATEST_STABLE}`,
         routeBasePath: 'docs',
-        sidebarPath: './versioned_sidebars/version-13.x-sidebars.json',
+        sidebarPath: `./versioned_sidebars/version-${LATEST_STABLE}-sidebars.json`,
         // 버전 관리 설정
         includeCurrentVersion: false,
-        lastVersion: '13.x',
-        versions: {
-          master: {
-            label: 'master',
-            path: 'master',
-          },
-          '13.x': {
-            label: '13.x',
-            path: '13.x',
-          },
-          '12.x': {
-            label: '12.x',
-            path: '12.x',
-          },
-          '11.x': {
-            label: '11.x',
-            path: '11.x',
-          },
-          '10.x': {
-            label: '10.x',
-            path: '10.x',
-          },
-          '9.x': {
-            label: '9.x',
-            path: '9.x',
-          },
-          '8.x': {
-            label: '8.x',
-            path: '8.x',
-          },
-        },
+        lastVersion: LATEST_STABLE,
+        versions: Object.fromEntries(
+          versions.map((v) => [v, {label: v, path: v}]),
+        ),
         // 기타 설정
         editUrl: 'https://github.com/letsescape/laravel-docs-web/tree/main/',
         remarkPlugins: [
@@ -212,7 +191,7 @@ const config: Config = {
       },
       items: [
         {
-          to: '/docs/13.x',
+          to: `/docs/${LATEST_STABLE}`,
           position: 'left',
           label: 'Docs',
         },
@@ -243,11 +222,11 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/docs/12.x',
+              to: `/docs/${LATEST_STABLE}`,
             },
             {
               label: 'Architecture Concepts',
-              to: '/docs/12.x/container',
+              to: `/docs/${LATEST_STABLE}/container`,
             },
           ],
         },
