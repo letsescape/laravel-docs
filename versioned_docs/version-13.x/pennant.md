@@ -1037,7 +1037,7 @@ class RedisFeatureDriver implements Driver
 <a name="registering-the-driver"></a>
 #### 드라이버 등록
 
-드라이버 구현을 마쳤다면, Laravel에 등록해서 사용할 수 있습니다. 추가 드라이버 등록은 `Feature` 파사드의 `extend` 메서드로 할 수 있습니다. 서비스 프로바이더의 `boot` 메서드에서 호출하세요.
+드라이버 구현을 마쳤다면, Laravel에 등록해서 사용할 수 있습니다. 추가 드라이버 등록은 `Feature` 파사드의 `extend` 메서드로 할 수 있습니다. [서비스 프로바이더](/docs/13.x/providers)의 `boot` 메서드에서 호출하세요.
 
 ```php
 <?php

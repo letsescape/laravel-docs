@@ -128,7 +128,7 @@ Route::get('/home', function () {
 ```
 
 > [!NOTE]
-> HTTP 요청 인스턴스를 통해 세션을 사용하는 것과 전역 `session` 헬퍼를 사용하는 것 사이에는 거의 실질적인 차이가 없습니다. 두 방법 모두 테스트 시 `assertSessionHas` 메서드를 사용하여 [테스트](https://laravel.com/docs/master/testing)할 수 있습니다.
+> HTTP 요청 인스턴스를 통해 세션을 사용하는 것과 전역 `session` 헬퍼를 사용하는 것 사이에는 거의 실질적인 차이가 없습니다. 두 방법 모두 테스트 시 `assertSessionHas` 메서드를 사용하여 [테스트](/docs/master/testing)할 수 있습니다.
 
 <a name="retrieving-all-session-data"></a>
 #### 모든 세션 데이터 조회

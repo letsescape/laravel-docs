@@ -193,7 +193,7 @@ Log::emergency('The system is down!');
 <a name="writing-log-messages"></a>
 ## 로그 메시지 작성하기 (Writing Log Messages)
 
-`Log` [파사드](/docs/master/facades)를 통해 로그에 내용을 기록할 수 있습니다. 앞에서 설명했듯, RFC 5424 기준 8가지 로그 레벨에 맞는 메서드가 제공됩니다: **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info**, **debug**
+`Log` [파사드](/docs/master/facades)를 통해 로그에 내용을 기록할 수 있습니다. 앞에서 설명했듯, 로거는 [RFC 5424 명세](https://tools.ietf.org/html/rfc5424)에 정의된 8가지 로그 레벨에 맞는 메서드를 제공합니다: **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info**, **debug**
 
 ```php
 use Illuminate\Support\Facades\Log;

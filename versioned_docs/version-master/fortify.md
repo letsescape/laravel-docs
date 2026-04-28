@@ -41,7 +41,7 @@ Fortify는 자체적으로 사용자 인터페이스를 제공하지 않으므�
 
 **Laravel의 인증 기능을 사용하기 위해 반드시 Fortify를 사용할 필요는 없습니다.** [인증](/docs/master/authentication), [비밀번호 재설정](/docs/master/passwords), [이메일 인증](/docs/master/verification) 문서를 참고하여, Laravel의 인증 서비스와 직접 상호작용할 수 있습니다.
 
-라라벨을 처음 접한다면 [스타터 키트](/docs/master/starter-kits)를 살펴볼 것을 권장합니다. 라라벨의 스타터 키트는 내부적으로 Fortify를 사용해 Tailwind CSS로 만든 사용자 인터페이스가 있는 인증 스캐폴딩을 제공합니다. 이를 통해 라라벨의 인증 기능을 쉽게 익힐 수 있습니다.
+라라벨을 처음 접한다면 [스타터 키트](/docs/master/starter-kits)를 살펴볼 것을 권장합니다. 라라벨의 스타터 키트는 내부적으로 Fortify를 사용해 [Tailwind CSS](https://tailwindcss.com)로 만든 사용자 인터페이스가 있는 인증 스캐폴딩을 제공합니다. 이를 통해 라라벨의 인증 기능을 쉽게 익힐 수 있습니다.
 
 Laravel Fortify는 스타터 키트에서 제공하는 라우트와 컨트롤러를 별도의 UI 없이 패키지로 분리한 것입니다. 이를 통해 빠르게 인증 백엔드만 구축하고, 프론트엔드는 자유롭게 구현할 수 있습니다.
 
@@ -185,7 +185,7 @@ Fortify에서 사용할 인증 가드는 애플리케이션의 `fortify` 설정 
 <a name="customizing-the-authentication-pipeline"></a>
 ### 인증 파이프라인 사용자 지정
 
-Laravel Fortify는 로그인 요청을 여러 `__invoke` 메서드를 가진 클래스의 파이프라인을 거쳐 인증합니다. 원하는 경우 로그인 요청이 거치는 파이프라인 클래스를 커스텀할 수 있습니다. 각 클래스는 들어오는 `Illuminate\Http\Request` 인스턴스와, 그 요청을 다음 파이프라인 클래스에 넘기는 `$next` 변수를 인수로 받습니다(미들웨어와 비슷한 방식입니다).
+Laravel Fortify는 로그인 요청을 여러 `__invoke` 메서드를 가진 클래스의 파이프라인을 거쳐 인증합니다. 원하는 경우 로그인 요청이 거치는 파이프라인 클래스를 커스텀할 수 있습니다. 각 클래스는 들어오는 `Illuminate\Http\Request` 인스턴스와, 그 요청을 다음 파이프라인 클래스에 넘기는 `$next` 변수를 인수로 받습니다([미들웨어](/docs/master/middleware)와 비슷한 방식입니다).
 
 커스텀 파이프라인 정의 방법은 `Fortify::authenticateThrough` 메서드를 사용합니다. 이 메서드는 로그인 요청을 거칠 클래스 배열을 반환하는 클로저를 인수로 받습니다. 일반적으로 `App\Providers\FortifyServiceProvider` 클래스의 `boot` 메서드에서 호출합니다.
 
@@ -351,7 +351,7 @@ Fortify가 `/two-factor-challenge` 라우트를 정의해 이 뷰를 반환합�
 
 로그인에 성공하면 Fortify는 `fortify` 설정 파일의 `home` 옵션에 지정된 URI로 리디렉션합니다. XHR 요청이라면 204 HTTP 응답이 반환됩니다.
 
-실패하면 다시 도전 화면으로 돌아가며, 유효성 오류는 Blade의 `$errors` 변수로 제공됩니다. XHR 요청인 경우 422 HTTP 오류와 함께 반환됩니다.
+실패하면 다시 도전 화면으로 돌아가며, 유효성 오류는 공유된 `$errors` [Blade 템플릿 변수](/docs/master/validation#quick-displaying-the-validation-errors)로 제공됩니다. XHR 요청인 경우 422 HTTP 오류와 함께 반환됩니다.
 
 <a name="disabling-two-factor-authentication"></a>
 ### 2단계 인증 비활성화

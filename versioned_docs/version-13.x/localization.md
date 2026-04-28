@@ -178,7 +178,7 @@ echo __('I love programming.');
 
 없을 경우 역시 원래 문자열 자체를 반환합니다.
 
-Blade 템플릿에서는 `{{ }}` 출력 구문을 활용할 수 있습니다:
+[Blade 템플릿 엔진](/docs/13.x/blade)을 사용하는 경우, `{{ }}` 출력 구문을 활용할 수 있습니다:
 
 ```blade
 {{ __('messages.welcome') }}
@@ -209,7 +209,7 @@ echo __('messages.welcome', ['name' => 'dayle']);
 <a name="object-replacement-formatting"></a>
 #### 객체 치환 포맷팅
 
-번역 문자열 플레이스홀더에 객체를 사용할 경우, 해당 객체의 `__toString` 메서드가 호출됩니다. 이 메서드는 PHP의 내장 "매직 메서드" 중 하나입니다. 그러나 간혹 서드파티 라이브러리 클래스 등, `__toString` 메서드를 직접 제어하기 어려운 경우도 있습니다.
+번역 문자열 플레이스홀더에 객체를 사용할 경우, 해당 객체의 `__toString` 메서드가 호출됩니다. [__toString](https://www.php.net/manual/en/language.oop5.magic.php#object.tostring) 메서드는 PHP의 내장 "매직 메서드" 중 하나입니다. 그러나 간혹 서드파티 라이브러리 클래스 등, `__toString` 메서드를 직접 제어하기 어려운 경우도 있습니다.
 
 이때 Laravel에서는 특정 객체 유형에 대해 커스텀 포맷팅 핸들러를 등록할 수 있습니다. 이를 위해 번역자(translator)의 `stringable` 메서드를 호출하면 됩니다. `stringable` 메서드는 콜백을 받아, 이 콜백은 포맷팅 책임 객체 타입을 타입힌트로 명시해야 합니다. 보통 이 호출은 애플리케이션 `AppServiceProvider` 클래스의 `boot` 메서드 내에서 수행합니다:
 

@@ -650,7 +650,7 @@ public function __construct(
 <a name="automatic-injection"></a>
 ### 자동 주입
 
-컨테이너에서 해석되는 클래스(컨트롤러, 이벤트 리스너, 미들웨어 등)의 생성자에 의존성을 타입힌트로 지정하면 자동으로 주입됩니다. [큐 작업](/docs/master/queues)의 `handle` 메서드도 마찬가지로 지원합니다. 실무에서 객체 대부분은 이처럼 컨테이너에 의해 해석됩니다.
+[컨트롤러](/docs/master/controllers), [이벤트 리스너](/docs/master/events), [미들웨어](/docs/master/middleware) 등 컨테이너에서 해석되는 클래스의 생성자에 의존성을 타입힌트로 지정하면 자동으로 주입됩니다. [큐 작업](/docs/master/queues)의 `handle` 메서드도 마찬가지로 지원합니다. 실무에서 객체 대부분은 이처럼 컨테이너에 의해 해석됩니다.
 
 예를 들어, 아래처럼 컨트롤러 생성자에 직접 서비스를 타입힌트로 지정할 수 있습니다. 서비스는 자동으로 해석되어 클래스에 주입됩니다.
 

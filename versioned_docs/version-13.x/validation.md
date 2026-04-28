@@ -1566,12 +1566,18 @@ use Illuminate\Validation\Rule;
 'avatar' => 'dimensions:min_width=100,min_height=200'
 ```
 
-사용 가능한 제약 조건은 _min\_width_, _max\_width_, _min\_height_, _max\_height_, _width_, _height_, _ratio_입니다.
+사용 가능한 제약 조건은 _min\_width_, _max\_width_, _min\_height_, _max\_height_, _width_, _height_, _ratio_, _min\_ratio_, _max\_ratio_입니다.
 
 _ratio_ 제약 조건은 너비를 높이로 나눈 값으로 표현해야 합니다. 이는 `3/2`와 같은 분수나 `1.5`와 같은 float로 지정할 수 있습니다.
 
 ```php
 'avatar' => 'dimensions:ratio=3/2'
+```
+
+_min\_ratio_와 _max\_ratio_ 제약 조건을 사용하여 허용 가능한 종횡비 범위를 정의할 수 있습니다.
+
+```php
+'avatar' => 'dimensions:min_ratio=1/2,max_ratio=3/2'
 ```
 
 이 규칙은 여러 인수를 필요로 하므로, `Rule::dimensions` 메서드를 사용해 fluent하게 규칙을 만드는 것이 더 편리한 경우가 많습니다.
@@ -1589,6 +1595,12 @@ Validator::make($data, [
             ->ratio(3 / 2),
     ],
 ]);
+```
+
+`minRatio`, `maxRatio`, `ratioBetween` 메서드를 사용하여 종횡비 제약 조건을 fluent하게 정의할 수도 있습니다.
+
+```php
+Rule::dimensions()->ratioBetween(min: 1 / 2, max: 3 / 2)
 ```
 
 <a name="rule-distinct"></a>

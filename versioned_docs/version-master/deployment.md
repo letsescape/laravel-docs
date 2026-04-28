@@ -100,7 +100,7 @@ server {
 frankenphp php-server -r public/
 ```
 
-HTTP/3, 최신 압축, Laravel Octane 연동 등 FrankenPHP가 지원하는 고급 기능이나, Laravel 애플리케이션을 독립 실행형 바이너리로 패키징하는 것과 같은 기능을 활용하려면 FrankenPHP의 [Laravel 문서](https://frankenphp.dev/docs/laravel/)를 참고하십시오.
+HTTP/3, 최신 압축, [Laravel Octane](/docs/master/octane) 연동 등 FrankenPHP가 지원하는 고급 기능이나, Laravel 애플리케이션을 독립 실행형 바이너리로 패키징하는 것과 같은 기능을 활용하려면 FrankenPHP의 [Laravel 문서](https://frankenphp.dev/docs/laravel/)를 참고하십시오.
 
 <a name="directory-permissions"></a>
 ### 디렉터리 권한

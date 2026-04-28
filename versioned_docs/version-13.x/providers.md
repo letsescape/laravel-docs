@@ -24,7 +24,7 @@ Laravel은 메일러, 큐(queue), 캐시(cache) 등과 같은 핵심 서비스�
 <a name="writing-service-providers"></a>
 ## 서비스 프로바이더 작성하기 (Writing Service Providers)
 
-모든 서비스 프로바이더는 `Illuminate\Support\ServiceProvider` 클래스를 상속합니다. 대부분의 서비스 프로바이더는 `register`와 `boot` 메서드를 가집니다. `register` 메서드 내에서는 **오직 서비스 컨테이너에 바인딩만 해야 합니다**. 이벤트 리스너, 라우트 또는 기타 기능을 `register` 메서드에서 등록하려고 시도해서는 안 됩니다.
+모든 서비스 프로바이더는 `Illuminate\Support\ServiceProvider` 클래스를 상속합니다. 대부분의 서비스 프로바이더는 `register`와 `boot` 메서드를 가집니다. `register` 메서드 내에서는 **오직 [서비스 컨테이너](/docs/13.x/container)에 바인딩만 해야 합니다**. 이벤트 리스너, 라우트 또는 기타 기능을 `register` 메서드에서 등록하려고 시도해서는 안 됩니다.
 
 Artisan CLI 명령어 `make:provider`를 통해 새 프로바이더를 생성할 수 있습니다. Laravel은 생성된 프로바이더를 자동으로 애플리케이션 `bootstrap/providers.php` 파일에 등록합니다:
 
@@ -35,7 +35,7 @@ php artisan make:provider RiakServiceProvider
 <a name="the-register-method"></a>
 ### register 메서드
 
-앞서 언급했듯이, `register` 메서드 내에서는 서비스 컨테이너에 바인딩만 해야 합니다. 이벤트 리스너, 라우트, 기타 기능을 `register` 메서드에서 등록하지 마세요. 그렇지 않으면 아직 로딩되지 않은 서비스 프로바이더가 제공하는 서비스를 잘못 사용하게 될 수 있습니다.
+앞서 언급했듯이, `register` 메서드 내에서는 [서비스 컨테이너](/docs/13.x/container)에 바인딩만 해야 합니다. 이벤트 리스너, 라우트, 기타 기능을 `register` 메서드에서 등록하지 마세요. 그렇지 않으면 아직 로딩되지 않은 서비스 프로바이더가 제공하는 서비스를 잘못 사용하게 될 수 있습니다.
 
 기본적인 서비스 프로바이더 예제를 살펴보겠습니다. 서비스 프로바이더의 메서드 내에서는 항상 `$app` 속성을 통해 서비스 컨테이너에 접근할 수 있습니다:
 
@@ -134,7 +134,7 @@ class ComposerServiceProvider extends ServiceProvider
 <a name="boot-method-dependency-injection"></a>
 #### boot 메서드 내 의존성 주입
 
-`boot` 메서드에 필요한 의존성을 타입 힌트로 지정할 수 있습니다. 서비스 컨테이너가 자동으로 필요한 의존성을 주입해 줍니다:
+`boot` 메서드에 필요한 의존성을 타입 힌트로 지정할 수 있습니다. [서비스 컨테이너](/docs/13.x/container)가 자동으로 필요한 의존성을 주입해 줍니다:
 
 ```php
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -177,7 +177,7 @@ return [
 <a name="deferred-providers"></a>
 ## 지연 로딩 프로바이더 (Deferred Providers)
 
-만약 프로바이더가 서비스 컨테이너에 바인딩만 등록한다면, 해당 바인딩이 실제로 필요할 때까지 등록을 지연시킬 수 있습니다. 이렇게 프로바이더 로딩을 지연시키면, 매 요청마다 파일 시스템에서 프로바이더를 로드하지 않아도 되기 때문에 애플리케이션 성능이 향상됩니다.
+만약 프로바이더가 [서비스 컨테이너](/docs/13.x/container)에 바인딩만 등록한다면, 해당 바인딩이 실제로 필요할 때까지 등록을 지연시킬 수 있습니다. 이렇게 프로바이더 로딩을 지연시키면, 매 요청마다 파일 시스템에서 프로바이더를 로드하지 않아도 되기 때문에 애플리케이션 성능이 향상됩니다.
 
 Laravel은 지연 로딩 서비스 프로바이더가 제공하는 서비스 목록과 프로바이더 클래스 이름을 컴파일하여 저장합니다. 이 후 해당 서비스 중 하나를 해석(해결)하려고 시도할 때 프로바이더를 로드합니다.
 
