@@ -812,7 +812,7 @@ $orders = Order::search('Star Trek')->paginate();
 $orders = Order::search('Star Trek')->paginate(15);
 ```
 
-검색 결과를 Blade에서 일반 Eloquent 쿼리의 페이지네이션과 동일하게 결과와 페이지 링크로 렌더링할 수 있습니다.
+검색 결과를 [Blade](/docs/11.x/blade)에서 일반 Eloquent 쿼리의 페이지네이션과 동일하게 결과와 페이지 링크로 렌더링할 수 있습니다.
 
 ```html
 <div class="container">

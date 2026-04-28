@@ -258,7 +258,7 @@ $user = User::factory()->state([
 ```
 
 > [!TIP]
-> 팩토리로 모델을 생성할 때는 [대량 할당 보호](https://laravel.com/docs/8.x/eloquent#mass-assignment)가 자동으로 비활성화됩니다.
+> 팩토리로 모델을 생성할 때는 [대량 할당 보호](/docs/8.x/eloquent#mass-assignment)가 자동으로 비활성화됩니다.
 
 <a name="persisting-models"></a>
 ### 모델 저장

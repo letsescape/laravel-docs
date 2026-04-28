@@ -1658,7 +1658,7 @@ public function priceTaxRates(): array
 $user->subscription('default')->syncTaxRates();
 ```
 
-이 메서드는 다중 상품 구독의 각 아이템 세율도 동기화합니다. 애플리케이션에서 다중 상품 구독을 제공하는 경우, 빌러블 모델에 위에서 설명한 `priceTaxRates` 메서드를 반드시 구현해야 합니다.
+이 메서드는 다중 상품 구독의 각 아이템 세율도 동기화합니다. 애플리케이션에서 다중 상품 구독을 제공하는 경우, 빌러블 모델에 [위에서 설명한](#subscription-taxes) `priceTaxRates` 메서드를 반드시 구현해야 합니다.
 
 <a name="tax-exemption"></a>
 #### 세금 면제

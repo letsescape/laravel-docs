@@ -385,7 +385,7 @@ Fortify는 `/register` 라우트를 자동으로 정의해 지정한 뷰를 반�
 
 회원가입에 성공하면, Fortify는 설정 파일에서 `home` 옵션으로 지정한 URL로 리디렉션하며, XHR 요청일 경우 201 HTTP 응답을 반환합니다.
 
-회원가입 실패 시, 다시 회원가입 화면으로 돌아가며, 유효성 검증 에러는 Blade의 `$errors` 변수로, XHR 요청일 경우 422 HTTP 응답에 포함되어 반환됩니다.
+회원가입 실패 시, 다시 회원가입 화면으로 돌아가며, 유효성 검증 에러는 [Blade 템플릿 변수](/docs/11.x/validation#quick-displaying-the-validation-errors)인 `$errors`로, XHR 요청일 경우 422 HTTP 응답에 포함되어 반환됩니다.
 
 <a name="customizing-registration"></a>
 ### 회원가입 커스터마이징
@@ -439,7 +439,7 @@ Fortify는 `/forgot-password` 엔드포인트를 자동 정의해 위 뷰를 반
 @endif
 ```
 
-요청이 실패했다면, 비밀번호 재설정 링크 요청 화면으로 돌아가고 검증 에러는 Blade의 `$errors` 변수로 확인할 수 있습니다. XHR 요청은 422 HTTP 응답과 함께 에러를 반환합니다.
+요청이 실패했다면, 비밀번호 재설정 링크 요청 화면으로 돌아가고 검증 에러는 [Blade 템플릿 변수](/docs/11.x/validation#quick-displaying-the-validation-errors)인 `$errors`로 확인할 수 있습니다. XHR 요청은 422 HTTP 응답과 함께 에러를 반환합니다.
 
 <a name="resetting-the-password"></a>
 ### 비밀번호 재설정
@@ -484,7 +484,7 @@ Fortify는 해당 뷰를 보여주는 라우트를 자동으로 정의합니다.
 
 XHR 요청일 경우 200 HTTP 응답을 반환합니다.
 
-실패 시에는 비밀번호 재설정 화면으로 돌아가고, 검증 에러는 Blade의 `$errors` 변수나 XHR 요청의 경우 422 HTTP 응답으로 반환됩니다.
+실패 시에는 비밀번호 재설정 화면으로 돌아가고, 검증 에러는 [Blade 템플릿 변수](/docs/11.x/validation#quick-displaying-the-validation-errors)인 `$errors`나 XHR 요청의 경우 422 HTTP 응답으로 반환됩니다.
 
 <a name="customizing-password-resets"></a>
 ### 비밀번호 재설정 커스터마이징

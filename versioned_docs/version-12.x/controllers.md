@@ -439,7 +439,7 @@ public function boot(): void
 }
 ```
 
-Laravel의 복수화(pluralizer) 기능은 [여러 언어를 지원](https://laravel.com/docs/12.x/localization#pluralization-language)하며, 필요에 따라 설정할 수 있습니다. 동사와 복수화 언어를 사용자 지정하면, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`은 아래와 같은 URI를 생성합니다.
+Laravel의 복수화(pluralizer) 기능은 [여러 언어를 지원](/docs/12.x/localization#pluralization-language)하며, 필요에 따라 설정할 수 있습니다. 동사와 복수화 언어를 사용자 지정하면, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`은 아래와 같은 URI를 생성합니다.
 
 ```text
 /publicacion/crear

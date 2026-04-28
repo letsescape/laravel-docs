@@ -239,7 +239,7 @@ MySQL 또는 PostgreSQL을 사용할 때, 칼럼 정의에 `fullText` 메서드�
 $table->text('bio')->fullText();
 ```
 
-또한, `whereFullText`, `orWhereFullText` 메서드를 사용하면 전체 텍스트 인덱스가 설정된 칼럼에 쿼리할 수 있습니다. 이 메서드는 데이터베이스 종류에 맞는 SQL로 자동 변환됩니다. 예를 들어 MySQL에선 아래와 같이 `MATCH AGAINST` 구문이 사용됩니다.
+또한, `whereFullText`, `orWhereFullText` 메서드를 사용하면 [전체 텍스트 인덱스](/docs/9.x/migrations#available-index-types)가 설정된 칼럼에 쿼리할 수 있습니다. 이 메서드는 데이터베이스 종류에 맞는 SQL로 자동 변환됩니다. 예를 들어 MySQL에선 아래와 같이 `MATCH AGAINST` 구문이 사용됩니다.
 
 ```
 $users = DB::table('users')
@@ -432,7 +432,7 @@ php artisan test --coverage --min=80.3
 
 _Soketi Echo 서버는 [Alex Renoki](https://github.com/rennokki)가 개발하였습니다._
 
-라라벨 9.x 전용 기능은 아니지만, 최근 라라벨에서는 Laravel Echo와 호환되는 Node.js 기반 Web Socket 서버인 Soketi의 문서화 작업에 기여하였습니다. Soketi는 푸셔(Pusher), Ably 등 상용 서비스 대신 자체적으로 Web Socket 서버를 운영하고 싶은 애플리케이션에 적합한 오픈소스 대안입니다.
+라라벨 9.x 전용 기능은 아니지만, 최근 라라벨에서는 [Laravel Echo](/docs/9.x/broadcasting)와 호환되는 Node.js 기반 Web Socket 서버인 Soketi의 문서화 작업에 기여하였습니다. Soketi는 푸셔(Pusher), Ably 등 상용 서비스 대신 자체적으로 Web Socket 서버를 운영하고 싶은 애플리케이션에 적합한 오픈소스 대안입니다.
 
 Soketi 사용 방법은 [브로드캐스팅 공식 문서](/docs/9.x/broadcasting)와 [Soketi 공식 문서](https://docs.soketi.app/)를 참고하세요.
 

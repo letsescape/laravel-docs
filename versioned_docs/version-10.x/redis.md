@@ -13,7 +13,7 @@
 <a name="introduction"></a>
 ## 소개
 
-[Redis](https://redis.io)는 오픈 소스의 고급 키-값 저장소입니다. 키에는 [문자열](https://redis.io/docs/data-types/strings/), [해시](https://redis.io/docs/data-types/hashes/), [리스트](https://redis.io/docs/data-types/lists/), [집합](https://redis.io/docs/data-types/sets/), [정렬된 집합](https://redis.io/docs/data-types/sorted-sets/) 등 다양한 형태의 데이터 구조를 저장할 수 있기 때문에, 종종 데이터 구조 서버라고도 불립니다.
+[Redis](https://redis.io)는 오픈 소스의 고급 키-값 저장소입니다. 키에는 [문자열](https://redis.io/docs/latest/develop/data-types/strings/), [해시](https://redis.io/docs/latest/develop/data-types/hashes/), [리스트](https://redis.io/docs/latest/develop/data-types/lists/), [집합](https://redis.io/docs/latest/develop/data-types/sets/), [정렬된 집합](https://redis.io/docs/latest/develop/data-types/sorted-sets/) 등 다양한 형태의 데이터 구조를 저장할 수 있기 때문에, 종종 데이터 구조 서버라고도 불립니다.
 
 라라벨에서 Redis를 사용하기 전에, PECL을 통해 [PhpRedis](https://github.com/phpredis/phpredis) PHP 확장 모듈을 설치하고 사용하는 것을 권장합니다. 이 확장 모듈은 "유저랜드" PHP 패키지보다 설치가 다소 복잡할 수 있지만, Redis를 많이 사용하는 애플리케이션의 경우 더 나은 성능을 기대할 수 있습니다. [Laravel Sail](/docs/10.x/sail)을 사용하는 경우, 해당 확장 모듈은 이미 애플리케이션의 Docker 컨테이너에 설치되어 있습니다.
 

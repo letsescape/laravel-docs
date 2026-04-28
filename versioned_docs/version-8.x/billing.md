@@ -1367,7 +1367,7 @@ public function priceTaxRates()
 $user->subscription('default')->syncTaxRates();
 ```
 
-이 메서드는 멀티 프라이스 구독 아이템의 개별 세율까지 함께 동기화해 줍니다. 멀티 프라이스 구독을 제공하는 경우, 반드시 위에서 설명한 `priceTaxRates` 메서드를 청구 가능 모델에 구현해 두어야 합니다.
+이 메서드는 멀티 프라이스 구독 아이템의 개별 세율까지 함께 동기화해 줍니다. 멀티 프라이스 구독을 제공하는 경우, 반드시 [위에서 설명한](#subscription-taxes) `priceTaxRates` 메서드를 청구 가능 모델에 구현해 두어야 합니다.
 
 <a name="tax-exemption"></a>
 #### 세금 면제 확인

@@ -543,7 +543,7 @@ export default defineConfig({
 ### 별칭(Alias)
 
 자바스크립트에서는 [별칭을 만들어](#aliases) 자주 접근하는 경로를 편리하게 사용할 수 있습니다. 이와 비슷하게, Blade에서도 별칭을 사용할 수 있습니다. 이를 위해서는
-`Illuminate\Support\Facades\Vite` 클래스의 `macro` 메서드를 활용하면 됩니다. 보통 서비스 프로바이더의 `boot` 메서드에서 "매크로"를 등록합니다.
+`Illuminate\Support\Facades\Vite` 클래스의 `macro` 메서드를 활용하면 됩니다. 보통 [서비스 프로바이더](/docs/9.x/providers)의 `boot` 메서드에서 "매크로"를 등록합니다.
 
 ```
 /**
@@ -725,7 +725,7 @@ class AddContentSecurityPolicyHeaders
 
 `useCspNonce` 메서드를 호출하면 라라벨은 생성하는 모든 스크립트 및 스타일 태그에 자동으로 nonce 속성을 추가해 줍니다.
 
-Ziggy의 [@route 디렉티브](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) 등, 다른 곳에서도 nonce가
+라라벨의 [스타터 키트](/docs/9.x/starter-kits)에 포함된 Ziggy의 [@route 디렉티브](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) 등, 다른 곳에서도 nonce가
 필요하다면 `cspNonce` 메서드로 값을 받아올 수 있습니다.
 
 ```blade

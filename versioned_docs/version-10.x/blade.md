@@ -50,7 +50,7 @@
 
 Blade는 라라벨에 기본 포함된 간결하면서도 강력한 템플릿 엔진입니다. 일부 PHP 템플릿 엔진과는 달리, Blade는 템플릿에서 평범한 PHP 코드를 자유롭게 사용할 수 있습니다. 실제로 모든 Blade 템플릿은 일반 PHP 코드로 컴파일되고, 파일이 수정될 때까지 캐싱되므로 Blade가 애플리케이션에 추가하는 오버헤드는 거의 없습니다. Blade 템플릿 파일의 확장자는 `.blade.php`이며, 일반적으로 `resources/views` 디렉터리에 저장됩니다.
 
-Blade 뷰는 전역 `view` 헬퍼를 사용해 라우트나 컨트롤러에서 반환할 수 있습니다. 물론, [뷰](https://laravel.com/docs/10.x/views) 문서에서 설명한 대로, 두 번째 인수로 데이터를 Blade 뷰에 전달할 수 있습니다.
+Blade 뷰는 전역 `view` 헬퍼를 사용해 라우트나 컨트롤러에서 반환할 수 있습니다. 물론, [뷰](/docs/10.x/views) 문서에서 설명한 대로, 두 번째 인수로 데이터를 Blade 뷰에 전달할 수 있습니다.
 
 ```
 Route::get('/', function () {
@@ -310,7 +310,7 @@ Hello, @{{ name }}.
 <a name="session-directives"></a>
 #### 세션 디렉티브
 
-세션 값이 존재하는지 확인하고 싶다면 `@session` 디렉티브를 사용할 수 있습니다. 세션 값이 존재할 경우, `@session` ~ `@endsession` 블록 안의 템플릿 내용이 평가됩니다. 이 구간에서는 `$value` 변수를 출력할 수 있습니다.
+[세션](/docs/10.x/session) 값이 존재하는지 확인하고 싶다면 `@session` 디렉티브를 사용할 수 있습니다. 세션 값이 존재할 경우, `@session` ~ `@endsession` 블록 안의 템플릿 내용이 평가됩니다. 이 구간에서는 `$value` 변수를 출력할 수 있습니다.
 
 ```blade
 @session('status')
@@ -1532,7 +1532,7 @@ Blade::anonymousComponentPath(__DIR__.'/../components', 'dashboard');
 </x-layout>
 ```
 
-이처럼 컴포넌트에 삽입된 내용은, `layout` 컴포넌트 내부의 기본 `$slot` 변수로 전달됩니다. 또한, `layout` 컴포넌트에서는 `$title` 슬롯이 있을 경우 이를 사용하며, 없으면 기본값이 표시됩니다. 아래와 같이 표준 슬롯 문법을 활용해 태스크 목록 뷰에서 타이틀을 전달할 수도 있습니다.
+이처럼 컴포넌트에 삽입된 내용은, `layout` 컴포넌트 내부의 기본 `$slot` 변수로 전달됩니다. 또한, `layout` 컴포넌트에서는 `$title` 슬롯이 있을 경우 이를 사용하며, 없으면 기본값이 표시됩니다. 아래와 같이 [컴포넌트 문서](#components)에서 설명한 표준 슬롯 문법을 활용해 태스크 목록 뷰에서 타이틀을 전달할 수도 있습니다.
 
 ```blade
 <!-- resources/views/tasks.blade.php -->
@@ -1631,7 +1631,7 @@ Route::get('/tasks', function () {
 <a name="csrf-field"></a>
 ### CSRF 필드
 
-HTML 폼을 작성할 때는 반드시 CSRF 보호 미들웨어가 요청을 검증할 수 있도록 숨겨진 CSRF 토큰 필드를 포함해야 합니다. `@csrf` Blade 디렉티브를 사용하면 이 토큰 필드를 자동으로 생성할 수 있습니다.
+HTML 폼을 작성할 때는 반드시 [CSRF 보호](/docs/10.x/csrf) 미들웨어가 요청을 검증할 수 있도록 숨겨진 CSRF 토큰 필드를 포함해야 합니다. `@csrf` Blade 디렉티브를 사용하면 이 토큰 필드를 자동으로 생성할 수 있습니다.
 
 ```blade
 <form method="POST" action="/profile">

@@ -51,7 +51,7 @@ Storage::disk('local')->put('example.txt', 'Contents');
 
 애플리케이션의 `filesystems` 구성 파일에 포함된 `public` 디스크는 일반적으로 외부에 공개할 파일을 저장하는 데 사용합니다. 기본적으로 `public` 디스크는 `local` 드라이버를 사용하며, 파일은 `storage/app/public` 디렉터리에 저장됩니다.
 
-이 파일들을 웹에서 접근할 수 있도록 하려면, `public/storage`에서 `storage/app/public`으로 연결되는 심볼릭 링크를 생성해야 합니다. 이러한 폴더 관리 방식을 사용하면, 무중단 배포처럼 여러 번 배포하더라도 공개 파일을 한 디렉터리에서 깔끔하게 관리하고 쉽게 공유할 수 있습니다.
+이 파일들을 웹에서 접근할 수 있도록 하려면, `public/storage`에서 `storage/app/public`으로 연결되는 심볼릭 링크를 생성해야 합니다. 이러한 폴더 관리 방식을 사용하면, [Envoyer](https://envoyer.io)와 같은 무중단 배포 시스템을 사용하더라도 공개 파일을 한 디렉터리에서 깔끔하게 관리하고 쉽게 공유할 수 있습니다.
 
 심볼릭 링크를 생성하려면, `storage:link` Artisan 명령어를 사용하면 됩니다.
 

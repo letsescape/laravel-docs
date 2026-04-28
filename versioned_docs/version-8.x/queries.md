@@ -181,7 +181,7 @@ DB::table('users')->where('active', false)
 <a name="streaming-results-lazily"></a>
 ### 게으르게 결과 스트리밍하기
 
-`lazy` 메서드는 [chunk 메서드](#chunking-results)와 유사하게, 쿼리를 청크 단위로 실행합니다. 차이점은 각 청크를 콜백에 직접 넘기는 대신, `lazy()`는 [LazyCollection](/docs/8.x/collections#lazy-collections) 을 반환하여 결과를 하나의 스트림처럼 순회할 수 있다는 점입니다.
+`lazy` 메서드는 [`chunk` 메서드](#chunking-results)와 유사하게, 쿼리를 청크 단위로 실행합니다. 차이점은 각 청크를 콜백에 직접 넘기는 대신, `lazy()`는 [`LazyCollection`](/docs/8.x/collections#lazy-collections)을 반환하여 결과를 하나의 스트림처럼 순회할 수 있다는 점입니다.
 
 ```php
 use Illuminate\Support\Facades\DB;

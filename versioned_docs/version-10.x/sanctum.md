@@ -382,7 +382,7 @@ SPA에서 [프라이빗/프레즌스 브로드캐스트 채널](/docs/10.x/broad
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 ```
 
-이후, Pusher의 인가 요청이 정상 동작하려면 [Laravel Echo](/docs/10.x/broadcasting#client-side-installation) 초기화 시 커스텀 Pusher `authorizer`를 구현해야 합니다. 이렇게 하면 앞서 설명한 cross-domain 요청 설정을 적용한 `axios` 인스턴스를 사용하도록 Pusher를 구성할 수 있습니다.
+이후, Pusher의 인가 요청이 정상 동작하려면 [Laravel Echo](/docs/10.x/broadcasting#client-side-installation) 초기화 시 커스텀 Pusher `authorizer`를 구현해야 합니다. 이렇게 하면 [cross-domain 요청에 알맞게 구성된](#cors-and-cookies) `axios` 인스턴스를 사용하도록 Pusher를 구성할 수 있습니다.
 
 ```js
 window.Echo = new Echo({

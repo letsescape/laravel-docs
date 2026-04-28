@@ -247,7 +247,7 @@ class SetDefaultLocaleForUrls
 <a name="url-defaults-middleware-priority"></a>
 #### URL 기본값 & 미들웨어 실행 우선순위
 
-URL의 기본값을 설정하는 미들웨어는 라라벨의 암묵적 모델 바인딩 처리에 영향을 줄 수 있습니다. 따라서, URL 기본값을 설정하는 미들웨어는 반드시 라라벨의 기본 `SubstituteBindings` 미들웨어보다 먼저 실행되어야 합니다. 이를 위해서는 애플리케이션의 HTTP 커널에서 `$middlewarePriority` 속성에 해당 미들웨어가 `SubstituteBindings`보다 앞에 나오도록 설정해야 합니다.
+URL의 기본값을 설정하는 미들웨어는 라라벨의 암묵적 모델 바인딩 처리에 영향을 줄 수 있습니다. 따라서, URL 기본값을 설정하는 [미들웨어의 우선순위를 지정](/docs/8.x/middleware#sorting-middleware)하여 반드시 라라벨의 기본 `SubstituteBindings` 미들웨어보다 먼저 실행되도록 해야 합니다. 이를 위해서는 애플리케이션의 HTTP 커널에서 `$middlewarePriority` 속성에 해당 미들웨어가 `SubstituteBindings`보다 앞에 나오도록 설정해야 합니다.
 
 `$middlewarePriority` 속성은 기본적으로 `Illuminate\Foundation\Http\Kernel` 클래스에 정의되어 있습니다. 이 정의를 앱의 HTTP 커널로 복사해서 원하는 대로 수정할 수 있습니다.
 

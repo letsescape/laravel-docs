@@ -191,7 +191,7 @@ Fortify가 사용할 인증 가드는 앱의 `fortify` 설정 파일에서 커�
 <a name="customizing-the-authentication-pipeline"></a>
 ### 인증 파이프라인 커스터마이징
 
-라라벨 Fortify는 로그인 요청을 일련의 호출 가능한 클래스(파이프라인)를 거쳐 인증합니다. 필요에 따라 로그인 요청에 대한 커스텀 파이프라인을 정의할 수 있습니다. 각 클래스는 요청(`Illuminate\Http\Request`)과 미들웨어처럼 동작하는 `$next` 변수를 받아 처리합니다.
+라라벨 Fortify는 로그인 요청을 일련의 호출 가능한 클래스(파이프라인)를 거쳐 인증합니다. 필요에 따라 로그인 요청에 대한 커스텀 파이프라인을 정의할 수 있습니다. 각 클래스는 요청(`Illuminate\Http\Request`)과 [미들웨어](/docs/10.x/middleware)처럼 동작하는 `$next` 변수를 받아 처리합니다.
 
 커스텀 파이프라인을 정의하려면 `Fortify::authenticateThrough` 메서드에 클로저를 넘겨주고, 로그인 요청을 거치게 할 클래스 배열을 반환해야 합니다. 이 코드는 보통 앱의 `App\Providers\FortifyServiceProvider` 클래스의 `boot` 메서드에서 호출합니다.
 

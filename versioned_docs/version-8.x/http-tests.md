@@ -717,6 +717,7 @@ $view->assertSee('Taylor');
 [assertSessionHasNoErrors](#assert-session-has-no-errors)
 [assertSessionDoesntHaveErrors](#assert-session-doesnt-have-errors)
 [assertSessionMissing](#assert-session-missing)
+assertSimilarJson
 [assertStatus](#assert-status)
 [assertSuccessful](#assert-successful)
 [assertUnauthorized](#assert-unauthorized)

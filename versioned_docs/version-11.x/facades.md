@@ -193,7 +193,7 @@ class Cache extends Facade
 }
 ```
 
-대신, `Cache` 파사드는 기본 `Facade` 클래스를 상속받고, `getFacadeAccessor()` 메서드를 정의하고 있습니다. 이 메서드는 서비스 컨테이너에 바인딩된 이름을 반환하는 역할을 합니다. 사용자가 `Cache` 파사드에서 어떤 정적 메서드를 호출하면, 라라벨은 서비스 컨테이너에서 `cache` 바인딩을 resolve해서 실제 객체의 해당 메서드를 실행하는 것입니다.
+대신, `Cache` 파사드는 기본 `Facade` 클래스를 상속받고, `getFacadeAccessor()` 메서드를 정의하고 있습니다. 이 메서드는 서비스 컨테이너에 바인딩된 이름을 반환하는 역할을 합니다. 사용자가 `Cache` 파사드에서 어떤 정적 메서드를 호출하면, 라라벨은 [서비스 컨테이너](/docs/11.x/container)에서 `cache` 바인딩을 resolve해서 실제 객체의 해당 메서드를 실행하는 것입니다.
 
 <a name="real-time-facades"></a>
 ## 실시간 파사드

@@ -1546,7 +1546,7 @@ from posts
 where user_id = ? and active = 1 or votes >= 100
 ```
 
-대부분의 상황에서는 [논리 그룹](https://laravel.com/docs/11.x/queries#logical-grouping)을 사용하여 조건을 괄호로 묶어주어야 합니다.
+대부분의 상황에서는 [논리 그룹](/docs/11.x/queries#logical-grouping)을 사용하여 조건을 괄호로 묶어주어야 합니다.
 
 ```
 use Illuminate\Database\Eloquent\Builder;

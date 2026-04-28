@@ -467,7 +467,7 @@ $response = Http::timeout(120)->get(/* ... */);
 
 **영향 가능성: 낮음**
 
-기존에는 HTTP 클라이언트가 "faked"될 때 Guzzle HTTP 미들웨어가 실행되지 않았지만, 9.x에서는 **faked 상태에서도 Guzzle 미들웨어가 실행**됩니다.
+기존에는 [HTTP 클라이언트](/docs/9.x/http-client)가 "faked"될 때 Guzzle HTTP 미들웨어가 실행되지 않았지만, 9.x에서는 **faked 상태에서도 Guzzle 미들웨어가 실행**됩니다.
 
 #### HTTP Fake와 의존성 주입
 

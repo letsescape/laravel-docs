@@ -1381,7 +1381,7 @@ Next payment: {{ $nextPayment->amount() }} due on {{ $nextPayment->date()->forma
 
 구독 결제는 카드 만료, 한도 초과 등 다양한 원인으로 실패할 수 있습니다. 이런 경우에는 Paddle에서 결제 실패 처리를 담당하도록 하는 것이 좋습니다. Paddle 대시보드에서 [자동 청구 이메일](https://vendors.paddle.com/subscription-settings) 설정을 통해 처리할 수 있습니다.
 
-그리고, 더 세밀한 제어가 필요하다면 Cashier에서 디스패치하는 `WebhookReceived` 이벤트를 리스닝하여 `subscription_payment_failed` Paddle 이벤트를 직접 처리할 수도 있습니다. Paddle 대시보드의 Webhook 설정에서 "Subscription Payment Failed" 옵션이 활성화되어 있는지도 확인하세요.
+그리고, 더 세밀한 제어가 필요하다면 Cashier에서 디스패치하는 `WebhookReceived` 이벤트를 [리스닝](/docs/9.x/events)하여 `subscription_payment_failed` Paddle 이벤트를 직접 처리할 수도 있습니다. Paddle 대시보드의 Webhook 설정에서 "Subscription Payment Failed" 옵션이 활성화되어 있는지도 확인하세요.
 
 ```
 <?php

@@ -447,8 +447,8 @@ Monolog 핸들러 자체적으로 포매터를 제공하는 경우라면, `forma
 ],
 ```
 
-<a name="monolog-processors"></a>
-#### Monolog 프로세서
+ <a name="monolog-processors"></a>
+ #### Monolog 프로세서
 
 Monolog은 로그 메시지를 기록하기 전에 가공 처리할 수 있도록 프로세서 기능을 제공합니다. 직접 커스텀 프로세서를 만들 수도 있고, [Monolog이 제공하는 기본 프로세서들](https://github.com/Seldaek/monolog/tree/main/src/Monolog/Processor)도 사용할 수 있습니다.
 

@@ -131,7 +131,7 @@ app()->usePublicPath(__DIR__.'/public');
 
 **영향도: 중간**
 
-`Cache::tags()` 기능은 Memcached를 사용하는 애플리케이션에서만 권장합니다. 애플리케이션이 Redis를 캐시 드라이버로 사용하고 있다면, Memcached로의 이전이나 다른 대체 솔루션 사용을 고려해야 합니다.
+`Cache::tags()` 기능은 Memcached를 사용하는 애플리케이션에서만 권장합니다. 애플리케이션이 Redis를 캐시 드라이버로 사용하고 있다면, Memcached로의 이전이나 라라벨 [12.30.0](https://github.com/laravel/framework/pull/57098) 버전으로 업그레이드하는 방안을 고려해야 합니다.
 
 ### 데이터베이스
 

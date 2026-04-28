@@ -388,7 +388,7 @@ $archived = $request->boolean('archived');
 <a name="retrieving-date-input-values"></a>
 #### 날짜(Date) 입력값 가져오기
 
-날짜/시간 값을 입력받을 때 편리하게 `date` 메서드로 입력값을 [Carbon](https://carbon.nesbot.com/) 인스턴스로 변환해 가져올 수 있습니다. 값이 없으면 `null`이 반환됩니다.
+날짜/시간 값을 입력받을 때 편리하게 `date` 메서드로 입력값을 Carbon 인스턴스로 변환해 가져올 수 있습니다. 값이 없으면 `null`이 반환됩니다.
 
 ```
 $birthday = $request->date('birthday');

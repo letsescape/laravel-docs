@@ -613,7 +613,7 @@ public function makeSearchableUsing(Collection $models): Collection
 <a name="removing-records"></a>
 ### 레코드 삭제하기
 
-검색 인덱스에서 레코드를 삭제하려면, 데이터베이스에서 해당 모델을 단순히 `delete`하면 됩니다. 소프트 삭제를 사용하는 모델에서도 동일하게 동작합니다.
+검색 인덱스에서 레코드를 삭제하려면, 데이터베이스에서 해당 모델을 단순히 `delete`하면 됩니다. [소프트 삭제](/docs/10.x/eloquent#soft-deleting)를 사용하는 모델에서도 동일하게 동작합니다.
 
 ```
 use App\Models\Order;
@@ -762,7 +762,7 @@ $orders = Order::search('Star Trek')->paginate();
 $orders = Order::search('Star Trek')->paginate(15);
 ```
 
-결과를 얻은 후에는, 기존 Blade와 동일하게 결과 목록을 보여주고 페이지 링크를 출력할 수 있습니다.
+결과를 얻은 후에는, 기존 Eloquent 쿼리를 페이지네이션한 것처럼 [Blade](/docs/10.x/blade)를 사용하여 결과 목록을 보여주고 페이지 링크를 출력할 수 있습니다.
 
 ```html
 <div class="container">

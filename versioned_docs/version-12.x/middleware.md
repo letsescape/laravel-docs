@@ -190,7 +190,7 @@ Route::middleware([EnsureTokenIsValid::class])->group(function () {
 });
 ```
 
-또한, 한 그룹 전체에서 특정 미들웨어 집합을 제외할 수도 있습니다:
+또한, 한 [그룹](/docs/12.x/routing#route-groups) 전체에서 특정 미들웨어 집합을 제외할 수도 있습니다:
 
 ```php
 use App\Http\Middleware\EnsureTokenIsValid;

@@ -106,7 +106,7 @@ Sanctum은 저희가 [Laravel Jetstream](https://jetstream.laravel.com) 스타�
 
 외부에서 API를 활용하는 경우라면, 애플리케이션 특성에 맞게 [Passport](/docs/10.x/passport) 또는 [Sanctum](/docs/10.x/sanctum) 중 하나를 선택해 API 토큰 인증을 적용하세요. 대부분의 경우, 간단하고 완성도 높은 API 인증/SPA 인증/모바일 인증 기능과 "scope(혹은 ability)"도 제공하는 Sanctum을 추천합니다.
 
-라라벨을 백엔드로 사용하는 SPA를 개발하는 경우에도 [Laravel Sanctum](/docs/10.x/sanctum)이 가장 적합합니다. 이 때, 인증 라우트 구현을 직접 하거나, [Laravel Fortify](/docs/10.x/fortify)를 헤드리스 인증 백엔드로 이용할 수 있습니다. Fortify는 회원가입, 비밀번호 재설정, 이메일 인증 등 다양한 라우트와 컨트롤러도 제공합니다.
+라라벨을 백엔드로 사용하는 SPA를 개발하는 경우에도 [Laravel Sanctum](/docs/10.x/sanctum)이 가장 적합합니다. 이 때, [인증 라우트 구현을 직접 하거나](#authenticating-users), [Laravel Fortify](/docs/10.x/fortify)를 헤드리스 인증 백엔드로 이용할 수 있습니다. Fortify는 회원가입, 비밀번호 재설정, 이메일 인증 등 다양한 라우트와 컨트롤러도 제공합니다.
 
 반드시 OAuth2의 모든 기능이 필요한 특별한 경우라면 Passport를 선택하세요.
 
@@ -125,7 +125,7 @@ Sanctum은 저희가 [Laravel Jetstream](https://jetstream.laravel.com) 스타�
 
 Laravel Breeze는 로그인, 회원가입, 비밀번호 재설정, 이메일 인증, 비밀번호 확인 등 라라벨의 모든 인증 기능을 최소 목적에 맞게, 간단하게 구현합니다. 뷰는 [Blade 템플릿](/docs/10.x/blade)과 [Tailwind CSS](https://tailwindcss.com)로 만들었습니다. 더불어, [Livewire](https://livewire.laravel.com)나 [Inertia](https://inertiajs.com) 기반(Vue 또는 React 선택 가능) 뼈대도 옵션으로 제공합니다.
 
-[Laravel Jetstream](https://jetstream.laravel.com)은 Livewire 또는 Inertia(Vue 기반)로 애플리케이션 뼈대를 구축할 수 있는 더욱 강력한 스타터 키트입니다. Jetstream에는 2차 인증, 팀, 프로필 관리, 브라우저 세션 관리, [Laravel Sanctum](/docs/10.x/sanctum)을 통한 API 지원, 계정 삭제 등 다양한 추가 기능도 선택적으로 제공됩니다.
+[Laravel Jetstream](https://jetstream.laravel.com)은 [Livewire](https://livewire.laravel.com) 또는 [Inertia(Vue 기반)](https://inertiajs.com)로 애플리케이션 뼈대를 구축할 수 있는 더욱 강력한 스타터 키트입니다. Jetstream에는 2차 인증, 팀, 프로필 관리, 브라우저 세션 관리, [Laravel Sanctum](/docs/10.x/sanctum)을 통한 API 지원, 계정 삭제 등 다양한 추가 기능도 선택적으로 제공됩니다.
 
 <a name="retrieving-the-authenticated-user"></a>
 ### 인증된 사용자 가져오기

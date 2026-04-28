@@ -189,7 +189,7 @@ Inertia와 Vue / React로 프론트엔드를 개발하고 싶다면, Breeze 또�
 
 Blade, Livewire, Vue, React, Inertia 등 어떤 조합으로 프론트엔드를 개발하든, 실제 서비스에 배포하려면 CSS 등 애플리케이션의 에셋을 번들링해서 최적화해야 할 필요가 있습니다. 또한, Vue나 React로 프론트엔드를 구축할 경우 컴포넌트 코드도 브라우저에서 바로 동작할 수 있도록 자바스크립트 에셋으로 번들링해야 합니다.
 
-라라벨은 기본적으로 [Vite](https://vitejs.dev)를 사용하여 에셋을 번들링합니다. Vite는 매우 빠른 빌드 속도와, 개발 중 즉각적인 Hot Module Replacement(HMR) 기능을 제공합니다. 새로 생성된 모든 라라벨 애플리케이션(스타터 킷을 사용한 경우 포함)에는 `vite.config.js` 파일이 함께 제공되며, Vite를 라라벨과 더 쉽게 연동할 수 있는 공식 플러그인 설정이 이미 적용되어 있습니다.
+라라벨은 기본적으로 [Vite](https://vitejs.dev)를 사용하여 에셋을 번들링합니다. Vite는 매우 빠른 빌드 속도와, 개발 중 즉각적인 Hot Module Replacement(HMR) 기능을 제공합니다. 새로 생성된 모든 라라벨 애플리케이션([스타터 킷](/docs/9.x/starter-kits)을 사용한 경우 포함)에는 `vite.config.js` 파일이 함께 제공되며, Vite를 라라벨과 더 쉽게 연동할 수 있는 공식 플러그인 설정이 이미 적용되어 있습니다.
 
 라라벨과 Vite 조합으로 개발을 시작하는 가장 빠른 방법은 [Laravel Breeze](/docs/9.x/starter-kits#laravel-breeze) 스타터 킷을 사용하는 것입니다. Breeze는 프론트엔드와 백엔드 인증 구조를 모두 미리 만들어주기 때문에 빠르고 손쉽게 개발을 진행할 수 있습니다.
 

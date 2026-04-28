@@ -264,7 +264,7 @@ DB::unprepared('update users set votes = 100 where name = "Dries"');
 <a name="implicit-commits-in-transactions"></a>
 #### 암묵적 커밋(Implicit Commits)
 
-트랜잭션 내에서 `DB` 파사드의 `statement`나 `unprepared` 메서드를 사용할 때는 자동으로 트랜잭션이 커밋되는 SQL 문을 작성하지 않도록 주의해야 합니다. 이런 SQL 문은 데이터베이스 엔진에 의해 간접적으로 전체 트랜잭션이 커밋되어, 라라벨은 실제 트랜잭션 상태를 인지할 수 없게 됩니다. 예를 들어, 데이터베이스 테이블을 생성하는 명령이 대표적입니다.
+트랜잭션 내에서 `DB` 파사드의 `statement`나 `unprepared` 메서드를 사용할 때는 [암묵적 커밋](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)을 유발하는 SQL 문을 작성하지 않도록 주의해야 합니다. 이런 SQL 문은 데이터베이스 엔진에 의해 간접적으로 전체 트랜잭션이 커밋되어, 라라벨은 실제 트랜잭션 상태를 인지할 수 없게 됩니다. 예를 들어, 데이터베이스 테이블을 생성하는 명령이 대표적입니다.
 
 ```
 DB::unprepared('create table a (col varchar(1) null)');
