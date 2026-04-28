@@ -1,34 +1,34 @@
 {
   "version.label": {
-    "message": "12.x",
-    "description": "The label for version 12.x"
+    "message": "master",
+    "description": "The label for version master"
   },
   "sidebar.tutorialSidebar.category.Prologue": {
-    "message": "プロローグ",
+    "message": "Prologue",
     "description": "The label for category 'Prologue' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.Getting Started": {
-    "message": "はじめに",
+    "message": "Getting Started",
     "description": "The label for category 'Getting Started' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.Architecture Concepts": {
-    "message": "アーキテクチャ",
+    "message": "Architecture Concepts",
     "description": "The label for category 'Architecture Concepts' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.The Basics": {
-    "message": "基本",
+    "message": "The Basics",
     "description": "The label for category 'The Basics' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.Digging Deeper": {
-    "message": "詳細",
+    "message": "Digging Deeper",
     "description": "The label for category 'Digging Deeper' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.Security": {
-    "message": "セキュリティ",
+    "message": "Security",
     "description": "The label for category 'Security' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.Database": {
-    "message": "データベース",
+    "message": "Database",
     "description": "The label for category 'Database' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.Eloquent ORM": {
@@ -40,15 +40,15 @@
     "description": "The label for category 'AI' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.Testing": {
-    "message": "テスト",
+    "message": "Testing",
     "description": "The label for category 'Testing' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.category.Packages": {
-    "message": "パッケージ",
+    "message": "Packages",
     "description": "The label for category 'Packages' in sidebar 'tutorialSidebar'"
   },
   "sidebar.tutorialSidebar.link.API Documentation": {
-    "message": "APIドキュメント",
-    "description": "The label for link 'API Documentation' in sidebar 'tutorialSidebar', linking to 'https://api.laravel.com/docs/12.x'"
+    "message": "API Documentation",
+    "description": "The label for link 'API Documentation' in sidebar 'tutorialSidebar', linking to 'https://api.laravel.com/docs/13.x'"
   }
 }
