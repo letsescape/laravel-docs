@@ -1,92 +1,113 @@
 #!/usr/bin/env node
 import {readFileSync, readdirSync, existsSync} from 'node:fs';
-import {join, relative} from 'node:path';
+import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {
+  extractInternalMarkdownLinks,
+  replaceVersionPlaceholders,
+  stripCode,
+} from './markdown-link-utils.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const SOURCE_ROOT = join(REPO_ROOT, '.github/docs-updater/source');
 const DOCS_ROOT = join(REPO_ROOT, 'versioned_docs');
 const EXCLUDED = new Set(['license.md', 'readme.md', 'documentation.md']);
 
-function stripCode(src) {
-  let out = '';
-  let i = 0;
-  while (i < src.length) {
-    if (src.startsWith('```', i)) {
-      const end = src.indexOf('```', i + 3);
-      if (end < 0) return out;
-      i = end + 3;
-      continue;
-    }
-    if (src[i] === '`') {
-      const end = src.indexOf('`', i + 1);
-      const nl = src.indexOf('\n', i + 1);
-      if (end < 0 || (nl >= 0 && nl < end)) {
-        out += src[i++];
-        continue;
-      }
-      i = end + 1;
-      continue;
-    }
-    out += src[i++];
-  }
-  return out;
-}
-
 function extractAnchors(text) {
-  return [...stripCode(text).matchAll(/<a\s+name=["']([^"']+)["']\s*\/?>/g)].map(m => m[1]);
+  const anchors = [];
+  const stripped = stripCode(text);
+  let index = 0;
+
+  while (index < stripped.length) {
+    const tagStart = stripped.indexOf('<a', index);
+    if (tagStart < 0) break;
+
+    const tagEnd = stripped.indexOf('>', tagStart + 2);
+    if (tagEnd < 0) break;
+
+    const tag = stripped.slice(tagStart, tagEnd + 1);
+    const nameStart = tag.indexOf('name=');
+    if (nameStart >= 0) {
+      const quote = tag[nameStart + 'name='.length];
+      if (quote === '"' || quote === "'") {
+        const valueStart = nameStart + 'name='.length + 1;
+        const valueEnd = tag.indexOf(quote, valueStart);
+        if (valueEnd >= 0) {
+          anchors.push(tag.slice(valueStart, valueEnd));
+        }
+      }
+    }
+    index = tagEnd + 1;
+  }
+
+  return anchors;
 }
 
 function extractHeadings(text) {
   const stripped = stripCode(text);
-  return [...stripped.matchAll(/^(#{1,6})\s+(.+)$/gm)].map(m => ({
-    level: m[1].length,
-    text: m[2].trim(),
-  }));
+  const headings = [];
+
+  for (const line of stripped.split('\n')) {
+    let level = 0;
+    while (level < line.length && line[level] === '#') {
+      level++;
+    }
+    if (level < 1 || level > 6) continue;
+    if (line[level] !== ' ' && line[level] !== '\t') continue;
+
+    headings.push({
+      level,
+      text: line.slice(level + 1).trim(),
+    });
+  }
+
+  return headings;
 }
 
 function extractInternalLinks(text, version) {
-  const stripped = stripCode(text);
   const links = [];
-  for (const m of stripped.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)) {
-    const url = normalizeInternalLink(m[2].split(/\s+/)[0], version);
+  for (const link of extractInternalMarkdownLinks(text)) {
+    const url = normalizeInternalLink(link.url, version);
     if (url === null) continue;
-    if (url.startsWith('/docs/') || url.startsWith('#') || url.startsWith('{{version}}')) {
-      links.push(url);
-    }
+    links.push(url);
   }
   return links;
 }
 
 function normalizeInternalLink(url, version) {
-  let normalized = url.replace(/\{\{\s*version\s*\}\}/g, version);
-  normalized = normalized.replace(
-    new RegExp(`^https://laravel\\.com/docs/${version}(?=/|#|$)`),
-    `/docs/${version}`,
-  );
+  let normalized = replaceVersionPlaceholders(url, version);
+  const laravelDocsPrefix = `https://laravel.com/docs/${version}`;
+  if (
+    normalized === laravelDocsPrefix ||
+    normalized.startsWith(`${laravelDocsPrefix}/`) ||
+    normalized.startsWith(`${laravelDocsPrefix}#`)
+  ) {
+    normalized = `/docs/${version}${normalized.slice(laravelDocsPrefix.length)}`;
+  }
 
   // Official docs include a few stale anchors. The translated docs keep the
   // intended reference while pointing to anchors that are actually generated.
-  normalized = normalized.replace('#agents-integration', '#agent-integration');
-  normalized = normalized.replace(
-    /#actions-handled-by-resource-controller$/,
+  normalized = normalized.replaceAll('#agents-integration', '#agent-integration');
+  normalized = replaceSuffix(
+    normalized,
+    '#actions-handled-by-resource-controller',
     '#actions-handled-by-resource-controllers',
   );
-  normalized = normalized.replace(
+  normalized = normalized.replaceAll(
     '/migrations#writing-migrations',
     '/migrations#creating-tables',
   );
-  normalized = normalized.replace(
+  normalized = normalized.replaceAll(
     '#method-array-sort-recursive-desc',
     '#method-array-sort-recursive',
   );
-  normalized = normalized.replace('/errors#logging', '/logging');
-  normalized = normalized.replace(
+  normalized = normalized.replaceAll('/errors#logging', '/logging');
+  normalized = normalized.replaceAll(
     '/helpers#fluent-strings',
     '/strings#fluent-strings',
   );
-  normalized = normalized.replace('##date-casting', '#date-casting');
-  normalized = normalized.replace(
+  normalized = normalized.replaceAll('##date-casting', '#date-casting');
+  normalized = normalized.replaceAll(
     '/database-testing#writing-factories',
     '/database-testing#defining-model-factories',
   );
@@ -99,6 +120,15 @@ function normalizeInternalLink(url, version) {
   }
 
   return normalized;
+}
+
+function replaceSuffix(value, search, replacement) {
+  if (!value.endsWith(search)) return value;
+  return `${value.slice(0, -search.length)}${replacement}`;
+}
+
+function compareStrings(a, b) {
+  return a.localeCompare(b);
 }
 
 function countValues(values) {
@@ -127,8 +157,8 @@ function compareLinkTargets(source, translated, version) {
 function compare(source, translated, version) {
   const issues = [];
 
-  const srcAnchors = extractAnchors(source).sort();
-  const trAnchors = extractAnchors(translated).sort();
+  const srcAnchors = extractAnchors(source).sort(compareStrings);
+  const trAnchors = extractAnchors(translated).sort(compareStrings);
   if (JSON.stringify(srcAnchors) !== JSON.stringify(trAnchors)) {
     const missing = srcAnchors.filter(a => !trAnchors.includes(a));
     const extra = trAnchors.filter(a => !srcAnchors.includes(a));
@@ -138,12 +168,7 @@ function compare(source, translated, version) {
 
   const srcHeadings = extractHeadings(source);
   const trHeadings = extractHeadings(translated);
-  if (srcHeadings.length !== trHeadings.length) {
-    issues.push({
-      type: 'heading-count',
-      detail: `source=${srcHeadings.length} translated=${trHeadings.length}`,
-    });
-  } else {
+  if (srcHeadings.length === trHeadings.length) {
     for (let i = 0; i < srcHeadings.length; i++) {
       if (srcHeadings[i].level !== trHeadings[i].level) {
         issues.push({
@@ -152,6 +177,11 @@ function compare(source, translated, version) {
         });
       }
     }
+  } else {
+    issues.push({
+      type: 'heading-count',
+      detail: `source=${srcHeadings.length} translated=${trHeadings.length}`,
+    });
   }
 
   const linkDiffs = compareLinkTargets(source, translated, version);
@@ -165,7 +195,9 @@ function compare(source, translated, version) {
   return issues;
 }
 
-const versions = readdirSync(SOURCE_ROOT).filter(d => d.startsWith('version-')).sort();
+const versions = readdirSync(SOURCE_ROOT)
+  .filter(d => d.startsWith('version-'))
+  .sort(compareStrings);
 let total = 0;
 let withIssues = 0;
 const allIssues = [];
@@ -207,7 +239,7 @@ if (allIssues.length) {
   for (const f of allIssues) {
     byVersion[f.version] = (byVersion[f.version] || 0) + 1;
   }
-  for (const [v, c] of Object.entries(byVersion).sort()) {
+  for (const [v, c] of Object.entries(byVersion).sort(([a], [b]) => compareStrings(a, b))) {
     console.log(`  ${v}: ${c}`);
   }
 

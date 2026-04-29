@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 import {readFileSync} from 'node:fs';
+import {
+  extractInternalMarkdownLinks,
+  extractVersionFromPath,
+  replaceVersionPlaceholders,
+} from './markdown-link-utils.mjs';
 
 const [, , sourcePath, translatedPath] = process.argv;
 if (!sourcePath || !translatedPath) {
@@ -7,51 +12,15 @@ if (!sourcePath || !translatedPath) {
   process.exit(2);
 }
 
-function stripCode(src) {
-  let out = '';
-  let i = 0;
-  while (i < src.length) {
-    if (src.startsWith('```', i)) {
-      const end = src.indexOf('```', i + 3);
-      if (end < 0) return out;
-      i = end + 3;
-      continue;
-    }
-    if (src[i] === '`') {
-      const end = src.indexOf('`', i + 1);
-      const nl = src.indexOf('\n', i + 1);
-      if (end < 0 || (nl >= 0 && nl < end)) {
-        out += src[i++];
-        continue;
-      }
-      i = end + 1;
-      continue;
-    }
-    out += src[i++];
-  }
-  return out;
-}
-
-function extractLinks(text) {
-  const stripped = stripCode(text);
-  const links = [];
-  for (const m of stripped.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)) {
-    const url = m[2].split(/\s+/)[0];
-    if (url.startsWith('/docs/') || url.startsWith('#') || url.startsWith('{{version}}')) {
-      links.push({url, text: m[1]});
-    }
-  }
-  return links;
-}
-
 const source = readFileSync(sourcePath, 'utf-8');
 const translated = readFileSync(translatedPath, 'utf-8');
 
-const versionMatch = sourcePath.match(/version-([^/]+)/);
-const version = versionMatch ? versionMatch[1] : null;
+const version = extractVersionFromPath(sourcePath);
 
-const srcLinks = extractLinks(source).map(l => l.url.replaceAll('{{version}}', version));
-const trLinks = extractLinks(translated).map(l => l.url);
+const srcLinks = extractInternalMarkdownLinks(source).map(l =>
+  replaceVersionPlaceholders(l.url, version),
+);
+const trLinks = extractInternalMarkdownLinks(translated).map(l => l.url);
 
 console.log(`Source links: ${srcLinks.length}`);
 console.log(`Translated links: ${trLinks.length}`);

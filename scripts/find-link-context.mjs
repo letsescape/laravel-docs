@@ -4,6 +4,11 @@
  * Usage: node scripts/find-link-context.mjs <source.md> <translated.md>
  */
 import {readFileSync} from 'node:fs';
+import {
+  extractInternalMarkdownLinks,
+  extractVersionFromPath,
+  replaceVersionPlaceholders,
+} from './markdown-link-utils.mjs';
 
 const [, , sourcePath, translatedPath] = process.argv;
 if (!sourcePath || !translatedPath) {
@@ -11,51 +16,16 @@ if (!sourcePath || !translatedPath) {
   process.exit(2);
 }
 
-function stripCode(src) {
-  let out = '';
-  let i = 0;
-  while (i < src.length) {
-    if (src.startsWith('```', i)) {
-      const end = src.indexOf('```', i + 3);
-      if (end < 0) return out;
-      i = end + 3;
-      continue;
-    }
-    if (src[i] === '`') {
-      const end = src.indexOf('`', i + 1);
-      const nl = src.indexOf('\n', i + 1);
-      if (end < 0 || (nl >= 0 && nl < end)) {
-        out += src[i++];
-        continue;
-      }
-      i = end + 1;
-      continue;
-    }
-    out += src[i++];
-  }
-  return out;
-}
-
-function extractLinks(text) {
-  const stripped = stripCode(text);
-  const links = [];
-  for (const m of stripped.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)) {
-    const url = m[2].split(/\s+/)[0];
-    if (url.startsWith('/docs/') || url.startsWith('#') || url.startsWith('{{version}}')) {
-      links.push({url, text: m[1]});
-    }
-  }
-  return links;
-}
-
 const source = readFileSync(sourcePath, 'utf-8');
 const translated = readFileSync(translatedPath, 'utf-8');
 
-const versionMatch = sourcePath.match(/version-([^/]+)/);
-const version = versionMatch ? versionMatch[1] : null;
+const version = extractVersionFromPath(sourcePath);
 
-const srcLinks = extractLinks(source).map(l => ({...l, url: l.url.replaceAll('{{version}}', version)}));
-const trLinks = extractLinks(translated);
+const srcLinks = extractInternalMarkdownLinks(source).map(l => ({
+  ...l,
+  url: replaceVersionPlaceholders(l.url, version),
+}));
+const trLinks = extractInternalMarkdownLinks(translated);
 
 // Find which links are missing
 const trCount = new Map();
@@ -75,14 +45,12 @@ console.log(`Missing links count: ${missing.length}`);
 for (const m of missing) {
   // Find context in source
   // Replace version placeholder for finding
-  const placeholderUrl = m.url.replace(version, '{{version}}');
+  const placeholderUrl = version ? m.url.replaceAll(version, '{{version}}') : m.url;
   const patterns = [m.url, placeholderUrl];
   let pos = -1;
-  let pattern = '';
   for (const p of patterns) {
     pos = source.indexOf(`](${p})`);
     if (pos >= 0) {
-      pattern = p;
       break;
     }
   }
@@ -95,5 +63,5 @@ for (const m of missing) {
   const end = Math.min(source.length, pos + 200);
   const context = source.slice(start, end);
   console.log(`\n  [${m.url}] (text: "${m.text}")`);
-  console.log(`  source context: "...${context.replace(/\n/g, ' ').slice(0, 400)}..."`);
+  console.log(`  source context: "...${context.replaceAll('\n', ' ').slice(0, 400)}..."`);
 }

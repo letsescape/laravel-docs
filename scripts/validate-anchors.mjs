@@ -26,15 +26,17 @@
 import {readFileSync, existsSync, readdirSync} from 'node:fs';
 import {join, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {
+  extractMarkdownLinks,
+  replaceVersionPlaceholders,
+  stripCode,
+} from './markdown-link-utils.mjs';
 
 // `new URL(...).pathname`은 Windows에서 `/C:/...` 형태이거나 공백이 `%20`으로
 // 인코딩되어 fs API가 해석하지 못한다. fileURLToPath로 플랫폼 중립 경로를 얻는다.
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DOCS_ROOT = join(REPO_ROOT, 'versioned_docs');
 const BUILD_ROOT = join(REPO_ROOT, 'build');
-
-// 단순 anchored 패턴, 단일 quantifier — ReDoS 우려 없음. 모듈 스코프에 한 번만 생성.
-const VERSION_URL_RE = /^\/docs\/([^/]+)\//;
 
 function walkMd(dir, acc = []) {
   for (const entry of readdirSync(dir, {withFileTypes: true})) {
@@ -61,69 +63,19 @@ function toUrlPath(mdAbsPath) {
 function htmlPathFor(url) {
   // url은 항상 `/`로 시작. leading slash를 제거해 join이 항상 BUILD_ROOT 내부에
   // 머무르게 한다(POSIX의 path.join도 안전하지만 명시적으로 처리).
-  return join(BUILD_ROOT, url.replace(/^\//, ''), 'index.html');
+  return join(BUILD_ROOT, url.startsWith('/') ? url.slice(1) : url, 'index.html');
 }
 
-// fenced code block과 inline code를 제거해 코드 샘플 안의 link-like 텍스트가
-// 실제 링크로 오검출되는 것을 막는다. indexOf 기반 단순 스캔으로 정규식을
-// 쓰지 않아 ReDoS 위험이 원천 차단된다.
-function stripCode(src) {
-  let out = '';
-  let i = 0;
-  while (i < src.length) {
-    if (src[i] === '`' && src[i + 1] === '`' && src[i + 2] === '`') {
-      const end = src.indexOf('```', i + 3);
-      if (end < 0) return out;
-      i = end + 3;
-      continue;
-    }
-    if (src[i] === '`') {
-      const end = src.indexOf('`', i + 1);
-      const nl = src.indexOf('\n', i + 1);
-      // inline code는 개행을 넘지 않는다 (CommonMark)
-      if (end < 0 || (nl >= 0 && nl < end)) {
-        out += src[i++];
-        continue;
-      }
-      i = end + 1;
-      continue;
-    }
-    out += src[i++];
-  }
-  return out;
+function docsVersionFromUrl(url) {
+  const prefix = '/docs/';
+  if (!url.startsWith(prefix)) return null;
+  const end = url.indexOf('/', prefix.length);
+  return end >= 0 ? url.slice(prefix.length, end) : null;
 }
 
-// `[text](url "title")`의 title 부분을 잘라낸 href만 반환한다.
-function stripTitleSuffix(raw) {
-  for (let j = 0; j < raw.length; j++) {
-    const c = raw.codePointAt(j);
-    if (c === 32 || c === 9 || c === 10 || c === 13) return raw.slice(0, j);
-  }
-  return raw;
-}
-
-// `[text](url)` 또는 `[text](url "title")` 패턴을 추출한다.
-// 정규식 백트래킹(SonarQube S5852)에 의한 슈퍼리니어 런타임 가능성을
-// 제거하기 위해 순수 indexOf 탐색만 사용한다.
-function extractLinkHrefs(src) {
-  const hrefs = [];
-  let i = 0;
-  while (i < src.length) {
-    const lb = src.indexOf('[', i);
-    if (lb < 0) break;
-    const rb = src.indexOf(']', lb + 1);
-    if (rb < 0) break;
-    if (src[rb + 1] !== '(') {
-      i = rb + 1;
-      continue;
-    }
-    const rp = src.indexOf(')', rb + 2);
-    if (rp < 0) break;
-    const raw = stripTitleSuffix(src.slice(rb + 2, rp));
-    if (raw.length > 0) hrefs.push(raw);
-    i = rp + 1;
-  }
-  return hrefs;
+function rewriteInstallationRoute(path) {
+  const suffix = '/installation';
+  return path.endsWith(suffix) ? `${path.slice(0, -suffix.length)}/` : path;
 }
 
 if (!existsSync(BUILD_ROOT)) {
@@ -150,10 +102,9 @@ const broken = [];
 for (const md of walkMd(DOCS_ROOT)) {
   const src = stripCode(readFileSync(md, 'utf-8'));
   const srcUrl = toUrlPath(md);
-  const versionMatch = VERSION_URL_RE.exec(srcUrl);
-  const srcVersion = versionMatch ? versionMatch[1] : null;
+  const srcVersion = docsVersionFromUrl(srcUrl);
 
-  for (const href of extractLinkHrefs(src)) {
+  for (const {url: href} of extractMarkdownLinks(src)) {
     if (!href.includes('#')) continue; // not an anchor reference
     const lower = href.toLowerCase();
     if (
@@ -173,13 +124,13 @@ for (const md of walkMd(DOCS_ROOT)) {
       const hashIdx = href.indexOf('#');
       let path = href.slice(0, hashIdx);
       anchor = href.slice(hashIdx + 1);
-      if (srcVersion) path = path.replaceAll('{{version}}', srcVersion);
+      if (srcVersion) path = replaceVersionPlaceholders(path, srcVersion);
       // 상대 경로는 현재 파일의 버전 루트 기준으로 해석
       if (!path.startsWith('/') && srcVersion) {
         path = `/docs/${srcVersion}/${path}`;
       }
       // remark 플러그인과 동일한 `/installation` → `/` 재작성
-      path = path.replace(/^(\/docs\/[^/]+\/)installation$/, '$1');
+      path = rewriteInstallationRoute(path);
       if (!path.endsWith('/')) path += '/';
       targetUrl = path;
     }
