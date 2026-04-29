@@ -717,7 +717,7 @@ class AddContentSecurityPolicyHeaders
 
 `useCspNonce` 메서드 호출 이후에는, 생성되는 모든 스크립트 및 스타일 태그에 자동으로 `nonce` 속성이 추가됩니다.
 
-[Ziggy `@route` 디렉티브](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) 등 별도의 위치에서 nonce 지정이 필요하다면, `cspNonce` 메서드로 값을 가져올 수 있습니다:
+라라벨 [스타터 키트](/docs/10.x/starter-kits)에 포함된 [Ziggy `@route` 디렉티브](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) 등 별도의 위치에서 nonce 지정이 필요하다면, `cspNonce` 메서드로 값을 가져올 수 있습니다:
 
 ```blade
 @routes(nonce: Vite::cspNonce())
@@ -772,7 +772,7 @@ Vite::useIntegrityKey(false);
 <a name="arbitrary-attributes"></a>
 ### 임의의 속성
 
-`data-turbo-track` 등 추가 속성을 스크립트, 스타일 태그에 지정하고 싶을 때는, `useScriptTagAttributes`, `useStyleTagAttributes` 메서드로 지정할 수 있습니다. 보통 이런 설정은 [서비스 프로바이더](/docs/10.x/providers)에서 수행합니다:
+[`data-turbo-track`](https://turbo.hotwired.dev/handbook/drive#reloading-when-assets-change) 등 추가 속성을 스크립트, 스타일 태그에 지정하고 싶을 때는, `useScriptTagAttributes`, `useStyleTagAttributes` 메서드로 지정할 수 있습니다. 보통 이런 설정은 [서비스 프로바이더](/docs/10.x/providers)에서 수행합니다:
 
 ```php
 use Illuminate\Support\Facades\Vite;

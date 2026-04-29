@@ -355,7 +355,7 @@ $archived = $request->boolean('archived');
 <a name="retrieving-date-input-values"></a>
 #### 날짜(Date) 입력값 가져오기
 
-입력값이 날짜/시간이라면, `date` 메서드를 통해 [Carbon](https://carbon.nesbot.com/) 인스턴스로 받을 수 있습니다. 값이 없으면 `null`을 반환합니다.
+입력값이 날짜/시간이라면, `date` 메서드를 통해 Carbon 인스턴스로 받을 수 있습니다. 값이 없으면 `null`을 반환합니다.
 
 ```
 $birthday = $request->date('birthday');
@@ -532,7 +532,7 @@ return redirect('form')->withInput(
 <a name="retrieving-old-input"></a>
 #### 이전 입력값 가져오기
 
-이전 요청에서 플래시된 입력값을 가져오려면, `Illuminate\Http\Request`의 `old` 메서드를 사용하면 됩니다. 이 메서드는 세션에서 이전에 플래시된 입력값을 꺼내옵니다.
+이전 요청에서 플래시된 입력값을 가져오려면, `Illuminate\Http\Request`의 `old` 메서드를 사용하면 됩니다. 이 메서드는 [세션](/docs/8.x/session)에서 이전에 플래시된 입력값을 꺼내옵니다.
 
 ```
 $username = $request->old('username');

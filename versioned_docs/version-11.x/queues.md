@@ -96,7 +96,7 @@ php artisan queue:work --queue=high,default
 <a name="database"></a>
 #### 데이터베이스
 
-`database` 큐 드라이버를 사용하려면 잡을 저장할 데이터베이스 테이블이 필요합니다. 일반적으로 라라벨의 기본 마이그레이션 파일인 `0001_01_01_000002_create_jobs_table.php`에 이 테이블이 포함되어 있습니다. 만약 실제 애플리케이션에 이 마이그레이션 파일이 없다면, `make:queue-table` 아티즌 명령어로 직접 생성할 수 있습니다.
+`database` 큐 드라이버를 사용하려면 잡을 저장할 데이터베이스 테이블이 필요합니다. 일반적으로 라라벨의 기본 [데이터베이스 마이그레이션](/docs/11.x/migrations) 파일인 `0001_01_01_000002_create_jobs_table.php`에 이 테이블이 포함되어 있습니다. 만약 실제 애플리케이션에 이 마이그레이션 파일이 없다면, `make:queue-table` 아티즌 명령어로 직접 생성할 수 있습니다.
 
 ```shell
 php artisan make:queue-table
@@ -223,7 +223,7 @@ class ProcessPodcast implements ShouldQueue
 
 잡이 큐에서 처리될 때 `handle` 메서드가 호출됩니다. 이때 `handle` 메서드에 다양한 클래스 타입 의존성을 타입힌트로 지정할 수 있습니다. 라라벨의 [서비스 컨테이너](/docs/11.x/container)는 이 의존성을 자동으로 주입해 줍니다.
 
-서비스 컨테이너의 의존성 주입 동작을 완전히 직접 제어하고 싶다면, 컨테이너의 `bindMethod` 메서드를 사용할 수 있습니다. 이 메서드는 콜백을 받아, 내부에서 잡과 컨테이너를 전달받아 원하는 방식으로 `handle` 메서드를 호출할 수 있도록 해줍니다. 일반적으로 이 설정은 `App\Providers\AppServiceProvider`의 `boot` 메서드에서 수행합니다.
+서비스 컨테이너의 의존성 주입 동작을 완전히 직접 제어하고 싶다면, 컨테이너의 `bindMethod` 메서드를 사용할 수 있습니다. 이 메서드는 콜백을 받아, 내부에서 잡과 컨테이너를 전달받아 원하는 방식으로 `handle` 메서드를 호출할 수 있도록 해줍니다. 일반적으로 이 설정은 `App\Providers\AppServiceProvider` [서비스 프로바이더](/docs/11.x/providers)의 `boot` 메서드에서 수행합니다.
 
 ```
 use App\Jobs\ProcessPodcast;

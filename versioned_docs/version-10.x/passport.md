@@ -950,7 +950,7 @@ $token = $user->createToken('My Token', ['place-orders'])->accessToken;
 <a name="personal-access-tokens-json-api"></a>
 #### JSON API
 
-Passport는 개인 액세스 토큰을 관리할 수 있는 JSON API도 제공합니다. 이를 프론트엔드와 연동하면, 사용자에게 손쉽게 개인 액세스 토큰을 관리하는 대시보드를 제공할 수 있습니다. 아래에서는 이 API 엔드포인트들을 Axios를 활용한 예시와 함께 소개합니다.
+Passport는 개인 액세스 토큰을 관리할 수 있는 JSON API도 제공합니다. 이를 프론트엔드와 연동하면, 사용자에게 손쉽게 개인 액세스 토큰을 관리하는 대시보드를 제공할 수 있습니다. 아래에서는 이 API 엔드포인트들을 [Axios](https://github.com/mzabriskie/axios)를 활용한 예시와 함께 소개합니다.
 
 이 JSON API는 `web` 및 `auth` 미들웨어에 의해 보호되므로, 오직 자체 애플리케이션에서만 호출할 수 있습니다. 외부에서 직접 호출할 수는 없습니다.
 

@@ -1207,6 +1207,9 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
+> [!WARNING]
+> Constructor-based queue assignment via `onQueue` only works for job classes. For [queued event listeners](/docs/{{version}}/events#customizing-the-queue-connection-queue-name), define a `viaQueue` method or a `$queue` property on the listener class instead.
+
 <a name="dispatching-to-a-particular-connection"></a>
 #### Dispatching to a Particular Connection
 
@@ -1716,7 +1719,9 @@ class SyncChatHistory implements ShouldQueue
 <a name="job-batching"></a>
 ## Job Batching
 
-Laravel's job batching feature allows you to easily execute a batch of jobs and then perform some action when the batch of jobs has completed executing. Before getting started, you should create a database migration to build a table which will contain meta information about your job batches, such as their completion percentage. This migration may be generated using the `make:queue-batches-table` Artisan command:
+Laravel's job batching feature allows you to easily execute a group of jobs in parallel and then perform some action when the batch of jobs has completed executing.
+
+Before getting started, you should create a database migration to build a table which will contain meta information about your job batches, such as their completion percentage. This migration may be generated using the `make:queue-batches-table` Artisan command:
 
 ```shell
 php artisan make:queue-batches-table
@@ -2056,7 +2061,7 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('queue:prune-batches --hours=48')->daily();
 ```
 
-Sometimes, your `jobs_batches` table may accumulate batch records for batches that never completed successfully, such as batches where a job failed and that job was never retried successfully. You may instruct the `queue:prune-batches` command to prune these unfinished batch records using the `unfinished` option:
+Sometimes, your `job_batches` table may accumulate batch records for batches that never completed successfully, such as batches where a job failed and that job was never retried successfully. You may instruct the `queue:prune-batches` command to prune these unfinished batch records using the `unfinished` option:
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -2064,7 +2069,7 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('queue:prune-batches --hours=48 --unfinished=72')->daily();
 ```
 
-Likewise, your `jobs_batches` table may also accumulate batch records for cancelled batches. You may instruct the `queue:prune-batches` command to prune these cancelled batch records using the `cancelled` option:
+Likewise, your `job_batches` table may also accumulate batch records for cancelled batches. You may instruct the `queue:prune-batches` command to prune these cancelled batch records using the `cancelled` option:
 
 ```php
 use Illuminate\Support\Facades\Schedule;

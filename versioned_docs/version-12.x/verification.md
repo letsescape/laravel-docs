@@ -118,7 +118,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 <a name="protecting-routes"></a>
 ### 라우트 보호
 
-특정 라우트를 이메일 인증된 사용자만 접근할 수 있도록 [라우트 미들웨어](/docs/12.x/middleware)를 사용할 수 있습니다. Laravel은 `Illuminate\Auth\Middleware\EnsureEmailIsVerified` 미들웨어 클래스에 대한 별칭인 `verified` 미들웨어를 기본 제공합니다. 이 별칭은 Laravel에서 자동 등록되므로, 라우트 정의에 단순히 `verified` 미들웨어를 추가하면 됩니다. 보통 `auth` 미들웨어와 함께 사용합니다:
+특정 라우트를 이메일 인증된 사용자만 접근할 수 있도록 [라우트 미들웨어](/docs/12.x/middleware)를 사용할 수 있습니다. Laravel은 `Illuminate\Auth\Middleware\EnsureEmailIsVerified` 미들웨어 클래스에 대한 별칭인 `verified` [미들웨어 별칭](/docs/12.x/middleware#middleware-aliases)을 기본 제공합니다. 이 별칭은 Laravel에서 자동 등록되므로, 라우트 정의에 단순히 `verified` 미들웨어를 추가하면 됩니다. 보통 `auth` 미들웨어와 함께 사용합니다:
 
 ```php
 Route::get('/profile', function () {

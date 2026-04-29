@@ -564,7 +564,7 @@ export default defineConfig({
 <a name="blade-aliases"></a>
 ### 별칭
 
-자바스크립트 애플리케이션에서는 특정 경로의 디렉터리를 [별칭(alias)](#aliases)으로 지정해 두는 것이 일반적입니다. Blade에서도 `Illuminate\Support\Facades\Vite` 클래스의 `macro` 메서드를 사용해 별칭을 만들 수 있습니다. 보통 Service Provider의 `boot` 메서드에서 별칭을 등록합니다.
+자바스크립트 애플리케이션에서는 특정 경로의 디렉터리를 [별칭(alias)](#aliases)으로 지정해 두는 것이 일반적입니다. Blade에서도 `Illuminate\Support\Facades\Vite` 클래스의 `macro` 메서드를 사용해 별칭을 만들 수 있습니다. 보통 [서비스 프로바이더](/docs/12.x/providers)의 `boot` 메서드에서 별칭을 등록합니다.
 
 ```php
 /**
@@ -587,7 +587,7 @@ public function boot(): void
 
 Vite 코드 스플리팅 기능을 사용하는 SPA를 개발할 때, 각 페이지 이동 시마다 필요한 에셋을 요청하게 됩니다. 이로 인해 UI 렌더링이 지연될 수 있는데, 이 현상이 문제될 경우 Laravel은 초기 페이지 로드 시 JavaScript와 CSS 에셋을 미리 프리페치할 수 있는 기능을 제공합니다.
 
-ServiceProvider의 `boot` 메서드에서 `Vite::prefetch` 메서드를 호출해 에셋을 프리페치하도록 설정하세요.
+[서비스 프로바이더](/docs/12.x/providers)의 `boot` 메서드에서 `Vite::prefetch` 메서드를 호출해 에셋을 프리페치하도록 설정하세요.
 
 ```php
 <?php
@@ -815,7 +815,7 @@ class AddContentSecurityPolicyHeaders
 
 `useCspNonce` 호출 후에는, Laravel이 자동으로 모든 스크립트 및 스타일 태그에 nonce 속성을 부여합니다.
 
-다른 곳에서도 nonce 값이 필요하다면, [Ziggy의 `@route` 디렉티브](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy)처럼, `cspNonce` 메서드로 값을 얻어 사용할 수 있습니다.
+다른 곳에서도 nonce 값이 필요하다면, Laravel의 [스타터 킷](/docs/12.x/starter-kits)에 포함된 [Ziggy의 `@route` 디렉티브](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy)처럼, `cspNonce` 메서드로 값을 얻어 사용할 수 있습니다.
 
 ```blade
 @routes(nonce: Vite::cspNonce())

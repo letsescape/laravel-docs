@@ -1628,7 +1628,7 @@ public function priceTaxRates(): array
 $user->subscription('default')->syncTaxRates();
 ```
 
-이 작업은 복수 상품 구독의 각 항목(item) 세율도 함께 동기화합니다. 복수 상품 구독을 제공하는 경우, 앞서 설명한 `priceTaxRates` 메서드 구현을 반드시 확인하세요.
+이 작업은 복수 상품 구독의 각 항목(item) 세율도 함께 동기화합니다. 복수 상품 구독을 제공하는 경우, [앞서 설명한](#subscription-taxes) `priceTaxRates` 메서드 구현을 반드시 확인하세요.
 
 <a name="tax-exemption"></a>
 #### 세금 면제(Tax Exemption)

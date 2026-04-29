@@ -358,7 +358,7 @@ SPA에서 [프라이빗/프레즌스 브로드캐스트 채널](/docs/8.x/broadc
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 ```
 
-그리고 Pusher의 인증 요청이 올바르게 처리되도록, [Laravel Echo 클라이언트](/docs/8.x/broadcasting#client-side-installation)를 초기화할 때 Pusher의 `authorizer` 옵션을 커스텀으로 지정해 주어야 합니다. 이렇게 하면 CORS 및 쿠키 설정이 제대로 적용된 axios 인스턴스를 사용할 수 있습니다.
+그리고 Pusher의 인증 요청이 올바르게 처리되도록, [Laravel Echo 클라이언트](/docs/8.x/broadcasting#client-side-installation)를 초기화할 때 Pusher의 `authorizer` 옵션을 커스텀으로 지정해 주어야 합니다. 이렇게 하면 [CORS 및 쿠키 설정이 제대로 적용된](#cors-and-cookies) axios 인스턴스를 사용할 수 있습니다.
 
 ```
 window.Echo = new Echo({

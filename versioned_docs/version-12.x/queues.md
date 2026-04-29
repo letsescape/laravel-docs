@@ -1,81 +1,81 @@
 # 큐 (Queues)
 
 - [소개](#introduction)
-    - [연결 대 큐](#connections-vs-queues)
-    - [드라이버 참고 사항 및 전제 조건](#driver-prerequisites)
-- [작업 생성](#creating-jobs)
-    - [작업 클래스 생성](#generating-job-classes)
+    - [연결과 큐](#connections-vs-queues)
+    - [드라이버 참고 사항 및 사전 요구 사항](#driver-prerequisites)
+- [Job 생성](#creating-jobs)
+    - [Job 클래스 생성](#generating-job-classes)
     - [클래스 구조](#class-structure)
-    - [고유 작업](#unique-jobs)
-    - [암호화된 작업](#encrypted-jobs)
-- [작업 미들웨어](#job-middleware)
+    - [고유 Job](#unique-jobs)
+    - [암호화된 Job](#encrypted-jobs)
+- [Job Middleware](#job-middleware)
     - [속도 제한](#rate-limiting)
-    - [작업 중복 방지](#preventing-job-overlaps)
-    - [제한 예외](#throttling-exceptions)
-    - [작업 건너뛰기](#skipping-jobs)
-- [디스패치 작업](#dispatching-jobs)
-    - [지연된 디스패치](#delayed-dispatching)
+    - [Job 중복 실행 방지](#preventing-job-overlaps)
+    - [예외 제한](#throttling-exceptions)
+    - [Job 건너뛰기](#skipping-jobs)
+- [Job 디스패치](#dispatching-jobs)
+    - [지연 디스패치](#delayed-dispatching)
     - [동기 디스패치](#synchronous-dispatching)
-    - [작업 및 데이터베이스 트랜잭션](#jobs-and-database-transactions)
-    - [작업 체인](#job-chaining)
-    - [큐 사용자 지정 및 연결](#customizing-the-queue-and-connection)
-    - [최대 작업 시도 횟수/시간 초과 값 지정](#max-job-attempts-and-timeout)
-    - [SQS FIFO 및 공정한 큐](#sqs-fifo-and-fair-queues)
+    - [Job과 데이터베이스 트랜잭션](#jobs-and-database-transactions)
+    - [Job 체이닝](#job-chaining)
+    - [큐와 연결 사용자 정의](#customizing-the-queue-and-connection)
+    - [최대 Job 시도 횟수 / 타임아웃 값 지정](#max-job-attempts-and-timeout)
+    - [SQS FIFO 및 공정 큐](#sqs-fifo-and-fair-queues)
     - [큐 장애 조치](#queue-failover)
     - [오류 처리](#error-handling)
-- [작업 배치](#job-batching)
-    - [배치 가능 작업 정의](#defining-batchable-jobs)
-    - [디스패치 배치](#dispatching-batches)
-    - [체인 및 배치](#chains-and-batches)
-    - [배치에 작업 추가](#adding-jobs-to-batches)
-    - [배치 검사 중](#inspecting-batches)
+- [Job 배치](#job-batching)
+    - [배치 가능한 Job 정의](#defining-batchable-jobs)
+    - [배치 디스패치](#dispatching-batches)
+    - [체인과 배치](#chains-and-batches)
+    - [배치에 Job 추가](#adding-jobs-to-batches)
+    - [배치 검사](#inspecting-batches)
     - [배치 취소](#cancelling-batches)
-    - [배치 오류](#batch-failures)
-    - [가지치기 배치](#pruning-batches)
+    - [배치 실패](#batch-failures)
+    - [배치 정리](#pruning-batches)
     - [DynamoDB에 배치 저장](#storing-batches-in-dynamodb)
-- [큐 폐쇄](#queueing-closures)
+- [클로저 큐 등록](#queueing-closures)
 - [큐 워커 실행](#running-the-queue-worker)
-    - [`queue:work` 명령](#the-queue-work-command)
+    - [`queue:work` 명령어](#the-queue-work-command)
     - [큐 우선순위](#queue-priorities)
-    - [큐 워커 및 배포](#queue-workers-and-deployment)
-    - [작업 만료 및 시간 초과](#job-expirations-and-timeouts)
-    - [큐 워커 일시중지 및 재개](#pausing-and-resuming-queue-workers)
-- [Supervisor 구성](#supervisor-configuration)
-- [작업 실패 처리](#dealing-with-failed-jobs)
-    - [작업 실패 후 정리](#cleaning-up-after-failed-jobs)
-    - [재시도 실패 작업](#retrying-failed-jobs)
+    - [큐 워커와 배포](#queue-workers-and-deployment)
+    - [Job 만료와 타임아웃](#job-expirations-and-timeouts)
+    - [큐 워커 일시 중지 및 재개](#pausing-and-resuming-queue-workers)
+- [Supervisor 설정](#supervisor-configuration)
+- [실패한 Job 처리](#dealing-with-failed-jobs)
+    - [실패한 Job 이후 정리](#cleaning-up-after-failed-jobs)
+    - [실패한 Job 재시도](#retrying-failed-jobs)
     - [누락된 모델 무시](#ignoring-missing-models)
-    - [정리 실패 작업](#pruning-failed-jobs)
-    - [DynamoDB에 실패한 작업 저장](#storing-failed-jobs-in-dynamodb)
-    - [실패한 작업 저장소 비활성화](#disabling-failed-job-storage)
-    - [실패한 작업 이벤트](#failed-job-events)
-- [큐에서 작업 지우기](#clearing-jobs-from-queues)
+    - [실패한 Job 정리](#pruning-failed-jobs)
+    - [DynamoDB에 실패한 Job 저장](#storing-failed-jobs-in-dynamodb)
+    - [실패한 Job 저장 비활성화](#disabling-failed-job-storage)
+    - [실패한 Job 이벤트](#failed-job-events)
+- [큐에서 Job 삭제](#clearing-jobs-from-queues)
 - [큐 모니터링](#monitoring-your-queues)
 - [테스트](#testing)
-    - [작업의 하위 집합 위조](#faking-a-subset-of-jobs)
-    - [작업 체인 테스트](#testing-job-chains)
-    - [작업 배치 테스트](#testing-job-batches)
-    - [작업 / 큐 상호 작용 테스트](#testing-job-queue-interactions)
-- [작업 이벤트](#job-events)
+    - [Job 일부만 가짜 처리](#faking-a-subset-of-jobs)
+    - [Job 체인 테스트](#testing-job-chains)
+    - [Job 배치 테스트](#testing-job-batches)
+    - [Job / 큐 상호작용 테스트](#testing-job-queue-interactions)
+- [Job 이벤트](#job-events)
 
 <a name="introduction"></a>
 ## 소개 (Introduction)
 
-웹 애플리케이션을 구축하는 동안 업로드된 CSV 파일을 구문 분석하고 저장하는 등 일반적인 웹 요청 중에 수행하는 데 시간이 너무 오래 걸리는 일부 작업이 있을 수 있습니다. 다행히도 Laravel을 사용하면 백그라운드에서 처리할 수 있는 대기 중인 작업을 쉽게 생성할 수 있습니다. 시간 집약적인 작업을 큐로 이동하면 애플리케이션이 엄청난 속도로 웹 요청에 응답하고 고객에게 더 나은 사용자 경험을 제공할 수 있습니다.
+웹 애플리케이션을 만들다 보면 업로드된 CSV 파일을 파싱하고 저장하는 작업처럼, 일반적인 웹 요청 중에 처리하기에는 시간이 너무 오래 걸리는 작업이 있을 수 있습니다. 다행히 Laravel을 사용하면 백그라운드에서 처리할 수 있는 큐 Job을 쉽게 만들 수 있습니다. 시간이 많이 걸리는 작업을 큐로 옮기면 애플리케이션은 웹 요청에 매우 빠르게 응답할 수 있으며, 사용자에게 더 나은 경험을 제공할 수 있습니다.
 
-Laravel 큐는 [Amazon SQS](https://aws.amazon.com/sqs/), [Redis](https://redis.io) 또는 관계형 데이터베이스와 같은 다양한 큐 백엔드에서 통합 큐 API를 제공합니다.
+Laravel 큐는 [Amazon SQS](https://aws.amazon.com/sqs/), [Redis](https://redis.io), 관계형 데이터베이스와 같은 다양한 큐 백엔드 전반에서 통일된 큐 API를 제공합니다.
 
-Laravel의 큐 구성 옵션은 애플리케이션의 `config/queue.php` 구성 파일에 저장됩니다. 이 파일에서는 데이터베이스, [Amazon SQS](https://aws.amazon.com/sqs/), [Redis](https://redis.io) 및 [Beanstalkd](https://beanstalkd.github.io/)를 포함하여 프레임워크에 포함된 각 큐 드라이버에 대한 연결 구성을 찾을 수 있습니다. 드라이버 및 작업을 즉시 실행하는 동기식 드라이버(개발 또는 테스트에 사용). 대기 중인 작업을 삭제하는 `null` 큐 드라이버도 포함되어 있습니다.
+Laravel의 큐 설정 옵션은 애플리케이션의 `config/queue.php` 설정 파일에 저장됩니다. 이 파일에는 프레임워크에 포함된 각 큐 드라이버의 연결 설정이 들어 있습니다. 여기에는 database, [Amazon SQS](https://aws.amazon.com/sqs/), [Redis](https://redis.io), [Beanstalkd](https://beanstalkd.github.io/) 드라이버가 포함되며, Job을 즉시 실행하는 동기 드라이버도 포함됩니다. 이 드라이버는 개발 또는 테스트 중에 사용할 수 있습니다. 큐에 등록된 Job을 버리는 `null` 큐 드라이버도 포함되어 있습니다.
 
 > [!NOTE]
-> Laravel Horizon는 Redis 기반 큐를 위한 아름다운 대시보드 및 구성 시스템입니다. 자세한 내용은 전체 [Horizon 문서](/docs/12.x/horizon)를 확인하세요.
+> Laravel Horizon은 Redis 기반 큐를 위한 보기 좋은 대시보드이자 설정 시스템입니다. 자세한 내용은 전체 [Horizon 문서](/docs/12.x/horizon)를 확인하세요.
 
 <a name="connections-vs-queues"></a>
-### 연결 대 큐
+### 연결과 큐
 
-Laravel 큐를 시작하기 전에 "연결"과 "큐"의 차이점을 이해하는 것이 중요합니다. `config/queue.php` 구성 파일에는 `connections` 구성 배열이 있습니다. 이 옵션은 Amazon SQS, Beanstalk 또는 Redis와 같은 백엔드 큐 서비스에 대한 연결을 정의합니다. 그러나 특정 큐 연결에는 대기 중인 작업의 서로 다른 스택 또는 더미로 간주될 수 있는 여러 개의 "큐"가 있을 수 있습니다.
+Laravel 큐를 시작하기 전에 "연결(connections)"과 "큐(queues)"의 차이를 이해하는 것이 중요합니다. `config/queue.php` 설정 파일에는 `connections` 설정 배열이 있습니다. 이 옵션은 Amazon SQS, Beanstalk, Redis와 같은 백엔드 큐 서비스에 대한 연결을 정의합니다. 하지만 하나의 큐 연결에는 여러 개의 "큐"가 있을 수 있으며, 이는 큐에 등록된 Job이 쌓이는 서로 다른 스택이나 더미라고 생각할 수 있습니다.
 
-`queue` 구성 파일의 각 연결 구성 예에는 `queue` 속성이 포함되어 있습니다. 이는 지정된 연결로 전송될 때 작업이 디스패치가 되는 기본 큐입니다. 즉, 어떤 큐를 디스패치로 지정해야 하는지 명시적으로 정의하지 않고 작업을 디스패치하는 경우 작업은 연결 구성의 `queue` 속성에 정의된 큐에 배치됩니다.
+`queue` 설정 파일의 각 연결 설정 예시에는 `queue` 속성이 포함되어 있습니다. 이 값은 특정 연결로 Job을 보낼 때 기본적으로 디스패치될 큐입니다. 즉, Job을 디스패치하면서 어느 큐로 보낼지 명시적으로 정의하지 않으면, 해당 Job은 연결 설정의 `queue` 속성에 정의된 큐에 배치됩니다.
 
 ```php
 use App\Jobs\ProcessPodcast;
@@ -87,19 +87,19 @@ ProcessPodcast::dispatch();
 ProcessPodcast::dispatch()->onQueue('emails');
 ```
 
-일부 응용 프로그램은 작업을 여러 큐에 푸시할 필요가 없으며 대신 하나의 간단한 큐를 선호할 수 있습니다. 그러나 작업을 여러 큐에 푸시하는 것은 작업 처리 방법의 우선 순위를 지정하거나 분할하려는 애플리케이션에 특히 유용할 수 있습니다. 예를 들어 작업을 `high` 큐에 푸시하는 경우 더 높은 처리 우선순위를 제공하는 워커를 실행할 수 있습니다.
+어떤 애플리케이션은 여러 큐에 Job을 넣을 필요가 없고, 단순한 하나의 큐만 사용하는 방식을 선호할 수 있습니다. 하지만 여러 큐에 Job을 넣는 방식은 Job 처리 우선순위를 정하거나 처리 방식을 구분하려는 애플리케이션에 특히 유용합니다. Laravel 큐 워커는 처리할 큐를 우선순위에 따라 지정할 수 있기 때문입니다. 예를 들어 Job을 `high` 큐에 넣었다면, 해당 Job에 더 높은 처리 우선순위를 부여하는 워커를 실행할 수 있습니다.
 
 ```shell
 php artisan queue:work --queue=high,default
 ```
 
 <a name="driver-prerequisites"></a>
-### 드라이버 참고 사항 및 전제 조건
+### 드라이버 참고 사항 및 사전 요구 사항
 
 <a name="database"></a>
-#### 데이터 베이스
+#### 데이터베이스
 
-`database` 큐 드라이버를 사용하려면 작업을 보관할 데이터베이스 테이블이 필요합니다. 일반적으로 이는 Laravel의 기본 `0001_01_01_000002_create_jobs_table.php` [데이터베이스 마이그레이션](/docs/12.x/migrations)에 포함되어 있습니다. 그러나 애플리케이션에 이 마이그레이션이 포함되어 있지 않으면 `make:queue-table` Artisan 명령을 사용하여 생성할 수 있습니다.
+`database` 큐 드라이버를 사용하려면 Job을 저장할 데이터베이스 테이블이 필요합니다. 일반적으로 이 테이블은 Laravel의 기본 `0001_01_01_000002_create_jobs_table.php` [데이터베이스 마이그레이션](/docs/12.x/migrations)에 포함되어 있습니다. 하지만 애플리케이션에 이 마이그레이션이 없다면 `make:queue-table` Artisan 명령어를 사용해 만들 수 있습니다.
 
 ```shell
 php artisan make:queue-table
@@ -110,7 +110,7 @@ php artisan migrate
 <a name="redis"></a>
 #### Redis
 
-`redis` 큐 드라이버를 사용하려면 `config/database.php` 구성 파일에서 Redis 데이터베이스 연결을 구성해야 합니다.
+`redis` 큐 드라이버를 사용하려면 `config/database.php` 설정 파일에서 Redis 데이터베이스 연결을 설정해야 합니다.
 
 > [!WARNING]
 > `serializer` 및 `compression` Redis 옵션은 `redis` 큐 드라이버에서 지원되지 않습니다.
@@ -118,7 +118,7 @@ php artisan migrate
 <a name="redis-cluster"></a>
 ##### Redis 클러스터
 
-Redis 큐 연결이 [Redis 클러스터](https://redis.io/docs/latest/operate/rs/databases/durability-ha/clustering)를 사용하는 경우 큐 이름에는 [키 해시 태그](https://redis.io/docs/latest/develop/using-commands/keyspace/#hashtags)가 포함되어야 합니다. 이는 특정 큐에 대한 모든 Redis 키가 동일한 해시 슬롯에 배치되도록 하기 위해 필요합니다.
+Redis 큐 연결에서 [Redis Cluster](https://redis.io/docs/latest/operate/rs/databases/durability-ha/clustering)를 사용하는 경우, 큐 이름에는 [key hash tag](https://redis.io/docs/latest/develop/using-commands/keyspace/#hashtags)가 포함되어야 합니다. 이는 특정 큐의 모든 Redis 키가 같은 hash slot에 배치되도록 보장하기 위해 필요합니다.
 
 ```php
 'redis' => [
@@ -134,9 +134,9 @@ Redis 큐 연결이 [Redis 클러스터](https://redis.io/docs/latest/operate/rs
 <a name="blocking"></a>
 ##### 블로킹
 
-Redis 큐를 사용할 때 `block_for` 구성 옵션을 사용하여 드라이버가 워커 루프를 반복하고 Redis 데이터베이스를 다시 폴링하기 전에 작업이 사용 가능해질 때까지 기다려야 하는 시간을 지정할 수 있습니다.
+Redis 큐를 사용할 때는 `block_for` 설정 옵션을 사용하여, 사용 가능한 Job이 생기기 전까지 드라이버가 얼마나 오래 기다린 뒤 워커 루프를 반복하고 Redis 데이터베이스를 다시 폴링할지 지정할 수 있습니다.
 
-큐 로드를 기반으로 이 값을 조정하는 것은 새로운 작업에 대해 Redis 데이터베이스를 지속적으로 폴링하는 것보다 더 효율적일 수 있습니다. 예를 들어 작업이 사용 가능해질 때까지 기다리는 동안 드라이버가 5초 동안 차단되어야 함을 나타내기 위해 값을 `5`로 설정할 수 있습니다.
+큐 부하에 맞게 이 값을 조정하면 새 Job을 찾기 위해 Redis 데이터베이스를 계속 폴링하는 것보다 더 효율적일 수 있습니다. 예를 들어 값을 `5`로 설정하면, 드라이버가 사용 가능한 Job을 기다리는 동안 5초 동안 블로킹하도록 지정할 수 있습니다.
 
 ```php
 'redis' => [
@@ -150,43 +150,43 @@ Redis 큐를 사용할 때 `block_for` 구성 옵션을 사용하여 드라이�
 ```
 
 > [!WARNING]
-> `block_for`를 `0`로 설정하면 작업을 사용할 수 있을 때까지 큐 워커가 무기한 차단됩니다. 이는 또한 다음 작업이 처리될 때까지 `SIGTERM`와 같은 신호가 처리되는 것을 방지합니다.
+> `block_for`를 `0`으로 설정하면 사용 가능한 Job이 생길 때까지 큐 워커가 무기한 블로킹됩니다. 또한 다음 Job이 처리될 때까지 `SIGTERM` 같은 시그널이 처리되지 않습니다.
 
 <a name="other-driver-prerequisites"></a>
-#### 기타 드라이버 전제 조건
+#### 기타 드라이버 사전 요구 사항
 
-나열된 큐 드라이버에는 다음 종속성이 필요합니다. 이러한 종속성은 Composer 패키지 관리자를 통해 설치할 수 있습니다.
+다음 의존성은 나열된 큐 드라이버에 필요합니다. 이 의존성은 Composer 패키지 관리자를 통해 설치할 수 있습니다.
 
 <div class="content-list" markdown="1">
 
-- 아마존 SQS: `aws/aws-sdk-php ~3.0`
+- Amazon SQS: `aws/aws-sdk-php ~3.0`
 - Beanstalkd: `pda/pheanstalk ~5.0`
-- Redis: `predis/predis ~2.0` 또는 phpredis PHP 확장
+- Redis: `predis/predis ~2.0` 또는 phpredis PHP extension
 - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb`
 
 </div>
 
 <a name="creating-jobs"></a>
-## 작업 생성 (Creating Jobs)
+## Job 생성 (Creating Jobs)
 
 <a name="generating-job-classes"></a>
-### 작업 클래스 생성
+### Job 클래스 생성
 
-기본적으로 애플리케이션의 큐 가능 작업은 모두 `app/Jobs` 디렉터리에 저장됩니다. `app/Jobs` 디렉터리가 없으면 `make:job` Artisan 명령을 실행할 때 생성됩니다.
+기본적으로 애플리케이션의 모든 큐 가능 Job은 `app/Jobs` 디렉터리에 저장됩니다. `app/Jobs` 디렉터리가 존재하지 않으면 `make:job` Artisan 명령어를 실행할 때 생성됩니다.
 
 ```shell
 php artisan make:job ProcessPodcast
 ```
 
-생성된 클래스는 `Illuminate\Contracts\Queue\ShouldQueue` 인터페이스를 구현하여 비동기식으로 실행하려면 작업을 큐에 푸시해야 함을 Laravel에 나타냅니다.
+생성된 클래스는 `Illuminate\Contracts\Queue\ShouldQueue` 인터페이스를 구현합니다. 이는 해당 Job이 비동기 실행을 위해 큐에 들어가야 한다는 것을 Laravel에 알려 줍니다.
 
 > [!NOTE]
-> 작업 스텁은 [스텁 게시](/docs/12.x/artisan#stub-customization)를 사용하여 사용자 지정할 수 있습니다.
+> Job stub은 [stub 게시](/docs/12.x/artisan#stub-customization)를 사용하여 사용자 정의할 수 있습니다.
 
 <a name="class-structure"></a>
 ### 클래스 구조
 
-작업 클래스는 매우 간단하며 일반적으로 작업이 큐에 의해 처리될 때 호출되는 `handle` 메서드만 포함합니다. 시작하려면 작업 클래스 예제를 살펴보겠습니다. 이 예에서는 팟캐스트 게시 서비스를 관리하고 업로드된 팟캐스트 파일을 게시하기 전에 처리해야 한다고 가정합니다.
+Job 클래스는 매우 단순하며, 일반적으로 큐가 Job을 처리할 때 호출되는 `handle` 메서드만 포함합니다. 먼저 예시 Job 클래스를 살펴보겠습니다. 이 예시에서는 팟캐스트 게시 서비스를 운영하며, 업로드된 팟캐스트 파일을 게시하기 전에 처리해야 한다고 가정하겠습니다.
 
 ```php
 <?php
@@ -219,16 +219,16 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
-이 예에서는 [Eloquent 모델](/docs/12.x/eloquent)를 대기 중인 작업의 생성자에 직접 전달할 수 있었습니다. 작업이 사용하는 `Queueable` 특성으로 인해 Eloquent 모델 및 해당 로드된 관계는 작업이 처리될 때 정상적으로 직렬화되고 직렬화 해제됩니다.
+이 예시에서 [Eloquent 모델](/docs/12.x/eloquent)을 큐 Job의 생성자에 직접 전달할 수 있다는 점에 주목하세요. Job이 사용하는 `Queueable` trait 덕분에 Eloquent 모델과 로드된 연관관계는 Job 처리 시 자연스럽게 직렬화되고 역직렬화됩니다.
 
-대기 중인 작업이 생성자에서 Eloquent 모델을 허용하는 경우 모델의 식별자만 큐에 직렬화됩니다. 작업이 실제로 처리되면 큐 시스템은 데이터베이스에서 전체 모델 인스턴스와 로드된 관계를 자동으로 다시 검색합니다. 모델 직렬화에 대한 이러한 접근 방식을 사용하면 훨씬 더 작은 작업 페이로드를 큐 드라이버로 보낼 수 있습니다.
+큐 Job이 생성자에서 Eloquent 모델을 받는 경우, 모델의 식별자만 큐에 직렬화됩니다. 실제로 Job이 처리될 때 큐 시스템은 전체 모델 인스턴스와 로드된 연관관계를 데이터베이스에서 자동으로 다시 가져옵니다. 이러한 모델 직렬화 방식 덕분에 큐 드라이버로 전송되는 Job payload를 훨씬 작게 유지할 수 있습니다.
 
 <a name="handle-method-dependency-injection"></a>
-#### `handle` 메서드 종속성 주입
+#### `handle` 메서드 의존성 주입
 
-작업이 큐에 의해 처리될 때 `handle` 메소드가 호출됩니다. 작업의 `handle` 메서드에 대한 종속성을 유형 힌트로 표시할 수 있습니다. Laravel [서비스 컨테이너](/docs/12.x/container)는 이러한 종속성을 자동으로 주입합니다.
+`handle` 메서드는 큐가 Job을 처리할 때 호출됩니다. Job의 `handle` 메서드에서 의존성을 타입 힌트로 지정할 수 있다는 점에 주목하세요. Laravel [서비스 컨테이너](/docs/12.x/container)는 이러한 의존성을 자동으로 주입합니다.
 
-컨테이너가 `handle` 메서드에 종속성을 주입하는 방법을 완전히 제어하려면 컨테이너의 `bindMethod` 메서드를 사용할 수 있습니다. `bindMethod` 메소드는 작업 및 컨테이너를 수신하는 콜백을 허용합니다. 콜백 내에서 원하는 대로 `handle` 메서드를 자유롭게 호출할 수 있습니다. 일반적으로 `App\Providers\AppServiceProvider` [서비스 프로바이더](/docs/12.x/providers)의 `boot` 메서드에서 이 메서드를 호출해야 합니다.
+컨테이너가 `handle` 메서드에 의존성을 주입하는 방식을 완전히 제어하고 싶다면 컨테이너의 `bindMethod` 메서드를 사용할 수 있습니다. `bindMethod` 메서드는 Job과 컨테이너를 받는 콜백을 인수로 받습니다. 콜백 안에서는 원하는 방식으로 `handle` 메서드를 호출할 수 있습니다. 일반적으로 이 메서드는 `App\Providers\AppServiceProvider` [서비스 프로바이더](/docs/12.x/providers)의 `boot` 메서드에서 호출해야 합니다.
 
 ```php
 use App\Jobs\ProcessPodcast;
@@ -241,14 +241,14 @@ $this->app->bindMethod([ProcessPodcast::class, 'handle'], function (ProcessPodca
 ```
 
 > [!WARNING]
-> 원시 이미지 콘텐츠와 같은 바이너리 데이터는 대기 중인 작업에 전달되기 전에 `base64_encode` 함수를 통해 전달되어야 합니다. 그렇지 않으면 작업이 큐에 배치될 때 JSON로 제대로 직렬화되지 않을 수 있습니다.
+> 원본 이미지 내용과 같은 바이너리 데이터는 큐 Job에 전달하기 전에 `base64_encode` 함수를 통해 전달해야 합니다. 그렇지 않으면 Job이 큐에 배치될 때 JSON으로 제대로 직렬화되지 않을 수 있습니다.
 
 <a name="handling-relationships"></a>
-#### 대기 중인 관계
+#### 큐에 등록된 연관관계
 
-작업이 큐에 추가되면 로드된 모든 Eloquent 모델 관계도 직렬화되므로 직렬화된 작업 문자열이 때때로 상당히 커질 수 있습니다. 또한 작업이 역직렬화되고 모델 관계가 데이터베이스에서 다시 검색되면 전체가 검색됩니다. 작업 큐 프로세스 중에 모델이 직렬화되기 전에 적용된 이전 관계 제약 조건은 작업이 역직렬화될 때 적용되지 않습니다. 따라서 특정 관계의 하위 집합으로 작업하려면 큐에 있는 작업 내에서 해당 관계를 다시 제한해야 합니다.
+Job이 큐에 등록될 때 로드된 모든 Eloquent 모델 연관관계도 함께 직렬화되므로, 직렬화된 Job 문자열이 때때로 상당히 커질 수 있습니다. 또한 Job이 역직렬화되고 모델 연관관계를 데이터베이스에서 다시 가져올 때, 해당 연관관계는 전체가 조회됩니다. Job을 큐에 등록하는 과정에서 모델이 직렬화되기 전에 적용했던 기존 연관관계 제약 조건은 Job이 역직렬화될 때 적용되지 않습니다. 따라서 특정 연관관계의 일부만 사용하려면 큐 Job 안에서 해당 연관관계를 다시 제한해야 합니다.
 
-또는 관계가 직렬화되는 것을 방지하려면 속성 값을 설정할 때 모델에서 `withoutRelations` 메서드를 호출할 수 있습니다. 이 메소드는 로드된 관계 없이 모델의 인스턴스를 반환합니다.
+또는 연관관계가 직렬화되지 않도록 속성 값을 설정할 때 모델에서 `withoutRelations` 메서드를 호출할 수 있습니다. 이 메서드는 로드된 연관관계가 없는 모델 인스턴스를 반환합니다.
 
 ```php
 /**
@@ -261,7 +261,7 @@ public function __construct(
 }
 ```
 
-[PHP 생성자 속성 승격](https://www.php.net/manual/en/language.oop5.decon.php#language.oop5.decon.constructor.promotion)을 사용하고 있고 Eloquent 모델의 관계가 직렬화되어서는 안 된다는 것을 표시하고 싶다면 `WithoutRelations` 속성을 사용할 수 있습니다.
+[PHP constructor property promotion](https://www.php.net/manual/en/language.oop5.decon.php#language.oop5.decon.constructor.promotion)을 사용하고 있고 Eloquent 모델의 연관관계를 직렬화하지 않도록 표시하고 싶다면 `WithoutRelations` 속성을 사용할 수 있습니다.
 
 ```php
 use Illuminate\Queue\Attributes\WithoutRelations;
@@ -275,7 +275,7 @@ public function __construct(
 ) {}
 ```
 
-편의를 위해 관계 없이 모든 모델을 직렬화하려는 경우 각 모델에 속성을 적용하는 대신 전체 클래스에 `WithoutRelations` 속성을 적용할 수 있습니다.
+편의를 위해 모든 모델을 연관관계 없이 직렬화하고 싶다면, 각 모델에 속성을 적용하는 대신 전체 클래스에 `WithoutRelations` 속성을 적용할 수 있습니다.
 
 ```php
 <?php
@@ -303,18 +303,18 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
-작업이 단일 모델 대신 Eloquent 모델의 컬렉션 또는 배열을 수신하는 경우 해당 컬렉션 내의 모델은 작업이 역직렬화되고 실행될 때 관계가 복원되지 않습니다. 이는 대량의 모델을 처리하는 작업에서 과도한 리소스 사용을 방지하기 위한 것입니다.
+Job이 단일 모델 대신 Eloquent 모델의 컬렉션이나 배열을 받는 경우, 해당 컬렉션 안의 모델은 Job이 역직렬화되어 실행될 때 연관관계가 복원되지 않습니다. 이는 많은 수의 모델을 다루는 Job에서 과도한 리소스 사용을 방지하기 위한 것입니다.
 
 <a name="unique-jobs"></a>
-### 독특한 작업
+### 고유 Job
 
 > [!WARNING]
-> 고유한 작업에는 [잠금](/docs/12.x/cache#atomic-locks)을 지원하는 캐시 드라이버가 필요합니다. 현재 `memcached`, `redis`, `dynamodb`, `database`, `file` 및 `array` 캐시 드라이버는 원자 잠금을 지원합니다.
+> 고유 Job은 [락](/docs/12.x/cache#atomic-locks)을 지원하는 캐시 드라이버가 필요합니다. 현재 `memcached`, `redis`, `dynamodb`, `database`, `file`, `array` 캐시 드라이버가 atomic lock을 지원합니다.
 
 > [!WARNING]
-> 고유한 작업 제약 조건은 배치 내의 작업에 적용되지 않습니다.
+> 고유 Job 제약 조건은 배치 안의 Job에는 적용되지 않습니다.
 
-때로는 특정 작업의 인스턴스 하나만 특정 시점에 큐에 있는지 확인하고 싶을 수도 있습니다. 작업 클래스에 `ShouldBeUnique` 인터페이스를 구현하면 됩니다. 이 인터페이스에서는 클래스에 추가 메서드를 정의할 필요가 없습니다.
+때로는 특정 Job의 인스턴스가 어느 시점에도 큐에 하나만 존재하도록 보장하고 싶을 수 있습니다. 이를 위해 Job 클래스에서 `ShouldBeUnique` 인터페이스를 구현할 수 있습니다. 이 인터페이스는 클래스에 추가 메서드를 정의하도록 요구하지 않습니다.
 
 ```php
 <?php
@@ -328,9 +328,9 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 }
 ```
 
-위의 예에서 `UpdateSearchIndex` 작업은 고유합니다. 따라서 작업의 다른 인스턴스가 이미 큐에 있고 처리가 완료되지 않은 경우 작업은 디스패치가 아닙니다.
+위 예시에서 `UpdateSearchIndex` Job은 고유합니다. 따라서 다른 인스턴스의 동일한 Job이 이미 큐에 있고 아직 처리가 끝나지 않았다면, 해당 Job은 디스패치되지 않습니다.
 
-어떤 경우에는 작업을 고유하게 만드는 특정 "키"를 정의하거나 작업이 더 이상 고유한 상태를 유지하지 않는 시간 초과를 지정할 수 있습니다. 이를 수행하려면 작업 클래스에 `uniqueId` 및 `uniqueFor` 속성이나 메서드를 정의하면 됩니다.
+특정한 경우에는 Job을 고유하게 만드는 특정 "키"를 정의하고 싶거나, Job이 더 이상 고유하게 유지되지 않을 타임아웃을 지정하고 싶을 수 있습니다. 이를 위해 Job 클래스에 `uniqueId` 및 `uniqueFor` 속성이나 메서드를 정의할 수 있습니다.
 
 ```php
 <?php
@@ -366,15 +366,15 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 }
 ```
 
-위 예에서 `UpdateSearchIndex` 작업은 제품 ID로 고유합니다. 따라서 동일한 제품 ID를 가진 작업의 새로운 디스패치는 기존 작업이 처리를 완료할 때까지 무시됩니다. 또한 기존 작업이 1시간 이내에 처리되지 않으면 고유 잠금이 해제되고 동일한 고유 키를 가진 다른 작업이 디스패치에서 큐까지 될 수 있습니다.
+위 예시에서 `UpdateSearchIndex` Job은 product ID를 기준으로 고유합니다. 따라서 같은 product ID를 가진 Job을 새로 디스패치하면, 기존 Job의 처리가 완료될 때까지 무시됩니다. 또한 기존 Job이 한 시간 안에 처리되지 않으면 고유 락이 해제되고, 같은 고유 키를 가진 다른 Job을 큐에 디스패치할 수 있습니다.
 
 > [!WARNING]
-> 여러 웹 서버 또는 컨테이너에서 애플리케이션 디스패치 작업을 사용하는 경우 Laravel가 작업이 고유한지 정확하게 확인할 수 있도록 모든 서버가 동일한 중앙 캐시 서버와 통신하는지 확인해야 합니다.
+> 애플리케이션이 여러 웹 서버나 컨테이너에서 Job을 디스패치한다면, Laravel이 Job의 고유 여부를 정확히 판단할 수 있도록 모든 서버가 동일한 중앙 캐시 서버와 통신하는지 확인해야 합니다.
 
 <a name="keeping-jobs-unique-until-processing-begins"></a>
-#### 처리가 시작될 때까지 작업을 고유하게 유지
+#### 처리가 시작될 때까지만 Job을 고유하게 유지하기
 
-기본적으로 고유한 작업은 작업이 처리를 완료하거나 모든 재시도 시도에 실패한 후 "잠금 해제"됩니다. 그러나 작업이 처리되기 직전에 잠금 해제되기를 원하는 상황이 있을 수 있습니다. 이를 달성하려면 작업은 `ShouldBeUnique` 계약 대신 `ShouldBeUniqueUntilProcessing` 계약을 구현해야 합니다.
+기본적으로 고유 Job은 처리가 완료되거나 모든 재시도 시도가 실패한 뒤 "잠금 해제"됩니다. 하지만 Job이 처리되기 직전에 즉시 잠금 해제되기를 원하는 상황도 있을 수 있습니다. 이를 위해 Job은 `ShouldBeUnique` contract 대신 `ShouldBeUniqueUntilProcessing` contract를 구현해야 합니다.
 
 ```php
 <?php
@@ -389,9 +389,9 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUniqueUntilProcessing
 ```
 
 <a name="unique-job-locks"></a>
-#### 고유한 작업 잠금 장치
+#### 고유 Job 락
 
-뒤에서는 `ShouldBeUnique` 작업이 디스패치일 때 Laravel가 `uniqueId` 키를 사용하여 [잠금](/docs/12.x/cache#atomic-locks)을 획득하려고 시도합니다. 잠금이 이미 유지된 경우 작업은 디스패치가 아닙니다. 이 잠금은 작업이 처리를 완료하거나 모든 재시도 시도에 실패하면 해제됩니다. 기본적으로 Laravel는 기본 캐시 드라이버를 사용하여 이 잠금을 획득합니다. 그러나 잠금 획득을 위해 다른 드라이버를 사용하려는 경우 사용해야 하는 캐시 드라이버를 반환하는 `uniqueVia` 메서드를 정의할 수 있습니다.
+내부적으로 `ShouldBeUnique` Job이 디스패치되면 Laravel은 `uniqueId` 키로 [락](/docs/12.x/cache#atomic-locks)을 획득하려고 시도합니다. 이미 락이 잡혀 있다면 Job은 디스패치되지 않습니다. 이 락은 Job 처리가 완료되거나 모든 재시도 시도가 실패하면 해제됩니다. 기본적으로 Laravel은 이 락을 얻기 위해 기본 캐시 드라이버를 사용합니다. 하지만 락을 획득할 때 다른 드라이버를 사용하고 싶다면, 사용할 캐시 드라이버를 반환하는 `uniqueVia` 메서드를 정의할 수 있습니다.
 
 ```php
 use Illuminate\Contracts\Cache\Repository;
@@ -410,14 +410,13 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
     }
 }
 ```
-
 > [!NOTE]
-> 작업의 동시 처리만 제한해야 하는 경우 [WithoutOverlapping](/docs/12.x/queues#preventing-job-overlaps) 작업 미들웨어를 대신 사용하세요.
+> 작업의 동시 처리를 제한하기만 하면 되는 경우에는 대신 [WithoutOverlapping](/docs/12.x/queues#preventing-job-overlaps) 작업 미들웨어를 사용하세요.
 
 <a name="encrypted-jobs"></a>
 ### 암호화된 작업
 
-Laravel을 사용하면 [암호화](/docs/12.x/encryption)를 통해 작업 데이터의 개인정보 보호와 무결성을 보장할 수 있습니다. 시작하려면 작업 클래스에 `ShouldBeEncrypted` 인터페이스를 추가하기만 하면 됩니다. 이 인터페이스가 클래스에 추가되면 Laravel는 작업을 큐에 푸시하기 전에 자동으로 암호화합니다.
+Laravel은 [암호화](/docs/12.x/encryption)를 통해 작업 데이터의 개인정보 보호와 무결성을 보장할 수 있도록 지원합니다. 시작하려면 작업 클래스에 `ShouldBeEncrypted` 인터페이스를 추가하기만 하면 됩니다. 이 인터페이스가 클래스에 추가되면 Laravel은 작업을 큐에 넣기 전에 자동으로 암호화합니다.
 
 ```php
 <?php
@@ -434,7 +433,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeEncrypted
 <a name="job-middleware"></a>
 ## 작업 미들웨어 (Job Middleware)
 
-작업 미들웨어를 사용하면 큐에 있는 작업 실행에 대한 사용자 지정 논리를 래핑하여 작업 자체의 상용구를 줄일 수 있습니다. 예를 들어, Laravel의 Redis 속도 제한 기능을 활용하여 5초마다 하나의 작업만 처리할 수 있도록 하는 다음 `handle` 방법을 고려해 보세요.
+작업 미들웨어는 큐 작업 실행 전후에 사용자 정의 로직을 감쌀 수 있게 해주어, 작업 클래스 자체의 반복 코드를 줄여줍니다. 예를 들어, 다음 `handle` 메서드는 Laravel의 Redis 속도 제한 기능을 활용하여 5초마다 하나의 작업만 처리되도록 합니다.
 
 ```php
 use Illuminate\Support\Facades\Redis;
@@ -456,7 +455,7 @@ public function handle(): void
 }
 ```
 
-이 코드는 유효하지만 `handle` 메서드의 구현은 Redis 속도 제한 논리로 인해 복잡해지기 때문에 잡음이 발생합니다. 또한 이 속도 제한 논리는 속도를 제한하려는 다른 작업에 대해 복제되어야 합니다. 핸들 메소드의 속도 제한 대신 속도 제한을 처리하는 작업 미들웨어를 정의할 수 있습니다.
+이 코드는 유효하지만, `handle` 메서드 구현이 Redis 속도 제한 로직으로 가득 차서 복잡해집니다. 또한 속도 제한을 적용하려는 다른 작업마다 이 로직을 반복해야 합니다. handle 메서드 안에서 속도 제한을 처리하는 대신, 속도 제한을 담당하는 작업 미들웨어를 정의할 수 있습니다.
 
 ```php
 <?php
@@ -490,9 +489,9 @@ class RateLimited
 }
 ```
 
-보시다시피 [라우트 미들웨어](/docs/12.x/middleware), 작업 미들웨어는 처리 중인 작업과 작업 처리를 계속하기 위해 호출해야 하는 콜백을 수신합니다.
+보시다시피 [라우트 미들웨어](/docs/12.x/middleware)와 마찬가지로, 작업 미들웨어는 처리 중인 작업과 작업 처리를 계속하기 위해 호출해야 하는 콜백을 전달받습니다.
 
-`make:job-middleware` Artisan 명령을 사용하여 새 작업 미들웨어 클래스를 생성할 수 있습니다. 작업 미들웨어를 생성한 후 작업의 `middleware` 메서드에서 반환하여 작업에 연결할 수 있습니다. 이 메서드는 `make:job` Artisan 명령으로 스캐폴드된 작업에 존재하지 않으므로 작업 클래스에 수동으로 추가해야 합니다.
+`make:job-middleware` Artisan 명령어를 사용하여 새로운 작업 미들웨어 클래스를 생성할 수 있습니다. 작업 미들웨어를 만든 뒤에는 작업의 `middleware` 메서드에서 반환하여 해당 작업에 연결할 수 있습니다. `make:job` Artisan 명령어로 생성된 작업에는 이 메서드가 없으므로, 작업 클래스에 직접 추가해야 합니다.
 
 ```php
 use App\Jobs\Middleware\RateLimited;
@@ -509,14 +508,14 @@ public function middleware(): array
 ```
 
 > [!NOTE]
-> 작업 미들웨어는 [큐에 넣을 수 있는 이벤트 리스너](/docs/12.x/events#queued-event-listeners), [메일 가능 항목](/docs/12.x/mail#queueing-mail) 및 [알림](/docs/12.x/notifications#queueing-notifications)에 할당할 수도 있습니다.
+> 작업 미들웨어는 [큐 처리 가능한 이벤트 리스너](/docs/12.x/events#queued-event-listeners), [mailables](/docs/12.x/mail#queueing-mail), [알림](/docs/12.x/notifications#queueing-notifications)에도 할당할 수 있습니다.
 
 <a name="rate-limiting"></a>
 ### 속도 제한
 
-방금 속도 제한 작업 미들웨어를 작성하는 방법을 시연했지만, Laravel에는 실제로 작업 속도 제한에 활용할 수 있는 속도 제한 미들웨어가 포함되어 있습니다. [라우트 속도 제한기](/docs/12.x/routing#defining-rate-limiters)와 마찬가지로 작업 속도 제한기는 `RateLimiter` 외관의 `for` 방법을 사용하여 정의됩니다.
+방금 직접 속도 제한 작업 미들웨어를 작성하는 방법을 살펴보았지만, Laravel에는 작업의 속도를 제한하는 데 사용할 수 있는 속도 제한 미들웨어가 이미 포함되어 있습니다. [라우트 속도 제한기](/docs/12.x/routing#defining-rate-limiters)와 마찬가지로, 작업 속도 제한기는 `RateLimiter` 파사드의 `for` 메서드를 사용하여 정의합니다.
 
-예를 들어, 프리미엄 고객에게는 제한을 두지 않고 사용자가 시간당 한 번씩 데이터를 백업하도록 허용할 수 있습니다. 이를 수행하려면 `AppServiceProvider`의 `boot` 메서드에서 `RateLimiter`를 정의하면 됩니다.
+예를 들어 일반 사용자는 한 시간에 한 번만 데이터를 백업할 수 있도록 제한하면서, 프리미엄 고객에게는 그러한 제한을 적용하지 않고 싶을 수 있습니다. 이를 위해 `AppServiceProvider`의 `boot` 메서드에서 `RateLimiter`를 정의할 수 있습니다.
 
 ```php
 use Illuminate\Cache\RateLimiting\Limit;
@@ -535,13 +534,13 @@ public function boot(): void
 }
 ```
 
-위의 예에서는 시간당 요금 제한을 정의했습니다. 그러나 `perMinute` 방법을 사용하면 분을 기준으로 속도 제한을 쉽게 정의할 수 있습니다. 또한 속도 제한의 `by` 메서드에 원하는 값을 전달할 수 있습니다. 그러나 이 값은 고객별로 비율 제한을 분할하는 데 가장 자주 사용됩니다.
+위 예제에서는 시간 단위의 속도 제한을 정의했습니다. 하지만 `perMinute` 메서드를 사용하면 분 단위의 속도 제한도 쉽게 정의할 수 있습니다. 또한 속도 제한의 `by` 메서드에는 원하는 값을 전달할 수 있지만, 이 값은 보통 고객별로 속도 제한을 구분하는 데 사용됩니다.
 
 ```php
 return Limit::perMinute(50)->by($job->user->id);
 ```
 
-속도 제한을 정의한 후에는 `Illuminate\Queue\Middleware\RateLimited` 미들웨어를 사용하여 속도 제한기를 작업에 연결할 수 있습니다. 작업이 속도 제한을 초과할 때마다 이 미들웨어는 속도 제한 기간에 따라 적절한 지연을 통해 작업을 큐로 다시 해제합니다.
+속도 제한을 정의한 뒤에는 `Illuminate\Queue\Middleware\RateLimited` 미들웨어를 사용하여 작업에 속도 제한기를 연결할 수 있습니다. 작업이 속도 제한을 초과할 때마다 이 미들웨어는 속도 제한 기간에 따라 적절한 지연 시간을 적용하여 작업을 다시 큐로 반환합니다.
 
 ```php
 use Illuminate\Queue\Middleware\RateLimited;
@@ -557,9 +556,9 @@ public function middleware(): array
 }
 ```
 
-속도가 제한된 작업을 큐에 다시 릴리스하면 작업의 총 `attempts` 수가 계속 증가합니다. 그에 따라 작업 클래스에서 `tries` 및 `maxExceptions` 속성을 조정할 수 있습니다. 또는 [retryUntil 메소드](#time-based-attempts)를 사용하여 작업이 더 이상 시도되지 않을 때까지의 시간을 정의할 수 있습니다.
+속도 제한된 작업을 다시 큐에 반환해도 작업의 총 `attempts` 횟수는 증가합니다. 따라서 작업 클래스의 `tries` 및 `maxExceptions` 속성을 상황에 맞게 조정해야 할 수 있습니다. 또는 [retryUntil 메서드](#time-based-attempts)를 사용하여 작업 시도를 더 이상 하지 않을 시간을 정의할 수도 있습니다.
 
-`releaseAfter` 메서드를 사용하면 릴리스된 작업이 다시 시도되기 전에 경과해야 하는 시간(초)을 지정할 수도 있습니다.
+`releaseAfter` 메서드를 사용하면 반환된 작업을 다시 시도하기 전에 지나야 하는 초 단위 시간을 지정할 수도 있습니다.
 
 ```php
 /**
@@ -573,7 +572,7 @@ public function middleware(): array
 }
 ```
 
-속도가 제한되어 있을 때 작업을 재시도하지 않으려면 `dontRelease` 방법을 사용할 수 있습니다.
+작업이 속도 제한에 걸렸을 때 다시 시도하지 않도록 하려면 `dontRelease` 메서드를 사용할 수 있습니다.
 
 ```php
 /**
@@ -590,7 +589,7 @@ public function middleware(): array
 <a name="rate-limiting-with-redis"></a>
 #### Redis를 사용한 속도 제한
 
-Redis를 사용하는 경우 Redis에 맞게 미세 조정되고 기본 속도 제한 미들웨어보다 더 효율적인 `Illuminate\Queue\Middleware\RateLimitedWithRedis` 미들웨어를 사용할 수 있습니다.
+Redis를 사용하고 있다면 `Illuminate\Queue\Middleware\RateLimitedWithRedis` 미들웨어를 사용할 수 있습니다. 이 미들웨어는 Redis에 맞게 조정되어 있으며 기본 속도 제한 미들웨어보다 더 효율적입니다.
 
 ```php
 use Illuminate\Queue\Middleware\RateLimitedWithRedis;
@@ -601,18 +600,18 @@ public function middleware(): array
 }
 ```
 
-`connection` 메소드는 미들웨어가 사용해야 하는 Redis 연결을 지정하는 데 사용될 수 있습니다.
+`connection` 메서드를 사용하여 미들웨어가 사용할 Redis 연결을 지정할 수 있습니다.
 
 ```php
 return [(new RateLimitedWithRedis('backups'))->connection('limiter')];
 ```
 
 <a name="preventing-job-overlaps"></a>
-### 작업 중복 방지
+### 작업 중복 실행 방지
 
-Laravel에는 임의의 키를 기반으로 작업 중복을 방지할 수 있는 `Illuminate\Queue\Middleware\WithoutOverlapping` 미들웨어가 포함되어 있습니다. 이는 큐에 있는 작업이 한 번에 하나의 작업에 의해서만 수정되어야 하는 리소스를 수정할 때 도움이 될 수 있습니다.
+Laravel에는 임의의 키를 기준으로 작업 중복 실행을 방지할 수 있는 `Illuminate\Queue\Middleware\WithoutOverlapping` 미들웨어가 포함되어 있습니다. 이는 큐 작업이 한 번에 하나의 작업만 수정해야 하는 리소스를 변경할 때 유용합니다.
 
-예를 들어 사용자의 신용 점수를 업데이트하는 대기 중인 작업이 있고 동일한 사용자 ID에 대해 신용 점수 업데이트 작업이 겹치는 것을 방지하려고 한다고 가정해 보겠습니다. 이를 수행하려면 작업의 `middleware` 메서드에서 `WithoutOverlapping` 미들웨어를 반환하면 됩니다.
+예를 들어 사용자의 신용 점수를 업데이트하는 큐 작업이 있고, 같은 사용자 ID에 대한 신용 점수 업데이트 작업이 서로 겹쳐 실행되지 않도록 하고 싶다고 가정해 보겠습니다. 이를 위해 작업의 `middleware` 메서드에서 `WithoutOverlapping` 미들웨어를 반환할 수 있습니다.
 
 ```php
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -628,9 +627,9 @@ public function middleware(): array
 }
 ```
 
-겹치는 작업을 큐에 다시 놓아도 작업의 총 시도 횟수는 계속 증가합니다. 이에 따라 작업 클래스에서 `tries` 및 `maxExceptions` 속성을 조정할 수 있습니다. 예를 들어 `tries` 속성을 기본적으로 1로 두면 나중에 작업이 중복되는 것을 방지할 수 있습니다.
+겹쳐 실행되는 작업을 다시 큐에 반환해도 작업의 총 시도 횟수는 증가합니다. 따라서 작업 클래스의 `tries` 및 `maxExceptions` 속성을 상황에 맞게 조정해야 할 수 있습니다. 예를 들어 `tries` 속성을 기본값인 1로 그대로 두면, 겹쳐 실행된 작업은 나중에 다시 시도되지 않습니다.
 
-동일한 유형의 중복된 작업은 큐로 다시 릴리스됩니다. 릴리스된 작업이 다시 시도되기 전에 경과해야 하는 시간(초)을 지정할 수도 있습니다.
+같은 유형의 겹쳐 실행되는 작업은 다시 큐로 반환됩니다. 반환된 작업을 다시 시도하기 전에 지나야 하는 초 단위 시간을 지정할 수도 있습니다.
 
 ```php
 /**
@@ -644,7 +643,7 @@ public function middleware(): array
 }
 ```
 
-중복되는 작업을 즉시 삭제하여 재시도되지 않도록 하려면 `dontRelease` 방법을 사용할 수 있습니다.
+겹쳐 실행되는 작업을 즉시 삭제하여 다시 시도되지 않도록 하려면 `dontRelease` 메서드를 사용할 수 있습니다.
 
 ```php
 /**
@@ -658,7 +657,7 @@ public function middleware(): array
 }
 ```
 
-`WithoutOverlapping` 미들웨어는 Laravel의 원자 잠금 기능으로 구동됩니다. 때로는 작업이 예기치 않게 실패하거나 시간 초과되어 잠금이 해제되지 않을 수도 있습니다. 따라서 `expireAfter` 메소드를 사용하여 잠금 만료 시간을 명시적으로 정의할 수 있습니다. 예를 들어, 아래 예에서는 작업이 처리를 시작한 후 3분 후에 `WithoutOverlapping` 잠금을 해제하도록 Laravel에 지시합니다.
+`WithoutOverlapping` 미들웨어는 Laravel의 원자적 잠금 기능을 기반으로 동작합니다. 때로는 작업이 예상치 못하게 실패하거나 타임아웃되어 잠금이 해제되지 않을 수 있습니다. 따라서 `expireAfter` 메서드를 사용하여 잠금 만료 시간을 명시적으로 정의할 수 있습니다. 예를 들어 아래 예제는 작업 처리가 시작된 지 3분 후 Laravel이 `WithoutOverlapping` 잠금을 해제하도록 지시합니다.
 
 ```php
 /**
@@ -673,12 +672,12 @@ public function middleware(): array
 ```
 
 > [!WARNING]
-> `WithoutOverlapping` 미들웨어에는 [잠금](/docs/12.x/cache#atomic-locks)을 지원하는 캐시 드라이버가 필요합니다. 현재 `memcached`, `redis`, `dynamodb`, `database`, `file` 및 `array` 캐시 드라이버는 원자 잠금을 지원합니다.
+> `WithoutOverlapping` 미들웨어에는 [잠금](/docs/12.x/cache#atomic-locks)을 지원하는 캐시 드라이버가 필요합니다. 현재 `memcached`, `redis`, `dynamodb`, `database`, `file`, `array` 캐시 드라이버가 원자적 잠금을 지원합니다.
 
 <a name="sharing-lock-keys"></a>
-#### 작업 클래스 전체에서 잠금 키 공유
+#### 작업 클래스 간 잠금 키 공유
 
-기본적으로 `WithoutOverlapping` 미들웨어는 동일한 클래스의 작업 중첩을 방지합니다. 따라서 두 개의 다른 작업 클래스가 동일한 잠금 키를 사용할 수 있지만 중복되는 것은 방지되지 않습니다. 그러나 `shared` 메서드를 사용하여 작업 클래스 전체에 키를 적용하도록 Laravel에 지시할 수 있습니다.
+기본적으로 `WithoutOverlapping` 미들웨어는 같은 클래스의 작업끼리만 중복 실행을 방지합니다. 따라서 서로 다른 두 작업 클래스가 같은 잠금 키를 사용하더라도, 서로 겹쳐 실행되는 것은 방지되지 않습니다. 하지만 `shared` 메서드를 사용하면 Laravel이 작업 클래스 간에도 해당 키를 적용하도록 지시할 수 있습니다.
 
 ```php
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -709,11 +708,11 @@ class ProviderIsUp
 ```
 
 <a name="throttling-exceptions"></a>
-### 제한 예외
+### 예외 스로틀링
 
-Laravel에는 예외를 제한할 수 있는 `Illuminate\Queue\Middleware\ThrottlesExceptions` 미들웨어가 포함되어 있습니다. 작업이 지정된 수의 예외를 발생시키면 작업을 실행하려는 모든 추가 시도는 지정된 시간 간격이 경과할 때까지 지연됩니다. 이 미들웨어는 불안정한 타사 서비스와 상호 작용하는 작업에 특히 유용합니다.
+Laravel에는 예외를 스로틀링할 수 있는 `Illuminate\Queue\Middleware\ThrottlesExceptions` 미들웨어가 포함되어 있습니다. 작업이 지정된 횟수만큼 예외를 발생시키면, 이후의 모든 작업 실행 시도는 지정된 시간 간격이 지날 때까지 지연됩니다. 이 미들웨어는 불안정한 서드파티 서비스와 상호작용하는 작업에 특히 유용합니다.
 
-예를 들어 예외를 발생시키기 시작하는 타사 API와 상호 작용하는 대기 중인 작업을 상상해 보겠습니다. 예외를 조절하려면 작업의 `middleware` 메서드에서 `ThrottlesExceptions` 미들웨어를 반환하면 됩니다. 일반적으로 이 미들웨어는 [시간 기반 시도](#time-based-attempts)를 구현하는 작업과 쌍을 이루어야 합니다.
+예를 들어 예외를 발생시키기 시작한 서드파티 API와 상호작용하는 큐 작업이 있다고 가정해 보겠습니다. 예외를 스로틀링하려면 작업의 `middleware` 메서드에서 `ThrottlesExceptions` 미들웨어를 반환하면 됩니다. 일반적으로 이 미들웨어는 [시간 기반 시도](#time-based-attempts)를 구현하는 작업과 함께 사용해야 합니다.
 
 ```php
 use DateTime;
@@ -738,9 +737,9 @@ public function retryUntil(): DateTime
 }
 ```
 
-미들웨어에서 허용하는 첫 번째 생성자 인수는 조절되기 전에 작업이 발생할 수 있는 예외 수이고, 두 번째 생성자 인수는 조절된 후 작업이 다시 시도되기 전에 경과해야 하는 시간(초)입니다. 위의 코드 예제에서 작업이 10개의 연속 예외를 발생시키는 경우 30분 시간 제한으로 인해 작업을 다시 시도하기 전에 5분을 기다립니다.
+미들웨어가 받는 첫 번째 생성자 인수는 작업이 스로틀링되기 전에 발생시킬 수 있는 예외 횟수이며, 두 번째 생성자 인수는 작업이 스로틀링된 뒤 다시 시도되기 전에 지나야 하는 초 단위 시간입니다. 위 코드 예제에서는 작업이 연속으로 10번 예외를 발생시키면, 30분의 시간 제한 안에서 작업을 다시 시도하기 전에 5분을 기다립니다.
 
-작업에서 예외가 발생했지만 예외 임계값에 아직 도달하지 않은 경우 일반적으로 작업이 즉시 재시도됩니다. 그러나 미들웨어를 작업에 연결할 때 `backoff` 메서드를 호출하여 작업이 지연되어야 하는 시간(분)을 지정할 수 있습니다.
+작업이 예외를 발생시켰지만 아직 예외 임계값에 도달하지 않은 경우, 일반적으로 작업은 즉시 다시 시도됩니다. 하지만 작업에 미들웨어를 연결할 때 `backoff` 메서드를 호출하면 이러한 작업을 몇 분 동안 지연할지 지정할 수 있습니다.
 
 ```php
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
@@ -756,7 +755,7 @@ public function middleware(): array
 }
 ```
 
-내부적으로 이 미들웨어는 Laravel의 캐시 시스템을 사용하여 속도 제한을 구현하며 작업의 클래스 이름은 캐시 "키"로 활용됩니다. 미들웨어를 작업에 연결할 때 `by` 메서드를 호출하여 이 키를 재정의할 수 있습니다. 이는 동일한 타사 서비스와 상호 작용하는 여러 작업이 있고 단일 공유 제한을 준수하도록 공통 제한 "버킷"을 공유하려는 경우 유용할 수 있습니다.
+내부적으로 이 미들웨어는 Laravel의 캐시 시스템을 사용하여 속도 제한을 구현하며, 작업의 클래스 이름이 캐시 "키"로 사용됩니다. 작업에 미들웨어를 연결할 때 `by` 메서드를 호출하여 이 키를 재정의할 수 있습니다. 이는 같은 서드파티 서비스와 상호작용하는 여러 작업이 있고, 이 작업들이 하나의 공유 제한을 지키도록 공통 스로틀링 "버킷(bucket)"을 공유하게 하고 싶을 때 유용합니다.
 
 ```php
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
@@ -772,7 +771,7 @@ public function middleware(): array
 }
 ```
 
-기본적으로 이 미들웨어는 모든 예외를 제한합니다. 미들웨어를 작업에 연결할 때 `when` 메서드를 호출하여 이 동작을 수정할 수 있습니다. 그러면 `when` 메서드에 제공된 클로저가 `true`를 반환하는 경우에만 예외가 조절됩니다.
+기본적으로 이 미들웨어는 모든 예외를 스로틀링합니다. 작업에 미들웨어를 연결할 때 `when` 메서드를 호출하여 이 동작을 변경할 수 있습니다. 그러면 `when` 메서드에 제공된 클로저가 `true`를 반환하는 경우에만 예외가 스로틀링됩니다.
 
 ```php
 use Illuminate\Http\Client\HttpClientException;
@@ -791,7 +790,7 @@ public function middleware(): array
 }
 ```
 
-작업을 큐로 다시 해제하거나 예외를 발생시키는 `when` 방법과 달리, `deleteWhen` 방법을 사용하면 주어진 예외가 발생할 때 작업을 완전히 삭제할 수 있습니다.
+작업을 다시 큐에 반환하거나 예외를 던지는 `when` 메서드와 달리, `deleteWhen` 메서드는 지정된 예외가 발생했을 때 작업을 완전히 삭제할 수 있게 해줍니다.
 
 ```php
 use App\Exceptions\CustomerDeletedException;
@@ -808,7 +807,7 @@ public function middleware(): array
 }
 ```
 
-제한된 예외가 애플리케이션의 예외 처리기에 보고되도록 하려면 미들웨어를 작업에 연결할 때 `report` 메서드를 호출하면 됩니다. 선택적으로 `report` 메소드에 클로저를 제공할 수 있으며, 지정된 클로저가 `true`를 반환하는 경우에만 예외가 보고됩니다.
+스로틀링된 예외를 애플리케이션의 예외 핸들러에 보고하고 싶다면, 작업에 미들웨어를 연결할 때 `report` 메서드를 호출하면 됩니다. 선택적으로 `report` 메서드에 클로저를 제공할 수 있으며, 이 경우 주어진 클로저가 `true`를 반환할 때만 예외가 보고됩니다.
 
 ```php
 use Illuminate\Http\Client\HttpClientException;
@@ -826,11 +825,10 @@ public function middleware(): array
     )];
 }
 ```
-
 <a name="throttling-exceptions-with-redis"></a>
-#### Redis를 사용한 제한 예외
+#### Redis로 예외 처리량 제한하기
 
-Redis를 사용하는 경우 Redis에 맞게 미세 조정되고 기본 예외 조절 미들웨어보다 효율적인 `Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis` 미들웨어를 사용할 수 있습니다.
+Redis를 사용하고 있다면 `Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis` 미들웨어를 사용할 수 있습니다. 이 미들웨어는 Redis에 맞게 세밀하게 조정되어 있으며, 기본 예외 처리량 제한 미들웨어보다 더 효율적입니다.
 
 ```php
 use Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis;
@@ -841,7 +839,7 @@ public function middleware(): array
 }
 ```
 
-`connection` 메소드는 미들웨어가 사용해야 하는 Redis 연결을 지정하는 데 사용될 수 있습니다.
+`connection` 메서드를 사용하면 미들웨어가 사용할 Redis 연결을 지정할 수 있습니다.
 
 ```php
 return [(new ThrottlesExceptionsWithRedis(10, 10 * 60))->connection('limiter')];
@@ -850,7 +848,7 @@ return [(new ThrottlesExceptionsWithRedis(10, 10 * 60))->connection('limiter')];
 <a name="skipping-jobs"></a>
 ### 작업 건너뛰기
 
-`Skip` 미들웨어를 사용하면 작업의 논리를 수정할 필요 없이 작업을 건너뛰거나 삭제해야 함을 지정할 수 있습니다. `Skip::when` 메소드는 주어진 조건이 `true`로 평가되면 작업을 삭제하고, 조건이 `false`로 평가되면 `Skip::unless` 메소드는 작업을 삭제합니다.
+`Skip` 미들웨어를 사용하면 작업의 로직을 수정하지 않고도 작업을 건너뛰거나 삭제하도록 지정할 수 있습니다. `Skip::when` 메서드는 주어진 조건이 `true`로 평가되면 작업을 삭제하고, `Skip::unless` 메서드는 조건이 `false`로 평가되면 작업을 삭제합니다.
 
 ```php
 use Illuminate\Queue\Middleware\Skip;
@@ -866,7 +864,7 @@ public function middleware(): array
 }
 ```
 
-더 복잡한 조건부 평가를 위해 `Closure`를 `when` 및 `unless` 메서드에 전달할 수도 있습니다.
+더 복잡한 조건 평가가 필요하다면 `when` 및 `unless` 메서드에 `Closure`를 전달할 수도 있습니다.
 
 ```php
 use Illuminate\Queue\Middleware\Skip;
@@ -885,9 +883,9 @@ public function middleware(): array
 ```
 
 <a name="dispatching-jobs"></a>
-## 디스패치 작업 (Dispatching Jobs)
+## 작업 디스패치하기 (Dispatching Jobs)
 
-작업 클래스를 작성한 후에는 작업 자체에서 `dispatch` 메소드를 사용하여 디스패치할 수 있습니다. `dispatch` 메소드에 전달된 인수는 작업의 생성자에 제공됩니다.
+작업 클래스를 작성했다면 작업 자체의 `dispatch` 메서드를 사용하여 작업을 디스패치할 수 있습니다. `dispatch` 메서드에 전달된 인수는 작업의 생성자에 전달됩니다.
 
 ```php
 <?php
@@ -917,7 +915,7 @@ class PodcastController extends Controller
 }
 ```
 
-조건부로 디스패치 및 작업을 수행하려면 `dispatchIf` 및 `dispatchUnless` 방법을 사용할 수 있습니다.
+조건에 따라 작업을 디스패치하고 싶다면 `dispatchIf` 및 `dispatchUnless` 메서드를 사용할 수 있습니다.
 
 ```php
 ProcessPodcast::dispatchIf($accountActive, $podcast);
@@ -925,12 +923,12 @@ ProcessPodcast::dispatchIf($accountActive, $podcast);
 ProcessPodcast::dispatchUnless($accountSuspended, $podcast);
 ```
 
-새로운 Laravel 애플리케이션에서는 `database` 연결이 기본 큐로 정의됩니다. 애플리케이션의 `.env` 파일에서 `QUEUE_CONNECTION` 환경 변수를 변경하여 다른 기본 큐 연결을 지정할 수 있습니다.
+새 Laravel 애플리케이션에서는 `database` 연결이 기본 큐로 정의되어 있습니다. 애플리케이션의 `.env` 파일에서 `QUEUE_CONNECTION` 환경 변수를 변경하여 다른 기본 큐 연결을 지정할 수 있습니다.
 
 <a name="delayed-dispatching"></a>
-### 지연된 디스패치
+### 지연 디스패치
 
-작업을 큐 워커 처리에 즉시 사용할 수 없도록 지정하려면 디스패치가 작업인 경우 `delay` 메서드를 사용할 수 있습니다. 예를 들어 디스패치가 발생한 후 10분이 지나야 작업을 처리할 수 있도록 지정해 보겠습니다.
+큐 워커가 작업을 즉시 처리할 수 없도록 지정하고 싶다면 작업을 디스패치할 때 `delay` 메서드를 사용할 수 있습니다. 예를 들어, 작업이 디스패치된 후 10분이 지나야 처리 가능하도록 지정해 보겠습니다.
 
 ```php
 <?php
@@ -961,7 +959,7 @@ class PodcastController extends Controller
 }
 ```
 
-경우에 따라 작업에 기본 지연이 구성되어 있을 수 있습니다. 즉각적인 처리를 위해 이 지연을 우회하고 디스패치 a 작업이 필요한 경우 `withoutDelay` 방법을 사용할 수 있습니다.
+경우에 따라 작업에 기본 지연 시간이 설정되어 있을 수 있습니다. 이 지연을 우회하고 작업을 즉시 처리하도록 디스패치해야 한다면 `withoutDelay` 메서드를 사용할 수 있습니다.
 
 ```php
 ProcessPodcast::dispatch($podcast)->withoutDelay();
@@ -971,9 +969,9 @@ ProcessPodcast::dispatch($podcast)->withoutDelay();
 > Amazon SQS 큐 서비스의 최대 지연 시간은 15분입니다.
 
 <a name="synchronous-dispatching"></a>
-### 동기식 디스패치
+### 동기 디스패치
 
-디스패치를 작업에 즉시(동기적으로) 수행하려면 `dispatchSync` 방법을 사용할 수 있습니다. 이 방법을 사용하면 작업이 큐에 추가되지 않고 현재 프로세스 내에서 즉시 실행됩니다.
+작업을 즉시, 즉 동기적으로 디스패치하고 싶다면 `dispatchSync` 메서드를 사용할 수 있습니다. 이 메서드를 사용하면 작업은 큐에 들어가지 않고 현재 프로세스 안에서 즉시 실행됩니다.
 
 ```php
 <?php
@@ -1006,26 +1004,26 @@ class PodcastController extends Controller
 <a name="deferred-dispatching"></a>
 #### 지연된 디스패치
 
-지연된 동기식 디스패치를 사용하면 현재 프로세스 중에 디스패치 및 작업을 처리할 수 있지만 HTTP 응답이 사용자에게 전송된 후에는 가능합니다. 이를 통해 사용자의 애플리케이션 경험을 저하시키지 않고 "큐에 있는" 작업을 동기식으로 처리할 수 있습니다. 동기식 작업, 디스패치 및 작업의 실행을 `deferred` 연결로 연기하려면 다음을 수행하세요.
+지연된 동기 디스패치를 사용하면 현재 프로세스에서 작업을 처리하도록 디스패치하되, HTTP 응답이 사용자에게 전송된 이후에 처리되도록 할 수 있습니다. 이렇게 하면 사용자의 애플리케이션 경험을 느리게 만들지 않으면서 "큐에 들어간" 작업을 동기적으로 처리할 수 있습니다. 동기 작업의 실행을 지연하려면 작업을 `deferred` 연결로 디스패치하세요.
 
 ```php
 RecordDelivery::dispatch($order)->onConnection('deferred');
 ```
 
-`deferred` 연결은 기본 [장애 조치 큐](#queue-failover) 역할도 합니다.
+`deferred` 연결은 기본 [페일오버 큐](#queue-failover)로도 사용됩니다.
 
-마찬가지로 HTTP 응답이 사용자에게 전송된 후 `background` 연결은 작업을 처리합니다. 그러나 작업은 별도로 생성된 PHP 프로세스에서 처리되므로 PHP-FPM/애플리케이션 워커를 사용하여 들어오는 다른 HTTP 요청을 처리할 수 있습니다.
+마찬가지로 `background` 연결도 HTTP 응답이 사용자에게 전송된 후 작업을 처리합니다. 다만 이 경우 작업은 별도로 생성된 PHP 프로세스에서 처리되므로, PHP-FPM / 애플리케이션 워커는 다른 들어오는 HTTP 요청을 처리할 수 있게 됩니다.
 
 ```php
 RecordDelivery::dispatch($order)->onConnection('background');
 ```
 
 <a name="jobs-and-database-transactions"></a>
-### 작업 및 데이터베이스 트랜잭션
+### 작업과 데이터베이스 트랜잭션
 
-데이터베이스 트랜잭션 내에서 디스패치 작업에는 문제가 없지만 작업이 실제로 성공적으로 실행될 수 있도록 특별한 주의를 기울여야 합니다. 트랜잭션 내에서 디스패치가 작업인 경우 상위 트랜잭션이 커밋되기 전에 작업이 워커에 의해 처리될 수 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델 또는 데이터베이스 레코드에 대해 수행한 업데이트가 아직 데이터베이스에 반영되지 않을 수 있습니다. 또한 트랜잭션 내에서 생성된 모델 또는 데이터베이스 레코드가 데이터베이스에 존재하지 않을 수도 있습니다.
+데이터베이스 트랜잭션 안에서 작업을 디스패치하는 것 자체는 전혀 문제가 없지만, 해당 작업이 실제로 성공적으로 실행될 수 있는지 특별히 주의해야 합니다. 트랜잭션 안에서 작업을 디스패치하면 상위 트랜잭션이 커밋되기 전에 워커가 해당 작업을 처리할 가능성이 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델이나 데이터베이스 레코드에 적용한 변경 사항이 아직 데이터베이스에 반영되지 않았을 수 있습니다. 또한 트랜잭션 안에서 생성한 모델이나 데이터베이스 레코드가 아직 데이터베이스에 존재하지 않을 수도 있습니다.
 
-다행히 Laravel는 이 문제를 해결하는 여러 가지 방법을 제공합니다. 먼저 큐 연결의 구성 배열에서 `after_commit` 연결 옵션을 설정할 수 있습니다.
+다행히 Laravel은 이 문제를 피할 수 있는 여러 메서드를 제공합니다. 먼저 큐 연결의 설정 배열에서 `after_commit` 연결 옵션을 설정할 수 있습니다.
 
 ```php
 'redis' => [
@@ -1035,17 +1033,17 @@ RecordDelivery::dispatch($order)->onConnection('background');
 ],
 ```
 
-`after_commit` 옵션이 `true`인 경우 데이터베이스 트랜잭션 내에서 디스패치 작업을 수행할 수 있습니다. 그러나 Laravel는 실제로 작업을 디스패치하기 전에 열린 상위 데이터베이스 트랜잭션이 커밋될 때까지 기다립니다. 물론 현재 열려 있는 데이터베이스 트랜잭션이 없으면 작업은 즉시 디스패치가 됩니다.
+`after_commit` 옵션이 `true`이면 데이터베이스 트랜잭션 안에서 작업을 디스패치할 수 있습니다. 다만 Laravel은 열려 있는 상위 데이터베이스 트랜잭션이 커밋될 때까지 기다린 뒤 실제로 작업을 디스패치합니다. 물론 현재 열려 있는 데이터베이스 트랜잭션이 없다면 작업은 즉시 디스패치됩니다.
 
-트랜잭션 중 발생한 예외로 인해 트랜잭션이 롤백되는 경우 해당 트랜잭션 중 디스패치였던 작업은 삭제됩니다.
+트랜잭션 중에 발생한 예외로 인해 트랜잭션이 롤백되면, 해당 트랜잭션 중에 디스패치된 작업은 폐기됩니다.
 
 > [!NOTE]
-> `after_commit` 구성 옵션을 `true`로 설정하면 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 후 큐에 있는 모든 이벤트 리스너, 메일 가능 항목, 알림 및 브로드캐스트 이벤트가 디스패치가 됩니다.
+> `after_commit` 설정 옵션을 `true`로 설정하면 큐에 들어가는 이벤트 리스너, mailable, 알림, 브로드캐스트 이벤트도 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 후 디스패치됩니다.
 
 <a name="specifying-commit-dispatch-behavior-inline"></a>
-#### 커밋 디스패치 동작 인라인 지정
+#### 커밋 디스패치 동작을 인라인으로 지정하기
 
-`after_commit` 큐 연결 구성 옵션을 `true`로 설정하지 않은 경우 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 후에도 특정 작업이 디스패치여야 함을 나타낼 수 있습니다. 이를 달성하려면 `afterCommit` 메소드를 디스패치 작업에 연결할 수 있습니다.
+`after_commit` 큐 연결 설정 옵션을 `true`로 설정하지 않았더라도, 특정 작업이 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 후 디스패치되어야 함을 지정할 수 있습니다. 이를 위해 디스패치 작업에 `afterCommit` 메서드를 체이닝할 수 있습니다.
 
 ```php
 use App\Jobs\ProcessPodcast;
@@ -1053,16 +1051,16 @@ use App\Jobs\ProcessPodcast;
 ProcessPodcast::dispatch($podcast)->afterCommit();
 ```
 
-마찬가지로, `after_commit` 구성 옵션이 `true`로 설정된 경우 열려 있는 데이터베이스 트랜잭션이 커밋될 때까지 기다리지 않고 특정 작업이 즉시 디스패치가 되어야 함을 나타낼 수 있습니다.
+마찬가지로 `after_commit` 설정 옵션이 `true`로 설정되어 있더라도, 특정 작업은 열려 있는 데이터베이스 트랜잭션의 커밋을 기다리지 않고 즉시 디스패치되도록 지정할 수 있습니다.
 
 ```php
 ProcessPodcast::dispatch($podcast)->beforeCommit();
 ```
 
 <a name="job-chaining"></a>
-### 작업 체인
+### 작업 체이닝
 
-작업 체인을 사용하면 기본 작업이 성공적으로 실행된 후 순서대로 실행되어야 하는 대기 중인 작업 목록을 지정할 수 있습니다. 시퀀스의 작업 하나가 실패하면 작업의 나머지 부분은 실행되지 않습니다. 큐에 있는 작업 체인을 실행하려면 `Bus` 파사드에서 제공하는 `chain` 메서드를 사용할 수 있습니다. Laravel의 명령 버스는 대기 중인 하위 수준 컴포넌트입니다. 작업 디스패치는 다음 요소 위에 구축됩니다.
+작업 체이닝을 사용하면 기본 작업이 성공적으로 실행된 후 순서대로 실행되어야 하는 큐 작업 목록을 지정할 수 있습니다. 순서 안의 작업 중 하나가 실패하면 나머지 작업은 실행되지 않습니다. 큐 작업 체인을 실행하려면 `Bus` 파사드가 제공하는 `chain` 메서드를 사용할 수 있습니다. Laravel의 command bus는 큐 작업 디스패치가 그 위에 구축되어 있는 더 낮은 수준의 컴포넌트입니다.
 
 ```php
 use App\Jobs\OptimizePodcast;
@@ -1077,7 +1075,7 @@ Bus::chain([
 ])->dispatch();
 ```
 
-작업 클래스 인스턴스를 연결하는 것 외에도 클로저를 연결할 수도 있습니다.
+작업 클래스 인스턴스를 체이닝하는 것 외에도 클로저를 체이닝할 수 있습니다.
 
 ```php
 Bus::chain([
@@ -1090,12 +1088,12 @@ Bus::chain([
 ```
 
 > [!WARNING]
-> 작업 내에서 `$this->delete()` 메서드를 사용하여 작업을 삭제해도 연결된 작업이 처리되는 것을 방지할 수 없습니다. 체인의 작업이 실패하는 경우에만 체인 실행이 중지됩니다.
+> 작업 안에서 `$this->delete()` 메서드를 사용해 작업을 삭제해도 체이닝된 작업의 처리가 막히지는 않습니다. 체인은 체인 안의 작업이 실패한 경우에만 실행을 중단합니다.
 
 <a name="chain-connection-queue"></a>
 #### 체인 연결 및 큐
 
-연결된 작업에 사용해야 하는 연결 및 큐를 지정하려면 `onConnection` 및 `onQueue` 방법을 사용할 수 있습니다. 이러한 방법은 대기 중인 작업이 명시적으로 다른 연결/큐에 할당되지 않는 한 사용해야 하는 큐 연결 및 큐 이름을 지정합니다.
+체이닝된 작업에 사용할 연결과 큐를 지정하고 싶다면 `onConnection` 및 `onQueue` 메서드를 사용할 수 있습니다. 이 메서드들은 큐 작업에 다른 연결 / 큐가 명시적으로 할당되지 않은 경우 사용할 큐 연결과 큐 이름을 지정합니다.
 
 ```php
 Bus::chain([
@@ -1106,9 +1104,9 @@ Bus::chain([
 ```
 
 <a name="adding-jobs-to-the-chain"></a>
-#### 체인에 작업 추가
+#### 체인에 작업 추가하기
 
-경우에 따라 해당 체인의 다른 작업 내에서 기존 작업 체인에 작업을 추가하거나 추가해야 할 수도 있습니다. `prependToChain` 및 `appendToChain` 방법을 사용하여 이 작업을 수행할 수 있습니다.
+때때로 체인 안의 다른 작업에서 기존 작업 체인의 앞이나 뒤에 작업을 추가해야 할 수 있습니다. 이 작업은 `prependToChain` 및 `appendToChain` 메서드로 수행할 수 있습니다.
 
 ```php
 /**
@@ -1129,7 +1127,7 @@ public function handle(): void
 <a name="chain-failures"></a>
 #### 체인 실패
 
-작업을 연결할 때 `catch` 메서드를 사용하여 체인 내의 작업이 실패할 경우 호출되어야 하는 클로저를 지정할 수 있습니다. 지정된 콜백은 작업 오류를 일으킨 `Throwable` 인스턴스를 수신합니다.
+작업을 체이닝할 때 `catch` 메서드를 사용하여 체인 안의 작업이 실패했을 때 호출할 클로저를 지정할 수 있습니다. 지정된 콜백은 작업 실패의 원인이 된 `Throwable` 인스턴스를 전달받습니다.
 
 ```php
 use Illuminate\Support\Facades\Bus;
@@ -1145,15 +1143,15 @@ Bus::chain([
 ```
 
 > [!WARNING]
-> 체인 콜백은 나중에 Laravel 큐에 의해 직렬화되고 실행되므로 체인 콜백 내에서 `$this` 변수를 사용하면 안 됩니다.
+> 체인 콜백은 Laravel 큐에 의해 직렬화되어 나중에 실행되므로, 체인 콜백 안에서는 `$this` 변수를 사용해서는 안 됩니다.
 
 <a name="customizing-the-queue-and-connection"></a>
-### 큐 및 연결 사용자 지정
+### 큐 및 연결 사용자 지정하기
 
 <a name="dispatching-to-a-particular-queue"></a>
-#### 디스패치를 특정 큐로
+#### 특정 큐로 디스패치하기
 
-작업을 다른 큐에 푸시하면 큐에 있는 작업을 "분류"할 수 있으며 다양한 큐에 할당하는 워커 수의 우선 순위를 지정할 수도 있습니다. 이는 작업을 큐 구성 파일에 정의된 다른 큐 "연결"로 푸시하는 것이 아니라 단일 연결 내의 특정 큐에만 푸시한다는 점을 명심하세요. 큐를 지정하려면 디스패치가 작업일 때 `onQueue` 메서드를 사용하세요.
+작업을 서로 다른 큐에 넣으면 큐 작업을 "분류"할 수 있고, 다양한 큐에 얼마나 많은 워커를 할당할지도 우선순위에 따라 조정할 수 있습니다. 이 방식은 큐 설정 파일에 정의된 서로 다른 큐 "연결"로 작업을 보내는 것이 아니라, 하나의 연결 안에 있는 특정 큐로만 작업을 보내는 것임을 기억하세요. 큐를 지정하려면 작업을 디스패치할 때 `onQueue` 메서드를 사용하세요.
 
 ```php
 <?php
@@ -1183,7 +1181,7 @@ class PodcastController extends Controller
 }
 ```
 
-또는 작업 생성자 내에서 `onQueue` 메서드를 호출하여 작업의 큐를 지정할 수도 있습니다.
+또는 작업의 생성자 안에서 `onQueue` 메서드를 호출하여 작업의 큐를 지정할 수도 있습니다.
 
 ```php
 <?php
@@ -1207,10 +1205,13 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
-<a name="dispatching-to-a-particular-connection"></a>
-#### 디스패치를 특정 연결로
+> [!WARNING]
+> `onQueue`를 통한 생성자 기반 큐 할당은 작업 클래스에서만 동작합니다. [큐 이벤트 리스너](/docs/12.x/events#customizing-the-queue-connection-queue-name)의 경우 리스너 클래스에 `viaQueue` 메서드 또는 `$queue` 속성을 대신 정의하세요.
 
-애플리케이션이 여러 큐 연결과 상호 작용하는 경우 `onConnection` 메서드를 사용하여 작업을 푸시할 연결을 지정할 수 있습니다.
+<a name="dispatching-to-a-particular-connection"></a>
+#### 특정 연결로 디스패치하기
+
+애플리케이션이 여러 큐 연결과 상호작용한다면 `onConnection` 메서드를 사용하여 작업을 어떤 연결로 보낼지 지정할 수 있습니다.
 
 ```php
 <?php
@@ -1239,8 +1240,7 @@ class PodcastController extends Controller
     }
 }
 ```
-
-작업에 대한 연결과 큐를 지정하기 위해 `onConnection` 및 `onQueue` 메소드를 함께 연결할 수 있습니다.
+`onConnection` 및 `onQueue` 메서드를 연결해서 작업의 커넥션과 큐를 지정할 수 있습니다.
 
 ```php
 ProcessPodcast::dispatch($podcast)
@@ -1248,7 +1248,7 @@ ProcessPodcast::dispatch($podcast)
     ->onQueue('processing');
 ```
 
-또는 작업 생성자 내에서 `onConnection` 메서드를 호출하여 작업의 연결을 지정할 수도 있습니다.
+또는 작업의 생성자 안에서 `onConnection` 메서드를 호출하여 작업의 커넥션을 지정할 수 있습니다.
 
 ```php
 <?php
@@ -1273,41 +1273,41 @@ class ProcessPodcast implements ShouldQueue
 ```
 
 <a name="max-job-attempts-and-timeout"></a>
-### 최대 작업 시도 횟수/시간 초과 값 지정
+### 최대 작업 시도 횟수 / 타임아웃 값 지정
 
 <a name="max-attempts"></a>
 #### 최대 시도 횟수
 
-작업 시도는 Laravel 큐 시스템의 핵심 개념이며 많은 고급 기능을 지원합니다. 처음에는 혼란스러워 보일 수 있지만 기본 구성을 수정하기 전에 작동 방식을 이해하는 것이 중요합니다.
+작업 시도 횟수는 Laravel 큐 시스템의 핵심 개념이며, 여러 고급 기능의 기반이 됩니다. 처음에는 다소 혼란스러울 수 있지만, 기본 설정을 변경하기 전에 작동 방식을 이해하는 것이 중요합니다.
 
-작업이 디스패치이면 큐로 푸시됩니다. 그러면 워커가 이를 선택하여 실행을 시도합니다. 이것은 작업 시도입니다.
+작업이 디스패치되면 큐에 추가됩니다. 이후 워커가 해당 작업을 가져와 실행을 시도합니다. 이것이 작업 시도입니다.
 
-그러나 시도가 반드시 작업의 `handle` 메서드가 실행되었음을 의미하는 것은 아닙니다. 시도는 여러 가지 방법으로 "소모"될 수도 있습니다.
+하지만 시도가 반드시 작업의 `handle` 메서드가 실행되었다는 뜻은 아닙니다. 다음과 같은 여러 방식으로 시도가 "소모"될 수도 있습니다.
 
 <div class="content-list" markdown="1">
 
-- 작업은 실행 중에 처리되지 않은 예외가 발생합니다.
-- 작업은 `$this->release()`를 사용하여 수동으로 큐로 다시 해제됩니다.
-- `WithoutOverlapping` 또는 `RateLimited`와 같은 미들웨어는 잠금 획득에 실패하고 작업을 해제합니다.
-- 작업이 시간 초과되었습니다.
-- 작업의 `handle` 메서드는 예외를 발생시키지 않고 실행되고 완료됩니다.
+- 작업 실행 중 처리되지 않은 예외가 발생합니다.
+- `$this->release()`를 사용해 작업이 수동으로 큐에 다시 반환됩니다.
+- `WithoutOverlapping` 또는 `RateLimited` 같은 Middleware가 락을 획득하지 못하고 작업을 반환합니다.
+- 작업 시간이 초과되었습니다.
+- 작업의 `handle` 메서드가 실행되고 예외를 던지지 않은 채 완료됩니다.
 
 </div>
 
-작업을 무기한으로 계속 시도하고 싶지는 않을 것입니다. 따라서 Laravel는 작업을 시도할 수 있는 횟수 또는 기간을 지정하는 다양한 방법을 제공합니다.
+대부분의 경우 작업을 무한히 계속 시도하고 싶지는 않을 것입니다. 따라서 Laravel은 작업을 몇 번까지 또는 얼마 동안 시도할 수 있는지 지정하는 여러 방법을 제공합니다.
 
 > [!NOTE]
-> 기본적으로 Laravel는 작업을 한 번만 시도합니다. 작업이 `WithoutOverlapping` 또는 `RateLimited`와 같은 미들웨어를 사용하거나 작업을 수동으로 해제하는 경우 `tries` 옵션을 통해 허용되는 시도 횟수를 늘려야 할 가능성이 높습니다.
+> 기본적으로 Laravel은 작업을 한 번만 시도합니다. 작업이 `WithoutOverlapping` 또는 `RateLimited` 같은 Middleware를 사용하거나, 작업을 수동으로 반환하는 경우에는 `tries` 옵션을 통해 허용되는 시도 횟수를 늘려야 할 가능성이 큽니다.
 
-작업이 시도될 수 있는 최대 횟수를 지정하는 한 가지 방법은 Artisan 명령줄의 `--tries` 스위치를 사용하는 것입니다. 이는 처리 중인 작업이 시도할 수 있는 횟수를 지정하지 않는 한 워커에서 처리되는 모든 작업에 적용됩니다.
+작업을 시도할 수 있는 최대 횟수를 지정하는 한 가지 방법은 Artisan 명령줄에서 `--tries` 스위치를 사용하는 것입니다. 처리 중인 작업이 자체 시도 횟수를 지정하지 않는 한, 이 값은 워커가 처리하는 모든 작업에 적용됩니다.
 
 ```shell
 php artisan queue:work --tries=3
 ```
 
-작업이 최대 시도 횟수를 초과하면 "실패한" 작업으로 간주됩니다. 실패한 작업 처리에 대한 자세한 내용은 [실패한 작업 문서](#dealing-with-failed-jobs)를 참조하세요. `--tries=0`가 `queue:work` 명령에 제공되면 작업이 무기한 재시도됩니다.
+작업이 최대 시도 횟수를 초과하면 "실패한" 작업으로 간주됩니다. 실패한 작업을 처리하는 방법에 대한 자세한 내용은 [실패한 작업 문서](#dealing-with-failed-jobs)를 참고하십시오. `queue:work` 명령어에 `--tries=0`을 제공하면 작업은 무기한 재시도됩니다.
 
-작업 클래스 자체에서 작업이 시도될 수 있는 최대 횟수를 정의하여 보다 세부적인 접근 방식을 취할 수 있습니다. 작업에 최대 시도 횟수가 지정된 경우 명령줄에 제공된 `--tries` 값보다 우선합니다.
+작업 클래스 자체에 작업을 시도할 수 있는 최대 횟수를 정의하여 더 세밀하게 제어할 수도 있습니다. 작업에 최대 시도 횟수가 지정되어 있으면, 명령줄에서 제공한 `--tries` 값보다 우선합니다.
 
 ```php
 <?php
@@ -1325,7 +1325,7 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
-특정 작업의 최대 시도 횟수에 대한 동적 제어가 필요한 경우 작업에 `tries` 메서드를 정의할 수 있습니다.
+특정 작업의 최대 시도 횟수를 동적으로 제어해야 한다면, 작업에 `tries` 메서드를 정의할 수 있습니다.
 
 ```php
 /**
@@ -1340,7 +1340,7 @@ public function tries(): int
 <a name="time-based-attempts"></a>
 #### 시간 기반 시도
 
-작업이 실패하기 전에 시도할 수 있는 횟수를 정의하는 대신 작업을 더 이상 시도하지 않아야 하는 시간을 정의할 수 있습니다. 이를 통해 주어진 시간 내에 작업을 여러 번 시도할 수 있습니다. 작업을 더 이상 시도하지 않아야 하는 시간을 정의하려면 작업 클래스에 `retryUntil` 메서드를 추가하세요. 이 메소드는 `DateTime` 인스턴스를 반환해야 합니다.
+작업이 실패하기 전까지 몇 번 시도할 수 있는지 정의하는 대신, 작업을 더 이상 시도하지 않아야 하는 시점을 정의할 수도 있습니다. 이렇게 하면 지정된 시간 범위 안에서 작업을 여러 번 시도할 수 있습니다. 작업을 더 이상 시도하지 않아야 하는 시점을 정의하려면 작업 클래스에 `retryUntil` 메서드를 추가하십시오. 이 메서드는 `DateTime` 인스턴스를 반환해야 합니다.
 
 ```php
 use DateTime;
@@ -1354,15 +1354,15 @@ public function retryUntil(): DateTime
 }
 ```
 
-`retryUntil` 및 `tries`가 모두 정의된 경우 Laravel는 `retryUntil` 메서드에 우선 순위를 부여합니다.
+`retryUntil`과 `tries`가 모두 정의되어 있으면 Laravel은 `retryUntil` 메서드를 우선합니다.
 
 > [!NOTE]
-> [대기 중인 이벤트 리스너](/docs/12.x/events#queued-event-listeners) 및 [대기 중인 알림](/docs/12.x/notifications#queueing-notifications)에 `tries` 속성 또는 `retryUntil` 메서드를 정의할 수도 있습니다.
+> [큐 처리되는 이벤트 리스너](/docs/12.x/events#queued-event-listeners)와 [큐 처리되는 알림](/docs/12.x/notifications#queueing-notifications)에도 `tries` 속성 또는 `retryUntil` 메서드를 정의할 수 있습니다.
 
 <a name="max-exceptions"></a>
-#### 최대 예외
+#### 최대 예외 횟수
 
-때로는 작업을 여러 번 시도할 수 있지만 지정된 수의 처리되지 않은 예외에 의해 재시도가 트리거되는 경우(`release` 메서드에 의해 직접 해제되는 것과 반대) 지정하고 싶을 수도 있습니다. 이를 수행하려면 작업 클래스에 `maxExceptions` 속성을 정의하면 됩니다.
+때로는 작업을 여러 번 시도할 수 있도록 하되, 재시도가 `release` 메서드로 직접 반환되어 발생한 것이 아니라 일정 횟수의 처리되지 않은 예외 때문에 발생한 경우에는 작업을 실패 처리하고 싶을 수 있습니다. 이를 위해 작업 클래스에 `maxExceptions` 속성을 정의할 수 있습니다.
 
 ```php
 <?php
@@ -1406,22 +1406,22 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
-이 예에서는 애플리케이션이 Redis 잠금을 얻을 수 없는 경우 작업이 10초 동안 해제되고 최대 25회까지 계속 재시도됩니다. 그러나 작업에서 처리되지 않은 세 가지 예외가 발생하면 작업이 실패합니다.
+이 예제에서는 애플리케이션이 Redis 락을 획득하지 못하면 작업이 10초 동안 반환되며 최대 25번까지 계속 재시도됩니다. 하지만 작업에서 처리되지 않은 예외가 세 번 발생하면 작업은 실패합니다.
 
 <a name="timeout"></a>
-#### 시간 초과
+#### 타임아웃
 
-큐에 있는 작업의 예상 소요 시간을 대략적으로 아는 경우가 많습니다. 이러한 이유로 Laravel을 사용하면 "시간 초과" 값을 지정할 수 있습니다. 기본적으로 시간 초과 값은 60초입니다. 작업이 시간 초과 값으로 지정된 시간(초)보다 오랫동안 처리하는 경우 작업을 처리하는 워커는 오류와 함께 종료됩니다. 일반적으로 워커는 [서버에 구성된 프로세스 관리자](#supervisor-configuration)에 의해 자동으로 다시 시작됩니다.
+대부분의 경우 큐 작업이 대략 얼마나 걸릴지 예상할 수 있습니다. 이런 이유로 Laravel은 "타임아웃" 값을 지정할 수 있게 합니다. 기본 타임아웃 값은 60초입니다. 작업이 타임아웃 값으로 지정한 초보다 오래 처리되면, 해당 작업을 처리하던 워커는 오류와 함께 종료됩니다. 일반적으로 워커는 [서버에 설정된 프로세스 관리자](#supervisor-configuration)에 의해 자동으로 다시 시작됩니다.
 
-작업이 실행할 수 있는 최대 시간(초)은 Artisan 명령줄의 `--timeout` 스위치를 사용하여 지정할 수 있습니다.
+작업이 실행될 수 있는 최대 초 수는 Artisan 명령줄에서 `--timeout` 스위치를 사용해 지정할 수 있습니다.
 
 ```shell
 php artisan queue:work --timeout=30
 ```
 
-작업이 지속적으로 시간 초과되어 최대 시도 횟수를 초과하는 경우 실패한 것으로 표시됩니다.
+작업이 계속 타임아웃되어 최대 시도 횟수를 초과하면 실패한 것으로 표시됩니다.
 
-또한 작업이 작업 클래스 자체에서 실행되도록 허용해야 하는 최대 시간(초)을 정의할 수도 있습니다. 작업에 시간 초과가 지정된 경우 명령줄에 지정된 시간 초과보다 우선합니다.
+작업 클래스 자체에 작업이 실행될 수 있는 최대 초 수를 정의할 수도 있습니다. 작업에 타임아웃이 지정되어 있으면, 명령줄에서 지정한 어떤 타임아웃보다 우선합니다.
 
 ```php
 <?php
@@ -1439,15 +1439,15 @@ class ProcessPodcast implements ShouldQueue
 }
 ```
 
-때로는 소켓이나 나가는 HTTP 연결과 같은 IO 차단 프로세스가 지정된 시간 초과를 준수하지 않을 수 있습니다. 따라서 이러한 기능을 사용할 때는 항상 해당 API를 사용하여 시간 제한을 지정해야 합니다. 예를 들어 [Guzzle](https://docs.guzzlephp.org)를 사용하는 경우 항상 연결 및 요청 시간 초과 값을 지정해야 합니다.
+때로는 소켓이나 외부 HTTP 연결 같은 IO 블로킹 프로세스가 지정한 타임아웃을 따르지 않을 수 있습니다. 따라서 이러한 기능을 사용할 때는 해당 API에서도 항상 타임아웃을 지정하려고 해야 합니다. 예를 들어 [Guzzle](https://docs.guzzlephp.org)을 사용할 때는 연결 타임아웃과 요청 타임아웃 값을 항상 지정해야 합니다.
 
 > [!WARNING]
-> 작업 시간 제한을 지정하려면 [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 확장을 설치해야 합니다. 또한 작업의 "시간 초과" 값은 항상 ["재시도"](#job-expiration) 값보다 작아야 합니다. 그렇지 않으면 실제로 실행이 완료되거나 시간이 초과되기 전에 작업이 다시 시도될 수 있습니다.
+> 작업 타임아웃을 지정하려면 [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 확장 기능이 설치되어 있어야 합니다. 또한 작업의 "timeout" 값은 항상 해당 작업의 ["retry after"](#job-expiration) 값보다 작아야 합니다. 그렇지 않으면 작업이 실제로 실행을 마치거나 타임아웃되기 전에 다시 시도될 수 있습니다.
 
 <a name="failing-on-timeout"></a>
-#### 시간 초과로 인한 실패
+#### 타임아웃 시 실패 처리
 
-시간 초과 시 작업이 [실패](#dealing-with-failed-jobs)로 표시되어야 함을 나타내려면 작업 클래스에 `$failOnTimeout` 속성을 정의할 수 있습니다.
+타임아웃이 발생했을 때 작업을 [실패](#dealing-with-failed-jobs)로 표시하도록 지정하려면 작업 클래스에 `$failOnTimeout` 속성을 정의할 수 있습니다.
 
 ```php
 /**
@@ -1459,23 +1459,23 @@ public $failOnTimeout = true;
 ```
 
 > [!NOTE]
-> 기본적으로 작업이 시간 초과되면 한 번의 시도를 소비하고 큐로 다시 해제됩니다(재시도가 허용되는 경우). 그러나 시간 초과 시 실패하도록 작업을 구성하면 시도에 설정된 값에 관계없이 재시도되지 않습니다.
+> 기본적으로 작업이 타임아웃되면 시도 횟수 하나를 소모하고, 재시도가 허용되어 있다면 큐로 다시 반환됩니다. 하지만 작업을 타임아웃 시 실패하도록 설정하면 `tries`에 설정된 값과 관계없이 재시도되지 않습니다.
 
 <a name="sqs-fifo-and-fair-queues"></a>
-### SQS FIFO 및 공정한 큐
+### SQS FIFO와 공정 큐
 
-Laravel는 [Amazon SQS FIFO(선입선출)](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-fifo-queues.html) 큐를 지원하므로 메시지 중복 제거를 통해 정확히 한 번만 처리하는 동시에 전송된 정확한 순서대로 작업을 처리할 수 있습니다.
+Laravel은 [Amazon SQS FIFO (First-In-First-Out)](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-fifo-queues.html) 큐를 지원합니다. 이를 통해 메시지 중복 제거로 정확히 한 번만 처리되도록 보장하면서, 작업을 전송된 정확한 순서대로 처리할 수 있습니다.
 
-FIFO 큐에는 병렬로 처리할 수 있는 작업을 결정하기 위해 메시지 그룹 ID가 필요합니다. 동일한 그룹 ID를 가진 작업은 순차적으로 처리되고, 다른 그룹 ID를 가진 메시지는 동시에 처리될 수 있습니다.
+FIFO 큐는 어떤 작업을 병렬로 처리할 수 있는지 판단하기 위해 메시지 그룹 ID가 필요합니다. 같은 그룹 ID를 가진 작업은 순차적으로 처리되고, 서로 다른 그룹 ID를 가진 메시지는 동시에 처리될 수 있습니다.
 
-Laravel는 디스패치 작업일 때 메시지 그룹 ID를 지정하는 유연한 `onGroup` 메서드를 제공합니다.
+Laravel은 작업을 디스패치할 때 메시지 그룹 ID를 지정할 수 있도록 유창한 `onGroup` 메서드를 제공합니다.
 
 ```php
 ProcessOrder::dispatch($order)
     ->onGroup("customer-{$order->customer_id}");
 ```
 
-SQS FIFO 큐는 메시지 중복 제거를 지원하여 정확히 한 번만 처리되도록 보장합니다. 사용자 지정 중복 제거 ID를 제공하려면 작업 클래스에서 `deduplicationId` 메소드를 구현하십시오.
+SQS FIFO 큐는 정확히 한 번만 처리되도록 보장하기 위해 메시지 중복 제거를 지원합니다. 사용자 지정 중복 제거 ID를 제공하려면 작업 클래스에 `deduplicationId` 메서드를 구현하십시오.
 
 ```php
 <?php
@@ -1502,11 +1502,11 @@ class ProcessSubscriptionRenewal implements ShouldQueue
 ```
 
 <a name="fifo-listeners-mail-and-notifications"></a>
-#### FIFO 리스너, 메일 및 알림
+#### FIFO 리스너, 메일, 알림
 
-FIFO 큐를 활용하는 경우 리스너, 메일 및 알림에 대한 메시지 그룹도 정의해야 합니다. 또는 이러한 개체의 큐에 있는 인스턴스를 디스패치하여 비FIFO 큐로 보낼 수 있습니다.
+FIFO 큐를 사용할 때는 리스너, 메일, 알림에도 메시지 그룹을 정의해야 합니다. 또는 이러한 객체의 큐 처리 인스턴스를 FIFO가 아닌 큐로 디스패치할 수 있습니다.
 
-[큐에 있는 이벤트 리스너](/docs/12.x/events#queued-event-listeners)에 대한 메시지 그룹을 정의하려면 리스너에 `messageGroup` 메서드를 정의하세요. 선택적으로 `deduplicationId` 메소드를 정의할 수도 있습니다.
+[큐 처리되는 이벤트 리스너](/docs/12.x/events#queued-event-listeners)의 메시지 그룹을 정의하려면 리스너에 `messageGroup` 메서드를 정의하십시오. 선택적으로 `deduplicationId` 메서드도 정의할 수 있습니다.
 
 ```php
 <?php
@@ -1535,7 +1535,7 @@ class SendShipmentNotification
 }
 ```
 
-FIFO 큐에 대기할 [메일 메시지](/docs/12.x/mail)를 보낼 때 알림을 보낼 때 `onGroup` 메서드를 호출하고 선택적으로 `withDeduplicator` 메서드를 호출해야 합니다.
+FIFO 큐에서 큐 처리될 [메일 메시지](/docs/12.x/mail)를 보낼 때는 메일을 보낼 때 `onGroup` 메서드를 호출하고, 선택적으로 `withDeduplicator` 메서드도 호출해야 합니다.
 
 ```php
 use App\Mail\InvoicePaid;
@@ -1548,7 +1548,7 @@ $invoicePaid = (new InvoicePaid($invoice))
 Mail::to($request->user())->send($invoicePaid);
 ```
 
-FIFO 큐에 대기할 [알림](/docs/12.x/notifications)을 보낼 때 알림을 보낼 때 `onGroup` 메서드를 호출하고 선택적으로 `withDeduplicator` 메서드를 호출해야 합니다.
+FIFO 큐에서 큐 처리될 [알림](/docs/12.x/notifications)을 보낼 때는 알림을 보낼 때 `onGroup` 메서드를 호출하고, 선택적으로 `withDeduplicator` 메서드도 호출해야 합니다.
 
 ```php
 use App\Notifications\InvoicePaid;
@@ -1563,9 +1563,9 @@ $user->notify($invoicePaid);
 <a name="queue-failover"></a>
 ### 큐 장애 조치
 
-`failover` 큐 드라이버는 작업을 큐에 푸시할 때 자동 장애 조치 기능을 제공합니다. 어떤 이유로든 `failover` 구성의 기본 큐 연결이 실패하면 Laravel는 자동으로 작업을 목록의 다음 구성된 연결로 푸시하려고 시도합니다. 이는 큐 신뢰성이 중요한 생산 환경에서 고가용성을 보장하는 데 특히 유용합니다.
+`failover` 큐 드라이버는 작업을 큐에 넣을 때 자동 장애 조치 기능을 제공합니다. `failover` 설정의 기본 큐 커넥션이 어떤 이유로든 실패하면, Laravel은 목록에 설정된 다음 커넥션으로 작업을 넣으려고 자동으로 시도합니다. 이는 큐 안정성이 중요한 프로덕션 환경에서 고가용성을 보장하는 데 특히 유용합니다.
 
-장애 조치 큐 연결을 구성하려면 `failover` 드라이버를 지정하고 순서대로 시도할 연결 이름 배열을 제공합니다. 기본적으로 Laravel에는 애플리케이션의 `config/queue.php` 구성 파일에 장애 조치 구성 예시가 포함되어 있습니다.
+장애 조치 큐 커넥션을 설정하려면 `failover` 드라이버를 지정하고, 순서대로 시도할 커넥션 이름 배열을 제공하십시오. 기본적으로 Laravel은 애플리케이션의 `config/queue.php` 설정 파일에 예시 장애 조치 설정을 포함합니다.
 
 ```php
 'failover' => [
@@ -1578,13 +1578,13 @@ $user->notify($invoicePaid);
 ],
 ```
 
-`failover` 드라이버를 사용하는 연결을 구성한 후에는 장애 조치 기능을 활용하려면 애플리케이션의 `.env` 파일에서 장애 조치 연결을 기본 큐 연결로 설정해야 합니다.
+`failover` 드라이버를 사용하는 커넥션을 설정한 뒤에는, 장애 조치 기능을 사용하기 위해 애플리케이션의 `.env` 파일에서 장애 조치 커넥션을 기본 큐 커넥션으로 설정해야 합니다.
 
 ```ini
 QUEUE_CONNECTION=failover
 ```
 
-그런 다음 장애 조치 연결 목록의 각 연결에 대해 하나 이상의 워커를 시작합니다.
+다음으로 장애 조치 커넥션 목록의 각 커넥션마다 최소 하나의 워커를 시작하십시오.
 
 ```bash
 php artisan queue:work redis
@@ -1592,22 +1592,22 @@ php artisan queue:work database
 ```
 
 > [!NOTE]
-> 드라이버가 현재 PHP 프로세스 내에서 작업을 처리하므로 `sync`, `background` 또는 `deferred` 큐 드라이버를 사용하여 연결하는 경우 워커를 실행할 필요가 없습니다.
+> `sync`, `background`, `deferred` 큐 드라이버를 사용하는 커넥션에는 워커를 실행할 필요가 없습니다. 이러한 드라이버는 현재 PHP 프로세스 안에서 작업을 처리하기 때문입니다.
 
-큐 연결 작업이 실패하고 장애 조치가 활성화되면 Laravel는 디스패치를 `Illuminate\Queue\Events\QueueFailedOver` 이벤트로 지정하여 큐 연결이 실패했음을 보고하거나 기록할 수 있습니다.
+큐 커넥션 작업이 실패하고 장애 조치가 활성화되면, Laravel은 `Illuminate\Queue\Events\QueueFailedOver` 이벤트를 디스패치합니다. 이 이벤트를 사용하면 큐 커넥션이 실패했다는 사실을 보고하거나 로그로 남길 수 있습니다.
 
 > [!NOTE]
-> Laravel Horizon를 사용하는 경우 Horizon는 Redis 큐만 관리한다는 점을 기억하세요. 장애 조치 목록에 `database`가 포함된 경우 Horizon와 함께 일반 `php artisan queue:work database` 프로세스를 실행해야 합니다.
+> Laravel Horizon을 사용하는 경우, Horizon은 Redis 큐만 관리한다는 점을 기억하십시오. 장애 조치 목록에 `database`가 포함되어 있다면 Horizon과 함께 일반 `php artisan queue:work database` 프로세스를 실행해야 합니다.
 
 <a name="error-handling"></a>
 ### 오류 처리
 
-작업이 처리되는 동안 예외가 발생하면 작업이 자동으로 큐로 다시 해제되어 다시 시도할 수 있습니다. 작업은 애플리케이션에서 허용하는 최대 횟수까지 시도될 때까지 계속해서 릴리스됩니다. 최대 시도 횟수는 `queue:work` Artisan 명령에 사용되는 `--tries` 스위치에 의해 정의됩니다. 또는 작업 클래스 자체에서 최대 시도 횟수를 정의할 수도 있습니다. 큐 워커 실행에 대한 자세한 내용은 [아래에서 확인할 수 있습니다](#running-the-queue-worker).
+작업이 처리되는 동안 예외가 발생하면, 작업은 다시 시도될 수 있도록 자동으로 큐에 반환됩니다. 작업은 애플리케이션에서 허용한 최대 시도 횟수에 도달할 때까지 계속 반환됩니다. 최대 시도 횟수는 `queue:work` Artisan 명령어에서 사용하는 `--tries` 스위치로 정의됩니다. 또는 작업 클래스 자체에 최대 시도 횟수를 정의할 수도 있습니다. 큐 워커 실행에 대한 자세한 내용은 [아래에서 확인할 수 있습니다](#running-the-queue-worker).
 
 <a name="manually-releasing-a-job"></a>
-#### 작업 수동 해제
+#### 작업 수동 반환
 
-때로는 나중에 다시 시도할 수 있도록 수동으로 작업을 큐에 다시 릴리스할 수도 있습니다. `release` 메소드를 호출하여 이를 수행할 수 있습니다:
+때로는 나중에 다시 시도할 수 있도록 작업을 수동으로 큐에 반환하고 싶을 수 있습니다. `release` 메서드를 호출하여 이를 수행할 수 있습니다.
 
 ```php
 /**
@@ -1621,7 +1621,7 @@ public function handle(): void
 }
 ```
 
-기본적으로 `release` 방법은 즉각적인 처리를 위해 작업을 다시 큐로 해제합니다. 그러나 정수 또는 날짜 인스턴스를 `release` 메서드에 전달하여 지정된 시간(초)이 경과할 때까지 작업을 처리할 수 없도록 큐에 지시할 수 있습니다.
+기본적으로 `release` 메서드는 작업을 즉시 처리할 수 있도록 큐에 다시 반환합니다. 하지만 `release` 메서드에 정수 또는 날짜 인스턴스를 전달하면, 지정한 초가 지난 뒤에야 작업을 처리할 수 있도록 큐에 지시할 수 있습니다.
 
 ```php
 $this->release(10);
@@ -1630,9 +1630,9 @@ $this->release(now()->plus(seconds: 10));
 ```
 
 <a name="manually-failing-a-job"></a>
-#### 작업 수동 실패
+#### 작업 수동 실패 처리
 
-때때로 작업을 "실패"로 수동으로 표시해야 할 수도 있습니다. 그렇게 하려면 `fail` 메소드를 호출하면 됩니다:
+때로는 작업을 수동으로 "실패"로 표시해야 할 수 있습니다. 이를 위해 `fail` 메서드를 호출할 수 있습니다.
 
 ```php
 /**
@@ -1645,8 +1645,7 @@ public function handle(): void
     $this->fail();
 }
 ```
-
-발생한 예외로 인해 작업을 실패한 것으로 표시하려면 해당 예외를 `fail` 메서드에 전달할 수 있습니다. 또는 편의를 위해 예외로 변환될 문자열 오류 메시지를 전달할 수도 있습니다.
+잡은 예외 때문에 작업을 실패한 것으로 표시하려면, 해당 예외를 `fail` 메서드에 전달할 수 있습니다. 또는 편의를 위해 문자열 오류 메시지를 전달할 수도 있으며, 이 메시지는 자동으로 예외로 변환됩니다.
 
 ```php
 $this->fail($exception);
@@ -1655,12 +1654,12 @@ $this->fail('Something went wrong.');
 ```
 
 > [!NOTE]
-> 실패한 작업에 대한 자세한 내용은 [작업 실패 처리에 대한 문서](#dealing-with-failed-jobs)를 확인하세요.
+> 실패한 작업에 대한 자세한 내용은 [작업 실패 처리 문서](#dealing-with-failed-jobs)를 확인하세요.
 
 <a name="fail-jobs-on-exceptions"></a>
-#### 특정 예외로 인해 작업 실패
+#### 특정 예외에서 작업 실패 처리
 
-`FailOnException` [작업 미들웨어](#job-middleware)를 사용하면 특정 예외가 발생할 때 단락 재시도를 수행할 수 있습니다. 이를 통해 외부 API 오류와 같은 일시적인 예외에 대해 재시도할 수 있지만 사용자 권한 취소와 같은 지속적인 예외에 대해서는 영구적으로 작업에 실패할 수 있습니다.
+`FailOnException` [작업 미들웨어](#job-middleware)를 사용하면 특정 예외가 발생했을 때 재시도를 중단할 수 있습니다. 이를 통해 외부 API 오류처럼 일시적인 예외에서는 재시도하고, 사용자의 권한이 취소되는 것처럼 지속적으로 발생하는 예외에서는 작업을 영구적으로 실패 처리할 수 있습니다.
 
 ```php
 <?php
@@ -1714,9 +1713,11 @@ class SyncChatHistory implements ShouldQueue
 ```
 
 <a name="job-batching"></a>
-## 작업 배치 (Job Batching)
+## 작업 배치 처리 (Job Batching)
 
-Laravel의 작업 배치 기능을 사용하면 작업의 배치를 쉽게 실행한 다음 작업의 배치 실행이 완료되면 일부 작업을 수행할 수 있습니다. 시작하기 전에 마이그레이션 데이터베이스를 생성하여 완료율과 같은 작업 배치에 대한 메타 정보가 포함된 테이블을 구축해야 합니다. 이 마이그레이션은 `make:queue-batches-table` Artisan 명령을 사용하여 생성될 수 있습니다.
+Laravel의 작업 배치 처리 기능을 사용하면 여러 작업을 병렬로 쉽게 실행하고, 작업 배치의 실행이 완료되었을 때 특정 동작을 수행할 수 있습니다.
+
+시작하기 전에 작업 배치의 완료율과 같은 메타 정보를 저장할 테이블을 만들기 위한 데이터베이스 마이그레이션을 생성해야 합니다. 이 마이그레이션은 `make:queue-batches-table` Artisan 명령어로 생성할 수 있습니다.
 
 ```shell
 php artisan make:queue-batches-table
@@ -1725,9 +1726,9 @@ php artisan migrate
 ```
 
 <a name="defining-batchable-jobs"></a>
-### 배치 가능 작업 정의
+### 배치 가능한 작업 정의
 
-배치 가능 작업을 정의하려면 정상적으로 [큐에 넣을 수 있는 작업을 생성](#creating-jobs)해야 합니다. 그러나 작업 클래스에 `Illuminate\Bus\Batchable` 특성을 추가해야 합니다. 이 특성은 작업이 실행 중인 현재 배치를 검색하는 데 사용할 수 있는 `batch` 메서드에 대한 액세스를 제공합니다.
+배치 가능한 작업을 정의하려면 일반적인 방식으로 [큐 작업을 생성](#creating-jobs)하면 됩니다. 다만 작업 클래스에 `Illuminate\Bus\Batchable` trait을 추가해야 합니다. 이 trait은 현재 작업이 실행 중인 배치를 가져오는 데 사용할 수 있는 `batch` 메서드를 제공합니다.
 
 ```php
 <?php
@@ -1759,13 +1760,13 @@ class ImportCsv implements ShouldQueue
 ```
 
 <a name="dispatching-batches"></a>
-### 디스패치 배치
+### 배치 디스패치
 
-디스패치 또는 작업의 배치를 수행하려면 `Bus` 파사드의 `batch` 메소드를 사용해야 합니다. 물론 배치는 완료 콜백과 결합될 때 주로 유용합니다. 따라서 `then`, `catch` 및 `finally` 메서드를 사용하여 배치에 대한 완료 콜백을 정의할 수 있습니다. 이러한 각 콜백은 호출될 때 `Illuminate\Bus\Batch` 인스턴스를 수신합니다.
+작업 배치를 디스패치하려면 `Bus` 파사드의 `batch` 메서드를 사용해야 합니다. 물론 배치 처리는 완료 콜백과 함께 사용할 때 가장 유용합니다. 따라서 `then`, `catch`, `finally` 메서드를 사용하여 배치의 완료 콜백을 정의할 수 있습니다. 이 콜백들은 호출될 때 각각 `Illuminate\Bus\Batch` 인스턴스를 받습니다.
 
-여러 개의 큐 워커를 실행하는 경우 배치의 작업이 병렬로 처리됩니다. 따라서 작업이 완료되는 순서는 배치에 추가된 순서와 동일하지 않을 수 있습니다. 일련의 작업을 순서대로 실행하는 방법에 대한 자세한 내용은 [작업 체인 및 배치](#chains-and-batches)에 대한 설명서를 참조하세요.
+여러 큐 워커를 실행하는 경우 배치 안의 작업들은 병렬로 처리됩니다. 따라서 작업이 완료되는 순서는 배치에 추가된 순서와 다를 수 있습니다. 여러 작업을 순서대로 실행하는 방법은 [작업 체인과 배치](#chains-and-batches) 문서를 참고하세요.
 
-이 예에서는 각각 CSV 파일에서 지정된 수의 행을 처리하는 작업의 배치를 큐에 추가한다고 가정합니다.
+이 예제에서는 CSV 파일에서 지정된 수의 행을 각각 처리하는 작업 배치를 큐에 넣는 상황을 가정합니다.
 
 ```php
 use App\Jobs\ImportCsv;
@@ -1794,15 +1795,15 @@ $batch = Bus::batch([
 return $batch->id;
 ```
 
-`$batch->id` 속성을 통해 액세스할 수 있는 배치의 ID는 디스패치가 된 후 배치에 대한 정보를 얻기 위해 [쿼리 Laravel 명령 버스](#inspecting-batches)에 사용될 수 있습니다.
+`$batch->id` 속성으로 접근할 수 있는 배치의 ID는, 배치가 디스패치된 후 해당 배치에 대한 정보를 [Laravel command bus에 조회](#inspecting-batches)하는 데 사용할 수 있습니다.
 
 > [!WARNING]
-> 배치 콜백은 나중에 Laravel 큐에 의해 직렬화되고 실행되므로 콜백 내에서 `$this` 변수를 사용하면 안 됩니다. 또한 배치 처리된 작업은 데이터베이스 트랜잭션 내에 래핑되므로 암시적 커밋을 트리거하는 데이터베이스 문은 작업 내에서 실행되어서는 안 됩니다.
+> 배치 콜백은 직렬화되어 나중에 Laravel 큐에 의해 실행되므로, 콜백 안에서 `$this` 변수를 사용하면 안 됩니다. 또한 배치된 작업은 데이터베이스 트랜잭션 안에서 감싸지므로, 암묵적 커밋을 유발하는 데이터베이스 구문은 작업 안에서 실행하면 안 됩니다.
 
 <a name="naming-batches"></a>
-#### 배치로 명명
+#### 배치 이름 지정
 
-[Laravel Horizon](/docs/12.x/horizon) 및 [Laravel 망원경](/docs/12.x/telescope)과 같은 일부 도구는 배치라는 이름이 지정된 경우 배치에 대한 보다 사용자 친화적인 디버그 정보를 제공할 수 있습니다. 배치에 임의의 이름을 할당하려면 배치를 정의하는 동안 `name` 메서드를 호출하면 됩니다.
+[Laravel Horizon](/docs/12.x/horizon)과 [Laravel Telescope](/docs/12.x/telescope) 같은 일부 도구는 배치에 이름이 지정되어 있으면 더 사용자 친화적인 디버그 정보를 제공할 수 있습니다. 배치에 임의의 이름을 지정하려면 배치를 정의하는 동안 `name` 메서드를 호출하면 됩니다.
 
 ```php
 $batch = Bus::batch([
@@ -1813,9 +1814,9 @@ $batch = Bus::batch([
 ```
 
 <a name="batch-connection-queue"></a>
-#### 배치 연결 및 큐
+#### 배치 연결과 큐
 
-배치 처리된 작업에 사용해야 하는 연결 및 큐를 지정하려면 `onConnection` 및 `onQueue` 방법을 사용할 수 있습니다. 배치 처리된 모든 작업은 동일한 연결 및 큐 내에서 실행되어야 합니다.
+배치된 작업에 사용할 연결과 큐를 지정하려면 `onConnection` 및 `onQueue` 메서드를 사용할 수 있습니다. 모든 배치 작업은 동일한 연결과 큐 안에서 실행되어야 합니다.
 
 ```php
 $batch = Bus::batch([
@@ -1826,9 +1827,9 @@ $batch = Bus::batch([
 ```
 
 <a name="chains-and-batches"></a>
-### 체인 및 배치
+### 체인과 배치
 
-배열 내에 연결된 작업을 배치하여 배치 내에서 [연결된 작업](#job-chaining) 집합을 정의할 수 있습니다. 예를 들어 두 개의 작업 체인을 병렬로 실행하고 두 작업 체인 모두 처리가 완료되면 콜백을 실행할 수 있습니다.
+체인으로 연결된 작업들을 배열 안에 넣어 배치 안에서 [체인 작업](#job-chaining) 집합을 정의할 수 있습니다. 예를 들어 두 개의 작업 체인을 병렬로 실행하고, 두 작업 체인의 처리가 모두 끝났을 때 콜백을 실행할 수 있습니다.
 
 ```php
 use App\Jobs\ReleasePodcast;
@@ -1850,7 +1851,7 @@ Bus::batch([
 })->dispatch();
 ```
 
-반대로 체인 내에서 배치를 정의하여 [체인](#job-chaining) 내에서 작업의 배치를 실행할 수 있습니다. 예를 들어, 먼저 작업의 배치를 실행하여 여러 팟캐스트를 릴리스한 다음 작업의 배치를 실행하여 릴리스 알림을 보낼 수 있습니다.
+반대로 [체인](#job-chaining) 안에 배치를 정의하여 작업 배치를 실행할 수도 있습니다. 예를 들어 먼저 여러 팟캐스트를 공개하는 작업 배치를 실행한 다음, 공개 알림을 보내는 작업 배치를 실행할 수 있습니다.
 
 ```php
 use App\Jobs\FlushPodcastCache;
@@ -1874,7 +1875,7 @@ Bus::chain([
 <a name="adding-jobs-to-batches"></a>
 ### 배치에 작업 추가
 
-때로는 배치 처리된 작업 내에서 배치에 추가 작업을 추가하는 것이 유용할 수 있습니다. 이 패턴은 웹 요청 중에 디스패치에 너무 오랜 시간이 걸릴 수 있는 수천 개의 작업을 배치해야 할 때 유용할 수 있습니다. 따라서 대신 배치를 더 많은 작업으로 수화하는 "로더" 작업의 초기 배치를 디스패치로 설정할 수 있습니다.
+때로는 배치된 작업 안에서 같은 배치에 추가 작업을 더하는 것이 유용할 수 있습니다. 이 패턴은 수천 개의 작업을 배치로 묶어야 하지만, 웹 요청 중에 모두 디스패치하기에는 시간이 너무 오래 걸릴 수 있을 때 유용합니다. 이 경우 먼저 배치에 더 많은 작업을 채워 넣는 초기 "로더" 작업 배치를 디스패치할 수 있습니다.
 
 ```php
 $batch = Bus::batch([
@@ -1886,7 +1887,7 @@ $batch = Bus::batch([
 })->name('Import Contacts')->dispatch();
 ```
 
-이 예에서는 `LoadImportBatch` 작업을 사용하여 추가 작업으로 배치를 수화합니다. 이를 달성하기 위해 작업의 `batch` 메서드를 통해 액세스할 수 있는 배치 인스턴스에서 `add` 메서드를 사용할 수 있습니다.
+이 예제에서는 `LoadImportBatch` 작업을 사용하여 배치에 추가 작업을 채워 넣습니다. 이를 위해 작업의 `batch` 메서드를 통해 접근할 수 있는 배치 인스턴스에서 `add` 메서드를 사용할 수 있습니다.
 
 ```php
 use App\Jobs\ImportContacts;
@@ -1908,12 +1909,12 @@ public function handle(): void
 ```
 
 > [!WARNING]
-> 동일한 배치에 속하는 작업 내에서만 작업을 배치에 추가할 수 있습니다.
+> 같은 배치에 속한 작업 안에서만 해당 배치에 작업을 추가할 수 있습니다.
 
 <a name="inspecting-batches"></a>
-### 배치 검사 중
+### 배치 검사
 
-배치 완료 콜백에 제공되는 `Illuminate\Bus\Batch` 인스턴스에는 작업의 지정된 배치와 상호 작용하고 검사하는 데 도움이 되는 다양한 속성과 메서드가 있습니다.
+배치 완료 콜백에 전달되는 `Illuminate\Bus\Batch` 인스턴스에는 특정 작업 배치와 상호작용하고 검사하는 데 도움이 되는 다양한 속성과 메서드가 있습니다.
 
 ```php
 // The UUID of the batch...
@@ -1950,9 +1951,9 @@ $batch->cancelled();
 <a name="returning-batches-from-routes"></a>
 #### 라우트에서 배치 반환
 
-모든 `Illuminate\Bus\Batch` 인스턴스는 JSON 직렬화 가능합니다. 즉, 애플리케이션의 라우트 중 하나에서 직접 반환하여 완료 진행 상황을 포함하여 배치에 대한 정보가 포함된 JSON 페이로드를 검색할 수 있습니다. 이를 통해 애플리케이션 UI에 배치의 완료 진행 상황에 대한 정보를 표시하는 것이 편리합니다.
+모든 `Illuminate\Bus\Batch` 인스턴스는 JSON으로 직렬화할 수 있습니다. 즉, 애플리케이션의 라우트에서 직접 반환하여 완료 진행률을 포함한 배치 정보를 담은 JSON payload를 가져올 수 있습니다. 이를 통해 애플리케이션 UI에서 배치 완료 진행률 정보를 편리하게 표시할 수 있습니다.
 
-ID로 배치를 검색하려면 `Bus` 파사드의 `findBatch` 메소드를 사용할 수 있습니다:
+ID로 배치를 가져오려면 `Bus` 파사드의 `findBatch` 메서드를 사용할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\Bus;
@@ -1966,7 +1967,7 @@ Route::get('/batch/{batchId}', function (string $batchId) {
 <a name="cancelling-batches"></a>
 ### 배치 취소
 
-때로는 특정 배치 실행을 취소해야 할 수도 있습니다. 이는 `Illuminate\Bus\Batch` 인스턴스에서 `cancel` 메서드를 호출하여 수행할 수 있습니다.
+때로는 특정 배치의 실행을 취소해야 할 수 있습니다. 이는 `Illuminate\Bus\Batch` 인스턴스에서 `cancel` 메서드를 호출하여 처리할 수 있습니다.
 
 ```php
 /**
@@ -1986,7 +1987,7 @@ public function handle(): void
 }
 ```
 
-이전 예에서 알 수 있듯이 배치 처리된 작업은 일반적으로 실행을 계속하기 전에 해당 배치가 취소되었는지 확인해야 합니다. 그러나 편의상 `SkipIfBatchCancelled` [미들웨어](#job-middleware)를 작업에 대신 할당할 수 있습니다. 이름에서 알 수 있듯이 이 미들웨어는 해당 배치가 취소된 경우 작업을 처리하지 않도록 Laravel에 지시합니다.
+앞선 예제에서 보았듯이, 배치된 작업은 일반적으로 실행을 계속하기 전에 자신이 속한 배치가 취소되었는지 확인해야 합니다. 하지만 편의를 위해 작업에 `SkipIfBatchCancelled` [미들웨어](#job-middleware)를 지정할 수 있습니다. 이름에서 알 수 있듯이, 이 미들웨어는 해당 작업이 속한 배치가 취소된 경우 Laravel이 그 작업을 처리하지 않도록 지시합니다.
 
 ```php
 use Illuminate\Queue\Middleware\SkipIfBatchCancelled;
@@ -2003,12 +2004,12 @@ public function middleware(): array
 <a name="batch-failures"></a>
 ### 배치 실패
 
-배치 처리된 작업이 실패하면 `catch` 콜백(할당된 경우)이 호출됩니다. 이 콜백은 배치 내에서 실패한 첫 번째 작업에 대해서만 호출됩니다.
+배치된 작업이 실패하면 `catch` 콜백이 지정되어 있는 경우 해당 콜백이 호출됩니다. 이 콜백은 배치 안에서 처음 실패한 작업에 대해서만 호출됩니다.
 
 <a name="allowing-failures"></a>
 #### 실패 허용
 
-배치 내의 작업에 오류가 발생하면 Laravel는 자동으로 배치를 "취소됨"으로 표시합니다. 원하는 경우 작업 오류로 인해 배치가 취소된 것으로 자동으로 표시되지 않도록 이 동작을 비활성화할 수 있습니다. 이는 `allowFailures` 메소드를 호출하고 디스패치는 배치를 호출하여 수행할 수 있습니다.
+배치 안의 작업이 실패하면 Laravel은 자동으로 배치를 "cancelled" 상태로 표시합니다. 원한다면 이 동작을 비활성화하여 작업 실패가 자동으로 배치를 취소 상태로 표시하지 않도록 할 수 있습니다. 이는 배치를 디스패치할 때 `allowFailures` 메서드를 호출하여 처리할 수 있습니다.
 
 ```php
 $batch = Bus::batch([
@@ -2018,7 +2019,7 @@ $batch = Bus::batch([
 })->allowFailures()->dispatch();
 ```
 
-선택적으로 각 작업 실패 시 실행되는 `allowFailures` 메서드에 대한 클로저를 제공할 수 있습니다.
+선택적으로 `allowFailures` 메서드에 클로저를 전달할 수도 있으며, 이 클로저는 각 작업 실패 시 실행됩니다.
 
 ```php
 $batch = Bus::batch([
@@ -2029,26 +2030,25 @@ $batch = Bus::batch([
 ```
 
 <a name="retrying-failed-batch-jobs"></a>
-#### 재시도 실패 배치 작업
+#### 실패한 배치 작업 재시도
 
-편의를 위해 Laravel는 지정된 배치에 대해 실패한 모든 작업을 쉽게 재시도할 수 있는 `queue:retry-batch` Artisan 명령을 제공합니다. 이 명령은 실패한 작업을 재시도해야 하는 배치의 UUID를 승인합니다.
+편의를 위해 Laravel은 특정 배치에서 실패한 모든 작업을 쉽게 재시도할 수 있는 `queue:retry-batch` Artisan 명령어를 제공합니다. 이 명령어는 실패한 작업을 재시도할 배치의 UUID를 인수로 받습니다.
 
 ```shell
 php artisan queue:retry-batch 32dbc76c-4f82-4749-b610-a639fe0099b5
 ```
 
 <a name="pruning-batches"></a>
-### 가지치기 배치
+### 배치 정리
 
-정리하지 않고도 `job_batches` 테이블은 매우 빠르게 레코드를 축적할 수 있습니다. 이 문제를 완화하려면 `queue:prune-batches` Artisan 명령이 매일 실행되도록 [예약](/docs/12.x/scheduling)해야 합니다.
+정리하지 않으면 `job_batches` 테이블에 레코드가 매우 빠르게 쌓일 수 있습니다. 이를 완화하려면 `queue:prune-batches` Artisan 명령어가 매일 실행되도록 [스케줄링](/docs/12.x/scheduling)해야 합니다.
 
 ```php
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('queue:prune-batches')->daily();
 ```
-
-기본적으로 24시간이 지난 모든 완료된 배치는 정리됩니다. 배치 데이터를 보존할 기간을 결정하기 위해 명령을 호출할 때 `hours` 옵션을 사용할 수 있습니다. 예를 들어, 다음 명령은 48시간 전에 완료된 모든 배치를 삭제합니다.
+기본적으로 완료된 지 24시간이 지난 모든 배치는 정리됩니다. 명령어를 호출할 때 `hours` 옵션을 사용하여 배치 데이터를 얼마나 오래 보관할지 지정할 수 있습니다. 예를 들어, 다음 명령어는 48시간 전에 완료된 모든 배치를 삭제합니다.
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -2056,7 +2056,7 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('queue:prune-batches --hours=48')->daily();
 ```
 
-때로는 작업이 실패하고 작업이 성공적으로 재시도되지 않은 배치와 같이 성공적으로 완료되지 않은 배치에 대한 배치 레코드가 `jobs_batches` 테이블에 누적될 수 있습니다. `unfinished` 옵션을 사용하여 완료되지 않은 배치 레코드를 정리하도록 `queue:prune-batches` 명령에 지시할 수 있습니다.
+때로는 `job_batches` 테이블에 성공적으로 완료되지 않은 배치의 레코드가 쌓일 수 있습니다. 예를 들어 작업 하나가 실패했고, 그 작업이 이후에도 성공적으로 재시도되지 않은 배치가 이에 해당합니다. `unfinished` 옵션을 사용하면 `queue:prune-batches` 명령어가 이러한 미완료 배치 레코드를 정리하도록 지정할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -2064,7 +2064,7 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('queue:prune-batches --hours=48 --unfinished=72')->daily();
 ```
 
-마찬가지로, `jobs_batches` 테이블에는 취소된 배치에 대한 배치 레코드가 누적될 수도 있습니다. `cancelled` 옵션을 사용하여 취소된 배치 레코드를 정리하도록 `queue:prune-batches` 명령에 지시할 수 있습니다.
+마찬가지로 `job_batches` 테이블에는 취소된 배치의 레코드도 쌓일 수 있습니다. `cancelled` 옵션을 사용하면 `queue:prune-batches` 명령어가 이러한 취소된 배치 레코드를 정리하도록 지정할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -2073,21 +2073,21 @@ Schedule::command('queue:prune-batches --hours=48 --cancelled=72')->daily();
 ```
 
 <a name="storing-batches-in-dynamodb"></a>
-### DynamoDB에 배치 저장
+### DynamoDB에 배치 저장하기
 
-Laravel는 관계형 데이터베이스 대신 [DynamoDB](https://aws.amazon.com/dynamodb)에 배치 메타 정보를 저장하는 기능도 지원합니다. 그러나 모든 배치 레코드를 저장하려면 DynamoDB 테이블을 수동으로 생성해야 합니다.
+Laravel은 관계형 데이터베이스 대신 [DynamoDB](https://aws.amazon.com/dynamodb)에 배치 메타 정보를 저장하는 기능도 지원합니다. 다만 모든 배치 레코드를 저장할 DynamoDB 테이블은 직접 생성해야 합니다.
 
-일반적으로 이 테이블의 이름은 `job_batches`로 지정되어야 하지만 애플리케이션의 `queue` 구성 파일에 있는 `queue.batching.table` 구성 값을 기반으로 테이블 이름을 지정해야 합니다.
+일반적으로 이 테이블의 이름은 `job_batches`로 지정해야 하지만, 애플리케이션의 `queue` 설정 파일 안에 있는 `queue.batching.table` 설정값에 따라 테이블 이름을 정해야 합니다.
 
 <a name="dynamodb-batch-table-configuration"></a>
-#### DynamoDB 배치 테이블 구성
+#### DynamoDB 배치 테이블 설정
 
-`job_batches` 테이블에는 `application`라는 문자열 기본 파티션 키와 `id`라는 문자열 기본 정렬 키가 있어야 합니다. 키의 `application` 부분에는 애플리케이션의 `app` 구성 파일 내 `name` 구성 값으로 정의된 애플리케이션 이름이 포함됩니다. 애플리케이션 이름은 DynamoDB 테이블 키의 일부이므로 동일한 테이블을 사용하여 여러 Laravel 애플리케이션에 대한 작업 배치를 저장할 수 있습니다.
+`job_batches` 테이블에는 `application`이라는 문자열 기본 파티션 키와 `id`라는 문자열 기본 정렬 키가 있어야 합니다. 키의 `application` 부분에는 애플리케이션의 `app` 설정 파일 안에 있는 `name` 설정값으로 정의된 애플리케이션 이름이 들어갑니다. 애플리케이션 이름이 DynamoDB 테이블 키의 일부이므로, 동일한 테이블을 사용해 여러 Laravel 애플리케이션의 작업 배치를 저장할 수 있습니다.
 
-또한 [자동 배치 정리](#pruning-batches-in-dynamodb)를 활용하려는 경우 테이블에 대해 `ttl` 속성을 정의할 수 있습니다.
+또한 [자동 배치 정리](#pruning-batches-in-dynamodb)를 활용하려면 테이블에 `ttl` 속성을 정의할 수 있습니다.
 
 <a name="dynamodb-configuration"></a>
-#### DynamoDB 구성
+#### DynamoDB 설정
 
 다음으로, Laravel 애플리케이션이 Amazon DynamoDB와 통신할 수 있도록 AWS SDK를 설치합니다.
 
@@ -2095,7 +2095,7 @@ Laravel는 관계형 데이터베이스 대신 [DynamoDB](https://aws.amazon.com
 composer require aws/aws-sdk-php
 ```
 
-그런 다음 `queue.batching.driver` 구성 옵션의 값을 `dynamodb`로 설정합니다. 또한 `batching` 구성 배열 내에서 `key`, `secret` 및 `region` 구성 옵션을 정의해야 합니다. 이러한 옵션은 AWS 인증에 사용됩니다. `dynamodb` 드라이버를 사용하는 경우 `queue.batching.database` 구성 옵션이 필요하지 않습니다.
+그런 다음 `queue.batching.driver` 설정 옵션의 값을 `dynamodb`로 설정합니다. 또한 `batching` 설정 배열 안에 `key`, `secret`, `region` 설정 옵션을 정의해야 합니다. 이 옵션들은 AWS 인증에 사용됩니다. `dynamodb` 드라이버를 사용할 때는 `queue.batching.database` 설정 옵션이 필요하지 않습니다.
 
 ```php
 'batching' => [
@@ -2108,11 +2108,11 @@ composer require aws/aws-sdk-php
 ```
 
 <a name="pruning-batches-in-dynamodb"></a>
-#### DynamoDB에서 배치 가지치기
+#### DynamoDB에서 배치 정리하기
 
-[DynamoDB](https://aws.amazon.com/dynamodb)를 활용하여 작업 배치 정보를 저장하는 경우 관계형 데이터베이스에 저장된 배치를 정리하는 데 사용되는 일반적인 정리 명령이 작동하지 않습니다. 대신, [DynamoDB의 기본 TTL 기능](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html)을 활용하여 이전 배치에 대한 기록을 자동으로 제거할 수 있습니다.
+작업 배치 정보를 저장하는 데 [DynamoDB](https://aws.amazon.com/dynamodb)를 사용하는 경우, 관계형 데이터베이스에 저장된 배치를 정리할 때 사용하는 일반적인 정리 명령어는 동작하지 않습니다. 대신 [DynamoDB의 기본 TTL 기능](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html)을 사용하여 오래된 배치 레코드를 자동으로 제거할 수 있습니다.
 
-`ttl` 속성을 사용하여 DynamoDB 테이블을 정의한 경우 구성 매개변수를 정의하여 Laravel에 배치 레코드 정리 방법을 지시할 수 있습니다. `queue.batching.ttl_attribute` 구성 값은 TTL을 보유하는 속성의 이름을 정의하는 반면, `queue.batching.ttl` 구성 값은 레코드가 마지막으로 업데이트된 시간을 기준으로 배치 레코드가 DynamoDB 테이블에서 제거될 수 있는 시간(초)을 정의합니다.
+DynamoDB 테이블에 `ttl` 속성을 정의했다면, Laravel이 배치 레코드를 어떻게 정리해야 하는지 알려주는 설정 매개변수를 정의할 수 있습니다. `queue.batching.ttl_attribute` 설정값은 TTL을 담고 있는 속성의 이름을 정의하며, `queue.batching.ttl` 설정값은 레코드가 마지막으로 업데이트된 시점을 기준으로 몇 초가 지난 뒤 해당 배치 레코드를 DynamoDB 테이블에서 제거할 수 있는지를 정의합니다.
 
 ```php
 'batching' => [
@@ -2127,9 +2127,9 @@ composer require aws/aws-sdk-php
 ```
 
 <a name="queueing-closures"></a>
-## 큐잉 클로저 (Queueing Closures)
+## 클로저 큐잉 (Queueing Closures)
 
-디스패치 클래스를 큐로 변경하는 대신 디스패치 클로저를 사용할 수도 있습니다. 이는 현재 요청 주기 외부에서 실행해야 하는 빠르고 간단한 작업에 적합합니다. 디스패치가 큐에 클로저되면 클로저의 코드 내용이 암호화되어 서명되므로 전송 중에 수정할 수 없습니다.
+작업 클래스를 큐에 디스패치하는 대신 클로저를 디스패치할 수도 있습니다. 이는 현재 요청 주기 밖에서 실행해야 하는 빠르고 단순한 작업에 적합합니다. 클로저를 큐에 디스패치할 때는 전송 중 수정될 수 없도록 클로저의 코드 내용에 암호화 서명이 적용됩니다.
 
 ```php
 use App\Models\Podcast;
@@ -2141,7 +2141,7 @@ dispatch(function () use ($podcast) {
 });
 ```
 
-큐 보고 대시보드에서 사용할 수 있을 뿐만 아니라 `queue:work` 명령으로 표시할 수 있는 큐 종료에 이름을 할당하려면 `name` 메서드를 사용할 수 있습니다.
+큐에 등록된 클로저에 이름을 지정하면 큐 보고 대시보드에서 사용할 수 있고, `queue:work` 명령어에도 표시될 수 있습니다. 이를 위해 `name` 메서드를 사용할 수 있습니다.
 
 ```php
 dispatch(function () {
@@ -2149,7 +2149,7 @@ dispatch(function () {
 })->name('Publish Podcast');
 ```
 
-`catch` 메소드를 사용하면 큐의 [구성된 재시도 시도](#max-job-attempts-and-timeout)를 모두 소진한 후 대기 중인 클로저가 성공적으로 완료되지 못한 경우 실행되어야 하는 클로저를 제공할 수 있습니다.
+`catch` 메서드를 사용하면 큐의 [설정된 재시도 횟수](#max-job-attempts-and-timeout)를 모두 소진한 뒤에도 큐에 등록된 클로저가 성공적으로 완료되지 못했을 때 실행할 클로저를 제공할 수 있습니다.
 
 ```php
 use Throwable;
@@ -2162,85 +2162,85 @@ dispatch(function () use ($podcast) {
 ```
 
 > [!WARNING]
-> `catch` 콜백은 나중에 Laravel 큐에 의해 직렬화되고 실행되므로 `catch` 콜백 내에서 `$this` 변수를 사용하면 안 됩니다.
+> `catch` 콜백은 직렬화된 뒤 나중에 Laravel 큐에 의해 실행되므로, `catch` 콜백 안에서 `$this` 변수를 사용해서는 안 됩니다.
 
 <a name="running-the-queue-worker"></a>
-## 큐 워커 실행 (Running the Queue Worker)
+## 큐 워커 실행하기 (Running the Queue Worker)
 
 <a name="the-queue-work-command"></a>
-### `queue:work` 명령
+### `queue:work` 명령어
 
-Laravel에는 큐 워커를 시작하고 큐에 푸시되는 새 작업을 처리하는 Artisan 명령이 포함되어 있습니다. `queue:work` Artisan 명령을 사용하여 워커를 실행할 수 있습니다. `queue:work` 명령이 시작되면 수동으로 중지하거나 터미널을 닫을 때까지 계속 실행됩니다.
+Laravel에는 큐 워커를 시작하고 새 작업이 큐에 추가될 때 이를 처리하는 Artisan 명령어가 포함되어 있습니다. `queue:work` Artisan 명령어를 사용하여 워커를 실행할 수 있습니다. `queue:work` 명령어가 시작되면 수동으로 중지하거나 터미널을 닫을 때까지 계속 실행된다는 점에 유의하십시오.
 
 ```shell
 php artisan queue:work
 ```
 
 > [!NOTE]
-> `queue:work` 프로세스를 백그라운드에서 영구적으로 실행하려면 [Supervisor](#supervisor-configuration)와 같은 프로세스 모니터를 사용하여 큐 워커 실행이 중지되지 않는지 확인해야 합니다.
+> `queue:work` 프로세스를 백그라운드에서 영구적으로 실행하려면 [Supervisor](#supervisor-configuration) 같은 프로세스 모니터를 사용하여 큐 워커가 중지되지 않도록 해야 합니다.
 
-처리된 작업 ID, 연결 이름 및 큐 이름을 명령 출력에 포함시키려는 경우 `queue:work` 명령을 호출할 때 `-v` 플래그를 포함할 수 있습니다.
+처리된 작업 ID, 연결 이름, 큐 이름을 명령어 출력에 포함하려면 `queue:work` 명령어를 실행할 때 `-v` 플래그를 포함할 수 있습니다.
 
 ```shell
 php artisan queue:work -v
 ```
 
-큐 워커는 수명이 긴 프로세스이며 부팅된 애플리케이션 상태를 메모리에 저장한다는 점을 기억하세요. 결과적으로 시작된 후에는 코드 베이스의 변경 사항을 알 수 없습니다. 따라서 배포 프로세스 중에 [큐 워커를 다시 시작](#queue-workers-and-deployment)하세요. 또한 애플리케이션에서 생성하거나 수정한 정적 상태는 작업 간에 자동으로 재설정되지 않습니다.
+큐 워커는 오래 실행되는 프로세스이며, 부팅된 애플리케이션 상태를 메모리에 저장한다는 점을 기억하십시오. 따라서 시작된 이후에는 코드베이스의 변경 사항을 감지하지 못합니다. 그러므로 배포 과정에서 반드시 [큐 워커를 재시작](#queue-workers-and-deployment)해야 합니다. 또한 애플리케이션이 생성하거나 수정한 모든 정적 상태는 작업 사이에 자동으로 초기화되지 않는다는 점도 기억하십시오.
 
-또는 `queue:listen` 명령을 실행할 수도 있습니다. `queue:listen` 명령을 사용할 때 업데이트된 코드를 다시 로드하거나 애플리케이션 상태를 재설정하려는 경우 워커를 수동으로 다시 시작할 필요가 없습니다. 그러나 이 명령은 `queue:work` 명령보다 훨씬 덜 효율적입니다.
+또는 `queue:listen` 명령어를 실행할 수 있습니다. `queue:listen` 명령어를 사용하면 업데이트된 코드를 다시 로드하거나 애플리케이션 상태를 초기화하려고 할 때 워커를 수동으로 재시작할 필요가 없습니다. 하지만 이 명령어는 `queue:work` 명령어보다 훨씬 비효율적입니다.
 
 ```shell
 php artisan queue:listen
 ```
 
 <a name="running-multiple-queue-workers"></a>
-#### 여러 개의 큐 워커 실행
+#### 여러 큐 워커 실행하기
 
-여러 워커를 큐에 할당하고 작업을 동시에 처리하려면 여러 `queue:work` 프로세스를 시작하기만 하면 됩니다. 이는 터미널의 여러 탭을 통해 로컬로 수행하거나 프로세스 관리자의 구성 설정을 사용하여 프로덕션에서 수행할 수 있습니다. [Supervisor 사용시](#supervisor-configuration) `numprocs` 구성 값을 사용할 수 있습니다.
+여러 워커를 하나의 큐에 할당하고 작업을 동시에 처리하려면 여러 `queue:work` 프로세스를 시작하면 됩니다. 이는 로컬에서는 터미널의 여러 탭을 통해 수행할 수 있고, 프로덕션에서는 프로세스 관리자의 설정을 통해 수행할 수 있습니다. [Supervisor를 사용할 때](#supervisor-configuration)는 `numprocs` 설정값을 사용할 수 있습니다.
 
 <a name="specifying-the-connection-queue"></a>
-#### 연결 및 큐 지정
+#### 연결과 큐 지정하기
 
-워커가 어떤 큐 연결을 활용해야 하는지 지정할 수도 있습니다. `work` 명령에 전달된 연결 이름은 `config/queue.php` 구성 파일에 정의된 연결 중 하나와 일치해야 합니다.
+워커가 사용할 큐 연결을 지정할 수도 있습니다. `work` 명령어에 전달하는 연결 이름은 `config/queue.php` 설정 파일에 정의된 연결 중 하나와 일치해야 합니다.
 
 ```shell
 php artisan queue:work redis
 ```
 
-기본적으로 `queue:work` 명령은 지정된 연결에서 기본 큐에 대한 작업만 처리합니다. 그러나 특정 연결에 대해 특정 큐만 처리하여 큐 워커를 더욱 맞춤화할 수도 있습니다. 예를 들어 모든 이메일이 `redis` 큐 연결의 `emails` 큐에서 처리되는 경우 다음 명령을 실행하여 해당 큐만 처리하는 워커를 시작할 수 있습니다.
+기본적으로 `queue:work` 명령어는 지정된 연결의 기본 큐에 있는 작업만 처리합니다. 하지만 지정된 연결에서 특정 큐만 처리하도록 큐 워커를 더 세부적으로 맞춤 설정할 수 있습니다. 예를 들어 모든 이메일이 `redis` 큐 연결의 `emails` 큐에서 처리된다면, 다음 명령어를 실행하여 해당 큐만 처리하는 워커를 시작할 수 있습니다.
 
 ```shell
 php artisan queue:work redis --queue=emails
 ```
 
 <a name="processing-a-specified-number-of-jobs"></a>
-#### 지정된 수의 작업 처리
+#### 지정한 개수의 작업 처리하기
 
-`--once` 옵션은 큐에서 단일 작업만 처리하도록 워커에 지시하는 데 사용될 수 있습니다.
+`--once` 옵션을 사용하면 워커가 큐에서 단 하나의 작업만 처리하도록 지정할 수 있습니다.
 
 ```shell
 php artisan queue:work --once
 ```
 
-`--max-jobs` 옵션은 워커에게 주어진 수의 작업을 처리한 다음 종료하도록 지시하는 데 사용될 수 있습니다. 이 옵션은 [Supervisor](#supervisor-configuration)와 결합하여 워커가 주어진 수의 작업을 처리한 후 자동으로 다시 시작되어 축적된 메모리를 해제할 때 유용할 수 있습니다.
+`--max-jobs` 옵션을 사용하면 워커가 지정된 개수의 작업을 처리한 뒤 종료하도록 지정할 수 있습니다. 이 옵션은 [Supervisor](#supervisor-configuration)와 함께 사용할 때 유용할 수 있습니다. 지정된 개수의 작업을 처리한 뒤 워커가 자동으로 재시작되도록 하여, 그동안 누적되었을 수 있는 메모리를 해제할 수 있기 때문입니다.
 
 ```shell
 php artisan queue:work --max-jobs=1000
 ```
 
 <a name="processing-all-queued-jobs-then-exiting"></a>
-#### 대기 중인 모든 작업을 처리한 후 종료
+#### 큐에 있는 모든 작업을 처리한 뒤 종료하기
 
-`--stop-when-empty` 옵션을 사용하면 워커에 모든 작업을 처리한 다음 정상적으로 종료하도록 지시할 수 있습니다. 이 옵션은 큐가 비어 있는 후 컨테이너를 종료하려는 경우 Docker 컨테이너 내에서 Laravel 큐를 처리할 때 유용할 수 있습니다.
+`--stop-when-empty` 옵션을 사용하면 워커가 모든 작업을 처리한 뒤 정상적으로 종료하도록 지정할 수 있습니다. Docker 컨테이너 안에서 Laravel 큐를 처리할 때, 큐가 비면 컨테이너를 종료하고 싶다면 이 옵션이 유용할 수 있습니다.
 
 ```shell
 php artisan queue:work --stop-when-empty
 ```
 
 <a name="processing-jobs-for-a-given-number-of-seconds"></a>
-#### 주어진 시간(초) 동안 작업 처리
+#### 지정한 시간 동안 작업 처리하기
 
-`--max-time` 옵션을 사용하면 워커에 지정된 시간(초) 동안 작업을 처리한 다음 종료하도록 지시할 수 있습니다. 이 옵션은 [Supervisor](#supervisor-configuration)와 결합하여 워커가 일정 시간 동안 작업을 처리한 후 자동으로 다시 시작되어 축적된 메모리를 해제할 때 유용할 수 있습니다.
+`--max-time` 옵션을 사용하면 워커가 지정된 초 동안 작업을 처리한 뒤 종료하도록 지정할 수 있습니다. 이 옵션은 [Supervisor](#supervisor-configuration)와 함께 사용할 때 유용할 수 있습니다. 지정된 시간 동안 작업을 처리한 뒤 워커가 자동으로 재시작되도록 하여, 그동안 누적되었을 수 있는 메모리를 해제할 수 있기 때문입니다.
 
 ```shell
 # Process jobs for one hour and then exit...
@@ -2248,111 +2248,111 @@ php artisan queue:work --max-time=3600
 ```
 
 <a name="worker-sleep-duration"></a>
-#### 워커 수면 시간
+#### 워커 대기 시간
 
-큐에서 작업을 사용할 수 있는 경우 워커는 작업 사이에 지연 없이 작업을 계속 처리합니다. 그러나 `sleep` 옵션은 사용 가능한 작업이 없는 경우 워커가 "휴면"하는 시간(초)을 결정합니다. 물론, 잠자는 동안 워커는 새로운 작업을 처리하지 않습니다.
+큐에 작업이 있으면 워커는 작업 사이에 지연 없이 계속 작업을 처리합니다. 하지만 처리할 작업이 없을 경우 `sleep` 옵션은 워커가 몇 초 동안 "대기"할지를 결정합니다. 물론 대기 중인 동안에는 워커가 새 작업을 처리하지 않습니다.
 
 ```shell
 php artisan queue:work --sleep=3
 ```
 
 <a name="maintenance-mode-queues"></a>
-#### 유지 관리 모드 및 큐
+#### 유지보수 모드와 큐
 
-애플리케이션이 [유지 관리 모드](/docs/12.x/configuration#maintenance-mode)에 있는 동안에는 대기 중인 작업이 처리되지 않습니다. 애플리케이션이 유지 관리 모드를 벗어나면 작업은 계속 정상적으로 처리됩니다.
+애플리케이션이 [유지보수 모드](/docs/12.x/configuration#maintenance-mode)에 있는 동안에는 큐에 등록된 작업이 처리되지 않습니다. 애플리케이션이 유지보수 모드에서 벗어나면 작업은 평소처럼 계속 처리됩니다.
 
-유지 관리 모드가 활성화된 경우에도 큐 워커가 작업을 처리하도록 하려면 `--force` 옵션을 사용할 수 있습니다.
+유지보수 모드가 활성화되어 있더라도 큐 워커가 작업을 처리하도록 강제하려면 `--force` 옵션을 사용할 수 있습니다.
 
 ```shell
 php artisan queue:work --force
 ```
 
 <a name="resource-considerations"></a>
-#### 자원 고려사항
+#### 리소스 고려 사항
 
-데몬 큐 워커는 각 작업을 처리하기 전에 프레임워크를 "재부팅"하지 않습니다. 따라서 각 작업이 완료된 후에 과도한 리소스를 해제해야 합니다. 예를 들어 [GD 라이브러리](https://www.php.net/manual/en/book.image.php)로 이미지 조작을 하는 경우, 이미지 처리가 끝나면 `imagedestroy`로 메모리를 해제해야 합니다.
+데몬 큐 워커는 각 작업을 처리하기 전에 프레임워크를 "재부팅"하지 않습니다. 따라서 각 작업이 완료된 뒤에는 무거운 리소스를 해제해야 합니다. 예를 들어 [GD 라이브러리](https://www.php.net/manual/en/book.image.php)로 이미지 조작을 수행한다면, 이미지 처리가 끝났을 때 `imagedestroy`로 메모리를 해제해야 합니다.
 
 <a name="queue-priorities"></a>
 ### 큐 우선순위
 
-때로는 큐 처리 방법의 우선순위를 정하고 싶을 수도 있습니다. 예를 들어, `config/queue.php` 구성 파일에서 `redis` 연결에 대한 기본 `queue`를 `low`로 설정할 수 있습니다. 그러나 때로는 다음과 같이 작업을 `high` 우선순위 큐로 푸시할 수도 있습니다.
+때로는 큐가 처리되는 방식을 우선순위에 따라 조정하고 싶을 수 있습니다. 예를 들어 `config/queue.php` 설정 파일에서 `redis` 연결의 기본 `queue`를 `low`로 설정할 수 있습니다. 하지만 가끔은 다음과 같이 작업을 `high` 우선순위 큐에 넣고 싶을 수 있습니다.
 
 ```php
 dispatch((new Job)->onQueue('high'));
 ```
 
-`low` 큐에서 작업을 계속 진행하기 전에 모든 `high` 큐 작업이 처리되었는지 확인하는 워커를 시작하려면 쉼표로 구분된 큐 이름 목록을 `work` 명령에 전달합니다.
+`low` 큐의 작업을 처리하기 전에 `high` 큐의 모든 작업이 먼저 처리되도록 하는 워커를 시작하려면, 쉼표로 구분된 큐 이름 목록을 `work` 명령어에 전달합니다.
 
 ```shell
 php artisan queue:work --queue=high,low
 ```
 
 <a name="queue-workers-and-deployment"></a>
-### 큐 워커 및 배포
+### 큐 워커와 배포
 
-큐 워커는 수명이 긴 프로세스이므로 다시 시작하지 않으면 코드 변경 사항을 알 수 없습니다. 따라서 큐 워커를 사용하여 애플리케이션을 배포하는 가장 간단한 방법은 배포 프로세스 중에 워커를 다시 시작하는 것입니다. `queue:restart` 명령을 실행하여 모든 워커를 정상적으로 다시 시작할 수 있습니다.
+큐 워커는 오래 실행되는 프로세스이므로, 재시작하지 않으면 코드 변경 사항을 감지하지 못합니다. 따라서 큐 워커를 사용하는 애플리케이션을 배포하는 가장 간단한 방법은 배포 과정에서 워커를 재시작하는 것입니다. 다음과 같이 `queue:restart` 명령어를 실행하여 모든 워커를 정상적으로 재시작할 수 있습니다.
 
 ```shell
 php artisan queue:restart
 ```
 
-이 명령은 기존 작업이 손실되지 않도록 모든 큐 워커가 현재 작업 처리를 마친 후 정상적으로 종료하도록 지시합니다. 큐 워커는 `queue:restart` 명령이 실행될 때 종료되므로 [Supervisor](#supervisor-configuration)와 같은 프로세스 관리자를 실행하여 큐 워커를 자동으로 다시 시작해야 합니다.
+이 명령어는 기존 작업이 손실되지 않도록 모든 큐 워커에게 현재 처리 중인 작업을 마친 뒤 정상적으로 종료하라고 지시합니다. `queue:restart` 명령어가 실행되면 큐 워커가 종료되므로, [Supervisor](#supervisor-configuration) 같은 프로세스 관리자를 실행하여 큐 워커를 자동으로 다시 시작하도록 해야 합니다.
 
 > [!NOTE]
-> 큐는 [캐시](/docs/12.x/cache)를 사용하여 재시작 신호를 저장하므로 이 기능을 사용하기 전에 캐시 드라이버가 애플리케이션에 대해 올바르게 구성되었는지 확인해야 합니다.
+> 큐는 재시작 신호를 저장하기 위해 [캐시](/docs/12.x/cache)를 사용하므로, 이 기능을 사용하기 전에 애플리케이션에 캐시 드라이버가 올바르게 설정되어 있는지 확인해야 합니다.
 
 <a name="job-expirations-and-timeouts"></a>
-### 작업 만료 및 시간 초과
+### 작업 만료와 타임아웃
 
 <a name="job-expiration"></a>
 #### 작업 만료
 
-`config/queue.php` 구성 파일에서 각 큐 연결은 `retry_after` 옵션을 정의합니다. 이 옵션은 처리 중인 작업을 재시도하기 전에 큐 연결이 대기해야 하는 시간(초)을 지정합니다. 예를 들어, `retry_after` 값이 `90`로 설정된 경우 작업은 해제되거나 삭제되지 않고 90초 동안 처리된 경우 큐로 다시 해제됩니다. 일반적으로 `retry_after` 값을 작업이 처리를 완료하는 데 합리적으로 걸리는 최대 시간(초)으로 설정해야 합니다.
+`config/queue.php` 설정 파일에서 각 큐 연결은 `retry_after` 옵션을 정의합니다. 이 옵션은 처리 중인 작업을 다시 시도하기 전에 큐 연결이 몇 초 동안 기다려야 하는지를 지정합니다. 예를 들어 `retry_after` 값이 `90`으로 설정되어 있다면, 작업이 해제되거나 삭제되지 않은 채 90초 동안 처리 중일 경우 해당 작업은 다시 큐로 반환됩니다. 일반적으로 `retry_after` 값은 작업이 처리 완료까지 합리적으로 걸릴 수 있는 최대 시간(초)으로 설정해야 합니다.
 
 > [!WARNING]
-> `retry_after` 값을 포함하지 않는 유일한 큐 연결은 Amazon SQS입니다. SQS는 AWS 콘솔 내에서 관리되는 [기본 표시 제한 시간](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html)을 기반으로 작업을 다시 시도합니다.
+> `retry_after` 값을 포함하지 않는 유일한 큐 연결은 Amazon SQS입니다. SQS는 AWS 콘솔에서 관리되는 [Default Visibility Timeout](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html)을 기준으로 작업을 다시 시도합니다.
 
 <a name="worker-timeouts"></a>
-#### 워커 시간 초과
+#### 워커 타임아웃
 
-`queue:work` Artisan 명령은 `--timeout` 옵션을 노출합니다. 기본적으로 `--timeout` 값은 60초입니다. 작업이 시간 초과 값으로 지정된 시간(초)보다 오랫동안 처리하는 경우 작업을 처리하는 워커는 오류와 함께 종료됩니다. 일반적으로 워커는 [서버에 구성된 프로세스 관리자](#supervisor-configuration)에 의해 자동으로 다시 시작됩니다.
+`queue:work` Artisan 명령어는 `--timeout` 옵션을 제공합니다. 기본적으로 `--timeout` 값은 60초입니다. 작업이 타임아웃 값으로 지정된 초보다 오래 처리되고 있으면, 해당 작업을 처리하던 워커는 오류와 함께 종료됩니다. 일반적으로 워커는 [서버에 설정된 프로세스 관리자](#supervisor-configuration)에 의해 자동으로 재시작됩니다.
 
 ```shell
 php artisan queue:work --timeout=60
 ```
 
-`retry_after` 구성 옵션과 `--timeout` CLI 옵션은 서로 다르지만 함께 작동하여 작업이 손실되지 않고 작업이 한 번만 성공적으로 처리되도록 합니다.
+`retry_after` 설정 옵션과 `--timeout` CLI 옵션은 서로 다르지만 함께 동작하여 작업이 손실되지 않고, 작업이 성공적으로 한 번만 처리되도록 보장합니다.
 
 > [!WARNING]
-> `--timeout` 값은 항상 `retry_after` 구성 값보다 몇 초 이상 짧아야 합니다. 이렇게 하면 작업이 재시도되기 전에 고정된 작업을 처리하는 워커가 항상 종료됩니다. `--timeout` 옵션이 `retry_after` 구성 값보다 길면 작업이 두 번 처리될 수 있습니다.
+> `--timeout` 값은 항상 `retry_after` 설정값보다 최소 몇 초 더 짧아야 합니다. 이렇게 해야 멈춘 작업을 처리 중인 워커가 해당 작업이 재시도되기 전에 반드시 종료됩니다. `--timeout` 옵션이 `retry_after` 설정값보다 길면 작업이 두 번 처리될 수 있습니다.
 
 <a name="pausing-and-resuming-queue-workers"></a>
 ### 큐 워커 일시 중지 및 재개
 
-때로는 워커를 완전히 중지하지 않고 큐 워커가 새 작업을 처리하는 것을 일시적으로 방지해야 할 수도 있습니다. 예를 들어 시스템 유지 관리 중에 작업 처리를 일시 중지할 수 있습니다. Laravel는 큐 워커를 일시 중지하고 재개하는 `queue:pause` 및 `queue:continue` Artisan 명령을 제공합니다.
+때로는 큐 워커를 완전히 중지하지 않고 새 작업 처리를 일시적으로 막아야 할 수 있습니다. 예를 들어 시스템 유지보수 중에는 작업 처리를 일시 중지하고 싶을 수 있습니다. Laravel은 큐 워커를 일시 중지하고 재개할 수 있도록 `queue:pause` 및 `queue:continue` Artisan 명령어를 제공합니다.
 
-특정 큐를 일시 중지하려면 큐 연결 이름과 큐 이름을 제공하세요.
+특정 큐를 일시 중지하려면 큐 연결 이름과 큐 이름을 제공합니다.
 
 ```shell
 php artisan queue:pause database:default
 ```
 
-이 예에서 `database`는 큐 연결 이름이고 `default`는 큐 이름입니다. 큐가 일시 중지되면 해당 큐에서 작업을 처리하는 모든 워커는 현재 작업을 계속 완료하지만 큐가 재개될 때까지 새로운 작업을 선택하지 않습니다.
+이 예에서 `database`는 큐 연결 이름이고 `default`는 큐 이름입니다. 큐가 일시 중지되면 해당 큐에서 작업을 처리하던 모든 워커는 현재 작업을 계속 마치지만, 큐가 재개될 때까지 새 작업을 가져오지 않습니다.
 
-일시 중지된 큐에서 작업 처리를 재개하려면 `queue:continue` 명령을 사용합니다.
+일시 중지된 큐에서 작업 처리를 재개하려면 `queue:continue` 명령어를 사용합니다.
 
 ```shell
 php artisan queue:continue database:default
 ```
 
-큐를 재개한 후 워커는 즉시 해당 큐에서 새 작업 처리를 시작합니다. 큐를 일시 중지해도 워커 프로세스 자체가 중지되지는 않습니다. 단지 워커가 지정된 큐에서 새 작업을 처리하는 것을 방지할 뿐입니다.
+큐를 재개하면 워커는 즉시 해당 큐의 새 작업을 처리하기 시작합니다. 큐를 일시 중지해도 워커 프로세스 자체가 중지되는 것은 아닙니다. 지정된 큐에서 새 작업을 처리하지 못하게 할 뿐입니다.
 
 <a name="worker-restart-and-pause-signals"></a>
-#### 워커 재시작 및 일시 정지 신호
+#### 워커 재시작 및 일시 중지 신호
 
-기본적으로 큐 워커는 각 작업 반복에서 다시 시작 및 일시 중지 신호에 대해 캐시 드라이버를 폴링합니다. 이 폴링은 `queue:restart` 및 `queue:pause` 명령에 응답하는 데 필수적이지만 약간의 성능 오버헤드가 발생합니다.
+기본적으로 큐 워커는 각 작업 반복마다 캐시 드라이버를 폴링하여 재시작 및 일시 중지 신호를 확인합니다. 이 폴링은 `queue:restart` 및 `queue:pause` 명령어에 응답하는 데 필수적이지만, 약간의 성능 오버헤드를 발생시킵니다.
 
-성능을 최적화해야 하고 이러한 중단 기능이 필요하지 않은 경우 `Queue` 파사드에서 `withoutInterruptionPolling` 메서드를 호출하여 이 폴링을 전역적으로 비활성화할 수 있습니다. 이 작업은 일반적으로 `AppServiceProvider`의 `boot` 메서드에서 수행되어야 합니다.
+성능을 최적화해야 하고 이러한 중단 기능이 필요하지 않다면, `Queue` 파사드에서 `withoutInterruptionPolling` 메서드를 호출하여 이 폴링을 전역적으로 비활성화할 수 있습니다. 일반적으로 이 작업은 `AppServiceProvider`의 `boot` 메서드에서 수행해야 합니다.
 
 ```php
 use Illuminate\Support\Facades\Queue;
@@ -2366,7 +2366,7 @@ public function boot(): void
 }
 ```
 
-또는 `Illuminate\Queue\Worker` 클래스에서 정적 `$restartable` 또는 `$pausable` 속성을 설정하여 개별적으로 폴링 다시 시작 또는 일시 중지를 비활성화할 수 있습니다.
+또는 `Illuminate\Queue\Worker` 클래스의 정적 `$restartable` 또는 `$pausable` 속성을 설정하여 재시작 폴링이나 일시 중지 폴링을 개별적으로 비활성화할 수 있습니다.
 
 ```php
 use Illuminate\Queue\Worker;
@@ -2382,31 +2382,31 @@ public function boot(): void
 ```
 
 > [!WARNING]
-> 중단 폴링이 비활성화되면 워커는 `queue:restart` 또는 `queue:pause` 명령에 응답하지 않습니다(비활성화된 기능에 따라 다름).
+> 중단 폴링이 비활성화되면, 비활성화된 기능에 따라 워커는 `queue:restart` 또는 `queue:pause` 명령어에 응답하지 않습니다.
 
 <a name="supervisor-configuration"></a>
-## Supervisor 구성 (Supervisor Configuration)
+## Supervisor 설정 (Supervisor Configuration)
 
-프로덕션에서는 `queue:work` 프로세스를 계속 실행하는 방법이 필요합니다. `queue:work` 프로세스는 워커 시간 초과 또는 `queue:restart` 명령 실행과 같은 다양한 이유로 실행이 중지될 수 있습니다.
+프로덕션에서는 `queue:work` 프로세스를 계속 실행 상태로 유지할 방법이 필요합니다. `queue:work` 프로세스는 워커 타임아웃 초과나 `queue:restart` 명령어 실행 등 다양한 이유로 중지될 수 있습니다.
 
-이러한 이유로 `queue:work` 프로세스 종료 시기를 감지하고 자동으로 다시 시작할 수 있는 프로세스 모니터를 구성해야 합니다. 또한 프로세스 모니터를 사용하면 동시에 실행하려는 `queue:work` 프로세스 수를 지정할 수 있습니다. Supervisor는 Linux 환경에서 일반적으로 사용되는 프로세스 모니터이며 다음 문서에서 이를 구성하는 방법에 대해 설명합니다.
+이 때문에 `queue:work` 프로세스가 종료되는 것을 감지하고 자동으로 재시작할 수 있는 프로세스 모니터를 설정해야 합니다. 또한 프로세스 모니터를 사용하면 동시에 실행할 `queue:work` 프로세스의 개수도 지정할 수 있습니다. Supervisor는 Linux 환경에서 흔히 사용되는 프로세스 모니터이며, 다음 문서에서 설정 방법을 살펴보겠습니다.
 
 <a name="installing-supervisor"></a>
-#### Supervisor 설치
+#### Supervisor 설치하기
 
-Supervisor는 Linux 운영 체제용 프로세스 모니터이며, 실패할 경우 `queue:work` 프로세스를 자동으로 다시 시작합니다. Ubuntu에 Supervisor를 설치하려면 다음 명령을 사용할 수 있습니다.
+Supervisor는 Linux 운영 체제용 프로세스 모니터이며, `queue:work` 프로세스가 실패하면 자동으로 재시작합니다. Ubuntu에 Supervisor를 설치하려면 다음 명령어를 사용할 수 있습니다.
 
 ```shell
 sudo apt-get install supervisor
 ```
 
 > [!NOTE]
-> Supervisor를 직접 구성하고 관리하는 것이 부담스럽다면 Laravel 큐 워커 실행을 위한 완전 관리형 플랫폼을 제공하는 [Laravel Cloud](https://cloud.laravel.com) 사용을 고려해 보세요.
+> Supervisor를 직접 설정하고 관리하는 일이 부담스럽다면, Laravel 큐 워커 실행을 위한 완전 관리형 플랫폼을 제공하는 [Laravel Cloud](https://cloud.laravel.com)를 고려해 보십시오.
 
 <a name="configuring-supervisor"></a>
-#### Supervisor 구성
+#### Supervisor 설정하기
 
-Supervisor 구성 파일은 일반적으로 `/etc/supervisor/conf.d` 디렉터리에 저장됩니다. 이 디렉터리 내에서 프로세스를 모니터링하는 방법을 감독자에게 지시하는 구성 파일을 원하는 만큼 생성할 수 있습니다. 예를 들어, `queue:work` 프로세스를 시작하고 모니터링하는 `laravel-worker.conf` 파일을 만들어 보겠습니다.
+Supervisor 설정 파일은 일반적으로 `/etc/supervisor/conf.d` 디렉터리에 저장됩니다. 이 디렉터리 안에는 프로세스를 어떻게 모니터링해야 하는지 supervisor에 알려주는 설정 파일을 원하는 만큼 만들 수 있습니다. 예를 들어 `queue:work` 프로세스를 시작하고 모니터링하는 `laravel-worker.conf` 파일을 만들어 보겠습니다.
 
 ```ini
 [program:laravel-worker]
@@ -2423,15 +2423,15 @@ stdout_logfile=/home/forge/app.com/worker.log
 stopwaitsecs=3600
 ```
 
-이 예에서 `numprocs` 지시문은 Supervisor에 8개의 `queue:work` 프로세스를 실행하고 모두 모니터링하여 실패할 경우 자동으로 다시 시작하도록 지시합니다. 원하는 큐 연결 및 워커 옵션을 반영하도록 구성의 `command` 지시문을 변경해야 합니다.
+이 예에서 `numprocs` 지시어는 Supervisor에게 여덟 개의 `queue:work` 프로세스를 실행하고 모두 모니터링하며, 실패할 경우 자동으로 재시작하라고 지시합니다. 설정의 `command` 지시어는 원하는 큐 연결과 워커 옵션을 반영하도록 변경해야 합니다.
 
 > [!WARNING]
-> `stopwaitsecs`의 값이 가장 오래 실행되는 작업에서 소비하는 시간(초)보다 큰지 확인해야 합니다. 그렇지 않으면 Supervisor는 처리가 완료되기 전에 작업을 종료할 수 있습니다.
+> `stopwaitsecs` 값이 가장 오래 실행되는 작업이 소요하는 초보다 큰지 확인해야 합니다. 그렇지 않으면 Supervisor가 작업 처리가 끝나기 전에 해당 작업을 종료할 수 있습니다.
 
 <a name="starting-supervisor"></a>
-#### Supervisor 시작 중
+#### Supervisor 시작하기
 
-구성 파일이 생성되면 다음 명령을 사용하여 Supervisor 구성을 업데이트하고 프로세스를 시작할 수 있습니다.
+설정 파일을 만든 뒤에는 다음 명령어를 사용하여 Supervisor 설정을 업데이트하고 프로세스를 시작할 수 있습니다.
 
 ```shell
 sudo supervisorctl reread
@@ -2441,14 +2441,13 @@ sudo supervisorctl update
 sudo supervisorctl start "laravel-worker:*"
 ```
 
-Supervisor에 대한 자세한 내용은 [Supervisor 문서](http://supervisord.org/index.html)를 참조하세요.
+Supervisor에 대한 자세한 내용은 [Supervisor 문서](http://supervisord.org/index.html)를 참고하십시오.
 
 <a name="dealing-with-failed-jobs"></a>
 ## 실패한 작업 처리하기 (Dealing With Failed Jobs)
 
-대기 중인 작업이 실패하는 경우도 있습니다. 걱정하지 마세요. 일이 항상 계획대로 진행되는 것은 아닙니다! Laravel에는 [작업을 시도해야 하는 최대 횟수를 지정](#max-job-attempts-and-timeout)하는 편리한 방법이 포함되어 있습니다. 비동기식 작업이 이 시도 횟수를 초과하면 `failed_jobs` 데이터베이스 테이블에 삽입됩니다. 실패한 [동기적으로 디스패치 작업](/docs/12.x/queues#synchronous-dispatching)는 이 테이블에 저장되지 않으며 해당 예외는 애플리케이션에서 즉시 처리됩니다.
-
-`failed_jobs` 테이블을 생성하기 위한 마이그레이션은 일반적으로 새로운 Laravel 애플리케이션에 이미 존재합니다. 그러나 애플리케이션에 이 테이블에 대한 마이그레이션이 포함되어 있지 않은 경우 `make:queue-failed-table` 명령을 사용하여 마이그레이션을 생성할 수 있습니다.
+때로는 큐에 등록된 작업이 실패할 수 있습니다. 걱정하지 마십시오. 모든 일이 항상 계획대로 진행되지는 않습니다! Laravel은 [작업을 시도할 최대 횟수](#max-job-attempts-and-timeout)를 지정할 수 있는 편리한 방법을 제공합니다. 비동기 작업이 이 시도 횟수를 초과하면 `failed_jobs` 데이터베이스 테이블에 삽입됩니다. 실패한 [동기적으로 디스패치된 작업](/docs/12.x/queues#synchronous-dispatching)은 이 테이블에 저장되지 않으며, 해당 예외는 애플리케이션에서 즉시 처리됩니다.
+`failed_jobs` 테이블을 생성하는 마이그레이션은 일반적으로 새 Laravel 애플리케이션에 이미 포함되어 있습니다. 하지만 애플리케이션에 이 테이블을 위한 마이그레이션이 없다면, `make:queue-failed-table` 명령어를 사용하여 마이그레이션을 생성할 수 있습니다.
 
 ```shell
 php artisan make:queue-failed-table
@@ -2456,19 +2455,19 @@ php artisan make:queue-failed-table
 php artisan migrate
 ```
 
-[큐 워커](#running-the-queue-worker) 프로세스를 실행할 때 `queue:work` 명령의 `--tries` 스위치를 사용하여 작업을 시도해야 하는 최대 횟수를 지정할 수 있습니다. `--tries` 옵션에 대한 값을 지정하지 않으면 작업은 한 번만 시도되거나 작업 클래스의 `$tries` 속성에 지정된 횟수만큼 시도됩니다.
+[큐 워커](#running-the-queue-worker) 프로세스를 실행할 때, `queue:work` 명령어의 `--tries` 스위치를 사용하여 작업을 최대 몇 번까지 시도할지 지정할 수 있습니다. `--tries` 옵션 값을 지정하지 않으면, 작업은 한 번만 시도되거나 작업 클래스의 `$tries` 속성에 지정된 횟수만큼 시도됩니다.
 
 ```shell
 php artisan queue:work redis --tries=3
 ```
 
-`--backoff` 옵션을 사용하면 예외가 발생한 작업을 재시도하기 전에 Laravel가 기다려야 하는 시간(초)을 지정할 수 있습니다. 기본적으로 작업은 다시 시도할 수 있도록 즉시 큐로 다시 해제됩니다.
+`--backoff` 옵션을 사용하면 예외가 발생한 작업을 다시 시도하기 전에 Laravel이 몇 초 동안 기다려야 하는지 지정할 수 있습니다. 기본적으로 작업은 즉시 큐에 다시 릴리스되어 다시 시도될 수 있습니다.
 
 ```shell
 php artisan queue:work redis --tries=3 --backoff=3
 ```
 
-작업별로 예외가 발생한 작업을 재시도하기 전에 Laravel가 기다려야 하는 시간(초)을 구성하려면 작업 클래스에 `backoff` 속성을 정의하면 됩니다.
+예외가 발생한 작업을 다시 시도하기 전에 Laravel이 몇 초 동안 기다려야 하는지를 작업별로 설정하고 싶다면, 작업 클래스에 `backoff` 속성을 정의하면 됩니다.
 
 ```php
 /**
@@ -2479,7 +2478,7 @@ php artisan queue:work redis --tries=3 --backoff=3
 public $backoff = 3;
 ```
 
-작업의 백오프 시간을 결정하기 위해 더 복잡한 로직이 필요한 경우 작업 클래스에 `backoff` 메서드를 정의할 수 있습니다.
+작업의 재시도 대기 시간을 결정하는 데 더 복잡한 로직이 필요하다면, 작업 클래스에 `backoff` 메서드를 정의할 수 있습니다.
 
 ```php
 /**
@@ -2491,7 +2490,7 @@ public function backoff(): int
 }
 ```
 
-`backoff` 메서드에서 백오프 값 배열을 반환하여 "지수" 백오프를 쉽게 구성할 수 있습니다. 이 예에서 재시도 지연은 첫 번째 재시도의 경우 1초, 두 번째 재시도의 경우 5초, 세 번째 재시도의 경우 10초, 남은 시도가 더 있는 경우 모든 후속 재시도의 경우 10초입니다.
+`backoff` 메서드에서 대기 시간 값의 배열을 반환하면 "지수형" 대기 시간을 쉽게 설정할 수 있습니다. 이 예제에서는 첫 번째 재시도 전에 1초, 두 번째 재시도 전에 5초, 세 번째 재시도 전에 10초를 기다리며, 남은 시도 횟수가 더 있다면 그 이후의 모든 재시도에도 10초를 기다립니다.
 
 ```php
 /**
@@ -2506,9 +2505,9 @@ public function backoff(): array
 ```
 
 <a name="cleaning-up-after-failed-jobs"></a>
-### 작업 실패 후 정리
+### 실패한 작업 이후 정리하기
 
-특정 작업이 실패하면 사용자에게 경고를 보내거나 작업에 의해 부분적으로 완료된 작업을 되돌릴 수 있습니다. 이를 수행하려면 작업 클래스에 `failed` 메서드를 정의하면 됩니다. 작업 실패를 초래한 `Throwable` 인스턴스는 `failed` 메서드로 전달됩니다.
+특정 작업이 실패했을 때 사용자에게 알림을 보내거나, 작업이 부분적으로 완료한 동작을 되돌리고 싶을 수 있습니다. 이를 위해 작업 클래스에 `failed` 메서드를 정의할 수 있습니다. 작업 실패를 일으킨 `Throwable` 인스턴스가 `failed` 메서드에 전달됩니다.
 
 ```php
 <?php
@@ -2551,80 +2550,80 @@ class ProcessPodcast implements ShouldQueue
 ```
 
 > [!WARNING]
-> 작업의 새 인스턴스는 `failed` 메서드를 호출하기 전에 인스턴스화됩니다. 따라서 `handle` 메서드 내에서 발생한 모든 클래스 속성 수정 사항은 손실됩니다.
+> `failed` 메서드를 호출하기 전에 작업의 새 인스턴스가 생성됩니다. 따라서 `handle` 메서드 안에서 발생했을 수 있는 클래스 속성 변경 사항은 모두 사라집니다.
 
-실패한 작업이 반드시 처리되지 않은 예외가 발생한 것은 아닙니다. 작업은 허용된 시도를 모두 소진한 경우 실패한 것으로 간주될 수도 있습니다. 이러한 시도는 여러 가지 방법으로 사용될 수 있습니다.
+실패한 작업이 반드시 처리되지 않은 예외를 만난 작업만을 의미하지는 않습니다. 허용된 모든 시도 횟수를 소진한 작업도 실패한 것으로 간주될 수 있습니다. 이러한 시도 횟수는 여러 방식으로 소비될 수 있습니다.
 
 <div class="content-list" markdown="1">
 
-- 작업의 시간이 초과되었습니다.
-- 작업은 실행 중에 처리되지 않은 예외가 발생합니다.
-- 작업은 수동으로 또는 미들웨어에 의해 큐로 다시 릴리스됩니다.
+- 작업이 타임아웃되었습니다.
+- 작업 실행 중 처리되지 않은 예외가 발생했습니다.
+- 작업이 수동으로 또는 미들웨어에 의해 큐로 다시 릴리스되었습니다.
 
 </div>
 
-작업 실행 중에 발생한 예외로 인해 최종 시도가 실패하는 경우 해당 예외는 작업의 `failed` 메서드에 전달됩니다. 그러나 허용된 최대 시도 횟수에 도달하여 작업이 실패하는 경우 `$exception`는 `Illuminate\Queue\MaxAttemptsExceededException`의 인스턴스가 됩니다. 마찬가지로 구성된 시간 초과로 인해 작업이 실패하는 경우 `$exception`는 `Illuminate\Queue\TimeoutExceededException`의 인스턴스가 됩니다.
+마지막 시도가 작업 실행 중 발생한 예외 때문에 실패했다면, 해당 예외가 작업의 `failed` 메서드에 전달됩니다. 하지만 허용된 최대 시도 횟수에 도달해서 작업이 실패했다면, `$exception`은 `Illuminate\Queue\MaxAttemptsExceededException`의 인스턴스가 됩니다. 마찬가지로 설정된 타임아웃을 초과해서 작업이 실패했다면, `$exception`은 `Illuminate\Queue\TimeoutExceededException`의 인스턴스가 됩니다.
 
 <a name="retrying-failed-jobs"></a>
-### 재시도 실패 작업
+### 실패한 작업 다시 시도하기
 
-`failed_jobs` 데이터베이스 테이블에 삽입된 모든 실패한 작업을 뷰하려면 `queue:failed` Artisan 명령을 사용할 수 있습니다.
+`failed_jobs` 데이터베이스 테이블에 삽입된 모든 실패한 작업을 확인하려면 `queue:failed` Artisan 명령어를 사용할 수 있습니다.
 
 ```shell
 php artisan queue:failed
 ```
 
-`queue:failed` 명령은 작업 ID, 연결, 큐, 오류 시간 및 작업에 대한 기타 정보를 나열합니다. 작업 ID는 실패한 작업을 재시도하는 데 사용될 수 있습니다. 예를 들어, ID가 `ce7bb17c-cdd8-41f0-a8ec-7b4fef4e5ece`인 실패한 작업을 재시도하려면 다음 명령을 실행하십시오.
+`queue:failed` 명령어는 작업 ID, 연결, 큐, 실패 시간, 그 밖의 작업 관련 정보를 나열합니다. 작업 ID는 실패한 작업을 다시 시도하는 데 사용할 수 있습니다. 예를 들어 ID가 `ce7bb17c-cdd8-41f0-a8ec-7b4fef4e5ece`인 실패한 작업을 다시 시도하려면 다음 명령어를 실행합니다.
 
 ```shell
 php artisan queue:retry ce7bb17c-cdd8-41f0-a8ec-7b4fef4e5ece
 ```
 
-필요한 경우 여러 ID를 명령에 전달할 수 있습니다.
+필요하다면 명령어에 여러 ID를 전달할 수도 있습니다.
 
 ```shell
 php artisan queue:retry ce7bb17c-cdd8-41f0-a8ec-7b4fef4e5ece 91401d2c-0784-4f43-824c-34f94a33c24d
 ```
 
-특정 큐에 대해 실패한 작업을 모두 다시 시도할 수도 있습니다.
+특정 큐의 실패한 작업을 모두 다시 시도할 수도 있습니다.
 
 ```shell
 php artisan queue:retry --queue=name
 ```
 
-실패한 작업을 모두 다시 시도하려면 `queue:retry` 명령을 실행하고 `all`를 ID로 전달합니다.
+실패한 작업을 모두 다시 시도하려면 `queue:retry` 명령어를 실행하고 ID로 `all`을 전달합니다.
 
 ```shell
 php artisan queue:retry all
 ```
 
-실패한 작업을 삭제하려면 `queue:forget` 명령을 사용할 수 있습니다.
+실패한 작업을 삭제하고 싶다면 `queue:forget` 명령어를 사용할 수 있습니다.
 
 ```shell
 php artisan queue:forget 91401d2c-0784-4f43-824c-34f94a33c24d
 ```
 
 > [!NOTE]
-> [Horizon](/docs/12.x/horizon)를 사용할 때 `queue:forget` 명령 대신 `horizon:forget` 명령을 사용하여 실패한 작업을 삭제해야 합니다.
+> [Horizon](/docs/12.x/horizon)을 사용할 때는 실패한 작업을 삭제할 때 `queue:forget` 명령어 대신 `horizon:forget` 명령어를 사용해야 합니다.
 
-`failed_jobs` 테이블에서 실패한 작업을 모두 삭제하려면 `queue:flush` 명령을 사용할 수 있습니다.
+`failed_jobs` 테이블에서 실패한 작업을 모두 삭제하려면 `queue:flush` 명령어를 사용할 수 있습니다.
 
 ```shell
 php artisan queue:flush
 ```
 
-`queue:flush` 명령은 실패한 작업이 얼마나 오래되었는지에 관계없이 큐에서 실패한 모든 작업 레코드를 제거합니다. `--hours` 옵션을 사용하면 특정 시간 이전에 실패한 작업만 삭제할 수 있습니다.
+`queue:flush` 명령어는 실패한 작업이 얼마나 오래되었는지와 관계없이 큐에서 모든 실패한 작업 레코드를 제거합니다. 특정 시간 이전에 실패한 작업만 삭제하려면 `--hours` 옵션을 사용할 수 있습니다.
 
 ```shell
 php artisan queue:flush --hours=48
 ```
 
 <a name="ignoring-missing-models"></a>
-### 누락된 모델 무시
+### 누락된 모델 무시하기
 
-Eloquent 모델을 작업에 주입하면 모델은 큐에 배치되기 전에 자동으로 직렬화되고 작업이 처리될 때 데이터베이스에서 다시 검색됩니다. 그러나 작업이 워커의 처리를 기다리는 동안 모델이 삭제된 경우 작업이 `ModelNotFoundException`로 인해 실패할 수 있습니다.
+Eloquent 모델을 작업에 주입하면, 해당 모델은 큐에 배치되기 전에 자동으로 직렬화되고 작업이 처리될 때 데이터베이스에서 다시 조회됩니다. 하지만 작업이 워커에 의해 처리되기를 기다리는 동안 모델이 삭제되었다면, 작업은 `ModelNotFoundException`으로 실패할 수 있습니다.
 
-편의를 위해 작업의 `deleteWhenMissingModels` 속성을 `true`로 설정하여 모델이 누락된 작업을 자동으로 삭제하도록 선택할 수 있습니다. 이 속성이 `true`로 설정되면 Laravel는 예외를 발생시키지 않고 작업을 조용히 삭제합니다.
+편의를 위해 작업의 `deleteWhenMissingModels` 속성을 `true`로 설정하여 모델이 누락된 작업을 자동으로 삭제하도록 선택할 수 있습니다. 이 속성이 `true`로 설정되면 Laravel은 예외를 발생시키지 않고 작업을 조용히 버립니다.
 
 ```php
 /**
@@ -2636,26 +2635,26 @@ public $deleteWhenMissingModels = true;
 ```
 
 <a name="pruning-failed-jobs"></a>
-### 가지치기 실패 작업
+### 실패한 작업 정리하기
 
-`queue:prune-failed` Artisan 명령을 호출하여 애플리케이션의 `failed_jobs` 테이블에 있는 레코드를 정리할 수 있습니다.
+`queue:prune-failed` Artisan 명령어를 호출하여 애플리케이션의 `failed_jobs` 테이블에 있는 레코드를 정리할 수 있습니다.
 
 ```shell
 php artisan queue:prune-failed
 ```
 
-기본적으로 24시간이 넘은 실패한 작업 레코드는 모두 정리됩니다. 명령에 `--hours` 옵션을 제공하면 마지막 N 시간 내에 삽입된 실패한 작업 레코드만 유지됩니다. 예를 들어, 다음 명령은 48시간 이상 전에 삽입되어 실패한 모든 작업 레코드를 삭제합니다.
+기본적으로 24시간보다 오래된 모든 실패한 작업 레코드가 정리됩니다. 명령어에 `--hours` 옵션을 제공하면, 최근 N시간 이내에 삽입된 실패한 작업 레코드만 유지됩니다. 예를 들어 다음 명령어는 48시간보다 오래전에 삽입된 모든 실패한 작업 레코드를 삭제합니다.
 
 ```shell
 php artisan queue:prune-failed --hours=48
 ```
 
 <a name="storing-failed-jobs-in-dynamodb"></a>
-### DynamoDB에 실패한 작업 저장
+### 실패한 작업을 DynamoDB에 저장하기
 
-Laravel는 실패한 작업 레코드를 관계형 데이터베이스 테이블 대신 [DynamoDB](https://aws.amazon.com/dynamodb)에 저장하는 기능도 지원합니다. 그러나 실패한 모든 작업 레코드를 저장하려면 DynamoDB 테이블을 수동으로 생성해야 합니다. 일반적으로 이 테이블의 이름은 `failed_jobs`로 지정되어야 하지만 애플리케이션의 `queue` 구성 파일에 있는 `queue.failed.table` 구성 값을 기반으로 테이블 이름을 지정해야 합니다.
+Laravel은 실패한 작업 레코드를 관계형 데이터베이스 테이블 대신 [DynamoDB](https://aws.amazon.com/dynamodb)에 저장하는 기능도 제공합니다. 하지만 모든 실패한 작업 레코드를 저장할 DynamoDB 테이블은 직접 생성해야 합니다. 일반적으로 이 테이블의 이름은 `failed_jobs`로 지정해야 하지만, 애플리케이션의 `queue` 설정 파일 안에 있는 `queue.failed.table` 설정 값에 따라 테이블 이름을 정해야 합니다.
 
-`failed_jobs` 테이블에는 `application`라는 문자열 기본 파티션 키와 `uuid`라는 문자열 기본 정렬 키가 있어야 합니다. 키의 `application` 부분에는 애플리케이션의 `app` 구성 파일 내 `name` 구성 값으로 정의된 애플리케이션 이름이 포함됩니다. 애플리케이션 이름은 DynamoDB 테이블 키의 일부이므로 동일한 테이블을 사용하여 여러 Laravel 애플리케이션에 대해 실패한 작업을 저장할 수 있습니다.
+`failed_jobs` 테이블에는 `application`이라는 문자열 기본 파티션 키와 `uuid`라는 문자열 기본 정렬 키가 있어야 합니다. 키의 `application` 부분에는 애플리케이션의 `app` 설정 파일 안에 있는 `name` 설정 값으로 정의된 애플리케이션 이름이 들어갑니다. 애플리케이션 이름이 DynamoDB 테이블 키의 일부이므로, 동일한 테이블을 사용하여 여러 Laravel 애플리케이션의 실패한 작업을 저장할 수 있습니다.
 
 또한 Laravel 애플리케이션이 Amazon DynamoDB와 통신할 수 있도록 AWS SDK를 설치해야 합니다.
 
@@ -2663,7 +2662,7 @@ Laravel는 실패한 작업 레코드를 관계형 데이터베이스 테이블 
 composer require aws/aws-sdk-php
 ```
 
-다음으로 `queue.failed.driver` 구성 옵션의 값을 `dynamodb`로 설정합니다. 또한 실패한 작업 구성 배열 내에서 `key`, `secret` 및 `region` 구성 옵션을 정의해야 합니다. 이러한 옵션은 AWS 인증에 사용됩니다. `dynamodb` 드라이버를 사용하는 경우 `queue.failed.database` 구성 옵션이 필요하지 않습니다.
+다음으로 `queue.failed.driver` 설정 옵션의 값을 `dynamodb`로 설정합니다. 또한 실패한 작업 설정 배열 안에 `key`, `secret`, `region` 설정 옵션을 정의해야 합니다. 이 옵션들은 AWS 인증에 사용됩니다. `dynamodb` 드라이버를 사용할 때는 `queue.failed.database` 설정 옵션이 필요하지 않습니다.
 
 ```php
 'failed' => [
@@ -2676,18 +2675,18 @@ composer require aws/aws-sdk-php
 ```
 
 <a name="disabling-failed-job-storage"></a>
-### 실패한 작업 저장소 비활성화
+### 실패한 작업 저장 비활성화하기
 
-`queue.failed.driver` 구성 옵션의 값을 `null`로 설정하여 실패한 작업을 저장하지 않고 삭제하도록 Laravel에 지시할 수 있습니다. 일반적으로 이는 `QUEUE_FAILED_DRIVER` 환경 변수를 통해 수행될 수 있습니다.
+`queue.failed.driver` 설정 옵션 값을 `null`로 설정하면 Laravel이 실패한 작업을 저장하지 않고 버리도록 지시할 수 있습니다. 일반적으로 이는 `QUEUE_FAILED_DRIVER` 환경 변수를 통해 설정할 수 있습니다.
 
 ```ini
 QUEUE_FAILED_DRIVER=null
 ```
 
 <a name="failed-job-events"></a>
-### 작업 이벤트 실패
+### 실패한 작업 이벤트
 
-작업이 실패할 때 호출될 이벤트 리스너를 등록하려면 `Queue` 파사드의 `failing` 메소드를 사용할 수 있습니다. 예를 들어, Laravel에 포함된 `AppServiceProvider`의 `boot` 메서드에서 이 이벤트에 클로저를 연결할 수 있습니다.
+작업이 실패했을 때 호출될 이벤트 리스너를 등록하고 싶다면, `Queue` 파사드의 `failing` 메서드를 사용할 수 있습니다. 예를 들어 Laravel에 포함된 `AppServiceProvider`의 `boot` 메서드에서 이 이벤트에 클로저를 연결할 수 있습니다.
 
 ```php
 <?php
@@ -2723,38 +2722,38 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 <a name="clearing-jobs-from-queues"></a>
-## 큐에서 작업 지우기 (Clearing Jobs From Queues)
+## 큐에서 작업 비우기 (Clearing Jobs From Queues)
 
 > [!NOTE]
-> [Horizon](/docs/12.x/horizon)를 사용할 때 `queue:clear` 명령 대신 큐에서 작업을 지우려면 `horizon:clear` 명령을 사용해야 합니다.
+> [Horizon](/docs/12.x/horizon)을 사용할 때는 큐에서 작업을 비울 때 `queue:clear` 명령어 대신 `horizon:clear` 명령어를 사용해야 합니다.
 
-기본 연결의 기본 큐에서 모든 작업을 삭제하려면 `queue:clear` Artisan 명령을 사용하면 됩니다.
+기본 연결의 기본 큐에서 모든 작업을 삭제하려면 `queue:clear` Artisan 명령어를 사용할 수 있습니다.
 
 ```shell
 php artisan queue:clear
 ```
 
-특정 연결 및 큐에서 작업을 삭제하기 위해 `connection` 인수와 `queue` 옵션을 제공할 수도 있습니다.
+특정 연결과 큐에서 작업을 삭제하려면 `connection` 인수와 `queue` 옵션을 제공할 수도 있습니다.
 
 ```shell
 php artisan queue:clear redis --queue=emails
 ```
 
 > [!WARNING]
-> 큐에서 작업을 지우는 것은 SQS, Redis 및 데이터베이스 큐 드라이버에만 사용할 수 있습니다. 또한 SQS 메시지 삭제 프로세스에는 최대 60초가 소요되므로 큐를 삭제한 후 최대 60초 후에 SQS 큐로 전송된 작업도 삭제될 수 있습니다.
+> 큐에서 작업을 비우는 기능은 SQS, Redis, database 큐 드라이버에서만 사용할 수 있습니다. 또한 SQS 메시지 삭제 프로세스는 최대 60초가 걸리므로, 큐를 비운 뒤 최대 60초 동안 SQS 큐에 전송된 작업도 삭제될 수 있습니다.
 
 <a name="monitoring-your-queues"></a>
 ## 큐 모니터링 (Monitoring Your Queues)
 
-큐에 작업이 갑자기 유입되면 압도되어 작업이 완료될 때까지 기다리는 시간이 길어질 수 있습니다. 원하는 경우 Laravel는 큐 작업 수가 지정된 임계값을 초과할 때 경고할 수 있습니다.
+큐에 작업이 갑자기 많이 들어오면 큐가 감당하기 어려워질 수 있고, 그 결과 작업이 완료되기까지 대기 시간이 길어질 수 있습니다. 원한다면 큐 작업 수가 지정한 임계값을 초과했을 때 Laravel이 알림을 보내도록 할 수 있습니다.
 
-시작하려면 `queue:monitor` 명령을 [1분마다 실행](/docs/12.x/scheduling)하도록 예약해야 합니다. 이 명령은 모니터링하려는 큐의 이름과 원하는 작업 개수 임계값을 허용합니다.
+시작하려면 `queue:monitor` 명령어가 [매분 실행](/docs/12.x/scheduling)되도록 스케줄링해야 합니다. 이 명령어는 모니터링하려는 큐 이름과 원하는 작업 수 임계값을 인수로 받습니다.
 
 ```shell
 php artisan queue:monitor redis:default,redis:deployments --max=100
 ```
 
-이 명령을 예약하는 것만으로는 큐의 압도 상태를 경고하는 알림을 트리거하는 데 충분하지 않습니다. 명령이 임계값을 초과하는 작업 수가 있는 큐를 발견하면 `Illuminate\Queue\Events\QueueBusy` 이벤트는 디스패치가 됩니다. 귀하 또는 개발 팀에 알림을 보내기 위해 애플리케이션의 `AppServiceProvider` 내에서 이 이벤트를 들을 수 있습니다.
+이 명령어를 스케줄링하는 것만으로는 큐가 과부하 상태라는 알림이 발생하지 않습니다. 명령어가 임계값을 초과한 작업 수를 가진 큐를 만나면 `Illuminate\Queue\Events\QueueBusy` 이벤트가 디스패치됩니다. 애플리케이션의 `AppServiceProvider`에서 이 이벤트를 수신하여 자신이나 개발팀에게 알림을 보낼 수 있습니다.
 
 ```php
 use App\Notifications\QueueHasLongWaitTime;
@@ -2781,9 +2780,9 @@ public function boot(): void
 <a name="testing"></a>
 ## 테스트 (Testing)
 
-디스패치 작업 코드를 테스트할 때 실제로 작업 자체를 실행하지 않도록 Laravel에 지시할 수 있습니다. 왜냐하면 작업 코드는 디스패치 코드와 별도로 직접 테스트할 수 있기 때문입니다. 물론 작업 자체를 테스트하려면 작업 인스턴스를 인스턴스화하고 테스트에서 `handle` 메서드를 직접 호출할 수 있습니다.
+작업을 디스패치하는 코드를 테스트할 때, 작업 자체의 코드는 작업을 디스패치하는 코드와 별도로 직접 테스트할 수 있으므로 Laravel이 실제로 작업을 실행하지 않도록 지시하고 싶을 수 있습니다. 물론 작업 자체를 테스트하려면 테스트에서 작업 인스턴스를 생성하고 `handle` 메서드를 직접 호출하면 됩니다.
 
-큐에 있는 작업이 실제로 큐로 푸시되는 것을 방지하기 위해 `Queue` 파사드의 `fake` 메소드를 사용할 수 있습니다. `Queue` 파사드의 `fake` 메소드를 호출한 후, 애플리케이션이 작업을 큐에 푸시하려고 시도했다고 주장할 수 있습니다:
+`Queue` 파사드의 `fake` 메서드를 사용하면 큐 작업이 실제로 큐에 푸시되는 것을 막을 수 있습니다. `Queue` 파사드의 `fake` 메서드를 호출한 뒤에는 애플리케이션이 큐에 작업을 푸시하려고 시도했는지 단언할 수 있습니다.
 
 ```php tab=Pest
 <?php
@@ -2867,8 +2866,7 @@ class ExampleTest extends TestCase
     }
 }
 ```
-
-주어진 "진실 테스트"를 통과한 작업이 푸시되었음을 주장하기 위해 `assertPushed`, `assertNotPushed`, `assertClosurePushed` 또는 `assertClosureNotPushed` 메소드에 클로저를 전달할 수 있습니다. 주어진 진실 테스트를 통과하는 하나 이상의 작업이 푸시되면 어설션이 성공합니다.
+주어진 "참 여부 검사"를 통과하는 작업이 푸시되었는지 단언하려면 `assertPushed`, `assertNotPushed`, `assertClosurePushed`, `assertClosureNotPushed` 메서드에 클로저를 전달할 수 있습니다. 주어진 참 여부 검사를 통과하는 작업이 하나 이상 푸시되었다면 단언은 성공합니다.
 
 ```php
 use Illuminate\Queue\CallQueuedClosure;
@@ -2883,9 +2881,9 @@ Queue::assertClosurePushed(function (CallQueuedClosure $job) {
 ```
 
 <a name="faking-a-subset-of-jobs"></a>
-### 작업의 하위 집합 위조
+### 일부 작업만 Fake 처리하기
 
-다른 작업이 정상적으로 실행되도록 허용하면서 특정 작업만 위조해야 하는 경우, 위조해야 하는 작업의 클래스 이름을 `fake` 메서드에 전달할 수 있습니다.
+다른 작업은 정상적으로 실행되도록 두고 특정 작업만 fake 처리해야 한다면, fake 처리할 작업의 클래스명을 `fake` 메서드에 전달할 수 있습니다.
 
 ```php tab=Pest
 test('orders can be shipped', function () {
@@ -2914,7 +2912,7 @@ public function test_orders_can_be_shipped(): void
 }
 ```
 
-`except` 메소드를 사용하여 지정된 작업 세트를 제외한 모든 작업을 위조할 수 있습니다.
+`except` 메서드를 사용하면 지정한 작업 집합을 제외한 모든 작업을 fake 처리할 수 있습니다.
 
 ```php
 Queue::fake()->except([
@@ -2923,9 +2921,9 @@ Queue::fake()->except([
 ```
 
 <a name="testing-job-chains"></a>
-### 작업 체인 테스트
+### 작업 체인 테스트하기
 
-작업 체인을 테스트하려면 `Bus` 파사드의 위조 기능을 활용해야 합니다. `Bus` 파사드의 `assertChained` 메소드는 [작업의 체인](/docs/12.x/queues#job-chaining)이 디스패치임을 주장하는데 사용될 수 있습니다. `assertChained` 메소드는 연결된 작업 배열을 첫 번째 인수로 허용합니다.
+작업 체인을 테스트하려면 `Bus` 파사드의 fake 기능을 사용해야 합니다. `Bus` 파사드의 `assertChained` 메서드는 [작업 체인](/docs/12.x/queues#job-chaining)이 디스패치되었는지 단언하는 데 사용할 수 있습니다. `assertChained` 메서드는 체인으로 연결된 작업 배열을 첫 번째 인수로 받습니다.
 
 ```php
 use App\Jobs\RecordShipment;
@@ -2944,7 +2942,7 @@ Bus::assertChained([
 ]);
 ```
 
-위의 예에서 볼 수 있듯이 연결된 작업의 배열은 작업의 클래스 이름 배열일 수 있습니다. 그러나 실제 작업 인스턴스 배열을 제공할 수도 있습니다. 이렇게 하면 Laravel는 작업 인스턴스가 애플리케이션에 의해 연결된 작업 디스패치의 클래스와 속성 값이 동일한지 확인합니다.
+위 예시에서 볼 수 있듯이, 체인 작업 배열은 작업의 클래스명 배열일 수 있습니다. 하지만 실제 작업 인스턴스 배열을 제공할 수도 있습니다. 이 경우 Laravel은 해당 작업 인스턴스가 애플리케이션에서 디스패치한 체인 작업과 같은 클래스이고, 같은 속성값을 가지고 있는지 확인합니다.
 
 ```php
 Bus::assertChained([
@@ -2954,16 +2952,16 @@ Bus::assertChained([
 ]);
 ```
 
-작업 체인 없이 작업이 푸시되었음을 확인하기 위해 `assertDispatchedWithoutChain` 메소드를 사용할 수 있습니다.
+`assertDispatchedWithoutChain` 메서드를 사용하면 작업 체인 없이 작업이 푸시되었는지 단언할 수 있습니다.
 
 ```php
 Bus::assertDispatchedWithoutChain(ShipOrder::class);
 ```
 
 <a name="testing-chain-modifications"></a>
-#### 테스트 체인 수정
+#### 체인 수정 테스트하기
 
-연결된 작업이 [기존 체인에 작업을 추가하거나 추가](#adding-jobs-to-the-chain)하는 경우 작업의 `assertHasChain` 메서드를 사용하여 작업에 나머지 작업의 예상 체인이 있음을 확인할 수 있습니다.
+체인 작업이 [기존 체인 앞이나 뒤에 작업을 추가](#adding-jobs-to-the-chain)한다면, 작업의 `assertHasChain` 메서드를 사용하여 작업에 예상한 남은 작업 체인이 있는지 단언할 수 있습니다.
 
 ```php
 $job = new ProcessPodcast;
@@ -2977,16 +2975,16 @@ $job->assertHasChain([
 ]);
 ```
 
-`assertDoesntHaveChain` 메소드는 작업의 나머지 체인이 비어 있음을 확인하는 데 사용될 수 있습니다.
+`assertDoesntHaveChain` 메서드는 작업의 남은 체인이 비어 있는지 단언하는 데 사용할 수 있습니다.
 
 ```php
 $job->assertDoesntHaveChain();
 ```
 
 <a name="testing-chained-batches"></a>
-#### 연결된 배치 테스트
+#### 체인 배치 테스트하기
 
-작업 체인이 [작업의 배치를 포함](#chains-and-batches)하는 경우 체인 어설션 내에 `Bus::chainedBatch` 정의를 삽입하여 연결된 배치가 예상과 일치한다고 어설션할 수 있습니다.
+작업 체인에 [작업 배치](#chains-and-batches)가 포함되어 있다면, 체인 단언 안에 `Bus::chainedBatch` 정의를 삽입하여 체인 배치가 기대와 일치하는지 단언할 수 있습니다.
 
 ```php
 use App\Jobs\ShipOrder;
@@ -3004,9 +3002,9 @@ Bus::assertChained([
 ```
 
 <a name="testing-job-batches"></a>
-### 작업 배치 테스트
+### 작업 배치 테스트하기
 
-`Bus` 파사드의 `assertBatched` 메소드는 [작업의 배치](/docs/12.x/queues#job-batching)가 디스패치임을 주장하는데 사용될 수 있습니다. `assertBatched` 메소드에 제공된 클로저는 배치 내의 작업을 검사하는 데 사용될 수 있는 `Illuminate\Bus\PendingBatch`의 인스턴스를 수신합니다.
+`Bus` 파사드의 `assertBatched` 메서드는 [작업 배치](/docs/12.x/queues#job-batching)가 디스패치되었는지 단언하는 데 사용할 수 있습니다. `assertBatched` 메서드에 전달한 클로저는 `Illuminate\Bus\PendingBatch` 인스턴스를 받으며, 이 인스턴스로 배치 안의 작업을 검사할 수 있습니다.
 
 ```php
 use Illuminate\Bus\PendingBatch;
@@ -3022,7 +3020,7 @@ Bus::assertBatched(function (PendingBatch $batch) {
 });
 ```
 
-`hasJobs` 메소드는 보류 중인 배치에서 사용되어 배치에 예상된 작업이 포함되어 있는지 확인할 수 있습니다. 이 메소드는 작업 인스턴스, 클래스 이름 또는 클로저의 배열을 허용합니다.
+대기 중인 배치에 `hasJobs` 메서드를 사용하면 배치에 예상한 작업이 포함되어 있는지 확인할 수 있습니다. 이 메서드는 작업 인스턴스, 클래스명, 클로저 배열을 받습니다.
 
 ```php
 Bus::assertBatched(function (PendingBatch $batch) {
@@ -3034,7 +3032,7 @@ Bus::assertBatched(function (PendingBatch $batch) {
 });
 ```
 
-클로저를 사용할 때 클로저는 작업 인스턴스를 수신합니다. 예상되는 작업 유형은 클로저의 유형 힌트에서 추론됩니다:
+클로저를 사용할 때 클로저는 작업 인스턴스를 받습니다. 예상 작업 타입은 클로저의 타입 힌트에서 추론됩니다.
 
 ```php
 Bus::assertBatched(function (PendingBatch $batch) {
@@ -3046,22 +3044,22 @@ Bus::assertBatched(function (PendingBatch $batch) {
 });
 ```
 
-`assertBatchCount` 메소드를 사용하여 주어진 배치 수가 디스패치인지 확인할 수 있습니다.
+`assertBatchCount` 메서드를 사용하면 주어진 개수의 배치가 디스패치되었는지 단언할 수 있습니다.
 
 ```php
 Bus::assertBatchCount(3);
 ```
 
-`assertNothingBatched`를 사용하여 배치가 디스패치가 아니라는 것을 주장할 수 있습니다.
+`assertNothingBatched`를 사용하면 배치가 하나도 디스패치되지 않았는지 단언할 수 있습니다.
 
 ```php
 Bus::assertNothingBatched();
 ```
 
 <a name="testing-job-batch-interaction"></a>
-#### 작업 / 배치 상호 작용 테스트
+#### 작업 / 배치 상호작용 테스트하기
 
-또한 때때로 개별 작업과 기본 배치의 상호 작용을 테스트해야 할 수도 있습니다. 예를 들어, 작업이 배치에 대한 추가 처리를 취소했는지 테스트해야 할 수도 있습니다. 이를 수행하려면 `withFakeBatch` 메서드를 통해 가짜 배치를 작업에 할당해야 합니다. `withFakeBatch` 메소드는 작업 인스턴스와 가짜 배치를 포함하는 튜플을 반환합니다.
+또한 개별 작업이 그 기반 배치와 어떻게 상호작용하는지 테스트해야 할 때도 있습니다. 예를 들어 작업이 배치의 이후 처리를 취소했는지 테스트해야 할 수 있습니다. 이를 위해 `withFakeBatch` 메서드로 작업에 가짜 배치를 할당해야 합니다. `withFakeBatch` 메서드는 작업 인스턴스와 가짜 배치를 담은 튜플을 반환합니다.
 
 ```php
 [$job, $batch] = (new ShipOrder)->withFakeBatch();
@@ -3073,11 +3071,11 @@ $this->assertEmpty($batch->added);
 ```
 
 <a name="testing-job-queue-interactions"></a>
-### 작업 / 큐 상호 작용 테스트
+### 작업 / 큐 상호작용 테스트하기
 
-때로는 대기 중인 작업이 [큐에 다시 릴리스](#manually-releasing-a-job)되는지 테스트해야 할 수도 있습니다. 또는 작업이 자체적으로 삭제되었는지 테스트해야 할 수도 있습니다. 작업을 인스턴스화하고 `withFakeQueueInteractions` 메서드를 호출하여 이러한 큐 상호 작용을 테스트할 수 있습니다.
+때로는 큐에 들어간 작업이 [자기 자신을 다시 큐로 릴리스](#manually-releasing-a-job)하는지 테스트해야 할 수 있습니다. 또는 작업이 자기 자신을 삭제했는지 테스트해야 할 수도 있습니다. 작업을 인스턴스화하고 `withFakeQueueInteractions` 메서드를 호출하면 이러한 큐 상호작용을 테스트할 수 있습니다.
 
-작업의 큐 상호 작용이 위조되면 작업에서 `handle` 메서드를 호출할 수 있습니다. 작업을 호출한 후 다양한 어설션 방법을 사용하여 작업의 큐 상호 작용을 확인할 수 있습니다.
+작업의 큐 상호작용이 fake 처리되면, 작업의 `handle` 메서드를 호출할 수 있습니다. 작업을 호출한 뒤에는 다양한 단언 메서드를 사용하여 작업의 큐 상호작용을 확인할 수 있습니다.
 
 ```php
 use App\Exceptions\CorruptedAudioException;
@@ -3098,7 +3096,7 @@ $job->assertNotFailed();
 <a name="job-events"></a>
 ## 작업 이벤트 (Job Events)
 
-`Queue` [facade](/docs/12.x/facades)에서 `before` 및 `after` 메서드를 사용하면 큐에 있는 작업이 처리되기 전이나 후에 실행될 콜백을 지정할 수 있습니다. 이러한 콜백은 대시보드에 대한 추가 로깅 또는 증분 통계를 수행할 수 있는 좋은 기회입니다. 일반적으로 [서비스 프로바이더](/docs/12.x/providers)의 `boot` 메서드에서 이러한 메서드를 호출해야 합니다. 예를 들어, Laravel에 포함된 `AppServiceProvider`를 사용할 수 있습니다.
+`Queue` [파사드](/docs/12.x/facades)의 `before`와 `after` 메서드를 사용하면 큐 작업이 처리되기 전이나 후에 실행할 콜백을 지정할 수 있습니다. 이러한 콜백은 대시보드를 위한 추가 로깅을 수행하거나 통계를 증가시키기에 좋은 지점입니다. 일반적으로 이 메서드들은 [서비스 프로바이더](/docs/12.x/providers)의 `boot` 메서드에서 호출해야 합니다. 예를 들어 Laravel에 포함된 `AppServiceProvider`를 사용할 수 있습니다.
 
 ```php
 <?php
@@ -3140,7 +3138,7 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
-`Queue` [facade](/docs/12.x/facades)에서 `looping` 메서드를 사용하면 워커가 큐에서 작업을 가져오려고 시도하기 전에 실행되는 콜백을 지정할 수 있습니다. 예를 들어, 이전에 실패한 작업에 의해 열려 있던 트랜잭션을 롤백하기 위해 클로저를 등록할 수 있습니다.
+`Queue` [파사드](/docs/12.x/facades)의 `looping` 메서드를 사용하면 워커가 큐에서 작업을 가져오려고 시도하기 전에 실행되는 콜백을 지정할 수 있습니다. 예를 들어 이전에 실패한 작업 때문에 열린 채로 남아 있던 모든 트랜잭션을 롤백하도록 클로저를 등록할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\DB;

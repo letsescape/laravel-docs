@@ -2156,7 +2156,7 @@ php artisan queue:clear redis --queue=emails
 
 큐에 갑작스럽게 많은 작업이 쌓이면 처리가 느려질 수 있고, 작업 대기 시간이 길어질 수 있습니다. 필요하다면, 라라벨에서 지정한 임계치 이상의 작업이 큐에 쌓였을 때 알림을 받을 수 있습니다.
 
-이를 위해 우선, [스케줄러에 매분 실행]( /docs/9.x/scheduling )되도록 `queue:monitor` 명령어를 등록해야 합니다. 이 명령어는 모니터링할 큐의 이름과, 최대 작업 개수 임계치를 옵션으로 받습니다.
+이를 위해 우선, [스케줄러에 매분 실행](/docs/9.x/scheduling)되도록 `queue:monitor` 명령어를 등록해야 합니다. 이 명령어는 모니터링할 큐의 이름과, 최대 작업 개수 임계치를 옵션으로 받습니다.
 
 ```shell
 php artisan queue:monitor redis:default,redis:deployments --max=100

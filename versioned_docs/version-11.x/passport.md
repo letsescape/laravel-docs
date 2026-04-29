@@ -913,7 +913,7 @@ PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET="unhashed-client-secret-value"
 <a name="managing-personal-access-tokens"></a>
 ### 개인 액세스 토큰 관리
 
-개인 액세스 클라이언트를 생성한 후에는, `App\Models\User` 모델 인스턴스의 `createToken` 메서드를 이용해 원하는 사용자에 대해 토큰을 발급할 수 있습니다. `createToken` 메서드는 토큰 이름(필수)과 스코프 배열(선택)을 인수로 받습니다.
+개인 액세스 클라이언트를 생성한 후에는, `App\Models\User` 모델 인스턴스의 `createToken` 메서드를 이용해 원하는 사용자에 대해 토큰을 발급할 수 있습니다. `createToken` 메서드는 토큰 이름(필수)과 [스코프](#token-scopes) 배열(선택)을 인수로 받습니다.
 
 ```
 use App\Models\User;

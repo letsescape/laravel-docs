@@ -205,7 +205,7 @@ Artisan::command('mail:send {user}', function ($user) {
 <a name="type-hinting-dependencies"></a>
 #### 의존성 타입힌트
 
-명령어의 인수나 옵션뿐 아니라, 클로저에서 서비스 컨테이너를 통해 추가 의존성을 타입힌트로 받아올 수도 있습니다.
+명령어의 인수나 옵션뿐 아니라, 클로저에서 [서비스 컨테이너](/docs/8.x/container)를 통해 추가 의존성을 타입힌트로 받아올 수도 있습니다.
 
 ```
 use App\Models\User;

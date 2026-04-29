@@ -185,7 +185,7 @@ $request->validate([
 <a name="quick-displaying-the-validation-errors"></a>
 ### 유효성 검증 오류 표시하기
 
-그렇다면 요청 필드가 지정된 검증 규칙을 통과하지 못했을 때 어떻게 될까요? 앞서 언급했듯이, 라라벨은 자동으로 사용자를 이전 위치로 리다이렉트합니다. 그리고 모든 유효성 검증 오류 메시지와 [요청 입력값](/docs/11.x/requests#retrieving-old-input)이 [세션에 플래시](https://laravel.kr/docs/11.x/session#flash-data)됩니다.
+그렇다면 요청 필드가 지정된 검증 규칙을 통과하지 못했을 때 어떻게 될까요? 앞서 언급했듯이, 라라벨은 자동으로 사용자를 이전 위치로 리다이렉트합니다. 그리고 모든 유효성 검증 오류 메시지와 [요청 입력값](/docs/11.x/requests#retrieving-old-input)이 [세션에 플래시](/docs/11.x/session#flash-data)됩니다.
 
 `Illuminate\View\Middleware\ShareErrorsFromSession` 미들웨어가 제공하는 `$errors` 변수가 모든 뷰에 자동으로 공유됩니다. 이 미들웨어는 `web` 미들웨어 그룹에 포함되어 있으며, 따라서 뷰에서는 언제든 `$errors` 변수를 사용할 수 있다고 가정해도 됩니다. `$errors` 변수는 `Illuminate\Support\MessageBag`의 인스턴스입니다. 이 객체를 다루는 자세한 방법은 [관련 문서](#working-with-error-messages)를 참고하세요.
 
@@ -257,7 +257,7 @@ $request->validate([
 <a name="repopulating-forms"></a>
 ### 폼 값 다시 채우기
 
-라라벨이 유효성 검증 오류로 인해 리다이렉트 응답을 생성하면, 프레임워크는 [해당 요청의 모든 입력값을 세션에 플래시](https://laravel.kr/docs/11.x/session#flash-data)합니다. 이렇게 하면 다음 요청에서 이 입력값을 쉽게 가져와 폼을 다시 채울 수 있습니다.
+라라벨이 유효성 검증 오류로 인해 리다이렉트 응답을 생성하면, 프레임워크는 [해당 요청의 모든 입력값을 세션에 플래시](/docs/11.x/session#flash-data)합니다. 이렇게 하면 다음 요청에서 이 입력값을 쉽게 가져와 폼을 다시 채울 수 있습니다.
 
 직전 요청의 플래시된 입력값을 가져오려면, `Illuminate\Http\Request` 인스턴스의 `old` 메서드를 호출하면 됩니다. 이 메서드는 [세션](/docs/11.x/session)에 저장된 이전 입력값을 반환합니다.
 

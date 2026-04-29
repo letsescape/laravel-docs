@@ -459,7 +459,7 @@ $this->app->when(Firewall::class)
 <a name="variadic-tag-dependencies"></a>
 #### 태그된 가변 인자 의존성
 
-가변 인자(예: `Report ...$reports`)가 특정 클래스 타입으로 지정되어 있을 때, `needs`와 `giveTagged`를 조합해 해당 태그로 등록된 모든 바인딩을 쉽게 주입할 수 있습니다.
+가변 인자(예: `Report ...$reports`)가 특정 클래스 타입으로 지정되어 있을 때, `needs`와 `giveTagged`를 조합해 해당 [태그](#tagging)로 등록된 모든 바인딩을 쉽게 주입할 수 있습니다.
 
 ```
 $this->app->when(ReportAggregator::class)

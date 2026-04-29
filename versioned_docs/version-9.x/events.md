@@ -248,7 +248,7 @@ class OrderShipped
 }
 ```
 
-이처럼 이벤트 클래스에는 실제 로직이 들어있지 않습니다. 단순히 주문이 완료된 `App\Models\Order` 인스턴스를 담고 있을 뿐입니다. 이벤트에서 사용하는 `SerializesModels` 트레잇은, 이벤트 객체를 PHP의 `serialize` 함수로 직렬화해야 할 때(Eloquent 모델이 큐잉되는 상황 등) 모델을 안전하게 직렬화해줍니다.
+이처럼 이벤트 클래스에는 실제 로직이 들어있지 않습니다. 단순히 주문이 완료된 `App\Models\Order` 인스턴스를 담고 있을 뿐입니다. 이벤트에서 사용하는 `SerializesModels` 트레잇은, 이벤트 객체를 PHP의 `serialize` 함수로 직렬화해야 할 때([큐잉된 리스너](#queued-event-listeners)를 사용하는 경우 등) Eloquent 모델을 안전하게 직렬화해줍니다.
 
 <a name="defining-listeners"></a>
 ## 리스너 정의하기

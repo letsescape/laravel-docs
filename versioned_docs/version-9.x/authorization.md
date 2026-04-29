@@ -719,7 +719,7 @@ public function create(Request $request)
 
 [리소스 컨트롤러](/docs/9.x/controllers#resource-controllers)를 사용할 때 컨트롤러의 생성자에서 `authorizeResource` 메서드를 활용할 수 있습니다. 이 메서드는 해당 리소스 컨트롤러의 메서드에 적절한 `can` 미들웨어를 자동으로 연결합니다.
 
-`authorizeResource`의 첫 번째 인자는 모델 클래스, 두 번째 인자는 라우트/요청 파라미터명(모델의 ID가 전달되는 파라미터명)입니다. 리소스 컨트롤러를 `--model` 옵션과 함께 생성했다면, 필요한 시그니처와 타입힌트가 이미 준비되어 있으므로 곧바로 사용할 수 있습니다:
+`authorizeResource`의 첫 번째 인자는 모델 클래스, 두 번째 인자는 라우트/요청 파라미터명(모델의 ID가 전달되는 파라미터명)입니다. [리소스 컨트롤러](/docs/9.x/controllers#resource-controllers)를 `--model` 옵션과 함께 생성했다면, 필요한 시그니처와 타입힌트가 이미 준비되어 있으므로 곧바로 사용할 수 있습니다:
 
 ```
 <?php

@@ -78,9 +78,9 @@
 
 _Laravel Breeze_는 로그인, 회원가입, 비밀번호 재설정, 이메일 인증, 비밀번호 재확인 등, 라라벨 인증의 주요 기능을 간결하게 구현한 패키지입니다. Breeze의 뷰 레이어는 [Blade 템플릿](/docs/9.x/blade)과 [Tailwind CSS](https://tailwindcss.com)로 구성되어 있습니다. 자세한 내용은 [애플리케이션 스타터 키트 문서](/docs/9.x/starter-kits)를 참고하세요.
 
-_Laravel Fortify_는 인증 백엔드만 제공하는 헤드리스(headless) 패키지로, 이 문서에 설명된 기능(쿠키 기반 인증, 2단계 인증, 이메일 인증 등)을 구현합니다. Fortify는 [Laravel Jetstream](/docs/9.x/starter-kits#laravel-jetstream)의 인증 백엔드이기도 하며, [Laravel Sanctum](/docs/9.x/sanctum)과 조합하면 SPA(싱글 페이지 애플리케이션) 인증 백엔드로도 사용할 수 있습니다.
+_Laravel Fortify_는 인증 백엔드만 제공하는 헤드리스(headless) 패키지로, 이 문서에 설명된 기능(쿠키 기반 인증, 2단계 인증, 이메일 인증 등)을 구현합니다. Fortify는 Laravel Jetstream의 인증 백엔드이기도 하며, [Laravel Sanctum](/docs/9.x/sanctum)과 조합하면 SPA(싱글 페이지 애플리케이션) 인증 백엔드로도 사용할 수 있습니다.
 
-_[Laravel Jetstream](https://jetstream.laravel.com)_은 Tailwind CSS, [Livewire](https://laravel-livewire.com), 그리고 [Inertia](https://inertiajs.com)로 만들어진 아름답고 현대적인 UI와 Fortify 인증을 통합 제공합니다. Jetstream은 2단계 인증, 팀, 브라우저 세션 관리, 프로필 관리, [Laravel Sanctum](/docs/9.x/sanctum)으로 API 토큰 인증 등 다양한 기능을 선택적으로 제공합니다. 라라벨의 API 인증은 아래에서 별도로 다룹니다.
+_[Laravel Jetstream](https://jetstream.laravel.com)_은 [Tailwind CSS](https://tailwindcss.com), [Livewire](https://laravel-livewire.com), 그리고 [Inertia](https://inertiajs.com)로 만들어진 아름답고 현대적인 UI와 Fortify 인증을 통합 제공합니다. Jetstream은 2단계 인증, 팀, 브라우저 세션 관리, 프로필 관리, [Laravel Sanctum](/docs/9.x/sanctum)으로 API 토큰 인증 등 다양한 기능을 선택적으로 제공합니다. 라라벨의 API 인증은 아래에서 별도로 다룹니다.
 
 <a name="laravels-api-authentication-services"></a>
 #### 라라벨의 API 인증 서비스

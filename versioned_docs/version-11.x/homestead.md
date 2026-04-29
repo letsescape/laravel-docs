@@ -250,7 +250,7 @@ Homestead 가상머신을 프로비저닝한 뒤에 `sites` 속성을 수정했�
 
 Homestead는 자동 호스트명 해석을 위해 `mDNS`를 사용하여 호스트명을 퍼블리시합니다. 예를 들어, `Homestead.yaml` 파일에 `hostname: homestead`를 설정했다면, `homestead.local` 주소로 접속할 수 있습니다. macOS, iOS, 그리고 대부분의 Linux 데스크톱 배포판에는 `mDNS` 지원이 기본 내장되어 있습니다. Windows 사용자의 경우, [Bonjour Print Services for Windows](https://support.apple.com/kb/DL999?viewlocale=en_US&locale=en_US)를 추가로 설치해야 합니다.
 
-프로젝트별 Homestead 설치에서 자동 호스트명을 사용하는 것이 가장 편리합니다. 하나의 Homestead 인스턴스에 여러 사이트를 운영하는 경우, 웹사이트의 "도메인"을 자신의 컴퓨터 `hosts` 파일에 추가해야 합니다. 이 파일은 브라우저의 해당 도메인 접근 요청을 Homestead 가상머신으로 라우팅해 줍니다. macOS나 Linux는 `/etc/hosts` 위치에, Windows는 `C:\Windows\System32\drivers\etc\hosts`에 해당 파일이 있습니다. 다음과 같은 형식으로 추가하면 됩니다:
+[프로젝트별 설치](#per-project-installation) 방식의 Homestead에서 자동 호스트명을 사용하는 것이 가장 편리합니다. 하나의 Homestead 인스턴스에 여러 사이트를 운영하는 경우, 웹사이트의 "도메인"을 자신의 컴퓨터 `hosts` 파일에 추가해야 합니다. 이 파일은 브라우저의 해당 도메인 접근 요청을 Homestead 가상머신으로 라우팅해 줍니다. macOS나 Linux는 `/etc/hosts` 위치에, Windows는 `C:\Windows\System32\drivers\etc\hosts`에 해당 파일이 있습니다. 다음과 같은 형식으로 추가하면 됩니다:
 
 ```
 192.168.56.56  homestead.test

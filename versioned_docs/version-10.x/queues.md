@@ -224,7 +224,7 @@ class ProcessPodcast implements ShouldQueue
 
 `handle` 메서드는 큐에서 잡이 실행될 때 호출됩니다. 여기서 의존성을 타입힌트로 선언하면, 라라벨의 [서비스 컨테이너](/docs/10.x/container)가 자동으로 주입해줍니다.
 
-서비스 컨테이너가 `handle` 메서드에 의존성을 주입하는 방식을 직접 제어하고 싶다면, 컨테이너의 `bindMethod` 메서드를 사용할 수 있습니다. 이 메서드는 잡과 컨테이너를 콜백으로 받아 원하는 방식으로 `handle`을 호출할 수 있습니다. 보통 이 코드는 `App\Providers\AppServiceProvider`의 `boot` 메서드에서 작성하면 좋습니다.
+서비스 컨테이너가 `handle` 메서드에 의존성을 주입하는 방식을 직접 제어하고 싶다면, 컨테이너의 `bindMethod` 메서드를 사용할 수 있습니다. 이 메서드는 잡과 컨테이너를 콜백으로 받아 원하는 방식으로 `handle`을 호출할 수 있습니다. 보통 이 코드는 `App\Providers\AppServiceProvider` [서비스 프로바이더](/docs/10.x/providers)의 `boot` 메서드에서 작성하면 좋습니다.
 
 ```
 use App\Jobs\ProcessPodcast;

@@ -868,7 +868,7 @@ $password = Str::password(12);
 <a name="method-str-plural"></a>
 #### `Str::plural()`
 
-`Str::plural` 메서드는 단수형 단어를 복수형으로 변환합니다. 이 함수는 [라라벨의 복수화 도구가 지원하는 언어](https://laravel.com/docs/10.x/localization#pluralization-language) 모두에서 동작합니다.
+`Str::plural` 메서드는 단수형 단어를 복수형으로 변환합니다. 이 함수는 [라라벨의 복수화 도구가 지원하는 언어](/docs/10.x/localization#pluralization-language) 모두에서 동작합니다.
 
 ```
 use Illuminate\Support\Str;
@@ -899,7 +899,7 @@ $singular = Str::plural('child', 1);
 <a name="method-str-plural-studly"></a>
 #### `Str::pluralStudly()`
 
-`Str::pluralStudly` 메서드는 StudlyCaps(첫 글자가 대문자인 형태)의 단어를 복수형으로 변환합니다. 이 함수 역시 [라라벨의 복수화 도구가 지원하는 언어](https://laravel.com/docs/10.x/localization#pluralization-language) 모두에서 사용할 수 있습니다.
+`Str::pluralStudly` 메서드는 StudlyCaps(첫 글자가 대문자인 형태)의 단어를 복수형으로 변환합니다. 이 함수 역시 [라라벨의 복수화 도구가 지원하는 언어](/docs/10.x/localization#pluralization-language) 모두에서 사용할 수 있습니다.
 
 ```
 use Illuminate\Support\Str;
