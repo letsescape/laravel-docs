@@ -27,7 +27,7 @@
 로컬 개발 중에는 `APP_DEBUG` 환경 변수를 `true`로 설정해야 합니다.
 
 > [!WARNING]
-> 프로덕션 환경에서는 `APP_DEBUG` 값이 항상 `false`여야 합니다. 프로덕션에서 이 값이 `true`로 설정되면 민감한 설정 값이 애플리케이션의 최종 사용자에게 노출될 위험이 있습니다.**
+> 프로덕션 환경에서는 `APP_DEBUG` 값이 항상 `false`여야 합니다. 프로덕션에서 이 값이 `true`로 설정되면 민감한 설정 값이 애플리케이션의 최종 사용자에게 노출될 위험이 있습니다.
 
 <a name="handling-exceptions"></a>
 ## 예외 처리 (Handling Exceptions)
