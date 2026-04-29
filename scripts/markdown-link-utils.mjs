@@ -1,12 +1,29 @@
+function fenceAt(src, index) {
+  if (src.startsWith('```', index)) return '```';
+  if (src.startsWith('~~~', index)) return '~~~';
+  return null;
+}
+
+function findInlineCodeEnd(src, index) {
+  const end = src.indexOf('`', index + 1);
+  if (end < 0) return -1;
+
+  const newline = src.indexOf('\n', index + 1);
+  if (newline >= 0 && newline < end) return -1;
+
+  return end;
+}
+
+function versionReplacement(version) {
+  if (version === null) return '';
+  return version;
+}
+
 export function stripCode(src) {
   let out = '';
   let i = 0;
   while (i < src.length) {
-    const fence = src.startsWith('```', i)
-      ? '```'
-      : src.startsWith('~~~', i)
-        ? '~~~'
-        : null;
+    const fence = fenceAt(src, i);
     if (fence) {
       const end = src.indexOf(fence, i + fence.length);
       if (end < 0) return out;
@@ -14,9 +31,8 @@ export function stripCode(src) {
       continue;
     }
     if (src[i] === '`') {
-      const end = src.indexOf('`', i + 1);
-      const nl = src.indexOf('\n', i + 1);
-      if (end < 0 || (nl >= 0 && nl < end)) {
+      const end = findInlineCodeEnd(src, i);
+      if (end < 0) {
         out += src[i++];
         continue;
       }
@@ -105,8 +121,8 @@ export function extractVersionFromPath(path) {
   return versionDir ? versionDir.slice('version-'.length) : null;
 }
 
-export function replaceVersionPlaceholders(value, version) {
-  const replacement = version ?? '';
+export function replaceVersionPlaceholders(value, version = '') {
+  const replacement = versionReplacement(version);
   let output = '';
   let index = 0;
 
