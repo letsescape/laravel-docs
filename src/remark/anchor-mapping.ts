@@ -19,8 +19,8 @@ const ANCHOR_RE = /<a\s+name=["']([^"']+)["']\s*(?:\/?>|>\s*<\/a>)/;
  *   첫 자식이 매칭되는 html 노드인지 검사한다.
  *
  * 동작:
- *   해당 paragraph 바로 다음의 heading 노드에 `data.hProperties.id = anchorId`를
- *   주입해 Docusaurus가 이 id로 앵커를 렌더링하게 한다. 헤딩 텍스트(한글)는 유지.
+ *   해당 paragraph 바로 다음의 heading 노드에 Docusaurus heading-id 주석을
+ *   주입해 TOC와 실제 HTML heading id를 같은 값으로 맞춘다.
  */
 export default function anchorMappingPlugin(): Transformer<Root> {
   return (tree) => {
@@ -38,16 +38,9 @@ export default function anchorMappingPlugin(): Transformer<Root> {
       for (let j = index + 1; j < siblings.length; j++) {
         const next = siblings[j];
         if (next.type === 'heading') {
-          // `data.hProperties.id` 주입 → mdast-to-hast 단계에서 HTML id 속성으로 포함.
-          // 브라우저의 앵커 스크롤(`#id`)이 실제로 동작하도록 한다.
-          // (Docusaurus 내부 broken-anchor 검증기는 heading text 기반 slug만 수집해
-          //  false positive 경고를 낼 수 있으므로, config에서 `onBrokenAnchors: 'ignore'`로 완화.)
-          const data = (next.data ?? {}) as Record<string, unknown>;
-          const hProps = (data.hProperties ?? {}) as Record<string, unknown>;
-          next.data = {
-            ...data,
-            hProperties: {...hProps, id: anchorId},
-          };
+          // Docusaurus heading 플러그인은 trailing `<!-- #id -->`를 명시 id로 사용하고
+          // TOC 수집 전에 `data.id`와 `hProperties.id`를 함께 설정한다.
+          next.children.push({type: 'html', value: `<!-- #${anchorId} -->`} as Html);
           break;
         }
         // 다음 앵커가 먼저 나오면 현재 앵커엔 헤딩이 없음 — 중단

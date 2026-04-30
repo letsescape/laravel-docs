@@ -3,10 +3,8 @@
  * Source-based anchor validator.
  *
  * 배경:
- *   Docusaurus 내장 broken-anchor 검증기는 heading 텍스트 기반 slug만 수집하므로
- *   `src/remark/anchor-mapping.ts` 플러그인이 주입한 `<a name="xxx">` → `id="xxx"`
- *   매핑을 인식하지 못해 대량의 false positive 경고를 낸다.
- *   (그래서 docusaurus.config.ts 에서 `onBrokenAnchors: 'ignore'`로 설정.)
+ *   Docusaurus 내장 broken-anchor 검증과 별개로, Laravel 원본 문서의
+ *   `<a name="xxx">` 앵커가 실제 빌드 HTML id로 렌더링되는지 확인한다.
  *
  *   이 스크립트는 "실제 빌드 산출물(HTML)"을 진실의 기준으로 삼아
  *   source markdown의 앵커 링크가 실제로 HTML id와 매칭되는지 검증한다.

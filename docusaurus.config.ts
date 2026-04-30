@@ -66,10 +66,7 @@ const config: Config = {
   projectName: 'laravel-docs', // Usually your repo name.
 
   onBrokenLinks: 'warn',
-  // Docusaurus의 broken-anchor 검증기는 heading 텍스트 기반 slug만 수집하고
-  // `data.hProperties.id`(anchor-mapping 플러그인이 주입한 실제 HTML id)를 인식하지 못해
-  // 대량의 false positive 경고를 낸다. 실제 브라우저 앵커 동작은 HTML id 기반이라 정상.
-  // 진짜 broken anchor는 별도 검증 스크립트(scripts/validate-anchors.mjs)로 잡는다.
+  // 실제 브라우저 앵커 동작은 별도 검증 스크립트와 e2e에서 확인한다.
   onBrokenAnchors: 'ignore',
 
   // Docusaurus 확장 문법({#id}, admonitions 등)과 CommonMark 자동 감지를 위해 detect 유지.
@@ -127,10 +124,12 @@ const config: Config = {
         ),
         // 기타 설정
         editUrl: 'https://github.com/letsescape/laravel-docs/tree/develop/',
+        beforeDefaultRemarkPlugins: [
+          anchorMappingPlugin,
+        ],
         remarkPlugins: [
           styleJsxCleanupPlugin,
           githubAdmonitionPlugin,
-          anchorMappingPlugin,
           methodClassPlugin,
           stripPandocAttrsPlugin,
           replacePlaceholdersPlugin,

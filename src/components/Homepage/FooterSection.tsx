@@ -29,34 +29,39 @@ const packages = [
 
 const resources = [
   {name: 'Documentation', url: docsPath()},
-  {name: 'Starter Kits', url: '/starter-kits'},
+  {name: 'Starter Kits', url: 'https://laravel.com/starter-kits'},
   {name: 'Release Notes', url: docsPath('releases')},
   {name: 'Blog', url: 'https://blog.laravel.com'},
   {name: 'News', url: 'https://laravel-news.com'},
-  {name: 'Community', url: '/community'},
+  {name: 'Community', url: 'https://laravel.com/community'},
   {name: 'Larabelles', url: 'https://www.larabelles.com'},
   {name: 'Learn', url: 'https://bootcamp.laravel.com'},
   {name: 'Jobs', url: 'https://larajobs.com'},
-  {name: 'Careers', url: '/careers'},
+  {name: 'Careers', url: 'https://laravel.com/careers'},
   {name: 'Trust', url: 'https://trust.laravel.com'},
 ];
 
 const partners = [
-  {name: 'Threadable', url: '/partners/threadable'},
-  {name: 'Vehikl', url: '/partners/vehikl'},
-  {name: 'Redberry', url: '/partners/redberry'},
-  {name: 'CACI Limited', url: '/partners/caci-limited'},
-  {name: 'Steadfast Collective', url: '/partners/steadfast-collective'},
-  {name: 'byte5', url: '/partners/byte5'},
-  {name: 'UCodeSoft', url: '/partners/ucodesoft'},
-  {name: 'Kirschbaum', url: '/partners/kirschbaum'},
-  {name: 'Pixel', url: '/partners/pixel'},
-  {name: 'Jump24', url: '/partners/jump24'},
-  {name: 'See All', url: '/partners'},
+  {name: 'Threadable', url: 'https://laravel.com/partners/threadable'},
+  {name: 'Vehikl', url: 'https://laravel.com/partners/vehikl'},
+  {name: 'Redberry', url: 'https://laravel.com/partners/redberry'},
+  {name: 'CACI Limited', url: 'https://laravel.com/partners/caci-limited'},
+  {name: 'Steadfast Collective', url: 'https://laravel.com/partners/steadfast-collective'},
+  {name: 'byte5', url: 'https://laravel.com/partners/byte5'},
+  {name: 'UCodeSoft', url: 'https://laravel.com/partners/ucodesoft'},
+  {name: 'Kirschbaum', url: 'https://laravel.com/partners/kirschbaum'},
+  {name: 'Pixel', url: 'https://laravel.com/partners/pixel'},
+  {name: 'Jump24', url: 'https://laravel.com/partners/jump24'},
+  {name: 'See All', url: 'https://laravel.com/partners'},
 ];
 
+const externalLinkProps = (url: string) =>
+  url.startsWith('http')
+    ? {target: '_blank', rel: 'noopener noreferrer'}
+    : {};
+
 export default function FooterSection(): ReactNode {
-  const legalUrl = useBaseUrl('/legal');
+  const legalUrl = 'https://laravel.com/legal';
   const wordmarkUrl = useBaseUrl('/img/title_large.svg');
   return (
     <footer className="hp-footer">
@@ -116,7 +121,7 @@ export default function FooterSection(): ReactNode {
             </div>
             <div className="footer-brand-bottom">
               <span>&copy; 2026 Laravel</span>
-              <a href={legalUrl}>Legal</a>
+              <a href={legalUrl} {...externalLinkProps(legalUrl)}>Legal</a>
               <a href="https://status.laravel.com/" target="_blank" rel="noopener noreferrer">Status</a>
             </div>
           </div>
@@ -128,7 +133,7 @@ export default function FooterSection(): ReactNode {
               <ul>
                 {products.map(item => (
                   <li key={item.name}>
-                    <a href={item.url} target="_blank" rel="noopener noreferrer">
+                    <a href={item.url} {...externalLinkProps(item.url)}>
                       {item.name}
                     </a>
                   </li>
@@ -156,7 +161,7 @@ export default function FooterSection(): ReactNode {
                   <li key={item.name}>
                     <a
                       href={item.url}
-                      {...(item.url.startsWith('http') ? {target: '_blank', rel: 'noopener noreferrer'} : {})}
+                      {...externalLinkProps(item.url)}
                     >
                       {item.name}
                     </a>
@@ -171,7 +176,7 @@ export default function FooterSection(): ReactNode {
               <ul>
                 {partners.map(item => (
                   <li key={item.name}>
-                    <a href={item.url}>{item.name}</a>
+                    <a href={item.url} {...externalLinkProps(item.url)}>{item.name}</a>
                   </li>
                 ))}
               </ul>

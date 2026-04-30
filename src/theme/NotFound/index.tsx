@@ -11,20 +11,22 @@ export default function NotFound(): ReactNode {
     id: 'theme.NotFound.title',
     message: 'Page Not Found',
   });
-  const {siteConfig, i18n} = useDocusaurusContext();
-  const {currentLocale, defaultLocale} = i18n;
+  const {siteConfig} = useDocusaurusContext();
 
-  const baseUrl = siteConfig.baseUrl.replace(/\/$/, '');
-  const localePrefix =
-    currentLocale === defaultLocale ? '' : `/${currentLocale}`;
-  const target = `${baseUrl}${localePrefix}/`;
+  // siteConfig.baseUrl은 i18n 로케일별 빌드에서 이미 locale prefix를 포함한다
+  // (예: en 빌드 → "/en/"). 별도 localePrefix를 추가로 붙이면 "/en/en/" 같은
+  // 이중 prefix가 발생하므로 baseUrl만 신뢰해 normalize한다.
+  const baseUrl = siteConfig.baseUrl.endsWith('/')
+    ? siteConfig.baseUrl
+    : `${siteConfig.baseUrl}/`;
+  const target = baseUrl;
   const localizedDocsPath = (slug = '') =>
-    `${baseUrl}${localePrefix}${docsPath(slug)}`.replace(/\/{2,}/g, '/');
+    `${baseUrl.replace(/\/$/, '')}${docsPath(slug)}`.replace(/\/{2,}/g, '/');
 
   useEffect(() => {
     const {pathname, search, hash} = window.location;
     const normalizedPath = pathname.replace(/\/+$/, '');
-    const docsPrefix = `${baseUrl}${localePrefix}/docs`.replace(/\/{2,}/g, '/');
+    const docsPrefix = `${baseUrl}docs`.replace(/\/{2,}/g, '/');
     const docsPrefixWithSlash = `${docsPrefix}/`;
 
     if (normalizedPath === docsPrefix) {
@@ -49,7 +51,7 @@ export default function NotFound(): ReactNode {
     }, 3000);
 
     return () => window.clearTimeout(timeout);
-  }, [baseUrl, localePrefix, target]);
+  }, [baseUrl, target]);
 
   return (
     <>

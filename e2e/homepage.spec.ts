@@ -91,6 +91,30 @@ test.describe('Homepage — Desktop (1280px)', () => {
       await expect(page.locator('.hp-footer').getByText(col).first()).toBeAttached();
     }
   });
+
+  test('FT-3: 푸터 내부 링크는 존재하는 로컬 경로만 사용', async ({page}) => {
+    const hrefs = await page
+      .locator('.hp-footer a[href^="/"]')
+      .evaluateAll((links) =>
+        [
+          ...new Set(
+            links
+              .map((link) => link.getAttribute('href'))
+              .filter((href): href is string => href !== null),
+          ),
+        ],
+      );
+
+    const failures: string[] = [];
+    for (const href of hrefs) {
+      const response = await page.request.get(href);
+      if (!response.ok()) {
+        failures.push(`${href} -> ${response.status()}`);
+      }
+    }
+
+    expect(failures).toEqual([]);
+  });
 });
 
 // =============================================================================

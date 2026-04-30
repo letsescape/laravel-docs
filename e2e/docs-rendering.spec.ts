@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test';
-import {docsPath, docsPathForVersion, stableDocsVersions} from './utils/docs-version';
+import {docsPath, docsPathForVersion, latestDocsVersion, stableDocsVersions} from './utils/docs-version';
 
 test.describe('Docs rendering', () => {
   test('version root renders the installation document, not README', async ({page}) => {
@@ -49,6 +49,40 @@ test.describe('Docs rendering', () => {
     expect(box).not.toBeNull();
     expect(box!.y).toBeGreaterThanOrEqual(0);
     expect(box!.y).toBeLessThan(220);
+  });
+
+  test('table of contents links point to rendered heading ids', async ({page}) => {
+    await page.goto(docsPath());
+
+    const brokenTocLinks = await page
+      .locator('.table-of-contents a[href^="#"]')
+      .evaluateAll((links) =>
+        links
+          .map((link) => link.getAttribute('href'))
+          .filter((href): href is string => href !== null)
+          .filter((href) => !document.getElementById(decodeURIComponent(href.slice(1)))),
+      );
+
+    expect(brokenTocLinks).toEqual([]);
+  });
+
+  test('upgrade guide preserves Laravel dot anchor ids', async ({page}) => {
+    const latestMajor = latestDocsVersion.replace(/\.x$/, '.0');
+    const upgradeAnchor = `upgrade-${latestMajor}`;
+
+    await page.goto(`${docsPath('upgrade')}#${upgradeAnchor}`);
+
+    await expect(page.locator(`[id="${upgradeAnchor}"]`)).toBeVisible();
+    const brokenTocLinks = await page
+      .locator('.table-of-contents a[href^="#"]')
+      .evaluateAll((links) =>
+        links
+          .map((link) => link.getAttribute('href'))
+          .filter((href): href is string => href !== null)
+          .filter((href) => !document.getElementById(decodeURIComponent(href.slice(1)))),
+      );
+
+    expect(brokenTocLinks).toEqual([]);
   });
 
   test('unversioned docs paths redirect to the latest stable version', async ({page}) => {
