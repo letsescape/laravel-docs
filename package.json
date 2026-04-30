@@ -8,6 +8,7 @@
     "sync:versions": "node scripts/sync-versioned-links.mjs",
     "prestart": "npm run sync:versions",
     "prebuild": "npm run sync:versions",
+    "postbuild": "node scripts/create-latest-doc-redirects.mjs",
     "start": "docusaurus start",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",

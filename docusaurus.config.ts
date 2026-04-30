@@ -16,6 +16,31 @@ import versions from './versions.json';
 // lastVersion/path/sidebarPath가 자동으로 따라가도록 한다. master는 임시 버전이므로
 // 안정 버전 후보에서 제외하고, 첫 번째 항목을 LATEST_STABLE로 사용한다.
 const LATEST_STABLE = versions.find((v) => v !== 'master') ?? versions[0];
+const DEFAULT_LOCALE = 'ko';
+const LOCALES = ['en', 'ko', 'ja'];
+const LOCALIZED_ROUTE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
+const DOCS_LATEST_REDIRECT_SCRIPT = `
+(function () {
+  var latest = ${JSON.stringify(LATEST_STABLE)};
+  var versions = ${JSON.stringify(versions)};
+  var locales = ${JSON.stringify(LOCALIZED_ROUTE_PREFIXES)};
+  var parts = window.location.pathname.replace(/^\\/+|\\/+$/g, '').split('/').filter(Boolean);
+  var locale = locales.indexOf(parts[0]) >= 0 ? parts.shift() : '';
+
+  if (parts[0] !== 'docs') return;
+
+  parts.shift();
+
+  if (parts.length === 0) {
+    window.location.replace('/' + (locale ? locale + '/' : '') + 'docs/' + latest + window.location.search + window.location.hash);
+    return;
+  }
+
+  if (versions.indexOf(parts[0]) >= 0) return;
+
+  window.location.replace('/' + (locale ? locale + '/' : '') + 'docs/' + latest + '/' + parts.join('/') + window.location.search + window.location.hash);
+})();
+`;
 
 const config: Config = {
   title: 'Laravel',
@@ -27,6 +52,13 @@ const config: Config = {
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
+  headTags: [
+    {
+      tagName: 'script',
+      attributes: {},
+      innerHTML: DOCS_LATEST_REDIRECT_SCRIPT,
+    },
+  ],
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -58,8 +90,8 @@ const config: Config = {
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: 'ko',
-    locales: ['en', 'ko', 'ja'],
+    defaultLocale: DEFAULT_LOCALE,
+    locales: LOCALES,
     localeConfigs: {
       en: {
         htmlLang: 'en',
