@@ -1,4 +1,5 @@
 import {test, expect, type Page} from '@playwright/test';
+import {latestDocsPathPattern} from './utils/docs-version';
 
 // 로컬 사이트를 대상으로 테스트 (playwright.config.ts의 baseURL 사용)
 
@@ -30,6 +31,21 @@ test.describe('Homepage — Desktop (1280px)', () => {
   test('H-3: View framework docs 버튼', async ({page}) => {
     const link = page.locator('.hero-btn-secondary, .hero-btn-primary').first();
     await expect(link).toBeVisible();
+  });
+
+  test('H-4: 내부 문서 링크는 최신 안정 버전으로 연결', async ({page}) => {
+    const docsLinks = await page
+      .locator('.homepage a[href^="/docs/"], .hp-footer a[href^="/docs/"], .nav-dropdowns-wrapper a[href^="/docs/"]')
+      .evaluateAll((links) =>
+        links
+          .map((link) => link.getAttribute('href'))
+          .filter((href): href is string => href !== null),
+      );
+
+    expect(docsLinks.length).toBeGreaterThan(0);
+    for (const href of docsLinks) {
+      expect(href).toMatch(latestDocsPathPattern);
+    }
   });
 
   test('AF-1: AI Framework 섹션 헤딩', async ({page}) => {

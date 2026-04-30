@@ -1,4 +1,5 @@
 import {test, expect, type Page} from '@playwright/test';
+import {docsPath} from './utils/docs-version';
 
 // 로컬 사이트를 대상으로 테스트 (playwright.config.ts의 baseURL 사용)
 
@@ -75,7 +76,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
     for (const item of ['Installation', 'Agent Setup', 'Eloquent ORM', 'Artisan Console', 'Routing']) {
       await expect(menu.getByRole('link', {name: item})).toBeVisible();
     }
-    await expect(menu.getByRole('link', {name: 'Installation'})).toHaveAttribute('href', '/docs/12.x/');
+    await expect(menu.getByRole('link', {name: 'Installation'})).toHaveAttribute('href', docsPath());
   });
 
   test('N-3d: Framework > Starter kits', async ({page}) => {
@@ -95,7 +96,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
   test('N-7: Docs 링크', async ({page}) => {
     const docsLink = page.locator('.nav-docs-link');
     await expect(docsLink).toBeVisible();
-    await expect(docsLink).toHaveAttribute('href', '/docs/12.x');
+    await expect(docsLink).toHaveAttribute('href', docsPath());
   });
 
   test('N-12: 네비바 상단 고정', async ({page}) => {
@@ -169,7 +170,7 @@ test.describe('Navbar — Mobile (430px)', () => {
   });
 
   test('N-23: Docs 직접 링크', async ({page}) => {
-    await verifyMobileDirectLink(page, 'Docs', '/docs/12.x');
+    await verifyMobileDirectLink(page, 'Docs', docsPath());
   });
 
   test('N-24: 서브메뉴 뒤로가기', async ({page}) => {

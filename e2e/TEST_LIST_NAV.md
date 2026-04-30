@@ -1,6 +1,6 @@
 # E2E 테스트 리스트 — 네비게이션 (Navbar)
 
-원본 Laravel.com (v13.x, 2026-03-25 기준) 메인 페이지 네비게이션을 Playwright로 검증한 테스트 리스트입니다.
+원본 Laravel.com 메인 페이지 네비게이션을 Playwright로 검증한 테스트 리스트입니다.
 
 **뷰포트 브레이크포인트:**
 
@@ -19,10 +19,10 @@
 | N-1  | 네비바 표시                  | `navigation "Main"`이 페이지 상단에 보이는지                                                                                               |
 | N-2  | 로고 표시 및 링크            | Laravel 로고 이미지가 보이고 `/`로 링크되는지                                                                                              |
 | N-3  | Framework 드롭다운 열기      | "Framework" 버튼 클릭 시 메가 메뉴가 펼쳐지는지                                                                                            |
-| N-3a | Framework > Explore Laravel  | "Explore Laravel" 헤딩 아래 Overview(`/`), Changelog(`/docs/changelog`), Laravel Learn(`/learn`) 3개 항목 + 설명 텍스트                    |
+| N-3a | Framework > Explore Laravel  | "Explore Laravel" 헤딩 아래 Overview(`/`), Changelog(`/docs/{latest-version}/releases`), Laravel Learn(`/learn`) 3개 항목 + 설명 텍스트  |
 | N-3b | Framework > Latest packages  | "Latest packages" 헤딩 아래 AI SDK(`/ai`), Boost(`/ai/boost`), Wayfinder(`github.com/laravel/wayfinder`) 3개 항목 + 설명 텍스트            |
-| N-3c | Framework > Documentation    | "Documentation" 헤딩 아래 Installation, Agent Setup, Eloquent ORM, Artisan Console, Routing 5개 항목 + "View all"(`/docs`)                 |
-| N-3d | Framework > Starter kits     | "Starter kits"(`/starter-kits`) 링크 + 코드 미리보기(users.svelte, users.tsx, users.vue, users.blade.php)                                  |
+| N-3c | Framework > Documentation    | "Documentation" 헤딩 아래 Installation, Agent Setup, Eloquent ORM, Artisan Console, Routing 5개 항목 + "View all"(`/docs/{latest-version}`) |
+| N-3d | Framework > Starter kits     | "Starter kits"(`/docs/{latest-version}/starter-kits`) 링크 + 코드 미리보기(users.svelte, users.tsx, users.vue, users.blade.php)          |
 | N-4  | Products 드롭다운 열기       | "Products" 버튼 클릭 시 메가 메뉴가 펼쳐지는지                                                                                             |
 | N-4a | Products > Cloud             | Cloud(`cloud.laravel.com`) — "The fastest way to deploy and scale Laravel applications", "Deploy now"                                      |
 | N-4b | Products > Forge             | Forge(`forge.laravel.com`) — "Next-level server management with unparalleled control", "Manage your servers"                               |
@@ -35,7 +35,7 @@
 | N-6  | Events 드롭다운 열기         | "Events" 버튼 클릭 시 메가 메뉴가 펼쳐지는지                                                                                               |
 | N-6a | Events > Upcoming events     | "Upcoming events" 헤딩 아래 5개 밋업 항목(날짜, 이름, 장소) + "View all"(`/community`)                                                     |
 | N-6b | Events > Featured events     | Laravel Live Japan, Laravel Live UK, Laracon US 등 컨퍼런스 카드(이미지, 이름, 날짜, 도시, 국가)                                           |
-| N-7  | Docs 링크                    | "Docs" 링크가 보이고 `/docs`로 연결되는지                                                                                                  |
+| N-7  | Docs 링크                    | "Docs" 링크가 보이고 `/docs/{latest-version}`로 연결되는지                                                                                 |
 | N-8  | 검색 버튼                    | "Search docs" 버튼이 보이고 `⌘K` 단축키 표시가 있는지                                                                                      |
 | N-9  | 검색 키보드 단축키           | `Ctrl+K` 입력 시 검색 모달이 열리는지                                                                                                      |
 | N-10 | 네비바 상단 고정             | 스크롤 시에도 네비바가 상단에 고정(`sticky`)되는지                                                                                         |
@@ -59,7 +59,7 @@
 | N-18 | 드로어 > Products 아코디언  | Laravel Cloud, Forge, Nightwatch, Nova — **4개** (데스크톱은 3개)                                       |
 | N-19 | 드로어 > Resources 아코디언 | Blog, Partners, Careers, Trust, Legal, Status — 단순 리스트 6개                                         |
 | N-20 | 드로어 > Events 직접 링크   | Events가 `/community`로의 직접 링크 (드롭다운 아님)                                                     |
-| N-21 | 드로어 > Docs 직접 링크     | Docs(`/docs`) 링크 존재                                                                                 |
+| N-21 | 드로어 > Docs 직접 링크     | Docs(`/docs/{latest-version}`) 링크 존재                                                               |
 
 ---
 

@@ -1,6 +1,6 @@
 # E2E 테스트 리스트 — 메인 페이지 콘텐츠
 
-원본 Laravel.com (v13.x, 2026-03-25 기준) 메인 페이지 콘텐츠를 Playwright로 검증한 테스트 리스트입니다.
+원본 Laravel.com 메인 페이지 콘텐츠를 Playwright로 검증한 테스트 리스트입니다.
 
 **뷰포트 브레이크포인트:**
 - 데스크톱: 1280px
@@ -17,7 +17,7 @@
 |---|---------|----------|
 | H-1 | 메인 헤드라인 | h1 "The clean stack for Artisans and agents." |
 | H-2 | 서브 텍스트 | "Laravel is batteries-included so everyone can build and ship web apps at ridiculous speed." |
-| H-3 | View framework docs 버튼 | "View framework docs" → `/docs` |
+| H-3 | View framework docs 버튼 | "View framework docs" → `/docs/{latest-version}` |
 | H-4 | 히어로 일러스트레이션 SVG 표시 | 우측에 메인 일러스트레이션 SVG(`absolute right-0 bottom-0`)가 표시되고 너비 > 0인지 |
 | H-5 | 일러스트레이션 940px 미만 숨김 | 메인 일러스트레이션 SVG에 `max-[940px]:hidden` 클래스가 적용되어 있는지 |
 | H-6 | SVG 내 도메인 텍스트 (v13) | 일러스트레이션 SVG 내 `<text>` 요소에 "v13.laravel.cloud" 텍스트가 존재하는지 |
@@ -40,7 +40,7 @@
 | FD-1 | 섹션 헤딩 | h3 "A framework for developers and agents" |
 | FD-2 | 설명 텍스트 | "Laravel has opinions on everything..." |
 | FD-3 | 기능 목록 4개 | Starter kits, AI SDK, Database ORM, Open source ecosystem |
-| FD-4 | Explore 링크 | "Explore the framework" → `laravel.com/docs/` |
+| FD-4 | Explore 링크 | "Explore the framework" → `/docs/{latest-version}` |
 | FD-5 | 코드 카테고리 탭 8개 | Auth, AI SDK, ORM, Migrations, Validation, Storage, Queues, Testing |
 | FD-6 | 기본 활성 카테고리 | "Auth" 탭이 `pressed` 상태 |
 | FD-7 | 코드 파일 탭 | "web.php"(`selected`), "UserController.php" 2개 |
@@ -88,7 +88,7 @@
 |---|---------|----------|
 | FE-1 | 섹션 헤딩 | h3 "The best partner to any front-end" |
 | FE-2 | 설명 텍스트 | "Easily craft frontend experiences with React, Vue, or Svelte..." |
-| FE-3 | CTA 링크 | "Explore front-ends" → `laravel.com/docs/frontend` |
+| FE-3 | CTA 링크 | "Explore front-ends" → `/docs/{latest-version}/frontend` |
 | FE-4 | 코드 탭 | users.svelte, users.tsx, users.vue, users.blade.php 4개 |
 
 ### CTA 섹션 (데스크톱)
@@ -97,7 +97,7 @@
 |---|---------|----------|
 | CT-1 | 섹션 헤딩 | h2 "Create without limits. What will you ship?" |
 | CT-2 | Deploy on Cloud 버튼 | → `cloud.laravel.com` |
-| CT-3 | View framework docs 버튼 | → `/docs` |
+| CT-3 | View framework docs 버튼 | → `/docs/{latest-version}` |
 
 ### Events 섹션 (데스크톱)
 
