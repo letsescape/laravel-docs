@@ -1,5 +1,6 @@
 import React, {type ReactNode} from 'react';
 import Link from '@docusaurus/Link';
+import {docsPath} from '@site/src/utils/docs';
 import styles from './styles.module.css';
 
 interface Package {
@@ -22,20 +23,20 @@ interface StarterKit {
 }
 
 const packages: Package[] = [
-  { name: 'Scout', description: 'Eloquent 모델 검색', free: true, link: '/docs/12.x/scout' },
-  { name: 'Octane', description: '고성능 앱 서버', free: true, link: '/docs/12.x/octane' },
-  { name: 'Reverb', description: '빠르고 확장 가능한 웹소켓', free: true, link: '/docs/12.x/reverb' },
-  { name: 'Echo', description: '웹소켓 이벤트 수신', free: true, link: '/docs/12.x/broadcasting' },
-  { name: 'Pennant', description: '기능 플래그 관리', free: true, link: '/docs/12.x/pennant' },
-  { name: 'Cashier', description: '결제 및 구독', free: true, link: '/docs/12.x/cashier' },
-  { name: 'Socialite', description: '소셜 인증', free: true, link: '/docs/12.x/socialite' },
-  { name: 'Sanctum', description: 'API 인증', free: true, link: '/docs/12.x/sanctum' },
-  { name: 'Sail', description: '로컬 Docker 개발', free: true, link: '/docs/12.x/sail' },
-  { name: 'Pint', description: '미니멀리스트를 위한 코드 스타일러', free: true, link: '/docs/12.x/pint' },
-  { name: 'Horizon', description: 'Redis 큐 모니터링', free: true, link: '/docs/12.x/horizon' },
-  { name: 'Dusk', description: '자동화된 브라우저 테스팅', free: true, link: '/docs/12.x/dusk' },
-  { name: 'Telescope', description: '로컬 디버깅 및 인사이트', free: true, link: '/docs/12.x/telescope' },
-  { name: 'Pulse', description: '성능 인사이트', free: true, link: '/docs/12.x/pulse' },
+  { name: 'Scout', description: 'Eloquent 모델 검색', free: true, link: docsPath('scout') },
+  { name: 'Octane', description: '고성능 앱 서버', free: true, link: docsPath('octane') },
+  { name: 'Reverb', description: '빠르고 확장 가능한 웹소켓', free: true, link: docsPath('reverb') },
+  { name: 'Echo', description: '웹소켓 이벤트 수신', free: true, link: docsPath('broadcasting') },
+  { name: 'Pennant', description: '기능 플래그 관리', free: true, link: docsPath('pennant') },
+  { name: 'Cashier', description: '결제 및 구독', free: true, link: docsPath('billing') },
+  { name: 'Socialite', description: '소셜 인증', free: true, link: docsPath('socialite') },
+  { name: 'Sanctum', description: 'API 인증', free: true, link: docsPath('sanctum') },
+  { name: 'Sail', description: '로컬 Docker 개발', free: true, link: docsPath('sail') },
+  { name: 'Pint', description: '미니멀리스트를 위한 코드 스타일러', free: true, link: docsPath('pint') },
+  { name: 'Horizon', description: 'Redis 큐 모니터링', free: true, link: docsPath('horizon') },
+  { name: 'Dusk', description: '자동화된 브라우저 테스팅', free: true, link: docsPath('dusk') },
+  { name: 'Telescope', description: '로컬 디버깅 및 인사이트', free: true, link: docsPath('telescope') },
+  { name: 'Pulse', description: '성능 인사이트', free: true, link: docsPath('pulse') },
 ];
 
 const starterKits: StarterKit[] = [
@@ -123,7 +124,7 @@ export default function Features(): ReactNode {
                 회원가입, 로그인, 비밀번호 재설정, 이메일 인증, 프로필 설정, 대시보드,
                 라이트 및 다크 모드, 그리고 선택적 WorkOS AuthKit 지원이 포함되어 있습니다.
               </p>
-              <Link to="/docs/스타터-킷" className={styles.learnMoreLink}>
+              <Link to={docsPath('starter-kits')} className={styles.learnMoreLink}>
                 스타터 킷에 대해 더 알아보기
               </Link>
             </div>

@@ -1,6 +1,7 @@
 import React, {type ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
+import {docsPath} from '@site/src/utils/docs';
 import styles from './styles.module.css';
 
 export default function Hero(): ReactNode {
@@ -35,7 +36,7 @@ export default function Hero(): ReactNode {
             <div className={styles.heroButtons}>
               <Link
                 className={clsx('button button--primary button--lg', styles.heroButton)}
-                to="/docs/12.x">
+                to={docsPath()}>
                 시작하기
               </Link>
             </div>

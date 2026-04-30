@@ -6,6 +6,7 @@ import React, {useEffect, useRef, useState, type ReactNode} from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import Translate from '@docusaurus/Translate';
 import Link from '@docusaurus/Link';
+import {docsPath} from '@site/src/utils/docs';
 
 export default function HeroSection(): ReactNode {
   const [svgContent, setSvgContent] = useState<string>('');
@@ -340,7 +341,7 @@ export default function HeroSection(): ReactNode {
               <Translate id="homepage.hero.subtitle.part2" description="Hero 서브타이틀 뒷부분">놀라울 만큼 빠르게 웹 앱을 만들고 출시할 수 있습니다.</Translate>
             </p>
             <div className="hero-buttons">
-              <Link to="/docs/12.x" className="hero-btn-secondary">
+              <Link to={docsPath()} className="hero-btn-secondary">
                 <Translate id="homepage.hero.cta.viewDocs" description="Hero CTA 버튼">프레임워크 문서 보기</Translate>
               </Link>
             </div>

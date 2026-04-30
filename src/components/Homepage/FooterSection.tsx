@@ -1,5 +1,6 @@
 import React, {type ReactNode} from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import {docsPath} from '@site/src/utils/docs';
 
 const products = [
   {name: 'Cloud', url: 'https://cloud.laravel.com'},
@@ -10,26 +11,26 @@ const products = [
 ];
 
 const packages = [
-  {name: 'Cashier', url: '/docs/billing'},
-  {name: 'Dusk', url: '/docs/dusk'},
-  {name: 'Horizon', url: '/docs/horizon'},
-  {name: 'Octane', url: '/docs/octane'},
-  {name: 'Scout', url: '/docs/scout'},
-  {name: 'Pennant', url: '/docs/pennant'},
-  {name: 'Pint', url: '/docs/pint'},
-  {name: 'Sail', url: '/docs/sail'},
-  {name: 'Sanctum', url: '/docs/sanctum'},
-  {name: 'Socialite', url: '/docs/socialite'},
-  {name: 'Telescope', url: '/docs/telescope'},
-  {name: 'Pulse', url: '/docs/pulse'},
-  {name: 'Reverb', url: '/docs/reverb'},
-  {name: 'Echo', url: '/docs/broadcasting'},
+  {name: 'Cashier', url: docsPath('billing')},
+  {name: 'Dusk', url: docsPath('dusk')},
+  {name: 'Horizon', url: docsPath('horizon')},
+  {name: 'Octane', url: docsPath('octane')},
+  {name: 'Scout', url: docsPath('scout')},
+  {name: 'Pennant', url: docsPath('pennant')},
+  {name: 'Pint', url: docsPath('pint')},
+  {name: 'Sail', url: docsPath('sail')},
+  {name: 'Sanctum', url: docsPath('sanctum')},
+  {name: 'Socialite', url: docsPath('socialite')},
+  {name: 'Telescope', url: docsPath('telescope')},
+  {name: 'Pulse', url: docsPath('pulse')},
+  {name: 'Reverb', url: docsPath('reverb')},
+  {name: 'Echo', url: docsPath('broadcasting')},
 ];
 
 const resources = [
-  {name: 'Documentation', url: '/docs'},
+  {name: 'Documentation', url: docsPath()},
   {name: 'Starter Kits', url: '/starter-kits'},
-  {name: 'Release Notes', url: '/docs/releases'},
+  {name: 'Release Notes', url: docsPath('releases')},
   {name: 'Blog', url: 'https://blog.laravel.com'},
   {name: 'News', url: 'https://laravel-news.com'},
   {name: 'Community', url: '/community'},

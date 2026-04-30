@@ -1,3 +1,5 @@
+import {docsPath} from '@site/src/utils/docs';
+
 export interface CodeBlock {
   title: string;
   language: string;
@@ -37,7 +39,7 @@ export const codeExamples: CodeExample[] = [
     block('Auth 패사드를 통해 인증된 사용자에 접근할 수 있습니다', 'php', `use Illuminate\\Support\\Facades\\Auth;
 
 $user = Auth::user();`),
-  ], '인증 문서 읽기', '/docs/12.x/인증'),
+  ], '인증 문서 읽기', docsPath('authentication')),
 
   example('eloquent', 'Eloquent', '라라벨의 우아한 ORM은 데이터베이스 작업을 매우 쉽게 만듭니다.', [
     block('데이터베이스 테이블을 위한 모델 정의하기', 'php', `<?php
@@ -55,7 +57,7 @@ class Flight extends Model
 foreach (Flight::all() as $flight) {
     echo $flight->name;
 }`),
-  ], 'Eloquent 문서 읽기', '/docs/12.x/eloquent'),
+  ], 'Eloquent 문서 읽기', docsPath('eloquent')),
 
   example('validation', '유효성 검사', '라라벨은 기본적으로 강력한 유효성 검사 기능을 포함합니다.', [
     block('컨트롤러에서 유효성 검사 규칙 정의하기', 'php', `public function store(Request $request)
@@ -75,7 +77,7 @@ foreach (Flight::all() as $flight) {
         </ul>
     </div>
 @endif`),
-  ], '유효성 검사 문서 읽기', '/docs/12.x/유효성-검사'),
+  ], '유효성 검사 문서 읽기', docsPath('validation')),
 
   example('testing', '테스팅', '라라벨은 테스팅을 고려하여 설계되었습니다. 사실, PHPUnit을 사용한 테스팅 지원이 기본적으로 포함되어 있습니다.', [
     block('Pest를 사용하여 테스트 작성하기', 'php', `it('can create a post', function () {
@@ -91,5 +93,5 @@ foreach (Flight::all() as $flight) {
     ]);
 });`),
     block('커맨드 라인에서 테스트 실행하기', 'bash', `php artisan test`),
-  ], '테스팅 문서 읽기', '/docs/12.x/테스팅'),
+  ], '테스팅 문서 읽기', docsPath('testing')),
 ];

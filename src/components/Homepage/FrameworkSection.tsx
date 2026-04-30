@@ -1,6 +1,7 @@
 import React, {useState, type ReactNode} from 'react';
 import Translate, {translate} from '@docusaurus/Translate';
 import Link from '@docusaurus/Link';
+import {docsPath} from '@site/src/utils/docs';
 import {CheckIcon, ArrowIcon} from './SharedIcons';
 
 function LaravelFileIcon(): ReactNode {
@@ -511,7 +512,7 @@ export default function FrameworkSection(): ReactNode {
               <li><CheckIcon /> <Translate id="homepage.framework.feature.orm" description="기능 목록 - ORM">데이터베이스 ORM, 큐, 라우팅 등</Translate></li>
               <li><CheckIcon /> <Translate id="homepage.framework.feature.ecosystem" description="기능 목록 - 에코시스템">30개가 넘는 오픈소스 패키지 생태계</Translate></li>
             </ul>
-            <Link to="/docs/12.x" className="explore-btn">
+            <Link to={docsPath()} className="explore-btn">
               <Translate id="homepage.framework.cta" description="Framework CTA 링크">프레임워크 살펴보기</Translate>
               <ArrowIcon className="explore-btn-icon" />
             </Link>
