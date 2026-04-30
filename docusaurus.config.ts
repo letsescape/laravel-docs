@@ -31,7 +31,7 @@ const config: Config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'letsescape', // Usually your GitHub org/user name.
-  projectName: 'laravel-docs-web', // Usually your repo name.
+  projectName: 'laravel-docs', // Usually your repo name.
 
   onBrokenLinks: 'warn',
   // Docusaurus의 broken-anchor 검증기는 heading 텍스트 기반 slug만 수집하고
@@ -94,7 +94,7 @@ const config: Config = {
           versions.map((v) => [v, {label: v, path: v}]),
         ),
         // 기타 설정
-        editUrl: 'https://github.com/letsescape/laravel-docs-web/tree/main/',
+        editUrl: 'https://github.com/letsescape/laravel-docs/tree/develop/',
         remarkPlugins: [
           styleJsxCleanupPlugin,
           githubAdmonitionPlugin,

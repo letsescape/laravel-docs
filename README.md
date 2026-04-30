@@ -4,8 +4,8 @@
 
 [![Laravel](https://img.shields.io/badge/Laravel-%23FF2D20.svg?logo=laravel&logoColor=white)](http://laravel.com)
 [![Laravel Version](https://img.shields.io/packagist/v/laravel/framework)](https://packagist.org/packages/laravel/framework)
-[![Last Updated](https://img.shields.io/github/last-commit/letsescape/laravel-docs-web/main?label=Last%20Updated)](https://github.com/letsescape/laravel-docs-web/commits/main)
-[![License](https://img.shields.io/github/license/letsescape/laravel-docs-web)](https://github.com/letsescape/laravel-docs-web/blob/main/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/letsescape/laravel-docs/develop?label=Last%20Updated)](https://github.com/letsescape/laravel-docs/commits/develop)
+[![License](https://img.shields.io/github/license/letsescape/laravel-docs)](https://github.com/letsescape/laravel-docs/blob/develop/LICENSE)
 
 [라라벨 공식 문서](https://laravel.com) | [라라벨 한국어 문서](https://laravel.chanhyung.kim)
 
@@ -66,7 +66,7 @@ docker run -p 3000:3000 laravel-docs
 
 2. GitHub Actions의 `update-docs` 워크플로우를 수동 실행합니다.
 
-워크플로우는 `.github/docs-updater`에서 `uv sync --frozen` 후 `uv run python main.py`를 실행하고, 원문 캐시와 변경된 `versioned_docs/`, `versioned_sidebars/`를 커밋합니다.
+워크플로우는 `.github/docs-updater`에서 `uv sync --frozen` 후 테스트와 `uv run python main.py`를 실행합니다. 이후 번역 구조, 타입, 빌드, 앵커 검증을 통과한 원문 캐시와 변경된 `versioned_docs/`, `versioned_sidebars/`를 `develop`에 커밋합니다.
 
 로컬에서 번역 스크립트를 점검할 때는 API 키 대신 CLI 제공자를 사용할 수 있습니다.
 

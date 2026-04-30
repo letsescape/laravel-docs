@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - develop
     # 특정 파일이 변경되었을 때만 실행하도록 설정할 수도 있습니다
     # paths:
     #   - docs/**
@@ -40,8 +40,14 @@ jobs:
         uses: actions/configure-pages@v6
       - name: Install dependencies
         run: npm ci
+      - name: Validate translation structure
+        run: node scripts/validate-translation-structure.mjs
+      - name: Typecheck
+        run: npm run typecheck -- --pretty false
       - name: Build website
         run: npm run build
+      - name: Validate anchors
+        run: npm run validate-anchors
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:

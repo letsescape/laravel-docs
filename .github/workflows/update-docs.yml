@@ -31,6 +31,19 @@ jobs:
         working-directory: .github/docs-updater
         run: uv sync --frozen
 
+      - name: Test updater
+        working-directory: .github/docs-updater
+        run: uv run pytest -q
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install website dependencies
+        run: npm ci
+
       - name: Run update script
         working-directory: .github/docs-updater
         run: uv run python main.py
@@ -42,6 +55,18 @@ jobs:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+
+      - name: Validate translation structure
+        run: node scripts/validate-translation-structure.mjs
+
+      - name: Typecheck
+        run: npm run typecheck -- --pretty false
+
+      - name: Build website
+        run: npm run build
+
+      - name: Validate anchors
+        run: npm run validate-anchors
 
       - name: Commit and push changes
         run: |
