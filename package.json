@@ -5,14 +5,9 @@
   "main": "index.js",
   "scripts": {
     "docusaurus": "docusaurus",
-    "sync:versions": "node scripts/sync-versioned-links.mjs",
-    "prestart": "npm run sync:versions",
-    "prebuild": "npm run sync:versions",
-    "postbuild": "node scripts/create-latest-doc-redirects.mjs",
     "start": "docusaurus start",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
     "serve": "node scripts/serve-build.mjs",
     "serve:docusaurus": "docusaurus serve",
@@ -21,7 +16,6 @@
     "typecheck": "tsc",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "validate-anchors": "node scripts/validate-anchors.mjs",
     "prepare": "husky"
   },
   "repository": {

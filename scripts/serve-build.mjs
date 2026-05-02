@@ -26,8 +26,8 @@ const MIME_TYPES = new Map([
 ]);
 
 function argValue(name, fallback) {
-  const idx = process.argv.indexOf(name);
-  return idx >= 0 && process.argv[idx + 1] ? process.argv[idx + 1] : fallback;
+  const index = process.argv.indexOf(name);
+  return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
 const host = argValue('--host', process.env.HOST || '127.0.0.1');

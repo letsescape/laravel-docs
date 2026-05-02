@@ -34,6 +34,9 @@ test.describe('Homepage — Desktop (1280px)', () => {
   });
 
   test('H-4: 내부 문서 링크는 최신 안정 버전으로 연결', async ({page}) => {
+    // dev 서버에서는 hydration 완료 전에 선택자가 비어 있을 수 있다.
+    // footer 가 attached 될 때까지 기다린 뒤 링크를 수집한다.
+    await page.locator('.hp-footer a[href^="/docs/"]').first().waitFor({state: 'attached'});
     const docsLinks = await page
       .locator('.homepage a[href^="/docs/"], .hp-footer a[href^="/docs/"], .nav-dropdowns-wrapper a[href^="/docs/"]')
       .evaluateAll((links) =>
