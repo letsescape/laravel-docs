@@ -136,6 +136,14 @@ def test_parse_documentation_md_creates_sidebar():
     assert sidebar["tutorialSidebar"][2]["href"] == "https://api.laravel.com/docs/12.x"
 
 
+def test_parse_documentation_md_uses_latest_stable_api_link_for_master():
+    content = "- [API Documentation](https://api.laravel.com/docs/{{version}})\n"
+
+    sidebar = main.parse_documentation_md(content, "master", latest_stable="13.x")
+
+    assert sidebar["tutorialSidebar"][0]["href"] == "https://api.laravel.com/docs/13.x"
+
+
 def test_parse_documentation_md_accepts_spaced_version_placeholder():
     content = "- ## Getting Started\n    - [Installation](/docs/{{ version }}/installation)\n"
 
@@ -166,14 +174,20 @@ def test_generate_sidebar_writes_versioned_sidebar_json():
 def test_generate_sidebars_includes_master(monkeypatch):
     calls = []
 
-    def fake_generate_sidebar(repo_root, version, updater_root=main.UPDATER_ROOT):
-        calls.append((repo_root, version, updater_root))
+    def fake_generate_sidebar(
+        repo_root,
+        version,
+        updater_root=main.UPDATER_ROOT,
+        latest_stable=None,
+    ):
+        calls.append((repo_root, version, updater_root, latest_stable))
         return True
 
     monkeypatch.setattr(main, "generate_sidebar", fake_generate_sidebar)
 
     assert main.generate_sidebars("/repo", branches=["master", "13.x"]) is True
     assert [call[1] for call in calls] == ["master", "13.x"]
+    assert [call[3] for call in calls] == ["13.x", "13.x"]
 
 
 def test_validate_anchors_rejects_missing_anchor():

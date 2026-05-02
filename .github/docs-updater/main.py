@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 import openai
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
 
+import structure_validator
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 UPDATER_ROOT = Path(__file__).resolve().parent
@@ -108,7 +110,11 @@ def sync_branch_docs(upstream_dir, source_dir, docs_dir, excluded_files):
             (docs_path / filename).write_text(rendered, encoding="utf-8")
 
 
-def parse_documentation_md(content, version):
+def latest_stable_version(versions):
+    return next((version for version in versions if version != "master"), versions[0])
+
+
+def parse_documentation_md(content, version, latest_stable=None):
     sidebar = {"tutorialSidebar": []}
     current_category = None
 
@@ -135,7 +141,8 @@ def parse_documentation_md(content, version):
 
         api_link = re.match(r"^- \[API Documentation\]\((.+)\)$", line)
         if api_link:
-            href = replace_version_placeholder(api_link.group(1), version)
+            api_version = latest_stable if version == "master" and latest_stable else version
+            href = replace_version_placeholder(api_link.group(1), api_version)
             sidebar["tutorialSidebar"].append(
                 {"type": "link", "label": "API Documentation", "href": href}
             )
@@ -149,7 +156,12 @@ def parse_documentation_md(content, version):
     return sidebar
 
 
-def generate_sidebar(repo_root, version, updater_root=UPDATER_ROOT):
+def generate_sidebar(
+    repo_root,
+    version,
+    updater_root=UPDATER_ROOT,
+    latest_stable=None,
+):
     repo_path = Path(repo_root)
     source = source_dir_for(updater_root, version) / "documentation.md"
     target = repo_path / "versioned_sidebars" / f"version-{version}-sidebars.json"
@@ -159,7 +171,11 @@ def generate_sidebar(repo_root, version, updater_root=UPDATER_ROOT):
         return False
 
     target.parent.mkdir(parents=True, exist_ok=True)
-    sidebar = parse_documentation_md(source.read_text(encoding="utf-8"), version)
+    sidebar = parse_documentation_md(
+        source.read_text(encoding="utf-8"),
+        version,
+        latest_stable=latest_stable,
+    )
     target.write_text(json.dumps(sidebar, indent=2) + "\n", encoding="utf-8")
     print(f"  사이드바 생성: {version}")
     return True
@@ -167,8 +183,17 @@ def generate_sidebar(repo_root, version, updater_root=UPDATER_ROOT):
 
 def generate_sidebars(repo_root, branches=BRANCHES, updater_root=UPDATER_ROOT):
     ok = True
+    latest_stable = latest_stable_version(branches)
     for branch in branches:
-        ok = generate_sidebar(repo_root, branch, updater_root=updater_root) and ok
+        ok = (
+            generate_sidebar(
+                repo_root,
+                branch,
+                updater_root=updater_root,
+                latest_stable=latest_stable,
+            )
+            and ok
+        )
     return ok
 
 
@@ -713,7 +738,16 @@ def main():
         for file_key in failed_files:
             print(f"  - {file_key}")
 
-    print("[5] 변경 사항 정리")
+    print("[5] 번역 구조 검증")
+    structure_report = structure_validator.validate_structure(
+        UPDATER_ROOT / "source",
+        repo_root / "versioned_docs",
+    )
+    print(structure_validator.render_report(structure_report))
+    if structure_report.has_issues:
+        has_errors = True
+
+    print("[6] 변경 사항 정리")
     if not stage_outputs(repo_root):
         has_errors = True
 
