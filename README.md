@@ -66,7 +66,7 @@ docker run -p 3000:3000 laravel-docs
 
 2. GitHub Actions의 `update-docs` 워크플로우를 수동 실행합니다.
 
-워크플로우는 `.github/docs-updater`에서 `uv sync --frozen` 후 테스트와 `uv run python main.py`를 실행합니다. 이후 번역 구조, 타입, 빌드, 앵커 검증을 통과한 원문 캐시와 변경된 `versioned_docs/`, `versioned_sidebars/`를 `develop`에 커밋합니다.
+워크플로우는 `.github/docs-updater`에서 `uv sync --frozen` 후 테스트와 `uv run python main.py`를 실행합니다. 번역 구조 검증은 updater 내부에서 처리하고, 변경된 원문 캐시와 `versioned_docs/`, `versioned_sidebars/`만 커밋합니다. 타입 검사, 사이트 빌드, HTML 앵커 검증은 배포 워크플로우에서 처리합니다.
 
 로컬에서 번역 스크립트를 점검할 때는 API 키 대신 CLI 제공자를 사용할 수 있습니다.
 

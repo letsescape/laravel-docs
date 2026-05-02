@@ -1,73 +1,221 @@
-# 문서 갱신 흐름
+# 문서 갱신 워크플로우
 
-이 워크플로우는 GitHub Actions에서만 실행되는 문서 갱신 흐름입니다. 원문 문서를 가져오고, 지원 버전별 문서를 갱신한 뒤, 변경된 문서만 번역하고 검증합니다. 모든 단계가 정상적으로 끝나면 변경 사항을 커밋할 수 있는 상태로 정리합니다.
+이 문서는 Laravel 한글 문서 사이트의 자동화 흐름을 정의한다. 두 책임 영역이
+명확히 분리되어 있으며, 두 영역은 서로의 도구를 호출하지 않는다.
+
+## 책임 분리 (가장 중요)
+
+| 영역 | 위치 | 언어 | 호출자 | 책임 |
+|------|------|------|--------|------|
+| **사이트** (Docusaurus) | repo root, `src/`, `static/`, `docusaurus.config.ts`, `e2e/`, `package.json` | Node | npm scripts, Playwright | 메인페이지(홈)와 번역된 docs를 정적 사이트로 빌드. 로컬 개발은 `npm run start` (dev 서버), 운영 호스팅은 GitHub Pages 가 책임. |
+| **자동화** (GitHub Actions) | `.github/docs-updater/`, `.github/workflows/` | Python (uv) | `update-docs.yml`, `deploy.yml` | upstream 문서 동기화, 한국어 번역, 사이드바 생성, 번역 구조 검증, 빌드 산출물 anchor 검증, 미버전 경로 redirect HTML 생성. |
+
+원칙:
+
+- **사이트 → 자동화 호출 금지.** `package.json` 의 어떤 npm script 도 Python을
+  실행하지 않는다. `playwright.config.ts` 의 `webServer` 도 Python을 호출하지
+  않는다. Docusaurus 가 자동화 산출물(versioned_docs, versioned_sidebars)을
+  입력으로 읽기만 한다.
+- **자동화 → 사이트 호출 금지.** Python 도구는 `npm` 이나 `tsc` 를 직접
+  실행하지 않는다. Node 빌드는 `deploy.yml` 의 별도 단계에서만 실행된다.
+- **워크플로우만 두 영역을 합친다.** `deploy.yml` 이 Node 빌드와 Python
+  검증/redirect 생성을 한 job 안에서 순서대로 실행한다.
+- **로컬 검증도 같은 분리를 따른다.** `npm run build`, `npm run serve`,
+  `npx playwright test` 는 사이트 영역만 다룬다. 번역/구조 검증/anchor
+  검증은 `.github/docs-updater` 안에서 `uv run` 으로 실행한다.
+
+테스트로 강제: `tests/test_project_boundaries.py` 가 `package.json` script 안에
+`.github/` 또는 `python` 호출이 없는지 검사한다.
+
+## 사이트 영역
+
+목표: 이미 만들어진 `versioned_docs/`와 `versioned_sidebars/`를 입력으로 받아
+정적 사이트를 빌드해 GitHub Pages 로 호스팅한다. 메인페이지(홈)와 컴포넌트만
+사이트 코드의 책임이다.
+
+구성:
+
+- `docusaurus.config.ts` : Docusaurus 설정. `headTags` inline script 가
+  `/docs/<unversioned>` 를 latest stable 로 client-side redirect 한다.
+- `src/` : 홈 컴포넌트, 테마 swizzle, remark 플러그인 (anchor-mapping 포함).
+- `static/` : 정적 자산.
+- `e2e/` : Playwright e2e. Docusaurus 개발 서버(`npm run start`) 위에서 동작한다. 정적 빌드 산출물 검증이 필요한 경우는 사이트 e2e 가 아니라 `deploy.yml` 의 Python 단계에서 처리한다.
+- `package.json` :
+  - `docusaurus` : Docusaurus CLI passthrough
+  - `start` : `docusaurus start` (로컬 개발 + e2e webServer)
+  - `build` : `docusaurus build` (배포 단계에서 호출)
+  - `serve` : `node scripts/serve-build.mjs` (빌드 산출물 로컬 확인.
+    `13.x` 처럼 점이 포함된 버전 디렉터리도 HTTP 200으로 확인하기 위한
+    사이트 전용 정적 서버)
+  - `serve:docusaurus` : `docusaurus serve` (Docusaurus 기본 serve 확인)
+  - `clear`, `swizzle`, `write-translations`, `write-heading-ids` : Docusaurus
+    공식 CLI 보조 명령
+  - `typecheck` : `tsc` (배포 단계에서 호출)
+  - `test:e2e`, `test:e2e:ui`, `prepare`
+  - prestart/prebuild/postbuild, validate-anchors, sync-versions
+    등 빌드 가공·검증 script 는 두지 않는다. 모두 자동화 영역의 책임이다.
+
+사이트 도구 안에 두지 않는 것:
+
+- 빌드 산출물 anchor 검증.
+- 번역 구조 검증.
+- 미버전 경로 redirect HTML 생성.
+- 사이드바 sync (사이드바는 자동화가 만들어 둔다).
+
+## 자동화 영역 (.github/docs-updater)
+
+`.github/docs-updater` 는 사이트 런타임 코드가 아니라 GitHub Actions에서
+실행되는 자동화 파이프라인이다. 모든 Python 도구는 같은 디렉터리 안에 있다.
+
+### 모듈 구성
+
+번역 파이프라인:
+
+- `main.py` : 단일 진입점. `update-docs.yml` 이 호출한다.
+- `markdown_link_utils.py` : Markdown 링크 추출/정규화 유틸.
+- `structure_validator.py` : 번역본/원문의 anchor·heading·내부 링크 구조 비교.
+- `find_link_context.py`, `find_missing_links.py` : 디버깅 CLI.
+
+빌드 산출물 처리 (deploy 단계에서만 호출):
+
+- `build_redirect_generator.py` : `build/docs/<slug>/index.html` 에 latest
+  stable 로 보내는 redirect HTML을 생성. GitHub Pages가 정적 파일만 응답하므로
+  `/docs/<slug>` 직접 접근에도 즉시 redirect 가 동작하도록 한다.
+- `build_anchor_validator.py` : `versioned_docs/` 의 markdown anchor 가
+  `build/` HTML 의 id 와 매칭되는지 검사.
+
+### 입력과 출력
+
+입력:
+
+- upstream repository: `https://github.com/laravel/docs.git`
+- 대상 브랜치: `master`, `13.x`, `12.x`, `11.x`, `10.x`, `9.x`, `8.x`
+- 번역 프롬프트: `.github/docs-updater/prompt.md`
+- 환경 변수: `TRANSLATION_PROVIDER`, `TRANSLATION_MODEL`, `TRANSLATION_DELAY`,
+  `OPENAI_API_KEY`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`,
+  `AZURE_OPENAI_API_VERSION`, `TRANSLATION_CLI_COMMAND`, `TRANSLATION_CLI_TIMEOUT`
+
+출력:
+
+- `.github/docs-updater/source/version-{version}/*.md` (원문 캐시)
+- `versioned_docs/version-{version}/*.md` (번역본)
+- `versioned_sidebars/version-{version}-sidebars.json`
+
+번역 제외 파일: `license.md`, `readme.md`, `documentation.md`.
+
+## update-docs 워크플로우
 
 ```mermaid
 flowchart TD
-    A[깃허브 액션 실행] --> D[문서 갱신 시작]
-
-    D --> E[환경 설정과 번역 지침 불러오기]
-    E --> F[공식 원문 가져오기]
-    F --> G{원문 확보 성공?}
-    G -- 아니오 --> X[실패]
-    G -- 예 --> H[지원 버전 순회]
-
-    H --> I[해당 버전 원문으로 전환]
-    I --> J[원문 문서를 내부 캐시에 복사]
-    J --> K[삭제된 문서 정리]
-    K --> L[번역 제외 문서 버전 치환 후 복사]
-    L --> M{남은 버전이 있는가?}
-    M -- 예 --> H
-    M -- 아니오 --> N[임시 작업물 정리]
-
-    N --> O[사이드바 생성]
-    O --> P[변경된 원문 문서 확인]
-    P --> Q{번역할 변경 문서가 있는가?}
-    Q -- 아니오 --> U[변경 사항 정리]
-    Q -- 예 --> R[버전 플레이스홀더 치환]
-    R --> RA[라인 수 확인]
-    RA --> RB{라인 수 기준을 넘는가?}
-    RB -- 아니오 --> RC[문서 전체 번역]
-    RB -- 예 --> RD[청크 번역 필수]
-    RD --> RE[공백 줄을 절단 후보로 확인]
-    RE --> RF[라인 수 기준에 맞춰 청크 확정]
-    RF --> RG[청크 순서대로 번역]
-    RG --> RH[번역 결과 결합]
-    RC --> S{앵커 검증 통과?}
-    RH --> S
-    S -- 예 --> P
-    S -- 아니오 --> T[실패]
-
-    T --> P
-    U --> V{기록된 실패가 있는가?}
-    V -- 예 --> X
-    V -- 아니오 --> W[성공]
+    A[workflow_dispatch] --> B[Checkout]
+    B --> C[Install uv]
+    C --> D[Install Python 3.11]
+    D --> E[uv sync --frozen]
+    E --> F[uv run pytest -q]
+    F --> G[uv run python main.py]
+    G --> H{성공?}
+    H -- 아니오 --> X[Action 실패]
+    H -- 예 --> I[git add updater 출력물]
+    I --> J{변경 있음?}
+    J -- 아니오 --> K[No changes]
+    J -- 예 --> L[docs: sync documentation 커밋]
+    L --> M[현재 브랜치 push]
 ```
 
-## 단계별 책임
+`main.py` 단계:
 
-1. **문서 갱신 시작**: GitHub Actions에서 문서 갱신 작업을 시작합니다.
-2. **원문 확보**: 공식 문서 원문을 가져옵니다.
-3. **버전별 동기화**: 지원하는 각 버전의 원문 문서를 내부 원문 캐시에 갱신합니다.
-4. **삭제 문서 정리**: 원문에서 사라진 문서는 번역본까지 함께 제거합니다.
-5. **번역 제외 처리**: 번역하지 않을 문서는 원문 캐시에 보관하고, 렌더링되는 문서는 버전 플레이스홀더를 치환해 반영합니다.
-6. **사이드바 생성**: 최신 원문 목차를 기준으로 탐색 메뉴를 다시 만듭니다.
-7. **변경 감지**: 새로 추가되었거나 수정된 원문 문서만 번역 대상으로 고릅니다.
-8. **버전 플레이스홀더 치환**: 변경 문서의 버전 플레이스홀더를 해당 문서 버전으로 바꿉니다.
-9. **라인 수 확인**: 변경 문서의 라인 수를 확인해 한 번에 번역할지, 청크로 나누어 번역할지 결정합니다.
-10. **청크 번역 필수 처리**: 라인 수 기준을 넘는 문서는 반드시 청크 번역 대상으로 처리합니다.
-11. **청크 경계 선정**: 공백 줄을 절단 후보로 삼되, 확정 기준은 라인 수로 둡니다. 코드 블록은 중간에 끊지 않습니다.
-12. **청크 번역**: 확정된 청크를 원문 순서대로 번역합니다.
-13. **번역 결과 결합**: 나뉘어 번역된 결과를 원래 문서 순서대로 합칩니다.
-14. **앵커 검증**: 번역된 문서에서 내부 앵커가 유지되는지 확인합니다.
-15. **변경 사항 정리**: 갱신된 원문 캐시, 번역 문서, 탐색 구조를 커밋 가능한 상태로 정리합니다.
-16. **반영**: 실패가 없고 변경 사항이 있으면 저장소에 반영합니다.
+1. `.env` / `prompt.md` 로드.
+2. upstream clone.
+3. 브랜치별 동기화: 원문 캐시 갱신, upstream 삭제 반영, 번역 제외 파일 렌더링.
+4. 사이드바 생성: `documentation.md` 기반. master 의 API Documentation 링크는
+   `latest_stable` 버전을 가리키도록 처리.
+5. 변경 문서 번역: git status 변경분 + 번역본 누락분. 청크 분할, RateLimit
+   재시도, 다른 버전 번역 재사용 시도.
+6. 번역 구조 검증: `structure_validator.validate_structure()` 호출.
+   anchor-missing/extra, heading-count/level, internal-link-target,
+   translation-missing 6 카테고리 검사. 실패 시 exit 1 로 이어진다.
+7. `stage_outputs()` : `git add .github/docs-updater/source/`,
+   `versioned_docs/`, `versioned_sidebars/`.
 
-## 실패 처리
+워크플로우 자체에서는 Node 단계가 없다. 빌드/타입검사/anchor 검증은 deploy 가
+담당한다.
 
-- 원문을 가져오지 못하면 즉시 실패로 종료합니다.
-- 특정 버전 동기화에 실패하면 실패를 기록하고 나머지 버전을 계속 처리합니다.
-- 특정 문서 번역, 청크 번역, 검증에 실패하면 해당 문서를 기록하고 나머지 문서를 계속 처리합니다.
-- 변경 사항 정리 단계에서 문제가 생기면 실패로 종료합니다.
+## deploy 워크플로우
 
-이 정책은 일부 문서만 갱신된 상태를 성공으로 오해하지 않도록 하기 위한 것입니다.
+```mermaid
+flowchart TD
+    A[push to develop / workflow_dispatch] --> B[Checkout]
+    B --> C[Setup Node 24]
+    C --> D[Install uv]
+    D --> E[Install Python 3.11]
+    E --> F[uv sync --frozen]
+    F --> G[Setup Pages]
+    G --> H[npm ci]
+    H --> I[npm run typecheck]
+    I --> J[npm run build]
+    J --> K[uv run python build_redirect_generator.py]
+    K --> L[uv run python build_anchor_validator.py]
+    L --> M[Upload artifact build/]
+    M --> N[Deploy to GitHub Pages]
+```
+
+원칙:
+
+- Node 단계는 typecheck 와 build 만 본다.
+- Python 단계는 build 산출물에 redirect HTML 을 추가하고 anchor 매칭을
+  검증한다.
+- 어느 단계든 실패하면 deploy 자체가 멈춘다.
+
+## 로컬 검증 명령
+
+사이트 영역:
+
+```bash
+npm run start       # 로컬 개발 + e2e webServer
+npm run typecheck
+npm run build       # 배포 단계용 정적 빌드 (로컬에서는 거의 호출하지 않는다)
+npx playwright test
+```
+
+자동화 영역:
+
+```bash
+cd .github/docs-updater
+uv run pytest -q
+uv run python structure_validator.py        # 번역 구조 검증 (단독 실행)
+uv run python build_redirect_generator.py   # build/ 에 redirect HTML 생성
+uv run python build_anchor_validator.py     # build/ 산출물 anchor 검증
+```
+
+자동화 도구를 로컬에서 돌릴 때는 사이트가 먼저 빌드되어 있어야 한다 (`npm run
+build`). 자동화는 사이트 도구를 호출하지 않으므로 두 명령을 사용자가 순서대로
+실행한다.
+
+## 실패 정책
+
+즉시 실패 (이후 단계 실행 안 함):
+
+- upstream clone 실패
+- 환경 변수 누락으로 번역 provider 생성 불가
+- CLI provider 명령이 없거나 실패함
+
+기록 후 계속 처리, 마지막에 exit 1:
+
+- 특정 버전 checkout/동기화 실패
+- 특정 문서 번역 실패
+- 특정 문서 anchor 검증 실패
+- RateLimit 재시도 실패
+- 사이드바 생성 실패
+- 산출물 staging 실패
+- 번역 구조 검증 실패
+
+## 변경 범위 원칙
+
+- 자동화 변경은 `.github/docs-updater` 와 `.github/workflows/update-docs.yml`,
+  `.github/workflows/deploy.yml` 의 Python 스텝에 한정한다.
+- 사이트 변경은 repo root 와 `src/`, `static/`, `e2e/`,
+  `docusaurus.config.ts`, `package.json`, `playwright.config.ts` 에 한정한다.
+- 두 영역의 경계가 흐려지면 `tests/test_project_boundaries.py` 가 실패한다.
+  실패가 보이면 책임 영역을 다시 검토한다.
+- 원격 push 는 `update-docs.yml` 의 자동 commit 외에는 사용자가 명시적으로
+  요청한 경우에만 수행한다.
