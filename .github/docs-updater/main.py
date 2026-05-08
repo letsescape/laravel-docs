@@ -341,7 +341,71 @@ def _is_fence_line(line):
     return stripped.startswith("```") or stripped.startswith("~~~")
 
 
+def _is_heading_line(line):
+    """ATX heading (#~######) 인지 검사."""
+    stripped = line.lstrip()
+    level = 0
+    while level < len(stripped) and stripped[level] == "#":
+        level += 1
+    return (
+        1 <= level <= 6
+        and level < len(stripped)
+        and stripped[level] in (" ", "\t")
+    )
+
+
+_ANCHOR_DEFINITION_RE = re.compile(
+    r'\s*<a\s+name=["\'][^"\']+["\']\s*/?>(\s*</a>)?\s*$'
+)
+
+
+def _is_anchor_definition(line):
+    """라라벨 docs 의 <a name="..."></a> 패턴 감지."""
+    return bool(_ANCHOR_DEFINITION_RE.match(line))
+
+
+def _next_non_blank_index(lines, start):
+    i = start
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    return i
+
+
+def _next_is_anchor_heading_pair(lines, start):
+    """다음 비빈 줄(들)이 anchor 정의이고 그 뒤에 heading 이 따라오면 True.
+
+    anchor 가 연속으로 여러 개일 수 있어 anchor* heading 패턴 모두 인식.
+    """
+    i = _next_non_blank_index(lines, start)
+    if i >= len(lines) or not _is_anchor_definition(lines[i]):
+        return False
+    while i < len(lines) and _is_anchor_definition(lines[i]):
+        i = _next_non_blank_index(lines, i + 1)
+    return i < len(lines) and _is_heading_line(lines[i])
+
+
+def _current_ends_with_anchor_definition(lines):
+    """현재 청크의 마지막 비빈 줄이 anchor 정의인지 검사."""
+    i = len(lines) - 1
+    while i >= 0 and not lines[i].strip():
+        i -= 1
+    return i >= 0 and _is_anchor_definition(lines[i])
+
+
 def split_markdown_chunks(content, max_lines=MAX_CHUNK_LINES):
+    """긴 본문을 청크로 분할.
+
+    경계 우선순위 (가장 먼저 충족되는 지점에서 자른다):
+        1. heading 직전 — soft_min(=max_lines*3/4) 이상이고 다음 줄이
+           heading 이면 자른다. 단 현재 청크가 anchor 로 끝나면 보호.
+        2. anchor + heading 쌍 보호 — 빈 줄 경계 후보 다음이 anchor+heading
+           쌍이면 자르지 않는다.
+        3. 빈 줄 — max_lines 도달 후 빈 줄을 만나면 자른다.
+        4. overflow — overflow_limit(=max_lines+max(10,max_lines//5)) 초과 시
+           강제로 자른다.
+
+    코드 펜스 안에서는 모든 경계를 무시한다.
+    """
     lines = content.splitlines(keepends=True)
     if len(lines) <= max_lines:
         return [content] if content else []
@@ -349,21 +413,39 @@ def split_markdown_chunks(content, max_lines=MAX_CHUNK_LINES):
     chunks = []
     current = []
     in_fence = False
+    soft_min = max_lines * 3 // 4
     overflow_limit = max_lines + max(10, max_lines // 5)
 
-    for line in lines:
+    for index, line in enumerate(lines):
+        next_line = lines[index + 1] if index + 1 < len(lines) else ""
         current.append(line)
 
         if _is_fence_line(line):
             in_fence = not in_fence
-
         if in_fence:
             continue
 
-        if len(current) >= max_lines and not line.strip():
+        # 1순위: 다음 줄이 heading 이고 충분히 모았으면 직전을 경계로.
+        # 단 현재 청크가 anchor 로 끝나면 anchor+heading 쌍 보호 위해 미룸.
+        if (
+            len(current) >= soft_min
+            and _is_heading_line(next_line)
+            and not _current_ends_with_anchor_definition(current)
+        ):
             chunks.append("".join(current))
             current = []
-        elif len(current) >= overflow_limit:
+            continue
+
+        # 2/3순위: 빈 줄. 단 다음이 anchor+heading 쌍이면 자르지 않음.
+        if len(current) >= max_lines and not line.strip():
+            if _next_is_anchor_heading_pair(lines, index + 1):
+                continue
+            chunks.append("".join(current))
+            current = []
+            continue
+
+        # 4순위: overflow 강제.
+        if len(current) >= overflow_limit:
             chunks.append("".join(current))
             current = []
 
@@ -371,6 +453,45 @@ def split_markdown_chunks(content, max_lines=MAX_CHUNK_LINES):
         chunks.append("".join(current))
 
     return chunks
+
+
+_INLINE_CODE_RE = re.compile(r'`[^`\n]+`')
+_FENCE_LINE_RE = re.compile(r'^(?:```|~~~)', re.MULTILINE)
+_LINK_URL_RE = re.compile(r'\[[^\]]*\]\(([^)\s]+)\)')
+
+
+def _chunk_stats(text):
+    """청크의 anchor·heading·코드·URL 카운트 측정."""
+    return {
+        "anchors": sorted(re.findall(r'<a\s+name=["\']([^"\']+)["\']', text)),
+        "headings": sum(1 for line in text.split("\n") if _is_heading_line(line)),
+        "fences": len(_FENCE_LINE_RE.findall(text)),
+        "inline_codes": _INLINE_CODE_RE.findall(text),
+        "urls": _LINK_URL_RE.findall(text),
+    }
+
+
+def _emit_chunk_diagnostics(chunk_index, before, after):
+    """청크 입력/출력 비교 후 손실 발생한 항목만 경고 출력."""
+    missing_anchors = sorted(set(before["anchors"]) - set(after["anchors"]))
+    extra_anchors = sorted(set(after["anchors"]) - set(before["anchors"]))
+    if missing_anchors:
+        print(f"    [경고] 청크 {chunk_index} anchor 누락: {missing_anchors}")
+    if extra_anchors:
+        print(f"    [경고] 청크 {chunk_index} anchor 추가: {extra_anchors}")
+    if before["headings"] != after["headings"]:
+        print(
+            f"    [경고] 청크 {chunk_index} heading 수 불일치: "
+            f"in={before['headings']} out={after['headings']}"
+        )
+    if before["fences"] != after["fences"]:
+        print(
+            f"    [경고] 청크 {chunk_index} 코드 블록 변형: "
+            f"in={before['fences']} out={after['fences']}"
+        )
+    missing_urls = sorted(set(before["urls"]) - set(after["urls"]))
+    if missing_urls:
+        print(f"    [경고] 청크 {chunk_index} URL 변형: {missing_urls}")
 
 
 def _strip_code(text):
@@ -596,10 +717,13 @@ def _translate_chunk_with_retry(chunk, system_prompt, chunk_index, max_attempts=
         max_attempts = _read_int_env("TRANSLATION_CHUNK_MAX_ATTEMPTS", 2, minimum=1)
     delays = _retry_delays(max_attempts - 1)
     last_error = None
+    before = _chunk_stats(chunk)
 
     for attempt in range(1, max_attempts + 1):
         try:
-            return translate_text(chunk, system_prompt)
+            translated = translate_text(chunk, system_prompt)
+            _emit_chunk_diagnostics(chunk_index, before, _chunk_stats(translated))
+            return translated
         except FATAL_EXCEPTIONS:
             raise
         except (TRANSIENT_EXCEPTIONS + VALIDATION_EXCEPTIONS) as error:

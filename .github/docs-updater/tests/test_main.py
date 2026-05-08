@@ -812,3 +812,114 @@ def test_translate_text_with_cli_empty_output_is_transient(monkeypatch):
 def test_read_translation_delay_default_is_zero(monkeypatch):
     monkeypatch.delenv("TRANSLATION_DELAY", raising=False)
     assert main.read_translation_delay() == 0
+
+
+# --- Task 2: 청크 분할 기준 개선 단위 테스트 ---
+
+
+def test_is_heading_line_recognizes_h1_to_h6():
+    assert main._is_heading_line("# H1\n")
+    assert main._is_heading_line("## H2\n")
+    assert main._is_heading_line("###### H6\n")
+    assert not main._is_heading_line("####### too deep\n")
+    assert not main._is_heading_line("#no-space\n")
+    assert not main._is_heading_line("body line\n")
+
+
+def test_is_anchor_definition_matches_laravel_pattern():
+    assert main._is_anchor_definition('<a name="introduction"></a>\n')
+    assert main._is_anchor_definition('<a name="x"/>\n')
+    assert main._is_anchor_definition('  <a name="indented"></a>\n')
+    assert not main._is_anchor_definition("plain paragraph\n")
+    assert not main._is_anchor_definition("<a href=\"x\">link</a>\n")
+
+
+def test_split_markdown_chunks_prefers_heading_boundary():
+    # 4줄 본문 + 빈 줄 + heading + 본문. soft_min(=3)을 넘는 시점에 heading
+    # 직전을 1순위로 자른다.
+    content = (
+        "body 1\nbody 2\nbody 3\nbody 4\n"
+        "\n"
+        "## Section B\n"
+        "section b body\n"
+    )
+    chunks = main.split_markdown_chunks(content, max_lines=4)
+    assert len(chunks) == 2
+    assert chunks[1].lstrip().startswith("## Section B")
+
+
+def test_split_markdown_chunks_keeps_anchor_and_heading_together():
+    content = (
+        "body line 1\nbody line 2\nbody line 3\nbody line 4\n"
+        "\n"
+        '<a name="intro"></a>\n'
+        "## Introduction\n"
+        "intro body\n"
+    )
+    chunks = main.split_markdown_chunks(content, max_lines=4)
+    for chunk in chunks:
+        if '<a name="intro">' in chunk:
+            assert "## Introduction" in chunk, "anchor와 heading이 분리됨"
+
+
+def test_split_markdown_chunks_handles_consecutive_anchors():
+    content = (
+        "body line 1\nbody line 2\nbody line 3\nbody line 4\n"
+        "\n"
+        '<a name="first"></a>\n'
+        '<a name="second"></a>\n'
+        "## Section\n"
+        "body\n"
+    )
+    chunks = main.split_markdown_chunks(content, max_lines=4)
+    for chunk in chunks:
+        if '<a name="second">' in chunk:
+            assert '<a name="first">' in chunk
+            assert "## Section" in chunk
+
+
+def test_split_markdown_chunks_does_not_split_anchor_before_heading_boundary():
+    # soft_min 도달 + 다음 줄이 heading 이지만, 현재 청크 끝이 anchor 면 보호.
+    content = (
+        "body 1\nbody 2\nbody 3\n"
+        '<a name="x"></a>\n'
+        "## H\n"
+        "more body\n"
+    )
+    chunks = main.split_markdown_chunks(content, max_lines=4)
+    for chunk in chunks:
+        if '<a name="x">' in chunk:
+            assert "## H" in chunk
+
+
+def test_chunk_stats_extracts_anchors_headings_fences_urls():
+    text = (
+        '<a name="a"></a>\n## H1\n'
+        "body with `inline` code\n"
+        "[link](https://example.com/path)\n"
+        "```php\n$x = 1;\n```\n"
+    )
+    stats = main._chunk_stats(text)
+    assert stats["anchors"] == ["a"]
+    assert stats["headings"] == 1
+    assert stats["fences"] == 2
+    assert "`inline`" in stats["inline_codes"]
+    assert "https://example.com/path" in stats["urls"]
+
+
+def test_emit_chunk_diagnostics_logs_only_on_loss(capsys):
+    before = {"anchors": ["a", "b"], "headings": 2, "fences": 2, "inline_codes": [], "urls": ["u1"]}
+    after = {"anchors": ["a"], "headings": 1, "fences": 2, "inline_codes": [], "urls": ["u1"]}
+    main._emit_chunk_diagnostics(3, before, after)
+    captured = capsys.readouterr().out
+    assert "anchor 누락" in captured
+    assert "['b']" in captured
+    assert "heading 수 불일치" in captured
+    assert "코드 블록" not in captured  # fences 는 동일
+
+
+def test_emit_chunk_diagnostics_silent_when_no_loss(capsys):
+    stats = {"anchors": ["a"], "headings": 1, "fences": 0, "inline_codes": [], "urls": []}
+    main._emit_chunk_diagnostics(1, stats, stats)
+    captured = capsys.readouterr().out
+    assert captured == ""
