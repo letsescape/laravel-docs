@@ -329,7 +329,7 @@ def test_translate_text_cli_requires_command(monkeypatch):
 
     try:
         main.translate_text("# Hello\n", "system prompt")
-    except ValueError as error:
+    except main.FatalCliError as error:
         assert "TRANSLATION_CLI_COMMAND" in str(error)
     else:
         raise AssertionError("expected TRANSLATION_CLI_COMMAND error")
@@ -565,75 +565,250 @@ def test_main_returns_nonzero_when_clone_fails(monkeypatch):
     assert main.main() == 1
 
 
-def test_main_retries_rate_limit_once(monkeypatch):
-    class FakeRateLimitError(Exception):
-        pass
+class _FakeTransientError(Exception):
+    """테스트용 일시적 오류."""
 
+
+def _setup_main_fixture(monkeypatch, tmpdir, *, max_attempts=2):
+    repo_root = Path(tmpdir)
+    updater_root = repo_root / ".github" / "docs-updater"
+    source_dir = updater_root / "source" / "version-12.x"
+    source_dir.mkdir(parents=True)
+    (source_dir / "routing.md").write_text("# Routing\n", encoding="utf-8")
+
+    monkeypatch.setattr(main, "REPO_ROOT", repo_root)
+    monkeypatch.setattr(main, "UPDATER_ROOT", updater_root)
+    monkeypatch.setattr(main, "BRANCHES", [])
+    monkeypatch.setattr(main, "clone_docs", lambda *_args: True)
+    monkeypatch.setattr(main, "generate_sidebars", lambda *_args: True)
+    monkeypatch.setattr(main, "get_changed_source_files", lambda *_args: [
+        ".github/docs-updater/source/version-12.x/routing.md",
+    ])
+    monkeypatch.setattr(main, "stage_outputs", lambda *_args: True)
+    monkeypatch.setattr(main.time, "sleep", lambda *_args: None)
+    monkeypatch.setenv("TRANSLATION_MAX_ATTEMPTS", str(max_attempts))
+    monkeypatch.setattr(
+        main,
+        "TRANSIENT_EXCEPTIONS",
+        main.TRANSIENT_EXCEPTIONS + (_FakeTransientError,),
+    )
+
+
+def test_main_retries_transient_error_until_success(monkeypatch):
     attempts = []
 
     def fake_translate_file(_source_path, _target_path):
         attempts.append("attempt")
         if len(attempts) == 1:
-            raise FakeRateLimitError("rate limit")
+            raise _FakeTransientError("transient")
         return True
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        repo_root = Path(tmpdir)
-        updater_root = repo_root / ".github" / "docs-updater"
-        source_dir = updater_root / "source" / "version-12.x"
-        source_dir.mkdir(parents=True)
-        (source_dir / "routing.md").write_text("# Routing\n", encoding="utf-8")
-
-        monkeypatch.setattr(main, "REPO_ROOT", repo_root)
-        monkeypatch.setattr(main, "UPDATER_ROOT", updater_root)
-        monkeypatch.setattr(main.openai, "RateLimitError", FakeRateLimitError)
-        monkeypatch.setattr(main, "BRANCHES", [])
-        monkeypatch.setattr(main, "clone_docs", lambda *_args: True)
-        monkeypatch.setattr(main, "generate_sidebars", lambda *_args: True)
-        monkeypatch.setattr(main, "get_changed_source_files", lambda *_args: [
-            ".github/docs-updater/source/version-12.x/routing.md",
-        ])
-        monkeypatch.setattr(main, "read_translation_delay", lambda: 0)
+        _setup_main_fixture(monkeypatch, tmpdir, max_attempts=2)
         monkeypatch.setattr(main, "translate_file", fake_translate_file)
-        monkeypatch.setattr(main, "stage_outputs", lambda *_args: True)
-        monkeypatch.setattr(main.time, "sleep", lambda *_args: None)
 
         assert main.main() == 0
 
     assert len(attempts) == 2
 
 
-def test_main_reports_failure_when_rate_limit_retry_fails(monkeypatch):
-    class FakeRateLimitError(Exception):
-        pass
-
+def test_main_records_failure_when_retries_exhausted(monkeypatch):
     attempts = []
 
     def fake_translate_file(_source_path, _target_path):
         attempts.append("attempt")
-        raise FakeRateLimitError("rate limit")
+        raise _FakeTransientError("transient")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        repo_root = Path(tmpdir)
-        updater_root = repo_root / ".github" / "docs-updater"
-        source_dir = updater_root / "source" / "version-12.x"
-        source_dir.mkdir(parents=True)
-        (source_dir / "routing.md").write_text("# Routing\n", encoding="utf-8")
-
-        monkeypatch.setattr(main, "REPO_ROOT", repo_root)
-        monkeypatch.setattr(main, "UPDATER_ROOT", updater_root)
-        monkeypatch.setattr(main.openai, "RateLimitError", FakeRateLimitError)
-        monkeypatch.setattr(main, "BRANCHES", [])
-        monkeypatch.setattr(main, "clone_docs", lambda *_args: True)
-        monkeypatch.setattr(main, "generate_sidebars", lambda *_args: True)
-        monkeypatch.setattr(main, "get_changed_source_files", lambda *_args: [
-            ".github/docs-updater/source/version-12.x/routing.md",
-        ])
-        monkeypatch.setattr(main, "read_translation_delay", lambda: 0)
+        _setup_main_fixture(monkeypatch, tmpdir, max_attempts=2)
         monkeypatch.setattr(main, "translate_file", fake_translate_file)
-        monkeypatch.setattr(main, "stage_outputs", lambda *_args: True)
-        monkeypatch.setattr(main.time, "sleep", lambda *_args: None)
 
         assert main.main() == 1
 
     assert len(attempts) == 2
+
+
+# --- Task 1: 안정성 / 재시도 단위 테스트 ---
+
+
+def test_read_int_env_uses_default_for_invalid_value(monkeypatch):
+    monkeypatch.setenv("FOO_INT", "not-a-number")
+    assert main._read_int_env("FOO_INT", 7) == 7
+
+
+def test_read_int_env_enforces_minimum(monkeypatch):
+    monkeypatch.setenv("FOO_INT", "-3")
+    assert main._read_int_env("FOO_INT", 5, minimum=0) == 5
+
+
+def test_retry_delays_are_geometric():
+    assert main._retry_delays(0) == []
+    assert main._retry_delays(3) == [5, 15, 45]
+
+
+def test_get_translation_client_uses_configurable_timeout(monkeypatch):
+    captured = {}
+
+    class FakeOpenAI:
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+
+    monkeypatch.setattr(main, "_cached_client", None)
+    monkeypatch.setattr(main, "_cached_model", None)
+    monkeypatch.setattr(main.openai, "OpenAI", FakeOpenAI)
+    monkeypatch.setenv("OPENAI_API_KEY", "fake-key")
+    monkeypatch.setenv("TRANSLATION_REQUEST_TIMEOUT", "60")
+    monkeypatch.setenv("TRANSLATION_SDK_RETRIES", "0")
+    monkeypatch.delenv("TRANSLATION_PROVIDER", raising=False)
+
+    main.get_translation_client()
+
+    assert captured["timeout"] == 60
+    assert captured["max_retries"] == 0
+
+
+def test_translate_with_retry_succeeds_on_second_attempt(monkeypatch):
+    calls = []
+
+    def flaky(_source, _target):
+        calls.append(1)
+        if len(calls) == 1:
+            raise _FakeTransientError("transient")
+        return True
+
+    monkeypatch.setattr(main, "try_reuse_translation", lambda *a, **k: False)
+    monkeypatch.setattr(main, "translate_file", flaky)
+    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(
+        main,
+        "TRANSIENT_EXCEPTIONS",
+        main.TRANSIENT_EXCEPTIONS + (_FakeTransientError,),
+    )
+
+    assert main.translate_with_retry(
+        Path("/tmp/x"), Path("/tmp/y"), "12.x", Path("/tmp"), max_attempts=3
+    ) is True
+    assert len(calls) == 2
+
+
+def test_translate_with_retry_does_not_retry_fatal(monkeypatch):
+    calls = []
+
+    def fatal(_source, _target):
+        calls.append(1)
+        raise main.FatalCliError("auth failed")
+
+    monkeypatch.setattr(main, "try_reuse_translation", lambda *a, **k: False)
+    monkeypatch.setattr(main, "translate_file", fatal)
+    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
+
+    import pytest
+    with pytest.raises(main.FatalCliError):
+        main.translate_with_retry(
+            Path("/tmp/x"), Path("/tmp/y"), "12.x", Path("/tmp"), max_attempts=3
+        )
+    assert len(calls) == 1
+
+
+def test_translate_with_retry_gives_up_after_max_attempts(monkeypatch):
+    calls = []
+
+    def always_transient(_source, _target):
+        calls.append(1)
+        raise _FakeTransientError("nope")
+
+    monkeypatch.setattr(main, "try_reuse_translation", lambda *a, **k: False)
+    monkeypatch.setattr(main, "translate_file", always_transient)
+    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(
+        main,
+        "TRANSIENT_EXCEPTIONS",
+        main.TRANSIENT_EXCEPTIONS + (_FakeTransientError,),
+    )
+
+    import pytest
+    with pytest.raises(_FakeTransientError):
+        main.translate_with_retry(
+            Path("/tmp/x"), Path("/tmp/y"), "12.x", Path("/tmp"), max_attempts=3
+        )
+    assert len(calls) == 3
+
+
+def test_translate_markdown_content_retries_only_failing_chunk(monkeypatch):
+    calls_per_chunk = {}
+
+    def flaky_translate(text, _prompt):
+        calls_per_chunk[text] = calls_per_chunk.get(text, 0) + 1
+        if text.startswith("c") and calls_per_chunk[text] == 1:
+            raise _FakeTransientError("transient on c")
+        return f"[ko]{text}"
+
+    monkeypatch.setattr(main, "translate_text", flaky_translate)
+    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
+    monkeypatch.setattr(
+        main,
+        "TRANSIENT_EXCEPTIONS",
+        main.TRANSIENT_EXCEPTIONS + (_FakeTransientError,),
+    )
+
+    content = "a1\na2\n\nb1\nb2\n\nc1\nc2\n"
+    result = main.translate_markdown_content(content, "prompt", max_lines=2)
+
+    # c-청크만 두 번 호출, 다른 청크는 한 번만
+    assert calls_per_chunk.get("c1\nc2\n", 0) == 2
+    assert calls_per_chunk.get("a1\na2\n\n", 0) == 1
+    assert calls_per_chunk.get("b1\nb2\n\n", 0) == 1
+    assert "[ko]c1\nc2\n" in result
+
+
+def test_translate_text_with_cli_classifies_transient(monkeypatch):
+    monkeypatch.setenv("TRANSLATION_CLI_COMMAND", "/bin/false")
+    monkeypatch.setenv("TRANSLATION_CLI_TIMEOUT", "5")
+
+    fake_error = subprocess.CalledProcessError(1, ["/bin/false"])
+    fake_error.stderr = "rate limit exceeded"
+
+    def fake_run(*_args, **_kwargs):
+        raise fake_error
+
+    monkeypatch.setattr(main.subprocess, "run", fake_run)
+
+    import pytest
+    with pytest.raises(main.TransientCliError):
+        main.translate_text_with_cli("input", "system prompt")
+
+
+def test_translate_text_with_cli_classifies_fatal(monkeypatch):
+    monkeypatch.setenv("TRANSLATION_CLI_COMMAND", "/bin/false")
+    monkeypatch.setenv("TRANSLATION_CLI_TIMEOUT", "5")
+
+    fake_error = subprocess.CalledProcessError(1, ["/bin/false"])
+    fake_error.stderr = "syntax error: unexpected token"
+
+    def fake_run(*_args, **_kwargs):
+        raise fake_error
+
+    monkeypatch.setattr(main.subprocess, "run", fake_run)
+
+    import pytest
+    with pytest.raises(main.FatalCliError):
+        main.translate_text_with_cli("input", "system prompt")
+
+
+def test_translate_text_with_cli_empty_output_is_transient(monkeypatch):
+    monkeypatch.setenv("TRANSLATION_CLI_COMMAND", "/bin/echo")
+    monkeypatch.setenv("TRANSLATION_CLI_TIMEOUT", "5")
+
+    class FakeResult:
+        stdout = "   \n"
+
+    monkeypatch.setattr(main.subprocess, "run", lambda *a, **k: FakeResult())
+
+    import pytest
+    with pytest.raises(main.TransientCliError):
+        main.translate_text_with_cli("input", "system prompt")
+
+
+def test_read_translation_delay_default_is_zero(monkeypatch):
+    monkeypatch.delenv("TRANSLATION_DELAY", raising=False)
+    assert main.read_translation_delay() == 0

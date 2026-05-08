@@ -3,6 +3,7 @@ import os
 import re
 import shlex
 import shutil
+import socket
 import subprocess
 import time
 from pathlib import Path
@@ -29,7 +30,61 @@ _cached_prompt = None
 
 
 class AnchorValidationError(Exception):
-    pass
+    """번역본의 anchor 정의/참조가 원본과 다를 때."""
+
+
+class TransientCliError(RuntimeError):
+    """일시적 CLI 오류. 재시도 가능."""
+
+
+class FatalCliError(RuntimeError):
+    """영속적 CLI 오류. 재시도 무의미."""
+
+
+# 일시적 오류 — 자동 재시도 대상 (네트워크·서비스 오류).
+TRANSIENT_EXCEPTIONS = (
+    openai.RateLimitError,
+    openai.APITimeoutError,
+    openai.APIConnectionError,
+    openai.InternalServerError,
+    socket.timeout,
+    TimeoutError,
+    TransientCliError,
+)
+
+# 번역 검증 실패 — 자동 재시도 대상 (LLM 출력의 변형).
+VALIDATION_EXCEPTIONS = (
+    AnchorValidationError,
+)
+
+# 영속적 오류 — 재시도 무의미. 즉시 raise.
+FATAL_EXCEPTIONS = (
+    openai.AuthenticationError,
+    openai.PermissionDeniedError,
+    openai.BadRequestError,
+    ValueError,
+    FatalCliError,
+)
+
+
+def _read_int_env(name, default, minimum=0):
+    """환경변수에서 양의 정수를 읽되, 잘못된 값이면 기본값 사용."""
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+        if value < minimum:
+            raise ValueError
+        return value
+    except ValueError:
+        print(f"{name} 값이 유효하지 않아 기본값 {default}을 사용합니다.")
+        return default
+
+
+def _retry_delays(attempts, base=5):
+    """5s, 15s, 45s, ... 3배수 지수 백오프 — attempts 회만큼."""
+    return [base * (3 ** i) for i in range(attempts)]
 
 
 def run_command(args, cwd=None):
@@ -402,12 +457,15 @@ def get_translation_client():
 
     provider = os.environ.get("TRANSLATION_PROVIDER", "openai").lower()
     model = os.environ.get("TRANSLATION_MODEL", "gpt-5")
+    request_timeout = _read_int_env("TRANSLATION_REQUEST_TIMEOUT", 120, minimum=10)
+    sdk_max_retries = _read_int_env("TRANSLATION_SDK_RETRIES", 0, minimum=0)
+    common_kwargs = {"timeout": request_timeout, "max_retries": sdk_max_retries}
 
     if provider == "openai":
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY 미설정")
-        _cached_client = openai.OpenAI(api_key=api_key)
+        _cached_client = openai.OpenAI(api_key=api_key, **common_kwargs)
     elif provider == "azure":
         api_key = os.environ.get("AZURE_OPENAI_API_KEY")
         endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
@@ -418,6 +476,7 @@ def get_translation_client():
             api_key=api_key,
             azure_endpoint=endpoint,
             api_version=api_version,
+            **common_kwargs,
         )
     else:
         raise ValueError(f"미지원 번역 제공자: {provider}")
@@ -443,14 +502,25 @@ def build_cli_prompt(text, system_prompt):
     )
 
 
+_CLI_TRANSIENT_KEYWORDS = (
+    "rate limit",
+    "timeout",
+    "timed out",
+    "connection",
+    "502",
+    "503",
+    "504",
+)
+
+
 def translate_text_with_cli(text, system_prompt):
     command = os.environ.get("TRANSLATION_CLI_COMMAND")
     if not command:
-        raise ValueError("TRANSLATION_CLI_COMMAND 미설정")
+        raise FatalCliError("TRANSLATION_CLI_COMMAND 미설정")
 
     args = shlex.split(command)
     if not args:
-        raise ValueError("TRANSLATION_CLI_COMMAND 미설정")
+        raise FatalCliError("TRANSLATION_CLI_COMMAND 미설정")
 
     try:
         result = subprocess.run(
@@ -462,14 +532,17 @@ def translate_text_with_cli(text, system_prompt):
             timeout=read_cli_timeout(),
         )
     except subprocess.TimeoutExpired as error:
-        raise RuntimeError("번역 CLI 실행 시간이 초과되었습니다.") from error
+        raise TransientCliError("번역 CLI 실행 시간이 초과되었습니다.") from error
     except subprocess.CalledProcessError as error:
         stderr = (error.stderr or "").strip()
+        lowered = stderr.lower()
+        if any(keyword in lowered for keyword in _CLI_TRANSIENT_KEYWORDS):
+            raise TransientCliError(f"번역 CLI 일시 오류: {stderr}") from error
         message = f"번역 CLI 실행 실패: {stderr}" if stderr else "번역 CLI 실행 실패"
-        raise RuntimeError(message) from error
+        raise FatalCliError(message) from error
 
     if not result.stdout.strip():
-        raise ValueError("CLI returned empty content")
+        raise TransientCliError("CLI returned empty content")
     return result.stdout
 
 
@@ -512,9 +585,34 @@ def translate_markdown_content(content, system_prompt, max_lines=MAX_CHUNK_LINES
     for index, chunk in enumerate(chunks, start=1):
         if len(chunks) > 1:
             print(f"  청크 {index}/{len(chunks)}")
-        translated.append(translate_text(chunk, system_prompt))
+        translated.append(_translate_chunk_with_retry(chunk, system_prompt, index))
 
     return "".join(translated)
+
+
+def _translate_chunk_with_retry(chunk, system_prompt, chunk_index, max_attempts=None):
+    """청크 단위 재시도. transient/검증 실패는 재시도, fatal 은 즉시 raise."""
+    if max_attempts is None:
+        max_attempts = _read_int_env("TRANSLATION_CHUNK_MAX_ATTEMPTS", 2, minimum=1)
+    delays = _retry_delays(max_attempts - 1)
+    last_error = None
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return translate_text(chunk, system_prompt)
+        except FATAL_EXCEPTIONS:
+            raise
+        except (TRANSIENT_EXCEPTIONS + VALIDATION_EXCEPTIONS) as error:
+            last_error = error
+            if attempt < max_attempts:
+                wait = delays[attempt - 1]
+                print(
+                    f"    청크 {chunk_index} 일시 오류({type(error).__name__}). "
+                    f"{wait}초 대기 후 재시도 {attempt + 1}/{max_attempts}"
+                )
+                time.sleep(wait)
+
+    raise last_error
 
 
 def extract_version_from_path(path):
@@ -642,14 +740,36 @@ def stage_outputs(repo_root):
 
 
 def read_translation_delay():
-    try:
-        delay = int(os.environ.get("TRANSLATION_DELAY", "10"))
-        if delay < 0:
-            raise ValueError
-        return delay
-    except ValueError:
-        print("TRANSLATION_DELAY 값이 유효하지 않아 10초를 사용합니다.")
-        return 10
+    """파일 사이 sleep (초). 기본값 0 — 재시도/백오프가 있어 방어적 sleep 불필요."""
+    return _read_int_env("TRANSLATION_DELAY", 0, minimum=0)
+
+
+def translate_with_retry(source_path, target_path, branch, repo_root, max_attempts=None):
+    """파일 단위 재시도. transient/검증 실패는 재시도, fatal 은 즉시 raise."""
+    if max_attempts is None:
+        max_attempts = _read_int_env("TRANSLATION_MAX_ATTEMPTS", 3, minimum=1)
+    delays = _retry_delays(max_attempts - 1)
+    last_error = None
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            if try_reuse_translation(source_path, target_path, branch, repo_root):
+                return True
+            translate_file(source_path, target_path)
+            return True
+        except FATAL_EXCEPTIONS:
+            raise
+        except (TRANSIENT_EXCEPTIONS + VALIDATION_EXCEPTIONS) as error:
+            last_error = error
+            if attempt < max_attempts:
+                wait = delays[attempt - 1]
+                print(
+                    f"  일시 오류({type(error).__name__}). "
+                    f"{wait}초 대기 후 재시도 {attempt + 1}/{max_attempts}"
+                )
+                time.sleep(wait)
+
+    raise last_error
 
 
 def main():
@@ -714,17 +834,10 @@ def main():
 
         target_path = docs_dir_for(repo_root, branch) / filename
         try:
-            if not try_reuse_translation(source_path, target_path, branch, repo_root):
-                translate_file(source_path, target_path)
-        except openai.RateLimitError:
-            print(f"  RateLimitError 발생. 30초 대기 후 재시도합니다: {file_key}")
-            time.sleep(30)
-            try:
-                if not try_reuse_translation(source_path, target_path, branch, repo_root):
-                    translate_file(source_path, target_path)
-            except Exception as error:
-                failed_files.append(file_key)
-                print(f"  재시도 실패: {file_key} - {type(error).__name__}: {error}")
+            translate_with_retry(source_path, target_path, branch, repo_root)
+        except FATAL_EXCEPTIONS:
+            # 영속적 오류 — 재시도 무의미. workflow 자체를 중단한다.
+            raise
         except Exception as error:
             failed_files.append(file_key)
             print(f"  번역 실패: {file_key} - {type(error).__name__}: {error}")
