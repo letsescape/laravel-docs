@@ -923,3 +923,157 @@ def test_emit_chunk_diagnostics_silent_when_no_loss(capsys):
     main._emit_chunk_diagnostics(1, stats, stats)
     captured = capsys.readouterr().out
     assert captured == ""
+
+
+# --- Task 3: 자동 검증 단위 테스트 ---
+
+
+def test_extract_fenced_blocks_captures_lang_and_body():
+    text = "```php\n$x = 1;\n```\n```\nplain\n```\n"
+    blocks = main._extract_fenced_blocks(text)
+    assert len(blocks) == 2
+    assert blocks[0][1] == "php"
+    assert blocks[0][2] == "$x = 1;"
+    assert blocks[1][1] == ""
+    assert blocks[1][2] == "plain"
+
+
+def test_extract_inline_code_tokens_excludes_fenced_regions():
+    text = "use `Auth` facade.\n```php\n$x = `not inline`;\n```\nor `View`."
+    tokens = main._extract_inline_code_tokens(text)
+    assert "Auth" in tokens
+    assert "View" in tokens
+    # 펜스 안의 backtick 은 추출되면 안 됨
+    assert "not inline" not in tokens
+
+
+def test_validate_code_preservation_passes_when_identical():
+    text = "use `Auth`\n```php\n$x = 1;\n```\n"
+    main.validate_code_preservation(text, text)
+
+
+def test_validate_code_preservation_raises_on_translated_identifier():
+    src = "```php\n$user = Auth::user();\n```\n"
+    tr = "```php\n$사용자 = 인증::사용자();\n```\n"
+
+    import pytest
+    with pytest.raises(main.CodeBlockValidationError):
+        main.validate_code_preservation(src, tr)
+
+
+def test_validate_code_preservation_raises_on_translated_inline_code():
+    src = "use the `Auth` facade.\n"
+    tr = "use the `인증` facade.\n"
+
+    import pytest
+    with pytest.raises(main.CodeBlockValidationError):
+        main.validate_code_preservation(src, tr)
+
+
+def test_validate_code_preservation_raises_on_lang_hint_change():
+    src = "```php\n$x = 1;\n```\n"
+    tr = "```블레이드\n$x = 1;\n```\n"
+
+    import pytest
+    with pytest.raises(main.CodeBlockValidationError):
+        main.validate_code_preservation(src, tr)
+
+
+def test_validate_code_preservation_raises_on_fence_count_mismatch():
+    src = "```\nA\n```\n```\nB\n```\n"
+    tr = "```\nA\n```\n"
+
+    import pytest
+    with pytest.raises(main.CodeBlockValidationError):
+        main.validate_code_preservation(src, tr)
+
+
+def test_extract_urls_captures_link_autolink_and_reference():
+    text = (
+        "[link](/docs/12.x/cache#config)\n"
+        "<https://laravel.com>\n"
+        "[ref]: https://example.com/path\n"
+    )
+    urls = main._extract_urls(text)
+    assert "/docs/12.x/cache#config" in urls
+    assert "https://laravel.com" in urls
+    assert "https://example.com/path" in urls
+
+
+def test_validate_url_preservation_passes_when_identical():
+    text = "[a](/docs/12.x/cache) and [b](https://laravel.com)\n"
+    main.validate_url_preservation(text, text)
+
+
+def test_validate_url_preservation_raises_on_translated_slug():
+    src = "[설치](/docs/12.x/installation)\n"
+    tr = "[설치](/docs/12.x/설치)\n"
+
+    import pytest
+    with pytest.raises(main.LinkValidationError):
+        main.validate_url_preservation(src, tr)
+
+
+def test_validate_url_preservation_raises_on_translated_anchor():
+    src = "[설정](#configuration)\n"
+    tr = "[설정](#설정)\n"
+
+    import pytest
+    with pytest.raises(main.LinkValidationError):
+        main.validate_url_preservation(src, tr)
+
+
+def test_validate_chunk_combines_anchor_code_url_checks():
+    chunk = (
+        '<a name="intro"></a>\n## Intro\n'
+        "use `Auth` and see [docs](/docs/12.x/auth)\n"
+        "```php\n$x = 1;\n```\n"
+    )
+    # 동일하면 통과
+    main._validate_chunk(chunk, chunk)
+
+    # anchor 누락
+    import pytest
+    with pytest.raises(main.AnchorValidationError):
+        main._validate_chunk(chunk, chunk.replace('<a name="intro"></a>\n', ""))
+
+    # 코드 변형
+    with pytest.raises(main.CodeBlockValidationError):
+        main._validate_chunk(chunk, chunk.replace("$x = 1;", "$x = 2;"))
+
+    # URL 변형
+    with pytest.raises(main.LinkValidationError):
+        main._validate_chunk(chunk, chunk.replace("/docs/12.x/auth", "/docs/12.x/인증"))
+
+
+def test_validate_chunk_allows_preserved_reference_to_anchor_outside_chunk():
+    chunk = "See [later section](#defined-in-another-chunk).\n"
+
+    main._validate_chunk(chunk, chunk)
+
+
+def test_translate_chunk_with_retry_retries_on_validation_failure(monkeypatch):
+    chunk = '<a name="x"></a>\n## X\n'
+    calls = []
+
+    def fake(_text, _prompt):
+        calls.append(1)
+        if len(calls) == 1:
+            # 첫 번째: anchor 누락 → 검증 실패 → 재시도
+            return "## X\n"
+        return chunk
+
+    monkeypatch.setattr(main, "translate_text", fake)
+    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
+
+    result = main._translate_chunk_with_retry(chunk, "prompt", 1, max_attempts=2)
+    assert result == chunk
+    assert len(calls) == 2
+
+
+def test_prompt_md_is_persona_based_after_merge():
+    """prompt2.md 흡수 후 prompt.md 의 첫 헤더가 # Persona 인지 확인."""
+    prompt = (Path(main.UPDATER_ROOT) / "prompt.md").read_text(encoding="utf-8")
+    assert prompt.startswith("# Persona")
+    # prompt2.md 흡수 흔적 — 약 327줄이면 신버전
+    assert len(prompt.splitlines()) >= 200

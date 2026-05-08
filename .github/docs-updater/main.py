@@ -33,6 +33,14 @@ class AnchorValidationError(Exception):
     """번역본의 anchor 정의/참조가 원본과 다를 때."""
 
 
+class CodeBlockValidationError(Exception):
+    """코드 블록·인라인 코드 변형 감지."""
+
+
+class LinkValidationError(Exception):
+    """마크다운 링크의 URL 변형 감지."""
+
+
 class TransientCliError(RuntimeError):
     """일시적 CLI 오류. 재시도 가능."""
 
@@ -55,6 +63,8 @@ TRANSIENT_EXCEPTIONS = (
 # 번역 검증 실패 — 자동 재시도 대상 (LLM 출력의 변형).
 VALIDATION_EXCEPTIONS = (
     AnchorValidationError,
+    CodeBlockValidationError,
+    LinkValidationError,
 )
 
 # 영속적 오류 — 재시도 무의미. 즉시 raise.
@@ -571,6 +581,133 @@ def validate_anchors(source, translated):
     return not errors, errors
 
 
+def validate_anchor_preservation(source, translated):
+    """청크 단위 anchor 정의/참조 보존 검증.
+
+    청크 안의 anchor 참조가 같은 청크 안에서 정의되지 않을 수 있으므로, 여기서는
+    참조 해소 여부를 보지 않고 원문과 번역문의 정의/참조 집합이 같은지만 본다.
+    파일 단위 `validate_anchors` 가 전체 합본의 참조 해소를 검증한다.
+    """
+    source_anchors = extract_anchor_definitions(source)
+    translated_anchors = extract_anchor_definitions(translated)
+    source_refs = extract_anchor_references(source)
+    translated_refs = extract_anchor_references(translated)
+    errors = []
+
+    missing_anchors = source_anchors - translated_anchors
+    if missing_anchors:
+        errors.append(f"번역본에서 누락된 앵커: {sorted(missing_anchors)}")
+
+    extra_anchors = translated_anchors - source_anchors
+    if extra_anchors:
+        errors.append(f"번역본에 추가된 앵커: {sorted(extra_anchors)}")
+
+    missing_refs = source_refs - translated_refs
+    if missing_refs:
+        errors.append(f"번역본에서 누락된 앵커 참조: {sorted(missing_refs)}")
+
+    extra_refs = translated_refs - source_refs
+    if extra_refs:
+        errors.append(f"번역본에 추가된 앵커 참조: {sorted(extra_refs)}")
+
+    return not errors, errors
+
+
+_FENCE_BLOCK_RE = re.compile(
+    r'(?P<fence>```|~~~)(?P<lang>[^\n]*)\n(?P<body>.*?)\n(?P=fence)',
+    re.DOTALL,
+)
+_INLINE_CODE_BACKTICK_RE = re.compile(r'`([^`\n]+)`')
+_LINK_RE = re.compile(r'\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)')
+_AUTOLINK_RE = re.compile(r'<(https?://[^>]+)>')
+_REF_DEF_RE = re.compile(r'^\[[^\]]+\]:\s*(\S+)', re.MULTILINE)
+
+
+def _extract_fenced_blocks(text):
+    """(fence, lang, body) 튜플 리스트."""
+    return [
+        (m.group("fence"), m.group("lang").strip(), m.group("body"))
+        for m in _FENCE_BLOCK_RE.finditer(text)
+    ]
+
+
+def _extract_inline_code_tokens(text):
+    """코드 펜스 영역을 제외한 본문에서 인라인 코드 토큰 추출."""
+    stripped = _FENCE_BLOCK_RE.sub("", text)
+    return _INLINE_CODE_BACKTICK_RE.findall(stripped)
+
+
+def _extract_urls(text):
+    """마크다운 링크 / autolink / reference 정의의 URL 모두 추출."""
+    stripped = _FENCE_BLOCK_RE.sub("", text)
+    urls = []
+    urls.extend(_LINK_RE.findall(stripped))
+    urls.extend(_AUTOLINK_RE.findall(stripped))
+    urls.extend(_REF_DEF_RE.findall(stripped))
+    return urls
+
+
+def validate_code_preservation(source, translated):
+    """코드 블록·인라인 코드 보존 검증. 실패 시 CodeBlockValidationError raise.
+
+    원본 LLM 시스템 프롬프트 (`prompt.md`) 가 코드 블록을 변경하지 않도록
+    지시하지만 LLM 은 확률적이라 실패할 수 있다. 이 검증이 사후 안전망.
+    """
+    src_fences = _extract_fenced_blocks(source)
+    tr_fences = _extract_fenced_blocks(translated)
+    if len(src_fences) != len(tr_fences):
+        raise CodeBlockValidationError(
+            f"코드 블록 개수 불일치: source={len(src_fences)} translated={len(tr_fences)}"
+        )
+    for i, (src, tr) in enumerate(zip(src_fences, tr_fences)):
+        if src[1] != tr[1]:
+            raise CodeBlockValidationError(
+                f"코드 블록 #{i} 언어 힌트 변형: source={src[1]!r} translated={tr[1]!r}"
+            )
+        if src[2] != tr[2]:
+            raise CodeBlockValidationError(
+                f"코드 블록 #{i} 내용 변형 감지"
+            )
+
+    src_inline = sorted(_extract_inline_code_tokens(source))
+    tr_inline = sorted(_extract_inline_code_tokens(translated))
+    if src_inline != tr_inline:
+        missing = sorted(set(src_inline) - set(tr_inline))
+        extra = sorted(set(tr_inline) - set(src_inline))
+        details = []
+        if missing:
+            details.append(f"누락 {missing}")
+        if extra:
+            details.append(f"추가 {extra}")
+        raise CodeBlockValidationError(
+            f"인라인 코드 토큰 차이: {', '.join(details)}"
+        )
+
+
+def validate_url_preservation(source, translated):
+    """마크다운 링크·autolink·reference 정의의 URL 보존 검증."""
+    src_urls = sorted(_extract_urls(source))
+    tr_urls = sorted(_extract_urls(translated))
+    if src_urls != tr_urls:
+        missing = sorted(set(src_urls) - set(tr_urls))
+        extra = sorted(set(tr_urls) - set(src_urls))
+        details = []
+        if missing:
+            details.append(f"누락 {missing}")
+        if extra:
+            details.append(f"추가 {extra}")
+        raise LinkValidationError(f"URL 차이: {', '.join(details)}")
+
+
+def _validate_chunk(source, translated):
+    """청크 단위 종합 검증. anchor 보존 + 코드 + URL."""
+    is_valid, errors = validate_anchor_preservation(source, translated)
+    if not is_valid:
+        raise AnchorValidationError("\n".join(errors))
+    validate_code_preservation(source, translated)
+    validate_url_preservation(source, translated)
+
+
 def get_translation_client():
     global _cached_client, _cached_model
     if _cached_client is not None:
@@ -722,6 +859,7 @@ def _translate_chunk_with_retry(chunk, system_prompt, chunk_index, max_attempts=
     for attempt in range(1, max_attempts + 1):
         try:
             translated = translate_text(chunk, system_prompt)
+            _validate_chunk(chunk, translated)
             _emit_chunk_diagnostics(chunk_index, before, _chunk_stats(translated))
             return translated
         except FATAL_EXCEPTIONS:
@@ -773,6 +911,11 @@ def translate_file(source_file, target_file, max_lines=MAX_CHUNK_LINES):
             message += f"\n  - {error}"
         raise AnchorValidationError(message)
 
+    # 파일 단위 합본 검증 — 청크 단위에서 통과해도 합본 시 코드/URL 차이가
+    # 생길 수 있어 한 번 더 점검. 청크 단위가 1차 안전망, 파일 단위가 2차.
+    validate_code_preservation(prepared, translated)
+    validate_url_preservation(prepared, translated)
+
     translated = finalize_translation_content(translated, source_path.name)
     target_path.parent.mkdir(parents=True, exist_ok=True)
     target_path.write_text(translated, encoding="utf-8")
@@ -818,11 +961,14 @@ def try_reuse_translation(
 
         translated = candidate_target.read_text(encoding="utf-8")
         reused = translated.replace(candidate, branch)
-        is_valid, _errors = validate_anchors(
-            prepare_translation_content(source, branch),
-            reused,
-        )
+        prepared = prepare_translation_content(source, branch)
+        is_valid, _errors = validate_anchors(prepared, reused)
         if not is_valid:
+            continue
+        try:
+            validate_code_preservation(prepared, reused)
+            validate_url_preservation(prepared, reused)
+        except (CodeBlockValidationError, LinkValidationError):
             continue
 
         reused = finalize_translation_content(reused, source_path.name)
