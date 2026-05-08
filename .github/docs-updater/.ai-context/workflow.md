@@ -3,21 +3,6 @@
 이 문서는 Laravel 한글 문서 사이트의 자동화 흐름을 정의한다. 두 책임 영역이
 명확히 분리되어 있으며, 두 영역은 서로의 도구를 호출하지 않는다.
 
-> **문서 상태**: 이 문서는 자동화 워크플로우의 *목표(To-Be) 정책*을 정의한다.
-> 책임 분리·사이트 영역·deploy 워크플로우는 현행과 일치하지만, **번역
-> 파이프라인의 청킹·검증·재시도 정책과 일부 환경 변수는 후속 PR 로 구현
-> 예정**이다. 현재 코드/CI 와 다른 항목:
->
-> - 자동 실행 스케줄: 현재 `update-docs.yml` 에서 `schedule` 주석 처리됨
-> - `TRANSLATION_DELAY` 기본값: 현재 코드 `10`, 문서 `0`
-> - 청크 분할 알고리즘: 현재 빈 줄/overflow 기반, 문서는 heading 직전 우선 +
->   anchor+heading 쌍 보호
-> - `prompt2.md`: 현재 디렉터리에 잔존, 문서는 단일 운영(`prompt.md`만)
-> - 신설 환경 변수 `TRANSLATION_REQUEST_TIMEOUT`, `TRANSLATION_SDK_RETRIES`,
->   `TRANSLATION_MAX_ATTEMPTS`, `TRANSLATION_CHUNK_MAX_ATTEMPTS`: 코드 미반영
-> - 자동 검증 (코드 블록/URL 변형 감지), 청크 단위 진단 로그: 코드 미반영
-> - 예외 클래스 `CodeBlockValidationError`, `LinkValidationError`: 코드 미반영
-
 ## 책임 분리 (가장 중요)
 
 | 영역 | 위치 | 언어 | 호출자 | 책임 |
@@ -168,10 +153,10 @@ flowchart TD
 3. 브랜치별 동기화: 원문 캐시 갱신, upstream 삭제 반영, 번역 제외 파일 렌더링.
 4. 사이드바 생성: `documentation.md` 기반. master 의 API Documentation 링크는
    `latest_stable` 버전을 가리키도록 처리.
-5. 변경 문서 번역: git status 변경분 + 번역본 누락분. 청크 분할 (아래
-   "청킹 정책" 참고), 청크별 LLM 호출, 청크별 자동 검증 (아래 "번역 검증" 참고),
-   재시도 정책 적용 (아래 "실패 정책 → 재시도 정책" 참고), 다른 버전 번역
-   재사용 시도.
+5. 변경 문서 번역: git status 변경분 + 번역본 누락분. 다른 버전 번역 재사용을
+   먼저 시도하고, 새 번역이 필요하면 청크 분할 (아래 "청킹 정책" 참고),
+   청크별 LLM 호출, 청크별 자동 검증 (아래 "번역 검증" 참고), 실패 청크 재시도,
+   합본 파일 단위 검증, 파일 단위 재시도 순서로 처리한다.
 6. 번역 구조 검증: `structure_validator.validate_structure()` 호출.
    anchor-missing/extra, heading-count/level, internal-link-target,
    translation-missing 6 카테고리 검사. 실패 시 exit 1 로 이어진다.
@@ -248,19 +233,29 @@ LLM 은 확률적이라 프롬프트만으로는 변형을 100% 막지 못하므
 
 | 검증 | 대상 | 시점 | 분류 |
 |---|---|---|---|
-| anchor 정의 일치 | `<a name="...">` 태그 | 청크 단위 | 번역 검증 실패 (재시도 대상) |
-| anchor 참조 일치 | `[text](#anchor)` | 청크 단위 | 번역 검증 실패 |
-| 코드 블록 보존 | ```` ``` ```` / `~~~` 펜스 개수와 내용 | 청크 단위 | 번역 검증 실패 |
-| 인라인 코드 보존 | `` `code` `` 토큰 개수와 내용 | 청크 단위 | 번역 검증 실패 |
-| URL 보존 | 마크다운 링크의 URL 부분 | 청크 단위 | 번역 검증 실패 |
+| anchor 정의 보존 | `<a name="...">` 태그 | 청크 단위 + 파일 합본 | 번역 검증 실패 (재시도 대상) |
+| anchor 참조 보존 | `[text](#anchor)` | 청크 단위 | 번역 검증 실패 |
+| anchor 참조 해소 | 번역본의 `#anchor` 참조가 합본 파일 안에 정의되어 있는지 | 파일 합본 | 번역 검증 실패 |
+| 코드 블록 보존 | ```` ``` ```` / `~~~` 펜스 개수와 내용 | 청크 단위 + 파일 합본 | 번역 검증 실패 |
+| 인라인 코드 보존 | `` `code` `` 토큰 개수와 내용 | 청크 단위 + 파일 합본 | 번역 검증 실패 |
+| URL 보존 | 마크다운 링크의 URL 부분 | 청크 단위 + 파일 합본 | 번역 검증 실패 |
 | heading 개수·레벨 | `^#{1,6}` | 파일·전역 | warn (`structure_validator`) |
 | 내부 링크 타깃 카운트 | `/docs/...`, `#fragment` | 파일·전역 | warn |
 
-청크 단위 검증이 1차 안전망, 파일·전역 검증 (`structure_validator`) 이 2차.
+청크 단위 검증은 `validate_anchor_preservation()` 으로 anchor 정의·참조가 원문과
+같이 보존됐는지만 본다. 청크 밖에 정의된 anchor 를 참조할 수 있으므로, 청크
+안에서 참조가 해소되는지는 검사하지 않는다. 합본 파일 검증은 `validate_anchors()`,
+`validate_code_preservation()`, `validate_url_preservation()` 로 anchor 참조 해소,
+코드, URL 을 다시 확인한다. 전역 구조 검증 (`structure_validator`) 이 마지막
+안전망이다.
 
 ### 청크 단위 진단 로그
 
-청크별 검증을 수행한 뒤, 손실이 발생한 청크에 대해서만 진단 로그를 출력한다.
+청크별 검증을 통과한 결과에 대해서만 진단 로그를 출력한다. 검증 실패
+(`AnchorValidationError`, `CodeBlockValidationError`, `LinkValidationError`) 는
+즉시 재시도 대상으로 분류되므로 진단 로그까지 도달하지 않을 수 있다. 진단 로그는
+재시도 트리거가 아니라, 검증은 통과했지만 통계 차이가 남은 청크를 추적하기 위한
+보조 신호다.
 
 - `[경고] 청크 N anchor 누락: [...]`
 - `[경고] 청크 N anchor 추가: [...]`
@@ -268,8 +263,8 @@ LLM 은 확률적이라 프롬프트만으로는 변형을 100% 막지 못하므
 - `[경고] 청크 N 코드 블록 변형: in=X out=Y`
 - `[경고] 청크 N URL 변형: [...]`
 
-이 로그는 어느 청크가 재시도까지 갔는지, 결국 어느 청크에서 무엇이 깨졌는지
-추적하는 단서다. "실패 정책 → 청크 단위 회복" 과 함께 동작한다.
+이 로그는 어느 청크에 비치명적인 구조 차이가 남았는지 추적하는 단서다. 검증
+실패로 재시도된 청크는 retry 로그의 예외 타입과 함께 추적한다.
 
 ### 검증 실패 시 동작
 
@@ -277,8 +272,12 @@ LLM 은 확률적이라 프롬프트만으로는 변형을 100% 막지 못하므
   (`TRANSLATION_CHUNK_MAX_ATTEMPTS` 회). LLM 의 stochastic 성질로 재시도가
   통과할 수 있다. 모두 실패하면 파일 단위 재시도가 한 번 더 잡고, 그래도
   실패하면 `failed_files` 에 기록 후 다음 파일.
-- **파일·전역 warn**: 워크플로우 자체는 진행하되 `structure_validator` 가
-  보고서로 남기고 마지막에 `exit 1`. 운영자가 보고서를 보고 후속 조치.
+- **파일 단위 합본 검증 실패**: 청크를 모두 이어 붙인 뒤 `validate_anchors()`,
+  `validate_code_preservation()`, `validate_url_preservation()` 가 실패하면 파일
+  단위 재시도 대상이다. 모든 파일 단위 재시도 후에도 실패하면 `failed_files` 에
+  기록하고 다음 파일로 넘어간다.
+- **전역 구조 warn**: `structure_validator` 가 보고서로 남기고 마지막에 `exit 1`.
+  운영자가 보고서를 보고 후속 조치.
 
 ### 시스템 프롬프트 변경 정책
 
@@ -308,7 +307,7 @@ LLM 은 확률적이라 프롬프트만으로는 변형을 100% 막지 못하므
 
 **번역 검증 실패** — 자동 재시도 대상 (LLM 출력의 변형 감지)
 
-- `AnchorValidationError` (anchor 정의·참조 불일치)
+- `AnchorValidationError` (anchor 정의·참조 보존 실패 또는 파일 단위 참조 해소 실패)
 - `CodeBlockValidationError` (코드 블록·인라인 코드 변형)
 - `LinkValidationError` (URL 변형)
 - 같은 입력에도 LLM 출력이 달라질 수 있어 청크 단위 재시도로 회복 가능
