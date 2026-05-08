@@ -3,6 +3,21 @@
 이 문서는 Laravel 한글 문서 사이트의 자동화 흐름을 정의한다. 두 책임 영역이
 명확히 분리되어 있으며, 두 영역은 서로의 도구를 호출하지 않는다.
 
+> **문서 상태**: 이 문서는 자동화 워크플로우의 *목표(To-Be) 정책*을 정의한다.
+> 책임 분리·사이트 영역·deploy 워크플로우는 현행과 일치하지만, **번역
+> 파이프라인의 청킹·검증·재시도 정책과 일부 환경 변수는 후속 PR 로 구현
+> 예정**이다. 현재 코드/CI 와 다른 항목:
+>
+> - 자동 실행 스케줄: 현재 `update-docs.yml` 에서 `schedule` 주석 처리됨
+> - `TRANSLATION_DELAY` 기본값: 현재 코드 `10`, 문서 `0`
+> - 청크 분할 알고리즘: 현재 빈 줄/overflow 기반, 문서는 heading 직전 우선 +
+>   anchor+heading 쌍 보호
+> - `prompt2.md`: 현재 디렉터리에 잔존, 문서는 단일 운영(`prompt.md`만)
+> - 신설 환경 변수 `TRANSLATION_REQUEST_TIMEOUT`, `TRANSLATION_SDK_RETRIES`,
+>   `TRANSLATION_MAX_ATTEMPTS`, `TRANSLATION_CHUNK_MAX_ATTEMPTS`: 코드 미반영
+> - 자동 검증 (코드 블록/URL 변형 감지), 청크 단위 진단 로그: 코드 미반영
+> - 예외 클래스 `CodeBlockValidationError`, `LinkValidationError`: 코드 미반영
+
 ## 책임 분리 (가장 중요)
 
 | 영역 | 위치 | 언어 | 호출자 | 책임 |
