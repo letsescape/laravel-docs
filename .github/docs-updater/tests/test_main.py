@@ -826,6 +826,14 @@ def test_is_heading_line_recognizes_h1_to_h6():
     assert not main._is_heading_line("body line\n")
 
 
+def test_is_heading_line_ignores_indented_code_block():
+    # CommonMark: 4칸 이상 들여쓰기 = indented code block. heading 으로 잡지 않는다.
+    assert not main._is_heading_line("    # not a heading\n")
+    assert not main._is_heading_line("        ## still indented code\n")
+    # 3칸 이하는 lazy heading 으로 인식 (CommonMark 0~3칸 허용)
+    assert main._is_heading_line("   ### still heading\n")
+
+
 def test_is_anchor_definition_matches_laravel_pattern():
     assert main._is_anchor_definition('<a name="introduction"></a>\n')
     assert main._is_anchor_definition('<a name="x"/>\n')
@@ -907,15 +915,24 @@ def test_chunk_stats_extracts_anchors_headings_fences_urls():
     assert "https://example.com/path" in stats["urls"]
 
 
-def test_emit_chunk_diagnostics_logs_only_on_loss(capsys):
-    before = {"anchors": ["a", "b"], "headings": 2, "fences": 2, "inline_codes": [], "urls": ["u1"]}
-    after = {"anchors": ["a"], "headings": 1, "fences": 2, "inline_codes": [], "urls": ["u1"]}
+def test_emit_chunk_diagnostics_logs_heading_and_fence_counts(capsys):
+    # anchor·URL 변형은 _validate_chunk 가 raise 로 검증하므로
+    # 진단 로그는 heading·fences 차이만 출력한다.
+    before = {"anchors": ["a"], "headings": 2, "fences": 2, "inline_codes": [], "urls": ["u1"]}
+    after = {"anchors": ["a"], "headings": 1, "fences": 1, "inline_codes": [], "urls": ["u1"]}
     main._emit_chunk_diagnostics(3, before, after)
     captured = capsys.readouterr().out
-    assert "anchor 누락" in captured
-    assert "['b']" in captured
     assert "heading 수 불일치" in captured
-    assert "코드 블록" not in captured  # fences 는 동일
+    assert "코드 블록 변형" in captured
+
+
+def test_emit_chunk_diagnostics_does_not_re_report_anchor_or_url_loss(capsys):
+    before = {"anchors": ["a", "b"], "headings": 1, "fences": 0, "inline_codes": [], "urls": ["u1", "u2"]}
+    after = {"anchors": ["a"], "headings": 1, "fences": 0, "inline_codes": [], "urls": ["u1"]}
+    main._emit_chunk_diagnostics(3, before, after)
+    captured = capsys.readouterr().out
+    assert "anchor" not in captured
+    assert "URL" not in captured
 
 
 def test_emit_chunk_diagnostics_silent_when_no_loss(capsys):
@@ -936,6 +953,17 @@ def test_extract_fenced_blocks_captures_lang_and_body():
     assert blocks[0][2] == "$x = 1;"
     assert blocks[1][1] == ""
     assert blocks[1][2] == "plain"
+
+
+def test_extract_fenced_blocks_supports_long_fences():
+    """4-backtick / 4-tilde 펜스 — laravel docs 의 upgrade.md 등에서 실제 사용."""
+    text = "````\n```\ninner\n```\n````\n~~~~bash\necho hi\n~~~~\n"
+    blocks = main._extract_fenced_blocks(text)
+    assert len(blocks) == 2
+    # 동일 길이로 닫혀야 한 블록으로 인식
+    assert blocks[0][2] == "```\ninner\n```"
+    assert blocks[1][1] == "bash"
+    assert blocks[1][2] == "echo hi"
 
 
 def test_extract_inline_code_tokens_excludes_fenced_regions():
@@ -1052,6 +1080,26 @@ def test_validate_chunk_allows_preserved_reference_to_anchor_outside_chunk():
     main._validate_chunk(chunk, chunk)
 
 
+def test_empty_translation_response_is_transient(monkeypatch):
+    """LLM 빈 응답은 transient 예외로 분류되어 _translate_chunk_with_retry 가 재시도."""
+    calls = []
+
+    def fake_translate(_text, _prompt):
+        calls.append(1)
+        if len(calls) == 1:
+            raise main.EmptyTranslationResponseError("API returned empty content")
+        return "ok"
+
+    monkeypatch.setattr(main, "translate_text", fake_translate)
+    monkeypatch.setattr(main.time, "sleep", lambda *_: None)
+
+    # validate_chunk 호출 시점에서 chunk == translated 가 아니면 검증 실패라
+    # transient 분기 + 검증 분기 통과를 위해 chunk 도 "ok" 로 둠
+    result = main._translate_chunk_with_retry("ok", "prompt", 1, max_attempts=2)
+    assert result == "ok"
+    assert len(calls) == 2
+
+
 def test_translate_chunk_with_retry_retries_on_validation_failure(monkeypatch):
     chunk = '<a name="x"></a>\n## X\n'
     calls = []
@@ -1072,8 +1120,17 @@ def test_translate_chunk_with_retry_retries_on_validation_failure(monkeypatch):
 
 
 def test_prompt_md_is_persona_based_after_merge():
-    """prompt2.md 흡수 후 prompt.md 의 첫 헤더가 # Persona 인지 확인."""
-    prompt = (Path(main.UPDATER_ROOT) / "prompt.md").read_text(encoding="utf-8")
+    """prompt2.md 흡수 후 prompt.md 가 강화 버전인지 확인.
+
+    라인 수 같은 깨지기 쉬운 조건 대신:
+        1. 첫 헤더가 `# Persona`
+        2. 강화 프롬프트의 고유 섹션 헤더가 존재
+        3. `prompt2.md` 파일이 더 이상 디렉터리에 없음
+    세 조건을 함께 본다.
+    """
+    updater_root = Path(main.UPDATER_ROOT)
+    prompt = (updater_root / "prompt.md").read_text(encoding="utf-8")
     assert prompt.startswith("# Persona")
-    # prompt2.md 흡수 흔적 — 약 327줄이면 신버전
-    assert len(prompt.splitlines()) >= 200
+    assert "# 1. 절대 번역 금지 영역 (CRITICAL)" in prompt
+    assert "## 1.1 코드와 식별자" in prompt
+    assert not (updater_root / "prompt2.md").exists()

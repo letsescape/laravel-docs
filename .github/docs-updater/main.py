@@ -49,6 +49,10 @@ class FatalCliError(RuntimeError):
     """영속적 CLI 오류. 재시도 무의미."""
 
 
+class EmptyTranslationResponseError(RuntimeError):
+    """LLM 이 빈 응답(choices 또는 content 누락)을 반환. 일시적 오류로 분류."""
+
+
 # 일시적 오류 — 자동 재시도 대상 (네트워크·서비스 오류).
 TRANSIENT_EXCEPTIONS = (
     openai.RateLimitError,
@@ -58,6 +62,7 @@ TRANSIENT_EXCEPTIONS = (
     socket.timeout,
     TimeoutError,
     TransientCliError,
+    EmptyTranslationResponseError,
 )
 
 # 번역 검증 실패 — 자동 재시도 대상 (LLM 출력의 변형).
@@ -352,8 +357,15 @@ def _is_fence_line(line):
 
 
 def _is_heading_line(line):
-    """ATX heading (#~######) 인지 검사."""
-    stripped = line.lstrip()
+    """ATX heading (#~######) 인지 검사.
+
+    CommonMark 규약대로 4칸 이상 들여쓰기 줄은 indented code block 으로
+    간주해 heading 으로 잡지 않는다.
+    """
+    indent = len(line) - len(line.lstrip(" "))
+    if indent >= 4:
+        return False
+    stripped = line[indent:]
     level = 0
     while level < len(stripped) and stripped[level] == "#":
         level += 1
@@ -382,7 +394,8 @@ def _next_non_blank_index(lines, start):
 
 
 def _next_is_anchor_heading_pair(lines, start):
-    """다음 비빈 줄(들)이 anchor 정의이고 그 뒤에 heading 이 따라오면 True.
+    """다음 비어 있지 않은 줄(들)이 anchor 정의이고 그 뒤에 heading 이
+    따라오면 True.
 
     anchor 가 연속으로 여러 개일 수 있어 anchor* heading 패턴 모두 인식.
     """
@@ -395,7 +408,7 @@ def _next_is_anchor_heading_pair(lines, start):
 
 
 def _current_ends_with_anchor_definition(lines):
-    """현재 청크의 마지막 비빈 줄이 anchor 정의인지 검사."""
+    """현재 청크의 마지막 비어 있지 않은 줄이 anchor 정의인지 검사."""
     i = len(lines) - 1
     while i >= 0 and not lines[i].strip():
         i -= 1
@@ -466,7 +479,8 @@ def split_markdown_chunks(content, max_lines=MAX_CHUNK_LINES):
 
 
 _INLINE_CODE_RE = re.compile(r'`[^`\n]+`')
-_FENCE_LINE_RE = re.compile(r'^(?:```|~~~)', re.MULTILINE)
+# 3개 이상 길이의 펜스(``` / ```` / ~~~~ 등)를 모두 매칭한다.
+_FENCE_LINE_RE = re.compile(r'^(?:`{3,}|~{3,})', re.MULTILINE)
 _LINK_URL_RE = re.compile(r'\[[^\]]*\]\(([^)\s]+)\)')
 
 
@@ -482,13 +496,12 @@ def _chunk_stats(text):
 
 
 def _emit_chunk_diagnostics(chunk_index, before, after):
-    """청크 입력/출력 비교 후 손실 발생한 항목만 경고 출력."""
-    missing_anchors = sorted(set(before["anchors"]) - set(after["anchors"]))
-    extra_anchors = sorted(set(after["anchors"]) - set(before["anchors"]))
-    if missing_anchors:
-        print(f"    [경고] 청크 {chunk_index} anchor 누락: {missing_anchors}")
-    if extra_anchors:
-        print(f"    [경고] 청크 {chunk_index} anchor 추가: {extra_anchors}")
+    """청크 입력/출력의 heading·코드 블록 개수 차이만 경고 출력.
+
+    anchor 와 URL 은 `_validate_chunk` 가 이미 예외로 raise 해 재시도 흐름이
+    돌아가므로 진단 함수에 도달했다는 건 일치한다는 뜻이다. 여기서는 검증 외
+    *추가 진단* 으로 heading·코드 블록 개수가 줄거나 늘었는지만 보고한다.
+    """
     if before["headings"] != after["headings"]:
         print(
             f"    [경고] 청크 {chunk_index} heading 수 불일치: "
@@ -499,9 +512,6 @@ def _emit_chunk_diagnostics(chunk_index, before, after):
             f"    [경고] 청크 {chunk_index} 코드 블록 변형: "
             f"in={before['fences']} out={after['fences']}"
         )
-    missing_urls = sorted(set(before["urls"]) - set(after["urls"]))
-    if missing_urls:
-        print(f"    [경고] 청크 {chunk_index} URL 변형: {missing_urls}")
 
 
 def _strip_code(text):
@@ -613,8 +623,9 @@ def validate_anchor_preservation(source, translated):
     return not errors, errors
 
 
+# 3개 이상 길이의 펜스를 매칭하고 동일 길이로 닫혀야 함 (CommonMark 규약).
 _FENCE_BLOCK_RE = re.compile(
-    r'(?P<fence>```|~~~)(?P<lang>[^\n]*)\n(?P<body>.*?)\n(?P=fence)',
+    r'(?P<fence>`{3,}|~{3,})(?P<lang>[^\n]*)\n(?P<body>.*?)\n(?P=fence)',
     re.DOTALL,
 )
 _INLINE_CODE_BACKTICK_RE = re.compile(r'`([^`\n]+)`')
@@ -826,11 +837,11 @@ def translate_text(text, system_prompt):
     )
 
     if not response.choices:
-        raise ValueError("API returned empty choices")
+        raise EmptyTranslationResponseError("API returned empty choices")
 
     content = response.choices[0].message.content
     if content is None:
-        raise ValueError("API returned empty content")
+        raise EmptyTranslationResponseError("API returned empty content")
     return content
 
 
