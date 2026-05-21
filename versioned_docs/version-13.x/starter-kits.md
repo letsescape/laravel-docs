@@ -100,7 +100,7 @@ Livewire 스타터 키트는 Livewire, Tailwind, [Flux UI](https://fluxui.dev) �
 <a name="react-customization"></a>
 ### React
 
-React 스타터 키트는 Inertia 2, React 19, Tailwind 4, [shadcn/ui](https://ui.shadcn.com)를 기반으로 만들어졌습니다. 모든 스타터 키트와 마찬가지로, 백엔드와 프론트엔드 코드가 모두 애플리케이션 안에 있으므로 완전히 자유롭게 커스터마이징할 수 있습니다.
+React 스타터 키트는 Inertia 3, React 19, Tailwind 4, [shadcn/ui](https://ui.shadcn.com)를 기반으로 만들어졌습니다. 모든 스타터 키트와 마찬가지로, 백엔드와 프론트엔드 코드가 모두 애플리케이션 안에 있으므로 완전히 자유롭게 커스터마이징할 수 있습니다.
 
 대부분의 프론트엔드 코드는 `resources/js` 디렉터리에 있습니다. 애플리케이션의 모양과 동작을 커스터마이징하기 위해 원하는 코드를 자유롭게 수정할 수 있습니다.
 
@@ -171,7 +171,7 @@ import AuthLayoutTemplate from '@/layouts/auth/auth-split-layout'; // [tl! add]
 <a name="svelte-customization"></a>
 ### Svelte
 
-Svelte 스타터 키트는 Inertia 2, Svelte 5, Tailwind, [shadcn-svelte](https://www.shadcn-svelte.com/)를 기반으로 만들어졌습니다. 모든 스타터 키트와 마찬가지로, 백엔드와 프론트엔드 코드가 모두 애플리케이션 안에 있으므로 완전히 자유롭게 커스터마이징할 수 있습니다.
+Svelte 스타터 키트는 Inertia 3, Svelte 5, Tailwind, [shadcn-svelte](https://www.shadcn-svelte.com/)를 기반으로 만들어졌습니다. 모든 스타터 키트와 마찬가지로, 백엔드와 프론트엔드 코드가 모두 애플리케이션 안에 있으므로 완전히 자유롭게 커스터마이징할 수 있습니다.
 
 대부분의 프론트엔드 코드는 `resources/js` 디렉터리에 있습니다. 애플리케이션의 모양과 동작을 커스터마이징하기 위해 원하는 코드를 자유롭게 수정할 수 있습니다.
 
@@ -237,7 +237,7 @@ import AuthLayout from '@/layouts/auth/AuthSplitLayout.svelte'; // [tl! add]
 <a name="vue-customization"></a>
 ### Vue
 
-Vue 스타터 키트는 Inertia 2, Vue 3 Composition API, Tailwind, [shadcn-vue](https://www.shadcn-vue.com/)를 기반으로 만들어졌습니다. 모든 스타터 키트와 마찬가지로, 백엔드와 프론트엔드 코드가 모두 애플리케이션 안에 있으므로 완전히 자유롭게 커스터마이징할 수 있습니다.
+Vue 스타터 키트는 Inertia 3, Vue 3 Composition API, Tailwind, [shadcn-vue](https://www.shadcn-vue.com/)를 기반으로 만들어졌습니다. 모든 스타터 키트와 마찬가지로, 백엔드와 프론트엔드 코드가 모두 애플리케이션 안에 있으므로 완전히 자유롭게 커스터마이징할 수 있습니다.
 
 대부분의 프론트엔드 코드는 `resources/js` 디렉터리에 있습니다. 애플리케이션의 모양과 동작을 커스터마이징하기 위해 원하는 코드를 자유롭게 수정할 수 있습니다.
 

@@ -32,7 +32,7 @@
 <a name="configuration"></a>
 ## 설정 (Configuration)
 
-애플리케이션의 캐시 설정 파일은 `config/cache.php`에 있습니다. 이 파일에서 애플리케이션 전체에서 기본으로 사용할 캐시 저장소를 지정할 수 있습니다. Laravel은 [Memcached](https://memcached.org), [Redis](https://redis.io), [DynamoDB](https://aws.amazon.com/dynamodb), 관계형 데이터베이스처럼 널리 사용되는 캐시 백엔드를 기본으로 지원합니다. 또한 파일 기반 캐시 드라이버도 제공되며, `array`와 `null` 캐시 드라이버는 자동화 테스트에서 편리하게 사용할 수 있는 캐시 백엔드를 제공합니다.
+애플리케이션의 캐시 설정 파일은 `config/cache.php`에 있습니다. 이 파일에서 애플리케이션 전체에서 기본으로 사용할 캐시 저장소를 지정할 수 있습니다. Laravel은 [Memcached](https://memcached.org), [Redis](https://redis.io), [DynamoDB](https://aws.amazon.com/dynamodb), 관계형 데이터베이스, 파일 시스템 디스크처럼 널리 사용되는 캐시 백엔드를 기본으로 지원합니다. 또한 파일 기반 캐시 드라이버도 제공되며, `array`와 `null` 캐시 드라이버는 자동화 테스트에서 편리하게 사용할 수 있는 캐시 백엔드를 제공합니다.
 
 캐시 설정 파일에는 검토할 수 있는 다양한 다른 옵션도 포함되어 있습니다. 기본적으로 Laravel은 직렬화된 캐시 객체를 애플리케이션 데이터베이스에 저장하는 `database` 캐시 드라이버를 사용하도록 설정되어 있습니다.
 
@@ -91,6 +91,19 @@ Memcached 드라이버를 사용하려면 [Memcached PECL package](https://pecl.
 Laravel에서 Redis 캐시를 사용하기 전에, PECL을 통해 PhpRedis PHP 확장을 설치하거나 Composer를 통해 `predis/predis` 패키지(~2.0)를 설치해야 합니다. [Laravel Sail](/docs/13.x/sail)에는 이 확장이 이미 포함되어 있습니다. 또한 [Laravel Cloud](https://cloud.laravel.com), [Laravel Forge](https://forge.laravel.com) 같은 공식 Laravel 애플리케이션 플랫폼에는 PhpRedis 확장이 기본으로 설치되어 있습니다.
 
 Redis 설정에 대한 자세한 내용은 [Laravel 문서 페이지](/docs/13.x/redis#configuration)를 참고하십시오.
+
+<a name="storage"></a>
+#### 저장소
+
+`storage` 캐시 드라이버를 사용하면 애플리케이션에 설정된 모든 [파일 시스템 디스크](/docs/13.x/filesystem)에 캐시 값을 저장할 수 있습니다. S3 디스크처럼 기존 디스크를 키 / 값 캐시 저장소로 사용하고 싶을 때 유용할 수 있습니다:
+
+```php
+'storage' => [
+    'driver' => 'storage',
+    'disk' => env('CACHE_STORAGE_DISK'),
+    'path' => env('CACHE_STORAGE_PATH', 'framework/cache/data'),
+],
+```
 
 <a name="dynamodb"></a>
 #### DynamoDB
@@ -426,7 +439,7 @@ cache()->remember('users', $seconds, function () {
 ## 캐시 태그 (Cache Tags)
 
 > [!WARNING]
-> `file`, `dynamodb`, `database` 캐시 드라이버를 사용할 때는 캐시 태그가 지원되지 않습니다.
+> `file`, `dynamodb`, `database`, `storage` 캐시 드라이버를 사용할 때는 캐시 태그가 지원되지 않습니다.
 
 <a name="storing-tagged-cache-items"></a>
 ### 태그가 지정된 캐시 항목 저장

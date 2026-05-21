@@ -212,7 +212,7 @@ BROADCAST_CONNECTION=ably
 npm install --save-dev laravel-echo pusher-js
 ```
 
-Echo가 설치되면 애플리케이션의 JavaScript에서 새 Echo 인스턴스를 만들 준비가 됩니다. 이를 작성하기 좋은 위치는 Laravel 프레임워크에 포함된 `resources/js/bootstrap.js` 파일의 하단입니다.
+Echo가 설치되면 애플리케이션의 JavaScript에서 새 Echo 인스턴스를 만들 준비가 됩니다. 이를 작성하기 좋은 위치는 Laravel 프레임워크에 포함된 `resources/js/app.js` 파일의 하단입니다.
 
 ```js tab=JavaScript
 import Echo from 'laravel-echo';
@@ -298,7 +298,7 @@ npm run build
 npm install --save-dev laravel-echo pusher-js
 ```
 
-Echo가 설치되면 애플리케이션의 `resources/js/bootstrap.js` 파일에서 새 Echo 인스턴스를 만들 준비가 됩니다.
+Echo가 설치되면 애플리케이션의 `resources/js/app.js` 파일에서 새 Echo 인스턴스를 만들 준비가 됩니다.
 
 ```js tab=JavaScript
 import Echo from 'laravel-echo';
@@ -427,7 +427,7 @@ npm install --save-dev laravel-echo pusher-js
 
 **계속하기 전에 Ably 애플리케이션 설정에서 Pusher 프로토콜 지원을 활성화해야 합니다. 이 기능은 Ably 애플리케이션 설정 대시보드의 "Protocol Adapter Settings" 영역에서 활성화할 수 있습니다.**
 
-Echo가 설치되면 애플리케이션의 `resources/js/bootstrap.js` 파일에서 새 Echo 인스턴스를 생성할 준비가 된 것입니다.
+Echo가 설치되면 애플리케이션의 `resources/js/app.js` 파일에서 새 Echo 인스턴스를 생성할 준비가 된 것입니다.
 
 ```js tab=JavaScript
 import Echo from 'laravel-echo';

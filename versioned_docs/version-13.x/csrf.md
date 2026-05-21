@@ -145,6 +145,3 @@ $.ajaxSetup({
 Laravel은 현재 CSRF 토큰을 암호화된 `XSRF-TOKEN` 쿠키에 저장하며, 이 쿠키는 프레임워크가 생성하는 각 응답에 포함됩니다. 쿠키 값을 사용하여 `X-XSRF-TOKEN` 요청 헤더를 설정할 수 있습니다.
 
 이 쿠키는 주로 개발 편의를 위해 전송됩니다. Angular와 Axios 같은 일부 JavaScript 프레임워크와 라이브러리는 same-origin 요청에서 이 쿠키 값을 자동으로 `X-XSRF-TOKEN` 헤더에 넣어 주기 때문입니다.
-
-> [!NOTE]
-> 기본적으로 `resources/js/bootstrap.js` 파일에는 Axios HTTP 라이브러리가 포함되어 있으며, 이 라이브러리는 `X-XSRF-TOKEN` 헤더를 자동으로 전송합니다.

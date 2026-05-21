@@ -567,6 +567,7 @@ Schema::table('users', function (Blueprint $table) {
 [foreignIdFor](#column-method-foreignIdFor)
 [foreignUlid](#column-method-foreignUlid)
 [foreignUuid](#column-method-foreignUuid)
+[foreignUuidFor](#column-method-foreignUuidFor)
 [morphs](#column-method-morphs)
 [nullableMorphs](#column-method-nullableMorphs)
 
@@ -746,6 +747,15 @@ $table->foreignUlid('user_id');
 $table->foreignUuid('user_id');
 ```
 
+<a name="column-method-foreignUuidFor"></a>
+#### `foreignUuidFor()` {.collection-method}
+
+`foreignUuidFor` 메서드는 지정한 모델 클래스에 대해 `{column}_id` UUID에 해당하는 컬럼을 추가합니다.
+
+```php
+$table->foreignUuidFor(User::class);
+```
+
 <a name="column-method-geography"></a>
 #### `geography()` {.collection-method}
 
@@ -889,9 +899,9 @@ $table->mediumText('data')->charset('binary'); // MEDIUMBLOB
 <a name="column-method-morphs"></a>
 #### `morphs()` {.collection-method}
 
-`morphs` 메서드는 `{column}_id`에 해당하는 컬럼과 `{column}_type` `VARCHAR`에 해당하는 컬럼을 추가하는 편의 메서드입니다. `{column}_id`의 컬럼 타입은 모델 키 타입에 따라 `UNSIGNED BIGINT`, `CHAR(36)`, 또는 `CHAR(26)`이 됩니다.
+`morphs` 메서드는 `{column}_type` `VARCHAR`에 해당하는 컬럼과 `{column}_id`에 해당하는 컬럼을 추가하는 편의 메서드입니다. `{column}_id`의 컬럼 타입은 모델 키 타입에 따라 `UNSIGNED BIGINT`, `CHAR(36)`, 또는 `CHAR(26)`이 됩니다.
 
-이 메서드는 다형성 [Eloquent 연관관계](/docs/13.x/eloquent-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_id`와 `taggable_type` 컬럼이 생성됩니다.
+이 메서드는 다형성 [Eloquent 연관관계](/docs/13.x/eloquent-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type`과 `taggable_id` 컬럼이 생성됩니다.
 
 ```php
 $table->morphs('taggable');
@@ -1137,9 +1147,9 @@ $table->unsignedTinyInteger('votes');
 <a name="column-method-ulidMorphs"></a>
 #### `ulidMorphs()` {.collection-method}
 
-`ulidMorphs` 메서드는 `{column}_id` `CHAR(26)`에 해당하는 컬럼과 `{column}_type` `VARCHAR`에 해당하는 컬럼을 추가하는 편의 메서드입니다.
+`ulidMorphs` 메서드는 `{column}_type` `VARCHAR`에 해당하는 컬럼과 `{column}_id` `CHAR(26)`에 해당하는 컬럼을 추가하는 편의 메서드입니다.
 
-이 메서드는 ULID 식별자를 사용하는 다형성 [Eloquent 연관관계](/docs/13.x/eloquent-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_id`와 `taggable_type` 컬럼이 생성됩니다.
+이 메서드는 ULID 식별자를 사용하는 다형성 [Eloquent 연관관계](/docs/13.x/eloquent-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type`과 `taggable_id` 컬럼이 생성됩니다.
 
 ```php
 $table->ulidMorphs('taggable');
@@ -1148,9 +1158,9 @@ $table->ulidMorphs('taggable');
 <a name="column-method-uuidMorphs"></a>
 #### `uuidMorphs()` {.collection-method}
 
-`uuidMorphs` 메서드는 `{column}_id` `CHAR(36)`에 해당하는 컬럼과 `{column}_type` `VARCHAR`에 해당하는 컬럼을 추가하는 편의 메서드입니다.
+`uuidMorphs` 메서드는 `{column}_type` `VARCHAR`에 해당하는 컬럼과 `{column}_id` `CHAR(36)`에 해당하는 컬럼을 추가하는 편의 메서드입니다.
 
-이 메서드는 UUID 식별자를 사용하는 [다형성 Eloquent 연관관계](/docs/13.x/eloquent-relationships#polymorphic-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_id`와 `taggable_type` 컬럼이 생성됩니다.
+이 메서드는 UUID 식별자를 사용하는 [다형성 Eloquent 연관관계](/docs/13.x/eloquent-relationships#polymorphic-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type`과 `taggable_id` 컬럼이 생성됩니다.
 
 ```php
 $table->uuidMorphs('taggable');
@@ -1382,7 +1392,7 @@ Laravel은 자주 사용되는 컬럼 타입을 삭제하기 위한 몇 가지 �
 
 | 명령어                              | 설명                                                  |
 | ----------------------------------- | ----------------------------------------------------- |
-| `$table->dropMorphs('morphable');`  | `morphable_id`와 `morphable_type` 컬럼을 삭제합니다. |
+| `$table->dropMorphs('morphable');`  | `morphable_type`과 `morphable_id` 컬럼을 삭제합니다. |
 | `$table->dropRememberToken();`      | `remember_token` 컬럼을 삭제합니다.                  |
 | `$table->dropSoftDeletes();`        | `deleted_at` 컬럼을 삭제합니다.                      |
 | `$table->dropSoftDeletesTz();`      | `dropSoftDeletes()` 메서드의 별칭입니다.             |

@@ -160,7 +160,7 @@ export default function Show({ user }) {
 <a name="inertia-starter-kits"></a>
 ### 스타터 키트
 
-Inertia와 React / Svelte / Vue를 활용해 프론트엔드를 만들고 싶으신가요? [React, Svelte, Vue 애플리케이션 스타터 키트](/docs/13.x/starter-kits)를 활용해 프로젝트의 개발을 바로 시작해 보세요. 이 스타터 키트들은 Inertia, React / Svelte / Vue, [Tailwind](https://tailwindcss.com), [Vite](https://vitejs.dev)를 이용한 프론트엔드 및 백엔드 인증 플로우 기본 구조를 미리 제공하므로, 여러분의 다음 아이디어 개발에 바로 집중할 수 있습니다.
+Inertia와 React / Svelte / Vue를 활용해 프론트엔드를 만들고 싶으신가요? [React, Svelte, Vue 애플리케이션 스타터 키트](/docs/13.x/starter-kits)를 활용해 프로젝트의 개발을 바로 시작해 보세요. 이 모든 스타터 키트는 Inertia, React / Svelte / Vue, [Tailwind](https://tailwindcss.com), [Vite](https://vitejs.dev)를 이용한 프론트엔드 및 백엔드 인증 플로우 기본 구조를 미리 제공하므로, 여러분의 다음 아이디어 개발에 바로 집중할 수 있습니다.
 
 <a name="bundling-assets"></a>
 ## 에셋 번들링 (Bundling Assets)

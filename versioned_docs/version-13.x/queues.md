@@ -17,6 +17,7 @@
 - [잡 디스패치](#dispatching-jobs)
     - [지연 디스패치](#delayed-dispatching)
     - [동기 디스패치](#synchronous-dispatching)
+    - [디스패치 전 잡 준비](#preparing-jobs-before-dispatch)
     - [잡과 데이터베이스 트랜잭션](#jobs-and-database-transactions)
     - [잡 체이닝](#job-chaining)
     - [큐와 연결 사용자 지정](#customizing-the-queue-and-connection)
@@ -39,6 +40,7 @@
     - [`queue:work` 명령어](#the-queue-work-command)
     - [큐 우선순위](#queue-priorities)
     - [큐 워커와 배포](#queue-workers-and-deployment)
+    - [워커 시그널에 반응하기](#reacting-to-worker-signals)
     - [잡 만료와 타임아웃](#job-expirations-and-timeouts)
     - [큐 워커 일시 중지 및 재개](#pausing-and-resuming-queue-workers)
 - [Supervisor 설정](#supervisor-configuration)
@@ -152,6 +154,35 @@ Redis 큐를 사용할 때는 `block_for` 설정 옵션을 사용하여, 잡이 
 
 > [!WARNING]
 > `block_for`를 `0`으로 설정하면 잡이 사용 가능해질 때까지 큐 워커가 무기한 블로킹됩니다. 또한 이 경우 다음 잡이 처리될 때까지 `SIGTERM` 같은 시그널이 처리되지 않습니다.
+
+<a name="sqs-overflow-storage"></a>
+#### SQS 오버플로 저장소
+
+Amazon SQS는 큐에 들어가는 메시지 페이로드의 최대 크기를 제한합니다. 이 제한을 초과할 수 있는 페이로드를 가진 잡을 디스패치해야 한다면, Laravel이 너무 큰 SQS 페이로드를 캐시 저장소에 저장하고 SQS를 통해 포인터를 보내도록 설정할 수 있습니다. 이 기능을 활성화하려면 SQS 큐 연결 설정에 `overflow` 배열을 추가합니다:
+
+```php
+'sqs' => [
+    'driver' => 'sqs',
+    'key' => env('AWS_ACCESS_KEY_ID'),
+    'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    'prefix' => env('SQS_PREFIX', 'https://sqs.us-east-1.amazonaws.com/your-account-id'),
+    'queue' => env('SQS_QUEUE', 'default'),
+    'suffix' => env('SQS_SUFFIX'),
+    'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    'after_commit' => false,
+    'overflow' => [
+        'enabled' => env('SQS_OVERFLOW_ENABLED', false),
+        'store' => env('SQS_OVERFLOW_STORE'),
+        'always' => false,
+        'delete_after_processing' => true,
+        'flush_on_clear' => env('SQS_OVERFLOW_FLUSH_ON_CLEAR', false),
+    ],
+],
+```
+
+오버플로 저장소가 활성화되면 Laravel은 크기가 1MB 이상인 페이로드를 설정된 캐시 저장소에 저장합니다. `always` 옵션이 `true`이면 모든 SQS 페이로드가 크기와 관계없이 캐시 저장소에 저장됩니다. 큐에 들어간 잡은 처리될 때 캐시 저장소에서 페이로드를 가져와야 하므로, 워커가 잡을 처리할 때까지 페이로드를 보관할 수 있는 저장소를 선택해야 합니다. 기본적으로 저장된 페이로드는 해당 잡이 성공적으로 처리되고 SQS에서 삭제된 후 제거됩니다.
+
+`flush_on_clear` 옵션이 `true`이면 `queue:clear` 명령어가 SQS 큐를 비울 때 설정된 오버플로 캐시 저장소도 비워집니다. 캐시 저장소를 비우면 해당 저장소의 모든 항목이 제거될 수 있으므로, 이 옵션을 활성화할 때는 SQS 오버플로 저장소가 전용 캐시 저장소를 사용하도록 설정해야 합니다.
 
 <a name="other-driver-prerequisites"></a>
 #### 기타 드라이버 사전 요구 사항
@@ -825,6 +856,28 @@ public function middleware(): array
 }
 ```
 
+`backoff` 메서드는 던져진 예외를 받는 클로저도 허용하므로, 지연 시간을 동적으로 결정할 수 있습니다:
+
+```php
+use App\Exceptions\RateLimitedException;
+use Illuminate\Queue\Middleware\ThrottlesExceptions;
+use Throwable;
+
+/**
+ * Get the middleware the job should pass through.
+ *
+ * @return array<int, object>
+ */
+public function middleware(): array
+{
+    return [(new ThrottlesExceptions(10, 5 * 60))->backoff(
+        fn (Throwable $throwable) => $throwable instanceof RateLimitedException
+            ? $throwable->retryAfterMinutes()
+            : 5
+    )];
+}
+```
+
 내부적으로 이 미들웨어는 Laravel의 캐시 시스템을 사용하여 속도 제한을 구현하며, 작업의 클래스명이 캐시 "key"로 사용됩니다. 작업에 미들웨어를 연결할 때 `by` 메서드를 호출하여 이 키를 재정의할 수 있습니다. 같은 서드파티 서비스와 상호작용하는 여러 작업이 있고, 이 작업들이 하나의 공유 제한을 지키도록 공통 제한 "bucket"을 공유하게 만들고 싶을 때 유용할 수 있습니다.
 
 ```php
@@ -1087,6 +1140,44 @@ RecordDelivery::dispatch($order)->onConnection('deferred');
 
 ```php
 RecordDelivery::dispatch($order)->onConnection('background');
+```
+
+<a name="preparing-jobs-before-dispatch"></a>
+### 디스패치 전 잡 준비
+
+잡이 큐에 푸시되기 전에 자신의 상태를 준비하거나 검사해야 한다면, 잡은 `Illuminate\Contracts\Queue\PreparesForDispatch` 인터페이스를 구현할 수 있습니다. Laravel은 잡을 디스패치하기 전에 잡의 `prepareForDispatch` 메서드를 호출합니다. 이 메서드가 `false`를 반환하면 잡은 디스패치되지 않습니다:
+
+```php
+<?php
+
+namespace App\Jobs;
+
+use Illuminate\Contracts\Queue\PreparesForDispatch;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
+
+class SyncPodcasts implements PreparesForDispatch, ShouldQueue
+{
+    use Queueable;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(
+        public array $podcastIds,
+    ) {}
+
+    /**
+     * Prepare the job before dispatching.
+     */
+    public function prepareForDispatch(): bool
+    {
+        return collect($this->podcastIds)
+            ->reject(fn (int $id) => Cache::has("podcast-syncing:{$id}"))
+            ->isNotEmpty();
+    }
+}
 ```
 
 <a name="jobs-and-database-transactions"></a>
@@ -2434,6 +2525,64 @@ php artisan queue:restart
 > [!NOTE]
 > 큐는 재시작 신호를 저장하기 위해 [cache](/docs/13.x/cache)를 사용하므로, 이 기능을 사용하기 전에 애플리케이션에 캐시 드라이버가 제대로 설정되어 있는지 확인해야 합니다.
 
+<a name="reacting-to-worker-signals"></a>
+### 워커 시그널에 반응하기
+
+큐 워커가 잡을 처리하는 동안 `SIGQUIT`, `SIGTERM`, `SIGINT` 같은 종료 시그널을 받으면, 워커는 현재 잡을 끝낸 후 종료됩니다. 하지만 서버나 컨테이너 오케스트레이터가 프로세스를 중지하기 전에 잡이 시그널에 반응해야 할 수도 있습니다. 예를 들어 오래 실행되는 가져오기 잡은 새 레코드 가져오기를 중단하고 현재 진행 상황을 저장해야 할 수 있습니다.
+
+잡 내부에서 워커 시그널에 반응하려면 `Illuminate\Contracts\Queue\Interruptible` 인터페이스를 구현하고 잡에 `interrupted` 메서드를 정의합니다. 워커가 받은 시그널 번호가 `interrupted` 메서드에 전달됩니다:
+
+```php
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Import;
+use Illuminate\Contracts\Queue\Interruptible;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+
+class ImportProducts implements ShouldQueue, Interruptible
+{
+    use Queueable;
+
+    protected bool $shouldStop = false;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(
+        public Import $import,
+    ) {}
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        foreach ($this->import->pendingRows() as $row) {
+            if ($this->shouldStop) {
+                break;
+            }
+
+            // Import the product row...
+        }
+
+        $this->import->saveProgress();
+    }
+
+    /**
+     * Handle a signal received by the queue worker.
+     */
+    public function interrupted(int $signal): void
+    {
+        $this->shouldStop = true;
+    }
+}
+```
+
+`interrupted` 메서드는 잡이 현재 실행 중일 때 워커가 프로세스 시그널을 받은 경우에만 호출됩니다. 이는 [타임아웃](#worker-timeouts)이나 잡의 [`failed` 메서드](#cleaning-up-after-failed-jobs)를 대체하지 않습니다.
+
 <a name="job-expirations-and-timeouts"></a>
 ### 작업 만료와 시간 제한
 
@@ -2949,6 +3098,9 @@ test('orders can be shipped', function () {
     // Assert a job was pushed
     Queue::assertPushed(ShipOrder::class);
 
+    // Assert a job was pushed exactly once...
+    Queue::assertPushedOnce(ShipOrder::class);
+
     // Assert a job was pushed twice...
     Queue::assertPushedTimes(ShipOrder::class, 2);
 
@@ -2992,6 +3144,9 @@ class ExampleTest extends TestCase
 
         // Assert a job was pushed
         Queue::assertPushed(ShipOrder::class);
+
+        // Assert a job was pushed exactly once...
+        Queue::assertPushedOnce(ShipOrder::class);
 
         // Assert a job was pushed twice...
         Queue::assertPushedTimes(ShipOrder::class, 2);
@@ -3292,5 +3447,18 @@ Queue::looping(function () {
     while (DB::transactionLevel() > 0) {
         DB::rollBack();
     }
+});
+```
+
+Laravel은 큐 워커가 큐에서 잡을 가져오지 못할 때도 `Illuminate\Queue\Events\WorkerIdle` 이벤트를 디스패치합니다:
+
+```php
+use Illuminate\Queue\Events\WorkerIdle;
+use Illuminate\Support\Facades\Event;
+
+Event::listen(function (WorkerIdle $event) {
+    // $event->connectionName
+    // $event->queue
+    // $event->workerOptions
 });
 ```

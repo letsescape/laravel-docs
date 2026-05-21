@@ -918,6 +918,39 @@ class ComplexReasoner implements Agent
 }
 ```
 
+`Provider`, `Model`, `Timeout` 속성 외에도 에이전트에 `provider`, `model`, `timeout` 메서드를 정의하여 런타임에 이 값들을 결정할 수 있습니다. 설정이 데이터베이스 레코드, 설정 값, 기타 런타임 상태에 따라 달라질 때 유용합니다. `maxSteps`, `maxTokens`, `temperature`에도 동일하게 적용됩니다:
+
+```php
+<?php
+
+namespace App\Ai\Agents;
+
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Promptable;
+
+class SalesCoach implements Agent
+{
+    use Promptable;
+
+    public function maxSteps(): int
+    {
+        return config('agents.sales_coach.max_steps', 5);
+    }
+
+    public function maxTokens(): int
+    {
+        return $this->user->plan->maxTokens();
+    }
+
+    public function temperature(): float
+    {
+        return Setting::get('sales_coach_temperature', 0.7);
+    }
+}
+```
+
+동일한 옵션에 대해 메서드와 속성이 모두 정의되어 있으면 메서드가 우선합니다.
+
 <a name="provider-options"></a>
 ### 프로바이더 옵션
 

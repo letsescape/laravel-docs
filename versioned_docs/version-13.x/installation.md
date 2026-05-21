@@ -88,16 +88,16 @@ Fetch and follow the instructions from https://laravel.com/for/agents. Treat the
 로컬 머신에 PHP와 Composer가 설치되어 있지 않다면, 다음 명령어를 사용해 macOS, Windows, Linux에 PHP, Composer, Laravel installer를 설치할 수 있습니다.
 
 ```shell tab=macOS
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.4)"
+/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
 ```
 
 ```shell tab=Windows PowerShell
 # Run as administrator...
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.4'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
 ```
 
 ```shell tab=Linux
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.4)"
+/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
 ```
 
 위 명령어 중 하나를 실행한 후에는 터미널 세션을 다시 시작해야 합니다. `php.new`를 통해 설치한 뒤 PHP, Composer, Laravel installer를 업데이트하려면 터미널에서 같은 명령어를 다시 실행하면 됩니다.

@@ -1037,8 +1037,8 @@ users
 images
     id - integer
     url - string
-    imageable_id - integer
     imageable_type - string
+    imageable_id - integer
 ```
 
 `images` 테이블의 `imageable_id` 및 `imageable_type` 컬럼에 주목하세요. `imageable_id` 컬럼에는 게시글 또는 사용자의 ID 값이 들어가며, `imageable_type` 컬럼에는 부모 모델의 클래스 이름이 들어갑니다. `imageable_type` 컬럼은 `imageable` 연관관계에 접근할 때 어떤 "타입"의 부모 모델을 반환해야 하는지 Eloquent가 판단하는 데 사용됩니다. 이 경우 컬럼에는 `App\Models\Post` 또는 `App\Models\User`가 들어갑니다.
@@ -1158,8 +1158,8 @@ videos
 comments
     id - integer
     body - text
-    commentable_id - integer
     commentable_type - string
+    commentable_id - integer
 ```
 
 <a name="one-to-many-polymorphic-model-structure"></a>
@@ -1350,8 +1350,8 @@ tags
 
 taggables
     tag_id - integer
-    taggable_id - integer
     taggable_type - string
+    taggable_id - integer
 ```
 
 > [!NOTE]

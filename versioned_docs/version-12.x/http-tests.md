@@ -1037,6 +1037,7 @@ Laravel의 `Illuminate\Testing\TestResponse` 클래스는 애플리케이션을 
 [다운로드 주장](#assert-download)
 [정확한Json 주장](#assert-exact-json)
 [정확한Json구조 주장](#assert-exact-json-structure)
+[실패한 의존성 주장](#assert-failed-dependency)
 [금지됨 주장](#assert-forbidden)
 [발견 주장](#assert-found)
 [사라졌다 주장](#assert-gone)
@@ -1238,6 +1239,15 @@ $response->assertExactJsonStructure(array $data);
 ```
 
 이 방법은 [assertJsonStructure](#assert-json-structure)의 보다 엄격한 변형입니다. `assertJsonStructure`와 달리 이 메서드는 응답에 예상 JSON 구조에 명시적으로 포함되지 않은 키가 포함된 경우 실패합니다.
+
+<a name="assert-failed-dependency"></a>
+#### assertFailedDependency
+
+응답이 Failed Dependency(424) HTTP 상태 코드인지 확인합니다:
+
+```php
+$response->assertFailedDependency();
+```
 
 <a name="assert-forbidden"></a>
 #### 주장금지됨
