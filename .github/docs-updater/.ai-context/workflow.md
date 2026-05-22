@@ -21,7 +21,7 @@
 
 - upstream repository: `https://github.com/laravel/docs.git`
 - 대상 브랜치: `master`, `13.x`, `12.x`, `11.x`, `10.x`, `9.x`, `8.x`
-- 번역 프롬프트: `.github/docs-updater/prompt2.md`
+- 번역 프롬프트: `.github/docs-updater/prompt.md`
 - 환경 변수: `TRANSLATION_PROVIDER`, `TRANSLATION_MODEL`, `TRANSLATION_DELAY`,
   `OPENAI_API_KEY`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`,
   `AZURE_OPENAI_API_VERSION`, `TRANSLATION_CLI_COMMAND`, `TRANSLATION_CLI_TIMEOUT`
@@ -58,7 +58,7 @@ flowchart TD
 
 1. **환경 변수 사전 검증** (`validate_environment()`). provider 종류별 필수
    환경 변수가 모두 설정됐는지 확인한다. 실패 시 즉시 종료한다.
-2. `.env` / `prompt2.md` 로드.
+2. `.env` / `prompt.md` 로드.
 3. upstream clone.
 4. 브랜치별 동기화: 원문 캐시 갱신, upstream 삭제 반영, 번역 제외 파일 렌더링.
 5. 사이드바 생성: `documentation.md` 기반. master 의 API Documentation 링크는
