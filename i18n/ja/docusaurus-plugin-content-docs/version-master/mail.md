@@ -1,0 +1,1585 @@
+# 郵便 (Mail)
+
+- [Introduction](#introduction)
+    - [Configuration](#configuration)
+    - [ドライバの前提条件](#driver-prerequisites)
+    - [フェイルオーバー構成](#failover-configuration)
+    - [ラウンドロビン構成](#round-robin-configuration)
+- [メール可能ファイルの生成](#generating-mailables)
+- [メール可能ファイルの作成](#writing-mailables)
+    - [送信者の設定](#configuring-the-sender)
+    - [ビューの構成](#configuring-the-view)
+    - [データの表示](#view-data)
+    - [Attachments](#attachments)
+    - [インライン添付ファイル](#inline-attachments)
+    - [取り付け可能なオブジェクト](#attachable-objects)
+    - [Headers](#headers)
+    - [タグとメタデータ](#tags-and-metadata)
+    - [Symfony メッセージのカスタマイズ](#customizing-the-symfony-message)
+- [マークダウン メール可能ファイル](#markdown-mailables)
+    - [マークダウン メール可能ファイルの生成](#generating-markdown-mailables)
+    - [マークダウンメッセージの作成](#writing-markdown-messages)
+    - [コンポーネントのカスタマイズ](#customizing-the-components)
+- [メールの送信](#sending-mail)
+    - [メールのキューイング](#queueing-mail)
+- [メール可能ファイルのレンダリング](#rendering-mailables)
+    - [ブラウザでのメール可能ファイルのプレビュー](#previewing-mailables-in-the-browser)
+- [メール可能ファイルのローカライズ](#localizing-mailables)
+- [Testing](#testing-mailables)
+    - [メール可能なコンテンツのテスト](#testing-mailable-content)
+    - [メール可能な送信のテスト](#testing-mailable-sending)
+- [メールとローカル開発](#mail-and-local-development)
+- [Events](#events)
+- [カスタムトランスポート](#custom-transports)
+    - [追加の Symfony トランスポート](#additional-symfony-transports)
+
+<a name="introduction"></a>
+## 導入 (Introduction)
+
+電子メールの送信は複雑である必要はありません。 Laravel は、人気のある [Symfony Mailer](https://symfony.com/doc/current/mailer.html) コンポーネントを活用したクリーンでシンプルな電子メール API を提供します。 Laravel と Symfony Mailer は、SMTP、Mailgun、Postmark、Resend、Amazon SES、および `sendmail` 経由で電子メールを送信するためのドライバを提供しており、選択したローカルまたはクラウドベースのサービスを通じてメールの送信をすぐに開始できます。
+
+<a name="configuration"></a>
+### 構成
+
+Laravel の電子メール サービスは、アプリケーションの `config/mail.php` 構成ファイルを介して構成できます。このファイル内で構成された各メーラーは、独自の固有の構成および独自の「トランスポート」さえ持つことができ、アプリケーションがさまざまな電子メール サービスを使用して特定の電子メール メッセージを送信できるようになります。たとえば、アプリケーションでは消印を使用してトランザクション E メールを送信し、Amazon SES を使用して一括 E メールを送信する場合があります。
+
+`mail` 構成ファイル内に、`mailers` 構成配列があります。この配列には、Laravel でサポートされている主要なメールドライバ/トランスポートのそれぞれのサンプル構成エントリが含まれています。一方、`default` 構成値は、アプリケーションが電子メールメッセージを送信する必要があるときにデフォルトで使用されるメーラーを決定します。
+
+<a name="driver-prerequisites"></a>
+### ドライバ/トランスポートの前提条件
+
+Mailgun、Postmark、Resend などの API ベースのドライバは、多くの場合、SMTP サーバー経由でメールを送信するよりも簡単で高速です。可能な限り、これらのドライバのいずれかを使用することをお勧めします。
+
+<a name="mailgun-driver"></a>
+#### メールガンドライバ
+
+Mailgun ドライバを使用するには、Composer 経由で Symfony の Mailgun Mailer トランスポートをインストールします。
+
+```shell
+composer require symfony/mailgun-mailer symfony/http-client
+```
+
+次に、アプリケーションの `config/mail.php` 構成ファイルに 2 つの変更を加える必要があります。まず、デフォルトのメーラーを `mailgun` に設定します。
+
+```php
+'default' => env('MAIL_MAILER', 'mailgun'),
+```
+
+次に、次の構成配列を `mailers` の配列に追加します。
+
+```php
+'mailgun' => [
+    'transport' => 'mailgun',
+    // 'client' => [
+    //     'timeout' => 5,
+    // ],
+],
+```
+
+アプリケーションのデフォルトのメーラーを構成した後、`config/services.php` 構成ファイルに次のオプションを追加します。
+
+```php
+'mailgun' => [
+    'domain' => env('MAILGUN_DOMAIN'),
+    'secret' => env('MAILGUN_SECRET'),
+    'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+    'scheme' => 'https',
+],
+```
+
+米国の [メールガン地域](https://documentation.mailgun.com/docs/mailgun/api-reference/#mailgun-regions) を使用していない場合は、`services` 構成ファイルで地域のエンドポイントを定義できます。
+
+```php
+'mailgun' => [
+    'domain' => env('MAILGUN_DOMAIN'),
+    'secret' => env('MAILGUN_SECRET'),
+    'endpoint' => env('MAILGUN_ENDPOINT', 'api.eu.mailgun.net'),
+    'scheme' => 'https',
+],
+```
+
+<a name="postmark-driver"></a>
+#### 消印ドライバ
+
+[Postmark](https://postmarkapp.com/) ドライバを使用するには、Composer 経由で Symfony の Postmark Mailer トランスポートをインストールします。
+
+```shell
+composer require symfony/postmark-mailer symfony/http-client
+```
+
+次に、アプリケーションの `config/mail.php` 構成ファイルの `default` オプションを `postmark` に設定します。アプリケーションのデフォルトのメーラーを構成した後、`config/services.php` 構成ファイルに次のオプションが含まれていることを確認してください。
+
+```php
+'postmark' => [
+    'key' => env('POSTMARK_API_KEY'),
+],
+```
+
+特定のメーラーで使用する消印メッセージ ストリームを指定したい場合は、メーラーの構成配列に `message_stream_id` 構成オプションを追加できます。この構成配列は、アプリケーションの `config/mail.php` 構成ファイルにあります。
+
+```php
+'postmark' => [
+    'transport' => 'postmark',
+    'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),
+    // 'client' => [
+    //     'timeout' => 5,
+    // ],
+],
+```
+
+この方法では、異なるメッセージ ストリームを持つ複数の Postmark メーラーを設定することもできます。
+
+<a name="resend-driver"></a>
+#### ドライバを再送信する
+
+[Resend](https://resend.com/) ドライバを使用するには、Composer 経由で Resend の PHP SDK をインストールします。
+
+```shell
+composer require resend/resend-php
+```
+
+次に、アプリケーションの `config/mail.php` 構成ファイルの `default` オプションを `resend` に設定します。アプリケーションのデフォルトのメーラーを構成した後、`config/services.php` 構成ファイルに次のオプションが含まれていることを確認してください。
+
+```php
+'resend' => [
+    'key' => env('RESEND_API_KEY'),
+],
+```
+
+<a name="ses-driver"></a>
+#### SESドライバ
+
+Amazon SES ドライバを使用するには、まず Amazon AWS SDK for PHP をインストールする必要があります。このライブラリは、Composer パッケージ マネージャーを介してインストールできます。
+
+```shell
+composer require aws/aws-sdk-php
+```
+
+次に、`config/mail.php` 構成ファイルの `default` オプションを `ses` に設定し、`config/services.php` 構成ファイルに次のオプションが含まれていることを確認します。
+
+```php
+'ses' => [
+    'key' => env('AWS_ACCESS_KEY_ID'),
+    'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+],
+```
+
+セッション トークン経由で AWS [一時的な認証情報](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_use-resources.html) を利用するには、アプリケーションの SES 設定に `token` キーを追加します。
+
+```php
+'ses' => [
+    'key' => env('AWS_ACCESS_KEY_ID'),
+    'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    'token' => env('AWS_SESSION_TOKEN'),
+],
+```
+
+SES の [サブスクリプション管理機能](https://docs.aws.amazon.com/ses/latest/dg/sending-email-subscription-management.html) と対話するには、メール メッセージの [headers](#headers) メソッドによって返される配列内の `X-Ses-List-Management-Options` ヘッダーを返すことができます。
+
+```php
+/**
+ * Get the message headers.
+ */
+public function headers(): Headers
+{
+    return new Headers(
+        text: [
+            'X-Ses-List-Management-Options' => 'contactListName=MyContactList;topicName=MyTopic',
+        ],
+    );
+}
+```
+
+電子メールの送信時に Laravel が AWS SDK の `SendEmail` メソッドに渡す [追加オプション](https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-sesv2-2019-09-27.html#sendemail) を定義したい場合は、`ses` 設定内で `options` 配列を定義できます。
+
+```php
+'ses' => [
+    'key' => env('AWS_ACCESS_KEY_ID'),
+    'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    'options' => [
+        'ConfigurationSetName' => 'MyConfigurationSet',
+        'EmailTags' => [
+            ['Name' => 'foo', 'Value' => 'bar'],
+        ],
+    ],
+],
+```
+
+<a name="failover-configuration"></a>
+### フェイルオーバー構成
+
+場合によっては、アプリケーションのメールを送信するように構成した外部サービスがダウンしている可能性があります。このような場合、プライマリ配信ドライバがダウンした場合に使用されるバックアップ メール配信構成を 1 つ以上定義すると便利です。
+
+これを実現するには、アプリケーションの `mail` 構成ファイル内で、`failover` トランスポートを使用するメーラーを定義する必要があります。アプリケーションの `failover` メーラーの構成配列には、構成されたメーラーが配信用に選択される順序を参照する `mailers` の配列が含まれている必要があります。
+
+```php
+'mailers' => [
+    'failover' => [
+        'transport' => 'failover',
+        'mailers' => [
+            'postmark',
+            'mailgun',
+            'sendmail',
+        ],
+        'retry_after' => 60,
+    ],
+
+    // ...
+],
+```
+
+`failover` トランスポートを使用するメーラーを構成したら、フェイルオーバー機能を利用するには、アプリケーションの `.env` ファイルでフェイルオーバー メーラーをデフォルトのメーラーとして設定する必要があります。
+
+```ini
+MAIL_MAILER=failover
+```
+
+<a name="round-robin-configuration"></a>
+### ラウンドロビン構成
+
+`roundrobin` トランスポートを使用すると、メール送信ワークロードを複数のメーラーに分散できます。まず、アプリケーションの `mail` 構成ファイル内で、`roundrobin` トランスポートを使用するメーラーを定義します。アプリケーションの `roundrobin` メーラーの構成配列には、どの構成メーラーを配信に使用するかを参照する `mailers` の配列が含まれている必要があります。
+
+```php
+'mailers' => [
+    'roundrobin' => [
+        'transport' => 'roundrobin',
+        'mailers' => [
+            'ses',
+            'postmark',
+        ],
+        'retry_after' => 60,
+    ],
+
+    // ...
+],
+```
+
+ラウンド ロビン メーラーを定義したら、アプリケーションの `mail` 構成ファイル内の `default` 構成キーの値としてその名前を指定することにより、このメーラーをアプリケーションで使用するデフォルトのメーラーとして設定する必要があります。
+
+```php
+'default' => env('MAIL_MAILER', 'roundrobin'),
+```
+
+ラウンド ロビン トランスポートは、構成されたメーラーのリストからランダムにメーラーを選択し、後続の電子メールごとに次に使用可能なメーラーに切り替えます。 *[高可用性](https://en.wikipedia.org/wiki/High_availability)* の実現に役立つ `failover` トランスポートとは対照的に、`roundrobin` トランスポートは *[負荷分散](https://en.wikipedia.org/wiki/Load_balancing_(computing))* を提供します。
+
+<a name="generating-mailables"></a>
+## メール可能ファイルの生成 (Generating Mailables)
+
+Laravel アプリケーションを構築する場合、アプリケーションによって送信される各種類の電子メールは、「メール可能」クラスとして表されます。これらのクラスは、`app/Mail` ディレクトリに保存されます。アプリケーションにこのディレクトリが表示されなくても心配する必要はありません。このディレクトリは、`make:mail` Artisan コマンドを使用して最初のメール可能クラスを作成するときに生成されるためです。
+
+```shell
+php artisan make:mail OrderShipped
+```
+
+<a name="writing-mailables"></a>
+## メール可能ファイルの作成 (Writing Mailables)
+
+メール可能なクラスを生成したら、そのクラスを開いて、その内容を探索できるようにします。メール可能クラスの構成は、`envelope`、`content`、`attachments` メソッドなど、いくつかのメソッドで行われます。
+
+`envelope` メソッドは、メッセージの件名と、場合によっては受信者を定義する `Illuminate\Mail\Mailables\Envelope` オブジェクトを返します。 `content` メソッドは、メッセージ コンテンツの生成に使用される [Blade テンプレート](/docs/{{version}}/blade) を定義する `Illuminate\Mail\Mailables\Content` オブジェクトを返します。
+
+<a name="configuring-the-sender"></a>
+### 送信者の設定
+
+<a name="using-the-envelope"></a>
+#### エンベロープの使用
+
+まず、電子メールの送信者の構成を見てみましょう。言い換えれば、電子メールの「送信者」が誰になるのかということです。送信者を構成するには 2 つの方法があります。まず、メッセージのエンベロープに「差出人」アドレスを指定します。
+
+```php
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Mail\Mailables\Envelope;
+
+/**
+ * Get the message envelope.
+ */
+public function envelope(): Envelope
+{
+    return new Envelope(
+        from: new Address('jeffrey@example.com', 'Jeffrey Way'),
+        subject: 'Order Shipped',
+    );
+}
+```
+
+必要に応じて、`replyTo` アドレスを指定することもできます。
+
+```php
+return new Envelope(
+    from: new Address('jeffrey@example.com', 'Jeffrey Way'),
+    replyTo: [
+        new Address('taylor@example.com', 'Taylor Otwell'),
+    ],
+    subject: 'Order Shipped',
+);
+```
+
+<a name="using-a-global-from-address"></a>
+#### グローバル `from` アドレスの使用
+
+ただし、アプリケーションがすべての電子メールに同じ「差出人」アドレスを使用する場合、生成する各メール可能クラスにそのアドレスを追加するのが面倒になる可能性があります。代わりに、`config/mail.php` 構成ファイルでグローバル「送信元」アドレスを指定できます。このアドレスは、メール可能クラス内に他の「差出人」アドレスが指定されていない場合に使用されます。
+
+```php
+'from' => [
+    'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+    'name' => env('MAIL_FROM_NAME', 'Example'),
+],
+```
+
+さらに、`config/mail.php` 構成ファイル内でグローバル「reply_to」アドレスを定義できます。
+
+```php
+'reply_to' => [
+    'address' => 'example@example.com',
+    'name' => 'App Name',
+],
+```
+
+<a name="configuring-the-view"></a>
+### ビューの構成
+
+メール可能クラスの `content` メソッド内で、`view`、または電子メールのコンテンツをレンダリングするときに使用するテンプレートを定義できます。通常、各電子メールは [Blade テンプレート](/docs/{{version}}/blade) を使用してコンテンツをレンダリングするため、電子メールの HTML を構築するときに、Blade テンプレート エンジンの能力と利便性を最大限に活用できます。
+
+```php
+/**
+ * Get the message content definition.
+ */
+public function content(): Content
+{
+    return new Content(
+        view: 'mail.orders.shipped',
+    );
+}
+```
+
+> [!NOTE]
+> すべての電子メール テンプレートを格納する `resources/views/mail` ディレクトリを作成することもできます。ただし、`resources/views` ディレクトリ内のどこにでも自由に配置できます。
+
+<a name="plain-text-emails"></a>
+#### プレーンテキストメール
+
+電子メールのプレーンテキスト バージョンを定義したい場合は、メッセージの `Content` 定義を作成するときにプレーンテキスト テンプレートを指定できます。 `view` パラメータと同様に、`text` パラメータは、電子メールのコンテンツをレンダリングするために使用されるテンプレート名である必要があります。メッセージの HTML バージョンとプレーンテキスト バージョンの両方を自由に定義できます。
+
+```php
+/**
+ * Get the message content definition.
+ */
+public function content(): Content
+{
+    return new Content(
+        view: 'mail.orders.shipped',
+        text: 'mail.orders.shipped-text'
+    );
+}
+```
+
+わかりやすくするために、`html` パラメーターは `view` パラメーターのエイリアスとして使用できます。
+
+```php
+return new Content(
+    html: 'mail.orders.shipped',
+    text: 'mail.orders.shipped-text'
+);
+```
+
+<a name="view-data"></a>
+### データの表示
+
+<a name="via-public-properties"></a>
+#### 公共プロパティ経由
+
+通常、電子メールの HTML をレンダリングするときに利用できるデータをビューに渡す必要があります。ビューでデータを利用できるようにするには 2 つの方法があります。まず、メール可能クラスで定義されたパブリック プロパティは自動的にビューで利用できるようになります。したがって、たとえば、メール可能クラスのコンストラクターにデータを渡し、そのデータをクラスで定義されたパブリック プロパティに設定できます。
+
+```php
+<?php
+
+namespace App\Mail;
+
+use App\Models\Order;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Queue\SerializesModels;
+
+class OrderShipped extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct(
+        public Order $order,
+    ) {}
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
+    {
+        return new Content(
+            view: 'mail.orders.shipped',
+        );
+    }
+}
+```
+
+データがパブリック プロパティに設定されると、そのデータは自動的にビューで使用できるようになり、Blade テンプレート内の他のデータにアクセスするのと同じようにアクセスできます。
+
+```blade
+<div>
+    Price: {{ $order->price }}
+</div>
+```
+
+<a name="via-the-with-parameter"></a>
+#### `with` パラメータ経由:
+
+テンプレートに送信される前に電子メールのデータの形式をカスタマイズしたい場合は、`Content` 定義の `with` パラメーターを介してデータをビューに手動で渡すことができます。通常は、メール可能クラスのコンストラクターを介してデータを渡します。ただし、データがテンプレートで自動的に使用可能にならないように、このデータを `protected` または `private` プロパティに設定する必要があります。
+
+```php
+<?php
+
+namespace App\Mail;
+
+use App\Models\Order;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Queue\SerializesModels;
+
+class OrderShipped extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct(
+        protected Order $order,
+    ) {}
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
+    {
+        return new Content(
+            view: 'mail.orders.shipped',
+            with: [
+                'orderName' => $this->order->name,
+                'orderPrice' => $this->order->price,
+            ],
+        );
+    }
+}
+```
+
+データが `with` パラメーターを介して渡されると、そのデータはビューで自動的に使用可能になるため、Blade テンプレート内の他のデータにアクセスするのと同じようにアクセスできます。
+
+```blade
+<div>
+    Price: {{ $orderPrice }}
+</div>
+```
+
+<a name="attachments"></a>
+### 添付ファイル
+
+電子メールに添付ファイルを追加するには、メッセージの `attachments` メソッドによって返される配列に添付ファイルを追加します。まず、`Attachment` クラスによって提供される `fromPath` メソッドにファイル パスを指定して、添付ファイルを追加できます。
+
+```php
+use Illuminate\Mail\Mailables\Attachment;
+
+/**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [
+        Attachment::fromPath('/path/to/file'),
+    ];
+}
+```
+
+メッセージにファイルを添付する場合、`as` および `withMime` メソッドを使用して、添付ファイルの表示名や MIME タイプを指定することもできます。
+
+```php
+/**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [
+        Attachment::fromPath('/path/to/file')
+            ->as('name.pdf')
+            ->withMime('application/pdf'),
+    ];
+}
+```
+
+<a name="attaching-files-from-disk"></a>
+#### ディスクからファイルを添付する
+
+[ファイルシステムディスク](/docs/{{version}}/filesystem) のいずれかにファイルを保存している場合は、`fromStorage` 添付方法を使用してそのファイルを電子メールに添付できます。
+
+```php
+/**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [
+        Attachment::fromStorage('/path/to/file'),
+    ];
+}
+```
+
+もちろん、添付ファイルの名前と MIME タイプを指定することもできます。
+
+```php
+/**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [
+        Attachment::fromStorage('/path/to/file')
+            ->as('name.pdf')
+            ->withMime('application/pdf'),
+    ];
+}
+```
+
+デフォルトのディスク以外のストレージ ディスクを指定する必要がある場合は、`fromStorageDisk` メソッドを使用できます。
+
+```php
+/**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [
+        Attachment::fromStorageDisk('s3', '/path/to/file')
+            ->as('name.pdf')
+            ->withMime('application/pdf'),
+    ];
+}
+```
+
+<a name="raw-data-attachments"></a>
+#### 生データの添付ファイル
+
+`fromData` 添付メソッドを使用して、生のバイト文字列を添付ファイルとして添付できます。たとえば、メモリ内に PDF を生成し、それをディスクに書き込まずに電子メールに添付したい場合は、この方法を使用できます。 `fromData` メソッドは、生データ バイトと添付ファイルに割り当てる名前を解決するクロージャを受け入れます。
+
+```php
+/**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [
+        Attachment::fromData(fn () => $this->pdf, 'Report.pdf')
+            ->withMime('application/pdf'),
+    ];
+}
+```
+
+<a name="inline-attachments"></a>
+### インライン添付ファイル
+
+通常、電子メールにインライン画像を埋め込むのは面倒です。ただし、Laravel では、メールに画像を添付する便利な方法が提供されています。インライン画像を埋め込むには、電子メール テンプレート内の `$message` 変数で `embed` メソッドを使用します。 Laravel は自動的に `$message` 変数をすべての電子メール テンプレートで利用できるようにするため、手動で渡すことを心配する必要はありません。
+
+```blade
+<body>
+    Here is an image:
+
+    <img src="{{ $message->embed($pathToImage) }}">
+</body>
+```
+
+> [!WARNING]
+> プレーン テキスト メッセージはインライン添付ファイルを利用しないため、`$message` 変数はプレーン テキスト メッセージ テンプレートでは使用できません。
+
+<a name="embedding-raw-data-attachments"></a>
+#### 生データの添付ファイルの埋め込み
+
+電子メール テンプレートに埋め込みたい生の画像データ文字列が既にある場合は、`$message` 変数で `embedData` メソッドを呼び出すことができます。 `embedData` メソッドを呼び出すときは、埋め込み画像に割り当てるファイル名を指定する必要があります。
+
+```blade
+<body>
+    Here is an image from raw data:
+
+    <img src="{{ $message->embedData($data, 'example-image.jpg') }}">
+</body>
+```
+
+<a name="attachable-objects"></a>
+### 取り付け可能なオブジェクト
+
+多くの場合、単純な文字列パスを介してメッセージにファイルを添付するだけで十分ですが、多くの場合、アプリケーション内の添付可能なエンティティはクラスによって表されます。たとえば、アプリケーションがメッセージに写真を添付し​​ている場合、アプリケーションにはその写真を表す `Photo` モデルも含まれる可能性があります。その場合、`Photo` モデルを `attach` メソッドに渡すだけで便利ではないでしょうか。アタッチ可能なオブジェクトを使用すると、まさにそれが可能になります。
+
+まず、メッセージに添付できるオブジェクトに `Illuminate\Contracts\Mail\Attachable` インターフェイスを実装します。このインターフェイスは、クラスが `Illuminate\Mail\Attachment` インスタンスを返す `toMailAttachment` メソッドを定義することを指示します。
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Contracts\Mail\Attachable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Mail\Attachment;
+
+class Photo extends Model implements Attachable
+{
+    /**
+     * Get the attachable representation of the model.
+     */
+    public function toMailAttachment(): Attachment
+    {
+        return Attachment::fromPath('/path/to/file');
+    }
+}
+```
+
+添付可能なオブジェクトを定義したら、電子メール メッセージを作成するときに `attachments` メソッドからそのオブジェクトのインスタンスを返すことができます。
+
+```php
+/**
+ * Get the attachments for the message.
+ *
+ * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+ */
+public function attachments(): array
+{
+    return [$this->photo];
+}
+```
+
+もちろん、添付データは Amazon S3 などのリモート ファイルストレージ サービスに保存される場合があります。したがって、Laravel では、アプリケーションの [ファイルシステムディスク](/docs/{{version}}/filesystem) の 1 つに保存されているデータから添付ファイル インスタンスを生成することもできます。
+
+```php
+// Create an attachment from a file on your default disk...
+return Attachment::fromStorage($this->path);
+
+// Create an attachment from a file on a specific disk...
+return Attachment::fromStorageDisk('backblaze', $this->path);
+```
+
+さらに、メモリ内にあるデータを使用して添付ファイルのインスタンスを作成することもできます。これを実現するには、`fromData` メソッドにクロージャーを提供します。クロージャは添付ファイルを表す生データを返す必要があります。
+
+```php
+return Attachment::fromData(fn () => $this->content, 'Photo Name');
+```
+
+Laravel は、添付ファイルをカスタマイズするために使用できる追加のメソッドも提供します。たとえば、`as` メソッドと `withMime` メソッドを使用して、ファイル名と MIME タイプをカスタマイズできます。
+
+```php
+return Attachment::fromPath('/path/to/file')
+    ->as('Photo Name')
+    ->withMime('image/jpeg');
+```
+
+<a name="headers"></a>
+### ヘッダー
+
+場合によっては、送信メッセージに追加のヘッダーを添付する必要がある場合があります。たとえば、カスタム `Message-Id` またはその他の任意のテキスト ヘッダーを設定する必要がある場合があります。
+
+これを実現するには、メール可能ファイルで `headers` メソッドを定義します。 `headers` メソッドは、`Illuminate\Mail\Mailables\Headers` インスタンスを返す必要があります。このクラスは、`messageId`、`references`、および `text` パラメーターを受け入れます。もちろん、特定のメッセージに必要なパラメータのみを指定することもできます。
+
+```php
+use Illuminate\Mail\Mailables\Headers;
+
+/**
+ * Get the message headers.
+ */
+public function headers(): Headers
+{
+    return new Headers(
+        messageId: 'custom-message-id@example.com',
+        references: ['previous-message@example.com'],
+        text: [
+            'X-Custom-Header' => 'Custom Value',
+        ],
+    );
+}
+```
+
+<a name="tags-and-metadata"></a>
+### タグとメタデータ
+
+Mailgun や Postmark などの一部のサードパーティ電子メール プロバイダは、メッセージの「タグ」と「メタデータ」をサポートしています。これらは、アプリケーションによって送信された電子メールをグループ化し、追跡するために使用される場合があります。 `Envelope` 定義を使用して、電子メール メッセージにタグとメタデータを追加できます。
+
+```php
+use Illuminate\Mail\Mailables\Envelope;
+
+/**
+ * Get the message envelope.
+ *
+ * @return \Illuminate\Mail\Mailables\Envelope
+ */
+public function envelope(): Envelope
+{
+    return new Envelope(
+        subject: 'Order Shipped',
+        tags: ['shipment'],
+        metadata: [
+            'order_id' => $this->order->id,
+        ],
+    );
+}
+```
+
+アプリケーションが Mailgun ドライバを使用している場合、[tags](https://documentation.mailgun.com/docs/mailgun/user-manual/tracking-messages/#tags) および [metadata](https://documentation.mailgun.com/docs/mailgun/user-manual/sending-messages/#attaching-metadata-to-messages) の詳細については、Mailgun のドキュメントを参照してください。同様に、[tags](https://postmarkapp.com/blog/tags-support-for-smtp) および [metadata](https://postmarkapp.com/support/article/1125-custom-metadata-faq) のサポートの詳細については、消印のドキュメントを参照することもできます。
+
+アプリケーションが Amazon SES を使用して E メールを送信している場合は、`metadata` メソッドを使用してメッセージに [SESの「タグ」](https://docs.aws.amazon.com/ses/latest/APIReference/API_MessageTag.html) を添付する必要があります。
+
+<a name="customizing-the-symfony-message"></a>
+### Symfony メッセージのカスタマイズ
+
+Laravel のメール機能は Symfony Mailer によって強化されています。 Laravel では、メッセージを送信する前に Symfony Message インスタンスで呼び出されるカスタム コールバックを登録できます。これにより、メッセージを送信する前にメッセージを詳細にカスタマイズする機会が得られます。これを実現するには、`Envelope` 定義で `using` パラメータを定義します。
+
+```php
+use Illuminate\Mail\Mailables\Envelope;
+use Symfony\Component\Mime\Email;
+
+/**
+ * Get the message envelope.
+ */
+public function envelope(): Envelope
+{
+    return new Envelope(
+        subject: 'Order Shipped',
+        using: [
+            function (Email $message) {
+                // ...
+            },
+        ]
+    );
+}
+```
+
+<a name="markdown-mailables"></a>
+## マークダウン メール可能ファイル (Markdown Mailables)
+
+マークダウンのメール可能メッセージを使用すると、メール可能メッセージで事前に構築されたテンプレートと [メール通知](/docs/{{version}}/notifications#mail-notifications) のコンポーネントを利用できます。メッセージは Markdown で記述されているため、Laravel はメッセージ用の美しく応答性の高い HTML テンプレートをレンダリングできると同時に、対応するプレーンテキストも自動的に生成します。
+
+<a name="generating-markdown-mailables"></a>
+### マークダウン メール可能ファイルの生成
+
+対応する Markdown テンプレートを使用してメール可能ファイルを生成するには、`make:mail` Artisan コマンドの `--markdown` オプションを使用できます。
+
+```shell
+php artisan make:mail OrderShipped --markdown=mail.orders.shipped
+```
+
+次に、`content` メソッド内でメール可能な `Content` 定義を構成するときに、`view` パラメーターの代わりに `markdown` パラメーターを使用します。
+
+```php
+use Illuminate\Mail\Mailables\Content;
+
+/**
+ * Get the message content definition.
+ */
+public function content(): Content
+{
+    return new Content(
+        markdown: 'mail.orders.shipped',
+        with: [
+            'url' => $this->orderUrl,
+        ],
+    );
+}
+```
+
+<a name="writing-markdown-messages"></a>
+### マークダウンメッセージの作成
+
+Markdown メール可能ファイルは、Blade コンポーネントと Markdown 構文の組み合わせを使用するため、Laravel の事前構築済み電子メール UI コンポーネントを活用しながら、メール メッセージを簡単に作成できます。
+
+```blade
+<x-mail::message>
+# Order Shipped
+
+Your order has been shipped!
+
+<x-mail::button :url="$url">
+View Order
+</x-mail::button>
+
+Thanks,<br>
+{{ config('app.name') }}
+</x-mail::message>
+```
+
+> [!NOTE]
+> Markdown メールを作成するときは、過剰なインデントを使用しないでください。 Markdown 標準に従って、Markdown パーサーはインデントされたコンテンツをコード ブロックとしてレンダリングします。
+
+<a name="button-component"></a>
+#### ボタンコンポーネント
+
+ボタン コンポーネントは、中央にボタン リンクをレンダリングします。このコンポーネントは、`url` とオプションの `color` の 2 つの引数を受け入れます。サポートされている色は、`primary`、`success`、および `error` です。ボタン コンポーネントは必要なだけメッセージに追加できます。
+
+```blade
+<x-mail::button :url="$url" color="success">
+View Order
+</x-mail::button>
+```
+
+<a name="panel-component"></a>
+#### パネルコンポーネント
+
+パネル コンポーネントは、メッセージの残りの部分とはわずかに異なる背景色を持つパネルに指定されたテキスト ブロックをレンダリングします。これにより、特定のテキスト ブロックに注意を向けることができます。
+
+```blade
+<x-mail::panel>
+This is the panel content.
+</x-mail::panel>
+```
+
+<a name="table-component"></a>
+#### テーブルコンポーネント
+
+table コンポーネントを使用すると、Markdown テーブルを HTML テーブルに変換できます。コンポーネントは、Markdown テーブルをコンテンツとして受け入れます。テーブル列の配置は、デフォルトの Markdown テーブル配置構文を使用してサポートされます。
+
+```blade
+<x-mail::table>
+| Laravel       | Table         | Example       |
+| ------------- | :-----------: | ------------: |
+| Col 2 is      | Centered      | $10           |
+| Col 3 is      | Right-Aligned | $20           |
+</x-mail::table>
+```
+
+<a name="customizing-the-components"></a>
+### コンポーネントのカスタマイズ
+
+すべての Markdown メール コンポーネントを独自のアプリケーションにエクスポートしてカスタマイズできます。コンポーネントをエクスポートするには、`vendor:publish` Artisan コマンドを使用して、`laravel-mail` アセット タグを公開します。
+
+```shell
+php artisan vendor:publish --tag=laravel-mail
+```
+
+このコマンドは、Markdown メール コンポーネントを `resources/views/vendor/mail` ディレクトリに公開します。 `mail` ディレクトリには、`html` ディレクトリと `text` ディレクトリが含まれ、それぞれに使用可能なすべてのコンポーネントのそれぞれの表現が含まれます。これらのコンポーネントは自由にカスタマイズできます。
+
+<a name="customizing-the-css"></a>
+#### CSSのカスタマイズ
+
+コンポーネントをエクスポートすると、`resources/views/vendor/mail/html/themes` ディレクトリに `default.css` ファイルが含まれます。このファイル内の CSS をカスタマイズすると、スタイルは Markdown メール メッセージの HTML 表現内のインライン CSS スタイルに自動的に変換されます。
+
+Laravel の Markdown コンポーネント用にまったく新しいテーマを構築したい場合は、CSS ファイルを `html/themes` ディレクトリ内に配置できます。 CSS ファイルに名前を付けて保存した後、アプリケーションの `config/mail.php` 構成ファイルの `theme` オプションを新しいテーマの名前と一致するように更新します。
+
+個々のメール可能ファイルのテーマをカスタマイズするには、メール可能クラスの `$theme` プロパティを、そのメール可能ファイルの送信時に使用するテーマの名前に設定します。
+
+<a name="sending-mail"></a>
+## メールの送信 (Sending Mail)
+
+メッセージを送信するには、`Mail` [facade](/docs/{{version}}/facades) で `to` メソッドを使用します。 `to` メソッドは、電子メール アドレス、ユーザー インスタンス、またはユーザーのコレクションを受け入れます。オブジェクトまたはオブジェクトのコレクションを渡す場合、メーラーは電子メールの受信者を決定するときに `email` および `name` プロパティを自動的に使用するため、これらの属性がオブジェクトで使用できることを確認してください。受信者を指定したら、メール可能クラスのインスタンスを `send` メソッドに渡すことができます。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Mail\OrderShipped;
+use App\Models\Order;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+
+class OrderShipmentController extends Controller
+{
+    /**
+     * Ship the given order.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $order = Order::findOrFail($request->order_id);
+
+        // Ship the order...
+
+        Mail::to($request->user())->send(new OrderShipped($order));
+
+        return redirect('/orders');
+    }
+}
+```
+
+メッセージを送信するときは、受信者の「宛先」を指定するだけではありません。それぞれのメソッドを連鎖させることで、「to」、「cc」、「bcc」の受信者を自由に設定できます。
+
+```php
+Mail::to($request->user())
+    ->cc($moreUsers)
+    ->bcc($evenMoreUsers)
+    ->send(new OrderShipped($order));
+```
+
+<a name="looping-over-recipients"></a>
+#### 受信者をループする
+
+場合によっては、受信者/電子メール アドレスの配列を反復処理して、受信者のリストにメール可能ファイルを送信する必要がある場合があります。ただし、`to` メソッドは電子メール アドレスをメール可能受信者のリストに追加するため、ループを繰り返すたびに、前のすべての受信者に別の電子メールが送信されます。したがって、受信者ごとにメール可能インスタンスを常に再作成する必要があります。
+
+```php
+foreach (['taylor@example.com', 'dries@example.com'] as $recipient) {
+    Mail::to($recipient)->send(new OrderShipped($order));
+}
+```
+
+<a name="sending-mail-via-a-specific-mailer"></a>
+#### 特定のメーラー経由でメールを送信する
+
+デフォルトでは、Laravel はアプリケーションの `mail` 設定ファイルで `default` メーラーとして設定されたメーラーを使用して電子メールを送信します。ただし、`mailer` メソッドを使用して、特定のメーラー構成を使用してメッセージを送信することもできます。
+
+```php
+Mail::mailer('postmark')
+    ->to($request->user())
+    ->send(new OrderShipped($order));
+```
+
+<a name="queueing-mail"></a>
+### メールのキューイング
+
+<a name="queueing-a-mail-message"></a>
+#### メールメッセージをキューに入れる
+
+電子メール メッセージの送信はアプリケーションの応答時間に悪影響を与える可能性があるため、多くの開発者はバックグラウンド送信のために電子メール メッセージをキューに入れることを選択します。 Laravel では、組み込みの [統合キューAPI](/docs/{{version}}/queues) を使用してこれを簡単に実行できます。メール メッセージをキューに入れるには、メッセージの受信者を指定した後、`Mail` ファサードで `queue` メソッドを使用します。
+
+```php
+Mail::to($request->user())
+    ->cc($moreUsers)
+    ->bcc($evenMoreUsers)
+    ->queue(new OrderShipped($order));
+```
+
+このメソッドは、ジョブをキューにプッシュする処理を自動的に処理するため、メッセージはバックグラウンドで送信されます。この機能を使用する前に、[キューを設定する](/docs/{{version}}/queues) する必要があります。
+
+<a name="delayed-message-queueing"></a>
+#### 遅延メッセージキューイング
+
+キューに入れられた電子メール メッセージの配信を遅らせたい場合は、`later` メソッドを使用できます。 `later` メソッドは、最初の引数として、メッセージをいつ送信するかを示す `DateTime` インスタンスを受け取ります。
+
+```php
+Mail::to($request->user())
+    ->cc($moreUsers)
+    ->bcc($evenMoreUsers)
+    ->later(now()->plus(minutes: 10), new OrderShipped($order));
+```
+
+<a name="pushing-to-specific-queues"></a>
+#### 特定のキューへのプッシュ
+
+`make:mail` コマンドを使用して生成されたすべてのメール可能クラスは `Illuminate\Bus\Queueable` 特性を利用するため、任意のメール可能クラス インスタンスで `onQueue` メソッドと `onConnection` メソッドを呼び出して、メッセージの接続とキュー名を指定できます。
+
+```php
+$message = (new OrderShipped($order))
+    ->onConnection('sqs')
+    ->onQueue('emails');
+
+Mail::to($request->user())
+    ->cc($moreUsers)
+    ->bcc($evenMoreUsers)
+    ->queue($message);
+```
+
+<a name="queueing-by-default"></a>
+#### デフォルトでのキューイング
+
+常にキューに入れておきたいメール可能なクラスがある場合は、そのクラスに `ShouldQueue` コントラクトを実装できます。ここで、メール送信時に `send` メソッドを呼び出したとしても、メール可能ファイルはコントラクトを実装しているため、引き続きキューに入れられます。
+
+```php
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class OrderShipped extends Mailable implements ShouldQueue
+{
+    // ...
+}
+```
+
+<a name="queued-mailables-and-database-transactions"></a>
+#### キューに入れられたメール可能ファイルとデータベース トランザクション
+
+キューに入れられたメール可能ファイルがデータベース トランザクション内でディスパッチされると、データベース トランザクションがコミットされる前にキューによって処理される可能性があります。この問題が発生すると、データベース トランザクション中にモデルまたはデータベース レコードに対して行った更新がまだデータベースに反映されていない可能性があります。さらに、トランザクション内で作成されたモデルやデータベース レコードはデータベースに存在しない可能性があります。メール可能ファイルがこれらのモデルに依存している場合、キューに入れられたメール可能ファイルを送信するジョブの処理時に予期しないエラーが発生する可能性があります。
+
+キュー接続の `after_commit` 構成オプションが `false` に設定されている場合でも、メール メッセージの送信時に `afterCommit` メソッドを呼び出して、開いているすべてのデータベース トランザクションがコミットされた後に特定のキューに入れられたメール可能ファイルをディスパッチする必要があることを指定できます。
+
+```php
+Mail::to($request->user())->send(
+    (new OrderShipped($order))->afterCommit()
+);
+```
+
+あるいは、メール可能ファイルのコンストラクターから `afterCommit` メソッドを呼び出すこともできます。
+
+```php
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+
+class OrderShipped extends Mailable implements ShouldQueue
+{
+    use Queueable, SerializesModels;
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct()
+    {
+        $this->afterCommit();
+    }
+}
+```
+
+> [!NOTE]
+> これらの問題の回避方法の詳細については、[キューに入れられたジョブとデータベース トランザクション](/docs/{{version}}/queues#jobs-and-database-transactions) に関するドキュメントを参照してください。
+
+<a name="queued-email-failures"></a>
+#### キューに登録された電子メールの失敗
+
+キューに入れられた電子メールが失敗すると、キューに入れられたメール可能クラスの `failed` メソッドが定義されている場合は呼び出されます。キューに入れられた電子メールの失敗の原因となった `Throwable` インスタンスは、`failed` メソッドに渡されます。
+
+```php
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+use Throwable;
+
+class OrderDelayed extends Mailable implements ShouldQueue
+{
+    use SerializesModels;
+
+    /**
+     * Handle a queued email's failure.
+     */
+    public function failed(Throwable $exception): void
+    {
+        // ...
+    }
+}
+```
+
+<a name="rendering-mailables"></a>
+## メール可能ファイルのレンダリング (Rendering Mailables)
+
+メール可能ファイルを送信せずに、その HTML コンテンツをキャプチャしたい場合があります。これを実現するには、メール可能ファイルの `render` メソッドを呼び出します。このメソッドは、メール可能ファイルの評価された HTML コンテンツを文字列として返します。
+
+```php
+use App\Mail\InvoicePaid;
+use App\Models\Invoice;
+
+$invoice = Invoice::find(1);
+
+return (new InvoicePaid($invoice))->render();
+```
+
+<a name="previewing-mailables-in-the-browser"></a>
+### ブラウザでのメール可能ファイルのプレビュー
+
+メール可能ファイルのテンプレートを設計する場合、一般的な Blade テンプレートと同様に、レンダリングされたメール可能ファイルをブラウザーですばやくプレビューできると便利です。このため、Laravel では、ルート クロージャーまたはコントローラから直接メール可能ファイルを返すことができます。メール可能ファイルが返されると、レンダリングされてブラウザに表示されるため、実際の電子メール アドレスに送信しなくても、そのデザインをすばやくプレビューできます。
+
+```php
+Route::get('/mailable', function () {
+    $invoice = App\Models\Invoice::find(1);
+
+    return new App\Mail\InvoicePaid($invoice);
+});
+```
+
+<a name="localizing-mailables"></a>
+## メール可能ファイルのローカライズ (Localizing Mailables)
+
+Laravel では、リクエストの現在のロケール以外のロケールでメール可能ファイルを送信することができ、メールがキューに入れられている場合でもこのロケールを記憶します。
+
+これを実現するために、`Mail` ファサードは、希望の言語を設定するための `locale` メソッドを提供します。アプリケーションは、メール可能テンプレートの評価中にこのロケールに変更され、評価が完了すると前のロケールに戻ります。
+
+```php
+Mail::to($request->user())->locale('es')->send(
+    new OrderShipped($order)
+);
+```
+
+<a name="user-preferred-locales"></a>
+#### ユーザーの優先ロケール
+
+場合によっては、アプリケーションが各ユーザーの優先ロケールを保存することがあります。 1 つ以上のモデルに `HasLocalePreference` コントラクトを実装することで、メール送信時にこの保存されたロケールを使用するように Laravel に指示できます。
+
+```php
+use Illuminate\Contracts\Translation\HasLocalePreference;
+
+class User extends Model implements HasLocalePreference
+{
+    /**
+     * Get the user's preferred locale.
+     */
+    public function preferredLocale(): string
+    {
+        return $this->locale;
+    }
+}
+```
+
+インターフェースを実装すると、Laravel はメール可能ファイルや通知をモデルに送信するときに優先ロケールを自動的に使用します。したがって、このインターフェイスを使用する場合は、`locale` メソッドを呼び出す必要はありません。
+
+```php
+Mail::to($request->user())->send(new OrderShipped($order));
+```
+
+<a name="testing-mailables"></a>
+## テスト (Testing)
+
+<a name="testing-mailable-content"></a>
+### メール可能なコンテンツのテスト
+
+Laravel は、メーラブルの構造を検査するためのさまざまな方法を提供します。さらに、Laravel には、メール可能ファイルに期待するコンテンツが含まれているかどうかをテストするための便利な方法がいくつか用意されています。
+
+```php tab=Pest
+use App\Mail\InvoicePaid;
+use App\Models\User;
+
+test('mailable content', function () {
+    $user = User::factory()->create();
+
+    $mailable = new InvoicePaid($user);
+
+    $mailable->assertFrom('jeffrey@example.com');
+    $mailable->assertTo('taylor@example.com');
+    $mailable->assertHasCc('abigail@example.com');
+    $mailable->assertHasBcc('victoria@example.com');
+    $mailable->assertHasReplyTo('tyler@example.com');
+    $mailable->assertHasSubject('Invoice Paid');
+    $mailable->assertHasTag('example-tag');
+    $mailable->assertHasMetadata('key', 'value');
+
+    $mailable->assertSeeInHtml($user->email);
+    $mailable->assertDontSeeInHtml('Invoice Not Paid');
+    $mailable->assertSeeInOrderInHtml(['Invoice Paid', 'Thanks']);
+
+    $mailable->assertSeeInText($user->email);
+    $mailable->assertDontSeeInText('Invoice Not Paid');
+    $mailable->assertSeeInOrderInText(['Invoice Paid', 'Thanks']);
+
+    $mailable->assertHasAttachment('/path/to/file');
+    $mailable->assertHasAttachment(Attachment::fromPath('/path/to/file'));
+    $mailable->assertHasAttachedData($pdfData, 'name.pdf', ['mime' => 'application/pdf']);
+    $mailable->assertHasAttachmentFromStorage('/path/to/file', 'name.pdf', ['mime' => 'application/pdf']);
+    $mailable->assertHasAttachmentFromStorageDisk('s3', '/path/to/file', 'name.pdf', ['mime' => 'application/pdf']);
+});
+```
+
+```php tab=PHPUnit
+use App\Mail\InvoicePaid;
+use App\Models\User;
+
+public function test_mailable_content(): void
+{
+    $user = User::factory()->create();
+
+    $mailable = new InvoicePaid($user);
+
+    $mailable->assertFrom('jeffrey@example.com');
+    $mailable->assertTo('taylor@example.com');
+    $mailable->assertHasCc('abigail@example.com');
+    $mailable->assertHasBcc('victoria@example.com');
+    $mailable->assertHasReplyTo('tyler@example.com');
+    $mailable->assertHasSubject('Invoice Paid');
+    $mailable->assertHasTag('example-tag');
+    $mailable->assertHasMetadata('key', 'value');
+
+    $mailable->assertSeeInHtml($user->email);
+    $mailable->assertDontSeeInHtml('Invoice Not Paid');
+    $mailable->assertSeeInOrderInHtml(['Invoice Paid', 'Thanks']);
+
+    $mailable->assertSeeInText($user->email);
+    $mailable->assertDontSeeInText('Invoice Not Paid');
+    $mailable->assertSeeInOrderInText(['Invoice Paid', 'Thanks']);
+
+    $mailable->assertHasAttachment('/path/to/file');
+    $mailable->assertHasAttachment(Attachment::fromPath('/path/to/file'));
+    $mailable->assertHasAttachedData($pdfData, 'name.pdf', ['mime' => 'application/pdf']);
+    $mailable->assertHasAttachmentFromStorage('/path/to/file', 'name.pdf', ['mime' => 'application/pdf']);
+    $mailable->assertHasAttachmentFromStorageDisk('s3', '/path/to/file', 'name.pdf', ['mime' => 'application/pdf']);
+}
+```
+
+ご想像のとおり、「HTML」アサーションはメール可能ファイルの HTML バージョンに特定の文字列が含まれていることをアサートし、「テキスト」アサーションはメール可能ファイルのプレーンテキスト バージョンに特定の文字列が含まれていることをアサートします。
+
+<a name="testing-mailable-sending"></a>
+### メール可能な送信のテスト
+
+特定のメール可能ファイルが特定のユーザーに「送信された」ことを確認するテストとは別に、メール可能ファイルのコンテンツをテストすることをお勧めします。通常、メール可能ファイルの内容はテストしているコードとは無関係であり、Laravel が特定のメール可能ファイルを送信するように指示されたことを単に主張するだけで十分です。
+
+`Mail` ファサードの `fake` メソッドを使用して、メールが送信されないようにすることができます。 `Mail` ファサードの `fake` メソッドを呼び出した後、メール可能ファイルがユーザーに送信されるように指示されたことをアサートし、メール可能ファイルが受信したデータを検査することもできます。
+
+```php tab=Pest
+<?php
+
+use App\Mail\OrderShipped;
+use Illuminate\Support\Facades\Mail;
+
+test('orders can be shipped', function () {
+    Mail::fake();
+
+    // Perform order shipping...
+
+    // Assert that no mailables were sent...
+    Mail::assertNothingSent();
+
+    // Assert that a mailable was sent...
+    Mail::assertSent(OrderShipped::class);
+
+    // Assert a mailable was sent twice...
+    Mail::assertSent(OrderShipped::class, 2);
+
+    // Assert a mailable was sent to an email address...
+    Mail::assertSent(OrderShipped::class, 'example@laravel.com');
+
+    // Assert a mailable was sent to multiple email addresses...
+    Mail::assertSent(OrderShipped::class, ['example@laravel.com', '...']);
+
+    // Assert a mailable was not sent...
+    Mail::assertNotSent(AnotherMailable::class);
+
+    // Assert a mailable was sent twice...
+    Mail::assertSentTimes(OrderShipped::class, 2);
+
+    // Assert 3 total mailables were sent...
+    Mail::assertSentCount(3);
+});
+```
+
+```php tab=PHPUnit
+<?php
+
+namespace Tests\Feature;
+
+use App\Mail\OrderShipped;
+use Illuminate\Support\Facades\Mail;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    public function test_orders_can_be_shipped(): void
+    {
+        Mail::fake();
+
+        // Perform order shipping...
+
+        // Assert that no mailables were sent...
+        Mail::assertNothingSent();
+
+        // Assert that a mailable was sent...
+        Mail::assertSent(OrderShipped::class);
+
+        // Assert a mailable was sent twice...
+        Mail::assertSent(OrderShipped::class, 2);
+
+        // Assert a mailable was sent to an email address...
+        Mail::assertSent(OrderShipped::class, 'example@laravel.com');
+
+        // Assert a mailable was sent to multiple email addresses...
+        Mail::assertSent(OrderShipped::class, ['example@laravel.com', '...']);
+
+        // Assert a mailable was not sent...
+        Mail::assertNotSent(AnotherMailable::class);
+
+        // Assert a mailable was sent twice...
+        Mail::assertSentTimes(OrderShipped::class, 2);
+
+        // Assert 3 total mailables were sent...
+        Mail::assertSentCount(3);
+    }
+}
+```
+
+バックグラウンドで配信のためにメール可能ファイルをキューに入れている場合は、`assertSent` の代わりに `assertQueued` メソッドを使用する必要があります。
+
+```php
+Mail::assertQueued(OrderShipped::class);
+Mail::assertNotQueued(OrderShipped::class);
+Mail::assertNothingQueued();
+Mail::assertQueuedCount(3);
+```
+
+`assertOutgoingCount` メソッドを使用して、送信またはキューに入れられたメール可能ファイルの合計数をアサートすることもできます。
+
+```php
+Mail::assertOutgoingCount(3);
+```
+
+特定の「真実テスト」に合格したメール可能ファイルが送信されたことをアサートするために、`assertSent`、`assertNotSent`、`assertQueued`、または `assertNotQueued` メソッドにクロージャを渡すことができます。指定された真実テストに合格する少なくとも 1 つのメール可能ファイルが送信された場合、アサーションは成功します。
+
+```php
+Mail::assertSent(function (OrderShipped $mail) use ($order) {
+    return $mail->order->id === $order->id;
+});
+```
+
+`Mail` ファサードのアサーション メソッドを呼び出すと、提供されたクロージャによって受け入れられるメール可能インスタンスは、メール可能を調べるための役立つメソッドを公開します。
+
+```php
+Mail::assertSent(OrderShipped::class, function (OrderShipped $mail) use ($user) {
+    return $mail->hasTo($user->email) &&
+           $mail->hasCc('...') &&
+           $mail->hasBcc('...') &&
+           $mail->hasReplyTo('...') &&
+           $mail->hasFrom('...') &&
+           $mail->hasSubject('...') &&
+           $mail->hasMetadata('order_id', $mail->order->id);
+           $mail->usesMailer('ses');
+});
+```
+
+メール可能インスタンスには、メール可能ファイルの添付ファイルを調べるための便利なメソッドもいくつか含まれています。
+
+```php
+use Illuminate\Mail\Mailables\Attachment;
+
+Mail::assertSent(OrderShipped::class, function (OrderShipped $mail) {
+    return $mail->hasAttachment(
+        Attachment::fromPath('/path/to/file')
+            ->as('name.pdf')
+            ->withMime('application/pdf')
+    );
+});
+
+Mail::assertSent(OrderShipped::class, function (OrderShipped $mail) {
+    return $mail->hasAttachment(
+        Attachment::fromStorageDisk('s3', '/path/to/file')
+    );
+});
+
+Mail::assertSent(OrderShipped::class, function (OrderShipped $mail) use ($pdfData) {
+    return $mail->hasAttachment(
+        Attachment::fromData(fn () => $pdfData, 'name.pdf')
+    );
+});
+```
+
+メールが送信されなかったことを確認するには、`assertNotSent` と `assertNotQueued` という 2 つの方法があることに気づいたかもしれません。場合によっては、メールが送信されなかったり、キューに入れられたりしていないことを主張したい場合があります。これを実現するには、`assertNothingOutgoing` メソッドと `assertNotOutgoing` メソッドを使用できます。
+
+```php
+Mail::assertNothingOutgoing();
+
+Mail::assertNotOutgoing(function (OrderShipped $mail) use ($order) {
+    return $mail->order->id === $order->id;
+});
+```
+
+<a name="mail-and-local-development"></a>
+## メールとローカル開発 (Mail and Local Development)
+
+電子メールを送信するアプリケーションを開発する場合、実際には実際の電子メール アドレスに電子メールを送信したくないでしょう。 Laravel には、ローカル開発中に実際の電子メールの送信を「無効にする」方法がいくつか用意されています。
+
+<a name="log-driver"></a>
+#### ログドライバ
+
+電子メールを送信する代わりに、`log` メール ドライバは検査のためにすべての電子メール メッセージをログ ファイルに書き込みます。通常、このドライバはローカル開発中にのみ使用されます。環境ごとのアプリケーションの構成の詳細については、[設定ドキュメント](/docs/{{version}}/configuration#environment-configuration) を確認してください。
+
+<a name="mailtrap"></a>
+#### HELO / メールトラップ / メールピット
+
+あるいは、[HELO](https://usehelo.com) や [Mailtrap](https://mailtrap.io) などのサービスと `smtp` ドライバを使用して、電子メール メッセージを「ダミー」メールボックスに送信し、実際の電子メール クライアントで表示することもできます。このアプローチには、Mailtrap のメッセージ ビューアで最終的な電子メールを実際に検査できるという利点があります。
+
+[Laravel Sail](/docs/{{version}}/sail) を使用している場合は、[Mailpit](https://github.com/axllent/mailpit) を使用してメッセージをプレビューできます。 Sail の実行中は、`http://localhost:8025` で Mailpit インターフェイスにアクセスできます。
+
+<a name="using-a-global-to-address"></a>
+#### グローバル `to` アドレスの使用
+
+最後に、`Mail` ファサードが提供する `alwaysTo` メソッドを呼び出して、グローバル "to" アドレスを指定できます。通常、このメソッドは、アプリケーションのサービスプロバイダの 1 つの `boot` メソッドから呼び出す必要があります。
+
+```php
+use Illuminate\Support\Facades\Mail;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    if ($this->app->environment('local')) {
+        Mail::alwaysTo('taylor@example.com');
+    }
+}
+```
+
+`alwaysTo` メソッドを使用すると、メール メッセージ上の追加の「cc」または「bcc」アドレスが削除されます。
+
+<a name="events"></a>
+## イベント (Events)
+
+Laravel はメールメッセージの送信中に 2 つのイベントを送出します。 `MessageSending` イベントはメッセージの送信前に送出されますが、`MessageSent` イベントはメッセージの送信後に送出されます。これらのイベントは、メールがキューに入れられたときではなく、*送信*されたときに送出されることに注意してください。アプリケーション内で次のイベントに対して [イベントリスナ](/docs/{{version}}/events) を作成できます。
+
+```php
+use Illuminate\Mail\Events\MessageSending;
+// use Illuminate\Mail\Events\MessageSent;
+
+class LogMessage
+{
+    /**
+     * Handle the event.
+     */
+    public function handle(MessageSending $event): void
+    {
+        // ...
+    }
+}
+```
+
+<a name="custom-transports"></a>
+## カスタムトランスポート (Custom Transports)
+
+Laravel にはさまざまなメールトランスポートが含まれています。ただし、Laravel がそのままではサポートしていない他のサービスを介して電子メールを配信するために、独自のトランスポートを作成することもできます。まず、`Symfony\Component\Mailer\Transport\AbstractTransport` クラスを拡張するクラスを定義します。次に、トランスポートに `doSend` メソッドと `__toString` メソッドを実装します。
+
+```php
+<?php
+
+namespace App\Mail;
+
+use MailchimpTransactional\ApiClient;
+use Symfony\Component\Mailer\SentMessage;
+use Symfony\Component\Mailer\Transport\AbstractTransport;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\MessageConverter;
+
+class MailchimpTransport extends AbstractTransport
+{
+    /**
+     * Create a new Mailchimp transport instance.
+     */
+    public function __construct(
+        protected ApiClient $client,
+    ) {
+        parent::__construct();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function doSend(SentMessage $message): void
+    {
+        $email = MessageConverter::toEmail($message->getOriginalMessage());
+
+        $this->client->messages->send(['message' => [
+            'from_email' => $email->getFrom(),
+            'to' => collect($email->getTo())->map(function (Address $email) {
+                return ['email' => $email->getAddress(), 'type' => 'to'];
+            })->all(),
+            'subject' => $email->getSubject(),
+            'text' => $email->getTextBody(),
+        ]]);
+    }
+
+    /**
+     * Get the string representation of the transport.
+     */
+    public function __toString(): string
+    {
+        return 'mailchimp';
+    }
+}
+```
+
+カスタム トランスポートを定義したら、`Mail` ファサードによって提供される `extend` メソッドを介して登録できます。通常、これはアプリケーションの `AppServiceProvider` の `boot` メソッド内で実行する必要があります。 `$config` 引数は、`extend` メソッドに提供されたクロージャに渡されます。この引数には、アプリケーションの `config/mail.php` 構成ファイルでメーラーに対して定義された構成配列が含まれます。
+
+```php
+use App\Mail\MailchimpTransport;
+use Illuminate\Support\Facades\Mail;
+use MailchimpTransactional\ApiClient;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Mail::extend('mailchimp', function (array $config = []) {
+        $client = new ApiClient;
+
+        $client->setApiKey($config['key']);
+
+        return new MailchimpTransport($client);
+    });
+}
+```
+
+カスタム トランスポートを定義して登録したら、新しいトランスポートを利用するアプリケーションの `config/mail.php` 構成ファイル内にメーラー定義を作成できます。
+
+```php
+'mailchimp' => [
+    'transport' => 'mailchimp',
+    'key' => env('MAILCHIMP_API_KEY'),
+    // ...
+],
+```
+
+<a name="additional-symfony-transports"></a>
+### 追加の Symfony トランスポート
+
+Laravel には、Mailgun や Postmark など、Symfony が管理する既存のメールトランスポートのサポートが含まれています。ただし、追加の Symfony 管理トランスポートをサポートして Laravel を拡張したい場合もあります。これを行うには、Composer 経由で必要な Symfony Mailerを要求し、トランスポートを Laravel に登録します。たとえば、「Brevo」 (旧名「Sendinblue」) Symfony Mailerをインストールして登録できます。
+
+```shell
+composer require symfony/brevo-mailer symfony/http-client
+```
+
+Brevo メーラー パッケージがインストールされたら、Brevo API 資格情報のエントリをアプリケーションの `services` 構成ファイルに追加できます。
+
+```php
+'brevo' => [
+    'key' => env('BREVO_API_KEY'),
+],
+```
+
+次に、`Mail` ファサードの `extend` メソッドを使用して、トランスポートを Laravel に登録できます。通常、これはサービスプロバイダの `boot` メソッド内で実行する必要があります。
+
+```php
+use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory;
+use Symfony\Component\Mailer\Transport\Dsn;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    Mail::extend('brevo', function () {
+        return (new BrevoTransportFactory)->create(
+            new Dsn(
+                'brevo+api',
+                'default',
+                config('services.brevo.key')
+            )
+        );
+    });
+}
+```
+
+トランスポートが登録されたら、新しいトランスポートを利用するアプリケーションの `config/mail.php` 構成ファイル内にメーラー定義を作成できます。
+
+```php
+'brevo' => [
+    'transport' => 'brevo',
+    // ...
+],
+```
+
