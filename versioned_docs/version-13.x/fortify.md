@@ -14,6 +14,13 @@
     - [2단계 인증 활성화](#enabling-two-factor-authentication)
     - [2단계 인증으로 인증하기](#authenticating-with-two-factor-authentication)
     - [2단계 인증 비활성화](#disabling-two-factor-authentication)
+- [패스키](#passkeys)
+    - [패스키 활성화](#enabling-passkeys)
+    - [JavaScript 클라이언트](#passkeys-javascript-client)
+    - [패스키로 인증하기](#authenticating-with-passkeys)
+    - [패스키로 비밀번호 확인](#confirming-password-with-passkeys)
+    - [패스키 등록](#registering-passkeys)
+    - [패스키 삭제](#deleting-passkeys)
 - [회원가입](#registration)
     - [회원가입 사용자 지정](#customizing-registration)
 - [비밀번호 재설정](#password-reset)
@@ -357,6 +364,170 @@ Fortify가 `/two-factor-challenge` 라우트를 정의해 이 뷰를 반환합�
 ### 2단계 인증 비활성화
 
 2단계 인증을 비활성화하려면, `/user/two-factor-authentication` 엔드포인트에 DELETE 요청을 보내면 됩니다. 참고로 Fortify의 2단계 인증 관련 엔드포인트는 [비밀번호 확인](#password-confirmation)이 선행되어야 접근할 수 있습니다.
+
+<a name="passkeys"></a>
+## 패스키 (Passkeys)
+
+Fortify는 WebAuthn을 사용한 패스키 인증을 지원합니다. 패스키를 사용하면 사용자는 Face ID, Touch ID, Windows Hello 또는 하드웨어 보안 키와 같은 플랫폼 인증기를 사용하여 비밀번호 없이 인증할 수 있습니다.
+
+<a name="enabling-passkeys"></a>
+### 패스키 활성화
+
+시작하려면 애플리케이션의 `fortify` 설정 파일에서 `passkeys` 기능이 활성화되어 있는지 확인합니다:
+
+```php
+use Laravel\Fortify\Features;
+
+'features' => [
+    // ...
+    Features::passkeys([
+        'confirmPassword' => true,
+    ]),
+],
+```
+
+`confirmPassword` 옵션은 패스키를 등록하거나 삭제하기 전에 Fortify가 [비밀번호 확인](#password-confirmation)을 요구할지 여부를 결정합니다.
+
+다음으로 애플리케이션의 `App\Models\User` 모델이 `Laravel\Fortify\Contracts\PasskeyUser`를 구현하고 `Laravel\Fortify\PasskeyAuthenticatable` trait를 사용하는지 확인합니다:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\Contracts\PasskeyUser;
+use Laravel\Fortify\PasskeyAuthenticatable;
+
+class User extends Authenticatable implements PasskeyUser
+{
+    use Notifiable, PasskeyAuthenticatable;
+}
+```
+
+Fortify의 패스키 설정 옵션은 애플리케이션의 `config/fortify.php` 파일에 있는 `passkeys` 설정 배열로 사용자 지정할 수 있습니다:
+
+```php
+'passkeys' => [
+    'relying_party_id' => parse_url(config('app.url'), PHP_URL_HOST),
+    'allowed_origins' => [config('app.url')],
+    'user_handle_secret' => config('app.key'),
+    'timeout' => 60000,
+],
+```
+
+> [!NOTE]
+> Fortify는 `laravel/passkeys` Composer 패키지를 래핑하고 애플리케이션에 맞게 설정합니다. Fortify의 패스키 기능을 사용한다면 애플리케이션의 `config/fortify.php` 파일에서 패스키를 설정해야 합니다. `laravel/passkeys` 설정 파일을 게시할 필요는 없으며, 이 파일에 정의된 값은 Fortify가 재정의합니다.
+
+`relying_party_id`는 애플리케이션의 도메인과 일치해야 합니다. `allowed_origins` 배열에는 패스키 등록과 인증을 완료할 수 있는 브라우저 오리진을 나열합니다. `user_handle_secret`은 불투명한 사용자 식별자를 파생하는 데 사용되어, 여러 패스키 등록에서 같은 사용자를 인식할 수 있게 합니다. `timeout` 옵션은 패스키 등록 및 인증 작업이 활성 상태로 유지될 수 있는 시간을 제어합니다.
+
+Fortify는 패스키 로그인, 확인, 등록 라우트에 전용 패스키 처리율 제한을 적용합니다. 필요한 경우 `fortify.limiters.passkeys` 설정 옵션과 이에 대응하는 `RateLimiter::for(...)` 정의로 이를 사용자 지정할 수 있습니다.
+
+<a name="passkeys-javascript-client"></a>
+### JavaScript 클라이언트
+
+브라우저 측 스크립트를 사용하는 Blade 애플리케이션을 포함해 사용자 지정 프론트엔드를 구축하는 경우, 공식 [`@laravel/passkeys`](https://www.npmjs.com/package/@laravel/passkeys) 패키지를 사용할 수 있습니다. 이 패키지는 브라우저 WebAuthn 절차를 처리하고 Fortify의 패스키 엔드포인트로 요청을 보냅니다.
+
+npm을 통해 패키지를 설치합니다:
+
+```shell
+npm install @laravel/passkeys
+```
+
+그런 다음 프론트엔드에서 패스키 등록과 검증을 시작할 수 있습니다:
+
+```js
+import { Passkeys } from "@laravel/passkeys";
+
+await Passkeys.register({ name: "MacBook Pro" });
+await Passkeys.verify();
+```
+
+애플리케이션에서 사용자 지정 패스키 엔드포인트 URI를 사용하는 경우, 호출별로 라우트를 재정의할 수 있습니다:
+
+```js
+await Passkeys.verify({
+    routes: {
+        options: "/passkeys/confirm/options",
+        submit: "/passkeys/confirm",
+    },
+});
+
+await Passkeys.register({
+    name: "MacBook Pro",
+    routes: {
+        options: "/user/passkeys/options",
+        submit: "/user/passkeys",
+    },
+});
+```
+
+이 패키지는 `@laravel/passkeys/react`, `@laravel/passkeys/vue`, `@laravel/passkeys/svelte`를 통해 React, Vue, Svelte 헬퍼도 제공합니다.
+
+<a name="authenticating-with-passkeys"></a>
+### 패스키로 인증하기
+
+패스키로 사용자를 인증하려면 애플리케이션은 먼저 `/passkeys/login/options` 엔드포인트에 GET 요청을 보내야 합니다. 이 엔드포인트는 프론트엔드가 `navigator.credentials.get(...)`에 전달해야 하는 WebAuthn 챌린지 옵션을 반환합니다.
+
+브라우저가 자격 증명을 반환한 후에는 애플리케이션이 자격 증명 페이로드와 함께 `/passkeys/login`에 POST 요청을 보내야 합니다. `remember` 필드를 불리언 값으로 함께 포함할 수도 있습니다.
+
+요청이 성공하면 Fortify는 설정된 가드로 사용자를 로그인시키고 다음 중 하나를 반환합니다:
+
+<div class="content-list" markdown="1">
+
+- 표준 요청의 경우 의도한 목적지로 향하는 리디렉션 응답.
+- XHR 요청의 경우 `redirect` 키가 포함된 JSON 페이로드를 담은 `200` HTTP 응답.
+
+</div>
+
+<a name="confirming-password-with-passkeys"></a>
+### 패스키로 비밀번호 확인
+
+인증된 세션의 경우, Fortify는 현재 세션에 대한 Laravel의 비밀번호 확인 요구 사항을 충족하는 패스키 확인 엔드포인트를 제공합니다.
+
+패스키로 확인하려면 애플리케이션은 먼저 `/passkeys/confirm/options`에 GET 요청을 보내야 합니다. 이 엔드포인트는 프론트엔드가 `navigator.credentials.get(...)`에 전달해야 하는 WebAuthn 챌린지 옵션을 반환합니다.
+
+브라우저가 자격 증명을 반환한 후에는 애플리케이션이 자격 증명 페이로드와 함께 `/passkeys/confirm`에 POST 요청을 보내야 합니다.
+
+요청이 성공하면 Fortify는 현재 세션을 비밀번호 확인됨으로 표시하고 다음 중 하나를 반환합니다:
+
+<div class="content-list" markdown="1">
+
+- 표준 요청의 경우 의도한 목적지로 향하는 리디렉션 응답.
+- XHR 요청의 경우 `redirect` 키가 포함된 JSON 페이로드를 담은 `200` HTTP 응답.
+
+</div>
+
+<a name="registering-passkeys"></a>
+### 패스키 등록
+
+인증된 사용자에게 패스키를 등록하려면 애플리케이션은 먼저 `/user/passkeys/options` 엔드포인트에 GET 요청을 보내야 합니다. 이 엔드포인트는 프론트엔드가 `navigator.credentials.create(...)`에 전달해야 하는 WebAuthn 생성 옵션을 반환합니다.
+
+브라우저가 자격 증명을 반환한 후에는 애플리케이션이 `name` 필드와 `navigator.credentials.create(...)`에서 반환된 직렬화된 [`PublicKeyCredential`](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential) 객체를 담은 `credential` 필드를 포함하여 `/user/passkeys`에 POST 요청을 보내야 합니다.
+
+요청이 성공하면 Fortify는 다음 중 하나를 반환합니다:
+
+<div class="content-list" markdown="1">
+
+- 표준 요청의 경우 세션에 `passkey-registered` 상태를 담아 이전 페이지로 리디렉션하는 응답.
+- 새로 등록된 패스키의 `id`와 `name`과 함께 `status` 키를 포함하는 JSON 페이로드를 담은 `200` HTTP 응답.
+
+</div>
+
+<a name="deleting-passkeys"></a>
+### 패스키 삭제
+
+패스키를 삭제하려면 애플리케이션은 `/user/passkeys/{passkey}`에 DELETE 요청을 보내야 합니다.
+
+요청이 성공하면 Fortify는 다음 중 하나를 반환합니다:
+
+<div class="content-list" markdown="1">
+
+- 표준 요청의 경우 세션에 `passkey-deleted` 상태를 담아 이전 페이지로 리디렉션하는 응답.
+- XHR 요청의 경우 `status` 키가 포함된 JSON 페이로드를 담은 `200` HTTP 응답.
+
+</div>
 
 <a name="registration"></a>
 ## 회원가입 (Registration)

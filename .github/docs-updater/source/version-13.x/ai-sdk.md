@@ -15,6 +15,7 @@
     - [Queueing](#queueing)
     - [Tools](#tools)
     - [Provider Tools](#provider-tools)
+    - [Sub-Agents](#sub-agents)
     - [Middleware](#middleware)
     - [Anonymous Agents](#anonymous-agents)
     - [Agent Configuration](#agent-configuration)
@@ -125,12 +126,12 @@ The AI SDK supports a variety of providers across its features. The following ta
 
 | Feature | Providers |
 |---|---|
-| Text | OpenAI, Anthropic, Gemini, Azure, Groq, xAI, DeepSeek, Mistral, Ollama |
-| Images | OpenAI, Gemini, xAI |
-| TTS | OpenAI, ElevenLabs |
-| STT | OpenAI, ElevenLabs, Mistral |
-| Embeddings | OpenAI, Gemini, Azure, Cohere, Mistral, Jina, VoyageAI |
-| Reranking | Cohere, Jina |
+| Text | OpenAI, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
+| Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
+| TTS | OpenAI, ElevenLabs, Gemini |
+| STT | OpenAI, ElevenLabs, Mistral, Gemini |
+| Embeddings | OpenAI, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
+| Reranking | Cohere, Jina, VoyageAI |
 | Files | OpenAI, Anthropic, Gemini |
 
 The `Laravel\Ai\Enums\Lab` enum may be used to reference providers throughout your code instead of using plain strings:
@@ -323,7 +324,29 @@ $response = (new SalesCoach)->forUser($user)->prompt('Hello!');
 $conversationId = $response->conversationId;
 ```
 
-The conversation ID is returned on the response and can be stored for future reference, or you can retrieve all of a user's conversations from the `agent_conversations` table directly.
+The conversation ID is returned on the response and can be stored for future reference. If you would like to retrieve all of a user's conversations using Eloquent, you may add the `HasConversations` trait to your user model:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Ai\Concerns\HasConversations;
+
+class User extends Authenticatable
+{
+    use HasConversations;
+}
+```
+
+Once the trait has been added to your model, you may retrieve and query the user's conversations via the `conversations` relationship:
+
+```php
+$conversations = $user->conversations()
+    ->latest('updated_at')
+    ->paginate(20);
+```
 
 To continue an existing conversation, use the `continue` method:
 
@@ -811,6 +834,108 @@ new FileSearch(stores: ['store_id'], where: fn (FileSearchQuery $query) =>
 );
 ```
 
+<a name="sub-agents"></a>
+### Sub-Agents
+
+Agents may also be returned from another agent's `tools` method. When an agent is returned as a tool, the parent agent may delegate a specific task to the sub-agent and use the sub-agent's response while answering the original prompt. This is useful when a general-purpose agent needs access to specialized agents with their own instructions, tools, model configuration, or provider preferences.
+
+For example, a customer support agent could delegate refund eligibility questions to a dedicated refunds agent:
+
+```php
+<?php
+
+namespace App\Ai\Agents;
+
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Promptable;
+
+class CustomerSupportAgent implements Agent, HasTools
+{
+    use Promptable;
+
+    /**
+     * Get the instructions that the agent should follow.
+     */
+    public function instructions(): string
+    {
+        return 'You help customers with account, order, and billing questions. Delegate refund policy questions to the refunds specialist.';
+    }
+
+    /**
+     * Get the tools available to the agent.
+     *
+     * @return Tool[]
+     */
+    public function tools(): iterable
+    {
+        return [
+            new RefundsAgent,
+        ];
+    }
+}
+```
+
+To customize how the sub-agent is exposed to the parent agent, implement the `CanActAsTool` interface on the sub-agent and define a tool-facing name and description:
+
+```php
+<?php
+
+namespace App\Ai\Agents;
+
+use App\Ai\Tools\LookupOrder;
+use Laravel\Ai\Attributes\Provider;
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\CanActAsTool;
+use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Enums\Lab;
+use Laravel\Ai\Promptable;
+
+#[Provider(Lab::Anthropic)]
+class RefundsAgent implements Agent, CanActAsTool, HasTools
+{
+    use Promptable;
+
+    /**
+     * Get the instructions that the agent should follow.
+     */
+    public function instructions(): string
+    {
+        return 'You are a refunds specialist. Use order details and the refund policy to give concise eligibility guidance.';
+    }
+
+    /**
+     * Get the agent's tool name.
+     */
+    public function name(): string
+    {
+        return 'refunds_specialist';
+    }
+
+    /**
+     * Get the agent's tool description.
+     */
+    public function description(): string
+    {
+        return 'Determine whether an order is eligible for a refund and explain the next step.';
+    }
+
+    /**
+     * Get the tools available to the agent.
+     *
+     * @return Tool[]
+     */
+    public function tools(): iterable
+    {
+        return [
+            new LookupOrder,
+        ];
+    }
+}
+```
+
+If a sub-agent does not implement `CanActAsTool`, Laravel will use the agent's class basename as the tool name and a generic description that asks the parent agent to pass a clear, self-contained task description. Each sub-agent invocation runs in isolation and does not receive the parent agent's conversation history.
+
 <a name="middleware"></a>
 ### Middleware
 
@@ -925,6 +1050,7 @@ You may configure text generation options for an agent using PHP attributes. The
 - `Provider`: The AI provider (or providers for failover) to use for the agent.
 - `Temperature`: The sampling temperature to use for generation (0.0 to 1.0).
 - `Timeout`: The HTTP timeout in seconds for agent requests (default: 60).
+- `TopP`: The nucleus sampling probability to use for generation (0.0 to 1.0).
 - `UseCheapestModel`: Use the provider's cheapest text model for cost optimization.
 - `UseSmartestModel`: Use the provider's most capable text model for complex tasks.
 
@@ -939,6 +1065,7 @@ use Laravel\Ai\Attributes\Model;
 use Laravel\Ai\Attributes\Provider;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\Timeout;
+use Laravel\Ai\Attributes\TopP;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Promptable;
@@ -949,6 +1076,7 @@ use Laravel\Ai\Promptable;
 #[MaxTokens(4096)]
 #[Temperature(0.7)]
 #[Timeout(120)]
+#[TopP(0.9)]
 class SalesCoach implements Agent
 {
     use Promptable;
@@ -1016,6 +1144,7 @@ class SalesCoach implements Agent, HasProviderOptions
             ],
             Lab::Anthropic => [
                 'thinking' => ['budget_tokens' => 1024],
+                'cache_control' => ['type' => 'ephemeral'],
             ],
             default => [],
         };
@@ -1024,6 +1153,8 @@ class SalesCoach implements Agent, HasProviderOptions
 ```
 
 The `providerOptions` method receives the provider currently being used (`Lab` enum or string), allowing you to return different options per provider. This is especially useful when using [failover](#failover), since each fallback provider can receive its own configuration.
+
+The Anthropic example above also enables [prompt caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) via `cache_control`.
 
 <a name="images"></a>
 ## Images
@@ -1105,6 +1236,14 @@ use Laravel\Ai\Audio;
 $audio = Audio::of('I love coding with Laravel.')->generate();
 
 $rawContent = (string) $audio;
+```
+
+You may also generate audio from a string using the `toAudio` method available via Laravel's `Stringable` class:
+
+```php
+use Illuminate\Support\Str;
+
+$audio = Str::of('I love coding with Laravel.')->toAudio();
 ```
 
 The `male`, `female`, and `voice` methods may be used to determine the voice of the generated audio:

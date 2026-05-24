@@ -2,6 +2,8 @@
 
 - [소개](#introduction)
 - [동시 작업 실행하기](#running-concurrent-tasks)
+    - [이름이 지정된 결과](#named-results)
+    - [작업 시간 제한](#task-timeouts)
 - [동시 작업 지연 실행하기](#deferring-concurrent-tasks)
 
 <a name="introduction"></a>
@@ -49,6 +51,49 @@ $results = Concurrency::driver('fork')->run(...);
 
 ```shell
 php artisan config:publish concurrency
+```
+
+<a name="named-results"></a>
+### 이름이 지정된 결과
+
+동시 작업 결과를 위치가 아니라 이름으로 접근하고 싶다면 클로저의 연관 배열을 제공할 수 있습니다. 각 결과는 해당 클로저와 동일한 키를 사용하여 반환됩니다:
+
+```php
+use Illuminate\Support\Facades\Concurrency;
+use Illuminate\Support\Facades\DB;
+
+$results = Concurrency::run([
+    'users' => fn () => DB::table('users')->count(),
+    'orders' => fn () => DB::table('orders')->count(),
+]);
+
+$userCount = $results['users'];
+$orderCount = $results['orders'];
+```
+
+<a name="task-timeouts"></a>
+### 작업 시간 제한
+
+`process` 드라이버(기본값)를 사용할 때는 `run` 메서드에 `timeout`을 전달하여 동시 작업이 종료되기 전에 실행될 수 있는 최대 초 수를 지정할 수 있습니다:
+
+```php
+use Illuminate\Support\Facades\Concurrency;
+use Illuminate\Support\Facades\DB;
+
+[$userCount, $orderCount] = Concurrency::run([
+    fn () => DB::table('users')->count(),
+    fn () => DB::table('orders')->count(),
+], timeout: 30);
+```
+
+시간 제한을 더 명확하게 표현하고 싶다면 `CarbonInterval` 인스턴스를 전달할 수도 있습니다:
+
+```php
+use Illuminate\Support\Facades\Concurrency;
+
+use function Illuminate\Support\seconds;
+
+Concurrency::run([...], timeout: seconds(30));
 ```
 
 <a name="deferring-concurrent-tasks"></a>

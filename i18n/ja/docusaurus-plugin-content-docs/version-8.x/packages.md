@@ -1,0 +1,348 @@
+# パッケージ開発 (Package Development)
+
+- [Introduction](#introduction)
+    - [ファサードについての注意](#a-note-on-facades)
+- [パッケージの発見](#package-discovery)
+- [サービスプロバイダ](#service-providers)
+- [Resources](#resources)
+    - [Configuration](#configuration)
+    - [Migrations](#migrations)
+    - [Routes](#routes)
+    - [Translations](#translations)
+    - [Views](#views)
+    - [コンポーネントの表示](#view-components)
+- [Commands](#commands)
+- [公共資産](#public-assets)
+- [ファイルグループの公開](#publishing-file-groups)
+
+<a name="introduction"></a>
+## 導入 (Introduction)
+
+パッケージは、Laravel に機能を追加する主な方法です。パッケージには、[Carbon](https://github.com/briannesbitt/Carbon) のような日付を扱うための優れた方法から、Spatie の [Laravelメディアライブラリ](https://github.com/spatie/laravel-medialibrary) のような Eloquent モデルにファイルを関連付けることができるパッケージまで、さまざまなものが含まれます。
+
+パッケージにはさまざまな種類があります。一部のパッケージはスタンドアロンです。つまり、任意の PHP フレームワークで動作します。 Carbon と PHPUnit はスタンドアロン パッケージの例です。これらのパッケージはいずれも、`composer.json` ファイルで要求することで Laravel で使用できます。
+
+一方、他のパッケージは特に Laravel で使用することを目的としています。これらのパッケージには、特に Laravel アプリケーションを強化することを目的としたルート、コントローラ、ビュー、構成が含まれている場合があります。このガイドでは主に、Laravel 固有のパッケージの開発について説明します。
+
+<a name="a-note-on-facades"></a>
+### ファサードについての注意
+
+Laravel アプリケーションを作成する場合、コントラクトを使用するかファサードを使用するかは、どちらも本質的に同じレベルのテスト容易性を提供するため、通常は問題になりません。ただし、パッケージを作成する場合、パッケージは通常、Laravel のテスト ヘルパのすべてにアクセスできるわけではありません。パッケージが典型的な Laravel アプリケーション内にインストールされているかのようにパッケージ テストを作成できるようにしたい場合は、[オーケストラテストベンチ](https://github.com/orchestral/testbench) パッケージを使用できます。
+
+<a name="package-discovery"></a>
+## パッケージの発見 (Package Discovery)
+
+Laravel アプリケーションの `config/app.php` 構成ファイルでは、`providers` オプションにより、Laravel によってロードされるサービスプロバイダのリストが定義されます。誰かがパッケージをインストールするときは、通常、サービスプロバイダをこのリストに含めることが必要になります。ユーザーにサービスプロバイダをリストに手動で追加するよう要求する代わりに、パッケージの `composer.json` ファイルの `extra` セクションでプロバイダを定義できます。サービスプロバイダに加えて、登録したい [facades](/docs/{{version}}/facades) をリストすることもできます。
+
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Barryvdh\\Debugbar\\ServiceProvider"
+            ],
+            "aliases": {
+                "Debugbar": "Barryvdh\\Debugbar\\Facade"
+            }
+        }
+    },
+
+パッケージが検出用に設定されると、Laravel はインストール時にサービスプロバイダとファサードを自動的に登録し、パッケージのユーザーにとって便利なインストールエクスペリエンスを作成します。
+
+<a name="opting-out-of-package-discovery"></a>
+### パッケージディスカバリーのオプトアウト
+
+あなたがパッケージのコンシューマであり、パッケージのパッケージ検出を無効にしたい場合は、アプリケーションの `composer.json` ファイルの `extra` セクションにパッケージ名をリストすることができます。
+
+    "extra": {
+        "laravel": {
+            "dont-discover": [
+                "barryvdh/laravel-debugbar"
+            ]
+        }
+    },
+
+アプリケーションの `dont-discover` ディレクティブ内で `*` 文字を使用すると、すべてのパッケージのパッケージ検出を無効にすることができます。
+
+    "extra": {
+        "laravel": {
+            "dont-discover": [
+                "*"
+            ]
+        }
+    },
+
+<a name="service-providers"></a>
+## サービスプロバイダ (Service Providers)
+
+[サービスプロバイダ](/docs/{{version}}/providers) は、パッケージと Laravel の間の接続ポイントです。サービスプロバイダは、物事をLaravelの[サービスコンテナ](/docs/{{version}}/container)にバインドし、ビュー、構成、ローカリゼーションファイルなどのパッケージリソースをロードする場所をLaravelに通知する責任があります。
+
+サービスプロバイダは `Illuminate\Support\ServiceProvider` クラスを拡張し、`register` と `boot` の 2 つのメソッドを含みます。基本 `ServiceProvider` クラスは `illuminate/support` Composer パッケージにあり、これを独自のパッケージの依存関係に追加する必要があります。サービスプロバイダの構造と目的の詳細については、[彼らの文書](/docs/{{version}}/providers) を確認してください。
+
+<a name="resources"></a>
+## リソース (Resources)
+
+<a name="configuration"></a>
+### 構成
+
+通常、パッケージの構成ファイルをアプリケーションの `config` ディレクトリに公開する必要があります。これにより、パッケージのユーザーがデフォルトの構成オプションを簡単にオーバーライドできるようになります。構成ファイルを公開できるようにするには、サービスプロバイダの `boot` メソッドから `publishes` メソッドを呼び出します。
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__.'/../config/courier.php' => config_path('courier.php'),
+        ]);
+    }
+
+これで、パッケージのユーザーが Laravel の `vendor:publish` コマンドを実行すると、ファイルは指定された公開場所にコピーされます。構成が公開されると、他の構成ファイルと同様にその値にアクセスできるようになります。
+
+    $value = config('courier.option');
+
+> {note} 設定ファイルでクロージャを定義しないでください。ユーザーが `config:cache` Artisan コマンドを実行すると、正しくシリアル化できません。
+
+<a name="default-package-configuration"></a>
+#### デフォルトのパッケージ構成
+
+独自のパッケージ構成ファイルをアプリケーションの公開されたコピーとマージすることもできます。これにより、ユーザーは、公開された構成ファイルのコピーで実際にオーバーライドしたいオプションのみを定義できるようになります。構成ファイルの値をマージするには、サービスプロバイダの `register` メソッド内で `mergeConfigFrom` メソッドを使用します。
+
+`mergeConfigFrom` メソッドは、パッケージの構成ファイルへのパスを最初の引数として受け入れ、アプリケーションの構成ファイルのコピーの名前を 2 番目の引数として受け入れます。
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/courier.php', 'courier'
+        );
+    }
+
+> {note} このメソッドは、構成配列の最初のレベルのみをマージします。ユーザーが多次元構成配列を部分的に定義した場合、不足しているオプションはマージされません。
+
+<a name="routes"></a>
+### ルート
+
+パッケージにルートが含まれている場合は、`loadRoutesFrom` メソッドを使用してルートをロードできます。このメソッドは、アプリケーションのルートがキャッシュされているかどうかを自動的に判断し、ルートがすでにキャッシュされている場合はルート ファイルをロードしません。
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+    }
+
+<a name="migrations"></a>
+### 移行
+
+パッケージに [データベースの移行](/docs/{{version}}/migrations) が含まれている場合は、`loadMigrationsFrom` メソッドを使用して、それらをロードする方法を Laravel に通知できます。 `loadMigrationsFrom` メソッドは、パッケージの移行へのパスを唯一の引数として受け入れます。
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+    }
+
+パッケージの移行が登録されると、`php artisan migrate` コマンドの実行時に自動的に実行されます。これらをアプリケーションの `database/migrations` ディレクトリにエクスポートする必要はありません。
+
+<a name="translations"></a>
+### 翻訳
+
+パッケージに [翻訳ファイル](/docs/{{version}}/localization) が含まれている場合は、`loadTranslationsFrom` メソッドを使用して、それらをロードする方法を Laravel に通知できます。たとえば、パッケージの名前が `courier` の場合、サービスプロバイダの `boot` メソッドに次のコードを追加する必要があります。
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'courier');
+    }
+
+パッケージ翻訳は、`package::file.line` 構文規則を使用して参照されます。したがって、次のように `messages` ファイルから `courier` パッケージの `welcome` 行をロードできます。
+
+    echo trans('courier::messages.welcome');
+
+<a name="publishing-translations"></a>
+#### 翻訳の出版
+
+パッケージの翻訳をアプリケーションの `resources/lang/vendor` ディレクトリに公開したい場合は、サービスプロバイダの `publishes` メソッドを使用できます。 `publishes` メソッドは、パッケージ パスとその必要な公開場所の配列を受け入れます。たとえば、`courier` パッケージの翻訳ファイルを公開するには、次の手順を実行します。
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'courier');
+
+        $this->publishes([
+            __DIR__.'/../resources/lang' => resource_path('lang/vendor/courier'),
+        ]);
+    }
+
+これで、パッケージのユーザーが Laravel の `vendor:publish` Artisan コマンドを実行すると、パッケージの翻訳が指定された公開場所に公開されます。
+
+<a name="views"></a>
+### ビュー
+
+パッケージの [views](/docs/{{version}}/views) を Laravel に登録するには、ビューがどこにあるかを Laravel に伝える必要があります。これは、サービスプロバイダの `loadViewsFrom` メソッドを使用して実行できます。 `loadViewsFrom` メソッドは、ビュー テンプレートへのパスとパッケージの名前という 2 つの引数を受け入れます。たとえば、パッケージの名前が `courier` の場合、サービスプロバイダの `boot` メソッドに次のコードを追加します。
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'courier');
+    }
+
+パッケージ ビューは、`package::view` 構文規則を使用して参照されます。したがって、ビュー パスがサービスプロバイダに登録されたら、次のように `courier` パッケージから `dashboard` ビューをロードできます。
+
+    Route::get('/dashboard', function () {
+        return view('courier::dashboard');
+    });
+
+<a name="overriding-package-views"></a>
+#### パッケージビューの上書き
+
+`loadViewsFrom` メソッドを使用すると、Laravel は実際にビュー用に 2 つの場所 (アプリケーションの `resources/views/vendor` ディレクトリと指定したディレクトリ) を登録します。したがって、例として `courier` パッケージを使用すると、Laravel は最初に、ビューのカスタム バージョンが開発者によって `resources/views/vendor/courier` ディレクトリに配置されているかどうかを確認します。次に、ビューがカスタマイズされていない場合、Laravel は `loadViewsFrom` の呼び出しで指定したパッケージ ビュー ディレクトリを検索します。これにより、パッケージ ユーザーがパッケージのビューを簡単にカスタマイズ/オーバーライドできるようになります。
+
+<a name="publishing-views"></a>
+#### ビューの公開
+
+ビューをアプリケーションの `resources/views/vendor` ディレクトリに公開できるようにしたい場合は、サービスプロバイダの `publishes` メソッドを使用できます。 `publishes` メソッドは、パッケージ ビュー パスとその必要な公開場所の配列を受け入れます。
+
+    /**
+     * Bootstrap the package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'courier');
+
+        $this->publishes([
+            __DIR__.'/../resources/views' => resource_path('views/vendor/courier'),
+        ]);
+    }
+
+これで、パッケージのユーザーが Laravel の `vendor:publish` Artisan コマンドを実行すると、パッケージのビューが指定された公開場所にコピーされます。
+
+<a name="view-components"></a>
+### コンポーネントの表示
+
+パッケージに [コンポーネントを表示する](/docs/{{version}}/blade#components) が含まれている場合は、`loadViewComponentsAs` メソッドを使用して、それらをロードする方法を Laravel に通知できます。 `loadViewComponentsAs` メソッドは、ビュー コンポーネントのタグ プレフィックスとビュー コンポーネント クラス名の配列の 2 つの引数を受け入れます。たとえば、パッケージのプレフィックスが `courier` で、`Alert` および `Button` ビュー コンポーネントがある場合、サービスプロバイダの `boot` メソッドに以下を追加します。
+
+    use Courier\Components\Alert;
+    use Courier\Components\Button;
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->loadViewComponentsAs('courier', [
+            Alert::class,
+            Button::class,
+        ]);
+    }
+
+ビュー コンポーネントがサービスプロバイダに登録されたら、次のようにビュー内でそれらを参照できます。
+
+    <x-courier-alert />
+
+    <x-courier-button />
+
+<a name="anonymous-components"></a>
+#### 匿名コンポーネント
+
+パッケージに匿名コンポーネントが含まれている場合は、パッケージの「views」ディレクトリ (`loadViewsFrom` で指定) の `components` ディレクトリ内に配置する必要があります。次に、コンポーネント名にパッケージのビュー名前空間をプレフィックスとして付けることで、それらをレンダリングできます。
+
+    <x-courier::alert />
+
+<a name="commands"></a>
+## コマンド (Commands)
+
+パッケージの Artisan コマンドを Laravel に登録するには、`commands` メソッドを使用できます。このメソッドはコマンド クラス名の配列を必要とします。コマンドが登録されたら、[Artisan CLI](/docs/{{version}}/artisan) を使用してコマンドを実行できます。
+
+    use Courier\Console\Commands\InstallCommand;
+    use Courier\Console\Commands\NetworkCommand;
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallCommand::class,
+                NetworkCommand::class,
+            ]);
+        }
+    }
+
+<a name="public-assets"></a>
+## 公共資産 (Public Assets)
+
+パッケージには、JavaScript、CSS、画像などのアセットが含まれる場合があります。これらのアセットをアプリケーションの `public` ディレクトリに公開するには、サービスプロバイダの `publishes` メソッドを使用します。この例では、関連アセットのグループを簡単に公開するために使用できる `public` アセット グループ タグも追加します。
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__.'/../public' => public_path('vendor/courier'),
+        ], 'public');
+    }
+
+これで、パッケージのユーザーが `vendor:publish` コマンドを実行すると、アセットが指定された公開場所にコピーされます。通常、ユーザーはパッケージが更新されるたびにアセットを上書きする必要があるため、`--force` フラグを使用できます。
+
+    php artisan vendor:publish --tag=public --force
+
+<a name="publishing-file-groups"></a>
+## ファイルグループの公開 (Publishing File Groups)
+
+パッケージ アセットとリソースのグループを個別に公開したい場合があります。たとえば、パッケージのアセットの公開を強制せずに、ユーザーがパッケージの構成ファイルを公開できるようにしたい場合があります。これを行うには、パッケージのサービスプロバイダから `publishes` メソッドを呼び出すときに、それらを「タグ付け」します。たとえば、タグを使用して、パッケージのサービスプロバイダの `boot` メソッドで `courier` パッケージの 2 つの公開グループ (`courier-config` および `courier-migrations`) を定義してみましょう。
+
+    /**
+     * Bootstrap any package services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__.'/../config/package.php' => config_path('package.php')
+        ], 'courier-config');
+
+        $this->publishes([
+            __DIR__.'/../database/migrations/' => database_path('migrations')
+        ], 'courier-migrations');
+    }
+
+これで、ユーザーは `vendor:publish` コマンドの実行時にタグを参照することで、これらのグループを個別に公開できるようになります。
+
+    php artisan vendor:publish --tag=courier-config
+

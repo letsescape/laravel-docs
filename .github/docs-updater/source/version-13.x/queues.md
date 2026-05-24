@@ -17,6 +17,7 @@
 - [Dispatching Jobs](#dispatching-jobs)
     - [Delayed Dispatching](#delayed-dispatching)
     - [Synchronous Dispatching](#synchronous-dispatching)
+    - [Preparing Jobs Before Dispatch](#preparing-jobs-before-dispatch)
     - [Jobs & Database Transactions](#jobs-and-database-transactions)
     - [Job Chaining](#job-chaining)
     - [Customizing The Queue and Connection](#customizing-the-queue-and-connection)
@@ -39,6 +40,7 @@
     - [The `queue:work` Command](#the-queue-work-command)
     - [Queue Priorities](#queue-priorities)
     - [Queue Workers and Deployment](#queue-workers-and-deployment)
+    - [Reacting to Worker Signals](#reacting-to-worker-signals)
     - [Job Expirations and Timeouts](#job-expirations-and-timeouts)
     - [Pausing and Resuming Queue Workers](#pausing-and-resuming-queue-workers)
 - [Supervisor Configuration](#supervisor-configuration)
@@ -152,6 +154,35 @@ Adjusting this value based on your queue load can be more efficient than continu
 
 > [!WARNING]
 > Setting `block_for` to `0` will cause queue workers to block indefinitely until a job is available. This will also prevent signals such as `SIGTERM` from being handled until the next job has been processed.
+
+<a name="sqs-overflow-storage"></a>
+#### SQS Overflow Storage
+
+Amazon SQS limits the maximum size of a queued message payload. If you need to dispatch jobs with payloads that may exceed this limit, you may configure Laravel to store oversized SQS payloads in a cache store and send a pointer through SQS instead. To enable this feature, add an `overflow` array to your SQS queue connection configuration:
+
+```php
+'sqs' => [
+    'driver' => 'sqs',
+    'key' => env('AWS_ACCESS_KEY_ID'),
+    'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    'prefix' => env('SQS_PREFIX', 'https://sqs.us-east-1.amazonaws.com/your-account-id'),
+    'queue' => env('SQS_QUEUE', 'default'),
+    'suffix' => env('SQS_SUFFIX'),
+    'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    'after_commit' => false,
+    'overflow' => [
+        'enabled' => env('SQS_OVERFLOW_ENABLED', false),
+        'store' => env('SQS_OVERFLOW_STORE'),
+        'always' => false,
+        'delete_after_processing' => true,
+        'flush_on_clear' => env('SQS_OVERFLOW_FLUSH_ON_CLEAR', false),
+    ],
+],
+```
+
+When overflow storage is enabled, Laravel will store payloads that are at least 1 MB in the configured cache store. If the `always` option is `true`, every SQS payload will be stored in the cache store regardless of its size. Since queued jobs will need to retrieve their payloads from the cache store when they are processed, you should choose a store that can retain the payloads until your workers process them. By default, stored payloads are deleted after their jobs have been successfully processed and deleted from SQS.
+
+If the `flush_on_clear` option is `true`, the configured overflow cache store will be flushed when the `queue:clear` command clears the SQS queue. Since flushing a cache store may remove all items from that store, you should configure SQS overflow storage to use a dedicated cache store when enabling this option.
 
 <a name="other-driver-prerequisites"></a>
 #### Other Driver Prerequisites
@@ -827,6 +858,28 @@ public function middleware(): array
 }
 ```
 
+The `backoff` method also accepts a closure that receives the thrown exception, allowing the delay to be determined dynamically:
+
+```php
+use App\Exceptions\RateLimitedException;
+use Illuminate\Queue\Middleware\ThrottlesExceptions;
+use Throwable;
+
+/**
+ * Get the middleware the job should pass through.
+ *
+ * @return array<int, object>
+ */
+public function middleware(): array
+{
+    return [(new ThrottlesExceptions(10, 5 * 60))->backoff(
+        fn (Throwable $throwable) => $throwable instanceof RateLimitedException
+            ? $throwable->retryAfterMinutes()
+            : 5
+    )];
+}
+```
+
 Internally, this middleware uses Laravel's cache system to implement rate limiting, and the job's class name is utilized as the cache "key". You may override this key by calling the `by` method when attaching the middleware to your job. This may be useful if you have multiple jobs interacting with the same third-party service and you would like them to share a common throttling "bucket" ensuring they respect a single shared limit:
 
 ```php
@@ -1089,6 +1142,44 @@ Similarly, the `background` connection processes jobs after the HTTP response ha
 
 ```php
 RecordDelivery::dispatch($order)->onConnection('background');
+```
+
+<a name="preparing-jobs-before-dispatch"></a>
+### Preparing Jobs Before Dispatch
+
+If a job needs to prepare or inspect its state before it is pushed onto the queue, the job may implement the `Illuminate\Contracts\Queue\PreparesForDispatch` interface. Laravel will invoke the job's `prepareForDispatch` method before dispatching the job. If this method returns `false`, the job will not be dispatched:
+
+```php
+<?php
+
+namespace App\Jobs;
+
+use Illuminate\Contracts\Queue\PreparesForDispatch;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
+
+class SyncPodcasts implements PreparesForDispatch, ShouldQueue
+{
+    use Queueable;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(
+        public array $podcastIds,
+    ) {}
+
+    /**
+     * Prepare the job before dispatching.
+     */
+    public function prepareForDispatch(): bool
+    {
+        return collect($this->podcastIds)
+            ->reject(fn (int $id) => Cache::has("podcast-syncing:{$id}"))
+            ->isNotEmpty();
+    }
+}
 ```
 
 <a name="jobs-and-database-transactions"></a>
@@ -2439,6 +2530,64 @@ This command will instruct all queue workers to gracefully exit after they finis
 > [!NOTE]
 > The queue uses the [cache](/docs/{{version}}/cache) to store restart signals, so you should verify that a cache driver is properly configured for your application before using this feature.
 
+<a name="reacting-to-worker-signals"></a>
+### Reacting to Worker Signals
+
+When a queue worker receives a termination signal such as `SIGQUIT`, `SIGTERM`, or `SIGINT` while processing a job, the worker will finish its current job before exiting. However, your job may need to react to the signal before the process is stopped by your server or container orchestrator. For example, a long-running import job may need to stop pulling new records and save its current progress.
+
+To react to worker signals from within a job, implement the `Illuminate\Contracts\Queue\Interruptible` interface and define an `interrupted` method on your job. The signal number received by the worker will be passed to the `interrupted` method:
+
+```php
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Import;
+use Illuminate\Contracts\Queue\Interruptible;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+
+class ImportProducts implements ShouldQueue, Interruptible
+{
+    use Queueable;
+
+    protected bool $shouldStop = false;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(
+        public Import $import,
+    ) {}
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        foreach ($this->import->pendingRows() as $row) {
+            if ($this->shouldStop) {
+                break;
+            }
+
+            // Import the product row...
+        }
+
+        $this->import->saveProgress();
+    }
+
+    /**
+     * Handle a signal received by the queue worker.
+     */
+    public function interrupted(int $signal): void
+    {
+        $this->shouldStop = true;
+    }
+}
+```
+
+The `interrupted` method is only invoked when the worker receives a process signal while the job is currently running. It is not a replacement for [timeouts](#worker-timeouts) or the job's [`failed` method](#cleaning-up-after-failed-jobs).
+
 <a name="job-expirations-and-timeouts"></a>
 ### Job Expirations and Timeouts
 
@@ -2956,6 +3105,9 @@ test('orders can be shipped', function () {
     // Assert a job was pushed
     Queue::assertPushed(ShipOrder::class);
 
+    // Assert a job was pushed exactly once...
+    Queue::assertPushedOnce(ShipOrder::class);
+
     // Assert a job was pushed twice...
     Queue::assertPushedTimes(ShipOrder::class, 2);
 
@@ -2999,6 +3151,9 @@ class ExampleTest extends TestCase
 
         // Assert a job was pushed
         Queue::assertPushed(ShipOrder::class);
+
+        // Assert a job was pushed exactly once...
+        Queue::assertPushedOnce(ShipOrder::class);
 
         // Assert a job was pushed twice...
         Queue::assertPushedTimes(ShipOrder::class, 2);
@@ -3300,5 +3455,18 @@ Queue::looping(function () {
     while (DB::transactionLevel() > 0) {
         DB::rollBack();
     }
+});
+```
+
+Laravel also dispatches an `Illuminate\Queue\Events\WorkerIdle` event when a queue worker is unable to retrieve a job from the queue:
+
+```php
+use Illuminate\Queue\Events\WorkerIdle;
+use Illuminate\Support\Facades\Event;
+
+Event::listen(function (WorkerIdle $event) {
+    // $event->connectionName
+    // $event->queue
+    // $event->workerOptions
 });
 ```

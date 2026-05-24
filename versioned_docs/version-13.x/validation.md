@@ -116,8 +116,8 @@ class PostController extends Controller
 public function store(Request $request): RedirectResponse
 {
     $validated = $request->validate([
-        'title' => 'required|unique:posts|max:255',
-        'body' => 'required',
+        'title' => ['required', 'unique:posts', 'max:255'],
+        'body' => ['required'],
     ]);
 
     // The blog post is valid...
@@ -128,19 +128,10 @@ public function store(Request $request): RedirectResponse
 
 보시다시피 유효성 검증 규칙은 `validate` 메서드에 전달됩니다. 걱정하지 않아도 됩니다. 사용 가능한 모든 유효성 검증 규칙은 [문서화](#available-validation-rules)되어 있습니다. 다시 말해, 유효성 검증에 실패하면 적절한 응답이 자동으로 생성됩니다. 유효성 검증을 통과하면 컨트롤러는 정상적으로 계속 실행됩니다.
 
-또는 유효성 검증 규칙을 하나의 `|` 구분 문자열 대신 규칙 배열로 지정할 수도 있습니다.
-
-```php
-$validatedData = $request->validate([
-    'title' => ['required', 'unique:posts', 'max:255'],
-    'body' => ['required'],
-]);
-```
-
 또한 `validateWithBag` 메서드를 사용해 요청을 유효성 검증하고, 오류 메시지를 [이름이 지정된 오류 백](#named-error-bags)에 저장할 수 있습니다.
 
 ```php
-$validatedData = $request->validateWithBag('post', [
+$validated = $request->validateWithBag('post', [
     'title' => ['required', 'unique:posts', 'max:255'],
     'body' => ['required'],
 ]);
@@ -153,8 +144,8 @@ $validatedData = $request->validateWithBag('post', [
 
 ```php
 $request->validate([
-    'title' => 'bail|required|unique:posts|max:255',
-    'body' => 'required',
+    'title' => ['bail', 'required', 'unique:posts', 'max:255'],
+    'body' => ['required'],
 ]);
 ```
 
@@ -167,9 +158,9 @@ $request->validate([
 
 ```php
 $request->validate([
-    'title' => 'required|unique:posts|max:255',
-    'author.name' => 'required',
-    'author.description' => 'required',
+    'title' => ['required', 'unique:posts', 'max:255'],
+    'author.name' => ['required'],
+    'author.description' => ['required'],
 ]);
 ```
 
@@ -177,8 +168,8 @@ $request->validate([
 
 ```php
 $request->validate([
-    'title' => 'required|unique:posts|max:255',
-    'v1\.0' => 'required',
+    'title' => ['required', 'unique:posts', 'max:255'],
+    'v1\.0' => ['required'],
 ]);
 ```
 
@@ -278,9 +269,9 @@ Laravel은 전역 `old` 헬퍼도 제공합니다. [Blade 템플릿](/docs/13.x/
 
 ```php
 $request->validate([
-    'title' => 'required|unique:posts|max:255',
-    'body' => 'required',
-    'publish_at' => 'nullable|date',
+    'title' => ['required', 'unique:posts', 'max:255'],
+    'body' => ['required'],
+    'publish_at' => ['nullable', 'date'],
 ]);
 ```
 
@@ -339,8 +330,8 @@ php artisan make:request StorePostRequest
 public function rules(): array
 {
     return [
-        'title' => 'required|unique:posts|max:255',
-        'body' => 'required',
+        'title' => ['required', 'unique:posts', 'max:255'],
+        'body' => ['required'],
     ];
 }
 ```
@@ -694,8 +685,8 @@ class PostController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|unique:posts|max:255',
-            'body' => 'required',
+            'title' => ['required', 'unique:posts', 'max:255'],
+            'body' => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -739,8 +730,8 @@ Validator 인스턴스를 수동으로 생성하면서도 HTTP request의 `valid
 
 ```php
 Validator::make($request->all(), [
-    'title' => 'required|unique:posts|max:255',
-    'body' => 'required',
+    'title' => ['required', 'unique:posts', 'max:255'],
+    'body' => ['required'],
 ])->validate();
 ```
 
@@ -748,8 +739,8 @@ Validator::make($request->all(), [
 
 ```php
 Validator::make($request->all(), [
-    'title' => 'required|unique:posts|max:255',
-    'body' => 'required',
+    'title' => ['required', 'unique:posts', 'max:255'],
+    'body' => ['required'],
 ])->validateWithBag('post');
 ```
 
@@ -1000,7 +991,7 @@ Laravel의 일부 내장 validation rule 오류 메시지는 요청 속성의 �
 
 ```php
 Validator::make($request->all(), [
-    'credit_card_number' => 'required_if:payment_type,cc'
+    'credit_card_number' => ['required_if:payment_type,cc']
 ]);
 ```
 
@@ -1246,13 +1237,13 @@ The credit card number field is required when payment type is credit card.
 유효성 검증 중인 필드는 주어진 날짜 이후의 값이어야 합니다. 날짜는 유효한 `DateTime` 인스턴스로 변환하기 위해 PHP `strtotime` 함수에 전달됩니다.
 
 ```php
-'start_date' => 'required|date|after:tomorrow'
+'start_date' => ['required', 'date', 'after:tomorrow']
 ```
 
 `strtotime`으로 평가할 날짜 문자열을 전달하는 대신, 날짜와 비교할 다른 필드를 지정할 수도 있습니다.
 
 ```php
-'finish_date' => 'required|date|after:start_date'
+'finish_date' => ['required', 'date', 'after:start_date']
 ```
 
 편의를 위해 날짜 기반 규칙은 fluent `date` rule builder를 사용해 만들 수 있습니다.
@@ -1316,7 +1307,7 @@ use Illuminate\Validation\Rule;
 이 유효성 검증 규칙을 ASCII 범위(`a-z` 및 `A-Z`)의 문자로 제한하려면 유효성 검증 규칙에 `ascii` 옵션을 제공하면 됩니다.
 
 ```php
-'username' => 'alpha:ascii',
+'username' => ['alpha:ascii'],
 ```
 
 <a name="rule-alpha-dash"></a>
@@ -1327,7 +1318,7 @@ use Illuminate\Validation\Rule;
 이 유효성 검증 규칙을 ASCII 범위(`a-z`, `A-Z`, `0-9`)의 문자로 제한하려면 유효성 검증 규칙에 `ascii` 옵션을 제공하면 됩니다.
 
 ```php
-'username' => 'alpha_dash:ascii',
+'username' => ['alpha_dash:ascii'],
 ```
 
 <a name="rule-alpha-num"></a>
@@ -1338,7 +1329,7 @@ use Illuminate\Validation\Rule;
 이 유효성 검증 규칙을 ASCII 범위(`a-z`, `A-Z`, `0-9`)의 문자로 제한하려면 유효성 검증 규칙에 `ascii` 옵션을 제공하면 됩니다.
 
 ```php
-'username' => 'alpha_num:ascii',
+'username' => ['alpha_num:ascii'],
 ```
 
 <a name="rule-array"></a>
@@ -1360,7 +1351,7 @@ $input = [
 ];
 
 Validator::make($input, [
-    'user' => 'array:name,username',
+    'user' => ['array:name,username'],
 ]);
 ```
 
@@ -1438,7 +1429,7 @@ use Illuminate\Validation\Rule;
 필드의 값이 `true` 또는 `false`일 때만 유효한 것으로 간주하려면 `strict` 매개변수를 사용할 수 있습니다.
 
 ```php
-'foo' => 'boolean:strict'
+'foo' => ['boolean:strict']
 ```
 
 <a name="rule-confirmed"></a>
@@ -1490,7 +1481,7 @@ Validator::make($data, [
 유효성 검증 중인 필드는 인증된 사용자의 비밀번호와 일치해야 합니다. 규칙의 첫 번째 매개변수를 사용해 [authentication guard](/docs/13.x/authentication)를 지정할 수 있습니다.
 
 ```php
-'password' => 'current_password:api'
+'password' => ['current_password:api']
 ```
 
 <a name="rule-date"></a>
@@ -1526,10 +1517,10 @@ use Illuminate\Validation\Rule;
 
 ```php
 // Must have exactly two decimal places (9.99)...
-'price' => 'decimal:2'
+'price' => ['decimal:2']
 
 // Must have between 2 and 4 decimal places...
-'price' => 'decimal:2,4'
+'price' => ['decimal:2,4']
 ```
 
 <a name="rule-declined"></a>
@@ -1563,7 +1554,7 @@ use Illuminate\Validation\Rule;
 유효성 검증 중인 파일은 규칙의 매개변수로 지정된 크기 제약 조건을 만족하는 이미지여야 합니다.
 
 ```php
-'avatar' => 'dimensions:min_width=100,min_height=200'
+'avatar' => ['dimensions:min_width=100,min_height=200']
 ```
 
 사용 가능한 제약 조건은 _min\_width_, _max\_width_, _min\_height_, _max\_height_, _width_, _height_, _ratio_, _min\_ratio_, _max\_ratio_입니다.
@@ -1571,13 +1562,13 @@ use Illuminate\Validation\Rule;
 _ratio_ 제약 조건은 너비를 높이로 나눈 값으로 표현해야 합니다. 이는 `3/2`와 같은 분수나 `1.5`와 같은 float로 지정할 수 있습니다.
 
 ```php
-'avatar' => 'dimensions:ratio=3/2'
+'avatar' => ['dimensions:ratio=3/2']
 ```
 
 _min\_ratio_와 _max\_ratio_ 제약 조건을 사용하여 허용 가능한 종횡비 범위를 정의할 수 있습니다.
 
 ```php
-'avatar' => 'dimensions:min_ratio=1/2,max_ratio=3/2'
+'avatar' => ['dimensions:min_ratio=1/2,max_ratio=3/2']
 ```
 
 이 규칙은 여러 인수를 필요로 하므로, `Rule::dimensions` 메서드를 사용해 fluent하게 규칙을 만드는 것이 더 편리한 경우가 많습니다.
@@ -1609,19 +1600,19 @@ Rule::dimensions()->ratioBetween(min: 1 / 2, max: 3 / 2)
 배열을 검증할 때, 유효성 검증 중인 필드는 중복 값을 가져서는 안 됩니다.
 
 ```php
-'foo.*.id' => 'distinct'
+'foo.*.id' => ['distinct']
 ```
 
 `distinct`는 기본적으로 느슨한 변수 비교를 사용합니다. 엄격한 비교를 사용하려면 유효성 검증 규칙 정의에 `strict` 매개변수를 추가할 수 있습니다.
 
 ```php
-'foo.*.id' => 'distinct:strict'
+'foo.*.id' => ['distinct:strict']
 ```
 
 대소문자 차이를 무시하도록 하려면 유효성 검증 규칙의 인수에 `ignore_case`를 추가할 수 있습니다.
 
 ```php
-'foo.*.id' => 'distinct:ignore_case'
+'foo.*.id' => ['distinct:ignore_case']
 ```
 
 <a name="rule-doesnt-start-with"></a>
@@ -1639,7 +1630,7 @@ Rule::dimensions()->ratioBetween(min: 1 / 2, max: 3 / 2)
 유효성 검증 중인 필드는 이메일 주소 형식이어야 합니다. 이 유효성 검증 규칙은 이메일 주소를 검증하기 위해 [egulias/email-validator](https://github.com/egulias/EmailValidator) 패키지를 사용합니다. 기본적으로 `RFCValidation` validator가 적용되지만, 다른 검증 방식도 함께 적용할 수 있습니다.
 
 ```php
-'email' => 'email:rfc,dns'
+'email' => ['email:rfc,dns']
 ```
 
 위 예시는 `RFCValidation` 및 `DNSCheckValidation` 검증을 적용합니다. 적용할 수 있는 전체 검증 방식 목록은 다음과 같습니다.
@@ -1752,11 +1743,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 Validator::make($request->all(), [
-    'role_id' => Rule::excludeIf($request->user()->is_admin),
+    'role_id' => [Rule::excludeIf($request->user()->is_admin)],
 ]);
 
 Validator::make($request->all(), [
-    'role_id' => Rule::excludeIf(fn () => $request->user()->is_admin),
+    'role_id' => [Rule::excludeIf(fn () => $request->user()->is_admin)],
 ]);
 ```
 
@@ -1772,11 +1763,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 Validator::make($request->all(), [
-    'role_id' => Rule::excludeUnless($request->user()->is_admin),
+    'role_id' => [Rule::excludeUnless($request->user()->is_admin)],
 ]);
 
 Validator::make($request->all(), [
-    'role_id' => Rule::excludeUnless(fn () => $request->user()->is_admin),
+    'role_id' => [Rule::excludeUnless(fn () => $request->user()->is_admin)],
 ]);
 ```
 
@@ -1799,7 +1790,7 @@ Validator::make($request->all(), [
 #### Exists 규칙 기본 사용법
 
 ```php
-'state' => 'exists:states'
+'state' => ['exists:states']
 ```
 
 `column` 옵션이 지정되지 않으면 필드명이 사용됩니다. 따라서 이 경우 이 규칙은 `states` 데이터베이스 테이블에 요청의 `state` 속성 값과 일치하는 `state` 컬럼 값을 가진 레코드가 있는지 검증합니다.
@@ -1810,22 +1801,22 @@ Validator::make($request->all(), [
 유효성 검증 규칙에서 사용할 데이터베이스 컬럼명을 데이터베이스 테이블명 뒤에 배치하여 명시적으로 지정할 수 있습니다.
 
 ```php
-'state' => 'exists:states,abbreviation'
+'state' => ['exists:states,abbreviation']
 ```
 
 때로는 `exists` 쿼리에 사용할 특정 데이터베이스 연결을 지정해야 할 수 있습니다. 테이블명 앞에 연결명을 붙이면 됩니다.
 
 ```php
-'email' => 'exists:connection.staff,email'
+'email' => ['exists:connection.staff,email']
 ```
 
 테이블명을 직접 지정하는 대신, 테이블명을 결정하는 데 사용할 Eloquent 모델을 지정할 수도 있습니다.
 
 ```php
-'user_id' => 'exists:App\Models\User,id'
+'user_id' => ['exists:App\Models\User,id']
 ```
 
-유효성 검증 규칙이 실행하는 쿼리를 사용자 지정하려면 `Rule` 클래스를 사용하여 규칙을 fluent하게 정의할 수 있습니다. 이 예시에서는 `|` 문자를 구분자로 사용하는 대신 유효성 검증 규칙을 배열로 지정합니다.
+유효성 검증 규칙이 실행하는 쿼리를 사용자 지정하려면 `Rule` 클래스를 사용하여 규칙을 fluent하게 정의할 수 있습니다.
 
 ```php
 use Illuminate\Database\Query\Builder;
@@ -1845,7 +1836,7 @@ Validator::make($data, [
 `Rule::exists` 메서드가 생성하는 `exists` 규칙에서 사용할 데이터베이스 컬럼명은 `exists` 메서드의 두 번째 인수로 컬럼명을 전달하여 명시적으로 지정할 수 있습니다.
 
 ```php
-'state' => Rule::exists('states', 'abbreviation'),
+'state' => [Rule::exists('states', 'abbreviation')],
 ```
 
 때로는 값 배열이 데이터베이스에 존재하는지 검증하고 싶을 수 있습니다. 검증할 필드에 `exists` 규칙과 [array](#rule-array) 규칙을 함께 추가하면 됩니다.
@@ -1948,7 +1939,7 @@ Validator::make($input, [
 유효성 검증 중인 필드는 배열이어야 하며, 주어진 _values_ 중 적어도 하나를 배열의 키로 가지고 있어야 합니다.
 
 ```php
-'config' => 'array|in_array_keys:timezone'
+'config' => ['array', 'in_array_keys:timezone']
 ```
 
 <a name="rule-integer"></a>
@@ -1959,7 +1950,7 @@ Validator::make($input, [
 필드의 타입이 `integer`인 경우에만 유효한 것으로 간주하려면 `strict` 매개변수를 사용할 수 있습니다. 정수 값을 가진 문자열은 유효하지 않은 것으로 간주됩니다.
 
 ```php
-'age' => 'integer:strict'
+'age' => ['integer:strict']
 ```
 
 > [!WARNING]
@@ -2026,9 +2017,9 @@ Validator::make($input, [
 유효성 검증 중인 파일은 주어진 MIME 타입 중 하나와 일치해야 합니다.
 
 ```php
-'video' => 'mimetypes:video/avi,video/mpeg,video/quicktime',
+'video' => ['mimetypes:video/avi,video/mpeg,video/quicktime'],
 
-'media' => 'mimetypes:image/*,video/*',
+'media' => ['mimetypes:image/*,video/*'],
 ```
 
 업로드된 파일의 MIME 타입을 확인하기 위해 파일 내용을 읽고 프레임워크가 MIME 타입을 추측합니다. 이 값은 클라이언트가 제공한 MIME 타입과 다를 수 있습니다.
@@ -2038,7 +2029,7 @@ Validator::make($input, [
 유효성 검증 대상 파일은 나열된 확장자 중 하나에 해당하는 MIME 타입이어야 합니다.
 
 ```php
-'photo' => 'mimes:jpg,bmp,png'
+'photo' => ['mimes:jpg,bmp,png']
 ```
 
 확장자만 지정하면 되지만, 이 규칙은 실제로 파일의 내용을 읽고 MIME 타입을 추측하여 파일의 MIME 타입을 검증합니다. MIME 타입과 해당 확장자의 전체 목록은 다음 위치에서 확인할 수 있습니다.
@@ -2111,10 +2102,7 @@ Validator::make($data, [
 
 유효성 검증 대상 필드는 주어진 정규 표현식과 일치하지 않아야 합니다.
 
-내부적으로 이 규칙은 PHP `preg_match` 함수를 사용합니다. 지정하는 패턴은 `preg_match`에서 요구하는 것과 같은 형식을 따라야 하며, 따라서 유효한 구분자도 포함해야 합니다. 예: `'email' => 'not_regex:/^.+$/i'`.
-
-> [!WARNING]
-> `regex` / `not_regex` 패턴을 사용할 때, 특히 정규 표현식에 `|` 문자가 포함된 경우에는 `|` 구분자를 사용하는 대신 배열로 유효성 검증 규칙을 지정해야 할 수 있습니다.
+내부적으로 이 규칙은 PHP `preg_match` 함수를 사용합니다. 지정하는 패턴은 `preg_match`에서 요구하는 것과 같은 형식을 따라야 하며, 따라서 유효한 구분자도 포함해야 합니다. 예: `'email' => ['not_regex:/^.+$/i']`.
 
 <a name="rule-nullable"></a>
 #### nullable
@@ -2129,7 +2117,7 @@ Validator::make($data, [
 `strict` 매개변수를 사용하면 필드 값이 정수 또는 부동소수점 타입일 때만 유효한 것으로 간주할 수 있습니다. 숫자 문자열은 유효하지 않은 것으로 간주됩니다.
 
 ```php
-'amount' => 'numeric:strict'
+'amount' => ['numeric:strict']
 ```
 
 <a name="rule-present"></a>
@@ -2192,11 +2180,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 Validator::make($request->all(), [
-    'role_id' => Rule::prohibitedIf($request->user()->is_admin),
+    'role_id' => [Rule::prohibitedIf($request->user()->is_admin)],
 ]);
 
 Validator::make($request->all(), [
-    'role_id' => Rule::prohibitedIf(fn () => $request->user()->is_admin),
+    'role_id' => [Rule::prohibitedIf(fn () => $request->user()->is_admin)],
 ]);
 ```
 <a name="rule-prohibited-if-accepted"></a>
@@ -2230,11 +2218,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 Validator::make($request->all(), [
-    'role_id' => Rule::prohibitedUnless($request->user()->is_admin),
+    'role_id' => [Rule::prohibitedUnless($request->user()->is_admin)],
 ]);
 
 Validator::make($request->all(), [
-    'role_id' => Rule::prohibitedUnless(fn () => $request->user()->is_admin),
+    'role_id' => [Rule::prohibitedUnless(fn () => $request->user()->is_admin)],
 ]);
 ```
 
@@ -2257,10 +2245,7 @@ Validator::make($request->all(), [
 
 유효성 검증 대상 필드는 주어진 정규 표현식과 일치해야 합니다.
 
-내부적으로 이 규칙은 PHP `preg_match` 함수를 사용합니다. 지정하는 패턴은 `preg_match`에서 요구하는 것과 같은 형식을 따라야 하며, 따라서 유효한 구분자도 포함해야 합니다. 예: `'email' => 'regex:/^.+@.+$/i'`.
-
-> [!WARNING]
-> `regex` / `not_regex` 패턴을 사용할 때, 특히 정규 표현식에 `|` 문자가 포함된 경우에는 `|` 구분자를 사용하는 대신 배열로 규칙을 지정해야 할 수 있습니다.
+내부적으로 이 규칙은 PHP `preg_match` 함수를 사용합니다. 지정하는 패턴은 `preg_match`에서 요구하는 것과 같은 형식을 따라야 하며, 따라서 유효한 구분자도 포함해야 합니다. 예: `'email' => ['regex:/^.+@.+$/i']`.
 
 <a name="rule-required"></a>
 #### required
@@ -2288,11 +2273,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 Validator::make($request->all(), [
-    'role_id' => Rule::requiredIf($request->user()->is_admin),
+    'role_id' => [Rule::requiredIf($request->user()->is_admin)],
 ]);
 
 Validator::make($request->all(), [
-    'role_id' => Rule::requiredIf(fn () => $request->user()->is_admin),
+    'role_id' => [Rule::requiredIf(fn () => $request->user()->is_admin)],
 ]);
 ```
 
@@ -2318,11 +2303,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 Validator::make($request->all(), [
-    'role_id' => Rule::requiredUnless($request->user()->is_admin),
+    'role_id' => [Rule::requiredUnless($request->user()->is_admin)],
 ]);
 
 Validator::make($request->all(), [
-    'role_id' => Rule::requiredUnless(fn () => $request->user()->is_admin),
+    'role_id' => [Rule::requiredUnless(fn () => $request->user()->is_admin)],
 ]);
 ```
 
@@ -2363,16 +2348,16 @@ Validator::make($request->all(), [
 
 ```php
 // Validate that a string is exactly 12 characters long...
-'title' => 'size:12';
+'title' => ['size:12'];
 
 // Validate that a provided integer equals 10...
-'seats' => 'integer|size:10';
+'seats' => ['integer', 'size:10'];
 
 // Validate that an array has exactly 5 elements...
-'tags' => 'array|size:5';
+'tags' => ['array', 'size:5'];
 
 // Validate that an uploaded file is exactly 512 kilobytes...
-'image' => 'file|size:512';
+'image' => ['file', 'size:512'];
 ```
 
 <a name="rule-starts-with"></a>
@@ -2409,11 +2394,11 @@ use Illuminate\Validation\Rule;
 [`DateTimeZone::listIdentifiers` 메서드가 허용하는 인수](https://www.php.net/manual/en/datetimezone.listidentifiers.php)도 이 유효성 검증 규칙에 제공할 수 있습니다.
 
 ```php
-'timezone' => 'required|timezone:all';
+'timezone' => ['required', 'timezone:all'];
 
-'timezone' => 'required|timezone:Africa';
+'timezone' => ['required', 'timezone:Africa'];
 
-'timezone' => 'required|timezone:per_country,US';
+'timezone' => ['required', 'timezone:per_country,US'];
 ```
 
 <a name="rule-unique"></a>
@@ -2426,27 +2411,27 @@ use Illuminate\Validation\Rule;
 테이블 이름을 직접 지정하는 대신, 테이블 이름을 결정하는 데 사용할 Eloquent 모델을 지정할 수 있습니다.
 
 ```php
-'email' => 'unique:App\Models\User,email_address'
+'email' => ['unique:App\Models\User,email_address']
 ```
 
 `column` 옵션을 사용하여 필드에 해당하는 데이터베이스 컬럼을 지정할 수 있습니다. `column` 옵션을 지정하지 않으면 유효성 검증 대상 필드의 이름이 사용됩니다.
 
 ```php
-'email' => 'unique:users,email_address'
+'email' => ['unique:users,email_address']
 ```
 **사용자 지정 데이터베이스 연결 지정하기**
 
 때로는 Validator가 수행하는 데이터베이스 쿼리에 사용자 지정 연결을 설정해야 할 수 있습니다. 이를 위해 테이블명 앞에 연결 이름을 붙일 수 있습니다.
 
 ```php
-'email' => 'unique:connection.users,email_address'
+'email' => ['unique:connection.users,email_address']
 ```
 
 **지정한 ID를 무시하도록 Unique 규칙 강제하기:**
 
 때로는 unique 유효성 검증 중에 지정한 ID를 무시하고 싶을 수 있습니다. 예를 들어 사용자의 이름, 이메일 주소, 위치를 포함하는 "프로필 수정" 화면을 생각해 보겠습니다. 일반적으로 이메일 주소가 고유한지 확인하고 싶을 것입니다. 하지만 사용자가 이메일 필드는 그대로 두고 이름 필드만 변경했다면, 해당 사용자가 이미 그 이메일 주소의 소유자이므로 유효성 검증 오류가 발생해서는 안 됩니다.
 
-Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용해 규칙을 유연하게 정의합니다. 이 예제에서는 `|` 문자로 규칙을 구분하는 대신, 유효성 검증 규칙을 배열로 지정합니다.
+Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용해 규칙을 유연하게 정의합니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -2516,9 +2501,9 @@ Rule::unique('users')->withoutTrashed('was_deleted_at');
 유효한 것으로 간주할 URL 프로토콜을 지정하고 싶다면, 프로토콜을 유효성 검증 규칙 매개변수로 전달할 수 있습니다.
 
 ```php
-'url' => 'url:http,https',
+'url' => ['url:http,https'],
 
-'game' => 'url:minecraft,steam',
+'game' => ['url:minecraft,steam'],
 ```
 
 <a name="rule-ulid"></a>
@@ -2534,7 +2519,7 @@ Rule::unique('users')->withoutTrashed('was_deleted_at');
 주어진 UUID가 특정 버전의 UUID 명세와 일치하는지도 검증할 수 있습니다.
 
 ```php
-'uuid' => 'uuid:4'
+'uuid' => ['uuid:4']
 ```
 
 <a name="conditionally-adding-rules"></a>
@@ -2549,9 +2534,9 @@ Rule::unique('users')->withoutTrashed('was_deleted_at');
 use Illuminate\Support\Facades\Validator;
 
 $validator = Validator::make($data, [
-    'has_appointment' => 'required|boolean',
-    'appointment_date' => 'exclude_if:has_appointment,false|required|date',
-    'doctor_name' => 'exclude_if:has_appointment,false|required|string',
+    'has_appointment' => ['required', 'boolean'],
+    'appointment_date' => ['exclude_if:has_appointment,false', 'required', 'date'],
+    'doctor_name' => ['exclude_if:has_appointment,false', 'required', 'string'],
 ]);
 ```
 
@@ -2559,9 +2544,9 @@ $validator = Validator::make($data, [
 
 ```php
 $validator = Validator::make($data, [
-    'has_appointment' => 'required|boolean',
-    'appointment_date' => 'exclude_unless:has_appointment,true|required|date',
-    'doctor_name' => 'exclude_unless:has_appointment,true|required|string',
+    'has_appointment' => ['required', 'boolean'],
+    'appointment_date' => ['exclude_unless:has_appointment,true', 'required', 'date'],
+    'doctor_name' => ['exclude_unless:has_appointment,true', 'required', 'string'],
 ]);
 ```
 
@@ -2572,7 +2557,7 @@ $validator = Validator::make($data, [
 
 ```php
 $validator = Validator::make($data, [
-    'email' => 'sometimes|required|email',
+    'email' => ['sometimes', 'required', 'email'],
 ]);
 ```
 
@@ -2590,8 +2575,8 @@ $validator = Validator::make($data, [
 use Illuminate\Support\Facades\Validator;
 
 $validator = Validator::make($request->all(), [
-    'email' => 'required|email',
-    'games' => 'required|integer|min:0',
+    'email' => ['required', 'email'],
+    'games' => ['required', 'integer', 'min:0'],
 ]);
 ```
 
@@ -2600,7 +2585,7 @@ $validator = Validator::make($request->all(), [
 ```php
 use Illuminate\Support\Fluent;
 
-$validator->sometimes('reason', 'required|max:500', function (Fluent $input) {
+$validator->sometimes('reason', ['required', 'max:500'], function (Fluent $input) {
     return $input->games >= 100;
 });
 ```
@@ -2663,7 +2648,7 @@ $input = [
 ];
 
 Validator::make($input, [
-    'user' => 'array:name,username',
+    'user' => ['array:name,username'],
 ]);
 ```
 
@@ -2678,7 +2663,7 @@ Validator::make($input, [
 use Illuminate\Support\Facades\Validator;
 
 $validator = Validator::make($request->all(), [
-    'photos.profile' => 'required|image',
+    'photos.profile' => ['required', 'image'],
 ]);
 ```
 
@@ -2686,8 +2671,8 @@ $validator = Validator::make($request->all(), [
 
 ```php
 $validator = Validator::make($request->all(), [
-    'users.*.email' => 'email|unique:users',
-    'users.*.first_name' => 'required_with:users.*.last_name',
+    'users.*.email' => ['email', 'unique:users'],
+    'users.*.first_name' => ['required_with:users.*.last_name'],
 ]);
 ```
 
@@ -2743,7 +2728,7 @@ $input = [
 ];
 
 Validator::validate($input, [
-    'photos.*.description' => 'required',
+    'photos.*.description' => ['required'],
 ], [
     'photos.*.description.required' => 'Please describe photo #:position.',
 ]);
@@ -2898,6 +2883,17 @@ Password::min(8)
     ->numbers()
     ->symbols()
     ->uncompromised()
+```
+
+`toPasswordRulesString` 메서드를 사용하면 `Password` 규칙 객체를 HTML `passwordrules` 속성에 적합한 문자열로 변환할 수 있습니다:
+
+```blade
+<input
+    type="password"
+    name="password"
+    autocomplete="new-password"
+    passwordrules="{{ Password::defaults()->toPasswordRulesString() }}"
+/>
 ```
 
 <a name="defining-default-password-rules"></a>
@@ -3106,7 +3102,7 @@ $validator = Validator::make($request->all(), [
 ```php
 use Illuminate\Support\Facades\Validator;
 
-$rules = ['name' => 'unique:users,name'];
+$rules = ['name' => ['unique:users,name']];
 
 $input = ['name' => ''];
 

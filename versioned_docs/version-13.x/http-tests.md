@@ -597,6 +597,25 @@ class ExampleTest extends TestCase
 $response->assertJsonPath('team.owner.name', fn (string $name) => strlen($name) >= 3);
 ```
 
+여러 JSON 경로를 한 번에 검증해야 한다면 `assertJsonPaths` 메서드를 사용할 수 있습니다. 각 경로의 기대 값으로 클로저를 전달할 수도 있습니다:
+
+```php
+$response->assertJsonPaths([
+    'team.owner.name' => 'Darian',
+    'team.owner.email' => fn (string $email) => str($email)->is('*@laravel.com'),
+    'team.members.0.name' => 'Sally',
+]);
+```
+
+여러 JSON 경로가 응답에 없음을 검증하려면 `assertJsonMissingPaths` 메서드를 사용할 수 있습니다:
+
+```php
+$response->assertJsonMissingPaths([
+    'team.owner.password',
+    'team.members.0.api_token',
+]);
+```
+
 <a name="fluent-json-testing"></a>
 ### 유창한 JSON 테스트
 
@@ -1037,6 +1056,7 @@ Laravel의 `Illuminate\Testing\TestResponse` 클래스는 애플리케이션을 
 [다운로드 주장](#assert-download)
 [정확한Json 주장](#assert-exact-json)
 [정확한Json구조 주장](#assert-exact-json-structure)
+[실패한 의존성 주장](#assert-failed-dependency)
 [금지됨 주장](#assert-forbidden)
 [발견 주장](#assert-found)
 [사라졌다 주장](#assert-gone)
@@ -1053,7 +1073,9 @@ Laravel의 `Illuminate\Testing\TestResponse` 클래스는 애플리케이션을 
 [JsonMissingExact 주장](#assert-json-missing-exact)
 [JsonMissingValidationErrors 주장](#assert-json-missing-validation-errors)
 [JsonPath 주장](#assert-json-path)
+[JsonPaths 주장](#assert-json-paths)
 [JsonMissingPath 주장](#assert-json-missing-path)
+[JsonMissingPaths 주장](#assert-json-missing-paths)
 [Json구조 주장](#assert-json-structure)
 [JsonValidationErrors 주장](#assert-json-validation-errors)
 [JsonValidationErrorFor 주장](#assert-json-validation-error-for)
@@ -1090,6 +1112,7 @@ Laravel의 `Illuminate\Testing\TestResponse` 클래스는 애플리케이션을 
 [assertSessionHasNoErrors](#assert-session-has-no-errors)
 [assertSessionDoesntHaveErrors](#assert-session-doesnt-have-errors)
 [세션 누락됨](#assert-session-missing)
+[세션 입력 누락 주장](#assert-session-missing-input)
 [상태 주장](#assert-status)
 [성공적 주장](#assert-successful)
 [요청이 너무 많다고 주장](#assert-too-many-requests)
@@ -1238,6 +1261,15 @@ $response->assertExactJsonStructure(array $data);
 ```
 
 이 방법은 [assertJsonStructure](#assert-json-structure)의 보다 엄격한 변형입니다. `assertJsonStructure`와 달리 이 메서드는 응답에 예상 JSON 구조에 명시적으로 포함되지 않은 키가 포함된 경우 실패합니다.
+
+<a name="assert-failed-dependency"></a>
+#### assertFailedDependency
+
+응답이 Failed Dependency(424) HTTP 상태 코드인지 확인합니다:
+
+```php
+$response->assertFailedDependency();
+```
 
 <a name="assert-forbidden"></a>
 #### 주장금지됨
@@ -1414,6 +1446,24 @@ $response->assertJsonPath($path, $expectedValue);
 $response->assertJsonPath('user.name', 'Steve Schoger');
 ```
 
+<a name="assert-json-paths"></a>
+#### assertJsonPaths
+
+응답이 지정한 경로에 주어진 데이터를 포함하는지 확인합니다:
+
+```php
+$response->assertJsonPaths(array $paths);
+```
+
+예를 들어 응답 안의 여러 값을 한 번에 검증할 수 있습니다:
+
+```php
+$response->assertJsonPaths([
+    'user.name' => 'Steve Schoger',
+    'user.email' => fn (string $email) => str($email)->endsWith('@laravel.com'),
+]);
+```
+
 <a name="assert-json-missing-path"></a>
 #### AssertJsonMissingPath
 
@@ -1437,6 +1487,24 @@ $response->assertJsonMissingPath($path);
 
 ```php
 $response->assertJsonMissingPath('user.email');
+```
+
+<a name="assert-json-missing-paths"></a>
+#### assertJsonMissingPaths
+
+응답에 주어진 경로들이 포함되어 있지 않은지 확인합니다:
+
+```php
+$response->assertJsonMissingPaths($paths);
+```
+
+예를 들어 여러 경로가 응답에 없음을 검증할 수 있습니다:
+
+```php
+$response->assertJsonMissingPaths([
+    'user.email',
+    'user.password',
+]);
 ```
 
 <a name="assert-json-structure"></a>
@@ -1866,6 +1934,15 @@ $response->assertSessionDoesntHaveErrors($keys = [], $format = null, $errorBag =
 
 ```php
 $response->assertSessionMissing($key);
+```
+
+<a name="assert-session-missing-input"></a>
+#### assertSessionMissingInput
+
+세션의 flashed input 배열에 주어진 입력 키가 없는지 확인합니다:
+
+```php
+$response->assertSessionMissingInput($key);
 ```
 
 <a name="assert-status"></a>

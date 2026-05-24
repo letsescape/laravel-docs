@@ -15,6 +15,7 @@
     - [큐 처리](#queueing)
     - [도구](#tools)
     - [프로바이더 도구](#provider-tools)
+    - [하위 에이전트](#sub-agents)
     - [Middleware](#middleware)
     - [익명 에이전트](#anonymous-agents)
     - [에이전트 설정](#agent-configuration)
@@ -125,12 +126,12 @@ AI SDK는 다양한 기능에서 여러 프로바이더를 지원합니다. 다�
 
 | 기능 | 프로바이더 |
 |---|---|
-| 텍스트 | OpenAI, Anthropic, Gemini, Azure, Groq, xAI, DeepSeek, Mistral, Ollama |
-| 이미지 | OpenAI, Gemini, xAI |
-| TTS | OpenAI, ElevenLabs |
-| STT | OpenAI, ElevenLabs, Mistral |
-| 임베딩 | OpenAI, Gemini, Azure, Cohere, Mistral, Jina, VoyageAI |
-| 재순위 지정 | Cohere, Jina |
+| 텍스트 | OpenAI, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
+| 이미지 | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
+| TTS | OpenAI, ElevenLabs, Gemini |
+| STT | OpenAI, ElevenLabs, Mistral, Gemini |
+| 임베딩 | OpenAI, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
+| 재순위 지정 | Cohere, Jina, VoyageAI |
 | 파일 | OpenAI, Anthropic, Gemini |
 
 코드 전체에서 일반 문자열 대신 `Laravel\Ai\Enums\Lab` enum을 사용하여 프로바이더를 참조할 수 있습니다.
@@ -323,7 +324,29 @@ $response = (new SalesCoach)->forUser($user)->prompt('Hello!');
 $conversationId = $response->conversationId;
 ```
 
-대화 ID는 응답에서 반환되며 나중에 참조할 수 있도록 저장할 수 있습니다. 또는 `agent_conversations` 테이블에서 사용자의 모든 대화를 직접 조회할 수도 있습니다.
+대화 ID는 응답에서 반환되며 나중에 참조할 수 있도록 저장할 수 있습니다. Eloquent를 사용하여 사용자의 모든 대화를 조회하고 싶다면 사용자 모델에 `HasConversations` trait를 추가할 수 있습니다:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Ai\Concerns\HasConversations;
+
+class User extends Authenticatable
+{
+    use HasConversations;
+}
+```
+
+모델에 trait를 추가한 후에는 `conversations` 연관관계를 통해 사용자의 대화를 조회하고 쿼리할 수 있습니다:
+
+```php
+$conversations = $user->conversations()
+    ->latest('updated_at')
+    ->paginate(20);
+```
 
 기존 대화를 이어가려면 `continue` 메서드를 사용합니다.
 
@@ -810,6 +833,108 @@ new FileSearch(stores: ['store_id'], where: fn (FileSearchQuery $query) =>
 );
 ```
 
+<a name="sub-agents"></a>
+### 하위 에이전트
+
+에이전트는 다른 에이전트의 `tools` 메서드에서 반환될 수도 있습니다. 에이전트가 툴로 반환되면, 부모 에이전트는 특정 작업을 하위 에이전트에 위임하고 원래 프롬프트에 답변하는 동안 하위 에이전트의 응답을 사용할 수 있습니다. 범용 에이전트가 자체 지침, 툴, 모델 설정 또는 프로바이더 선호도를 가진 특화 에이전트에 접근해야 할 때 유용합니다.
+
+예를 들어 고객 지원 에이전트는 환불 자격 질문을 전담 환불 에이전트에 위임할 수 있습니다:
+
+```php
+<?php
+
+namespace App\Ai\Agents;
+
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Promptable;
+
+class CustomerSupportAgent implements Agent, HasTools
+{
+    use Promptable;
+
+    /**
+     * Get the instructions that the agent should follow.
+     */
+    public function instructions(): string
+    {
+        return 'You help customers with account, order, and billing questions. Delegate refund policy questions to the refunds specialist.';
+    }
+
+    /**
+     * Get the tools available to the agent.
+     *
+     * @return Tool[]
+     */
+    public function tools(): iterable
+    {
+        return [
+            new RefundsAgent,
+        ];
+    }
+}
+```
+
+하위 에이전트가 부모 에이전트에 노출되는 방식을 사용자 지정하려면, 하위 에이전트에서 `CanActAsTool` 인터페이스를 구현하고 툴에 표시될 이름과 설명을 정의합니다:
+
+```php
+<?php
+
+namespace App\Ai\Agents;
+
+use App\Ai\Tools\LookupOrder;
+use Laravel\Ai\Attributes\Provider;
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\CanActAsTool;
+use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Enums\Lab;
+use Laravel\Ai\Promptable;
+
+#[Provider(Lab::Anthropic)]
+class RefundsAgent implements Agent, CanActAsTool, HasTools
+{
+    use Promptable;
+
+    /**
+     * Get the instructions that the agent should follow.
+     */
+    public function instructions(): string
+    {
+        return 'You are a refunds specialist. Use order details and the refund policy to give concise eligibility guidance.';
+    }
+
+    /**
+     * Get the agent's tool name.
+     */
+    public function name(): string
+    {
+        return 'refunds_specialist';
+    }
+
+    /**
+     * Get the agent's tool description.
+     */
+    public function description(): string
+    {
+        return 'Determine whether an order is eligible for a refund and explain the next step.';
+    }
+
+    /**
+     * Get the tools available to the agent.
+     *
+     * @return Tool[]
+     */
+    public function tools(): iterable
+    {
+        return [
+            new LookupOrder,
+        ];
+    }
+}
+```
+
+하위 에이전트가 `CanActAsTool`을 구현하지 않으면 Laravel은 에이전트 클래스의 basename을 툴 이름으로 사용하고, 부모 에이전트가 명확하고 독립적인 작업 설명을 전달하도록 요청하는 기본 설명을 사용합니다. 각 하위 에이전트 호출은 격리되어 실행되며 부모 에이전트의 대화 기록을 받지 않습니다.
+
 <a name="middleware"></a>
 ### Middleware
 Agents는 Middleware를 지원하므로, 프롬프트가 provider로 전송되기 전에 이를 가로채고 수정할 수 있습니다. Middleware는 `make:agent-middleware` Artisan 명령어로 만들 수 있습니다.
@@ -917,14 +1042,15 @@ $response = agent(
 
 PHP 속성을 사용하여 에이전트의 텍스트 생성 옵션을 설정할 수 있습니다. 사용할 수 있는 속성은 다음과 같습니다.
 
-- `MaxSteps`: 도구를 사용할 때 에이전트가 수행할 수 있는 최대 단계 수입니다.
+- `MaxSteps`: 툴을 사용할 때 에이전트가 수행할 수 있는 최대 단계 수입니다.
 - `MaxTokens`: 모델이 생성할 수 있는 최대 토큰 수입니다.
 - `Model`: 에이전트가 사용할 모델입니다.
-- `Provider`: 에이전트가 사용할 AI provider입니다. failover를 위해 여러 provider를 지정할 수도 있습니다.
+- `Provider`: 에이전트가 사용할 AI 프로바이더입니다. failover를 위해 여러 프로바이더를 지정할 수도 있습니다.
 - `Temperature`: 생성에 사용할 샘플링 온도입니다(0.0부터 1.0까지).
 - `Timeout`: 에이전트 요청의 HTTP 제한 시간(초)입니다(기본값: 60).
-- `UseCheapestModel`: 비용 최적화를 위해 provider의 가장 저렴한 텍스트 모델을 사용합니다.
-- `UseSmartestModel`: 복잡한 작업을 위해 provider의 가장 성능이 뛰어난 텍스트 모델을 사용합니다.
+- `TopP`: 생성에 사용할 뉴클리어스 샘플링 확률입니다(0.0부터 1.0까지).
+- `UseCheapestModel`: 비용 최적화를 위해 프로바이더의 가장 저렴한 텍스트 모델을 사용합니다.
+- `UseSmartestModel`: 복잡한 작업을 위해 프로바이더의 가장 성능이 뛰어난 텍스트 모델을 사용합니다.
 
 ```php
 <?php
@@ -937,6 +1063,7 @@ use Laravel\Ai\Attributes\Model;
 use Laravel\Ai\Attributes\Provider;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\Timeout;
+use Laravel\Ai\Attributes\TopP;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Promptable;
@@ -947,6 +1074,7 @@ use Laravel\Ai\Promptable;
 #[MaxTokens(4096)]
 #[Temperature(0.7)]
 #[Timeout(120)]
+#[TopP(0.9)]
 class SalesCoach implements Agent
 {
     use Promptable;
@@ -1014,6 +1142,7 @@ class SalesCoach implements Agent, HasProviderOptions
             ],
             Lab::Anthropic => [
                 'thinking' => ['budget_tokens' => 1024],
+                'cache_control' => ['type' => 'ephemeral'],
             ],
             default => [],
         };
@@ -1021,7 +1150,9 @@ class SalesCoach implements Agent, HasProviderOptions
 }
 ```
 
-`providerOptions` 메서드는 현재 사용 중인 provider(`Lab` enum 또는 문자열)를 받으므로, provider별로 서로 다른 옵션을 반환할 수 있습니다. 이는 [failover(장애 조치)](#failover)를 사용할 때 특히 유용합니다. 각 fallback provider가 고유한 설정을 받을 수 있기 때문입니다.
+`providerOptions` 메서드는 현재 사용 중인 프로바이더(`Lab` enum 또는 문자열)를 받으므로, 프로바이더별로 서로 다른 옵션을 반환할 수 있습니다. 이는 [failover(장애 조치)](#failover)를 사용할 때 특히 유용합니다. 각 fallback 프로바이더가 고유한 설정을 받을 수 있기 때문입니다.
+
+위 Anthropic 예시는 `cache_control`을 통해 [프롬프트 캐싱](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)도 활성화합니다.
 
 <a name="images"></a>
 ## 이미지 (Images)
@@ -1103,6 +1234,14 @@ use Laravel\Ai\Audio;
 $audio = Audio::of('I love coding with Laravel.')->generate();
 
 $rawContent = (string) $audio;
+```
+
+Laravel의 `Stringable` 클래스를 통해 사용할 수 있는 `toAudio` 메서드를 사용하여 문자열에서 오디오를 생성할 수도 있습니다:
+
+```php
+use Illuminate\Support\Str;
+
+$audio = Str::of('I love coding with Laravel.')->toAudio();
 ```
 
 `male`, `female`, `voice` 메서드는 생성되는 오디오의 음성을 결정하는 데 사용할 수 있습니다.
