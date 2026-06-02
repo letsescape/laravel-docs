@@ -57,13 +57,17 @@ export default function NavbarContent(): React.ReactNode {
   const location = useLocation();
   const homeUrl = useBaseUrl('/');
   const isHomepage = location.pathname === homeUrl || location.pathname === homeUrl.replace(/\/$/, '') || location.pathname === '/index.html';
+  const isDocsPage = /^\/(?:[^/]+\/)?docs(?:\/|$)/.test(location.pathname);
+  const showDefaultMobileSidebarToggle = !mobileSidebar.disabled && !isHomepage;
+  const visibleRightItems = isDocsPage
+    ? rightItems.filter((item: any) => item.type !== 'docsVersionDropdown' && item.type !== 'localeDropdown')
+    : rightItems;
 
   return (
     <>
       <NavbarContentLayout
         left={
           <>
-            {!mobileSidebar.disabled && <NavbarMobileSidebarToggle />}
             <NavbarLogo />
             {isHomepage && <NavbarDropdowns />}
             {!isHomepage && <NavbarItems items={leftItems} />}
@@ -71,13 +75,14 @@ export default function NavbarContent(): React.ReactNode {
         }
         right={
           <>
-            <NavbarItems items={rightItems} />
+            <NavbarItems items={visibleRightItems} />
             <NavbarColorModeToggle className="navbar-color-mode-toggle" />
             {!searchBarItem && (
               <NavbarSearch>
                 <SearchBar />
               </NavbarSearch>
             )}
+            {showDefaultMobileSidebarToggle && <NavbarMobileSidebarToggle />}
           </>
         }
       />
