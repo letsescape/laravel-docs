@@ -34,6 +34,96 @@ async function verifyMobileDirectLink(page: Page, linkText: string, expectedHref
   await expect(link).toHaveAttribute('href', expectedHref);
 }
 
+async function expectTopRightMenuButton(page: Page, selector: string, viewportWidth: number) {
+  const button = page.locator(selector).first();
+  await expect(button).toBeVisible();
+
+  const box = await button.boundingBox();
+  const navbarBox = await page.locator('.navbar').boundingBox();
+  expect(box).not.toBeNull();
+  expect(navbarBox).not.toBeNull();
+  expect(box!.x + box!.width).toBeGreaterThanOrEqual(viewportWidth - 48);
+  expect(box!.x + box!.width).toBeGreaterThanOrEqual(navbarBox!.x + navbarBox!.width - 48);
+  expect(box!.y).toBeGreaterThanOrEqual(navbarBox!.y);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(navbarBox!.y + navbarBox!.height);
+}
+
+async function expectDocsResponsiveHeaderControls(page: Page, viewportWidth: number) {
+  const rightItems = page.locator('.navbar__items--right');
+  await expect(rightItems.locator('.navbar-version-dropdown')).toBeHidden();
+  await expect(rightItems.locator('.navbar-locale-dropdown')).toBeHidden();
+
+  const controls = [
+    rightItems.locator('.navbar-color-mode-toggle'),
+    rightItems.locator('[class*="navbarSearchContainer"]'),
+    page.locator('.navbar__items--right > .navbar__toggle'),
+  ];
+
+  for (const control of controls) {
+    await expect(control).toBeVisible();
+  }
+
+  await expectTopRightMenuButton(page, '.navbar__items--right > .navbar__toggle', viewportWidth);
+
+  const boxes = await Promise.all(controls.map((control) => control.boundingBox()));
+  const navbarBox = await page.locator('.navbar').boundingBox();
+  expect(navbarBox).not.toBeNull();
+
+  for (const box of boxes) {
+    expect(box).not.toBeNull();
+  }
+
+  for (let index = 0; index < boxes.length - 1; index += 1) {
+    expect(boxes[index]!.x + boxes[index]!.width).toBeLessThanOrEqual(boxes[index + 1]!.x);
+  }
+
+  const navbarCenterY = navbarBox!.y + navbarBox!.height / 2;
+  for (const box of boxes) {
+    const controlCenterY = box!.y + box!.height / 2;
+    expect(Math.abs(controlCenterY - navbarCenterY)).toBeLessThanOrEqual(2);
+  }
+}
+
+async function expectLocaleIconHidden(page: Page) {
+  const localeDropdown = page.locator('.navbar__items--right .navbar-locale-dropdown');
+  await expect(localeDropdown).toBeVisible();
+  await expect(localeDropdown.locator('> svg')).toBeHidden();
+}
+
+async function expectHomepageResponsiveHeaderControls(page: Page) {
+  const controls = [
+    page.locator('.nav-mobile-mode-toggle'),
+    page.locator('.navbar__items--right .navbar__item.dropdown', {hasText: '13.x'}).first(),
+    page.locator('.navbar__items--right .navbar__item.dropdown', {hasText: /한국어|English|日本語/}).first(),
+    page.locator('.navbar__items--right [class*="navbarSearchContainer"]'),
+    page.locator('.nav-mobile-hamburger'),
+  ];
+
+  for (const control of controls) {
+    await expect(control).toBeVisible();
+  }
+
+  const boxes = await Promise.all(controls.map((control) => control.boundingBox()));
+  const navbarBox = await page.locator('.navbar').boundingBox();
+  expect(navbarBox).not.toBeNull();
+
+  for (const box of boxes) {
+    expect(box).not.toBeNull();
+  }
+
+  for (let index = 0; index < boxes.length - 1; index += 1) {
+    expect(boxes[index]!.x + boxes[index]!.width).toBeLessThanOrEqual(boxes[index + 1]!.x);
+  }
+
+  const navbarCenterY = navbarBox!.y + navbarBox!.height / 2;
+  for (const box of boxes) {
+    const controlCenterY = box!.y + box!.height / 2;
+    expect(Math.abs(controlCenterY - navbarCenterY)).toBeLessThanOrEqual(2);
+  }
+
+  await expectLocaleIconHidden(page);
+}
+
 // =============================================================================
 // 데스크톱 (1280px)
 // =============================================================================
@@ -103,6 +193,10 @@ test.describe('Navbar — Desktop (1280px)', () => {
     await page.evaluate(() => window.scrollBy(0, 500));
     await expect(page.locator('.navbar')).toBeVisible();
   });
+
+  test('N-13: 언어 드롭다운 아이콘 미노출', async ({page}) => {
+    await expectLocaleIconHidden(page);
+  });
 });
 
 // =============================================================================
@@ -115,20 +209,28 @@ test.describe('Navbar — Tablet (768px)', () => {
     await page.goto('/');
   });
 
-  test('N-14: 메뉴 항목 표시', async ({page}) => {
-    for (const name of ['framework', 'products']) {
-      await expect(page.locator(`#trigger-${name}`)).toBeVisible();
-    }
-    await expect(page.locator('#trigger-resources')).toHaveCount(0);
-    await expect(page.locator('#trigger-events')).toHaveCount(0);
+  test('N-14: 햄버거 표시, 드롭다운 숨김', async ({page}) => {
+    await expect(page.locator('.nav-mobile-hamburger')).toBeVisible();
+    await expect(page.locator('.nav-dropdown-triggers')).toBeHidden();
   });
 
-  test('N-15: 햄버거 숨김', async ({page}) => {
-    await expect(page.locator('.nav-mobile-hamburger')).toBeHidden();
+  test('N-14a: 헤더 버튼 순서와 높이 정렬', async ({page}) => {
+    await expectHomepageResponsiveHeaderControls(page);
   });
 
-  test('N-16: 드롭다운 열기', async ({page}) => {
-    await openDropdown(page, 'framework');
+  test('N-15: 오버레이 열기/닫기', async ({page}) => {
+    await expect(page.locator('.nav-mobile-hamburger')).toBeVisible();
+    await page.locator('.nav-mobile-hamburger').click();
+    await expect(page.locator('.nav-mobile-fullscreen')).toBeVisible();
+    await page.locator('.nav-mobile-close').first().click();
+    await expect(page.locator('.nav-mobile-fullscreen')).toBeHidden();
+  });
+
+  test('N-16: 비활성 메뉴 미노출', async ({page}) => {
+    await expect(page.locator('.nav-mobile-hamburger')).toBeVisible();
+    await page.locator('.nav-mobile-hamburger').click();
+    await expect(page.locator('.nav-mobile-menu-item', {hasText: 'Resources'})).toHaveCount(0);
+    await expect(page.locator('.nav-mobile-menu-item', {hasText: 'Events'})).toHaveCount(0);
   });
 });
 
@@ -146,6 +248,10 @@ test.describe('Navbar — Mobile (430px)', () => {
     await expect(page.locator('.navbar__brand').first()).toBeVisible();
     await expect(page.locator('.nav-mobile-hamburger')).toBeVisible();
     await expect(page.locator('.nav-dropdown-triggers')).toBeHidden();
+  });
+
+  test('N-17a: 헤더 버튼 순서와 높이 정렬', async ({page}) => {
+    await expectHomepageResponsiveHeaderControls(page);
   });
 
   test('N-18: 오버레이 열기/닫기', async ({page}) => {
@@ -183,5 +289,36 @@ test.describe('Navbar — Mobile (430px)', () => {
 
   test('N-25: 다크모드 토글', async ({page}) => {
     await expect(page.locator('.nav-mobile-mode-toggle')).toBeVisible();
+  });
+});
+
+// =============================================================================
+// 문서 페이지 반응형 사이드바
+// =============================================================================
+test.describe('Navbar — Docs responsive menu', () => {
+  test('N-26: 태블릿에서 우측 상단 햄버거 표시', async ({page}) => {
+    await page.setViewportSize({width: 768, height: 1024});
+    await page.goto(docsPath());
+    await expectDocsResponsiveHeaderControls(page, 768);
+  });
+
+  test('N-27: 모바일에서 우측 상단 햄버거 표시', async ({page}) => {
+    await page.setViewportSize({width: 430, height: 932});
+    await page.goto(docsPath());
+    await expectDocsResponsiveHeaderControls(page, 430);
+  });
+
+  test('N-28: 문서 햄버거 클릭 시 사이드바 열림', async ({page}) => {
+    await page.setViewportSize({width: 430, height: 932});
+    await page.goto(docsPath());
+    await expectDocsResponsiveHeaderControls(page, 430);
+    await page.locator('.navbar__items--right > .navbar__toggle').click();
+    await expect(page.locator('.navbar-sidebar--show')).toBeVisible();
+  });
+
+  test('N-29: 좁은 모바일에서도 헤더 버튼 순서 유지', async ({page}) => {
+    await page.setViewportSize({width: 390, height: 844});
+    await page.goto(docsPath());
+    await expectDocsResponsiveHeaderControls(page, 390);
   });
 });
