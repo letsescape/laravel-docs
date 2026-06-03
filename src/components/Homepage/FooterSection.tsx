@@ -2,6 +2,8 @@ import React, {type ReactNode} from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import {docsPath} from '@site/src/utils/docs';
 
+import './FooterSection.css';
+
 const products = [
   {name: 'Cloud', url: 'https://cloud.laravel.com'},
   {name: 'Forge', url: 'https://forge.laravel.com'},

@@ -12,7 +12,6 @@ import NightwatchSection from '@site/src/components/Homepage/NightwatchSection';
 import FrontendSection from '@site/src/components/Homepage/FrontendSection';
 import CTASection from '@site/src/components/Homepage/CTASection';
 import EventsSection from '@site/src/components/Homepage/EventsSection';
-import FooterSection from '@site/src/components/Homepage/FooterSection';
 
 import '@site/src/components/Homepage/homepage.css';
 
@@ -38,7 +37,8 @@ export default function Home(): ReactNode {
     description: 'The image alt text for the homepage',
   });
 
-  // Hide default Docusaurus footer on homepage
+  // 메인페이지 전용 navbar 스타일링을 위한 body 클래스 토글
+  // (푸터는 테마 Footer가 FooterSection을 렌더하므로 별도 처리 불필요)
   useEffect(() => {
     document.body.classList.add('homepage-layout');
     return () => {
@@ -75,7 +75,6 @@ export default function Home(): ReactNode {
           <EventsSection />
         </div>
       </main>
-      <FooterSection />
     </Layout>
   );
 }

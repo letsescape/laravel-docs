@@ -442,12 +442,6 @@ svg[class*="text-laravel-red"] path {
   }
 }
 
-/* Hide default Docusaurus footer on homepage */
-body.homepage-layout footer.footer {
-  display: none !important;
-}
-
-
 /* Fallback: ensure hero illustration paths respect their original fill attributes.
    This catches any remaining overrides from the global SVG rules above. */
 .hero-illustration-wrapper .hero-illustration-svg path[fill="currentColor"] {
