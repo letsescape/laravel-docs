@@ -2851,22 +2851,44 @@
 }
 
 @media (min-width: 768px) and (max-width: 1279px) {
-  .nav-dropdowns-wrapper {
-    display: flex !important;
+  body.homepage-layout .navbar__inner {
+    position: relative;
   }
 
-  .nav-dropdown-triggers {
+  body.homepage-layout .navbar__items--right {
+    margin-right: 2.625rem !important;
+  }
+
+  .nav-dropdowns-wrapper {
     display: flex !important;
-    gap: 0 !important;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  body.homepage-layout .nav-dropdowns-wrapper {
+    position: static;
+  }
+
+  .nav-dropdown-triggers,
+  .nav-dropdown-panel {
+    display: none !important;
   }
 
   .nav-mobile-hamburger {
-    display: none !important;
+    display: flex !important;
+  }
+
+  body.homepage-layout .nav-mobile-hamburger {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    margin: 0;
   }
 
   .nav-mobile-mode-toggle {
     display: flex !important;
-    margin-left: auto;
+    margin-left: 0;
     margin-right: 0;
   }
 
@@ -2955,11 +2977,23 @@
 }
 
 @media (max-width: 767px) {
+  body.homepage-layout .navbar__inner {
+    position: relative;
+  }
+
+  body.homepage-layout .navbar__items--right {
+    margin-right: 2.375rem !important;
+  }
+
   .nav-dropdowns-wrapper {
     display: flex !important;
     align-items: center;
     flex: 1;
     justify-content: flex-end;
+  }
+
+  body.homepage-layout .nav-dropdowns-wrapper {
+    position: static;
   }
 
   .nav-dropdown-triggers,
@@ -2971,12 +3005,20 @@
     display: flex !important;
   }
 
+  body.homepage-layout .nav-mobile-hamburger {
+    position: absolute;
+    top: 50%;
+    right: 0.625rem;
+    transform: translateY(-50%);
+    margin: 0;
+  }
+
   .nav-mobile-mode-toggle {
     display: flex !important;
   }
 }
 
-/* Mobile color mode toggle - hidden on desktop/tablet */
+/* Responsive color mode toggle - hidden by default */
 .nav-mobile-mode-toggle {
   display: none;
   align-items: center;
@@ -2993,7 +3035,7 @@
   color: #e5e5e5;
 }
 
-/* Mobile hamburger button - hidden on desktop/tablet */
+/* Responsive hamburger button - hidden by default */
 .nav-mobile-hamburger {
   display: none;
   align-items: center;

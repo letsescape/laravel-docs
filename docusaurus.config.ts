@@ -229,12 +229,14 @@ const config: Config = {
         {
           type: 'docsVersionDropdown',
           position: 'right',
+          className: 'navbar-version-dropdown',
           dropdownItemsAfter: [],
           dropdownActiveClassDisabled: true,
         },
         {
           type: 'localeDropdown',
           position: 'right',
+          className: 'navbar-locale-dropdown',
         },
 
       ],

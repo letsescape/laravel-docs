@@ -799,6 +799,6 @@
   },
   "theme.translationBanner.message": {
     "message": "このドキュメントは現在翻訳中です。一部のページが韓国語で表示される場合があります。",
-    "description": "The message for the translation banner shown on non-default locale pages"
+    "description": "The message for the translation banner shown on locales that are still being translated"
   }
 }

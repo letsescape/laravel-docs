@@ -99,6 +99,18 @@ test.describe('Docs rendering', () => {
     expect(new URL(page.url()).pathname).toBe(docsPath(samplePath));
   });
 
+  test('Japanese docs do not show the translation-in-progress banner', async ({page}) => {
+    await page.goto('/ja/docs/13.x');
+
+    await expect(page.locator('.translation-banner')).toHaveCount(0);
+  });
+
+  test('English docs keep the translation-in-progress banner', async ({page}) => {
+    await page.goto('/en/docs/13.x');
+
+    await expect(page.locator('.translation-banner')).toBeVisible();
+  });
+
   for (const version of stableDocsVersions) {
     test(`collections document renders for ${version}`, async ({page}) => {
       await page.goto(docsPathForVersion(version, 'collections'));

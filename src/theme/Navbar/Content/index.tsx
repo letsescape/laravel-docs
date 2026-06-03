@@ -57,13 +57,13 @@ export default function NavbarContent(): React.ReactNode {
   const location = useLocation();
   const homeUrl = useBaseUrl('/');
   const isHomepage = location.pathname === homeUrl || location.pathname === homeUrl.replace(/\/$/, '') || location.pathname === '/index.html';
+  const showDefaultMobileSidebarToggle = !mobileSidebar.disabled && !isHomepage;
 
   return (
     <>
       <NavbarContentLayout
         left={
           <>
-            {!mobileSidebar.disabled && <NavbarMobileSidebarToggle />}
             <NavbarLogo />
             {isHomepage && <NavbarDropdowns />}
             {!isHomepage && <NavbarItems items={leftItems} />}
@@ -78,6 +78,7 @@ export default function NavbarContent(): React.ReactNode {
                 <SearchBar />
               </NavbarSearch>
             )}
+            {showDefaultMobileSidebarToggle && <NavbarMobileSidebarToggle />}
           </>
         }
       />
