@@ -1,7 +1,35 @@
-import {test, expect, type Page} from '@playwright/test';
+import {test, expect, type Page, type Locator} from '@playwright/test';
 import {docsPath} from './utils/docs-version';
 
 // 로컬 사이트를 대상으로 테스트 (playwright.config.ts의 baseURL 사용)
+
+// 헤더 컨트롤 정렬 검증 허용 오차
+const ORDER_TOLERANCE = 1; // 서브픽셀 반올림으로 인한 순서 false negative 방지 (px)
+const VERTICAL_CENTER_TOLERANCE = 2; // 세로 중앙 정렬 허용 오차 (px)
+
+// Helper: 컨트롤들이 모두 보이고, 좌→우 순서와 세로 중앙 정렬을 만족하는지 검증
+async function expectControlsAlignedLeftToRight(page: Page, controls: Locator[]) {
+  for (const control of controls) {
+    await expect(control).toBeVisible();
+  }
+
+  const boxes = await Promise.all(controls.map((control) => control.boundingBox()));
+  const navbarBox = await page.locator('.navbar').boundingBox();
+  expect(navbarBox).not.toBeNull();
+  for (const box of boxes) {
+    expect(box).not.toBeNull();
+  }
+
+  for (let index = 0; index < boxes.length - 1; index += 1) {
+    expect(boxes[index]!.x + boxes[index]!.width).toBeLessThanOrEqual(boxes[index + 1]!.x + ORDER_TOLERANCE);
+  }
+
+  const navbarCenterY = navbarBox!.y + navbarBox!.height / 2;
+  for (const box of boxes) {
+    const controlCenterY = box!.y + box!.height / 2;
+    expect(Math.abs(controlCenterY - navbarCenterY)).toBeLessThanOrEqual(VERTICAL_CENTER_TOLERANCE);
+  }
+}
 
 // Helper: 드롭다운을 확실하게 열기 (hover+click 간섭 방지)
 async function openDropdown(page: Page, name: string) {
@@ -50,6 +78,7 @@ async function expectTopRightMenuButton(page: Page, selector: string, viewportWi
 
 async function expectDocsResponsiveHeaderControls(page: Page, viewportWidth: number) {
   const rightItems = page.locator('.navbar__items--right');
+  // 모바일/태블릿 docs에서는 버전/언어 드롭다운을 CSS로 숨긴다 (데스크톱 docs는 유지)
   await expect(rightItems.locator('.navbar-version-dropdown')).toBeHidden();
   await expect(rightItems.locator('.navbar-locale-dropdown')).toBeHidden();
 
@@ -59,29 +88,8 @@ async function expectDocsResponsiveHeaderControls(page: Page, viewportWidth: num
     page.locator('.navbar__items--right > .navbar__toggle'),
   ];
 
-  for (const control of controls) {
-    await expect(control).toBeVisible();
-  }
-
   await expectTopRightMenuButton(page, '.navbar__items--right > .navbar__toggle', viewportWidth);
-
-  const boxes = await Promise.all(controls.map((control) => control.boundingBox()));
-  const navbarBox = await page.locator('.navbar').boundingBox();
-  expect(navbarBox).not.toBeNull();
-
-  for (const box of boxes) {
-    expect(box).not.toBeNull();
-  }
-
-  for (let index = 0; index < boxes.length - 1; index += 1) {
-    expect(boxes[index]!.x + boxes[index]!.width).toBeLessThanOrEqual(boxes[index + 1]!.x);
-  }
-
-  const navbarCenterY = navbarBox!.y + navbarBox!.height / 2;
-  for (const box of boxes) {
-    const controlCenterY = box!.y + box!.height / 2;
-    expect(Math.abs(controlCenterY - navbarCenterY)).toBeLessThanOrEqual(2);
-  }
+  await expectControlsAlignedLeftToRight(page, controls);
 }
 
 async function expectLocaleIconHidden(page: Page) {
@@ -91,36 +99,17 @@ async function expectLocaleIconHidden(page: Page) {
 }
 
 async function expectHomepageResponsiveHeaderControls(page: Page) {
+  const rightItems = page.locator('.navbar__items--right');
+  // 버전/언어는 표시 문자열(13.x, 언어명) 대신 안정적인 class hook으로 타게팅
   const controls = [
     page.locator('.nav-mobile-mode-toggle'),
-    page.locator('.navbar__items--right .navbar__item.dropdown', {hasText: '13.x'}).first(),
-    page.locator('.navbar__items--right .navbar__item.dropdown', {hasText: /한국어|English|日本語/}).first(),
-    page.locator('.navbar__items--right [class*="navbarSearchContainer"]'),
+    rightItems.locator('.navbar-version-dropdown').first(),
+    rightItems.locator('.navbar-locale-dropdown').first(),
+    rightItems.locator('[class*="navbarSearchContainer"]'),
     page.locator('.nav-mobile-hamburger'),
   ];
 
-  for (const control of controls) {
-    await expect(control).toBeVisible();
-  }
-
-  const boxes = await Promise.all(controls.map((control) => control.boundingBox()));
-  const navbarBox = await page.locator('.navbar').boundingBox();
-  expect(navbarBox).not.toBeNull();
-
-  for (const box of boxes) {
-    expect(box).not.toBeNull();
-  }
-
-  for (let index = 0; index < boxes.length - 1; index += 1) {
-    expect(boxes[index]!.x + boxes[index]!.width).toBeLessThanOrEqual(boxes[index + 1]!.x);
-  }
-
-  const navbarCenterY = navbarBox!.y + navbarBox!.height / 2;
-  for (const box of boxes) {
-    const controlCenterY = box!.y + box!.height / 2;
-    expect(Math.abs(controlCenterY - navbarCenterY)).toBeLessThanOrEqual(2);
-  }
-
+  await expectControlsAlignedLeftToRight(page, controls);
   await expectLocaleIconHidden(page);
 }
 
@@ -320,5 +309,13 @@ test.describe('Navbar — Docs responsive menu', () => {
     await page.setViewportSize({width: 390, height: 844});
     await page.goto(docsPath());
     await expectDocsResponsiveHeaderControls(page, 390);
+  });
+
+  test('N-30: 데스크톱 문서에서 버전/언어 컨트롤 노출', async ({page}) => {
+    await page.setViewportSize({width: 1280, height: 800});
+    await page.goto(docsPath());
+    const rightItems = page.locator('.navbar__items--right');
+    await expect(rightItems.locator('.navbar-version-dropdown')).toBeVisible();
+    await expect(rightItems.locator('.navbar-locale-dropdown')).toBeVisible();
   });
 });

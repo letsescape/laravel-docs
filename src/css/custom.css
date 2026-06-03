@@ -272,16 +272,10 @@ svg[class*="text-laravel-red"] path {
   border-bottom: 1px solid var(--translation-banner-border);
 }
 
-/* Tablet navbar: logo left, responsive controls right */
-@media (min-width: 768px) and (max-width: 1279px) {
-  .navbar__inner {
-    gap: 0 !important;
-  }
-
-  .navbar__items:not(.navbar__items--right) {
-    flex: 1 !important;
-  }
-
+/* Responsive navbar (tablet + mobile): logo left, control cluster right.
+   Shared rules live here; each breakpoint below only overrides sizing/spacing. */
+@media (max-width: 1279px) {
+  /* Collapse inline nav links; keep only the right control cluster */
   .navbar__items:not(.navbar__items--right) > .navbar__item {
     display: none !important;
   }
@@ -291,7 +285,6 @@ svg[class*="text-laravel-red"] path {
     align-items: center !important;
     flex: 0 0 auto !important;
     margin-left: auto !important;
-    gap: 0.75rem !important;
   }
 
   .navbar__items--right > * {
@@ -300,6 +293,7 @@ svg[class*="text-laravel-red"] path {
     justify-content: center !important;
   }
 
+  /* Control order: color mode (1) → version (2) → locale (3) → search (4) → sidebar toggle (5) */
   .navbar__items--right > .navbar-color-mode-toggle {
     display: flex !important;
     order: 1;
@@ -307,16 +301,6 @@ svg[class*="text-laravel-red"] path {
 
   body.homepage-layout .navbar__items--right > .navbar-color-mode-toggle {
     display: none !important;
-  }
-
-  .navbar__items--right > .navbar__toggle {
-    display: flex !important;
-    order: 5;
-  }
-
-  .navbar__items--right [class*="navbarSearchContainer"] {
-    order: 4;
-    position: static !important;
   }
 
   .navbar__items--right > .navbar-version-dropdown,
@@ -327,6 +311,47 @@ svg[class*="text-laravel-red"] path {
   .navbar__items--right > .navbar-locale-dropdown,
   .navbar__items--right > .navbar__item.dropdown:nth-child(2) {
     order: 3;
+  }
+
+  .navbar__items--right [class*="navbarSearchContainer"] {
+    order: 4;
+    position: static !important;
+  }
+
+  .navbar__items--right > .navbar__toggle {
+    display: flex !important;
+    order: 5;
+  }
+
+  .navbar__items--right .DocSearch-Button-Placeholder,
+  .navbar__items--right .DocSearch-Button-Keys {
+    display: none !important;
+  }
+
+  /* Docs pages: hide version/locale dropdowns on tablet/mobile only.
+     Desktop docs keep them — Docusaurus sets `docs-wrapper` on <html> for docs routes.
+     The class hook sits on the <a>, so target the wrapping .navbar__item:
+     :has() keys off the stable class; the nth-child fallback covers older browsers. */
+  html.docs-wrapper .navbar__items--right > .navbar__item:has(> .navbar-version-dropdown),
+  html.docs-wrapper .navbar__items--right > .navbar__item:has(> .navbar-locale-dropdown),
+  html.docs-wrapper .navbar__items--right > .navbar__item.dropdown:nth-child(1),
+  html.docs-wrapper .navbar__items--right > .navbar__item.dropdown:nth-child(2) {
+    display: none !important;
+  }
+}
+
+/* Tablet navbar: logo left, responsive controls right */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .navbar__inner {
+    gap: 0 !important;
+  }
+
+  .navbar__items:not(.navbar__items--right) {
+    flex: 1 !important;
+  }
+
+  .navbar__items--right {
+    gap: 0.75rem !important;
   }
 
   .navbar__items--right > .navbar-color-mode-toggle,
@@ -342,11 +367,6 @@ svg[class*="text-laravel-red"] path {
     width: 2.25rem;
     height: 2.25rem;
     padding: 0;
-  }
-
-  .navbar__items--right .DocSearch-Button-Placeholder,
-  .navbar__items--right .DocSearch-Button-Keys {
-    display: none !important;
   }
 
   /* Position dropdown triggers */
@@ -371,55 +391,12 @@ svg[class*="text-laravel-red"] path {
     min-width: 0;
   }
 
-  .navbar__items:not(.navbar__items--right) > .navbar__item {
-    display: none !important;
-  }
-
   .navbar > .navbar__inner > .navbar__items:not(.navbar__items--right) > .navbar__toggle {
     display: none !important;
   }
 
   .navbar__items--right {
-    display: flex !important;
-    align-items: center !important;
-    flex: 0 0 auto !important;
-    margin-left: auto !important;
     gap: 0.5rem !important;
-  }
-
-  .navbar__items--right > * {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .navbar__items--right > .navbar-color-mode-toggle {
-    display: flex !important;
-    order: 1;
-  }
-
-  body.homepage-layout .navbar__items--right > .navbar-color-mode-toggle {
-    display: none !important;
-  }
-
-  .navbar__items--right > .navbar__toggle {
-    display: flex !important;
-    order: 5;
-  }
-
-  .navbar__items--right [class*="navbarSearchContainer"] {
-    order: 4;
-    position: static !important;
-  }
-
-  .navbar__items--right > .navbar-version-dropdown,
-  .navbar__items--right > .navbar__item.dropdown:nth-child(1) {
-    order: 2;
-  }
-
-  .navbar__items--right > .navbar-locale-dropdown,
-  .navbar__items--right > .navbar__item.dropdown:nth-child(2) {
-    order: 3;
   }
 
   .navbar__items--right > .navbar-color-mode-toggle,
@@ -435,11 +412,6 @@ svg[class*="text-laravel-red"] path {
     width: 2rem;
     height: 2rem;
     padding: 0;
-  }
-
-  .navbar__items--right .DocSearch-Button-Placeholder,
-  .navbar__items--right .DocSearch-Button-Keys {
-    display: none !important;
   }
 }
 
