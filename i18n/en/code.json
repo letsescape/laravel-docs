@@ -799,6 +799,6 @@
   },
   "theme.translationBanner.message": {
     "message": "This documentation is currently being translated. Some pages may appear in Korean.",
-    "description": "The message for the translation banner shown on non-default locale pages"
+    "description": "The message for the translation banner shown on locales that are still being translated"
   }
 }

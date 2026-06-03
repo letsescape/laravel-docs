@@ -567,7 +567,7 @@
   },
   "theme.translationBanner.message": {
     "message": "이 문서는 현재 번역 중입니다. 일부 페이지가 영어로 표시될 수 있습니다.",
-    "description": "The message for the translation banner shown on non-default locale pages"
+    "description": "The message for the translation banner shown on locales that are still being translated"
   },
   "homepage.title": {
     "message": "라라벨 - 웹 장인을 위한 PHP 프레임워크",

@@ -3,12 +3,15 @@ import Head from '@docusaurus/Head';
 import Translate, {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
+const TRANSLATION_IN_PROGRESS_LOCALES = new Set(['en']);
+
 function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactElement {
   const {siteConfig, i18n} = useDocusaurusContext();
   const {currentLocale, defaultLocale} = i18n;
   const siteUrl = siteConfig.url;
   const localePath = currentLocale === defaultLocale ? '' : `/${currentLocale}`;
   const baseUrl = `${siteUrl}${localePath}`;
+  const showTranslationBanner = TRANSLATION_IN_PROGRESS_LOCALES.has(currentLocale);
 
   const keywords = translate({
     id: 'theme.keywords',
@@ -44,11 +47,11 @@ function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactEle
         <meta name="keywords" content={keywords} />
         <script type="application/ld+json">{jsonLd}</script>
       </Head>
-      {currentLocale !== defaultLocale && (
+      {showTranslationBanner && (
         <div className="translation-banner" role="status">
           <Translate
             id="theme.translationBanner.message"
-            description="The message for the translation banner shown on non-default locale pages"
+            description="The message for the translation banner shown on locales that are still being translated"
           >
             This documentation is currently being translated. Some pages may appear in Korean.
           </Translate>
