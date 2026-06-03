@@ -14,7 +14,7 @@ function Footer(): ReactNode {
     return null;
   }
 
-  const isDocs = pathname.split('/').includes('docs');
+  const isDocs = /^\/(?:[a-z]{2}\/)?docs(?:\/|$)/.test(pathname);
 
   return <FooterSection variant={isDocs ? 'docs' : 'home'} />;
 }
