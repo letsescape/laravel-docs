@@ -797,6 +797,10 @@
     "message": "Laravel, PHP framework, PHP artisan, PHP, web development, documentation, tutorial, getting started",
     "description": "The keywords meta tag for the site"
   },
+  "homepage.footer.community.note": {
+    "message": "An unofficial site built by an individual.",
+    "description": "문서 푸터 - 비공식 개인 사이트 안내"
+  },
   "theme.translationBanner.message": {
     "message": "This documentation is currently being translated. Some pages may appear in Korean.",
     "description": "The message for the translation banner shown on locales that are still being translated"

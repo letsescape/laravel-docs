@@ -1,0 +1,257 @@
+.hp-footer {
+  --hp-bg: #fff;
+  --hp-text: #1b1b18;
+  --hp-text-secondary: #706f6c;
+  --hp-accent: #f53003;
+  --hp-border: #e3e3e0;
+
+  background: var(--hp-bg);
+  color: var(--hp-text-secondary);
+  padding: 4rem 0 0;
+}
+
+[data-theme='dark'] .hp-footer {
+  --hp-bg: #0a0a0a;
+  --hp-text: #EDEDEC;
+  --hp-text-secondary: #706f6c;
+  --hp-accent: #f53003;
+  --hp-border: #3E3E3A;
+}
+
+.hp-footer .container {
+  max-width: 1340px;
+}
+
+.hp-footer a {
+  color: #908f8b !important;
+  text-decoration: none !important;
+  transition: color 0.2s;
+}
+
+.hp-footer a:hover {
+  color: var(--hp-text) !important;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 4rem;
+  margin-bottom: 3rem;
+}
+
+.footer-logo-icon {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 1.375rem;
+}
+
+.footer-logo-icon path {
+  fill: var(--hp-accent) !important;
+}
+
+.hp-footer .footer-brand {
+  flex-shrink: 0;
+  width: 360px;
+}
+
+.hp-footer .footer-brand p {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 4rem;
+  max-width: 400px;
+  color: #f53003 !important;
+}
+
+.footer-brand-br {
+  display: none;
+}
+
+.footer-brand-bottom {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-size: 1.125rem;
+  color: #908f8b;
+  margin-top: 4rem;
+}
+
+.footer-brand-bottom a {
+  color: #908f8b !important;
+}
+
+.footer-social {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0;
+}
+
+.footer-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  transition: color 0.2s;
+  color: var(--hp-text-secondary);
+}
+
+.footer-social a:hover {
+  color: var(--hp-text) !important;
+}
+
+.hp-footer .footer-social-svg {
+  fill: #706f6c;
+}
+
+.hp-footer .footer-social-svg path {
+  fill: inherit !important;
+}
+
+.hp-footer .footer-social a:hover .footer-social-svg {
+  fill: var(--hp-text);
+}
+
+.hp-footer .footer-logo-icon {
+  color: var(--hp-accent);
+}
+
+.hp-footer .footer-logo-icon path {
+  fill: var(--hp-accent) !important;
+}
+
+.footer-columns-right {
+  display: flex;
+  gap: 3rem;
+  flex: 1;
+  max-width: 680px;
+}
+
+.footer-column {
+  flex: 1;
+}
+
+.footer-column h4 {
+  color: var(--hp-text);
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 2rem;
+}
+
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-column li {
+  margin-bottom: 1.5rem;
+}
+
+.footer-column a {
+  font-size: 1.125rem;
+  white-space: nowrap;
+}
+
+.footer-note {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--hp-text-secondary);
+  white-space: normal;
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 2rem;
+  border-top: 1px solid var(--hp-border);
+  font-size: 0.8rem;
+  color: var(--hp-text-secondary);
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer-wordmark {
+  margin-top: 3rem;
+  overflow: hidden;
+}
+
+.footer-wordmark-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 1079.98px) {
+  .footer-top {
+    flex-direction: column;
+  }
+
+  .footer-brand-br {
+    display: block;
+  }
+
+  .hp-footer .footer-brand {
+    width: 100%;
+  }
+
+  .hp-footer .footer-brand p {
+    max-width: none;
+  }
+
+  .footer-columns-right {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .hp-footer .footer-brand p {
+    font-size: 1.125rem !important;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-top {
+    gap: 3rem;
+  }
+
+  .footer-brand-bottom {
+    margin-top: 1.5rem !important;
+    gap: 1rem;
+  }
+
+  .footer-columns-right {
+    gap: 1.5rem !important;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-top {
+    gap: 2rem;
+  }
+
+  .hp-footer .footer-brand {
+    width: 100%;
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 1079.98px) {
+  .hp-footer--docs .footer-columns-right {
+    grid-template-columns: 1fr;
+  }
+}

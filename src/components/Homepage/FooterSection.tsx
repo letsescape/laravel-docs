@@ -1,6 +1,11 @@
 import React, {type ReactNode} from 'react';
+import clsx from 'clsx';
+import Link from '@docusaurus/Link';
+import Translate from '@docusaurus/Translate';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import {docsPath} from '@site/src/utils/docs';
+
+import './FooterSection.css';
 
 const products = [
   {name: 'Cloud', url: 'https://cloud.laravel.com'},
@@ -55,16 +60,35 @@ const partners = [
   {name: 'See All', url: 'https://laravel.com/partners'},
 ];
 
-const externalLinkProps = (url: string) =>
-  url.startsWith('http')
-    ? {target: '_blank', rel: 'noopener noreferrer'}
-    : {};
+const community: {name: string; url?: string; noteId?: string}[] = [
+  {name: 'Laravel Korea', url: 'https://laravel.kr'},
+  {name: 'PHP Korea', url: 'https://php64.net'},
+  {name: 'Laravel, Open Chat', url: 'https://open.kakao.com/o/g3dWlf0'},
+  {name: 'Modern PHP, Discord', url: 'https://discord.gg/WUMhVr85cv'},
+  {name: '개인이 만든 비공식 사이트입니다.', noteId: 'homepage.footer.community.note'},
+];
 
-export default function FooterSection(): ReactNode {
+function FooterLink({href, children}: {href: string; children: ReactNode}): ReactNode {
+  if (href.startsWith('http')) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  }
+  return <Link to={href}>{children}</Link>;
+}
+
+export type FooterVariant = 'home' | 'docs';
+
+export default function FooterSection({
+  variant = 'home',
+}: {variant?: FooterVariant} = {}): ReactNode {
   const legalUrl = 'https://laravel.com/legal';
   const wordmarkUrl = useBaseUrl('/img/title_large.svg');
+  const isDocs = variant === 'docs';
   return (
-    <footer className="hp-footer">
+    <footer className={clsx('hp-footer', isDocs && 'hp-footer--docs')}>
       <div className="container">
         <div className="footer-top">
           {/* Brand column */}
@@ -121,66 +145,88 @@ export default function FooterSection(): ReactNode {
             </div>
             <div className="footer-brand-bottom">
               <span>&copy; 2026 Laravel</span>
-              <a href={legalUrl} {...externalLinkProps(legalUrl)}>Legal</a>
-              <a href="https://status.laravel.com/" target="_blank" rel="noopener noreferrer">Status</a>
+              <FooterLink href={legalUrl}>Legal</FooterLink>
+              <FooterLink href="https://status.laravel.com/">Status</FooterLink>
             </div>
           </div>
 
           <div className="footer-columns-right">
-            {/* Products column */}
-            <div className="footer-column">
-              <h4>Products</h4>
-              <ul>
-                {products.map(item => (
-                  <li key={item.name}>
-                    <a href={item.url} {...externalLinkProps(item.url)}>
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {isDocs ? (
+              <div className="footer-column">
+                <h4>Community</h4>
+                <ul>
+                  {community.map(item => (
+                    <li key={item.name}>
+                      {item.url ? (
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
+                      ) : (
+                        <span className="footer-note">
+                          {item.noteId ? (
+                            <Translate
+                              id={item.noteId}
+                              description="문서 푸터 - 비공식 개인 사이트 안내">
+                              {item.name}
+                            </Translate>
+                          ) : (
+                            item.name
+                          )}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <>
+                {/* Products column */}
+                <div className="footer-column">
+                  <h4>Products</h4>
+                  <ul>
+                    {products.map(item => (
+                      <li key={item.name}>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            {/* Packages column */}
-            <div className="footer-column">
-              <h4>Packages</h4>
-              <ul>
-                {packages.map(item => (
-                  <li key={item.name}>
-                    <a href={item.url}>{item.name}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Packages column */}
+                <div className="footer-column">
+                  <h4>Packages</h4>
+                  <ul>
+                    {packages.map(item => (
+                      <li key={item.name}>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            {/* Resources column */}
-            <div className="footer-column">
-              <h4>Resources</h4>
-              <ul>
-                {resources.map(item => (
-                  <li key={item.name}>
-                    <a
-                      href={item.url}
-                      {...externalLinkProps(item.url)}
-                    >
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Resources column */}
+                <div className="footer-column">
+                  <h4>Resources</h4>
+                  <ul>
+                    {resources.map(item => (
+                      <li key={item.name}>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            {/* Partners column */}
-            <div className="footer-column">
-              <h4>Partners</h4>
-              <ul>
-                {partners.map(item => (
-                  <li key={item.name}>
-                    <a href={item.url} {...externalLinkProps(item.url)}>{item.name}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Partners column */}
+                <div className="footer-column">
+                  <h4>Partners</h4>
+                  <ul>
+                    {partners.map(item => (
+                      <li key={item.name}>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
