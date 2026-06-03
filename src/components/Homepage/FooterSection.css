@@ -191,8 +191,19 @@
   display: block;
 }
 
-/* --- Responsive (desktop-first) --- */
-@media (max-width: 996px) {
+/* ============================================
+   Responsive (desktop-first, 내림차순)
+   --------------------------------------------
+   ≤1080px: 브랜드를 링크 컬럼 위로 쌓는다(stack).
+   데스크톱 가로 배치(brand 360px + 4컬럼)는 약 1045px 미만에서
+   우측 컬럼이 컨테이너를 벗어나므로, 이 지점부터 세로 배치로 전환해
+   800~1000px 구간의 레이아웃 깨짐(오버플로)을 방지한다.
+   ============================================ */
+@media (max-width: 1079.98px) {
+  .footer-top {
+    flex-direction: column;
+  }
+
   .footer-brand-br {
     display: block;
   }
@@ -220,7 +231,6 @@
   }
 
   .footer-top {
-    flex-direction: column;
     gap: 3rem;
   }
 
@@ -242,7 +252,6 @@
 
 @media (max-width: 640px) {
   .footer-top {
-    flex-wrap: wrap;
     gap: 2rem;
   }
 
