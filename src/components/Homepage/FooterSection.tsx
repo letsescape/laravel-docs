@@ -1,5 +1,6 @@
 import React, {type ReactNode} from 'react';
 import clsx from 'clsx';
+import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import {docsPath} from '@site/src/utils/docs';
 
@@ -68,10 +69,16 @@ const community: {name: string; url?: string}[] = [
   {name: '개인이 만든 비공식 사이트입니다.'},
 ];
 
-const externalLinkProps = (url: string) =>
-  url.startsWith('http')
-    ? {target: '_blank', rel: 'noopener noreferrer'}
-    : {};
+function FooterLink({href, children}: {href: string; children: ReactNode}): ReactNode {
+  if (href.startsWith('http')) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  }
+  return <Link to={href}>{children}</Link>;
+}
 
 export type FooterVariant = 'home' | 'docs';
 
@@ -139,8 +146,8 @@ export default function FooterSection({
             </div>
             <div className="footer-brand-bottom">
               <span>&copy; 2026 Laravel</span>
-              <a href={legalUrl} {...externalLinkProps(legalUrl)}>Legal</a>
-              <a href="https://status.laravel.com/" target="_blank" rel="noopener noreferrer">Status</a>
+              <FooterLink href={legalUrl}>Legal</FooterLink>
+              <FooterLink href="https://status.laravel.com/">Status</FooterLink>
             </div>
           </div>
 
@@ -153,9 +160,7 @@ export default function FooterSection({
                   {community.map(item => (
                     <li key={item.name}>
                       {item.url ? (
-                        <a href={item.url} {...externalLinkProps(item.url)}>
-                          {item.name}
-                        </a>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
                       ) : (
                         <span className="footer-note">{item.name}</span>
                       )}
@@ -171,9 +176,7 @@ export default function FooterSection({
                   <ul>
                     {products.map(item => (
                       <li key={item.name}>
-                        <a href={item.url} {...externalLinkProps(item.url)}>
-                          {item.name}
-                        </a>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
                       </li>
                     ))}
                   </ul>
@@ -185,7 +188,7 @@ export default function FooterSection({
                   <ul>
                     {packages.map(item => (
                       <li key={item.name}>
-                        <a href={item.url}>{item.name}</a>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
                       </li>
                     ))}
                   </ul>
@@ -197,12 +200,7 @@ export default function FooterSection({
                   <ul>
                     {resources.map(item => (
                       <li key={item.name}>
-                        <a
-                          href={item.url}
-                          {...externalLinkProps(item.url)}
-                        >
-                          {item.name}
-                        </a>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
                       </li>
                     ))}
                   </ul>
@@ -214,7 +212,7 @@ export default function FooterSection({
                   <ul>
                     {partners.map(item => (
                       <li key={item.name}>
-                        <a href={item.url} {...externalLinkProps(item.url)}>{item.name}</a>
+                        <FooterLink href={item.url}>{item.name}</FooterLink>
                       </li>
                     ))}
                   </ul>
