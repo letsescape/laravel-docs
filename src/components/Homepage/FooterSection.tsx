@@ -1,6 +1,7 @@
 import React, {type ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
+import Translate from '@docusaurus/Translate';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import {docsPath} from '@site/src/utils/docs';
 
@@ -61,12 +62,12 @@ const partners = [
 
 // 문서 페이지 푸터 전용 Community 섹션
 // url이 없는 항목은 링크가 아닌 안내문구로 렌더된다.
-const community: {name: string; url?: string}[] = [
+const community: {name: string; url?: string; noteId?: string}[] = [
   {name: 'Laravel Korea', url: 'https://laravel.kr'},
   {name: 'PHP Korea', url: 'https://php64.net'},
   {name: 'Laravel, Open Chat', url: 'https://open.kakao.com/o/g3dWlf0'},
   {name: 'Modern PHP, Discord', url: 'https://discord.gg/WUMhVr85cv'},
-  {name: '개인이 만든 비공식 사이트입니다.'},
+  {name: '개인이 만든 비공식 사이트입니다.', noteId: 'homepage.footer.community.note'},
 ];
 
 function FooterLink({href, children}: {href: string; children: ReactNode}): ReactNode {
@@ -162,7 +163,17 @@ export default function FooterSection({
                       {item.url ? (
                         <FooterLink href={item.url}>{item.name}</FooterLink>
                       ) : (
-                        <span className="footer-note">{item.name}</span>
+                        <span className="footer-note">
+                          {item.noteId ? (
+                            <Translate
+                              id={item.noteId}
+                              description="문서 푸터 - 비공식 개인 사이트 안내">
+                              {item.name}
+                            </Translate>
+                          ) : (
+                            item.name
+                          )}
+                        </span>
                       )}
                     </li>
                   ))}

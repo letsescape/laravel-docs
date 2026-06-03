@@ -797,6 +797,10 @@
     "message": "Laravel, PHPフレームワーク, PHP artisan, PHP, ウェブ開発, ドキュメント, チュートリアル, はじめに",
     "description": "The keywords meta tag for the site"
   },
+  "homepage.footer.community.note": {
+    "message": "個人が作成した非公式サイトです。",
+    "description": "문서 푸터 - 비공식 개인 사이트 안내"
+  },
   "theme.translationBanner.message": {
     "message": "このドキュメントは現在翻訳中です。一部のページが韓国語で表示される場合があります。",
     "description": "The message for the translation banner shown on locales that are still being translated"
