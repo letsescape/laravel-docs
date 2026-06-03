@@ -1,4 +1,5 @@
 import React, {type ReactNode} from 'react';
+import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import {docsPath} from '@site/src/utils/docs';
 
@@ -57,16 +58,31 @@ const partners = [
   {name: 'See All', url: 'https://laravel.com/partners'},
 ];
 
+// 문서 페이지 푸터 전용 Community 섹션
+// url이 없는 항목은 링크가 아닌 안내문구로 렌더된다.
+const community: {name: string; url?: string}[] = [
+  {name: 'Laravel Korea', url: 'https://laravel.kr'},
+  {name: 'PHP Korea', url: 'https://php64.net'},
+  {name: 'Laravel, Open Chat', url: 'https://open.kakao.com/o/g3dWlf0'},
+  {name: 'Modern PHP, Discord', url: 'https://discord.gg/WUMhVr85cv'},
+  {name: '개인이 만든 비공식 사이트입니다.'},
+];
+
 const externalLinkProps = (url: string) =>
   url.startsWith('http')
     ? {target: '_blank', rel: 'noopener noreferrer'}
     : {};
 
-export default function FooterSection(): ReactNode {
+export type FooterVariant = 'home' | 'docs';
+
+export default function FooterSection({
+  variant = 'home',
+}: {variant?: FooterVariant} = {}): ReactNode {
   const legalUrl = 'https://laravel.com/legal';
   const wordmarkUrl = useBaseUrl('/img/title_large.svg');
+  const isDocs = variant === 'docs';
   return (
-    <footer className="hp-footer">
+    <footer className={clsx('hp-footer', isDocs && 'hp-footer--docs')}>
       <div className="container">
         <div className="footer-top">
           {/* Brand column */}
@@ -129,60 +145,82 @@ export default function FooterSection(): ReactNode {
           </div>
 
           <div className="footer-columns-right">
-            {/* Products column */}
-            <div className="footer-column">
-              <h4>Products</h4>
-              <ul>
-                {products.map(item => (
-                  <li key={item.name}>
-                    <a href={item.url} {...externalLinkProps(item.url)}>
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {isDocs ? (
+              /* Community column (문서 페이지 전용) */
+              <div className="footer-column">
+                <h4>Community</h4>
+                <ul>
+                  {community.map(item => (
+                    <li key={item.name}>
+                      {item.url ? (
+                        <a href={item.url} {...externalLinkProps(item.url)}>
+                          {item.name}
+                        </a>
+                      ) : (
+                        <span className="footer-note">{item.name}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <>
+                {/* Products column */}
+                <div className="footer-column">
+                  <h4>Products</h4>
+                  <ul>
+                    {products.map(item => (
+                      <li key={item.name}>
+                        <a href={item.url} {...externalLinkProps(item.url)}>
+                          {item.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            {/* Packages column */}
-            <div className="footer-column">
-              <h4>Packages</h4>
-              <ul>
-                {packages.map(item => (
-                  <li key={item.name}>
-                    <a href={item.url}>{item.name}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Packages column */}
+                <div className="footer-column">
+                  <h4>Packages</h4>
+                  <ul>
+                    {packages.map(item => (
+                      <li key={item.name}>
+                        <a href={item.url}>{item.name}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            {/* Resources column */}
-            <div className="footer-column">
-              <h4>Resources</h4>
-              <ul>
-                {resources.map(item => (
-                  <li key={item.name}>
-                    <a
-                      href={item.url}
-                      {...externalLinkProps(item.url)}
-                    >
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Resources column */}
+                <div className="footer-column">
+                  <h4>Resources</h4>
+                  <ul>
+                    {resources.map(item => (
+                      <li key={item.name}>
+                        <a
+                          href={item.url}
+                          {...externalLinkProps(item.url)}
+                        >
+                          {item.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            {/* Partners column */}
-            <div className="footer-column">
-              <h4>Partners</h4>
-              <ul>
-                {partners.map(item => (
-                  <li key={item.name}>
-                    <a href={item.url} {...externalLinkProps(item.url)}>{item.name}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Partners column */}
+                <div className="footer-column">
+                  <h4>Partners</h4>
+                  <ul>
+                    {partners.map(item => (
+                      <li key={item.name}>
+                        <a href={item.url} {...externalLinkProps(item.url)}>{item.name}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

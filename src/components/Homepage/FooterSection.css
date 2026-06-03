@@ -165,6 +165,15 @@
   white-space: nowrap;
 }
 
+/* 링크가 아닌 안내문구 (예: 문서 푸터 Community의 개인 사이트 안내) */
+.footer-note {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--hp-text-secondary);
+  white-space: normal;
+}
+
 .footer-bottom {
   display: flex;
   align-items: center;
@@ -258,5 +267,17 @@
   .hp-footer .footer-brand {
     width: 100%;
     flex-basis: 100%;
+  }
+}
+
+/* ============================================
+   문서 페이지 변형(.hp-footer--docs)
+   --------------------------------------------
+   제품군 컬럼 대신 Community 섹션(단일 컬럼)만 노출하므로,
+   세로 적층 구간에서 2열 그리드의 빈 칸이 생기지 않도록 단일 컬럼으로 둔다.
+   ============================================ */
+@media (max-width: 1079.98px) {
+  .hp-footer--docs .footer-columns-right {
+    grid-template-columns: 1fr;
   }
 }
