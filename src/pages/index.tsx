@@ -37,8 +37,6 @@ export default function Home(): ReactNode {
     description: 'The image alt text for the homepage',
   });
 
-  // 메인페이지 전용 navbar 스타일링을 위한 body 클래스 토글
-  // (푸터는 테마 Footer가 FooterSection을 렌더하므로 별도 처리 불필요)
   useEffect(() => {
     document.body.classList.add('homepage-layout');
     return () => {

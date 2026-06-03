@@ -60,8 +60,6 @@ const partners = [
   {name: 'See All', url: 'https://laravel.com/partners'},
 ];
 
-// 문서 페이지 푸터 전용 Community 섹션
-// url이 없는 항목은 링크가 아닌 안내문구로 렌더된다.
 const community: {name: string; url?: string; noteId?: string}[] = [
   {name: 'Laravel Korea', url: 'https://laravel.kr'},
   {name: 'PHP Korea', url: 'https://php64.net'},
@@ -154,7 +152,6 @@ export default function FooterSection({
 
           <div className="footer-columns-right">
             {isDocs ? (
-              /* Community column (문서 페이지 전용) */
               <div className="footer-column">
                 <h4>Community</h4>
                 <ul>
