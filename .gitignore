@@ -167,12 +167,18 @@ Icon?
 $RECYCLE.BIN/
 
 # AI Agent
-.agents/*
-.augment/*
+.aider*
+.air/*
 .amazonq/*
+.amp/*
+.antigravity/*
+.augment/*
+.cline/*
 .codebuddy/*
+.crush/logs/
 .cursor/*
-.gemini/*
+.devin/*
+.goose/*
 .kilocode/*
 .opencode/*
 .qwen/*
@@ -182,19 +188,23 @@ $RECYCLE.BIN/
 # Claude
 **/CLAUDE.md
 !/CLAUDE.md
-.claude/commands/speckit.*
-.claude/hooks/.permissions-checked
-.claude/memory/*
-!.claude/memory/.gitkeep
-.claude/plans
-.claude/settings.local.json
-.claude/scheduled_tasks.lock
-.remember
+.claude/*
+!.claude/settings.json
+!.claude/hookify.*.md
+!.claude/skills
 
 # Codex
-.codex/commands/speckit.*
-.codex/memory/*
-!.codex/memory/.gitkeep
+.agents/*
+!.agents/skills
+.codex/*
+!.codex/config.toml
+!.codex/hooks.json
+!.codex/hooks
+
+# Gemini
+.gemini/*
+!.gemini/GEMINI.md
+!.gemini/settings.json
 
 # GitHub
 .github/agents/*
@@ -205,10 +215,7 @@ $RECYCLE.BIN/
 .agent-os/
 agent-os/
 
-# Spec-Kit
-.specify/
-.speckit/
-specs/
-
 # etc
-.cmux
+.cmux/
+.omx/
+.remember
