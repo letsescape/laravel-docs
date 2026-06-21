@@ -2,12 +2,12 @@ import {mkdirSync, readdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {basename, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const repoRoot = fileURLToPath(new URL('..', import.meta.url));
+const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const versions = JSON.parse(readFileSync(join(repoRoot, 'versions.json'), 'utf8'));
 const latestVersion = versions.find((version) => version !== 'master') ?? versions[0];
 const docsRoot = join(repoRoot, 'versioned_docs', `version-${latestVersion}`);
 const buildRoot = join(repoRoot, 'build');
-const locales = ['', 'en', 'ja'];
+const locales = ['', 'ja'];
 
 const frontMatterSlug = (content) => {
   if (!content.startsWith('---\n')) {

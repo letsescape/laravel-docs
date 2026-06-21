@@ -14,7 +14,7 @@
  *   - 빌드가 실패했으면 이 스크립트는 의미 없음.
  *
  * 사용:
- *   node scripts/validate-anchors.mjs
+ *   node translation-sync/scripts/validate-anchors.mjs
  *
  * 종료 코드:
  *   0 — 검증 실패 0건
@@ -32,7 +32,7 @@ import {
 
 // `new URL(...).pathname`은 Windows에서 `/C:/...` 형태이거나 공백이 `%20`으로
 // 인코딩되어 fs API가 해석하지 못한다. fileURLToPath로 플랫폼 중립 경로를 얻는다.
-const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
+const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const DOCS_ROOT = join(REPO_ROOT, 'versioned_docs');
 const BUILD_ROOT = join(REPO_ROOT, 'build');
 
