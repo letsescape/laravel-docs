@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+"""번역 동기화 엔트리포인트.
+
+translation-sync/docs/00-workflow-summary.md의 단계 순서를 따른다:
+원문 동기화 → 변경 감지 → 전처리(01) → 번역(02) → 후처리(03) → 검증(04) → 출력.
+
+출력 로케일: ko(versioned_docs), ja(i18n/ja).
+프롬프트: ko=prompt.md, ja=prompt_jp.md.
+실행: uv run python main.py
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from sync import (
+    annotate,
+    config,
+    diff,
+    postprocess,
+    preprocess,
+    prompt,
+    translate,
+    upstream,
+    verify,
+)
+
+SYNC_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = SYNC_ROOT.parent
+PROMPT_PATH = SYNC_ROOT / "prompt.md"
+JA_PROMPT_PATH = SYNC_ROOT / "prompt_jp.md"
+
+
+def _ko_output(change: diff.SourceChange) -> Path:
+    return REPO_ROOT / "versioned_docs" / f"version-{change.version}" / change.name
+
+
+def _ja_output(change: diff.SourceChange) -> Path:
+    return (
+        REPO_ROOT
+        / "i18n"
+        / "ja"
+        / "docusaurus-plugin-content-docs"
+        / f"version-{change.version}"
+        / change.name
+    )
+
+
+def _delete_outputs(change: diff.SourceChange) -> None:
+    for path in (_ko_output(change), _ja_output(change)):
+        if path.exists():
+            path.unlink()
+
+
+def _load_prompts() -> dict[str, str]:
+    return {
+        "ko": prompt.load_prompt(PROMPT_PATH),
+        "ja": prompt.load_prompt(JA_PROMPT_PATH),
+    }
+
+
+def _matches_filters(
+    change: diff.SourceChange, *, version: str | None, doc: str | None
+) -> bool:
+    if version and change.version != version:
+        return False
+    if doc:
+        name = doc if doc.endswith(".md") else f"{doc}.md"
+        if change.name != name:
+            return False
+    return True
+
+
+def _select_changes(
+    *, migrate_existing: bool = False, version: str | None = None, doc: str | None = None
+) -> list[diff.SourceChange]:
+    if not migrate_existing:
+        return [
+            change
+            for change in diff.changed_sources()
+            if _matches_filters(change, version=version, doc=doc)
+        ]
+
+    en_root = REPO_ROOT / "i18n" / "en" / "docusaurus-plugin-content-docs"
+    changes: list[diff.SourceChange] = []
+    for path in sorted(en_root.glob("version-*/*.md")):
+        change = diff.SourceChange(path=str(path.relative_to(REPO_ROOT)), status="M")
+        if _matches_filters(change, version=version, doc=doc):
+            changes.append(change)
+    return changes
+
+
+def _translation_input(source: str, existing_translation: str | None) -> str:
+    existing = existing_translation.rstrip() if existing_translation else "(none)"
+    return (
+        "# Translation Sync Input\n\n"
+        "## English Source\n\n"
+        f"{source.rstrip()}\n\n"
+        "## Existing Translation\n\n"
+        f"{existing}\n\n"
+        "## Output\n\n"
+        "Return only the final translated Markdown document."
+    )
+
+
+def _translate_one(
+    change: diff.SourceChange, cfg: config.Config, prompt: str, dest: Path
+) -> list[str]:
+    """원문 한 건을 한 로케일로 번역·후처리·검증해 dest에 기록한다. 위반 목록 반환."""
+    src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
+    pre = preprocess.preprocess(src)
+    existing = dest.read_text(encoding="utf-8") if dest.exists() else None
+    try:
+        translated = translate.translate_text(_translation_input(pre.text, existing), cfg, prompt)
+    except translate.IncompleteTranslation as exc:
+        return [f"incomplete translation: {exc}"]
+    out = postprocess.postprocess(translated, change.version, pre.placeholders)
+    expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
+
+    issues = verify.verify(out, source=expected_source)
+    if issues:
+        return issues
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(out, encoding="utf-8")
+    return []
+
+
+def _expected_source(change: diff.SourceChange) -> str:
+    """검증 기준 원문: raw source에 전처리/후처리를 적용한 번역 파이프라인 기준본."""
+    src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
+    pre = preprocess.preprocess(src)
+    return postprocess.postprocess(pre.text, change.version, pre.placeholders)
+
+
+def _check_existing_annotations(
+    *, version: str | None = None, doc: str | None = None
+) -> list[str]:
+    """기존 ko/ja 문서가 영어 원문 주석 병기 형식인지 검증한다."""
+    failures: list[str] = []
+    for change in _select_changes(migrate_existing=True, version=version, doc=doc):
+        expected_source = _expected_source(change)
+        for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
+            if not dest.exists():
+                continue
+
+            issues = verify.verify(dest.read_text(encoding="utf-8"), source=expected_source)
+            failures.extend(f"{locale} {change.path}: {issue}" for issue in issues)
+    return failures
+
+
+def _annotate_existing(
+    *, apply: bool = False, version: str | None = None, doc: str | None = None
+) -> tuple[int, list[str]]:
+    """기존 ko/ja 문서에 영어 원문 주석을 병기한다. 안전한 파일만 기록한다."""
+    writable = 0
+    failures: list[str] = []
+
+    for change in _select_changes(migrate_existing=True, version=version, doc=doc):
+        expected_source = _expected_source(change)
+        for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
+            label = f"{locale} {change.path}"
+            if not dest.exists():
+                continue
+
+            original = dest.read_text(encoding="utf-8")
+            original_issues = verify.verify(original, source=expected_source)
+            if not original_issues:
+                continue
+            if "missing original comment" not in original_issues:
+                continue
+
+            annotated, drifts = annotate.annotate(expected_source, original, change.version)
+            out = postprocess.postprocess(annotated, change.version, {})
+            issues = verify.verify(out, source=expected_source)
+            if "missing original comment" in issues:
+                if drifts:
+                    counts: dict[str, int] = {}
+                    for drift in drifts:
+                        counts[drift.op] = counts.get(drift.op, 0) + 1
+                    failures.append(f"{label}: drift {counts}")
+                else:
+                    failures.append(f"{label}: {', '.join(issues)}")
+                continue
+
+            writable += 1
+            if apply:
+                dest.write_text(out, encoding="utf-8")
+
+    return writable, failures
+
+
+def _arg_value(args: list[str], flag: str) -> str | None:
+    if flag not in args:
+        return None
+    index = args.index(flag)
+    if index + 1 >= len(args) or args[index + 1].startswith("--"):
+        raise config.ConfigError(f"{flag} requires a value")
+    return args[index + 1]
+
+
+def main() -> int:
+    args = sys.argv[1:]
+    migrate_existing = "--migrate-existing" in args
+    check_annotations = "--check-annotations" in args
+    annotate_existing = "--annotate-existing" in args
+    apply_annotations = "--apply" in args
+    version = _arg_value(args, "--version")
+    doc = _arg_value(args, "--doc")
+
+    if annotate_existing:
+        written, failures = _annotate_existing(
+            apply=apply_annotations, version=version, doc=doc
+        )
+        for failure in failures:
+            print(f"annotate failed: {failure}", file=sys.stderr)
+        if failures:
+            print(f"{len(failures)} annotation migration(s) failed", file=sys.stderr)
+            return 1
+        action = "written" if apply_annotations else "would write"
+        print(f"existing translation annotations {action}: {written}")
+        return 0
+
+    if check_annotations:
+        failures = _check_existing_annotations(version=version, doc=doc)
+        for failure in failures:
+            print(f"verify failed: {failure}", file=sys.stderr)
+        if failures:
+            print(f"{len(failures)} annotation check(s) failed", file=sys.stderr)
+            return 1
+        print("existing translation annotations verified")
+        return 0
+
+    # 1. 원문 동기화 (i18n/en 적재)
+    upstream.main()
+
+    # 2. 변경 감지
+    changes = _select_changes(migrate_existing=migrate_existing, version=version, doc=doc)
+    if not changes:
+        print("no source changes to translate")
+        return 0
+
+    # 3. 설정 확인 (실패 시 중단 — docs/01)
+    cfg = config.load_config()
+    prompts = _load_prompts()
+
+    # 4. 변경 문서: ko·ja 각각 전처리 → 번역 → 후처리 → 검증 → 출력
+    failures: list[str] = []
+    for change in changes:
+        if change.status == "D":
+            _delete_outputs(change)
+            continue
+
+        for locale, locale_prompt, dest in (
+            ("ko", prompts["ko"], _ko_output(change)),
+            ("ja", prompts["ja"], _ja_output(change)),
+        ):
+            issues = _translate_one(change, cfg, locale_prompt, dest)
+            if issues:
+                failures.append(f"{locale} {change.path}: {', '.join(issues)}")
+                print(f"verify failed: {locale} {change.path}: {issues}", file=sys.stderr)
+
+    if failures:
+        print(f"{len(failures)} target(s) failed verification", file=sys.stderr)
+        return 1
+    print(f"translated {len(changes)} doc(s) into ko, ja")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
