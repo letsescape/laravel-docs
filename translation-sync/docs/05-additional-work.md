@@ -13,7 +13,8 @@
 - 번역 기준이 되는 영어 원문을 `i18n/en`에 적재하고 사이트에서 제외한다.
 - 기존 한국어·일본어 문서를 영어 원문 주석 병기 형식으로 재작업한다.
 - 사이트 빌드용 Node Docker와 번역용 Python Docker 설정을 신규 구성한다.
-- 자동화 구현체와 GitHub Actions, 검증 스크립트를 신규 작성한다.
+- 자동화 구현체와 GitHub Actions를 신규 작성한다.
+- 문서·번역 검증은 Python으로, Docusaurus 빌드 검증은 JS로 처리한다.
 - 프롬프트의 단일 진실 원천을 정한다.
 
 ---
@@ -30,7 +31,7 @@ flowchart TD
     P0b --> P1
 
     P1 --> P1a["구현체·Actions 신규 작성 (T4)"]
-    P1 --> P1b["검증 스크립트 신규 작성 (T5)"]
+    P1 --> P1b["검증 분리 Python/JS (T5)"]
     P1a --> P1c["기존 문서 주석 병기 마이그레이션 (T2)"]
 
     P1b --> P2["P2: 정리 / 운영성"]
@@ -50,7 +51,7 @@ flowchart TD
 | T1 | 영어 원문 캐시 구축 | `i18n/en`에 raw 적재 + `LOCALES`에서 `en` 제외 | P0 |
 | T3 | Docker 설정 신규 구성 | Node(빌드) / Python(번역) 분리 | P0 |
 | T4 | 구현체·Actions 신규 작성 | 동기화 스크립트 + 워크플로 | P1 |
-| T5 | 검증 스크립트 신규 작성 | `04` 검증 항목 구현 + CI 연결 | P1 |
+| T5 | 검증 분리 (Python / JS) | 문서 검증 Python · 빌드 검증 JS | P1 |
 | T2 | 기존 문서 주석 병기 마이그레이션 | 기존 ko·ja 문서에 영어 원문 주석 병기 | P1 |
 | T6 | 프롬프트 SSOT 정리 | 운영 프롬프트 단일화 | P2 |
 
@@ -123,22 +124,23 @@ flowchart TD
   - 수동(`workflow_dispatch`): 운영자가 직접 실행한다.
   - 원문 변경 감지: 공식 저장소 변경 신호를 받는다.
 - 원문 출처(공식 Laravel 저장소 경로/버전 브랜치 매핑)를 명시한다. `versions.json`은 `master, 13.x, 12.x, 11.x, 10.x, 9.x, 8.x`를 지원한다.
+- 문서·번역 검증(T5의 Python 검증)을 이 구현체에 통합한다.
 
-**영향 파일**: 신규 구현체, 신규 `.github/workflows/*.yml`
+**영향 파일**: 신규 구현체(문서·번역 검증 포함), 신규 `.github/workflows/*.yml`
 
 ---
 
-### T5. 검증 스크립트 신규 작성 (P1)
+### T5. 검증 분리 (문서 검증 Python / 빌드 검증 JS) (P1)
 
-**목표**: `04-verification.md`가 규정한 검증을 실제로 수행하는 스크립트를 작성한다.
+**목표**: 검증을 성격에 따라 두 갈래로 나눈다. 문서·번역 콘텐츠 검증은 Python으로, Docusaurus 빌드 산출물 검증은 JS로 처리한다.
 
 **조치**:
 
-- `04`의 자동 검증 항목(`{{version}}`, `__BASE64_IMAGE_`, `<style>`, `{.class}`, note 형식 잔존)을 수행하는 검증 스크립트를 신규 작성한다. 원문 기준 경로는 `i18n/en`이다.
-- 기존 `scripts/validate-anchors.mjs`는 유지하고 그대로 활용한다.
-- 검증 스크립트를 `package.json` 스크립트와 CI에 연결해, 검증이 워크플로 안에서 실제로 실행되게 한다.
+- 문서·번역 콘텐츠 검증은 Python으로 구현해 T4 구현체에 통합한다. `04-verification.md`의 자동 검증 항목(diff 반영, 코드·인라인 코드·링크·앵커 보존, `{{version}}`·`__BASE64_IMAGE_`·`<style>`·`{.class}`·note 형식 잔존, 번역 구조)이 대상이며, 원문 기준 경로는 `i18n/en`이다.
+- Docusaurus 빌드 산출물 검증은 JS로 유지한다. 빌드 HTML의 앵커 렌더링 검증(`validate-anchors.mjs`)은 빌드 파이프라인(`package.json`/`deploy.yml`)에서 계속 실행한다.
+- 번역 구조 검증을 Python으로 옮기므로, JS `validate-translation-structure.mjs`는 더 이상 사용하지 않는다.
 
-**영향 파일**: `scripts/`(신규 검증 스크립트), `scripts/validate-anchors.mjs`(유지), `package.json`
+**영향 파일**: T4 Python 구현체(문서 검증 통합), `validate-anchors.mjs`(JS 빌드 검증 유지)
 
 ---
 
@@ -160,7 +162,7 @@ flowchart TD
 | 단계 | 포함 작업 | 목표 |
 |----|----|----|
 | P0 | T1, T3 | 영어 원문 기반과 Docker 실행 환경을 확보한다. |
-| P1 | T4, T5, T2 | 구현체·검증을 신규 작성하고, 그 구현체로 기존 문서를 재작업한다. |
+| P1 | T4, T5, T2 | 구현체와 검증을 갖추고, 그 구현체로 기존 문서를 재작업한다. |
 | P2 | T6 | 프롬프트를 단일화해 운영성을 높인다. |
 
 T2(기존 문서 재작업)는 T4 구현체의 출력 형식을 그대로 쓰므로, 구현체가 완성된 뒤 진행한다. 그래서 P1 안에서 T4 → T2 순서를 지킨다.
@@ -175,7 +177,7 @@ T2(기존 문서 재작업)는 T4 구현체의 출력 형식을 그대로 쓰므
 2. 기존 `versioned_docs`(ko)·`i18n/ja` 문서가 영어 원문 주석 병기 형식으로 재작업된다.
 3. 사이트 빌드용 Node Docker와 번역용 Python Docker가 분리 구성되고, 각각 정상 빌드된다.
 4. 자동화 구현체·GitHub Actions 트리거가 존재하고, `i18n/en` 원문을 기준으로 변경 문서를 번역한다.
-5. 검증 스크립트가 `i18n/en` 경로를 기준으로 동작하고, `package.json`/CI에 연결되어 실행된다.
+5. 문서·번역 검증이 Python 구현체에 통합되어 동작하고, Docusaurus 빌드 검증(앵커)은 JS로 빌드 파이프라인에서 실행된다.
 6. 운영 프롬프트의 SSOT가 한 곳으로 확정된다.
 
 ---
@@ -189,5 +191,5 @@ T2(기존 문서 재작업)는 T4 구현체의 출력 형식을 그대로 쓰므
 | 콘텐츠 | `versioned_docs/version-*/*.md`, `i18n/ja/.../version-*/*.md` | 주석 병기 재작업 (T2) |
 | Docker | `Dockerfile`(Node), `Dockerfile.translate`(Python), `docker-compose.yml`, `Makefile` | 신규 구성 (T3) |
 | 구현 | 신규 구현체, `.github/workflows/*.yml` | 신규 작성 (T4) |
-| 검증 | `scripts/`(검증), `package.json` | 신규 작성·연결 (T5) |
+| 검증 | T4 Python 구현체(문서 검증), `validate-anchors.mjs`(JS 빌드 검증) | 분리·구현 (T5) |
 | 프롬프트 | `translation-sync/prompt.md` | SSOT 확정 (T6) |
