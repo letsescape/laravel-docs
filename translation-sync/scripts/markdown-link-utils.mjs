@@ -44,6 +44,10 @@ export function stripCode(src) {
   return out;
 }
 
+export function stripHtmlComments(src) {
+  return src.replace(/<!--[\s\S]*?-->/g, '');
+}
+
 function stripTitleSuffix(raw) {
   let inPlaceholder = false;
 
@@ -71,7 +75,7 @@ function stripTitleSuffix(raw) {
 }
 
 export function extractMarkdownLinks(text) {
-  const stripped = stripCode(text);
+  const stripped = stripHtmlComments(stripCode(text));
   const links = [];
   let i = 0;
 
