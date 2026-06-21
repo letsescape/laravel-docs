@@ -53,7 +53,7 @@ flowchart TD
 | T4 | 구현체·Actions 신규 작성 | 동기화 스크립트 + 워크플로 | P1 |
 | T5 | 검증 분리 (Python / JS) | 문서 검증 Python · 빌드 검증 JS | P1 |
 | T2 | 기존 문서 주석 병기 마이그레이션 | 기존 ko·ja 문서에 영어 원문 주석 병기 | P1 |
-| T6 | 프롬프트 SSOT 정리 | 운영 프롬프트 단일화 | P2 |
+| T6 | 프롬프트 SSOT 정리 | locale별 운영 프롬프트 경로 고정 | P2 |
 
 ---
 
@@ -146,14 +146,15 @@ flowchart TD
 
 ### T6. 프롬프트 SSOT 정리 (P2)
 
-**목표**: 운영 프롬프트의 단일 진실 원천을 확정한다.
+**목표**: 운영 프롬프트의 단일 진실 원천을 locale별로 확정한다.
 
 **조치**:
 
-- 운영 프롬프트의 단일 진실 원천을 `translation-sync/prompt.md`로 확정한다.
-- 구현체가 참조하는 프롬프트 경로를 SSOT 한 곳으로 고정한다.
+- 한국어 운영 프롬프트는 `translation-sync/prompt.md`로 확정한다.
+- 일본어 운영 프롬프트는 `translation-sync/prompt_jp.md`로 확정한다.
+- 구현체가 참조하는 프롬프트 경로를 위 두 파일로 고정한다.
 
-**영향 파일**: `translation-sync/prompt.md`
+**영향 파일**: `translation-sync/prompt.md`, `translation-sync/prompt_jp.md`
 
 ---
 
@@ -163,7 +164,7 @@ flowchart TD
 |----|----|----|
 | P0 | T1, T3 | 영어 원문 기반과 Docker 실행 환경을 확보한다. |
 | P1 | T4, T5, T2 | 구현체와 검증을 갖추고, 그 구현체로 기존 문서를 재작업한다. |
-| P2 | T6 | 프롬프트를 단일화해 운영성을 높인다. |
+| P2 | T6 | locale별 운영 프롬프트 경로를 고정해 운영성을 높인다. |
 
 T2(기존 문서 재작업)는 T4 구현체의 출력 형식을 그대로 쓰므로, 구현체가 완성된 뒤 진행한다. 그래서 P1 안에서 T4 → T2 순서를 지킨다.
 
@@ -178,7 +179,7 @@ T2(기존 문서 재작업)는 T4 구현체의 출력 형식을 그대로 쓰므
 3. 사이트 빌드용 Node Docker와 번역용 Python Docker가 분리 구성되고, 각각 정상 빌드된다.
 4. 자동화 구현체·GitHub Actions 트리거가 존재하고, `i18n/en` 원문을 기준으로 변경 문서를 번역한다.
 5. 문서·번역 검증이 Python 구현체에 통합되어 동작하고, Docusaurus 빌드 검증(앵커)은 JS로 빌드 파이프라인에서 실행된다.
-6. 운영 프롬프트의 SSOT가 한 곳으로 확정된다.
+6. 운영 프롬프트의 SSOT가 locale별 고정 파일로 확정된다.
 
 ---
 
@@ -192,4 +193,4 @@ T2(기존 문서 재작업)는 T4 구현체의 출력 형식을 그대로 쓰므
 | Docker | `Dockerfile`(Node), `Dockerfile.translate`(Python), `docker-compose.yml`, `Makefile` | 신규 구성 (T3) |
 | 구현 | 신규 구현체, `.github/workflows/*.yml` | 신규 작성 (T4) |
 | 검증 | T4 Python 구현체(문서 검증), `validate-anchors.mjs`(JS 빌드 검증) | 분리·구현 (T5) |
-| 프롬프트 | `translation-sync/prompt.md` | SSOT 확정 (T6) |
+| 프롬프트 | `translation-sync/prompt.md`, `translation-sync/prompt_jp.md` | locale별 SSOT 확정 (T6) |
