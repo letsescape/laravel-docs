@@ -1,0 +1,22 @@
+services:
+  # 사이트 빌드(Node)
+  build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./build:/app/build
+
+  # 문서 갱신·번역(Python)
+  translate:
+    build:
+      context: .
+      dockerfile: Dockerfile.translate
+    env_file:
+      - path: translation-sync/.env
+        required: false
+    volumes:
+      # 입력: 영어 원문(diff 소스), 출력: ko/ja 번역
+      - ./.git:/app/.git:ro
+      - ./i18n:/app/i18n
+      - ./versioned_docs:/app/versioned_docs

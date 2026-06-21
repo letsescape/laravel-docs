@@ -1,0 +1,17 @@
+# 문서 갱신·번역용 Python Docker (Python 3.14 + uv)
+FROM python:3.14-slim
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+
+WORKDIR /app/translation-sync
+
+COPY translation-sync/pyproject.toml translation-sync/uv.lock ./
+RUN uv sync --frozen
+
+COPY . /app
+
+CMD ["uv", "run", "python", "main.py"]
