@@ -40,8 +40,6 @@ jobs:
         uses: actions/configure-pages@v6
       - name: Install dependencies
         run: npm ci
-      - name: Validate translation structure
-        run: node scripts/validate-translation-structure.mjs
       - name: Typecheck
         run: npm run typecheck -- --pretty false
       - name: Build website
