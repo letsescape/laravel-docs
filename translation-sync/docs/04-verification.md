@@ -319,6 +319,7 @@ const client = new Client();
 ### 10.1 검증 기준
 
 - 제목 계층이 깨지지 않아야 한다.
+- 원문과 번역본의 heading(ATX `#`) 개수가 같아야 하고, 순서대로 각 heading의 레벨이 일치해야 한다. 개수나 레벨이 어긋나면 구조 손상으로 본다.
 - 목록 번호가 정상이어야 한다.
 - 중첩 목록이 정상이어야 한다.
 - 표 구조가 깨지지 않아야 한다.
@@ -444,6 +445,42 @@ __BASE64_IMAGE_\d+__
 ```regex
 ^>\s*(\{note\}|\*\*Note\*\*|Note:)
 ```
+
+### 14.3 구조 정합성 자동 검증 (원문 대조)
+
+위 14.1·14.2가 잔존 패턴을 검사한다면, 다음은 원문과 번역본을 대조해 구조가 보존되었는지 자동 검증한다. Python 검증에 포함한다.
+
+- **앵커**: `<a name="...">` 명시적 앵커 집합이 원문과 번역본에서 일치해야 한다(누락/추가 검사).
+- **heading 개수/레벨**: ATX heading 개수가 같고, 순서대로 레벨이 일치해야 한다.
+- **내부 링크 대상**: 마크다운 내부 링크 대상의 multiset이 원문과 번역본에서 일치해야 한다.
+
+#### upstream stale 앵커/링크 보정
+
+upstream(공식 Laravel 문서) 원문에는 실제 앵커와 어긋난 내부 링크가 존재한다(목차 링크가 본문 앵커와 철자가 다른 경우 등). 번역본 또는 마이그레이션 대상 기존 번역이 이런 stale 링크를 보정해 둔 경우, 원문 ↔ 번역본 링크를 그대로 비교하면 위양성이 발생한다. 따라서 내부 링크 대상을 비교하기 전에 양쪽에 동일한 정규화를 적용한다.
+
+정규화 규칙:
+
+- `{{version}}` placeholder를 대상 버전으로 치환한다.
+- `https://laravel.com/docs/{version}` 절대 URL을 `/docs/{version}` 내부 경로로 바꾼다.
+- 아래 알려진 stale 링크를 보정한다. 새 stale 링크가 확인되면 매핑에 추가한다.
+
+| upstream(stale) | 보정 후 |
+|---|---|
+| `#agents-integration` | `#agent-integration` |
+| `…#actions-handled-by-resource-controller` | `…#actions-handled-by-resource-controllers` |
+| `/migrations#writing-migrations` | `/migrations#creating-tables` |
+| `#method-array-sort-recursive-desc` | `#method-array-sort-recursive` |
+| `/errors#logging` | `/logging` |
+| `/helpers#fluent-strings` | `/strings#fluent-strings` |
+| `##date-casting` | `#date-casting` |
+| `/database-testing#writing-factories` | `/database-testing#defining-model-factories` |
+
+다음 링크는 대응 앵커가 없으므로 비교 대상에서 제외한다.
+
+- `#assert-similar-json`
+- `#formatting-shortcode-notifications`
+
+이 보정은 기존 JS 검증(`validate-translation-structure.mjs`)이 수행하던 것으로, 번역 구조 검증을 Python으로 옮길 때(05 T5) 동일하게 유지한다. 특히 기존 문서 주석 병기 마이그레이션(05 T2)에서, 기존 번역이 이미 보정해 둔 링크가 위양성으로 잡히지 않도록 반드시 적용한다.
 
 ---
 
