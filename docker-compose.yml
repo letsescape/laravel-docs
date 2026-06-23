@@ -17,6 +17,6 @@ services:
         required: false
     volumes:
       # 입력: 영어 원문(diff 소스), 출력: ko/ja 번역
-      - ./.git:/app/.git:ro
+      - ./.git:/app/.git
       - ./i18n:/app/i18n
       - ./versioned_docs:/app/versioned_docs
