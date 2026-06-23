@@ -1,0 +1,99 @@
+name: Sync Documentation Translation
+
+# translation-sync/docs/05(T4) 트리거. 공식 원문을 받아 변경분을 번역하고 PR로 올린다.
+on:
+  schedule:
+    - cron: '0 18 * * *'   # 매일 03:00 KST
+  workflow_dispatch:
+    inputs:
+      migrate_existing:
+        description: 'Re-translate all source docs to migrate existing translations'
+        required: false
+        default: false
+        type: boolean
+      annotate_existing:
+        description: 'Add English source comments to existing translations without provider calls'
+        required: false
+        default: false
+        type: boolean
+      version:
+        description: 'Optional version filter, e.g. 12.x'
+        required: false
+        type: string
+      doc:
+        description: 'Optional Markdown file filter, e.g. installation.md'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-translation
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync translations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          fetch-depth: 0
+
+      - name: Setup uv (Python 3.14)
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        working-directory: translation-sync
+        run: uv sync --frozen
+
+      - name: Run translation sync tests
+        working-directory: translation-sync
+        run: PYTHONPATH=. uv run --with pytest pytest
+
+      - name: Run translation sync
+        working-directory: translation-sync
+        env:
+          TRANSLATION_PROVIDER: ${{ secrets.TRANSLATION_PROVIDER }}
+          TRANSLATION_MODEL: ${{ secrets.TRANSLATION_MODEL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ANNOTATE_EXISTING: ${{ inputs.annotate_existing }}
+          INPUT_MIGRATE_EXISTING: ${{ inputs.migrate_existing }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_DOC: ${{ inputs.doc }}
+        run: |
+          args=()
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ "$INPUT_ANNOTATE_EXISTING" = "true" ]; then
+              args+=(--annotate-existing --apply)
+            elif [ "$INPUT_MIGRATE_EXISTING" = "true" ]; then
+              args+=(--migrate-existing)
+            fi
+            if [ -n "$INPUT_VERSION" ]; then
+              args+=(--version "$INPUT_VERSION")
+            fi
+            if [ -n "$INPUT_DOC" ]; then
+              args+=(--doc "$INPUT_DOC")
+            fi
+          fi
+          uv run python main.py "${args[@]}"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676
+        with:
+          base: develop
+          branch: chore/translation-sync
+          title: 'chore(translation): sync documentation'
+          commit-message: 'chore(translation): sync documentation'
+          body: |
+            공식 원문 변경분을 번역해 동기화한 PR입니다.
+            translation-sync/docs 기획에 따라 자동 생성되었습니다.

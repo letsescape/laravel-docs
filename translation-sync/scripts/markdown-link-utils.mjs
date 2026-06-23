@@ -44,6 +44,26 @@ export function stripCode(src) {
   return out;
 }
 
+export function stripHtmlComments(src) {
+  let out = '';
+  let index = 0;
+
+  while (index < src.length) {
+    const start = src.indexOf('<!--', index);
+    if (start < 0) {
+      out += src.slice(index);
+      break;
+    }
+
+    out += src.slice(index, start);
+    const end = src.indexOf('-->', start + 4);
+    if (end < 0) break;
+    index = end + 3;
+  }
+
+  return out;
+}
+
 function stripTitleSuffix(raw) {
   let inPlaceholder = false;
 
@@ -71,7 +91,7 @@ function stripTitleSuffix(raw) {
 }
 
 export function extractMarkdownLinks(text) {
-  const stripped = stripCode(text);
+  const stripped = stripHtmlComments(stripCode(text));
   const links = [];
   let i = 0;
 

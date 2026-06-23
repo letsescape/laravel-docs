@@ -17,7 +17,7 @@ import versions from './versions.json';
 // 안정 버전 후보에서 제외하고, 첫 번째 항목을 LATEST_STABLE로 사용한다.
 const LATEST_STABLE = versions.find((v) => v !== 'master') ?? versions[0];
 const DEFAULT_LOCALE = 'ko';
-const LOCALES = ['en', 'ko', 'ja'];
+const LOCALES = ['ko', 'ja'];
 const LOCALIZED_ROUTE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
 const DOCS_LATEST_REDIRECT_SCRIPT = `
 (function () {
@@ -78,7 +78,11 @@ const config: Config = {
       onBrokenMarkdownLinks: 'warn',
     },
     mdx1Compat: {
-      comments: false,
+      // 영어 원문 병기 주석(<!-- ... -->)은 빌드 산출물에 노출하지 않는 소스 전용
+      // 메타데이터다. comments:true면 remark 단계에서 주석을 제거해, 주석 본문의
+      // `*/`(예: addSelect(DB::raw(/* ... */)))가 MDX(JSX {/* */})를 깨지 않게 한다.
+      // verify.py는 raw 소스를 읽으므로 병기 검증에는 영향이 없다.
+      comments: true,
       admonitions: false,
       headingIds: false,
     },

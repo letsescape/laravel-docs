@@ -1,4 +1,4 @@
-.PHONY: help dev check claude init speckit
+.PHONY: help dev check claude init speckit translate
 
 .DEFAULT_GOAL := help
 
@@ -16,6 +16,9 @@ check: ## 테스트 및 린트 검사 실행
 	@echo "[check] running lint..."
 	# 린트 명령어 추가 (예: npm run lint, flake8, golangci-lint 등)
 	@echo "[check] all checks passed"
+
+translate: ## Docker 번역 동기화 실행
+	@docker compose run --rm translate
 
 claude: ## Claude Code 환경 설정
 	@echo "[claude] downloading AGENTS.md..."

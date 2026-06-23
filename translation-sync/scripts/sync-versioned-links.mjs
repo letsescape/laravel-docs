@@ -3,7 +3,7 @@ import {readFileSync, writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, resolve} from 'node:path';
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const versions = JSON.parse(
   readFileSync(resolve(repoRoot, 'versions.json'), 'utf-8'),
 );

@@ -1,0 +1,14 @@
+node_modules
+build
+.docusaurus
+.git
+.idea
+.claude
+.codex
+.gemini
+__pycache__
+.venv
+*.log
+.env
+.env.*
+!.env.example
