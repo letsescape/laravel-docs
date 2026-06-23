@@ -39,12 +39,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
           fetch-depth: 0
 
       - name: Setup uv (Python 3.14)
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
         with:
           python-version: '3.14'
 
@@ -65,25 +65,30 @@ jobs:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ANNOTATE_EXISTING: ${{ inputs.annotate_existing }}
+          INPUT_MIGRATE_EXISTING: ${{ inputs.migrate_existing }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_DOC: ${{ inputs.doc }}
         run: |
-          args=""
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            if [ "${{ inputs.annotate_existing }}" = "true" ]; then
-              args="--annotate-existing --apply"
-            elif [ "${{ inputs.migrate_existing }}" = "true" ]; then
-              args="--migrate-existing"
+          args=()
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ "$INPUT_ANNOTATE_EXISTING" = "true" ]; then
+              args+=(--annotate-existing --apply)
+            elif [ "$INPUT_MIGRATE_EXISTING" = "true" ]; then
+              args+=(--migrate-existing)
             fi
-            if [ -n "${{ inputs.version }}" ]; then
-              args="$args --version ${{ inputs.version }}"
+            if [ -n "$INPUT_VERSION" ]; then
+              args+=(--version "$INPUT_VERSION")
             fi
-            if [ -n "${{ inputs.doc }}" ]; then
-              args="$args --doc ${{ inputs.doc }}"
+            if [ -n "$INPUT_DOC" ]; then
+              args+=(--doc "$INPUT_DOC")
             fi
           fi
-          uv run python main.py $args
+          uv run python main.py "${args[@]}"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676
         with:
           base: develop
           branch: chore/translation-sync
