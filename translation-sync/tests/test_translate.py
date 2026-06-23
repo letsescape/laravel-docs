@@ -1,5 +1,6 @@
 import subprocess
 import unittest
+from unittest.mock import patch
 
 from sync import config, translate
 
@@ -41,6 +42,37 @@ class TranslateRetryTests(unittest.TestCase):
                 "prompt",
                 sleep=lambda _: None,
             )
+
+    def test_split_chunks_keeps_anchor_with_following_heading(self):
+        content = '<a name="intro"></a>\n\n## Introduction\n\nBody.\n'
+
+        chunks = translate.split_chunks(content, max_lines=2)
+
+        self.assertEqual(chunks[0], '<a name="intro"></a>\n\n## Introduction\n\n')
+        self.assertEqual(chunks[1], "Body.\n")
+
+    def test_split_chunks_keeps_long_fenced_code_blocks_intact(self):
+        content = "````markdown\n```php\necho 'ok';\n```\n````\n\nAfter.\n"
+
+        chunks = translate.split_chunks(content, max_lines=2)
+
+        self.assertEqual(chunks[0], "````markdown\n```php\necho 'ok';\n```\n````\n\n")
+        self.assertEqual(chunks[1], "After.\n")
+
+    def test_translate_text_can_skip_internal_chunking(self):
+        calls: list[str] = []
+
+        def collect(chunk: str, _config: config.Config, _prompt: str) -> str:
+            calls.append(chunk)
+            return chunk
+
+        cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+        with patch.object(translate, "_translate_chunk", side_effect=collect):
+            out = translate.translate_text("a\n\nb\n", cfg, "prompt", split=False)
+
+        self.assertEqual(out, "a\n\nb\n")
+        self.assertEqual(calls, ["a\n\nb\n"])
 
 
 if __name__ == "__main__":

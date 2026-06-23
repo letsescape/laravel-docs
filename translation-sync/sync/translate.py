@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config
+from .markdown import closes_fence, fence_token
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PROMPT_PATH = REPO_ROOT / "translation-sync" / "prompt.md"
@@ -57,6 +58,43 @@ def load_prompt() -> str:
     return PROMPT_PATH.read_text("utf-8")
 
 
+def _is_anchor_line(line: str) -> bool:
+    stripped = line.strip().lower()
+    return stripped.startswith("<a ") and "name=" in stripped
+
+
+def _is_heading_line(line: str) -> bool:
+    stripped = line.lstrip()
+    level = len(stripped) - len(stripped.lstrip("#"))
+    return 1 <= level <= 6 and len(stripped) > level and stripped[level].isspace()
+
+
+def _previous_nonblank_index(lines: list[str], index: int) -> int | None:
+    cursor = index - 1
+    while cursor >= 0:
+        if lines[cursor].strip():
+            return cursor
+        cursor -= 1
+    return None
+
+
+def _next_nonblank_index(lines: list[str], index: int) -> int | None:
+    cursor = index + 1
+    while cursor < len(lines):
+        if lines[cursor].strip():
+            return cursor
+        cursor += 1
+    return None
+
+
+def _is_anchor_heading_gap(lines: list[str], index: int) -> bool:
+    previous = _previous_nonblank_index(lines, index)
+    following = _next_nonblank_index(lines, index)
+    if previous is None or following is None:
+        return False
+    return _is_anchor_line(lines[previous]) and _is_heading_line(lines[following])
+
+
 def split_chunks(content: str, max_lines: int = MAX_CHUNK_LINES) -> list[str]:
     """라인 수 기준 청크 분할. 공백 줄을 절단 후보로 삼고 코드 블록은 끊지 않는다."""
     lines = content.splitlines(keepends=True)
@@ -65,17 +103,22 @@ def split_chunks(content: str, max_lines: int = MAX_CHUNK_LINES) -> list[str]:
     in_code = False
     fence = ""
     count = 0
-    for line in lines:
-        stripped = line.lstrip()
-        if stripped.startswith(("```", "~~~")):
-            token = stripped[:3]
+    for idx, line in enumerate(lines):
+        token = fence_token(line)
+        if token:
             if not in_code:
                 in_code, fence = True, token
-            elif stripped.startswith(fence):
+            elif closes_fence(line, fence):
                 in_code = False
         cur.append(line)
         count += 1
-        if count >= max_lines and not in_code and line.strip() == "":
+        can_split = (
+            count >= max_lines
+            and not in_code
+            and line.strip() == ""
+            and not _is_anchor_heading_gap(lines, idx)
+        )
+        if can_split:
             chunks.append("".join(cur))
             cur, count = [], 0
     if cur:
@@ -83,12 +126,15 @@ def split_chunks(content: str, max_lines: int = MAX_CHUNK_LINES) -> list[str]:
     return chunks
 
 
-def translate_text(content: str, config: Config, prompt: str | None = None) -> str:
+def translate_text(
+    content: str, config: Config, prompt: str | None = None, *, split: bool = True
+) -> str:
     prompt = prompt if prompt is not None else load_prompt()
     system = prompt + _ANNOTATION_FORMAT
+    chunks = split_chunks(content) if split else [content]
     return "".join(
         _with_retries(_translate_chunk, chunk, config, system)
-        for chunk in split_chunks(content)
+        for chunk in chunks
     )
 
 

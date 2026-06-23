@@ -15,18 +15,18 @@
 from __future__ import annotations
 
 import difflib
-import re
 from dataclasses import dataclass, field
 
 from . import postprocess as _postprocess, preprocess as _preprocess
+from .markdown import (
+    closes_fence,
+    fence_token,
+    is_heading_line,
+    is_named_anchor_line,
+    is_ordered_list_marker,
+    strip_title_attr_line,
+)
 from .postprocess import img_self_closing, replace_version
-
-_FENCE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
-_ANCHOR = re.compile(r"^[ \t]*<a\s+[^>]*\bname=[\"'][^\"']+[\"'][^>]*>\s*(?:</a>)?\s*$", re.I)
-_HEADING = re.compile(r"^#{1,6}\s")
-_TABLESEP = re.compile(r"^[ \t]*\|?[ \t]*:?-{1,}:?[ \t]*(\|[ \t]*:?-{1,}:?[ \t]*)+\|?[ \t]*$")
-_BLANK = re.compile(r"^[ \t]*$")
-_TITLE_ATTR = re.compile(r"^(#{1,6}\s+.+?)\s+\{[.#][^}]*\}\s*$")
 
 
 @dataclass
@@ -59,23 +59,23 @@ def split_blocks(lines: list[str]) -> list[Block]:
             i = j + 1
     while i < n:
         ln = lines[i]
-        if _BLANK.match(ln):
+        if not ln.strip():
             i += 1
             continue
-        if _FENCE.match(ln):
-            tok = ln.lstrip()[:3]
+        tok = fence_token(ln)
+        if tok:
             j = i + 1
-            while j < n and not (lines[j].lstrip().startswith(tok)):
+            while j < n and not closes_fence(lines[j], tok):
                 j += 1
             j = min(j + 1, n)  # include closing fence
             blocks.append(Block("code", i, j, lines[i:j]))
             i = j
             continue
-        if _ANCHOR.match(ln):
+        if is_named_anchor_line(ln):
             blocks.append(Block("anchor", i, i + 1, [ln]))
             i += 1
             continue
-        if _HEADING.match(ln):
+        if is_heading_line(ln):
             blocks.append(Block("heading", i, i + 1, [ln]))
             i += 1
             continue
@@ -84,7 +84,12 @@ def split_blocks(lines: list[str]) -> list[Block]:
         subkind = _text_subkind(lines[i])
         while j < n:
             l2 = lines[j]
-            if _BLANK.match(l2) or _FENCE.match(l2) or _ANCHOR.match(l2) or _HEADING.match(l2):
+            if (
+                not l2.strip()
+                or fence_token(l2)
+                or is_named_anchor_line(l2)
+                or is_heading_line(l2)
+            ):
                 break
             if j > i and _starts_new_text_block(l2, subkind):
                 break
@@ -119,7 +124,7 @@ def _text_subkind(line: str) -> str:
         return "table"
     if s.startswith(">"):
         return "quote"
-    if s[:2] in ("- ", "* ", "+ ") or re.match(r"^\d+\.\s", s):
+    if s[:2] in ("- ", "* ", "+ ") or is_ordered_list_marker(s):
         return "list"
     if s.startswith("@"):
         return "directive"
@@ -160,7 +165,7 @@ def _csub(s: str, version: str) -> str:
     """주석에 넣을 영어 원문 정제: 버전 치환, img self-close, 제목 {.class} 제거, --> 무력화."""
     s = replace_version(s, version)
     s = img_self_closing(s)
-    s = _TITLE_ATTR.sub(r"\1", s)
+    s = strip_title_attr_line(s)
     s = s.replace("-->", "--&gt;")
     return s
 
@@ -225,16 +230,16 @@ def strip_annotations(ko_text: str) -> str:
     while i < n:
         ln = lines[i]
         s = ln.lstrip()
-        if _FENCE.match(ln):
-            tok = s[:3]
+        tok = fence_token(ln)
+        if tok:
             if not in_code:
                 in_code, fence = True, tok
-            elif s.startswith(fence):
+            elif closes_fence(ln, fence):
                 in_code = False
             out.append(ln)
             i += 1
             continue
-        if not in_code and s.startswith("<!--"):
+        if not in_code and ln == s and s.startswith("<!--"):
             if "-->" in ln:
                 i += 1
                 continue
@@ -312,17 +317,16 @@ def annotate(en_text: str, ko_text: str, version: str) -> tuple[str, list[Drift]
     for idx, ln in enumerate(ko_lines):
         for c in inserts.get(idx, []):
             out.append(c)
-        s = ln.lstrip()
-        if _FENCE.match(ln):
-            tok = s[:3]
+        tok = fence_token(ln)
+        if tok:
             if not in_code:
                 in_code, fence = True, tok
-            elif s.startswith(fence):
+            elif closes_fence(ln, fence):
                 in_code = False
             out.append(ln)
             continue
         if not in_code:
             ln = img_self_closing(ln)
-            ln = _TITLE_ATTR.sub(r"\1", ln)
+            ln = strip_title_attr_line(ln)
         out.append(ln)
     return "\n".join(out), drifts

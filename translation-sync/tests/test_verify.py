@@ -59,6 +59,12 @@ echo 'ok';
 
         self.assertNotIn("code block mismatch", verify.verify(translated, source=source))
 
+    def test_accepts_long_fenced_code_blocks_with_inner_shorter_fence(self):
+        source = "````markdown\n```php\necho 'ok';\n```\n````\n"
+        translated = source
+
+        self.assertNotIn("code block mismatch", verify.verify(translated, source=source))
+
     def test_detects_html_anchor_name_changed(self):
         source = '<a name="basic-routing"></a>\n\n# Routing\n'
         translated = """<!-- <a name="basic-routing"></a> -->
@@ -95,6 +101,37 @@ echo 'ok';
 """
 
         self.assertNotIn("missing original comment", verify.verify(translated, source=source))
+
+    def test_normalizes_known_stale_link_targets_before_comparing(self):
+        source = "See [Agents](#agents-integration)."
+        translated = """<!-- See [Agents](#agents-integration). -->
+[Agents](#agent-integration)를 참고하세요.
+"""
+
+        self.assertNotIn("link target mismatch", verify.verify(translated, source=source))
+
+    def test_detects_heading_level_mismatch(self):
+        source = "# Title\n\n## Install\n"
+        translated = """<!-- # Title -->
+# 제목 (Title)
+
+<!-- ## Install -->
+### 설치 (Install)
+"""
+
+        self.assertIn("heading mismatch", verify.verify(translated, source=source))
+
+    def test_does_not_treat_later_horizontal_rule_as_front_matter(self):
+        source = "Intro.\n\n---\n\nDetails.\n"
+        translated = """<!-- Intro. -->
+소개입니다.
+
+---
+
+상세입니다.
+"""
+
+        self.assertIn("missing original comment", verify.verify(translated, source=source))
 
 
 if __name__ == "__main__":

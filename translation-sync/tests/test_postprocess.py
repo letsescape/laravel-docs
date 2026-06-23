@@ -37,6 +37,19 @@ class PostprocessTests(unittest.TestCase):
         self.assertIn("<!-- Use `DB::raw(/* ... *&#47;)` carefully. -->", out)
         self.assertNotIn("*/)` carefully. -->", out)
 
+    def test_keeps_long_fenced_code_blocks_unmodified(self):
+        text = (
+            "````blade\n"
+            "```html\n"
+            '<img src="{{ $message->embed($pathToImage) }}">\n'
+            "```\n"
+            "````\n"
+        )
+
+        out = postprocess.postprocess(text, "12.x", {})
+
+        self.assertEqual(out, text)
+
 
 if __name__ == "__main__":
     unittest.main()

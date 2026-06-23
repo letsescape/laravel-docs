@@ -12,14 +12,12 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from .markdown import closes_fence, strip_title_attrs
+
 # data:image/...;base64,.... (Markdown/HTML 이미지 양쪽)
 _BASE64_RE = re.compile(r"data:image/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=\s]+?(?=[)\"'\s])")
-# 제목 줄 끝의 {.class} / {#id} 판독 속성
-_TITLE_ATTR_RE = re.compile(r"^(#{1,6}\s+.+?)\s+\{[.#][^}]*\}\s*$", re.MULTILINE)
 # fenced code block (``` 또는 ~~~)
 _FENCE_RE = re.compile(r"^([ \t]*)(`{3,}|~{3,})", re.MULTILINE)
-# 코드 블록 밖 페이지 디자인 <style>...</style>
-_STYLE_RE = re.compile(r"[ \t]*<style\b[^>]*>.*?</style>\s*", re.DOTALL | re.IGNORECASE)
 _INDENTED_CODE_RE = re.compile(r"^(?: {4}|\t)(.*)$")
 _LIST_MARKER_RE = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s)")
 
@@ -33,17 +31,16 @@ class Preprocessed:
 def _split_code_segments(text: str) -> list[tuple[str, bool]]:
     """텍스트를 (구간, is_code) 목록으로 나눈다. fenced code block 보호용."""
     segments: list[tuple[str, bool]] = []
-    pos = 0
     in_code = False
     fence = ""
     last = 0
     for m in _FENCE_RE.finditer(text):
         token = m.group(2)
         if not in_code:
-            in_code, fence = True, token[0] * 3
+            in_code, fence = True, token
             segments.append((text[last:m.start()], False))
             last = m.start()
-        elif token.startswith(fence):
+        elif closes_fence(token, fence):
             in_code = False
             segments.append((text[last:m.end()], True))
             last = m.end()
@@ -116,6 +113,62 @@ def _strip_code_indent(line: str) -> str:
     return line[4:] if line.startswith("    ") else line
 
 
+def _strip_style_blocks(text: str) -> str:
+    out: list[str] = []
+    lower = text.lower()
+    index = 0
+    while index < len(text):
+        start = lower.find("<style", index)
+        if start < 0:
+            out.append(text[index:])
+            break
+        tag_end = text.find(">", start + len("<style"))
+        if tag_end < 0:
+            out.append(text[index:])
+            break
+
+        remove_start = start
+        while remove_start > index and text[remove_start - 1] in " \t":
+            remove_start -= 1
+
+        close_start = lower.find("</style>", tag_end + 1)
+        if close_start < 0:
+            out.append(text[index:remove_start])
+            break
+
+        remove_end = close_start + len("</style>")
+        while remove_end < len(text) and text[remove_end] in " \t\r\n":
+            remove_end += 1
+
+        out.append(text[index:remove_start])
+        index = remove_end
+    return "".join(out)
+
+
+def _opens_indented_children(line: str) -> bool:
+    stripped = line.lstrip()
+    if stripped.startswith("@"):
+        return True
+    if re.match(r"^\d+\.\s+.+:\s*$", stripped):
+        return True
+    if stripped[:2] in ("- ", "* ", "+ ") and stripped.rstrip().endswith(":"):
+        return True
+    return bool(re.match(r"^[\w.-]+:\s*$", stripped))
+
+
+def _has_indented_parent(lines: list[str], index: int) -> bool:
+    cursor = index - 1
+    while cursor >= 0:
+        line = lines[cursor]
+        if line == "":
+            return False
+        if _INDENTED_CODE_RE.match(line):
+            cursor -= 1
+            continue
+        return _opens_indented_children(line)
+    return False
+
+
 def _convert_indented_code_blocks(text: str) -> str:
     """fenced code block 밖의 확실한 4-space 코드 블록만 fenced block으로 바꾼다."""
     rebuilt_segments: list[str] = []
@@ -134,6 +187,10 @@ def _convert_indented_code_blocks(text: str) -> str:
                 out.append(line)
                 i += 1
                 continue
+            if _has_indented_parent(lines, i):
+                out.append(line)
+                i += 1
+                continue
 
             block: list[str] = []
             while i < len(lines):
@@ -141,7 +198,7 @@ def _convert_indented_code_blocks(text: str) -> str:
                 current_match = _INDENTED_CODE_RE.match(current)
                 if current == "":
                     next_nonblank = next(
-                        (candidate for candidate in lines[i + 1 :] if candidate != ""),
+                        (lines[k] for k in range(i + 1, len(lines)) if lines[k] != ""),
                         "",
                     )
                     next_match = _INDENTED_CODE_RE.match(next_nonblank)
@@ -191,8 +248,8 @@ def preprocess(content: str) -> Preprocessed:
         if is_code:
             rebuilt.append(segment)
             continue
-        segment = _STYLE_RE.sub("", segment)
-        segment = _TITLE_ATTR_RE.sub(r"\1", segment)
+        segment = _strip_style_blocks(segment)
+        segment = strip_title_attrs(segment)
         rebuilt.append(segment)
     text = "".join(rebuilt)
 

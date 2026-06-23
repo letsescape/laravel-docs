@@ -93,6 +93,45 @@ class PreprocessTests(unittest.TestCase):
 
         self.assertEqual(result.text, source)
 
+    def test_keeps_long_fenced_code_blocks_intact(self):
+        source = (
+            "````markdown\n"
+            "```php\n"
+            "<style>.example { color: red; }</style>\n"
+            "```\n"
+            "````\n"
+        )
+
+        result = preprocess.preprocess(source)
+
+        self.assertEqual(result.text, source)
+
+    def test_keeps_indented_children_with_unindented_directive_parent(self):
+        source = (
+            "@once\n"
+            "    @push('scripts')\n"
+            "        <script>\n"
+            "            // ...\n"
+            "        </script>\n"
+            "    @endpush\n"
+            "@endonce\n"
+        )
+
+        result = preprocess.preprocess(source)
+
+        self.assertEqual(result.text, source)
+
+    def test_keeps_indented_yaml_children_with_list_parent(self):
+        source = (
+            "features:\n"
+            "- elasticsearch:\n"
+            "    version: 7.9.0\n"
+        )
+
+        result = preprocess.preprocess(source)
+
+        self.assertEqual(result.text, source)
+
 
 if __name__ == "__main__":
     unittest.main()

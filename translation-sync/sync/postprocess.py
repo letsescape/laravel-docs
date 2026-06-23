@@ -11,13 +11,9 @@ from __future__ import annotations
 import re
 from typing import Mapping
 
-_IMG_OPEN_RE = re.compile(r"<img\b([^>]*?)\s*>", re.IGNORECASE)
+from .markdown import closes_fence, fence_token, html_comment_spans, strip_title_attrs
+
 _VERSION_RE = re.compile(r"\{\{\s*version\s*\}\}")
-_TITLE_ATTR_RE = re.compile(r"^(#{1,6}\s+.+?)\s+\{[.#][^}]*\}\s*$", re.MULTILINE)
-_HTML_COMMENT_RE = re.compile(r"<!--(?P<body>.*?)-->", re.DOTALL)
-_NOTE_LINE_RE = re.compile(
-    r"^>\s*(?:\{(?P<a>\w+)\}|\*\*(?P<b>\w+)\*\*:?|(?P<c>\w+):)\s*(?P<rest>.*)$"
-)
 _NOTE_TYPES = {
     "note": "NOTE",
     "tip": "TIP",
@@ -39,16 +35,15 @@ def _map_outside_code_blocks(text: str, transform) -> str:
             pending.clear()
 
     for line in text.splitlines(keepends=True):
-        stripped = line.lstrip()
-        if stripped.startswith(("```", "~~~")):
-            token = stripped[:3]
+        token = fence_token(line)
+        if token:
             if not in_code:
                 flush_pending()
                 in_code = True
                 fence = token
                 out.append(line)
                 continue
-            if stripped.startswith(fence):
+            if closes_fence(line, fence):
                 in_code = False
                 fence = ""
                 out.append(line)
@@ -64,24 +59,69 @@ def _map_outside_code_blocks(text: str, transform) -> str:
 
 
 def img_self_closing(text: str) -> str:
-    def repl(match: re.Match[str]) -> str:
-        attrs = match.group(1).strip()
-        if attrs.endswith("/"):
-            return match.group(0)
-        return f"<img {attrs}/>" if attrs else "<img/>"
+    out: list[str] = []
+    lower = text.lower()
+    index = 0
+    while index < len(text):
+        start = lower.find("<img", index)
+        if start < 0:
+            out.append(text[index:])
+            break
+        after_name = start + len("<img")
+        if after_name < len(text) and not (text[after_name].isspace() or text[after_name] in "/>"):
+            out.append(text[index:after_name])
+            index = after_name
+            continue
+        end = text.find(">", after_name)
+        if end < 0:
+            out.append(text[index:])
+            break
 
-    return _IMG_OPEN_RE.sub(repl, text)
+        out.append(text[index:start])
+        attrs = text[after_name:end].strip()
+        if attrs.endswith("/"):
+            out.append(text[start : end + 1])
+        elif attrs:
+            out.append(f"<img {attrs}/>")
+        else:
+            out.append("<img/>")
+        index = end + 1
+    return "".join(out)
+
+
+def _parse_note_line(line: str) -> tuple[str, str] | None:
+    if not line.startswith(">"):
+        return None
+
+    content = line[1:].strip()
+    if content.startswith("{"):
+        close = content.find("}")
+        if close > 1:
+            return content[1:close].lower(), content[close + 1 :].strip()
+
+    if content.startswith("**"):
+        close = content.find("**", 2)
+        if close > 2:
+            rest = content[close + 2 :]
+            if rest.startswith(":"):
+                rest = rest[1:]
+            return content[2:close].lower(), rest.strip()
+
+    colon = content.find(":")
+    if colon > 0 and content[:colon].isalpha():
+        return content[:colon].lower(), content[colon + 1 :].strip()
+
+    return None
 
 
 def standardize_admonitions(text: str) -> str:
     out: list[str] = []
     for line in text.split("\n"):
-        m = _NOTE_LINE_RE.match(line)
-        if m:
-            kind = (m.group("a") or m.group("b") or m.group("c") or "").lower()
+        note = _parse_note_line(line)
+        if note:
+            kind, rest = note
             if kind in _NOTE_TYPES:
                 out.append(f"> [!{_NOTE_TYPES[kind]}]")
-                rest = m.group("rest").strip()
                 if rest:
                     out.append(f"> {rest}")
                 continue
@@ -105,18 +145,20 @@ def strip_trailing_whitespace(text: str) -> str:
 
 def escape_html_comments(text: str) -> str:
     """MDX가 HTML 주석을 JS 주석으로 바꿀 때 깨지는 delimiter를 무력화한다."""
-
-    def repl(match: re.Match[str]) -> str:
-        body = match.group("body").replace("*/", "*&#47;")
-        return f"<!--{body}-->"
-
-    return _HTML_COMMENT_RE.sub(repl, text)
+    out: list[str] = []
+    index = 0
+    for start, end, body in html_comment_spans(text):
+        out.append(text[index:start])
+        out.append(f"<!--{body.replace('*/', '*&#47;')}-->")
+        index = end
+    out.append(text[index:])
+    return "".join(out)
 
 
 def _postprocess_markdown_body(text: str) -> str:
     text = img_self_closing(text)
     text = standardize_admonitions(text)
-    text = _TITLE_ATTR_RE.sub(r"\1", text)
+    text = strip_title_attrs(text)
     text = escape_html_comments(text)
     return text
 

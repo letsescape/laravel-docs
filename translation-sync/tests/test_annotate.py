@@ -182,6 +182,32 @@ class AnnotateTests(unittest.TestCase):
             out,
         )
 
+    def test_split_blocks_keeps_long_fenced_code_blocks_intact(self):
+        lines = [
+            "````markdown",
+            "```php",
+            "echo 'ok';",
+            "```",
+            "````",
+            "Paragraph.",
+        ]
+
+        blocks = annotate.split_blocks(lines)
+
+        self.assertEqual(blocks[0].kind, "code")
+        self.assertEqual(blocks[0].lines, lines[:5])
+        self.assertEqual(blocks[1].kind, "text")
+
+    def test_strip_annotations_preserves_indented_code_comments(self):
+        ko = (
+            "    <!-- Equivalent to csrf_token() -->\n"
+            "    {{ csrf_field() }}\n"
+        )
+
+        out = annotate.strip_annotations(ko)
+
+        self.assertEqual(out, ko)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -111,7 +111,15 @@ def _translate_one(
     pre = preprocess.preprocess(src)
     existing = dest.read_text(encoding="utf-8") if dest.exists() else None
     try:
-        translated = translate.translate_text(_translation_input(pre.text, existing), cfg, prompt)
+        translated = "".join(
+            translate.translate_text(
+                _translation_input(source_chunk, existing),
+                cfg,
+                prompt,
+                split=False,
+            )
+            for source_chunk in translate.split_chunks(pre.text)
+        )
     except translate.IncompleteTranslation as exc:
         return [f"incomplete translation: {exc}"]
     out = postprocess.postprocess(translated, change.version, pre.placeholders)

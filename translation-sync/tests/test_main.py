@@ -55,8 +55,11 @@ class MainPipelineTests(unittest.TestCase):
             cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
             sent: list[str] = []
 
-            def translated(content: str, _cfg: config.Config, _prompt: str) -> str:
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
                 sent.append(content)
+                self.assertFalse(split)
                 return "<!-- # Example -->\n# 예제 (Example)\n"
 
             with patch.object(main, "REPO_ROOT", root), patch.object(
@@ -72,6 +75,49 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("# Example", sent[0])
             self.assertIn("## Existing Translation", sent[0])
             self.assertIn("# 기존 예제", sent[0])
+
+    def test_translate_one_chunks_source_before_building_translation_input(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text("# One\n\n# Two\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="M",
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                if "# One" in content:
+                    return "<!-- # One -->\n# 하나 (One)\n\n"
+                return "<!-- # Two -->\n# 둘 (Two)\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "split_chunks",
+                return_value=["# One\n\n", "# Two\n"],
+            ), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 2)
+            self.assertIn("# One", sent[0])
+            self.assertNotIn("# Two", sent[0])
+            self.assertIn("# Two", sent[1])
 
     def test_delete_outputs_removes_ko_and_ja_documents_for_deleted_source(self):
         with tempfile.TemporaryDirectory() as tmp:
