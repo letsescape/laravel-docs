@@ -45,7 +45,23 @@ export function stripCode(src) {
 }
 
 export function stripHtmlComments(src) {
-  return src.replace(/<!--[\s\S]*?-->/g, '');
+  let out = '';
+  let index = 0;
+
+  while (index < src.length) {
+    const start = src.indexOf('<!--', index);
+    if (start < 0) {
+      out += src.slice(index);
+      break;
+    }
+
+    out += src.slice(index, start);
+    const end = src.indexOf('-->', start + 4);
+    if (end < 0) break;
+    index = end + 3;
+  }
+
+  return out;
 }
 
 function stripTitleSuffix(raw) {

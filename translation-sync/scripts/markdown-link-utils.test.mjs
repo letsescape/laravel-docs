@@ -7,4 +7,9 @@ assert.deepEqual(
   [{text: 'Visible', url: '#ok'}],
 );
 
+assert.deepEqual(
+  extractMarkdownLinks('<!-- outer <!-- [Hidden](#bad) --> -->\n[Visible](#ok)'),
+  [{text: 'Visible', url: '#ok'}],
+);
+
 console.log('markdown-link-utils tests passed');
