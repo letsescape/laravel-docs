@@ -44,8 +44,8 @@ const writeRedirect = (locale, slug) => {
   const localePrefix = locale ? `/${locale}` : '';
   const outputDir = join(buildRoot, locale, 'docs', slug);
   const target = slug
-    ? `${localePrefix}/docs/${latestVersion}/${slug}`
-    : `${localePrefix}/docs/${latestVersion}`;
+    ? `${localePrefix}/docs/${latestVersion}/${slug}/`
+    : `${localePrefix}/docs/${latestVersion}/`;
 
   mkdirSync(outputDir, {recursive: true});
   writeFileSync(join(outputDir, 'index.html'), redirectHtml(target));

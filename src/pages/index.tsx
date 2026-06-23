@@ -19,7 +19,7 @@ export default function Home(): ReactNode {
   const {siteConfig, i18n} = useDocusaurusContext();
   const {url} = siteConfig;
   const {currentLocale, defaultLocale} = i18n;
-  const pageUrl = currentLocale === defaultLocale ? url : `${url}/${currentLocale}`;
+  const pageUrl = currentLocale === defaultLocale ? url : `${url}/${currentLocale}/`;
 
   const title = translate({
     id: 'homepage.title',
