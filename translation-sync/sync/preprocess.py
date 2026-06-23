@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from .markdown import closes_fence, strip_title_attrs
 
 # data:image/...;base64,.... (Markdown/HTML 이미지 양쪽)
-_BASE64_RE = re.compile(r"data:image/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=\s]+?(?=[)\"'\s])")
+_BASE64_RE = re.compile(r"data:image/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+(?=[)\"'\s])")
 # fenced code block (``` 또는 ~~~)
 _FENCE_RE = re.compile(r"^([ \t]*)(`{3,}|~{3,})", re.MULTILINE)
 _INDENTED_CODE_RE = re.compile(r"^(?: {4}|\t)(.*)$")
@@ -145,15 +145,32 @@ def _strip_style_blocks(text: str) -> str:
     return "".join(out)
 
 
+def _is_ordered_item_opener(stripped: str) -> bool:
+    marker_end = 0
+    while marker_end < len(stripped) and stripped[marker_end].isdigit():
+        marker_end += 1
+    if marker_end == 0 or marker_end >= len(stripped) or stripped[marker_end] != ".":
+        return False
+    remainder = stripped[marker_end + 1:]
+    return bool(remainder[:1].isspace() and remainder.rstrip().endswith(":"))
+
+
+def _is_named_child_opener(stripped: str) -> bool:
+    if not stripped.endswith(":"):
+        return False
+    name = stripped[:-1].strip()
+    return bool(name) and all(char.isalnum() or char in "_.-" for char in name)
+
+
 def _opens_indented_children(line: str) -> bool:
     stripped = line.lstrip()
     if stripped.startswith("@"):
         return True
-    if re.match(r"^\d+\.\s+.+:\s*$", stripped):
+    if _is_ordered_item_opener(stripped):
         return True
     if stripped[:2] in ("- ", "* ", "+ ") and stripped.rstrip().endswith(":"):
         return True
-    return bool(re.match(r"^[\w.-]+:\s*$", stripped))
+    return _is_named_child_opener(stripped)
 
 
 def _has_indented_parent(lines: list[str], index: int) -> bool:
