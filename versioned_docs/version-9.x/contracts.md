@@ -1,41 +1,56 @@
-# 컨트랙트 (Contracts)
+<!-- # Contracts -->
+# Contracts
 
-- [소개](#introduction)
-    - [컨트랙트와 파사드의 비교](#contracts-vs-facades)
-- [컨트랙트를 언제 사용해야 할까](#when-to-use-contracts)
-- [컨트랙트 사용 방법](#how-to-use-contracts)
-- [컨트랙트 레퍼런스](#contract-reference)
+- [Introduction](#introduction)
+    - [Contracts Vs. Facades](#contracts-vs-facades)
+- [When To Use Contracts](#when-to-use-contracts)
+- [How To Use Contracts](#how-to-use-contracts)
+- [Contract Reference](#contract-reference)
 
 <a name="introduction"></a>
-## 소개
+<!-- ## Introduction -->
+## Introduction
 
-라라벨의 "컨트랙트(contracts)"는 프레임워크가 제공하는 핵심 서비스의 동작을 정의한 일련의 인터페이스입니다. 예를 들어, `Illuminate\Contracts\Queue\Queue` 컨트랙트는 작업을 큐잉하기 위해 필요한 메서드들을 정의하고, `Illuminate\Contracts\Mail\Mailer` 컨트랙트는 이메일을 전송하는 데 필요한 메서드들을 정의합니다.
+<!-- Laravel's "contracts" are a set of interfaces that define the core services provided by the framework. For example, an `Illuminate\Contracts\Queue\Queue` contract defines the methods needed for queueing jobs, while the `Illuminate\Contracts\Mail\Mailer` contract defines the methods needed for sending e-mail. -->
+Laravel의 "컨트랙트(contracts)"는 프레임워크가 제공하는 핵심 서비스의 동작을 정의한 일련의 인터페이스입니다. 예를 들어, `Illuminate\Contracts\Queue\Queue` 컨트랙트는 작업을 큐잉하기 위해 필요한 메서드들을 정의하고, `Illuminate\Contracts\Mail\Mailer` 컨트랙트는 이메일을 전송하는 데 필요한 메서드들을 정의합니다.
 
-각 컨트랙트에는 프레임워크에서 제공하는 대응하는 구현체가 존재합니다. 예를 들어, 라라벨은 여러 종류의 드라이버로 동작하는 큐 시스템의 구현체와, [Symfony Mailer](https://symfony.com/doc/6.0/mailer.html)를 기반으로 한 메일러 구현체를 제공합니다.
+<!-- Each contract has a corresponding implementation provided by the framework. For example, Laravel provides a queue implementation with a variety of drivers, and a mailer implementation that is powered by [Symfony Mailer](https://symfony.com/doc/6.0/mailer.html). -->
+각 컨트랙트에는 프레임워크에서 제공하는 대응하는 구현체가 존재합니다. 예를 들어, Laravel은 여러 종류의 드라이버로 동작하는 큐 시스템의 구현체와, [Symfony Mailer](https://symfony.com/doc/6.0/mailer.html)를 기반으로 한 메일러 구현체를 제공합니다.
 
-모든 라라벨 컨트랙트는 [별도의 GitHub 저장소](https://github.com/illuminate/contracts)에서 관리되고 있습니다. 이 저장소는 사용 가능한 모든 컨트랙트를 빠르게 참조할 수 있을 뿐만 아니라, 라라벨 서비스와 연동하는 패키지를 만들 때 독립적으로 활용할 수 있는 패키지 역할도 합니다.
+<!-- All of the Laravel contracts live in [their own GitHub repository](https://github.com/illuminate/contracts). This provides a quick reference point for all available contracts, as well as a single, decoupled package that may be utilized when building packages that interact with Laravel services. -->
+모든 Laravel 컨트랙트는 [their own GitHub repository](https://github.com/illuminate/contracts)에서 관리되고 있습니다. 이 저장소는 사용 가능한 모든 컨트랙트를 빠르게 참조할 수 있을 뿐만 아니라, Laravel 서비스와 연동하는 패키지를 만들 때 독립적으로 활용할 수 있는 패키지 역할도 합니다.
 
 <a name="contracts-vs-facades"></a>
-### 컨트랙트와 파사드의 비교
+<!-- ### Contracts Vs. Facades -->
+### Contracts Vs. Facades
 
-라라벨의 [파사드](/docs/9.x/facades)와 다양한 헬퍼 함수들은 서비스 컨테이너에서 컨트랙트를 타입힌트하고 주입받지 않아도 라라벨의 서비스를 간편하게 활용할 수 있도록 해줍니다. 대부분의 경우, 각 파사드는 동일한 역할을 하는 컨트랙트와 1:1로 대응합니다.
+<!-- Laravel's [facades](/docs/9.x/facades) and helper functions provide a simple way of utilizing Laravel's services without needing to type-hint and resolve contracts out of the service container. In most cases, each facade has an equivalent contract. -->
+Laravel의 [facades](/docs/9.x/facades)와 다양한 헬퍼 함수들은 서비스 컨테이너에서 컨트랙트를 타입힌트하고 주입받지 않아도 Laravel의 서비스를 간편하게 활용할 수 있도록 해줍니다. 대부분의 경우, 각 파사드는 동일한 역할을 하는 컨트랙트와 1:1로 대응합니다.
 
+<!-- Unlike facades, which do not require you to require them in your class' constructor, contracts allow you to define explicit dependencies for your classes. Some developers prefer to explicitly define their dependencies in this way and therefore prefer to use contracts, while other developers enjoy the convenience of facades. **In general, most applications can use facades without issue during development.** -->
 파사드는 클래스의 생성자에서 익스플리싯하게 요구하지 않아도 되지만, 컨트랙트는 의존성을 명확하게 선언할 수 있습니다. 일부 개발자는 이런 방식으로 의존성을 명시적으로 정의하는 걸 선호해서 컨트랙트 사용을 더 좋아하고, 어떤 개발자는 파사드의 편의성을 선호하기도 합니다. **일반적으로, 대부분의 애플리케이션은 개발 중에 파사드를 문제없이 사용할 수 있습니다.**
 
 <a name="when-to-use-contracts"></a>
-## 컨트랙트를 언제 사용해야 할까
+<!-- ## When To Use Contracts -->
+## When To Use Contracts
 
-컨트랙트와 파사드 중 어떤 것을 사용할지는 여러분이나 팀의 취향에 따라 결정하면 됩니다. 둘 다 사용해서 견고하고 테스트 가능한 라라벨 애플리케이션을 충분히 만들 수 있습니다. 게다가 컨트랙트와 파사드는 서로 독립적인 관계가 아닌, 상황에 따라 일부 코드는 파사드를, 다른 코드는 컨트랙트를 사용할 수도 있습니다. 클래스의 역할만 명확하게 분리한다면 두 방식 모두 실질적으로 큰 차이를 느끼기 어렵습니다.
+<!-- The decision to use contracts or facades will come down to personal taste and the tastes of your development team. Both contracts and facades can be used to create robust, well-tested Laravel applications. Contracts and facades are not mutually exclusive. Some parts of your applications may use facades while others depend on contracts. As long as you are keeping your class' responsibilities focused, you will notice very few practical differences between using contracts and facades. -->
+컨트랙트와 파사드 중 어떤 것을 사용할지는 여러분이나 팀의 취향에 따라 결정하면 됩니다. 둘 다 사용해서 견고하고 테스트 가능한 Laravel 애플리케이션을 충분히 만들 수 있습니다. 게다가 컨트랙트와 파사드는 서로 독립적인 관계가 아닌, 상황에 따라 일부 코드는 파사드를, 다른 코드는 컨트랙트를 사용할 수도 있습니다. 클래스의 역할만 명확하게 분리한다면 두 방식 모두 실질적으로 큰 차이를 느끼기 어렵습니다.
 
-일반적으로는 개발 과정에서 파사드만 사용해도 문제가 없지만, 만약 여러 PHP 프레임워크와 연동되는 패키지를 만들고 있다면 `illuminate/contracts` 패키지를 통해 구현체를 직접 의존하지 않고 라라벨 서비스와 통합할 수 있습니다. 이를 통해 패키지의 `composer.json` 파일에 라라벨의 구체적인 구현체를 명시하지 않고도 연동할 수 있습니다.
+<!-- In general, most applications can use facades without issue during development. If you are building a package that integrates with multiple PHP frameworks you may wish to use the `illuminate/contracts` package to define your integration with Laravel's services without the need to require Laravel's concrete implementations in your package's `composer.json` file. -->
+일반적으로는 개발 과정에서 파사드만 사용해도 문제가 없지만, 만약 여러 PHP 프레임워크와 연동되는 패키지를 만들고 있다면 `illuminate/contracts` 패키지를 통해 구현체를 직접 의존하지 않고 Laravel 서비스와 통합할 수 있습니다. 이를 통해 패키지의 `composer.json` 파일에 Laravel의 구체적인 구현체를 명시하지 않고도 연동할 수 있습니다.
 
 <a name="how-to-use-contracts"></a>
-## 컨트랙트 사용 방법
+<!-- ## How To Use Contracts -->
+## How To Use Contracts
 
+<!-- So, how do you get an implementation of a contract? It's actually quite simple. -->
 컨트랙트의 구현체는 어떻게 받아올 수 있을까요? 실제로 꽤 간단합니다.
 
-라라벨의 많은 클래스 타입(컨트롤러, 이벤트 리스너, 미들웨어, 큐 작업, 라우트 클로저 등)은 모두 [서비스 컨테이너](/docs/9.x/container)에서 자동으로 인스턴스화됩니다. 즉, 컨트랙트의 구현체를 사용하고 싶다면, 해당 클래스의 생성자에 인터페이스를 타입힌트만 하면 됩니다.
+<!-- Many types of classes in Laravel are resolved through the [service container](/docs/9.x/container), including controllers, event listeners, middleware, queued jobs, and even route closures. So, to get an implementation of a contract, you can just "type-hint" the interface in the constructor of the class being resolved. -->
+Laravel의 많은 클래스 타입(컨트롤러, 이벤트 리스너, 미들웨어, 큐 작업, 라우트 클로저 등)은 모두 [service container](/docs/9.x/container)에서 자동으로 인스턴스화됩니다. 즉, 컨트랙트의 구현체를 사용하고 싶다면, 해당 클래스의 생성자에 인터페이스를 타입힌트만 하면 됩니다.
 
+<!-- For example, take a look at this event listener: -->
 예를 들어 다음과 같은 이벤트 리스너를 살펴봅시다:
 
 ```
@@ -80,12 +95,15 @@ class CacheOrderInformation
 }
 ```
 
-이벤트 리스너가 서비스 컨테이너에 의해 해석될 때, 생성자에 명시된 타입힌트를 읽어서 적절한 객체를 주입합니다. 서비스 컨테이너에 객체를 등록하는 방법 등 더 자세한 내용은 [해당 문서](/docs/9.x/container)를 참고하세요.
+<!-- When the event listener is resolved, the service container will read the type-hints on the constructor of the class, and inject the appropriate value. To learn more about registering things in the service container, check out [its documentation](/docs/9.x/container). -->
+이벤트 리스너가 서비스 컨테이너에 의해 해석될 때, 생성자에 명시된 타입힌트를 읽어서 적절한 객체를 주입합니다. 서비스 컨테이너에 객체를 등록하는 방법 등 더 자세한 내용은 [its documentation](/docs/9.x/container)를 참고하세요.
 
 <a name="contract-reference"></a>
-## 컨트랙트 레퍼런스
+<!-- ## Contract Reference -->
+## Contract Reference
 
-아래 표는 라라벨의 모든 컨트랙트와 이에 해당하는 파사드를 빠르게 참고할 수 있게 정리한 자료입니다:
+<!-- This table provides a quick reference to all of the Laravel contracts and their equivalent facades: -->
+아래 표는 Laravel의 모든 컨트랙트와 이에 해당하는 파사드를 빠르게 참고할 수 있게 정리한 자료입니다:
 
 | 컨트랙트                                                                                                                                                | 대응 파사드                |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|

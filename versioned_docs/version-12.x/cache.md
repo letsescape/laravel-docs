@@ -1,47 +1,57 @@
-# 캐시 (Cache)
+<!-- # Cache -->
+# Cache
 
-- [소개](#introduction)
-- [구성](#configuration)
-    - [드라이버 전제조건](#driver-prerequisites)
-- [캐시 사용량](#cache-usage)
-    - [캐시 인스턴스 획득](#obtaining-a-cache-instance)
-    - [캐시에서 항목 검색](#retrieving-items-from-the-cache)
-    - [캐시에 아이템 저장하기](#storing-items-in-the-cache)
-    - [캐시에서 항목 제거](#removing-items-from-the-cache)
-    - [캐시 메모](#cache-memoization)
-    - [캐시 도우미](#the-cache-helper)
-- [캐시 태그](#cache-tags)
-- [원자 잠금](#atomic-locks)
-    - [잠금 관리](#managing-locks)
-    - [프로세스 간 잠금 관리](#managing-locks-across-processes)
-    - [동시성 제한](#concurrency-limiting)
-- [캐시 장애 조치](#cache-failover)
-- [사용자 지정 캐시 드라이버 추가](#adding-custom-cache-drivers)
-    - [드라이버 작성](#writing-the-driver)
-    - [드라이버 등록](#registering-the-driver)
-- [이벤트](#events)
+- [Introduction](#introduction)
+- [Configuration](#configuration)
+    - [Driver Prerequisites](#driver-prerequisites)
+- [Cache Usage](#cache-usage)
+    - [Obtaining a Cache Instance](#obtaining-a-cache-instance)
+    - [Retrieving Items From the Cache](#retrieving-items-from-the-cache)
+    - [Storing Items in the Cache](#storing-items-in-the-cache)
+    - [Removing Items From the Cache](#removing-items-from-the-cache)
+    - [Cache Memoization](#cache-memoization)
+    - [The Cache Helper](#the-cache-helper)
+- [Cache Tags](#cache-tags)
+- [Atomic Locks](#atomic-locks)
+    - [Managing Locks](#managing-locks)
+    - [Managing Locks Across Processes](#managing-locks-across-processes)
+    - [Concurrency Limiting](#concurrency-limiting)
+- [Cache Failover](#cache-failover)
+- [Adding Custom Cache Drivers](#adding-custom-cache-drivers)
+    - [Writing the Driver](#writing-the-driver)
+    - [Registering the Driver](#registering-the-driver)
+- [Events](#events)
 
 <a name="introduction"></a>
-## 소개 (Introduction)
+<!-- ## Introduction -->
+## Introduction
 
+<!-- Some of the data retrieval or processing tasks performed by your application could be CPU intensive or take several seconds to complete. When this is the case, it is common to cache the retrieved data for a time so it can be retrieved quickly on subsequent requests for the same data. The cached data is usually stored in a very fast data store such as [Memcached](https://memcached.org) or [Redis](https://redis.io). -->
 애플리케이션에서 수행되는 일부 데이터 검색 또는 처리 작업은 CPU를 많이 사용하거나 완료하는 데 몇 초가 걸릴 수 있습니다. 이 경우 동일한 데이터에 대한 후속 요청에서 신속하게 검색할 수 있도록 검색된 데이터를 일정 기간 동안 캐시하는 것이 일반적입니다. 캐시된 데이터는 일반적으로 [Memcached](https://memcached.org) 또는 [Redis](https://redis.io)와 같은 매우 빠른 데이터 저장소에 저장됩니다.
 
+<!-- Thankfully, Laravel provides an expressive, unified API for various cache backends, allowing you to take advantage of their blazing fast data retrieval and speed up your web application. -->
 다행히도 Laravel는 다양한 캐시 백엔드를 위한 표현력이 뛰어나고 통합된 API를 제공하여 매우 빠른 데이터 검색을 활용하고 웹 애플리케이션 속도를 높일 수 있습니다.
 
 <a name="configuration"></a>
-## 구성 (Configuration)
+<!-- ## Configuration -->
+## Configuration
 
+<!-- Your application's cache configuration file is located at `config/cache.php`. In this file, you may specify which cache store you would like to be used by default throughout your application. Laravel supports popular caching backends like [Memcached](https://memcached.org), [Redis](https://redis.io), [DynamoDB](https://aws.amazon.com/dynamodb), and relational databases out of the box. In addition, a file based cache driver is available, while `array` and `null` cache drivers provide convenient cache backends for your automated tests. -->
 애플리케이션의 캐시 구성 파일은 `config/cache.php`에 있습니다. 이 파일에서는 애플리케이션 전체에서 기본적으로 사용할 캐시 저장소를 지정할 수 있습니다. Laravel는 [Memcached](https://memcached.org), [Redis](https://redis.io), [DynamoDB](https://aws.amazon.com/dynamodb)와 같은 널리 사용되는 캐싱 백엔드 및 관계형 데이터베이스를 즉시 지원합니다. 또한 파일 기반 캐시 드라이버를 사용할 수 있으며, `array` 및 `null` 캐시 드라이버는 자동화된 테스트를 위한 편리한 캐시 백엔드를 제공합니다.
 
+<!-- The cache configuration file also contains a variety of other options that you may review. By default, Laravel is configured to use the `database` cache driver, which stores the serialized, cached objects in your application's database. -->
 캐시 구성 파일에는 검토할 수 있는 다양한 기타 옵션도 포함되어 있습니다. 기본적으로 Laravel는 직렬화되고 캐시된 개체를 애플리케이션 데이터베이스에 저장하는 `database` 캐시 드라이버를 사용하도록 구성됩니다.
 
 <a name="driver-prerequisites"></a>
-### 드라이버 전제 조건
+<!-- ### Driver Prerequisites -->
+### Driver Prerequisites
 
 <a name="prerequisites-database"></a>
-#### 데이터 베이스
+<!-- #### Database -->
+#### Database
 
-`database` 캐시 드라이버를 사용하는 경우 캐시 데이터를 포함할 데이터베이스 테이블이 필요합니다. 일반적으로 이는 Laravel의 기본 `0001_01_01_000001_create_cache_table.php` [데이터베이스 마이그레이션](/docs/12.x/migrations)에 포함되어 있습니다. 그러나 애플리케이션에 이 마이그레이션이 포함되어 있지 않으면 `make:cache-table` Artisan 명령을 사용하여 생성할 수 있습니다.
+<!-- When using the `database` cache driver, you will need a database table to contain the cache data. Typically, this is included in Laravel's default `0001_01_01_000001_create_cache_table.php` [database migration](/docs/12.x/migrations); however, if your application does not contain this migration, you may use the `make:cache-table` Artisan command to create it: -->
+`database` 캐시 드라이버를 사용하는 경우 캐시 데이터를 포함할 데이터베이스 테이블이 필요합니다. 일반적으로 이는 Laravel의 기본 `0001_01_01_000001_create_cache_table.php` [database migration](/docs/12.x/migrations)에 포함되어 있습니다. 그러나 애플리케이션에 이 마이그레이션이 포함되어 있지 않으면 `make:cache-table` Artisan 명령을 사용하여 생성할 수 있습니다.
 
 ```shell
 php artisan make:cache-table
@@ -50,9 +60,11 @@ php artisan migrate
 ```
 
 <a name="memcached"></a>
+<!-- #### Memcached -->
 #### Memcached
 
-Memcached 드라이버를 사용하려면 [Memcached PECL 패키지](https://pecl.php.net/package/memcached)가 설치되어 있어야 합니다. `config/cache.php` 구성 파일에 모든 Memcached 서버를 나열할 수 있습니다. 이 파일에는 시작하는 데 도움이 되는 `memcached.servers` 항목이 이미 포함되어 있습니다.
+<!-- Using the Memcached driver requires the [Memcached PECL package](https://pecl.php.net/package/memcached) to be installed. You may list all of your Memcached servers in the `config/cache.php` configuration file. This file already contains a `memcached.servers` entry to get you started: -->
+Memcached 드라이버를 사용하려면 [Memcached PECL package](https://pecl.php.net/package/memcached)가 설치되어 있어야 합니다. `config/cache.php` 구성 파일에 모든 Memcached 서버를 나열할 수 있습니다. 이 파일에는 시작하는 데 도움이 되는 `memcached.servers` 항목이 이미 포함되어 있습니다.
 
 ```php
 'memcached' => [
@@ -68,6 +80,7 @@ Memcached 드라이버를 사용하려면 [Memcached PECL 패키지](https://pec
 ],
 ```
 
+<!-- If needed, you may set the `host` option to a UNIX socket path. If you do this, the `port` option should be set to `0`: -->
 필요한 경우 `host` 옵션을 UNIX 소켓 경로로 설정할 수 있습니다. 이렇게 하면 `port` 옵션이 `0`로 설정되어야 합니다.
 
 ```php
@@ -85,27 +98,36 @@ Memcached 드라이버를 사용하려면 [Memcached PECL 패키지](https://pec
 ```
 
 <a name="redis"></a>
+<!-- #### Redis -->
 #### Redis
 
+<!-- Before using a Redis cache with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package (~2.0) via Composer. [Laravel Sail](/docs/12.x/sail) already includes this extension. In addition, official Laravel application platforms such as [Laravel Cloud](https://cloud.laravel.com) and [Laravel Forge](https://forge.laravel.com) have the PhpRedis extension installed by default. -->
 Laravel와 함께 Redis 캐시를 사용하기 전에 PECL을 통해 PhpRedis PHP 확장을 설치하거나 Composer를 통해 `predis/predis` 패키지(~2.0)를 설치해야 합니다. [Laravel Sail](/docs/12.x/sail)에는 이미 이 확장 기능이 포함되어 있습니다. 또한 [Laravel Cloud](https://cloud.laravel.com) 및 [Laravel Forge](https://forge.laravel.com)와 같은 공식 Laravel 애플리케이션 플랫폼에는 기본적으로 PhpRedis 확장이 설치되어 있습니다.
 
-Redis 구성에 대한 자세한 내용은 [Laravel 설명서 페이지](/docs/12.x/redis#configuration)를 참조하세요.
+<!-- For more information on configuring Redis, consult its [Laravel documentation page](/docs/12.x/redis#configuration). -->
+Redis 구성에 대한 자세한 내용은 [Laravel documentation page](/docs/12.x/redis#configuration)를 참조하세요.
 
 <a name="dynamodb"></a>
+<!-- #### DynamoDB -->
 #### DynamoDB
 
+<!-- Before using the [DynamoDB](https://aws.amazon.com/dynamodb) cache driver, you must create a DynamoDB table to store all of the cached data. Typically, this table should be named `cache`. However, you should name the table based on the value of the `stores.dynamodb.table` configuration value within the `cache` configuration file. The table name may also be set via the `DYNAMODB_CACHE_TABLE` environment variable. -->
 [DynamoDB](https://aws.amazon.com/dynamodb) 캐시 드라이버를 사용하기 전에 캐시된 모든 데이터를 저장할 DynamoDB 테이블을 생성해야 합니다. 일반적으로 이 테이블의 이름은 `cache`로 지정되어야 합니다. 그러나 `cache` 구성 파일 내의 `stores.dynamodb.table` 구성 값을 기반으로 테이블 이름을 지정해야 합니다. 테이블 이름은 `DYNAMODB_CACHE_TABLE` 환경 변수를 통해 설정할 수도 있습니다.
 
+<!-- This table should also have a string partition key with a name that corresponds to the value of the `stores.dynamodb.attributes.key` configuration item within your application's `cache` configuration file. By default, the partition key should be named `key`. -->
 이 테이블에는 애플리케이션의 `cache` 구성 파일에 있는 `stores.dynamodb.attributes.key` 구성 항목의 값에 해당하는 이름의 문자열 파티션 키도 있어야 합니다. 기본적으로 파티션 키 이름은 `key`로 지정되어야 합니다.
 
-일반적으로 DynamoDB는 만료된 항목을 테이블에서 사전에 제거하지 않습니다. 따라서 테이블에서 [TTL(Time to Live)을 활성화](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html)해야 합니다. 테이블의 TTL 설정을 구성할 때 TTL 속성 이름을 `expires_at`로 설정해야 합니다.
+<!-- Typically, DynamoDB will not proactively remove expired items from a table. Therefore, you should [enable Time to Live (TTL)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html) on the table. When configuring the table's TTL settings, you should set the TTL attribute name to `expires_at`. -->
+일반적으로 DynamoDB는 만료된 항목을 테이블에서 사전에 제거하지 않습니다. 따라서 테이블에서 [enable Time to Live (TTL)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html)해야 합니다. 테이블의 TTL 설정을 구성할 때 TTL 속성 이름을 `expires_at`로 설정해야 합니다.
 
+<!-- Next, install the AWS SDK so that your Laravel application can communicate with DynamoDB: -->
 다음으로, Laravel 애플리케이션이 DynamoDB와 통신할 수 있도록 AWS SDK를 설치합니다.
 
 ```shell
 composer require aws/aws-sdk-php
 ```
 
+<!-- In addition, you should ensure that values are provided for the DynamoDB cache store configuration options. Typically these options, such as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, should be defined in your application's `.env` configuration file: -->
 또한 DynamoDB 캐시 저장소 구성 옵션에 대한 값이 제공되었는지 확인해야 합니다. 일반적으로 `AWS_ACCESS_KEY_ID` 및 `AWS_SECRET_ACCESS_KEY`와 같은 옵션은 애플리케이션의 `.env` 구성 파일에 정의되어야 합니다.
 
 ```php
@@ -120,18 +142,24 @@ composer require aws/aws-sdk-php
 ```
 
 <a name="mongodb"></a>
+<!-- #### MongoDB -->
 #### MongoDB
 
+<!-- If you are using MongoDB, a `mongodb` cache driver is provided by the official `mongodb/laravel-mongodb` package and can be configured using a `mongodb` database connection. MongoDB supports TTL indexes, which can be used to automatically clear expired cache items. -->
 MongoDB를 사용하는 경우 `mongodb` 캐시 드라이버는 공식 `mongodb/laravel-mongodb` 패키지에서 제공되며 `mongodb` 데이터베이스 연결을 사용하여 구성할 수 있습니다. MongoDB는 만료된 캐시 항목을 자동으로 지우는 데 사용할 수 있는 TTL 인덱스를 지원합니다.
 
-MongoDB 구성에 대한 자세한 내용은 MongoDB [캐시 및 잠금 문서](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/)를 참조하세요.
+<!-- For more information on configuring MongoDB, please refer to the MongoDB [Cache and Locks documentation](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/). -->
+MongoDB 구성에 대한 자세한 내용은 MongoDB [Cache and Locks documentation](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/)를 참조하세요.
 
 <a name="cache-usage"></a>
-## 캐시 사용량 (Cache Usage)
+<!-- ## Cache Usage -->
+## Cache Usage
 
 <a name="obtaining-a-cache-instance"></a>
-### 캐시 인스턴스 얻기
+<!-- ### Obtaining a Cache Instance -->
+### Obtaining a Cache Instance
 
+<!-- To obtain a cache store instance, you may use the `Cache` facade, which is what we will use throughout this documentation. The `Cache` facade provides convenient, terse access to the underlying implementations of the Laravel cache contracts: -->
 캐시 저장소 인스턴스를 얻으려면 이 문서 전체에서 사용할 `Cache` 외관을 사용할 수 있습니다. `Cache` 외관은 Laravel 캐시 계약의 기본 구현에 대한 편리하고 간결한 액세스를 제공합니다.
 
 ```php
@@ -158,8 +186,10 @@ class UserController extends Controller
 ```
 
 <a name="accessing-multiple-cache-stores"></a>
-#### 여러 캐시 저장소에 액세스
+<!-- #### Accessing Multiple Cache Stores -->
+#### Accessing Multiple Cache Stores
 
+<!-- Using the `Cache` facade, you may access various cache stores via the `store` method. The key passed to the `store` method should correspond to one of the stores listed in the `stores` configuration array in your `cache` configuration file: -->
 `Cache` 파사드를 사용하면 `store` 메소드를 통해 다양한 캐시 저장소에 접근할 수 있습니다. `store` 메서드에 전달된 키는 `cache` 구성 파일의 `stores` 구성 배열에 나열된 저장소 중 하나와 일치해야 합니다.
 
 ```php
@@ -169,8 +199,10 @@ Cache::store('redis')->put('bar', 'baz', 600); // 10 Minutes
 ```
 
 <a name="retrieving-items-from-the-cache"></a>
-### 캐시에서 항목 검색
+<!-- ### Retrieving Items From the Cache -->
+### Retrieving Items From the Cache
 
+<!-- The `Cache` facade's `get` method is used to retrieve items from the cache. If the item does not exist in the cache, `null` will be returned. If you wish, you may pass a second argument to the `get` method specifying the default value you wish to be returned if the item doesn't exist: -->
 `Cache` 파사드의 `get` 메소드는 캐시에서 항목을 검색하는 데 사용됩니다. 항목이 캐시에 없으면 `null`가 반환됩니다. 원하는 경우 항목이 존재하지 않는 경우 반환하려는 기본값을 지정하는 두 번째 인수를 `get` 메서드에 전달할 수 있습니다.
 
 ```php
@@ -179,6 +211,7 @@ $value = Cache::get('key');
 $value = Cache::get('key', 'default');
 ```
 
+<!-- You may even pass a closure as the default value. The result of the closure will be returned if the specified item does not exist in the cache. Passing a closure allows you to defer the retrieval of default values from a database or other external service: -->
 클로저를 기본값으로 전달할 수도 있습니다. 지정된 항목이 캐시에 없으면 폐쇄 결과가 반환됩니다. 클로저를 전달하면 데이터베이스나 기타 외부 서비스에서 기본값 검색을 연기할 수 있습니다.
 
 ```php
@@ -188,8 +221,10 @@ $value = Cache::get('key', function () {
 ```
 
 <a name="determining-item-existence"></a>
-#### 아이템 존재 여부 확인
+<!-- #### Determining Item Existence -->
+#### Determining Item Existence
 
+<!-- The `has` method may be used to determine if an item exists in the cache. This method will also return `false` if the item exists but its value is `null`: -->
 `has` 메서드는 캐시에 항목이 있는지 확인하는 데 사용될 수 있습니다. 항목이 존재하지만 해당 값이 `null`인 경우에도 이 메서드는 `false`를 반환합니다.
 
 ```php
@@ -199,8 +234,10 @@ if (Cache::has('key')) {
 ```
 
 <a name="incrementing-decrementing-values"></a>
-#### 값 증가/감소
+<!-- #### Incrementing / Decrementing Values -->
+#### Incrementing / Decrementing Values
 
+<!-- The `increment` and `decrement` methods may be used to adjust the value of integer items in the cache. Both of these methods accept an optional second argument indicating the amount by which to increment or decrement the item's value: -->
 `increment` 및 `decrement` 메소드는 캐시의 정수 항목 값을 조정하는 데 사용될 수 있습니다. 이 두 메소드 모두 항목 값을 늘리거나 줄일 양을 나타내는 선택적인 두 번째 인수를 허용합니다.
 
 ```php
@@ -215,8 +252,10 @@ Cache::decrement('key', $amount);
 ```
 
 <a name="retrieve-store"></a>
-#### 검색 및 저장
+<!-- #### Retrieve and Store -->
+#### Retrieve and Store
 
+<!-- Sometimes you may wish to retrieve an item from the cache, but also store a default value if the requested item doesn't exist. For example, you may wish to retrieve all users from the cache or, if they don't exist, retrieve them from the database and add them to the cache. You may do this using the `Cache::remember` method: -->
 때로는 캐시에서 항목을 검색하고 싶을 수도 있지만, 요청한 항목이 존재하지 않는 경우 기본값을 저장할 수도 있습니다. 예를 들어 캐시에서 모든 사용자를 검색하거나, 존재하지 않는 경우 데이터베이스에서 검색하여 캐시에 추가할 수 있습니다. `Cache::remember` 메소드를 사용하여 이 작업을 수행할 수 있습니다.
 
 ```php
@@ -225,8 +264,10 @@ $value = Cache::remember('users', $seconds, function () {
 });
 ```
 
+<!-- If the item does not exist in the cache, the closure passed to the `remember` method will be executed and its result will be placed in the cache. -->
 항목이 캐시에 없으면 `remember` 메서드에 전달된 클로저가 실행되고 해당 결과가 캐시에 저장됩니다.
 
+<!-- You may use the `rememberForever` method to retrieve an item from the cache or store it forever if it does not exist: -->
 `rememberForever` 메소드를 사용하여 캐시에서 항목을 검색하거나 항목이 존재하지 않는 경우 영원히 저장할 수 있습니다.
 
 ```php
@@ -236,13 +277,17 @@ $value = Cache::rememberForever('users', function () {
 ```
 
 <a name="swr"></a>
-#### 재검증하는 동안 유효하지 않음
+<!-- #### Stale While Revalidate -->
+#### Stale While Revalidate
 
+<!-- When using the `Cache::remember` method, some users may experience slow response times if the cached value has expired. For certain types of data, it can be useful to allow partially stale data to be served while the cached value is recalculated in the background, preventing some users from experiencing slow response times while cached values are calculated. This is often referred to as the "stale-while-revalidate" pattern, and the `Cache::flexible` method provides an implementation of this pattern. -->
 `Cache::remember` 방법을 사용할 때 캐시된 값이 만료되면 일부 사용자는 응답 시간이 느려질 수 있습니다. 특정 유형의 데이터의 경우 캐시된 값이 백그라운드에서 다시 계산되는 동안 부분적으로 오래된 데이터가 제공되도록 허용하여 캐시된 값이 계산되는 동안 일부 사용자의 응답 시간이 느려지는 것을 방지하는 것이 유용할 수 있습니다. 이를 종종 "재검증 중 오래된" 패턴이라고 하며, `Cache::flexible` 메서드는 이 패턴의 구현을 제공합니다.
 
+<!-- The flexible method accepts an array that specifies how long the cached value is considered "fresh" and when it becomes "stale". The first value in the array represents the number of seconds the cache is considered fresh, while the second value defines how long it can be served as stale data before recalculation is necessary. -->
 유연한 메서드는 캐시된 값이 "최신"으로 간주되는 기간과 "부실" 상태가 되는 시기를 지정하는 배열을 허용합니다. 배열의 첫 번째 값은 캐시가 새로운 것으로 간주되는 시간(초)을 나타내고, 두 번째 값은 재계산이 필요하기 전에 오래된 데이터로 제공될 수 있는 기간을 정의합니다.
 
-신규 기간(첫 번째 값 이전) 내에 요청이 이루어지면 재계산 없이 즉시 캐시를 반환합니다. 오래된 값(두 값 사이) 동안 요청이 이루어지면 오래된 값을 사용자에게 제공하고, 사용자에게 응답이 전송된 후 캐시된 값을 새로 고치도록 [지연 함수](/docs/12.x/helpers#deferred-functions)가 등록됩니다. 두 번째 값 이후에 요청이 이루어지면 캐시가 만료된 것으로 간주되고 값이 즉시 다시 계산되므로 사용자에 대한 응답이 느려질 수 있습니다.
+<!-- If a request is made within the fresh period (before the first value), the cache is returned immediately without recalculation. If a request is made during the stale period (between the two values), the stale value is served to the user, and a [deferred function](/docs/12.x/helpers#deferred-functions) is registered to refresh the cached value after the response is sent to the user. If a request is made after the second value, the cache is considered expired, and the value is recalculated immediately, which may result in a slower response for the user: -->
+신규 기간(첫 번째 값 이전) 내에 요청이 이루어지면 재계산 없이 즉시 캐시를 반환합니다. 오래된 값(두 값 사이) 동안 요청이 이루어지면 오래된 값을 사용자에게 제공하고, 사용자에게 응답이 전송된 후 캐시된 값을 새로 고치도록 [deferred function](/docs/12.x/helpers#deferred-functions)가 등록됩니다. 두 번째 값 이후에 요청이 이루어지면 캐시가 만료된 것으로 간주되고 값이 즉시 다시 계산되므로 사용자에 대한 응답이 느려질 수 있습니다.
 
 ```php
 $value = Cache::flexible('users', [5, 10], function () {
@@ -251,8 +296,10 @@ $value = Cache::flexible('users', [5, 10], function () {
 ```
 
 <a name="retrieve-delete"></a>
-#### 검색 및 삭제
+<!-- #### Retrieve and Delete -->
+#### Retrieve and Delete
 
+<!-- If you need to retrieve an item from the cache and then delete the item, you may use the `pull` method. Like the `get` method, `null` will be returned if the item does not exist in the cache: -->
 캐시에서 항목을 검색한 후 해당 항목을 삭제해야 하는 경우 `pull` 메서드를 사용할 수 있습니다. `get` 메서드와 마찬가지로 `null`는 항목이 캐시에 없으면 반환됩니다.
 
 ```php
@@ -262,20 +309,24 @@ $value = Cache::pull('key', 'default');
 ```
 
 <a name="storing-items-in-the-cache"></a>
-### 캐시에 항목 저장
+<!-- ### Storing Items in the Cache -->
+### Storing Items in the Cache
 
+<!-- You may use the `put` method on the `Cache` facade to store items in the cache: -->
 캐시에 항목을 저장하기 위해 `Cache` 파사드의 `put` 메소드를 사용할 수 있습니다:
 
 ```php
 Cache::put('key', 'value', $seconds = 10);
 ```
 
+<!-- If the storage time is not passed to the `put` method, the item will be stored indefinitely: -->
 `put` 메소드에 저장 시간이 전달되지 않으면 항목이 무기한 저장됩니다.
 
 ```php
 Cache::put('key', 'value');
 ```
 
+<!-- Instead of passing the number of seconds as an integer, you may also pass a `DateTime` instance representing the desired expiration time of the cached item: -->
 초 수를 정수로 전달하는 대신 캐시된 항목의 원하는 만료 시간을 나타내는 `DateTime` 인스턴스를 전달할 수도 있습니다.
 
 ```php
@@ -283,8 +334,10 @@ Cache::put('key', 'value', now()->plus(minutes: 10));
 ```
 
 <a name="store-if-not-present"></a>
-#### 존재하지 않는 경우 저장
+<!-- #### Store if Not Present -->
+#### Store if Not Present
 
+<!-- The `add` method will only add the item to the cache if it does not already exist in the cache store. The method will return `true` if the item is actually added to the cache. Otherwise, the method will return `false`. The `add` method is an atomic operation: -->
 `add` 메서드는 항목이 캐시 저장소에 아직 없는 경우에만 캐시에 항목을 추가합니다. 항목이 실제로 캐시에 추가되면 메서드는 `true`를 반환합니다. 그렇지 않으면 메서드는 `false`를 반환합니다. `add` 메서드는 원자성 작업입니다.
 
 ```php
@@ -292,8 +345,10 @@ Cache::add('key', 'value', $seconds);
 ```
 
 <a name="storing-items-forever"></a>
-#### 아이템을 영원히 보관하기
+<!-- #### Storing Items Forever -->
+#### Storing Items Forever
 
+<!-- The `forever` method may be used to store an item in the cache permanently. Since these items will not expire, they must be manually removed from the cache using the `forget` method: -->
 `forever` 메소드는 항목을 캐시에 영구적으로 저장하는 데 사용될 수 있습니다. 이러한 항목은 만료되지 않으므로 `forget` 메서드를 사용하여 캐시에서 수동으로 제거해야 합니다.
 
 ```php
@@ -304,14 +359,17 @@ Cache::forever('key', 'value');
 > Memcached 드라이버를 사용하는 경우 "영원히" 저장된 항목은 캐시가 크기 제한에 도달하면 제거될 수 있습니다.
 
 <a name="removing-items-from-the-cache"></a>
-### 캐시에서 항목 제거
+<!-- ### Removing Items From the Cache -->
+### Removing Items From the Cache
 
+<!-- You may remove items from the cache using the `forget` method: -->
 `forget` 메소드를 사용하여 캐시에서 항목을 제거할 수 있습니다:
 
 ```php
 Cache::forget('key');
 ```
 
+<!-- You may also remove items by providing a zero or negative number of expiration seconds: -->
 만료 시간(초)을 0 또는 음수로 제공하여 항목을 제거할 수도 있습니다.
 
 ```php
@@ -320,6 +378,7 @@ Cache::put('key', 'value', 0);
 Cache::put('key', 'value', -5);
 ```
 
+<!-- You may clear the entire cache using the `flush` method: -->
 `flush` 메소드를 사용하여 전체 캐시를 지울 수 있습니다:
 
 ```php
@@ -330,10 +389,13 @@ Cache::flush();
 > 캐시를 플러시하면 구성된 캐시 "접두사"가 적용되지 않으며 캐시에서 모든 항목이 제거됩니다. 다른 애플리케이션에서 공유하는 캐시를 지울 때 이 점을 주의 깊게 고려하십시오.
 
 <a name="cache-memoization"></a>
-### 캐시 메모이제이션
+<!-- ### Cache Memoization -->
+### Cache Memoization
 
+<!-- Laravel's `memo` cache driver allows you to temporarily store resolved cache values in memory during a single request or job execution. This prevents repeated cache hits within the same execution, significantly improving performance. -->
 Laravel의 `memo` 캐시 드라이버를 사용하면 단일 요청 또는 작업 실행 중에 확인된 캐시 값을 메모리에 일시적으로 저장할 수 있습니다. 이는 동일한 실행 내에서 반복되는 캐시 적중을 방지하여 성능을 크게 향상시킵니다.
 
+<!-- To use the memoized cache, invoke the `memo` method: -->
 메모된 캐시를 사용하려면 `memo` 메소드를 호출하십시오.
 
 ```php
@@ -342,6 +404,7 @@ use Illuminate\Support\Facades\Cache;
 $value = Cache::memo()->get('key');
 ```
 
+<!-- The `memo` method optionally accepts the name of a cache store, which specifies the underlying cache store the memoized driver will decorate: -->
 `memo` 메소드는 메모된 드라이버가 장식할 기본 캐시 저장소를 지정하는 캐시 저장소의 이름을 선택적으로 허용합니다.
 
 ```php
@@ -352,6 +415,7 @@ $value = Cache::memo()->get('key');
 $value = Cache::memo('redis')->get('key');
 ```
 
+<!-- The first `get` call for a given key retrieves the value from your cache store, but subsequent calls within the same request or job will retrieve the value from memory: -->
 특정 키에 대한 첫 번째 `get` 호출은 캐시 저장소에서 값을 검색하지만 동일한 요청 또는 작업 내의 후속 호출은 메모리에서 값을 검색합니다.
 
 ```php
@@ -362,6 +426,7 @@ $value = Cache::memo()->get('key');
 $value = Cache::memo()->get('key');
 ```
 
+<!-- When calling methods that modify cache values (such as `put`, `increment`, `remember`, etc.), the memoized cache automatically forgets the memoized value and delegates the mutating method call to the underlying cache store: -->
 캐시 값을 수정하는 메서드(예: `put`, `increment`, `remember` 등)를 호출하면 메모된 캐시는 자동으로 메모된 값을 잊어버리고 변경 메서드 호출을 기본 캐시 저장소에 위임합니다.
 
 ```php
@@ -374,14 +439,17 @@ Cache::memo()->get('name');           // Hits underlying cache again...
 ```
 
 <a name="the-cache-helper"></a>
-### 캐시 도우미
+<!-- ### The Cache Helper -->
+### The Cache Helper
 
+<!-- In addition to using the `Cache` facade, you may also use the global `cache` function to retrieve and store data via the cache. When the `cache` function is called with a single, string argument, it will return the value of the given key: -->
 `Cache` 파사드를 사용하는 것 외에도 전역 `cache` 함수를 사용하여 캐시를 통해 데이터를 검색하고 저장할 수도 있습니다. 단일 문자열 인수를 사용하여 `cache` 함수를 호출하면 지정된 키의 값이 반환됩니다.
 
 ```php
 $value = cache('key');
 ```
 
+<!-- If you provide an array of key / value pairs and an expiration time to the function, it will store values in the cache for the specified duration: -->
 함수에 키/값 쌍 배열과 만료 시간을 제공하면 지정된 기간 동안 값이 캐시에 저장됩니다.
 
 ```php
@@ -390,6 +458,7 @@ cache(['key' => 'value'], $seconds);
 cache(['key' => 'value'], now()->plus(minutes: 10));
 ```
 
+<!-- When the `cache` function is called without any arguments, it returns an instance of the `Illuminate\Contracts\Cache\Factory` implementation, allowing you to call other caching methods: -->
 인수 없이 `cache` 함수를 호출하면 `Illuminate\Contracts\Cache\Factory` 구현의 인스턴스가 반환되므로 다른 캐싱 메서드를 호출할 수 있습니다.
 
 ```php
@@ -399,17 +468,20 @@ cache()->remember('users', $seconds, function () {
 ```
 
 > [!NOTE]
-> 전역 `cache` 함수에 대한 호출을 테스트할 때 마치 [외관을 테스트](/docs/12.x/mocking#mocking-facades)하는 것처럼 `Cache::shouldReceive` 메서드를 사용할 수 있습니다.
+> 전역 `cache` 함수에 대한 호출을 테스트할 때 마치 [testing the facade](/docs/12.x/mocking#mocking-facades)하는 것처럼 `Cache::shouldReceive` 메서드를 사용할 수 있습니다.
 
 <a name="cache-tags"></a>
-## 캐시 태그 (Cache Tags)
+<!-- ## Cache Tags -->
+## Cache Tags
 
 > [!WARNING]
 > `file`, `dynamodb` 또는 `database` 캐시 드라이버를 사용하는 경우 캐시 태그가 지원되지 않습니다.
 
 <a name="storing-tagged-cache-items"></a>
-### 태그가 지정된 캐시 항목 저장
+<!-- ### Storing Tagged Cache Items -->
+### Storing Tagged Cache Items
 
+<!-- Cache tags allow you to tag related items in the cache and then flush all cached values that have been assigned a given tag. You may access a tagged cache by passing in an ordered array of tag names. For example, let's access a tagged cache and `put` a value into the cache: -->
 캐시 태그를 사용하면 캐시의 관련 항목에 태그를 지정한 다음 특정 태그에 할당된 캐시된 값을 모두 플러시할 수 있습니다. 태그 이름의 정렬된 배열을 전달하여 태그된 캐시에 액세스할 수 있습니다. 예를 들어 태그가 지정된 캐시에 액세스하고 `put` 값을 캐시에 액세스해 보겠습니다.
 
 ```php
@@ -420,8 +492,10 @@ Cache::tags(['people', 'authors'])->put('Anne', $anne, $seconds);
 ```
 
 <a name="accessing-tagged-cache-items"></a>
-### 태그가 지정된 캐시 항목에 액세스
+<!-- ### Accessing Tagged Cache Items -->
+### Accessing Tagged Cache Items
 
+<!-- Items stored via tags may not be accessed without also providing the tags that were used to store the value. To retrieve a tagged cache item, pass the same ordered list of tags to the `tags` method, then call the `get` method with the key you wish to retrieve: -->
 태그를 통해 저장된 항목은 값을 저장하는 데 사용된 태그를 제공하지 않으면 액세스할 수 없습니다. 태그가 지정된 캐시 항목을 검색하려면 동일한 순서의 태그 목록을 `tags` 메서드에 전달한 다음 검색하려는 키를 사용하여 `get` 메서드를 호출하세요.
 
 ```php
@@ -431,14 +505,17 @@ $anne = Cache::tags(['people', 'authors'])->get('Anne');
 ```
 
 <a name="removing-tagged-cache-items"></a>
-### 태그가 지정된 캐시 항목 제거
+<!-- ### Removing Tagged Cache Items -->
+### Removing Tagged Cache Items
 
+<!-- You may flush all items that are assigned a tag or list of tags. For example, the following code would remove all caches tagged with either `people`, `authors`, or both. So, both `Anne` and `John` would be removed from the cache: -->
 태그 또는 태그 목록이 할당된 모든 항목을 플러시할 수 있습니다. 예를 들어 다음 코드는 `people`, `authors` 또는 둘 다로 태그가 지정된 모든 캐시를 제거합니다. 따라서 `Anne` 및 `John`는 모두 캐시에서 제거됩니다.
 
 ```php
 Cache::tags(['people', 'authors'])->flush();
 ```
 
+<!-- In contrast, the code below would remove only cached values tagged with `authors`, so `Anne` would be removed, but not `John`: -->
 대조적으로, 아래 코드는 `authors`로 태그된 캐시된 값만 제거하므로 `Anne`는 제거되지만 `John`는 제거되지 않습니다.
 
 ```php
@@ -446,14 +523,17 @@ Cache::tags('authors')->flush();
 ```
 
 <a name="atomic-locks"></a>
-## 원자 잠금 (Atomic Locks)
+<!-- ## Atomic Locks -->
+## Atomic Locks
 
 > [!WARNING]
 > 이 기능을 활용하려면 애플리케이션에서 `memcached`, `redis`, `dynamodb`, `database`, `file` 또는 `array` 캐시 드라이버를 애플리케이션의 기본 캐시 드라이버로 사용해야 합니다. 또한 모든 서버는 동일한 중앙 캐시 서버와 통신해야 합니다.
 
 <a name="managing-locks"></a>
-### 잠금 관리
+<!-- ### Managing Locks -->
+### Managing Locks
 
+<!-- Atomic locks allow for the manipulation of distributed locks without worrying about race conditions. For example, [Laravel Cloud](https://cloud.laravel.com) uses atomic locks to ensure that only one remote task is being executed on a server at a time. You may create and manage locks using the `Cache::lock` method: -->
 원자 잠금을 사용하면 경쟁 조건을 걱정하지 않고 분산 잠금을 조작할 수 있습니다. 예를 들어, [Laravel Cloud](https://cloud.laravel.com)는 원자 잠금을 사용하여 서버에서 한 번에 하나의 원격 작업만 실행되도록 합니다. `Cache::lock` 메소드를 사용하여 잠금을 생성하고 관리할 수 있습니다:
 
 ```php
@@ -468,6 +548,7 @@ if ($lock->get()) {
 }
 ```
 
+<!-- The `get` method also accepts a closure. After the closure is executed, Laravel will automatically release the lock: -->
 `get` 메소드는 클로저도 허용합니다. 클로저가 실행된 후 Laravel는 자동으로 잠금을 해제합니다.
 
 ```php
@@ -476,6 +557,7 @@ Cache::lock('foo', 10)->get(function () {
 });
 ```
 
+<!-- If the lock is not available at the moment you request it, you may instruct Laravel to wait for a specified number of seconds. If the lock cannot be acquired within the specified time limit, an `Illuminate\Contracts\Cache\LockTimeoutException` will be thrown: -->
 요청하는 순간 잠금을 사용할 수 없는 경우 Laravel에 지정된 시간(초) 동안 기다리도록 지시할 수 있습니다. 지정된 시간 제한 내에 잠금을 획득할 수 없으면 `Illuminate\Contracts\Cache\LockTimeoutException`가 발생합니다.
 
 ```php
@@ -494,6 +576,7 @@ try {
 }
 ```
 
+<!-- The example above may be simplified by passing a closure to the `block` method. When a closure is passed to this method, Laravel will attempt to acquire the lock for the specified number of seconds and will automatically release the lock once the closure has been executed: -->
 위의 예는 클로저를 `block` 메소드에 전달하여 단순화할 수 있습니다. 클로저가 이 메소드에 전달되면 Laravel는 지정된 시간(초) 동안 잠금을 획득하려고 시도하고 클로저가 실행되면 자동으로 잠금을 해제합니다.
 
 ```php
@@ -503,10 +586,13 @@ Cache::lock('foo', 10)->block(5, function () {
 ```
 
 <a name="managing-locks-across-processes"></a>
-### 프로세스 간 잠금 관리
+<!-- ### Managing Locks Across Processes -->
+### Managing Locks Across Processes
 
+<!-- Sometimes, you may wish to acquire a lock in one process and release it in another process. For example, you may acquire a lock during a web request and wish to release the lock at the end of a queued job that is triggered by that request. In this scenario, you should pass the lock's scoped "owner token" to the queued job so that the job can re-instantiate the lock using the given token. -->
 때로는 한 프로세스에서 잠금을 획득하고 다른 프로세스에서 잠금을 해제하고 싶을 수도 있습니다. 예를 들어, 웹 요청 중에 잠금을 획득하고 해당 요청에 의해 트리거되는 대기 중인 작업이 끝날 때 잠금을 해제하려고 할 수 있습니다. 이 시나리오에서는 작업이 지정된 토큰을 사용하여 잠금을 다시 인스턴스화할 수 있도록 잠금의 범위가 지정된 "소유자 토큰"을 큐에 있는 작업에 전달해야 합니다.
 
+<!-- In the example below, we will dispatch a queued job if a lock is successfully acquired. In addition, we will pass the lock's owner token to the queued job via the lock's `owner` method: -->
 아래 예에서는 잠금이 성공적으로 획득되면 대기 중인 작업을 디스패치합니다. 또한 잠금의 `owner` 메서드를 통해 잠금의 소유자 토큰을 큐에 있는 작업에 전달합니다.
 
 ```php
@@ -519,12 +605,14 @@ if ($lock->get()) {
 }
 ```
 
+<!-- Within our application's `ProcessPodcast` job, we can restore and release the lock using the owner token: -->
 애플리케이션의 `ProcessPodcast` 작업 내에서 소유자 토큰을 사용하여 잠금을 복원하고 해제할 수 있습니다.
 
 ```php
 Cache::restoreLock('processing', $this->owner)->release();
 ```
 
+<!-- If you would like to release a lock without respecting its current owner, you may use the `forceRelease` method: -->
 현재 소유자를 고려하지 않고 잠금을 해제하려면 `forceRelease` 메소드를 사용할 수 있습니다.
 
 ```php
@@ -532,8 +620,10 @@ Cache::lock('processing')->forceRelease();
 ```
 
 <a name="concurrency-limiting"></a>
-### 동시성 제한
+<!-- ### Concurrency Limiting -->
+### Concurrency Limiting
 
+<!-- Laravel's atomic lock functionality also provides a few ways to limit concurrent execution of closures. Use `withoutOverlapping` when you want to allow only one running instance across your infrastructure: -->
 Laravel의 원자 잠금 기능은 클로저의 동시 실행을 제한하는 몇 가지 방법도 제공합니다. 인프라 전체에서 실행 중인 인스턴스를 하나만 허용하려면 `withoutOverlapping`를 사용하세요.
 
 ```php
@@ -542,6 +632,7 @@ Cache::withoutOverlapping('foo', function () {
 });
 ```
 
+<!-- By default, the lock is held until the closure finishes executing, and the method waits up to 10 seconds to acquire the lock. You may customize these values using additional arguments: -->
 기본적으로 잠금은 클로저 실행이 완료될 때까지 유지되며 메서드는 잠금을 획득하기 위해 최대 10초를 기다립니다. 추가 인수를 사용하여 이러한 값을 맞춤설정할 수 있습니다.
 
 ```php
@@ -550,8 +641,10 @@ Cache::withoutOverlapping('foo', function () {
 }, lockFor: 120, waitFor: 5);
 ```
 
+<!-- If the lock cannot be acquired within the specified wait time, an `Illuminate\Contracts\Cache\LockTimeoutException` will be thrown. -->
 지정된 대기 시간 내에 잠금을 획득할 수 없으면 `Illuminate\Contracts\Cache\LockTimeoutException`가 발생합니다.
 
+<!-- If you want controlled parallelism, use the `funnel` method to set a maximum number of concurrent executions. The `funnel` method works with any cache driver that supports locks: -->
 병렬 처리를 제어하려면 `funnel` 메서드를 사용하여 최대 동시 실행 수를 설정하세요. `funnel` 방법은 잠금을 지원하는 모든 캐시 드라이버에서 작동합니다.
 
 ```php
@@ -566,8 +659,10 @@ Cache::funnel('foo')
     });
 ```
 
+<!-- The `funnel` key identifies the resource being limited. The `limit` method defines the maximum concurrent executions. The `releaseAfter` method sets a safety timeout in seconds before an acquired slot is automatically released. The `block` method sets how many seconds to wait for an available slot. -->
 `funnel` 키는 제한되는 리소스를 식별합니다. `limit` 메서드는 최대 동시 실행을 정의합니다. `releaseAfter` 방법은 획득한 슬롯이 자동으로 해제되기 전에 안전 시간 초과를 초 단위로 설정합니다. `block` 방법은 사용 가능한 슬롯을 기다리는 시간(초)을 설정합니다.
 
+<!-- If you prefer to handle the timeout via exceptions instead of providing a failure closure, you may omit the second closure. An `Illuminate\Cache\Limiters\LimiterTimeoutException` will be thrown if the lock cannot be acquired within the specified wait time: -->
 실패 종료를 제공하는 대신 예외를 통해 시간 초과를 처리하려는 경우 두 번째 종료를 생략할 수 있습니다. 지정된 대기 시간 내에 잠금을 획득할 수 없으면 `Illuminate\Cache\Limiters\LimiterTimeoutException`가 발생합니다.
 
 ```php
@@ -586,6 +681,7 @@ try {
 }
 ```
 
+<!-- If you would like to use a specific cache store for the concurrency limiter, you may invoke the `funnel` method on the desired store: -->
 동시성 제한에 대해 특정 캐시 저장소를 사용하려면 원하는 저장소에서 `funnel` 메서드를 호출할 수 있습니다.
 
 ```php
@@ -601,10 +697,13 @@ Cache::store('redis')->funnel('foo')
 > `funnel` 방법에는 `Illuminate\Contracts\Cache\LockProvider` 인터페이스를 구현하기 위한 캐시 저장소가 필요합니다. 잠금을 지원하지 않는 캐시 저장소와 함께 `funnel`를 사용하려고 하면 `BadMethodCallException`가 발생합니다.
 
 <a name="cache-failover"></a>
-## 캐시 장애 조치 (Cache Failover)
+<!-- ## Cache Failover -->
+## Cache Failover
 
+<!-- The `failover` cache driver provides automatic failover functionality when interacting with the cache. If the primary cache store of the `failover` store fails for any reason, Laravel will automatically attempt to use the next configured store in the list. This is particularly useful for ensuring high availability in production environments where cache reliability is critical. -->
 `failover` 캐시 드라이버는 캐시와 상호 작용할 때 자동 장애 조치 기능을 제공합니다. 어떤 이유로든 `failover` 저장소의 기본 캐시 저장소가 실패하면 Laravel는 자동으로 목록에 구성된 다음 저장소를 사용하려고 시도합니다. 이는 캐시 안정성이 중요한 프로덕션 환경에서 고가용성을 보장하는 데 특히 유용합니다.
 
+<!-- To configure a failover cache store, specify the `failover` driver and provide an array of store names to attempt in order. By default, Laravel includes an example failover configuration in your application's `config/cache.php` configuration file: -->
 장애 조치 캐시 저장소를 구성하려면 `failover` 드라이버를 지정하고 순서대로 시도할 저장소 이름 배열을 제공합니다. 기본적으로 Laravel에는 애플리케이션의 `config/cache.php` 구성 파일에 장애 조치 구성 예시가 포함되어 있습니다.
 
 ```php
@@ -617,21 +716,26 @@ Cache::store('redis')->funnel('foo')
 ],
 ```
 
+<!-- Once you have configured a store that uses the `failover` driver, you will need to set the failover store as your default cache store in your application's `.env` file to make use of the failover functionality: -->
 `failover` 드라이버를 사용하는 저장소를 구성한 후에는 장애 조치 기능을 활용하려면 애플리케이션의 `.env` 파일에서 장애 조치 저장소를 기본 캐시 저장소로 설정해야 합니다.
 
 ```ini
 CACHE_STORE=failover
 ```
 
+<!-- When a cache store operation fails and failover is activated, Laravel will dispatch the `Illuminate\Cache\Events\CacheFailedOver` event, allowing you to report or log that a cache store has failed. -->
 캐시 저장소 작업이 실패하고 장애 조치가 활성화되면 Laravel는 디스패치를 `Illuminate\Cache\Events\CacheFailedOver` 이벤트로 지정하여 캐시 저장소가 실패했음을 보고하거나 기록할 수 있습니다.
 
 <a name="adding-custom-cache-drivers"></a>
-## 사용자 지정 캐시 드라이버 추가 (Adding Custom Cache Drivers)
+<!-- ## Adding Custom Cache Drivers -->
+## Adding Custom Cache Drivers
 
 <a name="writing-the-driver"></a>
-### 드라이버 작성
+<!-- ### Writing the Driver -->
+### Writing the Driver
 
-사용자 지정 캐시 드라이버를 생성하려면 먼저 `Illuminate\Contracts\Cache\Store` [계약](/docs/12.x/contracts)을 구현해야 합니다. 따라서 MongoDB 캐시 구현은 다음과 같을 수 있습니다.
+<!-- To create our custom cache driver, we first need to implement the `Illuminate\Contracts\Cache\Store` [contract](/docs/12.x/contracts). So, a MongoDB cache implementation might look something like this: -->
+사용자 지정 캐시 드라이버를 생성하려면 먼저 `Illuminate\Contracts\Cache\Store` [contract](/docs/12.x/contracts)을 구현해야 합니다. 따라서 MongoDB 캐시 구현은 다음과 같을 수 있습니다.
 
 ```php
 <?php
@@ -655,7 +759,8 @@ class MongoStore implements Store
 }
 ```
 
-MongoDB 연결을 사용하여 이러한 각 메서드를 구현하면 됩니다. 이러한 각 메서드를 구현하는 방법에 대한 예는 [Laravel 프레임워크 소스 코드](https://github.com/laravel/framework)의 `Illuminate\Cache\MemcachedStore`를 살펴보세요. 구현이 완료되면 `Cache` 파사드의 `extend` 메소드를 호출하여 사용자 지정 드라이버 등록을 완료할 수 있습니다.
+<!-- We just need to implement each of these methods using a MongoDB connection. For an example of how to implement each of these methods, take a look at the `Illuminate\Cache\MemcachedStore` in the [Laravel framework source code](https://github.com/laravel/framework). Once our implementation is complete, we can finish our custom driver registration by calling the `Cache` facade's `extend` method: -->
+MongoDB 연결을 사용하여 이러한 각 메서드를 구현하면 됩니다. 이러한 각 메서드를 구현하는 방법에 대한 예는 [Laravel framework source code](https://github.com/laravel/framework)의 `Illuminate\Cache\MemcachedStore`를 살펴보세요. 구현이 완료되면 `Cache` 파사드의 `extend` 메소드를 호출하여 사용자 지정 드라이버 등록을 완료할 수 있습니다.
 
 ```php
 Cache::extend('mongo', function (Application $app) {
@@ -667,8 +772,10 @@ Cache::extend('mongo', function (Application $app) {
 > 사용자 지정 캐시 드라이버 코드를 어디에 넣을지 궁금하다면 `app` 디렉터리 내에 `Extensions` 네임스페이스를 만들 수 있습니다. 그러나 Laravel에는 엄격한 애플리케이션 구조가 없으며 원하는 대로 애플리케이션을 자유롭게 구성할 수 있다는 점을 명심하세요.
 
 <a name="registering-the-driver"></a>
-### 드라이버 등록
+<!-- ### Registering the Driver -->
+### Registering the Driver
 
+<!-- To register the custom cache driver with Laravel, we will use the `extend` method on the `Cache` facade. Since other service providers may attempt to read cached values within their `boot` method, we will register our custom driver within a `booting` callback. By using the `booting` callback, we can ensure that the custom driver is registered just before the `boot` method is called on our application's service providers but after the `register` method is called on all of the service providers. We will register our `booting` callback within the `register` method of our application's `App\Providers\AppServiceProvider` class: -->
 사용자 지정 캐시 드라이버를 Laravel에 등록하기 위해 `Cache` 파사드에서 `extend` 메소드를 사용합니다. 다른 서비스 프로바이더가 `boot` 메서드 내에서 캐시된 값을 읽으려고 시도할 수 있으므로 `booting` 콜백 내에 사용자 지정 드라이버를 등록하겠습니다. `booting` 콜백을 사용하면 애플리케이션의 서비스 프로바이더에서 `boot` 메서드가 호출되기 직전에 `register` 메서드가 모든 서비스 프로바이더에서 호출된 후에 사용자 지정 드라이버가 등록되도록 할 수 있습니다. 애플리케이션 `App\Providers\AppServiceProvider` 클래스의 `register` 메서드 내에 `booting` 콜백을 등록합니다.
 
 ```php
@@ -705,15 +812,20 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
-`extend` 메소드에 전달된 첫 번째 인수는 드라이버의 이름입니다. 이는 `config/cache.php` 구성 파일의 `driver` 옵션에 해당합니다. 두 번째 인수는 `Illuminate\Cache\Repository` 인스턴스를 반환해야 하는 클로저입니다. 클로저에는 [서비스 컨테이너](/docs/12.x/container)의 인스턴스인 `$app` 인스턴스가 전달됩니다.
+<!-- The first argument passed to the `extend` method is the name of the driver. This will correspond to your `driver` option in the `config/cache.php` configuration file. The second argument is a closure that should return an `Illuminate\Cache\Repository` instance. The closure will be passed an `$app` instance, which is an instance of the [service container](/docs/12.x/container). -->
+`extend` 메소드에 전달된 첫 번째 인수는 드라이버의 이름입니다. 이는 `config/cache.php` 구성 파일의 `driver` 옵션에 해당합니다. 두 번째 인수는 `Illuminate\Cache\Repository` 인스턴스를 반환해야 하는 클로저입니다. 클로저에는 [service container](/docs/12.x/container)의 인스턴스인 `$app` 인스턴스가 전달됩니다.
 
+<!-- Once your extension is registered, update the `CACHE_STORE` environment variable or `default` option within your application's `config/cache.php` configuration file to the name of your extension. -->
 확장이 등록되면 애플리케이션의 `config/cache.php` 구성 파일 내 `CACHE_STORE` 환경 변수 또는 `default` 옵션을 확장 이름으로 업데이트하세요.
 
 <a name="events"></a>
-## 이벤트 (Events)
+<!-- ## Events -->
+## Events
 
-모든 캐시 작업에서 코드를 실행하려면 캐시를 통해 다양한 [이벤트](/docs/12.x/events) 디스패치를 수신할 수 있습니다.
+<!-- To execute code on every cache operation, you may listen for various [events](/docs/12.x/events) dispatched by the cache: -->
+모든 캐시 작업에서 코드를 실행하려면 캐시를 통해 다양한 [events](/docs/12.x/events) 디스패치를 수신할 수 있습니다.
 
+<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
 | 이벤트 이름 |
@@ -732,8 +844,10 @@ class AppServiceProvider extends ServiceProvider
 | `Illuminate\Cache\Events\WritingKey` |
 | `Illuminate\Cache\Events\WritingManyKeys` |
 
+<!-- </div> -->
 </div>
 
+<!-- To increase performance, you may disable cache events by setting the `events` configuration option to `false` for a given cache store in your application's `config/cache.php` configuration file: -->
 성능을 높이려면 애플리케이션의 `config/cache.php` 구성 파일에서 특정 캐시 저장소에 대해 `events` 구성 옵션을 `false`로 설정하여 캐시 이벤트를 비활성화할 수 있습니다.
 
 ```php

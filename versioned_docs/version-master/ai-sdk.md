@@ -1,65 +1,72 @@
-# Laravel AI SDK (Laravel AI SDK)
+<!-- # Laravel AI SDK -->
+# Laravel AI SDK
 
-- [소개](#introduction)
-- [설치](#installation)
-    - [설정](#configuration)
-    - [사용자 정의 Base URL](#custom-base-urls)
-    - [프로바이더 지원](#provider-support)
-- [에이전트](#agents)
-    - [프롬프트 작성](#prompting)
-    - [대화 컨텍스트](#conversation-context)
-    - [구조화된 출력](#structured-output)
-    - [첨부 파일](#attachments)
-    - [스트리밍](#streaming)
-    - [브로드캐스팅](#broadcasting)
-    - [큐 처리](#queueing)
-    - [도구](#tools)
-    - [프로바이더 도구](#provider-tools)
-    - [미들웨어](#middleware)
-    - [익명 에이전트](#anonymous-agents)
-    - [에이전트 설정](#agent-configuration)
-- [이미지](#images)
-- [오디오 (TTS)](#audio)
-- [전사 (STT)](#transcription)
-- [임베딩](#embeddings)
-    - [임베딩 쿼리](#querying-embeddings)
-    - [임베딩 캐싱](#caching-embeddings)
-- [재순위화](#reranking)
-- [파일](#files)
-- [벡터 저장소](#vector-stores)
-    - [저장소에 파일 추가하기](#adding-files-to-stores)
-- [장애 조치](#failover)
-- [테스트](#testing)
-    - [에이전트](#testing-agents)
-    - [이미지](#testing-images)
-    - [오디오](#testing-audio)
-    - [전사](#testing-transcriptions)
-    - [임베딩](#testing-embeddings)
-    - [재순위화](#testing-reranking)
-    - [파일](#testing-files)
-    - [벡터 저장소](#testing-vector-stores)
-- [이벤트](#events)
+- [Introduction](#introduction)
+- [Installation](#installation)
+    - [Configuration](#configuration)
+    - [Custom Base URLs](#custom-base-urls)
+    - [Provider Support](#provider-support)
+- [Agents](#agents)
+    - [Prompting](#prompting)
+    - [Conversation Context](#conversation-context)
+    - [Structured Output](#structured-output)
+    - [Attachments](#attachments)
+    - [Streaming](#streaming)
+    - [Broadcasting](#broadcasting)
+    - [Queueing](#queueing)
+    - [Tools](#tools)
+    - [Provider Tools](#provider-tools)
+    - [Middleware](#middleware)
+    - [Anonymous Agents](#anonymous-agents)
+    - [Agent Configuration](#agent-configuration)
+- [Images](#images)
+- [Audio (TTS)](#audio)
+- [Transcription (STT)](#transcription)
+- [Embeddings](#embeddings)
+    - [Querying Embeddings](#querying-embeddings)
+    - [Caching Embeddings](#caching-embeddings)
+- [Reranking](#reranking)
+- [Files](#files)
+- [Vector Stores](#vector-stores)
+    - [Adding Files to Stores](#adding-files-to-stores)
+- [Failover](#failover)
+- [Testing](#testing)
+    - [Agents](#testing-agents)
+    - [Images](#testing-images)
+    - [Audio](#testing-audio)
+    - [Transcriptions](#testing-transcriptions)
+    - [Embeddings](#testing-embeddings)
+    - [Reranking](#testing-reranking)
+    - [Files](#testing-files)
+    - [Vector Stores](#testing-vector-stores)
+- [Events](#events)
 
 <a name="introduction"></a>
-## 소개 (Introduction)
+<!-- ## Introduction -->
+## Introduction
 
+<!-- The [Laravel AI SDK](https://github.com/laravel/ai) provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. With the AI SDK, you can build intelligent agents with tools and structured output, generate images, synthesize and transcribe audio, create vector embeddings, and much more — all using a consistent, Laravel-friendly interface. -->
 [Laravel AI SDK](https://github.com/laravel/ai)는 OpenAI, Anthropic, Gemini 등 여러 AI 프로바이더와 상호작용할 수 있는 통합적이고 표현력 있는 API를 제공합니다. AI SDK를 사용하면 도구와 구조화된 출력을 갖춘 지능형 에이전트를 만들고, 이미지를 생성하며, 오디오를 합성하고 전사하고, 벡터 임베딩을 생성하는 등 다양한 작업을 일관되고 Laravel 친화적인 인터페이스로 수행할 수 있습니다.
 
 <a name="installation"></a>
-## 설치 (Installation)
+<!-- ## Installation -->
+## Installation
 
+<!-- You can install the Laravel AI SDK via Composer: -->
 Composer를 통해 Laravel AI SDK를 설치할 수 있습니다.
 
 ```shell
 composer require laravel/ai
 ```
 
+<!-- Next, you should publish the AI SDK configuration and migration files using the `vendor:publish` Artisan command: -->
 다음으로, `vendor:publish` Artisan 명령어를 사용하여 AI SDK 설정 파일과 마이그레이션 파일을 발행해야 합니다.
 
 ```shell
 php artisan vendor:publish --provider="Laravel\Ai\AiServiceProvider"
 ```
 
+<!-- Finally, you should run your application's database migrations. This will create a `agent_conversations` and `agent_conversation_messages` table that the AI SDK uses to power its conversation storage: -->
 마지막으로, 애플리케이션의 데이터베이스 마이그레이션을 실행해야 합니다. 그러면 AI SDK가 대화 저장소 기능을 제공하는 데 사용하는 `agent_conversations` 및 `agent_conversation_messages` 테이블이 생성됩니다.
 
 ```shell
@@ -67,8 +74,10 @@ php artisan migrate
 ```
 
 <a name="configuration"></a>
-### 설정
+<!-- ### Configuration -->
+### Configuration
 
+<!-- You may define your AI provider credentials in your application's `config/ai.php` configuration file or as environment variables in your application's `.env` file: -->
 AI 프로바이더 인증 정보는 애플리케이션의 `config/ai.php` 설정 파일이나 애플리케이션의 `.env` 파일에 환경 변수로 정의할 수 있습니다.
 
 ```ini
@@ -84,13 +93,17 @@ VOYAGEAI_API_KEY=
 XAI_API_KEY=
 ```
 
+<!-- The default models used for text, images, audio, transcription, and embeddings may also be configured in your application's `config/ai.php` configuration file. -->
 텍스트, 이미지, 오디오, 전사, 임베딩에 사용되는 기본 모델도 애플리케이션의 `config/ai.php` 설정 파일에서 구성할 수 있습니다.
 
 <a name="custom-base-urls"></a>
-### 사용자 정의 Base URL
+<!-- ### Custom Base URLs -->
+### Custom Base URLs
 
+<!-- By default, the Laravel AI SDK connects directly to each provider's public API endpoint. However, you may need to route requests through a different endpoint - for example, when using a proxy service to centralize API key management, implement rate limiting, or route traffic through a corporate gateway. -->
 기본적으로 Laravel AI SDK는 각 프로바이더의 공개 API 엔드포인트에 직접 연결합니다. 하지만 다른 엔드포인트를 통해 요청을 라우팅해야 할 수도 있습니다. 예를 들어 API 키 관리를 중앙화하거나, 속도 제한을 구현하거나, 회사 게이트웨이를 통해 트래픽을 라우팅하기 위해 프록시 서비스를 사용하는 경우가 있습니다.
 
+<!-- You may configure custom base URLs by adding a `url` parameter to your provider configuration: -->
 프로바이더 설정에 `url` 매개변수를 추가하여 사용자 정의 Base URL을 구성할 수 있습니다.
 
 ```php
@@ -109,13 +122,17 @@ XAI_API_KEY=
 ],
 ```
 
+<!-- This is useful when routing requests through a proxy service (such as LiteLLM or Azure OpenAI Gateway) or using alternative endpoints. -->
 이는 프록시 서비스(예: LiteLLM 또는 Azure OpenAI Gateway)를 통해 요청을 라우팅하거나 대체 엔드포인트를 사용할 때 유용합니다.
 
+<!-- Custom base URLs are supported for the following providers: OpenAI, Anthropic, Gemini, Groq, Cohere, DeepSeek, xAI, and OpenRouter. -->
 사용자 정의 Base URL은 다음 프로바이더에서 지원됩니다: OpenAI, Anthropic, Gemini, Groq, Cohere, DeepSeek, xAI, OpenRouter.
 
 <a name="provider-support"></a>
-### 프로바이더 지원
+<!-- ### Provider Support -->
+### Provider Support
 
+<!-- The AI SDK supports a variety of providers across its features. The following table summarizes which providers are available for each feature: -->
 AI SDK는 기능별로 다양한 프로바이더를 지원합니다. 다음 표는 각 기능에서 사용할 수 있는 프로바이더를 요약합니다.
 
 | 기능 | 프로바이더 |
@@ -128,6 +145,7 @@ AI SDK는 기능별로 다양한 프로바이더를 지원합니다. 다음 표�
 | 재순위화 | Cohere, Jina |
 | 파일 | OpenAI, Anthropic, Gemini |
 
+<!-- The `Laravel\Ai\Enums\Lab` enum may be used to reference providers throughout your code instead of using plain strings: -->
 코드 전반에서 일반 문자열 대신 `Laravel\Ai\Enums\Lab` enum을 사용하여 프로바이더를 참조할 수 있습니다.
 
 ```php
@@ -140,10 +158,13 @@ Lab::Gemini;
 ```
 
 <a name="agents"></a>
-## 에이전트 (Agents)
+<!-- ## Agents -->
+## Agents
 
+<!-- Agents are the fundamental building block for interacting with AI providers in the Laravel AI SDK. Each agent is a dedicated PHP class that encapsulates the instructions, conversation context, tools, and output schema needed to interact with a large language model. Think of an agent as a specialized assistant — a sales coach, a document analyzer, a support bot — that you configure once and prompt as needed throughout your application. -->
 에이전트는 Laravel AI SDK에서 AI 프로바이더와 상호작용하기 위한 기본 구성 요소입니다. 각 에이전트는 대규모 언어 모델과 상호작용하는 데 필요한 지침, 대화 컨텍스트, 도구, 출력 스키마를 캡슐화한 전용 PHP 클래스입니다. 에이전트를 한 번 구성해 두고 애플리케이션 전반에서 필요할 때 프롬프트를 전달해 사용하는 특화된 어시스턴트라고 생각하면 됩니다. 예를 들어 영업 코치, 문서 분석기, 지원 봇 등이 될 수 있습니다.
 
+<!-- You can create an agent via the `make:agent` Artisan command: -->
 `make:agent` Artisan 명령어를 통해 에이전트를 생성할 수 있습니다.
 
 ```shell
@@ -152,6 +173,7 @@ php artisan make:agent SalesCoach
 php artisan make:agent SalesCoach --structured
 ```
 
+<!-- Within the generated agent class, you can define the system prompt / instructions, message context, available tools, and output schema (if applicable): -->
 생성된 에이전트 클래스 안에서 시스템 프롬프트 / 지침, 메시지 컨텍스트, 사용 가능한 도구, 출력 스키마(해당하는 경우)를 정의할 수 있습니다.
 
 ```php
@@ -226,8 +248,10 @@ class SalesCoach implements Agent, Conversational, HasTools, HasStructuredOutput
 ```
 
 <a name="prompting"></a>
-### 프롬프트 작성
+<!-- ### Prompting -->
+### Prompting
 
+<!-- To prompt an agent, first create an instance using the `make` method or standard instantiation, then call `prompt`: -->
 에이전트에 프롬프트를 전달하려면 먼저 `make` 메서드 또는 일반적인 인스턴스화를 사용해 인스턴스를 만든 다음, `prompt`를 호출합니다.
 
 ```php
@@ -240,12 +264,14 @@ $response = SalesCoach::make()
 return (string) $response;
 ```
 
+<!-- The `make` method resolves your agent from the container, allowing automatic dependency injection. You may also pass arguments to the agent's constructor: -->
 `make` 메서드는 컨테이너에서 에이전트를 해석하므로 자동 의존성 주입을 사용할 수 있습니다. 에이전트 생성자에 인수를 전달할 수도 있습니다.
 
 ```php
 $agent = SalesCoach::make(user: $user);
 ```
 
+<!-- By passing additional arguments to the `prompt` method, you may override the default provider, model, or HTTP timeout when prompting: -->
 `prompt` 메서드에 추가 인수를 전달하면 프롬프트를 보낼 때 기본 프로바이더, 모델 또는 HTTP 타임아웃을 재정의할 수 있습니다.
 
 ```php
@@ -258,8 +284,10 @@ $response = (new SalesCoach)->prompt(
 ```
 
 <a name="conversation-context"></a>
-### 대화 컨텍스트
+<!-- ### Conversation Context -->
+### Conversation Context
 
+<!-- If your agent implements the `Conversational` interface, you may use the `messages` method to return the previous conversation context, if applicable: -->
 에이전트가 `Conversational` 인터페이스를 구현하는 경우, 해당된다면 `messages` 메서드를 사용해 이전 대화 컨텍스트를 반환할 수 있습니다.
 
 ```php
@@ -283,10 +311,12 @@ public function messages(): iterable
 ```
 
 <a name="remembering-conversations"></a>
-#### 대화 기억하기
+<!-- #### Remembering Conversations -->
+#### Remembering Conversations
 
 > **참고:** `RemembersConversations` trait을 사용하기 전에 `vendor:publish` Artisan 명령어를 사용하여 AI SDK 마이그레이션을 발행하고 실행해야 합니다. 이 마이그레이션은 대화를 저장하는 데 필요한 데이터베이스 테이블을 생성합니다.
 
+<!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel이 에이전트의 대화 기록을 자동으로 저장하고 가져오도록 하고 싶다면 `RemembersConversations` trait을 사용할 수 있습니다. 이 trait은 `Conversational` 인터페이스를 직접 구현하지 않고도 대화 메시지를 데이터베이스에 유지할 수 있는 간단한 방법을 제공합니다.
 
 ```php
@@ -313,6 +343,7 @@ class SalesCoach implements Agent, Conversational
 }
 ```
 
+<!-- To start a new conversation for a user, call the `forUser` method before prompting: -->
 사용자에 대한 새 대화를 시작하려면 프롬프트를 보내기 전에 `forUser` 메서드를 호출합니다.
 
 ```php
@@ -321,8 +352,10 @@ $response = (new SalesCoach)->forUser($user)->prompt('Hello!');
 $conversationId = $response->conversationId;
 ```
 
+<!-- The conversation ID is returned on the response and can be stored for future reference, or you can retrieve all of a user's conversations from the `agent_conversations` table directly. -->
 대화 ID는 응답에서 반환되며 나중에 참조하기 위해 저장할 수 있습니다. 또는 `agent_conversations` 테이블에서 사용자의 모든 대화를 직접 가져올 수도 있습니다.
 
+<!-- To continue an existing conversation, use the `continue` method: -->
 기존 대화를 이어가려면 `continue` 메서드를 사용합니다.
 
 ```php
@@ -331,11 +364,14 @@ $response = (new SalesCoach)
     ->prompt('Tell me more about that.');
 ```
 
+<!-- When using the `RemembersConversations` trait, previous messages are automatically loaded and included in the conversation context when prompting. New messages (both user and assistant) are automatically stored after each interaction. -->
 `RemembersConversations` trait을 사용할 때는 프롬프트를 보낼 때 이전 메시지가 자동으로 로드되어 대화 컨텍스트에 포함됩니다. 새 메시지(사용자와 어시스턴트 모두)는 각 상호작용 후 자동으로 저장됩니다.
 
 <a name="structured-output"></a>
-### 구조화된 출력
+<!-- ### Structured Output -->
+### Structured Output
 
+<!-- If you would like your agent to return structured output, implement the `HasStructuredOutput` interface, which requires that your agent define a `schema` method: -->
 에이전트가 구조화된 출력을 반환하도록 하려면 `HasStructuredOutput` 인터페이스를 구현합니다. 이 인터페이스는 에이전트가 `schema` 메서드를 정의하도록 요구합니다.
 
 ```php
@@ -366,6 +402,7 @@ class SalesCoach implements Agent, HasStructuredOutput
 }
 ```
 
+<!-- When prompting an agent that returns structured output, you can access the returned `StructuredAgentResponse` like an array: -->
 구조화된 출력을 반환하는 에이전트에 프롬프트를 보낼 때는 반환된 `StructuredAgentResponse`를 배열처럼 사용할 수 있습니다.
 
 ```php
@@ -375,8 +412,10 @@ return $response['score'];
 ```
 
 <a name="attachments"></a>
-### 첨부 파일
+<!-- ### Attachments -->
+### Attachments
 
+<!-- When prompting, you may also pass attachments with the prompt to allow the model to inspect images and documents: -->
 프롬프트를 보낼 때 모델이 이미지와 문서를 확인할 수 있도록 프롬프트와 함께 첨부 파일을 전달할 수도 있습니다.
 
 ```php
@@ -393,6 +432,7 @@ $response = (new SalesCoach)->prompt(
 );
 ```
 
+<!-- Likewise, the `Laravel\Ai\Files\Image` class may be used to attach images to a prompt: -->
 마찬가지로, `Laravel\Ai\Files\Image` 클래스를 사용해 프롬프트에 이미지를 첨부할 수 있습니다.
 
 ```php
@@ -409,8 +449,10 @@ $response = (new ImageAnalyzer)->prompt(
 );
 ```
 <a name="streaming"></a>
-### 스트리밍
+<!-- ### Streaming -->
+### Streaming
 
+<!-- You may stream an agent's response by invoking the `stream` method. The returned `StreamableAgentResponse` may be returned from a route to automatically send a streaming response (SSE) to the client: -->
 `stream` 메서드를 호출하여 에이전트의 응답을 스트리밍할 수 있습니다. 반환된 `StreamableAgentResponse`는 라우트에서 그대로 반환할 수 있으며, 그러면 클라이언트에 스트리밍 응답(SSE)이 자동으로 전송됩니다.
 
 ```php
@@ -421,6 +463,7 @@ Route::get('/coach', function () {
 });
 ```
 
+<!-- The `then` method may be used to provide a closure that will be invoked when the entire response has been streamed to the client: -->
 `then` 메서드를 사용하면 전체 응답이 클라이언트로 스트리밍된 뒤 호출될 클로저를 제공할 수 있습니다.
 
 ```php
@@ -436,6 +479,7 @@ Route::get('/coach', function () {
 });
 ```
 
+<!-- Alternatively, you may iterate through the streamed events manually: -->
 또는 스트리밍된 이벤트를 직접 반복 처리할 수도 있습니다.
 
 ```php
@@ -447,9 +491,11 @@ foreach ($stream as $event) {
 ```
 
 <a name="streaming-using-the-vercel-ai-sdk-protocol"></a>
-#### Vercel AI SDK 프로토콜을 사용한 스트리밍
+<!-- #### Streaming Using the Vercel AI SDK Protocol -->
+#### Streaming Using the Vercel AI SDK Protocol
 
-스트리밍 가능한 응답에서 `usingVercelDataProtocol` 메서드를 호출하여 [Vercel AI SDK 스트림 프로토콜](https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol)을 사용해 이벤트를 스트리밍할 수 있습니다.
+<!-- You may stream the events using the [Vercel AI SDK stream protocol](https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol) by invoking the `usingVercelDataProtocol` method on the streamable response: -->
+스트리밍 가능한 응답에서 `usingVercelDataProtocol` 메서드를 호출하여 [Vercel AI SDK stream protocol](https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol)을 사용해 이벤트를 스트리밍할 수 있습니다.
 
 ```php
 use App\Ai\Agents\SalesCoach;
@@ -462,8 +508,10 @@ Route::get('/coach', function () {
 ```
 
 <a name="broadcasting"></a>
-### 브로드캐스팅
+<!-- ### Broadcasting -->
+### Broadcasting
 
+<!-- You may broadcast streamed events in a few different ways. First, you can simply invoke the `broadcast` or `broadcastNow` method on a streamed event: -->
 스트리밍된 이벤트는 몇 가지 방식으로 브로드캐스트할 수 있습니다. 먼저, 스트리밍된 이벤트에서 `broadcast` 또는 `broadcastNow` 메서드를 간단히 호출할 수 있습니다.
 
 ```php
@@ -477,6 +525,7 @@ foreach ($stream as $event) {
 }
 ```
 
+<!-- Or, you can invoke an agent's `broadcastOnQueue` method to queue the agent operation and broadcast the streamed events as they are available: -->
 또는 에이전트의 `broadcastOnQueue` 메서드를 호출하여 에이전트 작업을 큐에 넣고, 스트리밍된 이벤트가 준비되는 대로 브로드캐스트할 수 있습니다.
 
 ```php
@@ -487,8 +536,10 @@ foreach ($stream as $event) {
 ```
 
 <a name="queueing"></a>
-### 큐 처리
+<!-- ### Queueing -->
+### Queueing
 
+<!-- Using an agent's `queue` method, you may prompt the agent, but allow it to process the response in the background, keeping your application feeling fast and responsive. The `then` and `catch` methods may be used to register closures that will be invoked when a response is available or if an exception occurs: -->
 에이전트의 `queue` 메서드를 사용하면 에이전트에 프롬프트를 전달하되, 응답 처리는 백그라운드에서 수행하도록 할 수 있습니다. 이렇게 하면 애플리케이션이 빠르고 반응성 있게 느껴집니다. `then` 및 `catch` 메서드를 사용하면 응답을 사용할 수 있게 되었을 때 또는 예외가 발생했을 때 호출될 클로저를 등록할 수 있습니다.
 
 ```php
@@ -511,14 +562,17 @@ Route::post('/coach', function (Request $request) {
 ```
 
 <a name="tools"></a>
-### 도구
+<!-- ### Tools -->
+### Tools
 
+<!-- Tools may be used to give agents additional functionality that they can utilize while responding to prompts. Tools can be created using the `make:tool` Artisan command: -->
 도구를 사용하면 에이전트가 프롬프트에 응답하는 동안 활용할 수 있는 추가 기능을 제공할 수 있습니다. 도구는 `make:tool` Artisan 명령어로 만들 수 있습니다.
 
 ```shell
 php artisan make:tool RandomNumberGenerator
 ```
 
+<!-- The generated tool will be placed in your application's `app/Ai/Tools` directory. Each tool contains a `handle` method that will be invoked by the agent when it needs to utilize the tool: -->
 생성된 도구는 애플리케이션의 `app/Ai/Tools` 디렉터리에 배치됩니다. 각 도구에는 에이전트가 해당 도구를 사용해야 할 때 호출되는 `handle` 메서드가 포함됩니다.
 
 ```php
@@ -562,6 +616,7 @@ class RandomNumberGenerator implements Tool
 }
 ```
 
+<!-- Once you have defined your tool, you may return it from the `tools` method of any of your agents: -->
 도구를 정의한 뒤에는 어떤 에이전트에서든 `tools` 메서드에서 해당 도구를 반환할 수 있습니다.
 
 ```php
@@ -581,10 +636,13 @@ public function tools(): iterable
 ```
 
 <a name="similarity-search"></a>
-#### 유사도 검색
+<!-- #### Similarity Search -->
+#### Similarity Search
 
+<!-- The `SimilaritySearch` tool allows agents to search for documents similar to a given query using vector embeddings stored in your database. This is useful for retrieval-augmented generation (RAG) when you want to give agents access to search your application's data. -->
 `SimilaritySearch` 도구를 사용하면 에이전트가 데이터베이스에 저장된 벡터 임베딩을 사용하여 주어진 쿼리와 유사한 문서를 검색할 수 있습니다. 이는 에이전트가 애플리케이션의 데이터를 검색할 수 있도록 제공하려는 경우, 검색 증강 생성(RAG)에 유용합니다.
 
+<!-- The simplest way to create a similarity search tool is using the `usingModel` method with an Eloquent model that has vector embeddings: -->
 유사도 검색 도구를 만드는 가장 간단한 방법은 벡터 임베딩을 가진 Eloquent 모델과 함께 `usingModel` 메서드를 사용하는 것입니다.
 
 ```php
@@ -599,8 +657,10 @@ public function tools(): iterable
 }
 ```
 
+<!-- The first argument is the Eloquent model class, and the second argument is the column containing the vector embeddings. -->
 첫 번째 인수는 Eloquent 모델 클래스이고, 두 번째 인수는 벡터 임베딩이 들어 있는 컬럼입니다.
 
+<!-- You may also provide a minimum similarity threshold between `0.0` and `1.0` and a closure to customize the query: -->
 `0.0`부터 `1.0` 사이의 최소 유사도 임계값과 쿼리를 커스터마이즈하기 위한 클로저도 제공할 수 있습니다.
 
 ```php
@@ -613,6 +673,7 @@ SimilaritySearch::usingModel(
 ),
 ```
 
+<!-- For more control, you may create a similarity search tool with a custom closure that returns the search results: -->
 더 세밀하게 제어하려면 검색 결과를 반환하는 커스텀 클로저로 유사도 검색 도구를 만들 수 있습니다.
 
 ```php
@@ -633,6 +694,7 @@ public function tools(): iterable
 }
 ```
 
+<!-- You may customize the tool's description using the `withDescription` method: -->
 `withDescription` 메서드를 사용하여 도구의 설명을 커스터마이즈할 수 있습니다.
 
 ```php
@@ -641,17 +703,23 @@ SimilaritySearch::usingModel(Document::class, 'embedding')
 ```
 
 <a name="provider-tools"></a>
-### 프로바이더 도구
+<!-- ### Provider Tools -->
+### Provider Tools
 
+<!-- Provider tools are special tools implemented natively by AI providers, offering capabilities like web searching, URL fetching, and file searching. Unlike regular tools, provider tools are executed by the provider itself rather than your application. -->
 프로바이더 도구는 AI 프로바이더가 네이티브로 구현한 특수한 도구입니다. 웹 검색, URL 가져오기, 파일 검색과 같은 기능을 제공합니다. 일반 도구와 달리, 프로바이더 도구는 애플리케이션이 아니라 프로바이더 자체에서 실행됩니다.
 
+<!-- Provider tools can be returned by your agent's `tools` method. -->
 프로바이더 도구는 에이전트의 `tools` 메서드에서 반환할 수 있습니다.
 
 <a name="web-search"></a>
-#### 웹 검색
+<!-- #### Web Search -->
+#### Web Search
 
+<!-- The `WebSearch` provider tool allows agents to search the web for real-time information. This is useful for answering questions about current events, recent data, or topics that may have changed since the model's training cutoff. -->
 `WebSearch` 프로바이더 도구를 사용하면 에이전트가 실시간 정보를 찾기 위해 웹을 검색할 수 있습니다. 현재 사건, 최신 데이터, 또는 모델의 학습 기준 시점 이후 변경되었을 수 있는 주제에 대한 질문에 답할 때 유용합니다.
 
+<!-- **Supported Providers:** Anthropic, OpenAI, Gemini -->
 **지원되는 프로바이더:** Anthropic, OpenAI, Gemini
 
 ```php
@@ -665,12 +733,14 @@ public function tools(): iterable
 }
 ```
 
+<!-- You may configure the web search tool to limit the number of searches or restrict results to specific domains: -->
 웹 검색 도구를 설정하여 검색 횟수를 제한하거나 결과를 특정 도메인으로 제한할 수 있습니다.
 
 ```php
 (new WebSearch)->max(5)->allow(['laravel.com', 'php.net']),
 ```
 
+<!-- To refine search results based on user location, use the `location` method: -->
 사용자 위치를 기준으로 검색 결과를 세밀하게 조정하려면 `location` 메서드를 사용하십시오.
 
 ```php
@@ -682,10 +752,13 @@ public function tools(): iterable
 ```
 
 <a name="web-fetch"></a>
-#### 웹 가져오기
+<!-- #### Web Fetch -->
+#### Web Fetch
 
+<!-- The `WebFetch` provider tool allows agents to fetch and read the contents of web pages. This is useful when you need the agent to analyze specific URLs or retrieve detailed information from known web pages. -->
 `WebFetch` 프로바이더 도구를 사용하면 에이전트가 웹 페이지의 내용을 가져와 읽을 수 있습니다. 에이전트가 특정 URL을 분석하거나 알려진 웹 페이지에서 자세한 정보를 가져와야 할 때 유용합니다.
 
+<!-- **Supported providers:** Anthropic, Gemini -->
 **지원되는 프로바이더:** Anthropic, Gemini
 
 ```php
@@ -699,6 +772,7 @@ public function tools(): iterable
 }
 ```
 
+<!-- You may configure the web fetch tool to limit the number of fetches or restrict to specific domains: -->
 웹 가져오기 도구를 설정하여 가져오기 횟수를 제한하거나 특정 도메인으로 제한할 수 있습니다.
 
 ```php
@@ -706,10 +780,13 @@ public function tools(): iterable
 ```
 
 <a name="file-search"></a>
-#### 파일 검색
+<!-- #### File Search -->
+#### File Search
 
-`FileSearch` 프로바이더 도구를 사용하면 에이전트가 [벡터 저장소](#vector-stores)에 저장된 [파일](#files)을 검색할 수 있습니다. 이를 통해 에이전트가 업로드한 문서에서 관련 정보를 검색할 수 있으므로 검색 증강 생성(RAG)이 가능합니다.
+<!-- The `FileSearch` provider tool allows agents to search through [files](#files) stored in [vector stores](#vector-stores). This enables retrieval-augmented generation (RAG) by allowing the agent to search your uploaded documents for relevant information. -->
+`FileSearch` 프로바이더 도구를 사용하면 에이전트가 [files](#vector-stores)에 저장된 [vector stores](#files)을 검색할 수 있습니다. 이를 통해 에이전트가 업로드한 문서에서 관련 정보를 검색할 수 있으므로 검색 증강 생성(RAG)이 가능합니다.
 
+<!-- **Supported providers:** OpenAI, Gemini -->
 **지원되는 프로바이더:** OpenAI, Gemini
 
 ```php
@@ -723,13 +800,15 @@ public function tools(): iterable
 }
 ```
 
+<!-- You may provide multiple vector store IDs to search across multiple stores: -->
 여러 벡터 저장소 ID를 제공하여 여러 저장소를 대상으로 검색할 수 있습니다.
 
 ```php
 new FileSearch(stores: ['store_1', 'store_2']);
 ```
 
-파일에 [메타데이터](#adding-files-to-stores)가 있는 경우, `where` 인수를 제공하여 검색 결과를 필터링할 수 있습니다. 단순한 동일성 필터의 경우 배열을 전달하십시오.
+<!-- If your files have [metadata](#adding-files-to-stores), you may filter the search results by providing a `where` argument. For simple equality filters, pass an array: -->
+파일에 [metadata](#adding-files-to-stores)가 있는 경우, `where` 인수를 제공하여 검색 결과를 필터링할 수 있습니다. 단순한 동일성 필터의 경우 배열을 전달하십시오.
 
 ```php
 new FileSearch(stores: ['store_id'], where: [
@@ -738,6 +817,7 @@ new FileSearch(stores: ['store_id'], where: [
 ]);
 ```
 
+<!-- For more complex filters, you may pass a closure that receives a `FileSearchQuery` instance: -->
 더 복잡한 필터의 경우 `FileSearchQuery` 인스턴스를 받는 클로저를 전달할 수 있습니다.
 
 ```php
@@ -751,14 +831,17 @@ new FileSearch(stores: ['store_id'], where: fn (FileSearchQuery $query) =>
 ```
 
 <a name="middleware"></a>
+<!-- ### Middleware -->
 ### Middleware
 
+<!-- Agents support middleware, allowing you to intercept and modify prompts before they are sent to the provider. Middleware can be created using the `make:agent-middleware` Artisan command: -->
 에이전트는 Middleware를 지원하므로, 프롬프트가 프로바이더로 전송되기 전에 이를 가로채고 수정할 수 있습니다. Middleware는 `make:agent-middleware` Artisan 명령어로 만들 수 있습니다.
 
 ```shell
 php artisan make:agent-middleware LogPrompts
 ```
 
+<!-- The generated middleware will be placed in your application's `app/Ai/Middleware` directory. To add middleware to an agent, implement the `HasMiddleware` interface and define a `middleware` method that returns an array of middleware classes: -->
 생성된 Middleware는 애플리케이션의 `app/Ai/Middleware` 디렉터리에 배치됩니다. 에이전트에 Middleware를 추가하려면 `HasMiddleware` 인터페이스를 구현하고 Middleware 클래스 배열을 반환하는 `middleware` 메서드를 정의하십시오.
 
 ```php
@@ -789,6 +872,7 @@ class SalesCoach implements Agent, HasMiddleware
 }
 ```
 
+<!-- Each middleware class should define a `handle` method that receives the `AgentPrompt` and a `Closure` to pass the prompt to the next middleware: -->
 각 Middleware 클래스는 `AgentPrompt`와 프롬프트를 다음 Middleware로 전달하기 위한 `Closure`를 받는 `handle` 메서드를 정의해야 합니다.
 
 ```php
@@ -812,6 +896,7 @@ class LogPrompts
     }
 }
 ```
+<!-- You may use the `then` method on the response to execute code after the agent has finished processing. This works for both synchronous and streaming responses: -->
 응답에서 `then` 메서드를 사용하여 에이전트가 처리를 마친 후 코드를 실행할 수 있습니다. 이는 동기 응답과 스트리밍 응답 모두에서 동작합니다.
 
 ```php
@@ -824,8 +909,10 @@ public function handle(AgentPrompt $prompt, Closure $next)
 ```
 
 <a name="anonymous-agents"></a>
-### 익명 에이전트
+<!-- ### Anonymous Agents -->
+### Anonymous Agents
 
+<!-- Sometimes you may want to quickly interact with a model without creating a dedicated agent class. You can create an ad-hoc, anonymous agent using the `agent` function: -->
 전용 에이전트 클래스를 만들지 않고 모델과 빠르게 상호작용하고 싶을 때가 있습니다. `agent` 함수를 사용하면 임시 익명 에이전트를 만들 수 있습니다.
 
 ```php
@@ -838,6 +925,7 @@ $response = agent(
 )->prompt('Tell me about Laravel')
 ```
 
+<!-- Anonymous agents may also produce structured output: -->
 익명 에이전트도 구조화된 출력을 생성할 수 있습니다.
 
 ```php
@@ -853,10 +941,22 @@ $response = agent(
 ```
 
 <a name="agent-configuration"></a>
-### 에이전트 구성
+<!-- ### Agent Configuration -->
+### Agent Configuration
 
+<!-- You may configure text generation options for an agent using PHP attributes. The following attributes are available: -->
 PHP 속성을 사용하여 에이전트의 텍스트 생성 옵션을 구성할 수 있습니다. 사용할 수 있는 속성은 다음과 같습니다.
 
+<!--
+- `MaxSteps`: The maximum number of steps the agent may take when using tools.
+- `MaxTokens`: The maximum number of tokens the model may generate.
+- `Model`: The model the agent should use.
+- `Provider`: The AI provider (or providers for failover) to use for the agent.
+- `Temperature`: The sampling temperature to use for generation (0.0 to 1.0).
+- `Timeout`: The HTTP timeout in seconds for agent requests (default: 60).
+- `UseCheapestModel`: Use the provider's cheapest text model for cost optimization.
+- `UseSmartestModel`: Use the provider's most capable text model for complex tasks.
+-->
 - `MaxSteps`: 에이전트가 도구를 사용할 때 수행할 수 있는 최대 단계 수입니다.
 - `MaxTokens`: 모델이 생성할 수 있는 최대 토큰 수입니다.
 - `Model`: 에이전트가 사용해야 하는 모델입니다.
@@ -895,6 +995,7 @@ class SalesCoach implements Agent
 }
 ```
 
+<!-- The `UseCheapestModel` and `UseSmartestModel` attributes allow you to automatically select the most cost-effective or most capable model for a given provider without specifying a model name. This is useful when you want to optimize for cost or capability across different providers: -->
 `UseCheapestModel` 및 `UseSmartestModel` 속성을 사용하면 모델 이름을 지정하지 않아도 지정한 제공자에서 가장 비용 효율적인 모델이나 가장 뛰어난 모델을 자동으로 선택할 수 있습니다. 여러 제공자 사이에서 비용이나 성능을 최적화하고 싶을 때 유용합니다.
 
 ```php
@@ -921,8 +1022,10 @@ class ComplexReasoner implements Agent
 ```
 
 <a name="images"></a>
-## 이미지 (Images)
+<!-- ## Images -->
+## Images
 
+<!-- The `Laravel\Ai\Image` class may be used to generate images using the `openai`, `gemini`, or `xai` providers: -->
 `Laravel\Ai\Image` 클래스는 `openai`, `gemini`, 또는 `xai` 제공자를 사용하여 이미지를 생성하는 데 사용할 수 있습니다.
 
 ```php
@@ -933,6 +1036,7 @@ $image = Image::of('A donut sitting on the kitchen counter')->generate();
 $rawContent = (string) $image;
 ```
 
+<!-- The `square`, `portrait`, and `landscape` methods may be used to control the aspect ratio of the image, while the `quality` method may be used to guide the model on final image quality (`high`, `medium`, `low`). The `timeout` method may be used to specify the HTTP timeout in seconds: -->
 `square`, `portrait`, `landscape` 메서드는 이미지의 화면 비율을 제어하는 데 사용할 수 있으며, `quality` 메서드는 최종 이미지 품질(`high`, `medium`, `low`)에 대해 모델에 지침을 주는 데 사용할 수 있습니다. `timeout` 메서드는 HTTP 타임아웃 시간을 초 단위로 지정하는 데 사용할 수 있습니다.
 
 ```php
@@ -945,6 +1049,7 @@ $image = Image::of('A donut sitting on the kitchen counter')
     ->generate();
 ```
 
+<!-- You may attach reference images using the `attachments` method: -->
 `attachments` 메서드를 사용하여 참조 이미지를 첨부할 수 있습니다.
 
 ```php
@@ -962,6 +1067,7 @@ $image = Image::of('Update this photo of me to be in the style of an impressioni
     ->generate();
 ```
 
+<!-- Generated images may be easily stored on the default disk configured in your application's `config/filesystems.php` configuration file: -->
 생성된 이미지는 애플리케이션의 `config/filesystems.php` 구성 파일에 설정된 기본 디스크에 쉽게 저장할 수 있습니다.
 
 ```php
@@ -973,6 +1079,7 @@ $path = $image->storePublicly();
 $path = $image->storePubliclyAs('image.jpg');
 ```
 
+<!-- Image generation may also be queued: -->
 이미지 생성은 큐에 넣을 수도 있습니다.
 
 ```php
@@ -990,8 +1097,10 @@ Image::of('A donut sitting on the kitchen counter')
 ```
 
 <a name="audio"></a>
-## 오디오 (Audio)
+<!-- ## Audio -->
+## Audio
 
+<!-- The `Laravel\Ai\Audio` class may be used to generate audio from the given text: -->
 `Laravel\Ai\Audio` 클래스는 주어진 텍스트에서 오디오를 생성하는 데 사용할 수 있습니다.
 
 ```php
@@ -1002,6 +1111,7 @@ $audio = Audio::of('I love coding with Laravel.')->generate();
 $rawContent = (string) $audio;
 ```
 
+<!-- The `male`, `female`, and `voice` methods may be used to determine the voice of the generated audio: -->
 `male`, `female`, `voice` 메서드는 생성되는 오디오의 목소리를 결정하는 데 사용할 수 있습니다.
 
 ```php
@@ -1014,6 +1124,7 @@ $audio = Audio::of('I love coding with Laravel.')
     ->generate();
 ```
 
+<!-- Similarly, the `instructions` method may be used to dynamically coach the model on how the generated audio should sound: -->
 마찬가지로 `instructions` 메서드를 사용하면 생성되는 오디오가 어떤 느낌으로 들려야 하는지 모델에 동적으로 지시할 수 있습니다.
 
 ```php
@@ -1023,6 +1134,7 @@ $audio = Audio::of('I love coding with Laravel.')
     ->generate();
 ```
 
+<!-- Generated audio may be easily stored on the default disk configured in your application's `config/filesystems.php` configuration file: -->
 생성된 오디오는 애플리케이션의 `config/filesystems.php` 구성 파일에 설정된 기본 디스크에 쉽게 저장할 수 있습니다.
 
 ```php
@@ -1034,6 +1146,7 @@ $path = $audio->storePublicly();
 $path = $audio->storePubliclyAs('audio.mp3');
 ```
 
+<!-- Audio generation may also be queued: -->
 오디오 생성은 큐에 넣을 수도 있습니다.
 
 ```php
@@ -1050,8 +1163,10 @@ Audio::of('I love coding with Laravel.')
 ```
 
 <a name="transcription"></a>
-## 전사 (Transcriptions)
+<!-- ## Transcriptions -->
+## Transcriptions
 
+<!-- The `Laravel\Ai\Transcription` class may be used to generate a transcript of the given audio: -->
 `Laravel\Ai\Transcription` 클래스는 주어진 오디오의 전사본을 생성하는 데 사용할 수 있습니다.
 
 ```php
@@ -1064,6 +1179,7 @@ $transcript = Transcription::fromUpload($request->file('audio'))->generate();
 return (string) $transcript;
 ```
 
+<!-- The `diarize` method may be used to indicate you would like the response to include the diarized transcript in addition to the raw text transcript, allowing you to access the segmented transcript by speaker: -->
 `diarize` 메서드는 원시 텍스트 전사본과 함께 화자별로 분리된 전사본도 응답에 포함하고 싶다는 것을 나타내는 데 사용할 수 있습니다. 이를 통해 화자별로 나뉜 전사 내용을 확인할 수 있습니다.
 
 ```php
@@ -1072,6 +1188,7 @@ $transcript = Transcription::fromStorage('audio.mp3')
     ->generate();
 ```
 
+<!-- Transcription generation may also be queued: -->
 전사본 생성은 큐에 넣을 수도 있습니다.
 
 ```php
@@ -1086,8 +1203,10 @@ Transcription::fromStorage('audio.mp3')
 ```
 
 <a name="embeddings"></a>
-## 임베딩 (Embeddings)
+<!-- ## Embeddings -->
+## Embeddings
 
+<!-- You may easily generate vector embeddings for any given string using the new `toEmbeddings` method available via Laravel's `Stringable` class: -->
 Laravel의 `Stringable` 클래스를 통해 사용할 수 있는 새로운 `toEmbeddings` 메서드를 사용하여 주어진 문자열에 대한 벡터 임베딩을 쉽게 생성할 수 있습니다.
 
 ```php
@@ -1096,6 +1215,7 @@ use Illuminate\Support\Str;
 $embeddings = Str::of('Napa Valley has great wine.')->toEmbeddings();
 ```
 
+<!-- Alternatively, you may use the `Embeddings` class to generate embeddings for multiple inputs at once: -->
 또는 `Embeddings` 클래스를 사용하여 여러 입력에 대한 임베딩을 한 번에 생성할 수 있습니다.
 
 ```php
@@ -1109,6 +1229,7 @@ $response = Embeddings::for([
 $response->embeddings; // [[0.123, 0.456, ...], [0.789, 0.012, ...]]
 ```
 
+<!-- You may specify the dimensions and provider for the embeddings: -->
 임베딩의 차원 수와 제공자를 지정할 수 있습니다.
 
 ```php
@@ -1118,8 +1239,10 @@ $response = Embeddings::for(['Napa Valley has great wine.'])
 ```
 
 <a name="querying-embeddings"></a>
-### 임베딩 쿼리
+<!-- ### Querying Embeddings -->
+### Querying Embeddings
 
+<!-- Once you have generated embeddings, you will typically store them in a `vector` column in your database for later querying. Laravel provides native support for vector columns on PostgreSQL via the `pgvector` extension. To get started, define a `vector` column in your migration, specifying the number of dimensions: -->
 임베딩을 생성한 후에는 일반적으로 나중에 쿼리할 수 있도록 데이터베이스의 `vector` 컬럼에 저장합니다. Laravel은 `pgvector` 확장을 통해 PostgreSQL에서 벡터 컬럼을 기본 지원합니다. 시작하려면 마이그레이션에서 차원 수를 지정하여 `vector` 컬럼을 정의합니다.
 
 ```php
@@ -1134,13 +1257,15 @@ Schema::create('documents', function (Blueprint $table) {
 });
 ```
 
+<!-- You may also add a vector index to speed up similarity searches. When calling `index` on a vector column, Laravel will automatically create an HNSW index with cosine distance: -->
 유사도 검색 속도를 높이기 위해 벡터 인덱스를 추가할 수도 있습니다. 벡터 컬럼에서 `index`를 호출하면 Laravel은 코사인 거리를 사용하는 HNSW 인덱스를 자동으로 생성합니다.
 
 ```php
 $table->vector('embedding', dimensions: 1536)->index();
 ```
 
-Eloquent 모델에서는 벡터 컬럼을 `array`로 캐스팅해야 합니다.
+<!-- On your Eloquent model, you should cast the vector column to an `array`: -->
+Eloquent 모델에서는 벡터 컬럼을 `array`로 casting해야 합니다.
 
 ```php
 protected function casts(): array
@@ -1151,6 +1276,7 @@ protected function casts(): array
 }
 ```
 
+<!-- To query for similar records, use the `whereVectorSimilarTo` method. This method filters results by a minimum cosine similarity (between `0.0` and `1.0`, where `1.0` is identical) and orders the results by similarity: -->
 유사한 레코드를 쿼리하려면 `whereVectorSimilarTo` 메서드를 사용합니다. 이 메서드는 최소 코사인 유사도(`0.0`부터 `1.0`까지이며, `1.0`은 동일함을 의미합니다)를 기준으로 결과를 필터링하고, 유사도 순으로 결과를 정렬합니다.
 
 ```php
@@ -1162,6 +1288,7 @@ $documents = Document::query()
     ->get();
 ```
 
+<!-- The `$queryEmbedding` may be an array of floats or a plain string. When a string is given, Laravel will automatically generate embeddings for it: -->
 `$queryEmbedding`은 부동소수점 숫자 배열이거나 일반 문자열일 수 있습니다. 문자열이 주어지면 Laravel이 자동으로 해당 문자열에 대한 임베딩을 생성합니다.
 
 ```php
@@ -1171,6 +1298,7 @@ $documents = Document::query()
     ->get();
 ```
 
+<!-- If you need more control, you may use the lower-level `whereVectorDistanceLessThan`, `selectVectorDistance`, and `orderByVectorDistance` methods independently: -->
 더 세밀한 제어가 필요하다면 더 낮은 수준의 `whereVectorDistanceLessThan`, `selectVectorDistance`, `orderByVectorDistance` 메서드를 각각 사용할 수 있습니다.
 
 ```php
@@ -1183,14 +1311,17 @@ $documents = Document::query()
     ->get();
 ```
 
-에이전트에게 도구로 유사도 검색을 수행할 수 있는 기능을 제공하고 싶다면 [유사도 검색](#similarity-search) 도구 문서를 확인하세요.
+<!-- If you would like to give an agent the ability to perform similarity searches as a tool, check out the [Similarity Search](#similarity-search) tool documentation. -->
+에이전트에게 도구로 유사도 검색을 수행할 수 있는 기능을 제공하고 싶다면 [Similarity Search](#similarity-search) 도구 문서를 확인하세요.
 
 > [!NOTE]
 > 벡터 쿼리는 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결에서만 지원됩니다.
 
 <a name="caching-embeddings"></a>
-### 임베딩 캐싱
+<!-- ### Caching Embeddings -->
+### Caching Embeddings
 
+<!-- Embedding generation can be cached to avoid redundant API calls for identical inputs. To enable caching, set the `ai.caching.embeddings.cache` configuration option to `true`: -->
 동일한 입력에 대해 중복 API 호출을 피하기 위해 임베딩 생성을 캐싱할 수 있습니다. 캐싱을 활성화하려면 `ai.caching.embeddings.cache` 구성 옵션을 `true`로 설정합니다.
 
 ```php
@@ -1203,8 +1334,10 @@ $documents = Document::query()
 ],
 ```
 
+<!-- When caching is enabled, embeddings are cached for 30 days. The cache key is based on the provider, model, dimensions, and input content, ensuring that identical requests return cached results while different configurations generate fresh embeddings. -->
 캐싱이 활성화되면 임베딩은 30일 동안 캐싱됩니다. 캐시 키는 제공자, 모델, 차원 수, 입력 내용을 기반으로 만들어지므로, 동일한 요청은 캐시된 결과를 반환하고 다른 구성은 새로운 임베딩을 생성합니다.
 
+<!-- You may also enable caching for a specific request using the `cache` method, even when global caching is disabled: -->
 전역 캐싱이 비활성화되어 있어도 `cache` 메서드를 사용하여 특정 요청에 대해 캐싱을 활성화할 수 있습니다.
 
 ```php
@@ -1212,6 +1345,7 @@ $response = Embeddings::for(['Napa Valley has great wine.'])
     ->cache()
     ->generate();
 ```
+<!-- You may specify a custom cache duration in seconds: -->
 사용자 지정 캐시 지속 시간을 초 단위로 지정할 수 있습니다.
 
 ```php
@@ -1220,6 +1354,7 @@ $response = Embeddings::for(['Napa Valley has great wine.'])
     ->generate();
 ```
 
+<!-- The `toEmbeddings` Stringable method also accepts a `cache` argument: -->
 `toEmbeddings` Stringable 메서드도 `cache` 인수를 받을 수 있습니다.
 
 ```php
@@ -1231,10 +1366,13 @@ $embeddings = Str::of('Napa Valley has great wine.')->toEmbeddings(cache: 3600);
 ```
 
 <a name="reranking"></a>
-## 재순위화 (Reranking)
+<!-- ## Reranking -->
+## Reranking
 
+<!-- Reranking allows you to reorder a list of documents based on their relevance to a given query. This is useful for improving search results by using semantic understanding: -->
 재순위화는 주어진 쿼리와의 관련성을 기준으로 문서 목록의 순서를 다시 정렬할 수 있게 해줍니다. 이는 의미 기반 이해를 활용해 검색 결과를 개선할 때 유용합니다.
 
+<!-- The `Laravel\Ai\Reranking` class may be used to rerank documents: -->
 `Laravel\Ai\Reranking` 클래스를 사용하여 문서를 재순위화할 수 있습니다.
 
 ```php
@@ -1252,6 +1390,7 @@ $response->first()->score;    // 0.95
 $response->first()->index;    // 1 (original position)
 ```
 
+<!-- The `limit` method may be used to restrict the number of results returned: -->
 `limit` 메서드를 사용하면 반환되는 결과 수를 제한할 수 있습니다.
 
 ```php
@@ -1261,8 +1400,10 @@ $response = Reranking::of($documents)
 ```
 
 <a name="reranking-collections"></a>
-### 컬렉션 재순위화
+<!-- ### Reranking Collections -->
+### Reranking Collections
 
+<!-- For convenience, Laravel collections may be reranked using the `rerank` macro. The first argument specifies which field(s) to use for reranking, and the second argument is the query: -->
 편의를 위해 Laravel 컬렉션은 `rerank` 매크로를 사용하여 재순위화할 수 있습니다. 첫 번째 인수는 재순위화에 사용할 필드를 지정하고, 두 번째 인수는 쿼리입니다.
 
 ```php
@@ -1280,6 +1421,7 @@ $reranked = $posts->rerank(
 );
 ```
 
+<!-- You may also limit the number of results and specify a provider: -->
 결과 수를 제한하거나 프로바이더를 지정할 수도 있습니다.
 
 ```php
@@ -1292,8 +1434,10 @@ $reranked = $posts->rerank(
 ```
 
 <a name="files"></a>
-## 파일 (Files)
+<!-- ## Files -->
+## Files
 
+<!-- The `Laravel\Ai\Files` class or the individual file classes may be used to store files with your AI provider for later use in conversations. This is useful for large documents or files you want to reference multiple times without re-uploading: -->
 `Laravel\Ai\Files` 클래스 또는 개별 파일 클래스를 사용하여 나중에 대화에서 사용할 파일을 AI 프로바이더에 저장할 수 있습니다. 이는 큰 문서나 여러 번 참조하고 싶은 파일을 다시 업로드하지 않고 사용할 때 유용합니다.
 
 ```php
@@ -1315,6 +1459,7 @@ $response = Image::fromUrl('https://example.com/photo.jpg')->put();
 return $response->id;
 ```
 
+<!-- You may also store raw content or uploaded files: -->
 원시 콘텐츠나 업로드된 파일도 저장할 수 있습니다.
 
 ```php
@@ -1328,6 +1473,7 @@ $stored = Document::fromString('Hello, World!', 'text/plain')->put();
 $stored = Document::fromUpload($request->file('document'))->put();
 ```
 
+<!-- Once a file has been stored, you may reference the file when generating text via agents instead of re-uploading the file: -->
 파일이 저장되면 파일을 다시 업로드하는 대신, 에이전트를 통해 텍스트를 생성할 때 해당 파일을 참조할 수 있습니다.
 
 ```php
@@ -1342,6 +1488,7 @@ $response = (new SalesCoach)->prompt(
 );
 ```
 
+<!-- To retrieve a previously stored file, use the `get` method on a file instance: -->
 이전에 저장한 파일을 가져오려면 파일 인스턴스에서 `get` 메서드를 사용합니다.
 
 ```php
@@ -1353,12 +1500,14 @@ $file->id;
 $file->mimeType();
 ```
 
+<!-- To delete a file from the provider, use the `delete` method: -->
 프로바이더에서 파일을 삭제하려면 `delete` 메서드를 사용합니다.
 
 ```php
 Document::fromId('file-id')->delete();
 ```
 
+<!-- By default, the `Files` class uses the default AI provider configured in your application's `config/ai.php` configuration file. For most operations, you may specify a different provider using the `provider` argument: -->
 기본적으로 `Files` 클래스는 애플리케이션의 `config/ai.php` 설정 파일에 구성된 기본 AI 프로바이더를 사용합니다. 대부분의 작업에서는 `provider` 인수를 사용하여 다른 프로바이더를 지정할 수 있습니다.
 
 ```php
@@ -1368,8 +1517,10 @@ $response = Document::fromPath(
 ```
 
 <a name="using-stored-files-in-conversations"></a>
-### 대화에서 저장된 파일 사용
+<!-- ### Using Stored Files in Conversations -->
+### Using Stored Files in Conversations
 
+<!-- Once a file has been stored with a provider, you may reference it in agent conversations using the `fromId` method on the `Document` or `Image` classes: -->
 파일이 프로바이더에 저장되면 `Document` 또는 `Image` 클래스의 `fromId` 메서드를 사용하여 에이전트 대화에서 해당 파일을 참조할 수 있습니다.
 
 ```php
@@ -1387,6 +1538,7 @@ $response = (new DocumentAnalyzer)->prompt(
 );
 ```
 
+<!-- Similarly, stored images may be referenced using the `Image` class: -->
 마찬가지로 저장된 이미지는 `Image` 클래스를 사용하여 참조할 수 있습니다.
 
 ```php
@@ -1404,8 +1556,10 @@ $response = (new ImageAnalyzer)->prompt(
 ```
 
 <a name="vector-stores"></a>
-## 벡터 저장소 (Vector Stores)
+<!-- ## Vector Stores -->
+## Vector Stores
 
+<!-- Vector stores allow you to create searchable collections of files that can be used for retrieval-augmented generation (RAG). The `Laravel\Ai\Stores` class provides methods for creating, retrieving, and deleting vector stores: -->
 벡터 저장소를 사용하면 검색 증강 생성(RAG, retrieval-augmented generation)에 사용할 수 있는, 검색 가능한 파일 컬렉션을 만들 수 있습니다. `Laravel\Ai\Stores` 클래스는 벡터 저장소를 생성하고, 가져오고, 삭제하는 메서드를 제공합니다.
 
 ```php
@@ -1424,6 +1578,7 @@ $store = Stores::create(
 return $store->id;
 ```
 
+<!-- To retrieve an existing vector store by its ID, use the `get` method: -->
 기존 벡터 저장소를 ID로 가져오려면 `get` 메서드를 사용합니다.
 
 ```php
@@ -1437,6 +1592,7 @@ $store->fileCounts;
 $store->ready;
 ```
 
+<!-- To delete a vector store, use the `delete` method on the `Stores` class or the store instance: -->
 벡터 저장소를 삭제하려면 `Stores` 클래스 또는 저장소 인스턴스에서 `delete` 메서드를 사용합니다.
 
 ```php
@@ -1452,9 +1608,11 @@ $store->delete();
 ```
 
 <a name="adding-files-to-stores"></a>
-### 저장소에 파일 추가
+<!-- ### Adding Files to Stores -->
+### Adding Files to Stores
 
-벡터 저장소가 준비되면 `add` 메서드를 사용하여 [파일](#files)을 추가할 수 있습니다. 저장소에 추가된 파일은 [파일 검색 프로바이더 도구](#file-search)를 사용한 의미 기반 검색을 위해 자동으로 색인됩니다.
+<!-- Once you have a vector store, you may add [files](#files) to it using the `add` method. Files added to a store are automatically indexed for semantic searching using the [file search provider tool](#file-search): -->
+벡터 저장소가 준비되면 `add` 메서드를 사용하여 [files](#files)을 추가할 수 있습니다. 저장소에 추가된 파일은 [file search provider tool](#file-search)를 사용한 의미 기반 검색을 위해 자동으로 색인됩니다.
 
 ```php
 use Laravel\Ai\Files\Document;
@@ -1477,7 +1635,8 @@ $document->fileId;
 
 > **참고:** 일반적으로 이전에 저장된 파일을 벡터 저장소에 추가하면 반환되는 문서 ID는 파일에 이미 할당된 ID와 일치합니다. 그러나 일부 벡터 저장소 프로바이더는 새롭고 다른 "문서 ID"를 반환할 수 있습니다. 따라서 나중에 참조할 수 있도록 두 ID를 모두 데이터베이스에 저장하는 것이 좋습니다.
 
-파일을 저장소에 추가할 때 메타데이터를 첨부할 수 있습니다. 이 메타데이터는 나중에 [파일 검색 프로바이더 도구](#file-search)를 사용할 때 검색 결과를 필터링하는 데 사용할 수 있습니다.
+<!-- You may attach metadata to files when adding them to a store. This metadata can later be used to filter search results when using the [file search provider tool](#file-search): -->
+파일을 저장소에 추가할 때 메타데이터를 첨부할 수 있습니다. 이 메타데이터는 나중에 [file search provider tool](#file-search)를 사용할 때 검색 결과를 필터링하는 데 사용할 수 있습니다.
 
 ```php
 $store->add(Document::fromPath('/path/to/document.pdf'), metadata: [
@@ -1487,21 +1646,25 @@ $store->add(Document::fromPath('/path/to/document.pdf'), metadata: [
 ]);
 ```
 
+<!-- To remove a file from a store, use the `remove` method: -->
 저장소에서 파일을 제거하려면 `remove` 메서드를 사용합니다.
 
 ```php
 $store->remove('file_id');
 ```
 
-벡터 저장소에서 파일을 제거해도 프로바이더의 [파일 저장소](#files)에서는 제거되지 않습니다. 벡터 저장소에서 파일을 제거하고 파일 저장소에서도 영구적으로 삭제하려면 `deleteFile` 인수를 사용합니다.
+<!-- Removing a file from a vector store does not remove it from the provider's [file storage](#files). To remove a file from the vector store and delete it permanently from file storage, use the `deleteFile` argument: -->
+벡터 저장소에서 파일을 제거해도 프로바이더의 [file storage](#files)에서는 제거되지 않습니다. 벡터 저장소에서 파일을 제거하고 파일 저장소에서도 영구적으로 삭제하려면 `deleteFile` 인수를 사용합니다.
 
 ```php
 $store->remove('file_abc123', deleteFile: true);
 ```
 
 <a name="failover"></a>
-## 페일오버 (Failover)
+<!-- ## Failover -->
+## Failover
 
+<!-- When prompting or generating other media, you may provide an array of providers / models to automatically failover to a backup provider / model if a service interruption or rate limit is encountered on the primary provider: -->
 프롬프트를 보내거나 다른 미디어를 생성할 때, 기본 프로바이더에서 서비스 중단이나 속도 제한이 발생하면 백업 프로바이더 / 모델로 자동 전환되도록 프로바이더 / 모델 배열을 제공할 수 있습니다.
 
 ```php
@@ -1518,11 +1681,14 @@ $image = Image::of('A donut sitting on the kitchen counter')
 ```
 
 <a name="testing"></a>
-## 테스트 (Testing)
+<!-- ## Testing -->
+## Testing
 
 <a name="testing-agents"></a>
-### 에이전트
+<!-- ### Agents -->
+### Agents
 
+<!-- To fake an agent's responses during tests, call the `fake` method on the agent class. You may optionally provide an array of responses or a closure: -->
 테스트 중 에이전트의 응답을 가짜로 처리하려면 에이전트 클래스에서 `fake` 메서드를 호출합니다. 선택적으로 응답 배열이나 클로저를 제공할 수 있습니다.
 
 ```php
@@ -1546,6 +1712,7 @@ SalesCoach::fake(function (AgentPrompt $prompt) {
 
 > **참고:** 구조화된 출력을 반환하는 에이전트에서 `Agent::fake()`가 호출되면, Laravel은 에이전트에 정의된 출력 스키마와 일치하는 가짜 데이터를 자동으로 생성합니다.
 
+<!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 에이전트에 프롬프트를 보낸 후에는 수신된 프롬프트에 대해 어설션을 수행할 수 있습니다.
 
 ```php
@@ -1562,6 +1729,7 @@ SalesCoach::assertNotPrompted('Missing prompt');
 SalesCoach::assertNeverPrompted();
 ```
 
+<!-- For queued agent invocations, use the queued assertion methods: -->
 큐에 등록된 에이전트 호출에는 큐 관련 어설션 메서드를 사용합니다.
 
 ```php
@@ -1578,6 +1746,7 @@ SalesCoach::assertNotQueued('Missing prompt');
 SalesCoach::assertNeverQueued();
 ```
 
+<!-- To ensure all agent invocations have a corresponding fake response, you may use `preventStrayPrompts`. If an agent is invoked without a defined fake response, an exception will be thrown: -->
 모든 에이전트 호출에 대응하는 가짜 응답이 있는지 보장하려면 `preventStrayPrompts`를 사용할 수 있습니다. 정의된 가짜 응답 없이 에이전트가 호출되면 예외가 발생합니다.
 
 ```php
@@ -1585,8 +1754,10 @@ SalesCoach::fake()->preventStrayPrompts();
 ```
 
 <a name="testing-images"></a>
-### 이미지
+<!-- ### Images -->
+### Images
 
+<!-- Image generations may be faked by invoking the `fake` method on the `Image` class. Once image has been faked, various assertions may be performed against the recorded image generation prompts: -->
 이미지 생성은 `Image` 클래스에서 `fake` 메서드를 호출하여 가짜로 처리할 수 있습니다. 이미지 생성을 가짜로 처리한 뒤에는 기록된 이미지 생성 프롬프트에 대해 다양한 어설션을 수행할 수 있습니다.
 
 ```php
@@ -1609,6 +1780,7 @@ Image::fake(function (ImagePrompt $prompt) {
 });
 ```
 
+<!-- After generating images, you may make assertions about the prompts that were received: -->
 이미지를 생성한 후에는 수신된 프롬프트에 대해 어설션을 수행할 수 있습니다.
 
 ```php
@@ -1620,6 +1792,7 @@ Image::assertNotGenerated('Missing prompt');
 
 Image::assertNothingGenerated();
 ```
+<!-- For queued image generations, use the queued assertion methods: -->
 큐에 넣은 이미지 생성에는 큐 전용 어서션 메서드를 사용합니다.
 
 ```php
@@ -1632,6 +1805,7 @@ Image::assertNotQueued('Missing prompt');
 Image::assertNothingQueued();
 ```
 
+<!-- To ensure all image generations have a corresponding fake response, you may use `preventStrayImages`. If an image is generated without a defined fake response, an exception will be thrown: -->
 모든 이미지 생성에 대응하는 가짜 응답이 있는지 확인하려면 `preventStrayImages`를 사용할 수 있습니다. 정의된 가짜 응답 없이 이미지가 생성되면 예외가 발생합니다.
 
 ```php
@@ -1639,8 +1813,10 @@ Image::fake()->preventStrayImages();
 ```
 
 <a name="testing-audio"></a>
-### 오디오
+<!-- ### Audio -->
+### Audio
 
+<!-- Audio generations may be faked by invoking the `fake` method on the `Audio` class. Once audio has been faked, various assertions may be performed against the recorded audio generation prompts: -->
 오디오 생성은 `Audio` 클래스에서 `fake` 메서드를 호출하여 가짜로 처리할 수 있습니다. 오디오를 가짜로 처리한 후에는 기록된 오디오 생성 프롬프트에 대해 다양한 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1663,6 +1839,7 @@ Audio::fake(function (AudioPrompt $prompt) {
 });
 ```
 
+<!-- After generating audio, you may make assertions about the prompts that were received: -->
 오디오를 생성한 후에는 수신된 프롬프트에 대해 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1675,6 +1852,7 @@ Audio::assertNotGenerated('Missing prompt');
 Audio::assertNothingGenerated();
 ```
 
+<!-- For queued audio generations, use the queued assertion methods: -->
 큐에 넣은 오디오 생성에는 큐 전용 어서션 메서드를 사용합니다.
 
 ```php
@@ -1687,6 +1865,7 @@ Audio::assertNotQueued('Missing prompt');
 Audio::assertNothingQueued();
 ```
 
+<!-- To ensure all audio generations have a corresponding fake response, you may use `preventStrayAudio`. If audio is generated without a defined fake response, an exception will be thrown: -->
 모든 오디오 생성에 대응하는 가짜 응답이 있는지 확인하려면 `preventStrayAudio`를 사용할 수 있습니다. 정의된 가짜 응답 없이 오디오가 생성되면 예외가 발생합니다.
 
 ```php
@@ -1694,8 +1873,10 @@ Audio::fake()->preventStrayAudio();
 ```
 
 <a name="testing-transcriptions"></a>
-### 트랜스크립션
+<!-- ### Transcriptions -->
+### Transcriptions
 
+<!-- Transcription generations may be faked by invoking the `fake` method on the `Transcription` class. Once transcription has been faked, various assertions may be performed against the recorded transcription generation prompts: -->
 트랜스크립션 생성은 `Transcription` 클래스에서 `fake` 메서드를 호출하여 가짜로 처리할 수 있습니다. 트랜스크립션을 가짜로 처리한 후에는 기록된 트랜스크립션 생성 프롬프트에 대해 다양한 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1718,6 +1899,7 @@ Transcription::fake(function (TranscriptionPrompt $prompt) {
 });
 ```
 
+<!-- After generating transcriptions, you may make assertions about the prompts that were received: -->
 트랜스크립션을 생성한 후에는 수신된 프롬프트에 대해 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1732,6 +1914,7 @@ Transcription::assertNotGenerated(
 Transcription::assertNothingGenerated();
 ```
 
+<!-- For queued transcription generations, use the queued assertion methods: -->
 큐에 넣은 트랜스크립션 생성에는 큐 전용 어서션 메서드를 사용합니다.
 
 ```php
@@ -1746,6 +1929,7 @@ Transcription::assertNotQueued(
 Transcription::assertNothingQueued();
 ```
 
+<!-- To ensure all transcription generations have a corresponding fake response, you may use `preventStrayTranscriptions`. If a transcription is generated without a defined fake response, an exception will be thrown: -->
 모든 트랜스크립션 생성에 대응하는 가짜 응답이 있는지 확인하려면 `preventStrayTranscriptions`를 사용할 수 있습니다. 정의된 가짜 응답 없이 트랜스크립션이 생성되면 예외가 발생합니다.
 
 ```php
@@ -1753,8 +1937,10 @@ Transcription::fake()->preventStrayTranscriptions();
 ```
 
 <a name="testing-embeddings"></a>
-### 임베딩
+<!-- ### Embeddings -->
+### Embeddings
 
+<!-- Embeddings generations may be faked by invoking the `fake` method on the `Embeddings` class. Once embeddings has been faked, various assertions may be performed against the recorded embeddings generation prompts: -->
 임베딩 생성은 `Embeddings` 클래스에서 `fake` 메서드를 호출하여 가짜로 처리할 수 있습니다. 임베딩을 가짜로 처리한 후에는 기록된 임베딩 생성 프롬프트에 대해 다양한 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1780,6 +1966,7 @@ Embeddings::fake(function (EmbeddingsPrompt $prompt) {
 });
 ```
 
+<!-- After generating embeddings, you may make assertions about the prompts that were received: -->
 임베딩을 생성한 후에는 수신된 프롬프트에 대해 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1794,6 +1981,7 @@ Embeddings::assertNotGenerated(
 Embeddings::assertNothingGenerated();
 ```
 
+<!-- For queued embeddings generations, use the queued assertion methods: -->
 큐에 넣은 임베딩 생성에는 큐 전용 어서션 메서드를 사용합니다.
 
 ```php
@@ -1808,6 +1996,7 @@ Embeddings::assertNotQueued(
 Embeddings::assertNothingQueued();
 ```
 
+<!-- To ensure all embeddings generations have a corresponding fake response, you may use `preventStrayEmbeddings`. If embeddings are generated without a defined fake response, an exception will be thrown: -->
 모든 임베딩 생성에 대응하는 가짜 응답이 있는지 확인하려면 `preventStrayEmbeddings`를 사용할 수 있습니다. 정의된 가짜 응답 없이 임베딩이 생성되면 예외가 발생합니다.
 
 ```php
@@ -1815,8 +2004,10 @@ Embeddings::fake()->preventStrayEmbeddings();
 ```
 
 <a name="testing-reranking"></a>
-### 리랭킹
+<!-- ### Reranking -->
+### Reranking
 
+<!-- Reranking operations may be faked by invoking the `fake` method on the `Reranking` class: -->
 리랭킹 작업은 `Reranking` 클래스에서 `fake` 메서드를 호출하여 가짜로 처리할 수 있습니다.
 
 ```php
@@ -1836,6 +2027,7 @@ Reranking::fake([
 ]);
 ```
 
+<!-- After reranking, you may make assertions about the operations that were performed: -->
 리랭킹 후에는 수행된 작업에 대해 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1851,8 +2043,10 @@ Reranking::assertNothingReranked();
 ```
 
 <a name="testing-files"></a>
-### 파일
+<!-- ### Files -->
+### Files
 
+<!-- File operations may be faked by invoking the `fake` method on the `Files` class: -->
 파일 작업은 `Files` 클래스에서 `fake` 메서드를 호출하여 가짜로 처리할 수 있습니다.
 
 ```php
@@ -1861,6 +2055,7 @@ use Laravel\Ai\Files;
 Files::fake();
 ```
 
+<!-- Once file operations have been faked, you may make assertions about the uploads and deletions that occurred: -->
 파일 작업을 가짜로 처리한 후에는 발생한 업로드와 삭제에 대해 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1885,6 +2080,7 @@ Files::assertNotStored(fn (StorableFile $file) =>
 Files::assertNothingStored();
 ```
 
+<!-- For asserting against file deletions, you may pass a file ID: -->
 파일 삭제를 어서션하려면 파일 ID를 전달할 수 있습니다.
 
 ```php
@@ -1894,9 +2090,11 @@ Files::assertNothingDeleted();
 ```
 
 <a name="testing-vector-stores"></a>
-### 벡터 저장소
+<!-- ### Vector Stores -->
+### Vector Stores
 
-벡터 저장소 작업은 `Stores` 클래스에서 `fake` 메서드를 호출하여 가짜로 처리할 수 있습니다. 저장소를 가짜로 처리하면 [파일 작업](#files)도 자동으로 가짜 처리됩니다.
+<!-- Vector store operations may be faked by invoking the `fake` method on the `Stores` class. Faking stores will also fake [file operations](#files) automatically: -->
+벡터 저장소 작업은 `Stores` 클래스에서 `fake` 메서드를 호출하여 가짜로 처리할 수 있습니다. 저장소를 가짜로 처리하면 [file operations](#files)도 자동으로 가짜 처리됩니다.
 
 ```php
 use Laravel\Ai\Stores;
@@ -1904,6 +2102,7 @@ use Laravel\Ai\Stores;
 Stores::fake();
 ```
 
+<!-- Once store operations have been faked, you may make assertions about the stores that were created or deleted: -->
 저장소 작업을 가짜로 처리한 후에는 생성되거나 삭제된 저장소에 대해 어서션을 수행할 수 있습니다.
 
 ```php
@@ -1924,6 +2123,7 @@ Stores::assertNotCreated('Other Store');
 Stores::assertNothingCreated();
 ```
 
+<!-- For asserting against store deletions, you may provide the store ID: -->
 저장소 삭제를 어서션하려면 저장소 ID를 제공할 수 있습니다.
 
 ```php
@@ -1932,6 +2132,7 @@ Stores::assertNotDeleted('other_store_id');
 Stores::assertNothingDeleted();
 ```
 
+<!-- To assert files were added or removed from a store, use the assertion methods on a given `Store` instance: -->
 파일이 저장소에 추가되었거나 저장소에서 제거되었는지 어서션하려면 해당 `Store` 인스턴스의 어서션 메서드를 사용합니다.
 
 ```php
@@ -1951,7 +2152,8 @@ $store->assertNotAdded('other_file_id');
 $store->assertNotRemoved('other_file_id');
 ```
 
-파일이 provider의 [파일 저장소](#files)에 저장되고 같은 요청에서 벡터 저장소에 추가되는 경우, 파일의 provider ID를 알 수 없을 수 있습니다. 이 경우 `assertAdded` 메서드에 클로저를 전달하여 추가된 파일의 내용에 대해 어서션할 수 있습니다.
+<!-- If a file is stored in the provider's [file storage](#files) and added to a vector store in the same request, you may not know the file's provider ID. In this case, you can pass a closure to the `assertAdded` method to assert against the content of the added file: -->
+파일이 provider의 [file storage](#files)에 저장되고 같은 요청에서 벡터 저장소에 추가되는 경우, 파일의 provider ID를 알 수 없을 수 있습니다. 이 경우 `assertAdded` 메서드에 클로저를 전달하여 추가된 파일의 내용에 대해 어서션할 수 있습니다.
 
 ```php
 use Laravel\Ai\Contracts\Files\StorableFile;
@@ -1964,10 +2166,39 @@ $store->assertAdded(fn (StorableFile $file) => $file->content() === 'Hello, Worl
 ```
 
 <a name="events"></a>
-## 이벤트 (Events)
+<!-- ## Events -->
+## Events
 
-Laravel AI SDK는 다음을 포함한 다양한 [이벤트](/docs/master/events)를 디스패치합니다.
+<!-- The Laravel AI SDK dispatches a variety of [events](/docs/master/events), including: -->
+Laravel AI SDK는 다음을 포함한 다양한 [events](/docs/master/events)를 디스패치합니다.
 
+<!--
+- `AddingFileToStore`
+- `AgentPrompted`
+- `AgentStreamed`
+- `AudioGenerated`
+- `CreatingStore`
+- `EmbeddingsGenerated`
+- `FileAddedToStore`
+- `FileDeleted`
+- `FileRemovedFromStore`
+- `FileStored`
+- `GeneratingAudio`
+- `GeneratingEmbeddings`
+- `GeneratingImage`
+- `GeneratingTranscription`
+- `ImageGenerated`
+- `InvokingTool`
+- `PromptingAgent`
+- `RemovingFileFromStore`
+- `Reranked`
+- `Reranking`
+- `StoreCreated`
+- `StoringFile`
+- `StreamingAgent`
+- `ToolInvoked`
+- `TranscriptionGenerated`
+-->
 - `AddingFileToStore`
 - `AgentPrompted`
 - `AgentStreamed`
@@ -1994,4 +2225,5 @@ Laravel AI SDK는 다음을 포함한 다양한 [이벤트](/docs/master/events)
 - `ToolInvoked`
 - `TranscriptionGenerated`
 
+<!-- You can listen to any of these events to log or store AI SDK usage information. -->
 이러한 이벤트를 원하는 대로 수신하여 AI SDK 사용 정보를 로그로 남기거나 저장할 수 있습니다.
