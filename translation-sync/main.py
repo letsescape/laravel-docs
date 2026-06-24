@@ -2,7 +2,7 @@
 """번역 동기화 엔트리포인트.
 
 translation-sync/docs/00-workflow-summary.md의 단계 순서를 따른다:
-원문 동기화 → 변경 감지 → 전처리(01) → 번역(02) → 후처리(03) → 검증(04) → 출력.
+원문 동기화 → 변경 감지 → 전처리(01) → 번역(02) → 후처리(03) → 사이드바 갱신(06) → 검증(04) → 출력.
 
 출력 로케일: ko(versioned_docs), ja(i18n/ja).
 프롬프트: ko=prompt.md, ja=prompt_jp.md.
@@ -20,6 +20,8 @@ from sync import (
     postprocess,
     preprocess,
     prompt,
+    repair,
+    sidebar,
     translate,
     upstream,
     verify,
@@ -50,6 +52,14 @@ def _delete_outputs(change: diff.SourceChange) -> None:
     for path in (_ko_output(change), _ja_output(change)):
         if path.exists():
             path.unlink()
+
+
+def _sidebar_versions(changes: list[diff.SourceChange], version: str | None) -> list[str]:
+    if version:
+        return [version]
+    versions = [change.version for change in changes]
+    versions.append("master")
+    return list(dict.fromkeys(versions))
 
 
 def _load_prompts() -> dict[str, str]:
@@ -157,6 +167,14 @@ def _check_existing_annotations(
     return failures
 
 
+def _sync_sidebars(versions: list[str]) -> list[str]:
+    failures: list[str] = []
+    for result in sidebar.sync_versions(versions, write=True, repo_root=REPO_ROOT):
+        for issue in result.issues:
+            failures.append(f"{result.version}: {issue}")
+    return failures
+
+
 def _annotate_existing(
     *, apply: bool = False, version: str | None = None, doc: str | None = None
 ) -> tuple[int, list[str]]:
@@ -198,6 +216,50 @@ def _annotate_existing(
     return writable, failures
 
 
+def _fix_preserved_markup(
+    *, apply: bool = False, version: str | None = None, doc: str | None = None
+) -> tuple[int, list[str]]:
+    """기존 ko/ja 문서의 비번역 markup만 원문 기준으로 복구한다."""
+    writable = 0
+    failures: list[str] = []
+    fixable = {"link label mismatch", "heading mismatch", "heading text mismatch"}
+
+    for change in _select_changes(migrate_existing=True, version=version, doc=doc):
+        expected_source = _expected_source(change)
+        for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
+            label = f"{locale} {change.path}"
+            if not dest.exists():
+                continue
+
+            original = dest.read_text(encoding="utf-8")
+            original_issues = verify.verify(original, source=expected_source)
+            if not original_issues:
+                continue
+            if not set(original_issues).issubset(fixable):
+                failures.append(f"{label}: {', '.join(original_issues)}")
+                continue
+
+            try:
+                result = repair.repair_preserved_markup(expected_source, original)
+            except repair.RepairError as exc:
+                failures.append(f"{label}: {exc}")
+                continue
+
+            if not result.changed:
+                continue
+
+            repaired_issues = verify.verify(result.text, source=expected_source)
+            if repaired_issues:
+                failures.append(f"{label}: {', '.join(repaired_issues)}")
+                continue
+
+            writable += 1
+            if apply:
+                dest.write_text(result.text, encoding="utf-8")
+
+    return writable, failures
+
+
 def _arg_value(args: list[str], flag: str) -> str | None:
     if flag not in args:
         return None
@@ -212,6 +274,7 @@ def main() -> int:
     migrate_existing = "--migrate-existing" in args
     check_annotations = "--check-annotations" in args
     annotate_existing = "--annotate-existing" in args
+    fix_preserved_markup = "--fix-preserved-markup" in args
     apply_annotations = "--apply" in args
     version = _arg_value(args, "--version")
     doc = _arg_value(args, "--doc")
@@ -227,6 +290,19 @@ def main() -> int:
             return 1
         action = "written" if apply_annotations else "would write"
         print(f"existing translation annotations {action}: {written}")
+        return 0
+
+    if fix_preserved_markup:
+        written, failures = _fix_preserved_markup(
+            apply=apply_annotations, version=version, doc=doc
+        )
+        action = "written" if apply_annotations else "would write"
+        print(f"existing preserved markup fixes {action}: {written}")
+        for failure in failures:
+            print(f"preserved markup fix skipped: {failure}", file=sys.stderr)
+        if failures:
+            print(f"{len(failures)} preserved markup fix(es) skipped", file=sys.stderr)
+            return 1
         return 0
 
     if check_annotations:
@@ -245,6 +321,12 @@ def main() -> int:
     # 2. 변경 감지
     changes = _select_changes(migrate_existing=migrate_existing, version=version, doc=doc)
     if not changes:
+        sidebar_failures = _sync_sidebars(_sidebar_versions([], version))
+        for failure in sidebar_failures:
+            print(f"sidebar sync failed: {failure}", file=sys.stderr)
+        if sidebar_failures:
+            print(f"{len(sidebar_failures)} sidebar sync failure(s)", file=sys.stderr)
+            return 1
         print("no source changes to translate")
         return 0
 
@@ -271,6 +353,14 @@ def main() -> int:
     if failures:
         print(f"{len(failures)} target(s) failed verification", file=sys.stderr)
         return 1
+
+    sidebar_failures = _sync_sidebars(_sidebar_versions(changes, version))
+    for failure in sidebar_failures:
+        print(f"sidebar sync failed: {failure}", file=sys.stderr)
+    if sidebar_failures:
+        print(f"{len(sidebar_failures)} sidebar sync failure(s)", file=sys.stderr)
+        return 1
+
     print(f"translated {len(changes)} doc(s) into ko, ja")
     return 0
 

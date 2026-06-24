@@ -117,11 +117,21 @@ def _strip_style_blocks(text: str) -> str:
     out: list[str] = []
     lower = text.lower()
     index = 0
+
+    def inside_inline_code(position: int) -> bool:
+        line_start = text.rfind("\n", 0, position) + 1
+        prefix = text[line_start:position]
+        return prefix.count("`") % 2 == 1
+
     while index < len(text):
         start = lower.find("<style", index)
         if start < 0:
             out.append(text[index:])
             break
+        if inside_inline_code(start):
+            out.append(text[index : start + len("<style")])
+            index = start + len("<style")
+            continue
         tag_end = text.find(">", start + len("<style"))
         if tag_end < 0:
             out.append(text[index:])
