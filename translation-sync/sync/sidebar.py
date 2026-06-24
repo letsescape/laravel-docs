@@ -349,12 +349,42 @@ def _read_sidebar(version: str, *, repo_root: Path = REPO_ROOT) -> tuple[dict, l
 def _write_sidebar(
     version: str, sidebar: dict, *, repo_root: Path = REPO_ROOT
 ) -> None:
-    safe_path = _safe_repo_path(_sidebar_path(repo_root, version), repo_root)
-    safe_path.parent.mkdir(parents=True, exist_ok=True)
-    safe_path.write_text(
-        json.dumps(sidebar, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    sidebar_dir = repo_root / "versioned_sidebars"
+    safe_dir = _safe_repo_path(sidebar_dir, repo_root)
+    safe_dir.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(sidebar, ensure_ascii=False, indent=2) + "\n"
+
+    match version:
+        case "master":
+            (safe_dir / "version-master-sidebars.json").write_text(
+                text, encoding="utf-8"
+            )
+        case "13.x":
+            (safe_dir / "version-13.x-sidebars.json").write_text(
+                text, encoding="utf-8"
+            )
+        case "12.x":
+            (safe_dir / "version-12.x-sidebars.json").write_text(
+                text, encoding="utf-8"
+            )
+        case "11.x":
+            (safe_dir / "version-11.x-sidebars.json").write_text(
+                text, encoding="utf-8"
+            )
+        case "10.x":
+            (safe_dir / "version-10.x-sidebars.json").write_text(
+                text, encoding="utf-8"
+            )
+        case "9.x":
+            (safe_dir / "version-9.x-sidebars.json").write_text(
+                text, encoding="utf-8"
+            )
+        case "8.x":
+            (safe_dir / "version-8.x-sidebars.json").write_text(
+                text, encoding="utf-8"
+            )
+        case _:
+            raise ValueError(f"unsupported sidebar version: {version}")
 
 
 def _existing_repo_paths(paths: list[Path], repo_root: Path) -> list[Path]:
