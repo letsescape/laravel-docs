@@ -41,6 +41,8 @@ def _supported_version(version: str, repo_root: Path = REPO_ROOT) -> str:
     version = _validate_version_token(version)
     for supported in load_versions(repo_root):
         if supported == version:
+            _sidebar_filename(supported)
+            _locale_sidebar_filename(supported)
             return supported
     raise ValueError(f"unknown version: {version}")
 
@@ -99,17 +101,56 @@ def _source_doc_path(repo_root: Path, version: str, doc_id: str) -> Path:
     )
 
 
+def _sidebar_filename(version: str) -> str:
+    match version:
+        case "master":
+            return "version-master-sidebars.json"
+        case "13.x":
+            return "version-13.x-sidebars.json"
+        case "12.x":
+            return "version-12.x-sidebars.json"
+        case "11.x":
+            return "version-11.x-sidebars.json"
+        case "10.x":
+            return "version-10.x-sidebars.json"
+        case "9.x":
+            return "version-9.x-sidebars.json"
+        case "8.x":
+            return "version-8.x-sidebars.json"
+    raise ValueError(f"unsupported sidebar version: {version}")
+
+
+def _locale_sidebar_filename(version: str) -> str:
+    match version:
+        case "master":
+            return "version-master.json"
+        case "13.x":
+            return "version-13.x.json"
+        case "12.x":
+            return "version-12.x.json"
+        case "11.x":
+            return "version-11.x.json"
+        case "10.x":
+            return "version-10.x.json"
+        case "9.x":
+            return "version-9.x.json"
+        case "8.x":
+            return "version-8.x.json"
+    raise ValueError(f"unsupported sidebar version: {version}")
+
+
 def _sidebar_path(repo_root: Path, version: str) -> Path:
-    return repo_root / "versioned_sidebars" / f"version-{version}-sidebars.json"
+    return repo_root / "versioned_sidebars" / _sidebar_filename(version)
 
 
 def locale_sidebar_paths(repo_root: Path, version: str) -> list[Path]:
+    filename = _locale_sidebar_filename(version)
     return [
         repo_root
         / "i18n"
         / locale
         / "docusaurus-plugin-content-docs"
-        / f"version-{version}.json"
+        / filename
         for locale in SIDEBAR_LOCALES
     ]
 
