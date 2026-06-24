@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DOC_LINK_RE = re.compile(r"^\s*-\s*\[([^\]\n]+)]\(([^)\s]+)\)\s*$")
+VERSION_RE = re.compile(r"^(?:master|[0-9]+\.x)$")
 SIDEBAR_LOCALES = ("ko", "ja")
 
 
@@ -26,7 +27,21 @@ class SidebarResult:
 
 
 def load_versions(repo_root: Path = REPO_ROOT) -> list[str]:
-    return json.loads((repo_root / "versions.json").read_text(encoding="utf-8"))
+    versions = json.loads((repo_root / "versions.json").read_text(encoding="utf-8"))
+    return [_validate_version_token(version) for version in versions]
+
+
+def _validate_version_token(version: object) -> str:
+    if not isinstance(version, str) or not VERSION_RE.fullmatch(version):
+        raise ValueError(f"invalid version: {version}")
+    return version
+
+
+def _supported_version(version: str, repo_root: Path = REPO_ROOT) -> str:
+    version = _validate_version_token(version)
+    if version not in load_versions(repo_root):
+        raise ValueError(f"unknown version: {version}")
+    return version
 
 
 def latest_stable_version(repo_root: Path = REPO_ROOT) -> str:
@@ -244,6 +259,7 @@ def _doc_ids(items: list[dict]) -> list[str]:
 def build_sidebar(
     version: str, *, current: dict | None = None, repo_root: Path = REPO_ROOT
 ) -> tuple[dict, list[str]]:
+    version = _supported_version(version, repo_root)
     latest_stable = latest_stable_version(repo_root)
     documentation_path = _documentation_path(repo_root, version)
     if not documentation_path.exists():
@@ -284,6 +300,7 @@ def _write_sidebar(path: Path, sidebar: dict) -> None:
 def sync_version(
     version: str, *, write: bool = False, repo_root: Path = REPO_ROOT
 ) -> SidebarResult:
+    version = _supported_version(version, repo_root)
     path = _sidebar_path(repo_root, version)
     current, issues = _read_sidebar(path)
     expected, build_issues = build_sidebar(version, current=current, repo_root=repo_root)

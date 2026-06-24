@@ -198,6 +198,14 @@ class SidebarSyncTests(unittest.TestCase):
                 any("locale sidebar JSON remains" in issue for issue in result.issues)
             )
 
+    def test_rejects_unsafe_version_before_building_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_repo(root)
+
+            with self.assertRaises(ValueError):
+                sidebar.sync_version("../12.x", write=True, repo_root=root)
+
 
 if __name__ == "__main__":
     unittest.main()
