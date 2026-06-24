@@ -295,8 +295,8 @@ def build_sidebar(
     return {"tutorialSidebar": items}, issues
 
 
-def _read_sidebar(path: Path, *, repo_root: Path = REPO_ROOT) -> tuple[dict, list[str]]:
-    safe_path = _safe_repo_path(path, repo_root)
+def _read_sidebar(version: str, *, repo_root: Path = REPO_ROOT) -> tuple[dict, list[str]]:
+    safe_path = _safe_repo_path(_sidebar_path(repo_root, version), repo_root)
     if not safe_path.exists():
         return {}, []
     try:
@@ -306,9 +306,9 @@ def _read_sidebar(path: Path, *, repo_root: Path = REPO_ROOT) -> tuple[dict, lis
 
 
 def _write_sidebar(
-    path: Path, sidebar: dict, *, repo_root: Path = REPO_ROOT
+    version: str, sidebar: dict, *, repo_root: Path = REPO_ROOT
 ) -> None:
-    safe_path = _safe_repo_path(path, repo_root)
+    safe_path = _safe_repo_path(_sidebar_path(repo_root, version), repo_root)
     safe_path.parent.mkdir(parents=True, exist_ok=True)
     safe_path.write_text(
         json.dumps(sidebar, ensure_ascii=False, indent=2) + "\n",
@@ -329,8 +329,7 @@ def sync_version(
     version: str, *, write: bool = False, repo_root: Path = REPO_ROOT
 ) -> SidebarResult:
     version = _supported_version(version, repo_root)
-    path = _sidebar_path(repo_root, version)
-    current, issues = _read_sidebar(path, repo_root=repo_root)
+    current, issues = _read_sidebar(version, repo_root=repo_root)
     expected, build_issues = build_sidebar(version, current=current, repo_root=repo_root)
     issues.extend(build_issues)
 
@@ -342,11 +341,11 @@ def sync_version(
 
         if write:
             if sidebar_changed:
-                _write_sidebar(path, expected, repo_root=repo_root)
+                _write_sidebar(version, expected, repo_root=repo_root)
             for locale_path in locale_paths_to_remove:
                 locale_path.unlink()
 
-            current, read_issues = _read_sidebar(path, repo_root=repo_root)
+            current, read_issues = _read_sidebar(version, repo_root=repo_root)
             issues.extend(read_issues)
             sidebar_changed = current != expected
             locale_paths_to_remove = _existing_repo_paths(locale_paths, repo_root)
