@@ -150,6 +150,42 @@ class SidebarSyncTests(unittest.TestCase):
                 ).exists()
             )
 
+    def test_versioned_sidebar_preserves_historical_api_link(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_repo(root)
+            docs = root / "i18n/en/docusaurus-plugin-content-docs/version-12.x"
+            docs.mkdir(parents=True)
+            (docs / "documentation.md").write_text(
+                "\n".join(
+                    [
+                        "- ## Getting Started",
+                        "    - [Installation](/docs/{{version}}/installation)",
+                        "- [API Documentation](https://api.laravel.com/docs/12.x)",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            (docs / "installation.md").write_text("# installation\n", encoding="utf-8")
+
+            result = sidebar.sync_version("12.x", write=True, repo_root=root)
+
+            self.assertEqual(result.issues, [])
+            synced = json.loads(
+                (root / "versioned_sidebars/version-12.x-sidebars.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(
+                synced["tutorialSidebar"][1],
+                {
+                    "type": "link",
+                    "label": "API Documentation",
+                    "href": "https://api.laravel.com/docs/12.x",
+                },
+            )
+
     def test_verify_mode_reports_stale_sidebar_and_locale_json(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

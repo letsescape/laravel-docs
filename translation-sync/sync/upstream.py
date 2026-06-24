@@ -51,9 +51,9 @@ def normalize_markdown_source(text: str) -> str:
         normalized_lines.append(body.rstrip(" \t") + ending)
 
     normalized = "".join(normalized_lines)
-    if normalized.endswith(("\n", "\r")):
-        return normalized.rstrip("\r\n") + "\n"
-    return normalized
+    if not normalized:
+        return ""
+    return normalized.rstrip("\r\n") + "\n"
 
 
 def sync_version(repo_dir: Path, version: str) -> int:

@@ -37,6 +37,9 @@ _ANCHOR_TAG_RE = re.compile(r"<a\b[^>]*\bname=[\"'][^\"']+[\"'][^>]*>", re.IGNOR
 _ANCHOR_NAME_RE = re.compile(r"\bname=[\"']([^\"']+)[\"']", re.IGNORECASE)
 _HEADING_LINE_RE = re.compile(r"^[ \t]*#{1,6}\s.*$", re.MULTILINE)
 _DOCS_PREFIX_RE = re.compile(r"^/docs/[^/#?]+/?")
+_ADMONITION_RE = re.compile(
+    r"^>\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
+)
 _STALE_LINK_TARGETS = {
     "#agents-integration": "#agent-integration",
     "#method-array-sort-recursive-desc": "#method-array-sort-recursive",
@@ -128,6 +131,20 @@ def _link_labels(text: str) -> list[str]:
     ]
 
 
+def _link_pairs(text: str) -> Counter[tuple[str, str]]:
+    body = _strip_heading_lines(_strip_code_blocks(_strip_comments(text)))
+    pairs = [
+        (
+            " ".join(match.group(2).split()),
+            _normalize_link_target(match.group(3)),
+        )
+        for match in _MARKDOWN_LINK_RE.finditer(body)
+        if match.group(1) != "!"
+    ]
+    pairs.extend((target, _normalize_link_target(target)) for target in _AUTOLINK_RE.findall(body))
+    return Counter(pairs)
+
+
 def _normalize_link_target(target: str) -> str:
     if re.match(r"^[a-z][a-z0-9+.-]*:", target, re.IGNORECASE):
         return target
@@ -197,6 +214,19 @@ def _front_matter_title(text: str) -> str | None:
     return None
 
 
+def _has_admonition_body_outside_blockquote(text: str) -> bool:
+    body = _strip_code_blocks(text)
+    lines = body.splitlines()
+    for index, line in enumerate(lines[:-1]):
+        if not _ADMONITION_RE.match(line.strip()):
+            continue
+
+        next_line = lines[index + 1]
+        if next_line.strip() and not next_line.lstrip().startswith(">"):
+            return True
+    return False
+
+
 def _normalize_comment_text(text: str) -> str:
     text = text.replace("*&#47;", "*/").replace("--&gt;", "-->")
     return " ".join(text.split())
@@ -259,6 +289,8 @@ def verify(text: str, source: str | None = None) -> list[str]:
     issues = [label for label, pattern in _FORBIDDEN.items() if pattern.search(body)]
     if has_title_attr_line(body):
         issues.append("title style class")
+    if _has_admonition_body_outside_blockquote(body):
+        issues.append("admonition body outside blockquote")
 
     if source is None:
         return issues
@@ -267,6 +299,8 @@ def verify(text: str, source: str | None = None) -> list[str]:
         issues.append("link target mismatch")
     if _link_labels(source) != _link_labels(text):
         issues.append("link label mismatch")
+    if _link_pairs(source) != _link_pairs(text):
+        issues.append("link pair mismatch")
     if _inline_codes(source) != _inline_codes(text):
         issues.append("inline code mismatch")
     if _anchors(source) != _anchors(text):

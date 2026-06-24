@@ -222,7 +222,13 @@ def _fix_preserved_markup(
     """기존 ko/ja 문서의 비번역 markup만 원문 기준으로 복구한다."""
     writable = 0
     failures: list[str] = []
-    fixable = {"link label mismatch", "heading mismatch", "heading text mismatch"}
+    fixable = {
+        "link target mismatch",
+        "link label mismatch",
+        "link pair mismatch",
+        "heading mismatch",
+        "heading text mismatch",
+    }
 
     for change in _select_changes(migrate_existing=True, version=version, doc=doc):
         expected_source = _expected_source(change)

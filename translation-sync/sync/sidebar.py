@@ -15,7 +15,6 @@ from urllib.parse import urlsplit
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DOC_LINK_RE = re.compile(r"^\s*-\s*\[([^\]\n]+)]\(([^)\s]+)\)\s*$")
-CATEGORY_RE = re.compile(r"^\s*-\s*##\s+(.+?)\s*$")
 SIDEBAR_LOCALES = ("ko", "ja")
 
 
@@ -98,8 +97,25 @@ def _doc_id_from_href(href: str) -> str | None:
     return segments[-1]
 
 
-def _normalize_link_href(href: str, latest_stable: str) -> str:
-    if href.startswith("https://api.laravel.com/docs/"):
+def _category_label(line: str) -> str | None:
+    stripped = line.strip()
+    if not stripped.startswith("-"):
+        return None
+
+    after_dash = stripped[1:].lstrip()
+    if not after_dash.startswith("##"):
+        return None
+
+    after_hashes = after_dash[2:]
+    if not after_hashes or not after_hashes[0].isspace():
+        return None
+
+    label = after_hashes.strip()
+    return label or None
+
+
+def _normalize_link_href(href: str, *, version: str, latest_stable: str) -> str:
+    if version == "master" and href.startswith("https://api.laravel.com/docs/"):
         return f"https://api.laravel.com/docs/{latest_stable}"
     return href
 
@@ -139,9 +155,8 @@ def parse_documentation(
     used_keys: set[str] = set()
 
     for line_number, line in enumerate(text.splitlines(), start=1):
-        category_match = CATEGORY_RE.match(line)
-        if category_match:
-            label = category_match.group(1).strip()
+        label = _category_label(line)
+        if label:
             current_category = {
                 "type": "category",
                 "label": label,
@@ -157,7 +172,9 @@ def parse_documentation(
             continue
 
         label = link_match.group(1).strip()
-        href = _normalize_link_href(link_match.group(2).strip(), latest_stable)
+        href = _normalize_link_href(
+            link_match.group(2).strip(), version=version, latest_stable=latest_stable
+        )
         doc_id = _doc_id_from_href(href)
 
         if doc_id is None:

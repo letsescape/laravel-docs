@@ -40,10 +40,10 @@ test.describe('Docs rendering', () => {
   test('sidebar labels stay in English while body text is localized', async ({page}) => {
     await page.goto(docsPath('collections'));
 
-    const sidebarText = await page.locator('.theme-doc-sidebar-container').innerText();
-    expect(sidebarText).toContain('Getting Started');
-    expect(sidebarText).toContain('Collections');
-    expect(sidebarText).not.toMatch(/[가-힣ぁ-んァ-ン一-龯]/);
+    const sidebar = page.locator('.theme-doc-sidebar-container');
+    await expect(sidebar).toContainText('Getting Started');
+    await expect(sidebar).toContainText('Collections');
+    await expect(sidebar).not.toContainText(/[가-힣ぁ-んァ-ン一-龯]/);
     await expect(page.locator('article')).toContainText('컬렉션');
   });
 

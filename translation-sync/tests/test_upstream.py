@@ -30,6 +30,9 @@ class UpstreamSyncTests(unittest.TestCase):
             ),
         )
 
+    def test_adds_single_eof_newline_when_source_has_no_newline(self) -> None:
+        self.assertEqual(upstream.normalize_markdown_source("# Title"), "# Title\n")
+
 
 if __name__ == "__main__":
     unittest.main()

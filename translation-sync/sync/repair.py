@@ -1,7 +1,7 @@
 """Targeted repair helpers for preserved Markdown markup.
 
 These helpers do not translate prose. They only restore markup that must stay
-identical to the English source: heading lines and Markdown link labels.
+identical to the English source: heading lines and Markdown link labels/targets.
 """
 from __future__ import annotations
 
@@ -50,9 +50,9 @@ def _heading_lines(text: str) -> list[str]:
     return headings
 
 
-def _link_labels(text: str) -> list[str]:
+def _links(text: str) -> list[tuple[str, str, str]]:
     return [
-        " ".join(match.group(2).split())
+        (" ".join(match.group(2).split()), match.group(3), match.group(4))
         for match in _MARKDOWN_LINK_RE.finditer(
             strip_html_comments(_without_code_blocks(text))
         )
@@ -78,27 +78,27 @@ def _without_code_blocks(text: str) -> str:
     return "".join(out)
 
 
-def _replace_link_labels(line: str, labels: Iterator[str]) -> str:
+def _replace_links(line: str, links: Iterator[tuple[str, str, str]]) -> str:
     def replace(match: re.Match[str]) -> str:
         if match.group(1) == "!":
             return match.group(0)
         try:
-            label = next(labels)
+            label, target, title = next(links)
         except StopIteration as exc:
             raise RepairError("translated document has more Markdown links than source") from exc
-        return f"{match.group(1)}[{label}]({match.group(3)}{match.group(4)})"
+        return f"{match.group(1)}[{label}]({target}{title})"
 
     return _MARKDOWN_LINK_RE.sub(replace, line)
 
 
 def repair_preserved_markup(source: str, translated: str) -> RepairResult:
-    """Restore heading lines and link labels from source into translated Markdown.
+    """Restore heading lines and links from source into translated Markdown.
 
     The function only edits non-comment, non-code areas. It fails closed when the
     translated document has a different number of headings or Markdown links.
     """
     source_headings = iter(_heading_lines(source))
-    source_labels = iter(_link_labels(source))
+    source_links = iter(_links(source))
     changed = False
     out: list[str] = []
     in_code = False
@@ -142,7 +142,7 @@ def repair_preserved_markup(source: str, translated: str) -> RepairResult:
             out.append(repaired)
             continue
 
-        repaired = _replace_link_labels(original_line, source_labels)
+        repaired = _replace_links(original_line, source_links)
         changed = changed or repaired != original_line
         out.append(repaired)
 
@@ -154,7 +154,7 @@ def repair_preserved_markup(source: str, translated: str) -> RepairResult:
         raise RepairError("translated document has fewer headings than source")
 
     try:
-        next(source_labels)
+        next(source_links)
     except StopIteration:
         pass
     else:

@@ -28,6 +28,17 @@ class VerifyContentTests(unittest.TestCase):
 
         self.assertNotIn("link label mismatch", verify.verify(translated, source=source))
 
+    def test_detects_swapped_link_labels_and_targets(self):
+        source = (
+            "Generate a [redirect HTTP response](responses#redirects) "
+            "for a [named route](routing#named-routes)."
+        )
+        translated = """<!-- Generate a [redirect HTTP response](responses#redirects) for a [named route](routing#named-routes). -->
+[redirect HTTP response](routing#named-routes)에 대한 [named route](responses#redirects)을 생성합니다.
+"""
+
+        self.assertIn("link pair mismatch", verify.verify(translated, source=source))
+
     def test_detects_missing_inline_code_from_translated_body(self):
         source = "Set `user_id` before saving."
         translated = """<!-- Set `user_id` before saving. -->
@@ -167,6 +178,14 @@ echo 'ok';
 """
 
         self.assertIn("missing original comment", verify.verify(translated, source=source))
+
+    def test_detects_admonition_body_outside_blockquote(self):
+        translated = """> [!NOTE]
+<!-- Note body. -->
+본문입니다.
+"""
+
+        self.assertIn("admonition body outside blockquote", verify.verify(translated))
 
 
 if __name__ == "__main__":

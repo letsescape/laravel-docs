@@ -21,6 +21,9 @@ _NOTE_TYPES = {
     "caution": "CAUTION",
     "important": "IMPORTANT",
 }
+_GFM_ADMONITION_RE = re.compile(
+    r"^>\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
+)
 
 
 def _map_outside_code_blocks(text: str, transform) -> str:
@@ -116,6 +119,7 @@ def _parse_note_line(line: str) -> tuple[str, str] | None:
 
 def standardize_admonitions(text: str) -> str:
     out: list[str] = []
+    in_gfm_admonition = False
     for line in text.split("\n"):
         note = _parse_note_line(line)
         if note:
@@ -124,7 +128,22 @@ def standardize_admonitions(text: str) -> str:
                 out.append(f"> [!{_NOTE_TYPES[kind]}]")
                 if rest:
                     out.append(f"> {rest}")
+                in_gfm_admonition = True
                 continue
+        if _GFM_ADMONITION_RE.match(line.strip()):
+            out.append(line)
+            in_gfm_admonition = True
+            continue
+        if in_gfm_admonition:
+            if not line.strip():
+                out.append(line)
+                in_gfm_admonition = False
+                continue
+            if line.lstrip().startswith(">"):
+                out.append(line)
+                continue
+            out.append(f"> {line}")
+            continue
         out.append(line)
     return "\n".join(out)
 
