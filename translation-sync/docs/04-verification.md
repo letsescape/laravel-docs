@@ -133,7 +133,7 @@ flowchart TD
 
 - 원문 링크 URL이 유지되어야 한다.
 - 내부 앵커가 변경되지 않아야 한다.
-- 링크 텍스트만 번역되고 URL은 보존되어야 한다.
+- 링크 label과 URL은 모두 원문 기준으로 보존되어야 한다.
 - `#anchor-name` 형식의 앵커가 손상되지 않아야 한다.
 - `{{version}}` 치환 후 링크가 정상 형식이어야 한다.
 - 링크 괄호가 깨지지 않아야 한다.
@@ -149,7 +149,7 @@ See [Create a project](./projects#create-a-project).
 번역 후 정상:
 
 ```md
-[프로젝트 생성](./projects#create-a-project)을 참조하세요.
+[Create a project](./projects#create-a-project)를 참조하세요.
 ```
 
 번역 후 문제:
@@ -158,7 +158,7 @@ See [Create a project](./projects#create-a-project).
 [프로젝트 생성](./projects#프로젝트-생성)을 참조하세요.
 ```
 
-위 예시는 원문 앵커가 번역되어 손상된 경우다.
+위 예시는 링크 label과 원문 앵커가 번역되어 손상된 경우다.
 
 ---
 
@@ -453,6 +453,8 @@ __BASE64_IMAGE_\d+__
 - **앵커**: `<a name="...">` 명시적 앵커 집합이 원문과 번역본에서 일치해야 한다(누락/추가 검사).
 - **heading 개수/레벨**: ATX heading 개수가 같고, 순서대로 레벨이 일치해야 한다.
 - **내부 링크 대상**: 마크다운 내부 링크 대상의 multiset이 원문과 번역본에서 일치해야 한다.
+- **heading / link label**: 문서 제목, heading, Markdown 링크 label은 원문 영어 텍스트와 일치해야 한다. 번역되었거나 임의로 병기되면 실패로 본다.
+- **sidebar**: `documentation.md`의 category/doc label과 순서가 `versioned_sidebars/*.json`에 반영되어야 하며, locale별 sidebar JSON은 존재하지 않아야 한다.
 
 #### upstream stale 앵커/링크 보정
 
@@ -480,7 +482,7 @@ upstream(공식 Laravel 문서) 원문에는 실제 앵커와 어긋난 내부 �
 - `#assert-similar-json`
 - `#formatting-shortcode-notifications`
 
-이 보정은 기존 JS 검증(`validate-translation-structure.mjs`)이 수행하던 것으로, 번역 구조 검증을 Python으로 옮길 때(05 T5) 동일하게 유지한다. 특히 기존 문서 주석 병기 마이그레이션(05 T2)에서, 기존 번역이 이미 보정해 둔 링크가 위양성으로 잡히지 않도록 반드시 적용한다.
+이 보정은 기존 JS 검증(`validate-translation-structure.mjs`)이 수행하던 것으로, 번역 구조 검증을 Python으로 옮긴 뒤에도 동일하게 유지한다. 특히 기존 번역이 이미 보정해 둔 링크가 위양성으로 잡히지 않도록 반드시 적용한다.
 
 ---
 
@@ -494,7 +496,7 @@ Python 코드가 자동으로 확정하기 어려운 항목은 검증 실패로 
 - 코드 블록으로 변환된 영역이 실제 코드 또는 명령어인지 불명확한 위치
 - 노트 메시지의 admonition 유형을 문맥으로만 판단할 수 있는 위치
 - `{{version}}`이 예시 플레이스홀더로 유지되어야 하는지 불명확한 위치
-- 링크 텍스트 번역의 자연스러움처럼 자동 판정이 어려운 항목
+- 문서 제목 또는 label 불일치가 upstream 원문 변경인지 로컬 예외인지 판단이 필요한 위치
 - 제목에서 제거한 `{.class}`가 실제 스타일 클래스인지 불명확한 위치
 - `<style>` 태그가 코드 예제인지 페이지 디자인 코드인지 불명확한 위치
 
@@ -585,10 +587,11 @@ API 장애로 인한 미완료 번역이 원인이면 검증 단계에서 수정
 1. 영어 diff의 변경 사항이 한국어 문서에 반영되어 있다.
 2. 기존 한국어 문서의 용어와 문체가 유지되어 있다.
 3. 코드와 인라인 코드는 번역되지 않았다.
-4. 원문 앵커와 링크는 유지되어 있다.
+4. 문서 제목, heading, 링크 label, 앵커는 원문 영어 기준으로 유지되어 있다.
 5. base64 이미지는 손상 없이 복원되어 있다.
 6. 최종 문서에 불필요한 페이지 디자인 전용 `<style>` 태그와 코드는 제거되어 있다.
 7. `<img>` 태그는 `<img />` 형식이다.
 8. 제목 옆 스타일 클래스는 제거되어 있다.
 9. 노트/툴팁은 의미에 맞는 표준 admonition 형식으로 표준화되어 있다.
 10. `{{version}}` 플레이스홀더는 지정된 버전 문자열로 치환되어 있다.
+11. `documentation.md` 기준 사이드바 JSON이 갱신되어 있고, locale별 sidebar JSON이 남아 있지 않다.
