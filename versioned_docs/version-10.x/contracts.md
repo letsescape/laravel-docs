@@ -1,41 +1,56 @@
-# 계약 (Contracts)
+<!-- # Contracts -->
+# Contracts
 
-- [소개](#introduction)
-    - [계약과 파사드의 차이](#contracts-vs-facades)
-- [계약을 사용해야 할 때](#when-to-use-contracts)
-- [계약의 사용 방법](#how-to-use-contracts)
-- [계약 참조표](#contract-reference)
+- [Introduction](#introduction)
+    - [Contracts vs. Facades](#contracts-vs-facades)
+- [When to Use Contracts](#when-to-use-contracts)
+- [How to Use Contracts](#how-to-use-contracts)
+- [Contract Reference](#contract-reference)
 
 <a name="introduction"></a>
-## 소개
+<!-- ## Introduction -->
+## Introduction
 
-라라벨의 "계약(contracts)"은 프레임워크에서 제공하는 핵심 서비스의 동작 방식을 정의한 일련의 인터페이스입니다. 예를 들어, `Illuminate\Contracts\Queue\Queue` 계약은 작업을 큐에 넣기 위해 필요한 메서드를 정의하고 있으며, `Illuminate\Contracts\Mail\Mailer` 계약은 이메일을 전송하는 데 필요한 메서드를 명시하고 있습니다.
+<!-- Laravel's "contracts" are a set of interfaces that define the core services provided by the framework. For example, an `Illuminate\Contracts\Queue\Queue` contract defines the methods needed for queueing jobs, while the `Illuminate\Contracts\Mail\Mailer` contract defines the methods needed for sending e-mail. -->
+Laravel의 "계약(contracts)"은 프레임워크에서 제공하는 핵심 서비스의 동작 방식을 정의한 일련의 인터페이스입니다. 예를 들어, `Illuminate\Contracts\Queue\Queue` 계약은 작업을 큐에 넣기 위해 필요한 메서드를 정의하고 있으며, `Illuminate\Contracts\Mail\Mailer` 계약은 이메일을 전송하는 데 필요한 메서드를 명시하고 있습니다.
 
-각 계약에는 프레임워크에서 제공하는 대응되는 실제 구현이 존재합니다. 예를 들어, 라라벨은 다양한 드라이버를 지원하는 큐 시스템 구현을 제공하며, 메일 전송 구현은 [Symfony Mailer](https://symfony.com/doc/6.0/mailer.html)를 기반으로 만들어졌습니다.
+<!-- Each contract has a corresponding implementation provided by the framework. For example, Laravel provides a queue implementation with a variety of drivers, and a mailer implementation that is powered by [Symfony Mailer](https://symfony.com/doc/6.0/mailer.html). -->
+각 계약에는 프레임워크에서 제공하는 대응되는 실제 구현이 존재합니다. 예를 들어, Laravel은 다양한 드라이버를 지원하는 큐 시스템 구현을 제공하며, 메일 전송 구현은 [Symfony Mailer](https://symfony.com/doc/6.0/mailer.html)를 기반으로 만들어졌습니다.
 
-라라벨의 모든 계약은 [별도의 GitHub 저장소](https://github.com/illuminate/contracts)에 보관되어 있습니다. 이 저장소를 참고하면 제공되는 모든 계약의 목록을 한눈에 확인할 수 있으며, 라라벨 서비스와 연동하는 패키지를 만들 때 활용할 수 있는, 프레임워크 자체와는 분리된 형태의 패키지로도 사용할 수 있습니다.
+<!-- All of the Laravel contracts live in [their own GitHub repository](https://github.com/illuminate/contracts). This provides a quick reference point for all available contracts, as well as a single, decoupled package that may be utilized when building packages that interact with Laravel services. -->
+Laravel의 모든 계약은 [their own GitHub repository](https://github.com/illuminate/contracts)에 보관되어 있습니다. 이 저장소를 참고하면 제공되는 모든 계약의 목록을 한눈에 확인할 수 있으며, Laravel 서비스와 연동하는 패키지를 만들 때 활용할 수 있는, 프레임워크 자체와는 분리된 형태의 패키지로도 사용할 수 있습니다.
 
 <a name="contracts-vs-facades"></a>
-### 계약과 파사드의 차이
+<!-- ### Contracts vs. Facades -->
+### Contracts vs. Facades
 
-라라벨의 [파사드](/docs/10.x/facades)와 도우미 함수(helper)는 서비스 컨테이너에서 계약을 타입힌트 하거나 직접 해결하지 않고도 라라벨의 서비스 기능을 간단하게 사용할 수 있는 편리한 방법을 제공합니다. 대부분의 경우, 각 파사드에는 동일한 기능을 제공하는 계약이 대응되어 있습니다.
+<!-- Laravel's [facades](/docs/10.x/facades) and helper functions provide a simple way of utilizing Laravel's services without needing to type-hint and resolve contracts out of the service container. In most cases, each facade has an equivalent contract. -->
+Laravel의 [facades](/docs/10.x/facades)와 도우미 함수(helper)는 서비스 컨테이너에서 계약을 타입힌트 하거나 직접 해결하지 않고도 Laravel의 서비스 기능을 간단하게 사용할 수 있는 편리한 방법을 제공합니다. 대부분의 경우, 각 파사드에는 동일한 기능을 제공하는 계약이 대응되어 있습니다.
 
+<!-- Unlike facades, which do not require you to require them in your class' constructor, contracts allow you to define explicit dependencies for your classes. Some developers prefer to explicitly define their dependencies in this way and therefore prefer to use contracts, while other developers enjoy the convenience of facades. **In general, most applications can use facades without issue during development.** -->
 파사드는 클래스의 생성자에서 별도로 요구하거나 선언할 필요 없이 바로 사용할 수 있지만, 계약을 이용하면 클래스의 생성자에서 명시적으로 해당 의존성을 정의할 수 있습니다. 어떤 개발자는 이렇게 명시적으로 의존성을 드러내는 방식을 선호해 계약을 사용하는 반면, 다른 개발자는 파사드의 편리함을 더 선호하기도 합니다. **일반적으로 대부분의 애플리케이션에서는 개발 과정에서 별다른 문제 없이 파사드를 사용할 수 있습니다.**
 
 <a name="when-to-use-contracts"></a>
-## 계약을 사용해야 할 때
+<!-- ## When to Use Contracts -->
+## When to Use Contracts
 
-계약과 파사드 중 무엇을 사용할지는 여러분 자신 또는 팀의 개발 스타일에 따라 결정할 수 있습니다. 계약과 파사드 어느 쪽이든 라라벨 애플리케이션을 충분히 견고하고 테스트하기 쉽게 만들 수 있습니다. 계약과 파사드는 상호 배타적이지 않으며, 애플리케이션 내 어떤 부분에서는 파사드를, 다른 부분에서는 계약을 사용할 수도 있습니다. 클래스들의 책임만 명확히 분리하고 있다면, 계약과 파사드 사용 사이에서 실제로 느껴지는 차이는 거의 없습니다.
+<!-- The decision to use contracts or facades will come down to personal taste and the tastes of your development team. Both contracts and facades can be used to create robust, well-tested Laravel applications. Contracts and facades are not mutually exclusive. Some parts of your applications may use facades while others depend on contracts. As long as you are keeping your class' responsibilities focused, you will notice very few practical differences between using contracts and facades. -->
+계약과 파사드 중 무엇을 사용할지는 여러분 자신 또는 팀의 개발 스타일에 따라 결정할 수 있습니다. 계약과 파사드 어느 쪽이든 Laravel 애플리케이션을 충분히 견고하고 테스트하기 쉽게 만들 수 있습니다. 계약과 파사드는 상호 배타적이지 않으며, 애플리케이션 내 어떤 부분에서는 파사드를, 다른 부분에서는 계약을 사용할 수도 있습니다. 클래스들의 책임만 명확히 분리하고 있다면, 계약과 파사드 사용 사이에서 실제로 느껴지는 차이는 거의 없습니다.
 
-일반적으로, 대부분의 애플리케이션에서는 개발 과정에서 파사드를 자유롭게 사용해도 괜찮습니다. 만약 여러 PHP 프레임워크와 연동되는 패키지를 제작하고 있다면, `illuminate/contracts` 패키지를 사용하면 라라벨의 구체적인 구현체를 패키지의 `composer.json`에 직접 의존하지 않고도 라라벨 서비스와 연동할 수 있습니다.
+<!-- In general, most applications can use facades without issue during development. If you are building a package that integrates with multiple PHP frameworks you may wish to use the `illuminate/contracts` package to define your integration with Laravel's services without the need to require Laravel's concrete implementations in your package's `composer.json` file. -->
+일반적으로, 대부분의 애플리케이션에서는 개발 과정에서 파사드를 자유롭게 사용해도 괜찮습니다. 만약 여러 PHP 프레임워크와 연동되는 패키지를 제작하고 있다면, `illuminate/contracts` 패키지를 사용하면 Laravel의 구체적인 구현체를 패키지의 `composer.json`에 직접 의존하지 않고도 Laravel 서비스와 연동할 수 있습니다.
 
 <a name="how-to-use-contracts"></a>
-## 계약의 사용 방법
+<!-- ## How to Use Contracts -->
+## How to Use Contracts
 
+<!-- So, how do you get an implementation of a contract? It's actually quite simple. -->
 그렇다면, 실제로 계약의 구현체를 어떻게 얻을 수 있을까요? 방법은 매우 간단합니다.
 
-라라벨에서는 여러 유형의 클래스(컨트롤러, 이벤트 리스너, 미들웨어, 큐 처리 작업, 라우트 클로저 등)가 [서비스 컨테이너](/docs/10.x/container)를 통해 해결(resolved)됩니다. 따라서, 클래스의 생성자에서 인터페이스(계약)를 "타입힌트" 하면, 해당 계약의 구현체가 자동으로 주입되어 사용 가능합니다.
+<!-- Many types of classes in Laravel are resolved through the [service container](/docs/10.x/container), including controllers, event listeners, middleware, queued jobs, and even route closures. So, to get an implementation of a contract, you can just "type-hint" the interface in the constructor of the class being resolved. -->
+Laravel에서는 여러 유형의 클래스(컨트롤러, 이벤트 리스너, 미들웨어, 큐 처리 작업, 라우트 클로저 등)가 [service container](/docs/10.x/container)를 통해 해결(resolved)됩니다. 따라서, 클래스의 생성자에서 인터페이스(계약)를 "타입힌트" 하면, 해당 계약의 구현체가 자동으로 주입되어 사용 가능합니다.
 
+<!-- For example, take a look at this event listener: -->
 예를 들어, 아래의 이벤트 리스너 예시를 살펴보세요.
 
 ```
@@ -66,12 +81,15 @@ class CacheOrderInformation
 }
 ```
 
-이벤트 리스너가 서비스 컨테이너에 의해 해결될 때, 컨테이너는 클래스 생성자에 선언된 타입힌트를 읽고, 적절한 값을 자동으로 주입합니다. 서비스 컨테이너에 다양한 항목을 등록하는 방법 등 더 자세한 내용은 [서비스 컨테이너 문서](/docs/10.x/container)를 참고하세요.
+<!-- When the event listener is resolved, the service container will read the type-hints on the constructor of the class, and inject the appropriate value. To learn more about registering things in the service container, check out [its documentation](/docs/10.x/container). -->
+이벤트 리스너가 서비스 컨테이너에 의해 해결될 때, 컨테이너는 클래스 생성자에 선언된 타입힌트를 읽고, 적절한 값을 자동으로 주입합니다. 서비스 컨테이너에 다양한 항목을 등록하는 방법 등 더 자세한 내용은 [its documentation](/docs/10.x/container)를 참고하세요.
 
 <a name="contract-reference"></a>
-## 계약 참조표
+<!-- ## Contract Reference -->
+## Contract Reference
 
-아래 표는 라라벨에서 제공하는 모든 계약과 이에 대응하는 주요 파사드의 빠른 참조 목록입니다.
+<!-- This table provides a quick reference to all of the Laravel contracts and their equivalent facades: -->
+아래 표는 Laravel에서 제공하는 모든 계약과 이에 대응하는 주요 파사드의 빠른 참조 목록입니다.
 
 | 계약(Contract)                                                                                                                                       | 대응되는 파사드            |
 |------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|

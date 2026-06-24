@@ -37,7 +37,7 @@ the line immediately above it as a one-line HTML comment.
 
 Example:
 <!-- # Section Title -->
-# Translated Section Title (Section Title)
+# Section Title
 
 <!-- English paragraph text on one line. -->
 Translated paragraph in the target language.
@@ -45,8 +45,8 @@ Translated paragraph in the target language.
 Rules:
 - Collapse line breaks inside English comments into spaces so each comment stays
   on one line.
-- Follow the locale prompt's heading style and add the English source comment
-  above the heading.
+- Keep headings exactly as written in the English source and add the English
+  source comment above the heading.
 - Keep `<a name="..."></a>` anchors in their original position without adding
   comments for them.
 - Do not add English source comments to TOC link lists.

@@ -1,8 +1,9 @@
-# プロンプト (Prompts)
+<!-- # Prompts -->
+# Prompts
 
 - [Introduction](#introduction)
 - [Installation](#installation)
-- [利用可能なプロンプト](#available-prompts)
+- [Available Prompts](#available-prompts)
     - [Text](#text)
     - [Textarea](#textarea)
     - [Number](#number)
@@ -15,38 +16,45 @@
     - [Multi-search](#multisearch)
     - [Pause](#pause)
     - [Autocomplete](#autocomplete)
-- [検証前の入力の変換](#transforming-input-before-validation)
+- [Transforming Input Before Validation](#transforming-input-before-validation)
 - [Forms](#forms)
-- [情報メッセージ](#informational-messages)
+- [Informational Messages](#informational-messages)
 - [Tables](#tables)
 - [Spin](#spin)
-- [プログレスバー](#progress)
+- [Progress Bar](#progress)
 - [Task](#task)
 - [Stream](#stream)
-- [端末タイトル](#terminal-title)
+- [Terminal Title](#terminal-title)
 - [Notifications](#notifications)
-- [ターミナルのクリア](#clear)
-- [端末に関する考慮事項](#terminal-considerations)
-- [サポートされていない環境とフォールバック](#fallbacks)
+- [Clearing the Terminal](#clear)
+- [Terminal Considerations](#terminal-considerations)
+- [Unsupported Environments and Fallbacks](#fallbacks)
 - [Testing](#testing)
 
 <a name="introduction"></a>
-## 導入 (Introduction)
+<!-- ## Introduction -->
+## Introduction
 
-[Laravelプロンプト](https://github.com/laravel/prompts) は、プレースホルダー テキストや検証などのブラウザーのような機能を備えた、美しくユーザーフレンドリーなフォームをコマンドライン アプリケーションに追加するための PHP パッケージです。
+<!-- [Laravel Prompts](https://github.com/laravel/prompts) is a PHP package for adding beautiful and user-friendly forms to your command-line applications, with browser-like features including placeholder text and validation. -->
+[Laravel Prompts](https://github.com/laravel/prompts) は、プレースホルダー テキストや検証などのブラウザーのような機能を備えた、美しくユーザーフレンドリーなフォームをコマンドライン アプリケーションに追加するための PHP パッケージです。
 
-<img src="https://laravel.com/img/docs/prompts-example.png">
+<!-- <img src="https://laravel.com/img/docs/prompts-example.png"/> -->
+<img src="https://laravel.com/img/docs/prompts-example.png"/>
 
-Laravel プロンプトは、[Artisan コンソールコマンド](/docs/{{version}}/artisan#writing-commands) でユーザー入力を受け入れるのに最適ですが、コマンドライン PHP プロジェクトでも使用できます。
+<!-- Laravel Prompts is perfect for accepting user input in your [Artisan console commands](/docs/12.x/artisan#writing-commands), but it may also be used in any command-line PHP project. -->
+Laravel プロンプトは、[Artisan console commands](/docs/12.x/artisan#writing-commands) でユーザー入力を受け入れるのに最適ですが、コマンドライン PHP プロジェクトでも使用できます。
 
 > [!NOTE]
-> Laravel プロンプトは、WSL を使用して macOS、Linux、および Windows をサポートします。詳細については、[サポートされていない環境とフォールバック](#fallbacks) のドキュメントを参照してください。
+> Laravel プロンプトは、WSL を使用して macOS、Linux、および Windows をサポートします。詳細については、[unsupported environments & fallbacks](#fallbacks) のドキュメントを参照してください。
 
 <a name="installation"></a>
-## インストール (Installation)
+<!-- ## Installation -->
+## Installation
 
+<!-- Laravel Prompts is already included with the latest release of Laravel. -->
 Laravel Prompts は、Laravel の最新リリースにすでに含まれています。
 
+<!-- Laravel Prompts may also be installed in your other PHP projects by using the Composer package manager: -->
 Laravel プロンプトは、Composer パッケージ マネージャーを使用して他の PHP プロジェクトにインストールすることもできます。
 
 ```shell
@@ -54,11 +62,14 @@ composer require laravel/prompts
 ```
 
 <a name="available-prompts"></a>
-## 利用可能なプロンプト (Available Prompts)
+<!-- ## Available Prompts -->
+## Available Prompts
 
 <a name="text"></a>
-### 文章
+<!-- ### Text -->
+### Text
 
+<!-- The `text` function will prompt the user with the given question, accept their input, and then return it: -->
 `text` 関数は、ユーザーに指定された質問を表示し、入力を受け入れて、それを返します。
 
 ```php
@@ -67,6 +78,7 @@ use function Laravel\Prompts\text;
 $name = text('What is your name?');
 ```
 
+<!-- You may also include placeholder text, a default value, and an informational hint: -->
 プレースホルダー テキスト、デフォルト値、情報ヒントを含めることもできます。
 
 ```php
@@ -79,8 +91,10 @@ $name = text(
 ```
 
 <a name="text-required"></a>
-#### 必須の値
+<!-- #### Required Values -->
+#### Required Values
 
+<!-- If you require a value to be entered, you may pass the `required` argument: -->
 値を入力する必要がある場合は、`required` 引数を渡すことができます。
 
 ```php
@@ -90,6 +104,7 @@ $name = text(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may also pass a string: -->
 検証メッセージをカスタマイズしたい場合は、文字列を渡すこともできます。
 
 ```php
@@ -100,8 +115,10 @@ $name = text(
 ```
 
 <a name="text-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- Finally, if you would like to perform additional validation logic, you may pass a closure to the `validate` argument: -->
 最後に、追加の検証ロジックを実行したい場合は、`validate` 引数にクロージャを渡すことができます。
 
 ```php
@@ -115,9 +132,11 @@ $name = text(
 );
 ```
 
+<!-- The closure will receive the value that has been entered and may return an error message, or `null` if the validation passes. -->
 クロージャは入力された値を受け取り、エラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
-あるいは、Laravel の [validator](/docs/{{version}}/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
+<!-- Alternatively, you may leverage the power of Laravel's [validator](/docs/12.x/validation). To do so, provide an array containing the name of the attribute and the desired validation rules to the `validate` argument: -->
+あるいは、Laravel の [validator](/docs/12.x/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
 
 ```php
 $name = text(
@@ -127,8 +146,10 @@ $name = text(
 ```
 
 <a name="textarea"></a>
-### テキストエリア
+<!-- ### Textarea -->
+### Textarea
 
+<!-- The `textarea` function will prompt the user with the given question, accept their input via a multi-line textarea, and then return it: -->
 `textarea` 関数は、ユーザーに指定された質問を表示し、複数行のテキストエリアを介して入力を受け入れ、それを返します。
 
 ```php
@@ -137,6 +158,7 @@ use function Laravel\Prompts\textarea;
 $story = textarea('Tell me a story.');
 ```
 
+<!-- You may also include placeholder text, a default value, and an informational hint: -->
 プレースホルダー テキスト、デフォルト値、情報ヒントを含めることもできます。
 
 ```php
@@ -148,8 +170,10 @@ $story = textarea(
 ```
 
 <a name="textarea-required"></a>
-#### 必須の値
+<!-- #### Required Values -->
+#### Required Values
 
+<!-- If you require a value to be entered, you may pass the `required` argument: -->
 値を入力する必要がある場合は、`required` 引数を渡すことができます。
 
 ```php
@@ -159,6 +183,7 @@ $story = textarea(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may also pass a string: -->
 検証メッセージをカスタマイズしたい場合は、文字列を渡すこともできます。
 
 ```php
@@ -169,8 +194,10 @@ $story = textarea(
 ```
 
 <a name="textarea-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- Finally, if you would like to perform additional validation logic, you may pass a closure to the `validate` argument: -->
 最後に、追加の検証ロジックを実行したい場合は、`validate` 引数にクロージャを渡すことができます。
 
 ```php
@@ -184,9 +211,11 @@ $story = textarea(
 );
 ```
 
+<!-- The closure will receive the value that has been entered and may return an error message, or `null` if the validation passes. -->
 クロージャは入力された値を受け取り、エラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
-あるいは、Laravel の [validator](/docs/{{version}}/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
+<!-- Alternatively, you may leverage the power of Laravel's [validator](/docs/12.x/validation). To do so, provide an array containing the name of the attribute and the desired validation rules to the `validate` argument: -->
+あるいは、Laravel の [validator](/docs/12.x/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
 
 ```php
 $story = textarea(
@@ -196,8 +225,10 @@ $story = textarea(
 ```
 
 <a name="number"></a>
-### 番号
+<!-- ### Number -->
+### Number
 
+<!-- The `number` function will prompt the user with the given question, accept their numeric input, and then return it. The `number` function allows the user to use the up and down arrow keys to manipulate the number: -->
 `number` 関数は、ユーザーに指定された質問を表示し、数値入力を受け入れて、それを返します。 `number` 関数を使用すると、ユーザーは上下の矢印キーを使用して数値を操作できます。
 
 ```php
@@ -206,6 +237,7 @@ use function Laravel\Prompts\number;
 $number = number('How many copies would you like?');
 ```
 
+<!-- You may also include placeholder text, a default value, and an informational hint: -->
 プレースホルダー テキスト、デフォルト値、情報ヒントを含めることもできます。
 
 ```php
@@ -218,8 +250,10 @@ $name = number(
 ```
 
 <a name="number-required"></a>
-#### 必須の値
+<!-- #### Required Values -->
+#### Required Values
 
+<!-- If you require a value to be entered, you may pass the `required` argument: -->
 値を入力する必要がある場合は、`required` 引数を渡すことができます。
 
 ```php
@@ -229,6 +263,7 @@ $copies = number(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may also pass a string: -->
 検証メッセージをカスタマイズしたい場合は、文字列を渡すこともできます。
 
 ```php
@@ -239,8 +274,10 @@ $copies = number(
 ```
 
 <a name="number-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- Finally, if you would like to perform additional validation logic, you may pass a closure to the `validate` argument: -->
 最後に、追加の検証ロジックを実行したい場合は、`validate` 引数にクロージャを渡すことができます。
 
 ```php
@@ -254,9 +291,11 @@ $copies = number(
 );
 ```
 
+<!-- The closure will receive the value that has been entered and may return an error message, or `null` if the validation passes. -->
 クロージャは入力された値を受け取り、エラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
-あるいは、Laravel の [validator](/docs/{{version}}/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
+<!-- Alternatively, you may leverage the power of Laravel's [validator](/docs/12.x/validation). To do so, provide an array containing the name of the attribute and the desired validation rules to the `validate` argument: -->
+あるいは、Laravel の [validator](/docs/12.x/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
 
 ```php
 $copies = number(
@@ -266,8 +305,10 @@ $copies = number(
 ```
 
 <a name="password"></a>
-### パスワード
+<!-- ### Password -->
+### Password
 
+<!-- The `password` function is similar to the `text` function, but the user's input will be masked as they type in the console. This is useful when asking for sensitive information such as passwords: -->
 `password` 関数は `text` 関数に似ていますが、ユーザーの入力はコンソールに入力するときにマスクされます。これは、パスワードなどの機密情報を要求する場合に役立ちます。
 
 ```php
@@ -276,6 +317,7 @@ use function Laravel\Prompts\password;
 $password = password('What is your password?');
 ```
 
+<!-- You may also include placeholder text and an informational hint: -->
 プレースホルダー テキストと情報ヒントを含めることもできます。
 
 ```php
@@ -287,8 +329,10 @@ $password = password(
 ```
 
 <a name="password-required"></a>
-#### 必須の値
+<!-- #### Required Values -->
+#### Required Values
 
+<!-- If you require a value to be entered, you may pass the `required` argument: -->
 値を入力する必要がある場合は、`required` 引数を渡すことができます。
 
 ```php
@@ -298,6 +342,7 @@ $password = password(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may also pass a string: -->
 検証メッセージをカスタマイズしたい場合は、文字列を渡すこともできます。
 
 ```php
@@ -308,8 +353,10 @@ $password = password(
 ```
 
 <a name="password-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- Finally, if you would like to perform additional validation logic, you may pass a closure to the `validate` argument: -->
 最後に、追加の検証ロジックを実行したい場合は、`validate` 引数にクロージャを渡すことができます。
 
 ```php
@@ -322,9 +369,11 @@ $password = password(
 );
 ```
 
+<!-- The closure will receive the value that has been entered and may return an error message, or `null` if the validation passes. -->
 クロージャは入力された値を受け取り、エラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
-あるいは、Laravel の [validator](/docs/{{version}}/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
+<!-- Alternatively, you may leverage the power of Laravel's [validator](/docs/12.x/validation). To do so, provide an array containing the name of the attribute and the desired validation rules to the `validate` argument: -->
+あるいは、Laravel の [validator](/docs/12.x/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
 
 ```php
 $password = password(
@@ -334,8 +383,10 @@ $password = password(
 ```
 
 <a name="confirm"></a>
-### 確認する
+<!-- ### Confirm -->
+### Confirm
 
+<!-- If you need to ask the user for a "yes or no" confirmation, you may use the `confirm` function. Users may use the arrow keys or press `y` or `n` to select their response. This function will return either `true` or `false`. -->
 ユーザーに「はいまたはいいえ」の確認を求める必要がある場合は、`confirm` 関数を使用できます。ユーザーは矢印キーを使用するか、`y` または `n` を押して応答を選択できます。この関数は、`true` または `false` を返します。
 
 ```php
@@ -344,6 +395,7 @@ use function Laravel\Prompts\confirm;
 $confirmed = confirm('Do you accept the terms?');
 ```
 
+<!-- You may also include a default value, customized wording for the "Yes" and "No" labels, and an informational hint: -->
 デフォルト値、「はい」と「いいえ」ラベルのカスタマイズされた文言、および情報ヒントを含めることもできます。
 
 ```php
@@ -357,8 +409,10 @@ $confirmed = confirm(
 ```
 
 <a name="confirm-required"></a>
-#### 「はい」を要求する
+<!-- #### Requiring "Yes" -->
+#### Requiring "Yes"
 
+<!-- If necessary, you may require your users to select "Yes" by passing the `required` argument: -->
 必要に応じて、`required` 引数を渡して、ユーザーに「はい」を選択するよう要求することもできます。
 
 ```php
@@ -368,6 +422,7 @@ $confirmed = confirm(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may also pass a string: -->
 検証メッセージをカスタマイズしたい場合は、文字列を渡すこともできます。
 
 ```php
@@ -378,8 +433,10 @@ $confirmed = confirm(
 ```
 
 <a name="select"></a>
-### 選択
+<!-- ### Select -->
+### Select
 
+<!-- If you need the user to select from a predefined set of choices, you may use the `select` function: -->
 ユーザーに事前定義された一連の選択肢から選択する必要がある場合は、`select` 関数を使用できます。
 
 ```php
@@ -391,6 +448,7 @@ $role = select(
 );
 ```
 
+<!-- You may also specify the default choice and an informational hint: -->
 デフォルトの選択と情報ヒントを指定することもできます。
 
 ```php
@@ -402,6 +460,7 @@ $role = select(
 );
 ```
 
+<!-- You may also pass an associative array to the `options` argument to have the selected key returned instead of its value: -->
 連想配列を `options` 引数に渡して、値の代わりに選択したキーを返すようにすることもできます。
 
 ```php
@@ -416,6 +475,7 @@ $role = select(
 );
 ```
 
+<!-- Up to five options will be displayed before the list begins to scroll. You may customize this by passing the `scroll` argument: -->
 リストのスクロールが始まる前に、最大 5 つのオプションが表示されます。 `scroll` 引数を渡すことでこれをカスタマイズできます。
 
 ```php
@@ -427,8 +487,10 @@ $role = select(
 ```
 
 <a name="select-info"></a>
-#### 二次情報
+<!-- #### Secondary Information -->
+#### Secondary Information
 
+<!-- The `info` argument may be used to display additional information about the currently highlighted option. When a closure is provided, it will receive the value of the currently highlighted option and should return a string or `null`: -->
 `info` 引数は、現在強調表示されているオプションに関する追加情報を表示するために使用できます。クロージャーが提供されると、現在強調表示されているオプションの値を受け取り、文字列または `null` を返す必要があります。
 
 ```php
@@ -448,6 +510,7 @@ $role = select(
 );
 ```
 
+<!-- You may also pass a static string to the `info` argument if the information does not depend on the highlighted option: -->
 情報が強調表示されたオプションに依存しない場合は、静的文字列を `info` 引数に渡すこともできます。
 
 ```php
@@ -459,8 +522,10 @@ $role = select(
 ```
 
 <a name="select-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- Unlike other prompt functions, the `select` function doesn't accept the `required` argument because it is not possible to select nothing. However, you may pass a closure to the `validate` argument if you need to present an option but prevent it from being selected: -->
 他のプロンプト関数とは異なり、`select` 関数は何も選択できないため、`required` 引数を受け入れません。ただし、オプションを提示する必要があるが選択されないようにする場合は、`validate` 引数にクロージャーを渡すことができます。
 
 ```php
@@ -478,11 +543,14 @@ $role = select(
 );
 ```
 
+<!-- If the `options` argument is an associative array, then the closure will receive the selected key, otherwise it will receive the selected value. The closure may return an error message, or `null` if the validation passes. -->
 `options` 引数が連想配列の場合、クロージャは選択されたキーを受け取り、それ以外の場合は選択された値を受け取ります。クロージャはエラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
 <a name="multiselect"></a>
-### 複数選択
+<!-- ### Multi-select -->
+### Multi-select
 
+<!-- If you need the user to be able to select multiple options, you may use the `multiselect` function: -->
 ユーザーが複数のオプションを選択できるようにする必要がある場合は、`multiselect` 関数を使用できます。
 
 ```php
@@ -494,6 +562,7 @@ $permissions = multiselect(
 );
 ```
 
+<!-- You may also specify default choices and an informational hint: -->
 デフォルトの選択肢と情報ヒントを指定することもできます。
 
 ```php
@@ -507,6 +576,7 @@ $permissions = multiselect(
 );
 ```
 
+<!-- You may also pass an associative array to the `options` argument to return the selected options' keys instead of their values: -->
 連想配列を `options` 引数に渡して、選択したオプションの値の代わりにキーを返すこともできます。
 
 ```php
@@ -522,6 +592,7 @@ $permissions = multiselect(
 );
 ```
 
+<!-- Up to five options will be displayed before the list begins to scroll. You may customize this by passing the `scroll` argument: -->
 リストのスクロールが始まる前に、最大 5 つのオプションが表示されます。 `scroll` 引数を渡すことでこれをカスタマイズできます。
 
 ```php
@@ -533,8 +604,10 @@ $categories = multiselect(
 ```
 
 <a name="multiselect-info"></a>
-#### 二次情報
+<!-- #### Secondary Information -->
+#### Secondary Information
 
+<!-- The `info` argument may be used to display additional information about the currently highlighted option. When a closure is provided, it will receive the value of the currently highlighted option and should return a string or `null`: -->
 `info` 引数は、現在強調表示されているオプションに関する追加情報を表示するために使用できます。クロージャーが提供されると、現在強調表示されているオプションの値を受け取り、文字列または `null` を返す必要があります。
 
 ```php
@@ -557,8 +630,10 @@ $permissions = multiselect(
 ```
 
 <a name="multiselect-required"></a>
-#### 値の要求
+<!-- #### Requiring a Value -->
+#### Requiring a Value
 
+<!-- By default, the user may select zero or more options. You may pass the `required` argument to enforce one or more options instead: -->
 デフォルトでは、ユーザーは 0 個以上のオプションを選択できます。代わりに、`required` 引数を渡して 1 つ以上のオプションを適用できます。
 
 ```php
@@ -569,6 +644,7 @@ $categories = multiselect(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may provide a string to the `required` argument: -->
 検証メッセージをカスタマイズしたい場合は、`required` 引数に文字列を指定できます。
 
 ```php
@@ -580,8 +656,10 @@ $categories = multiselect(
 ```
 
 <a name="multiselect-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- You may pass a closure to the `validate` argument if you need to present an option but prevent it from being selected: -->
 オプションを提示する必要があるが、それが選択されないようにする場合は、`validate` 引数にクロージャーを渡すことができます。
 
 ```php
@@ -599,11 +677,14 @@ $permissions = multiselect(
 );
 ```
 
+<!-- If the `options` argument is an associative array then the closure will receive the selected keys, otherwise it will receive the selected values. The closure may return an error message, or `null` if the validation passes. -->
 `options` 引数が連想配列の場合、クロージャは選択されたキーを受け取り、それ以外の場合は選択された値を受け取ります。クロージャはエラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
 <a name="suggest"></a>
-### 提案する
+<!-- ### Suggest -->
+### Suggest
 
+<!-- The `suggest` function can be used to provide auto-completion for possible choices. The user can still provide any answer, regardless of the auto-completion hints: -->
 `suggest` 関数を使用すると、可能な選択肢のオートコンプリートを提供できます。ユーザーは、オートコンプリートのヒントに関係なく、任意の回答を入力できます。
 
 ```php
@@ -612,6 +693,7 @@ use function Laravel\Prompts\suggest;
 $name = suggest('What is your name?', ['Taylor', 'Dayle']);
 ```
 
+<!-- Alternatively, you may pass a closure as the second argument to the `suggest` function. The closure will be called each time the user types an input character. The closure should accept a string parameter containing the user's input so far and return an array of options for auto-completion: -->
 あるいは、`suggest` 関数の 2 番目の引数としてクロージャを渡すこともできます。クロージャは、ユーザーが入力文字を入力するたびに呼び出されます。クロージャは、これまでのユーザーの入力を含む文字列パラメータを受け入れ、オートコンプリートのオプションの配列を返す必要があります。
 
 ```php
@@ -622,6 +704,7 @@ $name = suggest(
 )
 ```
 
+<!-- You may also include placeholder text, a default value, and an informational hint: -->
 プレースホルダー テキスト、デフォルト値、情報ヒントを含めることもできます。
 
 ```php
@@ -635,8 +718,10 @@ $name = suggest(
 ```
 
 <a name="suggest-info"></a>
-#### 二次情報
+<!-- #### Secondary Information -->
+#### Secondary Information
 
+<!-- The `info` argument may be used to display additional information about the currently highlighted option. When a closure is provided, it will receive the value of the currently highlighted option and should return a string or `null`: -->
 `info` 引数は、現在強調表示されているオプションに関する追加情報を表示するために使用できます。クロージャーが提供されると、現在強調表示されているオプションの値を受け取り、文字列または `null` を返す必要があります。
 
 ```php
@@ -652,8 +737,10 @@ $name = suggest(
 ```
 
 <a name="suggest-required"></a>
-#### 必須の値
+<!-- #### Required Values -->
+#### Required Values
 
+<!-- If you require a value to be entered, you may pass the `required` argument: -->
 値を入力する必要がある場合は、`required` 引数を渡すことができます。
 
 ```php
@@ -664,6 +751,7 @@ $name = suggest(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may also pass a string: -->
 検証メッセージをカスタマイズしたい場合は、文字列を渡すこともできます。
 
 ```php
@@ -675,8 +763,10 @@ $name = suggest(
 ```
 
 <a name="suggest-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- Finally, if you would like to perform additional validation logic, you may pass a closure to the `validate` argument: -->
 最後に、追加の検証ロジックを実行したい場合は、`validate` 引数にクロージャを渡すことができます。
 
 ```php
@@ -691,9 +781,11 @@ $name = suggest(
 );
 ```
 
+<!-- The closure will receive the value that has been entered and may return an error message, or `null` if the validation passes. -->
 クロージャは入力された値を受け取り、エラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
-あるいは、Laravel の [validator](/docs/{{version}}/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
+<!-- Alternatively, you may leverage the power of Laravel's [validator](/docs/12.x/validation). To do so, provide an array containing the name of the attribute and the desired validation rules to the `validate` argument: -->
+あるいは、Laravel の [validator](/docs/12.x/validation) の機能を活用することもできます。これを行うには、属性の名前と必要な検証ルールを含む配列を `validate` 引数に指定します。
 
 ```php
 $name = suggest(
@@ -704,8 +796,10 @@ $name = suggest(
 ```
 
 <a name="search"></a>
-### 検索
+<!-- ### Search -->
+### Search
 
+<!-- If you have a lot of options for the user to select from, the `search` function allows the user to type a search query to filter the results before using the arrow keys to select an option: -->
 ユーザーが選択できるオプションが多数ある場合、`search` 関数を使用すると、ユーザーは矢印キーを使用してオプションを選択する前に、検索クエリを入力して結果をフィルタリングできます。
 
 ```php
@@ -719,8 +813,10 @@ $id = search(
 );
 ```
 
+<!-- The closure will receive the text that has been typed by the user so far and must return an array of options. If you return an associative array then the selected option's key will be returned, otherwise its value will be returned instead. -->
 クロージャは、ユーザーがこれまでに入力したテキストを受け取り、オプションの配列を返す必要があります。連想配列を返す場合は、選択したオプションのキーが返され、それ以外の場合は、代わりにその値が返されます。
 
+<!-- When filtering an array where you intend to return the value, you should use the `array_values` function or the `values` Collection method to ensure the array doesn't become associative: -->
 値を返す配列をフィルタリングする場合は、配列が結合しないように `array_values` 関数または `values` Collection メソッドを使用する必要があります。
 
 ```php
@@ -735,6 +831,7 @@ $selected = search(
 );
 ```
 
+<!-- You may also include placeholder text and an informational hint: -->
 プレースホルダー テキストと情報ヒントを含めることもできます。
 
 ```php
@@ -748,6 +845,7 @@ $id = search(
 );
 ```
 
+<!-- Up to five options will be displayed before the list begins to scroll. You may customize this by passing the `scroll` argument: -->
 リストのスクロールが始まる前に、最大 5 つのオプションが表示されます。 `scroll` 引数を渡すことでこれをカスタマイズできます。
 
 ```php
@@ -761,8 +859,10 @@ $id = search(
 ```
 
 <a name="search-info"></a>
-#### 二次情報
+<!-- #### Secondary Information -->
+#### Secondary Information
 
+<!-- The `info` argument may be used to display additional information about the currently highlighted option. When a closure is provided, it will receive the value of the currently highlighted option and should return a string or `null`: -->
 `info` 引数は、現在強調表示されているオプションに関する追加情報を表示するために使用できます。クロージャーが提供されると、現在強調表示されているオプションの値を受け取り、文字列または `null` を返す必要があります。
 
 ```php
@@ -776,8 +876,10 @@ $id = search(
 ```
 
 <a name="search-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- If you would like to perform additional validation logic, you may pass a closure to the `validate` argument: -->
 追加の検証ロジックを実行したい場合は、`validate` 引数にクロージャを渡すことができます。
 
 ```php
@@ -796,11 +898,14 @@ $id = search(
 );
 ```
 
+<!-- If the `options` closure returns an associative array, then the closure will receive the selected key, otherwise, it will receive the selected value. The closure may return an error message, or `null` if the validation passes. -->
 `options` クロージャが連想配列を返す場合、クロージャは選択されたキーを受け取り、そうでない場合は、選択された値を受け取ります。クロージャはエラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
 <a name="multisearch"></a>
-### 複数検索
+<!-- ### Multi-search -->
+### Multi-search
 
+<!-- If you have a lot of searchable options and need the user to be able to select multiple items, the `multisearch` function allows the user to type a search query to filter the results before using the arrow keys and space-bar to select options: -->
 検索可能なオプションが多数あり、ユーザーが複数の項目を選択できるようにする必要がある場合、`multisearch` 関数を使用すると、ユーザーは矢印キーとスペースバーを使用してオプションを選択する前に、検索クエリを入力して結果をフィルタリングできます。
 
 ```php
@@ -814,8 +919,10 @@ $ids = multisearch(
 );
 ```
 
+<!-- The closure will receive the text that has been typed by the user so far and must return an array of options. If you return an associative array then the selected options' keys will be returned; otherwise, their values will be returned instead. -->
 クロージャは、ユーザーがこれまでに入力したテキストを受け取り、オプションの配列を返す必要があります。連想配列を返す場合は、選択したオプションのキーが返されます。それ以外の場合は、代わりに値が返されます。
 
+<!-- When filtering an array where you intend to return the value, you should use the `array_values` function or the `values` Collection method to ensure the array doesn't become associative: -->
 値を返す配列をフィルタリングする場合は、配列が結合しないように `array_values` 関数または `values` Collection メソッドを使用する必要があります。
 
 ```php
@@ -830,6 +937,7 @@ $selected = multisearch(
 );
 ```
 
+<!-- You may also include placeholder text and an informational hint: -->
 プレースホルダー テキストと情報ヒントを含めることもできます。
 
 ```php
@@ -843,6 +951,7 @@ $ids = multisearch(
 );
 ```
 
+<!-- Up to five options will be displayed before the list begins to scroll. You may customize this by providing the `scroll` argument: -->
 リストのスクロールが始まる前に、最大 5 つのオプションが表示されます。 `scroll` 引数を指定してこれをカスタマイズできます。
 
 ```php
@@ -856,8 +965,10 @@ $ids = multisearch(
 ```
 
 <a name="multisearch-info"></a>
-#### 二次情報
+<!-- #### Secondary Information -->
+#### Secondary Information
 
+<!-- The `info` argument may be used to display additional information about the currently highlighted option. When a closure is provided, it will receive the value of the currently highlighted option and should return a string or `null`: -->
 `info` 引数は、現在強調表示されているオプションに関する追加情報を表示するために使用できます。クロージャーが提供されると、現在強調表示されているオプションの値を受け取り、文字列または `null` を返す必要があります。
 
 ```php
@@ -871,8 +982,10 @@ $ids = multisearch(
 ```
 
 <a name="multisearch-required"></a>
-#### 値の要求
+<!-- #### Requiring a Value -->
+#### Requiring a Value
 
+<!-- By default, the user may select zero or more options. You may pass the `required` argument to enforce one or more options instead: -->
 デフォルトでは、ユーザーは 0 個以上のオプションを選択できます。代わりに、`required` 引数を渡して 1 つ以上のオプションを適用できます。
 
 ```php
@@ -885,6 +998,7 @@ $ids = multisearch(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may also provide a string to the `required` argument: -->
 検証メッセージをカスタマイズしたい場合は、`required` 引数に文字列を指定することもできます。
 
 ```php
@@ -898,8 +1012,10 @@ $ids = multisearch(
 ```
 
 <a name="multisearch-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- If you would like to perform additional validation logic, you may pass a closure to the `validate` argument: -->
 追加の検証ロジックを実行したい場合は、`validate` 引数にクロージャを渡すことができます。
 
 ```php
@@ -918,11 +1034,14 @@ $ids = multisearch(
 );
 ```
 
+<!-- If the `options` closure returns an associative array, then the closure will receive the selected keys; otherwise, it will receive the selected values. The closure may return an error message, or `null` if the validation passes. -->
 `options` クロージャが連想配列を返す場合、クロージャは選択されたキーを受け取ります。それ以外の場合は、選択された値を受け取ります。クロージャはエラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
 <a name="pause"></a>
-### 一時停止
+<!-- ### Pause -->
+### Pause
 
+<!-- The `pause` function may be used to display informational text to the user and wait for them to confirm their desire to proceed by pressing the Enter / Return key: -->
 `pause` 関数を使用すると、ユーザーに情報テキストを表示し、Enter / Return キーを押して続行の確認を待つことができます。
 
 ```php
@@ -932,8 +1051,10 @@ pause('Press ENTER to continue.');
 ```
 
 <a name="autocomplete"></a>
-### オートコンプリート
+<!-- ### Autocomplete -->
+### Autocomplete
 
+<!-- The `autocomplete` function can be used to provide inline auto-completion for possible choices. As the user types, suggestions that match their input will appear as ghost text that can be accepted by pressing `Tab` or the right arrow key: -->
 `autocomplete` 関数を使用すると、可能な選択肢に対するインライン オートコンプリートを提供できます。ユーザーが入力すると、入力に一致する候補がゴースト テキストとして表示され、`Tab` または右矢印キーを押すことで受け入れられます。
 
 ```php
@@ -945,6 +1066,7 @@ $name = autocomplete(
 );
 ```
 
+<!-- You may also include placeholder text, a default value, and an informational hint: -->
 プレースホルダー テキスト、デフォルト値、情報ヒントを含めることもできます。
 
 ```php
@@ -958,8 +1080,10 @@ $name = autocomplete(
 ```
 
 <a name="autocomplete-closure"></a>
-#### 動的オプション
+<!-- #### Dynamic Options -->
+#### Dynamic Options
 
+<!-- You may also pass a closure to dynamically generate options based on the user's input. The closure will be called each time the user types a character and should return an array of options for auto-completion: -->
 クロージャを渡して、ユーザーの入力に基づいてオプションを動的に生成することもできます。クロージャはユーザーが文字を入力するたびに呼び出され、オートコンプリートのオプションの配列を返す必要があります。
 
 ```php
@@ -973,8 +1097,10 @@ $file = autocomplete(
 ```
 
 <a name="autocomplete-required"></a>
-#### 必須の値
+<!-- #### Required Values -->
+#### Required Values
 
+<!-- If you require a value to be entered, you may pass the `required` argument: -->
 値を入力する必要がある場合は、`required` 引数を渡すことができます。
 
 ```php
@@ -985,6 +1111,7 @@ $name = autocomplete(
 );
 ```
 
+<!-- If you would like to customize the validation message, you may also pass a string: -->
 検証メッセージをカスタマイズしたい場合は、文字列を渡すこともできます。
 
 ```php
@@ -996,8 +1123,10 @@ $name = autocomplete(
 ```
 
 <a name="autocomplete-validation"></a>
-#### 追加の検証
+<!-- #### Additional Validation -->
+#### Additional Validation
 
+<!-- Finally, if you would like to perform additional validation logic, you may pass a closure to the `validate` argument: -->
 最後に、追加の検証ロジックを実行したい場合は、`validate` 引数にクロージャを渡すことができます。
 
 ```php
@@ -1012,11 +1141,14 @@ $name = autocomplete(
 );
 ```
 
+<!-- The closure will receive the value that has been entered and may return an error message, or `null` if the validation passes. -->
 クロージャは入力された値を受け取り、エラー メッセージを返すか、検証に合格した場合は `null` を返す場合があります。
 
 <a name="transforming-input-before-validation"></a>
-## 検証前の入力の変換 (Transforming Input Before Validation)
+<!-- ## Transforming Input Before Validation -->
+## Transforming Input Before Validation
 
+<!-- Sometimes you may want to transform the prompt input before validation takes place. For example, you may wish to remove white space from any provided strings. To accomplish this, many of the prompt functions provide a `transform` argument, which accepts a closure: -->
 場合によっては、検証が行われる前にプロンプ​​ト入力を変換したい場合があります。たとえば、提供された文字列から空白を削除したい場合があります。これを実現するために、プロンプト関数の多くは、クロージャーを受け入れる `transform` 引数を提供します。
 
 ```php
@@ -1032,8 +1164,10 @@ $name = text(
 ```
 
 <a name="forms"></a>
-## フォーム (Forms)
+<!-- ## Forms -->
+## Forms
 
+<!-- Often, you will have multiple prompts that will be displayed in sequence to collect information before performing additional actions. You may use the `form` function to create a grouped set of prompts for the user to complete: -->
 多くの場合、追加のアクションを実行する前に情報を収集するために、複数のプロンプトが順番に表示されます。 `form` 関数を使用して、ユーザーが完了するためのグループ化されたプロンプトのセットを作成できます。
 
 ```php
@@ -1046,6 +1180,7 @@ $responses = form()
     ->submit();
 ```
 
+<!-- The `submit` method will return a numerically indexed array containing all of the responses from the form's prompts. However, you may provide a name for each prompt via the `name` argument. When a name is provided, the named prompt's response may be accessed via that name: -->
 `submit` メソッドは、フォームのプロンプトからのすべての応答を含む数値インデックス付き配列を返します。ただし、`name` 引数を介して各プロンプトに名前を指定できます。名前を指定すると、その名前を介して、指定されたプロンプトの応答にアクセスできます。
 
 ```php
@@ -1068,8 +1203,10 @@ User::create([
 ]);
 ```
 
+<!-- The primary benefit of using the `form` function is the ability for the user to return to previous prompts in the form using `CTRL + U`. This allows the user to fix mistakes or alter selections without needing to cancel and restart the entire form. -->
 `form` 関数を使用する主な利点は、ユーザーが `CTRL + U` を使用してフォーム内の前のプロンプトに戻ることができることです。これにより、ユーザーはフォーム全体をキャンセルして再起動することなく、間違いを修正したり選択内容を変更したりすることができます。
 
+<!-- If you need more granular control over a prompt in a form, you may invoke the `add` method instead of calling one of the prompt functions directly. The `add` method is passed all previous responses provided by the user: -->
 フォーム内のプロンプトをより詳細に制御する必要がある場合は、プロンプト関数の 1 つを直接呼び出す代わりに、`add` メソッドを呼び出すことができます。 `add` メソッドには、ユーザーが提供した以前のすべての応答が渡されます。
 
 ```php
@@ -1088,8 +1225,10 @@ outro("Your name is {$responses['name']} and you are {$responses['age']} years o
 ```
 
 <a name="informational-messages"></a>
-## 情報メッセージ (Informational Messages)
+<!-- ## Informational Messages -->
+## Informational Messages
 
+<!-- The `note`, `info`, `warning`, `error`, and `alert` functions may be used to display informational messages: -->
 `note`、`info`、`warning`、`error`、および `alert` 関数は、情報メッセージを表示するために使用できます。
 
 ```php
@@ -1099,8 +1238,10 @@ info('Package installed successfully.');
 ```
 
 <a name="tables"></a>
-## テーブル (Tables)
+<!-- ## Tables -->
+## Tables
 
+<!-- The `table` function makes it easy to display multiple rows and columns of data. All you need to do is provide the column names and the data for the table: -->
 `table` 関数を使用すると、複数の行と列のデータを簡単に表示できます。テーブルの列名とデータを指定するだけです。
 
 ```php
@@ -1113,8 +1254,10 @@ table(
 ```
 
 <a name="spin"></a>
-## スピン (Spin)
+<!-- ## Spin -->
+## Spin
 
+<!-- The `spin` function displays a spinner along with an optional message while executing a specified callback. It serves to indicate ongoing processes and returns the callback's results upon completion: -->
 `spin` 関数は、指定されたコールバックの実行中に、オプションのメッセージとともにスピナーを表示します。これは進行中のプロセスを示す役割を果たし、完了時にコールバックの結果を返します。
 
 ```php
@@ -1130,8 +1273,10 @@ $response = spin(
 > `spin` 関数では、スピナーをアニメーション化するために [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 拡張機能が必要です。この拡張機能が利用できない場合は、代わりに静的バージョンのスピナーが表示されます。
 
 <a name="progress"></a>
-## プログレスバー (Progress Bars)
+<!-- ## Progress Bars -->
+## Progress Bars
 
+<!-- For long running tasks, it can be helpful to show a progress bar that informs users how complete the task is. Using the `progress` function, Laravel will display a progress bar and advance its progress for each iteration over a given iterable value: -->
 長時間実行されるタスクの場合は、タスクの完了度をユーザーに知らせる進行状況バーを表示すると便利です。 `progress` 関数を使用すると、Laravel は進行状況バーを表示し、指定された反復可能な値を超えて反復ごとに進行状況を進めます。
 
 ```php
@@ -1144,8 +1289,10 @@ $users = progress(
 );
 ```
 
+<!-- The `progress` function acts like a map function and will return an array containing the return value of each iteration of your callback. -->
 `progress` 関数はマップ関数のように動作し、コールバックの各反復の戻り値を含む配列を返します。
 
+<!-- The callback may also accept the `Laravel\Prompts\Progress` instance, allowing you to modify the label and hint on each iteration: -->
 コールバックは `Laravel\Prompts\Progress` インスタンスも受け入れることができるため、各反復でラベルとヒントを変更できます。
 
 ```php
@@ -1163,6 +1310,7 @@ $users = progress(
 );
 ```
 
+<!-- Sometimes, you may need more manual control over how a progress bar is advanced. First, define the total number of steps the process will iterate through. Then, advance the progress bar via the `advance` method after processing each item: -->
 場合によっては、進行状況バーの進み方を手動で制御する必要がある場合があります。まず、プロセスが反復処理される合計ステップ数を定義します。次に、各項目を処理した後、`advance` メソッドを使用して進行状況バーを進めます。
 
 ```php
@@ -1182,8 +1330,10 @@ $progress->finish();
 ```
 
 <a name="task"></a>
-## タスク (Task)
+<!-- ## Task -->
+## Task
 
+<!-- The `task` function displays a labeled task with a spinner and a scrolling live output area while a given callback is executing. It is ideal for wrapping long-running processes such as dependency installation or deployment scripts, providing real-time visibility into what is happening: -->
 `task` 関数は、特定のコールバックの実行中に、スピナーとスクロールするライブ出力領域を備えたラベル付きタスクを表示します。これは、依存関係のインストールやデプロイメント スクリプトなどの長時間実行プロセスをラップするのに最適で、何が起こっているかをリアルタイムで把握できます。
 
 ```php
@@ -1197,14 +1347,17 @@ task(
 );
 ```
 
+<!-- The callback receives a `Logger` instance that you may use to display log lines, status messages, and streamed text in the task's output area. -->
 コールバックは、タスクの出力領域にログ行、ステータス メッセージ、およびストリーム テキストを表示するために使用できる `Logger` インスタンスを受け取ります。
 
 > [!WARNING]
 > `task` 関数では、スピナーをアニメーション化するために [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 拡張機能が必要です。この拡張機能が利用できない場合は、代わりにタスクの静的バージョンが表示されます。
 
 <a name="task-logging"></a>
-#### ログライン
+<!-- #### Logging Lines -->
+#### Logging Lines
 
+<!-- The `line` method writes a single log line to the task's scrolling output area: -->
 `line` メソッドは、単一のログ行をタスクのスクロール出力領域に書き込みます。
 
 ```php
@@ -1220,8 +1373,10 @@ task(
 ```
 
 <a name="task-status-messages"></a>
-#### ステータスメッセージ
+<!-- #### Status Messages -->
+#### Status Messages
 
+<!-- You may use the `success`, `warning`, and `error` methods to display status messages. These appear as stable, highlighted messages above the scrolling log area: -->
 `success`、`warning`、および `error` メソッドを使用してステータス メッセージを表示できます。これらは、スクロールするログ領域の上に安定した強調表示されたメッセージとして表示されます。
 
 ```php
@@ -1244,8 +1399,10 @@ task(
 ```
 
 <a name="task-label"></a>
-#### ラベルの更新
+<!-- #### Updating the Label -->
+#### Updating the Label
 
+<!-- The `label` method allows you to update the task's label while it is running: -->
 `label` メソッドを使用すると、タスクの実行中にタスクのラベルを更新できます。
 
 ```php
@@ -1263,8 +1420,10 @@ task(
 ```
 
 <a name="task-streaming"></a>
-#### ストリーミングテキスト
+<!-- #### Streaming Text -->
+#### Streaming Text
 
+<!-- For processes that produce output incrementally, such as AI-generated responses, the `partial` method allows you to stream text word-by-word or chunk-by-chunk. Once the stream is complete, call `commitPartial` to finalize the output: -->
 AI が生成した応答など、段階的に出力を生成するプロセスの場合、`partial` メソッドを使用すると、テキストを単語ごとまたはチャンクごとにストリーミングできます。ストリームが完了したら、`commitPartial` を呼び出して出力を完成させます。
 
 ```php
@@ -1281,8 +1440,10 @@ task(
 ```
 
 <a name="task-limit"></a>
-#### 出力制限のカスタマイズ
+<!-- #### Customizing the Output Limit -->
+#### Customizing the Output Limit
 
+<!-- By default, the task displays up to 10 lines of scrolling output. You may customize this via the `limit` argument: -->
 デフォルトでは、タスクは最大 10 行のスクロール出力を表示します。これは、`limit` 引数を使用してカスタマイズできます。
 
 ```php
@@ -1296,8 +1457,10 @@ task(
 ```
 
 <a name="stream"></a>
-## ストリーム (Stream)
+<!-- ## Stream -->
+## Stream
 
+<!-- The `stream` function displays text that streams into the terminal, ideal for displaying AI-generated content or any text that arrives incrementally: -->
 `stream` 関数は、端末にストリーミングされるテキストを表示します。これは、AI によって生成されたコンテンツや段階的に到着するテキストの表示に最適です。
 
 ```php
@@ -1313,11 +1476,14 @@ foreach ($words as $word) {
 $stream->close();
 ```
 
+<!-- The `append` method adds text to the stream, rendering it with a gradual fade-in effect. When all content has been streamed, call the `close` method to finalize the output and restore the cursor. -->
 `append` メソッドはテキストをストリームに追加し、段階的なフェードイン効果でレンダリングします。すべてのコンテンツがストリーミングされたら、`close` メソッドを呼び出して出力を終了し、カーソルを復元します。
 
 <a name="terminal-title"></a>
-## 端末タイトル (Terminal Title)
+<!-- ## Terminal Title -->
+## Terminal Title
 
+<!-- The `title` function updates the title of the user's terminal window or tab: -->
 `title` 関数は、ユーザーの端末ウィンドウまたはタブのタイトルを更新します。
 
 ```php
@@ -1326,6 +1492,7 @@ use function Laravel\Prompts\title;
 title('Installing Dependencies');
 ```
 
+<!-- To reset the terminal title back to its default, pass an empty string: -->
 ターミナルのタイトルをデフォルトにリセットするには、空の文字列を渡します。
 
 ```php
@@ -1333,8 +1500,10 @@ title('');
 ```
 
 <a name="notifications"></a>
-## 通知 (Notifications)
+<!-- ## Notifications -->
+## Notifications
 
+<!-- The `notify` function sends a native desktop notification from the terminal: -->
 `notify` 関数は、端末からネイティブ デスクトップ通知を送信します。
 
 ```php
@@ -1343,8 +1512,10 @@ use function Laravel\Prompts\notify;
 notify('Build Complete', 'Deployed to production');
 ```
 
+<!-- Notifications are supported on macOS (via `osascript`) and Linux (via `notify-send` with `kdialog` fallback). -->
 通知は、macOS (`osascript` 経由) および Linux (`kdialog` フォールバックを備えた `notify-send` 経由) でサポートされています。
 
+<!-- On macOS, you may also include a `subtitle` and a `sound`: -->
 macOS では、`subtitle` および `sound` を含めることもできます。
 
 ```php
@@ -1356,6 +1527,7 @@ notify(
 );
 ```
 
+<!-- On Linux, you may provide a custom `icon`: -->
 Linux では、カスタム `icon` を指定できます。
 
 ```php
@@ -1367,8 +1539,10 @@ notify(
 ```
 
 <a name="clear"></a>
-## ターミナルのクリア (Clearing the Terminal)
+<!-- ## Clearing the Terminal -->
+## Clearing the Terminal
 
+<!-- The `clear` function may be used to clear the user's terminal: -->
 `clear` 関数は、ユーザーの端末をクリアするために使用できます。
 
 ```php
@@ -1378,31 +1552,41 @@ clear();
 ```
 
 <a name="terminal-considerations"></a>
-## 端末に関する考慮事項 (Terminal Considerations)
+<!-- ## Terminal Considerations -->
+## Terminal Considerations
 
 <a name="terminal-width"></a>
-#### 端子幅
+<!-- #### Terminal Width -->
+#### Terminal Width
 
+<!-- If the length of any label, option, or validation message exceeds the number of "columns" in the user's terminal, it will be automatically truncated to fit. Consider minimizing the length of these strings if your users may be using narrower terminals. A typically safe maximum length is 74 characters to support an 80-character terminal. -->
 ラベル、オプション、または検証メッセージの長さがユーザーの端末の「列」数を超える場合、収まるように自動的に切り詰められます。ユーザーが幅の狭い端末を使用している可能性がある場合は、これらの文字列の長さを最小限に抑えることを検討してください。通常、80 文字の端末をサポートするための安全な最大長は 74 文字です。
 
 <a name="terminal-height"></a>
-#### 端子高さ
+<!-- #### Terminal Height -->
+#### Terminal Height
 
+<!-- For any prompts that accept the `scroll` argument, the configured value will automatically be reduced to fit the height of the user's terminal, including space for a validation message. -->
 `scroll` 引数を受け入れるプロンプトの場合、構成された値は、検証メッセージ用のスペースを含め、ユーザーの端末の高さに合わせて自動的に縮小されます。
 
 <a name="fallbacks"></a>
-## サポートされていない環境とフォールバック (Unsupported Environments and Fallbacks)
+<!-- ## Unsupported Environments and Fallbacks -->
+## Unsupported Environments and Fallbacks
 
+<!-- Laravel Prompts supports macOS, Linux, and Windows with WSL. Due to limitations in the Windows version of PHP, it is not currently possible to use Laravel Prompts on Windows outside of WSL. -->
 Laravel プロンプトは、WSL を使用して macOS、Linux、および Windows をサポートします。 PHP の Windows バージョンの制限のため、現在、WSL 以外の Windows 上で Laravel プロンプトを使用することはできません。
 
-このため、Laravel プロンプトは、[Symfony コンソールの質問ヘルパ](https://symfony.com/doc/current/components/console/helpers/questionhelper.html) などの代替実装へのフォールバックをサポートしています。
+<!-- For this reason, Laravel Prompts supports falling back to an alternative implementation such as the [Symfony Console Question Helper](https://symfony.com/doc/current/components/console/helpers/questionhelper.html). -->
+このため、Laravel プロンプトは、[Symfony Console Question Helper](https://symfony.com/doc/current/components/console/helpers/questionhelper.html) などの代替実装へのフォールバックをサポートしています。
 
 > [!NOTE]
 > Laravel フレームワークで Laravel プロンプトを使用する場合、各プロンプトのフォールバックが設定されており、サポートされていない環境では自動的に有効になります。
 
 <a name="fallback-conditions"></a>
-#### フォールバック条件
+<!-- #### Fallback Conditions -->
+#### Fallback Conditions
 
+<!-- If you are not using Laravel or need to customize when the fallback behavior is used, you may pass a boolean to the `fallbackWhen` static method on the `Prompt` class: -->
 Laravel を使用していない場合、またはフォールバック動作を使用するときにカスタマイズする必要がある場合は、`Prompt` クラスの `fallbackWhen` 静的メソッドにブール値を渡すことができます。
 
 ```php
@@ -1414,8 +1598,10 @@ Prompt::fallbackWhen(
 ```
 
 <a name="fallback-behavior"></a>
-#### フォールバック動作
+<!-- #### Fallback Behavior -->
+#### Fallback Behavior
 
+<!-- If you are not using Laravel or need to customize the fallback behavior, you may pass a closure to the `fallbackUsing` static method on each prompt class: -->
 Laravel を使用していない場合、またはフォールバック動作をカスタマイズする必要がある場合は、各プロンプト クラスの `fallbackUsing` 静的メソッドにクロージャーを渡すことができます。
 
 ```php
@@ -1448,11 +1634,14 @@ TextPrompt::fallbackUsing(function (TextPrompt $prompt) use ($input, $output) {
 });
 ```
 
+<!-- Fallbacks must be configured individually for each prompt class. The closure will receive an instance of the prompt class and must return an appropriate type for the prompt. -->
 フォールバックは、プロンプト クラスごとに個別に構成する必要があります。クロージャはプロンプト クラスのインスタンスを受け取り、プロンプトの適切なタイプを返さなければなりません。
 
 <a name="testing"></a>
-## テスト (Testing)
+<!-- ## Testing -->
+## Testing
 
+<!-- Laravel provides a variety of methods for testing that your command displays the expected Prompt messages: -->
 Laravel には、コマンドが予期したプロンプト メッセージを表示するかどうかをテストするためのさまざまな方法が用意されています。
 
 ```php tab=Pest

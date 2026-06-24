@@ -37,6 +37,48 @@ class PostprocessTests(unittest.TestCase):
         self.assertIn("<!-- Use `DB::raw(/* ... *&#47;)` carefully. -->", out)
         self.assertNotIn("*/)` carefully. -->", out)
 
+    def test_keeps_existing_gfm_admonition_body_inside_blockquote(self):
+        text = """> [!NOTE]
+<!-- Original note body. -->
+번역된 note 본문입니다.
+
+다음 문단입니다.
+"""
+
+        out = postprocess.postprocess(text, "12.x", {})
+
+        self.assertEqual(
+            out,
+            """> [!NOTE]
+> <!-- Original note body. -->
+> 번역된 note 본문입니다.
+
+다음 문단입니다.
+""",
+        )
+
+    def test_keeps_fenced_code_admonition_body_inside_blockquote(self):
+        text = """> [!NOTE]
+```php
+return true;
+```
+
+다음 문단입니다.
+"""
+
+        out = postprocess.postprocess(text, "12.x", {})
+
+        self.assertEqual(
+            out,
+            """> [!NOTE]
+> ```php
+> return true;
+> ```
+
+다음 문단입니다.
+""",
+        )
+
     def test_keeps_long_fenced_code_blocks_unmodified(self):
         text = (
             "````blade\n"

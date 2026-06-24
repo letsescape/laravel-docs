@@ -12,13 +12,32 @@ class VerifyContentTests(unittest.TestCase):
 
         self.assertIn("link target mismatch", verify.verify(translated, source=source))
 
-    def test_allows_translated_link_text_when_url_is_preserved(self):
+    def test_detects_translated_link_text_even_when_url_is_preserved(self):
         source = "See [Routing](routing.md#basic-routing)."
         translated = """<!-- See [Routing](routing.md#basic-routing). -->
 [라우팅](routing.md#basic-routing)을 참고하세요.
 """
 
-        self.assertNotIn("link target mismatch", verify.verify(translated, source=source))
+        self.assertIn("link label mismatch", verify.verify(translated, source=source))
+
+    def test_accepts_preserved_link_text_when_url_is_preserved(self):
+        source = "See [Routing](routing.md#basic-routing)."
+        translated = """<!-- See [Routing](routing.md#basic-routing). -->
+[Routing](routing.md#basic-routing)을 참고하세요.
+"""
+
+        self.assertNotIn("link label mismatch", verify.verify(translated, source=source))
+
+    def test_detects_swapped_link_labels_and_targets(self):
+        source = (
+            "Generate a [redirect HTTP response](responses#redirects) "
+            "for a [named route](routing#named-routes)."
+        )
+        translated = """<!-- Generate a [redirect HTTP response](responses#redirects) for a [named route](routing#named-routes). -->
+[redirect HTTP response](routing#named-routes)에 대한 [named route](responses#redirects)을 생성합니다.
+"""
+
+        self.assertIn("link pair mismatch", verify.verify(translated, source=source))
 
     def test_detects_missing_inline_code_from_translated_body(self):
         source = "Set `user_id` before saving."
@@ -110,6 +129,14 @@ echo 'ok';
 
         self.assertNotIn("link target mismatch", verify.verify(translated, source=source))
 
+    def test_normalizes_versioned_absolute_doc_links_to_relative_targets(self):
+        source = "See [Cache](cache)."
+        translated = """<!-- See [Cache](cache). -->
+[Cache](/docs/12.x/cache)를 참고하세요.
+"""
+
+        self.assertNotIn("link target mismatch", verify.verify(translated, source=source))
+
     def test_detects_heading_level_mismatch(self):
         source = "# Title\n\n## Install\n"
         translated = """<!-- # Title -->
@@ -120,6 +147,25 @@ echo 'ok';
 """
 
         self.assertIn("heading mismatch", verify.verify(translated, source=source))
+
+    def test_detects_translated_heading_text(self):
+        source = "# Title\n\n## Install\n"
+        translated = """<!-- # Title -->
+# Title
+
+<!-- ## Install -->
+## 설치 (Install)
+"""
+
+        self.assertIn("heading text mismatch", verify.verify(translated, source=source))
+
+    def test_detects_translated_front_matter_title(self):
+        source = "---\ntitle: Installation\n---\n\n# Installation\n"
+        translated = "---\ntitle: 설치\n---\n\n<!-- # Installation -->\n# Installation\n"
+
+        self.assertIn(
+            "front matter title mismatch", verify.verify(translated, source=source)
+        )
 
     def test_does_not_treat_later_horizontal_rule_as_front_matter(self):
         source = "Intro.\n\n---\n\nDetails.\n"
@@ -132,6 +178,14 @@ echo 'ok';
 """
 
         self.assertIn("missing original comment", verify.verify(translated, source=source))
+
+    def test_detects_admonition_body_outside_blockquote(self):
+        translated = """> [!NOTE]
+<!-- Note body. -->
+본문입니다.
+"""
+
+        self.assertIn("admonition body outside blockquote", verify.verify(translated))
 
 
 if __name__ == "__main__":

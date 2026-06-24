@@ -1,56 +1,93 @@
-# 라라벨 홈스테드 (Laravel Homestead)
+<!-- # Laravel Homestead -->
+# Laravel Homestead
 
-- [소개](#introduction)
-- [설치 및 설정](#installation-and-setup)
-    - [첫 단계](#first-steps)
-    - [Homestead 설정](#configuring-homestead)
-    - [Nginx 사이트 설정](#configuring-nginx-sites)
-    - [서비스 설정](#configuring-services)
-    - [Vagrant 박스 실행](#launching-the-vagrant-box)
-    - [프로젝트별 설치](#per-project-installation)
-    - [옵션 기능 설치](#installing-optional-features)
-    - [별칭(Alias) 설정](#aliases)
-- [Homestead 업데이트](#updating-homestead)
-- [일상적인 사용](#daily-usage)
-    - [SSH로 접속하기](#connecting-via-ssh)
-    - [추가 사이트 등록](#adding-additional-sites)
-    - [환경 변수](#environment-variables)
-    - [포트 설정](#ports)
-    - [PHP 버전 사용하기](#php-versions)
-    - [데이터베이스 연결](#connecting-to-databases)
-    - [데이터베이스 생성](#creating-databases)
-    - [데이터베이스 백업](#database-backups)
-    - [크론 스케줄 설정](#configuring-cron-schedules)
-    - [MailHog 설정](#configuring-mailhog)
-    - [Minio 설정](#configuring-minio)
-    - [Laravel Dusk 사용](#laravel-dusk)
-    - [환경 공유하기](#sharing-your-environment)
-- [디버깅 및 프로파일링](#debugging-and-profiling)
-    - [Xdebug로 웹 요청 디버깅](#debugging-web-requests)
-    - [CLI 애플리케이션 디버깅](#debugging-cli-applications)
-    - [Blackfire로 애플리케이션 프로파일링](#profiling-applications-with-blackfire)
-- [네트워크 인터페이스](#network-interfaces)
-- [Homestead 확장](#extending-homestead)
-- [프로바이더별 설정](#provider-specific-settings)
+- [Introduction](#introduction)
+- [Installation & Setup](#installation-and-setup)
+    - [First Steps](#first-steps)
+    - [Configuring Homestead](#configuring-homestead)
+    - [Configuring Nginx Sites](#configuring-nginx-sites)
+    - [Configuring Services](#configuring-services)
+    - [Launching The Vagrant Box](#launching-the-vagrant-box)
+    - [Per Project Installation](#per-project-installation)
+    - [Installing Optional Features](#installing-optional-features)
+    - [Aliases](#aliases)
+- [Updating Homestead](#updating-homestead)
+- [Daily Usage](#daily-usage)
+    - [Connecting Via SSH](#connecting-via-ssh)
+    - [Adding Additional Sites](#adding-additional-sites)
+    - [Environment Variables](#environment-variables)
+    - [Ports](#ports)
+    - [PHP Versions](#php-versions)
+    - [Connecting To Databases](#connecting-to-databases)
+    - [Creating Databases](#creating-databases)
+    - [Database Backups](#database-backups)
+    - [Configuring Cron Schedules](#configuring-cron-schedules)
+    - [Configuring MailHog](#configuring-mailhog)
+    - [Configuring Minio](#configuring-minio)
+    - [Laravel Dusk](#laravel-dusk)
+    - [Sharing Your Environment](#sharing-your-environment)
+- [Debugging & Profiling](#debugging-and-profiling)
+    - [Debugging Web Requests With Xdebug](#debugging-web-requests)
+    - [Debugging CLI Applications](#debugging-cli-applications)
+    - [Profiling Applications with Blackfire](#profiling-applications-with-blackfire)
+- [Network Interfaces](#network-interfaces)
+- [Extending Homestead](#extending-homestead)
+- [Provider Specific Settings](#provider-specific-settings)
     - [VirtualBox](#provider-specific-virtualbox)
 
 <a name="introduction"></a>
-## 소개
+<!-- ## Introduction -->
+## Introduction
 
-라라벨은 PHP 개발 환경 전반을 더욱 즐겁고 편리하게 만들고자 합니다. [Laravel Homestead](https://github.com/laravel/homestead)는 공식적으로 제공되는 사전 패키지화된 Vagrant 박스로, 로컬 컴퓨터에 PHP, 웹 서버, 기타 서버 소프트웨어를 직접 설치하지 않고도 훌륭한 개발 환경을 제공합니다.
+<!-- Laravel strives to make the entire PHP development experience delightful, including your local development environment. [Laravel Homestead](https://github.com/laravel/homestead) is an official, pre-packaged Vagrant box that provides you a wonderful development environment without requiring you to install PHP, a web server, and any other server software on your local machine. -->
+Laravel은 PHP 개발 환경 전반을 더욱 즐겁고 편리하게 만들고자 합니다. [Laravel Homestead](https://github.com/laravel/homestead)는 공식적으로 제공되는 사전 패키지화된 Vagrant 박스로, 로컬 컴퓨터에 PHP, 웹 서버, 기타 서버 소프트웨어를 직접 설치하지 않고도 훌륭한 개발 환경을 제공합니다.
 
+<!-- [Vagrant](https://www.vagrantup.com) provides a simple, elegant way to manage and provision Virtual Machines. Vagrant boxes are completely disposable. If something goes wrong, you can destroy and re-create the box in minutes! -->
 [Vagrant](https://www.vagrantup.com)는 가상 머신을 쉽게 관리하고 프로비저닝할 수 있는 간편하고 세련된 방식을 제공합니다. Vagrant 박스는 언제든지 쉽게 초기화가 가능합니다. 문제가 발생하면 가상 머신을 몇 분 만에 삭제하고 다시 만들 수 있습니다!
 
-Homestead는 Windows, macOS, Linux 환경 모두에서 동작하며, Nginx, PHP, MySQL, PostgreSQL, Redis, Memcached, Node 등 라라벨 애플리케이션 개발에 필요한 모든 소프트웨어가 기본 내장되어 있습니다.
+<!-- Homestead runs on any Windows, macOS, or Linux system and includes Nginx, PHP, MySQL, PostgreSQL, Redis, Memcached, Node, and all of the other software you need to develop amazing Laravel applications. -->
+Homestead는 Windows, macOS, Linux 환경 모두에서 동작하며, Nginx, PHP, MySQL, PostgreSQL, Redis, Memcached, Node 등 Laravel 애플리케이션 개발에 필요한 모든 소프트웨어가 기본 내장되어 있습니다.
 
 > [!WARNING]
 > Windows를 사용 중이라면 하드웨어 가상화(VT-x)를 활성화해야 할 수도 있습니다. 보통 BIOS에서 설정할 수 있습니다. 만약 UEFI 시스템에서 Hyper-V를 사용하고 있다면 VT-x 접속을 위해 Hyper-V를 비활성화해야 할 수도 있습니다.
 
 <a name="included-software"></a>
-### 기본 포함 소프트웨어
+<!-- ### Included Software -->
+### Included Software
 
+<!-- <div id="software-list" markdown="1"> -->
 <div id="software-list" markdown="1">
 
+<!--
+- Ubuntu 20.04
+- Git
+- PHP 8.2 (Default)
+- PHP 8.1
+- PHP 8.0
+- PHP 7.4
+- PHP 7.3
+- PHP 7.2
+- PHP 7.1
+- PHP 7.0
+- PHP 5.6
+- Nginx
+- MySQL 8.0
+- lmm
+- Sqlite3
+- PostgreSQL 15
+- Composer
+- Docker
+- Node 18 (With Yarn, Bower, Grunt, and Gulp)
+- Redis
+- Memcached
+- Beanstalkd
+- Mailhog
+- avahi
+- ngrok
+- Xdebug
+- XHProf / Tideways / XHGui
+- wp-cli
+-->
 - Ubuntu 20.04
 - Git
 - PHP 8.2 (기본값)
@@ -80,13 +117,48 @@ Homestead는 Windows, macOS, Linux 환경 모두에서 동작하며, Nginx, PHP,
 - XHProf / Tideways / XHGui
 - wp-cli
 
+<!-- </div> -->
 </div>
 
 <a name="optional-software"></a>
-### 옵션 소프트웨어
+<!-- ### Optional Software -->
+### Optional Software
 
+<!-- <div id="software-list" markdown="1"> -->
 <div id="software-list" markdown="1">
 
+<!--
+- Apache
+- Blackfire
+- Cassandra
+- Chronograf
+- CouchDB
+- Crystal & Lucky Framework
+- Elasticsearch
+- EventStoreDB
+- Flyway
+- Gearman
+- Go
+- Grafana
+- Heroku CLI
+- InfluxDB
+- MariaDB
+- Meilisearch
+- MinIO
+- MongoDB
+- Neo4j
+- Oh My Zsh
+- Open Resty
+- PM2
+- Python 3
+- R
+- RabbitMQ
+- RVM (Ruby Version Manager)
+- Solr
+- TimescaleDB
+- Trader <small>(PHP extension)</small>
+- Webdriver & Laravel Dusk Utilities
+-->
 - Apache
 - Blackfire
 - Cassandra
@@ -118,32 +190,45 @@ Homestead는 Windows, macOS, Linux 환경 모두에서 동작하며, Nginx, PHP,
 - Trader <small>(PHP 확장)</small>
 - Webdriver & Laravel Dusk 유틸리티
 
+<!-- </div> -->
 </div>
 
 <a name="installation-and-setup"></a>
-## 설치 및 설정
+<!-- ## Installation & Setup -->
+## Installation & Setup
 
 <a name="first-steps"></a>
-### 첫 단계
+<!-- ### First Steps -->
+### First Steps
 
+<!-- Before launching your Homestead environment, you must install [Vagrant](https://developer.hashicorp.com/vagrant/downloads) as well as one of the following supported providers: -->
 Homestead 환경을 시작하기 전에 [Vagrant](https://developer.hashicorp.com/vagrant/downloads)와 아래 지원되는 프로바이더 중 하나를 설치해야 합니다.
 
+<!--
+- [VirtualBox 6.1.x](https://www.virtualbox.org/wiki/Downloads)
+- [Parallels](https://www.parallels.com/products/desktop/)
+-->
 - [VirtualBox 6.1.x](https://www.virtualbox.org/wiki/Downloads)
 - [Parallels](https://www.parallels.com/products/desktop/)
 
+<!-- All of these software packages provide easy-to-use visual installers for all popular operating systems. -->
 위 소프트웨어들은 대부분 운영체제에 맞는 간편한 설치 프로그램을 제공합니다.
 
-Parallels 프로바이더를 사용하려면 [Parallels Vagrant 플러그인](https://github.com/Parallels/vagrant-parallels)을 추가로 설치해야 합니다. 해당 플러그인은 무료입니다.
+<!-- To use the Parallels provider, you will need to install [Parallels Vagrant plug-in](https://github.com/Parallels/vagrant-parallels). It is free of charge. -->
+Parallels 프로바이더를 사용하려면 [Parallels Vagrant plug-in](https://github.com/Parallels/vagrant-parallels)을 추가로 설치해야 합니다. 해당 플러그인은 무료입니다.
 
 <a name="installing-homestead"></a>
-#### Homestead 설치
+<!-- #### Installing Homestead -->
+#### Installing Homestead
 
-Homestead 저장소를 호스트 컴퓨터로 클론(clone)하여 Homestead를 설치할 수 있습니다. Homestead 가상 머신이 모든 라라벨 애플리케이션의 호스트 역할을 하므로, 홈 디렉터리 내에 `Homestead` 폴더로 클론하는 것을 권장합니다. 본 문서에서는 해당 디렉터리를 "Homestead 디렉터리"라 칭합니다.
+<!-- You may install Homestead by cloning the Homestead repository onto your host machine. Consider cloning the repository into a `Homestead` folder within your "home" directory, as the Homestead virtual machine will serve as the host to all of your Laravel applications. Throughout this documentation, we will refer to this directory as your "Homestead directory": -->
+Homestead 저장소를 호스트 컴퓨터로 클론(clone)하여 Homestead를 설치할 수 있습니다. Homestead 가상 머신이 모든 Laravel 애플리케이션의 호스트 역할을 하므로, 홈 디렉터리 내에 `Homestead` 폴더로 클론하는 것을 권장합니다. 본 문서에서는 해당 디렉터리를 "Homestead 디렉터리"라 칭합니다.
 
 ```shell
 git clone https://github.com/laravel/homestead.git ~/Homestead
 ```
 
+<!-- After cloning the Laravel Homestead repository, you should checkout the `release` branch. This branch always contains the latest stable release of Homestead: -->
 저장소를 클론한 후에는 `release` 브랜치로 체크아웃해야 합니다. 이 브랜치에는 항상 Homestead의 최신 안정 버전이 포함되어 있습니다.
 
 ```shell
@@ -152,7 +237,8 @@ cd ~/Homestead
 git checkout release
 ```
 
-그 다음, Homestead 디렉터리에서 `bash init.sh` 명령어를 실행하여 `Homestead.yaml` 설정 파일을 생성합니다. 이 파일에서 Homestead 설치에 필요한 모든 설정을 하게 됩니다. 설정 파일은 Homestead 디렉터리에 생성됩니다.
+<!-- Next, execute the `bash init.sh` command from the Homestead directory to create the `Homestead.yaml` configuration file. The `Homestead.yaml` file is where you will configure all of the settings for your Homestead installation. This file will be placed in the Homestead directory: -->
+그 다음, Homestead 디렉터리에서 `bash init.sh` 명령어를 실행하여 `Homestead.yaml` 설정 파일을 생성합니다. `Homestead.yaml` 파일에서 Homestead 설치에 필요한 모든 설정을 하게 됩니다. 설정 파일은 Homestead 디렉터리에 생성됩니다.
 
 ```shell
 # macOS / Linux...
@@ -163,23 +249,30 @@ init.bat
 ```
 
 <a name="configuring-homestead"></a>
-### Homestead 설정
+<!-- ### Configuring Homestead -->
+### Configuring Homestead
 
 <a name="setting-your-provider"></a>
-#### 프로바이더 설정
+<!-- #### Setting Your Provider -->
+#### Setting Your Provider
 
+<!-- The `provider` key in your `Homestead.yaml` file indicates which Vagrant provider should be used: `virtualbox` or `parallels`: -->
 `Homestead.yaml` 파일의 `provider` 키는 어떤 Vagrant 프로바이더를 사용할지 지정합니다. 사용할 수 있는 값은 `virtualbox` 또는 `parallels`입니다.
+
 
 ```
 provider: virtualbox
 ```
 
+
 > [!WARNING]
 > Apple Silicon을 사용하는 경우, `Homestead.yaml` 파일에 `box: laravel/homestead-arm`을 추가해야 합니다. Apple Silicon에서는 Parallels 프로바이더가 필요합니다.
 
 <a name="configuring-shared-folders"></a>
-#### 공유 폴더 설정
+<!-- #### Configuring Shared Folders -->
+#### Configuring Shared Folders
 
+<!-- The `folders` property of the `Homestead.yaml` file lists all of the folders you wish to share with your Homestead environment. As files within these folders are changed, they will be kept in sync between your local machine and the Homestead virtual environment. You may configure as many shared folders as necessary: -->
 `Homestead.yaml` 파일의 `folders` 속성에는 Homestead 환경과 공유할 로컬 폴더들을 나열합니다. 해당 폴더 내 파일이 변경되면 로컬과 가상 머신 간에 동기화가 자동으로 이루어집니다. 필요에 따라 여러 개의 폴더를 공유할 수 있습니다.
 
 ```yaml
@@ -191,6 +284,7 @@ folders:
 > [!WARNING]
 > Windows 사용자는 `~/` 경로 대신 프로젝트의 전체 경로(예: `C:\Users\user\Code\project1`)를 사용해야 합니다.
 
+<!-- You should always map individual applications to their own folder mapping instead of mapping a single large directory that contains all of your applications. When you map a folder, the virtual machine must keep track of all disk IO for *every* file in the folder. You may experience reduced performance if you have a large number of files in a folder: -->
 각 애플리케이션별로 폴더 매핑을 개별적으로 지정하는 것이 좋습니다. 하나의 큰 폴더에 모든 프로젝트를 모아 매핑한다고 해서 효율적이지 않습니다. 폴더를 하나 매핑하면 가상 머신이 해당 폴더 내 모든 파일의 디스크 IO를 추적해야 하므로, 파일 수가 많을수록 성능 저하가 발생할 수 있습니다.
 
 ```yaml
@@ -204,6 +298,7 @@ folders:
 > [!WARNING]
 > Homestead 사용 시 `.`(현재 디렉터리)를 절대로 마운트해서는 안 됩니다. 그렇게 하면 Vagrant가 현재 폴더를 `/vagrant`로 매핑하지 않아, 선택적 기능들이 제대로 동작하지 않거나 예기치 않은 문제가 발생할 수 있습니다.
 
+<!-- To enable [NFS](https://www.vagrantup.com/docs/synced-folders/nfs.html), you may add a `type` option to your folder mapping: -->
 [NFS](https://www.vagrantup.com/docs/synced-folders/nfs.html) 공유 기능을 활성화하려면 매핑에 `type` 옵션을 추가할 수 있습니다.
 
 ```yaml
@@ -216,6 +311,7 @@ folders:
 > [!WARNING]
 > Windows에서 NFS를 사용할 경우, [vagrant-winnfsd](https://github.com/winnfsd/vagrant-winnfsd) 플러그인 설치를 권장합니다. 이 플러그인은 Homestead 가상 머신 내 파일 및 디렉터리의 사용자/그룹 권한을 올바르게 유지합니다.
 
+<!-- You may also pass any options supported by Vagrant's [Synced Folders](https://www.vagrantup.com/docs/synced-folders/basic_usage.html) by listing them under the `options` key: -->
 또한, Vagrant의 [Synced Folders](https://www.vagrantup.com/docs/synced-folders/basic_usage.html)에서 지원하는 추가 옵션들을 `options` 키 아래에 지정할 수 있습니다.
 
 ```yaml
@@ -229,9 +325,11 @@ folders:
 ```
 
 <a name="configuring-nginx-sites"></a>
-### Nginx 사이트 설정
+<!-- ### Configuring Nginx Sites -->
+### Configuring Nginx Sites
 
-Nginx에 익숙하지 않으셔도 괜찮습니다. `Homestead.yaml` 파일의 `sites` 속성을 이용하면 도메인과 Homestead 환경 내부의 폴더를 쉽게 매핑할 수 있습니다. 예시 사이트 설정이 기본으로 포함되어 있습니다. 상황에 따라 여러 개의 사이트를 추가할 수 있습니다. Homestead는 여러분이 작업하는 모든 라라벨 애플리케이션을 위한 편리한 가상 환경이 될 수 있습니다.
+<!-- Not familiar with Nginx? No problem. Your `Homestead.yaml` file's `sites` property allows you to easily map a "domain" to a folder on your Homestead environment. A sample site configuration is included in the `Homestead.yaml` file. Again, you may add as many sites to your Homestead environment as necessary. Homestead can serve as a convenient, virtualized environment for every Laravel application you are working on: -->
+Nginx에 익숙하지 않으셔도 괜찮습니다. `Homestead.yaml` 파일의 `sites` 속성을 이용하면 도메인과 Homestead 환경 내부의 폴더를 쉽게 매핑할 수 있습니다. `Homestead.yaml` 파일에는 예시 사이트 설정이 기본으로 포함되어 있습니다. 상황에 따라 여러 개의 사이트를 추가할 수 있습니다. Homestead는 여러분이 작업하는 모든 Laravel 애플리케이션을 위한 편리한 가상 환경이 될 수 있습니다.
 
 ```yaml
 sites:
@@ -239,22 +337,27 @@ sites:
       to: /home/vagrant/project1/public
 ```
 
+<!-- If you change the `sites` property after provisioning the Homestead virtual machine, you should execute the `vagrant reload --provision` command in your terminal to update the Nginx configuration on the virtual machine. -->
 `sites` 속성을 변경한 경우에는 Homestead 가상 머신에서 `vagrant reload --provision` 명령어를 실행해야 Nginx 설정이 갱신됩니다.
 
 > [!WARNING]
 > Homestead 스크립트는 최대한 멱등성(idempotency)을 지키도록 설계되었습니다. 하지만 프로비저닝 중 문제가 발생한다면 `vagrant destroy && vagrant up` 명령어로 가상 머신을 삭제 후 재생성하면 문제를 해결할 수 있습니다.
 
 <a name="hostname-resolution"></a>
-#### 호스트네임(Hostname) 해석
+<!-- #### Hostname Resolution -->
+#### Hostname Resolution
 
+<!-- Homestead publishes hostnames using `mDNS` for automatic host resolution. If you set `hostname: homestead` in your `Homestead.yaml` file, the host will be available at `homestead.local`. macOS, iOS, and Linux desktop distributions include `mDNS` support by default. If you are using Windows, you must install [Bonjour Print Services for Windows](https://support.apple.com/kb/DL999?viewlocale=en_US&locale=en_US). -->
 Homestead는 자동 호스트네임 해석을 위해 `mDNS`를 이용해 호스트네임을 게시합니다. 만약 `Homestead.yaml` 파일에서 `hostname: homestead`로 설정하면, 해당 호스트는 `homestead.local` 주소로 접근할 수 있습니다. macOS, iOS, Linux 데스크톱에는 기본적으로 `mDNS` 지원이 내장되어 있습니다. Windows를 사용하는 경우 [Bonjour Print Services for Windows](https://support.apple.com/kb/DL999?viewlocale=en_US&locale=en_US)를 추가로 설치해야 합니다.
 
-자동 호스트네임 기능은 [프로젝트별 Homestead 설치](#per-project-installation)에서 가장 효과적으로 동작합니다. 하나의 Homestead 인스턴스에서 여러 사이트를 운영한다면, 웹 사이트별 "domains"를 로컬 컴퓨터의 `hosts` 파일에 추가해야 합니다. `hosts` 파일은 Homestead 사이트로의 요청을 가상 머신으로 연결해 줍니다. macOS 및 Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts`에 위치해 있습니다. 아래와 같이 추가하면 됩니다.
+<!-- Using automatic hostnames works best for [per project installations](#per-project-installation) of Homestead. If you host multiple sites on a single Homestead instance, you may add the "domains" for your web sites to the `hosts` file on your machine. The `hosts` file will redirect requests for your Homestead sites into your Homestead virtual machine. On macOS and Linux, this file is located at `/etc/hosts`. On Windows, it is located at `C:\Windows\System32\drivers\etc\hosts`. The lines you add to this file will look like the following: -->
+자동 호스트네임 기능은 [per project installations](#per-project-installation)에서 가장 효과적으로 동작합니다. 하나의 Homestead 인스턴스에서 여러 사이트를 운영한다면, 웹 사이트별 "domains"를 로컬 컴퓨터의 `hosts` 파일에 추가해야 합니다. `hosts` 파일은 Homestead 사이트로의 요청을 가상 머신으로 연결해 줍니다. macOS 및 Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts`에 위치해 있습니다. 아래와 같이 추가하면 됩니다.
 
 ```
 192.168.56.56  homestead.test
 ```
 
+<!-- Make sure the IP address listed is the one set in your `Homestead.yaml` file. Once you have added the domain to your `hosts` file and launched the Vagrant box you will be able to access the site via your web browser: -->
 여기서 IP 주소는 `Homestead.yaml`에 지정된 값과 동일해야 합니다. 도메인을 `hosts` 파일에 추가하고 Vagrant 박스를 실행하면 웹 브라우저를 통해 사이트에 접속할 수 있습니다.
 
 ```shell
@@ -262,8 +365,10 @@ http://homestead.test
 ```
 
 <a name="configuring-services"></a>
-### 서비스 설정
+<!-- ### Configuring Services -->
+### Configuring Services
 
+<!-- Homestead starts several services by default; however, you may customize which services are enabled or disabled during provisioning. For example, you may enable PostgreSQL and disable MySQL by modifying the `services` option within your `Homestead.yaml` file: -->
 Homestead는 여러 가지 서비스를 기본으로 시작합니다. 다만, 프로비저닝 과정에서 어떤 서비스를 활성화 혹은 비활성화할지 직접 설정할 수도 있습니다. 예를 들어, PostgreSQL을 활성화하고 MySQL을 비활성화하려면 `Homestead.yaml` 파일의 `services` 옵션을 다음과 같이 수정합니다.
 
 ```yaml
@@ -274,26 +379,34 @@ services:
         - "mysql"
 ```
 
+<!-- The specified services will be started or stopped based on their order in the `enabled` and `disabled` directives. -->
 `enabled` 및 `disabled`에 지정한 순서에 따라, 해당 서비스가 시작 혹은 중지됩니다.
 
 <a name="launching-the-vagrant-box"></a>
-### Vagrant 박스 실행
+<!-- ### Launching The Vagrant Box -->
+### Launching The Vagrant Box
 
+<!-- Once you have edited the `Homestead.yaml` to your liking, run the `vagrant up` command from your Homestead directory. Vagrant will boot the virtual machine and automatically configure your shared folders and Nginx sites. -->
 `Homestead.yaml` 파일을 원하는 대로 수정한 후, Homestead 디렉터리에서 `vagrant up` 명령어를 실행합니다. Vagrant가 가상 머신을 부팅하고, 자동으로 공유 폴더와 Nginx 사이트를 설정해 줍니다.
 
+<!-- To destroy the machine, you may use the `vagrant destroy` command. -->
 가상 머신을 삭제하려면 `vagrant destroy` 명령어를 사용합니다.
 
 <a name="per-project-installation"></a>
-### 프로젝트별 설치
+<!-- ### Per Project Installation -->
+### Per Project Installation
 
+<!-- Instead of installing Homestead globally and sharing the same Homestead virtual machine across all of your projects, you may instead configure a Homestead instance for each project you manage. Installing Homestead per project may be beneficial if you wish to ship a `Vagrantfile` with your project, allowing others working on the project to `vagrant up` immediately after cloning the project's repository. -->
 Homestead를 전역으로 설치하여 모든 프로젝트에서 공유하는 대신, 각 프로젝트에 Homestead 인스턴스를 별도로 구성할 수도 있습니다. 프로젝트별 설치는 프로젝트에 `Vagrantfile`을 포함해 동료들이 프로젝트를 클론한 후 바로 `vagrant up`만으로 개발 환경을 실행할 수 있으므로 편리합니다.
 
+<!-- You may install Homestead into your project using the Composer package manager: -->
 프로젝트에 Homestead를 설치하려면 Composer 패키지 매니저를 이용합니다.
 
 ```shell
 composer require laravel/homestead --dev
 ```
 
+<!-- Once Homestead has been installed, invoke Homestead's `make` command to generate the `Vagrantfile` and `Homestead.yaml` file for your project. These files will be placed in the root of your project. The `make` command will automatically configure the `sites` and `folders` directives in the `Homestead.yaml` file: -->
 설치가 끝나면, Homestead의 `make` 명령어를 실행하여 해당 프로젝트에 맞는 `Vagrantfile`과 `Homestead.yaml` 파일을 생성하세요. 두 파일은 프로젝트 루트에 위치하게 됩니다. `make` 명령어가 `Homestead.yaml` 내 `sites`와 `folders` 지시문도 자동으로 설정해 줍니다.
 
 ```shell
@@ -304,11 +417,14 @@ php vendor/bin/homestead make
 vendor\\bin\\homestead make
 ```
 
-그 다음 터미널에서 `vagrant up` 명령어를 실행하고, 브라우저에서 `http://homestead.test`로 접속하면 됩니다. 자동 [호스트네임 해석](#hostname-resolution)을 사용하지 않는다면, `/etc/hosts` 파일에 `homestead.test`나 원하는 도메인을 추가해야 합니다.
+<!-- Next, run the `vagrant up` command in your terminal and access your project at `http://homestead.test` in your browser. Remember, you will still need to add an `/etc/hosts` file entry for `homestead.test` or the domain of your choice if you are not using automatic [hostname resolution](#hostname-resolution). -->
+그 다음 터미널에서 `vagrant up` 명령어를 실행하고, 브라우저에서 `http://homestead.test`로 접속하면 됩니다. 자동 [hostname resolution](#hostname-resolution)을 사용하지 않는다면, `/etc/hosts` 파일에 `homestead.test`나 원하는 도메인을 추가해야 합니다.
 
 <a name="installing-optional-features"></a>
-### 옵션 기능 설치
+<!-- ### Installing Optional Features -->
+### Installing Optional Features
 
+<!-- Optional software is installed using the `features` option within your `Homestead.yaml` file. Most features can be enabled or disabled with a boolean value, while some features allow multiple configuration options: -->
 추가 소프트웨어(옵션 기능)는 `Homestead.yaml` 파일 내 `features` 옵션을 통해 설치할 수 있습니다. 대부분의 기능은 불리언 값으로 활성화/비활성화하나, 일부 기능은 다양한 세부 설정 옵션을 지원합니다.
 
 ```yaml
@@ -352,16 +468,20 @@ features:
 ```
 
 <a name="elasticsearch"></a>
+<!-- #### Elasticsearch -->
 #### Elasticsearch
 
+<!-- You may specify a supported version of Elasticsearch, which must be an exact version number (major.minor.patch). The default installation will create a cluster named 'homestead'. You should never give Elasticsearch more than half of the operating system's memory, so make sure your Homestead virtual machine has at least twice the Elasticsearch allocation. -->
 지원되는 Elasticsearch 버전을 명확하게(major.minor.patch) 지정할 수 있습니다. 기본 설치는 클러스터 이름으로 'homestead'를 할당합니다. Elasticsearch에는 운영체제 메모리의 반 이상을 할당하면 안 되므로, Homestead 가상 머신의 메모리 용량이 Elasticsearch 할당량의 두 배 이상이 되도록 해야 합니다.
 
 > [!NOTE]
-> [Elasticsearch 공식 문서](https://www.elastic.co/guide/en/elasticsearch/reference/current)를 참고하면 다양한 구성 방법을 확인할 수 있습니다.
+> [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current)를 참고하면 다양한 구성 방법을 확인할 수 있습니다.
 
 <a name="mariadb"></a>
+<!-- #### MariaDB -->
 #### MariaDB
 
+<!-- Enabling MariaDB will remove MySQL and install MariaDB. MariaDB typically serves as a drop-in replacement for MySQL, so you should still use the `mysql` database driver in your application's database configuration: -->
 MariaDB를 활성화하면 MySQL이 삭제되고 MariaDB가 설치됩니다. MariaDB는 일반적으로 MySQL과 호환되어 대체 가능하므로, 애플리케이션의 데이터베이스 설정에서 여전히 `mysql` 드라이버를 사용해야 합니다.
 
 ```yaml
@@ -370,18 +490,24 @@ features:
 ```
 
 <a name="mongodb"></a>
+<!-- #### MongoDB -->
 #### MongoDB
 
+<!-- The default MongoDB installation will set the database username to `homestead` and the corresponding password to `secret`. -->
 MongoDB를 기본으로 설치할 경우, 데이터베이스 사용자 이름은 `homestead`, 비밀번호는 `secret`으로 설정됩니다.
 
 <a name="neo4j"></a>
+<!-- #### Neo4j -->
 #### Neo4j
 
+<!-- The default Neo4j installation will set the database username to `homestead` and the corresponding password to `secret`. To access the Neo4j browser, visit `http://homestead.test:7474` via your web browser. The ports `7687` (Bolt), `7474` (HTTP), and `7473` (HTTPS) are ready to serve requests from the Neo4j client. -->
 Neo4j를 기본으로 설치하면 데이터베이스 사용자 이름은 `homestead`, 비밀번호는 `secret`이 설정됩니다. Neo4j 브라우저는 웹 브라우저로 `http://homestead.test:7474`에 접속하여 사용할 수 있습니다. 포트 `7687`(Bolt), `7474`(HTTP), `7473`(HTTPS)가 Neo4j 클라이언트용으로 오픈되어 있습니다.
 
 <a name="aliases"></a>
-### 별칭(Alias) 설정
+<!-- ### Aliases -->
+### Aliases
 
+<!-- You may add Bash aliases to your Homestead virtual machine by modifying the `aliases` file within your Homestead directory: -->
 Homestead 가상 머신에 Bash 별칭을 추가하려면 Homestead 디렉터리 내 `aliases` 파일을 수정하세요.
 
 ```shell
@@ -389,17 +515,21 @@ alias c='clear'
 alias ..='cd ..'
 ```
 
-별칭을 수정한 이후에는 `vagrant reload --provision` 명령어로 Homestead 가상 머신을 다시 프로비저닝해야 새로운 별칭이 적용됩니다.
+<!-- After you have updated the `aliases` file, you should re-provision the Homestead virtual machine using the `vagrant reload --provision` command. This will ensure that your new aliases are available on the machine. -->
+`aliases` 파일을 수정한 이후에는 `vagrant reload --provision` 명령어로 Homestead 가상 머신을 다시 프로비저닝해야 새로운 별칭이 적용됩니다.
 
 <a name="updating-homestead"></a>
-## Homestead 업데이트
+<!-- ## Updating Homestead -->
+## Updating Homestead
 
+<!-- Before you begin updating Homestead you should ensure you have removed your current virtual machine by running the following command in your Homestead directory: -->
 Homestead를 업데이트하기 전에, 현재 가상 머신을 제거해야 합니다. Homestead 디렉터리에서 다음 명령어를 실행하세요.
 
 ```shell
 vagrant destroy
 ```
 
+<!-- Next, you need to update the Homestead source code. If you cloned the repository, you can execute the following commands at the location you originally cloned the repository: -->
 그런 다음 Homestead 소스 코드를 갱신해야 합니다. 저장소를 클론한 상태라면, 처음 클론한 위치에서 다음 명령어를 입력합니다.
 
 ```shell
@@ -408,20 +538,24 @@ git fetch
 git pull origin release
 ```
 
-이 명령들은 Homestead의 최신 코드를 GitHub 저장소에서 받아오고, 최신 태그를 가져와 최신 릴리즈로 체크아웃합니다. 최신 안정 버전은 Homestead의 [GitHub 릴리즈 페이지](https://github.com/laravel/homestead/releases)에서 확인할 수 있습니다.
+<!-- These commands pull the latest Homestead code from the GitHub repository, fetch the latest tags, and then check out the latest tagged release. You can find the latest stable release version on Homestead's [GitHub releases page](https://github.com/laravel/homestead/releases). -->
+이 명령들은 Homestead의 최신 코드를 GitHub 저장소에서 받아오고, 최신 태그를 가져와 최신 릴리스로 체크아웃합니다. 최신 안정 버전은 Homestead의 [GitHub releases page](https://github.com/laravel/homestead/releases)에서 확인할 수 있습니다.
 
+<!-- If you have installed Homestead via your project's `composer.json` file, you should ensure your `composer.json` file contains `"laravel/homestead": "^12"` and update your dependencies: -->
 만약 프로젝트의 `composer.json` 파일로 Homestead를 설치한 경우, `composer.json`에 `"laravel/homestead": "^12"`가 포함되어 있는지 확인하고 다음과 같이 의존성을 업데이트해야 합니다.
 
 ```shell
 composer update
 ```
 
+<!-- Next, you should update the Vagrant box using the `vagrant box update` command: -->
 이어 `vagrant box update` 명령어로 Vagrant 박스를 갱신합니다.
 
 ```shell
 vagrant box update
 ```
 
+<!-- After updating the Vagrant box, you should run the `bash init.sh` command from the Homestead directory in order to update Homestead's additional configuration files. You will be asked whether you wish to overwrite your existing `Homestead.yaml`, `after.sh`, and `aliases` files: -->
 박스가 갱신된 뒤, Homestead 디렉터리에서 `bash init.sh` 명령어를 실행하여 Homestead의 추가 설정 파일도 갱신하세요. 이 과정에서 기존 `Homestead.yaml`, `after.sh`, `aliases` 파일을 덮어쓸 것인지 질문할 수 있습니다.
 
 ```shell
@@ -432,6 +566,7 @@ bash init.sh
 init.bat
 ```
 
+<!-- Finally, you will need to regenerate your Homestead virtual machine to utilize the latest Vagrant installation: -->
 마지막으로, 업그레이드된 환경을 사용하려면 Homestead 가상 머신을 재생성해야 합니다.
 
 ```shell
@@ -439,17 +574,22 @@ vagrant up
 ```
 
 <a name="daily-usage"></a>
-## 일상적인 사용
+<!-- ## Daily Usage -->
+## Daily Usage
 
 <a name="connecting-via-ssh"></a>
-### SSH로 접속하기
+<!-- ### Connecting Via SSH -->
+### Connecting Via SSH
 
+<!-- You can SSH into your virtual machine by executing the `vagrant ssh` terminal command from your Homestead directory. -->
 Homestead 디렉터리에서 `vagrant ssh` 명령어를 실행하면 가상 머신에 SSH 접속할 수 있습니다.
 
 <a name="adding-additional-sites"></a>
-### 추가 사이트 등록
+<!-- ### Adding Additional Sites -->
+### Adding Additional Sites
 
-Homestead 환경이 프로비저닝되고 실행 중이라면, 새로운 라라벨 프로젝트를 위한 추가 Nginx 사이트를 등록하고 싶을 수 있습니다. Homestead 환경에서는 원하는 만큼 여러 라라벨 프로젝트를 동시 실행할 수 있습니다. 추가 사이트를 등록하려면 `Homestead.yaml`에 사이트를 추가하세요.
+<!-- Once your Homestead environment is provisioned and running, you may want to add additional Nginx sites for your other Laravel projects. You can run as many Laravel projects as you wish on a single Homestead environment. To add an additional site, add the site to your `Homestead.yaml` file. -->
+Homestead 환경이 프로비저닝되고 실행 중이라면, 새로운 Laravel 프로젝트를 위한 추가 Nginx 사이트를 등록하고 싶을 수 있습니다. Homestead 환경에서는 원하는 만큼 여러 Laravel 프로젝트를 동시 실행할 수 있습니다. 추가 사이트를 등록하려면 `Homestead.yaml`에 사이트를 추가하세요.
 
 ```yaml
 sites:
@@ -460,8 +600,9 @@ sites:
 ```
 
 > [!WARNING]
-> [공유 폴더 설정](#configuring-shared-folders)을 통해 프로젝트 폴더 매핑이 선행되어 있어야 합니다.
+> [folder mapping](#configuring-shared-folders)을 통해 프로젝트 폴더 매핑이 선행되어 있어야 합니다.
 
+<!-- If Vagrant is not automatically managing your "hosts" file, you may need to add the new site to that file as well. On macOS and Linux, this file is located at `/etc/hosts`. On Windows, it is located at `C:\Windows\System32\drivers\etc\hosts`: -->
 Vagrant가 "hosts" 파일을 자동으로 관리하지 않는 경우, 추가한 새 사이트도 hosts 파일에 등록해야 합니다. macOS, Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts`입니다.
 
 ```
@@ -469,12 +610,15 @@ Vagrant가 "hosts" 파일을 자동으로 관리하지 않는 경우, 추가한 
 192.168.56.56  another.test
 ```
 
+<!-- Once the site has been added, execute the `vagrant reload --provision` terminal command from your Homestead directory. -->
 사이트를 추가한 후 `vagrant reload --provision` 명령어를 Homestead 디렉터리에서 실행합니다.
 
 <a name="site-types"></a>
-#### 사이트 타입
+<!-- #### Site Types -->
+#### Site Types
 
-Homestead에서는 여러 유형의 "사이트 타입"을 지원하므로 라라벨 기반이 아닌 다른 프로젝트도 쉽게 실행할 수 있습니다. 예를 들어, `statamic` 타입을 이용해 Statamic 애플리케이션도 Homestead에서 바로 추가할 수 있습니다.
+<!-- Homestead supports several "types" of sites which allow you to easily run projects that are not based on Laravel. For example, we may easily add a Statamic application to Homestead using the `statamic` site type: -->
+Homestead에서는 여러 유형의 "사이트 타입"을 지원하므로 Laravel 기반이 아닌 다른 프로젝트도 쉽게 실행할 수 있습니다. 예를 들어, `statamic` 타입을 이용해 Statamic 애플리케이션도 Homestead에서 바로 추가할 수 있습니다.
 
 ```yaml
 sites:
@@ -483,11 +627,14 @@ sites:
       type: "statamic"
 ```
 
+<!-- The available site types are: `apache`, `apigility`, `expressive`, `laravel` (the default), `proxy`, `silverstripe`, `statamic`, `symfony2`, `symfony4`, and `zf`. -->
 지원되는 사이트 타입은 다음과 같습니다: `apache`, `apigility`, `expressive`, `laravel`(기본값), `proxy`, `silverstripe`, `statamic`, `symfony2`, `symfony4`, `zf`.
 
 <a name="site-parameters"></a>
-#### 사이트 파라미터
+<!-- #### Site Parameters -->
+#### Site Parameters
 
+<!-- You may add additional Nginx `fastcgi_param` values to your site via the `params` site directive: -->
 사이트에 추가로 Nginx `fastcgi_param` 값을 지정하려면 `params` 항목을 활용할 수 있습니다.
 
 ```yaml
@@ -500,8 +647,10 @@ sites:
 ```
 
 <a name="environment-variables"></a>
-### 환경 변수
+<!-- ### Environment Variables -->
+### Environment Variables
 
+<!-- You can define global environment variables by adding them to your `Homestead.yaml` file: -->
 전역 환경 변수를 모두 `Homestead.yaml` 파일에 정의할 수 있습니다.
 
 ```yaml
@@ -512,24 +661,35 @@ variables:
       value: bar
 ```
 
+<!-- After updating the `Homestead.yaml` file, be sure to re-provision the machine by executing the `vagrant reload --provision` command. This will update the PHP-FPM configuration for all of the installed PHP versions and also update the environment for the `vagrant` user. -->
 `Homestead.yaml` 파일을 수정한 뒤에는 `vagrant reload --provision` 명령어로 가상 머신을 다시 프로비저닝하세요. 이 명령은 모든 설치된 PHP 버전의 PHP-FPM 설정과 `vagrant` 사용자의 환경 변수도 갱신합니다.
 
 <a name="ports"></a>
-### 포트 설정
+<!-- ### Ports -->
+### Ports
 
+<!-- By default, the following ports are forwarded to your Homestead environment: -->
 기본적으로 아래 포트가 Homestead 환경으로 포워딩됩니다.
 
+<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
+<!--
+- **HTTP:** 8000 &rarr; Forwards To 80
+- **HTTPS:** 44300 &rarr; Forwards To 443
+-->
 - **HTTP:** 8000 &rarr; 80으로 포워딩
 - **HTTPS:** 44300 &rarr; 443으로 포워딩
 
+<!-- </div> -->
 </div>
 
 <a name="forwarding-additional-ports"></a>
-#### 추가 포트 포워딩
+<!-- #### Forwarding Additional Ports -->
+#### Forwarding Additional Ports
 
-필요할 경우, `Homestead.yaml` 파일의 `ports` 항목에 추가 포트 포워딩 설정을 할 수 있습니다. 파일 수정 후 `vagrant reload --provision` 명령어로 프로비저닝을 다시 해주세요.
+<!-- If you wish, you may forward additional ports to the Vagrant box by defining a `ports` configuration entry within your `Homestead.yaml` file. After updating the `Homestead.yaml` file, be sure to re-provision the machine by executing the `vagrant reload --provision` command: -->
+필요할 경우, `Homestead.yaml` 파일에 `ports` 설정 항목을 정의해 추가 포트를 Vagrant 박스로 포워딩할 수 있습니다. `Homestead.yaml` 파일을 수정한 후 `vagrant reload --provision` 명령어로 프로비저닝을 다시 해주세요.
 
 ```yaml
 ports:
@@ -540,10 +700,21 @@ ports:
       protocol: udp
 ```
 
+<!-- Below is a list of additional Homestead service ports that you may wish to map from your host machine to your Vagrant box: -->
 아래는 가상 머신과 연결할 수 있는 Homestead 서비스의 추가 포트 목록입니다.
 
+<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
+<!--
+- **SSH:** 2222 &rarr; To 22
+- **ngrok UI:** 4040 &rarr; To 4040
+- **MySQL:** 33060 &rarr; To 3306
+- **PostgreSQL:** 54320 &rarr; To 5432
+- **MongoDB:** 27017 &rarr; To 27017
+- **Mailhog:** 8025 &rarr; To 8025
+- **Minio:** 9600 &rarr; To 9600
+-->
 - **SSH:** 2222 &rarr; 22
 - **ngrok UI:** 4040 &rarr; 4040
 - **MySQL:** 33060 &rarr; 3306
@@ -552,11 +723,14 @@ ports:
 - **Mailhog:** 8025 &rarr; 8025
 - **Minio:** 9600 &rarr; 9600
 
+<!-- </div> -->
 </div>
 
 <a name="php-versions"></a>
-### PHP 버전 사용하기
+<!-- ### PHP Versions -->
+### PHP Versions
 
+<!-- Homestead supports running multiple versions of PHP on the same virtual machine. You may specify which version of PHP to use for a given site within your `Homestead.yaml` file. The available PHP versions are: "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", and "8.2" (the default): -->
 Homestead는 하나의 가상 머신에서 여러 버전의 PHP를 동시에 실행할 수 있습니다. 각 사이트별로 사용할 PHP 버전을 `Homestead.yaml` 파일에서 지정할 수 있습니다. 지원하는 PHP 버전은 "5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2"(기본값)입니다.
 
 ```yaml
@@ -566,7 +740,8 @@ sites:
       php: "7.4"
 ```
 
-[Homestead 가상 머신 내부](#connecting-via-ssh)에서는 CLI로 각 PHP 버전을 아래처럼 사용할 수 있습니다.
+<!-- [Within your Homestead virtual machine](#connecting-via-ssh), you may use any of the supported PHP versions via the CLI: -->
+[Within your Homestead virtual machine](#connecting-via-ssh)에서는 CLI로 각 PHP 버전을 아래처럼 사용할 수 있습니다.
 
 ```shell
 php5.6 artisan list
@@ -580,12 +755,14 @@ php8.1 artisan list
 php8.2 artisan list
 ```
 
+<!-- You may also specify the version of PHP that should be used by the CLI in your `Homestead.yaml` file: -->
 CLI에서 기본적으로 사용할 PHP 버전도 `Homestead.yaml`에서 지정할 수 있습니다.
 
 ```yaml
 php: 8.0
 ```
 
+<!-- Or, you may change it manually by issuing the following commands from within your Homestead virtual machine: -->
 또는 가상 머신 내부에서 다음 명령어로 수동 전환도 가능합니다.
 
 ```shell
@@ -601,16 +778,20 @@ php82
 ```
 
 <a name="connecting-to-databases"></a>
-### 데이터베이스 연결
+<!-- ### Connecting To Databases -->
+### Connecting To Databases
 
+<!-- A `homestead` database is configured for both MySQL and PostgreSQL out of the box. To connect to your MySQL or PostgreSQL database from your host machine's database client, you should connect to `127.0.0.1` on port `33060` (MySQL) or `54320` (PostgreSQL). The username and password for both databases is `homestead` / `secret`. -->
 초기 설정에서 MySQL과 PostgreSQL 모두에 `homestead`라는 기본 데이터베이스가 만들어집니다. 로컬 컴퓨터에서 데이터베이스 클라이언트로 접속하려면 `127.0.0.1`의 포트 `33060`(MySQL) 또는 `54320`(PostgreSQL)으로 접속해야 합니다. 사용자명과 비밀번호는 모두 `homestead` / `secret`입니다.
 
 > [!WARNING]
-> 호스트(로컬) 컴퓨터에서 데이터베이스에 접속할 때만 위 포트를 사용해야 합니다. Homestead 가상 머신 내부(즉, 라라벨 애플리케이션 환경)에서는 기본 포트인 3306과 5432를 데이터베이스 설정에서 사용합니다.
+> 호스트(로컬) 컴퓨터에서 데이터베이스에 접속할 때만 위 포트를 사용해야 합니다. Laravel은 가상 머신 _내부에서_ 동작하므로, Laravel 애플리케이션의 `database` 설정 파일에서는 기본 포트인 3306과 5432를 사용합니다.
 
 <a name="creating-databases"></a>
-### 데이터베이스 생성
+<!-- ### Creating Databases -->
+### Creating Databases
 
+<!-- Homestead can automatically create any databases needed by your application. If a database service is running during the provisioning process, Homestead will ensure each database in your `Homestead.yaml` configuration file is created if it doesn't already exist: -->
 Homestead는 여러분의 애플리케이션에서 필요로 하는 데이터베이스를 자동으로 생성할 수 있습니다. 데이터베이스 서비스가 실행 중이라면, `Homestead.yaml`에 등록된 모든 데이터베이스가(존재하지 않는 경우) 자동으로 생성됩니다.
 
 ```yaml
@@ -620,21 +801,29 @@ databases:
 ```
 
 <a name="database-backups"></a>
-### 데이터베이스 백업
+<!-- ### Database Backups -->
+### Database Backups
 
+<!-- Homestead can automatically backup your database when your Homestead virtual machine is destroyed. To utilize this feature, you must be using Vagrant 2.1.0 or greater. Or, if you are using an older version of Vagrant, you must install the `vagrant-triggers` plug-in. To enable automatic database backups, add the following line to your `Homestead.yaml` file: -->
 Homestead는 가상 머신이 삭제될 때 데이터베이스를 자동으로 백업할 수 있습니다. 해당 기능을 사용하려면 Vagrant 2.1.0 이상이 설치되어 있어야 하며, 이전 버전에서 사용하려면 `vagrant-triggers` 플러그인이 필요합니다. 자동 백업을 활성화하려면 `Homestead.yaml` 파일에 아래 한 줄을 추가하세요.
+
 
 ```
 backup: true
 ```
 
-설정 후, `vagrant destroy` 명령어로 가상 머신을 삭제하면 Homestead가 데이터베이스를 `.backup/mysql_backup` 및 `.backup/postgres_backup` 디렉터리로 내보냅니다. 이 디렉터리는 Homestead를 설치한 폴더나, [프로젝트별 설치](#per-project-installation)를 사용 중이라면 프로젝트 루트에 생성됩니다.
+
+<!-- Once configured, Homestead will export your databases to `.backup/mysql_backup` and `.backup/postgres_backup` directories when the `vagrant destroy` command is executed. These directories can be found in the folder where you installed Homestead or in the root of your project if you are using the [per project installation](#per-project-installation) method. -->
+설정 후, `vagrant destroy` 명령어로 가상 머신을 삭제하면 Homestead가 데이터베이스를 `.backup/mysql_backup` 및 `.backup/postgres_backup` 디렉터리로 내보냅니다. 이 디렉터리는 Homestead를 설치한 폴더나, [per project installation](#per-project-installation)를 사용 중이라면 프로젝트 루트에 생성됩니다.
 
 <a name="configuring-cron-schedules"></a>
-### 크론 스케줄 설정
+<!-- ### Configuring Cron Schedules -->
+### Configuring Cron Schedules
 
-라라벨은 [크론 작업 예약](/docs/9.x/scheduling)을 싱글 `schedule:run` 아티즌 명령어로 자동화하는 편리한 방법을 제공합니다. 이 명령은 `App\Console\Kernel`에 정의된 스케줄을 확인해 예약된 작업을 실행합니다.
+<!-- Laravel provides a convenient way to [schedule cron jobs](/docs/9.x/scheduling) by scheduling a single `schedule:run` Artisan command to run every minute. The `schedule:run` command will examine the job schedule defined in your `App\Console\Kernel` class to determine which scheduled tasks to run. -->
+Laravel은 [schedule cron jobs](/docs/9.x/scheduling)을 싱글 `schedule:run` 아티즌 명령어로 자동화하는 편리한 방법을 제공합니다. `schedule:run` 명령은 `App\Console\Kernel`에 정의된 스케줄을 확인해 예약된 작업을 실행합니다.
 
+<!-- If you would like the `schedule:run` command to be run for a Homestead site, you may set the `schedule` option to `true` when defining the site: -->
 Homestead 사이트에서 `schedule:run` 명령어를 매 분 실행하고 싶다면, 사이트 정의 시 `schedule` 옵션을 `true`로 설정하세요.
 
 ```yaml
@@ -644,11 +833,14 @@ sites:
       schedule: true
 ```
 
+<!-- The cron job for the site will be defined in the `/etc/cron.d` directory of the Homestead virtual machine. -->
 사이트의 크론 작업은 Homestead 가상 머신의 `/etc/cron.d` 디렉터리에 정의됩니다.
 
 <a name="configuring-mailhog"></a>
-### MailHog 설정
+<!-- ### Configuring MailHog -->
+### Configuring MailHog
 
+<!-- [MailHog](https://github.com/mailhog/MailHog) allows you to intercept your outgoing email and examine it without actually sending the mail to its recipients. To get started, update your application's `.env` file to use the following mail settings: -->
 [MailHog](https://github.com/mailhog/MailHog)는 실제 수신자에게 메일을 전송하지 않고도 메일 내용을 확인할 수 있게 해주는 도구입니다. 시작하려면 애플리케이션의 `.env` 파일에 다음과 같이 메일 설정을 추가하세요.
 
 ```ini
@@ -660,19 +852,26 @@ MAIL_PASSWORD=null
 MAIL_ENCRYPTION=null
 ```
 
+<!-- Once MailHog has been configured, you may access the MailHog dashboard at `http://localhost:8025`. -->
 설정 후에는 `http://localhost:8025`에서 MailHog 대시보드에 접속할 수 있습니다.
 
 <a name="configuring-minio"></a>
-### Minio 설정
+<!-- ### Configuring Minio -->
+### Configuring Minio
 
-[Minio](https://github.com/minio/minio)는 Amazon S3와 호환되는 API를 제공하는 오픈소스 객체 스토리지 서버입니다. Minio를 설치하려면 [옵션 기능](#installing-optional-features) 설정에 다음 항목을 추가하세요.
+<!-- [Minio](https://github.com/minio/minio) is an open source object storage server with an Amazon S3 compatible API. To install Minio, update your `Homestead.yaml` file with the following configuration option in the [features](#installing-optional-features) section: -->
+[Minio](https://github.com/minio/minio)는 Amazon S3와 호환되는 API를 제공하는 오픈소스 객체 스토리지 서버입니다. Minio를 설치하려면 `Homestead.yaml` 파일의 [features](#installing-optional-features) 섹션에 다음 설정 항목을 추가하세요.
+
 
 ```
 minio: true
 ```
 
+
+<!-- By default, Minio is available on port 9600. You may access the Minio control panel by visiting `http://localhost:9600`. The default access key is `homestead`, while the default secret key is `secretkey`. When accessing Minio, you should always use region `us-east-1`. -->
 기본적으로 Minio는 포트 9600에서 사용할 수 있습니다. 컨트롤 패널은 `http://localhost:9600`에서 접근할 수 있으며, 기본 액세스 키는 `homestead`, 비밀 키는 `secretkey`입니다. Minio 사용 시에는 항상 `us-east-1` 리전을 사용해야 합니다.
 
+<!-- In order to use Minio, you will need to adjust the S3 disk configuration in your application's `config/filesystems.php` configuration file. You will need to add the `use_path_style_endpoint` option to the disk configuration as well as change the `url` key to `endpoint`: -->
 Minio 사용을 위해서는 애플리케이션의 `config/filesystems.php` 파일 내 S3 디스크 설정을 변경해야 합니다. `use_path_style_endpoint` 옵션을 추가하고, `url` 키는 `endpoint`로 변경합니다.
 
 ```
@@ -687,7 +886,8 @@ Minio 사용을 위해서는 애플리케이션의 `config/filesystems.php` 파�
 ]
 ```
 
-.env 파일에도 아래와 같이 추가해야 합니다.
+<!-- Finally, ensure your `.env` file has the following options: -->
+마지막으로 `.env` 파일에 아래 옵션들이 포함되어 있는지 확인하세요.
 
 ```ini
 AWS_ACCESS_KEY_ID=homestead
@@ -696,6 +896,7 @@ AWS_DEFAULT_REGION=us-east-1
 AWS_URL=http://localhost:9600
 ```
 
+<!-- To provision Minio powered "S3" buckets, add a `buckets` directive to your `Homestead.yaml` file. After defining your buckets, you should execute the `vagrant reload --provision` command in your terminal: -->
 Minio 기반의 "S3" 버킷을 사용하려면, `Homestead.yaml` 파일에 `buckets` 항목을 추가하세요. 버킷을 정의한 뒤에는 반드시 `vagrant reload --provision` 명령어로 반영해야 합니다.
 
 ```yaml
@@ -706,32 +907,40 @@ buckets:
       policy: none
 ```
 
+<!-- Supported `policy` values include: `none`, `download`, `upload`, and `public`. -->
 `policy`에는 `none`, `download`, `upload`, `public` 중 하나를 지정할 수 있습니다.
 
 <a name="laravel-dusk"></a>
-### Laravel Dusk 사용
+<!-- ### Laravel Dusk -->
+### Laravel Dusk
 
-Homestead 내에서 [Laravel Dusk](/docs/9.x/dusk) 테스트를 실행하려면, [옵션 기능 설치](#installing-optional-features)에서 `webdriver` 기능을 활성화하세요.
+<!-- In order to run [Laravel Dusk](/docs/9.x/dusk) tests within Homestead, you should enable the [`webdriver` feature](#installing-optional-features) in your Homestead configuration: -->
+Homestead 내에서 [Laravel Dusk](/docs/9.x/dusk) 테스트를 실행하려면, Homestead 설정에서 [`webdriver` feature](#installing-optional-features)를 활성화하세요.
 
 ```yaml
 features:
     - webdriver: true
 ```
 
+<!-- After enabling the `webdriver` feature, you should execute the `vagrant reload --provision` command in your terminal. -->
 `webdriver` 기능을 활성화한 후에는 `vagrant reload --provision` 명령어를 실행해야 합니다.
 
 <a name="sharing-your-environment"></a>
-### 환경 공유하기
+<!-- ### Sharing Your Environment -->
+### Sharing Your Environment
 
+<!-- Sometimes you may wish to share what you're currently working on with coworkers or a client. Vagrant has built-in support for this via the `vagrant share` command; however, this will not work if you have multiple sites configured in your `Homestead.yaml` file. -->
 동료나 고객과 현재 작업 중인 내용을 공유하고 싶을 때가 있습니다. Vagrant는 `vagrant share` 명령어를 통해 기본 공유 기능을 제공합니다. 단, `Homestead.yaml` 파일에 여러 사이트가 등록되어 있을 경우 이 기능이 동작하지 않을 수 있습니다.
 
-이 문제를 해결하기 위해 Homestead는 별도의 `share` 명령어를 제공합니다. [Homestead 가상 머신에 SSH로 접속](#connecting-via-ssh)한 다음, 아래와 같이 `share homestead.test` 명령을 실행하세요. 이때 `Homestead.yaml`에 설정된 사이트명을 입력합니다. 원하는 사이트명으로 대체할 수 있습니다.
+<!-- To solve this problem, Homestead includes its own `share` command. To get started, [SSH into your Homestead virtual machine](#connecting-via-ssh) via `vagrant ssh` and execute the `share homestead.test` command. This command will share the `homestead.test` site from your `Homestead.yaml` configuration file. You may substitute any of your other configured sites for `homestead.test`: -->
+이 문제를 해결하기 위해 Homestead는 별도의 `share` 명령어를 제공합니다. `vagrant ssh`로 [SSH into your Homestead virtual machine](#connecting-via-ssh)한 다음, `share homestead.test` 명령을 실행하세요. 이 명령은 `Homestead.yaml` 설정 파일에 등록된 `homestead.test` 사이트를 공유합니다. `homestead.test` 대신 설정해 둔 다른 사이트로 대체할 수 있습니다.
 
 ```shell
 share homestead.test
 ```
 
-명령이 실행되면 Ngrok 화면이 나타나고, 여기서 공유 사이트의 활동 로그와 외부에서 접근 가능한 URL을 확인할 수 있습니다. 공유 영역, 서브도메인 등 Ngrok 런타임 옵션을 직접 지정하고 싶으면 다음과 같이 사용할 수 있습니다.
+<!-- After running the command, you will see an Ngrok screen appear which contains the activity log and the publicly accessible URLs for the shared site. If you would like to specify a custom region, subdomain, or other Ngrok runtime option, you may add them to your `share` command: -->
+명령이 실행되면 Ngrok 화면이 나타나고, 여기서 공유 사이트의 활동 로그와 외부에서 접근 가능한 URL을 확인할 수 있습니다. 사용자 지정 region, 서브도메인 등 Ngrok 런타임 옵션을 직접 지정하고 싶으면 `share` 명령에 다음과 같이 추가할 수 있습니다.
 
 ```shell
 share homestead.test -region=eu -subdomain=laravel
@@ -741,49 +950,61 @@ share homestead.test -region=eu -subdomain=laravel
 > Vagrant는 보안적으로 안전하지 않으므로 `share` 명령어 실행 시 가상 머신이 인터넷에 직접 노출된다는 점을 반드시 인지하세요.
 
 <a name="debugging-and-profiling"></a>
-## 디버깅 및 프로파일링
+<!-- ## Debugging & Profiling -->
+## Debugging & Profiling
 
 <a name="debugging-web-requests"></a>
-### Xdebug로 웹 요청 디버깅
+<!-- ### Debugging Web Requests With Xdebug -->
+### Debugging Web Requests With Xdebug
 
+<!-- Homestead includes support for step debugging using [Xdebug](https://xdebug.org). For example, you can access a page in your browser and PHP will connect to your IDE to allow inspection and modification of the running code. -->
 Homestead는 [Xdebug](https://xdebug.org)를 사용한 단계별 디버깅을 지원합니다. 예를 들어, 브라우저에서 페이지를 여는 순간 PHP가 IDE와 연결되어 실행 중인 코드를 직접 확인하거나 수정할 수 있습니다.
 
+<!-- By default, Xdebug is already running and ready to accept connections. If you need to enable or disable Xdebug on the CLI, execute the `sudo phpenmod xdebug` or `sudo phpdismod xdebug` commands within your Homestead virtual machine. -->
 기본적으로 Xdebug는 실행 중이며 연결을 대기합니다. CLI에서 Xdebug를 활성화 또는 비활성화하려면 가상 머신 내부에서 `sudo phpenmod xdebug`나 `sudo phpdismod xdebug` 명령어를 실행하세요.
 
-IDE별로 디버깅 활성화 안내를 따라야 하며, 브라우저를 Xdebug가 인식할 수 있도록 확장 프로그램이나 [북마클릿](https://www.jetbrains.com/phpstorm/marklets/)으로 설정해야 합니다.
+<!-- Next, follow your IDE's instructions to enable debugging. Finally, configure your browser to trigger Xdebug with an extension or [bookmarklet](https://www.jetbrains.com/phpstorm/marklets/). -->
+IDE별로 디버깅 활성화 안내를 따라야 하며, 브라우저를 Xdebug가 인식할 수 있도록 확장 프로그램이나 [bookmarklet](https://www.jetbrains.com/phpstorm/marklets/)으로 설정해야 합니다.
 
 > [!WARNING]
 > Xdebug가 활성화되면 PHP 실행이 크게 느려질 수 있습니다. Xdebug를 비활성화하려면 `sudo phpdismod xdebug`를 실행한 후 FPM 서비스를 재시작하세요.
 
 <a name="autostarting-xdebug"></a>
-#### Xdebug 자동 시작
+<!-- #### Autostarting Xdebug -->
+#### Autostarting Xdebug
 
+<!-- When debugging functional tests that make requests to the web server, it is easier to autostart debugging rather than modifying tests to pass through a custom header or cookie to trigger debugging. To force Xdebug to start automatically, modify the `/etc/php/7.x/fpm/conf.d/20-xdebug.ini` file inside your Homestead virtual machine and add the following configuration: -->
 웹 서버로 요청이 오갈 때 테스트 자동화 디버깅이 필요하다면, 헤더나 쿠키 등을 수정하지 않아도 바로 디버깅을 시작할 수 있도록 Autostart 기능을 사용하는 것이 편리합니다. Homestead 가상 머신 내부의 `/etc/php/7.x/fpm/conf.d/20-xdebug.ini` 파일을 수정하고 아래 내용을 추가하세요.
 
 ```ini
-; 만약 Homestead.yaml에서 다른 서브넷을 사용한다면 이 IP는 다를 수 있습니다.
+; If Homestead.yaml contains a different subnet for the IP address, this address may be different...
 xdebug.client_host = 192.168.10.1
 xdebug.mode = debug
 xdebug.start_with_request = yes
 ```
 
 <a name="debugging-cli-applications"></a>
-### CLI 애플리케이션 디버깅
+<!-- ### Debugging CLI Applications -->
+### Debugging CLI Applications
 
+<!-- To debug a PHP CLI application, use the `xphp` shell alias inside your Homestead virtual machine: -->
 PHP CLI 애플리케이션을 디버깅하려면 가상 머신 내부에서 `xphp` 별칭을 사용하세요.
 
-```
-xphp /path/to/script
-```
+<!--     xphp /path/to/script -->
+    xphp /path/to/script
 
 <a name="profiling-applications-with-blackfire"></a>
-### Blackfire로 애플리케이션 프로파일링
+<!-- ### Profiling Applications with Blackfire -->
+### Profiling Applications with Blackfire
 
-[Blackfire](https://blackfire.io/docs/introduction)은 웹 요청과 CLI 애플리케이션의 성능 프로파일링을 위한 서비스입니다. 인터랙티브 UI를 제공해 호출 그래프, 타임라인 등으로 프로파일 정보를 시각화해줍니다. 개발/스테이징/운영 환경 모두에서 추가 부하 없이 사용할 수 있습니다. 또한 코드 품질, 보안, 성능 관련 점검 기능도 제공합니다.
+<!-- [Blackfire](https://blackfire.io/docs/introduction) is a service for profiling web requests and CLI applications. It offers an interactive user interface which displays profile data in call-graphs and timelines. It is built for use in development, staging, and production, with no overhead for end users. In addition, Blackfire provides performance, quality, and security checks on code and `php.ini` configuration settings. -->
+[Blackfire](https://blackfire.io/docs/introduction)은 웹 요청과 CLI 애플리케이션의 성능 프로파일링을 위한 서비스입니다. 인터랙티브 UI를 제공해 호출 그래프, 타임라인 등으로 프로파일 정보를 시각화해줍니다. 개발/스테이징/운영 환경 모두에서 추가 부하 없이 사용할 수 있습니다. 또한 Blackfire는 코드와 `php.ini` 설정에 대한 성능, 품질, 보안 점검 기능도 제공합니다.
 
+<!-- The [Blackfire Player](https://blackfire.io/docs/player/index) is an open-source Web Crawling, Web Testing, and Web Scraping application which can work jointly with Blackfire in order to script profiling scenarios. -->
 [Blackfire Player](https://blackfire.io/docs/player/index)는 크롤링, 테스트, 스크레이핑용 오픈소스 도구로, Blackfire와 함께 시나리오 기반의 프로파일링도 가능합니다.
 
-Blackfire 활성화는 `Homestead.yaml`의 "features" 란에 아래와 같이 설정하세요.
+<!-- To enable Blackfire, use the "features" setting in your Homestead configuration file: -->
+Blackfire를 활성화하려면 Homestead 설정 파일의 "features" 항목에 아래와 같이 설정하세요.
 
 ```yaml
 features:
@@ -794,11 +1015,14 @@ features:
         client_token: "client_value"
 ```
 
-Blackfire 서버와 클라이언트 자격 증명은 [Blackfire 계정](https://blackfire.io/signup)이 필요합니다. Blackfire로 애플리케이션을 프로파일링하는 방법은 CLI 도구, 브라우저 확장 등 다양한 방법이 있습니다. 자세한 사항은 [Blackfire 공식 문서](https://blackfire.io/docs/php/integrations/laravel/index)를 참고하시기 바랍니다.
+<!-- Blackfire server credentials and client credentials [require a Blackfire account](https://blackfire.io/signup). Blackfire offers various options to profile an application, including a CLI tool and browser extension. Please [review the Blackfire documentation for more details](https://blackfire.io/docs/php/integrations/laravel/index). -->
+Blackfire 서버와 클라이언트 자격 증명은 [require a Blackfire account](https://blackfire.io/signup)이 필요합니다. Blackfire로 애플리케이션을 프로파일링하는 방법은 CLI 도구, 브라우저 확장 등 다양한 방법이 있습니다. 자세한 사항은 [review the Blackfire documentation for more details](https://blackfire.io/docs/php/integrations/laravel/index)를 참고하시기 바랍니다.
 
 <a name="network-interfaces"></a>
-## 네트워크 인터페이스
+<!-- ## Network Interfaces -->
+## Network Interfaces
 
+<!-- The `networks` property of the `Homestead.yaml` file configures network interfaces for your Homestead virtual machine. You may configure as many interfaces as necessary: -->
 `Homestead.yaml` 파일의 `networks` 속성은 Homestead 가상 머신의 네트워크 인터페이스를 설정합니다. 필요한 만큼 인터페이스를 추가할 수 있습니다.
 
 ```yaml
@@ -807,7 +1031,8 @@ networks:
       ip: "192.168.10.20"
 ```
 
-[브릿지 네트워크](https://www.vagrantup.com/docs/networking/public_network.html)를 활성화하려면 `bridge`를 지정하고 `type`을 `public_network`로 변경합니다.
+<!-- To enable a [bridged](https://www.vagrantup.com/docs/networking/public_network.html) interface, configure a `bridge` setting for the network and change the network type to `public_network`: -->
+[bridged](https://www.vagrantup.com/docs/networking/public_network.html)를 활성화하려면 네트워크의 type을 `public_network`로 변경하고 `bridge` 설정을 지정합니다.
 
 ```yaml
 networks:
@@ -816,6 +1041,7 @@ networks:
       bridge: "en1: Wi-Fi (AirPort)"
 ```
 
+<!-- To enable [DHCP](https://www.vagrantup.com/docs/networking/public_network.html), just remove the `ip` option from your configuration: -->
 [DHCP](https://www.vagrantup.com/docs/networking/public_network.html) 사용을 원할 경우, `ip` 옵션을 생략하면 됩니다.
 
 ```yaml
@@ -825,10 +1051,13 @@ networks:
 ```
 
 <a name="extending-homestead"></a>
-## Homestead 확장
+<!-- ## Extending Homestead -->
+## Extending Homestead
 
+<!-- You may extend Homestead using the `after.sh` script in the root of your Homestead directory. Within this file, you may add any shell commands that are necessary to properly configure and customize your virtual machine. -->
 Homestead는 Homestead 디렉터리 루트에 위치한 `after.sh` 스크립트를 이용해 확장할 수 있습니다. 이 파일에 가상 머신을 추가적으로 구성하거나 세부 조정이 필요한 쉘 명령어를 추가할 수 있습니다.
 
+<!-- When customizing Homestead, Ubuntu may ask you if you would like to keep a package's original configuration or overwrite it with a new configuration file. To avoid this, you should use the following command when installing packages in order to avoid overwriting any configuration previously written by Homestead: -->
 Homestead를 커스터마이즈할 때, Ubuntu가 패키지 설치 중 기존 설정 파일을 유지할지 또는 새 파일로 덮어쓸지 물어올 수 있습니다. Homestead가 작성한 기존 설정을 유지하려면 아래와 같이 명령어를 작성하세요.
 
 ```shell
@@ -839,19 +1068,25 @@ sudo apt-get -y \
 ```
 
 <a name="user-customizations"></a>
-### 사용자 커스터마이징
+<!-- ### User Customizations -->
+### User Customizations
 
+<!-- When using Homestead with your team, you may want to tweak Homestead to better fit your personal development style. To accomplish this, you may create a `user-customizations.sh` file in the root of your Homestead directory (the same directory containing your `Homestead.yaml` file). Within this file, you may make any customization you would like; however, the `user-customizations.sh` should not be version controlled. -->
 팀에서 Homestead를 사용할 때 각자의 개발 스타일에 맞게 Homestead를 조금씩 맞추고 싶다면, Homestead 디렉터리 루트(즉, `Homestead.yaml`이 위치한 곳)에 `user-customizations.sh` 파일을 생성하세요. 여기에 원하는 설정이나 스크립트를 자유롭게 추가할 수 있습니다. 단, `user-customizations.sh` 파일은 버전 관리에 포함하지 않아야 합니다.
 
 <a name="provider-specific-settings"></a>
-## 프로바이더별 설정
+<!-- ## Provider Specific Settings -->
+## Provider Specific Settings
 
 <a name="provider-specific-virtualbox"></a>
+<!-- ### VirtualBox -->
 ### VirtualBox
 
 <a name="natdnshostresolver"></a>
-#### `natdnshostresolver` 설정
+<!-- #### `natdnshostresolver` -->
+#### `natdnshostresolver`
 
+<!-- By default, Homestead configures the `natdnshostresolver` setting to `on`. This allows Homestead to use your host operating system's DNS settings. If you would like to override this behavior, add the following configuration options to your `Homestead.yaml` file: -->
 기본적으로 Homestead는 `natdnshostresolver` 옵션을 `on`으로 설정합니다. 이로써 Homestead가 호스트 운영체제의 DNS 설정을 이용할 수 있습니다. 이 동작을 변경하려면, 아래와 같이 `Homestead.yaml` 파일에 옵션을 추가하세요.
 
 ```yaml
@@ -860,8 +1095,10 @@ natdnshostresolver: 'off'
 ```
 
 <a name="symbolic-links-on-windows"></a>
-#### Windows에서 심볼릭 링크 문제 해결
+<!-- #### Symbolic Links On Windows -->
+#### Symbolic Links On Windows
 
+<!-- If symbolic links are not working properly on your Windows machine, you may need to add the following block to your `Vagrantfile`: -->
 Windows 환경에서 심볼릭 링크가 제대로 작동하지 않는다면, `Vagrantfile`에 다음 블록을 추가해보세요.
 
 ```ruby

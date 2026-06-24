@@ -20,6 +20,8 @@ _BASE64_RE = re.compile(r"data:image/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+(?=[)
 _FENCE_RE = re.compile(r"^([ \t]*)(`{3,}|~{3,})", re.MULTILINE)
 _INDENTED_CODE_RE = re.compile(r"^(?: {4}|\t)(.*)$")
 _LIST_MARKER_RE = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s)")
+_STYLE_OPEN = "<style"
+_STYLE_CLOSE = "</style>"
 
 
 @dataclass
@@ -117,12 +119,22 @@ def _strip_style_blocks(text: str) -> str:
     out: list[str] = []
     lower = text.lower()
     index = 0
+
+    def inside_inline_code(position: int) -> bool:
+        line_start = text.rfind("\n", 0, position) + 1
+        prefix = text[line_start:position]
+        return prefix.count("`") % 2 == 1
+
     while index < len(text):
-        start = lower.find("<style", index)
+        start = lower.find(_STYLE_OPEN, index)
         if start < 0:
             out.append(text[index:])
             break
-        tag_end = text.find(">", start + len("<style"))
+        if inside_inline_code(start):
+            out.append(text[index : start + len(_STYLE_OPEN)])
+            index = start + len(_STYLE_OPEN)
+            continue
+        tag_end = text.find(">", start + len(_STYLE_OPEN))
         if tag_end < 0:
             out.append(text[index:])
             break
@@ -131,12 +143,12 @@ def _strip_style_blocks(text: str) -> str:
         while remove_start > index and text[remove_start - 1] in " \t":
             remove_start -= 1
 
-        close_start = lower.find("</style>", tag_end + 1)
+        close_start = lower.find(_STYLE_CLOSE, tag_end + 1)
         if close_start < 0:
             out.append(text[index:remove_start])
             break
 
-        remove_end = close_start + len("</style>")
+        remove_end = close_start + len(_STYLE_CLOSE)
         while remove_end < len(text) and text[remove_end] in " \t\r\n":
             remove_end += 1
 

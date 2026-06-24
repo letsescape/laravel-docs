@@ -5,152 +5,577 @@
       "label": "Prologue",
       "collapsed": true,
       "items": [
-        "releases",
-        "upgrade",
-        "contributions"
-      ]
+        {
+          "type": "doc",
+          "id": "releases",
+          "label": "Release Notes",
+          "key": "releases"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade",
+          "label": "Upgrade Guide",
+          "key": "upgrade"
+        },
+        {
+          "type": "doc",
+          "id": "contributions",
+          "label": "Contribution Guide",
+          "key": "contributions"
+        }
+      ],
+      "key": "Prologue"
     },
     {
       "type": "category",
       "label": "Getting Started",
       "collapsed": false,
       "items": [
-        "installation",
-        "configuration",
-        "structure",
-        "starter-kits",
-        "deployment"
-      ]
+        {
+          "type": "doc",
+          "id": "installation",
+          "label": "Installation",
+          "key": "installation"
+        },
+        {
+          "type": "doc",
+          "id": "configuration",
+          "label": "Configuration",
+          "key": "configuration"
+        },
+        {
+          "type": "doc",
+          "id": "structure",
+          "label": "Directory Structure",
+          "key": "structure"
+        },
+        {
+          "type": "doc",
+          "id": "starter-kits",
+          "label": "Starter Kits",
+          "key": "starter-kits"
+        },
+        {
+          "type": "doc",
+          "id": "deployment",
+          "label": "Deployment",
+          "key": "deployment"
+        }
+      ],
+      "key": "Getting Started"
     },
     {
       "type": "category",
       "label": "Architecture Concepts",
       "collapsed": true,
       "items": [
-        "lifecycle",
-        "container",
-        "providers",
-        "facades"
-      ]
+        {
+          "type": "doc",
+          "id": "lifecycle",
+          "label": "Request Lifecycle",
+          "key": "lifecycle"
+        },
+        {
+          "type": "doc",
+          "id": "container",
+          "label": "Service Container",
+          "key": "container"
+        },
+        {
+          "type": "doc",
+          "id": "providers",
+          "label": "Service Providers",
+          "key": "providers"
+        },
+        {
+          "type": "doc",
+          "id": "facades",
+          "label": "Facades",
+          "key": "facades"
+        }
+      ],
+      "key": "Architecture Concepts"
     },
     {
       "type": "category",
       "label": "The Basics",
       "collapsed": true,
       "items": [
-        "routing",
-        "middleware",
-        "csrf",
-        "controllers",
-        "requests",
-        "responses",
-        "views",
-        "blade",
-        "urls",
-        "session",
-        "validation",
-        "errors",
-        "logging"
-      ]
+        {
+          "type": "doc",
+          "id": "routing",
+          "label": "Routing",
+          "key": "routing"
+        },
+        {
+          "type": "doc",
+          "id": "middleware",
+          "label": "Middleware",
+          "key": "middleware"
+        },
+        {
+          "type": "doc",
+          "id": "csrf",
+          "label": "CSRF Protection",
+          "key": "csrf"
+        },
+        {
+          "type": "doc",
+          "id": "controllers",
+          "label": "Controllers",
+          "key": "controllers"
+        },
+        {
+          "type": "doc",
+          "id": "requests",
+          "label": "Requests",
+          "key": "requests"
+        },
+        {
+          "type": "doc",
+          "id": "responses",
+          "label": "Responses",
+          "key": "responses"
+        },
+        {
+          "type": "doc",
+          "id": "views",
+          "label": "Views",
+          "key": "views"
+        },
+        {
+          "type": "doc",
+          "id": "blade",
+          "label": "Blade Templates",
+          "key": "blade"
+        },
+        {
+          "type": "doc",
+          "id": "urls",
+          "label": "URL Generation",
+          "key": "urls"
+        },
+        {
+          "type": "doc",
+          "id": "session",
+          "label": "Session",
+          "key": "session"
+        },
+        {
+          "type": "doc",
+          "id": "validation",
+          "label": "Validation",
+          "key": "validation"
+        },
+        {
+          "type": "doc",
+          "id": "errors",
+          "label": "Error Handling",
+          "key": "errors"
+        },
+        {
+          "type": "doc",
+          "id": "logging",
+          "label": "Logging",
+          "key": "logging"
+        }
+      ],
+      "key": "The Basics"
     },
     {
       "type": "category",
       "label": "Digging Deeper",
       "collapsed": true,
       "items": [
-        "artisan",
-        "broadcasting",
-        "cache",
-        "collections",
-        "mix",
-        "contracts",
-        "events",
-        "filesystem",
-        "helpers",
-        "http-client",
-        "localization",
-        "mail",
-        "notifications",
-        "packages",
-        "queues",
-        "rate-limiting",
-        "scheduling"
-      ]
+        {
+          "type": "doc",
+          "id": "artisan",
+          "label": "Artisan Console",
+          "key": "artisan"
+        },
+        {
+          "type": "doc",
+          "id": "broadcasting",
+          "label": "Broadcasting",
+          "key": "broadcasting"
+        },
+        {
+          "type": "doc",
+          "id": "cache",
+          "label": "Cache",
+          "key": "cache"
+        },
+        {
+          "type": "doc",
+          "id": "collections",
+          "label": "Collections",
+          "key": "collections"
+        },
+        {
+          "type": "doc",
+          "id": "mix",
+          "label": "Compiling Assets",
+          "key": "mix"
+        },
+        {
+          "type": "doc",
+          "id": "contracts",
+          "label": "Contracts",
+          "key": "contracts"
+        },
+        {
+          "type": "doc",
+          "id": "events",
+          "label": "Events",
+          "key": "events"
+        },
+        {
+          "type": "doc",
+          "id": "filesystem",
+          "label": "File Storage",
+          "key": "filesystem"
+        },
+        {
+          "type": "doc",
+          "id": "helpers",
+          "label": "Helpers",
+          "key": "helpers"
+        },
+        {
+          "type": "doc",
+          "id": "http-client",
+          "label": "HTTP Client",
+          "key": "http-client"
+        },
+        {
+          "type": "doc",
+          "id": "localization",
+          "label": "Localization",
+          "key": "localization"
+        },
+        {
+          "type": "doc",
+          "id": "mail",
+          "label": "Mail",
+          "key": "mail"
+        },
+        {
+          "type": "doc",
+          "id": "notifications",
+          "label": "Notifications",
+          "key": "notifications"
+        },
+        {
+          "type": "doc",
+          "id": "packages",
+          "label": "Package Development",
+          "key": "packages"
+        },
+        {
+          "type": "doc",
+          "id": "queues",
+          "label": "Queues",
+          "key": "queues"
+        },
+        {
+          "type": "doc",
+          "id": "rate-limiting",
+          "label": "Rate Limiting",
+          "key": "rate-limiting"
+        },
+        {
+          "type": "doc",
+          "id": "scheduling",
+          "label": "Task Scheduling",
+          "key": "scheduling"
+        }
+      ],
+      "key": "Digging Deeper"
     },
     {
       "type": "category",
       "label": "Security",
       "collapsed": true,
       "items": [
-        "authentication",
-        "authorization",
-        "verification",
-        "encryption",
-        "hashing",
-        "passwords"
-      ]
+        {
+          "type": "doc",
+          "id": "authentication",
+          "label": "Authentication",
+          "key": "authentication"
+        },
+        {
+          "type": "doc",
+          "id": "authorization",
+          "label": "Authorization",
+          "key": "authorization"
+        },
+        {
+          "type": "doc",
+          "id": "verification",
+          "label": "Email Verification",
+          "key": "verification"
+        },
+        {
+          "type": "doc",
+          "id": "encryption",
+          "label": "Encryption",
+          "key": "encryption"
+        },
+        {
+          "type": "doc",
+          "id": "hashing",
+          "label": "Hashing",
+          "key": "hashing"
+        },
+        {
+          "type": "doc",
+          "id": "passwords",
+          "label": "Password Reset",
+          "key": "passwords"
+        }
+      ],
+      "key": "Security"
     },
     {
       "type": "category",
       "label": "Database",
       "collapsed": true,
       "items": [
-        "database",
-        "queries",
-        "pagination",
-        "migrations",
-        "seeding",
-        "redis"
-      ]
+        {
+          "type": "doc",
+          "id": "database",
+          "label": "Getting Started",
+          "key": "database"
+        },
+        {
+          "type": "doc",
+          "id": "queries",
+          "label": "Query Builder",
+          "key": "queries"
+        },
+        {
+          "type": "doc",
+          "id": "pagination",
+          "label": "Pagination",
+          "key": "pagination"
+        },
+        {
+          "type": "doc",
+          "id": "migrations",
+          "label": "Migrations",
+          "key": "migrations"
+        },
+        {
+          "type": "doc",
+          "id": "seeding",
+          "label": "Seeding",
+          "key": "seeding"
+        },
+        {
+          "type": "doc",
+          "id": "redis",
+          "label": "Redis",
+          "key": "redis"
+        }
+      ],
+      "key": "Database"
     },
     {
       "type": "category",
       "label": "Eloquent ORM",
       "collapsed": true,
       "items": [
-        "eloquent",
-        "eloquent-relationships",
-        "eloquent-collections",
-        "eloquent-mutators",
-        "eloquent-resources",
-        "eloquent-serialization"
-      ]
+        {
+          "type": "doc",
+          "id": "eloquent",
+          "label": "Getting Started",
+          "key": "eloquent"
+        },
+        {
+          "type": "doc",
+          "id": "eloquent-relationships",
+          "label": "Relationships",
+          "key": "eloquent-relationships"
+        },
+        {
+          "type": "doc",
+          "id": "eloquent-collections",
+          "label": "Collections",
+          "key": "eloquent-collections"
+        },
+        {
+          "type": "doc",
+          "id": "eloquent-mutators",
+          "label": "Mutators / Casts",
+          "key": "eloquent-mutators"
+        },
+        {
+          "type": "doc",
+          "id": "eloquent-resources",
+          "label": "API Resources",
+          "key": "eloquent-resources"
+        },
+        {
+          "type": "doc",
+          "id": "eloquent-serialization",
+          "label": "Serialization",
+          "key": "eloquent-serialization"
+        }
+      ],
+      "key": "Eloquent ORM"
     },
     {
       "type": "category",
       "label": "Testing",
       "collapsed": true,
       "items": [
-        "testing",
-        "http-tests",
-        "console-tests",
-        "dusk",
-        "database-testing",
-        "mocking"
-      ]
+        {
+          "type": "doc",
+          "id": "testing",
+          "label": "Getting Started",
+          "key": "testing"
+        },
+        {
+          "type": "doc",
+          "id": "http-tests",
+          "label": "HTTP Tests",
+          "key": "http-tests"
+        },
+        {
+          "type": "doc",
+          "id": "console-tests",
+          "label": "Console Tests",
+          "key": "console-tests"
+        },
+        {
+          "type": "doc",
+          "id": "dusk",
+          "label": "Browser Tests",
+          "key": "dusk"
+        },
+        {
+          "type": "doc",
+          "id": "database-testing",
+          "label": "Database",
+          "key": "database-testing"
+        },
+        {
+          "type": "doc",
+          "id": "mocking",
+          "label": "Mocking",
+          "key": "mocking"
+        }
+      ],
+      "key": "Testing"
     },
     {
       "type": "category",
       "label": "Packages",
       "collapsed": true,
       "items": [
-        "starter-kits",
-        "billing",
-        "cashier-paddle",
-        "dusk",
-        "envoy",
-        "fortify",
-        "homestead",
-        "horizon",
-        "octane",
-        "passport",
-        "sail",
-        "sanctum",
-        "scout",
-        "socialite",
-        "telescope",
-        "valet"
-      ]
+        {
+          "type": "doc",
+          "id": "starter-kits",
+          "label": "Breeze",
+          "key": "starter-kits-packages"
+        },
+        {
+          "type": "doc",
+          "id": "billing",
+          "label": "Cashier (Stripe)",
+          "key": "billing"
+        },
+        {
+          "type": "doc",
+          "id": "cashier-paddle",
+          "label": "Cashier (Paddle)",
+          "key": "cashier-paddle"
+        },
+        {
+          "type": "doc",
+          "id": "dusk",
+          "label": "Dusk",
+          "key": "dusk-packages"
+        },
+        {
+          "type": "doc",
+          "id": "envoy",
+          "label": "Envoy",
+          "key": "envoy"
+        },
+        {
+          "type": "doc",
+          "id": "fortify",
+          "label": "Fortify",
+          "key": "fortify"
+        },
+        {
+          "type": "doc",
+          "id": "homestead",
+          "label": "Homestead",
+          "key": "homestead"
+        },
+        {
+          "type": "doc",
+          "id": "horizon",
+          "label": "Horizon",
+          "key": "horizon"
+        },
+        {
+          "type": "link",
+          "label": "Jetstream",
+          "href": "https://jetstream.laravel.com"
+        },
+        {
+          "type": "doc",
+          "id": "octane",
+          "label": "Octane",
+          "key": "octane"
+        },
+        {
+          "type": "doc",
+          "id": "passport",
+          "label": "Passport",
+          "key": "passport"
+        },
+        {
+          "type": "doc",
+          "id": "sail",
+          "label": "Sail",
+          "key": "sail"
+        },
+        {
+          "type": "doc",
+          "id": "sanctum",
+          "label": "Sanctum",
+          "key": "sanctum"
+        },
+        {
+          "type": "doc",
+          "id": "scout",
+          "label": "Scout",
+          "key": "scout"
+        },
+        {
+          "type": "doc",
+          "id": "socialite",
+          "label": "Socialite",
+          "key": "socialite"
+        },
+        {
+          "type": "doc",
+          "id": "telescope",
+          "label": "Telescope",
+          "key": "telescope"
+        },
+        {
+          "type": "doc",
+          "id": "valet",
+          "label": "Valet",
+          "key": "valet"
+        }
+      ],
+      "key": "Packages"
     },
     {
       "type": "link",

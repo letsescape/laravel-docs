@@ -1,23 +1,29 @@
-# LaravelPint (Laravel Pint)
+<!-- # Laravel Pint -->
+# Laravel Pint
 
 - [Introduction](#introduction)
 - [Installation](#installation)
-- [ランニングPint](#running-pint)
-- [Pint の構成](#configuring-pint)
+- [Running Pint](#running-pint)
+- [Configuring Pint](#configuring-pint)
     - [Presets](#presets)
     - [Rules](#rules)
-    - [ファイル/フォルダーの除外](#excluding-files-or-folders)
+    - [Excluding Files / Folders](#excluding-files-or-folders)
 
 <a name="introduction"></a>
-## 導入 (Introduction)
+<!-- ## Introduction -->
+## Introduction
 
-[LaravelPint](https://github.com/laravel/pint) は、ミニマリスト向けの独自の PHP コード スタイル修正ツールです。 Pint は PHP-CS-Fixer の上に構築されており、コード スタイルをクリーンで一貫性のある状態に保つことが簡単になります。
+<!-- [Laravel Pint](https://github.com/laravel/pint) is an opinionated PHP code style fixer for minimalists. Pint is built on top of PHP-CS-Fixer and makes it simple to ensure that your code style stays clean and consistent. -->
+[Laravel Pint](https://github.com/laravel/pint) は、ミニマリスト向けの独自の PHP コード スタイル修正ツールです。 Pint は PHP-CS-Fixer の上に構築されており、コード スタイルをクリーンで一貫性のある状態に保つことが簡単になります。
 
+<!-- Pint is automatically installed with all new Laravel applications so you may start using it immediately. By default, Pint does not require any configuration and will fix code style issues in your code by following the opinionated coding style of Laravel. -->
 Pint はすべての新しい Laravel アプリケーションとともに自動的にインストールされるため、すぐに使用を開始できます。デフォルトでは、Pint は設定を必要とせず、Laravel の独自のコーディング スタイルに従ってコード内のコード スタイルの問題を修正します。
 
 <a name="installation"></a>
-## インストール (Installation)
+<!-- ## Installation -->
+## Installation
 
+<!-- Pint is included in recent releases of the Laravel framework, so installation is typically unnecessary. However, for older applications, you may install Laravel Pint via Composer: -->
 Pint は Laravel フレームワークの最近のリリースに含まれているため、通常はインストールは必要ありません。ただし、古いアプリケーションの場合は、Composer 経由で Laravel Pint をインストールできます。
 
 ```shell
@@ -25,14 +31,17 @@ composer require laravel/pint --dev
 ```
 
 <a name="running-pint"></a>
-## ランニングPint (Running Pint)
+<!-- ## Running Pint -->
+## Running Pint
 
+<!-- You can instruct Pint to fix code style issues by invoking the `pint` binary that is available in your project's `vendor/bin` directory: -->
 プロジェクトの `vendor/bin` ディレクトリにある `pint` バイナリを呼び出すことで、コード スタイルの問題を修正するように Pint に指示できます。
 
 ```shell
 ./vendor/bin/pint
 ```
 
+<!-- You may also run Pint on specific files or directories: -->
 特定のファイルまたはディレクトリに対して Pint を実行することもできます。
 
 ```shell
@@ -41,18 +50,21 @@ composer require laravel/pint --dev
 ./vendor/bin/pint app/Models/User.php
 ```
 
+<!-- Pint will display a thorough list of all of the files that it updates. You can view even more detail about Pint's changes by providing the `-v` option when invoking Pint: -->
 Pint は、更新するすべてのファイルの完全なリストを表示します。 Pint を呼び出すときに `-v` オプションを指定すると、Pint の変更についてさらに詳細を表示できます。
 
 ```shell
 ./vendor/bin/pint -v
 ```
 
+<!-- If you would like Pint to simply inspect your code for style errors without actually changing the files, you may use the `--test` option: -->
 実際にファイルを変更せずに、Pint に単にコードのスタイル エラーを検査させたい場合は、`--test` オプションを使用できます。
 
 ```shell
 ./vendor/bin/pint --test
 ```
 
+<!-- If you would like Pint to only modify the files that have uncommitted changes according to Git, you may use the `--dirty` option: -->
 Git に従ってコミットされていない変更があるファイルのみを Pint に変更させたい場合は、`--dirty` オプションを使用できます。
 
 ```shell
@@ -60,8 +72,10 @@ Git に従ってコミットされていない変更があるファイルのみ�
 ```
 
 <a name="configuring-pint"></a>
-## Pint の構成 (Configuring Pint)
+<!-- ## Configuring Pint -->
+## Configuring Pint
 
+<!-- As previously mentioned, Pint does not require any configuration. However, if you wish to customize the presets, rules, or inspected folders, you may do so by creating a `pint.json` file in your project's root directory: -->
 前述したように、Pint には構成は必要ありません。ただし、プリセット、ルール、または検査されたフォルダーをカスタマイズしたい場合は、プロジェクトのルート ディレクトリに `pint.json` ファイルを作成することで実行できます。
 
 ```json
@@ -70,6 +84,7 @@ Git に従ってコミットされていない変更があるファイルのみ�
 }
 ```
 
+<!-- In addition, if you wish to use a `pint.json` from a specific directory, you may provide the `--config` option when invoking Pint: -->
 さらに、特定のディレクトリの `pint.json` を使用したい場合は、Pint を呼び出すときに `--config` オプションを指定できます。
 
 ```shell
@@ -77,14 +92,17 @@ pint --config vendor/my-company/coding-style/pint.json
 ```
 
 <a name="presets"></a>
-### プリセット
+<!-- ### Presets -->
+### Presets
 
+<!-- Presets defines a set of rules that can be used to fix code style issues in your code. By default, Pint uses the `laravel` preset, which fixes issues by following the opinionated coding style of Laravel. However, you may specify a different preset by providing the `--preset` option to Pint: -->
 プリセットは、コード内のコード スタイルの問題を修正するために使用できる一連のルールを定義します。デフォルトでは、Pint は `laravel` プリセットを使用します。これは、Laravel の独自のコーディング スタイルに従うことで問題を修正します。ただし、Pint に `--preset` オプションを指定することで、別のプリセットを指定できます。
 
 ```shell
 pint --preset psr12
 ```
 
+<!-- If you wish, you may also set the preset in your project's `pint.json` file: -->
 必要に応じて、プロジェクトの `pint.json` ファイルにプリセットを設定することもできます。
 
 ```json
@@ -93,13 +111,17 @@ pint --preset psr12
 }
 ```
 
+<!-- Pint's currently supported presets are: `laravel`, `psr12`, and `symfony`. -->
 Pint で現在サポートされているプリセットは、`laravel`、`psr12`、および `symfony` です。
 
 <a name="rules"></a>
-### ルール
+<!-- ### Rules -->
+### Rules
 
+<!-- Rules are style guidelines that Pint will use to fix code style issues in your code. As mentioned above, presets are predefined groups of rules that should be perfect for most PHP projects, so you typically will not need to worry about the individual rules they contain. -->
 ルールは、コード内のコード スタイルの問題を修正するために Pint が使用するスタイル ガイドラインです。上で述べたように、プリセットは、ほとんどの PHP プロジェクトに最適な事前定義されたルールのグループであるため、通常、プリセットに含まれる個々のルールについて心配する必要はありません。
 
+<!-- However, if you wish, you may enable or disable specific rules in your `pint.json` file: -->
 ただし、必要に応じて、`pint.json` ファイル内の特定のルールを有効または無効にすることができます。
 
 ```json
@@ -116,11 +138,14 @@ Pint で現在サポートされているプリセットは、`laravel`、`psr12
 }
 ```
 
-Pint は [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) の上に構築されています。したがって、そのルールのいずれかを使用して、プロジェクトのコード スタイルの問題を修正できます: [PHP-CS-Fixer コンフィギュレーター](https://mlocati.github.io/php-cs-fixer-configurator)。
+<!-- Pint is built on top of [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer). Therefore, you may use any of its rules to fix code style issues in your project: [PHP-CS-Fixer Configurator](https://mlocati.github.io/php-cs-fixer-configurator). -->
+Pint は [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) の上に構築されています。したがって、そのルールのいずれかを使用して、プロジェクトのコード スタイルの問題を修正できます: [PHP-CS-Fixer Configurator](https://mlocati.github.io/php-cs-fixer-configurator)。
 
 <a name="excluding-files-or-folders"></a>
-### ファイル/フォルダーの除外
+<!-- ### Excluding Files / Folders -->
+### Excluding Files / Folders
 
+<!-- By default, Pint will inspect all `.php` files in your project except those in the `vendor` directory. If you wish to exclude more folders, you may do so using the `exclude` configuration option: -->
 デフォルトでは、Pint は、`vendor` ディレクトリ内のファイルを除く、プロジェクト内のすべての `.php` ファイルを検査します。さらに多くのフォルダーを除外したい場合は、`exclude` 構成オプションを使用して除外できます。
 
 ```json
@@ -131,6 +156,7 @@ Pint は [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) の上に�
 }
 ```
 
+<!-- If you wish to exclude all files that contain a given name pattern, you may do so using the `notName` configuration option: -->
 特定の名前パターンを含むすべてのファイルを除外したい場合は、`notName` 構成オプションを使用して除外できます。
 
 ```json
@@ -141,6 +167,7 @@ Pint は [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) の上に�
 }
 ```
 
+<!-- If you would like to exclude a file by providing an exact path to the file, you may do so using the `notPath` configuration option: -->
 ファイルへの正確なパスを指定してファイルを除外したい場合は、`notPath` 構成オプションを使用して実行できます。
 
 ```json

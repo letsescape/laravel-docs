@@ -8,6 +8,8 @@ from sync import config, translate
 class TranslateRetryTests(unittest.TestCase):
     def test_annotation_format_is_locale_neutral(self):
         self.assertNotIn("한국어", translate._ANNOTATION_FORMAT)
+        self.assertNotIn("Translated Section Title", translate._ANNOTATION_FORMAT)
+        self.assertIn("# Section Title", translate._ANNOTATION_FORMAT)
         self.assertIn("translated paragraph", translate._ANNOTATION_FORMAT.lower())
 
     def test_retries_transient_provider_failures_with_same_chunk(self):

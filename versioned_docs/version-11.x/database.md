@@ -1,44 +1,62 @@
-# 데이터베이스: 시작하기 (Database: Getting Started)
+<!-- # Database: Getting Started -->
+# Database: Getting Started
 
-- [소개](#introduction)
-    - [설정](#configuration)
-    - [읽기 및 쓰기 연결](#read-and-write-connections)
-- [SQL 쿼리 실행하기](#running-queries)
-    - [다중 데이터베이스 연결 사용하기](#using-multiple-database-connections)
-    - [쿼리 이벤트 리스닝](#listening-for-query-events)
-    - [누적 쿼리 시간 모니터링](#monitoring-cumulative-query-time)
-- [데이터베이스 트랜잭션](#database-transactions)
-- [데이터베이스 CLI 연결하기](#connecting-to-the-database-cli)
-- [데이터베이스 점검](#inspecting-your-databases)
-- [데이터베이스 모니터링](#monitoring-your-databases)
+- [Introduction](#introduction)
+    - [Configuration](#configuration)
+    - [Read and Write Connections](#read-and-write-connections)
+- [Running SQL Queries](#running-queries)
+    - [Using Multiple Database Connections](#using-multiple-database-connections)
+    - [Listening for Query Events](#listening-for-query-events)
+    - [Monitoring Cumulative Query Time](#monitoring-cumulative-query-time)
+- [Database Transactions](#database-transactions)
+- [Connecting to the Database CLI](#connecting-to-the-database-cli)
+- [Inspecting Your Databases](#inspecting-your-databases)
+- [Monitoring Your Databases](#monitoring-your-databases)
 
 <a name="introduction"></a>
-## 소개
+<!-- ## Introduction -->
+## Introduction
 
-현대의 거의 모든 웹 애플리케이션은 데이터베이스와 상호작용합니다. 라라벨은 다양한 지원 데이터베이스에 대해 Raw SQL, [유창한 쿼리 빌더](/docs/11.x/queries), [Eloquent ORM](/docs/11.x/eloquent)을 사용하여 데이터베이스 작업을 매우 쉽게 할 수 있도록 도와줍니다. 현재 라라벨은 다음 다섯 가지 데이터베이스를 공식적으로 지원합니다.
+<!-- Almost every modern web application interacts with a database. Laravel makes interacting with databases extremely simple across a variety of supported databases using raw SQL, a [fluent query builder](/docs/11.x/queries), and the [Eloquent ORM](/docs/11.x/eloquent). Currently, Laravel provides first-party support for five databases: -->
+현대의 거의 모든 웹 애플리케이션은 데이터베이스와 상호작용합니다. Laravel은 다양한 지원 데이터베이스에 대해 Raw SQL, [fluent query builder](/docs/11.x/queries), [Eloquent ORM](/docs/11.x/eloquent)을 사용하여 데이터베이스 작업을 매우 쉽게 할 수 있도록 도와줍니다. 현재 Laravel은 다음 다섯 가지 데이터베이스를 공식적으로 지원합니다.
 
+<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-- MariaDB 10.3+ ([버전 정책](https://mariadb.org/about/#maintenance-policy))
-- MySQL 5.7+ ([버전 정책](https://en.wikipedia.org/wiki/MySQL#Release_history))
-- PostgreSQL 10.0+ ([버전 정책](https://www.postgresql.org/support/versioning/))
+<!--
+- MariaDB 10.3+ ([Version Policy](https://mariadb.org/about/#maintenance-policy))
+- MySQL 5.7+ ([Version Policy](https://en.wikipedia.org/wiki/MySQL#Release_history))
+- PostgreSQL 10.0+ ([Version Policy](https://www.postgresql.org/support/versioning/))
 - SQLite 3.26.0+
-- SQL Server 2017+ ([버전 정책](https://docs.microsoft.com/en-us/lifecycle/products/?products=sql-server))
+- SQL Server 2017+ ([Version Policy](https://docs.microsoft.com/en-us/lifecycle/products/?products=sql-server))
+-->
+- MariaDB 10.3+ ([Version Policy](https://mariadb.org/about/#maintenance-policy))
+- MySQL 5.7+ ([Version Policy](https://en.wikipedia.org/wiki/MySQL#Release_history))
+- PostgreSQL 10.0+ ([Version Policy](https://www.postgresql.org/support/versioning/))
+- SQLite 3.26.0+
+- SQL Server 2017+ ([Version Policy](https://docs.microsoft.com/en-us/lifecycle/products/?products=sql-server))
 
+<!-- </div> -->
 </div>
 
+<!-- Additionally, MongoDB is supported via the `mongodb/laravel-mongodb` package, which is officially maintained by MongoDB. Check out the [Laravel MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/) documentation for more information. -->
 또한 MongoDB는 MongoDB에서 공식적으로 관리하는 `mongodb/laravel-mongodb` 패키지를 통해 사용할 수 있습니다. 더 자세한 내용은 [Laravel MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/) 문서를 참고하십시오.
 
 <a name="configuration"></a>
-### 설정
+<!-- ### Configuration -->
+### Configuration
 
-라라벨의 데이터베이스 서비스에 대한 설정 파일은 애플리케이션의 `config/database.php` 파일에 위치합니다. 이 파일에서 모든 데이터베이스 연결을 정의할 수 있으며, 어떤 연결을 기본값으로 사용할지 지정할 수 있습니다. 이 설정 파일 내 대부분의 옵션은 애플리케이션의 환경 변수 값에 의해 설정됩니다. 라라벨에서 지원하는 대부분의 데이터베이스 시스템에 대한 예제가 이 파일에 포함되어 있습니다.
+<!-- The configuration for Laravel's database services is located in your application's `config/database.php` configuration file. In this file, you may define all of your database connections, as well as specify which connection should be used by default. Most of the configuration options within this file are driven by the values of your application's environment variables. Examples for most of Laravel's supported database systems are provided in this file. -->
+Laravel의 데이터베이스 서비스에 대한 설정 파일은 애플리케이션의 `config/database.php` 파일에 위치합니다. 이 파일에서 모든 데이터베이스 연결을 정의할 수 있으며, 어떤 연결을 기본값으로 사용할지 지정할 수 있습니다. 이 설정 파일 내 대부분의 옵션은 애플리케이션의 환경 변수 값에 의해 설정됩니다. Laravel에서 지원하는 대부분의 데이터베이스 시스템에 대한 예제가 이 파일에 포함되어 있습니다.
 
-기본적으로, 라라벨의 샘플 [환경 설정](/docs/11.x/configuration#environment-configuration)은 [Laravel Sail](/docs/11.x/sail)과 함께 바로 사용할 수 있도록 준비되어 있습니다. Laravel Sail은 로컬 개발 환경에서 라라벨 애플리케이션을 Docker로 실행할 수 있도록 돕는 구성입니다. 하지만 필요에 따라 로컬 데이터베이스 환경에 맞게 데이터베이스 설정을 자유롭게 수정할 수 있습니다.
+<!-- By default, Laravel's sample [environment configuration](/docs/11.x/configuration#environment-configuration) is ready to use with [Laravel Sail](/docs/11.x/sail), which is a Docker configuration for developing Laravel applications on your local machine. However, you are free to modify your database configuration as needed for your local database. -->
+기본적으로, Laravel의 샘플 [environment configuration](/docs/11.x/configuration#environment-configuration)은 [Laravel Sail](/docs/11.x/sail)과 함께 바로 사용할 수 있도록 준비되어 있습니다. Laravel Sail은 로컬 개발 환경에서 Laravel 애플리케이션을 Docker로 실행할 수 있도록 돕는 구성입니다. 하지만 필요에 따라 로컬 데이터베이스 환경에 맞게 데이터베이스 설정을 자유롭게 수정할 수 있습니다.
 
 <a name="sqlite-configuration"></a>
-#### SQLite 설정
+<!-- #### SQLite Configuration -->
+#### SQLite Configuration
 
+<!-- SQLite databases are contained within a single file on your filesystem. You can create a new SQLite database using the `touch` command in your terminal: `touch database/database.sqlite`. After the database has been created, you may easily configure your environment variables to point to this database by placing the absolute path to the database in the `DB_DATABASE` environment variable: -->
 SQLite 데이터베이스는 파일 시스템상의 단일 파일에 저장됩니다. 터미널에서 `touch` 명령어를 사용하여 새로운 SQLite 데이터베이스 파일을 만들 수 있습니다: `touch database/database.sqlite`. 데이터베이스를 만든 후에는 환경 변수 `DB_DATABASE`에 데이터베이스의 절대 경로를 지정하여 해당 데이터베이스를 설정할 수 있습니다.
 
 ```ini
@@ -46,44 +64,55 @@ DB_CONNECTION=sqlite
 DB_DATABASE=/absolute/path/to/database.sqlite
 ```
 
+<!-- By default, foreign key constraints are enabled for SQLite connections. If you would like to disable them, you should set the `DB_FOREIGN_KEYS` environment variable to `false`: -->
 기본적으로 SQLite 연결에 대해 외래 키 제약 조건이 활성화되어 있습니다. 만약 이를 비활성화하고 싶다면, 환경 변수 `DB_FOREIGN_KEYS`를 `false`로 설정해야 합니다.
 
 ```ini
 DB_FOREIGN_KEYS=false
 ```
 
-> [!NOTE]  
-> [라라벨 설치 프로그램](/docs/11.x/installation#creating-a-laravel-project)을 이용해 애플리케이션을 생성하고 데이터베이스로 SQLite를 선택하면, 라라벨은 자동으로 `database/database.sqlite` 파일을 생성하고 기본 [데이터베이스 마이그레이션](/docs/11.x/migrations)을 수행합니다.
+> [!NOTE]
+> [Laravel installer](/docs/11.x/installation#creating-a-laravel-project)을 이용해 애플리케이션을 생성하고 데이터베이스로 SQLite를 선택하면, Laravel은 자동으로 `database/database.sqlite` 파일을 생성하고 기본 [database migrations](/docs/11.x/migrations)을 수행합니다.
 
 <a name="mssql-configuration"></a>
-#### Microsoft SQL Server 설정
+<!-- #### Microsoft SQL Server Configuration -->
+#### Microsoft SQL Server Configuration
 
+<!-- To use a Microsoft SQL Server database, you should ensure that you have the `sqlsrv` and `pdo_sqlsrv` PHP extensions installed as well as any dependencies they may require such as the Microsoft SQL ODBC driver. -->
 Microsoft SQL Server 데이터베이스를 사용하려면, `sqlsrv` 및 `pdo_sqlsrv` PHP 확장자와 해당 확장자가 필요로 하는 Microsoft SQL ODBC 드라이버 등의 모든 종속성을 설치해야 합니다.
 
 <a name="configuration-using-urls"></a>
-#### URL을 이용한 설정
+<!-- #### Configuration Using URLs -->
+#### Configuration Using URLs
 
+<!-- Typically, database connections are configured using multiple configuration values such as `host`, `database`, `username`, `password`, etc. Each of these configuration values has its own corresponding environment variable. This means that when configuring your database connection information on a production server, you need to manage several environment variables. -->
 일반적으로 데이터베이스 연결은 `host`, `database`, `username`, `password` 등 여러 설정 값으로 이루어집니다. 각각의 설정 값은 별도의 환경 변수에 지정합니다. 따라서 운영 서버에서 데이터베이스 연결 정보를 관리할 때에는 여러 개의 환경 변수를 다루게 됩니다.
 
+<!-- Some managed database providers such as AWS and Heroku provide a single database "URL" that contains all of the connection information for the database in a single string. An example database URL may look something like the following: -->
 AWS나 Heroku 같은 일부 관리형 데이터베이스 서비스는 데이터베이스 정보가 모두 하나의 문자열로 포함된 "URL"을 제공합니다. 예를 들어, 다음과 같은 데이터베이스 URL이 나올 수 있습니다.
 
 ```html
 mysql://root:password@127.0.0.1/forge?charset=UTF-8
 ```
 
+<!-- These URLs typically follow a standard schema convention: -->
 이러한 URL은 일반적으로 다음과 같은 표준 스키마를 따릅니다.
 
 ```html
 driver://username:password@host:port/database?options
 ```
 
-라라벨에서는 이러한 URL 기반 설정도 지원합니다. `url`(또는 `DB_URL` 환경 변수) 설정 옵션이 있으면, 이 값에서 데이터베이스 접속 정보와 인증 정보를 추출합니다.
+<!-- For convenience, Laravel supports these URLs as an alternative to configuring your database with multiple configuration options. If the `url` (or corresponding `DB_URL` environment variable) configuration option is present, it will be used to extract the database connection and credential information. -->
+Laravel에서는 이러한 URL 기반 설정도 지원합니다. `url`(또는 `DB_URL` 환경 변수) 설정 옵션이 있으면, 이 값에서 데이터베이스 접속 정보와 인증 정보를 추출합니다.
 
 <a name="read-and-write-connections"></a>
-### 읽기 및 쓰기 연결
+<!-- ### Read and Write Connections -->
+### Read and Write Connections
 
-경우에 따라 SELECT 쿼리는 한 데이터베이스 연결을 사용하고, INSERT, UPDATE, DELETE 쿼리는 다른 연결을 사용하고 싶을 수 있습니다. 라라벨에서는 쿼리 유형에 맞는 적절한 연결을 자동으로 사용하므로, Raw 쿼리, 쿼리 빌더, Eloquent ORM을 사용해도 항상 올바른 연결이 사용됩니다.
+<!-- Sometimes you may wish to use one database connection for SELECT statements, and another for INSERT, UPDATE, and DELETE statements. Laravel makes this a breeze, and the proper connections will always be used whether you are using raw queries, the query builder, or the Eloquent ORM. -->
+경우에 따라 SELECT 쿼리는 한 데이터베이스 연결을 사용하고, INSERT, UPDATE, DELETE 쿼리는 다른 연결을 사용하고 싶을 수 있습니다. Laravel에서는 쿼리 유형에 맞는 적절한 연결을 자동으로 사용하므로, Raw 쿼리, 쿼리 빌더, Eloquent ORM을 사용해도 항상 올바른 연결이 사용됩니다.
 
+<!-- To see how read / write connections should be configured, let's look at this example: -->
 읽기/쓰기 연결 구성을 살펴보기 위해 예시를 보겠습니다.
 
 ```
@@ -117,23 +146,31 @@ driver://username:password@host:port/database?options
 ],
 ```
 
-위 예시에서는 `read`, `write`, `sticky` 세 가지 키가 추가된 것을 볼 수 있습니다. `read` 및 `write` 키는 모두 `host` 값을 가진 배열입니다. 나머지 데이터베이스 옵션들은 메인 `mysql` 설정 배열에서 각각 읽기/쓰기 연결로 병합해서 사용합니다.
+<!-- Note that three keys have been added to the configuration array: `read`, `write` and `sticky`. The `read` and `write` keys have array values containing a single key: `host`. The rest of the database options for the `read` and `write` connections will be merged from the main `mysql` configuration array. -->
+위 예시에서는 `read`, `write`, `sticky` 세 가지 키가 추가된 것을 볼 수 있습니다. `read` 및 `write` 키는 모두 `host`라는 단일 키를 가진 배열입니다. `read` 및 `write` 연결의 나머지 데이터베이스 옵션들은 메인 `mysql` 설정 배열에서 병합해서 사용합니다.
 
-기본 설정을 그대로 사용하고 싶다면, `read`와 `write` 배열에는 실제로 오버라이드하고 싶은 항목만 추가하면 됩니다. 예시에서는 "읽기" 연결에 `192.168.1.1`이, "쓰기" 연결에는 `192.168.1.3`이 각각 사용됩니다. 데이터베이스 인증 정보, 접두사, 문자셋 등 기타 옵션은 모두 메인 `mysql` 배열에서 공유됩니다. `host` 값에 여러 개의 IP가 있을 경우, 각 요청마다 랜덤하게 데이터베이스 호스트가 선택되어 사용됩니다.
+<!-- You only need to place items in the `read` and `write` arrays if you wish to override the values from the main `mysql` array. So, in this case, `192.168.1.1` will be used as the host for the "read" connection, while `192.168.1.3` will be used for the "write" connection. The database credentials, prefix, character set, and all other options in the main `mysql` array will be shared across both connections. When multiple values exist in the `host` configuration array, a database host will be randomly chosen for each request. -->
+메인 `mysql` 배열의 값을 오버라이드하고 싶을 때만 `read`와 `write` 배열에 항목을 추가하면 됩니다. 예시에서는 "읽기" 연결에 `192.168.1.1`이, "쓰기" 연결에는 `192.168.1.3`이 각각 사용됩니다. 데이터베이스 인증 정보, 접두사, 문자셋 등 메인 `mysql` 배열의 기타 모든 옵션은 두 연결이 공유합니다. `host` 값에 여러 개의 IP가 있을 경우, 각 요청마다 랜덤하게 데이터베이스 호스트가 선택되어 사용됩니다.
 
 <a name="the-sticky-option"></a>
-#### `sticky` 옵션
+<!-- #### The `sticky` Option -->
+#### The `sticky` Option
 
-`sticky` 옵션은 *선택 사항*으로, 현재 요청 사이클 동안 데이터베이스에 쓰기 작업이 발생했다면 즉시 해당 데이터가 읽기에 반영되도록 "쓰기" 연결을 "읽기"에도 사용할지를 제어합니다. 이 옵션이 활성화되어 있고, 현재 요청 중에 데이터베이스에 "쓰기" 작업이 발생했다면, 이후의 "읽기" 작업도 "쓰기" 연결을 사용하게 됩니다. 이를 통해 요청 내에서 바로 쓴 데이터를 읽을 수 있습니다. 이 동작이 애플리케이션의 의도에 맞는지 고려해 사용하십시오.
+<!-- The `sticky` option is an *optional* value that can be used to allow the immediate reading of records that have been written to the database during the current request cycle. If the `sticky` option is enabled and a "write" operation has been performed against the database during the current request cycle, any further "read" operations will use the "write" connection. This ensures that any data written during the request cycle can be immediately read back from the database during that same request. It is up to you to decide if this is the desired behavior for your application. -->
+`sticky` 옵션은 *선택 사항*으로, 현재 요청 사이클 동안 데이터베이스에 기록된 레코드를 즉시 다시 읽을 수 있도록 해주는 값입니다. `sticky` 옵션이 활성화되어 있고, 현재 요청 중에 데이터베이스에 "쓰기" 작업이 발생했다면, 이후의 "읽기" 작업도 "쓰기" 연결을 사용하게 됩니다. 이를 통해 요청 내에서 바로 쓴 데이터를 읽을 수 있습니다. 이 동작이 애플리케이션의 의도에 맞는지 고려해 사용하십시오.
 
 <a name="running-queries"></a>
-## SQL 쿼리 실행하기
+<!-- ## Running SQL Queries -->
+## Running SQL Queries
 
+<!-- Once you have configured your database connection, you may run queries using the `DB` facade. The `DB` facade provides methods for each type of query: `select`, `update`, `insert`, `delete`, and `statement`. -->
 데이터베이스 연결을 설정한 뒤에는, `DB` 파사드를 사용하여 쿼리를 실행할 수 있습니다. `DB` 파사드에는 쿼리 유형별로 `select`, `update`, `insert`, `delete`, `statement` 등의 메서드가 제공됩니다.
 
 <a name="running-a-select-query"></a>
-#### SELECT 쿼리 실행
+<!-- #### Running a Select Query -->
+#### Running a Select Query
 
+<!-- To run a basic SELECT query, you may use the `select` method on the `DB` facade: -->
 기본 SELECT 쿼리는 `DB` 파사드의 `select` 메서드를 사용해 실행할 수 있습니다.
 
 ```
@@ -148,7 +185,7 @@ use Illuminate\View\View;
 class UserController extends Controller
 {
     /**
-     * 애플리케이션의 모든 사용자 목록 표시
+     * Show a list of all of the application's users.
      */
     public function index(): View
     {
@@ -159,8 +196,10 @@ class UserController extends Controller
 }
 ```
 
+<!-- The first argument passed to the `select` method is the SQL query, while the second argument is any parameter bindings that need to be bound to the query. Typically, these are the values of the `where` clause constraints. Parameter binding provides protection against SQL injection. -->
 `select` 메서드의 첫 번째 인자는 SQL 쿼리문이고, 두 번째 인자는 쿼리에 바인딩할 파라미터 배열입니다. 주로 `where` 절에서 사용할 값을 바인딩합니다. 파라미터 바인딩을 사용하면 SQL 인젝션 공격을 예방할 수 있습니다.
 
+<!-- The `select` method will always return an `array` of results. Each result within the array will be a PHP `stdClass` object representing a record from the database: -->
 `select` 메서드는 항상 결과를 `array` 형태로 반환합니다. 배열의 각 원소는 데이터베이스 레코드를 나타내는 PHP의 `stdClass` 객체입니다.
 
 ```
@@ -174,9 +213,11 @@ foreach ($users as $user) {
 ```
 
 <a name="selecting-scalar-values"></a>
-#### 단일 값(스칼라) 조회
+<!-- #### Selecting Scalar Values -->
+#### Selecting Scalar Values
 
-가끔 쿼리 결과가 하나의 스칼라 값(단일 값)일 때가 있습니다. 이 경우, 일반적으로 레코드 객체에서 값을 꺼내야 하지만, 라라벨에서는 `scalar` 메서드로 바로 값을 가져올 수 있습니다.
+<!-- Sometimes your database query may result in a single, scalar value. Instead of being required to retrieve the query's scalar result from a record object, Laravel allows you to retrieve this value directly using the `scalar` method: -->
+가끔 쿼리 결과가 하나의 스칼라 값(단일 값)일 때가 있습니다. 이 경우, 일반적으로 레코드 객체에서 값을 꺼내야 하지만, Laravel에서는 `scalar` 메서드로 바로 값을 가져올 수 있습니다.
 
 ```
 $burgers = DB::scalar(
@@ -185,8 +226,10 @@ $burgers = DB::scalar(
 ```
 
 <a name="selecting-multiple-result-sets"></a>
-#### 여러 결과 세트 조회
+<!-- #### Selecting Multiple Result Sets -->
+#### Selecting Multiple Result Sets
 
+<!-- If your application calls stored procedures that return multiple result sets, you may use the `selectResultSets` method to retrieve all of the result sets returned by the stored procedure: -->
 저장 프로시저가 여러 결과 세트를 반환하는 경우, `selectResultSets` 메서드를 사용하여 모든 결과 세트를 받아올 수 있습니다.
 
 ```
@@ -196,8 +239,10 @@ $burgers = DB::scalar(
 ```
 
 <a name="using-named-bindings"></a>
-#### 네임드 바인딩(Named Bindings) 사용
+<!-- #### Using Named Bindings -->
+#### Using Named Bindings
 
+<!-- Instead of using `?` to represent your parameter bindings, you may execute a query using named bindings: -->
 파라미터 바인딩 시 `?` 대신 변수명을 사용할 수도 있습니다.
 
 ```
@@ -205,8 +250,10 @@ $results = DB::select('select * from users where id = :id', ['id' => 1]);
 ```
 
 <a name="running-an-insert-statement"></a>
-#### INSERT 구문 실행
+<!-- #### Running an Insert Statement -->
+#### Running an Insert Statement
 
+<!-- To execute an `insert` statement, you may use the `insert` method on the `DB` facade. Like `select`, this method accepts the SQL query as its first argument and bindings as its second argument: -->
 `insert` 구문은 `DB` 파사드의 `insert` 메서드를 사용합니다. 사용 방법은 `select`와 동일하게 첫 번째 인자로 SQL 쿼리, 두 번째 인자로 바인딩 값을 받습니다.
 
 ```
@@ -216,8 +263,10 @@ DB::insert('insert into users (id, name) values (?, ?)', [1, 'Marc']);
 ```
 
 <a name="running-an-update-statement"></a>
-#### UPDATE 구문 실행
+<!-- #### Running an Update Statement -->
+#### Running an Update Statement
 
+<!-- The `update` method should be used to update existing records in the database. The number of rows affected by the statement is returned by the method: -->
 데이터베이스의 기존 레코드를 수정할 때는 `update` 메서드를 사용합니다. 이 메서드는 영향을 받은 행(row)의 개수를 반환합니다.
 
 ```
@@ -230,8 +279,10 @@ $affected = DB::update(
 ```
 
 <a name="running-a-delete-statement"></a>
-#### DELETE 구문 실행
+<!-- #### Running a Delete Statement -->
+#### Running a Delete Statement
 
+<!-- The `delete` method should be used to delete records from the database. Like `update`, the number of rows affected will be returned by the method: -->
 데이터베이스에서 레코드를 삭제할 때는 `delete` 메서드를 사용합니다. `update`와 마찬가지로, 삭제된 행의 개수를 반환합니다.
 
 ```
@@ -241,40 +292,49 @@ $deleted = DB::delete('delete from users');
 ```
 
 <a name="running-a-general-statement"></a>
-#### 일반 SQL 구문 실행
+<!-- #### Running a General Statement -->
+#### Running a General Statement
 
-결과 값을 반환하지 않는 SQL 명령어(예: DROP TABLE) 등은 `statement` 메서드를 사용해 실행할 수 있습니다.
+<!-- Some database statements do not return any value. For these types of operations, you may use the `statement` method on the `DB` facade: -->
+일부 데이터베이스 명령어는 값을 반환하지 않습니다. 이런 작업에는 `DB` 파사드의 `statement` 메서드를 사용할 수 있습니다.
 
 ```
 DB::statement('drop table users');
 ```
 
 <a name="running-an-unprepared-statement"></a>
-#### 바인딩 없이 쿼리 실행
+<!-- #### Running an Unprepared Statement -->
+#### Running an Unprepared Statement
 
-값을 바인딩할 필요 없이 SQL 문장을 그대로 실행하려면 `unprepared` 메서드를 사용할 수 있습니다.
+<!-- Sometimes you may want to execute an SQL statement without binding any values. You may use the `DB` facade's `unprepared` method to accomplish this: -->
+값을 바인딩할 필요 없이 SQL 문장을 그대로 실행하려면 `DB` 파사드의 `unprepared` 메서드를 사용할 수 있습니다.
 
 ```
 DB::unprepared('update users set votes = 100 where name = "Dries"');
 ```
 
-> [!WARNING]  
+> [!WARNING]
 > unprepared 문장은 값을 바인딩하지 않으므로, SQL 인젝션에 취약할 수 있습니다. 사용자 입력값을 unprepared 문장에 직접 포함하는 일은 절대 피해야 합니다.
 
 <a name="implicit-commits-in-transactions"></a>
-#### 암묵적 커밋(Implicit Commits)
+<!-- #### Implicit Commits -->
+#### Implicit Commits
 
-트랜잭션 내에서 `DB` 파사드의 `statement`나 `unprepared` 메서드를 사용할 때는 [암묵적 커밋](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)을 유발하는 SQL 문을 작성하지 않도록 주의해야 합니다. 이런 SQL 문은 데이터베이스 엔진에 의해 간접적으로 전체 트랜잭션이 커밋되어, 라라벨은 실제 트랜잭션 상태를 인지할 수 없게 됩니다. 예를 들어, 데이터베이스 테이블을 생성하는 명령이 대표적입니다.
+<!-- When using the `DB` facade's `statement` and `unprepared` methods within transactions you must be careful to avoid statements that cause [implicit commits](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html). These statements will cause the database engine to indirectly commit the entire transaction, leaving Laravel unaware of the database's transaction level. An example of such a statement is creating a database table: -->
+트랜잭션 내에서 `DB` 파사드의 `statement`나 `unprepared` 메서드를 사용할 때는 [implicit commits](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)을 유발하는 SQL 문을 작성하지 않도록 주의해야 합니다. 이런 SQL 문은 데이터베이스 엔진에 의해 간접적으로 전체 트랜잭션이 커밋되어, Laravel은 실제 트랜잭션 상태를 인지할 수 없게 됩니다. 예를 들어, 데이터베이스 테이블을 생성하는 명령이 대표적입니다.
 
 ```
 DB::unprepared('create table a (col varchar(1) null)');
 ```
 
-어떤 명령이 암묵적 커밋을 발생시키는지는 MySQL 공식 문서를 참고하십시오: [암묵적 커밋이 일어나는 명령 목록](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)
+<!-- Please refer to the MySQL manual for [a list of all statements](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html) that trigger implicit commits. -->
+어떤 명령이 암묵적 커밋을 발생시키는지는 MySQL 공식 문서를 참고하십시오: [a list of all statements](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)
 
 <a name="using-multiple-database-connections"></a>
-### 다중 데이터베이스 연결 사용하기
+<!-- ### Using Multiple Database Connections -->
+### Using Multiple Database Connections
 
+<!-- If your application defines multiple connections in your `config/database.php` configuration file, you may access each connection via the `connection` method provided by the `DB` facade. The connection name passed to the `connection` method should correspond to one of the connections listed in your `config/database.php` configuration file or configured at runtime using the `config` helper: -->
 애플리케이션에서 여러 데이터베이스 연결을 `config/database.php` 파일에 정의해뒀다면, `DB` 파사드의 `connection` 메서드를 통해 각 연결에 접근할 수 있습니다. `connection` 메서드에 넘기는 인자는 연결 이름이어야 하며, 이는 `config/database.php`에 정의한 것과 일치해야 합니다. 또는 런타임 시점에 `config` 헬퍼로 설정한 값도 사용할 수 있습니다.
 
 ```
@@ -283,6 +343,7 @@ use Illuminate\Support\Facades\DB;
 $users = DB::connection('sqlite')->select(/* ... */);
 ```
 
+<!-- You may access the raw, underlying PDO instance of a connection using the `getPdo` method on a connection instance: -->
 각 연결의 저수준 PDO 인스턴스가 필요하다면, 연결 인스턴스의 `getPdo` 메서드를 사용할 수 있습니다.
 
 ```
@@ -290,9 +351,11 @@ $pdo = DB::connection()->getPdo();
 ```
 
 <a name="listening-for-query-events"></a>
-### 쿼리 이벤트 리스닝
+<!-- ### Listening for Query Events -->
+### Listening for Query Events
 
-애플리케이션에서 실행되는 SQL 쿼리마다 호출되는 클로저(익명 함수)를 등록하려면, `DB` 파사드의 `listen` 메서드를 사용할 수 있습니다. 쿼리 로깅 또는 디버깅 시에 유용하게 사용됩니다. 이 쿼리 리스너 클로저는 [서비스 프로바이더](/docs/11.x/providers)의 `boot` 메서드에서 등록하는 것이 좋습니다.
+<!-- If you would like to specify a closure that is invoked for each SQL query executed by your application, you may use the `DB` facade's `listen` method. This method can be useful for logging queries or debugging. You may register your query listener closure in the `boot` method of a [service provider](/docs/11.x/providers): -->
+애플리케이션에서 실행되는 SQL 쿼리마다 호출되는 클로저(익명 함수)를 등록하려면, `DB` 파사드의 `listen` 메서드를 사용할 수 있습니다. 쿼리 로깅 또는 디버깅 시에 유용하게 사용됩니다. 이 쿼리 리스너 클로저는 [service provider](/docs/11.x/providers)의 `boot` 메서드에서 등록하는 것이 좋습니다.
 
 ```
 <?php
@@ -306,7 +369,7 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * 애플리케이션 서비스 등록
+     * Register any application services.
      */
     public function register(): void
     {
@@ -314,7 +377,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * 애플리케이션 서비스 부트스트랩
+     * Bootstrap any application services.
      */
     public function boot(): void
     {
@@ -329,9 +392,11 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 <a name="monitoring-cumulative-query-time"></a>
-### 누적 쿼리 시간 모니터링
+<!-- ### Monitoring Cumulative Query Time -->
+### Monitoring Cumulative Query Time
 
-현대 웹 애플리케이션의 성능 병목 현상 중 하나는 데이터베이스 쿼리에 소요되는 시간입니다. 라라벨에서는 한 번의 요청 동안 데이터베이스 쿼리 시간이 일정 임계치를 초과하면 특정 클로저(또는 콜백)를 실행할 수 있습니다. 이렇게 하려면, 임계 시간(밀리초 단위)과 실행할 클로저를 `whenQueryingForLongerThan` 메서드에 전달하면 됩니다. 이 메서드는 [서비스 프로바이더](/docs/11.x/providers)의 `boot` 메서드에서 사용할 수 있습니다.
+<!-- A common performance bottleneck of modern web applications is the amount of time they spend querying databases. Thankfully, Laravel can invoke a closure or callback of your choice when it spends too much time querying the database during a single request. To get started, provide a query time threshold (in milliseconds) and closure to the `whenQueryingForLongerThan` method. You may invoke this method in the `boot` method of a [service provider](/docs/11.x/providers): -->
+현대 웹 애플리케이션의 성능 병목 현상 중 하나는 데이터베이스 쿼리에 소요되는 시간입니다. Laravel에서는 한 번의 요청 동안 데이터베이스 쿼리 시간이 일정 임계치를 초과하면 특정 클로저(또는 콜백)를 실행할 수 있습니다. 이렇게 하려면, 임계 시간(밀리초 단위)과 실행할 클로저를 `whenQueryingForLongerThan` 메서드에 전달하면 됩니다. 이 메서드는 [service provider](/docs/11.x/providers)의 `boot` 메서드에서 사용할 수 있습니다.
 
 ```
 <?php
@@ -346,7 +411,7 @@ use Illuminate\Database\Events\QueryExecuted;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * 애플리케이션 서비스 등록
+     * Register any application services.
      */
     public function register(): void
     {
@@ -354,20 +419,22 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * 애플리케이션 서비스 부트스트랩
+     * Bootstrap any application services.
      */
     public function boot(): void
     {
         DB::whenQueryingForLongerThan(500, function (Connection $connection, QueryExecuted $event) {
-            // 개발 팀에게 알림 전송 등...
+            // Notify development team...
         });
     }
 }
 ```
 
 <a name="database-transactions"></a>
-## 데이터베이스 트랜잭션
+<!-- ## Database Transactions -->
+## Database Transactions
 
+<!-- You may use the `transaction` method provided by the `DB` facade to run a set of operations within a database transaction. If an exception is thrown within the transaction closure, the transaction will automatically be rolled back and the exception is re-thrown. If the closure executes successfully, the transaction will automatically be committed. You don't need to worry about manually rolling back or committing while using the `transaction` method: -->
 데이터베이스 트랜잭션 내에서 여러 작업을 실행하려면 `DB` 파사드의 `transaction` 메서드를 사용할 수 있습니다. 트랜잭션 클로저에서 예외가 발생하면, 해당 트랜잭션은 자동으로 롤백되고 예외가 다시 발생합니다. 클로저가 예외 없이 정상적으로 실행될 경우, 트랜잭션이 자동으로 커밋됩니다. 즉, `transaction` 메서드를 사용할 때는 명시적으로 커밋이나 롤백을 신경 쓸 필요가 없습니다.
 
 ```
@@ -381,8 +448,10 @@ DB::transaction(function () {
 ```
 
 <a name="handling-deadlocks"></a>
-#### 교착상태(Deadlock) 처리
+<!-- #### Handling Deadlocks -->
+#### Handling Deadlocks
 
+<!-- The `transaction` method accepts an optional second argument which defines the number of times a transaction should be retried when a deadlock occurs. Once these attempts have been exhausted, an exception will be thrown: -->
 `transaction` 메서드는 옵션으로 두 번째 인자에 정수값을 받을 수 있습니다. 이 값은 트랜잭션 중 교착상태(Deadlock)가 발생했을 때 최대 몇 번까지 재시도할지를 지정합니다. 정해진 횟수가 모두 소진되면 예외가 발생합니다.
 
 ```
@@ -396,8 +465,10 @@ DB::transaction(function () {
 ```
 
 <a name="manually-using-transactions"></a>
-#### 수동 트랜잭션 사용
+<!-- #### Manually Using Transactions -->
+#### Manually Using Transactions
 
+<!-- If you would like to begin a transaction manually and have complete control over rollbacks and commits, you may use the `beginTransaction` method provided by the `DB` facade: -->
 트랜잭션을 수동으로 시작하고 롤백/커밋을 직접 제어하고 싶다면, `DB` 파사드의 `beginTransaction` 메서드를 사용할 수 있습니다.
 
 ```
@@ -406,30 +477,35 @@ use Illuminate\Support\Facades\DB;
 DB::beginTransaction();
 ```
 
+<!-- You can rollback the transaction via the `rollBack` method: -->
 트랜잭션을 롤백하려면 `rollBack` 메서드를 사용합니다.
 
 ```
 DB::rollBack();
 ```
 
+<!-- Lastly, you can commit a transaction via the `commit` method: -->
 마지막으로, 트랜잭션을 커밋하려면 `commit` 메서드를 사용합니다.
 
 ```
 DB::commit();
 ```
 
-> [!NOTE]  
-> `DB` 파사드의 트랜잭션 관련 메서드는 [쿼리 빌더](/docs/11.x/queries)와 [Eloquent ORM](/docs/11.x/eloquent) 모두에 적용됩니다.
+> [!NOTE]
+> `DB` 파사드의 트랜잭션 관련 메서드는 [query builder](/docs/11.x/queries)와 [Eloquent ORM](/docs/11.x/eloquent) 모두에 적용됩니다.
 
 <a name="connecting-to-the-database-cli"></a>
-## 데이터베이스 CLI 연결하기
+<!-- ## Connecting to the Database CLI -->
+## Connecting to the Database CLI
 
+<!-- If you would like to connect to your database's CLI, you may use the `db` Artisan command: -->
 데이터베이스의 CLI에 접속하고 싶을 때는 `db` 아티즌 명령어를 사용할 수 있습니다.
 
 ```shell
 php artisan db
 ```
 
+<!-- If needed, you may specify a database connection name to connect to a database connection that is not the default connection: -->
 기본 연결이 아닌 다른 데이터베이스에 접속하려면, 원하는 연결 이름을 함께 지정할 수 있습니다.
 
 ```shell
@@ -437,26 +513,31 @@ php artisan db mysql
 ```
 
 <a name="inspecting-your-databases"></a>
-## 데이터베이스 점검
+<!-- ## Inspecting Your Databases -->
+## Inspecting Your Databases
 
+<!-- Using the `db:show` and `db:table` Artisan commands, you can get valuable insight into your database and its associated tables. To see an overview of your database, including its size, type, number of open connections, and a summary of its tables, you may use the `db:show` command: -->
 `db:show`와 `db:table` 아티즌 명령어를 사용하면 데이터베이스와 테이블에 대한 유용한 정보를 얻을 수 있습니다. 데이터베이스의 개요(크기, 종류, 열린 연결 수, 테이블 요약 등)를 확인하려면 `db:show` 명령어를 사용하십시오.
 
 ```shell
 php artisan db:show
 ```
 
+<!-- You may specify which database connection should be inspected by providing the database connection name to the command via the `--database` option: -->
 특정 데이터베이스 연결을 점검하려면 `--database` 옵션으로 연결 이름을 지정할 수 있습니다.
 
 ```shell
 php artisan db:show --database=pgsql
 ```
 
+<!-- If you would like to include table row counts and database view details within the output of the command, you may provide the `--counts` and `--views` options, respectively. On large databases, retrieving row counts and view details can be slow: -->
 테이블 행 개수나 데이터베이스 뷰 정보를 출력에 포함하려면 `--counts`, `--views` 옵션을 사용할 수 있습니다. 단, 대용량 데이터베이스의 경우 행 개수나 뷰 정보를 조회하는 데 시간이 오래 걸릴 수 있습니다.
 
 ```shell
 php artisan db:show --counts --views
 ```
 
+<!-- In addition, you may use the following `Schema` methods to inspect your database: -->
 또한 아래와 같은 `Schema` 메서드를 사용해 데이터베이스를 점검할 수도 있습니다.
 
 ```
@@ -469,6 +550,7 @@ $indexes = Schema::getIndexes('users');
 $foreignKeys = Schema::getForeignKeys('users');
 ```
 
+<!-- If you would like to inspect a database connection that is not your application's default connection, you may use the `connection` method: -->
 기본 연결이 아닌 다른 데이터베이스 연결을 점검하려면, `connection` 메서드를 사용할 수 있습니다.
 
 ```
@@ -476,8 +558,10 @@ $columns = Schema::connection('sqlite')->getColumns('users');
 ```
 
 <a name="table-overview"></a>
-#### 테이블 개요 확인
+<!-- #### Table Overview -->
+#### Table Overview
 
+<!-- If you would like to get an overview of an individual table within your database, you may execute the `db:table` Artisan command. This command provides a general overview of a database table, including its columns, types, attributes, keys, and indexes: -->
 특정 테이블의 개요를 보고 싶을 때는 `db:table` 아티즌 명령어를 실행하십시오. 이 명령어는 데이터베이스 테이블의 컬럼, 타입, 속성, 키, 인덱스 등을 전반적으로 보여줍니다.
 
 ```shell
@@ -485,16 +569,20 @@ php artisan db:table users
 ```
 
 <a name="monitoring-your-databases"></a>
-## 데이터베이스 모니터링
+<!-- ## Monitoring Your Databases -->
+## Monitoring Your Databases
 
-`db:monitor` 아티즌 명령어를 사용하면, 데이터베이스의 열린 연결 수가 지정한 최대값을 초과했을 때 `Illuminate\Database\Events\DatabaseBusy` 이벤트가 발생하도록 라라벨에 지시할 수 있습니다.
+<!-- Using the `db:monitor` Artisan command, you can instruct Laravel to dispatch an `Illuminate\Database\Events\DatabaseBusy` event if your database is managing more than a specified number of open connections. -->
+`db:monitor` 아티즌 명령어를 사용하면, 데이터베이스의 열린 연결 수가 지정한 최대값을 초과했을 때 `Illuminate\Database\Events\DatabaseBusy` 이벤트가 발생하도록 Laravel에 지시할 수 있습니다.
 
-먼저 이 명령어가 [매 분마다 실행되도록](/docs/11.x/scheduling) 스케줄링해야 합니다. 명령어에는 모니터링 대상 데이터베이스 연결명과 최대 허용 연결 수를 `--databases` 및 `--max` 옵션으로 지정합니다.
+<!-- To get started, you should schedule the `db:monitor` command to [run every minute](/docs/11.x/scheduling). The command accepts the names of the database connection configurations that you wish to monitor as well as the maximum number of open connections that should be tolerated before dispatching an event: -->
+먼저 `db:monitor` 명령어가 [run every minute](/docs/11.x/scheduling) 스케줄링해야 합니다. 이 명령어에는 모니터링하려는 데이터베이스 연결 구성의 이름과, 이벤트를 발생시키기 전까지 허용할 최대 열린 연결 수를 전달할 수 있습니다.
 
 ```shell
 php artisan db:monitor --databases=mysql,pgsql --max=100
 ```
 
+<!-- Scheduling this command alone is not enough to trigger a notification alerting you of the number of open connections. When the command encounters a database that has an open connection count that exceeds your threshold, a `DatabaseBusy` event will be dispatched. You should listen for this event within your application's `AppServiceProvider` in order to send a notification to you or your development team: -->
 이 명령어를 스케줄링하는 것만으로는 알림이 전송되지 않습니다. 특정 데이터베이스의 열린 연결 수가 임계치를 넘어서면, `DatabaseBusy` 이벤트가 발생합니다. 이 이벤트를 애플리케이션의 `AppServiceProvider`에서 감지하여, 개발자나 개발팀에게 알림을 전송하도록 설정해야 합니다.
 
 ```php
@@ -504,7 +592,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 
 /**
- * 애플리케이션 서비스 부트스트랩
+ * Bootstrap any application services.
  */
 public function boot(): void
 {

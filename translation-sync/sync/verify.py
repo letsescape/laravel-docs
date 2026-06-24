@@ -1,7 +1,7 @@
 """문서·번역 검증 (Python). translation-sync/docs/04.
 
-docs/05(T5)에 따라 문서·번역 콘텐츠 검증은 Python으로 처리한다.
-(Docusaurus 빌드 산출물 검증은 JS validate-anchors.mjs가 담당.)
+문서·번역 콘텐츠 검증은 Python으로 처리한다.
+Docusaurus 빌드 산출물 검증은 JS validate-anchors.mjs가 담당한다.
 
 최종 문서에 남으면 안 되는 잔존 패턴을 검사하고 위반 목록을 반환한다(빈 목록 = success).
 """
@@ -15,6 +15,8 @@ from .markdown import (
     fence_token,
     has_title_attr_line,
     html_comment_bodies,
+    is_heading_line,
+    strip_title_attr_line,
     strip_html_comments,
 )
 
@@ -28,15 +30,36 @@ _FORBIDDEN = {
     "unclosed img tag": re.compile(r"<img\b(?![^>]*/>)[^>]*>", re.IGNORECASE),
 }
 
-_MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]]*]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
+_MARKDOWN_LINK_RE = re.compile(r"(!?)\[([^\]\n]*)]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 _AUTOLINK_RE = re.compile(r"<(https?://[^>\s]+)>")
 _INLINE_CODE_RE = re.compile(r"`([^`\n]+)`")
 _ANCHOR_TAG_RE = re.compile(r"<a\b[^>]*\bname=[\"'][^\"']+[\"'][^>]*>", re.IGNORECASE)
 _ANCHOR_NAME_RE = re.compile(r"\bname=[\"']([^\"']+)[\"']", re.IGNORECASE)
+_HEADING_LINE_RE = re.compile(r"^[ \t]*#{1,6}\s.*$", re.MULTILINE)
+_DOCS_PREFIX_RE = re.compile(r"^/docs/[^/#?]+/?")
+_ADMONITION_RE = re.compile(
+    r"^>\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
+)
 _STALE_LINK_TARGETS = {
     "#agents-integration": "#agent-integration",
-    "/migrations#writing-migrations": "/migrations#creating-tables",
+    "#method-array-sort-recursive-desc": "#method-array-sort-recursive",
+    "controllers#actions-handled-by-resource-controller": "controllers#actions-handled-by-resource-controllers",
+    "database-testing#writing-factories": "database-testing#defining-model-factories",
+    "eloquent-mutators##date-casting": "eloquent-mutators#date-casting",
+    "errors#logging": "logging",
+    "helpers#fluent-strings": "strings#fluent-strings",
+    "migrations#writing-migrations": "migrations#creating-tables",
+    "##date-casting": "#date-casting",
 }
+
+
+def _strip_heading_lines(text: str) -> str:
+    """heading 라인 제거.
+
+    heading 텍스트 자체는 `_heading_lines`에서 원문과 비교한다. 여기서는 heading에
+    포함된 인라인 코드/링크가 본문 비교에서 한 번 더 계산되지 않도록 제외한다.
+    """
+    return _HEADING_LINE_RE.sub("", text)
 
 
 def _strip_code_blocks(text: str) -> str:
@@ -93,17 +116,48 @@ def _normalized_fenced_code_blocks(text: str) -> list[str]:
 
 
 def _link_targets(text: str) -> Counter[str]:
-    body = _strip_code_blocks(_strip_comments(text))
-    targets = _MARKDOWN_LINK_RE.findall(body) + _AUTOLINK_RE.findall(body)
+    body = _strip_heading_lines(_strip_code_blocks(_strip_comments(text)))
+    targets = [match.group(3) for match in _MARKDOWN_LINK_RE.finditer(body)]
+    targets += _AUTOLINK_RE.findall(body)
     return Counter(_normalize_link_target(target) for target in targets)
 
 
+def _link_labels(text: str) -> list[str]:
+    body = _strip_code_blocks(_strip_comments(text))
+    return [
+        " ".join(match.group(2).split())
+        for match in _MARKDOWN_LINK_RE.finditer(body)
+        if match.group(1) != "!"
+    ]
+
+
+def _link_pairs(text: str) -> Counter[tuple[str, str]]:
+    body = _strip_heading_lines(_strip_code_blocks(_strip_comments(text)))
+    pairs = [
+        (
+            " ".join(match.group(2).split()),
+            _normalize_link_target(match.group(3)),
+        )
+        for match in _MARKDOWN_LINK_RE.finditer(body)
+        if match.group(1) != "!"
+    ]
+    pairs.extend((target, _normalize_link_target(target)) for target in _AUTOLINK_RE.findall(body))
+    return Counter(pairs)
+
+
 def _normalize_link_target(target: str) -> str:
+    if re.match(r"^[a-z][a-z0-9+.-]*:", target, re.IGNORECASE):
+        return target
+    target = _DOCS_PREFIX_RE.sub("", target)
+    if target.startswith("./"):
+        target = target[2:]
+    if target.startswith("/"):
+        target = target[1:]
     return _STALE_LINK_TARGETS.get(target, target)
 
 
 def _inline_codes(text: str) -> Counter[str]:
-    body = _strip_code_blocks(_strip_comments(text))
+    body = _strip_heading_lines(_strip_code_blocks(_strip_comments(text)))
     return Counter(_INLINE_CODE_RE.findall(body))
 
 
@@ -128,6 +182,49 @@ def _heading_levels(text: str) -> list[int]:
         if 1 <= level <= 6 and len(stripped) > level and stripped[level].isspace():
             levels.append(level)
     return levels
+
+
+def _heading_lines(text: str) -> list[str]:
+    body = _strip_code_blocks(_strip_comments(text))
+    headings: list[str] = []
+    for line in body.splitlines():
+        if is_heading_line(line):
+            headings.append(strip_title_attr_line(line).strip())
+    return headings
+
+
+def _front_matter_title(text: str) -> str | None:
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+
+    for line in lines[1:]:
+        stripped = line.strip()
+        if stripped == "---":
+            return None
+        if not stripped or stripped.startswith("#") or ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        if key.strip() != "title":
+            continue
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+            value = value[1:-1]
+        return value
+    return None
+
+
+def _has_admonition_body_outside_blockquote(text: str) -> bool:
+    body = _strip_code_blocks(text)
+    lines = body.splitlines()
+    for index, line in enumerate(lines[:-1]):
+        if not _ADMONITION_RE.match(line.strip()):
+            continue
+
+        next_line = lines[index + 1]
+        if next_line.strip() and not next_line.lstrip().startswith(">"):
+            return True
+    return False
 
 
 def _normalize_comment_text(text: str) -> str:
@@ -192,12 +289,18 @@ def verify(text: str, source: str | None = None) -> list[str]:
     issues = [label for label, pattern in _FORBIDDEN.items() if pattern.search(body)]
     if has_title_attr_line(body):
         issues.append("title style class")
+    if _has_admonition_body_outside_blockquote(body):
+        issues.append("admonition body outside blockquote")
 
     if source is None:
         return issues
 
     if _link_targets(source) != _link_targets(text):
         issues.append("link target mismatch")
+    if _link_labels(source) != _link_labels(text):
+        issues.append("link label mismatch")
+    if _link_pairs(source) != _link_pairs(text):
+        issues.append("link pair mismatch")
     if _inline_codes(source) != _inline_codes(text):
         issues.append("inline code mismatch")
     if _anchors(source) != _anchors(text):
@@ -206,6 +309,10 @@ def verify(text: str, source: str | None = None) -> list[str]:
         issues.append("code block mismatch")
     if _heading_levels(source) != _heading_levels(text):
         issues.append("heading mismatch")
+    if _heading_lines(source) != _heading_lines(text):
+        issues.append("heading text mismatch")
+    if _front_matter_title(source) != _front_matter_title(text):
+        issues.append("front matter title mismatch")
     if not _required_comments(source).issubset(_translated_comments(text)):
         issues.append("missing original comment")
 

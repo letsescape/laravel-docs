@@ -21,6 +21,9 @@ _NOTE_TYPES = {
     "caution": "CAUTION",
     "important": "IMPORTANT",
 }
+_GFM_ADMONITION_RE = re.compile(
+    r"^>\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
+)
 
 
 def _map_outside_code_blocks(text: str, transform) -> str:
@@ -114,18 +117,96 @@ def _parse_note_line(line: str) -> tuple[str, str] | None:
     return None
 
 
+def _standardized_note_lines(line: str) -> list[str] | None:
+    note = _parse_note_line(line)
+    if note is None:
+        return None
+
+    kind, rest = note
+    marker = _NOTE_TYPES.get(kind)
+    if marker is None:
+        return None
+
+    lines = [f"> [!{marker}]"]
+    if rest:
+        lines.append(f"> {rest}")
+    return lines
+
+
+def _continue_admonition_line(line: str) -> tuple[str, bool]:
+    if not line.strip():
+        return line, False
+    if line.lstrip().startswith(">"):
+        return line, True
+    return f"> {line}", True
+
+
 def standardize_admonitions(text: str) -> str:
     out: list[str] = []
+    in_gfm_admonition = False
     for line in text.split("\n"):
-        note = _parse_note_line(line)
-        if note:
-            kind, rest = note
-            if kind in _NOTE_TYPES:
-                out.append(f"> [!{_NOTE_TYPES[kind]}]")
-                if rest:
-                    out.append(f"> {rest}")
-                continue
+        note_lines = _standardized_note_lines(line)
+        if note_lines is not None:
+            out.extend(note_lines)
+            in_gfm_admonition = True
+            continue
+        if _GFM_ADMONITION_RE.match(line.strip()):
+            out.append(line)
+            in_gfm_admonition = True
+            continue
+        if in_gfm_admonition:
+            repaired_line, in_gfm_admonition = _continue_admonition_line(line)
+            out.append(repaired_line)
+            continue
         out.append(line)
+    return "\n".join(out)
+
+
+def _quote_admonition_fences(text: str) -> str:
+    out: list[str] = []
+    lines = text.split("\n")
+    index = 0
+    in_gfm_admonition = False
+
+    while index < len(lines):
+        line = lines[index]
+        if _GFM_ADMONITION_RE.match(line.strip()):
+            out.append(line)
+            in_gfm_admonition = True
+            index += 1
+            continue
+
+        if not in_gfm_admonition:
+            out.append(line)
+            index += 1
+            continue
+
+        if not line.strip():
+            out.append(line)
+            in_gfm_admonition = False
+            index += 1
+            continue
+
+        if line.lstrip().startswith(">"):
+            out.append(line)
+            index += 1
+            continue
+
+        token = fence_token(line)
+        if token:
+            opening_index = index
+            while index < len(lines):
+                current = lines[index]
+                out.append(f"> {current}" if current else ">")
+                index += 1
+                if index > opening_index + 1 and closes_fence(current, token):
+                    break
+            continue
+
+        repaired_line, in_gfm_admonition = _continue_admonition_line(line)
+        out.append(repaired_line)
+        index += 1
+
     return "\n".join(out)
 
 
@@ -166,6 +247,7 @@ def _postprocess_markdown_body(text: str) -> str:
 def postprocess(text: str, version: str, placeholders: Mapping[str, str]) -> str:
     text = replace_version(text, version)
     text = _map_outside_code_blocks(text, _postprocess_markdown_body)
+    text = _quote_admonition_fences(text)
     text = restore_placeholders(text, placeholders)
     text = strip_trailing_whitespace(text)
     return text

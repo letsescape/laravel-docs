@@ -60,7 +60,7 @@ class MainPipelineTests(unittest.TestCase):
             ) -> str:
                 sent.append(content)
                 self.assertFalse(split)
-                return "<!-- # Example -->\n# 예제 (Example)\n"
+                return "<!-- # Example -->\n# Example\n"
 
             with patch.object(main, "REPO_ROOT", root), patch.object(
                 main.translate,
@@ -99,8 +99,8 @@ class MainPipelineTests(unittest.TestCase):
                 sent.append(content)
                 self.assertFalse(split)
                 if "# One" in content:
-                    return "<!-- # One -->\n# 하나 (One)\n\n"
-                return "<!-- # Two -->\n# 둘 (Two)\n"
+                    return "<!-- # One -->\n# One\n\n"
+                return "<!-- # Two -->\n# Two\n"
 
             with patch.object(main, "REPO_ROOT", root), patch.object(
                 main.translate,
@@ -213,6 +213,37 @@ class MainPipelineTests(unittest.TestCase):
             ],
         )
 
+    def test_sidebar_versions_include_changed_versions_and_master_once(self):
+        changes = [
+            diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/a.md",
+                status="M",
+            ),
+            diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-master/b.md",
+                status="M",
+            ),
+        ]
+
+        self.assertEqual(main._sidebar_versions(changes, None), ["12.x", "master"])
+
+    def test_main_syncs_master_sidebar_when_no_sources_changed(self):
+        calls: list[tuple[list[str], bool]] = []
+
+        def sync_versions(versions, *, write=False, repo_root=None):
+            calls.append((versions, write))
+            return [main.sidebar.SidebarResult("master", False, [])]
+
+        with patch.object(main.sys, "argv", ["main.py"]), patch.object(
+            main.upstream, "main"
+        ), patch.object(main.diff, "changed_sources", return_value=[]), patch.object(
+            main.sidebar, "sync_versions", side_effect=sync_versions
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(calls, [(["master"], True)])
+
     def test_check_existing_annotations_reports_unannotated_documents(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -238,7 +269,9 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(
             issues,
             [
+                "ko i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: heading text mismatch",
                 "ko i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: missing original comment",
+                "ja i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: heading text mismatch",
                 "ja i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: missing original comment",
             ],
         )
@@ -259,7 +292,7 @@ class MainPipelineTests(unittest.TestCase):
             ko_doc.parent.mkdir(parents=True)
             ja_doc.parent.mkdir(parents=True)
             source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            annotated = "<!-- # Example -->\n# 예제\n\n<!-- Body text. -->\n본문입니다.\n"
+            annotated = "<!-- # Example -->\n# Example\n\n<!-- Body text. -->\n본문입니다.\n"
             ko_doc.write_text(annotated, encoding="utf-8")
             ja_doc.write_text(annotated, encoding="utf-8")
 
@@ -280,7 +313,7 @@ class MainPipelineTests(unittest.TestCase):
             ko_doc.parent.mkdir(parents=True)
             source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
             ko_doc.write_text(
-                "<!-- # Example -->\n# 예제\n\n<!-- Body text. -->\n본문입니다.\n",
+                "<!-- # Example -->\n# Example\n\n<!-- Body text. -->\n본문입니다.\n",
                 encoding="utf-8",
             )
 
@@ -332,7 +365,7 @@ class MainPipelineTests(unittest.TestCase):
             ko_doc.parent.mkdir(parents=True)
             ja_doc.parent.mkdir(parents=True)
             source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            annotated = "<!-- # Example -->\n# 예제\n\n<!-- Body text. -->\n본문입니다.\n"
+            annotated = "<!-- # Example -->\n# Example\n\n<!-- Body text. -->\n본문입니다.\n"
             ko_doc.write_text(annotated, encoding="utf-8")
             ja_doc.write_text(annotated, encoding="utf-8")
 

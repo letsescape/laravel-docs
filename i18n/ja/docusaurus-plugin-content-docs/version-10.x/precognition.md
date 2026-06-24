@@ -1,34 +1,42 @@
-# 予知 (Precognition)
+<!-- # Precognition -->
+# Precognition
 
 - [Introduction](#introduction)
-- [ライブ検証](#live-validation)
-    - [Vueの使用](#using-vue)
-    - [Vue と Inertia の使用](#using-vue-and-inertia)
-    - [反応の使用](#using-react)
-    - [React と Inertia の使用](#using-react-and-inertia)
-    - [Alpine と Blade の使用](#using-alpine)
-    - [Axiosの構成](#configuring-axios)
-- [検証ルールのカスタマイズ](#customizing-validation-rules)
-- [ファイルのアップロードの処理](#handling-file-uploads)
-- [副作用の管理](#managing-side-effects)
+- [Live Validation](#live-validation)
+    - [Using Vue](#using-vue)
+    - [Using Vue and Inertia](#using-vue-and-inertia)
+    - [Using React](#using-react)
+    - [Using React and Inertia](#using-react-and-inertia)
+    - [Using Alpine and Blade](#using-alpine)
+    - [Configuring Axios](#configuring-axios)
+- [Customizing Validation Rules](#customizing-validation-rules)
+- [Handling File Uploads](#handling-file-uploads)
+- [Managing Side-Effects](#managing-side-effects)
 - [Testing](#testing)
 
 <a name="introduction"></a>
-## 導入 (Introduction)
+<!-- ## Introduction -->
+## Introduction
 
-Laravel Precognition を使用すると、将来の HTTP リクエストの結果を予測できます。 Precognition の主な使用例の 1 つは、アプリケーションのバックエンド検証ルールを複製することなく、フロントエンド JavaScript アプリケーションに「ライブ」検証を提供できることです。 Precognition は、Laravel の Inertia ベースの [スターターキット](/docs/{{version}}/starter-kits) と特によく合います。
+<!-- Laravel Precognition allows you to anticipate the outcome of a future HTTP request. One of the primary use cases of Precognition is the ability to provide "live" validation for your frontend JavaScript application without having to duplicate your application's backend validation rules. Precognition pairs especially well with Laravel's Inertia-based [starter kits](/docs/10.x/starter-kits). -->
+Laravel Precognition を使用すると、将来の HTTP リクエストの結果を予測できます。 Precognition の主な使用例の 1 つは、アプリケーションのバックエンド検証ルールを複製することなく、フロントエンド JavaScript アプリケーションに「ライブ」検証を提供できることです。 Precognition は、Laravel の Inertia ベースの [starter kits](/docs/10.x/starter-kits) と特によく合います。
 
-Laravel が「事前認識リクエスト」を受信すると、ルートのすべてのミドルウェアが実行され、[フォームリクエスト](/docs/{{version}}/validation#form-request-validation) の検証を含むルートのコントローラの依存関係が解決されますが、実際にはルートのコントローラ メソッドは実行されません。
+<!-- When Laravel receives a "precognitive request", it will execute all of the route's middleware and resolve the route's controller dependencies, including validating [form requests](/docs/10.x/validation#form-request-validation) - but it will not actually execute the route's controller method. -->
+Laravel が「事前認識リクエスト」を受信すると、ルートのすべてのミドルウェアが実行され、[form requests](/docs/10.x/validation#form-request-validation) の検証を含むルートのコントローラの依存関係が解決されますが、実際にはルートのコントローラ メソッドは実行されません。
 
 <a name="live-validation"></a>
-## ライブ検証 (Live Validation)
+<!-- ## Live Validation -->
+## Live Validation
 
 <a name="using-vue"></a>
-### Vueの使用
+<!-- ### Using Vue -->
+### Using Vue
 
+<!-- Using Laravel Precognition, you can offer live validation experiences to your users without having to duplicate your validation rules in your frontend Vue application. To illustrate how it works, let's build a form for creating new users within our application. -->
 Laravel Precognition を使用すると、フロントエンド Vue アプリケーションで検証ルールを複製することなく、ライブ検証エクスペリエンスをユーザーに提供できます。その仕組みを説明するために、アプリケーション内で新しいユーザーを作成するためのフォームを構築してみましょう。
 
-まず、ルートの事前認識を有効にするには、`HandlePrecognitiveRequests` ミドルウェアをルート定義に追加する必要があります。ルートの検証ルールを格納する [フォームリクエスト](/docs/{{version}}/validation#form-request-validation) も作成する必要があります。
+<!-- First, to enable Precognition for a route, the `HandlePrecognitiveRequests` middleware should be added to the route definition. You should also create a [form request](/docs/10.x/validation#form-request-validation) to house the route's validation rules: -->
+まず、ルートの事前認識を有効にするには、`HandlePrecognitiveRequests` ミドルウェアをルート定義に追加する必要があります。ルートの検証ルールを格納する [form request](/docs/10.x/validation#form-request-validation) も作成する必要があります。
 
 ```php
 use App\Http\Requests\StoreUserRequest;
@@ -39,14 +47,17 @@ Route::post('/users', function (StoreUserRequest $request) {
 })->middleware([HandlePrecognitiveRequests::class]);
 ```
 
+<!-- Next, you should install the Laravel Precognition frontend helpers for Vue via NPM: -->
 次に、NPM 経由で Vue 用の Laravel Precognition フロントエンド ヘルパをインストールする必要があります。
 
 ```shell
 npm install laravel-precognition-vue
 ```
 
+<!-- With the Laravel Precognition package installed, you can now create a form object using Precognition's `useForm` function, providing the HTTP method (`post`), the target URL (`/users`), and the initial form data. -->
 Laravel Precognition パッケージがインストールされていると、Precognition の `useForm` 関数を使用してフォーム オブジェクトを作成し、HTTP メソッド (`post`)、ターゲット URL (`/users`)、および初期フォーム データを提供できるようになります。
 
+<!-- Then, to enable live validation, invoke the form's `validate` method on each input's `change` event, providing the input's name: -->
 次に、ライブ検証を有効にするには、入力の名前を指定して、各入力の `change` イベントでフォームの `validate` メソッドを呼び出します。
 
 ```vue
@@ -91,12 +102,14 @@ const submit = () => form.submit();
 </template>
 ```
 
+<!-- Now, as the form is filled by the user, Precognition will provide live validation output powered by the validation rules in the route's form request. When the form's inputs are changed, a debounced "precognitive" validation request will be sent to your Laravel application. You may configure the debounce timeout by calling the form's `setValidationTimeout` function: -->
 ユーザーがフォームに入力すると、Precognition はルートのフォーム リクエスト内の検証ルールを活用したライブ検証出力を提供します。フォームの入力が変更されると、デバウンスされた「プリコグニティブ」検証リクエストが Laravel アプリケーションに送信されます。フォームの `setValidationTimeout` 関数を呼び出すことで、デバウンス タイムアウトを構成できます。
 
 ```js
 form.setValidationTimeout(3000);
 ```
 
+<!-- When a validation request is in-flight, the form's `validating` property will be `true`: -->
 検証リクエストが進行中の場合、フォームの `validating` プロパティは `true` になります。
 
 ```html
@@ -105,6 +118,7 @@ form.setValidationTimeout(3000);
 </div>
 ```
 
+<!-- Any validation errors returned during a validation request or a form submission will automatically populate the form's `errors` object: -->
 検証リクエストまたはフォームの送信中に返された検証エラーは、フォームの `errors` オブジェクトに自動的に設定されます。
 
 ```html
@@ -113,6 +127,7 @@ form.setValidationTimeout(3000);
 </div>
 ```
 
+<!-- You can determine if the form has any errors using the form's `hasErrors` property: -->
 フォームの `hasErrors` プロパティを使用して、フォームにエラーがあるかどうかを確認できます。
 
 ```html
@@ -121,6 +136,7 @@ form.setValidationTimeout(3000);
 </div>
 ```
 
+<!-- You may also determine if an input has passed or failed validation by passing the input's name to the form's `valid` and `invalid` functions, respectively: -->
 入力の名前をフォームの `valid` 関数と `invalid` 関数にそれぞれ渡すことで、入力が検証に合格したか失敗したかを判断することもできます。
 
 ```html
@@ -133,9 +149,10 @@ form.setValidationTimeout(3000);
 </span>
 ```
 
-> [!WARNING]  
+> [!WARNING]
 > フォーム入力は、変更されて検証応答が受信された場合にのみ、有効または無効として表示されます。
 
+<!-- If you are validating a subset of a form's inputs with Precognition, it can be useful to manually clear errors. You may use the form's `forgetError` function to achieve this: -->
 Precognition を使用してフォームの入力のサブセットを検証している場合、エラーを手動でクリアすると便利な場合があります。これを実現するには、フォームの `forgetError` 関数を使用できます。
 
 ```html
@@ -150,6 +167,7 @@ Precognition を使用してフォームの入力のサブセットを検証し�
 >
 ```
 
+<!-- Of course, you may also execute code in reaction to the response to the form submission. The form's `submit` function returns an Axios request promise. This provides a convenient way to access the response payload, reset the form inputs on successful submission, or handle a failed request: -->
 もちろん、フォーム送信に対する応答に応じてコードを実行することもできます。フォームの `submit` 関数は、Axios リクエストの Promise を返します。これにより、応答ペイロードにアクセスしたり、送信成功時にフォーム入力をリセットしたり、失敗したリクエストを処理したりするための便利な方法が提供されます。
 
 ```js
@@ -164,6 +182,7 @@ const submit = () => form.submit()
     });
 ```
 
+<!-- You may determine if a form submission request is in-flight by inspecting the form's `processing` property: -->
 フォームの `processing` プロパティを検査することで、フォーム送信リクエストが処理中かどうかを判断できます。
 
 ```html
@@ -173,20 +192,24 @@ const submit = () => form.submit()
 ```
 
 <a name="using-vue-and-inertia"></a>
-### Vue と Inertia の使用
+<!-- ### Using Vue and Inertia -->
+### Using Vue and Inertia
 
-> [!NOTE]  
-> Vue と Inertia を使用して Laravel アプリケーションを開発する際に有利なスタートを切りたい場合は、[スターターキット](/docs/{{version}}/starter-kits) のいずれかの使用を検討してください。 Laravel のスターター キットは、新しい Laravel アプリケーションにバックエンドおよびフロントエンドの認証スキャフォールディングを提供します。
+> [!NOTE]
+> Vue と Inertia を使用して Laravel アプリケーションを開発する際に有利なスタートを切りたい場合は、[starter kits](/docs/10.x/starter-kits) のいずれかの使用を検討してください。 Laravel のスターター キットは、新しい Laravel アプリケーションにバックエンドおよびフロントエンドの認証スキャフォールディングを提供します。
 
-Vue および Inertia で Precognition を使用する前に、[Vue での Precognition の使用](#using-vue) の一般ドキュメントを必ず確認してください。 Inertia で Vue を使用する場合は、NPM 経由で Inertia 互換の Precognition ライブラリをインストールする必要があります。
+<!-- Before using Precognition with Vue and Inertia, be sure to review our general documentation on [using Precognition with Vue](#using-vue). When using Vue with Inertia, you will need to install the Inertia compatible Precognition library via NPM: -->
+Vue および Inertia で Precognition を使用する前に、[using Precognition with Vue](#using-vue) の一般ドキュメントを必ず確認してください。 Inertia で Vue を使用する場合は、NPM 経由で Inertia 互換の Precognition ライブラリをインストールする必要があります。
 
 ```shell
 npm install laravel-precognition-vue-inertia
 ```
 
-インストールされると、Precognition の `useForm` 関数は、上で説明した検証機能で強化された Inertia [フォームヘルパ](https://inertiajs.com/forms#form-helper) を返します。
+<!-- Once installed, Precognition's `useForm` function will return an Inertia [form helper](https://inertiajs.com/forms#form-helper) augmented with the validation features discussed above. -->
+インストールされると、Precognition の `useForm` 関数は、上で説明した検証機能で強化された Inertia [form helper](https://inertiajs.com/forms#form-helper) を返します。
 
-フォーム ヘルパの `submit` メソッドが合理化され、HTTP メソッドまたは URL を指定する必要がなくなりました。代わりに、Inertia の [訪問オプション](https://inertiajs.com/manual-visits) を最初で唯一の引数として渡すことができます。さらに、上記の Vue の例にあるように、`submit` メソッドは Promise を返しません。代わりに、`submit` メソッドに指定される訪問オプションで、Inertia がサポートする [イベントコールバック](https://inertiajs.com/manual-visits#event-callbacks) のいずれかを指定できます。
+<!-- The form helper's `submit` method has been streamlined, removing the need to specify the HTTP method or URL. Instead, you may pass Inertia's [visit options](https://inertiajs.com/manual-visits) as the first and only argument. In addition, the `submit` method does not return a Promise as seen in the Vue example above. Instead, you may provide any of Inertia's supported [event callbacks](https://inertiajs.com/manual-visits#event-callbacks) in the visit options given to the `submit` method: -->
+フォーム ヘルパの `submit` メソッドが合理化され、HTTP メソッドまたは URL を指定する必要がなくなりました。代わりに、Inertia の [visit options](https://inertiajs.com/manual-visits) を最初で唯一の引数として渡すことができます。さらに、上記の Vue の例にあるように、`submit` メソッドは Promise を返しません。代わりに、`submit` メソッドに指定される訪問オプションで、Inertia がサポートする [event callbacks](https://inertiajs.com/manual-visits#event-callbacks) のいずれかを指定できます。
 
 ```vue
 <script setup>
@@ -205,11 +228,14 @@ const submit = () => form.submit({
 ```
 
 <a name="using-react"></a>
-### 反応の使用
+<!-- ### Using React -->
+### Using React
 
+<!-- Using Laravel Precognition, you can offer live validation experiences to your users without having to duplicate your validation rules in your frontend React application. To illustrate how it works, let's build a form for creating new users within our application. -->
 Laravel Precognition を使用すると、フロントエンド React アプリケーションで検証ルールを複製することなく、ライブ検証エクスペリエンスをユーザーに提供できます。その仕組みを説明するために、アプリケーション内で新しいユーザーを作成するためのフォームを構築してみましょう。
 
-まず、ルートの事前認識を有効にするには、`HandlePrecognitiveRequests` ミドルウェアをルート定義に追加する必要があります。ルートの検証ルールを格納する [フォームリクエスト](/docs/{{version}}/validation#form-request-validation) も作成する必要があります。
+<!-- First, to enable Precognition for a route, the `HandlePrecognitiveRequests` middleware should be added to the route definition. You should also create a [form request](/docs/10.x/validation#form-request-validation) to house the route's validation rules: -->
+まず、ルートの事前認識を有効にするには、`HandlePrecognitiveRequests` ミドルウェアをルート定義に追加する必要があります。ルートの検証ルールを格納する [form request](/docs/10.x/validation#form-request-validation) も作成する必要があります。
 
 ```php
 use App\Http\Requests\StoreUserRequest;
@@ -220,14 +246,17 @@ Route::post('/users', function (StoreUserRequest $request) {
 })->middleware([HandlePrecognitiveRequests::class]);
 ```
 
+<!-- Next, you should install the Laravel Precognition frontend helpers for React via NPM: -->
 次に、NPM 経由で React 用の Laravel Precognition フロントエンド ヘルパをインストールする必要があります。
 
 ```shell
 npm install laravel-precognition-react
 ```
 
+<!-- With the Laravel Precognition package installed, you can now create a form object using Precognition's `useForm` function, providing the HTTP method (`post`), the target URL (`/users`), and the initial form data. -->
 Laravel Precognition パッケージがインストールされていると、Precognition の `useForm` 関数を使用してフォーム オブジェクトを作成し、HTTP メソッド (`post`)、ターゲット URL (`/users`)、および初期フォーム データを提供できるようになります。
 
+<!-- To enable live validation, you should listen to each input's `change` and `blur` event. In the `change` event handler, you should set the form's data with the `setData` function, passing the input's name and new value. Then, in the `blur` event handler invoke the form's `validate` method, providing the input's name: -->
 ライブ検証を有効にするには、各入力の `change` および `blur` イベントをリッスンする必要があります。 `change` イベント ハンドラーでは、`setData` 関数を使用してフォームのデータを設定し、入力の名前と新しい値を渡す必要があります。次に、`blur` イベント ハンドラーで、入力の名前を指定してフォームの `validate` メソッドを呼び出します。
 
 ```jsx
@@ -273,30 +302,35 @@ export default function Form() {
 };
 ```
 
+<!-- Now, as the form is filled by the user, Precognition will provide live validation output powered by the validation rules in the route's form request. When the form's inputs are changed, a debounced "precognitive" validation request will be sent to your Laravel application. You may configure the debounce timeout by calling the form's `setValidationTimeout` function: -->
 ユーザーがフォームに入力すると、Precognition はルートのフォーム リクエスト内の検証ルールを活用したライブ検証出力を提供します。フォームの入力が変更されると、デバウンスされた「プリコグニティブ」検証リクエストが Laravel アプリケーションに送信されます。フォームの `setValidationTimeout` 関数を呼び出すことで、デバウンス タイムアウトを構成できます。
 
 ```js
 form.setValidationTimeout(3000);
 ```
 
+<!-- When a validation request is in-flight, the form's `validating` property will be `true`: -->
 検証リクエストが進行中の場合、フォームの `validating` プロパティは `true` になります。
 
 ```jsx
 {form.validating && <div>Validating...</div>}
 ```
 
+<!-- Any validation errors returned during a validation request or a form submission will automatically populate the form's `errors` object: -->
 検証リクエストまたはフォームの送信中に返された検証エラーは、フォームの `errors` オブジェクトに自動的に設定されます。
 
 ```jsx
 {form.invalid('email') && <div>{form.errors.email}</div>}
 ```
 
+<!-- You can determine if the form has any errors using the form's `hasErrors` property: -->
 フォームの `hasErrors` プロパティを使用して、フォームにエラーがあるかどうかを確認できます。
 
 ```jsx
 {form.hasErrors && <div><!-- ... --></div>}
 ```
 
+<!-- You may also determine if an input has passed or failed validation by passing the input's name to the form's `valid` and `invalid` functions, respectively: -->
 入力の名前をフォームの `valid` 関数と `invalid` 関数にそれぞれ渡すことで、入力が検証に合格したか失敗したかを判断することもできます。
 
 ```jsx
@@ -305,16 +339,17 @@ form.setValidationTimeout(3000);
 {form.invalid('email') && <span>❌</span>}
 ```
 
-> [!WARNING]  
+> [!WARNING]
 > フォーム入力は、変更されて検証応答が受信された場合にのみ、有効または無効として表示されます。
 
+<!-- If you are validating a subset of a form's inputs with Precognition, it can be useful to manually clear errors. You may use the form's `forgetError` function to achieve this: -->
 Precognition を使用してフォームの入力のサブセットを検証している場合、エラーを手動でクリアすると便利な場合があります。これを実現するには、フォームの `forgetError` 関数を使用できます。
 
 ```jsx
 <input
     id="avatar"
     type="file"
-    onChange={(e) => 
+    onChange={(e) =>
         form.setData('avatar', e.target.value);
 
         form.forgetError('avatar');
@@ -322,6 +357,7 @@ Precognition を使用してフォームの入力のサブセットを検証し�
 >
 ```
 
+<!-- Of course, you may also execute code in reaction to the response to the form submission. The form's `submit` function returns an Axios request promise. This provides a convenient way to access the response payload, reset the form's inputs on a successful form submission, or handle a failed request: -->
 もちろん、フォーム送信に対する応答に応じてコードを実行することもできます。フォームの `submit` 関数は、Axios リクエストの Promise を返します。これにより、応答ペイロードにアクセスしたり、フォーム送信が成功したときにフォームの入力をリセットしたり、失敗したリクエストを処理したりするための便利な方法が提供されます。
 
 ```js
@@ -340,6 +376,7 @@ const submit = (e) => {
 };
 ```
 
+<!-- You may determine if a form submission request is in-flight by inspecting the form's `processing` property: -->
 フォームの `processing` プロパティを検査することで、フォーム送信リクエストが処理中かどうかを判断できます。
 
 ```html
@@ -349,20 +386,24 @@ const submit = (e) => {
 ```
 
 <a name="using-react-and-inertia"></a>
-### React と Inertia の使用
+<!-- ### Using React and Inertia -->
+### Using React and Inertia
 
-> [!NOTE]  
-> React と Inertia を使用して Laravel アプリケーションを開発する際に有利なスタートを切りたい場合は、[スターターキット](/docs/{{version}}/starter-kits) のいずれかの使用を検討してください。 Laravel のスターター キットは、新しい Laravel アプリケーションにバックエンドおよびフロントエンドの認証スキャフォールディングを提供します。
+> [!NOTE]
+> React と Inertia を使用して Laravel アプリケーションを開発する際に有利なスタートを切りたい場合は、[starter kits](/docs/10.x/starter-kits) のいずれかの使用を検討してください。 Laravel のスターター キットは、新しい Laravel アプリケーションにバックエンドおよびフロントエンドの認証スキャフォールディングを提供します。
 
-React および Inertia で Precognition を使用する前に、[React で Precognition を使用する](#using-react) の一般ドキュメントを必ず確認してください。 React with Inertia を使用する場合は、NPM 経由で Inertia 互換の Precognition ライブラリをインストールする必要があります。
+<!-- Before using Precognition with React and Inertia, be sure to review our general documentation on [using Precognition with React](#using-react). When using React with Inertia, you will need to install the Inertia compatible Precognition library via NPM: -->
+React および Inertia で Precognition を使用する前に、[using Precognition with React](#using-react) の一般ドキュメントを必ず確認してください。 React with Inertia を使用する場合は、NPM 経由で Inertia 互換の Precognition ライブラリをインストールする必要があります。
 
 ```shell
 npm install laravel-precognition-react-inertia
 ```
 
-インストールされると、Precognition の `useForm` 関数は、上で説明した検証機能で強化された Inertia [フォームヘルパ](https://inertiajs.com/forms#form-helper) を返します。
+<!-- Once installed, Precognition's `useForm` function will return an Inertia [form helper](https://inertiajs.com/forms#form-helper) augmented with the validation features discussed above. -->
+インストールされると、Precognition の `useForm` 関数は、上で説明した検証機能で強化された Inertia [form helper](https://inertiajs.com/forms#form-helper) を返します。
 
-フォーム ヘルパの `submit` メソッドが合理化され、HTTP メソッドまたは URL を指定する必要がなくなりました。代わりに、Inertia の [訪問オプション](https://inertiajs.com/manual-visits) を最初で唯一の引数として渡すことができます。さらに、上記の React の例に見られるように、`submit` メソッドは Promise を返しません。代わりに、`submit` メソッドに指定される訪問オプションで、Inertia がサポートする [イベントコールバック](https://inertiajs.com/manual-visits#event-callbacks) のいずれかを指定できます。
+<!-- The form helper's `submit` method has been streamlined, removing the need to specify the HTTP method or URL. Instead, you may pass Inertia's [visit options](https://inertiajs.com/manual-visits) as the first and only argument. In addition, the `submit` method does not return a Promise as seen in the React example above. Instead, you may provide any of Inertia's supported [event callbacks](https://inertiajs.com/manual-visits#event-callbacks) in the visit options given to the `submit` method: -->
+フォーム ヘルパの `submit` メソッドが合理化され、HTTP メソッドまたは URL を指定する必要がなくなりました。代わりに、Inertia の [visit options](https://inertiajs.com/manual-visits) を最初で唯一の引数として渡すことができます。さらに、上記の React の例に見られるように、`submit` メソッドは Promise を返しません。代わりに、`submit` メソッドに指定される訪問オプションで、Inertia がサポートする [event callbacks](https://inertiajs.com/manual-visits#event-callbacks) のいずれかを指定できます。
 
 ```js
 import { useForm } from 'laravel-precognition-react-inertia';
@@ -383,11 +424,14 @@ const submit = (e) => {
 ```
 
 <a name="using-alpine"></a>
-### Alpine と Blade の使用
+<!-- ### Using Alpine and Blade -->
+### Using Alpine and Blade
 
+<!-- Using Laravel Precognition, you can offer live validation experiences to your users without having to duplicate your validation rules in your frontend Alpine application. To illustrate how it works, let's build a form for creating new users within our application. -->
 Laravel Precognition を使用すると、フロントエンド Alpine アプリケーションで検証ルールを複製することなく、ライブ検証エクスペリエンスをユーザーに提供できます。その仕組みを説明するために、アプリケーション内で新しいユーザーを作成するためのフォームを構築してみましょう。
 
-まず、ルートの事前認識を有効にするには、`HandlePrecognitiveRequests` ミドルウェアをルート定義に追加する必要があります。ルートの検証ルールを格納する [フォームリクエスト](/docs/{{version}}/validation#form-request-validation) も作成する必要があります。
+<!-- First, to enable Precognition for a route, the `HandlePrecognitiveRequests` middleware should be added to the route definition. You should also create a [form request](/docs/10.x/validation#form-request-validation) to house the route's validation rules: -->
+まず、ルートの事前認識を有効にするには、`HandlePrecognitiveRequests` ミドルウェアをルート定義に追加する必要があります。ルートの検証ルールを格納する [form request](/docs/10.x/validation#form-request-validation) も作成する必要があります。
 
 ```php
 use App\Http\Requests\CreateUserRequest;
@@ -398,12 +442,14 @@ Route::post('/users', function (CreateUserRequest $request) {
 })->middleware([HandlePrecognitiveRequests::class]);
 ```
 
+<!-- Next, you should install the Laravel Precognition frontend helpers for Alpine via NPM: -->
 次に、NPM 経由で Alpine 用の Laravel Precognition フロントエンド ヘルパをインストールする必要があります。
 
 ```shell
 npm install laravel-precognition-alpine
 ```
 
+<!-- Then, register the Precognition plugin with Alpine in your `resources/js/app.js` file: -->
 次に、`resources/js/app.js` ファイルで Precognition プラグインを Alpine に登録します。
 
 ```js
@@ -416,8 +462,10 @@ Alpine.plugin(Precognition);
 Alpine.start();
 ```
 
+<!-- With the Laravel Precognition package installed and registered, you can now create a form object using Precognition's `$form` "magic", providing the HTTP method (`post`), the target URL (`/users`), and the initial form data. -->
 Laravel Precognition パッケージをインストールして登録すると、Precognition の `$form` "マジック" を使用してフォーム オブジェクトを作成し、HTTP メソッド (`post`)、ターゲット URL (`/users`)、および初期フォーム データを提供できるようになります。
 
+<!-- To enable live validation, you should bind the form's data to its relevant input and then listen to each input's `change` event. In the `change` event handler, you should invoke the form's `validate` method, providing the input's name: -->
 ライブ検証を有効にするには、フォームのデータを関連する入力にバインドし、各入力の `change` イベントをリッスンする必要があります。 `change` イベント ハンドラーでは、入力の名前を指定してフォームの `validate` メソッドを呼び出す必要があります。
 
 ```html
@@ -456,12 +504,14 @@ Laravel Precognition パッケージをインストールして登録すると�
 </form>
 ```
 
+<!-- Now, as the form is filled by the user, Precognition will provide live validation output powered by the validation rules in the route's form request. When the form's inputs are changed, a debounced "precognitive" validation request will be sent to your Laravel application. You may configure the debounce timeout by calling the form's `setValidationTimeout` function: -->
 ユーザーがフォームに入力すると、Precognition はルートのフォーム リクエスト内の検証ルールを活用したライブ検証出力を提供します。フォームの入力が変更されると、デバウンスされた「プリコグニティブ」検証リクエストが Laravel アプリケーションに送信されます。フォームの `setValidationTimeout` 関数を呼び出すことで、デバウンス タイムアウトを構成できます。
 
 ```js
 form.setValidationTimeout(3000);
 ```
 
+<!-- When a validation request is in-flight, the form's `validating` property will be `true`: -->
 検証リクエストが進行中の場合、フォームの `validating` プロパティは `true` になります。
 
 ```html
@@ -470,6 +520,7 @@ form.setValidationTimeout(3000);
 </template>
 ```
 
+<!-- Any validation errors returned during a validation request or a form submission will automatically populate the form's `errors` object: -->
 検証リクエストまたはフォームの送信中に返された検証エラーは、フォームの `errors` オブジェクトに自動的に設定されます。
 
 ```html
@@ -478,6 +529,7 @@ form.setValidationTimeout(3000);
 </template>
 ```
 
+<!-- You can determine if the form has any errors using the form's `hasErrors` property: -->
 フォームの `hasErrors` プロパティを使用して、フォームにエラーがあるかどうかを確認できます。
 
 ```html
@@ -486,6 +538,7 @@ form.setValidationTimeout(3000);
 </template>
 ```
 
+<!-- You may also determine if an input has passed or failed validation by passing the input's name to the form's `valid` and `invalid` functions, respectively: -->
 入力の名前をフォームの `valid` 関数と `invalid` 関数にそれぞれ渡すことで、入力が検証に合格したか失敗したかを判断することもできます。
 
 ```html
@@ -498,9 +551,10 @@ form.setValidationTimeout(3000);
 </template>
 ```
 
-> [!WARNING]  
+> [!WARNING]
 > フォーム入力は、変更されて検証応答が受信された場合にのみ、有効または無効として表示されます。
 
+<!-- You may determine if a form submission request is in-flight by inspecting the form's `processing` property: -->
 フォームの `processing` プロパティを検査することで、フォーム送信リクエストが処理中かどうかを判断できます。
 
 ```html
@@ -510,8 +564,10 @@ form.setValidationTimeout(3000);
 ```
 
 <a name="repopulating-old-form-data"></a>
-#### 古いフォームデータを再入力する
+<!-- #### Repopulating Old Form Data -->
+#### Repopulating Old Form Data
 
+<!-- In the user creation example discussed above, we are using Precognition to perform live validation; however, we are performing a traditional server-side form submission to submit the form. So, the form should be populated with any "old" input and validation errors returned from the server-side form submission: -->
 上で説明したユーザー作成の例では、Precognition を使用してライブ検証を実行しています。ただし、フォームを送信するために従来のサーバー側のフォーム送信を実行しています。したがって、サーバー側のフォーム送信から返された「古い」入力エラーと検証エラーをフォームに入力する必要があります。
 
 ```html
@@ -523,10 +579,11 @@ form.setValidationTimeout(3000);
 }">
 ```
 
+<!-- Alternatively, if you would like to submit the form via XHR you may use the form's `submit` function, which returns an Axios request promise: -->
 あるいは、XHR 経由でフォームを送信したい場合は、Axios リクエスト Promise を返すフォームの `submit` 関数を使用することもできます。
 
 ```html
-<form 
+<form
     x-data="{
         form: $form('post', '/register', {
             name: '',
@@ -549,8 +606,10 @@ form.setValidationTimeout(3000);
 ```
 
 <a name="configuring-axios"></a>
-### Axiosの構成
+<!-- ### Configuring Axios -->
+### Configuring Axios
 
+<!-- The Precognition validation libraries use the [Axios](https://github.com/axios/axios) HTTP client to send requests to your application's backend. For convenience, the Axios instance may be customized if required by your application. For example, when using the `laravel-precognition-vue` library, you may add additional request headers to each outgoing request in your application's `resources/js/app.js` file: -->
 Precognition 検証ライブラリは、[Axios](https://github.com/axios/axios) HTTP クライアントを使用して、アプリケーションのバックエンドにリクエストを送信します。便宜上、アプリケーションで必要に応じて Axios インスタンスをカスタマイズできます。たとえば、`laravel-precognition-vue` ライブラリを使用する場合、アプリケーションの `resources/js/app.js` ファイル内の各送信リクエストに追加のリクエスト ヘッダーを追加できます。
 
 ```js
@@ -559,6 +618,7 @@ import { client } from 'laravel-precognition-vue';
 client.axios().defaults.headers.common['Authorization'] = authToken;
 ```
 
+<!-- Or, if you already have a configured Axios instance for your application, you may tell Precognition to use that instance instead: -->
 または、アプリケーション用に構成された Axios インスタンスがすでにある場合は、代わりにそのインスタンスを使用するように Precognition に指示することもできます。
 
 ```js
@@ -571,14 +631,17 @@ window.axios.defaults.headers.common['Authorization'] = authToken;
 client.use(window.axios)
 ```
 
-> [!WARNING]  
+> [!WARNING]
 > Inertia フレーバーの Precognition ライブラリは、検証リクエストに構成された Axios インスタンスのみを使用します。フォームの送信は常に Inertia によって送信されます。
 
 <a name="customizing-validation-rules"></a>
-## 検証ルールのカスタマイズ (Customizing Validation Rules)
+<!-- ## Customizing Validation Rules -->
+## Customizing Validation Rules
 
+<!-- It is possible to customize the validation rules executed during a precognitive request by using the request's `isPrecognitive` method. -->
 リクエストの `isPrecognitive` メソッドを使用して、予測リクエスト中に実行される検証ルールをカスタマイズできます。
 
+<!-- For example, on a user creation form, we may want to validate that a password is "uncompromised" only on the final form submission. For precognitive validation requests, we will simply validate that the password is required and has a minimum of 8 characters. Using the `isPrecognitive` method, we can customize the rules defined by our form request: -->
 たとえば、ユーザー作成フォームでは、最終的なフォーム送信時にのみパスワードが「侵害されていない」ことを検証したい場合があります。予知的検証リクエストの場合、パスワードが必須であり、最低 8 文字であることを単純に検証します。 `isPrecognitive` メソッドを使用すると、フォーム リクエストで定義されたルールをカスタマイズできます。
 
 ```php
@@ -612,11 +675,14 @@ class StoreUserRequest extends FormRequest
 ```
 
 <a name="handling-file-uploads"></a>
-## ファイルのアップロードの処理 (Handling File Uploads)
+<!-- ## Handling File Uploads -->
+## Handling File Uploads
 
+<!-- By default, Laravel Precognition does not upload or validate files during a precognitive validation request. This ensure that large files are not unnecessarily uploaded multiple times. -->
 デフォルトでは、Laravel Precognition は、事前認識検証リクエスト中にファイルをアップロードまたは検証しません。これにより、大きなファイルが不必要に複数回アップロードされることがなくなります。
 
-この動作のため、フィールドを指定するアプリケーション [対応するフォームリクエストの検証ルールをカスタマイズします](#customizing-validation-rules) が完全なフォーム送信の場合にのみ必要であることを確認する必要があります。
+<!-- Because of this behavior, you should ensure that your application [customizes the corresponding form request's validation rules](#customizing-validation-rules) to specify the field is only required for full form submissions: -->
+この動作のため、フィールドを指定するアプリケーション [customizes the corresponding form request's validation rules](#customizing-validation-rules) が完全なフォーム送信の場合にのみ必要であることを確認する必要があります。
 
 ```php
 /**
@@ -638,6 +704,7 @@ protected function rules()
 }
 ```
 
+<!-- If you would like to include files in every validation request, you may invoke the `validateFiles` function on your client-side form instance: -->
 すべての検証リクエストにファイルを含めたい場合は、クライアント側のフォーム インスタンスで `validateFiles` 関数を呼び出すことができます。
 
 ```js
@@ -645,10 +712,13 @@ form.validateFiles();
 ```
 
 <a name="managing-side-effects"></a>
-## 副作用の管理 (Managing Side-Effects)
+<!-- ## Managing Side-Effects -->
+## Managing Side-Effects
 
+<!-- When adding the `HandlePrecognitiveRequests` middleware to a route, you should consider if there are any side-effects in _other_ middleware that should be skipped during a precognitive request. -->
 `HandlePrecognitiveRequests` ミドルウェアをルートに追加するときは、予測リクエスト中にスキップする必要がある他のミドルウェアに副作用があるかどうかを考慮する必要があります。
 
+<!-- For example, you may have a middleware that increments the total number of "interactions" each user has with your application, but you may not want precognitive requests to be counted as an interaction. To accomplish this, we may check the request's `isPrecognitive` method before incrementing the interaction count: -->
 たとえば、各ユーザーがアプリケーションと行う「インタラクション」の合計数を増加させるミドルウェアがある場合でも、事前認識リクエストをインタラクションとしてカウントしたくない場合があります。これを実現するには、インタラクション数を増やす前に、リクエストの `isPrecognitive` メソッドをチェックします。
 
 ```php
@@ -677,10 +747,13 @@ class InteractionMiddleware
 ```
 
 <a name="testing"></a>
-## テスト (Testing)
+<!-- ## Testing -->
+## Testing
 
+<!-- If you would like to make precognitive requests in your tests, Laravel's `TestCase` includes a `withPrecognition` helper which will add the `Precognition` request header. -->
 テストで事前認識リクエストを作成したい場合、Laravel の `TestCase` には、`Precognition` リクエストヘッダーを追加する `withPrecognition` ヘルパが含まれています。
 
+<!-- Additionally, if you would like to assert that a precognitive request was successful, e.g., did not return any validation errors, you may use the `assertSuccessfulPrecognition` method on the response: -->
 さらに、予知的リクエストが成功したことを主張したい場合、たとえば検証エラーを返さなかった場合は、レスポンスで `assertSuccessfulPrecognition` メソッドを使用できます。
 
 ```php
