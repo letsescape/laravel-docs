@@ -31,6 +31,13 @@ SYNC_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = SYNC_ROOT.parent
 PROMPT_PATH = SYNC_ROOT / "prompt.md"
 JA_PROMPT_PATH = SYNC_ROOT / "prompt_jp.md"
+PRESERVED_MARKUP_FIXABLE = {
+    "link target mismatch",
+    "link label mismatch",
+    "link pair mismatch",
+    "heading mismatch",
+    "heading text mismatch",
+}
 
 
 def _ko_output(change: diff.SourceChange) -> Path:
@@ -216,52 +223,53 @@ def _annotate_existing(
     return writable, failures
 
 
+def _fix_preserved_markup_file(
+    label: str, dest: Path, expected_source: str, *, apply: bool
+) -> tuple[int, str | None]:
+    if not dest.exists():
+        return 0, None
+
+    original = dest.read_text(encoding="utf-8")
+    original_issues = verify.verify(original, source=expected_source)
+    if not original_issues:
+        return 0, None
+    if not set(original_issues).issubset(PRESERVED_MARKUP_FIXABLE):
+        return 0, f"{label}: {', '.join(original_issues)}"
+
+    try:
+        result = repair.repair_preserved_markup(expected_source, original)
+    except repair.RepairError as exc:
+        return 0, f"{label}: {exc}"
+
+    if not result.changed:
+        return 0, None
+
+    repaired_issues = verify.verify(result.text, source=expected_source)
+    if repaired_issues:
+        return 0, f"{label}: {', '.join(repaired_issues)}"
+
+    if apply:
+        dest.write_text(result.text, encoding="utf-8")
+    return 1, None
+
+
 def _fix_preserved_markup(
     *, apply: bool = False, version: str | None = None, doc: str | None = None
 ) -> tuple[int, list[str]]:
     """기존 ko/ja 문서의 비번역 markup만 원문 기준으로 복구한다."""
     writable = 0
     failures: list[str] = []
-    fixable = {
-        "link target mismatch",
-        "link label mismatch",
-        "link pair mismatch",
-        "heading mismatch",
-        "heading text mismatch",
-    }
 
     for change in _select_changes(migrate_existing=True, version=version, doc=doc):
         expected_source = _expected_source(change)
         for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
             label = f"{locale} {change.path}"
-            if not dest.exists():
-                continue
-
-            original = dest.read_text(encoding="utf-8")
-            original_issues = verify.verify(original, source=expected_source)
-            if not original_issues:
-                continue
-            if not set(original_issues).issubset(fixable):
-                failures.append(f"{label}: {', '.join(original_issues)}")
-                continue
-
-            try:
-                result = repair.repair_preserved_markup(expected_source, original)
-            except repair.RepairError as exc:
-                failures.append(f"{label}: {exc}")
-                continue
-
-            if not result.changed:
-                continue
-
-            repaired_issues = verify.verify(result.text, source=expected_source)
-            if repaired_issues:
-                failures.append(f"{label}: {', '.join(repaired_issues)}")
-                continue
-
-            writable += 1
-            if apply:
-                dest.write_text(result.text, encoding="utf-8")
+            written, failure = _fix_preserved_markup_file(
+                label, dest, expected_source, apply=apply
+            )
+            writable += written
+            if failure:
+                failures.append(failure)
 
     return writable, failures
 

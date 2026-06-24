@@ -15,7 +15,7 @@ from urllib.parse import urlsplit
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DOC_LINK_RE = re.compile(r"^\s*-\s*\[([^\]\n]+)]\(([^)\s]+)\)\s*$")
-VERSION_RE = re.compile(r"^(?:master|[0-9]+\.x)$")
+VERSION_RE = re.compile(r"^(?:master|\d+\.x)$")
 SIDEBAR_LOCALES = ("ko", "ja")
 
 
@@ -39,9 +39,24 @@ def _validate_version_token(version: object) -> str:
 
 def _supported_version(version: str, repo_root: Path = REPO_ROOT) -> str:
     version = _validate_version_token(version)
-    if version not in load_versions(repo_root):
-        raise ValueError(f"unknown version: {version}")
-    return version
+    for supported in load_versions(repo_root):
+        if supported == version:
+            return supported
+    raise ValueError(f"unknown version: {version}")
+
+
+def _safe_repo_path(path: Path, repo_root: Path) -> Path:
+    root = repo_root.resolve()
+    resolved = path.resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise ValueError(f"path escapes repository: {path}") from exc
+    return resolved
+
+
+def _repo_relative(path: Path, repo_root: Path) -> Path:
+    return _safe_repo_path(path, repo_root).relative_to(repo_root.resolve())
 
 
 def latest_stable_version(repo_root: Path = REPO_ROOT) -> str:
@@ -280,21 +295,34 @@ def build_sidebar(
     return {"tutorialSidebar": items}, issues
 
 
-def _read_sidebar(path: Path) -> tuple[dict, list[str]]:
-    if not path.exists():
+def _read_sidebar(path: Path, *, repo_root: Path = REPO_ROOT) -> tuple[dict, list[str]]:
+    safe_path = _safe_repo_path(path, repo_root)
+    if not safe_path.exists():
         return {}, []
     try:
-        return json.loads(path.read_text(encoding="utf-8")), []
+        return json.loads(safe_path.read_text(encoding="utf-8")), []
     except json.JSONDecodeError as exc:
         return {}, [f"invalid sidebar JSON: {exc}"]
 
 
-def _write_sidebar(path: Path, sidebar: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
+def _write_sidebar(
+    path: Path, sidebar: dict, *, repo_root: Path = REPO_ROOT
+) -> None:
+    safe_path = _safe_repo_path(path, repo_root)
+    safe_path.parent.mkdir(parents=True, exist_ok=True)
+    safe_path.write_text(
         json.dumps(sidebar, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+
+
+def _existing_repo_paths(paths: list[Path], repo_root: Path) -> list[Path]:
+    safe_paths: list[Path] = []
+    for path in paths:
+        safe_path = _safe_repo_path(path, repo_root)
+        if safe_path.exists():
+            safe_paths.append(safe_path)
+    return safe_paths
 
 
 def sync_version(
@@ -302,31 +330,33 @@ def sync_version(
 ) -> SidebarResult:
     version = _supported_version(version, repo_root)
     path = _sidebar_path(repo_root, version)
-    current, issues = _read_sidebar(path)
+    current, issues = _read_sidebar(path, repo_root=repo_root)
     expected, build_issues = build_sidebar(version, current=current, repo_root=repo_root)
     issues.extend(build_issues)
 
     locale_paths = locale_sidebar_paths(repo_root, version)
     if not issues:
         sidebar_changed = current != expected
-        locale_paths_to_remove = [path for path in locale_paths if path.exists()]
+        locale_paths_to_remove = _existing_repo_paths(locale_paths, repo_root)
         changed = sidebar_changed or bool(locale_paths_to_remove)
 
         if write:
             if sidebar_changed:
-                _write_sidebar(path, expected)
+                _write_sidebar(path, expected, repo_root=repo_root)
             for locale_path in locale_paths_to_remove:
                 locale_path.unlink()
 
-            current, read_issues = _read_sidebar(path)
+            current, read_issues = _read_sidebar(path, repo_root=repo_root)
             issues.extend(read_issues)
             sidebar_changed = current != expected
-            locale_paths_to_remove = [path for path in locale_paths if path.exists()]
+            locale_paths_to_remove = _existing_repo_paths(locale_paths, repo_root)
 
         if sidebar_changed:
             issues.append("sidebar JSON out of sync")
         for locale_path in locale_paths_to_remove:
-            issues.append(f"locale sidebar JSON remains: {locale_path.relative_to(repo_root)}")
+            issues.append(
+                f"locale sidebar JSON remains: {_repo_relative(locale_path, repo_root)}"
+            )
 
         return SidebarResult(
             version=version,

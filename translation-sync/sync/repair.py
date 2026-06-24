@@ -32,6 +32,15 @@ class RepairResult:
     changed: bool
 
 
+@dataclass
+class _RepairState:
+    source_headings: Iterator[str]
+    source_links: Iterator[tuple[str, str, str]]
+    in_code: bool = False
+    fence: str = ""
+    in_comment: bool = False
+
+
 def _split_line_ending(line: str) -> tuple[str, str]:
     if line.endswith("\r\n"):
         return line[:-2], "\r\n"
@@ -91,73 +100,86 @@ def _replace_links(line: str, links: Iterator[tuple[str, str, str]]) -> str:
     return _MARKDOWN_LINK_RE.sub(replace, line)
 
 
+def _is_comment_line(line: str, state: _RepairState) -> bool:
+    if state.in_comment:
+        if "-->" in line:
+            state.in_comment = False
+        return True
+
+    if not line.lstrip().startswith("<!--"):
+        return False
+
+    state.in_comment = "-->" not in line
+    return True
+
+
+def _is_code_line(line: str, state: _RepairState) -> bool:
+    token = fence_token(line)
+    if token:
+        if not state.in_code:
+            state.in_code = True
+            state.fence = token
+        elif closes_fence(line, state.fence):
+            state.in_code = False
+            state.fence = ""
+        return True
+
+    return state.in_code
+
+
+def _repair_heading_line(ending: str, state: _RepairState) -> str:
+    try:
+        source_heading = next(state.source_headings)
+    except StopIteration as exc:
+        raise RepairError("translated document has more headings than source") from exc
+    return source_heading + ending
+
+
+def _repair_translated_line(original_line: str, state: _RepairState) -> str:
+    line, ending = _split_line_ending(original_line)
+
+    if _is_comment_line(line, state) or _is_code_line(line, state):
+        return original_line
+
+    if is_heading_line(line):
+        return _repair_heading_line(ending, state)
+
+    return _replace_links(original_line, state.source_links)
+
+
+def _ensure_exhausted(iterator: Iterator, message: str) -> None:
+    try:
+        next(iterator)
+    except StopIteration:
+        return
+    raise RepairError(message)
+
+
 def repair_preserved_markup(source: str, translated: str) -> RepairResult:
     """Restore heading lines and links from source into translated Markdown.
 
     The function only edits non-comment, non-code areas. It fails closed when the
     translated document has a different number of headings or Markdown links.
     """
-    source_headings = iter(_heading_lines(source))
-    source_links = iter(_links(source))
+    state = _RepairState(
+        source_headings=iter(_heading_lines(source)),
+        source_links=iter(_links(source)),
+    )
     changed = False
     out: list[str] = []
-    in_code = False
-    fence = ""
-    in_comment = False
 
     for original_line in translated.splitlines(keepends=True):
-        line, ending = _split_line_ending(original_line)
-        stripped = line.lstrip()
-
-        if in_comment:
-            out.append(original_line)
-            if "-->" in line:
-                in_comment = False
-            continue
-        if stripped.startswith("<!--"):
-            out.append(original_line)
-            if "-->" not in line:
-                in_comment = True
-            continue
-
-        token = fence_token(line)
-        if token:
-            out.append(original_line)
-            if not in_code:
-                in_code, fence = True, token
-            elif closes_fence(line, fence):
-                in_code = False
-            continue
-        if in_code:
-            out.append(original_line)
-            continue
-
-        if is_heading_line(line):
-            try:
-                source_heading = next(source_headings)
-            except StopIteration as exc:
-                raise RepairError("translated document has more headings than source") from exc
-            repaired = source_heading + ending
-            changed = changed or repaired != original_line
-            out.append(repaired)
-            continue
-
-        repaired = _replace_links(original_line, source_links)
+        repaired = _repair_translated_line(original_line, state)
         changed = changed or repaired != original_line
         out.append(repaired)
 
-    try:
-        next(source_headings)
-    except StopIteration:
-        pass
-    else:
-        raise RepairError("translated document has fewer headings than source")
-
-    try:
-        next(source_links)
-    except StopIteration:
-        pass
-    else:
-        raise RepairError("translated document has fewer Markdown links than source")
+    _ensure_exhausted(
+        state.source_headings,
+        "translated document has fewer headings than source",
+    )
+    _ensure_exhausted(
+        state.source_links,
+        "translated document has fewer Markdown links than source",
+    )
 
     return RepairResult(text="".join(out), changed=changed)

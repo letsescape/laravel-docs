@@ -12,7 +12,13 @@ import type {
 type NavLink = NonNullable<Props['previous']>;
 
 function normalizePath(path: string): string {
-  return path.replace(/\/+$/g, '') || '/';
+  let end = path.length;
+
+  while (end > 0 && path[end - 1] === '/') {
+    end -= 1;
+  }
+
+  return path.slice(0, end) || '/';
 }
 
 function getSidebarLabel(

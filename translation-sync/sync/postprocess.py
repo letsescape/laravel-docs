@@ -117,32 +117,46 @@ def _parse_note_line(line: str) -> tuple[str, str] | None:
     return None
 
 
+def _standardized_note_lines(line: str) -> list[str] | None:
+    note = _parse_note_line(line)
+    if note is None:
+        return None
+
+    kind, rest = note
+    marker = _NOTE_TYPES.get(kind)
+    if marker is None:
+        return None
+
+    lines = [f"> [!{marker}]"]
+    if rest:
+        lines.append(f"> {rest}")
+    return lines
+
+
+def _continue_admonition_line(line: str) -> tuple[str, bool]:
+    if not line.strip():
+        return line, False
+    if line.lstrip().startswith(">"):
+        return line, True
+    return f"> {line}", True
+
+
 def standardize_admonitions(text: str) -> str:
     out: list[str] = []
     in_gfm_admonition = False
     for line in text.split("\n"):
-        note = _parse_note_line(line)
-        if note:
-            kind, rest = note
-            if kind in _NOTE_TYPES:
-                out.append(f"> [!{_NOTE_TYPES[kind]}]")
-                if rest:
-                    out.append(f"> {rest}")
-                in_gfm_admonition = True
-                continue
+        note_lines = _standardized_note_lines(line)
+        if note_lines is not None:
+            out.extend(note_lines)
+            in_gfm_admonition = True
+            continue
         if _GFM_ADMONITION_RE.match(line.strip()):
             out.append(line)
             in_gfm_admonition = True
             continue
         if in_gfm_admonition:
-            if not line.strip():
-                out.append(line)
-                in_gfm_admonition = False
-                continue
-            if line.lstrip().startswith(">"):
-                out.append(line)
-                continue
-            out.append(f"> {line}")
+            repaired_line, in_gfm_admonition = _continue_admonition_line(line)
+            out.append(repaired_line)
             continue
         out.append(line)
     return "\n".join(out)
