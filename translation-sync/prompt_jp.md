@@ -38,7 +38,7 @@
   - X: `[はじめに](#はじめに)` `[Eloquent](/docs/{{version}}/エロクアント)`
 - URL fragment(`#anchor`)は絶対に翻訳しません。アンカー ID は英語の kebab-case のまま維持します。
 - 自動リンク `<https://...>`、画像 `![alt](path)` の path、参照リンク定義(`[ref]: url`)の URL はすべて原文のまま維持します。
-- 外部リンクラベル(例: `[Pusher](https://pusher.com)`)では URL は原文のまま、表示テキストは翻訳可能ですが、会社名・製品名は英語表記を維持します。
+- Markdown リンクの表示テキスト(label)は、外部リンクでも原文のまま維持します。会社名・製品名も英語表記を維持します。
 
 ## 1.3 HTML / JSX タグと属性
 
@@ -51,7 +51,7 @@
 
 - GFM admonition マーカー `> [!NOTE]`, `> [!WARNING]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!CAUTION]` は **マーカー自体を変更せず**、同じ行または次の行の本文だけ翻訳します。
 - テンプレートプレースホルダ `{{version}}`, `{{ version }}`, `{{ placeholder }}`, `__VARIABLE__`, `<%= ... %>` は原文のまま維持します。
-- frontmatter(`---` 間)のキーは維持し、値はユーザーに表示される項目(`title`, `description`)だけ日本語に翻訳します。`slug`, `id`, `sidebar_position`, `tags` などは原文のまま維持します。
+- frontmatter(`---` 間)のキーは維持します。`title` は文書タイトルなので翻訳せず、英語原文のまま維持します。`description` のようなユーザーに表示される説明文だけ日本語へ翻訳できます。`slug`, `id`, `sidebar_position`, `tags` などは原文のまま維持します。
 - GitHub issue/PR 参照(`#1234`)、コミット SHA、メールアドレス、パッケージバージョン表記(`^11.0`, `~12.1`)はすべて原文のまま維持します。
 
 ## 1.5 表の中のコード・識別子
@@ -71,20 +71,27 @@
 - コードフェンスの言語ヒント(```` ```php ````, ```` ```blade ````, ```` ```bash ````, ```` ```json ```` など)をそのまま維持します。
 - 原文の改行・空行パターンを維持し、任意で空行を追加しません。
 
-## 2.2 見出し翻訳規則
+## 2.2 見出し保持規則
 
-- **H1, H2**: `日本語タイトル (Original English Title)` 形式で英語原題を併記します。
-  - `# Artisan Console` → `# Artisanコンソール (Artisan Console)`
-  - `## Defining Resources` → `## リソースの定義 (Defining Resources)`
-  - `# Installation` → `# インストール (Installation)`
-- **H3 以下(H3, H4, H5)**: 日本語だけで翻訳し、英語を併記しません。
-  - `### Installation` → `### インストール`
-  - `#### Database Considerations` → `#### データベースの考慮事項`
-- **目次 / インラインリンクテキスト**: 表示テキストは日本語に翻訳し、anchor は原文のまま維持します。
-  - `- [Defining Routes](#defining-routes)` → `- [ルートの定義](#defining-routes)`
-- 見出しにインラインコードが含まれる場合、バッククォート部分はそのまま維持します。
-  - `### Using \`make:controller\`` → `### \`make:controller\` の使用`
-- 見出しがコード識別子だけで構成される場合(例: `### Str::after`)は翻訳せず、そのまま維持します。
+- **見出しはレベルに関係なく翻訳せず、英語原文のまま維持します。**
+  H1〜H6 すべて同じです。日本語訳や英語原題の併記を追加しません。
+  - `# Artisan Console` → `# Artisan Console`
+  - `## Defining Resources` → `## Defining Resources`
+  - `### Installation` → `### Installation`
+  - `#### Database Considerations` → `#### Database Considerations`
+- 見出しにインラインコードが含まれる場合も、バッククォート部分を含めて原文の見出し全体を維持します。
+  - `### Using \`make:controller\`` → `### Using \`make:controller\``
+- 見出しがコード識別子だけで構成される場合(例: `### Str::after`, `#### \`all()\``)は
+  翻訳せず、そのまま維持します。
+- **目次 / インラインリンクの表示テキスト(label)は翻訳せず、英語原文のまま維持します。**
+  `[label](target)` の `label` は英語原文のまま、`target`(URL・`#anchor`)もそのままにします。
+  目次・メソッド一覧・本文中のクロスリファレンスリンクすべてに適用します。
+  - `- [Defining Routes](#defining-routes)` → `- [Defining Routes](#defining-routes)`(変更なし)
+  - `[ulid](#column-method-ulid)` → そのまま、`[facade](/docs/{{version}}/facades)` → そのまま
+  - 誤った例: `[ルートの定義]`, `[ウリド]`, `[ファサード]`
+- リンクラベルを英語のまま残しても、前後の日本語文は自然につなげます。リンクを名詞句として
+  扱い、助詞(`は`, `を`, `の` など)をラベルの後ろに付けます。
+- 画像の `alt` テキストは上のリンク規則とは別で、表示テキストとして翻訳できます。
 
 ---
 
@@ -98,6 +105,13 @@
 2. 重要用語は必要に応じて初出時だけ `日本語(英語)` または `英語(日本語)` 形式で併記し、以降は一つの表記に統一します。
 3. 同じ文書内で同じ用語は同じ表記で統一します。
 4. コード識別子と同じ単語が本文に出る場合(例: コードの `Controller` クラス → 本文の controller)、本文では日本語または英語を文脈に応じて使えますが、コードそのものを指す場合は必ずバッククォートで囲みます。
+5. Markdown 見出し(`#`)は用語翻訳や英語原題併記の対象ではありません。技術用語や製品名を含む場合でも、見出しテキスト全体を英語原文のまま維持します。
+6. 見出し内の製品名、パッケージ名、API 用語も原文見出しの一部として扱い、そのまま維持します。日本語訳や括弧書きの併記を追加しません。
+7. サイドバーラベルも翻訳・併記しません。`documentation.md` の category/doc label とサイドバー label は英語原文のまま維持します。
+8. 製品名、パッケージ名、API 概念、クラス名と強く結びつく技術用語は任意に音写・翻訳しません。特に Eloquent, accessor, mutator, cast, casting, Castable は英語表記を維持します。
+9. `release` がフレームワーク、パッケージ、バージョン、リリースノートの文脈を指す場合は `リリース` に統一します。
+10. Queue job の `release` のようにジョブをキューへ戻す動作は `リリース` と訳さず、`キューに戻す`、`再試行できるようキューへ戻す` など文脈に合わせて訳します。
+11. Lock、connection、resource を解放する文脈の `release` は `ロックを解放する`、`接続を解放する`、`リソースを解放する` のように訳します。コンテンツ公開の文脈では、バージョンリリースでなければ `公開`、`配信`、`発行` などを使います。
 
 ## 3.2 英語表記を維持する製品・固有名詞 (必須)
 
@@ -116,6 +130,8 @@
 **サードパーティサービス**: Stripe, Paddle, Pusher, Ably, Algolia, Meilisearch, Typesense, Mailgun, Postmark, Resend, SendGrid, Slack, Discord, GitHub, GitLab, Bitbucket, Datadog, Sentry, Bugsnag
 
 **ライブラリ / 標準**: Carbon, Symfony, Monolog, Faker, Guzzle, OAuth, OpenID, JWT, SAML, OIDC, JSON, JSON-LD, YAML, CSV, XML, HTML, CSS, SQL, GraphQL, gRPC, REST, RPC, WebSocket, MIME, UTF-8, UUID, ULID, RFC
+
+**API 概念 / Eloquent 関連**: accessor, mutator, cast, casting, Castable
 
 **略語 (英語大文字表記を維持)**: API, URL, URI, HTTP, HTTPS, SSL, TLS, TCP, UDP, IP, IPv4, IPv6, DNS, FTP, SSH, CLI, GUI, IDE, SPA, SSR, CSR, ORM, DTO, MVC, CRUD, ACID, XSS, CSRF, CORS, SSO, MFA, 2FA, RBAC, ACL, JWT, OAuth, ID, IDs, MIME, HTML, CSS, JS, TS, MD, GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, MCP, AI, LLM, SDK, SaaS, PaaS, IaaS
 
@@ -323,7 +339,7 @@
 ## 5.3 アップグレードガイド (upgrade.md)
 
 - バージョン番号(`9.x` → `10.x`)、パッケージバージョン表記(`^11.0`)、変更されたクラス・メソッド名、削除された API は **すべて原文表記のまま** 維持します。
-- "Likelihood Of Impact: High" のような影響度ラベルは、見出しや強調テキストであれば日本語に翻訳し、同じラベルは文書内で統一します。
+- "Likelihood Of Impact: High" のような影響度ラベルが見出しやリンク label として出る場合は英語原文のまま維持します。本文中の説明文として出る場合だけ、文脈に応じて日本語に翻訳できます。
 - "Update your composer.json" のような実行指示は日本語の命令表現にします。
 - breaking change の説明は正確性を最優先し、過度な意訳を避けます。
 
@@ -334,9 +350,9 @@
 
 ## 5.5 貢献・ライセンス・readme (contributions.md, license.md, readme.md, documentation.md)
 
-- license.md のライセンス本文は **法的効力を保つため英語原文を維持**します。法的な本文は翻訳せず、見出しや案内メタテキストだけ必要に応じて日本語化します。
+- license.md のライセンス本文は **法的効力を保つため英語原文を維持**します。法的な本文は翻訳せず、見出しも英語原文のまま維持します。案内メタテキストだけ必要に応じて日本語化します。
 - contributions.md の行動規範・issue 報告手順は自然な日本語にします。
-- documentation.md(サイドバー seed)のカテゴリ・項目ラベルは日本語に翻訳し、スラッグパス(`/docs/{{version}}/installation`)は絶対に変更しません。
+- documentation.md(サイドバー seed)のカテゴリ・項目ラベルは翻訳せず、英語原文のまま維持します。スラッグパス(`/docs/{{version}}/installation`)も絶対に変更しません。
 
 ---
 
@@ -347,7 +363,7 @@
 1. **コード保存**: コードブロック、インラインコード、Markdown リンク URL、アンカー ID、HTML 属性キーと非テキスト属性値、パッケージバージョン表記が原文と **文字単位で一致**しているか？
 2. **アンカー**: `<a name="...">` アンカーを原文と同じ形で維持し、新規追加や位置変更をしていないか？
 3. **構造**: 見出しレベル、リストインデント、表の列数と区切り行、引用の深さ、コードフェンスの言語ヒントが原文と同じか？
-4. **見出し**: H1・H2 は日本語タイトルと英語原題を併記し、H3 以下は日本語だけにしているか？
+4. **見出しと label**: すべての見出し(H1〜H6)、Markdown リンクの表示テキスト(label)、documentation.md のカテゴリ・項目ラベルを翻訳せず英語原文のまま残しているか?
 5. **用語一貫性**: 同じ用語を文書内で一貫した表記にし、不要な英日表記揺れを残していないか？
 6. **文体**: 英語原文の語順・直訳調・過度な敬語が残らず、日本の Laravel 開発者が自然に読める文章になっているか？
 7. **付加テキストなし**: 応答に翻訳本文以外の前置き、後書き、外側コードフェンス、翻訳者注が含まれていないか？
