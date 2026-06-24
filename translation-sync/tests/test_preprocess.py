@@ -106,6 +106,16 @@ class PreprocessTests(unittest.TestCase):
 
         self.assertEqual(result.text, source)
 
+    def test_keeps_inline_style_tag_references(self):
+        source = (
+            "Pulse will include this file within a `<style>` tag so it does not "
+            "need to be published.\n"
+        )
+
+        result = preprocess.preprocess(source)
+
+        self.assertEqual(result.text, source)
+
     def test_keeps_indented_children_with_unindented_directive_parent(self):
         source = (
             "@once\n"
