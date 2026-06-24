@@ -2110,7 +2110,7 @@ $url = secure_url('user/profile', [1]);
 <!-- #### `to_route()` -->
 #### `to_route()`
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/11.x/responses#redirects) for a given [named route](/docs/11.x/routing#named-routes): -->
-`to_route` 関数は、指定された [redirect HTTP response](/docs/11.x/routing#named-routes) への [named route](/docs/11.x/responses#redirects) を生成します。
+`to_route` 関数は、指定された [redirect HTTP response](/docs/11.x/responses#redirects) への [named route](/docs/11.x/routing#named-routes) を生成します。
 
 ```
 return to_route('users.show', ['user' => 1]);
@@ -2623,7 +2623,7 @@ $now = now();
 <!-- #### `old()` -->
 #### `old()`
 <!-- The `old` function [retrieves](/docs/11.x/requests#retrieving-input) an [old input](/docs/11.x/requests#old-input) value flashed into the session: -->
-`old` 関数は、セッションにフラッシュされた[retrieves](/docs/11.x/requests#old-input)値を[old input](/docs/11.x/requests#retrieving-input)します。
+`old` 関数は、セッションにフラッシュされた[retrieves](/docs/11.x/requests#retrieving-input)値を[old input](/docs/11.x/requests#old-input)します。
 
 ```
 $value = old('value');

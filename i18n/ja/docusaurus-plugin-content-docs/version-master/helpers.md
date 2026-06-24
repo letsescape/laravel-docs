@@ -2540,7 +2540,7 @@ return to_action(
 <!-- #### `to_route()` -->
 #### `to_route()`
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/master/responses#redirects) for a given [named route](/docs/master/routing#named-routes): -->
-`to_route` 関数は、指定された [redirect HTTP response](/docs/master/routing#named-routes) への [named route](/docs/master/responses#redirects) を生成します。
+`to_route` 関数は、指定された [redirect HTTP response](/docs/master/responses#redirects) への [named route](/docs/master/routing#named-routes) を生成します。
 
 ```php
 return to_route('users.show', ['user' => 1]);
@@ -3123,7 +3123,7 @@ $now = now();
 <!-- #### `old()` -->
 #### `old()`
 <!-- The `old` function [retrieves](/docs/master/requests#retrieving-input) an [old input](/docs/master/requests#old-input) value flashed into the session: -->
-`old` 関数は、セッションにフラッシュされた[retrieves](/docs/master/requests#old-input)値を[old input](/docs/master/requests#retrieving-input)します。
+`old` 関数は、セッションにフラッシュされた[retrieves](/docs/master/requests#retrieving-input)値を[old input](/docs/master/requests#old-input)します。
 
 ```php
 $value = old('value');

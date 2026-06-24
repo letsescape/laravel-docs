@@ -784,7 +784,7 @@ $flight = Flight::firstOrNew(
 ### Retrieving Aggregates
 
 <!-- When interacting with Eloquent models, you may also use the `count`, `sum`, `max`, and other [aggregate methods](/docs/10.x/queries#aggregates) provided by the Laravel [query builder](/docs/10.x/queries). As you might expect, these methods return a scalar value instead of an Eloquent model instance: -->
-Eloquent 모델과 상호작용할 때, Laravel [aggregate methods](/docs/10.x/queries)가 제공하는 `count`, `sum`, `max`와 같은 [query builder](/docs/10.x/queries#aggregates)도 사용할 수 있습니다. 이 메서드들은 기대하신 대로 Eloquent 모델 인스턴스가 아니라 스칼라 값(숫자 등)을 반환합니다.
+Eloquent 모델과 상호작용할 때, Laravel [aggregate methods](/docs/10.x/queries#aggregates)가 제공하는 `count`, `sum`, `max`와 같은 [query builder](/docs/10.x/queries)도 사용할 수 있습니다. 이 메서드들은 기대하신 대로 Eloquent 모델 인스턴스가 아니라 스칼라 값(숫자 등)을 반환합니다.
 
 ```
 $count = Flight::where('active', 1)->count();

@@ -572,8 +572,8 @@ return [
 ```
 
 > [!NOTE]
-<!-- The comprehensive [Laravel Prompts](/docs/11.x/prompts) documentation includes additional information on the available prompts and their usage. -->
-자세한 프롬프트 활용법은 [Laravel Prompts](/docs/11.x/prompts) 공식 문서를 참고하세요.
+> <!-- The comprehensive [Laravel Prompts](/docs/11.x/prompts) documentation includes additional information on the available prompts and their usage. -->
+> 자세한 프롬프트 활용법은 [Laravel Prompts](/docs/11.x/prompts) 공식 문서를 참고하세요.
 
 <!-- If you wish to prompt the user to select or enter [options](#options), you may include prompts in your command's `handle` method. However, if you only wish to prompt the user when they have also been automatically prompted for missing arguments, then you may implement the `afterPromptingForMissingArguments` method: -->
 사용자에게 [options](#options)을 선택하거나 직접 입력하도록 프롬프트를 띄우고 싶다면, 프롬프트를 명령어의 `handle` 메서드에서 실행하면 됩니다. 하지만 누락된 인수 프롬프트가 자동으로 띄워진 뒤에만 추가로 질의를 하고 싶다면, `afterPromptingForMissingArguments` 메서드를 구현해 활용할 수 있습니다.

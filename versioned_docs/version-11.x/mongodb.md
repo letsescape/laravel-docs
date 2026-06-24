@@ -124,7 +124,7 @@ composer require mongodb/laravel-mongodb
 - 쿼리 빌더를 사용하여 [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/)이 가능합니다.
 - `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/)는 만료된 캐시 항목을 자동으로 삭제하는 TTL 인덱스 등 MongoDB의 기능을 적극적으로 활용하도록 최적화되어 있습니다.
 - `mongodb` 큐 드라이버로 [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/)할 수 있습니다.
-- [Storing files in GridFS](https://flysystem.thephpleague.com/docs/adapter/gridfs/)를 이용해 [GridFS Adapter for Flysystem](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/gridfs/)이 가능합니다.
+- [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/gridfs/)를 이용해 [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/)이 가능합니다.
 - 데이터베이스 연결이나 Eloquent를 사용하는 대부분의 서드파티 패키지를 MongoDB와 함께 사용할 수 있습니다.
 
 <!-- To continue learning how to use MongoDB and Laravel, refer to MongoDB's [Quick Start guide](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/quick-start/). -->

@@ -927,7 +927,7 @@ class AddContentSecurityPolicyHeaders
 `useCspNonce` メソッドを呼び出した後、Laravel は生成されたすべてのスクリプトタグとスタイルタグに `nonce` 属性を自動的に含めます。
 
 <!-- If you need to specify the nonce elsewhere, including the [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) included with Laravel's [starter kits](/docs/12.x/starter-kits), you may retrieve it using the `cspNonce` method: -->
-Laravel の [Ziggy `@route` directive](/docs/12.x/starter-kits) に含まれる [starter kits](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) など、他の場所で nonce を指定する必要がある場合は、 `cspNonce` メソッドを使用して取得できます。
+Laravel の [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) に含まれる [starter kits](/docs/12.x/starter-kits) など、他の場所で nonce を指定する必要がある場合は、 `cspNonce` メソッドを使用して取得できます。
 
 ```blade
 @routes(nonce: Vite::cspNonce())

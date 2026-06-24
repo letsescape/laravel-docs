@@ -177,7 +177,7 @@ Laravel은 항상 웹 서버에 설정된 "웹 디렉터리"의 루트에서 제
 ## Docker Installation Using Sail
 
 <!-- We want it to be as easy as possible to get started with Laravel regardless of your preferred operating system. So, there are a variety of options for developing and running a Laravel project on your local machine. While you may wish to explore these options at a later time, Laravel provides [Sail](/docs/10.x/sail), a built-in solution for running your Laravel project using [Docker](https://www.docker.com). -->
-우리는 사용자가 선호하는 운영체제와 관계없이 Laravel을 가능한 한 쉽게 시작할 수 있기를 바랍니다. 그래서 로컬 머신에서 Laravel 프로젝트를 개발하고 실행하는 방법에는 여러 가지 선택지가 있습니다. 이러한 선택지는 나중에 살펴봐도 되지만, Laravel은 [Sail](https://www.docker.com)를 사용하여 Laravel 프로젝트를 실행할 수 있는 내장 솔루션인 [Docker](/docs/10.x/sail)을 제공합니다.
+우리는 사용자가 선호하는 운영체제와 관계없이 Laravel을 가능한 한 쉽게 시작할 수 있기를 바랍니다. 그래서 로컬 머신에서 Laravel 프로젝트를 개발하고 실행하는 방법에는 여러 가지 선택지가 있습니다. 이러한 선택지는 나중에 살펴봐도 되지만, Laravel은 [Sail](/docs/10.x/sail)를 사용하여 Laravel 프로젝트를 실행할 수 있는 내장 솔루션인 [Docker](https://www.docker.com)을 제공합니다.
 
 <!-- Docker is a tool for running applications and services in small, light-weight "containers" which do not interfere with your local machine's installed software or configuration. This means you don't have to worry about configuring or setting up complicated development tools such as web servers and databases on your local machine. To get started, you only need to install [Docker Desktop](https://www.docker.com/products/docker-desktop). -->
 Docker는 애플리케이션과 서비스를 작고 가벼운 "컨테이너" 안에서 실행하는 도구입니다. 이 컨테이너는 로컬 머신에 설치된 소프트웨어나 설정에 영향을 주지 않습니다. 즉, 웹 서버나 데이터베이스 같은 복잡한 개발 도구를 로컬 머신에 설정하거나 구성하는 일을 걱정하지 않아도 됩니다. 시작하려면 [Docker Desktop](https://www.docker.com/products/docker-desktop)만 설치하면 됩니다.

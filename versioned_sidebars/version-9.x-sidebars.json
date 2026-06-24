@@ -604,7 +604,7 @@
     {
       "type": "link",
       "label": "API Documentation",
-      "href": "https://api.laravel.com/docs/13.x"
+      "href": "https://api.laravel.com/docs/9.x"
     }
   ]
 }

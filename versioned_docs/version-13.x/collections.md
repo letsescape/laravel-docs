@@ -556,7 +556,7 @@ $chunks->all();
 ```
 
 <!-- This method is especially useful in [views](/docs/13.x/views) when working with a grid system such as [Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/). For example, imagine you have a collection of [Eloquent](/docs/13.x/eloquent) models you want to display in a grid: -->
-이 메서드는 [views](https://getbootstrap.com/docs/5.3/layout/grid/)과 같은 그리드 시스템으로 작업할 때 [Bootstrap](/docs/13.x/views)에서 특히 유용합니다. 예를 들어 그리드에 표시하려는 [Eloquent](/docs/13.x/eloquent) 모델 컬렉션이 있다고 가정해 보겠습니다.
+이 메서드는 [views](/docs/13.x/views)과 같은 그리드 시스템으로 작업할 때 [Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/)에서 특히 유용합니다. 예를 들어 그리드에 표시하려는 [Eloquent](/docs/13.x/eloquent) 모델 컬렉션이 있다고 가정해 보겠습니다.
 
 ```blade
 @foreach ($products->chunk(3) as $chunk)

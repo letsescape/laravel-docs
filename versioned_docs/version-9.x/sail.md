@@ -284,7 +284,7 @@ sail yarn
 ### MeiliSearch
 
 <!-- If you chose to install the [MeiliSearch](https://www.meilisearch.com) service when installing Sail, your application's `docker-compose.yml` file will contain an entry for this powerful search-engine that is [compatible](https://github.com/meilisearch/meilisearch-laravel-scout) with [Laravel Scout](/docs/9.x/scout). Once you have started your containers, you may connect to the MeiliSearch instance within your application by setting your `MEILISEARCH_HOST` environment variable to `http://meilisearch:7700`. -->
-Sail 설치할 때 [MeiliSearch](https://www.meilisearch.com) 서비스를 선택했다면, 애플리케이션의 `docker-compose.yml` 파일에 강력한 검색 엔진인 MeiliSearch 컨테이너가 추가됩니다. MeiliSearch는 [compatible](/docs/9.x/scout) 와 [Laravel Scout](https://github.com/meilisearch/meilisearch-laravel-scout)됩니다. 컨테이너가 모두 시작되면, .env 파일의 `MEILISEARCH_HOST` 환경 변수 값을 `http://meilisearch:7700`으로 설정해 사용합니다.
+Sail 설치할 때 [MeiliSearch](https://www.meilisearch.com) 서비스를 선택했다면, 애플리케이션의 `docker-compose.yml` 파일에 강력한 검색 엔진인 MeiliSearch 컨테이너가 추가됩니다. MeiliSearch는 [compatible](https://github.com/meilisearch/meilisearch-laravel-scout) 와 [Laravel Scout](/docs/9.x/scout)됩니다. 컨테이너가 모두 시작되면, .env 파일의 `MEILISEARCH_HOST` 환경 변수 값을 `http://meilisearch:7700`으로 설정해 사용합니다.
 
 <!-- From your local machine, you may access MeiliSearch's web based administration panel by navigating to `http://localhost:7700` in your web browser. -->
 로컬 컴퓨터에서 MeiliSearch의 웹 관리 패널에 접속하려면 브라우저에서 `http://localhost:7700`으로 이동하면 됩니다.
@@ -525,7 +525,7 @@ sail share --subdomain=my-sail-site
 ```
 
 > [!NOTE]
-> `share` 명령어는 [Expose](https://beyondco.de)에서 제공하는 오픈소스 터널링 서비스 [BeyondCode](https://github.com/beyondcode/expose)를 기반으로 동작합니다.
+> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)에서 제공하는 오픈소스 터널링 서비스 [BeyondCode](https://beyondco.de)를 기반으로 동작합니다.
 
 <a name="debugging-with-xdebug"></a>
 <!-- ## Debugging With Xdebug -->

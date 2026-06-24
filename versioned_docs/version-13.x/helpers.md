@@ -2557,7 +2557,7 @@ return to_action(
 <!-- #### `to_route()` -->
 #### `to_route()`
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/13.x/responses#redirects) for a given [named route](/docs/13.x/routing#named-routes): -->
-`to_route` 함수는 주어진 [redirect HTTP response](/docs/13.x/routing#named-routes)에 대한 [named route](/docs/13.x/responses#redirects)을 생성합니다.
+`to_route` 함수는 주어진 [redirect HTTP response](/docs/13.x/responses#redirects)에 대한 [named route](/docs/13.x/routing#named-routes)을 생성합니다.
 
 ```php
 return to_route('users.show', ['user' => 1]);
@@ -2641,7 +2641,7 @@ $previous = url()->previous();
 <!-- #### `abort()` -->
 #### `abort()`
 <!-- The `abort` function throws [an HTTP exception](/docs/13.x/errors#http-exceptions) which will be rendered by the [exception handler](/docs/13.x/errors#handling-exceptions): -->
-`abort` 함수는 [an HTTP exception](/docs/13.x/errors#handling-exceptions)에 의해 렌더링될 [exception handler](/docs/13.x/errors#http-exceptions)를 발생시킵니다.
+`abort` 함수는 [an HTTP exception](/docs/13.x/errors#http-exceptions)에 의해 렌더링될 [exception handler](/docs/13.x/errors#handling-exceptions)를 발생시킵니다.
 
 ```php
 abort(403);
@@ -2764,7 +2764,7 @@ blank(false);
 <!-- #### `broadcast()` -->
 #### `broadcast()`
 <!-- The `broadcast` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [broadcasts](/docs/13.x/events)를 리스너에게 [event](/docs/13.x/broadcasting)합니다.
+`broadcast` 함수는 주어진 [broadcasts](/docs/13.x/broadcasting)를 리스너에게 [event](/docs/13.x/events)합니다.
 
 ```php
 broadcast(new UserRegistered($user));
@@ -2775,7 +2775,7 @@ broadcast(new UserRegistered($user))->toOthers();
 <!-- #### `broadcast_if()` -->
 #### `broadcast_if()`
 <!-- The `broadcast_if` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `true`: -->
-`broadcast_if` 함수는 주어진 불리언 표현식이 `true`로 평가되면 지정된 [broadcasts](/docs/13.x/events)를 해당 리스너에게 [event](/docs/13.x/broadcasting)합니다.
+`broadcast_if` 함수는 주어진 불리언 표현식이 `true`로 평가되면 지정된 [broadcasts](/docs/13.x/broadcasting)를 해당 리스너에게 [event](/docs/13.x/events)합니다.
 
 ```php
 broadcast_if($user->isActive(), new UserRegistered($user));
@@ -2787,7 +2787,7 @@ broadcast_if($user->isActive(), new UserRegistered($user))->toOthers();
 <!-- #### `broadcast_unless()` -->
 #### `broadcast_unless()`
 <!-- The `broadcast_unless` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `false`: -->
-`broadcast_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 지정된 [broadcasts](/docs/13.x/events)를 해당 리스너에게 [event](/docs/13.x/broadcasting)합니다.
+`broadcast_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 지정된 [broadcasts](/docs/13.x/broadcasting)를 해당 리스너에게 [event](/docs/13.x/events)합니다.
 
 ```php
 broadcast_unless($user->isBanned(), new UserRegistered($user));
@@ -3139,7 +3139,7 @@ $now = now();
 <!-- #### `old()` -->
 #### `old()`
 <!-- The `old` function [retrieves](/docs/13.x/requests#retrieving-input) an [old input](/docs/13.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 세션에 플래시된 [retrieves](/docs/13.x/requests#old-input) 값을 [old input](/docs/13.x/requests#retrieving-input).
+`old` 함수는 세션에 플래시된 [retrieves](/docs/13.x/requests#retrieving-input) 값을 [old input](/docs/13.x/requests#old-input).
 
 ```php
 $value = old('value');

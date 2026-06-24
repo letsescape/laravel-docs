@@ -963,7 +963,7 @@ Web 取得ツールを設定して、取得数を制限したり、特定のド�
 #### File Search
 
 <!-- The `FileSearch` provider tool allows agents to search through [files](#files) stored in [vector stores](#vector-stores). This enables retrieval-augmented generation (RAG) by allowing the agent to search your uploaded documents for relevant information. -->
-`FileSearch` プロバイダ ツールを使用すると、エージェントは [files](#vector-stores) に保存されている [vector stores](#files) を検索できます。これにより、エージェントがアップロードされたドキュメントで関連情報を検索できるようになり、検索拡張生成 (RAG) が可能になります。
+`FileSearch` プロバイダ ツールを使用すると、エージェントは [files](#files) に保存されている [vector stores](#vector-stores) を検索できます。これにより、エージェントがアップロードされたドキュメントで関連情報を検索できるようになり、検索拡張生成 (RAG) が可能になります。
 
 <!-- **Supported providers:** OpenAI, Gemini -->
 **サポートされているプロバイダ:** OpenAI、Gemini

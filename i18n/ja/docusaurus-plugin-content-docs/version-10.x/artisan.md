@@ -562,8 +562,8 @@ return [
 ```
 
 > [!NOTE]
-<!-- The comprehensive [Laravel Prompts](/docs/10.x/prompts) documentation includes additional information on the available prompts and their usage. -->
-包括的な [Laravel Prompts](/docs/10.x/prompts) ドキュメントには、使用可能なプロンプトとその使用法に関する追加情報が含まれています。
+> <!-- The comprehensive [Laravel Prompts](/docs/10.x/prompts) documentation includes additional information on the available prompts and their usage. -->
+> 包括的な [Laravel Prompts](/docs/10.x/prompts) ドキュメントには、使用可能なプロンプトとその使用法に関する追加情報が含まれています。
 
 <!-- If you wish to prompt the user to select or enter [options](#options), you may include prompts in your command's `handle` method. However, if you only wish to prompt the user when they have also been automatically prompted for missing arguments, then you may implement the `afterPromptingForMissingArguments` method: -->
 ユーザーに [options](#options) の選択または入力を求めるプロンプトを表示したい場合は、コマンドの `handle` メソッドにプロンプ​​トを含めることができます。ただし、不足している引数についても自動的にプロンプ​​トが表示された場合にのみユーザーにプロンプ​​トを表示したい場合は、`afterPromptingForMissingArguments` メソッドを実装できます。

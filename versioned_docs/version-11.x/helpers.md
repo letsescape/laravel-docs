@@ -2195,7 +2195,7 @@ $url = secure_url('user/profile', [1]);
 #### `to_route()`
 
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/11.x/responses#redirects) for a given [named route](/docs/11.x/routing#named-routes): -->
-`to_route` 함수는 주어진 [redirect HTTP response](/docs/11.x/routing#named-routes)로의 [named route](/docs/11.x/responses#redirects)을 생성합니다.
+`to_route` 함수는 주어진 [redirect HTTP response](/docs/11.x/responses#redirects)로의 [named route](/docs/11.x/routing#named-routes)을 생성합니다.
 
 ```
 return to_route('users.show', ['user' => 1]);
@@ -2372,7 +2372,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/11.x/broadcasting) the given [event](/docs/11.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [broadcasts](/docs/11.x/events)를 [event](/docs/11.x/broadcasting)하여 리스너들에게 전달합니다.
+`broadcast` 함수는 주어진 [broadcasts](/docs/11.x/broadcasting)를 [event](/docs/11.x/events)하여 리스너들에게 전달합니다.
 
 ```
 broadcast(new UserRegistered($user));

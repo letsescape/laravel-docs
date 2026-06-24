@@ -893,7 +893,7 @@ php artisan inertia:start-ssr
 ### Content Security Policy (CSP) Nonce
 
 <!-- If you wish to include a [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) on your script and style tags as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may generate or specify a nonce using the `useCspNonce` method within a custom [middleware](/docs/12.x/middleware): -->
-[nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) 적용을 위해 스크립트 및 스타일 태그에 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)을 추가하려면, 커스텀 [middleware](/docs/12.x/middleware)에서 `useCspNonce` 메서드를 호출하면 됩니다.
+[nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) 적용을 위해 스크립트 및 스타일 태그에 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)을 추가하려면, 커스텀 [middleware](/docs/12.x/middleware)에서 `useCspNonce` 메서드를 호출하면 됩니다.
 
 ```php
 <?php
@@ -927,7 +927,7 @@ class AddContentSecurityPolicyHeaders
 `useCspNonce` 호출 후에는, Laravel이 자동으로 모든 스크립트 및 스타일 태그에 `nonce` 속성을 부여합니다.
 
 <!-- If you need to specify the nonce elsewhere, including the [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) included with Laravel's [starter kits](/docs/12.x/starter-kits), you may retrieve it using the `cspNonce` method: -->
-다른 곳에서도 nonce 값이 필요하다면, Laravel의 [Ziggy `@route` directive](/docs/12.x/starter-kits)에 포함된 [starter kits](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy)처럼, `cspNonce` 메서드로 값을 얻어 사용할 수 있습니다.
+다른 곳에서도 nonce 값이 필요하다면, Laravel의 [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy)에 포함된 [starter kits](/docs/12.x/starter-kits)처럼, `cspNonce` 메서드로 값을 얻어 사용할 수 있습니다.
 
 ```blade
 @routes(nonce: Vite::cspNonce())

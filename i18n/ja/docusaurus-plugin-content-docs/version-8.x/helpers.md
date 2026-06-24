@@ -4202,7 +4202,7 @@ $now = now();
 <!-- #### `old()` -->
 #### `old()`
 <!-- The `old` function [retrieves](/docs/8.x/requests#retrieving-input) an [old input](/docs/8.x/requests#old-input) value flashed into the session: -->
-`old` 関数は、セッションにフラッシュされた[retrieves](/docs/8.x/requests#old-input)値を[old input](/docs/8.x/requests#retrieving-input)します。
+`old` 関数は、セッションにフラッシュされた[retrieves](/docs/8.x/requests#retrieving-input)値を[old input](/docs/8.x/requests#old-input)します。
 
 ```
 $value = old('value');

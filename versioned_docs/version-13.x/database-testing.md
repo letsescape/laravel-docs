@@ -70,7 +70,7 @@ class ExampleTest extends TestCase
 ## Model Factories
 
 <!-- When testing, you may need to insert a few records into your database before executing your test. Instead of manually specifying the value of each column when you create this test data, Laravel allows you to define a set of default attributes for each of your [Eloquent models](/docs/13.x/eloquent) using [model factories](/docs/13.x/eloquent-factories). -->
-테스트를 실행하기 전에 데이터베이스에 몇 개의 레코드를 삽입해야 할 수 있습니다. 이러한 테스트 데이터를 만들 때 각 컬럼의 값을 직접 지정하는 대신, Laravel에서는 [Eloquent models](/docs/13.x/eloquent-factories)를 사용하여 각 [model factories](/docs/13.x/eloquent)에 대한 기본 속성 집합을 정의할 수 있습니다.
+테스트를 실행하기 전에 데이터베이스에 몇 개의 레코드를 삽입해야 할 수 있습니다. 이러한 테스트 데이터를 만들 때 각 컬럼의 값을 직접 지정하는 대신, Laravel에서는 [Eloquent models](/docs/13.x/eloquent)를 사용하여 각 [model factories](/docs/13.x/eloquent-factories)에 대한 기본 속성 집합을 정의할 수 있습니다.
 
 <!-- To learn more about creating and utilizing model factories to create models, please consult the complete [model factory documentation](/docs/13.x/eloquent-factories). Once you have defined a model factory, you may utilize the factory within your test to create models: -->
 모델 팩토리를 만들고 이를 활용해 모델을 생성하는 방법을 더 자세히 알아보려면 전체 [model factory documentation](/docs/13.x/eloquent-factories)를 참고하시기 바랍니다. 모델 팩토리를 정의한 뒤에는 테스트 안에서 팩토리를 사용해 모델을 생성할 수 있습니다.
