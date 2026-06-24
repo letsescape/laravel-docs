@@ -100,16 +100,24 @@ def _replace_links(line: str, links: Iterator[tuple[str, str, str]]) -> str:
     return _MARKDOWN_LINK_RE.sub(replace, line)
 
 
+def _comment_candidate(line: str) -> str:
+    candidate = line.lstrip()
+    while candidate.startswith(">"):
+        candidate = candidate[1:].lstrip()
+    return candidate
+
+
 def _is_comment_line(line: str, state: _RepairState) -> bool:
     if state.in_comment:
         if "-->" in line:
             state.in_comment = False
         return True
 
-    if not line.lstrip().startswith("<!--"):
+    candidate = _comment_candidate(line)
+    if not candidate.startswith("<!--"):
         return False
 
-    state.in_comment = "-->" not in line
+    state.in_comment = "-->" not in candidate
     return True
 
 

@@ -46,6 +46,20 @@ class RepairPreservedMarkupTests(unittest.TestCase):
         with self.assertRaises(repair.RepairError):
             repair.repair_preserved_markup(source, translated)
 
+    def test_skips_blockquoted_annotation_comments_before_repairing_links(self):
+        source = "> [!NOTE]\n> See [Routing](routing.md).\n"
+        translated = """> [!NOTE]
+> <!-- See [Routing](routing.md). -->
+> [라우팅](wrong.md)을 참고하세요.
+"""
+
+        result = repair.repair_preserved_markup(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn("> <!-- See [Routing](routing.md). -->", result.text)
+        self.assertIn("[Routing](routing.md)을 참고하세요.", result.text)
+        self.assertEqual([], verify.verify(result.text, source=source))
+
 
 if __name__ == "__main__":
     unittest.main()

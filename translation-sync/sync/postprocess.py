@@ -162,6 +162,54 @@ def standardize_admonitions(text: str) -> str:
     return "\n".join(out)
 
 
+def _quote_admonition_fences(text: str) -> str:
+    out: list[str] = []
+    lines = text.split("\n")
+    index = 0
+    in_gfm_admonition = False
+
+    while index < len(lines):
+        line = lines[index]
+        if _GFM_ADMONITION_RE.match(line.strip()):
+            out.append(line)
+            in_gfm_admonition = True
+            index += 1
+            continue
+
+        if not in_gfm_admonition:
+            out.append(line)
+            index += 1
+            continue
+
+        if not line.strip():
+            out.append(line)
+            in_gfm_admonition = False
+            index += 1
+            continue
+
+        if line.lstrip().startswith(">"):
+            out.append(line)
+            index += 1
+            continue
+
+        token = fence_token(line)
+        if token:
+            opening_index = index
+            while index < len(lines):
+                current = lines[index]
+                out.append(f"> {current}" if current else ">")
+                index += 1
+                if index > opening_index + 1 and closes_fence(current, token):
+                    break
+            continue
+
+        repaired_line, in_gfm_admonition = _continue_admonition_line(line)
+        out.append(repaired_line)
+        index += 1
+
+    return "\n".join(out)
+
+
 def replace_version(text: str, version: str) -> str:
     return _VERSION_RE.sub(version, text)
 
@@ -199,6 +247,7 @@ def _postprocess_markdown_body(text: str) -> str:
 def postprocess(text: str, version: str, placeholders: Mapping[str, str]) -> str:
     text = replace_version(text, version)
     text = _map_outside_code_blocks(text, _postprocess_markdown_body)
+    text = _quote_admonition_fences(text)
     text = restore_placeholders(text, placeholders)
     text = strip_trailing_whitespace(text)
     return text

@@ -26,38 +26,29 @@ function getSidebarLabel(
   permalink: string,
 ): string | undefined {
   const target = normalizePath(permalink);
+  const labels = new Set<string>();
 
-  function visit(item: PropSidebarItem): string | undefined {
+  function visit(item: PropSidebarItem): void {
     if (item.type === 'link' && normalizePath(item.href) === target) {
-      return item.label;
+      labels.add(item.label);
     }
 
     if (item.type === 'category') {
       if (item.href && normalizePath(item.href) === target) {
-        return item.label;
+        labels.add(item.label);
       }
 
       for (const child of item.items) {
-        const label = visit(child);
-
-        if (label) {
-          return label;
-        }
+        visit(child);
       }
     }
-
-    return undefined;
   }
 
   for (const item of items) {
-    const label = visit(item);
-
-    if (label) {
-      return label;
-    }
+    visit(item);
   }
 
-  return undefined;
+  return labels.size === 1 ? Array.from(labels)[0] : undefined;
 }
 
 function syncNavLinkTitle(link: NavLink, sidebarItems?: PropSidebar): NavLink {

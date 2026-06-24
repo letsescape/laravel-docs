@@ -47,6 +47,14 @@ test.describe('Docs rendering', () => {
     await expect(page.locator('article')).toContainText('컬렉션');
   });
 
+  test('paginator keeps doc title when sidebar permalink has duplicate labels', async ({page}) => {
+    await page.goto(docsPath('cashier-paddle'));
+
+    const nextLink = page.locator('.pagination-nav__link--next');
+    await expect(nextLink).toContainText('Dusk');
+    await expect(nextLink).not.toContainText('Browser Tests');
+  });
+
   test('blade fences render through a supported Prism language alias', async ({page}) => {
     await page.goto(docsPath('collections'));
 
