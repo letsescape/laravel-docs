@@ -7,11 +7,21 @@ RUN apt-get update && \
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
+RUN groupadd --system app && \
+    useradd --system --gid app --home-dir /home/app --create-home app && \
+    mkdir -p /app/translation-sync && \
+    chown -R app:app /app /home/app
+
 WORKDIR /app/translation-sync
 
-COPY translation-sync/pyproject.toml translation-sync/uv.lock ./
+COPY --chown=app:app translation-sync/pyproject.toml translation-sync/uv.lock ./
+USER app
 RUN uv sync --frozen
 
-COPY . /app
+COPY --chown=app:app translation-sync /app/translation-sync
+COPY --chown=app:app i18n /app/i18n
+COPY --chown=app:app versioned_docs /app/versioned_docs
+COPY --chown=app:app versioned_sidebars /app/versioned_sidebars
+COPY --chown=app:app versions.json /app/versions.json
 
 CMD ["uv", "run", "python", "main.py"]

@@ -9,6 +9,7 @@ import {
   extractVersionFromPath,
   replaceVersionPlaceholders,
 } from './markdown-link-utils.mjs';
+import {safeMarkdownPath} from './safe-paths.mjs';
 
 const [, , sourcePath, translatedPath] = process.argv;
 if (!sourcePath || !translatedPath) {
@@ -16,10 +17,13 @@ if (!sourcePath || !translatedPath) {
   process.exit(2);
 }
 
-const source = readFileSync(sourcePath, 'utf-8');
-const translated = readFileSync(translatedPath, 'utf-8');
+const sourceFile = safeMarkdownPath(sourcePath, 'sourcePath');
+const translatedFile = safeMarkdownPath(translatedPath, 'translatedPath');
 
-const version = extractVersionFromPath(sourcePath);
+const source = readFileSync(sourceFile, 'utf-8');
+const translated = readFileSync(translatedFile, 'utf-8');
+
+const version = extractVersionFromPath(sourceFile);
 
 const srcLinks = extractInternalMarkdownLinks(source).map(l => ({
   ...l,

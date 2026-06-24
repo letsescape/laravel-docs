@@ -8,6 +8,9 @@ build
 .gemini
 __pycache__
 .venv
+**/__pycache__/
+**/.pytest_cache/
+**/.venv/
 *.log
 .env
 .env.*

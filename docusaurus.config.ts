@@ -19,6 +19,7 @@ const LATEST_STABLE = versions.find((v) => v !== 'master') ?? versions[0];
 const DEFAULT_LOCALE = 'ko';
 const LOCALES = ['ko', 'ja'];
 const LOCALIZED_ROUTE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
+const SITEMAP_LASTMOD = process.env.DOCUSAURUS_SITEMAP_LASTMOD === '0' ? null : 'date';
 const DOCS_LATEST_REDIRECT_SCRIPT = `
 (function () {
   var latest = ${JSON.stringify(LATEST_STABLE)};
@@ -166,7 +167,7 @@ const config: Config = {
         docs: false, // 플러그인으로 대체
         blog: false,
         sitemap: {
-          lastmod: 'date',
+          lastmod: SITEMAP_LASTMOD,
           changefreq: null,
           priority: null,
           filename: 'sitemap.xml',
