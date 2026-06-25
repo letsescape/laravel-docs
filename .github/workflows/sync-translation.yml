@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Required version filter, e.g. 13.x'
-        required: true
+        description: 'Optional version filter, e.g. 13.x'
+        required: false
         type: string
       doc:
-        description: 'Required Markdown file filter, e.g. installation.md'
-        required: true
+        description: 'Optional Markdown file filter, e.g. installation.md'
+        required: false
         type: string
 
 permissions:
@@ -60,12 +60,11 @@ jobs:
           INPUT_DOC: ${{ inputs.doc }}
         run: |
           args=()
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            if [ -z "$INPUT_VERSION" ] || [ -z "$INPUT_DOC" ]; then
-              echo "::error::Manual translation sync requires both version and doc filters."
-              exit 2
-            fi
-            args+=(--require-filters --fail-fast --version "$INPUT_VERSION" --doc "$INPUT_DOC")
+          if [ -n "$INPUT_VERSION" ]; then
+            args+=(--version "$INPUT_VERSION")
+          fi
+          if [ -n "$INPUT_DOC" ]; then
+            args+=(--doc "$INPUT_DOC")
           fi
           uv run python main.py "${args[@]}"
 
