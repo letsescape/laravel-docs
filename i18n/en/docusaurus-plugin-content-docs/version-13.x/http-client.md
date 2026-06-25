@@ -628,10 +628,10 @@ The `Illuminate\Http\Client\Batch` instance that is provided to batch completion
 ```php
 // The number of requests assigned to the batch...
 $batch->totalRequests;
-
+ 
 // The number of requests that have not been processed yet...
 $batch->pendingRequests;
-
+ 
 // The number of requests that have failed...
 $batch->failedRequests;
 

@@ -44,7 +44,7 @@ Laravel will use the name of the migration to attempt to guess the name of the t
 
 If you would like to specify a custom path for the generated migration, you may use the `--path` option when executing the `make:migration` command. The given path should be relative to your application's base path.
 
-> [!NOTE]
+> [!NOTE]  
 > Migration stubs may be customized using [stub publishing](/docs/{{version}}/artisan#stub-customization).
 
 <a name="squashing-migrations"></a>
@@ -70,7 +70,7 @@ php artisan schema:dump --database=testing --prune
 
 You should commit your database schema file to source control so that other new developers on your team may quickly create your application's initial database structure.
 
-> [!WARNING]
+> [!WARNING]  
 > Migration squashing is only available for the MariaDB, MySQL, PostgreSQL, and SQLite databases and utilizes the database's command-line client.
 
 <a name="migration-structure"></a>
@@ -161,7 +161,7 @@ When the `isolated` option is provided, Laravel will acquire an atomic lock usin
 php artisan migrate --isolated
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > To utilize this feature, your application must be using the `memcached`, `redis`, `dynamodb`, `database`, `file`, or `array` cache driver as your application's default cache driver. In addition, all servers must be communicating with the same central cache server.
 
 <a name="forcing-migrations-to-run-in-production"></a>
@@ -241,7 +241,7 @@ By default, the `migrate:fresh` command only drops tables from the default datab
 php artisan migrate:fresh --database=admin
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > The `migrate:fresh` command will drop all database tables regardless of their prefix. This command should be used with caution when developing on a database that is shared with other applications.
 
 <a name="tables"></a>
@@ -660,7 +660,7 @@ The `geography` method creates a `GEOGRAPHY` equivalent column with the given sp
 
     $table->geography('coordinates', subtype: 'point', srid: 4326);
 
-> [!NOTE]
+> [!NOTE]  
 > Support for spatial types depends on your database driver. Please refer to your database's documentation. If your application is utilizing a PostgreSQL database, you must install the [PostGIS](https://postgis.net) extension before the `geography` method may be used.
 
 <a name="column-method-geometry"></a>
@@ -670,7 +670,7 @@ The `geometry` method creates a `GEOMETRY` equivalent column with the given spat
 
     $table->geometry('positions', subtype: 'point', srid: 0);
 
-> [!NOTE]
+> [!NOTE]  
 > Support for spatial types depends on your database driver. Please refer to your database's documentation. If your application is utilizing a PostgreSQL database, you must install the [PostGIS](https://postgis.net) extension before the `geometry` method may be used.
 
 <a name="column-method-id"></a>
@@ -1067,7 +1067,7 @@ The `default` modifier accepts a value or an `Illuminate\Database\Query\Expressi
         }
     };
 
-> [!WARNING]
+> [!WARNING]  
 > Support for default expressions depends on your database driver, database version, and the field type. Please refer to your database's documentation.
 
 <a name="column-order"></a>
@@ -1306,7 +1306,7 @@ You may enable or disable foreign key constraints within your migrations by usin
         // Constraints disabled within this closure...
     });
 
-> [!WARNING]
+> [!WARNING]  
 > SQLite disables foreign key constraints by default. When using SQLite, make sure to [enable foreign key support](/docs/{{version}}/database#configuration) in your database configuration before attempting to create them in your migrations.
 
 <a name="events"></a>

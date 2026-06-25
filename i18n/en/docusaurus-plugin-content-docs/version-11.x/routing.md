@@ -97,7 +97,7 @@ Sometimes you may need to register a route that responds to multiple HTTP verbs.
         // ...
     });
 
-> [!NOTE]
+> [!NOTE]  
 > When defining multiple routes that share the same URI, routes using the `get`, `post`, `put`, `patch`, `delete`, and `options` methods should be defined before routes using the `any`, `match`, and `redirect` methods. This ensures the incoming request is matched with the correct route.
 
 <a name="dependency-injection"></a>
@@ -136,7 +136,7 @@ Or, you may use the `Route::permanentRedirect` method to return a `301` status c
 
     Route::permanentRedirect('/here', '/there');
 
-> [!WARNING]
+> [!WARNING]  
 > When using route parameters in redirect routes, the following parameters are reserved by Laravel and cannot be used: `destination` and `status`.
 
 <a name="view-routes"></a>
@@ -148,7 +148,7 @@ If your route only needs to return a [view](/docs/{{version}}/views), you may us
 
     Route::view('/welcome', 'welcome', ['name' => 'Taylor']);
 
-> [!WARNING]
+> [!WARNING]  
 > When using route parameters in view routes, the following parameters are reserved by Laravel and cannot be used: `view`, `data`, `status`, and `headers`.
 
 <a name="listing-your-routes"></a>
@@ -360,7 +360,7 @@ The Laravel routing component allows all characters except `/` to be present wit
         return $search;
     })->where('search', '.*');
 
-> [!WARNING]
+> [!WARNING]  
 > Encoded forward slashes are only supported within the last route segment.
 
 <a name="named-routes"></a>
@@ -379,7 +379,7 @@ You may also specify route names for controller actions:
         [UserProfileController::class, 'show']
     )->name('profile');
 
-> [!WARNING]
+> [!WARNING]  
 > Route names should always be unique.
 
 <a name="generating-urls-to-named-routes"></a>
@@ -413,7 +413,7 @@ If you pass additional parameters in the array, those key / value pairs will aut
 
     // /user/1/profile?photos=yes
 
-> [!NOTE]
+> [!NOTE]  
 > Sometimes, you may wish to specify request-wide default values for URL parameters, such as the current locale. To accomplish this, you may use the [`URL::defaults` method](/docs/{{version}}/urls#default-values).
 
 <a name="inspecting-the-current-route"></a>
@@ -484,7 +484,7 @@ Route groups may also be used to handle subdomain routing. Subdomains may be ass
         });
     });
 
-> [!WARNING]
+> [!WARNING]  
 > In order to ensure your subdomain routes are reachable, you should register subdomain routes before registering root domain routes. This will prevent root domain routes from overwriting subdomain routes which have the same URI path.
 
 <a name="route-group-prefixes"></a>
@@ -903,7 +903,7 @@ php artisan config:publish cors
 
 This command will place a `cors.php` configuration file within your application's `config` directory.
 
-> [!NOTE]
+> [!NOTE]  
 > For more information on CORS and CORS headers, please consult the [MDN web documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The_HTTP_response_headers).
 
 <a name="route-caching"></a>

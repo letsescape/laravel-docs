@@ -123,7 +123,7 @@ For more information regarding Meilisearch, please consult the [Meilisearch docu
 
 In addition, you should ensure that you install a version of `meilisearch/meilisearch-php` that is compatible with your Meilisearch binary version by reviewing [Meilisearch's documentation regarding binary compatibility](https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch).
 
-> [!WARNING]
+> [!WARNING]  
 > When upgrading Scout on an application that utilizes Meilisearch, you should always [review any additional breaking changes](https://github.com/meilisearch/Meilisearch/releases) to the Meilisearch service itself.
 
 <a name="typesense"></a>
@@ -177,7 +177,7 @@ public function toSearchableArray()
 }
 ```
 
-You should also define your Typesense collection schemas in your application's `config/scout.php` file. A collection schema describes the data types of each field that is searchable via Typesense. For more information on all available schema options, please consult the [Typesense documentation](https://typesense.org/docs/latest/api/collections.html#schema-parameters).
+You should also define your Typesense collection schemas in your application's `config/scout.php` file. A collection schema describes the data types of each field that is searchable via Typesense. For more information on all available schema options, please consult the [Typesense documentation](https://typesense.org/docs/latest/api/collections.html#schema-parameters). 
 
 If you need to change your Typesense collection's schema after it has been defined, you may either run `scout:flush` and `scout:import`, which will delete all existing indexed data and recreate the schema. Or, you may use Typesense's API to modify the collection's schema without removing any indexed data.
 
@@ -400,7 +400,7 @@ Enabling this feature will also pass the request's IP address and your authentic
 <a name="database-engine"></a>
 ### Database Engine
 
-> [!WARNING]
+> [!WARNING]  
 > The database engine currently supports MySQL and PostgreSQL.
 
 If your application interacts with small to medium sized databases or has a light workload, you may find it more convenient to get started with Scout's "database" engine. The database engine will use "where like" clauses and full text indexes when filtering results from your existing database to determine the applicable search results for your query.
@@ -441,7 +441,7 @@ public function toSearchableArray(): array
 }
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > Before specifying that a column should use full text query constraints, ensure that the column has been assigned a [full text index](/docs/{{version}}/migrations#available-index-types).
 
 <a name="collection-engine"></a>
@@ -496,7 +496,7 @@ If you would like to modify the query that is used to retrieve all of your model
         return $query->with('author');
     }
 
-> [!WARNING]
+> [!WARNING]  
 > The `makeAllSearchableUsing` method may not be applicable when using a queue to batch import models. Relationships are [not restored](/docs/{{version}}/queues#handling-relationships) when model collections are processed by jobs.
 
 <a name="adding-records"></a>
@@ -529,7 +529,7 @@ Or, if you already have a collection of Eloquent models in memory, you may call 
 
     $orders->searchable();
 
-> [!NOTE]
+> [!NOTE]  
 > The `searchable` method can be considered an "upsert" operation. In other words, if the model record is already in your index, it will be updated. If it does not exist in the search index, it will be added to the index.
 
 <a name="updating-records"></a>
@@ -621,7 +621,7 @@ Sometimes you may need to only make a model searchable under certain conditions.
 
 The `shouldBeSearchable` method is only applied when manipulating models through the `save` and `create` methods, queries, or relationships. Directly making models or collections searchable using the `searchable` method will override the result of the `shouldBeSearchable` method.
 
-> [!WARNING]
+> [!WARNING]  
 > The `shouldBeSearchable` method is not applicable when using Scout's "database" engine, as all searchable data is always stored in the database. To achieve similar behavior when using the database engine, you should use [where clauses](#where-clauses) instead.
 
 <a name="searching"></a>
@@ -678,7 +678,7 @@ The `whereNotIn` method verifies that the given column's value is not contained 
 
 Since a search index is not a relational database, more advanced "where" clauses are not currently supported.
 
-> [!WARNING]
+> [!WARNING]  
 > If your application is using Meilisearch, you must configure your application's [filterable attributes](#configuring-filterable-data-for-meilisearch) before utilizing Scout's "where" clauses.
 
 <a name="pagination"></a>
@@ -715,7 +715,7 @@ Of course, if you would like to retrieve the pagination results as JSON, you may
         return Order::search($request->input('query'))->paginate(15);
     });
 
-> [!WARNING]
+> [!WARNING]  
 > Since search engines are not aware of your Eloquent model's global scope definitions, you should not utilize global scopes in applications that utilize Scout pagination. Or, you should recreate the global scope's constraints when searching via Scout.
 
 <a name="soft-deleting"></a>
@@ -735,7 +735,7 @@ When this configuration option is `true`, Scout will not remove soft deleted mod
     // Only include trashed records when retrieving results...
     $orders = Order::search('Star Trek')->onlyTrashed()->get();
 
-> [!NOTE]
+> [!NOTE]  
 > When a soft deleted model is permanently deleted using `forceDelete`, Scout will remove it from the search index automatically.
 
 <a name="customizing-engine-searches"></a>

@@ -110,7 +110,7 @@ We can mock the call to the `Cache` facade by using the `shouldReceive` method, 
         }
     }
 
-> [!WARNING]
+> [!WARNING]  
 > You should not mock the `Request` facade. Instead, pass the input you desire into the [HTTP testing methods](/docs/{{version}}/http-tests) such as `get` and `post` when running your test. Likewise, instead of mocking the `Config` facade, call the `Config::set` method in your tests.
 
 <a name="facade-spies"></a>
@@ -164,7 +164,7 @@ You may also provide a closure to the various time travel methods. The closure w
     $this->travel(5)->days(function () {
         // Test something five days into the future...
     });
-
+    
     $this->travelTo(now()->subDays(10), function () {
         // Test something during a given moment...
     });
@@ -186,12 +186,12 @@ The `freezeTime` method may be used to freeze the current time. Similarly, the `
 As you would expect, all of the methods discussed above are primarily useful for testing time sensitive application behavior, such as locking inactive posts on a discussion forum:
 
     use App\Models\Thread;
-
+    
     public function test_forum_threads_lock_after_one_week_of_inactivity()
     {
         $thread = Thread::factory()->create();
-
+        
         $this->travel(1)->week();
-
+        
         $this->assertTrue($thread->isLockedByInactivity());
     }

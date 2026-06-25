@@ -237,7 +237,7 @@ Within a mailable class' `content` method, you may define the `view`, or which t
         );
     }
 
-> **Note**
+> **Note**  
 > You may wish to create a `resources/views/emails` directory to house all of your email templates; however, you are free to place them wherever you wish within your `resources/views` directory.
 
 <a name="plain-text-emails"></a>
@@ -499,7 +499,7 @@ Embedding inline images into your emails is typically cumbersome; however, Larav
 </body>
 ```
 
-> **Warning**
+> **Warning**  
 > The `$message` variable is not available in plain-text message templates since plain-text messages do not utilize inline attachments.
 
 <a name="embedding-raw-data-attachments"></a>
@@ -632,7 +632,7 @@ Laravel's mail capabilities are powered by Symfony Mailer. Laravel allows you to
 
     use Illuminate\Mail\Mailables\Envelope;
     use Symfony\Component\Mime\Email;
-
+    
     /**
      * Get the message envelope.
      *
@@ -703,7 +703,7 @@ Thanks,<br>
 </x-mail::message>
 ```
 
-> **Note**
+> **Note**  
 > Do not use excess indentation when writing Markdown emails. Per Markdown standards, Markdown parsers will render indented content as code blocks.
 
 <a name="button-component"></a>
@@ -908,7 +908,7 @@ Alternatively, you may call the `afterCommit` method from your mailable's constr
         }
     }
 
-> **Note**
+> **Note**  
 > To learn more about working around these issues, please review the documentation regarding [queued jobs and database transactions](/docs/{{version}}/queues#jobs-and-database-transactions).
 
 <a name="rendering-mailables"></a>
@@ -934,7 +934,7 @@ When designing a mailable's template, it is convenient to quickly preview the re
         return new App\Mail\InvoicePaid($invoice);
     });
 
-> **Warning**
+> **Warning**  
 > [Inline attachments](#inline-attachments) will not be rendered when a mailable is previewed in your browser. To preview these mailables, you should send them to an email testing application such as [Mailpit](https://github.com/axllent/mailpit) or [HELO](https://usehelo.com).
 
 <a name="localizing-mailables"></a>
@@ -1061,7 +1061,7 @@ Laravel fires two events during the process of sending mail messages. The `Messa
     use App\Listeners\LogSentMessage;
     use Illuminate\Mail\Events\MessageSending;
     use Illuminate\Mail\Events\MessageSent;
-
+    
     /**
      * The event listener mappings for the application.
      *
@@ -1105,7 +1105,7 @@ Laravel includes a variety of mail transports; however, you may wish to write yo
         public function __construct(ApiClient $client)
         {
             parent::__construct();
-
+            
             $this->client = $client;
         }
 

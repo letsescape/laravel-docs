@@ -262,7 +262,7 @@ The `forever` method may be used to store an item in the cache permanently. Sinc
 
     Cache::forever('key', 'value');
 
-> [!NOTE]
+> [!NOTE]  
 > If you are using the Memcached driver, items that are stored "forever" may be removed when the cache reaches its size limit.
 
 <a name="removing-items-from-the-cache"></a>
@@ -282,7 +282,7 @@ You may clear the entire cache using the `flush` method:
 
     Cache::flush();
 
-> [!WARNING]
+> [!WARNING]  
 > Flushing the cache does not respect your configured cache "prefix" and will remove all entries from the cache. Consider this carefully when clearing a cache which is shared by other applications.
 
 <a name="the-cache-helper"></a>
@@ -304,13 +304,13 @@ When the `cache` function is called without any arguments, it returns an instanc
         return DB::table('users')->get();
     });
 
-> [!NOTE]
+> [!NOTE]  
 > When testing call to the global `cache` function, you may use the `Cache::shouldReceive` method just as if you were [testing the facade](/docs/{{version}}/mocking#mocking-facades).
 
 <a name="atomic-locks"></a>
 ## Atomic Locks
 
-> [!WARNING]
+> [!WARNING]  
 > To utilize this feature, your application must be using the `memcached`, `redis`, `dynamodb`, `database`, `file`, or `array` cache driver as your application's default cache driver. In addition, all servers must be communicating with the same central cache server.
 
 <a name="managing-locks"></a>
@@ -413,7 +413,7 @@ We just need to implement each of these methods using a MongoDB connection. For 
         return Cache::repository(new MongoStore);
     });
 
-> [!NOTE]
+> [!NOTE]  
 > If you're wondering where to put your custom cache driver code, you could create an `Extensions` namespace within your `app` directory. However, keep in mind that Laravel does not have a rigid application structure and you are free to organize your application according to your preferences.
 
 <a name="registering-the-driver"></a>

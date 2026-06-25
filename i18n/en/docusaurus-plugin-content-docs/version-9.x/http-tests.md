@@ -79,7 +79,7 @@ Instead of returning an `Illuminate\Http\Response` instance, test request method
 
 In general, each of your tests should only make one request to your application. Unexpected behavior may occur if multiple requests are executed within a single test method.
 
-> **Note**
+> **Note**  
 > For convenience, the CSRF middleware is automatically disabled when running tests.
 
 <a name="customizing-request-headers"></a>
@@ -280,7 +280,7 @@ In addition, JSON response data may be accessed as array variables on the respon
 
     $this->assertTrue($response['created']);
 
-> **Note**
+> **Note**  
 > The `assertJson` method converts the response to an array and utilizes `PHPUnit::assertArraySubset` to verify that the given array exists within the JSON response returned by the application. So, if there are other properties in the JSON response, this test will still pass as long as the given fragment is present.
 
 <a name="verifying-exact-match"></a>
@@ -842,7 +842,7 @@ Assert that the response has no JSON validation errors for the given keys:
 
     $response->assertJsonMissingValidationErrors($keys);
 
-> **Note**
+> **Note**  
 > The more generic [assertValid](#assert-valid) method may be used to assert that a response does not have validation errors that were returned as JSON **and** that no errors were flashed to session storage.
 
 <a name="assert-json-path"></a>
@@ -950,7 +950,7 @@ Assert that the response has the given JSON validation errors for the given keys
 
     $response->assertJsonValidationErrors(array $data, $responseKey = 'errors');
 
-> **Note**
+> **Note**  
 > The more generic [assertInvalid](#assert-invalid) method may be used to assert that a response has validation errors returned as JSON **or** that errors were flashed to session storage.
 
 <a name="assert-json-validation-error-for"></a>
@@ -966,7 +966,7 @@ Assert the response has any JSON validation errors for the given key:
 Assert that the response has the given URI value in the `Location` header:
 
     $response->assertLocation($uri);
-
+    
 <a name="assert-content"></a>
 #### assertContent
 
@@ -1124,7 +1124,7 @@ Or, you may assert that a given field has a particular validation error message:
         'name' => 'The given name was invalid.'
     ]);
 
-> **Note**
+> **Note**  
 > The more generic [assertInvalid](#assert-invalid) method may be used to assert that a response has validation errors returned as JSON **or** that errors were flashed to session storage.
 
 <a name="assert-session-has-errors-in"></a>
@@ -1148,7 +1148,7 @@ Assert that the session has no validation errors for the given keys:
 
     $response->assertSessionDoesntHaveErrors($keys = [], $format = null, $errorBag = 'default');
 
-> **Note**
+> **Note**  
 > The more generic [assertValid](#assert-valid) method may be used to assert that a response does not have validation errors that were returned as JSON **and** that no errors were flashed to session storage.
 
 <a name="assert-session-missing"></a>

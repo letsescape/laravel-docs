@@ -234,7 +234,7 @@ If all of the requests fail, an instance of `Illuminate\Http\Client\RequestExcep
 
     $response = Http::retry(3, 100, throw: false)->post(/* ... */);
 
-> **Warning**
+> **Warning**  
 > If all of the requests fail because of a connection issue, a `Illuminate\Http\Client\ConnectionException` will still be thrown even when the `throw` argument is set to `false`.
 
 <a name="error-handling"></a>
@@ -311,7 +311,7 @@ Since Laravel's HTTP client is powered by Guzzle, you may take advantage of [Guz
     $response = Http::withMiddleware(
         Middleware::mapRequest(function (RequestInterface $request) {
             $request = $request->withHeader('X-Example', 'Value');
-
+            
             return $request;
         })
     )->get('http://example.com');
@@ -327,7 +327,7 @@ Likewise, you can inspect the incoming HTTP response by registering a middleware
             $header = $response->getHeader('X-Example');
 
             // ...
-
+            
             return $response;
         })
     )->get('http://example.com');

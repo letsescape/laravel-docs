@@ -35,7 +35,7 @@ Since this view is stored at `resources/views/greeting.blade.php`, we may return
         return view('greeting', ['name' => 'James']);
     });
 
-> [!NOTE]
+> [!NOTE]  
 > Looking for more information on how to write Blade templates? Check out the full [Blade documentation](/docs/{{version}}/blade) to get started.
 
 <a name="writing-views-in-react-or-vue"></a>
@@ -77,7 +77,7 @@ Views may also be nested within subdirectories of the `resources/views` director
 
     return view('admin.profile', $data);
 
-> [!WARNING]
+> [!WARNING]  
 > View directory names should not contain the `.` character.
 
 <a name="creating-the-first-available-view"></a>

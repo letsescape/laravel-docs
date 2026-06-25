@@ -44,7 +44,7 @@ Laravel will use the name of the migration to attempt to guess the name of the t
 
 If you would like to specify a custom path for the generated migration, you may use the `--path` option when executing the `make:migration` command. The given path should be relative to your application's base path.
 
-> [!NOTE]
+> [!NOTE]  
 > Migration stubs may be customized using [stub publishing](/docs/{{version}}/artisan#stub-customization).
 
 <a name="squashing-migrations"></a>
@@ -70,7 +70,7 @@ php artisan schema:dump --database=testing --prune
 
 You should commit your database schema file to source control so that other new developers on your team may quickly create your application's initial database structure.
 
-> [!WARNING]
+> [!WARNING]  
 > Migration squashing is only available for the MySQL, PostgreSQL, and SQLite databases and utilizes the database's command-line client.
 
 <a name="migration-structure"></a>
@@ -161,7 +161,7 @@ When the `isolated` option is provided, Laravel will acquire an atomic lock usin
 php artisan migrate --isolated
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > To utilize this feature, your application must be using the `memcached`, `redis`, `dynamodb`, `database`, `file`, or `array` cache driver as your application's default cache driver. In addition, all servers must be communicating with the same central cache server.
 
 <a name="forcing-migrations-to-run-in-production"></a>
@@ -241,7 +241,7 @@ By default, the `migrate:fresh` command only drops tables from the default datab
 php artisan migrate:fresh --database=admin
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > The `migrate:fresh` command will drop all database tables regardless of their prefix. This command should be used with caution when developing on a database that is shared with other applications.
 
 <a name="tables"></a>
@@ -618,7 +618,7 @@ The `integer` method creates an `INTEGER` equivalent column:
 The `ipAddress` method creates a `VARCHAR` equivalent column:
 
     $table->ipAddress('visitor');
-
+    
 When using Postgres, an `INET` column will be created.
 
 <a name="column-method-json"></a>
@@ -1011,7 +1011,7 @@ The `default` modifier accepts a value or an `Illuminate\Database\Query\Expressi
         }
     };
 
-> [!WARNING]
+> [!WARNING]  
 > Support for default expressions depends on your database driver, database version, and the field type. Please refer to your database's documentation.
 
 <a name="column-order"></a>
@@ -1059,7 +1059,7 @@ use Illuminate\Database\DBAL\TimestampType;
 ],
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > When using the `doctrine/dbal` package, the following column types can be modified: `bigInteger`, `binary`, `boolean`, `char`, `date`, `dateTime`, `dateTimeTz`, `decimal`, `double`, `integer`, `json`, `longText`, `mediumText`, `smallInteger`, `string`, `text`, `time`, `tinyText`, `unsignedBigInteger`, `unsignedInteger`, `unsignedSmallInteger`, `ulid`, and `uuid`.
 
 <a name="renaming-columns"></a>
@@ -1184,7 +1184,7 @@ To rename an index, you may use the `renameIndex` method provided by the schema 
 
     $table->renameIndex('from', 'to')
 
-> [!WARNING]
+> [!WARNING]  
 > If your application is utilizing an SQLite database, you must install the `doctrine/dbal` package via the Composer package manager before the `renameIndex` method may be used.
 
 <a name="dropping-indexes"></a>
@@ -1282,7 +1282,7 @@ You may enable or disable foreign key constraints within your migrations by usin
         // Constraints disabled within this closure...
     });
 
-> [!WARNING]
+> [!WARNING]  
 > SQLite disables foreign key constraints by default. When using SQLite, make sure to [enable foreign key support](/docs/{{version}}/database#configuration) in your database configuration before attempting to create them in your migrations. In addition, SQLite only supports foreign keys upon creation of the table and [not when tables are altered](https://www.sqlite.org/omitted.html).
 
 <a name="events"></a>

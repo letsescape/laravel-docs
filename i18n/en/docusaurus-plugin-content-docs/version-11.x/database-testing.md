@@ -202,7 +202,7 @@ Assert that a table in the database contains the given number of records:
 Assert that a table in the database contains no records:
 
     $this->assertDatabaseEmpty('users');
-
+    
 <a name="assert-database-has"></a>
 #### assertDatabaseHas
 

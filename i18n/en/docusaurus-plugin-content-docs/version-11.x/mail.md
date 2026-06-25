@@ -341,7 +341,7 @@ Within a mailable class's `content` method, you may define the `view`, or which 
         );
     }
 
-> [!NOTE]
+> [!NOTE]  
 > You may wish to create a `resources/views/emails` directory to house all of your email templates; however, you are free to place them wherever you wish within your `resources/views` directory.
 
 <a name="plain-text-emails"></a>
@@ -575,7 +575,7 @@ Embedding inline images into your emails is typically cumbersome; however, Larav
 </body>
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > The `$message` variable is not available in plain-text message templates since plain-text messages do not utilize inline attachments.
 
 <a name="embedding-raw-data-attachments"></a>
@@ -771,7 +771,7 @@ Thanks,<br>
 </x-mail::message>
 ```
 
-> [!NOTE]
+> [!NOTE]  
 > Do not use excess indentation when writing Markdown emails. Per Markdown standards, Markdown parsers will render indented content as code blocks.
 
 <a name="button-component"></a>
@@ -974,7 +974,7 @@ Alternatively, you may call the `afterCommit` method from your mailable's constr
         }
     }
 
-> [!NOTE]
+> [!NOTE]  
 > To learn more about working around these issues, please review the documentation regarding [queued jobs and database transactions](/docs/{{version}}/queues#jobs-and-database-transactions).
 
 <a name="rendering-mailables"></a>

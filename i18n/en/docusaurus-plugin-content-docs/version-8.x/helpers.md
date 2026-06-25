@@ -1718,10 +1718,10 @@ The `Str::substrReplace` method replaces text within a portion of a string, star
 
     use Illuminate\Support\Str;
 
-    $result = Str::substrReplace('1300', ':', 2);
+    $result = Str::substrReplace('1300', ':', 2); 
     // 13:
-
-    $result = Str::substrReplace('1300', ':', 2, 0);
+    
+    $result = Str::substrReplace('1300', ':', 2, 0); 
     // 13:00
 
 <a name="method-title-case"></a>

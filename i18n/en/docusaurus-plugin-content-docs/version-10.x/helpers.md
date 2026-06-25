@@ -1401,7 +1401,7 @@ The `lang_path` function returns the fully qualified path to your application's 
 
     $path = lang_path('en/messages.php');
 
-> [!NOTE]
+> [!NOTE]  
 > By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
 
 <a name="method-mix"></a>
@@ -1747,7 +1747,7 @@ The `env` function retrieves the value of an [environment variable](/docs/{{vers
 
     $env = env('APP_ENV', 'production');
 
-> [!WARNING]
+> [!WARNING]  
 > If you execute the `config:cache` command during your deployment process, you should be sure that you are only calling the `env` function from within your configuration files. Once the configuration has been cached, the `.env` file will not be loaded and all calls to the `env` function will return `null`.
 
 <a name="method-event"></a>
@@ -2135,7 +2135,7 @@ Additional arguments may be passed to the `value` function. If the first argumen
     $result = value(function (string $name) {
         return $name;
     }, 'Taylor');
-
+    
     // 'Taylor'
 
 <a name="method-view"></a>

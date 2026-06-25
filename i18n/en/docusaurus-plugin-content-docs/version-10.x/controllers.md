@@ -38,7 +38,7 @@ Let's take a look at an example of a basic controller. A controller may have any
     <?php
 
     namespace App\Http\Controllers;
-
+    
     use App\Models\User;
     use Illuminate\View\View;
 
@@ -63,7 +63,7 @@ Once you have written a controller class and method, you may define a route to t
 
 When an incoming request matches the specified route URI, the `show` method on the `App\Http\Controllers\UserController` class will be invoked and the route parameters will be passed to the method.
 
-> [!NOTE]
+> [!NOTE]  
 > Controllers are not **required** to extend a base class. However, you will not have access to convenient features such as the `middleware` and `authorize` methods.
 
 <a name="single-action-controllers"></a>
@@ -98,7 +98,7 @@ You may generate an invokable controller by using the `--invokable` option of th
 php artisan make:controller ProvisionServer --invokable
 ```
 
-> [!NOTE]
+> [!NOTE]  
 > Controller stubs may be customized using [stub publishing](/docs/{{version}}/artisan#stub-customization).
 
 <a name="controller-middleware"></a>
@@ -372,7 +372,7 @@ If you need to add additional routes to a resource controller beyond the default
     Route::get('/photos/popular', [PhotoController::class, 'popular']);
     Route::resource('photos', PhotoController::class);
 
-> [!NOTE]
+> [!NOTE]  
 > Remember to keep your controllers focused. If you find yourself routinely needing methods outside of the typical set of resource actions, consider splitting your controller into two, smaller controllers.
 
 <a name="singleton-resource-controllers"></a>

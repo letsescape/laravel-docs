@@ -96,15 +96,15 @@ If your command displays a table of information using Artisan's `table` method, 
 By default, the `Illuminate\Console\Events\CommandStarting` and `Illuminate\Console\Events\CommandFinished` events are not dispatched while running your application's tests. However, you can enable these events for a given test class by adding the `Illuminate\Foundation\Testing\WithConsoleEvents` trait to the class:
 
     <?php
-
+    
     namespace Tests\Feature;
 
     use Illuminate\Foundation\Testing\WithConsoleEvents;
     use Tests\TestCase;
-
+    
     class ConsoleEventTest extends TestCase
     {
         use WithConsoleEvents;
-
+    
         // ...
     }

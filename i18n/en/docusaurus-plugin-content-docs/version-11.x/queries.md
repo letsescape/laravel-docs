@@ -42,7 +42,7 @@ Laravel's database query builder provides a convenient, fluent interface to crea
 
 The Laravel query builder uses PDO parameter binding to protect your application against SQL injection attacks. There is no need to clean or sanitize strings passed to the query builder as query bindings.
 
-> [!WARNING]
+> [!WARNING]  
 > PDO does not support binding column names. Therefore, you should never allow user input to dictate the column names referenced by your queries, including "order by" columns.
 
 <a name="running-database-queries"></a>
@@ -83,7 +83,7 @@ The `get` method returns an `Illuminate\Support\Collection` instance containing 
         echo $user->name;
     }
 
-> [!NOTE]
+> [!NOTE]  
 > Laravel collections provide a variety of extremely powerful methods for mapping and reducing data. For more information on Laravel collections, check out the [collection documentation](/docs/{{version}}/collections).
 
 <a name="retrieving-a-single-row-column-from-a-table"></a>
@@ -175,7 +175,7 @@ DB::table('users')->where(function ($query) {
 });
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > When updating or deleting records inside the chunk callback, any changes to the primary key or foreign keys could affect the chunk query. This could potentially result in records not being included in the chunked results.
 
 <a name="streaming-results-lazily"></a>
@@ -202,7 +202,7 @@ DB::table('users')->where('active', false)
     });
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > When updating or deleting records while iterating over them, any changes to the primary key or foreign keys could affect the chunk query. This could potentially result in records not being included in the results.
 
 <a name="aggregates"></a>
@@ -270,7 +270,7 @@ Sometimes you may need to insert an arbitrary string into a query. To create a r
         ->groupBy('status')
         ->get();
 
-> [!WARNING]
+> [!WARNING]  
 > Raw statements will be injected into the query as strings, so you should be extremely careful to avoid creating SQL injection vulnerabilities.
 
 <a name="raw-methods"></a>
@@ -402,7 +402,7 @@ You may use the `joinSub`, `leftJoinSub`, and `rightJoinSub` methods to join a q
 <a name="lateral-joins"></a>
 #### Lateral Joins
 
-> [!WARNING]
+> [!WARNING]  
 > Lateral joins are currently supported by PostgreSQL, MySQL >= 8.0.14, and SQL Server.
 
 You may use the `joinLateral` and `leftJoinLateral` methods to perform a "lateral join" with a subquery. Each of these methods receives two arguments: the subquery and its table alias. The join condition(s) should be specified within the `where` clause of the given subquery. Lateral joins are evaluated for each row and can reference columns outside the subquery.
@@ -476,7 +476,7 @@ You may also pass an array of conditions to the `where` function. Each element o
         ['subscribed', '<>', '1'],
     ])->get();
 
-> [!WARNING]
+> [!WARNING]  
 > PDO does not support binding column names. Therefore, you should never allow user input to dictate the column names referenced by your queries, including "order by" columns.
 
 > [!WARNING]
@@ -508,7 +508,7 @@ The example above will produce the following SQL:
 select * from users where votes > 100 or (name = 'Abigail' and votes > 50)
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > You should always group `orWhere` calls in order to avoid unexpected behavior when global scopes are applied.
 
 <a name="where-not-clauses"></a>
@@ -696,7 +696,7 @@ select * from comments where user_id in (
 )
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > If you are adding a large array of integer bindings to your query, the `whereIntegerInRaw` or `whereIntegerNotInRaw` methods may be used to greatly reduce your memory usage.
 
 **whereBetween / orWhereBetween**
@@ -862,7 +862,7 @@ As you can see, passing a closure into the `where` method instructs the query bu
 select * from users where name = 'John' and (votes > 100 or title = 'Admin')
 ```
 
-> [!WARNING]
+> [!WARNING]  
 > You should always group `orWhere` calls in order to avoid unexpected behavior when global scopes are applied.
 
 <a name="advanced-where-clauses"></a>
@@ -930,7 +930,7 @@ Or, you may need to construct a "where" clause that compares a column to the res
 <a name="full-text-where-clauses"></a>
 ### Full Text Where Clauses
 
-> [!WARNING]
+> [!WARNING]  
 > Full text where clauses are currently supported by MariaDB, MySQL, and PostgreSQL.
 
 The `whereFullText` and `orWhereFullText` methods may be used to add full text "where" clauses to a query for columns that have [full text indexes](/docs/{{version}}/migrations#available-index-types). These methods will be transformed into the appropriate SQL for the underlying database system by Laravel. For example, a `MATCH AGAINST` clause will be generated for applications utilizing MariaDB or MySQL:
@@ -1109,7 +1109,7 @@ If the table has an auto-incrementing id, use the `insertGetId` method to insert
         ['email' => 'john@example.com', 'votes' => 0]
     );
 
-> [!WARNING]
+> [!WARNING]  
 > When using PostgreSQL the `insertGetId` method expects the auto-incrementing column to be named `id`. If you would like to retrieve the ID from a different "sequence", you may pass the column name as the second parameter to the `insertGetId` method.
 
 <a name="upserts"></a>
@@ -1128,7 +1128,7 @@ The `upsert` method will insert records that do not exist and update the records
 
 In the example above, Laravel will attempt to insert two records. If a record already exists with the same `departure` and `destination` column values, Laravel will update that record's `price` column.
 
-> [!WARNING]
+> [!WARNING]  
 > All databases except SQL Server require the columns in the second argument of the `upsert` method to have a "primary" or "unique" index. In addition, the MariaDB and MySQL database drivers ignore the second argument of the `upsert` method and always use the "primary" and "unique" indexes of the table to detect existing records.
 
 <a name="update-statements"></a>
@@ -1242,7 +1242,7 @@ While not obligatory, it is recommended to wrap pessimistic locks within a [tran
         if ($sender->balance < 100) {
             throw new RuntimeException('Balance too low.');
         }
-
+        
         DB::table('users')
             ->where('id', $sender->id)
             ->update([

@@ -2079,7 +2079,7 @@ The `Str::ulid` method generates a ULID:
     use Illuminate\Support\Str;
 
     return (string) Str::ulid();
-
+    
     // 01gd6r360bp37zj17nxb55yv40
 
 <a name="method-str-uuid"></a>
@@ -3675,7 +3675,7 @@ The `env` function retrieves the value of an [environment variable](/docs/{{vers
 
     $env = env('APP_ENV', 'production');
 
-> **Warning**
+> **Warning**  
 > If you execute the `config:cache` command during your deployment process, you should be sure that you are only calling the `env` function from within your configuration files. Once the configuration has been cached, the `.env` file will not be loaded and all calls to the `env` function will return `null`.
 
 <a name="method-event"></a>
@@ -4045,13 +4045,13 @@ The `value` function returns the value it is given. However, if you pass a closu
     });
 
     // false
-
+    
 Additional arguments may be passed to the `value` function. If the first argument is a closure then the additional parameters will be passed to the closure as arguments, otherwise they will be ignored:
 
     $result = value(function ($name) {
         return $parameter;
     }, 'Taylor');
-
+    
     // 'Taylor'
 
 <a name="method-view"></a>
