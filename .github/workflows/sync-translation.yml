@@ -6,16 +6,6 @@ on:
     - cron: '0 18 * * *'   # 매일 03:00 KST
   workflow_dispatch:
     inputs:
-      migrate_existing:
-        description: 'Re-translate all source docs to migrate existing translations'
-        required: false
-        default: false
-        type: boolean
-      annotate_existing:
-        description: 'Add English source comments to existing translations without provider calls'
-        required: false
-        default: false
-        type: boolean
       version:
         description: 'Optional version filter, e.g. 12.x'
         required: false
@@ -66,18 +56,11 @@ jobs:
           AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           EVENT_NAME: ${{ github.event_name }}
-          INPUT_ANNOTATE_EXISTING: ${{ inputs.annotate_existing }}
-          INPUT_MIGRATE_EXISTING: ${{ inputs.migrate_existing }}
           INPUT_VERSION: ${{ inputs.version }}
           INPUT_DOC: ${{ inputs.doc }}
         run: |
           args=()
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            if [ "$INPUT_ANNOTATE_EXISTING" = "true" ]; then
-              args+=(--annotate-existing --apply)
-            elif [ "$INPUT_MIGRATE_EXISTING" = "true" ]; then
-              args+=(--migrate-existing)
-            fi
             if [ -n "$INPUT_VERSION" ]; then
               args+=(--version "$INPUT_VERSION")
             fi
