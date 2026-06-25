@@ -4,6 +4,36 @@ from sync import annotate, verify
 
 
 class AnnotateTests(unittest.TestCase):
+    def test_emits_source_comment_when_content_present_but_block_misaligned(self):
+        # The translation kept the content (links intact) but lost the list
+        # structure, so block alignment slips. The English comment must still be
+        # emitted so verification's "missing original comment" cannot fail.
+        en = (
+            "- [One](https://a.test/one) first item.\n"
+            "- [Two](https://a.test/two) second item.\n"
+        )
+        ko = (
+            "<!-- placeholder. -->\n"
+            "[One](https://a.test/one) 첫째 항목.\n"
+            "[Two](https://a.test/two) 둘째 항목.\n"
+        )
+        out, _drifts = annotate.annotate(en, ko, "13.x")
+        self.assertTrue(
+            verify._required_comments(en).issubset(verify._translated_comments(out))  # noqa: SLF001
+        )
+
+    def test_keeps_drift_when_content_is_genuinely_untranslated(self):
+        # A new paragraph with no verbatim marker is genuinely missing from the
+        # translation: do NOT paper it over, so drift is still reported and the
+        # incomplete document is not silently accepted.
+        en = "Body text.\n\nNew untranslated paragraph.\n"
+        ko = "<!-- Body text. -->\n본문입니다.\n"
+        out, drifts = annotate.annotate(en, ko, "13.x")
+        self.assertFalse(
+            verify._required_comments(en).issubset(verify._translated_comments(out))  # noqa: SLF001
+        )
+        self.assertTrue(any(d.op == "delete" for d in drifts))
+
     def test_inserts_original_english_comments_without_rewriting_translation(self):
         en = "# Installation\n\nInstall Laravel with Composer.\n"
         ko = "# 설치 (Installation)\n\nComposer로 Laravel을 설치합니다.\n"

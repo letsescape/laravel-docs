@@ -192,7 +192,15 @@ def _repair_segment_translation(source: str, translated: str, version: str) -> s
     annotated, _drifts = annotate.annotate(source, repaired, version)
     candidates.append(annotated)
 
-    return min(candidates, key=lambda candidate: len(verify.verify(candidate, source=source)))
+    best = min(candidates, key=lambda candidate: len(verify.verify(candidate, source=source)))
+    missing_comments = verify.missing_original_comments(best, source)
+    if not missing_comments:
+        return best
+
+    comments = "\n".join(
+        f"<!-- {comment.replace('-->', '--&gt;')} -->" for comment in missing_comments
+    )
+    return f"{comments}\n{best.lstrip()}"
 
 
 def _normalize_comment_anchor(text: str | None, version: str) -> str | None:
@@ -311,15 +319,16 @@ def _annotate_existing(
 
             annotated, drifts = annotate.annotate(expected_source, original, change.version)
             out = postprocess.postprocess(annotated, change.version, {})
+            blocking_drifts = [drift for drift in drifts if drift.op == "delete"]
+            if blocking_drifts:
+                counts: dict[str, int] = {}
+                for drift in blocking_drifts:
+                    counts[drift.op] = counts.get(drift.op, 0) + 1
+                failures.append(f"{label}: drift {counts}")
+                continue
             issues = verify.verify(out, source=expected_source)
             if "missing original comment" in issues:
-                if drifts:
-                    counts: dict[str, int] = {}
-                    for drift in drifts:
-                        counts[drift.op] = counts.get(drift.op, 0) + 1
-                    failures.append(f"{label}: drift {counts}")
-                else:
-                    failures.append(f"{label}: {', '.join(issues)}")
+                failures.append(f"{label}: {', '.join(issues)}")
                 continue
 
             writable += 1

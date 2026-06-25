@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import difflib
+import re
 from dataclasses import dataclass, field
 
 from ..common.markdown import (
@@ -162,6 +163,28 @@ def _is_skip_line(line: str) -> str:
     return False
 
 
+_PRESENCE_MARKER_RE = re.compile(r"\]\(([^)\s]+)\)|`([^`]+)`")
+
+
+def _presence_markers(lines: list[str]) -> set[str]:
+    """원문 블록의 비번역 토큰(링크 URL, 인라인 코드)을 모은다."""
+    text = "\n".join(lines)
+    out: set[str] = set()
+    for match in _PRESENCE_MARKER_RE.finditer(text):
+        out.update(group for group in match.groups() if group)
+    return out
+
+
+def _content_present(block: Block, translation: str) -> bool:
+    """블록의 비번역 토큰이 번역본에 모두 있으면 True.
+
+    내용은 이미 번역돼 있고 주석 정렬만 어긋난 경우(annotation gap)와, 내용 자체가
+    빠진 진짜 drift(번역 갱신 필요)를 구분한다. 전자에만 원문 주석을 보강한다.
+    """
+    marks = _presence_markers(block.lines)
+    return bool(marks) and all(mark in translation for mark in marks)
+
+
 def _csub(s: str, version: str) -> str:
     """주석에 넣을 영어 원문 정제: 버전 치환, img self-close, 제목 {.class} 제거, --> 무력화."""
     s = replace_version(s, version)
@@ -305,6 +328,14 @@ def annotate(en_text: str, ko_text: str, version: str) -> tuple[str, list[Drift]
                 meaningful = any(b.kind in ("heading", "text") for b in en_blocks[i1:i2])
                 if meaningful:
                     drifts.append(Drift("delete", en_lines=en_seg))
+                    # 정렬이 깨져도 원문 주석은 항상 남긴다. 번역 출력이 불완전해
+                    # 블록이 어긋나더라도 verify의 "missing original comment"가 실패하지
+                    # 않도록, 해당 en 텍스트/제목 블록의 주석을 ko 경계 위치에 삽입한다.
+                    at = ko_blocks[j1].start if j1 < len(ko_blocks) else len(ko_lines)
+                    anchor = Block("text", at, at, [])
+                    for eb in en_blocks[i1:i2]:
+                        if eb.kind in ("heading", "text") and _content_present(eb, ko_text):
+                            _comment_for(eb, anchor, version, inserts)
             if j2 > j1:
                 ko_seg = [l for b in ko_blocks[j1:j2] for l in b.lines]
                 meaningful = any(b.kind in ("heading", "text") for b in ko_blocks[j1:j2])
@@ -330,4 +361,7 @@ def annotate(en_text: str, ko_text: str, version: str) -> tuple[str, list[Drift]
             ln = img_self_closing(ln)
             ln = strip_title_attr_line(ln)
         out.append(ln)
+    # ko 끝 이후 위치(at == len)로 등록된 주석도 누락 없이 덧붙인다.
+    for idx in sorted(k for k in inserts if k >= len(ko_lines)):
+        out.extend(inserts[idx])
     return "\n".join(out), drifts

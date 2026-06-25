@@ -112,6 +112,10 @@ echo 'ok';
         translated = "# 설치 (Installation)\n\nComposer로 Laravel을 설치합니다.\n"
 
         self.assertIn("missing original comment", verify.verify(translated, source=source))
+        self.assertEqual(
+            verify.missing_original_comments(translated, source),
+            ["# Installation", "Install Laravel with Composer."],
+        )
 
     def test_accepts_escaped_js_comment_closer_inside_original_comment(self):
         source = "Use `DB::raw(/* ... */)` carefully."

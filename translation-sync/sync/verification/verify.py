@@ -283,6 +283,11 @@ def _translated_comments(text: str) -> set[str]:
     }
 
 
+def missing_original_comments(text: str, source: str) -> list[str]:
+    """Return required English source comments missing from translated text."""
+    return sorted(_required_comments(source) - _translated_comments(text))
+
+
 def verify(text: str, source: str | None = None) -> list[str]:
     """위반 라벨 목록 반환. 빈 목록이면 success."""
     body = _strip_code_blocks(text)
@@ -313,7 +318,7 @@ def verify(text: str, source: str | None = None) -> list[str]:
         issues.append("heading text mismatch")
     if _front_matter_title(source) != _front_matter_title(text):
         issues.append("front matter title mismatch")
-    if not _required_comments(source).issubset(_translated_comments(text)):
+    if missing_original_comments(text, source):
         issues.append("missing original comment")
 
     return issues

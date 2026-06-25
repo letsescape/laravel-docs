@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import main
-from sync import config, diff, translate
+from sync import config, diff, translate, verify
 
 
 class MainPipelineTests(unittest.TestCase):
@@ -66,6 +66,20 @@ class MainPipelineTests(unittest.TestCase):
                 any(issue.startswith("incomplete translation") for issue in issues)
             )
             self.assertFalse(dest.exists())
+
+    def test_repair_segment_translation_adds_missing_original_comments(self):
+        source = (
+            "- [Using Eloquent](https://example.com/eloquent), models can be stored.\n"
+            "- [Full-text search](https://example.com/scout/) using the `mongodb` Scout engine.\n"
+        )
+        translated = (
+            "- [Using Eloquent](https://example.com/eloquent): 모델을 저장할 수 있습니다.\n"
+            "- [Full-text search](https://example.com/scout/): `mongodb` Scout engine을 사용합니다.\n"
+        )
+
+        repaired = main._repair_segment_translation(source, translated, "13.x")
+
+        self.assertEqual(verify.verify(repaired, source=source), [])
 
     def test_translate_one_updates_only_changed_blocks(self):
         with tempfile.TemporaryDirectory() as tmp:
