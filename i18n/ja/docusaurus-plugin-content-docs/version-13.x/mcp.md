@@ -523,12 +523,18 @@ class CurrentWeatherTool extends Tool
 <!-- Available annotations include: -->
 利用可能な注釈は次のとおりです。
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 注釈         | タイプ    | 説明                                                                                  |
 | ------------------ | ------- | -------------------------------------------------------------------------------------------- |
 | `#[IsReadOnly]`    | ブール値 | ツールが環境を変更しないことを示します。                                          |
 | `#[IsDestructive]` | ブール値 | ツールが破壊的な更新を実行する可能性があることを示します (読み取り専用でない場合にのみ意味があります)。     |
 | `#[IsIdempotent]`  | ブール値 | 同じ引数で繰り返し呼び出しても追加の効果がないことを示します (読み取り専用でない場合)。 |
 | `#[IsOpenWorld]`   | ブール値 | ツールが外部エンティティと対話する可能性があることを示します。                                      |
+
+<!-- </div> -->
+</div>
 
 <!-- Annotation values can be explicitly set using boolean arguments: -->
 注釈値は、ブール引数を使用して明示的に設定できます。
@@ -1357,11 +1363,17 @@ class UserDashboardResource extends Resource
 <!-- Available annotations include: -->
 利用可能な注釈は次のとおりです。
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 注釈        | タイプ          | 説明                                                                 |
 | ----------------- | ------------- | --------------------------------------------------------------------------- |
 | `#[Audience]`     | 役割または配列 | 対象読者 (`Role::User`、`Role::Assistant`、または両方) を指定します。 |
 | `#[Priority]`     | フロート         | リソースの重要性を示す 0.0 ～ 1.0 の数値スコア。       |
 | `#[LastModified]` | 文字列        | リソースが最後に更新された時間を示す ISO 8601 タイムスタンプ。           |
+
+<!-- </div> -->
+</div>
 
 <a name="conditional-resource-registration"></a>
 <!-- ### Conditional Resource Registration -->

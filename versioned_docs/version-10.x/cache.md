@@ -579,6 +579,7 @@ class AppServiceProvider extends ServiceProvider
 <!-- To execute code on every cache operation, you may listen for the [events](/docs/10.x/events) fired by the cache. Typically, you should place these event listeners within your application's `App\Providers\EventServiceProvider` class: -->
 캐시 작업마다 코드를 실행하고 싶다면, 캐시에서 발생하는 [events](/docs/10.x/events)를 리스닝하면 됩니다. 이벤트 리스너는 보통 애플리케이션의 `App\Providers\EventServiceProvider` 클래스에 정의합니다:
 ```
+
 use App\Listeners\LogCacheHit;
 use App\Listeners\LogCacheMissed;
 use App\Listeners\LogKeyForgotten;

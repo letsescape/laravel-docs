@@ -286,6 +286,7 @@ Route::get('/buy', function (Request $request) {
 이를 위해 `checkout` 메서드에 커스텀 데이터를 배열로 전달할 수 있습니다. 예를 들어, 사용자가 결제를 시작하면 애플리케이션 내에서 대기 상태의 `Order`가 생성된다고 가정해봅니다. (`Cart`, `Order` 모델은 예시를 위한 것이며 Cashier에서 기본 제공하지 않습니다. 자신의 애플리케이션에 맞게 구현해야 합니다.)
 
 ```
+
 use App\Models\Cart;
 use App\Models\Order;
 use Illuminate\Http\Request;

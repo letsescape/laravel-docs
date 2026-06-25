@@ -1096,6 +1096,7 @@ Flight::upsert([
     ['departure' => 'Oakland', 'destination' => 'San Diego', 'price' => 99],
     ['departure' => 'Chicago', 'destination' => 'New York', 'price' => 150]
 ], ['departure', 'destination'], ['price']);
+
 ```
 > [!WARNING]
 > SQL Server を除くすべてのデータベースでは、`upsert` メソッドの 2 番目の引数の列に「プライマリ」または「一意」インデックスが必要です。さらに、MySQL データベース ドライバは、`upsert` メソッドの 2 番目の引数を無視し、常にテーブルの「プライマリ」インデックスと「一意」インデックスを使用して既存のレコードを検出します。

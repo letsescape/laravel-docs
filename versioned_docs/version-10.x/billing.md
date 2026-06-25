@@ -346,6 +346,7 @@ Route::view('checkout.cancel')->name('checkout-cancel');
 이럴 때는 `checkout` 메서드에 `metadata` 배열을 넘겨주면 됩니다. 예를 들어, 사용자가 결제 과정을 시작하면 `Order` 인스턴스(진행 중)를 생성하고, 그 정보를 Checkout으로 전달할 수 있습니다. (아래 예시의 `Cart`, `Order` 모델은 단순 참고이며, Cashier에서 기본 제공하지 않으니 필요에 따라 직접 구현해야 합니다.)
 
 ```
+
 use App\Models\Cart;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -3063,6 +3064,7 @@ try {
 $subscription->withPaymentConfirmationOptions([
     'mandate_data' => '...',
 ])->swap('price_xxx');
+
 ```
 
 <!-- You may consult the [Stripe API documentation](https://stripe.com/docs/api/payment_intents/confirm) to review all of the options accepted when confirming payments. -->

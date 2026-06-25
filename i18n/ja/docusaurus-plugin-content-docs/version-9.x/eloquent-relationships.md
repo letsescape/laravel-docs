@@ -2155,7 +2155,9 @@ $comments = Comment::with(['commentable' => function (MorphTo $morphTo) {
 
 ```
 use App\Models\User;
+```
 
+```
 $users = User::withWhereHas('posts', function ($query) {
     $query->where('featured', true);
 })->get();

@@ -229,6 +229,7 @@ $this->assertDatabaseCount('users', 5);
 
 ```
 $this->assertDatabaseEmpty('users');
+
 ```
 <a name="assert-database-has"></a>
 <!-- #### assertDatabaseHas -->

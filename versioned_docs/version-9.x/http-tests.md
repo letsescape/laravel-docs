@@ -1285,6 +1285,7 @@ $response->assertJsonValidationErrorFor(string $key, $responseKey = 'errors');
 
 ```
 $response->assertLocation($uri);
+
 ```
 <a name="assert-content"></a>
 <!-- #### assertContent -->

@@ -428,6 +428,9 @@ Livewire スターター キットに含まれる認証ページ (ログイン �
 <!-- Fortify automatically registers the following authentication routes based on the features that are enabled in your application's `config/fortify.php` configuration file: -->
 Fortify は、アプリケーションの `config/fortify.php` 構成ファイルで有効になっている機能に基づいて、次の認証ルートを自動的に登録します。
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | ルート                              | 方法 | 説明                         |
 | ---------------------------------- | ------ | ----------------------------------- |
 | `/login`                           | `GET`    | ログインフォームを表示する                  |
@@ -446,6 +449,9 @@ Fortify は、アプリケーションの `config/fortify.php` 構成ファイ�
 | `/user/confirm-password`           | `POST`   | パスワードを認証する                    |
 | `/two-factor-challenge`            | `GET`    | 2FA チャレンジフォームを表示する          |
 | `/two-factor-challenge`            | `POST`   | 2FA コードを検証する                     |
+
+<!-- </div> -->
+</div>
 
 <!-- The `php artisan route:list` Artisan command can be used to display all of the routes in your application. -->
 `php artisan route:list` Artisan コマンドを使用すると、アプリケーション内のすべてのルートを表示できます。
@@ -484,11 +490,17 @@ use Laravel\Fortify\Features;
 <!-- When a user registers or resets their password, Fortify invokes action classes located in your application's `app/Actions/Fortify` directory: -->
 ユーザーがパスワードを登録またはリセットすると、Fortify はアプリケーションの `app/Actions/Fortify` ディレクトリにあるアクション クラスを呼び出します。
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | ファイル                          | 説明                           |
 | ----------------------------- | ------------------------------------- |
 | `CreateNewUser.php`           | 新しいユーザーを検証して作成します       |
 | `ResetUserPassword.php`       | ユーザーのパスワードを検証して更新します  |
 | `PasswordValidationRules.php` | パスワード検証ルールを定義します     |
+
+<!-- </div> -->
+</div>
 
 <!-- For example, to customize your application's registration logic, you should edit the `CreateNewUser` action: -->
 たとえば、アプリケーションの登録ロジックをカスタマイズするには、`CreateNewUser` アクションを編集する必要があります。

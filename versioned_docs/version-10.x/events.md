@@ -616,6 +616,7 @@ class OrderShipmentController extends Controller
         return redirect('/orders');
     }
 }
+
 ```
 <!--  If you would like to conditionally dispatch an event, you may use the `dispatchIf` and `dispatchUnless` methods: -->
 특정 조건일 때만 이벤트를 발생시키고 싶다면, `dispatchIf`와 `dispatchUnless` 메서드를 사용할 수 있습니다:

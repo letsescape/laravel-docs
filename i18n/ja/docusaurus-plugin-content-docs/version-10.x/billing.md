@@ -332,6 +332,7 @@ Route::view('checkout.cancel')->name('checkout-cancel');
 <!-- To accomplish this, you may provide an array of `metadata` to the `checkout` method. Let's imagine that a pending `Order` is created within our application when a user begins the checkout process. Remember, the `Cart` and `Order` models in this example are illustrative and not provided by Cashier. You are free to implement these concepts based on the needs of your own application: -->
 これを実現するには、`metadata` の配列を `checkout` メソッドに提供します。ユーザーがチェックアウトプロセスを開始したときに、アプリケーション内で保留中の `Order` が作成されると想像してみましょう。この例の `Cart` モデルと `Order` モデルは説明用であり、Cashier によって提供されるものではないことに注意してください。独自のアプリケーションのニーズに基づいて、これらの概念を自由に実装できます。
 ```
+
 use App\Models\Cart;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -2966,6 +2967,7 @@ try {
 $subscription->withPaymentConfirmationOptions([
     'mandate_data' => '...',
 ])->swap('price_xxx');
+
 ```
 <!-- You may consult the [Stripe API documentation](https://stripe.com/docs/api/payment_intents/confirm) to review all of the options accepted when confirming payments. -->
 [Stripe API documentation](https://stripe.com/docs/api/payment_intents/confirm) を参照して、支払いを確認するときに受け入れられるすべてのオプションを確認することができます。

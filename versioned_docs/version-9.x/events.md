@@ -649,6 +649,7 @@ class OrderShipmentController extends Controller
         OrderShipped::dispatch($order);
     }
 }
+
 ```
 <!--  If you would like to conditionally dispatch an event, you may use the `dispatchIf` and `dispatchUnless` methods: -->
 이벤트를 조건적으로 디스패치하고 싶다면, `dispatchIf`와 `dispatchUnless` 메서드를 사용할 수 있습니다:

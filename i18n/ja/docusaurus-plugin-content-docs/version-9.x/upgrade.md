@@ -171,6 +171,7 @@ PHP は、`offsetGet`、`offsetSet` などの PHP メソッドで戻り値の型
 
 ```
 public function storagePath($path = '');
+
 ```
 <!-- Similarly, the `langPath` method of the `Illuminate\Foundation\Application` class has been updated to accept a `$path` argument: -->
 同様に、`Illuminate\Foundation\Application` クラスの `langPath` メソッドは、`$path` 引数を受け入れるように更新されました。

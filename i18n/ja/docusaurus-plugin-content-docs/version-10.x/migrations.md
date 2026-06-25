@@ -823,6 +823,7 @@ $table->integer('votes');
 
 ```
 $table->ipAddress('visitor');
+
 ```
 <!-- When using Postgres, an `INET` column will be created. -->
 Postgres を使用する場合、`INET` 列が作成されます。

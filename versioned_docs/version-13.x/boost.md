@@ -144,6 +144,9 @@ Laravel Boost는 AI 에이전트가 Laravel 애플리케이션과 상호작용�
 <!-- ### Available MCP Tools -->
 ### Available MCP Tools
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 이름                 | 참고                                                                                                       |
 | -------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Application Info     | PHP 및 Laravel 버전, 데이터베이스 엔진, 버전이 포함된 생태계 패키지 목록, Eloquent 모델을 읽습니다 |
@@ -155,6 +158,9 @@ Laravel Boost는 AI 에이전트가 Laravel 애플리케이션과 상호작용�
 | Last Error           | 애플리케이션 로그 파일에서 마지막 오류를 읽습니다                                                        |
 | Read Log Entries     | 마지막 N개의 로그 항목을 읽습니다                                                                                 |
 | Search Docs          | 설치된 패키지를 기준으로 문서를 가져오기 위해 Laravel 호스팅 문서 API 서비스를 조회합니다    |
+
+<!-- </div> -->
+</div>
 
 <a name="manually-registering-the-mcp-server"></a>
 <!-- ### Manually Registering the MCP Server -->
@@ -202,6 +208,9 @@ AI 지침은 AI 에이전트에 Laravel 생태계 패키지에 대한 핵심 문
 <!-- Laravel Boost includes AI guidelines for the following packages and frameworks. The `core` guidelines provide generic, generalized advice to the AI for the given package that is applicable across all versions. -->
 Laravel Boost에는 다음 패키지와 프레임워크를 위한 AI 지침이 포함되어 있습니다. `core` 지침은 해당 패키지의 모든 버전에 적용할 수 있는 일반적이고 범용적인 조언을 AI에 제공합니다.
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 패키지           | 지원 버전     |
 | ----------------- | ---------------------- |
 | Core & Boost      | core                   |
@@ -224,6 +233,9 @@ Laravel Boost에는 다음 패키지와 프레임워크를 위한 AI 지침이 �
 | Livewire Volt     | core                   |
 | Wayfinder         | core                   |
 | Enforce Tests     | conditional            |
+
+<!-- </div> -->
+</div>
 
 > **참고:** AI 지침을 최신 상태로 유지하려면 [Keeping Boost Resources Updated](#keeping-boost-resources-updated) 섹션을 참고하세요.
 
@@ -285,6 +297,9 @@ $result = PackageName::featureTwo($param1, $param2);
 <!-- ### Available Skills -->
 ### Available Skills
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 스킬                      | 패키지        |
 | -------------------------- | -------------- |
 | fluxui-development         | Flux UI        |
@@ -299,6 +314,9 @@ $result = PackageName::featureTwo($param1, $param2);
 | tailwindcss-development    | Tailwind CSS   |
 | volt-development           | Volt           |
 | wayfinder-development      | Wayfinder      |
+
+<!-- </div> -->
+</div>
 
 > **참고:** 스킬을 최신 상태로 유지하려면 [Keeping Boost Resources Updated](#keeping-boost-resources-updated) 섹션을 참고하세요.
 
@@ -371,11 +389,17 @@ Laravel Boost는 AI 에이전트에 애플리케이션에 대한 문맥을 제�
 <!-- **Skills** are activated on-demand when working on specific tasks, containing detailed patterns for particular domains (like Livewire components or Pest tests). Loading skills only when relevant reduces context bloat and improves code quality. -->
 **스킬**은 특정 작업을 수행할 때 필요에 따라 활성화되며, Livewire 컴포넌트나 Pest 테스트 같은 특정 도메인에 대한 상세한 패턴을 포함합니다. 관련성이 있을 때만 스킬을 로드하면 문맥이 불필요하게 커지는 것을 줄이고 코드 품질을 높일 수 있습니다.
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 측면      | 지침                        | 스킬                           |
 | ----------- | --------------------------------- | -------------------------------- |
 | **로드 방식**  | 미리 로드되며 항상 존재합니다           | 필요할 때 관련성이 있으면 로드됩니다         |
 | **범위**   | 넓고 기초적입니다               | 집중되어 있으며 작업별로 특화되어 있습니다           |
 | **목적** | 핵심 규칙과 모범 사례 | 상세한 구현 패턴 |
+
+<!-- </div> -->
+</div>
 
 <a name="documentation-api"></a>
 <!-- ## Documentation API -->
@@ -387,6 +411,9 @@ Laravel Boost에는 AI 에이전트가 17,000개가 넘는 Laravel 전용 정보
 <!-- The `Search Docs` MCP tool allows agents to query the Laravel hosted documentation API service to retrieve documentation based on your installed packages. Boost's AI guidelines and skills will automatically instruct your coding agent to use this API. -->
 `Search Docs` MCP 도구를 사용하면 에이전트가 설치된 패키지를 기준으로 문서를 가져오기 위해 Laravel 호스팅 문서 API 서비스를 조회할 수 있습니다. Boost의 AI 지침과 스킬은 코딩 에이전트가 이 API를 사용하도록 자동으로 안내합니다.
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 패키지           | 지원 버전 |
 | ----------------- | ------------------ |
 | Laravel Framework | 10.x, 11.x, 12.x, 13.x |
@@ -397,6 +424,9 @@ Laravel Boost에는 AI 에이전트가 17,000개가 넘는 Laravel 전용 정보
 | Nova              | 4.x, 5.x           |
 | Pest              | 3.x, 4.x           |
 | Tailwind CSS      | 3.x, 4.x           |
+
+<!-- </div> -->
+</div>
 
 <a name="extending-boost"></a>
 <!-- ## Extending Boost -->

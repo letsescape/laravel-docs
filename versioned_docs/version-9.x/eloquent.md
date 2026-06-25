@@ -1119,6 +1119,7 @@ Flight::upsert([
     ['departure' => 'Oakland', 'destination' => 'San Diego', 'price' => 99],
     ['departure' => 'Chicago', 'destination' => 'New York', 'price' => 150]
 ], ['departure', 'destination'], ['price']);
+
 ```
 > [!WARNING]
 > SQL Server를 제외한 모든 데이터베이스에서는 `upsert` 메서드의 두 번째 인자 컬럼이 반드시 "primary" 또는 "unique" 인덱스를 가져야 합니다. 또한, MariaDB 및 MySQL 드라이버는 `upsert` 메서드의 두 번째 인자를 무시하고, 해당 테이블의 "primary" 및 "unique" 인덱스를 자동으로 사용해 기존 레코드 판별에 활용합니다.

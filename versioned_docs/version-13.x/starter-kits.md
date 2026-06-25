@@ -428,6 +428,9 @@ Livewire 스타터 키트에 포함된 로그인 페이지와 등록 페이지 �
 <!-- Fortify automatically registers the following authentication routes based on the features that are enabled in your application's `config/fortify.php` configuration file: -->
 Fortify는 애플리케이션의 `config/fortify.php` 설정 파일에서 활성화된 기능에 따라 다음 인증 라우트를 자동으로 등록합니다.
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 라우트                             | 메서드 | 설명                                |
 | ---------------------------------- | ------ | ----------------------------------- |
 | `/login`                           | `GET`    | 로그인 폼 표시                      |
@@ -446,6 +449,9 @@ Fortify는 애플리케이션의 `config/fortify.php` 설정 파일에서 활성
 | `/user/confirm-password`           | `POST`   | 비밀번호 확인                       |
 | `/two-factor-challenge`            | `GET`    | 2FA 확인 폼 표시                    |
 | `/two-factor-challenge`            | `POST`   | 2FA 코드 검증                       |
+
+<!-- </div> -->
+</div>
 
 <!-- The `php artisan route:list` Artisan command can be used to display all of the routes in your application. -->
 `php artisan route:list` Artisan 명령어를 사용하면 애플리케이션의 모든 라우트를 표시할 수 있습니다.
@@ -484,11 +490,17 @@ use Laravel\Fortify\Features;
 <!-- When a user registers or resets their password, Fortify invokes action classes located in your application's `app/Actions/Fortify` directory: -->
 사용자가 회원가입하거나 비밀번호를 재설정하면, Fortify는 애플리케이션의 `app/Actions/Fortify` 디렉터리에 있는 액션 클래스를 호출합니다.
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 파일                          | 설명                                  |
 | ----------------------------- | ------------------------------------- |
 | `CreateNewUser.php`           | 새 사용자를 유효성 검증하고 생성합니다 |
 | `ResetUserPassword.php`       | 사용자 비밀번호를 유효성 검증하고 업데이트합니다 |
 | `PasswordValidationRules.php` | 비밀번호 유효성 검증 규칙을 정의합니다 |
+
+<!-- </div> -->
+</div>
 
 <!-- For example, to customize your application's registration logic, you should edit the `CreateNewUser` action: -->
 예를 들어, 애플리케이션의 회원가입 로직을 사용자 정의하려면 `CreateNewUser` 액션을 수정해야 합니다.

@@ -171,6 +171,7 @@ PHP는 이제 `offsetGet`, `offsetSet` 등과 같은 일부 메서드에서 반�
 
 ```
 public function storagePath($path = '');
+
 ```
 <!-- Similarly, the `langPath` method of the `Illuminate\Foundation\Application` class has been updated to accept a `$path` argument: -->
 마찬가지로, `Illuminate\Foundation\Application` 클래스의 `langPath` 메서드도 `$path` 인수를 받도록 변경되었습니다.

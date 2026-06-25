@@ -1387,6 +1387,7 @@ $response->assertMovedPermanently();
 
 ```
 $response->assertLocation($uri);
+
 ```
 <a name="assert-content"></a>
 <!-- #### assertContent -->

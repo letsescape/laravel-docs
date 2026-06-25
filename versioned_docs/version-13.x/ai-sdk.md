@@ -142,6 +142,9 @@ XAI_API_KEY=
 <!-- The AI SDK supports a variety of providers across its features. The following table summarizes which providers are available for each feature: -->
 AI SDK는 다양한 기능에서 여러 프로바이더를 지원합니다. 다음 표는 각 기능에서 사용할 수 있는 프로바이더를 요약한 것입니다.
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 기능 | 프로바이더 |
 |---|---|
 | 텍스트 | OpenAI, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
@@ -151,6 +154,9 @@ AI SDK는 다양한 기능에서 여러 프로바이더를 지원합니다. 다�
 | 임베딩 | OpenAI, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
 | 재순위 지정 | Cohere, Jina, VoyageAI |
 | 파일 | OpenAI, Anthropic, Gemini |
+
+<!-- </div> -->
+</div>
 
 <!-- The `Laravel\Ai\Enums\Lab` enum may be used to reference providers throughout your code instead of using plain strings: -->
 코드 전체에서 일반 문자열 대신 `Laravel\Ai\Enums\Lab` enum을 사용하여 프로바이더를 참조할 수 있습니다.

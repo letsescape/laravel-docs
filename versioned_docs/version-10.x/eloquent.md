@@ -1097,6 +1097,7 @@ Flight::upsert([
     ['departure' => 'Oakland', 'destination' => 'San Diego', 'price' => 99],
     ['departure' => 'Chicago', 'destination' => 'New York', 'price' => 150]
 ], ['departure', 'destination'], ['price']);
+
 ```
 > [!WARNING]
 > SQL Server를 제외한 모든 데이터베이스는, `upsert` 메서드의 두 번째 인수로 넘기는 컬럼에 반드시 "primary" 또는 "unique" 인덱스가 생성되어 있어야 합니다. 또한, MySQL 데이터베이스 드라이버는 `upsert` 메서드의 두 번째 인수를 무시하고, 테이블의 "primary"/"unique" 인덱스를 사용해 기존 레코드를 판별합니다.

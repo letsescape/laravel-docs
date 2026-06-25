@@ -522,12 +522,17 @@ class CurrentWeatherTool extends Tool
 <!-- Available annotations include: -->
 사용 가능한 애노테이션은 다음과 같습니다.
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 애노테이션         | 타입    | 설명                                                                                  |
 | ------------------ | ------- | -------------------------------------------------------------------------------------------- |
 | `#[IsReadOnly]`    | boolean | 도구가 환경을 수정하지 않음을 나타냅니다.                                          |
 | `#[IsDestructive]` | boolean | 도구가 파괴적인 업데이트를 수행할 수 있음을 나타냅니다. 읽기 전용이 아닐 때만 의미가 있습니다.     |
 | `#[IsIdempotent]`  | boolean | 동일한 인수로 반복 호출해도 추가 효과가 없음을 나타냅니다. 읽기 전용이 아닐 때 적용됩니다. |
 | `#[IsOpenWorld]`   | boolean | 도구가 외부 엔티티와 상호작용할 수 있음을 나타냅니다.                                      |
+
+</div>
 
 <!-- Annotation values can be explicitly set using boolean arguments: -->
 애노테이션 값은 boolean 인수를 사용하여 명시적으로 설정할 수 있습니다.
@@ -1354,11 +1359,16 @@ class UserDashboardResource extends Resource
 <!-- Available annotations include: -->
 사용 가능한 애노테이션은 다음과 같습니다.
 
+<!-- <div class="overflow-auto"> -->
+<div class="overflow-auto">
+
 | 애노테이션        | 타입          | 설명                                                                 |
 | ----------------- | ------------- | --------------------------------------------------------------------------- |
 | `#[Audience]`     | Role 또는 배열 | 의도한 대상(`Role::User`, `Role::Assistant`, 또는 둘 다)을 지정합니다. |
 | `#[Priority]`     | float         | 리소스의 중요도를 나타내는 0.0부터 1.0 사이의 숫자 점수입니다.       |
 | `#[LastModified]` | string        | 리소스가 마지막으로 업데이트된 시점을 나타내는 ISO 8601 타임스탬프입니다.           |
+
+</div>
 
 <a name="conditional-resource-registration"></a>
 <!-- ### Conditional Resource Registration -->

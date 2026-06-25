@@ -5311,6 +5311,7 @@ $result = value(function () {
 });
 
 // false
+
 ```
 <!-- Additional arguments may be passed to the `value` function. If the first argument is a closure then the additional parameters will be passed to the closure as arguments, otherwise they will be ignored: -->
 追加の引数を `value` 関数に渡すことができます。最初の引数がクロージャの場合、追加のパラメータは引数としてクロージャに渡されます。それ以外の場合は無視されます。

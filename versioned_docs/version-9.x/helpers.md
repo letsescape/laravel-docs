@@ -5581,6 +5581,7 @@ $result = value(function () {
 });
 
 // false
+
 ```
 <!-- Additional arguments may be passed to the `value` function. If the first argument is a closure then the additional parameters will be passed to the closure as arguments, otherwise they will be ignored: -->
 추가적인 인수를 `value` 함수에 넘길 수도 있습니다. 만약 첫 번째 인수가 클로저라면, 나머지 인수들은 클로저에 인자로 전달됩니다. 클로저가 아니면 추가 인수들은 무시됩니다.

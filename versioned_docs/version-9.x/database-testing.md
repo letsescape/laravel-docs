@@ -212,6 +212,7 @@ $this->assertDatabaseMissing('users', [
 
 ```
 $this->assertSoftDeleted($user);
+
 ```
 <a name="assert-not-deleted"></a>
 <!-- #### assertNotSoftDeleted -->

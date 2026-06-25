@@ -596,6 +596,7 @@ public function retryUntil(): DateTime
 <!-- If you would like to configure how many seconds Laravel should wait before retrying a listener that has encountered an exception, you may do so by defining a `backoff` property on your listener class: -->
 例外が発生したリスナを再試行する前に Laravel が待機する秒数を設定したい場合は、リスナ クラスで `backoff` プロパティを定義することで設定できます。
 ```
+
 /**
  * The number of seconds to wait before retrying the queued listener.
  *

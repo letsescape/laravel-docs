@@ -2628,6 +2628,7 @@ $collection->reduce(function (int $carry, int $value, int $key) use ($ratio) {
 });
 
 // 4264
+
 ```
 <a name="method-reduce-spread"></a>
 <!-- #### `reduceSpread()` -->
