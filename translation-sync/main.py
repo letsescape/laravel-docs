@@ -11,12 +11,14 @@ translation-sync/docs/00-workflow-summary.md의 단계 순서를 따른다:
 from __future__ import annotations
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 from sync import (
     annotate,
     config,
     diff,
+    patch as patch_utils,
     postprocess,
     preprocess,
     prompt,
@@ -107,23 +109,26 @@ def _select_changes(
     return changes
 
 
-def _translation_input(source: str, existing_translation: str | None) -> str:
+def _translation_input(
+    source: str, existing_translation: str | None, *, diff_text: str | None = None
+) -> str:
     existing = existing_translation.rstrip() if existing_translation else "(none)"
+    diff_section = f"## English Diff\n\n```diff\n{diff_text.rstrip()}\n```\n\n" if diff_text else ""
     return (
         "# Translation Sync Input\n\n"
+        f"{diff_section}"
         "## English Source\n\n"
         f"{source.rstrip()}\n\n"
-        "## Existing Translation\n\n"
+        "## Existing Translation Context\n\n"
         f"{existing}\n\n"
         "## Output\n\n"
-        "Return only the final translated Markdown document."
+        "Return only the translated Markdown block(s) for the English Source."
     )
 
 
-def _translate_one(
+def _translate_full_document(
     change: diff.SourceChange, cfg: config.Config, prompt: str, dest: Path
 ) -> list[str]:
-    """원문 한 건을 한 로케일로 번역·후처리·검증해 dest에 기록한다. 위반 목록 반환."""
     src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
     pre = preprocess.preprocess(src)
     existing = dest.read_text(encoding="utf-8") if dest.exists() else None
@@ -141,6 +146,86 @@ def _translate_one(
         return [f"incomplete translation: {exc}"]
     out = postprocess.postprocess(translated, change.version, pre.placeholders)
     expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
+
+    issues = verify.verify(out, source=expected_source)
+    if issues:
+        return issues
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(out, encoding="utf-8")
+    return []
+
+
+def _translate_segment(
+    change: diff.SourceChange,
+    segment: patch_utils.Segment,
+    cfg: config.Config,
+    prompt: str,
+    existing: str,
+) -> str:
+    source = patch_utils.source_text(segment)
+    pre = preprocess.preprocess(source)
+    translated = translate.translate_text(
+        _translation_input(
+            pre.text,
+            patch_utils.existing_context(existing, segment),
+            diff_text=patch_utils.diff_text(segment),
+        ),
+        cfg,
+        prompt,
+        split=False,
+    )
+    return postprocess.postprocess(translated, change.version, pre.placeholders)
+
+
+def _normalize_comment_anchor(text: str | None, version: str) -> str | None:
+    if text is None:
+        return None
+    normalized = postprocess.postprocess(text, version, {})
+    return " ".join(normalized.split())
+
+
+def _normalize_segment_anchors(
+    segment: patch_utils.Segment, version: str
+) -> patch_utils.Segment:
+    return replace(
+        segment,
+        old_lines=tuple(
+            _normalize_comment_anchor(line, version) or "" for line in segment.old_lines
+        ),
+        before_context=_normalize_comment_anchor(segment.before_context, version),
+        after_context=_normalize_comment_anchor(segment.after_context, version),
+    )
+
+
+def _translate_one(
+    change: diff.SourceChange, cfg: config.Config, prompt: str, dest: Path
+) -> list[str]:
+    """원문 한 건을 한 로케일로 번역·후처리·검증해 dest에 기록한다. 위반 목록 반환."""
+    if change.status == "A" or not dest.exists() or not change.hunks:
+        return _translate_full_document(change, cfg, prompt, dest)
+
+    src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
+    pre = preprocess.preprocess(src)
+    expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
+    existing = dest.read_text(encoding="utf-8")
+    segments = [
+        _normalize_segment_anchors(segment, change.version)
+        for segment in patch_utils.segments_from_hunks(change.hunks, src)
+    ]
+
+    translated_blocks: list[str] = []
+    try:
+        for segment in segments:
+            if segment.needs_translation:
+                translated_blocks.append(
+                    _translate_segment(change, segment, cfg, prompt, existing)
+                )
+        out = patch_utils.apply_segments(existing, segments, translated_blocks)
+    except patch_utils.PatchError:
+        return _translate_full_document(change, cfg, prompt, dest)
+    except translate.IncompleteTranslation as exc:
+        return [f"partial translation failed: {exc}"]
 
     issues = verify.verify(out, source=expected_source)
     if issues:
@@ -289,9 +374,18 @@ def main() -> int:
     check_annotations = "--check-annotations" in args
     annotate_existing = "--annotate-existing" in args
     fix_preserved_markup = "--fix-preserved-markup" in args
+    require_filters = "--require-filters" in args
+    fail_fast = "--fail-fast" in args
     apply_annotations = "--apply" in args
     version = _arg_value(args, "--version")
     doc = _arg_value(args, "--doc")
+
+    if require_filters and (not version or not doc):
+        print(
+            "--require-filters requires both --version and --doc",
+            file=sys.stderr,
+        )
+        return 2
 
     if annotate_existing:
         written, failures = _annotate_existing(
@@ -359,10 +453,19 @@ def main() -> int:
             ("ko", prompts["ko"], _ko_output(change)),
             ("ja", prompts["ja"], _ja_output(change)),
         ):
+            print(f"translating: {locale} {change.path}", file=sys.stderr, flush=True)
             issues = _translate_one(change, cfg, locale_prompt, dest)
             if issues:
-                failures.append(f"{locale} {change.path}: {', '.join(issues)}")
-                print(f"verify failed: {locale} {change.path}: {issues}", file=sys.stderr)
+                failure = f"{locale} {change.path}: {', '.join(issues)}"
+                failures.append(failure)
+                print(
+                    f"verify failed: {locale} {change.path}: {issues}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                if fail_fast:
+                    print("stopping after first verification failure", file=sys.stderr, flush=True)
+                    return 1
 
     if failures:
         print(f"{len(failures)} target(s) failed verification", file=sys.stderr)

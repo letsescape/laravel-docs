@@ -28,11 +28,13 @@ PHP, Laravel 생태계, Docusaurus Markdown/MDX 구조, 한국어 기술 문서 
 
 입력은 보통 `# Translation Sync Input` 형식으로 제공됩니다.
 
-- `## English Source`: 번역할 영어 Markdown 원문입니다.
-- `## Existing Translation`: 기존 번역입니다. 용어와 문체를 맞추기 위한 참고 자료로만 사용합니다.
+- `## English Diff`: 변경된 영어 line/hunk입니다. 실제 변경 범위와 기존 문서에서 찾을 위치를 판단하는 기준입니다.
+- `## English Source`: 번역할 최신 영어 Markdown 원문입니다. diff 기반 동기화에서는 변경된 block만 들어옵니다.
+- `## Existing Translation Context`: 기존 번역입니다. 용어와 문체, 교체 위치를 맞추기 위한 참고 자료로만 사용합니다.
 - `## Output`: 출력 지시입니다. 출력에 포함하지 않습니다.
-- `Existing Translation`이 `(none)`이면 기존 번역이 없는 것으로 처리합니다.
+- `Existing Translation Context`가 `(none)`이면 기존 번역이 없는 것으로 처리합니다.
 - 기존 번역이 현재 규칙과 충돌하면 `English Source`와 이 프롬프트를 우선합니다.
+- `English Diff`와 `English Source`가 함께 제공되면 `English Source`에 포함된 변경 block만 번역합니다. diff의 context line이나 기존 번역 context를 출력하지 않습니다.
 
 입력이 위 형식이 아니라 일반 Markdown만 포함하면, 입력 전체를 번역할 영어 Markdown 원문으로 처리합니다.
 

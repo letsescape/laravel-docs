@@ -11,7 +11,12 @@ from __future__ import annotations
 import re
 from typing import Mapping
 
-from .markdown import closes_fence, fence_token, html_comment_spans, strip_title_attrs
+from ..common.markdown import (
+    closes_fence,
+    fence_token,
+    html_comment_spans,
+    strip_title_attrs,
+)
 
 _VERSION_RE = re.compile(r"\{\{\s*version\s*\}\}")
 _NOTE_TYPES = {

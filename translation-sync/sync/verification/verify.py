@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from collections import Counter
 
-from .markdown import (
+from ..common.markdown import (
     closes_fence,
     fence_token,
     has_title_attr_line,

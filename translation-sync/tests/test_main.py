@@ -8,6 +8,37 @@ from sync import config, diff, translate
 
 
 class MainPipelineTests(unittest.TestCase):
+    def _change_with_lines(
+        self, path: str, lines: list[tuple[str, str]]
+    ) -> diff.SourceChange:
+        old_lineno = 1
+        new_lineno = 1
+        diff_lines: list[diff.DiffLine] = []
+        for kind, text in lines:
+            if kind == "delete":
+                diff_lines.append(diff.DiffLine(kind, text, old_lineno, None))
+                old_lineno += 1
+            elif kind == "add":
+                diff_lines.append(diff.DiffLine(kind, text, None, new_lineno))
+                new_lineno += 1
+            else:
+                diff_lines.append(diff.DiffLine(kind, text, old_lineno, new_lineno))
+                old_lineno += 1
+                new_lineno += 1
+        return diff.SourceChange(
+            path=path,
+            status="M",
+            hunks=(
+                diff.DiffHunk(
+                    old_start=1,
+                    old_count=old_lineno - 1,
+                    new_start=1,
+                    new_count=new_lineno - 1,
+                    lines=tuple(diff_lines),
+                ),
+            ),
+        )
+
     def test_translate_one_reports_incomplete_translation_without_writing_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -36,7 +67,7 @@ class MainPipelineTests(unittest.TestCase):
             )
             self.assertFalse(dest.exists())
 
-    def test_translate_one_passes_existing_translation_as_context(self):
+    def test_translate_one_updates_only_changed_blocks(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source_path = (
@@ -44,13 +75,31 @@ class MainPipelineTests(unittest.TestCase):
                 / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
             )
             source_path.parent.mkdir(parents=True)
-            source_path.write_text("# Example\n", encoding="utf-8")
+            source_path.write_text(
+                "Before.\n\nNew text.\n\nAfter.\n",
+                encoding="utf-8",
+            )
             dest = root / "versioned_docs/version-12.x/example.md"
             dest.parent.mkdir(parents=True)
-            dest.write_text("# 기존 예제\n", encoding="utf-8")
-            change = diff.SourceChange(
+            dest.write_text(
+                "<!-- Before. -->\n"
+                "이전 문장은 유지됩니다.\n\n"
+                "<!-- Old text. -->\n"
+                "예전 번역입니다.\n\n"
+                "<!-- After. -->\n"
+                "이후 문장도 유지됩니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
                 path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
-                status="M",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("delete", "Old text."),
+                    ("add", "New text."),
+                    ("context", ""),
+                    ("context", "After."),
+                ],
             )
             cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
             sent: list[str] = []
@@ -60,7 +109,399 @@ class MainPipelineTests(unittest.TestCase):
             ) -> str:
                 sent.append(content)
                 self.assertFalse(split)
-                return "<!-- # Example -->\n# Example\n"
+                return "<!-- New text. -->\n새 번역입니다.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 1)
+            self.assertIn("## English Diff", sent[0])
+            self.assertIn("- Old text.", sent[0])
+            self.assertIn("+ New text.", sent[0])
+            self.assertIn("## English Source", sent[0])
+            self.assertIn("New text.", sent[0])
+            self.assertNotIn("Before.", sent[0].split("## English Source", 1)[1])
+            self.assertNotIn("After.", sent[0].split("## English Source", 1)[1])
+            self.assertIn("## Existing Translation Context", sent[0])
+            self.assertIn("예전 번역입니다.", sent[0])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n"
+                "이전 문장은 유지됩니다.\n\n"
+                "<!-- New text. -->\n"
+                "새 번역입니다.\n\n"
+                "<!-- After. -->\n"
+                "이후 문장도 유지됩니다.\n",
+            )
+
+    def test_translate_one_preserves_following_code_and_anchor_after_replacement(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Before.\n\nNew text.\n\n```php\n$value = true;\n```\n\n"
+                '<a name="next"></a>\n#### Next\n',
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n"
+                "앞 문장입니다.\n\n"
+                "<!-- Old text. -->\n"
+                "예전 번역입니다.\n\n"
+                "```php\n$value = true;\n```\n\n"
+                '<a name="next"></a>\n'
+                "<!-- #### Next -->\n"
+                "#### Next\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("delete", "Old text."),
+                    ("add", "New text."),
+                    ("context", ""),
+                    ("context", "```php"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return "<!-- New text. -->\n새 번역입니다.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n"
+                "앞 문장입니다.\n\n"
+                "<!-- New text. -->\n"
+                "새 번역입니다.\n\n"
+                "```php\n$value = true;\n```\n\n"
+                '<a name="next"></a>\n'
+                "<!-- #### Next -->\n"
+                "#### Next\n",
+            )
+
+    def test_translate_one_inserts_added_blocks_after_context(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text("Before.\n\nInserted.\n\nAfter.\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n"
+                "앞 문장입니다.\n\n"
+                "<!-- After. -->\n"
+                "뒤 문장입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("add", "Inserted."),
+                    ("context", ""),
+                    ("context", "After."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                return "<!-- Inserted. -->\n삽입된 문장입니다.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 1)
+            self.assertIn("+ Inserted.", sent[0])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n"
+                "앞 문장입니다.\n\n"
+                "<!-- Inserted. -->\n"
+                "삽입된 문장입니다.\n\n"
+                "<!-- After. -->\n"
+                "뒤 문장입니다.\n",
+            )
+
+    def test_translate_one_splits_multi_block_insertions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text("A.\n\nB.\n\nD.\n\nE.\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- A. -->\n"
+                "A 번역.\n\n"
+                "<!-- E. -->\n"
+                "E 번역.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "A."),
+                    ("context", ""),
+                    ("add", "B."),
+                    ("add", ""),
+                    ("add", "D."),
+                    ("context", ""),
+                    ("context", "E."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                if "B." in content:
+                    return "<!-- B. -->\nB 번역.\n"
+                return "<!-- D. -->\nD 번역.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 2)
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- A. -->\n"
+                "A 번역.\n\n"
+                "<!-- B. -->\n"
+                "B 번역.\n\n"
+                "<!-- D. -->\n"
+                "D 번역.\n\n"
+                "<!-- E. -->\n"
+                "E 번역.\n",
+            )
+
+    def test_translate_one_deletes_removed_blocks_without_provider_call(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text("Before.\n\nAfter.\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n"
+                "앞 문장입니다.\n\n"
+                "<!-- Removed. -->\n"
+                "삭제될 문장입니다.\n\n"
+                "<!-- After. -->\n"
+                "뒤 문장입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("delete", "Removed."),
+                    ("context", ""),
+                    ("context", "After."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=AssertionError("provider should not run"),
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n"
+                "앞 문장입니다.\n\n"
+                "<!-- After. -->\n"
+                "뒤 문장입니다.\n",
+            )
+
+    def test_translate_one_coalesces_multiple_edits_in_same_source_block(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "First.\nNew A.\nMiddle.\nNew B.\nLast.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- First. Old A. Middle. Old B. Last. -->\n"
+                "기존 번역입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "First."),
+                    ("delete", "Old A."),
+                    ("add", "New A."),
+                    ("context", "Middle."),
+                    ("delete", "Old B."),
+                    ("add", "New B."),
+                    ("context", "Last."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                return (
+                    "<!-- First. New A. Middle. New B. Last. -->\n"
+                    "새 번역입니다.\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 1)
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- First. New A. Middle. New B. Last. -->\n"
+                "새 번역입니다.\n",
+            )
+
+    def test_translate_one_normalizes_old_anchor_text_before_matching(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text("See {{version}} updated.\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text("<!-- See 12.x. -->\n기존 번역입니다.\n", encoding="utf-8")
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("delete", "See {{version}}."),
+                    ("add", "See {{version}} updated."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return "<!-- See {{version}} updated. -->\n새 번역입니다.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- See 12.x updated. -->\n새 번역입니다.\n",
+            )
+
+    def test_translate_one_falls_back_when_partial_patch_has_no_anchor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text("```php\n$new = true;\n```\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text("```php\n$old = true;\n```\n", encoding="utf-8")
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "```php"),
+                    ("delete", "$old = true;"),
+                    ("add", "$new = true;"),
+                    ("context", "```"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                return "```php\n$new = true;\n```\n"
 
             with patch.object(main, "REPO_ROOT", root), patch.object(
                 main.translate,
@@ -72,11 +513,169 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(issues, [])
             self.assertEqual(len(sent), 1)
             self.assertIn("## English Source", sent[0])
-            self.assertIn("# Example", sent[0])
-            self.assertIn("## Existing Translation", sent[0])
-            self.assertIn("# 기존 예제", sent[0])
+            self.assertIn("```php\n$new = true;\n```", sent[0])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "```php\n$new = true;\n```\n",
+            )
 
-    def test_translate_one_chunks_source_before_building_translation_input(self):
+    def test_translate_one_expands_line_change_to_containing_paragraph(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "First line.\nNew line.\nThird line.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- First line. Old line. Third line. -->\n"
+                "첫 줄입니다. 예전 줄입니다. 세 번째 줄입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "First line."),
+                    ("delete", "Old line."),
+                    ("add", "New line."),
+                    ("context", "Third line."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                return (
+                    "<!-- First line. New line. Third line. -->\n"
+                    "첫 줄입니다. 새 줄입니다. 세 번째 줄입니다.\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertIn("First line.\nNew line.\nThird line.", sent[0])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- First line. New line. Third line. -->\n"
+                "첫 줄입니다. 새 줄입니다. 세 번째 줄입니다.\n",
+            )
+
+    def test_translate_one_replaces_paragraph_when_line_is_inserted_inside_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "First line.\nInserted line.\nSecond line.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- First line. Second line. -->\n"
+                "첫 줄입니다. 두 번째 줄입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "First line."),
+                    ("add", "Inserted line."),
+                    ("context", "Second line."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return (
+                    "<!-- First line. Inserted line. Second line. -->\n"
+                    "첫 줄입니다. 삽입된 줄입니다. 두 번째 줄입니다.\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- First line. Inserted line. Second line. -->\n"
+                "첫 줄입니다. 삽입된 줄입니다. 두 번째 줄입니다.\n",
+            )
+
+    def test_translate_one_replaces_paragraph_when_line_is_deleted_inside_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "First line.\nSecond line.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- First line. Removed line. Second line. -->\n"
+                "첫 줄입니다. 삭제될 줄입니다. 두 번째 줄입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "First line."),
+                    ("delete", "Removed line."),
+                    ("context", "Second line."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return "<!-- First line. Second line. -->\n첫 줄입니다. 두 번째 줄입니다.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- First line. Second line. -->\n첫 줄입니다. 두 번째 줄입니다.\n",
+            )
+
+    def test_translate_one_falls_back_to_full_document_chunking_without_hunks(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source_path = (
@@ -86,6 +685,8 @@ class MainPipelineTests(unittest.TestCase):
             source_path.parent.mkdir(parents=True)
             source_path.write_text("# One\n\n# Two\n", encoding="utf-8")
             dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text("# 기존 문서\n", encoding="utf-8")
             change = diff.SourceChange(
                 path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
                 status="M",
@@ -118,6 +719,8 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("# One", sent[0])
             self.assertNotIn("# Two", sent[0])
             self.assertIn("# Two", sent[1])
+            self.assertIn("## Existing Translation Context", sent[0])
+            self.assertIn("# 기존 문서", sent[0])
 
     def test_delete_outputs_removes_ko_and_ja_documents_for_deleted_source(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -243,6 +846,51 @@ class MainPipelineTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 0)
         self.assertEqual(calls, [(["master"], True)])
+
+    def test_main_require_filters_stops_before_upstream_when_filter_is_missing(self):
+        with patch.object(
+            main.sys,
+            "argv",
+            ["main.py", "--require-filters", "--version", "13.x"],
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+
+    def test_main_fail_fast_stops_after_first_verification_failure(self):
+        change = diff.SourceChange(
+            path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+            status="M",
+        )
+        calls: list[str] = []
+
+        def translate_one(change, cfg, prompt, dest):
+            calls.append(str(dest))
+            return ["heading mismatch"]
+
+        with patch.object(
+            main.sys, "argv", ["main.py", "--fail-fast"]
+        ), patch.object(main.upstream, "main"), patch.object(
+            main.diff, "changed_sources", return_value=[change]
+        ), patch.object(
+            main.config,
+            "load_config",
+            return_value=config.Config(
+                provider="cli", values={"TRANSLATION_PROVIDER": "cli"}
+            ),
+        ), patch.object(
+            main, "_load_prompts", return_value={"ko": "ko prompt", "ja": "ja prompt"}
+        ), patch.object(
+            main, "_translate_one", side_effect=translate_one
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(len(calls), 1)
 
     def test_check_existing_annotations_reports_unannotated_documents(self):
         with tempfile.TemporaryDirectory() as tmp:

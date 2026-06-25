@@ -11,10 +11,10 @@ import time
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
-from .markdown import closes_fence, fence_token
+from ..common.markdown import closes_fence, fence_token
+from ..runtime.config import Config
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 PROMPT_PATH = REPO_ROOT / "translation-sync" / "prompt.md"
 MAX_CHUNK_LINES = 400
 MAX_ATTEMPTS = 3
