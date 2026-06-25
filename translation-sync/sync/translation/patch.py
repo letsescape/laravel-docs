@@ -33,16 +33,45 @@ class Segment:
     old_linenos: tuple[int, ...] = ()
     new_linenos: tuple[int, ...] = ()
     new_source: str | None = None
+    # An interior change to one fenced code block (see CodeChange). Code is never
+    # translated, so it is handled by a verbatim block swap, not the LLM path.
+    code_block: CodeChange | None = None
 
     @property
     def needs_translation(self) -> bool:
+        if self.code_block is not None:
+            return False
         return bool(_meaningful_lines(self.new_lines)) or bool(
             self.new_source and self.new_source.strip()
         )
 
     @property
     def is_deletion(self) -> bool:
+        if self.code_block is not None:
+            return False
         return bool(_meaningful_lines(self.old_lines)) and not self.needs_translation
+
+
+@dataclass(frozen=True)
+class CodeChange:
+    """An interior change to one fenced code block.
+
+    Code is copied verbatim from the source and never translated, so a changed
+    block is located by its index in document order and the whole block is
+    swapped for the new source block. This keeps the locale code byte-identical
+    to English (which verification requires, even for things like reordered
+    imports) and stays idempotent: a re-run finds the block already equal to
+    ``new_block`` and does nothing.
+
+    ``anchors`` are the block's unchanged lines (everything except the freshly
+    added lines). The swap only happens when the located block still contains
+    all of them, so a diverged document is left untouched rather than corrupted,
+    while reordered-but-equivalent code is still recognised and canonicalised.
+    """
+
+    block_index: int
+    new_block: str
+    anchors: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -121,9 +150,28 @@ def segments_from_hunks(
     if source_text is None:
         return filtered
 
+    source_lines = source_text.splitlines()
+    new_regions = _code_fence_regions(source_lines)
+    old_regions = _code_fence_regions(_reverse_apply_hunks(source_lines, hunks))
     source_blocks = _source_blocks(source_text)
+
     expanded: list[Segment] = []
+    emitted_regions: set[int] = set()
     for segment in filtered:
+        region = _code_region_index(segment, new_regions, old_regions)
+        if region is not None and region < len(new_regions):
+            if region in emitted_regions:
+                continue
+            emitted_regions.add(region)
+            group = [
+                other
+                for other in filtered
+                if _code_region_index(other, new_regions, old_regions) == region
+            ]
+            expanded.append(
+                _code_block_segment(group, source_lines, new_regions[region], region)
+            )
+            continue
         expanded.extend(_expand_to_source_blocks(segment, source_blocks))
     return _coalesce_source_block_segments(expanded)
 
@@ -169,6 +217,9 @@ def apply_segments(
     text = existing
 
     for segment in segments:
+        if segment.code_block is not None:
+            text = _apply_code_block(text, segment.code_block)
+            continue
         translated = next(translated_iter, None) if segment.needs_translation else None
         if _meaningful_lines(segment.old_lines) and segment.needs_translation:
             if translated is None:
@@ -302,6 +353,9 @@ def _insert_block(text: str, segment: Segment, translated: str) -> str:
     lines = text.splitlines(keepends=True)
     blocks = _blocks(text)
     insertion = _format_replacement(translated, trailing="\n\n")
+    existing_insert = _replace_existing_insertion(text, segment, translated)
+    if existing_insert is not None:
+        return existing_insert
     if segment.before_context:
         block = _find_block(blocks, segment.before_context, required=False)
         if block:
@@ -432,6 +486,119 @@ def _has_structural_lines(lines: tuple[str, ...]) -> bool:
     return False
 
 
+def _reverse_apply_hunks(new_lines: list[str], hunks: tuple[DiffHunk, ...]) -> list[str]:
+    """Reconstruct the old source lines by reversing each hunk on the new source."""
+    lines = list(new_lines)
+    for hunk in sorted(hunks, key=lambda item: item.new_start, reverse=True):
+        old_segment = [
+            line.text for line in hunk.lines if line.kind in ("context", "delete")
+        ]
+        start = hunk.new_start - 1
+        lines[start : start + hunk.new_count] = old_segment
+    return lines
+
+
+def _code_fence_regions(lines: list[str]) -> list[tuple[int, int]]:
+    """Return (start, end) line indexes (inclusive) of each fenced code block."""
+    regions: list[tuple[int, int]] = []
+    in_code = False
+    fence = ""
+    start = 0
+    for index, line in enumerate(lines):
+        token = fence_token(line)
+        if not token:
+            continue
+        if not in_code:
+            in_code, fence, start = True, token, index
+        elif closes_fence(line, fence):
+            in_code = False
+            regions.append((start, index))
+    return regions
+
+
+def _region_of_index(regions: list[tuple[int, int]], index: int) -> int | None:
+    """Index of the region whose interior (between the fences) holds `index`."""
+    for position, (start, end) in enumerate(regions):
+        if start < index < end:
+            return position
+    return None
+
+
+def _code_region_index(
+    segment: Segment,
+    new_regions: list[tuple[int, int]],
+    old_regions: list[tuple[int, int]],
+) -> int | None:
+    """Region index when a segment changes only the interior of one code block.
+
+    Insertions and modifications are located by their new line numbers; pure
+    deletions by their old line numbers (which map to the same block, since an
+    interior edit never adds or removes a whole fence). Whole-block changes carry
+    a fence line and are left to the annotated-block path.
+    """
+    if segment.new_linenos:
+        if _has_structural_lines(segment.new_lines):
+            return None
+        found = {_region_of_index(new_regions, line - 1) for line in segment.new_linenos}
+        return found.pop() if len(found) == 1 and None not in found else None
+    if segment.old_linenos and _meaningful_lines(segment.old_lines):
+        if _has_structural_lines(segment.old_lines):
+            return None
+        found = {_region_of_index(old_regions, line - 1) for line in segment.old_linenos}
+        return found.pop() if len(found) == 1 and None not in found else None
+    return None
+
+
+def _code_block_segment(
+    group: list[Segment],
+    source_lines: list[str],
+    region: tuple[int, int],
+    block_index: int,
+) -> Segment:
+    """Build a verbatim swap of one code fence to its new source block."""
+    start, end = region
+    new_block_lines = source_lines[start : end + 1]
+    new_block = "\n".join(new_block_lines)
+    added = {line for segment in group for line in segment.new_lines}
+    anchors = tuple(
+        line for line in new_block_lines if line.strip() and line not in added
+    )
+    return Segment(
+        old_lines=(),
+        new_lines=(),
+        before_context=None,
+        after_context=None,
+        code_block=CodeChange(
+            block_index=block_index, new_block=new_block, anchors=anchors
+        ),
+    )
+
+
+def _apply_code_block(text: str, change: CodeChange) -> str:
+    lines = text.split("\n")
+    regions = _code_fence_regions(lines)
+    if not 0 <= change.block_index < len(regions):
+        return text  # block count diverged; cannot locate safely, leave as is
+    start, end = regions[change.block_index]
+    block = lines[start : end + 1]
+    if block == change.new_block.split("\n"):
+        return text  # already the new source block (idempotent re-run)
+    if not _contains_all(block, change.anchors):
+        return text  # diverged from source; skip rather than corrupt
+    return "\n".join(lines[:start] + change.new_block.split("\n") + lines[end + 1 :])
+
+
+def _contains_all(block: list[str], anchors: tuple[str, ...]) -> bool:
+    """True when `block` holds every anchor line (counting duplicates)."""
+    remaining = list(block)
+    for line in anchors:
+        if line in remaining:
+            remaining.remove(line)
+        else:
+            return False
+    return True
+
+
 def _source_from_lines(lines: tuple[str, ...]) -> str:
     return "\n".join(lines).rstrip("\n") + "\n"
 
@@ -483,6 +650,54 @@ def _replace_between_raw_contexts(
     return "".join(lines[:start]) + replacement + "".join(lines[end:])
 
 
+def _replace_existing_insertion(
+    text: str, segment: Segment, translated: str
+) -> str | None:
+    lines = text.splitlines(keepends=True)
+    start = _find_existing_insertion_start(lines, segment)
+    if start is None:
+        return None
+    end = _find_existing_insertion_end(lines, segment, start)
+    if end is None:
+        return None
+    replacement = _format_replacement(
+        translated,
+        trailing=_trailing_separator("".join(lines[start:end])),
+    )
+    return "".join(lines[:start]) + replacement + "".join(lines[end:])
+
+
+def _find_existing_insertion_start(
+    lines: list[str], segment: Segment
+) -> int | None:
+    for source_line in _source_text_lines(segment):
+        if not is_named_anchor_line(source_line):
+            continue
+        index = _find_raw_context_line(lines, source_line)
+        if index is not None:
+            return index
+    return None
+
+
+def _find_existing_insertion_end(
+    lines: list[str], segment: Segment, start: int
+) -> int | None:
+    if segment.after_context:
+        index = _find_raw_context_line_after(lines, segment.after_context, start)
+        if index is not None:
+            return index
+    for index in range(start + 1, len(lines)):
+        if is_named_anchor_line(lines[index]):
+            return index
+    return len(lines)
+
+
+def _source_text_lines(segment: Segment) -> tuple[str, ...]:
+    if segment.new_source is not None:
+        return tuple(segment.new_source.rstrip("\n").split("\n"))
+    return _meaningful_lines(segment.new_lines)
+
+
 def _raw_context_bounds(
     lines: list[str], blocks: list[AnnotatedBlock], segment: Segment
 ) -> tuple[int, int] | None:
@@ -502,7 +717,7 @@ def _raw_context_bounds(
     if after:
         end = after.start
     else:
-        after_index = _find_raw_context_line(lines, segment.after_context)
+        after_index = _find_raw_context_line_after(lines, segment.after_context, start - 1)
         if after_index is None:
             return None
         end = after_index
@@ -518,6 +733,18 @@ def _find_raw_context_line(lines: list[str], context: str) -> int | None:
         return None
     for index, line in enumerate(lines):
         if _normalize_text(line) == normalized:
+            return index
+    return None
+
+
+def _find_raw_context_line_after(
+    lines: list[str], context: str, after_index: int
+) -> int | None:
+    normalized = _normalize_text(context)
+    if not normalized:
+        return None
+    for index in range(max(0, after_index + 1), len(lines)):
+        if _normalize_text(lines[index]) == normalized:
             return index
     return None
 
