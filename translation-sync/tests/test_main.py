@@ -737,17 +737,15 @@ class MainPipelineTests(unittest.TestCase):
                 / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
             )
             source_path.parent.mkdir(parents=True)
-            source_path.write_text("```php\n$new = true;\n```\n", encoding="utf-8")
+            source_path.write_text("New text.\n", encoding="utf-8")
             dest = root / "versioned_docs/version-12.x/example.md"
             dest.parent.mkdir(parents=True)
-            dest.write_text("```php\n$old = true;\n```\n", encoding="utf-8")
+            dest.write_text("Unrelated translation.\n", encoding="utf-8")
             change = self._change_with_lines(
                 path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
                 lines=[
-                    ("context", "```php"),
-                    ("delete", "$old = true;"),
-                    ("add", "$new = true;"),
-                    ("context", "```"),
+                    ("delete", "Old text."),
+                    ("add", "New text."),
                 ],
             )
             cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
@@ -761,11 +759,11 @@ class MainPipelineTests(unittest.TestCase):
 
             self.assertEqual(
                 issues,
-                ["partial patch failed: missing existing translation block for: $old = true;"],
+                ["partial patch failed: missing existing translation block for: Old text."],
             )
             self.assertEqual(
                 dest.read_text(encoding="utf-8"),
-                "```php\n$old = true;\n```\n",
+                "Unrelated translation.\n",
             )
 
     def test_translate_one_expands_line_change_to_containing_paragraph(self):
@@ -922,6 +920,92 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(
                 dest.read_text(encoding="utf-8"),
                 "<!-- First line. Second line. -->\n첫 줄입니다. 두 번째 줄입니다.\n",
+            )
+
+    def test_translate_one_replaces_split_paragraph_and_following_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-master/errors.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Debug configuration.\n\n"
+                "During local development, you should set `APP_DEBUG` to `true`.\n\n"
+                "> [!WARNING]\n"
+                "> In production, `APP_DEBUG` should always be `false`.\n\n"
+                '<a name="next"></a>\n'
+                "## Next\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-master/errors.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Debug configuration. -->\n"
+                "디버그 설정입니다.\n\n"
+                "<!-- During local development, you should set `APP_DEBUG` to `true`. -->\n"
+                "로컬 개발 중에는 `APP_DEBUG`를 `true`로 설정해야 합니다.\n\n"
+                "> [!WARNING]\n"
+                "> 프로덕션에서는 `APP_DEBUG`가 항상 `false`여야 합니다.\n\n"
+                '<a name="next"></a>\n'
+                "<!-- ## Next -->\n"
+                "## Next\n",
+                encoding="utf-8",
+            )
+            old = (
+                "During local development, you should set `APP_DEBUG` to `true`. "
+                "**In production, `APP_DEBUG` should always be `false`.**"
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-master/errors.md",
+                lines=[
+                    ("context", "Debug configuration."),
+                    ("context", ""),
+                    ("delete", old),
+                    ("add", "During local development, you should set `APP_DEBUG` to `true`."),
+                    ("add", ""),
+                    ("add", "> [!WARNING]"),
+                    ("add", "> In production, `APP_DEBUG` should always be `false`."),
+                    ("context", ""),
+                    ("context", '<a name="next"></a>'),
+                    ("context", "## Next"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return (
+                    "<!-- During local development, you should set `APP_DEBUG` to `true`. -->\n"
+                    "로컬 개발 중에는 `APP_DEBUG`를 `true`로 설정해야 합니다.\n\n"
+                    "> [!WARNING]\n"
+                    "> <!-- In production, `APP_DEBUG` should always be `false`. -->\n"
+                    "> 프로덕션에서는 `APP_DEBUG`가 항상 `false`여야 합니다.\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Debug configuration. -->\n"
+                "디버그 설정입니다.\n\n"
+                "<!-- During local development, you should set `APP_DEBUG` to `true`. -->\n"
+                "로컬 개발 중에는 `APP_DEBUG`를 `true`로 설정해야 합니다.\n\n"
+                "> [!WARNING]\n"
+                "> <!-- In production, `APP_DEBUG` should always be `false`. -->\n"
+                "> 프로덕션에서는 `APP_DEBUG`가 항상 `false`여야 합니다.\n\n"
+                '<a name="next"></a>\n'
+                "<!-- ## Next -->\n"
+                "## Next\n",
             )
 
     def test_translate_one_requires_hunks_for_existing_documents(self):

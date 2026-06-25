@@ -97,7 +97,8 @@ def segments_from_hunks(
             if line.kind == "context":
                 context = _normalize_text(line.text)
                 if old_lines or new_lines:
-                    flush(context)
+                    if context:
+                        flush(context)
                 elif context:
                     before_context = context
                 continue
@@ -145,8 +146,14 @@ def source_text(segment: Segment) -> str:
 def existing_context(text: str, segment: Segment) -> str:
     blocks = _blocks(text)
     if _meaningful_lines(segment.old_lines):
-        block = _find_block(blocks, _joined(segment.old_lines))
-        return block.text.strip()
+        try:
+            block = _find_block(blocks, _joined(segment.old_lines))
+            return block.text.strip()
+        except PatchError:
+            context = _context_between_raw_contexts(text, segment)
+            if context:
+                return context.strip()
+            raise
     for anchor in (segment.before_context, segment.after_context):
         if anchor:
             block = _find_block(blocks, anchor, required=False)
@@ -166,7 +173,7 @@ def apply_segments(
         if _meaningful_lines(segment.old_lines) and segment.needs_translation:
             if translated is None:
                 raise PatchError("missing translated replacement block")
-            text = _replace_block(text, _joined(segment.old_lines), translated)
+            text = _replace_segment(text, segment, translated)
         elif segment.is_deletion:
             text = _delete_block(text, _joined(segment.old_lines))
         elif segment.needs_translation:
@@ -275,6 +282,16 @@ def _replace_block(text: str, old_comment: str, translated: str) -> str:
     return "".join(lines[: block.start]) + replacement + "".join(lines[block.end :])
 
 
+def _replace_segment(text: str, segment: Segment, translated: str) -> str:
+    try:
+        return _replace_block(text, _joined(segment.old_lines), translated)
+    except PatchError:
+        replaced = _replace_between_raw_contexts(text, segment, translated)
+        if replaced is not None:
+            return replaced
+        raise
+
+
 def _delete_block(text: str, old_comment: str) -> str:
     lines = text.splitlines(keepends=True)
     block = _find_block(_blocks(text), old_comment)
@@ -331,9 +348,7 @@ def _ensure_single_eof_newline(text: str) -> str:
 def _expand_to_source_blocks(
     segment: Segment, source_blocks: list[SourceBlock]
 ) -> list[Segment]:
-    if not _meaningful_lines(segment.old_lines) and _has_structural_lines(
-        segment.new_lines
-    ):
+    if _has_structural_lines(segment.new_lines):
         return [
             Segment(
                 old_lines=segment.old_lines,
@@ -442,6 +457,59 @@ def _insert_near_raw_context(
         if index is not None:
             return "".join(lines[: index + 1]) + insertion + "".join(lines[index + 1 :])
     return None
+
+
+def _context_between_raw_contexts(text: str, segment: Segment) -> str | None:
+    lines = text.splitlines(keepends=True)
+    bounds = _raw_context_bounds(lines, _blocks(text), segment)
+    if bounds is None:
+        return None
+    start, end = bounds
+    return "".join(lines[start:end])
+
+
+def _replace_between_raw_contexts(
+    text: str, segment: Segment, translated: str
+) -> str | None:
+    lines = text.splitlines(keepends=True)
+    bounds = _raw_context_bounds(lines, _blocks(text), segment)
+    if bounds is None:
+        return None
+    start, end = bounds
+    replacement = _format_replacement(
+        translated,
+        trailing=_trailing_separator("".join(lines[start:end])),
+    )
+    return "".join(lines[:start]) + replacement + "".join(lines[end:])
+
+
+def _raw_context_bounds(
+    lines: list[str], blocks: list[AnnotatedBlock], segment: Segment
+) -> tuple[int, int] | None:
+    if not segment.before_context or not segment.after_context:
+        return None
+
+    before = _find_block(blocks, segment.before_context, required=False)
+    if before:
+        start = before.end
+    else:
+        before_index = _find_raw_context_line(lines, segment.before_context)
+        if before_index is None:
+            return None
+        start = before_index + 1
+
+    after = _find_block(blocks, segment.after_context, required=False)
+    if after:
+        end = after.start
+    else:
+        after_index = _find_raw_context_line(lines, segment.after_context)
+        if after_index is None:
+            return None
+        end = after_index
+
+    if start > end:
+        return None
+    return start, end
 
 
 def _find_raw_context_line(lines: list[str], context: str) -> int | None:
