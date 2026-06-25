@@ -1,0 +1,413 @@
+"""Apply translated source diff hunks to annotated locale Markdown.
+
+The translation workflow uses English HTML comments as stable anchors. A
+changed English hunk is translated separately, then merged into the existing
+locale document by replacing, inserting, or deleting the matching annotated
+block.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from ..common.markdown import (
+    closes_fence,
+    fence_token,
+    html_comment_spans,
+    is_heading_line,
+    is_named_anchor_line,
+    strip_title_attr_line,
+)
+from ..source.diff import DiffHunk
+
+
+class PatchError(ValueError):
+    """Raised when a diff hunk cannot be applied to the existing translation."""
+
+
+@dataclass(frozen=True)
+class Segment:
+    old_lines: tuple[str, ...]
+    new_lines: tuple[str, ...]
+    before_context: str | None
+    after_context: str | None
+    old_linenos: tuple[int, ...] = ()
+    new_linenos: tuple[int, ...] = ()
+    new_source: str | None = None
+
+    @property
+    def needs_translation(self) -> bool:
+        return bool(_meaningful_lines(self.new_lines)) or bool(
+            self.new_source and self.new_source.strip()
+        )
+
+    @property
+    def is_deletion(self) -> bool:
+        return bool(_meaningful_lines(self.old_lines)) and not self.needs_translation
+
+
+@dataclass(frozen=True)
+class AnnotatedBlock:
+    start: int
+    end: int
+    comment: str
+    text: str
+
+
+@dataclass(frozen=True)
+class SourceBlock:
+    start_lineno: int
+    end_lineno: int
+    comment: str
+    text: str
+
+
+def segments_from_hunks(
+    hunks: tuple[DiffHunk, ...], source_text: str | None = None
+) -> list[Segment]:
+    segments: list[Segment] = []
+
+    for hunk in hunks:
+        before_context: str | None = None
+        old_lines: list[str] = []
+        new_lines: list[str] = []
+        old_linenos: list[int] = []
+        new_linenos: list[int] = []
+
+        def flush(after_context: str | None = None) -> None:
+            nonlocal before_context, old_lines, new_lines, old_linenos, new_linenos
+            if old_lines or new_lines:
+                segments.append(
+                    Segment(
+                        old_lines=tuple(old_lines),
+                        new_lines=tuple(new_lines),
+                        before_context=before_context,
+                        after_context=after_context,
+                        old_linenos=tuple(old_linenos),
+                        new_linenos=tuple(new_linenos),
+                    )
+                )
+                old_lines = []
+                new_lines = []
+                old_linenos = []
+                new_linenos = []
+            if after_context is not None:
+                before_context = after_context
+
+        for line in hunk.lines:
+            if line.kind == "context":
+                context = _normalize_text(line.text)
+                if old_lines or new_lines:
+                    flush(context)
+                elif context:
+                    before_context = context
+                continue
+            if line.kind == "delete":
+                old_lines.append(line.text)
+                if line.old_lineno is not None:
+                    old_linenos.append(line.old_lineno)
+            elif line.kind == "add":
+                new_lines.append(line.text)
+                if line.new_lineno is not None:
+                    new_linenos.append(line.new_lineno)
+
+        flush(None)
+
+    filtered = [
+        segment
+        for segment in segments
+        if _meaningful_lines(segment.old_lines) or _meaningful_lines(segment.new_lines)
+    ]
+    if source_text is None:
+        return filtered
+
+    source_blocks = _source_blocks(source_text)
+    return [_expand_to_source_block(segment, source_blocks) for segment in filtered]
+
+
+def diff_text(segment: Segment) -> str:
+    lines: list[str] = []
+    for old_line in segment.old_lines:
+        lines.append(f"- {old_line}")
+    for new_line in segment.new_lines:
+        lines.append(f"+ {new_line}")
+    return "\n".join(lines)
+
+
+def source_text(segment: Segment) -> str:
+    if segment.new_source is not None:
+        return segment.new_source.rstrip() + "\n"
+    return "\n".join(_meaningful_lines(segment.new_lines)).rstrip() + "\n"
+
+
+def existing_context(text: str, segment: Segment) -> str:
+    blocks = _blocks(text)
+    if segment.old_lines:
+        block = _find_block(blocks, _joined(segment.old_lines))
+        return block.text.strip()
+    for anchor in (segment.before_context, segment.after_context):
+        if anchor:
+            block = _find_block(blocks, anchor, required=False)
+            if block:
+                return block.text.strip()
+    return "(none)"
+
+
+def apply_segments(
+    existing: str, segments: list[Segment], translated_blocks: list[str]
+) -> str:
+    translated_iter = iter(translated_blocks)
+    text = existing
+
+    for segment in segments:
+        translated = next(translated_iter, None) if segment.needs_translation else None
+        if segment.old_lines and segment.new_lines:
+            if translated is None:
+                raise PatchError("missing translated replacement block")
+            text = _replace_block(text, _joined(segment.old_lines), translated)
+        elif segment.is_deletion:
+            text = _delete_block(text, _joined(segment.old_lines))
+        elif segment.needs_translation:
+            if translated is None:
+                raise PatchError("missing translated insertion block")
+            text = _insert_block(text, segment, translated)
+
+    return _ensure_single_eof_newline(text)
+
+
+def _blocks(text: str) -> list[AnnotatedBlock]:
+    lines = text.splitlines(keepends=True)
+    starts = _comment_starts(lines)
+    blocks: list[AnnotatedBlock] = []
+
+    for index, start in enumerate(starts):
+        comment_end, comment = _read_comment(lines, start)
+        end = starts[index + 1] if index + 1 < len(starts) else len(lines)
+        blocks.append(
+            AnnotatedBlock(
+                start=start,
+                end=end,
+                comment=_normalize_text(comment),
+                text="".join(lines[start:end]),
+            )
+        )
+
+    return blocks
+
+
+def _comment_starts(lines: list[str]) -> list[int]:
+    starts: list[int] = []
+    in_code = False
+    fence = ""
+    for index, line in enumerate(lines):
+        stripped = line.lstrip()
+        if stripped.startswith(("```", "~~~")):
+            token = stripped[:3]
+            if not in_code:
+                in_code = True
+                fence = token
+            elif stripped.startswith(fence):
+                in_code = False
+            continue
+        if not in_code and line.startswith("<!--"):
+            starts.append(index)
+    return starts
+
+
+def _read_comment(lines: list[str], start: int) -> tuple[int, str]:
+    line = lines[start]
+    if "-->" in line:
+        spans = html_comment_spans(line)
+        if not spans:
+            raise PatchError("invalid HTML comment anchor")
+        return start + 1, spans[0][2]
+
+    body: list[str] = []
+    index = start + 1
+    while index < len(lines):
+        if "-->" in lines[index]:
+            return index + 1, "\n".join(body)
+        body.append(lines[index].rstrip("\r\n"))
+        index += 1
+    raise PatchError("unclosed HTML comment anchor")
+
+
+def _find_block(
+    blocks: list[AnnotatedBlock], comment: str, *, required: bool = True
+) -> AnnotatedBlock | None:
+    normalized = _normalize_text(comment)
+    for block in blocks:
+        if block.comment == normalized:
+            return block
+    candidates = [block for block in blocks if normalized and normalized in block.comment]
+    if len(candidates) == 1:
+        return candidates[0]
+    if required:
+        raise PatchError(f"missing existing translation block for: {normalized}")
+    return None
+
+
+def _replace_block(text: str, old_comment: str, translated: str) -> str:
+    lines = text.splitlines(keepends=True)
+    block = _find_block(_blocks(text), old_comment)
+    replacement = _format_replacement(translated, trailing=_trailing_separator(block.text))
+    return "".join(lines[: block.start]) + replacement + "".join(lines[block.end :])
+
+
+def _delete_block(text: str, old_comment: str) -> str:
+    lines = text.splitlines(keepends=True)
+    block = _find_block(_blocks(text), old_comment)
+    return "".join(lines[: block.start]) + "".join(lines[block.end :])
+
+
+def _insert_block(text: str, segment: Segment, translated: str) -> str:
+    lines = text.splitlines(keepends=True)
+    blocks = _blocks(text)
+    insertion = _format_replacement(translated, trailing="\n\n")
+    if segment.before_context:
+        block = _find_block(blocks, segment.before_context, required=False)
+        if block:
+            return "".join(lines[: block.end]) + insertion + "".join(lines[block.end :])
+    if segment.after_context:
+        block = _find_block(blocks, segment.after_context, required=False)
+        if block:
+            return "".join(lines[: block.start]) + insertion + "".join(lines[block.start :])
+    raise PatchError("missing insertion context")
+
+
+def _format_replacement(translated: str, *, trailing: str) -> str:
+    return translated.rstrip() + trailing
+
+
+def _trailing_separator(block_text: str) -> str:
+    if block_text.endswith("\n\n"):
+        return "\n\n"
+    if block_text.endswith("\n"):
+        return "\n"
+    return ""
+
+
+def _meaningful_lines(lines: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(line for line in lines if line.strip())
+
+
+def _joined(lines: tuple[str, ...]) -> str:
+    return " ".join(_meaningful_lines(lines))
+
+
+def _normalize_text(text: str) -> str:
+    return " ".join(text.split())
+
+
+def _ensure_single_eof_newline(text: str) -> str:
+    return text.rstrip("\n") + "\n" if text else text
+
+
+def _expand_to_source_block(
+    segment: Segment, source_blocks: list[SourceBlock]
+) -> Segment:
+    new_block = _block_for_linenos(source_blocks, segment.new_linenos)
+    before_block = _block_for_text(source_blocks, segment.before_context)
+    after_block = _block_for_text(source_blocks, segment.after_context)
+
+    if new_block is None and before_block is not None and before_block == after_block:
+        new_block = before_block
+
+    if new_block is None:
+        return segment
+
+    old_lines = segment.old_lines
+    if not old_lines:
+        if before_block == new_block and segment.before_context:
+            old_lines = (segment.before_context,)
+        elif after_block == new_block and segment.after_context:
+            old_lines = (segment.after_context,)
+
+    return Segment(
+        old_lines=old_lines,
+        new_lines=tuple(new_block.text.rstrip("\n").split("\n")),
+        before_context=segment.before_context,
+        after_context=segment.after_context,
+        old_linenos=segment.old_linenos,
+        new_linenos=segment.new_linenos,
+        new_source=new_block.text,
+    )
+
+
+def _block_for_linenos(
+    source_blocks: list[SourceBlock], linenos: tuple[int, ...]
+) -> SourceBlock | None:
+    matches = {
+        block
+        for block in source_blocks
+        if any(block.start_lineno <= lineno <= block.end_lineno for lineno in linenos)
+    }
+    return next(iter(matches)) if len(matches) == 1 else None
+
+
+def _block_for_text(
+    source_blocks: list[SourceBlock], text: str | None
+) -> SourceBlock | None:
+    normalized = _normalize_text(text or "")
+    if not normalized:
+        return None
+    matches = [block for block in source_blocks if normalized in block.comment]
+    return matches[0] if len(matches) == 1 else None
+
+
+def _source_blocks(source: str) -> list[SourceBlock]:
+    blocks: list[SourceBlock] = []
+    paragraph: list[tuple[int, str]] = []
+    in_code = False
+    fence = ""
+    in_front_matter = False
+
+    def flush_paragraph() -> None:
+        if not paragraph:
+            return
+        comment = _normalize_text(" ".join(line.strip() for _lineno, line in paragraph))
+        text = "\n".join(line for _lineno, line in paragraph) + "\n"
+        blocks.append(SourceBlock(paragraph[0][0], paragraph[-1][0], comment, text))
+        paragraph.clear()
+
+    for lineno, line in enumerate(source.splitlines(), start=1):
+        stripped = line.strip()
+        token = fence_token(line)
+        if token:
+            flush_paragraph()
+            if not in_code:
+                in_code, fence = True, token
+            elif closes_fence(line, fence):
+                in_code = False
+            continue
+        if in_code:
+            continue
+        if stripped == "---" and lineno == 1:
+            flush_paragraph()
+            in_front_matter = True
+            continue
+        if stripped == "---" and in_front_matter:
+            in_front_matter = False
+            continue
+        if in_front_matter:
+            continue
+        if not stripped:
+            flush_paragraph()
+            continue
+        if is_named_anchor_line(line):
+            flush_paragraph()
+            continue
+        if is_heading_line(line):
+            flush_paragraph()
+            heading = strip_title_attr_line(line).strip()
+            blocks.append(SourceBlock(lineno, lineno, _normalize_text(heading), line + "\n"))
+            continue
+        if stripped.startswith(("- [", "* [")) and "](#" in stripped:
+            flush_paragraph()
+            continue
+        if stripped.startswith(("<!--", ">", "|")):
+            flush_paragraph()
+            continue
+        paragraph.append((lineno, line))
+
+    flush_paragraph()
+    return blocks
