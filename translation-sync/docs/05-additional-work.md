@@ -44,7 +44,7 @@ flowchart TD
 | 구분 | 경로 | 기준 |
 |---|---|---|
 | 버전 목록 | `versions.json` | 처리 대상 버전과 최신 안정 버전을 결정한다. |
-| 영어 원문 캐시 | `i18n/en/docusaurus-plugin-content-docs/version-*/` | 번역과 diff의 단일 원문 기준이다. 사이트 locale로 노출하지 않는다. |
+| 영어 원문 캐시 | `i18n/en/docusaurus-plugin-content-docs/version-*/` | 공식 upstream Markdown 파일의 byte-for-byte 복사본이다. 번역과 diff의 단일 원문 기준이며 사이트 locale로 노출하지 않는다. |
 | 한국어 문서 | `versioned_docs/version-*/*.md` | 기본 locale의 문서 산출물이다. 본문만 번역 대상이다. |
 | 일본어 문서 | `i18n/ja/docusaurus-plugin-content-docs/version-*/*.md` | 일본어 locale의 문서 산출물이다. 본문만 번역 대상이다. |
 | 사이드바 | `versioned_sidebars/version-*-sidebars.json` | `documentation.md`에서 재생성되는 문서 navigation 산출물이다. |
@@ -53,6 +53,8 @@ flowchart TD
 | 운영 프롬프트 | `translation-sync/prompt.md`, `translation-sync/prompt_jp.md` | locale별 번역 지침의 단일 기준이다. |
 
 `i18n/en`은 번역 파이프라인의 입력 데이터다. 영어 문서 사이트를 이 저장소에서 별도 locale로 노출하지 않는다.
+
+영어 원문 캐시는 변경 감지의 기준이므로 적재 단계에서 trailing whitespace, EOF newline, Markdown 구조를 정규화하지 않는다. 필요한 구조 보정은 diff 산출 이후 전처리 또는 번역 산출물 처리 단계에서만 수행한다.
 
 ---
 

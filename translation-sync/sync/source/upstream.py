@@ -3,8 +3,7 @@
 
 - 출처: github.com/laravel/docs (버전 문자열 = 브랜치명)
 - 대상: i18n/en/docusaurus-plugin-content-docs/version-<v>/
-- 원문 의미와 {{version}} 등 플레이스홀더는 그대로 둔다.
-- 저장소 lint를 위해 줄 끝 공백과 EOF 개행만 정규화한다.
+- 공식 원문 Markdown 파일을 byte-for-byte로 복사한다.
 
 이 모듈은 translation-sync/docs/05(T1) 원문 캐시 구축과 workflow의 원문 동기화 단계를 담당한다.
 """
@@ -16,7 +15,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 UPSTREAM_REPO = "https://github.com/laravel/docs.git"
 EN_ROOT = REPO_ROOT / "i18n" / "en" / "docusaurus-plugin-content-docs"
 
@@ -36,26 +35,6 @@ def _run(args: list[str], cwd: Path | None = None, quiet: bool = False) -> None:
     )
 
 
-def normalize_markdown_source(text: str) -> str:
-    """줄 끝 공백만 제거하고 EOF는 하나의 newline으로 정규화한다."""
-    normalized_lines: list[str] = []
-    for line in text.splitlines(keepends=True):
-        if line.endswith("\r\n"):
-            body, ending = line[:-2], "\r\n"
-        elif line.endswith("\n"):
-            body, ending = line[:-1], "\n"
-        elif line.endswith("\r"):
-            body, ending = line[:-1], "\r"
-        else:
-            body, ending = line, ""
-        normalized_lines.append(body.rstrip(" \t") + ending)
-
-    normalized = "".join(normalized_lines)
-    if not normalized:
-        return ""
-    return normalized.rstrip("\r\n") + "\n"
-
-
 def sync_version(repo_dir: Path, version: str) -> int:
     """단일 버전 브랜치의 원문 .md를 i18n/en에 적재하고 적재 수를 반환한다."""
     _run(["git", "checkout", "--force", version], cwd=repo_dir, quiet=True)
@@ -67,10 +46,7 @@ def sync_version(repo_dir: Path, version: str) -> int:
 
     count = 0
     for md in sorted(repo_dir.glob("*.md")):
-        (dest / md.name).write_text(
-            normalize_markdown_source(md.read_text(encoding="utf-8")),
-            encoding="utf-8",
-        )
+        (dest / md.name).write_bytes(md.read_bytes())
         count += 1
     return count
 
