@@ -60,6 +60,21 @@ class RepairPreservedMarkupTests(unittest.TestCase):
         self.assertIn("[Routing](routing.md)을 참고하세요.", result.text)
         self.assertEqual([], verify.verify(result.text, source=source))
 
+    def test_repairs_missing_anchor_before_repaired_heading_comment(self):
+        source = '<a name="callouts"></a>\n## Callouts\n'
+        translated = "<!-- ## Callouts -->\n## 콜아웃\n"
+
+        result = repair.repair_preserved_markup(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            result.text,
+            '<a name="callouts"></a>\n'
+            "<!-- ## Callouts -->\n"
+            "## Callouts\n",
+        )
+        self.assertEqual([], verify.verify(result.text, source=source))
+
 
 if __name__ == "__main__":
     unittest.main()

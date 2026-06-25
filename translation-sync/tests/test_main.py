@@ -424,6 +424,101 @@ class MainPipelineTests(unittest.TestCase):
                 "## Tables\n",
             )
 
+    def test_translate_one_repairs_segment_anchors_and_comments(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                '<a name="callouts"></a>\n'
+                "## Callouts\n\n"
+                "The `callout` function displays a message.\n\n"
+                "```php\n"
+                "callout(label: 'Environment Configured');\n"
+                "```\n\n"
+                '<a name="callout-rich-content"></a>\n'
+                "#### Rich Content\n\n"
+                "You may pass an array of strings and elements.\n\n"
+                '<a name="tables"></a>\n'
+                "## Tables\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                '<a name="tables"></a>\n'
+                "<!-- ## Tables -->\n"
+                "## Tables\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                lines=[
+                    ("add", '<a name="callouts"></a>'),
+                    ("add", "## Callouts"),
+                    ("add", ""),
+                    ("add", "The `callout` function displays a message."),
+                    ("add", ""),
+                    ("add", "```php"),
+                    ("add", "callout(label: 'Environment Configured');"),
+                    ("add", "```"),
+                    ("add", ""),
+                    ("add", '<a name="callout-rich-content"></a>'),
+                    ("add", "#### Rich Content"),
+                    ("add", ""),
+                    ("add", "You may pass an array of strings and elements."),
+                    ("add", ""),
+                    ("context", '<a name="tables"></a>'),
+                    ("context", "## Tables"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return (
+                    "## 콜아웃\n\n"
+                    "`callout` 함수는 메시지를 표시합니다.\n\n"
+                    "```php\n"
+                    "callout(label: 'Environment Configured');\n"
+                    "```\n\n"
+                    "#### 리치 콘텐츠\n\n"
+                    "문자열과 요소의 배열을 전달할 수 있습니다.\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                '<a name="callouts"></a>\n'
+                "<!-- ## Callouts -->\n"
+                "## Callouts\n\n"
+                "<!-- The `callout` function displays a message. -->\n"
+                "`callout` 함수는 메시지를 표시합니다.\n\n"
+                "```php\n"
+                "callout(label: 'Environment Configured');\n"
+                "```\n\n"
+                '<a name="callout-rich-content"></a>\n'
+                "<!-- #### Rich Content -->\n"
+                "#### Rich Content\n\n"
+                "<!-- You may pass an array of strings and elements. -->\n"
+                "문자열과 요소의 배열을 전달할 수 있습니다.\n\n"
+                '<a name="tables"></a>\n'
+                "<!-- ## Tables -->\n"
+                "## Tables\n",
+            )
+
     def test_translate_one_splits_multi_block_insertions(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -13,6 +13,7 @@ from ..common.markdown import (
     closes_fence,
     fence_token,
     is_heading_line,
+    is_named_anchor_line,
     strip_html_comments,
     strip_title_attr_line,
 )
@@ -163,6 +164,79 @@ def _ensure_exhausted(iterator: Iterator, message: str) -> None:
     raise RepairError(message)
 
 
+def _visible_lines(text: str) -> list[str]:
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    lines: list[str] = []
+    for line in text.splitlines():
+        if _is_comment_line(line, state) or _is_code_line(line, state):
+            continue
+        lines.append(line)
+    return lines
+
+
+def _anchor_lines(text: str) -> list[str]:
+    return [line.strip() for line in _visible_lines(text) if is_named_anchor_line(line)]
+
+
+def _source_anchor_bindings(source: str) -> list[tuple[str, str | None]]:
+    visible = _visible_lines(source)
+    bindings: list[tuple[str, str | None]] = []
+    for index, line in enumerate(visible):
+        if not is_named_anchor_line(line):
+            continue
+        heading = None
+        for next_line in visible[index + 1 :]:
+            if is_named_anchor_line(next_line):
+                break
+            if is_heading_line(next_line):
+                heading = strip_title_attr_line(next_line).strip()
+                break
+        bindings.append((line.strip(), heading))
+    return bindings
+
+
+def _find_heading_index(lines: list[str], heading: str) -> int | None:
+    for index, line in enumerate(lines):
+        if strip_title_attr_line(line).strip() == heading:
+            return index
+    return None
+
+
+def _anchor_insert_index(lines: list[str], heading_index: int) -> int:
+    index = heading_index
+    while index > 0 and lines[index - 1].strip().startswith("<!--"):
+        index -= 1
+    return index
+
+
+def _repair_anchor_lines(source: str, translated: str) -> RepairResult:
+    source_anchors = _anchor_lines(source)
+    if not source_anchors:
+        return RepairResult(translated, False)
+    if _anchor_lines(translated) == source_anchors:
+        return RepairResult(translated, False)
+
+    lines = translated.splitlines()
+    present = set(_anchor_lines(translated))
+    changed = False
+    for anchor, heading in _source_anchor_bindings(source):
+        if anchor in present:
+            continue
+        if heading is None:
+            raise RepairError(f"missing translated anchor without heading: {anchor}")
+        heading_index = _find_heading_index(lines, heading)
+        if heading_index is None:
+            raise RepairError(f"missing translated heading for anchor: {heading}")
+        lines.insert(_anchor_insert_index(lines, heading_index), anchor)
+        present.add(anchor)
+        changed = True
+
+    repaired = "\n".join(lines) + ("\n" if translated.endswith("\n") else "")
+    if _anchor_lines(repaired) != source_anchors:
+        raise RepairError("translated document anchors do not match source")
+    return RepairResult(repaired, changed)
+
+
 def repair_preserved_markup(source: str, translated: str) -> RepairResult:
     """Restore heading lines and links from source into translated Markdown.
 
@@ -190,4 +264,9 @@ def repair_preserved_markup(source: str, translated: str) -> RepairResult:
         "translated document has fewer Markdown links than source",
     )
 
-    return RepairResult(text="".join(out), changed=changed)
+    repaired = "".join(out)
+    anchor_result = _repair_anchor_lines(source, repaired)
+    return RepairResult(
+        text=anchor_result.text,
+        changed=changed or anchor_result.changed,
+    )

@@ -175,7 +175,24 @@ def _translate_segment(
         prompt,
         split=False,
     )
-    return postprocess.postprocess(translated, change.version, pre.placeholders)
+    out = postprocess.postprocess(translated, change.version, pre.placeholders)
+    expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
+    return _repair_segment_translation(expected_source, out, change.version)
+
+
+def _repair_segment_translation(source: str, translated: str, version: str) -> str:
+    candidates = [translated]
+
+    try:
+        repaired = repair.repair_preserved_markup(source, translated).text
+        candidates.append(repaired)
+    except repair.RepairError:
+        repaired = translated
+
+    annotated, _drifts = annotate.annotate(source, repaired, version)
+    candidates.append(annotated)
+
+    return min(candidates, key=lambda candidate: len(verify.verify(candidate, source=source)))
 
 
 def _normalize_comment_anchor(text: str | None, version: str) -> str | None:
