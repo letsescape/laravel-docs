@@ -92,6 +92,25 @@ class DiffTests(unittest.TestCase):
             ],
         )
 
+    def test_parse_unified_diff_treats_empty_lines_as_context(self):
+        hunks = diff._parse_unified_diff(  # noqa: SLF001
+            "@@ -1,3 +1,3 @@\n"
+            " First.\n"
+            "\n"
+            "-Old.\n"
+            "+New.\n"
+        )
+
+        self.assertEqual(
+            [(line.kind, line.text, line.old_lineno, line.new_lineno) for line in hunks[0].lines],
+            [
+                ("context", "First.", 1, 1),
+                ("context", "", 2, 2),
+                ("delete", "Old.", 3, None),
+                ("add", "New.", None, 3),
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -11,6 +11,7 @@ translation-sync/docs/00-workflow-summary.md의 단계 순서를 따른다:
 from __future__ import annotations
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 from sync import (
@@ -177,6 +178,26 @@ def _translate_segment(
     return postprocess.postprocess(translated, change.version, pre.placeholders)
 
 
+def _normalize_comment_anchor(text: str | None, version: str) -> str | None:
+    if text is None:
+        return None
+    normalized = postprocess.postprocess(text, version, {})
+    return " ".join(normalized.split())
+
+
+def _normalize_segment_anchors(
+    segment: patch_utils.Segment, version: str
+) -> patch_utils.Segment:
+    return replace(
+        segment,
+        old_lines=tuple(
+            _normalize_comment_anchor(line, version) or "" for line in segment.old_lines
+        ),
+        before_context=_normalize_comment_anchor(segment.before_context, version),
+        after_context=_normalize_comment_anchor(segment.after_context, version),
+    )
+
+
 def _translate_one(
     change: diff.SourceChange, cfg: config.Config, prompt: str, dest: Path
 ) -> list[str]:
@@ -188,7 +209,10 @@ def _translate_one(
     pre = preprocess.preprocess(src)
     expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
     existing = dest.read_text(encoding="utf-8")
-    segments = patch_utils.segments_from_hunks(change.hunks, src)
+    segments = [
+        _normalize_segment_anchors(segment, change.version)
+        for segment in patch_utils.segments_from_hunks(change.hunks, src)
+    ]
 
     translated_blocks: list[str] = []
     try:
@@ -198,7 +222,9 @@ def _translate_one(
                     _translate_segment(change, segment, cfg, prompt, existing)
                 )
         out = patch_utils.apply_segments(existing, segments, translated_blocks)
-    except (patch_utils.PatchError, translate.IncompleteTranslation) as exc:
+    except patch_utils.PatchError:
+        return _translate_full_document(change, cfg, prompt, dest)
+    except translate.IncompleteTranslation as exc:
         return [f"partial translation failed: {exc}"]
 
     issues = verify.verify(out, source=expected_source)

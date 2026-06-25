@@ -170,7 +170,12 @@ def _parse_unified_diff(output: str) -> tuple[DiffHunk, ...]:
             new_lineno = new_start
             continue
 
-        if current_header is None or not raw_line:
+        if current_header is None:
+            continue
+        if not raw_line:
+            current_lines.append(DiffLine("context", "", old_lineno, new_lineno))
+            old_lineno += 1
+            new_lineno += 1
             continue
         prefix = raw_line[0]
         text = raw_line[1:]

@@ -121,7 +121,10 @@ def segments_from_hunks(
         return filtered
 
     source_blocks = _source_blocks(source_text)
-    return [_expand_to_source_block(segment, source_blocks) for segment in filtered]
+    expanded: list[Segment] = []
+    for segment in filtered:
+        expanded.extend(_expand_to_source_blocks(segment, source_blocks))
+    return _coalesce_source_block_segments(expanded)
 
 
 def diff_text(segment: Segment) -> str:
@@ -141,7 +144,7 @@ def source_text(segment: Segment) -> str:
 
 def existing_context(text: str, segment: Segment) -> str:
     blocks = _blocks(text)
-    if segment.old_lines:
+    if _meaningful_lines(segment.old_lines):
         block = _find_block(blocks, _joined(segment.old_lines))
         return block.text.strip()
     for anchor in (segment.before_context, segment.after_context):
@@ -160,7 +163,7 @@ def apply_segments(
 
     for segment in segments:
         translated = next(translated_iter, None) if segment.needs_translation else None
-        if segment.old_lines and segment.new_lines:
+        if _meaningful_lines(segment.old_lines) and segment.needs_translation:
             if translated is None:
                 raise PatchError("missing translated replacement block")
             text = _replace_block(text, _joined(segment.old_lines), translated)
@@ -223,7 +226,7 @@ def _comment_starts(lines: list[str]) -> list[int]:
             elif stripped.startswith(fence):
                 in_code = False
             continue
-        if not in_code and line.startswith("<!--"):
+        if not in_code and stripped.startswith("<!--"):
             starts.append(index)
     return starts
 
@@ -240,6 +243,10 @@ def _read_comment(lines: list[str], start: int) -> tuple[int, str]:
     index = start + 1
     while index < len(lines):
         if "-->" in lines[index]:
+            closing_line = lines[index]
+            content_before = closing_line[: closing_line.find("-->")].rstrip("\r\n")
+            if content_before:
+                body.append(content_before)
             return index + 1, "\n".join(body)
         body.append(lines[index].rstrip("\r\n"))
         index += 1
@@ -317,46 +324,86 @@ def _ensure_single_eof_newline(text: str) -> str:
     return text.rstrip("\n") + "\n" if text else text
 
 
-def _expand_to_source_block(
+def _expand_to_source_blocks(
     segment: Segment, source_blocks: list[SourceBlock]
-) -> Segment:
-    new_block = _block_for_linenos(source_blocks, segment.new_linenos)
+) -> list[Segment]:
+    new_blocks = _blocks_for_linenos(source_blocks, segment.new_linenos)
     before_block = _block_for_text(source_blocks, segment.before_context)
     after_block = _block_for_text(source_blocks, segment.after_context)
 
-    if new_block is None and before_block is not None and before_block == after_block:
-        new_block = before_block
+    if not new_blocks and before_block is not None and before_block == after_block:
+        new_blocks = [before_block]
 
-    if new_block is None:
-        return segment
+    if not new_blocks:
+        return [segment]
 
-    old_lines = segment.old_lines
-    if not old_lines:
-        if before_block == new_block and segment.before_context:
-            old_lines = (segment.before_context,)
-        elif after_block == new_block and segment.after_context:
-            old_lines = (segment.after_context,)
+    expanded: list[Segment] = []
+    previous_comment = segment.before_context
+    for index, new_block in enumerate(new_blocks):
+        old_lines = segment.old_lines
+        if not _meaningful_lines(old_lines):
+            if before_block == new_block and segment.before_context:
+                old_lines = (segment.before_context,)
+            elif after_block == new_block and segment.after_context:
+                old_lines = (segment.after_context,)
 
-    return Segment(
-        old_lines=old_lines,
-        new_lines=tuple(new_block.text.rstrip("\n").split("\n")),
-        before_context=segment.before_context,
-        after_context=segment.after_context,
-        old_linenos=segment.old_linenos,
-        new_linenos=segment.new_linenos,
-        new_source=new_block.text,
-    )
+        expanded.append(
+            Segment(
+                old_lines=old_lines,
+                new_lines=tuple(new_block.text.rstrip("\n").split("\n")),
+                before_context=previous_comment,
+                after_context=(
+                    segment.after_context if index == len(new_blocks) - 1 else None
+                ),
+                old_linenos=segment.old_linenos,
+                new_linenos=tuple(range(new_block.start_lineno, new_block.end_lineno + 1)),
+                new_source=new_block.text,
+            )
+        )
+        previous_comment = new_block.comment
+
+    return expanded
 
 
-def _block_for_linenos(
+def _blocks_for_linenos(
     source_blocks: list[SourceBlock], linenos: tuple[int, ...]
-) -> SourceBlock | None:
-    matches = {
+) -> list[SourceBlock]:
+    return [
         block
         for block in source_blocks
         if any(block.start_lineno <= lineno <= block.end_lineno for lineno in linenos)
-    }
-    return next(iter(matches)) if len(matches) == 1 else None
+    ]
+
+
+def _coalesce_source_block_segments(segments: list[Segment]) -> list[Segment]:
+    result: list[Segment] = []
+    indexes: dict[tuple[int, ...], int] = {}
+
+    for segment in segments:
+        key = segment.new_linenos if segment.new_source else ()
+        if not key or key not in indexes:
+            if key:
+                indexes[key] = len(result)
+            result.append(segment)
+            continue
+
+        index = indexes[key]
+        current = result[index]
+        result[index] = Segment(
+            old_lines=(
+                current.old_lines
+                if _meaningful_lines(current.old_lines)
+                else segment.old_lines
+            ),
+            new_lines=current.new_lines,
+            before_context=current.before_context,
+            after_context=segment.after_context or current.after_context,
+            old_linenos=current.old_linenos + segment.old_linenos,
+            new_linenos=current.new_linenos,
+            new_source=current.new_source,
+        )
+
+    return result
 
 
 def _block_for_text(
