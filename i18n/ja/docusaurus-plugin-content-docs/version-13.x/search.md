@@ -135,7 +135,8 @@ $articles = Article::whereFullText(
 ベクトル検索の基本的なワークフローは次のとおりです。コンテンツの各部分に対してエンベディング (数値配列) を生成し、それをデータと一緒に保存します。その後、検索時にユーザーのクエリに対してエンベディングを生成し、ベクトル空間でそれに最も近い保存されたエンベディングを検索します。
 
 > [!NOTE]
-> ベクトル検索には、`pgvector` 拡張子と [Laravel AI SDK](/docs/13.x/ai-sdk) を持つ PostgreSQL データベースが必要です。すべての [Laravel Cloud](https://cloud.laravel.com) サーバーレス Postgres データベースには、すでに `pgvector` が含まれています。
+> <!-- > Vector search requires the [Laravel AI SDK](/docs/13.x/ai-sdk) and is supported by PostgreSQL (requires the `pgvector` extension) and MongoDB (requires the [Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb)). All Postgres databases on [Laravel Cloud](https://laravel.com/cloud) already have `pgvector` installed. -->
+> ベクトル検索には、[Laravel AI SDK](/docs/13.x/ai-sdk) が必要です。対応しているのは PostgreSQL（`pgvector` 拡張が必要）と MongoDB（[Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb) が必要）です。[Laravel Cloud](https://laravel.com/cloud) 上のすべての Postgres データベースには、すでに `pgvector` がインストールされています。
 
 <a name="generating-embeddings"></a>
 <!-- ### Generating Embeddings -->
@@ -374,4 +375,3 @@ $documents = Document::query()
     ->limit(10)
     ->get();
 ```
-

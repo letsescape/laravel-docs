@@ -135,7 +135,9 @@ $articles = Article::whereFullText(
 벡터 검색의 기본 흐름은 다음과 같습니다: 콘텐츠마다 임베딩(숫자 배열)을 생성해 데이터와 함께 저장하고, 검색 시에는 사용자의 쿼리로 임베딩을 만들어서 저장된 임베딩과의 거리를 비교해 가장 가까운(의미가 비슷한) 결과를 찾습니다.
 
 > [!NOTE]
-> 벡터 검색은 PostgreSQL 데이터베이스의 `pgvector` 확장과 [Laravel AI SDK](/docs/13.x/ai-sdk)가 필요합니다. [Laravel Cloud](https://cloud.laravel.com)의 Serverless Postgres 데이터베이스에는 `pgvector`가 이미 포함되어 있습니다.
+> [!NOTE]
+> <!-- Vector search requires the [Laravel AI SDK](/docs/13.x/ai-sdk) and is supported by PostgreSQL (requires the `pgvector` extension) and MongoDB (requires the [Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb)). All Postgres databases on [Laravel Cloud](https://laravel.com/cloud) already have `pgvector` installed. -->
+> 벡터 검색은 [Laravel AI SDK](/docs/13.x/ai-sdk)가 필요하며, PostgreSQL( `pgvector` 확장이 필요함)과 MongoDB([Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb)가 필요함)에서 지원됩니다. [Laravel Cloud](https://laravel.com/cloud)의 모든 Postgres 데이터베이스에는 `pgvector`가 이미 설치되어 있습니다.
 
 <a name="generating-embeddings"></a>
 <!-- ### Generating Embeddings -->
