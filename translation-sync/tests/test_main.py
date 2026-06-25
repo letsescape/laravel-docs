@@ -1022,6 +1022,92 @@ class MainPipelineTests(unittest.TestCase):
                 "## Next\n",
             )
 
+    def test_translate_one_keeps_changed_admonition_body_in_blockquote(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/search.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "The basic workflow for vector search.\n\n"
+                "> [!NOTE]\n"
+                "> Vector search requires the [Laravel AI SDK](/docs/{{version}}/ai-sdk) "
+                "and PostgreSQL with `pgvector`.\n\n"
+                '<a name="generating-embeddings"></a>\n'
+                "### Generating Embeddings\n",
+                encoding="utf-8",
+            )
+            dest = root / "i18n/ja/docusaurus-plugin-content-docs/version-13.x/search.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- The basic workflow for vector search. -->\n"
+                "ベクトル検索の基本的なワークフローです。\n\n"
+                "> [!NOTE]\n"
+                "> ベクトル検索には、`pgvector` 拡張子と [Laravel AI SDK](/docs/13.x/ai-sdk) "
+                "を持つ PostgreSQL データベースが必要です。\n\n"
+                '<a name="generating-embeddings"></a>\n'
+                "<!-- ### Generating Embeddings -->\n"
+                "### Generating Embeddings\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/search.md",
+                lines=[
+                    ("context", "The basic workflow for vector search."),
+                    ("context", ""),
+                    ("context", "> [!NOTE]"),
+                    (
+                        "delete",
+                        "> Vector search requires PostgreSQL with `pgvector` and the "
+                        "[Laravel AI SDK](/docs/{{version}}/ai-sdk).",
+                    ),
+                    (
+                        "add",
+                        "> Vector search requires the [Laravel AI SDK](/docs/{{version}}/ai-sdk) "
+                        "and PostgreSQL with `pgvector`.",
+                    ),
+                    ("context", ""),
+                    ("context", '<a name="generating-embeddings"></a>'),
+                    ("context", "### Generating Embeddings"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return (
+                    "<!-- Vector search requires the [Laravel AI SDK](/docs/13.x/ai-sdk) "
+                    "and PostgreSQL with `pgvector`. -->\n"
+                    "ベクトル検索には、[Laravel AI SDK](/docs/13.x/ai-sdk) と "
+                    "`pgvector` を備えた PostgreSQL が必要です。\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- The basic workflow for vector search. -->\n"
+                "ベクトル検索の基本的なワークフローです。\n\n"
+                "> [!NOTE]\n"
+                "> <!-- Vector search requires the [Laravel AI SDK](/docs/13.x/ai-sdk) "
+                "and PostgreSQL with `pgvector`. -->\n"
+                "> ベクトル検索には、[Laravel AI SDK](/docs/13.x/ai-sdk) と "
+                "`pgvector` を備えた PostgreSQL が必要です。\n\n"
+                '<a name="generating-embeddings"></a>\n'
+                "<!-- ### Generating Embeddings -->\n"
+                "### Generating Embeddings\n",
+            )
+
     def test_translate_one_requires_hunks_for_existing_documents(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

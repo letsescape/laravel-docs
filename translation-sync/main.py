@@ -181,6 +181,7 @@ def _translate_segment(
 
 
 def _repair_segment_translation(source: str, translated: str, version: str) -> str:
+    translated = _repair_blockquote_segment(source, translated)
     candidates = [translated]
 
     try:
@@ -201,6 +202,31 @@ def _repair_segment_translation(source: str, translated: str, version: str) -> s
         f"<!-- {comment.replace('-->', '--&gt;')} -->" for comment in missing_comments
     )
     return f"{comments}\n{best.lstrip()}"
+
+
+def _repair_blockquote_segment(source: str, translated: str) -> str:
+    source_lines = [line for line in source.splitlines() if line.strip()]
+    if not source_lines or any(not line.lstrip().startswith(">") for line in source_lines):
+        return translated
+
+    out: list[str] = []
+    for line in translated.splitlines(keepends=True):
+        body, ending = _split_line_ending(line)
+        if not body.strip() or body.lstrip().startswith(">"):
+            out.append(line)
+            continue
+        out.append(f"> {body}{ending}")
+    return "".join(out)
+
+
+def _split_line_ending(line: str) -> tuple[str, str]:
+    if line.endswith("\r\n"):
+        return line[:-2], "\r\n"
+    if line.endswith("\n"):
+        return line[:-1], "\n"
+    if line.endswith("\r"):
+        return line[:-1], "\r"
+    return line, ""
 
 
 def _normalize_comment_anchor(text: str | None, version: str) -> str | None:
