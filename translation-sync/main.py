@@ -126,7 +126,7 @@ def _translation_input(
     )
 
 
-def _translate_full_document(
+def _translate_added_document(
     change: diff.SourceChange, cfg: config.Config, prompt: str, dest: Path
 ) -> list[str]:
     src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
@@ -202,8 +202,12 @@ def _translate_one(
     change: diff.SourceChange, cfg: config.Config, prompt: str, dest: Path
 ) -> list[str]:
     """원문 한 건을 한 로케일로 번역·후처리·검증해 dest에 기록한다. 위반 목록 반환."""
-    if change.status == "A" or not dest.exists() or not change.hunks:
-        return _translate_full_document(change, cfg, prompt, dest)
+    if change.status == "A":
+        return _translate_added_document(change, cfg, prompt, dest)
+    if not dest.exists():
+        return ["missing existing translation for partial sync"]
+    if not change.hunks:
+        return ["missing diff hunks for partial sync"]
 
     src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
     pre = preprocess.preprocess(src)
@@ -222,8 +226,8 @@ def _translate_one(
                     _translate_segment(change, segment, cfg, prompt, existing)
                 )
         out = patch_utils.apply_segments(existing, segments, translated_blocks)
-    except patch_utils.PatchError:
-        return _translate_full_document(change, cfg, prompt, dest)
+    except patch_utils.PatchError as exc:
+        return [f"partial patch failed: {exc}"]
     except translate.IncompleteTranslation as exc:
         return [f"partial translation failed: {exc}"]
 

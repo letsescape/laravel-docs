@@ -59,7 +59,7 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
           INPUT_DOC: ${{ inputs.doc }}
         run: |
-          args=()
+          args=(--fail-fast)
           if [ -n "$INPUT_VERSION" ]; then
             args+=(--version "$INPUT_VERSION")
           fi

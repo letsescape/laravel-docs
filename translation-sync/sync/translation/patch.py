@@ -293,6 +293,10 @@ def _insert_block(text: str, segment: Segment, translated: str) -> str:
         block = _find_block(blocks, segment.after_context, required=False)
         if block:
             return "".join(lines[: block.start]) + insertion + "".join(lines[block.start :])
+    raw_insertion = _format_raw_insertion(translated, segment)
+    raw_text = _insert_near_raw_context(lines, segment, raw_insertion)
+    if raw_text is not None:
+        return raw_text
     raise PatchError("missing insertion context")
 
 
@@ -327,6 +331,21 @@ def _ensure_single_eof_newline(text: str) -> str:
 def _expand_to_source_blocks(
     segment: Segment, source_blocks: list[SourceBlock]
 ) -> list[Segment]:
+    if not _meaningful_lines(segment.old_lines) and _has_structural_lines(
+        segment.new_lines
+    ):
+        return [
+            Segment(
+                old_lines=segment.old_lines,
+                new_lines=segment.new_lines,
+                before_context=segment.before_context,
+                after_context=segment.after_context,
+                old_linenos=segment.old_linenos,
+                new_linenos=segment.new_linenos,
+                new_source=_source_from_lines(segment.new_lines),
+            )
+        ]
+
     new_blocks = _blocks_for_linenos(source_blocks, segment.new_linenos)
     before_block = _block_for_text(source_blocks, segment.before_context)
     after_block = _block_for_text(source_blocks, segment.after_context)
@@ -373,6 +392,66 @@ def _blocks_for_linenos(
         for block in source_blocks
         if any(block.start_lineno <= lineno <= block.end_lineno for lineno in linenos)
     ]
+
+
+def _has_structural_lines(lines: tuple[str, ...]) -> bool:
+    in_code = False
+    fence = ""
+    for line in lines:
+        stripped = line.strip()
+        token = fence_token(line)
+        if token:
+            if not in_code:
+                in_code, fence = True, token
+            elif closes_fence(line, fence):
+                in_code = False
+            return True
+        if in_code:
+            return True
+        if is_named_anchor_line(line):
+            return True
+        if stripped.startswith(("- [", "* [")) and "](#" in stripped:
+            return True
+        if stripped.startswith((">", "|")):
+            return True
+    return False
+
+
+def _source_from_lines(lines: tuple[str, ...]) -> str:
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def _format_raw_insertion(translated: str, segment: Segment) -> str:
+    trailing_blank_lines = 0
+    for line in reversed(segment.new_lines):
+        if line.strip():
+            break
+        trailing_blank_lines += 1
+    return translated.rstrip("\n") + ("\n" * max(1, trailing_blank_lines + 1))
+
+
+def _insert_near_raw_context(
+    lines: list[str], segment: Segment, insertion: str
+) -> str | None:
+    if segment.after_context:
+        index = _find_raw_context_line(lines, segment.after_context)
+        if index is not None:
+            return "".join(lines[:index]) + insertion + "".join(lines[index:])
+    if segment.before_context:
+        index = _find_raw_context_line(lines, segment.before_context)
+        if index is not None:
+            return "".join(lines[: index + 1]) + insertion + "".join(lines[index + 1 :])
+    return None
+
+
+def _find_raw_context_line(lines: list[str], context: str) -> int | None:
+    normalized = _normalize_text(context)
+    if not normalized:
+        return None
+    for index, line in enumerate(lines):
+        if _normalize_text(line) == normalized:
+            return index
+    return None
 
 
 def _coalesce_source_block_segments(segments: list[Segment]) -> list[Segment]:
