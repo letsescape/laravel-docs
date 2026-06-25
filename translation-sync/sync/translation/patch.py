@@ -181,7 +181,8 @@ def _blocks(text: str) -> list[AnnotatedBlock]:
 
     for index, start in enumerate(starts):
         comment_end, comment = _read_comment(lines, start)
-        end = starts[index + 1] if index + 1 < len(starts) else len(lines)
+        next_start = starts[index + 1] if index + 1 < len(starts) else len(lines)
+        end = _translated_block_end(lines, comment_end, next_start)
         blocks.append(
             AnnotatedBlock(
                 start=start,
@@ -192,6 +193,20 @@ def _blocks(text: str) -> list[AnnotatedBlock]:
         )
 
     return blocks
+
+
+def _translated_block_end(lines: list[str], start: int, limit: int) -> int:
+    index = start
+    seen_content = False
+    while index < limit:
+        if not lines[index].strip():
+            if seen_content:
+                return index + 1
+            index += 1
+            continue
+        seen_content = True
+        index += 1
+    return index
 
 
 def _comment_starts(lines: list[str]) -> list[int]:

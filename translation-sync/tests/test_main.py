@@ -139,6 +139,71 @@ class MainPipelineTests(unittest.TestCase):
                 "이후 문장도 유지됩니다.\n",
             )
 
+    def test_translate_one_preserves_following_code_and_anchor_after_replacement(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Before.\n\nNew text.\n\n```php\n$value = true;\n```\n\n"
+                '<a name="next"></a>\n#### Next\n',
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n"
+                "앞 문장입니다.\n\n"
+                "<!-- Old text. -->\n"
+                "예전 번역입니다.\n\n"
+                "```php\n$value = true;\n```\n\n"
+                '<a name="next"></a>\n'
+                "<!-- #### Next -->\n"
+                "#### Next\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("delete", "Old text."),
+                    ("add", "New text."),
+                    ("context", ""),
+                    ("context", "```php"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return "<!-- New text. -->\n새 번역입니다.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n"
+                "앞 문장입니다.\n\n"
+                "<!-- New text. -->\n"
+                "새 번역입니다.\n\n"
+                "```php\n$value = true;\n```\n\n"
+                '<a name="next"></a>\n'
+                "<!-- #### Next -->\n"
+                "#### Next\n",
+            )
+
     def test_translate_one_inserts_added_blocks_after_context(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
