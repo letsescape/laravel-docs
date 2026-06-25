@@ -4,6 +4,7 @@
 - [Introduction](#introduction)
     - [Configuration](#configuration)
     - [Read and Write Connections](#read-and-write-connections)
+    - [Pooled PostgreSQL Connections](#pooled-postgresql-connections)
 - [Running SQL Queries](#running-queries)
     - [Using Multiple Database Connections](#using-multiple-database-connections)
     - [Listening for Query Events](#listening-for-query-events)
@@ -161,6 +162,48 @@ driver://username:password@host:port/database?options
 
 <!-- The `sticky` option is an *optional* value that can be used to allow the immediate reading of records that have been written to the database during the current request cycle. If the `sticky` option is enabled and a "write" operation has been performed against the database during the current request cycle, any further "read" operations will use the "write" connection. This ensures that any data written during the request cycle can be immediately read back from the database during that same request. It is up to you to decide if this is the desired behavior for your application. -->
 `sticky` オプションは、現在のリクエスト サイクル中にデータベースに書き込まれたレコードの即時読み取りを許可するために使用できる *オプション* の値です。 `sticky` オプションが有効で、現在のリクエスト サイクル中にデータベースに対して「書き込み」操作が実行された場合、それ以降の「読み取り」操作では「書き込み」接続が使用されます。これにより、リクエスト サイクル中に書き込まれたデータは、同じリクエスト中にデータベースから即座に読み戻されることが保証されます。これがアプリケーションにとって望ましい動作であるかどうかを判断するのはあなた次第です。
+
+<a name="pooled-postgresql-connections"></a>
+<!-- ### Pooled PostgreSQL Connections -->
+### Pooled PostgreSQL Connections
+
+<!-- Many managed PostgreSQL providers offer transaction-mode connection pooling through services such as PgBouncer or connection proxying. These poolers are ideal for application queries, but some schema operations, migrations, and maintenance commands require a direct database connection. -->
+多くのマネージド PostgreSQL プロバイダーは、PgBouncer や接続プロキシなどのサービスを通じてトランザクションモードのコネクションプーリングを提供しています。これらのプーラーはアプリケーションのクエリには理想的ですが、一部のスキーマ操作、マイグレーション、メンテナンスコマンドはデータベースへの直接接続を必要とします。
+
+<!-- To use a transaction pooler with PostgreSQL, configure the pooled connection as usual and provide direct connection details via the `direct` configuration option: -->
+PostgreSQL でトランザクションプーラーを使用するには、通常どおりプール接続を構成し、`direct` 構成オプションを介して直接接続の詳細を指定します:
+
+```php
+'pgsql' => [
+    'driver' => 'pgsql',
+    // ...
+    'pooled' => env('DB_POOLED', false),
+    'direct' => array_filter([
+        'host' => env('DB_DIRECT_HOST'),
+        'port' => env('DB_DIRECT_PORT'),
+        'username' => env('DB_DIRECT_USERNAME'),
+        'password' => env('DB_DIRECT_PASSWORD'),
+        'sslmode' => env('DB_DIRECT_SSLMODE'),
+    ]),
+],
+```
+
+<!-- When a PostgreSQL connection is configured as pooled, Laravel automatically enables emulated prepares for the pooled connection. The direct connection inherits any options not explicitly defined in the `direct` configuration and uses native prepares by default. -->
+PostgreSQL 接続がプール接続として構成されると、Laravel はそのプール接続に対して emulated prepares を自動的に有効にします。直接接続は、`direct` 構成で明示的に定義されていないオプションをすべて継承し、デフォルトでは native prepares を使用します。
+
+<!-- Laravel automatically uses the direct connection for migrations, schema dumps and restores, `db:wipe`, `db:show`, and `db:table`. The `db` command also uses the direct connection by default when pooled mode is enabled and a direct connection is configured; you may pass the `--pooled` option to connect to the pooled connection instead: -->
+Laravel は、マイグレーション、スキーマのダンプおよびリストア、`db:wipe`、`db:show`、`db:table` に対して自動的に直接接続を使用します。`db` コマンドも、プールモードが有効で直接接続が構成されている場合は、デフォルトで直接接続を使用します。代わりにプール接続へ接続するには、`--pooled` オプションを渡します:
+
+```shell
+php artisan db --pooled
+```
+
+<!-- If you need to explicitly use the direct connection in your application, append the `::direct` suffix to the connection name: -->
+アプリケーションで直接接続を明示的に使用する必要がある場合は、接続名に `::direct` サフィックスを追加します:
+
+```php
+DB::connection('pgsql::direct')->statement('create extension if not exists "uuid-ossp"');
+```
 
 <a name="running-queries"></a>
 <!-- ## Running SQL Queries -->

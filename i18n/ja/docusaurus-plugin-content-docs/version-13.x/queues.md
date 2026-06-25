@@ -1798,6 +1798,38 @@ class ProcessPodcast implements ShouldQueue
 <!-- In this example, the job is released for ten seconds if the application is unable to obtain a Redis lock and will continue to be retried up to 25 times. However, the job will fail if three unhandled exceptions are thrown by the job. -->
 この例では、アプリケーションが Redis ロックを取得できない場合、ジョブは 10 秒間解放され、最大 25 回まで再試行され続けます。ただし、ジョブによって 3 つの未処理の例外がスローされた場合、ジョブは失敗します。
 
+<a name="stopping-retries-by-exception"></a>
+<!-- #### Stopping Retries by Exception -->
+#### Stopping Retries by Exception
+
+<!-- Sometimes an exception indicates that a queued job should fail immediately instead of being released for another attempt. You may configure exception types that should stop job retries using the `dontRetry` exception method in your application's `bootstrap/app.php` file: -->
+場合によっては、例外がキュー投入されたジョブを再試行のために解放するのではなく、即座に失敗させるべきことを示すことがあります。アプリケーションの `bootstrap/app.php` ファイルで `dontRetry` 例外メソッドを使用して、ジョブの再試行を停止すべき例外タイプを構成できます:
+
+```php
+use App\Exceptions\InvalidPodcastSourceException;
+use Illuminate\Foundation\Configuration\Exceptions;
+
+->withExceptions(function (Exceptions $exceptions): void {
+    $exceptions->dontRetry([
+        InvalidPodcastSourceException::class,
+    ]);
+})
+```
+
+<!-- If you need more control over when retries should stop, you may provide a closure to the `dontRetryWhen` method. When the closure returns `true`, the job will be marked as failed and will not be retried: -->
+再試行を停止するタイミングをより細かく制御する必要がある場合は、`dontRetryWhen` メソッドにクロージャを渡すことができます。クロージャが `true` を返すと、ジョブは失敗としてマークされ、再試行されません:
+
+```php
+use App\Exceptions\PodcastProcessingException;
+use Illuminate\Foundation\Configuration\Exceptions;
+
+->withExceptions(function (Exceptions $exceptions): void {
+    $exceptions->dontRetryWhen(function (PodcastProcessingException $e) {
+        return $e->reason() === 'Subscription expired';
+    });
+})
+```
+
 <a name="timeout"></a>
 <!-- #### Timeout -->
 #### Timeout
