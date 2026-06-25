@@ -1,6 +1,6 @@
 name: Sync Documentation Translation
 
-# translation-sync/docs/05(T4) 트리거. 공식 원문을 받아 변경분을 번역하고 PR로 올린다.
+# translation-sync/docs/05(T4) 트리거. 공식 원문을 받아 변경분을 번역하고 main 대상 PR로 올린다.
 on:
   schedule:
     - cron: '0 18 * * *'   # 매일 03:00 KST
@@ -90,7 +90,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676
         with:
-          base: develop
+          base: main
           branch: chore/translation-sync
           title: 'chore(translation): sync documentation'
           commit-message: 'chore(translation): sync documentation'

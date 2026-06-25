@@ -129,7 +129,7 @@ const config: Config = {
           versions.map((v) => [v, {label: v, path: v}]),
         ),
         // 기타 설정
-        editUrl: 'https://github.com/letsescape/laravel-docs/tree/develop/',
+        editUrl: 'https://github.com/letsescape/laravel-docs/tree/main/',
         beforeDefaultRemarkPlugins: [
           anchorMappingPlugin,
         ],

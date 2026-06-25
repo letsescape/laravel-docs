@@ -4,8 +4,8 @@
 
 [![Laravel](https://img.shields.io/badge/Laravel-%23FF2D20.svg?logo=laravel&logoColor=white)](http://laravel.com)
 [![Laravel Version](https://img.shields.io/packagist/v/laravel/framework)](https://packagist.org/packages/laravel/framework)
-[![Last Updated](https://img.shields.io/github/last-commit/letsescape/laravel-docs/develop?label=Last%20Updated)](https://github.com/letsescape/laravel-docs/commits/develop)
-[![License](https://img.shields.io/github/license/letsescape/laravel-docs)](https://github.com/letsescape/laravel-docs/blob/develop/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/letsescape/laravel-docs/main?label=Last%20Updated)](https://github.com/letsescape/laravel-docs/commits/main)
+[![License](https://img.shields.io/github/license/letsescape/laravel-docs)](https://github.com/letsescape/laravel-docs/blob/main/LICENSE)
 
 [라라벨 공식 문서](https://laravel.com) | [라라벨 한국어 문서](https://laravel.chanhyung.kim)
 
@@ -16,7 +16,7 @@
 라라벨 한국어 문서를 [Docusaurus](https://docusaurus.io) & [GitHub Pages](https://pages.github.com)를 사용하여 배포합니다.
 
 - 지원 버전 : `master`, `13.x`, `12.x`, `11.x`, `10.x`, `9.x`, `8.x`
-- 문서 갱신 : GitHub Actions `update-docs` 워크플로우 수동 실행 [#](.github/workflows/update-docs.yml)
+- 문서 갱신 : GitHub Actions `Sync Documentation Translation` 워크플로우 수동 실행 [#](.github/workflows/sync-translation.yml)
 
 ## 실행
 
@@ -49,7 +49,7 @@ docker run -p 3000:3000 laravel-docs
    ```dotenv
    # OpenAI
    TRANSLATION_PROVIDER=openai
-   TRANSLATION_MODEL=gpt-5
+   TRANSLATION_MODEL=gpt-5.4-mini
 
    OPENAI_API_KEY=your_openai_api_key
    ```
@@ -64,9 +64,9 @@ docker run -p 3000:3000 laravel-docs
    AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
    ```
 
-2. GitHub Actions의 `update-docs` 워크플로우를 수동 실행합니다.
+2. GitHub Actions의 `Sync Documentation Translation` 워크플로우를 수동 실행합니다.
 
-워크플로우는 `.github/docs-updater`에서 `uv sync --frozen` 후 테스트와 `uv run python main.py`를 실행합니다. 이후 번역 구조, 타입, 빌드, 앵커 검증을 통과한 원문 캐시와 변경된 `versioned_docs/`, `versioned_sidebars/`를 `develop`에 커밋합니다.
+워크플로우는 `translation-sync`에서 `uv sync --frozen` 후 테스트와 `uv run python main.py`를 실행합니다. 이후 변경된 번역 문서와 사이드바를 `main` 대상 PR로 올립니다.
 
 로컬에서 번역 스크립트를 점검할 때는 API 키 대신 CLI 제공자를 사용할 수 있습니다.
 
