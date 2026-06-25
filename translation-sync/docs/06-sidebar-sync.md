@@ -200,7 +200,7 @@ upstream sync
 구현 위치:
 
 ```text
-translation-sync/sync/sidebar.py
+translation-sync/sync/sidebar/generator.py
 ```
 
 실행 명령:

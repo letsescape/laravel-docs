@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from .markdown import closes_fence, strip_title_attrs
+from ..common.markdown import closes_fence, strip_title_attrs
 
 # data:image/...;base64,.... (Markdown/HTML 이미지 양쪽)
 _BASE64_RE = re.compile(r"data:image/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+(?=[)\"'\s])")

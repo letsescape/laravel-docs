@@ -17,8 +17,7 @@ from __future__ import annotations
 import difflib
 from dataclasses import dataclass, field
 
-from . import postprocess as _postprocess, preprocess as _preprocess
-from .markdown import (
+from ..common.markdown import (
     closes_fence,
     fence_token,
     is_heading_line,
@@ -26,7 +25,9 @@ from .markdown import (
     is_ordered_list_marker,
     strip_title_attr_line,
 )
-from .postprocess import img_self_closing, replace_version
+from ..postprocessing import postprocess as _postprocess
+from ..postprocessing.postprocess import img_self_closing, replace_version
+from ..preprocessing import preprocess as _preprocess
 
 
 @dataclass

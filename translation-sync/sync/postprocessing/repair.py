@@ -9,7 +9,7 @@ import re
 from dataclasses import dataclass
 from typing import Iterator
 
-from .markdown import (
+from ..common.markdown import (
     closes_fence,
     fence_token,
     is_heading_line,

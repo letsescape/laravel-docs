@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DOC_LINK_RE = re.compile(r"^\s*-\s*\[([^\]\n]+)]\(([^)\s]+)\)\s*$")
 VERSION_RE = re.compile(r"^(?:master|\d+\.x)$")
 SIDEBAR_LOCALES = ("ko", "ja")
