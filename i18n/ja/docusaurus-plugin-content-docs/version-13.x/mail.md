@@ -137,8 +137,8 @@ composer require symfony/mailgun-mailer symfony/http-client
 ],
 ```
 
-<!-- If you are not using the United States [Mailgun region](https://documentation.mailgun.com/docs/mailgun/api-reference/#mailgun-regions), you may define your region's endpoint in the `services` configuration file: -->
-米国の [Mailgun region](https://documentation.mailgun.com/docs/mailgun/api-reference/#mailgun-regions) を使用していない場合は、`services` 構成ファイルで地域のエンドポイントを定義できます。
+<!-- If you are not using the United States [Mailgun region](https://documentation.mailgun.com/docs/mailgun/api-reference/api-overview#mailgun-regions), you may define your region's endpoint in the `services` configuration file: -->
+米国の [Mailgun region](https://documentation.mailgun.com/docs/mailgun/api-reference/api-overview#mailgun-regions) を使用していない場合は、`services` 構成ファイルで地域のエンドポイントを定義できます。
 
 ```php
 'mailgun' => [

@@ -19,6 +19,7 @@
 - [Transforming Input Before Validation](#transforming-input-before-validation)
 - [Forms](#forms)
 - [Informational Messages](#informational-messages)
+- [Callouts](#callouts)
 - [Tables](#tables)
 - [Spin](#spin)
 - [Progress Bar](#progress)
@@ -1232,6 +1233,94 @@ outro("Your name is {$responses['name']} and you are {$responses['age']} years o
 use function Laravel\Prompts\info;
 
 info('Package installed successfully.');
+```
+
+<a name="callouts"></a>
+<!-- ## Callouts -->
+## Callouts
+
+<!-- The `callout` function displays a boxed message with a label and content. Callouts are useful for displaying important information that should stand out, such as deployment summaries, error details, or status updates: -->
+`callout` 함수는 라벨과 내용을 담은 박스 형태의 메시지를 표시합니다. callout은 배포 요약, 오류 세부 정보, 상태 업데이트처럼 눈에 띄어야 하는 중요한 정보를 표시할 때 유용합니다.
+
+```php
+use function Laravel\Prompts\callout;
+
+callout(
+    label: 'Environment Configured',
+    content: 'Your application is running in production mode with 4 workers.',
+);
+```
+
+<!-- You may pass `warning` or `error` as the `type` argument to change the callout's visual style: -->
+`type` 인수로 `warning` 또는 `error`를 전달하여 callout의 시각적 스타일을 변경할 수 있습니다.
+
+```php
+callout(
+    label: 'Deprecation Notice',
+    content: 'The `--prefer-stable` flag will be removed in v4.0. Use `--stability=stable` instead.',
+    type: 'warning',
+);
+
+callout(
+    label: 'Database Connection Failed',
+    content: 'Could not connect to MySQL on 127.0.0.1:3306.',
+    type: 'error',
+);
+```
+
+<!-- The `info` argument adds a footer line to the callout, which is useful for displaying metadata like IDs or timestamps: -->
+`info` 인수는 callout에 하단 줄을 추가하며, ID나 타임스탬프 같은 메타데이터를 표시할 때 유용합니다.
+
+```php
+callout(
+    label: 'Deployment Summary',
+    content: 'Your application was deployed to production.',
+    info: 'deploy-id: d4f8a2c',
+);
+```
+
+<a name="callout-rich-content"></a>
+<!-- #### Rich Content -->
+#### Rich Content
+
+<!-- Instead of passing a string, you may pass an array of strings and elements to build rich, structured callouts. The `Element` class provides factory methods for creating headings, bulleted lists, numbered lists, and key-value lists: -->
+문자열을 전달하는 대신, 문자열과 요소로 이루어진 배열을 전달하여 풍부하고 구조화된 callout을 만들 수 있습니다. `Element` 클래스는 제목, 글머리 기호 목록, 번호 매기기 목록, 키-값 목록을 생성하는 팩토리 메서드를 제공합니다.
+
+```php
+use Laravel\Prompts\Elements\Element;
+
+use function Laravel\Prompts\callout;
+
+callout('Deployment Summary', [
+    'Your application was deployed to production at 2024-03-15 14:32 UTC.',
+    Element::heading('What Changed'),
+    Element::bulletedList([
+        'Migrated 3 pending database migrations',
+        'Cleared and rebuilt route cache',
+        'Restarted 4 queue workers',
+    ]),
+    Element::heading('Next Steps'),
+    Element::numberedList([
+        'Verify the health check endpoint at /up',
+        'Monitor error rates for the next 15 minutes',
+        'Confirm background jobs are processing',
+    ]),
+]);
+```
+
+<!-- You may also use `Element::keyValueList` to display labeled data: -->
+`Element::keyValueList`를 사용하여 라벨이 지정된 데이터를 표시할 수도 있습니다.
+
+```php
+callout('Database Connection Failed', [
+    'Could not connect to the database server.',
+    Element::keyValueList([
+        'Host' => '127.0.0.1',
+        'Port' => '3306',
+        'Database' => 'forge',
+        'Status' => 'Connection refused',
+    ]),
+], type: 'error');
 ```
 
 <a name="tables"></a>
