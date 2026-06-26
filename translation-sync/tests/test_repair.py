@@ -76,5 +76,46 @@ class RepairPreservedMarkupTests(unittest.TestCase):
         self.assertEqual([], verify.verify(result.text, source=source))
 
 
+class RestoreListMarkersTests(unittest.TestCase):
+    def test_restores_dropped_list_markers_from_source(self):
+        source = (
+            "- [Using Eloquent](https://example.com/a/) stores models.\n"
+            "- [Write queries](https://example.com/b/) with the builder.\n"
+            "- The `mongodb` cache driver clears expired entries.\n"
+        )
+        # Model dropped the `-` markers, returning blank-separated paragraphs.
+        translated = (
+            "[Using Eloquent](https://example.com/a/) 모델을 저장합니다.\n"
+            "\n"
+            "[Write queries](https://example.com/b/) 빌더로 작성합니다.\n"
+            "\n"
+            "`mongodb` 캐시 드라이버는 만료 항목을 정리합니다.\n"
+        )
+
+        result = repair.restore_list_markers(source, translated)
+        content = [line for line in result.splitlines() if line.strip()]
+
+        self.assertEqual(len(content), 3)
+        self.assertTrue(all(line.startswith("- ") for line in content))
+
+    def test_leaves_already_marked_list_unchanged(self):
+        source = "- a\n- b\n"
+        translated = "- 가\n- 나\n"
+
+        self.assertEqual(repair.restore_list_markers(source, translated), translated)
+
+    def test_no_op_when_content_count_does_not_align(self):
+        source = "- a\n- b\n- c\n"
+        translated = "가 나 다가 한 줄로 합쳐졌습니다.\n"
+
+        self.assertEqual(repair.restore_list_markers(source, translated), translated)
+
+    def test_no_op_when_source_is_not_a_pure_list(self):
+        source = "Intro paragraph.\n\n- a\n- b\n"
+        translated = "도입 문단입니다.\n\n- 가\n- 나\n"
+
+        self.assertEqual(repair.restore_list_markers(source, translated), translated)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -21,6 +21,7 @@ from ..common.markdown import (
 _MARKDOWN_LINK_RE = re.compile(
     r"(!?)\[([^\]\n]*)]\(([^)\s]+)((?:\s+\"[^\"]*\")?)\)"
 )
+_LIST_ITEM_RE = re.compile(r"^(\s*)([-*+])(\s+)(\S.*)$")
 
 
 class RepairError(ValueError):
@@ -235,6 +236,64 @@ def _repair_anchor_lines(source: str, translated: str) -> RepairResult:
     if _anchor_lines(repaired) != source_anchors:
         raise RepairError("translated document anchors do not match source")
     return RepairResult(repaired, changed)
+
+
+def _source_list_markers(source: str) -> list[str] | None:
+    """Per-item marker prefixes (indent+marker+spacing) when `source` is a pure
+    unordered list: every meaningful, non-comment, non-code line is a list item.
+    Returns None otherwise."""
+    markers: list[str] = []
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    for line in source.splitlines():
+        if _is_comment_line(line, state) or _is_code_line(line, state):
+            continue
+        if not line.strip():
+            continue
+        match = _LIST_ITEM_RE.match(line)
+        if not match:
+            return None
+        markers.append(f"{match.group(1)}{match.group(2)}{match.group(3)}")
+    return markers or None
+
+
+def restore_list_markers(source: str, translated: str) -> str:
+    """Re-apply dropped unordered-list markers from a pure-list source block.
+
+    Translation must preserve list structure, but models sometimes return a
+    bulleted source list as plain paragraphs. When the source block is a pure
+    list and the translated block has the same number of content lines but
+    fewer list markers, prepend the source markers in order. Fails open
+    (returns the input unchanged) whenever the structure cannot be mapped 1:1,
+    leaving verification to flag the mismatch.
+    """
+    markers = _source_list_markers(source)
+    if not markers:
+        return translated
+
+    lines = translated.splitlines()
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    content_indexes: list[int] = []
+    already_marked = 0
+    for index, line in enumerate(lines):
+        if _is_comment_line(line, state) or _is_code_line(line, state):
+            continue
+        if not line.strip():
+            continue
+        content_indexes.append(index)
+        if _LIST_ITEM_RE.match(line):
+            already_marked += 1
+
+    if already_marked >= len(markers):
+        return translated
+    if len(content_indexes) != len(markers):
+        return translated
+
+    for marker, index in zip(markers, content_indexes):
+        if _LIST_ITEM_RE.match(lines[index]):
+            continue
+        lines[index] = f"{marker}{lines[index].lstrip()}"
+
+    return "\n".join(lines) + ("\n" if translated.endswith("\n") else "")
 
 
 def repair_preserved_markup(source: str, translated: str) -> RepairResult:

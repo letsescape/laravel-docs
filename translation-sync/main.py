@@ -182,6 +182,7 @@ def _translate_segment(
 
 def _repair_segment_translation(source: str, translated: str, version: str) -> str:
     translated = _repair_blockquote_segment(source, translated)
+    translated = repair.restore_list_markers(source, translated)
     candidates = [translated]
 
     try:

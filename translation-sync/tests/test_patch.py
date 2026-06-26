@@ -229,5 +229,43 @@ class PatchTests(unittest.TestCase):
         self.assertEqual(blocks[0].comment, "First line. Second line.")
 
 
+class AdmonitionMarkerTests(unittest.TestCase):
+    def test_apply_does_not_duplicate_admonition_marker(self):
+        # A NOTE body line changes. The marker line stays as context, so the
+        # body is translated alone; the model often re-emits the `> [!NOTE]`
+        # marker in its output. Applying that block after the retained marker
+        # must not leave two consecutive markers.
+        old = (
+            "The basic workflow paragraph.\n\n"
+            "> [!NOTE]\n"
+            "> Vector search requires a PostgreSQL database.\n\n"
+            '<a name="generating-embeddings"></a>\n'
+            "### Generating Embeddings\n"
+        )
+        new = old.replace(
+            "> Vector search requires a PostgreSQL database.",
+            "> Vector search requires the AI SDK and PostgreSQL or MongoDB.",
+        )
+        existing = (
+            "<!-- The basic workflow paragraph. -->\n"
+            "기본 워크플로 문단입니다.\n\n"
+            "> [!NOTE]\n"
+            "> 벡터 검색은 PostgreSQL 데이터베이스가 필요합니다.\n\n"
+            '<a name="generating-embeddings"></a>\n'
+            "<!-- ### Generating Embeddings -->\n"
+            "### Generating Embeddings\n"
+        )
+        translated = (
+            "> [!NOTE]\n"
+            "> <!-- Vector search requires the AI SDK and PostgreSQL or MongoDB. -->\n"
+            "> 벡터 검색에는 AI SDK가 필요하며 PostgreSQL 또는 MongoDB를 지원합니다.\n"
+        )
+
+        result = patch.apply_segments(existing, _segments(old, new), [translated])
+
+        self.assertNotIn("> [!NOTE]\n> [!NOTE]", result)
+        self.assertEqual(result.count("> [!NOTE]"), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

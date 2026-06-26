@@ -7,6 +7,7 @@ block.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from ..common.markdown import (
@@ -18,6 +19,10 @@ from ..common.markdown import (
     strip_title_attr_line,
 )
 from ..source.diff import DiffHunk
+
+_ADMONITION_MARKER_RE = re.compile(
+    r"^>\s*\[!(?:NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
+)
 
 
 class PatchError(ValueError):
@@ -232,7 +237,29 @@ def apply_segments(
                 raise PatchError("missing translated insertion block")
             text = _insert_block(text, segment, translated)
 
+    text = _collapse_consecutive_admonition_markers(text)
     return _ensure_single_eof_newline(text)
+
+
+def _collapse_consecutive_admonition_markers(text: str) -> str:
+    """Drop a second consecutive identical admonition marker line.
+
+    A changed admonition body is translated without its ``> [!NOTE]`` marker
+    (that line stays as context), but the model often re-emits the marker in
+    its output. Placing that block right after the retained anchor marker would
+    leave two markers in a row, which is never valid Markdown. Collapse
+    identical consecutive markers back into one.
+    """
+    out: list[str] = []
+    for line in text.split("\n"):
+        if (
+            out
+            and _ADMONITION_MARKER_RE.match(line.strip())
+            and line.strip() == out[-1].strip()
+        ):
+            continue
+        out.append(line)
+    return "\n".join(out)
 
 
 def _blocks(text: str) -> list[AnnotatedBlock]:
