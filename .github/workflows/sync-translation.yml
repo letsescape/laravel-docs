@@ -1,6 +1,6 @@
 name: Sync Documentation Translation
 
-# translation-sync/docs/05(T4) 트리거. 공식 원문을 받아 변경분을 번역하고 main 대상 PR로 올린다.
+# translation-sync/docs/05(T4) 트리거. 공식 원문을 받아 변경분을 번역해 main에 직접 커밋한다.
 on:
   schedule:
     - cron: '0 13 */2 * *'   # 2일마다 22:00 KST (매월 홀수일)
@@ -17,7 +17,7 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
+  actions: write
 
 concurrency:
   group: sync-translation
@@ -68,13 +68,19 @@ jobs:
           fi
           uv run python main.py "${args[@]}"
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676
-        with:
-          base: main
-          branch: chore/translation-sync
-          title: 'chore(translation): sync documentation'
-          commit-message: 'chore(translation): sync documentation'
-          body: |
-            공식 원문 변경분을 번역해 동기화한 PR입니다.
-            translation-sync/docs 기획에 따라 자동 생성되었습니다.
+      - name: Commit, push, and trigger deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if [ -z "$(git status --porcelain)" ]; then
+            echo 'No changes to commit; skipping.'
+            exit 0
+          fi
+          git add -A
+          git commit -m 'chore(translation): sync documentation'
+          git push origin HEAD:main
+          # 기본 GITHUB_TOKEN push는 deploy.yml(on: push)을 자동 발화하지 않으므로
+          # 배포 워크플로를 명시적으로 트리거한다(workflow_dispatch는 허용되는 예외).
+          gh workflow run deploy.yml --ref main
