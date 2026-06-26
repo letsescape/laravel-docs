@@ -144,8 +144,8 @@ composer global require laravel/installer
 <!-- ### Creating an Application -->
 ### Creating an Application
 
-<!-- After you have installed PHP, Composer, and the Laravel installer, you're ready to create a new Laravel application. The Laravel installer will prompt you to select your preferred testing framework, database, and starter kit: -->
-PHP、Composer、および Laravel インストーラーをインストールしたら、新しい Laravel アプリケーションを作成する準備が整います。 Laravel インストーラーは、好みのテスト フレームワーク、データベース、スターター キットを選択するよう求めます。
+<!-- After you have installed PHP, Composer, and the Laravel installer, you are ready to create a new Laravel application. The installer will prompt you to select your preferred starter kit, testing framework, and database: -->
+PHP、Composer、および Laravel インストーラーをインストールしたら、新しい Laravel アプリケーションを作成する準備が整います。インストーラーは、好みのスターターキット、テストフレームワーク、データベースを選択するよう求めます。
 
 ```shell
 laravel new example-app
@@ -160,8 +160,8 @@ npm install && npm run build
 composer run dev
 ```
 
-<!-- Once you have started the development server, your application will be accessible in your web browser at [http://localhost:8000](http://localhost:8000). Next, you're ready to [start taking your next steps into the Laravel ecosystem](#next-steps). Of course, you may also want to [configure a database](#databases-and-migrations). -->
-開発サーバーを起動すると、Web ブラウザ ([http://localhost:8000](http://localhost:8000)) でアプリケーションにアクセスできるようになります。次に、[start taking your next steps into the Laravel ecosystem](#next-steps) の準備が整いました。もちろん、[configure a database](#databases-and-migrations) することもできます。
+<!-- Once you have started the development server, your can access your application in your web browser at [http://localhost:8000](http://localhost:8000). Next, you're ready to [start taking your next steps into the Laravel ecosystem](#next-steps). Of course, you may also want to [configure a database](#databases-and-migrations) and run the necessary migrations. -->
+開発サーバーを起動したら、Web ブラウザで [http://localhost:8000](http://localhost:8000) からアプリケーションにアクセスできます。次に、[start taking your next steps into the Laravel ecosystem](#next-steps) に進む準備ができました。もちろん、[configure a database](#databases-and-migrations) を設定し、必要なマイグレーションを実行することもできます。
 
 > [!NOTE]
 > Laravel アプリケーションの開発を早く始めたい場合は、[starter kits](/docs/13.x/starter-kits) のいずれかの使用を検討してください。 Laravel のスターター キットは、新しい Laravel アプリケーションにバックエンドおよびフロントエンドの認証スキャフォールディングを提供します。
@@ -170,8 +170,8 @@ composer run dev
 <!-- ## Initial Configuration -->
 ## Initial Configuration
 
-<!-- All of the configuration files for the Laravel framework are stored in the `config` directory. Each option is documented, so feel free to look through the files and get familiar with the options available to you. -->
-Laravel フレームワークの構成ファイルはすべて、`config` ディレクトリに保存されます。各オプションは文書化されているので、ファイルに目を通して、利用可能なオプションをよく理解してください。
+<!-- All configuration files for the Laravel framework are stored in the `config` directory. Each option is documented, so feel free to look through the files and get familiar with the options available to you. -->
+Laravel フレームワークのすべての設定ファイルは `config` ディレクトリに保存されています。各オプションには説明が付いているので、ファイルを見ながら利用できるオプションを把握してみてください。
 
 <!-- Laravel needs almost no additional configuration out of the box. You are free to get started developing! However, you may wish to review the `config/app.php` file and its documentation. It contains several options such as `url` and `locale` that you may wish to change according to your application. -->
 Laravel では、すぐに使用できる追加の構成はほとんど必要ありません。自由に開発を始めることができます。ただし、`config/app.php` ファイルとそのドキュメントを確認することをお勧めします。これには、`url` や `locale` などのいくつかのオプションが含まれており、アプリケーションに応じて変更できます。
@@ -409,4 +409,3 @@ Laravel は、JavaScript シングルページ アプリケーションまたは
 
 <!-- If this is how you plan to use Laravel, you may want to check out our documentation on [routing](/docs/13.x/routing), [Laravel Sanctum](/docs/13.x/sanctum), and the [Eloquent ORM](/docs/13.x/eloquent). -->
 これが Laravel の使用方法である場合は、[routing](/docs/13.x/routing)、[Laravel Sanctum](/docs/13.x/sanctum)、および [Eloquent ORM](/docs/13.x/eloquent) に関するドキュメントを確認してください。
-

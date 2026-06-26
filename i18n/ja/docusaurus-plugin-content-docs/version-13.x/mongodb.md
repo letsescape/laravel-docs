@@ -115,18 +115,28 @@ composer require mongodb/laravel-mongodb
 <!--
 - [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/), models can be stored in MongoDB collections. In addition to the standard Eloquent features, the Laravel MongoDB package provides additional features such as embedded relationships. The package also provides direct access to the MongoDB driver, which can be used to execute operations such as raw queries and aggregation pipelines.
 - [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/) using the query builder.
+- [Similarity / vector search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/fundamentals/vector-search/) using vector embeddings and the `vectorSearch` Eloquent method.
 - The `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/) is optimized to use MongoDB features such as TTL indexes to automatically clear expired cache entries.
 - [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/) with the `mongodb` queue driver.
 - [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/filesystems/), via the [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/).
+- [Full-text search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/scout/) using the `mongodb` Scout engine.
 - Most third party packages using a database connection or Eloquent can be used with MongoDB.
 -->
-- [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/)、モデルは MongoDB コレクションに保存できます。標準の Eloquent 機能に加えて、Laravel MongoDB パッケージは埋め込みリレーションシップなどの追加機能を提供します。このパッケージは、MongoDB ドライバへの直接アクセスも提供し、生のクエリや集計パイプラインなどの操作を実行するために使用できます。
-- クエリビルダを使用した [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/)。
-- `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/) は、TTL インデックスなどの MongoDB 機能を使用して期限切れのキャッシュ エントリを自動的にクリアするように最適化されています。
-- [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/) と `mongodb` キュー ドライバ。
-- [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/filesystems/)、[GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/) 経由。
-- データベース接続または Eloquent を使用するほとんどのサードパーティ パッケージは、MongoDB で使用できます。
+[Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/) を使うと、モデルを MongoDB コレクションに保存できます。標準の Eloquent 機能に加えて、Laravel MongoDB パッケージは埋め込みリレーションシップなどの追加機能を提供します。また、このパッケージは MongoDB ドライバへ直接アクセスでき、Raw クエリや集計パイプラインなどの操作を実行できます。
+
+クエリビルダを使用して、[Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/) を作成できます。
+
+ベクトル埋め込みと `vectorSearch` Eloquent メソッドを使用した [Similarity / vector search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/fundamentals/vector-search/) が可能です。
+
+`mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/) は、TTL インデックスなどの MongoDB の機能を利用して、期限切れのキャッシュエントリを自動的に削除するよう最適化されています。
+
+`mongodb` queue driver を使用して、[Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/) を行えます。
+
+[Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/filesystems/) は、[GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/) を通じて行えます。
+
+`mongodb` Scout engine を使用した [Full-text search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/scout/) ができます。
+
+データベース接続または Eloquent を使用するほとんどのサードパーティパッケージは、MongoDB で使用できます。
 
 <!-- To continue learning how to use MongoDB and Laravel, refer to MongoDB's [Quick Start guide](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/quick-start/). -->
 MongoDB と Laravel の使用方法を学習し続けるには、MongoDB の [Quick Start guide](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/quick-start/) を参照してください。
-

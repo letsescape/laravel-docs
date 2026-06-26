@@ -114,17 +114,21 @@ composer require mongodb/laravel-mongodb
 <!--
 - [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/), models can be stored in MongoDB collections. In addition to the standard Eloquent features, the Laravel MongoDB package provides additional features such as embedded relationships. The package also provides direct access to the MongoDB driver, which can be used to execute operations such as raw queries and aggregation pipelines.
 - [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/) using the query builder.
+- [Similarity / vector search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/fundamentals/vector-search/) using vector embeddings and the `vectorSearch` Eloquent method.
 - The `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/) is optimized to use MongoDB features such as TTL indexes to automatically clear expired cache entries.
 - [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/) with the `mongodb` queue driver.
 - [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/filesystems/), via the [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/).
+- [Full-text search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/scout/) using the `mongodb` Scout engine.
 - Most third party packages using a database connection or Eloquent can be used with MongoDB.
 -->
-- [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/) : Eloquent 모델을 MongoDB 컬렉션에 저장할 수 있습니다. 일반적인 Eloquent 기능 외에도, Laravel MongoDB 패키지는 내장된 관계(embedded relationships) 같은 추가 기능을 제공합니다. 또한 MongoDB 드라이버에 직접 접근할 수 있어 원시 쿼리(Raw Query)나 집계 파이프라인 같은 작업을 수행할 수 있습니다.
-- [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/) : 쿼리 빌더를 사용해 복잡한 쿼리를 작성할 수 있습니다.
-- `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/) : MongoDB의 TTL 인덱스 같은 기능을 활용하여 만료된 캐시 항목을 자동으로 삭제하도록 최적화되어 있습니다.
-- [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/) : `mongodb` 큐 드라이버를 이용해 작업을 대기열에 등록하고 처리할 수 있습니다.
-- [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/filesystems/) : [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/)를 통해 파일 저장소로 활용할 수 있습니다.
-- 대부분의 데이터베이스 연결이나 Eloquent를 사용하는 서드파티 패키지도 MongoDB와 함께 사용할 수 있습니다.
+- [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/), Eloquent 모델을 MongoDB 컬렉션에 저장할 수 있습니다. 일반적인 Eloquent 기능 외에도, Laravel MongoDB 패키지는 embedded relationships 같은 추가 기능을 제공합니다. 또한 MongoDB 드라이버에 직접 접근할 수 있어 raw queries나 aggregation pipelines 같은 작업을 수행할 수 있습니다.
+- [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/) 쿼리 빌더를 사용해 복잡한 쿼리를 작성할 수 있습니다.
+- [Similarity / vector search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/fundamentals/vector-search/) 벡터 임베딩과 `vectorSearch` Eloquent 메서드를 사용한 유사도 / 벡터 검색입니다.
+- `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/)는 TTL 인덱스 같은 MongoDB 기능을 활용해 만료된 캐시 항목을 자동으로 지우도록 최적화되어 있습니다.
+- [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/)를 `mongodb` queue driver로 디스패치하고 처리할 수 있습니다.
+- [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/filesystems/)를 [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/)을 통해 수행할 수 있습니다.
+- [Full-text search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/scout/)를 `mongodb` Scout engine으로 사용할 수 있습니다.
+- 데이터베이스 연결이나 Eloquent를 사용하는 대부분의 서드파티 패키지도 MongoDB와 함께 사용할 수 있습니다.
 
 <!-- To continue learning how to use MongoDB and Laravel, refer to MongoDB's [Quick Start guide](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/quick-start/). -->
 MongoDB와 Laravel을 활용하는 방법을 더 배우려면 MongoDB의 [Quick Start guide](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/quick-start/)를 참고하세요.

@@ -144,8 +144,8 @@ composer global require laravel/installer
 <!-- ### Creating an Application -->
 ### Creating an Application
 
-<!-- After you have installed PHP, Composer, and the Laravel installer, you're ready to create a new Laravel application. The Laravel installer will prompt you to select your preferred testing framework, database, and starter kit: -->
-PHP, Composer, Laravel installer를 설치했다면 새 Laravel 애플리케이션을 만들 준비가 되었습니다. Laravel installer는 선호하는 테스트 프레임워크, 데이터베이스, 스타터 키트를 선택하라고 안내합니다.
+<!-- After you have installed PHP, Composer, and the Laravel installer, you are ready to create a new Laravel application. The installer will prompt you to select your preferred starter kit, testing framework, and database: -->
+PHP, Composer, Laravel installer를 설치했다면 새 Laravel 애플리케이션을 만들 준비가 된 것입니다. installer는 선호하는 스타터 키트, 테스트 프레임워크, 데이터베이스를 선택하라고 안내합니다.
 
 ```shell
 laravel new example-app
@@ -160,8 +160,8 @@ npm install && npm run build
 composer run dev
 ```
 
-<!-- Once you have started the development server, your application will be accessible in your web browser at [http://localhost:8000](http://localhost:8000). Next, you're ready to [start taking your next steps into the Laravel ecosystem](#next-steps). Of course, you may also want to [configure a database](#databases-and-migrations). -->
-개발 서버를 시작하면 웹 브라우저에서 [http://localhost:8000](http://localhost:8000)으로 애플리케이션에 접근할 수 있습니다. 이제 [start taking your next steps into the Laravel ecosystem](#next-steps) 준비가 되었습니다. 물론 [configure a database](#databases-and-migrations)하고 싶을 수도 있습니다.
+<!-- Once you have started the development server, your can access your application in your web browser at [http://localhost:8000](http://localhost:8000). Next, you're ready to [start taking your next steps into the Laravel ecosystem](#next-steps). Of course, you may also want to [configure a database](#databases-and-migrations) and run the necessary migrations. -->
+개발 서버를 시작하면 웹 브라우저에서 [http://localhost:8000](http://localhost:8000)으로 애플리케이션에 접근할 수 있습니다. 다음으로, [start taking your next steps into the Laravel ecosystem](#next-steps)로 나아갈 준비가 되었습니다. 물론 [configure a database](#databases-and-migrations)를 설정하고 필요한 마이그레이션도 실행할 수 있습니다.
 
 > [!NOTE]
 > Laravel 애플리케이션 개발을 더 빠르게 시작하고 싶다면 [starter kits](/docs/13.x/starter-kits) 중 하나를 사용하는 것을 고려해 보세요. Laravel의 스타터 키트는 새 Laravel 애플리케이션을 위한 백엔드 및 프론트엔드 인증 스캐폴딩을 제공합니다.
@@ -170,8 +170,8 @@ composer run dev
 <!-- ## Initial Configuration -->
 ## Initial Configuration
 
-<!-- All of the configuration files for the Laravel framework are stored in the `config` directory. Each option is documented, so feel free to look through the files and get familiar with the options available to you. -->
-Laravel 프레임워크의 모든 설정 파일은 `config` 디렉터리에 저장됩니다. 각 옵션에는 설명이 작성되어 있으므로, 파일을 살펴보며 사용할 수 있는 옵션에 익숙해져도 좋습니다.
+<!-- All configuration files for the Laravel framework are stored in the `config` directory. Each option is documented, so feel free to look through the files and get familiar with the options available to you. -->
+Laravel 프레임워크의 설정 파일은 모두 `config` 디렉터리에 저장됩니다. 각 옵션에는 설명이 작성되어 있으므로, 파일을 살펴보며 사용할 수 있는 옵션에 익숙해져도 좋습니다.
 
 <!-- Laravel needs almost no additional configuration out of the box. You are free to get started developing! However, you may wish to review the `config/app.php` file and its documentation. It contains several options such as `url` and `locale` that you may wish to change according to your application. -->
 Laravel은 기본 상태에서 추가 설정이 거의 필요하지 않습니다. 바로 개발을 시작해도 됩니다! 다만 `config/app.php` 파일과 그 문서를 검토해 보는 것이 좋습니다. 이 파일에는 애플리케이션에 맞게 변경하고 싶을 수 있는 `url`, `locale` 같은 여러 옵션이 포함되어 있습니다.
