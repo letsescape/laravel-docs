@@ -1,6 +1,6 @@
 name: Sync Documentation Translation
 
-# translation-sync/docs/05(T4) 트리거. 공식 원문을 받아 변경분을 번역해 main에 직접 커밋한다.
+# translation-sync/docs/05(T4) 트리거. 공식 원문을 받아 변경분을 번역해 실행 브랜치에 커밋한다(main일 때만 배포).
 on:
   schedule:
     - cron: '0 13 */2 * *'   # 2일마다 22:00 KST (매월 홀수일)
@@ -71,6 +71,8 @@ jobs:
       - name: Commit, push, and trigger deploy
         env:
           GH_TOKEN: ${{ github.token }}
+          # 실행 브랜치(스케줄은 기본 브랜치=main, 수동 실행은 dispatch한 브랜치).
+          TARGET_BRANCH: ${{ github.ref_name }}
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -80,7 +82,13 @@ jobs:
           fi
           git add -A
           git commit -m 'chore(translation): sync documentation'
-          git push origin HEAD:main
+          # 결과는 항상 실행한 브랜치로 커밋한다(develop에서 실행 → develop에 커밋).
+          git push origin "HEAD:${TARGET_BRANCH}"
+          # 배포는 기본 브랜치(main)에 반영됐을 때만 한다.
           # 기본 GITHUB_TOKEN push는 deploy.yml(on: push)을 자동 발화하지 않으므로
           # 배포 워크플로를 명시적으로 트리거한다(workflow_dispatch는 허용되는 예외).
-          gh workflow run deploy.yml --ref main
+          if [ "$TARGET_BRANCH" = 'main' ]; then
+            gh workflow run deploy.yml --ref main
+          else
+            echo "Target branch '${TARGET_BRANCH}' is not main; skipping deploy."
+          fi
