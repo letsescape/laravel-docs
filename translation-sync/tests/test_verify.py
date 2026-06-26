@@ -191,6 +191,64 @@ echo 'ok';
 
         self.assertIn("admonition body outside blockquote", verify.verify(translated))
 
+    def test_detects_duplicated_admonition_marker(self):
+        translated = """> [!NOTE]
+> [!NOTE]
+> <!-- Vector search requires the [AI SDK](/docs/13.x/ai-sdk). -->
+> 벡터 검색에는 [AI SDK](/docs/13.x/ai-sdk)가 필요합니다.
+"""
+
+        self.assertIn("duplicate admonition marker", verify.verify(translated))
+
+    def test_accepts_single_admonition_marker(self):
+        translated = """> [!NOTE]
+> <!-- Vector search requires the [AI SDK](/docs/13.x/ai-sdk). -->
+> 벡터 검색에는 [AI SDK](/docs/13.x/ai-sdk)가 필요합니다.
+"""
+
+        self.assertNotIn("duplicate admonition marker", verify.verify(translated))
+
+    def test_detects_list_markers_dropped_in_translation(self):
+        source = """- [Using Eloquent](https://example.com/eloquent/) stores models.
+- [Write queries](https://example.com/queries/) with the builder.
+"""
+        translated = """<!--
+- [Using Eloquent](https://example.com/eloquent/) stores models.
+- [Write queries](https://example.com/queries/) with the builder.
+-->
+[Using Eloquent](https://example.com/eloquent/) を使うとモデルを保存できます。
+
+[Write queries](https://example.com/queries/) をビルダーで作成できます。
+"""
+
+        self.assertIn("list marker mismatch", verify.verify(translated, source=source))
+
+    def test_accepts_preserved_list_markers(self):
+        source = """- [Using Eloquent](https://example.com/eloquent/) stores models.
+- [Write queries](https://example.com/queries/) with the builder.
+"""
+        translated = """<!--
+- [Using Eloquent](https://example.com/eloquent/) stores models.
+- [Write queries](https://example.com/queries/) with the builder.
+-->
+- [Using Eloquent](https://example.com/eloquent/) を使うとモデルを保存できます。
+- [Write queries](https://example.com/queries/) をビルダーで作成できます。
+"""
+
+        self.assertNotIn("list marker mismatch", verify.verify(translated, source=source))
+
+    def test_accepts_translation_that_expands_prose_into_a_list(self):
+        source = "Supported serializers include: `A`, `B`, and `C`.\n"
+        translated = """<!-- Supported serializers include: `A`, `B`, and `C`. -->
+지원되는 직렬화 방식:
+
+- `A`
+- `B`
+- `C`
+"""
+
+        self.assertNotIn("list marker mismatch", verify.verify(translated, source=source))
+
 
 if __name__ == "__main__":
     unittest.main()

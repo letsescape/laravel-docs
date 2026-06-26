@@ -40,6 +40,7 @@ _DOCS_PREFIX_RE = re.compile(r"^/docs/[^/#?]+/?")
 _ADMONITION_RE = re.compile(
     r"^>\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
 )
+_LIST_MARKER_RE = re.compile(r"^[ \t]*[-*+][ \t]+\S", re.MULTILINE)
 _STALE_LINK_TARGETS = {
     "#agents-integration": "#agent-integration",
     "#method-array-sort-recursive-desc": "#method-array-sort-recursive",
@@ -227,6 +228,24 @@ def _has_admonition_body_outside_blockquote(text: str) -> bool:
     return False
 
 
+def _has_duplicated_admonition_marker(text: str) -> bool:
+    """`> [!NOTE]`가 연속 2줄로 중복되면 True (부분블록 치환 시 마커 중복 결함)."""
+    body = _strip_code_blocks(text)
+    lines = body.splitlines()
+    for index in range(len(lines) - 1):
+        if _ADMONITION_RE.match(lines[index].strip()) and _ADMONITION_RE.match(
+            lines[index + 1].strip()
+        ):
+            return True
+    return False
+
+
+def _list_markers(text: str) -> int:
+    """code block·주석을 제외한 순서 없는 리스트 항목(`-`/`*`/`+`) 수."""
+    body = _strip_code_blocks(_strip_comments(text))
+    return len(_LIST_MARKER_RE.findall(body))
+
+
 def _normalize_comment_text(text: str) -> str:
     text = text.replace("*&#47;", "*/").replace("--&gt;", "-->")
     return " ".join(text.split())
@@ -296,6 +315,8 @@ def verify(text: str, source: str | None = None) -> list[str]:
         issues.append("title style class")
     if _has_admonition_body_outside_blockquote(body):
         issues.append("admonition body outside blockquote")
+    if _has_duplicated_admonition_marker(body):
+        issues.append("duplicate admonition marker")
 
     if source is None:
         return issues
@@ -316,6 +337,8 @@ def verify(text: str, source: str | None = None) -> list[str]:
         issues.append("heading mismatch")
     if _heading_lines(source) != _heading_lines(text):
         issues.append("heading text mismatch")
+    if _list_markers(text) < _list_markers(source):
+        issues.append("list marker mismatch")
     if _front_matter_title(source) != _front_matter_title(text):
         issues.append("front matter title mismatch")
     if missing_original_comments(text, source):
