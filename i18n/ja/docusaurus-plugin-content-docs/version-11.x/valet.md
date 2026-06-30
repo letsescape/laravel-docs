@@ -197,7 +197,7 @@ Valet 3 から Valet 4 にアップグレードする場合は、次の手順に
 - If you use PHP 7.1 - 7.4 to serve your sites, make sure you still use Homebrew to install a version of PHP that's 8.0 or higher, as Valet will use this version, even if it's not your primary linked version, to run some of its scripts.
 -->
 - サイトの PHP バージョンをカスタマイズするために `.valetphprc` ファイルを追加した場合は、各 `.valetphprc` ファイルの名前を `.valetrc` に変更します。次に、`php=` を `.valetrc` ファイルの既存のコンテンツの先頭に追加します。
-- 新しいドライバ システムの名前空間、拡張子、タイプ ヒントに一致するようにカスタム ドライバを更新し、タイプ ヒントを返します。例として、Valet の [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php) を参照してください。
+- 新しいドライバ システムの名前空間、拡張子、タイプ ヒント、および戻り値の型ヒントに一致するようにカスタム ドライバを更新します。例として、Valet の [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php) を参照してください。
 - PHP 7.1 ～ 7.4 を使用してサイトを提供している場合は、Homebrew を使用して 8.0 以降の PHP バージョンをインストールしていることを確認してください。Valet は、プライマリ リンクされたバージョンではない場合でも、このバージョンを使用してスクリプトの一部を実行します。
 
 <!-- </div> -->

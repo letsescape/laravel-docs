@@ -274,7 +274,7 @@ Herd について詳しくは、[Herd documentation for Windows](https://herd.la
 ## Docker Installation Using Sail
 
 <!-- We want it to be as easy as possible to get started with Laravel regardless of your preferred operating system. So, there are a variety of options for developing and running a Laravel application on your local machine. While you may wish to explore these options at a later time, Laravel provides [Sail](/docs/11.x/sail), a built-in solution for running your Laravel application using [Docker](https://www.docker.com). -->
-私たちは、好みのオペレーティング システムに関係なく、できるだけ簡単に Laravel を始められるようにしたいと考えています。したがって、ローカルマシン上で Laravel アプリケーションを開発して実行するには、さまざまなオプションがあります。これらのオプションを後で検討することもできますが、Laravel は、[Sail](/docs/11.x/sail) を使用して Laravel アプリケーションを実行するための組み込みソリューションである [Docker](https://www.docker.com) を提供します。
+私たちは、好みのオペレーティング システムに関係なく、できるだけ簡単に Laravel を始められるようにしたいと考えています。したがって、ローカルマシン上で Laravel アプリケーションを開発して実行するには、さまざまなオプションがあります。これらのオプションを後で検討することもできますが、Laravel は、[Sail](/docs/11.x/sail) という、[Docker](https://www.docker.com) を使用して Laravel アプリケーションを実行するための組み込みソリューションを提供します。
 
 <!-- Docker is a tool for running applications and services in small, light-weight "containers" which do not interfere with your local machine's installed software or configuration. This means you don't have to worry about configuring or setting up complicated development tools such as web servers and databases on your local machine. To get started, you only need to install [Docker Desktop](https://www.docker.com/products/docker-desktop). -->
 Docker は、ローカル マシンにインストールされているソフトウェアや構成に干渉しない、小型軽量の「コンテナ」でアプリケーションやサービスを実行するためのツールです。これは、ローカル マシン上で Web サーバーやデータベースなどの複雑な開発ツールの構成やセットアップについて心配する必要がないことを意味します。開始するには、[Docker Desktop](https://www.docker.com/products/docker-desktop) をインストールするだけです。

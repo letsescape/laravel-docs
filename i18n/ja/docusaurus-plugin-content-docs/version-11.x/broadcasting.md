@@ -98,7 +98,7 @@ php artisan install:broadcasting
 ```
 
 <!-- The `install:broadcasting` command will create the `config/broadcasting.php` configuration file. In addition, the command will create the `routes/channels.php` file where you may register your application's broadcast authorization routes and callbacks. -->
-`install:broadcasting` コマンドは、`config/broadcasting.php` 構成ファイルを作成します。さらに、このコマンドは、アプリケーションのブロードキャスト認証ルートとコールバックを登録できる `routes/channels.php` ファイルを作成します。
+`install:broadcasting` コマンドは、`config/broadcasting.php` 構成ファイルを作成します。さらに、このコマンドは、アプリケーションのブロードキャスト認可ルートとコールバックを登録できる `routes/channels.php` ファイルを作成します。
 
 <a name="queue-configuration"></a>
 <!-- #### Queue Configuration -->
@@ -473,7 +473,7 @@ public function broadcastOn(): array
 #### Authorizing Channels
 
 <!-- Remember, users must be authorized to listen on private channels. We may define our channel authorization rules in our application's `routes/channels.php` file. In this example, we need to verify that any user attempting to listen on the private `orders.1` channel is actually the creator of the order: -->
-ユーザーはプライベート チャネルでリッスンすることを許可されている必要があることに注意してください。アプリケーションの `routes/channels.php` ファイルでチャネル認証ルールを定義できます。この例では、プライベート `orders.1` チャネルでリッスンしようとしているユーザーが実際に注文の作成者であることを確認する必要があります。
+ユーザーはプライベート チャネルでリッスンすることを許可されている必要があることに注意してください。アプリケーションの `routes/channels.php` ファイルでチャネル認可ルールを定義できます。この例では、プライベート `orders.1` チャネルでリッスンしようとしているユーザーが実際に注文の作成者であることを確認する必要があります。
 
 ```
 use App\Models\Order;
@@ -740,7 +740,7 @@ Broadcast::channel('orders.{orderId}', function (User $user, int $orderId) {
 すべての認可コールバックは、現在認証されているユーザーを最初の引数として受け取り、追加のワイルドカード パラメーターを後続の引数として受け取ります。この例では、`{orderId}` プレースホルダーを使用して、チャネル名の「ID」部分がワイルドカードであることを示しています。
 
 <!-- You may view a list of your application's broadcast authorization callbacks using the `channel:list` Artisan command: -->
-`channel:list` Artisan コマンドを使用して、アプリケーションのブロードキャスト認証コールバックのリストを表示できます。
+`channel:list` Artisan コマンドを使用して、アプリケーションのブロードキャスト認可コールバックのリストを表示できます。
 
 ```shell
 php artisan channel:list
@@ -1433,5 +1433,5 @@ Echo.private(`App.Models.User.${userId}`)
 ```
 
 <!-- In this example, all notifications sent to `App\Models\User` instances via the `broadcast` channel would be received by the callback. A channel authorization callback for the `App.Models.User.{id}` channel is included in your application's `routes/channels.php` file. -->
-この例では、`broadcast` チャネル経由で `App\Models\User` インスタンスに送信されたすべての通知がコールバックによって受信されます。 `App.Models.User.{id}` チャネルのチャネル認証コールバックは、アプリケーションの `routes/channels.php` ファイルに含まれています。
+この例では、`broadcast` チャネル経由で `App\Models\User` インスタンスに送信されたすべての通知がコールバックによって受信されます。 `App.Models.User.{id}` チャネルのチャネル認可コールバックは、アプリケーションの `routes/channels.php` ファイルに含まれています。
 
