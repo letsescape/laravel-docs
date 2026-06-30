@@ -423,7 +423,7 @@ public function largestOrder()
 ```
 
 > [!NOTE]
-> PostgreSQL は UUID 列に対する `MAX` 関数の実行をサポートしていないため、現在、PostgreSQL UUID 列と組み合わせて 1/2 の関係を使用することはできません。
+> PostgreSQL は UUID 列に対する `MAX` 関数の実行をサポートしていないため、現在、PostgreSQL UUID 列と組み合わせて one-of-many リレーションシップを使用することはできません。
 
 <a name="advanced-has-one-of-many-relationships"></a>
 <!-- #### Advanced Has One Of Many Relationships -->

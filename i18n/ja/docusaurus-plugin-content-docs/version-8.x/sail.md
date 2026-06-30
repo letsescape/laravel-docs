@@ -480,7 +480,7 @@ protected $proxies = '*';
     sail share --subdomain=my-sail-site
 
 > [!TIP]
-> `share` コマンドは、[Expose](https://github.com/beyondcode/expose) によるオープンソース トンネリング サービスである [BeyondCode](https://beyondco.de) を利用しています。
+> `share` コマンドは、[Expose](https://github.com/beyondcode/expose)（[BeyondCode](https://beyondco.de) によるオープンソース トンネリング サービス）を利用しています。
 
 <a name="debugging-with-xdebug"></a>
 <!-- ## Debugging With Xdebug -->

@@ -1370,7 +1370,7 @@ Schema::table('users', function (Blueprint $table) {
 ```
 
 > [!NOTE]
-> 次の列タイプを変更できます: `bigInteger`、`binary`、`boolean`、`date`、`dateTime`、`dateTimeTz`、`decimal`、`integer`、`json`、 `longText`、`mediumText`、`smallInteger`、`string`、`text`、`time`、`unsignedBigInteger`、`unsignedInteger`、`unsignedSmallInteger`、および`uuid`。  `timestamp` 列を変更するには、「[Doctrine type must be registered](#prerequisites)」と入力します。
+> 次の列タイプを変更できます: `bigInteger`、`binary`、`boolean`、`date`、`dateTime`、`dateTimeTz`、`decimal`、`integer`、`json`、 `longText`、`mediumText`、`smallInteger`、`string`、`text`、`time`、`unsignedBigInteger`、`unsignedInteger`、`unsignedSmallInteger`、および `uuid`。  `timestamp` 列タイプを変更するには、[Doctrine タイプを登録する必要があります](#prerequisites)。
 
 <a name="renaming-columns"></a>
 <!-- #### Renaming Columns -->

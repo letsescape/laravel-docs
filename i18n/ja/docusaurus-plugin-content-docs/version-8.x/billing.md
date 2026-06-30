@@ -200,7 +200,7 @@ CASHIER_CURRENCY=eur
 ```
 
 <!-- In addition to configuring Cashier's currency, you may also specify a locale to be used when formatting money values for display on invoices. Internally, Cashier utilizes [PHP's `NumberFormatter` class](https://www.php.net/manual/en/class.numberformatter.php) to set the currency locale: -->
-レジの通貨を構成することに加えて、請求書に表示する金額の書式を設定するときに使用するロケールを指定することもできます。内部的には、Cashier は [PHP's `NumberFormatter` class](https://www.php.net/manual/en/class.numberformatter.php) を使用して通貨ロケールを設定します。
+Cashier の通貨を構成することに加えて、請求書に表示する金額の書式を設定するときに使用するロケールを指定することもできます。内部的には、Cashier は [PHP's `NumberFormatter` class](https://www.php.net/manual/en/class.numberformatter.php) を使用して通貨ロケールを設定します。
 
 ```
 CASHIER_CURRENCY_LOCALE=nl_BE
@@ -456,7 +456,7 @@ protected static function booted()
 これで、顧客モデルが更新されるたびに、その情報が Stripe と同期されるようになります。便宜上、Cashier は顧客の最初の作成時に顧客情報を Stripe と自動的に同期します。
 
 <!-- You may customize the columns used for syncing customer information to Stripe by overriding a variety of methods provided by Cashier. For example, you may override the `stripeName` method to customize the attribute that should be considered the customer's "name" when Cashier syncs customer information to Stripe: -->
-Cashier が提供するさまざまなメソッドをオーバーライドすることで、顧客情報を Stripe に同期するために使用される列をカスタマイズできます。たとえば、`stripeName` メソッドをオーバーライドして、レジ担当者が顧客情報を Stripe に同期するときに顧客の「名前」とみなされる属性をカスタマイズできます。
+Cashier が提供するさまざまなメソッドをオーバーライドすることで、顧客情報を Stripe に同期するために使用される列をカスタマイズできます。たとえば、`stripeName` メソッドをオーバーライドして、Cashier が顧客情報を Stripe に同期するときに顧客の「名前」とみなされる属性をカスタマイズできます。
 
 ```
 /**
@@ -2328,7 +2328,7 @@ Route::get('/charge-checkout', function (Request $request) {
 ```
 
 > [!NOTE]
-> When using the `checkoutCharge` method, Stripe will always create a new product and price in your Stripe dashboard.したがって、Stripe ダッシュボードで事前に製品を作成し、代わりに `checkout` メソッドを使用することをお勧めします。
+> `checkoutCharge` メソッドを使用すると、Stripe は常に Stripe ダッシュボードに新しい製品と価格を作成します。したがって、Stripe ダッシュボードで事前に製品を作成し、代わりに `checkout` メソッドを使用することをお勧めします。
 
 <a name="subscription-checkouts"></a>
 <!-- ### Subscription Checkouts -->

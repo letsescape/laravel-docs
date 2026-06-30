@@ -91,7 +91,7 @@ Route::any('/', function () {
 ```
 
 > [!TIP]
-> 同じ URI を共有する複数のルートを定義する場合、`get`、`post`、`put`、`patch`、`delete`、および `options` メソッドを使用するルートを、`any`、`match`、および`redirect` メソッド。これにより、受信リクエストが正しいルートと一致することが保証されます。
+> 同じ URI を共有する複数のルートを定義する場合、`get`、`post`、`put`、`patch`、`delete`、および `options` メソッドを使用するルートを、`any`、`match`、および `redirect` メソッドを使用するルートよりも前に定義する必要があります。これにより、受信リクエストが正しいルートと一致することが保証されます。
 
 <a name="dependency-injection"></a>
 <!-- #### Dependency Injection -->
