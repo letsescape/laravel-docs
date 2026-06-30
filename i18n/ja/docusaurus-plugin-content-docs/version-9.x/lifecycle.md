@@ -45,7 +45,7 @@ Laravel アプリケーションへのすべてのリクエストのエントリ
 HTTP カーネルは、リクエストが実行される前に実行される `bootstrappers` の配列を定義する `Illuminate\Foundation\Http\Kernel` クラスを拡張します。これらのブートストラップは、エラー処理の構成、ロギング、[detect the application environment](/docs/9.x/configuration#environment-configuration) の構成、およびリクエストが実際に処理される前に実行する必要があるその他のタスクを実行します。通常、これらのクラスは、心配する必要のない内部 Laravel 設定を処理します。
 
 <!-- The HTTP kernel also defines a list of HTTP [middleware](/docs/9.x/middleware) that all requests must pass through before being handled by the application. These middleware handle reading and writing the [HTTP session](/docs/9.x/session), determining if the application is in maintenance mode, [verifying the CSRF token](/docs/9.x/csrf), and more. We'll talk more about these soon. -->
-HTTP カーネルは、アプリケーションによって処理される前にすべてのリクエストが通過する必要がある HTTP [middleware](/docs/9.x/middleware) のリストも定義します。これらのミドルウェアは、[HTTP session](/docs/9.x/session) の読み取りと書き込みを処理し、アプリケーションがメンテナンス モードや [verifying the CSRF token](/docs/9.x/csrf) であるかどうかを判断します。これらについては、後ほど詳しく説明します。
+HTTP カーネルは、アプリケーションによって処理される前にすべてのリクエストが通過する必要がある HTTP [middleware](/docs/9.x/middleware) のリストも定義します。これらのミドルウェアは、[HTTP session](/docs/9.x/session) の読み取りと書き込みの処理、アプリケーションがメンテナンス モードであるかどうかの判断、[verifying the CSRF token](/docs/9.x/csrf) などを行います。これらについては、後ほど詳しく説明します。
 
 <!-- The method signature for the HTTP kernel's `handle` method is quite simple: it receives a `Request` and returns a `Response`. Think of the kernel as being a big black box that represents your entire application. Feed it HTTP requests and it will return HTTP responses. -->
 HTTP カーネルの `handle` メソッドのメソッド シグネチャは非常に単純です。`Request` を受け取り、`Response` を返します。カーネルは、アプリケーション全体を表す大きなブラック ボックスであると考えてください。 HTTP リクエストを入力すると、HTTP レスポンスが返されます。

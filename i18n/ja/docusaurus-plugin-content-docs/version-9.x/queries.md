@@ -677,7 +677,7 @@ $users = DB::table('users')
 ### Additional Where Clauses
 
 <!-- **whereBetween / orWhereBetween** -->
-**どこの間/またはどこの間**
+**whereBetween / orWhereBetween**
 
 <!-- The `whereBetween` method verifies that a column's value is between two values: -->
 `whereBetween` メソッドは、列の値が 2 つの値の間にあることを検証します。
@@ -689,7 +689,7 @@ $users = DB::table('users')
 ```
 
 <!-- **whereNotBetween / orWhereNotBetween** -->
-**whereNotBetween / または WhereNotBetween**
+**whereNotBetween / orWhereNotBetween**
 
 <!-- The `whereNotBetween` method verifies that a column's value lies outside of two values: -->
 `whereNotBetween` メソッドは、列の値が次の 2 つの値の範囲外にあるかどうかを検証します。
@@ -722,7 +722,7 @@ $patients = DB::table('patients')
 ```
 
 <!-- **whereIn / whereNotIn / orWhereIn / orWhereNotIn** -->
-**どこで / どこでではない / またはどこでで / またはどこでではない **
+**whereIn / whereNotIn / orWhereIn / orWhereNotIn**
 
 <!-- The `whereIn` method verifies that a given column's value is contained within the given array: -->
 `whereIn` メソッドは、指定された列の値が指定された配列内に含まれていることを検証します。
@@ -789,7 +789,7 @@ $users = DB::table('users')
 ```
 
 <!-- **whereDate / whereMonth / whereDay / whereYear / whereTime** -->
-**どこの日付 / どこの月 / どこの日 / どこの年 / どこの時間 **
+**whereDate / whereMonth / whereDay / whereYear / whereTime**
 
 <!-- The `whereDate` method may be used to compare a column's value against a date: -->
 `whereDate` メソッドは、列の値を日付と比較するために使用できます。

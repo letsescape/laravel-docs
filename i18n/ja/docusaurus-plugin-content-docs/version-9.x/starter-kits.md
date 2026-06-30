@@ -148,7 +148,7 @@ php artisan migrate
 #### Next.js Reference Implementation
 
 <!-- Finally, you are ready to pair this backend with the frontend of your choice. A Next reference implementation of the Breeze frontend is [available on GitHub](https://github.com/laravel/breeze-next). This frontend is maintained by Laravel and contains the same user interface as the traditional Blade and Inertia stacks provided by Breeze. -->
-最後に、このバックエンドを選択したフロントエンドと組み合わせる準備が整いました。 Breeze フロントエンドの次のリファレンス実装は、[available on GitHub](https://github.com/laravel/breeze-next) です。このフロントエンドは Laravel によって保守されており、Breeze によって提供される従来の Blade および Inertia スタックと同じユーザー インターフェイスが含まれています。
+最後に、このバックエンドを選択したフロントエンドと組み合わせる準備が整いました。 Breeze フロントエンドの Next リファレンス実装は、[available on GitHub](https://github.com/laravel/breeze-next) です。このフロントエンドは Laravel によって保守されており、Breeze によって提供される従来の Blade および Inertia スタックと同じユーザー インターフェイスが含まれています。
 
 <a name="laravel-jetstream"></a>
 <!-- ## Laravel Jetstream -->

@@ -156,7 +156,7 @@ Laravel のデフォルトのキュー システムとは異なり、Horizon で
 ### Dashboard Authorization
 
 <!-- Horizon exposes a dashboard at the `/horizon` URI. By default, you will only be able to access this dashboard in the `local` environment. However, within your `app/Providers/HorizonServiceProvider.php` file, there is an [authorization gate](/docs/9.x/authorization#gates) definition. This authorization gate controls access to Horizon in **non-local** environments. You are free to modify this gate as needed to restrict access to your Horizon installation: -->
-Horizon は、`/horizon` URI でダッシュボードを公開します。デフォルトでは、`local` 環境でのみこのダッシュボードにアクセスできます。ただし、`app/Providers/HorizonServiceProvider.php` ファイル内には、[authorization gate](/docs/9.x/authorization#gates) 定義があります。この認証ゲートは、**非ローカル**環境での Horizon へのアクセスを制御します。 Horizon インストールへのアクセスを制限するために、必要に応じてこのゲートを自由に変更できます。
+Horizon は、`/horizon` URI でダッシュボードを公開します。デフォルトでは、`local` 環境でのみこのダッシュボードにアクセスできます。ただし、`app/Providers/HorizonServiceProvider.php` ファイル内には、[authorization gate](/docs/9.x/authorization#gates) 定義があります。この認可ゲートは、**非ローカル**環境での Horizon へのアクセスを制御します。 Horizon インストールへのアクセスを制限するために、必要に応じてこのゲートを自由に変更できます。
 
 ```
 /**

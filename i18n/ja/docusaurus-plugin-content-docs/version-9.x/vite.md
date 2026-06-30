@@ -48,7 +48,7 @@ Laravel は、開発および本番用にアセットをロードするための
 #### Choosing Between Vite And Laravel Mix
 
 <!-- Before transitioning to Vite, new Laravel applications utilized [Mix](https://laravel-mix.com/), which is powered by [webpack](https://webpack.js.org/), when bundling assets. Vite focuses on providing a faster and more productive experience when building rich JavaScript applications. If you are developing a Single Page Application (SPA), including those developed with tools like [Inertia](https://inertiajs.com), Vite will be the perfect fit. -->
-Vite に移行する前、新しい Laravel アプリケーションは、アセットをバンドルするときに [Mix](https://laravel-mix.com/) を利用する [webpack](https://webpack.js.org/) を利用していました。 Vite は、リッチな JavaScript アプリケーションを構築する際に、より高速で生産性の高いエクスペリエンスを提供することに重点を置いています。 [Inertia](https://inertiajs.com) などのツールで開発されたものを含め、シングル ページ アプリケーション (SPA) を開発している場合は、Vite が最適です。
+Vite に移行する前、新しい Laravel アプリケーションは、アセットをバンドルするときに [Mix](https://laravel-mix.com/) を利用していました。Mix は [webpack](https://webpack.js.org/) を基盤としています。 Vite は、リッチな JavaScript アプリケーションを構築する際に、より高速で生産性の高いエクスペリエンスを提供することに重点を置いています。 [Inertia](https://inertiajs.com) などのツールで開発されたものを含め、シングル ページ アプリケーション (SPA) を開発している場合は、Vite が最適です。
 
 <!-- Vite also works well with traditional server-side rendered applications with JavaScript "sprinkles", including those using [Livewire](https://laravel-livewire.com). However, it lacks some features that Laravel Mix supports, such as the ability to copy arbitrary assets into the build that are not referenced directly in your JavaScript application. -->
 Vite は、[Livewire](https://laravel-livewire.com) を使用するアプリケーションなど、JavaScript の「スプリンクル」を使用した従来のサーバーサイドでレンダリングされたアプリケーションでも適切に動作します。ただし、JavaScript アプリケーションで直接参照されない任意のアセットをビルドにコピーする機能など、Laravel Mix がサポートするいくつかの機能が欠けています。

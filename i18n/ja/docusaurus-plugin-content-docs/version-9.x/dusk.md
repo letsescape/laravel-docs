@@ -1980,7 +1980,7 @@ $browser->assertIndeterminate($field);
 #### assertRadioSelected
 
 <!-- Assert that the given radio field is selected: -->
-指定された無線フィールドが選択されていることをアサートします。
+指定されたラジオフィールドが選択されていることをアサートします。
 
 ```
 $browser->assertRadioSelected($field, $value);
@@ -1991,7 +1991,7 @@ $browser->assertRadioSelected($field, $value);
 #### assertRadioNotSelected
 
 <!-- Assert that the given radio field is not selected: -->
-指定された無線フィールドが選択されていないことをアサートします。
+指定されたラジオフィールドが選択されていないことをアサートします。
 
 ```
 $browser->assertRadioNotSelected($field, $value);

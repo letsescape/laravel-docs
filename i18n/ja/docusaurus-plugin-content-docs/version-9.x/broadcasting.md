@@ -80,14 +80,14 @@ Laravel のイベントブロードキャストの使用を開始するには、
 ### Configuration
 
 <!-- All of your application's event broadcasting configuration is stored in the `config/broadcasting.php` configuration file. Laravel supports several broadcast drivers out of the box: [Pusher Channels](https://pusher.com/channels), [Redis](/docs/9.x/redis), and a `log` driver for local development and debugging. Additionally, a `null` driver is included which allows you to totally disable broadcasting during testing. A configuration example is included for each of these drivers in the `config/broadcasting.php` configuration file. -->
-アプリケーションのイベント ブロードキャスト設定はすべて、`config/broadcasting.php` 設定ファイルに保存されます。 Laravel は、すぐに使用できるいくつかのブロードキャスト ドライバ (ローカル開発およびデバッグ用の [Pusher Channels](https://pusher.com/channels)、[Redis](/docs/9.x/redis)、および `log` ドライバ) をサポートしています。さらに、テスト中にブロードキャストを完全に無効にすることができる `null` ドライバが含まれています。これらの各ドライバの構成例は、`config/broadcasting.php` 構成ファイルに含まれています。
+アプリケーションのイベント ブロードキャスト設定はすべて、`config/broadcasting.php` 設定ファイルに保存されます。 Laravel は、すぐに使用できるいくつかのブロードキャスト ドライバ ([Pusher Channels](https://pusher.com/channels)、[Redis](/docs/9.x/redis)、およびローカル開発およびデバッグ用の `log` ドライバ) をサポートしています。さらに、テスト中にブロードキャストを完全に無効にすることができる `null` ドライバが含まれています。これらの各ドライバの構成例は、`config/broadcasting.php` 構成ファイルに含まれています。
 
 <a name="broadcast-service-provider"></a>
 <!-- #### Broadcast Service Provider -->
 #### Broadcast Service Provider
 
 <!-- Before broadcasting any events, you will first need to register the `App\Providers\BroadcastServiceProvider`. In new Laravel applications, you only need to uncomment this provider in the `providers` array of your `config/app.php` configuration file. This `BroadcastServiceProvider` contains the code necessary to register the broadcast authorization routes and callbacks. -->
-イベントをブロードキャストする前に、まず `App\Providers\BroadcastServiceProvider` を登録する必要があります。新しい Laravel アプリケーションでは、`config/app.php` 構成ファイルの `providers` 配列でこのプロバイダのコメントを解除するだけで済みます。この `BroadcastServiceProvider` には、ブロードキャスト認証ルートとコールバックを登録するために必要なコードが含まれています。
+イベントをブロードキャストする前に、まず `App\Providers\BroadcastServiceProvider` を登録する必要があります。新しい Laravel アプリケーションでは、`config/app.php` 構成ファイルの `providers` 配列でこのプロバイダのコメントを解除するだけで済みます。この `BroadcastServiceProvider` には、ブロードキャスト認可ルートとコールバックを登録するために必要なコードが含まれています。
 
 <a name="queue-configuration"></a>
 <!-- #### Queue Configuration -->
@@ -376,7 +376,7 @@ public function broadcastOn()
 #### Authorizing Channels
 
 <!-- Remember, users must be authorized to listen on private channels. We may define our channel authorization rules in our application's `routes/channels.php` file. In this example, we need to verify that any user attempting to listen on the private `orders.1` channel is actually the creator of the order: -->
-ユーザーはプライベート チャネルでリッスンすることを許可されている必要があることに注意してください。アプリケーションの `routes/channels.php` ファイルでチャネル認証ルールを定義できます。この例では、プライベート `orders.1` チャネルでリッスンしようとしているユーザーが実際に注文の作成者であることを確認する必要があります。
+ユーザーはプライベート チャネルでリッスンすることを許可されている必要があることに注意してください。アプリケーションの `routes/channels.php` ファイルでチャネル認可ルールを定義できます。この例では、プライベート `orders.1` チャネルでリッスンしようとしているユーザーが実際に注文の作成者であることを確認する必要があります。
 
 ```
 use App\Models\Order;
@@ -656,7 +656,7 @@ Broadcast::routes($attributes);
 #### Customizing The Authorization Endpoint
 
 <!-- By default, Echo will use the `/broadcasting/auth` endpoint to authorize channel access. However, you may specify your own authorization endpoint by passing the `authEndpoint` configuration option to your Echo instance: -->
-デフォルトでは、Echo は `/broadcasting/auth` エンドポイントを使用してチャネル アクセスを承認します。ただし、`authEndpoint` 構成オプションを Echo インスタンスに渡すことで、独自の認証エンドポイントを指定できます。
+デフォルトでは、Echo は `/broadcasting/auth` エンドポイントを使用してチャネル アクセスを認可します。ただし、`authEndpoint` 構成オプションを Echo インスタンスに渡すことで、独自の認可エンドポイントを指定できます。
 
 ```js
 window.Echo = new Echo({
@@ -1346,5 +1346,5 @@ Echo.private(`App.Models.User.${userId}`)
 ```
 
 <!-- In this example, all notifications sent to `App\Models\User` instances via the `broadcast` channel would be received by the callback. A channel authorization callback for the `App.Models.User.{id}` channel is included in the default `BroadcastServiceProvider` that ships with the Laravel framework. -->
-この例では、`broadcast` チャネル経由で `App\Models\User` インスタンスに送信されたすべての通知がコールバックによって受信されます。 `App.Models.User.{id}` チャネルのチャネル認証コールバックは、Laravel フレームワークに付属するデフォルトの `BroadcastServiceProvider` に含まれています。
+この例では、`broadcast` チャネル経由で `App\Models\User` インスタンスに送信されたすべての通知がコールバックによって受信されます。 `App.Models.User.{id}` チャネルのチャネル認可コールバックは、Laravel フレームワークに付属するデフォルトの `BroadcastServiceProvider` に含まれています。
 
