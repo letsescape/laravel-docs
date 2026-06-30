@@ -514,7 +514,7 @@ Route::get('/billing', function (Request $request) {
 ```
 
 > [!NOTE]
-> Cashier의 웹훅 ​​처리를 구성한 한, Cashier는 Stripe에서 들어오는 웹훅을 검사하여 자동으로 애플리케이션의 계산원 관련 데이터베이스 테이블을 동기화된 상태로 유지합니다. 예를 들어 사용자가 Stripe의 고객 청구 포털을 통해 구독을 취소하면 Cashier는 해당 웹후크를 수신하고 애플리케이션 데이터베이스에서 구독을 "취소됨"으로 표시합니다.
+> Cashier의 웹훅 ​​처리를 구성한 한, Cashier는 Stripe에서 들어오는 웹훅을 검사하여 자동으로 애플리케이션의 Cashier 관련 데이터베이스 테이블을 동기화된 상태로 유지합니다. 예를 들어 사용자가 Stripe의 고객 청구 포털을 통해 구독을 취소하면 Cashier는 해당 웹후크를 수신하고 애플리케이션 데이터베이스에서 구독을 "취소됨"으로 표시합니다.
 
 <a name="customers"></a>
 <!-- ## Customers -->
@@ -2856,7 +2856,7 @@ try {
 - BECS 자동이체
 - EPS
 - 지로페이
-- 이상적인
+- iDEAL
 - SEPA 자동이체
 
 <!-- </div> -->

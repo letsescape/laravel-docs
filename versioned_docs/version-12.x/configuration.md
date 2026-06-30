@@ -436,7 +436,7 @@ APP_MAINTENANCE_STORE=database
 #### Pre-Rendering the Maintenance Mode View
 
 <!-- If you utilize the `php artisan down` command during deployment, your users may still occasionally encounter errors if they access the application while your Composer dependencies or other infrastructure components are updating. This occurs because a significant part of the Laravel framework must boot in order to determine your application is in maintenance mode and render the maintenance mode view using the templating engine. -->
-배포 과정에서 `php artisan down` 명령을 활용하는 경우, Composer 의존성이나 기타 인프라 요소가 업데이트되는 동안에도 사용자가 접속한다면 종종 에러가 발생할 수 있습니다. 이는 Laravel 프레임워크의 많은 부분이 부팅되어야만 유지보수 모드 여부를 판별하고, 미들웨어 및 템플릿 엔진을 통해 유지보수 화면을 렌더링할 수 있기 때문입니다.
+배포 과정에서 `php artisan down` 명령을 활용하는 경우, Composer 의존성이나 기타 인프라 요소가 업데이트되는 동안에도 사용자가 접속한다면 종종 에러가 발생할 수 있습니다. 이는 Laravel 프레임워크의 많은 부분이 부팅되어야만 유지보수 모드 여부를 판별하고, 템플릿 엔진을 통해 유지보수 화면을 렌더링할 수 있기 때문입니다.
 
 <!-- For this reason, Laravel allows you to pre-render a maintenance mode view that will be returned at the very beginning of the request cycle. This view is rendered before any of your application's dependencies have loaded. You may pre-render a template of your choice using the `down` command's `render` option: -->
 이 문제를 해결하기 위해, Laravel은 요청 사이클의 맨 초기에 반환될 미리 렌더링된 유지보수 뷰를 제작할 수 있습니다. 이 뷰는 애플리케이션의 어떤 의존성도 로드되기 전에 표시됩니다. 원하는 템플릿을 미리 렌더링하려면 `down` 명령어의 `render` 옵션을 사용하면 됩니다.

@@ -80,7 +80,7 @@ php artisan install:broadcasting
 ```
 
 <!-- The `install:broadcasting` command will prompt you for which event broadcasting service you would like to use. In addition, it will create the `config/broadcasting.php` configuration file and the `routes/channels.php` file where you may register your application's broadcast authorization routes and callbacks. -->
-`install:broadcasting` 명령은 사용하려는 이벤트 브로드캐스팅 서비스를 묻는 메시지를 표시합니다. 또한 애플리케이션의 브로드캐스트 인증 라우트 및 콜백을 등록할 수 있는 `config/broadcasting.php` 구성 파일과 `routes/channels.php` 파일을 생성합니다.
+`install:broadcasting` 명령은 사용하려는 이벤트 브로드캐스팅 서비스를 묻는 메시지를 표시합니다. 또한 애플리케이션의 브로드캐스트 인가 라우트 및 콜백을 등록할 수 있는 `config/broadcasting.php` 구성 파일과 `routes/channels.php` 파일을 생성합니다.
 
 <!-- Laravel supports several broadcast drivers out of the box: [Laravel Reverb](/docs/12.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), and a `log` driver for local development and debugging. Additionally, a `null` driver is included which allows you to disable broadcasting during testing. A configuration example is included for each of these drivers in the `config/broadcasting.php` configuration file. -->
 Laravel는 기본적으로 여러 브로드캐스트 드라이버를 지원합니다. [Laravel Reverb](/docs/12.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com) 및 로컬 개발을 위한 `log` 드라이버 디버깅. 또한 테스트 시 브로드캐스팅을 비활성화할 수 있는 `null` 드라이버가 포함되어 있습니다. `config/broadcasting.php` 구성 파일에는 이러한 각 드라이버에 대한 구성 예가 포함되어 있습니다.
@@ -539,7 +539,7 @@ Laravel의 이벤트 브로드캐스팅을 사용하면 WebSocket에 대한 드�
 이벤트 브로드캐스팅의 각 구성요소를 살펴보기 전에 전자상거래 상점을 예로 들어 높은 수준의 개요를 살펴보겠습니다.
 
 <!-- In our application, let's assume we have a page that allows users to view the shipping status for their orders. Let's also assume that an `OrderShipmentStatusUpdated` event is fired when a shipping status update is processed by the application: -->
-우리 애플리케이션에는 사용자가 주문의 배송 상태를 확인할 수 있는 페이지가 있다고 가정해 보겠습니다. 또한 애플리케이션에서 디스패치 상태 업데이트를 처리할 때 `OrderShipmentStatusUpdated` 이벤트가 실행된다고 가정해 보겠습니다.
+우리 애플리케이션에는 사용자가 주문의 배송 상태를 확인할 수 있는 페이지가 있다고 가정해 보겠습니다. 또한 애플리케이션에서 배송 상태 업데이트를 처리할 때 `OrderShipmentStatusUpdated` 이벤트가 실행된다고 가정해 보겠습니다.
 
 ```php
 use App\Events\OrderShipmentStatusUpdated;
@@ -882,7 +882,7 @@ class ServerCreated implements ShouldBroadcast, ShouldDispatchAfterCommit
 비공개 채널에서는 현재 인증된 사용자가 실제로 채널을 수신할 수 있도록 인가해야 합니다. 이는 채널 이름을 포함한 HTTP 요청을 Laravel 애플리케이션에 보내고, 애플리케이션이 사용자가 해당 채널을 수신할 수 있는지 여부를 결정하는 방식으로 수행됩니다. [Laravel Echo](#client-side-installation)를 사용하면 비공개 채널 구독을 인가하는 HTTP 요청이 자동으로 이루어집니다.
 
 <!-- When broadcasting is installed Laravel attempts to automatically register the `/broadcasting/auth` route to handle authorization requests. If Laravel fails to automatically register these routes, you may register them manually in your application's `/bootstrap/app.php` file: -->
-브로드캐스트가 설치되면 Laravel는 인증 요청을 처리하기 위해 `/broadcasting/auth` 라우트를 자동으로 등록하려고 시도합니다. Laravel가 이러한 라우트를 자동으로 등록하지 못하는 경우 애플리케이션의 `/bootstrap/app.php` 파일에 수동으로 등록할 수 있습니다.
+브로드캐스트가 설치되면 Laravel는 인가 요청을 처리하기 위해 `/broadcasting/auth` 라우트를 자동으로 등록하려고 시도합니다. Laravel가 이러한 라우트를 자동으로 등록하지 못하는 경우 애플리케이션의 `/bootstrap/app.php` 파일에 수동으로 등록할 수 있습니다.
 
 ```php
 ->withRouting(
@@ -1547,7 +1547,7 @@ Echo.join(`chat.${roomId}`)
 ```
 
 <!-- The `here` callback will be executed immediately once the channel is joined successfully, and will receive an array containing the user information for all of the other users currently subscribed to the channel. The `joining` method will be executed when a new user joins a channel, while the `leaving` method will be executed when a user leaves the channel. The `error` method will be executed when the authentication endpoint returns an HTTP status code other than 200 or if there is a problem parsing the returned JSON. -->
-`here` 콜백은 채널에 성공적으로 참여하면 즉시 실행되며, 현재 채널에 참여하고 있는 다른 모든 사용자의 정보가 포함된 배열을 수신합니다. `joining` 메서드는 새로운 사용자가 채널에 참여할 때 실행되고, `leaving` 메서드는 사용자가 채널을 떠날 때 실행됩니다. 인가 엔드포인트가 200이 아닌 HTTP 상태 코드를 반환하거나 반환된 JSON을 파싱하는 데 문제가 있는 경우 `error` 메서드가 실행됩니다.
+`here` 콜백은 채널에 성공적으로 참여하면 즉시 실행되며, 현재 채널에 참여하고 있는 다른 모든 사용자의 정보가 포함된 배열을 수신합니다. `joining` 메서드는 새로운 사용자가 채널에 참여할 때 실행되고, `leaving` 메서드는 사용자가 채널을 떠날 때 실행됩니다. 인증 엔드포인트가 200이 아닌 HTTP 상태 코드를 반환하거나 반환된 JSON을 파싱하는 데 문제가 있는 경우 `error` 메서드가 실행됩니다.
 
 <a name="broadcasting-to-presence-channels"></a>
 <!-- ### Broadcasting to Presence Channels -->

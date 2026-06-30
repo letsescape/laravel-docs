@@ -370,7 +370,7 @@ $request->validate([
 ### Creating Form Requests
 
 <!-- For more complex validation scenarios, you may wish to create a "form request". Form requests are custom request classes that encapsulate their own validation and authorization logic. To create a form request class, you may use the `make:request` Artisan CLI command: -->
-보다 복잡한 유효성 검사 시나리오의 경우 "양식 요청"을 생성할 수 있습니다. 양식 요청은 자체 유효성 검사 및 인증 논리를 캡슐화하는 사용자 지정 요청 클래스입니다. 양식 요청 클래스를 생성하려면 `make:request` Artisan CLI 명령을 사용할 수 있습니다.
+보다 복잡한 유효성 검사 시나리오의 경우 "양식 요청"을 생성할 수 있습니다. 양식 요청은 자체 유효성 검사 및 권한 논리를 캡슐화하는 사용자 지정 요청 클래스입니다. 양식 요청 클래스를 생성하려면 `make:request` Artisan CLI 명령을 사용할 수 있습니다.
 
 ```shell
 php artisan make:request StorePostRequest
@@ -567,7 +567,7 @@ return $this->user()->can('update', $this->comment);
 `authorize` 메서드가 `false`를 반환하는 경우 403 상태 코드가 포함된 HTTP 응답이 자동으로 반환되고 컨트롤러 메서드가 실행되지 않습니다.
 
 <!-- If you plan to handle authorization logic for the request in another part of your application, you may remove the `authorize` method completely, or simply return `true`: -->
-애플리케이션의 다른 부분에서 요청에 대한 인증 논리를 처리하려는 경우 `authorize` 메서드를 완전히 제거하거나 간단히 `true`를 반환할 수 있습니다.
+애플리케이션의 다른 부분에서 요청에 대한 권한 논리를 처리하려는 경우 `authorize` 메서드를 완전히 제거하거나 간단히 `true`를 반환할 수 있습니다.
 
 ```php
 /**
@@ -711,7 +711,7 @@ class PostController extends Controller
 `make` 메소드에 전달된 첫 번째 인수는 검증 중인 데이터입니다. 두 번째 인수는 데이터에 적용되어야 하는 유효성 검사 규칙의 배열입니다.
 
 <!-- After determining whether the request validation failed, you may use the `withErrors` method to flash the error messages to the session. When using this method, the `$errors` variable will automatically be shared with your views after redirection, allowing you to easily display them back to the user. The `withErrors` method accepts a validator, a `MessageBag`, or a PHP `array`. -->
-요청 유효성 검사가 실패했는지 확인한 후 `withErrors` 메서드를 사용하여 오류 메시지를 세션에 플래시할 수 있습니다. 이 방법을 사용하면 리디렉션 후 `$errors` 변수가 뷰와 자동으로 공유되므로 해당 변수를 사용자에게 쉽게 다시 표시할 수 있습니다. `withErrors` 메서드는 유효성 검사기인 `MessageBag` 또는 PHP `array`를 허용합니다.
+요청 유효성 검사가 실패했는지 확인한 후 `withErrors` 메서드를 사용하여 오류 메시지를 세션에 플래시할 수 있습니다. 이 방법을 사용하면 리디렉션 후 `$errors` 변수가 뷰와 자동으로 공유되므로 해당 변수를 사용자에게 쉽게 다시 표시할 수 있습니다. `withErrors` 메서드는 유효성 검사기, `MessageBag` 또는 PHP `array`를 허용합니다.
 
 <!-- #### Stopping on First Validation Failure -->
 #### Stopping on First Validation Failure
@@ -1484,7 +1484,7 @@ use Illuminate\Validation\Rule;
 #### after\_or\_equal:_date_
 
 <!-- The field under validation must be a value after or equal to the given date. For more information, see the [after](#rule-after) rule. -->
-유효성 검사 중인 필드는 지정된 날짜 이후의 값이어야 합니다. 자세한 내용은 [after](#rule-after) 규칙을 참조하세요.
+유효성 검사 중인 필드는 지정된 날짜 이후이거나 같은 값이어야 합니다. 자세한 내용은 [after](#rule-after) 규칙을 참조하세요.
 
 <!-- For convenience, date-based rules may be constructed using the fluent `date` rule builder: -->
 편의를 위해 `date` 규칙 빌더를 사용하여 날짜 기반 규칙을 구성할 수 있습니다.
@@ -2181,7 +2181,7 @@ Validator::make($data, [
 #### filled
 
 <!-- The field under validation must not be empty when it is present. -->
-유효성 검사 중인 필드는 비어 있으면 안 됩니다.
+유효성 검사 중인 필드는 존재할 때 비어 있으면 안 됩니다.
 
 <a name="rule-gt"></a>
 <!-- #### gt:_field_ -->

@@ -495,7 +495,7 @@ Route::put('/subscription/cancel', function (Request $request, $price) {
 이제 청구 기간이 끝나면 구독이 취소됩니다.
 
 > [!NOTE]
-> Cashier의 웹훅 ​​처리를 구성한 한, Cashier는 Paddle에서 들어오는 웹훅을 검사하여 자동으로 애플리케이션의 계산원 관련 데이터베이스 테이블을 동기화된 상태로 유지합니다. 예를 들어 Paddle 대시보드를 통해 고객의 구독을 취소하면 Cashier는 해당 웹훅을 수신하고 애플리케이션 데이터베이스에서 구독을 "취소됨"으로 표시합니다.
+> Cashier의 웹훅 ​​처리를 구성한 한, Cashier는 Paddle에서 들어오는 웹훅을 검사하여 자동으로 애플리케이션의 Cashier 관련 데이터베이스 테이블을 동기화된 상태로 유지합니다. 예를 들어 Paddle 대시보드를 통해 고객의 구독을 취소하면 Cashier는 해당 웹훅을 수신하고 애플리케이션 데이터베이스에서 구독을 "취소됨"으로 표시합니다.
 
 <a name="checkout-sessions"></a>
 <!-- ## Checkout Sessions -->
@@ -826,7 +826,7 @@ $user = Cashier::findBillable($customerId);
 ### Creating Customers
 
 <!-- Occasionally, you may wish to create a Paddle customer without beginning a subscription. You may accomplish this using the `createAsCustomer` method: -->
-Occasionally, you may wish to create a Paddle customer without beginning a subscription. `createAsCustomer` 메서드를 사용하여 이 작업을 수행할 수 있습니다.
+때때로 구독을 시작하지 않고 Paddle 고객을 생성하고 싶을 수도 있습니다. `createAsCustomer` 메서드를 사용하여 이 작업을 수행할 수 있습니다.
 
 ```php
 $customer = $user->createAsCustomer();
