@@ -42,7 +42,7 @@
 Laravel은 전체 PHP 개발 경험이 즐거울 수 있도록, 로컬 개발 환경까지 포함해 모두를 쉽게 만들어 주고자 합니다. [Laravel Homestead](https://github.com/laravel/homestead)는 공식적으로 제공되는, 미리 구성된 Vagrant 박스로, 여러분의 로컬 컴퓨터에 PHP, 웹 서버, 또는 그 외 서버용 소프트웨어를 직접 설치하지 않고도 쾌적한 개발 환경을 사용할 수 있도록 도와줍니다.
 
 <!-- [Vagrant](https://www.vagrantup.com) provides a simple, elegant way to manage and provision Virtual Machines. Vagrant boxes are completely disposable. If something goes wrong, you can destroy and re-create the box in minutes! -->
-[Vagrant](https://www.vagrantup.com)는 가상 머신을 쉽게 관리하고 구성할 수 있는 간단하고 우아한 방식을 제공합니다. Vagrant 박스는 완전히 재사용이 가능합니다. 무언가 잘못되더라도 박스를 삭제하고 몇 분 만에 다시 생성할 수 있습니다!
+[Vagrant](https://www.vagrantup.com)는 가상 머신을 쉽게 관리하고 구성할 수 있는 간단하고 우아한 방식을 제공합니다. Vagrant 박스는 완전히 일회용입니다. 무언가 잘못되더라도 박스를 삭제하고 몇 분 만에 다시 생성할 수 있습니다!
 
 <!-- Homestead runs on any Windows, macOS, or Linux system and includes Nginx, PHP, MySQL, PostgreSQL, Redis, Memcached, Node, and all of the other software you need to develop amazing Laravel applications. -->
 Homestead는 Windows, macOS, Linux 등 어떤 운영체제에서도 실행 가능하며, Nginx, PHP, MySQL, PostgreSQL, Redis, Memcached, Node 등 다양한 소프트웨어를 함께 포함하고 있어서 Laravel 프로젝트 개발에 필요한 모든 환경을 제공합니다.

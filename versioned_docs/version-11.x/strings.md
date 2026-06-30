@@ -3412,7 +3412,7 @@ $replaced = Str::of('(+1) 501-555-1000')->replaceMatches('/[^A-Za-z0-9]++/', '')
 ```
 
 <!-- The `replaceMatches` method also accepts a closure that will be invoked with each portion of the string matching the given pattern, allowing you to perform the replacement logic within the closure and return the replaced value: -->
-`replaceMatches` 메서드는 콜렉션(closure)도 인자로 받을 수 있으며, 해당 콜렉션은 주어진 패턴과 일치하는 각 부분에서 호출되어, 치환 로직을 직접 구현하고 그 반환 값을 치환에 사용할 수 있습니다.
+`replaceMatches` 메서드는 클로저(closure)도 인자로 받을 수 있으며, 해당 클로저는 주어진 패턴과 일치하는 각 부분에서 호출되어, 치환 로직을 직접 구현하고 그 반환 값을 치환에 사용할 수 있습니다.
 
 ```
 use Illuminate\Support\Str;

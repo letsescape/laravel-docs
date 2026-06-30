@@ -241,7 +241,7 @@ return $request->user()->id === $server->user_id &&
 ```
 
 <!-- At first, allowing the `tokenCan` method to be called and always return `true` for first-party UI initiated requests may seem strange; however, it is convenient to be able to always assume an API token is available and can be inspected via the `tokenCan` method. By taking this approach, you may always call the `tokenCan` method within your application's authorization policies without worrying about whether the request was triggered from your application's UI or was initiated by one of your API's third-party consumers. -->
-처음에는, UI에서 발생한 요청에 대해 `tokenCan`이 무조건 `true`를 반환하는 것이 다소 이상하게 느껴질 수 있지만, 이 방식은 항상 API 토큰이 존재한다고 가정하고 인증 정책 내에서 `tokenCan` 메서드를 일관되게 사용할 수 있게 해 줍니다. 이 덕분에 해당 요청이 UI에서 발생했는지, 아니면 API의 서드파티 소비자에서 발생했는지에 관계없이 언제나 `tokenCan`을 불러올 수 있습니다.
+처음에는, UI에서 발생한 요청에 대해 `tokenCan`이 무조건 `true`를 반환하는 것이 다소 이상하게 느껴질 수 있지만, 이 방식은 항상 API 토큰이 존재한다고 가정하고 인가 정책 내에서 `tokenCan` 메서드를 일관되게 사용할 수 있게 해 줍니다. 이 덕분에 해당 요청이 UI에서 발생했는지, 아니면 API의 서드파티 소비자에서 발생했는지에 관계없이 언제나 `tokenCan`을 불러올 수 있습니다.
 
 <a name="protecting-routes"></a>
 <!-- ### Protecting Routes -->
