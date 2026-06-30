@@ -550,7 +550,7 @@ sail share --subdomain=my-sail-site
 ```
 
 > [!NOTE]
-> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)에서 만든 오픈 소스 터널링 서비스 [BeyondCode](https://beyondco.de) 기반으로 동작합니다.
+> `share` 명령어는 [Expose](https://github.com/beyondcode/expose) 기반으로 동작하며, 이는 [BeyondCode](https://beyondco.de)에서 만든 오픈 소스 터널링 서비스입니다.
 
 <a name="debugging-with-xdebug"></a>
 <!-- ## Debugging With Xdebug -->

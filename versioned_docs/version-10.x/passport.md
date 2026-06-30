@@ -324,7 +324,7 @@ Route::group([
 ## Issuing Access Tokens
 
 <!-- Using OAuth2 via authorization codes is how most developers are familiar with OAuth2. When using authorization codes, a client application will redirect a user to your server where they will either approve or deny the request to issue an access token to the client. -->
-대부분의 개발자들이 OAuth2에서 익숙하게 사용하는 방식이 바로 인증 코드(authorization codes)를 통한 방식입니다. 인증 코드를 사용할 때는, 클라이언트 애플리케이션이 사용자를 여러분의 서버로 리다이렉트 시키고, 사용자는 클라이언트에 액세스 토큰 제공을 승인하거나 거부하게 됩니다.
+대부분의 개발자들이 OAuth2에서 익숙하게 사용하는 방식이 바로 인가 코드(authorization codes)를 통한 방식입니다. 인가 코드를 사용할 때는, 클라이언트 애플리케이션이 사용자를 여러분의 서버로 리다이렉트 시키고, 사용자는 클라이언트에 액세스 토큰 제공을 승인하거나 거부하게 됩니다.
 
 <a name="managing-clients"></a>
 <!-- ### Managing Clients -->
@@ -451,7 +451,7 @@ axios.delete('/oauth/clients/' + clientId)
 #### Redirecting for Authorization
 
 <!-- Once a client has been created, developers may use their client ID and secret to request an authorization code and access token from your application. First, the consuming application should make a redirect request to your application's `/oauth/authorize` route like so: -->
-클라이언트를 생성한 후, 개발자는 해당 클라이언트의 ID, 시크릿을 사용해 인증 코드 및 액세스 토큰을 요청할 수 있습니다. 우선, 소비 애플리케이션에서 여러분의 애플리케이션 `/oauth/authorize` 라우트로 리다이렉트 요청을 보냅니다.
+클라이언트를 생성한 후, 개발자는 해당 클라이언트의 ID, 시크릿을 사용해 인가 코드 및 액세스 토큰을 요청할 수 있습니다. 우선, 소비 애플리케이션에서 여러분의 애플리케이션 `/oauth/authorize` 라우트로 리다이렉트 요청을 보냅니다.
 
 ```
 use Illuminate\Http\Request;
@@ -793,7 +793,7 @@ Route::get('/callback', function (Request $request) {
 > 패스워드 그랜트 토큰 사용은 더 이상 권장하지 않습니다. 대신 [a grant type that is currently recommended by OAuth2 Server](https://oauth2.thephpleague.com/authorization-server/which-grant/)을 선택하시기 바랍니다.
 
 <!-- The OAuth2 password grant allows your other first-party clients, such as a mobile application, to obtain an access token using an email address / username and password. This allows you to issue access tokens securely to your first-party clients without requiring your users to go through the entire OAuth2 authorization code redirect flow. -->
-OAuth2 패스워드 그랜트를 통해, 모바일 애플리케이션과 같은 1차 애플리케이션에서 이메일 주소/사용자명과 비밀번호로 액세스 토큰을 받을 수 있습니다. 이 방법을 사용하면 사용자가 전체 OAuth2 인증 코드 리다이렉트 과정을 거치지 않고도, 1차 애플리케이션에 안전하게 액세스 토큰을 발급할 수 있습니다.
+OAuth2 패스워드 그랜트를 통해, 모바일 애플리케이션과 같은 1차 애플리케이션에서 이메일 주소/사용자명과 비밀번호로 액세스 토큰을 받을 수 있습니다. 이 방법을 사용하면 사용자가 전체 OAuth2 인가 코드 리다이렉트 과정을 거치지 않고도, 1차 애플리케이션에 안전하게 액세스 토큰을 발급할 수 있습니다.
 
 <a name="creating-a-password-grant-client"></a>
 <!-- ### Creating a Password Grant Client -->

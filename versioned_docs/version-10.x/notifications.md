@@ -1103,7 +1103,7 @@ $user->unreadNotifications->markAsRead();
 ```
 
 <!-- You may also use a mass-update query to mark all of the notifications as read without retrieving them from the database: -->
-알림을 데이터베이스에서 완전히 삭제하고 싶다면 대량 업데이트 쿼리를 사용할 수도 있습니다.
+데이터베이스에서 알림을 조회하지 않고 모든 알림을 읽음으로 표시하려면 대량 업데이트 쿼리를 사용할 수도 있습니다.
 
 ```
 $user = App\Models\User::find(1);

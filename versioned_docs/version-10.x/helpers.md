@@ -594,7 +594,7 @@ $price = Arr::get($array, 'products.desk.price');
 ```
 
 <!-- The `Arr::get` method also accepts a default value, which will be returned if the specified key is not present in the array: -->
-또한, 지정한 키가 배열에 없으면 기본 값도 세 번째 인자로 지정하여 반환할 수 있습니다.
+`Arr::get` 메서드는 기본값도 받을 수 있으며, 지정한 키가 배열에 존재하지 않을 경우 이 값이 반환됩니다.
 
 ```
 use Illuminate\Support\Arr;
@@ -940,7 +940,7 @@ $name = Arr::pull($array, 'name');
 ```
 
 <!-- A default value may be passed as the third argument to the method. This value will be returned if the key doesn't exist: -->
-`Arr::get` 메서드는 기본값도 받을 수 있으며, 지정한 키가 배열에 존재하지 않을 경우 이 값이 반환됩니다.
+기본값은 메서드의 세 번째 인자로 전달할 수 있으며, 키가 존재하지 않을 경우 이 값이 반환됩니다.
 
 ```
 use Illuminate\Support\Arr;

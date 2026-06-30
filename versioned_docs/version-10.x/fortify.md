@@ -623,7 +623,7 @@ public function boot(): void
 ```
 
 <!-- Fortify will take care of defining the route that displays this view when a user is redirected to the `/email/verify` endpoint by Laravel's built-in `verified` middleware. -->
-Fortify는 사용자가 `/email/verify` 엔드포인트로 리디렉션될 때 이 뷰를 반환하도록 자동으로 라우트를 정의합니다. 이 라우트는 Laravel의 `verified` 미들웨어를 사용합니다.
+Fortify는 Laravel의 내장 `verified` 미들웨어가 사용자를 `/email/verify` 엔드포인트로 리디렉션할 때 이 뷰를 표시하는 라우트를 자동으로 정의합니다.
 
 <!-- Your `verify-email` template should include an informational message instructing the user to click the email verification link that was sent to their email address. -->
 `verify-email` 템플릿에는 인증 이메일에 포함된 링크를 클릭해야 한다는 안내 메시지를 포함해야 합니다.

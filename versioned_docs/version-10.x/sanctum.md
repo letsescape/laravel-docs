@@ -248,7 +248,7 @@ Route::get('/orders', function () {
 #### First-Party UI Initiated Requests
 
 <!-- For convenience, the `tokenCan` method will always return `true` if the incoming authenticated request was from your first-party SPA and you are using Sanctum's built-in [SPA authentication](#spa-authentication). -->
-편의를 위해, 리뷰에서 요청이 여러분의 1차 서비스 SPA로부터 오고, 내장 [SPA authentication](#spa-authentication)을 사용 중이라면, `tokenCan` 메서드는 항상 `true`를 반환합니다.
+편의를 위해, 요청이 여러분의 1차 서비스 SPA로부터 오고, 내장 [SPA authentication](#spa-authentication)을 사용 중이라면, `tokenCan` 메서드는 항상 `true`를 반환합니다.
 
 <!-- However, this does not necessarily mean that your application has to allow the user to perform the action. Typically, your application's [authorization policies](/docs/10.x/authorization#creating-policies) will determine if the token has been granted the permission to perform the abilities as well as check that the user instance itself should be allowed to perform the action. -->
 하지만, 이것이 해당 사용자가 실제로 해당 작업을 수행할 수 있다는 의미는 아닙니다. 실제 권한 부여 여부는 일반적으로 [authorization policies](/docs/10.x/authorization#creating-policies)에서 판단하게 됩니다. 즉, 토큰이 필요한 권한을 가지고 있는지와 동시에, 사용자가 해당 리소스에 대해 실제로 작업할 수 있는지도 확인해야 합니다.
