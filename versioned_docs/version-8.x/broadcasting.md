@@ -681,7 +681,7 @@ Broadcast::routes($attributes);
 #### Customizing The Authorization Endpoint
 
 <!-- By default, Echo will use the `/broadcasting/auth` endpoint to authorize channel access. However, you may specify your own authorization endpoint by passing the `authEndpoint` configuration option to your Echo instance: -->
-기본적으로 Echo는 채널 접근 권한을 인증하기 위해 `/broadcasting/auth` 엔드포인트를 사용합니다. 하지만 `authEndpoint` 설정 옵션을 Echo 인스턴스에 전달함으로써 여러분만의 인증 엔드포인트를 사용할 수 있습니다.
+기본적으로 Echo는 채널 접근 권한을 인가하기 위해 `/broadcasting/auth` 엔드포인트를 사용합니다. 하지만 `authEndpoint` 설정 옵션을 Echo 인스턴스에 전달함으로써 여러분만의 인가 엔드포인트를 사용할 수 있습니다.
 
 ```
 window.Echo = new Echo({
@@ -697,7 +697,7 @@ window.Echo = new Echo({
 #### Customizing The Authorization Request
 
 <!-- You can customize how Laravel Echo performs authorization requests by providing a custom authorizer when initializing Echo: -->
-Laravel Echo가 인증 요청을 수행하는 방식을 커스터마이즈하려면 Echo를 초기화할 때 사용자 지정 authorizer를 제공할 수 있습니다.
+Laravel Echo가 인가 요청을 수행하는 방식을 커스터마이즈하려면 Echo를 초기화할 때 사용자 지정 authorizer를 제공할 수 있습니다.
 
 ```
 window.Echo = new Echo({
@@ -796,7 +796,7 @@ Broadcast::channel('orders.{order}', OrderChannel::class);
 ```
 
 <!-- Finally, you may place the authorization logic for your channel in the channel class' `join` method. This `join` method will house the same logic you would have typically placed in your channel authorization closure. You may also take advantage of channel model binding: -->
-마지막으로, 채널 클래스의 `join` 메서드에 채널 인증 로직을 작성할 수 있습니다. 이 `join` 메서드에는 보통 클로저로 등록하던 동일한 로직을 포함하면 됩니다. 또한 채널 모델 바인딩도 활용할 수 있습니다.
+마지막으로, 채널 클래스의 `join` 메서드에 채널 인가 로직을 작성할 수 있습니다. 이 `join` 메서드에는 보통 클로저로 등록하던 동일한 로직을 포함하면 됩니다. 또한 채널 모델 바인딩도 활용할 수 있습니다.
 
 ```
 <?php
@@ -976,7 +976,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening For Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-특정 이벤트의 청취만 중단하고 [leaving the channel](#leaving-a-channel)에는 `stopListening` 메서드를 사용할 수 있습니다.
+[채널을 떠나지 않고](#leaving-a-channel) 특정 이벤트의 청취만 중단하고 싶다면, `stopListening` 메서드를 사용할 수 있습니다.
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1042,7 +1042,7 @@ Echo.channel('orders')
 ### Authorizing Presence Channels
 
 <!-- All presence channels are also private channels; therefore, users must be [authorized to access them](#authorizing-channels). However, when defining authorization callbacks for presence channels, you will not return `true` if the user is authorized to join the channel. Instead, you should return an array of data about the user. -->
-프리즌스 채널은 프라이빗 채널이기도 하므로, [authorized to access them](#authorizing-channels)가 필요합니다. 그러나 프라이빗 채널과 달리, 프리즌스 채널의 인증 콜백에서는 사용자가 채널에 참여할 수 있는 경우 `true`를 반환하는 것이 아니라, 사용자에 대한 데이터를 배열로 반환해야 합니다.
+프리즌스 채널은 프라이빗 채널이기도 하므로, 사용자는 반드시 [접근 권한을 인가받아야](#authorizing-channels) 합니다. 그러나 프라이빗 채널과 달리, 프리즌스 채널의 인가 콜백에서는 사용자가 채널에 참여할 수 있는 경우 `true`를 반환하는 것이 아니라, 사용자에 대한 데이터를 배열로 반환해야 합니다.
 
 <!-- The data returned by the authorization callback will be made available to the presence channel event listeners in your JavaScript application. If the user is not authorized to join the presence channel, you should return `false` or `null`: -->
 이 콜백에서 반환된 데이터는 자바스크립트 애플리케이션의 프리즌스 채널 이벤트 리스너에서 사용할 수 있습니다. 사용자가 채널 참여를 인가받지 못하면, `false` 또는 `null`을 반환하면 됩니다.

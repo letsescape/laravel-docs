@@ -32,7 +32,7 @@
 마이그레이션은 데이터베이스 버전 관리를 가능하게 해주는 도구로, 팀원들이 애플리케이션의 데이터베이스 스키마 정의를 직접 작성하고 공유할 수 있게 해줍니다. 만약 소스 코드를 동기화한 후 동료에게 직접 컬럼을 추가하라고 수동 지시한 적이 있다면, 바로 그 문제가 데이터베이스 마이그레이션으로 해결되는 문제입니다.
 
 <!-- The Laravel `Schema` [facade](/docs/8.x/facades) provides database agnostic support for creating and manipulating tables across all of Laravel's supported database systems. Typically, migrations will use this facade to create and modify database tables and columns. -->
-Laravel의 `Schema` [facade](/docs/8.x/facades)는 Laravel이 지원하는 모든 데이터베이스 시스템에서 테이블을 생성하고 다룰 수 있도록 데이터베이스 친화적이지 않은(agnostic) 접근을 제공합니다. 일반적으로 마이그레이션은 이 파사드를 이용하여 데이터베이스의 테이블과 컬럼을 만들거나 수정합니다.
+Laravel의 `Schema` [facade](/docs/8.x/facades)는 Laravel이 지원하는 모든 데이터베이스 시스템에서 테이블을 생성하고 다룰 수 있도록 특정 데이터베이스에 종속되지 않는(agnostic) 접근을 제공합니다. 일반적으로 마이그레이션은 이 파사드를 이용하여 데이터베이스의 테이블과 컬럼을 만들거나 수정합니다.
 
 <a name="generating-migrations"></a>
 <a id="writing-migrations" data-translation-alias="true"></a>

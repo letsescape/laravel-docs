@@ -514,7 +514,7 @@ if ($request->hasAny(['name', 'email'])) {
 ```
 
 <!-- If you would like to determine if a value is present on the request and is not empty, you may use the `filled` method: -->
-특정 키가 없거나 값이 비어있지 않은지까지 확인하려면 `filled` 메서드를 사용합니다.
+값이 요청에 존재하고 비어있지 않은지 확인하려면 `filled` 메서드를 사용합니다.
 
 ```
 if ($request->filled('name')) {

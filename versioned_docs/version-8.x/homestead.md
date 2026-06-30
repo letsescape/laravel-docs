@@ -383,7 +383,7 @@ services:
 ```
 
 <!-- The specified services will be started or stopped based on their order in the `enabled` and `disabled` directives. -->
-`enabled`, `disabled` 하위에 나열된 항목 순서와 관계없이, 해당 서비스가 실행 또는 중단됩니다.
+`enabled`, `disabled` 하위에 나열된 항목 순서에 따라, 해당 서비스가 실행 또는 중단됩니다.
 
 <a name="launching-the-vagrant-box"></a>
 <!-- ### Launching The Vagrant Box -->
