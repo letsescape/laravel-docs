@@ -184,7 +184,7 @@ Redis キューを使用する場合、`block_for` 構成オプションを使�
 - Redis: `predis/predis ~1.0` or phpredis PHP extension
 -->
 - Amazon SQS: `aws/aws-sdk-php ~3.0`
-- 豆の木: `pda/pheanstalk ~4.0`
+- Beanstalkd: `pda/pheanstalk ~4.0`
 - Redis: `predis/predis ~1.0` または phpredis PHP 拡張機能
 
 <!-- </div> -->

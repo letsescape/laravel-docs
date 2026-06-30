@@ -1486,7 +1486,7 @@ Schema::table('users', function (Blueprint $table) {
 - SQLite < `3.25.0`
 -->
 - MySQL < `8.0.3`
-- マリアDB < `10.5.2`
+- MariaDB < `10.5.2`
 - SQLite < `3.25.0`
 
 <!-- </div> -->
