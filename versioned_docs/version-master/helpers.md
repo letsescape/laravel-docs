@@ -2725,7 +2725,7 @@ $previous = url()->previous();
 #### `abort()`
 
 <!-- The `abort` function throws [an HTTP exception](/docs/master/errors#http-exceptions) which will be rendered by the [exception handler](/docs/master/errors#handling-exceptions): -->
-`abort` 함수는 [an HTTP exception](/docs/master/errors#http-exceptions)에 의해 렌더링될 [exception handler](/docs/master/errors#handling-exceptions)를 발생시킵니다.
+`abort` 함수는 [an HTTP exception](/docs/master/errors#http-exceptions)을 발생시키며, 이 예외는 [exception handler](/docs/master/errors#handling-exceptions)에 의해 렌더링됩니다.
 
 ```php
 abort(403);

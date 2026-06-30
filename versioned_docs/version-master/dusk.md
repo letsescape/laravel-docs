@@ -76,7 +76,7 @@ composer require laravel/dusk --dev
 > Dusk의 서비스 프로바이더를 수동으로 등록하는 경우 프로덕션 환경에 해당 서비스를 **절대** 등록해서는 안 됩니다. 그렇게 하면 임의의 사용자가 귀하의 애플리케이션을 인증할 수 있게 될 수 있습니다.
 
 <!-- After installing the Dusk package, execute the `dusk:install` Artisan command. The `dusk:install` command will create a `tests/Browser` directory, an example Dusk test, and install the Chrome Driver binary for your operating system: -->
-Dusk 패키지를 설치한 후 `dusk:install` Artisan 명령을 실행합니다. `dusk:install` 명령은 Dusk 테스트의 예인 `tests/Browser` 디렉터리를 생성하고 운영 체제에 맞는 Chrome 드라이버 바이너리를 설치합니다.
+Dusk 패키지를 설치한 후 `dusk:install` Artisan 명령을 실행합니다. `dusk:install` 명령은 `tests/Browser` 디렉터리와 예제 Dusk 테스트를 생성하고 운영 체제에 맞는 Chrome 드라이버 바이너리를 설치합니다.
 
 ```shell
 php artisan dusk:install

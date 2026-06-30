@@ -784,7 +784,7 @@ public function tools(): iterable
 #### File Search
 
 <!-- The `FileSearch` provider tool allows agents to search through [files](#files) stored in [vector stores](#vector-stores). This enables retrieval-augmented generation (RAG) by allowing the agent to search your uploaded documents for relevant information. -->
-`FileSearch` 프로바이더 도구를 사용하면 에이전트가 [files](#files)에 저장된 [vector stores](#vector-stores)을 검색할 수 있습니다. 이를 통해 에이전트가 업로드한 문서에서 관련 정보를 검색할 수 있으므로 검색 증강 생성(RAG)이 가능합니다.
+`FileSearch` 프로바이더 도구를 사용하면 에이전트가 [files](#files)을 [vector stores](#vector-stores)에서 검색할 수 있습니다. 이를 통해 에이전트가 업로드한 문서에서 관련 정보를 검색할 수 있으므로 검색 증강 생성(RAG)이 가능합니다.
 
 <!-- **Supported providers:** OpenAI, Gemini -->
 **지원되는 프로바이더:** OpenAI, Gemini
