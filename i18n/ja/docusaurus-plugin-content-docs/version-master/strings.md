@@ -1390,7 +1390,7 @@ $result = Str::isMatch('/foo (.*)/', 'laravel');
 <!-- #### `Str::orderedUuid()` -->
 #### `Str::orderedUuid()`
 <!-- The `Str::orderedUuid` method generates a "timestamp first" UUID that may be efficiently stored in an indexed database column. Each UUID that is generated using this method will be sorted after UUIDs previously generated using the method: -->
-`Str::orderedUuid` メソッドは、インデックス付きデータベース列に効率的に格納できる「タイムスタンプ優先」の UUID を生成します。このメソッドを使用して生成された各 UUID は、以前に次のメソッドを使用して生成された UUID の後にソートされます。
+`Str::orderedUuid` メソッドは、インデックス付きデータベース列に効率的に格納できる「タイムスタンプ優先」の UUID を生成します。このメソッドを使用して生成された各 UUID は、以前にこのメソッドを使用して生成された UUID の後にソートされます。
 
 ```php
 use Illuminate\Support\Str;

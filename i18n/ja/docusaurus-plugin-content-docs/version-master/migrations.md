@@ -1880,7 +1880,7 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite はデフォルトで外部キー制約を無効にします。 SQLite を使用する場合は、移行で SQLite を作成する前に、データベース構成で [enable foreign key support](/docs/master/database#configuration) を実行してください。
+> SQLite はデフォルトで外部キー制約を無効にします。 SQLite を使用する場合は、移行で外部キー制約を作成する前に、データベース構成で [enable foreign key support](/docs/master/database#configuration) を実行してください。
 
 <a name="events"></a>
 <!-- ## Events -->

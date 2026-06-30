@@ -706,7 +706,7 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 <!-- In the example above, assets will be prefetched with a maximum of `3` concurrent downloads on each page load. You can modify the concurrency to suit your application's needs or specify no concurrency limit if the application should download all assets at once: -->
-上の例では、ページの読み込みごとに最大 `3` の同時ダウンロードでアセットがプリフェッチされます。アプリケーションのニーズに合わせて同時実行数を変更したり、アプリケーションがすべてのアセットを一度にダウンロードする必要がある場合は同時実行数の制限を指定したりできません。
+上の例では、ページの読み込みごとに最大 `3` の同時ダウンロードでアセットがプリフェッチされます。アプリケーションのニーズに合わせて同時実行数を変更したり、アプリケーションがすべてのアセットを一度にダウンロードする必要がある場合は同時実行数の制限を指定しないようにしたりできます。
 
 ```php
 /**

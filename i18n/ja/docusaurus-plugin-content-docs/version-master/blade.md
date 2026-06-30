@@ -505,7 +505,7 @@ switch ステートメントは、`@switch`、`@case`、`@break`、`@default`、
 | `$loop->count`     | 反復される配列内の項目の合計数。 |
 | `$loop->first`     | これがループの最初の反復であるかどうか。  |
 | `$loop->last`      | これがループの最後の反復であるかどうか。   |
-| `$loop->even`      | これがループの均等な反復であるかどうか。    |
+| `$loop->even`      | これがループの偶数の反復であるかどうか。    |
 | `$loop->odd`       | これがループ全体での奇数の反復であるかどうか。     |
 | `$loop->depth`     | 現在のループのネスト レベル。                 |
 | `$loop->parent`    | ネストされたループ内の場合、親のループ変数。     |
@@ -2083,7 +2083,7 @@ Blade を使用すると、別のビューまたはレイアウトの別の場�
 ```
 
 <!-- If you would like to `@push` content if a given boolean expression evaluates to `true`, you may use the `@pushIf` directive: -->
-指定されたブール式が `true` と評価された場合に `@push` コンテンツを取得したい場合は、`@pushIf` ディレクティブを使用できます。
+指定されたブール式が `true` と評価された場合にコンテンツを `@push` したい場合は、`@pushIf` ディレクティブを使用できます。
 
 ```blade
 @pushIf($shouldPush, 'scripts')
