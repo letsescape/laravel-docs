@@ -188,7 +188,7 @@ Redis キューを使用する場合、`block_for` 構成オプションを使�
 - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb`
 -->
 - Amazon SQS: `aws/aws-sdk-php ~3.0`
-- 豆の木: `pda/pheanstalk ~5.0`
+- Beanstalkd: `pda/pheanstalk ~5.0`
 - Redis: `predis/predis ~2.0` または phpredis PHP 拡張機能
 - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb`
 

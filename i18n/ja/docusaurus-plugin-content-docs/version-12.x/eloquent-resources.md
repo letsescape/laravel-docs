@@ -18,7 +18,7 @@
 ## Introduction
 
 <!-- When building an API, you may need a transformation layer that sits between your Eloquent models and the JSON responses that are actually returned to your application's users. For example, you may wish to display certain attributes for a subset of users and not others, or you may wish to always include certain relationships in the JSON representation of your models. Eloquent's resource classes allow you to expressively and easily transform your models and model collections into JSON. -->
-API を構築するときは、Eloquent モデルと実際にアプリケーションのユーザーに返される JSON 応答の間に位置する変換レイヤーが必要になる場合があります。たとえば、ユーザーのサブセットに対して特定の属性を表示し、その他の属性は表示しないようにしたい場合や、モデルの JSON 表現に特定の関係を常に含めたい場合があります。 Eloquent のリソース クラスを使用すると、モデルとモデル コレクションを表現力豊かかつ簡単に JSON に変換できます。
+API を構築するときは、Eloquent モデルと実際にアプリケーションのユーザーに返される JSON 応答の間に位置する変換レイヤーが必要になる場合があります。たとえば、ユーザーのサブセットに対して特定の属性を表示し、他のユーザーには表示しないようにしたい場合や、モデルの JSON 表現に特定の関係を常に含めたい場合があります。 Eloquent のリソース クラスを使用すると、モデルとモデル コレクションを表現力豊かかつ簡単に JSON に変換できます。
 
 <!-- Of course, you may always convert Eloquent models or collections to JSON using their `toJson` methods; however, Eloquent resources provide more granular and robust control over the JSON serialization of your models and their relationships. -->
 もちろん、`toJson` メソッドを使用して、いつでも Eloquent モデルまたはコレクションを JSON に変換できます。ただし、Eloquent リソースでは、モデルとその関係の JSON シリアル化をより詳細かつ堅牢に制御できます。
