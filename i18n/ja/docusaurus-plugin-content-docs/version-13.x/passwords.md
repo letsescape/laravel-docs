@@ -185,7 +185,7 @@ Route::get('/reset-password/{token}', function (string $token) {
 ```
 
 <!-- The view that is returned by this route should display a form containing an `email` field, a `password` field, a `password_confirmation` field, and a hidden `token` field, which should contain the value of the secret `$token` received by our route. -->
-このルートによって返されるビューには、`email` フィールド、`password` フィールド、`password_confirmation` フィールド、および非表示の `token` フィールドを含むフォームが表示されます。これらのフィールドには、ルートによって受信されたシークレット `$token` の値が含まれている必要があります。
+このルートによって返されるビューには、`email` フィールド、`password` フィールド、`password_confirmation` フィールド、および非表示の `token` フィールドを含むフォームが表示されます。この非表示フィールドには、ルートによって受信されたシークレット `$token` の値が含まれている必要があります。
 
 <a name="password-reset-handling-the-form-submission"></a>
 <!-- #### Handling the Form Submission -->

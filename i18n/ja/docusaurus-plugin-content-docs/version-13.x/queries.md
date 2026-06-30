@@ -849,7 +849,7 @@ $users = DB::table('users')
 ### Additional Where Clauses
 
 <!-- **whereLike / orWhereLike / whereNotLike / orWhereNotLike** -->
-**どこのような場所 / またはどこのような場所 / どこのような場所ではない / またはどこのような場所ではない **
+**whereLike / orWhereLike / whereNotLike / orWhereNotLike**
 
 <!-- The `whereLike` method allows you to add "LIKE" clauses to your query for pattern matching. These methods provide a database-agnostic way of performing string matching queries, with the ability to toggle case-sensitivity. By default, string matching is case-insensitive: -->
 `whereLike` メソッドを使用すると、パターン マッチングのためにクエリに「LIKE」句を追加できます。これらのメソッドは、大文字と小文字の区別を切り替える機能を備えた、データベースに依存しない文字列一致クエリの実行方法を提供します。デフォルトでは、文字列の照合では大文字と小文字が区別されません。
@@ -902,7 +902,7 @@ $users = DB::table('users')
 > `whereLike` 大文字と小文字を区別する検索オプションは、現在 SQL Server ではサポートされていません。
 
 <!-- **whereIn / whereNotIn / orWhereIn / orWhereNotIn** -->
-**どこで / どこでではない / またはどこでで / またはどこでではない **
+**whereIn / whereNotIn / orWhereIn / orWhereNotIn**
 
 <!-- The `whereIn` method verifies that a given column's value is contained within the given array: -->
 `whereIn` メソッドは、指定された列の値が指定された配列内に含まれていることを検証します。
@@ -948,7 +948,7 @@ select * from comments where user_id in (
 > 整数バインディングの大規模な配列をクエリに追加する場合、`whereIntegerInRaw` メソッドまたは `whereIntegerNotInRaw` メソッドを使用すると、メモリ使用量を大幅に削減できます。
 
 <!-- **whereBetween / orWhereBetween** -->
-**どこの間/またはどこの間**
+**whereBetween / orWhereBetween**
 
 <!-- The `whereBetween` method verifies that a column's value is between two values: -->
 `whereBetween` メソッドは、列の値が 2 つの値の間にあることを検証します。
@@ -960,7 +960,7 @@ $users = DB::table('users')
 ```
 
 <!-- **whereNotBetween / orWhereNotBetween** -->
-**whereNotBetween / または WhereNotBetween**
+**whereNotBetween / orWhereNotBetween**
 
 <!-- The `whereNotBetween` method verifies that a column's value lies outside of two values: -->
 `whereNotBetween` メソッドは、列の値が次の 2 つの値の範囲外にあるかどうかを検証します。
@@ -1049,7 +1049,7 @@ $users = DB::table('users')
 ```
 
 <!-- **whereDate / whereMonth / whereDay / whereYear / whereTime** -->
-**どこの日付 / どこの月 / どこの日 / どこの年 / どこの時間 **
+**whereDate / whereMonth / whereDay / whereYear / whereTime**
 
 <!-- The `whereDate` method may be used to compare a column's value against a date: -->
 `whereDate` メソッドは、列の値を日付と比較するために使用できます。
@@ -1097,7 +1097,7 @@ $users = DB::table('users')
 ```
 
 <!-- **wherePast / whereFuture / whereToday / whereBeforeToday / whereAfterToday** -->
-**過去の場所 / 未来の場所 / 今日の場所 / 今日の場所 / 今日の場所 / 今日の場所 **
+**wherePast / whereFuture / whereToday / whereBeforeToday / whereAfterToday**
 
 <!-- The `wherePast` and `whereFuture` methods may be used to determine if a column's value is in the past or future: -->
 `wherePast` メソッドと `whereFuture` メソッドは、列の値が過去のものであるか未来のものであるかを判断するために使用できます。

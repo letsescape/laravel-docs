@@ -105,7 +105,7 @@ Vue スターター キットは、[Inertia](https://inertiajs.com) を使用し
 Inertia を使用すると、従来のサーバー側のルーティングとコントローラを使用して、最新の単一ページの Vue アプリケーションを構築できます。これにより、Vue のフロントエンドのパワーと、Laravel の驚異的なバックエンドの生産性および超高速の Vite コンパイルを組み合わせて楽しむことができます。
 
 <!-- The Vue starter kit utilizes the Vue Composition API, TypeScript, Tailwind, and the [shadcn-vue](https://www.shadcn-vue.com/) component library. -->
-Vue スターター キットは、Vue Comboposition API、TypeScript、Tailwind、および [shadcn-vue](https://www.shadcn-vue.com/) コンポーネント ライブラリを利用します。
+Vue スターター キットは、Vue Composition API、TypeScript、Tailwind、および [shadcn-vue](https://www.shadcn-vue.com/) コンポーネント ライブラリを利用します。
 
 <a name="livewire"></a>
 <!-- ### Livewire -->
@@ -290,7 +290,7 @@ import AuthLayout from '@/layouts/auth/AuthSplitLayout.svelte'; // [tl! add]
 ### Vue
 
 <!-- Our Vue starter kit is built with Inertia 3, Vue 3 Composition API, Tailwind, and [shadcn-vue](https://www.shadcn-vue.com/). As with all of our starter kits, all of the backend and frontend code exists within your application to allow for full customization. -->
-Vue スターター キットは、Inertia 3、Vue 3 Comboposition API、Tailwind、および [shadcn-vue](https://www.shadcn-vue.com/) で構築されています。すべてのスターター キットと同様に、バックエンドとフロントエンドのコードはすべてアプリケーション内に存在し、完全なカスタマイズが可能です。
+Vue スターター キットは、Inertia 3、Vue 3 Composition API、Tailwind、および [shadcn-vue](https://www.shadcn-vue.com/) で構築されています。すべてのスターター キットと同様に、バックエンドとフロントエンドのコードはすべてアプリケーション内に存在し、完全なカスタマイズが可能です。
 
 <!-- The majority of the frontend code is located in the `resources/js` directory. You are free to modify any of the code to customize the appearance and behavior of your application: -->
 フロントエンド コードの大部分は、`resources/js` ディレクトリにあります。コードを自由に変更して、アプリケーションの外観と動作をカスタマイズできます。

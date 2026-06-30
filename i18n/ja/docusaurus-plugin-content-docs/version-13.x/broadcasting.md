@@ -80,7 +80,7 @@ php artisan install:broadcasting
 ```
 
 <!-- The `install:broadcasting` command will prompt you for which event broadcasting service you would like to use. In addition, it will create the `config/broadcasting.php` configuration file and the `routes/channels.php` file where you may register your application's broadcast authorization routes and callbacks. -->
-`install:broadcasting` コマンドを実行すると、使用するイベント ブロードキャスト サービスを指定するよう求められます。さらに、アプリケーションのブロードキャスト認証ルートとコールバックを登録できる `config/broadcasting.php` 構成ファイルと `routes/channels.php` ファイルが作成されます。
+`install:broadcasting` コマンドを実行すると、使用するイベント ブロードキャスト サービスを指定するよう求められます。さらに、アプリケーションのブロードキャスト認可ルートとコールバックを登録できる `config/broadcasting.php` 構成ファイルと `routes/channels.php` ファイルが作成されます。
 
 <!-- Laravel supports several broadcast drivers out of the box: [Laravel Reverb](/docs/13.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), and a `log` driver for local development and debugging. Additionally, a `null` driver is included which allows you to disable broadcasting during testing. A configuration example is included for each of these drivers in the `config/broadcasting.php` configuration file. -->
 Laravel は、すぐに使用できるいくつかのブロードキャストドライバ ([Laravel Reverb](/docs/13.x/reverb)、[Pusher Channels](https://pusher.com/channels)、[Ably](https://ably.com)、ローカル開発およびデバッグ用の `log` ドライバ) をサポートしています。さらに、テスト中にブロードキャストを無効にすることができる `null` ドライバが含まれています。これらの各ドライバの構成例は、`config/broadcasting.php` 構成ファイルに含まれています。
@@ -660,7 +660,7 @@ public function broadcastOn(): array
 #### Authorizing Channels
 
 <!-- Remember, users must be authorized to listen on private channels. We may define our channel authorization rules in our application's `routes/channels.php` file. In this example, we need to verify that any user attempting to listen on the private `orders.1` channel is actually the creator of the order: -->
-ユーザーはプライベート チャネルでリッスンすることを許可されている必要があることに注意してください。アプリケーションの `routes/channels.php` ファイルでチャネル認証ルールを定義できます。この例では、プライベート `orders.1` チャネルでリッスンしようとしているユーザーが実際に注文の作成者であることを確認する必要があります。
+ユーザーはプライベート チャネルでリッスンすることを許可されている必要があることに注意してください。アプリケーションの `routes/channels.php` ファイルでチャネル認可ルールを定義できます。この例では、プライベート `orders.1` チャネルでリッスンしようとしているユーザーが実際に注文の作成者であることを確認する必要があります。
 
 ```php
 use App\Models\Order;
@@ -966,7 +966,7 @@ Broadcast::channel('orders.{orderId}', function (User $user, int $orderId) {
 すべての認可コールバックは、現在認証されているユーザーを最初の引数として受け取り、追加のワイルドカード パラメーターを後続の引数として受け取ります。この例では、`{orderId}` プレースホルダーを使用して、チャネル名の「ID」部分がワイルドカードであることを示しています。
 
 <!-- You may view a list of your application's broadcast authorization callbacks using the `channel:list` Artisan command: -->
-`channel:list` Artisan コマンドを使用して、アプリケーションのブロードキャスト認証コールバックのリストを表示できます。
+`channel:list` Artisan コマンドを使用して、アプリケーションのブロードキャスト認可コールバックのリストを表示できます。
 
 ```shell
 php artisan channel:list
@@ -2172,7 +2172,7 @@ channel().notification((notification) => {
 ```
 
 <!-- In this example, all notifications sent to `App\Models\User` instances via the `broadcast` channel would be received by the callback. A channel authorization callback for the `App.Models.User.{id}` channel is included in your application's `routes/channels.php` file. -->
-この例では、`broadcast` チャネル経由で `App\Models\User` インスタンスに送信されたすべての通知がコールバックによって受信されます。 `App.Models.User.{id}` チャネルのチャネル認証コールバックは、アプリケーションの `routes/channels.php` ファイルに含まれています。
+この例では、`broadcast` チャネル経由で `App\Models\User` インスタンスに送信されたすべての通知がコールバックによって受信されます。 `App.Models.User.{id}` チャネルのチャネル認可コールバックは、アプリケーションの `routes/channels.php` ファイルに含まれています。
 
 <a name="stop-listening-for-notifications"></a>
 <!-- #### Stop Listening for Notifications -->
