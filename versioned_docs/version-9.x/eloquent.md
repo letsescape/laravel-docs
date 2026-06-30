@@ -999,7 +999,7 @@ $flight = Flight::create([
 하지만 `create` 메서드를 사용하기 전, 반드시 모델 클래스에 `fillable` 또는 `guarded` 속성이 지정되어 있어야 합니다. 이는 모든 Eloquent 모델이 기본적으로 대량 할당 취약점(mass assignment vulnerability)에 대비해 보호되기 때문입니다.
 
 <!-- A mass assignment vulnerability occurs when a user passes an unexpected HTTP request field and that field changes a column in your database that you did not expect. For example, a malicious user might send an `is_admin` parameter through an HTTP request, which is then passed to your model's `create` method, allowing the user to escalate themselves to an administrator. -->
-대량 할당 취약점(mass assignment vulnerability)은 사용자가 예상치 못한 HTTP 요청 필드를 전달했고, 그 필드가 데이터베이스의 원하는 컬럼을 변경하는 경우 발생합니다. 예를 들어, 악의적인 사용자가 HTTP 요청을 통해 `is_admin` 파라미터를 전달하면, 해당 값이 모델의 `create` 메서드에 전달되어 사용자가 스스로 관리자로 권한을 올릴 수도 있습니다.
+대량 할당 취약점(mass assignment vulnerability)은 사용자가 예상치 못한 HTTP 요청 필드를 전달했고, 그 필드가 데이터베이스의 예상하지 못한 컬럼을 변경하는 경우 발생합니다. 예를 들어, 악의적인 사용자가 HTTP 요청을 통해 `is_admin` 파라미터를 전달하면, 해당 값이 모델의 `create` 메서드에 전달되어 사용자가 스스로 관리자로 권한을 올릴 수도 있습니다.
 
 <!-- So, to get started, you should define which model attributes you want to make mass assignable. You may do this using the `$fillable` property on the model. For example, let's make the `name` attribute of our `Flight` model mass assignable: -->
 따라서 우선, 어떤 모델 속성을 대량 할당이 가능하도록 허용할지 지정해야 합니다. 모델의 `$fillable` 속성에 허용할 속성을 배열로 정의하면 됩니다. 예시로, `Flight` 모델의 `name` 속성을 대량 할당 가능하도록 만들겠습니다.
