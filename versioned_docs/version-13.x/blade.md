@@ -506,8 +506,8 @@ Switch 문은 `@switch`, `@case`, `@break`, `@default` 및 `@endswitch` 지시�
 | `$loop->count` | 반복되는 배열의 총 항목 수입니다. |
 | `$loop->first` | 이것이 루프를 통한 첫 번째 반복인지 여부입니다.  |
 | `$loop->last` | 이것이 루프를 통한 마지막 반복인지 여부입니다.   |
-| `$loop->even` | 루프를 통한 균등 반복인지 여부입니다.    |
-| `$loop->odd` | 루프를 통한 이상한 반복인지 여부입니다.     |
+| `$loop->even` | 루프를 통한 짝수 반복인지 여부입니다.    |
+| `$loop->odd` | 루프를 통한 홀수 반복인지 여부입니다.     |
 | `$loop->depth` | 현재 루프의 중첩 수준입니다.                 |
 | `$loop->parent` | 중첩 루프에 있는 경우 상위 루프 변수입니다.     |
 
@@ -1066,7 +1066,7 @@ public function __construct(
 #### Short Attribute Syntax
 
 <!-- When passing attributes to components, you may also use a "short attribute" syntax. This is often convenient since attribute names frequently match the variable names they correspond to: -->
-속성을 컴포넌트에 전달할 때 "짧은 속성" 구문을 사용할 수도 있습니다. 속성 이름은 해당 속성 이름과 자주 일치하므로 이는 편리한 경우가 많습니다.
+속성을 컴포넌트에 전달할 때 "짧은 속성" 구문을 사용할 수도 있습니다. 속성 이름은 해당 변수 이름과 자주 일치하므로 이는 편리한 경우가 많습니다.
 
 ```blade
 {{-- Short attribute syntax... --}}

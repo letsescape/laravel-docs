@@ -849,7 +849,7 @@ $users = DB::table('users')
 ### Additional Where Clauses
 
 <!-- **whereLike / orWhereLike / whereNotLike / orWhereNotLike** -->
-**어디처럼/또는어디처럼/어디같지 않음/또는어디같지 않음**
+**whereLike / orWhereLike / whereNotLike / orWhereNotLike**
 
 <!-- The `whereLike` method allows you to add "LIKE" clauses to your query for pattern matching. These methods provide a database-agnostic way of performing string matching queries, with the ability to toggle case-sensitivity. By default, string matching is case-insensitive: -->
 `whereLike` 메소드를 사용하면 패턴 일치를 위해 쿼리에 "LIKE" 절을 추가할 수 있습니다. 이러한 방법은 대소문자 구분을 전환하는 기능과 함께 문자열 일치 쿼리를 수행하는 데이터베이스에 구애받지 않는 방법을 제공합니다. 기본적으로 문자열 일치는 대소문자를 구분하지 않습니다.
@@ -948,7 +948,7 @@ select * from comments where user_id in (
 > 쿼리에 대규모 정수 바인딩 배열을 추가하는 경우 `whereIntegerInRaw` 또는 `whereIntegerNotInRaw` 메서드를 사용하면 메모리 사용량을 크게 줄일 수 있습니다.
 
 <!-- **whereBetween / orWhereBetween** -->
-**어디 사이에 / 또는어디 사이에**
+**whereBetween / orWhereBetween**
 
 <!-- The `whereBetween` method verifies that a column's value is between two values: -->
 `whereBetween` 메서드는 열 값이 두 값 사이에 있는지 확인합니다.
@@ -960,7 +960,7 @@ $users = DB::table('users')
 ```
 
 <!-- **whereNotBetween / orWhereNotBetween** -->
-**Between / 또는WhereNotBetween**
+**whereNotBetween / orWhereNotBetween**
 
 <!-- The `whereNotBetween` method verifies that a column's value lies outside of two values: -->
 `whereNotBetween` 메서드는 열 값이 두 값 외부에 있는지 확인합니다.
@@ -972,7 +972,7 @@ $users = DB::table('users')
 ```
 
 <!-- **whereBetweenColumns / whereNotBetweenColumns / orWhereBetweenColumns / orWhereNotBetweenColumns** -->
-**whereBetweenColumns / whereNotBetweenColumns / 또는WhereBetweenColumns / 또는WhereNotBetweenColumns**
+**whereBetweenColumns / whereNotBetweenColumns / orWhereBetweenColumns / orWhereNotBetweenColumns**
 
 <!-- The `whereBetweenColumns` method verifies that a column's value is between the two values of two columns in the same table row: -->
 `whereBetweenColumns` 메서드는 열 값이 동일한 테이블 행에 있는 두 열의 두 값 사이에 있는지 확인합니다.
@@ -993,7 +993,7 @@ $patients = DB::table('patients')
 ```
 
 <!-- **whereValueBetween / whereValueNotBetween / orWhereValueBetween / orWhereValueNotBetween** -->
-**사이에 있는 값 / 사이에 없는 값 / 또는 사이에 있는 값 / 또는 사이에 없는 값**
+**whereValueBetween / whereValueNotBetween / orWhereValueBetween / orWhereValueNotBetween**
 
 <!-- The `whereValueBetween` method verifies that a given value is between the values of two columns of the same type in the same table row: -->
 `whereValueBetween` 메서드는 지정된 값이 동일한 테이블 행에 있는 동일한 유형의 두 열 값 사이에 있는지 확인합니다.
@@ -1156,7 +1156,7 @@ $invoices = DB::table('invoices')
 ```
 
 <!-- **whereColumn / orWhereColumn** -->
-**whereColumn / 또는WhereColumn**
+**whereColumn / orWhereColumn**
 
 <!-- The `whereColumn` method may be used to verify that two columns are equal: -->
 `whereColumn` 메서드를 사용하여 두 열이 동일한지 확인할 수 있습니다.

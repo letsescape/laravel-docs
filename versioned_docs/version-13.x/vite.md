@@ -1051,7 +1051,7 @@ php artisan inertia:start-ssr
 ### Content Security Policy (CSP) Nonce
 
 <!-- If you wish to include a [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) on your script and style tags as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may generate or specify a nonce using the `useCspNonce` method within a custom [middleware](/docs/13.x/middleware): -->
-[nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)의 일부로 script 및 style 태그에 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)을 포함하고 싶다면, 사용자 정의 [middleware](/docs/13.x/middleware) 안에서 `useCspNonce` 메서드를 사용하여 nonce를 생성하거나 지정할 수 있습니다.
+스크립트 및 스타일 태그에 [nonce 속성](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)을 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)의 일부로 포함하고 싶다면, 사용자 정의 [미들웨어](/docs/13.x/middleware) 안에서 `useCspNonce` 메서드를 사용하여 nonce를 생성하거나 지정할 수 있습니다.
 
 ```php
 <?php
