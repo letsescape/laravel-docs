@@ -976,7 +976,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening For Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-[채널을 떠나지 않고](#leaving-a-channel) 특정 이벤트의 청취만 중단하고 싶다면, `stopListening` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 특정 이벤트의 청취만 중단하고 싶다면, `stopListening` 메서드를 사용할 수 있습니다.
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1042,7 +1042,7 @@ Echo.channel('orders')
 ### Authorizing Presence Channels
 
 <!-- All presence channels are also private channels; therefore, users must be [authorized to access them](#authorizing-channels). However, when defining authorization callbacks for presence channels, you will not return `true` if the user is authorized to join the channel. Instead, you should return an array of data about the user. -->
-프리즌스 채널은 프라이빗 채널이기도 하므로, 사용자는 반드시 [접근 권한을 인가받아야](#authorizing-channels) 합니다. 그러나 프라이빗 채널과 달리, 프리즌스 채널의 인가 콜백에서는 사용자가 채널에 참여할 수 있는 경우 `true`를 반환하는 것이 아니라, 사용자에 대한 데이터를 배열로 반환해야 합니다.
+프리즌스 채널은 프라이빗 채널이기도 하므로, 사용자는 반드시 [authorized to access them](#authorizing-channels) 상태여야 합니다. 그러나 프라이빗 채널과 달리, 프리즌스 채널의 인가 콜백에서는 사용자가 채널에 참여할 수 있는 경우 `true`를 반환하는 것이 아니라, 사용자에 대한 데이터를 배열로 반환해야 합니다.
 
 <!-- The data returned by the authorization callback will be made available to the presence channel event listeners in your JavaScript application. If the user is not authorized to join the presence channel, you should return `false` or `null`: -->
 이 콜백에서 반환된 데이터는 자바스크립트 애플리케이션의 프리즌스 채널 이벤트 리스너에서 사용할 수 있습니다. 사용자가 채널 참여를 인가받지 못하면, `false` 또는 `null`을 반환하면 됩니다.

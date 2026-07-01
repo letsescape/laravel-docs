@@ -4143,7 +4143,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/8.x/broadcasting) the given [event](/docs/8.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [이벤트](/docs/8.x/events)를 해당 리스너들에게 [브로드캐스트](/docs/8.x/broadcasting)합니다.
+`broadcast` 함수는 [broadcasts](/docs/8.x/broadcasting) 기능을 사용해 주어진 [event](/docs/8.x/events)를 해당 리스너들에게 전달합니다.
 
 ```
 broadcast(new UserRegistered($user));
@@ -4415,7 +4415,7 @@ $now = now();
 #### `old()`
 
 <!-- The `old` function [retrieves](/docs/8.x/requests#retrieving-input) an [old input](/docs/8.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 세션에 플래시된 [이전 입력값](/docs/8.x/requests#old-input)을 [가져옵니다](/docs/8.x/requests#retrieving-input).
+`old` 함수는 [retrieves](/docs/8.x/requests#retrieving-input) 동작으로 세션에 플래시된 [old input](/docs/8.x/requests#old-input) 값을 가져옵니다.
 
 ```
 $value = old('value');

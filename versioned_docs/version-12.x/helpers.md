@@ -2638,7 +2638,7 @@ return to_action(
 #### `to_route()`
 
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/12.x/responses#redirects) for a given [named route](/docs/12.x/routing#named-routes): -->
-`to_route` 함수는 주어진 [이름이 지정된 라우트](/docs/12.x/routing#named-routes)에 대한 [리다이렉트 HTTP 응답](/docs/12.x/responses#redirects)을 생성합니다.
+`to_route` 함수는 [redirect HTTP response](/docs/12.x/responses#redirects)를 생성해 주어진 [named route](/docs/12.x/routing#named-routes)로 이동하게 합니다.
 
 ```php
 return to_route('users.show', ['user' => 1]);

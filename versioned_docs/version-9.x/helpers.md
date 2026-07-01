@@ -4691,7 +4691,7 @@ $url = secure_url('user/profile', [1]);
 #### `to_route()`
 
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/9.x/responses#redirects) for a given [named route](/docs/9.x/routing#named-routes): -->
-`to_route` 함수는 지정한 [이름이 지정된 라우트](/docs/9.x/routing#named-routes)에 대한 [리다이렉트 HTTP 응답](/docs/9.x/responses#redirects)을 생성합니다.
+`to_route` 함수는 [redirect HTTP response](/docs/9.x/responses#redirects)를 생성해 지정한 [named route](/docs/9.x/routing#named-routes)로 이동하게 합니다.
 
 ```
 return to_route('users.show', ['user' => 1]);
@@ -4869,7 +4869,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/9.x/broadcasting) the given [event](/docs/9.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [이벤트](/docs/9.x/events)를 해당 리스너들에게 [브로드캐스트](/docs/9.x/broadcasting)합니다.
+`broadcast` 함수는 [broadcasts](/docs/9.x/broadcasting) 기능을 사용해 주어진 [event](/docs/9.x/events)를 해당 리스너들에게 전달합니다.
 
 ```
 broadcast(new UserRegistered($user));
@@ -5189,7 +5189,7 @@ $now = now();
 #### `old()`
 
 <!-- The `old` function [retrieves](/docs/9.x/requests#retrieving-input) an [old input](/docs/9.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 세션에 플래시된 [이전 입력값](/docs/9.x/requests#old-input)을 [가져옵니다](/docs/9.x/requests#retrieving-input).
+`old` 함수는 [retrieves](/docs/9.x/requests#retrieving-input) 동작으로 세션에 플래시된 [old input](/docs/9.x/requests#old-input) 값을 가져옵니다.
 
 ```
 $value = old('value');

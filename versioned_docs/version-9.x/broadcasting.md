@@ -1047,7 +1047,7 @@ Echo.channel('orders')
 ### Authorizing Presence Channels
 
 <!-- All presence channels are also private channels; therefore, users must be [authorized to access them](#authorizing-channels). However, when defining authorization callbacks for presence channels, you will not return `true` if the user is authorized to join the channel. Instead, you should return an array of data about the user. -->
-모든 프레즌스 채널은 프라이빗 채널이기도 하므로, 사용자는 반드시 [접근 권한을 인가받아야](#authorizing-channels) 합니다. 단, 프레즌스 채널의 인가 콜백을 정의할 때는, 사용자가 채널에 참여할 수 있을 경우 `true`를 반환하는 대신, 사용자에 대한 정보를 담은 배열을 반환해야 합니다.
+모든 프레즌스 채널은 프라이빗 채널이기도 하므로, 사용자는 반드시 [authorized to access them](#authorizing-channels) 상태여야 합니다. 단, 프레즌스 채널의 인가 콜백을 정의할 때는, 사용자가 채널에 참여할 수 있을 경우 `true`를 반환하는 대신, 사용자에 대한 정보를 담은 배열을 반환해야 합니다.
 
 <!-- The data returned by the authorization callback will be made available to the presence channel event listeners in your JavaScript application. If the user is not authorized to join the presence channel, you should return `false` or `null`: -->
 이렇게 콜백에서 반환된 데이터는 JavaScript에서 프레즌스 채널에 구독할 때 이벤트 리스너에서 활용할 수 있습니다. 만약 사용자가 채널에 참여할 권한이 없다면 `false` 또는 `null`을 반환해야 합니다.

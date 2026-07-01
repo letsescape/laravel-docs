@@ -32,7 +32,7 @@ Laravel 및 공식 서드파티 패키지는 [Semantic Versioning](https://semve
 ## Support Policy
 
 <!-- For all Laravel releases, bug fixes are provided for 18 months and security fixes are provided for 2 years. For all additional libraries, including Lumen, only the latest major release receives bug fixes. In addition, please review the database versions [supported by Laravel](/docs/8.x/database#introduction). -->
-모든 Laravel 릴리스에 대해 버그 수정은 18개월 동안, 보안 수정은 2년간 제공됩니다. 추가적인 라이브러리(예: Lumen)에는 가장 최신 메이저 릴리스만 버그가 수정됩니다. 또한, Laravel이 [지원하는 데이터베이스 버전](/docs/8.x/database#introduction)도 반드시 확인해 주세요.
+모든 Laravel 릴리스에 대해 버그 수정은 18개월 동안, 보안 수정은 2년간 제공됩니다. 추가적인 라이브러리(예: Lumen)에는 가장 최신 메이저 릴리스만 버그가 수정됩니다. 또한, 데이터베이스 버전이 [supported by Laravel](/docs/8.x/database#introduction)인지도 반드시 확인해 주세요.
 
 | 버전 | PHP (*) | 출시일 | 버그 수정 종료일 | 보안 수정 종료일 |
 | --- | --- | --- | --- | --- |
