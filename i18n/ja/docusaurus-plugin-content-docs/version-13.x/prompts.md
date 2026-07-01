@@ -1285,8 +1285,8 @@ callout(
 <!-- #### Rich Content -->
 #### Rich Content
 
-<!-- Instead of passing a string, you may pass an array of strings and elements to build rich, structured callouts. The `Element` class provides factory methods for creating headings, bulleted lists, numbered lists, and key-value lists: -->
-文字列を渡す代わりに、文字列と要素の配列を渡して、リッチで構造化されたコールアウトを構築できます。 `Element` クラスは、見出し、箇条書きリスト、番号付きリスト、およびキーと値のリストを作成するためのファクトリ メソッドを提供します。
+<!-- Instead of passing a string, you may pass an array of strings and elements to build rich, structured callouts. The `Element` class provides factory methods for creating headings, bulleted lists, numbered lists, key-value lists, and links: -->
+文字列の代わりに、文字列と要素の配列を渡して、リッチで構造化されたコールアウトを作成できます。`Element` クラスは、見出し、箇条書きリスト、番号付きリスト、キーと値のリスト、およびリンクを作成するためのファクトリメソッドを提供します。
 
 ```php
 use Laravel\Prompts\Elements\Element;
@@ -1324,6 +1324,21 @@ callout('Database Connection Failed', [
     ]),
 ], type: 'error');
 ```
+
+<!-- The `Element::link` method creates a clickable hyperlink in terminals that support [OSC 8](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda). You may provide a URL alone, or a URL with a custom label: -->
+`Element::link` メソッドは、[OSC 8](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda) をサポートするターミナルでクリック可能なハイパーリンクを作成します。URL だけを渡すこともできますし、カスタムラベル付きの URL を渡すこともできます:
+
+```php
+callout('Server Health Check', [
+    'Multiple services are reporting degraded performance.',
+    Element::heading('Affected Services'),
+    'Look here: '.Element::link('https://example.com/health', 'Health Dashboard'),
+    Element::link('https://example.com/health'),
+]);
+```
+
+<!-- If no label is provided, the URL itself will be displayed as the link text. -->
+ラベルを指定しない場合は、URL 自体がリンクテキストとして表示されます。
 
 <a name="tables"></a>
 <!-- ## Tables -->
@@ -1785,4 +1800,3 @@ public function test_report_generation(): void
         ->assertExitCode(0);
 }
 ```
-

@@ -1283,8 +1283,8 @@ callout(
 <!-- #### Rich Content -->
 #### Rich Content
 
-<!-- Instead of passing a string, you may pass an array of strings and elements to build rich, structured callouts. The `Element` class provides factory methods for creating headings, bulleted lists, numbered lists, and key-value lists: -->
-문자열을 전달하는 대신, 문자열과 요소로 이루어진 배열을 전달하여 풍부하고 구조화된 callout을 만들 수 있습니다. `Element` 클래스는 제목, 글머리 기호 목록, 번호 매기기 목록, 키-값 목록을 생성하는 팩토리 메서드를 제공합니다.
+<!-- Instead of passing a string, you may pass an array of strings and elements to build rich, structured callouts. The `Element` class provides factory methods for creating headings, bulleted lists, numbered lists, key-value lists, and links: -->
+문자열을 전달하는 대신, 문자열과 요소로 이루어진 배열을 전달하여 풍부하고 구조화된 callout을 만들 수 있습니다. `Element` 클래스는 제목, 글머리 기호 목록, 번호 매기기 목록, 키-값 목록, 링크를 생성하는 팩토리 메서드를 제공합니다.
 
 ```php
 use Laravel\Prompts\Elements\Element;
@@ -1322,6 +1322,21 @@ callout('Database Connection Failed', [
     ]),
 ], type: 'error');
 ```
+
+<!-- The `Element::link` method creates a clickable hyperlink in terminals that support [OSC 8](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda). You may provide a URL alone, or a URL with a custom label: -->
+`Element::link` 메서드는 [OSC 8](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda)을 지원하는 터미널에서 클릭 가능한 하이퍼링크를 생성합니다. URL만 제공하거나, 사용자 지정 레이블이 포함된 URL을 제공할 수 있습니다:
+
+```php
+callout('Server Health Check', [
+    'Multiple services are reporting degraded performance.',
+    Element::heading('Affected Services'),
+    'Look here: '.Element::link('https://example.com/health', 'Health Dashboard'),
+    Element::link('https://example.com/health'),
+]);
+```
+
+<!-- If no label is provided, the URL itself will be displayed as the link text. -->
+레이블을 제공하지 않으면 URL 자체가 링크 텍스트로 표시됩니다.
 
 <a name="tables"></a>
 <!-- ## Tables -->
