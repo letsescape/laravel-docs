@@ -341,16 +341,29 @@ def _read_comment(lines: list[str], start: int) -> tuple[int, str]:
 def _find_block(
     blocks: list[AnnotatedBlock], comment: str, *, required: bool = True
 ) -> AnnotatedBlock | None:
-    normalized = _normalize_text(comment)
-    for block in blocks:
-        if block.comment == normalized:
-            return block
-    candidates = [block for block in blocks if normalized and normalized in block.comment]
-    if len(candidates) == 1:
-        return candidates[0]
+    matches = _matching_blocks(blocks, comment)
+    if matches:
+        return matches[0]
     if required:
-        raise PatchError(f"missing existing translation block for: {normalized}")
+        raise PatchError(
+            f"missing existing translation block for: {_normalize_text(comment)}"
+        )
     return None
+
+
+def _matching_blocks(blocks: list[AnnotatedBlock], comment: str) -> list[AnnotatedBlock]:
+    normalized = _normalize_text(comment)
+    exact = [block for block in blocks if block.comment == normalized]
+    if exact:
+        return exact
+    if not _can_match_partial_comment(normalized):
+        return []
+    candidates = [block for block in blocks if normalized in block.comment]
+    return candidates if len(candidates) == 1 else []
+
+
+def _can_match_partial_comment(normalized: str) -> bool:
+    return any(char.isalpha() for char in normalized)
 
 
 def _replace_block(text: str, old_comment: str, translated: str) -> str:
@@ -731,27 +744,46 @@ def _raw_context_bounds(
     if not segment.before_context or not segment.after_context:
         return None
 
-    before = _find_block(blocks, segment.before_context, required=False)
-    if before:
-        start = before.end
-    else:
-        before_index = _find_raw_context_line(lines, segment.before_context)
-        if before_index is None:
-            return None
-        start = before_index + 1
-
-    after = _find_block(blocks, segment.after_context, required=False)
-    if after:
-        end = after.start
-    else:
-        after_index = _find_raw_context_line_after(lines, segment.after_context, start - 1)
-        if after_index is None:
-            return None
-        end = after_index
-
-    if start > end:
+    before_bounds = _before_context_boundaries(lines, blocks, segment.before_context)
+    after_bounds = _after_context_boundaries(lines, blocks, segment.after_context)
+    candidates = [
+        (end - start, start, end)
+        for start in before_bounds
+        for end in after_bounds
+        if start <= end
+    ]
+    if not candidates:
         return None
+    _distance, start, end = min(candidates)
     return start, end
+
+
+def _before_context_boundaries(
+    lines: list[str], blocks: list[AnnotatedBlock], context: str
+) -> list[int]:
+    bounds = [block.end for block in _matching_blocks(blocks, context)]
+    normalized = _normalize_text(context)
+    if normalized:
+        bounds.extend(
+            index + 1
+            for index, line in enumerate(lines)
+            if _normalize_text(line) == normalized
+        )
+    return bounds
+
+
+def _after_context_boundaries(
+    lines: list[str], blocks: list[AnnotatedBlock], context: str
+) -> list[int]:
+    bounds = [block.start for block in _matching_blocks(blocks, context)]
+    normalized = _normalize_text(context)
+    if normalized:
+        bounds.extend(
+            index
+            for index, line in enumerate(lines)
+            if _normalize_text(line) == normalized
+        )
+    return bounds
 
 
 def _find_raw_context_line(lines: list[str], context: str) -> int | None:

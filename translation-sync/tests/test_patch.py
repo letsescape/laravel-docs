@@ -167,6 +167,74 @@ class CodeBlockPatchTests(unittest.TestCase):
             existing,
         )
 
+    def test_replaces_mixed_code_tail_and_deleted_paragraph_by_nearest_contexts(self):
+        existing = (
+            "```php\n"
+            "class Earlier\n"
+            "{\n"
+            "}\n"
+            "```\n\n"
+            "<!-- Before text. -->\n"
+            "앞 문단입니다.\n\n"
+            "```js\n"
+            "if (error) {\n"
+            "    show(error);\n"
+            "} else {\n"
+            "    done();\n"
+            "}\n"
+            "});\n"
+            "```\n\n"
+            "<!-- Old paragraph. -->\n"
+            "예전 문단입니다.\n\n"
+            '<a name="next"></a>\n'
+            "<!-- ## Next -->\n"
+            "## Next\n"
+        )
+        segment = patch.Segment(
+            old_lines=("});", "```", "Old paragraph."),
+            new_lines=(
+                "    return redirect('/dashboard');",
+                "})->name('payment.complete');",
+                "```",
+            ),
+            before_context="}",
+            after_context='<a name="next"></a>',
+            new_source=(
+                "    return redirect('/dashboard');\n"
+                "})->name('payment.complete');\n"
+                "```\n"
+            ),
+        )
+        translated = (
+            "    return redirect('/dashboard');\n"
+            "})->name('payment.complete');\n"
+            "```\n"
+        )
+        expected = (
+            "```php\n"
+            "class Earlier\n"
+            "{\n"
+            "}\n"
+            "```\n\n"
+            "<!-- Before text. -->\n"
+            "앞 문단입니다.\n\n"
+            "```js\n"
+            "if (error) {\n"
+            "    show(error);\n"
+            "} else {\n"
+            "    done();\n"
+            "}\n"
+            "    return redirect('/dashboard');\n"
+            "})->name('payment.complete');\n"
+            "```\n\n"
+            '<a name="next"></a>\n'
+            "<!-- ## Next -->\n"
+            "## Next\n"
+        )
+
+        self.assertIn("예전 문단입니다.", patch.existing_context(existing, segment))
+        self.assertEqual(patch.apply_segments(existing, [segment], [translated]), expected)
+
     def test_replaces_existing_inserted_anchor_section_instead_of_duplicating_it(self):
         old = (
             '<a name="next"></a>\n'
