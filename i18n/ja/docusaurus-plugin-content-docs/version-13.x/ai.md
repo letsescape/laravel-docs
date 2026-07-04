@@ -57,7 +57,7 @@ php artisan boost:install
 ```
 
 <!-- The installer will auto-detect your IDE and AI agents, allowing you to select the integrations that make sense for your project. Boost will generate the necessary configuration files, such as `.mcp.json` for MCP-compatible editors and guideline files for AI context. -->
-インストーラーは IDE エージェントと AI エージェントを自動検出し、プロジェクトに適した統合を選択できるようにします。 Boost は、MCP 互換エディター用の `.mcp.json` や AI コンテキスト用のガイドライン ファイルなど、必要な構成ファイルを生成します。
+インストーラーは IDE と AI エージェントを自動検出し、プロジェクトに適した統合を選択できるようにします。 Boost は、MCP 互換エディター用の `.mcp.json` や AI コンテキスト用のガイドライン ファイルなど、必要な構成ファイルを生成します。
 
 > [!NOTE]
 > 各開発者が独自の環境を構成したい場合は、`.mcp.json`、`CLAUDE.md`、`boost.json` などの生成された構成ファイルを `.gitignore` に安全に追加できます。

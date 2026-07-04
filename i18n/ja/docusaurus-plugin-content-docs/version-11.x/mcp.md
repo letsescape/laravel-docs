@@ -1199,7 +1199,7 @@ Mcp::web('/mcp/weather', WeatherExample::class)
 アプリケーションがまだ Laravel Passport を使用していない場合は、まず Passport の [installation and deployment steps](/docs/11.x/passport#installation) に従ってください。次に進む前に、`OAuthenticatable` モデル、新しい認証ガード、およびPassport キーを用意する必要があります。
 
 <!-- Next, you should publish Laravel MCP's provided Passport authorization view: -->
-次に、Laravel MCP が提供する Passport 認証ビューを公開する必要があります。
+次に、Laravel MCP が提供する Passport 認可ビューを公開する必要があります。
 
 ```shell
 php artisan vendor:publish --tag=mcp-views

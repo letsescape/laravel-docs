@@ -295,7 +295,7 @@ Laravel Breeze 또는 Laravel Jetstream [starter kits](/docs/8.x/starter-kits)�
 Laravel [application starter kits](/docs/8.x/starter-kits)가 제공하는 인증 스캐폴딩을 꼭 사용할 필요는 없습니다. 이 스캐폴딩을 사용하지 않기로 했다면, Laravel의 인증 클래스를 직접 활용해 사용자 인증을 관리해야 합니다. 걱정하지 마세요. 아주 간단하고 직관적으로 할 수 있습니다!
 
 <!-- We will access Laravel's authentication services via the `Auth` [facade](/docs/8.x/facades), so we'll need to make sure to import the `Auth` facade at the top of the class. Next, let's check out the `attempt` method. The `attempt` method is normally used to handle authentication attempts from your application's "login" form. If authentication is successful, you should regenerate the user's [session](/docs/8.x/session) to prevent [session fixation](https://en.wikipedia.org/wiki/Session_fixation): -->
-인증 서비스는 `Auth` [facade](/docs/8.x/facades)를 통해 사용할 수 있습니다. 먼저 클래스 상단에 `Auth` 파사드를 임포트해야 합니다. 다음으로, `attempt` 메서드를 살펴봅니다. `attempt` 메서드는 일반적으로 애플리케이션의 "로그인" 폼에서 인증 시도 시 사용합니다. 인증에 성공하면, [session](/docs/8.x/session) 공격을 방지하기 위해 사용자의 [session fixation](https://en.wikipedia.org/wiki/Session_fixation)을 반드시 재생성해야 합니다.
+인증 서비스는 `Auth` [facade](/docs/8.x/facades)를 통해 사용할 수 있습니다. 먼저 클래스 상단에 `Auth` 파사드를 임포트해야 합니다. 다음으로, `attempt` 메서드를 살펴봅니다. `attempt` 메서드는 일반적으로 애플리케이션의 "로그인" 폼에서 인증 시도 시 사용합니다. 인증에 성공하면, 사용자의 [session](/docs/8.x/session)을 재생성하여 [session fixation](https://en.wikipedia.org/wiki/Session_fixation) 공격을 방지해야 합니다.
 
 ```
 <?php

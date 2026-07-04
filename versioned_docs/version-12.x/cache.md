@@ -212,7 +212,7 @@ $value = Cache::get('key', 'default');
 ```
 
 <!-- You may even pass a closure as the default value. The result of the closure will be returned if the specified item does not exist in the cache. Passing a closure allows you to defer the retrieval of default values from a database or other external service: -->
-클로저를 기본값으로 전달할 수도 있습니다. 지정된 항목이 캐시에 없으면 폐쇄 결과가 반환됩니다. 클로저를 전달하면 데이터베이스나 기타 외부 서비스에서 기본값 검색을 연기할 수 있습니다.
+클로저를 기본값으로 전달할 수도 있습니다. 지정된 항목이 캐시에 없으면 클로저 결과가 반환됩니다. 클로저를 전달하면 데이터베이스나 기타 외부 서비스에서 기본값 검색을 연기할 수 있습니다.
 
 ```php
 $value = Cache::get('key', function () {
@@ -482,7 +482,7 @@ cache()->remember('users', $seconds, function () {
 ### Storing Tagged Cache Items
 
 <!-- Cache tags allow you to tag related items in the cache and then flush all cached values that have been assigned a given tag. You may access a tagged cache by passing in an ordered array of tag names. For example, let's access a tagged cache and `put` a value into the cache: -->
-캐시 태그를 사용하면 캐시의 관련 항목에 태그를 지정한 다음 특정 태그에 할당된 캐시된 값을 모두 플러시할 수 있습니다. 태그 이름의 정렬된 배열을 전달하여 태그된 캐시에 액세스할 수 있습니다. 예를 들어 태그가 지정된 캐시에 액세스하고 `put` 값을 캐시에 액세스해 보겠습니다.
+캐시 태그를 사용하면 캐시의 관련 항목에 태그를 지정한 다음 특정 태그에 할당된 캐시된 값을 모두 플러시할 수 있습니다. 태그 이름의 정렬된 배열을 전달하여 태그된 캐시에 액세스할 수 있습니다. 예를 들어 태그가 지정된 캐시에 액세스하고 `put` 값을 캐시에 저장해 보겠습니다.
 
 ```php
 use Illuminate\Support\Facades\Cache;

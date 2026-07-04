@@ -1953,7 +1953,7 @@ Schema::withoutForeignKeyConstraints(function () {
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 수업 | 설명 |
+| 클래스 | 설명 |
 | ------------------------------------------------ | ------------------------------------------------ |
 | `Illuminate\Database\Events\MigrationsStarted` | 마이그레이션의 배치가 실행되려고 합니다.   |
 | `Illuminate\Database\Events\MigrationsEnded` | 마이그레이션의 배치가 실행을 완료했습니다.    |

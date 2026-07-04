@@ -446,7 +446,7 @@ $schedule->command('emails:send')->evenInMaintenanceMode();
 したがって、Laravel のスケジューラーを使用する場合、`schedule:run` コマンドを毎分実行する単一の cron 構成エントリーをサーバーに追加するだけで済みます。サーバーに cron エントリを追加する方法がわからない場合は、cron エントリを管理できる [Laravel Forge](https://forge.laravel.com) などのサービスの使用を検討してください。
 
 <!--     * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1 -->
-    * * * * * cd /プロジェクトへのパス && phpArtisanスケジュール:run >> /dev/null 2>&1
+    * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 
 <a name="running-the-scheduler-locally"></a>
 <!-- ## Running The Scheduler Locally -->

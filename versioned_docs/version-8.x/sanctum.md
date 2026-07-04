@@ -430,7 +430,7 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 ```
 
 <!-- Next, in order for Pusher's authorization requests to succeed, you will need to provide a custom Pusher `authorizer` when initializing [Laravel Echo](/docs/8.x/broadcasting#client-side-installation). This allows your application to configure Pusher to use the `axios` instance that is [properly configured for cross-domain requests](#cors-and-cookies): -->
-그리고 Pusher의 인증 요청이 올바르게 처리되도록, [Laravel Echo](/docs/8.x/broadcasting#client-side-installation)를 초기화할 때 Pusher의 `authorizer` 옵션을 커스텀으로 지정해 주어야 합니다. 이렇게 하면 [properly configured for cross-domain requests](#cors-and-cookies) `axios` 인스턴스를 사용할 수 있습니다.
+그리고 Pusher의 인가 요청이 올바르게 처리되도록, [Laravel Echo](/docs/8.x/broadcasting#client-side-installation)를 초기화할 때 Pusher의 `authorizer` 옵션을 커스텀으로 지정해 주어야 합니다. 이렇게 하면 애플리케이션에서 [properly configured for cross-domain requests](#cors-and-cookies) 상태의 `axios` 인스턴스를 사용하도록 Pusher를 구성할 수 있습니다.
 
 ```
 window.Echo = new Echo({

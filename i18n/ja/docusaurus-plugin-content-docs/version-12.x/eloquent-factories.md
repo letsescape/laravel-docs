@@ -288,7 +288,7 @@ $users = User::factory()->count(5)->suspended()->make();
 #### Overriding Attributes
 
 <!-- If you would like to override some of the default values of your models, you may pass an array of values to the `make` method. Only the specified attributes will be replaced while the rest of the attributes remain set to their default values as specified by the factory: -->
-モデルのデフォルト値の一部をオーバーライドしたい場合は、値の配列を `make` メソッドに渡すことができます。指定された属性のみが置換され、残りの属性は工場で指定されたデフォルト値に設定されたままになります。
+モデルのデフォルト値の一部をオーバーライドしたい場合は、値の配列を `make` メソッドに渡すことができます。指定された属性のみが置換され、残りの属性はファクトリで指定されたデフォルト値に設定されたままになります。
 
 ```php
 $user = User::factory()->make([
@@ -480,7 +480,7 @@ $user = User::factory()
 ### Belongs To Relationships
 
 <!-- Now that we have explored how to build "has many" relationships using factories, let's explore the inverse of the relationship. The `for` method may be used to define the parent model that factory created models belong to. For example, we can create three `App\Models\Post` model instances that belong to a single user: -->
-ファクトリを使用して「has many」関係を構築する方法を説明したので、その逆の関係を見てみましょう。 `for` メソッドは、工場で作成されたモデルが属する親モデルを定義するために使用できます。たとえば、1 人のユーザーに属する 3 つの `App\Models\Post` モデル インスタンスを作成できます。
+ファクトリを使用して「has many」関係を構築する方法を説明したので、その逆の関係を見てみましょう。 `for` メソッドは、ファクトリで作成されたモデルが属する親モデルを定義するために使用できます。たとえば、1 人のユーザーに属する 3 つの `App\Models\Post` モデル インスタンスを作成できます。
 
 ```php
 use App\Models\Post;

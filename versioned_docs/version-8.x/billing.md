@@ -1856,7 +1856,7 @@ if ($user->onGenericTrial()) {
 ### Extending Trials
 
 <!-- The `extendTrial` method allows you to extend the trial period of a subscription after the subscription has been created. If the trial has already expired and the customer is already being billed for the subscription, you can still offer them an extended trial. The time spent within the trial period will be deducted from the customer's next invoice: -->
-`extendTrial` 메서드를 이용하면 구독 생성 후에도 체험 기간을 연장할 수 있습니다. 이미 체험이 만료되어 유료 결제가 진행되고 있는 경우에도 추가로 체험 기간을 제공할 수 있으며, 체험 기간 동안은 청구가 일시 중단되고 다시 기간이 합산되어 차감됩니다.
+`extendTrial` 메서드를 이용하면 구독 생성 후에도 체험 기간을 연장할 수 있습니다. 이미 체험이 만료되어 유료 결제가 진행되고 있는 경우에도 추가로 체험 기간을 제공할 수 있으며, 체험 기간에 해당하는 시간만큼 고객의 다음 인보이스에서 차감됩니다.
 
 ```
 use App\Models\User;

@@ -338,7 +338,7 @@ Route::group([
 ## Issuing Access Tokens
 
 <!-- Using OAuth2 via authorization codes is how most developers are familiar with OAuth2. When using authorization codes, a client application will redirect a user to your server where they will either approve or deny the request to issue an access token to the client. -->
-認証コードを介して OAuth2 を使用することは、ほとんどの開発者が OAuth2 に慣れている方法です。認証コードを使用する場合、クライアント アプリケーションはユーザーをサーバーにリダイレクトし、そこでユーザーはクライアントにアクセス トークンを発行するリクエストを承認または拒否します。
+認可コードを介して OAuth2 を使用することは、ほとんどの開発者が OAuth2 に慣れている方法です。認可コードを使用する場合、クライアント アプリケーションはユーザーをサーバーにリダイレクトし、そこでユーザーはクライアントにアクセス トークンを発行するリクエストを承認または拒否します。
 
 <a name="managing-clients"></a>
 <!-- ### Managing Clients -->
@@ -465,7 +465,7 @@ axios.delete('/oauth/clients/' + clientId)
 #### Redirecting For Authorization
 
 <!-- Once a client has been created, developers may use their client ID and secret to request an authorization code and access token from your application. First, the consuming application should make a redirect request to your application's `/oauth/authorize` route like so: -->
-クライアントが作成されると、開発者はクライアント ID とシークレットを使用して、アプリケーションから認証コードとアクセス トークンをリクエストできます。まず、使用側アプリケーションは、次のようにアプリケーションの `/oauth/authorize` ルートへのリダイレクト リクエストを作成する必要があります。
+クライアントが作成されると、開発者はクライアント ID とシークレットを使用して、アプリケーションから認可コードとアクセス トークンをリクエストできます。まず、使用側アプリケーションは、次のようにアプリケーションの `/oauth/authorize` ルートへのリダイレクト リクエストを作成する必要があります。
 
 ```
 use Illuminate\Http\Request;
@@ -504,7 +504,7 @@ Route::get('/redirect', function (Request $request) {
 #### Approving The Request
 
 <!-- When receiving authorization requests, Passport will automatically respond based on the value of `prompt` parameter (if present) and may display a template to the user allowing them to approve or deny the authorization request. If they approve the request, they will be redirected back to the `redirect_uri` that was specified by the consuming application. The `redirect_uri` must match the `redirect` URL that was specified when the client was created. -->
-認証リクエストを受信すると、Passport は `prompt` パラメータ (存在する場合) の値に基づいて自動的に応答し、ユーザーに認証リクエストを承認または拒否できるテンプレートを表示する場合があります。リクエストを承認すると、使用側アプリケーションによって指定された `redirect_uri` にリダイレクトされます。 `redirect_uri` は、クライアントの作成時に指定された `redirect` URL と一致する必要があります。
+認可リクエストを受信すると、Passport は `prompt` パラメータ (存在する場合) の値に基づいて自動的に応答し、ユーザーに認可リクエストを承認または拒否できるテンプレートを表示する場合があります。リクエストを承認すると、使用側アプリケーションによって指定された `redirect_uri` にリダイレクトされます。 `redirect_uri` は、クライアントの作成時に指定された `redirect` URL と一致する必要があります。
 
 <!-- If you would like to customize the authorization approval screen, you may publish Passport's views using the `vendor:publish` Artisan command. The published views will be placed in the `resources/views/vendor/passport` directory: -->
 認可承認画面をカスタマイズしたい場合は、`vendor:publish` Artisan コマンドを使用して Passport のビューを公開できます。パブリッシュされたビューは、`resources/views/vendor/passport` ディレクトリに配置されます。
@@ -514,7 +514,7 @@ php artisan vendor:publish --tag=passport-views
 ```
 
 <!-- Sometimes you may wish to skip the authorization prompt, such as when authorizing a first-party client. You may accomplish this by [extending the `Client` model](#overriding-default-models) and defining a `skipsAuthorization` method. If `skipsAuthorization` returns `true` the client will be approved and the user will be redirected back to the `redirect_uri` immediately, unless the consuming application has explicitly set the `prompt` parameter when redirecting for authorization: -->
-ファーストパーティクライアントを認証する場合など、認証プロンプトをスキップしたい場合があります。これは、[extending the `Client` model](#overriding-default-models) と `skipsAuthorization` メソッドを定義することで実現できます。 `skipsAuthorization` が `true` を返した場合、クライアントは承認され、ユーザーはすぐに `redirect_uri` にリダイレクトされます。 ただし、使用側アプリケーションが承認のためにリダイレクトするときに `prompt` パラメーターを明示的に設定していない限り、次のようになります。
+ファーストパーティクライアントを認可する場合など、認可プロンプトをスキップしたい場合があります。これは、[extending the `Client` model](#overriding-default-models) と `skipsAuthorization` メソッドを定義することで実現できます。 `skipsAuthorization` が `true` を返した場合、クライアントは承認され、ユーザーはすぐに `redirect_uri` にリダイレクトされます。 ただし、使用側アプリケーションが認可のためにリダイレクトするときに `prompt` パラメーターを明示的に設定していない限り、次のようになります。
 
 ```
 <?php
@@ -693,14 +693,14 @@ protected function schedule(Schedule $schedule)
 ## Authorization Code Grant with PKCE
 
 <!-- The Authorization Code grant with "Proof Key for Code Exchange" (PKCE) is a secure way to authenticate single page applications or native applications to access your API. This grant should be used when you can't guarantee that the client secret will be stored confidentially or in order to mitigate the threat of having the authorization code intercepted by an attacker. A combination of a "code verifier" and a "code challenge" replaces the client secret when exchanging the authorization code for an access token. -->
-「Proof Key for Code Exchange」(PKCE) を使用した認証コード付与は、シングル ページ アプリケーションまたはネイティブ アプリケーションが API にアクセスすることを認証するための安全な方法です。この許可は、クライアント シークレットが機密で保存されることが保証できない場合、または攻撃者によって認証コードが傍受される脅威を軽減するために使用する必要があります。 「コードベリファイア」と「コードチャレンジ」の組み合わせは、アクセストークンの認可コードを交換するときにクライアントシークレットを置き換えます。
+「Proof Key for Code Exchange」(PKCE) を使用した認可コードグラントは、シングル ページ アプリケーションまたはネイティブ アプリケーションが API にアクセスするための安全な方法です。このグラントは、クライアント シークレットが機密で保存されることが保証できない場合、または攻撃者によって認可コードが傍受される脅威を軽減するために使用する必要があります。 「コードベリファイア」と「コードチャレンジ」の組み合わせは、認可コードをアクセストークンと交換するときにクライアントシークレットを置き換えます。
 
 <a name="creating-a-auth-pkce-grant-client"></a>
 <!-- ### Creating The Client -->
 ### Creating The Client
 
 <!-- Before your application can issue tokens via the authorization code grant with PKCE, you will need to create a PKCE-enabled client. You may do this using the `passport:client` Artisan command with the `--public` option: -->
-アプリケーションが PKCE を使用して認証コードグラント経由でトークンを発行できるようにするには、PKCE 対応クライアントを作成する必要があります。これを行うには、`passport:client` Artisan コマンドに `--public` オプションを指定します。
+アプリケーションが PKCE を使用して認可コードグラント経由でトークンを発行できるようにするには、PKCE 対応クライアントを作成する必要があります。これを行うには、`passport:client` Artisan コマンドに `--public` オプションを指定します。
 
 ```shell
 php artisan passport:client --public
@@ -734,7 +734,7 @@ $codeChallenge = strtr(rtrim($encoded, '='), '+/', '-_');
 #### Redirecting For Authorization
 
 <!-- Once a client has been created, you may use the client ID and the generated code verifier and code challenge to request an authorization code and access token from your application. First, the consuming application should make a redirect request to your application's `/oauth/authorize` route: -->
-クライアントが作成されたら、クライアント ID と生成されたコード検証ツールおよびコード チャレンジを使用して、アプリケーションから認証コードとアクセス トークンをリクエストできます。まず、使用側アプリケーションは、アプリケーションの `/oauth/authorize` ルートへのリダイレクト リクエストを作成する必要があります。
+クライアントが作成されたら、クライアント ID と生成されたコード検証ツールおよびコード チャレンジを使用して、アプリケーションから認可コードとアクセス トークンをリクエストできます。まず、使用側アプリケーションは、アプリケーションの `/oauth/authorize` ルートへのリダイレクト リクエストを作成する必要があります。
 
 ```
 use Illuminate\Http\Request;
@@ -810,7 +810,7 @@ Route::get('/callback', function (Request $request) {
 > パスワード付与トークンの使用は推奨されなくなりました。代わりに、[a grant type that is currently recommended by OAuth2 Server](https://oauth2.thephpleague.com/authorization-server/which-grant/) を選択する必要があります。
 
 <!-- The OAuth2 password grant allows your other first-party clients, such as a mobile application, to obtain an access token using an email address / username and password. This allows you to issue access tokens securely to your first-party clients without requiring your users to go through the entire OAuth2 authorization code redirect flow. -->
-OAuth2 パスワード付与により、モバイル アプリケーションなどの他のファーストパーティ クライアントが、電子メール アドレス/ユーザー名とパスワードを使用してアクセス トークンを取得できるようになります。これにより、ユーザーが OAuth2 認証コード リダイレクト フロー全体を実行する必要がなく、ファーストパーティ クライアントにアクセス トークンを安全に発行できます。
+OAuth2 パスワード付与により、モバイル アプリケーションなどの他のファーストパーティ クライアントが、電子メール アドレス/ユーザー名とパスワードを使用してアクセス トークンを取得できるようになります。これにより、ユーザーが OAuth2 認可コード リダイレクト フロー全体を実行する必要がなく、ファーストパーティ クライアントにアクセス トークンを安全に発行できます。
 
 <a name="creating-a-password-grant-client"></a>
 <!-- ### Creating A Password Grant Client -->
@@ -950,7 +950,7 @@ class User extends Authenticatable
 > 暗黙的な付与トークンの使用は推奨されなくなりました。代わりに、[a grant type that is currently recommended by OAuth2 Server](https://oauth2.thephpleague.com/authorization-server/which-grant/) を選択する必要があります。
 
 <!-- The implicit grant is similar to the authorization code grant; however, the token is returned to the client without exchanging an authorization code. This grant is most commonly used for JavaScript or mobile applications where the client credentials can't be securely stored. To enable the grant, call the `enableImplicitGrant` method in the `boot` method of your application's `App\Providers\AuthServiceProvider` class: -->
-暗黙的グラントは認可コードグラントに似ています。ただし、トークンは認証コードを交換せずにクライアントに返されます。この許可は、クライアントの資格情報を安全に保存できない JavaScript またはモバイル アプリケーションに最も一般的に使用されます。付与を有効にするには、アプリケーションの `App\Providers\AuthServiceProvider` クラスの `boot` メソッドで `enableImplicitGrant` メソッドを呼び出します。
+暗黙的グラントは認可コードグラントに似ています。ただし、トークンは認可コードを交換せずにクライアントに返されます。このグラントは、クライアントの資格情報を安全に保存できない JavaScript またはモバイル アプリケーションに最も一般的に使用されます。グラントを有効にするには、アプリケーションの `App\Providers\AuthServiceProvider` クラスの `boot` メソッドで `enableImplicitGrant` メソッドを呼び出します。
 
 ```
 /**

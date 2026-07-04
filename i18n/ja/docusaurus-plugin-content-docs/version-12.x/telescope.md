@@ -151,7 +151,7 @@ Schedule::command('telescope:prune --hours=48')->daily();
 ### Dashboard Authorization
 
 <!-- The Telescope dashboard may be accessed via the `/telescope` route. By default, you will only be able to access this dashboard in the `local` environment. Within your `app/Providers/TelescopeServiceProvider.php` file, there is an [authorization gate](/docs/12.x/authorization#gates) definition. This authorization gate controls access to Telescope in **non-local** environments. You are free to modify this gate as needed to restrict access to your Telescope installation: -->
-Telescope ダッシュボードには、`/telescope` ルート経由でアクセスできます。デフォルトでは、`local` 環境でのみこのダッシュボードにアクセスできます。 `app/Providers/TelescopeServiceProvider.php` ファイル内には、[authorization gate](/docs/12.x/authorization#gates) 定義があります。この認証ゲートは、**非ローカル**環境での Telescope へのアクセスを制御します。必要に応じてこのゲートを自由に変更して、Telescope インストールへのアクセスを制限できます。
+Telescope ダッシュボードには、`/telescope` ルート経由でアクセスできます。デフォルトでは、`local` 環境でのみこのダッシュボードにアクセスできます。 `app/Providers/TelescopeServiceProvider.php` ファイル内には、[authorization gate](/docs/12.x/authorization#gates) 定義があります。この認可ゲートは、**非ローカル**環境での Telescope へのアクセスを制御します。必要に応じてこのゲートを自由に変更して、Telescope インストールへのアクセスを制限できます。
 
 ```php
 use App\Models\User;
@@ -481,7 +481,7 @@ HTTP クライアント ウォッチャーは、アプリケーションによ�
 ### Query Watcher
 
 <!-- The query watcher records the raw SQL, bindings, and execution time for all queries that are executed by your application. The watcher also tags any queries slower than 100 milliseconds as `slow`. You may customize the slow query threshold using the watcher's `slow` option: -->
-クエリ ウォッチャーは、アプリケーションによって実行されるすべてのクエリの生の SQL、バインディング、および実行時間を記録します。また、ウォッチャーは、100 ミリ秒未満のクエリに `slow` としてタグ付けします。ウォッチャーの `slow` オプションを使用して、低速クエリのしきい値をカスタマイズできます。
+クエリ ウォッチャーは、アプリケーションによって実行されるすべてのクエリの生の SQL、バインディング、および実行時間を記録します。また、ウォッチャーは、100 ミリ秒より遅いクエリに `slow` としてタグ付けします。ウォッチャーの `slow` オプションを使用して、低速クエリのしきい値をカスタマイズできます。
 
 ```php
 'watchers' => [

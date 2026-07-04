@@ -2954,7 +2954,7 @@ Password::min(8)->uncompromised()
 ```
 
 <!-- Internally, the `Password` rule object uses the [k-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) model to determine if a password has been leaked via the [haveibeenpwned.com](https://haveibeenpwned.com) service without sacrificing the user's privacy or security. -->
-내부적으로 `Password` 규칙 객체는 [k-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) 서비스를 활용하며, [haveibeenpwned.com](https://haveibeenpwned.com) 모델을 통해 사용자의 프라이버시와 보안을 해치지 않고 유출 여부를 판단합니다.
+내부적으로 `Password` 규칙 객체는 [k-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) 모델을 활용하며, [haveibeenpwned.com](https://haveibeenpwned.com) 서비스를 통해 사용자의 프라이버시와 보안을 해치지 않고 유출 여부를 판단합니다.
 
 <!-- By default, if a password appears at least once in a data leak, it will be considered compromised. You can customize this threshold using the first argument of the `uncompromised` method: -->
 기본적으로 비밀번호가 데이터 유출에 한 번이라도 등장하면 유출된 것으로 간주합니다. 이 임계값(threshold)은 `uncompromised` 메서드의 첫 번째 인수를 통해 지정할 수 있습니다.

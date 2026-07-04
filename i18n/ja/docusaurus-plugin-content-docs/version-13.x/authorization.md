@@ -47,7 +47,7 @@ Laravel は、アクションを承認する 2 つの主な方法、[gates](#gat
 ### Writing Gates
 
 > [!WARNING]
-> Gates は、Laravel の認証機能の基本を学ぶのに最適な方法です。ただし、堅牢な Laravel アプリケーションを構築する場合は、[policies](#creating-policies) を使用して承認ルールを整理することを検討する必要があります。
+> Gates は、Laravel の認可機能の基本を学ぶのに最適な方法です。ただし、堅牢な Laravel アプリケーションを構築する場合は、[policies](#creating-policies) を使用して認可ルールを整理することを検討する必要があります。
 
 <!-- Gates are simply closures that determine if a user is authorized to perform a given action. Typically, gates are defined within the `boot` method of the `App\Providers\AppServiceProvider` class using the `Gate` facade. Gates always receive a user instance as their first argument and may optionally receive additional arguments such as a relevant Eloquent model. -->
 ゲートは、ユーザーが特定のアクションを実行する権限を持っているかどうかを決定する単なるクロージャです。通常、ゲートは、`Gate` ファサードを使用して、`App\Providers\AppServiceProvider` クラスの `boot` メソッド内で定義されます。ゲートは常に最初の引数としてユーザー インスタンスを受け取り、オプションで関連する Eloquent モデルなどの追加の引数を受け取ることもあります。
@@ -166,7 +166,7 @@ Gate::authorize('update-post', $post);
 #### Supplying Additional Context
 
 <!-- The gate methods for authorizing abilities (`allows`, `denies`, `check`, `any`, `none`, `authorize`, `can`, `cannot`) and the authorization [Blade directives](#via-blade-templates) (`@can`, `@cannot`, `@canany`) can receive an array as their second argument. These array elements are passed as parameters to the gate closure, and can be used for additional context when making authorization decisions: -->
-アビリティを認証するためのゲート メソッド (`allows`、`denies`、`check`、`any`、`none`、`authorize`、`can`、`cannot`) と認証 [Blade directives](#via-blade-templates) (`@can`、`@cannot`、`@canany`) は、第 2 引数として配列を受け取ることができます。これらの配列要素はパラメータとしてゲート クロージャに渡され、認可の決定を行う際の追加のコンテキストとして使用できます。
+アビリティを認可するためのゲート メソッド (`allows`、`denies`、`check`、`any`、`none`、`authorize`、`can`、`cannot`) と認可 [Blade directives](#via-blade-templates) (`@can`、`@cannot`、`@canany`) は、第 2 引数として配列を受け取ることができます。これらの配列要素はパラメータとしてゲート クロージャに渡され、認可の決定を行う際の追加のコンテキストとして使用できます。
 
 ```php
 use App\Models\Category;
@@ -208,7 +208,7 @@ Gate::define('edit-settings', function (User $user) {
 ```
 
 <!-- Even when you return an authorization response from your gate, the `Gate::allows` method will still return a simple boolean value; however, you may use the `Gate::inspect` method to get the full authorization response returned by the gate: -->
-ゲートから認証応答を返した場合でも、`Gate::allows` メソッドは単純なブール値を返します。ただし、`Gate::inspect` メソッドを使用して、ゲートから返される完全な承認応答を取得することもできます。
+ゲートから認可応答を返した場合でも、`Gate::allows` メソッドは単純なブール値を返します。ただし、`Gate::inspect` メソッドを使用して、ゲートから返される完全な認可応答を取得することもできます。
 
 ```php
 $response = Gate::inspect('edit-settings');
@@ -234,7 +234,7 @@ Gate::authorize('edit-settings');
 #### Customizing The HTTP Response Status
 
 <!-- When an action is denied via a Gate, a `403` HTTP response is returned; however, it can sometimes be useful to return an alternative HTTP status code. You may customize the HTTP status code returned for a failed authorization check using the `denyWithStatus` static constructor on the `Illuminate\Auth\Access\Response` class: -->
-アクションがゲート経由で拒否されると、`403` HTTP 応答が返されます。ただし、代替の HTTP ステータス コードを返すと便利な場合もあります。 `Illuminate\Auth\Access\Response` クラスの `denyWithStatus` 静的コンストラクターを使用して、失敗した認証チェックに対して返される HTTP ステータス コードをカスタマイズできます。
+アクションがゲート経由で拒否されると、`403` HTTP 応答が返されます。ただし、代替の HTTP ステータス コードを返すと便利な場合もあります。 `Illuminate\Auth\Access\Response` クラスの `denyWithStatus` 静的コンストラクターを使用して、失敗した認可チェックに対して返される HTTP ステータス コードをカスタマイズできます。
 
 ```php
 use App\Models\User;
@@ -473,7 +473,7 @@ public function update(User $user, Post $post): Response
 ```
 
 <!-- When returning an authorization response from your policy, the `Gate::allows` method will still return a simple boolean value; however, you may use the `Gate::inspect` method to get the full authorization response returned by the gate: -->
-ポリシーから認可応答を返す場合、`Gate::allows` メソッドは単純なブール値を返します。ただし、`Gate::inspect` メソッドを使用して、ゲートから返される完全な承認応答を取得することもできます。
+ポリシーから認可応答を返す場合、`Gate::allows` メソッドは単純なブール値を返します。ただし、`Gate::inspect` メソッドを使用して、ゲートから返される完全な認可応答を取得することもできます。
 
 ```php
 use Illuminate\Support\Facades\Gate;
@@ -501,7 +501,7 @@ Gate::authorize('update', $post);
 #### Customizing the HTTP Response Status
 
 <!-- When an action is denied via a policy method, a `403` HTTP response is returned; however, it can sometimes be useful to return an alternative HTTP status code. You may customize the HTTP status code returned for a failed authorization check using the `denyWithStatus` static constructor on the `Illuminate\Auth\Access\Response` class: -->
-アクションがポリシー メソッドによって拒否された場合、`403` HTTP 応答が返されます。ただし、代替の HTTP ステータス コードを返すと便利な場合もあります。 `Illuminate\Auth\Access\Response` クラスの `denyWithStatus` 静的コンストラクターを使用して、失敗した認証チェックに対して返される HTTP ステータス コードをカスタマイズできます。
+アクションがポリシー メソッドによって拒否された場合、`403` HTTP 応答が返されます。ただし、代替の HTTP ステータス コードを返すと便利な場合もあります。 `Illuminate\Auth\Access\Response` クラスの `denyWithStatus` 静的コンストラクターを使用して、失敗した認可チェックに対して返される HTTP ステータス コードをカスタマイズできます。
 
 ```php
 use App\Models\Post;
@@ -606,7 +606,7 @@ public function before(User $user, string $ability): bool|null
 ```
 
 <!-- If you would like to deny all authorization checks for a particular type of user then you may return `false` from the `before` method. If `null` is returned, the authorization check will fall through to the policy method. -->
-特定のタイプのユーザーに対するすべての認証チェックを拒否したい場合は、`before` メソッドから `false` を返すことができます。 `null` が返された場合、認可チェックはポリシー メソッドに渡されます。
+特定のタイプのユーザーに対するすべての認可チェックを拒否したい場合は、`before` メソッドから `false` を返すことができます。 `null` が返された場合、認可チェックはポリシー メソッドに渡されます。
 
 > [!WARNING]
 > チェック対象の機能の名前と一致する名前のメソッドがクラスに含まれていない場合、ポリシー クラスの `before` メソッドは呼び出されません。
@@ -870,7 +870,7 @@ Blade テンプレートを作成するとき、ユーザーが特定のアク�
 #### Actions That Don't Require Models
 
 <!-- Like most of the other authorization methods, you may pass a class name to the `@can` and `@cannot` directives if the action does not require a model instance: -->
-他のほとんどの認証メソッドと同様に、アクションにモデル インスタンスが必要ない場合は、クラス名を `@can` および `@cannot` ディレクティブに渡すことができます。
+他のほとんどの認可メソッドと同様に、アクションにモデル インスタンスが必要ない場合は、クラス名を `@can` および `@cannot` ディレクティブに渡すことができます。
 
 ```blade
 @can('create', App\Models\Post::class)
@@ -924,10 +924,10 @@ public function update(Request $request, Post $post): RedirectResponse
 ## Authorization & Inertia
 
 <!-- Although authorization must always be handled on the server, it can often be convenient to provide your frontend application with authorization data in order to properly render your application's UI. Laravel does not define a required convention for exposing authorization information to an Inertia powered frontend. -->
-承認は常にサーバーで処理する必要がありますが、アプリケーションの UI を適切にレンダリングするために、フロントエンド アプリケーションに承認データを提供すると便利な場合があります。 Laravel は、Inertia を利用したフロントエンドに認証情報を公開するために必要な規則を定義していません。
+認可は常にサーバーで処理する必要がありますが、アプリケーションの UI を適切にレンダリングするために、フロントエンド アプリケーションに認可データを提供すると便利な場合があります。 Laravel は、Inertia を利用したフロントエンドに認可情報を公開するために必要な規則を定義していません。
 
 <!-- However, if you are using one of Laravel's Inertia-based [starter kits](/docs/13.x/starter-kits), your application already contains a `HandleInertiaRequests` middleware. Within this middleware's `share` method, you may return shared data that will be provided to all Inertia pages in your application. This shared data can serve as a convenient location to define authorization information for the user: -->
-ただし、Laravel の Inertia ベースの [starter kits](/docs/13.x/starter-kits) のいずれかを使用している場合、アプリケーションにはすでに `HandleInertiaRequests` ミドルウェアが含まれています。このミドルウェアの `share` メソッド内で、アプリケーション内のすべての Inertia ページに提供される共有データを返すことができます。この共有データは、ユーザーの認証情報を定義するための便利な場所として機能します。
+ただし、Laravel の Inertia ベースの [starter kits](/docs/13.x/starter-kits) のいずれかを使用している場合、アプリケーションにはすでに `HandleInertiaRequests` ミドルウェアが含まれています。このミドルウェアの `share` メソッド内で、アプリケーション内のすべての Inertia ページに提供される共有データを返すことができます。この共有データは、ユーザーの認可情報を定義するための便利な場所として機能します。
 
 ```php
 <?php

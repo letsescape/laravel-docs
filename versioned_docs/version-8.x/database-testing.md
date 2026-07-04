@@ -438,7 +438,7 @@ $user = User::factory()
 ```
 
 <!-- You may provide a closure based state transformation if your state change requires access to the parent model: -->
-에서처럼, 클로저 기반의 상태 변환도 사용할 수 있습니다.
+부모 모델을 참조해야 하는 경우에는, 클로저 기반의 상태 변환을 사용할 수 있습니다.
 
 ```
 $user = User::factory()

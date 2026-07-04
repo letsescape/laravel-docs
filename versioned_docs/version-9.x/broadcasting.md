@@ -686,7 +686,7 @@ Broadcast::routes($attributes);
 #### Customizing The Authorization Endpoint
 
 <!-- By default, Echo will use the `/broadcasting/auth` endpoint to authorize channel access. However, you may specify your own authorization endpoint by passing the `authEndpoint` configuration option to your Echo instance: -->
-기본적으로 Echo는 채널 접근 권한을 인증하기 위해 `/broadcasting/auth` 엔드포인트를 사용합니다. 하지만, `authEndpoint` 설정 옵션을 Echo 인스턴스에 전달하여 직접 원하는 인증 엔드포인트를 지정할 수도 있습니다.
+기본적으로 Echo는 채널 접근 권한을 인가하기 위해 `/broadcasting/auth` 엔드포인트를 사용합니다. 하지만, `authEndpoint` 설정 옵션을 Echo 인스턴스에 전달하여 직접 원하는 인가 엔드포인트를 지정할 수도 있습니다.
 
 ```js
 window.Echo = new Echo({
@@ -702,7 +702,7 @@ window.Echo = new Echo({
 #### Customizing The Authorization Request
 
 <!-- You can customize how Laravel Echo performs authorization requests by providing a custom authorizer when initializing Echo: -->
-Echo를 초기화할 때 커스텀 authorizer를 제공하여, Laravel Echo가 인증 요청을 수행하는 방식을 직접 커스터마이즈할 수 있습니다.
+Echo를 초기화할 때 커스텀 authorizer를 제공하여, Laravel Echo가 인가 요청을 수행하는 방식을 직접 커스터마이즈할 수 있습니다.
 
 ```js
 window.Echo = new Echo({
@@ -785,7 +785,7 @@ Broadcast::channel('channel', function () {
 ### Defining Channel Classes
 
 <!-- If your application is consuming many different channels, your `routes/channels.php` file could become bulky. So, instead of using closures to authorize channels, you may use channel classes. To generate a channel class, use the `make:channel` Artisan command. This command will place a new channel class in the `App/Broadcasting` directory. -->
-애플리케이션이 여러 채널을 다뤄야 한다면, `routes/channels.php` 파일이 금세 복잡해질 수 있습니다. 이때는 클로저 대신 채널 클래스를 만들어 인증 로직을 분리할 수 있습니다. 채널 클래스를 생성하려면 `make:channel` 아티즌 명령어를 사용하세요. 이 명령은 새로운 채널 클래스를 `App/Broadcasting` 디렉터리에 생성합니다.
+애플리케이션이 여러 채널을 다뤄야 한다면, `routes/channels.php` 파일이 금세 복잡해질 수 있습니다. 이때는 클로저 대신 채널 클래스를 만들어 인가 로직을 분리할 수 있습니다. 채널 클래스를 생성하려면 `make:channel` 아티즌 명령어를 사용하세요. 이 명령은 새로운 채널 클래스를 `App/Broadcasting` 디렉터리에 생성합니다.
 
 ```shell
 php artisan make:channel OrderChannel
@@ -801,7 +801,7 @@ Broadcast::channel('orders.{order}', OrderChannel::class);
 ```
 
 <!-- Finally, you may place the authorization logic for your channel in the channel class' `join` method. This `join` method will house the same logic you would have typically placed in your channel authorization closure. You may also take advantage of channel model binding: -->
-마지막으로, 인증 관련 로직은 채널 클래스의 `join` 메서드 안에 구현할 수 있습니다. 이 `join` 메서드에는, 원래는 인증 클로저에 두었던 동일한 로직을 작성하면 됩니다. 또한, 채널 모델 바인딩 기능도 그대로 사용할 수 있습니다.
+마지막으로, 인가 관련 로직은 채널 클래스의 `join` 메서드 안에 구현할 수 있습니다. 이 `join` 메서드에는, 원래는 인가 클로저에 두었던 동일한 로직을 작성하면 됩니다. 또한, 채널 모델 바인딩 기능도 그대로 사용할 수 있습니다.
 
 ```
 <?php
@@ -1047,7 +1047,7 @@ Echo.channel('orders')
 ### Authorizing Presence Channels
 
 <!-- All presence channels are also private channels; therefore, users must be [authorized to access them](#authorizing-channels). However, when defining authorization callbacks for presence channels, you will not return `true` if the user is authorized to join the channel. Instead, you should return an array of data about the user. -->
-모든 프레즌스 채널은 프라이빗 채널이기도 하므로, 반드시 [authorized to access them](#authorizing-channels)해야만 접근할 수 있습니다. 단, 프레즌스 채널의 인증 콜백을 정의할 때는, 사용자가 채널에 참여할 수 있을 경우 `true`를 반환하는 대신, 사용자에 대한 정보를 담은 배열을 반환해야 합니다.
+모든 프레즌스 채널은 프라이빗 채널이기도 하므로, 사용자는 반드시 [authorized to access them](#authorizing-channels) 상태여야 합니다. 단, 프레즌스 채널의 인가 콜백을 정의할 때는, 사용자가 채널에 참여할 수 있을 경우 `true`를 반환하는 대신, 사용자에 대한 정보를 담은 배열을 반환해야 합니다.
 
 <!-- The data returned by the authorization callback will be made available to the presence channel event listeners in your JavaScript application. If the user is not authorized to join the presence channel, you should return `false` or `null`: -->
 이렇게 콜백에서 반환된 데이터는 JavaScript에서 프레즌스 채널에 구독할 때 이벤트 리스너에서 활용할 수 있습니다. 만약 사용자가 채널에 참여할 권한이 없다면 `false` 또는 `null`을 반환해야 합니다.

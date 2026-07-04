@@ -4107,7 +4107,7 @@ return back();
 #### `bcrypt()`
 
 <!-- The `bcrypt` function [hashes](/docs/8.x/hashing) the given value using Bcrypt. You may use this function as an alternative to the `Hash` facade: -->
-`bcrypt` 함수는 [hashes](/docs/8.x/hashing)합니다. 이 함수는 `Hash` 파사드의 대안으로 사용할 수 있습니다.
+`bcrypt` 함수는 주어진 값을 Bcrypt로 [hashes](/docs/8.x/hashing)합니다. 이 함수는 `Hash` 파사드의 대안으로 사용할 수 있습니다.
 
 ```
 $password = bcrypt('my-secret-password');
@@ -4143,7 +4143,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/8.x/broadcasting) the given [event](/docs/8.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [broadcasts](/docs/8.x/broadcasting)를 해당 리스너들에게 [event](/docs/8.x/events)합니다.
+`broadcast` 함수는 [broadcasts](/docs/8.x/broadcasting) 기능을 사용해 주어진 [event](/docs/8.x/events)를 해당 리스너들에게 전달합니다.
 
 ```
 broadcast(new UserRegistered($user));
@@ -4415,7 +4415,7 @@ $now = now();
 #### `old()`
 
 <!-- The `old` function [retrieves](/docs/8.x/requests#retrieving-input) an [old input](/docs/8.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 세션에 플래시된 [retrieves](/docs/8.x/requests#retrieving-input)을 [old input](/docs/8.x/requests#old-input).
+`old` 함수는 [retrieves](/docs/8.x/requests#retrieving-input) 동작으로 세션에 플래시된 [old input](/docs/8.x/requests#old-input) 값을 가져옵니다.
 
 ```
 $value = old('value');
@@ -4711,7 +4711,7 @@ $traits = trait_uses_recursive(\Illuminate\Notifications\Notifiable::class);
 #### `transform()`
 
 <!-- The `transform` function executes a closure on a given value if the value is not [blank](#method-blank) and then returns the return value of the closure: -->
-`transform` 함수는 주어진 값이 [blank](#method-blank) 클로저를 실행하고, 그 반환값을 돌려줍니다.
+`transform` 함수는 주어진 값이 [blank](#method-blank)가 아니면 그 값에 대해 클로저를 실행하고, 그 반환값을 돌려줍니다.
 
 ```
 $callback = function ($value) {

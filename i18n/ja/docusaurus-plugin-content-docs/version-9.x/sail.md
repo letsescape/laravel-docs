@@ -525,7 +525,7 @@ sail share --subdomain=my-sail-site
 ```
 
 > [!NOTE]
-> `share` コマンドは、[Expose](https://github.com/beyondcode/expose) によるオープン ソース トンネリング サービスである [BeyondCode](https://beyondco.de) を利用しています。
+> `share` コマンドは、[Expose](https://github.com/beyondcode/expose)（[BeyondCode](https://beyondco.de) によるオープン ソース トンネリング サービス）を利用しています。
 
 <a name="debugging-with-xdebug"></a>
 <!-- ## Debugging With Xdebug -->

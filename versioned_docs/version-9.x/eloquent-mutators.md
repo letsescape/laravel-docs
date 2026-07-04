@@ -67,7 +67,7 @@ class User extends Model
 모든 accessor 메서드는 `Attribute` 인스턴스를 반환하며, 이 인스턴스는 해당 속성을 어떻게 접근(조회)하고(필요하다면) 변이할지 정의합니다. 위 예시에서는 속성을 어떻게 조회할지만 지정하고 있습니다. 이를 위해 `Attribute` 클래스의 생성자에 `get` 인자를 전달합니다.
 
 <!-- As you can see, the original value of the column is passed to the accessor, allowing you to manipulate and return the value. To access the value of the accessor, you may simply access the `first_name` attribute on a model instance: -->
-위에서 볼 수 있듯 크론 컬럼의 원래 값이 accessor에게 전달되므로, 값을 자유롭게 가공(변경)해서 반환할 수 있습니다. accessor 값을 사용하려면, 그냥 모델 인스턴스에서 `first_name` 속성에 접근하면 됩니다.
+위에서 볼 수 있듯 컬럼의 원래 값이 accessor에게 전달되므로, 값을 자유롭게 가공(변경)해서 반환할 수 있습니다. accessor 값을 사용하려면, 그냥 모델 인스턴스에서 `first_name` 속성에 접근하면 됩니다.
 
 ```
 use App\Models\User;

@@ -89,7 +89,7 @@ Laravel のイベントブロードキャストの使用を開始するには、
 #### Broadcast Service Provider
 
 <!-- Before broadcasting any events, you will first need to register the `App\Providers\BroadcastServiceProvider`. In new Laravel applications, you only need to uncomment this provider in the `providers` array of your `config/app.php` configuration file. This `BroadcastServiceProvider` contains the code necessary to register the broadcast authorization routes and callbacks. -->
-イベントをブロードキャストする前に、まず `App\Providers\BroadcastServiceProvider` を登録する必要があります。新しい Laravel アプリケーションでは、`config/app.php` 構成ファイルの `providers` 配列でこのプロバイダのコメントを解除するだけで済みます。この `BroadcastServiceProvider` には、ブロードキャスト認証ルートとコールバックを登録するために必要なコードが含まれています。
+イベントをブロードキャストする前に、まず `App\Providers\BroadcastServiceProvider` を登録する必要があります。新しい Laravel アプリケーションでは、`config/app.php` 構成ファイルの `providers` 配列でこのプロバイダのコメントを解除するだけで済みます。この `BroadcastServiceProvider` には、ブロードキャスト認可ルートとコールバックを登録するために必要なコードが含まれています。
 
 <a name="queue-configuration"></a>
 <!-- #### Queue Configuration -->
@@ -459,7 +459,7 @@ public function broadcastOn(): array
 #### Authorizing Channels
 
 <!-- Remember, users must be authorized to listen on private channels. We may define our channel authorization rules in our application's `routes/channels.php` file. In this example, we need to verify that any user attempting to listen on the private `orders.1` channel is actually the creator of the order: -->
-ユーザーはプライベート チャネルでリッスンすることを許可されている必要があることに注意してください。アプリケーションの `routes/channels.php` ファイルでチャネル認証ルールを定義できます。この例では、プライベート `orders.1` チャネルでリッスンしようとしているユーザーが実際に注文の作成者であることを確認する必要があります。
+ユーザーはプライベート チャネルでリッスンすることを許可されている必要があることに注意してください。アプリケーションの `routes/channels.php` ファイルでチャネル認可ルールを定義できます。この例では、プライベート `orders.1` チャネルでリッスンしようとしているユーザーが実際に注文の作成者であることを確認する必要があります。
 
 ```
 use App\Models\Order;
@@ -724,7 +724,7 @@ Broadcast::routes($attributes);
 #### Customizing the Authorization Endpoint
 
 <!-- By default, Echo will use the `/broadcasting/auth` endpoint to authorize channel access. However, you may specify your own authorization endpoint by passing the `authEndpoint` configuration option to your Echo instance: -->
-デフォルトでは、Echo は `/broadcasting/auth` エンドポイントを使用してチャネル アクセスを承認します。ただし、`authEndpoint` 構成オプションを Echo インスタンスに渡すことで、独自の認証エンドポイントを指定できます。
+デフォルトでは、Echo は `/broadcasting/auth` エンドポイントを使用してチャネル アクセスを認可します。ただし、`authEndpoint` 構成オプションを Echo インスタンスに渡すことで、独自の認可エンドポイントを指定できます。
 
 ```js
 window.Echo = new Echo({
@@ -785,7 +785,7 @@ Broadcast::channel('orders.{orderId}', function (User $user, int $orderId) {
 すべての認可コールバックは、現在認証されているユーザーを最初の引数として受け取り、追加のワイルドカード パラメーターを後続の引数として受け取ります。この例では、`{orderId}` プレースホルダーを使用して、チャネル名の「ID」部分がワイルドカードであることを示しています。
 
 <!-- You may view a list of your application's broadcast authorization callbacks using the `channel:list` Artisan command: -->
-`channel:list` Artisan コマンドを使用して、アプリケーションのブロードキャスト認証コールバックのリストを表示できます。
+`channel:list` Artisan コマンドを使用して、アプリケーションのブロードキャスト認可コールバックのリストを表示できます。
 
 ```shell
 php artisan channel:list
@@ -1414,5 +1414,5 @@ Echo.private(`App.Models.User.${userId}`)
 ```
 
 <!-- In this example, all notifications sent to `App\Models\User` instances via the `broadcast` channel would be received by the callback. A channel authorization callback for the `App.Models.User.{id}` channel is included in the default `BroadcastServiceProvider` that ships with the Laravel framework. -->
-この例では、`broadcast` チャネル経由で `App\Models\User` インスタンスに送信されたすべての通知がコールバックによって受信されます。 `App.Models.User.{id}` チャネルのチャネル認証コールバックは、Laravel フレームワークに付属するデフォルトの `BroadcastServiceProvider` に含まれています。
+この例では、`broadcast` チャネル経由で `App\Models\User` インスタンスに送信されたすべての通知がコールバックによって受信されます。 `App.Models.User.{id}` チャネルのチャネル認可コールバックは、Laravel フレームワークに付属するデフォルトの `BroadcastServiceProvider` に含まれています。
 

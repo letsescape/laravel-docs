@@ -1862,7 +1862,7 @@ $number = Number::spell(88, locale: 'fr');
 ```
 
 <!-- The `after` argument allows you to specify a value after which all numbers should be spelled out: -->
-`after` 인수를 사용하면, 특정 값 이상부터는 숫자로 표기하고 그 미만은 모두 단어로 변환할 수 있습니다.
+`after` 인수를 사용하면, 특정 값을 초과하는 모든 숫자를 단어로 표기하도록 지정할 수 있습니다.
 
 ```
 $number = Number::spell(10, after: 10);
@@ -3144,7 +3144,7 @@ $traits = trait_uses_recursive(\Illuminate\Notifications\Notifiable::class);
 #### `transform()`
 
 <!-- The `transform` function executes a closure on a given value if the value is not [blank](#method-blank) and then returns the return value of the closure: -->
-`transform` 함수는 주어진 값이 [blank](#method-blank), 해당 값에 클로저를 실행하고, 그 결과를 반환합니다.
+`transform` 함수는 주어진 값이 [blank](#method-blank)가 아니면 해당 값에 클로저를 실행하고, 그 결과를 반환합니다.
 
 ```
 $callback = function (int $value) {

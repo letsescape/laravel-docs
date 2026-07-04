@@ -290,7 +290,7 @@ Route::group([
 ## Issuing Access Tokens
 
 <!-- Using OAuth2 via authorization codes is how most developers are familiar with OAuth2. When using authorization codes, a client application will redirect a user to your server where they will either approve or deny the request to issue an access token to the client. -->
-OAuth2를 사용할 때 대다수 개발자들에게 가장 익숙한 방식은 인증 코드(authorization code)를 이용하는 방법입니다. 이 방식을 사용하면, 클라이언트 애플리케이션이 사용자를 여러분의 서버로 리디렉션시키고, 사용자는 해당 클라이언트에게 액세스 토큰 발급을 허용하거나 거부하게 됩니다.
+OAuth2를 사용할 때 대다수 개발자들에게 가장 익숙한 방식은 인가 코드(authorization code)를 이용하는 방법입니다. 이 방식을 사용하면, 클라이언트 애플리케이션이 사용자를 여러분의 서버로 리디렉션시키고, 사용자는 해당 클라이언트에게 액세스 토큰 발급을 허용하거나 거부하게 됩니다.
 
 <a name="managing-clients"></a>
 <!-- ### Managing Clients -->
@@ -417,7 +417,7 @@ axios.delete('/oauth/clients/' + clientId)
 #### Redirecting for Authorization
 
 <!-- Once a client has been created, developers may use their client ID and secret to request an authorization code and access token from your application. First, the consuming application should make a redirect request to your application's `/oauth/authorize` route like so: -->
-클라이언트가 생성된 후, 개발자는 클라이언트 ID와 시크릿을 이용해 인증 코드 및 액세스 토큰을 요청할 수 있습니다. 우선, 클라이언트 애플리케이션은 여러분의 애플리케이션 `/oauth/authorize` 라우트로 리디렉트 요청을 보내야 합니다:
+클라이언트가 생성된 후, 개발자는 클라이언트 ID와 시크릿을 이용해 인가 코드 및 액세스 토큰을 요청할 수 있습니다. 우선, 클라이언트 애플리케이션은 여러분의 애플리케이션 `/oauth/authorize` 라우트로 리디렉트 요청을 보내야 합니다:
 
 ```
 use Illuminate\Http\Request;

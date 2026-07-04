@@ -1135,7 +1135,7 @@ $user->subscription('default')->noProrate()->swap($premium = 'pri_456');
 ```
 
 <!-- If you would like to disable proration and invoice customers immediately, you may use the `swapAndInvoice` method in combination with `noProrate`: -->
-日割り計算と請求書の顧客をすぐに無効にしたい場合は、`swapAndInvoice` メソッドを `noProrate` と組み合わせて使用​​できます。
+日割り計算を無効にして顧客にすぐに請求したい場合は、`swapAndInvoice` メソッドを `noProrate` と組み合わせて使用​​できます。
 
 ```php
 $user->subscription('default')->noProrate()->swapAndInvoice($premium = 'pri_456');

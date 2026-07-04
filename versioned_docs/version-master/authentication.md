@@ -299,7 +299,7 @@ Route::get('/flights', function () {
 Laravel의 [application starter kits](/docs/master/starter-kits)에 포함된 인증 scaffolding을 반드시 사용할 필요는 없습니다. 이를 사용하지 않기로 했다면 Laravel의 인증 클래스를 직접 사용해 사용자 인증을 관리하면 됩니다. 생각보다 어렵지 않습니다.
 
 <!-- We will access Laravel's authentication services via the `Auth` [facade](/docs/master/facades), so we'll need to make sure to import the `Auth` facade at the top of the class. Next, let's check out the `attempt` method. The `attempt` method is normally used to handle authentication attempts from your application's "login" form. If authentication is successful, you should regenerate the user's [session](/docs/master/session) to prevent [session fixation](https://en.wikipedia.org/wiki/Session_fixation): -->
-Laravel의 인증 서비스는 `Auth` [facade](/docs/master/facades)를 통해 사용하므로, 먼저 클래스 상단에서 `Auth` 파사드를 가져와야 합니다. 다음으로 `attempt` 메서드를 살펴보겠습니다. `attempt` 메서드는 보통 애플리케이션의 로그인 폼에서 들어온 인증 시도를 처리할 때 사용합니다. 인증에 성공했다면 [session](/docs/master/session)을 방지하기 위해 사용자의 [session fixation](https://en.wikipedia.org/wiki/Session_fixation)을 다시 생성해야 합니다.
+Laravel의 인증 서비스는 `Auth` [facade](/docs/master/facades)를 통해 사용하므로, 먼저 클래스 상단에서 `Auth` 파사드를 가져와야 합니다. 다음으로 `attempt` 메서드를 살펴보겠습니다. `attempt` 메서드는 보통 애플리케이션의 로그인 폼에서 들어온 인증 시도를 처리할 때 사용합니다. 인증에 성공했다면 사용자의 [session](/docs/master/session)을 다시 생성하여 [session fixation](https://en.wikipedia.org/wiki/Session_fixation)을 방지해야 합니다.
 
 ```php
 <?php

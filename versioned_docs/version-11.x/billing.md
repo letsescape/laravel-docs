@@ -305,7 +305,7 @@ public function boot(): void
 여러분의 애플리케이션에서 상품 및 구독 상품의 결제 기능을 제공하는 것은 쉽지 않게 느껴질 수 있습니다. 하지만 Cashier와 [Stripe Checkout](https://stripe.com/payments/checkout) 덕분에 현대적이고 견고한 결제 연동을 간단하게 구축할 수 있습니다.
 
 <!-- To charge customers for non-recurring, single-charge products, we'll utilize Cashier to direct customers to Stripe Checkout, where they will provide their payment details and confirm their purchase. Once the payment has been made via Checkout, the customer will be redirected to a success URL of your choosing within your application: -->
-비정기 단일 결제 상품을 판매할 때는, Cashier를 통해 고객을 Stripe Checkout으로 리디렉션하여 결제 정보를 입력 받고 구매를 완료하도록 할 수 있습니다. 결제가 완료되면 Stripe에서 설정한 성공 URL로 고객이 이동하게 됩니다:
+비정기 단일 결제 상품을 판매할 때는, Cashier를 통해 고객을 Stripe Checkout으로 리디렉션하여 결제 정보를 입력 받고 구매를 완료하도록 할 수 있습니다. 결제가 완료되면 여러분의 애플리케이션에서 지정한 성공 URL로 고객이 이동하게 됩니다:
 
 ```
 use Illuminate\Http\Request;

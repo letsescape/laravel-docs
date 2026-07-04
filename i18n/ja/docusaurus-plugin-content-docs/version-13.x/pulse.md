@@ -87,7 +87,7 @@ php artisan vendor:publish --tag=pulse-config
 ### Authorization
 
 <!-- The Pulse dashboard may be accessed via the `/pulse` route. By default, you will only be able to access this dashboard in the `local` environment, so you will need to configure authorization for your production environments by customizing the `'viewPulse'` authorization gate. You can accomplish this within your application's `app/Providers/AppServiceProvider.php` file: -->
-Pulse ダッシュボードには、`/pulse` ルート経由でアクセスできます。デフォルトでは、`local` 環境でのみこのダッシュボードにアクセスできるため、`'viewPulse'` 認証ゲートをカスタマイズして実稼働環境の認証を構成する必要があります。これは、アプリケーションの `app/Providers/AppServiceProvider.php` ファイル内で実行できます。
+Pulse ダッシュボードには、`/pulse` ルート経由でアクセスできます。デフォルトでは、`local` 環境でのみこのダッシュボードにアクセスできるため、`'viewPulse'` 認可ゲートをカスタマイズして実稼働環境の認可を構成する必要があります。これは、アプリケーションの `app/Providers/AppServiceProvider.php` ファイル内で実行できます。
 
 ```php
 use App\Models\User;

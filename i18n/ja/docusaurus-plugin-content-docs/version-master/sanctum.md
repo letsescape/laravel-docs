@@ -454,7 +454,7 @@ return Application::configure(basePath: dirname(__DIR__))
 ```
 
 <!-- Next, in order for Pusher's authorization requests to succeed, you will need to provide a custom Pusher `authorizer` when initializing [Laravel Echo](/docs/master/broadcasting#client-side-installation). This allows your application to configure Pusher to use the `axios` instance that is [properly configured for cross-domain requests](#cors-and-cookies): -->
-次に、プッシャーの認証リクエストを成功させるには、[Laravel Echo](/docs/master/broadcasting#client-side-installation) を初期化するときにカスタム プッシャー `authorizer` を指定する必要があります。これにより、アプリケーションで `axios` インスタンス ([properly configured for cross-domain requests](#cors-and-cookies)) を使用するようにプッシャーを構成できるようになります。
+次に、プッシャーの認可リクエストを成功させるには、[Laravel Echo](/docs/master/broadcasting#client-side-installation) を初期化するときにカスタム プッシャー `authorizer` を指定する必要があります。これにより、アプリケーションで `axios` インスタンス ([properly configured for cross-domain requests](#cors-and-cookies)) を使用するようにプッシャーを構成できるようになります。
 
 ```js
 window.Echo = new Echo({

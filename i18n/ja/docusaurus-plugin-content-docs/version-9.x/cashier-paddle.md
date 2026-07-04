@@ -205,7 +205,7 @@ CASHIER_CURRENCY=EUR
 ```
 
 <!-- In addition to configuring Cashier's currency, you may also specify a locale to be used when formatting money values for display on invoices. Internally, Cashier utilizes [PHP's `NumberFormatter` class](https://www.php.net/manual/en/class.numberformatter.php) to set the currency locale: -->
-レジの通貨を構成することに加えて、請求書に表示する金額の書式を設定するときに使用するロケールを指定することもできます。内部的には、Cashier は [PHP's `NumberFormatter` class](https://www.php.net/manual/en/class.numberformatter.php) を使用して通貨ロケールを設定します。
+Cashier の通貨を構成することに加えて、請求書に表示する金額の書式を設定するときに使用するロケールを指定することもできます。内部的には、Cashier は [PHP's `NumberFormatter` class](https://www.php.net/manual/en/class.numberformatter.php) を使用して通貨ロケールを設定します。
 
 ```ini
 CASHIER_CURRENCY_LOCALE=nl_BE
@@ -372,7 +372,7 @@ $options = [
 インライン チェックアウトで利用可能なオプションの詳細については、Paddle の [guide on Inline Checkout](https://developer.paddle.com/guides/how-tos/checkout/inline-checkout) および [parameter reference](https://developer.paddle.com/reference/paddle-js/parameters) を参照してください。
 
 > [!WARNING]
-> カスタム オプションを指定するときに `passthrough` オプションも使用したい場合は、その値としてキー/値配列を指定する必要があります。 Cashier は配列の JSON 文字列への変換を自動的に処理します。さらに、`customer_id` パススルー オプションは、内部レジでの使用のために予約されています。
+> カスタム オプションを指定するときに `passthrough` オプションも使用したい場合は、その値としてキー/値配列を指定する必要があります。 Cashier は配列の JSON 文字列への変換を自動的に処理します。さらに、`customer_id` パススルー オプションは、内部 Cashier での使用のために予約されています。
 
 <a name="manually-rendering-an-inline-checkout"></a>
 <!-- #### Manually Rendering An Inline Checkout -->

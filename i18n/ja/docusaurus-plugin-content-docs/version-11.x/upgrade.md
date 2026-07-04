@@ -383,7 +383,7 @@ php artisan schema:dump
 ```
 
 <!-- Once your migrations have been squashed, Laravel will "migrate" the database using your application's schema file before running any pending migrations. -->
-移行が中断されると、Laravel は保留中の移行を実行する前に、アプリケーションのスキーマ ファイルを使用してデータベースを「移行」します。
+移行がスカッシュされると、Laravel は保留中の移行を実行する前に、アプリケーションのスキーマ ファイルを使用してデータベースを「移行」します。
 
 <a name="floating-point-types"></a>
 <!-- #### Floating-Point Types -->

@@ -1472,4 +1472,4 @@ Echo.private(`App.Models.User.${userId}`)
 ```
 
 <!-- In this example, all notifications sent to `App\Models\User` instances via the `broadcast` channel would be received by the callback. A channel authorization callback for the `App.Models.User.{id}` channel is included in the default `BroadcastServiceProvider` that ships with the Laravel framework. -->
-이 예제에서는 `broadcast` 채널을 통해 `App\Models\User` 인스턴스에게 전송된 모든 알림을 콜백 함수에서 수신할 수 있습니다. `App.Models.User.{id}` 채널에 대해 필요한 채널 인증 콜백은 Laravel 프레임워크에서 기본적으로 제공하는 `BroadcastServiceProvider`에 포함되어 있습니다.
+이 예제에서는 `broadcast` 채널을 통해 `App\Models\User` 인스턴스에게 전송된 모든 알림을 콜백 함수에서 수신할 수 있습니다. `App.Models.User.{id}` 채널에 대해 필요한 채널 인가 콜백은 Laravel 프레임워크에서 기본적으로 제공하는 `BroadcastServiceProvider`에 포함되어 있습니다.

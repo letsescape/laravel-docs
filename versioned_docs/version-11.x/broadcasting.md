@@ -1486,4 +1486,4 @@ Echo.private(`App.Models.User.${userId}`)
 ```
 
 <!-- In this example, all notifications sent to `App\Models\User` instances via the `broadcast` channel would be received by the callback. A channel authorization callback for the `App.Models.User.{id}` channel is included in your application's `routes/channels.php` file. -->
-이 예시에서는, `broadcast` 채널을 통해 `App\Models\User` 인스턴스로 전송된 모든 알림이 콜백에서 수신됩니다. `App.Models.User.{id}` 채널에 대한 인증 콜백은 애플리케이션의 `routes/channels.php` 파일에 이미 포함되어 있습니다.
+이 예시에서는, `broadcast` 채널을 통해 `App\Models\User` 인스턴스로 전송된 모든 알림이 콜백에서 수신됩니다. `App.Models.User.{id}` 채널에 대한 인가 콜백은 애플리케이션의 `routes/channels.php` 파일에 이미 포함되어 있습니다.

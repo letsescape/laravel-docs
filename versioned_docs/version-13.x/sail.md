@@ -267,7 +267,7 @@ sail yarn
 ### MongoDB
 
 <!-- If you chose to install the [MongoDB](https://www.mongodb.com/) service when installing Sail, your application's `compose.yaml` file contains an entry for a [MongoDB Atlas Local](https://www.mongodb.com/docs/atlas/cli/current/atlas-cli-local-cloud/) container which provides the MongoDB document database with Atlas features like [Search Indexes](https://www.mongodb.com/docs/atlas/atlas-search/). This container uses a [Docker volume](https://docs.docker.com/storage/volumes/) so that the data stored in your database is persisted even when stopping and restarting your containers. -->
-Sail 설치 시 [MongoDB](https://www.mongodb.com/) 서비스를 선택했다면 애플리케이션의 `compose.yaml` 파일에는 [MongoDB Atlas Local](https://www.mongodb.com/docs/atlas/cli/current/atlas-cli-local-cloud/) 같은 Atlas 기능과 함께 MongoDB 문서 데이터베이스를 제공하는 [Search Indexes](https://www.mongodb.com/docs/atlas/atlas-search/) 컨테이너 항목이 포함됩니다. 이 컨테이너는 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용하므로 컨테이너를 중지하고 다시 시작해도 데이터베이스에 저장된 데이터가 유지됩니다.
+Sail 설치 시 [MongoDB](https://www.mongodb.com/) 서비스를 선택했다면 애플리케이션의 `compose.yaml` 파일에는 [MongoDB Atlas Local](https://www.mongodb.com/docs/atlas/cli/current/atlas-cli-local-cloud/) 컨테이너 항목이 포함되며, 이 컨테이너는 [Search Indexes](https://www.mongodb.com/docs/atlas/atlas-search/) 같은 Atlas 기능과 함께 MongoDB 문서 데이터베이스를 제공합니다. 이 컨테이너는 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용하므로 컨테이너를 중지하고 다시 시작해도 데이터베이스에 저장된 데이터가 유지됩니다.
 
 <!-- Once you have started your containers, you may connect to the MongoDB instance within your application by setting your `MONGODB_URI` environment variable within your application's `.env` file to `mongodb://mongodb:27017`. Authentication is disabled by default, but you can set the `MONGODB_USERNAME` and `MONGODB_PASSWORD` environment variables to enable authentication before starting the `mongodb` container. Then, add the credentials to the connection string: -->
 컨테이너를 시작한 후에는 애플리케이션의 `.env` 파일에서 `MONGODB_URI` 환경 변수를 `mongodb://mongodb:27017`로 설정하여 애플리케이션 안에서 MongoDB 인스턴스에 연결할 수 있습니다. 인증은 기본적으로 비활성화되어 있지만, `mongodb` 컨테이너를 시작하기 전에 `MONGODB_USERNAME` 및 `MONGODB_PASSWORD` 환경 변수를 설정하여 인증을 활성화할 수 있습니다. 그런 다음 연결 문자열에 자격 증명을 추가하십시오.
@@ -577,7 +577,7 @@ sail share --subdomain=my-sail-site
 ```
 
 > [!NOTE]
-> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)의 오픈 소스 터널링 서비스인 [BeyondCode](https://beyondco.de)를 기반으로 동작합니다.
+> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)를 기반으로 동작하며, Expose는 [BeyondCode](https://beyondco.de)가 만든 오픈 소스 터널링 서비스입니다.
 
 <a name="debugging-with-xdebug"></a>
 <!-- ## Debugging With Xdebug -->

@@ -284,7 +284,7 @@ Laravel Socialite は、OAuth プロバイダに実際のリクエストを行�
 #### Faking the Redirect
 
 <!-- To test that your application correctly redirects users to an OAuth provider, you may invoke the `fake` method before making a request to your redirect route. This will cause Socialite to return a redirect to a fake authorization URL instead of redirecting to the actual OAuth provider: -->
-アプリケーションがユーザーを OAuth プロバイダに正しくリダイレ​​クトすることをテストするには、リダイレクト ルートにリクエストを行う前に `fake` メソッドを呼び出します。これにより、Socialite は実際の OAuth プロバイダにリダイレクトするのではなく、偽の認証 URL へのリダイレクトを返します。
+アプリケーションがユーザーを OAuth プロバイダに正しくリダイレ​​クトすることをテストするには、リダイレクト ルートにリクエストを行う前に `fake` メソッドを呼び出します。これにより、Socialite は実際の OAuth プロバイダにリダイレクトするのではなく、偽の認可 URL へのリダイレクトを返します。
 
 ```php
 use Laravel\Socialite\Socialite;

@@ -71,7 +71,7 @@ Laravel과 그 외 공식 패키지들은 [Semantic Versioning](https://semver.o
 알고 계시듯, Laravel은 Laravel 8 릴리스부터 연 1회 주요 버전 출시 정책으로 전환하였습니다. 이전에는 6개월마다 주요 버전이 출시되었습니다. 이 전환의 목적은 커뮤니티의 유지 보수 부담을 덜고, 개발팀이 기존에 호환성 문제 없이 멋진 신규 기능을 더 자주 추가할 수 있도록 하기 위함입니다. 실제로 Laravel 8에서도 병렬 테스트 지원, Breeze 스타터 킷 개선, HTTP 클라이언트 개선, "has one of many" 등 새로운 Eloquent 연관관계 유형 등 다양한 강력한 기능을 하위 호환성을 깨뜨리지 않고 제공했습니다.
 
 <!-- Therefore, this commitment to ship great new features during the current release will likely lead to future "major" releases being primarily used for "maintenance" tasks such as upgrading upstream dependencies, which can be seen in these release notes. -->
-따라서, 이 릴리스 정책 아래에서는 향후 "주요" 릴리스가 주로 상위 의존성 업그레이드 등 "유지 보수" 성격의 변경(주로 breaking change와 연관)만을 포함하는 형태가 될 가능성이 높습니다. 바로 이 점이 본 릴리스 노트에도 반영되어 있습니다.
+따라서, 이 릴리스 정책 아래에서는 향후 "주요" 릴리스가 주로 상위 의존성 업그레이드 등 "유지 보수" 성격의 작업만을 포함하는 형태가 될 가능성이 높습니다. 바로 이 점이 본 릴리스 노트에도 반영되어 있습니다.
 
 <!-- Laravel 9 continues the improvements made in Laravel 8.x by introducing support for Symfony 6.0 components, Symfony Mailer, Flysystem 3.0, improved `route:list` output, a Laravel Scout database driver, new Eloquent accessor / mutator syntax, implicit route bindings via Enums, and a variety of other bug fixes and usability improvements. -->
 Laravel 9은 Laravel 8.x에서 도입된 개선 사항을 이어받아, Symfony 6.0 컴포넌트 및 Symfony Mailer 지원, Flysystem 3.0, 향상된 `route:list` 출력, Laravel Scout 데이터베이스 드라이버, 새로운 Eloquent Accessor·Mutator 문법, Enum을 활용한 암묵적(implicit) 라우트 바인딩, 기타 여러 버그 수정과 개발 편의성 개선 등을 제공합니다.

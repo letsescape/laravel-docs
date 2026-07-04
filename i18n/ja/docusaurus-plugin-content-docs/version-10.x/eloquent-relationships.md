@@ -46,7 +46,7 @@
 ## Introduction
 
 <!-- Database tables are often related to one another. For example, a blog post may have many comments or an order could be related to the user who placed it. Eloquent makes managing and working with these relationships easy, and supports a variety of common relationships: -->
-多くの場合、データベース テーブルは相互に関連しています。たとえば、ブログ投稿に多くのコメントが含まれている場合や、注文がその投稿を行ったユーザーに関連している場合があります。 Eloquent を使用すると、これらの関係の管理と操作が簡単になり、さまざまな一般的な関係がサポートされます。
+多くの場合、データベース テーブルは相互に関連しています。たとえば、ブログ投稿に多くのコメントが含まれている場合や、注文がその注文を行ったユーザーに関連している場合があります。 Eloquent を使用すると、これらの関係の管理と操作が簡単になり、さまざまな一般的な関係がサポートされます。
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">

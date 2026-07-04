@@ -28,7 +28,7 @@
 [Laravel Breeze](https://github.com/laravel/breeze) は、ログイン、登録、パスワードのリセット、メール検証、パスワードの確認を含む、Laravel の [authentication features](/docs/11.x/authentication) のすべてを最小限にシンプルに実装したものです。さらに、Breeze には、ユーザーが自分の名前、電子メール アドレス、パスワードを更新できる簡単な「プロフィール」ページが含まれています。
 
 <!-- Laravel Breeze's default view layer is made up of simple [Blade templates](/docs/11.x/blade) styled with [Tailwind CSS](https://tailwindcss.com). Additionally, Breeze provides scaffolding options based on [Livewire](https://livewire.laravel.com) or [Inertia](https://inertiajs.com), with the choice of using Vue or React for the Inertia-based scaffolding. -->
-Laravel Breezeのデフォルトのビューレイヤーは、[Blade templates](/docs/11.x/blade)でスタイル設定されたシンプルな[Tailwind CSS](https://tailwindcss.com)で構成されています。さらに、Breeze は、[Livewire](https://livewire.laravel.com) または [Inertia](https://inertiajs.com) に基づくスキャフォールディング オプションを提供し、Inertiaベースのスキャフォールディングに Vue または React を使用することを選択できます。
+Laravel Breezeのデフォルトのビューレイヤーは、シンプルな [Blade templates](/docs/11.x/blade) で構成されており、[Tailwind CSS](https://tailwindcss.com) でスタイル設定されています。さらに、Breeze は、[Livewire](https://livewire.laravel.com) または [Inertia](https://inertiajs.com) に基づくスキャフォールディング オプションを提供し、Inertiaベースのスキャフォールディングに Vue または React を使用することを選択できます。
 
 <!-- <img src="https://laravel.com/img/docs/breeze-register.png"/> -->
 <img src="https://laravel.com/img/docs/breeze-register.png"/>
@@ -152,7 +152,7 @@ php artisan migrate
 #### Next.js Reference Implementation
 
 <!-- Finally, you are ready to pair this backend with the frontend of your choice. A Next reference implementation of the Breeze frontend is [available on GitHub](https://github.com/laravel/breeze-next). This frontend is maintained by Laravel and contains the same user interface as the traditional Blade and Inertia stacks provided by Breeze. -->
-最後に、このバックエンドを選択したフロントエンドと組み合わせる準備が整いました。 Breeze フロントエンドの次のリファレンス実装は、[available on GitHub](https://github.com/laravel/breeze-next) です。このフロントエンドは Laravel によって保守されており、Breeze によって提供される従来の Blade および Inertia スタックと同じユーザー インターフェイスが含まれています。
+最後に、このバックエンドを選択したフロントエンドと組み合わせる準備が整いました。 Breeze フロントエンドの Next リファレンス実装は、[available on GitHub](https://github.com/laravel/breeze-next) です。このフロントエンドは Laravel によって保守されており、Breeze によって提供される従来の Blade および Inertia スタックと同じユーザー インターフェイスが含まれています。
 
 <a name="laravel-jetstream"></a>
 <!-- ## Laravel Jetstream -->

@@ -1201,7 +1201,7 @@ class ProcessPodcast implements ShouldQueue
 큐에 쌓인 작업 중 오류가 발생하는 경우, 해당 작업이 무한정 반복 재시도되는 것을 막고 싶을 것입니다. Laravel에서는 작업이 시도될 최대 횟수, 또는 최대 허용 시간을 지정할 수 있는 여러 방법을 제공합니다.
 
 <!-- One approach to specifying the maximum number of times a job may be attempted is via the `--tries` switch on the Artisan command line. This will apply to all jobs processed by the worker unless the job being processed specifies the number of times it may be attempted: -->
-먼저, Artizan 커맨드 라인에서 `--tries` 옵션을 지정하여 모든 작업의 최대 재시도 횟수를 정할 수 있습니다. 이 설정은 작업 자체에 개별 설정이 없을 때 워커 전체에 적용됩니다.
+먼저, Artisan 커맨드 라인에서 `--tries` 옵션을 지정하여 모든 작업의 최대 재시도 횟수를 정할 수 있습니다. 이 설정은 작업 자체에 개별 설정이 없을 때 워커 전체에 적용됩니다.
 
 ```shell
 php artisan queue:work --tries=3

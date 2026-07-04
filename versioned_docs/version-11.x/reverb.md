@@ -272,7 +272,7 @@ forge        hard  nofile  10000
 Reverb는 서버에서 WebSocket 연결을 관리하기 위해 ReactPHP 이벤트 루프를 사용합니다. 기본적으로 이 이벤트 루프는 `stream_select` 기반으로 동작하며, 별도의 확장 프로그램 없이 사용할 수 있습니다. 하지만, `stream_select`는 일반적으로 1,024개의 오픈 파일 제한을 가지므로, 1,000개가 넘는 동시 연결을 처리하려면 이러한 제약이 없는 다른 이벤트 루프를 사용해야 합니다.
 
 <!-- Reverb will automatically switch to an `ext-uv` powered loop when available. This PHP extension is available for install via PECL: -->
-Reverb는 `ext-uv` 확장 프로그램이 설치되어 있는 경우 자동으로 해당 로프로 전환합니다. 이 PHP 확장은 PECL을 통해 설치할 수 있습니다.
+Reverb는 `ext-uv` 확장 프로그램이 설치되어 있는 경우 자동으로 해당 루프로 전환합니다. 이 PHP 확장은 PECL을 통해 설치할 수 있습니다.
 
 ```sh
 pecl install uv

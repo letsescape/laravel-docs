@@ -2638,7 +2638,7 @@ return to_action(
 #### `to_route()`
 
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/12.x/responses#redirects) for a given [named route](/docs/12.x/routing#named-routes): -->
-`to_route` 함수는 주어진 [redirect HTTP response](/docs/12.x/responses#redirects)에 대한 [named route](/docs/12.x/routing#named-routes)을 생성합니다.
+`to_route` 함수는 [redirect HTTP response](/docs/12.x/responses#redirects)를 생성해 주어진 [named route](/docs/12.x/routing#named-routes)로 이동하게 합니다.
 
 ```php
 return to_route('users.show', ['user' => 1]);
@@ -2725,7 +2725,7 @@ $previous = url()->previous();
 #### `abort()`
 
 <!-- The `abort` function throws [an HTTP exception](/docs/12.x/errors#http-exceptions) which will be rendered by the [exception handler](/docs/12.x/errors#handling-exceptions): -->
-`abort` 함수는 [an HTTP exception](/docs/12.x/errors#http-exceptions)에 의해 렌더링될 [exception handler](/docs/12.x/errors#handling-exceptions)를 발생시킵니다.
+`abort` 함수는 [an HTTP exception](/docs/12.x/errors#http-exceptions)을 발생시키며, 이는 [exception handler](/docs/12.x/errors#handling-exceptions)에 의해 렌더링됩니다.
 
 ```php
 abort(403);

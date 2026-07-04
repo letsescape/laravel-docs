@@ -531,7 +531,7 @@ Schedule::call(function () {
 ```
 
 <!-- When sub-minute tasks are defined within your application, the `schedule:run` command will continue running until the end of the current minute instead of exiting immediately. This allows the command to invoke all required sub-minute tasks throughout the minute. -->
-アプリケーション内で 1 分未満のタスクが定義されている場合、`schedule:run` コマンドはすぐに終了するのではなく、現在の 1 分間が終了するまで実行を続けます。これにより、コマンドは 1 分を通して必要なすべてのサブタスク タスクを呼び出すことができます。
+アプリケーション内で 1 分未満のタスクが定義されている場合、`schedule:run` コマンドはすぐに終了するのではなく、現在の 1 分間が終了するまで実行を続けます。これにより、コマンドは 1 分を通して必要なすべての 1 分未満のタスクを呼び出すことができます。
 
 <!-- Since sub-minute tasks that take longer than expected to run could delay the execution of later sub-minute tasks, it is recommended that all sub-minute tasks dispatch queued jobs or background commands to handle the actual task processing: -->
 実行に予想よりも時間がかかる 1 分未満のタスクは、後続の 1 分未満のタスクの実行を遅らせる可能性があるため、すべての 1 分未満のタスクがキューに入れられたジョブまたはバックグラウンド コマンドをディスパッチして、実際のタスク処理を処理することをお勧めします。

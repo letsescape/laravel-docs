@@ -121,7 +121,7 @@ return Application::configure(basePath: dirname(__DIR__))
 デフォルトの Laravel アプリケーション構造には 5 つのサービスプロバイダが含まれていますが、Laravel 11 には `AppServiceProvider` が 1 つだけ含まれています。以前のサービスプロバイダの機能は `bootstrap/app.php` に組み込まれており、フレームワークによって自動的に処理されるか、アプリケーションの `AppServiceProvider` に配置される場合があります。
 
 <!-- For example, event discovery is now enabled by default, largely eliminating the need for manual registration of events and their listeners. However, if you do need to manually register events, you may simply do so in the `AppServiceProvider`. Similarly, route model bindings or authorization gates you may have previously registered in the `AuthServiceProvider` may also be registered in the `AppServiceProvider`. -->
-たとえば、イベント検出がデフォルトで有効になり、イベントとそのリスナを手動で登録する必要がほとんどなくなりました。ただし、イベントを手動で登録する必要がある場合は、`AppServiceProvider` で簡単に登録できます。同様に、以前に `AuthServiceProvider` に登録したルート モデル バインディングまたは認証ゲートも、`AppServiceProvider` に登録される可能性があります。
+たとえば、イベント検出がデフォルトで有効になり、イベントとそのリスナを手動で登録する必要がほとんどなくなりました。ただし、イベントを手動で登録する必要がある場合は、`AppServiceProvider` で簡単に登録できます。同様に、以前に `AuthServiceProvider` に登録したルート モデル バインディングまたは認可ゲートも、`AppServiceProvider` に登録される可能性があります。
 
 <a name="opt-in-routing"></a>
 <!-- #### Opt-in API and Broadcast Routing -->

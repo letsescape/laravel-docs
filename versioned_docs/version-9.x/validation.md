@@ -528,7 +528,7 @@ return $this->user()->can('update', $this->comment);
 만약 `authorize` 메서드가 `false`를 반환한다면, Laravel은 자동으로 403 상태코드 HTTP 응답을 반환하며 컨트롤러 메서드는 실행되지 않습니다.
 
 <!-- If you plan to handle authorization logic for the request in another part of your application, you may simply return `true` from the `authorize` method: -->
-인증 관련 로직을 애플리케이션의 다른 부분에서 처리할 계획이라면, `authorize` 메서드에서 단순히 `true`를 반환해도 됩니다.
+인가 관련 로직을 애플리케이션의 다른 부분에서 처리할 계획이라면, `authorize` 메서드에서 단순히 `true`를 반환해도 됩니다.
 
 ```
 /**

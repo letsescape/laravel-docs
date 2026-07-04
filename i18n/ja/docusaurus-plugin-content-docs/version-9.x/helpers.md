@@ -929,7 +929,7 @@ $contains = Arr::hasAny($array, ['category', 'product.discount']);
 <!-- #### `Arr::isAssoc()` -->
 #### `Arr::isAssoc()`
 <!-- The `Arr::isAssoc` method returns `true` if the given array is an associative array. An array is considered "associative" if it doesn't have sequential numerical keys beginning with zero: -->
-指定された配列が連想配列の場合、`Arr::isAssoc` メソッドは `true` を返します。配列にゼロで始まる連続した数値キーがない場合、その配列は「結合」とみなされます。
+指定された配列が連想配列の場合、`Arr::isAssoc` メソッドは `true` を返します。配列にゼロで始まる連続した数値キーがない場合、その配列は「連想」とみなされます。
 
 ```
 use Illuminate\Support\Arr;

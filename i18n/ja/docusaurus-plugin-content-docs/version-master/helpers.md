@@ -875,7 +875,7 @@ $value = Arr::integer($array, 'name');
 <!-- #### `Arr::isAssoc()` -->
 #### `Arr::isAssoc()`
 <!-- The `Arr::isAssoc` method returns `true` if the given array is an associative array. An array is considered "associative" if it doesn't have sequential numerical keys beginning with zero: -->
-指定された配列が連想配列の場合、`Arr::isAssoc` メソッドは `true` を返します。配列にゼロで始まる連続した数値キーがない場合、その配列は「結合」とみなされます。
+指定された配列が連想配列の場合、`Arr::isAssoc` メソッドは `true` を返します。配列にゼロで始まる連続した数値キーがない場合、その配列は「連想」とみなされます。
 
 ```php
 use Illuminate\Support\Arr;
@@ -2192,7 +2192,7 @@ $number = Number::spell(88, locale: 'fr');
 ```
 
 <!-- The `after` argument allows you to specify a value after which all numbers should be spelled out: -->
-`after` 引数を使用すると、すべての数値の後に続く値を指定できます。
+`after` 引数を使用すると、それより後のすべての数値をスペルアウトする基準値を指定できます。
 
 ```php
 $number = Number::spell(10, after: 10);
@@ -2540,7 +2540,7 @@ return to_action(
 <!-- #### `to_route()` -->
 #### `to_route()`
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/master/responses#redirects) for a given [named route](/docs/master/routing#named-routes): -->
-`to_route` 関数は、指定された [redirect HTTP response](/docs/master/responses#redirects) への [named route](/docs/master/routing#named-routes) を生成します。
+`to_route` 関数は、[redirect HTTP response](/docs/master/responses#redirects) を、指定された [named route](/docs/master/routing#named-routes) に対して生成します。
 
 ```php
 return to_route('users.show', ['user' => 1]);
