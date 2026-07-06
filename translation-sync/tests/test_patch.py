@@ -120,6 +120,38 @@ class CodeBlockPatchTests(unittest.TestCase):
             verify._normalized_fenced_code_blocks(new),  # noqa: SLF001
         )
 
+    def test_code_fence_replacement_uses_complete_source_region(self):
+        old = (
+            "### Storing Payment Methods\n\n"
+            "Old setup instructions.\n\n"
+            "```js\n"
+            "confirmCardSetup();\n"
+            "```\n\n"
+            '<a name="next"></a>\n'
+            "### Next\n"
+        )
+        new = (
+            "### Storing Payment Methods\n\n"
+            "New setup instructions.\n\n"
+            "```php\n"
+            "use Illuminate\\Http\\Request;\n"
+            "\n"
+            "Route::get('/subscription/complete', function (Request $request) {\n"
+            "    return redirect('/dashboard');\n"
+            "});\n"
+            "```\n\n"
+            '<a name="next"></a>\n'
+            "### Next\n"
+        )
+
+        segments = _segments(old, new)
+        translated = patch.source_text(segments[0])
+
+        self.assertEqual(len(segments), 1)
+        self.assertEqual(translated.count("```"), 2)
+        self.assertIn("Route::get('/subscription/complete'", translated)
+        self.assertNotIn('<a name="next"></a>', translated)
+
     def test_diverged_block_is_left_untouched_not_corrupted(self):
         # If the indexed block holds none of the changed markers, leave it be.
         diverged = _OLD_EN.replace(

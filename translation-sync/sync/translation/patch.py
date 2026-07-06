@@ -99,8 +99,13 @@ def segments_from_hunks(
     hunks: tuple[DiffHunk, ...], source_text: str | None = None
 ) -> list[Segment]:
     segments: list[Segment] = []
+    source_lines = source_text.splitlines() if source_text is not None else None
 
     for hunk in hunks:
+        if source_lines is not None and _hunk_has_code_fence_change(hunk):
+            segments.append(_hunk_region_segment(hunk, source_lines))
+            continue
+
         before_context: str | None = None
         old_lines: list[str] = []
         new_lines: list[str] = []
@@ -155,7 +160,6 @@ def segments_from_hunks(
     if source_text is None:
         return filtered
 
-    source_lines = source_text.splitlines()
     new_regions = _code_fence_regions(source_lines)
     old_regions = _code_fence_regions(_reverse_apply_hunks(source_lines, hunks))
     source_blocks = _source_blocks(source_text)
@@ -437,6 +441,120 @@ def _normalize_text(text: str) -> str:
 
 def _ensure_single_eof_newline(text: str) -> str:
     return text.rstrip("\n") + "\n" if text else text
+
+
+def _hunk_has_code_fence_change(hunk: DiffHunk) -> bool:
+    return any(
+        line.kind in {"add", "delete"} and fence_token(line.text)
+        for line in hunk.lines
+    )
+
+
+def _hunk_region_segment(hunk: DiffHunk, source_lines: list[str]) -> Segment:
+    new_linenos = tuple(
+        line.new_lineno
+        for line in hunk.lines
+        if line.kind == "add" and line.new_lineno is not None
+    )
+    if not new_linenos:
+        return Segment(
+            old_lines=tuple(line.text for line in hunk.lines if line.kind == "delete"),
+            new_lines=(),
+            before_context=_before_hunk_context(hunk),
+            after_context=_after_hunk_context(hunk),
+            old_linenos=tuple(
+                line.old_lineno
+                for line in hunk.lines
+                if line.kind == "delete" and line.old_lineno is not None
+            ),
+        )
+
+    start, end = _expanded_source_range(new_linenos, source_lines)
+    new_source = "\n".join(source_lines[start : end + 1]) + "\n"
+    new_lines = new_source.split("\n")[:-1]
+    trailing_blank_adds = _trailing_blank_added_lines(hunk)
+    if (
+        trailing_blank_adds
+        and new_lines[-trailing_blank_adds:] != [""] * trailing_blank_adds
+    ):
+        new_lines.extend([""] * trailing_blank_adds)
+    return Segment(
+        old_lines=tuple(line.text for line in hunk.lines if line.kind == "delete"),
+        new_lines=tuple(new_lines),
+        before_context=_before_hunk_context(hunk),
+        after_context=_after_hunk_context(hunk),
+        old_linenos=tuple(
+            line.old_lineno
+            for line in hunk.lines
+            if line.kind == "delete" and line.old_lineno is not None
+        ),
+        new_linenos=tuple(range(start + 1, end + 2)),
+        new_source=new_source,
+    )
+
+
+def _trailing_blank_added_lines(hunk: DiffHunk) -> int:
+    count = 0
+    seen_add = False
+    for line in reversed(hunk.lines):
+        if line.kind == "context":
+            continue
+        if line.kind != "add":
+            break
+        seen_add = True
+        if line.text:
+            break
+        count += 1
+    return count if seen_add else 0
+
+
+def _before_hunk_context(hunk: DiffHunk) -> str | None:
+    context: str | None = None
+    for line in hunk.lines:
+        if line.kind != "context":
+            return context
+        normalized = _normalize_text(line.text)
+        if normalized:
+            context = normalized
+    return context
+
+
+def _after_hunk_context(hunk: DiffHunk) -> str | None:
+    context: str | None = None
+    for line in reversed(hunk.lines):
+        if line.kind != "context":
+            return context
+        normalized = _normalize_text(line.text)
+        if normalized:
+            context = normalized
+    return context
+
+
+def _expanded_source_range(
+    linenos: tuple[int, ...], source_lines: list[str]
+) -> tuple[int, int]:
+    regions = _code_fence_regions(source_lines)
+    starts: list[int] = []
+    ends: list[int] = []
+    for lineno in linenos:
+        index = lineno - 1
+        region = _inclusive_region_of_index(regions, index)
+        if region is None:
+            starts.append(index)
+            ends.append(index)
+            continue
+        starts.append(region[0])
+        ends.append(region[1])
+    return min(starts), max(ends)
+
+
+def _inclusive_region_of_index(
+    regions: list[tuple[int, int]], index: int
+) -> tuple[int, int] | None:
+    for start, end in regions:
+        if start <= index <= end:
+            return start, end
+    return None
 
 
 def _expand_to_source_blocks(
