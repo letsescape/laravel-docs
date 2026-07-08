@@ -193,15 +193,15 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 特徴 | プロバイダ |
+| 機能 | プロバイダ |
 |---|---|
-| 文章 | OpenAI、OpenAI Compatible、Anthropic、Gemini、Azure、Bedrock、Groq、xAI、DeepSeek、Mistral、Ollama、OpenRouter |
+| テキスト | OpenAI、OpenAI Compatible、Anthropic、Gemini、Azure、Bedrock、Groq、xAI、DeepSeek、Mistral、Ollama、OpenRouter |
 | 画像 | OpenAI、Gemini、xAI、Azure、Bedrock、OpenRouter |
 | TTS | OpenAI、ElevenLabs、Gemini |
 | STT | OpenAI、ElevenLabs、Mistral、Gemini |
 | 埋め込み | OpenAI、Gemini、Azure、Bedrock、Cohere、Mistral、Jina、VoyageAI、Ollama、OpenRouter |
-| 再ランキング | Cohere、Jina、VoyageAI |
-| Files | OpenAI, Anthropic, Gemini, Azure |
+| リランキング | Cohere、Jina、VoyageAI |
+| ファイル | OpenAI、Anthropic、Gemini、Azure |
 
 <!-- </div> -->
 </div>
@@ -1844,10 +1844,10 @@ $embeddings = Str::of('Napa Valley has great wine.')->toEmbeddings(cache: 3600);
 ## Reranking
 
 <!-- Reranking allows you to reorder a list of documents based on their relevance to a given query. This is useful for improving search results by using semantic understanding: -->
-再ランキングを使用すると、特定のクエリとの関連性に基づいてドキュメントのリストを並べ替えることができます。これは、意味的理解を使用して検索結果を改善するのに役立ちます。
+リランキングを使用すると、特定のクエリとの関連性に基づいてドキュメントのリストを並べ替えることができます。これは、意味的理解を使用して検索結果を改善するのに役立ちます。
 
 <!-- The `Laravel\Ai\Reranking` class may be used to rerank documents: -->
-`Laravel\Ai\Reranking` クラスは、ドキュメントを再ランク付けするために使用できます。
+`Laravel\Ai\Reranking` クラスは、ドキュメントをリランキングするために使用できます。
 
 ```php
 use Laravel\Ai\Reranking;
@@ -1878,7 +1878,7 @@ $response = Reranking::of($documents)
 ### Reranking Collections
 
 <!-- For convenience, Laravel collections may be reranked using the `rerank` macro. The first argument specifies which field(s) to use for reranking, and the second argument is the query: -->
-便宜上、Laravel コレクションは `rerank` マクロを使用して再ランク付けできます。最初の引数は再ランキングに使用するフィールドを指定し、2 番目の引数はクエリです。
+便宜上、Laravel コレクションは `rerank` マクロを使用してリランキングできます。最初の引数はリランキングに使用するフィールドを指定し、2 番目の引数はクエリです。
 
 ```php
 // Rerank by a single field...
@@ -2537,7 +2537,7 @@ Embeddings::fake()->preventStrayEmbeddings();
 ### Reranking
 
 <!-- Reranking operations may be faked by invoking the `fake` method on the `Reranking` class: -->
-再ランキング操作は、`Reranking` クラスの `fake` メソッドを呼び出すことで偽装される可能性があります。
+リランキング操作は、`Reranking` クラスの `fake` メソッドを呼び出すことで偽装できます。
 
 ```php
 use Laravel\Ai\Reranking;
@@ -2557,7 +2557,7 @@ Reranking::fake([
 ```
 
 <!-- After reranking, you may make assertions about the operations that were performed: -->
-再ランク付け後、実行された操作についてアサーションを行うことができます。
+リランキング後、実行された操作についてアサーションを行うことができます。
 
 ```php
 Reranking::assertReranked(function (RerankingPrompt $prompt) {

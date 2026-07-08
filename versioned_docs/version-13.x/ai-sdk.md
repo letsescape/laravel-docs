@@ -194,13 +194,13 @@ AI SDK는 다양한 기능에서 여러 프로바이더를 지원합니다. 다�
 
 | 기능 | 프로바이더 |
 |---|---|
-| Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
+| 텍스트 | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
 | 이미지 | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
 | TTS | OpenAI, ElevenLabs, Gemini |
 | STT | OpenAI, ElevenLabs, Mistral, Gemini |
 | 임베딩 | OpenAI, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
-| 재순위 지정 | Cohere, Jina, VoyageAI |
-| Files | OpenAI, Anthropic, Gemini, Azure |
+| 재순위화 | Cohere, Jina, VoyageAI |
+| 파일 | OpenAI, Anthropic, Gemini, Azure |
 
 <!-- </div> -->
 </div>
@@ -2551,7 +2551,7 @@ Reranking::fake([
 ```
 
 <!-- After reranking, you may make assertions about the operations that were performed: -->
-재순위화를 수행한 후에는 실행된 작업에 대해 검증할 수 있습니다.
+재순위화한 후에는 실행된 작업에 대해 검증할 수 있습니다.
 
 ```php
 Reranking::assertReranked(function (RerankingPrompt $prompt) {
