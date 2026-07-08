@@ -1108,6 +1108,80 @@ class MainPipelineTests(unittest.TestCase):
                 "### Generating Embeddings\n",
             )
 
+    def test_translate_one_retries_when_segment_still_has_link_mismatches(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Before.\n\n"
+                "See [Docs](docs) and [Queues](queues).\n\n"
+                "After.\n",
+                encoding="utf-8",
+            )
+            dest = root / "i18n/ja/docusaurus-plugin-content-docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n"
+                "前の文です。\n\n"
+                "<!-- See [Old Docs](old-docs) and [Queues](queues). -->\n"
+                "[Old Docs](old-docs) と [Queues](queues) を参照してください。\n\n"
+                "<!-- After. -->\n"
+                "後の文です。\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("delete", "See [Old Docs](old-docs) and [Queues](queues)."),
+                    ("add", "See [Docs](docs) and [Queues](queues)."),
+                    ("context", ""),
+                    ("context", "After."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                if len(sent) == 1:
+                    return (
+                        "<!-- See [Docs](docs) and [Queues](queues). -->\n"
+                        "[Docs](docs) を参照してください。\n"
+                    )
+                return (
+                    "<!-- See [Docs](docs) and [Queues](queues). -->\n"
+                    "[Docs](docs) と [Queues](queues) を参照してください。\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 2)
+            self.assertIn("Previous Output Verification Failure", sent[1])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n"
+                "前の文です。\n\n"
+                "<!-- See [Docs](docs) and [Queues](queues). -->\n"
+                "[Docs](docs) と [Queues](queues) を参照してください。\n\n"
+                "<!-- After. -->\n"
+                "後の文です。\n",
+            )
+
     def test_translate_one_requires_hunks_for_existing_documents(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -40,6 +40,12 @@ PRESERVED_MARKUP_FIXABLE = {
     "heading mismatch",
     "heading text mismatch",
 }
+SEGMENT_RETRYABLE_VERIFICATION_ISSUES = {
+    "link target mismatch",
+    "link label mismatch",
+    "link pair mismatch",
+}
+MAX_SEGMENT_VERIFICATION_ATTEMPTS = 2
 
 
 def _ko_output(change: diff.SourceChange) -> Path:
@@ -110,10 +116,20 @@ def _select_changes(
 
 
 def _translation_input(
-    source: str, existing_translation: str | None, *, diff_text: str | None = None
+    source: str,
+    existing_translation: str | None,
+    *,
+    diff_text: str | None = None,
+    verification_feedback: str | None = None,
 ) -> str:
     existing = existing_translation.rstrip() if existing_translation else "(none)"
     diff_section = f"## English Diff\n\n```diff\n{diff_text.rstrip()}\n```\n\n" if diff_text else ""
+    feedback_section = (
+        "## Previous Output Verification Failure\n\n"
+        f"{verification_feedback.rstrip()}\n\n"
+        if verification_feedback
+        else ""
+    )
     return (
         "# Translation Sync Input\n\n"
         f"{diff_section}"
@@ -121,8 +137,18 @@ def _translation_input(
         f"{source.rstrip()}\n\n"
         "## Existing Translation Context\n\n"
         f"{existing}\n\n"
+        f"{feedback_section}"
         "## Output\n\n"
         "Return only the translated Markdown block(s) for the English Source."
+    )
+
+
+def _verification_feedback(issues: list[str]) -> str:
+    return (
+        f"The previous output failed verification: {', '.join(issues)}.\n"
+        "Translate the English Source again. Preserve every Markdown link label "
+        "and target, heading, anchor, inline code span, fenced code block, and "
+        "list marker exactly as it appears in the English Source."
     )
 
 
@@ -165,19 +191,34 @@ def _translate_segment(
 ) -> str:
     source = patch_utils.source_text(segment)
     pre = preprocess.preprocess(source)
-    translated = translate.translate_text(
-        _translation_input(
-            pre.text,
-            patch_utils.existing_context(existing, segment),
-            diff_text=patch_utils.diff_text(segment),
-        ),
-        cfg,
-        prompt,
-        split=False,
-    )
-    out = postprocess.postprocess(translated, change.version, pre.placeholders)
     expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
-    return _repair_segment_translation(expected_source, out, change.version)
+    existing_context = patch_utils.existing_context(existing, segment)
+    diff_text = patch_utils.diff_text(segment)
+    feedback: str | None = None
+    last_out = ""
+
+    for _attempt in range(MAX_SEGMENT_VERIFICATION_ATTEMPTS):
+        translated = translate.translate_text(
+            _translation_input(
+                pre.text,
+                existing_context,
+                diff_text=diff_text,
+                verification_feedback=feedback,
+            ),
+            cfg,
+            prompt,
+            split=False,
+        )
+        out = postprocess.postprocess(translated, change.version, pre.placeholders)
+        last_out = _repair_segment_translation(expected_source, out, change.version)
+        issues = verify.verify(last_out, source=expected_source)
+        if not issues:
+            return last_out
+        if not SEGMENT_RETRYABLE_VERIFICATION_ISSUES.intersection(issues):
+            return last_out
+        feedback = _verification_feedback(issues)
+
+    return last_out
 
 
 def _repair_segment_translation(source: str, translated: str, version: str) -> str:
