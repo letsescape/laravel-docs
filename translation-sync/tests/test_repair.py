@@ -39,6 +39,30 @@ class RepairPreservedMarkupTests(unittest.TestCase):
         )
         self.assertEqual([], verify.verify(result.text, source=source))
 
+    def test_repairs_translated_inline_code_spans(self):
+        source = "Use the `FileStorage` and `readOnly` methods."
+        translated = """<!-- Use the `FileStorage` and `readOnly` methods. -->
+`ファイルストレージ` と `読み取り専用` メソッドを使用します。
+"""
+
+        result = repair.repair_preserved_markup(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn("`FileStorage` と `readOnly`", result.text)
+        self.assertEqual([], verify.verify(result.text, source=source))
+
+    def test_wraps_raw_inline_code_text_when_backticks_are_dropped(self):
+        source = "Set the `purpose` option with `withProviderOptions`."
+        translated = """<!-- Set the `purpose` option with `withProviderOptions`. -->
+purpose オプションは withProviderOptions で設定します。
+"""
+
+        result = repair.repair_preserved_markup(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn("`purpose` オプションは `withProviderOptions`", result.text)
+        self.assertEqual([], verify.verify(result.text, source=source))
+
     def test_fails_closed_when_link_counts_do_not_match(self):
         source = "See [Routing](routing.md)."
         translated = "링크가 없습니다."

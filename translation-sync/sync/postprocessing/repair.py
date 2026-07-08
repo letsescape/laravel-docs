@@ -1,12 +1,12 @@
 """Targeted repair helpers for preserved Markdown markup.
 
 These helpers do not translate prose. They only restore markup that must stay
-identical to the English source: heading lines and Markdown link labels/targets.
+identical to the English source: headings, Markdown links, and inline code.
 """
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Iterator
 
 from ..common.markdown import (
@@ -21,6 +21,7 @@ from ..common.markdown import (
 _MARKDOWN_LINK_RE = re.compile(
     r"(!?)\[([^\]\n]*)]\(([^)\s]+)((?:\s+\"[^\"]*\")?)\)"
 )
+_INLINE_CODE_RE = re.compile(r"`([^`\n]+)`")
 _LIST_ITEM_RE = re.compile(r"^(\s*)([-*+])(\s+)(\S.*)$")
 
 
@@ -38,6 +39,8 @@ class RepairResult:
 class _RepairState:
     source_headings: Iterator[str]
     source_links: Iterator[tuple[str, str, str]]
+    source_inline_codes: list[str] = field(default_factory=list)
+    source_inline_index: int = 0
     in_code: bool = False
     fence: str = ""
     in_comment: bool = False
@@ -71,6 +74,18 @@ def _links(text: str) -> list[tuple[str, str, str]]:
     ]
 
 
+def _inline_codes(text: str) -> list[str]:
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    codes: list[str] = []
+    for line in text.splitlines():
+        if _is_comment_line(line, state) or _is_code_line(line, state):
+            continue
+        if is_heading_line(line):
+            continue
+        codes.extend(match.group(1) for match in _INLINE_CODE_RE.finditer(line))
+    return codes
+
+
 def _without_code_blocks(text: str) -> str:
     out: list[str] = []
     in_code = False
@@ -100,6 +115,72 @@ def _replace_links(line: str, links: Iterator[tuple[str, str, str]]) -> str:
         return f"{match.group(1)}[{label}]({target}{title})"
 
     return _MARKDOWN_LINK_RE.sub(replace, line)
+
+
+def _next_inline_code(state: _RepairState) -> str:
+    if state.source_inline_index >= len(state.source_inline_codes):
+        raise RepairError("translated document has more inline code spans than source")
+    code = state.source_inline_codes[state.source_inline_index]
+    state.source_inline_index += 1
+    return code
+
+
+def _replace_inline_codes(line: str, state: _RepairState) -> str:
+    def replace(_match: re.Match[str]) -> str:
+        return f"`{_next_inline_code(state)}`"
+
+    repaired = _INLINE_CODE_RE.sub(replace, line)
+    while state.source_inline_index < len(state.source_inline_codes):
+        code = state.source_inline_codes[state.source_inline_index]
+        wrapped = _wrap_first_raw_inline_code(repaired, code)
+        if wrapped == repaired:
+            break
+        state.source_inline_index += 1
+        repaired = wrapped
+    return repaired
+
+
+def _wrap_first_raw_inline_code(line: str, code: str) -> str:
+    if not code:
+        return line
+
+    out: list[str] = []
+    cursor = 0
+    for match in _INLINE_CODE_RE.finditer(line):
+        segment = line[cursor : match.start()]
+        replaced = _wrap_raw_code_in_segment(segment, code)
+        if replaced != segment:
+            out.append(replaced)
+            out.append(line[match.start() :])
+            return "".join(out)
+        out.append(segment)
+        out.append(match.group(0))
+        cursor = match.end()
+
+    tail = line[cursor:]
+    replaced = _wrap_raw_code_in_segment(tail, code)
+    out.append(replaced)
+    return "".join(out)
+
+
+def _wrap_raw_code_in_segment(segment: str, code: str) -> str:
+    start = segment.find(code)
+    while start != -1:
+        end = start + len(code)
+        if _has_raw_code_boundaries(segment, start, end):
+            return f"{segment[:start]}`{code}`{segment[end:]}"
+        start = segment.find(code, start + 1)
+    return segment
+
+
+def _has_raw_code_boundaries(segment: str, start: int, end: int) -> bool:
+    before = segment[start - 1] if start > 0 else ""
+    after = segment[end] if end < len(segment) else ""
+    return not _is_identifier_char(before) and not _is_identifier_char(after)
+
+
+def _is_identifier_char(char: str) -> bool:
+    return char.isalnum() or char in {"_", "\\"}
 
 
 def _comment_candidate(line: str) -> str:
@@ -154,7 +235,7 @@ def _repair_translated_line(original_line: str, state: _RepairState) -> str:
     if is_heading_line(line):
         return _repair_heading_line(ending, state)
 
-    return _replace_links(original_line, state.source_links)
+    return _replace_inline_codes(_replace_links(original_line, state.source_links), state)
 
 
 def _ensure_exhausted(iterator: Iterator, message: str) -> None:
@@ -163,6 +244,11 @@ def _ensure_exhausted(iterator: Iterator, message: str) -> None:
     except StopIteration:
         return
     raise RepairError(message)
+
+
+def _ensure_inline_codes_exhausted(state: _RepairState) -> None:
+    if state.source_inline_index < len(state.source_inline_codes):
+        raise RepairError("translated document has fewer inline code spans than source")
 
 
 def _visible_lines(text: str) -> list[str]:
@@ -305,6 +391,7 @@ def repair_preserved_markup(source: str, translated: str) -> RepairResult:
     state = _RepairState(
         source_headings=iter(_heading_lines(source)),
         source_links=iter(_links(source)),
+        source_inline_codes=_inline_codes(source),
     )
     changed = False
     out: list[str] = []
@@ -322,6 +409,7 @@ def repair_preserved_markup(source: str, translated: str) -> RepairResult:
         state.source_links,
         "translated document has fewer Markdown links than source",
     )
+    _ensure_inline_codes_exhausted(state)
 
     repaired = "".join(out)
     anchor_result = _repair_anchor_lines(source, repaired)
