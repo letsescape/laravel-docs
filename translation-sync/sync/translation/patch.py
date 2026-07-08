@@ -207,6 +207,9 @@ def existing_context(text: str, segment: Segment) -> str:
             block = _find_block(blocks, _joined(segment.old_lines))
             return block.text.strip()
         except PatchError:
+            context = _table_row_context(text, segment)
+            if context:
+                return context.strip()
             context = _context_between_raw_contexts(text, segment)
             if context:
                 return context.strip()
@@ -381,6 +384,9 @@ def _replace_segment(text: str, segment: Segment, translated: str) -> str:
     try:
         return _replace_block(text, _joined(segment.old_lines), translated)
     except PatchError:
+        table_replaced = _replace_table_row(text, segment, translated)
+        if table_replaced is not None:
+            return table_replaced
         replaced = _replace_between_raw_contexts(text, segment, translated)
         if replaced is not None:
             return replaced
@@ -924,6 +930,89 @@ def _find_raw_context_line_after(
         if _normalize_text(lines[index]) == normalized:
             return index
     return None
+
+
+def _table_row_cells(line: str) -> tuple[str, ...] | None:
+    stripped = line.strip()
+    if not stripped.startswith("|") or not stripped.endswith("|"):
+        return None
+    cells = tuple(_normalize_text(cell) for cell in stripped.strip("|").split("|"))
+    return cells if len(cells) > 1 else None
+
+
+def _table_match_cells(cells: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(
+        re.sub(r"\s*,\s*", ", ", cell.replace("、", ",")).strip()
+        for cell in cells
+    )
+
+
+def _is_table_separator_cells(cells: tuple[str, ...]) -> bool:
+    return all(cell and set(cell) <= {"-", ":"} for cell in cells)
+
+
+def _table_row_index(lines: list[str], segment: Segment) -> int | None:
+    old_rows = [line for line in _meaningful_lines(segment.old_lines) if _table_row_cells(line)]
+    new_rows = [line for line in _meaningful_lines(segment.new_lines) if _table_row_cells(line)]
+    if len(old_rows) != 1 or len(new_rows) != 1:
+        return None
+
+    old_cells = _table_row_cells(old_rows[0])
+    new_cells = _table_row_cells(new_rows[0])
+    if old_cells is None or new_cells is None or len(old_cells) != len(new_cells):
+        return None
+    if _is_table_separator_cells(old_cells):
+        return None
+
+    stable_cells = _table_match_cells(old_cells[1:])
+    if not stable_cells:
+        return None
+
+    candidates: list[int] = []
+    for index, line in enumerate(lines):
+        cells = _table_row_cells(line)
+        if cells is None or len(cells) != len(old_cells):
+            continue
+        if _is_table_separator_cells(cells):
+            continue
+        if _table_match_cells(cells[1:]) == stable_cells:
+            candidates.append(index)
+
+    if len(candidates) == 1:
+        return candidates[0]
+
+    before_index = (
+        _find_raw_context_line(lines, segment.before_context)
+        if segment.before_context
+        else None
+    )
+    after_index = (
+        _find_raw_context_line_after(lines, segment.after_context, before_index or -1)
+        if segment.after_context
+        else None
+    )
+    narrowed = [
+        index
+        for index in candidates
+        if (before_index is None or index > before_index)
+        and (after_index is None or index < after_index)
+    ]
+    return narrowed[0] if len(narrowed) == 1 else None
+
+
+def _table_row_context(text: str, segment: Segment) -> str | None:
+    lines = text.splitlines(keepends=True)
+    index = _table_row_index(lines, segment)
+    return lines[index] if index is not None else None
+
+
+def _replace_table_row(text: str, segment: Segment, translated: str) -> str | None:
+    lines = text.splitlines(keepends=True)
+    index = _table_row_index(lines, segment)
+    if index is None:
+        return None
+    replacement = translated.rstrip("\n") + ("\n" if lines[index].endswith("\n") else "")
+    return "".join(lines[:index]) + replacement + "".join(lines[index + 1 :])
 
 
 def _coalesce_source_block_segments(segments: list[Segment]) -> list[Segment]:

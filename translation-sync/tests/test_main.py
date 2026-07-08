@@ -936,6 +936,125 @@ class MainPipelineTests(unittest.TestCase):
                 "<!-- First line. Second line. -->\n첫 줄입니다. 두 번째 줄입니다.\n",
             )
 
+    def test_translate_one_replaces_localized_table_row_by_stable_cells(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "| Feature | Providers |\n"
+                "|---|---|\n"
+                "| Text | OpenAI, OpenAI Compatible, Anthropic |\n"
+                "| Images | OpenAI |\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "| 기능 | 프로바이더 |\n"
+                "|---|---|\n"
+                "| 텍스트 | OpenAI, Anthropic |\n"
+                "| 이미지 | OpenAI |\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                lines=[
+                    ("context", "|---|---|"),
+                    ("delete", "| Text | OpenAI, Anthropic |"),
+                    ("add", "| Text | OpenAI, OpenAI Compatible, Anthropic |"),
+                    ("context", "| Images | OpenAI |"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                self.assertIn("| 텍스트 | OpenAI, Anthropic |", content)
+                return "| 텍스트 | OpenAI, OpenAI Compatible, Anthropic |\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 1)
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "| 기능 | 프로바이더 |\n"
+                "|---|---|\n"
+                "| 텍스트 | OpenAI, OpenAI Compatible, Anthropic |\n"
+                "| 이미지 | OpenAI |\n",
+            )
+
+    def test_translate_one_replaces_localized_table_row_with_japanese_commas(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "| Feature | Providers |\n"
+                "|---|---|\n"
+                "| Text | OpenAI, OpenAI Compatible, Anthropic |\n"
+                "| Images | OpenAI |\n",
+                encoding="utf-8",
+            )
+            dest = root / "i18n/ja/docusaurus-plugin-content-docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "| 特徴 | プロバイダ |\n"
+                "|---|---|\n"
+                "| 文章 | OpenAI、Anthropic |\n"
+                "| 画像 | OpenAI |\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                lines=[
+                    ("context", "|---|---|"),
+                    ("delete", "| Text | OpenAI, Anthropic |"),
+                    ("add", "| Text | OpenAI, OpenAI Compatible, Anthropic |"),
+                    ("context", "| Images | OpenAI |"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                self.assertIn("| 文章 | OpenAI、Anthropic |", content)
+                return "| 文章 | OpenAI、OpenAI Compatible、Anthropic |\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "| 特徴 | プロバイダ |\n"
+                "|---|---|\n"
+                "| 文章 | OpenAI、OpenAI Compatible、Anthropic |\n"
+                "| 画像 | OpenAI |\n",
+            )
+
     def test_translate_one_replaces_split_paragraph_and_following_warning(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
