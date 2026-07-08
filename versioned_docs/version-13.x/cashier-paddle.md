@@ -881,8 +881,8 @@ $checkout = $request->user()->subscribe($premium = 'pri_123', 'default')
 </x-paddle-button>
 ```
 
-<!-- After the user has finished their checkout, a `subscription_created` webhook will be dispatched from Paddle. Cashier will receive this webhook and setup the subscription for your customer. In order to make sure all webhooks are properly received and handled by your application, ensure you have properly [setup webhook handling](#handling-paddle-webhooks). -->
-사용자가 체크아웃을 완료하면 Paddle에서 `subscription_created` Webhook이 발송됩니다. Cashier는 이 Webhook을 수신하고 고객의 구독을 설정합니다. 모든 Webhook이 애플리케이션에서 올바르게 수신되고 처리되도록 하려면 [setup webhook handling](#handling-paddle-webhooks)을 제대로 완료했는지 확인하세요.
+<!-- After the user has finished their checkout, a `subscription_created` webhook will be dispatched from Paddle. Cashier will receive this webhook and set up the subscription for your customer. In order to make sure all webhooks are properly received and handled by your application, ensure you have properly [set up webhook handling](#handling-paddle-webhooks). -->
+사용자가 체크아웃을 완료하면 Paddle에서 `subscription_created` Webhook이 발송됩니다. Cashier는 이 Webhook을 수신하고 고객의 구독을 설정합니다. 모든 Webhook이 애플리케이션에서 올바르게 수신되고 처리되도록 하려면 [set up webhook handling](#handling-paddle-webhooks)을 제대로 완료했는지 확인하세요.
 
 <a name="checking-subscription-status"></a>
 <!-- ### Checking Subscription Status -->

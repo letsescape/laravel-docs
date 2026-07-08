@@ -5,6 +5,7 @@
 - [Installation](#installation)
     - [Configuration](#configuration)
     - [Custom Base URLs](#custom-base-urls)
+    - [OpenAI-Compatible Providers](#openai-compatible-providers)
     - [Provider Support](#provider-support)
 - [Agents](#agents)
     - [Prompting](#prompting)
@@ -15,6 +16,7 @@
     - [Broadcasting](#broadcasting)
     - [Queueing](#queueing)
     - [Tools](#tools)
+    - [File Storage Tools](#file-storage-tools)
     - [MCP Tools](#mcp-tools)
     - [Provider Tools](#provider-tools)
     - [Sub-Agents](#sub-agents)
@@ -94,6 +96,8 @@ GROQ_API_KEY=
 MISTRAL_API_KEY=
 OLLAMA_API_KEY=
 OPENAI_API_KEY=
+OPENAI_COMPATIBLE_API_KEY=
+OPENAI_COMPATIBLE_URL=
 OPENROUTER_API_KEY=
 JINA_API_KEY=
 VOYAGEAI_API_KEY=
@@ -135,6 +139,50 @@ XAI_API_KEY=
 <!-- Custom base URLs are supported for the following providers: OpenAI, Anthropic, Gemini, Groq, Cohere, DeepSeek, xAI, and OpenRouter. -->
 カスタム ベース URL は、OpenAI、Anthropic、Gemini、Groq、Cohere、DeepSeek、xAI、OpenRouter のプロバイダでサポートされています。
 
+<!-- <a name="openai-compatible-providers"></a> -->
+<a name="openai-compatible-providers"></a>
+<!-- ### OpenAI-Compatible Providers -->
+### OpenAI-Compatible Providers
+
+<!-- If you are using an OpenAI-compatible API, such as LM Studio, vLLM, Together, Fireworks, or a local gateway, you may configure an `openai-compatible` provider. The `url` option is required, while the `key` option is optional and will be sent as a bearer token when present: -->
+OpenAI 互換の API を使用している場合は、LM Studio、vLLM、Together、Fireworks、ローカルのゲートウェイなどに対して、`openai-compatible` プロバイダを設定できます。`url` オプションは必須で、`key` オプションは任意です。指定した場合は bearer token として送信されます。
+
+```php
+'providers' => [
+    'local' => [
+        'driver' => 'openai-compatible',
+        'url' => env('LOCAL_AI_URL'),
+        'key' => env('LOCAL_AI_API_KEY'),
+    ],
+],
+```
+
+<!-- Once configured, you may use the named provider like any other provider: -->
+設定後は、他のプロバイダと同じように名前付きプロバイダを使えます。
+
+```php
+agent()->prompt('What is Laravel?', provider: 'local', model: 'local-model');
+```
+
+<!-- You may also configure a default text model for the provider so that you do not need to pass a model explicitly: -->
+プロバイダにデフォルトのテキストモデルも設定しておけば、毎回モデルを明示的に渡す必要がなくなります。
+
+```php
+'local' => [
+    'driver' => 'openai-compatible',
+    'url' => env('LOCAL_AI_URL'),
+    'key' => env('LOCAL_AI_API_KEY'),
+    'models' => [
+        'text' => [
+            'default' => env('LOCAL_AI_MODEL'),
+        ],
+    ],
+],
+```
+
+<!-- OpenAI-compatible providers support text generation, streaming, tools, structured output, and image attachments. If your endpoint requires additional request body fields, provide them using [provider options](#provider-options). -->
+OpenAI 互換のプロバイダは、テキスト生成、ストリーミング、ツール、構造化出力、画像添付ファイルをサポートしています。エンドポイントが追加のリクエストボディ項目を必要とする場合は、[provider options](#provider-options) を使って指定してください。
+
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
 ### Provider Support
@@ -147,13 +195,13 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 
 | 特徴 | プロバイダ |
 |---|---|
-| 文章 | OpenAI、Anthropic、Gemini、Azure、Bedrock、Groq、xAI、DeepSeek、Mistral、Ollama、OpenRouter |
+| 文章 | OpenAI、OpenAI Compatible、Anthropic、Gemini、Azure、Bedrock、Groq、xAI、DeepSeek、Mistral、Ollama、OpenRouter |
 | 画像 | OpenAI、Gemini、xAI、Azure、Bedrock、OpenRouter |
 | TTS | OpenAI、ElevenLabs、Gemini |
 | STT | OpenAI、ElevenLabs、Mistral、Gemini |
 | 埋め込み | OpenAI、Gemini、Azure、Bedrock、Cohere、Mistral、Jina、VoyageAI、Ollama、OpenRouter |
 | 再ランキング | Cohere、Jina、VoyageAI |
-| ファイル | OpenAI、Anthropic、Gemini |
+| Files | OpenAI, Anthropic, Gemini, Azure |
 
 <!-- </div> -->
 </div>
@@ -166,6 +214,7 @@ use Laravel\Ai\Enums\Lab;
 
 Lab::Anthropic;
 Lab::OpenAI;
+Lab::OpenAiCompatible;
 Lab::Gemini;
 // ...
 ```
@@ -655,6 +704,38 @@ foreach ($stream as $event) {
 );
 ```
 
+<!-- <a name="skipping-oversized-events"></a> -->
+<a name="skipping-oversized-events"></a>
+<!-- #### Skipping Oversized Events -->
+#### Skipping Oversized Events
+
+<!-- Some broadcasting platforms limit WebSocket messages to around 10KB. Data-heavy stream events, like large tool results, can exceed this limit and cause broadcasting to fail. You may exclude specific event types from broadcasting using the `WithoutBroadcasting` attribute: -->
+一部のブロードキャストプラットフォームでは、WebSocket メッセージのサイズが 10KB 前後に制限されています。大きな tool の結果のようにデータ量の多い stream event は、この制限を超えてブロードキャストに失敗することがあります。`WithoutBroadcasting` 属性を使うと、特定の event type をブロードキャスト対象から除外できます。
+
+```php
+<?php
+
+namespace App\Ai\Agents;
+
+use Laravel\Ai\Attributes\WithoutBroadcasting;
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Promptable;
+use Laravel\Ai\Streaming\Events\ToolCall;
+use Laravel\Ai\Streaming\Events\ToolResult;
+
+#[WithoutBroadcasting(ToolCall::class, ToolResult::class)]
+class SearchAgent implements Agent, HasTools
+{
+    use Promptable;
+
+    // ...
+}
+```
+
+<!-- The excluded events are never broadcast, but they are still persisted to the `agent_conversation_messages` table, so your frontend can load the full tool data after the stream completes. This works for both queued (`broadcastOnQueue`) and synchronous (`broadcast` / `broadcastNow`) broadcasting. -->
+除外した event は一切ブロードキャストされませんが、`agent_conversation_messages` テーブルには保存されるため、stream の完了後にフロントエンドで完全な tool data を読み込めます。これは、キューを使う場合の `broadcastOnQueue` と、同期的な `broadcast` / `broadcastNow` の両方で機能します。
+
 <a name="queueing"></a>
 <!-- ### Queueing -->
 ### Queueing
@@ -822,6 +903,39 @@ SimilaritySearch::usingModel(Document::class, 'embedding')
     ->withDescription('Search the knowledge base for relevant articles.'),
 ```
 
+<a name="file-storage-tools"></a>
+<!-- ### File Storage Tools -->
+### File Storage Tools
+
+<!-- The `FileStorage` tool factory allows you to give agents access to a Laravel [filesystem disk](/docs/13.x/filesystem). The `all` method returns tools that allow the agent to list, read, inspect, generate URLs for, write, delete, and copy files on the given disk: -->
+`FileStorage` ツールファクトリを使うと、エージェントに Laravel の [filesystem disk](/docs/13.x/filesystem) へのアクセスを許可できます。`all` メソッドは、指定したディスク上のファイルを一覧表示、読み取り、確認、URL 生成、書き込み、削除、コピーできるツールを返します。
+
+```php
+use Laravel\Ai\Tools\FileStorage;
+
+public function tools(): iterable
+{
+    return FileStorage::all('local');
+}
+```
+
+<!-- If your agent should only be able to inspect files, use the `readOnly` method: -->
+エージェントがファイルの確認だけを行えるようにしたい場合は、`readOnly` メソッドを使います。
+
+```php
+return FileStorage::readOnly('local');
+```
+
+<!-- These methods return an `Illuminate\Support\Collection`, allowing you to further filter the tools that are provided to the agent: -->
+これらのメソッドは `Illuminate\Support\Collection` を返すため、エージェントに提供するツールをさらに絞り込めます。
+
+```php
+use Laravel\Ai\Tools\Filesystem\DeleteFile;
+
+return FileStorage::all('s3')
+    ->reject(fn ($tool) => $tool instanceof DeleteFile);
+```
+
 <a name="mcp-tools"></a>
 <!-- ### MCP Tools -->
 ### MCP Tools
@@ -904,8 +1018,8 @@ public function tools(): iterable
 <!-- The `WebSearch` provider tool allows agents to search the web for real-time information. This is useful for answering questions about current events, recent data, or topics that may have changed since the model's training cutoff. -->
 `WebSearch` プロバイダ ツールを使用すると、エージェントは Web でリアルタイム情報を検索できます。これは、現在のイベント、最近のデータ、またはモデルのトレーニングのカットオフ以降に変更された可能性のあるトピックに関する質問に答えるのに役立ちます。
 
-<!-- **Supported Providers:** Anthropic, OpenAI, Gemini -->
-**サポートされているプロバイダ:** Anthropic、OpenAI、Gemini
+<!-- **Supported providers:** Anthropic, OpenAI, Gemini, OpenRouter -->
+**サポートされているプロバイダ:** Anthropic、OpenAI、Gemini、OpenRouter
 
 ```php
 use Laravel\Ai\Providers\Tools\WebSearch;
@@ -1876,6 +1990,32 @@ $response = Document::fromPath(
 )->put(provider: Lab::Anthropic);
 ```
 
+<!-- You may pass provider-specific upload options using the `withProviderOptions` method. For example, you may set OpenAI's file `purpose`: -->
+`withProviderOptions` メソッドを使用して、プロバイダごとのアップロードオプションを渡せます。たとえば、OpenAI のファイル `purpose` を設定できます:
+
+```php
+use Laravel\Ai\Files\Document;
+
+$response = Document::fromPath('/home/laravel/knowledge.txt')
+    ->withProviderOptions(['purpose' => 'assistants'])
+    ->put();
+```
+
+<!-- To scope options per provider, pass a closure that receives the current provider: -->
+プロバイダごとにオプションを分けるには、現在のプロバイダを受け取るクロージャを渡します:
+
+```php
+use Laravel\Ai\Enums\Lab;
+use Laravel\Ai\Files\Document;
+
+$response = Document::fromPath('/home/laravel/training.jsonl')
+    ->withProviderOptions(fn (Lab|string $provider) => match ($provider) {
+        Lab::OpenAI => ['purpose' => 'fine-tune'],
+        default => [],
+    })
+    ->put();
+```
+
 <a name="using-stored-files-in-conversations"></a>
 <!-- ### Using Stored Files in Conversations -->
 ### Using Stored Files in Conversations
@@ -2088,8 +2228,17 @@ SalesCoach::fake(function (AgentPrompt $prompt) {
     return 'Response for: '.$prompt->prompt;
 });
 ```
+<!-- When faking an agent that returns structured output, you may provide arrays as responses. The agent will return a structured response containing the given data: -->
+構造化された出力を返すエージェントをフェイクする場合、レスポンスとして配列を指定できます。エージェントは、与えたデータを含む構造化レスポンスを返します:
 
-> **注意:** 構造化された出力を返すエージェント上で `Agent::fake()` が呼び出されると、Laravel はエージェントの定義された出力スキーマに一致する偽のデータを自動的に生成します。
+```php
+SalesCoach::fake([
+    ['score' => 87],
+]);
+```
+
+<!-- > **Note:** When `Agent::fake()` is invoked on an agent that returns structured output and fake output was not explicitly provided, Laravel will automatically generate fake data that matches your agent's defined output schema. -->
+> **注意:** 構造化された出力を返すエージェントに対して `Agent::fake()` が呼び出され、かつフェイク出力が明示的に指定されていない場合、Laravel はエージェントの定義された出力スキーマに一致する偽のデータを自動的に生成します。
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 エージェントにプロンプ​​トを出した後、受け取ったプロンプトについてアサーションを行うことができます。
@@ -2607,4 +2756,3 @@ Laravel AI SDK は、次のようなさまざまな [events](/docs/13.x/events) 
 
 <!-- You can listen to any of these events to log or store AI SDK usage information. -->
 これらのイベントのいずれかをリッスンして、AI SDK の使用情報を記録または保存できます。
-

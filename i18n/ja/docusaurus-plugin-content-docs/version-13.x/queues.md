@@ -14,6 +14,7 @@
     - [Rate Limiting](#rate-limiting)
     - [Preventing Job Overlaps](#preventing-job-overlaps)
     - [Throttling Exceptions](#throttling-exceptions)
+- [Releasing Jobs](#releasing-jobs)
     - [Skipping Jobs](#skipping-jobs)
 - [Dispatching Jobs](#dispatching-jobs)
     - [Delayed Dispatching](#delayed-dispatching)
@@ -1076,6 +1077,50 @@ public function middleware(): array
 
 ```php
 return [(new ThrottlesExceptionsWithRedis(10, 10 * 60))->connection('limiter')];
+```
+
+<!-- <a name="releasing-jobs"></a> -->
+<a name="releasing-jobs"></a>
+<!-- ### Releasing Jobs -->
+### Releasing Jobs
+
+<!-- The `Release` middleware allows you to release a job back onto the queue without executing it. The `Release::when` method will release the job if the given condition evaluates to `true`, while the `Release::unless` method will release the job if the condition evaluates to `false`: -->
+`Release` ミドルウェアを使うと、ジョブを実行せずにキューへ戻せます。`Release::when` メソッドは、与えられた条件が `true` と評価された場合にジョブをキューへ戻し、`Release::unless` メソッドは、条件が `false` と評価された場合にジョブをキューへ戻します:
+
+```php
+use Illuminate\Queue\Middleware\Release;
+
+/**
+ * Get the middleware the job should pass through.
+ */
+public function middleware(): array
+{
+    return [
+        Release::when($condition, releaseAfter: 60),
+    ];
+}
+```
+
+<!-- Releasing a job back onto the queue will still increment the job's total number of attempts. You may wish to tune your `Tries` and `MaxExceptions` attributes on your job class accordingly. -->
+ジョブをキューへ戻しても、そのジョブの総試行回数は増えます。ジョブクラスの `Tries` と `MaxExceptions` 属性は、それに応じて調整するとよいでしょう。
+
+<!-- You can also pass a `Closure` to the `when` and `unless` methods for more complex conditional evaluation: -->
+より複雑な条件評価を行いたい場合は、`when` と `unless` メソッドに `Closure` を渡すこともできます:
+
+```php
+use Illuminate\Queue\Middleware\Release;
+
+/**
+ * Get the middleware the job should pass through.
+ */
+public function middleware(): array
+{
+    return [
+        Release::when(function (): bool {
+            return ! $this->order->isPaid();
+        }, releaseAfter: 60),
+    ];
+}
 ```
 
 <a name="skipping-jobs"></a>

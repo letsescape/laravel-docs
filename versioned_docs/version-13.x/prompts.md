@@ -910,7 +910,7 @@ $id = search(
 use function Laravel\Prompts\multisearch;
 
 $ids = multisearch(
-    'Search for the users that should receive the mail',
+    'Search for users who should receive the mail',
     fn (string $value) => strlen($value) > 0
         ? User::whereLike('name', "%{$value}%")->pluck('name', 'id')->all()
         : []
@@ -927,7 +927,7 @@ $ids = multisearch(
 $names = collect(['Taylor', 'Abigail']);
 
 $selected = multisearch(
-    label: 'Search for the users that should receive the mail',
+    label: 'Search for users who should receive the mail',
     options: fn (string $value) => $names
         ->filter(fn ($name) => Str::contains($name, $value, ignoreCase: true))
         ->values()
@@ -940,7 +940,7 @@ $selected = multisearch(
 
 ```php
 $ids = multisearch(
-    label: 'Search for the users that should receive the mail',
+    label: 'Search for users who should receive the mail',
     placeholder: 'E.g. Taylor Otwell',
     options: fn (string $value) => strlen($value) > 0
         ? User::whereLike('name', "%{$value}%")->pluck('name', 'id')->all()

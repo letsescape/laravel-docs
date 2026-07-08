@@ -882,8 +882,8 @@ $checkout = $request->user()->subscribe($premium = 'pri_123', 'default')
 </x-paddle-button>
 ```
 
-<!-- After the user has finished their checkout, a `subscription_created` webhook will be dispatched from Paddle. Cashier will receive this webhook and setup the subscription for your customer. In order to make sure all webhooks are properly received and handled by your application, ensure you have properly [setup webhook handling](#handling-paddle-webhooks). -->
-ユーザーがチェックアウトを完了すると、`subscription_created` Webhook が Paddle からディスパッチされます。Cashier はこの Webhook を受信し、顧客のサブスクリプションをセットアップします。すべての Webhook が適切に受信され、アプリケーションによって処理されることを確認するには、[setup webhook handling](#handling-paddle-webhooks) が適切に設定されていることを確認してください。
+<!-- After the user has finished their checkout, a `subscription_created` webhook will be dispatched from Paddle. Cashier will receive this webhook and set up the subscription for your customer. In order to make sure all webhooks are properly received and handled by your application, ensure you have properly [set up webhook handling](#handling-paddle-webhooks). -->
+ユーザーがチェックアウトを完了すると、`subscription_created` Webhook が Paddle からディスパッチされます。Cashier はこの Webhook を受信し、顧客のサブスクリプションをセットアップします。すべての Webhook がアプリケーションで適切に受信され、処理されるようにするには、[set up webhook handling](#handling-paddle-webhooks) が正しく設定されていることを確認してください。
 
 <a name="checking-subscription-status"></a>
 <!-- ### Checking Subscription Status -->
@@ -1834,4 +1834,3 @@ Next payment: {{ $nextPayment->amount() }} due on {{ $nextPayment->date()->forma
 
 <!-- For automated tests, including those executed within a CI environment, you may use [Laravel's HTTP Client](/docs/13.x/http-client#testing) to fake HTTP calls made to Paddle. Although this does not test the actual responses from Paddle, it does provide a way to test your application without actually calling Paddle's API. -->
 CI 環境内で実行されるテストを含む自動テストの場合、[Laravel's HTTP Client](/docs/13.x/http-client#testing) を使用して Paddle に対して行われた HTTP 呼び出しを偽装できます。これは Paddle からの実際の応答をテストしませんが、実際に Paddle の API を呼び出さずにアプリケーションをテストする方法を提供します。
-

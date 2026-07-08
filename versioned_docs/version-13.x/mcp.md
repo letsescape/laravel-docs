@@ -1251,7 +1251,7 @@ URI와 MIME 타입은 AI 클라이언트가 리소스 콘텐츠를 적절하게 
 <!-- ### Resource Request -->
 ### Resource Request
 
-<!-- Unlike tools and prompts, resources can not define input schemas or arguments. However, you can still interact with request object within your resource's `handle` method: -->
+<!-- Unlike tools and prompts, resources cannot define input schemas or arguments. However, you can still interact with the request object within your resource's `handle` method: -->
 도구와 프롬프트와 달리 리소스는 입력 스키마나 인수를 정의할 수 없습니다. 하지만 리소스의 `handle` 메서드 안에서는 여전히 요청 객체와 상호작용할 수 있습니다.
 
 ```php

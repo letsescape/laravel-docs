@@ -365,6 +365,7 @@ Schedule::command('report:generate')
 ```
 
 > [!WARNING]
+> <!-- Remember that some timezones utilize daylight saving time. When daylight saving time changes occur, your scheduled task may run twice or even not run at all. For this reason, we recommend avoiding timezone scheduling when possible. -->
 > 일부 타임존은 일광 절약 시간제를 사용한다는 점을 기억하세요. 일광 절약 시간이 변경될 때 스케줄된 작업이 두 번 실행되거나 전혀 실행되지 않을 수 있습니다. 이러한 이유로 가능하면 타임존 스케줄링은 피하는 것을 권장합니다.
 
 <a name="preventing-task-overlaps"></a>

@@ -1254,8 +1254,8 @@ URI と MIME タイプは、AI クライアントがリソース コンテンツ
 <!-- ### Resource Request -->
 ### Resource Request
 
-<!-- Unlike tools and prompts, resources can not define input schemas or arguments. However, you can still interact with request object within your resource's `handle` method: -->
-ツールやプロンプトとは異なり、リソースは入力スキーマや引数を定義できません。ただし、リソースの `handle` メソッド内でリクエスト オブジェクトと対話することはできます。
+<!-- Unlike tools and prompts, resources cannot define input schemas or arguments. However, you can still interact with the request object within your resource's `handle` method: -->
+ツールやプロンプトとは異なり、リソースは入力スキーマや引数を定義できません。ただし、リソースの `handle` メソッド内で request オブジェクトを扱うことはできます。
 
 ```php
 <?php
@@ -2360,4 +2360,3 @@ $response->assertNotificationCount(5);
 $response->dd();
 $response->dump();
 ```
-

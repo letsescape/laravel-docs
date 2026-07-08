@@ -173,8 +173,8 @@ AI ツールを使用して貢献を支援することを選択した場合、�
 <!-- ## Security Vulnerabilities -->
 ## Security Vulnerabilities
 
-<!-- If you discover a security vulnerability within Laravel, please send an email to Taylor Otwell at <a href="mailto:taylor@laravel.com">taylor@laravel.com</a>. All security vulnerabilities will be promptly addressed. -->
-Laravel 内でセキュリティ脆弱性を発見した場合は、Taylor Otwell (<a href="mailto:taylor@laravel.com">taylor@laravel.com</a>) へメールを送信してください。すべてのセキュリティ脆弱性は速やかに対応されます。
+<!-- If you discover a security vulnerability within Laravel, please email our security team at <a href="mailto:security@laravel.com">security@laravel.com</a>. All security vulnerabilities will be promptly addressed. -->
+Laravel 内でセキュリティ脆弱性を発見した場合は、<a href="mailto:security@laravel.com">security@laravel.com</a> のセキュリティチームまでメールでご連絡ください。すべてのセキュリティ脆弱性は速やかに対応されます。
 
 <a name="coding-style"></a>
 <!-- ## Coding Style -->
@@ -269,4 +269,3 @@ Laravel の行動規範は、Ruby の行動規範から派生しています。�
 
 <!-- </div> -->
 </div>
-

@@ -144,8 +144,8 @@ composer global require laravel/installer
 <!-- ### Creating an Application -->
 ### Creating an Application
 
-<!-- After you have installed PHP, Composer, and the Laravel installer, you are ready to create a new Laravel application. The installer will prompt you to select your preferred starter kit, testing framework, and database: -->
-PHP, Composer, Laravel installer를 설치했다면 새 Laravel 애플리케이션을 만들 준비가 된 것입니다. installer는 선호하는 스타터 키트, 테스트 프레임워크, 데이터베이스를 선택하라고 안내합니다.
+<!-- After you have installed PHP, Composer, and the Laravel installer, you are ready to create a new Laravel application: -->
+PHP, Composer, Laravel installer를 설치했다면 새 Laravel 애플리케이션을 만들 준비가 된 것입니다.
 
 ```shell
 laravel new example-app
@@ -160,7 +160,7 @@ npm install && npm run build
 composer run dev
 ```
 
-<!-- Once you have started the development server, your can access your application in your web browser at [http://localhost:8000](http://localhost:8000). Next, you're ready to [start taking your next steps into the Laravel ecosystem](#next-steps). Of course, you may also want to [configure a database](#databases-and-migrations) and run the necessary migrations. -->
+<!-- Once you have started the development server, you can access your application in your web browser at [http://localhost:8000](http://localhost:8000). Next, you're ready to [start taking your next steps into the Laravel ecosystem](#next-steps). Of course, you may also want to [configure a database](#databases-and-migrations) and run the necessary migrations. -->
 개발 서버를 시작하면 웹 브라우저에서 [http://localhost:8000](http://localhost:8000)으로 애플리케이션에 접근할 수 있습니다. 다음으로, [start taking your next steps into the Laravel ecosystem](#next-steps)로 나아갈 준비가 되었습니다. 물론 [configure a database](#databases-and-migrations)를 설정하고 필요한 마이그레이션도 실행할 수 있습니다.
 
 > [!NOTE]

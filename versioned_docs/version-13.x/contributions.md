@@ -173,8 +173,8 @@ Laravel에 제출되는 모든 pull request에 감사드립니다. 하지만 충
 <!-- ## Security Vulnerabilities -->
 ## Security Vulnerabilities
 
-<!-- If you discover a security vulnerability within Laravel, please send an email to Taylor Otwell at <a href="mailto:taylor@laravel.com">taylor@laravel.com</a>. All security vulnerabilities will be promptly addressed. -->
-Laravel에서 보안 취약점을 발견했다면 Taylor Otwell에게 <a href="mailto:taylor@laravel.com">taylor@laravel.com</a>으로 이메일을 보내 주세요. 모든 보안 취약점은 신속하게 처리됩니다.
+<!-- If you discover a security vulnerability within Laravel, please email our security team at <a href="mailto:security@laravel.com">security@laravel.com</a>. All security vulnerabilities will be promptly addressed. -->
+Laravel에서 보안 취약점을 발견했다면 <a href="mailto:security@laravel.com">security@laravel.com</a>으로 보안 팀에 이메일을 보내 주세요. 모든 보안 취약점은 신속하게 처리됩니다.
 
 <a name="coding-style"></a>
 <!-- ## Coding Style -->

@@ -958,7 +958,7 @@ use App\Models\Order;
 $orders = Order::search('Star Trek')->where('user_id', 1)->get();
 ```
 
-<!-- You may also use the `=`, `!=`, `<`, `>`, `>=`, `<=` comparsion operators to build more advanced queries: -->
+<!-- You may also use the `=`, `!=`, `<`, `>`, `>=`, `<=` comparison operators to build more advanced queries: -->
 더 고급 쿼리를 만들기 위해 `=`, `!=`, `<`, `>`, `>=`, `<=` 비교 연산자도 사용할 수 있습니다.
 
 ```php

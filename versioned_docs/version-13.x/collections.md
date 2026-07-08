@@ -202,6 +202,7 @@ $translated = $collection->toLocale('es');
 [random](#method-random)
 [range](#method-range)
 [reduce](#method-reduce)
+[reduceInto](#method-reduce-into)
 [reduceSpread](#method-reduce-spread)
 [reject](#method-reject)
 [replace](#method-replace)
@@ -358,6 +359,7 @@ $translated = $collection->toLocale('es');
 [random](#method-random)
 [range](#method-range)
 [reduce](#method-reduce)
+[reduceInto](#method-reduce-into)
 [reduceSpread](#method-reduce-spread)
 [reject](#method-reject)
 [replace](#method-replace)
@@ -2891,6 +2893,37 @@ $collection->reduce(function (int $carry, int $value, string $key) use ($ratio) 
 }, 0);
 
 // 4264
+```
+
+<a name="method-reduce-into"></a>
+<!-- #### `reduceInto()` -->
+#### `reduceInto()`
+
+<!-- The `reduceInto` method reduces the collection to a single value by mutating the given initial value. Unlike the `reduce` method, the given callback does not need to return the accumulated value: -->
+`reduceInto` 메서드는 주어진 초기값을 변경하여 컬렉션을 단일 값으로 줄입니다. `reduce` 메서드와 달리, 주어진 콜백은 누적된 값을 반환할 필요가 없습니다:
+
+```php
+class OrderStats
+{
+    public int $total = 0;
+
+    public int $count = 0;
+}
+
+$orders = collect([
+    ['amount' => 100],
+    ['amount' => 250],
+    ['amount' => 50],
+]);
+
+$stats = $orders->reduceInto(new OrderStats, function (OrderStats $stats, array $order) {
+    $stats->total += $order['amount'];
+    $stats->count++;
+});
+
+$stats->total;
+
+// 400
 ```
 
 <a name="method-reduce-spread"></a>

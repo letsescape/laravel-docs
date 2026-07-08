@@ -1300,6 +1300,7 @@ The credit card number field is required when payment type is credit card.
 [File](#rule-file)
 [Image](#rule-image)
 [Max](#rule-max)
+[Min](#rule-min)
 [MIME Types](#rule-mimetypes)
 [MIME Type By File Extension](#rule-mimes)
 [Size](#rule-size)
@@ -1311,6 +1312,7 @@ The credit card number field is required when payment type is credit card.
 [File](#rule-file)
 [Image](#rule-image)
 [Max](#rule-max)
+[Min](#rule-min)
 [MIME Types](#rule-mimetypes)
 [MIME Type By File Extension](#rule-mimes)
 [Size](#rule-size)
@@ -3650,4 +3652,3 @@ php artisan make:rule Uppercase --implicit
 
 > [!WARNING]
 > 「暗黙の」ルールは、属性が必須であることを_暗黙的に示すだけです。欠落している属性または空の属性を実際に無効にするかどうかは、ユーザー次第です。
-

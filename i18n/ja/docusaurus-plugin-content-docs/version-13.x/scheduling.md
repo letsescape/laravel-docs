@@ -365,7 +365,8 @@ Schedule::command('report:generate')
 ```
 
 > [!WARNING]
-> 一部のタイムゾーンでは夏時間が採用されていることに注意してください。夏時間の変更が発生すると、スケジュールされたタスクが 2 回実行されるか、まったく実行されない場合があります。このため、可能な限りタイムゾーンのスケジュールを回避することをお勧めします。
+> <!-- > Remember that some timezones utilize daylight saving time. When daylight saving time changes occur, your scheduled task may run twice or even not run at all. For this reason, we recommend avoiding timezone scheduling when possible. -->
+> 一部のタイムゾーンでは夏時間が採用されていることに注意してください。夏時間の変更が発生すると、スケジュールされたタスクが 2 回実行されるか、まったく実行されない場合があります。このため、可能な限りタイムゾーンを指定したスケジュールは避けることを推奨します。
 
 <a name="preventing-task-overlaps"></a>
 <!-- ### Preventing Task Overlaps -->
@@ -750,4 +751,3 @@ Laravel は、スケジューリングプロセス中にさまざまな [events]
 
 <!-- </div> -->
 </div>
-

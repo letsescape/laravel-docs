@@ -41,6 +41,7 @@ Laravel에는 문자열 값을 조작하기 위한 다양한 함수가 포함되
 [Str::chopEnd](#method-str-chop-end)
 [Str::contains](#method-str-contains)
 [Str::containsAll](#method-str-contains-all)
+[Str::counted](#method-str-counted)
 [Str::doesntContain](#method-str-doesnt-contain)
 [Str::doesntEndWith](#method-str-doesnt-end-with)
 [Str::doesntStartWith](#method-str-doesnt-start-with)
@@ -122,101 +123,199 @@ Laravel에는 문자열 값을 조작하기 위한 다양한 함수가 포함되
 [trans_choice](#method-trans-choice)
 -->
 [\__](#method-__)
+
 [class_basename](#method-class-basename)
+
 [e](#method-e)
+
 [preg_replace_array](#method-preg-replace-array)
+
 [Str::after](#method-str-after)
+
 [Str::afterLast](#method-str-after-last)
+
 [Str::apa](#method-str-apa)
+
 [Str::ascii](#method-str-ascii)
+
 [Str::before](#method-str-before)
+
 [Str::beforeLast](#method-str-before-last)
+
 [Str::between](#method-str-between)
+
 [Str::betweenFirst](#method-str-between-first)
+
 [Str::camel](#method-camel-case)
+
 [Str::charAt](#method-char-at)
+
 [Str::chopStart](#method-str-chop-start)
+
 [Str::chopEnd](#method-str-chop-end)
+
 [Str::contains](#method-str-contains)
+
 [Str::containsAll](#method-str-contains-all)
+
+[Str::counted](#method-str-counted)
+
 [Str::doesntContain](#method-str-doesnt-contain)
+
 [Str::doesntEndWith](#method-str-doesnt-end-with)
+
 [Str::doesntStartWith](#method-str-doesnt-start-with)
+
 [Str::deduplicate](#method-deduplicate)
+
 [Str::endsWith](#method-ends-with)
+
 [Str::excerpt](#method-excerpt)
+
 [Str::finish](#method-str-finish)
+
 [Str::fromBase64](#method-str-from-base64)
+
 [Str::headline](#method-str-headline)
+
 [Str::initials](#method-str-initials)
+
 [Str::inlineMarkdown](#method-str-inline-markdown)
+
 [Str::is](#method-str-is)
+
 [Str::isAscii](#method-str-is-ascii)
+
 [Str::isJson](#method-str-is-json)
+
 [Str::isUlid](#method-str-is-ulid)
+
 [Str::isUrl](#method-str-is-url)
+
 [Str::isUuid](#method-str-is-uuid)
+
 [Str::kebab](#method-kebab-case)
+
 [Str::lcfirst](#method-str-lcfirst)
+
 [Str::length](#method-str-length)
+
 [Str::limit](#method-str-limit)
+
 [Str::lower](#method-str-lower)
+
 [Str::markdown](#method-str-markdown)
+
 [Str::mask](#method-str-mask)
+
 [Str::match](#method-str-match)
+
 [Str::matchAll](#method-str-match-all)
+
 [Str::isMatch](#method-str-is-match)
+
 [Str::orderedUuid](#method-str-ordered-uuid)
+
 [Str::padBoth](#method-str-padboth)
+
 [Str::padLeft](#method-str-padleft)
+
 [Str::padRight](#method-str-padright)
+
 [Str::password](#method-str-password)
+
 [Str::plural](#method-str-plural)
+
 [Str::pluralStudly](#method-str-plural-studly)
+
 [Str::position](#method-str-position)
+
 [Str::random](#method-str-random)
+
 [Str::remove](#method-str-remove)
+
 [Str::repeat](#method-str-repeat)
+
 [Str::replace](#method-str-replace)
+
 [Str::replaceArray](#method-str-replace-array)
+
 [Str::replaceFirst](#method-str-replace-first)
+
 [Str::replaceLast](#method-str-replace-last)
+
 [Str::replaceMatches](#method-str-replace-matches)
+
 [Str::replaceStart](#method-str-replace-start)
+
 [Str::replaceEnd](#method-str-replace-end)
+
 [Str::reverse](#method-str-reverse)
+
 [Str::singular](#method-str-singular)
+
 [Str::slug](#method-str-slug)
+
 [Str::snake](#method-snake-case)
+
 [Str::squish](#method-str-squish)
+
 [Str::start](#method-str-start)
+
 [Str::startsWith](#method-starts-with)
+
 [Str::studly](#method-studly-case)
+
 [Str::substr](#method-str-substr)
+
 [Str::substrCount](#method-str-substrcount)
+
 [Str::substrReplace](#method-str-substrreplace)
+
 [Str::swap](#method-str-swap)
+
 [Str::take](#method-take)
+
 [Str::title](#method-title-case)
+
 [Str::toBase64](#method-str-to-base64)
+
 [Str::transliterate](#method-str-transliterate)
+
 [Str::trim](#method-str-trim)
+
 [Str::ltrim](#method-str-ltrim)
+
 [Str::rtrim](#method-str-rtrim)
+
 [Str::ucfirst](#method-str-ucfirst)
+
 [Str::ucsplit](#method-str-ucsplit)
+
 [Str::ucwords](#method-str-ucwords)
+
 [Str::upper](#method-str-upper)
+
 [Str::ulid](#method-str-ulid)
+
 [Str::unwrap](#method-str-unwrap)
+
 [Str::uuid](#method-str-uuid)
+
 [Str::uuid7](#method-str-uuid7)
+
 [Str::wordCount](#method-str-word-count)
+
 [Str::wordWrap](#method-str-word-wrap)
+
 [Str::words](#method-str-words)
+
 [Str::wrap](#method-str-wrap)
+
 [str](#method-str)
+
 [trans](#method-trans)
+
 [trans_choice](#method-trans-choice)
 
 <!-- </div> -->
@@ -247,6 +346,7 @@ Laravel에는 문자열 값을 조작하기 위한 다양한 함수가 포함되
 [chopEnd](#method-fluent-str-chop-end)
 [contains](#method-fluent-str-contains)
 [containsAll](#method-fluent-str-contains-all)
+[counted](#method-fluent-str-counted)
 [decrypt](#method-fluent-str-decrypt)
 [deduplicate](#method-fluent-str-deduplicate)
 [dirname](#method-fluent-str-dirname)
@@ -365,6 +465,7 @@ Laravel에는 문자열 값을 조작하기 위한 다양한 함수가 포함되
 [chopEnd](#method-fluent-str-chop-end)
 [contains](#method-fluent-str-contains)
 [containsAll](#method-fluent-str-contains-all)
+[counted](#method-fluent-str-counted)
 [decrypt](#method-fluent-str-decrypt)
 [deduplicate](#method-fluent-str-deduplicate)
 [dirname](#method-fluent-str-dirname)
@@ -1082,7 +1183,7 @@ $matches = Str::is('*.jpg', 'photo.JPG', ignoreCase: true);
 <a name="method-str-is-ascii"></a>
 <!-- #### `Str::isAscii()` -->
 #### `Str::isAscii()`
-<!-- The `Str::isAscii` method determines if a given string is 7 bit ASCII: -->
+<!-- The `Str::isAscii` method determines if a given string is 7-bit ASCII: -->
 `Str::isAscii` 메서드는 주어진 문자열이 7비트 ASCII인지 확인합니다:
 
 ```php
@@ -1334,8 +1435,8 @@ $string = Str::mask('taylor@example.com', '*', 3);
 // tay***************
 ```
 
-<!-- If needed, you provide a negative number as the third argument to the `mask` method, which will instruct the method to begin masking at the given distance from the end of the string: -->
-필요하다면 `mask` 메서드의 세 번째 인수로 음수를 전달할 수 있습니다. 이렇게 하면 메서드는 문자열 끝에서부터 주어진 거리만큼 떨어진 위치에서 마스킹을 시작합니다:
+<!-- If needed, you may provide a negative number as the third argument to the `mask` method, which will instruct the method to begin masking at the given distance from the end of the string: -->
+필요하다면 `mask` 메서드의 세 번째 인수로 음수를 제공할 수 있습니다. 이렇게 하면 메서드는 문자열 끝에서부터 주어진 거리만큼 떨어진 위치에서 마스킹을 시작합니다:
 
 ```php
 $string = Str::mask('taylor@example.com', '*', -15, 3);
@@ -1489,6 +1590,25 @@ $password = Str::password();
 $password = Str::password(12);
 
 // 'qwuar>#V|i]N'
+```
+
+<a name="method-str-counted"></a>
+<!-- #### `Str::counted()` -->
+#### `Str::counted()`
+
+<!-- The `Str::counted` method converts a singular word string to its singular or plural form based on the given count and prefixes the result with the formatted count: -->
+`Str::counted` 메서드는 주어진 개수에 따라 단수형 단어 문자열을 단수형 또는 복수형으로 변환하고, 포맷된 개수를 앞에 붙입니다:
+
+```php
+use Illuminate\Support\Str;
+
+$label = Str::counted('order', 1);
+
+// 1 order
+
+$label = Str::counted('order', 1000);
+
+// 1,000 orders
 ```
 
 <a name="method-str-plural"></a>
@@ -1824,7 +1944,7 @@ $singular = Str::singular('children');
 <a name="method-str-slug"></a>
 <!-- #### `Str::slug()` -->
 #### `Str::slug()`
-<!-- The `Str::slug` method generates a URL friendly "slug" from the given string: -->
+<!-- The `Str::slug` method generates a URL-friendly "slug" from the given string: -->
 `Str::slug` 메서드는 주어진 문자열에서 URL에 적합한 "슬러그(slug)"를 생성합니다:
 
 ```php
@@ -3512,6 +3632,25 @@ $closure = Str::of('foo')->pipe(function (Stringable $str) {
 // 'bar'
 ```
 
+<a name="method-fluent-str-counted"></a>
+<!-- #### `counted` -->
+#### `counted`
+
+<!-- The `counted` method converts a singular word string to its singular or plural form based on the given count and prefixes the result with the formatted count: -->
+`counted` 메서드는 주어진 개수에 따라 단수형 단어 문자열을 단수형 또는 복수형으로 변환하고, 서식이 적용된 개수를 앞에 붙입니다:
+
+```php
+use Illuminate\Support\Str;
+
+$label = Str::of('order')->counted(1);
+
+// 1 order
+
+$label = Str::of('order')->counted(1000);
+
+// 1,000 orders
+```
+
 <a name="method-fluent-str-plural"></a>
 <!-- #### `plural` -->
 #### `plural`
@@ -3783,8 +3922,8 @@ $singular = Str::of('children')->singular();
 <a name="method-fluent-str-slug"></a>
 <!-- #### `slug` -->
 #### `slug`
-<!-- The `slug` method generates a URL friendly "slug" from the given string: -->
-`slug` 메서드는 주어진 문자열에서 URL에 적합한 "슬러그(slug)"를 생성합니다.
+<!-- The `slug` method generates a URL-friendly "slug" from the given string: -->
+`slug` 메서드는 주어진 문자열에서 URL 친화적인 "슬러그"를 생성합니다.
 
 ```php
 use Illuminate\Support\Str;
@@ -4440,7 +4579,7 @@ $string = Str::of('foo/bar')->whenIs('foo/*', function (Stringable $string) {
 <a name="method-fluent-str-when-is-ascii"></a>
 <!-- #### `whenIsAscii` -->
 #### `whenIsAscii`
-<!-- The `whenIsAscii` method invokes the given closure if the string is 7 bit ASCII. The closure will receive the fluent string instance: -->
+<!-- The `whenIsAscii` method invokes the given closure if the string is 7-bit ASCII. The closure will receive the fluent string instance: -->
 `whenIsAscii` 메서드는 문자열이 7비트 ASCII이면 지정된 클로저를 호출합니다. 클로저는 fluent string 인스턴스를 전달받습니다.
 
 ```php

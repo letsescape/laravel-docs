@@ -14,6 +14,7 @@
     - [Rate Limiting](#rate-limiting)
     - [Preventing Job Overlaps](#preventing-job-overlaps)
     - [Throttling Exceptions](#throttling-exceptions)
+    - [Releasing Jobs](#releasing-jobs)
     - [Skipping Jobs](#skipping-jobs)
 - [Dispatching Jobs](#dispatching-jobs)
     - [Delayed Dispatching](#delayed-dispatching)
@@ -1074,6 +1075,49 @@ public function middleware(): array
 
 ```php
 return [(new ThrottlesExceptionsWithRedis(10, 10 * 60))->connection('limiter')];
+```
+
+<a name="releasing-jobs"></a>
+<!-- ### Releasing Jobs -->
+### Releasing Jobs
+
+<!-- The `Release` middleware allows you to release a job back onto the queue without executing it. The `Release::when` method will release the job if the given condition evaluates to `true`, while the `Release::unless` method will release the job if the condition evaluates to `false`: -->
+`Release` 미들웨어를 사용하면 잡을 실행하지 않고 큐로 다시 반환할 수 있습니다. `Release::when` 메서드는 주어진 조건이 `true`로 평가되면 잡을 반환하고, `Release::unless` 메서드는 조건이 `false`로 평가되면 잡을 반환합니다:
+
+```php
+use Illuminate\Queue\Middleware\Release;
+
+/**
+ * Get the middleware the job should pass through.
+ */
+public function middleware(): array
+{
+    return [
+        Release::when($condition, releaseAfter: 60),
+    ];
+}
+```
+
+<!-- Releasing a job back onto the queue will still increment the job's total number of attempts. You may wish to tune your `Tries` and `MaxExceptions` attributes on your job class accordingly. -->
+잡을 큐로 다시 반환해도 잡의 총 시도 횟수는 계속 증가합니다. 이에 맞게 잡 클래스의 `Tries`와 `MaxExceptions` 속성을 조정하는 것이 좋을 수 있습니다.
+
+<!-- You can also pass a `Closure` to the `when` and `unless` methods for more complex conditional evaluation: -->
+더 복잡한 조건 평가를 위해 `when`과 `unless` 메서드에 `Closure`를 전달할 수도 있습니다:
+
+```php
+use Illuminate\Queue\Middleware\Release;
+
+/**
+ * Get the middleware the job should pass through.
+ */
+public function middleware(): array
+{
+    return [
+        Release::when(function (): bool {
+            return ! $this->order->isPaid();
+        }, releaseAfter: 60),
+    ];
+}
 ```
 
 <a name="skipping-jobs"></a>

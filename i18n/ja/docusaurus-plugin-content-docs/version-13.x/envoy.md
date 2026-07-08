@@ -22,8 +22,8 @@
 <!-- ## Introduction -->
 ## Introduction
 
-<!-- [Laravel Envoy](https://github.com/laravel/envoy) is a tool for executing common tasks you run on your remote servers. Using [Blade](/docs/13.x/blade) style syntax, you can easily setup tasks for deployment, Artisan commands, and more. Currently, Envoy only supports the Mac and Linux operating systems. However, Windows support is achievable using [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10). -->
-[Laravel Envoy](https://github.com/laravel/envoy) は、リモート サーバーで実行する一般的なタスクを実行するためのツールです。 [Blade](/docs/13.x/blade) スタイルの構文を使用すると、デプロイメントのタスクやArtisan コマンドなどを簡単にセットアップできます。現在、Envoy は Mac と Linux オペレーティング システムのみをサポートしています。ただし、Windows のサポートは、[WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) を使用して実現できます。
+<!-- [Laravel Envoy](https://github.com/laravel/envoy) is a tool for executing common tasks you run on your remote servers. Using [Blade](/docs/13.x/blade) style syntax, you can easily set up tasks for deployment, Artisan commands, and more. Currently, Envoy only supports the Mac and Linux operating systems. However, Windows support is achievable using [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10). -->
+[Laravel Envoy](https://github.com/laravel/envoy) は、リモート サーバーで実行する一般的なタスクを実行するためのツールです。[Blade](/docs/13.x/blade) スタイルの構文を使うと、デプロイ用のタスクや Artisan コマンドなどを簡単に設定できます。現在、Envoy は Mac と Linux のオペレーティングシステムのみをサポートしています。ただし、Windows のサポートは [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10) を使って実現できます。
 
 <a name="installation"></a>
 <!-- ## Installation -->
@@ -386,4 +386,3 @@ Envoy は、各タスクの実行後に [Microsoft Teams](https://www.microsoft.
     @microsoftTeams('webhook-url')
 @endfinished
 ```
-

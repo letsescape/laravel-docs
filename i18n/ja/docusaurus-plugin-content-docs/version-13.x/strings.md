@@ -41,6 +41,7 @@ Laravel には、文字列値を操作するためのさまざまな関数が含
 [Str::chopEnd](#method-str-chop-end)
 [Str::contains](#method-str-contains)
 [Str::containsAll](#method-str-contains-all)
+[Str::counted](#method-str-counted)
 [Str::doesntContain](#method-str-doesnt-contain)
 [Str::doesntEndWith](#method-str-doesnt-end-with)
 [Str::doesntStartWith](#method-str-doesnt-start-with)
@@ -122,101 +123,199 @@ Laravel には、文字列値を操作するためのさまざまな関数が含
 [trans_choice](#method-trans-choice)
 -->
 [\__](#method-__)
+
 [class_basename](#method-class-basename)
+
 [e](#method-e)
+
 [preg_replace_array](#method-preg-replace-array)
+
 [Str::after](#method-str-after)
+
 [Str::afterLast](#method-str-after-last)
+
 [Str::apa](#method-str-apa)
+
 [Str::ascii](#method-str-ascii)
+
 [Str::before](#method-str-before)
+
 [Str::beforeLast](#method-str-before-last)
+
 [Str::between](#method-str-between)
+
 [Str::betweenFirst](#method-str-between-first)
+
 [Str::camel](#method-camel-case)
+
 [Str::charAt](#method-char-at)
+
 [Str::chopStart](#method-str-chop-start)
+
 [Str::chopEnd](#method-str-chop-end)
+
 [Str::contains](#method-str-contains)
+
 [Str::containsAll](#method-str-contains-all)
+
+[Str::counted](#method-str-counted)
+
 [Str::doesntContain](#method-str-doesnt-contain)
+
 [Str::doesntEndWith](#method-str-doesnt-end-with)
+
 [Str::doesntStartWith](#method-str-doesnt-start-with)
+
 [Str::deduplicate](#method-deduplicate)
+
 [Str::endsWith](#method-ends-with)
+
 [Str::excerpt](#method-excerpt)
+
 [Str::finish](#method-str-finish)
+
 [Str::fromBase64](#method-str-from-base64)
+
 [Str::headline](#method-str-headline)
+
 [Str::initials](#method-str-initials)
+
 [Str::inlineMarkdown](#method-str-inline-markdown)
+
 [Str::is](#method-str-is)
+
 [Str::isAscii](#method-str-is-ascii)
+
 [Str::isJson](#method-str-is-json)
+
 [Str::isUlid](#method-str-is-ulid)
+
 [Str::isUrl](#method-str-is-url)
+
 [Str::isUuid](#method-str-is-uuid)
+
 [Str::kebab](#method-kebab-case)
+
 [Str::lcfirst](#method-str-lcfirst)
+
 [Str::length](#method-str-length)
+
 [Str::limit](#method-str-limit)
+
 [Str::lower](#method-str-lower)
+
 [Str::markdown](#method-str-markdown)
+
 [Str::mask](#method-str-mask)
+
 [Str::match](#method-str-match)
+
 [Str::matchAll](#method-str-match-all)
+
 [Str::isMatch](#method-str-is-match)
+
 [Str::orderedUuid](#method-str-ordered-uuid)
+
 [Str::padBoth](#method-str-padboth)
+
 [Str::padLeft](#method-str-padleft)
+
 [Str::padRight](#method-str-padright)
+
 [Str::password](#method-str-password)
+
 [Str::plural](#method-str-plural)
+
 [Str::pluralStudly](#method-str-plural-studly)
+
 [Str::position](#method-str-position)
+
 [Str::random](#method-str-random)
+
 [Str::remove](#method-str-remove)
+
 [Str::repeat](#method-str-repeat)
+
 [Str::replace](#method-str-replace)
+
 [Str::replaceArray](#method-str-replace-array)
+
 [Str::replaceFirst](#method-str-replace-first)
+
 [Str::replaceLast](#method-str-replace-last)
+
 [Str::replaceMatches](#method-str-replace-matches)
+
 [Str::replaceStart](#method-str-replace-start)
+
 [Str::replaceEnd](#method-str-replace-end)
+
 [Str::reverse](#method-str-reverse)
+
 [Str::singular](#method-str-singular)
+
 [Str::slug](#method-str-slug)
+
 [Str::snake](#method-snake-case)
+
 [Str::squish](#method-str-squish)
+
 [Str::start](#method-str-start)
+
 [Str::startsWith](#method-starts-with)
+
 [Str::studly](#method-studly-case)
+
 [Str::substr](#method-str-substr)
+
 [Str::substrCount](#method-str-substrcount)
+
 [Str::substrReplace](#method-str-substrreplace)
+
 [Str::swap](#method-str-swap)
+
 [Str::take](#method-take)
+
 [Str::title](#method-title-case)
+
 [Str::toBase64](#method-str-to-base64)
+
 [Str::transliterate](#method-str-transliterate)
+
 [Str::trim](#method-str-trim)
+
 [Str::ltrim](#method-str-ltrim)
+
 [Str::rtrim](#method-str-rtrim)
+
 [Str::ucfirst](#method-str-ucfirst)
+
 [Str::ucsplit](#method-str-ucsplit)
+
 [Str::ucwords](#method-str-ucwords)
+
 [Str::upper](#method-str-upper)
+
 [Str::ulid](#method-str-ulid)
+
 [Str::unwrap](#method-str-unwrap)
+
 [Str::uuid](#method-str-uuid)
+
 [Str::uuid7](#method-str-uuid7)
+
 [Str::wordCount](#method-str-word-count)
+
 [Str::wordWrap](#method-str-word-wrap)
+
 [Str::words](#method-str-words)
+
 [Str::wrap](#method-str-wrap)
+
 [str](#method-str)
+
 [trans](#method-trans)
+
 [trans_choice](#method-trans-choice)
 
 <!-- </div> -->
@@ -247,6 +346,7 @@ Laravel には、文字列値を操作するためのさまざまな関数が含
 [chopEnd](#method-fluent-str-chop-end)
 [contains](#method-fluent-str-contains)
 [containsAll](#method-fluent-str-contains-all)
+[counted](#method-fluent-str-counted)
 [decrypt](#method-fluent-str-decrypt)
 [deduplicate](#method-fluent-str-deduplicate)
 [dirname](#method-fluent-str-dirname)
@@ -365,6 +465,7 @@ Laravel には、文字列値を操作するためのさまざまな関数が含
 [chopEnd](#method-fluent-str-chop-end)
 [contains](#method-fluent-str-contains)
 [containsAll](#method-fluent-str-contains-all)
+[counted](#method-fluent-str-counted)
 [decrypt](#method-fluent-str-decrypt)
 [deduplicate](#method-fluent-str-deduplicate)
 [dirname](#method-fluent-str-dirname)
@@ -1083,8 +1184,8 @@ $matches = Str::is('*.jpg', 'photo.JPG', ignoreCase: true);
 <a name="method-str-is-ascii"></a>
 <!-- #### `Str::isAscii()` -->
 #### `Str::isAscii()`
-<!-- The `Str::isAscii` method determines if a given string is 7 bit ASCII: -->
-`Str::isAscii` メソッドは、指定された文字列が 7 ビット ASCII であるかどうかを判断します。
+<!-- The `Str::isAscii` method determines if a given string is 7-bit ASCII: -->
+`Str::isAscii` メソッドは、指定された文字列が 7-bit ASCII であるかどうかを判断します。
 
 ```php
 use Illuminate\Support\Str;
@@ -1335,8 +1436,8 @@ $string = Str::mask('taylor@example.com', '*', 3);
 // tay***************
 ```
 
-<!-- If needed, you provide a negative number as the third argument to the `mask` method, which will instruct the method to begin masking at the given distance from the end of the string: -->
-必要に応じて、`mask` メソッドの 3 番目の引数として負の数値を指定します。これにより、文字列の末尾から指定された距離でマスクを開始するようにメソッドに指示されます。
+<!-- If needed, you may provide a negative number as the third argument to the `mask` method, which will instruct the method to begin masking at the given distance from the end of the string: -->
+必要に応じて、`mask` メソッドの 3 番目の引数として負の数を指定できます。これにより、文字列の末尾から指定した距離でマスキングを開始するようにメソッドへ指示できます。
 
 ```php
 $string = Str::mask('taylor@example.com', '*', -15, 3);
@@ -1490,6 +1591,25 @@ $password = Str::password();
 $password = Str::password(12);
 
 // 'qwuar>#V|i]N'
+```
+
+<a name="method-str-counted"></a>
+<!-- #### `Str::counted()` -->
+#### `Str::counted()`
+
+<!-- The `Str::counted` method converts a singular word string to its singular or plural form based on the given count and prefixes the result with the formatted count: -->
+`Str::counted` メソッドは、指定した数に応じて単数形または複数形の文字列に変換し、整形された数値を先頭に付けます:
+
+```php
+use Illuminate\Support\Str;
+
+$label = Str::counted('order', 1);
+
+// 1 order
+
+$label = Str::counted('order', 1000);
+
+// 1,000 orders
 ```
 
 <a name="method-str-plural"></a>
@@ -1826,8 +1946,8 @@ $singular = Str::singular('children');
 <a name="method-str-slug"></a>
 <!-- #### `Str::slug()` -->
 #### `Str::slug()`
-<!-- The `Str::slug` method generates a URL friendly "slug" from the given string: -->
-`Str::slug` メソッドは、指定された文字列から URL フレンドリな「スラッグ」を生成します。
+<!-- The `Str::slug` method generates a URL-friendly "slug" from the given string: -->
+`Str::slug` メソッドは、指定された文字列から URL に適した「スラッグ」を生成します。
 
 ```php
 use Illuminate\Support\Str;
@@ -3517,6 +3637,25 @@ $closure = Str::of('foo')->pipe(function (Stringable $str) {
 // 'bar'
 ```
 
+<a name="method-fluent-str-counted"></a>
+<!-- #### `counted` -->
+#### `counted`
+
+<!-- The `counted` method converts a singular word string to its singular or plural form based on the given count and prefixes the result with the formatted count: -->
+`counted` メソッドは、与えられた件数に応じて単数形の文字列を単数形または複数形に変換し、整形済みの件数を先頭に付けます:
+
+```php
+use Illuminate\Support\Str;
+
+$label = Str::of('order')->counted(1);
+
+// 1 order
+
+$label = Str::of('order')->counted(1000);
+
+// 1,000 orders
+```
+
 <a name="method-fluent-str-plural"></a>
 <!-- #### `plural` -->
 #### `plural`
@@ -3789,8 +3928,8 @@ $singular = Str::of('children')->singular();
 <a name="method-fluent-str-slug"></a>
 <!-- #### `slug` -->
 #### `slug`
-<!-- The `slug` method generates a URL friendly "slug" from the given string: -->
-`slug` メソッドは、指定された文字列から URL フレンドリな「スラッグ」を生成します。
+<!-- The `slug` method generates a URL-friendly "slug" from the given string: -->
+`slug` メソッドは、指定された文字列から URL フレンドリーな「スラッグ」を生成します。
 
 ```php
 use Illuminate\Support\Str;
@@ -4447,8 +4586,8 @@ $string = Str::of('foo/bar')->whenIs('foo/*', function (Stringable $string) {
 <a name="method-fluent-str-when-is-ascii"></a>
 <!-- #### `whenIsAscii` -->
 #### `whenIsAscii`
-<!-- The `whenIsAscii` method invokes the given closure if the string is 7 bit ASCII. The closure will receive the fluent string instance: -->
-文字列が 7 ビット ASCII の場合、`whenIsAscii` メソッドは指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+<!-- The `whenIsAscii` method invokes the given closure if the string is 7-bit ASCII. The closure will receive the fluent string instance: -->
+`whenIsAscii` メソッドは、文字列が 7 ビット ASCII の場合に指定されたクロージャを呼び出します。クロージャには fluent 文字列インスタンスが渡されます。
 
 ```php
 use Illuminate\Support\Str;
@@ -4554,4 +4693,3 @@ Str::is('is')->wrap(before: 'This ', after: ' Laravel!');
 
 // This is Laravel!
 ```
-

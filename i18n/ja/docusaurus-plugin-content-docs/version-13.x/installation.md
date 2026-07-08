@@ -144,8 +144,8 @@ composer global require laravel/installer
 <!-- ### Creating an Application -->
 ### Creating an Application
 
-<!-- After you have installed PHP, Composer, and the Laravel installer, you are ready to create a new Laravel application. The installer will prompt you to select your preferred starter kit, testing framework, and database: -->
-PHP、Composer、および Laravel インストーラーをインストールしたら、新しい Laravel アプリケーションを作成する準備が整います。インストーラーは、好みのスターターキット、テストフレームワーク、データベースを選択するよう求めます。
+<!-- After you have installed PHP, Composer, and the Laravel installer, you are ready to create a new Laravel application: -->
+PHP、Composer、および Laravel インストーラーをインストールしたら、新しい Laravel アプリケーションを作成する準備が整います。
 
 ```shell
 laravel new example-app
@@ -160,7 +160,7 @@ npm install && npm run build
 composer run dev
 ```
 
-<!-- Once you have started the development server, your can access your application in your web browser at [http://localhost:8000](http://localhost:8000). Next, you're ready to [start taking your next steps into the Laravel ecosystem](#next-steps). Of course, you may also want to [configure a database](#databases-and-migrations) and run the necessary migrations. -->
+<!-- Once you have started the development server, you can access your application in your web browser at [http://localhost:8000](http://localhost:8000). Next, you're ready to [start taking your next steps into the Laravel ecosystem](#next-steps). Of course, you may also want to [configure a database](#databases-and-migrations) and run the necessary migrations. -->
 開発サーバーを起動したら、Web ブラウザで [http://localhost:8000](http://localhost:8000) からアプリケーションにアクセスできます。次に、[start taking your next steps into the Laravel ecosystem](#next-steps) に進む準備ができました。もちろん、[configure a database](#databases-and-migrations) を設定し、必要なマイグレーションを実行することもできます。
 
 > [!NOTE]

@@ -626,6 +626,30 @@ $queueName = $this->option('queue');
 $options = $this->options();
 ```
 
+<!-- You may use the `input` method to retrieve a command's arguments and options as an `Illuminate\Console\CommandInput` instance, which provides the same typed accessors that are available on HTTP requests and other data containers: -->
+`input` 메서드를 사용해 명령어의 인수와 옵션을 `Illuminate\Console\CommandInput` 인스턴스로 가져올 수 있습니다. 이 인스턴스는 HTTP 요청과 다른 데이터 컨테이너에서 사용할 수 있는 것과 동일한 형식 지정 접근자를 제공합니다:
+
+```php
+use App\Enums\ReportType;
+
+/**
+ * Execute the console command.
+ */
+public function handle(): void
+{
+    $input = $this->input()->date('from');
+
+    // ...
+}
+```
+
+<!-- The `input` method may also be used to retrieve a single input value from either the arguments or options: -->
+`input` 메서드는 인수 또는 옵션에서 단일 입력 값을 가져오는 데에도 사용할 수 있습니다:
+
+```php
+$queue = $this->input('queue', 'default');
+```
+
 <a name="prompting-for-input"></a>
 <!-- ### Prompting for Input -->
 ### Prompting for Input

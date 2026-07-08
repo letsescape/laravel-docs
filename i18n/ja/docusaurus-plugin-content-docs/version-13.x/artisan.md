@@ -627,6 +627,30 @@ $queueName = $this->option('queue');
 $options = $this->options();
 ```
 
+<!-- You may use the `input` method to retrieve a command's arguments and options as an `Illuminate\Console\CommandInput` instance, which provides the same typed accessors that are available on HTTP requests and other data containers: -->
+`input` メソッドを使うと、コマンドの引数とオプションを `Illuminate\Console\CommandInput` インスタンスとして取得できます。これは、HTTP リクエストやその他のデータコンテナで利用できるものと同じ型付きアクセサを提供します:
+
+```php
+use App\Enums\ReportType;
+
+/**
+ * Execute the console command.
+ */
+public function handle(): void
+{
+    $input = $this->input()->date('from');
+
+    // ...
+}
+```
+
+<!-- The `input` method may also be used to retrieve a single input value from either the arguments or options: -->
+`input` メソッドは、引数またはオプションのいずれかから単一の入力値を取得するためにも使用できます。
+
+```php
+$queue = $this->input('queue', 'default');
+```
+
 <a name="prompting-for-input"></a>
 <!-- ### Prompting for Input -->
 ### Prompting for Input
@@ -1031,4 +1055,3 @@ php artisan stub:publish
 
 <!-- Artisan dispatches three events when running commands: `Illuminate\Console\Events\ArtisanStarting`, `Illuminate\Console\Events\CommandStarting`, and `Illuminate\Console\Events\CommandFinished`. The `ArtisanStarting` event is dispatched immediately when Artisan starts running. Next, the `CommandStarting` event is dispatched immediately before a command runs. Finally, the `CommandFinished` event is dispatched once a command finishes executing. -->
 Artisan は、コマンドの実行時に `Illuminate\Console\Events\ArtisanStarting`、`Illuminate\Console\Events\CommandStarting`、および `Illuminate\Console\Events\CommandFinished` の 3 つのイベントを送出します。 `ArtisanStarting` イベントは、Artisan の実行が開始されるとすぐに送出されます。次に、コマンドが実行される直前に、`CommandStarting` イベントが送出されます。最後に、コマンドの実行が終了すると、`CommandFinished` イベントが送出されます。
-

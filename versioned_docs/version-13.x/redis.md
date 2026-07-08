@@ -252,25 +252,46 @@ Predis 패키지를 통해 Redis와 상호작용하고 싶다면, `REDIS_CLIENT`
     'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
 ],
 ```
-
-<!-- Predis 3.4.0 and later supports built-in retry and backoff configuration via the `Retry` class. Configure it using the `retry` option with one of the following strategies: `NoBackoff`, `EqualBackoff`, or `ExponentialBackoff`: -->
-Predis 3.4.0 이상에서는 내장된 Retry 설정을 `Retry` 클래스를 통해 지원하며, `retry` 옵션을 설정하여 `NoBackoff`, `EqualBackoff`, `ExponentialBackoff` 중 원하는 전략을 사용할 수 있습니다.
+<!-- Predis 3.4.0 and later supports built-in retry and backoff configuration via the `Retry` class. You may configure retries using the `max_retries` option and configure the backoff strategy using the `retry` option. The `retry` option should be an array keyed by one of the following strategy classes: `NoBackoff`, `EqualBackoff`, or `ExponentialBackoff`: -->
+Predis 3.4.0 이상에서는 `Retry` 클래스를 통해 내장된 재시도 및 백오프 설정을 지원합니다. `max_retries` 옵션으로 재시도를 구성하고, `retry` 옵션으로 백오프 전략을 구성할 수 있습니다. `retry` 옵션은 다음 전략 클래스 중 하나를 키로 하는 배열이어야 합니다: `NoBackoff`, `EqualBackoff`, `ExponentialBackoff`:
 
 ```php
-use Predis\Retry;
 use Predis\Retry\Strategy\ExponentialBackoff;
 
 'default' => [
     'url' => env('REDIS_URL'),
     // ...
-    'retry' => new Retry(
-        new ExponentialBackoff(
+    'retry' => [
+        ExponentialBackoff::class => [
             env('REDIS_BACKOFF_BASE', 100),
             env('REDIS_BACKOFF_CAP', 1000),
-            true, // Enables jitter
-        ),
-        env('REDIS_MAX_RETRIES', 3)
-    )
+            true, // Enable jitter...
+        ],
+    ],
+    'max_retries' => env('REDIS_MAX_RETRIES', 3),
+],
+```
+
+<!-- When using Predis with a Redis cluster, you may define retry configuration in the `parameters` option of your cluster configuration: -->
+Predis를 Redis 클러스터와 함께 사용할 때는 클러스터 설정의 `parameters` 옵션에 재시도 구성을 정의할 수 있습니다.
+
+```php
+use Predis\Retry\Strategy\NoBackoff;
+
+'clusters' => [
+    'default' => [
+        // ...
+    ],
+],
+
+'options' => [
+    'cluster' => env('REDIS_CLUSTER', 'redis'),
+    'parameters' => [
+        'retry' => [
+            NoBackoff::class => [],
+        ],
+        'max_retries' => env('REDIS_MAX_RETRIES', 3),
+    ],
 ],
 ```
 

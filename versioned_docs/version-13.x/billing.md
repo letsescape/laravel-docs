@@ -738,142 +738,174 @@ $url = $request->user()->billingPortalUrl(route('billing'));
 <!-- ### Storing Payment Methods -->
 ### Storing Payment Methods
 
-<!-- In order to create subscriptions or perform "one-off" charges with Stripe, you will need to store a payment method and retrieve its identifier from Stripe. The approach used to accomplish this differs based on whether you plan to use the payment method for subscriptions or single charges, so we will examine both below. -->
-Stripe로 구독을 생성하거나 "one-off(일회성)" 결제를 수행하려면 결제 수단을 저장하고 Stripe에서 해당 식별자를 조회해야 합니다. 이를 수행하는 방식은 결제 수단을 구독에 사용할지, 단일 결제에 사용할지에 따라 달라집니다. 아래에서 두 경우를 모두 살펴보겠습니다.
+<!-- In order to create subscriptions or perform "one-off" charges with Stripe, your application will need to securely collect payment details from the customer. The approach used to accomplish this differs based on whether you plan to store the payment method for future subscriptions or immediately process a single charge, so we will examine both below. -->
+Stripe로 구독을 생성하거나 "one-off" 청구를 수행하려면 애플리케이션이 고객의 결제 세부 정보를 안전하게 수집해야 합니다. 이를 수행하는 방식은 결제 수단을 나중에 구독에 사용할지, 아니면 즉시 단일 청구를 처리할지에 따라 달라지므로 아래에서 두 경우를 모두 살펴보겠습니다.
 
-<a name="payment-methods-for-subscriptions"></a>
-<!-- #### Payment Methods for Subscriptions -->
-#### Payment Methods for Subscriptions
+<!-- Stripe's [Payment Element](https://stripe.com/docs/payments/payment-element) may be used to support multiple payment methods, such as cards, Apple Pay, Google Pay, and iDEAL. -->
+Stripe의 [Payment Element](https://stripe.com/docs/payments/payment-element)는 카드, Apple Pay, Google Pay, iDEAL 같은 여러 결제 수단을 지원하는 데 사용할 수 있습니다.
 
-<!-- When storing a customer's credit card information for future use by a subscription, the Stripe "Setup Intents" API must be used to securely gather the customer's payment method details. A "Setup Intent" indicates to Stripe the intention to charge a customer's payment method. Cashier's `Billable` trait includes the `createSetupIntent` method to easily create a new Setup Intent. You should invoke this method from the route or controller that will render the form which gathers your customer's payment method details: -->
-나중에 구독에서 사용할 고객의 신용카드 정보를 저장할 때는 고객의 결제 수단 세부 정보를 안전하게 수집하기 위해 Stripe의 "Setup Intents" API를 사용해야 합니다. "Setup Intent"는 고객의 결제 수단에 청구하려는 의도를 Stripe에 알려 줍니다. Cashier의 `Billable` trait에는 새 Setup Intent를 쉽게 생성할 수 있는 `createSetupIntent` 메서드가 포함되어 있습니다. 고객의 결제 수단 세부 정보를 수집하는 폼을 렌더링할 라우트나 컨트롤러에서 이 메서드를 호출해야 합니다.
+<a name="payment-element-for-subscriptions"></a>
+<!-- #### Payment Element for Subscriptions -->
+#### Payment Element for Subscriptions
+
+<!-- First, create a Setup Intent and pass it to your view: -->
+먼저 Setup Intent를 생성해 뷰에 전달합니다.
 
 ```php
-return view('update-payment-method', [
+return view('subscribe', [
     'intent' => $user->createSetupIntent()
 ]);
 ```
 
-<!-- After you have created the Setup Intent and passed it to the view, you should attach its secret to the element that will gather the payment method. For example, consider this "update payment method" form: -->
-Setup Intent를 생성하고 뷰에 전달한 뒤에는 결제 수단을 수집할 요소에 해당 secret을 연결해야 합니다. 예를 들어 다음 "결제 수단 업데이트" 폼을 살펴보십시오.
+<!-- Mount the Payment Element using the Setup Intent's `client_secret`: -->
+Setup Intent의 `client_secret`을 사용해 Payment Element를 마운트합니다.
 
 ```html
-<input id="card-holder-name" type="text">
+<div id="payment-element"></div>
+<button id="submit">Subscribe</button>
 
-<!-- Stripe Elements Placeholder -->
-<div id="card-element"></div>
-
-<button id="card-button" data-secret="{{ $intent->client_secret }}">
-    Update Payment Method
-</button>
-```
-
-<!-- Next, the Stripe.js library may be used to attach a [Stripe Element](https://stripe.com/docs/stripe-js) to the form and securely gather the customer's payment details: -->
-다음으로 Stripe.js 라이브러리를 사용해 [Stripe Element](https://stripe.com/docs/stripe-js)를 폼에 연결하고 고객의 결제 세부 정보를 안전하게 수집할 수 있습니다.
-
-```html
 <script src="https://js.stripe.com/v3/"></script>
-
 <script>
     const stripe = Stripe('stripe-public-key');
 
-    const elements = stripe.elements();
-    const cardElement = elements.create('card');
+    const elements = stripe.elements({
+        clientSecret: '{{ $intent->client_secret }}'
+    });
 
-    cardElement.mount('#card-element');
+    const paymentElement = elements.create('payment');
+
+    paymentElement.mount('#payment-element');
+
+    document.getElementById('submit').addEventListener('click', async () => {
+        const { error } = await stripe.confirmSetup({
+            elements,
+            confirmParams: {
+                return_url: '{{ route("subscription.complete") }}',
+            },
+        });
+
+        if (error) {
+            // Display "error.message" to the user...
+        }
+    });
 </script>
 ```
 
-<!-- Next, the card can be verified and a secure "payment method identifier" can be retrieved from Stripe using [Stripe's `confirmCardSetup` method](https://stripe.com/docs/js/setup_intents/confirm_card_setup): -->
-다음으로 카드를 검증하고 [Stripe's `confirmCardSetup` method](https://stripe.com/docs/js/setup_intents/confirm_card_setup)를 사용해 Stripe에서 안전한 "결제 수단 식별자"를 조회할 수 있습니다.
+<!-- After Stripe redirects to your `return_url`, the `setup_intent` ID will be available as a query string parameter. You may use this value to retrieve the payment method and create the subscription: -->
+Stripe가 `return_url`로 리디렉션한 후에는 `setup_intent` ID를 쿼리 문자열 파라미터로 사용할 수 있습니다. 이 값을 사용해 결제 수단을 조회하고 구독을 생성할 수 있습니다.
 
-```js
-const cardHolderName = document.getElementById('card-holder-name');
-const cardButton = document.getElementById('card-button');
-const clientSecret = cardButton.dataset.secret;
+```php
+use Illuminate\Http\Request;
 
-cardButton.addEventListener('click', async (e) => {
-    const { setupIntent, error } = await stripe.confirmCardSetup(
-        clientSecret, {
-            payment_method: {
-                card: cardElement,
-                billing_details: { name: cardHolderName.value }
-            }
-        }
+Route::get('/subscription/complete', function (Request $request) {
+    $setupIntent = $request->user()->findSetupIntent(
+        $request->setup_intent
     );
 
-    if (error) {
-        // Display "error.message" to the user...
-    } else {
-        // The card has been verified successfully...
-    }
+    $paymentMethod = $setupIntent->payment_method;
+
+    $request->user()
+        ->newSubscription('default', 'price_xxx')
+        ->create($paymentMethod);
+
+    return redirect('/dashboard');
+})->name('subscription.complete');
+```
+
+<!-- If you are using the Payment Element to update a customer's default payment method instead of creating a subscription, you may pass the payment method identifier to the [`updateDefaultPaymentMethod`](#updating-the-default-payment-method) method. -->
+Payment Element를 사용해 구독을 생성하는 대신 고객의 기본 결제 수단을 업데이트하는 경우에는 결제 수단 식별자를 [`updateDefaultPaymentMethod`](#updating-the-default-payment-method) 메서드에 전달할 수 있습니다.
+
+<a name="payment-element-for-single-charges"></a>
+<!-- #### Payment Element for Single Charges -->
+#### Payment Element for Single Charges
+
+<!-- For one-off payments, create a Payment Intent using Cashier's `pay` method. Typically, you should store the Payment Intent ID on your application's corresponding order so that the order can be retrieved after Stripe redirects the customer back to your application. The following example assumes your application has an `Order` model with `user_id`, `amount`, `status`, and `stripe_payment_intent_id` columns: -->
+일회성 결제의 경우 Cashier의 `pay` 메서드를 사용해 Payment Intent를 생성합니다. 일반적으로 Stripe가 고객을 애플리케이션으로 다시 리디렉션한 뒤 주문을 조회할 수 있도록 애플리케이션의 해당 주문에 Payment Intent ID를 저장해야 합니다. 다음 예시는 애플리케이션에 `Order`, `user_id`, `amount`, `status` 컬럼을 가진 `stripe_payment_intent_id` 모델이 있다고 가정합니다.
+
+```php
+use App\Models\Order;
+use Illuminate\Http\Request;
+
+Route::post('/pay', function (Request $request) {
+    $amount = 1000;
+
+    $payment = $request->user()->pay($amount);
+
+    $order = Order::create([
+        'user_id' => $request->user()->id,
+        'amount' => $amount,
+        'status' => 'pending',
+        'stripe_payment_intent_id' => $payment->id,
+    ]);
+
+    return view('checkout', [
+        'clientSecret' => $payment->client_secret,
+        'order' => $order,
+    ]);
 });
 ```
 
-<!-- After the card has been verified by Stripe, you may pass the resulting `setupIntent.payment_method` identifier to your Laravel application, where it can be attached to the customer. The payment method can either be [added as a new payment method](#adding-payment-methods) or [used to update the default payment method](#updating-the-default-payment-method). You can also immediately use the payment method identifier to [create a new subscription](#creating-subscriptions). -->
-Stripe에서 카드가 검증되면 결과로 받은 `setupIntent.payment_method` 식별자를 Laravel 애플리케이션으로 전달할 수 있으며, 여기에서 고객에게 연결할 수 있습니다. 결제 수단은 [added as a new payment method](#adding-payment-methods)하거나 [used to update the default payment method](#updating-the-default-payment-method)하는 데 사용할 수 있습니다. 또한 결제 수단 식별자를 즉시 사용해 [create a new subscription](#creating-subscriptions)할 수도 있습니다.
-
-> [!NOTE]
-> Setup Intents와 고객 결제 세부 정보 수집에 대해 더 알고 싶다면 [review this overview provided by Stripe](https://stripe.com/docs/payments/save-and-reuse#php)를 검토하십시오.
-
-<a name="payment-methods-for-single-charges"></a>
-<!-- #### Payment Methods for Single Charges -->
-#### Payment Methods for Single Charges
-
-<!-- Of course, when making a single charge against a customer's payment method, we will only need to use a payment method identifier once. Due to Stripe limitations, you may not use the stored default payment method of a customer for single charges. You must allow the customer to enter their payment method details using the Stripe.js library. For example, consider the following form: -->
-물론 고객의 결제 수단에 단일 결제를 청구할 때는 결제 수단 식별자를 한 번만 사용하면 됩니다. Stripe의 제한으로 인해, 단일 결제에는 고객의 저장된 기본 결제 수단을 사용할 수 없습니다. 고객이 Stripe.js 라이브러리를 사용해 결제 수단 세부 정보를 입력할 수 있도록 해야 합니다. 예를 들어 다음 폼을 살펴보십시오.
+<!-- Then, mount the Payment Element and confirm the payment: -->
+그다음 Payment Element를 마운트하고 결제를 확인합니다.
 
 ```html
-<input id="card-holder-name" type="text">
+<div id="payment-element"></div>
+<button id="submit">Pay Now</button>
 
-<!-- Stripe Elements Placeholder -->
-<div id="card-element"></div>
-
-<button id="card-button">
-    Process Payment
-</button>
-```
-
-<!-- After defining such a form, the Stripe.js library may be used to attach a [Stripe Element](https://stripe.com/docs/stripe-js) to the form and securely gather the customer's payment details: -->
-이러한 폼을 정의한 뒤에는 Stripe.js 라이브러리를 사용해 [Stripe Element](https://stripe.com/docs/stripe-js)를 폼에 연결하고 고객의 결제 세부 정보를 안전하게 수집할 수 있습니다.
-
-```html
 <script src="https://js.stripe.com/v3/"></script>
-
 <script>
     const stripe = Stripe('stripe-public-key');
 
-    const elements = stripe.elements();
-    const cardElement = elements.create('card');
+    const elements = stripe.elements({
+        clientSecret: '{{ $clientSecret }}'
+    });
 
-    cardElement.mount('#card-element');
+    const paymentElement = elements.create('payment');
+
+    paymentElement.mount('#payment-element');
+
+    document.getElementById('submit').addEventListener('click', async () => {
+        const { error } = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+                return_url: '{{ route("payment.complete") }}',
+            },
+        });
+
+        if (error) {
+            // Display "error.message" to the user...
+        }
+    });
 </script>
 ```
 
-<!-- Next, the card can be verified and a secure "payment method identifier" can be retrieved from Stripe using [Stripe's `createPaymentMethod` method](https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method): -->
-다음으로 카드를 검증하고 [Stripe's `createPaymentMethod` method](https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method)를 사용해 Stripe에서 안전한 "결제 수단 식별자"를 조회할 수 있습니다.
+<!-- After the redirect, you may use the `payment_intent` query string parameter to retrieve the corresponding order and Payment Intent. Before fulfilling the order, you should verify that the order belongs to the authenticated customer and that the Payment Intent belongs to the authenticated customer and has succeeded: -->
+리디렉션 후에는 `payment_intent` 쿼리 문자열 파라미터를 사용해 해당 주문과 Payment Intent를 조회할 수 있습니다. 주문을 이행하기 전에 주문이 인증된 고객의 것이고 Payment Intent 역시 인증된 고객의 것이며 성공 상태인지 확인해야 합니다.
 
-```js
-const cardHolderName = document.getElementById('card-holder-name');
-const cardButton = document.getElementById('card-button');
+```php
+use App\Models\Order;
+use Illuminate\Http\Request;
 
-cardButton.addEventListener('click', async (e) => {
-    const { paymentMethod, error } = await stripe.createPaymentMethod(
-        'card', cardElement, {
-            billing_details: { name: cardHolderName.value }
-        }
-    );
+Route::get('/payment/complete', function (Request $request) {
+    $order = Order::where('user_id', $request->user()->id)
+        ->where('stripe_payment_intent_id', $request->payment_intent)
+        ->firstOrFail();
 
-    if (error) {
-        // Display "error.message" to the user...
-    } else {
-        // The card has been verified successfully...
+    $paymentIntent = $request->user()
+        ->stripe()
+        ->paymentIntents
+        ->retrieve($request->payment_intent);
+
+    if ($paymentIntent->customer === $request->user()->stripe_id &&
+        $paymentIntent->status === 'succeeded') {
+        $order->update(['status' => 'paid']);
+
+        // Fulfill the order...
     }
-});
-```
 
-<!-- If the card is verified successfully, you may pass the `paymentMethod.id` to your Laravel application and process a [single charge](#simple-charge). -->
-카드가 성공적으로 검증되면 `paymentMethod.id`를 Laravel 애플리케이션으로 전달하고 [single charge](#simple-charge)를 처리할 수 있습니다.
+    return redirect('/dashboard');
+})->name('payment.complete');
+```
 
 <a name="retrieving-payment-methods"></a>
 <!-- ### Retrieving Payment Methods -->
@@ -2263,14 +2295,14 @@ webhook 검증을 활성화하려면 애플리케이션의 `.env` 파일에 `STR
 <!-- ### Simple Charge -->
 ### Simple Charge
 
-<!-- If you would like to make a one-time charge against a customer, you may use the `charge` method on a billable model instance. You will need to [provide a payment method identifier](#payment-methods-for-single-charges) as the second argument to the `charge` method: -->
-고객에게 일회성 청구를 하려면 청구 가능 모델 인스턴스에서 `charge` 메서드를 사용할 수 있습니다. `charge` 메서드의 두 번째 인수로 [provide a payment method identifier](#payment-methods-for-single-charges)를 제공해야 합니다.
+<!-- If you would like to make a one-time charge against a customer using a payment method identifier, you may use the `charge` method on a billable model instance. If you need to collect payment details from a customer before processing a one-time charge, see the [Payment Element for Single Charges](#payment-element-for-single-charges) documentation: -->
+고객에게 결제 수단 식별자를 사용해 일회성 청구를 하려면 청구 가능 모델 인스턴스에서 `charge` 메서드를 사용할 수 있습니다. 일회성 청구를 처리하기 전에 고객으로부터 결제 세부 정보를 수집해야 한다면 [Payment Element for Single Charges](#payment-element-for-single-charges) 문서를 참조하세요.
 
 ```php
 use Illuminate\Http\Request;
 
 Route::post('/purchase', function (Request $request) {
-    $stripeCharge = $request->user()->charge(
+    $payment = $request->user()->charge(
         100, $request->paymentMethodId
     );
 
@@ -2278,8 +2310,8 @@ Route::post('/purchase', function (Request $request) {
 });
 ```
 
-<!-- The `charge` method accepts an array as its third argument, allowing you to pass any options you wish to the underlying Stripe charge creation. More information regarding the options available to you when creating charges may be found in the [Stripe documentation](https://stripe.com/docs/api/charges/create): -->
-`charge` 메서드는 세 번째 인수로 배열을 받습니다. 이를 통해 내부 Stripe 청구 생성 과정에 원하는 옵션을 전달할 수 있습니다. 청구를 생성할 때 사용할 수 있는 옵션에 대한 자세한 내용은 [Stripe documentation](https://stripe.com/docs/api/charges/create)에서 확인할 수 있습니다.
+<!-- The `charge` method accepts an array as its third argument, allowing you to pass any options you wish to the underlying Stripe Payment Intent creation. More information regarding the options available to you when creating Payment Intents may be found in the [Stripe documentation](https://stripe.com/docs/api/payment_intents/create): -->
+`charge` 메서드는 세 번째 인수로 배열을 받습니다. 이를 통해 내부 Stripe Payment Intent 생성 과정에 원하는 옵션을 전달할 수 있습니다. Payment Intents를 생성할 때 사용할 수 있는 옵션에 대한 자세한 내용은 [Stripe documentation](https://stripe.com/docs/api/payment_intents/create)에서 확인할 수 있습니다.
 
 ```php
 $user->charge(100, $paymentMethod, [
@@ -2293,7 +2325,7 @@ $user->charge(100, $paymentMethod, [
 ```php
 use App\Models\User;
 
-$stripeCharge = (new User)->charge(100, $paymentMethod);
+$payment = (new User)->charge(100, $paymentMethod);
 ```
 
 <!-- The `charge` method will throw an exception if the charge fails. If the charge is successful, an instance of `Laravel\Cashier\Payment` will be returned from the method: -->
@@ -2399,8 +2431,8 @@ Route::post('/pay', function (Request $request) {
 <!-- ### Refunding Charges -->
 ### Refunding Charges
 
-<!-- If you need to refund a Stripe charge, you may use the `refund` method. This method accepts the Stripe [payment intent ID](#payment-methods-for-single-charges) as its first argument: -->
-Stripe 청구를 환불해야 하는 경우 `refund` 메서드를 사용할 수 있습니다. 이 메서드는 Stripe [payment intent ID](#payment-methods-for-single-charges)를 첫 번째 인수로 받습니다.
+<!-- If you need to refund a Stripe payment, you may use the `refund` method. This method accepts the Stripe Payment Intent ID as its first argument: -->
+Stripe 결제를 환불해야 하는 경우 `refund` 메서드를 사용할 수 있습니다. 이 메서드는 Stripe Payment Intent ID를 첫 번째 인수로 받습니다.
 
 ```php
 $payment = $user->charge(100, $paymentMethodId);
@@ -2856,8 +2888,8 @@ try {
 <!-- </div> -->
 </div>
 
-<!-- Alternatively, you could allow Stripe to handle the payment confirmation for you. In this case, instead of redirecting to the payment confirmation page, you may [setup Stripe's automatic billing emails](https://dashboard.stripe.com/account/billing/automatic) in your Stripe dashboard. However, if an `IncompletePayment` exception is caught, you should still inform the user they will receive an email with further payment confirmation instructions. -->
-또는 Stripe가 결제 확인을 대신 처리하도록 할 수도 있습니다. 이 경우 결제 확인 페이지로 리다이렉트하는 대신 Stripe 대시보드에서 [setup Stripe's automatic billing emails](https://dashboard.stripe.com/account/billing/automatic)할 수 있습니다. 하지만 `IncompletePayment` 예외가 잡힌 경우에는 추가 결제 확인 안내가 포함된 이메일을 받게 된다는 사실을 사용자에게 알려야 합니다.
+<!-- Alternatively, you could allow Stripe to handle the payment confirmation for you. In this case, instead of redirecting to the payment confirmation page, you may [set up Stripe's automatic billing emails](https://dashboard.stripe.com/account/billing/automatic) in your Stripe dashboard. However, if an `IncompletePayment` exception is caught, you should still inform the user they will receive an email with further payment confirmation instructions. -->
+또는 Stripe가 결제 확인을 대신 처리하도록 할 수도 있습니다. 이 경우 결제 확인 페이지로 리다이렉트하는 대신 Stripe 대시보드에서 [set up Stripe's automatic billing emails](https://dashboard.stripe.com/account/billing/automatic)할 수 있습니다. 하지만 `IncompletePayment` 예외가 잡힌 경우에는 추가 결제 확인 안내가 포함된 이메일을 받게 된다는 사실을 사용자에게 알려야 합니다.
 
 <!-- Payment exceptions may be thrown for the following methods: `charge`, `invoiceFor`, and `invoice` on models using the `Billable` trait. When interacting with subscriptions, the `create` method on the `SubscriptionBuilder`, and the `incrementAndInvoice` and `swapAndInvoice` methods on the `Subscription` and `SubscriptionItem` models may throw incomplete payment exceptions. -->
 결제 예외는 `Billable` trait을 사용하는 모델의 `charge`, `invoiceFor`, `invoice` 메서드에서 발생할 수 있습니다. 구독과 상호작용할 때는 `SubscriptionBuilder`의 `create` 메서드와 `Subscription` 및 `SubscriptionItem` 모델의 `incrementAndInvoice`, `swapAndInvoice` 메서드가 불완전한 결제 예외를 발생시킬 수 있습니다.

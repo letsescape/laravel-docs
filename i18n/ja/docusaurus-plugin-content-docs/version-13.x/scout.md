@@ -960,7 +960,7 @@ use App\Models\Order;
 $orders = Order::search('Star Trek')->where('user_id', 1)->get();
 ```
 
-<!-- You may also use the `=`, `!=`, `<`, `>`, `>=`, `<=` comparsion operators to build more advanced queries: -->
+<!-- You may also use the `=`, `!=`, `<`, `>`, `>=`, `<=` comparison operators to build more advanced queries: -->
 `=`、`!=`、`<`、`>`、`>=`、`<=` 比較演算子を使用して、より高度なクエリを構築することもできます。
 
 ```php
@@ -1175,4 +1175,3 @@ public function boot(): void
 ```php
 'driver' => 'mysql',
 ```
-
