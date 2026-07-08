@@ -315,6 +315,127 @@ class CodeBlockPatchTests(unittest.TestCase):
         )
         self.assertEqual(result, existing)
 
+    def test_replaces_annotated_paragraph_and_following_code_block_before_common_context(self):
+        old = (
+            "```php\n"
+            "'redis' => [\n"
+            "],\n"
+            "```\n\n"
+            "```php\n"
+            "'unrelated' => [\n"
+            "    'prefix' => 'app',\n"
+            "],\n"
+            "```\n\n"
+            "Predis supports retry configuration via the `Retry` class:\n\n"
+            "```php\n"
+            "use Predis\\Retry;\n"
+            "use Predis\\Retry\\Strategy\\ExponentialBackoff;\n\n"
+            "'default' => [\n"
+            "    'retry' => new Retry(\n"
+            "        new ExponentialBackoff(\n"
+            "            true, // Enables jitter\n"
+            "        ),\n"
+            "    )\n"
+            "],\n"
+            "```\n\n"
+            '<a name="after"></a>\n'
+            "## After\n"
+        )
+        new = (
+            "```php\n"
+            "'redis' => [\n"
+            "],\n"
+            "```\n\n"
+            "```php\n"
+            "'unrelated' => [\n"
+            "    'prefix' => 'app',\n"
+            "],\n"
+            "```\n\n"
+            "Predis supports retry configuration via the `Retry` class. "
+            "Configure the `retry` and `max_retries` options:\n\n"
+            "```php\n"
+            "use Predis\\Retry\\Strategy\\ExponentialBackoff;\n\n"
+            "'default' => [\n"
+            "    'retry' => [\n"
+            "        ExponentialBackoff::class => [\n"
+            "            true, // Enable jitter...\n"
+            "        ],\n"
+            "    ],\n"
+            "    'max_retries' => env('REDIS_MAX_RETRIES', 3),\n"
+            "],\n"
+            "```\n\n"
+            "Cluster retries can be configured in `parameters`:\n\n"
+            "```php\n"
+            "'parameters' => [\n"
+            "    'max_retries' => env('REDIS_MAX_RETRIES', 3),\n"
+            "],\n"
+            "```\n\n"
+            '<a name="after"></a>\n'
+            "## After\n"
+        )
+        existing = (
+            "```php\n"
+            "'redis' => [\n"
+            "],\n"
+            "```\n\n"
+            "```php\n"
+            "'unrelated' => [\n"
+            "    'prefix' => 'app',\n"
+            "],\n"
+            "```\n\n"
+            "<!-- Predis supports retry configuration via the `Retry` class: -->\n"
+            "Predis는 `Retry` 클래스로 재시도 설정을 지원합니다.\n\n"
+            "```php\n"
+            "use Predis\\Retry;\n"
+            "use Predis\\Retry\\Strategy\\ExponentialBackoff;\n\n"
+            "'default' => [\n"
+            "    'retry' => new Retry(\n"
+            "        new ExponentialBackoff(\n"
+            "            true, // Enables jitter\n"
+            "        ),\n"
+            "    )\n"
+            "],\n"
+            "```\n\n"
+            '<a name="after"></a>\n'
+            "<!-- ## After -->\n"
+            "## After\n"
+        )
+        translated = (
+            "<!-- Predis supports retry configuration via the `Retry` class. "
+            "Configure the `retry` and `max_retries` options: -->\n"
+            "Predis는 `Retry`, `retry`, `max_retries` 옵션으로 재시도를 설정합니다.\n\n"
+            "```php\n"
+            "use Predis\\Retry\\Strategy\\ExponentialBackoff;\n\n"
+            "'default' => [\n"
+            "    'retry' => [\n"
+            "        ExponentialBackoff::class => [\n"
+            "            true, // Enable jitter...\n"
+            "        ],\n"
+            "    ],\n"
+            "    'max_retries' => env('REDIS_MAX_RETRIES', 3),\n"
+            "],\n"
+            "```\n\n"
+            "<!-- Cluster retries can be configured in `parameters`: -->\n"
+            "클러스터 재시도는 `parameters`에서 설정할 수 있습니다.\n\n"
+            "```php\n"
+            "'parameters' => [\n"
+            "    'max_retries' => env('REDIS_MAX_RETRIES', 3),\n"
+            "],\n"
+            "```\n"
+        )
+
+        result = patch.apply_segments(existing, _segments(old, new), [translated])
+
+        self.assertIn("Predis는 `Retry`, `retry`, `max_retries`", result)
+        self.assertIn('<a name="after"></a>', result)
+        self.assertNotIn("use Predis\\Retry;\n", result)
+        self.assertEqual(result.count("'redis' => ["), 1)
+        self.assertEqual(result.count("## After"), 2)
+        self.assertEqual(
+            verify._normalized_fenced_code_blocks(result),  # noqa: SLF001
+            verify._normalized_fenced_code_blocks(new),  # noqa: SLF001
+        )
+
 
 class PatchTests(unittest.TestCase):
     def test_blocks_parse_indented_multiline_comments_with_closing_content(self):

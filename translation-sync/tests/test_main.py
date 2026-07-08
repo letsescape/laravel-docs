@@ -1301,6 +1301,86 @@ class MainPipelineTests(unittest.TestCase):
                 "後の文です。\n",
             )
 
+    def test_translate_one_retries_when_segment_drops_inline_code(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Before.\n\n"
+                "Use `Redis::throttle` with [queues](/docs/13.x/queues).\n\n"
+                "After.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n"
+                "이전 문장입니다.\n\n"
+                "<!-- Use `Redis::funnel` with [queues](/docs/13.x/queues). -->\n"
+                "`Redis::funnel`을 [queues](/docs/13.x/queues)와 함께 사용합니다.\n\n"
+                "<!-- After. -->\n"
+                "이후 문장입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    (
+                        "delete",
+                        "Use `Redis::funnel` with [queues](/docs/13.x/queues).",
+                    ),
+                    (
+                        "add",
+                        "Use `Redis::throttle` with [queues](/docs/13.x/queues).",
+                    ),
+                    ("context", ""),
+                    ("context", "After."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            sent: list[str] = []
+
+            def translated(
+                content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                sent.append(content)
+                self.assertFalse(split)
+                if len(sent) == 1:
+                    return (
+                        "<!-- Use `Redis::throttle` with [queues](/docs/13.x/queues). -->\n"
+                        "[queues](/docs/13.x/queues)와 함께 사용합니다.\n"
+                    )
+                return (
+                    "<!-- Use `Redis::throttle` with [queues](/docs/13.x/queues). -->\n"
+                    "`Redis::throttle`을 [queues](/docs/13.x/queues)와 함께 사용합니다.\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 2)
+            self.assertIn("Previous Output Verification Failure", sent[1])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n"
+                "이전 문장입니다.\n\n"
+                "<!-- Use `Redis::throttle` with [queues](/docs/13.x/queues). -->\n"
+                "`Redis::throttle`을 [queues](/docs/13.x/queues)와 함께 사용합니다.\n\n"
+                "<!-- After. -->\n"
+                "이후 문장입니다.\n",
+            )
+
     def test_translate_one_requires_hunks_for_existing_documents(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -40,10 +40,22 @@ PRESERVED_MARKUP_FIXABLE = {
     "heading mismatch",
     "heading text mismatch",
 }
+# `code block mismatch` is intentionally excluded here. Structural insertions can
+# include surrounding code fences in the segment source while the translated block
+# correctly omits that already-existing context; final document verification still
+# catches real code-block drift after patching.
 SEGMENT_RETRYABLE_VERIFICATION_ISSUES = {
+    "admonition body outside blockquote",
+    "anchor mismatch",
+    "duplicate admonition marker",
+    "heading mismatch",
+    "heading text mismatch",
+    "inline code mismatch",
     "link target mismatch",
     "link label mismatch",
     "link pair mismatch",
+    "list marker mismatch",
+    "missing original comment",
 }
 MAX_SEGMENT_VERIFICATION_ATTEMPTS = 2
 
@@ -148,7 +160,8 @@ def _verification_feedback(issues: list[str]) -> str:
         f"The previous output failed verification: {', '.join(issues)}.\n"
         "Translate the English Source again. Preserve every Markdown link label "
         "and target, heading, anchor, inline code span, fenced code block, and "
-        "list marker exactly as it appears in the English Source."
+        "list marker exactly as it appears in the English Source. Include the "
+        "English source comments required by the existing annotated format."
     )
 
 

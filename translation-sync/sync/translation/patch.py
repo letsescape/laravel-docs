@@ -878,8 +878,62 @@ def _raw_context_bounds(
     ]
     if not candidates:
         return None
+
+    evidence = _raw_evidence_lines(segment)
+    if evidence:
+        evidenced: list[tuple[int, int, int]] = []
+        for _distance, start, end in candidates:
+            expanded_end = _expand_end_to_code_fence(lines, end)
+            if _contains_ordered_raw_lines(lines[start:expanded_end], evidence):
+                evidenced.append((expanded_end - start, start, expanded_end))
+        if evidenced:
+            candidates = evidenced
+
     _distance, start, end = min(candidates)
-    return start, end
+    return start, _expand_end_to_code_fence(lines, end)
+
+
+def _raw_evidence_lines(segment: Segment) -> tuple[str, ...]:
+    return tuple(
+        line
+        for line in _meaningful_lines(segment.old_lines)
+        if _is_raw_evidence_line(line)
+    )
+
+
+def _is_raw_evidence_line(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return False
+    return (
+        line[:1].isspace()
+        or "\\" in stripped
+        or "=>" in stripped
+        or "::" in stripped
+        or ";" in stripped
+        or stripped in {"}", "},", "]", "],", ")", "),"}
+    )
+
+
+def _contains_ordered_raw_lines(lines: list[str], evidence: tuple[str, ...]) -> bool:
+    index = 0
+    normalized_lines = [_normalize_text(line) for line in lines]
+    for expected in evidence:
+        normalized = _normalize_text(expected)
+        while index < len(normalized_lines) and normalized_lines[index] != normalized:
+            index += 1
+        if index >= len(normalized_lines):
+            return False
+        index += 1
+    return True
+
+
+def _expand_end_to_code_fence(lines: list[str], end: int) -> int:
+    plain_lines = [line.rstrip("\r\n") for line in lines]
+    for start, region_end in _code_fence_regions(plain_lines):
+        if start < end <= region_end or start <= end - 1 < region_end:
+            return region_end + 1
+    return end
 
 
 def _before_context_boundaries(
