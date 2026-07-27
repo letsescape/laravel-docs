@@ -2,16 +2,15 @@
 """번역 동기화 엔트리포인트.
 
 translation-sync/docs/00-workflow-summary.md의 단계 순서를 따른다:
-원문 동기화 → 변경 감지 → 전처리(01) → 번역(02) → 후처리(03) → 사이드바 갱신(06) → 검증(04) → 출력.
+설정·프롬프트 확인 → 원문 동기화 → 변경 감지 → 전처리(01) → 번역(02) → 후처리(03) → 검증·출력(04) → 사이드바 갱신(06).
 
 출력 로케일: ko(versioned_docs), ja(i18n/ja).
 프롬프트: ko=prompt.md, ja=prompt_jp.md.
-실행: uv run python main.py
+실행: uv run --locked python main.py
 """
 from __future__ import annotations
 
 import sys
-from dataclasses import replace
 from pathlib import Path
 
 from sync import (
@@ -23,11 +22,13 @@ from sync import (
     preprocess,
     prompt,
     repair,
+    response_contract,
     sidebar,
     translate,
     upstream,
     verify,
 )
+from sync.common.files import atomic_write_text, unlink_file
 
 SYNC_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = SYNC_ROOT.parent
@@ -37,13 +38,13 @@ PRESERVED_MARKUP_FIXABLE = {
     "link target mismatch",
     "link label mismatch",
     "link pair mismatch",
+    "link title mismatch",
     "heading mismatch",
     "heading text mismatch",
 }
-# `code block mismatch` is intentionally excluded here. Structural insertions can
-# include surrounding code fences in the segment source while the translated block
-# correctly omits that already-existing context; final document verification still
-# catches real code-block drift after patching.
+# Fresh provider responses already compare fenced code contents in the response
+# contract. A code mismatch found only after patching is therefore a plan/context
+# failure that retranslating the same segment cannot repair.
 SEGMENT_RETRYABLE_VERIFICATION_ISSUES = {
     "admonition body outside blockquote",
     "anchor mismatch",
@@ -57,7 +58,47 @@ SEGMENT_RETRYABLE_VERIFICATION_ISSUES = {
     "list marker mismatch",
     "missing original comment",
 }
-MAX_SEGMENT_VERIFICATION_ATTEMPTS = 2
+MAX_SEGMENT_VERIFICATION_ATTEMPTS = translate.MAX_COMPLETED_RESPONSE_ATTEMPTS
+
+
+class OutputPathError(ValueError):
+    """A translation output path is not safe to mutate."""
+
+
+class SourcePathError(ValueError):
+    """An English source path is not safe to read."""
+
+
+def _validated_output_path(path: Path) -> Path:
+    root = REPO_ROOT.absolute()
+    candidate = path.absolute()
+    allowed_roots = (
+        root / "versioned_docs",
+        root / "i18n" / "ja" / "docusaurus-plugin-content-docs",
+    )
+    if not any(candidate.is_relative_to(allowed) for allowed in allowed_roots):
+        raise OutputPathError(f"unsafe translation output path: {path}")
+
+    relative = candidate.relative_to(root)
+    current = root
+    for part in relative.parts:
+        current /= part
+        if current.is_symlink():
+            raise OutputPathError(f"unsafe translation output path: {path}")
+
+    resolved = candidate.resolve(strict=False)
+    resolved_root = REPO_ROOT.resolve()
+    resolved_allowed_roots = (
+        resolved_root / "versioned_docs",
+        resolved_root / "i18n" / "ja" / "docusaurus-plugin-content-docs",
+    )
+    if not any(
+        resolved.is_relative_to(allowed) for allowed in resolved_allowed_roots
+    ):
+        raise OutputPathError(f"unsafe translation output path: {path}")
+    if candidate.exists() and not candidate.is_file():
+        raise OutputPathError(f"unsafe translation output path: {path}")
+    return candidate
 
 
 def _ko_output(change: diff.SourceChange) -> Path:
@@ -75,10 +116,18 @@ def _ja_output(change: diff.SourceChange) -> Path:
     )
 
 
-def _delete_outputs(change: diff.SourceChange) -> None:
-    for path in (_ko_output(change), _ja_output(change)):
-        if path.exists():
-            path.unlink()
+def _delete_outputs(change: diff.SourceChange) -> list[str]:
+    try:
+        paths = tuple(
+            _validated_output_path(path)
+            for path in (_ko_output(change), _ja_output(change))
+        )
+    except OutputPathError as exc:
+        return [str(exc)]
+
+    for path in paths:
+        unlink_file(path, missing_ok=True)
+    return []
 
 
 def _sidebar_versions(changes: list[diff.SourceChange], version: str | None) -> list[str]:
@@ -118,101 +167,167 @@ def _select_changes(
             if _matches_filters(change, version=version, doc=doc)
         ]
 
-    en_root = REPO_ROOT / "i18n" / "en" / "docusaurus-plugin-content-docs"
+    repo_root = REPO_ROOT.absolute()
+    en_root = (
+        repo_root / "i18n" / "en" / "docusaurus-plugin-content-docs"
+    )
+    current = repo_root
+    for part in en_root.relative_to(repo_root).parts:
+        current /= part
+        if current.is_symlink():
+            raise SourcePathError(f"unsafe English source path: {current}")
+    if not en_root.is_dir():
+        raise SourcePathError(f"unsafe English source path: {en_root}")
+
     changes: list[diff.SourceChange] = []
-    for path in sorted(en_root.glob("version-*/*.md")):
-        change = diff.SourceChange(path=str(path.relative_to(REPO_ROOT)), status="M")
-        if _matches_filters(change, version=version, doc=doc):
-            changes.append(change)
+    for version_root in sorted(en_root.iterdir()):
+        if not version_root.name.startswith("version-"):
+            continue
+        if version_root.suffix == ".json":
+            continue
+        if version_root.is_symlink():
+            raise SourcePathError(
+                f"unsafe English source path: {version_root}"
+            )
+        if not version_root.is_dir():
+            continue
+        for path in sorted(version_root.iterdir()):
+            if path.suffix != ".md":
+                continue
+            if path.is_symlink() or not path.is_file():
+                raise SourcePathError(f"unsafe English source path: {path}")
+            change = diff.SourceChange(
+                path=str(path.relative_to(repo_root)),
+                status="M",
+            )
+            if _matches_filters(change, version=version, doc=doc):
+                changes.append(change)
     return changes
 
 
-def _translation_input(
+def _translation_request(
     source: str,
     existing_translation: str | None,
     *,
     diff_text: str | None = None,
     verification_feedback: str | None = None,
-) -> str:
-    existing = existing_translation.rstrip() if existing_translation else "(none)"
-    diff_section = f"## English Diff\n\n```diff\n{diff_text.rstrip()}\n```\n\n" if diff_text else ""
-    feedback_section = (
-        "## Previous Output Verification Failure\n\n"
-        f"{verification_feedback.rstrip()}\n\n"
-        if verification_feedback
-        else ""
-    )
-    return (
-        "# Translation Sync Input\n\n"
-        f"{diff_section}"
-        "## English Source\n\n"
-        f"{source.rstrip()}\n\n"
-        "## Existing Translation Context\n\n"
-        f"{existing}\n\n"
-        f"{feedback_section}"
-        "## Output\n\n"
-        "Return only the translated Markdown block(s) for the English Source."
+) -> translate.TranslationRequest:
+    return translate.TranslationRequest(
+        source=source,
+        existing_translation=existing_translation,
+        diff_text=diff_text,
+        verification_feedback=verification_feedback,
     )
 
 
 def _verification_feedback(issues: list[str]) -> str:
-    return (
-        f"The previous output failed verification: {', '.join(issues)}.\n"
-        "Translate the English Source again. Preserve every Markdown link label "
-        "and target, heading, anchor, inline code span, fenced code block, and "
-        "list marker exactly as it appears in the English Source. Include the "
-        "English source comments required by the existing annotated format."
+    return translate.verification_feedback(issues)
+
+
+def _contract_issues(
+    translated: str,
+    source: str,
+    cfg: config.Config,
+    change: diff.SourceChange,
+    locale: str | None,
+) -> list[str]:
+    if cfg.provider == "identity":
+        return []
+    return response_contract.verify(
+        translated,
+        source,
+        locale=locale,
+        allow_source_echo=change.name == "license.md",
     )
 
 
 def _translate_added_document(
-    change: diff.SourceChange, cfg: config.Config, prompt: str, dest: Path
+    change: diff.SourceChange,
+    cfg: config.Config,
+    prompt: str,
+    dest: Path,
+    *,
+    locale: str | None = None,
 ) -> list[str]:
+    try:
+        dest = _validated_output_path(dest)
+    except OutputPathError as exc:
+        return [str(exc)]
+
     src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
     pre = preprocess.preprocess(src)
     existing = dest.read_text(encoding="utf-8") if dest.exists() else None
     try:
-        translated = "".join(
-            translate.translate_text(
-                _translation_input(source_chunk, existing),
-                cfg,
-                prompt,
-                split=False,
-            )
-            for source_chunk in translate.split_chunks(pre.text)
-        )
+        source_chunks = translate.split_chunks(pre.text)
+        translated_chunks: list[str] = []
+        for source_chunk in source_chunks:
+            feedback: str | None = None
+            contract_issues: list[str] = []
+            for _attempt in range(MAX_SEGMENT_VERIFICATION_ATTEMPTS):
+                translated_chunk = translate.translate_request(
+                    _translation_request(
+                        source_chunk,
+                        existing,
+                        verification_feedback=feedback,
+                    ),
+                    cfg,
+                    prompt,
+                )
+                contract_issues = _contract_issues(
+                    translated_chunk, source_chunk, cfg, change, locale
+                )
+                if not contract_issues:
+                    translated_chunks.append(translated_chunk)
+                    break
+                feedback = _verification_feedback(contract_issues)
+            else:
+                return [
+                    "provider response contract failed: "
+                    + ", ".join(contract_issues)
+                ]
+        translated = translate.join_chunk_outputs(source_chunks, translated_chunks)
     except translate.IncompleteTranslation as exc:
         return [f"incomplete translation: {exc}"]
-    out = postprocess.postprocess(translated, change.version, pre.placeholders)
     expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
+    out = postprocess.postprocess(translated, change.version, pre.placeholders)
+    if cfg.provider == "identity":
+        out = _repair_segment_translation(expected_source, out, change.version)
 
-    issues = verify.verify(out, source=expected_source)
+    issues = verify.verify(
+        out,
+        source=expected_source,
+        version=change.version,
+        allow_source_echo=cfg.provider == "identity",
+    )
     if issues:
         return issues
 
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(out, encoding="utf-8")
+    atomic_write_text(dest, out)
     return []
 
 
-def _translate_segment(
+def _translate_block_change(
     change: diff.SourceChange,
-    segment: patch_utils.Segment,
+    block_change: patch_utils.BlockChange,
     cfg: config.Config,
     prompt: str,
     existing: str,
+    *,
+    locale: str | None = None,
 ) -> str:
-    source = patch_utils.source_text(segment)
+    source = patch_utils.source_text(block_change)
     pre = preprocess.preprocess(source)
     expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
-    existing_context = patch_utils.existing_context(existing, segment)
-    diff_text = patch_utils.diff_text(segment)
+    existing_context = patch_utils.existing_context(existing, block_change)
+    diff_text = patch_utils.diff_text(block_change)
     feedback: str | None = None
     last_out = ""
+    contract_issues: list[str] = []
 
     for _attempt in range(MAX_SEGMENT_VERIFICATION_ATTEMPTS):
-        translated = translate.translate_text(
-            _translation_input(
+        translated = translate.translate_request(
+            _translation_request(
                 pre.text,
                 existing_context,
                 diff_text=diff_text,
@@ -220,18 +335,46 @@ def _translate_segment(
             ),
             cfg,
             prompt,
-            split=False,
         )
+        contract_issues = _contract_issues(translated, pre.text, cfg, change, locale)
+        if contract_issues:
+            feedback = _verification_feedback(contract_issues)
+            continue
+
         out = postprocess.postprocess(translated, change.version, pre.placeholders)
         last_out = _repair_segment_translation(expected_source, out, change.version)
-        issues = verify.verify(last_out, source=expected_source)
+        issues = verify.verify(
+            last_out,
+            source=expected_source,
+            version=change.version,
+            allow_source_echo=cfg.provider == "identity",
+        )
         if not issues:
             return last_out
         if not SEGMENT_RETRYABLE_VERIFICATION_ISSUES.intersection(issues):
             return last_out
         feedback = _verification_feedback(issues)
 
+    if contract_issues:
+        raise translate.IncompleteTranslation(
+            "provider response contract failed: " + ", ".join(contract_issues)
+        )
     return last_out
+
+
+def _render_provider_free_change(
+    change: diff.SourceChange, block_change: patch_utils.BlockChange
+) -> str:
+    source = patch_utils.source_text(block_change)
+    pre = preprocess.preprocess(source)
+    expected_source = postprocess.postprocess(
+        pre.text, change.version, pre.placeholders
+    )
+    return _repair_segment_translation(
+        expected_source,
+        expected_source,
+        change.version,
+    )
 
 
 def _repair_segment_translation(source: str, translated: str, version: str) -> str:
@@ -248,7 +391,12 @@ def _repair_segment_translation(source: str, translated: str, version: str) -> s
     annotated, _drifts = annotate.annotate(source, repaired, version)
     candidates.append(annotated)
 
-    best = min(candidates, key=lambda candidate: len(verify.verify(candidate, source=source)))
+    best = min(
+        candidates,
+        key=lambda candidate: len(
+            verify.verify(candidate, source=source, version=version)
+        ),
+    )
     missing_comments = verify.missing_original_comments(best, source)
     if not missing_comments:
         return best
@@ -284,32 +432,26 @@ def _split_line_ending(line: str) -> tuple[str, str]:
     return line, ""
 
 
-def _normalize_comment_anchor(text: str | None, version: str) -> str | None:
-    if text is None:
-        return None
-    normalized = postprocess.postprocess(text, version, {})
-    return " ".join(normalized.split())
-
-
-def _normalize_segment_anchors(
-    segment: patch_utils.Segment, version: str
-) -> patch_utils.Segment:
-    return replace(
-        segment,
-        old_lines=tuple(
-            _normalize_comment_anchor(line, version) or "" for line in segment.old_lines
-        ),
-        before_context=_normalize_comment_anchor(segment.before_context, version),
-        after_context=_normalize_comment_anchor(segment.after_context, version),
-    )
+def _normalize_plan_source(source: str, version: str) -> str:
+    pre = preprocess.preprocess(source)
+    return postprocess.postprocess(pre.text, version, pre.placeholders)
 
 
 def _translate_one(
-    change: diff.SourceChange, cfg: config.Config, prompt: str, dest: Path
+    change: diff.SourceChange,
+    cfg: config.Config,
+    prompt: str,
+    dest: Path,
+    *,
+    locale: str | None = None,
 ) -> list[str]:
     """원문 한 건을 한 로케일로 번역·후처리·검증해 dest에 기록한다. 위반 목록 반환."""
     if change.status == "A":
-        return _translate_added_document(change, cfg, prompt, dest)
+        return _translate_added_document(change, cfg, prompt, dest, locale=locale)
+    try:
+        dest = _validated_output_path(dest)
+    except OutputPathError as exc:
+        return [str(exc)]
     if not dest.exists():
         return ["missing existing translation for partial sync"]
     if not change.hunks:
@@ -319,30 +461,74 @@ def _translate_one(
     pre = preprocess.preprocess(src)
     expected_source = postprocess.postprocess(pre.text, change.version, pre.placeholders)
     existing = dest.read_text(encoding="utf-8")
-    segments = [
-        _normalize_segment_anchors(segment, change.version)
-        for segment in patch_utils.segments_from_hunks(change.hunks, src)
-    ]
 
     translated_blocks: list[str] = []
     try:
-        for segment in segments:
-            if segment.needs_translation:
-                translated_blocks.append(
-                    _translate_segment(change, segment, cfg, prompt, existing)
-                )
-        out = patch_utils.apply_segments(existing, segments, translated_blocks)
+        plan = patch_utils.build_plan(
+            change.hunks,
+            src,
+            normalize_source=lambda source: _normalize_plan_source(
+                source,
+                change.version,
+            ),
+        )
+        state = patch_utils.plan_state(existing, plan)
+        if (
+            state is patch_utils.PlanState.UNGUARDED
+            and plan.old_code_blocks != plan.new_code_blocks
+            and not verify.verify(
+                existing,
+                source=expected_source,
+                version=change.version,
+                allow_source_echo=cfg.provider == "identity",
+            )
+        ):
+            return []
+        for block_change in plan.changes:
+            if block_change.needs_translation:
+                if block_change.provider_free:
+                    translated_blocks.append(
+                        _render_provider_free_change(change, block_change)
+                    )
+                elif state is patch_utils.PlanState.TARGET and (
+                    block_change.old_anchors or block_change.new_anchors
+                ):
+                    translated_blocks.append(
+                        patch_utils.existing_context(existing, block_change)
+                    )
+                else:
+                    translated_blocks.append(
+                        _translate_block_change(
+                            change,
+                            block_change,
+                            cfg,
+                            prompt,
+                            existing,
+                            locale=locale,
+                        )
+                    )
+        out = patch_utils.apply_plan(existing, plan, translated_blocks)
     except patch_utils.PatchError as exc:
         return [f"partial patch failed: {exc}"]
     except translate.IncompleteTranslation as exc:
         return [f"partial translation failed: {exc}"]
 
-    issues = verify.verify(out, source=expected_source)
+    # A partial patch preserves unaffected locale context. Normalize that context
+    # together with the patched blocks before the full-document verifier runs:
+    # legacy admonitions and their source annotations otherwise remain stale.
+    out = _repair_segment_translation(expected_source, out, change.version)
+
+    issues = verify.verify(
+        out,
+        source=expected_source,
+        version=change.version,
+        allow_source_echo=cfg.provider == "identity",
+    )
     if issues:
         return issues
 
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(out, encoding="utf-8")
+    atomic_write_text(dest, out)
     return []
 
 
@@ -364,7 +550,11 @@ def _check_existing_annotations(
             if not dest.exists():
                 continue
 
-            issues = verify.verify(dest.read_text(encoding="utf-8"), source=expected_source)
+            issues = verify.verify(
+                dest.read_text(encoding="utf-8"),
+                source=expected_source,
+                version=change.version,
+            )
             failures.extend(f"{locale} {change.path}: {issue}" for issue in issues)
     return failures
 
@@ -388,45 +578,112 @@ def _annotate_existing(
         expected_source = _expected_source(change)
         for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
             label = f"{locale} {change.path}"
+            try:
+                dest = _validated_output_path(dest)
+            except OutputPathError as exc:
+                failures.append(f"{label}: {exc}")
+                continue
             if not dest.exists():
                 continue
 
-            original = dest.read_text(encoding="utf-8")
-            original_issues = verify.verify(original, source=expected_source)
+            raw_original = dest.read_text(encoding="utf-8")
+            original = raw_original
+            original_issues = verify.verify(
+                original, source=expected_source, version=change.version
+            )
+            normalized = postprocess.postprocess(original, change.version, {})
+            normalized_issues = verify.verify(
+                normalized, source=expected_source, version=change.version
+            )
             if not original_issues:
+                if normalized != original and not normalized_issues:
+                    writable += 1
+                    if apply:
+                        atomic_write_text(dest, normalized)
                 continue
-            if "missing original comment" not in original_issues:
+            if normalized != original and set(normalized_issues) < set(original_issues):
+                original = normalized
+                original_issues = normalized_issues
+                if not original_issues:
+                    writable += 1
+                    if apply:
+                        atomic_write_text(dest, original)
+                    continue
+            try:
+                repaired_labels = repair.restore_blank_markdown_link_labels(
+                    expected_source, original
+                )
+            except repair.RepairError:
+                repaired_labels = None
+            if repaired_labels and repaired_labels.changed:
+                candidate = postprocess.postprocess(
+                    repaired_labels.text, change.version, {}
+                )
+                candidate_issues = verify.verify(
+                    candidate, source=expected_source, version=change.version
+                )
+                if set(candidate_issues) < set(original_issues):
+                    original = candidate
+                    original_issues = candidate_issues
+                    if not original_issues:
+                        writable += 1
+                        if apply:
+                            atomic_write_text(dest, original)
+                        continue
+            if not {
+                "missing original comment",
+                "source comment mismatch",
+            }.intersection(original_issues):
+                if original != raw_original:
+                    writable += 1
+                    if apply:
+                        atomic_write_text(dest, original)
                 continue
 
             annotated, drifts = annotate.annotate(expected_source, original, change.version)
             out = postprocess.postprocess(annotated, change.version, {})
             blocking_drifts = [drift for drift in drifts if drift.op == "delete"]
             if blocking_drifts:
-                counts: dict[str, int] = {}
-                for drift in blocking_drifts:
-                    counts[drift.op] = counts.get(drift.op, 0) + 1
-                failures.append(f"{label}: drift {counts}")
+                if "missing original comment" in original_issues:
+                    counts: dict[str, int] = {}
+                    for drift in blocking_drifts:
+                        counts[drift.op] = counts.get(drift.op, 0) + 1
+                    failures.append(f"{label}: drift {counts}")
+                elif original != raw_original:
+                    writable += 1
+                    if apply:
+                        atomic_write_text(dest, original)
                 continue
-            issues = verify.verify(out, source=expected_source)
+            issues = verify.verify(
+                out, source=expected_source, version=change.version
+            )
             if "missing original comment" in issues:
                 failures.append(f"{label}: {', '.join(issues)}")
                 continue
-
-            writable += 1
-            if apply:
-                dest.write_text(out, encoding="utf-8")
+            if set(issues) < set(original_issues):
+                original = out
+            if original != raw_original:
+                writable += 1
+                if apply:
+                    atomic_write_text(dest, original)
 
     return writable, failures
 
 
 def _fix_preserved_markup_file(
-    label: str, dest: Path, expected_source: str, *, apply: bool
+    label: str, dest: Path, expected_source: str, *, version: str, apply: bool
 ) -> tuple[int, str | None]:
+    try:
+        dest = _validated_output_path(dest)
+    except OutputPathError as exc:
+        return 0, f"{label}: {exc}"
     if not dest.exists():
         return 0, None
 
     original = dest.read_text(encoding="utf-8")
-    original_issues = verify.verify(original, source=expected_source)
+    original_issues = verify.verify(
+        original, source=expected_source, version=version
+    )
     if not original_issues:
         return 0, None
     if not set(original_issues).issubset(PRESERVED_MARKUP_FIXABLE):
@@ -438,14 +695,16 @@ def _fix_preserved_markup_file(
         return 0, f"{label}: {exc}"
 
     if not result.changed:
-        return 0, None
+        return 0, f"{label}: {', '.join(original_issues)}"
 
-    repaired_issues = verify.verify(result.text, source=expected_source)
+    repaired_issues = verify.verify(
+        result.text, source=expected_source, version=version
+    )
     if repaired_issues:
         return 0, f"{label}: {', '.join(repaired_issues)}"
 
     if apply:
-        dest.write_text(result.text, encoding="utf-8")
+        atomic_write_text(dest, result.text)
     return 1, None
 
 
@@ -461,7 +720,11 @@ def _fix_preserved_markup(
         for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
             label = f"{locale} {change.path}"
             written, failure = _fix_preserved_markup_file(
-                label, dest, expected_source, apply=apply
+                label,
+                dest,
+                expected_source,
+                version=change.version,
+                apply=apply,
             )
             writable += written
             if failure:
@@ -470,38 +733,98 @@ def _fix_preserved_markup(
     return writable, failures
 
 
-def _arg_value(args: list[str], flag: str) -> str | None:
-    if flag not in args:
-        return None
-    index = args.index(flag)
-    if index + 1 >= len(args) or args[index + 1].startswith("--"):
-        raise config.ConfigError(f"{flag} requires a value")
-    return args[index + 1]
+_VALUE_OPTIONS = {"--doc", "--version"}
+_FLAG_OPTIONS = {
+    "--annotate-existing",
+    "--apply",
+    "--check-annotations",
+    "--fail-fast",
+    "--fix-preserved-markup",
+}
+_MAINTENANCE_OPTIONS = {
+    "--annotate-existing",
+    "--check-annotations",
+    "--fix-preserved-markup",
+}
+
+
+def _parse_args(args: list[str]) -> tuple[set[str], dict[str, str]]:
+    flags: set[str] = set()
+    values: dict[str, str] = {}
+    index = 0
+
+    while index < len(args):
+        argument = args[index]
+        option, separator, inline_value = argument.partition("=")
+
+        if option == "--migrate-existing":
+            raise config.ConfigError(
+                "--migrate-existing is unsupported; use --annotate-existing "
+                "or --fix-preserved-markup"
+            )
+        if option in _VALUE_OPTIONS:
+            if option in values:
+                raise config.ConfigError(f"{option} may only be specified once")
+            if separator:
+                value = inline_value
+            else:
+                index += 1
+                if index >= len(args) or args[index].startswith("-"):
+                    raise config.ConfigError(f"{option} requires a value")
+                value = args[index]
+            if not value:
+                raise config.ConfigError(f"{option} requires a value")
+            values[option] = value
+        elif argument in _FLAG_OPTIONS:
+            if argument in flags:
+                raise config.ConfigError(f"{argument} may only be specified once")
+            flags.add(argument)
+        else:
+            raise config.ConfigError(f"unknown argument: {argument}")
+        index += 1
+
+    maintenance = flags & _MAINTENANCE_OPTIONS
+    if len(maintenance) > 1:
+        raise config.ConfigError("maintenance modes are mutually exclusive")
+    if "--apply" in flags and not maintenance.intersection(
+        {"--annotate-existing", "--fix-preserved-markup"}
+    ):
+        raise config.ConfigError(
+            "--apply requires --annotate-existing or --fix-preserved-markup"
+        )
+    if maintenance and "--fail-fast" in flags:
+        raise config.ConfigError(
+            "--fail-fast is only valid for translation sync"
+        )
+
+    return flags, values
 
 
 def main() -> int:
-    args = sys.argv[1:]
-    migrate_existing = "--migrate-existing" in args
-    check_annotations = "--check-annotations" in args
-    annotate_existing = "--annotate-existing" in args
-    fix_preserved_markup = "--fix-preserved-markup" in args
-    require_filters = "--require-filters" in args
-    fail_fast = "--fail-fast" in args
-    apply_annotations = "--apply" in args
-    version = _arg_value(args, "--version")
-    doc = _arg_value(args, "--doc")
-
-    if require_filters and (not version or not doc):
-        print(
-            "--require-filters requires both --version and --doc",
-            file=sys.stderr,
-        )
+    try:
+        flags, values = _parse_args(sys.argv[1:])
+    except config.ConfigError as exc:
+        print(f"configuration failed: {exc}", file=sys.stderr)
         return 2
 
+    check_annotations = "--check-annotations" in flags
+    annotate_existing = "--annotate-existing" in flags
+    fix_preserved_markup = "--fix-preserved-markup" in flags
+    fail_fast = "--fail-fast" in flags
+    apply_annotations = "--apply" in flags
+    version = values.get("--version")
+    doc = values.get("--doc")
+    if doc and not doc.endswith(".md"):
+        doc = f"{doc}.md"
+
     if annotate_existing:
-        written, failures = _annotate_existing(
-            apply=apply_annotations, version=version, doc=doc
-        )
+        try:
+            written, failures = _annotate_existing(
+                apply=apply_annotations, version=version, doc=doc
+            )
+        except SourcePathError as exc:
+            print(f"source selection failed: {exc}", file=sys.stderr)
+            return 1
         for failure in failures:
             print(f"annotate failed: {failure}", file=sys.stderr)
         if failures:
@@ -512,9 +835,13 @@ def main() -> int:
         return 0
 
     if fix_preserved_markup:
-        written, failures = _fix_preserved_markup(
-            apply=apply_annotations, version=version, doc=doc
-        )
+        try:
+            written, failures = _fix_preserved_markup(
+                apply=apply_annotations, version=version, doc=doc
+            )
+        except SourcePathError as exc:
+            print(f"source selection failed: {exc}", file=sys.stderr)
+            return 1
         action = "written" if apply_annotations else "would write"
         print(f"existing preserved markup fixes {action}: {written}")
         for failure in failures:
@@ -525,7 +852,11 @@ def main() -> int:
         return 0
 
     if check_annotations:
-        failures = _check_existing_annotations(version=version, doc=doc)
+        try:
+            failures = _check_existing_annotations(version=version, doc=doc)
+        except SourcePathError as exc:
+            print(f"source selection failed: {exc}", file=sys.stderr)
+            return 1
         for failure in failures:
             print(f"verify failed: {failure}", file=sys.stderr)
         if failures:
@@ -534,11 +865,26 @@ def main() -> int:
         print("existing translation annotations verified")
         return 0
 
-    # 1. 원문 동기화 (i18n/en 적재)
-    upstream.main()
+    # 1. 설정 확인 (실패 시 원문 캐시를 변경하지 않음)
+    try:
+        cfg = config.load_config()
+    except config.ConfigError as exc:
+        print(f"configuration failed: {exc}", file=sys.stderr)
+        return 2
 
-    # 2. 변경 감지
-    changes = _select_changes(migrate_existing=migrate_existing, version=version, doc=doc)
+    try:
+        prompts = _load_prompts()
+    except prompt.PromptError as exc:
+        print(f"prompt loading failed: {exc}", file=sys.stderr)
+        return 2
+
+    # 2. 원문 동기화 (i18n/en 적재)
+    if upstream.main(version=version, doc=doc) != 0:
+        print("upstream sync failed", file=sys.stderr)
+        return 1
+
+    # 3. 변경 감지
+    changes = _select_changes(version=version, doc=doc)
     if not changes:
         sidebar_failures = _sync_sidebars(_sidebar_versions([], version))
         for failure in sidebar_failures:
@@ -549,15 +895,17 @@ def main() -> int:
         print("no source changes to translate")
         return 0
 
-    # 3. 설정 확인 (실패 시 중단 — docs/01)
-    cfg = config.load_config()
-    prompts = _load_prompts()
-
     # 4. 변경 문서: ko·ja 각각 전처리 → 번역 → 후처리 → 검증 → 출력
     failures: list[str] = []
     for change in changes:
         if change.status == "D":
-            _delete_outputs(change)
+            issues = _delete_outputs(change)
+            if issues:
+                failure = f"{change.path}: {', '.join(issues)}"
+                failures.append(failure)
+                print(f"delete failed: {failure}", file=sys.stderr, flush=True)
+                if fail_fast:
+                    return 1
             continue
 
         for locale, locale_prompt, dest in (
@@ -565,7 +913,13 @@ def main() -> int:
             ("ja", prompts["ja"], _ja_output(change)),
         ):
             print(f"translating: {locale} {change.path}", file=sys.stderr, flush=True)
-            issues = _translate_one(change, cfg, locale_prompt, dest)
+            issues = _translate_one(
+                change,
+                cfg,
+                locale_prompt,
+                dest,
+                locale=locale,
+            )
             if issues:
                 failure = f"{locale} {change.path}: {', '.join(issues)}"
                 failures.append(failure)

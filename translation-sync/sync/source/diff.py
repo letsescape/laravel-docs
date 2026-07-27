@@ -5,6 +5,7 @@ upstream 동기화로 i18n/en을 갱신한 뒤, working tree에서 변경된 .md
 """
 from __future__ import annotations
 
+import difflib
 import os
 import re
 import subprocess
@@ -56,6 +57,18 @@ class SourceChange:
     @property
     def name(self) -> str:
         return Path(self.path).name
+
+
+def hunks_between(old_text: str, new_text: str) -> tuple[DiffHunk, ...]:
+    """Return unified diff hunks between two in-memory source documents."""
+    output = "\n".join(
+        difflib.unified_diff(
+            old_text.splitlines(),
+            new_text.splitlines(),
+            lineterm="",
+        )
+    )
+    return _parse_unified_diff(output)
 
 
 def changed_sources(base_ref: str | None = None) -> list[SourceChange]:

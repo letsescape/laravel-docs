@@ -39,6 +39,74 @@ class RepairPreservedMarkupTests(unittest.TestCase):
         )
         self.assertEqual([], verify.verify(result.text, source=source))
 
+    def test_repairs_complete_link_target_with_balanced_parentheses(self):
+        source_target = "https://en.wikipedia.org/wiki/Mode_(statistics)/source"
+        translated_target = "https://en.wikipedia.org/wiki/Mode_(statistics)/wrong"
+        source = f"See [Mode]({source_target})."
+        translated = f"""<!-- See [Mode]({source_target}). -->
+[Mode]({translated_target})을 참고하세요.
+"""
+
+        result = repair.repair_preserved_markup(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn(f"[Mode]({source_target})", result.text)
+        self.assertEqual([], verify.verify(result.text, source=source))
+
+    def test_repairs_link_with_title_without_dropping_separator(self):
+        for title in ('"Read more"', "'Read more'", "(Read more)"):
+            with self.subTest(title=title):
+                source = f"See [Docs](guide.md {title})."
+                translated = (
+                    f"<!-- See [Docs](guide.md {title}). -->\n"
+                    f"[문서](wrong.md {title})를 참고하세요.\n"
+                )
+
+                result = repair.repair_preserved_markup(source, translated)
+
+                self.assertTrue(result.changed)
+                self.assertIn(f"[Docs](guide.md {title})", result.text)
+                self.assertEqual([], verify.verify(result.text, source=source))
+
+    def test_fails_closed_when_markdown_image_targets_are_reordered(self):
+        source = "![Cat](cat.png)\n\n![Dog](dog.png)\n"
+        translated = "![개](dog.png)\n\n![고양이](cat.png)\n"
+
+        with self.assertRaises(repair.RepairError):
+            repair.repair_preserved_markup(source, translated)
+
+    def test_fails_closed_when_image_reordering_is_mixed_with_a_changed_target(self):
+        source = "![Cat](cat.png)\n\n![Dog](dog.png)\n"
+        translated = "![개](dog.png)\n\n![고양이](wrong.png)\n"
+
+        with self.assertRaises(repair.RepairError):
+            repair.repair_preserved_markup(source, translated)
+
+    def test_repairs_a_changed_markdown_image_target(self):
+        source = '![Cat](cat.png "Cat")\n'
+        translated = (
+            '<!-- ![Cat](cat.png "Cat") -->\n'
+            '![고양이](wrong.png "Wrong")\n'
+        )
+
+        result = repair.repair_preserved_markup(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn('![고양이](cat.png "Cat")', result.text)
+        self.assertEqual([], verify.verify(result.text, source=source))
+
+    def test_repairs_a_duplicated_image_target_at_the_same_occurrence(self):
+        source = "![Cat](cat.png)\n\n![Dog](dog.png)\n"
+        translated = "![고양이](cat.png)\n\n![개](cat.png)\n"
+
+        result = repair.repair_preserved_markup(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            "![고양이](cat.png)\n\n![개](dog.png)\n",
+            result.text,
+        )
+
     def test_repairs_translated_inline_code_spans(self):
         source = "Use the `FileStorage` and `readOnly` methods."
         translated = """<!-- Use the `FileStorage` and `readOnly` methods. -->

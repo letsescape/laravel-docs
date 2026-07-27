@@ -17,3 +17,5 @@ def load_prompt(path: Path) -> str:
         return path.read_text(encoding="utf-8").strip()
     except FileNotFoundError as exc:
         raise PromptError(f"missing prompt file: {path}") from exc
+    except (OSError, UnicodeError) as exc:
+        raise PromptError(f"could not read prompt file: {path}: {exc}") from exc

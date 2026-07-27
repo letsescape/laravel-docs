@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from sync import prompt
 
@@ -19,6 +20,64 @@ class PromptTests(unittest.TestCase):
 
             with self.assertRaises(prompt.PromptError):
                 prompt.load_prompt(prompt_path)
+
+    def test_unreadable_prompt_file_is_an_error(self):
+        prompt_path = Path("/fixture/prompt.md")
+
+        with patch.object(
+            Path,
+            "read_text",
+            side_effect=OSError("permission denied"),
+        ), self.assertRaisesRegex(prompt.PromptError, "could not read prompt file"):
+            prompt.load_prompt(prompt_path)
+
+    def test_invalid_utf8_prompt_file_is_an_error(self):
+        prompt_path = Path("/fixture/prompt.md")
+        decode_error = UnicodeDecodeError(
+            "utf-8",
+            b"\xff",
+            0,
+            1,
+            "invalid start byte",
+        )
+
+        with patch.object(
+            Path,
+            "read_text",
+            side_effect=decode_error,
+        ), self.assertRaisesRegex(prompt.PromptError, "could not read prompt file"):
+            prompt.load_prompt(prompt_path)
+
+    def test_japanese_prompt_forbids_dropping_a_markdown_link_target(self):
+        prompt_text = prompt.load_prompt(
+            Path(__file__).resolve().parents[1] / "prompt_jp.md"
+        )
+
+        self.assertIn(
+            "`[atomic locks](#atomic-locks)` を `[atomic locks]`",
+            prompt_text,
+        )
+
+    def test_japanese_prompt_requires_a_leading_html_anchor(self):
+        prompt_text = prompt.load_prompt(
+            Path(__file__).resolve().parents[1] / "prompt_jp.md"
+        )
+
+        self.assertIn(
+            "入力が `<a name=\"cache-locks\"></a>` で始まる場合",
+            prompt_text,
+        )
+
+    def test_korean_prompt_forbids_expanding_a_markdown_link_target(self):
+        prompt_text = prompt.load_prompt(
+            Path(__file__).resolve().parents[1] / "prompt.md"
+        )
+
+        self.assertIn(
+            "`[atomic locks](#atomic-locks)`를 "
+            "`[atomic locks](/docs/{{version}}/cache#atomic-locks)`로",
+            prompt_text,
+        )
 
 
 if __name__ == "__main__":

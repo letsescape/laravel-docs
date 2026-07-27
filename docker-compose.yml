@@ -20,3 +20,4 @@ services:
       - ./.git:/app/.git
       - ./i18n:/app/i18n
       - ./versioned_docs:/app/versioned_docs
+      - ./versioned_sidebars:/app/versioned_sidebars

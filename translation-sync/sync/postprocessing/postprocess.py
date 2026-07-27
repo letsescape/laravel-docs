@@ -11,10 +11,17 @@ from __future__ import annotations
 import re
 from typing import Mapping
 
+from ..common.javascript import balanced_expression_end
 from ..common.markdown import (
+    _inline_code_spans,
+    _strip_reference_container,
     closes_fence,
     fence_token,
     html_comment_spans,
+    is_heading_line,
+    markdown_links,
+    mask_fenced_code_contents,
+    strip_html_comments,
     strip_title_attrs,
 )
 
@@ -25,9 +32,59 @@ _NOTE_TYPES = {
     "warning": "WARNING",
     "caution": "CAUTION",
     "important": "IMPORTANT",
+    "참고": "NOTE",
+    "注意": "NOTE",
+    "注": "NOTE",
 }
 _GFM_ADMONITION_RE = re.compile(
     r"^>\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
+)
+_GFM_ADMONITION_TYPE_RE = re.compile(
+    r"^[ \t]{0,3}\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]",
+)
+_UNQUOTED_ATTRIBUTE_AT_END_RE = re.compile(
+    r"(?:^|\s)[A-Za-z_:][\w:.-]*\s*=\s*[^\s\"'`{][^\s]*$"
+)
+_STALE_LINK_REPLACEMENTS = (
+    ("controllers#actions-handled-by-resource-controller", "controllers#actions-handled-by-resource-controllers"),
+    ("#actions-handled-by-resource-controller", "#actions-handled-by-resource-controllers"),
+    ("database-testing#writing-factories", "database-testing#defining-model-factories"),
+    ("eloquent-mutators##date-casting", "eloquent-mutators#date-casting"),
+    ("errors#logging", "logging"),
+    ("helpers#fluent-strings", "strings#fluent-strings"),
+    ("migrations/#writing-migrations", "migrations/#creating-tables"),
+    ("migrations#writing-migrations", "migrations#creating-tables"),
+    ("#method-array-sort-recursive-desc", "#method-array-sort-recursive"),
+    ("#agents-integration", "#agent-integration"),
+)
+_VERSION_SCOPED_STALE_TARGETS = {
+    "controllers#actions-handled-by-resource-controller",
+    "#actions-handled-by-resource-controller",
+    "helpers#fluent-strings",
+}
+_LEGACY_VERSION_STALE_LINK_REPLACEMENTS = (
+    (
+        "controllers#actions-handled-by-resource-controllers",
+        "controllers#actions-handled-by-resource-controller",
+    ),
+    (
+        "#actions-handled-by-resource-controllers",
+        "#actions-handled-by-resource-controller",
+    ),
+    ("strings#fluent-strings", "helpers#fluent-strings"),
+)
+_LEGACY_STALE_LINK_VERSIONS = {"8.x", "9.x"}
+_V13_AGENT_REVERSE_REPLACEMENT = (
+    ("#agent-integration", "#agents-integration"),
+)
+_RETIRED_FRAGMENT_TARGETS = {
+    "#assert-similar-json",
+    "#formatting-shortcode-notifications",
+}
+_LIST_ITEM_PREFIX_RE = re.compile(r"^[ \t]*(?:[-*+]\s+|\d+[.)]\s+)$")
+_RETIRED_LIST_LABEL_RE = re.compile(
+    r"(?m)^(?P<prefix>[ \t]*(?:[-*+]\s+|\d+[.)]\s+))"
+    r"`(?P<label>Formatting Shortcode Notifications)`(?P<suffix>[ \t]*)$"
 )
 
 
@@ -69,18 +126,53 @@ def _map_outside_code_blocks(text: str, transform) -> str:
 def img_self_closing(text: str) -> str:
     out: list[str] = []
     lower = text.lower()
+    inline_code_spans = _inline_code_spans(text)
     index = 0
     while index < len(text):
         start = lower.find("<img", index)
         if start < 0:
             out.append(text[index:])
             break
+        code_span_end = next(
+            (
+                end
+                for span_start, end, _body in inline_code_spans
+                if span_start <= start < end
+            ),
+            None,
+        )
+        if code_span_end is not None:
+            out.append(text[index:code_span_end])
+            index = code_span_end
+            continue
         after_name = start + len("<img")
         if after_name < len(text) and not (text[after_name].isspace() or text[after_name] in "/>"):
             out.append(text[index:after_name])
             index = after_name
             continue
-        end = text.find(">", after_name)
+        end = -1
+        position = after_name
+        while position < len(text):
+            char = text[position]
+            if char in ("\"", "'"):
+                quote = char
+                position += 1
+                while position < len(text) and text[position] != quote:
+                    position += 1
+                if position >= len(text):
+                    break
+                position += 1
+                continue
+            if char == "{":
+                expression_end = balanced_expression_end(text, position)
+                if expression_end is None:
+                    break
+                position = expression_end
+                continue
+            if char == ">":
+                end = position
+                break
+            position += 1
         if end < 0:
             out.append(text[index:])
             break
@@ -90,7 +182,10 @@ def img_self_closing(text: str) -> str:
         if attrs.endswith("/"):
             out.append(text[start : end + 1])
         elif attrs:
-            out.append(f"<img {attrs}/>")
+            separator = (
+                " " if _UNQUOTED_ATTRIBUTE_AT_END_RE.search(attrs) else ""
+            )
+            out.append(f"<img {attrs}{separator}/>")
         else:
             out.append("<img/>")
         index = end + 1
@@ -113,7 +208,8 @@ def _parse_note_line(line: str) -> tuple[str, str] | None:
             rest = content[close + 2 :]
             if rest.startswith(":"):
                 rest = rest[1:]
-            return content[2:close].lower(), rest.strip()
+            kind = content[2:close].strip().removesuffix(":").lower()
+            return kind, rest.strip()
 
     colon = content.find(":")
     if colon > 0 and content[:colon].isalpha():
@@ -167,14 +263,40 @@ def standardize_admonitions(text: str) -> str:
     return "\n".join(out)
 
 
+def admonition_types(text: str) -> tuple[str, ...]:
+    """Return normalized admonition marker types outside comments and code."""
+    without_comments = strip_html_comments(text)
+    normalized = _map_outside_code_blocks(
+        without_comments,
+        standardize_admonitions,
+    )
+    types: list[str] = []
+    for line in normalized.splitlines():
+        logical, containers = _strip_reference_container(line)
+        if not containers or containers[-1] != "quote":
+            continue
+        match = _GFM_ADMONITION_TYPE_RE.match(logical)
+        if match:
+            types.append(match.group(1).upper())
+    return tuple(types)
+
+
 def _quote_admonition_fences(text: str) -> str:
     out: list[str] = []
     lines = text.split("\n")
     index = 0
     in_gfm_admonition = False
+    outer_fence = ""
 
     while index < len(lines):
         line = lines[index]
+        if outer_fence:
+            out.append(line)
+            if closes_fence(line, outer_fence):
+                outer_fence = ""
+            index += 1
+            continue
+
         if _GFM_ADMONITION_RE.match(line.strip()):
             out.append(line)
             in_gfm_admonition = True
@@ -183,6 +305,7 @@ def _quote_admonition_fences(text: str) -> str:
 
         if not in_gfm_admonition:
             out.append(line)
+            outer_fence = fence_token(line) or ""
             index += 1
             continue
 
@@ -215,6 +338,100 @@ def _quote_admonition_fences(text: str) -> str:
     return "\n".join(out)
 
 
+def _mask_link_excluded_spans(text: str, *, mask_inline_code: bool = True) -> str:
+    chars = list(mask_fenced_code_contents(text))
+    masked = "".join(chars)
+    spans = [*html_comment_spans(masked)]
+    if mask_inline_code:
+        spans.extend(_inline_code_spans(masked))
+    for start, end, _body in spans:
+        for index in range(start, end):
+            if chars[index] not in "\r\n":
+                chars[index] = " "
+    return "".join(chars)
+
+
+def _stale_link_replacements(version: str) -> tuple[tuple[str, str], ...]:
+    if version == "13.x":
+        return (
+            tuple(
+                (stale, replacement)
+                for stale, replacement in _STALE_LINK_REPLACEMENTS
+                if stale != "#agents-integration"
+            )
+            + _V13_AGENT_REVERSE_REPLACEMENT
+        )
+    if version not in _LEGACY_STALE_LINK_VERSIONS:
+        return _STALE_LINK_REPLACEMENTS
+    return (
+        tuple(
+            (stale, replacement)
+            for stale, replacement in _STALE_LINK_REPLACEMENTS
+            if stale not in _VERSION_SCOPED_STALE_TARGETS
+        )
+        + _LEGACY_VERSION_STALE_LINK_REPLACEMENTS
+    )
+
+
+def _canonical_stale_link_target(target: str, version: str) -> str | None:
+    if target in _RETIRED_FRAGMENT_TARGETS:
+        return None
+    if "://" in target and not target.startswith("https://laravel.com/docs/"):
+        return target
+    canonical = target
+    for stale, replacement in _stale_link_replacements(version):
+        if canonical.endswith(stale):
+            return canonical[: -len(stale)] + replacement
+    return canonical
+
+
+def _is_standalone_list_link(text: str, start: int, end: int) -> bool:
+    line_start = text.rfind("\n", 0, start) + 1
+    line_end = text.find("\n", end)
+    if line_end < 0:
+        line_end = len(text)
+    return bool(_LIST_ITEM_PREFIX_RE.fullmatch(text[line_start:start])) and not text[
+        end:line_end
+    ].strip()
+
+
+def normalize_retired_list_labels(text: str) -> str:
+    """Remove a prior-run inline-code wrapper from a retired list label."""
+    masked = _mask_link_excluded_spans(text, mask_inline_code=False)
+    out: list[str] = []
+    cursor = 0
+    for match in _RETIRED_LIST_LABEL_RE.finditer(masked):
+        out.append(text[cursor : match.start()])
+        out.append(match.group("prefix") + match.group("label") + match.group("suffix"))
+        cursor = match.end()
+    out.append(text[cursor:])
+    return "".join(out)
+
+
+def normalize_stale_link_targets(text: str, version: str) -> str:
+    """Rewrite known upstream stale destinations without touching code/comments."""
+    masked = _mask_link_excluded_spans(text)
+    out: list[str] = []
+    cursor = 0
+    for link in markdown_links(masked):
+        target = _canonical_stale_link_target(link.target, version)
+        if target == link.target:
+            continue
+        out.append(text[cursor : link.start])
+        if target is None:
+            out.append(
+                link.label
+                if _is_standalone_list_link(text, link.start, link.end)
+                else f"`{link.label}`"
+            )
+        else:
+            image = "!" if link.image else ""
+            out.append(f"{image}[{link.label}]({target}{link.title})")
+        cursor = link.end
+    out.append(text[cursor:])
+    return "".join(out)
+
+
 def replace_version(text: str, version: str) -> str:
     return _VERSION_RE.sub(version, text)
 
@@ -226,7 +443,32 @@ def restore_placeholders(text: str, placeholders: Mapping[str, str]) -> str:
 
 
 def strip_trailing_whitespace(text: str) -> str:
-    return "\n".join(line.rstrip(" \t") for line in text.split("\n"))
+    out: list[str] = []
+    in_code = False
+    fence = ""
+    for line in text.split("\n"):
+        token = fence_token(line)
+        was_in_code = in_code
+        if token:
+            if not in_code:
+                in_code = True
+                fence = token
+            elif closes_fence(line, fence):
+                in_code = False
+                fence = ""
+
+        stripped = line.rstrip(" \t")
+        if (
+            not was_in_code
+            and token is None
+            and not is_heading_line(stripped)
+            and stripped
+            and line.endswith("  ")
+        ):
+            out.append(stripped + "  ")
+        else:
+            out.append(stripped)
+    return "\n".join(out)
 
 
 def escape_html_comments(text: str) -> str:
@@ -241,17 +483,21 @@ def escape_html_comments(text: str) -> str:
     return "".join(out)
 
 
-def _postprocess_markdown_body(text: str) -> str:
+def _postprocess_markdown_body(text: str, version: str) -> str:
+    text = replace_version(text, version)
     text = img_self_closing(text)
     text = standardize_admonitions(text)
     text = strip_title_attrs(text)
+    text = normalize_stale_link_targets(text, version)
+    text = normalize_retired_list_labels(text)
     text = escape_html_comments(text)
     return text
 
 
 def postprocess(text: str, version: str, placeholders: Mapping[str, str]) -> str:
-    text = replace_version(text, version)
-    text = _map_outside_code_blocks(text, _postprocess_markdown_body)
+    text = _map_outside_code_blocks(
+        text, lambda body: _postprocess_markdown_body(body, version)
+    )
     text = _quote_admonition_fences(text)
     text = restore_placeholders(text, placeholders)
     text = strip_trailing_whitespace(text)

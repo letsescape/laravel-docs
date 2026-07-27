@@ -9,13 +9,61 @@ annotate는 내부에서 raw EN을 preprocess+postprocess한 정규본(verify의
 맞춰 정렬한다. 따라서 KO 본문을 현재 EN에 일치시키면 통과한다.
 """
 from __future__ import annotations
+
+import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sync import annotate, preprocess, postprocess, verify
+from sync.common.files import atomic_write_text
 
 REPO = Path(__file__).resolve().parents[1]
+_VERSION_RE = re.compile(r"^(?:master|(?:0|[1-9]\d*)\.x)$")
+_DOCUMENT_RE = re.compile(r"^[^/\\]+\.md$")
+
+
+def _expected_locale_roots(repo: Path) -> frozenset[Path]:
+    return frozenset(
+        (
+            repo / "versioned_docs",
+            repo / "i18n/en/docusaurus-plugin-content-docs",
+            repo / "i18n/ja/docusaurus-plugin-content-docs",
+        )
+    )
+
+
+def _has_symlink_component(path: Path, boundary: Path) -> bool:
+    current = boundary
+    if current.is_symlink():
+        return True
+    for component in path.relative_to(boundary).parts:
+        current /= component
+        if current.is_symlink():
+            return True
+    return False
+
+
+def _document_path(root: Path, version: str, name: str) -> Path:
+    lexical_repo = REPO.absolute()
+    lexical_root = root.absolute()
+    if lexical_root not in _expected_locale_roots(lexical_repo):
+        raise ValueError(f"unexpected locale root: {lexical_root}")
+    if _has_symlink_component(lexical_root, lexical_repo):
+        raise ValueError(f"invalid locale root: {lexical_root}")
+
+    repo_root = lexical_repo.resolve()
+    locale_root = lexical_root.resolve()
+    version_root = lexical_root / f"version-{version}"
+    lexical_candidate = version_root / name
+    candidate = lexical_candidate.resolve()
+    if not locale_root.is_relative_to(repo_root) or not candidate.is_relative_to(
+        locale_root
+    ):
+        raise ValueError(f"document path escapes locale root: {candidate}")
+    if version_root.is_symlink() or lexical_candidate.is_symlink():
+        raise ValueError(f"invalid document path: {lexical_candidate}")
+    return candidate
 
 
 def main() -> int:
@@ -23,21 +71,35 @@ def main() -> int:
         print("usage: annotate_cli.py <version> <name> [--write]", file=sys.stderr)
         return 2
     version, name = sys.argv[1], sys.argv[2]
+    if not _VERSION_RE.fullmatch(version):
+        print(f"invalid version: {version}", file=sys.stderr)
+        return 2
+    if Path(name).name != name or not _DOCUMENT_RE.fullmatch(name):
+        print(f"invalid document: {name}", file=sys.stderr)
+        return 2
     write = "--write" in sys.argv
 
-    enp = REPO / f"i18n/en/docusaurus-plugin-content-docs/version-{version}/{name}"
-    kop = REPO / f"versioned_docs/version-{version}/{name}"
+    try:
+        enp = _document_path(
+            REPO / "i18n/en/docusaurus-plugin-content-docs",
+            version,
+            name,
+        )
+        kop = _document_path(REPO / "versioned_docs", version, name)
+    except ValueError as exc:
+        print(exc, file=sys.stderr)
+        return 2
     en = enp.read_text(encoding="utf-8")
     ko = kop.read_text(encoding="utf-8")
 
     out, drifts = annotate.annotate(en, ko, version)
     pre = preprocess.preprocess(en)
     expected = postprocess.postprocess(pre.text, version, pre.placeholders)
-    issues = verify.verify(out, source=expected)
+    issues = verify.verify(out, source=expected, version=version)
 
     clean = (not drifts) and (not issues)
     if clean and write:
-        kop.write_text(out, encoding="utf-8")
+        atomic_write_text(kop, out)
         print(f"OK written: {version}/{name}")
         return 0
 
@@ -64,7 +126,8 @@ def main() -> int:
         ic_en, ic_ko = verify._inline_codes(expected), verify._inline_codes(out)
         if (ic_en - ic_ko) or (ic_ko - ic_en):
             print(f"  inline code only_EN={dict(ic_en - ic_ko)}  only_KO={dict(ic_ko - ic_en)}")
-        lt_en, lt_ko = verify._link_targets(expected), verify._link_targets(out)
+        lt_en = verify._link_targets(expected, version=version)
+        lt_ko = verify._link_targets(out, version=version)
         if (lt_en - lt_ko) or (lt_ko - lt_en):
             print(f"  link only_EN={dict(lt_en - lt_ko)}  only_KO={dict(lt_ko - lt_en)}")
         cb_en, cb_ko = verify._fenced_code_blocks(expected), verify._fenced_code_blocks(out)

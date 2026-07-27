@@ -12,14 +12,21 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from ..common.markdown import closes_fence, strip_title_attrs
+from ..common.markdown import (
+    _inline_code_spans,
+    closes_fence,
+    fence_token,
+    strip_title_attrs,
+)
 
 # data:image/...;base64,.... (Markdown/HTML 이미지 양쪽)
-_BASE64_RE = re.compile(r"data:image/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+(?=[)\"'\s])")
-# fenced code block (``` 또는 ~~~)
-_FENCE_RE = re.compile(r"^([ \t]*)(`{3,}|~{3,})", re.MULTILINE)
+_BASE64_RE = re.compile(
+    r"data:image/[a-zA-Z0-9.+-]+"
+    r"(?:;[^;,=\s\"'<>]+=[^;,\s\"'<>]+)*"
+    r";base64,[A-Za-z0-9+/=]+?(?=/>|$|[)>\"'\s])"
+)
 _INDENTED_CODE_RE = re.compile(r"^(?: {4}|\t)(.*)$")
-_LIST_MARKER_RE = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s)")
+_LIST_MARKER_RE = re.compile(r"^\s*(?:[-*+]\s|\d+[.)]\s)")
 _STYLE_OPEN = "<style"
 _STYLE_CLOSE = "</style>"
 
@@ -30,23 +37,52 @@ class Preprocessed:
     placeholders: dict[str, str] = field(default_factory=dict)
 
 
+def _segment_fence_token(line: str) -> str | None:
+    """Return a fence token only where CommonMark permits a fenced block."""
+    stripped = line.lstrip(" ")
+    if len(line) - len(stripped) > 3 or stripped.startswith("\t"):
+        return None
+    while stripped.startswith(">"):
+        stripped = stripped[1:]
+        if stripped.startswith((" ", "\t")):
+            stripped = stripped[1:]
+        indented = stripped.lstrip(" ")
+        if len(stripped) - len(indented) > 3 or indented.startswith("\t"):
+            return None
+        stripped = indented
+    return fence_token(line)
+
+
 def _split_code_segments(text: str) -> list[tuple[str, bool]]:
     """텍스트를 (구간, is_code) 목록으로 나눈다. fenced code block 보호용."""
     segments: list[tuple[str, bool]] = []
+    pending: list[str] = []
     in_code = False
     fence = ""
-    last = 0
-    for m in _FENCE_RE.finditer(text):
-        token = m.group(2)
-        if not in_code:
-            in_code, fence = True, token
-            segments.append((text[last:m.start()], False))
-            last = m.start()
-        elif closes_fence(token, fence):
+
+    def flush(is_code: bool) -> None:
+        if pending:
+            segments.append(("".join(pending), is_code))
+            pending.clear()
+
+    for line in text.splitlines(keepends=True):
+        token = _segment_fence_token(line)
+        if token and not in_code:
+            flush(False)
+            in_code = True
+            fence = token
+            pending.append(line)
+            continue
+
+        pending.append(line)
+        if token and in_code and closes_fence(line, fence):
+            flush(True)
             in_code = False
-            segments.append((text[last:m.end()], True))
-            last = m.end()
-    segments.append((text[last:], in_code))
+            fence = ""
+
+    flush(in_code)
+    if not segments:
+        segments.append(("", False))
     return segments
 
 
@@ -115,22 +151,86 @@ def _strip_code_indent(line: str) -> str:
     return line[4:] if line.startswith("    ") else line
 
 
+def _strip_title_attrs_outside_protected_regions(text: str) -> str:
+    """Strip heading classes outside HTML comments and indented code."""
+    inline_spans = _inline_code_spans(text)
+    inline_index = 0
+    in_comment = False
+    offset = 0
+    out: list[str] = []
+
+    for line in text.splitlines(keepends=True):
+        protected = in_comment or bool(_INDENTED_CODE_RE.match(line))
+        cursor = 0
+        while cursor < len(line):
+            if in_comment:
+                close = line.find("-->", cursor)
+                if close < 0:
+                    break
+                in_comment = False
+                cursor = close + 3
+                continue
+
+            opener = line.find("<!--", cursor)
+            if opener < 0:
+                break
+            absolute_opener = offset + opener
+            while (
+                inline_index < len(inline_spans)
+                and inline_spans[inline_index][1] <= absolute_opener
+            ):
+                inline_index += 1
+            if (
+                inline_index < len(inline_spans)
+                and inline_spans[inline_index][0]
+                <= absolute_opener
+                < inline_spans[inline_index][1]
+            ):
+                cursor = inline_spans[inline_index][1] - offset
+                continue
+
+            protected = True
+            in_comment = True
+            cursor = opener + 4
+
+        out.append(line if protected else strip_title_attrs(line))
+        offset += len(line)
+    return "".join(out)
+
+
 def _strip_style_blocks(text: str) -> str:
     out: list[str] = []
     lower = text.lower()
+    inline_code_spans = _inline_code_spans(text)
     index = 0
-
-    def inside_inline_code(position: int) -> bool:
-        line_start = text.rfind("\n", 0, position) + 1
-        prefix = text[line_start:position]
-        return prefix.count("`") % 2 == 1
 
     while index < len(text):
         start = lower.find(_STYLE_OPEN, index)
         if start < 0:
             out.append(text[index:])
             break
-        if inside_inline_code(start):
+        code_span_end = next(
+            (
+                end
+                for span_start, end, _body in inline_code_spans
+                if span_start <= start < end
+            ),
+            None,
+        )
+        if code_span_end is not None:
+            out.append(text[index:code_span_end])
+            index = code_span_end
+            continue
+        after_open = start + len(_STYLE_OPEN)
+        if after_open < len(text) and not (
+            text[after_open].isspace() or text[after_open] == ">"
+        ):
+            out.append(text[index : start + len(_STYLE_OPEN)])
+            index = start + len(_STYLE_OPEN)
+            continue
+        line_start = text.rfind("\n", 0, start) + 1
+        line_prefix = text[line_start:start]
+        if line_prefix not in ("", " ", "  ", "   "):
             out.append(text[index : start + len(_STYLE_OPEN)])
             index = start + len(_STYLE_OPEN)
             continue
@@ -144,8 +244,20 @@ def _strip_style_blocks(text: str) -> str:
             remove_start -= 1
 
         close_start = lower.find(_STYLE_CLOSE, tag_end + 1)
+        while close_start >= 0:
+            code_span_end = next(
+                (
+                    end
+                    for span_start, end, _body in inline_code_spans
+                    if span_start <= close_start < end
+                ),
+                None,
+            )
+            if code_span_end is None:
+                break
+            close_start = lower.find(_STYLE_CLOSE, code_span_end)
         if close_start < 0:
-            out.append(text[index:remove_start])
+            out.append(text[index:])
             break
 
         remove_end = close_start + len(_STYLE_CLOSE)
@@ -187,14 +299,19 @@ def _opens_indented_children(line: str) -> bool:
 
 def _has_indented_parent(lines: list[str], index: int) -> bool:
     cursor = index - 1
+    saw_blank = False
     while cursor >= 0:
         line = lines[cursor]
         if line == "":
-            return False
+            saw_blank = True
+            cursor -= 1
+            continue
         if _INDENTED_CODE_RE.match(line):
             cursor -= 1
             continue
-        return _opens_indented_children(line)
+        if _LIST_MARKER_RE.match(line):
+            return True
+        return not saw_blank and _opens_indented_children(line)
     return False
 
 
@@ -248,9 +365,18 @@ def _convert_indented_code_blocks(text: str) -> str:
                 i += 1
 
             if _looks_like_code(block):
-                out.append("```")
+                longest_backtick_run = max(
+                    (
+                        len(match.group(0))
+                        for item in block
+                        for match in re.finditer(r"`+", item)
+                    ),
+                    default=0,
+                )
+                fence = "`" * max(3, longest_backtick_run + 1)
+                out.append(fence)
                 out.extend(block)
-                out.append("```")
+                out.append(fence)
             else:
                 out.extend(("    " + item) if item else "" for item in block)
 
@@ -260,10 +386,16 @@ def _convert_indented_code_blocks(text: str) -> str:
 
 def preprocess(content: str) -> Preprocessed:
     result = Preprocessed(text=content)
+    placeholder_number = 0
 
     # 1) base64 이미지 → placeholder (전체 텍스트 대상; 토큰 절약 + 번역 제외)
     def _sub_b64(match: re.Match[str]) -> str:
-        key = f"__BASE64_IMAGE_{len(result.placeholders) + 1:03d}__"
+        nonlocal placeholder_number
+        while True:
+            placeholder_number += 1
+            key = f"__BASE64_IMAGE_{placeholder_number:03d}__"
+            if key not in result.text and key not in result.placeholders:
+                break
         result.placeholders[key] = match.group(0)
         return key
 
@@ -278,7 +410,7 @@ def preprocess(content: str) -> Preprocessed:
             rebuilt.append(segment)
             continue
         segment = _strip_style_blocks(segment)
-        segment = strip_title_attrs(segment)
+        segment = _strip_title_attrs_outside_protected_regions(segment)
         rebuilt.append(segment)
     text = "".join(rebuilt)
 

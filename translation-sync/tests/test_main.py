@@ -1,5 +1,7 @@
+import io
 import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -64,6 +66,203 @@ class MainPipelineTests(unittest.TestCase):
 
             self.assertTrue(
                 any(issue.startswith("incomplete translation") for issue in issues)
+            )
+            self.assertFalse(dest.exists())
+
+    def test_added_document_preserves_provider_chunk_boundaries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                ("Source line.\n" * 399) + "\nFinal line.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="A",
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            responses = iter(("first translated chunk", "second translated chunk"))
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                side_effect=lambda *_args, **_kwargs: next(responses),
+            ), patch.object(
+                main.response_contract,
+                "verify",
+                return_value=[],
+            ), patch.object(main.verify, "verify", return_value=[]):
+                issues = main._translate_added_document(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "first translated chunk\n\nsecond translated chunk\n",
+            )
+
+    def test_added_document_rejects_invalid_provider_contract_without_writing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Acquire the cache lock before updating the value.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="A",
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            echoed = (
+                "<!-- Acquire the cache lock before updating the value. -->\n"
+                "Acquire the cache lock before updating the value.\n"
+            )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                return_value=echoed,
+            ) as provider, patch.object(
+                main.verify,
+                "verify",
+                return_value=[],
+            ):
+                issues = main._translate_added_document(change, cfg, "prompt", dest)
+
+            self.assertIn("provider untranslated source text", issues[0])
+            self.assertEqual(
+                provider.call_count,
+                main.MAX_SEGMENT_VERIFICATION_ATTEMPTS,
+            )
+            self.assertFalse(dest.exists())
+
+    def test_added_document_rejects_wrong_target_language_without_writing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text("Acquire the cache lock.\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="A",
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            japanese = (
+                "<!-- Acquire the cache lock. -->\n"
+                "キャッシュロックを取得します。\n"
+            )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                return_value=japanese,
+            ) as provider:
+                issues = main._translate_added_document(
+                    change,
+                    cfg,
+                    "prompt",
+                    dest,
+                    locale="ko",
+                )
+
+            self.assertIn("provider target language mismatch", issues[0])
+            self.assertEqual(
+                provider.call_count,
+                main.MAX_SEGMENT_VERIFICATION_ATTEMPTS,
+            )
+            self.assertFalse(dest.exists())
+
+    def test_added_license_document_allows_preserved_legal_english(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/license.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source = "Permission is hereby granted to use this software.\n"
+            source_path.write_text(source, encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/license.md"
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/license.md",
+                status="A",
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            translated = (
+                "<!-- Permission is hereby granted to use this software. -->\n"
+                "Permission is hereby granted to use this software.\n"
+            )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                return_value=translated,
+            ) as provider:
+                issues = main._translate_added_document(
+                    change,
+                    cfg,
+                    "prompt",
+                    dest,
+                    locale="ko",
+                )
+
+            self.assertEqual(issues, [])
+            self.assertEqual(provider.call_count, 1)
+            self.assertEqual(dest.read_text(encoding="utf-8"), translated)
+
+    def test_added_license_document_rejects_untranslated_nonlegal_intro(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/license.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source = "Read this introduction before reviewing the legal terms.\n"
+            source_path.write_text(source, encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/license.md"
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/license.md",
+                status="A",
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            untranslated = (
+                "<!-- Read this introduction before reviewing the legal terms. -->\n"
+                "Read this introduction before reviewing the legal terms.\n"
+            )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                return_value=untranslated,
+            ) as provider:
+                issues = main._translate_added_document(
+                    change,
+                    cfg,
+                    "prompt",
+                    dest,
+                    locale="ko",
+                )
+
+            self.assertIn("provider untranslated source text", issues[0])
+            self.assertEqual(
+                provider.call_count,
+                main.MAX_SEGMENT_VERIFICATION_ATTEMPTS,
             )
             self.assertFalse(dest.exists())
 
@@ -336,6 +535,141 @@ class MainPipelineTests(unittest.TestCase):
                 "- [After](#after)\n",
             )
 
+    def test_translate_one_updates_only_the_changed_duplicate_bare_link_block(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/collections.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            unchanged_list = (
+                "[reduce](#method-reduce)\n"
+                "[reduceSpread](#method-reduce-spread)\n"
+                "[reject](#method-reject)\n"
+            )
+            changed_list = (
+                "[reduce](#method-reduce)\n"
+                "[reduceInto](#method-reduce-into)\n"
+                "[reduceSpread](#method-reduce-spread)\n"
+                "[reject](#method-reject)\n"
+            )
+            source_path.write_text(
+                f"{unchanged_list}\n{changed_list}",
+                encoding="utf-8",
+            )
+
+            dest = root / "versioned_docs/version-13.x/collections.md"
+            dest.parent.mkdir(parents=True)
+
+            def annotated(link_list: str) -> str:
+                return f"<!--\n{link_list}-->\n{link_list}"
+
+            original = f"{annotated(unchanged_list)}\n{annotated(unchanged_list)}"
+            expected = f"{annotated(unchanged_list)}\n{annotated(changed_list)}"
+            dest.write_text(original, encoding="utf-8")
+
+            change = self._change_with_lines(
+                path=(
+                    "i18n/en/docusaurus-plugin-content-docs/"
+                    "version-13.x/collections.md"
+                ),
+                lines=[
+                    ("context", "[reduce](#method-reduce)"),
+                    ("context", "[reduceSpread](#method-reduce-spread)"),
+                    ("context", "[reject](#method-reject)"),
+                    ("context", ""),
+                    ("context", "[reduce](#method-reduce)"),
+                    ("add", "[reduceInto](#method-reduce-into)"),
+                    ("context", "[reduceSpread](#method-reduce-spread)"),
+                    ("context", "[reject](#method-reject)"),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=AssertionError("provider should not run for bare links"),
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+                self.assertEqual(issues, [])
+                self.assertEqual(dest.read_text(encoding="utf-8"), expected)
+
+                rerun_issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(rerun_issues, [])
+            self.assertEqual(dest.read_text(encoding="utf-8"), expected)
+
+    def test_translate_one_moves_named_sections_without_provider_call(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            beta = '<a name="beta"></a>\n## Beta\n\nBeta body.\n'
+            alpha = '<a name="alpha"></a>\n## Alpha\n\nAlpha body.\n'
+            source_path.write_text(f"{beta}\n{alpha}", encoding="utf-8")
+
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            existing_alpha = (
+                '<a name="alpha"></a>\n'
+                "<!-- ## Alpha -->\n## Alpha\n\n"
+                "<!-- Alpha body. -->\n알파 본문.\n"
+            )
+            existing_beta = (
+                '<a name="beta"></a>\n'
+                "<!-- ## Beta -->\n## Beta\n\n"
+                "<!-- Beta body. -->\n베타 본문.\n"
+            )
+            dest.write_text(
+                f"{existing_alpha}\n{existing_beta}",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path=(
+                    "i18n/en/docusaurus-plugin-content-docs/"
+                    "version-13.x/example.md"
+                ),
+                lines=[
+                    ("add", '<a name="beta"></a>'),
+                    ("add", "## Beta"),
+                    ("add", ""),
+                    ("add", "Beta body."),
+                    ("add", ""),
+                    ("context", '<a name="alpha"></a>'),
+                    ("context", "## Alpha"),
+                    ("context", ""),
+                    ("context", "Alpha body."),
+                    ("delete", ""),
+                    ("delete", '<a name="beta"></a>'),
+                    ("delete", "## Beta"),
+                    ("delete", ""),
+                    ("delete", "Beta body."),
+                ],
+            )
+            cfg = config.Config(
+                provider="cli",
+                values={"TRANSLATION_PROVIDER": "cli"},
+            )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=AssertionError("provider should not run for a move"),
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+                rerun_issues = main._translate_one(change, cfg, "prompt", dest)
+
+            expected = f"{existing_beta}\n{existing_alpha}"
+            self.assertEqual(issues, [])
+            self.assertEqual(rerun_issues, [])
+            self.assertEqual(dest.read_text(encoding="utf-8"), expected)
+
     def test_translate_one_inserts_structural_section_before_raw_anchor(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -496,12 +830,18 @@ class MainPipelineTests(unittest.TestCase):
             ) -> str:
                 self.assertFalse(split)
                 return (
-                    "## 콜아웃\n\n"
+                    '<a name="callouts"></a>\n'
+                    "<!-- ## Callouts -->\n"
+                    "## Callouts\n\n"
+                    "<!-- The `callout` function displays a message. -->\n"
                     "`callout` 함수는 메시지를 표시합니다.\n\n"
                     "```php\n"
                     "callout(label: 'Environment Configured');\n"
                     "```\n\n"
-                    "#### 리치 콘텐츠\n\n"
+                    '<a name="callout-rich-content"></a>\n'
+                    "<!-- #### Rich Content -->\n"
+                    "#### Rich Content\n\n"
+                    "<!-- You may pass an array of strings and elements. -->\n"
                     "문자열과 요소의 배열을 전달할 수 있습니다.\n"
                 )
 
@@ -533,7 +873,7 @@ class MainPipelineTests(unittest.TestCase):
                 "## Tables\n",
             )
 
-    def test_translate_one_splits_multi_block_insertions(self):
+    def test_translate_one_handles_multi_block_insertions_as_one_range(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source_path = (
@@ -571,9 +911,12 @@ class MainPipelineTests(unittest.TestCase):
             ) -> str:
                 sent.append(content)
                 self.assertFalse(split)
-                if "B." in content:
-                    return "<!-- B. -->\nB 번역.\n"
-                return "<!-- D. -->\nD 번역.\n"
+                self.assertIn("B.", content)
+                self.assertIn("D.", content)
+                return (
+                    "<!-- B. -->\nB 번역.\n\n"
+                    "<!-- D. -->\nD 번역.\n"
+                )
 
             with patch.object(main, "REPO_ROOT", root), patch.object(
                 main.translate,
@@ -583,7 +926,7 @@ class MainPipelineTests(unittest.TestCase):
                 issues = main._translate_one(change, cfg, "prompt", dest)
 
             self.assertEqual(issues, [])
-            self.assertEqual(len(sent), 2)
+            self.assertEqual(len(sent), 1)
             self.assertEqual(
                 dest.read_text(encoding="utf-8"),
                 "<!-- A. -->\n"
@@ -728,7 +1071,7 @@ class MainPipelineTests(unittest.TestCase):
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
                 self.assertFalse(split)
-                return "<!-- See {{version}} updated. -->\n새 번역입니다.\n"
+                return "<!-- See 12.x updated. -->\n새 번역입니다.\n"
 
             with patch.object(main, "REPO_ROOT", root), patch.object(
                 main.translate,
@@ -741,6 +1084,57 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(
                 dest.read_text(encoding="utf-8"),
                 "<!-- See 12.x updated. -->\n새 번역입니다.\n",
+            )
+
+    def test_translate_one_restores_placeholders_in_plan_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            image = "![Diagram](data:image/png;base64,QUJD)"
+            source_path.write_text(
+                f"{image}\n\nNew text.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                f"<!-- {image} -->\n{image}\n\n"
+                "<!-- Old text. -->\n예전 번역입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", image),
+                    ("context", ""),
+                    ("delete", "Old text."),
+                    ("add", "New text."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            def translated(
+                _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
+            ) -> str:
+                self.assertFalse(split)
+                return "<!-- New text. -->\n새 번역입니다.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                f"<!-- {image} -->\n{image}\n\n"
+                "<!-- New text. -->\n새 번역입니다.\n",
             )
 
     def test_translate_one_reports_partial_patch_failure_without_full_retranslation(self):
@@ -773,12 +1167,217 @@ class MainPipelineTests(unittest.TestCase):
 
             self.assertEqual(
                 issues,
-                ["partial patch failed: missing existing translation block for: Old text."],
+                [
+                    "partial patch failed: existing block order matches neither "
+                    "source nor target plan state"
+                ],
             )
             self.assertEqual(
                 dest.read_text(encoding="utf-8"),
                 "Unrelated translation.\n",
             )
+
+    def test_translate_one_rejects_mixed_plan_state_before_provider(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Before.\n\nNew text.\n\nAfter.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            existing = (
+                "<!-- Before. -->\n앞 문장입니다.\n\n"
+                "<!-- Extra. -->\n추가 문장입니다.\n\n"
+                "<!-- Old text. -->\n예전 번역입니다.\n\n"
+                "<!-- After. -->\n뒤 문장입니다.\n"
+            )
+            dest.write_text(existing, encoding="utf-8")
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("delete", "Old text."),
+                    ("add", "New text."),
+                    ("context", ""),
+                    ("context", "After."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=AssertionError("provider should not run for mixed state"),
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(
+                issues,
+                [
+                    "partial patch failed: existing block order matches neither "
+                    "source nor target plan state"
+                ],
+            )
+            self.assertEqual(dest.read_text(encoding="utf-8"), existing)
+
+    def test_translate_one_verifies_target_state_without_provider(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Before.\n\nNew text.\n\nAfter.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            existing = (
+                "<!-- Before. -->\n앞 문장입니다.\n\n"
+                "<!-- New text. -->\n새 번역입니다.\n\n"
+                "<!-- After. -->\n뒤 문장입니다.\n"
+            )
+            dest.write_text(existing, encoding="utf-8")
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("delete", "Old text."),
+                    ("add", "New text."),
+                    ("context", ""),
+                    ("context", "After."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_text",
+                side_effect=AssertionError("provider should not run for target state"),
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(dest.read_text(encoding="utf-8"), existing)
+
+    def test_translate_one_skips_an_already_current_prose_and_code_hunk(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            old_source = (
+                "Before.\n\n"
+                "Use the old key.\n\n"
+                "```php\n"
+                "$key = 'old';\n"
+                "```\n\n"
+                "After.\n"
+            )
+            new_source = (
+                "Before.\n\n"
+                "Use the new key.\n\n"
+                "```php\n"
+                "$key = 'new';\n"
+                "```\n\n"
+                "After.\n"
+            )
+            source_path.write_text(new_source, encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            existing = (
+                "<!-- Before. -->\n이전입니다.\n\n"
+                "<!-- Use the new key. -->\n새 키를 사용합니다.\n\n"
+                "```php\n"
+                "$key = 'new';\n"
+                "```\n\n"
+                "<!-- After. -->\n이후입니다.\n"
+            )
+            dest.write_text(existing, encoding="utf-8")
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="M",
+                hunks=diff.hunks_between(old_source, new_source),
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.patch_utils,
+                "plan_state",
+                return_value=main.patch_utils.PlanState.UNGUARDED,
+            ), patch.object(
+                main.translate,
+                "translate_request",
+                side_effect=AssertionError("provider should not run for current output"),
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest, locale="ko")
+
+            self.assertEqual(issues, [])
+            self.assertEqual(dest.read_text(encoding="utf-8"), existing)
+
+    def test_translate_one_repairs_unchanged_legacy_admonition_and_annotation(self):
+        """Partial replay also normalizes legacy context outside the changed block."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            old_source = (
+                "Before.\n\n"
+                "> **Note:** Keep this.\n\n"
+                "Old text.\n\n"
+                "After.\n"
+            )
+            new_source = old_source.replace("Old text.", "New text.")
+            source_path.write_text(new_source, encoding="utf-8")
+            dest = (
+                root
+                / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n"
+                "前の文です。\n\n"
+                "<!-- > **Note:** Keep this. -->\n"
+                "> **注意:** 保持する必要があります。\n\n"
+                "<!-- Old text. -->\n"
+                "古い翻訳です。\n\n"
+                "<!-- After. -->\n"
+                "後の文です。\n",
+                encoding="utf-8",
+            )
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="M",
+                hunks=diff.hunks_between(old_source, new_source),
+            )
+            cfg = config.Config(
+                provider="identity",
+                values={"TRANSLATION_PROVIDER": "identity"},
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._translate_one(change, cfg, "prompt", dest, locale="ja")
+
+            self.assertEqual(issues, [])
+            output = dest.read_text(encoding="utf-8")
+            self.assertIn("> [!NOTE]\n> 保持する必要があります。", output)
+            self.assertNotIn("> **注意:**", output)
+            self.assertIn("<!-- New text. -->", output)
 
     def test_translate_one_expands_line_change_to_containing_paragraph(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1199,9 +1798,9 @@ class MainPipelineTests(unittest.TestCase):
             ) -> str:
                 self.assertFalse(split)
                 return (
-                    "<!-- Vector search requires the [Laravel AI SDK](/docs/13.x/ai-sdk) "
+                    "> <!-- Vector search requires the [Laravel AI SDK](/docs/13.x/ai-sdk) "
                     "and PostgreSQL with `pgvector`. -->\n"
-                    "ベクトル検索には、[Laravel AI SDK](/docs/13.x/ai-sdk) と "
+                    "> ベクトル検索には、[Laravel AI SDK](/docs/13.x/ai-sdk) と "
                     "`pgvector` を備えた PostgreSQL が必要です。\n"
                 )
 
@@ -1226,6 +1825,161 @@ class MainPipelineTests(unittest.TestCase):
                 "<!-- ### Generating Embeddings -->\n"
                 "### Generating Embeddings\n",
             )
+
+    def test_translate_one_retranslates_an_admonition_marker_change(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Before.\n\n"
+                "> [!WARNING]\n"
+                "> Keep the source body.\n\n"
+                "After.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n이전입니다.\n\n"
+                "> [!NOTE]\n> 기존 본문입니다.\n\n"
+                "<!-- After. -->\n이후입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("delete", "> [!NOTE]"),
+                    ("add", "> [!WARNING]"),
+                    ("context", "> Keep the source body."),
+                    ("context", ""),
+                    ("context", "After."),
+                ],
+            )
+            cfg = config.Config(
+                provider="cli",
+                values={"TRANSLATION_PROVIDER": "cli"},
+            )
+
+            def translated(request, *_args, **_kwargs):
+                self.assertEqual(
+                    request.source,
+                    "> [!WARNING]\n> Keep the source body.\n",
+                )
+                return "> [!WARNING]\n> 원문 본문을 유지합니다.\n"
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                side_effect=translated,
+            ) as provider:
+                issues = main._translate_one(
+                    change,
+                    cfg,
+                    "prompt",
+                    dest,
+                    locale="ko",
+                )
+
+            self.assertEqual(issues, [])
+            self.assertEqual(provider.call_count, 1)
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n이전입니다.\n\n"
+                "> [!WARNING]\n> 원문 본문을 유지합니다.\n\n"
+                "<!-- After. -->\n이후입니다.\n",
+            )
+
+    def test_translate_one_replaces_an_annotated_inline_code_list(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            old_source = (
+                "Before.\n\n"
+                "> [!NOTE]\n"
+                "> Keep this body.\n\n"
+                "Events:\n\n"
+                "- `FirstEvent`\n"
+                "- `SecondEvent`\n\n"
+                "After.\n"
+            )
+            new_source = old_source.replace(
+                "> [!NOTE]",
+                "> [!WARNING]",
+            ).replace(
+                "- `FirstEvent`\n- `SecondEvent`\n",
+                "- `FirstEvent`\n- `ThirdEvent`\n- `SecondEvent`\n",
+            )
+            source_path.write_text(new_source, encoding="utf-8")
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n이전입니다.\n\n"
+                "> **Note:** 본문을 유지합니다.\n\n"
+                "<!-- Events: -->\n이벤트입니다.\n\n"
+                "<!--\n"
+                "- `FirstEvent`\n"
+                "- `SecondEvent`\n"
+                "-->\n"
+                "- `FirstEvent`\n"
+                "- `SecondEvent`\n\n"
+                "<!-- After. -->\n이후입니다.\n",
+                encoding="utf-8",
+            )
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                status="M",
+                hunks=diff.hunks_between(old_source, new_source),
+            )
+            cfg = config.Config(
+                provider="identity",
+                values={"TRANSLATION_PROVIDER": "identity"},
+            )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                side_effect=lambda request, *_args, **_kwargs: request.source,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest, locale="ko")
+
+            self.assertEqual(issues, [])
+            expected = (
+                "<!-- Before. -->\n이전입니다.\n\n"
+                "> [!WARNING]\n> Keep this body.\n\n"
+                "<!-- Events: -->\n이벤트입니다.\n\n"
+                "- `FirstEvent`\n"
+                "- `ThirdEvent`\n"
+                "- `SecondEvent`\n"
+                "\n"
+                "<!-- After. -->\n이후입니다.\n"
+            )
+            self.assertEqual(dest.read_text(encoding="utf-8"), expected)
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                side_effect=lambda request, *_args, **_kwargs: request.source,
+            ):
+                repeated_issues = main._translate_one(
+                    change,
+                    cfg,
+                    "prompt",
+                    dest,
+                    locale="ko",
+                )
+
+            self.assertEqual(repeated_issues, [])
+            self.assertEqual(dest.read_text(encoding="utf-8"), expected)
 
     def test_translate_one_retries_when_segment_still_has_link_mismatches(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1477,6 +2231,190 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(ko_doc.exists())
             self.assertFalse(ja_doc.exists())
 
+    def test_delete_outputs_rejects_symlinked_parent_without_partial_deletion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            root.mkdir()
+            outside = Path(tmp) / "outside"
+            outside.mkdir()
+            external_doc = outside / "example.md"
+            external_doc.write_text("external\n", encoding="utf-8")
+            ko_root = root / "versioned_docs"
+            ko_root.mkdir()
+            (ko_root / "version-13.x").symlink_to(
+                outside,
+                target_is_directory=True,
+            )
+            ja_doc = (
+                root
+                / "i18n/ja/docusaurus-plugin-content-docs"
+                / "version-13.x/example.md"
+            )
+            ja_doc.parent.mkdir(parents=True)
+            ja_doc.write_text("ja\n", encoding="utf-8")
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                status="D",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._delete_outputs(change)
+
+            self.assertTrue(external_doc.exists())
+            self.assertEqual(external_doc.read_text(encoding="utf-8"), "external\n")
+            self.assertEqual(ja_doc.read_text(encoding="utf-8"), "ja\n")
+            self.assertEqual(
+                issues,
+                [
+                    "unsafe translation output path: "
+                    + str(ko_root / "version-13.x/example.md")
+                ],
+            )
+
+    def test_delete_outputs_validates_ja_path_before_deleting_ko_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            root.mkdir()
+            ko_doc = root / "versioned_docs/version-13.x/example.md"
+            ko_doc.parent.mkdir(parents=True)
+            ko_doc.write_text("ko\n", encoding="utf-8")
+            outside = Path(tmp) / "outside"
+            outside.mkdir()
+            external_doc = outside / "example.md"
+            external_doc.write_text("external\n", encoding="utf-8")
+            ja_root = root / "i18n/ja/docusaurus-plugin-content-docs"
+            ja_root.mkdir(parents=True)
+            (ja_root / "version-13.x").symlink_to(
+                outside,
+                target_is_directory=True,
+            )
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                status="D",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._delete_outputs(change)
+
+            self.assertEqual(ko_doc.read_text(encoding="utf-8"), "ko\n")
+            self.assertEqual(external_doc.read_text(encoding="utf-8"), "external\n")
+            self.assertEqual(
+                issues,
+                [
+                    "unsafe translation output path: "
+                    + str(ja_root / "version-13.x/example.md")
+                ],
+            )
+
+    def test_added_document_rejects_symlinked_final_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            root.mkdir()
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs"
+                / "version-13.x/example.md"
+            )
+            source.parent.mkdir(parents=True)
+            source.write_text("# Example\n", encoding="utf-8")
+            outside = Path(tmp) / "outside.md"
+            outside.write_text("external\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.symlink_to(outside)
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                status="A",
+            )
+            cfg = config.Config(
+                provider="identity",
+                values={"TRANSLATION_PROVIDER": "identity"},
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(outside.read_text(encoding="utf-8"), "external\n")
+            self.assertTrue(dest.is_symlink())
+            self.assertEqual(
+                issues,
+                ["unsafe translation output path: " + str(dest)],
+            )
+
+    def test_added_document_replaces_hardlink_without_mutating_other_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            root.mkdir()
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs"
+                / "version-13.x/example.md"
+            )
+            source.parent.mkdir(parents=True)
+            source.write_text("# Example\n", encoding="utf-8")
+            victim = root / "outside.md"
+            victim.write_text("external\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.hardlink_to(victim)
+            dest.chmod(0o640)
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+                status="A",
+            )
+            cfg = config.Config(
+                provider="identity",
+                values={"TRANSLATION_PROVIDER": "identity"},
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(victim.read_text(encoding="utf-8"), "external\n")
+            self.assertNotEqual(dest.read_text(encoding="utf-8"), "external\n")
+            self.assertFalse(dest.samefile(victim))
+            self.assertEqual(dest.stat().st_mode & 0o777, 0o640)
+
+    def test_identity_replay_allows_source_echo_after_structural_verification(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            old_source = "Before.\n\nOld source sentence.\n\nAfter.\n"
+            new_source = "Before.\n\nNew source sentence.\n\nAfter.\n"
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs"
+                / "version-13.x/example.md"
+            )
+            source.parent.mkdir(parents=True)
+            source.write_text(new_source, encoding="utf-8")
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Before. -->\n이전입니다.\n\n"
+                "<!-- Old source sentence. -->\n기존 문장입니다.\n\n"
+                "<!-- After. -->\n이후입니다.\n",
+                encoding="utf-8",
+            )
+            change = diff.SourceChange(
+                path=(
+                    "i18n/en/docusaurus-plugin-content-docs/"
+                    "version-13.x/example.md"
+                ),
+                status="M",
+                hunks=diff.hunks_between(old_source, new_source),
+            )
+            cfg = config.Config(
+                provider="identity",
+                values={"TRANSLATION_PROVIDER": "identity"},
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertIn("<!-- New source sentence. -->", dest.read_text())
+
     def test_loads_ko_and_ja_prompts_from_separate_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1505,6 +2443,10 @@ class MainPipelineTests(unittest.TestCase):
             )
             source.parent.mkdir(parents=True)
             source.write_text("# Example\n", encoding="utf-8")
+            (source.parent.parent / "version-12.x.json").write_text(
+                "{}\n",
+                encoding="utf-8",
+            )
 
             with patch.object(main, "REPO_ROOT", root):
                 changes = main._select_changes(migrate_existing=True)
@@ -1548,6 +2490,56 @@ class MainPipelineTests(unittest.TestCase):
             ],
         )
 
+    def test_select_changes_migrate_existing_rejects_source_symlinks(self):
+        for component in ("root", "version", "leaf"):
+            with self.subTest(component=component), tempfile.TemporaryDirectory() as tmp:
+                base = Path(tmp)
+                root = base / "repo"
+                root.mkdir()
+                outside = base / "outside"
+                outside.mkdir()
+
+                if component == "root":
+                    (outside / "version-13.x").mkdir()
+                    (outside / "version-13.x/example.md").write_text(
+                        "# External\n",
+                        encoding="utf-8",
+                    )
+                    (root / "i18n/en").mkdir(parents=True)
+                    (
+                        root
+                        / "i18n/en/docusaurus-plugin-content-docs"
+                    ).symlink_to(outside, target_is_directory=True)
+                elif component == "version":
+                    (outside / "example.md").write_text(
+                        "# External\n",
+                        encoding="utf-8",
+                    )
+                    en_root = (
+                        root / "i18n/en/docusaurus-plugin-content-docs"
+                    )
+                    en_root.mkdir(parents=True)
+                    (en_root / "version-13.x").symlink_to(
+                        outside,
+                        target_is_directory=True,
+                    )
+                else:
+                    outside_doc = outside / "example.md"
+                    outside_doc.write_text("# External\n", encoding="utf-8")
+                    version_root = (
+                        root
+                        / "i18n/en/docusaurus-plugin-content-docs/version-13.x"
+                    )
+                    version_root.mkdir(parents=True)
+                    (version_root / "example.md").symlink_to(outside_doc)
+
+                with patch.object(main, "REPO_ROOT", root):
+                    with self.assertRaisesRegex(
+                        main.SourcePathError,
+                        "unsafe English source path",
+                    ):
+                        main._select_changes(migrate_existing=True)
+
     def test_sidebar_versions_include_changed_versions_and_master_once(self):
         changes = [
             diff.SourceChange(
@@ -1570,7 +2562,13 @@ class MainPipelineTests(unittest.TestCase):
             return [main.sidebar.SidebarResult("master", False, [])]
 
         with patch.object(main.sys, "argv", ["main.py"]), patch.object(
-            main.upstream, "main"
+            main.config,
+            "load_config",
+            return_value=config.Config(
+                provider="cli", values={"TRANSLATION_PROVIDER": "cli"}
+            ),
+        ), patch.object(
+            main.upstream, "main", return_value=0
         ), patch.object(main.diff, "changed_sources", return_value=[]), patch.object(
             main.sidebar, "sync_versions", side_effect=sync_versions
         ):
@@ -1579,11 +2577,36 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(calls, [(["master"], True)])
 
-    def test_main_require_filters_stops_before_upstream_when_filter_is_missing(self):
+    def test_main_scopes_upstream_sync_to_requested_filters(self):
         with patch.object(
             main.sys,
             "argv",
-            ["main.py", "--require-filters", "--version", "13.x"],
+            ["main.py", "--version", "13.x", "--doc", "collections"],
+        ), patch.object(
+            main.config,
+            "load_config",
+            return_value=config.Config(
+                provider="cli", values={"TRANSLATION_PROVIDER": "cli"}
+            ),
+        ), patch.object(
+            main.upstream, "main", return_value=0
+        ) as upstream_main, patch.object(
+            main.diff, "changed_sources", return_value=[]
+        ), patch.object(
+            main.sidebar,
+            "sync_versions",
+            return_value=[main.sidebar.SidebarResult("13.x", False, [])],
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 0)
+        upstream_main.assert_called_once_with(version="13.x", doc="collections.md")
+
+    def test_main_reports_missing_filter_value_without_traceback(self):
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys, "argv", ["main.py", "--version"]
         ), patch.object(
             main.upstream,
             "main",
@@ -1592,6 +2615,297 @@ class MainPipelineTests(unittest.TestCase):
             exit_code = main.main()
 
         self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "configuration failed: --version requires a value\n",
+        )
+
+    def test_main_rejects_unknown_argument_before_upstream_sync(self):
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys, "argv", ["main.py", "--versoin", "13.x"]
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "configuration failed: unknown argument: --versoin\n",
+        )
+
+    def test_main_rejects_empty_equals_filter_before_upstream_sync(self):
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys, "argv", ["main.py", "--version="]
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "configuration failed: --version requires a value\n",
+        )
+
+    def test_main_rejects_multiple_maintenance_modes(self):
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys,
+            "argv",
+            ["main.py", "--check-annotations", "--annotate-existing"],
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "configuration failed: maintenance modes are mutually exclusive\n",
+        )
+
+    def test_main_rejects_apply_without_writable_maintenance_mode(self):
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys, "argv", ["main.py", "--apply"]
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "configuration failed: --apply requires --annotate-existing or "
+            "--fix-preserved-markup\n",
+        )
+
+    def test_main_rejects_fail_fast_in_maintenance_mode(self):
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys,
+            "argv",
+            ["main.py", "--check-annotations", "--fail-fast"],
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "configuration failed: --fail-fast is only valid for translation sync\n",
+        )
+
+    def test_main_rejects_broken_migrate_existing_mode(self):
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys, "argv", ["main.py", "--migrate-existing"]
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "configuration failed: --migrate-existing is unsupported; use "
+            "--annotate-existing or --fix-preserved-markup\n",
+        )
+
+    def test_main_allows_apply_with_annotation_maintenance(self):
+        with patch.object(
+            main.sys,
+            "argv",
+            ["main.py", "--annotate-existing", "--apply", "--version=13.x"],
+        ), patch.object(
+            main, "_annotate_existing", return_value=(0, [])
+        ) as annotate_existing, patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 0)
+        annotate_existing.assert_called_once_with(
+            apply=True,
+            version="13.x",
+            doc=None,
+        )
+
+    def test_fix_preserved_markup_repairs_markdown_image_target(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            ko_doc = root / "versioned_docs/version-13.x/example.md"
+            source.parent.mkdir(parents=True)
+            ko_doc.parent.mkdir(parents=True)
+            source.write_text(
+                "![Tutorial](/images/tutorial.png)\n",
+                encoding="utf-8",
+            )
+            ko_doc.write_text(
+                "<!-- ![Tutorial](/images/tutorial.png) -->\n"
+                "![튜토리얼](/이미지/tutorial.png)\n",
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with redirect_stdout(stdout), patch.object(
+                main, "REPO_ROOT", root
+            ), patch.object(
+                main.sys,
+                "argv",
+                [
+                    "main.py",
+                    "--fix-preserved-markup",
+                    "--apply",
+                    "--version",
+                    "13.x",
+                    "--doc",
+                    "example.md",
+                ],
+            ):
+                exit_code = main.main()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(
+                stdout.getvalue(),
+                "existing preserved markup fixes written: 1\n",
+            )
+            self.assertEqual(
+                ko_doc.read_text(encoding="utf-8"),
+                "<!-- ![Tutorial](/images/tutorial.png) -->\n"
+                "![튜토리얼](/images/tutorial.png)\n",
+            )
+
+    def test_fix_preserved_markup_repairs_markdown_link_title(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            ko_doc = root / "versioned_docs/version-13.x/example.md"
+            source.parent.mkdir(parents=True)
+            ko_doc.parent.mkdir(parents=True)
+            source.write_text(
+                'See [Docs](guide.md "Read more").\n',
+                encoding="utf-8",
+            )
+            ko_doc.write_text(
+                '<!-- See [Docs](guide.md "Read more"). -->\n'
+                '[Docs](guide.md "자세히 보기")를 참고하세요.\n',
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with redirect_stdout(stdout), redirect_stderr(stderr), patch.object(
+                main, "REPO_ROOT", root
+            ), patch.object(
+                main.sys,
+                "argv",
+                [
+                    "main.py",
+                    "--fix-preserved-markup",
+                    "--apply",
+                    "--version",
+                    "13.x",
+                    "--doc",
+                    "example.md",
+                ],
+            ):
+                exit_code = main.main()
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(stderr.getvalue(), "")
+            self.assertEqual(
+                stdout.getvalue(),
+                "existing preserved markup fixes written: 1\n",
+            )
+            self.assertEqual(
+                ko_doc.read_text(encoding="utf-8"),
+                '<!-- See [Docs](guide.md "Read more"). -->\n'
+                '[Docs](guide.md "Read more")를 참고하세요.\n',
+            )
+
+    def test_fix_preserved_markup_reports_unresolved_fixable_issue(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            )
+            ko_doc = root / "versioned_docs/version-13.x/example.md"
+            source.parent.mkdir(parents=True)
+            ko_doc.parent.mkdir(parents=True)
+            source.write_text(
+                "Visit <https://example.com/source>.\n",
+                encoding="utf-8",
+            )
+            original = (
+                "<!-- Visit <https://example.com/source>. -->\n"
+                "<https://example.com/wrong>을 방문하세요.\n"
+            )
+            ko_doc.write_text(original, encoding="utf-8")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+
+            with redirect_stdout(stdout), redirect_stderr(stderr), patch.object(
+                main, "REPO_ROOT", root
+            ), patch.object(
+                main.sys,
+                "argv",
+                [
+                    "main.py",
+                    "--fix-preserved-markup",
+                    "--apply",
+                    "--version",
+                    "13.x",
+                    "--doc",
+                    "example.md",
+                ],
+            ):
+                exit_code = main.main()
+
+            self.assertEqual(exit_code, 1)
+            self.assertEqual(
+                stdout.getvalue(),
+                "existing preserved markup fixes written: 0\n",
+            )
+            self.assertIn(
+                "preserved markup fix skipped: ko "
+                "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md: "
+                "link target mismatch, link pair mismatch\n",
+                stderr.getvalue(),
+            )
+            self.assertEqual(ko_doc.read_text(encoding="utf-8"), original)
 
     def test_main_fail_fast_stops_after_first_verification_failure(self):
         change = diff.SourceChange(
@@ -1600,13 +2914,14 @@ class MainPipelineTests(unittest.TestCase):
         )
         calls: list[str] = []
 
-        def translate_one(change, cfg, prompt, dest):
+        def translate_one(change, cfg, prompt, dest, *, locale=None):
+            self.assertIn(locale, ("ko", "ja"))
             calls.append(str(dest))
             return ["heading mismatch"]
 
         with patch.object(
             main.sys, "argv", ["main.py", "--fail-fast"]
-        ), patch.object(main.upstream, "main"), patch.object(
+        ), patch.object(main.upstream, "main", return_value=0), patch.object(
             main.diff, "changed_sources", return_value=[change]
         ), patch.object(
             main.config,
@@ -1623,6 +2938,81 @@ class MainPipelineTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertEqual(len(calls), 1)
+
+    def test_main_stops_when_upstream_sync_fails(self):
+        with patch.object(main.sys, "argv", ["main.py"]), patch.object(
+            main.config,
+            "load_config",
+            return_value=config.Config(
+                provider="cli", values={"TRANSLATION_PROVIDER": "cli"}
+            ),
+        ), patch.object(
+            main.upstream, "main", return_value=1
+        ), patch.object(
+            main.diff,
+            "changed_sources",
+            side_effect=AssertionError("diff should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 1)
+
+    def test_main_reports_invalid_provider_configuration_without_traceback(self):
+        change = diff.SourceChange(
+            path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+            status="M",
+        )
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys, "argv", ["main.py"]
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ), patch.object(
+            main.config,
+            "load_config",
+            side_effect=config.ConfigError(
+                "TRANSLATION_CLI_TIMEOUT must be an integer > 0"
+            ),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "configuration failed: "
+            "TRANSLATION_CLI_TIMEOUT must be an integer > 0\n",
+        )
+
+    def test_main_reports_missing_prompt_before_upstream_sync(self):
+        stderr = io.StringIO()
+
+        with redirect_stderr(stderr), patch.object(
+            main.sys, "argv", ["main.py"]
+        ), patch.object(
+            main.config,
+            "load_config",
+            return_value=config.Config(
+                provider="cli", values={"TRANSLATION_PROVIDER": "cli"}
+            ),
+        ), patch.object(
+            main,
+            "_load_prompts",
+            side_effect=main.prompt.PromptError("missing prompt file: prompt.md"),
+        ), patch.object(
+            main.upstream,
+            "main",
+            side_effect=AssertionError("upstream should not run"),
+        ):
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(
+            stderr.getvalue(),
+            "prompt loading failed: missing prompt file: prompt.md\n",
+        )
 
     def test_check_existing_annotations_reports_unannotated_documents(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1650,8 +3040,10 @@ class MainPipelineTests(unittest.TestCase):
             issues,
             [
                 "ko i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: heading text mismatch",
+                "ko i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: source comment mismatch",
                 "ko i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: missing original comment",
                 "ja i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: heading text mismatch",
+                "ja i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: source comment mismatch",
                 "ja i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: missing original comment",
             ],
         )
@@ -1728,6 +3120,126 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(failures, [])
             self.assertIn("<!-- # Example -->", ko_doc.read_text(encoding="utf-8"))
             self.assertIn("<!-- Body text. -->", ja_doc.read_text(encoding="utf-8"))
+
+    def test_annotate_existing_normalizes_legacy_alert_without_missing_comments(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            ko_doc = root / "versioned_docs/version-12.x/example.md"
+            source.parent.mkdir(parents=True)
+            ko_doc.parent.mkdir(parents=True)
+            source.write_text(
+                "> [!NOTE]\n> Body text.\n",
+                encoding="utf-8",
+            )
+            ko_doc.write_text(
+                "> **Note:**\n> 본문입니다.\n",
+                encoding="utf-8",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                written, failures = main._annotate_existing(apply=True)
+
+            self.assertEqual(written, 1)
+            self.assertEqual(failures, [])
+            self.assertEqual(
+                ko_doc.read_text(encoding="utf-8"),
+                "> [!NOTE]\n> 본문입니다.\n",
+            )
+
+    def test_annotate_existing_repairs_source_comment_mismatch_without_missing_comment(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            ko_doc = root / "versioned_docs/version-12.x/example.md"
+            source.parent.mkdir(parents=True)
+            ko_doc.parent.mkdir(parents=True)
+            source.write_text(
+                '<a name="cache"></a>\n\nCache body.\n',
+                encoding="utf-8",
+            )
+            ko_doc.write_text(
+                '<a name="cache"></a>\n\n'
+                "<!-- Cache body. -->\n"
+                "캐시 본문입니다.\n\n"
+                '<!-- <a name="cache"></a> -->\n',
+                encoding="utf-8",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                written, failures = main._annotate_existing(apply=True)
+
+            self.assertEqual(written, 1)
+            self.assertEqual(failures, [])
+            self.assertNotIn(
+                '<!-- <a name="cache"></a> -->',
+                ko_doc.read_text(encoding="utf-8"),
+            )
+
+    def test_annotate_existing_writes_canonical_stale_links_when_document_verifies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            ko_doc = root / "versioned_docs/version-12.x/example.md"
+            source.parent.mkdir(parents=True)
+            ko_doc.parent.mkdir(parents=True)
+            source.write_text(
+                "- [Agents](#agents-integration)\n",
+                encoding="utf-8",
+            )
+            ko_doc.write_text(
+                "- [Agents](#agents-integration)\n",
+                encoding="utf-8",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                written, failures = main._annotate_existing(apply=True)
+
+            self.assertEqual(written, 1)
+            self.assertEqual(failures, [])
+            self.assertIn(
+                "- [Agents](#agent-integration)\n",
+                ko_doc.read_text(encoding="utf-8"),
+            )
+
+    def test_annotate_existing_restores_blank_markdown_link_label(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            ko_doc = root / "versioned_docs/version-12.x/example.md"
+            source.parent.mkdir(parents=True)
+            ko_doc.parent.mkdir(parents=True)
+            source.write_text(
+                "See [`Type`](guide.md#type).\n",
+                encoding="utf-8",
+            )
+            ko_doc.write_text(
+                "<!-- See [`Type`](guide.md#type). -->\n"
+                "[    ](guide.md#type)을 참고하세요.\n",
+                encoding="utf-8",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                written, failures = main._annotate_existing(apply=True)
+
+            self.assertEqual(written, 1)
+            self.assertEqual(failures, [])
+            self.assertIn(
+                "[`Type`](guide.md#type)을 참고하세요.\n",
+                ko_doc.read_text(encoding="utf-8"),
+            )
 
     def test_annotate_existing_skips_documents_that_already_verify(self):
         with tempfile.TemporaryDirectory() as tmp:

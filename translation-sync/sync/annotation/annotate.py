@@ -21,9 +21,19 @@ from dataclasses import dataclass, field
 from ..common.markdown import (
     closes_fence,
     fence_token,
+    html_code_contents,
+    html_comment_spans,
+    inline_code_contents,
+    is_non_annotatable_line,
     is_heading_line,
     is_named_anchor_line,
     is_ordered_list_marker,
+    is_structural_html_fragment,
+    is_structural_html_line,
+    mask_fenced_code_contents,
+    reference_definition_line_numbers,
+    strip_html_code_elements,
+    strip_inline_code,
     strip_title_attr_line,
 )
 from ..postprocessing import postprocess as _postprocess
@@ -77,6 +87,10 @@ def split_blocks(lines: list[str]) -> list[Block]:
             blocks.append(Block("anchor", i, i + 1, [ln]))
             i += 1
             continue
+        if is_structural_html_line(ln):
+            blocks.append(Block("structure", i, i + 1, [ln]))
+            i += 1
+            continue
         if is_heading_line(ln):
             blocks.append(Block("heading", i, i + 1, [ln]))
             i += 1
@@ -90,6 +104,7 @@ def split_blocks(lines: list[str]) -> list[Block]:
                 not l2.strip()
                 or fence_token(l2)
                 or is_named_anchor_line(l2)
+                or is_structural_html_line(l2)
                 or is_heading_line(l2)
             ):
                 break
@@ -110,6 +125,8 @@ def _sig(block: Block, version: str) -> tuple:
         return ("code", _norm_code(block, version))
     if block.kind == "anchor":
         return ("anchor", block.lines[0].strip())
+    if block.kind == "structure":
+        return ("structure", block.lines[0].strip())
     if block.kind == "heading":
         line = block.lines[0].lstrip()
         level = len(line) - len(line.lstrip("#"))
@@ -150,17 +167,22 @@ def _starts_new_text_block(line: str, current_subkind: str) -> bool:
     return True
 
 
-def _is_skip_line(line: str) -> str:
+def _is_skip_line(line: str) -> bool:
     """verify._required_comments가 문단에서 제외하고 건너뛰는 줄.
 
     text 블록 안에는 제목·앵커가 없으므로 TOC 링크, 인용(`>`), 표(`|`), 기존 주석만 본다.
     """
-    s = line.strip()
-    if s.startswith(("<!--", ">", "|")):
+    if is_non_annotatable_line(line):
         return True
-    if s.startswith(("- [", "* [")) and "](#" in s:
-        return True
-    return False
+    stripped = line.strip()
+    list_body = re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", stripped)
+    return bool(
+        list_body != stripped
+        and (inline_code_contents(list_body) or html_code_contents(list_body))
+        and not strip_html_code_elements(strip_inline_code(list_body)).strip(
+            " `*_~.,:;()[]&/,+"
+        )
+    )
 
 
 _PRESENCE_MARKER_RE = re.compile(r"\]\(([^)\s]+)\)|`([^`]+)`")
@@ -207,6 +229,11 @@ def _comment_for(en: Block, ko: Block, version: str, inserts: dict[int, list[str
 
     en_lines = en.lines
     ko_lines = ko.lines
+    if is_structural_html_fragment("\n".join(en_lines)):
+        return
+    reference_lines = reference_definition_line_numbers(
+        "\n".join(en_lines)
+    )
     aligned = len(en_lines) == len(ko_lines)
 
     def make_comment(run: list[str]) -> list[str]:
@@ -219,7 +246,7 @@ def _comment_for(en: Block, ko: Block, version: str, inserts: dict[int, list[str
     n = len(en_lines)
     while i < n:
         el = en_lines[i]
-        if _is_skip_line(el):
+        if i in reference_lines or _is_skip_line(el):
             i += 1
             continue
         # verify._required_comments는 `#`로 시작하는 줄(들여쓰기 코드 안의 `#items:`,
@@ -232,7 +259,12 @@ def _comment_for(en: Block, ko: Block, version: str, inserts: dict[int, list[str
             continue
         # 문단 런: 연속 일반 줄을 하나로
         j = i
-        while j < n and not _is_skip_line(en_lines[j]) and not en_lines[j].strip().startswith("#"):
+        while (
+            j < n
+            and j not in reference_lines
+            and not _is_skip_line(en_lines[j])
+            and not en_lines[j].strip().startswith("#")
+        ):
             j += 1
         run = en_lines[i:j]
         at = ko.start + i if aligned else ko.start
@@ -240,12 +272,48 @@ def _comment_for(en: Block, ko: Block, version: str, inserts: dict[int, list[str
         i = j
 
 
-def strip_annotations(ko_text: str) -> str:
+def _source_comment_bodies(source: str | None) -> list[str]:
+    if source is None:
+        return []
+    return [
+        body
+        for _start, _end, body in html_comment_spans(
+            mask_fenced_code_contents(source)
+        )
+    ]
+
+
+def _standalone_comment_start(line: str) -> int | None:
+    prefix = re.match(r"^[ \t]*(?:>[ \t]*)*", line)
+    assert prefix is not None
+    start = prefix.end()
+    if not line[start:].startswith("<!--"):
+        return None
+    if ">" not in prefix.group(0) and start:
+        return None
+    return start
+
+
+def _standalone_comment_body(
+    lines: list[str], start: int, end: int, opening: int = 0
+) -> str:
+    first = lines[start]
+    last = lines[end]
+    if start == end:
+        return first[opening + 4 : first.index("-->")]
+    return "\n".join(
+        [first[opening + 4 :], *lines[start + 1 : end], last[: last.index("-->")]]
+    )
+
+
+def strip_annotations(ko_text: str, *, source: str | None = None) -> str:
     """코드 블록 밖의 단독 `<!-- ... -->` 병기 주석을 제거(멱등성용 재실행 대비).
 
     코드 블록 안 주석과 줄 중간 인라인 주석은 보존한다.
     """
     lines = ko_text.split("\n")
+    source_comments = _source_comment_bodies(source)
+    source_index = 0
     out: list[str] = []
     in_code = False
     fence = ""
@@ -253,7 +321,6 @@ def strip_annotations(ko_text: str) -> str:
     n = len(lines)
     while i < n:
         ln = lines[i]
-        s = ln.lstrip()
         tok = fence_token(ln)
         if tok:
             if not in_code:
@@ -263,14 +330,29 @@ def strip_annotations(ko_text: str) -> str:
             out.append(ln)
             i += 1
             continue
-        if not in_code and ln == s and s.startswith("<!--"):
+        comment_start = _standalone_comment_start(ln) if not in_code else None
+        if comment_start is not None:
             if "-->" in ln:
-                i += 1
-                continue
-            j = i + 1
-            while j < n and "-->" not in lines[j]:
-                j += 1
-            i = j + 1
+                end = i
+            else:
+                if comment_start:
+                    out.append(ln)
+                    i += 1
+                    continue
+                end = i + 1
+                while end < n and "-->" not in lines[end]:
+                    end += 1
+                if end == n:
+                    out.extend(lines[i:])
+                    break
+            body = _standalone_comment_body(lines, i, end, comment_start)
+            if (
+                source_index < len(source_comments)
+                and body == source_comments[source_index]
+            ):
+                out.extend(lines[i : end + 1])
+                source_index += 1
+            i = end + 1
             continue
         out.append(ln)
         i += 1
@@ -291,11 +373,11 @@ def annotate(en_text: str, ko_text: str, version: str) -> tuple[str, list[Drift]
     들여쓰기 코드 블록이 텍스트로 오인돼, 영어 주석이 <style> 안에 삽입되거나 들여쓰기
     코드가 주석으로 중복 병기되는 오류가 생긴다.
     """
-    ko_text = strip_annotations(ko_text)
-    _kpre = _preprocess.preprocess(ko_text)
-    ko_text = _postprocess.postprocess(_kpre.text, version, _kpre.placeholders)
     _pre = _preprocess.preprocess(en_text)
     en_text = _postprocess.postprocess(_pre.text, version, _pre.placeholders)
+    ko_text = strip_annotations(ko_text, source=en_text)
+    _kpre = _preprocess.preprocess(ko_text)
+    ko_text = _postprocess.postprocess(_kpre.text, version, _kpre.placeholders)
     en_lines = en_text.split("\n")
     ko_lines = ko_text.split("\n")
     en_blocks = split_blocks(en_lines)

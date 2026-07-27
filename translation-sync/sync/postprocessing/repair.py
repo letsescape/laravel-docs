@@ -14,13 +14,11 @@ from ..common.markdown import (
     fence_token,
     is_heading_line,
     is_named_anchor_line,
+    markdown_links,
     strip_html_comments,
     strip_title_attr_line,
 )
 
-_MARKDOWN_LINK_RE = re.compile(
-    r"(!?)\[([^\]\n]*)]\(([^)\s]+)((?:\s+\"[^\"]*\")?)\)"
-)
 _INLINE_CODE_RE = re.compile(r"`([^`\n]+)`")
 _LIST_ITEM_RE = re.compile(r"^(\s*)([-*+])(\s+)(\S.*)$")
 
@@ -39,6 +37,7 @@ class RepairResult:
 class _RepairState:
     source_headings: Iterator[str]
     source_links: Iterator[tuple[str, str, str]]
+    source_images: Iterator[tuple[str, str]] = field(default_factory=lambda: iter(()))
     source_inline_codes: list[str] = field(default_factory=list)
     source_inline_index: int = 0
     in_code: bool = False
@@ -66,11 +65,17 @@ def _heading_lines(text: str) -> list[str]:
 
 def _links(text: str) -> list[tuple[str, str, str]]:
     return [
-        (" ".join(match.group(2).split()), match.group(3), match.group(4))
-        for match in _MARKDOWN_LINK_RE.finditer(
-            strip_html_comments(_without_code_blocks(text))
-        )
-        if match.group(1) != "!"
+        (" ".join(link.label.split()), link.target, link.title)
+        for link in markdown_links(strip_html_comments(_without_code_blocks(text)))
+        if not link.image
+    ]
+
+
+def _images(text: str) -> list[tuple[str, str]]:
+    return [
+        (link.target, link.title)
+        for link in markdown_links(strip_html_comments(_without_code_blocks(text)))
+        if link.image
     ]
 
 
@@ -104,17 +109,73 @@ def _without_code_blocks(text: str) -> str:
     return "".join(out)
 
 
-def _replace_links(line: str, links: Iterator[tuple[str, str, str]]) -> str:
-    def replace(match: re.Match[str]) -> str:
-        if match.group(1) == "!":
-            return match.group(0)
+def _replace_links(
+    line: str,
+    links: Iterator[tuple[str, str, str]],
+    images: Iterator[tuple[str, str]],
+) -> str:
+    out: list[str] = []
+    index = 0
+    for link in markdown_links(line):
+        out.append(line[index : link.start])
+        if link.image:
+            try:
+                target, title = next(images)
+            except StopIteration as exc:
+                raise RepairError(
+                    "translated document has more Markdown images than source"
+                ) from exc
+            out.append(f"![{link.label}]({target}{title})")
+            index = link.end
+            continue
         try:
             label, target, title = next(links)
         except StopIteration as exc:
             raise RepairError("translated document has more Markdown links than source") from exc
-        return f"{match.group(1)}[{label}]({target}{title})"
+        out.append(f"[{label}]({target}{title})")
+        index = link.end
+    out.append(line[index:])
+    return "".join(out)
 
-    return _MARKDOWN_LINK_RE.sub(replace, line)
+
+def restore_blank_markdown_link_labels(source: str, translated: str) -> RepairResult:
+    """Restore only blank visible link labels from the corresponding source link."""
+    source_links = _links(source)
+    translated_links = _links(translated)
+    if len(source_links) != len(translated_links):
+        raise RepairError("translated document has a different number of Markdown links")
+
+    link_index = 0
+    changed = False
+    out: list[str] = []
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    for original_line in translated.splitlines(keepends=True):
+        if _is_comment_line(original_line, state) or _is_code_line(original_line, state):
+            out.append(original_line)
+            continue
+
+        line: list[str] = []
+        cursor = 0
+        for link in markdown_links(original_line):
+            line.append(original_line[cursor : link.start])
+            if link.image:
+                line.append(original_line[link.start : link.end])
+                cursor = link.end
+                continue
+            source_label, _source_target, _source_title = source_links[link_index]
+            link_index += 1
+            if not " ".join(link.label.split()) and source_label:
+                line.append(f"[{source_label}]({link.target}{link.title})")
+                changed = True
+            else:
+                line.append(original_line[link.start : link.end])
+            cursor = link.end
+        line.append(original_line[cursor:])
+        out.append("".join(line))
+
+    if link_index != len(source_links):
+        raise RepairError("translated document has fewer Markdown links than source")
+    return RepairResult(text="".join(out), changed=changed)
 
 
 def _next_inline_code(state: _RepairState) -> str:
@@ -235,7 +296,10 @@ def _repair_translated_line(original_line: str, state: _RepairState) -> str:
     if is_heading_line(line):
         return _repair_heading_line(ending, state)
 
-    return _replace_inline_codes(_replace_links(original_line, state.source_links), state)
+    return _replace_inline_codes(
+        _replace_links(original_line, state.source_links, state.source_images),
+        state,
+    )
 
 
 def _ensure_exhausted(iterator: Iterator, message: str) -> None:
@@ -388,9 +452,29 @@ def repair_preserved_markup(source: str, translated: str) -> RepairResult:
     The function only edits non-comment, non-code areas. It fails closed when the
     translated document has a different number of headings or Markdown links.
     """
+    source_images = _images(source)
+    source_image_targets = [target for target, _title in source_images]
+    translated_image_targets = [
+        target for target, _title in _images(translated)
+    ]
+    mismatched_image_targets = [
+        (source_target, translated_target)
+        for source_target, translated_target in zip(
+            source_image_targets,
+            translated_image_targets,
+        )
+        if source_target != translated_target
+    ]
+    if (
+        {source_target for source_target, _ in mismatched_image_targets}
+        & {translated_target for _, translated_target in mismatched_image_targets}
+    ):
+        raise RepairError("translated Markdown image targets are reordered")
+
     state = _RepairState(
         source_headings=iter(_heading_lines(source)),
         source_links=iter(_links(source)),
+        source_images=iter(source_images),
         source_inline_codes=_inline_codes(source),
     )
     changed = False
@@ -408,6 +492,10 @@ def repair_preserved_markup(source: str, translated: str) -> RepairResult:
     _ensure_exhausted(
         state.source_links,
         "translated document has fewer Markdown links than source",
+    )
+    _ensure_exhausted(
+        state.source_images,
+        "translated document has fewer Markdown images than source",
     )
     _ensure_inline_codes_exhausted(state)
 

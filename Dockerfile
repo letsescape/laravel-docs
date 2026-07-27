@@ -1,5 +1,5 @@
 # 사이트 빌드용 Node Docker (Docusaurus build/serve)
-FROM node:24-alpine
+FROM node:26-alpine
 
 RUN apk add --no-cache git
 

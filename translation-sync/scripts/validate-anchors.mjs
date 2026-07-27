@@ -29,12 +29,28 @@ import {
   replaceVersionPlaceholders,
   stripCode,
 } from './markdown-link-utils.mjs';
+import {
+  docsVersionFromUrl,
+  relativeTargetPath,
+  sourceUrl,
+} from './anchor-routes.mjs';
 
 // `new URL(...).pathname`은 Windows에서 `/C:/...` 형태이거나 공백이 `%20`으로
 // 인코딩되어 fs API가 해석하지 못한다. fileURLToPath로 플랫폼 중립 경로를 얻는다.
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url));
-const DOCS_ROOT = join(REPO_ROOT, 'versioned_docs');
 const BUILD_ROOT = join(REPO_ROOT, 'build');
+const DOCS_ROOTS = [
+  {path: join(REPO_ROOT, 'versioned_docs'), localePrefix: ''},
+  {
+    path: join(
+      REPO_ROOT,
+      'i18n',
+      'ja',
+      'docusaurus-plugin-content-docs',
+    ),
+    localePrefix: '/ja',
+  },
+];
 
 function walkMd(dir, acc = []) {
   for (const entry of readdirSync(dir, {withFileTypes: true})) {
@@ -50,25 +66,10 @@ function walkMd(dir, acc = []) {
   return acc;
 }
 
-function toUrlPath(mdAbsPath) {
-  const rel = relative(DOCS_ROOT, mdAbsPath).split(/[\\/]/);
-  const version = rel[0].replace('version-', '');
-  const tail = rel.slice(1).join('/').replace(/\.md$/, '');
-  if (tail === 'installation') return `/docs/${version}/`;
-  return `/docs/${version}/${tail}/`;
-}
-
 function htmlPathFor(url) {
   // url은 항상 `/`로 시작. leading slash를 제거해 join이 항상 BUILD_ROOT 내부에
   // 머무르게 한다(POSIX의 path.join도 안전하지만 명시적으로 처리).
   return join(BUILD_ROOT, url.startsWith('/') ? url.slice(1) : url, 'index.html');
-}
-
-function docsVersionFromUrl(url) {
-  const prefix = '/docs/';
-  if (!url.startsWith(prefix)) return null;
-  const end = url.indexOf('/', prefix.length);
-  return end >= 0 ? url.slice(prefix.length, end) : null;
 }
 
 function rewriteInstallationRoute(path) {
@@ -97,55 +98,56 @@ let missingHtml = 0;
 let idNotFound = 0;
 const broken = [];
 
-for (const md of walkMd(DOCS_ROOT)) {
-  const src = stripCode(readFileSync(md, 'utf-8'));
-  const srcUrl = toUrlPath(md);
-  const srcVersion = docsVersionFromUrl(srcUrl);
+for (const docsRoot of DOCS_ROOTS) {
+  if (!existsSync(docsRoot.path)) continue;
+  for (const md of walkMd(docsRoot.path)) {
+    const src = stripCode(readFileSync(md, 'utf-8'));
+    const srcUrl = sourceUrl(md, docsRoot.path, docsRoot.localePrefix);
+    const srcVersion = docsVersionFromUrl(srcUrl);
 
-  for (const {url: href} of extractMarkdownLinks(src)) {
-    if (!href.includes('#')) continue; // not an anchor reference
-    const lower = href.toLowerCase();
-    if (
-      lower.startsWith('http://') ||
-      lower.startsWith('https://') ||
-      lower.startsWith('mailto:')
-    ) {
-      continue; // external
-    }
-
-    let targetUrl;
-    let anchor;
-    if (href.startsWith('#')) {
-      targetUrl = srcUrl;
-      anchor = href.slice(1);
-    } else {
-      const hashIdx = href.indexOf('#');
-      let path = href.slice(0, hashIdx);
-      anchor = href.slice(hashIdx + 1);
-      if (srcVersion) path = replaceVersionPlaceholders(path, srcVersion);
-      // 상대 경로는 현재 파일의 버전 루트 기준으로 해석
-      if (!path.startsWith('/') && srcVersion) {
-        path = `/docs/${srcVersion}/${path}`;
+    for (const {url: href} of extractMarkdownLinks(src)) {
+      if (!href.includes('#')) continue; // not an anchor reference
+      const lower = href.toLowerCase();
+      if (
+        lower.startsWith('http://') ||
+        lower.startsWith('https://') ||
+        lower.startsWith('mailto:')
+      ) {
+        continue; // external
       }
-      // remark 플러그인과 동일한 `/installation` → `/` 재작성
-      path = rewriteInstallationRoute(path);
-      if (!path.endsWith('/')) path += '/';
-      targetUrl = path;
-    }
 
-    total++;
-    const hp = htmlPathFor(targetUrl);
-    if (!existsSync(hp)) {
-      missingHtml++;
-      broken.push({md: relative(REPO_ROOT, md), src: srcUrl, target: targetUrl, anchor, reason: 'target HTML missing'});
-      continue;
-    }
-    const html = readHtml(hp);
-    if (html.includes(`id="${anchor}"`)) {
-      ok++;
-    } else {
-      idNotFound++;
-      broken.push({md: relative(REPO_ROOT, md), src: srcUrl, target: targetUrl, anchor, reason: 'id not found in HTML'});
+      let targetUrl;
+      let anchor;
+      if (href.startsWith('#')) {
+        targetUrl = srcUrl;
+        anchor = href.slice(1);
+      } else {
+        const hashIdx = href.indexOf('#');
+        let path = href.slice(0, hashIdx);
+        anchor = href.slice(hashIdx + 1);
+        if (srcVersion) path = replaceVersionPlaceholders(path, srcVersion);
+        // 상대 경로는 현재 문서의 locale/version 루트 기준으로 해석
+        if (srcVersion) path = relativeTargetPath(path, srcUrl, srcVersion);
+        // remark 플러그인과 동일한 `/installation` → `/` 재작성
+        path = rewriteInstallationRoute(path);
+        if (!path.endsWith('/')) path += '/';
+        targetUrl = path;
+      }
+
+      total++;
+      const hp = htmlPathFor(targetUrl);
+      if (!existsSync(hp)) {
+        missingHtml++;
+        broken.push({md: relative(REPO_ROOT, md), src: srcUrl, target: targetUrl, anchor, reason: 'target HTML missing'});
+        continue;
+      }
+      const html = readHtml(hp);
+      if (html.includes(`id="${anchor}"`)) {
+        ok++;
+      } else {
+        idNotFound++;
+        broken.push({md: relative(REPO_ROOT, md), src: srcUrl, target: targetUrl, anchor, reason: 'id not found in HTML'});
+      }
     }
   }
 }

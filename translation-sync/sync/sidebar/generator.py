@@ -8,14 +8,23 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from ..common.files import atomic_write_text, unlink_file
+from ..common.versions import (
+    load_versions as _load_versions,
+    validate_version_token as _validate_version_token,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DOC_LINK_RE = re.compile(r"^\s*-\s*\[([^\]\n]+)]\(([^)\s]+)\)\s*$")
-VERSION_RE = re.compile(r"^(?:master|\d+\.x)$")
+API_DOCS_HREF_RE = re.compile(
+    r"^https://api\.laravel\.com/docs/(?:master|\d+\.x)/?$"
+)
 SIDEBAR_LOCALES = ("ko", "ja")
 
 
@@ -27,14 +36,7 @@ class SidebarResult:
 
 
 def load_versions(repo_root: Path = REPO_ROOT) -> list[str]:
-    versions = json.loads((repo_root / "versions.json").read_text(encoding="utf-8"))
-    return [_validate_version_token(version) for version in versions]
-
-
-def _validate_version_token(version: object) -> str:
-    if not isinstance(version, str) or not VERSION_RE.fullmatch(version):
-        raise ValueError(f"invalid version: {version}")
-    return version
+    return _load_versions(repo_root / "versions.json")
 
 
 def _supported_version(version: str, repo_root: Path = REPO_ROOT) -> str:
@@ -48,17 +50,34 @@ def _supported_version(version: str, repo_root: Path = REPO_ROOT) -> str:
 
 
 def _safe_repo_path(path: Path, repo_root: Path) -> Path:
-    root = repo_root.resolve()
-    resolved = path.resolve()
+    lexical_root = Path(os.path.abspath(repo_root))
+    lexical_path = Path(os.path.abspath(path))
     try:
-        resolved.relative_to(root)
+        relative = lexical_path.relative_to(lexical_root)
     except ValueError as exc:
         raise ValueError(f"path escapes repository: {path}") from exc
-    return resolved
+
+    resolved_root = repo_root.resolve()
+    if not relative.parts:
+        return lexical_root
+
+    parent = lexical_root
+    for part in relative.parts[:-1]:
+        parent /= part
+        if parent.is_symlink():
+            raise ValueError(f"path escapes repository: {path}")
+
+    resolved_parent = lexical_path.parent.resolve()
+    try:
+        resolved_parent.relative_to(resolved_root)
+    except ValueError as exc:
+        raise ValueError(f"path escapes repository: {path}") from exc
+    return lexical_path
 
 
 def _repo_relative(path: Path, repo_root: Path) -> Path:
-    return _safe_repo_path(path, repo_root).relative_to(repo_root.resolve())
+    lexical_root = Path(os.path.abspath(repo_root))
+    return _safe_repo_path(path, repo_root).relative_to(lexical_root)
 
 
 def latest_stable_version(repo_root: Path = REPO_ROOT) -> str:
@@ -102,41 +121,11 @@ def _source_doc_path(repo_root: Path, version: str, doc_id: str) -> Path:
 
 
 def _sidebar_filename(version: str) -> str:
-    match version:
-        case "master":
-            return "version-master-sidebars.json"
-        case "13.x":
-            return "version-13.x-sidebars.json"
-        case "12.x":
-            return "version-12.x-sidebars.json"
-        case "11.x":
-            return "version-11.x-sidebars.json"
-        case "10.x":
-            return "version-10.x-sidebars.json"
-        case "9.x":
-            return "version-9.x-sidebars.json"
-        case "8.x":
-            return "version-8.x-sidebars.json"
-    raise ValueError(f"unsupported sidebar version: {version}")
+    return f"version-{_validate_version_token(version)}-sidebars.json"
 
 
 def _locale_sidebar_filename(version: str) -> str:
-    match version:
-        case "master":
-            return "version-master.json"
-        case "13.x":
-            return "version-13.x.json"
-        case "12.x":
-            return "version-12.x.json"
-        case "11.x":
-            return "version-11.x.json"
-        case "10.x":
-            return "version-10.x.json"
-        case "9.x":
-            return "version-9.x.json"
-        case "8.x":
-            return "version-8.x.json"
-    raise ValueError(f"unsupported sidebar version: {version}")
+    return f"version-{_validate_version_token(version)}.json"
 
 
 def _sidebar_path(repo_root: Path, version: str) -> Path:
@@ -161,11 +150,13 @@ def _doc_id_from_href(href: str) -> str | None:
         return None
 
     segments = [segment for segment in parsed.path.split("/") if segment]
-    if not segments:
-        return None
-    if segments[0] == "docs" and len(segments) >= 3:
+    if (
+        parsed.path.startswith("/docs/")
+        and len(segments) == 3
+        and segments[0] == "docs"
+    ):
         return segments[-1]
-    return segments[-1]
+    return None
 
 
 def _category_label(line: str) -> str | None:
@@ -186,7 +177,7 @@ def _category_label(line: str) -> str | None:
 
 
 def _normalize_link_href(href: str, *, version: str, latest_stable: str) -> str:
-    if version == "master" and href.startswith("https://api.laravel.com/docs/"):
+    if version == "master" and API_DOCS_HREF_RE.fullmatch(href):
         return f"https://api.laravel.com/docs/{latest_stable}"
     return href
 
@@ -224,10 +215,17 @@ def parse_documentation(
     issues: list[str] = []
     seen_doc_ids: set[str] = set()
     used_keys: set[str] = set()
+    category_keys: set[str] = set()
+    link_keys: set[str] = set()
 
     for line_number, line in enumerate(text.splitlines(), start=1):
         label = _category_label(line)
         if label:
+            if label in category_keys:
+                issues.append(
+                    f"line {line_number}: duplicate category translation key: {label}"
+                )
+            category_keys.add(label)
             current_category = {
                 "type": "category",
                 "label": label,
@@ -238,8 +236,17 @@ def parse_documentation(
             items.append(current_category)
             continue
 
+        if re.match(r"^\s*-\s*#", line):
+            issues.append(f"line {line_number}: unsupported or malformed category")
+            current_category = None
+            continue
+
         link_match = DOC_LINK_RE.match(line)
         if not link_match:
+            if re.match(r"^\s*-\s*\[", line):
+                issues.append(
+                    f"line {line_number}: unsupported or malformed documentation link"
+                )
             continue
 
         label = link_match.group(1).strip()
@@ -247,17 +254,23 @@ def parse_documentation(
             link_match.group(2).strip(), version=version, latest_stable=latest_stable
         )
         doc_id = _doc_id_from_href(href)
+        is_indented = bool(line[: len(line) - len(line.lstrip())])
 
         if doc_id is None:
+            if label in link_keys:
+                issues.append(
+                    f"line {line_number}: duplicate link translation key: {label}"
+                )
+            link_keys.add(label)
             link_item = {"type": "link", "label": label, "href": href}
-            if current_category is not None and line[: len(line) - len(line.lstrip())]:
+            if current_category is not None and is_indented:
                 current_category["items"].append(link_item)
             else:
                 items.append(link_item)
                 current_category = None
             continue
 
-        if current_category is None:
+        if current_category is None or not is_indented:
             issues.append(f"line {line_number}: doc link is outside a category")
             continue
 
@@ -338,60 +351,40 @@ def build_sidebar(
 
 def _read_sidebar(version: str, *, repo_root: Path = REPO_ROOT) -> tuple[dict, list[str]]:
     safe_path = _safe_repo_path(_sidebar_path(repo_root, version), repo_root)
+    if safe_path.is_symlink():
+        return {}, ["sidebar JSON path must not be a symlink"]
     if not safe_path.exists():
         return {}, []
     try:
-        return json.loads(safe_path.read_text(encoding="utf-8")), []
+        sidebar = json.loads(safe_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         return {}, [f"invalid sidebar JSON: {exc}"]
+    if not isinstance(sidebar, dict):
+        return {}, ["invalid sidebar JSON schema: root must be an object"]
+    if not isinstance(sidebar.get("tutorialSidebar", []), list):
+        return {}, [
+            "invalid sidebar JSON schema: tutorialSidebar must be a list"
+        ]
+    return sidebar, []
 
 
 def _write_sidebar(
     version: str, sidebar: dict, *, repo_root: Path = REPO_ROOT
 ) -> None:
-    sidebar_dir = repo_root / "versioned_sidebars"
-    safe_dir = _safe_repo_path(sidebar_dir, repo_root)
-    safe_dir.mkdir(parents=True, exist_ok=True)
+    safe_path = _safe_repo_path(_sidebar_path(repo_root, version), repo_root)
+    safe_path.parent.mkdir(parents=True, exist_ok=True)
+    if safe_path.is_symlink():
+        raise ValueError("sidebar JSON path must not be a symlink")
     text = json.dumps(sidebar, ensure_ascii=False, indent=2) + "\n"
 
-    match version:
-        case "master":
-            (safe_dir / "version-master-sidebars.json").write_text(
-                text, encoding="utf-8"
-            )
-        case "13.x":
-            (safe_dir / "version-13.x-sidebars.json").write_text(
-                text, encoding="utf-8"
-            )
-        case "12.x":
-            (safe_dir / "version-12.x-sidebars.json").write_text(
-                text, encoding="utf-8"
-            )
-        case "11.x":
-            (safe_dir / "version-11.x-sidebars.json").write_text(
-                text, encoding="utf-8"
-            )
-        case "10.x":
-            (safe_dir / "version-10.x-sidebars.json").write_text(
-                text, encoding="utf-8"
-            )
-        case "9.x":
-            (safe_dir / "version-9.x-sidebars.json").write_text(
-                text, encoding="utf-8"
-            )
-        case "8.x":
-            (safe_dir / "version-8.x-sidebars.json").write_text(
-                text, encoding="utf-8"
-            )
-        case _:
-            raise ValueError(f"unsupported sidebar version: {version}")
+    atomic_write_text(safe_path, text)
 
 
 def _existing_repo_paths(paths: list[Path], repo_root: Path) -> list[Path]:
     safe_paths: list[Path] = []
     for path in paths:
         safe_path = _safe_repo_path(path, repo_root)
-        if safe_path.exists():
+        if safe_path.exists() or safe_path.is_symlink():
             safe_paths.append(safe_path)
     return safe_paths
 
@@ -414,7 +407,7 @@ def sync_version(
             if sidebar_changed:
                 _write_sidebar(version, expected, repo_root=repo_root)
             for locale_path in locale_paths_to_remove:
-                locale_path.unlink()
+                unlink_file(locale_path, missing_ok=True)
 
             current, read_issues = _read_sidebar(version, repo_root=repo_root)
             issues.extend(read_issues)
@@ -449,8 +442,9 @@ def sync_versions(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Sync versioned sidebars from documentation.md")
-    parser.add_argument("--version")
-    parser.add_argument("--all", action="store_true")
+    target = parser.add_mutually_exclusive_group()
+    target.add_argument("--version")
+    target.add_argument("--all", action="store_true")
     parser.add_argument("--write", action="store_true")
     args = parser.parse_args(argv)
 
