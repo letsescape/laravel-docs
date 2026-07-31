@@ -1,549 +1,268 @@
-# 한국어 기술 문서 업데이트 번역 작업 계획
+# 번역 단계 설계
 
-## 단계 흐름
+## 1. 목적
 
-```mermaid
-flowchart TD
-    A([번역 시작]) --> B["기존 한국어 문서 참고"]
-    B --> C["영어 원문 diff 파악"]
-    C --> D["추가 / 수정 / 삭제 문장 분류"]
-    D --> X{"번역 provider 응답 수신?"}
-    X -- " 응답 수신 " --> E["변경된 영어 문장을 기존 한국어<br/>용어와 문체에 맞게 번역"]
-    X -- " 응답 없음 / timeout / 네트워크 오류 " --> R["5분 대기 후 재요청<br/>최대 3회"]
-    R --> X
-    R -- " 최대 시도 초과 " --> H
-    E --> F["영어 주석을 최신 원문으로 갱신"]
-    F --> H["번역 결과 정리"]
-    H --> J([후처리 단계로 전달])
+전처리가 완료된 영어 원문의 변경분을 기존 한국어·일본어 locale 문서에 반영한다. 번역은 정규화된 effective delta가 선택한 완전한 번역 소유 블록 단위로 수행하며, 계획 밖의 기존 locale 블록은 수정하지 않는다.
+
+---
+
+## 2. 범위
+
+번역 단계가 소유하는 책임은 다음으로 한정한다.
+
+| 책임 | 설명 |
+|------|------|
+| normalized delta | 정규화된 이전·현재 작업 사본 사이에서 effective hunk를 계산한다 |
+| PatchPlan | effective delta를 완전한 번역 소유 블록과 결합하여 적용 계획을 생성한다 |
+| 소유 단위 | 각 블록 유형별 원자적 번역·적용 범위를 정의한다 |
+| provider 계약 | provider adapter의 입력·출력 seam 및 호출 조건을 정의한다 |
+| response contract | provider 응답의 구조 보존·언어·annotation 규칙을 검증한다 |
+| retry | transient 오류에 대한 재시도 정책과 상한을 정의한다 |
+
+문서 형식 정제, placeholder 복원, 최종 문서 정규화는 [후처리 단계](./03-postprocessing.md)의 책임이다. 입력 정규화와 placeholder 치환은 [전처리 단계](./01-preprocessing.md)의 책임이다.
+
+---
+
+## 3. 입력
+
+| 입력 | 설명 |
+|------|------|
+| 정규화된 현재 원문 작업 사본 | 전처리 출력. provider에 전달하는 `new_source`의 기준 |
+| 정규화된 이전 원문 작업 사본 | effective delta 계산의 비교 대상 |
+| placeholder 매핑 | 전처리에서 생성한 base64 치환 정보 (번역 중 변경하지 않음) |
+| 기존 locale 문서 | 위치 매칭·용어·문체 참고 |
+| 설정 확인 완료 상태 | 선행 설정 검증에서 provider 설정 유효성이 확인된 상태 |
+
+---
+
+## 4. 출력
+
+| 출력 | 설명 |
+|------|------|
+| PatchPlan | 소유 블록, 적용 위치, source/target 서명과 구조 주소를 포함한 변경 계획 |
+| 검증된 locale 블록 집합 | PatchPlan의 각 provider 필요 소유 블록에 대응하며 response contract를 통과한 번역 결과 |
+| 결정적 블록 집합 | provider 없이 원문 구조로 확정한 변경 결과 |
+
+PatchPlan과 블록 집합은 [후처리 단계](./03-postprocessing.md)로 함께 전달한다. 기존 locale 문서에 대한 실제 적용과 전체 문서 정규화는 후처리 단계가 소유한다.
+
+---
+
+## 5. 불변조건
+
+### 5.1 구조 보존
+
+1. 코드 블록 내부의 코드와 주석은 원문 영어를 유지한다.
+2. 인라인 코드는 원문과 동일하게 유지한다.
+3. 링크 URL, 앵커, URL fragment는 변경하지 않는다.
+4. Markdown heading 텍스트, 링크 label, front matter `title`은 번역하지 않고 최신 영어 원문으로 유지한다.
+5. API 이름, 함수명, 클래스명, 파라미터명, 파일명, 경로, 명령어, 환경 변수, URL, 제품 고유명사는 번역하지 않는다.
+6. source-authored HTML 주석은 순서·occurrence·구조적 위치를 보존한다.
+7. front matter 구조 값은 YAML scalar 형식을 유지한다.
+8. 표 열 수·정렬자는 원문과 동일하게 보존한다.
+9. 명시적 hard break가 없는 prose 번역은 물리적 한 줄이어야 한다.
+10. 영어 원문 annotation 안의 literal `-->`는 `--&gt;`로 escape한다.
+
+### 5.2 annotation 규칙
+
+1. 일반 prose와 heading은 `<!-- 최신 영어 원문 -->` + 번역문 형식을 유지한다. heading 주석에는 `#` marker를 포함한다.
+2. blockquote 본문에는 새 annotation을 추가하지 않는다. 기존 exact quoted-source annotation은 호환용으로 허용한다.
+3. 순수 inline-code 식별자 목록 항목은 annotation 대상이 아니다.
+4. source에 없는 standalone 구조 주석을 provider가 추가하면 거부한다.
+
+### 5.3 fail-closed 원칙
+
+1. 위치가 유일하게 확정되지 않으면 provider를 호출하거나 문서를 수정하지 않고 실패한다.
+2. annotation-backed 문서 상태가 source/target 어느 쪽과도 일치하지 않는 partial/mixed/제3 상태는 적용 전에 실패한다.
+3. 동일 계획을 이미 적용한 target 문서에 다시 적용하면 no-op이어야 한다.
+
+---
+
+## 6. 처리 순서
+
+```text
+1. effective delta 계산
+   - 정규화된 이전·현재 작업 사본을 비교하여 effective hunk 추출
+   - style-only 변경은 정규화에 의해 자동 제거됨
+
+2. PatchPlan 생성
+   - 각 effective hunk를 소유 블록 경계에 맞춰 결합
+   - old_source / new_source (완전한 블록)와 old_lines / new_lines (effective delta) 분리
+   - 이전·다음 anchor 및 동일 블록 occurrence 기록
+   - annotation source/target 서명 생성
+
+3. locale 문서 상태 판정
+   - annotatable 주석 순서를 old/new 서명과 비교
+   - source 상태에서만 계획 적용, target 상태는 no-op
+   - partial/mixed 상태는 실패
+
+4. 블록별 위치 확정
+   - 기존 원문 주석, anchor, occurrence로 기존 locale 문서의 대응 블록 탐색
+   - 유일하게 확정되지 않으면 실패
+
+5. provider 호출 또는 결정적 처리
+   - 소유 단위에 따라 provider 필요 여부 판정
+   - provider 필요 블록: new_source 전체를 전달하고 응답 수신
+   - provider 불필요 블록: 결정적으로 생성
+
+6. response contract 검증
+   - 구조 보존·annotation·언어 규칙 검증
+   - 위반 시 feedback 포함 재요청 (완료 응답 최대 2회)
+
+7. 후처리 인계
+   - PatchPlan의 모든 번역 대상에 대응하는 검증된 블록이 있는지 확인
+   - provider 불필요 블록을 포함한 출력 수와 계획 대상 수의 일치 확인
+   - PatchPlan, 블록 집합, placeholder 매핑을 후처리 단계에 전달
 ```
 
 ---
 
-## 1. 작업 목적
+## 7. 소유 단위 정의
 
-업데이트된 영어 기술 문서의 변경 사항을 기존 한국어 문서에 반영한다.
+| 소유 단위 | provider | 적용 범위 |
+|-----------|----------|-----------|
+| 일반 문단·목록·heading | 필요 | annotation이 대응하는 완전한 블록 또는 연속 블록 범위 |
+| 독립 fenced-code-only 변경 | 불필요 | 원문 전체 code block을 그대로 교체 |
+| bare 내부 링크 목록 | 불필요 | 원문 구조 블록을 그대로 반영 |
+| inline-code 식별자 목록 | 불필요 | 원문 구조 블록을 그대로 반영 |
+| 표 (지원 조건 내) | 필요 | 변경 전후 각 한 행, 열 수 동일, separator가 아닌 기존 행 |
+| admonition 본문 | 필요 | marker는 구조 context로 유지, 연속 변경 본문 segment |
+| admonition marker 유형 변경 | 필요 | marker + 연속 quote 본문 전체 |
+| named `<a name="...">` 한 줄 추가·삭제·rename | 불필요 | source occurrence와 target count로 정확한 한 줄 선택 |
+| section 순서 변경 (내용 동일) | 불필요 | named anchor 기준 section 전체를 목표 순서로 이동 |
 
-작업 원칙은 다음과 같다.
-
-- 주변 문맥은 기존 한국어 문서에서 참고한다.
-- 번역은 영어 diff에 포함된 업데이트 부분만 수행한다.
-- 변경되지 않은 기존 한국어 문장은 원칙적으로 수정하지 않는다.
-- 기존 한국어 문서의 구조인 `영어 주석 + 한국어 번역` 형식을 유지한다.
+prose와 fence가 한 연속 변경 범위에 함께 있으면 전체를 provider 필요 블록으로 취급한다.
 
 ---
 
-## 2. 입력 자료
+## 8. provider 계약
 
-### 2.1 기존 한국어 문서
+### 8.1 공통 인터페이스
 
-기존 한국어 문서는 다음 형식을 따른다.
+provider adapter는 `TranslationRequest`를 받아 번역 Markdown 문자열만 반환하는 seam이다. 설명, 위치 지시, wrapper 문구를 출력하지 않는다.
 
-```md
-<!-- Original English sentence. -->
-기존 한국어 번역문입니다.
+### 8.2 adapter별 요구사항
+
+| adapter | 요청 구조 | 완료 판정 |
+|---------|-----------|-----------|
+| OpenAI | `instructions` / `input` 분리, Responses API, `store=false` | `status=completed`일 때 `output_text` |
+| Azure OpenAI | system / user 메시지 분리, Chat Completions | `finish_reason=stop`일 때 첫 assistant message content |
+| CLI | 임시 디렉터리에서 실행, 사용자 설정·execpolicy·AGENTS.md 제외 | `--output-last-message` 파일 내용 |
+
+### 8.3 CLI adapter 보안 경계
+
+- browser, computer, image generation, plugin, shell, app, subagent, web search, hook을 끈다.
+- child process에는 인증·runtime·proxy/CA allowlist 환경 변수만 전달한다.
+- model이 실행하는 subprocess에는 환경 변수를 상속하지 않는다.
+
+### 8.4 요청 템플릿
+
+```text
+# Translation Sync Input
+
+## English Diff
+{정규화된 effective delta — 값이 있을 때만 포함}
+
+## English Source
+{완전한 최신 source 블록}
+
+## Existing Translation Context
+{기존 locale 문맥 또는 (none)}
+
+## Previous Output Verification Failure
+{이전 완료 응답의 검증 issue — 값이 있을 때만 포함}
+
+## Output
+Return only the translated Markdown block(s) for the English Source.
 ```
 
-이 문서는 다음 용도로 사용한다.
-
-* 변경 위치 주변부 참고
-* 기존 번역 용어 참고
-* 문체와 어미 스타일 참고
-* 앞뒤 문장과의 연결성 참고
-* 기존 영어 원문 주석 참고
-
-업데이트되지 않은 영어 주변부는 이미 이 문서의 주석 안에 있으므로, 별도의 업데이트된 영어 주변부는 제공하지 않는다.
+번역 규칙과 annotation 형식은 user payload가 아닌 locale prompt와 공통 system instructions로 전달한다.
 
 ---
 
-### 2.2 영어 원문 diff
+## 9. response contract
 
-영어 diff는 실제로 변경된 부분을 식별하기 위한 자료다.
+provider 응답은 적용 전에 다음을 모두 통과해야 한다.
 
-가능하면 다음 형태로 제공한다.
+| 검증 항목 | 규칙 |
+|-----------|------|
+| annotation 순서·occurrence | source와 정확히 대응 |
+| Markdown block 수·순서 | source와 일치 |
+| 목록 들여쓰기·checkbox 상태 | source와 일치 |
+| 인용 깊이·canonical admonition 유형 | source 경고 수준 보존 |
+| 표 열·정렬자 | source와 일치 |
+| front matter 구조 값 | YAML 문자열 scalar, collection/bool/null/숫자/날짜 불허 |
+| 보존 HTML/JSX 속성 | identifier·operator 구조 보존 |
+| emphasis delimiter | 단일·이중 구분 source와 일치 |
+| inline-link label·target·pair·title | source와 일치 |
+| reference definition | 정규화 label과 raw target·title의 ordered occurrence 일치 |
+| prose 줄 수 | 명시적 hard break 없으면 물리 한 줄 |
+| 목표 언어 충분성 | 충분히 긴 영어 본문을 그대로 반환하면 거부 |
+| source 밖 주석 | 추가 시 거부 |
+| 표 prose cell | 목표 언어 요구, data cell(코드·링크·식별자·타입·설정 값·버전·날짜)은 원문 허용 |
 
-```diff
-- Previous English sentence.
-+ Updated English sentence.
-```
+### 9.1 verification feedback
 
-또는 추가/삭제가 명확히 보이는 unified diff 형식으로 제공한다.
-
-```diff
-@@ Section title @@
-
-- The API returns a list of active users.
-+ The API returns a paginated list of active users.
-```
-
-영어 diff는 다음 용도로 사용한다.
-
-* 추가된 문장 식별
-* 삭제된 문장 식별
-* 수정된 문장 식별
-* 최신 영어 문장 식별
-* 기존 한국어 문서의 영어 주석 갱신
+주석만 남고 본문이 없거나, source 밖 prose·구조 주석이 추가되거나, 영어 본문을 그대로 반환하거나, 목표 문자 범위가 부족한 경우 feedback을 포함해 완료 응답을 블록당 최대 2회 요청한다 (자동 재요청 1회). 계속 실패하면 해당 locale target을 기록하지 않는다.
 
 ---
 
-## 3. 작업 범위
+## 10. retry 정책
 
-### 3.1 번역 대상
+### 10.1 transient 재시도
 
-번역 대상은 영어 diff에서 변경된 부분으로 제한한다.
+| 대상 오류 | 처리 |
+|-----------|------|
+| 요청 timeout | 재시도 |
+| 네트워크 연결 실패 | 재시도 |
+| 응답 본문 미수신 | 재시도 |
+| HTTP 429 / 5xx | 재시도 |
+| CLI timeout | 재시도 |
 
-다음 항목만 번역하거나 수정한다.
+| 비재시도 대상 | 처리 |
+|---------------|------|
+| CLI 실행 파일 누락·권한·option/model/auth 오류 | 즉시 실패 |
+| HTTP 4xx (429 제외) | 즉시 실패 |
+| 부분 응답 (OpenAI status ≠ completed, Azure finish_reason ≠ stop) | 저장하지 않고 실패 |
 
-* 새로 추가된 영어 문장
-* 수정된 영어 문장
-* 수정된 목록 항목
-* 수정된 표 셀 또는 표 행
-* 수정된 문서 제목과 heading
-* 수정된 경고문, 안내문, 설명문
-* 삭제된 영어 문장에 대응하는 기존 한국어 문장
+### 10.2 재시도 상한
 
----
+- 한 논리 요청당 물리 provider 호출: 초기 요청 포함 최대 **3회**
+- 재시도 간 대기: **5분**
+- SDK 내부 재시도: 사용하지 않음
+- verification feedback 포함 재요청: 완료 응답 최대 **2회** (블록당)
+- 최악 물리 호출 상한: 블록당 최대 **6회** (3회 × 2 논리 요청)
 
-### 3.2 주변부 참고 대상
+### 10.3 최종 실패
 
-주변부는 번역하지 않고 참고만 한다.
-
-기존 한국어 문서에서 다음 범위를 참고한다.
-
-* 변경 문장의 앞뒤 문장
-* 같은 문단 전체
-* 같은 목록의 앞뒤 항목
-* 같은 표의 헤더와 관련 행
-* 같은 섹션의 제목
-* 코드 블록 전후 설명
-* Note, Warning, Tip 등 안내 블록 전체
+최대 재시도 후에도 유효 응답이 없으면 해당 locale target을 기록하지 않고, 기존 locale 파일을 변경하지 않는다.
 
 ---
 
-### 3.3 수정하지 않는 대상
+## 11. 실패 정책
 
-다음은 원칙적으로 수정하지 않는다.
+| 실패 유형 | 처리 |
+|-----------|------|
+| effective delta가 비어 있음 (정규화로 모든 raw delta 제거) | 해당 문서를 번역 대상에서 제외 |
+| 위치 확정 불가 (anchor 모호, 대상 없음) | 문서 미수정, locale target 실패 |
+| annotation 상태가 partial/mixed | 문서 미수정, locale target 실패 |
+| 표 구조 조건 불충족 (열 수 불일치, 복수 행, separator) | 해당 블록 실패 |
+| admonition marker가 old/new 외 제3 유형 | 해당 블록 실패 |
+| front matter 변경 또는 standalone source HTML comment 추가·삭제·수정 | provider 호출 전 실패 |
+| response contract 위반 후 재요청도 실패 | locale target 미기록 |
+| transient 오류 최대 재시도 초과 | locale target 미기록 |
 
-* diff에 포함되지 않은 기존 한국어 번역
-* 변경되지 않은 영어 주석
-* 기존 승인된 표현
-* 단순 문체 개선 목적의 주변 문장
-* 코드, 명령어, API 이름, 파라미터명, 파일명, 경로, URL
-
-변경된 문장과 직접 연결되어 의미가 어색해지는 경우에도 diff에 포함되지 않은 주변 문장은 번역 단계에서 수정하지 않는다.
-
----
-
-## 4. 기본 작업 원칙
-
-### 4.1 번역은 변경된 부분만 한다
-
-영어 diff에 포함된 변경 사항만 번역한다.
-
-단어 하나만 바뀌었더라도 한국어는 문장 전체 단위로 자연스럽게 갱신한다.
-
-예:
-
-```diff
-- The API returns a list of active users.
-+ The API returns a paginated list of active users.
-```
-
-수정 전:
-
-```md
-<!-- The API returns a list of active users. -->
-API는 활성 사용자 목록을 반환합니다.
-```
-
-수정 후:
-
-```md
-<!-- The API returns a paginated list of active users. -->
-API는 페이지가 매겨진 활성 사용자 목록을 반환합니다.
-```
+모든 실패는 fail-closed로 처리한다. 기존 locale 문서를 부분적으로 수정한 상태로 남기지 않는다.
 
 ---
 
-### 4.2 제목, label, 앵커는 번역하지 않는다
-
-문서 제목, Markdown heading, Markdown 링크 label, 사이드바 label, 앵커는 번역하지 않는다.
-
-보존 대상:
-
-* front matter의 `title`
-* Markdown heading(`#`, `##`, `###` 등)의 텍스트
-* Markdown 링크의 표시 텍스트(label)
-* `documentation.md`의 category label과 doc label
-* HTML `<a name="..."></a>` 앵커와 Markdown 내부 링크 target
-* URL fragment(`#anchor`)
-
-처리 기준:
-
-* 원문에서 제목이나 label이 변경되면 최신 영어 원문으로 교체한다.
-* 영어 제목이나 label을 한국어로 번역하지 않는다.
-* 앵커와 URL fragment는 원문과 동일하게 유지한다.
-* 제목이나 label 주변의 본문 문장만 자연스럽게 번역한다.
-
-예:
-
-```md
-# Agentic Development
-
-- [Agentic Development](/docs/{{version}}/ai)
-```
-
-위 heading과 링크 label은 한국어로 바꾸지 않는다.
-
----
-
-### 4.3 영어 주석은 최신 문장으로 갱신한다
-
-수정된 영어 문장이 있는 경우, 기존 한국어 문서의 영어 주석을 최신 영어 문장으로 교체한다.
-
-수정 전:
-
-```md
-<!-- The API returns a list of active users. -->
-API는 활성 사용자 목록을 반환합니다.
-```
-
-수정 후:
-
-```md
-<!-- The API returns a paginated list of active users. -->
-API는 페이지가 매겨진 활성 사용자 목록을 반환합니다.
-```
-
----
-
-### 4.4 기존 한국어 스타일을 유지한다
-
-기존 한국어 문서의 표현 방식을 우선한다.
-
-참고할 항목:
-
-* 문장 종결 방식
-  예: `합니다`, `할 수 있습니다`, `하세요`
-* 용어 번역
-  예: `workspace`를 `워크스페이스`로 쓰는지, `작업 공간`으로 쓰는지
-* API 설명 방식
-* 목록 항목의 병렬 구조
-* 문서 제목, heading, 링크 label 보존 방식
-* UI 문구 처리 방식
-
----
-
-### 4.5 코드와 기술 식별자는 번역하지 않는다
-
-다음은 번역하지 않는다.
-
-* API 이름
-* 함수명
-* 클래스명
-* 파라미터명
-* 필드명
-* 파일명
-* 디렉터리 경로
-* 명령어
-* 코드 블록
-* 환경 변수
-* URL
-* 제품 고유명사
-
-예:
-
-```md
-`user_id`, `access_token`, `GET /users`, `config.yaml`은 번역하지 않는다.
-```
-
----
-
-### 4.6 긴 문서의 청크 분할과 보호 영역
-
-긴 문서는 번역 provider 입력 한계 안에서 처리하기 위해 라인 수 기준으로 청크를 나눈다. 청크 경계는 다음 영역의 중간을 끊지 않는다. 이 규칙은 청크 크기 기준보다 우선한다.
-
-* **fenced code block** (```` ``` ````, `~~~`): 시작부터 종료까지 한 청크에 유지한다.
-* **마크다운 표** (`| ... |`): 헤더 행부터 표 끝까지 한 청크에 유지한다. 표가 중간에서 갈라져 절반씩 독립 번역되면 열 수나 정렬자가 깨질 수 있다.
-* **anchor + heading 쌍**: `<a name="..."></a>`와 직후 heading을 떨어뜨리지 않는다. 둘 사이 빈 줄이 빈 줄 절단 후보에 걸려 서로 다른 청크로 갈라지면, anchor와 그 뒤 빈 줄을 heading이 있는 다음 청크 앞으로 옮겨 붙인다. 이때 원문의 anchor ↔ heading 사이 빈 줄 개수는 보존한다.
-
-보호 영역이 길어 청크가 기준 크기를 초과해도, 보호 영역 안에서는 강제로 끊지 않는다.
-
----
-
-## 5. 변경 유형별 처리 방식
-
-| 변경 유형    | 처리 방식                                 |
-|----------|---------------------------------------|
-| 문장 추가    | 해당 위치에 영어 주석과 한국어 번역을 추가한다.           |
-| 문장 삭제    | 기존 영어 주석과 한국어 번역을 삭제하거나 삭제 대상으로 표시한다. |
-| 문장 수정    | 영어 주석을 최신 문장으로 교체하고, 한국어 번역을 수정한다.    |
-| 단어 수정    | 해당 문장 전체를 기준으로 한국어 번역을 갱신한다.          |
-| 제목 수정    | 제목을 최신 영어 원문으로 교체하되 번역하지 않는다.        |
-| 목록 항목 수정 | 해당 목록 항목만 수정하되, 주변 항목과 어미를 맞춘다.       |
-| 표 내용 수정  | 변경된 셀 또는 행만 수정하되, 표 헤더와 용어를 참고한다.     |
-| 코드 수정    | 코드 자체는 번역하지 않고, 코드 설명문이 바뀐 경우에만 번역한다. |
-| 링크 수정    | 링크 label과 URL을 최신 영어 원문 기준으로 유지한다.     |
-
----
-
-## 6. 작업 절차
-
-### Step 1. 기존 한국어 문서 참고
-
-기존 한국어 문서에서 변경 위치 주변의 용어, 문체, 어미, 문장 연결 방식을 확인한다.
-
-참고 목적:
-
-* 앞뒤 문장과 자연스럽게 이어지도록 문맥 참고
-* 기존 용어와 일치하도록 용어 참고
-* 목록이나 표의 병렬 구조 참고
-* 동일 개념의 기존 번역 방식 참고
-
----
-
-### Step 2. 영어 원문 diff 파악
-
-영어 diff에서 변경 사항을 분류한다.
-
-분류 기준:
-
-* 추가
-* 삭제
-* 수정
-* 이동
-* 용어 변경
-* 구조 변경
-
----
-
-### Step 3. 추가 / 수정 / 삭제 문장 분류
-
-diff의 기존 영어 문장과 최신 영어 문장을 기준으로 기존 한국어 문서에서 대응 위치를 찾고, 변경 유형을 확정한다.
-
-찾을 때는 영어 주석을 기준으로 매칭한다.
-
-예:
-
-```md
-<!-- The API returns a list of active users. -->
-API는 활성 사용자 목록을 반환합니다.
-```
-
----
-
-### Step 4. 번역 provider 응답 수신 확인
-
-번역 요청은 전처리에서 provider 설정 확인이 끝났다는 전제하에 보낸다.
-
-응답이 없거나 timeout, 네트워크 오류가 발생하면 5분 대기 후 동일 입력과 동일 provider 설정으로 최대 3회 재요청한다.
-
----
-
-### Step 5. 변경된 영어 문장을 기존 한국어 용어와 문체에 맞게 번역
-
-영어 diff의 최신 문장을 기준으로 한국어 번역을 갱신한다.
-
-원칙:
-
-* 변경된 문장만 수정한다.
-* 변경되지 않은 주변 문장은 그대로 둔다.
-* 불필요한 문체 개선은 하지 않는다.
-* 기존 문서의 어미와 표현을 따른다.
-
----
-
-### Step 6. 영어 주석을 최신 원문으로 갱신
-
-수정된 문장의 영어 주석을 최신 영어 문장으로 교체한다.
-
-추가된 문장은 새 영어 주석과 한국어 번역을 함께 추가한다.
-
-삭제된 문장은 삭제 대상으로 표시하거나 제거한다.
-
----
-
-### Step 7. 번역 결과 정리
-
-변경된 영어 diff에 대응하는 번역 결과와, 재시도 초과로 미완료 상태가 된 chunk를 함께 정리한다.
-
-정리 대상:
-
-* 교체, 추가, 삭제한 번역 블록
-* 최신 영어 주석
-* 기존 한국어 문서에 반영될 한국어 번역문
-* 최대 재시도 후에도 응답이 없어 미완료 상태로 남은 chunk와 실패 사유
-
----
-
-## 7. 출력 형식
-
-작업 결과는 다음 형식으로 정리한다.
-
----
-
-### 7.1 교체할 블록
-
-기존 블록을 새 블록으로 교체해야 하는 경우 사용한다.
-
-```md
-[교체 전]
-
-<!-- The API returns a list of active users. -->
-API는 활성 사용자 목록을 반환합니다.
-
-[교체 후]
-
-<!-- The API returns a paginated list of active users. -->
-API는 페이지가 매겨진 활성 사용자 목록을 반환합니다.
-```
-
----
-
-### 7.2 추가할 블록
-
-새 문장이 추가된 경우 사용한다.
-
-```md
-[추가 위치]
-`<!-- Existing English sentence before insertion. -->` 아래
-
-[추가할 블록]
-
-<!-- You can use the cursor parameter to retrieve the next page. -->
-`cursor` 매개변수를 사용하여 다음 페이지를 가져올 수 있습니다.
-```
-
----
-
-### 7.3 삭제할 블록
-
-영어 원문에서 삭제된 문장이 있는 경우 사용한다.
-
-```md
-[삭제할 블록]
-
-<!-- This endpoint is currently in beta. -->
-이 엔드포인트는 현재 베타 버전입니다.
-```
-
----
-
-## 8. 작업 요청 템플릿
-
-아래 템플릿을 사용해 번역 작업을 요청한다.
-
-# 한국어 기술 문서 업데이트 번역 요청
-
-## 작업 목표
-
-업데이트된 영어 기술 문서의 변경 사항을 기존 한국어 문서에 반영해 주세요.
-
-주변 문맥은 기존 한국어 문서에서 참고하고, 실제 번역은 영어 diff에 포함된 업데이트 부분만 진행해 주세요.
-
-업데이트된 영어 주변부는 별도로 제공하지 않습니다.
-업데이트되지 않은 영어 주변부는 기존 한국어 문서의 영어 주석에 포함되어 있습니다.
-
----
-
-## 입력 자료
-
-### 1. 기존 한국어 문서
-
-- 영어 문장은 주석 처리되어 있습니다.
-- 각 영어 문장 아래에 한국어 번역이 있습니다.
-- 변경 위치 주변부 참고용으로 사용해 주세요.
-
-### 2. 영어 원문 diff
-
-- 추가, 삭제, 수정된 영어 문장을 식별하는 기준입니다.
-- diff의 `+` 라인은 최신 영어 문장입니다.
-- diff의 `-` 라인은 기존 한국어 문서에서 대응 위치를 찾는 기준입니다.
-
----
-
-## 작업 규칙
-
-1. 영어 diff에 포함된 변경 부분만 번역 또는 수정합니다.
-2. 변경되지 않은 기존 한국어 문장은 원칙적으로 수정하지 않습니다.
-3. 주변 문맥은 기존 한국어 문서에서 참고합니다.
-4. 영어 주석은 최신 영어 문장으로 갱신합니다.
-5. 추가된 영어 문장은 `영어 주석 + 한국어 번역` 형식으로 추가합니다.
-6. 삭제된 영어 문장과 그에 대응하는 한국어 번역은 삭제 대상으로 표시합니다.
-7. 기존 한국어 문서의 용어, 문체, 어미 스타일을 유지합니다.
-8. 코드, 명령어, API 이름, 파라미터명, 파일명, 경로, URL은 번역하지 않습니다.
----
-
-## 출력 형식
-
-다음 형식으로 결과를 작성해 주세요.
-
-### 1. 교체할 블록
-
-```md
-[교체 전]
-
-...
-
-[교체 후]
-
-...
-```
-
-### 2. 추가할 블록
-
-```md
-[추가 위치]
-
-...
-
-[추가할 블록]
-
-...
-```
-
-### 3. 삭제할 블록
-
-```md
-[삭제할 블록]
-
-...
-```
-
-## 9. 예외 케이스
-
-번역 단계에서는 전처리에서 provider 설정 확인이 끝났다는 전제하에 번역 요청을 보낸다. 이 단계의 예외 처리는 번역 provider가 응답하지 않는 경우로 제한한다.
-
-### API / provider 무응답
-
-재시도 대상은 다음과 같다.
-
-- 요청 timeout
-- 네트워크 연결 실패
-- 연결은 되었지만 응답 본문을 받지 못한 경우
-- CLI provider가 `TRANSLATION_CLI_TIMEOUT` 안에 출력을 반환하지 않는 경우
-
-재시도 기준:
-
-1. 5분 대기한다.
-2. 동일 입력과 동일 provider 설정으로 최대 3회 재요청한다.
-3. 재시도 중에는 원문 chunk, 전처리 플레이스홀더, 기존 한국어 문서 상태를 변경하지 않는다.
-4. 3회 실패하면 해당 chunk를 미완료 상태로 둔다.
-
----
-
-## 10. 최종 운영 기준
-
-이 작업 방식의 핵심 기준은 다음과 같다.
-
-> 기존 한국어 문서는 문맥 참고와 위치 매칭에 사용한다.
-> 영어 diff는 실제 변경 사항 식별과 최신 영어 문장 파악에 사용한다.
-> 번역 반영은 diff에 포함된 업데이트 부분만 수행한다.
-> 변경되지 않은 주변 한국어 문장은 원칙적으로 유지한다.
-
-따라서 최종 입력 구성은 다음 두 가지로 충분하다.
-
-1. 기존 한국어 문서
-2. 영어 원문 diff
-
-단, 영어 diff는 최소한 변경된 문장 전체가 보이는 형태여야 한다.
-단어 단위 diff만 제공되면 한국어 문장 전체를 자연스럽게 갱신하기 어려울 수 있다.
+## 12. 수용 기준
+
+번역 단계 출력이 다음 조건을 모두 만족해야 [후처리 단계](./03-postprocessing.md)로 전달한다.
+
+1. PatchPlan의 모든 번역 대상 블록에 대해 provider 응답 또는 결정적 생성 결과가 존재한다.
+2. 모든 provider 응답이 response contract를 통과했다.
+3. 블록 출력 수와 PatchPlan 대상 수가 정확히 일치한다.
+4. locale 문서 상태가 source, target 또는 명시적으로 허용된 unguarded 상태 중 하나로 판정되었다.
+5. source 상태의 각 계획에 대해 적용 위치가 유일하게 확정되었다.
+6. placeholder 매핑이 번역 중 변경되지 않았다.
+7. 기존 locale 문서는 후처리 단계에 인계하기 전까지 변경되지 않았다.
