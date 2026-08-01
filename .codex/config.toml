@@ -68,7 +68,7 @@ model = "gpt-5.6-sol"
 
 # Reasoning effort: minimal | low | medium | high | xhigh | max | ultra (model-dependent)
 
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "high"
 
 # Optional plan-mode override: none | minimal | low | medium | high | xhigh | max | ultra (model-dependent)
 
@@ -134,7 +134,7 @@ model_reasoning_summary = "auto"
 
 # - { granular = { ... } }: allow or auto-reject selected prompt categories
 
-approval_policy = "never"
+approval_policy = "on-request"
 
 # Who reviews eligible approval prompts: user (default) | auto_review
 
@@ -272,10 +272,6 @@ show_raw_agent_reasoning = false
 # Disable burst-paste detection in the TUI. Default: false
 
 disable_paste_burst = false
-
-# Track Windows onboarding acknowledgement (Windows only). Default: false
-
-windows_wsl_setup_acknowledged = false
 
 # Check for updates on startup. Default: true
 

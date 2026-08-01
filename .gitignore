@@ -74,6 +74,7 @@ hs_err_pid*
 .env.backup
 .env.local
 .env.local.*
+.env.prod*
 .env.production
 .env.production.*
 ENV/
@@ -86,6 +87,8 @@ venv.bak/
 .terraform/
 *.tfstate
 *.tfstate.*
+*.tfvars
+*.tfvars.json
 .terraform.lock.hcl
 .terragrunt-cache/
 .pulumi/
@@ -103,6 +106,7 @@ venv.bak/
 Dockerfile.local
 docker-compose.override.yml
 docker-compose.local.yml
+**/.docker/config.json
 .docker/
 
 # Cache
@@ -121,7 +125,25 @@ docker-compose.local.yml
 *.pem
 *.key
 *.crt
+*.cer
 *.cert
+*.jks
+*.keystore
+secrets/
+.secrets
+.secrets/
+auth.json
+credentials.json
+application_default_credentials.json
+.ssh/
+.kube/config
+.gnupg/
+.netrc
+.npmrc
+!.npmrc.example
+.git-credentials
+id_rsa*
+id_ed25519*
 *.p12
 *.pfx
 secrets/
@@ -180,6 +202,9 @@ $RECYCLE.BIN/
 .devin/*
 .goose/*
 .kilocode/*
+.kimi-code/*
+.kiro/*
+.omp/*
 .opencode/*
 .qwen/*
 .roo/*
@@ -188,6 +213,7 @@ $RECYCLE.BIN/
 # Claude
 **/CLAUDE.md
 !/CLAUDE.md
+**/CLAUDE.local.md
 .claude/*
 !.claude/settings.json
 !.claude/hookify.*.md
@@ -205,6 +231,7 @@ $RECYCLE.BIN/
 .gemini/*
 !.gemini/GEMINI.md
 !.gemini/settings.json
+.gemini-clipboard/
 
 # GitHub
 .github/agents/*
@@ -215,7 +242,15 @@ $RECYCLE.BIN/
 .agent-os/
 agent-os/
 
+# Playwright
+.agent-browser/
+.browser/
+.chrome/
+.next-browser/
+.playwright*
+
 # etc
 .cmux/
 .omx/
 .remember
+.serena/
