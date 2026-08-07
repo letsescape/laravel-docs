@@ -329,7 +329,7 @@ def _is_ordered_item_opener(stripped: str) -> bool:
         marker_end += 1
     if marker_end == 0 or marker_end >= len(stripped) or stripped[marker_end] != ".":
         return False
-    remainder = stripped[marker_end + 1 :]
+    remainder = stripped[marker_end + 1:]
     return bool(remainder[:1].isspace() and remainder.rstrip().endswith(":"))
 
 
@@ -356,17 +356,22 @@ def _opens_indented_children(line: str) -> bool:
 
 
 def _has_indented_parent(lines: list[str], index: int) -> bool:
-    """대상 줄이 기존 하위 구조에 포함되는지 판별."""
+    """대상 줄이 목록 또는 directive의 하위 구조인지 판별."""
 
     cursor = index - 1
+    saw_blank = False
     while cursor >= 0:
         line = lines[cursor]
         if line == "":
-            return False
+            saw_blank = True
+            cursor -= 1
+            continue
         if _INDENTED_CODE_RE.match(line):
             cursor -= 1
             continue
-        return _opens_indented_children(line)
+        if _LIST_MARKER_RE.match(line):
+            return True
+        return not saw_blank and _opens_indented_children(line)
     return False
 
 
@@ -381,30 +386,26 @@ def _convert_indented_code_blocks(text: str) -> str:
 
         lines = segment.split("\n")
         out: list[str] = []
-        index = 0
-        while index < len(lines):
-            line = lines[index]
+        i = 0
+        while i < len(lines):
+            line = lines[i]
             match = _INDENTED_CODE_RE.match(line)
             if not match or _LIST_MARKER_RE.match(match.group(1)):
                 out.append(line)
-                index += 1
+                i += 1
                 continue
-            if _has_indented_parent(lines, index):
+            if _has_indented_parent(lines, i):
                 out.append(line)
-                index += 1
+                i += 1
                 continue
 
             block: list[str] = []
-            while index < len(lines):
-                current = lines[index]
+            while i < len(lines):
+                current = lines[i]
                 current_match = _INDENTED_CODE_RE.match(current)
                 if current == "":
                     next_nonblank = next(
-                        (
-                            lines[position]
-                            for position in range(index + 1, len(lines))
-                            if lines[position] != ""
-                        ),
+                        (lines[k] for k in range(i + 1, len(lines)) if lines[k] != ""),
                         "",
                     )
                     next_match = _INDENTED_CODE_RE.match(next_nonblank)
@@ -413,7 +414,7 @@ def _convert_indented_code_blocks(text: str) -> str:
                         or _looks_like_code(block)
                     ):
                         block.append("")
-                        index += 1
+                        i += 1
                         continue
                     break
                 if not current_match:
@@ -422,12 +423,21 @@ def _convert_indented_code_blocks(text: str) -> str:
                 if _LIST_MARKER_RE.match(stripped) and not _looks_like_code(block):
                     break
                 block.append(_strip_code_indent(current))
-                index += 1
+                i += 1
 
             if _looks_like_code(block):
-                out.append("```")
+                longest_backtick_run = max(
+                    (
+                        len(match.group(0))
+                        for item in block
+                        for match in re.finditer(r"`+", item)
+                    ),
+                    default=0,
+                )
+                fence = "`" * max(3, longest_backtick_run + 1)
+                out.append(fence)
                 out.extend(block)
-                out.append("```")
+                out.append(fence)
             else:
                 out.extend(("    " + item) if item else "" for item in block)
 
@@ -462,7 +472,8 @@ def _base64_values(content: str) -> set[str]:
         for inline_segment, is_inline in _outside_inline_code(fenced_segment):
             if not is_inline:
                 values.update(
-                    match.group(0) for match in _BASE64_RE.finditer(inline_segment)
+                    match.group(0)
+                    for match in _BASE64_RE.finditer(inline_segment)
                 )
     return values
 
