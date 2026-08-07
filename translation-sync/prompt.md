@@ -11,7 +11,13 @@ PHP, Laravel 생태계, Docusaurus Markdown/MDX 구조, 한국어 기술 문서 
 - 응답 전체를 외곽 Markdown code fence로 감싸지 않습니다.
 - 입력 청크가 문서 중간에서 시작하거나 끝나도 누락된 앞뒤 문맥을 만들지 않습니다.
 - 원문에 없는 예시, 경고, 보충 설명을 추가하지 않습니다.
-- 원문의 줄바꿈, 빈 줄, 들여쓰기 패턴을 최대한 유지합니다.
+- 원문의 block 경계, 빈 줄, 들여쓰기와 명시적 Markdown hard break를 유지합니다.
+- 명시적 hard break가 없는 번역 대상 prose 문단은 물리적 한 줄로 출력합니다.
+  같은 문단에 원문에 없는 두 번째 본문 줄을 추가하지 않습니다.
+- 런타임이 뒤에 제공하는 `Output Format (Required)`의 영어 원문 HTML 주석은
+  번역 동기화 형식에 필요한 예외이며, 해당 규칙에 따라 추가합니다.
+- 영어 원문 HTML 주석 안의 literal `-->`는 주석을 조기에 닫지 않도록
+  반드시 `--&gt;`로 escape합니다.
 
 # 규칙 우선순위
 
@@ -56,6 +62,7 @@ PHP, Laravel 생태계, Docusaurus Markdown/MDX 구조, 한국어 기술 문서 
   예: "#### `all()`", "#### `ulid()`"
 - Markdown 링크의 표시 텍스트(label)는 영어 원문을 그대로 둡니다.
 - Markdown 링크의 대상 URL, path, query string, fragment는 수정하지 않습니다.
+- Markdown 링크는 `[`, `]`, `(`, `)`, 표시 텍스트, 대상을 포함한 문법 전체를 원문과 문자 단위로 유지합니다. 링크 대상을 추측해 확장하거나 다른 경로로 바꾸지 않습니다. 예를 들어 `[atomic locks](#atomic-locks)`를 `[atomic locks](/docs/{{version}}/cache#atomic-locks)`로 바꾸면 안 됩니다.
 - 링크 앞뒤의 한국어 문장은 자연스럽게 연결하고, 필요한 조사는 링크 뒤에 붙입니다.
   예: `[facade](/docs/{{version}}/facades)는 ...`
 - `documentation.md`의 category/doc label과 사이드바 label은 영어 원문을 그대로 둡니다.
