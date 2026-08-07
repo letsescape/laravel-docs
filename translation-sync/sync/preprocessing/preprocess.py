@@ -1,27 +1,33 @@
 """번역 비교용 작업 사본의 결정적 전처리.
 
-원문 source는 raw 상태로 보존하고 번역 pipeline의 작업 사본에만 적용.
-Base64 image data를 placeholder로 보호하고 페이지 전용 장식을 제거한 뒤,
-명확한 들여쓰기 코드 블록을 fenced code block으로 정규화.
-모호한 목록 또는 문장 구조는 변경 대상에서 제외.
-"""
+원문 source(i18n/en)는 raw 상태로 보존하고 번역 pipeline의 작업 사본에만 적용.
+- base64 이미지 → placeholder 치환(+매핑), 후처리에서 복원
+- 페이지 디자인 전용 <style> 제거 (fenced code block 밖에서만)
+- 제목 옆 {.class} 스타일 클래스 제거
 
+목록 들여쓰기와 code block처럼 의미가 달라질 수 있는 모호한 구조는 변경 제외.
+"""
 from __future__ import annotations
 
 import hashlib
 import re
 from dataclasses import dataclass, field
 
-from ..common.markdown import _inline_code_spans, closes_fence, strip_title_attrs
+from ..common.markdown import (
+    _inline_code_spans,
+    closes_fence,
+    fence_token,
+    strip_title_attrs,
+)
 
+# data:image/...;base64,.... (Markdown/HTML 이미지 양쪽)
 _BASE64_RE = re.compile(
     r"data:image/[a-zA-Z0-9.+-]+"
     r"(?:;[^;,=\s\"'<>]+=[^;,\s\"'<>]+)*"
     r";base64,[A-Za-z0-9+/=]+?(?=/>|$|[)>\"'\s])"
 )
-_FENCE_RE = re.compile(r"^([ \t]*)(`{3,}|~{3,})", re.MULTILINE)
 _INDENTED_CODE_RE = re.compile(r"^(?: {4}|\t)(.*)$")
-_LIST_MARKER_RE = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s)")
+_LIST_MARKER_RE = re.compile(r"^\s*(?:[-*+]\s|\d+[.)]\s)")
 _STYLE_OPEN = "<style"
 _STYLE_CLOSE = "</style>"
 
@@ -73,48 +79,82 @@ def preprocess_pair(previous: str, current: str) -> PreprocessedPair:
     )
 
 
+def _segment_fence_token(line: str) -> str | None:
+    """CommonMark가 허용하는 위치의 fenced code 구분자 반환."""
+
+    stripped = line.lstrip(" ")
+    if len(line) - len(stripped) > 3 or stripped.startswith("\t"):
+        return None
+    while stripped.startswith(">"):
+        stripped = stripped[1:]
+        if stripped.startswith((" ", "\t")):
+            stripped = stripped[1:]
+        indented = stripped.lstrip(" ")
+        if len(stripped) - len(indented) > 3 or indented.startswith("\t"):
+            return None
+        stripped = indented
+    return fence_token(line)
+
+
 def _split_code_segments(text: str) -> list[tuple[str, bool]]:
     """fenced code block 여부에 따라 텍스트 분할."""
-
     segments: list[tuple[str, bool]] = []
+    pending: list[str] = []
     in_code = False
     fence = ""
-    last = 0
-    for match in _FENCE_RE.finditer(text):
-        token = match.group(2)
-        if not in_code:
-            in_code, fence = True, token
-            segments.append((text[last : match.start()], False))
-            last = match.start()
-        elif closes_fence(token, fence):
+
+    def flush(is_code: bool) -> None:
+        """대기 중인 줄을 지정한 구간으로 확정."""
+
+        if pending:
+            segments.append(("".join(pending), is_code))
+            pending.clear()
+
+    for line in text.splitlines(keepends=True):
+        token = _segment_fence_token(line)
+        if token and not in_code:
+            flush(False)
+            in_code = True
+            fence = token
+            pending.append(line)
+            continue
+
+        pending.append(line)
+        if token and in_code and closes_fence(line, fence):
+            flush(True)
             in_code = False
-            segments.append((text[last : match.end()], True))
-            last = match.end()
-    segments.append((text[last:], in_code))
+            fence = ""
+
+    flush(in_code)
+    if not segments:
+        segments.append(("", False))
     return segments
 
 
+# 줄 시작 구조로 코드/설정을 식별하는 패턴(Blade 디렉티브, .env, YAML, shell, 경로 등).
+# 들여쓰기 블록이 이런 구조면 코드 블록으로 보고 fenced로 변환해, 영어 주석이 코드에
+# 잘못 병기되는 문제 방지.
 _STRUCT_CODE_PATS = (
-    re.compile(r"^\s*@\w+"),
-    re.compile(r"^\s*[A-Za-z][\w-]*="),
-    re.compile(r"^\s*(//|#\s|/\*)"),
-    re.compile(r"^\s*[\w./-]+:\s\S"),
-    re.compile(r"^\s*[\w-]+:\s*$"),
+    re.compile(r"^\s*@\w+"),                        # Blade/Envoy 디렉티브 (@auth, @once 등)
+    re.compile(r"^\s*[A-Za-z][\w-]*="),             # .env·설정 (STRIPE_KEY=..., process_name=...)
+    re.compile(r"^\s*(//|#\s|/\*)"),               # 코드 주석
+    re.compile(r"^\s*[\w./-]+:\s\S"),               # YAML/설정 key: value
+    re.compile(r"^\s*[\w-]+:\s*$"),                 # YAML key:
     re.compile(
         r"^\s*[\w.]+\s*-\s*(integer|string|timestamp|bigInteger|boolean"
         r"|text|date|float|increments|json|uuid|id|datetime|char|decimal|enum|binary)\b"
-    ),
-    re.compile(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"),
-    re.compile(r"^\s*[a-z_][\w]*\s*$"),
-    re.compile(r"^\s*[\w-]+\.\w{1,6}\s*$"),
+    ),                                              # DB 스키마 컬럼 (id - integer 등)
+    re.compile(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"),  # IP 주소
+    re.compile(r"^\s*[a-z_][\w]*\s*$"),             # 단일 소문자 토큰 (테이블명 등)
+    re.compile(r"^\s*[\w-]+\.\w{1,6}\s*$"),         # 파일명 (messages.php 등)
     re.compile(
         r"^\s*</?(?!(?:div|span|img|p|a|br|hr|i|b|em|strong|small|sup|sub"
         r"|ul|ol|li|h[1-6]|blockquote|figure|figcaption)\b)[a-zA-Z][\w-]*[\s/>]"
-    ),
-    re.compile(r"^\s*/[\w][\w./-]*\s*$"),
-    re.compile(r"^\s*(alias\s|php\d|ssh\s|cd\s|ls\s|git\s|vendor/bin)"),
-    re.compile(r"^\s*\[[\w:.-]+\]\s*$"),
-    re.compile(r"^\s*[a-zA-Z_]\w*(\.\w+)*\("),
+    ),  # 코드 예제 HTML/Blade 태그만 (콘텐츠/인라인 태그 제외)
+    re.compile(r"^\s*/[\w][\w./-]*\s*$"),           # 경로/디렉터리 트리
+    re.compile(r"^\s*(alias\s|php\d|ssh\s|cd\s|ls\s|git\s|vendor/bin)"),  # shell
+    re.compile(r"^\s*\[[\w:.-]+\]\s*$"),            # INI 섹션 ([program:horizon] 등)
+    re.compile(r"^\s*[a-zA-Z_]\w*(\.\w+)*\("),      # 함수 호출 (mix.js(...) 등)
 )
 
 
@@ -160,26 +200,89 @@ def _strip_code_indent(line: str) -> str:
     return line[4:] if line.startswith("    ") else line
 
 
+def _strip_title_attrs_outside_protected_regions(text: str) -> str:
+    """HTML 주석과 들여쓰기 코드 밖의 heading class 제거."""
+
+    inline_spans = _inline_code_spans(text)
+    inline_index = 0
+    in_comment = False
+    offset = 0
+    out: list[str] = []
+
+    for line in text.splitlines(keepends=True):
+        protected = in_comment or bool(_INDENTED_CODE_RE.match(line))
+        cursor = 0
+        while cursor < len(line):
+            if in_comment:
+                close = line.find("-->", cursor)
+                if close < 0:
+                    break
+                in_comment = False
+                cursor = close + 3
+                continue
+
+            opener = line.find("<!--", cursor)
+            if opener < 0:
+                break
+            absolute_opener = offset + opener
+            while (
+                inline_index < len(inline_spans)
+                and inline_spans[inline_index][1] <= absolute_opener
+            ):
+                inline_index += 1
+            if (
+                inline_index < len(inline_spans)
+                and inline_spans[inline_index][0]
+                <= absolute_opener
+                < inline_spans[inline_index][1]
+            ):
+                cursor = inline_spans[inline_index][1] - offset
+                continue
+
+            protected = True
+            in_comment = True
+            cursor = opener + 4
+
+        out.append(line if protected else strip_title_attrs(line))
+        offset += len(line)
+    return "".join(out)
+
+
 def _strip_style_blocks(text: str) -> str:
-    """한 줄 inline code 밖의 닫힌 page style block 제거."""
+    """보호 영역 밖의 닫힌 page style block 제거."""
 
     out: list[str] = []
     lower = text.lower()
+    inline_code_spans = _inline_code_spans(text)
     index = 0
-
-    def inside_inline_code(position: int) -> bool:
-        """대상 위치가 한 줄 inline code 내부인지 판별."""
-
-        line_start = text.rfind("\n", 0, position) + 1
-        prefix = text[line_start:position]
-        return prefix.count("`") % 2 == 1
 
     while index < len(text):
         start = lower.find(_STYLE_OPEN, index)
         if start < 0:
             out.append(text[index:])
             break
-        if inside_inline_code(start):
+        code_span_end = next(
+            (
+                end
+                for span_start, end, _body in inline_code_spans
+                if span_start <= start < end
+            ),
+            None,
+        )
+        if code_span_end is not None:
+            out.append(text[index:code_span_end])
+            index = code_span_end
+            continue
+        after_open = start + len(_STYLE_OPEN)
+        if after_open < len(text) and not (
+            text[after_open].isspace() or text[after_open] == ">"
+        ):
+            out.append(text[index : start + len(_STYLE_OPEN)])
+            index = start + len(_STYLE_OPEN)
+            continue
+        line_start = text.rfind("\n", 0, start) + 1
+        line_prefix = text[line_start:start]
+        if line_prefix not in ("", " ", "  ", "   "):
             out.append(text[index : start + len(_STYLE_OPEN)])
             index = start + len(_STYLE_OPEN)
             continue
@@ -193,8 +296,20 @@ def _strip_style_blocks(text: str) -> str:
             remove_start -= 1
 
         close_start = lower.find(_STYLE_CLOSE, tag_end + 1)
+        while close_start >= 0:
+            code_span_end = next(
+                (
+                    end
+                    for span_start, end, _body in inline_code_spans
+                    if span_start <= close_start < end
+                ),
+                None,
+            )
+            if code_span_end is None:
+                break
+            close_start = lower.find(_STYLE_CLOSE, code_span_end)
         if close_start < 0:
-            out.append(text[index:remove_start])
+            out.append(text[index:])
             break
 
         remove_end = close_start + len(_STYLE_CLOSE)
@@ -430,16 +545,20 @@ def _preprocess_with_allocation(
     result = _replace_base64(content, allocation)
     text = result.text
 
+    # 2) 코드 블록 밖에서만 <style>·제목 {.class} 제거.
+    #    들여쓰기 변환보다 먼저 적용. 선행 변환 시 내부 CSS가 fenced code로
+    #    보호되어 page style block이 남는 문제 방지.
     rebuilt: list[str] = []
     for segment, is_code in _split_code_segments(text):
         if is_code:
             rebuilt.append(segment)
             continue
         segment = _strip_style_blocks(segment)
-        segment = strip_title_attrs(segment)
+        segment = _strip_title_attrs_outside_protected_regions(segment)
         rebuilt.append(segment)
     text = "".join(rebuilt)
 
+    # 3) 확실한 들여쓰기 코드 블록을 fenced block으로 변환해 후속 단계에서 보호.
     text = _convert_indented_code_blocks(text)
 
     result.text = text
