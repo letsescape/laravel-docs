@@ -1,49 +1,132 @@
-"""Apply translated source diff hunks to annotated locale Markdown.
+"""번역된 원문 diff hunk를 annotation 포함 locale Markdown에 적용.
 
-The translation workflow uses English HTML comments as stable anchors. A
-changed English hunk is translated separately, then merged into the existing
-locale document by replacing, inserting, or deleting the matching annotated
-block.
+영어 HTML 주석을 안정된 anchor로 사용. 변경된 영어 hunk를 개별 번역한 뒤
+대응하는 annotation block의 교체, 삽입 또는 삭제를 통해 기존 locale 문서에 병합.
 """
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from collections import Counter
+from collections.abc import Callable
+from dataclasses import dataclass, replace
+from enum import Enum
 
+from ..annotation.annotate import split_blocks
 from ..common.markdown import (
     closes_fence,
     fence_token,
+    front_matter_description,
+    has_malformed_html_comment_delimiters,
     html_comment_spans,
+    html_tags,
+    inline_code_contents,
     is_heading_line,
     is_named_anchor_line,
+    is_non_annotatable_line,
+    is_structural_html_fragment,
+    is_structural_html_line,
+    normalize_annotation_anchor,
+    reference_definition_line_numbers,
+    standalone_html_comment_line_numbers,
+    strip_inline_code,
     strip_title_attr_line,
 )
-from ..source.diff import DiffHunk
+from ..source.diff import DiffHunk, hunks_between
 
 _ADMONITION_MARKER_RE = re.compile(
-    r"^>\s*\[!(?:NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
+    r"^>\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
 )
+_ANY_ADMONITION_MARKER_RE = re.compile(
+    r"^>\s*\[!([A-Z][A-Z0-9_-]*)]\s*$", re.IGNORECASE
+)
+_BARE_INTERNAL_LINK_RE = re.compile(r"^\[[^]\n]+]\(#[^)\s]+\)$")
+_LIST_ITEM_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+")
+_LEGACY_ADMONITION_RE = re.compile(
+    r"^>\s*(?:"
+    r"\{(?P<braced>note|tip|warning|caution|important|참고|注意)\}"
+    r"|\*\*(?P<strong>note|tip|warning|caution|important|참고|注意)"
+    r"(?::\*\*|\*\*:)"
+    r")\s*(?P<body>.*)$",
+    re.IGNORECASE,
+)
+_LEGACY_ADMONITION_TYPES = {
+    "note": "NOTE",
+    "tip": "TIP",
+    "warning": "WARNING",
+    "caution": "CAUTION",
+    "important": "IMPORTANT",
+    "참고": "NOTE",
+    "注意": "NOTE",
+}
+_TOC_LINK_RE = re.compile(r"^\s*[-*]\s+\[[^\]\n]*\]\(#([^)\s]+)\)\s*$")
+_NAMED_ANCHOR_NAME_RE = re.compile(r'name="([^"]+)"')
 
 
 class PatchError(ValueError):
-    """Raised when a diff hunk cannot be applied to the existing translation."""
+    """diff hunk를 기존 번역문에 적용할 수 없는 patch 오류."""
+
+
+class PlanState(Enum):
+    """계획 상태."""
+
+    CREATE = "create"
+    UNGUARDED = "unguarded"
+    SOURCE = "source"
+    TARGET = "target"
 
 
 @dataclass(frozen=True)
-class Segment:
+class BlockChange:
+    """원문 delta와 해당 변경이 속한 전체 Markdown block의 결합.
+
+    ``old_lines``와 ``new_lines``는 선택적 원문 정규화 이후의 effective delta.
+    번역과 locale 교체에 사용하는 전체 block은 ``old_source``와 ``new_source``에
+    보존. 두 개념의 분리를 통해 block 확장이 한 줄 추가를 전체 추가 diff로
+    바꾸는 문제 방지.
+    """
+
     old_lines: tuple[str, ...]
     new_lines: tuple[str, ...]
     before_context: str | None
     after_context: str | None
     old_linenos: tuple[int, ...] = ()
     new_linenos: tuple[int, ...] = ()
+    before_old_lineno: int | None = None
+    before_new_lineno: int | None = None
+    after_old_lineno: int | None = None
+    after_new_lineno: int | None = None
+    old_source: str | None = None
+    old_anchors: tuple[str, ...] = ()
+    old_block_ordinal: int | None = None
+    old_anchor_occurrences: int | None = None
+    old_block_start: int | None = None
+    old_block_end: int | None = None
+    old_previous_anchor: str | None = None
+    old_previous_anchor_ordinal: int | None = None
+    old_next_anchor: str | None = None
+    old_next_anchor_ordinal: int | None = None
     new_source: str | None = None
-    # An interior change to one fenced code block (see CodeChange). Code is never
-    # translated, so it is handled by a verbatim block swap, not the LLM path.
+    new_anchor: str | None = None
+    new_anchors: tuple[str, ...] = ()
+    new_block_ordinal: int | None = None
+    new_anchor_occurrences: int | None = None
+    new_block_start: int | None = None
+    new_block_end: int | None = None
+    new_previous_anchor: str | None = None
+    new_next_anchor: str | None = None
+    # 코드 블록 내부 변경은 번역하지 않고 원문 블록 전체로 교체
     code_block: CodeChange | None = None
+    inserted_code_block_index: int | None = None
+    inserted_code_block: str | None = None
+    deleted_code_block_index: int | None = None
+    deleted_code_block: str | None = None
+    # 번역된 로캘 행도 찾을 수 있도록 구조 위치로 주소화한 표 행 변경
+    table_row: TableRowChange | None = None
 
     @property
     def needs_translation(self) -> bool:
+        """provider 번역이 필요한 segment인지 여부."""
+
         if self.code_block is not None:
             return False
         return bool(_meaningful_lines(self.new_lines)) or bool(
@@ -51,36 +134,176 @@ class Segment:
         )
 
     @property
+    def provider_free(self) -> bool:
+        """provider 호출 없이 결정할 수 있는 segment인지 여부."""
+
+        if not self.new_source:
+            return False
+        if self.inserted_code_block is not None:
+            return True
+        if _is_fenced_code_source(self.new_source):
+            return True
+        if self.is_named_anchor_change:
+            return True
+        if self.is_inline_code_identifier_list:
+            return True
+        lines = [line.strip() for line in self.new_source.splitlines() if line.strip()]
+        return bool(lines) and all(_BARE_INTERNAL_LINK_RE.fullmatch(line) for line in lines)
+
+    @property
+    def is_inline_code_identifier_list(self) -> bool:
+        """inline code identifier list 여부."""
+
+        return bool(self.new_source) and _is_inline_code_identifier_list(
+            self.new_source
+        )
+
+    @property
+    def is_named_anchor_change(self) -> bool:
+        """named anchor 변경 여부."""
+
+        old_lines = _meaningful_lines(self.old_lines)
+        new_lines = _meaningful_lines(self.new_lines)
+        lines = old_lines + new_lines
+        return (
+            bool(lines)
+            and len(old_lines) <= 1
+            and len(new_lines) <= 1
+            and all(is_named_anchor_line(line) for line in lines)
+        )
+
+    @property
+    def is_admonition_marker_change(self) -> bool:
+        """admonition marker 변경 여부."""
+
+        old_lines = _meaningful_lines(self.old_lines)
+        new_lines = _meaningful_lines(self.new_lines)
+        return (
+            len(old_lines) == 1
+            and len(new_lines) == 1
+            and bool(_ADMONITION_MARKER_RE.fullmatch(old_lines[0].strip()))
+            and bool(_ADMONITION_MARKER_RE.fullmatch(new_lines[0].strip()))
+        )
+
+    @property
     def is_deletion(self) -> bool:
+        """deletion 여부."""
+
         if self.code_block is not None:
             return False
-        return bool(_meaningful_lines(self.old_lines)) and not self.needs_translation
+        has_old_source = bool(self.old_source or _meaningful_lines(self.old_lines))
+        return has_old_source and not self.needs_translation
+
+    @property
+    def is_block_range(self) -> bool:
+        """블록 range 여부."""
+
+        return len(self.old_anchors) > 1 or len(self.new_anchors) > 1
 
 
 @dataclass(frozen=True)
 class CodeChange:
-    """An interior change to one fenced code block.
+    """단일 fenced code block 내부의 변경.
 
-    Code is copied verbatim from the source and never translated, so a changed
-    block is located by its index in document order and the whole block is
-    swapped for the new source block. This keeps the locale code byte-identical
-    to English (which verification requires, even for things like reordered
-    imports) and stays idempotent: a re-run finds the block already equal to
-    ``new_block`` and does nothing.
+    code는 번역 없이 원문에서 그대로 복사. 변경 block을 문서 순서의 이전·신규
+    index로 찾은 뒤 전체 block을 신규 원문 block으로 교체. locale code와 영어
+    원문의 byte 동일성 및 재실행 idempotency 보장.
 
-    ``anchors`` are the block's unchanged lines (everything except the freshly
-    added lines). The swap only happens when the located block still contains
-    all of them, so a diverged document is left untouched rather than corrupted,
-    while reordered-but-equivalent code is still recognised and canonicalised.
+    ``anchors``는 새로 추가된 줄을 제외한 변경되지 않은 block 줄. 탐색한 block이
+    모든 anchor를 포함할 때만 교체. 순서만 바뀐 동등 code는 canonical 상태로
+    판정하고 다른 divergence는 ``_code_plan_state``에서 거부.
     """
 
     block_index: int
     new_block: str
     anchors: tuple[str, ...]
+    old_block_index: int | None = None
+    old_block: str | None = None
+    old_block_count: int = 0
+    new_block_count: int = 0
+
+
+@dataclass(frozen=True)
+class TableRowChange:
+    """구조 위치로 주소화된 단일 변경 table row.
+
+    ``table_ordinal``은 code fence 외부 table 순서, ``table_count``와
+    ``row_count``는 원문 cardinality, ``row_ordinal``은 separator가 아닌 row
+    사이의 변경 row 순서. locale 전용 table이나 row가 구조 주소를 다른 내용으로
+    이동시키는 경우 거부.
+    """
+
+    table_ordinal: int
+    row_ordinal: int
+    row_count: int
+    table_count: int
+
+
+@dataclass(frozen=True)
+class NamedSectionSignature:
+    """이름이 지정된 section의 안정된 구조 서명."""
+
+    anchor: str
+    source_anchors: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class NamedSectionReorder:
+    """provider 호출 없이 적용할 named section 순서 변경."""
+
+    old_order: tuple[NamedSectionSignature, ...]
+    new_order: tuple[NamedSectionSignature, ...]
+    new_separators: tuple[str, ...]
+    reorder_prefix_links: bool = False
+
+
+@dataclass(frozen=True)
+class CreateBlock:
+    """신규 원문 문서의 분할 불가능한 단일 owner 단위."""
+
+    kind: str
+    source: str
+    leading: str
+    provider_required: bool
+
+
+@dataclass(frozen=True)
+class PatchPlan:
+    """단일 이전·신규 원문 쌍에서 파생된 순서가 보존된 block 변경."""
+
+    changes: tuple[BlockChange, ...]
+    old_source_anchors: tuple[str, ...] | None = None
+    new_source_anchors: tuple[str, ...] | None = None
+    old_code_blocks: tuple[str, ...] | None = None
+    new_code_blocks: tuple[str, ...] | None = None
+    old_source_comments: tuple[SourceComment, ...] = ()
+    new_source_comments: tuple[SourceComment, ...] = ()
+    named_section_reorder: NamedSectionReorder | None = None
+    old_front_matter: str | None = None
+    new_front_matter: str | None = None
+    create_blocks: tuple[CreateBlock, ...] = ()
+    create_suffix: str = ""
+    is_create: bool = False
+
+    @property
+    def is_noop(self) -> bool:
+        """noop 여부."""
+
+        return (
+            not self.is_create
+            and not self.changes
+            and self.named_section_reorder is None
+            and self.old_source_anchors == self.new_source_anchors
+            and self.old_code_blocks == self.new_code_blocks
+            and self.old_source_comments == self.new_source_comments
+            and self.old_front_matter == self.new_front_matter
+        )
 
 
 @dataclass(frozen=True)
 class AnnotatedBlock:
+    """원문 annotation과 번역 본문을 포함한 locale block."""
+
     start: int
     end: int
     comment: str
@@ -89,40 +312,348 @@ class AnnotatedBlock:
 
 @dataclass(frozen=True)
 class SourceBlock:
+    """줄 범위와 annotation anchor를 보존한 원문 block."""
+
     start_lineno: int
     end_lineno: int
     comment: str
     text: str
 
 
-def segments_from_hunks(
-    hunks: tuple[DiffHunk, ...], source_text: str | None = None
-) -> list[Segment]:
-    segments: list[Segment] = []
-    source_lines = source_text.splitlines() if source_text is not None else None
+@dataclass(frozen=True)
+class SourceComment:
+    """원문 작성 HTML 주석과 원문 block 사이의 위치."""
+
+    body: str
+    anchor_position: int
+    raw: str
+    placement: str
+
+
+@dataclass(frozen=True)
+class _NamedSection:
+    """이름 anchor로 구분한 내부 section 범위."""
+
+    core: str
+    separator: str
+    signature: NamedSectionSignature
+
+
+def build_create_plan(source_text: str) -> PatchPlan:
+    """신규 원문 문서를 순서가 보존된 분할 불가능 owner 단위로 분해."""
+
+    if has_malformed_html_comment_delimiters(source_text):
+        raise PatchError("malformed standalone source HTML comment")
+    _require_supported_admonition_markers(source_text)
+    front_matter = _front_matter_text(source_text)
+    if front_matter is not None:
+        _require_supported_front_matter(front_matter)
+
+    source_lines = source_text.splitlines(keepends=True)
+    plain_lines = source_text.splitlines()
+    comment_ranges = _standalone_source_comment_ranges(source_text)
+    ranges: list[tuple[int, int, str]] = []
+    for block in split_blocks(plain_lines):
+        cursor = block.start
+        for comment_start, comment_end in comment_ranges:
+            if comment_end <= cursor or comment_start >= block.end:
+                continue
+            if cursor < comment_start:
+                ranges.append((cursor, comment_start, block.kind))
+            cursor = max(cursor, comment_end)
+        if cursor < block.end:
+            ranges.append((cursor, block.end, block.kind))
+    ranges.extend((start, end, "source_comment") for start, end in comment_ranges)
+    ranges = sorted(
+        item
+        for item in ranges
+        if any(line.strip() for line in plain_lines[item[0] : item[1]])
+    )
+
+    create_blocks: list[CreateBlock] = []
+    cursor = 0
+    for start, end, base_kind in ranges:
+        if start < cursor:
+            raise PatchError("overlapping create owner blocks")
+        if any(line.strip() for line in source_lines[cursor:start]):
+            raise PatchError("source contains an unsupported create owner block")
+        source = "".join(source_lines[start:end])
+        kind = _create_block_kind(base_kind, source)
+        if kind == "table":
+            _require_rectangular_create_table(source)
+        create_blocks.append(
+            CreateBlock(
+                kind=kind,
+                source=source,
+                leading="".join(source_lines[cursor:start]),
+                provider_required=_create_block_requires_provider(kind, source),
+            )
+        )
+        cursor = end
+
+    if any(line.strip() for line in source_lines[cursor:]):
+        raise PatchError("source contains an unsupported create owner block")
+    return PatchPlan(
+        changes=(),
+        new_front_matter=front_matter,
+        create_blocks=tuple(create_blocks),
+        create_suffix="".join(source_lines[cursor:]),
+        is_create=True,
+    )
+
+
+def _create_block_kind(base_kind: str, source: str) -> str:
+    """기본 분류와 원문 형태로 신규 블록 유형 결정."""
+
+    if base_kind != "text":
+        return base_kind
+    stripped = source.lstrip()
+    if stripped.startswith("|"):
+        return "table"
+    if stripped.startswith(">"):
+        return "admonition"
+    if _LIST_ITEM_PREFIX_RE.match(stripped):
+        return "list"
+    if stripped.startswith("<"):
+        return "html"
+    return "prose"
+
+
+def _create_block_requires_provider(kind: str, source: str) -> bool:
+    """신규 블록에 번역 제공자 호출이 필요한지 판정."""
+
+    if kind in {
+        "frontmatter",
+        "source_comment",
+        "heading",
+        "code",
+        "anchor",
+        "structure",
+    }:
+        return False
+    if kind == "list" and _is_inline_code_identifier_list(source):
+        return False
+    lines = [line.strip() for line in source.splitlines() if line.strip()]
+    if kind == "list" and lines and all(
+        _BARE_INTERNAL_LINK_RE.fullmatch(_LIST_ITEM_PREFIX_RE.sub("", line))
+        for line in lines
+    ):
+        return False
+    return True
+
+
+def _standalone_source_comment_ranges(text: str) -> tuple[tuple[int, int], ...]:
+    """독립된 원문 HTML 주석의 0 기반 줄 범위."""
+
+    lines = text.splitlines(keepends=True)
+    source_comment_lines = standalone_html_comment_line_numbers(text)
+    front_matter_lines = _front_matter_line_numbers(text)
+    ranges: list[tuple[int, int]] = []
+    for start in _comment_starts(lines):
+        if (
+            start + 1 not in source_comment_lines
+            or start + 1 in front_matter_lines
+        ):
+            continue
+        end, _body = _read_comment(lines, start)
+        closing = lines[end - 1]
+        suffix = closing[closing.find("-->") + 3 :].strip()
+        if suffix:
+            raise PatchError("source HTML comment must be standalone")
+        ranges.append((start, end))
+    covered = {
+        lineno
+        for start, end in ranges
+        for lineno in range(start + 1, end + 1)
+    }
+    expected = set(source_comment_lines) - front_matter_lines
+    if covered != expected:
+        raise PatchError("source HTML comment must be standalone")
+    return tuple(ranges)
+
+
+def _render_create_plan(plan: PatchPlan, translated_blocks: list[str]) -> str:
+    """신규 문서 계획과 번역 결과를 하나의 문서로 조립."""
+
+    expected = sum(block.provider_required for block in plan.create_blocks)
+    if len(translated_blocks) != expected:
+        raise PatchError(
+            f"translation count mismatch: expected {expected}, got {len(translated_blocks)}"
+        )
+    translated = iter(translated_blocks)
+    output: list[str] = []
+    for block in plan.create_blocks:
+        output.append(block.leading)
+        rendered = (
+            next(translated)
+            if block.provider_required
+            else _render_deterministic_create_block(block)
+        )
+        output.append(_with_source_line_ending(rendered, block.source))
+    output.append(plan.create_suffix)
+    return _ensure_single_eof_newline("".join(output))
+
+
+def _render_deterministic_create_block(block: CreateBlock) -> str:
+    """번역 호출이 필요 없는 신규 블록 생성."""
+
+    if block.kind != "heading":
+        return block.source
+    heading = strip_title_attr_line(block.source.rstrip("\r\n"))
+    comment = _normalize_text(heading).replace("*/", "*&#47;").replace(
+        "-->", "--&gt;"
+    )
+    ending = "\r\n" if block.source.endswith("\r\n") else "\n"
+    source_heading = block.source.rstrip("\r\n")
+    return f"<!-- {comment} -->{ending}{source_heading}"
+
+
+def _with_source_line_ending(rendered: str, source: str) -> str:
+    """생성된 블록에 원문의 끝 줄바꿈 형식 적용."""
+
+    ending = (
+        "\r\n"
+        if source.endswith("\r\n")
+        else "\n"
+        if source.endswith("\n")
+        else ""
+    )
+    return rendered.rstrip("\r\n") + ending
+
+
+def build_plan(
+    hunks: tuple[DiffHunk, ...],
+    source_text: str,
+    *,
+    normalize_source: Callable[[str], str] | None = None,
+    normalize_source_pair: Callable[[str, str], tuple[str, str]] | None = None,
+) -> PatchPlan:
+    """effective line delta와 전체 이전·신규 원문 block의 결합."""
+
+    if normalize_source is not None and normalize_source_pair is not None:
+        raise PatchError("specify only one source normalizer contract")
+
+    source_lines = source_text.splitlines()
+    old_source_lines = _reverse_apply_hunks(source_lines, hunks)
+    old_source_text = _lines_text(old_source_lines, source_text)
+    if normalize_source_pair is not None:
+        normalized = normalize_source_pair(old_source_text, source_text)
+        if (
+            not isinstance(normalized, tuple)
+            or len(normalized) != 2
+            or not all(isinstance(item, str) for item in normalized)
+        ):
+            raise PatchError("source pair normalizer must return two strings")
+        normalized_old, normalized_new = normalized
+        return build_plan(
+            hunks_between(normalized_old, normalized_new),
+            normalized_new,
+        )
+    if normalize_source is not None:
+        normalized_old = normalize_source(old_source_text)
+        normalized_new = normalize_source(source_text)
+        return build_plan(
+            hunks_between(normalized_old, normalized_new),
+            normalized_new,
+        )
+
+    old_front_matter = _front_matter_text(old_source_text)
+    new_front_matter = _front_matter_text(source_text)
+    if old_front_matter != new_front_matter and new_front_matter is not None:
+        _require_supported_front_matter(new_front_matter)
+
+    named_section_reorder = _named_section_reorder(
+        old_source_text,
+        source_text,
+    )
+    if named_section_reorder is not None:
+        old_source_blocks = _source_blocks(old_source_text)
+        new_source_blocks = _source_blocks(source_text)
+        old_regions = _code_fence_regions(old_source_lines)
+        new_regions = _code_fence_regions(source_lines)
+        return PatchPlan(
+            changes=(),
+            old_source_anchors=tuple(
+                block.comment for block in _plan_source_blocks(old_source_blocks)
+            ),
+            new_source_anchors=tuple(
+                block.comment for block in _plan_source_blocks(new_source_blocks)
+            ),
+            old_code_blocks=_code_blocks_from_regions(
+                old_source_lines,
+                old_regions,
+            ),
+            new_code_blocks=_code_blocks_from_regions(
+                source_lines,
+                new_regions,
+            ),
+            old_source_comments=_source_comment_locations(old_source_text),
+            new_source_comments=_source_comment_locations(source_text),
+            named_section_reorder=named_section_reorder,
+            old_front_matter=old_front_matter,
+            new_front_matter=new_front_matter,
+        )
+
+    old_comment_lines = _source_comment_line_numbers(old_source_text)
+    new_comment_lines = _source_comment_line_numbers(source_text)
+    old_control_lines = old_comment_lines | _front_matter_line_numbers(old_source_text)
+    new_control_lines = new_comment_lines | _front_matter_line_numbers(source_text)
+
+    segments: list[BlockChange] = []
 
     for hunk in hunks:
-        if source_lines is not None and _hunk_has_code_fence_change(hunk):
-            segments.append(_hunk_region_segment(hunk, source_lines))
+        if _hunk_has_code_fence_change(
+            hunk,
+            old_ignored=old_control_lines,
+            new_ignored=new_control_lines,
+        ):
+            segments.append(
+                _hunk_region_segment(
+                    replace(
+                        hunk,
+                        lines=tuple(
+                            line
+                            for line in hunk.lines
+                            if line.old_lineno not in old_control_lines
+                            and line.new_lineno not in new_control_lines
+                        ),
+                    ),
+                    source_lines,
+                )
+            )
             continue
 
-        before_context: str | None = None
+        before_context: DiffLine | None = None
         old_lines: list[str] = []
         new_lines: list[str] = []
         old_linenos: list[int] = []
         new_linenos: list[int] = []
 
-        def flush(after_context: str | None = None) -> None:
+        def flush(after_context: DiffLine | None = None) -> None:
+            """누적된 diff 줄을 하나의 초기 segment로 확정."""
+
             nonlocal before_context, old_lines, new_lines, old_linenos, new_linenos
             if old_lines or new_lines:
                 segments.append(
-                    Segment(
+                    BlockChange(
                         old_lines=tuple(old_lines),
                         new_lines=tuple(new_lines),
-                        before_context=before_context,
-                        after_context=after_context,
+                        before_context=_context_text(before_context),
+                        after_context=_context_text(after_context),
                         old_linenos=tuple(old_linenos),
                         new_linenos=tuple(new_linenos),
+                        before_old_lineno=(
+                            before_context.old_lineno if before_context else None
+                        ),
+                        before_new_lineno=(
+                            before_context.new_lineno if before_context else None
+                        ),
+                        after_old_lineno=(
+                            after_context.old_lineno if after_context else None
+                        ),
+                        after_new_lineno=(
+                            after_context.new_lineno if after_context else None
+                        ),
                     )
                 )
                 old_lines = []
@@ -133,13 +664,21 @@ def segments_from_hunks(
                 before_context = after_context
 
         for line in hunk.lines:
+            if (
+                line.old_lineno in old_control_lines
+                or line.new_lineno in new_control_lines
+            ):
+                if old_lines or new_lines:
+                    flush(None)
+                before_context = None
+                continue
             if line.kind == "context":
                 context = _normalize_text(line.text)
                 if old_lines or new_lines:
                     if context:
-                        flush(context)
+                        flush(line)
                 elif context:
-                    before_context = context
+                    before_context = line
                 continue
             if line.kind == "delete":
                 old_lines.append(line.text)
@@ -152,22 +691,31 @@ def segments_from_hunks(
 
         flush(None)
 
+    new_regions = _code_fence_regions(source_lines)
+    old_regions = _code_fence_regions(old_source_lines)
     filtered = [
         segment
         for segment in segments
-        if _meaningful_lines(segment.old_lines) or _meaningful_lines(segment.new_lines)
+        if segment.old_lines or segment.new_lines
     ]
-    if source_text is None:
-        return filtered
+    new_source_blocks = _source_blocks(source_text)
+    old_source_blocks = _source_blocks(old_source_text)
+    new_signature_text = (
+        normalize_source(source_text) if normalize_source else source_text
+    )
+    old_signature_text = (
+        normalize_source(old_source_text) if normalize_source else old_source_text
+    )
+    new_signature_blocks = _source_blocks(new_signature_text)
+    old_signature_blocks = _source_blocks(old_signature_text)
 
-    new_regions = _code_fence_regions(source_lines)
-    old_regions = _code_fence_regions(_reverse_apply_hunks(source_lines, hunks))
-    source_blocks = _source_blocks(source_text)
-
-    expanded: list[Segment] = []
+    expanded: list[BlockChange] = []
     emitted_regions: set[int] = set()
+    modified_table_ordinals: set[int] = set()
     for segment in filtered:
-        region = _code_region_index(segment, new_regions, old_regions)
+        region, old_region = _code_region_indexes(
+            segment, new_regions, old_regions
+        )
         if region is not None and region < len(new_regions):
             if region in emitted_regions:
                 continue
@@ -175,17 +723,166 @@ def segments_from_hunks(
             group = [
                 other
                 for other in filtered
-                if _code_region_index(other, new_regions, old_regions) == region
+                if _code_region_indexes(other, new_regions, old_regions)[0] == region
             ]
+            old_region_candidates = {
+                candidate
+                for other in group
+                for candidate in [
+                    _code_region_indexes(other, new_regions, old_regions)[1]
+                ]
+                if candidate is not None
+            }
+            if len(old_region_candidates) == 1:
+                old_region = old_region_candidates.pop()
             expanded.append(
-                _code_block_segment(group, source_lines, new_regions[region], region)
+                _code_block_segment(
+                    group,
+                    source_lines,
+                    new_regions[region],
+                    region,
+                    old_source_lines=old_source_lines,
+                    old_regions=old_regions,
+                    old_block_index=old_region,
+                )
             )
             continue
-        expanded.extend(_expand_to_source_blocks(segment, source_blocks))
-    return _coalesce_source_block_segments(expanded)
+        _require_supported_modified_admonition(segment)
+        if _require_supported_modified_table(segment):
+            table_row = _source_table_row_change(segment, old_source_lines)
+            if table_row is None:
+                raise PatchError("modified table row has no stable source address")
+            if table_row.table_ordinal in modified_table_ordinals:
+                raise PatchError("modified table must change exactly one row")
+            modified_table_ordinals.add(table_row.table_ordinal)
+        expanded.extend(
+            _expand_to_source_blocks(
+                segment,
+                new_source_blocks=new_source_blocks,
+                old_source_blocks=old_source_blocks,
+                new_source_lines=source_lines,
+                old_source_lines=old_source_lines,
+            )
+        )
+    coalesced = _coalesce_source_block_segments(expanded)
+    return PatchPlan(
+        changes=tuple(
+            _add_neighbor_anchors(
+                _attach_deleted_code_block(
+                    change,
+                    old_source_lines=old_source_lines,
+                    old_regions=old_regions,
+                    new_source_lines=source_lines,
+                    new_regions=new_regions,
+                ),
+                old_source_blocks=old_source_blocks,
+                new_source_blocks=new_source_blocks,
+            )
+            for change in coalesced
+        ),
+        old_source_anchors=tuple(
+            block.comment for block in _plan_source_blocks(old_signature_blocks)
+        ),
+        new_source_anchors=tuple(
+            block.comment for block in _plan_source_blocks(new_signature_blocks)
+        ),
+        old_code_blocks=_code_blocks_from_regions(old_source_lines, old_regions),
+        new_code_blocks=_code_blocks_from_regions(source_lines, new_regions),
+        old_source_comments=_source_comment_locations(old_source_text),
+        new_source_comments=_source_comment_locations(source_text),
+        old_front_matter=old_front_matter,
+        new_front_matter=new_front_matter,
+    )
 
 
-def diff_text(segment: Segment) -> str:
+def _context_text(line: DiffLine | None) -> str | None:
+    """diff 문맥 줄의 원문 내용."""
+
+    return _normalize_text(line.text) if line is not None else None
+
+
+def _lines_text(lines: list[str], template: str) -> str:
+    """template의 끝 줄바꿈 형식으로 결합한 줄 목록."""
+
+    text = "\n".join(lines)
+    return text + "\n" if template.endswith("\n") else text
+
+
+def _front_matter_text(text: str) -> str | None:
+    """문서 선두 YAML front matter 원문."""
+
+    lines = text.splitlines(keepends=True)
+    if not lines or lines[0].strip() != "---":
+        return None
+    for index, line in enumerate(lines[1:], start=1):
+        if line.strip() == "---":
+            return "".join(lines[: index + 1])
+    return "".join(lines)
+
+
+def _front_matter_line_numbers(text: str) -> set[int]:
+    """front matter가 차지하는 1-based 줄 번호 집합."""
+
+    front_matter = _front_matter_text(text)
+    if front_matter is None:
+        return set()
+    return set(range(1, len(front_matter.splitlines()) + 1))
+
+
+def _require_supported_front_matter(front_matter: str) -> None:
+    """supported front matter 필수 조건 확인."""
+
+    lines = front_matter.splitlines()
+    if (
+        len(lines) < 2
+        or lines[0].strip() != "---"
+        or lines[-1].strip() != "---"
+    ):
+        raise PatchError("unsupported front matter: missing closing delimiter")
+    keys: set[str] = set()
+    index = 1
+    while index < len(lines) - 1:
+        line = lines[index]
+        if not line.strip() or line.lstrip().startswith("#"):
+            index += 1
+            continue
+        if line[:1].isspace():
+            raise PatchError("unsupported front matter: nested values are not supported")
+        match = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(.*)", line)
+        if match is None:
+            raise PatchError("unsupported front matter string scalar")
+        key = match.group(1)
+        if key in keys:
+            raise PatchError("unsupported front matter: duplicate key")
+        keys.add(key)
+        end = index + 1
+        while end < len(lines) - 1 and (
+            not lines[end].strip() or lines[end][:1].isspace()
+        ):
+            end += 1
+        candidate = "\n".join(
+            [
+                "---",
+                f"description: {match.group(2)}",
+                *lines[index + 1 : end],
+                "---",
+            ]
+        )
+        description = front_matter_description(candidate)
+        if description is None or not description.valid:
+            raise PatchError("unsupported front matter string scalar")
+        index = end
+
+
+def _source_comment_line_numbers(text: str) -> set[int]:
+    """독립 원문 HTML 주석이 차지하는 줄 번호 집합."""
+
+    return set(standalone_html_comment_line_numbers(text))
+
+
+def diff_text(segment: BlockChange) -> str:
+    """provider에 전달할 segment의 통합 diff."""
+
     lines: list[str] = []
     for old_line in segment.old_lines:
         lines.append(f"- {old_line}")
@@ -194,82 +891,517 @@ def diff_text(segment: Segment) -> str:
     return "\n".join(lines)
 
 
-def source_text(segment: Segment) -> str:
+def source_text(segment: BlockChange) -> str:
+    """segment가 소유한 현재 원문 block."""
+
+    if segment.inserted_code_block is not None:
+        return segment.inserted_code_block.rstrip("\n") + "\n"
     if segment.new_source is not None:
         return segment.new_source.rstrip() + "\n"
     return "\n".join(_meaningful_lines(segment.new_lines)).rstrip() + "\n"
 
 
-def existing_context(text: str, segment: Segment) -> str:
+def existing_context(text: str, segment: BlockChange) -> str:
+    """segment 주소를 기준으로 찾은 기존 locale 문맥."""
+
+    if segment.is_admonition_marker_change:
+        return _existing_admonition_context(text, segment)
     blocks = _blocks(text)
-    if _meaningful_lines(segment.old_lines):
+    old_anchor = segment.old_source or _joined(segment.old_lines)
+    if old_anchor:
         try:
-            block = _find_block(blocks, _joined(segment.old_lines))
-            return block.text.strip()
+            found = _find_old_blocks(blocks, segment)
+            return "".join(block.text for block in found).strip()
         except PatchError:
-            context = _table_row_context(text, segment)
-            if context:
-                return context.strip()
+            applied = _find_applied_new_blocks(blocks, segment)
+            if applied:
+                return "".join(block.text for block in applied).strip()
+            if segment.is_block_range:
+                raise
+            if _single_table_row_lines(segment) is not None:
+                context = _table_row_context(text, segment)
+                if context:
+                    return context.strip()
+                raise
             context = _context_between_raw_contexts(text, segment)
             if context:
                 return context.strip()
             raise
-    for anchor in (segment.before_context, segment.after_context):
+    applied = _find_applied_new_blocks(blocks, segment)
+    if applied:
+        return "".join(block.text for block in applied).strip()
+    for anchor, neighbor, ordinal in (
+        (
+            segment.before_context,
+            segment.old_previous_anchor,
+            segment.old_previous_anchor_ordinal,
+        ),
+        (
+            segment.after_context,
+            segment.old_next_anchor,
+            segment.old_next_anchor_ordinal,
+        ),
+    ):
         if anchor:
-            block = _find_block(blocks, anchor, required=False)
+            block = _context_anchor_block(blocks, anchor, neighbor, ordinal)
             if block:
                 return block.text.strip()
     return "(none)"
 
 
-def apply_segments(
-    existing: str, segments: list[Segment], translated_blocks: list[str]
-) -> str:
-    translated_iter = iter(translated_blocks)
-    text = existing
+def _existing_admonition_context(text: str, segment: BlockChange) -> str:
+    """marker 변경에 대응하는 기존 locale admonition 문맥."""
 
+    lines = text.splitlines(keepends=True)
+    starts = _admonition_start_indexes(lines)
+    ordinal = segment.old_block_ordinal
+    if (
+        ordinal is None
+        or ordinal >= len(starts)
+        or not _admonition_marker_count_matches(len(starts), segment)
+    ):
+        raise PatchError("missing existing admonition marker")
+    start = starts[ordinal]
+    current_type = _admonition_marker_type(lines[start].strip())
+    old_type = _admonition_marker_type(_meaningful_lines(segment.old_lines)[0])
+    new_type = _admonition_marker_type(_meaningful_lines(segment.new_lines)[0])
+    if current_type not in (old_type, new_type):
+        raise PatchError("existing admonition marker does not match the plan")
+    end = start + 1
+    while end < len(lines) and lines[end].strip().startswith(">"):
+        end += 1
+    return "".join(lines[start:end]).strip()
+
+
+def _admonition_marker_count_matches(actual: int, segment: BlockChange) -> bool:
+    """locale과 원문의 admonition marker 개수 일치 여부."""
+
+    expected = {
+        count
+        for count in (
+            segment.old_anchor_occurrences,
+            segment.new_anchor_occurrences,
+        )
+        if count is not None
+    }
+    return not expected or actual in expected
+
+
+def _changes_fenced_code(segment: BlockChange) -> bool:
+    """segment가 fenced code 경계를 변경하는지 여부."""
+
+    if (
+        segment.code_block is not None
+        or segment.inserted_code_block is not None
+        or segment.deleted_code_block is not None
+    ):
+        return True
+    source_lines = (
+        segment.old_lines
+        + segment.new_lines
+        + tuple((segment.old_source or "").splitlines())
+        + tuple((segment.new_source or "").splitlines())
+    )
+    return any(fence_token(line) for line in source_lines)
+
+
+def apply_segments(
+    existing: str,
+    segments: list[BlockChange],
+    translated_blocks: list[str],
+    *,
+    source_state: bool = False,
+    target_state: bool = False,
+    code_state: PlanState = PlanState.UNGUARDED,
+) -> str:
+    """segments 적용."""
+
+    translated_iter = iter(translated_blocks)
+    original_blocks = _blocks(existing)
+    prepared: list[
+        tuple[BlockChange, str | None, tuple[AnnotatedBlock, ...] | None]
+    ] = []
     for segment in segments:
-        if segment.code_block is not None:
-            text = _apply_code_block(text, segment.code_block)
-            continue
         translated = next(translated_iter, None) if segment.needs_translation else None
-        if _meaningful_lines(segment.old_lines) and segment.needs_translation:
+        if translated is not None:
+            translated = _strip_retained_admonition_marker(segment, translated)
+        old_found = (
+            _find_old_blocks(original_blocks, segment, required=False)
+            if segment.code_block is None
+            else None
+        )
+        prepared.append((segment, translated, old_found))
+    text = existing
+    offsets_shifted = False
+
+    ordered = [
+        item for item in prepared if item[0].is_admonition_marker_change
+    ] + [
+        item
+        for item in reversed(prepared)
+        if not item[0].is_admonition_marker_change
+    ]
+    for segment, translated, old_found in ordered:
+        fenced_code_change = _changes_fenced_code(segment)
+        if code_state is PlanState.TARGET and fenced_code_change:
+            continue
+        if segment.code_block is not None:
+            text = _apply_code_block(text, segment.code_block, state=code_state)
+            continue
+        if segment.is_named_anchor_change:
+            text = _apply_named_anchor_change(text, segment, translated)
+            continue
+        if segment.is_admonition_marker_change:
+            before_line_count = len(text.splitlines(keepends=True))
+            text = _apply_admonition_marker_change(text, segment, translated)
+            offsets_shifted = offsets_shifted or (
+                len(text.splitlines(keepends=True)) != before_line_count
+            )
+            continue
+        if segment.is_inline_code_identifier_list and _inline_code_list_is_applied(
+            text, segment
+        ):
+            continue
+        if target_state and (segment.old_anchors or segment.new_anchors):
+            if segment.is_deletion:
+                _reject_target_deletion_residue(text, segment)
+            elif segment.needs_translation:
+                _require_target_block_bodies(text, segment)
+            continue
+        has_old_source = bool(
+            segment.old_source or _meaningful_lines(segment.old_lines)
+        )
+        if offsets_shifted and has_old_source:
+            old_found = _find_old_blocks(_blocks(text), segment, required=False)
+        if has_old_source and segment.needs_translation:
             if translated is None:
                 raise PatchError("missing translated replacement block")
-            text = _replace_segment(text, segment, translated)
+            text = (
+                _replace_resolved_blocks(text, old_found, translated)
+                if old_found
+                else _replace_segment(text, segment, translated)
+            )
         elif segment.is_deletion:
-            text = _delete_block(text, _joined(segment.old_lines))
+            if segment.deleted_code_block is not None:
+                text = _delete_fenced_code_block(text, segment)
+            else:
+                text = (
+                    _delete_resolved_blocks(text, old_found)
+                    if old_found
+                    else _delete_segment(text, segment)
+                )
         elif segment.needs_translation:
             if translated is None:
                 raise PatchError("missing translated insertion block")
-            text = _insert_block(text, segment, translated)
+            # 신규 diff가 중복 블록을 삽입 후 삭제로 재정렬할 수 있어 계획된 삽입 유지
+            if (
+                segment.inserted_code_block is not None
+                and code_state is PlanState.SOURCE
+            ):
+                if (
+                    segment.old_previous_anchor
+                    or segment.old_next_anchor
+                    or segment.before_context
+                    or segment.after_context
+                ):
+                    text = _insert_block(text, segment, translated, force=True)
+                else:
+                    text = _insert_fenced_code_block(text, segment, translated)
+            else:
+                text = _insert_block(
+                    text,
+                    segment,
+                    translated,
+                    force=source_state
+                    or (code_state is PlanState.SOURCE and fenced_code_change),
+                )
 
-    text = _collapse_consecutive_admonition_markers(text)
     return _ensure_single_eof_newline(text)
 
 
-def _collapse_consecutive_admonition_markers(text: str) -> str:
-    """Drop a second consecutive identical admonition marker line.
+def apply_plan(
+    existing: str | None, plan: PatchPlan, translated_blocks: list[str]
+) -> str:
+    """계획 적용."""
 
-    A changed admonition body is translated without its ``> [!NOTE]`` marker
-    (that line stays as context), but the model often re-emits the marker in
-    its output. Placing that block right after the retained anchor marker would
-    leave two markers in a row, which is never valid Markdown. Collapse
-    identical consecutive markers back into one.
-    """
-    out: list[str] = []
-    for line in text.split("\n"):
-        if (
-            out
-            and _ADMONITION_MARKER_RE.match(line.strip())
-            and line.strip() == out[-1].strip()
+    state = plan_state(existing, plan)
+    if state is PlanState.CREATE:
+        return _render_create_plan(plan, translated_blocks)
+    if existing is None:
+        raise PatchError("non-create plan requires an existing locale document")
+    expected = (
+        0
+        if state is PlanState.TARGET
+        else sum(change.needs_translation for change in plan.changes)
+    )
+    if len(translated_blocks) != expected:
+        raise PatchError(
+            f"translation count mismatch: expected {expected}, got {len(translated_blocks)}"
+        )
+    code_state = _code_plan_state(existing, plan)
+    source_state = state is PlanState.SOURCE
+    target_state = state is PlanState.TARGET
+    working = (
+        _apply_front_matter_change(existing, plan)
+        if source_state
+        else existing
+    )
+    source_anchors = (
+        plan.new_source_anchors
+        if target_state
+        else plan.old_source_anchors
+    )
+    source_comments = (
+        plan.new_source_comments
+        if target_state
+        else plan.old_source_comments
+    )
+    masked_existing, source_comment_replacements = _mask_source_comment_anchors(
+        working, source_anchors or (), source_comments
+    )
+    if plan.named_section_reorder is not None and source_state:
+        result = _apply_named_section_reorder(
+            masked_existing,
+            plan.named_section_reorder,
+        )
+    else:
+        result = apply_segments(
+            masked_existing,
+            list(plan.changes),
+            translated_blocks,
+            source_state=source_state,
+            target_state=target_state,
+            code_state=code_state,
+        )
+    result = _ensure_single_eof_newline(result)
+    if (
+        plan.named_section_reorder is not None
+        and tuple(
+            section.signature
+            for section in _split_named_sections(result, translated=True)[1]
+        )
+        != plan.named_section_reorder.new_order
+    ):
+        raise PatchError("patched named section order does not match the target source")
+    if (
+        plan.named_section_reorder is None
+        and plan.new_source_anchors is not None
+    ):
+        result_anchors = _annotation_anchor_sequence(result)
+        if result_anchors != plan.new_source_anchors:
+            raise PatchError("patched block order does not match the target source")
+    restored = (
+        _rewrite_source_comment_anchors(
+            result,
+            source_comment_replacements,
+            plan.old_source_comments,
+            plan.new_source_comments,
+            plan.new_source_anchors or (),
+        )
+        if source_state and plan.named_section_reorder is None
+        else _restore_source_comment_anchors(result, source_comment_replacements)
+    )
+    if (
+        plan.named_section_reorder is None
+        and plan.new_source_anchors is not None
+        and _locate_source_comment_blocks(
+            restored, plan.new_source_anchors, plan.new_source_comments
+        )
+        is None
+    ):
+        raise PatchError("patched source HTML comment order does not match the target source")
+    return restored
+
+
+def plan_state(existing: str | None, plan: PatchPlan) -> PlanState:
+    """기존 locale 문서에서 계획의 create/source/target 상태 판정."""
+
+    if plan.is_create:
+        if existing is not None:
+            raise PatchError("create plan requires an absent locale destination")
+        return PlanState.CREATE
+    if existing is None:
+        raise PatchError("non-create plan requires an existing locale document")
+    if plan.named_section_reorder is not None:
+        if _matches_named_section_state(
+            existing,
+            plan.old_source_anchors or (),
+            plan.old_source_comments,
+            plan.named_section_reorder.old_order,
         ):
+            return PlanState.SOURCE
+        if _matches_named_section_state(
+            existing,
+            plan.new_source_anchors or (),
+            plan.new_source_comments,
+            plan.named_section_reorder.new_order,
+        ):
+            return PlanState.TARGET
+        raise PatchError(
+            "existing named section order matches neither source nor target plan state"
+        )
+
+    has_anchor_transition = (
+        plan.old_source_anchors is not None
+        and plan.new_source_anchors is not None
+        and plan.old_source_anchors != plan.new_source_anchors
+        and any(change.old_anchors or change.new_anchors for change in plan.changes)
+    )
+    has_front_matter_transition = plan.old_front_matter != plan.new_front_matter
+    has_comment_transition = _source_comment_signatures(
+        plan.old_source_comments
+    ) != _source_comment_signatures(plan.new_source_comments)
+    if not (
+        has_anchor_transition
+        or has_front_matter_transition
+        or has_comment_transition
+    ):
+        return PlanState.UNGUARDED
+    if _matches_document_state(
+        existing,
+        plan.old_front_matter,
+        plan.old_source_anchors or (),
+        plan.old_source_comments,
+    ):
+        return PlanState.SOURCE
+    if _matches_document_state(
+        existing,
+        plan.new_front_matter,
+        plan.new_source_anchors or (),
+        plan.new_source_comments,
+    ):
+        return PlanState.TARGET
+    raise PatchError(
+        "existing document matches neither source nor target plan state"
+    )
+
+
+def _source_comment_signatures(
+    comments: tuple[SourceComment, ...],
+) -> tuple[tuple[str, int, str], ...]:
+    """원문 HTML 주석의 위치와 정규화 본문 서명."""
+
+    return tuple(
+        (comment.raw, comment.anchor_position, comment.placement)
+        for comment in comments
+    )
+
+
+def _matches_document_state(
+    existing: str,
+    front_matter: str | None,
+    anchors: tuple[str, ...],
+    comments: tuple[SourceComment, ...],
+) -> bool:
+    """locale 문서가 계획의 원문 또는 대상 상태와 일치하는지 여부."""
+
+    return (
+        _front_matter_text(existing) == front_matter
+        and _locate_source_comment_blocks(existing, anchors, comments) is not None
+    )
+
+
+def _apply_front_matter_change(existing: str, plan: PatchPlan) -> str:
+    """front matter 변경 적용."""
+
+    old = plan.old_front_matter
+    new = plan.new_front_matter
+    if old == new:
+        return existing
+    if _front_matter_text(existing) != old:
+        raise PatchError("existing front matter does not match the source plan state")
+    if old is not None:
+        return (new or "") + existing[len(old) :]
+    if new is None:
+        return existing
+    separator = "" if not existing or existing.startswith(("\n", "\r")) else "\n"
+    return new + separator + existing
+
+
+def _matches_named_section_state(
+    existing: str,
+    anchors: tuple[str, ...],
+    comments: tuple[SourceComment, ...],
+    expected_order: tuple[NamedSectionSignature, ...],
+) -> bool:
+    """named section 순서가 지정된 계획 상태와 일치하는지 여부."""
+
+    if comments:
+        try:
+            existing, _replacements = _mask_source_comment_anchors(
+                existing,
+                anchors,
+                comments,
+            )
+        except PatchError:
+            return False
+    _prefix, sections = _split_named_sections(existing, translated=True)
+    return tuple(section.signature for section in sections) == expected_order
+
+
+def _code_plan_state(existing: str, plan: PatchPlan) -> PlanState:
+    """fenced code block 집합에 대한 계획 상태 판정."""
+
+    if plan.old_code_blocks is None or plan.new_code_blocks is None:
+        return PlanState.UNGUARDED
+    if plan.old_code_blocks == plan.new_code_blocks:
+        return PlanState.UNGUARDED
+
+    current = _fenced_code_blocks(existing)
+    if current == plan.old_code_blocks:
+        return PlanState.SOURCE
+    if current == plan.new_code_blocks:
+        return PlanState.TARGET
+    permuted_new = _permuted_code_blocks(current, plan.new_code_blocks)
+    pure_fenced_insertion = any(
+        change.inserted_code_block is not None for change in plan.changes
+    ) and all(
+        change.code_block is None and change.deleted_code_block is None
+        for change in plan.changes
+    )
+    if permuted_new and pure_fenced_insertion:
+        return PlanState.TARGET
+    if _permuted_code_blocks(current, plan.old_code_blocks) or permuted_new:
+        return PlanState.SOURCE
+    raise PatchError(
+        "existing code block state matches neither source nor target plan state"
+    )
+
+
+def _permuted_code_blocks(
+    current: tuple[str, ...], expected: tuple[str, ...]
+) -> bool:
+    """줄 순서를 제외한 각 block과 예상 block의 일치 여부."""
+    if len(current) != len(expected) or current == expected:
+        return False
+    return all(
+        Counter(have.split("\n")) == Counter(want.split("\n"))
+        for have, want in zip(current, expected)
+    )
+
+
+def _strip_retained_admonition_marker(
+    segment: BlockChange, translated: str
+) -> str:
+    """retained admonition marker 제거."""
+
+    marker = segment.before_context
+    if not marker or not _ADMONITION_MARKER_RE.fullmatch(marker.strip()):
+        return translated
+
+    lines = translated.splitlines(keepends=True)
+    for index, line in enumerate(lines):
+        if not line.strip():
             continue
-        out.append(line)
-    return "\n".join(out)
+        if line.strip() == marker.strip():
+            del lines[index]
+        break
+    return "".join(lines)
 
 
 def _blocks(text: str) -> list[AnnotatedBlock]:
+    """locale 문서의 annotation 소유 block 목록."""
+
     lines = text.splitlines(keepends=True)
     starts = _comment_starts(lines)
     blocks: list[AnnotatedBlock] = []
@@ -290,10 +1422,327 @@ def _blocks(text: str) -> list[AnnotatedBlock]:
     return blocks
 
 
+def _annotation_anchor_sequence(text: str) -> tuple[str, ...]:
+    """locale 문서 순서로 정규화한 annotation anchor 목록."""
+
+    return tuple(block.comment for block in _blocks(text) if _is_plan_anchor(block))
+
+
+def _source_comment_locations(text: str) -> tuple[SourceComment, ...]:
+    """코드 영역 밖 원문 HTML 주석의 위치 정보."""
+
+    lines = text.splitlines(keepends=True)
+    source_blocks = _plan_source_blocks(_source_blocks(text))
+    source_comment_lines = _source_comment_line_numbers(text)
+    front_matter_lines = _front_matter_line_numbers(text)
+    comments: list[SourceComment] = []
+    for start in _comment_starts(lines):
+        if (
+            start + 1 not in source_comment_lines
+            or start + 1 in front_matter_lines
+        ):
+            continue
+        end, comment_body = _read_comment(lines, start)
+        body = _normalize_text(comment_body)
+        lineno = start + 1
+        anchor_position = sum(
+            block.start_lineno < lineno for block in source_blocks
+        )
+        previous = (
+            source_blocks[anchor_position - 1]
+            if anchor_position > 0
+            else None
+        )
+        following = (
+            source_blocks[anchor_position]
+            if anchor_position < len(source_blocks)
+            else None
+        )
+        before_following = bool(following) and not any(
+            line.strip()
+            for line in lines[end : following.start_lineno - 1]
+        )
+        after_previous = bool(previous) and not any(
+            line.strip()
+            for line in lines[previous.end_lineno : start]
+        )
+        has_other_content = any(
+            line.strip()
+            and lineno not in source_comment_lines
+            and lineno not in front_matter_lines
+            for lineno, line in enumerate(lines, start=1)
+        )
+        placement = (
+            "before"
+            if before_following
+            else "after"
+            if after_previous
+            else "document"
+            if not source_blocks and not has_other_content
+            else "ambiguous"
+        )
+        comments.append(
+            SourceComment(
+                body=body,
+                anchor_position=anchor_position,
+                raw="".join(lines[start:end]),
+                placement=placement,
+            )
+        )
+    return tuple(comments)
+
+
+def _mask_source_comment_anchors(
+    text: str,
+    anchors: tuple[str, ...],
+    comments: tuple[SourceComment, ...],
+) -> tuple[str, tuple[tuple[str, str], ...]]:
+    """원문 comment anchors 마스킹."""
+
+    if not comments:
+        return text, ()
+    located = _locate_source_comment_blocks(text, anchors, comments)
+    if located is None:
+        raise PatchError("could not locate source HTML comments in the locale document")
+    lines = text.splitlines(keepends=True)
+    replacements: list[tuple[str, str]] = []
+    spans: list[tuple[int, int, str]] = []
+    for index, block in enumerate(located):
+        end, _body = _read_comment(lines, block.start)
+        original = "".join(lines[block.start:end])
+        line_ending = "\n" if original.endswith("\n") else ""
+        marker = (
+            "<!-- <translation-sync-source-comment "
+            f'data-index="{index}"></translation-sync-source-comment> -->'
+            f"{line_ending}"
+        )
+        replacements.append((marker, original))
+        spans.append((block.start, end, marker))
+    for start, end, marker in reversed(spans):
+        lines[start:end] = [marker]
+    return "".join(lines), tuple(replacements)
+
+
+def _restore_source_comment_anchors(
+    text: str, replacements: tuple[tuple[str, str], ...]
+) -> str:
+    """원문 comment anchors 복원."""
+
+    for marker, original in replacements:
+        if text.count(marker) != 1:
+            raise PatchError("source HTML comment was lost or duplicated while patching")
+        text = text.replace(marker, original, 1)
+    return text
+
+
+def _rewrite_source_comment_anchors(
+    text: str,
+    replacements: tuple[tuple[str, str], ...],
+    old_comments: tuple[SourceComment, ...],
+    new_comments: tuple[SourceComment, ...],
+    new_anchors: tuple[str, ...],
+) -> str:
+    """원문 HTML 주석 anchor를 현재 원문 기준으로 재작성."""
+
+    old_by_position: dict[tuple[int, str], list[tuple[str, SourceComment]]] = {}
+    for replacement, comment in zip(replacements, old_comments, strict=True):
+        marker, _original = replacement
+        old_by_position.setdefault(
+            (comment.anchor_position, comment.placement), []
+        ).append(
+            (marker, comment)
+        )
+    new_by_position: dict[tuple[int, str], list[SourceComment]] = {}
+    for comment in new_comments:
+        new_by_position.setdefault(
+            (comment.anchor_position, comment.placement), []
+        ).append(comment)
+
+    pending: list[SourceComment] = []
+    updates: list[tuple[str, str]] = []
+    for position in sorted(set(old_by_position) | set(new_by_position)):
+        old_group = old_by_position.get(position, [])
+        new_group = new_by_position.get(position, [])
+        paired = min(len(old_group), len(new_group))
+        for index in range(paired):
+            marker = old_group[index][0]
+            updates.append((marker, new_group[index].raw))
+        for marker, _comment in old_group[paired:]:
+            updates.append((marker, ""))
+        pending.extend(new_group[paired:])
+
+    if pending:
+        new_order = {id(comment): index for index, comment in enumerate(new_comments)}
+        pending.sort(key=lambda comment: new_order[id(comment)])
+        text = _insert_source_comments(text, new_anchors, pending)
+    for marker, replacement in updates:
+        if text.count(marker) != 1:
+            raise PatchError("source HTML comment was lost or duplicated while patching")
+        text = text.replace(marker, replacement, 1)
+    return text
+
+
+def _insert_source_comments(
+    text: str,
+    anchors: tuple[str, ...],
+    comments: list[SourceComment],
+) -> str:
+    """현재 원문에 새로 추가된 독립 HTML 주석 삽입."""
+
+    blocks = [block for block in _blocks(text) if _is_plan_anchor(block)]
+    if tuple(block.comment for block in blocks) != anchors:
+        raise PatchError("could not resolve source HTML comment insertion boundary")
+    lines = text.splitlines(keepends=True)
+    insertions: dict[int, list[SourceComment]] = {}
+    for comment in comments:
+        if comment.placement == "ambiguous":
+            raise PatchError("source HTML comment structural address is ambiguous")
+        if comment.placement == "before":
+            if comment.anchor_position >= len(blocks):
+                raise PatchError("source HTML comment next anchor is missing")
+            index = blocks[comment.anchor_position].start
+        elif comment.placement == "after":
+            if comment.anchor_position == 0 or comment.anchor_position > len(blocks):
+                raise PatchError("source HTML comment previous anchor is missing")
+            index = blocks[comment.anchor_position - 1].end
+        else:
+            if blocks:
+                raise PatchError("source HTML comment document boundary is ambiguous")
+            front_matter = _front_matter_text(text)
+            index = len(front_matter.splitlines()) if front_matter else 0
+        insertions.setdefault(index, []).append(comment)
+
+    for index, group in sorted(insertions.items(), reverse=True):
+        ending = "\r\n" if any(comment.raw.endswith("\r\n") for comment in group) else "\n"
+        rendered = ending.join(
+            comment.raw.rstrip("\r\n") for comment in group
+        ) + ending
+        before = "" if index == 0 or not lines[index - 1].strip() else ending
+        after = "" if index >= len(lines) or not lines[index].strip() else ending
+        lines[index:index] = [before + rendered + after]
+    return "".join(lines)
+
+
+def _locate_source_comment_blocks(
+    text: str,
+    anchors: tuple[str, ...],
+    comments: tuple[SourceComment, ...],
+) -> tuple[AnnotatedBlock, ...] | None:
+    """번역 anchor와 혼동하지 않는 원문 주석 해석."""
+
+    blocks = _blocks(text)
+    plan_blocks = [block for block in blocks if _is_plan_anchor(block)]
+    expected: list[tuple[str, int | None]] = []
+    plan_prefixes: dict[int, int] = {}
+    by_position: dict[int, list[tuple[int, SourceComment]]] = {}
+    for index, comment in enumerate(comments):
+        by_position.setdefault(comment.anchor_position, []).append((index, comment))
+
+    for position in range(len(anchors) + 1):
+        for index, comment in by_position.get(position, []):
+            plan_prefixes[index] = len(expected)
+            if _is_plan_anchor_comment(comment.body):
+                expected.append((comment.body, index))
+        if position < len(anchors):
+            expected.append((anchors[position], None))
+
+    if tuple(block.comment for block in plan_blocks) != tuple(
+        body for body, _index in expected
+    ):
+        return None
+
+    located: list[AnnotatedBlock | None] = [None] * len(comments)
+    anchor_blocks: list[AnnotatedBlock] = []
+    for block, (_body, comment_index) in zip(plan_blocks, expected, strict=True):
+        if comment_index is not None:
+            located[comment_index] = block
+        else:
+            anchor_blocks.append(block)
+
+    non_plan_groups: dict[tuple[str, int], list[int]] = {}
+    for index, comment in enumerate(comments):
+        if located[index] is None:
+            key = (comment.body, plan_prefixes[index])
+            non_plan_groups.setdefault(key, []).append(index)
+    for (body, prefix), indexes in non_plan_groups.items():
+        candidates = [
+            block
+            for block in blocks
+            if not _is_plan_anchor(block)
+            and block.comment == body
+            and sum(candidate.start < block.start for candidate in plan_blocks) == prefix
+        ]
+        if len(candidates) != len(indexes):
+            return None
+        for index, block in zip(indexes, candidates, strict=True):
+            located[index] = block
+
+    if any(block is None for block in located):
+        return None
+    resolved = tuple(block for block in located if block is not None)
+    lines = text.splitlines(keepends=True)
+    for block, comment in zip(resolved, comments, strict=True):
+        end, _body = _read_comment(lines, block.start)
+        if "".join(lines[block.start:end]) != comment.raw:
+            return None
+        if comment.placement == "before":
+            if comment.anchor_position >= len(anchor_blocks) or any(
+                line.strip()
+                for line in lines[
+                    end : anchor_blocks[comment.anchor_position].start
+                ]
+            ):
+                return None
+        elif comment.placement == "after":
+            if comment.anchor_position == 0 or any(
+                line.strip()
+                for line in lines[
+                    anchor_blocks[comment.anchor_position - 1].end : block.start
+                ]
+            ):
+                return None
+        elif comment.placement == "document":
+            if anchor_blocks:
+                return None
+        else:
+            return None
+    return resolved
+
+
+def _is_plan_anchor_comment(comment: str) -> bool:
+    """계획 anchor comment 여부."""
+
+    return (
+        not is_non_annotatable_line(comment)
+        and not is_structural_html_fragment(comment)
+        and not _is_inline_code_identifier_list_comment(comment)
+    )
+
+
+def _is_plan_anchor(block: AnnotatedBlock) -> bool:
+    """계획 anchor 여부."""
+
+    return _is_plan_anchor_comment(block.comment)
+
+
+def _is_inline_code_identifier_list_comment(comment: str) -> bool:
+    """inline code identifier list comment 여부."""
+
+    if not inline_code_contents(comment):
+        return False
+    remainder = strip_inline_code(comment)
+    remainder = re.sub(r"(?:[-*+]|\d+[.)])", " ", remainder)
+    return not remainder.strip(" `*_~.,:;()[]&/,+")
+
+
 def _translated_block_end(lines: list[str], start: int, limit: int) -> int:
+    """annotation 다음 번역 block의 종료 줄 위치."""
+
     index = start
     seen_content = False
     while index < limit:
+        if is_structural_html_line(lines[index]):
+            return index
         if not lines[index].strip():
             if seen_content:
                 return index + 1
@@ -305,25 +1754,29 @@ def _translated_block_end(lines: list[str], start: int, limit: int) -> int:
 
 
 def _comment_starts(lines: list[str]) -> list[int]:
+    """독립 HTML 주석이 시작되는 줄 위치 목록."""
+
     starts: list[int] = []
     in_code = False
     fence = ""
     for index, line in enumerate(lines):
-        stripped = line.lstrip()
-        if stripped.startswith(("```", "~~~")):
-            token = stripped[:3]
+        token = fence_token(line)
+        if token:
             if not in_code:
                 in_code = True
                 fence = token
-            elif stripped.startswith(fence):
+            elif closes_fence(line, fence):
                 in_code = False
             continue
+        stripped = line.lstrip()
         if not in_code and stripped.startswith("<!--"):
             starts.append(index)
     return starts
 
 
 def _read_comment(lines: list[str], start: int) -> tuple[int, str]:
+    """comment 읽기."""
+
     line = lines[start]
     if "-->" in line:
         spans = html_comment_spans(line)
@@ -346,11 +1799,22 @@ def _read_comment(lines: list[str], start: int) -> tuple[int, str]:
 
 
 def _find_block(
-    blocks: list[AnnotatedBlock], comment: str, *, required: bool = True
+    blocks: list[AnnotatedBlock],
+    comment: str,
+    *,
+    occurrence: int | None = None,
+    required: bool = True,
 ) -> AnnotatedBlock | None:
+    """블록 탐색."""
+
     matches = _matching_blocks(blocks, comment)
     if matches:
-        return matches[0]
+        if occurrence is not None:
+            if occurrence < len(matches):
+                return matches[occurrence]
+            matches = []
+        else:
+            return matches[0]
     if required:
         raise PatchError(
             f"missing existing translation block for: {_normalize_text(comment)}"
@@ -358,7 +1822,84 @@ def _find_block(
     return None
 
 
+def _find_anchored_blocks(
+    blocks: list[AnnotatedBlock],
+    anchors: tuple[str, ...],
+    *,
+    occurrence: int | None = None,
+    previous_anchor: str | None = None,
+    next_anchor: str | None = None,
+    required: bool = True,
+) -> tuple[AnnotatedBlock, ...] | None:
+    """변경되지 않은 인접 block 내부의 연속 annotation 범위 탐색."""
+
+    if not anchors:
+        return None
+    matches_by_anchor = [set(_matching_blocks(blocks, anchor)) for anchor in anchors]
+    candidates = [
+        tuple(blocks[start : start + len(anchors)])
+        for start in range(len(blocks) - len(anchors) + 1)
+        if all(
+            blocks[start + offset] in matches
+            for offset, matches in enumerate(matches_by_anchor)
+        )
+    ]
+
+    if previous_anchor:
+        previous = _matching_blocks(blocks, previous_anchor)
+        if previous:
+            previous_set = set(previous)
+            candidates = [
+                candidate
+                for candidate in candidates
+                if _neighboring_plan_anchor(
+                    blocks, blocks.index(candidate[0]), -1
+                ) in previous_set
+            ]
+    if next_anchor:
+        following = _matching_blocks(blocks, next_anchor)
+        if following:
+            following_set = set(following)
+            candidates = [
+                candidate
+                for candidate in candidates
+                if _neighboring_plan_anchor(
+                    blocks, blocks.index(candidate[-1]), 1
+                ) in following_set
+            ]
+
+    if len(candidates) == 1:
+        return candidates[0]
+    first_matches = _matching_blocks(blocks, anchors[0])
+    if occurrence is not None and occurrence < len(first_matches):
+        preferred = first_matches[occurrence]
+        for candidate in candidates:
+            if candidate[0] == preferred:
+                return candidate
+    if required:
+        raise PatchError(
+            "missing existing translation block for: "
+            + " | ".join(_normalize_text(anchor) for anchor in anchors)
+        )
+    return None
+
+
+def _neighboring_plan_anchor(
+    blocks: list[AnnotatedBlock], index: int, direction: int
+) -> AnnotatedBlock | None:
+    """block 주변에서 계획에 포함된 가장 가까운 anchor."""
+
+    index += direction
+    while 0 <= index < len(blocks):
+        if _is_plan_anchor(blocks[index]):
+            return blocks[index]
+        index += direction
+    return None
+
+
 def _matching_blocks(blocks: list[AnnotatedBlock], comment: str) -> list[AnnotatedBlock]:
+    """정규화한 annotation이 일치하는 locale block 목록."""
+
     normalized = _normalize_text(comment)
     exact = [block for block in blocks if block.comment == normalized]
     if exact:
@@ -370,62 +1911,918 @@ def _matching_blocks(blocks: list[AnnotatedBlock], comment: str) -> list[Annotat
 
 
 def _can_match_partial_comment(normalized: str) -> bool:
+    """여러 줄 annotation의 부분 anchor 사용 가능 여부."""
+
     return any(char.isalpha() for char in normalized)
 
 
-def _replace_block(text: str, old_comment: str, translated: str) -> str:
+def _replace_block(
+    text: str,
+    old_comment: str,
+    translated: str,
+    *,
+    occurrence: int | None = None,
+    previous_anchor: str | None = None,
+    next_anchor: str | None = None,
+    anchors: tuple[str, ...] = (),
+) -> str:
+    """블록 교체."""
+
     lines = text.splitlines(keepends=True)
-    block = _find_block(_blocks(text), old_comment)
-    replacement = _format_replacement(translated, trailing=_trailing_separator(block.text))
-    return "".join(lines[: block.start]) + replacement + "".join(lines[block.end :])
+    found = _find_anchored_blocks(
+        _blocks(text),
+        anchors or (old_comment,),
+        occurrence=occurrence,
+        previous_anchor=previous_anchor,
+        next_anchor=next_anchor,
+    )
+    replacement = _format_replacement(
+        translated, trailing=_trailing_separator(found[-1].text)
+    )
+    return "".join(lines[: found[0].start]) + replacement + "".join(lines[found[-1].end :])
 
 
-def _replace_segment(text: str, segment: Segment, translated: str) -> str:
+def _replace_resolved_blocks(
+    text: str, found: tuple[AnnotatedBlock, ...], translated: str
+) -> str:
+    """resolved 블록 교체."""
+
+    lines = text.splitlines(keepends=True)
+    replacement = _format_replacement(
+        translated, trailing=_trailing_separator(found[-1].text)
+    )
+    return "".join(lines[: found[0].start]) + replacement + "".join(
+        lines[found[-1].end :]
+    )
+
+
+def _replace_segment(text: str, segment: BlockChange, translated: str) -> str:
+    """segment 교체."""
+
+    blocks = _blocks(text)
+    old_found = _find_old_blocks(blocks, segment, required=False)
+    if old_found is None and _find_applied_new_blocks(blocks, segment):
+        return text
     try:
-        return _replace_block(text, _joined(segment.old_lines), translated)
+        return _replace_block(
+            text,
+            segment.old_source or _joined(segment.old_lines),
+            translated,
+            occurrence=segment.old_block_ordinal,
+            previous_anchor=segment.old_previous_anchor,
+            next_anchor=segment.old_next_anchor,
+            anchors=segment.old_anchors,
+        )
     except PatchError:
-        table_replaced = _replace_table_row(text, segment, translated)
-        if table_replaced is not None:
-            return table_replaced
+        if segment.old_anchors or segment.new_anchors:
+            raise
+        if _single_table_row_lines(segment) is not None:
+            table_replaced = _replace_table_row(text, segment, translated)
+            if table_replaced is not None:
+                return table_replaced
+            raise
         replaced = _replace_between_raw_contexts(text, segment, translated)
         if replaced is not None:
             return replaced
         raise
 
 
-def _delete_block(text: str, old_comment: str) -> str:
+def _find_old_blocks(
+    blocks: list[AnnotatedBlock],
+    segment: BlockChange,
+    *,
+    required: bool = True,
+) -> tuple[AnnotatedBlock, ...] | None:
+    """old 블록 탐색."""
+
+    old_anchor = segment.old_source or _joined(segment.old_lines)
+    if not old_anchor:
+        return None
+    return _find_anchored_blocks(
+        blocks,
+        segment.old_anchors or (old_anchor,),
+        occurrence=segment.old_block_ordinal,
+        previous_anchor=segment.old_previous_anchor,
+        next_anchor=segment.old_next_anchor,
+        required=required,
+    )
+
+
+def _find_applied_new_blocks(
+    blocks: list[AnnotatedBlock], segment: BlockChange
+) -> tuple[AnnotatedBlock, ...] | None:
+    """applied 신규 블록 탐색."""
+
+    if not segment.new_source:
+        return None
+    if (
+        segment.new_anchor
+        and segment.new_anchor_occurrences is not None
+        and len(_matching_blocks(blocks, segment.new_anchor))
+        < segment.new_anchor_occurrences
+    ):
+        return None
+    return _find_anchored_blocks(
+        blocks,
+        segment.new_anchors or (segment.new_anchor or segment.new_source,),
+        occurrence=segment.new_block_ordinal,
+        previous_anchor=segment.new_previous_anchor,
+        next_anchor=segment.new_next_anchor,
+        required=False,
+    )
+
+
+def _delete_block(
+    text: str,
+    old_comment: str,
+    *,
+    occurrence: int | None = None,
+    previous_anchor: str | None = None,
+    next_anchor: str | None = None,
+    anchors: tuple[str, ...] = (),
+) -> str:
+    """블록 삭제."""
+
     lines = text.splitlines(keepends=True)
-    block = _find_block(_blocks(text), old_comment)
-    return "".join(lines[: block.start]) + "".join(lines[block.end :])
+    found = _find_anchored_blocks(
+        _blocks(text),
+        anchors or (old_comment,),
+        occurrence=occurrence,
+        previous_anchor=previous_anchor,
+        next_anchor=next_anchor,
+    )
+    return "".join(lines[: found[0].start]) + "".join(lines[found[-1].end :])
 
 
-def _insert_block(text: str, segment: Segment, translated: str) -> str:
+def _delete_resolved_blocks(
+    text: str, found: tuple[AnnotatedBlock, ...]
+) -> str:
+    """resolved 블록 삭제."""
+
+    lines = text.splitlines(keepends=True)
+    return "".join(lines[: found[0].start]) + "".join(lines[found[-1].end :])
+
+
+def _insert_fenced_code_block(
+    text: str, segment: BlockChange, translated: str
+) -> str:
+    """계획의 구조 주소에 fenced code block 삽입."""
+
+    expected = segment.inserted_code_block
+    index = segment.inserted_code_block_index
+    if expected is None or index is None:
+        raise PatchError("missing fenced code block selected for insertion")
+    if translated.strip() != expected:
+        raise PatchError("provider-free fenced code insertion has diverged")
+
+    lines = text.splitlines(keepends=True)
+    plain_lines = [line.rstrip("\r\n") for line in lines]
+    regions = _code_fence_regions(plain_lines)
+    if not regions:
+        return _insert_block(text, segment, expected, force=True)
+    if index < len(regions):
+        start = regions[index][0]
+        insertion = expected.rstrip("\n") + "\n\n"
+        return "".join(lines[:start]) + insertion + "".join(lines[start:])
+    if index == len(regions):
+        end = regions[-1][1] + 1
+        insertion = "\n" + expected.rstrip("\n") + "\n"
+        return "".join(lines[:end]) + insertion + "".join(lines[end:])
+    raise PatchError("fenced code insertion index exceeds source state")
+
+
+def _delete_fenced_code_block(text: str, segment: BlockChange) -> str:
+    """fenced code 블록 삭제."""
+
+    lines = text.splitlines(keepends=True)
+    plain_lines = [line.rstrip("\r\n") for line in lines]
+    regions = _code_fence_regions(plain_lines)
+    index = segment.deleted_code_block_index
+    if index is None or not 0 <= index < len(regions):
+        raise PatchError("missing fenced code block selected for deletion")
+
+    start, end = regions[index]
+    actual = "\n".join(plain_lines[start : end + 1])
+    if actual != segment.deleted_code_block:
+        raise PatchError("fenced code block selected for deletion has diverged")
+
+    delete_end = end + 1
+    while delete_end < len(lines) and not lines[delete_end].strip():
+        delete_end += 1
+    if delete_end == len(lines):
+        while start > 0 and not lines[start - 1].strip():
+            start -= 1
+    return "".join(lines[:start]) + "".join(lines[delete_end:])
+
+
+def _delete_segment(text: str, segment: BlockChange) -> str:
+    """segment 삭제."""
+
+    try:
+        return _delete_block(
+            text,
+            segment.old_source or _joined(segment.old_lines),
+            occurrence=segment.old_block_ordinal,
+            previous_anchor=segment.old_previous_anchor,
+            next_anchor=segment.old_next_anchor,
+            anchors=segment.old_anchors,
+        )
+    except PatchError:
+        if segment.old_anchors or segment.new_anchors:
+            raise
+        if _deletion_boundary_is_empty(text, segment):
+            return text
+        if not _raw_evidence_lines(segment):
+            raise
+        replaced = _replace_between_raw_contexts(text, segment, "")
+        if replaced is not None:
+            return replaced
+        raise
+
+
+def _reject_target_deletion_residue(text: str, segment: BlockChange) -> None:
+    """대상 deletion residue 거부 조건 확인."""
+
+    evidence = _raw_evidence_lines(segment)
     lines = text.splitlines(keepends=True)
     blocks = _blocks(text)
+    bounds = _raw_context_bounds(
+        lines,
+        blocks,
+        segment,
+        match_evidence=False,
+    )
+    if bounds is None:
+        return
+    start, end = bounds
+    unowned = [
+        line
+        for index, line in enumerate(lines[start:end], start=start)
+        if not any(block.start <= index < block.end for block in blocks)
+    ]
+    if evidence and _contains_ordered_raw_lines(unowned, evidence):
+        raise PatchError("deleted source remains outside its annotated block")
+    if any(_is_orphan_translation_line(line) for line in unowned):
+        raise PatchError(
+            "deleted source translation remains outside its annotated block"
+        )
+
+
+def _is_orphan_translation_line(line: str) -> bool:
+    """orphan 번역 줄 여부."""
+
+    stripped = line.strip()
+    if not stripped:
+        return False
+    if is_named_anchor_line(line) or is_structural_html_line(line):
+        return False
+    return not is_non_annotatable_line(line)
+
+
+def _require_target_block_bodies(text: str, segment: BlockChange) -> None:
+    """대상 상태 block이 본문 없는 annotation뿐이면 거부."""
+    if not segment.new_anchors and not segment.new_anchor:
+        return
+    blocks = _blocks(text)
+    found = _find_applied_new_blocks(blocks, segment)
+    if not found:
+        raise PatchError(
+            "missing translated block for target plan state: "
+            + (segment.new_anchor or segment.new_anchors[0])
+        )
+    lines = text.splitlines(keepends=True)
+    for block in found:
+        comment_end, _body = _read_comment(lines, block.start)
+        if not any(line.strip() for line in lines[comment_end : block.end]):
+            raise PatchError(
+                f"annotated block is missing its translated body: {block.comment}"
+            )
+
+
+def _deletion_boundary_is_empty(text: str, segment: BlockChange) -> bool:
+    """삭제 대상의 이전 위치가 현재 locale에서 비어 있는지 여부."""
+
+    lines = text.splitlines(keepends=True)
+    bounds = _raw_context_bounds(
+        lines,
+        _blocks(text),
+        segment,
+        match_evidence=False,
+    )
+    if bounds is None:
+        return False
+    start, end = bounds
+    return not "".join(lines[start:end]).strip()
+
+
+def _insert_block(
+    text: str, segment: BlockChange, translated: str, *, force: bool = False
+) -> str:
+    """계획의 인접 anchor를 기준으로 번역 block 삽입."""
+
+    lines = text.splitlines(keepends=True)
+    blocks = _blocks(text)
+    if not force:
+        if _find_applied_new_blocks(blocks, segment):
+            return text
+        if _translated_insertion_exists(text, segment, translated):
+            return text
     insertion = _format_replacement(translated, trailing="\n\n")
     existing_insert = _replace_existing_insertion(text, segment, translated)
     if existing_insert is not None:
         return existing_insert
-    if segment.before_context:
-        block = _find_block(blocks, segment.before_context, required=False)
-        if block:
-            return "".join(lines[: block.end]) + insertion + "".join(lines[block.end :])
-    if segment.after_context:
-        block = _find_block(blocks, segment.after_context, required=False)
-        if block:
-            return "".join(lines[: block.start]) + insertion + "".join(lines[block.start :])
+    annotated_boundary = _annotated_insertion_boundary(blocks, segment)
+    if annotated_boundary is not None:
+        return (
+            "".join(lines[:annotated_boundary])
+            + insertion
+            + "".join(lines[annotated_boundary:])
+        )
     raw_insertion = _format_raw_insertion(translated, segment)
     raw_text = _insert_near_raw_context(lines, segment, raw_insertion)
     if raw_text is not None:
         return raw_text
+    extended = _replace_leading_code_region_insertion(lines, segment, translated)
+    if extended is not None:
+        return extended
+    windowed = _insert_within_code_region_window(lines, segment, raw_insertion)
+    if windowed is not None:
+        return windowed
+    if segment.before_context:
+        block = _context_anchor_block(
+            blocks,
+            segment.before_context,
+            segment.old_previous_anchor,
+            segment.old_previous_anchor_ordinal,
+        )
+        if block:
+            separator = "" if block.text.endswith("\n\n") else "\n"
+            return (
+                "".join(lines[: block.end])
+                + separator
+                + insertion
+                + "".join(lines[block.end :])
+            )
+    if segment.after_context:
+        block = _context_anchor_block(
+            blocks,
+            segment.after_context,
+            segment.old_next_anchor,
+            segment.old_next_anchor_ordinal,
+        )
+        if block:
+            return "".join(lines[: block.start]) + insertion + "".join(lines[block.start :])
+    if segment.after_context is None and segment.before_context:
+        # 원문 끝 추가는 이전 문맥의 번역 여부와 관계없이 같은 경계 사용
+        return text.rstrip("\n") + "\n\n" + _format_replacement(translated, trailing="\n")
     raise PatchError("missing insertion context")
 
 
+def _context_anchor_block(
+    blocks: list[AnnotatedBlock],
+    context: str,
+    neighbor_anchor: str | None,
+    neighbor_ordinal: int | None,
+) -> AnnotatedBlock | None:
+    """출현 순서를 고려한 문맥 줄과 annotation block 대응.
+
+    중복 문맥이 인접 block 자체일 때 원문 측 ordinal로 해석하고 그 밖의 문맥은
+    고유성 요구.
+    """
+    matches = _matching_blocks(blocks, context)
+    if not matches:
+        return None
+    if (
+        neighbor_ordinal is not None
+        and neighbor_anchor is not None
+        and _normalize_text(context) == _normalize_text(neighbor_anchor)
+    ):
+        return matches[neighbor_ordinal] if neighbor_ordinal < len(matches) else None
+    if len(matches) == 1:
+        return matches[0]
+    return None
+
+
+def _replace_leading_code_region_insertion(
+    lines: list[str], segment: BlockChange, translated: str
+) -> str | None:
+    """주변 원문 영역이 확장된 기존 code block의 연장.
+
+    diff alignment로 삽입 범위가 기존 fenced block부터 시작하는 경우 해당 block을
+    byte 그대로 탐색한 뒤 확장된 전체 영역으로 제자리 교체.
+    """
+    source = segment.new_source
+    if not source:
+        return None
+    source_lines = source.rstrip("\n").split("\n")
+    if not source_lines or not fence_token(source_lines[0]):
+        return None
+    regions = _code_fence_regions(source_lines)
+    if not regions or regions[0][0] != 0:
+        return None
+    leading_end = regions[0][1]
+    if not any(line.strip() for line in source_lines[leading_end + 1 :]):
+        return None
+    leading = source_lines[: leading_end + 1]
+    plain = [line.rstrip("\r\n") for line in lines]
+    matches = [
+        (start, end)
+        for start, end in _code_fence_regions(plain)
+        if plain[start : end + 1] == leading
+    ]
+    if len(matches) != 1:
+        return None
+    start, end = matches[0]
+    ending = "\n" if lines[end].endswith("\n") else ""
+    return (
+        "".join(lines[:start])
+        + translated.rstrip("\n")
+        + ending
+        + "".join(lines[end + 1 :])
+    )
+
+
+def _insert_within_code_region_window(
+    lines: list[str], segment: BlockChange, insertion: str
+) -> str | None:
+    """원문에서 삽입 위치를 둘러싼 code region 사이에 삽입."""
+    offset = segment.inserted_code_block_index
+    if offset is None:
+        return None
+    plain = [line.rstrip("\r\n") for line in lines]
+    regions = _code_fence_regions(plain)
+    if offset > len(regions):
+        return None
+    window_start = regions[offset - 1][1] + 1 if offset else 0
+    window_end = regions[offset][0] if offset < len(regions) else len(lines)
+    if segment.after_context:
+        matches = [
+            index
+            for index in _raw_context_indexes(lines, segment.after_context)
+            if window_start <= index < window_end
+        ]
+        if len(matches) == 1:
+            return (
+                "".join(lines[: matches[0]])
+                + insertion
+                + "".join(lines[matches[0] :])
+            )
+    if segment.before_context:
+        matches = [
+            index
+            for index in _raw_context_indexes(lines, segment.before_context)
+            if window_start <= index < window_end
+        ]
+        if len(matches) == 1:
+            index = matches[0] + 1
+            return "".join(lines[:index]) + insertion + "".join(lines[index:])
+    if segment.before_context is None or fence_token(segment.before_context):
+        index = next(
+            (
+                position
+                for position in range(window_start, window_end)
+                if lines[position].strip()
+            ),
+            window_end,
+        )
+        separator = "\n" if index == window_start and window_start else ""
+        return (
+            "".join(lines[:index])
+            + separator
+            + insertion
+            + "".join(lines[index:])
+        )
+    return None
+
+
+def _raw_line_indexes(lines: list[str], expected: str) -> list[int]:
+    """원문 줄과 byte 단위로 일치하는 줄 위치 목록."""
+
+    return [
+        index
+        for index in _searchable_raw_indexes(lines)
+        if lines[index].rstrip("\r\n") == expected
+    ]
+
+
+def _apply_named_anchor_change(
+    text: str, segment: BlockChange, translated: str | None
+) -> str:
+    """named anchor 변경 적용."""
+
+    old_lines = _meaningful_lines(segment.old_lines)
+    new_lines = _meaningful_lines(segment.new_lines)
+    old_anchor = old_lines[0] if old_lines else None
+    new_anchor = new_lines[0] if new_lines else None
+    lines = text.splitlines(keepends=True)
+
+    if new_anchor is not None:
+        if translated is None or translated.strip() != new_anchor:
+            raise PatchError("provider-free named anchor change has diverged")
+        target_count = segment.new_anchor_occurrences
+        matches_new = _raw_line_indexes(lines, new_anchor)
+        if target_count is not None and len(matches_new) >= target_count:
+            placement = _anchor_occurrence_at_context(
+                lines, _blocks(text), matches_new, segment
+            )
+            if placement is False:
+                raise PatchError(
+                    "existing named anchor placement does not match the target: "
+                    + new_anchor
+                )
+            return text
+
+    if old_anchor is not None:
+        matches = _raw_line_indexes(lines, old_anchor)
+        if (
+            new_anchor is None
+            and segment.new_anchor_occurrences is not None
+            and len(matches) <= segment.new_anchor_occurrences
+        ):
+            placement = _anchor_occurrence_at_context(
+                lines, _blocks(text), matches, segment
+            )
+            if placement is True:
+                raise PatchError(
+                    "deleted named anchor still occupies its source position: "
+                    + old_anchor
+                )
+            return text
+        occurrence = segment.old_block_ordinal or 0
+        if occurrence >= len(matches):
+            raise PatchError(f"missing existing named anchor: {old_anchor}")
+        index = matches[occurrence]
+        if new_anchor is None:
+            return "".join(lines[:index] + lines[index + 1 :])
+        ending = "\n" if lines[index].endswith("\n") else ""
+        replacement = translated.rstrip("\r\n") + ending
+        return "".join(lines[:index]) + replacement + "".join(lines[index + 1 :])
+
+    assert new_anchor is not None
+    insertion = _format_raw_insertion(translated, segment)
+    annotated_index = _named_anchor_insertion_boundary(
+        _blocks(text), segment
+    )
+    if annotated_index is not None:
+        return (
+            "".join(lines[:annotated_index])
+            + insertion
+            + "".join(lines[annotated_index:])
+        )
+    inserted = _insert_near_raw_context(lines, segment, insertion)
+    if inserted is None:
+        raise PatchError("missing named anchor insertion context")
+    return inserted
+
+
+def _anchor_occurrence_at_context(
+    lines: list[str],
+    blocks: list[AnnotatedBlock],
+    anchor_indexes: list[int],
+    segment: BlockChange,
+) -> bool | None:
+    """segment 문맥 경계에 anchor 출현이 존재하는지 여부.
+
+    두 문맥 모두 문서에서 해석되지 않을 때 ``None`` 반환. 이 경우 출현 횟수만
+    검증 가능.
+    """
+    checked = False
+    if segment.after_context:
+        following_blocks = _matching_blocks(blocks, segment.after_context)
+        raw_following = _raw_context_indexes(lines, segment.after_context)
+        if following_blocks or raw_following:
+            checked = True
+            boundaries = [block.start for block in following_blocks] + raw_following
+            for index in anchor_indexes:
+                if any(
+                    index < boundary
+                    and _only_anchor_or_blank_between(lines, index + 1, boundary)
+                    for boundary in boundaries
+                ):
+                    return True
+    if segment.before_context:
+        previous_blocks = _matching_blocks(blocks, segment.before_context)
+        raw_previous = _raw_context_indexes(lines, segment.before_context)
+        if previous_blocks or raw_previous:
+            checked = True
+            boundaries = [block.end for block in previous_blocks] + [
+                position + 1 for position in raw_previous
+            ]
+            for index in anchor_indexes:
+                if any(
+                    boundary <= index
+                    and _only_anchor_or_blank_between(lines, boundary, index)
+                    for boundary in boundaries
+                ):
+                    return True
+    if not checked:
+        return None
+    return False
+
+
+def _only_anchor_or_blank_between(lines: list[str], start: int, end: int) -> bool:
+    """범위 안에 named anchor와 빈 줄만 있는지 여부."""
+
+    return all(
+        not line.strip() or is_named_anchor_line(line) for line in lines[start:end]
+    )
+
+
+def _apply_admonition_marker_change(
+    text: str, segment: BlockChange, translated: str | None
+) -> str:
+    """admonition marker 변경 적용."""
+
+    old_marker = _meaningful_lines(segment.old_lines)[0].strip()
+    new_marker = _meaningful_lines(segment.new_lines)[0].strip()
+    translated_lines = (
+        [line for line in translated.splitlines() if line.strip()]
+        if translated is not None
+        else []
+    )
+    if (
+        not translated_lines
+        or _admonition_marker_type(translated_lines[0])
+        != _admonition_marker_type(new_marker)
+    ):
+        raise PatchError("translated admonition marker change has diverged")
+
+    expected_lines = [
+        line for line in (segment.new_source or "").splitlines() if line.strip()
+    ]
+
+    lines = text.splitlines(keepends=True)
+    starts = _admonition_start_indexes(lines)
+    ordinal = segment.old_block_ordinal
+    if (
+        ordinal is None
+        or ordinal >= len(starts)
+        or not _admonition_marker_count_matches(len(starts), segment)
+    ):
+        raise PatchError(f"missing existing admonition marker: {old_marker}")
+
+    index = starts[ordinal]
+    line = lines[index]
+    stripped = line.strip()
+    current_type = _admonition_marker_type(stripped)
+    old_type = _admonition_marker_type(old_marker)
+    new_type = _admonition_marker_type(new_marker)
+    if current_type == new_type and stripped == new_marker:
+        return text
+    if current_type != old_type and current_type != new_type:
+        raise PatchError(
+            f"existing admonition marker does not match the plan: {old_marker}"
+        )
+
+    if len(expected_lines) > 1 and len(translated_lines) <= 1:
+        raise PatchError("translated admonition body is missing")
+
+    if len(expected_lines) > 1:
+        end = index + 1
+        while end < len(lines) and lines[end].strip().startswith(">"):
+            end += 1
+        current = "".join(lines[index:end])
+        replacement = _format_replacement(
+            translated or "",
+            trailing=_trailing_separator(current),
+        )
+        if current == replacement:
+            return text
+        return "".join(lines[:index]) + replacement + "".join(lines[end:])
+
+    if not _admonition_body_matches_source(lines, index, segment):
+        raise PatchError(
+            "could not verify existing admonition body: "
+            + (segment.after_context or old_marker)
+        )
+
+    prefix = line[: len(line) - len(line.lstrip(" \t"))]
+    ending = line[len(line.rstrip("\r\n")) :]
+    if current_type in (old_type, new_type) and _ADMONITION_MARKER_RE.fullmatch(
+        stripped
+    ):
+        return (
+            "".join(lines[:index])
+            + prefix
+            + new_marker
+            + ending
+            + "".join(lines[index + 1 :])
+        )
+    legacy = _LEGACY_ADMONITION_RE.match(stripped)
+    if legacy is not None:
+        rest = legacy.group("body").strip()
+        replacement = prefix + new_marker + ending
+        if rest:
+            replacement = (
+                prefix
+                + new_marker
+                + ending
+                + prefix
+                + "> "
+                + rest
+                + ending
+            )
+        return "".join(lines[:index]) + replacement + "".join(lines[index + 1 :])
+    raise PatchError(
+        f"existing admonition marker does not match the plan: {old_marker}"
+    )
+
+
+def _admonition_marker_type(line: str) -> str | None:
+    """blockquote 줄의 지원되는 admonition 종류."""
+
+    marker = _ADMONITION_MARKER_RE.fullmatch(line.strip())
+    if marker is not None:
+        return marker.group(1).upper()
+    legacy = _LEGACY_ADMONITION_RE.match(line.strip())
+    if legacy is None:
+        return None
+    label = legacy.group("braced") or legacy.group("strong")
+    return _LEGACY_ADMONITION_TYPES.get(label.lower(), label.upper())
+
+
+def _admonition_body_matches_source(
+    lines: list[str],
+    target: int,
+    segment: BlockChange,
+) -> bool:
+    """locale admonition 본문이 원문 구조 주소와 일치하는지 여부."""
+
+    quote_starts = _blockquote_start_indexes(lines)
+    context = segment.after_context
+    if context is None or not context.strip().startswith(">"):
+        return False
+    expected = _normalize_text(context.strip()[1:].lstrip())
+    matches: list[int] = []
+    for start in quote_starts:
+        for offset, line in enumerate(lines[start:]):
+            stripped = line.strip()
+            if offset and not stripped.startswith(">"):
+                break
+            body = stripped[1:].lstrip()
+            if _normalize_text(body) == expected or any(
+                _normalize_text(comment) == expected
+                for _begin, _end, comment in html_comment_spans(body)
+            ):
+                matches.append(start)
+                break
+    return matches == [target]
+
+
+def _blockquote_start_indexes(lines: list[str]) -> list[int]:
+    """code 외부 최상위 blockquote group의 index."""
+    starts: list[int] = []
+    searchable = set(_searchable_raw_indexes(lines))
+    previous_quote = False
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if index not in searchable:
+            previous_quote = stripped.startswith(">")
+            continue
+        if not stripped:
+            previous_quote = False
+            continue
+        is_quote = stripped.startswith(">")
+        if is_quote and not previous_quote:
+            starts.append(index)
+        previous_quote = is_quote
+    return starts
+
+
+def _admonition_start_indexes(lines: list[str]) -> list[int]:
+    """code 외부의 GFM 또는 legacy admonition 시작 줄 index."""
+    return [
+        index
+        for index in _blockquote_start_indexes(lines)
+        if _ADMONITION_MARKER_RE.fullmatch(lines[index].strip())
+        or _LEGACY_ADMONITION_RE.match(lines[index].strip())
+    ]
+
+
+def _admonition_marker_ordinal(source_lines: list[str], lineno: int) -> int:
+    """지정한 원문 줄의 admonition marker 순번."""
+
+    starts = _admonition_start_indexes(source_lines)
+    target = lineno - 1
+    if target not in starts:
+        raise PatchError("source admonition marker occurrence is missing")
+    return starts.index(target)
+
+
+def _admonition_source_region(
+    source_lines: list[str], lineno: int
+) -> tuple[str, int, int]:
+    """marker와 소유 본문을 포함한 원문 admonition 범위."""
+
+    start = lineno - 1
+    if start < 0 or start >= len(source_lines):
+        raise PatchError("source admonition marker occurrence is missing")
+    end = start + 1
+    while end < len(source_lines) and source_lines[end].strip().startswith(">"):
+        end += 1
+    return (
+        "\n".join(source_lines[start:end]).rstrip("\n") + "\n",
+        start + 1,
+        end,
+    )
+
+
+def _named_anchor_insertion_boundary(
+    blocks: list[AnnotatedBlock], segment: BlockChange
+) -> int | None:
+    """named anchor 주변의 유일한 삽입 경계."""
+
+    previous = (
+        _matching_blocks(blocks, segment.before_context)
+        if segment.before_context
+        else []
+    )
+    following = (
+        _matching_blocks(blocks, segment.after_context)
+        if segment.after_context
+        else []
+    )
+    if previous and following:
+        pairs = [
+            (right.start - left.end, right.start)
+            for left in previous
+            for right in following
+            if left.end <= right.start
+        ]
+        if pairs:
+            distance = min(pair[0] for pair in pairs)
+            indexes = {
+                index for pair_distance, index in pairs if pair_distance == distance
+            }
+            if len(indexes) == 1:
+                return indexes.pop()
+    if len(following) == 1:
+        return following[0].start
+    if len(previous) == 1:
+        return previous[0].end
+    return None
+
+
+def _annotated_insertion_boundary(
+    blocks: list[AnnotatedBlock], segment: BlockChange
+) -> int | None:
+    """annotation 소유 block 사이의 유일한 삽입 경계."""
+
+    if not segment.new_anchors and not _is_fenced_code_source(segment.new_source or ""):
+        return None
+    if segment.old_previous_anchor:
+        previous = _find_block(
+            blocks,
+            segment.old_previous_anchor,
+            occurrence=segment.old_previous_anchor_ordinal,
+            required=False,
+        )
+        if previous is not None:
+            return previous.end
+    if segment.old_next_anchor:
+        following = _find_block(
+            blocks,
+            segment.old_next_anchor,
+            occurrence=segment.old_next_anchor_ordinal,
+            required=False,
+        )
+        if following is not None:
+            return following.start
+    return None
+
+
+def _translated_insertion_exists(
+    text: str, segment: BlockChange, translated: str
+) -> bool:
+    """동일한 번역 삽입이 계획 위치에 이미 존재하는지 여부."""
+
+    lines = text.splitlines(keepends=True)
+    bounds = _raw_context_bounds(lines, _blocks(text), segment)
+    if bounds is None:
+        return False
+    start, end = bounds
+    region = "".join(lines[start:end]).strip()
+    expected = translated.strip()
+    if region == expected:
+        return True
+    if segment.new_anchors:
+        return False
+    if segment.before_context and not segment.after_context:
+        return text.rstrip().endswith(expected)
+    if segment.after_context and not segment.before_context:
+        return text.lstrip().startswith(expected)
+    return False
+
+
 def _format_replacement(translated: str, *, trailing: str) -> str:
+    """replacement 형식화."""
+
     return translated.rstrip() + trailing
 
 
 def _trailing_separator(block_text: str) -> str:
+    """block 뒤의 빈 줄과 EOF 줄바꿈 구분자."""
+
     if block_text.endswith("\n\n"):
         return "\n\n"
     if block_text.endswith("\n"):
@@ -434,111 +2831,134 @@ def _trailing_separator(block_text: str) -> str:
 
 
 def _meaningful_lines(lines: tuple[str, ...]) -> tuple[str, ...]:
+    """빈 줄을 제외한 원문 줄 목록."""
+
     return tuple(line for line in lines if line.strip())
 
 
 def _joined(lines: tuple[str, ...]) -> str:
+    """원문 끝 줄바꿈을 유지한 줄 결합 결과."""
+
     return " ".join(_meaningful_lines(lines))
 
 
 def _normalize_text(text: str) -> str:
-    return " ".join(text.split())
+    """text 정규화."""
+
+    return normalize_annotation_anchor(text)
 
 
 def _ensure_single_eof_newline(text: str) -> str:
+    """single eof newline 보장 조건 확인."""
+
     return text.rstrip("\n") + "\n" if text else text
 
 
-def _hunk_has_code_fence_change(hunk: DiffHunk) -> bool:
+def _hunk_has_code_fence_change(
+    hunk: DiffHunk,
+    *,
+    old_ignored: set[int] | None = None,
+    new_ignored: set[int] | None = None,
+) -> bool:
+    """diff hunk가 fenced code 경계를 변경하는지 여부."""
+
+    old_ignored = old_ignored or set()
+    new_ignored = new_ignored or set()
     return any(
-        line.kind in {"add", "delete"} and fence_token(line.text)
+        line.kind in {"add", "delete"}
+        and line.old_lineno not in old_ignored
+        and line.new_lineno not in new_ignored
+        and fence_token(line.text)
         for line in hunk.lines
     )
 
 
-def _hunk_region_segment(hunk: DiffHunk, source_lines: list[str]) -> Segment:
+def _hunk_region_segment(hunk: DiffHunk, source_lines: list[str]) -> BlockChange:
+    """확장 전 diff hunk 범위의 초기 segment."""
+
+    before = _before_hunk_context_line(hunk)
+    after = _after_hunk_context_line(hunk)
     new_linenos = tuple(
         line.new_lineno
         for line in hunk.lines
         if line.kind == "add" and line.new_lineno is not None
     )
     if not new_linenos:
-        return Segment(
+        return BlockChange(
             old_lines=tuple(line.text for line in hunk.lines if line.kind == "delete"),
             new_lines=(),
-            before_context=_before_hunk_context(hunk),
-            after_context=_after_hunk_context(hunk),
+            before_context=_context_text(before),
+            after_context=_context_text(after),
             old_linenos=tuple(
                 line.old_lineno
                 for line in hunk.lines
                 if line.kind == "delete" and line.old_lineno is not None
             ),
+            before_old_lineno=before.old_lineno if before else None,
+            before_new_lineno=before.new_lineno if before else None,
+            after_old_lineno=after.old_lineno if after else None,
+            after_new_lineno=after.new_lineno if after else None,
         )
 
     start, end = _expanded_source_range(new_linenos, source_lines)
     new_source = "\n".join(source_lines[start : end + 1]) + "\n"
-    new_lines = new_source.split("\n")[:-1]
-    trailing_blank_adds = _trailing_blank_added_lines(hunk)
-    if (
-        trailing_blank_adds
-        and new_lines[-trailing_blank_adds:] != [""] * trailing_blank_adds
-    ):
-        new_lines.extend([""] * trailing_blank_adds)
-    return Segment(
+    return BlockChange(
         old_lines=tuple(line.text for line in hunk.lines if line.kind == "delete"),
-        new_lines=tuple(new_lines),
-        before_context=_before_hunk_context(hunk),
-        after_context=_after_hunk_context(hunk),
+        new_lines=tuple(line.text for line in hunk.lines if line.kind == "add"),
+        before_context=_context_text(before),
+        after_context=_context_text(after),
         old_linenos=tuple(
             line.old_lineno
             for line in hunk.lines
             if line.kind == "delete" and line.old_lineno is not None
         ),
-        new_linenos=tuple(range(start + 1, end + 2)),
+        new_linenos=new_linenos,
+        before_old_lineno=before.old_lineno if before else None,
+        before_new_lineno=before.new_lineno if before else None,
+        after_old_lineno=after.old_lineno if after else None,
+        after_new_lineno=after.new_lineno if after else None,
         new_source=new_source,
+        new_anchor=(
+            _primary_source_anchor(new_source)
+            if not any(
+                line.kind == "delete" and line.text.strip() for line in hunk.lines
+            )
+            else None
+        ),
+        new_block_start=start + 1,
+        new_block_end=end + 1,
     )
 
 
-def _trailing_blank_added_lines(hunk: DiffHunk) -> int:
-    count = 0
-    seen_add = False
-    for line in reversed(hunk.lines):
-        if line.kind == "context":
-            continue
-        if line.kind != "add":
-            break
-        seen_add = True
-        if line.text:
-            break
-        count += 1
-    return count if seen_add else 0
+def _before_hunk_context_line(hunk: DiffHunk) -> DiffLine | None:
+    """hunk 이전에 남은 가장 가까운 문맥 줄."""
 
-
-def _before_hunk_context(hunk: DiffHunk) -> str | None:
-    context: str | None = None
+    context: DiffLine | None = None
     for line in hunk.lines:
         if line.kind != "context":
             return context
-        normalized = _normalize_text(line.text)
-        if normalized:
-            context = normalized
+        if _normalize_text(line.text):
+            context = line
     return context
 
 
-def _after_hunk_context(hunk: DiffHunk) -> str | None:
-    context: str | None = None
+def _after_hunk_context_line(hunk: DiffHunk) -> DiffLine | None:
+    """hunk 이후에 남은 가장 가까운 문맥 줄."""
+
+    context: DiffLine | None = None
     for line in reversed(hunk.lines):
         if line.kind != "context":
             return context
-        normalized = _normalize_text(line.text)
-        if normalized:
-            context = normalized
+        if _normalize_text(line.text):
+            context = line
     return context
 
 
 def _expanded_source_range(
     linenos: tuple[int, ...], source_lines: list[str]
 ) -> tuple[int, int]:
+    """변경 줄을 완전한 원문 소유 block 범위로 확장."""
+
     regions = _code_fence_regions(source_lines)
     starts: list[int] = []
     ends: list[int] = []
@@ -557,6 +2977,8 @@ def _expanded_source_range(
 def _inclusive_region_of_index(
     regions: list[tuple[int, int]], index: int
 ) -> tuple[int, int] | None:
+    """지정한 줄을 포함하는 영역 번호."""
+
     for start, end in regions:
         if start <= index <= end:
             return start, end
@@ -564,52 +2986,249 @@ def _inclusive_region_of_index(
 
 
 def _expand_to_source_blocks(
-    segment: Segment, source_blocks: list[SourceBlock]
-) -> list[Segment]:
-    if _has_structural_lines(segment.new_lines):
+    segment: BlockChange,
+    *,
+    new_source_blocks: list[SourceBlock],
+    old_source_blocks: list[SourceBlock],
+    new_source_lines: list[str],
+    old_source_lines: list[str],
+) -> list[BlockChange]:
+    """segment를 원문 소유 block과 구조 단위로 확장."""
+
+    if _has_structural_lines(segment.new_lines) or _has_structural_lines(
+        segment.old_lines
+    ):
+        new_source = segment.new_source or _source_from_lines(segment.new_lines)
+        named_anchor_change = segment.is_named_anchor_change
+        admonition_marker_change = segment.is_admonition_marker_change
+        old_block_ordinal = segment.old_block_ordinal
+        old_anchor_occurrences = segment.old_anchor_occurrences
+        new_anchor_occurrences = segment.new_anchor_occurrences
+        if named_anchor_change and _meaningful_lines(segment.old_lines):
+            old_block_ordinal = _raw_line_ordinal(
+                old_source_lines,
+                _meaningful_lines(segment.old_lines)[0],
+                segment.old_linenos[0],
+            )
+        elif admonition_marker_change and segment.old_linenos:
+            old_block_ordinal = _admonition_marker_ordinal(
+                old_source_lines, segment.old_linenos[0]
+            )
+            old_anchor_occurrences = len(
+                _admonition_start_indexes(old_source_lines)
+            )
+            old_source, old_start, old_end = _admonition_source_region(
+                old_source_lines,
+                segment.old_linenos[0],
+            )
+            new_source, new_start, new_end = _admonition_source_region(
+                new_source_lines,
+                segment.new_linenos[0],
+            )
+        if named_anchor_change:
+            new_anchor_occurrences = sum(
+                line
+                == (
+                    _meaningful_lines(segment.new_lines)[0]
+                    if _meaningful_lines(segment.new_lines)
+                    else _meaningful_lines(segment.old_lines)[0]
+                )
+                for line in new_source_lines
+            )
+        elif admonition_marker_change:
+            new_anchor_occurrences = len(
+                _admonition_start_indexes(new_source_lines)
+            )
         return [
-            Segment(
-                old_lines=segment.old_lines,
-                new_lines=segment.new_lines,
-                before_context=segment.before_context,
-                after_context=segment.after_context,
-                old_linenos=segment.old_linenos,
-                new_linenos=segment.new_linenos,
-                new_source=_source_from_lines(segment.new_lines),
+            replace(
+                segment,
+                new_source=new_source,
+                new_anchor=(
+                    segment.new_anchor
+                    or (
+                        _primary_source_anchor(new_source)
+                        if not _meaningful_lines(segment.old_lines)
+                        else None
+                    )
+                ),
+                old_block_ordinal=old_block_ordinal,
+                old_anchor_occurrences=old_anchor_occurrences,
+                old_source=(
+                    old_source if admonition_marker_change else segment.old_source
+                ),
+                old_block_start=(
+                    old_start
+                    if admonition_marker_change
+                    else segment.old_block_start
+                ),
+                old_block_end=(
+                    old_end if admonition_marker_change else segment.old_block_end
+                ),
+                new_block_start=(
+                    new_start
+                    if admonition_marker_change
+                    else segment.new_block_start
+                ),
+                new_block_end=(
+                    new_end if admonition_marker_change else segment.new_block_end
+                ),
+                new_anchor_occurrences=new_anchor_occurrences,
+                table_row=_source_table_row_change(segment, old_source_lines),
             )
         ]
 
-    new_blocks = _blocks_for_linenos(source_blocks, segment.new_linenos)
-    before_block = _block_for_text(source_blocks, segment.before_context)
-    after_block = _block_for_text(source_blocks, segment.after_context)
+    new_blocks = _blocks_for_linenos(new_source_blocks, segment.new_linenos)
+    old_blocks = _blocks_for_linenos(old_source_blocks, segment.old_linenos)
+    whitespace_only = not _meaningful_lines(
+        segment.old_lines
+    ) and not _meaningful_lines(segment.new_lines)
 
-    if not new_blocks and before_block is not None and before_block == after_block:
-        new_blocks = [before_block]
+    if whitespace_only:
+        new_blocks = _context_boundary_blocks(
+            new_source_blocks,
+            segment.before_new_lineno,
+            segment.after_new_lineno,
+        )
+        old_blocks = _context_boundary_blocks(
+            old_source_blocks,
+            segment.before_old_lineno,
+            segment.after_old_lineno,
+        )
+        if [block.text for block in old_blocks] == [
+            block.text for block in new_blocks
+        ]:
+            return []
+
+    if not new_blocks:
+        context_block = _shared_context_block(
+            new_source_blocks,
+            segment.before_new_lineno,
+            segment.after_new_lineno,
+        )
+        if context_block is not None:
+            new_blocks = [context_block]
+
+    if not old_blocks:
+        context_block = _shared_context_block(
+            old_source_blocks,
+            segment.before_old_lineno,
+            segment.after_old_lineno,
+        )
+        if context_block is not None:
+            old_blocks = [context_block]
+
+    if not old_blocks and len(new_blocks) > 1:
+        _require_plain_block_range(new_blocks, new_source_lines)
+        return [
+            replace(
+                segment,
+                new_source=_join_source_blocks(new_blocks),
+                new_anchor=new_blocks[0].comment,
+                new_anchors=tuple(block.comment for block in new_blocks),
+                new_block_ordinal=_block_ordinal(new_source_blocks, new_blocks[0]),
+                new_block_start=new_blocks[0].start_lineno,
+                new_block_end=new_blocks[-1].end_lineno,
+                new_previous_anchor=_range_neighbor_anchor(
+                    new_source_blocks, new_blocks, -1
+                ),
+                new_next_anchor=_range_neighbor_anchor(
+                    new_source_blocks, new_blocks, 1
+                ),
+            )
+        ]
+
+    if old_blocks and new_blocks and len(old_blocks) != len(new_blocks):
+        _require_plain_block_range(old_blocks, old_source_lines)
+        _require_plain_block_range(new_blocks, new_source_lines)
+        return [
+            replace(
+                segment,
+                old_source=_join_source_blocks(old_blocks),
+                old_anchors=tuple(block.comment for block in old_blocks),
+                old_block_ordinal=_block_ordinal(old_source_blocks, old_blocks[0]),
+                old_block_start=old_blocks[0].start_lineno,
+                old_block_end=old_blocks[-1].end_lineno,
+                old_previous_anchor=_range_neighbor_anchor(
+                    old_source_blocks, old_blocks, -1
+                ),
+                old_next_anchor=_range_neighbor_anchor(
+                    old_source_blocks, old_blocks, 1
+                ),
+                new_source=_join_source_blocks(new_blocks),
+                new_anchor=new_blocks[0].comment,
+                new_anchors=tuple(block.comment for block in new_blocks),
+                new_block_ordinal=_block_ordinal(new_source_blocks, new_blocks[0]),
+                new_block_start=new_blocks[0].start_lineno,
+                new_block_end=new_blocks[-1].end_lineno,
+                new_previous_anchor=_range_neighbor_anchor(
+                    new_source_blocks, new_blocks, -1
+                ),
+                new_next_anchor=_range_neighbor_anchor(
+                    new_source_blocks, new_blocks, 1
+                ),
+            )
+        ]
+
+    if not new_blocks and old_blocks:
+        return [
+            replace(
+                segment,
+                old_source=_join_source_blocks(old_blocks),
+                old_anchors=tuple(block.comment for block in old_blocks),
+                old_block_ordinal=_block_ordinal(old_source_blocks, old_blocks[0]),
+                old_block_start=old_blocks[0].start_lineno,
+                old_block_end=old_blocks[-1].end_lineno,
+                old_previous_anchor=_range_neighbor_anchor(
+                    old_source_blocks, old_blocks, -1
+                ),
+                old_next_anchor=_range_neighbor_anchor(
+                    old_source_blocks, old_blocks, 1
+                ),
+            )
+        ]
 
     if not new_blocks:
         return [segment]
 
-    expanded: list[Segment] = []
+    expanded: list[BlockChange] = []
     previous_comment = segment.before_context
     for index, new_block in enumerate(new_blocks):
-        old_lines = segment.old_lines
-        if not _meaningful_lines(old_lines):
-            if before_block == new_block and segment.before_context:
-                old_lines = (segment.before_context,)
-            elif after_block == new_block and segment.after_context:
-                old_lines = (segment.after_context,)
+        old_block = _paired_old_block(old_blocks, new_blocks, index)
 
         expanded.append(
-            Segment(
-                old_lines=old_lines,
-                new_lines=tuple(new_block.text.rstrip("\n").split("\n")),
+            replace(
+                segment,
+                old_lines=_lines_in_block(
+                    segment.old_lines,
+                    segment.old_linenos,
+                    old_block,
+                ),
+                new_lines=_lines_in_block(
+                    segment.new_lines,
+                    segment.new_linenos,
+                    new_block,
+                ),
                 before_context=previous_comment,
                 after_context=(
                     segment.after_context if index == len(new_blocks) - 1 else None
                 ),
-                old_linenos=segment.old_linenos,
-                new_linenos=tuple(range(new_block.start_lineno, new_block.end_lineno + 1)),
+                old_source=old_block.text if old_block is not None else None,
+                old_anchors=(old_block.comment,) if old_block is not None else (),
+                old_block_ordinal=(
+                    _block_ordinal(old_source_blocks, old_block)
+                    if old_block is not None
+                    else None
+                ),
+                old_block_start=(
+                    old_block.start_lineno if old_block is not None else None
+                ),
+                old_block_end=old_block.end_lineno if old_block is not None else None,
                 new_source=new_block.text,
+                new_anchor=new_block.comment,
+                new_anchors=(new_block.comment,),
+                new_block_ordinal=_block_ordinal(new_source_blocks, new_block),
+                new_block_start=new_block.start_lineno,
+                new_block_end=new_block.end_lineno,
             )
         )
         previous_comment = new_block.comment
@@ -617,9 +3236,129 @@ def _expand_to_source_blocks(
     return expanded
 
 
+def _shared_context_block(
+    blocks: list[SourceBlock],
+    before_lineno: int | None,
+    after_lineno: int | None,
+) -> SourceBlock | None:
+    """이전·현재 원문에서 동일한 문맥 block."""
+
+    if before_lineno is None or after_lineno is None:
+        return None
+    before = _block_for_lineno(blocks, before_lineno)
+    after = _block_for_lineno(blocks, after_lineno)
+    return before if before is not None and before == after else None
+
+
+def _context_boundary_blocks(
+    blocks: list[SourceBlock],
+    before_lineno: int | None,
+    after_lineno: int | None,
+) -> list[SourceBlock]:
+    """segment 앞뒤의 변경되지 않은 문맥 block."""
+
+    found: list[SourceBlock] = []
+    for lineno in (before_lineno, after_lineno):
+        if lineno is None:
+            continue
+        block = _block_for_lineno(blocks, lineno)
+        if block is not None and block not in found:
+            found.append(block)
+    return found
+
+
+def _block_for_lineno(
+    blocks: list[SourceBlock], lineno: int
+) -> SourceBlock | None:
+    """지정한 줄 번호를 포함하는 원문 block."""
+
+    return next(
+        (
+            block
+            for block in blocks
+            if block.start_lineno <= lineno <= block.end_lineno
+        ),
+        None,
+    )
+
+
+def _paired_old_block(
+    old_blocks: list[SourceBlock],
+    new_blocks: list[SourceBlock],
+    index: int,
+) -> SourceBlock | None:
+    """현재 원문 block과 대응하는 이전 원문 block."""
+
+    if len(old_blocks) == len(new_blocks):
+        return old_blocks[index]
+    return None
+
+
+def _join_source_blocks(blocks: list[SourceBlock]) -> str:
+    """연속 원문 block의 byte 보존 결합 결과."""
+
+    return "\n\n".join(block.text.rstrip("\n") for block in blocks) + "\n"
+
+
+def _require_plain_block_range(
+    blocks: list[SourceBlock], source_lines: list[str]
+) -> None:
+    """plain 블록 range 필수 조건 확인."""
+
+    for previous, following in zip(blocks, blocks[1:]):
+        between = source_lines[previous.end_lineno : following.start_lineno - 1]
+        if any(line.strip() for line in between):
+            raise PatchError(
+                "changed source block range contains unsupported structural markup"
+            )
+
+
+def _range_neighbor_anchor(
+    all_blocks: list[SourceBlock], range_blocks: list[SourceBlock], offset: int
+) -> str | None:
+    """변경 범위 바깥의 가장 가까운 이웃 anchor."""
+
+    target = range_blocks[0] if offset < 0 else range_blocks[-1]
+    index = all_blocks.index(target) + offset
+    return all_blocks[index].comment if 0 <= index < len(all_blocks) else None
+
+
+def _lines_in_block(
+    lines: tuple[str, ...],
+    linenos: tuple[int, ...],
+    block: SourceBlock | None,
+) -> tuple[str, ...]:
+    """block 범위 안에서 선택된 줄 번호 목록."""
+
+    if block is None:
+        return lines
+    selected = tuple(
+        line
+        for line, lineno in zip(lines, linenos, strict=True)
+        if block.start_lineno <= lineno <= block.end_lineno
+    )
+    return selected or lines
+
+
+def _block_ordinal(blocks: list[SourceBlock], target: SourceBlock) -> int:
+    """동일한 원문 block이 출현한 순번."""
+
+    matching = [block for block in blocks if block.comment == target.comment]
+    return matching.index(target)
+
+
+def _primary_source_anchor(source: str) -> str | None:
+    """원문 block의 대표 annotation anchor."""
+
+    blocks = _source_blocks(source)
+    return blocks[0].comment if blocks else None
+
+
 def _blocks_for_linenos(
     source_blocks: list[SourceBlock], linenos: tuple[int, ...]
 ) -> list[SourceBlock]:
+    """지정한 줄 번호 집합과 겹치는 원문 block 목록."""
+
     return [
         block
         for block in source_blocks
@@ -628,6 +3367,8 @@ def _blocks_for_linenos(
 
 
 def _has_structural_lines(lines: tuple[str, ...]) -> bool:
+    """structural 줄 포함 여부."""
+
     in_code = False
     fence = ""
     for line in lines:
@@ -650,20 +3391,71 @@ def _has_structural_lines(lines: tuple[str, ...]) -> bool:
     return False
 
 
+def _raw_line_ordinal(
+    source_lines: list[str], expected: str, lineno: int
+) -> int:
+    """동일한 raw 줄이 원문에 출현한 순번."""
+
+    indexes = [
+        index for index, line in enumerate(source_lines) if line == expected
+    ]
+    target = lineno - 1
+    if target not in indexes:
+        raise PatchError(f"source line occurrence is missing: {expected}")
+    return indexes.index(target)
+
+
 def _reverse_apply_hunks(new_lines: list[str], hunks: tuple[DiffHunk, ...]) -> list[str]:
-    """Reconstruct the old source lines by reversing each hunk on the new source."""
+    """신규 원문의 각 hunk를 역적용한 이전 원문 줄 재구성."""
     lines = list(new_lines)
     for hunk in sorted(hunks, key=lambda item: item.new_start, reverse=True):
         old_segment = [
             line.text for line in hunk.lines if line.kind in ("context", "delete")
         ]
+        new_segment = [
+            line.text for line in hunk.lines if line.kind in ("context", "add")
+        ]
         start = hunk.new_start - 1
-        lines[start : start + hunk.new_count] = old_segment
+        end = start + hunk.new_count
+        if lines[start:end] != new_segment:
+            bounds = _locate_hunk_segment(lines, new_segment)
+            if bounds is None:
+                raise PatchError("source hunk does not match the new document")
+            start, end = bounds
+        lines[start:end] = old_segment
     return lines
 
 
+def _locate_hunk_segment(
+    lines: list[str], segment: list[str]
+) -> tuple[int, int] | None:
+    """원문 전체에서 diff hunk의 정확한 segment 위치 탐색."""
+
+    exact = [
+        (index, index + len(segment))
+        for index in range(len(lines) - len(segment) + 1)
+        if lines[index : index + len(segment)] == segment
+    ]
+    if len(exact) == 1:
+        return exact[0]
+
+    meaningful = [line for line in segment if line.strip()]
+    if not meaningful:
+        return None
+    starts = [index for index, line in enumerate(lines) if line == meaningful[0]]
+    ends = [index for index, line in enumerate(lines) if line == meaningful[-1]]
+    compact = [
+        (start, end + 1)
+        for start in starts
+        for end in ends
+        if start <= end
+        and [line for line in lines[start : end + 1] if line.strip()] == meaningful
+    ]
+    return compact[0] if len(compact) == 1 else None
+
+
 def _code_fence_regions(lines: list[str]) -> list[tuple[int, int]]:
-    """Return (start, end) line indexes (inclusive) of each fenced code block."""
+    """각 fenced code block의 시작·종료 줄 index를 포함 범위로 반환."""
     regions: list[tuple[int, int]] = []
     in_code = False
     fence = ""
@@ -680,46 +3472,178 @@ def _code_fence_regions(lines: list[str]) -> list[tuple[int, int]]:
     return regions
 
 
+def _code_blocks_from_regions(
+    lines: list[str], regions: list[tuple[int, int]]
+) -> tuple[str, ...]:
+    """줄 범위로 추출한 fenced code block 목록."""
+
+    return tuple("\n".join(lines[start : end + 1]) for start, end in regions)
+
+
+def _fenced_code_blocks(text: str) -> tuple[str, ...]:
+    """문서 순서로 추출한 fenced code block 목록."""
+
+    lines = text.splitlines()
+    return _code_blocks_from_regions(lines, _code_fence_regions(lines))
+
+
+def _is_fenced_code_source(source: str) -> bool:
+    """fenced code 원문 여부."""
+
+    lines = source.splitlines()
+    regions = _code_fence_regions(lines)
+    if len(regions) != 1:
+        return False
+    start, end = regions[0]
+    return not any(line.strip() for line in lines[:start] + lines[end + 1 :])
+
+
+def _attach_deleted_code_block(
+    change: BlockChange,
+    *,
+    old_source_lines: list[str],
+    old_regions: list[tuple[int, int]],
+    new_source_lines: list[str],
+    new_regions: list[tuple[int, int]],
+) -> BlockChange:
+    """삭제 segment에 대응하는 fenced code 변경 정보 결합."""
+
+    if change.code_block is not None:
+        return change
+
+    inserted_source = change.new_source or _source_from_lines(change.new_lines)
+    if not _meaningful_lines(change.old_lines) and _is_fenced_code_source(
+        inserted_source
+    ):
+        index = _single_region_index(new_regions, change.new_linenos)
+        if index is not None:
+            start, end = new_regions[index]
+            return replace(
+                change,
+                inserted_code_block_index=index,
+                inserted_code_block="\n".join(new_source_lines[start : end + 1]),
+            )
+
+    if (
+        change.inserted_code_block is None
+        and not _meaningful_lines(change.old_lines)
+        and _meaningful_lines(change.new_lines)
+        and any(fence_token(line) for line in change.new_lines)
+    ):
+        boundary = change.before_old_lineno
+        offset = (
+            sum(end <= boundary - 1 for _start, end in old_regions)
+            if boundary is not None
+            else 0
+        )
+        return replace(change, inserted_code_block_index=offset)
+
+    if _meaningful_lines(change.new_lines) or not any(
+        fence_token(line) for line in change.old_lines
+    ):
+        return change
+
+    index = _single_region_index(old_regions, change.old_linenos)
+    if index is None:
+        return change
+    start, end = old_regions[index]
+    return replace(
+        change,
+        deleted_code_block_index=index,
+        deleted_code_block="\n".join(old_source_lines[start : end + 1]),
+    )
+
+
 def _region_of_index(regions: list[tuple[int, int]], index: int) -> int | None:
-    """Index of the region whose interior (between the fences) holds `index`."""
+    """fence 사이 내부에 ``index``가 포함된 region index."""
     for position, (start, end) in enumerate(regions):
         if start < index < end:
             return position
     return None
 
 
-def _code_region_index(
-    segment: Segment,
+def _code_region_indexes(
+    segment: BlockChange,
     new_regions: list[tuple[int, int]],
     old_regions: list[tuple[int, int]],
-) -> int | None:
-    """Region index when a segment changes only the interior of one code block.
+) -> tuple[int | None, int | None]:
+    """fenced code 내부 변경에 대한 신규·이전 region index.
 
-    Insertions and modifications are located by their new line numbers; pure
-    deletions by their old line numbers (which map to the same block, since an
-    interior edit never adds or removes a whole fence). Whole-block changes carry
-    a fence line and are left to the annotated-block path.
+    전체 block 변경은 fence 줄을 포함하여 구조 경로 유지. 순수 내부 삽입 또는
+    삭제에서는 문맥 줄 번호로 변경 줄이 없는 쪽 보완.
     """
-    if segment.new_linenos:
-        if _has_structural_lines(segment.new_lines):
-            return None
-        found = {_region_of_index(new_regions, line - 1) for line in segment.new_linenos}
-        return found.pop() if len(found) == 1 and None not in found else None
-    if segment.old_linenos and _meaningful_lines(segment.old_lines):
-        if _has_structural_lines(segment.old_lines):
-            return None
-        found = {_region_of_index(old_regions, line - 1) for line in segment.old_linenos}
-        return found.pop() if len(found) == 1 and None not in found else None
-    return None
+    if _has_structural_lines(segment.new_lines) or _has_structural_lines(
+        segment.old_lines
+    ):
+        return None, None
+
+    new_index = _single_region_index(new_regions, segment.new_linenos)
+    old_index = _single_region_index(old_regions, segment.old_linenos)
+    if new_index is None and old_index is None:
+        return None, None
+    if new_index is None:
+        new_index = _single_region_index(
+            new_regions,
+            tuple(
+                line
+                for line in (segment.before_new_lineno, segment.after_new_lineno)
+                if line is not None
+            ),
+            inclusive=True,
+        )
+    if old_index is None:
+        old_index = _single_region_index(
+            old_regions,
+            tuple(
+                line
+                for line in (segment.before_old_lineno, segment.after_old_lineno)
+                if line is not None
+            ),
+            inclusive=True,
+        )
+    if new_index is None and old_index is not None and len(new_regions) == len(old_regions):
+        new_index = old_index
+    if old_index is None and new_index is not None and len(new_regions) == len(old_regions):
+        old_index = new_index
+    return new_index, old_index
+
+
+def _single_region_index(
+    regions: list[tuple[int, int]],
+    linenos: tuple[int, ...],
+    *,
+    inclusive: bool = False,
+) -> int | None:
+    """지정한 줄이 유일하게 속하는 code 영역 번호."""
+
+    found: set[int] = set()
+    for lineno in linenos:
+        line_index = lineno - 1
+        region_index = next(
+            (
+                position
+                for position, (start, end) in enumerate(regions)
+                if (start <= line_index <= end)
+                if inclusive or start < line_index < end
+            ),
+            None,
+        )
+        if region_index is not None:
+            found.add(region_index)
+    return found.pop() if len(found) == 1 else None
 
 
 def _code_block_segment(
-    group: list[Segment],
+    group: list[BlockChange],
     source_lines: list[str],
     region: tuple[int, int],
     block_index: int,
-) -> Segment:
-    """Build a verbatim swap of one code fence to its new source block."""
+    *,
+    old_source_lines: list[str],
+    old_regions: list[tuple[int, int]],
+    old_block_index: int | None,
+) -> BlockChange:
+    """단일 code fence를 신규 원문 block으로 byte 단위 교체하는 segment 생성."""
     start, end = region
     new_block_lines = source_lines[start : end + 1]
     new_block = "\n".join(new_block_lines)
@@ -727,33 +3651,84 @@ def _code_block_segment(
     anchors = tuple(
         line for line in new_block_lines if line.strip() and line not in added
     )
-    return Segment(
+    old_block = None
+    if old_block_index is not None and 0 <= old_block_index < len(old_regions):
+        old_start, old_end = old_regions[old_block_index]
+        old_block = "\n".join(old_source_lines[old_start : old_end + 1])
+    return BlockChange(
         old_lines=(),
         new_lines=(),
         before_context=None,
         after_context=None,
         code_block=CodeChange(
-            block_index=block_index, new_block=new_block, anchors=anchors
+            block_index=block_index,
+            new_block=new_block,
+            anchors=anchors,
+            old_block_index=old_block_index,
+            old_block=old_block,
+            old_block_count=len(old_regions),
+            new_block_count=len(_code_fence_regions(source_lines)),
         ),
     )
 
 
-def _apply_code_block(text: str, change: CodeChange) -> str:
+def _apply_code_block(
+    text: str,
+    change: CodeChange,
+    *,
+    state: PlanState = PlanState.UNGUARDED,
+) -> str:
+    """code 블록 적용."""
+
     lines = text.split("\n")
     regions = _code_fence_regions(lines)
-    if not 0 <= change.block_index < len(regions):
-        return text  # block count diverged; cannot locate safely, leave as is
-    start, end = regions[change.block_index]
-    block = lines[start : end + 1]
-    if block == change.new_block.split("\n"):
-        return text  # already the new source block (idempotent re-run)
-    if not _contains_all(block, change.anchors):
-        return text  # diverged from source; skip rather than corrupt
-    return "\n".join(lines[:start] + change.new_block.split("\n") + lines[end + 1 :])
+    candidate_indexes = list(
+        dict.fromkeys(
+            index
+            for index in (change.block_index, change.old_block_index)
+            if index is not None and 0 <= index < len(regions)
+        )
+    )
+    new_block = change.new_block.split("\n")
+    old_exact = False
+    if change.old_block is not None and change.old_block_index in candidate_indexes:
+        old_start, old_end = regions[change.old_block_index]
+        old_exact = lines[old_start : old_end + 1] == change.old_block.split("\n")
+    new_exact = False
+    if change.block_index in candidate_indexes:
+        new_start, new_end = regions[change.block_index]
+        new_exact = lines[new_start : new_end + 1] == new_block
+
+    if state is PlanState.TARGET:
+        return text
+
+    target_index = None
+    if state is PlanState.SOURCE and old_exact:
+        target_index = change.old_block_index
+    elif state is PlanState.UNGUARDED:
+        if new_exact:
+            return text
+        if old_exact:
+            target_index = change.old_block_index
+    if target_index is None:
+        matching = [
+            index
+            for index in candidate_indexes
+            if _contains_all(
+                lines[regions[index][0] : regions[index][1] + 1],
+                change.anchors,
+            )
+        ]
+        if len(matching) != 1:
+            return text
+        target_index = matching[0]
+
+    start, end = regions[target_index]
+    return "\n".join(lines[:start] + new_block + lines[end + 1 :])
 
 
 def _contains_all(block: list[str], anchors: tuple[str, ...]) -> bool:
-    """True when `block` holds every anchor line (counting duplicates)."""
+    """중복을 포함해 ``block``이 모든 anchor 줄을 보유하는지 여부."""
     remaining = list(block)
     for line in anchors:
         if line in remaining:
@@ -764,33 +3739,69 @@ def _contains_all(block: list[str], anchors: tuple[str, ...]) -> bool:
 
 
 def _source_from_lines(lines: tuple[str, ...]) -> str:
+    """줄 목록의 원문 끝 줄바꿈을 보존한 결합 결과."""
+
     return "\n".join(lines).rstrip("\n") + "\n"
 
 
-def _format_raw_insertion(translated: str, segment: Segment) -> str:
+def _format_raw_insertion(translated: str, segment: BlockChange) -> str:
+    """raw insertion 형식화."""
+
     trailing_blank_lines = 0
     for line in reversed(segment.new_lines):
         if line.strip():
             break
         trailing_blank_lines += 1
+    if segment.after_new_lineno is not None and segment.new_block_end is not None:
+        trailing_blank_lines = max(
+            trailing_blank_lines,
+            segment.after_new_lineno - segment.new_block_end - 1,
+        )
     return translated.rstrip("\n") + ("\n" * max(1, trailing_blank_lines + 1))
 
 
 def _insert_near_raw_context(
-    lines: list[str], segment: Segment, insertion: str
+    lines: list[str], segment: BlockChange, insertion: str
 ) -> str | None:
-    if segment.after_context:
-        index = _find_raw_context_line(lines, segment.after_context)
-        if index is not None:
-            return "".join(lines[:index]) + insertion + "".join(lines[index:])
-    if segment.before_context:
-        index = _find_raw_context_line(lines, segment.before_context)
-        if index is not None:
-            return "".join(lines[: index + 1]) + insertion + "".join(lines[index + 1 :])
+    """raw 문맥 줄 주변의 유일한 경계에 내용 삽입."""
+
+    index = _raw_insertion_index(lines, segment)
+    if index is not None:
+        return "".join(lines[:index]) + insertion + "".join(lines[index:])
     return None
 
 
-def _context_between_raw_contexts(text: str, segment: Segment) -> str | None:
+def _raw_insertion_index(lines: list[str], segment: BlockChange) -> int | None:
+    """raw 문맥으로 결정한 유일한 삽입 줄 위치."""
+
+    before = (
+        _raw_context_indexes(lines, segment.before_context)
+        if segment.before_context
+        else []
+    )
+    after = (
+        _raw_context_indexes(lines, segment.after_context)
+        if segment.after_context
+        else []
+    )
+
+    if before and after:
+        pairs = [(right - left, right) for left in before for right in after if left < right]
+        if not pairs:
+            return None
+        distance = min(pair[0] for pair in pairs)
+        nearest = [right for pair_distance, right in pairs if pair_distance == distance]
+        return nearest[0] if len(nearest) == 1 else None
+    if len(after) == 1:
+        return after[0]
+    if len(before) == 1:
+        return before[0] + 1
+    return None
+
+
+def _context_between_raw_contexts(text: str, segment: BlockChange) -> str | None:
+    """앞뒤 raw 문맥 사이의 기존 locale 내용."""
+
     lines = text.splitlines(keepends=True)
     bounds = _raw_context_bounds(lines, _blocks(text), segment)
     if bounds is None:
@@ -800,8 +3811,10 @@ def _context_between_raw_contexts(text: str, segment: Segment) -> str | None:
 
 
 def _replace_between_raw_contexts(
-    text: str, segment: Segment, translated: str
+    text: str, segment: BlockChange, translated: str
 ) -> str | None:
+    """between raw contexts 교체."""
+
     lines = text.splitlines(keepends=True)
     bounds = _raw_context_bounds(lines, _blocks(text), segment)
     if bounds is None:
@@ -815,8 +3828,10 @@ def _replace_between_raw_contexts(
 
 
 def _replace_existing_insertion(
-    text: str, segment: Segment, translated: str
+    text: str, segment: BlockChange, translated: str
 ) -> str | None:
+    """existing insertion 교체."""
+
     lines = text.splitlines(keepends=True)
     start = _find_existing_insertion_start(lines, segment)
     if start is None:
@@ -832,8 +3847,10 @@ def _replace_existing_insertion(
 
 
 def _find_existing_insertion_start(
-    lines: list[str], segment: Segment
+    lines: list[str], segment: BlockChange
 ) -> int | None:
+    """existing insertion start 탐색."""
+
     for source_line in _source_text_lines(segment):
         if not is_named_anchor_line(source_line):
             continue
@@ -844,8 +3861,10 @@ def _find_existing_insertion_start(
 
 
 def _find_existing_insertion_end(
-    lines: list[str], segment: Segment, start: int
+    lines: list[str], segment: BlockChange, start: int
 ) -> int | None:
+    """existing insertion end 탐색."""
+
     if segment.after_context:
         index = _find_raw_context_line_after(lines, segment.after_context, start)
         if index is not None:
@@ -856,44 +3875,79 @@ def _find_existing_insertion_end(
     return len(lines)
 
 
-def _source_text_lines(segment: Segment) -> tuple[str, ...]:
+def _source_text_lines(segment: BlockChange) -> tuple[str, ...]:
+    """segment의 현재 원문을 구성하는 줄 목록."""
+
     if segment.new_source is not None:
         return tuple(segment.new_source.rstrip("\n").split("\n"))
     return _meaningful_lines(segment.new_lines)
 
 
 def _raw_context_bounds(
-    lines: list[str], blocks: list[AnnotatedBlock], segment: Segment
+    lines: list[str],
+    blocks: list[AnnotatedBlock],
+    segment: BlockChange,
+    *,
+    match_evidence: bool = True,
 ) -> tuple[int, int] | None:
-    if not segment.before_context or not segment.after_context:
+    """앞뒤 raw 문맥으로 제한한 유일한 줄 범위."""
+
+    if not segment.before_context and not segment.after_context:
         return None
 
-    before_bounds = _before_context_boundaries(lines, blocks, segment.before_context)
-    after_bounds = _after_context_boundaries(lines, blocks, segment.after_context)
-    candidates = [
-        (end - start, start, end)
-        for start in before_bounds
-        for end in after_bounds
-        if start <= end
-    ]
+    evidence = _raw_evidence_lines(segment) if match_evidence else ()
+    before_bounds = (
+        _before_context_boundaries(
+            lines,
+            blocks,
+            segment.before_context,
+            include_code=bool(evidence),
+        )
+        if segment.before_context
+        else [0]
+    )
+    after_bounds = (
+        _after_context_boundaries(
+            lines,
+            blocks,
+            segment.after_context,
+            include_code=bool(evidence),
+        )
+        if segment.after_context
+        else [len(lines)]
+    )
+    candidates = list(
+        {
+            (end - start, start, end)
+            for start in before_bounds
+            for end in after_bounds
+            if start <= end
+        }
+    )
     if not candidates:
         return None
 
-    evidence = _raw_evidence_lines(segment)
     if evidence:
         evidenced: list[tuple[int, int, int]] = []
         for _distance, start, end in candidates:
             expanded_end = _expand_end_to_code_fence(lines, end)
             if _contains_ordered_raw_lines(lines[start:expanded_end], evidence):
                 evidenced.append((expanded_end - start, start, expanded_end))
-        if evidenced:
-            candidates = evidenced
+        if not evidenced:
+            return None
+        candidates = evidenced
 
-    _distance, start, end = min(candidates)
+    distance = min(candidate[0] for candidate in candidates)
+    nearest = [candidate for candidate in candidates if candidate[0] == distance]
+    if len(nearest) != 1:
+        return None
+    _distance, start, end = nearest[0]
     return start, _expand_end_to_code_fence(lines, end)
 
 
-def _raw_evidence_lines(segment: Segment) -> tuple[str, ...]:
+def _raw_evidence_lines(segment: BlockChange) -> tuple[str, ...]:
+    """segment 위치를 증명할 구조·코드 원문 줄 목록."""
+
     return tuple(
         line
         for line in _meaningful_lines(segment.old_lines)
@@ -902,11 +3956,14 @@ def _raw_evidence_lines(segment: Segment) -> tuple[str, ...]:
 
 
 def _is_raw_evidence_line(line: str) -> bool:
+    """raw 증거 줄 여부."""
+
     stripped = line.strip()
     if not stripped:
         return False
     return (
-        line[:1].isspace()
+        bool(fence_token(line))
+        or line[:1].isspace()
         or "\\" in stripped
         or "=>" in stripped
         or "::" in stripped
@@ -916,6 +3973,8 @@ def _is_raw_evidence_line(line: str) -> bool:
 
 
 def _contains_ordered_raw_lines(lines: list[str], evidence: tuple[str, ...]) -> bool:
+    """후보가 raw 증거 줄을 같은 순서로 포함하는지 여부."""
+
     index = 0
     normalized_lines = [_normalize_text(line) for line in lines]
     for expected in evidence:
@@ -929,6 +3988,8 @@ def _contains_ordered_raw_lines(lines: list[str], evidence: tuple[str, ...]) -> 
 
 
 def _expand_end_to_code_fence(lines: list[str], end: int) -> int:
+    """범위 끝을 포함된 fenced code block 끝까지 확장."""
+
     plain_lines = [line.rstrip("\r\n") for line in lines]
     for start, region_end in _code_fence_regions(plain_lines):
         if start < end <= region_end or start <= end - 1 < region_end:
@@ -937,64 +3998,169 @@ def _expand_end_to_code_fence(lines: list[str], end: int) -> int:
 
 
 def _before_context_boundaries(
-    lines: list[str], blocks: list[AnnotatedBlock], context: str
+    lines: list[str],
+    blocks: list[AnnotatedBlock],
+    context: str,
+    *,
+    include_code: bool = False,
 ) -> list[int]:
+    """이전 raw 문맥으로 가능한 범위 시작 위치 목록."""
+
     bounds = [block.end for block in _matching_blocks(blocks, context)]
     normalized = _normalize_text(context)
     if normalized:
         bounds.extend(
             index + 1
-            for index, line in enumerate(lines)
-            if _normalize_text(line) == normalized
+            for index in _raw_context_indexes(
+                lines, context, include_code=include_code
+            )
         )
     return bounds
 
 
 def _after_context_boundaries(
-    lines: list[str], blocks: list[AnnotatedBlock], context: str
+    lines: list[str],
+    blocks: list[AnnotatedBlock],
+    context: str,
+    *,
+    include_code: bool = False,
 ) -> list[int]:
+    """다음 raw 문맥으로 가능한 범위 종료 위치 목록."""
+
     bounds = [block.start for block in _matching_blocks(blocks, context)]
     normalized = _normalize_text(context)
     if normalized:
         bounds.extend(
-            index
-            for index, line in enumerate(lines)
-            if _normalize_text(line) == normalized
+            _raw_context_indexes(lines, context, include_code=include_code)
         )
     return bounds
 
 
 def _find_raw_context_line(lines: list[str], context: str) -> int | None:
-    normalized = _normalize_text(context)
-    if not normalized:
-        return None
-    for index, line in enumerate(lines):
-        if _normalize_text(line) == normalized:
-            return index
-    return None
+    """raw 문맥 줄 탐색."""
+
+    indexes = _raw_context_indexes(lines, context)
+    return indexes[0] if indexes else None
 
 
 def _find_raw_context_line_after(
     lines: list[str], context: str, after_index: int
 ) -> int | None:
+    """raw 문맥 줄 after 탐색."""
+
+    return next(
+        (
+            index
+            for index in _raw_context_indexes(lines, context)
+            if index > after_index
+        ),
+        None,
+    )
+
+
+def _raw_context_indexes(
+    lines: list[str], context: str, *, include_code: bool = False
+) -> list[int]:
+    """raw 문맥 줄과 일치하는 검색 가능 위치 목록."""
+
     normalized = _normalize_text(context)
     if not normalized:
-        return None
-    for index in range(max(0, after_index + 1), len(lines)):
-        if _normalize_text(lines[index]) == normalized:
-            return index
-    return None
+        return []
+    return [
+        index
+        for index in _searchable_raw_indexes(lines, include_code=include_code)
+        if _normalize_text(lines[index]) == normalized
+    ]
+
+
+def _searchable_raw_indexes(
+    lines: list[str], *, include_code: bool = False
+) -> list[int]:
+    """코드·주석 경계를 고려한 raw 줄 검색 위치 목록."""
+
+    indexes: list[int] = []
+    in_comment = False
+    in_code = False
+    fence = ""
+
+    for index, line in enumerate(lines):
+        if in_comment:
+            if "-->" in line:
+                in_comment = False
+            continue
+
+        if "<!--" in line:
+            if "-->" not in line.split("<!--", 1)[1]:
+                in_comment = True
+            continue
+
+        token = fence_token(line)
+        if token:
+            if include_code:
+                indexes.append(index)
+            if not in_code:
+                in_code, fence = True, token
+            elif closes_fence(line, fence):
+                in_code = False
+            continue
+        if not in_code or include_code:
+            indexes.append(index)
+
+    return indexes
 
 
 def _table_row_cells(line: str) -> tuple[str, ...] | None:
+    """Markdown table row에서 분리한 cell 목록."""
+
     stripped = line.strip()
     if not stripped.startswith("|") or not stripped.endswith("|"):
         return None
     cells = tuple(_normalize_text(cell) for cell in stripped.strip("|").split("|"))
-    return cells if len(cells) > 1 else None
+    return cells if cells and any(cells) else None
+
+
+def _is_unsupported_admonition_marker(line: str) -> bool:
+    """지원하지 않는 admonition marker 여부."""
+
+    stripped = line.strip()
+    return bool(_ANY_ADMONITION_MARKER_RE.fullmatch(stripped)) and not bool(
+        _ADMONITION_MARKER_RE.fullmatch(stripped)
+    )
+
+
+def _require_supported_admonition_markers(source: str) -> None:
+    """supported admonition markers 필수 조건 확인."""
+
+    lines = source.splitlines()
+    fenced = {
+        index
+        for start, end in _code_fence_regions(lines)
+        for index in range(start, end + 1)
+    }
+    for index, line in enumerate(lines):
+        if index in fenced or line.startswith(("    ", "\t")):
+            continue
+        if _is_unsupported_admonition_marker(line):
+            raise PatchError("unsupported admonition marker type")
+
+
+def _require_supported_modified_admonition(segment: BlockChange) -> None:
+    """supported 수정된 admonition 필수 조건 확인."""
+
+    lines = _meaningful_lines(segment.old_lines) + _meaningful_lines(
+        segment.new_lines
+    )
+    if any(
+        not line.startswith(("    ", "\t"))
+        and _is_unsupported_admonition_marker(line)
+        for line in lines
+    ):
+        raise PatchError("unsupported admonition marker type")
 
 
 def _table_match_cells(cells: tuple[str, ...]) -> tuple[str, ...]:
+    """table row 위치 판정에 사용할 비번역 cell 목록."""
+
     return tuple(
         re.sub(r"\s*,\s*", ", ", cell.replace("、", ",")).strip()
         for cell in cells
@@ -1002,127 +4168,717 @@ def _table_match_cells(cells: tuple[str, ...]) -> tuple[str, ...]:
 
 
 def _is_table_separator_cells(cells: tuple[str, ...]) -> bool:
+    """table separator cells 여부."""
+
     return all(cell and set(cell) <= {"-", ":"} for cell in cells)
 
 
-def _table_row_index(lines: list[str], segment: Segment) -> int | None:
-    old_rows = [line for line in _meaningful_lines(segment.old_lines) if _table_row_cells(line)]
-    new_rows = [line for line in _meaningful_lines(segment.new_lines) if _table_row_cells(line)]
-    if len(old_rows) != 1 or len(new_rows) != 1:
+def _single_table_row_lines(segment: BlockChange) -> tuple[str, str] | None:
+    """segment의 단일 이전·신규 table row 또는 row 형태가 아닐 때 ``None``."""
+    old_meaningful = _meaningful_lines(segment.old_lines)
+    new_meaningful = _meaningful_lines(segment.new_lines)
+    if len(old_meaningful) != 1 or len(new_meaningful) != 1:
         return None
-
-    old_cells = _table_row_cells(old_rows[0])
-    new_cells = _table_row_cells(new_rows[0])
+    old_cells = _table_row_cells(old_meaningful[0])
+    new_cells = _table_row_cells(new_meaningful[0])
     if old_cells is None or new_cells is None or len(old_cells) != len(new_cells):
         return None
-    if _is_table_separator_cells(old_cells):
+    if _is_table_separator_cells(old_cells) or _is_table_separator_cells(new_cells):
         return None
+    return old_meaningful[0], new_meaningful[0]
+
+
+def _require_rectangular_create_table(source: str) -> None:
+    """rectangular create table 필수 조건 확인."""
+
+    rows = [line for line in source.splitlines() if line.strip()]
+    cells = [_table_row_cells(line) for line in rows]
+    if not cells or any(row is None for row in cells):
+        raise PatchError("unsupported create table structure")
+    widths = {len(row) for row in cells if row is not None}
+    if len(widths) != 1:
+        raise PatchError("create table must be rectangular")
+
+
+def _is_changed_table_row(line: str) -> bool:
+    """changed table row 여부."""
+
+    return not line.startswith(("    ", "\t")) and _table_row_cells(line) is not None
+
+
+def _require_supported_modified_table(segment: BlockChange) -> bool:
+    """supported 수정된 table 필수 조건 확인."""
+
+    lines = _meaningful_lines(segment.old_lines) + _meaningful_lines(
+        segment.new_lines
+    )
+    if not any(_is_changed_table_row(line) for line in lines):
+        return False
+    if _single_table_row_lines(segment) is None:
+        raise PatchError(
+            "modified table must change exactly one existing non-separator row "
+            "with the same column count"
+        )
+    return True
+
+
+def _table_regions(lines: list[str]) -> list[list[int]]:
+    """fenced 또는 indented code 외부 각 table의 non-separator row index."""
+    fenced: set[int] = set()
+    for start, end in _code_fence_regions(lines):
+        fenced.update(range(start, end + 1))
+    tables: list[list[int]] = []
+    current: list[int] | None = None
+    for index, line in enumerate(lines):
+        cells = (
+            _table_row_cells(line)
+            if index not in fenced and not line.startswith(("    ", "\t"))
+            else None
+        )
+        if cells is None:
+            current = None
+            continue
+        if current is None:
+            current = []
+            tables.append(current)
+        if not _is_table_separator_cells(cells):
+            current.append(index)
+    return tables
+
+
+def _source_table_row_change(
+    segment: BlockChange, old_source_lines: list[str]
+) -> TableRowChange | None:
+    """구조 주소와 cardinality를 포함한 table row 변경."""
+
+    if _single_table_row_lines(segment) is None or not segment.old_linenos:
+        return None
+    index = segment.old_linenos[0] - 1
+    tables = _table_regions(old_source_lines)
+    for table_ordinal, rows in enumerate(tables):
+        if index in rows:
+            return TableRowChange(
+                table_ordinal=table_ordinal,
+                row_ordinal=rows.index(index),
+                row_count=len(rows),
+                table_count=len(tables),
+            )
+    return None
+
+
+def _table_row_index(
+    lines: list[str],
+    segment: BlockChange,
+    *,
+    translated: str | None = None,
+) -> int | None:
+    """구조 주소와 문맥이 유일하게 가리키는 table row 위치."""
+
+    row_lines = _single_table_row_lines(segment)
+    if row_lines is None:
+        return None
+    old_row, new_row = row_lines
+    old_cells = _table_row_cells(old_row)
+    new_cells = _table_row_cells(new_row)
+    if old_cells is None or new_cells is None:
+        return None
+    tables = _table_regions(lines)
+
+    reference = segment.table_row
+    if reference is not None:
+        if (
+            len(tables) != reference.table_count
+            or reference.table_ordinal >= len(tables)
+        ):
+            return None
+        rows = tables[reference.table_ordinal]
+        if len(rows) != reference.row_count:
+            return None
+        index = rows[reference.row_ordinal]
+        cells = _table_row_cells(lines[index])
+        if cells is None or len(cells) != len(old_cells):
+            return None
+        if translated is not None and len(tables) == 1:
+            translated_cells = _table_row_cells(translated.rstrip("\r\n"))
+            if (
+                translated_cells is not None
+                and _table_match_cells(cells)
+                == _table_match_cells(translated_cells)
+            ):
+                return index
+        candidates = _identified_table_row_candidates(
+            lines,
+            [row for table in tables for row in table],
+            old_cells,
+            new_cells,
+        )
+        if not candidates:
+            if len(tables) != 1 or not _table_context_identifies_row(
+                lines,
+                segment,
+                index,
+                [index],
+            ):
+                return None
+        else:
+            if index not in candidates:
+                return None
+            if len(candidates) > 1 and not _table_context_identifies_row(
+                lines,
+                segment,
+                index,
+                candidates,
+            ):
+                return None
+        return index
 
     stable_cells = _table_match_cells(old_cells[1:])
     if not stable_cells:
         return None
-
-    candidates: list[int] = []
-    for index, line in enumerate(lines):
-        cells = _table_row_cells(line)
-        if cells is None or len(cells) != len(old_cells):
-            continue
-        if _is_table_separator_cells(cells):
-            continue
-        if _table_match_cells(cells[1:]) == stable_cells:
-            candidates.append(index)
-
-    if len(candidates) == 1:
-        return candidates[0]
-
-    before_index = (
-        _find_raw_context_line(lines, segment.before_context)
-        if segment.before_context
-        else None
-    )
-    after_index = (
-        _find_raw_context_line_after(lines, segment.after_context, before_index or -1)
-        if segment.after_context
-        else None
-    )
+    candidates = [
+        index
+        for rows in tables
+        for index in rows
+        if (cells := _table_row_cells(lines[index])) is not None
+        and len(cells) == len(old_cells)
+        and _table_match_cells(cells[1:]) == stable_cells
+    ]
     narrowed = [
         index
         for index in candidates
-        if (before_index is None or index > before_index)
-        and (after_index is None or index < after_index)
+        if _table_row_matches_context(lines, segment, index)
     ]
     return narrowed[0] if len(narrowed) == 1 else None
 
 
-def _table_row_context(text: str, segment: Segment) -> str | None:
+def _identified_table_row_candidates(
+    lines: list[str],
+    rows: list[int],
+    old_cells: tuple[str, ...],
+    new_cells: tuple[str, ...],
+) -> list[int]:
+    """비번역 cell과 구조 위치로 식별한 table row 후보."""
+
+    normalized_old = _table_match_cells(old_cells)
+    normalized_new = _table_match_cells(new_cells)
+    scored: list[tuple[int, int]] = []
+    for index in rows:
+        cells = _table_row_cells(lines[index])
+        if cells is None or len(cells) != len(old_cells):
+            continue
+        normalized = _table_match_cells(cells)
+        score = max(
+            sum(
+                bool(expected) and actual == expected
+                for actual, expected in zip(
+                    normalized, source, strict=True
+                )
+            )
+            for source in (normalized_old, normalized_new)
+        )
+        scored.append((score, index))
+
+    if not scored:
+        return []
+    best_score = max(score for score, _index in scored)
+    if best_score == 0:
+        return []
+    return [index for score, index in scored if score == best_score]
+
+
+def _table_context_identifies_row(
+    lines: list[str],
+    segment: BlockChange,
+    target: int,
+    candidates: list[int],
+) -> bool:
+    """인접 row 문맥이 후보를 유일하게 식별하는지 여부."""
+
+    blocks = _blocks("".join(lines))
+    matching = set(candidates)
+    validated = False
+    for context, before in (
+        (segment.before_context, True),
+        (segment.after_context, False),
+    ):
+        if context is None or _table_row_cells(context) is not None:
+            continue
+        raw = _raw_context_indexes(lines, context)
+        annotated = _matching_blocks(blocks, context)
+        boundaries = raw + [
+            block.end if before else block.start for block in annotated
+        ]
+        if not boundaries:
+            continue
+        validated = True
+        if before:
+            matching = {
+                candidate
+                for candidate in matching
+                if any(boundary <= candidate for boundary in boundaries)
+            }
+        else:
+            matching = {
+                candidate
+                for candidate in matching
+                if any(candidate < boundary for boundary in boundaries)
+            }
+    return validated and matching == {target}
+
+
+def _table_row_matches_context(
+    lines: list[str], segment: BlockChange, index: int
+) -> bool:
+    """단일 항목을 포함한 모든 candidate에 적용되는 raw 문맥 검증."""
+    validated = False
+    if segment.before_context:
+        before = [
+            position
+            for position in _raw_context_indexes(lines, segment.before_context)
+            if position < index
+        ]
+        if not before:
+            return False
+        validated = True
+    if segment.after_context:
+        after = [
+            position
+            for position in _raw_context_indexes(lines, segment.after_context)
+            if position > index
+        ]
+        if not after:
+            return False
+        validated = True
+    return validated
+
+
+def _table_row_context(text: str, segment: BlockChange) -> str | None:
+    """변경 table row가 포함된 기존 locale table 문맥."""
+
     lines = text.splitlines(keepends=True)
     index = _table_row_index(lines, segment)
     return lines[index] if index is not None else None
 
 
-def _replace_table_row(text: str, segment: Segment, translated: str) -> str | None:
+def _replace_table_row(text: str, segment: BlockChange, translated: str) -> str | None:
+    """table row 교체."""
+
     lines = text.splitlines(keepends=True)
-    index = _table_row_index(lines, segment)
+    index = _table_row_index(lines, segment, translated=translated)
     if index is None:
         return None
     replacement = translated.rstrip("\n") + ("\n" if lines[index].endswith("\n") else "")
     return "".join(lines[:index]) + replacement + "".join(lines[index + 1 :])
 
 
-def _coalesce_source_block_segments(segments: list[Segment]) -> list[Segment]:
-    result: list[Segment] = []
-    indexes: dict[tuple[int, ...], int] = {}
+def _coalesce_source_block_segments(segments: list[BlockChange]) -> list[BlockChange]:
+    """같은 원문 소유 block을 가리키는 segment 병합."""
+
+    result: list[BlockChange] = []
+    indexes: dict[tuple[int, int], int] = {}
 
     for segment in segments:
-        key = segment.new_linenos if segment.new_source else ()
-        if not key or key not in indexes:
-            if key:
+        key = (
+            (segment.new_block_start, segment.new_block_end)
+            if segment.new_block_start is not None
+            and segment.new_block_end is not None
+            else None
+        )
+        if key is None or key not in indexes:
+            if key is not None:
                 indexes[key] = len(result)
             result.append(segment)
             continue
 
         index = indexes[key]
         current = result[index]
-        result[index] = Segment(
-            old_lines=(
-                current.old_lines
-                if _meaningful_lines(current.old_lines)
-                else segment.old_lines
-            ),
-            new_lines=current.new_lines,
-            before_context=current.before_context,
+        result[index] = replace(
+            current,
+            old_lines=current.old_lines + segment.old_lines,
+            new_lines=current.new_lines + segment.new_lines,
             after_context=segment.after_context or current.after_context,
             old_linenos=current.old_linenos + segment.old_linenos,
-            new_linenos=current.new_linenos,
-            new_source=current.new_source,
+            new_linenos=current.new_linenos + segment.new_linenos,
         )
 
     return result
 
 
-def _block_for_text(
-    source_blocks: list[SourceBlock], text: str | None
+def _add_neighbor_anchors(
+    change: BlockChange,
+    *,
+    old_source_blocks: list[SourceBlock],
+    new_source_blocks: list[SourceBlock],
+) -> BlockChange:
+    """neighbor anchors 추가."""
+
+    old_index = _source_block_index(
+        old_source_blocks,
+        start=change.old_block_start,
+        linenos=change.old_linenos,
+    )
+    new_index = _source_block_index(
+        new_source_blocks,
+        start=change.new_block_start,
+        linenos=change.new_linenos,
+    )
+    is_complete_insertion = (
+        not change.old_source
+        and not _meaningful_lines(change.old_lines)
+        and (
+            change.new_block_start is not None
+            or change.before_old_lineno is not None
+            or change.after_old_lineno is not None
+        )
+    )
+    insertion_previous = (
+        _context_source_block(old_source_blocks, change.before_old_lineno)
+        if is_complete_insertion
+        else None
+    )
+    insertion_next = (
+        _context_source_block(old_source_blocks, change.after_old_lineno)
+        if is_complete_insertion
+        else None
+    )
+    return replace(
+        change,
+        old_previous_anchor=(
+            change.old_previous_anchor
+            or (insertion_previous.comment if insertion_previous is not None else None)
+            or _range_edge_neighbor(
+                old_source_blocks, old_index, len(change.old_anchors), before=True
+            )
+        ),
+        old_previous_anchor_ordinal=(
+            _block_ordinal(old_source_blocks, insertion_previous)
+            if insertion_previous is not None
+            else change.old_previous_anchor_ordinal
+        ),
+        old_next_anchor=(
+            change.old_next_anchor
+            or (insertion_next.comment if insertion_next is not None else None)
+            or _range_edge_neighbor(
+                old_source_blocks, old_index, len(change.old_anchors), before=False
+            )
+        ),
+        old_next_anchor_ordinal=(
+            _block_ordinal(old_source_blocks, insertion_next)
+            if insertion_next is not None
+            else change.old_next_anchor_ordinal
+        ),
+        new_previous_anchor=(
+            change.new_previous_anchor
+            or _range_edge_neighbor(
+                new_source_blocks, new_index, len(change.new_anchors), before=True
+            )
+        ),
+        new_next_anchor=(
+            change.new_next_anchor
+            or _range_edge_neighbor(
+                new_source_blocks, new_index, len(change.new_anchors), before=False
+            )
+        ),
+        new_anchor_occurrences=(
+            sum(
+                block.comment == change.new_anchor
+                for block in new_source_blocks
+            )
+            if change.new_anchor
+            else change.new_anchor_occurrences
+        ),
+    )
+
+
+def _context_source_block(
+    blocks: list[SourceBlock], lineno: int | None
 ) -> SourceBlock | None:
-    normalized = _normalize_text(text or "")
-    if not normalized:
+    """diff 문맥 줄이 속한 원문 block."""
+
+    return _block_for_lineno(blocks, lineno) if lineno is not None else None
+
+
+def _source_block_index(
+    blocks: list[SourceBlock],
+    *,
+    start: int | None,
+    linenos: tuple[int, ...],
+) -> int | None:
+    """원문 block 목록에서 지정한 block의 위치."""
+
+    if start is not None:
+        for index, block in enumerate(blocks):
+            if block.start_lineno <= start <= block.end_lineno:
+                return index
+    for lineno in linenos:
+        for index, block in enumerate(blocks):
+            if block.start_lineno <= lineno <= block.end_lineno:
+                return index
+    return None
+
+
+def _range_edge_neighbor(
+    blocks: list[SourceBlock],
+    index: int | None,
+    anchor_count: int,
+    *,
+    before: bool,
+) -> str | None:
+    """block 범위 가장자리 바깥의 이웃 block."""
+
+    if index is None:
         return None
-    matches = [block for block in source_blocks if normalized in block.comment]
-    return matches[0] if len(matches) == 1 else None
+    neighbor = index - 1 if before else index + max(1, anchor_count)
+    if 0 <= neighbor < len(blocks):
+        return blocks[neighbor].comment
+    return None
+
+
+def _split_named_sections(
+    text: str,
+    *,
+    translated: bool,
+) -> tuple[str, tuple[_NamedSection, ...]]:
+    """named sections 분할."""
+
+    lines = text.splitlines(keepends=True)
+    starts = [
+        index
+        for index in _searchable_raw_indexes(lines)
+        if is_named_anchor_line(lines[index])
+    ]
+    if not starts:
+        return text, ()
+
+    anchor_lines = tuple(lines[start].rstrip("\r\n") for start in starts)
+    sections: list[_NamedSection] = []
+    for position, start in enumerate(starts):
+        end = starts[position + 1] if position + 1 < len(starts) else len(lines)
+        section_lines = lines[start:end]
+        separator_start = len(section_lines)
+        while separator_start and not section_lines[separator_start - 1].strip():
+            separator_start -= 1
+        core = "".join(section_lines[:separator_start])
+        separator = "".join(section_lines[separator_start:])
+        anchor = anchor_lines[position]
+        source_anchors = _named_section_source_anchors(
+            core,
+            translated=translated,
+        )
+        sections.append(
+            _NamedSection(
+                core=core,
+                separator=separator,
+                signature=NamedSectionSignature(
+                    anchor=anchor,
+                    source_anchors=source_anchors,
+                ),
+            )
+        )
+    return "".join(lines[: starts[0]]), tuple(sections)
+
+
+def _named_section_source_anchors(
+    core: str,
+    *,
+    translated: bool,
+) -> tuple[str, ...]:
+    """named section에 포함된 원문 annotation anchor 목록."""
+
+    anchors = (
+        _annotation_anchor_sequence(core)
+        if translated
+        else tuple(block.comment for block in _source_blocks(core))
+    )
+    normalized: list[str] = []
+    for anchor in anchors:
+        for tag in html_tags(anchor):
+            anchor = anchor.replace(tag, " ")
+        normalized.append(_normalize_text(anchor))
+    return tuple(normalized)
+
+
+def _named_section_reorder(
+    old_source: str,
+    new_source: str,
+) -> NamedSectionReorder | None:
+    """이전·현재 원문에서 계산한 named section 순서 변경."""
+
+    old_prefix, old_sections = _split_named_sections(
+        old_source,
+        translated=False,
+    )
+    new_prefix, new_sections = _split_named_sections(
+        new_source,
+        translated=False,
+    )
+    if len(old_sections) < 2:
+        return None
+
+    old_cores = tuple(section.core for section in old_sections)
+    new_cores = tuple(section.core for section in new_sections)
+    if old_cores == new_cores or Counter(old_cores) != Counter(new_cores):
+        return None
+
+    old_order = tuple(section.signature for section in old_sections)
+    new_order = tuple(section.signature for section in new_sections)
+    if (
+        Counter(old_order) != Counter(new_order)
+        or len(set(old_order)) != len(old_order)
+    ):
+        return None
+    reorder_prefix_links = old_prefix != new_prefix
+    if reorder_prefix_links and not _prefix_reordered_with_sections(
+        old_prefix, new_prefix, new_order
+    ):
+        return None
+    return NamedSectionReorder(
+        old_order=old_order,
+        new_order=new_order,
+        new_separators=tuple(section.separator for section in new_sections),
+        reorder_prefix_links=reorder_prefix_links,
+    )
+
+
+def _section_link_positions(
+    order: tuple[NamedSectionSignature, ...],
+) -> dict[str, int] | None:
+    """anchor 이름별 section 위치 또는 이름이 고유하지 않을 때 ``None``."""
+    positions: dict[str, int] = {}
+    for index, signature in enumerate(order):
+        match = _NAMED_ANCHOR_NAME_RE.search(signature.anchor)
+        if match is None or match.group(1) in positions:
+            return None
+        positions[match.group(1)] = index
+    return positions
+
+
+def _prefix_reordered_with_sections(
+    old_prefix: str,
+    new_prefix: str,
+    new_order: tuple[NamedSectionSignature, ...],
+) -> bool:
+    """section TOC 링크 순열만 변경된 prefix 허용.
+
+    링크가 아닌 모든 prefix 줄의 위치별 동일성, 알려진 section anchor를 대상으로
+    하는 link 줄의 순열 관계 및 신규 section 순서에 따른 link 순서 요구.
+    """
+    old_lines = old_prefix.splitlines(keepends=True)
+    new_lines = new_prefix.splitlines(keepends=True)
+    if len(old_lines) != len(new_lines):
+        return False
+    positions = _section_link_positions(new_order)
+    if positions is None:
+        return False
+    old_links: list[str] = []
+    new_links: list[str] = []
+    for old_line, new_line in zip(old_lines, new_lines):
+        old_anchor = _toc_link_anchor(old_line)
+        new_anchor = _toc_link_anchor(new_line)
+        if old_anchor is None and new_anchor is None:
+            if old_line != new_line:
+                return False
+            continue
+        if old_anchor is None or new_anchor is None:
+            return False
+        old_links.append(old_line)
+        new_links.append(new_line)
+    if not old_links or Counter(old_links) != Counter(new_links):
+        return False
+    link_positions: list[int] = []
+    for line in new_links:
+        anchor = _toc_link_anchor(line)
+        if anchor is None or anchor not in positions:
+            return False
+        link_positions.append(positions[anchor])
+    return link_positions == sorted(link_positions)
+
+
+def _toc_link_anchor(line: str) -> str | None:
+    """목차 링크 줄이 가리키는 fragment anchor."""
+
+    match = _TOC_LINK_RE.match(line.rstrip("\r\n"))
+    return match.group(1) if match is not None else None
+
+
+def _apply_named_section_reorder(
+    text: str,
+    reorder: NamedSectionReorder,
+) -> str:
+    """named section reorder 적용."""
+
+    prefix, sections = _split_named_sections(text, translated=True)
+    current_order = tuple(section.signature for section in sections)
+    if current_order != reorder.old_order:
+        raise PatchError("named section order does not match the source plan state")
+    if reorder.reorder_prefix_links:
+        prefix = _reorder_prefix_section_links(prefix, reorder.new_order)
+    by_signature = {section.signature: section for section in sections}
+    return prefix + "".join(
+        by_signature[signature].core + separator
+        for signature, separator in zip(
+            reorder.new_order,
+            reorder.new_separators,
+            strict=True,
+        )
+    )
+
+
+def _reorder_prefix_section_links(
+    prefix: str, new_order: tuple[NamedSectionSignature, ...]
+) -> str:
+    """named section 순서에 맞춘 선행 목차 링크 재배열."""
+
+    lines = prefix.splitlines(keepends=True)
+    link_indexes = [
+        index for index, line in enumerate(lines) if _toc_link_anchor(line) is not None
+    ]
+    if not link_indexes:
+        return prefix
+    positions = _section_link_positions(new_order)
+    if positions is None:
+        raise PatchError("named section anchors are not unique for TOC reordering")
+    keys: list[tuple[int, int]] = []
+    for order, index in enumerate(link_indexes):
+        anchor = _toc_link_anchor(lines[index])
+        if anchor is None or anchor not in positions:
+            raise PatchError(
+                "translated table of contents does not match the reordered sections"
+            )
+        keys.append((positions[anchor], order))
+    ordered = [lines[link_indexes[original]] for _position, original in sorted(keys)]
+    for slot, line in zip(link_indexes, ordered):
+        lines[slot] = line
+    return "".join(lines)
 
 
 def _source_blocks(source: str) -> list[SourceBlock]:
+    """Markdown 원문을 완전한 소유 block 목록으로 분할."""
+
     blocks: list[SourceBlock] = []
     paragraph: list[tuple[int, str]] = []
     in_code = False
     fence = ""
     in_front_matter = False
+    source_comment_lines = standalone_html_comment_line_numbers(source)
+    reference_lines = {
+        line + 1 for line in reference_definition_line_numbers(source)
+    }
 
     def flush_paragraph() -> None:
+        """누적된 문단 줄을 하나의 원문 block으로 확정."""
+
         if not paragraph:
             return
-        comment = _normalize_text(" ".join(line.strip() for _lineno, line in paragraph))
-        text = "\n".join(line for _lineno, line in paragraph) + "\n"
-        blocks.append(SourceBlock(paragraph[0][0], paragraph[-1][0], comment, text))
+        paragraph_text = "\n".join(line for _lineno, line in paragraph)
+        if not is_structural_html_fragment(paragraph_text):
+            comment = _normalize_text(
+                " ".join(line.strip() for _lineno, line in paragraph)
+            )
+            text = paragraph_text + "\n"
+            blocks.append(
+                SourceBlock(paragraph[0][0], paragraph[-1][0], comment, text)
+            )
         paragraph.clear()
 
     for lineno, line in enumerate(source.splitlines(), start=1):
@@ -1137,6 +4893,12 @@ def _source_blocks(source: str) -> list[SourceBlock]:
             continue
         if in_code:
             continue
+        if lineno in source_comment_lines:
+            flush_paragraph()
+            continue
+        if lineno in reference_lines:
+            flush_paragraph()
+            continue
         if stripped == "---" and lineno == 1:
             flush_paragraph()
             in_front_matter = True
@@ -1149,21 +4911,79 @@ def _source_blocks(source: str) -> list[SourceBlock]:
         if not stripped:
             flush_paragraph()
             continue
-        if is_named_anchor_line(line):
-            flush_paragraph()
-            continue
         if is_heading_line(line):
             flush_paragraph()
             heading = strip_title_attr_line(line).strip()
             blocks.append(SourceBlock(lineno, lineno, _normalize_text(heading), line + "\n"))
             continue
-        if stripped.startswith(("- [", "* [")) and "](#" in stripped:
+        if is_structural_html_line(line):
             flush_paragraph()
             continue
-        if stripped.startswith(("<!--", ">", "|")):
+        if is_non_annotatable_line(line):
             flush_paragraph()
             continue
         paragraph.append((lineno, line))
 
     flush_paragraph()
     return blocks
+
+
+def _plan_source_blocks(blocks: list[SourceBlock]) -> list[SourceBlock]:
+    """계획 주소에 사용할 구조 단위 원문 block 목록."""
+
+    return [
+        block
+        for block in blocks
+        if not _is_inline_code_identifier_list(block.text)
+    ]
+
+
+def _is_inline_code_identifier_list(text: str) -> bool:
+    """inline code identifier list 여부."""
+
+    lines = [line for line in text.splitlines() if line.strip()]
+    if not lines:
+        return False
+    for line in lines:
+        list_item = _LIST_ITEM_PREFIX_RE.match(line)
+        if list_item is None:
+            return False
+        body = line[list_item.end() :]
+        if not inline_code_contents(body) or strip_inline_code(body).strip(
+            " `*_~.,:;()[]&/,+"
+        ):
+            return False
+    return True
+
+
+def _inline_code_list_is_applied(text: str, segment: BlockChange) -> bool:
+    """inline code 식별자 목록 변경이 이미 적용되었는지 여부."""
+
+    source = segment.new_source
+    if source is None:
+        return False
+    expected = source.rstrip("\n").splitlines()
+    if not expected:
+        return False
+
+    lines = text.splitlines(keepends=True)
+    searchable = set(_searchable_raw_indexes(lines))
+    matches = [
+        start
+        for start in searchable
+        if start + len(expected) <= len(lines)
+        and all(
+            start + offset in searchable
+            and lines[start + offset].rstrip("\r\n") == line
+            for offset, line in enumerate(expected)
+        )
+    ]
+    if len(matches) != 1:
+        return False
+
+    if segment.new_anchor:
+        for block in _matching_blocks(_blocks(text), segment.new_anchor):
+            comment_end, _body = _read_comment(lines, block.start)
+            if not any(line.strip() for line in lines[comment_end : block.end]):
+                return False
+    return True
