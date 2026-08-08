@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "links": [
+    {
+      "version": "10.x",
+      "from": "#actions-handled-by-resource-controller",
+      "to": "#actions-handled-by-resource-controllers",
+      "retire_mode": null
+    },
+    {
+      "version": "10.x",
+      "from": "#method-array-sort-recursive-desc",
+      "to": "#method-array-sort-recursive",
+      "retire_mode": null
+    },
+    {
+      "version": "10.x",
+      "from": "errors#logging",
+      "to": "logging",
+      "retire_mode": null
+    },
+    {
+      "version": "10.x",
+      "from": "helpers#fluent-strings",
+      "to": "strings",
+      "retire_mode": null
+    },
+    {
+      "version": "10.x",
+      "from": "migrations#writing-migrations",
+      "to": "migrations#generating-migrations",
+      "retire_mode": null
+    },
+    {
+      "version": "12.x",
+      "from": "#agents-integration",
+      "to": "#agent-integration",
+      "retire_mode": null
+    },
+    {
+      "version": "8.x",
+      "from": "#assert-similar-json",
+      "to": null,
+      "retire_mode": "bare-inline-code"
+    },
+    {
+      "version": "8.x",
+      "from": "database-testing#writing-factories",
+      "to": "database-testing#defining-model-factories",
+      "retire_mode": null
+    },
+    {
+      "version": "8.x",
+      "from": "eloquent-mutators##date-casting",
+      "to": "eloquent-mutators#date-casting",
+      "retire_mode": null
+    },
+    {
+      "version": "8.x",
+      "from": "errors#logging",
+      "to": "logging",
+      "retire_mode": null
+    },
+    {
+      "version": "8.x",
+      "from": "migrations#writing-migrations",
+      "to": "migrations#generating-migrations",
+      "retire_mode": null
+    },
+    {
+      "version": "9.x",
+      "from": "#formatting-shortcode-notifications",
+      "to": "#unicode-content",
+      "retire_mode": null
+    },
+    {
+      "version": "9.x",
+      "from": "errors#logging",
+      "to": "logging",
+      "retire_mode": null
+    },
+    {
+      "version": "9.x",
+      "from": "migrations#writing-migrations",
+      "to": "migrations#generating-migrations",
+      "retire_mode": null
+    },
+    {
+      "version": "master",
+      "from": "#agents-integration",
+      "to": "#agent-integration",
+      "retire_mode": null
+    }
+  ]
+}
