@@ -80,7 +80,7 @@ flowchart TD
 1. 번역문을 임의로 다시 쓰지 않는다.
 2. 코드 블록 내부의 코드와 주석은 원문 영어를 유지한다.
 3. 이미 보존된 인라인 코드와 링크를 원문 등장 순서에 맞추기 위해 재배치해서는 안 된다. 누락된 markup은 내용과 주변 문맥으로 유일하게 대응할 수 있을 때만 복구해야 한다.
-4. 링크 URL과 앵커는 원문대로 유지한다. 알려진 stale 내부 링크는 탐지용 mask에서 위치만 찾고, label·title·구분자는 원본 span을 보존한 채 target만 canonical 값으로 보정해야 한다.
+4. 링크 URL과 앵커는 원문대로 유지한다. 현재 영어 원문에서 깨진 것으로 확인된 내부 링크만 canonical 값으로 보정한다. 다른 본문 항목을 가리키도록 바뀐 단독 목차 링크는 label도 대상 heading과 일치시킨다. 그 밖의 label·title·구분자는 원본 span을 보존한다.
 5. fenced code 밖의 파이프라인용 placeholder가 최종 문서에 남지 않아야 한다.
 6. fenced code 내부 텍스트는 version/image/alert/title/HTML-comment 정제에서 제외한다.
 7. 한 줄·여러 줄 inline code span 내부는 `<img>` self-closing 변환에서 제외한다.
@@ -104,7 +104,7 @@ flowchart TD
    b. <img> self-closing 변환
    c. 지원 legacy note marker의 canonical alert 변환
    d. 제목 스타일 클래스 잔존 제거
-   e. 원본 span을 보존한 stale 내부 링크 target 보정
+   e. 확인된 stale 내부 링크 target 보정과 필요한 목차 label 교체
    - pipeline annotation span은 rendered content 형식 정제에서 제외하고 9단계에서 canonical byte로 교체
 2. alert 내부 fenced code의 blockquote 경계 보정
 3. 각 블록의 base64 이미지 placeholder를 현재 restore map으로 복원
@@ -131,7 +131,7 @@ flowchart TD
    - expected annotation map으로 annotation 추가·교체·정렬
    - 표 수정 응답의 임시 행 annotation을 제거하고 표 전체 annotation 하나로 수렴하며 표 행 사이 주석을 허용하지 않음
    - 지원 legacy alert와 대응 annotation을 canonical form으로 정규화
-   - 폐기 목록 label의 inline-code wrapper를 일반 label로 수렴
+   - registry가 지정한 폐기 목록 label의 inline-code wrapper를 일반 label로 수렴
 10. 영어 verification view 생성
    - 현재 정규화 영어 작업 사본에 version, img, alert, heading class, stale-link 정규화를 같은 순서로 적용
    - 현재 restore map으로 placeholder 복원
@@ -184,9 +184,11 @@ base64 복원은 블록 형식 정제가 끝난 뒤 수행하여 복원된 data 
 
 ### 7.5 stale 내부 링크 보정
 
-- 알려진 stale 내부 링크만 canonical 대상으로 보정한다.
+- 현재 지원 버전의 영어 원문에서 실제로 깨진 내부 링크만 등록하고 canonical 대상으로 보정한다.
+- 비슷한 target 패턴을 다른 버전으로 추정 확장하지 않는다. 현재 원문에서 정상적으로 연결되는 링크는 등록하지 않는다.
 - fenced code, inline code, HTML 주석 안은 건드리지 않는다.
-- 대응 대상이 폐기된 fragment 링크: standalone 목록 항목이면 목록 label의 일반 텍스트로, bare link이면 표시 label의 inline code로 남긴다.
+- 단독 목차 링크가 다른 본문 항목으로 대체된 경우 target을 옮기고 label을 대상 heading과 일치시킨다.
+- `to=null` 규칙은 `retire_mode`가 지정한 실제 원문 문맥에만 적용한다. `standalone-list-label`은 목록 label의 일반 텍스트로, `bare-inline-code`는 표시 label의 inline code로 남긴다.
 
 ### 7.6 Stale-link registry
 
@@ -210,6 +212,8 @@ stale link 정규화 규칙의 유일한 소스는 version-controlled `translati
 - top-level은 `schema_version`, `links`만, 각 entry는 `version`, `from`, `to`, `retire_mode`만 가져야 하며 누락 필드와 추가 필드를 허용하지 않는다.
 - `to`는 canonical target 문자열 또는 `null`이다.
 - `to=null`이면 `retire_mode`는 `standalone-list-label` 또는 `bare-inline-code`여야 한다. 그 밖에는 `retire_mode=null`이어야 한다.
+- 각 규칙은 현재 지원 버전의 영어 원문에 존재하는 깨진 내부 링크와 대응해야 한다. `to`가 있는 규칙은 보정 후 대상 파일이 존재하고, fragment가 있으면 명시적 앵커도 존재해야 한다.
+- 영어 원문 갱신으로 기존 target이 유효해지거나 링크가 사라지면 registry 검사가 실패해야 하며, 새 원문 근거에 맞춰 규칙을 제거하거나 수정한다.
 - 파일이 없거나 schema·정렬·중복 규칙을 위반하면 설정 오류다. 규칙이 없을 때도 빈 `links` 배열을 가진 파일을 사용한다.
 - 파일은 UTF-8, LF, 마지막 newline 1개와 예시의 key 순서를 사용하는 canonical JSON으로 직렬화한다.
 - 실행 중 registry를 변경하지 않으며 입력 byte의 SHA-256 digest를 verified locale artifact에 포함한다.
