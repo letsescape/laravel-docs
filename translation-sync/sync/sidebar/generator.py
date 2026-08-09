@@ -68,7 +68,7 @@ class _SidebarCandidateSet:
 def load_versions(repo_root: Path = REPO_ROOT) -> list[str]:
     """검증된 지원 버전 목록 로딩."""
 
-    return _load_versions(repo_root / "versions.json")
+    return _load_versions(_versions_path(repo_root))
 
 
 def _supported_version(version: str, repo_root: Path = REPO_ROOT) -> str:
@@ -109,6 +109,17 @@ def _safe_repo_path(path: Path, repo_root: Path) -> Path:
     except ValueError as exc:
         raise ValueError(f"path escapes repository: {path}") from exc
     return lexical_path
+
+
+def _versions_path(repo_root: Path) -> Path:
+    """symlink가 아닌 저장소 내부 versions.json 경로 반환."""
+
+    path = _safe_repo_path(repo_root / "versions.json", repo_root)
+    if path.is_symlink():
+        raise ValueError("versions.json path must not be a symlink")
+    if not path.is_file():
+        raise ValueError("versions.json path must be a regular file")
+    return path
 
 
 def _repo_relative(path: Path, repo_root: Path) -> Path:
@@ -281,6 +292,7 @@ def parse_documentation(
     current_category: dict | None = None
     issues: list[str] = []
     doc_occurrences: dict[str, int] = {}
+    doc_keys: set[str] = set()
     category_keys: set[str] = set()
     link_targets_by_digest: dict[str, str] = {}
     link_occurrences: dict[str, int] = {}
@@ -366,12 +378,18 @@ def parse_documentation(
             issues.append(f"line {line_number}: doc link is outside a category")
             continue
 
+        key = _doc_key(doc_id, doc_occurrences)
+        if key in doc_keys:
+            issues.append(
+                f"line {line_number}: duplicate doc translation key: {key}"
+            )
+        doc_keys.add(key)
         current_category["items"].append(
             {
                 "type": "doc",
                 "id": doc_id,
                 "label": label,
-                "key": _doc_key(doc_id, doc_occurrences),
+                "key": key,
             }
         )
 
@@ -711,7 +729,7 @@ def _plan_candidate_set(
 ) -> _SidebarCandidateSet:
     """모든 대상 버전의 검증 가능한 적용 후보 생성."""
 
-    versions_json_bytes = (repo_root / "versions.json").read_bytes()
+    versions_json_bytes = _versions_path(repo_root).read_bytes()
     plans = [_plan_version(version, repo_root=repo_root) for version in versions]
     return _SidebarCandidateSet(
         plans=tuple(plans),

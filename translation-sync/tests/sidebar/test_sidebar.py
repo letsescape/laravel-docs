@@ -54,6 +54,23 @@ class SidebarSyncTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "stable version"):
                 sidebar.load_versions(root)
 
+    def test_load_versions_rejects_symlink(self) -> None:
+        """저장소 밖 versions.json symlink를 따라 읽지 않는지 검증."""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "repo"
+            root.mkdir()
+            target = base / "versions.json"
+            target.write_text('["master", "12.x"]\n', encoding="utf-8")
+            (root / "versions.json").symlink_to(target)
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "versions.json path must not be a symlink",
+            ):
+                sidebar.load_versions(root)
+
     def _write_repo(self, root: Path) -> None:
         """사이드바 동기화용 테스트 저장소 구성."""
 
@@ -1105,6 +1122,28 @@ class SidebarSyncTests(unittest.TestCase):
         self.assertEqual(
             issues,
             ["line 2: duplicate category translation key: Same"],
+        )
+
+    def test_reports_colliding_doc_translation_keys(self) -> None:
+        """서로 다른 문서 ID가 만든 중복 doc key의 issue 보고 검증."""
+
+        items, issues = sidebar.parse_documentation(
+            "- ## First\n"
+            "    - [Guide](/docs/{{version}}/guide)\n"
+            "    - [Guide Again](/docs/{{version}}/guide)\n"
+            "- ## Second\n"
+            "    - [Collision](/docs/{{version}}/guide:2)\n",
+            version="master",
+            latest_stable="13.x",
+        )
+
+        self.assertEqual(
+            items[1]["items"][0]["key"],
+            "doc:guide:2",
+        )
+        self.assertEqual(
+            issues,
+            ["line 5: duplicate doc translation key: doc:guide:2"],
         )
 
     def test_generates_canonical_keys_with_global_occurrence_suffixes(self):
