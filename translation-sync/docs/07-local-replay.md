@@ -2,7 +2,9 @@
 
 ## 요약
 
-active worktree를 건드리지 않는 독립 sandbox에서 canonical identity provider로 candidate sync core를 두 번 실행한다. Identity는 annotation과 구조를 결정적으로 생성하고 replay response contract를 통과해야 한다. 같은 pinned source의 두 번째 실행이 no-op으로 수렴할 때만 성공으로 판정한다.
+active worktree를 건드리지 않는 독립 sandbox에서 canonical identity provider로 candidate sync core를 두 번 실행.
+Identity는 annotation과 구조를 결정적으로 생성하고 replay response contract를 통과해야 함.
+같은 pinned source의 두 번째 실행이 no-op으로 수렴할 때만 성공으로 판정.
 
 ## 흐름도
 
@@ -25,17 +27,19 @@ flowchart TD
 
 ## 목적
 
-identity provider를 사용하여 격리된 환경에서 candidate sync core를 실행하고, pinned source 기준 2회 수렴을 확인함으로써 plan 선택·적용·검증·sidebar 동기화의 결정론적 정합성을 보증한다. Candidate sync core의 경계는 [총괄 설계](./00-workflow-summary.md)가 소유한다.
+identity provider를 사용하여 격리된 환경에서 candidate sync core를 실행하고 pinned source 기준 2회 수렴을 확인함으로써 plan 선택·적용·검증·sidebar 동기화의 결정론적 정합성 보증.
+Candidate sync core의 경계 정의는 [총괄 설계](./00-workflow-summary.md)가 담당.
 
 ## 범위
 
-- identity 기반 격리 replay의 sandbox 생성·실행·정리를 소유한다.
-- upstream manifest lifecycle(생성·snapshot·공유·export)을 소유한다.
-- 2회 수렴 검증(두 번째 실행이 변경 없음으로 종료)을 소유한다.
-- replay runner는 외부 orchestration의 단위 테스트·replay 재호출·live fixture·원격 publication·배포 trigger를 실행하지 않는다.
-- 번역 의미·문체 품질은 이 단계의 검증 범위가 아니다.
-- live provider 응답 계약 검증은 [번역 단계](./02-translation.md)의 fixture 검사가 소유한다.
-- 공통 종료 코드 의미는 [오류 처리 및 복구 설계](./08-error-cases.md)의 진입점 종료 코드 계약이 소유한다. 이 문서는 replay 상태를 그 코드에 매핑만 한다.
+- identity 기반 격리 replay의 sandbox 생성·실행·정리 담당.
+- upstream manifest lifecycle(생성·snapshot·공유·export) 담당.
+- 2회 수렴 검증(두 번째 실행이 변경 없음으로 종료) 담당.
+- replay runner의 외부 orchestration 단위 테스트·replay 재호출·live fixture·원격 publication·배포 trigger 실행 금지.
+- 번역 의미·문체 품질은 이 단계의 검증 범위 아님.
+- live provider 응답 계약 검증은 [번역 단계](./02-translation.md)의 fixture 검사가 담당.
+- 공통 종료 코드 의미 정의는 [오류 처리 및 복구 설계](./08-error-cases.md)의 진입점 종료 코드 계약이 담당.
+  이 문서는 replay 상태를 해당 코드에 매핑하는 역할만 담당.
 
 ## 입력
 
@@ -57,32 +61,42 @@ identity provider를 사용하여 격리된 환경에서 candidate sync core를 
 | normalized selector | 두 replay core와 후속 live core에 그대로 전달할 canonical VERSION / DOC selector |
 | upstream manifest file (조건부) | export path가 있고 파일이 없으며 전체 replay가 성공한 경우에만 no-replace로 생성 |
 
-## 불변조건
+## 불변 조건
 
-1. **Active worktree 오염 방지**: replay 전체 과정에서 active repository의 HEAD, tracked 내용, staging 상태, Git이 무시하지 않는 untracked 내용이 변경되지 않아야 한다. 시작·종료 fingerprint를 비교하여 위반 시 종료 코드 3을 반환한다.
-2. **격리 실행**: sandbox는 runner artifact root 아래의 고유 임시 디렉터리에 생성한 독립 clone이며, active repository 안에 생성할 수 없다. 실행은 system/global Git config를 읽지 않고 prompt를 비활성화한다.
-3. **Identity provider 제한**: `TRANSLATION_PROVIDER=identity`는 replay runner가 격리 process에만 설정한다. 일반 실행에서 `TRANSLATION_REPLAY=1` 없이 identity를 사용하면 설정 검증에서 거부된다.
-4. **Symlink 안전성**: untracked symlink와 변경된 tracked symlink는 거부한다. 변경되지 않은 tracked symlink는 저장소 내부를 가리킬 때만 허용한다.
-5. **Manifest 무결성**: 기존 manifest는 setup 시점에 단일 file descriptor로 snapshot하며, 이후 외부 파일이 변경되어도 실행 중 입력에 영향을 주지 않는다. 새 manifest export는 replay 성공 및 sandbox 삭제 완료 후에만 수행한다.
-6. **2회 수렴 계약**: 두 번째 실행은 같은 plan 재적용이 아니라 같은 pinned source에서 새 process가 변경 없음(no-op)으로 수렴하는지 확인한다.
-7. **Identity contract profile**: identity 응답은 목표 언어 충분성과 표 prose cell의 목표 언어 요구만 제외한 replay response contract를 통과해야 한다. annotation, block 구조, code, link, anchor와 wrapper 부재 검사는 생략하지 않는다.
-8. **Publication 격리**: replay는 push credential을 받거나 원격 branch·배포 workflow를 갱신해서는 안 된다. 첫 실행의 verified tree는 sandbox 내부 baseline commit으로만 연결하고, 이 commit을 두 번째 core 실행의 replay 승인 기준본으로 사용한다.
-9. **Deadline 단일성**: sandbox 준비와 두 core 실행은 외부 workflow의 같은 절대 deadline을 사용한다. 각 실행에서 예산을 새로 시작해서는 안 된다.
-10. **Selector 단일성**: 두 core 실행과 후속 live core는 같은 정규화된 VERSION / DOC selector를 사용해야 한다. Selector는 manifest entry를 줄이지 않는다.
+1. **Active worktree 오염 방지**: replay 전체 과정에서 active repository의 HEAD, 전체 Git ref, tracked 내용, staging 상태, Git이 무시하지 않는 untracked 내용이 변경되지 않아야 함.
+   시작·종료 fingerprint를 비교하여 위반 시 종료 코드 3 반환.
+2. **격리 실행**: sandbox는 runner artifact root 아래의 고유 임시 디렉터리에 생성한 독립 clone이어야 하며 active repository 안에는 생성 불가.
+   실행 시 system/global Git config를 읽지 않고 prompt 비활성화.
+3. **Identity provider 제한**: `TRANSLATION_PROVIDER=identity`는 replay runner가 격리 process에만 설정.
+   일반 실행에서 `TRANSLATION_REPLAY=1` 없이 identity 사용 시 설정 검증에서 거부.
+4. **Symlink 안전성**: untracked symlink와 변경된 tracked symlink 거부.
+   변경되지 않은 tracked symlink는 저장소 내부를 가리킬 때만 허용.
+5. **Manifest 무결성**: 기존 manifest는 setup 시점에 단일 file descriptor로 snapshot하며, 이후 외부 파일이 변경되어도 실행 중 입력에 영향 없음.
+   새 manifest export는 replay 성공 및 sandbox 삭제 완료 후에만 수행.
+6. **2회 수렴 계약**: 같은 plan 재적용이 아닌, 같은 pinned source에서 새 process로 수행한 두 번째 실행의 변경 없음(no-op) 수렴 여부 확인.
+7. **Identity contract profile**: identity 응답은 목표 언어 충분성과 표 prose cell의 목표 언어 요구만 제외한 replay response contract를 통과해야 함.
+   annotation, block 구조, code, link, anchor와 wrapper 부재 검사 생략 금지.
+8. **Publication 격리**: replay의 push credential 수신 또는 원격 branch·배포 workflow 갱신 금지.
+   첫 실행의 verified tree를 sandbox 내부 baseline commit으로만 연결하고, 이 commit을 두 번째 core 실행의 replay 승인 기준본으로 사용.
+9. **Deadline 단일성**: sandbox 준비와 두 core 실행은 외부 workflow의 같은 절대 deadline 사용.
+   각 실행에서 예산을 새로 시작하는 행위 금지.
+10. **Selector 단일성**: 두 core 실행과 후속 live core는 같은 정규화된 VERSION / DOC selector를 사용해야 함.
+    Selector로 manifest entry를 줄이는 행위 금지.
 
-Active worktree fingerprint는 다음 항목을 경로 UTF-8 byte 순으로 결합한 SHA-256이다.
+Active worktree fingerprint는 다음 정보를 명시적 구분자와 Git의 정규 출력으로 결합한 SHA-256.
 
-- `HEAD` OID와 index의 stage·mode·OID
-- tracked worktree 파일의 저장소 상대 경로·mode·content byte
-- Git이 무시하지 않는 untracked 항목의 상대 경로·type·mode·content byte
-- symlink는 target을 따라가지 않고 link target byte를 사용
+- `HEAD` commit OID, ref 이름순 전체 ref·OID 및 `HEAD` tree OID
+- Git이 무시하지 않는 untracked 항목을 포함한 NUL 구분 porcelain 상태
+- `HEAD` 대비 tracked worktree의 binary diff 및 `HEAD` 대비 index의 binary diff
+- 경로 byte 순으로 정렬한 untracked 일반 파일의 상대 경로·type marker·mode·content byte
+- untracked symlink는 target을 따라가지 않고 상대 경로·type marker·link target byte 사용
 
-시작·종료 fingerprint는 같은 ignore 규칙과 Git index snapshot을 사용해야 한다.
+시작·종료 fingerprint에는 같은 ignore 규칙과 Git 상태·diff 명령 집합 사용 필수.
 
 ## 처리 순서
 
 ```text
-1. Active worktree fingerprint 기록 (HEAD, tree hash, staging, untracked)
+1. Active worktree fingerprint 기록 (HEAD, refs, tree hash, staging, untracked)
 2. Sandbox 경로 안전성 검증 (active repo 밖, symlink 제한)
 3. Runner artifact root의 고유 임시 디렉터리에 active repository를 독립 clone
 4. Tracked 변경 및 untracked 파일을 clone에 복사, baseline commit 생성
@@ -113,18 +127,22 @@ Active worktree fingerprint는 다음 항목을 경로 UTF-8 byte 순으로 결�
 
 ## Selector normalization
 
-VERSION / DOC selector는 replay 전에 한 번만 다음 JSON byte로 정규화한다.
+VERSION / DOC selector는 replay 전에 한 번만 다음 JSON byte로 정규화.
 
 ```json
 {"document":null,"version":null}
 ```
 
-- 선택하지 않은 값은 `null`이다. `version=null`은 `versions.json` 전체를 뜻한다.
-- `version` 값은 `versions.json` entry와 byte 단위로 같아야 한다.
-- `document`는 Unicode NFC, `/` separator, leading slash 없는 저장소 상대 Markdown 경로다. 빈 segment, `.`, `..`, backslash, NUL과 저장소 밖·symlink 경로를 허용하지 않는다.
-- `document`가 값이면 `version`도 값이어야 한다. 한 document selector를 여러 version에 추정 적용하지 않는다.
-- Object key는 UTF-8 byte 순이며 불필요한 공백 없이 LF 하나로 끝난다.
-- 두 replay core와 live core는 이 canonical byte 자체를 입력으로 받는다. 각 core가 raw 환경 변수를 다시 해석해서는 안 된다.
+- 선택하지 않은 값은 `null`.
+  `version=null`은 `versions.json` 전체를 의미.
+- `version` 값은 `versions.json` entry와 byte 단위로 같아야 함.
+- `document`는 Unicode NFC를 사용하고 `/` separator로 구분하며 leading slash가 없는 저장소 상대 Markdown 경로.
+  빈 segment, `.`, `..`, backslash, NUL과 저장소 밖·symlink 경로 불허.
+- `document`가 값이면 `version`도 값이어야 함.
+  한 document selector를 여러 version에 추정 적용하는 행위 금지.
+- Object key는 UTF-8 byte 순으로 정렬하며, JSON은 불필요한 공백 없이 LF 하나로 종료.
+- 두 replay core와 live core는 이 canonical byte 자체를 입력으로 사용.
+  각 core의 raw 환경 변수 재해석 금지.
 
 ## Manifest Lifecycle
 
@@ -154,41 +172,48 @@ VERSION / DOC selector는 replay 전에 한 번만 다음 JSON byte로 정규화
 }
 ```
 
-- top-level과 entry는 위 필드 외 값을 허용하지 않는다.
-- `entries`는 `versions.json`의 대상 순서와 정확히 일치해야 하며 version 중복·누락·추가를 허용하지 않는다.
-- VERSION / DOC selector는 core 처리 범위만 좁히며 manifest entry를 줄이지 않는다.
-- `repository`는 `https://<lowercase-host>/<path>.git` 형식이어야 한다. userinfo, port, query, fragment, dot segment, 반복 slash와 trailing slash를 허용하지 않는다.
-- `object_format`은 `sha1` 또는 `sha256`이며 `commit`은 각각 40자 또는 64자의 lowercase full hex OID여야 한다. symbolic ref와 축약 OID는 허용하지 않는다.
-- 각 OID는 해당 repository에서 commit object로 해석되어야 한다.
-- manifest는 UTF-8, LF, 마지막 newline 1개와 위 key 순서를 사용하는 canonical JSON으로 직렬화한다.
-- setup에서 snapshot한 canonical byte의 SHA-256 digest를 replay 두 실행과 live 실행에 전달한다. 어느 단계에서든 byte 또는 digest가 다르면 입력 오류로 실패한다.
+- top-level과 entry는 위 필드 외 값 불허.
+- `entries`는 `versions.json`의 대상 순서와 정확히 일치해야 하며 version 중복·누락·추가 불허.
+- VERSION / DOC selector는 core 처리 범위만 축소하며 manifest entry는 유지.
+- `repository`는 `https://<lowercase-host>/<path>.git` 형식이어야 함.
+  userinfo, port, query, fragment, dot segment, 반복 slash와 trailing slash 불허.
+- `object_format`은 `sha1` 또는 `sha256`이며 `commit`은 각각 40자 또는 64자의 lowercase full hex OID여야 함.
+  symbolic ref와 축약 OID 불허.
+- 각 OID는 해당 repository에서 commit object로 해석되어야 함.
+- manifest는 UTF-8, LF, 마지막 newline 1개와 위 key 순서를 사용하는 canonical JSON으로 직렬화.
+- setup에서 snapshot한 canonical byte의 SHA-256 digest를 replay 두 실행과 live 실행에 전달.
+  어느 단계에서든 byte 또는 digest가 다르면 입력 오류로 실패 처리.
 
 Export 조건:
+
 - replay 전체 성공 (종료 코드 0)
 - sandbox 삭제 성공
 - manifest export path가 지정됨
 - 외부 경로에 동명 파일 부재 (no-replace)
 - 외부 경로가 active repository 밖
 
-runner는 sandbox 삭제 전에 canonical manifest byte를 메모리에 보존하고, 삭제 성공 뒤 그 byte만 no-replace export한다. Live 실행은 export 파일을 다시 읽지 않고 replay가 반환한 snapshot byte와 digest를 직접 사용한다.
+runner는 sandbox 삭제 전에 canonical manifest byte를 메모리에 보존하고, 삭제 성공 뒤 해당 byte만 no-replace export.
+Live 실행은 export 파일을 다시 읽지 않고 replay가 반환한 snapshot byte와 digest를 직접 사용.
 
 ## 수용 기준
 
-1. 첫 번째 실행이 canonical identity provider와 replay response contract로 plan 선택·적용·검증·sidebar 동기화를 KO/JA 모두 성공적으로 완료한다.
-2. 두 번째 실행이 같은 pinned source에서 새 process를 실행했을 때 변경 없음(no-op)으로 수렴한다.
-3. 실행 전후 active worktree fingerprint가 동일하다.
-4. sandbox가 성공 시 삭제되고, 실패 시 보존되어 디버깅에 사용 가능하다.
-5. manifest가 조건을 충족할 때만 export되며, 기존 파일을 덮어쓰지 않는다.
-6. replay 동안 원격 branch, 배포 workflow와 sandbox 밖 Git ref가 변경되지 않는다.
-7. replay 두 실행과 live 실행이 같은 canonical manifest digest를 보고한다.
-8. 두 core 실행이 같은 외부 workflow deadline을 사용하고 sandbox 경로는 artifact root 기준 상대 식별자로만 보고된다.
-9. replay 두 core와 live core가 같은 정규화 selector를 보고한다.
+1. 첫 번째 실행에서 canonical identity provider와 replay response contract로 plan 선택·적용·검증·sidebar 동기화를 KO/JA 모두 성공적으로 완료해야 함.
+2. 두 번째 실행은 같은 pinned source에서 새 process로 실행했을 때 변경 없음(no-op)으로 수렴해야 함.
+3. 실행 전후 active worktree fingerprint가 동일해야 함.
+4. sandbox는 성공 시 삭제하고 실패 시 보존하여 디버깅에 사용할 수 있어야 함.
+5. manifest는 조건 충족 시에만 export하며 기존 파일 덮어쓰기 금지.
+6. replay 동안 원격 branch, 배포 workflow와 sandbox 밖 Git ref가 변경되지 않아야 함.
+7. replay 두 실행과 live 실행이 같은 canonical manifest digest를 보고해야 함.
+8. 두 core 실행이 같은 외부 workflow deadline을 사용하고 sandbox 경로는 artifact root 기준 상대 식별자로만 보고해야 함.
+9. replay 두 core와 live core가 같은 정규화 selector를 보고해야 함.
 
 ## 부록: Identity Provider의 역할
 
-identity provider는 source의 의미 payload를 영어로 유지하되, 일반 provider 출력과 같은 canonical annotation 및 Markdown block 구조를 결정적으로 생성한다. replay profile은 목표 언어 관련 항목만 제외하고 나머지 response contract를 그대로 적용한다.
+identity provider는 source의 의미 payload를 영어로 유지하되, 일반 provider 출력과 같은 canonical annotation 및 Markdown block 구조를 결정적으로 생성.
+replay profile은 목표 언어 관련 항목만 제외하고 나머지 response contract를 그대로 적용.
 
 이를 통해 검증하는 것:
+
 - 번역 소유 단위(chunk) 선택의 정확성
 - patch 적용 위치의 정확성
 - 보존 markup(코드, 링크, 앵커, annotation)의 무결성
@@ -197,6 +222,7 @@ identity provider는 source의 의미 payload를 영어로 유지하되, 일반 
 - response wrapper 부재와 annotation·구조 계약
 
 검증하지 않는 것:
+
 - 번역 의미·문체 품질
 - live provider의 목표 언어 문자 존재와 실제 API 응답 형식
 - 실제 API/CLI 연결성
