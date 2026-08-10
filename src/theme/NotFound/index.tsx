@@ -13,9 +13,10 @@ export default function NotFound(): ReactNode {
   });
   const {siteConfig} = useDocusaurusContext();
 
-  // siteConfig.baseUrl은 i18n 로케일별 빌드에서 이미 locale prefix를 포함한다
-  // (예: en 빌드 → "/en/"). 별도 localePrefix를 추가로 붙이면 "/en/en/" 같은
-  // 이중 prefix가 발생하므로 baseUrl만 신뢰해 normalize한다.
+  // siteConfig.baseUrl은 로케일별 빌드에서 이미 로케일 접두사 포함
+  // 예: ja 빌드 → "/ja/"
+  // 별도의 로케일 접두사 추가 시 "/ja/ja/"와 같은 이중 접두사 발생
+  // 따라서 baseUrl만 사용해 정규화
   const baseUrl = siteConfig.baseUrl.endsWith('/')
     ? siteConfig.baseUrl
     : `${siteConfig.baseUrl}/`;

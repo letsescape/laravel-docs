@@ -5,7 +5,8 @@ import './homepage.css';
 
 type DropdownName = 'framework' | 'products' | 'resources' | 'events';
 
-// Resources / Events 드롭다운 일시 비활성 플래그. 재활성 시 true 로 변경.
+// Resources/Events 드롭다운 임시 비활성화 플래그
+// 재활성화 시 true로 변경
 const SHOW_DISABLED_NAV = false;
 
 const ALL_PARTNERS = [
@@ -57,7 +58,7 @@ export default function NavbarDropdowns(): ReactNode {
   const {setColorMode} = useColorMode();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Sync mobileThemeMode with stored preference on mount
+  // Synchronize mobileThemeMode with the stored preference on mount
   useEffect(() => {
     const stored = localStorage.getItem('theme');
     if (stored === 'light' || stored === 'dark') {
@@ -95,7 +96,7 @@ export default function NavbarDropdowns(): ReactNode {
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        // Also check if click is inside a dropdown panel
+        // Also check whether the click is inside a dropdown panel
         const target = e.target instanceof Element ? e.target : null;
         if (!target?.closest('.nav-dropdown-panel')) setOpenDropdown(null);
       }
@@ -137,7 +138,7 @@ export default function NavbarDropdowns(): ReactNode {
     <div ref={wrapperRef} className="nav-dropdowns-wrapper">
       {/* Dropdown triggers */}
       <div className="nav-dropdown-triggers">
-        {/* Resources/Events 메뉴 일시 비활성화 */}
+        {/* Resources/Events 메뉴 임시 비활성화 */}
         {(['framework', 'products'] as DropdownName[]).map(name => (
           <button
             key={name}
@@ -317,7 +318,7 @@ export default function NavbarDropdowns(): ReactNode {
         </div>
       )}
 
-      {/* Resources (일시 비활성화) */}
+      {/* Resources(임시 비활성화) */}
       {SHOW_DISABLED_NAV && isOpen('resources') && (
         <div id="content-resources" data-state={dataState('resources')} className="nav-dropdown-panel" ref={adjustPanelPosition} {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-resources-grid">
@@ -416,7 +417,7 @@ export default function NavbarDropdowns(): ReactNode {
         </div>
       )}
 
-      {/* Events (일시 비활성화) */}
+      {/* Events(임시 비활성화) */}
       {SHOW_DISABLED_NAV && isOpen('events') && (
         <div id="content-events" data-state={dataState('events')} className="nav-dropdown-panel" ref={adjustPanelPosition} {...(canHover ? {onMouseEnter: cancelClose, onMouseLeave: scheduleClose} : {})}>
           <div className="nav-dropdown-inner nav-events-grid">
@@ -634,7 +635,7 @@ export default function NavbarDropdowns(): ReactNode {
                 </button>
               </div>
               <nav className="nav-mobile-menu">
-                {/* Resources/Events 일시 비활성화 */}
+                {/* Resources/Events 임시 비활성화 */}
                 {(['framework', 'products'] as const).map(name => (
                   <button key={name} className="nav-mobile-menu-item" onClick={() => setMobileSubMenu(name)}>
                     <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
@@ -654,7 +655,7 @@ export default function NavbarDropdowns(): ReactNode {
               </nav>
             </div>
 
-            {/* Sub menu */}
+            {/* Submenu */}
             <div className="nav-mobile-panel nav-mobile-subpanel" style={{transform: mobileSubMenu ? 'translateX(0)' : 'translateX(100%)'}}>
               <div className="nav-mobile-top">
                 <button className="nav-mobile-back" onClick={() => setMobileSubMenu(null)}>
@@ -683,7 +684,7 @@ export default function NavbarDropdowns(): ReactNode {
                   <a href="https://nightwatch.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Nightwatch</a>
                   <a href="https://nova.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Nova</a>
                 </>}
-                {/* Resources 서브메뉴 일시 비활성화 (메인 메뉴에서 진입 경로 제거됨) */}
+                {/* Resources 서브메뉴 임시 비활성화(메인 메뉴 진입 경로 제거) */}
                 {SHOW_DISABLED_NAV && mobileSubMenu === 'resources' && <>
                   <a href="https://laravel.com/blog" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Blog</a>
                   <a href="https://laravel.com/partners" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Partners</a>

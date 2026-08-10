@@ -380,10 +380,10 @@
   }
 }
 
-/* Override Docusaurus theme SVG fill rules inside hero illustration.
-   Docusaurus forces fill: var(--svg-logo-color) !important on SVG paths.
-   We neutralize this by setting the variable to 'unset' on the wrapper,
-   and applying more specific overrides. */
+/* Override Docusaurus theme SVG fill rules inside the hero illustration.
+ * Docusaurus forces fill: var(--svg-logo-color) !important on SVG paths.
+ * We neutralize this by setting the variable to 'unset' on the wrapper and applying more specific overrides.
+ */
 .hero-illustration-wrapper {
   --svg-logo-color: unset;
 }
@@ -896,7 +896,7 @@
   fill: currentColor !important;
 }
 
-/* Explore button - styled like original */
+/* Explore button styled like the original site */
 .explore-btn {
   display: inline-flex;
   align-items: center;
@@ -944,7 +944,7 @@
   overflow: visible;
 }
 
-/* Category tabs - pill style */
+/* Category tabs: pill style */
 .category-tabs-wrapper {
   display: flex;
   justify-content: center;
@@ -1207,7 +1207,7 @@
   white-space: pre;
 }
 
-/* Syntax highlighting - VS Code Light+ theme */
+/* Syntax highlighting: VS Code Light+ theme */
 .syn-keyword {
   color: #0000FF;
 }
@@ -1304,7 +1304,6 @@
   color: #D4D4D4;
 }
 
-/* --- Cloud Section --- */
 /* --- Cloud + Preview Combined Section --- */
 .cloud-preview-section {
   background: var(--hp-bg);
@@ -1399,8 +1398,6 @@
     margin-top: -1rem;
   }
 }
-
-/* Tablet cloud styles moved after base .cloud-dashboard-svg */
 
 .cloud-illust-wrapper {
   position: relative;
@@ -1721,9 +1718,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-/* nightwatch-img base styles merged below */
-
-
 .nightwatch-feature-list {
   list-style: none;
   padding: 0;
@@ -2019,7 +2013,7 @@
   margin-bottom: 0;
 }
 
-/* Events carousel - single track with slides visible in viewport gutters */
+/* Events carousel: single track with slides visible in viewport gutters */
 .events-carousel-section {
   --slide-width: var(--hp-max-width, 1400px);
   position: relative;
@@ -2392,8 +2386,6 @@
     margin-top: 3rem;
   }
 
-  /* events-grid removed - using carousel */
-
   .events-nav-btn--prev {
     left: -0.5rem;
   }
@@ -2450,8 +2442,6 @@
   .events-section h2 {
     font-size: 2rem !important;
   }
-
-  /* events-grid removed - using carousel */
 
 }
 
@@ -2532,7 +2522,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px; /* h-16 */
+  height: 64px; /* Equivalent to Tailwind's h-16 utility */
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 24px;
@@ -2666,7 +2656,7 @@
     overflow: hidden;
   }
 
-  /* Framework: shrink columns to fit all 4 */
+  /* Framework: shrink columns to fit all four */
   .nav-dropdowns-wrapper .nav-framework-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr) !important;
   }
@@ -2781,7 +2771,7 @@
   }
 }
 
-/* Responsive color mode toggle - hidden by default */
+/* Responsive color mode toggle, hidden by default */
 .nav-mobile-mode-toggle {
   display: none;
   align-items: center;
@@ -2798,7 +2788,7 @@
   color: #e5e5e5;
 }
 
-/* Responsive hamburger button - hidden by default */
+/* Responsive hamburger button, hidden by default */
 .nav-mobile-hamburger {
   display: none;
   align-items: center;
@@ -3366,7 +3356,7 @@ svg.nav-mobile-chevron path,
   border-right-color: #404040;
 }
 
-/* --- Starter kits file tabs (legacy) ---*/
+/* --- Starter kits file tabs (legacy) --- */
 
 .nav-dd-file-tabs {
   display: flex;
@@ -3972,7 +3962,7 @@ svg.nav-mobile-chevron path,
   }
 }
 
-/* Ensure hamburger is hidden on tablet+ */
+/* Ensure the hamburger is hidden on tablet and larger viewports */
 @media (min-width: 768px) {
   .nav-hamburger {
     display: none !important;

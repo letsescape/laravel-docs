@@ -17,7 +17,7 @@ function LaravelFileIcon(): ReactNode {
   );
 }
 
-/** Token rule: regex pattern, className, and optional capture group index */
+/** Token rule: regular expression, className, and optional capture-group index. */
 type TokenRule = [RegExp, string | undefined, number?];
 
 const SIMPLE_RULES: TokenRule[] = [
@@ -39,7 +39,7 @@ const SIMPLE_RULES: TokenRule[] = [
   [/^([a-z_][a-zA-Z0-9_]*)\s*(?=\()/, 'syn-function'],
 ];
 
-/** Simple PHP syntax highlighter */
+/** Simple PHP syntax highlighter. */
 function highlightPhp(code: string): ReactNode[] {
   const lines = code.split('\n');
   let inBlockComment = false;
@@ -80,7 +80,7 @@ function highlightPhp(code: string): ReactNode[] {
         continue;
       }
 
-      // HTML tags (multi-capture)
+      // HTML tags with separately captured delimiters and names
       const htmlTagMatch = remaining.match(/^(<\/?)([\w-]+)/);
       if (htmlTagMatch) {
         pushToken(htmlTagMatch[1], 'syn-html-tag');
@@ -89,7 +89,7 @@ function highlightPhp(code: string): ReactNode[] {
         continue;
       }
 
-      // HTML attribute names and strings (context-dependent)
+      // HTML attribute names and strings detected from the line context
       if (line.includes('<')) {
         const htmlAttrMatch = remaining.match(/^([a-zA-Z-]+)(?==)/);
         if (htmlAttrMatch) { pushToken(htmlAttrMatch[1], 'syn-html-attr'); remaining = remaining.slice(htmlAttrMatch[1].length); continue; }
@@ -127,7 +127,7 @@ function highlightPhp(code: string): ReactNode[] {
         continue;
       }
 
-      // Try simple rules (single-capture patterns)
+      // Try simple rules with single-capture patterns
       let matched = false;
       for (const [regex, cls] of SIMPLE_RULES) {
         const m = remaining.match(regex);
@@ -519,7 +519,7 @@ export default function FrameworkSection(): ReactNode {
           </div>
 
           <div className="code-area">
-            {/* Category tabs - pill style */}
+            {/* Category tabs: pill style */}
             <div className="category-tabs-wrapper">
               <ul className="category-tabs" role="toolbar" aria-label={translate({id: 'homepage.framework.tabs.aria', message: '코드 카테고리', description: '카테고리 탭 aria-label'})}>
                 {categories.map((cat, idx) => (

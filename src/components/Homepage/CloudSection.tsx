@@ -78,7 +78,7 @@ function AutoscaleIllustration(): ReactNode {
           ))}
         </div>
 
-        {/* Main SVG illustration - dashboard mockup with arc lines */}
+        {/* Main SVG illustration: dashboard mockup with arc lines */}
         <svg
           viewBox="0 0 748 274"
           fill="none"
@@ -98,42 +98,42 @@ function AutoscaleIllustration(): ReactNode {
 
           {/* Animated colored dots moving along dashed arc paths */}
           <g className="cloud-dots">
-            {/* Dot on arc line 3 (path index 2) - green */}
+            {/* Green dot on arc line 3 (path index 2) */}
             <circle r="6" fill="url(#cloud-dot-green)" className="cloud-dot-moving">
               <animateMotion dur="8s" repeatCount="indefinite" begin="0s">
                 <mpath xlinkHref="#cloud-arc-2" />
               </animateMotion>
               <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.05;0.5;0.95;1" dur="8s" repeatCount="indefinite" begin="0s" />
             </circle>
-            {/* Dot on arc line 4 (straight) - blue */}
+            {/* Blue dot on straight arc line 4 */}
             <circle r="6" fill="url(#cloud-dot-blue)" className="cloud-dot-moving">
               <animateMotion dur="7s" repeatCount="indefinite" begin="1s">
                 <mpath xlinkHref="#cloud-arc-3" />
               </animateMotion>
               <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.05;0.5;0.95;1" dur="7s" repeatCount="indefinite" begin="1s" />
             </circle>
-            {/* Dot on arc line 5 - amber */}
+            {/* Amber dot on arc line 5 */}
             <circle r="6" fill="url(#cloud-dot-amber)" className="cloud-dot-moving">
               <animateMotion dur="9s" repeatCount="indefinite" begin="2s">
                 <mpath xlinkHref="#cloud-arc-4" />
               </animateMotion>
               <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.05;0.5;0.95;1" dur="9s" repeatCount="indefinite" begin="2s" />
             </circle>
-            {/* Dot on arc line 6 - green */}
+            {/* Green dot on arc line 6 */}
             <circle r="6" fill="url(#cloud-dot-green)" className="cloud-dot-moving">
               <animateMotion dur="10s" repeatCount="indefinite" begin="0.5s">
                 <mpath xlinkHref="#cloud-arc-5" />
               </animateMotion>
               <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.05;0.5;0.95;1" dur="10s" repeatCount="indefinite" begin="0.5s" />
             </circle>
-            {/* Dot on arc line 7 - amber */}
+            {/* Amber dot on arc line 7 */}
             <circle r="6" fill="url(#cloud-dot-amber)" className="cloud-dot-moving">
               <animateMotion dur="11s" repeatCount="indefinite" begin="3s">
                 <mpath xlinkHref="#cloud-arc-6" />
               </animateMotion>
               <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.05;0.5;0.95;1" dur="11s" repeatCount="indefinite" begin="3s" />
             </circle>
-            {/* Second dot on arc line 3 - blue */}
+            {/* Second blue dot on arc line 3 */}
             <circle r="6" fill="url(#cloud-dot-blue)" className="cloud-dot-moving">
               <animateMotion dur="8s" repeatCount="indefinite" begin="4s">
                 <mpath xlinkHref="#cloud-arc-2" />
@@ -150,13 +150,13 @@ function AutoscaleIllustration(): ReactNode {
           <path d="M266.206 63.1h214.618c8.69 0 15.734 7.045 15.735 15.735v138.118c-.001 8.69-7.045 15.734-15.735 15.735H266.206c-8.69-.001-15.734-7.045-15.734-15.735V78.835c0-8.69 7.044-15.734 15.734-15.734" fill="#fafafa" fillOpacity="0.6" />
           <path d="M266.206 63.1h214.618c8.69 0 15.734 7.045 15.735 15.735v138.118c-.001 8.69-7.045 15.734-15.735 15.735H266.206c-8.69-.001-15.734-7.045-15.734-15.735V78.835c0-8.69 7.044-15.734 15.734-15.734Z" stroke="#f5f5f5" strokeWidth="1.178" />
 
-          {/* Main content card (left large) */}
+          {/* Main content card (large card on the left) */}
           <g className="cloud-card-shadow">
             <path d="M271.648 73.983h127.234c5.685 0 10.294 4.61 10.294 10.294v127.235c0 5.684-4.609 10.294-10.294 10.294H271.648c-5.685 0-10.294-4.61-10.294-10.294V84.277c0-5.684 4.609-10.294 10.294-10.294" fill="#fff" />
             <path d="M271.648 73.983h127.234c5.685 0 10.294 4.61 10.294 10.294v127.235c0 5.684-4.609 10.294-10.294 10.294H271.648c-5.685 0-10.294-4.61-10.294-10.294V84.277c0-5.684 4.609-10.294 10.294-10.294Z" stroke="#e5e5e5" strokeWidth="1.178" />
           </g>
 
-          {/* Center icon - document/file icon */}
+          {/* Center icon: document/file icon */}
           <path fillRule="evenodd" clipRule="evenodd" d="m357.032 151.748-14.51 14.51h-29.024v-29.02l14.51-14.509h29.024v29.023zm-29.024-20.313v2.904h17.413v17.413h2.904v-20.317zm0-2.903h23.216v23.216h2.904v-26.12h-26.12zm0 8.706v14.51h14.51v-14.51z" fill="url(#cloud-icon-gradient)" />
 
           {/* Corner decorative dots (star shapes) */}

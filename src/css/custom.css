@@ -1,13 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+ * Any CSS included here will be global.
+ * The classic template bundles Infima by default.
+ * Infima is a CSS framework designed to work well for content-centric websites.
  */
 
-/* Horizontal overflow is handled on .homepage wrapper in homepage.css,
-   not globally on body, to avoid breaking position: sticky and other layouts. */
+/* Horizontal overflow is handled on the .homepage wrapper in homepage.css, not globally on the body, to avoid breaking position: sticky and other layouts. */
 
 
 /* You can override the default Infima variables here. */
@@ -31,7 +30,7 @@
   --svg-logo-color: #f53003;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* For readability, use a lighter palette in dark mode. */
 [data-theme='dark'] {
   --ifm-color-primary: #f61500;
   --ifm-color-primary-dark: #dd1300;
@@ -100,8 +99,9 @@
   color: var(--svg-logo-color);
 }
 
-/* SVG path styling - excludes hero illustration via :not()
-   TODO: Refactor to opt-in .svg-themed class instead of broad selectors with :not() exclusions */
+/* SVG path styling; excludes the hero illustration via :not().
+ * TODO: Refactor to use an opt-in .svg-themed class instead of broad selectors with :not() exclusions.
+ */
 .navbar__logo svg path,
 .footer__logo svg path,
 .heroLogo svg path,
@@ -151,7 +151,7 @@
   fill: var(--svg-logo-color) !important;
 }
 
-/* Footer logo full width styling */
+/* Footer logo full-width styling */
 .footer__logo-container {
   width: 100%;
   max-width: 100%;
@@ -214,7 +214,8 @@ svg[class*="text-laravel-red"] path {
 }
 
 /* Override for specific SVG paths that should not be colored.
-   Excludes hero illustration and cloud dashboard illustration. */
+ * Excludes the hero illustration and cloud dashboard illustration.
+ */
 .homepage :not(.hero-illustration-svg):not(.cloud-illust-inner):not(.frontend-stack-card-inner):not(.footer-brand) > svg:not(.navbar__logo):not(.footer__logo):not(.cloud-dashboard-svg):not(.badge-icon):not(.cloud-check-icon):not(.cloud-arrow-icon):not(.cloud-grain-overlay):not(.frontend-card-icon):not(.explore-btn-icon) path:not([fill="currentColor"]) {
   fill: none !important;
 }
@@ -272,8 +273,9 @@ svg[class*="text-laravel-red"] path {
   border-bottom: 1px solid var(--translation-banner-border);
 }
 
-/* Responsive navbar (tablet + mobile): logo left, control cluster right.
-   Shared rules live here; each breakpoint below only overrides sizing/spacing. */
+/* Responsive navbar (tablet and mobile): logo on the left and control cluster on the right.
+ * Shared rules live here; each breakpoint below only overrides sizing and spacing.
+ */
 @media (max-width: 1279px) {
   /* Collapse inline nav links; keep only the right control cluster */
   .navbar__items:not(.navbar__items--right) > .navbar__item {
@@ -328,10 +330,11 @@ svg[class*="text-laravel-red"] path {
     display: none !important;
   }
 
-  /* Docs pages: hide version/locale dropdowns on tablet/mobile only.
-     Desktop docs keep them — Docusaurus sets `docs-wrapper` on <html> for docs routes.
-     The class hook sits on the <a>, so target the wrapping .navbar__item:
-     :has() keys off the stable class; the nth-child fallback covers older browsers. */
+  /* Docs pages: hide version and locale dropdowns on tablets and mobile devices only.
+   * Desktop docs keep them because Docusaurus sets `docs-wrapper` on <html> for docs routes.
+   * The class hook sits on the <a>, so target the wrapping .navbar__item.
+   * :has() uses the stable class; the nth-child fallback covers older browsers.
+   */
   html.docs-wrapper .navbar__items--right > .navbar__item:has(> .navbar-version-dropdown),
   html.docs-wrapper .navbar__items--right > .navbar__item:has(> .navbar-locale-dropdown),
   html.docs-wrapper .navbar__items--right > .navbar__item.dropdown:nth-child(1),
@@ -443,7 +446,8 @@ svg[class*="text-laravel-red"] path {
 }
 
 /* Fallback: ensure hero illustration paths respect their original fill attributes.
-   This catches any remaining overrides from the global SVG rules above. */
+ * This catches any remaining overrides from the global SVG rules above.
+ */
 .hero-illustration-wrapper .hero-illustration-svg path[fill="currentColor"] {
   fill: currentColor !important;
 }
@@ -451,11 +455,9 @@ svg[class*="text-laravel-red"] path {
 /*
  * Laravel-style admonitions
  * ─────────────────────────
- * `src/remark/github-admonition.ts`는 `> [!NOTE]` 계열 blockquote에
- * `.admonition`, `.admonition-info`(note/tip/important) 또는
- * `.admonition-warning`(warning/caution) 클래스를 주입한다.
- * 여기서는 Laravel 공식 docs 사이트와 시각적으로 정합되도록 2가지 색 체계
- * (#8D54C5 정보 / #F53003 경고) 박스 + 좌측 원형 아이콘을 부여한다.
+ * - `src/remark/github-admonition.ts`에서 `> [!NOTE]` 계열 blockquote에 `.admonition` 클래스 주입
+ * - note/tip/important에는 `.admonition-info`, warning/caution에는 `.admonition-warning` 클래스 주입
+ * - Laravel 공식 문서 사이트와 시각적으로 일치하도록 두 가지 색 체계(#8D54C5 정보 / #F53003 경고)의 박스와 왼쪽 원형 아이콘 부여
  */
 blockquote.admonition {
   margin: 0 0 1rem 0;
@@ -494,7 +496,7 @@ blockquote.admonition-info {
   --admonition-icon-bg: #8D54C5;
   --admonition-border: rgba(141, 84, 197, 0.25);
   background: rgba(141, 84, 197, 0.06);
-  /* Laravel info icon: small circle-lamp shape (extracted from laravel.com) */
+  /* Laravel info icon: small lightbulb shape extracted from Laravel.com */
   background-image: none;
 }
 blockquote.admonition-info::before {

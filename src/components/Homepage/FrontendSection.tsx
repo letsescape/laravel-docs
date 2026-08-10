@@ -4,7 +4,7 @@ import Link from '@docusaurus/Link';
 import {docsPath} from '@site/src/utils/docs';
 import {ArrowIcon, NoiseOverlay} from './SharedIcons';
 
-/* Stroke-based outline icons matching laravel.com style */
+/* Stroke-based outline icons matching the Laravel.com style */
 function SvelteIcon(): ReactNode {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="frontend-card-icon" stroke="#fe640b" strokeLinecap="round" strokeLinejoin="round">

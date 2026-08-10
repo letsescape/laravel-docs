@@ -1,7 +1,7 @@
-// Homepage 컴포넌트들의 <Translate> / translate() 메시지는 컴포넌트 내
-// 기본값으로 한국어 카피를 담고 있다. 번역 파일로 분리해 관리하려면
-//   npx docusaurus write-translations --locale ko
-// 을 실행해 i18n/ko/code.json 에 추출한 뒤 운영하면 된다.
+// 홈페이지 컴포넌트의 <Translate>와 translate() 메시지 기본값에 한국어 문구 포함
+// 번역 파일로 분리해 관리하려면 다음 명령 실행
+// npx docusaurus write-translations --locale ko
+// 추출 결과를 i18n/ko/code.json에서 관리
 import React, {useEffect, useRef, useState, type ReactNode} from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import Translate from '@docusaurus/Translate';
@@ -44,9 +44,8 @@ export default function HeroSection(): ReactNode {
     const svg = wrapper.querySelector('svg');
     if (!svg) return;
 
-    // Restore all path/rect/circle fills that Docusaurus global CSS overrides.
-    // The global rules force fill: none or fill: var(--svg-logo-color) on SVG paths,
-    // which breaks the hero illustration's multi-colored content.
+    // Restore fills on SVG shape elements overridden by Docusaurus global CSS.
+    // The global rules force fill: none or fill: var(--svg-logo-color) on SVG paths, which breaks the hero illustration's multicolored content.
     svg.querySelectorAll('path, rect, circle, ellipse, polygon, polyline, line').forEach(el => {
       const fillAttr = el.getAttribute('fill');
       if (fillAttr) {
@@ -58,14 +57,14 @@ export default function HeroSection(): ReactNode {
       }
     });
 
-    // Add Taylor Otwell avatar inside the blue circle node
+    // Add the Taylor Otwell avatar inside the blue circle node
     const blueCircle = svg.querySelector('circle[fill="#2563eb"]');
     if (blueCircle) {
       const ns = 'http://www.w3.org/2000/svg';
       const xlinkNs = 'http://www.w3.org/1999/xlink';
       const defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(ns, 'defs'), svg.firstChild);
 
-      // Create image element in defs
+      // Create an <image> element in <defs>
       const img = document.createElementNS(ns, 'image');
       img.setAttribute('id', 'hero-avatar-img');
       img.setAttribute('width', '512');
@@ -74,7 +73,7 @@ export default function HeroSection(): ReactNode {
       img.setAttributeNS(xlinkNs, 'href', avatarUrl);
       defs.appendChild(img);
 
-      // Create pattern that uses the image
+      // Create a <pattern> that uses the image
       const pattern = document.createElementNS(ns, 'pattern');
       pattern.setAttribute('id', 'hero-avatar-pattern');
       pattern.setAttribute('width', '1');
@@ -87,14 +86,14 @@ export default function HeroSection(): ReactNode {
       pattern.appendChild(use);
       defs.appendChild(pattern);
 
-      // Apply pattern fill to blue circle
+      // Apply the pattern fill to the blue circle
       blueCircle.setAttribute('fill', 'url(#hero-avatar-pattern)');
       (blueCircle as SVGElement).style.setProperty('fill', 'url(#hero-avatar-pattern)', 'important');
     }
 
     // Fix "Cloud" text on the blue floor: gray #737373 is invisible on blue background.
     // The static SVG has "Cloud" in gray, but it should be white like the original site.
-    // Note: children indices match the hero-illustration.svg structure (grid, base, building).
+    // Note: Child indices match the hero-illustration.svg structure (grid, base, building).
     const building = svg.children[1]?.children[2];
     if (building) {
       for (let i = 0; i < building.children.length; i++) {
@@ -109,13 +108,13 @@ export default function HeroSection(): ReactNode {
     }
 
 
-    // Apply animation-delay to float groups
+    // Apply animation delays to floating groups
     const floatEls = svg.querySelectorAll('[class*="animate-float"]');
     floatEls.forEach(el => {
       (el as SVGElement).style.animationDelay = '400ms';
     });
 
-    // Allow pointer events on hover rects inside the SVG
+    // Allow pointer events on elements with pointer-event utility classes
     const hoverRects = svg.querySelectorAll('[class*="pointer-events"]');
     hoverRects.forEach(rect => {
       (rect as SVGElement).style.pointerEvents = 'all';
@@ -132,7 +131,7 @@ export default function HeroSection(): ReactNode {
     // Visibility is controlled via opacity-0/blur-sm CSS classes.
     const buildingFloors = svg.children[1]?.children[2];
     if (buildingFloors) {
-      // Map cell index to icon slot (only cells with multiple icons get a slot)
+      // Map each cell index to an icon slot (only cells with multiple icons get a slot)
       const iconSlots: {icons: Element[]; current: number}[] = [];
       const cellToSlot: Record<number, number> = {};
       let cellIdx = 0;
@@ -151,7 +150,7 @@ export default function HeroSection(): ReactNode {
       }
 
       // Find the two moving highlight shapes on the icon grid.
-      // They are g elements with transition-transform class inside the SVG.
+      // They are <g> elements with the transition-transform class inside the SVG.
       const allTT = svg.querySelectorAll('.transition-transform');
       const movingShapes = Array.from(allTT).filter(
         el => el.tagName === 'g' && el.parentElement?.tagName === 'g'
@@ -159,7 +158,7 @@ export default function HeroSection(): ReactNode {
       // Grid cell spacing in isometric coordinates
       const dx = 39.8485;
       const dy = -23.005;
-      // 7 cells split into two zones: shape 0 → cells 3-6 (right), shape 1 → cells 0-2 (left)
+      // The 7 cells are split into two zones: shape 0 → cells 3-6 (right), shape 1 → cells 0-2 (left)
       const shapeZones = [[3, 4, 5, 6], [0, 1, 2]];
       const shapePositions = [3, 0]; // initial cell positions
       const shapeZoneIdx = [0, 0]; // current index within each zone for sequential movement
@@ -176,7 +175,7 @@ export default function HeroSection(): ReactNode {
       moveShapeToCell(0, shapePositions[0]);
       moveShapeToCell(1, shapePositions[1]);
 
-      // Track which zones are paused by click
+      // Track which zones have been paused by a click
       const shapePaused = [false, false];
 
       // Add click handlers to icon cells using cursor-pointer groups
@@ -184,7 +183,7 @@ export default function HeroSection(): ReactNode {
       cursorGroups.forEach((group, cellIdx) => {
         (group as SVGElement).style.pointerEvents = 'all';
         (group as SVGElement).style.cursor = 'pointer';
-        // Enable pointer events on all ancestors up to svg
+        // Enable pointer events on all ancestors up to the SVG
         let ancestor: Element | null = group.parentElement;
         while (ancestor && ancestor !== svg) {
           (ancestor as SVGElement).style.pointerEvents = 'all';
@@ -216,9 +215,9 @@ export default function HeroSection(): ReactNode {
         slot.current = safeIdx;
       };
 
-      // Find building top icon boxes via direct DOM paths
-      // Cell 4 (floorChildIndex 8) → [8][2][2][0] has 4 child g elements (building top right)
-      // Cell 6 (floorChildIndex 12) → [12][2][2][0] has 3 child g elements (building top left)
+      // Find building-top icon boxes via direct DOM paths
+      // Cell 4 (floorChildIndex 8) → [8][2][2][0] contains 4 child <g> elements (building top right)
+      // Cell 6 (floorChildIndex 12) → [12][2][2][0] contains 3 child <g> elements (building top left)
       const buildingTopSlots: {icons: Element[]; current: number; bgRects: Element[]}[] = [];
       const makeTopSlot = (floorIdx: number): {icons: Element[]; current: number; bgRects: Element[]} | null => {
         const floor = buildingFloors.children[floorIdx];
@@ -229,7 +228,7 @@ export default function HeroSection(): ReactNode {
         if (icons.length <= 1) return null;
         let current = icons.findIndex(g => !(g.getAttribute('class') || '').includes('opacity-0'));
         if (current === -1) current = 0;
-        // Find transition-[fill] rects for background color
+        // Find background <rect> elements with the transition-[fill] class
         const bgRects = Array.from(floor.querySelectorAll('rect')).filter(r =>
           (r.getAttribute('class') || '').includes('transition-[fill]')
         );
@@ -246,14 +245,14 @@ export default function HeroSection(): ReactNode {
         ['#222', '#1a73e8', '#D97757'],                 // left: Livewire, Chrome, Rust
       ];
 
-      // Icons that need white fill on building top: [slotIdx][iconIdx]
+      // Icons that need white fill on the building top: [slotIdx][iconIdx]
       const whiteIcons: Record<string, boolean> = {
         '0-2': true, // right slot, icon 2 (React)
         '1-1': true, // left slot, icon 1 (Chrome)
         '1-2': true, // left slot, icon 2 (Rust)
       };
 
-      // Sync building top box to shape zone index (icon + background)
+      // Synchronize the building-top box with the shape zone index (icon + background)
       // shape 0 (right zone, cells 3-6) → buildingTopSlots[0] (4 icons)
       // shape 1 (left zone, cells 0-2) → buildingTopSlots[1] (3 icons)
       const syncBuildingTop = (shapeIdx: number, zoneIdx: number) => {
@@ -287,7 +286,7 @@ export default function HeroSection(): ReactNode {
         }
       };
 
-      // Initial sync of building top icons to match shape starting positions
+      // Initially synchronize building-top icons with the shapes' starting positions
       syncBuildingTop(0, shapeZoneIdx[0]);
       syncBuildingTop(1, shapeZoneIdx[1]);
 
