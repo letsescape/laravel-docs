@@ -29,7 +29,7 @@ _ANCHOR_RE = re.compile(
 
 
 def _load_english_documents() -> dict[str, dict[str, str]]:
-    """지원 버전별 영어 Markdown 문서 로딩.
+    """지원 버전별 영어 Markdown 문서 로드.
 
     Returns:
         버전과 파일명으로 조회할 수 있는 문서 본문.
@@ -53,7 +53,7 @@ def _target_resolves(
     source_file: str,
     documents: dict[str, dict[str, str]],
 ) -> bool:
-    """영어 문서 링크의 파일과 명시적 앵커 연결 여부 확인.
+    """영어 문서 링크의 파일·명시적 앵커 연결 여부 확인.
 
     Args:
         target: Markdown 링크 대상.
@@ -62,8 +62,7 @@ def _target_resolves(
         documents: 지원 버전별 영어 문서 본문.
 
     Returns:
-        외부·사이트 링크이거나 내부 파일과 앵커가 존재하면
-        ``True``.
+        검증 대상이 아닌 외부·사이트 링크이거나 내부 대상 파일과 명시된 앵커가 존재하면 ``True``.
     """
 
     parsed = urlsplit(target)
@@ -105,7 +104,7 @@ class StaleLinkRegistryTests(unittest.TestCase):
     """stale 링크 registry의 schema·정렬·digest 경계 테스트."""
 
     def test_external_targets_never_match_internal_suffix_rules(self):
-        """외부 링크의 internal suffix 규칙 오인식 방지."""
+        """외부 링크는 내부 suffix 규칙에서 제외하고 Laravel 문서 링크만 보정하는지 검증."""
 
         targets = (
             "//example.com/docs/migrations#writing-migrations",
@@ -132,7 +131,7 @@ class StaleLinkRegistryTests(unittest.TestCase):
         )
 
     def test_registry_covers_only_current_broken_internal_links(self):
-        """현재 영어 원문의 깨진 내부 링크만 대상으로 보정."""
+        """registry가 현재 영어 원문의 깨진 내부 링크만 포함하고 교체 대상은 유효하며 모든 규칙이 사용되는지 검증."""
 
         documents = _load_english_documents()
         matched_rules: set[tuple[str, str]] = set()
@@ -192,7 +191,7 @@ class StaleLinkRegistryTests(unittest.TestCase):
         self.assertEqual(matched_rules, expected_rules)
 
     def test_loads_a_canonical_registry_snapshot(self):
-        """canonical JSON 원문과 SHA-256 digest 보존."""
+        """canonical JSON 원문·SHA-256 digest와 링크 보정 결과 보존."""
 
         payload = {
             "schema_version": 1,
@@ -225,7 +224,7 @@ class StaleLinkRegistryTests(unittest.TestCase):
         )
 
     def test_rejects_noncanonical_json(self):
-        """불필요한 공백 형식을 사용하지 않은 compact JSON 거부."""
+        """정해진 들여쓰기와 줄바꿈을 사용하지 않은 compact JSON 거부."""
 
         payload = {
             "schema_version": 1,
@@ -251,7 +250,7 @@ class StaleLinkRegistryTests(unittest.TestCase):
                 load_stale_link_registry(path)
 
     def test_rejects_invalid_schema_and_order(self):
-        """추가 필드·중복·정렬·폐기 방식 schema 위반 거부."""
+        """추가 필드·중복·정렬·폐기 방식의 schema 위반 거부."""
 
         valid_entry = {
             "version": "master",
@@ -326,7 +325,7 @@ class StaleLinkRegistryTests(unittest.TestCase):
                     load_stale_link_registry(path)
 
     def test_rejects_non_utf8_unicode_scalar(self):
-        """UTF-8로 직렬화할 수 없는 surrogate scalar 거부."""
+        """UTF-8로 직렬화할 수 없는 서로게이트 코드 포인트 거부."""
 
         payload = {
             "schema_version": 1,

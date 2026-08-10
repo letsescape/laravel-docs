@@ -1,4 +1,4 @@
-"""workflow runtime 동작과 경계 조건 검증."""
+"""워크플로 실행 동작과 경계 조건 검증."""
 
 from __future__ import annotations
 
@@ -53,21 +53,21 @@ SELECTOR = b'{"document":null,"version":null}\n'
 
 
 class MutableClock:
-    """mutable 시계 객체."""
+    """값을 변경할 수 있는 테스트 시계."""
 
     def __init__(self, value: float = 100.0) -> None:
-        """mutable 시계 초기화."""
+        """현재 시각 초기화."""
 
         self.value = value
 
     def __call__(self) -> float:
-        """mutable 시계 호출 결과."""
+        """현재 시각 반환."""
 
         return self.value
 
 
 def settings(*, timeout: int = 1000) -> WorkflowSettings:
-    """settings 처리."""
+    """테스트용 워크플로 설정 구성."""
 
     return WorkflowSettings(
         workflow_timeout_seconds=timeout,
@@ -87,7 +87,7 @@ def environment(
     run_timeout: int = 100,
     workflow_timeout: int = 1000,
 ) -> dict[str, str]:
-    """환경 처리."""
+    """테스트용 실행 환경 구성."""
 
     return {
         "PATH": "/bin:/usr/bin",
@@ -110,7 +110,7 @@ def environment(
 
 
 def fixture_evidence() -> bytes:
-    """fixture 증거 처리."""
+    """테스트용 제공자 픽스처 증거 구성."""
 
     config_digest = provider_config_sha256(load_config(environment()))
     shared = (
@@ -130,7 +130,7 @@ def fixture_evidence() -> bytes:
 
 
 def approved_base() -> ApprovedPublicationBase:
-    """승인된 기준본 처리."""
+    """테스트용 승인 기준본 구성."""
 
     return ApprovedPublicationBase(
         head=HEAD,
@@ -142,7 +142,7 @@ def approved_base() -> ApprovedPublicationBase:
 
 
 def unit_success() -> ApprovedBaseUnitTestResult:
-    """단위 success 처리."""
+    """테스트용 단위 테스트 성공 결과 구성."""
 
     return ApprovedBaseUnitTestResult(
         proof=ApprovedBaseUnitTestProof(
@@ -154,7 +154,7 @@ def unit_success() -> ApprovedBaseUnitTestResult:
 
 
 def replay_snapshot() -> ReplaySnapshot:
-    """replay snapshot 처리."""
+    """테스트용 재실행 스냅샷 구성."""
 
     return ReplaySnapshot(
         manifest=MANIFEST,
@@ -165,7 +165,7 @@ def replay_snapshot() -> ReplaySnapshot:
 
 
 class WorkflowPreparerTests(unittest.TestCase):
-    """워크플로 preparer 동작과 경계 조건 테스트 모음."""
+    """워크플로 준비기 동작과 경계 조건 테스트 모음."""
 
     def setUp(self) -> None:
         """테스트 사전 상태 구성."""
@@ -187,7 +187,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def request(self) -> PrepareRequest:
-        """요청 처리."""
+        """테스트용 준비 요청 구성."""
 
         return PrepareRequest(
             repository=self.repo,
@@ -199,17 +199,17 @@ class WorkflowPreparerTests(unittest.TestCase):
         )
 
     def hooks(self) -> WorkflowHooks:
-        """hooks 처리."""
+        """호출 순서를 기록하는 워크플로 훅 구성."""
 
         def capture(request: PrepareRequest, remaining):
-            """capture 처리."""
+            """승인 기준본 캡처."""
 
             self.events.append("base")
             self.assertGreater(remaining(), 0)
             return approved_base()
 
         def unit(request: PrepareRequest, base, argv, remaining):
-            """단위 처리."""
+            """단위 테스트 실행."""
 
             self.events.append("unit")
             self.assertEqual(argv, ("unit", "test"))
@@ -217,7 +217,7 @@ class WorkflowPreparerTests(unittest.TestCase):
             return unit_success()
 
         def replay(request, argv, output_path, stage_environment, remaining):
-            """replay 처리."""
+            """재실행 수행."""
 
             self.events.append("replay")
             self.assertEqual(argv, ("replay",))
@@ -231,7 +231,7 @@ class WorkflowPreparerTests(unittest.TestCase):
             return replay_snapshot()
 
         def fixture(request, argv, stage_environment, remaining):
-            """fixture 처리."""
+            """제공자 픽스처 실행."""
 
             self.events.append("fixture")
             self.fixture_environment = dict(stage_environment)
@@ -253,7 +253,7 @@ class WorkflowPreparerTests(unittest.TestCase):
             stage_environment,
             remaining,
         ):
-            """candidate 처리."""
+            """후보 실행."""
 
             self.events.append("candidate")
             self.candidate_environment = dict(stage_environment)
@@ -277,7 +277,7 @@ class WorkflowPreparerTests(unittest.TestCase):
             )
 
         def publication(request, base, candidate, preparation_key, remaining):
-            """publication 처리."""
+            """게시 준비."""
 
             self.events.append("publication-prepare")
             self.assertEqual(candidate.verified_tree, VERIFIED_TREE)
@@ -292,7 +292,7 @@ class WorkflowPreparerTests(unittest.TestCase):
             )
 
         def fingerprint(request, remaining):
-            """fingerprint 처리."""
+            """활성 저장소 지문 조회."""
 
             self.events.append("fingerprint")
             return FINGERPRINT
@@ -308,7 +308,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         )
 
     def preparer(self, hooks: WorkflowHooks | None = None) -> WorkflowPreparer:
-        """preparer 처리."""
+        """테스트용 워크플로 준비기 구성."""
 
         return WorkflowPreparer(
             settings=settings(),
@@ -320,7 +320,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         )
 
     def test_prepare_runs_exact_order_and_writes_canonical_state(self) -> None:
-        """`prepare`의 exact order 및 writes canonical 상태 실행 검증."""
+        """준비 단계를 정확한 순서로 실행하고 정규 상태를 기록하는지 검증."""
 
         outcome = self.preparer().prepare(self.request())
 
@@ -398,13 +398,13 @@ class WorkflowPreparerTests(unittest.TestCase):
         )
 
     def test_run_deadline_is_created_immediately_before_fixture(self) -> None:
-        """`run_deadline`의 fixture 전 created immediately 판정 검증."""
+        """실행 기한을 제공자 픽스처 직전에 생성하는지 검증."""
 
         hooks = self.hooks()
         original_replay = hooks.run_replay
 
         def replay(*args, **kwargs):
-            """replay 처리."""
+            """재실행 후 현재 시각 전진."""
 
             result = original_replay(*args, **kwargs)
             self.clock.value = 450.0
@@ -433,12 +433,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         )
 
     def test_unit_failure_is_fail_fast_and_writes_report(self) -> None:
-        """`unit_failure`의 fail fast 및 writes 보고서 판정 검증."""
+        """단위 테스트 실패 시 즉시 중단하고 보고서를 기록하는지 검증."""
 
         hooks = self.hooks()
 
         def failed_unit(*args, **kwargs):
-            """failed 단위 처리."""
+            """단위 테스트 실패 결과 반환."""
 
             self.events.append("unit")
             return ApprovedBaseUnitTestResult(
@@ -468,12 +468,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertFalse((self.artifacts / PREPARED_STATE_FILENAME).exists())
 
     def test_fixture_failure_stops_before_candidate(self) -> None:
-        """`fixture_failure`의 candidate 전 중단 검증."""
+        """제공자 픽스처 실패 시 후보 실행 전에 중단하는지 검증."""
 
         hooks = self.hooks()
 
         def fixture(*args, **kwargs):
-            """fixture 처리."""
+            """제공자 픽스처 실패 결과 반환."""
 
             self.events.append("fixture")
             raise WorkflowStageError(
@@ -503,12 +503,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "FIXTURE_CONTRACT_FAILED")
 
     def test_invalid_fixture_success_evidence_stops_before_candidate(self) -> None:
-        """`invalid_fixture_success_evidence`의 candidate 전 중단 검증."""
+        """잘못된 픽스처 성공 증거에서 후보 실행 전에 중단하는지 검증."""
 
         hooks = self.hooks()
 
         def fixture(*args, **kwargs):
-            """fixture 처리."""
+            """잘못된 픽스처 성공 증거 반환."""
 
             self.events.append("fixture")
             return b"provider output that is not canonical evidence\n"
@@ -534,7 +534,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "FIXTURE_CONTRACT_FAILED")
 
     def test_fixture_evidence_is_exactly_bound_to_live_config(self) -> None:
-        """`fixture_evidence`의 exactly bound 후 live 설정 판정 검증."""
+        """픽스처 증거가 실제 제공자 설정에 정확히 결합되는지 검증."""
 
         config = load_config(environment())
         evidence = fixture_evidence()
@@ -560,13 +560,13 @@ class WorkflowPreparerTests(unittest.TestCase):
                 )
 
     def test_replay_selector_mismatch_stops_before_live_fixture(self) -> None:
-        """`replay_selector_mismatch`의 live fixture 전 중단 검증."""
+        """재실행 선택자 불일치 시 실제 제공자 픽스처 전에 중단하는지 검증."""
 
         hooks = self.hooks()
         mismatched = b'{"document":null,"version":"master"}\n'
 
         def replay(*args, **kwargs):
-            """replay 처리."""
+            """선택자가 다른 재실행 스냅샷 반환."""
 
             self.events.append("replay")
             return ReplaySnapshot(
@@ -594,7 +594,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "INVALID_SELECTOR")
 
     def test_invalid_live_selector_stops_before_base_capture(self) -> None:
-        """`invalid_live_selector`의 기준본 capture 전 중단 검증."""
+        """잘못된 실제 선택자에서 기준본 캡처 전에 중단하는지 검증."""
 
         request = self.request()
         request = PrepareRequest(
@@ -616,12 +616,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "INVALID_SELECTOR")
 
     def test_candidate_failure_never_prepares_publication(self) -> None:
-        """`candidate_failure_never_prepares_publication` 시나리오 검증."""
+        """후보 실패 시 게시를 준비하지 않는지 검증."""
 
         hooks = self.hooks()
 
         def candidate(*args, **kwargs):
-            """candidate 처리."""
+            """후보 실패 결과 반환."""
 
             self.events.append("candidate")
             (self.artifacts / "candidate-failed").mkdir()
@@ -653,7 +653,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["candidate_debug_path"], "candidate-failed")
 
     def test_generic_candidate_failure_consumes_stable_child_report(self) -> None:
-        """`generic_candidate_failure_consumes_stable_child_report` 시나리오 검증."""
+        """일반 후보 실패가 안정적 하위 작업 보고서를 사용하는지 검증."""
 
         hooks = self.hooks()
 
@@ -667,7 +667,7 @@ class WorkflowPreparerTests(unittest.TestCase):
             stage_environment,
             remaining,
         ):
-            """candidate 처리."""
+            """하위 작업 보고서를 포함한 후보 실패 결과 반환."""
 
             self.events.append("candidate")
             sandbox = self.artifacts / "candidate-child-failed"
@@ -740,12 +740,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["base_head"], HEAD)
 
     def test_noncanonical_child_failure_report_is_infrastructure(self) -> None:
-        """`noncanonical_child_failure_report`의 infrastructure 판정 검증."""
+        """비정규 하위 작업 실패 보고서를 인프라 실패로 판정하는지 검증."""
 
         hooks = self.hooks()
 
         def candidate(*args, **kwargs):
-            """candidate 처리."""
+            """비정규 보고서를 포함한 후보 실패 결과 반환."""
 
             self.events.append("candidate")
             sandbox = self.artifacts / "candidate-invalid-report"
@@ -793,12 +793,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "RUNNER_OPERATION_FAILED")
 
     def test_missing_candidate_child_report_is_infrastructure(self) -> None:
-        """`missing_candidate_child_report`의 infrastructure 판정 검증."""
+        """후보 하위 작업 보고서 누락을 인프라 실패로 판정하는지 검증."""
 
         hooks = self.hooks()
 
         def candidate(*args, **kwargs):
-            """candidate 처리."""
+            """보고서가 누락된 후보 실패 결과 반환."""
 
             self.events.append("candidate")
             sandbox = self.artifacts / "candidate-no-report"
@@ -831,12 +831,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "RUNNER_OPERATION_FAILED")
 
     def test_final_active_mutation_has_highest_exit_and_blocks_state(self) -> None:
-        """`final_active_mutation_has_highest_exit_and`의 상태 차단 검증."""
+        """최종 활성 저장소 변경이 최우선 종료 코드를 사용하고 상태 기록을 차단하는지 검증."""
 
         hooks = self.hooks()
 
         def fingerprint(*args, **kwargs):
-            """fingerprint 처리."""
+            """마지막 조회에서 변경된 활성 저장소 지문 반환."""
 
             self.events.append("fingerprint")
             return "0" * 64
@@ -859,13 +859,13 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "ACTIVE_WORKTREE_MUTATED")
 
     def test_state_write_failure_still_rechecks_final_fingerprint(self) -> None:
-        """`state_write_failure_still_rechecks_final_fingerprint` 시나리오 검증."""
+        """상태 기록 실패에도 최종 활성 저장소 지문을 다시 확인하는지 검증."""
 
         hooks = self.hooks()
         fingerprints = iter((FINGERPRINT, "0" * 64))
 
         def fingerprint(*args, **kwargs):
-            """fingerprint 처리."""
+            """활성 저장소 지문 조회 횟수 기록."""
 
             self.events.append("fingerprint")
             return next(fingerprints)
@@ -881,7 +881,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         )
 
         def write(path: Path, contents: bytes) -> Path:
-            """기록."""
+            """준비 상태 파일 기록만 실패."""
 
             if path.name == PREPARED_STATE_FILENAME:
                 raise OSError("state write failed")
@@ -903,13 +903,13 @@ class WorkflowPreparerTests(unittest.TestCase):
         )
 
     def test_mutation_after_prepared_state_write_still_fails_run(self) -> None:
-        """`mutation_after_prepared_state_write_still`의 실행 실패 처리 검증."""
+        """준비 상태 기록 후 활성 저장소가 변경돼도 실행이 실패하는지 검증."""
 
         hooks = self.hooks()
         fingerprints = iter((FINGERPRINT, "0" * 64))
 
         def fingerprint(*args, **kwargs):
-            """fingerprint 처리."""
+            """마지막 조회에서 변경된 활성 저장소 지문 반환."""
 
             self.events.append("fingerprint")
             return next(fingerprints)
@@ -932,12 +932,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "ACTIVE_WORKTREE_MUTATED")
 
     def test_final_fingerprint_deadline_is_infrastructure(self) -> None:
-        """`final_fingerprint_deadline`의 infrastructure 판정 검증."""
+        """최종 지문 조회의 기한 초과를 인프라 실패로 판정하는지 검증."""
 
         hooks = self.hooks()
 
         def fingerprint(*args, **kwargs):
-            """fingerprint 처리."""
+            """최종 활성 저장소 지문 조회에서 기한 초과 발생."""
 
             self.events.append("fingerprint")
             raise RepositoryStateError(IssueCode.WORKFLOW_DEADLINE_EXCEEDED)
@@ -959,12 +959,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "WORKFLOW_DEADLINE_EXCEEDED")
 
     def test_deadline_expiring_during_final_fingerprint_is_failure(self) -> None:
-        """`deadline_expiring_during_final_fingerprint`의 실패 판정 검증."""
+        """최종 지문 조회 중 기한 만료를 실패로 판정하는지 검증."""
 
         hooks = self.hooks()
 
         def fingerprint(*args, **kwargs):
-            """fingerprint 처리."""
+            """최종 지문 조회 중 워크플로 기한 소진."""
 
             self.events.append("fingerprint")
             self.clock.value = 1101.0
@@ -987,12 +987,12 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "WORKFLOW_DEADLINE_EXCEEDED")
 
     def test_final_fingerprint_io_error_is_infrastructure_not_mutation(self) -> None:
-        """`final_fingerprint_io_error`의 infrastructure 않음 mutation 판정 검증."""
+        """최종 지문 입출력 오류를 저장소 변경이 아닌 인프라 실패로 판정하는지 검증."""
 
         hooks = self.hooks()
 
         def fingerprint(*args, **kwargs):
-            """fingerprint 처리."""
+            """최종 활성 저장소 지문 조회에서 입출력 오류 발생."""
 
             self.events.append("fingerprint")
             raise OSError("fingerprint unavailable")
@@ -1014,7 +1014,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "RUNNER_OPERATION_FAILED")
 
     def test_existing_prepared_state_fails_before_any_stage(self) -> None:
-        """`existing_prepared_state`의 any 단계 전 실패 처리 검증."""
+        """기존 준비 상태 파일이 있으면 모든 단계 전에 실패하는지 검증."""
 
         (self.artifacts / PREPARED_STATE_FILENAME).write_text("owned\n")
 
@@ -1028,7 +1028,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         )
 
     def test_artifact_root_inside_repository_is_rejected(self) -> None:
-        """`artifact_root_inside_repository`의 rejected 판정 검증."""
+        """저장소 내부의 산출물 루트 거부 검증."""
 
         inside = self.repo / "artifacts"
         inside.mkdir()
@@ -1047,7 +1047,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(self.events, [])
 
     def test_artifact_root_ancestor_of_repository_is_rejected(self) -> None:
-        """`artifact_root_ancestor_of_repository`의 rejected 판정 검증."""
+        """저장소의 상위 경로인 산출물 루트 거부 검증."""
 
         request = PrepareRequest(
             repository=self.repo,
@@ -1065,7 +1065,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(self.events, [])
 
     def test_push_endpoint_must_match_sealed_deploy_repository(self) -> None:
-        """`push_endpoint_must_match_sealed_deploy_repository` 시나리오 검증."""
+        """푸시 엔드포인트와 봉인된 배포 저장소의 일치 요구 검증."""
 
         request = PrepareRequest(
             repository=self.repo,
@@ -1084,7 +1084,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(report["code"], "INVALID_RUNTIME_OPTION")
 
     def test_push_endpoint_credentials_are_rejected_before_base_capture(self) -> None:
-        """`push_endpoint_credentials` 관련 경계 조건 검증."""
+        """자격 증명을 포함한 푸시 엔드포인트를 기준본 캡처 전에 거부하는지 검증."""
 
         request = PrepareRequest(
             repository=self.repo,
@@ -1106,7 +1106,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(json.loads(report)["code"], "INVALID_RUNTIME_OPTION")
 
     def test_publication_prepare_environment_omits_credentials(self) -> None:
-        """`publication_prepare_environment`의 credentials 제외 검증."""
+        """게시 준비 환경에서 자격 증명을 제외하는지 검증."""
 
         prepared = _prepare_git_environment(
             {
@@ -1127,7 +1127,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertFalse(any("TOKEN" in key or "API_KEY" in key for key in prepared))
 
     def test_live_environment_keeps_only_selected_provider_auth(self) -> None:
-        """`live_environment`의 만 선택된 provider auth 유지 검증."""
+        """실제 제공자 환경에 선택한 제공자 인증만 유지하는지 검증."""
 
         source = environment()
         source.update(
@@ -1185,7 +1185,7 @@ class WorkflowPreparerTests(unittest.TestCase):
                 )
 
     def test_fixture_process_timeout_uses_run_deadline_code(self) -> None:
-        """`fixture_process_timeout`의 실행 기한 code 사용 검증."""
+        """픽스처 프로세스 기한 초과에 실행 기한 코드를 사용하는지 검증."""
 
         with mock.patch(
             "sync.runtime.workflow.run_process_tree",
@@ -1205,7 +1205,7 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, IssueCode.RUN_DEADLINE_EXCEEDED)
 
     def test_child_process_tree_leak_is_runner_failure(self) -> None:
-        """`child_process_tree_leak`의 runner 실패 판정 검증."""
+        """하위 프로세스 트리 누수의 실행기 실패 판정 검증."""
 
         with mock.patch(
             "sync.runtime.workflow.run_process_tree",

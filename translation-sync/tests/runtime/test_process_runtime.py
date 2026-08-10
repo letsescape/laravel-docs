@@ -1,4 +1,4 @@
-"""process runtime 동작과 경계 조건 검증."""
+"""프로세스 실행기 동작과 경계 조건 검증."""
 
 import os
 import signal
@@ -14,11 +14,11 @@ from sync.runtime import process as process_runtime
 
 
 class ProcessTreeRunnerTest(unittest.TestCase):
-    """프로세스 tree runner 테스트 객체."""
+    """프로세스 트리 실행기 테스트 모음."""
 
     @staticmethod
     def _process_is_live(pid: int) -> bool:
-        """live 처리."""
+        """프로세스 생존 여부 확인."""
 
         try:
             os.kill(pid, 0)
@@ -30,7 +30,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
 
     @classmethod
     def _wait_for_process_exit(cls, pid: int, timeout: float = 2.0) -> bool:
-        """for 프로세스 exit 대기."""
+        """지정한 시간 동안 프로세스 종료 대기."""
 
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
@@ -40,7 +40,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         return not cls._process_is_live(pid)
 
     def test_run_compatible_input_and_captured_output(self) -> None:
-        """`run_compatible_input_and_captured_output` 시나리오 검증."""
+        """``subprocess.run`` 호환 입력과 출력 캡처 검증."""
 
         args = [
             sys.executable,
@@ -62,7 +62,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         self.assertIs(completed.args, args)
 
     def test_spawn_uses_exact_environment_and_a_new_session(self) -> None:
-        """`spawn`의 exact 환경 및 신규 session 사용 검증."""
+        """프로세스 생성 시 정확한 환경과 새 세션 사용 검증."""
 
         environment = {"ONLY": "explicit"}
         child = MagicMock(pid=123, returncode=0)
@@ -87,7 +87,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         self.assertIs(popen.call_args.kwargs["start_new_session"], True)
 
     def test_shell_execution_is_rejected_before_process_start(self) -> None:
-        """`shell_execution`의 프로세스 start 전 rejected 판정 검증."""
+        """셸 실행을 프로세스 시작 전에 거부하는지 검증."""
 
         with patch.object(process_runtime.subprocess, "Popen") as popen:
             with self.assertRaisesRegex(ValueError, "shell execution is forbidden"):
@@ -96,7 +96,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         popen.assert_not_called()
 
     def test_timeout_kills_process_group_before_raising(self) -> None:
-        """`timeout_kills_process_group_before_raising` 시나리오 검증."""
+        """기한 초과 예외 전에 프로세스 그룹을 종료하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -135,7 +135,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
             self.assertFalse(marker.exists())
 
     def test_timeout_does_not_hang_on_a_grandchild_inheriting_stdout(self) -> None:
-        """`timeout`의 않음 hang on grandchild inheriting stdout 동작 검증."""
+        """출력을 상속한 손자 프로세스가 있어도 기한 초과 처리가 멈추지 않는지 검증."""
 
         child = "import time; time.sleep(30)"
         parent = (
@@ -155,7 +155,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         self.assertLess(time.monotonic() - started, 2)
 
     def test_parent_success_with_surviving_child_is_a_cleaned_leak(self) -> None:
-        """`parent_success_with_surviving_child`의 cleaned leak 판정 검증."""
+        """부모 프로세스 성공 후에도 살아 있는 하위 프로세스를 누수로 정리하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -193,7 +193,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
 
     @unittest.skipUnless(hasattr(signal, "setitimer"), "requires POSIX timers")
     def test_keyboard_interrupt_cleans_tree_and_is_re_raised(self) -> None:
-        """`keyboard_interrupt_cleans_tree_and`의 re raised 판정 검증."""
+        """키보드 인터럽트 시 프로세스 트리를 정리하고 예외를 다시 발생시키는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             marker = Path(tmp) / "late-write"
@@ -210,7 +210,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
             previous = signal.getsignal(signal.SIGALRM)
 
             def interrupt(_signum: int, _frame: object) -> None:
-                """interrupt 처리."""
+                """키보드 인터럽트 발생."""
 
                 raise KeyboardInterrupt
 
@@ -229,7 +229,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
             self.assertFalse(marker.exists())
 
     def test_check_raises_after_the_process_group_is_gone(self) -> None:
-        """`check_raises_after_the_process_group`의 gone 판정 검증."""
+        """프로세스 그룹 종료 후 검사 예외를 발생시키는지 검증."""
 
         with self.assertRaises(subprocess.CalledProcessError) as raised:
             process_runtime.run_process_tree(
@@ -242,7 +242,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         self.assertEqual(raised.exception.returncode, 7)
 
     def test_cleanup_failure_replaces_timeout_with_explicit_error(self) -> None:
-        """`cleanup_failure_replaces_timeout_with_explicit_error` 시나리오 검증."""
+        """정리 실패가 기한 초과를 명시적 오류로 대체하는지 검증."""
 
         cleanup = process_runtime.ProcessTreeCleanupError("cleanup failed")
         child = MagicMock()
@@ -265,7 +265,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         self.assertIs(raised.exception, cleanup)
 
     def test_timeout_preserves_subprocess_run_exception_fields(self) -> None:
-        """`timeout`의 하위 프로세스 실행 exception fields 보존 검증."""
+        """기한 초과 시 ``subprocess.run`` 예외 필드 보존 검증."""
 
         args = [
             sys.executable,
@@ -287,7 +287,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         self.assertIsNone(raised.exception.stderr)
 
     def test_cleanup_continues_after_process_group_kill_failure(self) -> None:
-        """`cleanup_continues_after_process_group_kill_failure` 시나리오 검증."""
+        """프로세스 그룹 종료 실패 후에도 정리를 계속하는지 검증."""
 
         process = MagicMock(pid=123)
         process.poll.side_effect = [None, 0]
@@ -310,7 +310,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         process.wait.assert_called_once()
 
     def test_cleanup_timeout_is_accumulated_after_group_kill(self) -> None:
-        """`cleanup_timeout`의 group kill 후 accumulated 판정 검증."""
+        """프로세스 그룹 종료 후 정리 기한 초과를 누적하는지 검증."""
 
         process = MagicMock(pid=123)
         process.poll.return_value = 0
@@ -335,7 +335,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         process.wait.assert_called_once_with(timeout=0.0)
 
     def test_process_group_kill_reports_whether_signal_was_accepted(self) -> None:
-        """`process_group_kill_reports_whether_signal_was_accepted` 시나리오 검증."""
+        """프로세스 그룹 종료 신호의 수락 여부를 보고하는지 검증."""
 
         with patch.object(process_runtime.os, "killpg"):
             self.assertTrue(process_runtime._kill_process_group(123))
@@ -348,7 +348,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
             self.assertFalse(process_runtime._kill_process_group(123))
 
     def test_process_group_probe_permission_is_not_treated_as_dead(self) -> None:
-        """`process_group_probe_permission`의 않음 treated 로 dead 판정 검증."""
+        """프로세스 그룹 조회 권한 오류를 종료 상태로 간주하지 않는지 검증."""
 
         with patch.object(
             process_runtime.os,

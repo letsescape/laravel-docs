@@ -6,10 +6,10 @@ from sync.common.markdown import reference_definitions
 
 
 class ReferenceDefinitionParserTests(unittest.TestCase):
-    """CommonMark reference 정의의 구조와 경계 조건 검증."""
+    """CommonMark reference 정의의 구조와 경계 조건을 검증."""
 
     def test_normalizes_commonmark_labels_and_preserves_definition_fields(self):
-        """레이블 정규화와 대상·제목 보존."""
+        """레이블을 정규화하고 대상·제목을 보존."""
 
         definitions = reference_definitions(
             '[Cache \t DOC]: /docs/13.x/cache "Cache docs"\n'
@@ -21,7 +21,7 @@ class ReferenceDefinitionParserTests(unittest.TestCase):
         self.assertEqual(definitions[0].title, '"Cache docs"')
 
     def test_ignores_definitions_inside_fences_and_html_comments(self):
-        """코드 fence와 HTML 주석 내부의 정의 제외."""
+        """코드 fence와 HTML 주석 내부의 정의를 제외."""
 
         text = """```md
 [fenced]: /docs/12.x/cache "Fenced"
@@ -43,7 +43,7 @@ class ReferenceDefinitionParserTests(unittest.TestCase):
         )
 
     def test_parses_container_and_multiline_commonmark_definitions(self):
-        """컨테이너와 여러 줄 정의 파싱."""
+        """컨테이너와 여러 줄 정의를 파싱."""
 
         text = """> [quote]: /quote
 
@@ -68,7 +68,7 @@ class ReferenceDefinitionParserTests(unittest.TestCase):
         )
 
     def test_rejects_invalid_nested_and_overlong_reference_labels(self):
-        """중첩되거나 길이 제한을 초과한 레이블 거부."""
+        """중첩되거나 길이 제한을 초과한 레이블을 거부."""
 
         text = (
             "[[Acquire lock]]: /safe\n\n"
@@ -78,14 +78,14 @@ class ReferenceDefinitionParserTests(unittest.TestCase):
         self.assertEqual(reference_definitions(text), ())
 
     def test_does_not_treat_a_definition_as_interrupting_a_paragraph(self):
-        """문단을 중단하는 정의 형태의 줄 제외."""
+        """문단을 중단하는 정의 형태의 줄을 제외."""
 
         text = "Paragraph text.\n[ref]: /not-a-definition\n"
 
         self.assertEqual(reference_definitions(text), ())
 
     def test_applies_commonmark_block_boundaries_to_definitions(self):
-        """CommonMark 블록 경계를 벗어난 정의 제외."""
+        """CommonMark 블록 경계를 벗어난 정의를 제외."""
 
         invalid = (
             "[r]:\n> /safe\n",
@@ -117,7 +117,7 @@ class ReferenceDefinitionParserTests(unittest.TestCase):
         )
 
     def test_accepts_an_uncapped_multiline_reference_title(self):
-        """임의 길이의 여러 줄 reference 제목 허용."""
+        """길이에 제한이 없는 여러 줄 reference 제목을 허용."""
 
         title_lines = [
             f"title line {number}: {'x' * 40}"
@@ -132,7 +132,7 @@ class ReferenceDefinitionParserTests(unittest.TestCase):
         self.assertGreater(len(definitions[0].title), 4096)
 
     def test_resumes_reference_parsing_after_a_blank_terminated_html_block(self):
-        """빈 줄로 끝난 HTML 블록 이후 파싱 재개."""
+        """빈 줄로 끝난 HTML 블록 이후 파싱을 재개."""
 
         text = (
             "<div>\n"
@@ -149,7 +149,7 @@ class ReferenceDefinitionParserTests(unittest.TestCase):
         )
 
     def test_resumes_reference_parsing_after_raw_html_container_exit(self):
-        """raw HTML 컨테이너 종료 이후 파싱 재개."""
+        """raw HTML 컨테이너가 종료된 이후 파싱을 재개."""
 
         cases = (
             (

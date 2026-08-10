@@ -1,4 +1,4 @@
-"""verify 동작과 경계 조건 검증."""
+"""검증기의 동작과 경계 조건 검증."""
 
 import unittest
 
@@ -6,10 +6,10 @@ from sync import response_contract, verify
 
 
 class VerifyContentTests(unittest.TestCase):
-    """verify 내용 동작과 경계 조건 테스트 모음."""
+    """내용 검증의 동작과 경계 조건 테스트 모음."""
 
     def test_accepts_preserved_reference_definition_as_structure(self):
-        """preserved reference definition 로 구조 허용 검증."""
+        """보존된 reference definition을 구조로 허용."""
 
         source = '[cache]: /docs/13.x/cache "Cache docs"\n'
 
@@ -20,7 +20,7 @@ class VerifyContentTests(unittest.TestCase):
         self.assertEqual(verify.verify(source, source=source), [])
 
     def test_accepts_container_and_multiline_reference_definitions(self):
-        """container 및 multiline reference definitions 허용 검증."""
+        """container와 여러 줄 reference definition을 허용."""
 
         source = """> [quote]: /quote
 
@@ -39,7 +39,7 @@ class VerifyContentTests(unittest.TestCase):
         self.assertEqual(verify.verify(source, source=source), [])
 
     def test_final_verifier_rejects_invalid_reference_looking_english_prose(self):
-        """`final_verifier`의 잘못된 reference looking english prose 거부 검증."""
+        """reference definition처럼 보이는 잘못된 영어 산문을 최종 검증기에서 거부."""
 
         source = "[[Acquire lock]]: /safe\n"
 
@@ -53,7 +53,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_rejects_reordered_duplicate_reference_definitions(self):
-        """reordered duplicate reference definitions 거부 검증."""
+        """중복 reference definition의 순서 변경을 거부."""
 
         source = (
             "See [Laravel][ref].\n\n"
@@ -77,7 +77,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_rejects_nbsp_reference_label_drift(self):
-        """nbsp reference label drift 거부 검증."""
+        """NBSP가 포함된 reference label의 변경을 거부."""
 
         source = (
             "See [Laravel][cache docs].\n\n"
@@ -99,7 +99,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_rejects_changed_reference_style_visible_label(self):
-        """changed reference style visible label 거부 검증."""
+        """reference style의 표시 label 변경을 거부."""
 
         source = "[Cache][x]\n\n[x]: cache\n"
         translated = (
@@ -118,7 +118,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_rejects_reference_usage_resolved_to_another_definition(self):
-        """reference usage resolved 후 another definition 거부 검증."""
+        """reference 사용이 다른 definition으로 해석되면 거부."""
 
         source = (
             "See [Laravel][cache].\n\n"
@@ -142,7 +142,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_accepts_equivalent_angle_reference_destination(self):
-        """equivalent angle reference destination 허용 검증."""
+        """angle bracket으로 감싼 동등한 reference destination을 허용."""
 
         source = "[ref]: <https://example.com/cache>\n"
         translated = "[ref]: https://example.com/cache\n"
@@ -154,7 +154,7 @@ class VerifyContentTests(unittest.TestCase):
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_rejects_reference_target_route_class_drift(self):
-        """reference 대상 route class drift 거부 검증."""
+        """reference target의 route class 변경을 거부."""
 
         source = "[ref]: /docs/13.x/cache\n"
         translated = "[ref]: /cache\n"
@@ -169,7 +169,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_rejects_reference_drift_after_raw_html_container_exit(self):
-        """raw HTML container exit 후 reference drift 거부 검증."""
+        """raw HTML container 종료 후의 reference 변경을 거부."""
 
         source = (
             "> <div>\n"
@@ -193,7 +193,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_accepts_link_only_legacy_pipe_table(self):
-        """링크 만 legacy pipe table 허용 검증."""
+        """link만 있는 기존 pipe 표를 허용."""
 
         source = (
             "Name | Contract\n"
@@ -231,7 +231,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_accepts_preserved_version_and_date_legacy_table_cells(self):
-        """preserved 버전 및 date legacy table cells 허용 검증."""
+        """버전과 날짜를 보존한 기존 표의 cell을 허용."""
 
         source = (
             "Name | Version | Date | Description\n"
@@ -253,7 +253,7 @@ class VerifyContentTests(unittest.TestCase):
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_rejects_optional_quote_annotation_moved_to_later_quote(self):
-        """선택적 quote annotation moved 후 later quote 거부 검증."""
+        """선택적 인용 annotation을 뒤쪽 인용문으로 이동하면 거부."""
 
         source = (
             "> First guidance.\n\n"
@@ -274,7 +274,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_rejects_changed_jsx_image_source_with_greater_than_expression(self):
-        """changed jsx image 원문 포함 greater than expression 거부 검증."""
+        """greater-than 연산자가 포함된 JSX image source 변경을 거부."""
 
         source = (
             '<img src={count > 0 ? "/a.png" : "/b.png"} '
@@ -292,7 +292,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_rejects_markdown_and_html_image_cross_format_reordering(self):
-        """Markdown 및 HTML image cross format reordering 거부 검증."""
+        """Markdown·HTML image의 형식 간 순서 변경을 거부."""
 
         source = (
             "![Cat](cat.png)\n\n"
@@ -315,14 +315,14 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_detects_empty_html_comments_outside_code(self):
-        """빈 HTML comments 외부 code 감지 검증."""
+        """코드 밖의 빈 HTML 주석을 감지."""
 
         for text in ("<!-- -->\n", "<!--\n\t\n-->\n"):
             with self.subTest(text=text):
                 self.assertIn("empty HTML comment", verify.verify(text))
 
     def test_accepts_a_preserved_empty_source_comment(self):
-        """preserved 빈 원문 comment 허용 검증."""
+        """보존된 빈 원문 주석을 허용."""
 
         source = "<!-- -->\n\nKeep this paragraph.\n"
         translated = (
@@ -337,7 +337,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_detects_an_extra_empty_html_comment(self):
-        """extra 빈 HTML comment 감지 검증."""
+        """추가된 빈 HTML 주석을 감지."""
 
         source = "Keep this paragraph.\n"
         translated = (
@@ -352,7 +352,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_rejects_a_relocated_empty_source_comment(self):
-        """relocated 빈 원문 comment 거부 검증."""
+        """위치가 바뀐 빈 원문 주석을 거부."""
 
         source = "<!-- -->\n\nKeep this paragraph.\n"
         translated = (
@@ -367,7 +367,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_detects_unclosed_html_comment_outside_code(self):
-        """unclosed HTML comment 외부 code 감지 검증."""
+        """코드 밖의 닫히지 않은 HTML 주석을 감지."""
 
         self.assertIn(
             "malformed HTML comment",
@@ -375,7 +375,7 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_detects_stray_html_comment_closer_outside_code(self):
-        """stray HTML comment closer 외부 code 감지 검증."""
+        """코드 밖의 독립된 HTML 주석 종료자를 감지."""
 
         self.assertIn(
             "malformed HTML comment",
@@ -383,14 +383,14 @@ class VerifyContentTests(unittest.TestCase):
         )
 
     def test_detects_comment_delimiters_crossed_by_inline_code(self):
-        """comment delimiters crossed by inline code 감지 검증."""
+        """inline code를 가로지르는 주석 구분자를 감지."""
 
         text = "<!-- begin ` --> <!-- unclosed `\n"
 
         self.assertIn("malformed HTML comment", verify.verify(text))
 
     def test_ignores_malformed_comment_tokens_inside_fenced_code(self):
-        """`ignores_malformed_comment_tokens_inside_fenced_code` 시나리오 검증."""
+        """fenced code 안의 잘못된 주석 token을 무시."""
 
         text = """```html
 <!-- -->
@@ -402,7 +402,7 @@ class VerifyContentTests(unittest.TestCase):
         self.assertNotIn("malformed HTML comment", verify.verify(text))
 
     def test_ignores_comment_tokens_in_markdown_literal_contexts(self):
-        """`ignores_comment_tokens_in_markdown_literal_contexts` 시나리오 검증."""
+        """Markdown literal 문맥의 주석 token을 무시."""
 
         cases = (
             "~~~text <!--\nbody\n~~~\n",
@@ -418,7 +418,7 @@ class VerifyContentTests(unittest.TestCase):
                 )
 
     def test_accepts_a_preserved_multiline_source_comment(self):
-        """preserved multiline 원문 comment 허용 검증."""
+        """보존된 여러 줄 원문 주석을 허용."""
 
         source = """<!--
 keep line 1
@@ -439,7 +439,7 @@ keep line 2
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_annotation_with_structural_html_wrapper_lines(self):
-        """annotation 포함 structural HTML wrapper 줄 허용 검증."""
+        """annotation이 포함된 구조 HTML wrapper 줄을 허용."""
 
         source = """<div>
 <span>Visible text</span>
@@ -458,7 +458,7 @@ keep line 2
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_comment_for_a_source_structural_html_block(self):
-        """comment 대상 원문 structural HTML 블록 허용 검증."""
+        """원문 구조 HTML block의 소유 주석을 허용."""
 
         source = """<p align="center">
 <img src="release.png"/>
@@ -471,7 +471,7 @@ keep line 2
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_adjacent_legacy_image_comment_with_translated_alt(self):
-        """adjacent legacy image comment 포함 translated alt 허용 검증."""
+        """기존 image 주석에 인접한 번역 alt를 허용."""
 
         source = '<img src="diagram.png" alt="Source diagram"/>\n'
         translated = (
@@ -482,7 +482,7 @@ keep line 2
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_rejects_relocated_source_anchor_annotation(self):
-        """relocated 원문 anchor annotation 거부 검증."""
+        """위치가 바뀐 원문 anchor annotation을 거부."""
 
         source = '<a name="cache"></a>\n\nCache body.\n'
         translated = """<a name="cache"></a>
@@ -499,7 +499,7 @@ keep line 2
         )
 
     def test_rejects_relocated_multiline_structural_annotation(self):
-        """relocated multiline structural annotation 거부 검증."""
+        """위치가 바뀐 여러 줄 구조 annotation을 거부."""
 
         source = """<p align="center">
 <img src="release.png"/>
@@ -516,7 +516,7 @@ keep line 2
         )
 
     def test_rejects_legacy_annotation_around_html_table_boundaries(self):
-        """legacy annotation around HTML table boundaries 거부 검증."""
+        """HTML 표 경계 주변의 기존 annotation을 거부."""
 
         source = """<table>
 <tr><td><strong>Command</strong></td><td><code>php</code></td></tr>
@@ -541,7 +541,7 @@ keep line 2
         )
 
     def test_rejects_relocated_duplicate_structural_annotations(self):
-        """relocated duplicate structural annotation 거부 검증."""
+        """위치가 바뀐 중복 구조 annotation을 거부."""
 
         source = "<div></div>\n\n<div></div>\n"
         translated = f"""{source}
@@ -555,7 +555,7 @@ keep line 2
         )
 
     def test_accepts_an_owned_optional_quote_annotation(self):
-        """owned 선택적 quote annotation 허용 검증."""
+        """owner가 있는 선택적 quote annotation을 허용."""
 
         source = "> Remember this guidance.\n"
         translated = """> <!-- > Remember this guidance. -->
@@ -565,7 +565,7 @@ keep line 2
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_owned_quote_annotations_after_a_fenced_block(self):
-        """fenced 블록 후 owned quote annotation 허용 검증."""
+        """fenced block 뒤의 owner가 있는 quote annotation을 허용."""
 
         source = """```text
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -601,7 +601,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_rejects_optional_quote_annotation_at_the_wrong_depth(self):
-        """선택적 quote annotation at wrong depth 거부 검증."""
+        """잘못된 깊이에 있는 선택적 quote annotation을 거부."""
 
         source = "> Remember this guidance.\n"
         translated = """<!-- > Remember this guidance. -->
@@ -614,7 +614,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_rejects_table_annotation_with_a_different_column_shape(self):
-        """table annotation 포함 different column shape 거부 검증."""
+        """열 형태가 다른 표의 annotation을 거부."""
 
         source = "| Name | Value |\n"
         translated = """<!-- | Name | Value | -->
@@ -627,7 +627,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_rejects_table_annotation_moved_to_a_later_same_shape_table(self):
-        """table annotation moved 후 later same shape table 거부 검증."""
+        """표 annotation을 뒤쪽의 같은 형태 표로 이동하면 거부."""
 
         source = """| First | Value |
 | --- | --- |
@@ -657,7 +657,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_detects_title_case_action_phrase_with_translated_suffix(self):
-        """title case action phrase 포함 translated suffix 감지 검증."""
+        """번역 접미사가 붙은 Title Case 동작 문구를 감지."""
 
         source = "Delete All Records\n"
         translated = (
@@ -671,7 +671,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_detects_prose_phrases_with_technical_prefixes(self):
-        """prose phrases 포함 technical prefixes 감지 검증."""
+        """기술 접두사가 붙은 산문 문구를 감지."""
 
         cases = (
             ("This Works", "This Works예요."),
@@ -694,7 +694,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 )
 
     def test_detects_all_caps_prose_echoes(self):
-        """모든 caps prose echoes 감지 검증."""
+        """대문자로만 된 산문 반복을 모두 감지."""
 
         cases = (
             "API ERROR HANDLING AND RETRY GUIDE",
@@ -714,7 +714,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 )
 
     def test_detects_untranslated_prose_in_a_legacy_pipe_table(self):
-        """untranslated prose in legacy pipe table 감지 검증."""
+        """기존 pipe 표의 미번역 산문을 감지."""
 
         source = (
             "Feature | Description\n"
@@ -733,7 +733,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_accepts_translated_prose_in_a_legacy_pipe_table(self):
-        """translated prose in legacy pipe table 허용 검증."""
+        """기존 pipe 표의 번역 산문을 허용."""
 
         source = (
             "Feature | Description\n"
@@ -751,7 +751,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_detects_partial_prose_echo_in_a_legacy_pipe_table(self):
-        """partial prose echo in legacy pipe table 감지 검증."""
+        """기존 pipe 표의 일부 산문 반복을 감지."""
 
         source = (
             "Feature | Description\n"
@@ -772,7 +772,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_accepts_legacy_english_headers_with_translated_table_prose(self):
-        """legacy english headers 포함 translated table prose 허용 검증."""
+        """기존 영어 header가 있어도 번역된 표 산문을 허용."""
 
         source = (
             "Command | Description\n"
@@ -790,7 +790,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_preserved_product_and_api_names(self):
-        """preserved product 및 api names 허용 검증."""
+        """보존된 제품명과 API 이름을 허용."""
 
         cases = ("Laravel Vapor", "OpenAI Responses API")
         for source_body in cases:
@@ -806,7 +806,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 )
 
     def test_accepts_preserved_indented_command(self):
-        """preserved indented 명령 허용 검증."""
+        """보존된 들여쓰기 명령을 허용."""
 
         source = "    vagrant destroy\n"
         translated = (
@@ -817,7 +817,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_preserved_legacy_pipe_table(self):
-        """preserved legacy pipe table 허용 검증."""
+        """보존된 기존 pipe 표를 허용."""
 
         source = (
             "Facade | Class\n"
@@ -832,7 +832,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_preserved_inline_code_only_paragraph(self):
-        """preserved inline code 만 paragraph 허용 검증."""
+        """보존된 inline code만 있는 문단을 허용."""
 
         source = "`Illuminate\\Database\\Grammar`\n"
         translated = (
@@ -843,7 +843,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_mixed_bare_link_and_inline_code_identifier_list(self):
-        """mixed bare 링크 및 inline code identifier list 허용 검증."""
+        """bare link와 inline code 식별자가 섞인 목록을 허용."""
 
         source = "[assertCookie](#assert-cookie)\n`assertSimilarJson`\n[assertStatus](#assert-status)\n"
         translated = (
@@ -855,7 +855,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_html_code_only_list_item_without_annotation(self):
-        """HTML code 만 list item 제외 annotation 허용 검증."""
+        """HTML code만 있는 목록 항목에는 annotation이 없어도 허용."""
 
         sources = (
             "- <code>decimal:&lt;precision&gt;</code>\n",
@@ -871,7 +871,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 self.assertEqual(verify.verify(source, source=source), [])
 
     def test_accepts_preserved_emphasized_identifier_group(self):
-        """preserved emphasized identifier group 허용 검증."""
+        """보존된 강조 식별자 그룹을 허용."""
 
         source = (
             "**whereDate / whereMonth / whereDay / whereYear / whereTime**\n"
@@ -885,7 +885,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_accepts_preserved_environment_assignment(self):
-        """preserved 환경 assignment 허용 검증."""
+        """보존된 환경 변수 할당을 허용."""
 
         source = "PADDLE_SANDBOX=true\n"
         translated = (
@@ -896,14 +896,14 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_ignores_heading_attribute_syntax_inside_html_comments(self):
-        """`ignores_heading_attribute_syntax_inside_html_comments` 시나리오 검증."""
+        """HTML 주석 안의 heading 속성 문법을 무시."""
 
         text = "<!--\n# Title {.class}\n-->\n"
 
         self.assertNotIn("title style class", verify.verify(text))
 
     def test_detects_link_url_changed_even_when_original_comment_contains_url(self):
-        """original comment contains url 시 링크 url changed even 감지 검증."""
+        """원문 주석에 URL이 있어도 link URL 변경을 감지."""
 
         source = "See [Routing](routing.md#basic-routing)."
         translated = """<!-- See [Routing](routing.md#basic-routing). -->
@@ -913,7 +913,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertIn("link target mismatch", verify.verify(translated, source=source))
 
     def test_detects_translated_link_text_even_when_url_is_preserved(self):
-        """`detects_translated_link_text_even_when_url`의 preserved 판정 검증."""
+        """URL이 보존되어도 번역된 link text를 감지."""
 
         source = "See [Routing](routing.md#basic-routing)."
         translated = """<!-- See [Routing](routing.md#basic-routing). -->
@@ -923,7 +923,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertIn("link label mismatch", verify.verify(translated, source=source))
 
     def test_accepts_preserved_link_text_when_url_is_preserved(self):
-        """`accepts_preserved_link_text_when_url`의 preserved 판정 검증."""
+        """URL과 함께 보존된 link text를 허용."""
 
         source = "See [Routing](routing.md#basic-routing)."
         translated = """<!-- See [Routing](routing.md#basic-routing). -->
@@ -933,7 +933,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertNotIn("link label mismatch", verify.verify(translated, source=source))
 
     def test_accepts_translated_image_alt_with_ordered_target_and_title(self):
-        """translated image alt 포함 ordered 대상 및 title 허용 검증."""
+        """target과 title 순서를 지킨 번역 image alt를 허용."""
 
         source = (
             'Show the cat image: ![Cat](cat.png "Cat title").\n\n'
@@ -949,7 +949,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual([], verify.verify(translated, source=source))
 
     def test_detects_markdown_image_target_and_title_drift(self):
-        """Markdown image 대상 및 title drift 감지 검증."""
+        """Markdown image의 target·title 변경을 감지."""
 
         source = (
             'Show the cat image: ![Cat](cat.png "Cat title").\n\n'
@@ -1019,7 +1019,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 )
 
     def test_ignores_backslash_escaped_link_syntax(self):
-        """`ignores_backslash_escaped_link_syntax` 시나리오 검증."""
+        """백슬래시로 escape한 link 문법을 무시."""
 
         source = "Literal \\[Docs](guide.md).\n"
         translated = """<!-- Literal \\[Docs](guide.md). -->
@@ -1029,7 +1029,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_detects_unclosed_link_with_parentheses_in_destination(self):
-        """unclosed 링크 포함 parentheses in destination 감지 검증."""
+        """destination에 괄호가 있는 닫히지 않은 link를 감지."""
 
         target = "https://en.wikipedia.org/wiki/Mode_(statistics)"
         source = f"See [Mode]({target})."
@@ -1040,7 +1040,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertIn("link target mismatch", verify.verify(translated, source=source))
 
     def test_detects_changed_target_with_non_double_quoted_link_title(self):
-        """changed 대상 포함 non double quoted 링크 title 감지 검증."""
+        """큰따옴표가 아닌 link title이 있는 target 변경을 감지."""
 
         cases = (
             ("'Read more'", "'Read more'"),
@@ -1059,7 +1059,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 )
 
     def test_detects_changed_link_title_when_target_is_preserved(self):
-        """`detects_changed_link_title_when_target`의 preserved 판정 검증."""
+        """target이 보존되어도 link title 변경을 감지."""
 
         source = 'See [Docs](guide.md "Read more").\n'
         translated = (
@@ -1073,7 +1073,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_detects_swapped_link_labels_and_targets(self):
-        """swapped 링크 labels 및 대상 감지 검증."""
+        """서로 바뀐 link label과 target을 감지."""
 
         source = (
             "Generate a [redirect HTTP response](responses#redirects) "
@@ -1086,7 +1086,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertIn("link pair mismatch", verify.verify(translated, source=source))
 
     def test_accepts_normalized_reference_definition_label(self):
-        """normalized reference definition label 허용 검증."""
+        """정규화된 reference definition label을 허용."""
 
         source = '[Cache \t DOC]: /docs/13.x/cache "Cache docs"\n'
         translated = '[cache doc]: /docs/13.x/cache "Cache docs"\n'
@@ -1096,7 +1096,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(issues, [])
 
     def test_detects_reference_definition_version_drift(self):
-        """reference definition 버전 drift 감지 검증."""
+        """reference definition의 버전 변경을 감지."""
 
         source = '[cache-doc]: /docs/13.x/cache "Cache docs"\n'
         translated = '[CACHE-DOC]: /docs/12.x/cache "Cache docs"\n'
@@ -1108,7 +1108,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertNotIn("link label mismatch", issues)
 
     def test_detects_reference_definition_title_drift(self):
-        """reference definition title drift 감지 검증."""
+        """reference definition의 title 변경을 감지."""
 
         source = '[cache-doc]: /docs/13.x/cache "Cache docs"\n'
         translated = '[cache-doc]: /docs/13.x/cache "다른 제목"\n'
@@ -1121,7 +1121,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertNotIn("link pair mismatch", issues)
 
     def test_detects_missing_duplicate_reference_definition(self):
-        """누락된 duplicate reference definition 감지 검증."""
+        """누락된 중복 reference definition을 감지."""
 
         definition = '[cache-doc]: /docs/13.x/cache "Cache docs"'
         source = f"{definition}\n\n{definition}\n"
@@ -1134,7 +1134,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertIn("link pair mismatch", issues)
 
     def test_detects_missing_inline_code_from_translated_body(self):
-        """누락된 inline code from translated body 감지 검증."""
+        """번역 본문에서 누락된 inline code를 감지."""
 
         source = "Set `user_id` before saving."
         translated = """<!-- Set `user_id` before saving. -->
@@ -1144,7 +1144,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertIn("inline code mismatch", verify.verify(translated, source=source))
 
     def test_ignores_backslash_escaped_backticks_as_inline_code(self):
-        """`ignores_backslash_escaped_backticks_as_inline_code` 시나리오 검증."""
+        """백슬래시로 escape한 backtick을 inline code로 보지 않음."""
 
         source = "Use \\`literal\\` text.\n"
         translated = """<!-- Use \\`literal\\` text. -->
@@ -1154,7 +1154,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_detects_changed_multi_backtick_inline_code(self):
-        """changed multi backtick inline code 감지 검증."""
+        """여러 backtick으로 감싼 inline code 변경을 감지."""
 
         source = "Use ``foo`bar`` now.\n"
         translated = "이제 ``foo`baz``를 사용합니다.\n"
@@ -1165,7 +1165,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_detects_changed_multiline_inline_code(self):
-        """changed multiline inline code 감지 검증."""
+        """여러 줄 inline code 변경을 감지."""
 
         source = "Use `foo\nbar` now.\n"
         translated = "이제 `foo\nbaz`를 사용합니다.\n"
@@ -1176,7 +1176,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_does_not_pair_backticks_across_a_paragraph_boundary(self):
-        """않음 pair backticks across paragraph boundary 동작 검증."""
+        """문단 경계를 넘어 backtick을 짝짓지 않음."""
 
         source = "Use the `using` method`:\n\nNext `sub` claim.\n"
         translated = """<!-- Use the `using` method`: -->
@@ -1192,7 +1192,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         )
 
     def test_detects_code_block_content_changed(self):
-        """code 블록 내용 changed 감지 검증."""
+        """code block 내용 변경을 감지."""
 
         source = """```js
 // Create a user
@@ -1208,7 +1208,7 @@ const user = {};
         self.assertIn("code block mismatch", verify.verify(translated, source=source))
 
     def test_detects_fence_that_consumes_the_document_tail(self):
-        """fence that consumes 문서 tail 감지 검증."""
+        """문서 끝까지 소비하는 fence를 감지."""
 
         source = "Keep this text.\n"
         translated = (
@@ -1224,7 +1224,7 @@ const user = {};
         )
 
     def test_accepts_fenced_code_blocks_with_equivalent_trailing_newline(self):
-        """fenced code 블록 포함 equivalent trailing newline 허용 검증."""
+        """후행 개행이 동등한 fenced code block을 허용."""
 
         source = """```php
 echo 'ok';
@@ -1237,7 +1237,7 @@ echo 'ok';
         self.assertNotIn("code block mismatch", verify.verify(translated, source=source))
 
     def test_rejects_fenced_code_blocks_with_changed_trailing_spaces(self):
-        """fenced code 블록 포함 changed trailing spaces 거부 검증."""
+        """후행 공백이 바뀐 fenced code block을 거부."""
 
         source = "```php\nreturn true;    \n```\n"
         translated = "```php\nreturn true;\n```\n"
@@ -1245,7 +1245,7 @@ echo 'ok';
         self.assertIn("code block mismatch", verify.verify(translated, source=source))
 
     def test_accepts_long_fenced_code_blocks_with_inner_shorter_fence(self):
-        """long fenced code 블록 포함 inner shorter fence 허용 검증."""
+        """내부에 더 짧은 fence가 있는 긴 fenced code block을 허용."""
 
         source = "````markdown\n```php\necho 'ok';\n```\n````\n"
         translated = source
@@ -1253,7 +1253,7 @@ echo 'ok';
         self.assertNotIn("code block mismatch", verify.verify(translated, source=source))
 
     def test_detects_quoted_fenced_code_content_changed(self):
-        """quoted fenced code 내용 changed 감지 검증."""
+        """인용된 fenced code의 내용 변경을 감지."""
 
         source = "> ```text\n> literal\n> ```\n"
         translated = "> ```text\n> translated\n> ```\n"
@@ -1261,7 +1261,7 @@ echo 'ok';
         self.assertIn("code block mismatch", verify.verify(translated, source=source))
 
     def test_does_not_close_fence_at_different_blockquote_depth(self):
-        """않음 close fence at different blockquote depth 동작 검증."""
+        """blockquote 깊이가 다른 fence를 종료 fence로 보지 않음."""
 
         source = "```text\n> ```\nliteral\n```\n"
         translated = "```text\n> ```\ntranslated\n```\n"
@@ -1269,7 +1269,7 @@ echo 'ok';
         self.assertIn("code block mismatch", verify.verify(translated, source=source))
 
     def test_detects_html_anchor_name_changed(self):
-        """HTML anchor name changed 감지 검증."""
+        """HTML anchor name 변경을 감지."""
 
         source = '<a name="basic-routing"></a>\n\n# Routing\n'
         translated = """<!-- <a name="basic-routing"></a> -->
@@ -1282,7 +1282,7 @@ echo 'ok';
         self.assertIn("anchor mismatch", verify.verify(translated, source=source))
 
     def test_does_not_treat_data_name_as_anchor_name(self):
-        """않음 treat data name 로 anchor name 동작 검증."""
+        """data-name을 anchor name으로 보지 않음."""
 
         source = '<a name="basic-routing"></a>\n'
         translated = '<a data-name="basic-routing"></a>\n'
@@ -1290,7 +1290,7 @@ echo 'ok';
         self.assertIn("anchor mismatch", verify.verify(translated, source=source))
 
     def test_detects_html_image_source_changed(self):
-        """HTML image 원문 changed 감지 검증."""
+        """HTML image source 변경을 감지."""
 
         source = '<img src="/img/original.png" alt="Original"/>\n'
         translated = '<img src="/img/changed.png" alt="번역"/>\n'
@@ -1301,7 +1301,7 @@ echo 'ok';
         )
 
     def test_does_not_treat_data_src_as_image_src(self):
-        """않음 treat data src 로 image src 동작 검증."""
+        """data-src를 image src로 보지 않음."""
 
         source = '<img src="/img/original.png"/>\n'
         translated = '<img data-src="/img/original.png"/>\n'
@@ -1312,7 +1312,7 @@ echo 'ok';
         )
 
     def test_ignores_translation_alias_anchors(self):
-        """`ignores_translation_alias_anchors` 시나리오 검증."""
+        """번역 alias anchor를 무시."""
 
         source = '<a name="generating-migrations"></a>\n\n# Migrations\n'
         translated = """<!-- <a name="generating-migrations"></a> -->
@@ -1326,7 +1326,7 @@ echo 'ok';
         self.assertNotIn("anchor mismatch", verify.verify(translated, source=source))
 
     def test_detects_missing_original_english_comment_for_heading_or_paragraph(self):
-        """누락된 original english comment 대상 heading 또는 paragraph 감지 검증."""
+        """heading이나 문단의 누락된 원문 영어 주석을 감지."""
 
         source = "# Installation\n\nInstall Laravel with Composer.\n"
         translated = "# 설치 (Installation)\n\nComposer로 Laravel을 설치합니다.\n"
@@ -1338,7 +1338,7 @@ echo 'ok';
         )
 
     def test_accepts_escaped_js_comment_closer_inside_original_comment(self):
-        """escaped js comment closer inside original comment 허용 검증."""
+        """원문 주석 안에서 escape한 JS 주석 종료자를 허용."""
 
         source = "Use `DB::raw(/* ... */)` carefully."
         translated = """<!-- Use `DB::raw(/* ... *&#47;)` carefully. -->
@@ -1348,7 +1348,7 @@ echo 'ok';
         self.assertNotIn("missing original comment", verify.verify(translated, source=source))
 
     def test_does_not_require_comments_for_standalone_html_tags(self):
-        """않음 require comments 대상 standalone HTML tags 동작 검증."""
+        """독립 HTML tag에는 주석을 요구하지 않음."""
 
         source = '<div class="grid">\n\nBody.\n\n</div>\n'
         translated = (
@@ -1363,7 +1363,7 @@ echo 'ok';
         )
 
     def test_detects_missing_standalone_html_wrappers(self):
-        """누락된 standalone HTML wrappers 감지 검증."""
+        """누락된 독립 HTML wrapper를 감지."""
 
         source = '<div class="content-list" markdown="1">\n\nBody.\n\n</div>\n'
         translated = "<!-- Body. -->\n본문입니다.\n"
@@ -1374,7 +1374,7 @@ echo 'ok';
         self.assertNotIn("missing original comment", issues)
 
     def test_accepts_blankless_html_wrappers_with_body_comment(self):
-        """blankless HTML wrappers 포함 body comment 허용 검증."""
+        """빈 줄 없는 HTML wrapper의 본문 주석을 허용."""
 
         source = '<div class="content-list">\nBody.\n</div>\n'
         translated = (
@@ -1389,14 +1389,14 @@ echo 'ok';
         self.assertNotIn("missing original comment", issues)
 
     def test_detects_missing_multi_tag_structural_fragment(self):
-        """누락된 multi tag structural fragment 감지 검증."""
+        """누락된 여러 tag 구조 fragment를 감지."""
 
         source = '<p><img src="/img/example.png"/></p>\n'
 
         self.assertIn("html tag mismatch", verify.verify("", source=source))
 
     def test_detects_missing_inline_table_tags(self):
-        """누락된 inline table tags 감지 검증."""
+        """누락된 inline table tag를 감지."""
 
         source = "<tr><td>Command</td></tr>\n"
         translated = "<!-- <tr><td>Command</td></tr> -->\n명령\n"
@@ -1404,7 +1404,7 @@ echo 'ok';
         self.assertIn("html tag mismatch", verify.verify(translated, source=source))
 
     def test_checks_inline_tags_beside_named_anchor(self):
-        """`checks_inline_tags_beside_named_anchor` 시나리오 검증."""
+        """named anchor 옆의 inline tag를 검사."""
 
         source = '<a name="example"></a><img src="/img/example.png"/>\n'
         translated = '<a name="example"></a>\n'
@@ -1412,7 +1412,7 @@ echo 'ok';
         self.assertIn("html tag mismatch", verify.verify(translated, source=source))
 
     def test_normalizes_known_stale_link_targets_before_comparing(self):
-        """comparing 전 known stale 링크 대상 정규화 검증."""
+        """비교 전에 알려진 stale link target을 정규화."""
 
         source = "See [Agents](#agents-integration)."
         translated = """<!-- See [Agents](#agents-integration). -->
@@ -1422,7 +1422,7 @@ echo 'ok';
         self.assertNotIn("link target mismatch", verify.verify(translated, source=source))
 
     def test_normalizes_controller_stale_target_only_after_v9(self):
-        """v9 후 controller stale 대상 only 정규화 검증."""
+        """controller의 stale target을 v9 이후에만 정규화."""
 
         target = "#actions-handled-by-resource-controller"
 
@@ -1436,7 +1436,7 @@ echo 'ok';
         )
 
     def test_normalizes_agents_target_only_in_v12_and_master(self):
-        """agents 대상 만 in v12 및 master 정규화 검증."""
+        """agents target을 v12와 master에서만 정규화."""
 
         target = "#agents-integration"
 
@@ -1450,7 +1450,7 @@ echo 'ok';
         )
 
     def test_normalizes_versioned_absolute_doc_links_to_relative_targets(self):
-        """versioned absolute doc 링크 후 상대 대상 정규화 검증."""
+        """버전이 있는 absolute doc link를 relative target으로 정규화."""
 
         source = "See [Cache](cache)."
         translated = """<!-- See [Cache](cache). -->
@@ -1463,7 +1463,7 @@ echo 'ok';
         self.assertNotIn("link pair mismatch", issues)
 
     def test_preserves_distinct_link_target_route_classes(self):
-        """distinct 링크 대상 route classes 보존 검증."""
+        """서로 다른 link target route class를 보존."""
 
         cases = (
             ("/docs/13.x/cache", "/cache"),
@@ -1495,7 +1495,7 @@ echo 'ok';
                 self.assertIn("link pair mismatch", issues)
 
     def test_normalizes_only_valid_current_version_document_paths(self):
-        """만 valid current 버전 문서 경로 정규화 검증."""
+        """유효한 현재 버전 문서 경로만 정규화."""
 
         cases = (
             ("cache?view=all#intro", "/docs/13.x/cache?view=all#intro"),
@@ -1524,7 +1524,7 @@ echo 'ok';
                 self.assertNotIn("link pair mismatch", issues)
 
     def test_detects_internal_doc_link_version_drift(self):
-        """internal doc 링크 버전 drift 감지 검증."""
+        """내부 doc link의 버전 변경을 감지."""
 
         source = "See [Cache](/docs/13.x/cache)."
         translated = """<!-- See [Cache](/docs/13.x/cache). -->
@@ -1537,7 +1537,7 @@ echo 'ok';
         self.assertIn("link pair mismatch", issues)
 
     def test_detects_laravel_absolute_doc_link_version_drift(self):
-        """laravel absolute doc 링크 버전 drift 감지 검증."""
+        """Laravel absolute doc link의 버전 변경을 감지."""
 
         source = "See [Cache](https://laravel.com/docs/13.x/cache)."
         translated = """<!-- See [Cache](https://laravel.com/docs/13.x/cache). -->
@@ -1550,7 +1550,7 @@ echo 'ok';
         self.assertIn("link pair mismatch", issues)
 
     def test_normalizes_laravel_absolute_doc_links_to_relative_targets(self):
-        """laravel absolute doc 링크 후 상대 대상 정규화 검증."""
+        """Laravel absolute doc link를 relative target으로 정규화."""
 
         source = "See [Cache](cache)."
         for version in ("12.x", "master"):
@@ -1566,7 +1566,7 @@ echo 'ok';
                 self.assertNotIn("link pair mismatch", issues)
 
     def test_keeps_nonversioned_laravel_doc_urls_external(self):
-        """nonversioned laravel doc urls 외부 유지 검증."""
+        """버전이 없는 Laravel doc URL을 외부 link로 유지."""
 
         source = "See [Sanctum](sanctum)."
         translated = """<!-- See [Sanctum](sanctum). -->
@@ -1576,7 +1576,7 @@ echo 'ok';
         self.assertIn("link target mismatch", verify.verify(translated, source=source))
 
     def test_ignores_the_removed_v8_assert_similar_json_link(self):
-        """본문 섹션이 제거된 8.x assertSimilarJson 링크 비교 제외."""
+        """본문 section이 제거된 8.x assertSimilarJson link를 비교에서 제외."""
 
         source = "See [assertSimilarJson](#assert-similar-json)."
         translated = f"<!-- {source} -->\n`assertSimilarJson`를 참고하세요.\n"
@@ -1588,7 +1588,7 @@ echo 'ok';
         self.assertNotIn("link pair mismatch", issues)
 
     def test_normalizes_the_v9_shortcode_link_to_unicode_content(self):
-        """9.x shortcode 목차 오타를 Unicode Content 대상으로 비교."""
+        """9.x shortcode 목차 오타를 Unicode Content target으로 비교."""
 
         source = "See [Formatting](#formatting-shortcode-notifications)."
         translated = (
@@ -1602,7 +1602,7 @@ echo 'ok';
         self.assertNotIn("link pair mismatch", issues)
 
     def test_does_not_ignore_unknown_missing_anchor_links(self):
-        """않음 ignore unknown 누락된 anchor 링크 동작 검증."""
+        """알 수 없는 누락 anchor link를 무시하지 않음."""
 
         source = "See [Unknown section](#unknown-section)."
         translated = f"<!-- {source} -->\n알 수 없는 섹션을 참고하세요.\n"
@@ -1614,7 +1614,7 @@ echo 'ok';
         self.assertIn("link pair mismatch", issues)
 
     def test_detects_heading_level_mismatch(self):
-        """heading level mismatch 감지 검증."""
+        """heading level 불일치를 감지."""
 
         source = "# Title\n\n## Install\n"
         translated = """<!-- # Title -->
@@ -1627,7 +1627,7 @@ echo 'ok';
         self.assertIn("heading mismatch", verify.verify(translated, source=source))
 
     def test_detects_translated_heading_text(self):
-        """translated heading text 감지 검증."""
+        """번역된 heading text를 감지."""
 
         source = "# Title\n\n## Install\n"
         translated = """<!-- # Title -->
@@ -1640,7 +1640,7 @@ echo 'ok';
         self.assertIn("heading text mismatch", verify.verify(translated, source=source))
 
     def test_detects_removed_explicit_heading_id(self):
-        """removed explicit heading id 감지 검증."""
+        """삭제된 명시적 heading ID를 감지."""
 
         source = "# Stable {#stable-anchor}\n"
         translated = """<!-- # Stable {#stable-anchor} -->
@@ -1650,7 +1650,7 @@ echo 'ok';
         self.assertIn("heading text mismatch", verify.verify(translated, source=source))
 
     def test_detects_translated_front_matter_title(self):
-        """translated front matter title 감지 검증."""
+        """번역된 front matter title을 감지."""
 
         source = "---\ntitle: Installation\n---\n\n# Installation\n"
         translated = "---\ntitle: 설치\n---\n\n<!-- # Installation -->\n# Installation\n"
@@ -1660,7 +1660,7 @@ echo 'ok';
         )
 
     def test_does_not_treat_later_horizontal_rule_as_front_matter(self):
-        """않음 treat later horizontal rule 로 front matter 동작 검증."""
+        """뒤쪽 horizontal rule을 front matter로 보지 않음."""
 
         source = "Intro.\n\n---\n\nDetails.\n"
         translated = """<!-- Intro. -->
@@ -1674,7 +1674,7 @@ echo 'ok';
         self.assertIn("missing original comment", verify.verify(translated, source=source))
 
     def test_detects_admonition_body_outside_blockquote(self):
-        """admonition body 외부 blockquote 감지 검증."""
+        """blockquote 밖의 admonition 본문을 감지."""
 
         translated = """> [!NOTE]
 <!-- Note body. -->
@@ -1684,7 +1684,7 @@ echo 'ok';
         self.assertIn("admonition body outside blockquote", verify.verify(translated))
 
     def test_detects_duplicated_admonition_marker(self):
-        """duplicated admonition marker 감지 검증."""
+        """중복된 admonition marker를 감지."""
 
         translated = """> [!NOTE]
 > [!NOTE]
@@ -1695,7 +1695,7 @@ echo 'ok';
         self.assertIn("duplicate admonition marker", verify.verify(translated))
 
     def test_accepts_single_admonition_marker(self):
-        """single admonition marker 허용 검증."""
+        """단일 admonition marker를 허용."""
 
         translated = """> [!NOTE]
 > <!-- Vector search requires the [AI SDK](/docs/13.x/ai-sdk). -->
@@ -1705,7 +1705,7 @@ echo 'ok';
         self.assertNotIn("duplicate admonition marker", verify.verify(translated))
 
     def test_rejects_changed_final_admonition_type(self):
-        """changed final admonition type 거부 검증."""
+        """최종 admonition type 변경을 거부."""
 
         source = "> [!CAUTION]\n> Protect credentials.\n"
         translated = "> [!NOTE]\n> 認証情報を保護します。\n"
@@ -1716,7 +1716,7 @@ echo 'ok';
         )
 
     def test_accepts_same_final_admonition_type_from_inline_source_marker(self):
-        """same final admonition type from inline 원문 marker 허용 검증."""
+        """inline 원문 marker에서 유래한 같은 최종 admonition type을 허용."""
 
         source = "> [!NOTE] Protect credentials.\n"
         translated = "> [!NOTE]\n> 認証情報を保護します。\n"
@@ -1727,7 +1727,7 @@ echo 'ok';
         )
 
     def test_rejects_changed_final_admonition_type_in_markdown_containers(self):
-        """changed final admonition type in Markdown containers 거부 검증."""
+        """Markdown container 안의 최종 admonition type 변경을 거부."""
 
         cases = (
             (
@@ -1760,7 +1760,7 @@ echo 'ok';
                 )
 
     def test_ignores_single_comment_opener_inside_inline_code(self):
-        """`ignores_single_comment_opener_inside_inline_code` 시나리오 검증."""
+        """inline code 안의 단일 주석 시작자를 무시."""
 
         source = "Use `<!--` literally.\n"
         translated = (
@@ -1774,7 +1774,7 @@ echo 'ok';
         )
 
     def test_detects_legacy_note_colon_inside_bold_text(self):
-        """legacy note colon inside bold text 감지 검증."""
+        """굵은 text 안의 기존 note colon을 감지."""
 
         self.assertIn(
             "legacy note marker",
@@ -1789,7 +1789,7 @@ echo 'ok';
                 self.assertIn("legacy note marker", verify.verify(marker))
 
     def test_detects_every_plain_legacy_admonition_marker(self):
-        """every plain legacy admonition marker 감지 검증."""
+        """일반 text로 남은 기존 admonition marker를 모두 감지."""
 
         for marker in (
             "Note",
@@ -1808,7 +1808,7 @@ echo 'ok';
                 )
 
     def test_ignores_img_and_legacy_alert_syntax_inside_html_comments(self):
-        """`ignores_img_and` 관련 경계 조건 검증."""
+        """HTML 주석 안의 img와 기존 alert 문법을 무시."""
 
         text = (
             "<!--\n"
@@ -1826,7 +1826,7 @@ echo 'ok';
         self.assertNotIn("duplicate admonition marker", issues)
 
     def test_handles_greater_than_in_img_attribute_when_checking_self_close(self):
-        """checking self close 시 greater than in img attribute 처리 검증."""
+        """`img` 속성의 `>` 문자가 self-closing 검사를 방해하지 않는지 검증."""
 
         self.assertNotIn(
             "unclosed img tag",
@@ -1838,7 +1838,7 @@ echo 'ok';
         )
 
     def test_handles_greater_than_in_img_jsx_expression(self):
-        """greater than in img jsx expression 처리 검증."""
+        """`img` JSX 표현식의 `>` 문자가 self-closing 검사를 방해하지 않는지 검증."""
 
         self.assertNotIn(
             "unclosed img tag",
@@ -1850,7 +1850,7 @@ echo 'ok';
         )
 
     def test_rejects_changed_html_image_display_expression(self):
-        """changed HTML image display expression 거부 검증."""
+        """HTML image의 display 표현식 변경을 거부."""
 
         source = (
             '<img src="/a.png" '
@@ -1867,7 +1867,7 @@ echo 'ok';
         )
 
     def test_accepts_translated_html_image_display_text_with_same_expression(self):
-        """translated HTML image display text 포함 same expression 허용 검증."""
+        """같은 표현식을 유지한 HTML image display text 번역을 허용."""
 
         source = (
             '<img src="/a.png" '
@@ -1884,7 +1884,7 @@ echo 'ok';
         )
 
     def test_accepts_translated_non_image_display_attribute(self):
-        """translated non image display attribute 허용 검증."""
+        """image가 아닌 display 속성의 번역을 허용."""
 
         source = '<Widget aria-label={"Cache lock"} />\n'
         translated = (
@@ -1895,7 +1895,7 @@ echo 'ok';
         self.assertEqual(verify.verify(translated, source=source), [])
 
     def test_rejects_changed_non_image_display_expression(self):
-        """changed non image display expression 거부 검증."""
+        """image가 아닌 display 표현식 변경을 거부."""
 
         source = (
             '<Widget aria-label={"Cache " + labels.safe + " status"} />\n'
@@ -1911,7 +1911,7 @@ echo 'ok';
         )
 
     def test_rejects_changed_string_argument_in_image_display_expression(self):
-        """changed string argument in image display expression 거부 검증."""
+        """image display 표현식의 문자열 인수 변경을 거부."""
 
         source = (
             '<img src="/a.png" '
@@ -1928,7 +1928,7 @@ echo 'ok';
         )
 
     def test_rejects_changed_image_expression_containing_regex_literal(self):
-        """changed image expression containing regex literal 거부 검증."""
+        """정규식 literal이 포함된 image 표현식의 변경을 거부."""
 
         source = (
             '<img src="/a.png" '
@@ -1946,7 +1946,7 @@ echo 'ok';
         )
 
     def test_rejects_image_expression_hidden_between_js_comments(self):
-        """image expression hidden between js comments 거부 검증."""
+        """JS 주석 사이에 숨은 image 표현식을 거부."""
 
         source = (
             '<img src="/a.png" alt={label /* + " */ '
@@ -1964,7 +1964,7 @@ echo 'ok';
         )
 
     def test_rejects_changed_quote_text_inside_image_regex_literal(self):
-        """changed quote text inside image regex literal 거부 검증."""
+        """image 정규식 literal 안의 인용 text 변경을 거부."""
 
         source = '<img src="/a.png" alt={/a+\'SAFE\'+b/.source} />\n'
         translated = '<img src="/a.png" alt={/a+\'EVIL\'+b/.source} />\n'
@@ -1975,7 +1975,7 @@ echo 'ok';
         )
 
     def test_detects_list_markers_dropped_in_translation(self):
-        """list markers dropped in 번역 감지 검증."""
+        """번역에서 누락된 목록 표식을 감지."""
 
         source = """- [Using Eloquent](https://example.com/eloquent/) stores models.
 - [Write queries](https://example.com/queries/) with the builder.
@@ -1992,7 +1992,7 @@ echo 'ok';
         self.assertIn("list marker mismatch", verify.verify(translated, source=source))
 
     def test_accepts_preserved_list_markers(self):
-        """preserved list markers 허용 검증."""
+        """보존된 목록 표식을 허용."""
 
         source = """- [Using Eloquent](https://example.com/eloquent/) stores models.
 - [Write queries](https://example.com/queries/) with the builder.
@@ -2008,7 +2008,7 @@ echo 'ok';
         self.assertNotIn("list marker mismatch", verify.verify(translated, source=source))
 
     def test_rejects_translation_that_expands_prose_into_a_list(self):
-        """번역 that expands prose into list 거부 검증."""
+        """산문을 목록으로 확장한 번역을 거부."""
 
         source = "Supported serializers include: `A`, `B`, and `C`.\n"
         translated = """<!-- Supported serializers include: `A`, `B`, and `C`. -->
@@ -2022,7 +2022,7 @@ echo 'ok';
         self.assertIn("list marker mismatch", verify.verify(translated, source=source))
 
     def test_distinguishes_source_comment_from_annotation(self):
-        """원문 작성 주석과 번역 annotation 역할 구분."""
+        """원문 작성 주석과 번역 annotation의 역할을 구분."""
 
         source = """<!-- Same. -->
 
@@ -2038,7 +2038,7 @@ Same.
         )
 
     def test_rejects_relocated_source_comment(self):
-        """구조 위치가 바뀐 원문 작성 주석 거부."""
+        """구조 위치가 바뀐 원문 작성 주석을 거부."""
 
         source = """<!-- keep -->
 
@@ -2061,7 +2061,7 @@ Second paragraph.
         )
 
     def test_rejects_stale_legacy_note_comment(self):
-        """최종 문서에 남아 있는 기존 note 주석 거부."""
+        """최종 문서에 남아 있는 기존 note 주석을 거부."""
 
         source = """> [!NOTE]
 > Current guidance.
@@ -2077,7 +2077,7 @@ Second paragraph.
         )
 
     def test_rejects_invalid_front_matter_description(self):
-        """문자열이 아닌 머리말 description 거부."""
+        """문자열이 아닌 front matter description을 거부."""
 
         source = """---
 slug: cache

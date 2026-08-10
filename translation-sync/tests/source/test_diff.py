@@ -15,7 +15,7 @@ class DiffTests(unittest.TestCase):
     """diff 동작과 경계 조건 테스트 모음."""
 
     def test_process_tree_failure_is_a_controlled_git_error(self):
-        """`process_tree_failure`의 제어된 Git 오류 판정 검증."""
+        """프로세스 트리 정리 실패를 제어된 Git 오류로 변환하는지 검증."""
 
         with patch.object(
             diff,
@@ -29,7 +29,7 @@ class DiffTests(unittest.TestCase):
                 diff.changed_sources()
 
     def test_changed_sources_normalizes_rename_to_delete_then_add(self):
-        """`changed_sources`의 rename 후 삭제 이후 추가 정규화 검증."""
+        """`changed_sources`가 rename을 삭제 후 추가로 정규화하는지 검증."""
 
         old_path = (
             "i18n/en/docusaurus-plugin-content-docs/version-12.x/old-topic.md"
@@ -56,7 +56,7 @@ class DiffTests(unittest.TestCase):
         )
 
     def test_changed_sources_normalizes_real_git_rename(self):
-        """`changed_sources`의 실제 Git rename 정규화 검증."""
+        """`changed_sources`가 실제 Git rename을 정규화하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -103,7 +103,7 @@ class DiffTests(unittest.TestCase):
         )
 
     def test_changed_sources_rejects_noncanonical_source_path(self):
-        """`changed_sources`의 비정규 원문 경로 거부 검증."""
+        """`changed_sources`가 비정규 원문 경로를 거부하는지 검증."""
 
         result = subprocess.CompletedProcess(
             ["git", "diff"],
@@ -119,7 +119,7 @@ class DiffTests(unittest.TestCase):
                 diff.changed_sources(base_ref="base")
 
     def test_changed_sources_rejects_symlinked_source_before_loading_hunks(self):
-        """`changed_sources`의 로딩 hunk 전 symlink 원문 거부 검증."""
+        """`changed_sources`가 hunk를 로드하기 전에 심볼릭 링크인 원문을 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -141,7 +141,7 @@ class DiffTests(unittest.TestCase):
                     diff.changed_sources()
 
     def test_changed_sources_validates_all_records_before_loading_hunks(self):
-        """`changed_sources`의 로딩 hunk 전 모든 record 검증."""
+        """`changed_sources`가 모든 record를 검증한 뒤 hunk를 로드하는지 확인."""
 
         safe_path = (
             "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
@@ -168,7 +168,7 @@ class DiffTests(unittest.TestCase):
         file_hunks.assert_not_called()
 
     def test_changed_sources_normalizes_worktree_rename(self):
-        """`changed_sources`의 worktree rename 정규화 검증."""
+        """`changed_sources`가 worktree rename을 정규화하는지 검증."""
 
         old_path = (
             "i18n/en/docusaurus-plugin-content-docs/version-12.x/old-topic.md"
@@ -195,7 +195,7 @@ class DiffTests(unittest.TestCase):
         )
 
     def test_source_change_rejects_status_outside_public_contract(self):
-        """`source_change`의 상태 외부 공개 계약 거부 검증."""
+        """`SourceChange`가 공개 계약에 없는 상태를 거부하는지 검증."""
 
         with self.assertRaisesRegex(
             diff.SourceDiffError, "unsupported source status"
@@ -209,7 +209,7 @@ class DiffTests(unittest.TestCase):
             )
 
     def test_source_change_parses_nested_document_relative_to_version_root(self):
-        """`source_change`의 중첩 문서 상대 후 버전 root 파싱 검증."""
+        """`SourceChange`가 중첩 원문 경로에서 버전과 문서 상대 경로를 파싱하는지 검증."""
 
         change = diff.SourceChange(
             path=(
@@ -224,7 +224,7 @@ class DiffTests(unittest.TestCase):
         self.assertEqual(change.name, "queues.md")
 
     def test_source_change_rejects_paths_outside_canonical_version_root(self):
-        """`source_change`의 경로 외부 canonical 버전 root 거부 검증."""
+        """`SourceChange`가 canonical 버전 root 밖의 경로를 거부하는지 검증."""
 
         invalid_paths = (
             "version-13.x/guides/queues.md",
@@ -243,7 +243,7 @@ class DiffTests(unittest.TestCase):
                 diff.SourceChange(path=path, status="M")
 
     def test_changed_sources_rejects_unsupported_git_status(self):
-        """`changed_sources`의 지원하지 않는 Git 상태 거부 검증."""
+        """`changed_sources`가 지원하지 않는 Git 상태를 거부하는지 검증."""
 
         path = "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
         result = subprocess.CompletedProcess(
@@ -260,7 +260,7 @@ class DiffTests(unittest.TestCase):
                 diff.changed_sources(base_ref="base")
 
     def test_changed_sources_rejects_unterminated_porcelain_record(self):
-        """`changed_sources`의 종결되지 않은 porcelain record 거부 검증."""
+        """`changed_sources`가 종결되지 않은 porcelain record를 거부하는지 검증."""
 
         path = "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
         result = subprocess.CompletedProcess(
@@ -277,7 +277,7 @@ class DiffTests(unittest.TestCase):
                 diff.changed_sources()
 
     def test_changed_sources_disables_optional_git_locks(self):
-        """`changed_sources`의 선택적 Git 잠금 비활성화 검증."""
+        """`changed_sources`가 선택적 Git 잠금을 비활성화하는지 검증."""
 
         calls = []
 
@@ -294,7 +294,7 @@ class DiffTests(unittest.TestCase):
         self.assertEqual(calls[0][1]["env"]["GIT_OPTIONAL_LOCKS"], "0")
 
     def test_changed_sources_passes_only_path_locale_and_isolated_git_environment(self):
-        """`changed_sources`의 만 경로 locale 및 isolated Git 환경 전달 검증."""
+        """`changed_sources`가 경로, 로캘 및 격리된 Git 환경만 전달하는지 검증."""
 
         captured_environment = None
 
@@ -338,7 +338,7 @@ class DiffTests(unittest.TestCase):
         )
 
     def test_git_diff_commands_disable_external_diff_and_textconv(self):
-        """`git_diff_commands`의 외부 diff 및 textconv 비활성화 검증."""
+        """`changed_sources`의 Git diff 명령이 외부 diff와 textconv를 비활성화하는지 검증."""
 
         path = (
             "i18n/en/docusaurus-plugin-content-docs/"
@@ -372,7 +372,7 @@ class DiffTests(unittest.TestCase):
             self.assertIn("--no-textconv", args)
 
     def test_local_external_diff_configuration_is_not_executed(self):
-        """`local_external_diff_configuration`의 실행되지 않음 판정 검증."""
+        """로컬 external diff 설정을 실행하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -424,7 +424,7 @@ class DiffTests(unittest.TestCase):
             self.assertFalse(marker.exists())
 
     def test_local_textconv_configuration_is_not_executed(self):
-        """`local_textconv_configuration`의 실행되지 않음 판정 검증."""
+        """로컬 textconv 설정을 실행하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -480,7 +480,7 @@ class DiffTests(unittest.TestCase):
             self.assertFalse(marker.exists())
 
     def test_expired_workflow_deadline_rejects_before_git_subprocess(self):
-        """`expired_workflow_deadline`의 Git 하위 프로세스 전 거부 검증."""
+        """`changed_sources`가 만료된 workflow deadline을 Git 하위 프로세스 전에 거부하는지 검증."""
 
         with patch.dict(
             diff.os.environ,
@@ -502,7 +502,7 @@ class DiffTests(unittest.TestCase):
         run.assert_not_called()
 
     def test_git_subprocess_uses_remaining_workflow_deadline(self):
-        """`git_subprocess`의 남은 워크플로 기한 사용 검증."""
+        """`changed_sources`가 Git 하위 프로세스에 남은 workflow deadline을 전달하는지 검증."""
 
         completed = subprocess.CompletedProcess(
             ["git", "status"],
@@ -527,7 +527,7 @@ class DiffTests(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["timeout"], 25.5)
 
     def test_git_subprocess_timeout_is_a_controlled_deadline_error(self):
-        """`git_subprocess_timeout`의 제어된 기한 오류 판정 검증."""
+        """Git 하위 프로세스 timeout을 제어된 deadline 오류로 변환하는지 검증."""
 
         with patch.dict(
             diff.os.environ,
@@ -548,7 +548,7 @@ class DiffTests(unittest.TestCase):
                 diff.changed_sources()
 
     def test_changed_sources_includes_untracked_new_markdown_files(self):
-        """`changed_sources`의 미추적 신규 Markdown 파일 포함 검증."""
+        """`changed_sources`가 미추적 신규 Markdown 파일을 포함하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -575,7 +575,7 @@ class DiffTests(unittest.TestCase):
         )
 
     def test_changed_sources_includes_unified_hunks_for_modified_files(self):
-        """`changed_sources`의 unified hunk 대상 수정된 파일 포함 검증."""
+        """`changed_sources`가 수정 파일의 unified hunk를 포함하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -623,7 +623,7 @@ class DiffTests(unittest.TestCase):
         )
 
     def test_parse_unified_diff_treats_empty_lines_as_context(self):
-        """`parse_unified_diff`의 빈 줄 로 문맥 취급 검증."""
+        """`_parse_unified_diff`가 빈 줄을 문맥으로 취급하는지 검증."""
 
         hunks = diff._parse_unified_diff(  # noqa: SLF001
             "@@ -1,3 +1,3 @@\n"

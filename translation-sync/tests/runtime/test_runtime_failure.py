@@ -1,4 +1,4 @@
-"""runtime failure 동작과 경계 조건 검증."""
+"""실행 실패 모델 동작과 경계 조건 검증."""
 
 import io
 import json
@@ -26,10 +26,10 @@ from sync.runtime.failure import (
 
 
 class FailureCodeTests(unittest.TestCase):
-    """실패 code 동작과 경계 조건 테스트 모음."""
+    """실패 코드 동작과 경계 조건 테스트 모음."""
 
     def test_every_stable_code_has_one_classification_and_exit_meaning(self) -> None:
-        """`every_stable_code` 관련 경계 조건 검증."""
+        """모든 안정적 코드에 분류와 종료 의미가 하나씩 있는지 검증."""
 
         for code in IssueCode:
             with self.subTest(code=code):
@@ -54,7 +54,7 @@ class FailureCodeTests(unittest.TestCase):
         )
 
     def test_exit_priority_is_three_then_two_then_one(self) -> None:
-        """`exit_priority`의 three 이후 two 이후 one 판정 검증."""
+        """종료 코드 우선순위가 3, 2, 1 순인지 검증."""
 
         failures = [
             FailureEvent(
@@ -84,7 +84,7 @@ class FailureCodeTests(unittest.TestCase):
         self.assertEqual(final_exit_code([]), ExitCode.SUCCESS)
 
     def test_non_failure_status_cannot_be_reported_as_a_failure(self) -> None:
-        """`non_failure_status_cannot_be_reported_as_a_failure` 시나리오 검증."""
+        """실패가 아닌 상태를 실패로 보고할 수 없는지 검증."""
 
         with self.assertRaises(ValueError):
             FailureEvent(
@@ -94,7 +94,7 @@ class FailureCodeTests(unittest.TestCase):
             )
 
     def test_attempts_are_present_only_for_provider_failures(self) -> None:
-        """`attempts_are_present_only_for_provider_failures` 시나리오 검증."""
+        """제공자 실패에만 시도 횟수가 포함되는지 검증."""
 
         with self.assertRaises(ValueError):
             FailureEvent(
@@ -112,10 +112,10 @@ class FailureCodeTests(unittest.TestCase):
 
 
 class FailureReportTests(unittest.TestCase):
-    """실패 보고서 동작과 경계 조건 테스트 모음."""
+    """실패 보고서 생성과 기록의 경계 조건 테스트 모음."""
 
     def _events(self) -> list[FailureEvent]:
-        """events 처리."""
+        """테스트용 실패 이벤트 구성."""
 
         return [
             FailureEvent(
@@ -136,7 +136,7 @@ class FailureReportTests(unittest.TestCase):
         ]
 
     def test_report_uses_highest_exit_priority_for_top_level_fields(self) -> None:
-        """`report`의 highest exit priority 대상 top level fields 사용 검증."""
+        """보고서 최상위 필드에 가장 높은 종료 우선순위를 사용하는지 검증."""
 
         report = FailureReport.build(
             run_id="run-20260802-1",
@@ -160,7 +160,7 @@ class FailureReportTests(unittest.TestCase):
     def test_canonical_bytes_are_recursive_sorted_compact_utf8_with_one_lf(
         self,
     ) -> None:
-        """`canonical_bytes_are` 관련 경계 조건 검증."""
+        """정규 바이트의 재귀 정렬·압축 UTF-8·단일 줄바꿈 형식 검증."""
 
         first, second = self._events()
         kwargs = {
@@ -171,8 +171,7 @@ class FailureReportTests(unittest.TestCase):
         report_a = FailureReport.build(failures=[first, second], **kwargs)
         report_b = FailureReport.build(failures=[second, first], **kwargs)
 
-        # The infrastructure issue has the unique highest priority, so changing
-        # lower-priority detection order must not change canonical bytes.
+        # 인프라 문제의 우선순위가 유일하게 가장 높으므로 낮은 우선순위의 탐지 순서가 바뀌어도 정규 바이트는 바뀌지 않음.
         self.assertEqual(report_a.to_bytes(), report_b.to_bytes())
         self.assertTrue(report_a.to_bytes().endswith(b"\n"))
         self.assertFalse(report_a.to_bytes().endswith(b"\n\n"))
@@ -193,7 +192,7 @@ class FailureReportTests(unittest.TestCase):
     def test_messages_are_short_and_redact_secrets_bodies_and_absolute_paths(
         self,
     ) -> None:
-        """`messages_are_short` 관련 경계 조건 검증."""
+        """메시지 길이 제한과 비밀·본문·절대 경로 가림 검증."""
 
         event = FailureEvent(
             code=IssueCode.CLI_PROVIDER_FAILED,
@@ -224,7 +223,7 @@ class FailureReportTests(unittest.TestCase):
     def test_single_segment_absolute_path_is_redacted_but_docs_link_is_preserved(
         self,
     ) -> None:
-        """`single_segment_absolute`의 상태 판정 경계 검증."""
+        """단일 구간 절대 경로는 가리고 문서 링크는 보존하는지 검증."""
 
         event = FailureEvent(
             code=IssueCode.RUNNER_OPERATION_FAILED,
@@ -239,7 +238,7 @@ class FailureReportTests(unittest.TestCase):
         self.assertIn("/docs/master/routing", message)
 
     def test_context_paths_must_be_repository_or_artifact_relative(self) -> None:
-        """`context_paths_must_be_repository_or_artifact_relative` 시나리오 검증."""
+        """문맥 경로가 저장소 또는 산출물 기준 상대 경로인지 검증."""
 
         for field, path in (
             ("document", "/Users/person/repo/file.md"),
@@ -266,7 +265,7 @@ class FailureReportTests(unittest.TestCase):
                     )
 
     def test_write_is_no_replace_and_uses_redacted_stderr_fallback(self) -> None:
-        """`write`의 no replace 및 uses redacted stderr fallback 판정 검증."""
+        """보고서 기록의 무교체 동작과 가려진 표준 오류 대체 출력 검증."""
 
         report = FailureReport.build(
             run_id="run-1",
@@ -304,7 +303,7 @@ class FailureReportTests(unittest.TestCase):
             self.assertEqual(written.read_bytes(), report.to_bytes())
 
     def test_missing_artifact_root_does_not_get_created(self) -> None:
-        """`missing_artifact_root`의 않음 get created 동작 검증."""
+        """존재하지 않는 산출물 루트를 생성하지 않는지 검증."""
 
         report = FailureReport.build(
             run_id="run-1",
@@ -334,7 +333,7 @@ class FailureReportTests(unittest.TestCase):
             )
 
     def test_exact_path_writer_is_no_replace_and_does_not_create_parent(self) -> None:
-        """`exact_path_writer`의 no replace 및 않음 create parent 판정 검증."""
+        """정확한 경로 기록기의 무교체 동작과 상위 디렉터리 미생성 검증."""
 
         report = FailureReport.build(
             run_id="run-1",
@@ -387,7 +386,7 @@ class FailureReportTests(unittest.TestCase):
     def test_exact_path_writer_rejects_symlink_and_non_directory_ancestors(
         self,
     ) -> None:
-        """`exact_path_writer`의 symlink 및 non 디렉터리 ancestors 거부 검증."""
+        """정확한 경로 기록기의 심볼릭 링크와 디렉터리가 아닌 상위 경로 거부 검증."""
 
         report = FailureReport.build(
             run_id="run-1",
@@ -440,7 +439,7 @@ class FailureReportTests(unittest.TestCase):
             self.assertEqual(regular.read_text(encoding="utf-8"), "keep\n")
 
     def test_partial_write_leaves_no_final_or_temporary_file(self) -> None:
-        """`partial_write_leaves_no_final_or_temporary_file` 시나리오 검증."""
+        """부분 기록 실패 시 최종 파일과 임시 파일을 남기지 않는지 검증."""
 
         report = FailureReport.build(
             run_id="run-1",
@@ -456,7 +455,7 @@ class FailureReportTests(unittest.TestCase):
         calls = 0
 
         def fail_after_partial_write(descriptor, contents):
-            """테스트용 after partial write 대체 동작."""
+            """부분 기록 뒤 실패하는 테스트 대체 동작."""
 
             nonlocal calls
             calls += 1
@@ -492,7 +491,7 @@ class FailureReportTests(unittest.TestCase):
     def test_directory_fsync_failure_removes_published_report_and_temporary_file(
         self,
     ) -> None:
-        """`directory_fsync_failure`의 published 보고서 및 temporary 파일 제거 검증."""
+        """디렉터리 동기화 실패 시 게시된 보고서와 임시 파일 제거 검증."""
 
         report = FailureReport.build(
             run_id="run-1",
@@ -508,7 +507,7 @@ class FailureReportTests(unittest.TestCase):
         calls = 0
 
         def fail_directory_fsync(descriptor):
-            """테스트용 디렉터리 fsync 대체 동작."""
+            """디렉터리 동기화만 실패시키는 테스트 대체 동작."""
 
             nonlocal calls
             calls += 1

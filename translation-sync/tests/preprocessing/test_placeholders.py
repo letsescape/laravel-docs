@@ -7,10 +7,10 @@ from sync import postprocess, preprocess, verify
 
 
 class PlaceholderTests(unittest.TestCase):
-    """결정적 placeholder 할당과 입력별 복원표 검증."""
+    """결정적 placeholder 할당과 입력별 복원표를 검증."""
 
     def test_pair_uses_same_placeholder_for_identical_data_uri(self):
-        """같은 data URI가 이전·현재 원문에서 같은 token 사용."""
+        """같은 data URI가 이전·현재 원문에서 같은 token을 사용하는지 검증."""
 
         data_uri = "data:image/png;base64,QUJD"
 
@@ -34,7 +34,7 @@ class PlaceholderTests(unittest.TestCase):
         self.assertEqual(result.current.placeholders, result.previous.placeholders)
 
     def test_pair_allocates_union_in_sha256_digest_order(self):
-        """두 입력의 합집합을 SHA-256 digest byte 순서로 할당."""
+        """두 입력의 합집합을 SHA-256 digest 바이트 순서로 할당."""
 
         result = preprocess.preprocess_pair(
             "Previous: ![jpeg](data:image/jpeg;base64,QUJD) "
@@ -53,7 +53,7 @@ class PlaceholderTests(unittest.TestCase):
         )
 
     def test_pair_allocation_is_independent_of_input_role_and_occurrence_order(self):
-        """입력 역할과 출현 순서가 달라도 같은 data URI 할당 유지."""
+        """입력 역할과 출현 순서가 달라도 같은 data URI 할당을 유지."""
 
         first = "data:image/png;base64,QUJD"
         second = "data:image/png;base64,REVG"
@@ -77,7 +77,7 @@ class PlaceholderTests(unittest.TestCase):
         )
 
     def test_pair_preserves_data_uris_inside_fenced_and_inline_code(self):
-        """fenced code와 inline code 내부 data URI 보존."""
+        """fenced code와 inline code 내부의 data URI를 보존."""
 
         protected = "data:image/png;base64,QUJD"
         translated = "data:image/png;base64,REVG"
@@ -102,7 +102,7 @@ class PlaceholderTests(unittest.TestCase):
         )
 
     def test_pair_preserves_data_uris_inside_multiline_inline_code(self):
-        """여러 줄 inline code span 내부 data URI 보존."""
+        """여러 줄 inline code span 내부의 data URI를 보존."""
 
         protected = "data:image/png;base64,REVG"
 
@@ -118,7 +118,7 @@ class PlaceholderTests(unittest.TestCase):
         self.assertEqual(result.previous.placeholders, {})
 
     def test_pair_skips_placeholder_literals_from_either_input(self):
-        """두 입력 중 하나에 존재하는 예약 token 번호 회피."""
+        """두 입력 중 하나에 존재하는 예약 token 번호와의 충돌을 회피."""
 
         result = preprocess.preprocess_pair(
             "Example literal: __BASE64_IMAGE_001__.\n",
@@ -168,7 +168,7 @@ class PlaceholderTests(unittest.TestCase):
         )
 
     def test_pair_rejects_sha256_digest_collision(self):
-        """서로 다른 data URI의 digest 충돌 시 fail-closed 적용."""
+        """서로 다른 data URI의 digest가 충돌하면 fail-closed를 적용."""
 
         with patch.object(preprocess.hashlib, "sha256") as sha256:
             sha256.return_value.digest.return_value = b"\x00" * 32
@@ -180,7 +180,7 @@ class PlaceholderTests(unittest.TestCase):
                 )
 
     def test_avoids_colliding_with_literal_base64_placeholder_text(self):
-        """단일 입력에 존재하는 예약 token과의 충돌 회피."""
+        """단일 입력에 존재하는 예약 token과의 충돌을 회피."""
 
         source = (
             "Literal __BASE64_IMAGE_001__.\n\n"
@@ -196,7 +196,7 @@ class PlaceholderTests(unittest.TestCase):
         )
 
     def test_round_trips_base64_image_with_media_type_parameters(self):
-        """media type parameter를 포함한 Base64 image 복원."""
+        """media type parameter를 포함한 Base64 image를 복원."""
 
         source = "![x](data:image/svg+xml;charset=utf-8;base64,QUJD)\n"
 
@@ -209,7 +209,7 @@ class PlaceholderTests(unittest.TestCase):
         )
 
     def test_round_trips_base64_images_terminated_by_angle_brackets(self):
-        """angle bracket로 끝나는 Markdown과 HTML data URI 복원."""
+        """angle bracket로 끝나는 Markdown과 HTML data URI를 복원."""
 
         cases = (
             (
@@ -236,7 +236,7 @@ class PlaceholderTests(unittest.TestCase):
                 )
 
     def test_unquoted_base64_image_round_trip_passes_final_verification(self):
-        """따옴표 없는 HTML data URI 복원 결과가 최종 검증 통과."""
+        """따옴표 없는 HTML data URI의 복원 결과가 최종 검증을 통과."""
 
         source = "<img src=data:image/png;base64,QUJD>\n"
 
@@ -250,7 +250,7 @@ class PlaceholderTests(unittest.TestCase):
         self.assertEqual(verify.verify(final, source=source), [])
 
     def test_preserves_unquoted_self_closing_base64_image(self):
-        """따옴표 없는 self-closing HTML data URI의 slash 보존."""
+        """따옴표 없는 self-closing HTML data URI의 slash를 보존."""
 
         source = "<img src=data:image/png;base64,QQ==/>\n"
 
@@ -269,7 +269,7 @@ class PlaceholderTests(unittest.TestCase):
         self.assertEqual(verify.verify(final, source=source), [])
 
     def test_round_trips_base64_image_at_end_of_input(self):
-        """입력 끝에서 종료되는 Base64 image data URI 복원."""
+        """입력 끝에서 종료되는 Base64 image data URI를 복원."""
 
         source = "data:image/png;base64,QUJD"
 

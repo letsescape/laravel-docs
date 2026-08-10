@@ -1,4 +1,4 @@
-"""response contract language 동작과 경계 조건 검증."""
+"""응답 계약의 언어 판정 동작과 경계 조건 검증."""
 
 import unittest
 
@@ -6,7 +6,7 @@ from sync import response_contract
 
 
 class ResponseContractLanguageTests(unittest.TestCase):
-    """로캘별 응답 언어 판정 경계 테스트."""
+    """로캘별 응답의 언어 판정 경계 테스트 모음."""
 
     def test_feedback_retry_is_limited_to_the_supported_completed_shapes(self):
         """교정 재요청을 복구 가능한 완료 응답 형태로 제한."""
@@ -63,7 +63,7 @@ class ResponseContractLanguageTests(unittest.TestCase):
         )
 
     def test_requires_one_canonical_annotation_for_a_pipe_table_owner(self):
-        """GFM 표 전체에 하나의 canonical 소유 주석 요구."""
+        """GFM 표 전체에 canonical 소유 주석을 하나만 요구."""
 
         source = """| Name | Detail |
 | --- | --- |
@@ -93,7 +93,7 @@ class ResponseContractLanguageTests(unittest.TestCase):
         self.assertEqual(valid, [])
 
     def test_requires_one_canonical_annotation_for_a_legacy_pipe_table_owner(self):
-        """legacy 표 전체에 하나의 canonical 소유 주석 요구."""
+        """기존 표 전체에 canonical 소유 주석을 하나만 요구."""
 
         source = """Name | Detail
 --- | ---
@@ -111,7 +111,7 @@ Widget | 안전 작업
         )
 
     def test_rejects_swapped_targets_for_repeated_inline_link_labels(self):
-        """label이 같은 반복 inline 링크의 target 교환 거부."""
+        """label이 같은 반복 inline link의 target 교환을 거부."""
 
         source = "Use [Cache](cache) before [Cache](routing).\n"
         translated = (
@@ -124,7 +124,7 @@ Widget | 안전 작업
         self.assertIn("provider link pair mismatch", issues)
 
     def test_hash_prefixed_prose_is_not_treated_as_an_atx_heading(self):
-        """공백 없는 hash 접두 산문을 ATX heading에서 제외."""
+        """공백 없는 hash prefix 산문을 ATX heading에서 제외."""
 
         for source_body in (
             "#hashtag describes an ordinary paragraph with sufficient source prose.",
@@ -146,7 +146,7 @@ Widget | 안전 작업
                 )
 
     def test_does_not_require_target_script_below_exact_copy_threshold(self):
-        """exact-copy 최소 길이 미만에는 대상 문자 체계 요구 제외."""
+        """exact-copy 최소 길이 미만에는 대상 문자 체계를 요구하지 않음."""
 
         source = "abcdefghi jklmnopqrs\n"
         translated = """<!-- abcdefghi jklmnopqrs -->
@@ -231,7 +231,7 @@ description: Configure distributed cache locks before serving requests.
         )
 
     def test_counts_unicode_letters_in_table_prose_cells(self):
-        """표 산문 셀의 Unicode Letter 수 반영."""
+        """표 산문 셀의 Unicode Letter 수를 반영."""
 
         source_body = "γ" * 40
         source = f"""| {source_body} |
@@ -304,7 +304,7 @@ LaravelFrameworkPackage
                 assertion("provider target language mismatch", issues)
 
     def test_rounds_ten_percent_requirement_up(self):
-        """대상 문자 10퍼센트 하한을 올림 계산."""
+        """대상 문자 10% 하한을 올림 계산."""
 
         source_body = "ε" * 81
         source = f"{source_body}\n"
@@ -321,7 +321,7 @@ LaravelFrameworkPackage
                 assertion("provider target language mismatch", issues)
 
     def test_counts_source_letters_after_nfc_normalization(self):
-        """NFC 정규화 후 원문 Letter 수 계산."""
+        """NFC 정규화 후 원문 Letter 수를 계산."""
 
         source_body = "ζ" * 39 + "e\u0301"
         source = f"{source_body}\n"
@@ -382,7 +382,7 @@ LaravelFrameworkPackage
         )
 
     def test_uses_unicode_15_1_letter_assignments(self):
-        """Unicode 15.1 Letter 할당 범위 고정."""
+        """Unicode 15.1의 Letter 할당 범위를 고정."""
 
         source_body = "ι" * 39 + "\u1c89"
         source = f"{source_body}\n"
@@ -396,7 +396,7 @@ LaravelFrameworkPackage
         )
 
     def test_excludes_admonition_markers_from_source_letter_count(self):
-        """원문 Letter 수에서 admonition 표식 제외."""
+        """원문 Letter 수에서 admonition 표식을 제외."""
 
         source = f"""> [!NOTE]
 >
@@ -413,7 +413,7 @@ LaravelFrameworkPackage
         )
 
     def test_counts_unicode_letters_in_legacy_table_prose_cells(self):
-        """legacy 표 산문 셀의 Unicode Letter 수 반영."""
+        """기존 표 산문 셀의 Unicode Letter 수를 반영."""
 
         source_body = "λ" * 40
         source = f"{source_body} | ID\n{'-' * 40} | ---\n"

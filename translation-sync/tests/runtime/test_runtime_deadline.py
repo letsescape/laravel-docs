@@ -8,14 +8,14 @@ from sync.runtime.failure import IssueCode
 
 
 class _Clock:
-    """테스트에서 단조시계 진행을 직접 제어하는 가짜 시계.
+    """테스트에서 단조 시계 진행을 직접 제어하는 가짜 시계.
 
     Attributes:
         now: 현재 시각으로 반환할 초 단위 값.
     """
 
     def __init__(self, now: float = 100.0) -> None:
-        """가짜 단조시계 생성.
+        """가짜 단조 시계 생성.
 
         Args:
             now: 초기 현재 시각으로 사용할 초 단위 값.
@@ -24,7 +24,7 @@ class _Clock:
         self.now = now
 
     def __call__(self) -> float:
-        """현재 가짜 단조시계 값."""
+        """현재 가짜 단조 시계 값 반환."""
 
         return self.now
 
@@ -33,7 +33,7 @@ class WorkflowDeadlineTests(unittest.TestCase):
     """워크플로 전체와 하위 단계가 공유하는 기한 계약 검증."""
 
     def test_start_uses_one_absolute_monotonic_deadline(self) -> None:
-        """워크플로 전체에서 유지되는 하나의 절대 종료 시각."""
+        """워크플로 전체에서 하나의 절대 단조 시계 종료 시각을 유지하는지 검증."""
 
         clock = _Clock()
         deadline = WorkflowDeadline.start(60, clock=clock)
@@ -46,7 +46,7 @@ class WorkflowDeadlineTests(unittest.TestCase):
         self.assertEqual(deadline.expires_at, 160.0)
 
     def test_child_timeout_never_exceeds_the_remaining_common_budget(self) -> None:
-        """공통 잔여 예산을 넘지 않는 하위 timeout."""
+        """하위 작업 제한 시간이 공통 잔여 예산을 넘지 않는지 검증."""
 
         clock = _Clock()
         deadline = WorkflowDeadline.start(30, clock=clock)
@@ -59,7 +59,7 @@ class WorkflowDeadlineTests(unittest.TestCase):
         self.assertEqual(deadline.child_timeout(12), 5.0)
 
     def test_capped_deadline_uses_the_earlier_run_and_workflow_limit(self) -> None:
-        """실행 제한과 상위 기한 중 이른 값을 사용하는 실행별 기한."""
+        """실행 제한과 상위 기한 중 이른 값을 실행별 기한으로 사용하는지 검증."""
 
         clock = _Clock()
         workflow = WorkflowDeadline.start(100, clock=clock)
@@ -82,7 +82,7 @@ class WorkflowDeadlineTests(unittest.TestCase):
         self.assertEqual(capped.expires_at, 120.0)
 
     def test_provider_retry_requires_wait_and_full_request_timeout_to_fit(self) -> None:
-        """잔여 예산에 포함되어야 하는 재시도 대기와 전체 요청 timeout."""
+        """재시도 대기와 전체 요청 제한 시간이 잔여 예산에 들어가는지 검증."""
 
         clock = _Clock()
         deadline = WorkflowDeadline.start(40, clock=clock).cap_from_now(

@@ -1,4 +1,4 @@
-"""candidate runtime 동작과 경계 조건 검증."""
+"""후보 실행기 동작과 경계 조건 검증."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from sync.runtime.process import ProcessTreeCleanupError
 
 
 def _git(repo: Path, *args: str) -> str:
-    """Git 처리."""
+    """Git 명령 실행."""
 
     return subprocess.run(
         ["git", *args],
@@ -36,7 +36,7 @@ def _git(repo: Path, *args: str) -> str:
 
 
 def _init_repo(root: Path) -> str:
-    """init repo 처리."""
+    """테스트용 Git 저장소 초기화."""
 
     root.mkdir()
     (root / ".gitignore").write_text(
@@ -53,7 +53,7 @@ def _init_repo(root: Path) -> str:
 
 
 def _python(script: str) -> tuple[str, ...]:
-    """python 처리."""
+    """Python 명령 구성."""
 
     return (sys.executable, "-c", script)
 
@@ -84,7 +84,7 @@ def _runner(
     sync_file_inputs: Mapping[str, bytes] | None = None,
     run_id: str = _RUN_ID,
 ) -> CandidateRunner:
-    """runner 처리."""
+    """테스트용 후보 실행기 구성."""
 
     return CandidateRunner(
         source_repo=source_repo,
@@ -98,26 +98,26 @@ def _runner(
 
 
 class _Deadline:
-    """기한 객체."""
+    """제어 가능한 테스트 기한."""
 
     def __init__(self, seconds: float = 30.0) -> None:
-        """기한 초기화."""
+        """남은 시간과 호출 횟수 초기화."""
 
         self.seconds = seconds
         self.calls = 0
 
     def remaining(self) -> float:
-        """남은 처리."""
+        """호출 횟수를 기록하고 남은 시간 반환."""
 
         self.calls += 1
         return self.seconds
 
 
 class CandidateRuntimeTests(unittest.TestCase):
-    """candidate runtime 동작과 경계 조건 테스트 모음."""
+    """후보 실행기 동작과 경계 조건 테스트 모음."""
 
     def test_default_process_runner_uses_process_tree_isolation(self) -> None:
-        """`default_process_runner`의 프로세스 tree isolation 사용 검증."""
+        """기본 프로세스 실행기의 프로세스 트리 격리 사용 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             completed = subprocess.CompletedProcess(
@@ -156,7 +156,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             )
 
     def test_process_tree_failure_is_a_runner_failure(self) -> None:
-        """`process_tree_failure`의 runner 실패 판정 검증."""
+        """프로세스 트리 실패의 실행기 실패 판정 검증."""
 
         with (
             tempfile.TemporaryDirectory() as tmp,
@@ -189,7 +189,7 @@ class CandidateRuntimeTests(unittest.TestCase):
         )
 
     def test_success_seals_tree_without_moving_approved_base_head(self) -> None:
-        """`success_seals_tree_without_moving_approved_base_head` 시나리오 검증."""
+        """성공 시 승인된 기준 커밋을 이동하지 않고 트리를 봉인하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -200,7 +200,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             subprocess_calls: list[dict[str, object]] = []
 
             def run_with_recording(*args: object, **kwargs: object):
-                """with recording 실행."""
+                """하위 프로세스 호출 기록."""
 
                 subprocess_calls.append(kwargs.copy())
                 return real_run(*args, **kwargs)
@@ -303,7 +303,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             )
 
     def test_only_safe_node_options_are_exposed_to_validators(self) -> None:
-        """`only_safe_node_options_are_exposed_to_validators` 시나리오 검증."""
+        """검증기에 안전한 Node 옵션만 노출하는지 검증."""
 
         cases = (
             ("--max-old-space-size=4096", "--max-old-space-size=4096"),
@@ -346,7 +346,7 @@ class CandidateRuntimeTests(unittest.TestCase):
                 self.assertTrue(result.publication_allowed)
 
     def test_only_workflow_deadline_is_added_to_validator_environment(self) -> None:
-        """`only_workflow_deadline`의 added 후 validator 환경 판정 검증."""
+        """검증기 환경에 워크플로 기한만 추가하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -399,7 +399,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             self.assertTrue(result.publication_allowed)
 
     def test_no_change_returns_base_tree_and_false_change_flag(self) -> None:
-        """`no_change`의 기준본 tree 및 false 변경 flag 반환 검증."""
+        """변경이 없을 때 기준 트리와 거짓 변경 플래그 반환 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -428,7 +428,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             )
 
     def test_clone_uses_approved_base_instead_of_active_worktree_changes(self) -> None:
-        """`clone`의 승인된 기준본 instead of 활성 worktree 변경 사용 검증."""
+        """복제본이 활성 작업 트리 변경 대신 승인된 기준본을 사용하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -462,7 +462,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             )
 
     def test_artifact_root_inside_source_is_rejected_without_subprocess(self) -> None:
-        """`artifact_root_inside_source`의 rejected 제외 하위 프로세스 판정 검증."""
+        """원문 저장소 내부의 산출물 루트를 하위 프로세스 실행 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -494,7 +494,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             )
 
     def test_invalid_run_id_is_rejected_before_subprocess(self) -> None:
-        """`invalid_run_id`의 하위 프로세스 전 rejected 판정 검증."""
+        """잘못된 실행 ID를 하위 프로세스 실행 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -527,7 +527,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             self.assertFalse(artifacts.exists())
 
     def test_uppercase_base_oid_is_rejected_before_subprocess(self) -> None:
-        """대문자가 포함된 비정규 base OID의 사전 거부 검증."""
+        """대문자가 포함된 비정규 기준 OID를 하위 프로세스 실행 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -559,7 +559,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             self.assertFalse(artifacts.exists())
 
     def test_existing_child_report_target_is_not_replaced(self) -> None:
-        """`existing_child_report_target`의 않음 replaced 판정 검증."""
+        """기존 하위 작업 보고서 경로를 교체하지 않는지 검증."""
 
         for filename in (
             SYNC_FAILURE_REPORT_FILENAME,
@@ -598,7 +598,7 @@ class CandidateRuntimeTests(unittest.TestCase):
                 self.assertEqual(report.read_text(encoding="utf-8"), "existing")
 
     def test_setup_tracked_source_mutation_blocks_sync(self) -> None:
-        """`setup_tracked_source_mutation`의 동기화 차단 검증."""
+        """준비 명령의 추적 파일 변경 시 동기화 차단 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -642,7 +642,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             self.assertFalse((result.sandbox / "sync-ran").exists())
 
     def test_setup_failure_blocks_sync_with_runner_issue(self) -> None:
-        """`setup_failure`의 동기화 포함 runner 문제 차단 검증."""
+        """준비 실패 시 실행기 문제로 동기화 차단 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -677,7 +677,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             self.assertFalse((result.sandbox / "sync-ran").exists())
 
     def test_empty_setup_commands_are_rejected_before_clone(self) -> None:
-        """`empty_setup_commands_are_rejected_before_clone` 시나리오 검증."""
+        """빈 준비 명령을 저장소 복제 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -708,7 +708,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             self.assertFalse(artifacts.exists())
 
     def test_site_validator_mutation_blocks_tree_seal(self) -> None:
-        """`site_validator_mutation`의 tree seal 차단 검증."""
+        """사이트 검증기가 추적 파일을 변경하면 트리 봉인을 차단하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -745,7 +745,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             )
 
     def test_validator_failures_do_not_produce_a_verified_tree(self) -> None:
-        """`validator_failures_do_not_produce_a_verified_tree` 시나리오 검증."""
+        """검증 실패 시 검증된 트리를 생성하지 않는지 검증."""
 
         cases = (
             (
@@ -799,7 +799,7 @@ class CandidateRuntimeTests(unittest.TestCase):
                 )
 
     def test_child_environments_separate_credentials_and_failure_reports(self) -> None:
-        """`child_environments_separate`의 보고 경계 검증."""
+        """하위 작업 환경에서 자격 증명과 실패 보고서를 분리하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -859,7 +859,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             self.assertTrue(result.has_changes)
 
     def test_sync_file_input_is_exact_read_only_candidate_git_file(self) -> None:
-        """`sync_file_input`의 exact read 만 candidate Git 파일 판정 검증."""
+        """동기화 입력을 후보 Git 디렉터리의 정확한 읽기 전용 파일로 생성하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -913,7 +913,7 @@ class CandidateRuntimeTests(unittest.TestCase):
     def test_sync_file_inputs_reject_unknown_keys_and_non_bytes_before_clone(
         self,
     ) -> None:
-        """`sync_file_inputs` 관련 경계 조건 검증."""
+        """알 수 없는 키와 바이트가 아닌 동기화 입력을 복제 전에 거부하는지 검증."""
 
         for inputs in (
             {"../TRANSLATION_UPSTREAM_MANIFEST": b"manifest"},
@@ -951,7 +951,7 @@ class CandidateRuntimeTests(unittest.TestCase):
     def test_sync_file_input_rejects_symlink_or_existing_staging_directory(
         self,
     ) -> None:
-        """`sync_file_input`의 symlink 또는 existing staging 디렉터리 거부 검증."""
+        """동기화 입력 준비 디렉터리의 심볼릭 링크 또는 선점을 거부하는지 검증."""
 
         for attack in ("symlink", "existing"):
             with self.subTest(attack=attack), tempfile.TemporaryDirectory() as tmp:
@@ -975,7 +975,7 @@ class CandidateRuntimeTests(unittest.TestCase):
                     attack_kind=attack,
                     external_path=external,
                 ) -> None:
-                    """공격용 staging entry가 포함된 clone 구성."""
+                    """공격용 준비 디렉터리 구성."""
 
                     populate(sandbox, commit)
                     staging = sandbox / ".git/translation-candidate-inputs"
@@ -1009,7 +1009,7 @@ class CandidateRuntimeTests(unittest.TestCase):
                 self.assertEqual(list(external.iterdir()), [])
 
     def test_successful_child_must_not_leave_a_failure_report(self) -> None:
-        """`successful_child_must_not_leave_a_failure_report` 시나리오 검증."""
+        """성공한 하위 작업이 실패 보고서를 남기면 거부하는지 검증."""
 
         cases = (
             ("sync-core", True, SYNC_FAILURE_REPORT_FILENAME),
@@ -1053,7 +1053,7 @@ class CandidateRuntimeTests(unittest.TestCase):
                 self.assertTrue((artifacts / filename).exists())
 
     def test_expired_deadline_starts_no_subprocess(self) -> None:
-        """`expired_deadline_starts_no_subprocess` 시나리오 검증."""
+        """만료된 기한에서 하위 프로세스를 시작하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -1084,7 +1084,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             )
 
     def test_empty_sync_command_is_rejected_before_clone(self) -> None:
-        """`empty_sync_command`의 clone 전 rejected 판정 검증."""
+        """빈 동기화 명령을 저장소 복제 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"
@@ -1115,7 +1115,7 @@ class CandidateRuntimeTests(unittest.TestCase):
             self.assertFalse(artifacts.exists())
 
     def test_sync_failure_stops_before_validators_and_seal(self) -> None:
-        """`sync_failure`의 validators and seal 전 중단 검증."""
+        """동기화 실패 시 검증과 트리 봉인 전에 중단하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "repo"

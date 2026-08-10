@@ -1,4 +1,4 @@
-"""workflow entrypoint 동작과 경계 조건 검증."""
+"""워크플로 진입점의 동작과 경계 조건 검증."""
 
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ FIXTURE_EVIDENCE = b"fixture-evidence\n"
 
 
 class WorkflowEntrypointStateTests(unittest.TestCase):
-    """워크플로 entrypoint 상태 동작과 경계 조건 테스트 모음."""
+    """워크플로 진입점 상태의 동작과 경계 조건 테스트 모음."""
 
     def setUp(self) -> None:
         """테스트 사전 상태 구성."""
@@ -63,7 +63,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         *,
         deadline: float | None = None,
     ) -> dict[str, object]:
-        """prepared mapping 처리."""
+        """봉인된 준비 상태 매핑 생성."""
 
         unsigned = {
             "schema_version": 1,
@@ -111,7 +111,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         return _sealed_mapping(unsigned, KEY)
 
     def write_prepared(self, value: dict[str, object] | None = None) -> None:
-        """prepared 기록."""
+        """준비 상태 기록."""
 
         (self.root / PREPARED_STATE_FILENAME).write_bytes(
             _canonical_json(value or self.prepared_mapping())
@@ -123,7 +123,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         branch: str = "feature",
         deadline: float | None = None,
     ) -> None:
-        """published 기록."""
+        """게시 상태 기록."""
 
         value = _sealed_mapping(
             {
@@ -149,7 +149,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         (self.root / PUBLISHED_STATE_FILENAME).write_bytes(_canonical_json(value))
 
     def test_prepared_state_seal_detects_canonical_tampering(self) -> None:
-        """`prepared_state_seal`의 canonical tampering 감지 검증."""
+        """준비 상태 봉인의 정규 데이터 변조 감지 검증."""
 
         value = self.prepared_mapping()
         value["branch"] = "other"
@@ -161,7 +161,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(caught.exception.code.value, "VERIFIED_TREE_MISMATCH")
 
     def test_private_preparation_key_rejects_group_or_world_permissions(self) -> None:
-        """`private_preparation_key`의 group 또는 world permissions 거부 검증."""
+        """비공개 준비 키의 그룹 또는 기타 사용자 권한 거부 검증."""
 
         self.write_prepared()
         (self.root / PREPARATION_KEY_FILENAME).chmod(0o644)
@@ -172,7 +172,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(caught.exception.code.value, "INVALID_RUNTIME_OPTION")
 
     def test_prepared_candidate_path_rejects_symlink_component(self) -> None:
-        """`prepared_candidate_path`의 symlink component 거부 검증."""
+        """준비된 후보 경로의 심볼릭 링크 구성 요소 거부 검증."""
 
         link = self.root / "candidate-link"
         link.symlink_to(self.candidate, target_is_directory=True)
@@ -189,7 +189,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(caught.exception.code.value, "INVALID_RUNTIME_OPTION")
 
     def test_publish_https_requires_credentials_before_mutation(self) -> None:
-        """`publish_https`의 mutation 전 credentials 요구 검증."""
+        """HTTPS 게시가 변경 전에 자격 증명을 요구하는지 검증."""
 
         self.write_prepared()
         args = argparse.Namespace(artifact_root=self.root)
@@ -214,21 +214,21 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(report["base_head"], HEAD)
 
     def test_prepublication_fingerprint_preserves_deadline_code(self) -> None:
-        """`prepublication_fingerprint`의 기한 code 보존 검증."""
+        """게시 전 지문 확인에서 기한 초과 코드를 보존하는지 검증."""
 
         self.write_prepared()
         args = argparse.Namespace(artifact_root=self.root)
 
         class FingerprintPublisher:
-            """fingerprint publisher 객체."""
+            """지문 확인용 게시자 대역."""
 
             def __init__(self, **kwargs):
-                """fingerprint publisher 초기화."""
+                """활성 저장소 지문 판독기 저장."""
 
                 self.read_fingerprint = kwargs["read_active_fingerprint"]
 
             def publish(self, prepared, *, push_environment):
-                """publish 처리."""
+                """지문을 확인한 뒤 게시 중단."""
 
                 self.read_fingerprint(10.0)
                 raise AssertionError("fingerprint deadline must stop publication")
@@ -259,7 +259,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertIsNone(report["published_commit"])
 
     def test_final_fingerprint_io_error_is_runner_failure(self) -> None:
-        """`final_fingerprint_io_error`의 runner 실패 판정 검증."""
+        """최종 지문 입출력 오류를 실행기 실패로 판정하는지 검증."""
 
         with mock.patch.object(
             workflow,
@@ -282,7 +282,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(caught.exception.published_commit, HEAD)
 
     def test_final_fingerprint_must_finish_before_deadline(self) -> None:
-        """`final_fingerprint_must_finish_before_deadline` 시나리오 검증."""
+        """최종 지문 확인이 기한 전에 끝나야 하는지 검증."""
 
         deadline = workflow.WorkflowDeadline(
             expires_at=100.0,
@@ -306,7 +306,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         )
 
     def test_askpass_helper_keeps_token_out_of_script(self) -> None:
-        """`askpass_helper`의 token out of script 유지 검증."""
+        """Askpass 도우미 스크립트에 토큰을 포함하지 않는지 검증."""
 
         token = "credential-value-that-must-not-enter-the-helper"
 
@@ -322,7 +322,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
             self.assertEqual(helper.stat().st_mode & 0o777, 0o700)
 
     def test_post_publication_state_write_failure_retains_commit_context(self) -> None:
-        """post publication 상태 write 실패 retains 커밋 문맥 시나리오 검증."""
+        """게시 후 상태 기록 실패 시 커밋 문맥 보존 검증."""
 
         self.write_prepared()
         args = argparse.Namespace(artifact_root=self.root)
@@ -366,7 +366,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         )
 
     def test_push_cleanup_failure_retains_successful_publication_commit(self) -> None:
-        """`push_cleanup_failure` 관련 경계 조건 검증."""
+        """푸시 정리 실패 시 성공한 게시 커밋 보존 검증."""
 
         self.write_prepared()
         args = argparse.Namespace(artifact_root=self.root)
@@ -402,7 +402,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(report["published_commit"], HEAD)
 
     def test_push_cleanup_failure_preserves_publication_error_context(self) -> None:
-        """`push_cleanup_failure`의 publication 오류 문맥 보존 검증."""
+        """푸시 정리 실패 시 게시 오류 문맥 보존 검증."""
 
         self.write_prepared()
         args = argparse.Namespace(artifact_root=self.root)
@@ -440,7 +440,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(report["published_commit"], HEAD)
 
     def test_deadline_after_publication_reports_published_commit(self) -> None:
-        """`deadline_after_publication_reports_published_commit` 시나리오 검증."""
+        """게시 후 기한 초과 시 게시된 커밋 보고 검증."""
 
         self.write_prepared()
         args = argparse.Namespace(artifact_root=self.root)
@@ -481,7 +481,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(report["published_commit"], HEAD)
 
     def test_expired_prepared_state_retains_failure_report_context(self) -> None:
-        """`expired_prepared_state_retains_failure_report_context` 시나리오 검증."""
+        """만료된 준비 상태의 실패 보고서 문맥 보존 검증."""
 
         self.write_prepared(
             self.prepared_mapping(deadline=time.monotonic() - 1)
@@ -514,7 +514,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         )
 
     def test_final_mutation_outranks_publication_state_write_failure(self) -> None:
-        """`final_mutation_outranks_publication_state_write_failure` 시나리오 검증."""
+        """최종 변경 감지가 게시 상태 기록 실패보다 우선하는지 검증."""
 
         self.write_prepared()
         args = argparse.Namespace(artifact_root=self.root)
@@ -563,7 +563,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(report["published_commit"], HEAD)
 
     def test_non_main_deploy_is_a_separate_no_trigger_success_phase(self) -> None:
-        """`non_main_deploy`의 separate no trigger success phase 판정 검증."""
+        """기본 브랜치가 아닌 배포를 트리거 없는 별도 성공 단계로 판정하는지 검증."""
 
         self.write_published(branch="feature/docs-sync")
         args = argparse.Namespace(
@@ -610,7 +610,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         )
 
     def test_expired_published_state_retains_commit_in_failure_report(self) -> None:
-        """expired published 상태 retains 커밋 in 실패 보고서 시나리오 검증."""
+        """만료된 게시 상태의 커밋을 실패 보고서에 보존하는지 검증."""
 
         self.write_published(deadline=time.monotonic() - 1)
         args = argparse.Namespace(
@@ -645,7 +645,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         )
 
     def test_final_mutation_outranks_deploy_failure(self) -> None:
-        """`final_mutation_outranks_deploy_failure` 시나리오 검증."""
+        """최종 변경 감지가 배포 실패보다 우선하는지 검증."""
 
         self.write_published(branch="main")
         args = argparse.Namespace(
@@ -694,7 +694,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(report["published_commit"], HEAD)
 
     def test_invalid_cli_options_use_controlled_failure_exit_code(self) -> None:
-        """`invalid_cli_options_use_controlled_failure_exit_code` 시나리오 검증."""
+        """잘못된 CLI 옵션에 통제된 실패 종료 코드를 사용하는지 검증."""
 
         stderr = io.StringIO()
         with redirect_stderr(stderr):
@@ -704,7 +704,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertIn("REPORT_WRITE_FAILED", stderr.getvalue())
 
     def test_invalid_artifact_root_uses_fixed_stderr_fallback(self) -> None:
-        """`invalid_artifact_root`의 fixed stderr fallback 사용 검증."""
+        """잘못된 산출물 루트에 고정된 표준 오류 대체 문구를 사용하는지 검증."""
 
         args = argparse.Namespace(
             artifact_root=self.root / "missing",
@@ -730,7 +730,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         )
 
     def test_artifact_root_cannot_be_repository_ancestor(self) -> None:
-        """`artifact_root_cannot_be_repository_ancestor` 시나리오 검증."""
+        """산출물 루트가 저장소의 상위 경로일 수 없는지 검증."""
 
         repository = self.root / "active-repository"
         repository.mkdir()
@@ -745,7 +745,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         )
 
     def test_invalid_prepared_state_does_not_invent_publish_run_id(self) -> None:
-        """`invalid_prepared_state`의 않음 invent publish 실행 id 동작 검증."""
+        """잘못된 준비 상태에 게시 실행 ID를 임의로 만들지 않는지 검증."""
 
         (self.root / PREPARED_STATE_FILENAME).write_bytes(b"{}\n")
         stderr = io.StringIO()
@@ -762,7 +762,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertIn("REPORT_WRITE_FAILED", stderr.getvalue())
 
     def test_invalid_published_state_does_not_invent_deploy_run_id(self) -> None:
-        """`invalid_published_state`의 않음 invent 배포 실행 id 동작 검증."""
+        """잘못된 게시 상태에 배포 실행 ID를 임의로 만들지 않는지 검증."""
 
         (self.root / PUBLISHED_STATE_FILENAME).write_bytes(b"{}\n")
         stderr = io.StringIO()
@@ -782,7 +782,7 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertIn("REPORT_WRITE_FAILED", stderr.getvalue())
 
     def test_prepare_unexpected_configuration_error_writes_stable_report(self) -> None:
-        """`prepare_unexpected_configuration_error`의 stable 보고서 기록 검증."""
+        """예상하지 못한 준비 설정 오류를 안정된 보고서로 기록하는지 검증."""
 
         args = argparse.Namespace(
             artifact_root=self.root,

@@ -1,4 +1,4 @@
-"""replay 동작과 경계 조건 검증."""
+"""번역 재실행의 동작과 경계 조건 검증."""
 
 import base64
 import hashlib
@@ -20,7 +20,7 @@ from sync.runtime.settings import WorkflowSettings
 
 
 def _manifest_bytes() -> bytes:
-    """두 version을 가리키는 정규 manifest byte 생성."""
+    """테스트용 매니페스트 바이트 생성."""
 
     return (
         '{"schema_version":1,"entries":['
@@ -45,7 +45,7 @@ def _git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
 
 
 def _init_repo(root: Path, main_source: str) -> None:
-    """Replay 입력으로 사용할 최소 Git 저장소 초기화."""
+    """테스트용 Git 저장소 초기화."""
 
     (root / "translation-sync").mkdir()
     (root / "translation-sync/main.py").write_text(main_source, encoding="utf-8")
@@ -70,7 +70,7 @@ def _replay_workflow_settings(
     site_commands: tuple[tuple[str, ...], ...] | None = None,
     path_command: tuple[str, ...] | None = None,
 ) -> WorkflowSettings:
-    """Replay 테스트에 필요한 최소 워크플로 설정 구성."""
+    """재실행용 워크플로 설정 생성."""
 
     no_op = (sys.executable, "-c", "raise SystemExit(0)")
     return WorkflowSettings(
@@ -89,7 +89,7 @@ def _replay_workflow_settings(
 
 
 class TranslationReplayTests(unittest.TestCase):
-    """번역 replay 동작과 경계 조건 테스트 모음."""
+    """번역 재실행의 동작과 경계 조건 테스트 모음."""
 
     def setUp(self) -> None:
         """테스트 사전 상태 구성."""
@@ -125,7 +125,7 @@ class TranslationReplayTests(unittest.TestCase):
     def test_invalid_or_expired_workflow_deadline_is_rejected_before_setup(
         self,
     ) -> None:
-        """잘못되거나 만료된 공통 기한이 sandbox 준비 전에 거부되는지 검증."""
+        """잘못되거나 만료된 워크플로 기한을 설정 전에 거부하는지 검증."""
 
         for deadline, expected in (
             ("not-a-number", replay.EXIT_SYNC_FAILED),
@@ -153,7 +153,7 @@ class TranslationReplayTests(unittest.TestCase):
                 self.resolve_manifest.assert_not_called()
 
     def test_setup_interrupt_preserves_signal_convention(self) -> None:
-        """준비 중 interrupt가 일반 종료 코드로 변환되지 않는지 검증."""
+        """설정 중 인터럽트 발생 시 시그널 규약 보존 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -175,7 +175,7 @@ class TranslationReplayTests(unittest.TestCase):
             self.assertFalse(sandboxes.exists())
 
     def test_command_error_does_not_include_arguments_or_stderr_paths(self) -> None:
-        """하위 명령 오류가 인자와 stderr 경로를 노출하지 않는지 검증."""
+        """명령 오류에 인수나 표준 오류 경로를 포함하지 않는지 검증."""
 
         exposed_path = "/artifact/translation-replay-secret/private-output"
         error = subprocess.CalledProcessError(
@@ -194,7 +194,7 @@ class TranslationReplayTests(unittest.TestCase):
         self.assertNotIn(exposed_path, str(raised.exception))
 
     def test_all_replay_subprocesses_use_the_same_remaining_deadline(self) -> None:
-        """모든 replay 하위 프로세스가 같은 절대 기한을 공유하는지 검증."""
+        """모든 재실행 하위 프로세스가 동일한 잔여 기한을 사용하는지 검증."""
 
         main_source = """\
 import os
@@ -213,7 +213,7 @@ raise SystemExit(0 if deadline > time.monotonic() else 9)
             real_run = replay._PROCESS_RUNNER  # noqa: SLF001
 
             def observe_timeout(*args: object, **kwargs: object):
-                """전달된 timeout을 기록하고 실제 하위 명령 실행."""
+                """프로세스 시간 제한 기록."""
 
                 observed_timeouts.append(kwargs.get("timeout"))
                 return real_run(*args, **kwargs)
@@ -241,7 +241,7 @@ raise SystemExit(0 if deadline > time.monotonic() else 9)
             )
 
     def test_standalone_replay_starts_one_deadline_from_workflow_settings(self) -> None:
-        """독립 replay가 워크플로 설정에서 기한을 한 번만 시작하는지 검증."""
+        """독립 재실행이 워크플로 설정에서 단일 기한을 시작하는지 검증."""
 
         main_source = """\
 import os
@@ -276,7 +276,7 @@ raise SystemExit(0 if deadline > time.monotonic() else 9)
             )
 
     def test_selector_is_canonical_utf8_json_and_allows_nested_documents(self) -> None:
-        """중첩 문서 selector가 정규 UTF-8 JSON으로 생성되는지 검증."""
+        """선택자의 정규 UTF-8 JSON 형식과 중첩 문서 허용 검증."""
 
         selector = replay.normalize_selector(
             version="13.x",
@@ -290,7 +290,7 @@ raise SystemExit(0 if deadline > time.monotonic() else 9)
         )
 
     def test_empty_selector_is_canonical_json_with_null_values(self) -> None:
-        """빈 selector가 null 값을 가진 정규 JSON인지 검증."""
+        """빈 선택자의 정규 JSON에 null 값을 포함하는지 검증."""
 
         self.assertEqual(
             replay.normalize_selector(
@@ -302,7 +302,7 @@ raise SystemExit(0 if deadline > time.monotonic() else 9)
         )
 
     def test_cli_accepts_external_artifact_root(self) -> None:
-        """CLI가 저장소 외부 artifact root를 전달하는지 검증."""
+        """CLI의 외부 산출물 루트 허용 검증."""
 
         with patch.object(
             replay.sys,
@@ -314,7 +314,7 @@ raise SystemExit(0 if deadline > time.monotonic() else 9)
         self.assertEqual(args.artifact_root, Path("/tmp/replay-artifacts"))
 
     def test_selector_rejects_noncanonical_or_unsafe_paths(self) -> None:
-        """비정규 또는 저장소 탈출 가능성이 있는 문서 selector 거부 검증."""
+        """선택자의 비정규 또는 안전하지 않은 경로 거부 검증."""
 
         for document in (
             "",
@@ -360,7 +360,7 @@ raise SystemExit(0 if deadline > time.monotonic() else 9)
                 )
 
     def test_unsafe_selector_is_rejected_before_manifest_resolution(self) -> None:
-        """안전하지 않은 selector가 manifest 해석보다 먼저 거부되는지 검증."""
+        """안전하지 않은 선택자를 매니페스트 해석 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -396,7 +396,7 @@ raise SystemExit(0 if deadline > time.monotonic() else 9)
             )
 
     def test_both_replay_processes_receive_the_same_manifest_and_selector(self) -> None:
-        """두 replay pass가 동일한 manifest와 selector를 받는지 검증."""
+        """두 재실행 프로세스에 동일한 매니페스트와 선택자를 전달하는지 검증."""
 
         main_source = """\
 import hashlib
@@ -444,7 +444,7 @@ raise SystemExit(0 if expected else 9)
             self.assertEqual(list(sandboxes.iterdir()), [])
 
     def test_both_passes_run_full_candidate_pipeline_in_order(self) -> None:
-        """두 pass가 전체 candidate pipeline을 정의된 순서로 실행하는지 검증."""
+        """두 재실행 과정에서 전체 후보 파이프라인을 순서대로 실행하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -455,7 +455,7 @@ raise SystemExit(0 if expected else 9)
             stage_log = artifact_root / "stage.log"
 
             def stage_command(label: str, body: str = "") -> tuple[str, ...]:
-                """Candidate 단계 명령을 실행 순서에 기록."""
+                """단계 기록용 명령 생성."""
 
                 script = (
                     "from pathlib import Path; "
@@ -490,7 +490,7 @@ raise SystemExit(0 if expected else 9)
                 verified_tree: str,
                 parent_commit: str,
             ) -> str:
-                """첫 pass의 봉인된 tree 연결을 실행 순서에 기록."""
+                """검증된 후보 커밋과 트리 기록."""
 
                 commit = real_commit(
                     sandbox,
@@ -550,7 +550,7 @@ raise SystemExit(0 if expected else 9)
             )
 
     def test_candidate_validator_mutation_stops_before_second_pass(self) -> None:
-        """Validator가 candidate를 변경하면 두 번째 pass 전에 중단되는지 검증."""
+        """후보 검증기가 상태를 변경하면 두 번째 실행 전에 중단하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -562,7 +562,7 @@ raise SystemExit(0 if expected else 9)
             stage_log = artifact_root / "stage.log"
 
             def stage_command(label: str, body: str = "") -> tuple[str, ...]:
-                """Candidate 단계 명령을 기록하고 선택적으로 tree 변경."""
+                """단계 기록용 명령 생성."""
 
                 return (
                     sys.executable,
@@ -619,7 +619,7 @@ raise SystemExit(0 if expected else 9)
             self.assertTrue(report["candidate_debug_path"])
 
     def test_manifest_change_after_first_process_prevents_second_process(self) -> None:
-        """첫 pass 뒤 manifest 변경이 두 번째 pass를 차단하는지 검증."""
+        """첫 번째 프로세스 후 매니페스트 변경 시 두 번째 프로세스 실행 방지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             call_log = Path(tmp) / "manifest-mutation-calls"
@@ -661,7 +661,7 @@ raise SystemExit(0)
     def test_missing_external_manifest_is_exported_only_after_sandbox_replay(
         self,
     ) -> None:
-        """새 외부 manifest가 sandbox replay 성공 뒤에만 생성되는지 검증."""
+        """누락된 외부 매니페스트를 샌드박스 재실행 후에만 내보내는지 검증."""
 
         digest = hashlib.sha256(_manifest_bytes()).hexdigest()
         main_source = f"""\
@@ -703,7 +703,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(list(sandboxes.iterdir()), [])
 
     def test_success_exports_canonical_machine_readable_replay_state(self) -> None:
-        """성공 시 기계 판독 가능한 정규 replay 상태를 내보내는지 검증."""
+        """성공 시 기계 판독 가능한 정규 재실행 상태를 내보내는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -761,7 +761,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(list(sandboxes.iterdir()), [])
 
     def test_replay_state_output_is_no_replace_and_validated_before_setup(self) -> None:
-        """Replay 상태 경로가 준비 전에 검증되고 기존 파일을 보존하는지 검증."""
+        """재실행 상태 출력을 설정 전에 검증하고 기존 파일을 교체하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -783,7 +783,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.resolve_manifest.assert_not_called()
 
     def test_replay_state_output_inside_active_repository_is_rejected(self) -> None:
-        """Active 저장소 내부의 replay 상태 경로 거부 검증."""
+        """활성 저장소 내부의 재실행 상태 출력 경로 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -804,7 +804,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.resolve_manifest.assert_not_called()
 
     def test_existing_external_manifest_is_staged_as_read_only_input(self) -> None:
-        """기존 외부 manifest가 읽기 전용 snapshot으로 전달되는지 검증."""
+        """기존 외부 매니페스트를 읽기 전용 입력으로 준비하는지 검증."""
 
         digest = hashlib.sha256(_manifest_bytes()).hexdigest()
         main_source = f"""\
@@ -847,7 +847,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(list(sandboxes.iterdir()), [])
 
     def test_manifest_destination_inside_active_repository_is_rejected(self) -> None:
-        """Active 저장소 내부의 manifest 대상 경로 거부 검증."""
+        """활성 저장소 내부의 매니페스트 대상 경로 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -871,7 +871,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(_git(root, "status", "--porcelain").stdout, "")
 
     def test_case_alias_inside_active_repository_is_rejected(self) -> None:
-        """대소문자 alias로 저장소 내부를 가리키는 manifest 경로 거부 검증."""
+        """활성 저장소 내부를 가리키는 대소문자 별칭 경로 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -913,7 +913,7 @@ if not manifest.exists():
     def test_manifest_ancestor_created_as_active_repo_symlink_is_rejected(
         self,
     ) -> None:
-        """Manifest 상위 경로가 저장소 symlink로 교체되는 경쟁 조건 거부 검증."""
+        """매니페스트 상위 경로가 활성 저장소 심볼릭 링크로 생성되면 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -948,7 +948,7 @@ if not late_parent.exists():
             self.assertFalse(root.joinpath("upstream-refs.json").exists())
 
     def test_symlink_manifest_target_is_rejected(self) -> None:
-        """Symlink manifest 대상 거부 검증."""
+        """심볼릭 링크인 매니페스트 대상 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -975,7 +975,7 @@ if not late_parent.exists():
             self.assertFalse(sandboxes.exists())
 
     def test_non_regular_manifest_target_is_rejected_before_replay(self) -> None:
-        """일반 파일이 아닌 manifest 대상을 replay 전에 거부하는지 검증."""
+        """일반 파일이 아닌 매니페스트 대상을 재실행 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -999,7 +999,7 @@ if not late_parent.exists():
             self.assertFalse(sandboxes.exists())
 
     def test_manifest_created_during_replay_is_never_overwritten(self) -> None:
-        """Replay 도중 다른 프로세스가 만든 manifest를 덮어쓰지 않는지 검증."""
+        """재실행 중 생성된 매니페스트를 덮어쓰지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             external_manifest = Path(tmp) / "upstream-refs.json"
@@ -1036,7 +1036,7 @@ if not external.exists():
             self.assertEqual(list(sandboxes.iterdir()), [])
 
     def test_failed_replay_does_not_export_generated_manifest(self) -> None:
-        """실패한 replay가 새 manifest를 외부로 내보내지 않는지 검증."""
+        """재실행 실패 시 생성된 매니페스트를 내보내지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1071,7 +1071,7 @@ if not external.exists():
             )
 
     def test_existing_manifest_is_snapshotted_before_replay_setup(self) -> None:
-        """기존 manifest가 replay 준비 전에 단일 snapshot으로 고정되는지 검증."""
+        """기존 매니페스트를 재실행 설정 전에 스냅숏으로 보존하는지 검증."""
 
         digest = hashlib.sha256(_manifest_bytes()).hexdigest()
         main_source = f"""\
@@ -1098,7 +1098,7 @@ raise SystemExit(
             def replace_after_sandbox(
                 source: Path, sandbox_parent: Path | None
             ) -> Path:
-                """Manifest snapshot 뒤 외부 원본을 다른 byte로 교체."""
+                """샌드박스 생성 후 외부 매니페스트 교체."""
 
                 sandbox = original_create_sandbox(source, sandbox_parent)
                 external_manifest.unlink()
@@ -1126,7 +1126,7 @@ raise SystemExit(
             )
 
     def test_manifest_is_not_published_until_complete(self) -> None:
-        """Manifest가 완전한 byte를 기록한 뒤에만 공개되는지 검증."""
+        """매니페스트 내보내기가 완료되기 전에는 게시하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "sandbox-manifest.json"
@@ -1136,7 +1136,7 @@ raise SystemExit(
             real_fsync = os.fsync
 
             def observe_publication(descriptor: int) -> None:
-                """Manifest 공개 시점의 대상 파일 내용을 관찰."""
+                """동기화 시점의 대상 게시 여부 기록."""
 
                 observed.append(destination.exists())
                 real_fsync(descriptor)
@@ -1151,7 +1151,7 @@ raise SystemExit(
             )
 
     def test_interrupted_manifest_export_leaves_no_destination(self) -> None:
-        """Manifest export 중 interrupt가 대상 파일을 남기지 않는지 검증."""
+        """매니페스트 내보내기 중단 시 대상 파일을 남기지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "sandbox-manifest.json"
@@ -1166,7 +1166,7 @@ raise SystemExit(
             self.assertEqual(list(destination.parent.iterdir()), [])
 
     def test_failed_export_does_not_delete_concurrent_destination(self) -> None:
-        """Export 실패 정리가 경쟁 프로세스의 대상 파일을 삭제하지 않는지 검증."""
+        """내보내기 실패 시 동시에 생성된 대상 파일을 삭제하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "sandbox-manifest.json"
@@ -1175,7 +1175,7 @@ raise SystemExit(
             moved = Path(tmp) / "opened-manifest.json"
 
             def replace_and_fail(_descriptor: int) -> None:
-                """경쟁 대상 파일을 만든 뒤 manifest 연결을 실패시킴."""
+                """대상 파일을 동시에 교체한 뒤 쓰기 실패 발생."""
 
                 if destination.exists():
                     destination.rename(moved)
@@ -1193,7 +1193,7 @@ raise SystemExit(
             self.assertEqual(list(destination.parent.iterdir()), [destination])
 
     def test_cleanup_failure_prevents_manifest_export(self) -> None:
-        """Sandbox 정리 실패가 manifest export를 차단하는지 검증."""
+        """샌드박스 정리 실패 시 매니페스트 내보내기 방지 검증."""
 
         main_source = """\
 import os
@@ -1214,7 +1214,7 @@ if not manifest.exists():
             stderr = io.StringIO()
 
             def fail_cleanup(path: Path) -> None:
-                """Replay sandbox 제거에서 정리 오류 발생."""
+                """테스트용 정리 실패 발생."""
 
                 raise OSError(f"injected cleanup failure: {path}")
 
@@ -1246,7 +1246,7 @@ if not manifest.exists():
             self.assertNotIn(str(sandboxes), output)
 
     def test_success_replays_current_worktree_with_filters_and_removes_sandbox(self) -> None:
-        """현재 worktree와 선택자를 replay한 뒤 sandbox를 제거하는지 검증."""
+        """현재 작업 트리를 필터와 함께 재실행하고 샌드박스를 제거하는지 검증."""
 
         main_source = """\
 import os
@@ -1321,7 +1321,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(replay._worktree_fingerprint(root), before)  # noqa: SLF001
 
     def test_failed_sync_preserves_sandbox(self) -> None:
-        """동기화 실패 시 디버깅용 sandbox를 보존하는지 검증."""
+        """동기화 실패 시 샌드박스 보존 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1342,7 +1342,7 @@ raise SystemExit(0 if all(checks) else 9)
             )
 
     def test_supported_child_exit_code_is_preserved(self) -> None:
-        """지원하는 하위 프로세스 종료 코드가 replay 결과에 보존되는지 검증."""
+        """지원하는 하위 프로세스 종료 코드 보존 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1365,7 +1365,7 @@ raise SystemExit(0 if all(checks) else 9)
             )
 
     def test_failed_replay_reports_only_a_relative_sandbox_identifier(self) -> None:
-        """실패 로그가 sandbox의 상대 식별자만 노출하는지 검증."""
+        """재실행 실패 시 상대 샌드박스 식별자만 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1392,7 +1392,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertNotIn(str(sandboxes), output)
 
     def test_sandbox_operation_error_does_not_expose_artifact_path(self) -> None:
-        """Sandbox 작업 오류가 외부 artifact 절대 경로를 숨기는지 검증."""
+        """샌드박스 작업 오류에서 산출물 경로를 노출하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1403,7 +1403,7 @@ raise SystemExit(0 if all(checks) else 9)
             stderr = io.StringIO()
 
             def fail_with_artifact_path(_source: Path, sandbox: Path) -> None:
-                """비공개 artifact 경로를 포함한 sandbox 작업 오류 발생."""
+                """산출물 경로가 포함된 테스트 오류 발생."""
 
                 raise OSError(f"failed to write {sandbox / 'private-output'}")
 
@@ -1425,7 +1425,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertNotIn(str(sandboxes), output)
 
     def test_sandbox_clone_error_does_not_expose_artifact_path(self) -> None:
-        """Sandbox clone 오류가 외부 artifact 절대 경로를 숨기는지 검증."""
+        """샌드박스 복제 오류에서 산출물 경로를 노출하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1441,7 +1441,7 @@ raise SystemExit(0 if all(checks) else 9)
                 cwd: Path,
                 input_data: bytes | None = None,
             ) -> subprocess.CompletedProcess[bytes]:
-                """비공개 artifact 경로를 포함한 clone 오류 발생."""
+                """테스트용 Git 복제 실패 발생."""
 
                 if args[:2] == ["git", "clone"]:
                     raise replay.ReplayError(f"command failed: {' '.join(args)}")
@@ -1463,7 +1463,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertNotIn("translation-replay-", stderr.getvalue())
 
     def test_active_worktree_status_change_is_reported_and_preserves_sandbox(self) -> None:
-        """Replay 도중 active worktree 변경을 감지하고 sandbox를 보존하는지 검증."""
+        """활성 작업 트리 상태 변경을 보고하고 샌드박스를 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1480,7 +1480,7 @@ raise SystemExit(0 if all(checks) else 9)
                 manifest_digest: str,
                 selector: bytes,
             ) -> int:
-                """동기화 성공 직전에 active worktree 내용 변경."""
+                """재실행 중 활성 작업 트리 변경."""
 
                 self.assertIsNone(version)
                 self.assertIsNone(doc)
@@ -1499,7 +1499,7 @@ raise SystemExit(0 if all(checks) else 9)
             execute_sync.assert_called_once()
 
     def test_active_index_content_change_is_reported(self) -> None:
-        """상태 문자열이 같아도 active index 내용 변경을 감지하는지 검증."""
+        """활성 인덱스 내용 변경 보고 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1518,7 +1518,7 @@ raise SystemExit(0 if all(checks) else 9)
                 manifest_digest: str,
                 selector: bytes,
             ) -> int:
-                """동기화 성공 직전에 active index의 blob 교체."""
+                """재실행 중 활성 인덱스 변경."""
 
                 self.assertIsNone(version)
                 self.assertIsNone(doc)
@@ -1540,7 +1540,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(len(list(sandboxes.iterdir())), 1)
 
     def test_active_clean_commit_is_reported(self) -> None:
-        """깨끗한 상태를 유지한 active HEAD 변경도 감지하는지 검증."""
+        """활성 저장소의 새 커밋 보고 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1556,7 +1556,7 @@ raise SystemExit(0 if all(checks) else 9)
                 manifest_digest: str,
                 selector: bytes,
             ) -> int:
-                """동기화 성공 직전에 active 저장소에 새 commit 생성."""
+                """활성 작업 트리에 새 커밋 생성."""
 
                 self.assertIsNone(version)
                 self.assertIsNone(doc)
@@ -1580,7 +1580,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(len(list(sandboxes.iterdir())), 1)
 
     def test_interrupt_while_verifying_active_worktree_preserves_signal(self) -> None:
-        """Active worktree 검증 중 interrupt의 signal 규약 보존 검증."""
+        """활성 작업 트리 검증 중 인터럽트 발생 시 시그널 보존 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1606,7 +1606,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(len(list(sandboxes.iterdir())), 1)
 
     def test_sync_interrupt_verifies_active_worktree_then_preserves_signal(self) -> None:
-        """동기화 interrupt 뒤 active worktree를 재검증하고 signal을 보존하는지 검증."""
+        """동기화 인터럽트 시 활성 작업 트리를 검증한 뒤 시그널을 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1617,7 +1617,7 @@ raise SystemExit(0 if all(checks) else 9)
             fingerprint_calls = 0
 
             def record_fingerprint(repo: Path) -> bytes:
-                """Worktree 지문 호출 횟수를 기록하고 두 번째 호출에서 interrupt 발생."""
+                """작업 트리 지문 판독 횟수 기록."""
 
                 nonlocal fingerprint_calls
                 fingerprint_calls += 1
@@ -1642,7 +1642,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(len(list(sandboxes.iterdir())), 1)
 
     def test_git_environment_ignores_global_and_system_config(self) -> None:
-        """Replay Git 환경이 전역·시스템 설정을 읽지 않는지 검증."""
+        """Git 환경에서 전역 및 시스템 설정을 무시하는지 검증."""
 
         env = replay._git_environment()  # noqa: SLF001
 
@@ -1651,7 +1651,7 @@ raise SystemExit(0 if all(checks) else 9)
         self.assertEqual(env["XDG_CONFIG_HOME"], env["HOME"])
 
     def test_git_environment_does_not_reuse_predictable_home_ignore_file(self) -> None:
-        """Replay Git 환경이 예측 가능한 HOME ignore 파일을 재사용하지 않는지 검증."""
+        """Git 환경에서 예측 가능한 홈 디렉터리의 무시 규칙 파일을 재사용하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1676,7 +1676,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertIn(b"untracked.secret\0", output)
 
     def test_untracked_file_mode_is_part_of_worktree_fingerprint(self) -> None:
-        """미추적 파일 권한이 worktree 지문에 포함되는지 검증."""
+        """추적하지 않는 파일의 모드가 작업 트리 지문에 포함되는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1695,7 +1695,7 @@ raise SystemExit(0 if all(checks) else 9)
             )
 
     def test_non_head_refs_are_part_of_active_repository_fingerprint(self) -> None:
-        """HEAD 외 Git refs도 active 저장소 지문에 포함되는지 검증."""
+        """HEAD 외 참조가 활성 저장소 지문에 포함되는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1712,7 +1712,7 @@ raise SystemExit(0 if all(checks) else 9)
             )
 
     def test_tmpdir_inside_active_repository_is_rejected_cleanly(self) -> None:
-        """Active 저장소 내부의 기본 임시 경로를 부작용 없이 거부하는지 검증."""
+        """활성 저장소 내부의 임시 디렉터리를 경로 노출 없이 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1741,7 +1741,7 @@ raise SystemExit(0 if all(checks) else 9)
     def test_tmpdir_inside_repository_is_rejected_with_explicit_sandbox_parent(
         self,
     ) -> None:
-        """명시한 sandbox 상위 경로가 저장소 내부이면 거부하는지 검증."""
+        """명시적 샌드박스 상위 경로가 있어도 저장소 내부 임시 디렉터리를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1766,7 +1766,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertFalse(sandbox_parent.exists())
 
     def test_untracked_symlink_is_rejected_without_following_it(self) -> None:
-        """미추적 symlink를 따라가지 않고 거부하는지 검증."""
+        """추적하지 않는 심볼릭 링크를 따라가지 않고 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1784,7 +1784,7 @@ raise SystemExit(0 if all(checks) else 9)
             self.assertEqual(len(list(sandboxes.iterdir())), 1)
 
     def test_tracked_symlink_is_rejected_without_following_it(self) -> None:
-        """변경된 추적 symlink를 따라가지 않고 거부하는지 검증."""
+        """변경된 추적 심볼릭 링크를 따라가지 않고 거부하는지 검증."""
 
         main_source = """\
 from pathlib import Path
@@ -1809,7 +1809,7 @@ root = Path(__file__).resolve().parent.parent
             self.assertFalse(sandboxes.exists())
 
     def test_unchanged_tracked_symlink_is_allowed(self) -> None:
-        """저장소 내부를 가리키는 변경 없는 추적 symlink 허용 검증."""
+        """변경되지 않은 저장소 내부 추적 심볼릭 링크 허용 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1827,7 +1827,7 @@ root = Path(__file__).resolve().parent.parent
             self.assertEqual(list(sandboxes.iterdir()), [])
 
     def test_unchanged_external_tracked_symlink_is_rejected(self) -> None:
-        """저장소 외부를 가리키는 변경 없는 추적 symlink 거부 검증."""
+        """변경되지 않은 외부 추적 심볼릭 링크 거부 검증."""
 
         main_source = """\
 from pathlib import Path
@@ -1853,7 +1853,7 @@ root = Path(__file__).resolve().parent.parent
             self.assertFalse(sandboxes.exists())
 
     def test_tracked_symlink_cannot_leave_and_reenter_repository(self) -> None:
-        """외부를 경유해 저장소로 돌아오는 추적 symlink 거부 검증."""
+        """추적 심볼릭 링크가 저장소 외부를 거쳐 내부로 돌아올 수 없는지 검증."""
 
         main_source = """\
 from pathlib import Path
@@ -1882,7 +1882,7 @@ root = Path(__file__).resolve().parent.parent
             self.assertFalse(sandboxes.exists())
 
     def test_second_sync_must_leave_first_sync_result_unchanged(self) -> None:
-        """두 번째 동기화가 첫 verified tree를 변경하면 실패하는지 검증."""
+        """두 번째 동기화가 첫 번째 동기화 결과를 변경하지 않아야 하는지 검증."""
 
         main_source = """\
 from pathlib import Path
@@ -1916,7 +1916,7 @@ document.write_text(
             )
 
     def test_sandbox_is_removed_when_setup_fails(self) -> None:
-        """Sandbox 준비 실패 시 불완전 sandbox를 제거하는지 검증."""
+        """샌드박스 설정 실패 시 샌드박스 제거 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1935,7 +1935,7 @@ document.write_text(
             self.assertFalse(sandboxes.exists())
 
     def test_sandbox_is_removed_when_setup_is_interrupted(self) -> None:
-        """Sandbox 준비 interrupt 시 불완전 sandbox를 제거하는지 검증."""
+        """샌드박스 설정 중단 시 샌드박스 제거 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -1954,7 +1954,7 @@ document.write_text(
             self.assertFalse(sandboxes.exists())
 
     def test_child_stable_failure_is_preserved_in_replay_report(self) -> None:
-        """첫 pass 하위 작업의 안정적인 실패 증거가 replay 보고서에 보존되는지 검증."""
+        """하위 프로세스의 안정된 실패를 재실행 보고서에 보존하는지 검증."""
 
         main_source = """\
 import json
@@ -2025,7 +2025,7 @@ raise SystemExit(1)
             )
 
     def test_second_pass_child_stable_failure_is_preserved(self) -> None:
-        """두 번째 pass 하위 작업의 안정적인 실패 증거 보존 검증."""
+        """두 번째 실행의 하위 프로세스에서 발생한 안정된 실패 보존 검증."""
 
         main_source = """\
 import json
@@ -2111,7 +2111,7 @@ raise SystemExit(1)
     def test_replay_passes_use_distinct_child_report_paths_and_shared_run_id(
         self,
     ) -> None:
-        """두 pass가 별도 보고서 경로와 같은 실행 ID를 사용하는지 검증."""
+        """재실행별 하위 보고서 경로 분리와 실행 ID 공유 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -2162,7 +2162,7 @@ raise SystemExit(0 if expected else 9)
             )
 
     def test_nonconvergent_replay_writes_canonical_failure_report(self) -> None:
-        """비수렴 replay가 정규 실패 보고서를 기록하는지 검증."""
+        """수렴하지 않는 재실행의 정규 실패 보고서 기록 검증."""
 
         main_source = """\
 from pathlib import Path
@@ -2222,7 +2222,7 @@ document.write_text(
             )
 
     def test_expired_deadline_writes_infrastructure_failure_report(self) -> None:
-        """만료된 기한이 인프라 실패 보고서로 기록되는지 검증."""
+        """만료된 기한의 인프라 실패 보고서 기록 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -2254,7 +2254,7 @@ document.write_text(
             self.assertIsNone(report["candidate_debug_path"])
 
     def test_active_worktree_mutation_report_has_exit_three(self) -> None:
-        """Active worktree 변경 보고서의 종료 코드가 3인지 검증."""
+        """활성 작업 트리 변경 보고서의 종료 코드가 3인지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -2268,7 +2268,7 @@ document.write_text(
                 _sandbox: Path,
                 **_kwargs: object,
             ) -> int:
-                """Replay 도중 active 저장소 파일 변경."""
+                """재실행 중 활성 저장소 변경."""
 
                 (root / "tracked.txt").write_text("changed\n", encoding="utf-8")
                 return replay.EXIT_OK
@@ -2296,7 +2296,7 @@ document.write_text(
             self.assertTrue(report["candidate_debug_path"])
 
     def test_signal_does_not_write_or_replace_failure_report(self) -> None:
-        """Interrupt가 실패 보고서를 생성하거나 교체하지 않는지 검증."""
+        """시그널 발생 시 실패 보고서를 기록하거나 교체하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -2326,7 +2326,7 @@ document.write_text(
             self.assertFalse(report_path.exists())
 
     def test_existing_failure_report_is_never_replaced(self) -> None:
-        """기존 replay 실패 보고서를 절대 교체하지 않는지 검증."""
+        """기존 실패 보고서를 교체하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -2357,7 +2357,7 @@ document.write_text(
     def test_failure_report_outside_explicit_artifact_root_is_not_written(
         self,
     ) -> None:
-        """명시한 artifact root 밖의 실패 보고서 경로를 거부하는지 검증."""
+        """명시적 산출물 루트 외부에 실패 보고서를 기록하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -2385,7 +2385,7 @@ document.write_text(
             self.assertIn("REPORT_WRITE_FAILED", stderr.getvalue())
 
     def test_failure_report_cannot_alias_success_state_output(self) -> None:
-        """실패 보고서와 성공 상태 출력이 같은 경로를 공유하지 못하는지 검증."""
+        """실패 보고서와 성공 상태 출력이 같은 경로를 사용할 수 없는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"

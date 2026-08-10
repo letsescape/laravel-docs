@@ -1,4 +1,4 @@
-"""generated changes 동작과 경계 조건 검증."""
+"""생성된 변경 사항의 동작과 경계 조건 검증."""
 
 import io
 import json
@@ -22,7 +22,7 @@ def _artifact(
     version: str = "13.x",
     locale_bytes: bytes = b"translated\n",
 ) -> VerifiedLocaleArtifact:
-    """산출물 처리."""
+    """검증된 로케일 산출물 생성."""
 
     return VerifiedLocaleArtifact(
         schema_version=1,
@@ -34,13 +34,13 @@ def _artifact(
 
 
 def _runner_for(*outputs: bytes):
-    """runner for 처리."""
+    """지정된 출력을 순서대로 반환하는 프로세스 실행기 생성."""
 
     pending = list(outputs)
     calls: list[tuple[list[str], dict[str, object]]] = []
 
     def run(args, **kwargs):
-        """실행."""
+        """프로세스 실행 결과 반환."""
 
         calls.append((list(args), kwargs))
         return CompletedProcess(args, 0, stdout=pending.pop(0), stderr=b"")
@@ -49,10 +49,10 @@ def _runner_for(*outputs: bytes):
 
 
 class GeneratedChangeTests(unittest.TestCase):
-    """generated 변경 동작과 경계 조건 테스트 모음."""
+    """생성된 변경 사항 검증의 동작과 경계 조건 테스트 모음."""
 
     def test_changed_entries_normalizes_staged_rename_records(self):
-        """`changed_entries`의 staged rename record 정규화 검증."""
+        """`changed_entries`의 스테이징된 이름 변경 레코드 정규화 검증."""
 
         rename_and_modify = (
             b"R100\0versioned_docs/version-13.x/old.md\0"
@@ -77,7 +77,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_changed_entries_normalizes_copy_records_to_the_new_path(self):
-        """`changed_entries`의 copy record 후 신규 경로 정규화 검증."""
+        """`changed_entries`의 복사 레코드를 신규 경로로 정규화하는지 검증."""
 
         copy = (
             b"C087\0versioned_docs/version-13.x/source.md\0"
@@ -97,7 +97,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_changed_entries_rejects_malformed_git_output(self):
-        """`changed_entries`의 malformed Git 출력 거부 검증."""
+        """`changed_entries`의 잘못된 Git 출력 거부 검증."""
 
         invalid_outputs = (
             b"R100\0versioned_docs/version-13.x/old.md\0",
@@ -126,7 +126,7 @@ class GeneratedChangeTests(unittest.TestCase):
                 )
 
     def test_git_calls_use_one_deadline_and_a_sanitized_environment(self):
-        """`git_calls_use_one_deadline_and_a_sanitized_environment` 시나리오 검증."""
+        """Git 호출의 단일 기한과 정제된 환경 사용 검증."""
 
         runner, calls = _runner_for(b"", b"", b"")
         clock = Mock(side_effect=[90.0, 91.0, 92.0])
@@ -167,10 +167,10 @@ class GeneratedChangeTests(unittest.TestCase):
                 self.assertNotIn(secret, kwargs["env"])
 
     def test_git_timeout_is_a_workflow_deadline_failure(self):
-        """`git_timeout`의 워크플로 기한 실패 판정 검증."""
+        """Git 시간 초과를 워크플로 기한 초과로 판정하는지 검증."""
 
         def timeout(args, **_kwargs):
-            """timeout 처리."""
+            """프로세스 시간 초과 발생."""
 
             raise subprocess.TimeoutExpired(args, 1)
 
@@ -189,7 +189,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_only_translation_outputs_are_allowed(self):
-        """`only_translation_outputs_are_allowed` 시나리오 검증."""
+        """번역 출력 경로만 허용하는지 검증."""
 
         paths = {
             "i18n/en/docusaurus-plugin-content-docs/version-13.x/cache.md",
@@ -208,7 +208,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_rejects_unsupported_versions_and_unpaired_locale_outputs(self):
-        """지원하지 않는 버전 및 unpaired locale 출력 거부 검증."""
+        """지원하지 않는 버전과 짝이 맞지 않는 로케일 출력 거부 검증."""
 
         changes = {
             "i18n/en/docusaurus-plugin-content-docs/version-999.x/cache.md": {"M"},
@@ -228,7 +228,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_accepts_complete_translation_document_triplet(self):
-        """complete 번역 문서 triplet 허용 검증."""
+        """완전한 번역 문서 3종 묶음 허용 검증."""
 
         changes = {
             "i18n/en/docusaurus-plugin-content-docs/version-13.x/cache.md": {"M"},
@@ -242,7 +242,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_accepts_nested_translation_document_triplet(self):
-        """중첩 번역 문서 triplet 허용 검증."""
+        """중첩된 번역 문서 3종 묶음 허용 검증."""
 
         changes = {
             "i18n/en/docusaurus-plugin-content-docs/version-13.x/guides/queues.md": {
@@ -261,7 +261,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_rejects_noncanonical_nested_document_segments(self):
-        """비정규 중첩 문서 segments 거부 검증."""
+        """비정규 중첩 문서 경로 구간 거부 검증."""
 
         paths = {
             "versioned_docs/version-13.x/guides/../queues.md",
@@ -274,7 +274,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_only_verified_artifacts_can_approve_unchanged_locales(self):
-        """`only_verified_artifacts_can_approve_unchanged_locales` 시나리오 검증."""
+        """검증된 산출물만 변경 없는 로케일을 승인하는지 검증."""
 
         changes = {
             "i18n/en/docusaurus-plugin-content-docs/version-13.x/cache.md": {"M"},
@@ -300,7 +300,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def _write_verification_fixture(self, root: Path) -> tuple[Path, Path]:
-        """verification fixture 기록."""
+        """문서 검증 픽스처 기록."""
 
         registry = root / "translation-sync/stale-links.json"
         registry.parent.mkdir(parents=True)
@@ -317,7 +317,7 @@ class GeneratedChangeTests(unittest.TestCase):
         return source, target
 
     def test_proves_unchanged_locale_with_fresh_full_document_inputs(self):
-        """`proves_unchanged_locale_with_fresh_full_document_inputs` 시나리오 검증."""
+        """최신 전체 문서 입력으로 변경 없는 로케일을 증명하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -343,7 +343,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_final_document_verifier_refusal_never_creates_a_proof(self):
-        """`final_document_verifier_refusal_never`의 proof 생성 검증."""
+        """최종 문서 검증기가 거부하면 증명을 생성하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -360,7 +360,7 @@ class GeneratedChangeTests(unittest.TestCase):
             captured: dict[str, object] = {}
 
             def refuse(inputs, *, registry_at_start, final_snapshot):
-                """refuse 처리."""
+                """최종 문서 검증 거부 결과 반환."""
 
                 final_input, registry_at_end = final_snapshot()
                 captured.update(
@@ -405,7 +405,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_changed_final_input_cannot_create_a_proof(self):
-        """`changed_final_input_cannot_create_a_proof` 시나리오 검증."""
+        """변경된 최종 입력으로 증명을 생성할 수 없는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -432,7 +432,7 @@ class GeneratedChangeTests(unittest.TestCase):
         self.assertEqual(verified, {})
 
     def test_final_snapshot_filesystem_failure_is_not_downgraded(self):
-        """`final_snapshot_filesystem_failure`의 않음 downgraded 판정 검증."""
+        """최종 스냅숏의 파일 시스템 실패를 하향 판정하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -467,7 +467,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_rejects_symlink_output_leaf_and_ancestor(self):
-        """symlink 출력 leaf 및 ancestor 거부 검증."""
+        """심볼릭 링크인 출력 파일과 상위 경로 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -501,7 +501,7 @@ class GeneratedChangeTests(unittest.TestCase):
             )
 
     def test_accepts_regular_and_deleted_output_paths(self):
-        """regular 및 deleted 출력 경로 허용 검증."""
+        """일반 파일과 삭제된 출력 경로 허용 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -521,7 +521,7 @@ class GeneratedChangeTests(unittest.TestCase):
             )
 
     def test_rejects_mismatched_translation_deletion(self):
-        """mismatched 번역 deletion 거부 검증."""
+        """일치하지 않는 번역 문서 삭제 상태 거부 검증."""
 
         changes = {
             "i18n/en/docusaurus-plugin-content-docs/version-13.x/cache.md": {"D"},
@@ -535,7 +535,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_rejects_combined_or_unknown_statuses(self):
-        """combined 또는 unknown statuses 거부 검증."""
+        """복합 상태와 알 수 없는 상태 거부 검증."""
 
         for statuses in ({"A", "M"}, {"T"}, set()):
             with self.subTest(statuses=statuses):
@@ -551,7 +551,7 @@ class GeneratedChangeTests(unittest.TestCase):
                 )
 
     def test_sidebar_paths_enforce_their_allowed_statuses(self):
-        """공통 sidebar 삭제와 locale override 생성·수정 거부 검증."""
+        """공통 사이드바 삭제와 로케일 사이드바 재정의 생성·수정 거부 검증."""
 
         cases = (
             (
@@ -614,7 +614,7 @@ class GeneratedChangeTests(unittest.TestCase):
             )
 
     def test_locale_sidebar_overrides_must_not_exist(self):
-        """`locale_sidebar_overrides_must_not_exist` 시나리오 검증."""
+        """로케일별 사이드바 재정의 파일 금지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -628,7 +628,7 @@ class GeneratedChangeTests(unittest.TestCase):
             )
 
     def _write_versions(self, root: Path, contents: str | None = None) -> None:
-        """버전 기록."""
+        """버전 목록 파일 기록."""
 
         (root / "versions.json").write_text(
             contents or '["master", "13.x"]\n',
@@ -664,7 +664,7 @@ class GeneratedChangeTests(unittest.TestCase):
         return result, report, stderr.getvalue()
 
     def _read_canonical_report(self, path: Path) -> dict[str, object]:
-        """canonical 보고서 읽기."""
+        """정규 형식의 실패 보고서 읽기."""
 
         raw = path.read_bytes()
         value = json.loads(raw)
@@ -683,7 +683,7 @@ class GeneratedChangeTests(unittest.TestCase):
         return value
 
     def test_main_reports_forbidden_paths_with_the_stable_code(self):
-        """`main_reports_forbidden_paths_with_the_stable_code` 시나리오 검증."""
+        """금지된 경로를 안정된 코드로 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -700,7 +700,7 @@ class GeneratedChangeTests(unittest.TestCase):
         self.assertEqual(value["exit_code"], 1)
 
     def test_main_reports_an_allowed_path_symlink_as_forbidden(self):
-        """`main_reports_an_allowed_path_symlink_as_forbidden` 시나리오 검증."""
+        """허용된 경로의 심볼릭 링크를 금지 경로로 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -726,7 +726,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_main_reports_status_mismatch_with_the_stable_code(self):
-        """`main_reports_status_mismatch_with_the_stable_code` 시나리오 검증."""
+        """상태 불일치를 안정된 코드로 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -743,7 +743,7 @@ class GeneratedChangeTests(unittest.TestCase):
         self.assertEqual(value["code"], "OUTPUT_STATE_MISMATCH")
 
     def test_main_reports_each_unverified_english_only_locale(self):
-        """`main_reports_each_unverified_english_only_locale` 시나리오 검증."""
+        """검증되지 않은 영어 전용 변경을 로케일별로 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -775,7 +775,7 @@ class GeneratedChangeTests(unittest.TestCase):
         )
 
     def test_main_reports_sidebar_override_and_versions_schema(self):
-        """`main_reports_sidebar_override_and_versions_schema` 시나리오 검증."""
+        """사이드바 재정의와 버전 스키마 오류 보고 검증."""
 
         scenarios = (
             ("override", "SIDEBAR_OVERRIDE_FORBIDDEN"),
@@ -802,7 +802,7 @@ class GeneratedChangeTests(unittest.TestCase):
             self.assertEqual(value["code"], expected)
 
     def test_main_reports_expired_deadline_without_starting_git(self):
-        """`main_reports_expired_deadline_without_starting_git` 시나리오 검증."""
+        """기한 초과 시 Git을 시작하지 않고 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -829,7 +829,7 @@ class GeneratedChangeTests(unittest.TestCase):
         runner.assert_not_called()
 
     def test_main_maps_filesystem_inspection_failure_to_runner_failure(self):
-        """`main`의 filesystem inspection 실패 후 runner 실패 매핑 검증."""
+        """파일 시스템 검사 실패를 실행기 실패로 매핑하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -846,7 +846,7 @@ class GeneratedChangeTests(unittest.TestCase):
         self.assertEqual(value["code"], "RUNNER_OPERATION_FAILED")
 
     def test_main_maps_git_failure_to_runner_failure(self):
-        """`main_maps_git_failure_to_runner_failure` 시나리오 검증."""
+        """Git 실패를 실행기 실패로 매핑하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -875,7 +875,7 @@ class GeneratedChangeTests(unittest.TestCase):
         self.assertNotIn("secret", stderr.getvalue())
 
     def test_failure_report_is_published_no_replace(self):
-        """`failure_report`의 published no replace 판정 검증."""
+        """기존 실패 보고서를 교체하지 않고 게시 실패로 판정하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -903,7 +903,7 @@ class GeneratedChangeTests(unittest.TestCase):
         self.assertIn("REPORT_WRITE_FAILED", stderr.getvalue())
 
     def test_main_rejects_invalid_versions_file_cleanly_without_report(self):
-        """`main`의 잘못된 버전 파일 cleanly 제외 보고서 거부 검증."""
+        """잘못된 버전 파일을 보고서 없이 명확히 거부하는지 검증."""
 
         stderr = io.StringIO()
         runner, _calls = _runner_for(b"", b"", b"")

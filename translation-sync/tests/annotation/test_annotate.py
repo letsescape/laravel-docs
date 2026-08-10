@@ -16,7 +16,7 @@ class CanonicalAnnotationTests(unittest.TestCase):
     """canonical annotation 동작과 경계 조건 테스트 모음."""
 
     def test_uses_exact_pre_stale_owner_bytes_for_every_owner_shape(self):
-        """exact pre stale owner bytes 대상 every owner shape 사용 검증."""
+        """구조 정렬 기준인 후처리 영어 문서와 별개로 모든 소유자 형태의 원문 바이트를 정확히 사용하는지 검증."""
 
         source = (
             "## Title {.class #stable}\n\n"
@@ -60,7 +60,7 @@ class AnnotateCliTests(unittest.TestCase):
     """annotate CLI 동작과 경계 조건 테스트 모음."""
 
     def test_rejects_invalid_version_before_reading_documents(self):
-        """reading 문서 전 잘못된 버전 거부 검증."""
+        """문서를 읽기 전에 잘못된 버전을 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -79,7 +79,7 @@ class AnnotateCliTests(unittest.TestCase):
         self.assertIn("invalid version", stderr.getvalue())
 
     def test_rejects_nested_document_name_before_reading_documents(self):
-        """reading 문서 전 중첩 문서 name 거부 검증."""
+        """문서를 읽기 전에 중첩된 문서 이름을 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -98,7 +98,7 @@ class AnnotateCliTests(unittest.TestCase):
         self.assertIn("invalid document", stderr.getvalue())
 
     def test_rejects_non_markdown_document_before_reading_documents(self):
-        """reading 문서 전 non Markdown 문서 거부 검증."""
+        """문서를 읽기 전에 Markdown이 아닌 문서를 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -117,7 +117,7 @@ class AnnotateCliTests(unittest.TestCase):
         self.assertIn("invalid document", stderr.getvalue())
 
     def test_rejects_empty_markdown_basename_before_reading_documents(self):
-        """reading 문서 전 빈 Markdown basename 거부 검증."""
+        """문서를 읽기 전에 비어 있는 Markdown 기본 이름을 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -136,7 +136,7 @@ class AnnotateCliTests(unittest.TestCase):
         self.assertIn("invalid document", stderr.getvalue())
 
     def test_rejects_symlinked_locale_root_before_write(self):
-        """write 전 symlink locale root 거부 검증."""
+        """쓰기 전에 심볼릭 링크인 로캘 루트를 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -174,7 +174,7 @@ class AnnotateCliTests(unittest.TestCase):
         self.assertIn("invalid locale root", stderr.getvalue())
 
     def test_rejects_symlinked_locale_root_parent(self):
-        """symlink locale root parent 거부 검증."""
+        """심볼릭 링크인 로캘 루트 상위 디렉터리를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             repo = annotate_cli.Path(tmp)
@@ -196,7 +196,7 @@ class AnnotateCliTests(unittest.TestCase):
                     )
 
     def test_rejects_symlinked_version_root_with_internal_target(self):
-        """symlink 버전 root 포함 internal 대상 거부 검증."""
+        """로캘 루트 내부 경로를 가리키더라도 심볼릭 링크인 버전 루트를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             repo = annotate_cli.Path(tmp)
@@ -217,7 +217,7 @@ class AnnotateCliTests(unittest.TestCase):
                     )
 
     def test_rejects_symlinked_document_with_internal_target(self):
-        """symlink 문서 포함 internal 대상 거부 검증."""
+        """로캘 루트 내부 파일을 가리키더라도 심볼릭 링크인 문서를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             repo = annotate_cli.Path(tmp)
@@ -237,7 +237,7 @@ class AnnotateCliTests(unittest.TestCase):
                     )
 
     def test_rejects_unexpected_lexical_locale_root(self):
-        """unexpected lexical locale root 거부 검증."""
+        """허용 목록에 없는 로캘 루트 경로를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             repo = annotate_cli.Path(tmp)
@@ -253,7 +253,7 @@ class AnnotateCliTests(unittest.TestCase):
                     )
 
     def test_rejects_document_path_outside_locale_root_before_reading(self):
-        """reading 전 문서 경로 외부 locale root 거부 검증."""
+        """읽기 전에 로캘 루트 밖의 문서 경로를 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -286,7 +286,7 @@ class AnnotateCliTests(unittest.TestCase):
         self.assertIn("document path escapes locale root", stderr.getvalue())
 
     def test_write_replaces_hardlink_without_mutating_other_name(self):
-        """`write_replaces_hardlink_without_mutating_other_name` 시나리오 검증."""
+        """하드 링크인 로캘 문서를 새 파일로 교체하고 기존 링크 대상은 변경하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = annotate_cli.Path(tmp)
@@ -323,7 +323,7 @@ class AnnotateCliTests(unittest.TestCase):
             self.assertFalse(ko.samefile(victim))
 
     def test_reports_unresolvable_document_path_without_traceback(self):
-        """`reports_unresolvable_document_path_without_traceback` 시나리오 검증."""
+        """해결할 수 없는 문서 경로에서 종료 코드 2와 오류 메시지를 반환하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -359,10 +359,9 @@ class AnnotateTests(unittest.TestCase):
     """annotate 동작과 경계 조건 테스트 모음."""
 
     def test_emits_source_comment_when_content_present_but_block_misaligned(self):
-        # The translation kept the content (links intact) but lost the list
-        # structure, so block alignment slips. The English comment must still be
-        # emitted so verification's "missing original comment" cannot fail.
-        """내용 present but 블록 misaligned 시 원문 comment 출력 검증."""
+        # 번역문이 링크를 포함한 내용을 유지해도 목록 구조가 없으면 블록 정렬 불일치
+        # "missing original comment" 오류 방지를 위해 영어 주석 출력 필요
+        """내용은 있지만 블록 정렬이 어긋날 때 원문 주석을 출력하는지 검증."""
 
         en = (
             "- [One](https://a.test/one) first item.\n"
@@ -382,10 +381,9 @@ class AnnotateTests(unittest.TestCase):
         )
 
     def test_keeps_drift_when_content_is_genuinely_untranslated(self):
-        # A new paragraph with no verbatim marker is genuinely missing from the
-        # translation: do NOT paper it over, so drift is still reported and the
-        # incomplete document is not silently accepted.
-        """`keeps_drift_when_content`의 genuinely untranslated 판정 검증."""
+        # 축어적 표식 없는 새 문단은 번역문에서 실제로 누락된 상태
+        # drift를 계속 보고하고 불완전한 문서를 거부하려면 억지 보완 금지
+        """실제로 누락된 미번역 원문에 대한 drift를 유지하는지 검증."""
 
         en = "Body text.\n\nNew untranslated paragraph.\n"
         ko = "<!-- Body text. -->\n본문입니다.\n"
@@ -399,7 +397,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertTrue(any(d.op == "delete" for d in drifts))
 
     def test_inserts_original_english_comments_without_rewriting_translation(self):
-        """original english comments 제외 rewriting 번역 삽입 검증."""
+        """번역문을 다시 쓰지 않고 원문 영어 주석을 삽입하는지 검증."""
 
         en = "# Installation\n\nInstall Laravel with Composer.\n"
         ko = "# 설치 (Installation)\n\nComposer로 Laravel을 설치합니다.\n"
@@ -416,7 +414,7 @@ class AnnotateTests(unittest.TestCase):
         )
 
     def test_reports_drift_when_source_has_unmatched_text_block(self):
-        """`reports_drift_when_source_has_unmatched_text_block` 시나리오 검증."""
+        """대응하지 않는 원문 텍스트 블록을 drift로 보고하는지 검증."""
 
         en = "# Installation\n\nInstall Laravel with Composer.\n\nRun the server.\n"
         ko = "# 설치 (Installation)\n\nComposer로 Laravel을 설치합니다.\n"
@@ -429,7 +427,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertEqual(drifts[0].en_lines, ["Run the server."])
 
     def test_replaces_version_placeholder_in_inserted_comments(self):
-        """`replaces_version_placeholder_in_inserted_comments` 시나리오 검증."""
+        """삽입한 원문 주석의 version placeholder를 대상 버전으로 치환하는지 검증."""
 
         en = "See [Routing](/docs/{{version}}/routing)."
         ko = "[라우팅](/docs/12.x/routing)을 참고하세요."
@@ -440,7 +438,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertIn("<!-- See [Routing](/docs/12.x/routing). -->", out)
 
     def test_does_not_insert_comments_for_toc_link_lists(self):
-        """않음 insert comments 대상 toc 링크 lists 동작 검증."""
+        """목차 링크 목록에는 주석을 삽입하지 않는지 검증."""
 
         en = "# Concurrency\n\n- [Introduction](#introduction)\n\n<a name=\"introduction\"></a>\n## Introduction\n"
         ko = "# 동시 실행 (Concurrency)\n\n- [소개](#introduction)\n\n<a name=\"introduction\"></a>\n## 소개 (Introduction)\n"
@@ -453,7 +451,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertIn("<!-- ## Introduction -->", out)
 
     def test_does_not_insert_comments_for_standalone_html_tags(self):
-        """않음 insert comments 대상 standalone HTML tags 동작 검증."""
+        """단독 HTML 태그에는 주석을 삽입하지 않는지 검증."""
 
         en = '<div class="grid">\n\nBody.\n\n</div>\n'
         ko = '<div class="grid">\n\n본문입니다.\n\n</div>\n'
@@ -466,7 +464,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertIn("<!-- Body. -->", out)
 
     def test_preserves_trailing_blank_line_count(self):
-        """trailing blank 줄 count 보존 검증."""
+        """뒤따르는 빈 줄 수를 보존하는지 검증."""
 
         en = "# Example\n\nBody.\n\n"
         ko = "# 예제\n\n본문.\n\n"
@@ -477,7 +475,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertTrue(out.endswith("\n\n"))
 
     def test_replaces_existing_original_comments_when_reannotating(self):
-        """`replaces_existing_original_comments_when_reannotating` 시나리오 검증."""
+        """재annotation 시 기존 원문 주석을 현재 영어 원문으로 교체하는지 검증."""
 
         en = "# Updated\n\nUpdated body.\n"
         ko = "<!-- # Old -->\n# 예제\n\n<!-- Old body. -->\n본문.\n"
@@ -491,7 +489,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertIn("<!-- Updated body. -->", out)
 
     def test_aligns_paragraph_after_list_without_blank_line(self):
-        """`aligns_paragraph_after_list_without_blank_line` 시나리오 검증."""
+        """빈 줄 없는 번역 목록 뒤 문단을 원문 문단과 정렬하는지 검증."""
 
         en = (
             "- First item.\n"
@@ -511,7 +509,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertIn("<!-- Paragraph after list. -->", out)
 
     def test_aligns_paragraph_after_parenthesized_ordered_list(self):
-        """`aligns_paragraph_after_parenthesized_ordered_list` 시나리오 검증."""
+        """괄호형 순서 목록 뒤 문단을 원문 문단과 정렬하는지 검증."""
 
         en = (
             "1) First item.\n"
@@ -531,7 +529,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertIn("<!-- Paragraph after list. -->", out)
 
     def test_places_html_body_comment_inside_structural_wrapper(self):
-        """`places_html_body_comment_inside_structural_wrapper` 시나리오 검증."""
+        """구조용 HTML wrapper 내부에 본문 원문 주석을 배치하는지 검증."""
 
         en = (
             '<button type="submit">\n'
@@ -556,7 +554,7 @@ class AnnotateTests(unittest.TestCase):
         )
 
     def test_keeps_blade_directive_example_lines_in_one_original_comment(self):
-        """blade directive example 줄 in one original comment 유지 검증."""
+        """Blade directive 예시 줄을 하나의 원문 주석으로 유지하는지 검증."""
 
         en = (
             "@once\n"
@@ -586,7 +584,7 @@ class AnnotateTests(unittest.TestCase):
         )
 
     def test_keeps_collection_link_list_separate_from_closing_div(self):
-        """collection 링크 list separate from closing div 유지 검증."""
+        """컬렉션 링크 목록을 닫는 div와 분리해 유지하는지 검증."""
 
         en = (
             '<div class="collection-method-list" markdown="1">\n'
@@ -611,7 +609,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertNotIn("[Arr::add](#method-array-add)\n</div>\n-->", out)
 
     def test_places_blankless_body_comment_inside_html_wrapper(self):
-        """`places_blankless_body_comment_inside_html_wrapper` 시나리오 검증."""
+        """빈 줄 없는 HTML wrapper 내부에 본문 원문 주석을 배치하는지 검증."""
 
         source = '<div class="content-list">\nBody.\n</div>\n'
 
@@ -627,7 +625,7 @@ class AnnotateTests(unittest.TestCase):
         )
 
     def test_keeps_yaml_key_and_following_list_in_one_original_comment(self):
-        """yaml key 및 following list in one original comment 유지 검증."""
+        """YAML 키와 이어지는 목록을 하나의 원문 주석으로 유지하는지 검증."""
 
         en = (
             "features:\n"
@@ -651,7 +649,7 @@ class AnnotateTests(unittest.TestCase):
         )
 
     def test_split_blocks_keeps_long_fenced_code_blocks_intact(self):
-        """`split`의 keeps long fenced code 블록 intact 차단 검증."""
+        """`split`이 긴 fenced code 블록을 온전히 유지하는지 검증."""
 
         lines = [
             "````markdown",
@@ -669,7 +667,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertEqual(blocks[1].kind, "text")
 
     def test_strip_annotations_preserves_indented_code_comments(self):
-        """`strip_annotations`의 indented code comments 보존 검증."""
+        """`strip_annotations`가 들여쓴 코드 주석을 보존하는지 검증."""
 
         ko = (
             "    <!-- Equivalent to csrf_token() -->\n"
@@ -681,7 +679,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertEqual(out, ko)
 
     def test_reannotation_preserves_source_authored_html_comments(self):
-        """`reannotation`의 원문 authored HTML comments 보존 검증."""
+        """재annotation 시 원문 작성 HTML 주석을 보존하는지 검증."""
 
         source = (
             "<!-- source-authored note -->\n"
@@ -708,7 +706,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertEqual(out.count("<!-- source-authored note -->"), 1)
 
     def test_reannotation_splits_pure_code_list_items_from_prose_items(self):
-        """`reannotation`의 분리 경계 검증."""
+        """재annotation 시 순수 inline-code 목록과 산문 항목의 소유 경계를 분리하는지 검증."""
 
         source = (
             "- `::1`\n"
@@ -731,7 +729,7 @@ class AnnotateTests(unittest.TestCase):
         self.assertEqual(verify.verify(out, source=source, version="13.x"), [])
 
     def test_reannotation_removes_stale_blockquote_annotation(self):
-        """`reannotation`의 stale blockquote annotation 제거 검증."""
+        """재annotation 시 오래된 blockquote annotation을 제거하는지 검증."""
 
         source = "> [!NOTE]\n> English guidance.\n"
         translated = (

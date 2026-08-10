@@ -20,7 +20,7 @@ class UpstreamSyncTests(unittest.TestCase):
     """upstream 동기화 동작과 경계 조건 테스트 모음."""
 
     def test_git_environment_allows_network_metadata_but_not_credentials(self) -> None:
-        """`git_environment`의 network metadata but 않음 credentials 허용 검증."""
+        """`_git_environment`가 허용된 실행·네트워크·로캘 변수와 Git 격리 설정만 포함하고 인증 정보를 제거하는지 검증."""
 
         with patch.dict(
             os.environ,
@@ -55,7 +55,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertNotIn(secret, env)
 
     def test_git_subprocesses_receive_only_the_sanitized_environment(self) -> None:
-        """`git_subprocesses_receive_only_the_sanitized_environment` 시나리오 검증."""
+        """Git 하위 프로세스에 정제된 환경만 전달하는지 검증."""
 
         with patch.object(upstream, "_PROCESS_RUNNER") as run:
             upstream._run(["git", "status"])  # noqa: SLF001
@@ -70,7 +70,7 @@ class UpstreamSyncTests(unittest.TestCase):
         contents: str,
         message: str,
     ) -> None:
-        """assert 버전 rejected before 원문 setup 처리."""
+        """원문 준비 전 버전 거부를 검증하는 도우미."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -92,7 +92,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertIn(message, stderr.getvalue())
 
     def test_main_rejects_empty_versions_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 빈 버전 거부 검증."""
+        """`main`이 원문 준비 전에 빈 버전 목록을 거부하는지 검증."""
 
         self._assert_versions_rejected_before_source_setup(
             "[]\n",
@@ -100,7 +100,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_main_rejects_expired_workflow_deadline_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 expired 워크플로 기한 거부 검증."""
+        """`main`이 원문 준비 전에 만료된 워크플로 기한을 거부하는지 검증."""
 
         with patch.dict(
             os.environ,
@@ -119,7 +119,7 @@ class UpstreamSyncTests(unittest.TestCase):
         supported_versions.assert_not_called()
 
     def test_main_reports_invalid_versions_json_without_traceback(self) -> None:
-        """`main_reports_invalid_versions_json_without_traceback` 시나리오 검증."""
+        """`main`이 잘못된 버전 JSON을 추적 정보 없이 보고하는지 검증."""
 
         self._assert_versions_rejected_before_source_setup(
             "[\n",
@@ -127,7 +127,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_main_rejects_non_list_versions_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 non list 버전 거부 검증."""
+        """`main`이 원문 준비 전에 목록이 아닌 버전 값을 거부하는지 검증."""
 
         self._assert_versions_rejected_before_source_setup(
             "{}\n",
@@ -135,7 +135,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_main_rejects_invalid_version_tokens_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 잘못된 버전 tokens 거부 검증."""
+        """`main`이 원문 준비 전에 잘못된 버전 토큰을 거부하는지 검증."""
 
         for token in (13, "13", "../13.x"):
             with self.subTest(token=token):
@@ -145,7 +145,7 @@ class UpstreamSyncTests(unittest.TestCase):
                 )
 
     def test_main_requires_master_first_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 master first 요구 검증."""
+        """`main`이 원문 준비 전에 master를 첫 번째 항목으로 요구하는지 검증."""
 
         for versions in (["13.x", "12.x"], ["13.x", "master"]):
             with self.subTest(versions=versions):
@@ -155,7 +155,7 @@ class UpstreamSyncTests(unittest.TestCase):
                 )
 
     def test_main_rejects_duplicate_versions_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 duplicate 버전 거부 검증."""
+        """`main`이 원문 준비 전에 중복 버전을 거부하는지 검증."""
 
         for versions in (
             ["master", "master", "13.x"],
@@ -168,7 +168,7 @@ class UpstreamSyncTests(unittest.TestCase):
                 )
 
     def test_main_rejects_misordered_versions_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 misordered 버전 거부 검증."""
+        """`main`이 원문 준비 전에 순서가 잘못된 버전을 거부하는지 검증."""
 
         self._assert_versions_rejected_before_source_setup(
             json.dumps(["master", "12.x", "13.x"]),
@@ -176,7 +176,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_sync_version_copies_markdown_bytes_without_normalization(self) -> None:
-        """`sync_version`의 Markdown bytes 제외 normalization 복사 검증."""
+        """`sync_version`이 Markdown 바이트를 정규화 없이 복사하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -206,7 +206,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual((en_root / "version-13.x/example.md").read_bytes(), raw)
 
     def test_sync_version_rejects_upstream_markdown_symlinks(self) -> None:
-        """`sync_version`의 upstream Markdown symlinks 거부 검증."""
+        """`sync_version`이 upstream Markdown symlink를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -230,7 +230,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertFalse((en_root / "version-13.x/linked.md").exists())
 
     def test_sync_version_can_checkout_a_pinned_commit(self) -> None:
-        """`sync_version_can_checkout_a_pinned_commit` 시나리오 검증."""
+        """`sync_version`이 고정 commit의 checkout 명령을 사용하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             repo_dir = Path(tmp)
@@ -248,7 +248,7 @@ class UpstreamSyncTests(unittest.TestCase):
             )
 
     def test_sync_version_caps_checkout_to_shared_workflow_deadline(self) -> None:
-        """`sync_version`의 checkout 후 shared 워크플로 기한 제한 검증."""
+        """`sync_version`이 공유 워크플로 기한으로 checkout 시간을 제한하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             repo_dir = Path(tmp)
@@ -272,7 +272,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(run.call_args.kwargs["timeout"], 30)
 
     def test_sync_version_updates_only_the_selected_document(self) -> None:
-        """`sync_version`의 만 선택된 문서 갱신 검증."""
+        """`sync_version`이 선택한 문서만 갱신하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -307,7 +307,7 @@ class UpstreamSyncTests(unittest.TestCase):
             )
 
     def test_sync_version_updates_a_nested_selected_document(self) -> None:
-        """`sync_version`의 중첩 선택된 문서 갱신 검증."""
+        """`sync_version`이 중첩 경로의 선택 문서를 갱신하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -335,7 +335,7 @@ class UpstreamSyncTests(unittest.TestCase):
             )
 
     def test_full_sync_recursively_copies_and_deletes_nested_markdown(self) -> None:
-        """`full_sync_recursively`의 및 deletes 중첩 Markdown 복사 검증."""
+        """전체 동기화가 중첩 Markdown을 재귀적으로 복사하고 삭제하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -369,7 +369,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertFalse((destination / "obsolete").exists())
 
     def test_full_sync_rejects_nested_upstream_symlink_directory(self) -> None:
-        """`full_sync`의 중첩 upstream symlink 디렉터리 거부 검증."""
+        """전체 동기화가 중첩 upstream symlink 디렉터리를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -393,7 +393,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertFalse((en_root / "version-13.x/guides/leak.md").exists())
 
     def test_sync_version_preserves_selected_cache_when_replace_fails(self) -> None:
-        """`sync_version`의 replace fails 시 선택된 cache 보존 검증."""
+        """`sync_version`이 교체 실패 시 선택 문서의 cache를 보존하고 임시 파일을 정리하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -425,7 +425,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(list(destination.glob(".selected.md.*.tmp")), [])
 
     def test_sync_version_replaces_selected_hardlink_and_preserves_mode(self) -> None:
-        """`sync_version_replaces_selected_hardlink_and`의 mode 보존 검증."""
+        """`sync_version`이 선택한 hardlink를 교체하고 파일 mode를 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -456,7 +456,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(cached.stat().st_mode & 0o777, 0o640)
 
     def test_full_sync_preserves_cache_when_first_replace_fails(self) -> None:
-        """`full_sync`의 first replace fails 시 cache 보존 검증."""
+        """전체 동기화가 첫 교체 실패 시 cache를 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -487,7 +487,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(list(destination.glob(".selected.md.*.tmp")), [])
 
     def test_full_sync_preserves_existing_file_mode(self) -> None:
-        """`full_sync`의 existing 파일 mode 보존 검증."""
+        """전체 동기화가 기존 파일 mode를 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -511,7 +511,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(selected.stat().st_mode & 0o777, 0o640)
 
     def test_sync_version_rejects_selected_upstream_markdown_symlink(self) -> None:
-        """`sync_version`의 선택된 upstream Markdown symlink 거부 검증."""
+        """`sync_version`이 선택한 upstream Markdown symlink를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -544,7 +544,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(cached.read_text(encoding="utf-8"), "cached\n")
 
     def test_sync_version_deletes_only_a_selected_document_missing_upstream(self) -> None:
-        """`sync_version`의 만 선택된 문서 누락된 upstream 삭제 검증."""
+        """`sync_version`이 upstream에서 누락된 선택 문서만 삭제하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -573,7 +573,7 @@ class UpstreamSyncTests(unittest.TestCase):
             )
 
     def test_sync_version_rejects_selected_non_file_markdown_source(self) -> None:
-        """`sync_version`의 선택된 non 파일 Markdown 원문 거부 검증."""
+        """`sync_version`이 파일이 아닌 선택 Markdown 원문을 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -601,7 +601,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(cached.read_text(encoding="utf-8"), "cached\n")
 
     def test_full_sync_rejects_nested_destination_symlink_before_checkout(self) -> None:
-        """`full_sync`의 checkout 전 중첩 destination symlink 거부 검증."""
+        """전체 동기화가 checkout 전에 중첩 목적지 symlink를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -630,7 +630,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(victim.read_text(encoding="utf-8"), "keep\n")
 
     def test_manifest_round_trip_records_repository_and_version_refs(self) -> None:
-        """`manifest_round_trip`의 저장소 및 버전 refs 기록 검증."""
+        """manifest 왕복 변환이 저장소와 버전 ref를 기록하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -660,7 +660,7 @@ class UpstreamSyncTests(unittest.TestCase):
             )
 
     def test_manifest_round_trip_supports_sha256_object_ids(self) -> None:
-        """`manifest_round_trip`의 sha256 object ids 지원 검증."""
+        """manifest 왕복 변환이 SHA-256 객체 ID를 지원하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -675,7 +675,7 @@ class UpstreamSyncTests(unittest.TestCase):
             )
 
     def test_manifest_rejects_boolean_schema_version(self) -> None:
-        """`manifest`의 boolean schema 버전 거부 검증."""
+        """manifest가 boolean schema 버전을 거부하는지 검증."""
 
         contents = (
             '{"schema_version":true,"entries":[]}' "\n"
@@ -685,7 +685,7 @@ class UpstreamSyncTests(unittest.TestCase):
             upstream.load_manifest_bytes(contents)
 
     def test_manifest_rejects_non_string_object_format_cleanly(self) -> None:
-        """`manifest`의 non string object format cleanly 거부 검증."""
+        """manifest가 문자열이 아닌 객체 형식을 명확히 거부하는지 검증."""
 
         contents = (
             '{"schema_version":1,"entries":['
@@ -697,13 +697,13 @@ class UpstreamSyncTests(unittest.TestCase):
             upstream.load_manifest_bytes(contents)
 
     def test_manifest_writer_rejects_non_string_commit_cleanly(self) -> None:
-        """`manifest_writer`의 non string 커밋 cleanly 거부 검증."""
+        """`canonical_manifest`가 문자열이 아닌 commit을 명확히 거부하는지 검증."""
 
         with self.assertRaisesRegex(ValueError, "object ID"):
             upstream.canonical_manifest({"master": 1})  # type: ignore[dict-item]
 
     def test_manifest_rejects_noncanonical_json_and_version_order(self) -> None:
-        """`manifest`의 비정규 JSON 및 버전 order 거부 검증."""
+        """manifest가 비정규 JSON과 잘못된 버전 순서를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -722,7 +722,7 @@ class UpstreamSyncTests(unittest.TestCase):
                 upstream.load_manifest(path)
 
     def test_write_manifest_does_not_follow_predictable_temp_symlink(self) -> None:
-        """`write_manifest`의 않음 follow predictable temp symlink 동작 검증."""
+        """`write_manifest`가 예측 가능한 임시 symlink를 따라가지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -743,7 +743,7 @@ class UpstreamSyncTests(unittest.TestCase):
             )
 
     def test_write_manifest_supports_concurrent_writers(self) -> None:
-        """`write_manifest`의 concurrent writers 지원 검증."""
+        """`write_manifest`가 동시 기록을 지원하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -755,7 +755,7 @@ class UpstreamSyncTests(unittest.TestCase):
             barrier = threading.Barrier(len(refs))
 
             def write(candidate: dict[str, str]) -> None:
-                """기록."""
+                """동시 시작 시점을 맞춘 뒤 manifest 기록."""
 
                 barrier.wait()
                 upstream.write_manifest(path, candidate)
@@ -769,7 +769,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(list(root.glob(".refs.json.*.tmp")), [])
 
     def test_write_manifest_cleans_up_only_its_temp_after_replace_failure(self) -> None:
-        """`write_manifest`의 replace 실패 후 up only its temp 정리 검증."""
+        """`write_manifest`가 교체 실패 후 자체 임시 파일만 정리하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -789,7 +789,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(list(root.glob(".refs.json.*.tmp")), [])
 
     def test_manifest_rejects_missing_version_ref(self) -> None:
-        """`manifest`의 누락된 버전 ref 거부 검증."""
+        """manifest가 누락된 버전 ref를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -799,7 +799,7 @@ class UpstreamSyncTests(unittest.TestCase):
                 upstream.manifest_ref({"12.x": "b" * 40}, "13.x")
 
     def test_resolve_manifest_uses_one_remote_query_without_clone(self) -> None:
-        """`resolve_manifest`의 one 원격 query 제외 clone 사용 검증."""
+        """`resolve_manifest`가 clone 없이 한 번의 원격 조회만 사용하는지 검증."""
 
         commits = {
             "master": "a" * 40,
@@ -811,7 +811,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
         def run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-            """실행."""
+            """원격 ref 광고와 객체 형식 확인 결과를 반환하는 모의 Git 실행기."""
 
             if "ls-remote" in args:
                 stdout = advertisement
@@ -847,7 +847,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_resolve_manifest_rejects_invalid_remote_advertisements(self) -> None:
-        """`resolve_manifest`의 잘못된 원격 advertisements 거부 검증."""
+        """`resolve_manifest`가 잘못된 원격 ref 광고를 거부하는지 검증."""
 
         valid_master = f'{"a" * 40}\trefs/heads/master'
         valid_version = f'{"b" * 40}\trefs/heads/13.x'
@@ -873,7 +873,7 @@ class UpstreamSyncTests(unittest.TestCase):
                     upstream.resolve_manifest(["master", "13.x"])
 
     def test_resolve_manifest_validates_versions_before_network(self) -> None:
-        """`resolve_manifest`의 network 전 버전 검증."""
+        """`resolve_manifest`가 네트워크 접근 전에 모든 버전을 검증하는지 확인."""
 
         for versions in ([], ["master", "master"], ["../master"]):
             with self.subTest(versions=versions), patch.object(
@@ -885,7 +885,7 @@ class UpstreamSyncTests(unittest.TestCase):
                 runner.assert_not_called()
 
     def test_resolve_manifest_allows_shared_sha256_branch_tip(self) -> None:
-        """`resolve_manifest`의 shared sha256 브랜치 tip 허용 검증."""
+        """`resolve_manifest`가 공유된 SHA-256 branch tip을 허용하는지 검증."""
 
         commit = "a" * 64
         advertisement = (
@@ -904,7 +904,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_resolve_manifest_does_not_retry_remote_query_failure(self) -> None:
-        """`resolve_manifest`의 않음 재시도 원격 query 실패 동작 검증."""
+        """`resolve_manifest`가 원격 조회 실패를 재시도하지 않는지 검증."""
 
         error = subprocess.CalledProcessError(128, ["git", "ls-remote"])
         with patch.object(
@@ -922,12 +922,12 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_main_fetches_only_the_selected_pinned_source_without_clone(self) -> None:
-        """`main`의 만 선택된 pinned 원문 제외 clone 조회 검증."""
+        """`main`이 clone 없이 선택한 고정 원문만 가져오는지 검증."""
 
         commit = "a" * 40
 
         def run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-            """실행."""
+            """`rev-parse` 호출에 고정 commit을 반환하는 모의 Git 실행기."""
 
             stdout = commit if "rev-parse" in args else ""
             return subprocess.CompletedProcess(args, 0, stdout=stdout)
@@ -972,12 +972,12 @@ class UpstreamSyncTests(unittest.TestCase):
         self.assertLess(sparse_index, fetch_index)
 
     def test_prepare_upstream_uses_partial_atomic_markdown_fetch(self) -> None:
-        """`prepare_upstream`의 partial atomic Markdown fetch 사용 검증."""
+        """`_prepare_upstream`이 부분적이고 원자적인 Markdown fetch를 사용하는지 검증."""
 
         commit = "a" * 40
 
         def run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-            """실행."""
+            """`rev-parse` 호출에 고정 commit을 반환하는 모의 Git 실행기."""
 
             stdout = commit if "rev-parse" in args else ""
             return subprocess.CompletedProcess(args, 0, stdout=stdout)
@@ -1016,12 +1016,12 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertLess(config_index, fetch_index)
 
     def test_prepare_upstream_supports_sha256_object_repositories(self) -> None:
-        """`prepare_upstream`의 sha256 object repositories 지원 검증."""
+        """`_prepare_upstream`이 SHA-256 객체 저장소를 지원하는지 검증."""
 
         commit = "a" * 64
 
         def run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-            """실행."""
+            """`rev-parse` 호출에 고정 commit을 반환하는 모의 Git 실행기."""
 
             stdout = commit if "rev-parse" in args else ""
             return subprocess.CompletedProcess(args, 0, stdout=stdout)
@@ -1044,7 +1044,7 @@ class UpstreamSyncTests(unittest.TestCase):
         self.assertIn("--object-format=sha256", init)
 
     def test_prepare_upstream_rejects_mixed_object_formats_before_git(self) -> None:
-        """`prepare_upstream`의 Git 전 mixed object formats 거부 검증."""
+        """`_prepare_upstream`이 Git 실행 전에 혼합 객체 형식을 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp, patch.object(
             upstream,
@@ -1059,12 +1059,12 @@ class UpstreamSyncTests(unittest.TestCase):
         runner.assert_not_called()
 
     def test_prepare_upstream_escapes_literal_document_sparse_pattern(self) -> None:
-        """`prepare_upstream`의 literal 문서 sparse pattern escape 검증."""
+        """`_prepare_upstream`이 문서 경로의 sparse pattern 메타 문자를 이스케이프하는지 검증."""
 
         commit = "a" * 40
 
         def run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-            """실행."""
+            """`rev-parse` 호출에 고정 commit을 반환하는 모의 Git 실행기."""
 
             stdout = commit if "rev-parse" in args else ""
             return subprocess.CompletedProcess(args, 0, stdout=stdout)
@@ -1088,12 +1088,12 @@ class UpstreamSyncTests(unittest.TestCase):
         self.assertEqual(sparse[-1], "/guides/\\[draft\\]\\*\\?.md")
 
     def test_prepare_upstream_uses_markdown_fallback_for_line_break_doc(self) -> None:
-        """`prepare_upstream`의 Markdown fallback 대상 줄 break doc 사용 검증."""
+        """`_prepare_upstream`이 줄바꿈 포함 문서에 Markdown fallback을 사용하는지 검증."""
 
         commit = "a" * 40
 
         def run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-            """실행."""
+            """`rev-parse` 호출에 고정 commit을 반환하는 모의 Git 실행기."""
 
             stdout = commit if "rev-parse" in args else ""
             return subprocess.CompletedProcess(args, 0, stdout=stdout)
@@ -1117,7 +1117,7 @@ class UpstreamSyncTests(unittest.TestCase):
         self.assertEqual(sparse[-1], "*.md")
 
     def test_main_writes_branch_ref_then_reuses_pinned_ref(self) -> None:
-        """`main`의 브랜치 ref 이후 reuses pinned ref 기록 검증."""
+        """`main`이 branch ref를 기록한 뒤 고정 ref를 재사용하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -1152,7 +1152,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(sync_version.call_args.kwargs["ref"], commit)
 
     def test_main_does_not_log_absolute_manifest_artifact_path(self) -> None:
-        """`main`의 않음 log absolute manifest 산출물 경로 동작 검증."""
+        """`main`이 manifest 산출물의 절대 경로를 기록하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -1179,7 +1179,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertIn("upstream manifest: written", stdout.getvalue())
 
     def test_main_scopes_checkout_and_copy_to_requested_filters(self) -> None:
-        """`main_scopes_checkout_and_copy_to_requested_filters` 시나리오 검증."""
+        """`main`이 요청한 버전·문서 filter를 `sync_version`에 전달하는지 검증."""
 
         commits = {"12.x": "a" * 40, "13.x": "b" * 40}
         with patch.dict(os.environ, {}, clear=True), patch.object(
@@ -1201,7 +1201,7 @@ class UpstreamSyncTests(unittest.TestCase):
         self.assertEqual(sync_version.call_args.kwargs["doc"], "collections.md")
 
     def test_main_requires_version_for_document_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 버전 for 문서 요구 검증."""
+        """`main`이 원문 준비 전에 문서 선택용 버전을 요구하는지 검증."""
 
         stderr = io.StringIO()
         with redirect_stderr(stderr), patch.dict(
@@ -1223,7 +1223,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_main_selector_does_not_reduce_generated_manifest_entries(self) -> None:
-        """`main_selector`의 않음 reduce generated manifest entries 동작 검증."""
+        """`main`의 selector가 생성된 manifest entry를 줄이지 않는지 검증."""
 
         commits = {
             "master": "a" * 40,
@@ -1272,7 +1272,7 @@ class UpstreamSyncTests(unittest.TestCase):
             )
 
     def test_main_rejects_manifest_missing_a_supported_version(self) -> None:
-        """`main`의 manifest 누락된 supported 버전 거부 검증."""
+        """`main`이 지원 버전이 누락된 manifest를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -1292,7 +1292,7 @@ class UpstreamSyncTests(unittest.TestCase):
             sync_version.assert_not_called()
 
     def test_main_rejects_manifest_digest_mismatch_before_source_setup(self) -> None:
-        """`main`의 원문 setup 전 manifest digest mismatch 거부 검증."""
+        """`main`이 원문 준비 전에 manifest digest 불일치를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -1315,7 +1315,7 @@ class UpstreamSyncTests(unittest.TestCase):
             prepare.assert_not_called()
 
     def test_main_accepts_matching_manifest_digest(self) -> None:
-        """`main`의 matching manifest digest 허용 검증."""
+        """`main`이 일치하는 manifest digest를 허용하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -1341,7 +1341,7 @@ class UpstreamSyncTests(unittest.TestCase):
             sync_version.assert_called_once()
 
     def test_main_reports_manifest_write_failure(self) -> None:
-        """`main_reports_manifest_write_failure` 시나리오 검증."""
+        """`main`이 manifest 기록 실패 시 종료 코드 1을 반환하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "refs.json"
@@ -1366,7 +1366,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(result, 1)
 
     def test_sync_version_rejects_unsafe_version_before_checkout_or_write(self) -> None:
-        """`sync_version`의 checkout or write 전 unsafe 버전 거부 검증."""
+        """`sync_version`이 checkout 또는 기록 전에 안전하지 않은 버전을 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1384,7 +1384,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertFalse((root / "escaped").exists())
 
     def test_sync_version_rejects_leading_zero_version_before_write(self) -> None:
-        """`sync_version`의 write 전 leading zero 버전 거부 검증."""
+        """`sync_version`이 기록 전에 선행 0이 있는 버전을 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1404,7 +1404,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertFalse((en_root / "version-013.x").exists())
 
     def test_sync_version_rejects_destination_symlink_to_another_version(self) -> None:
-        """`sync_version`의 destination symlink 후 another 버전 거부 검증."""
+        """`sync_version`이 다른 버전을 가리키는 목적지 symlink를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1434,7 +1434,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertFalse((other_version / "new.md").exists())
 
     def test_sync_version_rejects_symlinked_english_root_before_checkout(self) -> None:
-        """`sync_version`의 checkout 전 symlink english root 거부 검증."""
+        """`sync_version`이 checkout 전에 symlink인 영어 원문 root를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1467,7 +1467,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(list(outside.iterdir()), [])
 
     def test_sync_version_rejects_symlinked_english_root_parent(self) -> None:
-        """`sync_version`의 symlink english root parent 거부 검증."""
+        """`sync_version`이 symlink인 영어 원문 root의 상위 경로를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1501,7 +1501,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(list(outside.iterdir()), [])
 
     def test_sync_version_rejects_symlinked_destination_leaf(self) -> None:
-        """`sync_version`의 symlink destination leaf 거부 검증."""
+        """`sync_version`이 symlink인 목적지 leaf를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1541,7 +1541,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(victim.read_text(encoding="utf-8"), "keep\n")
 
     def test_sync_version_rechecks_leaf_after_checkout(self) -> None:
-        """`sync_version_rechecks_leaf_after_checkout` 시나리오 검증."""
+        """`sync_version`이 checkout 후 목적지 leaf를 다시 검사하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1562,7 +1562,7 @@ class UpstreamSyncTests(unittest.TestCase):
             target = destination / "selected.md"
 
             def checkout(*_args: object, **_kwargs: object) -> None:
-                """checkout 처리."""
+                """checkout 도중 목적지 symlink 생성."""
 
                 target.symlink_to(victim)
 
@@ -1586,7 +1586,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(victim.read_text(encoding="utf-8"), "keep\n")
 
     def test_sync_version_rejects_unsafe_document_before_checkout_or_unlink(self) -> None:
-        """`sync_version`의 checkout or unlink 전 unsafe 문서 거부 검증."""
+        """`sync_version`이 checkout 또는 unlink 전에 안전하지 않은 문서를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1610,7 +1610,7 @@ class UpstreamSyncTests(unittest.TestCase):
             self.assertEqual(victim.read_text(encoding="utf-8"), "keep\n")
 
     def test_sync_version_rejects_non_string_document_before_checkout(self) -> None:
-        """`sync_version`의 checkout 전 non string 문서 거부 검증."""
+        """`sync_version`이 checkout 전에 문자열이 아닌 문서를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1630,7 +1630,7 @@ class UpstreamSyncTests(unittest.TestCase):
             run.assert_not_called()
 
     def test_main_reports_fetch_failure_without_traceback(self) -> None:
-        """`main_reports_fetch_failure_without_traceback` 시나리오 검증."""
+        """`main`이 fetch 실패를 추적 정보 없이 보고하는지 검증."""
 
         stderr = io.StringIO()
         error = subprocess.CalledProcessError(128, ["git", "fetch"])
@@ -1651,7 +1651,7 @@ class UpstreamSyncTests(unittest.TestCase):
         self.assertEqual(stderr.getvalue(), "upstream fetch failed\n")
 
     def test_main_reports_fetch_timeout_without_traceback(self) -> None:
-        """`main_reports_fetch_timeout_without_traceback` 시나리오 검증."""
+        """`main`이 fetch timeout을 추적 정보 없이 보고하는지 검증."""
 
         stderr = io.StringIO()
         error = subprocess.TimeoutExpired(["git", "fetch"], 300)
@@ -1672,13 +1672,13 @@ class UpstreamSyncTests(unittest.TestCase):
         self.assertEqual(stderr.getvalue(), "upstream fetch failed\n")
 
     def test_prepare_upstream_does_not_retry_fetch_failure(self) -> None:
-        """`prepare_upstream`의 않음 재시도 fetch 실패 동작 검증."""
+        """`_prepare_upstream`이 fetch 실패를 재시도하지 않는지 검증."""
 
         commit = "a" * 40
         fetch_error = subprocess.CalledProcessError(128, ["git", "fetch"])
 
         def run(args: list[str], **_kwargs: object) -> None:
-            """실행."""
+            """fetch 호출에서 지정 오류를 발생시키는 모의 Git 실행기."""
 
             if "fetch" in args:
                 raise fetch_error
@@ -1704,7 +1704,7 @@ class UpstreamSyncTests(unittest.TestCase):
         )
 
     def test_main_fails_when_requested_branch_is_unavailable(self) -> None:
-        """`main_fails_when_requested_branch`의 unavailable 판정 검증."""
+        """`main`이 요청한 branch를 사용할 수 없을 때 실패하는지 검증."""
 
         error = subprocess.CalledProcessError(1, ["git", "checkout"])
         manifest = upstream.canonical_manifest({"13.x": "a" * 40})

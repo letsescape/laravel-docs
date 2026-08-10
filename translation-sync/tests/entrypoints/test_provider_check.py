@@ -1,4 +1,4 @@
-"""provider check 동작과 경계 조건 검증."""
+"""공급자 검사의 동작과 경계 조건 검증."""
 
 import hashlib
 import io
@@ -14,7 +14,7 @@ import provider_check
 
 
 class ProviderCheckTests(unittest.TestCase):
-    """provider check 동작과 경계 조건 테스트 모음."""
+    """공급자 검사의 동작과 경계 조건 테스트 모음."""
 
     def setUp(self) -> None:
         """테스트 사전 상태 구성."""
@@ -41,7 +41,7 @@ class ProviderCheckTests(unittest.TestCase):
 
     @staticmethod
     def _valid_translation(locale: str = "ko") -> str:
-        """응답 계약을 만족하는 locale별 fixture 번역문 반환."""
+        """응답 계약을 만족하는 로케일별 픽스처 번역문 반환."""
 
         body = {
             "ko": (
@@ -70,7 +70,7 @@ class ProviderCheckTests(unittest.TestCase):
         )
 
     def test_fixture_version_one_uses_the_specified_source_bytes(self):
-        """Fixture version 1이 명세의 원문 byte와 결합되는지 검증."""
+        """픽스처·응답 계약·예산 프로필 버전과 명세 원문 바이트 검증."""
 
         self.assertEqual(provider_check.FIXTURE_VERSION, 1)
         self.assertEqual(provider_check.RESPONSE_CONTRACT_VERSION, 1)
@@ -112,7 +112,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertEqual(provider_check.evaluate_output("ja", translated), [])
 
     def test_retries_a_completed_response_that_fails_the_contract(self):
-        """완료 응답의 계약 위반을 feedback과 함께 한 번 재시도하는지 검증."""
+        """계약을 위반한 완료 응답을 피드백과 함께 한 번 재시도하는지 검증."""
 
         cfg = provider_check.config.Config(
             provider="cli",
@@ -159,7 +159,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertIn("status=passed", stdout.getvalue())
 
     def test_passes_the_shared_run_deadline_to_every_fixture_request(self):
-        """모든 fixture 요청이 같은 실행 기한을 공유하는지 검증."""
+        """모든 픽스처 요청에 같은 실행 기한을 전달하는지 검증."""
 
         cfg = provider_check.config.Config(
             provider="cli",
@@ -200,7 +200,7 @@ class ProviderCheckTests(unittest.TestCase):
         deadline_check.assert_called_once_with(1234.5)
 
     def test_stops_after_two_invalid_completed_responses(self):
-        """계약을 위반한 완료 응답 두 번 뒤 검사를 중단하는지 검증."""
+        """계약 위반 완료 응답을 두 번 받은 뒤 검사 중단 검증."""
 
         stderr = io.StringIO()
         cfg = provider_check.config.Config(
@@ -262,7 +262,7 @@ class ProviderCheckTests(unittest.TestCase):
         )
 
     def test_common_contract_rejects_modified_inline_code(self):
-        """공통 계약이 변경된 inline code를 거부하는지 검증."""
+        """공통 계약이 변경된 인라인 코드를 거부하는지 검증."""
 
         translated = self._valid_translation().replace(
             "`widget:init`", "`widget:changed`"
@@ -274,7 +274,7 @@ class ProviderCheckTests(unittest.TestCase):
         )
 
     def test_success_outputs_only_versioned_metadata(self):
-        """성공 로그에 버전이 명시된 비민감 metadata만 남는지 검증."""
+        """성공 로그에 버전이 명시된 비민감 메타데이터만 남는지 검증."""
 
         stdout = io.StringIO()
         stderr = io.StringIO()
@@ -325,7 +325,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertNotIn(translated, stdout.getvalue())
 
     def test_failure_never_outputs_provider_response_or_transport_detail(self):
-        """실패 로그에서 provider 응답과 transport 세부 정보가 숨겨지는지 검증."""
+        """실패 로그에서 공급자 응답과 전송 세부 정보가 숨겨지는지 검증."""
 
         response_marker = "PRIVATE_PROVIDER_RESPONSE_BODY"
         for side_effect in (
@@ -391,7 +391,7 @@ class ProviderCheckTests(unittest.TestCase):
         invalid = self._valid_translation().replace("`widget:init`", "widget:init")
 
         def respond(*_args, attempt_counter, **_kwargs):
-            """Transport 시도 횟수를 기록하고 계약 위반 응답 반환."""
+            """전송 시도 횟수를 기록하고 계약 위반 응답 반환."""
 
             attempt_counter.record_transport()
             return invalid
@@ -434,7 +434,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertNotIn(invalid.encode(), report_bytes)
 
     def test_transport_failure_report_uses_stable_code_without_exception_body(self):
-        """Transport 실패 보고서가 예외 본문 없이 안정적인 코드를 쓰는지 검증."""
+        """전송 실패 보고서의 예외 본문 제외와 안정된 코드 사용 검증."""
 
         marker = "PRIVATE_PROVIDER_EXCEPTION_BODY"
         cfg = provider_check.config.Config(
@@ -488,7 +488,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertNotIn(marker.encode(), report_bytes)
 
     def test_run_deadline_failure_report_has_zero_unstarted_attempts(self):
-        """호출 전 기한 초과 보고서의 미시작 시도 횟수가 0인지 검증."""
+        """호출 전 기한 초과 보고서의 시작되지 않은 시도 횟수가 0인지 검증."""
 
         cfg = provider_check.config.Config(
             provider="cli",
@@ -533,7 +533,7 @@ class ProviderCheckTests(unittest.TestCase):
         )
 
     def test_configuration_failure_report_maps_code_without_config_detail(self):
-        """설정 실패가 민감한 세부 정보 없이 안정적인 코드로 매핑되는지 검증."""
+        """설정 실패의 민감한 세부 정보 제외와 안정된 코드 매핑 검증."""
 
         marker = "PRIVATE_CONFIG_DETAIL"
         with tempfile.TemporaryDirectory() as tmp:
@@ -602,7 +602,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertNotIn("PRIVATE_PROMPT_ERROR", stderr.getvalue())
 
     def test_missing_or_invalid_run_id_fails_before_provider_configuration(self):
-        """누락되거나 잘못된 실행 ID가 provider 설정보다 먼저 거부되는지 검증."""
+        """누락되거나 잘못된 실행 ID가 공급자 설정보다 먼저 거부되는지 검증."""
 
         for run_id in (None, "-invalid", "x" * 129):
             with self.subTest(run_id=run_id):
@@ -623,7 +623,7 @@ class ProviderCheckTests(unittest.TestCase):
                 self.assertEqual(exit_code, 1)
 
     def test_missing_failure_report_target_fails_before_provider_configuration(self):
-        """누락된 실패 보고서 경로가 provider 설정보다 먼저 거부되는지 검증."""
+        """누락된 실패 보고서 경로가 공급자 설정보다 먼저 거부되는지 검증."""
 
         with patch.dict(
             os.environ,
@@ -643,7 +643,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertEqual(exit_code, 2)
 
     def test_success_fails_if_failure_report_target_appears_during_fixture(self):
-        """Fixture 도중 실패 보고서 경로가 선점되면 성공을 거부하는지 검증."""
+        """픽스처 실행 중 실패 보고서 경로가 선점되면 성공을 거부하는지 검증."""
 
         cfg = provider_check.config.Config(
             provider="cli",
@@ -682,7 +682,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertEqual(self.failure_report.read_bytes(), b"raced-report\n")
 
     def test_prompt_error_is_reported_as_configuration_failure(self):
-        """Prompt 형식 오류가 설정 실패로 보고되는지 검증."""
+        """프롬프트 형식 오류가 설정 실패로 보고되는지 검증."""
 
         stderr = io.StringIO()
         cfg = provider_check.config.Config(
@@ -721,7 +721,7 @@ class ProviderCheckTests(unittest.TestCase):
         )
 
     def test_prompt_read_failure_is_reported_as_configuration_failure(self):
-        """Prompt 읽기 오류가 설정 실패로 보고되는지 검증."""
+        """프롬프트 읽기 오류가 설정 실패로 보고되는지 검증."""
 
         stderr = io.StringIO()
         cfg = provider_check.config.Config(

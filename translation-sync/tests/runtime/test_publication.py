@@ -1,4 +1,4 @@
-"""publication 동작과 경계 조건 검증."""
+"""게시 동작과 경계 조건 검증."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ _PREPARATION_KEY = b"p" * 32
 
 
 def _git(repo: Path, *args: str) -> str:
-    """테스트 저장소에서 Git 명령 실행 후 stdout 반환."""
+    """Git 명령 실행."""
 
     return subprocess.run(
         ["git", *args],
@@ -39,7 +39,7 @@ def _git(repo: Path, *args: str) -> str:
 
 
 def _init_repositories(root: Path) -> tuple[Path, Path, Path, str, str]:
-    """active·bare remote·candidate 저장소와 기준 식별자 생성."""
+    """테스트용 활성·원격·후보 저장소 초기화."""
 
     active = root / "active"
     remote = root / "remote.git"
@@ -75,7 +75,7 @@ def _init_repositories(root: Path) -> tuple[Path, Path, Path, str, str]:
 
 
 def _repository_state(repo: Path) -> tuple[str, str, str, str]:
-    """HEAD·branch·index tree·worktree 상태 snapshot 반환."""
+    """저장소의 커밋·트리·작업 트리 상태 조회."""
 
     return (
         _git(repo, "rev-parse", "HEAD"),
@@ -86,13 +86,13 @@ def _repository_state(repo: Path) -> tuple[str, str, str, str]:
 
 
 def _remote_oid(remote: Path) -> str:
-    """bare remote의 main ref 객체 ID 조회."""
+    """원격 대상 참조의 개체 ID 조회."""
 
     return _git(remote, "rev-parse", _TARGET_REF)
 
 
 def _ref_exists(repo: Path, ref: str) -> bool:
-    """저장소에 정확한 ref가 존재하는지 판별."""
+    """Git 참조 존재 여부 확인."""
 
     return (
         subprocess.run(
@@ -105,7 +105,7 @@ def _ref_exists(repo: Path, ref: str) -> bool:
 
 
 def _is_push_argv(value: object) -> bool:
-    """기록된 argv가 Git push 명령인지 판별."""
+    """Git 푸시 인수 배열 여부."""
 
     return (
         isinstance(value, (tuple, list))
@@ -115,7 +115,7 @@ def _is_push_argv(value: object) -> bool:
 
 
 def _environment(**extra: str) -> dict[str, str]:
-    """격리 Git 테스트 identity와 최소 환경 구성."""
+    """테스트용 푸시 환경 구성."""
 
     return {
         "PATH": os.environ["PATH"],
@@ -138,7 +138,7 @@ def _publisher(
     read_active_fingerprint=lambda _timeout: "active-v1",
     remaining_seconds=lambda: 30.0,
 ) -> Publisher:
-    """고정 테스트 기준본으로 Publisher fixture 생성."""
+    """테스트용 게시기 구성."""
 
     return Publisher(
         candidate_repo=candidate,
@@ -157,7 +157,7 @@ def _publisher(
 
 
 def _create_competing_commit(root: Path, remote: Path) -> tuple[Path, str]:
-    """원격 브랜치를 선점할 경쟁 commit 생성."""
+    """원격 경쟁 커밋 생성."""
 
     competitor = root / "competitor"
     subprocess.run(
@@ -175,10 +175,10 @@ def _create_competing_commit(root: Path, remote: Path) -> tuple[Path, str]:
 
 
 class PublicationTests(unittest.TestCase):
-    """publication 동작과 경계 조건 테스트 모음."""
+    """게시 동작과 경계 조건 테스트 모음."""
 
     def test_builds_explicit_commit_to_ref_cas_push_argv(self) -> None:
-        """explicit 커밋 후 ref cas push argv 생성 검증."""
+        """명시적 커밋-참조 CAS 푸시 인수 구성 검증."""
 
         base = "a" * 40
         commit = "b" * 40
@@ -204,7 +204,7 @@ class PublicationTests(unittest.TestCase):
     def test_creates_detached_verified_commit_and_publishes_without_local_mutation(
         self,
     ) -> None:
-        """detached verified 커밋 및 publishes 제외 local mutation 생성 검증."""
+        """분리된 검증 커밋을 생성하고 로컬 변경 없이 게시하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             active, remote, candidate, base_head, base_tree = _init_repositories(
@@ -226,7 +226,7 @@ class PublicationTests(unittest.TestCase):
             publication_calls: list[dict[str, object]] = []
 
             def run_with_recording(*args: object, **kwargs: object):
-                """with recording 실행."""
+                """게시 하위 프로세스 호출 기록."""
 
                 publication_calls.append(kwargs.copy())
                 return real_run(*args, **kwargs)
@@ -275,7 +275,7 @@ class PublicationTests(unittest.TestCase):
             )
 
     def test_no_change_rechecks_base_and_skips_commit_and_push(self) -> None:
-        """`no_change_rechecks_base_and_skips_commit_and_push` 시나리오 검증."""
+        """변경이 없으면 기준본을 다시 확인하고 커밋과 푸시를 생략하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             active, remote, candidate, base_head, base_tree = _init_repositories(
@@ -307,7 +307,7 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(_repository_state(candidate), candidate_before)
 
     def test_serialized_preparation_is_revalidated_by_a_new_publisher(self) -> None:
-        """`serialized_preparation`의 revalidated by 신규 publisher 판정 검증."""
+        """직렬화된 준비 상태를 새 게시기가 다시 검증하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -343,7 +343,7 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(_remote_oid(remote), prepared.commit_oid)
 
     def test_prepare_uses_explicit_identity_without_candidate_user_config(self) -> None:
-        """`prepare`의 explicit identity 제외 candidate user 설정 사용 검증."""
+        """준비 시 후보 저장소의 사용자 설정 대신 명시적 작성자 정보를 사용하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -371,7 +371,7 @@ class PublicationTests(unittest.TestCase):
             )
 
     def test_active_fingerprint_change_blocks_publication(self) -> None:
-        """`active_fingerprint_change`의 publication 차단 검증."""
+        """활성 저장소 지문 변경 시 게시 차단 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -396,7 +396,7 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(_remote_oid(remote), base_head)
 
     def test_remote_ref_change_blocks_publication_before_push(self) -> None:
-        """`remote_ref_change`의 push 전 publication 차단 검증."""
+        """원격 참조 변경 시 푸시 전에 게시를 차단하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -423,7 +423,7 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(_remote_oid(remote), competing_oid)
 
     def test_force_with_lease_closes_race_after_remote_ref_recheck(self) -> None:
-        """`force_with_lease_closes_race_after_remote_ref_recheck` 시나리오 검증."""
+        """원격 참조 재확인 뒤의 경쟁을 ``force-with-lease``가 차단하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -449,7 +449,7 @@ class PublicationTests(unittest.TestCase):
                 repo: Path,
                 environment: dict[str, str],
             ) -> str:
-                """then advance 원격 읽기."""
+                """원격 참조를 읽은 뒤 경쟁 커밋으로 이동."""
 
                 nonlocal reads
                 observed = real_remote_oid(repo, environment)
@@ -479,7 +479,7 @@ class PublicationTests(unittest.TestCase):
     def test_candidate_push_configuration_cannot_add_refs_or_redirect_endpoint(
         self,
     ) -> None:
-        """`candidate_push_configuration` 관련 경계 조건 검증."""
+        """후보 푸시 설정이 참조를 추가하거나 엔드포인트를 바꾸지 못하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -521,7 +521,7 @@ class PublicationTests(unittest.TestCase):
             self.assertFalse(_ref_exists(redirected, _TARGET_REF))
 
     def test_commit_tree_mismatch_is_rejected_before_publication(self) -> None:
-        """`commit_tree_mismatch`의 publication 전 rejected 판정 검증."""
+        """커밋 트리 불일치를 게시 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -543,7 +543,7 @@ class PublicationTests(unittest.TestCase):
                 *,
                 environment: dict[str, str],
             ) -> str:
-                """substitute 커밋 tree 처리."""
+                """세 번째 조회에서 다른 커밋 트리 반환."""
 
                 nonlocal calls
                 calls += 1
@@ -571,7 +571,7 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(_remote_oid(remote), base_head)
 
     def test_push_failure_does_not_expose_stderr_or_environment_values(self) -> None:
-        """`push_failure`의 않음 expose stderr 또는 환경 values 동작 검증."""
+        """푸시 실패 시 표준 오류나 환경 변수 값을 노출하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -597,7 +597,7 @@ class PublicationTests(unittest.TestCase):
             real_run = subprocess.run
 
             def fail_only_push(*args: object, **kwargs: object):
-                """테스트용 only push 대체 동작."""
+                """푸시 명령만 실패시키는 테스트 대체 동작."""
 
                 argv = args[0]
                 if _is_push_argv(argv):
@@ -637,7 +637,7 @@ class PublicationTests(unittest.TestCase):
             self.assertNotIn("TEST_PUSH_TOKEN", clone_call.kwargs["env"])
 
     def test_unissued_prepared_value_cannot_bypass_tree_and_parent_checks(self) -> None:
-        """`unissued_prepared_value` 관련 경계 조건 검증."""
+        """발급되지 않은 준비 값이 트리와 부모 검사를 우회하지 못하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -684,7 +684,7 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(_remote_oid(remote), base_head)
 
     def test_expired_deadline_starts_no_git_subprocess(self) -> None:
-        """`expired_deadline_starts_no_git_subprocess` 시나리오 검증."""
+        """만료된 기한에서 Git 하위 프로세스를 시작하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -710,7 +710,7 @@ class PublicationTests(unittest.TestCase):
             run.assert_not_called()
 
     def test_push_timeout_is_a_workflow_deadline_failure(self) -> None:
-        """`push_timeout`의 워크플로 기한 실패 판정 검증."""
+        """푸시 제한 시간을 워크플로 기한 초과로 판정하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -730,7 +730,7 @@ class PublicationTests(unittest.TestCase):
             real_run = subprocess.run
 
             def timeout_only_push(*args: object, **kwargs: object):
-                """timeout only push 처리."""
+                """푸시 명령만 기한 초과시키는 테스트 대체 동작."""
 
                 argv = args[0]
                 if _is_push_argv(argv):
@@ -755,7 +755,7 @@ class PublicationTests(unittest.TestCase):
             self.assertIsNone(caught.exception.__cause__)
 
     def test_timeout_after_server_update_reports_published_commit(self) -> None:
-        """`timeout_after_server_update_reports_published_commit` 시나리오 검증."""
+        """서버 갱신 뒤 기한을 초과해도 게시 커밋을 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -774,7 +774,7 @@ class PublicationTests(unittest.TestCase):
             real_run = subprocess.run
 
             def publish_then_timeout(*args: object, **kwargs: object):
-                """publish then timeout 처리."""
+                """푸시를 반영한 뒤 기한 초과시키는 테스트 대체 동작."""
 
                 argv = args[0]
                 if _is_push_argv(argv):
@@ -798,7 +798,7 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(_remote_oid(remote), prepared.commit_oid)
 
     def test_cleanup_error_after_server_update_reports_published_commit(self) -> None:
-        """`cleanup_error_after_server_update`의 published 커밋 보고 검증."""
+        """서버 갱신 뒤 정리 오류에도 게시 커밋을 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -817,7 +817,7 @@ class PublicationTests(unittest.TestCase):
             real_run = subprocess.run
 
             def publish_then_fail_cleanup(*args: object, **kwargs: object):
-                """publish then fail cleanup 처리."""
+                """푸시를 반영한 뒤 정리를 실패시키는 테스트 대체 동작."""
 
                 argv = args[0]
                 if _is_push_argv(argv):
@@ -842,7 +842,7 @@ class PublicationTests(unittest.TestCase):
             self.assertNotIn("private", str(caught.exception))
 
     def test_nonzero_after_server_update_reports_published_commit(self) -> None:
-        """`nonzero_after_server_update_reports_published_commit` 시나리오 검증."""
+        """서버 갱신 뒤 0이 아닌 종료에도 게시 커밋을 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -861,7 +861,7 @@ class PublicationTests(unittest.TestCase):
             real_run = subprocess.run
 
             def publish_then_report_failure(*args: object, **kwargs: object):
-                """publish then 보고서 실패 처리."""
+                """푸시를 반영한 뒤 실패 결과를 반환하는 테스트 대체 동작."""
 
                 argv = args[0]
                 if _is_push_argv(argv):
@@ -888,7 +888,7 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(_remote_oid(remote), prepared.commit_oid)
 
     def test_temporary_directory_creation_failure_is_a_runner_failure(self) -> None:
-        """`temporary_directory_creation_failure`의 runner 실패 판정 검증."""
+        """임시 디렉터리 생성 실패를 실행기 실패로 판정하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -915,7 +915,7 @@ class PublicationTests(unittest.TestCase):
             self.assertNotIn("sensitive", str(caught.exception))
 
     def test_cleanup_failure_after_success_preserves_published_commit(self) -> None:
-        """`cleanup_failure_after_success`의 published 커밋 보존 검증."""
+        """게시 성공 뒤 정리 실패에도 게시 커밋을 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -934,10 +934,10 @@ class PublicationTests(unittest.TestCase):
             real_temporary_directory = tempfile.TemporaryDirectory
 
             class CleanupFailure:
-                """cleanup 실패 정보."""
+                """정리에 실패하는 임시 디렉터리 대체 구현."""
 
                 def __init__(self, *args: object, **kwargs: object) -> None:
-                    """cleanup 실패 초기화."""
+                    """실제 임시 디렉터리 초기화."""
 
                     self._temporary = real_temporary_directory(*args, **kwargs)
                     self.name = self._temporary.name
@@ -961,7 +961,7 @@ class PublicationTests(unittest.TestCase):
             self.assertNotIn("sensitive", str(caught.exception))
 
     def test_cleanup_failure_preserves_prior_published_failure_state(self) -> None:
-        """`cleanup_failure`의 prior published 실패 상태 보존 검증."""
+        """정리 실패 시 앞선 게시 실패 상태를 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
@@ -981,7 +981,7 @@ class PublicationTests(unittest.TestCase):
             real_temporary_directory = tempfile.TemporaryDirectory
 
             def publish_then_timeout(*args: object, **kwargs: object):
-                """publish then timeout 처리."""
+                """푸시를 반영한 뒤 기한 초과시키는 테스트 대체 동작."""
 
                 argv = args[0]
                 if _is_push_argv(argv):
@@ -991,10 +991,10 @@ class PublicationTests(unittest.TestCase):
                 return real_run(*args, **kwargs)
 
             class CleanupFailure:
-                """cleanup 실패 정보."""
+                """정리에 실패하는 임시 디렉터리 대체 구현."""
 
                 def __init__(self, *args: object, **kwargs: object) -> None:
-                    """cleanup 실패 초기화."""
+                    """실제 임시 디렉터리 초기화."""
 
                     self._temporary = real_temporary_directory(*args, **kwargs)
                     self.name = self._temporary.name
@@ -1024,14 +1024,14 @@ class PublicationTests(unittest.TestCase):
             self.assertNotIn("sensitive", str(caught.exception))
 
     def test_no_change_rechecks_deadline_after_state_readers(self) -> None:
-        """`no_change_rechecks_deadline_after_state_readers` 시나리오 검증."""
+        """변경이 없어도 상태 조회 뒤 기한을 다시 확인하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
             remaining = [30.0]
 
             def exhaust_deadline(_timeout: float) -> str:
-                """exhaust 기한 처리."""
+                """상태 조회와 함께 남은 기한 소진."""
 
                 remaining[0] = 0.0
                 return "active-v1"
@@ -1058,13 +1058,13 @@ class PublicationTests(unittest.TestCase):
             )
 
     def test_state_reader_failure_does_not_chain_sensitive_exception_text(self) -> None:
-        """`state_reader_failure`의 않음 chain sensitive exception text 동작 검증."""
+        """상태 조회 실패 시 민감한 예외 문구를 연결하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             _, remote, candidate, base_head, base_tree = _init_repositories(Path(tmp))
 
             def fail_with_sensitive_text(_timeout: float) -> str:
-                """테스트용 with sensitive text 대체 동작."""
+                """민감한 문구를 포함해 실패하는 테스트 대체 동작."""
 
                 raise RuntimeError("api_key=DO_NOT_EXPOSE")
 

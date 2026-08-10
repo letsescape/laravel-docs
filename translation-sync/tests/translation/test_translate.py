@@ -1,4 +1,4 @@
-"""translate 동작과 경계 조건 검증."""
+"""`translate` 동작과 경계 조건 검증."""
 
 import errno
 import subprocess
@@ -25,7 +25,7 @@ CLI_AUTH_ENV = {"CODEX_ACCESS_TOKEN": "test-codex-token"}
 
 
 class TranslateRetryTests(unittest.TestCase):
-    """translate 재시도 동작과 경계 조건 테스트 모음."""
+    """`translate` 재시도 동작과 경계 조건 모음."""
 
     def setUp(self):
         """테스트 사전 상태 구성."""
@@ -39,7 +39,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.addCleanup(token_counter.stop)
 
     def test_config_requires_complete_request_budget(self):
-        """`config`의 complete 요청 예산 요구 검증."""
+        """설정에서 요청 예산 전체 항목 요구 검증."""
 
         with self.assertRaisesRegex(
             config.ConfigError,
@@ -55,7 +55,7 @@ class TranslateRetryTests(unittest.TestCase):
             )
 
     def test_translation_request_uses_a_safe_dynamic_diff_fence(self):
-        """`translation_request`의 safe dynamic diff fence 사용 검증."""
+        """번역 요청의 안전한 동적 `diff` 펜스 사용 검증."""
 
         diff_text = "+ Before.\n+ ````php\n+ echo true;\n+ ````"
         request = translate.TranslationRequest(
@@ -70,7 +70,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(rendered.count("`````"), 2)
 
     def test_translation_request_preserves_payload_whitespace_and_eof_bytes(self):
-        """`translation_request`의 payload whitespace 및 eof bytes 보존 검증."""
+        """번역 요청의 페이로드 공백과 EOF 바이트 보존 검증."""
 
         source = "Source hard break.  \n\n"
         existing = "기존 hard break.  \nEOF spaces  "
@@ -111,7 +111,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_identity_provider_requires_replay_mode(self):
-        """`identity_provider`의 replay mode 요구 검증."""
+        """`identity` 제공자의 `replay` 모드 요구 검증."""
 
         with self.assertRaises(config.ConfigError):
             config.load_config({"TRANSLATION_PROVIDER": "identity"})
@@ -127,7 +127,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertIsNone(cfg.request_budget())
 
     def test_provider_configuration_errors_carry_stable_issue_codes(self):
-        """`provider_configuration_errors_carry_stable_issue_codes` 시나리오 검증."""
+        """제공자 구성 오류의 안정적인 이슈 코드 유지 검증."""
 
         with self.assertRaises(config.ConfigError) as invalid_provider:
             config.load_config({"TRANSLATION_PROVIDER": "private-value"})
@@ -149,7 +149,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_cli_provider_requires_an_explicit_model(self):
-        """`cli_provider`의 explicit 모델 요구 검증."""
+        """CLI 제공자의 명시적 모델 요구 검증."""
 
         with self.assertRaises(config.ConfigError):
             config.load_config(
@@ -160,7 +160,7 @@ class TranslateRetryTests(unittest.TestCase):
             )
 
     def test_cli_provider_requires_explicit_authentication(self):
-        """`cli_provider`의 explicit authentication 요구 검증."""
+        """CLI 제공자의 명시적 인증 요구 검증."""
 
         with self.assertRaises(config.ConfigError) as raised:
             config.load_config(
@@ -179,7 +179,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_cli_config_rejects_multiple_authentication_modes(self):
-        """`cli_config`의 multiple authentication modes 거부 검증."""
+        """CLI 설정의 여러 인증 모드 거부 검증."""
 
         with self.assertRaises(config.ConfigError) as raised:
             config.load_config(
@@ -200,7 +200,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_cli_config_accepts_documented_exec_authentication_modes(self):
-        """`cli_config`의 documented exec authentication modes 허용 검증."""
+        """CLI 설정의 문서화된 실행 인증 모드 허용 검증."""
 
         for key, value in (
             ("CODEX_ACCESS_TOKEN", "test-codex-access-token"),
@@ -221,7 +221,7 @@ class TranslateRetryTests(unittest.TestCase):
                 self.assertEqual(cfg.get(key), value)
 
     def test_config_drops_unapproved_openai_compatible_endpoint_settings(self):
-        """`config_drops_unapproved` 관련 경계 조건 검증."""
+        """승인되지 않은 OpenAI 호환 엔드포인트 설정 제거 검증."""
 
         base = {
             "TRANSLATION_PROVIDER": "openai",
@@ -254,7 +254,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_provider_config_hash_binds_profiles_without_credentials(self):
-        """`provider_config_hash_binds_profiles_without_credentials` 시나리오 검증."""
+        """자격 증명을 제외하고 프로필을 반영한 제공자 구성 해시 검증."""
 
         base = {
             "TRANSLATION_PROVIDER": "openai",
@@ -275,7 +275,7 @@ class TranslateRetryTests(unittest.TestCase):
             self.assertNotEqual(digest, config.provider_config_sha256(first))
 
     def test_provider_config_hash_binds_cli_auth_mode_not_secret_location(self):
-        """`provider_config_hash` 관련 경계 조건 검증."""
+        """비밀 위치 대신 CLI 인증 모드를 반영한 제공자 구성 해시 검증."""
 
         base = {
             "TRANSLATION_PROVIDER": "cli",
@@ -314,7 +314,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_provider_config_hash_binds_azure_endpoint_not_api_key(self):
-        """`provider_config_hash_binds_azure_endpoint_not_api_key` 시나리오 검증."""
+        """API 키 대신 Azure 엔드포인트를 반영한 제공자 구성 해시 검증."""
 
         base = {
             "TRANSLATION_PROVIDER": "azure",
@@ -355,7 +355,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_cli_provider_rejects_relative_codex_home(self):
-        """`cli_provider`의 상대 codex home 거부 검증."""
+        """CLI 제공자의 상대 `CODEX_HOME` 경로 거부 검증."""
 
         with self.assertRaises(config.ConfigError) as raised:
             config.load_config(
@@ -374,7 +374,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_cli_provider_rejects_command_options_and_wrappers(self):
-        """`cli_provider`의 명령 options 및 wrappers 거부 검증."""
+        """CLI 제공자의 명령 옵션과 래퍼 거부 검증."""
 
         for command in (
             "codex exec --full-auto",
@@ -398,7 +398,7 @@ class TranslateRetryTests(unittest.TestCase):
                 )
 
     def test_config_binds_budget_to_verified_model_metadata(self):
-        """`config_binds_budget_to_verified_model_metadata` 시나리오 검증."""
+        """검증된 모델 메타데이터에 요청 예산을 결합하는 설정 검증."""
 
         base_env = {
             "TRANSLATION_PROVIDER": "openai",
@@ -435,7 +435,7 @@ class TranslateRetryTests(unittest.TestCase):
                 self.assertEqual(raised.exception.issue_code, issue_code)
 
     def test_azure_deployment_requires_a_verified_model_profile(self):
-        """`azure_deployment`의 verified 모델 profile 요구 검증."""
+        """Azure 배포의 검증된 모델 프로필 요구 검증."""
 
         base_env = {
             "TRANSLATION_PROVIDER": "azure",
@@ -460,7 +460,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(cfg.get("TRANSLATION_MODEL_PROFILE"), "gpt-5.6-luna")
 
     def test_config_preserves_provider_runtime_options(self):
-        """`config`의 provider runtime options 보존 검증."""
+        """설정의 제공자 런타임 옵션 보존 검증."""
 
         cfg = config.load_config(
             {
@@ -478,7 +478,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(cfg.get("TRANSLATION_CLI_TIMEOUT"), "60")
 
     def test_config_does_not_expose_a_retry_delay_override(self):
-        """`config`의 않음 expose 재시도 delay override 동작 검증."""
+        """재시도 지연 재정의 옵션을 노출하지 않는 설정 검증."""
 
         cfg = config.load_config(
             {
@@ -494,7 +494,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(cfg.get("TRANSLATION_RETRY_DELAY"), "")
 
     def test_config_rejects_invalid_numeric_runtime_options(self):
-        """`config`의 잘못된 numeric runtime options 거부 검증."""
+        """설정의 잘못된 숫자형 런타임 옵션 거부 검증."""
 
         base_env = {
             "TRANSLATION_PROVIDER": "cli",
@@ -522,7 +522,7 @@ class TranslateRetryTests(unittest.TestCase):
                     config.load_config({**base_env, key: value})
 
     def test_config_rejects_invalid_request_budget_relationships(self):
-        """`config`의 잘못된 요청 예산 relationships 거부 검증."""
+        """설정의 잘못된 요청 예산 관계 거부 검증."""
 
         base_env = {
             "TRANSLATION_PROVIDER": "cli",
@@ -548,7 +548,7 @@ class TranslateRetryTests(unittest.TestCase):
                     config.load_config({**base_env, key: value})
 
     def test_config_rejects_unknown_tokenizer_metadata(self):
-        """`config`의 unknown tokenizer metadata 거부 검증."""
+        """설정의 알 수 없는 토크나이저 메타데이터 거부 검증."""
 
         with self.assertRaisesRegex(
             config.ConfigError,
@@ -566,7 +566,7 @@ class TranslateRetryTests(unittest.TestCase):
             )
 
     def test_config_reads_one_shared_absolute_run_deadline(self):
-        """`config`의 one shared absolute 실행 기한 읽기 검증."""
+        """설정에서 단일 공유 절대 실행 기한 읽기 검증."""
 
         cfg = config.Config(
             provider="cli",
@@ -589,7 +589,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(deadline, 700.0)
 
     def test_config_rejects_missing_expired_or_reset_run_deadline(self):
-        """`config`의 누락된 expired 또는 reset 실행 기한 거부 검증."""
+        """누락되거나 만료 또는 재설정된 실행 기한 거부 검증."""
 
         cfg = config.Config(
             provider="cli",
@@ -627,7 +627,7 @@ class TranslateRetryTests(unittest.TestCase):
                     )
 
     def test_annotation_format_is_locale_neutral(self):
-        """`annotation_format`의 locale neutral 판정 검증."""
+        """주석 형식의 로캘 중립성 검증."""
 
         self.assertNotIn("한국어", translate._ANNOTATION_FORMAT)
         self.assertNotIn("Translated Section Title", translate._ANNOTATION_FORMAT)
@@ -651,7 +651,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_atomic_request_over_budget_fails_before_provider_call(self):
-        """`atomic_request_over_budget`의 provider call 전 실패 처리 검증."""
+        """원자적 요청의 예산 초과 시 제공자 호출 전 실패 검증."""
 
         request = translate.TranslationRequest(
             source="One indivisible paragraph that must stay atomic.\n",
@@ -695,7 +695,7 @@ class TranslateRetryTests(unittest.TestCase):
         provider.assert_not_called()
 
     def test_request_budget_includes_utf8_upper_bound_and_framing_reserve(self):
-        """`request_budget`의 utf8 upper bound 및 framing reserve 포함 검증."""
+        """요청 예산의 UTF-8 상한과 프레이밍 예비량 포함 검증."""
 
         instructions = "System"
         payload = "한글 payload"
@@ -728,7 +728,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_utf8_upper_bound_rejects_request_even_when_exact_count_is_small(self):
-        """`utf8_upper_bound`의 상태 판정 경계 검증."""
+        """정확한 토큰 수가 작아도 UTF-8 상한으로 요청을 거부하는지 검증."""
 
         instructions = "I"
         payload = "한" * 100
@@ -758,7 +758,7 @@ class TranslateRetryTests(unittest.TestCase):
                 translate._validate_request_budget(instructions, payload, cfg)
 
     def test_budgeted_request_requires_injected_absolute_deadline(self):
-        """`budgeted_request`의 injected absolute 기한 요구 검증."""
+        """예산이 지정된 요청의 주입된 절대 기한 요구 검증."""
 
         request = translate.TranslationRequest(
             source="Atomic source.\n",
@@ -787,7 +787,7 @@ class TranslateRetryTests(unittest.TestCase):
         provider.assert_not_called()
 
     def test_live_request_rejects_direct_config_without_request_budget(self):
-        """`live_request`의 direct 설정 제외 요청 예산 거부 검증."""
+        """요청 예산이 없는 직접 설정을 실시간 요청에서 거부하는지 검증."""
 
         request = translate.TranslationRequest(
             source="Atomic source.\n",
@@ -823,7 +823,7 @@ class TranslateRetryTests(unittest.TestCase):
         provider.assert_not_called()
 
     def test_live_request_rejects_non_finite_absolute_deadline(self):
-        """`live_request`의 non finite absolute 기한 거부 검증."""
+        """실시간 요청의 유한하지 않은 절대 기한 거부 검증."""
 
         request = translate.TranslationRequest(
             source="Atomic source.\n",
@@ -861,12 +861,12 @@ class TranslateRetryTests(unittest.TestCase):
         provider.assert_not_called()
 
     def test_retries_transient_provider_failures_with_same_chunk(self):
-        """`retries_transient_provider_failures_with_same_chunk` 시나리오 검증."""
+        """같은 청크로 일시적 제공자 실패 재시도 검증."""
 
         calls: list[str] = []
 
         def flaky(chunk: str, _config: config.Config, _prompt: str) -> str:
-            """flaky 처리."""
+            """청크를 기록하고 첫 두 호출에는 TimeoutError, 세 번째 호출에는 번역 결과 반환."""
 
             calls.append(chunk)
             if len(calls) < 3:
@@ -883,13 +883,13 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(calls, ["same chunk", "same chunk", "same chunk"])
 
     def test_transient_retries_use_the_fixed_five_minute_delay(self):
-        """`transient_retries_use_the_fixed_five_minute_delay` 시나리오 검증."""
+        """일시적 실패 재시도에 고정 5분 지연 사용 검증."""
 
         calls = 0
         sleeps: list[float] = []
 
         def flaky(_chunk: str, _config: config.Config, _prompt: str) -> str:
-            """flaky 처리."""
+            """호출 횟수를 기록하고 첫 두 호출에는 TimeoutError, 세 번째 호출에는 번역 결과 반환."""
 
             nonlocal calls
             calls += 1
@@ -917,12 +917,12 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(sleeps, [300, 300])
 
     def test_provider_result_is_rejected_when_the_deadline_expires_during_call(self):
-        """`provider_result`의 기한 expires during call 시 rejected 판정 검증."""
+        """제공자 호출 중 기한이 만료된 결과의 거부 판정 검증."""
 
         now = 0.0
 
         def respond(_chunk: str, _config: config.Config, _prompt: str) -> str:
-            """respond 처리."""
+            """가상 시각을 기한으로 이동한 뒤 번역 결과 반환."""
 
             nonlocal now
             now = 10.0
@@ -952,7 +952,7 @@ class TranslateRetryTests(unittest.TestCase):
             )
 
     def test_request_rejects_a_mismatched_response_contract_version(self):
-        """`request`의 mismatched 응답 계약 버전 거부 검증."""
+        """요청의 불일치하는 응답 계약 버전 거부 검증."""
 
         request = translate.TranslationRequest(
             source="Source.\n",
@@ -975,7 +975,7 @@ class TranslateRetryTests(unittest.TestCase):
         provider.assert_not_called()
 
     def test_response_contract_rejects_an_unsupported_version(self):
-        """`response_contract`의 지원하지 않는 버전 거부 검증."""
+        """지원하지 않는 응답 계약 버전 거부 검증."""
 
         with self.assertRaisesRegex(
             ValueError,
@@ -989,21 +989,21 @@ class TranslateRetryTests(unittest.TestCase):
             )
 
     def test_retry_does_not_wait_when_next_call_would_exceed_deadline(self):
-        """`retry`의 next call would exceed 기한 시 not wait 동작 검증."""
+        """다음 호출이 기한을 초과할 경우 대기하지 않는 재시도 검증."""
 
         calls = 0
         sleeps: list[float] = []
         now = 0.0
 
         def fail(_chunk: str, _config: config.Config, _prompt: str) -> str:
-            """테스트용 대체 동작."""
+            """호출 횟수를 기록하고 항상 TimeoutError 발생."""
 
             nonlocal calls
             calls += 1
             raise TimeoutError("temporary timeout")
 
         def sleep(seconds: float) -> None:
-            """sleep 처리."""
+            """대기 시간을 기록하고 가상 시각을 해당 시간만큼 증가."""
 
             nonlocal now
             sleeps.append(seconds)
@@ -1037,7 +1037,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(sleeps, [])
 
     def test_translation_run_deadline_uses_earlier_workflow_deadline(self):
-        """`translation_run_deadline`의 earlier 워크플로 기한 사용 검증."""
+        """번역 실행 기한에 더 이른 워크플로 기한 사용 검증."""
 
         cfg = config.Config(
             provider="cli",
@@ -1058,12 +1058,12 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(deadline, 500.0)
 
     def test_provider_call_does_not_start_without_full_request_time_remaining(self):
-        """`provider_call`의 않음 start 제외 전체 요청 time 남은 동작 검증."""
+        """전체 요청 시간이 부족한 제공자 호출의 시작 방지 검증."""
 
         calls = 0
 
         def respond(_chunk: str, _config: config.Config, _prompt: str) -> str:
-            """respond 처리."""
+            """호출 횟수를 기록하고 번역 결과 반환."""
 
             nonlocal calls
             calls += 1
@@ -1095,7 +1095,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(calls, 0)
 
     def test_retries_cli_transport_failures(self):
-        """`retries_cli_transport_failures` 시나리오 검증."""
+        """CLI 전송 실패 재시도 검증."""
 
         details = (
             "stream disconnected before completion",
@@ -1118,7 +1118,7 @@ class TranslateRetryTests(unittest.TestCase):
                 def respond(
                     _chunk: str, _config: config.Config, _prompt: str
                 ) -> str:
-                    """respond 처리."""
+                    """첫 호출에 CLI 전송 오류를 발생시키고 두 번째 호출에 번역 결과 반환."""
 
                     nonlocal calls
                     calls += 1
@@ -1140,7 +1140,7 @@ class TranslateRetryTests(unittest.TestCase):
                 self.assertEqual(calls, 2)
 
     def test_records_each_physical_provider_attempt_across_retries(self):
-        """each physical provider attempt across retries 기록 검증."""
+        """재시도 과정의 실제 제공자 호출별 기록 검증."""
 
         calls = 0
         counter = translate.ProviderAttemptCounter()
@@ -1148,7 +1148,7 @@ class TranslateRetryTests(unittest.TestCase):
         def respond(
             _chunk: str, _config: config.Config, _prompt: str
         ) -> str:
-            """respond 처리."""
+            """첫 두 호출에 TimeoutExpired를 발생시키고 세 번째 호출에 번역 결과 반환."""
 
             nonlocal calls
             calls += 1
@@ -1171,10 +1171,10 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(counter.transport, 3)
 
     def test_raises_incomplete_translation_after_max_retries(self):
-        """`raises_incomplete_translation_after_max_retries` 시나리오 검증."""
+        """최대 재시도 후 불완전 번역 오류 발생 검증."""
 
         def always_fails(chunk: str, _config: config.Config, _prompt: str) -> str:
-            """always fails 처리."""
+            """모든 호출에 TimeoutExpired 발생."""
 
             raise subprocess.TimeoutExpired(cmd="translate", timeout=1)
 
@@ -1190,13 +1190,13 @@ class TranslateRetryTests(unittest.TestCase):
             )
 
     def test_retries_blank_responses_until_nonblank_result(self):
-        """`retries_blank_responses_until_nonblank_result` 시나리오 검증."""
+        """비어 있지 않은 결과까지 빈 응답 재시도 검증."""
 
         responses = iter((" ", "\n", "translated"))
         sleeps: list[float] = []
 
         def respond(_chunk: str, _config: config.Config, _prompt: str) -> str:
-            """respond 처리."""
+            """응답 iterator에서 다음 값을 반환."""
 
             return next(responses)
 
@@ -1214,13 +1214,13 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(len(sleeps), 2)
 
     def test_blank_responses_exhaust_attempts(self):
-        """`blank_responses_exhaust_attempts` 시나리오 검증."""
+        """빈 응답으로 시도 횟수 소진 시 오류 발생 검증."""
 
         calls = 0
         sleeps: list[float] = []
 
         def respond(_chunk: str, _config: config.Config, _prompt: str) -> str:
-            """respond 처리."""
+            """호출 횟수를 기록하고 빈 응답 반환."""
 
             nonlocal calls
             calls += 1
@@ -1241,13 +1241,13 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(len(sleeps), translate.MAX_ATTEMPTS - 1)
 
     def test_retries_http_429_and_5xx_errors(self):
-        """`retries_http_429_and_5xx_errors` 시나리오 검증."""
+        """HTTP 429와 5xx 오류 재시도 검증."""
 
         class HttpError(Exception):
-            """http 오류."""
+            """HTTP 오류."""
 
             def __init__(self, status_code: int):
-                """http 오류 초기화."""
+                """HTTP 상태 코드로 오류 초기화."""
 
                 super().__init__(f"HTTP {status_code}")
                 self.status_code = status_code
@@ -1260,7 +1260,7 @@ class TranslateRetryTests(unittest.TestCase):
                 def respond(
                     _chunk: str, _config: config.Config, _prompt: str
                 ) -> str:
-                    """respond 처리."""
+                    """첫 호출에 지정한 HTTP 오류를 발생시키고 두 번째 호출에 번역 결과 반환."""
 
                     nonlocal calls
                     calls += 1
@@ -1280,7 +1280,7 @@ class TranslateRetryTests(unittest.TestCase):
                 self.assertEqual(calls, 2)
 
     def test_retries_cli_http_status_messages(self):
-        """`retries_cli_http_status_messages` 시나리오 검증."""
+        """CLI HTTP 상태 메시지 기반 재시도 검증."""
 
         details = (
             "Error: 503 Service Unavailable",
@@ -1297,7 +1297,7 @@ class TranslateRetryTests(unittest.TestCase):
                 def respond(
                     _chunk: str, _config: config.Config, _prompt: str
                 ) -> str:
-                    """respond 처리."""
+                    """첫 호출에 CLI HTTP 오류를 발생시키고 두 번째 호출에 번역 결과 반환."""
 
                     nonlocal calls
                     calls += 1
@@ -1319,7 +1319,7 @@ class TranslateRetryTests(unittest.TestCase):
                 self.assertEqual(calls, 2)
 
     def test_cli_usage_and_model_errors_stop_immediately(self):
-        """`cli_usage_and_model_errors_stop_immediately` 시나리오 검증."""
+        """CLI 사용법과 모델 오류 발생 시 즉시 중단 검증."""
 
         cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
         for detail in (
@@ -1332,7 +1332,7 @@ class TranslateRetryTests(unittest.TestCase):
                 def respond(
                     _chunk: str, _config: config.Config, _prompt: str
                 ) -> str:
-                    """respond 처리."""
+                    """호출 횟수를 기록하고 CLI 사용법 또는 모델 오류 발생."""
 
                     nonlocal calls
                     calls += 1
@@ -1352,17 +1352,17 @@ class TranslateRetryTests(unittest.TestCase):
                 self.assertEqual(calls, 1)
 
     def test_nonretryable_http_errors_stop_immediately_without_response_detail(self):
-        """`nonretryable_http_errors` 관련 경계 조건 검증."""
+        """재시도할 수 없는 HTTP 오류의 응답 상세 비공개와 즉시 중단 검증."""
 
         class HttpError(Exception):
-            """http 오류."""
+            """HTTP 오류."""
 
             status_code = 400
 
         calls = 0
 
         def respond(_chunk: str, _config: config.Config, _prompt: str) -> str:
-            """respond 처리."""
+            """호출 횟수를 기록하고 재시도 불가 HTTP 400 오류 발생."""
 
             nonlocal calls
             calls += 1
@@ -1387,7 +1387,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertNotIn("bad request", str(raised.exception))
 
     def test_azure_request_uses_chat_completions(self):
-        """`azure_request`의 chat completions 사용 검증."""
+        """Azure 요청의 `chat.completions` 사용 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -1449,7 +1449,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_openai_request_uses_responses_and_returns_output_text(self):
-        """`openai_request`의 responses 및 returns 출력 text 사용 검증."""
+        """OpenAI 요청의 Responses API 사용과 `output_text` 반환 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -1498,7 +1498,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_openai_incomplete_response_is_not_accepted(self):
-        """`openai_incomplete_response`의 않음 accepted 판정 검증."""
+        """OpenAI 미완료 응답 거부 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -1539,7 +1539,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertNotIn("PRIVATE_OPENAI", str(raised.exception))
 
     def test_sdk_transports_use_request_budget_timeout(self):
-        """`sdk_transports_use_request_budget_timeout` 시나리오 검증."""
+        """SDK 전송의 요청 예산 시간 제한 사용 검증."""
 
         openai_config = config.Config(
             provider="openai",
@@ -1615,7 +1615,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_azure_truncated_response_is_not_accepted(self):
-        """`azure_truncated_response`의 않음 accepted 판정 검증."""
+        """Azure 잘린 응답 거부 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -1665,7 +1665,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertNotIn("PRIVATE_AZURE", str(raised.exception))
 
     def test_split_chunks_keeps_anchor_with_following_heading(self):
-        """`split_chunks`의 anchor 포함 following heading 유지 검증."""
+        """`split_chunks`에서 앵커와 다음 제목을 함께 유지하는지 검증."""
 
         content = '<a name="intro"></a>\n\n## Introduction\n\nBody.\n'
 
@@ -1674,7 +1674,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(chunks, [content])
 
     def test_split_chunks_keeps_long_fenced_code_blocks_intact(self):
-        """`split_chunks`의 long fenced code 블록 intact 유지 검증."""
+        """`split_chunks`에서 긴 펜스 코드 블록을 분할하지 않는지 검증."""
 
         content = "````markdown\n```php\necho 'ok';\n```\n````\n\nAfter.\n"
 
@@ -1683,7 +1683,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(chunks, [content])
 
     def test_split_chunks_does_not_split_an_atomic_owner_by_line_count(self):
-        """`split_chunks`의 않음 split atomic owner by 줄 count 동작 검증."""
+        """`split_chunks`에서 원자적 소유자를 줄 수 기준으로 분할하지 않는지 검증."""
 
         content = ("Atomic owner line.\n" * 400) + "\nNext line.\n"
 
@@ -1692,12 +1692,12 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(chunks, [content])
 
     def test_translate_text_can_skip_internal_chunking(self):
-        """`translate_text_can_skip_internal_chunking` 시나리오 검증."""
+        """`translate_text`의 내부 청크 분할 생략 지원 검증."""
 
         calls: list[str] = []
 
         def collect(chunk: str, _config: config.Config, _prompt: str) -> str:
-            """수집."""
+            """호출 청크 수집."""
 
             calls.append(chunk)
             return chunk
@@ -1725,7 +1725,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(calls, ["a\n\nb\n"])
 
     def test_identity_request_returns_canonical_annotated_source_without_live_provider(self):
-        """`identity_request`의 canonical annotated 원문 제외 live provider 반환 검증."""
+        """`identity` 요청에서 실시간 제공자 없이 표준 주석 원문 반환 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -1752,7 +1752,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_identity_request_uses_non_rendered_version_metadata(self):
-        """`identity_request`의 non rendered 버전 metadata 사용 검증."""
+        """`identity` 요청의 렌더링되지 않은 버전 메타데이터 사용 검증."""
 
         request = translate.TranslationRequest(
             source="Read the [guide](/docs/{{version}}/guide).\n",
@@ -1775,7 +1775,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_identity_response_leaves_stale_link_normalization_to_postprocessing(self):
-        """`identity_response_leaves` 관련 경계 조건 검증."""
+        """`identity` 응답의 오래된 링크 정규화를 후처리에 위임하는지 검증."""
 
         source = (
             "Read the [controller guide](controllers#actions-handled-by-resource-controller) "
@@ -1818,7 +1818,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_identity_response_preserves_full_replay_structure_contract(self):
-        """`identity_response`의 전체 replay 구조 계약 보존 검증."""
+        """`identity` 응답의 전체 `replay` 구조 계약 보존 검증."""
 
         source = (
             "<!-- source-authored -->\n\n"
@@ -1856,7 +1856,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_identity_request_requires_version_metadata(self):
-        """`identity_request`의 버전 metadata 요구 검증."""
+        """`identity` 요청의 버전 메타데이터 요구 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -1874,7 +1874,7 @@ class TranslateRetryTests(unittest.TestCase):
             translate.translate_request(request, cfg, "prompt")
 
     def test_cli_request_returns_only_the_last_agent_message(self):
-        """`cli_request`의 만 last agent message 반환 검증."""
+        """CLI 요청의 마지막 에이전트 메시지만 반환 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -1894,7 +1894,7 @@ class TranslateRetryTests(unittest.TestCase):
         calls = []
 
         def run(command, **kwargs):
-            """실행."""
+            """마지막 에이전트 메시지 파일을 작성하고 완료된 프로세스 반환."""
 
             calls.append((command, kwargs))
             output_flag = command.index("--output-last-message")
@@ -2009,7 +2009,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(kwargs["timeout"], 60)
 
     def test_cli_fixture_and_candidate_use_the_same_explicit_authentication(self):
-        """`cli_fixture_and` 관련 경계 조건 검증."""
+        """CLI 픽스처와 후보의 동일한 명시적 인증 사용 검증."""
 
         cfg = config.Config(
             provider="cli",
@@ -2049,7 +2049,7 @@ class TranslateRetryTests(unittest.TestCase):
             )
 
     def test_cli_transport_uses_request_budget_timeout(self):
-        """`cli_transport`의 요청 예산 timeout 사용 검증."""
+        """CLI 전송의 요청 예산 시간 제한 사용 검증."""
 
         cfg = config.Config(
             provider="cli",
@@ -2063,7 +2063,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
         def run(command, **kwargs):
-            """실행."""
+            """번역 결과 파일을 작성하고 완료된 프로세스 반환."""
 
             output_flag = command.index("--output-last-message")
             Path(command[output_flag + 1]).write_text(
@@ -2081,7 +2081,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(process.call_args.kwargs["timeout"], 17)
 
     def test_cli_atomic_output_preserves_source_ending(self):
-        """`cli_atomic_output`의 원문 ending 보존 검증."""
+        """CLI 원자적 출력의 원문 끝 형식 보존 검증."""
 
         content = ("Source line.\n" * 399) + "\nFinal line.\n"
         cfg = config.Config(
@@ -2095,7 +2095,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
         def run(command, **_kwargs):
-            """실행."""
+            """줄바꿈 없는 번역 결과 파일을 작성하고 완료된 프로세스 반환."""
 
             output_flag = command.index("--output-last-message")
             Path(command[output_flag + 1]).write_text(
@@ -2118,7 +2118,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_cli_usage_errors_stop_immediately_without_captured_output(self):
-        """`cli_usage_errors` 관련 경계 조건 검증."""
+        """CLI 사용법 오류의 캡처 출력 비공개와 즉시 중단 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -2160,7 +2160,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertNotIn("unknown option", str(raised.exception))
 
     def test_cli_error_diagnostics_do_not_render_captured_stderr(self):
-        """`cli_error_diagnostics_do_not_render_captured_stderr` 시나리오 검증."""
+        """CLI 오류 진단의 캡처된 표준 오류 비노출 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -2209,7 +2209,7 @@ class TranslateRetryTests(unittest.TestCase):
         )
 
     def test_provider_error_message_never_depends_on_secret_replacement(self):
-        """`provider_error_message` 관련 경계 조건 검증."""
+        """제공자 오류 메시지가 비밀값 치환에 의존하지 않는지 검증."""
 
         error = subprocess.CalledProcessError(
             1,
@@ -2228,7 +2228,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(message, "provider command failed (exit_code=1)")
 
     def test_cli_rejects_codex_home_dotenv_before_process_start(self):
-        """`cli`의 프로세스 start 전 codex home dotenv 거부 검증."""
+        """CLI 프로세스 시작 전 `CODEX_HOME`의 `.env` 거부 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -2270,7 +2270,7 @@ class TranslateRetryTests(unittest.TestCase):
             run.assert_not_called()
 
     def test_cli_process_tree_failure_stops_without_retry(self):
-        """`cli_process_tree_failure`의 제외 재시도 중단 검증."""
+        """CLI 프로세스 트리 실패 시 재시도 없이 중단 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -2306,7 +2306,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(run.call_count, 1)
 
     def test_missing_cli_command_stops_immediately(self):
-        """`missing_cli_command`의 immediately 중단 검증."""
+        """누락된 CLI 명령 발견 시 즉시 중단 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",
@@ -2342,7 +2342,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(run.call_count, 1)
 
     def test_invalid_cli_executable_stops_immediately(self):
-        """`invalid_cli_executable`의 immediately 중단 검증."""
+        """잘못된 CLI 실행 파일 발견 시 즉시 중단 검증."""
 
         request = translate.TranslationRequest(
             source="Changed source.\n",

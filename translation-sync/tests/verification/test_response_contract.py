@@ -6,11 +6,11 @@ from sync import response_contract
 
 
 class VerifyProviderResponseTests(unittest.TestCase):
-    """provider 응답의 구조·주석·보호 데이터 계약 테스트."""
+    """provider 응답의 구조·주석·보호 데이터 계약 테스트 모음."""
 
     @staticmethod
     def _with_table_owner_annotation(source: str, translated: str) -> str:
-        """표 전체 원문을 canonical 소유 주석으로 감싼 응답 생성."""
+        """표의 전체 원문을 canonical 소유 주석으로 앞에 붙인 응답 생성."""
 
         return f"<!-- {' '.join(source.split())} -->\n{translated}"
 
@@ -414,7 +414,7 @@ Same guidance.
         )
 
     def test_accepts_a_preserved_multiline_source_comment(self):
-        """여러 줄 원문 작성 주석의 byte 보존 허용."""
+        """여러 줄 원문 작성 주석의 byte 보존을 허용."""
 
         source = """<!--
 keep line 1
@@ -458,7 +458,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_ordered_translated_blocks(self):
-        """원문 순서와 일치하는 번역 블록 허용."""
+        """원문 순서와 일치하는 번역 block을 허용."""
 
         source = "# Cache\n\nAcquire the lock. Release it afterwards.\n"
         translated = """<!-- # Cache -->
@@ -471,7 +471,7 @@ Acquire the cache lock.
         self.assertEqual(response_contract.verify(translated, source), [])
 
     def test_accepts_unannotated_translated_quote_body(self):
-        """별도 annotation이 없는 번역 인용 본문 허용."""
+        """별도 annotation이 없는 번역 인용 본문을 허용."""
 
         source = (
             "> Vector search requires the AI SDK and PostgreSQL or MongoDB.\n"
@@ -510,7 +510,7 @@ Acquire the cache lock.
         self.assertIn("provider annotation ownership mismatch", issues)
 
     def test_accepts_preserved_product_name_with_translated_suffix(self):
-        """제품명을 보존하고 나머지를 번역한 산문 허용."""
+        """제품명을 보존하고 나머지를 번역한 산문을 허용."""
 
         source = "Laravel Vapor\n"
         translated = "<!-- Laravel Vapor -->\nLaravel Vapor를 사용합니다.\n"
@@ -521,7 +521,7 @@ Acquire the cache lock.
         )
 
     def test_allows_short_legacy_pipe_table_cells(self):
-        """언어 하한보다 짧은 legacy 표 셀 허용."""
+        """언어 하한보다 짧은 legacy 표 cell을 허용."""
 
         source = (
             "Feature | Description\n"
@@ -540,7 +540,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_translated_prose_in_a_legacy_pipe_table(self):
-        """legacy pipe table의 번역된 산문 셀 허용."""
+        """legacy pipe table의 번역된 산문 cell을 허용."""
 
         source = (
             "Feature | Description\n"
@@ -561,7 +561,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_protected_legacy_table_values(self):
-        """legacy 표의 보호 데이터 원문 보존 허용."""
+        """legacy 표의 보호 데이터 원문 보존을 허용."""
 
         source = (
             "Setting | Facade | Provider | Type\n"
@@ -592,7 +592,7 @@ Acquire the cache lock.
         )
 
     def test_allows_short_unchanged_legacy_table_prose(self):
-        """짧아서 그대로 남은 legacy 표 산문 허용."""
+        """짧아서 그대로 남은 legacy 표 산문을 허용."""
 
         source = (
             "Color | Description\n"
@@ -637,7 +637,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_preserved_indented_command(self):
-        """들여쓴 명령 원문 보존 허용."""
+        """들여쓴 명령의 원문 보존을 허용."""
 
         source = "    vagrant destroy\n"
         translated = (
@@ -651,7 +651,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_short_environment_assignment(self):
-        """짧은 환경 변수 대입식 원문 보존 허용."""
+        """짧은 환경 변수 대입식의 원문 보존을 허용."""
 
         source_body = "PADDLE_SANDBOX=true"
         translated = f"<!-- {source_body} -->\n{source_body}\n"
@@ -666,7 +666,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_translated_identifier_only_legacy_pipe_table(self):
-        """식별자 셀만 있는 legacy 표의 구조 보존 허용."""
+        """식별자 cell만 있는 legacy 표의 구조 보존을 허용."""
 
         source = (
             "Facade | Class\n"
@@ -686,7 +686,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_preserved_inline_code_only_paragraph(self):
-        """inline code만 있는 문단의 원문 보존 허용."""
+        """inline code만 있는 문단의 원문 보존을 허용."""
 
         source = "`Illuminate\\Database\\Grammar`\n"
         translated = (
@@ -700,7 +700,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_unannotated_inline_code_only_identifier_list(self):
-        """annotation 없는 inline code 식별자 목록 허용."""
+        """annotation이 없는 inline code 식별자 목록을 허용."""
 
         source = "- `data`\n- `render`\n- `resolve`\n- `shouldRender`\n"
 
@@ -710,7 +710,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_inline_source_comment_after_soft_wrap_folding(self):
-        """soft wrap 축약 뒤에도 inline 원문 주석 위치 보존 허용."""
+        """soft wrap 축약 뒤에도 inline 원문 주석의 위치 보존을 허용."""
 
         source = "First physical line\nsecond <!-- keep --> line.\n"
         translated = (
@@ -724,7 +724,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_multi_backtick_inline_code_only_identifier_list(self):
-        """여러 backtick 구분자를 사용한 식별자 목록 허용."""
+        """여러 backtick 구분자를 사용한 식별자 목록을 허용."""
 
         source = "- ``data`value``\n- ``render`value``\n"
 
@@ -745,7 +745,7 @@ Acquire the cache lock.
         )
 
     def test_accepts_product_heavy_translation(self):
-        """제품명이 많은 산문에서 번역된 나머지 내용 허용."""
+        """제품명이 많은 산문에서 번역된 나머지 내용을 허용."""
 
         source = "**Supported providers:** Anthropic, Gemini\n"
         translated = (
@@ -861,7 +861,7 @@ Cache::lock('foo');
         )
 
     def test_allows_exact_source_echo_without_live_locale_profile(self):
-        """live 로캘 검사가 없는 replay에서 원문 동일 응답 허용."""
+        """live locale 검사가 없는 replay에서 원문 동일 응답을 허용."""
 
         source = "Acquire the cache lock before updating the value.\n"
         translated = """<!-- Acquire the cache lock before updating the value. -->
@@ -943,7 +943,7 @@ Acquire the cache lock before updating the value.
         )
 
     def test_accepts_translated_image_alt_with_ordered_target_and_title(self):
-        """target과 title 순서를 보존한 이미지 alt 번역 허용."""
+        """target과 title 순서를 보존한 image alt 번역을 허용."""
 
         source = (
             'Show the cat image: ![Cat](cat.png "Cat title").\n\n'
@@ -1036,7 +1036,7 @@ Acquire the cache lock before updating the value.
                 )
 
     def test_accepts_normalized_reference_definition_label_before_patch(self):
-        """patch 전 동등하게 정규화되는 reference label 허용."""
+        """patch 전에 동등하게 정규화되는 reference label을 허용."""
 
         source = '[Cache \t DOC]: /docs/13.x/cache "Cache docs"\n'
         translated = '[cache doc]: /docs/13.x/cache "Cache docs"\n'
@@ -1176,7 +1176,7 @@ Acquire the cache lock before updating the value.
                 )
 
     def test_sentence_cardinality_uses_offsets_from_the_fence_mask(self):
-        """문장 수 비교에 fenced code 마스킹의 원래 offset 사용."""
+        """문장 수 비교에 fenced code 마스킹의 원래 offset을 사용."""
 
         first_source = "First one. First two. First three. First four."
         first_comment = f"<!-- {first_source} -->"
@@ -1214,7 +1214,7 @@ Acquire the cache lock before updating the value.
         )
 
     def test_accepts_list_quote_table_and_code_structure(self):
-        """목록·인용·표·code 구조를 보존한 번역 허용."""
+        """목록·인용·표·code 구조를 보존한 번역을 허용."""
 
         source = """- First item.
 - Second item.
@@ -1270,7 +1270,7 @@ Cache::forget('foo');
         )
 
     def test_accepts_unchanged_toc_link_list_without_annotations(self):
-        """annotation 없이 원문을 보존한 목차 링크 목록 허용."""
+        """annotation 없이 원문을 보존한 목차 link 목록을 허용."""
 
         source = """- [Cache Locks](#cache-locks)
 - [Managing Locks](#managing-locks)
@@ -1324,7 +1324,7 @@ Cache::forget('foo');
         )
 
     def test_accepts_translated_display_attribute(self):
-        """HTML 표시 속성의 문자열 번역 허용."""
+        """HTML display 속성의 문자열 번역을 허용."""
 
         source = '<img src="cache.png" alt="Cache lock diagram"/>\n'
         translated = '<img src="cache.png" alt="キャッシュロックの図"/>\n'
@@ -1332,7 +1332,7 @@ Cache::forget('foo');
         self.assertEqual(response_contract.verify(translated, source), [])
 
     def test_accepts_translated_jsx_brace_display_attribute(self):
-        """JSX 중괄호 표시 속성의 문자열 번역 허용."""
+        """JSX 중괄호 display 속성의 문자열 번역을 허용."""
 
         source = '<Widget aria-label={"Cache lock"} />\n'
         translated = """<!-- <Widget aria-label={"Cache lock"} /> -->
@@ -1533,7 +1533,7 @@ Cache::forget('foo');
         )
 
     def test_accepts_autolink_moved_inside_translated_paragraph(self):
-        """번역 문단 안에서 위치가 바뀐 보존 autolink 허용."""
+        """번역 문단 안에서 위치가 바뀐 보존 autolink를 허용."""
 
         source = "<https://laravel.com> provides official documentation.\n"
         translated = """<!-- <https://laravel.com> provides official documentation. -->
@@ -1653,7 +1653,7 @@ Paragraph to translate here.
         )
 
     def test_accepts_preserved_unmarked_list_continuation(self):
-        """원문과 같은 개수의 표식 없는 목록 연속 줄 허용."""
+        """원문과 같은 개수의 표식 없는 목록 연속 줄을 허용."""
 
         source = """- Parent item.
   Continued source guidance.
@@ -1694,7 +1694,7 @@ Paragraph to translate here.
         )
 
     def test_accepts_same_provider_admonition_type_from_inline_source_marker(self):
-        """inline 원문 표식과 같은 provider admonition 유형 허용."""
+        """inline 원문 표식과 같은 provider admonition 유형을 허용."""
 
         source = "> [!NOTE] Cache lock guidance.\n"
         translated = """> [!NOTE]
@@ -1745,7 +1745,7 @@ Paragraph to translate here.
                 )
 
     def test_ignores_admonition_markers_in_protected_regions(self):
-        """fenced code와 HTML 주석 안의 admonition 표식 제외."""
+        """fenced code와 HTML 주석 안의 admonition 표식을 제외."""
 
         cases = (
             (
@@ -1945,7 +1945,7 @@ Paragraph to translate here.
         )
 
     def test_accepts_line_preserving_raw_html_table_translation(self):
-        """물리 줄 구조를 보존한 raw HTML 표 번역 허용."""
+        """물리 줄 구조를 보존한 raw HTML 표 번역을 허용."""
 
         source = """<table>
 <tr><td><strong>Command</strong></td><td><code>php</code></td></tr>
@@ -1985,7 +1985,7 @@ Paragraph to translate here.
         )
 
     def test_accepts_collapsed_soft_wrapped_source_paragraph(self):
-        """soft wrap 원문 문단을 한 줄로 축약한 번역 허용."""
+        """soft wrap 원문 문단을 한 줄로 축약한 번역을 허용."""
 
         source = "First source line.\nSecond source line.\n"
         translated = """<!-- First source line. Second source line. -->
@@ -1995,7 +1995,7 @@ Paragraph to translate here.
         self.assertEqual(response_contract.verify(translated, source), [])
 
     def test_accepts_preserved_explicit_markdown_hard_break(self):
-        """명시적 Markdown hard break 보존 허용."""
+        """명시적 Markdown hard break 보존을 허용."""
 
         source = "First source line.  \nSecond source line.\n"
         translated = (
@@ -2120,7 +2120,7 @@ description: >-
         )
 
     def test_accepts_translated_front_matter_description(self):
-        """구조를 보존한 머리말 description 번역 허용."""
+        """구조를 보존한 front matter description 번역을 허용."""
 
         source = """---
 slug: cache
@@ -2198,7 +2198,7 @@ description: {description}
                 )
 
     def test_accepts_supported_yaml_description_scalars(self):
-        """지원되는 YAML description scalar 형식 허용."""
+        """지원되는 YAML description scalar 형식을 허용."""
 
         cases = (
             (
@@ -2326,7 +2326,7 @@ Permission is hereby granted to use this software.
         )
 
     def test_license_exception_does_not_allow_nonlegal_source_echo(self):
-        """license 예외로 비법률 산문의 원문 동일 응답을 허용하지 않음."""
+        """license 예외로 법률 문서가 아닌 산문의 원문 동일 응답을 허용하지 않음."""
 
         source = "Read this introduction before reviewing the legal terms.\n"
         translated = """<!-- Read this introduction before reviewing the legal terms. -->
@@ -2359,7 +2359,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_allows_exact_source_echo_below_twenty_letters(self):
-        """원문 Letter 20자 미만의 동일 응답 허용."""
+        """원문 Letter가 20자 미만이면 동일 응답을 허용."""
 
         for source_body in ("Use atomic locks.", "Use locks."):
             with self.subTest(source_body=source_body):
@@ -2372,7 +2372,7 @@ Permission is hereby granted to modify this software.
                 )
 
     def test_accepts_japanese_translation_below_script_threshold(self):
-        """문자 체계 하한 미만의 짧은 일본어 번역 허용."""
+        """문자 체계 하한 미만의 짧은 일본어 번역을 허용."""
 
         source = "Use the cache lock.\n"
         translated = """<!-- Use the cache lock. -->
@@ -2385,7 +2385,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_ignores_complete_parenthesized_link_destination_in_language_check(self):
-        """언어 판정에서 괄호로 감싼 전체 링크 target 제외."""
+        """언어 판정에서 괄호로 감싼 전체 link target을 제외."""
 
         suffix = "/" + "very-long-english-reference-segment-" * 8
         target = f"https://en.wikipedia.org/wiki/Mode_(statistics){suffix}"
@@ -2429,7 +2429,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_allows_exact_table_cells_below_twenty_letters(self):
-        """Letter 20자 미만 표 셀의 원문 동일 응답 허용."""
+        """Letter가 20자 미만인 표 cell의 원문 동일 응답을 허용."""
 
         source = """| Feature | Description |
 | --- | --- |
@@ -2442,7 +2442,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_allows_unchanged_short_table_prose_cell(self):
-        """짧아서 그대로 남은 표 산문 셀 허용."""
+        """짧아서 그대로 남은 표 산문 cell을 허용."""
 
         source = """| Feature | Description |
 | --- | --- |
@@ -2461,7 +2461,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_an_unchanged_product_only_table(self):
-        """제품명만 포함해 원문을 보존한 표 허용."""
+        """제품명만 포함해 원문을 보존한 표를 허용."""
 
         source = """| Driver | Backend |
 | --- | --- |
@@ -2481,7 +2481,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_a_translated_table_with_an_escaped_pipe_in_code(self):
-        """code의 escape된 pipe를 보존한 표 번역 허용."""
+        """code 안에서 escape된 pipe를 보존한 표 번역을 허용."""
 
         source = """| Method | Description |
 | --- | --- |
@@ -2499,7 +2499,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_kanji_only_japanese_table_headers(self):
-        """한자만 포함한 일본어 표 header 허용."""
+        """한자만 포함한 일본어 표 header를 허용."""
 
         source = """| Method | Description |
 | --- | --- |
@@ -2517,7 +2517,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_preserved_product_and_version_cells_in_table_rows(self):
-        """표 행의 제품명과 버전 데이터 원문 보존 허용."""
+        """표 행의 제품명과 버전 데이터 원문 보존을 허용."""
 
         source = """| Package | Versions Supported |
 | --- | --- |
@@ -2537,7 +2537,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_preserved_facade_identifier_in_a_table_row(self):
-        """표 행의 facade 식별자 원문 보존 허용."""
+        """표 행의 facade 식별자 원문 보존을 허용."""
 
         source = """| Facade | Class |
 | --- | --- |
@@ -2555,7 +2555,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_translates_table_prose_while_preserving_a_2fa_identifier(self):
-        """2FA 식별자를 보존하면서 표 산문 번역."""
+        """2FA 식별자를 보존하면서 표 산문을 번역."""
 
         source = """| Action | Description |
 | --- | --- |
@@ -2577,7 +2577,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_preserved_version_editions_and_channel_lists(self):
-        """버전 edition과 channel 목록의 원문 보존 허용."""
+        """버전 edition·channel 목록의 원문 보존을 허용."""
 
         source = """| Package | Versions Supported |
 | --- | --- |
@@ -2597,7 +2597,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_localized_japanese_punctuation_between_version_tokens(self):
-        """버전 token 사이의 일본어 문장 부호 현지화 허용."""
+        """버전 token 사이의 일본어 문장 부호 현지화를 허용."""
 
         source = """| Package | Versions Supported |
 | --- | --- |
@@ -2615,7 +2615,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_preserved_release_dates(self):
-        """release date 데이터의 원문 보존 허용."""
+        """release date 데이터의 원문 보존을 허용."""
 
         source = """| Version | Release Date |
 | --- | --- |
@@ -2633,7 +2633,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_a_localized_japanese_release_date(self):
-        """일본어로 현지화한 release date 산문 허용."""
+        """일본어로 현지화한 release date 산문을 허용."""
 
         source = """| Version | Release Date | PHP (*) |
 | --- | --- | --- |
@@ -2651,7 +2651,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_identifier_only_mapping_rows(self):
-        """식별자 mapping만 포함한 표 행 허용."""
+        """식별자 mapping만 포함한 표 행을 허용."""
 
         source = """| Action | Policy Method |
 | --- | --- |
@@ -2671,7 +2671,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_preserved_skill_identifiers(self):
-        """skill 식별자의 원문 보존 허용."""
+        """skill 식별자의 원문 보존을 허용."""
 
         source = """| Skill | Package |
 | --- | --- |
@@ -2691,7 +2691,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_translates_comma_separated_prose_in_a_skills_column(self):
-        """skills 열의 쉼표 구분 산문 번역."""
+        """skills 열의 쉼표 구분 산문을 번역."""
 
         source = """| Skills | Description |
 | --- | --- |
@@ -2717,7 +2717,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_preserved_type_and_configuration_values(self):
-        """type과 설정값 데이터의 원문 보존 허용."""
+        """type과 설정값 데이터의 원문 보존을 허용."""
 
         source = """| Type | Default | Description |
 | --- | --- | --- |
@@ -2737,7 +2737,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_localized_japanese_type_values(self):
-        """일본어 문장 안에 보존된 type 값 허용."""
+        """일본어 문장 안에 보존된 type 값을 허용."""
 
         source = """| Type | Description |
 | --- | --- |
@@ -2757,7 +2757,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_parenthesized_env_literals(self):
-        """괄호로 감싼 환경 설정 literal 보존 허용."""
+        """괄호로 감싼 환경 설정 literal의 보존을 허용."""
 
         source = """| .env Value | Configuration Value |
 | --- | --- |
@@ -2777,7 +2777,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_an_html_entity_only_table_cell(self):
-        """HTML entity만 포함한 표 셀 허용."""
+        """HTML entity만 포함한 표 cell을 허용."""
 
         source = """| Facade | Binding |
 | --- | --- |
@@ -2795,7 +2795,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_accepts_a_long_product_list_in_a_providers_column(self):
-        """provider 열의 긴 제품명 목록 원문 보존 허용."""
+        """provider 열의 긴 제품명 목록 원문 보존을 허용."""
 
         source = """| Providers | Notes |
 | --- | --- |
@@ -2813,7 +2813,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_allows_short_unchanged_title_case_table_values(self):
-        """짧은 Title Case 표 값의 원문 보존 허용."""
+        """짧은 Title Case 표 값의 원문 보존을 허용."""
 
         source = """| Action | Status |
 | --- | --- |
@@ -2830,7 +2830,7 @@ Permission is hereby granted to modify this software.
         )
 
     def test_allows_short_unchanged_title_case_table_phrase(self):
-        """짧은 Title Case 표 문구의 원문 보존 허용."""
+        """짧은 Title Case 표 문구의 원문 보존을 허용."""
 
         source = """| Feature | Description |
 | --- | --- |

@@ -6,10 +6,10 @@ from sync import preprocess
 
 
 class PageArtifactTests(unittest.TestCase):
-    """보호 영역을 제외한 page 전용 Markdown 장식 제거 검증."""
+    """보호 영역을 제외한 page 전용 Markdown 장식 제거를 검증."""
 
     def test_keeps_long_fenced_code_blocks_intact(self):
-        """더 긴 구분자로 감싼 fenced code 내부 style 예시 보존."""
+        """더 긴 구분자로 감싼 fenced code 내부의 style 예시를 보존."""
 
         source = (
             "````markdown\n"
@@ -24,7 +24,7 @@ class PageArtifactTests(unittest.TestCase):
         self.assertEqual(result.text, source)
 
     def test_keeps_quoted_fenced_style_examples_intact(self):
-        """인용문 내부 fenced code의 style 예시 보존."""
+        """인용문 내부 fenced code의 style 예시를 보존."""
 
         source = (
             "> ```html\n"
@@ -37,7 +37,7 @@ class PageArtifactTests(unittest.TestCase):
         self.assertEqual(result.text, source)
 
     def test_keeps_inline_style_tag_references(self):
-        """inline code span에 작성된 style tag 보존."""
+        """inline code span에 작성된 style tag를 보존."""
 
         source = (
             "Pulse will include this file within a `<style>` tag so it does not "
@@ -49,7 +49,7 @@ class PageArtifactTests(unittest.TestCase):
         self.assertEqual(result.text, source)
 
     def test_keeps_style_tags_inside_multi_backtick_code_spans(self):
-        """여러 backtick으로 감싼 style tag 보존."""
+        """여러 backtick으로 감싼 style tag를 보존."""
 
         source = "Use ``<style>`` and ``</style>`` literally.\n"
 
@@ -58,7 +58,7 @@ class PageArtifactTests(unittest.TestCase):
         self.assertEqual(result.text, source)
 
     def test_keeps_style_blocks_inside_multiline_code_spans(self):
-        """여러 줄 inline code span 내부 style block 보존."""
+        """여러 줄 inline code span 내부의 style block을 보존."""
 
         for delimiter in ("`", "``", "```", "````"):
             with self.subTest(delimiter=delimiter):
@@ -103,7 +103,7 @@ class PageArtifactTests(unittest.TestCase):
                 self.assertEqual(result.text, expected)
 
     def test_removes_unindented_page_style_blocks(self):
-        """일반 문서 영역의 닫힌 page style block 제거."""
+        """일반 문서 영역의 닫힌 page style block을 제거."""
 
         source = "Before.\n\n<style>\n.example { color: red; }\n</style>\n\nAfter.\n"
 
@@ -112,7 +112,7 @@ class PageArtifactTests(unittest.TestCase):
         self.assertEqual(result.text, "Before.\n\nAfter.\n")
 
     def test_preserves_unclosed_style_block_and_following_text(self):
-        """닫는 tag가 없는 style block과 이후 내용 보존."""
+        """닫는 tag가 없는 style block과 이후 내용을 보존."""
 
         source = "Before.\n\n<style>\nbody {}\nAfter should survive.\n"
 
@@ -121,7 +121,7 @@ class PageArtifactTests(unittest.TestCase):
         self.assertEqual(result.text, source)
 
     def test_preserves_explicit_heading_ids_while_removing_classes(self):
-        """heading class만 제거하고 명시적 ID 보존."""
+        """heading class만 제거하고 명시적 ID를 보존."""
 
         cases = (
             ("# Stable {#stable}\n", "# Stable {#stable}\n"),
@@ -133,14 +133,14 @@ class PageArtifactTests(unittest.TestCase):
                 self.assertEqual(preprocess.preprocess(source).text, expected)
 
     def test_preserves_html_class_attributes(self):
-        """HTML element의 class 속성 보존."""
+        """HTML element의 class 속성을 보존."""
 
         source = '<img class="hero" src="image.png">\n'
 
         self.assertEqual(preprocess.preprocess(source).text, source)
 
     def test_preserves_link_url_and_anchor_while_removing_heading_class(self):
-        """heading class 제거 과정에서 link URL과 anchor 보존."""
+        """heading class를 제거하는 동안 link URL과 anchor를 보존."""
 
         source = (
             "# [Title](https://example.com/docs?q=1#anchor) "
@@ -153,7 +153,7 @@ class PageArtifactTests(unittest.TestCase):
         self.assertEqual(preprocess.preprocess(source).text, expected)
 
     def test_preserves_heading_attributes_in_indented_code(self):
-        """들여쓰기 코드 예시의 heading attribute 보존."""
+        """들여쓰기 코드 예시의 heading attribute를 보존."""
 
         source = "Example:\n\n    # Title {.class}\n"
 
@@ -163,21 +163,21 @@ class PageArtifactTests(unittest.TestCase):
         )
 
     def test_preserves_heading_attributes_inside_html_comments(self):
-        """HTML 주석 내부 heading attribute 보존."""
+        """HTML 주석 내부의 heading attribute를 보존."""
 
         source = "<!--\n# Title {.class}\n-->\n"
 
         self.assertEqual(preprocess.preprocess(source).text, source)
 
     def test_preserves_heading_attributes_after_unclosed_html_comment(self):
-        """닫히지 않은 HTML 주석 이후 heading attribute 보존."""
+        """닫히지 않은 HTML 주석 이후의 heading attribute를 보존."""
 
         source = "<!-- example\n# Title {.class}\n"
 
         self.assertEqual(preprocess.preprocess(source).text, source)
 
     def test_inline_comment_literal_does_not_hide_following_heading(self):
-        """inline code의 comment literal 뒤 heading class 정상 제거."""
+        """inline code의 comment literal 뒤에서 heading class를 정상적으로 제거."""
 
         source = "Use `<!--` literally.\n# Title {.class}\n"
 

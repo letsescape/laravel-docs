@@ -1,4 +1,4 @@
-"""운영 진입점의 단계 위임과 credential 경계 검증."""
+"""운영 진입점의 단계 위임과 자격 증명 경계 검증."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ def read_repository_file(relative: str) -> str:
 
 
 def workflow_run_script(step_name: str) -> str:
-    """지정한 Actions 단계의 shell script 추출."""
+    """지정한 Actions 단계의 셸 스크립트 추출."""
 
     workflow = read_repository_file(".github/workflows/sync-translation.yml")
     step = workflow.split(f"      - name: {step_name}\n", 1)[1]
@@ -35,7 +35,7 @@ class OperationalEntrypointTests(unittest.TestCase):
     """Actions·Makefile·Docker 운영 진입점 테스트 모음."""
 
     def test_sync_package_preserves_flat_module_imports(self) -> None:
-        """기존 flat module import가 canonical package와 같은 객체인지 검증."""
+        """기존 단일 계층 모듈 가져오기가 정규 패키지와 같은 객체인지 검증."""
 
         aliases = {
             "annotate": "sync.annotation.annotate",
@@ -62,7 +62,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertIs(sync.sidebar, importlib.import_module("sync.sidebar"))
 
     def test_actions_uses_only_the_sealed_workflow_phases(self) -> None:
-        """번역 Actions가 봉인된 세 워크플로 phase만 호출하는지 검증."""
+        """번역 Actions가 봉인된 세 워크플로 단계만 호출하는지 검증."""
 
         workflow = read_repository_file(".github/workflows/sync-translation.yml")
 
@@ -150,7 +150,7 @@ class OperationalEntrypointTests(unittest.TestCase):
             self.assertNotIn(secret, deploy_step)
 
     def test_actions_uploads_only_explicit_redacted_evidence(self) -> None:
-        """Actions artifact가 허용된 redacted evidence로 제한되는지 검증."""
+        """GitHub Actions가 민감 정보를 제거한 명시적 증거만 업로드하는지 검증."""
 
         workflow = read_repository_file(".github/workflows/sync-translation.yml")
         upload = workflow[workflow.index("- name: Upload redacted workflow evidence") :]
@@ -164,7 +164,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertNotIn("translation-candidate-", upload)
 
     def test_deploy_workflow_validates_exact_main_commit(self) -> None:
-        """배포 워크플로가 main의 정확한 commit과 correlation을 검증하는지 확인."""
+        """배포 워크플로가 main의 정확한 커밋과 상관관계를 검증하는지 확인."""
 
         workflow = read_repository_file(".github/workflows/deploy.yml")
 
@@ -183,7 +183,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertNotRegex(workflow, r"uses: [^\n]+@[0-9a-f]{40}")
 
     def test_make_operational_targets_delegate_to_workflow_cli(self) -> None:
-        """Make 운영 target이 credential을 분리해 workflow CLI에 위임하는지 검증."""
+        """Make 운영 대상이 자격 증명을 분리해 워크플로 CLI에 위임하는지 검증."""
 
         makefile = read_repository_file("Makefile")
 
@@ -211,7 +211,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertIn("translation-path-diagnostic:", makefile)
 
     def test_translation_container_uses_the_same_workflow_cli(self) -> None:
-        """번역 컨테이너가 read-only 저장소에서 같은 workflow CLI를 쓰는지 검증."""
+        """번역 컨테이너가 읽기 전용 저장소에서 같은 워크플로 CLI를 쓰는지 검증."""
 
         dockerfile = read_repository_file("Dockerfile.translate")
         compose = read_repository_file("docker-compose.yml")
@@ -249,10 +249,10 @@ class OperationalEntrypointTests(unittest.TestCase):
 
 
 class TranslationWorkflowTests(unittest.TestCase):
-    """번역 워크플로 shell 경계 조건 테스트 모음."""
+    """번역 워크플로 셸 경계 조건 테스트 모음."""
 
     def test_prepare_step_preserves_nonzero_workflow_status(self) -> None:
-        """Actions 준비 단계가 비정상 워크플로 종료 코드를 보존하는지 검증."""
+        """Actions 준비 단계가 0이 아닌 워크플로 종료 코드를 보존하는지 검증."""
 
         script = workflow_run_script("Prepare verified publication")
         harness = 'uv() { return "$PREPARE_STATUS"; }\n' + script

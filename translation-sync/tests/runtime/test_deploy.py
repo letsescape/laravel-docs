@@ -1,4 +1,4 @@
-"""deploy 동작과 경계 조건 검증."""
+"""배포 조정기 동작과 경계 조건 검증."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def _completed(
     returncode: int = 0,
     stdout: str = "",
 ) -> subprocess.CompletedProcess[str]:
-    """가짜 argv 실행 결과 생성."""
+    """테스트용 완료된 프로세스 결과 구성."""
 
     return subprocess.CompletedProcess(
         list(argv),
@@ -43,10 +43,10 @@ def _completed(
 
 
 class _FakeRunner:
-    """fake 실행기."""
+    """응답을 순서대로 반환하는 가짜 실행기."""
 
     def __init__(self, responses: Sequence[object]) -> None:
-        """예정 응답과 호출 기록 초기화."""
+        """반환할 응답과 호출 기록 초기화."""
 
         self.responses = list(responses)
         self.calls: list[tuple[tuple[str, ...], float]] = []
@@ -57,7 +57,7 @@ class _FakeRunner:
         *,
         timeout: float,
     ) -> subprocess.CompletedProcess[str]:
-        """다음 가짜 응답 반환과 호출 정보 기록."""
+        """호출을 기록하고 다음 응답 반환."""
 
         self.calls.append((tuple(argv), timeout))
         if not self.responses:
@@ -70,16 +70,16 @@ class _FakeRunner:
 
 
 def _trigger_url(run_id: int) -> str:
-    """GitHub Actions 실행 URL fixture 생성."""
+    """GitHub Actions 실행 URL 구성."""
 
     return f"https://github.com/laravelkr/docs/actions/runs/{run_id}\n"
 
 
 class DeploymentCoordinatorTests(unittest.TestCase):
-    """배포 coordinator 동작과 경계 조건 테스트 모음."""
+    """배포 조정기 동작과 경계 조건 테스트 모음."""
 
     def _coordinator(self, runner: _FakeRunner) -> DeploymentCoordinator:
-        """고정 저장소와 correlation의 coordinator fixture 생성."""
+        """테스트용 배포 조정기 구성."""
 
         return DeploymentCoordinator(
             repository=REPOSITORY,
@@ -91,7 +91,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         )
 
     def test_non_main_branch_never_triggers_or_queries_deploy(self) -> None:
-        """`non_main_branch_never`의 또는 queries 배포 trigger 검증."""
+        """main이 아닌 브랜치에서 배포를 실행하거나 조회하지 않는지 검증."""
 
         runner = _FakeRunner([])
         request = DeploymentRequest(
@@ -110,7 +110,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertEqual(runner.calls, [])
 
     def test_process_tree_failure_is_a_stable_trigger_failure(self) -> None:
-        """`process_tree_failure`의 stable trigger 실패 판정 검증."""
+        """프로세스 트리 실패를 안정적 배포 실행 실패로 판정하는지 검증."""
 
         runner = _FakeRunner(
             [ProcessTreeCleanupError("private cleanup detail")]
@@ -132,7 +132,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertEqual(len(runner.calls), 1)
 
     def test_coordinator_is_one_shot_so_its_nonce_cannot_be_reused(self) -> None:
-        """`coordinator`의 one shot so its nonce cannot reused 판정 검증."""
+        """일회용 조정기의 nonce를 재사용할 수 없는지 검증."""
 
         runner = _FakeRunner([])
         coordinator = self._coordinator(runner)
@@ -151,7 +151,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertEqual(runner.calls, [])
 
     def test_no_change_main_requires_base_published_and_remote_to_match(self) -> None:
-        """`no_change_main`의 기준본 published 및 원격 후 match 요구 검증."""
+        """변경 없는 main 배포 시 기준·게시·원격 커밋 일치 요구 검증."""
 
         cases = (
             DeploymentRequest(
@@ -184,7 +184,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
                 self.assertEqual(runner.calls, [])
 
     def test_no_change_main_can_retry_deploy_for_the_unchanged_base(self) -> None:
-        """`no_change_main_can_retry_deploy_for_the_unchanged_base` 시나리오 검증."""
+        """변경 없는 main 기준 커밋의 배포를 재시도할 수 있는지 검증."""
 
         runner = _FakeRunner(
             [
@@ -289,7 +289,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertTrue(all(timeout <= 30 for _, timeout in runner.calls))
 
     def test_changed_main_requires_remote_to_equal_published_commit(self) -> None:
-        """`changed_main`의 원격 후 equal published 커밋 요구 검증."""
+        """변경된 main 배포 시 원격과 게시 커밋의 일치 요구 검증."""
 
         runner = _FakeRunner([])
         result = self._coordinator(runner).deploy(
@@ -307,7 +307,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertEqual(runner.calls, [])
 
     def test_changed_publication_rejects_the_base_as_its_result_commit(self) -> None:
-        """`changed_publication`의 기준본 로 its 결과 커밋 거부 검증."""
+        """변경된 게시 결과로 기준 커밋을 반환하면 거부하는지 검증."""
 
         runner = _FakeRunner([])
 
@@ -326,7 +326,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertEqual(runner.calls, [])
 
     def test_request_rejects_mixed_git_object_formats(self) -> None:
-        """`request`의 mixed Git object formats 거부 검증."""
+        """요청에 서로 다른 Git 개체 형식을 섞으면 거부하는지 검증."""
 
         runner = _FakeRunner([])
 
@@ -345,7 +345,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertEqual(runner.calls, [])
 
     def test_trigger_failure_is_distinct_from_deploy_validation_failure(self) -> None:
-        """`trigger_failure`의 distinct from 배포 검증 실패 판정 검증."""
+        """배포 실행 실패와 배포 검증 실패를 구분하는지 검증."""
 
         trigger_argv = ("gh", "workflow", "run", "deploy.yml", "--ref", "main")
         runner = _FakeRunner(
@@ -371,7 +371,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertTrue(result.published_commit_retained)
 
     def test_failed_run_conclusion_keeps_published_commit(self) -> None:
-        """`failed_run_conclusion`의 published 커밋 유지 검증."""
+        """실패한 실행 결과에도 게시 커밋을 유지하는지 검증."""
 
         runner = _FakeRunner(
             [
@@ -423,7 +423,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
     def test_success_requires_completed_success_for_exact_commit_and_run(
         self,
     ) -> None:
-        """`success`의 completed success 대상 exact 커밋 및 실행 요구 검증."""
+        """성공 판정에 정확한 커밋과 실행의 완료 성공 상태를 요구하는지 검증."""
 
         runner = _FakeRunner(
             [
@@ -472,7 +472,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertTrue(result.published_commit_retained)
 
     def test_run_poll_timeout_is_reported_as_common_workflow_deadline(self) -> None:
-        """`run_poll_timeout`의 reported 로 common 워크플로 기한 판정 검증."""
+        """실행 조회 제한 시간을 공통 워크플로 기한 초과로 보고하는지 검증."""
 
         runner = _FakeRunner(
             [
@@ -518,7 +518,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
     def test_correlation_finds_exact_run_when_trigger_url_is_unavailable(
         self,
     ) -> None:
-        """`correlation_finds_exact_run_when_trigger_url`의 unavailable 판정 검증."""
+        """실행 URL이 없을 때 상관관계 정보로 정확한 실행을 찾는지 검증."""
 
         runner = _FakeRunner(
             [
@@ -590,7 +590,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         )
 
     def test_correlation_fallback_refuses_multiple_matching_run_ids(self) -> None:
-        """`correlation_fallback_refuses_multiple_matching_run_ids` 시나리오 검증."""
+        """상관관계 대체 조회에서 일치하는 실행 ID가 여러 개면 거부하는지 검증."""
 
         runner = _FakeRunner(
             [
@@ -628,7 +628,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertIsNone(result.run_id)
 
     def test_remote_main_is_rechecked_immediately_before_dispatch(self) -> None:
-        """`remote_main`의 dispatch 전 rechecked immediately 판정 검증."""
+        """배포 요청 직전에 원격 main을 다시 확인하는지 검증."""
 
         runner = _FakeRunner(
             [
@@ -652,7 +652,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertEqual(len(runner.calls), 1)
 
     def test_success_after_the_absolute_deadline_is_still_a_timeout(self) -> None:
-        """`success_after_the_absolute_deadline`의 still timeout 판정 검증."""
+        """절대 기한 뒤의 성공도 기한 초과로 판정하는지 검증."""
 
         runner = _FakeRunner(
             [
@@ -712,7 +712,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
         self.assertEqual(result.run_id, 91)
 
     def test_repository_is_explicit_and_cannot_be_inferred_from_cwd(self) -> None:
-        """`repository`의 explicit 및 cannot inferred from cwd 판정 검증."""
+        """배포 저장소를 명시해야 하며 현재 디렉터리에서 추론하지 않는지 검증."""
 
         for repository in ("", "owner", "../owner/repo", "owner/repo/extra"):
             with self.subTest(repository=repository):
@@ -726,7 +726,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
                     )
 
     def test_correlation_id_must_be_an_explicit_safe_token(self) -> None:
-        """`correlation_id_must_be_an_explicit_safe_token` 시나리오 검증."""
+        """상관관계 ID에 명시적인 안전 토큰을 요구하는지 검증."""
 
         for correlation_id in (
             "",
@@ -747,7 +747,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
                     )
 
     def test_31_character_prefix_and_nonce_form_a_64_character_input(self) -> None:
-        """`31_character_prefix_and_nonce_form_a_64_character_input` 시나리오 검증."""
+        """31자 접두사와 nonce가 64자 입력을 구성하는지 검증."""
 
         prefix = "a" + "._-" * 10
         self.assertEqual(len(prefix), 31)
@@ -777,7 +777,7 @@ class DeploymentCoordinatorTests(unittest.TestCase):
     def test_injected_nonce_must_preserve_the_unique_correlation_contract(
         self,
     ) -> None:
-        """`injected_nonce_must` 관련 경계 조건 검증."""
+        """주입한 nonce가 고유 상관관계 계약을 보존하는지 검증."""
 
         for nonce in ("", "f" * 31, "g" * 32, "F" * 32):
             with self.subTest(nonce=nonce):
@@ -792,12 +792,12 @@ class DeploymentCoordinatorTests(unittest.TestCase):
 
 
 class SubprocessArgvRunnerTests(unittest.TestCase):
-    """하위 프로세스 argv runner 동작과 경계 조건 테스트 모음."""
+    """하위 프로세스 인수 실행기 동작과 경계 조건 테스트 모음."""
 
     def test_runner_uses_explicit_argv_without_shell_or_output_logging(
         self,
     ) -> None:
-        """`runner`의 explicit argv 제외 shell 또는 출력 logging 사용 검증."""
+        """명시적 인수 배열을 사용하고 셸 실행이나 출력 로깅을 하지 않는지 검증."""
 
         completed = subprocess.CompletedProcess(
             ["gh", "run", "list"],

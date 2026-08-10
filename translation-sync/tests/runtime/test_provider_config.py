@@ -1,4 +1,4 @@
-"""번역 provider 설정과 요청 예산 검증."""
+"""번역 제공자 설정과 요청 예산 검증."""
 
 import unittest
 from unittest import mock
@@ -41,10 +41,10 @@ def cli_environment() -> dict[str, str]:
 
 
 class ProviderSelectionTests(unittest.TestCase):
-    """provider 선택과 필수 인증 설정 검증."""
+    """번역 제공자 선택과 필수 인증 설정 검증."""
 
     def test_reports_stable_codes_for_provider_and_credential_errors(self):
-        """잘못된 provider와 누락된 인증 정보의 안정된 오류 코드."""
+        """잘못된 제공자와 누락된 인증 정보의 안정적 오류 코드 검증."""
 
         with self.assertRaises(config.ConfigError) as invalid_provider:
             config.load_config({"TRANSLATION_PROVIDER": "private-value"})
@@ -66,7 +66,7 @@ class ProviderSelectionTests(unittest.TestCase):
         )
 
     def test_limits_identity_provider_to_replay(self):
-        """identity provider의 replay 실행 외 사용 거부."""
+        """``identity`` 제공자의 재실행 외 사용 거부 검증."""
 
         with self.assertRaises(config.ConfigError) as raised:
             config.load_config({"TRANSLATION_PROVIDER": "identity"})
@@ -85,7 +85,7 @@ class ProviderSelectionTests(unittest.TestCase):
         self.assertIsNone(loaded.request_budget())
 
     def test_seals_a_copy_of_validated_values(self):
-        """원본 mapping 변경과 직접 mutation에서 설정값 보호."""
+        """원본 매핑 변경과 직접 수정에서 설정값 보호 검증."""
 
         values = {"TRANSLATION_MODEL": "gpt-5.6-luna"}
         loaded = config.Config(provider="identity", values=values)
@@ -98,10 +98,10 @@ class ProviderSelectionTests(unittest.TestCase):
 
 
 class RequestBudgetTests(unittest.TestCase):
-    """tokenizer·token·timeout 예산 제약 검증."""
+    """토크나이저·토큰·제한 시간 예산 제약 검증."""
 
     def test_requires_every_request_budget_value(self):
-        """live provider의 불완전한 요청 예산 거부."""
+        """실제 제공자의 불완전한 요청 예산 거부 검증."""
 
         environment = cli_environment()
         del environment["TRANSLATION_CONTEXT_WINDOW_TOKENS"]
@@ -113,7 +113,7 @@ class RequestBudgetTests(unittest.TestCase):
             config.load_config(environment)
 
     def test_exposes_reserved_output_and_maximum_input(self):
-        """검증된 예산에서 최대 입력 token 수 계산."""
+        """검증된 예산에서 최대 입력 토큰 수 계산 검증."""
 
         budget = config.load_config(openai_environment()).request_budget()
 
@@ -123,7 +123,7 @@ class RequestBudgetTests(unittest.TestCase):
         self.assertEqual(budget.max_input_tokens, 199800)
 
     def test_binds_budget_to_approved_model_metadata(self):
-        """승인되지 않은 모델·tokenizer·상한 조합 거부."""
+        """승인되지 않은 모델·토크나이저·상한 조합 거부 검증."""
 
         invalid_cases = (
             (
@@ -154,7 +154,7 @@ class RequestBudgetTests(unittest.TestCase):
                 self.assertEqual(raised.exception.issue_code, issue_code)
 
     def test_requires_azure_deployment_model_profile(self):
-        """Azure deployment 이름과 승인 모델 profile의 명시적 연결."""
+        """Azure 배포 이름과 승인 모델 프로필의 명시적 연결 검증."""
 
         environment = {
             "TRANSLATION_PROVIDER": "azure",
@@ -181,7 +181,7 @@ class RequestBudgetTests(unittest.TestCase):
         )
 
     def test_rejects_invalid_budget_relationships(self):
-        """0 이하 값과 역전된 token·timeout 관계 거부."""
+        """0 이하 값과 역전된 토큰·제한 시간 관계 거부 검증."""
 
         cases = (
             ("TRANSLATION_CONTEXT_WINDOW_TOKENS", "0"),
@@ -200,7 +200,7 @@ class RequestBudgetTests(unittest.TestCase):
                     config.load_config({**cli_environment(), key: value})
 
     def test_rejects_unknown_tokenizer(self):
-        """tiktoken에 없는 encoding 이름 거부."""
+        """tiktoken에 없는 인코딩 이름 거부 검증."""
 
         with self.assertRaisesRegex(
             config.ConfigError,
@@ -218,7 +218,7 @@ class CliConfigurationTests(unittest.TestCase):
     """Codex CLI 명령과 인증 격리 설정 검증."""
 
     def test_requires_options_free_codex_exec_command(self):
-        """option이나 wrapper가 포함된 CLI 명령 거부."""
+        """옵션이나 래퍼가 포함된 CLI 명령 거부 검증."""
 
         for command in (
             "codex exec --full-auto",
@@ -239,7 +239,7 @@ class CliConfigurationTests(unittest.TestCase):
                 )
 
     def test_requires_exactly_one_explicit_authentication_mode(self):
-        """누락되거나 중복된 CLI 인증 방식 거부."""
+        """누락되거나 중복된 CLI 인증 방식 거부 검증."""
 
         missing = cli_environment()
         del missing["CODEX_ACCESS_TOKEN"]
@@ -263,7 +263,7 @@ class CliConfigurationTests(unittest.TestCase):
         )
 
     def test_accepts_each_documented_authentication_mode(self):
-        """token 또는 절대 CODEX_HOME 인증 방식 허용."""
+        """토큰 또는 절대 경로 ``CODEX_HOME`` 인증 방식 허용 검증."""
 
         for key, value in (
             ("CODEX_ACCESS_TOKEN", "test-access-token"),
@@ -277,7 +277,7 @@ class CliConfigurationTests(unittest.TestCase):
                 self.assertEqual(loaded.get(key), value)
 
     def test_rejects_relative_codex_home(self):
-        """상대 경로 CODEX_HOME 거부."""
+        """상대 경로 ``CODEX_HOME`` 거부 검증."""
 
         environment = cli_environment()
         del environment["CODEX_ACCESS_TOKEN"]
@@ -292,7 +292,7 @@ class CliConfigurationTests(unittest.TestCase):
         )
 
     def test_preserves_only_approved_runtime_options(self):
-        """reasoning과 CLI timeout만 선택적 실행 설정으로 보존."""
+        """추론 수준과 CLI 제한 시간만 선택적 실행 설정으로 보존하는지 검증."""
 
         loaded = config.load_config(
             {
@@ -308,7 +308,7 @@ class CliConfigurationTests(unittest.TestCase):
         self.assertEqual(loaded.get("TRANSLATION_RETRY_DELAY"), "")
 
     def test_rejects_nonpositive_cli_timeout(self):
-        """정수가 아니거나 양수가 아닌 CLI timeout 거부."""
+        """정수가 아니거나 양수가 아닌 CLI 제한 시간 거부 검증."""
 
         for value in ("later", "0"):
             with self.subTest(value=value):
@@ -325,10 +325,10 @@ class CliConfigurationTests(unittest.TestCase):
 
 
 class ProviderEvidenceTests(unittest.TestCase):
-    """provider 설정 증거 hash와 실행 기한 검증."""
+    """제공자 설정 증거 해시와 실행 기한 검증."""
 
     def test_hash_excludes_credentials_and_binds_profile_versions(self):
-        """인증값 제외와 모델·예산 profile 변경 반영."""
+        """해시의 인증값 제외와 모델·예산 프로필 변경 반영 검증."""
 
         first = config.load_config(openai_environment())
         second = config.load_config(
@@ -347,7 +347,7 @@ class ProviderEvidenceTests(unittest.TestCase):
             self.assertNotEqual(digest, config.provider_config_sha256(first))
 
     def test_hash_binds_cli_auth_mode_without_secret_location(self):
-        """CLI 인증 종류는 구분하고 CODEX_HOME 위치는 제외."""
+        """해시에서 CLI 인증 종류는 구분하고 ``CODEX_HOME`` 위치는 제외하는지 검증."""
 
         base = cli_environment()
         del base["CODEX_ACCESS_TOKEN"]
@@ -371,7 +371,7 @@ class ProviderEvidenceTests(unittest.TestCase):
         )
 
     def test_hash_binds_azure_endpoint_without_api_key(self):
-        """Azure endpoint 변경 반영과 API key 교체 제외."""
+        """해시의 Azure 엔드포인트 변경 반영과 API 키 교체 제외 검증."""
 
         base = {
             "TRANSLATION_PROVIDER": "azure",
@@ -412,7 +412,7 @@ class ProviderEvidenceTests(unittest.TestCase):
         )
 
     def test_reads_one_shared_absolute_run_deadline(self):
-        """상위 workflow 기한 안의 유효한 실행 기한 로딩."""
+        """상위 워크플로 기한 안의 유효한 절대 실행 기한 로드 검증."""
 
         loaded = config.load_config(cli_environment())
 
@@ -428,7 +428,7 @@ class ProviderEvidenceTests(unittest.TestCase):
         self.assertEqual(deadline, 700.0)
 
     def test_rejects_missing_expired_or_reset_run_deadline(self):
-        """누락·만료·상위 기한 초과 실행 기한 거부."""
+        """누락·만료·상위 기한 초과 실행 기한 거부 검증."""
 
         loaded = config.load_config(cli_environment())
         cases = (

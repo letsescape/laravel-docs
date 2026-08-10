@@ -6,7 +6,7 @@ from sync import postprocess
 
 
 class PostprocessTests(unittest.TestCase):
-    """형식 정규화·stale 링크·보호 영역 경계 테스트."""
+    """형식 정규화·stale 링크·보호 영역 경계 테스트 모음."""
 
     def test_postprocesses_html_and_title_classes_outside_code_blocks_only(self):
         """fenced code 밖의 ``img``와 heading class만 정규화."""
@@ -29,7 +29,7 @@ class PostprocessTests(unittest.TestCase):
         self.assertIn('<img src="{{ $message->embed($pathToImage) }}">', out)
 
     def test_strips_trailing_whitespace_from_final_output(self):
-        """최종 출력의 불필요한 줄 끝 공백 제거."""
+        """최종 출력의 불필요한 줄 끝 공백을 제거."""
 
         text = "# Title   \nPlain text. \n```php\nreturn true;    \n```\n"
 
@@ -41,7 +41,7 @@ class PostprocessTests(unittest.TestCase):
         )
 
     def test_preserves_explicit_markdown_hard_break_outside_code(self):
-        """fenced code 밖의 명시적 Markdown hard break 보존."""
+        """fenced code 밖의 명시적 Markdown hard break를 보존."""
 
         text = "First line.  \nSecond line.\n"
 
@@ -50,7 +50,7 @@ class PostprocessTests(unittest.TestCase):
         self.assertEqual(out, text)
 
     def test_preserves_quoted_markdown_hard_break_outside_code(self):
-        """blockquote 본문의 명시적 Markdown hard break 보존."""
+        """blockquote 본문의 명시적 Markdown hard break를 보존."""
 
         text = "> First line.  \n> Second line.\n"
 
@@ -59,7 +59,7 @@ class PostprocessTests(unittest.TestCase):
         self.assertEqual(out, text)
 
     def test_escapes_js_comment_closer_inside_html_comments(self):
-        """HTML 주석 안의 JavaScript 주석 종료 delimiter 무력화."""
+        """HTML 주석 안의 JavaScript 주석 종료 delimiter를 무력화."""
 
         text = "<!-- Use `DB::raw(/* ... */)` carefully. -->\n本文です。\n"
 
@@ -85,7 +85,7 @@ class PostprocessTests(unittest.TestCase):
                 )
 
     def test_normalizes_every_plain_legacy_admonition_marker(self):
-        """지원되는 모든 일반 텍스트 legacy admonition 표식 정규화."""
+        """지원되는 모든 일반 텍스트 legacy admonition 표식을 정규화."""
 
         cases = (
             ("Note", "NOTE"),
@@ -123,7 +123,7 @@ class PostprocessTests(unittest.TestCase):
         self.assertEqual(postprocess.postprocess(text, "12.x", {}), text)
 
     def test_normalizes_known_stale_links_without_touching_code_or_comments(self):
-        """code와 HTML 주석을 보존하며 알려진 stale 링크 정규화."""
+        """code와 HTML 주석을 보존하면서 알려진 stale 링크를 정규화."""
 
         text = (
             "[Agents](#agents-integration)\n"
@@ -142,7 +142,7 @@ class PostprocessTests(unittest.TestCase):
         self.assertEqual(postprocess.postprocess(out, "12.x", {}), out)
 
     def test_normalizes_confirmed_version_specific_stale_links(self):
-        """공식 원문에서 확인된 버전별 오타와 이동 대상 보정."""
+        """공식 원문에서 확인된 버전별 오타·이동·폐기 링크를 보정."""
 
         cases = (
             (
@@ -206,7 +206,7 @@ class PostprocessTests(unittest.TestCase):
         self.assertEqual(postprocess.postprocess(expected, "9.x", {}), expected)
 
     def test_keeps_the_valid_v8_shortcode_link(self):
-        """실제 본문 앵커가 있는 8.x shortcode 링크 보존."""
+        """실제 본문 앵커가 있는 8.x shortcode 링크를 보존."""
 
         text = (
             "- [Formatting Shortcode Notifications]"
@@ -218,7 +218,7 @@ class PostprocessTests(unittest.TestCase):
         self.assertEqual(postprocess.postprocess(text, "8.x", {}), text)
 
     def test_keeps_toc_label_without_an_adjacent_target_heading(self):
-        """대상 앵커 다음에 heading이 없으면 목차 label 유지."""
+        """대상 앵커 다음에 heading이 없으면 목차 label을 유지."""
 
         text = (
             "- [Formatting Shortcode Notifications]"
@@ -262,7 +262,7 @@ class PostprocessTests(unittest.TestCase):
         )
 
     def test_stale_link_suffix_requires_a_document_path_boundary(self):
-        """stale 링크 suffix 대응 시 문서 경로 경계 요구."""
+        """stale 링크 suffix 대응 시 문서 경로 경계를 요구."""
 
         text = (
             "[Unrelated](myerrors#logging)\n"
@@ -280,7 +280,7 @@ class PostprocessTests(unittest.TestCase):
         )
 
     def test_keeps_existing_gfm_admonition_body_inside_blockquote(self):
-        """기존 GFM admonition 본문에 blockquote 경계 유지."""
+        """기존 GFM admonition 본문에 blockquote 경계를 유지."""
 
         text = """> [!NOTE]
 <!-- Original note body. -->
@@ -302,7 +302,7 @@ class PostprocessTests(unittest.TestCase):
         )
 
     def test_keeps_fenced_code_admonition_body_inside_blockquote(self):
-        """admonition 안의 fenced code 전체에 blockquote 경계 적용."""
+        """admonition 안의 fenced code 전체에 blockquote 경계를 적용."""
 
         text = """> [!NOTE]
 ```php
@@ -326,7 +326,7 @@ return true;
         )
 
     def test_keeps_literal_alerts_inside_outer_fenced_code(self):
-        """바깥 fenced code 안의 literal alert 예시 보존."""
+        """바깥 fenced code 안의 literal alert 예시를 보존."""
 
         for marker in ("NOTE", "TIP", "WARNING", "CAUTION", "IMPORTANT"):
             with self.subTest(marker=marker):
@@ -355,7 +355,7 @@ return true;
         self.assertEqual(postprocess.postprocess(text, "12.x", {}), text)
 
     def test_standardizes_bold_note_with_colon_inside_bold_text(self):
-        """굵은 글씨 내부에 colon이 있는 legacy note 표식 정규화."""
+        """굵은 글씨 내부에 colon이 있는 legacy note 표식을 정규화."""
 
         text = "> **Note:** Keep this.\n"
 
@@ -364,7 +364,7 @@ return true;
         self.assertEqual(out, "> [!NOTE]\n> Keep this.\n")
 
     def test_self_closes_img_with_greater_than_in_quoted_attribute(self):
-        """따옴표 속성의 ``>``를 tag 종료로 오인하지 않고 ``img`` 정규화."""
+        """따옴표 속성의 ``>``를 tag 종료로 오인하지 않고 ``img``를 정규화."""
 
         text = '<img src="example.png" alt="1 > 0">\n'
 
@@ -373,7 +373,7 @@ return true;
         self.assertEqual(out, '<img src="example.png" alt="1 > 0"/>\n')
 
     def test_keeps_img_inside_inline_code_spans(self):
-        """여러 구분자 길이의 inline code 안에 있는 ``img`` 예시 보존."""
+        """여러 구분자 길이의 inline code 안에 있는 ``img`` 예시를 보존."""
 
         cases = (
             'Use `<img src="inline.png">`.\n<img src="outside.png">\n',
@@ -395,7 +395,7 @@ return true;
                 self.assertIn('<img src="outside.png"/>', out)
 
     def test_keeps_self_closed_img_with_greater_than_in_jsx_expression(self):
-        """비교 연산자를 포함한 JSX expression의 self-closing ``img`` 보존."""
+        """비교 연산자를 포함한 JSX expression의 self-closing ``img``를 보존."""
 
         text = "<img hidden={count > 0} />\n"
 
@@ -404,7 +404,7 @@ return true;
         self.assertEqual(out, text)
 
     def test_keeps_self_closed_img_with_escaped_template_literal_content(self):
-        """escape된 template literal을 포함한 self-closing ``img`` 보존."""
+        """이스케이프된 템플릿 리터럴을 포함한 자체 닫힘 ``img``를 보존."""
 
         text = '<img alt={`say \\`hi\\` } > text`} />\n'
 
@@ -413,7 +413,7 @@ return true;
         self.assertEqual(out, text)
 
     def test_keeps_self_closed_img_with_complex_jsx_expression(self):
-        """주석과 중첩 template을 포함한 JSX expression의 ``img`` 보존."""
+        """주석과 중첩 template을 포함한 JSX expression의 ``img``를 보존."""
 
         cases = (
             '<img alt={label /* } > */ + "English"} />\n',
@@ -428,7 +428,7 @@ return true;
                 )
 
     def test_keeps_long_fenced_code_blocks_unmodified(self):
-        """더 긴 구분자로 감싼 fenced code 블록 원문 보존."""
+        """더 긴 구분자로 감싼 fenced code 블록의 원문을 보존."""
 
         text = (
             "````blade\n"
@@ -460,7 +460,7 @@ return true;
         )
 
     def test_preserves_version_placeholder_in_quoted_fence(self):
-        """blockquote 안 fenced code의 literal version placeholder 보존."""
+        """blockquote 안 fenced code의 literal version placeholder를 보존."""
 
         text = "> ```text\n> {{version}}\n> ```\n"
 

@@ -26,7 +26,7 @@ class SidebarSyncTests(unittest.TestCase):
         self.assertIs(sidebar.generator, generator)
 
     def test_load_versions_rejects_duplicates_and_misordered_stable_versions(self) -> None:
-        """중복되거나 역순이 아닌 안정 버전 목록 거부 검증."""
+        """중복·비정규 표기·내림차순 규칙 위반이 있는 안정 버전 목록 거부 검증."""
 
         cases = (
             ["master", "13.x", "13.x", "12.x"],
@@ -256,7 +256,7 @@ class SidebarSyncTests(unittest.TestCase):
             self.assertFalse(locale_path.is_symlink())
 
     def test_sync_version_replaces_sidebar_hardlink_without_mutating_other_name(self):
-        """사이드바 hardlink 교체 시 다른 이름의 inode 보존 검증."""
+        """하드 링크인 사이드바를 새 파일로 교체하고 기존 링크 대상은 변경하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -989,7 +989,7 @@ class SidebarSyncTests(unittest.TestCase):
         )
 
     def test_reports_indented_category(self) -> None:
-        """들여쓴 category 선언의 지원하지 않는 문법 보고 검증."""
+        """들여쓴 category 선언을 비지원 문법으로 보고하는지 검증."""
 
         items, issues = sidebar.parse_documentation(
             "    - ## Getting Started\n",
@@ -1016,7 +1016,7 @@ class SidebarSyncTests(unittest.TestCase):
         self.assertEqual(issues, ["line 1: link is outside a category"])
 
     def test_relative_link_outside_docs_path_remains_link(self):
-        """문서 경로 밖의 상대 링크 보존 검증."""
+        """문서 경로 밖의 루트 상대 링크 보존 검증."""
 
         items, issues = sidebar.parse_documentation(
             "- ## Resources\n"

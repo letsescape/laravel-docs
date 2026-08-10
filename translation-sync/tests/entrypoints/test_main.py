@@ -1,4 +1,4 @@
-"""main 동작과 경계 조건 검증."""
+"""주 번역 파이프라인의 동작과 경계 조건 검증."""
 
 import io
 import tempfile
@@ -12,7 +12,7 @@ from sync import config, diff, translate, verify
 
 
 class MainPipelineTests(unittest.TestCase):
-    """main pipeline 동작과 경계 조건 테스트 모음."""
+    """주 번역 파이프라인의 동작과 경계 조건 테스트 모음."""
 
     def setUp(self) -> None:
         """테스트 사전 상태 구성."""
@@ -27,7 +27,7 @@ class MainPipelineTests(unittest.TestCase):
     def _change_with_lines(
         self, path: str, lines: list[tuple[str, str]]
     ) -> diff.SourceChange:
-        """변경 with 줄 처리."""
+        """줄 목록으로 원문 변경 객체 생성."""
 
         old_lineno = 1
         new_lineno = 1
@@ -58,7 +58,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_translation_request_binds_the_current_response_contract(self):
-        """`translation_request_binds_the_current_response_contract` 시나리오 검증."""
+        """번역 요청에 현재 응답 계약 버전을 지정하는지 검증."""
 
         request = main._translation_request("Source.\n", None)
 
@@ -68,7 +68,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_modified_normalized_noop_preserves_exact_locale_bytes(self):
-        """`modified_normalized_noop`의 exact locale bytes 보존 검증."""
+        """정규화 결과가 같은 수정에서 로케일 바이트를 그대로 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -121,7 +121,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(admit.call_args.kwargs["write"])
 
     def test_modified_block_reuses_the_current_pair_restore_map(self):
-        """`modified_block_reuses_the_current_pair_restore_map` 시나리오 검증."""
+        """수정된 블록이 현재 원문 쌍의 복원 맵을 재사용하는지 검증."""
 
         first_uri = "data:image/png;base64,AAAA"
         changed_uri = "data:image/png;base64,BBBB"
@@ -168,7 +168,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertIs(prepared.placeholders, pair.current.placeholders)
 
     def test_verified_artifact_bytes_are_the_only_admitted_bytes(self):
-        """`verified_artifact_bytes_are_the_only_admitted_bytes` 시나리오 검증."""
+        """검증된 산출물 바이트만 최종 출력으로 승인하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -205,7 +205,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_bytes(), artifact_bytes)
 
     def test_canonical_document_cross_module_contract_produces_artifact(self):
-        """`canonical_document_cross_module_contract`의 산출물 생성 검증."""
+        """모듈 간 정규 문서 계약으로 산출물을 생성하는지 검증."""
 
         source = (
             "## Title {.class #stable}\n\n"
@@ -245,7 +245,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_canonical_artifact_keeps_pre_stale_annotation_bytes(self):
-        """`canonical_artifact`의 pre stale annotation bytes 유지 검증."""
+        """정규 산출물이 오래된 링크 처리 전 주석 바이트를 유지하는지 검증."""
 
         source = "See [Controller](#actions-handled-by-resource-controller).\n"
         locale = (
@@ -275,7 +275,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_verification_issue_never_creates_a_locale_file(self):
-        """`verification_issue_never`의 locale 파일 생성 검증."""
+        """검증 문제 발생 시 로케일 파일을 생성하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -310,7 +310,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(dest.exists())
 
     def test_change_sort_uses_versions_then_utf8_document_bytes(self):
-        """`change_sort`의 버전 이후 utf8 문서 bytes 사용 검증."""
+        """변경 사항을 버전과 UTF-8 문서 바이트 순서로 정렬하는지 검증."""
 
         changes = [
             diff.SourceChange(
@@ -349,7 +349,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_global_preflight_rejects_a_later_plan_before_provider_or_write(self):
-        """`global_preflight`의 provider or write 전 later 계획 거부 검증."""
+        """전역 사전 검사가 공급자 호출이나 기록 전에 후속 계획 오류를 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -433,7 +433,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse((root / "i18n/ja").exists())
 
     def test_request_time_config_error_is_reported_without_traceback(self):
-        """`request_time_config_error`의 reported 제외 traceback 판정 검증."""
+        """요청 시점 설정 오류를 트레이스백 없이 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -464,7 +464,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(dest.exists())
 
     def test_translate_one_reports_incomplete_translation_without_writing_output(self):
-        """`translate_one`의 incomplete 번역 제외 writing 출력 보고 검증."""
+        """불완전한 번역을 출력 기록 없이 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -497,7 +497,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(dest.exists())
 
     def test_added_document_requests_each_prose_owner_and_preserves_front_matter(self):
-        """`added_document`의 요청 경계 검증."""
+        """추가된 문서의 각 산문 소유 단위를 번역 요청하고 프런트 매터를 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -561,7 +561,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertNotIn("description: Create plan fixture.", "\n".join(requests))
 
     def test_added_document_rejects_invalid_provider_contract_without_writing(self):
-        """`added_document`의 잘못된 provider 계약 제외 writing 거부 검증."""
+        """추가된 문서의 잘못된 공급자 계약을 출력 기록 없이 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -598,7 +598,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(dest.exists())
 
     def test_added_table_is_admitted_with_one_whole_table_owner(self):
-        """`added_table`의 admitted 포함 one whole table owner 판정 검증."""
+        """추가된 표를 하나의 전체 표 소유자로 승인하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -650,7 +650,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_text(encoding="utf-8").count("<!--"), 1)
 
     def test_added_document_rejects_wrong_target_language_without_writing(self):
-        """`added_document`의 wrong 대상 언어 제외 writing 거부 검증."""
+        """추가된 문서의 잘못된 대상 언어를 출력 기록 없이 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -695,7 +695,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(dest.exists())
 
     def test_added_license_document_rejects_preserved_legal_english(self):
-        """`added_license_document`의 preserved legal english 거부 검증."""
+        """추가된 라이선스 문서에 보존된 법률 영문을 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -740,7 +740,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(dest.exists())
 
     def test_added_document_checks_deadline_after_response_evaluation(self):
-        """응답 evaluation 후 added 문서 checks 기한 시나리오 검증."""
+        """추가된 문서가 응답 평가 후 실행 기한을 확인하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -791,7 +791,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(dest.exists())
 
     def test_added_license_document_rejects_untranslated_nonlegal_intro(self):
-        """`added_license_document`의 untranslated nonlegal intro 거부 검증."""
+        """추가된 라이선스 문서의 비법률 서문이 번역되지 않으면 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -834,7 +834,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(dest.exists())
 
     def test_repair_segment_translation_adds_missing_original_comments(self):
-        """`repair_segment_translation`의 누락된 original comments 추가 검증."""
+        """구간 번역 복구 시 누락된 원문 주석 추가 검증."""
 
         source = (
             "- [Using Eloquent](https://example.com/eloquent), models can be stored.\n"
@@ -850,7 +850,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(verify.verify(repaired, source=source), [])
 
     def test_translate_one_updates_only_changed_blocks(self):
-        """`translate_one`의 만 changed 블록 갱신 검증."""
+        """변경된 블록만 갱신하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -891,7 +891,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -926,7 +926,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_preserves_following_code_and_anchor_after_replacement(self):
-        """`translate_one`의 replacement 후 following code and anchor 보존 검증."""
+        """블록 교체 후 뒤따르는 코드와 앵커를 보존하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -969,7 +969,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 return "<!-- New text. -->\n새 번역입니다.\n"
@@ -995,7 +995,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_inserts_added_blocks_after_context(self):
-        """`translate_one_inserts_added`의 문맥 후 차단 검증."""
+        """추가된 블록을 앞 문맥 뒤에 삽입하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1030,7 +1030,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -1057,7 +1057,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_inserts_toc_item_with_raw_context(self):
-        """`translate_one_inserts_toc_item_with_raw_context` 시나리오 검증."""
+        """원시 문맥을 기준으로 목차 항목을 삽입하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1096,7 +1096,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -1121,7 +1121,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_updates_only_the_changed_duplicate_bare_link_block(self):
-        """`translate_one`의 만 changed duplicate bare 링크 블록 갱신 검증."""
+        """중복된 일반 링크 블록 중 변경된 블록만 갱신하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1150,12 +1150,12 @@ class MainPipelineTests(unittest.TestCase):
             dest.parent.mkdir(parents=True)
 
             def annotated(link_list: str) -> str:
-                """annotated 처리."""
+                """여러 줄 원문 주석이 포함된 링크 목록 생성."""
 
                 return f"<!--\n{link_list}-->\n{link_list}"
 
             def canonical_annotated(link_list: str) -> str:
-                """canonical annotated 처리."""
+                """정규 원문 주석이 포함된 링크 목록 생성."""
 
                 body = " ".join(link_list.split())
                 return f"<!-- {body} -->\n{link_list}"
@@ -1201,7 +1201,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_text(encoding="utf-8"), expected)
 
     def test_translate_one_moves_named_sections_without_provider_call(self):
-        """`translate_one`의 named sections 제외 provider call 이동 검증."""
+        """이름이 있는 섹션을 공급자 호출 없이 이동하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1271,7 +1271,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_text(encoding="utf-8"), expected)
 
     def test_translate_one_inserts_structural_section_before_raw_anchor(self):
-        """`translate_one`의 raw anchor 전 structural section 삽입 검증."""
+        """원시 앵커 앞에 구조 섹션을 삽입하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1329,7 +1329,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -1377,7 +1377,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_repairs_segment_anchors_and_comments(self):
-        """`translate_one`의 segment anchors 및 comments 복구 검증."""
+        """번역 구간의 앵커와 원문 주석 복구 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1434,7 +1434,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 return (
@@ -1482,7 +1482,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_handles_multi_block_insertions_as_one_range(self):
-        """`translate_one`의 multi 블록 insertions 로 one range 처리 검증."""
+        """여러 블록 삽입을 하나의 범위로 처리하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1519,7 +1519,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -1552,7 +1552,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_deletes_removed_blocks_without_provider_call(self):
-        """`translate_one`의 removed 블록 제외 provider call 삭제 검증."""
+        """제거된 블록을 공급자 호출 없이 삭제하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1602,7 +1602,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_coalesces_multiple_edits_in_same_source_block(self):
-        """`translate_one`의 multiple edits in same 원문 블록 병합 검증."""
+        """동일 원문 블록의 여러 편집을 병합하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1640,7 +1640,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -1665,7 +1665,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_normalizes_old_anchor_text_before_matching(self):
-        """`translate_one`의 matching 전 old anchor text 정규화 검증."""
+        """일치 여부 확인 전에 이전 앵커 텍스트를 정규화하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1690,7 +1690,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 return "<!-- See 12.x updated. -->\n새 번역입니다.\n"
@@ -1709,7 +1709,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_restores_placeholders_in_plan_state(self):
-        """`translate_one`의 placeholders in 계획 상태 복원 검증."""
+        """계획 상태의 자리표시자를 복원하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1744,7 +1744,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 return "<!-- New text. -->\n새 번역입니다.\n"
@@ -1764,7 +1764,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_reports_partial_patch_failure_without_full_retranslation(self):
-        """전체 재번역 없는 partial patch 실패 보고 검증."""
+        """전체 재번역 없이 부분 패치 실패를 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1806,7 +1806,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_rejects_mixed_plan_state_before_provider(self):
-        """`translate_one`의 provider 전 mixed 계획 상태 거부 검증."""
+        """혼합된 계획 상태를 공급자 호출 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1858,7 +1858,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_text(encoding="utf-8"), existing)
 
     def test_translate_one_verifies_target_state_without_provider(self):
-        """`translate_one`의 대상 상태 제외 provider 검증."""
+        """공급자 호출 없이 대상 상태를 확인하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1907,7 +1907,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_text(encoding="utf-8"), existing)
 
     def test_block_translation_does_not_retry_final_verifier_issues(self):
-        """`block_translation`의 않음 재시도 final verifier 문제 동작 검증."""
+        """블록 번역의 최종 검증 문제를 재시도하지 않는지 검증."""
 
         change = diff.SourceChange(
             path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
@@ -1957,7 +1957,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(provider.call_count, 1)
 
     def test_translate_one_skips_an_already_current_prose_and_code_hunk(self):
-        """`translate_one`의 건너뜀 경계 검증."""
+        """이미 최신인 산문과 코드 변경 묶음을 건너뛰는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2016,7 +2016,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_text(encoding="utf-8"), existing)
 
     def test_translate_one_repairs_unchanged_legacy_admonition_and_annotation(self):
-        """partial replay에서 변경 block 외부 legacy 문맥까지 정규화하는지 검증."""
+        """부분 재실행에서 변경 블록 외부의 기존 경고와 주석까지 정규화하는지 검증."""
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source_path = (
@@ -2068,7 +2068,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("<!-- New text. -->", output)
 
     def test_translate_one_expands_line_change_to_containing_paragraph(self):
-        """`translate_one_expands` 관련 경계 조건 검증."""
+        """줄 변경 범위를 해당 줄이 속한 문단으로 확장하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2103,7 +2103,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -2128,7 +2128,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_replaces_paragraph_when_line_is_inserted_inside_it(self):
-        """`translate_one_replaces`의 상태 판정 경계 검증."""
+        """문단 내부에 줄을 삽입할 때 문단 전체를 교체하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2161,7 +2161,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 return (
@@ -2184,7 +2184,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_replaces_paragraph_when_line_is_deleted_inside_it(self):
-        """`translate_one_replaces`의 상태 판정 경계 검증."""
+        """문단 내부의 줄을 삭제할 때 문단 전체를 교체하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2217,7 +2217,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 return "<!-- First line. Second line. -->\n첫 줄입니다. 두 번째 줄입니다.\n"
@@ -2236,7 +2236,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_replaces_localized_table_row_by_stable_cells(self):
-        """`translate_one`의 교체 경계 검증."""
+        """안정된 셀을 기준으로 현지화된 표의 행을 교체하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2276,7 +2276,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -2307,7 +2307,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_replaces_localized_table_row_with_japanese_commas(self):
-        """`translate_one`의 교체 경계 검증."""
+        """일본어 쉼표가 포함된 현지화 표의 행을 교체하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2346,7 +2346,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 self.assertIn("| 文章 | OpenAI、Anthropic |", content)
@@ -2375,7 +2375,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_replaces_split_paragraph_and_following_warning(self):
-        """`translate_one`의 교체 경계 검증."""
+        """분리된 문단과 뒤따르는 경고 블록을 함께 교체하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2431,7 +2431,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 return (
@@ -2464,7 +2464,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_keeps_changed_admonition_body_in_blockquote(self):
-        """`translate_one`의 changed admonition body in blockquote 유지 검증."""
+        """변경된 경고 본문을 인용문 내부에 유지하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2521,7 +2521,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 _content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertFalse(split)
                 return (
@@ -2552,7 +2552,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_retranslates_an_admonition_marker_change(self):
-        """`translate_one_retranslates_an_admonition_marker_change` 시나리오 검증."""
+        """경고 표시가 변경되면 해당 블록을 다시 번역하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2594,7 +2594,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
             def translated(request, *_args, **_kwargs):
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 self.assertEqual(
                     request.source,
@@ -2625,7 +2625,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_translate_one_replaces_an_annotated_inline_code_list(self):
-        """`translate_one_replaces_an_annotated_inline_code_list` 시나리오 검증."""
+        """원문 주석이 있는 인라인 코드 목록을 교체하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2713,7 +2713,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_text(encoding="utf-8"), expected)
 
     def test_translate_one_does_not_retry_link_mismatches(self):
-        """`translate_one`의 않음 재시도 링크 mismatches 동작 검증."""
+        """링크 불일치 발생 시 번역을 재시도하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2756,7 +2756,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -2782,7 +2782,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("[Old Docs](old-docs)", dest.read_text(encoding="utf-8"))
 
     def test_translate_one_does_not_retry_inline_code_mismatches(self):
-        """`translate_one`의 않음 재시도 inline code mismatches 동작 검증."""
+        """인라인 코드 불일치 발생 시 번역을 재시도하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2831,7 +2831,7 @@ class MainPipelineTests(unittest.TestCase):
             def translated(
                 content: str, _cfg: config.Config, _prompt: str, *, split: bool = True
             ) -> str:
-                """translated 처리."""
+                """번역 결과 반환."""
 
                 sent.append(content)
                 self.assertFalse(split)
@@ -2857,7 +2857,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("`Redis::funnel`", dest.read_text(encoding="utf-8"))
 
     def test_translate_one_requires_hunks_for_existing_documents(self):
-        """`translate_one`의 hunk 대상 existing 문서 요구 검증."""
+        """기존 문서 번역에 원시 diff 묶음이 필요한지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2891,7 +2891,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.read_text(encoding="utf-8"), "# 기존 문서\n")
 
     def test_translate_one_renders_new_document_headings_without_provider(self):
-        """`translate_one_renders` 관련 경계 조건 검증."""
+        """새 문서 제목을 공급자 호출 없이 렌더링하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2924,7 +2924,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_delete_outputs_removes_ko_and_ja_documents_for_deleted_source(self):
-        """`delete_outputs`의 ko 및 ja 문서 대상 deleted 원문 제거 검증."""
+        """원문 삭제 시 한국어와 일본어 문서를 제거하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2949,7 +2949,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertFalse(ja_doc.exists())
 
     def test_validate_file_states_rejects_added_source_with_existing_locale(self):
-        """`validate_file_states`의 added 원문 포함 existing locale 거부 검증."""
+        """추가된 원문에 기존 로케일 문서가 있으면 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2979,7 +2979,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_validate_file_states_checks_all_modified_inputs_before_writes(self):
-        """`validate_file_states_checks_all_modified_inputs_before`의  기록 검증."""
+        """기록 전에 수정된 모든 입력 파일 상태를 확인하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3009,7 +3009,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_validate_file_states_rejects_modified_source_without_raw_hunks(self):
-        """`validate_file_states`의 수정된 원문 제외 raw hunk 거부 검증."""
+        """원시 diff 묶음이 없는 수정 원문 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3045,7 +3045,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_validate_file_states_accepts_complete_deleted_triplet(self):
-        """`validate_file_states`의 complete deleted triplet 허용 검증."""
+        """완전히 삭제된 원문과 로케일 문서 묶음 허용 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3069,7 +3069,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(issues, [])
 
     def test_delete_outputs_rejects_symlinked_parent_without_partial_deletion(self):
-        """`delete_outputs`의 symlink parent 제외 partial deletion 거부 검증."""
+        """심볼릭 링크 상위 경로 발견 시 일부 출력만 삭제하지 않는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -3111,7 +3111,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_delete_outputs_validates_ja_path_before_deleting_ko_output(self):
-        """`delete_outputs`의 deleting ko 출력 전 ja 경로 검증."""
+        """한국어 출력 삭제 전 일본어 출력 경로 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -3148,7 +3148,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_added_document_rejects_symlinked_final_output(self):
-        """`added_document`의 symlink final 출력 거부 검증."""
+        """추가된 문서의 심볼릭 링크 최종 출력 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -3185,7 +3185,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_added_document_rejects_an_existing_hardlinked_destination(self):
-        """`added_document`의 existing hardlinked destination 거부 검증."""
+        """추가된 문서의 기존 하드 링크 대상 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "repo"
@@ -3228,7 +3228,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(dest.stat().st_mode & 0o777, 0o640)
 
     def test_identity_replay_allows_source_echo_after_structural_verification(self):
-        """`identity_replay`의 structural verification 후 원문 echo 허용 검증."""
+        """동일성 재실행에서 구조 검증 후 원문 반환을 허용하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3277,7 +3277,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_malformed_identity_response_is_rejected_before_apply_or_write(self):
-        """`malformed_identity_response`의 apply or write 전 rejected 판정 검증."""
+        """잘못된 동일성 응답을 적용이나 기록 전에 거부하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3329,7 +3329,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("provider original comment mismatch", issues[0])
 
     def test_loads_ko_and_ja_prompts_from_separate_files(self):
-        """ko 및 ja prompts from separate 파일 로딩 검증."""
+        """한국어와 일본어 프롬프트를 별도 파일에서 불러오는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3350,7 +3350,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(prompts["ja"], "JA")
 
     def test_select_changes_migrate_existing_uses_all_source_markdown_files(self):
-        """`select_changes_migrate_existing`의 모든 원문 Markdown 파일 사용 검증."""
+        """기존 문서 마이그레이션에서 모든 원문 Markdown 파일을 사용하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3379,7 +3379,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_select_changes_migrate_existing_can_filter_by_version_and_doc(self):
-        """`select_changes_migrate` 관련 경계 조건 검증."""
+        """기존 문서 마이그레이션을 버전과 문서로 필터링하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3410,7 +3410,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_nested_source_maps_to_matching_ko_and_ja_relative_paths(self):
-        """`nested_source_maps_to_matching_ko_and_ja_relative_paths` 시나리오 검증."""
+        """중첩 원문을 대응하는 한국어와 일본어 상대 경로로 매핑하는지 검증."""
 
         change = diff.SourceChange(
             path=(
@@ -3441,7 +3441,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_select_changes_migrate_existing_recurses_nested_documents(self):
-        """`select_changes_migrate_existing`의 중첩 문서 재귀 탐색 검증."""
+        """기존 문서 마이그레이션에서 중첩 문서를 재귀 탐색하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3474,7 +3474,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_select_changes_migrate_existing_rejects_nested_directory_symlink(self):
-        """`select_changes_migrate_existing`의 중첩 디렉터리 symlink 거부 검증."""
+        """기존 문서 마이그레이션에서 중첩 디렉터리 심볼릭 링크 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3499,7 +3499,7 @@ class MainPipelineTests(unittest.TestCase):
                     main._select_changes(migrate_existing=True)
 
     def test_select_changes_migrate_existing_rejects_source_symlinks(self):
-        """`select_changes_migrate_existing`의 원문 symlinks 거부 검증."""
+        """기존 문서 마이그레이션에서 원문 심볼릭 링크 거부 검증."""
 
         for component in ("root", "version", "leaf"):
             with self.subTest(component=component), tempfile.TemporaryDirectory() as tmp:
@@ -3551,7 +3551,7 @@ class MainPipelineTests(unittest.TestCase):
                         main._select_changes(migrate_existing=True)
 
     def test_sidebar_versions_always_include_every_canonical_version(self):
-        """`sidebar_versions_always_include_every_canonical_version` 시나리오 검증."""
+        """사이드바 버전 목록에 모든 정규 버전을 포함하는지 검증."""
 
         changes = [
             diff.SourceChange(
@@ -3575,12 +3575,12 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_main_syncs_all_sidebars_when_no_sources_changed(self):
-        """`main`의 no sources changed 시 모든 sidebars 동기화 검증."""
+        """원문 변경이 없어도 모든 사이드바를 동기화하는지 검증."""
 
         calls: list[tuple[list[str], bool]] = []
 
         def sync_versions(versions, *, write=False, repo_root=None):
-            """버전 동기화."""
+            """요청된 버전 목록 동기화."""
 
             calls.append((versions, write))
             return [main.sidebar.SidebarResult("master", False, [])]
@@ -3606,7 +3606,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(calls, [(["master", "13.x", "12.x"], True)])
 
     def test_main_scopes_upstream_sync_to_requested_filters(self):
-        """`main_scopes_upstream_sync_to_requested_filters` 시나리오 검증."""
+        """업스트림 동기화를 요청된 필터 범위로 제한하는지 검증."""
 
         with patch.object(
             main.sys,
@@ -3633,7 +3633,7 @@ class MainPipelineTests(unittest.TestCase):
         upstream_main.assert_called_once_with(version="13.x", doc="collections.md")
 
     def test_main_passes_canonical_nested_document_filter_to_upstream(self):
-        """`main`의 canonical 중첩 문서 filter 후 upstream 전달 검증."""
+        """정규 중첩 문서 필터를 업스트림에 전달하는지 검증."""
 
         with patch.object(
             main.sys,
@@ -3663,7 +3663,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_rejects_noncanonical_document_filter_before_loading_config(self):
-        """`main`의 로딩 설정 전 비정규 문서 filter 거부 검증."""
+        """설정을 불러오기 전에 비정규 문서 필터를 거부하는지 검증."""
 
         stderr = io.StringIO()
         with redirect_stderr(stderr), patch.object(
@@ -3681,7 +3681,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertIn("configuration failed: invalid document", stderr.getvalue())
 
     def test_main_requires_version_with_document_filter(self):
-        """`main`의 버전 포함 문서 filter 요구 검증."""
+        """문서 필터 사용 시 버전 필터를 요구하는지 검증."""
 
         stderr = io.StringIO()
         with redirect_stderr(stderr), patch.object(
@@ -3702,7 +3702,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_reports_missing_filter_value_without_traceback(self):
-        """`main_reports_missing_filter_value_without_traceback` 시나리오 검증."""
+        """누락된 필터 값을 트레이스백 없이 보고하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -3722,7 +3722,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_rejects_live_sync_outside_candidate_or_replay(self):
-        """`main`의 live 동기화 외부 candidate 또는 replay 거부 검증."""
+        """후보 또는 재실행 환경 외부의 실시간 동기화 거부 검증."""
 
         stderr = io.StringIO()
         with redirect_stderr(stderr), patch.dict(
@@ -3743,7 +3743,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_rejects_unknown_argument_before_upstream_sync(self):
-        """`main`의 upstream 동기화 전 unknown argument 거부 검증."""
+        """업스트림 동기화 전에 알 수 없는 인수를 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -3763,7 +3763,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_rejects_empty_equals_filter_before_upstream_sync(self):
-        """`main`의 upstream 동기화 전 빈 equals filter 거부 검증."""
+        """업스트림 동기화 전에 등호로 지정한 빈 필터를 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -3783,7 +3783,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_rejects_multiple_maintenance_modes(self):
-        """`main`의 multiple maintenance modes 거부 검증."""
+        """여러 유지보수 모드의 동시 사용 거부 검증."""
 
         stderr = io.StringIO()
 
@@ -3805,7 +3805,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_rejects_apply_without_writable_maintenance_mode(self):
-        """`main`의 apply 제외 writable maintenance mode 거부 검증."""
+        """쓰기 가능한 유지보수 모드 없이 `--apply` 사용 시 거부하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -3826,7 +3826,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_rejects_obsolete_fail_fast_option(self):
-        """`main`의 obsolete fail fast option 거부 검증."""
+        """폐기된 `--fail-fast` 옵션 거부 검증."""
 
         stderr = io.StringIO()
 
@@ -3848,7 +3848,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_rejects_broken_migrate_existing_mode(self):
-        """`main`의 broken migrate existing mode 거부 검증."""
+        """지원하지 않는 기존 문서 마이그레이션 모드 거부 검증."""
 
         stderr = io.StringIO()
 
@@ -3869,7 +3869,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_allows_apply_with_annotation_maintenance(self):
-        """`main`의 apply 포함 annotation maintenance 허용 검증."""
+        """주석 유지보수 모드에서 `--apply` 사용을 허용하는지 검증."""
 
         with patch.object(
             main.sys,
@@ -3892,7 +3892,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_fix_preserved_markup_repairs_markdown_image_target(self):
-        """`fix_preserved_markup`의 Markdown image 대상 복구 검증."""
+        """보존된 Markdown 이미지 대상 복구 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3943,7 +3943,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_fix_preserved_markup_repairs_markdown_link_title(self):
-        """`fix_preserved_markup`의 Markdown 링크 title 복구 검증."""
+        """보존된 Markdown 링크 제목 복구 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -3996,7 +3996,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_fix_preserved_markup_reports_unresolved_fixable_issue(self):
-        """`fix_preserved_markup_reports_unresolved_fixable_issue` 시나리오 검증."""
+        """해결되지 않은 복구 가능 마크업 문제 보고 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4050,7 +4050,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(ko_doc.read_text(encoding="utf-8"), original)
 
     def test_main_fail_fast_stops_after_first_verification_failure(self):
-        """`main_fail_fast`의 first verification 실패 후 중단 검증."""
+        """첫 번째 검증 실패 후 번역 처리를 중단하는지 검증."""
 
         change = diff.SourceChange(
             path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
@@ -4068,7 +4068,7 @@ class MainPipelineTests(unittest.TestCase):
             deadline=None,
             prepared_target=None,
         ):
-            """one 번역."""
+            """단일 로케일 번역 실패 반환."""
 
             self.assertIn(locale, ("ko", "ja"))
             self.assertIsNone(deadline)
@@ -4108,7 +4108,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(len(calls), 1)
 
     def test_main_stops_when_upstream_sync_fails(self):
-        """`main`의 upstream 동기화 fails 시 중단 검증."""
+        """업스트림 동기화 실패 시 중단하는지 검증."""
 
         with patch.object(main.sys, "argv", ["main.py"]), patch.object(
             main.config,
@@ -4128,7 +4128,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
 
     def test_main_reports_invalid_source_diff_without_traceback(self):
-        """`main_reports_invalid_source_diff_without_traceback` 시나리오 검증."""
+        """잘못된 원문 diff를 트레이스백 없이 보고하는지 검증."""
 
         stderr = io.StringIO()
         with redirect_stderr(stderr), patch.object(
@@ -4157,7 +4157,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_reports_invalid_provider_configuration_without_traceback(self):
-        """`main`의 잘못된 provider 설정 제외 traceback 보고 검증."""
+        """잘못된 공급자 설정을 트레이스백 없이 보고하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -4184,7 +4184,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_main_reports_missing_prompt_before_upstream_sync(self):
-        """`main_reports_missing_prompt_before_upstream_sync` 시나리오 검증."""
+        """업스트림 동기화 전에 누락된 프롬프트를 보고하는지 검증."""
 
         stderr = io.StringIO()
 
@@ -4214,7 +4214,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_check_existing_annotations_reports_unannotated_documents(self):
-        """`check_existing_annotations`의 unannotated 문서 보고 검증."""
+        """원문 주석이 없는 기존 문서 보고 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4250,7 +4250,7 @@ class MainPipelineTests(unittest.TestCase):
         )
 
     def test_check_existing_annotations_accepts_comment_annotated_documents(self):
-        """`check_existing_annotations`의 comment annotated 문서 허용 검증."""
+        """원문 주석이 있는 기존 문서 허용 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4277,7 +4277,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(issues, [])
 
     def test_check_existing_annotations_skips_missing_existing_documents(self):
-        """`check_existing_annotations`의 누락된 existing 문서 건너뜀 검증."""
+        """누락된 기존 로케일 문서를 건너뛰는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4300,7 +4300,7 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(issues, [])
 
     def test_annotate_existing_writes_clean_ko_and_ja_documents(self):
-        """`annotate_existing`의 clean ko 및 ja 문서 기록 검증."""
+        """정상적인 한국어와 일본어 기존 문서에 원문 주석을 기록하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4329,7 +4329,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("<!-- Body text. -->", ja_doc.read_text(encoding="utf-8"))
 
     def test_annotate_existing_normalizes_legacy_alert_without_missing_comments(self):
-        """`annotate_existing`의 legacy alert 제외 누락된 comments 정규화 검증."""
+        """원문 주석 누락 없이 기존 경고 형식을 정규화하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4360,7 +4360,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_annotate_existing_repairs_source_comment_mismatch_without_missing_comment(self):
-        """`annotate_existing`의 원문 comment mismatch 제외 누락된 comment 복구 검증."""
+        """원문 주석 누락 없이 원문 주석 불일치를 복구하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4394,7 +4394,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_annotate_existing_writes_canonical_stale_links_when_document_verifies(self):
-        """`annotate_existing`의 문서 verifies 시 canonical stale 링크 기록 검증."""
+        """문서 검증 성공 시 정규 형태의 오래된 링크를 기록하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4425,7 +4425,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_annotate_existing_restores_blank_markdown_link_label(self):
-        """`annotate_existing`의 blank Markdown 링크 label 복원 검증."""
+        """비어 있는 Markdown 링크 레이블 복원 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4457,7 +4457,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_annotate_existing_skips_documents_that_already_verify(self):
-        """`annotate_existing_skips_documents_that_already_verify` 시나리오 검증."""
+        """이미 검증된 문서를 건너뛰는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4487,7 +4487,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(ja_doc.read_text(encoding="utf-8"), annotated)
 
     def test_annotate_existing_dry_run_counts_writable_documents_without_writing(self):
-        """`annotate_existing_dry` 관련 경계 조건 검증."""
+        """시험 실행에서 기록 가능한 문서 수만 계산하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4518,7 +4518,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(ja_doc.read_text(encoding="utf-8"), ja_original)
 
     def test_annotate_existing_writes_comments_with_residual_non_annotation_issues(self):
-        """`annotate_existing`의 comments 포함 residual non annotation 문제 기록 검증."""
+        """주석 외 문제가 남아 있어도 원문 주석을 기록하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4544,7 +4544,7 @@ class MainPipelineTests(unittest.TestCase):
             )
 
     def test_annotate_existing_skips_missing_existing_documents(self):
-        """`annotate_existing_skips_missing_existing_documents` 시나리오 검증."""
+        """주석 추가 시 누락된 기존 로케일 문서를 건너뛰는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4567,7 +4567,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(ko_doc.read_text(encoding="utf-8"), ko_original)
 
     def test_annotate_existing_reports_drift_without_writing_document(self):
-        """`annotate_existing`의 drift 제외 writing 문서 보고 검증."""
+        """문서를 기록하지 않고 원문과 로케일 문서의 차이를 보고하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -4598,7 +4598,7 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(ko_doc.read_text(encoding="utf-8"), original)
 
     def test_annotate_existing_writes_when_drifted_output_still_verifies(self):
-        """`annotate_existing`의 drifted 출력 still verifies 시 기록 검증."""
+        """차이가 있는 출력도 검증을 통과하면 기록하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

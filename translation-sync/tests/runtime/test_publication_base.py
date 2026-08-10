@@ -1,4 +1,4 @@
-"""publication base 동작과 경계 조건 검증."""
+"""게시 기준본 동작과 경계 조건 검증."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from sync.runtime.process import ProcessTreeCleanupError
 
 
 def _git(repo: Path, *args: str) -> str:
-    """Git 처리."""
+    """Git 명령 실행."""
 
     return subprocess.run(
         ["git", *args],
@@ -31,7 +31,7 @@ def _git(repo: Path, *args: str) -> str:
 
 
 def _repositories(root: Path) -> tuple[Path, Path, str]:
-    """repositories 처리."""
+    """테스트용 활성·원격 저장소 초기화."""
 
     active = root / "active"
     remote = root / "remote.git"
@@ -51,10 +51,10 @@ def _repositories(root: Path) -> tuple[Path, Path, str]:
 
 
 class PublicationBaseTests(unittest.TestCase):
-    """publication 기준본 동작과 경계 조건 테스트 모음."""
+    """게시 기준본 동작과 경계 조건 테스트 모음."""
 
     def test_process_tree_failure_is_a_runner_failure(self) -> None:
-        """`process_tree_failure`의 runner 실패 판정 검증."""
+        """프로세스 트리 실패의 실행기 실패 판정 검증."""
 
         with tempfile.TemporaryDirectory() as tmp, patch(
             "sync.runtime.base.run_process_tree",
@@ -74,7 +74,7 @@ class PublicationBaseTests(unittest.TestCase):
         )
 
     def test_git_subprocess_receives_only_read_only_environment(self) -> None:
-        """`git_subprocess_receives_only_read_only_environment` 시나리오 검증."""
+        """Git 하위 프로세스에 읽기 전용 환경만 전달하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
@@ -112,7 +112,7 @@ class PublicationBaseTests(unittest.TestCase):
             observed: dict[str, object] = {}
 
             def fake_run(*args: object, **kwargs: object):
-                """테스트용 실행 대체 동작."""
+                """Git 실행 인수 기록용 대체 동작."""
 
                 observed.update(kwargs)
                 return subprocess.CompletedProcess(
@@ -180,7 +180,7 @@ class PublicationBaseTests(unittest.TestCase):
             self.assertIs(observed["stdin"], subprocess.DEVNULL)
 
     def test_captures_clean_branch_and_exact_remote_ref(self) -> None:
-        """`captures_clean_branch_and_exact_remote_ref` 시나리오 검증."""
+        """깨끗한 브랜치와 정확한 원격 참조를 캡처하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             active, _, head = _repositories(Path(tmp))
@@ -205,7 +205,7 @@ class PublicationBaseTests(unittest.TestCase):
             )
 
     def test_rejects_tracked_or_index_changes(self) -> None:
-        """추적된 또는 index 변경 거부 검증."""
+        """추적 파일 또는 인덱스 변경 거부 검증."""
 
         for mutation in ("worktree", "index"):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as tmp:
@@ -228,7 +228,7 @@ class PublicationBaseTests(unittest.TestCase):
                 )
 
     def test_rejects_nonignored_untracked_file_in_owned_path(self) -> None:
-        """nonignored 미추적 파일 in owned 경로 거부 검증."""
+        """소유 경로의 무시되지 않은 미추적 파일 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             active, _, _ = _repositories(Path(tmp))
@@ -247,7 +247,7 @@ class PublicationBaseTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, IssueCode.DIRTY_PUBLICATION_BASE)
 
     def test_unrelated_untracked_is_allowed_but_covered_by_fingerprint(self) -> None:
-        """`unrelated_untracked`의 허용된 but covered by fingerprint 판정 검증."""
+        """관련 없는 미추적 파일은 허용하되 지문에 포함하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             active, _, _ = _repositories(Path(tmp))
@@ -271,7 +271,7 @@ class PublicationBaseTests(unittest.TestCase):
             )
 
     def test_rejects_detached_head_and_remote_race(self) -> None:
-        """detached head 및 원격 race 거부 검증."""
+        """분리된 HEAD와 원격 갱신 경쟁 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

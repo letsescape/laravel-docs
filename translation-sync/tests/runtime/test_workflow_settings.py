@@ -43,7 +43,7 @@ class WorkflowSettingsTests(unittest.TestCase):
     """워크플로 JSON 설정의 로딩과 거부 경계 검증."""
 
     def _write(self, root: Path, value: object) -> Path:
-        """임시 workflow.json 기록.
+        """임시 ``workflow.json`` 파일 기록.
 
         Args:
             root: 설정 파일을 기록할 임시 디렉터리.
@@ -58,7 +58,7 @@ class WorkflowSettingsTests(unittest.TestCase):
         return path
 
     def test_loads_commands_as_immutable_argv(self) -> None:
-        """명령 배열의 불변 argv 로딩."""
+        """명령 배열을 불변 인수 배열로 로드하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             settings = load_workflow_settings(
@@ -73,7 +73,7 @@ class WorkflowSettingsTests(unittest.TestCase):
         self.assertEqual(settings.deploy_workflow, "deploy.yml")
 
     def test_rejects_missing_or_empty_required_command(self) -> None:
-        """필수 명령 누락과 빈 배열 거부."""
+        """필수 명령 누락과 빈 배열 거부 검증."""
 
         for key, value in (
             ("unit_test_command", None),
@@ -93,7 +93,7 @@ class WorkflowSettingsTests(unittest.TestCase):
                     load_workflow_settings(path)
 
     def test_rejects_invalid_candidate_setup_argv(self) -> None:
-        """candidate 준비 명령의 잘못된 argv 거부."""
+        """후보 준비 명령의 잘못된 인수 배열 거부 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             document = _valid_settings()
@@ -107,7 +107,7 @@ class WorkflowSettingsTests(unittest.TestCase):
                 load_workflow_settings(path)
 
     def test_rejects_shell_like_or_non_string_argv(self) -> None:
-        """shell 문자열과 문자열이 아닌 argv 요소 거부."""
+        """셸 형식 문자열과 문자열이 아닌 인수 요소 거부 검증."""
 
         invalid_commands = (
             "uv run python main.py",
@@ -125,7 +125,7 @@ class WorkflowSettingsTests(unittest.TestCase):
                     load_workflow_settings(path)
 
     def test_rejects_unknown_fields_and_nonpositive_timeout(self) -> None:
-        """알 수 없는 필드와 양수가 아닌 timeout 거부."""
+        """알 수 없는 필드와 양수가 아닌 제한 시간 거부 검증."""
 
         cases = (
             {**_valid_settings(), "unexpected": True},
@@ -139,7 +139,7 @@ class WorkflowSettingsTests(unittest.TestCase):
                     load_workflow_settings(path)
 
     def test_rejects_unsafe_deploy_workflow_name(self) -> None:
-        """안전한 basename이 아닌 배포 workflow 이름 거부."""
+        """안전한 기본 파일명이 아닌 배포 워크플로 이름 거부 검증."""
 
         for name in ("../deploy.yml", "/deploy.yml", "deploy.yaml", "a/b.yml"):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as tmp:

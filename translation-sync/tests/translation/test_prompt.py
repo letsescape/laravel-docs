@@ -1,4 +1,4 @@
-"""운영 프롬프트 로딩과 locale별 보존 규칙 검증."""
+"""운영 프롬프트 로딩과 로캘별 보존 규칙 검증."""
 
 import tempfile
 import unittest
@@ -30,7 +30,7 @@ class PromptTests(unittest.TestCase):
                 prompt.load_prompt(prompt_path)
 
     def test_unreadable_prompt_file_is_an_error(self):
-        """읽을 수 없는 프롬프트 파일과 상세 오류 비공개."""
+        """읽을 수 없는 프롬프트 파일 거부와 상세 오류 비공개."""
 
         prompt_path = Path("/fixture/prompt.md")
 
@@ -79,7 +79,7 @@ class PromptTests(unittest.TestCase):
         )
 
     def test_japanese_prompt_requires_a_leading_html_anchor(self):
-        """일본어 프롬프트의 선행 HTML anchor 보존 규칙."""
+        """일본어 프롬프트의 선행 HTML 앵커 보존 규칙."""
 
         prompt_text = prompt.load_prompt(
             Path(__file__).resolve().parents[2] / "prompt_jp.md"
@@ -104,7 +104,7 @@ class PromptTests(unittest.TestCase):
         )
 
     def test_locale_prompts_require_canonical_paragraph_and_comment_output(self):
-        """두 locale의 단일 물리 줄 문단과 주석 escape 규칙."""
+        """두 로캘의 단일 물리 줄 문단과 주석 이스케이프 규칙."""
 
         root = Path(__file__).resolve().parents[2]
         korean = prompt.load_prompt(root / "prompt.md")
@@ -116,7 +116,7 @@ class PromptTests(unittest.TestCase):
         self.assertIn("`--&gt;`", japanese)
 
     def test_locale_prompts_forbid_external_tools(self):
-        """두 locale의 파일 접근과 외부 도구 호출 금지 규칙."""
+        """두 로캘의 파일 접근과 외부 도구 호출 금지 규칙."""
 
         root = Path(__file__).resolve().parents[2]
         korean = prompt.load_prompt(root / "prompt.md")
@@ -126,7 +126,7 @@ class PromptTests(unittest.TestCase):
         self.assertIn("ファイルを読み書きせず、ツールを呼び出しません", japanese)
 
     def test_japanese_prompt_preserves_navigation_attributes_and_backticks(self):
-        """일본어 프롬프트의 navigation 속성과 backtick 보존 규칙."""
+        """일본어 프롬프트의 탐색 속성과 백틱 보존 규칙."""
 
         prompt_text = prompt.load_prompt(
             Path(__file__).resolve().parents[2] / "prompt_jp.md"
