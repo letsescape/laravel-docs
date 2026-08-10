@@ -1,73 +1,76 @@
-# E2E 테스트 리스트 — 네비게이션 (Navbar)
+# E2E 테스트 목록 — 내비게이션
 
-원본 Laravel.com 메인 페이지 네비게이션을 Playwright로 검증한 테스트 리스트입니다.
+메인 페이지와 문서 페이지의 내비게이션을 Playwright로 검증하는 테스트 목록.
 
-**뷰포트 브레이크포인트:**
+**뷰포트:**
 
-- 데스크톱: 1280px
-- 태블릿: 768px
-- 모바일: 430px
+- 데스크톱: 1280×800px
+- 태블릿: 768×1024px
+- 모바일: 430×932px
+- 좁은 모바일: 390×844px
 
 ---
 
-## `navbar.spec.ts` — Navbar
+## `navbar.spec.ts`
 
-### 데스크톱 (1280px)
+### 메인 페이지 — 데스크톱
 
-| #    | 테스트명                     | 검증 내용                                                                                                                                  |
-| ---- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| N-1  | 네비바 표시                  | `navigation "Main"`이 페이지 상단에 보이는지                                                                                               |
-| N-2  | 로고 표시 및 링크            | Laravel 로고 이미지가 보이고 `/`로 링크되는지                                                                                              |
-| N-3  | Framework 드롭다운 열기      | "Framework" 버튼 클릭 시 메가 메뉴가 펼쳐지는지                                                                                            |
-| N-3a | Framework > Explore Laravel  | "Explore Laravel" 헤딩 아래 Overview(`/`), Changelog(`/docs/{latest-version}/releases`), Laravel Learn(`/learn`) 3개 항목 + 설명 텍스트  |
-| N-3b | Framework > Latest packages  | "Latest packages" 헤딩 아래 AI SDK(`/ai`), Boost(`/ai/boost`), Wayfinder(`github.com/laravel/wayfinder`) 3개 항목 + 설명 텍스트            |
-| N-3c | Framework > Documentation    | "Documentation" 헤딩 아래 Installation, Agent Setup, Eloquent ORM, Artisan Console, Routing 5개 항목 + "View all"(`/docs/{latest-version}`) |
-| N-3d | Framework > Starter kits     | "Starter kits"(`/docs/{latest-version}/starter-kits`) 링크 + 코드 미리보기(users.svelte, users.tsx, users.vue, users.blade.php)          |
-| N-4  | Products 드롭다운 열기       | "Products" 버튼 클릭 시 메가 메뉴가 펼쳐지는지                                                                                             |
-| N-4a | Products > Cloud             | Cloud(`cloud.laravel.com`) — "The fastest way to deploy and scale Laravel applications", "Deploy now"                                      |
-| N-4b | Products > Forge             | Forge(`forge.laravel.com`) — "Next-level server management with unparalleled control", "Manage your servers"                               |
-| N-4c | Products > Nightwatch        | Nightwatch(`nightwatch.laravel.com`) — "Full observability and monitoring for Laravel apps", "Free plans available"                        |
-| N-5  | Resources 드롭다운 열기      | "Resources" 버튼 클릭 시 메가 메뉴가 펼쳐지는지                                                                                            |
-| N-5a | Resources > Company          | "Company" 헤딩 아래 Blog(`/blog`), Careers(`/careers`), Trust(`trust.laravel.com`), Legal(`/legal`), Status(`status.laravel.com`) 5개 항목 |
-| N-5b | Resources > Social 링크      | GitHub, YouTube, X, LinkedIn, Discord 5개 소셜 링크                                                                                        |
-| N-5c | Resources > Partners         | "Partners" 헤딩 아래 CACI Limited, Kirschbaum, Curotec, 64 Robots, Steadfast Collective, byte5 6개 항목 + "View all"(`/partners`)          |
-| N-5d | Resources > Featured article | "Featured article" 헤딩 아래 블로그 글(제목, 날짜, 발췌문, "Read more" 링크)                                                               |
-| N-6  | Events 드롭다운 열기         | "Events" 버튼 클릭 시 메가 메뉴가 펼쳐지는지                                                                                               |
-| N-6a | Events > Upcoming events     | "Upcoming events" 헤딩 아래 5개 밋업 항목(날짜, 이름, 장소) + "View all"(`/community`)                                                     |
-| N-6b | Events > Featured events     | Laravel Live Japan, Laravel Live UK, Laracon US 등 컨퍼런스 카드(이미지, 이름, 날짜, 도시, 국가)                                           |
-| N-7  | Docs 링크                    | "Docs" 링크가 보이고 `/docs/{latest-version}`로 연결되는지                                                                                 |
-| N-8  | 검색 버튼                    | "Search docs" 버튼이 보이고 `⌘K` 단축키 표시가 있는지                                                                                      |
-| N-9  | 검색 키보드 단축키           | `Ctrl+K` 입력 시 검색 모달이 열리는지                                                                                                      |
-| N-10 | 네비바 상단 고정             | 스크롤 시에도 네비바가 상단에 고정(`sticky`)되는지                                                                                         |
-| N-11 | 네비바 전체 요소 확인        | 로고, 드롭다운 5개, Search docs(⌘K) **모두 표시**                                                                                          |
+| # | 테스트명 | 검증 내용 |
+|---|---------|----------|
+| N-1 | 내비게이션 바 표시 | `.navbar` 표시 |
+| N-2 | 로고 표시 및 링크 | 첫 번째 브랜드 링크 표시 및 `href`가 `/`로 시작하는지 확인 |
+| N-3 | Framework 드롭다운 열기 | Framework 트리거 클릭 후 메뉴 표시 |
+| N-3a | Framework > Explore Laravel | Framework 메뉴의 Explore Laravel 헤딩 표시 |
+| N-3b | Framework > Latest packages | Framework 메뉴의 Latest packages 헤딩 표시 |
+| N-3c | Framework > Documentation | Documentation 헤딩과 문서 링크 5개 표시 및 Installation 링크의 최신 문서 경로 확인 |
+| N-3d | Framework > Starter kits | Starter kits 링크 표시 |
+| N-4 | Products 드롭다운 열기 | Products 트리거 클릭 후 메뉴 표시 |
+| N-5 | 비활성 메뉴 미노출 | Resources와 Events 트리거가 존재하지 않는지 확인 |
+| N-7 | Docs 링크 | Docs 링크 표시 및 최신 문서 경로 확인 |
+| N-12 | 내비게이션 바 상단 고정 | 페이지를 500px 스크롤한 뒤 내비게이션 바 표시 유지 |
+| N-13 | 언어 드롭다운 아이콘 미노출 | 언어 드롭다운은 표시하고 직계 SVG 아이콘은 숨김 |
 
-### 태블릿 (768px)
+### 메인 페이지 — 태블릿
 
-| #    | 테스트명              | 검증 내용                                                                |
-| ---- | --------------------- | ------------------------------------------------------------------------ |
-| N-12 | 네비바 좌측           | 로고 + Framework/Products/Resources/Events 드롭다운 + Docs 링크 **표시** |
-| N-13 | 네비바 우측 요소 숨김  | Search docs가 **숨겨지는지**                                             |
-| N-14 | 햄버거 메뉴 없음      | "Open navigation menu" 버튼이 **존재하지 않는지**                        |
+| # | 테스트명 | 검증 내용 |
+|---|---------|----------|
+| N-14 | 햄버거 표시, 드롭다운 숨김 | 모바일 햄버거 표시 및 데스크톱 드롭다운 트리거 숨김 |
+| N-14a | 헤더 버튼 순서와 높이 정렬 | 색상 모드·버전·언어·검색·햄버거 컨트롤의 표시, 순서, 세로 중앙 정렬 및 언어 아이콘 숨김 확인 |
+| N-15 | 오버레이 열기/닫기 | 햄버거로 전체 화면 메뉴를 열고 닫기 버튼으로 숨김 |
+| N-16 | 비활성 메뉴 미노출 | 전체 화면 메뉴에 Resources와 Events 항목이 존재하지 않는지 확인 |
 
-### 모바일 (430px)
+### 메인 페이지 — 모바일
 
-| #    | 테스트명                    | 검증 내용                                                                                               |
-| ---- | --------------------------- | ------------------------------------------------------------------------------------------------------- |
-| N-15 | 햄버거 메뉴 표시            | 로고 + "Open navigation menu" 버튼만 표시되고, 드롭다운/Search 모두 **숨겨지는지**                      |
-| N-16 | 햄버거 메뉴 열기/닫기       | 햄버거 클릭 시 드로어 펼쳐지고, 닫기 버튼으로 닫히는지                                                  |
-| N-17 | 드로어 > Framework 아코디언 | Overview, Starter Kits, Release Notes, Documentation, Laravel Learn — 단순 리스트 5개                   |
-| N-18 | 드로어 > Products 아코디언  | Laravel Cloud, Forge, Nightwatch, Nova — **4개** (데스크톱은 3개)                                       |
-| N-19 | 드로어 > Resources 아코디언 | Blog, Partners, Careers, Trust, Legal, Status — 단순 리스트 6개                                         |
-| N-20 | 드로어 > Events 직접 링크   | Events가 `/community`로의 직접 링크 (드롭다운 아님)                                                     |
-| N-21 | 드로어 > Docs 직접 링크     | Docs(`/docs/{latest-version}`) 링크 존재                                                               |
+| # | 테스트명 | 검증 내용 |
+|---|---------|----------|
+| N-17 | 햄버거 표시, 드롭다운 숨김 | 브랜드와 모바일 햄버거 표시 및 데스크톱 드롭다운 트리거 숨김 |
+| N-17a | 헤더 버튼 순서와 높이 정렬 | 색상 모드·버전·언어·검색·햄버거 컨트롤의 표시, 순서, 세로 중앙 정렬 및 언어 아이콘 숨김 확인 |
+| N-18 | 오버레이 열기/닫기 | 햄버거로 전체 화면 메뉴를 열고 닫기 버튼으로 숨김 |
+| N-19 | Framework 하위 메뉴 | Framework의 Overview, Starter Kits, Release Notes, Documentation, Laravel Learn 항목 표시 |
+| N-20 | Products 하위 메뉴 | Products의 Laravel Cloud, Forge, Nightwatch, Nova 항목 표시 |
+| N-21 | 비활성 모바일 메뉴 미노출 | 전체 화면 메뉴에 Resources와 Events 항목이 존재하지 않는지 확인 |
+| N-23 | Docs 직접 링크 | Docs 항목 표시 및 최신 문서 경로 확인 |
+| N-24 | 하위 메뉴 뒤로 가기 | Framework 하위 메뉴에서 뒤로 가기 후 Framework 항목 표시 |
+| N-25 | 다크 모드 토글 | 모바일 색상 모드 토글 표시 |
+
+### 문서 페이지 — 반응형 메뉴
+
+| # | 테스트명 | 검증 내용 |
+|---|---------|----------|
+| N-26 | 태블릿에서 오른쪽 상단 햄버거 표시 | 버전·언어 드롭다운 숨김 및 색상 모드·검색·햄버거의 표시, 순서, 정렬, 오른쪽 위치 확인 |
+| N-27 | 모바일에서 오른쪽 상단 햄버거 표시 | 버전·언어 드롭다운 숨김 및 색상 모드·검색·햄버거의 표시, 순서, 정렬, 오른쪽 위치 확인 |
+| N-28 | 문서 햄버거 클릭 시 사이드바 열림 | 모바일 문서의 햄버거 클릭 후 사이드바 표시 |
+| N-29 | 좁은 모바일에서도 헤더 버튼 순서 유지 | 390px 뷰포트에서 문서 헤더 컨트롤의 표시, 순서, 정렬, 오른쪽 위치 확인 |
+| N-30 | 데스크톱 문서에서 버전·언어 컨트롤 노출 | 데스크톱 문서에서 버전과 언어 드롭다운 표시 |
 
 ---
 
 ## 요약
 
-| 뷰포트   | 테스트 수 |
-| -------- | --------- |
-| 데스크톱 | 23개      |
-| 태블릿   | 3개       |
-| 모바일   | 7개       |
-| **합계** | **33개**  |
+| 구분 | 테스트 수 |
+|------|----------:|
+| 메인 페이지 — 데스크톱 | 12개 |
+| 메인 페이지 — 태블릿 | 4개 |
+| 메인 페이지 — 모바일 | 9개 |
+| 문서 페이지 — 반응형 메뉴 | 5개 |
+| **합계** | **30개** |

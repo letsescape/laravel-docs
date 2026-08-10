@@ -1,6 +1,6 @@
 import {test, expect, type Page} from '@playwright/test';
 
-// Helper: color scheme을 설정하고 페이지 로드 후 테마 검증
+// 도우미: 색 구성표 설정 후 페이지를 불러와 테마 검증
 async function emulateAndVerifyTheme(page: Page, colorScheme: 'dark' | 'light') {
   await page.emulateMedia({colorScheme});
   await page.goto('/');

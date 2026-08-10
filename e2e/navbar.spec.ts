@@ -1,13 +1,13 @@
 import {test, expect, type Page, type Locator} from '@playwright/test';
 import {docsPath} from './utils/docs-version';
 
-// 로컬 사이트를 대상으로 테스트 (playwright.config.ts의 baseURL 사용)
+// 로컬 사이트 대상 테스트(`playwright.config.ts`의 `baseURL` 사용)
 
-// 헤더 컨트롤 정렬 검증 허용 오차
-const ORDER_TOLERANCE = 1; // 서브픽셀 반올림으로 인한 순서 false negative 방지 (px)
-const VERTICAL_CENTER_TOLERANCE = 2; // 세로 중앙 정렬 허용 오차 (px)
+// 헤더 컨트롤 정렬 검증의 허용 오차
+const ORDER_TOLERANCE = 1; // 서브픽셀 반올림으로 인한 잘못된 순서 실패 판정 방지(px)
+const VERTICAL_CENTER_TOLERANCE = 2; // 세로 중앙 정렬 허용 오차(px)
 
-// Helper: 컨트롤들이 모두 보이고, 좌→우 순서와 세로 중앙 정렬을 만족하는지 검증
+// 도우미: 모든 컨트롤의 표시 여부와 왼쪽→오른쪽 순서, 세로 중앙 정렬 검증
 async function expectControlsAlignedLeftToRight(page: Page, controls: Locator[]) {
   for (const control of controls) {
     await expect(control).toBeVisible();
@@ -31,12 +31,12 @@ async function expectControlsAlignedLeftToRight(page: Page, controls: Locator[])
   }
 }
 
-// Helper: 드롭다운을 확실하게 열기 (hover+click 간섭 방지)
+// 도우미: `hover`와 `click` 간 간섭을 방지해 드롭다운 열기
 async function openDropdown(page: Page, name: string) {
   const triggerId = `#trigger-${name}`;
   const contentId = `#content-${name}`;
   await page.locator(triggerId).click();
-  // hover 간섭으로 닫혔을 수 있으므로 확인 후 재시도
+  // `hover` 간섭으로 닫혔을 수 있어 표시 상태 확인 후 재시도
   const visible = await page.locator(contentId).isVisible();
   if (!visible) {
     await page.locator(triggerId).click();
@@ -44,7 +44,7 @@ async function openDropdown(page: Page, name: string) {
   await expect(page.locator(contentId)).toBeVisible({timeout: 5000});
 }
 
-// Helper: 모바일 오버레이에서 서브메뉴 열고 항목 검증
+// 도우미: 모바일 오버레이에서 하위 메뉴를 열고 항목 검증
 async function openMobileSubmenuAndVerify(page: Page, menuName: string, expectedItems: string[]) {
   await page.locator('.nav-mobile-hamburger').click();
   await page.locator('.nav-mobile-menu-item', {hasText: menuName}).first().click();
@@ -54,7 +54,7 @@ async function openMobileSubmenuAndVerify(page: Page, menuName: string, expected
   }
 }
 
-// Helper: 모바일 오버레이에서 직접 링크 검증
+// 도우미: 모바일 오버레이에서 직접 링크 검증
 async function verifyMobileDirectLink(page: Page, linkText: string, expectedHref: string) {
   await page.locator('.nav-mobile-hamburger').click();
   const link = page.locator('a.nav-mobile-menu-item', {hasText: linkText});
@@ -78,7 +78,7 @@ async function expectTopRightMenuButton(page: Page, selector: string, viewportWi
 
 async function expectDocsResponsiveHeaderControls(page: Page, viewportWidth: number) {
   const rightItems = page.locator('.navbar__items--right');
-  // 모바일/태블릿 docs에서는 버전/언어 드롭다운을 CSS로 숨긴다 (데스크톱 docs는 유지)
+  // 모바일/태블릿 문서에서 CSS로 버전/언어 드롭다운 숨김(데스크톱 문서에서는 유지)
   await expect(rightItems.locator('.navbar-version-dropdown')).toBeHidden();
   await expect(rightItems.locator('.navbar-locale-dropdown')).toBeHidden();
 
@@ -100,7 +100,7 @@ async function expectLocaleIconHidden(page: Page) {
 
 async function expectHomepageResponsiveHeaderControls(page: Page) {
   const rightItems = page.locator('.navbar__items--right');
-  // 버전/언어는 표시 문자열(13.x, 언어명) 대신 안정적인 class hook으로 타게팅
+  // 표시 문자열(13.x, 언어명) 대신 안정적인 클래스 훅으로 버전/언어 컨트롤 선택
   const controls = [
     page.locator('.nav-mobile-mode-toggle'),
     rightItems.locator('.navbar-version-dropdown').first(),
@@ -130,7 +130,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
   test('N-2: 로고 표시 및 링크', async ({page}) => {
     const logoLink = page.locator('.navbar__brand').first();
     await expect(logoLink).toBeVisible();
-    // 로캘에 따라 /ja/ 등 prefix가 붙을 수 있음
+    // 로캘에 따라 /ja/ 등의 접두사가 붙을 수 있음
     await expect(logoLink).toHaveAttribute('href', /^\//);
   });
 
