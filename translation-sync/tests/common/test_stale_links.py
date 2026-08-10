@@ -104,6 +104,33 @@ def _target_resolves(
 class StaleLinkRegistryTests(unittest.TestCase):
     """stale 링크 registry의 schema·정렬·digest 경계 테스트."""
 
+    def test_external_targets_never_match_internal_suffix_rules(self):
+        """외부 링크의 internal suffix 규칙 오인식 방지."""
+
+        targets = (
+            "//example.com/docs/migrations#writing-migrations",
+            "mailto:migrations#writing-migrations",
+            "https://example.com/docs/migrations#writing-migrations",
+        )
+
+        for target in targets:
+            with self.subTest(target=target):
+                self.assertIsNone(
+                    DEFAULT_STALE_LINK_REGISTRY.matching_rule(target, "10.x")
+                )
+                self.assertEqual(
+                    canonical_stale_link_target(target, "10.x"),
+                    target,
+                )
+
+        laravel_target = (
+            "https://laravel.com/docs/10.x/migrations#writing-migrations"
+        )
+        self.assertEqual(
+            canonical_stale_link_target(laravel_target, "10.x"),
+            "https://laravel.com/docs/10.x/migrations#generating-migrations",
+        )
+
     def test_registry_covers_only_current_broken_internal_links(self):
         """현재 영어 원문의 깨진 내부 링크만 대상으로 보정."""
 

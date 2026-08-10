@@ -4,7 +4,7 @@ import {createReadStream, existsSync, statSync} from 'node:fs';
 import {join, normalize, extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url));
+const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const BUILD_ROOT = join(REPO_ROOT, 'build');
 
 const MIME_TYPES = new Map([

@@ -5,6 +5,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from .versions import validate_version_token
 
@@ -44,6 +45,17 @@ class StaleLinkRegistry:
         version: str | None,
     ) -> StaleLinkRule | None:
         """버전과 링크 target에 가장 구체적으로 대응하는 규칙 조회."""
+
+        parsed = urlsplit(target)
+        if target.startswith("//") or (
+            parsed.scheme
+            and (
+                parsed.scheme not in {"http", "https"}
+                or parsed.netloc.lower() != "laravel.com"
+                or not parsed.path.startswith("/docs/")
+            )
+        ):
+            return None
 
         effective_version = version or "master"
         exact_retired: StaleLinkRule | None = None
@@ -182,8 +194,6 @@ def canonical_stale_link_target(
 ) -> str | None:
     """registry 규칙에 따른 canonical 링크 target 또는 폐기 상태 반환."""
 
-    if "://" in target and not target.startswith("https://laravel.com/docs/"):
-        return target
     rule = registry.matching_rule(target, version)
     if rule is None or rule.target is None:
         return None if rule is not None else target

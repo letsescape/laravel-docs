@@ -1,7 +1,9 @@
+import type {InlineCode, Link, Root, Text} from 'mdast';
 import type {Transformer} from 'unified';
-import type {Link, Root, Text} from 'mdast';
 import type {VFile} from 'vfile';
 import {visit} from 'unist-util-visit';
+
+import {staleLinkResolution} from '../../scripts/stale-links.mjs';
 
 /**
  * 파일 경로에서 버전 세그먼트를 추출.
@@ -14,6 +16,15 @@ function extractVersion(filePath: string | undefined): string | null {
   if (!filePath) return null;
   const m = VERSION_RE.exec(filePath);
   return m ? m[1] : null;
+}
+
+function linkLabel(node: Link): string | null {
+  let label = '';
+  for (const child of node.children) {
+    if (child.type !== 'text' && child.type !== 'inlineCode') return null;
+    label += child.value;
+  }
+  return label;
 }
 
 /**
@@ -53,8 +64,28 @@ export default function replacePlaceholdersPlugin(): Transformer<Root> {
       node.value = applyText(node.value);
     });
 
-    visit(tree, 'link', (node: Link) => {
-      if (node.url) node.url = applyUrl(node.url);
+    visit(tree, 'link', (node: Link, index, parent) => {
+      if (!node.url) return;
+      const normalizedUrl = applyUrl(node.url);
+      const resolution = staleLinkResolution(normalizedUrl, version);
+      if (resolution === null) {
+        node.url = normalizedUrl;
+        return;
+      }
+      if (resolution.target !== null) {
+        node.url = resolution.target;
+        return;
+      }
+      if (resolution.retireMode !== 'bare-inline-code') {
+        throw new Error('unsupported stale link retirement');
+      }
+
+      const label = linkLabel(node);
+      if (index === undefined || parent === undefined || label === null) {
+        throw new Error('stale link cannot be retired safely');
+      }
+      const replacement: InlineCode = {type: 'inlineCode', value: label};
+      parent.children[index] = replacement;
     });
   };
 }
