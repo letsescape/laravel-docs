@@ -5,14 +5,14 @@ on:
   push:
     branches:
       - main
-    # 특정 파일이 변경되었을 때만 실행하도록 설정할 수도 있습니다
+    # 특정 파일 변경 시에만 실행하려면 paths 필터 설정
     # paths:
     #   - docs/**
     #   - src/**
-    #   - docusaurus.config.js
-    #   - sidebars.js
+    #   - docusaurus.config.ts
+    #   - sidebars.ts
 
-  # 수동으로 워크플로우를 실행할 수 있도록 설정
+  # 수동 워크플로 실행 허용
   workflow_dispatch:
     inputs:
       expected_commit:
@@ -24,7 +24,7 @@ on:
         required: true
         type: string
 
-# 동시에 하나의 배포만 실행되도록 설정
+# 동시 배포를 하나로 제한
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

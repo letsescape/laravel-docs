@@ -25,6 +25,5 @@ RUN uv python install 3.14 && \
 USER app
 WORKDIR /workspace
 
-# 저장소는 compose에서 read-only로 mount하고, candidate와 phase state는
-# /artifacts의 별도 volume에만 기록.
+# 저장소는 compose에서 read-only로 mount하고 candidate와 phase state는 /artifacts의 별도 volume에만 기록
 ENTRYPOINT ["uv", "run", "--directory", "/workspace/translation-sync", "--locked", "--python", "3.14", "python", "/workspace/translation-sync/workflow.py"]

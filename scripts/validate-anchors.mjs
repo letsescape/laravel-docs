@@ -1,25 +1,27 @@
 #!/usr/bin/env node
 /**
- * Source-based anchor validator.
+ * 소스 기반 앵커 검사기
  *
  * 배경:
- *   Docusaurus 내장 broken-anchor 검증과 별개로, Laravel 원본 문서의
- *   `<a name="xxx">` 앵커가 실제 빌드 HTML id로 렌더링되는지 확인한다.
  *
- *   이 스크립트는 "실제 빌드 산출물(HTML)"을 진실의 기준으로 삼아
- *   source markdown의 앵커 링크가 실제로 HTML id와 매칭되는지 검증한다.
+ * - Docusaurus 내장 앵커 오류 검증과 별도로 Laravel 원본 문서의 `<a name="xxx">` 앵커가 실제 빌드 HTML의 `id`로 렌더링되는지 확인
+ * - 실제 빌드 산출물(HTML)을 기준으로 원본 Markdown의 앵커 링크가 HTML `id`와 일치하는지 검증
+ * - stale-link 레지스트리의 교체·폐기 규칙을 적용한 최종 대상 검증
  *
  * 전제:
- *   - `npm run build`가 선행되어 `build/` 디렉토리가 존재해야 함.
- *   - 빌드가 실패했으면 이 스크립트는 의미 없음.
+ *
+ * - `npm run build`를 먼저 실행해 `build/` 디렉터리가 존재해야 함
+ * - 빌드 실패 시 이 스크립트는 의미 없음
  *
  * 사용:
- *   node scripts/validate-anchors.mjs
+ *
+ * node scripts/validate-anchors.mjs
  *
  * 종료 코드:
- *   0 — 검증 실패 0건
- *   1 — 검증 실패 1건 이상 (id 누락 또는 타겟 HTML 누락). 상세 리스트 출력.
- *   2 — build/ 디렉토리 없음 (선행 빌드 필요).
+ *
+ * - 0 — 검증 실패 없음
+ * - 1 — 검증 실패 1건 이상(`id` 또는 대상 HTML 누락), 상세 목록 출력
+ * - 2 — `build/` 디렉터리 없음(선행 빌드 필요)
  */
 import {readFileSync, existsSync, readdirSync} from 'node:fs';
 import {isAbsolute, join, relative, resolve, sep} from 'node:path';
@@ -36,8 +38,8 @@ import {
 } from './anchor-routes.mjs';
 import {staleLinkResolution} from './stale-links.mjs';
 
-// `new URL(...).pathname`은 Windows에서 `/C:/...` 형태이거나 공백이 `%20`으로
-// 인코딩되어 fs API가 해석하지 못한다. fileURLToPath로 플랫폼 중립 경로를 얻는다.
+// Windows에서 `new URL(...).pathname`은 `/C:/...` 형식으로 나타나거나 공백을 `%20`으로 인코딩
+// `fs` API가 해석하지 못하므로 `fileURLToPath`로 플랫폼 독립 경로 획득
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const BUILD_ROOT = join(REPO_ROOT, 'build');
 const DOCS_ROOTS = [
@@ -60,7 +62,7 @@ function walkMd(dir, acc = []) {
       if (entry.name === 'origin') continue;
       walkMd(full, acc);
     } else if (entry.isFile() && entry.name.endsWith('.md')) {
-      if (entry.name === 'documentation.md') continue; // excluded from build
+      if (entry.name === 'documentation.md') continue; // 빌드 제외
       acc.push(full);
     }
   }
@@ -109,7 +111,7 @@ for (const docsRoot of DOCS_ROOTS) {
     const srcVersion = docsVersionFromUrl(srcUrl);
 
     for (const {url: href} of extractMarkdownLinks(src)) {
-      if (!href.includes('#')) continue; // not an anchor reference
+      if (!href.includes('#')) continue; // 앵커 참조 아님
       const normalizedHref = srcVersion
         ? replaceVersionPlaceholders(href, srcVersion)
         : href;
