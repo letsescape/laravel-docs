@@ -1652,6 +1652,22 @@ Paragraph to translate here.
             ["provider paragraph layout mismatch"],
         )
 
+    def test_accepts_preserved_unmarked_list_continuation(self):
+        """원문과 같은 개수의 표식 없는 목록 연속 줄 허용."""
+
+        source = """- Parent item.
+  Continued source guidance.
+"""
+        translated = """<!-- - Parent item. Continued source guidance. -->
+- 상위 항목입니다.
+  이어지는 안내입니다.
+"""
+
+        self.assertEqual(
+            response_contract.verify(translated, source, locale="ko"),
+            [],
+        )
+
     def test_rejects_changed_admonition_type(self):
         """GFM admonition 유형 변경 거부."""
 

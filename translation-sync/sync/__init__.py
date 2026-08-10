@@ -1,6 +1,8 @@
 """번역 동기화 구현체 패키지.
 
-단계별 책임은 translation-sync/docs를 단일 기준으로 따른다.
+원문, 전처리, 번역, 후처리, 검증 및 sidebar 책임을 하위 패키지로 분리.
+기존 flat import 경로는 모듈 alias로 유지하지만 ``sync.sidebar``는 하위
+모듈을 가진 패키지이므로 alias로 덮지 않음.
 """
 from __future__ import annotations
 
@@ -10,10 +12,10 @@ from .annotation import annotate
 from .postprocessing import postprocess, repair
 from .preprocessing import preprocess
 from .runtime import config
-from .sidebar import generator as sidebar
+from . import sidebar
 from .source import diff, upstream
 from .translation import patch, prompt, translate
-from .verification import verify
+from .verification import response_contract, verify
 
 _ALIASES = {
     "annotate": annotate,
@@ -24,6 +26,7 @@ _ALIASES = {
     "preprocess": preprocess,
     "prompt": prompt,
     "repair": repair,
+    "response_contract": response_contract,
     "sidebar": sidebar,
     "translate": translate,
     "upstream": upstream,

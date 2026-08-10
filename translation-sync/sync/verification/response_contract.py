@@ -1236,13 +1236,13 @@ def _paragraph_layout_is_valid(
         ):
             continue
         if source_kind == "list" and translated_kind == "list":
-            source_hard_breaks, _source_continuations = _list_layout(source_block)
+            source_hard_breaks, source_continuations = _list_layout(source_block)
             translated_hard_breaks, translated_continuations = _list_layout(
                 translated_block
             )
             if (
                 translated_hard_breaks != source_hard_breaks
-                or translated_continuations != source_hard_breaks
+                or translated_continuations != source_continuations
             ):
                 return False
             continue
