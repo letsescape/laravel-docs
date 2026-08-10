@@ -18,12 +18,11 @@ function stripTrailingPandocAttrs(value: string): string {
 }
 
 /**
- * Pandoc 속성 문법(`{.foo .bar}`)이 헤딩 끝에 평문으로 노출되는 현상을 제거.
+ * Pandoc 속성 문법(`{.foo .bar}`)이 헤딩 끝에 평문으로 노출되는 현상 제거
  *
- * 라라벨 원본은 Jigsaw + Pandoc 기반이라 헤딩 뒤 `{.collection-method ...}` 가
- * CSS 클래스 지시자로 처리됐지만, Docusaurus(MDX/remark)는 이 문법을 모르므로
- * 그대로 화면에 평문으로 출력된다. 클래스 부여는 method-class 플러그인이 별도로
- * `<a name="method-X">` 앵커를 보고 처리하므로, 이 잔여 텍스트는 제거해도 안전.
+ * - 라라벨 원본은 Jigsaw + Pandoc 기반이므로 헤딩 뒤 `{.collection-method ...}`가 CSS 클래스 지시자로 처리됨
+ * - Docusaurus(MDX/remark)는 이 문법을 인식하지 못해 화면에 평문으로 출력
+ * - 클래스 부여는 method-class 플러그인이 `<a name="method-X">` 앵커를 보고 별도로 처리하므로 잔여 텍스트를 제거해도 안전
  */
 export default function stripPandocAttrsPlugin(): Transformer<Root> {
   return (tree) => {
