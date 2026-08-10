@@ -162,7 +162,7 @@ class WorkflowDeadline:
         *,
         exceeded_code: IssueCode,
     ) -> WorkflowDeadline:
-        """현재 제한과 상위 기한 중 이른 시각을 사용하는 하위 기한 생성.
+        """요청한 제한과 상위 기한 중 이른 시각을 사용하는 하위 기한 생성.
 
         Args:
             timeout_seconds: 현재 시각부터 하위 작업에 허용할 시간.
@@ -210,8 +210,7 @@ class WorkflowDeadline:
         """하위 작업 timeout을 공통 잔여 시간 이내로 제한.
 
         Args:
-            requested_seconds: 하위 작업에 요청한 timeout. None일 때 전체 잔여
-                시간.
+            requested_seconds: 하위 작업에 요청한 timeout. None일 때 전체 잔여 시간.
 
         Returns:
             요청값과 공통 잔여 시간 중 작은 timeout.

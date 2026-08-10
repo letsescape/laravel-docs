@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""단일 번역 문서의 영어 원문 annotation 진단 및 기록 CLI.
+"""단일 번역 문서의 영어 원문 주석 진단·기록 CLI.
 
-사용:
+사용법:
   python annotate_cli.py <version> <name>           # 진단(드리프트·검증 차이 출력, 미기록)
   python annotate_cli.py <version> <name> --write    # 정렬·검증 통과 시에만 병기본 기록
 
-내부에서 raw EN을 preprocess와 postprocess가 적용된 정규본으로 변환 후 정렬.
-정규본은 verify의 expected와 동일하며 KO 본문과 현재 EN의 일치가 통과 조건.
+영어 원문에 전처리와 후처리를 적용해 정규화한 뒤 한국어 본문과 정렬.
+정규화한 원문은 검증 기댓값과 동일하며, 한국어 본문과 현재 영어 원문의 일치 여부가 통과 조건.
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ _DOCUMENT_RE = re.compile(r"^[^/\\]+\.md$")
 
 
 def _expected_locale_roots(repo: Path) -> frozenset[Path]:
-    """진단과 기록을 허용할 영어·한국어·일본어 문서 root 반환."""
+    """진단과 기록을 허용할 영어·한국어·일본어 문서 루트 반환."""
 
     return frozenset(
         (
@@ -36,7 +36,7 @@ def _expected_locale_roots(repo: Path) -> frozenset[Path]:
 
 
 def _has_symlink_component(path: Path, boundary: Path) -> bool:
-    """경계부터 대상까지의 경로 구성 요소에 symlink가 있는지 판별."""
+    """경계부터 대상까지 심볼릭 링크인 경로 구성 요소가 있는지 판별."""
 
     current = boundary
     if current.is_symlink():
@@ -49,7 +49,7 @@ def _has_symlink_component(path: Path, boundary: Path) -> bool:
 
 
 def _document_path(root: Path, version: str, name: str) -> Path:
-    """허용된 locale root 아래의 symlink 없는 문서 경로 검증."""
+    """허용된 로케일 루트 안에서 심볼릭 링크를 거치지 않는 문서 경로 검증."""
 
     lexical_repo = REPO.absolute()
     lexical_root = root.absolute()

@@ -1,8 +1,8 @@
 """번역 동기화 구현체 패키지.
 
-원문, 전처리, 번역, 후처리, 검증 및 sidebar 책임을 하위 패키지로 분리.
-기존 flat import 경로는 모듈 alias로 유지하지만 ``sync.sidebar``는 하위
-모듈을 가진 패키지이므로 alias로 덮지 않음.
+원문, 전처리, 번역, 후처리, 검증 및 사이드바 관련 책임을 하위 패키지로 분리.
+기존 최상위 import 경로는 모듈 별칭으로 유지.
+``sync.sidebar``는 하위 모듈을 포함한 패키지이므로 별칭으로 덮어쓰지 않음.
 """
 from __future__ import annotations
 

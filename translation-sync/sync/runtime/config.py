@@ -1,9 +1,9 @@
-"""provider 설정 확인.
+"""provider 설정 검증.
 
 provider 종류, 모델, token 예산, timeout 및 CLI argv를 실행 전에 검증.
 설정 오류는 provider 호출이나 문서 변경 없이 즉시 중단.
 
-TRANSLATION_PROVIDER: openai | azure | cli | identity(replay only)
+TRANSLATION_PROVIDER: openai | azure | cli | identity(replay 전용)
 """
 from __future__ import annotations
 
@@ -68,8 +68,8 @@ _CLI_TOKEN_KEYS = (
 WORKFLOW_DEADLINE_ENV = "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC"
 RUN_DEADLINE_ENV = "TRANSLATION_RUN_DEADLINE_MONOTONIC"
 PROVIDER_BUDGET_PROFILE_VERSION = 1
-# 두 요청 문자열에 나타나지 않는 provider/API/CLI framing의 보수적 승인 여유분
-# 측정된 overhead가 아닌 프로젝트 고정값
+# 두 요청 문자열에 나타나지 않는 provider/API/CLI 프레이밍의 보수적 승인 여유분.
+# 측정된 overhead가 아닌 프로젝트 고정값.
 PROVIDER_FRAMING_OVERHEAD_TOKENS = 128_000
 OPENAI_API_BASE_URL = "https://api.openai.com/v1"
 
@@ -83,7 +83,7 @@ class ModelProfile:
     max_output_tokens: int
 
 
-# context/output 한도와 tokenizer 조합을 명시적으로 승인한 모델 profile
+# context/output 한도와 tokenizer 조합을 명시적으로 승인한 모델 profile.
 _MODEL_PROFILES: Mapping[str, ModelProfile] = {
     name: ModelProfile(
         tokenizer_encoding="o200k_base",
@@ -178,7 +178,7 @@ class Config:
 
 
 def validate_cli_command(command: str) -> tuple[str, str]:
-    """option이 없는 Codex entrypoint 명령만 허용."""
+    """옵션이 없는 Codex entrypoint 명령만 허용."""
 
     try:
         parts = shlex.split(command)
@@ -255,7 +255,7 @@ def provider_model_profile(cfg: Config) -> str:
 
 
 def provider_config_sha256(cfg: Config) -> str:
-    """secret을 제외한 최종 live provider 계약의 결정적 hash."""
+    """비밀값을 제외한 최종 live provider 계약의 결정적 해시."""
 
     auth_modes: list[str] = []
     if cfg.provider == "openai":
@@ -324,7 +324,7 @@ def _validate_model_metadata(
     values: Mapping[str, str],
     budget: RequestBudget,
 ) -> None:
-    """모델 metadata 검증."""
+    """모델 메타데이터 검증."""
 
     profile_name = _model_profile_name(provider, values)
     profile = _MODEL_PROFILES.get(profile_name)
@@ -519,7 +519,7 @@ def required_run_deadline(
     *,
     clock=time.monotonic,
 ) -> float | None:
-    """live provider fixture 전에 한 번 생성된 실행 기한 로딩."""
+    """live provider fixture 전에 환경의 절대 실행 기한 검증 및 로딩."""
     if cfg.provider == "identity":
         return None
     budget = cfg.request_budget()

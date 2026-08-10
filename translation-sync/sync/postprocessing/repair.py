@@ -1,7 +1,6 @@
-"""보존된 Markdown markup의 선택적 복구 도구.
+"""보존 대상 Markdown 마크업의 선택적 복구 도구.
 
-본문을 번역하지 않고 영어 원문과 동일해야 하는 heading, Markdown 링크·이미지,
-inline code, named anchor와 목록 표식만 복구.
+본문을 번역하지 않고 원문과 같아야 하는 제목, Markdown 링크·이미지, 인라인 코드, 이름 있는 앵커와 목록 표식만 복구.
 """
 from __future__ import annotations
 
@@ -24,12 +23,12 @@ _LIST_ITEM_RE = re.compile(r"^(\s*)([-*+])(\s+)(\S.*)$")
 
 
 class RepairError(ValueError):
-    """원문과 번역 Markdown의 구조가 일치하지 않는 복구 오류."""
+    """원문과 번역 Markdown의 구조가 일치하지 않을 때 발생하는 복구 오류."""
 
 
 @dataclass(frozen=True)
 class RepairResult:
-    """복구된 Markdown과 실제 변경 여부."""
+    """복구된 Markdown과 변경 여부를 담은 결과."""
 
     text: str
     changed: bool
@@ -37,7 +36,7 @@ class RepairResult:
 
 @dataclass
 class _RepairState:
-    """문서 순회 중 남은 원문 markup과 보호 범위 상태."""
+    """문서 순회 중 남은 원문 마크업과 보호 범위 상태."""
 
     source_headings: Iterator[str]
     source_links: Iterator[tuple[str, str, str]]
@@ -50,7 +49,7 @@ class _RepairState:
 
 
 def _split_line_ending(line: str) -> tuple[str, str]:
-    """문자열을 본문과 원래 줄바꿈 구분자로 분리."""
+    """문자열을 본문과 기존 줄바꿈 구분자로 분리."""
 
     if line.endswith("\r\n"):
         return line[:-2], "\r\n"
@@ -62,7 +61,7 @@ def _split_line_ending(line: str) -> tuple[str, str]:
 
 
 def _heading_lines(text: str) -> list[str]:
-    """code와 HTML 주석 밖의 heading을 class 없는 원문 줄로 추출."""
+    """코드 펜스와 HTML 주석 밖의 제목을 클래스 없는 원문 줄로 추출."""
 
     headings: list[str] = []
     for line in strip_html_comments(_without_code_blocks(text)).splitlines():
@@ -72,7 +71,7 @@ def _heading_lines(text: str) -> list[str]:
 
 
 def _links(text: str) -> list[tuple[str, str, str]]:
-    """code와 HTML 주석 밖의 Markdown 링크 label·target·title 추출."""
+    """코드 펜스와 HTML 주석 밖의 Markdown 링크 레이블·대상·제목 추출."""
 
     return [
         (" ".join(link.label.split()), link.target, link.title)
@@ -82,7 +81,7 @@ def _links(text: str) -> list[tuple[str, str, str]]:
 
 
 def _images(text: str) -> list[tuple[str, str]]:
-    """code와 HTML 주석 밖의 Markdown 이미지 target·title 추출."""
+    """코드 펜스와 HTML 주석 밖의 Markdown 이미지 대상·제목 추출."""
 
     return [
         (link.target, link.title)
@@ -92,7 +91,7 @@ def _images(text: str) -> list[tuple[str, str]]:
 
 
 def _inline_codes(text: str) -> list[str]:
-    """주석·fenced code·heading 밖의 inline code 내용 추출."""
+    """HTML 주석 줄·코드 펜스·제목 밖의 인라인 코드 내용 추출."""
 
     state = _RepairState(source_headings=iter(()), source_links=iter(()))
     codes: list[str] = []
@@ -106,7 +105,7 @@ def _inline_codes(text: str) -> list[str]:
 
 
 def _without_code_blocks(text: str) -> str:
-    """fenced code 블록 전체를 제외한 Markdown 반환."""
+    """코드 펜스 블록 전체를 제외한 Markdown 반환."""
 
     out: list[str] = []
     in_code = False
@@ -129,7 +128,7 @@ def _contains_reordered_values(
     source: Sequence[Hashable],
     translated: Sequence[Hashable],
 ) -> bool:
-    """서로 다른 위치의 값 집합이 교차해 기존 markup이 재배치됐는지 판정."""
+    """서로 다른 위치의 값 집합이 교차해 기존 마크업이 재배치됐는지 판정."""
 
     mismatched = [
         (source_value, translated_value)
@@ -147,7 +146,7 @@ def _replace_links(
     links: Iterator[tuple[str, str, str]],
     images: Iterator[tuple[str, str]],
 ) -> str:
-    """번역 줄의 링크·이미지 markup을 대응하는 원문 값으로 복구."""
+    """번역 줄의 링크·이미지 마크업을 대응하는 원문 값으로 복구."""
 
     out: list[str] = []
     index = 0
@@ -176,10 +175,10 @@ def _replace_links(
 
 
 def restore_blank_markdown_link_labels(source: str, translated: str) -> RepairResult:
-    """번역문에서 비어 있는 Markdown 링크 label만 대응 원문에서 복원.
+    """번역문에서 비어 있는 Markdown 링크 레이블만 대응 원문에서 복원.
 
     Raises:
-        RepairError: 원문과 번역문의 링크 수 불일치.
+        RepairError: 원문과 번역문의 링크 수가 다를 때 발생.
     """
 
     source_links = _links(source)
@@ -226,7 +225,7 @@ def restore_blank_markdown_link_labels(source: str, translated: str) -> RepairRe
 
 
 def _next_inline_code(state: _RepairState) -> str:
-    """원문 순서의 다음 inline code 내용을 반환하고 위치 전진."""
+    """원문 순서의 다음 인라인 코드 내용을 반환하고 위치 전진."""
 
     if state.source_inline_index >= len(state.source_inline_codes):
         raise RepairError("translated document has more inline code spans than source")
@@ -236,10 +235,10 @@ def _next_inline_code(state: _RepairState) -> str:
 
 
 def _replace_inline_codes(line: str, state: _RepairState) -> str:
-    """번역 줄의 inline code를 원문 순서로 복구하고 누락된 구분자 보완."""
+    """번역 줄의 인라인 코드를 원문 순서로 복구하고 누락된 구분자 보완."""
 
     def replace(_match: re.Match[str]) -> str:
-        """현재 inline code span을 다음 원문 내용으로 교체."""
+        """현재 인라인 코드 범위를 다음 원문 내용으로 교체."""
 
         return f"`{_next_inline_code(state)}`"
 
@@ -255,7 +254,7 @@ def _replace_inline_codes(line: str, state: _RepairState) -> str:
 
 
 def _wrap_first_raw_inline_code(line: str, code: str) -> str:
-    """기존 inline code 밖에서 유일하게 일치하는 원문 token을 backtick으로 감쌈."""
+    """기존 인라인 코드 밖에서 유일하게 일치하는 원문 토큰을 백틱으로 감쌈."""
 
     if not code:
         return line
@@ -284,7 +283,7 @@ def _wrap_first_raw_inline_code(line: str, code: str) -> str:
 
 
 def _raw_code_positions(segment: str, code: str) -> list[int]:
-    """일반 문자열 구간에서 식별자 경계가 분명한 원문 token 위치 추출."""
+    """일반 문자열 구간에서 식별자 경계가 분명한 원문 토큰 위치 추출."""
 
     positions: list[int] = []
     start = segment.find(code)
@@ -297,7 +296,7 @@ def _raw_code_positions(segment: str, code: str) -> list[int]:
 
 
 def _has_raw_code_boundaries(segment: str, start: int, end: int) -> bool:
-    """원문 token 앞뒤가 식별자 경계인지 여부."""
+    """원문 토큰 앞뒤가 식별자 경계인지 판정."""
 
     before = segment[start - 1] if start > 0 else ""
     after = segment[end] if end < len(segment) else ""
@@ -305,13 +304,13 @@ def _has_raw_code_boundaries(segment: str, start: int, end: int) -> bool:
 
 
 def _is_identifier_char(char: str) -> bool:
-    """문자가 기술 식별자의 일부로 해석되는지 여부."""
+    """문자가 기술 식별자의 일부로 해석되는지 판정."""
 
     return char.isalnum() or char in {"_", "\\"}
 
 
 def _comment_candidate(line: str) -> str:
-    """blockquote 표식을 제거한 HTML 주석 판정 대상 반환."""
+    """인용문 표식을 제거한 HTML 주석 판정 대상 반환."""
 
     candidate = line.lstrip()
     while candidate.startswith(">"):
@@ -320,7 +319,7 @@ def _comment_candidate(line: str) -> str:
 
 
 def _is_comment_line(line: str, state: _RepairState) -> bool:
-    """줄이 HTML 주석 범위에 속하는지 판정하고 순회 상태 갱신."""
+    """줄의 HTML 주석 범위 포함 여부를 판정하고 순회 상태 갱신."""
 
     if state.in_comment:
         if "-->" in line:
@@ -336,7 +335,7 @@ def _is_comment_line(line: str, state: _RepairState) -> bool:
 
 
 def _is_code_line(line: str, state: _RepairState) -> bool:
-    """줄이 fenced code 범위에 속하는지 판정하고 순회 상태 갱신."""
+    """줄의 코드 펜스 범위 포함 여부를 판정하고 순회 상태 갱신."""
 
     token = fence_token(line)
     if token:
@@ -352,7 +351,7 @@ def _is_code_line(line: str, state: _RepairState) -> bool:
 
 
 def _repair_heading_line(ending: str, state: _RepairState) -> str:
-    """다음 원문 heading과 번역 줄의 기존 줄바꿈 결합."""
+    """다음 원문 제목과 번역 줄의 기존 줄바꿈 결합."""
 
     try:
         source_heading = next(state.source_headings)
@@ -362,7 +361,7 @@ def _repair_heading_line(ending: str, state: _RepairState) -> str:
 
 
 def _repair_translated_line(original_line: str, state: _RepairState) -> str:
-    """단일 번역 줄의 보호 markup을 원문 순서로 복구."""
+    """단일 번역 줄의 보호 대상 마크업을 원문 순서로 복구."""
 
     line, ending = _split_line_ending(original_line)
 
@@ -379,7 +378,7 @@ def _repair_translated_line(original_line: str, state: _RepairState) -> str:
 
 
 def _ensure_exhausted(iterator: Iterator, message: str) -> None:
-    """원문 markup iterator가 모두 소비됐는지 확인."""
+    """원문 마크업 반복자가 모두 소비됐는지 확인."""
 
     try:
         next(iterator)
@@ -389,14 +388,14 @@ def _ensure_exhausted(iterator: Iterator, message: str) -> None:
 
 
 def _ensure_inline_codes_exhausted(state: _RepairState) -> None:
-    """원문의 inline code가 모두 번역문에 대응됐는지 확인."""
+    """원문의 인라인 코드가 모두 번역문에 대응됐는지 확인."""
 
     if state.source_inline_index < len(state.source_inline_codes):
         raise RepairError("translated document has fewer inline code spans than source")
 
 
 def _visible_lines(text: str) -> list[str]:
-    """HTML 주석과 fenced code를 제외한 표시 줄 추출."""
+    """HTML 주석 줄과 코드 펜스를 제외한 표시 줄 추출."""
 
     state = _RepairState(source_headings=iter(()), source_links=iter(()))
     lines: list[str] = []
@@ -408,13 +407,13 @@ def _visible_lines(text: str) -> list[str]:
 
 
 def _anchor_lines(text: str) -> list[str]:
-    """표시 영역의 named anchor 줄을 문서 순서로 추출."""
+    """표시 영역에서 이름 있는 앵커 줄을 문서 순서로 추출."""
 
     return [line.strip() for line in _visible_lines(text) if is_named_anchor_line(line)]
 
 
 def _source_anchor_bindings(source: str) -> list[tuple[str, str | None]]:
-    """각 원문 named anchor와 뒤따르는 heading 결합."""
+    """각 원문의 이름 있는 앵커와 뒤따르는 제목 결합."""
 
     visible = _visible_lines(source)
     bindings: list[tuple[str, str | None]] = []
@@ -433,7 +432,7 @@ def _source_anchor_bindings(source: str) -> list[tuple[str, str | None]]:
 
 
 def _find_heading_index(lines: list[str], heading: str) -> int | None:
-    """번역 줄 목록에서 class를 제외한 heading의 위치 탐색."""
+    """번역 줄 목록에서 클래스 속성을 제외하고 일치하는 제목 위치 탐색."""
 
     for index, line in enumerate(lines):
         if strip_title_attr_line(line).strip() == heading:
@@ -442,7 +441,7 @@ def _find_heading_index(lines: list[str], heading: str) -> int | None:
 
 
 def _anchor_insert_index(lines: list[str], heading_index: int) -> int:
-    """heading 소유 주석보다 앞선 named anchor 삽입 위치 계산."""
+    """제목에 딸린 주석보다 앞에 둘 이름 있는 앵커의 삽입 위치 계산."""
 
     index = heading_index
     while index > 0 and lines[index - 1].strip().startswith("<!--"):
@@ -451,7 +450,7 @@ def _anchor_insert_index(lines: list[str], heading_index: int) -> int:
 
 
 def _repair_anchor_lines(source: str, translated: str) -> RepairResult:
-    """누락된 named anchor를 대응 heading과 소유 주석 앞에 복구."""
+    """누락된 이름 있는 앵커를 대응 제목과 그에 딸린 주석 앞에 복구."""
 
     source_anchors = _anchor_lines(source)
     if not source_anchors:
@@ -481,10 +480,10 @@ def _repair_anchor_lines(source: str, translated: str) -> RepairResult:
 
 
 def _source_list_markers(source: str) -> list[str] | None:
-    """`source`가 순수 unordered list일 때 항목별 marker prefix 추출.
+    """``source``가 순수한 순서 없는 목록일 때 항목별 표식 접두사 추출.
 
-    의미 있는 모든 비주석·비code 줄이 list item인 경우 indent, marker 및
-    spacing을 반환하고 그 밖의 경우 ``None`` 반환.
+    의미 있는 모든 비주석·비코드 줄이 목록 항목이면 들여쓰기·표식·간격 반환.
+    그 밖에는 ``None`` 반환.
     """
     markers: list[str] = []
     state = _RepairState(source_headings=iter(()), source_links=iter(()))
@@ -501,11 +500,10 @@ def _source_list_markers(source: str) -> list[str] | None:
 
 
 def restore_list_markers(source: str, translated: str) -> str:
-    """순수 list 원문 블록에서 누락된 unordered-list marker 재적용.
+    """순수 목록 원문 블록에서 누락된 순서 없는 목록 표식 복원.
 
-    원문이 순수 list이고 번역 블록의 내용 줄 수가 같지만 list marker가 적을 때
-    원문 marker를 순서대로 추가. 구조를 1:1로 대응할 수 없으면 입력을 그대로
-    반환하는 fail-open 처리 후 verification 단계에 불일치 판정 위임.
+    원문이 순수 목록이고 번역 블록의 내용 줄 수가 같지만 목록 표식이 부족하면 원문 표식을 순서대로 추가.
+    구조를 일대일로 대응할 수 없으면 입력을 그대로 반환하고 검증 단계에서 불일치 판정.
     """
     markers = _source_list_markers(source)
     if not markers:
@@ -538,13 +536,13 @@ def restore_list_markers(source: str, translated: str) -> str:
 
 
 def repair_preserved_markup(source: str, translated: str) -> RepairResult:
-    """원문의 heading·링크·이미지·inline code·anchor를 번역 Markdown에 복원.
+    """원문의 제목·링크·이미지·인라인 코드·앵커를 번역 Markdown에 복원.
 
-    주석과 fenced code 밖만 변경하며 markup 수가 다르거나 이미 보존된 markup의
-    재배치가 감지되면 fail-closed 오류 반환.
+    HTML 주석과 코드 펜스 밖만 변경.
+    마크업 수가 다르거나 이미 보존된 마크업의 재배치를 감지하면 복구를 중단하고 오류 발생.
 
     Raises:
-        RepairError: markup 수 불일치, 재배치 또는 유일하게 복구할 수 없는 구조.
+        RepairError: 마크업 수 불일치, 재배치 또는 유일하게 복구할 수 없는 구조.
     """
 
     source_headings = _heading_lines(source)

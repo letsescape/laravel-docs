@@ -1,1 +1,1 @@
-"""Translation stage helpers."""
+"""번역 단계 도우미."""

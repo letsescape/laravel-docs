@@ -1,4 +1,4 @@
-"""clean publication 기준본의 capture와 fingerprint 생성."""
+"""추적 변경이 없는 publication 기준본 캡처와 저장소 fingerprint 생성."""
 
 from __future__ import annotations
 
@@ -280,7 +280,7 @@ def capture_publication_base(
     branch: str,
     remaining_seconds: Callable[[], float],
 ) -> ApprovedPublicationBase:
-    """clean 실행 branch와 일치하는 원격 publication 기준본 고정.
+    """추적 변경과 publication 대상의 미추적 파일이 없는 실행 branch의 원격 기준본 고정.
 
     Args:
         repo: publication 대상 로컬 저장소.
@@ -289,7 +289,7 @@ def capture_publication_base(
         remaining_seconds: 각 Git 호출에 사용할 남은 시간 공급자.
 
     Returns:
-        HEAD, tree, 원격 ref 및 활성 상태 fingerprint의 고정값.
+        HEAD, tree, 원격 ref, 원격 commit 및 활성 상태 fingerprint의 고정값.
 
     Raises:
         RepositoryStateError: branch, worktree 또는 원격 기준이 부적합한 경우.

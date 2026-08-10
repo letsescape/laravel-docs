@@ -287,9 +287,8 @@ def effective_prompt(prompt: str) -> str:
 def split_chunks(content: str, max_lines: int = MAX_CHUNK_LINES) -> list[str]:
     """호출자가 제공한 atomic owner를 단일 provider 요청으로 보존.
 
-    ``max_lines``는 이전 호출자와의 호환성만을 위해 유지. 문서 분해는 PatchPlan
-    생성 단계가 소유하며 provider 경계에서 물리 줄 수 기반의 안전한 분할 추론은
-    금지.
+    ``max_lines``는 이전 호출자와의 호환성만을 위해 유지.
+    문서 분해는 PatchPlan 생성 단계가 소유하며 provider 경계에서 물리 줄 수 기반의 안전한 분할 추론은 금지.
     """
 
     del max_lines
@@ -392,7 +391,7 @@ def _count_tokens(text: str, encoding_name: str) -> int:
 
 
 def _require_response_contract_version(request: TranslationRequest) -> None:
-    """응답 계약 버전 필수 조건 확인."""
+    """요청의 응답 계약 버전 지원 여부 검증."""
 
     if request.response_contract_version != RESPONSE_CONTRACT_VERSION:
         raise ProviderRequestRejected(
@@ -645,7 +644,7 @@ def _require_deadline_budget(
     required_seconds: int,
     now: float,
 ) -> None:
-    """기한 예산 필수 조건 확인."""
+    """다음 provider 작업에 필요한 실행 기한 잔여 예산 검증."""
 
     if deadline is not None and deadline - now < required_seconds:
         raise RunDeadlineExceeded(
@@ -659,7 +658,7 @@ def require_run_deadline(
     *,
     clock: Callable[[], float] = time.monotonic,
 ) -> None:
-    """실행 기한 필수 조건 확인."""
+    """번역 실행 기한 초과 여부 검증."""
 
     if deadline is not None and clock() >= deadline:
         raise RunDeadlineExceeded(

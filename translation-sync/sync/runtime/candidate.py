@@ -1,4 +1,4 @@
-"""publication 없는 격리 번역 candidate 생성과 봉인."""
+"""publication을 수행하지 않는 격리 번역 candidate 생성과 봉인."""
 
 from __future__ import annotations
 
@@ -41,10 +41,9 @@ _SYNC_FILE_INPUT_PATHS = {
 
 @dataclass(frozen=True, slots=True)
 class CandidateFailure:
-    """fail-closed candidate 결과.
+    """fail-closed candidate 실패 결과.
 
-    호출된 sync core 또는 경로 validator가 ``report_path``의 더 구체적인 안정된
-    issue code를 소유할 때만 ``issue_code`` 생략.
+    호출된 sync core 또는 경로 validator가 ``report_path``의 더 구체적인 안정된 문제 코드를 소유할 때만 ``issue_code`` 생략.
     """
 
     stage: str
@@ -65,7 +64,7 @@ class CandidateResult:
 
     @property
     def publication_allowed(self) -> bool:
-        """봉인된 tree를 publication할 수 있는지 여부."""
+        """봉인된 tree의 publication 허용 여부."""
 
         return self.failure is None and self.verified_tree is not None
 
@@ -97,11 +96,11 @@ class _DeadlineExceeded(RuntimeError):
 
 
 class _ProcessStartFailed(RuntimeError):
-    """하위 프로세스 시작 실패."""
+    """하위 프로세스 시작 또는 격리 보장 실패."""
 
 
 class _GitFailed(RuntimeError):
-    """Git 명령의 비정상 종료."""
+    """0이 아닌 종료 코드를 반환한 Git 명령."""
 
     def __init__(self, returncode: int) -> None:
         """Git 종료 코드 저장."""
@@ -111,13 +110,14 @@ class _GitFailed(RuntimeError):
 
 
 class CandidateRunner:
-    """분리된 외부 clone에서 candidate core와 validator 실행.
+    """분리된 로컬 clone에서 candidate core와 validator 실행.
 
-    모든 명령은 argv sequence로 shell 없이 직접 실행하며 process runner의
-    non-detachment 계약 준수. ``remaining_seconds``는 공통 워크플로 기한의 잔여
-    시간 반환. ``sync_environment``는 sync core에만 노출. core와 경로 validator는
-    동일 ``run_id``의 개별 failure report 대상을 받고 setup, site validator 및
-    Git에는 미제공.
+    모든 명령은 argv sequence로 shell 없이 직접 실행.
+    process runner의 non-detachment 계약 준수.
+    ``remaining_seconds``는 공통 워크플로 기한의 잔여 시간 반환.
+    ``sync_environment``는 sync core에만 노출.
+    core와 경로 validator는 동일 ``run_id``와 서로 다른 failure report 경로 사용.
+    setup, site validator 및 Git에는 failure report 환경 변수 미제공.
     """
 
     def __init__(
@@ -154,7 +154,7 @@ class CandidateRunner:
         site_validator_argvs: Sequence[Sequence[str]],
         path_validator_argv: Sequence[str],
     ) -> CandidateResult:
-        """candidate를 생성·검증하고 최종 tree 식별자 봉인."""
+        """candidate 생성·검증과 Git이 무시하는 파일 정리 후 최종 tree 식별자 봉인."""
 
         sandbox: Path | None = None
         resolved_base: str | None = None
@@ -382,7 +382,7 @@ class CandidateRunner:
 
     @staticmethod
     def _valid_oid(value: str) -> bool:
-        """값이 소문자 full Git OID인지 확인."""
+        """완전한 소문자 Git 객체 ID 형식 여부."""
 
         return (
             isinstance(value, str)
@@ -412,7 +412,7 @@ class CandidateRunner:
                 )
 
     def _validated_sync_file_inputs(self) -> dict[str, bytes]:
-        """허용된 동기화 파일 입력의 이름과 byte 형식 검증."""
+        """허용된 동기화 파일 입력의 이름과 바이트 형식 검증."""
 
         if set(self._sync_file_inputs) - set(_SYNC_FILE_INPUT_PATHS):
             raise _CandidateError(
@@ -431,7 +431,7 @@ class CandidateRunner:
 
     @staticmethod
     def _directory_open_flags() -> int:
-        """symlink를 따르지 않는 디렉터리 open flag 구성."""
+        """symlink 추적을 금지하는 디렉터리 열기 플래그 구성."""
 
         if not hasattr(os, "O_DIRECTORY") or not hasattr(os, "O_NOFOLLOW"):
             raise OSError("secure candidate input paths are unavailable")
@@ -442,7 +442,7 @@ class CandidateRunner:
 
     @classmethod
     def _open_candidate_git(cls, sandbox: Path) -> tuple[int, int]:
-        """candidate root와 내부 Git 디렉터리를 descriptor로 열기."""
+        """candidate root와 내부 Git 디렉터리를 파일 설명자로 열기."""
 
         sandbox_descriptor = os.open(sandbox, cls._directory_open_flags())
         try:
@@ -458,7 +458,7 @@ class CandidateRunner:
 
     @staticmethod
     def _write_all(descriptor: int, contents: bytes) -> None:
-        """전체 byte가 기록될 때까지 descriptor에 쓰기."""
+        """전체 바이트가 기록될 때까지 파일 설명자에 쓰기."""
 
         remaining = memoryview(contents)
         while remaining:
@@ -469,7 +469,7 @@ class CandidateRunner:
 
     @staticmethod
     def _read_all(descriptor: int) -> bytes:
-        """descriptor의 전체 byte 읽기."""
+        """파일 설명자의 전체 바이트 읽기."""
 
         chunks: list[bytes] = []
         while True:
@@ -484,7 +484,7 @@ class CandidateRunner:
         sandbox: Path,
         inputs: Mapping[str, bytes],
     ) -> dict[str, str]:
-        """동기화 파일 입력을 candidate의 Git 전용 영역에 적재."""
+        """동기화 파일 입력을 candidate의 Git 전용 영역에 읽기 전용으로 적재."""
 
         sandbox_descriptor, git_descriptor = cls._open_candidate_git(sandbox)
         input_descriptor = -1
@@ -555,7 +555,7 @@ class CandidateRunner:
         sandbox: Path,
         expected_inputs: Mapping[str, bytes],
     ) -> None:
-        """적재한 동기화 파일 입력을 byte 확인 후 제거."""
+        """적재한 동기화 파일 입력의 종류·모드·내용을 확인한 뒤 제거."""
 
         sandbox_descriptor, git_descriptor = cls._open_candidate_git(sandbox)
         input_descriptor = -1
@@ -636,7 +636,7 @@ class CandidateRunner:
         return command
 
     def _remaining_timeout(self) -> float:
-        """공통 워크플로 기한의 유효한 잔여 초 계산."""
+        """공통 워크플로 기한의 유효한 양수 잔여 시간 반환."""
 
         try:
             remaining = float(self._remaining_seconds())
@@ -655,7 +655,7 @@ class CandidateRunner:
         return remaining
 
     def _minimal_environment(self, sandbox: Path | None = None) -> dict[str, str]:
-        """credential과 사용자 설정을 제외한 최소 환경 구성."""
+        """자격 증명과 Git 사용자 설정을 제외한 최소 실행 환경 구성."""
 
         environment = {
             key: value
@@ -750,7 +750,7 @@ class CandidateRunner:
         input_data: bytes | None = None,
         environment: Mapping[str, str] | None = None,
     ) -> bytes:
-        """성공한 Git 명령의 stdout byte 반환."""
+        """성공한 Git 명령의 표준 출력 바이트 반환."""
 
         return self._git_process(
             repo,
@@ -760,12 +760,12 @@ class CandidateRunner:
         ).stdout
 
     def _git_text(self, repo: Path, *args: str) -> str:
-        """성공한 Git 명령의 ASCII 한 줄 반환."""
+        """성공한 Git 명령의 공백을 제거한 ASCII 출력 반환."""
 
         return self._git(repo, *args).strip().decode("ascii")
 
     def _resolve_base(self, base_commit: str) -> str:
-        """승인 기준본 OID를 commit object로 해석."""
+        """승인 기준본 객체 ID를 commit 객체로 해석."""
 
         return self._git_text(
             self._source_repo,
@@ -776,7 +776,7 @@ class CandidateRunner:
         )
 
     def _new_sandbox(self) -> Path:
-        """artifact root 아래에 고유한 candidate sandbox 생성."""
+        """artifact root 아래에 예측 불가능한 candidate sandbox 생성."""
 
         self._artifact_root.mkdir(parents=True, exist_ok=True)
         return Path(
@@ -784,7 +784,7 @@ class CandidateRunner:
         )
 
     def _populate_clone(self, sandbox: Path, base_commit: str) -> None:
-        """승인 기준본만 checkout한 remote 없는 clone 구성."""
+        """로컬 객체를 직접 공유하지 않고 승인 기준본만 checkout한 remote 없는 clone 구성."""
 
         self._git_process(
             self._source_repo.parent,
@@ -831,7 +831,7 @@ class CandidateRunner:
         *,
         include_untracked: bool,
     ) -> bytes:
-        """candidate HEAD·index·파일 byte의 결정적 지문 계산."""
+        """candidate의 HEAD·index·추적 파일과 선택적 미추적 파일 상태 지문 계산."""
 
         digest = hashlib.sha256()
         digest.update(b"HEAD\0")
@@ -888,7 +888,7 @@ class CandidateRunner:
         *,
         include_untracked: bool = True,
     ) -> None:
-        """candidate source가 예상 지문과 같은지 확인."""
+        """candidate 원문 상태와 예상 지문의 일치 확인."""
 
         if (
             self._source_fingerprint(

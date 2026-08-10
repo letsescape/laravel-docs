@@ -252,7 +252,7 @@ if set(_CLASSIFICATION_BY_CODE) != set(IssueCode):
 
 
 def _as_issue_code(code: IssueCode | str) -> IssueCode:
-    """문자열 문제 코드를 열거형으로 정규화."""
+    """문자열 또는 열거형 값을 문제 코드 열거형으로 정규화."""
 
     return code if isinstance(code, IssueCode) else IssueCode(code)
 
@@ -294,7 +294,7 @@ class ProviderAttempts:
                 raise ValueError(f"{name} must be a non-negative integer")
 
     def to_mapping(self) -> dict[str, int]:
-        """canonical 보고서용 mapping 변환."""
+        """정규 보고서용 mapping 변환."""
 
         return {
             "response_evaluation": self.response_evaluation,
@@ -317,7 +317,7 @@ _WHITESPACE_RE = re.compile(r"\s+")
 
 
 def redact_message(message: str) -> str:
-    """진단 메시지의 credential·절대 경로·긴 데이터 제거."""
+    """진단 메시지의 자격 증명·절대 경로·긴 데이터 제거 후 공백과 길이 정규화."""
 
     if not isinstance(message, str):
         raise TypeError("message must be a string")
@@ -340,7 +340,7 @@ def redact_message(message: str) -> str:
 
 @dataclass(frozen=True, slots=True)
 class FailureEvent:
-    """단일 문제와 선택적 구조 문맥을 담은 실패 event."""
+    """단일 문제와 선택적 구조 문맥을 담은 실패 이벤트."""
 
     code: IssueCode
     stage: str
@@ -391,7 +391,7 @@ def final_exit_code(failures: Iterable[FailureEvent]) -> ExitCode:
 
 
 def select_primary_failure(failures: Iterable[FailureEvent]) -> FailureEvent:
-    """입력 순서를 유지하며 최우선 실패 선택."""
+    """종료 코드 우선순위가 가장 높은 최초 실패 선택."""
 
     iterator = iter(failures)
     try:
@@ -442,7 +442,7 @@ def _validate_relative_path(value: str | None, *, name: str) -> str | None:
 
 
 def _validate_hex(value: str | None, *, name: str, lengths: set[int]) -> str | None:
-    """선택적 소문자 hexadecimal 식별자 검증."""
+    """선택적 소문자 16진수 식별자 검증."""
 
     if value is None:
         return None
@@ -458,7 +458,7 @@ def _validate_hex(value: str | None, *, name: str, lengths: set[int]) -> str | N
 
 @dataclass(frozen=True, slots=True)
 class FailureReport:
-    """한 실행의 primary 실패와 전체 문제를 담은 canonical 보고서."""
+    """한 실행의 primary 실패와 전체 문제를 담은 정규 보고서."""
 
     run_id: str
     primary: FailureEvent
@@ -516,7 +516,7 @@ class FailureReport:
         )
 
     def to_mapping(self) -> dict[str, object]:
-        """결정적 정렬이 적용된 보고서 mapping 변환."""
+        """문제 목록에 결정적 정렬을 적용한 보고서 mapping 변환."""
 
         primary = self.primary
         issues = sorted(
@@ -557,7 +557,7 @@ class FailureReport:
         }
 
     def to_bytes(self) -> bytes:
-        """UTF-8 canonical JSON과 마지막 LF byte 생성."""
+        """키가 정렬되고 공백이 제거된 UTF-8 JSON과 마지막 LF 바이트 생성."""
 
         return (
             json.dumps(
@@ -617,7 +617,7 @@ def write_failure_report_exact(
 
 
 def _directory_open_flags() -> int:
-    """symlink를 따르지 않는 디렉터리 open flag 구성."""
+    """지원되는 symlink 방지 옵션을 포함한 디렉터리 열기 플래그 구성."""
 
     flags = os.O_RDONLY
     if hasattr(os, "O_CLOEXEC"):
@@ -630,7 +630,7 @@ def _directory_open_flags() -> int:
 
 
 def _open_directory_without_symlinks(path: Path) -> int:
-    """각 ancestor의 동일성을 확인하며 디렉터리 열기."""
+    """각 상위 경로의 symlink 여부와 동일성을 확인하며 디렉터리 열기."""
 
     absolute = Path(os.path.abspath(path))
     if not absolute.is_absolute() or not absolute.anchor:
@@ -666,7 +666,7 @@ def _directory_path_matches(
     descriptor: int,
     path: Path,
 ) -> bool:
-    """열린 descriptor와 현재 디렉터리 경로의 동일성 확인."""
+    """열린 파일 설명자와 현재 디렉터리 경로의 동일성 확인."""
 
     comparison = -1
     try:
@@ -684,7 +684,7 @@ def _unlink_if_same(
     name: str,
     expected_status: os.stat_result,
 ) -> bool:
-    """현재 entry가 예상 inode와 같을 때만 제거."""
+    """현재 항목이 예상 파일과 같을 때만 제거."""
 
     try:
         current_status = os.stat(
@@ -709,7 +709,7 @@ def _new_temporary_file(
     parent_descriptor: int,
     target_name: str,
 ) -> tuple[int, str, os.stat_result]:
-    """고유한 no-follow 임시 보고서 파일 생성."""
+    """대상 디렉터리에 고유한 0600 임시 보고서 파일을 배타적으로 생성."""
 
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     if hasattr(os, "O_CLOEXEC"):
@@ -745,7 +745,7 @@ def _new_temporary_file(
 
 
 def _write_all(descriptor: int, contents: bytes) -> None:
-    """전체 byte가 기록될 때까지 descriptor에 쓰기."""
+    """전체 바이트가 기록될 때까지 파일 설명자에 쓰기."""
 
     remaining = memoryview(contents)
     while remaining:
@@ -765,7 +765,7 @@ def _publish_no_replace(
     target_name: str,
     contents: bytes,
 ) -> None:
-    """fsync된 임시 파일을 기존 대상을 교체하지 않고 공개."""
+    """fsync된 임시 파일을 기존 대상을 교체하지 않는 hard link로 원자적 공개."""
 
     try:
         os.stat(
@@ -834,7 +834,7 @@ def _publish_no_replace(
 
 
 def _report_write_failed(stderr: TextIO | None) -> None:
-    """정제된 보고서 기록 실패 진단 출력."""
+    """고정된 보고서 기록 실패 진단을 표준 오류에 출력."""
 
     output = stderr if stderr is not None else sys.stderr
     print(

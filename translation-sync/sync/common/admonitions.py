@@ -1,4 +1,4 @@
-"""지원되는 legacy Markdown admonition marker의 canonical 파싱."""
+"""지원되는 레거시 Markdown 경고문 표식을 정규 형식으로 파싱."""
 from __future__ import annotations
 
 import re
@@ -45,14 +45,14 @@ _GFM_MARKER_RE = re.compile(
 
 @dataclass(frozen=True)
 class LegacyAdmonition:
-    """기존 admonition 표식의 canonical 유형과 본문."""
+    """레거시 경고문 표식의 정규 유형과 본문."""
 
     kind: str
     body: str
 
 
 def parse_legacy_admonition_line(line: str) -> LegacyAdmonition | None:
-    """들여쓰기 없는 기존 blockquote admonition 한 줄 파싱."""
+    """들여쓰기 없는 레거시 인용문 경고문 한 줄 파싱."""
     if not line.startswith(">"):
         return None
 
@@ -75,7 +75,7 @@ def parse_legacy_admonition_line(line: str) -> LegacyAdmonition | None:
 
 
 def admonition_types(text: str) -> tuple[str, ...]:
-    """HTML 주석과 fenced code 밖의 canonical admonition 유형 순서."""
+    """HTML 주석과 코드 펜스 밖의 정규 경고문 유형을 문서 순서대로 반환."""
 
     visible = strip_html_comments(text)
     types: list[str] = []

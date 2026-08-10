@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 def _fsync_parent(path: Path) -> None:
-    """파일 변경의 내구성을 위한 상위 디렉터리 동기화."""
+    """파일 변경을 영구 저장하도록 상위 디렉터리를 디스크와 동기화."""
 
     descriptor = os.open(
         path.parent,
@@ -22,7 +22,7 @@ def _fsync_parent(path: Path) -> None:
 
 
 def unlink_file(path: Path, *, missing_ok: bool = False) -> bool:
-    """파일 삭제 후 상위 디렉터리 동기화."""
+    """파일을 삭제하고 상위 디렉터리를 디스크와 동기화."""
 
     try:
         path.unlink()
@@ -40,7 +40,7 @@ def atomic_write_text(
     *,
     encoding: str = "utf-8",
 ) -> None:
-    """기존 inode를 변경하지 않는 텍스트 파일 원자적 교체."""
+    """기존 inode를 직접 변경하지 않고 텍스트 파일을 원자적으로 교체."""
 
     try:
         current_status = path.lstat()
@@ -76,7 +76,7 @@ def atomic_write_text(
 
 
 def atomic_write_bytes(path: Path, content: bytes) -> None:
-    """기존 inode를 변경하지 않는 바이너리 파일 원자적 교체."""
+    """기존 inode를 직접 변경하지 않고 바이너리 파일을 원자적으로 교체."""
 
     try:
         current_status = path.lstat()

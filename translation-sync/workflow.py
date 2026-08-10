@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""격리된 단계에서 단일 번역 워크플로의 준비, publication 및 배포."""
+"""격리된 단계에서 단일 번역 워크플로의 준비·게시·배포 수행."""
 
 from __future__ import annotations
 
@@ -81,7 +81,7 @@ _DEPLOY_REPOSITORY = re.compile(
 
 @dataclass(frozen=True, slots=True)
 class PreparedState:
-    """검증 후 publication 단계에 전달하는 봉인 해제 상태."""
+    """봉인을 검증해 게시 단계로 전달할 준비 상태."""
 
     run_id: str
     workflow_deadline: WorkflowDeadline
@@ -101,7 +101,7 @@ class PreparedState:
 
 @dataclass(frozen=True, slots=True)
 class PublishedState:
-    """publication 후 배포 단계에 전달하는 봉인 해제 상태."""
+    """봉인을 검증해 배포 단계로 전달할 게시 상태."""
 
     run_id: str
     workflow_deadline: WorkflowDeadline
@@ -120,7 +120,7 @@ class PublishedState:
 
 
 class EntrypointError(RuntimeError):
-    """워크플로 entrypoint 경계의 안정된 오류."""
+    """워크플로 진입점 경계에서 사용하는 안정적 오류."""
 
     def __init__(
         self,
@@ -129,7 +129,7 @@ class EntrypointError(RuntimeError):
         stage: str,
         published_commit: str | None = None,
     ) -> None:
-        """entrypoint 오류 초기화."""
+        """진입점 오류 초기화."""
 
         self.code = code
         self.stage = stage
@@ -138,17 +138,17 @@ class EntrypointError(RuntimeError):
 
 
 class _PushEnvironmentCleanupError(OSError):
-    """push credential 임시 환경 정리 실패."""
+    """푸시 자격 증명용 임시 환경 정리 실패."""
 
     def __init__(self, pending_error: Exception | None) -> None:
-        """push 환경 cleanup 오류 초기화."""
+        """푸시 환경 정리 오류 초기화."""
 
         self.pending_error = pending_error
         super().__init__("push credential cleanup failed")
 
 
 def _is_oid(value: object) -> bool:
-    """canonical SHA-1 또는 SHA-256 객체 ID 여부."""
+    """정규 SHA-1 또는 SHA-256 객체 ID 여부."""
 
     return (
         isinstance(value, str)
@@ -159,7 +159,7 @@ def _is_oid(value: object) -> bool:
 
 
 def _is_sha256(value: object) -> bool:
-    """canonical SHA-256 16진수 문자열 여부."""
+    """정규 SHA-256 16진수 문자열 여부."""
 
     return (
         isinstance(value, str)
@@ -181,7 +181,7 @@ def _deploy_repository(value: object) -> str:
 
 
 def _artifact_root(value: Path) -> Path:
-    """활성 저장소와 분리된 기존 artifact root 검증."""
+    """활성 저장소와 분리된 기존 산출물 루트 검증."""
 
     if value.is_symlink() or not value.is_dir():
         raise EntrypointError(
@@ -203,7 +203,7 @@ def _artifact_root(value: Path) -> Path:
 
 
 def _candidate_directory(root: Path, relative: str) -> Path:
-    """artifact root 내부의 실제 candidate 디렉터리 해석."""
+    """산출물 루트 내부의 실제 후보 디렉터리 해석."""
 
     current = root
     try:
@@ -226,7 +226,7 @@ def _read_artifact(
     maximum: int,
     private: bool = False,
 ) -> bytes:
-    """symlink와 교체 경쟁을 차단하며 제한된 artifact 읽기."""
+    """심볼릭 링크와 교체 경쟁을 차단한 제한적 산출물 읽기."""
 
     directory_flags = os.O_RDONLY
     if hasattr(os, "O_DIRECTORY"):
@@ -288,7 +288,7 @@ def _read_artifact(
 
 
 def _load_json_artifact(root: Path, filename: str) -> dict[str, object]:
-    """canonical JSON artifact를 mapping으로 로딩."""
+    """정규 JSON 산출물을 매핑으로 로드."""
 
     raw = _read_artifact(root, filename, maximum=_MAX_STATE_BYTES)
     try:
@@ -310,7 +310,7 @@ def _load_json_artifact(root: Path, filename: str) -> dict[str, object]:
 
 
 def _preparation_key(root: Path) -> bytes:
-    """비공개 mode로 기록된 256 bit preparation key 로딩."""
+    """비공개 모드로 기록된 256비트 준비 키 로드."""
 
     key = _read_artifact(
         root,
@@ -327,7 +327,7 @@ def _preparation_key(root: Path) -> bytes:
 
 
 def _short_identifier(value: object, *, name: str) -> str:
-    """state 내부의 짧은 비밀정보 비포함 식별자 검증."""
+    """상태에 포함된 짧고 비밀 정보가 없는 식별자 검증."""
 
     if (
         not isinstance(value, str)
@@ -344,7 +344,7 @@ def _short_identifier(value: object, *, name: str) -> str:
 
 
 def _branch_name(value: object) -> str:
-    """state 내부 Git branch 이름의 안전한 구문 검증."""
+    """상태에 포함된 Git 브랜치 이름의 안전한 구문 검증."""
 
     if (
         not isinstance(value, str)
@@ -375,7 +375,7 @@ def _branch_name(value: object) -> str:
 
 
 def _deadline(value: object) -> WorkflowDeadline:
-    """state의 유한한 단조 시계 값을 워크플로 기한으로 변환."""
+    """상태의 유한한 단조 시계 값을 워크플로 기한으로 변환."""
 
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise EntrypointError(
@@ -392,7 +392,7 @@ def _deadline(value: object) -> WorkflowDeadline:
 
 
 def _load_prepared_state(root: Path) -> PreparedState:
-    """봉인된 prepared state와 참조 artifact의 identity 검증 및 로딩."""
+    """봉인된 준비 상태와 참조 산출물의 식별 정보 검증 및 로드."""
 
     key = _preparation_key(root)
     sealed = _load_json_artifact(root, PREPARED_STATE_FILENAME)
@@ -547,7 +547,7 @@ def _load_prepared_state(root: Path) -> PreparedState:
 
 
 def _load_published_state(root: Path) -> PublishedState:
-    """봉인된 published state와 publication identity 검증 및 로딩."""
+    """봉인된 게시 상태와 게시 식별 정보 검증 및 로드."""
 
     key = _preparation_key(root)
     sealed = _load_json_artifact(root, PUBLISHED_STATE_FILENAME)
@@ -629,7 +629,7 @@ def _load_published_state(root: Path) -> PublishedState:
 
 
 def _failure_event(code: IssueCode, *, stage: str) -> FailureEvent:
-    """entrypoint 오류 코드를 안정된 실패 event로 변환."""
+    """진입점 오류 코드를 안정적 실패 이벤트로 변환."""
 
     attempts = (
         ProviderAttempts(response_evaluation=0, transport=0)
@@ -658,7 +658,7 @@ def _phase_failure(
     workflow_deadline: WorkflowDeadline | None = None,
     preceding_failures: Sequence[FailureEvent] = (),
 ) -> int:
-    """단계 실패를 우선순위화하고 canonical 보고서로 기록."""
+    """단계 실패의 우선순위를 정하고 정규 보고서로 기록."""
 
     failures = [*preceding_failures, _failure_event(code, stage=stage)]
     if (
@@ -720,7 +720,7 @@ def _verify_active_repository(
     deadline: WorkflowDeadline,
     published_commit: str | None,
 ) -> None:
-    """현재 활성 저장소가 준비 시점 fingerprint와 동일한지 검증."""
+    """현재 활성 저장소가 준비 시점 지문과 동일한지 검증."""
 
     try:
         current = active_repository_fingerprint(
@@ -782,7 +782,7 @@ def _push_environment(
     endpoint: str,
     source: Mapping[str, str],
 ) -> Iterator[dict[str, str]]:
-    """HTTPS credential을 일회성 askpass에 격리한 push 환경 제공."""
+    """HTTPS 자격 증명을 일회용 ``askpass`` 도우미로 격리한 푸시 환경 제공."""
 
     environment = _base_process_environment(source)
     parsed = urlsplit(endpoint)
@@ -854,15 +854,15 @@ def run_prepare(
     environment: Mapping[str, str],
     started_at: float,
 ) -> int:
-    """승인 기준본부터 봉인된 publication 준비 상태까지 순차 실행.
+    """승인된 기준본에서 봉인된 게시 준비 상태 생성까지 순차 실행.
 
     Args:
-        args: prepare 하위 명령의 검증 전 argparse namespace.
-        environment: 단계별로 정제할 원본 환경 변수.
-        started_at: entrypoint 진입 직후의 단조 시계 값.
+        args: ``prepare`` 하위 명령의 검증 전 ``argparse`` 네임스페이스.
+        environment: 단계별 정제에 사용할 원본 환경 변수.
+        started_at: 진입점 진입 직후의 단조 시계 값.
 
     Returns:
-        안정된 워크플로 종료 코드.
+        안정적 워크플로 종료 코드.
     """
 
     run_id = secrets.token_hex(16)
@@ -930,14 +930,14 @@ def run_publish(
     *,
     environment: Mapping[str, str],
 ) -> int:
-    """봉인된 prepared tree를 실행 branch와 원격에 publication.
+    """봉인된 준비 트리를 실행 브랜치와 원격 저장소에 게시.
 
     Args:
-        args: publish 하위 명령의 argparse namespace.
-        environment: Git push에 필요한 원본 환경 변수.
+        args: ``publish`` 하위 명령의 ``argparse`` 네임스페이스.
+        environment: Git 푸시에 필요한 원본 환경 변수.
 
     Returns:
-        안정된 워크플로 종료 코드.
+        안정적 워크플로 종료 코드.
     """
 
     root: Path | None = None
@@ -960,7 +960,7 @@ def run_publish(
         state.workflow_deadline.phase_remaining()
 
         def read_fingerprint(timeout: float) -> str:
-            """publication timeout과 공유 기한으로 활성 fingerprint 조회."""
+            """게시 제한 시간과 공통 기한 안에서 활성 저장소 지문 조회."""
 
             try:
                 return active_repository_fingerprint(
@@ -1195,14 +1195,14 @@ def run_deploy(
     *,
     environment: Mapping[str, str],
 ) -> int:
-    """published state를 검증하고 main branch 배포 결과 확인.
+    """게시 상태를 검증하고 ``main`` 브랜치 배포 결과 확인.
 
     Args:
-        args: deploy 하위 명령의 argparse namespace.
-        environment: 배포 coordinator에 전달할 원본 환경 변수.
+        args: ``deploy`` 하위 명령의 ``argparse`` 네임스페이스.
+        environment: 배포 조정기에 전달할 원본 환경 변수.
 
     Returns:
-        안정된 워크플로 종료 코드.
+        안정적 워크플로 종료 코드.
     """
 
     root: Path | None = None
@@ -1407,7 +1407,7 @@ def run_deploy(
 
 
 def _parser() -> argparse.ArgumentParser:
-    """prepare, publish 및 deploy 하위 명령 parser 구성."""
+    """``prepare``, ``publish``, ``deploy`` 하위 명령 파서 구성."""
 
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1438,14 +1438,14 @@ def main(
     *,
     environment: Mapping[str, str] | None = None,
 ) -> int:
-    """워크플로 하위 명령을 제어된 종료 코드로 실행.
+    """워크플로 하위 명령을 실행하고 제어된 종료 코드 반환.
 
     Args:
         argv: 선택적으로 주입한 명령행 인수. 생략 시 ``sys.argv`` 사용.
         environment: 선택적으로 주입한 환경 변수. 생략 시 현재 환경 사용.
 
     Returns:
-        선택한 단계의 안정된 워크플로 종료 코드.
+        선택한 단계의 안정적 워크플로 종료 코드.
     """
 
     started_at = time.monotonic()

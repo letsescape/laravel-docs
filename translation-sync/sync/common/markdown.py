@@ -28,7 +28,7 @@ class MarkdownLink:
 
 @dataclass(frozen=True)
 class MarkdownReferenceDefinition:
-    """단일 reference-style 링크 정의."""
+    """단일 참조형 링크 정의."""
 
     label: str
     target: str
@@ -41,7 +41,7 @@ class MarkdownReferenceDefinition:
 
 @dataclass(frozen=True)
 class MarkdownAutolink:
-    """단일 CommonMark URI 또는 이메일 autolink와 원문 범위."""
+    """단일 CommonMark URI 또는 이메일 자동 링크와 원문 범위."""
 
     start: int
     end: int
@@ -51,7 +51,7 @@ class MarkdownAutolink:
 
 @dataclass(frozen=True)
 class FrontMatterDescription:
-    """최상위 YAML ``description`` scalar와 검증 상태."""
+    """최상위 YAML ``description`` 스칼라와 검증 상태."""
 
     value: str
     style: str
@@ -98,13 +98,13 @@ def _inline_code_spans(text: str) -> list[tuple[int, int, str]]:
 
 
 def inline_code_contents(text: str) -> list[str]:
-    """모든 backtick 구분자 길이에 대한 Markdown code span 내용."""
+    """모든 백틱 구분자 길이를 지원하는 Markdown 인라인 코드 내용 목록."""
 
     return [content for _start, _end, content in _inline_code_spans(text)]
 
 
 def strip_inline_code(text: str) -> str:
-    """동일한 구분자 parser를 사용한 Markdown code span 제거."""
+    """인라인 코드와 같은 구분자 파서로 Markdown 인라인 코드 제거."""
 
     out: list[str] = []
     index = 0
@@ -138,7 +138,7 @@ _YAML_NULL_VALUES = frozenset(("~", "null", "Null", "NULL"))
 
 
 def _double_quoted_yaml_scalar(value: str) -> tuple[str, bool]:
-    """큰따옴표 YAML scalar의 값과 유효성."""
+    """큰따옴표 YAML 스칼라의 값과 유효성."""
 
     if len(value) < 2 or value[-1] != '"':
         return value[1:], False
@@ -173,7 +173,7 @@ def _double_quoted_yaml_scalar(value: str) -> tuple[str, bool]:
 
 
 def _single_quoted_yaml_scalar(value: str) -> tuple[str, bool]:
-    """작은따옴표 YAML scalar의 값과 유효성."""
+    """작은따옴표 YAML 스칼라의 값과 유효성."""
 
     if len(value) < 2 or value[-1] != "'":
         return value[1:], False
@@ -214,7 +214,7 @@ def _plain_yaml_string(value: str) -> bool:
 
 
 def _is_yaml_integer(value: str) -> bool:
-    """gray-matter에 고정된 js-yaml 3의 정수 resolver 일치 여부."""
+    """gray-matter에 고정된 js-yaml 3 정수 해석기와의 일치 여부."""
 
     if not value:
         return False
@@ -264,7 +264,7 @@ def _is_yaml_integer(value: str) -> bool:
 
 
 def _quoted_yaml_parts(raw: str, quote: str) -> tuple[str, str]:
-    """따옴표 YAML 값과 뒤따르는 주석의 분리."""
+    """따옴표 YAML 값과 뒤따르는 주석 분리."""
 
     index = 1
     while index < len(raw):
@@ -285,7 +285,7 @@ def _quoted_yaml_parts(raw: str, quote: str) -> tuple[str, str]:
 
 
 def _plain_yaml_parts(raw: str) -> tuple[str, str]:
-    """따옴표 없는 YAML 값과 뒤따르는 주석의 분리."""
+    """따옴표 없는 YAML 값과 뒤따르는 주석 분리."""
 
     comment = re.search(r"[ \t]+#", raw)
     if comment is None:
@@ -294,12 +294,11 @@ def _plain_yaml_parts(raw: str) -> tuple[str, str]:
 
 
 def front_matter_description(text: str) -> FrontMatterDescription | None:
-    """collection을 허용하지 않는 최상위 front matter description 파싱.
+    """컬렉션을 허용하지 않는 최상위 front matter ``description`` 파싱.
 
-    번역 prompt가 허용하는 제한된 YAML 부분집합만 지원: 단일 줄의 plain 또는
-    quoted string과 literal/folded block scalar. 지원하지 않거나 잘못된 값은
-    mapping, sequence 또는 null로 해석하지 않고 ``valid=False``로 반환하는
-    fail-closed 계약.
+    번역 프롬프트가 허용하는 제한된 YAML 부분집합만 지원.
+    단일 줄 일반·따옴표 문자열과 리터럴·접힌 블록 스칼라 지원.
+    지원하지 않거나 잘못된 값은 매핑, 시퀀스 또는 null로 해석하지 않고 ``valid=False``로 반환하는 실패 시 거부 계약.
     """
 
     lines = text.splitlines()
@@ -390,7 +389,7 @@ def front_matter_description(text: str) -> FrontMatterDescription | None:
 
 
 def _is_escaped(text: str, index: int) -> bool:
-    """지정한 문자의 역슬래시 escape 여부."""
+    """지정한 문자가 역슬래시로 이스케이프됐는지 여부."""
 
     backslashes = 0
     index -= 1
@@ -401,7 +400,7 @@ def _is_escaped(text: str, index: int) -> bool:
 
 
 def _closing_label_bracket(text: str, start: int) -> int | None:
-    """중첩을 고려한 링크 레이블 닫는 대괄호 위치."""
+    """중첩을 고려한 링크 레이블의 닫는 대괄호 위치."""
 
     depth = 1
     index = start
@@ -579,7 +578,7 @@ _EMAIL_AUTOLINK_RE = re.compile(
 
 
 def markdown_autolinks(text: str) -> tuple[MarkdownAutolink, ...]:
-    """code 외부의 순서가 보존된 CommonMark URI 및 이메일 autolink 목록."""
+    """인라인 코드·코드 펜스·HTML 영역 밖의 CommonMark URI·이메일 자동 링크를 문서 순서대로 반환."""
 
     body = _masked_reference_source(text)
     masked = list(body)
@@ -607,7 +606,7 @@ def markdown_autolinks(text: str) -> tuple[MarkdownAutolink, ...]:
 
 
 def _normalize_reference_label(label: str) -> str:
-    """reference label 정규화."""
+    """참조 레이블 정규화."""
 
     return re.sub(
         r"[ \t\r\n]+",
@@ -620,7 +619,7 @@ def _reference_label_state(
     value: str,
     start: int,
 ) -> tuple[str, int | None]:
-    """reference 레이블의 완결 상태와 종료 위치."""
+    """참조 레이블의 완결 상태와 종료 위치."""
 
     if start >= len(value) or value[start] != "[":
         return "invalid", None
@@ -651,7 +650,7 @@ def _reference_label_state(
 
 
 def _reference_label_end(value: str, start: int) -> int | None:
-    """유효한 reference 레이블의 종료 위치."""
+    """유효한 참조 레이블의 종료 위치."""
 
     state, end = _reference_label_state(value, start)
     return end if state == "complete" else None
@@ -660,7 +659,7 @@ def _reference_label_end(value: str, start: int) -> int | None:
 def _consume_reference_whitespace(
     value: str, index: int
 ) -> tuple[int, bool]:
-    """reference 정의에서 허용되는 공백의 종료 위치."""
+    """참조 정의에서 허용되는 공백의 종료 위치."""
 
     start = index
     while index < len(value) and value[index] in " \t":
@@ -678,7 +677,7 @@ def _consume_reference_whitespace(
 def _reference_destination_at(
     value: str, index: int
 ) -> tuple[str, int] | None:
-    """reference 대상과 대상 다음 위치."""
+    """참조 대상과 대상 다음 위치."""
 
     if index >= len(value):
         return None
@@ -719,7 +718,7 @@ def _reference_destination_at(
 def _parse_reference_definition_value(
     value: str,
 ) -> tuple[str, str, str, int] | None:
-    """reference definition 값 파싱."""
+    """참조 정의 값 파싱."""
 
     indent = len(value) - len(value.lstrip(" "))
     if indent > 3 or value.startswith("\t"):
@@ -801,7 +800,7 @@ def _parse_reference_definition_value(
 
 
 def _strip_reference_container(line: str) -> tuple[str, tuple[str, ...]]:
-    """reference container 제거."""
+    """참조 정의를 감싼 목록·인용문 컨테이너 제거."""
 
     index = 0
     containers: list[str] = []
@@ -901,7 +900,7 @@ def _raw_html_container_exited(
     line: str,
     current_container: tuple[str, ...],
 ) -> bool:
-    """raw HTML 블록을 감싼 Markdown 컨테이너의 종료 여부."""
+    """원시 HTML 블록을 감싼 Markdown 컨테이너의 종료 여부."""
 
     if not start_container:
         return False
@@ -917,7 +916,7 @@ def _raw_html_block_ranges(
     text: str,
     excluded: list[tuple[int, int]],
 ) -> list[tuple[int, int]]:
-    """명시적인 종료 구분자가 있는 raw HTML 블록 범위."""
+    """명시적인 종료 구분자가 있는 원시 HTML 블록 범위."""
 
     ranges: list[tuple[int, int]] = []
     start_offset: int | None = None
@@ -987,7 +986,7 @@ def _blank_terminated_raw_html_ranges(
     text: str,
     excluded: list[tuple[int, int]],
 ) -> list[tuple[int, int]]:
-    """빈 줄이나 컨테이너 종료로 닫히는 raw HTML 블록 범위."""
+    """빈 줄이나 컨테이너 종료로 닫히는 원시 HTML 블록 범위."""
 
     ranges: list[tuple[int, int]] = []
     start_offset: int | None = None
@@ -1042,7 +1041,7 @@ def _blank_terminated_raw_html_ranges(
 
 
 def _masked_reference_source(text: str) -> str:
-    """reference 파싱에서 제외할 코드·HTML 영역 마스킹."""
+    """참조 파싱에서 제외할 코드 펜스·HTML 영역 마스킹."""
 
     masked = list(text)
     excluded = _fenced_code_ranges(text)
@@ -1064,7 +1063,7 @@ def _reference_can_start(
     line_index: int,
     definition_lines: set[int],
 ) -> bool:
-    """현재 줄에서 reference 정의를 시작할 수 있는지 여부."""
+    """현재 줄에서 참조 정의를 시작할 수 있는지 여부."""
 
     if line_index == 0 or not logical_lines[line_index - 1].strip():
         return True
@@ -1094,7 +1093,7 @@ def _reference_can_start(
 def _parse_reference_definitions(
     text: str,
 ) -> tuple[MarkdownReferenceDefinition, ...]:
-    """reference definitions 파싱."""
+    """참조 정의 목록 파싱."""
 
     masked = _masked_reference_source(text)
     raw_lines = text.splitlines(keepends=True)
@@ -1221,7 +1220,7 @@ def _parse_reference_definitions(
 def _cached_reference_definitions(
     text: str,
 ) -> tuple[MarkdownReferenceDefinition, ...]:
-    """문서별로 캐시된 reference 정의 목록."""
+    """문서별로 캐시된 참조 정의 목록."""
 
     return _parse_reference_definitions(text)
 
@@ -1229,7 +1228,7 @@ def _cached_reference_definitions(
 def reference_definitions(
     text: str,
 ) -> tuple[MarkdownReferenceDefinition, ...]:
-    """주석, code fence 및 raw HTML block 외부의 reference 정의 목록."""
+    """주석·코드 펜스·원시 HTML 블록 밖의 참조 정의 목록."""
 
     if len(text) < 16_384:
         return _parse_reference_definitions(text)
@@ -1237,7 +1236,7 @@ def reference_definitions(
 
 
 def reference_definition_line_numbers(text: str) -> frozenset[int]:
-    """reference 정의가 차지하는 1-based 줄 번호 집합."""
+    """참조 정의가 차지하는 0-based 줄 번호 집합."""
 
     return frozenset(
         line
@@ -1248,7 +1247,7 @@ def reference_definition_line_numbers(text: str) -> frozenset[int]:
 
 @lru_cache(maxsize=16)
 def mask_reference_definitions(text: str) -> str:
-    """reference definitions 마스킹."""
+    """참조 정의 영역 마스킹."""
 
     masked = list(text)
     for definition in reference_definitions(text):
@@ -1259,14 +1258,14 @@ def mask_reference_definitions(text: str) -> str:
 
 
 def is_reference_definition_block(text: str) -> bool:
-    """reference definition 블록 여부."""
+    """참조 정의만으로 구성된 블록인지 여부."""
 
     definitions = reference_definitions(text)
     return bool(definitions) and not mask_reference_definitions(text).strip()
 
 
 def is_reference_definition_line(line: str) -> bool:
-    """단일 물리 줄의 완전한 reference 정의 여부."""
+    """단일 물리 줄의 완전한 참조 정의 여부."""
 
     if "\n" in line or "\r" in line:
         return False
@@ -1278,8 +1277,7 @@ def is_reference_definition_line(line: str) -> bool:
 def _resolved_reference_link_signatures(
     text: str,
 ) -> tuple[tuple[bool, str, str, str], ...]:
-
-    """정의가 확인된 reference 링크의 구조 서명."""
+    """정의가 확인된 참조형 링크의 구조 서명."""
 
     effective: dict[str, tuple[str, str]] = {}
     for definition in reference_definitions(text):
@@ -1354,7 +1352,7 @@ def _resolved_reference_link_signatures(
 def reference_link_signatures(
     text: str,
 ) -> tuple[tuple[bool, str, str], ...]:
-    """CommonMark 최초 정의 우선 규칙으로 해석한 reference 링크 목록."""
+    """CommonMark 최초 정의 우선 규칙으로 해석한 참조형 링크 목록."""
 
     return tuple(
         (image, target, title)
@@ -1367,7 +1365,7 @@ def reference_link_signatures(
 def reference_link_display_signatures(
     text: str,
 ) -> tuple[tuple[bool, str], ...]:
-    """해석된 reference의 이미지 상태와 정확한 표시 label 목록."""
+    """해석된 참조형 링크의 이미지 상태와 정확한 표시 레이블 목록."""
 
     return tuple(
         (image, display)
@@ -1390,14 +1388,14 @@ def strip_markdown_links(text: str) -> str:
 
 
 def normalize_annotation_anchor(text: str) -> str:
-    """원문과 escape된 HTML 주석 표현의 정규화."""
+    """원문과 이스케이프된 HTML 주석 표현을 같은 형식으로 정규화."""
 
     text = text.replace("*&#47;", "*/").replace("--&gt;", "-->")
     return " ".join(text.split())
 
 
 def is_non_annotatable_line(line: str) -> bool:
-    """Markdown 줄의 번역 대상이 아닌 구조 요소 여부."""
+    """Markdown 줄이 번역 대상이 아닌 구조 요소인지 여부."""
 
     stripped = line.strip()
     if not stripped:
@@ -1417,26 +1415,26 @@ def is_non_annotatable_line(line: str) -> bool:
 
 
 def is_standalone_html_tag(line: str) -> bool:
-    """standalone HTML tag 여부."""
+    """독립 HTML 태그 한 개인지 여부."""
 
     stripped = line.strip()
     return bool(stripped and _HTML_TAG_RE.fullmatch(stripped))
 
 
 def is_structural_html_fragment(text: str) -> bool:
-    """텍스트가 HTML tag와 공백만 포함하는지 여부."""
+    """텍스트가 HTML 태그와 공백만 포함하는지 여부."""
 
     return bool(structural_html_tags(text))
 
 
 def is_structural_html_line(line: str) -> bool:
-    """최상위 Markdown 줄이 HTML tag만 포함하는지 여부."""
+    """최상위 Markdown 줄이 HTML 태그만 포함하는지 여부."""
 
     return bool(line and not line[:1].isspace() and is_structural_html_fragment(line))
 
 
 def structural_html_tags(text: str) -> tuple[str, ...]:
-    """``text``가 tag-only HTML fragment일 때 순서가 보존된 tag 목록."""
+    """``text``가 태그만 있는 HTML 조각일 때 태그를 문서 순서대로 반환."""
 
     position = 0
     tags: list[str] = []
@@ -1449,25 +1447,25 @@ def structural_html_tags(text: str) -> tuple[str, ...]:
 
 
 def html_tags(text: str) -> tuple[str, ...]:
-    """문서 순서가 보존된 모든 HTML tag token."""
+    """모든 HTML 태그 토큰을 문서 순서대로 반환."""
 
     return tuple(match.group(0) for match in _HTML_TAG_RE.finditer(text))
 
 
 def html_code_contents(text: str) -> tuple[str, ...]:
-    """문서 순서가 보존된 raw HTML ``code`` element 내용."""
+    """원시 HTML ``code`` 요소의 내용을 문서 순서대로 반환."""
 
     return tuple(match.group(1) for match in _HTML_CODE_ELEMENT_RE.finditer(text))
 
 
 def strip_html_code_elements(text: str) -> str:
-    """보호된 내용을 포함한 raw HTML ``code`` element 제거."""
+    """보호된 내용을 포함한 원시 HTML ``code`` 요소 제거."""
 
     return _HTML_CODE_ELEMENT_RE.sub("", text)
 
 
 def _split_line_ending(line: str) -> tuple[str, str]:
-    """줄 ending 분할."""
+    """본문과 줄 끝 문자 분할."""
 
     if line.endswith("\r\n"):
         return line[:-2], "\r\n"
@@ -1479,7 +1477,7 @@ def _split_line_ending(line: str) -> tuple[str, str]:
 
 
 def fence_token(line: str) -> str | None:
-    """Markdown blockquote 깊이가 prefix로 붙은 fence token."""
+    """Markdown 인용문 깊이를 접두사로 포함한 코드 펜스 토큰."""
     stripped = line.lstrip(" ")
     if len(line) - len(stripped) > 3 or stripped.startswith("\t"):
         return None
@@ -1507,7 +1505,7 @@ def fence_token(line: str) -> str | None:
 
 
 def closes_fence(line: str, opening: str) -> bool:
-    """현재 줄이 주어진 Markdown fence를 닫는지 여부."""
+    """현재 줄이 주어진 Markdown 코드 펜스를 닫는지 여부."""
 
     token = fence_token(line)
     if not token or not opening:
@@ -1532,7 +1530,7 @@ def closes_fence(line: str, opening: str) -> bool:
 
 
 def mask_fenced_code_contents(text: str) -> str:
-    """경계 줄을 보존한 fenced code 내용 제거."""
+    """경계 줄을 보존하며 코드 펜스 내용 마스킹."""
 
     out: list[str] = []
     in_code = False
@@ -1556,7 +1554,7 @@ def mask_fenced_code_contents(text: str) -> str:
 
 
 def is_heading_line(line: str) -> bool:
-    """heading 줄 여부."""
+    """Markdown 제목 줄인지 여부."""
 
     stripped = line.lstrip(" ")
     if len(line) - len(stripped) > 3 or stripped.startswith("\t"):
@@ -1566,7 +1564,7 @@ def is_heading_line(line: str) -> bool:
 
 
 def is_ordered_list_marker(line: str) -> bool:
-    """ordered list marker 여부."""
+    """순서 있는 목록 표식인지 여부."""
 
     index = 0
     while index < len(line) and line[index].isdigit():
@@ -1580,7 +1578,7 @@ def is_ordered_list_marker(line: str) -> bool:
 
 
 def strip_title_attr_line(line: str) -> str:
-    """title attr 줄 제거."""
+    """제목 한 줄에서 ``{.class}`` 형식의 제목 속성 제거."""
 
     body, ending = _split_line_ending(line)
     if not is_heading_line(body):
@@ -1614,7 +1612,7 @@ def strip_title_attr_line(line: str) -> str:
 
 
 def strip_title_attrs(text: str) -> str:
-    """title attrs 제거."""
+    """HTML 주석 밖의 제목에서 ``{.class}`` 형식의 제목 속성 제거."""
 
     out: list[str] = []
     index = 0
@@ -1637,13 +1635,13 @@ def strip_title_attrs(text: str) -> str:
 
 
 def has_title_attr_line(text: str) -> bool:
-    """title attr 줄 포함 여부."""
+    """제거 가능한 ``{.class}`` 형식의 제목 속성 포함 여부."""
 
     return strip_title_attrs(text) != text
 
 
 def _fenced_code_ranges(text: str) -> list[tuple[int, int]]:
-    """문서에 포함된 fenced code 블록 범위."""
+    """문서에 포함된 코드 펜스 블록 범위."""
 
     ranges: list[tuple[int, int]] = []
     range_start = 0
@@ -1670,7 +1668,7 @@ def _fenced_code_ranges(text: str) -> list[tuple[int, int]]:
 def _parse_html_comment_spans(
     text: str,
 ) -> tuple[tuple[int, int, str], ...]:
-    """HTML comment spans 파싱."""
+    """HTML 주석 범위 파싱."""
 
     spans: list[tuple[int, int, str]] = []
     inline_spans = [
@@ -1739,7 +1737,7 @@ def _cached_html_comment_spans(
 
 
 def html_comment_spans(text: str) -> list[tuple[int, int, str]]:
-    """Markdown code span과 fenced code 외부의 HTML 주석 범위."""
+    """Markdown 인라인 코드와 코드 펜스 밖의 HTML 주석 범위."""
 
     spans = (
         _parse_html_comment_spans(text)
@@ -1750,12 +1748,12 @@ def html_comment_spans(text: str) -> list[tuple[int, int, str]]:
 
 
 def has_malformed_html_comment_delimiters(text: str) -> bool:
-    """fenced code 외부에서 주석 구분자의 균형이 깨졌는지 여부."""
+    """front matter·코드 펜스·들여쓰기 코드·인라인 코드 밖에서 HTML 주석 구분자의 균형이 깨졌는지 여부."""
 
     masked = list(text)
 
     def mask_range(start: int, end: int) -> None:
-        """range 마스킹."""
+        """지정 범위 마스킹."""
 
         for position in range(start, end):
             if masked[position] not in "\r\n":
@@ -1833,7 +1831,7 @@ def has_malformed_html_comment_delimiters(text: str) -> bool:
 
 
 def strip_html_comments(text: str) -> str:
-    """HTML comments 제거."""
+    """인라인 코드와 코드 펜스 밖의 HTML 주석 제거."""
 
     out: list[str] = []
     index = 0
@@ -1845,13 +1843,13 @@ def strip_html_comments(text: str) -> str:
 
 
 def html_comment_bodies(text: str) -> list[str]:
-    """코드 영역 밖 HTML 주석의 본문 목록."""
+    """인라인 코드와 코드 펜스 밖의 HTML 주석 본문 목록."""
 
     return [body for _start, _end, body in html_comment_spans(text)]
 
 
 def standalone_html_comment_line_numbers(text: str) -> frozenset[int]:
-    """code 외부의 독립 주석이 차지하는 1-based 줄 번호 목록."""
+    """코드 펜스 밖의 독립 HTML 주석이 차지하는 1-based 줄 번호 집합."""
 
     lines = text.splitlines()
     numbers: set[int] = set()
@@ -1886,7 +1884,7 @@ def standalone_html_comment_line_numbers(text: str) -> frozenset[int]:
 
 
 def is_named_anchor_line(line: str) -> bool:
-    """이름이 지정된 독립 HTML anchor 줄 여부."""
+    """이름이 지정된 독립 HTML 앵커 줄인지 여부."""
 
     stripped = line.strip()
     lower = stripped.lower()

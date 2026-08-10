@@ -1,10 +1,14 @@
-"""번역 결과에 적용하는 결정적 Markdown 후처리.
+"""번역 결과에 적용하는 결정론적 Markdown 후처리.
 
-- <img> self-closing 변환
-- 노트/툴팁 → GFM admonition 표준화
-- {{version}} 플레이스홀더 치환
-- 제목 옆 {.class} 잔존 제거
-- base64 이미지 플레이스홀더 복원
+- ``<img>`` 태그를 자체 닫힘 형식으로 변환
+- 레거시 경고문을 GFM 경고문으로 표준화
+- ``{{version}}`` 플레이스홀더 치환
+- 제목 뒤의 ``{.class}`` 잔여물 제거
+- 알려진 오래된 업스트림 링크 대상과 폐기된 목록 레이블 정규화
+- HTML 주석 안의 JavaScript 주석 종료 구분자 무력화
+- GFM 경고문 안의 코드 펜스와 본문에 인용문 표식 보완
+- Base64 이미지 플레이스홀더 복원
+- 명시적 강제 줄바꿈을 제외한 줄 끝 공백 제거
 """
 from __future__ import annotations
 
@@ -45,7 +49,7 @@ _LIST_ITEM_PREFIX_RE = re.compile(r"^[ \t]*(?:[-*+]\s+|\d+[.)]\s+)$")
 
 
 def _map_outside_code_blocks(text: str, transform) -> str:
-    """fenced code 밖의 연속 문자열에만 변환 함수 적용."""
+    """코드 펜스 밖의 연속 구간에만 변환 함수 적용."""
 
     out: list[str] = []
     pending: list[str] = []
@@ -53,7 +57,7 @@ def _map_outside_code_blocks(text: str, transform) -> str:
     fence = ""
 
     def flush_pending() -> None:
-        """누적된 code 외부 문자열을 변환해 출력에 추가."""
+        """대기 중인 코드 펜스 외부 구간을 변환해 결과에 추가."""
 
         if pending:
             out.append(transform("".join(pending)))
@@ -84,7 +88,7 @@ def _map_outside_code_blocks(text: str, transform) -> str:
 
 
 def _map_outside_html_comments(text: str, transform) -> str:
-    """HTML 주석 밖의 연속 문자열에만 변환 함수 적용."""
+    """HTML 주석 밖의 연속 구간에만 변환 함수 적용."""
 
     out: list[str] = []
     index = 0
@@ -97,7 +101,7 @@ def _map_outside_html_comments(text: str, transform) -> str:
 
 
 def _mask_html_comments(text: str) -> str:
-    """줄 위치를 보존하며 HTML 주석의 비개행 문자를 공백으로 마스킹."""
+    """줄 위치를 보존하며 HTML 주석의 줄바꿈 외 문자를 공백으로 마스킹."""
 
     chars = list(text)
     for start, end, _body in html_comment_spans(text):
@@ -108,7 +112,7 @@ def _mask_html_comments(text: str) -> str:
 
 
 def _img_self_closing(text: str) -> str:
-    """inline code 밖의 닫히지 않은 ``img`` tag를 self-closing 형식으로 변환."""
+    """인라인 코드 밖의 닫히지 않은 ``<img>`` 태그를 자체 닫힘 형식으로 변환."""
 
     out: list[str] = []
     lower = text.lower()
@@ -181,13 +185,13 @@ def _img_self_closing(text: str) -> str:
 
 
 def img_self_closing(text: str) -> str:
-    """HTML 주석과 inline code를 보존하며 ``img`` tag 형식 정규화."""
+    """HTML 주석과 인라인 코드를 보존하며 ``<img>`` 태그를 자체 닫힘 형식으로 정규화."""
 
     return _map_outside_html_comments(text, _img_self_closing)
 
 
 def _standardized_note_lines(line: str) -> list[str] | None:
-    """지원되는 legacy admonition 줄을 canonical GFM 줄로 변환."""
+    """지원하는 레거시 경고문 한 줄을 표준 GFM 경고문으로 변환."""
 
     note = parse_legacy_admonition_line(line)
     if note is None:
@@ -200,7 +204,7 @@ def _standardized_note_lines(line: str) -> list[str] | None:
 
 
 def _continue_admonition_line(line: str) -> tuple[str, bool]:
-    """admonition 본문 줄에 blockquote 표식을 보완하고 계속 여부 반환."""
+    """경고문 본문 줄에 인용문 표식을 보완하고 경고문 지속 여부 반환."""
 
     if not line.strip():
         return line, False
@@ -210,7 +214,7 @@ def _continue_admonition_line(line: str) -> tuple[str, bool]:
 
 
 def _standardize_admonitions(text: str) -> str:
-    """문자열의 legacy admonition과 이어지는 본문을 GFM 형식으로 정규화."""
+    """레거시 경고문과 이어지는 본문을 GFM 형식으로 정규화."""
 
     out: list[str] = []
     in_gfm_admonition = False
@@ -233,13 +237,13 @@ def _standardize_admonitions(text: str) -> str:
 
 
 def standardize_admonitions(text: str) -> str:
-    """HTML 주석을 보존하며 legacy admonition을 GFM 형식으로 정규화."""
+    """HTML 주석을 보존하며 레거시 경고문을 GFM 형식으로 정규화."""
 
     return _map_outside_html_comments(text, _standardize_admonitions)
 
 
 def admonition_types(text: str) -> tuple[str, ...]:
-    """HTML 주석과 fenced code 밖의 canonical admonition 유형 순서."""
+    """HTML 주석과 코드 펜스 밖의 표준 GFM 경고문 유형을 문서 순서로 반환."""
 
     without_comments = strip_html_comments(text)
     normalized = _map_outside_code_blocks(
@@ -258,7 +262,7 @@ def admonition_types(text: str) -> tuple[str, ...]:
 
 
 def _quote_admonition_fences(text: str) -> str:
-    """GFM admonition 내부 fenced code와 본문에 blockquote 경계 적용."""
+    """GFM 경고문 안의 코드 펜스와 본문에 인용문 표식 적용."""
 
     out: list[str] = []
     lines = text.split("\n")
@@ -324,7 +328,7 @@ def _quote_admonition_fences(text: str) -> str:
 
 
 def _mask_link_excluded_spans(text: str, *, mask_inline_code: bool = True) -> str:
-    """링크 정규화에서 제외할 code와 HTML 주석 범위를 공백으로 마스킹."""
+    """링크 정규화에서 제외하는 코드와 HTML 주석 범위를 공백으로 마스킹."""
 
     chars = list(text)
     spans = [
@@ -341,7 +345,7 @@ def _mask_link_excluded_spans(text: str, *, mask_inline_code: bool = True) -> st
 
 
 def _is_standalone_list_link(text: str, start: int, end: int) -> bool:
-    """링크가 목록 항목의 전체 label인지 여부."""
+    """링크가 목록 항목의 전체 레이블인지 판정."""
 
     line_start = text.rfind("\n", 0, start) + 1
     line_end = text.find("\n", end)
@@ -353,15 +357,15 @@ def _is_standalone_list_link(text: str, start: int, end: int) -> bool:
 
 
 def _heading_label_for_fragment(text: str, fragment: str) -> str | None:
-    """동일 문서의 명시적 앵커 다음 heading label 조회.
+    """같은 문서에서 명시적 앵커 다음의 제목 레이블 조회.
 
     Args:
-        text: 앵커와 heading을 찾을 Markdown 문서.
+        text: 앵커와 제목을 찾을 Markdown 문서.
         fragment: 선행 ``#``을 제외한 앵커 이름.
 
     Returns:
-        앵커 다음의 첫 번째 heading label. 대응 앵커나 heading이 없으면
-        ``None``.
+        앵커 다음의 첫 번째 제목 레이블.
+        대응 앵커나 제목이 없으면 ``None``.
     """
 
     anchor_re = re.compile(
@@ -389,7 +393,7 @@ def normalize_retired_list_labels(
     *,
     registry: StaleLinkRegistry = DEFAULT_STALE_LINK_REGISTRY,
 ) -> str:
-    """폐기된 list label에서 이전 실행의 inline-code wrapper 제거."""
+    """폐기 대상 목록 레이블에서 이전 실행이 추가한 인라인 코드 구분자 제거."""
     labels = {
         rule.source.removeprefix("#").replace("-", " ").title()
         for rule in registry.rules
@@ -423,7 +427,7 @@ def normalize_stale_link_targets(
     *,
     registry: StaleLinkRegistry = DEFAULT_STALE_LINK_REGISTRY,
 ) -> str:
-    """code와 주석을 보존한 알려진 upstream stale destination 보정."""
+    """코드와 주석을 보존하며 알려진 오래된 업스트림 링크 대상 보정."""
     masked = _mask_link_excluded_spans(text)
     out: list[str] = []
     cursor = 0
@@ -463,13 +467,13 @@ def normalize_stale_link_targets(
 
 
 def replace_version(text: str, version: str) -> str:
-    """모든 version placeholder를 대상 버전 문자열로 치환."""
+    """모든 버전 플레이스홀더를 대상 버전 문자열로 치환."""
 
     return _VERSION_RE.sub(version, text)
 
 
 def restore_placeholders(text: str, placeholders: Mapping[str, str]) -> str:
-    """전처리 restore map에 포함된 placeholder를 원본 값으로 복원."""
+    """전처리 복원표의 플레이스홀더를 원본 값으로 복원."""
 
     for key, original in placeholders.items():
         text = text.replace(key, original)
@@ -477,7 +481,7 @@ def restore_placeholders(text: str, placeholders: Mapping[str, str]) -> str:
 
 
 def strip_trailing_whitespace(text: str) -> str:
-    """HTML 주석과 명시적 hard break를 보존하며 줄 끝 공백 제거."""
+    """HTML 주석과 명시적 강제 줄바꿈을 보존하며 줄 끝 공백 제거."""
 
     out: list[str] = []
     in_code = False
@@ -522,7 +526,7 @@ def strip_trailing_whitespace(text: str) -> str:
 
 
 def escape_html_comments(text: str) -> str:
-    """MDX의 HTML 주석 변환에서 손상되는 JS 주석 delimiter 무력화."""
+    """MDX가 HTML 주석을 변환할 때 손상되는 JavaScript 주석 종료 구분자 무력화."""
     out: list[str] = []
     index = 0
     for start, end, body in html_comment_spans(text):
@@ -538,7 +542,7 @@ def _postprocess_markdown_body(
     version: str,
     registry: StaleLinkRegistry,
 ) -> str:
-    """fenced code 밖 Markdown 본문에 순서가 고정된 형식 변환 적용."""
+    """코드 펜스 밖의 Markdown 본문에 순서가 고정된 형식 변환 적용."""
 
     text = replace_version(text, version)
     text = img_self_closing(text)
@@ -557,7 +561,7 @@ def postprocess(
     *,
     registry: StaleLinkRegistry = DEFAULT_STALE_LINK_REGISTRY,
 ) -> str:
-    """번역 Markdown을 정규화하고 현재 restore map의 원본 값 복원."""
+    """번역 Markdown을 정규화하고 현재 복원표의 원본 값 복원."""
 
     text = _map_outside_code_blocks(
         text, lambda body: _postprocess_markdown_body(body, version, registry)

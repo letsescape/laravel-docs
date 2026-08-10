@@ -1,4 +1,4 @@
-"""canonical stale-link registry 로딩과 대상 조회."""
+"""오래된 링크의 정규 레지스트리 로딩과 대체 대상 조회."""
 from __future__ import annotations
 
 import hashlib
@@ -18,12 +18,12 @@ _RETIRE_MODES = {"standalone-list-label", "bare-inline-code"}
 
 
 class StaleLinkRegistryError(ValueError):
-    """stale-links.json 누락 또는 비정규 형식 오류."""
+    """``stale-links.json`` 누락 또는 형식 오류."""
 
 
 @dataclass(frozen=True)
 class StaleLinkRule:
-    """버전별 stale 링크의 원본·대상·폐기 방식."""
+    """버전별 오래된 링크의 원본·대체 대상·폐기 방식."""
 
     version: str
     source: str
@@ -33,7 +33,7 @@ class StaleLinkRule:
 
 @dataclass(frozen=True)
 class StaleLinkRegistry:
-    """canonical 원문 byte와 digest를 포함한 stale 링크 규칙 집합."""
+    """정규 JSON 원본 바이트와 SHA-256 해시를 포함한 오래된 링크 규칙 집합."""
 
     raw: bytes
     sha256: str
@@ -44,7 +44,7 @@ class StaleLinkRegistry:
         target: str,
         version: str | None,
     ) -> StaleLinkRule | None:
-        """버전과 링크 target에 가장 구체적으로 대응하는 규칙 조회."""
+        """버전과 링크 대상에 대응하는 정확한 폐기 규칙 또는 원본 접미사가 가장 긴 대체 규칙 조회."""
 
         parsed = urlsplit(target)
         if target.startswith("//") or (
@@ -87,22 +87,22 @@ class StaleLinkRegistry:
 
 
 def _canonical_json(value: object) -> bytes:
-    """registry 값을 canonical UTF-8 JSON byte로 직렬화."""
+    """레지스트리 값을 정규 UTF-8 JSON 바이트로 직렬화."""
 
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 
 
 def _invalid(message: str) -> StaleLinkRegistryError:
-    """일관된 prefix를 가진 registry 형식 오류 생성."""
+    """일관된 접두사가 붙은 레지스트리 형식 오류 생성."""
 
     return StaleLinkRegistryError(f"invalid stale-link registry: {message}")
 
 
 def load_stale_link_registry(path: Path = REGISTRY_PATH) -> StaleLinkRegistry:
-    """canonical JSON 형식과 규칙 순서를 검증해 stale 링크 registry 로딩.
+    """정규 JSON 형식과 규칙 순서를 검증해 오래된 링크 레지스트리 로딩.
 
     Raises:
-        StaleLinkRegistryError: 파일 누락, 인코딩 오류 또는 schema 위반.
+        StaleLinkRegistryError: 파일 누락, 인코딩 오류 또는 스키마 위반.
     """
 
     try:
@@ -192,7 +192,7 @@ def canonical_stale_link_target(
     *,
     registry: StaleLinkRegistry = DEFAULT_STALE_LINK_REGISTRY,
 ) -> str | None:
-    """registry 규칙에 따른 canonical 링크 target 또는 폐기 상태 반환."""
+    """레지스트리 규칙에 따른 정규 링크 대상 또는 폐기 상태 반환."""
 
     rule = registry.matching_rule(target, version)
     if rule is None or rule.target is None:

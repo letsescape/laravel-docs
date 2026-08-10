@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""격리된 로컬 clone에서 production 번역 동기화 실행."""
+"""격리된 로컬 복제본에서 운영용 번역 동기화 재현 실행."""
 from __future__ import annotations
 
 import argparse
@@ -74,23 +74,23 @@ _PROCESS_RUNNER = run_process_tree
 
 
 class ReplayError(RuntimeError):
-    """격리 replay의 준비 또는 실행 실패 오류."""
+    """격리된 재현 실행의 준비 또는 실행 실패 오류."""
 
 
 class ReplayInputError(ReplayError):
-    """결정적 경로 또는 selector 계약을 위반한 replay 입력 오류."""
+    """결정적 경로 또는 선택자 계약을 위반한 재현 실행 입력 오류."""
 
 
 class ReplayDeadlineExceeded(ReplayError):
-    """replay 완료 전 공통 워크플로 기한 초과 오류."""
+    """재현 실행 완료 전 공통 워크플로 기한 초과 오류."""
 
 
 class ReplayManifestMismatch(ReplayInputError):
-    """replay 도중 고정된 canonical manifest 변경 오류."""
+    """재현 실행 도중 고정된 정규 매니페스트 변경 오류."""
 
 
 class ReplayIsolationViolation(ReplayError):
-    """replay candidate의 금지된 publication 가능 Git 상태 오류."""
+    """재현 실행 후보의 게시 경로 격리 위반 오류."""
 
 
 _ACTIVE_DEADLINE: contextvars.ContextVar[WorkflowDeadline | None] = (
@@ -103,7 +103,7 @@ _ACTIVE_SETTINGS: contextvars.ContextVar[WorkflowSettings | None] = (
 
 @dataclass(slots=True)
 class _ReplayDiagnostics:
-    """Replay 실행의 실패 증거와 보존된 sandbox 정보."""
+    """재현 실행의 실패 증거와 보존된 샌드박스 정보."""
 
     run_id: str
     report_target: Path | None
@@ -120,14 +120,14 @@ class _ReplayDiagnostics:
         stage: str,
         message: str,
     ) -> None:
-        """안정적인 문제 코드와 redacted 진단을 실행 증거에 추가."""
+        """안정적 문제 코드와 민감 정보를 가린 진단을 실행 증거에 추가."""
 
         self.failures.append(
             FailureEvent(code=code, stage=stage, message=message)
         )
 
     def preserve_sandbox(self, sandbox: Path) -> None:
-        """보존된 sandbox를 artifact root 기준 상대 경로로 기록."""
+        """보존된 샌드박스를 산출물 루트 기준 상대 경로로 기록."""
 
         if self.artifact_root is None:
             return
@@ -151,7 +151,7 @@ def _record_failure(
     stage: str,
     message: str,
 ) -> None:
-    """현재 replay 진단 문맥에 실패 이벤트 추가."""
+    """현재 재현 실행 진단 문맥에 실패 이벤트 추가."""
 
     diagnostics = _ACTIVE_DIAGNOSTICS.get()
     if diagnostics is not None:
@@ -159,13 +159,13 @@ def _record_failure(
 
 
 def _safe_error(error: BaseException) -> str:
-    """외부 경로와 비밀값을 제거한 오류 문자열 반환."""
+    """외부 경로와 비밀값을 가린 오류 문자열 반환."""
 
     return redact_message(str(error))
 
 
 def _deadline_timeout() -> float | None:
-    """공통 워크플로 기한의 현재 단계 가용 시간 반환."""
+    """공통 워크플로 기한 안에서 현재 단계에 남은 시간 반환."""
 
     deadline = _ACTIVE_DEADLINE.get()
     if deadline is None:
@@ -179,7 +179,7 @@ def _deadline_timeout() -> float | None:
 def _resolve_workflow_context(
     repo_root: Path,
 ) -> tuple[WorkflowDeadline, WorkflowSettings]:
-    """설정 파일과 선택적 외부 기한에서 replay 실행 문맥 구성."""
+    """설정 파일과 선택적 외부 기한을 사용해 재현 실행 문맥 구성."""
 
     raw_deadline = os.environ.get(WORKFLOW_DEADLINE_ENV)
     if raw_deadline is None:
@@ -213,7 +213,7 @@ def normalize_selector(
     doc: str | None,
     supported_versions: list[str],
 ) -> bytes:
-    """버전과 문서 선택자를 검증해 정규 JSON byte로 직렬화."""
+    """버전·문서 선택자를 검증해 정규 JSON 바이트로 직렬화."""
 
     if version is not None and not isinstance(version, str):
         raise ReplayInputError("invalid version selector")
@@ -244,7 +244,7 @@ def normalize_selector(
 
 
 def canonical_replay_state(manifest: bytes, selector: bytes) -> bytes:
-    """Manifest와 selector를 재사용 가능한 정규 replay 상태로 직렬화."""
+    """매니페스트와 선택자를 재사용 가능한 정규 재현 실행 상태로 직렬화."""
 
     payload = {
         "schema_version": 1,
@@ -264,7 +264,7 @@ def _command(
     cwd: Path,
     input_data: bytes | None = None,
 ) -> subprocess.CompletedProcess[bytes]:
-    """남은 공통 기한 안에서 격리 환경의 하위 프로세스 실행."""
+    """남은 공통 기한 안에서 격리된 하위 프로세스 실행."""
 
     try:
         return _PROCESS_RUNNER(
@@ -286,7 +286,7 @@ def _command(
 
 
 def _git_environment() -> dict[str, str]:
-    """사용자 설정과 prompt를 차단한 Git 실행 환경 구성."""
+    """사용자 설정과 프롬프트를 차단한 Git 실행 환경 구성."""
 
     env = {
         key: value
@@ -309,13 +309,13 @@ def _git_environment() -> dict[str, str]:
 def _git(
     repo: Path, *args: str, input_data: bytes | None = None
 ) -> subprocess.CompletedProcess[bytes]:
-    """지정 저장소에서 격리된 Git 명령 실행."""
+    """지정 저장소에서 격리된 환경으로 Git 명령 실행."""
 
     return _command(["git", *args], cwd=repo, input_data=input_data)
 
 
 def _worktree_status(repo: Path) -> bytes:
-    """미추적 파일을 포함한 worktree 상태 byte 반환."""
+    """미추적 파일을 포함한 작업 트리 상태 바이트 반환."""
 
     return _git(
         repo,
@@ -327,7 +327,7 @@ def _worktree_status(repo: Path) -> bytes:
 
 
 def _worktree_fingerprint(repo: Path) -> bytes:
-    """HEAD·refs·index·worktree·미추적 파일의 상태 지문 계산."""
+    """HEAD·참조·인덱스·작업 트리·미추적 파일의 상태 지문 계산."""
 
     digest = hashlib.sha256()
     digest.update(b"HEAD\0")
@@ -375,7 +375,7 @@ def _worktree_fingerprint(repo: Path) -> bytes:
 
 
 def _copy_untracked(source: Path, sandbox: Path) -> None:
-    """Symlink를 거부하며 미추적 파일을 replay sandbox에 복사."""
+    """심볼릭 링크를 거부하며 미추적 파일을 재현 실행 샌드박스에 복사."""
 
     output = _git(
         source, "ls-files", "--others", "--exclude-standard", "-z"
@@ -395,7 +395,7 @@ def _copy_untracked(source: Path, sandbox: Path) -> None:
 
 
 def _reject_changed_tracked_symlinks(source: Path) -> None:
-    """Worktree에서 변경된 추적 symlink 거부."""
+    """작업 트리에서 변경된 추적 대상 심볼릭 링크 거부."""
 
     output = _git(source, "diff", "--name-only", "-z", "HEAD", "--").stdout
     for raw_path in output.split(b"\0"):
@@ -409,7 +409,7 @@ def _reject_changed_tracked_symlinks(source: Path) -> None:
 
 
 def _reject_external_tracked_symlinks(source: Path) -> None:
-    """저장소 밖으로 탈출하는 추적 symlink 거부."""
+    """저장소 밖을 가리키는 추적 대상 심볼릭 링크 거부."""
 
     root = source.resolve()
     output = _git(source, "ls-files", "-z").stdout
@@ -439,7 +439,7 @@ def _reject_external_tracked_symlinks(source: Path) -> None:
 
 
 def _sandbox_parent(source: Path, requested: Path | None) -> Path:
-    """Active 저장소 밖의 replay sandbox 상위 경로 확정."""
+    """활성 저장소 밖의 재현 실행 샌드박스 상위 경로 확정."""
 
     temp_parent = Path(tempfile.gettempdir()).resolve()
     if temp_parent == source or temp_parent.is_relative_to(source):
@@ -451,7 +451,7 @@ def _sandbox_parent(source: Path, requested: Path | None) -> Path:
 
 
 def _path_is_within_directory(path: Path, root: Path) -> bool:
-    """존재하는 조상 기준으로 경로가 디렉터리 내부인지 판정."""
+    """존재하는 가장 가까운 조상을 기준으로 경로가 디렉터리 내부인지 판정."""
 
     current = path
     while True:
@@ -467,7 +467,7 @@ def _path_is_within_directory(path: Path, root: Path) -> bool:
 
 
 def _manifest_destination(repo_root: Path) -> Path | None:
-    """환경 변수의 외부 manifest 입출력 경로 검증."""
+    """환경 변수로 지정한 외부 매니페스트 입출력 경로 검증."""
 
     value = os.environ.get(MANIFEST_ENV, "").strip()
     if not value:
@@ -498,7 +498,7 @@ def _state_output_destination(
     repo_root: Path,
     requested: Path | None,
 ) -> Path | None:
-    """새 replay 상태를 기록할 저장소 외부 경로 검증."""
+    """새 재현 실행 상태를 기록할 저장소 외부 경로 검증."""
 
     if requested is None:
         return None
@@ -525,7 +525,7 @@ def _state_output_destination(
 
 
 def _failure_report_destination(repo_root: Path) -> Path | None:
-    """실패 보고서용 저장소 외부 경로 검증."""
+    """실패 보고서를 기록할 저장소 외부 경로 검증."""
 
     value = os.environ.get(FAILURE_REPORT_ENV, "").strip()
     if not value:
@@ -553,13 +553,13 @@ def _failure_report_destination(repo_root: Path) -> Path | None:
 
 
 def _new_run_id() -> str:
-    """충돌하기 어려운 replay 실행 식별자 생성."""
+    """충돌하기 어려운 재현 실행 식별자 생성."""
 
     return f"replay-{secrets.token_hex(16)}"
 
 
 def _run_id_from_environment() -> tuple[str, bool]:
-    """외부 실행 식별자를 검증하거나 새 식별자로 대체."""
+    """외부 실행 식별자를 검증하고, 없거나 유효하지 않으면 새 식별자로 대체."""
 
     value = os.environ.get(RUN_ID_ENV, "")
     if not value:
@@ -579,7 +579,7 @@ def _coherent_failure_result(
     result: int,
     diagnostics: _ReplayDiagnostics,
 ) -> int:
-    """실제 종료 코드와 실패 증거의 최종 종료 코드를 일치시킴."""
+    """실제 종료 코드와 실패 증거의 최종 종료 코드 일치 조정."""
 
     reported_result = int(final_exit_code(diagnostics.failures))
     if reported_result == result:
@@ -609,7 +609,7 @@ def _write_replay_failure_report(
     result: int,
     diagnostics: _ReplayDiagnostics,
 ) -> int:
-    """Replay 실패 증거를 정규 no-replace 보고서로 기록."""
+    """재현 실행 실패 증거를 기존 파일을 덮어쓰지 않는 정규 보고서로 기록."""
 
     if result == EXIT_OK:
         return result
@@ -639,7 +639,7 @@ def _snapshot_manifest(
     *,
     repo_root: Path | None = None,
 ) -> bytes | None:
-    """Symlink를 따르지 않고 manifest의 단일 시점 byte를 읽음."""
+    """심볼릭 링크를 따르지 않고 매니페스트의 단일 시점 바이트 읽기."""
 
     flags = os.O_RDONLY
     if hasattr(os, "O_CLOEXEC"):
@@ -682,7 +682,7 @@ def _snapshot_manifest(
 
 
 def _create_sandbox(source: Path, sandbox_parent: Path | None) -> Path:
-    """Remote와 object alternates가 없는 독립 replay clone 생성."""
+    """원격 저장소와 객체 대체 경로가 없는 독립 재현 실행 복제본 생성."""
 
     _reject_external_tracked_symlinks(source)
     if sandbox_parent is not None:
@@ -731,7 +731,7 @@ def _create_sandbox(source: Path, sandbox_parent: Path | None) -> Path:
 
 
 def _overlay_worktree(source: Path, sandbox: Path) -> None:
-    """Active worktree 변경과 미추적 파일을 sandbox에 투영."""
+    """활성 작업 트리의 변경과 미추적 파일을 샌드박스에 투영."""
 
     _reject_external_tracked_symlinks(source)
     _reject_changed_tracked_symlinks(source)
@@ -749,7 +749,7 @@ def _overlay_worktree(source: Path, sandbox: Path) -> None:
 
 
 def _commit_snapshot(sandbox: Path, message: str) -> str:
-    """Sandbox 현재 상태를 로컬 replay commit으로 기록."""
+    """샌드박스의 현재 상태를 로컬 재현 실행 커밋으로 기록."""
 
     _git(sandbox, "add", "-A")
     _git(
@@ -771,19 +771,19 @@ def _commit_snapshot(sandbox: Path, message: str) -> str:
 
 
 def _commit_baseline(sandbox: Path) -> str:
-    """첫 candidate 실행의 승인 기준 commit 생성."""
+    """첫 후보 실행의 승인 기준 커밋 생성."""
 
     return _commit_snapshot(sandbox, "chore: local translation replay baseline")
 
 
 def _sandbox_manifest_path(sandbox: Path) -> Path:
-    """Sandbox Git 영역의 고정 manifest 경로 반환."""
+    """샌드박스 Git 영역의 고정 매니페스트 경로 반환."""
 
     return sandbox / ".git" / "translation-upstream-refs.json"
 
 
 def _directory_open_flags() -> int:
-    """Symlink 방지에 필요한 디렉터리 열기 flag 구성."""
+    """심볼릭 링크 방지에 필요한 디렉터리 열기 플래그 구성."""
 
     required_dir_fd_operations = (
         os.open,
@@ -838,7 +838,7 @@ def _open_manifest_parent(
     create: bool,
     repo_root: Path | None,
 ) -> tuple[int, Path]:
-    """각 경로 요소의 symlink를 거부하며 manifest 상위 디렉터리 열기."""
+    """각 경로 요소의 심볼릭 링크를 거부하며 매니페스트 상위 디렉터리 열기."""
 
     parent_path = destination.parent.resolve(strict=False)
     parts = parent_path.parts
@@ -899,7 +899,7 @@ def _manifest_parent_is_stable(
     *,
     repo_root: Path | None,
 ) -> bool:
-    """열린 manifest 상위 디렉터리의 경로와 inode 안정성 확인."""
+    """열린 매니페스트 상위 디렉터리의 경로와 inode 안정성 확인."""
 
     if repo_root is not None and _directory_fd_is_within(
         descriptor,
@@ -918,7 +918,7 @@ def _unlink_temp_manifest(
     name: str,
     expected_status: os.stat_result,
 ) -> None:
-    """동일 inode인 미완성 manifest 임시 파일만 삭제."""
+    """inode가 같은 미완성 매니페스트 임시 파일만 삭제."""
 
     try:
         current_status = os.stat(
@@ -942,7 +942,7 @@ def _export_manifest(
     *,
     repo_root: Path | None = None,
 ) -> None:
-    """Manifest byte를 경쟁에 안전한 no-replace 방식으로 내보냄."""
+    """매니페스트 바이트를 교체 경쟁에 안전한 비덮어쓰기 방식으로 내보내기."""
 
     if isinstance(source, Path):
         contents = _snapshot_manifest(source)
@@ -1030,7 +1030,7 @@ def _candidate_sync_environment(
     manifest_digest: str,
     selector: bytes,
 ) -> dict[str, str]:
-    """두 candidate pass가 공유할 identity 실행 환경 구성."""
+    """후보 실행 두 회차가 공유할 동일성 확인용 실행 환경 구성."""
 
     deadline = _ACTIVE_DEADLINE.get()
     if deadline is None:
@@ -1051,7 +1051,7 @@ def _read_child_failure(
     expected_returncode: int,
     run_id: str,
 ) -> FailureEvent | None:
-    """하위 candidate의 정규 실패 보고서를 검증해 이벤트로 복원."""
+    """하위 후보의 정규 실패 보고서를 검증해 이벤트로 복원."""
 
     try:
         if path.is_symlink() or not path.is_file():
@@ -1167,7 +1167,7 @@ def _read_child_failure(
 
 
 def _candidate_failure_result(failure: CandidateFailure) -> int:
-    """Candidate 실패 증거를 replay 진단과 종료 코드로 변환."""
+    """후보 실패 증거를 재현 실행 진단과 종료 코드로 변환."""
 
     diagnostics = _ACTIVE_DIAGNOSTICS.get()
     if diagnostics is None:
@@ -1197,7 +1197,7 @@ def _candidate_failure_result(failure: CandidateFailure) -> int:
 
 
 def _candidate_remaining_seconds() -> float:
-    """Candidate 실행에 남은 공통 워크플로 시간 계산."""
+    """후보 실행에 남은 공통 워크플로 시간 계산."""
 
     deadline = _ACTIVE_DEADLINE.get()
     if deadline is None:
@@ -1206,7 +1206,7 @@ def _candidate_remaining_seconds() -> float:
 
 
 def _verify_candidate_isolation(result: CandidateResult) -> None:
-    """Candidate Git 상태가 봉인된 tree와 격리 조건을 유지하는지 검증."""
+    """후보 Git 상태가 봉인된 트리와 격리 조건을 유지하는지 검증."""
 
     if (
         result.sandbox is None
@@ -1239,7 +1239,7 @@ def _commit_verified_candidate(
     verified_tree: str,
     parent_commit: str,
 ) -> str:
-    """첫 pass의 봉인된 tree를 sandbox 내부 기준 commit으로 연결."""
+    """첫 회차의 봉인된 트리를 샌드박스 내부 기준 커밋으로 연결."""
 
     current_tree = _git(sandbox, "write-tree").stdout.strip().decode("ascii")
     current_head = _git(sandbox, "rev-parse", "HEAD").stdout.strip().decode("ascii")
@@ -1278,7 +1278,7 @@ def _remove_candidate_sandboxes(
     sandboxes: list[Path],
     artifact_roots: list[Path],
 ) -> int:
-    """성공한 candidate sandbox와 빈 artifact 디렉터리 제거."""
+    """성공한 후보 샌드박스와 빈 산출물 디렉터리 제거."""
 
     diagnostics = _ACTIVE_DIAGNOSTICS.get()
     if diagnostics is None:
@@ -1319,7 +1319,7 @@ def _remove_candidate_sandboxes(
 
 
 def _candidate_result_code(result: CandidateResult) -> int:
-    """Candidate 결과를 replay 종료 코드와 보존 정보에 반영."""
+    """후보 결과를 재현 실행 종료 코드와 보존 정보에 반영."""
 
     diagnostics = _ACTIVE_DIAGNOSTICS.get()
     if diagnostics is None:
@@ -1339,7 +1339,7 @@ def _candidate_result_code(result: CandidateResult) -> int:
 
 
 def _verify_sandbox_manifest(sandbox: Path, expected_digest: str) -> bytes:
-    """Sandbox manifest가 고정 digest를 유지하는지 검증."""
+    """샌드박스 매니페스트가 고정 다이제스트를 유지하는지 검증."""
 
     try:
         contents = _snapshot_manifest(_sandbox_manifest_path(sandbox))
@@ -1363,7 +1363,7 @@ def _execute_sync(
     manifest_digest: str,
     selector: bytes,
 ) -> int:
-    """같은 입력으로 candidate pipeline을 두 번 실행해 수렴성 검증."""
+    """같은 입력으로 후보 파이프라인을 두 번 실행해 수렴성 검증."""
 
     settings = _ACTIVE_SETTINGS.get()
     diagnostics = _ACTIVE_DIAGNOSTICS.get()
@@ -1463,7 +1463,7 @@ def _execute_sync(
 
 
 def _display_status(status: bytes) -> str:
-    """NUL 구분 Git 상태 byte를 진단용 여러 줄 문자열로 변환."""
+    """NUL로 구분된 Git 상태 바이트를 진단용 여러 줄 문자열로 변환."""
 
     lines = [
         os.fsdecode(item)
@@ -1482,7 +1482,7 @@ def _run_replay_core(
     artifact_root: Path | None = None,
     state_output: Path | None = None,
 ) -> int:
-    """Manifest 준비부터 격리 replay·정리·상태 export까지 실행."""
+    """매니페스트 준비부터 격리 재현 실행·정리·상태 내보내기까지 수행."""
 
     repo_root = repo_root.resolve()
     deadline = _ACTIVE_DEADLINE.get()
@@ -1995,7 +1995,7 @@ def run_replay(
     artifact_root: Path | None = None,
     state_output: Path | None = None,
 ) -> int:
-    """공통 실행 문맥과 실패 보고서를 포함한 replay 실행."""
+    """공통 실행 문맥과 실패 보고서를 포함한 격리 재현 실행."""
 
     try:
         resolved_root = repo_root.resolve()
@@ -2091,7 +2091,7 @@ def run_replay(
 
 
 def _parse_args() -> argparse.Namespace:
-    """Replay 명령줄 선택자와 외부 artifact 경로 파싱."""
+    """재현 실행용 명령행 선택자와 외부 산출물 경로 파싱."""
 
     parser = argparse.ArgumentParser(
         description="Replay the production translation sync in an isolated clone."
@@ -2112,7 +2112,7 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    """격리 replay 명령줄 진입점 실행."""
+    """격리 재현 실행의 명령줄 진입점 실행."""
 
     args = _parse_args()
     return run_replay(

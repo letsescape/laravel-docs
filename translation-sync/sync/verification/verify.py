@@ -3,7 +3,8 @@
 문서와 번역 내용 검증은 Python이 담당.
 Docusaurus build 산출물 검증은 JS validate-anchors.mjs가 담당.
 
-최종 문서에 허용되지 않는 잔존 pattern 검사 및 위반 목록 반환. 빈 목록은 성공.
+최종 문서에 허용되지 않는 잔존 pattern 검사 및 위반 목록 반환.
+빈 목록은 성공.
 """
 from __future__ import annotations
 
@@ -127,8 +128,8 @@ _LIST_MARKER_RE = re.compile(r"^[ \t]*[-*+][ \t]+\S", re.MULTILINE)
 def _strip_heading_lines(text: str) -> str:
     """heading 라인 제거.
 
-    heading 텍스트 자체는 ``_heading_lines``에서 원문과 비교. 여기서는 heading의
-    inline code와 링크가 본문 비교에 중복 반영되지 않도록 제외.
+    heading 텍스트 자체는 ``_heading_lines``에서 원문과 비교.
+    여기서는 heading의 inline code와 링크가 본문 비교에 중복 반영되지 않도록 제외.
     """
     return _HEADING_LINE_RE.sub("", text)
 
@@ -153,7 +154,7 @@ def _strip_code_blocks(text: str) -> str:
 
 
 def _strip_comments(text: str) -> str:
-    """comments 제거."""
+    """HTML 주석 제거."""
 
     return strip_html_comments(text)
 
@@ -170,7 +171,7 @@ def _mask_html_comments(text: str) -> str:
 
 
 def _fenced_code_blocks(text: str) -> list[str]:
-    """Fenced code 블록을 원본 바이트 순서로 수집."""
+    """Fenced code 블록을 원본 문서 순서로 수집."""
 
     blocks: list[str] = []
     in_code = False
@@ -197,9 +198,10 @@ def _fenced_code_blocks(text: str) -> list[str]:
 
 
 def _normalized_fenced_code_blocks(text: str) -> list[str]:
-    """문서 경계 newline을 제외한 fenced code 블록 바이트 정규화."""
+    """문서 경계 newline을 제외한 fenced code 블록 정규화."""
 
-    # 마지막 newline은 문서 경계 소유. 블록 내부 바이트와 후행 공백은 원문 소유.
+    # 마지막 newline은 문서 경계 소유.
+    # 블록 내부 내용과 후행 공백은 원문 소유.
 
     return [block.rstrip("\n") for block in _fenced_code_blocks(text)]
 
@@ -524,7 +526,7 @@ def _heading_lines(text: str) -> list[str]:
 
 
 def _front_matter_title(text: str) -> str | None:
-    """유효한 front matter의 title 문자열 조회."""
+    """선행 front matter의 title 문자열 조회."""
 
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
@@ -629,7 +631,7 @@ def _has_untranslated_source_prose(text: str, source: str) -> bool:
 
 
 def _has_admonition_body_outside_blockquote(text: str) -> bool:
-    """admonition body 외부 blockquote 포함 여부."""
+    """admonition 본문이 blockquote 밖에 있는지 여부."""
 
     original = _strip_code_blocks(text)
     body = _mask_html_comments(original)
@@ -649,7 +651,7 @@ def _has_admonition_body_outside_blockquote(text: str) -> bool:
 
 
 def _has_duplicated_admonition_marker(text: str) -> bool:
-    """`> [!NOTE]`가 연속 2줄로 중복되면 True (부분블록 치환 시 마커 중복 결함)."""
+    """부분 블록 치환에서 admonition marker가 두 줄 연속 중복됐는지 여부."""
     body = _mask_html_comments(_strip_code_blocks(text))
     lines = body.splitlines()
     for index in range(len(lines) - 1):
@@ -661,7 +663,7 @@ def _has_duplicated_admonition_marker(text: str) -> bool:
 
 
 def _list_markers(text: str) -> int:
-    """code block·주석을 제외한 순서 없는 리스트 항목(`-`/`*`/`+`) 수."""
+    """code block·주석을 제외한 순서가 없는 목록 항목(`-`/`*`/`+`) 수."""
     body = _strip_code_blocks(_strip_comments(text))
     return len(_LIST_MARKER_RE.findall(body))
 
@@ -812,7 +814,7 @@ def _has_extra_empty_comment(text: str, source: str | None = None) -> bool:
 
 
 def _line_after_comment(text: str, end: int) -> tuple[str, int] | None:
-    """Comment 다음의 비어 있지 않은 줄과 시작 위치 반환."""
+    """HTML 주석 바로 다음 줄의 내용과 줄 끝 위치 반환."""
 
     cursor = end
     while cursor < len(text) and text[cursor] in " \t":
@@ -999,7 +1001,7 @@ def _structural_annotation_owns_following(
 
 
 def _source_structural_comment_counts(source: str) -> Counter[str]:
-    """원문 구조 HTML comment의 정규화된 출현 횟수 수집."""
+    """원문의 연속된 구조 HTML 조각 묶음을 정규화해 출현 횟수 수집."""
 
     counts: Counter[str] = Counter()
     run: list[str] = []
@@ -1021,7 +1023,7 @@ def _source_structural_comment_counts(source: str) -> Counter[str]:
 
 
 def _source_comments_are_preserved(text: str, source: str) -> bool:
-    """원문 작성 comment의 값·순서·구조 위치 보존 여부."""
+    """원문 작성 HTML 주석의 값·순서·구조 위치 보존 여부."""
 
     actual = _comment_positions(text)
     source_comment_indexes = _source_comment_indexes(actual, source)

@@ -9,7 +9,7 @@ VERSION_RE = re.compile(r"^(?:master|(?:0|[1-9]\d*)\.x)$")
 
 
 def validate_version_token(version: object) -> str:
-    """master 또는 숫자.x 형식의 버전 token 반환."""
+    """``master`` 또는 ``13.x`` 형식의 검증된 버전 토큰 반환."""
 
     if not isinstance(version, str) or not VERSION_RE.fullmatch(version):
         raise ValueError(f"invalid version: {version}")
@@ -17,7 +17,7 @@ def validate_version_token(version: object) -> str:
 
 
 def load_versions(path: Path) -> list[str]:
-    """versions.json에서 순서와 중복을 검증한 버전 목록 로딩."""
+    """versions.json에서 형식·순서·중복을 검증한 버전 목록 로딩."""
 
     raw_versions = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw_versions, list):

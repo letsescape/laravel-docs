@@ -1,4 +1,4 @@
-"""봉인된 candidate tree의 생성과 compare-and-swap publication."""
+"""봉인된 candidate tree의 commit 생성과 compare-and-swap publication."""
 
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ _PREPARE_CREDENTIAL_KEY_RE = re.compile(
 
 
 def _is_oid(value: object) -> bool:
-    """정규화된 Git SHA-1 또는 SHA-256 객체 ID 판별."""
+    """완전한 소문자 Git SHA-1 또는 SHA-256 객체 ID 형식 여부."""
 
     return (
         isinstance(value, str)
@@ -73,7 +73,7 @@ def _is_branch_ref(value: object) -> bool:
 
 
 def _validate_push_endpoint(value: str) -> str:
-    """push endpoint 검증."""
+    """공백과 내장 자격 증명이 없는 명시적 push endpoint 검증."""
 
     if (
         not isinstance(value, str)
@@ -105,7 +105,7 @@ def _validate_push_endpoint(value: str) -> str:
 
 
 def _validated_environment(values: Mapping[str, str]) -> dict[str, str]:
-    """위험한 Git 설정을 제거한 하위 프로세스 환경 구성."""
+    """위험한 Git 경로·설정 변수를 제거하고 고정 설정을 추가한 실행 환경 구성."""
 
     if not isinstance(values, Mapping):
         raise TypeError("Git environment must be a mapping")
@@ -141,7 +141,7 @@ def _validated_environment(values: Mapping[str, str]) -> dict[str, str]:
 
 @dataclass(frozen=True, slots=True)
 class PublicationBase:
-    """candidate 생성 시작 전에 고정된 값."""
+    """candidate 생성 전에 고정한 publication 기준본과 활성 저장소 지문."""
 
     head: str
     tree: str
@@ -196,7 +196,7 @@ class PreparedPublication:
             raise ValueError("prepared publication seal is invalid")
 
     def to_mapping(self) -> dict[str, str | None]:
-        """직렬화 가능한 publication 증거 mapping 반환."""
+        """직렬화 가능한 publication 증거 mapping으로 변환."""
 
         return {
             "base_head": self.base_head,
@@ -209,7 +209,7 @@ class PreparedPublication:
 
     @classmethod
     def from_mapping(cls, value: Mapping[str, Any]) -> PreparedPublication:
-        """엄격한 schema의 mapping에서 publication 증거 복원."""
+        """엄격한 schema의 mapping을 검증해 publication 증거 복원."""
 
         expected = {
             "base_head",
@@ -233,7 +233,7 @@ class PreparedPublication:
 
 @dataclass(frozen=True, slots=True)
 class PublicationResult:
-    """원격 반영 여부와 최종 commit 식별자."""
+    """원격 반영 여부와 최종 publication commit 식별자."""
 
     published_oid: str
     commit_oid: str | None
@@ -256,7 +256,7 @@ class PublicationError(RuntimeError):
         *,
         published_commit: str | None = None,
     ) -> None:
-        """안정된 문제 코드와 이미 반영된 commit 식별자 저장."""
+        """안정된 문제 코드와 이미 반영된 publication commit 식별자 저장."""
 
         if published_commit is not None and not _is_oid(published_commit):
             raise ValueError("published_commit must be a canonical Git OID")
@@ -291,13 +291,13 @@ def build_cas_push_argv(
 
 
 class Publisher:
-    """credential 없이 준비한 뒤 격리 Git 설정을 통한 publication.
+    """자격 증명 없이 준비한 뒤 격리 Git 설정을 통한 publication.
 
     ``PreparedPublication``은 scalar 식별자만 포함하며 process 경계 통과 가능.
-    ``publish``는 해당 scalar만 신뢰하지 않고 신규 shared bare 저장소를 열어 commit,
-    tree 및 단일 parent를 다시 해석하며 호출자가 고정한 명시적 endpoint를 ref 읽기와
-    push에 모두 사용. 호출자는 credential 없는 준비 환경과 credential 포함 push
-    환경을 분리해 제공하며 두 환경 모두 예외에 렌더링하지 않음.
+    ``publish``는 해당 scalar만 신뢰하지 않고 새 shared bare 저장소에서 commit, tree 및 단일 parent 재해석.
+    호출자가 고정한 명시적 endpoint를 ref 조회와 push에 모두 사용.
+    호출자는 자격 증명 없는 준비 환경과 자격 증명 포함 push 환경을 분리해 제공.
+    두 환경 모두 예외 문자열에 미포함.
     """
 
     def __init__(
@@ -339,7 +339,10 @@ class Publisher:
         verified_tree: str,
         commit_message: str,
     ) -> PreparedPublication:
-        """parent와 tree가 모두 고정된 참조 없는 커밋 생성."""
+        """변경된 tree에 대해 parent와 tree가 고정된 참조 없는 commit 생성.
+
+        기준 tree와 동일하면 commit 없는 봉인 증거 반환.
+        """
 
         if not _is_oid(verified_tree):
             raise ValueError("verified_tree must be a full canonical Git object ID")
@@ -387,7 +390,10 @@ class Publisher:
         *,
         push_environment: Mapping[str, str],
     ) -> PublicationResult:
-        """직렬화된 증거 재검증과 유일한 원격 변경 수행."""
+        """직렬화 증거와 활성·원격 기준 재검증 후 유일한 CAS 원격 변경 수행.
+
+        변경 없는 증거는 push 없이 기준본 반환.
+        """
 
         self._validate_prepared_scalars(prepared)
         environment = _validated_environment(push_environment)
@@ -531,7 +537,7 @@ class Publisher:
         environment: Mapping[str, str],
         failure_code: IssueCode,
     ) -> PublicationResult:
-        """실패하거나 불확실한 push 뒤 원격 ref 상태 재확인."""
+        """실패하거나 불확실한 push 뒤 원격 반영 여부를 확인해 실패 문맥에 보존."""
 
         try:
             observed = self._remote_oid(push_repo, environment)
@@ -549,7 +555,7 @@ class Publisher:
         raise PublicationError(failure_code)
 
     def _validate_prepared_scalars(self, prepared: PreparedPublication) -> None:
-        """직렬화된 증거가 현재 기준본과 seal에 맞는지 검증."""
+        """직렬화된 증거와 현재 기준본 및 HMAC 봉인의 일치 검증."""
 
         if not isinstance(prepared, PreparedPublication):
             raise TypeError("prepared must be a PreparedPublication")
@@ -598,7 +604,7 @@ class Publisher:
         verified_tree: str,
         commit_oid: str | None,
     ) -> str:
-        """봉인."""
+        """publication 증거의 결정적 HMAC-SHA256 봉인 생성."""
 
         payload = json.dumps(
             {
@@ -615,7 +621,7 @@ class Publisher:
         return hmac.new(self._preparation_key, payload, hashlib.sha256).hexdigest()
 
     def _validate_candidate_base(self) -> None:
-        """candidate가 승인 기준 commit과 tree를 포함하는지 검증."""
+        """candidate 저장소에 승인 기준 commit과 tree가 있는지 검증."""
 
         self._validate_base(
             self._candidate_repo,
@@ -628,7 +634,7 @@ class Publisher:
         *,
         environment: Mapping[str, str],
     ) -> None:
-        """저장소의 승인 기준 commit과 tree 식별자 검증."""
+        """저장소의 승인 기준 commit과 해당 tree 식별자 검증."""
 
         resolved_base = self._git_oid(
             repo,
@@ -686,7 +692,7 @@ class Publisher:
             raise PublicationError(IssueCode.VERIFIED_TREE_MISMATCH)
 
     def _isolated_push_repo(self, root: Path) -> Path:
-        """candidate 객체만 공유하는 push 전용 bare 저장소 생성."""
+        """candidate 객체만 공유하는 격리된 push 전용 bare 저장소 생성."""
 
         template = root / "empty-template"
         try:
@@ -757,7 +763,7 @@ class Publisher:
         *,
         environment: Mapping[str, str],
     ) -> str:
-        """Git 객체가 가리키는 canonical tree ID 조회."""
+        """Git 객체가 가리키는 정규 tree ID 조회."""
 
         return self._git_oid(
             repo,
@@ -776,7 +782,7 @@ class Publisher:
         environment: Mapping[str, str],
         failure_code: IssueCode,
     ) -> str:
-        """Git 명령의 단일 canonical 객체 ID 출력 검증."""
+        """Git 명령 출력의 단일 정규 객체 ID 검증·반환."""
 
         output = self._git_output(
             repo,

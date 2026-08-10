@@ -1,7 +1,7 @@
-"""hash에 결속된 write 없는 최종 문서 검증 계약.
+"""hash에 결속되고 저장소 쓰기를 하지 않는 최종 문서 검증 계약.
 
-이 모듈의 함수는 불변 값만 변환하고 저장소 파일을 읽거나 쓰지 않음. 실패 결과가
-candidate에 유출되지 않는 구조.
+이 모듈의 함수는 불변 값만 변환하고 저장소 파일을 직접 읽거나 쓰지 않음.
+실패한 candidate가 검증된 산출물로 유출되지 않는 구조.
 """
 from __future__ import annotations
 
@@ -77,7 +77,7 @@ def _canonical_compact_json(value: object) -> bytes:
 
 @dataclass(frozen=True)
 class ExpectedAnnotationEntry:
-    """영어 원문 annotation 한 건의 예상 위치와 바이트.
+    """영어 원문 annotation 한 건의 예상 위치와 canonical 문자열.
 
     Attributes:
         structural_address: annotation 소유 블록의 구조 주소.
@@ -421,15 +421,13 @@ def create_verification_input(
         annotation_source: stale-link 보정 전 annotation 소유 기준 원문.
         version: 문서 버전.
         registry_sha256: 비교에 사용한 stale-link registry digest.
-        expected_annotation_map: 호출자가 미리 구성한 예상 map. 제공하면
-            ``annotation_source``에서 다시 만든 map과 같아야 함.
+        expected_annotation_map: 호출자가 미리 구성한 예상 map. 제공하면 ``annotation_source``에서 다시 만든 map과 같아야 함.
 
     Returns:
         Canonical envelope와 SHA-256 digest가 포함된 불변 입력.
 
     Raises:
-        ValueError: 문서, 버전, registry digest 또는 annotation map이 계약을
-            위반한 경우.
+        ValueError: 문서, 버전, registry digest 또는 annotation map이 계약을 위반한 경우.
     """
 
     try:
@@ -602,7 +600,7 @@ def _actual_pipeline_annotations(
     text: str,
     source: str,
 ) -> tuple[tuple[str, ...], tuple[int, ...]]:
-    """Locale 문서의 pipeline annotation과 잘못된 소유 위치 수집."""
+    """Locale 문서의 pipeline annotation과 소유 위치가 잘못된 annotation 인덱스 수집."""
 
     masked = mask_fenced_code_contents(text)
     table_annotations = response_contract._required_table_comments(source)
@@ -623,8 +621,7 @@ def _actual_pipeline_annotations(
         )
         line_start = masked.rfind("\n", 0, start) + 1
         prefix = masked[line_start:start]
-        # 기존 인용 블록이 소유한 annotation은 호환 형식으로 유지하며 현재
-        # expected annotation map의 owner entry에는 포함하지 않음.
+        # 기존 인용 블록이 소유한 annotation은 호환 형식으로 유지하며 현재 expected annotation map의 owner entry에는 포함하지 않음.
         if re.fullmatch(r"[ \t]*(?:>[ \t]*)+", prefix):
             continue
         annotations.append(raw_annotation)
@@ -934,12 +931,11 @@ def _registry_snapshot_is_valid(registry: object) -> bool:
 
 _FINAL_STAGE_EXCLUDED_LEGACY_ISSUES = frozenset(
     {
-        # 최종 검증의 pipeline annotation 바이트와 occurrence는 stale-link 보정
-        # 이후 영어 view가 아닌 expected annotation map이 소유.
+        # 최종 검증의 pipeline annotation 바이트와 occurrence는 stale-link 보정 이후 영어 view가 아닌 expected annotation map이 소유.
         "missing original comment",
         "source comment mismatch",
-        # 문장 수와 미번역 원문은 live 응답 평가에서 검사. 최종 candidate
-        # 검증은 provider 독립적으로 재현 가능한 구조 검사만 수행.
+        # 문장 수와 미번역 원문은 live 응답 평가에서 검사.
+        # 최종 candidate 검증은 provider 독립적으로 재현 가능한 구조 검사만 수행.
         "sentence cardinality mismatch",
         "untranslated source text",
     }
@@ -960,11 +956,10 @@ def verify_document(
     Args:
         inputs: 시작 시점의 canonical 검증 입력.
         registry_at_start: 영어 view와 링크 비교에 사용한 registry snapshot.
-        final_snapshot: 산출물 생성 직전에 소유 source에서 검증 입력과 registry를
-            다시 구성하는 callback. 정확히 한 번 호출.
+        final_snapshot: 산출물 생성 직전에 소유 원본에서 검증 입력과 registry를 다시 구성하는 callback. 정확히 한 번 호출.
 
     Returns:
-        안정적인 문제 목록. 문제가 없으면 hash에 결속된 locale 산출물 포함.
+        검증 결과. 문제가 없으면 hash에 결속된 locale 산출물 포함.
     """
 
     integrity_issues = _input_integrity_issues(inputs)

@@ -1,4 +1,4 @@
-"""Sidebar synchronization stage helpers."""
+"""버전별 사이드바 동기화 단계 도우미."""
 from __future__ import annotations
 
 from .generator import (

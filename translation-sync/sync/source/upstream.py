@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""고정 upstream commit의 Laravel 영어 원문 cache 동기화.
+"""고정된 업스트림 커밋의 Laravel 영어 원문 캐시 동기화.
 
-지원 버전별 branch tip을 한 번 조회해 canonical manifest로 고정하고, 이후
-모든 checkout은 manifest의 commit 객체 ID만 사용. 원문 Markdown은 byte를
-정규화하지 않고 ``i18n/en/docusaurus-plugin-content-docs/version-<v>/``에
-복사하며, 전체 동기화에서는 upstream에 없는 기존 cache 파일을 삭제.
+지원 버전별 브랜치 끝을 한 번 조회해 정규 매니페스트로 고정.
+이후 모든 체크아웃에 매니페스트의 커밋 객체 ID만 사용.
+원문 Markdown 바이트를 정규화하지 않고 ``i18n/en/docusaurus-plugin-content-docs/version-<v>/``에 복사.
+전체 동기화 시 업스트림에 없는 기존 캐시 파일 삭제.
 """
 from __future__ import annotations
 
@@ -61,12 +61,12 @@ _PROCESS_RUNNER = run_process_tree
 
 
 def supported_versions() -> list[str]:
-    """versions.json을 단일 출처로 사용하는 지원 버전 목록."""
+    """``versions.json``을 단일 출처로 사용하는 지원 버전 목록."""
     return load_versions(REPO_ROOT / "versions.json")
 
 
 def _git_environment() -> dict[str, str]:
-    """자격 증명과 사용자 설정을 제거한 upstream Git 환경 구성."""
+    """자격 증명과 사용자 설정을 제거한 업스트림 Git 환경 구성."""
 
     env = {
         key: value
@@ -92,7 +92,7 @@ def _run(
     quiet: bool = False,
     timeout: float | None = None,
 ) -> None:
-    """격리된 환경에서 upstream Git argv 실행."""
+    """격리된 환경에서 업스트림 Git 인수 벡터 실행."""
 
     _PROCESS_RUNNER(
         args,
@@ -112,7 +112,7 @@ def _output(
     strip: bool = True,
     timeout: float | None = None,
 ) -> str:
-    """격리된 환경에서 Git argv를 실행하고 표준 출력 반환."""
+    """격리된 환경에서 Git 인수 벡터를 실행하고 표준 출력 반환."""
 
     output = _PROCESS_RUNNER(
         args,
@@ -131,7 +131,7 @@ def _remaining_timeout(
     *,
     cap: float | None = None,
 ) -> float | None:
-    """공유 기한과 단계 상한 중 짧은 timeout 계산."""
+    """공유 기한과 단계별 상한 중 더 짧은 제한 시간 계산."""
 
     if deadline is None:
         return cap
@@ -164,7 +164,7 @@ def _prepare_upstream(
     doc: str | None = None,
     deadline: float | None = None,
 ) -> None:
-    """고정 commit만 포함하는 sparse upstream 저장소 준비."""
+    """고정 커밋만 포함하는 희소 업스트림 저장소 준비."""
 
     if not refs:
         raise ValueError("upstream source refs must not be empty")
@@ -274,7 +274,7 @@ def _prepare_upstream(
 
 
 def _manifest_ref_names(versions: list[str]) -> dict[str, str]:
-    """지원 버전별 upstream branch ref 이름 구성."""
+    """지원 버전별 업스트림 브랜치 참조 이름 구성."""
 
     if not versions:
         raise ValueError("manifest versions must not be empty")
@@ -291,7 +291,7 @@ def _manifest_ref_names(versions: list[str]) -> dict[str, str]:
 
 
 def _literal_sparse_pattern(document: str) -> str:
-    """단일 문서 경로를 literal sparse-checkout pattern으로 변환."""
+    """단일 문서 경로를 리터럴 희소 체크아웃 패턴으로 변환."""
 
     escaped = "".join(
         f"\\{character}"
@@ -306,7 +306,7 @@ def _parse_remote_refs(
     output: str,
     expected_refs: dict[str, str],
 ) -> dict[str, str]:
-    """Git protocol v2의 원격 ref 응답을 버전별 commit으로 파싱."""
+    """Git 원격 참조 응답을 버전별 커밋으로 파싱."""
 
     if not isinstance(output, str) or not output:
         raise ValueError("invalid upstream ref advertisement")
@@ -332,7 +332,7 @@ def _query_remote_refs(
     *,
     deadline: float | None = None,
 ) -> dict[str, str]:
-    """단일 원격 조회로 지원 버전 branch commit 수집."""
+    """단일 원격 조회로 지원 버전 브랜치의 커밋 수집."""
 
     expected_refs = _manifest_ref_names(versions)
     args = [
@@ -359,7 +359,7 @@ def _query_remote_refs(
 
 
 def _object_format(commit: str) -> str:
-    """commit 객체 ID 길이에서 Git object format 판별."""
+    """커밋 객체 ID 길이로 Git 객체 형식 판별."""
 
     if not isinstance(commit, str):
         raise ValueError("manifest commit must be a lowercase full object ID")
@@ -371,7 +371,7 @@ def _object_format(commit: str) -> str:
 
 
 def _manifest_payload(refs: dict[str, str]) -> dict[str, object]:
-    """버전별 commit mapping을 canonical manifest payload로 변환."""
+    """버전별 커밋 매핑을 정규 매니페스트 페이로드로 변환."""
 
     entries: list[dict[str, str]] = []
     seen: set[str] = set()
@@ -393,7 +393,7 @@ def _manifest_payload(refs: dict[str, str]) -> dict[str, object]:
 
 
 def canonical_manifest(refs: dict[str, str]) -> bytes:
-    """버전별 upstream commit의 canonical manifest bytes 생성."""
+    """버전별 업스트림 커밋의 정규 매니페스트 바이트 생성."""
 
     return (
         json.dumps(
@@ -406,13 +406,13 @@ def canonical_manifest(refs: dict[str, str]) -> bytes:
 
 
 def manifest_digest(contents: bytes) -> str:
-    """canonical manifest bytes의 SHA-256 digest 계산."""
+    """정규 매니페스트 바이트의 SHA-256 해시 계산."""
 
     return hashlib.sha256(contents).hexdigest()
 
 
 def write_manifest(path: Path, refs: dict[str, str]) -> None:
-    """canonical manifest를 symlink 비추적 방식으로 원자적 기록."""
+    """심볼릭 링크를 따라가지 않고 정규 매니페스트를 원자적으로 기록."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
     contents = canonical_manifest(refs)
@@ -440,7 +440,7 @@ def load_manifest_bytes(
     *,
     expected_versions: list[str] | None = None,
 ) -> dict[str, str]:
-    """canonical manifest bytes 검증 및 버전별 commit 로딩."""
+    """정규 매니페스트 바이트를 검증하고 버전별 커밋 로딩."""
 
     try:
         payload = json.loads(contents.decode("utf-8"))
@@ -491,7 +491,7 @@ def load_manifest(
     *,
     expected_versions: list[str] | None = None,
 ) -> dict[str, str]:
-    """파일에서 canonical upstream manifest 로딩."""
+    """파일에서 정규 업스트림 매니페스트 로딩."""
 
     return load_manifest_bytes(
         path.read_bytes(),
@@ -504,13 +504,13 @@ def resolve_manifest(
     *,
     deadline: float | None = None,
 ) -> bytes:
-    """원격 branch를 한 번 조회해 고정 upstream manifest 확정."""
+    """원격 브랜치를 한 번 조회해 고정 업스트림 매니페스트 확정."""
 
     return canonical_manifest(_query_remote_refs(versions, deadline=deadline))
 
 
 def manifest_ref(refs: dict[str, str], version: str) -> str:
-    """manifest에서 요청 버전의 고정 commit 조회."""
+    """매니페스트에서 요청 버전의 고정 커밋 조회."""
 
     try:
         return refs[version]
@@ -519,7 +519,7 @@ def manifest_ref(refs: dict[str, str], version: str) -> str:
 
 
 def _has_symlink_component(path: Path, *, root: Path) -> bool:
-    """root부터 대상까지 경로 구성 요소의 symlink 포함 여부."""
+    """루트부터 대상까지 경로 구성 요소의 심볼릭 링크 포함 여부."""
 
     current = root
     if current.is_symlink():
@@ -532,7 +532,7 @@ def _has_symlink_component(path: Path, *, root: Path) -> bool:
 
 
 def _version_destination(version: str) -> Path:
-    """검증된 버전의 영어 원문 cache 디렉터리 반환."""
+    """검증된 버전의 영어 원문 캐시 디렉터리 반환."""
 
     if not _VERSION_RE.fullmatch(version):
         raise ValueError(f"invalid version: {version}")
@@ -551,7 +551,7 @@ def _version_destination(version: str) -> Path:
 
 
 def _document_destination(destination: Path, name: str) -> Path:
-    """버전 cache 내부의 canonical 문서 대상 경로 검증."""
+    """버전 캐시 내부의 정규 문서 대상 경로 검증."""
 
     repo_root = REPO_ROOT.absolute()
     en_root = EN_ROOT.absolute()
@@ -567,7 +567,7 @@ def _document_destination(destination: Path, name: str) -> Path:
 
 
 def normalize_document_selector(document: str) -> str:
-    """중첩 Markdown 문서 selector를 canonical POSIX 경로로 정규화."""
+    """중첩 Markdown 문서 선택자를 정규 POSIX 경로로 정규화."""
 
     if not isinstance(document, str):
         raise ValueError(f"invalid document: {document!r}")
@@ -587,7 +587,7 @@ def normalize_document_selector(document: str) -> str:
 
 
 def _recursive_markdown_files(root: Path, *, exclude_git: bool = False) -> list[Path]:
-    """symlink를 거부하며 root 아래 Markdown 파일을 재귀 수집."""
+    """심볼릭 링크를 거부하며 루트 아래의 Markdown 파일을 재귀적으로 수집."""
 
     if root.is_symlink() or (root.exists() and not root.is_dir()):
         raise ValueError(f"upstream Markdown path is unsafe: {root.name}")
@@ -655,20 +655,22 @@ def sync_version(
     doc: str | None = None,
     deadline: float | None = None,
 ) -> int:
-    """고정 commit의 단일 버전 원문을 영어 cache에 원자적으로 적재.
+    """고정 커밋의 단일 버전 원문을 영어 캐시에 파일별로 원자적 적재.
 
     Args:
+        repo_dir: 희소 체크아웃으로 준비된 업스트림 저장소 경로.
         version: 적재 대상 문서 버전.
-        source_ref: manifest가 고정한 upstream commit 객체 ID.
-        document: 선택적으로 적재할 단일 canonical Markdown 경로.
+        ref: 매니페스트가 고정한 업스트림 커밋 객체 ID. 생략 시 ``version`` 사용.
+        doc: 선택적으로 적재할 단일 정규 Markdown 경로.
         deadline: 전체 워크플로의 단조 시계 기한.
 
     Returns:
-        영어 cache에 적재하거나 삭제한 Markdown 파일 수.
+        영어 캐시에 적재한 Markdown 파일 수.
 
     Raises:
-        ValueError: 버전, commit 또는 문서 selector가 부적합한 경우.
-        subprocess.CalledProcessError: upstream Git 명령이 실패한 경우.
+        ValueError: 버전, 커밋 또는 문서 선택자가 부적합한 경우.
+        ProcessTreeError: 하위 프로세스 격리 실패.
+        subprocess.CalledProcessError: 업스트림 Git 명령 실패.
         subprocess.TimeoutExpired: 공유 기한을 초과한 경우.
     """
     if doc is not None:
@@ -749,14 +751,16 @@ def sync_version(
 
 
 def main(*, version: str | None = None, doc: str | None = None) -> int:
-    """manifest 확정 또는 재사용 후 선택 범위의 원문 동기화.
+    """매니페스트 확정 또는 재사용 후 선택 범위의 원문 동기화.
 
     Args:
         version: 선택적으로 동기화할 단일 지원 버전.
-        doc: ``version`` 내부의 선택적 canonical Markdown 경로.
+        doc: ``version`` 내부의 선택적 정규 Markdown 경로.
 
     Returns:
-        성공 시 0, 제어된 입력·manifest·Git 실패 시 1.
+        성공 시 0.
+        제어된 입력·매니페스트·일반 Git 실패 시 1.
+        프로세스 격리 실패, 기한 초과 또는 기한이 설정된 원격 실패 시 2.
     """
 
     try:

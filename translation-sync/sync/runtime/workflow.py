@@ -1,8 +1,8 @@
 """봉인된 publication 준비를 위한 fail-closed orchestration.
 
-준비 process는 순서만 소유. replay, candidate 생성, publication 및 배포는 독립
-검증 가능한 계약을 가진 deep module로 유지. 이 모듈은 detached commit을
-준비하지만 push와 배포 trigger는 수행하지 않음.
+준비 프로세스는 단계 순서만 소유.
+replay, candidate 생성, publication 및 배포는 독립 검증 가능한 계약을 가진 deep module로 유지.
+이 모듈은 detached commit을 준비하지만 push와 배포 trigger는 미수행.
 """
 
 from __future__ import annotations
@@ -129,7 +129,7 @@ _DEPLOY_HOST = re.compile(
 
 
 def _deployment_host_for(push_endpoint: str, deploy_repository: str) -> str:
-    """push endpoint와 배포 저장소에서 검증된 host 추출."""
+    """push endpoint와 배포 저장소에서 검증된 호스트 추출."""
 
     if not isinstance(push_endpoint, str) or not isinstance(
         deploy_repository,
@@ -162,7 +162,7 @@ def _deployment_host_for(push_endpoint: str, deploy_repository: str) -> str:
 
 
 class WorkflowStageError(RuntimeError):
-    """단일 orchestration 경계가 반환하는 비식별 안정 실패."""
+    """단일 orchestration 경계에서 반환하는 비식별 안정 실패."""
 
     def __init__(
         self,
@@ -237,7 +237,7 @@ class PrepareOutcome:
 
 
 class CaptureBase(Protocol):
-    """승인 publication 기준본 capture 경계."""
+    """승인 publication 기준본 캡처 경계."""
 
     def __call__(
         self,
@@ -265,7 +265,7 @@ class RunUnitTests(Protocol):
 
 
 class RunReplay(Protocol):
-    """identity replay 실행 및 snapshot 반환 경계."""
+    """identity replay 실행 및 스냅샷 반환 경계."""
 
     def __call__(
         self,
@@ -275,13 +275,13 @@ class RunReplay(Protocol):
         environment: Mapping[str, str],
         remaining_seconds: Callable[[], float],
     ) -> ReplaySnapshot:
-        """replay 명령 실행 후 manifest와 selector snapshot 반환."""
+        """replay 명령 실행 후 manifest와 selector 스냅샷 반환."""
 
         ...
 
 
 class RunCommandStage(Protocol):
-    """증거 bytes를 반환하는 하위 명령 단계 경계."""
+    """증거 바이트를 반환하는 하위 명령 단계 경계."""
 
     def __call__(
         self,
@@ -290,7 +290,7 @@ class RunCommandStage(Protocol):
         environment: Mapping[str, str],
         remaining_seconds: Callable[[], float],
     ) -> bytes:
-        """공유 기한 안에서 명령을 실행하고 증거 bytes 반환."""
+        """공유 기한 안에서 명령을 실행하고 증거 바이트 반환."""
 
         ...
 
@@ -345,7 +345,7 @@ class ReadActiveFingerprint(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class WorkflowHooks:
-    """preparer가 순서대로 호출하는 외부 단계 adapter 집합."""
+    """preparer가 순서대로 호출하는 외부 단계 어댑터 집합."""
 
     capture_base: CaptureBase
     run_unit_tests: RunUnitTests
@@ -365,7 +365,7 @@ def _format_deadline(value: float) -> str:
 
 
 def _canonical_json(value: Mapping[str, object]) -> bytes:
-    """mapping을 정렬된 compact JSON bytes로 직렬화."""
+    """mapping을 키가 정렬되고 공백이 제거된 JSON 바이트로 직렬화."""
 
     return (
         json.dumps(
@@ -379,7 +379,7 @@ def _canonical_json(value: Mapping[str, object]) -> bytes:
 
 
 def _write_no_replace(path: Path, contents: bytes) -> Path:
-    """기존 파일과 symlink를 덮어쓰지 않고 증거 bytes 기록."""
+    """기존 파일과 symlink를 덮어쓰지 않고 증거 바이트 기록."""
 
     directory_flags = os.O_RDONLY
     if hasattr(os, "O_DIRECTORY"):
@@ -409,7 +409,7 @@ def _write_no_replace(path: Path, contents: bytes) -> Path:
 
 
 def _sealed_mapping(value: Mapping[str, object], key: bytes) -> dict[str, object]:
-    """canonical mapping에 HMAC-SHA256 state seal 추가."""
+    """정규 mapping에 HMAC-SHA256 state 봉인 추가."""
 
     if not isinstance(key, bytes) or len(key) < 32:
         raise ValueError("state sealing key must contain at least 256 bits")
@@ -432,7 +432,7 @@ def verify_sealed_mapping(
 
     Args:
         value: ``state_seal``을 포함한 state mapping.
-        key: state 봉인에 사용한 256 bit 이상의 비밀 key.
+        key: state 봉인에 사용한 256비트 이상의 비밀 키.
 
     Returns:
         ``state_seal``을 제거한 검증 완료 payload.
@@ -504,7 +504,7 @@ def _stage_environment(
 
 
 def _prepare_git_environment(source: Mapping[str, str]) -> dict[str, str]:
-    """publication 준비용 Git identity와 최소 환경 구성."""
+    """publication 준비용 Git 식별 정보와 최소 환경 구성."""
 
     selected = {
         key: value
@@ -518,7 +518,7 @@ def _prepare_git_environment(source: Mapping[str, str]) -> dict[str, str]:
 
 
 def _failure_event(error: WorkflowStageError) -> FailureEvent:
-    """단계 오류를 안정된 실패 보고서 event로 변환."""
+    """단계 오류를 안정된 실패 보고서 이벤트로 변환."""
 
     attempts = error.attempts
     if classification_for(error.code) is ErrorClassification.TRANSLATION:
@@ -549,7 +549,7 @@ _FIXTURE_VERSION = 1
 
 
 def _validate_fixture_evidence(value: bytes, live_config: Config) -> bytes:
-    """KO·JA live provider fixture 증거와 설정 identity 검증."""
+    """KO·JA live provider fixture 증거와 설정 식별자 검증."""
 
     try:
         if not isinstance(value, bytes) or not value or len(value) > 8192:
@@ -615,7 +615,7 @@ def _validate_fixture_evidence(value: bytes, live_config: Config) -> bytes:
 
 
 class WorkflowPreparer:
-    """원격 credential 없는 단일 불변 publication 상태 준비."""
+    """원격 자격 증명 없는 단일 불변 publication 상태 준비."""
 
     def __init__(
         self,
@@ -628,7 +628,7 @@ class WorkflowPreparer:
         preparation_key_factory: Callable[[], bytes] = lambda: secrets.token_bytes(32),
         workflow_started_at: float | None = None,
     ) -> None:
-        """설정, 환경, 단계 adapter 및 단조 시계 고정."""
+        """설정, 환경, 단계 어댑터 및 단조 시계 고정."""
 
         self._settings = settings
         self._environment = dict(environment)
@@ -1041,7 +1041,7 @@ class WorkflowPreparer:
 
     @staticmethod
     def _validate_request(request: PrepareRequest) -> None:
-        """prepare 입력 문자열과 canonical selector 검증."""
+        """publication·배포 입력 문자열과 정규 selector 검증."""
 
         values = (
             request.push_endpoint,
@@ -1129,7 +1129,7 @@ class WorkflowPreparer:
         base: ApprovedPublicationBase,
         request: PrepareRequest,
     ) -> None:
-        """capture 결과의 commit, tree, ref 및 fingerprint 형식 검증."""
+        """캡처 결과 유형과 요청 branch ref의 일치 검증."""
 
         if not isinstance(base, ApprovedPublicationBase):
             raise WorkflowStageError(
@@ -1249,7 +1249,7 @@ class WorkflowPreparer:
         return config
 
     def _run_timeout_seconds(self, config: Config) -> int:
-        """provider 설정의 양수 실행 timeout 반환."""
+        """provider 설정의 양수 실행 제한 시간 반환."""
 
         try:
             run_timeout = int(config.values["TRANSLATION_RUN_TIMEOUT_SECONDS"])
@@ -1339,7 +1339,7 @@ class WorkflowPreparer:
         base: ApprovedPublicationBase,
         candidate: CandidateResult,
     ) -> None:
-        """prepared publication과 candidate identity의 일치 검증."""
+        """prepared publication과 candidate 식별자의 일치 검증."""
 
         if not isinstance(prepared, PreparedPublication):
             raise WorkflowStageError(
@@ -1374,7 +1374,7 @@ class WorkflowPreparer:
         preparation_key: bytes,
         fixture_evidence: bytes,
     ) -> bytes:
-        """봉인할 prepared state의 canonical JSON bytes 생성."""
+        """봉인할 prepared state의 정규 JSON 바이트 생성."""
 
         return _canonical_json(
             _sealed_mapping(
@@ -1467,7 +1467,7 @@ def _remaining_timeout(
     stage: str,
     deadline_code: IssueCode,
 ) -> float:
-    """단계 callback에서 유효한 양수의 남은 시간 획득."""
+    """단계 콜백에서 유효한 양수의 남은 시간 획득."""
 
     try:
         remaining = float(remaining_seconds())
@@ -1551,7 +1551,7 @@ def _read_child_failure(
     expected_run_id: str,
     fallback_stage: str,
 ) -> WorkflowStageError:
-    """하위 프로세스의 canonical 실패 보고서를 단계 오류로 복원."""
+    """하위 프로세스의 정규 실패 보고서를 단계 오류로 복원."""
 
     try:
         flags = os.O_RDONLY
@@ -1842,14 +1842,13 @@ def _read_replay_snapshot(path: Path, *, repository: Path) -> ReplaySnapshot:
 def default_workflow_hooks(
     environment: Mapping[str, str] | None = None,
 ) -> WorkflowHooks:
-    """주입 가능한 단계 경계를 구현하는 production adapter 구성.
+    """주입 가능한 단계 경계를 구현하는 운영 어댑터 구성.
 
     Args:
-        environment: adapter가 단계별로 정제할 원본 환경 변수. 생략 시 현재
-            프로세스 환경 사용.
+        environment: 어댑터가 단계별로 정제할 원본 환경 변수. 생략 시 현재 프로세스 환경 사용.
 
     Returns:
-        승인 기준본부터 publication 준비까지의 기본 단계 adapter 집합.
+        승인 기준본부터 publication 준비까지의 기본 단계 어댑터 집합.
     """
     source_environment = dict(os.environ if environment is None else environment)
 
@@ -1857,7 +1856,7 @@ def default_workflow_hooks(
         request: PrepareRequest,
         remaining_seconds: Callable[[], float],
     ) -> ApprovedPublicationBase:
-        """활성 저장소의 승인 publication 기준본 capture."""
+        """활성 저장소의 승인 publication 기준본 캡처."""
 
         return capture_publication_base(
             request.repository,

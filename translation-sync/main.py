@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """번역 동기화 엔트리포인트.
 
-설정·프롬프트 확인 → 원문 동기화 → 변경 감지 → 전처리 → 번역 → 후처리 →
-문서 검증·출력 → 사이드바 갱신 순서로 candidate 산출물을 생성.
+설정·프롬프트 확인 → 원문 동기화 → 변경 감지 → 전처리 → 번역 → 후처리 → 문서 검증·출력 → 사이드바 갱신 순서로 후보 산출물 생성.
 
 출력 로케일: ko(versioned_docs), ja(i18n/ja).
 프롬프트: ko=prompt.md, ja=prompt_jp.md.
@@ -61,7 +60,7 @@ class SourcePathError(ValueError):
 
 @dataclass(frozen=True)
 class _PreparedBlockTranslation:
-    """provider 호출 전에 고정한 block source·context·복원 정보."""
+    """프로바이더 호출 전에 확정한 블록 원문·문맥·복원 정보."""
 
     request_source: str
     existing_context: str
@@ -72,7 +71,7 @@ class _PreparedBlockTranslation:
 
 @dataclass(frozen=True)
 class _PreparedTranslationTarget:
-    """한 locale 대상의 입력 byte·PatchPlan·block별 preflight 결과."""
+    """로케일 하나의 입력 바이트·패치 계획·블록별 사전 검증 결과."""
 
     source: str
     existing: str | None
@@ -84,7 +83,7 @@ class _PreparedTranslationTarget:
 
 
 def _validated_output_path(path: Path) -> Path:
-    """허용된 locale root 아래의 symlink 없는 출력 경로 검증."""
+    """허용된 로케일 루트 안에서 심볼릭 링크를 거치지 않는 출력 경로 검증."""
 
     root = REPO_ROOT.absolute()
     candidate = path.absolute()
@@ -118,7 +117,7 @@ def _validated_output_path(path: Path) -> Path:
 
 
 def _ko_output(change: diff.SourceChange) -> Path:
-    """원문 변경에 대응하는 한국어 문서 경로 반환."""
+    """원문 변경에 대응하는 한국어 출력 경로 반환."""
 
     return (
         REPO_ROOT
@@ -129,7 +128,7 @@ def _ko_output(change: diff.SourceChange) -> Path:
 
 
 def _ja_output(change: diff.SourceChange) -> Path:
-    """원문 변경에 대응하는 일본어 문서 경로 반환."""
+    """원문 변경에 대응하는 일본어 출력 경로 반환."""
 
     return (
         REPO_ROOT
@@ -142,7 +141,7 @@ def _ja_output(change: diff.SourceChange) -> Path:
 
 
 def _validate_file_states(changes: list[diff.SourceChange]) -> list[str]:
-    """첫 locale 변경 전 모든 EN/KO/JA 파일 상태 검증."""
+    """첫 로케일 변경 전에 모든 영어·한국어·일본어 파일 상태 검증."""
     issues: list[str] = []
     for change in changes:
         source = REPO_ROOT / change.path
@@ -182,7 +181,7 @@ def _validate_file_states(changes: list[diff.SourceChange]) -> list[str]:
 
 
 def _delete_outputs(change: diff.SourceChange) -> list[str]:
-    """출력 삭제."""
+    """원문 삭제에 대응하는 한국어·일본어 출력 파일 삭제."""
 
     try:
         paths = tuple(
@@ -202,7 +201,7 @@ def _preflight_all_translation_targets(
     cfg: config.Config,
     prompts: Mapping[str, str],
 ) -> tuple[dict[tuple[str, str], _PreparedTranslationTarget], list[str]]:
-    """첫 locale 쓰기 전에 모든 대상의 계획·입력·요청 예산 검증."""
+    """첫 로케일 기록 전에 모든 대상의 계획·입력·요청 예산 검증."""
 
     prepared: dict[tuple[str, str], _PreparedTranslationTarget] = {}
     issues: list[str] = []
@@ -250,14 +249,14 @@ def _preflight_all_translation_targets(
 
 
 def _sidebar_versions(changes: list[diff.SourceChange], version: str | None) -> list[str]:
-    """전체 sidebar 검증에 사용할 canonical 버전 순서 반환."""
+    """전체 사이드바 검증에 사용할 정규 버전 순서 반환."""
 
     del changes, version
     return sidebar.load_versions(REPO_ROOT)
 
 
 def _load_prompts() -> dict[str, str]:
-    """한국어와 일본어 운영 프롬프트를 locale별로 로드."""
+    """한국어·일본어 운영 프롬프트를 로케일별로 로드."""
 
     return {
         "ko": prompt.load_prompt(PROMPT_PATH),
@@ -268,7 +267,7 @@ def _load_prompts() -> dict[str, str]:
 def _matches_filters(
     change: diff.SourceChange, *, version: str | None, doc: str | None
 ) -> bool:
-    """원문 변경이 정규화된 version·document selector와 맞는지 판별."""
+    """원문 변경이 정규화된 버전·문서 선택자와 일치하는지 판별."""
 
     if version and change.version != version:
         return False
@@ -282,7 +281,7 @@ def _matches_filters(
 def _select_changes(
     *, migrate_existing: bool = False, version: str | None = None, doc: str | None = None
 ) -> list[diff.SourceChange]:
-    """변경 선택."""
+    """선택자와 실행 모드에 맞는 원문 변경 선택."""
 
     if not migrate_existing:
         return _sort_changes([
@@ -328,7 +327,7 @@ def _select_changes(
 def _sort_changes(
     changes: list[diff.SourceChange],
 ) -> list[diff.SourceChange]:
-    """변경 정렬."""
+    """사이드바 버전 순서와 문서명에 따라 변경 정렬."""
 
     if not changes:
         return []
@@ -352,7 +351,7 @@ def _sort_changes(
 
 
 def _recursive_source_markdown(root: Path) -> list[Path]:
-    """symlink를 거부하며 root 아래 Markdown 문서를 결정적 순서로 수집."""
+    """심볼릭 링크를 거부하며 루트 아래의 Markdown 문서를 결정적 순서로 수집."""
 
     documents: list[Path] = []
     pending = [root]
@@ -391,7 +390,7 @@ def _translation_request(
     diff_text: str | None = None,
     verification_feedback: str | None = None,
 ) -> translate.TranslationRequest:
-    """응답 계약 버전을 포함한 구조화 번역 요청 생성."""
+    """응답 계약 버전을 포함한 구조화된 번역 요청 생성."""
 
     return translate.TranslationRequest(
         source=source,
@@ -404,7 +403,7 @@ def _translation_request(
 
 
 def _verification_feedback(issues: list[str]) -> str:
-    """응답 계약 issue를 길이가 제한된 provider 교정 지침으로 변환."""
+    """응답 계약 문제를 길이가 제한된 프로바이더 교정 지침으로 변환."""
 
     return translate.verification_feedback(issues)
 
@@ -416,7 +415,7 @@ def _contract_issues(
     change: diff.SourceChange,
     locale: str | None,
 ) -> list[str]:
-    """provider 응답을 현재 locale과 고정 응답 계약으로 검증."""
+    """프로바이더 응답을 현재 로케일과 고정된 응답 계약으로 검증."""
 
     contract_source = (
         response_contract.identity_source_view(source, change.version)
@@ -441,7 +440,7 @@ def _translate_added_document(
     deadline: float | None = None,
     prepared_target: _PreparedTranslationTarget | None = None,
 ) -> list[str]:
-    """added 문서 번역."""
+    """추가된 문서 번역."""
 
     try:
         dest = _validated_output_path(dest)
@@ -536,7 +535,7 @@ def _prepare_block_translation(
     *,
     placeholders: Mapping[str, str] | None = None,
 ) -> _PreparedBlockTranslation:
-    """블록 번역 준비."""
+    """블록 번역 요청 준비."""
 
     source = patch_utils.source_text(block_change)
     if placeholders is None:
@@ -581,7 +580,7 @@ def _mask_with_restore_map(
     text: str,
     placeholders: Mapping[str, str],
 ) -> str:
-    """with restore map 마스킹."""
+    """복원 매핑을 사용해 원문 요소 마스킹."""
 
     for placeholder, original in sorted(
         placeholders.items(),
@@ -604,7 +603,7 @@ def _translate_block_change(
     placeholders: Mapping[str, str] | None = None,
     prepared: _PreparedBlockTranslation | None = None,
 ) -> str:
-    """블록 변경 번역."""
+    """변경된 블록 번역."""
 
     prepared = prepared or _prepare_block_translation(
         change,
@@ -677,7 +676,7 @@ def _render_provider_free_change(
     *,
     placeholders: Mapping[str, str] | None = None,
 ) -> str:
-    """provider free 변경 렌더링."""
+    """프로바이더 호출이 필요 없는 변경 렌더링."""
 
     source = patch_utils.source_text(block_change)
     if placeholders is None:
@@ -703,7 +702,7 @@ def _preview_provider_translation(
     version: str,
     placeholders: Mapping[str, str],
 ) -> str:
-    """provider 호출 없이 source를 복원한 plan 적용 preview 생성."""
+    """프로바이더 호출 없이 원문을 복원해 계획 적용용 미리보기 생성."""
 
     expected = postprocess.postprocess(request_source, version, placeholders)
     return _repair_segment_translation(expected, expected, version)
@@ -715,7 +714,7 @@ def _preflight_create_plan(
     cfg: config.Config,
     prompt: str,
 ) -> None:
-    """create plan의 provider 대상 owner 요청을 쓰기 전에 검증."""
+    """문서 생성 계획에서 프로바이더가 필요한 소유 블록의 요청 사전 검증."""
 
     for owner in plan.create_blocks:
         if not owner.provider_required:
@@ -737,7 +736,7 @@ def _preflight_modified_plan(
     existing: str,
     placeholders: Mapping[str, str],
 ) -> dict[int, _PreparedBlockTranslation]:
-    """수정 plan의 block 요청과 provider-free preview 적용 가능성 검증."""
+    """수정 계획의 블록 요청과 프로바이더 비호출 미리보기 적용 가능성 검증."""
 
     if plan.is_noop or state is patch_utils.PlanState.TARGET:
         return {}
@@ -777,7 +776,7 @@ def _preflight_modified_plan(
 
 
 def _translation_config_issue(exc: config.ConfigError) -> str:
-    """번역 설정 오류를 안정된 issue code가 포함된 진단으로 변환."""
+    """번역 설정 오류를 안정적 문제 코드가 포함된 진단으로 변환."""
 
     return (
         "translation configuration failed "
@@ -791,7 +790,7 @@ def _prepare_translation_target(
     prompt: str,
     dest: Path,
 ) -> _PreparedTranslationTarget:
-    """번역 대상 준비."""
+    """로케일별 번역 대상 사전 준비."""
 
     dest = _validated_output_path(dest)
     source = (REPO_ROOT / change.path).read_text(encoding="utf-8")
@@ -862,7 +861,7 @@ def _prepare_translation_target(
 
 
 def _repair_segment_translation(source: str, translated: str, version: str) -> str:
-    """segment 번역 복구."""
+    """번역 구간의 보존 서식 복구."""
 
     translated = _repair_blockquote_segment(source, translated)
     translated = repair.restore_list_markers(source, translated)
@@ -899,7 +898,7 @@ def _canonicalize_document_annotations(
     translated: str,
     version: str,
 ) -> str:
-    """문서 annotation canonical 정규화."""
+    """문서의 영어 원문 주석을 정규 형식으로 정리."""
 
     source_comments_preserved, source_comment_indexes = (
         response_contract._matched_source_comment_indexes(
@@ -925,7 +924,7 @@ def _canonicalize_document_annotations(
 
 
 def _repair_blockquote_segment(source: str, translated: str) -> str:
-    """blockquote segment 복구."""
+    """인용문 블록 구간 복구."""
 
     source_lines = [line for line in source.splitlines() if line.strip()]
     if not source_lines or any(not line.lstrip().startswith(">") for line in source_lines):
@@ -942,7 +941,7 @@ def _repair_blockquote_segment(source: str, translated: str) -> str:
 
 
 def _split_line_ending(line: str) -> tuple[str, str]:
-    """줄 ending 분할."""
+    """본문과 줄바꿈 문자 분리."""
 
     if line.endswith("\r\n"):
         return line[:-2], "\r\n"
@@ -960,7 +959,7 @@ def _normalize_plan_source_pair(
     *,
     capture: list[preprocess.PreprocessedPair] | None = None,
 ) -> tuple[str, str]:
-    """계획 원문 pair 정규화."""
+    """계획에 사용할 이전·현재 원문 쌍 정규화."""
 
     pair = preprocess.preprocess_pair(previous, current)
     if capture is not None:
@@ -983,7 +982,7 @@ def _build_modified_plan(
     change: diff.SourceChange,
     source: str,
 ) -> tuple[patch_utils.PatchPlan, preprocess.PreprocessedPair]:
-    """수정된 계획 구성."""
+    """수정 문서의 패치 계획 구성."""
 
     pairs: list[preprocess.PreprocessedPair] = []
     plan = patch_utils.build_plan(
@@ -1006,7 +1005,7 @@ def _annotation_source(
     version: str,
     placeholders: Mapping[str, str],
 ) -> str:
-    """identity source view에 보호 placeholder를 복원한 annotation 기준 생성."""
+    """원문 보기의 보호용 자리표시자를 복원해 영어 원문 주석 기준 생성."""
 
     versioned = response_contract.identity_source_view(source, version)
     return postprocess.restore_placeholders(versioned, placeholders)
@@ -1020,7 +1019,7 @@ def _document_verification_result(
     *,
     canonicalize: bool,
 ) -> document_verification.VerificationResult:
-    """stale-link registry snapshot에 결합된 최종 문서 검증 실행."""
+    """오래된 링크 레지스트리 스냅샷에 결합된 최종 문서 검증 실행."""
 
     registry_at_start = stale_links.load_stale_link_registry()
     annotation_source = _annotation_source(source, version, placeholders)
@@ -1051,7 +1050,7 @@ def _document_verification_result(
         document_verification.VerificationInput,
         stale_links.StaleLinkRegistry,
     ]:
-        """registry를 다시 읽어 artifact 직전 검증 입력 재구성."""
+        """레지스트리를 다시 읽어 산출물 생성 직전의 검증 입력 재구성."""
 
         registry_at_end = stale_links.load_stale_link_registry()
         final_input = document_verification.create_verification_input(
@@ -1078,7 +1077,7 @@ def _document_verification_result(
 def _document_verification_issues(
     result: document_verification.VerificationResult,
 ) -> list[str]:
-    """구조화된 문서 issue를 안정된 CLI 진단 문자열로 변환."""
+    """구조화된 문서 문제를 안정적 CLI 진단 문자열로 변환."""
 
     return [
         f"{issue.code}: {issue.structural_address or 'document'}: {issue.message}"
@@ -1096,7 +1095,7 @@ def _verify_and_admit_document(
     write: bool,
     canonicalize: bool = False,
 ) -> list[str]:
-    """and admit 문서 검증."""
+    """문서를 검증하고 승인된 결과를 선택적으로 기록."""
 
     try:
         result = _document_verification_result(
@@ -1129,7 +1128,7 @@ def _translate_one(
     deadline: float | None = None,
     prepared_target: _PreparedTranslationTarget | None = None,
 ) -> list[str]:
-    """원문 한 건의 locale 번역·후처리·검증·기록과 위반 목록 반환."""
+    """원문 한 건을 한 로케일로 번역·후처리·검증·기록하고 위반 목록 반환."""
     if change.status == "A":
         return _translate_added_document(
             change,
@@ -1238,9 +1237,8 @@ def _translate_one(
     except OSError as exc:
         return [f"partial translation input read failed: {exc}"]
 
-    # A partial patch preserves unaffected locale context. Normalize that context
-    # together with the patched blocks before the full-document verifier runs:
-    # legacy admonitions and their source annotations otherwise remain stale.
+    # 부분 패치는 영향을 받지 않은 로케일 문맥을 보존.
+    # 전체 문서 검증 전에 해당 문맥과 패치한 블록을 함께 정규화해야 기존 경고문과 원문 주석이 오래된 상태로 남지 않음.
     out = _repair_segment_translation(expected_source, out, change.version)
     return _verify_and_admit_document(
         dest,
@@ -1254,7 +1252,7 @@ def _translate_one(
 
 
 def _expected_source(change: diff.SourceChange) -> str:
-    """raw source에 전처리와 후처리를 적용한 검증 기준 원문."""
+    """원문에 전처리와 후처리를 적용한 검증 기준 원문 생성."""
     src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
     pre = preprocess.preprocess(src)
     return postprocess.postprocess(pre.text, change.version, pre.placeholders)
@@ -1263,7 +1261,7 @@ def _expected_source(change: diff.SourceChange) -> str:
 def _check_existing_annotations(
     *, version: str | None = None, doc: str | None = None
 ) -> list[str]:
-    """기존 KO/JA 문서의 영어 원문 주석 병기 형식 검증."""
+    """기존 한국어·일본어 문서의 영어 원문 주석 병기 형식 검증."""
     failures: list[str] = []
     for change in _select_changes(migrate_existing=True, version=version, doc=doc):
         expected_source = _expected_source(change)
@@ -1281,7 +1279,7 @@ def _check_existing_annotations(
 
 
 def _sync_sidebars(versions: list[str]) -> list[str]:
-    """sidebars 동기화."""
+    """사이드바 동기화."""
 
     failures: list[str] = []
     for result in sidebar.sync_versions(versions, write=True, repo_root=REPO_ROOT):
@@ -1293,7 +1291,7 @@ def _sync_sidebars(versions: list[str]) -> list[str]:
 def _annotate_existing(
     *, apply: bool = False, version: str | None = None, doc: str | None = None
 ) -> tuple[int, list[str]]:
-    """기존 KO/JA 문서의 영어 원문 주석 병기와 안전한 파일만 기록."""
+    """기존 한국어·일본어 문서에 영어 원문 주석을 병기하고 안전한 파일만 기록."""
     writable = 0
     failures: list[str] = []
 
@@ -1396,7 +1394,7 @@ def _annotate_existing(
 def _fix_preserved_markup_file(
     label: str, dest: Path, expected_source: str, *, version: str, apply: bool
 ) -> tuple[int, str | None]:
-    """단일 locale 문서의 보존 markup만 검증 후 선택적으로 원자 기록."""
+    """로케일 문서 하나의 비번역 서식만 검증하고 선택적으로 원자적 기록."""
 
     try:
         dest = _validated_output_path(dest)
@@ -1436,7 +1434,7 @@ def _fix_preserved_markup_file(
 def _fix_preserved_markup(
     *, apply: bool = False, version: str | None = None, doc: str | None = None
 ) -> tuple[int, list[str]]:
-    """기존 KO/JA 문서의 비번역 markup만 원문 기준으로 복구."""
+    """기존 한국어·일본어 문서의 비번역 서식만 원문 기준으로 복구."""
     writable = 0
     failures: list[str] = []
 
@@ -1473,7 +1471,7 @@ _MAINTENANCE_OPTIONS = {
 
 
 def _parse_args(args: list[str]) -> tuple[set[str], dict[str, str]]:
-    """args 파싱."""
+    """명령행 인수 파싱."""
 
     flags: set[str] = set()
     values: dict[str, str] = {}

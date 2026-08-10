@@ -9,7 +9,7 @@ class PromptError(Exception):
 
 
 def load_prompt(path: Path) -> str:
-    """UTF-8 프롬프트 본문의 바깥 공백을 제거해 로딩.
+    """UTF-8 프롬프트 본문의 앞뒤 공백을 제거해 로딩.
 
     Raises:
         PromptError: 파일 누락, 읽기 실패 또는 UTF-8 해석 실패.

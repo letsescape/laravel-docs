@@ -162,7 +162,7 @@ def list_structure_signature(text: str) -> tuple[tuple[object, ...], ...]:
 
 
 def table_structure_signature(text: str) -> tuple[tuple[object, ...], ...]:
-    """표 행 유형·열 수·정렬자의 순서 서명."""
+    """표 행 유형·열 수·정렬 표식의 순서 서명."""
 
     records = _visible_structural_lines(text)
     signature: list[tuple[object, ...]] = []

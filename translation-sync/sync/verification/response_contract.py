@@ -1,7 +1,6 @@
 """새로 생성된 provider 응답의 엄격한 구조 계약.
 
-최종 문서 verifier는 과거 번역 형태를 허용하지만 이 모듈은 의도적으로 더 좁은
-범위만 적용: 신규 provider 응답을 문서에 patch하기 전 검증.
+최종 문서 verifier는 과거 번역 형태를 허용하지만 이 모듈은 신규 provider 응답을 문서에 patch하기 전 검증하는 더 좁은 범위만 담당.
 """
 from __future__ import annotations
 
@@ -625,7 +624,7 @@ def _table_line_signature(line: str) -> tuple[object, ...]:
 
 
 def _table_cells(line: str) -> list[str]:
-    """escape 또는 inline-markup pipe를 cell로 취급하지 않는 table row 분할."""
+    """escape, inline code 또는 Markdown 링크에 포함된 pipe를 제외하고 table row 분할."""
 
     body = line.strip()
     links = {link.start: link for link in markdown_links(body)}
@@ -1008,7 +1007,7 @@ def _comment_records(text: str) -> list[tuple[str, int, int, int]]:
 def _matched_source_comment_indexes(
     text: str, source: str
 ) -> tuple[bool, set[int]]:
-    """응답에서 원문 작성 주석과 대응하는 주석 위치 집합."""
+    """원문 작성 주석의 보존 여부와 응답에서 대응하는 주석 index 집합."""
 
     expected = _comment_positions(source)
     actual = _comment_positions(text)
@@ -1179,7 +1178,7 @@ def _source_comments_are_preserved(text: str, source: str) -> bool:
 
 
 def _list_layout(block: Block) -> tuple[int, int]:
-    """목록 블록의 최소 들여쓰기와 항목 수."""
+    """목록 블록의 hard break 수와 연속 본문 줄 수."""
 
     hard_breaks = 0
     continuations = 0
@@ -1511,7 +1510,7 @@ def _pure_braced_display_string(value: str) -> bool:
 
 
 def _mask_js_expression_strings(expression: str) -> str:
-    """JavaScript 식의 문자열과 template literal 내용 마스킹."""
+    """최상위 ``+``로 연결된 JavaScript 문자열과 template literal 내용 마스킹."""
 
     pluses = top_level_plus_positions(expression)
     if not pluses:
@@ -1526,7 +1525,7 @@ def _mask_js_expression_strings(expression: str) -> str:
         return expression
 
     def mask_literal(segment: str) -> str:
-        """JavaScript literal의 내용과 길이를 보존해 마스킹."""
+        """양끝 공백을 보존하며 JavaScript literal 내용 마스킹."""
 
         leading = len(segment) - len(segment.lstrip())
         trailing = len(segment) - len(segment.rstrip())
@@ -1669,7 +1668,7 @@ def _markup_tokens(text: str) -> list[str]:
 
 
 def _term_like(token: str) -> bool:
-    """token이 번역하지 않을 기술 용어 형태인지 여부."""
+    """token이 번역 제외 기술 용어 형태인지 여부."""
 
     lowered = token.lower()
     return bool(
@@ -1704,7 +1703,7 @@ def _is_inline_code_only_list_item(body: str) -> bool:
 def _legacy_pipe_table_rows(
     text: str,
 ) -> list[tuple[bool, list[str]]]:
-    """legacy pipe table의 행별 셀 목록."""
+    """legacy pipe table의 구분 행 여부와 행별 셀 목록."""
 
     return [
         (_table_line_signature(line)[0] == "separator", _table_cells(line))
@@ -1715,7 +1714,7 @@ def _legacy_pipe_table_rows(
 def _legacy_pipe_cell_is_protected(
     cell: str, *, header: str | None = None
 ) -> bool:
-    """legacy 표 셀이 번역하지 않을 데이터인지 여부."""
+    """legacy 표 셀이 번역 제외 데이터인지 여부."""
 
     if inline_code_contents(cell) and not strip_inline_code(cell).strip(
         " `*_~.,:;()[]&/,+"
@@ -1867,7 +1866,7 @@ def _legacy_pipe_table_contract(
     translated: str,
     locale: str | None,
 ) -> tuple[bool, bool, bool]:
-    """legacy 표의 구조·보호 셀·번역 산문 계약 위반 목록."""
+    """legacy 표의 구조·보호 셀·번역 산문 계약 충족 여부."""
 
     if not _is_legacy_pipe_table_text(translated):
         return False, False, False
@@ -1917,7 +1916,7 @@ def _legacy_pipe_table_contract(
 
 
 def _is_protected_source_phrase(text: str) -> bool:
-    """문구 전체가 번역하지 않을 기술 데이터인지 여부."""
+    """문구 전체가 번역 제외 기술 데이터인지 여부."""
 
     if _is_legacy_pipe_table_text(text):
         return not legacy_pipe_table_contains_prose(text)
@@ -2106,7 +2105,7 @@ def _markdown_link_signatures(
     tuple[tuple[str, str], ...],
     list[str],
 ]:
-    """Markdown 링크의 label·target·title 순서 서명."""
+    """Markdown 링크 target 횟수, 비이미지 label·target 순서와 전체 title 순서 서명."""
 
     body = mask_reference_definitions(
         strip_html_comments(_strip_code_blocks(text))
@@ -2202,7 +2201,7 @@ def _reference_definition_signatures(
 def _protected_cell_kind(
     text: str, *, header: str | None
 ) -> str | None:
-    """표 셀의 번역 제외 데이터 유형."""
+    """표 셀 데이터의 번역 처리 유형."""
 
     body = text.strip(" `*_~")
     data_cell = header is not None
@@ -2770,7 +2769,7 @@ def verify(
 
 
 def _identity_source_lines(source: str) -> list[tuple[int, str]]:
-    """원래 물리 줄 번호를 포함한 code 외부 원문 줄."""
+    """원본의 물리적 줄 번호를 포함한 fenced code block 외부 원문 줄."""
 
     visible: list[tuple[int, str]] = []
     in_code = False
@@ -2837,9 +2836,8 @@ def identity_source_view(source: str, version: str) -> str:
 def render_identity_response(source: str, version: str) -> str:
     """전처리된 단일 owner block의 결정적 replay Markdown 렌더링.
 
-    fenced code 외부의 version placeholder는 렌더링되지 않은 요청 metadata로 해석한
-    뒤 필수 pipeline annotation 삽입. restore map 확장과 stale-link 정규화는
-    후처리 단계가 계속 소유.
+    fenced code 외부의 version placeholder를 렌더링되지 않은 요청 metadata로 해석한 뒤 필수 pipeline annotation 삽입.
+    restore map 확장과 stale-link 정규화는 후처리 단계가 계속 소유.
     """
 
     source_view = identity_source_view(source, version)

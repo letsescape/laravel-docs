@@ -1,1 +1,1 @@
-"""Preprocessing stage helpers."""
+"""영어 원문 전처리 도우미."""

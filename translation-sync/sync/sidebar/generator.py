@@ -1,7 +1,7 @@
-"""documentation.md 기반 sidebar 동기화.
+"""``documentation.md`` 기반 사이드바 동기화.
 
-영어 ``documentation.md``의 heading과 문서 link에서 버전별 sidebar를 생성.
-생성 결과와 충돌하는 locale sidebar override JSON 파일은 제거.
+영어 ``documentation.md``의 제목과 문서 링크에서 버전별 사이드바 생성.
+동기화 시 대상 버전의 번역별 사이드바 오버라이드 JSON 파일 제거.
 """
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ class SidebarResult:
 
 @dataclass(frozen=True)
 class _SidebarPlan:
-    """버전 하나의 검증 및 적용 계획."""
+    """버전 하나의 입력 스냅숏과 검증·적용 계획."""
 
     version: str
     expected: dict
@@ -52,14 +52,14 @@ class _SidebarPlan:
 
     @property
     def changed(self) -> bool:
-        """파일 갱신 또는 override 삭제 필요 여부."""
+        """사이드바 갱신 또는 번역별 오버라이드 삭제 필요 여부."""
 
         return self.sidebar_changed or bool(self.locale_paths_to_remove)
 
 
 @dataclass(frozen=True)
 class _SidebarCandidateSet:
-    """모든 대상 버전의 원자적 적용 후보."""
+    """모든 대상 버전의 검증 가능한 원자적 적용 후보 집합."""
 
     plans: tuple[_SidebarPlan, ...]
     input_hash: str | None
@@ -84,7 +84,7 @@ def _supported_version(version: str, repo_root: Path = REPO_ROOT) -> str:
 
 
 def _safe_repo_path(path: Path, repo_root: Path) -> Path:
-    """저장소 내부의 symlink 없는 부모 경로 검증."""
+    """대상과 저장소 루트의 포함 관계 및 부모 경로의 심볼릭 링크 부재 검증."""
 
     lexical_root = Path(os.path.abspath(repo_root))
     lexical_path = Path(os.path.abspath(path))
@@ -112,7 +112,7 @@ def _safe_repo_path(path: Path, repo_root: Path) -> Path:
 
 
 def _versions_path(repo_root: Path) -> Path:
-    """symlink가 아닌 저장소 내부 versions.json 경로 반환."""
+    """저장소 내부의 일반 파일인 ``versions.json`` 경로 반환."""
 
     path = _safe_repo_path(repo_root / "versions.json", repo_root)
     if path.is_symlink():
@@ -183,7 +183,7 @@ def _sidebar_filename(version: str) -> str:
 
 
 def _locale_sidebar_filename(version: str) -> str:
-    """locale sidebar override 파일명 생성."""
+    """번역별 사이드바 오버라이드 파일명 생성."""
 
     return f"version-{_validate_version_token(version)}.json"
 
@@ -195,7 +195,7 @@ def _sidebar_path(repo_root: Path, version: str) -> Path:
 
 
 def locale_sidebar_paths(repo_root: Path, version: str) -> list[Path]:
-    """삭제 대상 locale sidebar override 경로 생성."""
+    """삭제할 번역별 사이드바 오버라이드 경로 생성."""
 
     filename = _locale_sidebar_filename(version)
     return [
@@ -209,7 +209,7 @@ def locale_sidebar_paths(repo_root: Path, version: str) -> list[Path]:
 
 
 def _doc_id_from_href(href: str) -> str | None:
-    """fragment 없는 단일 문서 경로에서 문서 ID 추출."""
+    """쿼리와 프래그먼트가 없는 ``/docs/<version>/<id>`` 경로에서 문서 ID 추출."""
 
     parsed = urlsplit(href)
     if parsed.scheme or parsed.netloc or parsed.query or parsed.fragment:
@@ -226,7 +226,7 @@ def _doc_id_from_href(href: str) -> str | None:
 
 
 def _category_label(line: str) -> str | None:
-    """루트 category 선언에서 label 추출."""
+    """``- ## <label>`` 형식의 루트 카테고리 선언에서 레이블 추출."""
 
     if line != line.lstrip():
         return None
@@ -255,7 +255,7 @@ def _normalize_link_href(
     version: str,
     latest_stable: str,
 ) -> str:
-    """버전 placeholder와 master 루트 API 문서 링크 정규화."""
+    """버전 플레이스홀더와 ``master`` 루트의 API 문서 링크 정규화."""
 
     normalized = href.replace("{{version}}", version)
     if (
@@ -269,13 +269,13 @@ def _normalize_link_href(
 
 
 def _link_digest(raw_target: str) -> str:
-    """원본 링크 대상의 안정적인 key digest 생성."""
+    """원본 링크 대상에서 안정적인 키용 SHA-256 해시 생성."""
 
     return hashlib.sha256(raw_target.encode("utf-8")).hexdigest()
 
 
 def _doc_key(doc_id: str, occurrences: dict[str, int]) -> str:
-    """전역 등장 순서를 반영한 문서 key 생성."""
+    """전역 등장 순서를 반영한 문서 키 생성."""
 
     occurrence = occurrences.get(doc_id, 0) + 1
     occurrences[doc_id] = occurrence
@@ -286,7 +286,7 @@ def _doc_key(doc_id: str, occurrences: dict[str, int]) -> str:
 def parse_documentation(
     text: str, *, version: str, latest_stable: str
 ) -> tuple[list[dict], list[str]]:
-    """영문 목차를 사이드바 항목과 issue 목록으로 파싱."""
+    """영문 목차를 사이드바 항목과 형식 문제 목록으로 파싱."""
 
     items: list[dict] = []
     current_category: dict | None = None
@@ -397,7 +397,7 @@ def parse_documentation(
 
 
 def _existing_collapsed(sidebar: dict) -> tuple[dict[str, bool], list[str]]:
-    """기준 사이드바의 유효한 category 접힘 상태 수집."""
+    """기준 사이드바 카테고리의 유효한 접힘 상태 수집."""
 
     collapsed: dict[str, bool] = {}
     issues: list[str] = []
@@ -419,7 +419,7 @@ def _existing_collapsed(sidebar: dict) -> tuple[dict[str, bool], list[str]]:
 
 
 def _apply_existing_collapsed(items: list[dict], current: dict) -> list[str]:
-    """동일 category key의 기존 접힘 상태 적용."""
+    """동일한 카테고리 키에 기존 접힘 상태 적용."""
 
     collapsed, issues = _existing_collapsed(current)
     for node in items:
@@ -432,7 +432,7 @@ def _apply_existing_collapsed(items: list[dict], current: dict) -> list[str]:
 
 
 def _doc_ids(items: list[dict]) -> list[str]:
-    """생성된 category에서 문서 ID 목록 수집."""
+    """생성된 카테고리에서 문서 ID 목록 수집."""
 
     ids: list[str] = []
     for node in items:
@@ -448,7 +448,7 @@ def _doc_ids(items: list[dict]) -> list[str]:
 def _read_documentation_snapshot(
     version: str, *, repo_root: Path
 ) -> tuple[bytes | None, list[str]]:
-    """영문 목차의 정확한 byte와 경로 issue 읽기."""
+    """영문 목차의 정확한 바이트와 경로 문제 읽기."""
 
     path = _safe_repo_path(_documentation_path(repo_root, version), repo_root)
     if path.is_symlink():
@@ -474,7 +474,7 @@ def _build_sidebar_from_documentation(
     current: dict,
     repo_root: Path,
 ) -> tuple[dict, list[str]]:
-    """영문 목차 byte로 기대 사이드바와 issue 목록 생성."""
+    """영문 목차 바이트에서 기대 사이드바와 문제 목록 생성."""
 
     latest_stable = latest_stable_version(repo_root)
     if documentation_bytes is None:
@@ -525,7 +525,7 @@ def build_sidebar(
 def _read_sidebar_snapshot(
     version: str, *, repo_root: Path = REPO_ROOT
 ) -> tuple[dict, bytes | None, list[str]]:
-    """기준 사이드바의 구조와 정확한 byte 읽기."""
+    """기준 사이드바의 구조와 정확한 바이트 읽기."""
 
     safe_path = _safe_repo_path(_sidebar_path(repo_root, version), repo_root)
     if safe_path.is_symlink():
@@ -565,7 +565,7 @@ def _read_sidebar(
 
 
 def _sort_json_keys(value: object) -> object:
-    """JSON object key를 재귀적인 UTF-8 byte 순서로 정렬."""
+    """JSON 객체 키를 재귀적으로 UTF-8 바이트 순서로 정렬."""
 
     if isinstance(value, dict):
         return {
@@ -588,7 +588,7 @@ def _serialize_sidebar(sidebar: dict) -> str:
 
 
 def _sha256(content: bytes) -> str:
-    """콘텐츠의 SHA-256 digest 생성."""
+    """콘텐츠의 SHA-256 해시 생성."""
 
     return hashlib.sha256(content).hexdigest()
 
@@ -599,7 +599,7 @@ def _candidate_input_hash(
     *,
     repo_root: Path,
 ) -> str:
-    """적용 후보 입력의 canonical hash 생성."""
+    """적용 후보 입력 봉투의 정규 SHA-256 해시 생성."""
 
     override_deletions = [
         _repo_relative(path, repo_root).as_posix()
@@ -663,7 +663,7 @@ def _write_sidebar(
 def _existing_repo_paths(
     paths: list[Path], repo_root: Path
 ) -> tuple[list[Path], list[str]]:
-    """삭제 가능한 저장소 파일과 잘못된 경로 형태 수집."""
+    """삭제 가능한 저장소 파일과 잘못된 경로 형태 문제 수집."""
 
     safe_paths: list[Path] = []
     issues: list[str] = []
@@ -727,7 +727,7 @@ def _plan_version(version: str, *, repo_root: Path) -> _SidebarPlan:
 def _plan_candidate_set(
     versions: list[str], *, repo_root: Path
 ) -> _SidebarCandidateSet:
-    """모든 대상 버전의 검증 가능한 적용 후보 생성."""
+    """모든 대상 버전의 입력 해시로 봉인된 적용 후보 생성."""
 
     versions_json_bytes = _versions_path(repo_root).read_bytes()
     plans = [_plan_version(version, repo_root=repo_root) for version in versions]
@@ -746,7 +746,7 @@ def _plan_candidate_set(
 
 
 def _stale_issues(plan: _SidebarPlan, *, repo_root: Path) -> list[str]:
-    """검증 모드에서 stale 산출물 issue 생성."""
+    """검증 모드에서 오래된 산출물 문제 생성."""
 
     issues = list(plan.issues)
     if issues:
@@ -761,7 +761,7 @@ def _stale_issues(plan: _SidebarPlan, *, repo_root: Path) -> list[str]:
 
 
 def _apply_plans(plans: list[_SidebarPlan], *, repo_root: Path) -> list[SidebarResult]:
-    """재검증된 계획의 출력과 삭제를 candidate tree에 적용."""
+    """재검증된 계획의 출력과 삭제를 후보 트리에 적용."""
 
     for plan in plans:
         if plan.sidebar_changed:
@@ -810,7 +810,11 @@ def sync_version(
 def sync_versions(
     versions: list[str], *, write: bool = False, repo_root: Path = REPO_ROOT
 ) -> list[SidebarResult]:
-    """대상 버전 전체의 사이드바 검증 또는 일괄 동기화."""
+    """대상 버전 전체의 사이드바 검증 또는 일괄 동기화.
+
+    검증 모드에서는 기존 산출물과 기대 산출물의 차이 보고.
+    쓰기 모드에서는 모든 버전의 계획이 유효하고 재검증한 입력 해시가 같을 때만 일괄 적용.
+    """
 
     if not versions:
         return []

@@ -68,7 +68,7 @@ class ApprovedBaseUnitTestResult:
 
 @dataclass(frozen=True, slots=True)
 class _RepositoryDiskLayout:
-    """활성 저장소 변경 감지에 필요한 disk 경로와 tracked 파일."""
+    """활성 저장소 변경 감지에 필요한 디스크 경로와 추적 파일."""
 
     repo: Path
     git_dir: Path
@@ -112,7 +112,7 @@ class _GitFailed(RuntimeError):
     """0이 아닌 종료 코드를 반환한 Git 명령."""
 
     def __init__(self, returncode: int) -> None:
-        """Git failed 초기화."""
+        """Git 명령 오류 초기화."""
 
         super().__init__(returncode)
         self.returncode = returncode
@@ -132,7 +132,7 @@ def _prefer_failure(
 
 
 def unit_test_argv_digest(argv: Sequence[str]) -> str:
-    """성공 증거에 사용할 canonical argv digest 계산."""
+    """성공 증거에 사용할 argv의 결정적 SHA-256 digest 계산."""
 
     payload = json.dumps(
         list(argv),
@@ -167,7 +167,7 @@ class ApprovedBaseUnitTestRunner:
         """승인 기준본 clone에서 설정된 단위 테스트 실행 및 증명.
 
         Args:
-            base_commit: 검증할 승인 기준본의 완전한 commit 객체 ID.
+            base_commit: 검증할 승인 기준본의 완전한 커밋 객체 ID.
             unit_test_argv: shell 해석 없이 실행할 단위 테스트 argv.
 
         Returns:
@@ -418,7 +418,7 @@ class ApprovedBaseUnitTestRunner:
         return environment
 
     def _unit_test_environment(self, sandbox: Path) -> Mapping[str, str]:
-        """sandbox 내부 cache와 설정 경로를 사용하는 테스트 환경 구성."""
+        """sandbox 내부 캐시와 설정 경로를 사용하는 테스트 환경 구성."""
 
         return self._minimal_environment(sandbox)
 
@@ -476,7 +476,7 @@ class ApprovedBaseUnitTestRunner:
         return self._git(repo, *args).strip().decode("ascii")
 
     def _resolve_base(self, base_commit: str) -> tuple[str, str]:
-        """승인 commit과 그 tree 객체 ID를 정확히 해석."""
+        """승인 커밋과 그 tree 객체 ID를 정확히 해석."""
 
         object_format = self._git_text(
             self._source_repo,
@@ -529,7 +529,7 @@ class ApprovedBaseUnitTestRunner:
         )
 
     def _populate_clone(self, sandbox: Path, base_commit: str) -> None:
-        """local object 공유 없는 detached 승인 기준본 clone 구성."""
+        """로컬 객체 공유 없는 detached 승인 기준본 clone 구성."""
 
         clone = self._process(
             (
@@ -562,7 +562,7 @@ class ApprovedBaseUnitTestRunner:
             )
 
     def _source_fingerprint(self, repo: Path) -> bytes:
-        """clone의 HEAD, index 및 tracked 파일 fingerprint 계산."""
+        """clone의 HEAD, index 및 추적 파일 fingerprint 계산."""
 
         head = self._git(repo, "rev-parse", "HEAD")
         index = self._git(repo, "ls-files", "--stage", "-z")
@@ -581,7 +581,7 @@ class ApprovedBaseUnitTestRunner:
         )
 
     def _repository_disk_layout(self, repo: Path) -> _RepositoryDiskLayout:
-        """활성 저장소의 Git metadata와 tracked 파일 경로 해석."""
+        """활성 저장소의 Git 메타데이터와 추적 파일 경로 해석."""
 
         git_dir = Path(
             self._git_text(repo, "rev-parse", "--absolute-git-dir")
@@ -606,7 +606,7 @@ class ApprovedBaseUnitTestRunner:
         )
 
     def _disk_fingerprint(self, layout: _RepositoryDiskLayout) -> bytes:
-        """활성 저장소 disk 상태의 SHA-256 fingerprint 계산."""
+        """활성 저장소의 감시 대상 디스크 상태에 대한 SHA-256 fingerprint 계산."""
 
         digest = hashlib.sha256()
         for label, path in (
@@ -646,7 +646,7 @@ class ApprovedBaseUnitTestRunner:
         index: bytes,
         tracked_paths: Sequence[bytes],
     ) -> bytes:
-        """주어진 Git 상태와 tracked 파일의 SHA-256 fingerprint 계산."""
+        """주어진 Git 상태와 추적 파일의 SHA-256 fingerprint 계산."""
 
         digest = hashlib.sha256()
         digest.update(b"HEAD\0")
@@ -667,7 +667,7 @@ class ApprovedBaseUnitTestRunner:
         update: Callable[[bytes], object],
         path: Path,
     ) -> None:
-        """파일 종류, mode 및 내용을 fingerprint digest에 반영."""
+        """파일 종류, 모드 및 내용을 fingerprint digest에 반영."""
 
         try:
             metadata = path.lstat()

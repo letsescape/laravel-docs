@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""문서를 변경하지 않는 소규모 live provider 번역 계약 검사."""
+"""실제 프로바이더를 호출하되 문서를 변경하지 않는 소규모 번역 계약 검사."""
 from __future__ import annotations
 
 import argparse
@@ -56,7 +56,7 @@ CHECK_DIFF = (
 
 
 def evaluate_output(locale: str, translated: str) -> list[str]:
-    """고정 fixture 번역문의 공통 응답 계약 위반 목록 반환."""
+    """고정 테스트 입력 번역문의 공통 응답 계약 위반 목록 반환."""
 
     return response_contract.verify(
         translated,
@@ -67,19 +67,19 @@ def evaluate_output(locale: str, translated: str) -> list[str]:
 
 
 def _locales(value: str) -> tuple[str, ...]:
-    """CLI locale 선택값을 실행 순서로 변환."""
+    """CLI 로케일 선택값을 실행 순서로 변환."""
 
     return ("ko", "ja") if value == "all" else (value,)
 
 
 def _config_issue_code(exc: config.ConfigError) -> IssueCode:
-    """설정 예외에 포함된 안정적인 문제 코드 반환."""
+    """설정 예외의 안정적 문제 코드 반환."""
 
     return exc.issue_code
 
 
 def _provider_issue_code(exc: translate.IncompleteTranslation) -> IssueCode:
-    """미완료 번역 예외를 안정적인 provider 문제 코드로 분류."""
+    """미완료 번역 예외를 안정적 프로바이더 문제 코드로 분류."""
 
     if isinstance(exc, translate.RunDeadlineExceeded):
         return IssueCode.RUN_DEADLINE_EXCEEDED
@@ -102,7 +102,7 @@ def _failure_event(
     response_evaluation: int = 0,
     transport: int = 0,
 ) -> FailureEvent:
-    """Provider fixture 실패와 시도 횟수를 보고서 이벤트로 구성."""
+    """프로바이더 테스트 실패와 시도 횟수를 보고서 이벤트로 구성."""
 
     attempts = (
         ProviderAttempts(
@@ -122,7 +122,7 @@ def _failure_event(
 
 
 def _required_run_id() -> str:
-    """환경 변수에서 안전한 필수 실행 식별자 로드."""
+    """환경 변수에서 안전한 필수 실행 식별자 검증·로드."""
 
     run_id = os.environ.get(RUN_ID_ENV, "")
     if (
@@ -139,7 +139,7 @@ def _required_run_id() -> str:
 
 
 def _required_failure_report_target() -> Path:
-    """저장소 외부의 새 실패 보고서 경로 검증."""
+    """저장소 외부에 새로 만들 실패 보고서 경로 검증."""
 
     value = os.environ.get(FAILURE_REPORT_ENV)
     if not value:
@@ -164,7 +164,7 @@ def _write_failure_report(
     run_id: str,
     target: Path,
 ) -> bool:
-    """실패 이벤트를 정규 보고서로 새 파일에 기록."""
+    """실패 이벤트를 정규 보고서로 새 파일에 기록하고 성공 여부 반환."""
 
     try:
         report = FailureReport.build(
@@ -187,7 +187,7 @@ def _finish_failure(
     run_id: str,
     report_target: Path,
 ) -> int:
-    """진단과 실패 보고서를 남기고 공통 종료 코드 반환."""
+    """진단과 실패 보고서를 기록하고 공통 종료 코드 반환."""
 
     print(diagnostic, file=sys.stderr)
     if not _write_failure_report(
@@ -200,7 +200,7 @@ def _finish_failure(
 
 
 def main() -> int:
-    """선택한 locale별 live provider fixture 검사 실행."""
+    """선택한 로케일별 실제 프로바이더 계약 검사 실행."""
 
     parser = argparse.ArgumentParser(
         description="Call the configured live provider with a fixed translation fixture."

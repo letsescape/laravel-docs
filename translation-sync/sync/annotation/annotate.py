@@ -1,16 +1,17 @@
-"""번역 문서에 대응하는 영어 원문 HTML 주석 병기.
+"""번역 문서에 대응하는 영어 원문을 HTML 주석으로 병기.
 
-기존 한국어 문서(versioned_docs)에 i18n/en 영어 원문을 ``<!-- ... -->`` 주석으로
-병기. EN/KO의 평행 구조를 기준으로 block 단위 정렬. 양쪽에서 byte-identical인
-code block과 ``<a name>`` anchor는 정렬 동기화 지점으로만 사용하고 병기 대상 제외.
+기존 한국어 문서(``versioned_docs``)에 ``i18n/en`` 영어 원문을 ``<!-- ... -->`` 주석으로 병기.
+영어·한국어 문서의 평행 구조를 기준으로 블록 단위 정렬.
+양쪽에서 바이트 단위로 같은 코드 블록과 ``<a name>`` 앵커는 정렬 동기화 지점으로만 사용하고 병기 대상에서 제외.
 
-- 병기 대상: 제목(H1~H6), 문단, 목록, 표 행, admonition/인용 등 모든 텍스트.
-- 비대상: 코드 블록, `<a name>` 앵커, front matter, 빈 줄, 표 구분행, en==ko 동일 줄.
-- 주석 내용: 대응 영어 원문 줄(또는 블록). {{version}} 치환·<img/> self-close 적용.
-- KO 본문은 변경하지 않고 주석 줄만 삽입
+- 병기 대상: 제목(H1~H6), 문단, 목록, 표 행, 경고문, 인용문 등 모든 텍스트
+- 제외 대상: 코드 블록, ``<a name>`` 앵커, front matter, 빈 줄, 표 구분 행
+- 주석 내용: 대응하는 영어 원문 줄 또는 블록
+- 주석 정규화: ``{{version}}`` 치환, ``<img/>`` 자체 닫힘 형식 적용
+- 한국어 본문: 전처리·후처리 정규화 후 주석 줄 삽입
 
-EN block 누락 또는 종류 불일치로 정렬이 깨지면 원문 갱신 미반영 drift로 보고.
-해당 block의 기계적 생성은 중단하고 번역 갱신 요구.
+영어 블록 누락 또는 종류 불일치로 정렬에 실패하면 원문 갱신 미반영 drift로 판정.
+대응할 수 있는 블록의 병기를 계속하고 대응할 수 없는 구간은 호출자가 번역 갱신 필요성 판단.
 """
 from __future__ import annotations
 
@@ -44,29 +45,29 @@ from ..preprocessing import preprocess as _preprocess
 
 @dataclass
 class Block:
-    """원문 줄 범위와 종류를 보존한 Markdown 정렬 block."""
+    """원문 줄 범위와 종류를 보존한 Markdown 정렬 블록."""
 
-    kind: str  # frontmatter|code|anchor|heading|text
-    start: int  # inclusive line index in original
-    end: int    # exclusive
+    kind: str  # 허용값: frontmatter | code | anchor | structure | heading | text
+    start: int  # 원문에서 시작하는 0-based 줄 번호
+    end: int    # 원문에서 끝나는 0-based 줄 번호(미포함)
     lines: list[str]
 
 
 @dataclass
 class Drift:
-    """정렬 실패 구간 보고."""
-    op: str            # delete(en-only) | insert(ko-only) | replace
+    """정렬 실패 연산과 양쪽 문서의 해당 줄 목록."""
+    op: str  # delete(영어만 존재) | insert(한국어만 존재) | replace(양쪽 구조 불일치)
     en_lines: list[str] = field(default_factory=list)
     ko_lines: list[str] = field(default_factory=list)
 
 
 def split_blocks(lines: list[str]) -> list[Block]:
-    """블록 분할."""
+    """Markdown 줄을 구조와 연속 범위가 보존된 정렬 블록으로 분할."""
 
     blocks: list[Block] = []
     i = 0
     n = len(lines)
-    # front matter
+    # 문서 시작의 front matter 블록 분리.
     if n and lines[0].strip() == "---":
         j = 1
         while j < n and lines[j].strip() != "---":
@@ -84,7 +85,7 @@ def split_blocks(lines: list[str]) -> list[Block]:
             j = i + 1
             while j < n and not closes_fence(lines[j], tok):
                 j += 1
-            j = min(j + 1, n)  # include closing fence
+            j = min(j + 1, n)  # 닫는 코드 펜스 포함.
             blocks.append(Block("code", i, j, lines[i:j]))
             i = j
             continue
@@ -100,7 +101,7 @@ def split_blocks(lines: list[str]) -> list[Block]:
             blocks.append(Block("heading", i, i + 1, [ln]))
             i += 1
             continue
-        # text: maximal run until blank / fence / anchor / heading / subkind change
+        # 빈 줄, 코드 펜스, 앵커, 제목 또는 하위 종류 변경 전까지 텍스트 묶음 수집.
         j = i
         subkind = _text_subkind(lines[i])
         while j < n:
@@ -122,13 +123,13 @@ def split_blocks(lines: list[str]) -> list[Block]:
 
 
 def _norm_code(block: Block, version: str) -> str:
-    """code block의 버전 placeholder와 image tag를 정렬용으로 정규화."""
+    """코드 블록의 버전 플레이스홀더와 이미지 태그를 정렬용으로 정규화."""
 
     return img_self_closing(replace_version("\n".join(block.lines), version))
 
 
 def _sig(block: Block, version: str) -> tuple:
-    """영어와 locale block을 대응시킬 구조 signature 생성."""
+    """영어와 번역 블록을 대응시킬 구조 서명 생성."""
 
     if block.kind == "code":
         return ("code", _norm_code(block, version))
@@ -147,7 +148,7 @@ def _sig(block: Block, version: str) -> tuple:
 
 
 def _text_subkind(line: str) -> str:
-    """첫 줄 형식으로 text block의 세부 종류 분류."""
+    """첫 줄 형식에 따라 텍스트 블록의 세부 종류 분류."""
 
     s = line.lstrip()
     if s.startswith("|"):
@@ -164,7 +165,7 @@ def _text_subkind(line: str) -> str:
 
 
 def _starts_new_text_block(line: str, current_subkind: str) -> bool:
-    """다음 줄이 현재 text block과 분리되는 구조 경계인지 판별."""
+    """다음 줄이 현재 텍스트 블록과 분리되는 구조 경계인지 판별."""
 
     next_subkind = _text_subkind(line)
     if current_subkind in ("html", "directive"):
@@ -183,7 +184,7 @@ def _starts_new_text_block(line: str, current_subkind: str) -> bool:
 def _is_skip_line(line: str) -> bool:
     """verify._required_comments가 문단에서 제외하고 건너뛰는 줄.
 
-    text 블록 안에는 제목·앵커가 없으므로 TOC 링크, 인용(`>`), 표(`|`), 기존 주석만 본다.
+    텍스트 블록 안에는 제목·앵커가 없으므로 TOC 링크, 인용문(``>``), 표(``|``), 기존 주석만 검사.
     """
     if is_non_annotatable_line(line):
         return True
@@ -202,7 +203,7 @@ _PRESENCE_MARKER_RE = re.compile(r"\]\(([^)\s]+)\)|`([^`]+)`")
 
 
 def _presence_markers(lines: list[str]) -> set[str]:
-    """원문 블록의 비번역 토큰(링크 URL, 인라인 코드)을 모은다."""
+    """원문 블록에서 번역하지 않는 링크 URL과 인라인 코드 토큰 수집."""
     text = "\n".join(lines)
     out: set[str] = set()
     for match in _PRESENCE_MARKER_RE.finditer(text):
@@ -211,17 +212,17 @@ def _presence_markers(lines: list[str]) -> set[str]:
 
 
 def _content_present(block: Block, translation: str) -> bool:
-    """블록의 비번역 토큰이 번역본에 모두 있으면 True.
+    """블록에 비번역 토큰이 하나 이상 있고 모두 번역본에 있는지 확인.
 
-    내용은 번역됐지만 주석 정렬만 어긋난 annotation gap과 내용 자체가 누락된 실제
-    drift를 구분. annotation gap에만 원문 주석 보강.
+    내용은 번역됐지만 주석 정렬만 어긋난 병기 공백과 내용 자체가 누락된 실제 drift 구분.
+    병기 공백에만 원문 주석 보강.
     """
     marks = _presence_markers(block.lines)
     return bool(marks) and all(mark in translation for mark in marks)
 
 
 def _csub(s: str, version: str) -> str:
-    """주석에 넣을 영어 원문 정제: 버전 치환, img self-close, 제목 {.class} 제거, --> 무력화."""
+    """주석용 영어 원문의 버전·이미지·제목 클래스·종료 구분자 정규화."""
     s = replace_version(s, version)
     s = img_self_closing(s)
     s = strip_title_attr_line(s)
@@ -230,7 +231,7 @@ def _csub(s: str, version: str) -> str:
 
 
 def _canonical_comment_body(s: str) -> str:
-    """stale 보정 전 annotation 원문의 정확한 byte 계약 렌더링."""
+    """병기 원문의 공백과 주석 구분자 표현을 정규 바이트 계약 형식으로 렌더링."""
 
     return normalize_annotation_anchor(s).replace("-->", "--&gt;")
 
@@ -243,11 +244,11 @@ def _comment_for(
     *,
     canonical: bool,
 ) -> None:
-    """KO 블록 위 또는 줄별 EN 주석의 inserts 등록.
+    """한국어 블록 위 또는 대응 줄에 삽입할 영어 주석 등록.
 
-    ``verify._required_comments``와 동일한 segmentation 적용: 제목과 문단은 필수
-    주석이며 문단의 연속 일반 줄은 하나의 단일 주석으로 병합. navigation 전용
-    TOC 링크와 별도 owner로 검증하는 인용문(``>``)·표(``|``) 줄은 제외.
+    ``verify._required_comments``와 같은 분할 규칙 적용.
+    제목과 문단은 필수 주석으로 처리하고 문단의 연속 일반 줄은 단일 주석으로 병합.
+    탐색 전용 TOC 링크와 별도 소유자가 검증하는 인용문(``>``)·표(``|``) 줄은 제외.
     """
     if en.kind == "heading":
         body = (
@@ -274,7 +275,7 @@ def _comment_for(
     aligned = len(en_lines) == len(ko_lines)
 
     def make_comment(run: list[str]) -> list[str]:
-        """comment 생성."""
+        """영어 원문 묶음의 단일 또는 여러 줄 HTML 주석 생성."""
 
         if canonical:
             return [f"<!-- {_canonical_comment_body(' '.join(run))} -->"]
@@ -290,9 +291,9 @@ def _comment_for(
         if i in reference_lines or _is_skip_line(el):
             i += 1
             continue
-        # verify._required_comments는 `#`로 시작하는 줄(들여쓰기 코드 안의 `#items:`,
-        # PHP 속성 `#[...]` 등 포함)을 제목으로 보고 단독 주석으로 요구. 같은 규칙으로
-        # run을 분리해 단독 주석 생성.
+        # verify._required_comments는 `#`로 시작하는 줄을 제목으로 보고 단독 주석 요구.
+        # 들여쓰기 코드의 `#items:`와 PHP 속성 `#[...]`도 같은 규칙 적용.
+        # 검증 규칙에 맞춰 묶음을 분리하고 단독 주석 생성.
         if el.strip().startswith("#"):
             at = ko.start + i if aligned else ko.start
             body = (
@@ -303,7 +304,7 @@ def _comment_for(
             inserts.setdefault(at, []).append(f"<!-- {body} -->")
             i += 1
             continue
-        # 문단 런: 연속 일반 줄을 하나로
+        # 연속된 일반 문단 줄을 하나의 묶음으로 결합.
         j = i
         while (
             j < n
@@ -319,7 +320,7 @@ def _comment_for(
 
 
 def _source_comment_bodies(source: str | None) -> list[str]:
-    """fenced code 밖의 원문 작성 HTML comment 본문 수집."""
+    """코드 펜스 밖에서 원문에 작성된 HTML 주석 본문 수집."""
 
     if source is None:
         return []
@@ -332,7 +333,7 @@ def _source_comment_bodies(source: str | None) -> list[str]:
 
 
 def _standalone_comment_start(line: str) -> int | None:
-    """독립 annotation comment가 시작하는 열 위치 반환."""
+    """독립 병기 주석이 시작하는 열 위치 반환."""
 
     prefix = re.match(r"^[ \t]*(?:>[ \t]*)*", line)
     assert prefix is not None
@@ -347,7 +348,7 @@ def _standalone_comment_start(line: str) -> int | None:
 def _standalone_comment_body(
     lines: list[str], start: int, end: int, opening: int = 0
 ) -> str:
-    """한 줄 또는 여러 줄 독립 comment의 본문 추출."""
+    """한 줄 또는 여러 줄 독립 주석의 본문 추출."""
 
     first = lines[start]
     last = lines[end]
@@ -359,7 +360,7 @@ def _standalone_comment_body(
 
 
 def _comment_record_indexes(text: str) -> dict[tuple[int, int], int]:
-    """comment 줄 범위를 문서 내 ordered occurrence에 연결."""
+    """주석 줄 범위를 문서 내 등장 순번에 연결."""
 
     masked = mask_fenced_code_contents(text)
     return {
@@ -377,9 +378,12 @@ def strip_annotations(
     source: str | None = None,
     preserved_comment_indexes: frozenset[int] | None = None,
 ) -> str:
-    """코드 블록 밖의 단독 `<!-- ... -->` 병기 주석을 제거(멱등성용 재실행 대비).
+    """코드 블록 밖의 단독 ``<!-- ... -->`` 병기 주석 제거.
 
-    code block 내부 주석과 줄 중간 인라인 주석은 보존.
+    멱등성을 보장하도록 재실행 전에 기존 병기 주석 제거.
+    코드 블록 내부 주석과 줄 중간 인라인 주석 보존.
+    ``source``가 있으면 원문 작성 주석과 순서·본문이 같은 독립 주석 보존.
+    ``preserved_comment_indexes``가 있으면 지정한 문서 내 주석 순번만 보존.
     """
     lines = ko_text.split("\n")
     source_comments = _source_comment_bodies(source)
@@ -449,18 +453,17 @@ def annotate(
     alignment_source: str | None = None,
     preserved_comment_indexes: frozenset[int] | None = None,
 ) -> tuple[str, list[Drift]]:
-    """ko_text에 en_text를 병기. (annotated_ko, drifts) 반환.
+    """한국어 문서에 영어 원문을 병기하고 결과와 drift 목록 반환.
 
-    ``drifts``가 비어 있으면 완전 정렬 및 기계적 병기 성공. 이미 병기된 입력의 안전한
-    재처리를 위해 기존 병기 주석 우선 제거.
+    ``drifts``가 비어 있으면 완전 정렬과 기계적 병기에 성공한 상태.
+    이미 병기된 입력을 안전하게 재처리하도록 기존 병기 주석 우선 제거.
 
-    en_text는 raw 원문을 받아 내부에서 preprocess+postprocess한 정규본(verify가 쓰는
-    ``expected``와 동일: 들여쓰기→fenced, ``<style>`` 제거, ``{{version}}`` 치환,
-    img self-close 및 base64 복원. KO의 fenced/치환된 본문 및 verify 기준과 일치.
+    기본 모드의 ``en_text``는 원시 원문을 입력받아 내부에서 전처리·후처리한 정규본으로 변환.
+    검증 단계의 ``expected``와 같이 들여쓰기 코드를 코드 펜스로 변환하고 ``<style>`` 제거, ``{{version}}`` 치환, 이미지 자체 닫힘 형식 적용, Base64 복원 수행.
+    ``canonical=True``이면 버전만 치환한 ``en_text``를 병기 주석 본문으로 사용하고 ``alignment_source``를 구조 정렬 기준으로 사용.
 
-    ``ko_text``에도 동일한 정규화 적용. KO에 남은 페이지 디자인 ``<style>`` block과
-    indented code block을 텍스트로 오인해 영어 주석을 잘못 삽입하거나 code를 주석으로
-    중복 병기하는 오류 방지.
+    ``ko_text``에도 같은 정규화 적용.
+    한국어 문서에 남은 페이지 디자인용 ``<style>`` 블록과 들여쓰기 코드 블록을 텍스트로 오인해 영어 주석을 잘못 삽입하거나 코드를 중복 병기하는 오류 방지.
     """
     annotation_blocks: list[Block] | None = None
     if canonical:
@@ -513,7 +516,7 @@ def annotate(
                         canonical=canonical,
                     )
         elif op == "replace" and (i2 - i1) == (j2 - j1):
-            # 같은 개수: 위치 대응으로 병기하되 drift로 보고
+            # 블록 수가 같으면 위치별로 병기하되 정렬 불일치로 기록.
             for k in range(i2 - i1):
                 eb, kb = en_blocks[i1 + k], ko_blocks[j1 + k]
                 if eb.kind in ("heading", "text") and kb.kind in ("heading", "text"):
@@ -530,13 +533,14 @@ def annotate(
         else:
             if i2 > i1:
                 en_seg = [line for block in en_blocks[i1:i2] for line in block.lines]
-                # ko에 없는 en 블록: 번역 갱신 필요(코드/앵커만이면 무시)
+                # 한국어 문서에 없는 영어 블록은 번역 갱신 필요.
+                # 코드 또는 앵커만 있는 구간은 제외.
                 meaningful = any(b.kind in ("heading", "text") for b in en_blocks[i1:i2])
                 if meaningful:
                     drifts.append(Drift("delete", en_lines=en_seg))
-                    # 정렬이 깨져도 원문 주석은 항상 보존. 번역 출력이 불완전해
-                    # 블록이 어긋나더라도 verify의 "missing original comment"가 실패하지
-                    # 않도록 해당 EN 텍스트·제목 주석을 KO 경계 위치에 삽입.
+                    # 정렬이 깨져도 원문 주석은 항상 보존.
+                    # 불완전한 번역 출력으로 블록이 어긋나도 검증 단계의 원문 주석 누락 오류 방지.
+                    # 해당 영어 텍스트·제목 주석을 한국어 블록의 경계 위치에 삽입.
                     at = ko_blocks[j1].start if j1 < len(ko_blocks) else len(ko_lines)
                     anchor = Block("text", at, at, [])
                     for offset, eb in enumerate(en_blocks[i1:i2], start=i1):
@@ -556,7 +560,7 @@ def annotate(
                 if meaningful:
                     drifts.append(Drift("insert", ko_lines=ko_seg))
 
-    # 재구성: 원본 ko 줄을 유지하고 주석만 삽입(+ 코드 밖 형식 정제)
+    # 원래 한국어 줄을 유지하면서 주석을 삽입하고 코드 밖 형식만 정제.
     out: list[str] = []
     in_code = False
     fence = ""
@@ -575,7 +579,7 @@ def annotate(
             ln = img_self_closing(ln)
             ln = strip_title_attr_line(ln)
         out.append(ln)
-    # ko 끝 이후 위치(at == len)로 등록된 주석도 누락 없이 덧붙인다.
+    # 한국어 문서 끝 이후 위치에 등록된 주석도 누락 없이 추가.
     for idx in sorted(k for k in inserts if k >= len(ko_lines)):
         out.extend(inserts[idx])
     return "\n".join(out), drifts

@@ -1,11 +1,13 @@
-"""번역 비교용 작업 사본의 결정적 전처리.
+"""번역 비교에 사용할 작업 사본의 결정적 전처리.
 
-원문 source(i18n/en)는 raw 상태로 보존하고 번역 pipeline의 작업 사본에만 적용.
-- base64 이미지 → placeholder 치환(+매핑), 후처리에서 복원
-- 페이지 디자인 전용 <style> 제거 (fenced code block 밖에서만)
-- 제목 옆 {.class} 스타일 클래스 제거
+원문(``i18n/en``)은 그대로 보존하고 번역 파이프라인의 작업 사본에만 적용.
 
-목록 들여쓰기와 code block처럼 의미가 달라질 수 있는 모호한 구조는 변경 제외.
+- Base64 이미지: 플레이스홀더로 치환하고 복원용 매핑 생성
+- 페이지 디자인용 ``<style>``: 코드 블록 밖에서만 제거
+- 제목 옆 ``{.class}``: 스타일 클래스 제거
+- 명확한 들여쓰기 코드: 코드 펜스 블록으로 변환
+
+목록의 들여쓰기인지 코드 블록인지 불분명해 의미가 달라질 수 있는 구조는 변경 대상에서 제외.
 """
 from __future__ import annotations
 
@@ -20,7 +22,7 @@ from ..common.markdown import (
     strip_title_attrs,
 )
 
-# data:image/...;base64,.... (Markdown/HTML 이미지 양쪽)
+# Markdown과 HTML 이미지의 `data:image/...;base64,...` 패턴.
 _BASE64_RE = re.compile(
     r"data:image/[a-zA-Z0-9.+-]+"
     r"(?:;[^;,=\s\"'<>]+=[^;,\s\"'<>]+)*"
@@ -34,11 +36,11 @@ _STYLE_CLOSE = "</style>"
 
 @dataclass
 class Preprocessed:
-    """정규화된 작업 사본과 원본 복원용 placeholder 매핑.
+    """정규화된 작업 사본과 원본 복원용 플레이스홀더 매핑.
 
     Attributes:
         text: 정규화된 문서 내용.
-        placeholders: placeholder와 원본 data URI의 대응표.
+        placeholders: 플레이스홀더와 원본 데이터 URI의 대응표.
     """
 
     text: str
@@ -47,7 +49,7 @@ class Preprocessed:
 
 @dataclass
 class PreprocessedPair:
-    """같은 할당표로 전처리한 이전·현재 작업 사본.
+    """동일한 할당표로 전처리한 이전·현재 작업 사본.
 
     Attributes:
         previous: 이전 영어 원문의 전처리 결과.
@@ -59,17 +61,17 @@ class PreprocessedPair:
 
 
 def preprocess_pair(previous: str, current: str) -> PreprocessedPair:
-    """이전·현재 원문에 같은 결정적 placeholder 할당 적용.
+    """이전·현재 원문에 동일한 결정적 플레이스홀더 할당 적용.
 
     Args:
-        previous: 승인 기준본의 이전 영어 원문.
-        current: candidate의 현재 영어 원문.
+        previous: 승인 기준인 이전 영어 원문.
+        current: 번역 후보인 현재 영어 원문.
 
     Returns:
-        같은 할당표로 정규화한 이전·현재 작업 사본.
+        동일한 할당표로 정규화한 이전·현재 작업 사본.
 
     Raises:
-        ValueError: 서로 다른 data URI의 digest가 충돌한 경우.
+        ValueError: 서로 다른 데이터 URI의 SHA-256 해시값이 충돌한 경우.
     """
 
     allocation = _allocate_base64_placeholders(previous, current)
@@ -80,7 +82,7 @@ def preprocess_pair(previous: str, current: str) -> PreprocessedPair:
 
 
 def _segment_fence_token(line: str) -> str | None:
-    """CommonMark가 허용하는 위치의 fenced code 구분자 반환."""
+    """CommonMark에서 허용하는 위치의 코드 펜스 구분자 반환."""
 
     stripped = line.lstrip(" ")
     if len(line) - len(stripped) > 3 or stripped.startswith("\t"):
@@ -97,7 +99,7 @@ def _segment_fence_token(line: str) -> str | None:
 
 
 def _split_code_segments(text: str) -> list[tuple[str, bool]]:
-    """fenced code block 여부에 따라 텍스트 분할."""
+    """코드 펜스 블록 포함 여부에 따라 텍스트 분할."""
     segments: list[tuple[str, bool]] = []
     pending: list[str] = []
     in_code = False
@@ -131,30 +133,30 @@ def _split_code_segments(text: str) -> list[tuple[str, bool]]:
     return segments
 
 
-# 줄 시작 구조로 코드/설정을 식별하는 패턴(Blade 디렉티브, .env, YAML, shell, 경로 등).
-# 들여쓰기 블록이 이런 구조면 코드 블록으로 보고 fenced로 변환해, 영어 주석이 코드에
-# 잘못 병기되는 문제 방지.
+# 줄 시작 구조로 코드 또는 설정을 식별하는 패턴.
+# Blade 디렉티브, `.env`, YAML, 셸 명령, 경로 등 판별.
+# 일치하는 들여쓰기 블록을 코드 펜스 블록으로 변환해 영어 주석이 코드에 잘못 병기되는 문제 방지.
 _STRUCT_CODE_PATS = (
-    re.compile(r"^\s*@\w+"),                        # Blade/Envoy 디렉티브 (@auth, @once 등)
-    re.compile(r"^\s*[A-Za-z][\w-]*="),             # .env·설정 (STRIPE_KEY=..., process_name=...)
-    re.compile(r"^\s*(//|#\s|/\*)"),               # 코드 주석
-    re.compile(r"^\s*[\w./-]+:\s\S"),               # YAML/설정 key: value
-    re.compile(r"^\s*[\w-]+:\s*$"),                 # YAML key:
+    re.compile(r"^\s*@\w+"),                        # Blade/Envoy 디렉티브(`@auth`, `@once` 등)
+    re.compile(r"^\s*[A-Za-z][\w-]*="),             # `.env`·설정(`STRIPE_KEY=...`, `process_name=...`)
+    re.compile(r"^\s*(//|#\s|/\*)"),               # 소스 코드 주석
+    re.compile(r"^\s*[\w./-]+:\s\S"),               # YAML/설정의 `키: 값`
+    re.compile(r"^\s*[\w-]+:\s*$"),                 # YAML의 `키:`
     re.compile(
         r"^\s*[\w.]+\s*-\s*(integer|string|timestamp|bigInteger|boolean"
         r"|text|date|float|increments|json|uuid|id|datetime|char|decimal|enum|binary)\b"
-    ),                                              # DB 스키마 컬럼 (id - integer 등)
+    ),                                              # DB 스키마 열(`id - integer` 등)
     re.compile(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"),  # IP 주소
-    re.compile(r"^\s*[a-z_][\w]*\s*$"),             # 단일 소문자 토큰 (테이블명 등)
-    re.compile(r"^\s*[\w-]+\.\w{1,6}\s*$"),         # 파일명 (messages.php 등)
+    re.compile(r"^\s*[a-z_][\w]*\s*$"),             # 단일 소문자 토큰(테이블명 등)
+    re.compile(r"^\s*[\w-]+\.\w{1,6}\s*$"),         # 파일명(`messages.php` 등)
     re.compile(
         r"^\s*</?(?!(?:div|span|img|p|a|br|hr|i|b|em|strong|small|sup|sub"
         r"|ul|ol|li|h[1-6]|blockquote|figure|figcaption)\b)[a-zA-Z][\w-]*[\s/>]"
-    ),  # 코드 예제 HTML/Blade 태그만 (콘텐츠/인라인 태그 제외)
+    ),  # 코드 예시의 HTML/Blade 태그(콘텐츠/인라인 태그 제외)
     re.compile(r"^\s*/[\w][\w./-]*\s*$"),           # 경로/디렉터리 트리
-    re.compile(r"^\s*(alias\s|php\d|ssh\s|cd\s|ls\s|git\s|vendor/bin)"),  # shell
-    re.compile(r"^\s*\[[\w:.-]+\]\s*$"),            # INI 섹션 ([program:horizon] 등)
-    re.compile(r"^\s*[a-zA-Z_]\w*(\.\w+)*\("),      # 함수 호출 (mix.js(...) 등)
+    re.compile(r"^\s*(alias\s|php\d|ssh\s|cd\s|ls\s|git\s|vendor/bin)"),  # 셸 명령
+    re.compile(r"^\s*\[[\w:.-]+\]\s*$"),            # INI 섹션(`[program:horizon]` 등)
+    re.compile(r"^\s*[a-zA-Z_]\w*(\.\w+)*\("),      # 함수 호출(`mix.js(...)` 등)
 )
 
 
@@ -193,7 +195,7 @@ def _looks_like_code(lines: list[str]) -> bool:
 
 
 def _strip_code_indent(line: str) -> str:
-    """코드 줄의 선행 tab 또는 네 칸 들여쓰기 제거."""
+    """코드 줄의 선행 탭 또는 공백 네 칸 제거."""
 
     if line.startswith("\t"):
         return line[1:]
@@ -201,7 +203,7 @@ def _strip_code_indent(line: str) -> str:
 
 
 def _strip_title_attrs_outside_protected_regions(text: str) -> str:
-    """HTML 주석과 들여쓰기 코드 밖의 heading class 제거."""
+    """HTML 주석과 들여쓰기 코드 밖의 제목 클래스 제거."""
 
     inline_spans = _inline_code_spans(text)
     inline_index = 0
@@ -249,7 +251,7 @@ def _strip_title_attrs_outside_protected_regions(text: str) -> str:
 
 
 def _strip_style_blocks(text: str) -> str:
-    """보호 영역 밖의 닫힌 page style block 제거."""
+    """보호 영역 밖에서 닫힌 페이지 ``<style>`` 블록 제거."""
 
     out: list[str] = []
     lower = text.lower()
@@ -322,7 +324,7 @@ def _strip_style_blocks(text: str) -> str:
 
 
 def _is_ordered_item_opener(stripped: str) -> bool:
-    """줄이 하위 구조를 여는 순서 목록 항목인지 판별."""
+    """줄이 하위 구조를 여는 순서 있는 목록 항목인지 판별."""
 
     marker_end = 0
     while marker_end < len(stripped) and stripped[marker_end].isdigit():
@@ -356,7 +358,7 @@ def _opens_indented_children(line: str) -> bool:
 
 
 def _has_indented_parent(lines: list[str], index: int) -> bool:
-    """대상 줄이 목록 또는 directive의 하위 구조인지 판별."""
+    """대상 줄이 목록 또는 디렉티브의 하위 구조인지 판별."""
 
     cursor = index - 1
     saw_blank = False
@@ -376,7 +378,7 @@ def _has_indented_parent(lines: list[str], index: int) -> bool:
 
 
 def _convert_indented_code_blocks(text: str) -> str:
-    """확실한 들여쓰기 코드 블록을 fenced code block으로 변환."""
+    """명확한 들여쓰기 코드 블록을 코드 펜스 블록으로 변환."""
 
     rebuilt_segments: list[str] = []
     for segment, is_code in _split_code_segments(text):
@@ -446,7 +448,7 @@ def _convert_indented_code_blocks(text: str) -> str:
 
 
 def _outside_inline_code(text: str) -> list[tuple[str, bool]]:
-    """inline code span 여부에 따라 텍스트 분할."""
+    """인라인 코드 범위 여부에 따라 텍스트 분할."""
 
     segments: list[tuple[str, bool]] = []
     cursor = 0
@@ -463,7 +465,7 @@ def _outside_inline_code(text: str) -> list[tuple[str, bool]]:
 
 
 def _base64_values(content: str) -> set[str]:
-    """보호 영역 밖의 고유 Base64 image data URI 수집."""
+    """보호 영역 밖의 고유 Base64 이미지 데이터 URI 수집."""
 
     values: set[str] = set()
     for fenced_segment, is_fenced in _split_code_segments(content):
@@ -479,17 +481,17 @@ def _base64_values(content: str) -> set[str]:
 
 
 def _allocate_base64_placeholders(previous: str, current: str) -> dict[str, str]:
-    """두 원문의 data URI에 결정적 placeholder 할당.
+    """두 원문의 데이터 URI에 결정적 플레이스홀더 할당.
 
     Args:
         previous: 이전 영어 원문.
         current: 현재 영어 원문.
 
     Returns:
-        data URI를 key로 사용하는 placeholder 할당표.
+        데이터 URI를 키로 사용하는 플레이스홀더 할당표.
 
     Raises:
-        ValueError: 서로 다른 data URI의 SHA-256 digest가 충돌한 경우.
+        ValueError: 서로 다른 데이터 URI의 SHA-256 해시값이 충돌한 경우.
     """
 
     by_digest: dict[bytes, str] = {}
@@ -514,7 +516,7 @@ def _allocate_base64_placeholders(previous: str, current: str) -> dict[str, str]
 
 
 def _replace_base64(content: str, allocation: dict[str, str]) -> Preprocessed:
-    """보호 영역 밖의 Base64 data URI를 할당된 token으로 치환."""
+    """보호 영역 밖의 Base64 데이터 URI를 할당된 토큰으로 치환."""
 
     placeholders: dict[str, str] = {}
     rebuilt_fenced: list[str] = []
@@ -531,7 +533,7 @@ def _replace_base64(content: str, allocation: dict[str, str]) -> Preprocessed:
                 continue
 
             def replace(match: re.Match[str]) -> str:
-                """일치한 data URI를 token으로 치환하고 복원표에 기록."""
+                """일치한 데이터 URI를 토큰으로 치환하고 복원표에 기록."""
 
                 value = match.group(0)
                 placeholder = allocation[value]
@@ -556,9 +558,9 @@ def _preprocess_with_allocation(
     result = _replace_base64(content, allocation)
     text = result.text
 
-    # 2) 코드 블록 밖에서만 <style>·제목 {.class} 제거.
-    #    들여쓰기 변환보다 먼저 적용. 선행 변환 시 내부 CSS가 fenced code로
-    #    보호되어 page style block이 남는 문제 방지.
+    # 코드 블록 밖에서만 `<style>`과 제목의 `{.class}` 제거.
+    # 들여쓰기 코드 변환보다 먼저 적용.
+    # 먼저 들여쓰기 코드를 변환하면 내부 CSS가 코드 펜스로 보호되어 페이지 `<style>` 블록이 남는 문제 발생.
     rebuilt: list[str] = []
     for segment, is_code in _split_code_segments(text):
         if is_code:
@@ -569,7 +571,7 @@ def _preprocess_with_allocation(
         rebuilt.append(segment)
     text = "".join(rebuilt)
 
-    # 3) 확실한 들여쓰기 코드 블록을 fenced block으로 변환해 후속 단계에서 보호.
+    # 명확한 들여쓰기 코드 블록을 코드 펜스 블록으로 변환해 후속 단계에서 보호.
     text = _convert_indented_code_blocks(text)
 
     result.text = text
@@ -577,13 +579,13 @@ def _preprocess_with_allocation(
 
 
 def preprocess(content: str) -> Preprocessed:
-    """단일 원문을 결정적 placeholder 할당으로 정규화.
+    """단일 원문을 결정적 플레이스홀더 할당으로 정규화.
 
     Args:
         content: 정규화할 영어 원문.
 
     Returns:
-        정규화된 작업 사본과 복원용 placeholder 매핑.
+        정규화된 작업 사본과 복원용 플레이스홀더 매핑.
     """
 
     return preprocess_pair("", content).current

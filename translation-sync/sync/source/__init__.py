@@ -1,1 +1,1 @@
-"""English source synchronization and diff detection helpers."""
+"""영어 원문 동기화와 변경 감지 도구."""

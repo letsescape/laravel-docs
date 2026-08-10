@@ -1,7 +1,7 @@
-"""번역된 원문 diff hunk를 annotation 포함 locale Markdown에 적용.
+"""원문 diff hunk의 번역 결과를 annotation 포함 locale Markdown에 적용.
 
-영어 HTML 주석을 안정된 anchor로 사용. 변경된 영어 hunk를 개별 번역한 뒤
-대응하는 annotation block의 교체, 삽입 또는 삭제를 통해 기존 locale 문서에 병합.
+영어 HTML 주석을 안정된 anchor로 사용.
+변경된 영어 hunk를 개별 번역한 뒤 대응하는 annotation block의 교체, 삽입 또는 삭제를 통해 기존 locale 문서에 병합.
 """
 from __future__ import annotations
 
@@ -80,9 +80,8 @@ class BlockChange:
     """원문 delta와 해당 변경이 속한 전체 Markdown block의 결합.
 
     ``old_lines``와 ``new_lines``는 선택적 원문 정규화 이후의 effective delta.
-    번역과 locale 교체에 사용하는 전체 block은 ``old_source``와 ``new_source``에
-    보존. 두 개념의 분리를 통해 block 확장이 한 줄 추가를 전체 추가 diff로
-    바꾸는 문제 방지.
+    번역과 locale 교체에 사용하는 전체 block은 ``old_source``와 ``new_source``에 보존.
+    두 개념의 분리를 통해 block 확장이 한 줄 추가를 전체 추가 diff로 바꾸는 문제 방지.
     """
 
     old_lines: tuple[str, ...]
@@ -205,13 +204,13 @@ class BlockChange:
 class CodeChange:
     """단일 fenced code block 내부의 변경.
 
-    code는 번역 없이 원문에서 그대로 복사. 변경 block을 문서 순서의 이전·신규
-    index로 찾은 뒤 전체 block을 신규 원문 block으로 교체. locale code와 영어
-    원문의 byte 동일성 및 재실행 idempotency 보장.
+    code는 번역 없이 원문에서 그대로 복사.
+    변경 block을 문서 순서의 이전·신규 index로 찾은 뒤 전체 block을 신규 원문 block으로 교체.
+    locale code와 영어 원문의 byte 동일성 및 재실행 idempotency 보장.
 
-    ``anchors``는 새로 추가된 줄을 제외한 변경되지 않은 block 줄. 탐색한 block이
-    모든 anchor를 포함할 때만 교체. 순서만 바뀐 동등 code는 canonical 상태로
-    판정하고 다른 divergence는 ``_code_plan_state``에서 거부.
+    ``anchors``는 새로 추가된 줄을 제외한 변경되지 않은 block 줄.
+    탐색한 block이 모든 anchor를 포함할 때만 교체.
+    순서만 바뀐 동등 code는 canonical 상태로 판정하고 다른 divergence는 ``_code_plan_state``에서 거부.
     """
 
     block_index: int
@@ -227,10 +226,8 @@ class CodeChange:
 class TableRowChange:
     """구조 위치로 주소화된 단일 변경 table row.
 
-    ``table_ordinal``은 code fence 외부 table 순서, ``table_count``와
-    ``row_count``는 원문 cardinality, ``row_ordinal``은 separator가 아닌 row
-    사이의 변경 row 순서. locale 전용 table이나 row가 구조 주소를 다른 내용으로
-    이동시키는 경우 거부.
+    ``table_ordinal``은 code fence 외부 table 순서, ``table_count``와 ``row_count``는 원문 cardinality, ``row_ordinal``은 separator가 아닌 row 사이의 변경 row 순서.
+    locale 전용 table이나 row가 구조 주소를 다른 내용으로 이동시키는 경우 거부.
     """
 
     table_ordinal: int
@@ -322,7 +319,7 @@ class SourceBlock:
 
 @dataclass(frozen=True)
 class SourceComment:
-    """원문 작성 HTML 주석과 원문 block 사이의 위치."""
+    """원문에 작성된 HTML 주석과 원문 block 사이의 위치."""
 
     body: str
     anchor_position: int
@@ -830,7 +827,7 @@ def _front_matter_line_numbers(text: str) -> set[int]:
 
 
 def _require_supported_front_matter(front_matter: str) -> None:
-    """supported front matter 필수 조건 확인."""
+    """front matter의 지원 조건 검증."""
 
     lines = front_matter.splitlines()
     if (
@@ -1014,7 +1011,7 @@ def apply_segments(
     target_state: bool = False,
     code_state: PlanState = PlanState.UNGUARDED,
 ) -> str:
-    """segments 적용."""
+    """segment 목록 적용."""
 
     translated_iter = iter(translated_blocks)
     original_blocks = _blocks(existing)
@@ -1122,7 +1119,7 @@ def apply_segments(
 def apply_plan(
     existing: str | None, plan: PatchPlan, translated_blocks: list[str]
 ) -> str:
-    """계획 적용."""
+    """patch 계획 적용."""
 
     state = plan_state(existing, plan)
     if state is PlanState.CREATE:
@@ -1279,7 +1276,7 @@ def plan_state(existing: str | None, plan: PatchPlan) -> PlanState:
 def _source_comment_signatures(
     comments: tuple[SourceComment, ...],
 ) -> tuple[tuple[str, int, str], ...]:
-    """원문 HTML 주석의 위치와 정규화 본문 서명."""
+    """원문 HTML 주석 문자열과 구조 위치의 서명."""
 
     return tuple(
         (comment.raw, comment.anchor_position, comment.placement)
@@ -1383,7 +1380,7 @@ def _permuted_code_blocks(
 def _strip_retained_admonition_marker(
     segment: BlockChange, translated: str
 ) -> str:
-    """retained admonition marker 제거."""
+    """번역 결과에 남은 admonition marker 제거."""
 
     marker = segment.before_context
     if not marker or not _ADMONITION_MARKER_RE.fullmatch(marker.strip()):
@@ -1497,7 +1494,7 @@ def _mask_source_comment_anchors(
     anchors: tuple[str, ...],
     comments: tuple[SourceComment, ...],
 ) -> tuple[str, tuple[tuple[str, str], ...]]:
-    """원문 comment anchors 마스킹."""
+    """원문 주석 anchor 마스킹."""
 
     if not comments:
         return text, ()
@@ -1526,7 +1523,7 @@ def _mask_source_comment_anchors(
 def _restore_source_comment_anchors(
     text: str, replacements: tuple[tuple[str, str], ...]
 ) -> str:
-    """원문 comment anchors 복원."""
+    """원문 주석 anchor 복원."""
 
     for marker, original in replacements:
         if text.count(marker) != 1:
@@ -1628,7 +1625,7 @@ def _locate_source_comment_blocks(
     anchors: tuple[str, ...],
     comments: tuple[SourceComment, ...],
 ) -> tuple[AnnotatedBlock, ...] | None:
-    """번역 anchor와 혼동하지 않는 원문 주석 해석."""
+    """원문 주석을 번역 anchor와 구분하여 탐색."""
 
     blocks = _blocks(text)
     plan_blocks = [block for block in blocks if _is_plan_anchor(block)]
@@ -1736,7 +1733,7 @@ def _is_inline_code_identifier_list_comment(comment: str) -> bool:
 
 
 def _translated_block_end(lines: list[str], start: int, limit: int) -> int:
-    """annotation 다음 번역 block의 종료 줄 위치."""
+    """annotation 다음에 오는 번역 block의 종료 줄 위치."""
 
     index = start
     seen_content = False
@@ -1775,7 +1772,7 @@ def _comment_starts(lines: list[str]) -> list[int]:
 
 
 def _read_comment(lines: list[str], start: int) -> tuple[int, str]:
-    """comment 읽기."""
+    """HTML 주석 읽기."""
 
     line = lines[start]
     if "-->" in line:
@@ -1945,7 +1942,7 @@ def _replace_block(
 def _replace_resolved_blocks(
     text: str, found: tuple[AnnotatedBlock, ...], translated: str
 ) -> str:
-    """resolved 블록 교체."""
+    """탐색된 블록 교체."""
 
     lines = text.splitlines(keepends=True)
     replacement = _format_replacement(
@@ -1993,7 +1990,7 @@ def _find_old_blocks(
     *,
     required: bool = True,
 ) -> tuple[AnnotatedBlock, ...] | None:
-    """old 블록 탐색."""
+    """기존 블록 탐색."""
 
     old_anchor = segment.old_source or _joined(segment.old_lines)
     if not old_anchor:
@@ -2011,7 +2008,7 @@ def _find_old_blocks(
 def _find_applied_new_blocks(
     blocks: list[AnnotatedBlock], segment: BlockChange
 ) -> tuple[AnnotatedBlock, ...] | None:
-    """applied 신규 블록 탐색."""
+    """이미 적용된 신규 블록 탐색."""
 
     if not segment.new_source:
         return None
@@ -2057,7 +2054,7 @@ def _delete_block(
 def _delete_resolved_blocks(
     text: str, found: tuple[AnnotatedBlock, ...]
 ) -> str:
-    """resolved 블록 삭제."""
+    """탐색된 블록 삭제."""
 
     lines = text.splitlines(keepends=True)
     return "".join(lines[: found[0].start]) + "".join(lines[found[-1].end :])
@@ -2092,7 +2089,7 @@ def _insert_fenced_code_block(
 
 
 def _delete_fenced_code_block(text: str, segment: BlockChange) -> str:
-    """fenced code 블록 삭제."""
+    """fenced code block 삭제."""
 
     lines = text.splitlines(keepends=True)
     plain_lines = [line.rstrip("\r\n") for line in lines]
@@ -2141,7 +2138,7 @@ def _delete_segment(text: str, segment: BlockChange) -> str:
 
 
 def _reject_target_deletion_residue(text: str, segment: BlockChange) -> None:
-    """대상 deletion residue 거부 조건 확인."""
+    """대상 상태에 남은 삭제 잔여물 검증."""
 
     evidence = _raw_evidence_lines(segment)
     lines = text.splitlines(keepends=True)
@@ -2169,7 +2166,7 @@ def _reject_target_deletion_residue(text: str, segment: BlockChange) -> None:
 
 
 def _is_orphan_translation_line(line: str) -> bool:
-    """orphan 번역 줄 여부."""
+    """소유 annotation이 없는 번역 줄 여부."""
 
     stripped = line.strip()
     if not stripped:
@@ -2180,7 +2177,7 @@ def _is_orphan_translation_line(line: str) -> bool:
 
 
 def _require_target_block_bodies(text: str, segment: BlockChange) -> None:
-    """대상 상태 block이 본문 없는 annotation뿐이면 거부."""
+    """대상 상태 block의 번역 본문 존재 여부 검증."""
     if not segment.new_anchors and not segment.new_anchor:
         return
     blocks = _blocks(text)
@@ -2200,7 +2197,7 @@ def _require_target_block_bodies(text: str, segment: BlockChange) -> None:
 
 
 def _deletion_boundary_is_empty(text: str, segment: BlockChange) -> bool:
-    """삭제 대상의 이전 위치가 현재 locale에서 비어 있는지 여부."""
+    """삭제 대상이 있던 위치가 현재 locale에서 비어 있는지 여부."""
 
     lines = text.splitlines(keepends=True)
     bounds = _raw_context_bounds(
@@ -2286,8 +2283,7 @@ def _context_anchor_block(
 ) -> AnnotatedBlock | None:
     """출현 순서를 고려한 문맥 줄과 annotation block 대응.
 
-    중복 문맥이 인접 block 자체일 때 원문 측 ordinal로 해석하고 그 밖의 문맥은
-    고유성 요구.
+    중복 문맥이 인접 block 자체일 때 원문 측 ordinal로 해석하고 그 밖의 문맥은 고유성 요구.
     """
     matches = _matching_blocks(blocks, context)
     if not matches:
@@ -2308,8 +2304,7 @@ def _replace_leading_code_region_insertion(
 ) -> str | None:
     """주변 원문 영역이 확장된 기존 code block의 연장.
 
-    diff alignment로 삽입 범위가 기존 fenced block부터 시작하는 경우 해당 block을
-    byte 그대로 탐색한 뒤 확장된 전체 영역으로 제자리 교체.
+    diff alignment로 삽입 범위가 기존 fenced block부터 시작하는 경우 해당 block을 byte 그대로 탐색한 뒤 확장된 전체 영역으로 제자리 교체.
     """
     source = segment.new_source
     if not source:
@@ -2481,10 +2476,10 @@ def _anchor_occurrence_at_context(
     anchor_indexes: list[int],
     segment: BlockChange,
 ) -> bool | None:
-    """segment 문맥 경계에 anchor 출현이 존재하는지 여부.
+    """segment 문맥 경계에 anchor가 존재하는지 여부.
 
-    두 문맥 모두 문서에서 해석되지 않을 때 ``None`` 반환. 이 경우 출현 횟수만
-    검증 가능.
+    두 문맥 모두 문서에서 해석되지 않을 때 ``None`` 반환.
+    이 경우 출현 횟수만 검증 가능.
     """
     checked = False
     if segment.after_context:
@@ -2670,7 +2665,7 @@ def _admonition_body_matches_source(
 
 
 def _blockquote_start_indexes(lines: list[str]) -> list[int]:
-    """code 외부 최상위 blockquote group의 index."""
+    """code 외부 최상위 blockquote group의 시작 index 목록."""
     starts: list[int] = []
     searchable = set(_searchable_raw_indexes(lines))
     previous_quote = False
@@ -2690,7 +2685,7 @@ def _blockquote_start_indexes(lines: list[str]) -> list[int]:
 
 
 def _admonition_start_indexes(lines: list[str]) -> list[int]:
-    """code 외부의 GFM 또는 legacy admonition 시작 줄 index."""
+    """code 외부의 GFM 또는 legacy admonition 시작 줄 index 목록."""
     return [
         index
         for index in _blockquote_start_indexes(lines)
@@ -2712,7 +2707,7 @@ def _admonition_marker_ordinal(source_lines: list[str], lineno: int) -> int:
 def _admonition_source_region(
     source_lines: list[str], lineno: int
 ) -> tuple[str, int, int]:
-    """marker와 소유 본문을 포함한 원문 admonition 범위."""
+    """marker와 해당 본문을 포함한 원문 admonition 범위."""
 
     start = lineno - 1
     if start < 0 or start >= len(source_lines):
@@ -2837,19 +2832,19 @@ def _meaningful_lines(lines: tuple[str, ...]) -> tuple[str, ...]:
 
 
 def _joined(lines: tuple[str, ...]) -> str:
-    """원문 끝 줄바꿈을 유지한 줄 결합 결과."""
+    """빈 줄을 제외한 원문 줄을 공백으로 결합."""
 
     return " ".join(_meaningful_lines(lines))
 
 
 def _normalize_text(text: str) -> str:
-    """text 정규화."""
+    """텍스트 정규화."""
 
     return normalize_annotation_anchor(text)
 
 
 def _ensure_single_eof_newline(text: str) -> str:
-    """single eof newline 보장 조건 확인."""
+    """텍스트 끝에 줄바꿈 하나 보장."""
 
     return text.rstrip("\n") + "\n" if text else text
 
@@ -2977,7 +2972,7 @@ def _expanded_source_range(
 def _inclusive_region_of_index(
     regions: list[tuple[int, int]], index: int
 ) -> tuple[int, int] | None:
-    """지정한 줄을 포함하는 영역 번호."""
+    """지정한 줄을 포함하는 영역 범위."""
 
     for start, end in regions:
         if start <= index <= end:
@@ -3241,7 +3236,7 @@ def _shared_context_block(
     before_lineno: int | None,
     after_lineno: int | None,
 ) -> SourceBlock | None:
-    """이전·현재 원문에서 동일한 문맥 block."""
+    """앞뒤 문맥 줄이 함께 속한 원문 block."""
 
     if before_lineno is None or after_lineno is None:
         return None
@@ -3255,7 +3250,7 @@ def _context_boundary_blocks(
     before_lineno: int | None,
     after_lineno: int | None,
 ) -> list[SourceBlock]:
-    """segment 앞뒤의 변경되지 않은 문맥 block."""
+    """segment 앞뒤의 변경되지 않은 문맥 block 목록."""
 
     found: list[SourceBlock] = []
     for lineno in (before_lineno, after_lineno):
@@ -3295,7 +3290,7 @@ def _paired_old_block(
 
 
 def _join_source_blocks(blocks: list[SourceBlock]) -> str:
-    """연속 원문 block의 byte 보존 결합 결과."""
+    """연속 원문 block을 빈 줄 하나로 결합."""
 
     return "\n\n".join(block.text.rstrip("\n") for block in blocks) + "\n"
 
@@ -3303,7 +3298,7 @@ def _join_source_blocks(blocks: list[SourceBlock]) -> str:
 def _require_plain_block_range(
     blocks: list[SourceBlock], source_lines: list[str]
 ) -> None:
-    """plain 블록 range 필수 조건 확인."""
+    """plain block 범위의 지원 조건 검증."""
 
     for previous, following in zip(blocks, blocks[1:]):
         between = source_lines[previous.end_lineno : following.start_lineno - 1]
@@ -3455,7 +3450,7 @@ def _locate_hunk_segment(
 
 
 def _code_fence_regions(lines: list[str]) -> list[tuple[int, int]]:
-    """각 fenced code block의 시작·종료 줄 index를 포함 범위로 반환."""
+    """각 fenced code block의 시작·종료 줄 index를 포함한 범위 목록."""
     regions: list[tuple[int, int]] = []
     in_code = False
     fence = ""
@@ -3555,7 +3550,7 @@ def _attach_deleted_code_block(
 
 
 def _region_of_index(regions: list[tuple[int, int]], index: int) -> int | None:
-    """fence 사이 내부에 ``index``가 포함된 region index."""
+    """``index``가 fence 내부에 포함된 region의 순번."""
     for position, (start, end) in enumerate(regions):
         if start < index < end:
             return position
@@ -3569,8 +3564,8 @@ def _code_region_indexes(
 ) -> tuple[int | None, int | None]:
     """fenced code 내부 변경에 대한 신규·이전 region index.
 
-    전체 block 변경은 fence 줄을 포함하여 구조 경로 유지. 순수 내부 삽입 또는
-    삭제에서는 문맥 줄 번호로 변경 줄이 없는 쪽 보완.
+    전체 block 변경은 fence 줄을 포함하여 구조 경로 유지.
+    순수 내부 삽입 또는 삭제에서는 문맥 줄 번호로 변경 줄이 없는 쪽 보완.
     """
     if _has_structural_lines(segment.new_lines) or _has_structural_lines(
         segment.old_lines
@@ -3614,7 +3609,7 @@ def _single_region_index(
     *,
     inclusive: bool = False,
 ) -> int | None:
-    """지정한 줄이 유일하게 속하는 code 영역 번호."""
+    """지정한 줄들이 유일하게 속하는 code 영역의 순번."""
 
     found: set[int] = set()
     for lineno in linenos:
@@ -3728,7 +3723,7 @@ def _apply_code_block(
 
 
 def _contains_all(block: list[str], anchors: tuple[str, ...]) -> bool:
-    """중복을 포함해 ``block``이 모든 anchor 줄을 보유하는지 여부."""
+    """중복을 포함해 ``block``이 모든 anchor 줄을 포함하는지 여부."""
     remaining = list(block)
     for line in anchors:
         if line in remaining:
@@ -3739,7 +3734,7 @@ def _contains_all(block: list[str], anchors: tuple[str, ...]) -> bool:
 
 
 def _source_from_lines(lines: tuple[str, ...]) -> str:
-    """줄 목록의 원문 끝 줄바꿈을 보존한 결합 결과."""
+    """줄 목록을 마지막 줄바꿈 하나가 있는 원문으로 결합."""
 
     return "\n".join(lines).rstrip("\n") + "\n"
 
@@ -3813,7 +3808,7 @@ def _context_between_raw_contexts(text: str, segment: BlockChange) -> str | None
 def _replace_between_raw_contexts(
     text: str, segment: BlockChange, translated: str
 ) -> str | None:
-    """between raw contexts 교체."""
+    """앞뒤 raw 문맥 사이의 내용 교체."""
 
     lines = text.splitlines(keepends=True)
     bounds = _raw_context_bounds(lines, _blocks(text), segment)
@@ -3830,7 +3825,7 @@ def _replace_between_raw_contexts(
 def _replace_existing_insertion(
     text: str, segment: BlockChange, translated: str
 ) -> str | None:
-    """existing insertion 교체."""
+    """기존 삽입 내용 교체."""
 
     lines = text.splitlines(keepends=True)
     start = _find_existing_insertion_start(lines, segment)
@@ -3849,7 +3844,7 @@ def _replace_existing_insertion(
 def _find_existing_insertion_start(
     lines: list[str], segment: BlockChange
 ) -> int | None:
-    """existing insertion start 탐색."""
+    """기존 삽입 내용의 시작 위치 탐색."""
 
     for source_line in _source_text_lines(segment):
         if not is_named_anchor_line(source_line):
@@ -3863,7 +3858,7 @@ def _find_existing_insertion_start(
 def _find_existing_insertion_end(
     lines: list[str], segment: BlockChange, start: int
 ) -> int | None:
-    """existing insertion end 탐색."""
+    """기존 삽입 내용의 종료 위치 탐색."""
 
     if segment.after_context:
         index = _find_raw_context_line_after(lines, segment.after_context, start)
@@ -3988,7 +3983,7 @@ def _contains_ordered_raw_lines(lines: list[str], evidence: tuple[str, ...]) -> 
 
 
 def _expand_end_to_code_fence(lines: list[str], end: int) -> int:
-    """범위 끝을 포함된 fenced code block 끝까지 확장."""
+    """범위 끝이 포함된 fenced code block의 끝까지 확장."""
 
     plain_lines = [line.rstrip("\r\n") for line in lines]
     for start, region_end in _code_fence_regions(plain_lines):
@@ -4046,7 +4041,7 @@ def _find_raw_context_line(lines: list[str], context: str) -> int | None:
 def _find_raw_context_line_after(
     lines: list[str], context: str, after_index: int
 ) -> int | None:
-    """raw 문맥 줄 after 탐색."""
+    """지정한 위치 다음의 raw 문맥 줄 탐색."""
 
     return next(
         (
@@ -4129,7 +4124,7 @@ def _is_unsupported_admonition_marker(line: str) -> bool:
 
 
 def _require_supported_admonition_markers(source: str) -> None:
-    """supported admonition markers 필수 조건 확인."""
+    """원문 admonition marker의 지원 여부 검증."""
 
     lines = source.splitlines()
     fenced = {
@@ -4145,7 +4140,7 @@ def _require_supported_admonition_markers(source: str) -> None:
 
 
 def _require_supported_modified_admonition(segment: BlockChange) -> None:
-    """supported 수정된 admonition 필수 조건 확인."""
+    """변경된 admonition marker의 지원 여부 검증."""
 
     lines = _meaningful_lines(segment.old_lines) + _meaningful_lines(
         segment.new_lines
@@ -4159,7 +4154,7 @@ def _require_supported_modified_admonition(segment: BlockChange) -> None:
 
 
 def _table_match_cells(cells: tuple[str, ...]) -> tuple[str, ...]:
-    """table row 위치 판정에 사용할 비번역 cell 목록."""
+    """table row 위치 판정에 사용할 cell 목록 정규화."""
 
     return tuple(
         re.sub(r"\s*,\s*", ", ", cell.replace("、", ",")).strip()
@@ -4174,7 +4169,7 @@ def _is_table_separator_cells(cells: tuple[str, ...]) -> bool:
 
 
 def _single_table_row_lines(segment: BlockChange) -> tuple[str, str] | None:
-    """segment의 단일 이전·신규 table row 또는 row 형태가 아닐 때 ``None``."""
+    """segment의 단일 이전·신규 table row 쌍 또는 row 형식이 아닐 때 ``None``."""
     old_meaningful = _meaningful_lines(segment.old_lines)
     new_meaningful = _meaningful_lines(segment.new_lines)
     if len(old_meaningful) != 1 or len(new_meaningful) != 1:
@@ -4189,7 +4184,7 @@ def _single_table_row_lines(segment: BlockChange) -> tuple[str, str] | None:
 
 
 def _require_rectangular_create_table(source: str) -> None:
-    """rectangular create table 필수 조건 확인."""
+    """신규 table의 직사각형 구조 검증."""
 
     rows = [line for line in source.splitlines() if line.strip()]
     cells = [_table_row_cells(line) for line in rows]
@@ -4201,13 +4196,13 @@ def _require_rectangular_create_table(source: str) -> None:
 
 
 def _is_changed_table_row(line: str) -> bool:
-    """changed table row 여부."""
+    """변경 대상 table row 여부."""
 
     return not line.startswith(("    ", "\t")) and _table_row_cells(line) is not None
 
 
 def _require_supported_modified_table(segment: BlockChange) -> bool:
-    """supported 수정된 table 필수 조건 확인."""
+    """변경된 table 구조의 지원 여부 검증."""
 
     lines = _meaningful_lines(segment.old_lines) + _meaningful_lines(
         segment.new_lines
@@ -4223,7 +4218,7 @@ def _require_supported_modified_table(segment: BlockChange) -> bool:
 
 
 def _table_regions(lines: list[str]) -> list[list[int]]:
-    """fenced 또는 indented code 외부 각 table의 non-separator row index."""
+    """fenced 또는 indented code 외부 각 table의 non-separator row index 목록."""
     fenced: set[int] = set()
     for start, end in _code_fence_regions(lines):
         fenced.update(range(start, end + 1))
@@ -4357,7 +4352,7 @@ def _identified_table_row_candidates(
     old_cells: tuple[str, ...],
     new_cells: tuple[str, ...],
 ) -> list[int]:
-    """비번역 cell과 구조 위치로 식별한 table row 후보."""
+    """원문·신규 cell 일치도와 구조 위치로 식별한 table row 후보."""
 
     normalized_old = _table_match_cells(old_cells)
     normalized_new = _table_match_cells(new_cells)
@@ -4429,7 +4424,7 @@ def _table_context_identifies_row(
 def _table_row_matches_context(
     lines: list[str], segment: BlockChange, index: int
 ) -> bool:
-    """단일 항목을 포함한 모든 candidate에 적용되는 raw 문맥 검증."""
+    """단일 candidate에 적용할 raw 문맥 검증."""
     validated = False
     if segment.before_context:
         before = [
@@ -4510,7 +4505,7 @@ def _add_neighbor_anchors(
     old_source_blocks: list[SourceBlock],
     new_source_blocks: list[SourceBlock],
 ) -> BlockChange:
-    """neighbor anchors 추가."""
+    """변경 segment에 이웃 anchor와 신규 anchor 출현 횟수 보강."""
 
     old_index = _source_block_index(
         old_source_blocks,
@@ -4760,8 +4755,8 @@ def _prefix_reordered_with_sections(
 ) -> bool:
     """section TOC 링크 순열만 변경된 prefix 허용.
 
-    링크가 아닌 모든 prefix 줄의 위치별 동일성, 알려진 section anchor를 대상으로
-    하는 link 줄의 순열 관계 및 신규 section 순서에 따른 link 순서 요구.
+    링크가 아닌 모든 prefix 줄의 위치별 동일성 요구.
+    알려진 section anchor를 대상으로 하는 link 줄의 순열 관계 및 신규 section 순서에 따른 link 순서 요구.
     """
     old_lines = old_prefix.splitlines(keepends=True)
     new_lines = new_prefix.splitlines(keepends=True)

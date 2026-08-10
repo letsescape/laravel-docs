@@ -1,4 +1,4 @@
-"""이미 publication된 main 커밋의 배포 trigger와 검증."""
+"""이미 publication된 main 커밋의 배포 요청과 결과 검증."""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ _DEPLOY_ENV_KEYS = (
 
 
 class ArgvRunner(Protocol):
-    """argv 실행기."""
+    """공유 기한을 적용하는 argv 명령 실행 경계."""
 
     def __call__(
         self,
@@ -60,13 +60,13 @@ class ArgvRunner(Protocol):
         *,
         timeout: float,
     ) -> subprocess.CompletedProcess[str]:
-        """공유 기한 안에서 명령을 실행하고 결과 반환."""
+        """지정한 timeout 안에서 argv 명령을 실행하고 결과 반환."""
 
         ...
 
 
 class SubprocessArgvRunner:
-    """명령 출력을 메모리에 보존하는 고정 argv 직접 실행기."""
+    """명령 출력을 메모리에 보존하는 고정 argv 하위 프로세스 실행기."""
 
     def __init__(self, environment: Mapping[str, str] | None = None) -> None:
         """배포 명령에 허용된 환경 변수만 선택."""
@@ -85,7 +85,7 @@ class SubprocessArgvRunner:
         *,
         timeout: float,
     ) -> subprocess.CompletedProcess[str]:
-        """shell 없이 argv를 실행하고 출력을 메모리에 보존."""
+        """shell 없이 argv를 실행하고 텍스트 출력을 메모리에 보존."""
 
         return run_process_tree(
             list(argv),
@@ -100,7 +100,7 @@ class SubprocessArgvRunner:
 
 @dataclass(frozen=True, slots=True)
 class DeploymentRequest:
-    """배포 결정에 필요한 publication 상태."""
+    """배포 결정에 필요한 branch와 publication 상태."""
 
     branch: str
     base_commit: str
@@ -111,7 +111,7 @@ class DeploymentRequest:
 
 @dataclass(frozen=True, slots=True)
 class DeploymentResult:
-    """배포 trigger와 재검증 결과."""
+    """배포 요청 수락 여부와 실행 검증 결과."""
 
     branch: str
     published_commit: str
@@ -142,7 +142,7 @@ class _DeployTimeout(RuntimeError):
 
 
 class _TriggerFailure(RuntimeError):
-    """배포 workflow를 찾거나 시작하지 못한 상태."""
+    """배포 대상 조회, workflow 요청 또는 실행 식별 실패."""
 
     pass
 
@@ -156,12 +156,12 @@ class _ValidationFailure(RuntimeError):
 class DeploymentCoordinator:
     """단일 커밋의 deploy.yml dispatch와 정확한 신규 실행 대기.
 
-    호출자는 publication 중 해석한 기준본, published 및 현재 원격 커밋 OID를
-    제공. 세 값이 동일 커밋을 식별할 때만 no-change 재시도 허용.
-    ``correlation_id``는 1~31자 workflow-attempt prefix이며 coordinator가 비공개
-    128-bit nonce를 붙여 dispatch 값을 최대 64자로 제한한 뒤 deploy workflow의
-    ``translation-deploy:<id>-<nonce>`` run-name과 대조. 원격 변경과 rollback은
-    이 단계에서 수행하지 않음.
+    호출자는 publication 중 해석한 기준본, publication 결과 및 현재 원격 커밋 객체 ID 제공.
+    세 값이 동일 커밋을 식별할 때만 no-change 재시도 허용.
+    ``correlation_id``는 1~31자의 workflow-attempt 접두사.
+    coordinator가 비공개 128비트 nonce를 붙여 dispatch 값을 최대 64자로 제한.
+    deploy workflow의 ``translation-deploy:<id>-<nonce>`` run-name과 dispatch 값 대조.
+    원격 변경과 rollback은 이 단계에서 미수행.
     """
 
     def __init__(
@@ -176,7 +176,7 @@ class DeploymentCoordinator:
         poll_interval_seconds: float = 3.0,
         nonce_factory: Callable[[], str] | None = None,
     ) -> None:
-        """배포 대상과 고유 correlation 계약 검증·저장."""
+        """배포 대상, 고유 correlation 및 polling 계약 검증·고정."""
 
         if not _REPOSITORY.fullmatch(repository):
             raise ValueError("repository must be an explicit owner/name")
@@ -208,7 +208,10 @@ class DeploymentCoordinator:
         self._used = False
 
     def deploy(self, request: DeploymentRequest) -> DeploymentResult:
-        """main publication을 배포하고 해당 commit의 실행 결과 대기."""
+        """main publication의 배포 요청과 정확한 commit 실행 결과 검증.
+
+        다른 branch는 dispatch 없는 성공 결과 반환.
+        """
 
         with self._use_lock:
             if self._used:
@@ -313,7 +316,7 @@ class DeploymentCoordinator:
 
     @staticmethod
     def _validate_publication(request: DeploymentRequest) -> IssueCode | None:
-        """publication 상태 조합과 Git 객체 형식 검증."""
+        """변경 여부와 기준·publication·원격 commit 조합 검증."""
 
         oids = (
             request.base_commit,
@@ -370,7 +373,7 @@ class DeploymentCoordinator:
     def _triggered_run_id(
         result: subprocess.CompletedProcess[str],
     ) -> int | None:
-        """workflow trigger 출력에서 단일 실행 ID 추출."""
+        """workflow dispatch 출력에서 유일한 양수 실행 ID 추출."""
 
         output = "\n".join(
             part for part in (result.stdout, result.stderr) if isinstance(part, str)
@@ -381,7 +384,7 @@ class DeploymentCoordinator:
         return next(iter(run_ids)) if run_ids else None
 
     def _wait_for_correlated_run(self, published_commit: str) -> int:
-        """정확한 correlation과 commit을 가진 workflow 실행 탐색."""
+        """정확한 run-name과 publication commit을 가진 신규 workflow 실행 대기."""
 
         while True:
             result = self._command(
@@ -424,7 +427,7 @@ class DeploymentCoordinator:
         *,
         published_commit: str,
     ) -> frozenset[int]:
-        """workflow 목록에서 correlation과 commit이 일치하는 ID 선택."""
+        """workflow 목록에서 예상 run-name과 publication commit이 일치하는 실행 ID 선택."""
 
         try:
             payload = json.loads(raw)
@@ -456,7 +459,7 @@ class DeploymentCoordinator:
         return frozenset(matching)
 
     def _wait_for_run(self, *, run_id: int, published_commit: str) -> str:
-        """지정 실행이 정확한 commit으로 성공 완료될 때까지 대기."""
+        """지정 실행이 예상 run-name과 정확한 commit으로 성공 완료될 때까지 대기."""
 
         while True:
             state = self._view_run(run_id)
@@ -478,7 +481,7 @@ class DeploymentCoordinator:
             self._sleep(min(self._poll_interval_seconds, self._budget()))
 
     def _view_run(self, run_id: int) -> dict[str, object]:
-        """GitHub CLI에서 배포 실행 상태 조회·검증."""
+        """GitHub CLI에서 배포 실행 상태 조회 후 필수 필드 형식 검증."""
 
         result = self._command(
             (

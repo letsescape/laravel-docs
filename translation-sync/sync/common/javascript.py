@@ -1,4 +1,4 @@
-"""균형 잡힌 JSX 표현식을 위한 최소 JavaScript lexical scan."""
+"""균형 잡힌 JSX 표현식을 위한 최소 JavaScript 어휘 스캔."""
 from __future__ import annotations
 
 
@@ -29,7 +29,7 @@ _CONTROL_PAREN_KEYWORDS = {
 
 
 def _string_end(text: str, start: int) -> int | None:
-    """JavaScript 문자열 literal의 종료 위치."""
+    """JavaScript 문자열 리터럴의 종료 위치."""
 
     quote = text[start]
     cursor = start + 1
@@ -46,7 +46,7 @@ def _string_end(text: str, start: int) -> int | None:
 
 
 def _regex_end(text: str, start: int) -> int | None:
-    """JavaScript 정규식 literal의 종료 위치."""
+    """JavaScript 정규식 리터럴의 종료 위치."""
 
     cursor = start + 1
     in_character_class = False
@@ -78,7 +78,7 @@ def _possible_regex_end(
     *,
     expects_operand: bool,
 ) -> int | None:
-    """현재 문맥에서 가능한 정규식 literal의 종료 위치."""
+    """현재 문맥에서 정규식일 수 있는 리터럴의 종료 위치."""
 
     end = _regex_end(text, start)
     if end is None:
@@ -91,7 +91,7 @@ def _possible_regex_end(
 
 
 def _template_end(text: str, start: int) -> int | None:
-    """중첩 표현식을 포함한 template literal의 종료 위치."""
+    """중첩 표현식을 포함한 템플릿 리터럴의 종료 위치."""
 
     cursor = start + 1
     while cursor < len(text):
@@ -112,7 +112,7 @@ def _template_end(text: str, start: int) -> int | None:
 
 
 def balanced_expression_end(text: str, start: int) -> int | None:
-    """괄호와 literal을 고려한 JavaScript 표현식의 종료 위치."""
+    """괄호와 리터럴을 고려한 JavaScript 표현식의 종료 위치."""
 
     pairs = {"(": ")", "[": "]", "{": "}"}
     opener = text[start]
@@ -242,7 +242,7 @@ def balanced_expression_end(text: str, start: int) -> int | None:
 
 
 def top_level_plus_positions(text: str) -> tuple[int, ...] | None:
-    """JavaScript 최상위 덧셈 연산자의 위치 목록."""
+    """JavaScript 최상위 덧셈 연산자 위치 목록."""
 
     pairs = {"(": ")", "[": "]", "{": "}"}
     stack: list[tuple[str, bool]] = []

@@ -1,9 +1,9 @@
 """호출보다 오래 살아남는 process group 없이 argv 명령 실행.
 
-의도적인 POSIX 전용 runner. 각 직접 하위 프로세스는 새 session에서 시작하며
-PID를 정리용 process-group ID로 사용. 관리 대상 명령의 ``setsid``, ``setpgid``,
-double-fork, reparent, detach 및 runner의 group signal을 막는 credential 변경은
-금지. 이 명령 계약을 위반한 하위 프로세스는 격리 보장 대상에서 제외.
+의도적인 POSIX 전용 runner.
+각 직접 하위 프로세스는 새 session에서 시작하고 PID를 정리용 process-group ID로 사용.
+관리 대상 명령의 ``setsid``, ``setpgid``, double-fork, reparent, detach 및 runner의 group signal을 막는 자격 증명 변경은 금지.
+이 명령 계약을 위반한 하위 프로세스는 격리 보장 대상에서 제외.
 """
 
 from __future__ import annotations
@@ -25,11 +25,11 @@ class ProcessTreeError(RuntimeError):
 
 
 class ProcessTreeUnsupported(ProcessTreeError):
-    """host에서 필수 process-group 격리를 제공할 수 없는 오류."""
+    """호스트에서 필수 process-group 격리를 제공할 수 없는 오류."""
 
 
 class ProcessTreeLeak(ProcessTreeError):
-    """process group member가 남은 상태에서 명령이 반환된 오류."""
+    """process group 구성원이 남은 상태에서 명령이 반환된 오류."""
 
 
 class ProcessTreeCleanupError(ProcessTreeError):
@@ -64,7 +64,7 @@ def _validate_argv(
 
 
 def _kill_process_group(process_group: int) -> bool:
-    """프로세스 그룹에 강제 종료 signal 전송."""
+    """프로세스 그룹에 강제 종료 시그널 전송."""
 
     try:
         os.killpg(process_group, signal.SIGKILL)
@@ -179,14 +179,14 @@ def run_process_tree(
 ) -> subprocess.CompletedProcess[Any]:
     """process group 제거를 완료 조건으로 하는 단일 argv 명령 실행.
 
-    번역 워크플로에서 사용하는 ``subprocess.run`` 인자 부분집합과 의도적으로
-    동일한 계약. shell 실행은 항상 금지.
+    번역 워크플로에서 사용하는 ``subprocess.run`` 인자 부분집합과 의도적으로 동일한 계약.
+    shell 실행은 항상 금지.
 
     Args:
         args: 실행 파일과 인수로 구성된 비어 있지 않은 argv.
         cwd: 하위 프로세스의 작업 디렉터리.
         env: 하위 프로세스에 전달할 환경 변수 mapping.
-        input: 표준 입력으로 전달할 문자열 또는 bytes.
+        input: 표준 입력으로 전달할 문자열 또는 바이트.
         stdin: 표준 입력 stream 설정.
         stdout: 표준 출력 stream 설정.
         stderr: 표준 오류 stream 설정.
@@ -207,6 +207,7 @@ def run_process_tree(
         ProcessTreeCleanupError: 프로세스 그룹 정리를 증명하지 못한 경우.
         subprocess.TimeoutExpired: 제한 시간을 초과한 경우.
         subprocess.CalledProcessError: ``check``가 참이고 명령이 실패한 경우.
+        TypeError: argv 또는 timeout 타입이 계약에 맞지 않는 경우.
         ValueError: argv 또는 실행 옵션이 계약에 맞지 않는 경우.
     """
 

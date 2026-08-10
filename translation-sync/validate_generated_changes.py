@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""번역 동기화 출력 계약 외부의 candidate 변경 거부."""
+"""번역 동기화 출력 계약을 벗어난 후보 변경 거부."""
 
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ ProcessRunner = Callable[..., subprocess.CompletedProcess[bytes]]
 
 @dataclass(frozen=True, slots=True)
 class _ChangeIssue:
-    """산출 경로 또는 상태 정합성 문제."""
+    """산출물 경로 또는 상태 정합성 문제."""
 
     code: IssueCode
     message: str
@@ -118,7 +118,7 @@ class _ChangeIssue:
     structural_address: str | None = None
 
     def event(self) -> FailureEvent:
-        """안정된 경로 검증 실패 event 변환."""
+        """안정적 경로 검증 실패 이벤트로 변환."""
 
         return FailureEvent(
             code=self.code,
@@ -135,13 +135,13 @@ class _ValidationFailure(RuntimeError):
     """검증 실패 정보."""
 
     def __init__(self, code: IssueCode, message: str) -> None:
-        """안정된 문제 코드와 진단 메시지 저장."""
+        """안정적 문제 코드와 진단 메시지 저장."""
 
         super().__init__(message)
         self.code = code
 
     def event(self) -> FailureEvent:
-        """안정된 경로 검증 실패 event 변환."""
+        """안정적 경로 검증 실패 이벤트로 변환."""
 
         return FailureEvent(
             code=self.code,
@@ -151,7 +151,7 @@ class _ValidationFailure(RuntimeError):
 
 
 def _canonical_document(document: str) -> bool:
-    """문서 경로가 정규 UTF-8 상대 경로인지 확인."""
+    """문서 경로가 정규 UTF-8 상대 경로인지 판정."""
 
     try:
         document.encode("utf-8")
@@ -171,7 +171,7 @@ def _canonical_document(document: str) -> bool:
 
 
 def _allowed_path(path: str) -> bool:
-    """경로가 번역 동기화 소유 범위인지 확인."""
+    """경로가 번역 동기화 소유 범위인지 판정."""
 
     for pattern in _ALLOWED_PATHS:
         match = pattern.fullmatch(path)
@@ -183,7 +183,7 @@ def _allowed_path(path: str) -> bool:
 
 
 def unexpected_paths(paths: Iterable[str]) -> list[str]:
-    """번역 동기화 소유 범위 밖의 경로 정렬."""
+    """번역 동기화 소유 범위 밖의 경로를 정렬해 반환."""
 
     return sorted(path for path in set(paths) if not _allowed_path(path))
 
@@ -193,7 +193,7 @@ def _artifact_matches_key(
     *,
     version: str,
 ) -> bool:
-    """검증 artifact가 문서 key에 사용할 최소 계약 확인."""
+    """검증 산출물이 문서 키의 최소 계약을 충족하는지 확인."""
 
     return bool(
         isinstance(artifact, VerifiedLocaleArtifact)
@@ -215,7 +215,7 @@ def _change_issues(
     verified_unchanged: Mapping[tuple[str, str, str], VerifiedLocaleArtifact]
     | None = None,
 ) -> list[_ChangeIssue]:
-    """버전·경로별 Git 상태와 문서 triplet 정합성 검사."""
+    """버전·경로별 Git 상태와 영어·한국어·일본어 문서 세 파일의 정합성 검사."""
 
     issues: list[_ChangeIssue] = []
     proofs = verified_unchanged if isinstance(verified_unchanged, Mapping) else {}
@@ -337,7 +337,7 @@ def validate_changes(
     verified_unchanged: Mapping[tuple[str, str, str], VerifiedLocaleArtifact]
     | None = None,
 ) -> list[str]:
-    """verifier 산출물을 증거로 요구하는 사람이 읽을 수 있는 문제 목록."""
+    """검증 산출물을 증거로 요구하는 읽기 쉬운 문제 목록 반환."""
 
     return [
         issue.message
@@ -356,7 +356,7 @@ def _verification_input(
     version: str,
     registry: StaleLinkRegistry,
 ) -> document_verification.VerificationInput:
-    """원문과 locale byte에서 최종 문서 검증 입력 구성."""
+    """원문과 로케일 바이트로 최종 문서 검증 입력 구성."""
 
     source_text = source_bytes.decode("utf-8")
     preprocessed = preprocess.preprocess(source_text)
@@ -384,7 +384,7 @@ def _verification_input(
 
 
 def _load_registry(path: Path) -> StaleLinkRegistry:
-    """stale-link registry를 안정된 실패 코드로 로드."""
+    """오래된 링크 레지스트리를 안정적 실패 코드로 로드."""
 
     try:
         return load_stale_link_registry(path)
@@ -396,7 +396,7 @@ def _load_registry(path: Path) -> StaleLinkRegistry:
 
 
 def _read_source(path: Path) -> bytes:
-    """검증 대상 영어 원문 byte 읽기."""
+    """검증 대상 영어 원문 바이트 읽기."""
 
     try:
         return path.read_bytes()
@@ -408,7 +408,7 @@ def _read_source(path: Path) -> bytes:
 
 
 def _read_optional_locale(path: Path) -> bytes | None:
-    """존재할 때만 locale 문서 byte 읽기."""
+    """로케일 문서가 존재할 때만 바이트 읽기."""
 
     try:
         return path.read_bytes()
@@ -428,7 +428,7 @@ def _verified_artifact(
     version: str,
     registry_path: Path,
 ) -> VerifiedLocaleArtifact | None:
-    """최종 snapshot까지 일치하는 locale 검증 artifact 생성."""
+    """최종 스냅샷까지 일치하는 로케일 검증 산출물 생성."""
 
     start_registry = _load_registry(registry_path)
     source_bytes = _read_source(source)
@@ -454,7 +454,7 @@ def _verified_artifact(
         document_verification.VerificationInput,
         StaleLinkRegistry,
     ]:
-        """artifact 생성 직전 입력을 소유 경로에서 다시 읽기."""
+        """산출물 생성 직전 입력을 소유 경로에서 다시 읽기."""
 
         nonlocal final_input, final_locale_bytes, end_registry, final_failure
         try:
@@ -512,7 +512,7 @@ def _verified_artifact(
 def _verification_candidate_paths(
     changes: Mapping[str, set[str]],
 ) -> set[str]:
-    """영어 수정과 함께 검증할 변경 목록 밖 locale 경로 계산."""
+    """영어 수정과 함께 검증할 변경 목록 밖의 로케일 경로 계산."""
 
     paths: set[str] = set()
     source_pattern = _DOCUMENT_PATHS[0][1]
@@ -536,7 +536,7 @@ def verified_unchanged_locales(
     *,
     registry_path: Path | None = None,
 ) -> dict[tuple[str, str, str], VerifiedLocaleArtifact]:
-    """최종 문서 verifier만 사용한 변경되지 않은 locale 파일 증명."""
+    """최종 문서 검증기만 사용해 변경되지 않은 로케일 파일 증명."""
 
     verified: dict[tuple[str, str, str], VerifiedLocaleArtifact] = {}
     source_pattern = _DOCUMENT_PATHS[0][1]
@@ -570,7 +570,7 @@ def verified_unchanged_locales(
 
 
 def _parse_name_status(output: bytes) -> list[tuple[str, str]]:
-    """NUL 구분 Git name-status byte를 정규 A/M/D 항목으로 변환."""
+    """NUL로 구분된 Git 이름·상태 바이트를 정규 A/M/D 항목으로 변환."""
 
     if not output:
         return []
@@ -610,7 +610,7 @@ def _parse_name_status(output: bytes) -> list[tuple[str, str]]:
 
 
 def _parse_untracked(output: bytes) -> list[str]:
-    """NUL 구분 Git 미추적 경로 byte 파싱."""
+    """NUL로 구분된 Git 미추적 경로 바이트 파싱."""
 
     if not output:
         return []
@@ -626,7 +626,7 @@ def _parse_untracked(output: bytes) -> list[str]:
 
 
 def _canonical_repository_path(path: str) -> bool:
-    """Git 경로가 정규 UTF-8 저장소 상대 경로인지 확인."""
+    """Git 경로가 정규 UTF-8 저장소 상대 경로인지 판정."""
 
     try:
         path.encode("utf-8")
@@ -644,7 +644,7 @@ def _canonical_repository_path(path: str) -> bool:
 
 
 def _git_environment(environment: Mapping[str, str]) -> dict[str, str]:
-    """credential과 사용자 설정을 제외한 Git 환경 구성."""
+    """자격 증명과 사용자 설정을 제외한 Git 환경 구성."""
 
     sanitized = {
         key: value
@@ -672,7 +672,7 @@ def _remaining_timeout(
     *,
     clock: Callable[[], float],
 ) -> float | None:
-    """공통 워크플로 기한까지 남은 timeout 계산."""
+    """공통 워크플로 기한까지 남은 제한 시간 계산."""
 
     if deadline is None:
         return None
@@ -694,7 +694,7 @@ def _run_git(
     workflow_deadline: float | None,
     clock: Callable[[], float],
 ) -> bytes:
-    """격리 환경과 공통 기한을 적용한 Git 검사 실행."""
+    """격리 환경과 공통 기한을 적용해 Git 검사 실행."""
 
     command = [*_GIT_PREFIX, *arguments]
     timeout = _remaining_timeout(workflow_deadline, clock=clock)
@@ -740,7 +740,7 @@ def changed_entries(
     clock: Callable[[], float] = time.monotonic,
     environment: Mapping[str, str] | None = None,
 ) -> dict[str, set[str]]:
-    """staged·unstaged·미추적 변경을 경로별 Git 상태로 수집."""
+    """스테이징·비 스테이징·미추적 변경을 경로별 Git 상태로 수집."""
 
     runner = run_process_tree if process_runner is None else process_runner
     source_environment = os.environ if environment is None else environment
@@ -804,7 +804,7 @@ def changed_paths(repo_root: Path = REPO_ROOT) -> set[str]:
 
 
 def unsafe_output_paths(paths: Iterable[str], repo_root: Path = REPO_ROOT) -> list[str]:
-    """symlink를 통과하거나 일반 파일이 아닌 대상으로 끝나는 출력 경로."""
+    """심볼릭 링크를 통과하거나 일반 파일이 아닌 대상으로 끝나는 출력 경로 반환."""
 
     unsafe: list[str] = []
     for path in set(paths):
@@ -827,7 +827,7 @@ def unsafe_output_paths(paths: Iterable[str], repo_root: Path = REPO_ROOT) -> li
 
 
 def existing_sidebar_overrides(repo_root: Path = REPO_ROOT) -> list[str]:
-    """candidate에 남은 locale sidebar override 경로 수집."""
+    """후보에 남은 로케일별 사이드바 재정의 경로 수집."""
 
     paths: list[str] = []
     for locale in ("ko", "ja"):
@@ -837,7 +837,7 @@ def existing_sidebar_overrides(repo_root: Path = REPO_ROOT) -> list[str]:
 
 
 def _deadline_from_environment(environment: Mapping[str, str]) -> float | None:
-    """환경 변수에서 공통 monotonic 기한 파싱."""
+    """환경 변수에서 공통 단조 시계 기한 파싱."""
 
     raw = environment.get(WORKFLOW_DEADLINE_ENV)
     if raw is None:
@@ -858,7 +858,7 @@ def _deadline_from_environment(environment: Mapping[str, str]) -> float | None:
 
 
 def _path_issue(code: IssueCode, message: str) -> FailureEvent:
-    """경로 검증 단계의 안정된 실패 event 구성."""
+    """경로 검증 단계의 안정적 실패 이벤트 구성."""
 
     return FailureEvent(code=code, stage=_STAGE, message=message)
 
@@ -868,7 +868,7 @@ def _finish_failures(
     *,
     environment: Mapping[str, str],
 ) -> int:
-    """실패 진단과 선택적 canonical 보고서를 기록한 종료 코드 계산."""
+    """실패 진단과 선택적 정규 보고서를 기록한 뒤 종료 코드 계산."""
 
     for failure in failures:
         print(f"{failure.code.value}: {failure.message}", file=sys.stderr)
