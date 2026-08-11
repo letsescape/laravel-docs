@@ -78,6 +78,7 @@ _DEPLOY_REPOSITORY = re.compile(
     r"/[A-Za-z0-9](?:[A-Za-z0-9_.-]*[A-Za-z0-9])?\Z"
 )
 _REPORT_WRITE_FAILED = "REPORT_WRITE_FAILED: failure report could not be written"
+_SKIP_PUSH_WORKFLOWS = "[skip ci]"
 
 
 @dataclass(frozen=True, slots=True)
@@ -1022,6 +1023,14 @@ def _push_environment(
     )
 
 
+def _publication_commit_message(value: str) -> str:
+    """생성 커밋의 push 워크플로를 생략하고 명시적 배포만 유지."""
+
+    if not isinstance(value, str) or not value.strip() or _SKIP_PUSH_WORKFLOWS in value:
+        return value
+    return f"{value.rstrip()}\n\n{_SKIP_PUSH_WORKFLOWS}"
+
+
 def run_prepare(
     args: argparse.Namespace,
     *,
@@ -1050,7 +1059,7 @@ def run_prepare(
             push_endpoint=args.push_endpoint,
             deploy_repository=args.repository,
             branch=args.branch,
-            commit_message=args.commit_message,
+            commit_message=_publication_commit_message(args.commit_message),
             version=args.version,
             document=args.doc,
         )
@@ -1567,7 +1576,7 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--branch", required=True)
     prepare.add_argument(
         "--commit-message",
-        default="docs: synchronize translations",
+        default=f"docs: synchronize translations {_SKIP_PUSH_WORKFLOWS}",
     )
     prepare.add_argument("--version")
     prepare.add_argument("--doc")

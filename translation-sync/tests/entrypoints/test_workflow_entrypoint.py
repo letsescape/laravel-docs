@@ -703,6 +703,32 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
         self.assertEqual(result, ExitCode.CONTROLLED_FAILURE)
         self.assertIn("REPORT_WRITE_FAILED", stderr.getvalue())
 
+    def test_publication_commit_message_skips_only_push_triggered_workflows(
+        self,
+    ) -> None:
+        """생성 커밋에 push 생략 표식을 한 번만 추가하는지 검증."""
+
+        message = workflow._publication_commit_message("docs: sync")
+
+        self.assertEqual(message, "docs: sync\n\n[skip ci]")
+        self.assertEqual(workflow._publication_commit_message(message), message)
+        self.assertIn(
+            "[skip ci]",
+            workflow._parser().parse_args(
+                [
+                    "prepare",
+                    "--artifact-root",
+                    "/tmp/artifacts",
+                    "--push-endpoint",
+                    "https://github.com/example/repository.git",
+                    "--repository",
+                    "example/repository",
+                    "--branch",
+                    "main",
+                ]
+            ).commit_message,
+        )
+
     def test_invalid_artifact_root_uses_fixed_stderr_fallback(self) -> None:
         """잘못된 산출물 루트에 고정된 표준 오류 대체 문구를 사용하는지 검증."""
 

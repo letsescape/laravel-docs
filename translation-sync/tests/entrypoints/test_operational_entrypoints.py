@@ -210,6 +210,34 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertIn("translation-provider-diagnostic:", makefile)
         self.assertIn("translation-path-diagnostic:", makefile)
 
+    def test_translation_container_forwards_defined_phase_environment(self) -> None:
+        """Docker 단계에 shell에서 정의한 현재 단계 환경만 전달하는지 검증."""
+
+        result = subprocess.run(
+            [
+                "make",
+                "--no-print-directory",
+                "--dry-run",
+                "translate",
+                "DOCKER_ARTIFACT_ROOT=/artifacts/test-run",
+                "PUSH_ENDPOINT=https://github.com/example/repository.git",
+                "BRANCH=main",
+                "REPOSITORY=example/repository",
+                "TRANSLATION_PROVIDER=cli",
+                "GH_TOKEN=synthetic-token",
+            ],
+            cwd=REPOSITORY_ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        self.assertIn("-e TRANSLATION_PROVIDER ", result.stdout)
+        self.assertIn("-e GH_TOKEN ", result.stdout)
+        self.assertIn("-e GH_TOKEN=", result.stdout)
+        self.assertIn("-e TRANSLATION_PROVIDER=", result.stdout)
+        self.assertNotIn("synthetic-token", result.stdout)
+
     def test_translation_container_uses_the_same_workflow_cli(self) -> None:
         """번역 컨테이너가 읽기 전용 저장소에서 같은 워크플로 CLI를 쓰는지 검증."""
 

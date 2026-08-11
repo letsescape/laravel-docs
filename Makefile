@@ -4,6 +4,7 @@
 
 TRANSLATION_PUSH_ENV_KEYS := GH_TOKEN GITHUB_TOKEN GH_ENTERPRISE_TOKEN GITHUB_ENTERPRISE_TOKEN GH_HOST GH_REPO GIT_ASKPASS GIT_ASKPASS_REQUIRE SSH_ASKPASS SSH_ASKPASS_REQUIRE SSH_AUTH_SOCK GIT_SSH GIT_SSH_COMMAND GIT_TERMINAL_PROMPT GIT_CONFIG_GLOBAL GIT_CONFIG_SYSTEM GIT_CONFIG_NOSYSTEM GIT_CONFIG_COUNT TRANSLATION_SYNC_PUSH_TOKEN TRANSLATION_SYNC_PUSH_USERNAME
 TRANSLATION_PROVIDER_ENV_KEYS := TRANSLATION_PROVIDER TRANSLATION_MODEL TRANSLATION_MODEL_PROFILE TRANSLATION_REASONING_EFFORT TRANSLATION_CONTEXT_WINDOW_TOKENS TRANSLATION_RESERVED_OUTPUT_TOKENS TRANSLATION_REQUEST_TIMEOUT_SECONDS TRANSLATION_RUN_TIMEOUT_SECONDS TRANSLATION_WORKFLOW_TIMEOUT_SECONDS TRANSLATION_TOKENIZER_ENCODING TRANSLATION_CLI_COMMAND TRANSLATION_CLI_TIMEOUT OPENAI_API_KEY AZURE_OPENAI_API_KEY AZURE_OPENAI_API_VERSION AZURE_OPENAI_ENDPOINT CODEX_ACCESS_TOKEN CODEX_API_KEY CODEX_HOME
+TRANSLATION_FORWARD_ENV = $(foreach key,$(1),$(if $(filter undefined,$(origin $(key))),,-e $(key)))
 
 help: ## 사용 가능한 명령어 목록 출력
 	@awk 'BEGIN {FS = ":.*##"; printf "\n사용법:\n  make \033[36m<target>\033[0m\n\n명령어:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
@@ -34,15 +35,18 @@ translate: ## Docker에서 격리 prepare/publish/deploy 전체 실행
 		--repository "$$REPOSITORY"; \
 	if [ -n "$${VERSION:-}" ]; then set -- "$$@" --version "$$VERSION"; fi; \
 	if [ -n "$${DOC:-}" ]; then set -- "$$@" --doc "$$DOC"; fi; \
-	docker compose run --rm --no-deps \
-		$(foreach key,$(TRANSLATION_PUSH_ENV_KEYS),-e $(key)=) \
-		translate "$$@"
+		docker compose run --rm --no-deps \
+			$(foreach key,$(TRANSLATION_PUSH_ENV_KEYS),-e $(key)=) \
+			$(call TRANSLATION_FORWARD_ENV,$(TRANSLATION_PROVIDER_ENV_KEYS)) \
+			translate "$$@"
 	@docker compose run --rm --no-deps \
 		$(foreach key,$(TRANSLATION_PROVIDER_ENV_KEYS),-e $(key)=) \
+		$(call TRANSLATION_FORWARD_ENV,$(TRANSLATION_PUSH_ENV_KEYS)) \
 		translate publish --artifact-root "$$DOCKER_ARTIFACT_ROOT"
 	@if [ "$$BRANCH" = 'main' ]; then \
 		docker compose run --rm --no-deps \
 			$(foreach key,$(TRANSLATION_PROVIDER_ENV_KEYS),-e $(key)=) \
+			$(call TRANSLATION_FORWARD_ENV,$(TRANSLATION_PUSH_ENV_KEYS)) \
 			translate deploy --artifact-root "$$DOCKER_ARTIFACT_ROOT"; \
 	else \
 		echo "Branch '$$BRANCH' is not main; deployment skipped."; \
