@@ -100,10 +100,11 @@ class ProviderSelectionTests(unittest.TestCase):
 class RequestBudgetTests(unittest.TestCase):
     """토크나이저·토큰·제한 시간 예산 제약 검증."""
 
-    def test_requires_every_request_budget_value(self):
-        """실제 제공자의 불완전한 요청 예산 거부 검증."""
+    def test_requires_budget_without_approved_profile_defaults(self):
+        """승인 profile이 없는 모델의 불완전한 요청 예산 거부 검증."""
 
         environment = cli_environment()
+        environment["TRANSLATION_MODEL"] = "unverified-model"
         del environment["TRANSLATION_CONTEXT_WINDOW_TOKENS"]
 
         with self.assertRaisesRegex(
@@ -111,6 +112,44 @@ class RequestBudgetTests(unittest.TestCase):
             "INVALID_REQUEST_BUDGET.*TRANSLATION_CONTEXT_WINDOW_TOKENS",
         ):
             config.load_config(environment)
+
+    def test_defaults_budget_from_approved_model_profile(self):
+        """미설정 예산을 승인 profile 파생 기본값으로 채우는지 검증."""
+
+        environment = openai_environment()
+        for key in REQUEST_BUDGET_ENV:
+            del environment[key]
+
+        loaded = config.load_config(environment)
+        budget = loaded.request_budget()
+
+        self.assertIsNotNone(budget)
+        assert budget is not None
+        self.assertEqual(budget.context_window_tokens, 1_050_000)
+        self.assertEqual(budget.reserved_output_tokens, 128_000)
+        self.assertEqual(budget.request_timeout_seconds, 600)
+        self.assertEqual(budget.run_timeout_seconds, 1800)
+        self.assertEqual(budget.workflow_timeout_seconds, 7200)
+        self.assertEqual(budget.tokenizer_encoding, "o200k_base")
+        self.assertEqual(
+            loaded.get("TRANSLATION_CONTEXT_WINDOW_TOKENS"), "1050000"
+        )
+
+    def test_environment_budget_overrides_profile_defaults(self):
+        """명시된 env 예산 값이 profile 기본값보다 우선하는지 검증."""
+
+        environment = openai_environment()
+        for key in REQUEST_BUDGET_ENV:
+            del environment[key]
+        environment["TRANSLATION_CONTEXT_WINDOW_TOKENS"] = "500000"
+
+        budget = config.load_config(environment).request_budget()
+
+        self.assertIsNotNone(budget)
+        assert budget is not None
+        self.assertEqual(budget.context_window_tokens, 500_000)
+        self.assertEqual(budget.reserved_output_tokens, 128_000)
+        self.assertEqual(budget.tokenizer_encoding, "o200k_base")
 
     def test_exposes_reserved_output_and_maximum_input(self):
         """검증된 예산에서 최대 입력 토큰 수 계산 검증."""

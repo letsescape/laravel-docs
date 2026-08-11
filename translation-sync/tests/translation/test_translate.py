@@ -39,7 +39,7 @@ class TranslateRetryTests(unittest.TestCase):
         self.addCleanup(token_counter.stop)
 
     def test_config_requires_complete_request_budget(self):
-        """설정에서 요청 예산 전체 항목 요구 검증."""
+        """승인 profile 기본값이 없는 설정의 요청 예산 전체 항목 요구 검증."""
 
         with self.assertRaisesRegex(
             config.ConfigError,
@@ -49,7 +49,7 @@ class TranslateRetryTests(unittest.TestCase):
                 {
                     "TRANSLATION_PROVIDER": "cli",
                     "TRANSLATION_CLI_COMMAND": "codex exec",
-                    "TRANSLATION_MODEL": "gpt-5.6-luna",
+                    "TRANSLATION_MODEL": "unverified-model",
                     **CLI_AUTH_ENV,
                 }
             )

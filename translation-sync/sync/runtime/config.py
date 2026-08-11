@@ -59,6 +59,11 @@ _REQUEST_BUDGET_KEYS = (
     "TRANSLATION_RUN_TIMEOUT_SECONDS",
     "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS",
 )
+_DEFAULT_TIMEOUT_VALUES = {
+    "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "600",
+    "TRANSLATION_RUN_TIMEOUT_SECONDS": "1800",
+    "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS": "7200",
+}
 _TOKENIZER_KEY = "TRANSLATION_TOKENIZER_ENCODING"
 _MODEL_PROFILE_KEY = "TRANSLATION_MODEL_PROFILE"
 _CLI_TOKEN_KEYS = (
@@ -506,24 +511,66 @@ def _add_provider_specific_values(
     values[_MODEL_PROFILE_KEY] = model_profile
 
 
+def _default_budget_values(
+    provider: str,
+    values: Mapping[str, str],
+) -> dict[str, str]:
+    """승인 모델 profile에서 파생한 request budget 기본값.
+
+    Args:
+        provider: 검증된 provider 이름.
+        values: 구성 중인 설정값 mapping.
+
+    Returns:
+        profile이 승인 목록에 있으면 profile 한도·tokenizer와 고정 시간
+        기본값, 없으면 빈 mapping.
+    """
+
+    profile = _MODEL_PROFILES.get(_model_profile_name(provider, values))
+    if profile is None:
+        return {}
+    defaults = dict(_DEFAULT_TIMEOUT_VALUES)
+    defaults["TRANSLATION_CONTEXT_WINDOW_TOKENS"] = str(
+        profile.context_window_tokens
+    )
+    defaults["TRANSLATION_RESERVED_OUTPUT_TOKENS"] = str(
+        profile.max_output_tokens
+    )
+    defaults[_TOKENIZER_KEY] = profile.tokenizer_encoding
+    return defaults
+
+
 def _add_budget_values(
+    provider: str,
     env: Mapping[str, str],
     values: dict[str, str],
 ) -> None:
     """필수 요청 예산과 tokenizer 설정을 검증해 추가.
 
+    미설정 값은 승인 모델 profile에서 파생한 기본값으로 채우며,
+    명시된 env 값이 항상 우선한다.
+
     Args:
+        provider: 검증된 provider 이름.
         env: 원본 환경 변수 mapping.
         values: 구성 중인 설정값 mapping.
     """
 
-    missing = [key for key in _REQUEST_BUDGET_KEYS if not env.get(key, "").strip()]
+    defaults = _default_budget_values(provider, values)
+    missing = [
+        key
+        for key in _REQUEST_BUDGET_KEYS
+        if not env.get(key, "").strip() and key not in defaults
+    ]
     if missing:
         raise ConfigError(
             "INVALID_REQUEST_BUDGET: missing " + ", ".join(missing),
             IssueCode.INVALID_REQUEST_BUDGET,
         )
-    tokenizer_encoding = env.get(_TOKENIZER_KEY, "").strip()
+    tokenizer_encoding = (
+        env.get(_TOKENIZER_KEY, "").strip()
+        or defaults.get(_TOKENIZER_KEY, "")
+    )
     if not tokenizer_encoding:
         raise ConfigError(
             f"TOKENIZER_METADATA_UNAVAILABLE: missing {_TOKENIZER_KEY}",
@@ -531,7 +578,7 @@ def _add_budget_values(
         )
     _validate_tokenizer_encoding(tokenizer_encoding)
     for key in _REQUEST_BUDGET_KEYS:
-        value = env[key].strip()
+        value = env.get(key, "").strip() or defaults[key]
         try:
             _validate_integer_option(key, value, allow_zero=False)
         except ConfigError as exc:
@@ -577,7 +624,7 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     if provider == "identity":
         return Config(provider=provider, values=values)
     _add_provider_specific_values(provider, env, values)
-    _add_budget_values(env, values)
+    _add_budget_values(provider, env, values)
 
     budget = Config(provider=provider, values=values).request_budget()
     assert budget is not None
