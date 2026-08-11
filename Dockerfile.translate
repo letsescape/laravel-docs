@@ -2,7 +2,7 @@
 FROM node:24-bookworm-slim
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates gh git && \
+    apt-get install -y --no-install-recommends ca-certificates gh git make && \
     npm install --global --ignore-scripts @openai/codex@latest \
         --registry=https://registry.npmjs.org && \
     codex --version && \
