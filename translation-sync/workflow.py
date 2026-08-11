@@ -930,11 +930,22 @@ def _verify_active_repository(
 
 
 def _base_process_environment(source: Mapping[str, str]) -> dict[str, str]:
-    """자격 증명을 제외한 하위 프로세스 기본 환경 구성."""
+    """자격 증명을 제외한 하위 프로세스 기본 환경 구성.
+
+    준비 단계의 읽기 전용 Git 환경과 동일하게 proxy·CA 변수를 보존해
+    같은 호스트에서 준비와 publication이 같은 네트워크 경로를 사용.
+    """
 
     allowed = {
+        "CURL_CA_BUNDLE",
+        "FTP_PROXY",
+        "GIT_SSL_CAINFO",
+        "GIT_SSL_CAPATH",
+        "HTTPS_PROXY",
+        "HTTP_PROXY",
         "LANG",
         "LC_ALL",
+        "NO_PROXY",
         "PATH",
         "SSL_CERT_DIR",
         "SSL_CERT_FILE",
@@ -942,6 +953,11 @@ def _base_process_environment(source: Mapping[str, str]) -> dict[str, str]:
         "TEMP",
         "TMP",
         "TMPDIR",
+        "all_proxy",
+        "ftp_proxy",
+        "http_proxy",
+        "https_proxy",
+        "no_proxy",
     }
     return {
         key: value
@@ -1415,7 +1431,6 @@ def _validated_deployment_result(
         not isinstance(value, DeploymentResult)
         or value.branch != state.branch
         or value.published_commit != state.published_commit
-        or not isinstance(value.issue_code, (IssueCode, type(None)))
     ):
         raise EntrypointError(
             IssueCode.DEPLOY_VALIDATION_FAILED,
@@ -1423,6 +1438,12 @@ def _validated_deployment_result(
             published_commit=state.published_commit,
         )
     if value.issue_code is not None:
+        if not isinstance(value.issue_code, IssueCode):
+            raise EntrypointError(
+                IssueCode.DEPLOY_VALIDATION_FAILED,
+                stage="deploy",
+                published_commit=state.published_commit,
+            )
         raise EntrypointError(
             value.issue_code,
             stage="deploy",

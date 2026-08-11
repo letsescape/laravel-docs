@@ -321,6 +321,36 @@ class WorkflowEntrypointStateTests(unittest.TestCase):
             self.assertEqual(environment["TRANSLATION_SYNC_PUSH_TOKEN"], token)
             self.assertEqual(helper.stat().st_mode & 0o777, 0o700)
 
+    def test_push_environment_preserves_proxy_and_ca_variables(self) -> None:
+        """푸시 환경이 proxy·CA 변수를 보존하고 자격 증명을 제외하는지 검증."""
+
+        source = {
+            "PATH": "/bin:/usr/bin",
+            "GH_TOKEN": "credential-value",
+            "HTTPS_PROXY": "http://proxy.internal:3128",
+            "NO_PROXY": "localhost",
+            "no_proxy": "127.0.0.1",
+            "CURL_CA_BUNDLE": "/etc/ssl/certs/corp.pem",
+            "GIT_SSL_CAINFO": "/etc/ssl/certs/corp.pem",
+            "SSH_AUTH_SOCK": "/tmp/agent.sock",
+        }
+
+        environment = workflow._base_process_environment(source)
+
+        self.assertEqual(
+            environment["HTTPS_PROXY"], "http://proxy.internal:3128"
+        )
+        self.assertEqual(environment["NO_PROXY"], "localhost")
+        self.assertEqual(environment["no_proxy"], "127.0.0.1")
+        self.assertEqual(
+            environment["CURL_CA_BUNDLE"], "/etc/ssl/certs/corp.pem"
+        )
+        self.assertEqual(
+            environment["GIT_SSL_CAINFO"], "/etc/ssl/certs/corp.pem"
+        )
+        self.assertNotIn("GH_TOKEN", environment)
+        self.assertNotIn("SSH_AUTH_SOCK", environment)
+
     def test_post_publication_state_write_failure_retains_commit_context(self) -> None:
         """게시 후 상태 기록 실패 시 커밋 문맥 보존 검증."""
 
