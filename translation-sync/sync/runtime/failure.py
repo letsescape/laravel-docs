@@ -758,14 +758,13 @@ def _write_all(descriptor: int, contents: bytes) -> None:
         remaining = remaining[written:]
 
 
-def _publish_no_replace(
-    parent_descriptor: int,
-    *,
-    parent_path: Path,
-    target_name: str,
-    contents: bytes,
-) -> None:
-    """fsync된 임시 파일을 기존 대상을 교체하지 않는 hard link로 원자적 공개."""
+def _require_target_absent(parent_descriptor: int, target_name: str) -> None:
+    """기존 실패 보고서 대상이 없는지 확인.
+
+    Args:
+        parent_descriptor: 대상 상위 디렉터리 설명자.
+        target_name: 공개할 실패 보고서 파일 이름.
+    """
 
     try:
         os.stat(
@@ -774,33 +773,57 @@ def _publish_no_replace(
             follow_symlinks=False,
         )
     except FileNotFoundError:
-        pass
-    else:
-        raise FileExistsError("failure report target already exists")
+        return
+    raise FileExistsError("failure report target already exists")
 
-    temporary_descriptor, temporary_name, temporary_status = _new_temporary_file(
-        parent_descriptor,
+
+def _write_temporary_report(
+    descriptor: int,
+    status: os.stat_result,
+    contents: bytes,
+) -> None:
+    """임시 일반 파일에 실패 보고서를 기록하고 동기화.
+
+    Args:
+        descriptor: 임시 파일 설명자.
+        status: 임시 파일 생성 직후 상태.
+        contents: 기록할 직렬화된 실패 보고서.
+    """
+
+    if not stat.S_ISREG(status.st_mode):
+        raise OSError("failure report temporary file is not regular")
+    _write_all(descriptor, contents)
+    os.fsync(descriptor)
+
+
+def _link_temporary_report(
+    parent_descriptor: int,
+    *,
+    parent_path: Path,
+    temporary_name: str,
+    target_name: str,
+    temporary_status: os.stat_result,
+) -> None:
+    """검증된 임시 파일을 최종 이름으로 연결하고 동일성 확인.
+
+    Args:
+        parent_descriptor: 대상 상위 디렉터리 설명자.
+        parent_path: 열 때 검증한 상위 디렉터리 경로.
+        temporary_name: 임시 파일 이름.
+        target_name: 최종 실패 보고서 파일 이름.
+        temporary_status: 임시 파일 생성 직후 상태.
+    """
+
+    if not _directory_path_matches(parent_descriptor, parent_path):
+        raise OSError("failure report parent changed before publication")
+    os.link(
+        temporary_name,
         target_name,
+        src_dir_fd=parent_descriptor,
+        dst_dir_fd=parent_descriptor,
+        follow_symlinks=False,
     )
-    published = False
     try:
-        if not stat.S_ISREG(temporary_status.st_mode):
-            raise OSError("failure report temporary file is not regular")
-        _write_all(temporary_descriptor, contents)
-        os.fsync(temporary_descriptor)
-        os.close(temporary_descriptor)
-        temporary_descriptor = -1
-
-        if not _directory_path_matches(parent_descriptor, parent_path):
-            raise OSError("failure report parent changed before publication")
-        os.link(
-            temporary_name,
-            target_name,
-            src_dir_fd=parent_descriptor,
-            dst_dir_fd=parent_descriptor,
-            follow_symlinks=False,
-        )
-        published = True
         target_status = os.stat(
             target_name,
             dir_fd=parent_descriptor,
@@ -810,6 +833,71 @@ def _publish_no_replace(
             temporary_status, target_status
         ) or not _directory_path_matches(parent_descriptor, parent_path):
             raise OSError("failure report publication path changed")
+    except BaseException:
+        _unlink_if_same(parent_descriptor, target_name, temporary_status)
+        raise
+
+
+def _cleanup_failed_publication(
+    parent_descriptor: int,
+    *,
+    target_name: str,
+    temporary_name: str,
+    temporary_status: os.stat_result,
+    published: bool,
+) -> None:
+    """실패한 공개 작업의 동일 파일 링크와 임시 파일 정리.
+
+    Args:
+        parent_descriptor: 대상 상위 디렉터리 설명자.
+        target_name: 최종 실패 보고서 파일 이름.
+        temporary_name: 임시 파일 이름.
+        temporary_status: 임시 파일 생성 직후 상태.
+        published: 최종 이름 hard link 생성 여부.
+    """
+
+    if published:
+        _unlink_if_same(parent_descriptor, target_name, temporary_status)
+    _unlink_if_same(parent_descriptor, temporary_name, temporary_status)
+    try:
+        os.fsync(parent_descriptor)
+    except OSError:
+        pass
+
+
+def _publish_no_replace(
+    parent_descriptor: int,
+    *,
+    parent_path: Path,
+    target_name: str,
+    contents: bytes,
+) -> None:
+    """fsync된 임시 파일을 기존 대상을 교체하지 않는 hard link로 원자적 공개."""
+
+    _require_target_absent(parent_descriptor, target_name)
+
+    temporary_descriptor, temporary_name, temporary_status = _new_temporary_file(
+        parent_descriptor,
+        target_name,
+    )
+    published = False
+    try:
+        _write_temporary_report(
+            temporary_descriptor,
+            temporary_status,
+            contents,
+        )
+        os.close(temporary_descriptor)
+        temporary_descriptor = -1
+
+        _link_temporary_report(
+            parent_descriptor,
+            parent_path=parent_path,
+            temporary_name=temporary_name,
+            target_name=target_name,
+            temporary_status=temporary_status,
+        )
+        published = True
         if not _unlink_if_same(
             parent_descriptor,
             temporary_name,
@@ -823,13 +911,13 @@ def _publish_no_replace(
                 os.close(temporary_descriptor)
             except OSError:
                 pass
-        if published:
-            _unlink_if_same(parent_descriptor, target_name, temporary_status)
-        _unlink_if_same(parent_descriptor, temporary_name, temporary_status)
-        try:
-            os.fsync(parent_descriptor)
-        except OSError:
-            pass
+        _cleanup_failed_publication(
+            parent_descriptor,
+            target_name=target_name,
+            temporary_name=temporary_name,
+            temporary_status=temporary_status,
+            published=published,
+        )
         raise
 
 

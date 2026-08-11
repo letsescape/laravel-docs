@@ -419,13 +419,15 @@ def _validate_tokenizer_encoding(name: str) -> None:
         )
 
 
-def load_config(env: Mapping[str, str] | None = None) -> Config:
-    """환경 변수에서 검증된 provider 설정 로딩.
+def _provider_from_environment(env: Mapping[str, str]) -> str:
+    """환경에서 provider를 읽고 replay 사용 제약까지 검증.
 
-    Raises:
-        ConfigError: 필수 값 누락, 허용되지 않은 조합 또는 예산 오류.
+    Args:
+        env: 원본 환경 변수 mapping.
+
+    Returns:
+        검증된 provider 이름.
     """
-    env = env if env is not None else os.environ
 
     provider = env.get("TRANSLATION_PROVIDER", "").strip()
     if provider not in _REQUIRED:
@@ -438,47 +440,87 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
             "identity provider is only available during translation replay",
             IssueCode.REPLAY_PROVIDER_FORBIDDEN,
         )
+    return provider
 
-    values: dict[str, str] = {"TRANSLATION_PROVIDER": provider}
+
+def _required_provider_values(
+    provider: str,
+    env: Mapping[str, str],
+) -> dict[str, str]:
+    """provider 공통 필수 환경 변수를 검증해 설정값 구성.
+
+    Args:
+        provider: 검증된 provider 이름.
+        env: 원본 환경 변수 mapping.
+
+    Returns:
+        provider 이름과 필수 설정값 mapping.
+    """
+
+    values = {"TRANSLATION_PROVIDER": provider}
     missing: list[str] = []
     for key in _REQUIRED[provider]:
-        val = env.get(key, "").strip()
-        if not val:
-            missing.append(key)
+        value = env.get(key, "").strip()
+        if value:
+            values[key] = value
         else:
-            values[key] = val
+            missing.append(key)
+    if not missing:
+        return values
+    issue_code = (
+        IssueCode.PROVIDER_CREDENTIAL_MISSING
+        if any(key.endswith("API_KEY") for key in missing)
+        else IssueCode.REQUIRED_CONFIG_MISSING
+    )
+    raise ConfigError(
+        f"missing env for provider {provider!r}: {', '.join(missing)}",
+        issue_code,
+    )
 
-    if missing:
-        issue_code = (
-            IssueCode.PROVIDER_CREDENTIAL_MISSING
-            if any(key.endswith("API_KEY") for key in missing)
-            else IssueCode.REQUIRED_CONFIG_MISSING
-        )
-        raise ConfigError(
-            f"missing env for provider {provider!r}: {', '.join(missing)}",
-            issue_code,
-        )
 
-    if provider == "identity":
-        return Config(provider=provider, values=values)
+def _add_provider_specific_values(
+    provider: str,
+    env: Mapping[str, str],
+    values: dict[str, str],
+) -> None:
+    """CLI 인증 또는 Azure 모델 프로필을 설정값에 추가.
+
+    Args:
+        provider: 검증된 provider 이름.
+        env: 원본 환경 변수 mapping.
+        values: 구성 중인 설정값 mapping.
+    """
+
     if provider == "cli":
         validate_cli_command(values["TRANSLATION_CLI_COMMAND"])
         auth_config = Config(provider=provider, values=env)
         values.update(cli_auth_environment(auth_config))
-    if provider == "azure":
-        model_profile = env.get(_MODEL_PROFILE_KEY, "").strip()
-        if not model_profile:
-            raise ConfigError(
-                f"TOKENIZER_METADATA_UNAVAILABLE: missing {_MODEL_PROFILE_KEY}",
-                IssueCode.TOKENIZER_METADATA_UNAVAILABLE,
-            )
-        values[_MODEL_PROFILE_KEY] = model_profile
-    missing_budget = [
-        key for key in _REQUEST_BUDGET_KEYS if not env.get(key, "").strip()
-    ]
-    if missing_budget:
+    if provider != "azure":
+        return
+    model_profile = env.get(_MODEL_PROFILE_KEY, "").strip()
+    if not model_profile:
         raise ConfigError(
-            "INVALID_REQUEST_BUDGET: missing " + ", ".join(missing_budget),
+            f"TOKENIZER_METADATA_UNAVAILABLE: missing {_MODEL_PROFILE_KEY}",
+            IssueCode.TOKENIZER_METADATA_UNAVAILABLE,
+        )
+    values[_MODEL_PROFILE_KEY] = model_profile
+
+
+def _add_budget_values(
+    env: Mapping[str, str],
+    values: dict[str, str],
+) -> None:
+    """필수 요청 예산과 tokenizer 설정을 검증해 추가.
+
+    Args:
+        env: 원본 환경 변수 mapping.
+        values: 구성 중인 설정값 mapping.
+    """
+
+    missing = [key for key in _REQUEST_BUDGET_KEYS if not env.get(key, "").strip()]
+    if missing:
+        raise ConfigError(
+            "INVALID_REQUEST_BUDGET: missing " + ", ".join(missing),
             IssueCode.INVALID_REQUEST_BUDGET,
         )
     tokenizer_encoding = env.get(_TOKENIZER_KEY, "").strip()
@@ -500,15 +542,47 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
         values[key] = value
     values[_TOKENIZER_KEY] = tokenizer_encoding
 
+
+def _add_optional_values(
+    env: Mapping[str, str],
+    values: dict[str, str],
+) -> None:
+    """설정된 선택 실행 옵션을 검증해 추가.
+
+    Args:
+        env: 원본 환경 변수 mapping.
+        values: 구성 중인 설정값 mapping.
+    """
+
+    for key in _OPTIONAL:
+        value = env.get(key, "").strip()
+        if not value:
+            continue
+        if key == "TRANSLATION_CLI_TIMEOUT":
+            _validate_integer_option(key, value, allow_zero=False)
+        values[key] = value
+
+
+def load_config(env: Mapping[str, str] | None = None) -> Config:
+    """환경 변수에서 검증된 provider 설정 로딩.
+
+    Raises:
+        ConfigError: 필수 값 누락, 허용되지 않은 조합 또는 예산 오류.
+    """
+    env = env if env is not None else os.environ
+
+    provider = _provider_from_environment(env)
+    values = _required_provider_values(provider, env)
+
+    if provider == "identity":
+        return Config(provider=provider, values=values)
+    _add_provider_specific_values(provider, env, values)
+    _add_budget_values(env, values)
+
     budget = Config(provider=provider, values=values).request_budget()
     assert budget is not None
 
-    for key in _OPTIONAL:
-        val = env.get(key, "").strip()
-        if val:
-            if key == "TRANSLATION_CLI_TIMEOUT":
-                _validate_integer_option(key, val, allow_zero=False)
-            values[key] = val
+    _add_optional_values(env, values)
 
     return Config(provider=provider, values=values)
 

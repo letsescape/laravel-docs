@@ -552,59 +552,12 @@ def _validate_fixture_evidence(value: bytes, live_config: Config) -> bytes:
     """KO·JA live provider fixture 증거와 설정 식별자 검증."""
 
     try:
-        if not isinstance(value, bytes) or not value or len(value) > 8192:
-            raise ValueError
-        text = value.decode("utf-8", errors="strict")
-        if not text.endswith("\n") or text.endswith("\n\n"):
-            raise ValueError
-        lines = text[:-1].split("\n")
-        if len(lines) != 2:
-            raise ValueError
-        records: list[dict[str, str]] = []
-        for line in lines:
-            fields = line.split(" ")
-            if len(fields) != len(_FIXTURE_EVIDENCE_KEYS):
-                raise ValueError
-            record: dict[str, str] = {}
-            for expected_key, field in zip(_FIXTURE_EVIDENCE_KEYS, fields):
-                key, separator, field_value = field.partition("=")
-                if (
-                    separator != "="
-                    or key != expected_key
-                    or not _SAFE_EVIDENCE_VALUE.fullmatch(field_value)
-                ):
-                    raise ValueError
-                record[key] = field_value
-            records.append(record)
-        expected = {
-            "provider": live_config.provider,
-            "model": live_config.get("TRANSLATION_MODEL"),
-            "model_profile": provider_model_profile(live_config),
-            "reasoning": live_config.get(
-                "TRANSLATION_REASONING_EFFORT",
-                "medium",
-            ),
-            "fixture_version": str(_FIXTURE_VERSION),
-            "response_contract_version": str(RESPONSE_CONTRACT_VERSION),
-            "budget_profile_version": str(PROVIDER_BUDGET_PROFILE_VERSION),
-            "config_sha256": provider_config_sha256(live_config),
-            "status": "passed",
-        }
+        records = _fixture_evidence_records(value)
+        expected = _expected_fixture_evidence(live_config)
         if [record["locale"] for record in records] != ["ko", "ja"]:
             raise ValueError
-        for record in records:
-            if (
-                any(
-                    record[key] != expected_value
-                    for key, expected_value in expected.items()
-                )
-                or len(record["prompt_sha256"]) != 64
-                or any(
-                    character not in "0123456789abcdef"
-                    for character in record["prompt_sha256"]
-                )
-            ):
-                raise ValueError
+        if not all(_fixture_record_is_valid(record, expected) for record in records):
+            raise ValueError
     except (UnicodeError, TypeError, ValueError) as exc:
         raise WorkflowStageError(
             stage="provider-fixture",
@@ -612,6 +565,199 @@ def _validate_fixture_evidence(value: bytes, live_config: Config) -> bytes:
             message="provider fixture success evidence is invalid",
         ) from exc
     return value
+
+
+def _fixture_evidence_records(value: bytes) -> list[dict[str, str]]:
+    """provider fixture 증거 bytes를 로케일 record로 파싱.
+
+    Args:
+        value: fixture 성공 증거 bytes.
+
+    Returns:
+        KO·JA 순서의 key-value record.
+
+    Raises:
+        ValueError: 크기·줄·필드 형식 위반.
+    """
+
+    if not isinstance(value, bytes) or not value or len(value) > 8192:
+        raise ValueError
+    text = value.decode("utf-8", errors="strict")
+    if not text.endswith("\n") or text.endswith("\n\n"):
+        raise ValueError
+    lines = text[:-1].split("\n")
+    if len(lines) != 2:
+        raise ValueError
+    records: list[dict[str, str]] = []
+    for line in lines:
+        fields = line.split(" ")
+        if len(fields) != len(_FIXTURE_EVIDENCE_KEYS):
+            raise ValueError
+        record: dict[str, str] = {}
+        for expected_key, field in zip(_FIXTURE_EVIDENCE_KEYS, fields, strict=True):
+            key, separator, field_value = field.partition("=")
+            if (
+                separator != "="
+                or key != expected_key
+                or not _SAFE_EVIDENCE_VALUE.fullmatch(field_value)
+            ):
+                raise ValueError
+            record[key] = field_value
+        records.append(record)
+    return records
+
+
+def _expected_fixture_evidence(live_config: Config) -> dict[str, str]:
+    """live provider 설정에서 fixture 공통 기대 필드 구성.
+
+    Args:
+        live_config: 검증된 live provider 설정.
+
+    Returns:
+        locale·prompt digest를 제외한 기대 필드.
+    """
+
+    return {
+        "provider": live_config.provider,
+        "model": live_config.get("TRANSLATION_MODEL"),
+        "model_profile": provider_model_profile(live_config),
+        "reasoning": live_config.get("TRANSLATION_REASONING_EFFORT", "medium"),
+        "fixture_version": str(_FIXTURE_VERSION),
+        "response_contract_version": str(RESPONSE_CONTRACT_VERSION),
+        "budget_profile_version": str(PROVIDER_BUDGET_PROFILE_VERSION),
+        "config_sha256": provider_config_sha256(live_config),
+        "status": "passed",
+    }
+
+
+def _fixture_record_is_valid(
+    record: dict[str, str],
+    expected: dict[str, str],
+) -> bool:
+    """단일 로케일 fixture record의 설정값과 prompt digest 검증.
+
+    Args:
+        record: 파싱된 fixture record.
+        expected: 공통 기대 필드.
+
+    Returns:
+        설정 identity와 SHA-256 형식 일치 여부.
+    """
+
+    digest = record["prompt_sha256"]
+    return bool(
+        all(record[key] == value for key, value in expected.items())
+        and len(digest) == 64
+        and all(character in "0123456789abcdef" for character in digest)
+    )
+
+
+def _candidate_failure_error(
+    result: CandidateResult,
+    *,
+    artifact_root: Path,
+    run_id: str,
+) -> WorkflowStageError:
+    """실패한 candidate 결과를 안정된 workflow 단계 오류로 변환.
+
+    Args:
+        result: publication이 허용되지 않은 candidate 결과.
+        artifact_root: 허용된 하위 실패 보고서 directory.
+        run_id: 기대 workflow 실행 식별자.
+
+    Returns:
+        구조화된 하위 실패 또는 일반 candidate 단계 오류.
+    """
+
+    failure = result.failure
+    if failure is not None and failure.issue_code is None:
+        report_path = failure.report_path
+        allowed_names = {
+            SYNC_FAILURE_REPORT_FILENAME,
+            PATH_FAILURE_REPORT_FILENAME,
+        }
+        if (
+            failure.returncode is None
+            or report_path is None
+            or report_path.parent.resolve() != artifact_root.resolve()
+            or report_path.name not in allowed_names
+        ):
+            return WorkflowStageError(
+                stage=failure.stage,
+                code=IssueCode.RUNNER_OPERATION_FAILED,
+                message="candidate child failure evidence is unavailable",
+            )
+        return _read_child_failure(
+            report_path,
+            expected_returncode=failure.returncode,
+            expected_run_id=run_id,
+            fallback_stage=failure.stage,
+        )
+    return WorkflowStageError(
+        stage=failure.stage if failure is not None else "candidate",
+        code=(
+            failure.issue_code
+            if failure is not None and failure.issue_code is not None
+            else IssueCode.UNCLASSIFIED_INTERNAL
+        ),
+        message="candidate construction or verification failed",
+    )
+
+
+@dataclass
+class _PrepareProgress:
+    """workflow 준비 중 성공한 단계별 산출물 상태."""
+
+    artifact_root: Path | None = None
+    base: ApprovedPublicationBase | None = None
+    snapshot: ReplaySnapshot | None = None
+    candidate: CandidateResult | None = None
+    prepared: PreparedPublication | None = None
+    candidate_relative: str | None = None
+    preparation_key: bytes | None = None
+    fixture_evidence: bytes | None = None
+
+
+@dataclass(frozen=True)
+class _CompletedPreparation:
+    """봉인 상태 기록에 필요한 완료된 준비 산출물."""
+
+    artifact_root: Path
+    base: ApprovedPublicationBase
+    snapshot: ReplaySnapshot
+    candidate: CandidateResult
+    prepared: PreparedPublication
+    candidate_relative: str
+    preparation_key: bytes
+    fixture_evidence: bytes
+
+
+def _completed_preparation(
+    progress: _PrepareProgress,
+) -> _CompletedPreparation | None:
+    """선택 진행 상태를 완료된 준비 산출물로 변환."""
+
+    if (
+        progress.artifact_root is None
+        or progress.base is None
+        or progress.snapshot is None
+        or progress.candidate is None
+        or progress.prepared is None
+        or progress.candidate_relative is None
+        or progress.preparation_key is None
+        or progress.fixture_evidence is None
+    ):
+        return None
+    return _CompletedPreparation(
+        artifact_root=progress.artifact_root,
+        base=progress.base,
+        snapshot=progress.snapshot,
+        candidate=progress.candidate,
+        prepared=progress.prepared,
+        candidate_relative=progress.candidate_relative,
+        preparation_key=progress.preparation_key,
+        fixture_evidence=progress.fixture_evidence,
+    )
 
 
 class WorkflowPreparer:
@@ -648,287 +794,349 @@ class WorkflowPreparer:
             성공 state 경로 또는 안정된 실패 보고서 경로.
         """
 
-        deadline = (
-            WorkflowDeadline(
+        deadline = self._workflow_deadline()
+        run_id = self._run_id_factory()
+        progress = _PrepareProgress()
+        failures: list[FailureEvent] = []
+        try:
+            self._execute_preparation(
+                request,
+                deadline=deadline,
+                run_id=run_id,
+                progress=progress,
+            )
+        except Exception as exc:
+            if (
+                isinstance(exc, WorkflowStageError)
+                and progress.candidate_relative is None
+                and exc.candidate_debug_path is not None
+            ):
+                progress.candidate_relative = exc.candidate_debug_path
+            failures.extend(self._preparation_failures(exc))
+        if progress.base is not None:
+            fingerprint_failure = self._active_fingerprint_failure(
+                request=request,
+                base=progress.base,
+                deadline=deadline,
+            )
+            if fingerprint_failure is not None:
+                failures.append(fingerprint_failure)
+        if failures:
+            return self._failure_outcome(
+                failures,
+                artifact_root=progress.artifact_root,
+                run_id=run_id,
+                base=progress.base,
+                snapshot=progress.snapshot,
+                candidate_relative=progress.candidate_relative,
+            )
+        return self._complete_preparation(
+            request,
+            deadline=deadline,
+            run_id=run_id,
+            progress=progress,
+        )
+
+    def _workflow_deadline(self) -> WorkflowDeadline:
+        """워크플로 시작 시각 또는 현재 시각 기준 전체 기한 생성."""
+
+        if self._workflow_started_at is not None:
+            return WorkflowDeadline(
                 expires_at=(
                     self._workflow_started_at
                     + self._settings.workflow_timeout_seconds
                 ),
                 _clock=self._clock,
             )
-            if self._workflow_started_at is not None
-            else WorkflowDeadline.start(
-                self._settings.workflow_timeout_seconds,
-                clock=self._clock,
-            )
+        return WorkflowDeadline.start(
+            self._settings.workflow_timeout_seconds,
+            clock=self._clock,
         )
-        run_id = self._run_id_factory()
-        failures: list[FailureEvent] = []
-        base: ApprovedPublicationBase | None = None
-        snapshot: ReplaySnapshot | None = None
-        candidate: CandidateResult | None = None
-        prepared: PreparedPublication | None = None
-        candidate_relative: str | None = None
-        artifact_root: Path | None = None
-        live_config: Config | None = None
 
-        try:
-            artifact_root = self._validate_artifact_root(request)
-            self._validate_request(request)
-            self._ensure_output_targets_absent(artifact_root)
-            live_config = self._load_live_config()
-            run_timeout = self._run_timeout_seconds(live_config)
+    def _execute_preparation(
+        self,
+        request: PrepareRequest,
+        *,
+        deadline: WorkflowDeadline,
+        run_id: str,
+        progress: _PrepareProgress,
+    ) -> None:
+        """검증·unit·replay·fixture·candidate·publication 준비 단계 실행.
 
-            deadline.phase_remaining()
-            base = self._hooks.capture_base(request, deadline.remaining_seconds)
-            self._validate_base(base, request)
+        Args:
+            request: workflow 실행 요청.
+            deadline: 전체 workflow 기한.
+            run_id: 실행 식별자.
+            progress: 단계별 산출물 저장 상태.
+        """
 
-            deadline.phase_remaining()
-            unit_result = self._hooks.run_unit_tests(
-                request,
-                base,
-                self._settings.unit_test_command,
-                deadline.remaining_seconds,
-            )
-            self._require_unit_success(unit_result, base)
+        progress.artifact_root = self._validate_artifact_root(request)
+        self._validate_request(request)
+        self._ensure_output_targets_absent(progress.artifact_root)
+        live_config = self._load_live_config()
+        run_timeout = self._run_timeout_seconds(live_config)
 
-            replay_environment = _stage_environment(
-                self._environment,
-            )
-            replay_environment[WORKFLOW_DEADLINE_ENV] = _format_deadline(
-                deadline.expires_at
-            )
-            replay_environment[FAILURE_REPORT_ENV] = str(
-                artifact_root / REPLAY_FAILURE_FILENAME
-            )
-            replay_environment[RUN_ID_ENV] = run_id
-            deadline.phase_remaining()
-            snapshot = self._hooks.run_replay(
-                request,
-                self._settings.replay_command,
-                artifact_root / REPLAY_STATE_FILENAME,
-                replay_environment,
-                deadline.remaining_seconds,
-            )
-            self._reject_unexpected_child_failure(
-                artifact_root / REPLAY_FAILURE_FILENAME,
+        deadline.phase_remaining()
+        progress.base = self._hooks.capture_base(
+            request,
+            deadline.remaining_seconds,
+        )
+        self._validate_base(progress.base, request)
+
+        deadline.phase_remaining()
+        unit_result = self._hooks.run_unit_tests(
+            request,
+            progress.base,
+            self._settings.unit_test_command,
+            deadline.remaining_seconds,
+        )
+        self._require_unit_success(unit_result, progress.base)
+
+        replay_environment = _stage_environment(self._environment)
+        replay_environment[WORKFLOW_DEADLINE_ENV] = _format_deadline(
+            deadline.expires_at
+        )
+        replay_environment[FAILURE_REPORT_ENV] = str(
+            progress.artifact_root / REPLAY_FAILURE_FILENAME
+        )
+        replay_environment[RUN_ID_ENV] = run_id
+        deadline.phase_remaining()
+        progress.snapshot = self._hooks.run_replay(
+            request,
+            self._settings.replay_command,
+            progress.artifact_root / REPLAY_STATE_FILENAME,
+            replay_environment,
+            deadline.remaining_seconds,
+        )
+        self._reject_unexpected_child_failure(
+            progress.artifact_root / REPLAY_FAILURE_FILENAME,
+            stage="replay",
+        )
+        if not isinstance(progress.snapshot, ReplaySnapshot):
+            raise WorkflowStageError(
                 stage="replay",
+                code=IssueCode.UNCLASSIFIED_INTERNAL,
+                message="replay returned an invalid snapshot",
             )
-            if not isinstance(snapshot, ReplaySnapshot):
-                raise WorkflowStageError(
-                    stage="replay",
-                    code=IssueCode.UNCLASSIFIED_INTERNAL,
-                    message="replay returned an invalid snapshot",
-                )
-            self._require_snapshot_selector(snapshot, request)
-            manifest_path = _write_no_replace(
-                artifact_root / MANIFEST_FILENAME,
-                snapshot.manifest,
-            )
+        self._require_snapshot_selector(progress.snapshot, request)
+        manifest_path = _write_no_replace(
+            progress.artifact_root / MANIFEST_FILENAME,
+            progress.snapshot.manifest,
+        )
 
-            run_deadline = deadline.cap_from_now(
-                run_timeout,
-                exceeded_code=IssueCode.RUN_DEADLINE_EXCEEDED,
-            )
-            live_environment = _stage_environment(
-                self._environment,
-                validated_values=live_config.values,
-            )
-            live_environment.update(
-                {
-                    "HOME": os.devnull,
-                    "XDG_CONFIG_HOME": os.devnull,
-                    RUN_ID_ENV: run_id,
-                    WORKFLOW_DEADLINE_ENV: _format_deadline(deadline.expires_at),
-                    RUN_DEADLINE_ENV: _format_deadline(run_deadline.expires_at),
-                    MANIFEST_ENV: str(manifest_path),
-                    MANIFEST_DIGEST_ENV: snapshot.manifest_digest,
-                    SELECTOR_ENV: snapshot.selector.decode("utf-8", errors="strict"),
-                    SELECTOR_DIGEST_ENV: snapshot.selector_digest,
-                }
-            )
+        run_deadline = deadline.cap_from_now(
+            run_timeout,
+            exceeded_code=IssueCode.RUN_DEADLINE_EXCEEDED,
+        )
+        live_environment = _stage_environment(
+            self._environment,
+            validated_values=live_config.values,
+        )
+        live_environment.update(
+            {
+                "HOME": os.devnull,
+                "XDG_CONFIG_HOME": os.devnull,
+                RUN_ID_ENV: run_id,
+                WORKFLOW_DEADLINE_ENV: _format_deadline(deadline.expires_at),
+                RUN_DEADLINE_ENV: _format_deadline(run_deadline.expires_at),
+                MANIFEST_ENV: str(manifest_path),
+                MANIFEST_DIGEST_ENV: progress.snapshot.manifest_digest,
+                SELECTOR_ENV: progress.snapshot.selector.decode(
+                    "utf-8",
+                    errors="strict",
+                ),
+                SELECTOR_DIGEST_ENV: progress.snapshot.selector_digest,
+            }
+        )
 
-            run_deadline.phase_remaining()
-            fixture_environment = dict(live_environment)
-            fixture_environment[FAILURE_REPORT_ENV] = str(
-                artifact_root / FIXTURE_FAILURE_FILENAME
-            )
-            fixture_evidence = self._hooks.run_provider_fixture(
-                request,
-                self._settings.provider_fixture_command,
-                fixture_environment,
-                run_deadline.remaining_seconds,
-            )
-            fixture_evidence = _validate_fixture_evidence(
-                fixture_evidence,
-                live_config,
-            )
-            _write_no_replace(
-                artifact_root / FIXTURE_EVIDENCE_FILENAME,
-                fixture_evidence,
-            )
-            self._reject_unexpected_child_failure(
-                artifact_root / FIXTURE_FAILURE_FILENAME,
-                stage="provider-fixture",
-            )
+        run_deadline.phase_remaining()
+        fixture_environment = dict(live_environment)
+        fixture_environment[FAILURE_REPORT_ENV] = str(
+            progress.artifact_root / FIXTURE_FAILURE_FILENAME
+        )
+        progress.fixture_evidence = self._hooks.run_provider_fixture(
+            request,
+            self._settings.provider_fixture_command,
+            fixture_environment,
+            run_deadline.remaining_seconds,
+        )
+        progress.fixture_evidence = _validate_fixture_evidence(
+            progress.fixture_evidence,
+            live_config,
+        )
+        _write_no_replace(
+            progress.artifact_root / FIXTURE_EVIDENCE_FILENAME,
+            progress.fixture_evidence,
+        )
+        self._reject_unexpected_child_failure(
+            progress.artifact_root / FIXTURE_FAILURE_FILENAME,
+            stage="provider-fixture",
+        )
 
-            run_deadline.phase_remaining()
-            candidate_environment = dict(live_environment)
-            candidate_environment["TRANSLATION_CANDIDATE"] = "1"
-            candidate = self._hooks.build_candidate(
-                request,
-                base,
-                self._settings.candidate_setup_commands,
-                self._settings.sync_core_command,
-                self._settings.site_validation_commands,
-                self._settings.path_validation_command,
-                candidate_environment,
-                deadline.remaining_seconds,
+        run_deadline.phase_remaining()
+        candidate_environment = dict(live_environment)
+        candidate_environment["TRANSLATION_CANDIDATE"] = "1"
+        progress.candidate = self._hooks.build_candidate(
+            request,
+            progress.base,
+            self._settings.candidate_setup_commands,
+            self._settings.sync_core_command,
+            self._settings.site_validation_commands,
+            self._settings.path_validation_command,
+            candidate_environment,
+            deadline.remaining_seconds,
+        )
+        if (
+            isinstance(progress.candidate, CandidateResult)
+            and progress.candidate.sandbox is not None
+        ):
+            progress.candidate_relative = _safe_relative_directory(
+                progress.candidate.sandbox,
+                root=progress.artifact_root,
             )
-            if isinstance(candidate, CandidateResult) and candidate.sandbox is not None:
-                candidate_relative = _safe_relative_directory(
-                    candidate.sandbox,
-                    root=artifact_root,
-                )
-            candidate_relative = self._require_candidate_success(
-                candidate,
-                base=base,
-                artifact_root=artifact_root,
-                run_id=run_id,
-            )
+        progress.candidate_relative = self._require_candidate_success(
+            progress.candidate,
+            base=progress.base,
+            artifact_root=progress.artifact_root,
+            run_id=run_id,
+        )
 
-            deadline.phase_remaining()
-            preparation_key = self._preparation_key_factory()
-            if not isinstance(preparation_key, bytes) or len(preparation_key) < 32:
-                raise WorkflowStageError(
-                    stage="publication-prepare",
-                    code=IssueCode.INVALID_RUNTIME_OPTION,
-                    message="publication preparation key is invalid",
-                )
-            _write_no_replace(
-                artifact_root / PREPARATION_KEY_FILENAME,
-                preparation_key,
+        deadline.phase_remaining()
+        progress.preparation_key = self._preparation_key_factory()
+        if (
+            not isinstance(progress.preparation_key, bytes)
+            or len(progress.preparation_key) < 32
+        ):
+            raise WorkflowStageError(
+                stage="publication-prepare",
+                code=IssueCode.INVALID_RUNTIME_OPTION,
+                message="publication preparation key is invalid",
             )
-            prepared = self._hooks.prepare_publication(
-                request,
-                base,
-                candidate,
-                preparation_key,
-                deadline.remaining_seconds,
-            )
-            self._validate_prepared(prepared, base=base, candidate=candidate)
-        except WorkflowStageError as exc:
-            if candidate_relative is None and exc.candidate_debug_path is not None:
-                candidate_relative = exc.candidate_debug_path
-            failures.extend(
+        _write_no_replace(
+            progress.artifact_root / PREPARATION_KEY_FILENAME,
+            progress.preparation_key,
+        )
+        progress.prepared = self._hooks.prepare_publication(
+            request,
+            progress.base,
+            progress.candidate,
+            progress.preparation_key,
+            deadline.remaining_seconds,
+        )
+        self._validate_prepared(
+            progress.prepared,
+            base=progress.base,
+            candidate=progress.candidate,
+        )
+
+    @staticmethod
+    def _preparation_failures(exc: Exception) -> tuple[FailureEvent, ...]:
+        """준비 단계 예외를 안정된 실패 이벤트로 변환.
+
+        Args:
+            exc: 준비 단계에서 발생한 예외.
+
+        Returns:
+            보고서에 기록할 하나 이상의 실패 이벤트.
+        """
+
+        if isinstance(exc, WorkflowStageError):
+            return (
                 exc.reported_failures
                 if exc.reported_failures is not None
                 else (_failure_event(exc),)
             )
-        except RepositoryStateError as exc:
-            failures.append(
-                _failure_event(
-                    WorkflowStageError(
-                        stage="approved-base",
-                        code=exc.code,
-                        message="approved publication base could not be captured",
-                    )
-                )
+        if isinstance(exc, RepositoryStateError):
+            error = WorkflowStageError(
+                stage="approved-base",
+                code=exc.code,
+                message="approved publication base could not be captured",
             )
-        except PublicationError as exc:
-            failures.append(
-                _failure_event(
-                    WorkflowStageError(
-                        stage="publication-prepare",
-                        code=exc.code,
-                        message="publication commit could not be prepared",
-                    )
-                )
+        elif isinstance(exc, PublicationError):
+            error = WorkflowStageError(
+                stage="publication-prepare",
+                code=exc.code,
+                message="publication commit could not be prepared",
             )
-        except DeadlineExceeded as exc:
-            failures.append(
-                _failure_event(
-                    WorkflowStageError(
-                        stage="workflow",
-                        code=exc.code,
-                        message="workflow deadline expired",
-                    )
-                )
+        elif isinstance(exc, DeadlineExceeded):
+            error = WorkflowStageError(
+                stage="workflow",
+                code=exc.code,
+                message="workflow deadline expired",
             )
-        except OSError as exc:
-            failures.append(
-                _failure_event(
-                    WorkflowStageError(
-                        stage="workflow",
-                        code=IssueCode.RUNNER_OPERATION_FAILED,
-                        message=f"workflow I/O failed ({type(exc).__name__})",
-                    )
-                )
+        elif isinstance(exc, OSError):
+            error = WorkflowStageError(
+                stage="workflow",
+                code=IssueCode.RUNNER_OPERATION_FAILED,
+                message=f"workflow I/O failed ({type(exc).__name__})",
             )
-        except (UnicodeError, ValueError, TypeError) as exc:
-            failures.append(
-                _failure_event(
-                    WorkflowStageError(
-                        stage="workflow",
-                        code=IssueCode.INVALID_RUNTIME_OPTION,
-                        message=f"workflow input was rejected ({type(exc).__name__})",
-                    )
-                )
+        elif isinstance(exc, (UnicodeError, ValueError, TypeError)):
+            error = WorkflowStageError(
+                stage="workflow",
+                code=IssueCode.INVALID_RUNTIME_OPTION,
+                message=f"workflow input was rejected ({type(exc).__name__})",
             )
-        except Exception as exc:
-            failures.append(
-                _failure_event(
-                    WorkflowStageError(
-                        stage="workflow",
-                        code=IssueCode.UNCLASSIFIED_INTERNAL,
-                        message=f"unexpected workflow failure ({type(exc).__name__})",
-                    )
-                )
+        else:
+            error = WorkflowStageError(
+                stage="workflow",
+                code=IssueCode.UNCLASSIFIED_INTERNAL,
+                message=f"unexpected workflow failure ({type(exc).__name__})",
             )
+        return (_failure_event(error),)
 
-        if base is not None:
-            fingerprint_failure = self._active_fingerprint_failure(
-                request=request,
-                base=base,
-                deadline=deadline,
-            )
-            if fingerprint_failure is not None:
-                failures.append(fingerprint_failure)
+    def _complete_preparation(
+        self,
+        request: PrepareRequest,
+        *,
+        deadline: WorkflowDeadline,
+        run_id: str,
+        progress: _PrepareProgress,
+    ) -> PrepareOutcome:
+        """필수 산출물 확인 후 봉인 상태 기록과 최종 fingerprint 검증.
 
-        if failures:
+        Args:
+            request: workflow 실행 요청.
+            deadline: 전체 workflow 기한.
+            run_id: 실행 식별자.
+            progress: 완료된 단계별 산출물.
+
+        Returns:
+            성공 state 경로 또는 state 기록 실패 결과.
+        """
+
+        completed = _completed_preparation(progress)
+        if completed is None:
+            failure = FailureEvent(
+                code=IssueCode.UNCLASSIFIED_INTERNAL,
+                stage="state-write",
+                message="prepared workflow state is incomplete",
+            )
             return self._failure_outcome(
-                failures,
-                artifact_root=artifact_root,
+                [failure],
+                artifact_root=progress.artifact_root,
                 run_id=run_id,
-                base=base,
-                snapshot=snapshot,
-                candidate_relative=candidate_relative,
+                base=progress.base,
+                snapshot=progress.snapshot,
+                candidate_relative=progress.candidate_relative,
             )
-
-        assert artifact_root is not None
-        assert base is not None
-        assert snapshot is not None
-        assert candidate is not None
-        assert prepared is not None
-        assert candidate_relative is not None
         try:
             state_path = _write_no_replace(
-                artifact_root / PREPARED_STATE_FILENAME,
+                completed.artifact_root / PREPARED_STATE_FILENAME,
                 self._prepared_state_bytes(
                     request=request,
                     run_id=run_id,
                     deadline=deadline,
-                    base=base,
-                    snapshot=snapshot,
-                    candidate=candidate,
-                    candidate_relative=candidate_relative,
-                    prepared=prepared,
-                    preparation_key=preparation_key,
-                    fixture_evidence=fixture_evidence,
+                    base=completed.base,
+                    snapshot=completed.snapshot,
+                    candidate=completed.candidate,
+                    candidate_relative=completed.candidate_relative,
+                    prepared=completed.prepared,
+                    preparation_key=completed.preparation_key,
+                    fixture_evidence=completed.fixture_evidence,
                 ),
             )
         except (OSError, ValueError, TypeError) as exc:
-            state_failures = [
+            failures = [
                 FailureEvent(
                     code=IssueCode.RUNNER_OPERATION_FAILED,
                     stage="state-write",
@@ -940,32 +1148,32 @@ class WorkflowPreparer:
             ]
             fingerprint_failure = self._active_fingerprint_failure(
                 request=request,
-                base=base,
+                base=completed.base,
                 deadline=deadline,
             )
             if fingerprint_failure is not None:
-                state_failures.append(fingerprint_failure)
+                failures.append(fingerprint_failure)
             return self._failure_outcome(
-                state_failures,
-                artifact_root=artifact_root,
+                failures,
+                artifact_root=completed.artifact_root,
                 run_id=run_id,
-                base=base,
-                snapshot=snapshot,
-                candidate_relative=candidate_relative,
+                base=completed.base,
+                snapshot=completed.snapshot,
+                candidate_relative=completed.candidate_relative,
             )
         fingerprint_failure = self._active_fingerprint_failure(
             request=request,
-            base=base,
+            base=completed.base,
             deadline=deadline,
         )
         if fingerprint_failure is not None:
             return self._failure_outcome(
                 [fingerprint_failure],
-                artifact_root=artifact_root,
+                artifact_root=completed.artifact_root,
                 run_id=run_id,
-                base=base,
-                snapshot=snapshot,
-                candidate_relative=candidate_relative,
+                base=completed.base,
+                snapshot=completed.snapshot,
+                candidate_relative=completed.candidate_relative,
             )
         return PrepareOutcome(exit_code=ExitCode.SUCCESS, state_path=state_path)
 
@@ -1291,38 +1499,10 @@ class WorkflowPreparer:
                 message="candidate runner returned an invalid result",
             )
         if result.failure is not None or not result.publication_allowed:
-            failure = result.failure
-            if failure is not None and failure.issue_code is None:
-                report_path = failure.report_path
-                if (
-                    failure.returncode is None
-                    or report_path is None
-                    or report_path.parent.resolve() != artifact_root.resolve()
-                    or report_path.name
-                    not in {
-                        SYNC_FAILURE_REPORT_FILENAME,
-                        PATH_FAILURE_REPORT_FILENAME,
-                    }
-                ):
-                    raise WorkflowStageError(
-                        stage=failure.stage,
-                        code=IssueCode.RUNNER_OPERATION_FAILED,
-                        message="candidate child failure evidence is unavailable",
-                    )
-                raise _read_child_failure(
-                    report_path,
-                    expected_returncode=failure.returncode,
-                    expected_run_id=run_id,
-                    fallback_stage=failure.stage,
-                )
-            raise WorkflowStageError(
-                stage=failure.stage if failure is not None else "candidate",
-                code=(
-                    failure.issue_code
-                    if failure is not None and failure.issue_code is not None
-                    else IssueCode.UNCLASSIFIED_INTERNAL
-                ),
-                message="candidate construction or verification failed",
+            raise _candidate_failure_error(
+                result,
+                artifact_root=artifact_root,
+                run_id=run_id,
             )
         if result.base_commit != base.head or result.sandbox is None:
             raise WorkflowStageError(
@@ -1554,159 +1734,24 @@ def _read_child_failure(
     """하위 프로세스의 정규 실패 보고서를 단계 오류로 복원."""
 
     try:
-        flags = os.O_RDONLY
-        if hasattr(os, "O_CLOEXEC"):
-            flags |= os.O_CLOEXEC
-        if hasattr(os, "O_NOFOLLOW"):
-            flags |= os.O_NOFOLLOW
-        descriptor = os.open(path, flags)
-        try:
-            metadata = os.fstat(descriptor)
-            if (
-                not stat.S_ISREG(metadata.st_mode)
-                or metadata.st_size <= 0
-                or metadata.st_size > 1_000_000
-            ):
-                raise ValueError("invalid child failure report file")
-            chunks: list[bytes] = []
-            remaining = metadata.st_size
-            while remaining:
-                chunk = os.read(descriptor, min(remaining, 64 * 1024))
-                if not chunk:
-                    raise ValueError("truncated child failure report")
-                chunks.append(chunk)
-                remaining -= len(chunk)
-            raw = b"".join(chunks)
-        finally:
-            os.close(descriptor)
-
+        raw = _read_child_failure_bytes(path)
         value = json.loads(raw.decode("utf-8", errors="strict"))
-        expected = {
-            "schema_version",
-            "run_id",
-            "manifest_digest",
-            "base_head",
-            "stage",
-            "classification",
-            "code",
-            "exit_code",
-            "published_commit",
-            "version",
-            "locale",
-            "document",
-            "plan_id",
-            "structural_address",
-            "attempts",
-            "issues",
-            "candidate_debug_path",
-        }
-        if (
-            not isinstance(value, dict)
-            or set(value) != expected
-            or raw != _canonical_json(value)
-            or value["schema_version"] != 1
-            or value["run_id"] != expected_run_id
-            or isinstance(value["exit_code"], bool)
-            or value["exit_code"] != expected_returncode
-            or not isinstance(value["stage"], str)
-            or not value["stage"]
-            or len(value["stage"]) > 128
-            or not value["stage"][0].isalnum()
-            or any(
-                not (character.isalnum() or character in "._-")
-                for character in value["stage"]
-            )
-            or not isinstance(value["issues"], list)
-            or not value["issues"]
-        ):
-            raise ValueError("invalid child failure report")
-        code = IssueCode(value["code"])
-        if value["classification"] != classification_for(code).value:
-            raise ValueError("child failure code mismatch")
-        attempts_value = value["attempts"]
-        candidate_debug_path = value.get("candidate_debug_path")
-        if candidate_debug_path is not None and (
-            not isinstance(candidate_debug_path, str)
-            or not candidate_debug_path
-            or "\\" in candidate_debug_path
-            or PurePosixPath(candidate_debug_path).is_absolute()
-            or any(
-                part in {"", ".", ".."}
-                for part in candidate_debug_path.split("/")
-            )
-        ):
-            raise ValueError("invalid child candidate debug path")
-        attempts: ProviderAttempts | None = None
-        if classification_for(code) is ErrorClassification.TRANSLATION:
-            if not isinstance(attempts_value, dict) or set(attempts_value) != {
-                "response_evaluation",
-                "transport",
-            }:
-                raise ValueError("invalid provider attempts")
-            attempts = ProviderAttempts(
-                response_evaluation=attempts_value["response_evaluation"],
-                transport=attempts_value["transport"],
-            )
-        elif attempts_value is not None:
-            raise ValueError("unexpected provider attempts")
-
-        issue_values = value["issues"]
-        parsed_issues: list[tuple[IssueCode, str | None, str]] = []
-        primary_index: int | None = None
-        for index, issue_value in enumerate(issue_values):
-            if not isinstance(issue_value, dict) or set(issue_value) != {
-                "code",
-                "structural_address",
-                "message",
-            }:
-                raise ValueError("invalid child issue")
-            issue_code = IssueCode(issue_value["code"])
-            structural_address = issue_value["structural_address"]
-            message = issue_value["message"]
-            if not isinstance(message, str):
-                raise ValueError("invalid child issue message")
-            parsed_issues.append((issue_code, structural_address, message))
-            if (
-                primary_index is None
-                and issue_code == code
-                and structural_address == value["structural_address"]
-            ):
-                primary_index = index
-        if primary_index is None:
-            raise ValueError("child primary issue is missing")
-
-        ordered = [parsed_issues[primary_index]]
-        ordered.extend(
-            issue
-            for index, issue in enumerate(parsed_issues)
-            if index != primary_index
+        code = _validate_child_failure_value(
+            value,
+            raw,
+            expected_returncode=expected_returncode,
+            expected_run_id=expected_run_id,
         )
-        reported_failures: list[FailureEvent] = []
-        for index, (issue_code, structural_address, message) in enumerate(ordered):
-            primary = index == 0
-            issue_attempts = attempts if primary else None
-            if (
-                not primary
-                and classification_for(issue_code)
-                is ErrorClassification.TRANSLATION
-            ):
-                issue_attempts = ProviderAttempts(
-                    response_evaluation=0,
-                    transport=0,
-                )
-            reported_failures.append(
-                FailureEvent(
-                    code=issue_code,
-                    stage=value["stage"],
-                    message=message,
-                    version=value["version"] if primary else None,
-                    locale=value["locale"] if primary else None,
-                    document=value["document"] if primary else None,
-                    plan_id=value["plan_id"] if primary else None,
-                    structural_address=structural_address,
-                    attempts=issue_attempts,
-                )
-            )
+        candidate_debug_path = _child_candidate_debug_path(
+            value["candidate_debug_path"]
+        )
+        attempts = _child_failure_attempts(value["attempts"], code)
+        ordered = _ordered_child_issues(
+            value["issues"],
+            code,
+            value["structural_address"],
+        )
+        reported_failures = _child_reported_failures(value, ordered, attempts)
         report = FailureReport.build(
             run_id=value["run_id"],
             failures=reported_failures,
@@ -1731,6 +1776,256 @@ def _read_child_failure(
         candidate_debug_path=candidate_debug_path,
         reported_failures=report.failures,
     )
+
+
+def _read_child_failure_bytes(path: Path) -> bytes:
+    """symlink을 따르지 않고 하위 실패 보고서 bytes 전체 읽기.
+
+    Args:
+        path: 실패 보고서 경로.
+
+    Returns:
+        크기가 검증된 보고서 bytes.
+
+    Raises:
+        ValueError: 일반 파일이 아니거나 크기·완전성 위반.
+    """
+
+    flags = os.O_RDONLY
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags)
+    try:
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_size <= 0
+            or metadata.st_size > 1_000_000
+        ):
+            raise ValueError("invalid child failure report file")
+        chunks: list[bytes] = []
+        remaining = metadata.st_size
+        while remaining:
+            chunk = os.read(descriptor, min(remaining, 64 * 1024))
+            if not chunk:
+                raise ValueError("truncated child failure report")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        return b"".join(chunks)
+    finally:
+        os.close(descriptor)
+
+
+def _validate_child_failure_value(
+    value: object,
+    raw: bytes,
+    *,
+    expected_returncode: int,
+    expected_run_id: str,
+) -> IssueCode:
+    """하위 실패 보고서의 schema·canonical 형식·identity 검증.
+
+    Args:
+        value: 파싱된 JSON 값.
+        raw: 원본 보고서 bytes.
+        expected_returncode: 하위 프로세스 종료 코드.
+        expected_run_id: 기대 workflow 실행 식별자.
+
+    Returns:
+        검증된 대표 실패 코드.
+
+    Raises:
+        ValueError: schema·canonical 형식·identity 위반.
+    """
+
+    expected = {
+        "schema_version", "run_id", "manifest_digest", "base_head", "stage",
+        "classification", "code", "exit_code", "published_commit", "version",
+        "locale", "document", "plan_id", "structural_address", "attempts",
+        "issues", "candidate_debug_path",
+    }
+    if not isinstance(value, dict) or set(value) != expected or raw != _canonical_json(value):
+        raise ValueError("invalid child failure report")
+    stage = value["stage"]
+    if (
+        value["schema_version"] != 1
+        or value["run_id"] != expected_run_id
+        or isinstance(value["exit_code"], bool)
+        or value["exit_code"] != expected_returncode
+        or not isinstance(stage, str)
+        or not stage
+        or len(stage) > 128
+        or not stage[0].isalnum()
+        or any(not (character.isalnum() or character in "._-") for character in stage)
+        or not isinstance(value["issues"], list)
+        or not value["issues"]
+    ):
+        raise ValueError("invalid child failure report")
+    code = IssueCode(value["code"])
+    if value["classification"] != classification_for(code).value:
+        raise ValueError("child failure code mismatch")
+    return code
+
+
+def _child_candidate_debug_path(value: object) -> str | None:
+    """하위 실패 보고서의 상대 candidate debug 경로 검증.
+
+    Args:
+        value: ``candidate_debug_path`` 필드 값.
+
+    Returns:
+        검증된 상대 경로 또는 ``None``.
+
+    Raises:
+        ValueError: 절대·역슬래시·상위 이동 경로.
+    """
+
+    if value is None:
+        return None
+    if (
+        not isinstance(value, str)
+        or not value
+        or "\\" in value
+        or PurePosixPath(value).is_absolute()
+        or any(part in {"", ".", ".."} for part in value.split("/"))
+    ):
+        raise ValueError("invalid child candidate debug path")
+    return value
+
+
+def _child_failure_attempts(value: object, code: IssueCode) -> ProviderAttempts | None:
+    """대표 실패 분류에 맞는 provider attempts 복원.
+
+    Args:
+        value: ``attempts`` 필드 값.
+        code: 대표 실패 코드.
+
+    Returns:
+        번역 실패 시도 횟수 또는 비번역 실패의 ``None``.
+
+    Raises:
+        ValueError: 분류에 맞지 않는 attempts 값.
+    """
+
+    if classification_for(code) is not ErrorClassification.TRANSLATION:
+        if value is not None:
+            raise ValueError("unexpected provider attempts")
+        return None
+    if not isinstance(value, dict) or set(value) != {
+        "response_evaluation", "transport"
+    }:
+        raise ValueError("invalid provider attempts")
+    return ProviderAttempts(
+        response_evaluation=value["response_evaluation"],
+        transport=value["transport"],
+    )
+
+
+def _ordered_child_issues(
+    values: object,
+    code: IssueCode,
+    structural_address: object,
+) -> list[tuple[IssueCode, str | None, str]]:
+    """하위 이슈를 파싱하고 대표 이슈를 첫 위치로 이동.
+
+    Args:
+        values: 구조화된 이슈 목록.
+        code: 대표 실패 코드.
+        structural_address: 대표 구조 주소.
+
+    Returns:
+        대표 이슈가 첫 번째인 파싱된 이슈 목록.
+
+    Raises:
+        TypeError: 이슈 목록이 배열이 아닌 경우.
+        ValueError: 이슈 구조가 잘못되거나 대표 이슈가 없음.
+    """
+
+    if not isinstance(values, list):
+        raise TypeError("invalid child issue")
+    parsed: list[tuple[IssueCode, str | None, str]] = []
+    primary_index: int | None = None
+    for index, item in enumerate(values):
+        if not isinstance(item, dict) or set(item) != {
+            "code", "structural_address", "message"
+        }:
+            raise ValueError("invalid child issue")
+        issue_code = IssueCode(item["code"])
+        message = item["message"]
+        if not isinstance(message, str):
+            raise ValueError("invalid child issue message")
+        parsed.append((issue_code, item["structural_address"], message))
+        if primary_index is None and issue_code == code and item["structural_address"] == structural_address:
+            primary_index = index
+    if primary_index is None:
+        raise ValueError("child primary issue is missing")
+    return [parsed[primary_index], *(item for index, item in enumerate(parsed) if index != primary_index)]
+
+
+def _required_child_string(value: dict[str, object], key: str) -> str:
+    """하위 실패 보고서의 필수 문자열 필드 검증."""
+
+    field = value[key]
+    if not isinstance(field, str) or not field:
+        raise ValueError(f"invalid child {key}")
+    return field
+
+
+def _optional_child_string(
+    value: dict[str, object],
+    key: str,
+) -> str | None:
+    """하위 실패 보고서의 선택 문자열 필드 검증."""
+
+    field = value[key]
+    if not isinstance(field, (str, type(None))):
+        raise TypeError(f"invalid child {key}")
+    return field
+
+
+def _child_reported_failures(
+    value: dict[str, object],
+    issues: list[tuple[IssueCode, str | None, str]],
+    attempts: ProviderAttempts | None,
+) -> list[FailureEvent]:
+    """파싱된 하위 이슈를 canonical 실패 이벤트로 변환.
+
+    Args:
+        value: 검증된 실패 보고서 object.
+        issues: 대표 이슈가 첫 번째인 파싱된 이슈.
+        attempts: 대표 번역 실패 시도 횟수.
+
+    Returns:
+        보고서 순서의 실패 이벤트.
+    """
+
+    stage = _required_child_string(value, "stage")
+    version = _optional_child_string(value, "version")
+    locale = _optional_child_string(value, "locale")
+    document = _optional_child_string(value, "document")
+    plan_id = _optional_child_string(value, "plan_id")
+    failures: list[FailureEvent] = []
+    for index, (code, address, message) in enumerate(issues):
+        primary = index == 0
+        issue_attempts = attempts if primary else None
+        if not primary and classification_for(code) is ErrorClassification.TRANSLATION:
+            issue_attempts = ProviderAttempts(response_evaluation=0, transport=0)
+        failures.append(
+            FailureEvent(
+                code=code,
+                stage=stage,
+                message=message,
+                version=version if primary else None,
+                locale=locale if primary else None,
+                document=document if primary else None,
+                plan_id=plan_id if primary else None,
+                structural_address=address,
+                attempts=issue_attempts,
+            )
+        )
+    return failures
 
 
 def _read_replay_snapshot(path: Path, *, repository: Path) -> ReplaySnapshot:
@@ -1763,20 +2058,10 @@ def _read_replay_snapshot(path: Path, *, repository: Path) -> ReplaySnapshot:
             message="replay state schema is invalid",
         )
     try:
-        manifest = base64.b64decode(value["manifest_base64"], validate=True)
-        manifest_digest = value["manifest_digest"]
-        if (
-            not isinstance(manifest_digest, str)
-            or len(manifest_digest) != 64
-            or any(
-                character not in "0123456789abcdef"
-                for character in manifest_digest
-            )
-            or hashlib.sha256(manifest).hexdigest() != manifest_digest
-        ):
-            raise ValueError("manifest digest mismatch")
-        versions = load_versions(repository / "versions.json")
-        upstream.load_manifest_bytes(manifest, expected_versions=versions)
+        manifest, manifest_digest, versions = _replay_manifest_evidence(
+            value,
+            repository,
+        )
     except (KeyError, TypeError, ValueError, UnicodeError) as exc:
         raise WorkflowStageError(
             stage="replay",
@@ -1784,40 +2069,7 @@ def _read_replay_snapshot(path: Path, *, repository: Path) -> ReplaySnapshot:
             message="replay manifest evidence is invalid",
         ) from exc
     try:
-        selector = base64.b64decode(value["selector_base64"], validate=True)
-        selector_digest = value["selector_digest"]
-        if (
-            not isinstance(selector_digest, str)
-            or len(selector_digest) != 64
-            or any(
-                character not in "0123456789abcdef"
-                for character in selector_digest
-            )
-            or hashlib.sha256(selector).hexdigest() != selector_digest
-        ):
-            raise ValueError("selector digest mismatch")
-        selector_value = json.loads(selector.decode("utf-8"))
-        if (
-            not isinstance(selector_value, dict)
-            or tuple(selector_value) != ("document", "version")
-            or selector
-            != (
-                json.dumps(
-                    selector_value,
-                    ensure_ascii=False,
-                    separators=(",", ":"),
-                )
-                + "\n"
-            ).encode("utf-8")
-            or selector_value["version"] not in {None, *versions}
-        ):
-            raise ValueError("invalid selector")
-        document = selector_value["document"]
-        if document is not None and (
-            selector_value["version"] is None
-            or upstream.normalize_document_selector(document) != document
-        ):
-            raise ValueError("invalid document selector")
+        selector, selector_digest = _replay_selector_evidence(value, versions)
     except (
         KeyError,
         TypeError,
@@ -1837,6 +2089,100 @@ def _read_replay_snapshot(path: Path, *, repository: Path) -> ReplaySnapshot:
         selector_digest=selector_digest,
     )
     return snapshot
+
+
+def _digest_matches(value: object, contents: bytes) -> bool:
+    """값이 contents의 소문자 SHA-256 digest인지 판정.
+
+    Args:
+        value: 검증할 digest 값.
+        contents: digest 기준 bytes.
+
+    Returns:
+        64자리 소문자 16진수 digest 일치 여부.
+    """
+
+    return bool(
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+        and hashlib.sha256(contents).hexdigest() == value
+    )
+
+
+def _replay_manifest_evidence(
+    value: dict[str, object],
+    repository: Path,
+) -> tuple[bytes, str, list[str]]:
+    """replay 상태의 매니페스트 bytes·digest·지원 버전 검증.
+
+    Args:
+        value: 파싱된 replay 상태 object.
+        repository: 활성 저장소 경로.
+
+    Returns:
+        검증된 매니페스트, digest, 지원 버전.
+
+    Raises:
+        TypeError: 매니페스트 인코딩이 문자열이 아닌 경우.
+        ValueError: base64·digest·매니페스트 계약 위반.
+    """
+
+    encoded = value["manifest_base64"]
+    if not isinstance(encoded, str):
+        raise TypeError("invalid manifest encoding")
+    manifest = base64.b64decode(encoded, validate=True)
+    digest = value["manifest_digest"]
+    if not isinstance(digest, str) or not _digest_matches(digest, manifest):
+        raise ValueError("manifest digest mismatch")
+    versions = load_versions(repository / "versions.json")
+    upstream.load_manifest_bytes(manifest, expected_versions=versions)
+    return manifest, digest, versions
+
+
+def _replay_selector_evidence(
+    value: dict[str, object],
+    versions: list[str],
+) -> tuple[bytes, str]:
+    """replay 상태의 canonical selector bytes와 digest 검증.
+
+    Args:
+        value: 파싱된 replay 상태 object.
+        versions: 지원 문서 버전.
+
+    Returns:
+        검증된 selector bytes와 digest.
+
+    Raises:
+        TypeError: 선택자 인코딩이 문자열이 아닌 경우.
+        ValueError: base64·digest·canonical selector 계약 위반.
+    """
+
+    encoded = value["selector_base64"]
+    if not isinstance(encoded, str):
+        raise TypeError("invalid selector encoding")
+    selector = base64.b64decode(encoded, validate=True)
+    digest = value["selector_digest"]
+    if not isinstance(digest, str) or not _digest_matches(digest, selector):
+        raise ValueError("selector digest mismatch")
+    selector_value = json.loads(selector.decode("utf-8"))
+    canonical = (
+        json.dumps(selector_value, ensure_ascii=False, separators=(",", ":")) + "\n"
+    ).encode("utf-8")
+    if (
+        not isinstance(selector_value, dict)
+        or tuple(selector_value) != ("document", "version")
+        or selector != canonical
+        or selector_value["version"] not in {None, *versions}
+    ):
+        raise ValueError("invalid selector")
+    document = selector_value["document"]
+    if document is not None and (
+        selector_value["version"] is None
+        or upstream.normalize_document_selector(document) != document
+    ):
+        raise ValueError("invalid document selector")
+    return selector, digest
 
 
 def default_workflow_hooks(

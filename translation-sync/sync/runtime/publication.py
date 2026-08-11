@@ -41,6 +41,7 @@ _PREPARE_CREDENTIAL_KEY_RE = re.compile(
     r"API_KEY|ACCESS_KEY|SSH_AUTH_SOCK|ASKPASS)(?:_|$)",
     re.IGNORECASE,
 )
+_UNTRUSTED_PUSH_ENDPOINT = "push_endpoint must be a trusted explicit URL or path"
 
 
 def _is_oid(value: object) -> bool:
@@ -82,7 +83,7 @@ def _validate_push_endpoint(value: str) -> str:
         or "\0" in value
         or any(character.isspace() for character in value)
     ):
-        raise ValueError("push_endpoint must be a trusted explicit URL or path")
+        raise ValueError(_UNTRUSTED_PUSH_ENDPOINT)
     if Path(value).is_absolute():
         return value
     if "://" in value:
@@ -93,7 +94,7 @@ def _validate_push_endpoint(value: str) -> str:
             or parsed.query
             or parsed.fragment
         ):
-            raise ValueError("push_endpoint must be a trusted explicit URL or path")
+            raise ValueError(_UNTRUSTED_PUSH_ENDPOINT)
         if parsed.password is not None:
             raise ValueError("push_endpoint must not contain credentials")
         if parsed.scheme.lower() in {"http", "https"} and parsed.username is not None:
@@ -101,7 +102,7 @@ def _validate_push_endpoint(value: str) -> str:
         return value
     if _SCP_ENDPOINT_RE.fullmatch(value):
         return value
-    raise ValueError("push_endpoint must be a trusted explicit URL or path")
+    raise ValueError(_UNTRUSTED_PUSH_ENDPOINT)
 
 
 def _validated_environment(values: Mapping[str, str]) -> dict[str, str]:

@@ -18,7 +18,7 @@ import time
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, Mapping, Sequence
+from typing import Iterator, Mapping, NoReturn, Sequence
 from urllib.parse import urlsplit
 
 from sync.runtime.base import RepositoryStateError, active_repository_fingerprint
@@ -77,6 +77,7 @@ _DEPLOY_REPOSITORY = re.compile(
     r"[A-Za-z0-9](?:[A-Za-z0-9_.-]*[A-Za-z0-9])?"
     r"/[A-Za-z0-9](?:[A-Za-z0-9_.-]*[A-Za-z0-9])?\Z"
 )
+_REPORT_WRITE_FAILED = "REPORT_WRITE_FAILED: failure report could not be written"
 
 
 @dataclass(frozen=True, slots=True)
@@ -119,6 +120,18 @@ class PublishedState:
     preparation_key: bytes
 
 
+@dataclass(frozen=True, slots=True)
+class _PreparedStateParts:
+    """준비 상태의 검증 전 중첩 매핑."""
+
+    push_endpoint: str
+    deploy_host: str
+    base: dict[str, object]
+    candidate: dict[str, object]
+    replay: dict[str, object]
+    fixture: dict[str, object]
+
+
 class EntrypointError(RuntimeError):
     """워크플로 진입점 경계에서 사용하는 안정적 오류."""
 
@@ -145,6 +158,50 @@ class _PushEnvironmentCleanupError(OSError):
 
         self.pending_error = pending_error
         super().__init__("push credential cleanup failed")
+
+
+class _ArgumentParseError(ValueError):
+    """워크플로 CLI 인수 검증 실패."""
+
+
+class _ArgumentHelpRequested(Exception):
+    """워크플로 CLI 도움말 출력 완료."""
+
+
+class _WorkflowArgumentParser(argparse.ArgumentParser):
+    """프로세스를 종료하지 않고 인수 오류를 전달하는 워크플로 파서."""
+
+    def exit(self, status: int = 0, message: str | None = None) -> NoReturn:
+        """도움말 출력을 프로세스 종료 없이 호출자에게 전달.
+
+        Args:
+            status: argparse 종료 상태.
+            message: 종료 전에 출력할 선택 메시지.
+
+        Raises:
+            _ArgumentHelpRequested: 도움말을 정상적으로 출력한 경우.
+            SystemExit: 0이 아닌 상태로 종료하는 경우.
+        """
+
+        if status == 0:
+            if message:
+                self._print_message(message, sys.stderr)
+            raise _ArgumentHelpRequested
+        super().exit(status, message)
+
+    def error(self, message: str) -> NoReturn:
+        """인수 오류를 제어된 예외로 변환.
+
+        Args:
+            message: argparse가 생성한 오류 설명.
+
+        Raises:
+            _ArgumentParseError: 사용자가 잘못된 인수를 전달한 경우.
+        """
+
+        self.print_usage(sys.stderr)
+        print(f"{self.prog}: error: {message}", file=sys.stderr)
+        raise _ArgumentParseError(message)
 
 
 def _is_oid(value: object) -> bool:
@@ -326,7 +383,7 @@ def _preparation_key(root: Path) -> bytes:
     return key
 
 
-def _short_identifier(value: object, *, name: str) -> str:
+def _short_identifier(value: object) -> str:
     """상태에 포함된 짧고 비밀 정보가 없는 식별자 검증."""
 
     if (
@@ -391,6 +448,208 @@ def _deadline(value: object) -> WorkflowDeadline:
     return WorkflowDeadline(expires_at=parsed)
 
 
+def _exact_mapping(
+    value: object,
+    expected_keys: set[str],
+) -> dict[str, object]:
+    """정확한 키 집합을 가진 JSON 매핑 검증.
+
+    Args:
+        value: 매핑 여부를 확인할 JSON 값.
+        expected_keys: 허용할 전체 키 집합.
+
+    Returns:
+        키 검증을 마친 매핑.
+
+    Raises:
+        ValueError: 값이 매핑이 아니거나 키 집합이 다른 경우.
+    """
+
+    if not isinstance(value, dict) or set(value) != expected_keys:
+        raise ValueError("state mapping has unexpected fields")
+    return value
+
+
+def _required_state_string(
+    value: Mapping[str, object],
+    key: str,
+) -> str:
+    """상태 매핑의 필수 문자열 필드 검증."""
+
+    field = value[key]
+    if not isinstance(field, str):
+        raise TypeError(f"state field {key} must be a string")
+    return field
+
+
+def _canonical_state_oid(value: object) -> str:
+    """상태 필드를 정규 Git 객체 ID로 검증."""
+
+    if not isinstance(value, str) or not _is_oid(value):
+        raise ValueError("state field must be a canonical Git object ID")
+    return value
+
+
+def _state_sha256(value: object) -> str:
+    """상태 필드를 정규 SHA-256 문자열로 검증."""
+
+    if not isinstance(value, str) or not _is_sha256(value):
+        raise ValueError("state field must be a canonical SHA-256 digest")
+    return value
+
+
+def _prepared_state_parts(
+    value: Mapping[str, object],
+    deploy_repository: str,
+) -> _PreparedStateParts:
+    """준비 상태의 중첩 매핑과 배포 호스트 검증."""
+
+    push_endpoint = value["push_endpoint"]
+    if not isinstance(push_endpoint, str):
+        raise TypeError("push endpoint must be a string")
+    deploy_host = _deployment_host_for(push_endpoint, deploy_repository)
+    if value["deploy_host"] != deploy_host:
+        raise ValueError("deploy host does not match the push endpoint")
+    return _PreparedStateParts(
+        push_endpoint=push_endpoint,
+        deploy_host=deploy_host,
+        base=_exact_mapping(
+            value["base"],
+            {"head", "tree", "remote_ref", "remote_oid", "active_fingerprint"},
+        ),
+        candidate=_exact_mapping(
+            value["candidate"],
+            {"path", "base_commit", "verified_tree", "has_changes"},
+        ),
+        replay=_exact_mapping(
+            value["replay"],
+            {
+                "manifest_file",
+                "manifest_digest",
+                "selector_base64",
+                "selector_digest",
+            },
+        ),
+        fixture=_exact_mapping(
+            value["fixture"],
+            {"evidence_file", "evidence_digest"},
+        ),
+    )
+
+
+def _prepared_base(
+    value: Mapping[str, object],
+    branch: str,
+) -> PublicationBase:
+    """준비 상태의 게시 기준본 검증."""
+
+    base = PublicationBase(
+        head=_required_state_string(value, "head"),
+        tree=_required_state_string(value, "tree"),
+        remote_ref=_required_state_string(value, "remote_ref"),
+        active_fingerprint=_required_state_string(value, "active_fingerprint"),
+    )
+    if value["remote_oid"] != base.head:
+        raise ValueError("remote OID does not match the base head")
+    if base.remote_ref != f"refs/heads/{branch}":
+        raise ValueError("remote ref does not match the branch")
+    return base
+
+
+def _prepared_publication(
+    value: object,
+    candidate: Mapping[str, object],
+    base: PublicationBase,
+) -> tuple[PreparedPublication, bool]:
+    """게시 계획과 후보 트리 식별 정보의 일관성 검증."""
+
+    if not isinstance(value, Mapping):
+        raise TypeError("prepared publication must be a mapping")
+    prepared = PreparedPublication.from_mapping(value)
+    has_changes = candidate["has_changes"]
+    if not isinstance(has_changes, bool):
+        raise TypeError("candidate change marker must be a boolean")
+    if (
+        prepared.base_head != base.head
+        or prepared.base_tree != base.tree
+        or prepared.remote_ref != base.remote_ref
+        or candidate["base_commit"] != base.head
+        or candidate["verified_tree"] != prepared.verified_tree
+        or (prepared.commit_oid is not None) != has_changes
+        or not _is_sha256(base.active_fingerprint)
+    ):
+        raise ValueError("prepared publication does not match the base state")
+    return prepared, has_changes
+
+
+def _prepared_candidate(
+    root: Path,
+    value: Mapping[str, object],
+) -> tuple[str, Path]:
+    """준비 상태의 상대 후보 경로 검증 및 해석."""
+
+    relative = value["path"]
+    if not isinstance(relative, str) or not relative or "\\" in relative:
+        raise ValueError("candidate path must be a relative POSIX path")
+    if Path(relative).is_absolute() or any(
+        part in {"", ".", ".."} for part in relative.split("/")
+    ):
+        raise ValueError("candidate path escapes the artifact root")
+    return relative, _candidate_directory(root, relative)
+
+
+def _verified_artifact_digest(
+    root: Path,
+    value: Mapping[str, object],
+    *,
+    filename_key: str,
+    digest_key: str,
+    expected_filename: str,
+    maximum: int,
+) -> str:
+    """상태가 참조하는 산출물 이름과 SHA-256 다이제스트 검증."""
+
+    if value[filename_key] != expected_filename:
+        raise ValueError("artifact filename does not match the expected file")
+    artifact = _read_artifact(root, expected_filename, maximum=maximum)
+    digest = value[digest_key]
+    if not isinstance(digest, str) or hashlib.sha256(artifact).hexdigest() != digest:
+        raise ValueError("artifact digest does not match its contents")
+    return digest
+
+
+def _verify_prepared_artifacts(
+    root: Path,
+    replay: Mapping[str, object],
+    fixture: Mapping[str, object],
+) -> str:
+    """재현 매니페스트·선택자·픽스처 증거의 식별 정보 검증."""
+
+    manifest_digest = _verified_artifact_digest(
+        root,
+        replay,
+        filename_key="manifest_file",
+        digest_key="manifest_digest",
+        expected_filename=MANIFEST_FILENAME,
+        maximum=8_000_000,
+    )
+    selector = base64.b64decode(
+        _required_state_string(replay, "selector_base64"),
+        validate=True,
+    )
+    if hashlib.sha256(selector).hexdigest() != replay["selector_digest"]:
+        raise ValueError("selector digest does not match its contents")
+    _verified_artifact_digest(
+        root,
+        fixture,
+        filename_key="evidence_file",
+        digest_key="evidence_digest",
+        expected_filename=FIXTURE_EVIDENCE_FILENAME,
+        maximum=8192,
+    )
+    return manifest_digest
+
+
 def _load_prepared_state(root: Path) -> PreparedState:
     """봉인된 준비 상태와 참조 산출물의 식별 정보 검증 및 로드."""
 
@@ -424,105 +683,26 @@ def _load_prepared_state(root: Path) -> PreparedState:
             stage="state-read",
         )
     try:
-        run_id = _short_identifier(value["run_id"], name="run_id")
+        run_id = _short_identifier(value["run_id"])
         branch = _branch_name(value["branch"])
         deploy_repository = _deploy_repository(value["deploy_repository"])
-        deploy_workflow = _short_identifier(
-            value["deploy_workflow"],
-            name="deploy_workflow",
+        deploy_workflow = _short_identifier(value["deploy_workflow"])
+        parts = _prepared_state_parts(value, deploy_repository)
+        base = _prepared_base(parts.base, branch)
+        prepared, has_changes = _prepared_publication(
+            value["publication"],
+            parts.candidate,
+            base,
         )
-        push_endpoint = value["push_endpoint"]
-        deploy_host = value["deploy_host"]
-        base_value = value["base"]
-        candidate_value = value["candidate"]
-        replay_value = value["replay"]
-        fixture_value = value["fixture"]
-        if (
-            not isinstance(push_endpoint, str)
-            or deploy_host
-            != _deployment_host_for(push_endpoint, deploy_repository)
-            or not isinstance(base_value, dict)
-            or set(base_value)
-            != {"head", "tree", "remote_ref", "remote_oid", "active_fingerprint"}
-            or not isinstance(candidate_value, dict)
-            or set(candidate_value)
-            != {"path", "base_commit", "verified_tree", "has_changes"}
-            or not isinstance(replay_value, dict)
-            or set(replay_value)
-            != {
-                "manifest_file",
-                "manifest_digest",
-                "selector_base64",
-                "selector_digest",
-            }
-            or not isinstance(fixture_value, dict)
-            or set(fixture_value) != {"evidence_file", "evidence_digest"}
-        ):
-            raise ValueError
-        base = PublicationBase(
-            head=base_value["head"],
-            tree=base_value["tree"],
-            remote_ref=base_value["remote_ref"],
-            active_fingerprint=base_value["active_fingerprint"],
-        )
-        if base_value["remote_oid"] != base.head:
-            raise ValueError
-        if base.remote_ref != f"refs/heads/{branch}":
-            raise ValueError
-        prepared = PreparedPublication.from_mapping(value["publication"])
-        if (
-            prepared.base_head != base.head
-            or prepared.base_tree != base.tree
-            or prepared.remote_ref != base.remote_ref
-            or candidate_value["base_commit"] != base.head
-            or candidate_value["verified_tree"] != prepared.verified_tree
-            or not isinstance(candidate_value["has_changes"], bool)
-            or (prepared.commit_oid is not None) != candidate_value["has_changes"]
-            or not _is_sha256(base.active_fingerprint)
-        ):
-            raise ValueError
-        candidate_relative = candidate_value["path"]
-        if (
-            not isinstance(candidate_relative, str)
-            or not candidate_relative
-            or "\\" in candidate_relative
-            or Path(candidate_relative).is_absolute()
-            or any(part in {"", ".", ".."} for part in candidate_relative.split("/"))
-        ):
-            raise ValueError
-        candidate_path = _candidate_directory(root, candidate_relative)
-        if replay_value["manifest_file"] != MANIFEST_FILENAME:
-            raise ValueError
-        manifest = _read_artifact(
+        candidate_relative, candidate_path = _prepared_candidate(
             root,
-            MANIFEST_FILENAME,
-            maximum=8_000_000,
+            parts.candidate,
         )
-        if (
-            not isinstance(replay_value["manifest_digest"], str)
-            or hashlib.sha256(manifest).hexdigest()
-            != replay_value["manifest_digest"]
-        ):
-            raise ValueError
-        selector = base64.b64decode(
-            replay_value["selector_base64"],
-            validate=True,
-        )
-        if hashlib.sha256(selector).hexdigest() != replay_value["selector_digest"]:
-            raise ValueError
-        if fixture_value["evidence_file"] != FIXTURE_EVIDENCE_FILENAME:
-            raise ValueError
-        fixture_evidence = _read_artifact(
+        manifest_digest = _verify_prepared_artifacts(
             root,
-            FIXTURE_EVIDENCE_FILENAME,
-            maximum=8192,
+            parts.replay,
+            parts.fixture,
         )
-        if (
-            not isinstance(fixture_value["evidence_digest"], str)
-            or hashlib.sha256(fixture_evidence).hexdigest()
-            != fixture_value["evidence_digest"]
-        ):
-            raise ValueError
     except (KeyError, TypeError, ValueError) as exc:
         raise EntrypointError(
             IssueCode.INVALID_RUNTIME_OPTION,
@@ -532,15 +712,15 @@ def _load_prepared_state(root: Path) -> PreparedState:
         run_id=run_id,
         workflow_deadline=_deadline(value["workflow_deadline_monotonic"]),
         branch=branch,
-        push_endpoint=push_endpoint,
+        push_endpoint=parts.push_endpoint,
         deploy_repository=deploy_repository,
-        deploy_host=deploy_host,
+        deploy_host=parts.deploy_host,
         deploy_workflow=deploy_workflow,
-        manifest_digest=replay_value["manifest_digest"],
+        manifest_digest=manifest_digest,
         base=base,
         candidate_path=candidate_path,
         candidate_relative=candidate_relative,
-        has_changes=candidate_value["has_changes"],
+        has_changes=has_changes,
         prepared=prepared,
         preparation_key=key,
     )
@@ -580,29 +760,23 @@ def _load_published_state(root: Path) -> PublishedState:
             stage="state-read",
         )
     try:
-        run_id = _short_identifier(value["run_id"], name="run_id")
+        run_id = _short_identifier(value["run_id"])
         branch = _branch_name(value["branch"])
-        push_endpoint = value["push_endpoint"]
+        push_endpoint = _required_state_string(value, "push_endpoint")
         deploy_repository = _deploy_repository(value["deploy_repository"])
-        deploy_host = value["deploy_host"]
-        deploy_workflow = _short_identifier(
-            value["deploy_workflow"],
-            name="deploy_workflow",
+        deploy_host = _deployment_host_for(push_endpoint, deploy_repository)
+        deploy_workflow = _short_identifier(value["deploy_workflow"])
+        base_commit, published_commit, remote_commit = (
+            _canonical_state_oid(value[key])
+            for key in ("base_commit", "published_commit", "remote_commit")
         )
-        oids = (
-            value["base_commit"],
-            value["published_commit"],
-            value["remote_commit"],
-        )
+        manifest_digest = _state_sha256(value["manifest_digest"])
+        active_fingerprint = _state_sha256(value["active_fingerprint"])
+        has_changes = value["has_changes"]
         if (
-            not all(_is_oid(oid) for oid in oids)
-            or len({len(oid) for oid in oids}) != 1
-            or not isinstance(value["has_changes"], bool)
-            or not _is_sha256(value["manifest_digest"])
-            or not _is_sha256(value["active_fingerprint"])
-            or not isinstance(push_endpoint, str)
-            or deploy_host
-            != _deployment_host_for(push_endpoint, deploy_repository)
+            len({len(base_commit), len(published_commit), len(remote_commit)}) != 1
+            or not isinstance(has_changes, bool)
+            or value["deploy_host"] != deploy_host
         ):
             raise ValueError
     except (KeyError, TypeError, ValueError) as exc:
@@ -618,12 +792,12 @@ def _load_published_state(root: Path) -> PublishedState:
         deploy_repository=deploy_repository,
         deploy_host=deploy_host,
         deploy_workflow=deploy_workflow,
-        manifest_digest=value["manifest_digest"],
-        active_fingerprint=value["active_fingerprint"],
-        base_commit=value["base_commit"],
-        published_commit=value["published_commit"],
-        remote_commit=value["remote_commit"],
-        has_changes=value["has_changes"],
+        manifest_digest=manifest_digest,
+        active_fingerprint=active_fingerprint,
+        base_commit=base_commit,
+        published_commit=published_commit,
+        remote_commit=remote_commit,
+        has_changes=has_changes,
         preparation_key=key,
     )
 
@@ -703,12 +877,12 @@ def _phase_failure(
                 return int(exit_code)
         except (OSError, TypeError, ValueError):
             print(
-                "REPORT_WRITE_FAILED: failure report could not be written",
+                _REPORT_WRITE_FAILED,
                 file=sys.stderr,
             )
     else:
         print(
-            "REPORT_WRITE_FAILED: failure report could not be written",
+            _REPORT_WRITE_FAILED,
             file=sys.stderr,
         )
     return int(exit_code)
@@ -925,6 +1099,87 @@ def run_prepare(
         )
 
 
+def _publication_phase_failure(
+    *,
+    root: Path | None,
+    state: PreparedState | None,
+    code: IssueCode,
+    stage: str,
+    published_commit: str | None,
+    preceding_failures: Sequence[FailureEvent] = (),
+) -> int:
+    """게시 진행 상태를 공통 실패 보고 인수로 변환."""
+
+    if state is None:
+        return _phase_failure(
+            root=root,
+            run_id=None,
+            code=code,
+            stage=stage,
+            published_commit=published_commit,
+            preceding_failures=preceding_failures,
+        )
+    return _phase_failure(
+        root=root,
+        run_id=state.run_id,
+        code=code,
+        stage=stage,
+        base_head=state.base.head,
+        manifest_digest=state.manifest_digest,
+        published_commit=published_commit,
+        candidate_debug_path=state.candidate_relative,
+        active_fingerprint=state.base.active_fingerprint,
+        workflow_deadline=state.workflow_deadline,
+        preceding_failures=preceding_failures,
+    )
+
+
+def _publication_cleanup_failure(
+    *,
+    root: Path | None,
+    state: PreparedState | None,
+    published_commit: str | None,
+    error: _PushEnvironmentCleanupError,
+) -> int:
+    """푸시 환경 정리 실패와 정리 전 실패를 함께 보고."""
+
+    pending_failure: FailureEvent | None = None
+    pending = error.pending_error
+    if isinstance(pending, PublicationError):
+        published_commit = pending.published_commit or published_commit
+        pending_failure = _failure_event(pending.code, stage="publication")
+    elif isinstance(pending, DeadlineExceeded):
+        pending_failure = _failure_event(pending.code, stage="publication")
+    elif isinstance(pending, EntrypointError):
+        published_commit = pending.published_commit or published_commit
+        pending_failure = _failure_event(pending.code, stage=pending.stage)
+    preceding = (pending_failure,) if pending_failure is not None else ()
+    return _publication_phase_failure(
+        root=root,
+        state=state,
+        code=IssueCode.RUNNER_OPERATION_FAILED,
+        stage="publication",
+        published_commit=published_commit,
+        preceding_failures=preceding,
+    )
+
+
+def _publication_result_is_valid(
+    state: PreparedState,
+    result: object,
+) -> bool:
+    """게시 결과가 봉인된 준비 상태와 일치하는지 여부."""
+
+    if not isinstance(result, PublicationResult):
+        return False
+    expected_commit = state.prepared.commit_oid or state.base.head
+    return (
+        result.published_oid == expected_commit
+        and result.commit_oid == state.prepared.commit_oid
+        and result.pushed == state.has_changes
+    )
+
+
 def run_publish(
     args: argparse.Namespace,
     *,
@@ -991,13 +1246,7 @@ def run_publish(
             except PublicationError as exc:
                 published_commit = exc.published_commit or published_commit
                 raise
-            expected_commit = state.prepared.commit_oid or state.base.head
-            if (
-                not isinstance(result, PublicationResult)
-                or result.published_oid != expected_commit
-                or result.commit_oid != state.prepared.commit_oid
-                or result.pushed != state.has_changes
-            ):
+            if not _publication_result_is_valid(state, result):
                 raise EntrypointError(
                     IssueCode.VERIFIED_TREE_MISMATCH,
                     stage="publication",
@@ -1034,160 +1283,149 @@ def run_publish(
         )
         return int(ExitCode.SUCCESS)
     except _PushEnvironmentCleanupError as exc:
-        pending_failure: FailureEvent | None = None
-        pending = exc.pending_error
-        if isinstance(pending, PublicationError):
-            published_commit = pending.published_commit or published_commit
-            pending_failure = _failure_event(
-                pending.code,
-                stage="publication",
-            )
-        elif isinstance(pending, DeadlineExceeded):
-            pending_failure = _failure_event(
-                pending.code,
-                stage="publication",
-            )
-        elif isinstance(pending, EntrypointError):
-            published_commit = pending.published_commit or published_commit
-            pending_failure = _failure_event(
-                pending.code,
-                stage=pending.stage,
-            )
-        return _phase_failure(
+        return _publication_cleanup_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
-            code=IssueCode.RUNNER_OPERATION_FAILED,
-            stage="publication",
-            base_head=state.base.head if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
+            state=state,
             published_commit=published_commit,
-            candidate_debug_path=(
-                state.candidate_relative if state is not None else None
-            ),
-            active_fingerprint=(
-                state.base.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
-            preceding_failures=(
-                (pending_failure,) if pending_failure is not None else ()
-            ),
+            error=exc,
         )
     except PublicationError as exc:
-        return _phase_failure(
+        return _publication_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=exc.code,
             stage="publication",
-            base_head=state.base.head if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
             published_commit=exc.published_commit or published_commit,
-            candidate_debug_path=(
-                state.candidate_relative if state is not None else None
-            ),
-            active_fingerprint=(
-                state.base.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
     except DeadlineExceeded as exc:
-        return _phase_failure(
+        return _publication_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=exc.code,
             stage="publication",
-            base_head=state.base.head if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
             published_commit=published_commit,
-            candidate_debug_path=(
-                state.candidate_relative if state is not None else None
-            ),
-            active_fingerprint=(
-                state.base.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
     except EntrypointError as exc:
-        return _phase_failure(
+        return _publication_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=exc.code,
             stage=exc.stage,
-            base_head=state.base.head if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
             published_commit=exc.published_commit or published_commit,
-            candidate_debug_path=(
-                state.candidate_relative if state is not None else None
-            ),
-            active_fingerprint=(
-                state.base.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
     except OSError:
-        return _phase_failure(
+        return _publication_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=IssueCode.RUNNER_OPERATION_FAILED,
             stage="publication",
-            base_head=state.base.head if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
             published_commit=published_commit,
-            candidate_debug_path=(
-                state.candidate_relative if state is not None else None
-            ),
-            active_fingerprint=(
-                state.base.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
     except (TypeError, ValueError):
-        return _phase_failure(
+        return _publication_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=IssueCode.INVALID_RUNTIME_OPTION,
             stage="publication",
-            base_head=state.base.head if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
             published_commit=published_commit,
-            candidate_debug_path=(
-                state.candidate_relative if state is not None else None
-            ),
-            active_fingerprint=(
-                state.base.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
     except Exception:
-        return _phase_failure(
+        return _publication_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=IssueCode.UNCLASSIFIED_INTERNAL,
             stage="publication",
-            base_head=state.base.head if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
             published_commit=published_commit,
-            candidate_debug_path=(
-                state.candidate_relative if state is not None else None
-            ),
-            active_fingerprint=(
-                state.base.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
+
+
+def _deployment_phase_failure(
+    *,
+    root: Path | None,
+    state: PublishedState | None,
+    code: IssueCode,
+    stage: str,
+    published_commit: str | None = None,
+) -> int:
+    """배포 진행 상태를 공통 실패 보고 인수로 변환."""
+
+    if state is None:
+        return _phase_failure(
+            root=root,
+            run_id=None,
+            code=code,
+            stage=stage,
+            published_commit=published_commit,
+        )
+    return _phase_failure(
+        root=root,
+        run_id=state.run_id,
+        code=code,
+        stage=stage,
+        base_head=state.base_commit,
+        manifest_digest=state.manifest_digest,
+        published_commit=published_commit or state.published_commit,
+        active_fingerprint=state.active_fingerprint,
+        workflow_deadline=state.workflow_deadline,
+    )
+
+
+def _deployment_result_matches_branch(
+    state: PublishedState,
+    result: DeploymentResult,
+) -> bool:
+    """배포 결과가 대상 브랜치의 실행 규약을 충족하는지 여부."""
+
+    if state.branch == "main":
+        return (
+            result.triggered
+            and isinstance(result.correlation_id, str)
+            and bool(result.correlation_id)
+            and not isinstance(result.run_id, bool)
+            and isinstance(result.run_id, int)
+            and result.run_id > 0
+            and result.conclusion == "success"
+        )
+    return not result.triggered and all(
+        value is None
+        for value in (
+            result.correlation_id,
+            result.run_id,
+            result.conclusion,
+        )
+    )
+
+
+def _validated_deployment_result(
+    state: PublishedState,
+    value: object,
+) -> DeploymentResult:
+    """배포 조정기 결과의 식별 정보와 브랜치별 규약 검증."""
+
+    if (
+        not isinstance(value, DeploymentResult)
+        or value.branch != state.branch
+        or value.published_commit != state.published_commit
+        or not isinstance(value.issue_code, (IssueCode, type(None)))
+    ):
+        raise EntrypointError(
+            IssueCode.DEPLOY_VALIDATION_FAILED,
+            stage="deploy",
+            published_commit=state.published_commit,
+        )
+    if value.issue_code is not None:
+        raise EntrypointError(
+            value.issue_code,
+            stage="deploy",
+            published_commit=state.published_commit,
+        )
+    if not _deployment_result_matches_branch(state, value):
+        raise EntrypointError(
+            IssueCode.DEPLOY_VALIDATION_FAILED,
+            stage="deploy",
+            published_commit=state.published_commit,
+        )
+    return value
 
 
 def run_deploy(
@@ -1239,61 +1477,18 @@ def run_deploy(
             workflow_file=state.deploy_workflow,
             runner=SubprocessArgvRunner(deploy_environment),
         )
-        result = coordinator.deploy(
-            DeploymentRequest(
-                branch=state.branch,
-                base_commit=state.base_commit,
-                published_commit=state.published_commit,
-                remote_commit=state.remote_commit,
-                has_changes=state.has_changes,
-            )
-        )
-        if (
-            not isinstance(result, DeploymentResult)
-            or result.branch != state.branch
-            or result.published_commit != state.published_commit
-            or not isinstance(result.issue_code, (IssueCode, type(None)))
-        ):
-            raise EntrypointError(
-                IssueCode.DEPLOY_VALIDATION_FAILED,
-                stage="deploy",
-                published_commit=state.published_commit,
-            )
-        if not result.success:
-            assert result.issue_code is not None
-            raise EntrypointError(
-                result.issue_code,
-                stage="deploy",
-                published_commit=state.published_commit,
-            )
-        if state.branch == "main":
-            if (
-                not result.triggered
-                or not isinstance(result.correlation_id, str)
-                or not result.correlation_id
-                or isinstance(result.run_id, bool)
-                or not isinstance(result.run_id, int)
-                or result.run_id <= 0
-                or result.conclusion != "success"
-            ):
-                raise EntrypointError(
-                    IssueCode.DEPLOY_VALIDATION_FAILED,
-                    stage="deploy",
+        result = _validated_deployment_result(
+            state,
+            coordinator.deploy(
+                DeploymentRequest(
+                    branch=state.branch,
+                    base_commit=state.base_commit,
                     published_commit=state.published_commit,
+                    remote_commit=state.remote_commit,
+                    has_changes=state.has_changes,
                 )
-        elif any(
-            value is not None
-            for value in (
-                result.correlation_id,
-                result.run_id,
-                result.conclusion,
-            )
-        ) or result.triggered:
-            raise EntrypointError(
-                IssueCode.DEPLOY_VALIDATION_FAILED,
-                stage="deploy",
-                published_commit=state.published_commit,
-            )
+            ),
+        )
         state.workflow_deadline.phase_remaining()
         deployed = _sealed_mapping(
             {
@@ -1322,94 +1517,47 @@ def run_deploy(
         )
         return int(ExitCode.SUCCESS)
     except DeadlineExceeded as exc:
-        return _phase_failure(
+        return _deployment_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=exc.code,
             stage="deploy",
-            base_head=state.base_commit if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
-            published_commit=state.published_commit if state is not None else None,
-            active_fingerprint=(
-                state.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
     except EntrypointError as exc:
-        return _phase_failure(
+        return _deployment_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=exc.code,
             stage=exc.stage,
-            base_head=state.base_commit if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
-            published_commit=(
-                exc.published_commit
-                or (state.published_commit if state is not None else None)
-            ),
-            active_fingerprint=(
-                state.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
+            published_commit=exc.published_commit,
         )
     except OSError:
-        return _phase_failure(
+        return _deployment_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=IssueCode.RUNNER_OPERATION_FAILED,
             stage="deploy",
-            base_head=state.base_commit if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
-            published_commit=state.published_commit if state is not None else None,
-            active_fingerprint=(
-                state.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
     except (TypeError, ValueError):
-        return _phase_failure(
+        return _deployment_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=IssueCode.INVALID_RUNTIME_OPTION,
             stage="deploy",
-            base_head=state.base_commit if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
-            published_commit=state.published_commit if state is not None else None,
-            active_fingerprint=(
-                state.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
     except Exception:
-        return _phase_failure(
+        return _deployment_phase_failure(
             root=root,
-            run_id=state.run_id if state is not None else None,
+            state=state,
             code=IssueCode.UNCLASSIFIED_INTERNAL,
             stage="deploy",
-            base_head=state.base_commit if state is not None else None,
-            manifest_digest=(state.manifest_digest if state is not None else None),
-            published_commit=state.published_commit if state is not None else None,
-            active_fingerprint=(
-                state.active_fingerprint if state is not None else None
-            ),
-            workflow_deadline=(
-                state.workflow_deadline if state is not None else None
-            ),
         )
 
 
 def _parser() -> argparse.ArgumentParser:
     """``prepare``, ``publish``, ``deploy`` 하위 명령 파서 구성."""
 
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = _WorkflowArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     prepare = subparsers.add_parser("prepare")
@@ -1451,11 +1599,11 @@ def main(
     started_at = time.monotonic()
     try:
         args = _parser().parse_args(argv)
-    except SystemExit as exc:
-        if exc.code == 0:
-            return int(ExitCode.SUCCESS)
+    except _ArgumentHelpRequested:
+        return int(ExitCode.SUCCESS)
+    except _ArgumentParseError:
         print(
-            "REPORT_WRITE_FAILED: failure report could not be written",
+            _REPORT_WRITE_FAILED,
             file=sys.stderr,
         )
         return int(ExitCode.CONTROLLED_FAILURE)

@@ -18,6 +18,7 @@ from typing import Any
 
 
 _CLEANUP_TIMEOUT_SECONDS = 5.0
+_INVALID_TIMEOUT = "timeout must be a non-negative finite number"
 
 
 class ProcessTreeError(RuntimeError):
@@ -42,13 +43,13 @@ def _validate_timeout(timeout: float | None) -> float | None:
     if timeout is None:
         return None
     if isinstance(timeout, bool):
-        raise TypeError("timeout must be a non-negative finite number")
+        raise TypeError(_INVALID_TIMEOUT)
     try:
         parsed = float(timeout)
     except (TypeError, ValueError, OverflowError):
-        raise TypeError("timeout must be a non-negative finite number") from None
+        raise TypeError(_INVALID_TIMEOUT) from None
     if not math.isfinite(parsed) or parsed < 0:
-        raise ValueError("timeout must be a non-negative finite number")
+        raise ValueError(_INVALID_TIMEOUT)
     return parsed
 
 
@@ -160,6 +161,88 @@ def _terminate_process_group(
     return stdout, stderr
 
 
+def _validate_run_options(
+    *,
+    shell: bool,
+    input_value: str | bytes | None,
+    stdin: Any,
+    stdout: Any,
+    stderr: Any,
+    capture_output: bool,
+) -> None:
+    """프로세스 그룹 실행에 필요한 호스트와 입출력 옵션 검증.
+
+    Args:
+        shell: shell 실행 요청 여부.
+        input_value: 표준 입력으로 전달할 값.
+        stdin: 표준 입력 stream 설정.
+        stdout: 표준 출력 stream 설정.
+        stderr: 표준 오류 stream 설정.
+        capture_output: 표준 출력과 오류의 동시 캡처 여부.
+    """
+
+    if os.name != "posix" or not hasattr(os, "killpg"):
+        raise ProcessTreeUnsupported("POSIX process groups are required")
+    if shell is not False:
+        raise ValueError("shell execution is forbidden")
+    if input_value is not None and stdin is not None:
+        raise ValueError("stdin and input arguments may not both be used")
+    if capture_output and (stdout is not None or stderr is not None):
+        raise ValueError(
+            "stdout and stderr arguments may not be used with capture_output"
+        )
+
+
+def _communicate_with_cleanup(
+    process: subprocess.Popen[Any],
+    *,
+    input_value: str | bytes | None,
+    timeout: float | None,
+) -> tuple[Any, Any]:
+    """명령과 통신하고 실패 시 프로세스 그룹 정리.
+
+    Args:
+        process: 새 세션에서 실행 중인 직접 하위 프로세스.
+        input_value: 표준 입력으로 전달할 값.
+        timeout: 프로세스 실행 제한 시간.
+
+    Returns:
+        표준 출력과 표준 오류 값.
+    """
+
+    try:
+        return process.communicate(input=input_value, timeout=timeout)
+    except BaseException as exc:
+        try:
+            _terminate_process_group(process, drain_pipes=True)
+        except ProcessTreeCleanupError as cleanup_error:
+            raise cleanup_error from exc
+        raise
+
+
+def _require_empty_process_group(process: subprocess.Popen[Any]) -> None:
+    """직접 하위 프로세스 종료 뒤 프로세스 그룹이 비었는지 확인.
+
+    Args:
+        process: 종료된 직접 하위 프로세스.
+    """
+
+    try:
+        survivors = _process_group_alive(process.pid)
+    except BaseException as inspection_error:
+        try:
+            _terminate_process_group(process, drain_pipes=False)
+        except ProcessTreeCleanupError as cleanup_error:
+            raise cleanup_error from inspection_error
+        raise
+    if not survivors:
+        return
+    _terminate_process_group(process, drain_pipes=False)
+    raise ProcessTreeLeak(
+        "the command returned while process-group members were still running"
+    )
+
+
 def run_process_tree(
     args: Sequence[str | bytes | os.PathLike[str] | os.PathLike[bytes]],
     *,
@@ -211,16 +294,14 @@ def run_process_tree(
         ValueError: argv 또는 실행 옵션이 계약에 맞지 않는 경우.
     """
 
-    if os.name != "posix" or not hasattr(os, "killpg"):
-        raise ProcessTreeUnsupported("POSIX process groups are required")
-    if shell is not False:
-        raise ValueError("shell execution is forbidden")
-    if input is not None and stdin is not None:
-        raise ValueError("stdin and input arguments may not both be used")
-    if capture_output and (stdout is not None or stderr is not None):
-        raise ValueError(
-            "stdout and stderr arguments may not be used with capture_output"
-        )
+    _validate_run_options(
+        shell=shell,
+        input_value=input,
+        stdin=stdin,
+        stdout=stdout,
+        stderr=stderr,
+        capture_output=capture_output,
+    )
 
     _validate_argv(args)
     parsed_timeout = _validate_timeout(timeout)
@@ -245,37 +326,12 @@ def run_process_tree(
         start_new_session=True,
     )
 
-    try:
-        stdout_value, stderr_value = process.communicate(
-            input=input,
-            timeout=parsed_timeout,
-        )
-    except subprocess.TimeoutExpired as exc:
-        try:
-            _terminate_process_group(process, drain_pipes=True)
-        except ProcessTreeCleanupError as cleanup_error:
-            raise cleanup_error from exc
-        raise
-    except BaseException as exc:
-        try:
-            _terminate_process_group(process, drain_pipes=True)
-        except ProcessTreeCleanupError as cleanup_error:
-            raise cleanup_error from exc
-        raise
-
-    try:
-        survivors = _process_group_alive(process.pid)
-    except BaseException as inspection_error:
-        try:
-            _terminate_process_group(process, drain_pipes=False)
-        except ProcessTreeCleanupError as cleanup_error:
-            raise cleanup_error from inspection_error
-        raise
-    if survivors:
-        _terminate_process_group(process, drain_pipes=False)
-        raise ProcessTreeLeak(
-            "the command returned while process-group members were still running"
-        )
+    stdout_value, stderr_value = _communicate_with_cleanup(
+        process,
+        input_value=input,
+        timeout=parsed_timeout,
+    )
+    _require_empty_process_group(process)
 
     completed = subprocess.CompletedProcess(
         args,

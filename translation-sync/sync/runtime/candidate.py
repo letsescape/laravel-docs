@@ -109,6 +109,15 @@ class _GitFailed(RuntimeError):
         self.returncode = returncode
 
 
+@dataclass(slots=True)
+class _CandidateRunState:
+    """candidate 실행 중 실패 분류에 필요한 현재 단계와 식별자."""
+
+    stage: str = "configuration"
+    sandbox: Path | None = None
+    resolved_base: str | None = None
+
+
 class CandidateRunner:
     """분리된 로컬 clone에서 candidate core와 validator 실행.
 
@@ -145,6 +154,366 @@ class CandidateRunner:
         self._sync_report_path = self._artifact_root / SYNC_FAILURE_REPORT_FILENAME
         self._path_report_path = self._artifact_root / PATH_FAILURE_REPORT_FILENAME
 
+    def _validated_commands(
+        self,
+        *,
+        base_commit: str,
+        setup_argvs: Sequence[Sequence[str]],
+        sync_core_argv: Sequence[str],
+        site_validator_argvs: Sequence[Sequence[str]],
+        path_validator_argv: Sequence[str],
+    ) -> tuple[
+        tuple[tuple[str, ...], ...],
+        tuple[str, ...],
+        tuple[tuple[str, ...], ...],
+        tuple[str, ...],
+        dict[str, bytes],
+    ]:
+        """candidate 명령·식별자·외부 경로 설정을 실행 전에 검증.
+
+        Args:
+            base_commit: 승인 기준 Git commit ID.
+            setup_argvs: 후보 준비 명령 목록.
+            sync_core_argv: 번역 동기화 core 명령.
+            site_validator_argvs: 사이트 검증 명령 목록.
+            path_validator_argv: 출력 경로 검증 명령.
+
+        Returns:
+            정규 명령들과 검증된 파일 입력.
+        """
+
+        setup_commands = tuple(self._command_argv(command) for command in setup_argvs)
+        sync_core = self._command_argv(sync_core_argv)
+        site_validators = tuple(
+            self._command_argv(command) for command in site_validator_argvs
+        )
+        path_validator = self._command_argv(path_validator_argv)
+        sync_file_inputs = self._validated_sync_file_inputs()
+        if not setup_commands or not site_validators:
+            raise _CandidateError(
+                stage="configuration",
+                issue_code=IssueCode.REQUIRED_CONFIG_MISSING,
+            )
+        if not self._valid_oid(base_commit) or not self._valid_run_id(self._run_id):
+            raise _CandidateError(
+                stage="configuration",
+                issue_code=IssueCode.INVALID_RUNTIME_OPTION,
+            )
+        if self._artifact_root == self._source_repo or self._artifact_root.is_relative_to(
+            self._source_repo
+        ):
+            raise _CandidateError(
+                stage="sandbox",
+                issue_code=IssueCode.SANDBOX_OPERATION_FAILED,
+            )
+        self._require_report_targets_absent()
+        return (
+            setup_commands,
+            sync_core,
+            site_validators,
+            path_validator,
+            sync_file_inputs,
+        )
+
+    def _prepare_candidate(
+        self,
+        state: _CandidateRunState,
+        base_commit: str,
+    ) -> Path:
+        """승인 기준을 확인하고 격리 clone 준비.
+
+        Args:
+            state: 갱신할 candidate 실행 상태.
+            base_commit: 승인 기준 Git commit ID.
+
+        Returns:
+            준비된 sandbox 경로.
+        """
+
+        state.stage = "approved-base"
+        state.resolved_base = self._resolve_base(base_commit)
+        state.stage = "sandbox"
+        state.sandbox = self._new_sandbox()
+        self._populate_clone(state.sandbox, state.resolved_base)
+        return state.sandbox
+
+    def _run_setup_phase(
+        self,
+        state: _CandidateRunState,
+        sandbox: Path,
+        setup_commands: tuple[tuple[str, ...], ...],
+    ) -> None:
+        """후보 준비 명령 전후 승인 기준 fingerprint 불변성 검증.
+
+        Args:
+            state: 갱신할 candidate 실행 상태.
+            sandbox: 준비된 후보 저장소.
+            setup_commands: 정규 후보 준비 명령 목록.
+        """
+
+        state.stage = "candidate-setup"
+        base_fingerprint = self._source_fingerprint(
+            sandbox,
+            include_untracked=False,
+        )
+        for command in setup_commands:
+            self._require_unmutated(
+                sandbox,
+                base_fingerprint,
+                state.stage,
+                include_untracked=False,
+            )
+            result = self._child(
+                command,
+                cwd=sandbox,
+                environment={"HUSKY": "0"},
+            )
+            self._require_unmutated(
+                sandbox,
+                base_fingerprint,
+                state.stage,
+                include_untracked=False,
+            )
+            if result:
+                raise _CandidateError(
+                    stage=state.stage,
+                    issue_code=IssueCode.RUNNER_OPERATION_FAILED,
+                    returncode=result,
+                )
+
+    def _run_sync_phase(
+        self,
+        state: _CandidateRunState,
+        sandbox: Path,
+        sync_core: tuple[str, ...],
+        sync_file_inputs: dict[str, bytes],
+    ) -> None:
+        """파일 입력을 임시 적재해 sync core를 실행하고 보고서 계약 검증.
+
+        Args:
+            state: 갱신할 candidate 실행 상태.
+            sandbox: 준비된 후보 저장소.
+            sync_core: 정규 번역 동기화 core 명령.
+            sync_file_inputs: 검증된 환경별 파일 입력.
+        """
+
+        staged_environment: dict[str, str] = {}
+        if sync_file_inputs:
+            state.stage = "candidate-input"
+            staged_environment = self._stage_sync_file_inputs(
+                sandbox,
+                sync_file_inputs,
+            )
+        state.stage = "sync-core"
+        environment = dict(self._sync_environment)
+        environment.update(staged_environment)
+        environment.update(
+            {
+                FAILURE_REPORT_ENV: str(self._sync_report_path),
+                RUN_ID_ENV: self._run_id,
+            }
+        )
+        try:
+            result = self._child(sync_core, cwd=sandbox, environment=environment)
+        finally:
+            if sync_file_inputs:
+                state.stage = "candidate-input"
+                self._remove_sync_file_inputs(sandbox, sync_file_inputs)
+                state.stage = "sync-core"
+        if result:
+            raise _CandidateError(
+                stage=state.stage,
+                issue_code=None,
+                returncode=result,
+                report_path=self._sync_report_path,
+            )
+        self._reject_unexpected_report(self._sync_report_path, stage=state.stage)
+
+    def _run_site_validators(
+        self,
+        state: _CandidateRunState,
+        sandbox: Path,
+        validators: tuple[tuple[str, ...], ...],
+        fingerprint: bytes,
+        environment: Mapping[str, str],
+    ) -> None:
+        """사이트 validator들을 실행하고 각 실행 뒤 후보 불변성 검증.
+
+        Args:
+            state: 갱신할 candidate 실행 상태.
+            sandbox: 후보 저장소.
+            validators: 정규 사이트 검증 명령 목록.
+            fingerprint: 검증 전 후보 fingerprint.
+            environment: validator 환경 변수.
+        """
+
+        state.stage = "site-validation"
+        for validator in validators:
+            result = self._child(
+                validator,
+                cwd=sandbox,
+                environment=environment,
+            )
+            self._require_unmutated(sandbox, fingerprint, state.stage)
+            if result:
+                raise _CandidateError(
+                    stage=state.stage,
+                    issue_code=IssueCode.SITE_VALIDATION_FAILED,
+                    returncode=result,
+                )
+
+    def _run_path_validator(
+        self,
+        state: _CandidateRunState,
+        sandbox: Path,
+        validator: tuple[str, ...],
+        fingerprint: bytes,
+        environment: Mapping[str, str],
+    ) -> None:
+        """경로 validator를 전용 실패 보고서 환경으로 실행.
+
+        Args:
+            state: 갱신할 candidate 실행 상태.
+            sandbox: 후보 저장소.
+            validator: 정규 경로 검증 명령.
+            fingerprint: 검증 전 후보 fingerprint.
+            environment: 공통 validator 환경 변수.
+        """
+
+        state.stage = "path-validation"
+        path_environment = dict(environment)
+        path_environment.update(
+            {
+                FAILURE_REPORT_ENV: str(self._path_report_path),
+                RUN_ID_ENV: self._run_id,
+            }
+        )
+        result = self._child(
+            validator,
+            cwd=sandbox,
+            environment=path_environment,
+        )
+        self._require_unmutated(sandbox, fingerprint, state.stage)
+        if result:
+            raise _CandidateError(
+                stage=state.stage,
+                issue_code=None,
+                returncode=result,
+                report_path=self._path_report_path,
+            )
+        self._reject_unexpected_report(self._path_report_path, stage=state.stage)
+
+    def _validate_candidate(
+        self,
+        state: _CandidateRunState,
+        sandbox: Path,
+        site_validators: tuple[tuple[str, ...], ...],
+        path_validator: tuple[str, ...],
+    ) -> None:
+        """후보 index를 고정하고 사이트·경로 validator와 정리 수행.
+
+        Args:
+            state: 갱신할 candidate 실행 상태.
+            sandbox: 후보 저장소.
+            site_validators: 사이트 검증 명령 목록.
+            path_validator: 경로 검증 명령.
+        """
+
+        state.stage = "candidate-index"
+        self._git(sandbox, "add", "-A")
+        fingerprint = self._source_fingerprint(sandbox, include_untracked=True)
+        environment = self._validator_environment()
+        self._run_site_validators(
+            state,
+            sandbox,
+            site_validators,
+            fingerprint,
+            environment,
+        )
+        self._run_path_validator(
+            state,
+            sandbox,
+            path_validator,
+            fingerprint,
+            environment,
+        )
+        state.stage = "candidate-cleanup"
+        self._git(sandbox, "clean", "-dffX")
+        self._require_unmutated(sandbox, fingerprint, state.stage)
+
+    def _sealed_result(
+        self,
+        state: _CandidateRunState,
+        sandbox: Path,
+    ) -> CandidateResult:
+        """검증된 후보 tree와 승인 기준 tree를 비교해 결과 봉인.
+
+        Args:
+            state: 갱신할 candidate 실행 상태.
+            sandbox: 검증 완료 후보 저장소.
+
+        Returns:
+            봉인된 tree 식별자와 변경 여부.
+        """
+
+        state.stage = "tree-seal"
+        verified_tree = self._git_text(sandbox, "write-tree")
+        base_tree = self._git_text(
+            sandbox,
+            "rev-parse",
+            "--verify",
+            f"{state.resolved_base}^{{tree}}",
+        )
+        return CandidateResult(
+            sandbox=sandbox,
+            base_commit=state.resolved_base,
+            verified_tree=verified_tree,
+            has_changes=verified_tree != base_tree,
+        )
+
+    def _execute_candidate(
+        self,
+        state: _CandidateRunState,
+        *,
+        base_commit: str,
+        setup_argvs: Sequence[Sequence[str]],
+        sync_core_argv: Sequence[str],
+        site_validator_argvs: Sequence[Sequence[str]],
+        path_validator_argv: Sequence[str],
+    ) -> CandidateResult:
+        """검증된 단계 메서드를 순서대로 실행해 candidate 봉인.
+
+        Args:
+            state: 갱신할 candidate 실행 상태.
+            base_commit: 승인 기준 Git commit ID.
+            setup_argvs: 후보 준비 명령 목록.
+            sync_core_argv: 번역 동기화 core 명령.
+            site_validator_argvs: 사이트 검증 명령 목록.
+            path_validator_argv: 출력 경로 검증 명령.
+
+        Returns:
+            성공한 봉인 candidate 결과.
+        """
+
+        commands = self._validated_commands(
+            base_commit=base_commit,
+            setup_argvs=setup_argvs,
+            sync_core_argv=sync_core_argv,
+            site_validator_argvs=site_validator_argvs,
+            path_validator_argv=path_validator_argv,
+        )
+        setup, sync_core, site_validators, path_validator, file_inputs = commands
+        sandbox = self._prepare_candidate(state, base_commit)
+        self._run_setup_phase(state, sandbox, setup)
+        self._run_sync_phase(state, sandbox, sync_core, file_inputs)
+        self._validate_candidate(
+            state,
+            sandbox,
+            site_validators,
+            path_validator,
+        )
+        return self._sealed_result(state, sandbox)
+
     def run(
         self,
         *,
@@ -156,191 +525,19 @@ class CandidateRunner:
     ) -> CandidateResult:
         """candidate 생성·검증과 Git이 무시하는 파일 정리 후 최종 tree 식별자 봉인."""
 
-        sandbox: Path | None = None
-        resolved_base: str | None = None
-        stage = "configuration"
-
+        state = _CandidateRunState()
         try:
-            setup_commands = tuple(
-                self._command_argv(command) for command in setup_argvs
-            )
-            sync_core = self._command_argv(sync_core_argv)
-            site_validators = tuple(
-                self._command_argv(command) for command in site_validator_argvs
-            )
-            path_validator = self._command_argv(path_validator_argv)
-            sync_file_inputs = self._validated_sync_file_inputs()
-            if not setup_commands or not site_validators:
-                raise _CandidateError(
-                    stage=stage,
-                    issue_code=IssueCode.REQUIRED_CONFIG_MISSING,
-                )
-            if not self._valid_oid(base_commit):
-                raise _CandidateError(
-                    stage=stage,
-                    issue_code=IssueCode.INVALID_RUNTIME_OPTION,
-                )
-            if not self._valid_run_id(self._run_id):
-                raise _CandidateError(
-                    stage=stage,
-                    issue_code=IssueCode.INVALID_RUNTIME_OPTION,
-                )
-            if (
-                self._artifact_root == self._source_repo
-                or self._artifact_root.is_relative_to(self._source_repo)
-            ):
-                raise _CandidateError(
-                    stage="sandbox",
-                    issue_code=IssueCode.SANDBOX_OPERATION_FAILED,
-                )
-            self._require_report_targets_absent()
-
-            stage = "approved-base"
-            resolved_base = self._resolve_base(base_commit)
-            stage = "sandbox"
-            sandbox = self._new_sandbox()
-            self._populate_clone(sandbox, resolved_base)
-
-            stage = "candidate-setup"
-            base_fingerprint = self._source_fingerprint(
-                sandbox,
-                include_untracked=False,
-            )
-            for setup_command in setup_commands:
-                self._require_unmutated(
-                    sandbox,
-                    base_fingerprint,
-                    stage,
-                    include_untracked=False,
-                )
-                setup_result = self._child(
-                    setup_command,
-                    cwd=sandbox,
-                    environment={"HUSKY": "0"},
-                )
-                self._require_unmutated(
-                    sandbox,
-                    base_fingerprint,
-                    stage,
-                    include_untracked=False,
-                )
-                if setup_result:
-                    raise _CandidateError(
-                        stage=stage,
-                        issue_code=IssueCode.RUNNER_OPERATION_FAILED,
-                        returncode=setup_result,
-                    )
-
-            staged_input_environment: dict[str, str] = {}
-            if sync_file_inputs:
-                stage = "candidate-input"
-                staged_input_environment = self._stage_sync_file_inputs(
-                    sandbox,
-                    sync_file_inputs,
-                )
-
-            stage = "sync-core"
-            sync_environment = dict(self._sync_environment)
-            sync_environment.update(staged_input_environment)
-            sync_environment.update(
-                {
-                    FAILURE_REPORT_ENV: str(self._sync_report_path),
-                    RUN_ID_ENV: self._run_id,
-                }
-            )
-            try:
-                sync_result = self._child(
-                    sync_core,
-                    cwd=sandbox,
-                    environment=sync_environment,
-                )
-            finally:
-                if sync_file_inputs:
-                    stage = "candidate-input"
-                    self._remove_sync_file_inputs(sandbox, sync_file_inputs)
-                    stage = "sync-core"
-            if sync_result:
-                raise _CandidateError(
-                    stage=stage,
-                    issue_code=None,
-                    returncode=sync_result,
-                    report_path=self._sync_report_path,
-                )
-            self._reject_unexpected_report(self._sync_report_path, stage=stage)
-
-            stage = "candidate-index"
-            self._git(sandbox, "add", "-A")
-            validated_fingerprint = self._source_fingerprint(
-                sandbox,
-                include_untracked=True,
-            )
-            validator_environment = self._validator_environment()
-
-            stage = "site-validation"
-            for validator in site_validators:
-                validation_result = self._child(
-                    validator,
-                    cwd=sandbox,
-                    environment=validator_environment,
-                )
-                self._require_unmutated(sandbox, validated_fingerprint, stage)
-                if validation_result:
-                    raise _CandidateError(
-                        stage=stage,
-                        issue_code=IssueCode.SITE_VALIDATION_FAILED,
-                        returncode=validation_result,
-                    )
-
-            stage = "path-validation"
-            path_environment = dict(validator_environment)
-            path_environment.update(
-                {
-                    FAILURE_REPORT_ENV: str(self._path_report_path),
-                    RUN_ID_ENV: self._run_id,
-                }
-            )
-            path_result = self._child(
-                path_validator,
-                cwd=sandbox,
-                environment=path_environment,
-            )
-            self._require_unmutated(sandbox, validated_fingerprint, stage)
-            if path_result:
-                raise _CandidateError(
-                    stage=stage,
-                    issue_code=None,
-                    returncode=path_result,
-                    report_path=self._path_report_path,
-                )
-            self._reject_unexpected_report(self._path_report_path, stage=stage)
-
-            stage = "candidate-cleanup"
-            self._git(sandbox, "clean", "-dffX")
-            self._require_unmutated(sandbox, validated_fingerprint, stage)
-
-            stage = "tree-seal"
-            verified_tree = self._git_text(sandbox, "write-tree")
-            base_tree = self._git_text(
-                sandbox,
-                "rev-parse",
-                "--verify",
-                f"{resolved_base}^{{tree}}",
-            )
-            if verified_tree == base_tree:
-                return CandidateResult(
-                    sandbox=sandbox,
-                    base_commit=resolved_base,
-                    verified_tree=verified_tree,
-                )
-            return CandidateResult(
-                sandbox=sandbox,
-                base_commit=resolved_base,
-                verified_tree=verified_tree,
-                has_changes=True,
+            return self._execute_candidate(
+                state,
+                base_commit=base_commit,
+                setup_argvs=setup_argvs,
+                sync_core_argv=sync_core_argv,
+                site_validator_argvs=site_validator_argvs,
+                path_validator_argv=path_validator_argv,
             )
         except _DeadlineExceeded:
             failure = CandidateFailure(
-                stage=stage,
+                stage=state.stage,
                 issue_code=IssueCode.WORKFLOW_DEADLINE_EXCEEDED,
             )
         except _CandidateError as exc:
@@ -348,35 +545,35 @@ class CandidateRunner:
         except _GitFailed as exc:
             issue_code = (
                 IssueCode.SANDBOX_OPERATION_FAILED
-                if stage in {"approved-base", "sandbox"}
+                if state.stage in {"approved-base", "sandbox"}
                 else IssueCode.RUNNER_OPERATION_FAILED
             )
             failure = CandidateFailure(
-                stage=stage,
+                stage=state.stage,
                 issue_code=issue_code,
                 returncode=exc.returncode,
             )
         except _ProcessStartFailed:
             failure = CandidateFailure(
-                stage=stage,
+                stage=state.stage,
                 issue_code=IssueCode.RUNNER_OPERATION_FAILED,
             )
         except OSError, ValueError:
             issue_code = (
                 IssueCode.SANDBOX_OPERATION_FAILED
-                if stage in {"approved-base", "sandbox"}
+                if state.stage in {"approved-base", "sandbox"}
                 else IssueCode.RUNNER_OPERATION_FAILED
             )
-            failure = CandidateFailure(stage=stage, issue_code=issue_code)
+            failure = CandidateFailure(stage=state.stage, issue_code=issue_code)
         except Exception:  # noqa: BLE001 - 예기치 않은 실패를 안정된 코드로 변환.
             failure = CandidateFailure(
-                stage=stage,
+                stage=state.stage,
                 issue_code=IssueCode.UNCLASSIFIED_INTERNAL,
             )
 
         return CandidateResult(
-            sandbox=sandbox,
-            base_commit=resolved_base,
+            sandbox=state.sandbox,
+            base_commit=state.resolved_base,
             failure=failure,
         )
 
@@ -479,6 +676,84 @@ class CandidateRunner:
             chunks.append(chunk)
 
     @classmethod
+    def _create_staged_input_files(
+        cls,
+        input_descriptor: int,
+        inputs: Mapping[str, bytes],
+        created_files: list[str],
+    ) -> None:
+        """검증된 candidate 입력 파일을 전용 디렉터리에 생성.
+
+        Args:
+            input_descriptor: 전용 입력 디렉터리 설명자.
+            inputs: 환경 변수 이름별 입력 바이트.
+
+            created_files: 생성 즉시 파일 이름을 기록할 목록.
+        """
+
+        for environment_name, contents in inputs.items():
+            filename = _SYNC_FILE_INPUT_PATHS[environment_name]
+            flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
+            if hasattr(os, "O_CLOEXEC"):
+                flags |= os.O_CLOEXEC
+            descriptor = os.open(
+                filename,
+                flags,
+                mode=0,
+                dir_fd=input_descriptor,
+            )
+            created_files.append(filename)
+            try:
+                cls._write_all(descriptor, contents)
+                os.fchmod(descriptor, 0o400)
+                os.fsync(descriptor)
+            finally:
+                os.close(descriptor)
+
+    @staticmethod
+    def _remove_created_input_files(
+        input_descriptor: int,
+        filenames: Sequence[str],
+    ) -> None:
+        """부분 생성된 candidate 입력 파일을 최선 노력으로 제거.
+
+        Args:
+            input_descriptor: 전용 입력 디렉터리 설명자.
+            filenames: 제거할 생성 파일 이름 목록.
+        """
+
+        for filename in filenames:
+            try:
+                os.unlink(filename, dir_fd=input_descriptor)
+            except OSError:
+                pass
+
+    @staticmethod
+    def _staged_input_environment(
+        sandbox: Path,
+        inputs: Mapping[str, bytes],
+    ) -> dict[str, str]:
+        """적재된 candidate 파일 입력의 절대 환경 변수 mapping 구성.
+
+        Args:
+            sandbox: 후보 저장소 경로.
+            inputs: 환경 변수 이름별 입력 바이트.
+
+        Returns:
+            환경 변수 이름별 적재 파일 절대 경로.
+        """
+
+        return {
+            environment_name: str(
+                sandbox
+                / ".git"
+                / _SYNC_INPUT_DIRECTORY
+                / _SYNC_FILE_INPUT_PATHS[environment_name]
+            )
+            for environment_name in inputs
+        }
+
+    @classmethod
     def _stage_sync_file_inputs(
         cls,
         sandbox: Path,
@@ -502,41 +777,16 @@ class CandidateRunner:
                 cls._directory_open_flags(),
                 dir_fd=git_descriptor,
             )
-            for environment_name, contents in inputs.items():
-                filename = _SYNC_FILE_INPUT_PATHS[environment_name]
-                flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
-                if hasattr(os, "O_CLOEXEC"):
-                    flags |= os.O_CLOEXEC
-                descriptor = os.open(
-                    filename,
-                    flags,
-                    mode=0,
-                    dir_fd=input_descriptor,
-                )
-                created_files.append(filename)
-                try:
-                    cls._write_all(descriptor, contents)
-                    os.fchmod(descriptor, 0o400)
-                    os.fsync(descriptor)
-                finally:
-                    os.close(descriptor)
+            cls._create_staged_input_files(
+                input_descriptor,
+                inputs,
+                created_files,
+            )
             os.fsync(input_descriptor)
-            return {
-                environment_name: str(
-                    sandbox
-                    / ".git"
-                    / _SYNC_INPUT_DIRECTORY
-                    / _SYNC_FILE_INPUT_PATHS[environment_name]
-                )
-                for environment_name in inputs
-            }
+            return cls._staged_input_environment(sandbox, inputs)
         except BaseException:
             if input_descriptor >= 0:
-                for filename in created_files:
-                    try:
-                        os.unlink(filename, dir_fd=input_descriptor)
-                    except OSError:
-                        pass
+                cls._remove_created_input_files(input_descriptor, created_files)
             if created_directory:
                 try:
                     os.rmdir(_SYNC_INPUT_DIRECTORY, dir_fd=git_descriptor)
