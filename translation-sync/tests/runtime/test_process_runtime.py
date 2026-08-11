@@ -334,6 +334,62 @@ class ProcessTreeRunnerTest(unittest.TestCase):
         kill_group.assert_called_once_with(process.pid)
         process.wait.assert_called_once_with(timeout=0.0)
 
+    def test_cleanup_waits_until_the_process_group_disappears(self) -> None:
+        """직접 자식 회수 뒤 전체 프로세스 그룹 소멸까지 확인하는지 검증."""
+
+        process = MagicMock(pid=123)
+        process.poll.return_value = 0
+
+        with patch.object(
+            process_runtime,
+            "_kill_process_group",
+            return_value=True,
+        ), patch.object(
+            process_runtime,
+            "_process_group_alive",
+            side_effect=[True, False],
+        ) as group_alive, patch.object(
+            process_runtime.time,
+            "monotonic",
+            return_value=0.0,
+        ), patch.object(process_runtime.time, "sleep") as sleep:
+            process_runtime._terminate_process_group(
+                process,
+                drain_pipes=False,
+            )
+
+        self.assertEqual(group_alive.call_count, 2)
+        sleep.assert_called_once_with(
+            process_runtime._CLEANUP_POLL_INTERVAL_SECONDS
+        )
+
+    def test_cleanup_rejects_a_process_group_that_does_not_disappear(self) -> None:
+        """정리 기한 뒤 남은 프로세스 그룹을 성공으로 보고하지 않는지 검증."""
+
+        process = MagicMock(pid=123)
+        process.poll.return_value = 0
+
+        with patch.object(
+            process_runtime,
+            "_kill_process_group",
+            return_value=True,
+        ), patch.object(
+            process_runtime,
+            "_process_group_alive",
+            return_value=True,
+        ), patch.object(
+            process_runtime.time,
+            "monotonic",
+            side_effect=[0.0, 0.0, 6.0],
+        ), self.assertRaisesRegex(
+            process_runtime.ProcessTreeCleanupError,
+            "cleanup could not be fully verified",
+        ):
+            process_runtime._terminate_process_group(
+                process,
+                drain_pipes=False,
+            )
+
     def test_process_group_kill_reports_whether_signal_was_accepted(self) -> None:
         """프로세스 그룹 종료 신호의 수락 여부를 보고하는지 검증."""
 

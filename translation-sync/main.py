@@ -33,6 +33,17 @@ from sync import (
 )
 from sync.common import stale_links
 from sync.common.files import atomic_write_bytes, atomic_write_text, unlink_file
+from sync.runtime.failure import (
+    ErrorClassification,
+    ExitCode,
+    FailureEvent,
+    FailureReport,
+    IssueCode,
+    ProviderAttempts,
+    classification_for,
+    final_exit_code,
+    write_failure_report_exact,
+)
 from sync.verification import document as document_verification
 
 SYNC_ROOT = Path(__file__).resolve().parent
@@ -49,6 +60,8 @@ PRESERVED_MARKUP_FIXABLE = {
 }
 MAX_SEGMENT_VERIFICATION_ATTEMPTS = translate.MAX_COMPLETED_RESPONSE_ATTEMPTS
 _MISSING_PARTIAL_TRANSLATION = "missing existing translation for partial sync"
+FAILURE_REPORT_ENV = "TRANSLATION_FAILURE_REPORT"
+RUN_ID_ENV = "TRANSLATION_RUN_ID"
 
 
 class OutputPathError(ValueError):
@@ -81,6 +94,178 @@ class _PreparedTranslationTarget:
     state: patch_utils.PlanState
     placeholders: Mapping[str, str]
     block_requests: Mapping[int, _PreparedBlockTranslation]
+
+
+def _provider_issue_code(exc: translate.IncompleteTranslation) -> IssueCode:
+    """번역 provider 예외를 안정된 문제 코드로 변환."""
+
+    if isinstance(exc, translate.RunDeadlineExceeded):
+        return IssueCode.RUN_DEADLINE_EXCEEDED
+    if isinstance(exc, translate.UnsupportedOversizeBlock):
+        return IssueCode.UNSUPPORTED_OVERSIZE_BLOCK
+    if isinstance(exc, translate.ProviderTransientExhausted):
+        return IssueCode.PROVIDER_TRANSIENT_EXHAUSTED
+    if isinstance(exc, translate.CliProviderFailed):
+        return IssueCode.CLI_PROVIDER_FAILED
+    if isinstance(exc, translate.ProviderPartialResponse):
+        return IssueCode.PROVIDER_PARTIAL_RESPONSE
+    if str(exc).startswith("provider response contract failed"):
+        return IssueCode.RESPONSE_CONTRACT_FAILED
+    return IssueCode.PROVIDER_REQUEST_REJECTED
+
+
+def _finish_sync_failures(
+    failures: list[FailureEvent],
+    *,
+    environment: Mapping[str, str] | None = None,
+) -> int:
+    """선택적 하위 실패 보고서를 기록하고 공통 종료 코드 반환."""
+
+    runtime_environment = os.environ if environment is None else environment
+    report_value = runtime_environment.get(FAILURE_REPORT_ENV, "").strip()
+    run_id = runtime_environment.get(RUN_ID_ENV, "").strip()
+    if not report_value and not run_id:
+        return int(final_exit_code(failures))
+    if not report_value or not run_id:
+        print(
+            "REPORT_WRITE_FAILED: sync failure report configuration is incomplete",
+            file=sys.stderr,
+        )
+        return int(ExitCode.INFRASTRUCTURE_FAILURE)
+    try:
+        report = FailureReport.build(run_id=run_id, failures=failures)
+    except (TypeError, ValueError):
+        print(
+            "REPORT_WRITE_FAILED: sync failure report could not be built",
+            file=sys.stderr,
+        )
+        return int(ExitCode.INFRASTRUCTURE_FAILURE)
+    if (
+        write_failure_report_exact(
+            report,
+            target=Path(report_value),
+            stderr=sys.stderr,
+        )
+        is None
+    ):
+        return int(ExitCode.INFRASTRUCTURE_FAILURE)
+    return int(final_exit_code(failures))
+
+
+def _sync_failure(
+    code: IssueCode,
+    *,
+    stage: str,
+    message: str,
+    version: str | None = None,
+    locale: str | None = None,
+    document: str | None = None,
+    structural_address: str | None = None,
+    attempts: ProviderAttempts | None = None,
+) -> int:
+    """단일 sync 실패를 구조화된 종료 결과로 변환."""
+
+    return _finish_sync_failures(
+        [
+            FailureEvent(
+                code=code,
+                stage=stage,
+                message=message,
+                version=version,
+                locale=locale,
+                document=document,
+                structural_address=structural_address,
+                attempts=attempts,
+            )
+        ]
+    )
+
+
+def _diagnostic_issue_code(message: str, fallback: IssueCode) -> IssueCode:
+    """진단 문자열의 명시적 안정 코드를 읽거나 기본값 반환."""
+
+    prefix = message.split(": ", 1)[0]
+    try:
+        return IssueCode(prefix)
+    except ValueError:
+        pass
+    for code in IssueCode:
+        if f"[{code.value}]" in message:
+            return code
+    return fallback
+
+
+def _diagnostic_failure_event(
+    message: str,
+    *,
+    stage: str,
+    fallback: IssueCode,
+) -> FailureEvent:
+    """진단 문자열을 provider 시도 계약까지 충족하는 실패 이벤트로 변환."""
+
+    code = _diagnostic_issue_code(message, fallback)
+    attempts = (
+        ProviderAttempts(response_evaluation=0, transport=0)
+        if classification_for(code) is ErrorClassification.TRANSLATION
+        else None
+    )
+    return FailureEvent(
+        code=code,
+        stage=stage,
+        message=message,
+        attempts=attempts,
+    )
+
+
+def _translation_failure_events(
+    issues: list[str],
+    *,
+    attempt_counter: translate.ProviderAttemptCounter,
+    change: diff.SourceChange,
+    locale: str,
+) -> list[FailureEvent]:
+    """문서 번역 진단을 구조 문맥과 시도 횟수가 있는 이벤트로 변환."""
+
+    events: list[FailureEvent] = []
+    for issue in issues:
+        code = _diagnostic_issue_code(
+            issue,
+            IssueCode.SOURCE_STRUCTURE_MISMATCH,
+        )
+        structural_address = None
+        message = issue
+        parts = issue.split(": ", 2)
+        if len(parts) == 3 and parts[0] == code.value:
+            structural_address = parts[1]
+            message = parts[2]
+        marker = f" [{code.value}]"
+        message = message.removesuffix(marker)
+        attempts = None
+        if classification_for(code) is ErrorClassification.TRANSLATION:
+            attempts = ProviderAttempts(
+                response_evaluation=attempt_counter.response_evaluation,
+                transport=attempt_counter.transport,
+            )
+        classification = classification_for(code)
+        if classification is ErrorClassification.TRANSLATION:
+            stage = "translation-provider"
+        elif classification is ErrorClassification.VERIFICATION:
+            stage = "document-verification"
+        else:
+            stage = "translation"
+        events.append(
+            FailureEvent(
+                code=code,
+                stage=stage,
+                message=message,
+                version=change.version,
+                locale=locale,
+                document=change.path,
+                structural_address=structural_address,
+                attempts=attempts,
+            )
+        )
+    return events
 
 
 def _validated_output_path(path: Path) -> Path:
@@ -254,16 +439,30 @@ def _preflight_exception_issue(exc: Exception) -> str:
     """
 
     if isinstance(exc, OutputPathError):
-        return str(exc)
+        return f"{exc} [{IssueCode.OUTPUT_PATH_FORBIDDEN.value}]"
     if isinstance(exc, config.ConfigError):
         return _translation_config_issue(exc)
     if isinstance(exc, patch_utils.PatchError):
-        return f"patch preflight failed: {exc}"
+        return (
+            f"patch preflight failed: {exc} "
+            f"[{IssueCode.PATCH_LOCATION_AMBIGUOUS.value}]"
+        )
+    if isinstance(exc, translate.IncompleteTranslation):
+        return f"translation preflight failed: {exc} [{_provider_issue_code(exc).value}]"
     if isinstance(exc, UnicodeDecodeError):
-        return f"translation input is not UTF-8: {exc}"
+        return (
+            f"translation input is not UTF-8: {exc} "
+            f"[{IssueCode.VERIFICATION_INPUT_CHANGED.value}]"
+        )
     if isinstance(exc, OSError):
-        return f"translation input read failed: {exc}"
-    return f"translation preflight failed: {exc}"
+        return (
+            f"translation input read failed: {exc} "
+            f"[{IssueCode.RUNNER_OPERATION_FAILED.value}]"
+        )
+    return (
+        f"translation preflight failed: {exc} "
+        f"[{IssueCode.INVALID_RUNTIME_OPTION.value}]"
+    )
 
 
 def _sidebar_versions(changes: list[diff.SourceChange], version: str | None) -> list[str]:
@@ -509,6 +708,7 @@ def _translate_added_document(
     locale: str | None = None,
     deadline: float | None = None,
     prepared_target: _PreparedTranslationTarget | None = None,
+    attempt_counter: translate.ProviderAttemptCounter | None = None,
 ) -> list[str]:
     """추가된 문서 번역."""
 
@@ -529,6 +729,7 @@ def _translate_added_document(
             prompt,
             locale=locale,
             deadline=deadline,
+            attempt_counter=attempt_counter,
         )
         if contract_issue is not None:
             return [contract_issue]
@@ -571,6 +772,7 @@ def _translate_create_blocks(
     *,
     locale: str | None,
     deadline: float | None,
+    attempt_counter: translate.ProviderAttemptCounter | None,
 ) -> tuple[list[str], str | None]:
     """신규 문서의 provider 필요 owner 블록 번역.
 
@@ -597,6 +799,7 @@ def _translate_create_blocks(
             prompt,
             locale=locale,
             deadline=deadline,
+            attempt_counter=attempt_counter,
         )
         if issue is not None:
             return translated, issue
@@ -613,6 +816,7 @@ def _translate_create_owner(
     *,
     locale: str | None,
     deadline: float | None,
+    attempt_counter: translate.ProviderAttemptCounter | None,
 ) -> tuple[str | None, str | None]:
     """신규 owner 블록을 응답 계약 feedback과 함께 번역.
 
@@ -641,7 +845,10 @@ def _translate_create_owner(
             cfg,
             prompt,
             deadline=deadline,
+            attempt_counter=attempt_counter,
         )
+        if attempt_counter is not None:
+            attempt_counter.record_response_evaluation()
         issues = _contract_issues(translated, source, cfg, change, locale)
         translate.require_run_deadline(deadline)
         if not issues:
@@ -654,7 +861,12 @@ def _translate_create_owner(
         if attempt + 1 >= MAX_SEGMENT_VERIFICATION_ATTEMPTS or not retryable:
             break
         feedback = _verification_feedback(issues)
-    return None, "provider response contract failed: " + ", ".join(issues)
+    return (
+        None,
+        "provider response contract failed: "
+        + ", ".join(issues)
+        + f" [{IssueCode.RESPONSE_CONTRACT_FAILED.value}]",
+    )
 
 
 def _translation_exception_issue(exc: Exception, *, phase: str) -> str:
@@ -669,19 +881,31 @@ def _translation_exception_issue(exc: Exception, *, phase: str) -> str:
     """
 
     if isinstance(exc, OutputPathError):
-        return str(exc)
+        return f"{exc} [{IssueCode.OUTPUT_PATH_FORBIDDEN.value}]"
     if isinstance(exc, config.ConfigError):
         return _translation_config_issue(exc)
     if isinstance(exc, patch_utils.PatchError):
-        return f"{phase} patch failed: {exc}"
+        return (
+            f"{phase} patch failed: {exc} "
+            f"[{IssueCode.PATCH_LOCATION_AMBIGUOUS.value}]"
+        )
     if isinstance(exc, translate.IncompleteTranslation):
         prefix = "incomplete translation" if phase == "create" else "partial translation failed"
-        return f"{prefix}: {exc}"
+        return f"{prefix}: {exc} [{_provider_issue_code(exc).value}]"
     if isinstance(exc, UnicodeDecodeError):
-        return f"{phase} translation input is not UTF-8: {exc}"
+        return (
+            f"{phase} translation input is not UTF-8: {exc} "
+            f"[{IssueCode.VERIFICATION_INPUT_CHANGED.value}]"
+        )
     if isinstance(exc, OSError):
-        return f"{phase} translation input read failed: {exc}"
-    return f"{phase} translation input failed: {exc}"
+        return (
+            f"{phase} translation input read failed: {exc} "
+            f"[{IssueCode.RUNNER_OPERATION_FAILED.value}]"
+        )
+    return (
+        f"{phase} translation input failed: {exc} "
+        f"[{IssueCode.VERIFICATION_INPUT_CHANGED.value}]"
+    )
 
 
 def _prepare_block_translation(
@@ -760,6 +984,7 @@ def _translate_block_change(
     deadline: float | None = None,
     placeholders: Mapping[str, str] | None = None,
     prepared: _PreparedBlockTranslation | None = None,
+    attempt_counter: translate.ProviderAttemptCounter | None = None,
 ) -> str:
     """변경된 블록 번역."""
 
@@ -786,7 +1011,10 @@ def _translate_block_change(
             cfg,
             prompt,
             deadline=deadline,
+            attempt_counter=attempt_counter,
         )
+        if attempt_counter is not None:
+            attempt_counter.record_response_evaluation()
         contract_issues = _contract_issues(
             translated,
             prepared.request_source,
@@ -1269,12 +1497,22 @@ def _verify_and_admit_document(
             canonicalize=canonicalize,
         )
     except (UnicodeDecodeError, ValueError, stale_links.StaleLinkRegistryError) as exc:
-        return [f"document verification input failed: {exc}"]
+        return [
+            (
+                "document verification input failed: "
+                f"{exc} [{IssueCode.VERIFICATION_INPUT_CHANGED.value}]"
+            )
+        ]
     issues = _document_verification_issues(result)
     if issues:
         return issues
     if result.artifact is None:
-        return ["document verification produced no verified locale artifact"]
+        return [
+            (
+                "document verification produced no verified locale artifact "
+                f"[{IssueCode.UNCLASSIFIED_INTERNAL.value}]"
+            )
+        ]
     if write:
         dest.parent.mkdir(parents=True, exist_ok=True)
         atomic_write_bytes(dest, result.artifact.locale_bytes)
@@ -1290,6 +1528,7 @@ def _translate_one(
     locale: str | None = None,
     deadline: float | None = None,
     prepared_target: _PreparedTranslationTarget | None = None,
+    attempt_counter: translate.ProviderAttemptCounter | None = None,
 ) -> list[str]:
     """원문 한 건을 한 로케일로 번역·후처리·검증·기록하고 위반 목록 반환."""
     if change.status == "A":
@@ -1301,6 +1540,7 @@ def _translate_one(
             locale=locale,
             deadline=deadline,
             prepared_target=prepared_target,
+            attempt_counter=attempt_counter,
         )
     try:
         result = _translate_partial_document(
@@ -1311,6 +1551,7 @@ def _translate_one(
             locale=locale,
             deadline=deadline,
             prepared_target=prepared_target,
+            attempt_counter=attempt_counter,
         )
     except (
         OutputPathError,
@@ -1349,6 +1590,7 @@ def _translate_partial_document(
     locale: str | None,
     deadline: float | None,
     prepared_target: _PreparedTranslationTarget | None,
+    attempt_counter: translate.ProviderAttemptCounter | None,
 ) -> tuple[Path, _PreparedTranslationTarget, str, str] | list[str]:
     """부분 변경의 계획 상태 확인과 번역·patch·후처리 수행.
 
@@ -1367,9 +1609,16 @@ def _translate_partial_document(
 
     dest = _validated_output_path(dest)
     if not dest.exists():
-        return [_MISSING_PARTIAL_TRANSLATION]
+        return [
+            f"{_MISSING_PARTIAL_TRANSLATION} [{IssueCode.FILE_STATE_CONFLICT.value}]"
+        ]
     if not change.hunks:
-        return ["missing diff hunks for partial sync"]
+        return [
+            (
+                "missing diff hunks for partial sync "
+                f"[{IssueCode.RAW_DIFF_MISSING.value}]"
+            )
+        ]
     target = prepared_target or _prepare_translation_target(
         change,
         cfg,
@@ -1404,6 +1653,7 @@ def _translate_partial_document(
         existing,
         locale=locale,
         deadline=deadline,
+        attempt_counter=attempt_counter,
     )
     out = patch_utils.apply_plan(existing, target.plan, translated_blocks)
     out = postprocess.postprocess(out, change.version, target.placeholders)
@@ -1451,6 +1701,7 @@ def _translated_plan_blocks(
     *,
     locale: str | None,
     deadline: float | None,
+    attempt_counter: translate.ProviderAttemptCounter | None,
 ) -> list[str]:
     """부분 patch 계획에서 번역이 필요한 block 결과 생성.
 
@@ -1491,6 +1742,7 @@ def _translated_plan_blocks(
                 deadline=deadline,
                 placeholders=target.placeholders,
                 prepared=target.block_requests.get(id(block_change)),
+                attempt_counter=attempt_counter,
             )
         )
     return translated
@@ -1902,37 +2154,71 @@ def main() -> int:
         cfg = config.load_config()
     except config.ConfigError as exc:
         print(f"configuration failed: {exc}", file=sys.stderr)
-        return 1
+        return _sync_failure(
+            exc.issue_code,
+            stage="configuration",
+            message=str(exc),
+        )
 
     try:
         prompts = _load_prompts()
     except prompt.PromptError as exc:
         print(f"prompt loading failed: {exc}", file=sys.stderr)
-        return 1
+        return _sync_failure(
+            IssueCode.REQUIRED_CONFIG_MISSING,
+            stage="configuration",
+            message=str(exc),
+        )
     try:
         run_deadline = config.required_run_deadline(cfg)
     except config.ConfigError as exc:
         print(f"configuration failed: {exc}", file=sys.stderr)
-        return 1
+        return _sync_failure(
+            exc.issue_code,
+            stage="configuration",
+            message=str(exc),
+        )
 
     # 2. 원문 동기화 (i18n/en 적재)
-    if upstream.main(version=version, doc=doc) != 0:
+    upstream_exit = upstream.main(version=version, doc=doc)
+    if upstream_exit != 0:
         print("upstream sync failed", file=sys.stderr)
-        return 1
+        return _sync_failure(
+            (
+                IssueCode.INVALID_MANIFEST
+                if upstream_exit == int(ExitCode.CONTROLLED_FAILURE)
+                else IssueCode.RUNNER_OPERATION_FAILED
+            ),
+            stage="source-sync",
+            message="upstream source synchronization failed",
+        )
 
     # 3. 변경 감지
     try:
         changes = _select_changes(version=version, doc=doc)
     except (SourcePathError, diff.SourceDiffError) as exc:
         print(f"source diff failed: {exc}", file=sys.stderr)
-        return 1
+        return _sync_failure(
+            IssueCode.RAW_DIFF_MISSING,
+            stage="source-diff",
+            message=str(exc),
+        )
     if not changes:
         sidebar_failures = _sync_sidebars(_sidebar_versions([], version))
         for failure in sidebar_failures:
             print(f"sidebar sync failed: {failure}", file=sys.stderr)
         if sidebar_failures:
             print(f"{len(sidebar_failures)} sidebar sync failure(s)", file=sys.stderr)
-            return 1
+            return _finish_sync_failures(
+                [
+                    FailureEvent(
+                        code=IssueCode.SIDEBAR_CONTENT_MISMATCH,
+                        stage="sidebar",
+                        message=failure,
+                    )
+                    for failure in sidebar_failures
+                ]
+            )
         print("no source changes to translate")
         return 0
 
@@ -1940,7 +2226,16 @@ def main() -> int:
     if state_issues:
         for issue in state_issues:
             print(f"file state failed: {issue}", file=sys.stderr)
-        return 1
+        return _finish_sync_failures(
+            [
+                FailureEvent(
+                    code=IssueCode.FILE_STATE_CONFLICT,
+                    stage="translation-input",
+                    message=issue,
+                )
+                for issue in state_issues
+            ]
+        )
 
     prepared_targets, preflight_issues = _preflight_all_translation_targets(
         changes,
@@ -1950,16 +2245,31 @@ def main() -> int:
     if preflight_issues:
         for issue in preflight_issues:
             print(f"translation preflight failed: {issue}", file=sys.stderr)
-        return 1
+        return _finish_sync_failures(
+            [
+                _diagnostic_failure_event(
+                    issue,
+                    stage="translation-preflight",
+                    fallback=IssueCode.UNSUPPORTED_CHANGE_UNIT,
+                )
+                for issue in preflight_issues
+            ]
+        )
 
     # 4. 변경 문서: ko·ja 각각 전처리 → 번역 → 후처리 → 검증 → 출력
     for change in changes:
         if change.status == "D":
             issues = _delete_outputs(change)
             if issues:
-                failure = f"{change.path}: {', '.join(issues)}"
-                print(f"delete failed: {failure}", file=sys.stderr, flush=True)
-                return 1
+                message = f"{change.path}: {', '.join(issues)}"
+                print(f"delete failed: {message}", file=sys.stderr, flush=True)
+                return _sync_failure(
+                    IssueCode.OUTPUT_PATH_FORBIDDEN,
+                    stage="translation-delete",
+                    message=message,
+                    version=change.version,
+                    document=change.path,
+                )
             continue
 
         for locale, locale_prompt, dest in (
@@ -1967,6 +2277,7 @@ def main() -> int:
             ("ja", prompts["ja"], _ja_output(change)),
         ):
             print(f"translating: {locale} {change.path}", file=sys.stderr, flush=True)
+            attempt_counter = translate.ProviderAttemptCounter()
             issues = _translate_one(
                 change,
                 cfg,
@@ -1975,23 +2286,39 @@ def main() -> int:
                 locale=locale,
                 deadline=run_deadline,
                 prepared_target=prepared_targets[(change.path, locale)],
+                attempt_counter=attempt_counter,
             )
             if issues:
-                failure = f"{locale} {change.path}: {', '.join(issues)}"
                 print(
                     f"verify failed: {locale} {change.path}: {issues}",
                     file=sys.stderr,
                     flush=True,
                 )
                 print("stopping after first verification failure", file=sys.stderr, flush=True)
-                return 1
+                return _finish_sync_failures(
+                    _translation_failure_events(
+                        issues,
+                        attempt_counter=attempt_counter,
+                        change=change,
+                        locale=locale,
+                    )
+                )
 
     sidebar_failures = _sync_sidebars(_sidebar_versions(changes, version))
     for failure in sidebar_failures:
         print(f"sidebar sync failed: {failure}", file=sys.stderr)
     if sidebar_failures:
         print(f"{len(sidebar_failures)} sidebar sync failure(s)", file=sys.stderr)
-        return 1
+        return _finish_sync_failures(
+            [
+                FailureEvent(
+                    code=IssueCode.SIDEBAR_CONTENT_MISMATCH,
+                    stage="sidebar",
+                    message=failure,
+                )
+                for failure in sidebar_failures
+            ]
+        )
 
     print(f"translated {len(changes)} doc(s) into ko, ja")
     return 0

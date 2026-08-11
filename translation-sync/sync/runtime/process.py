@@ -18,6 +18,7 @@ from typing import Any
 
 
 _CLEANUP_TIMEOUT_SECONDS = 5.0
+_CLEANUP_POLL_INTERVAL_SECONDS = 0.01
 _INVALID_TIMEOUT = "timeout must be a non-negative finite number"
 
 
@@ -111,6 +112,26 @@ def _cleanup_error(failures: list[BaseException]) -> ProcessTreeCleanupError:
     return error
 
 
+def _wait_for_process_group_exit(process_group: int, deadline: float) -> None:
+    """정리 기한 안에 프로세스 그룹이 사라졌는지 확인.
+
+    Args:
+        process_group: 확인할 프로세스 그룹 ID.
+        deadline: 정리를 마쳐야 하는 단조 시계 시각.
+
+    Raises:
+        ProcessTreeCleanupError: 기한 안에 그룹 소멸을 확인하지 못한 경우.
+    """
+
+    while _process_group_alive(process_group):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise ProcessTreeCleanupError(
+                "the process group remained after termination"
+            )
+        time.sleep(min(_CLEANUP_POLL_INTERVAL_SECONDS, remaining))
+
+
 def _terminate_process_group(
     process: subprocess.Popen[Any],
     *,
@@ -156,6 +177,10 @@ def _terminate_process_group(
         failures.append(
             ProcessTreeCleanupError("the direct child was not reaped")
         )
+    try:
+        _wait_for_process_group_exit(process.pid, cleanup_deadline)
+    except ProcessTreeCleanupError as exc:
+        failures.append(exc)
     if failures:
         raise _cleanup_error(failures)
     return stdout, stderr

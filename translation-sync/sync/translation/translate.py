@@ -144,14 +144,20 @@ class RunDeadlineExceeded(IncompleteTranslation):
 
 @dataclass
 class ProviderAttemptCounter:
-    """단일 fixture 또는 block에서 수행한 물리 adapter 호출 횟수."""
+    """단일 fixture 또는 문서에서 수행한 provider 시도 횟수."""
 
     transport: int = 0
+    response_evaluation: int = 0
 
     def record_transport(self) -> None:
         """물리 provider adapter 호출 횟수 증가."""
 
         self.transport += 1
+
+    def record_response_evaluation(self) -> None:
+        """완료된 provider 응답의 계약 평가 횟수 증가."""
+
+        self.response_evaluation += 1
 
 
 def verification_feedback(issues: list[str]) -> str:

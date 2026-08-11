@@ -1,6 +1,7 @@
 """주 번역 파이프라인의 동작과 경계 조건 검증."""
 
 import io
+import json
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -786,7 +787,7 @@ class MainPipelineTests(unittest.TestCase):
             deadline_check.assert_called_once_with(10.0)
             self.assertEqual(
                 issues,
-                ["incomplete translation: deadline expired"],
+                ["incomplete translation: deadline expired [RUN_DEADLINE_EXCEEDED]"],
             )
             self.assertFalse(dest.exists())
 
@@ -1796,8 +1797,10 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(
                 issues,
                 [
-                    "partial patch failed: existing document matches neither "
-                    "source nor target plan state"
+                    (
+                        "partial patch failed: existing document matches neither "
+                        "source nor target plan state [PATCH_LOCATION_AMBIGUOUS]"
+                    )
                 ],
             )
             self.assertEqual(
@@ -1851,8 +1854,10 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(
                 issues,
                 [
-                    "partial patch failed: existing document matches neither "
-                    "source nor target plan state"
+                    (
+                        "partial patch failed: existing document matches neither "
+                        "source nor target plan state [PATCH_LOCATION_AMBIGUOUS]"
+                    )
                 ],
             )
             self.assertEqual(dest.read_text(encoding="utf-8"), existing)
@@ -2887,7 +2892,10 @@ class MainPipelineTests(unittest.TestCase):
             ):
                 issues = main._translate_one(change, cfg, "prompt", dest)
 
-            self.assertEqual(issues, ["missing diff hunks for partial sync"])
+            self.assertEqual(
+                issues,
+                ["missing diff hunks for partial sync [RAW_DIFF_MISSING]"],
+            )
             self.assertEqual(dest.read_text(encoding="utf-8"), "# 기존 문서\n")
 
     def test_translate_one_renders_new_document_headings_without_provider(self):
@@ -3181,7 +3189,11 @@ class MainPipelineTests(unittest.TestCase):
             self.assertTrue(dest.is_symlink())
             self.assertEqual(
                 issues,
-                ["unsafe translation output path: " + str(dest)],
+                [
+                    "unsafe translation output path: "
+                    + str(dest)
+                    + " [OUTPUT_PATH_FORBIDDEN]"
+                ],
             )
 
     def test_added_document_rejects_an_existing_hardlinked_destination(self):
@@ -3218,8 +3230,10 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(
                 issues,
                 [
-                    "create patch failed: create plan requires an absent "
-                    "locale destination"
+                    (
+                        "create patch failed: create plan requires an absent "
+                        "locale destination [PATCH_LOCATION_AMBIGUOUS]"
+                    )
                 ],
             )
             self.assertEqual(victim.read_text(encoding="utf-8"), "external\n")
@@ -4067,11 +4081,13 @@ class MainPipelineTests(unittest.TestCase):
             locale=None,
             deadline=None,
             prepared_target=None,
+            attempt_counter=None,
         ):
             """단일 로케일 번역 실패 반환."""
 
             self.assertIn(locale, ("ko", "ja"))
             self.assertIsNone(deadline)
+            self.assertIsNotNone(attempt_counter)
             calls.append(str(dest))
             return ["heading mismatch"]
 
@@ -4106,6 +4122,102 @@ class MainPipelineTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertEqual(len(calls), 1)
+
+    def test_main_writes_provider_failure_report_with_attempt_context(self):
+        """sync-core provider 실패의 정규 보고서와 시도 문맥 기록 검증."""
+
+        change = diff.SourceChange(
+            path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+            status="M",
+        )
+
+        def translate_one(
+            change,
+            cfg,
+            prompt,
+            dest,
+            *,
+            locale=None,
+            deadline=None,
+            prepared_target=None,
+            attempt_counter=None,
+        ):
+            """provider 응답 계약 실패와 누적 시도 횟수 기록."""
+
+            self.assertIsNotNone(attempt_counter)
+            attempt_counter.transport = 3
+            attempt_counter.response_evaluation = 2
+            return [
+                (
+                    "provider response contract failed: heading mismatch "
+                    "[RESPONSE_CONTRACT_FAILED]"
+                )
+            ]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            report_path = Path(tmp).resolve() / "sync-failure.json"
+            with patch.dict(
+                main.os.environ,
+                {
+                    main.FAILURE_REPORT_ENV: str(report_path),
+                    main.RUN_ID_ENV: "candidate-run-1",
+                },
+            ), patch.object(
+                main.sys, "argv", ["main.py"]
+            ), patch.object(
+                main.upstream, "main", return_value=0
+            ), patch.object(
+                main.diff, "changed_sources", return_value=[change]
+            ), patch.object(
+                main.config,
+                "load_config",
+                return_value=config.Config(
+                    provider="cli", values={"TRANSLATION_PROVIDER": "cli"}
+                ),
+            ), patch.object(
+                main, "_load_prompts", return_value={"ko": "ko prompt", "ja": "ja prompt"}
+            ), patch.object(
+                main, "_validate_file_states", return_value=[]
+            ), patch.object(
+                main,
+                "_preflight_all_translation_targets",
+                return_value=(
+                    {
+                        (change.path, "ko"): object(),
+                        (change.path, "ja"): object(),
+                    },
+                    [],
+                ),
+            ), patch.object(
+                main, "_translate_one", side_effect=translate_one
+            ):
+                exit_code = main.main()
+
+            raw = report_path.read_bytes()
+            report = json.loads(raw)
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(report["code"], "RESPONSE_CONTRACT_FAILED")
+        self.assertEqual(report["stage"], "translation-provider")
+        self.assertEqual(report["version"], "12.x")
+        self.assertEqual(report["locale"], "ko")
+        self.assertEqual(report["document"], change.path)
+        self.assertEqual(
+            report["attempts"],
+            {"response_evaluation": 2, "transport": 3},
+        )
+        self.assertEqual(
+            raw,
+            (
+                json.dumps(
+                    report,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                )
+                + "\n"
+            ).encode("utf-8"),
+        )
 
     def test_main_stops_when_upstream_sync_fails(self):
         """업스트림 동기화 실패 시 중단하는지 검증."""
