@@ -18,7 +18,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
 
     @staticmethod
     def _process_is_live(pid: int) -> bool:
-        """프로세스 생존 여부 확인."""
+        """프로세스 생존 여부 확인. reap되지 않은 zombie는 종료로 간주."""
 
         try:
             os.kill(pid, 0)
@@ -26,7 +26,18 @@ class ProcessTreeRunnerTest(unittest.TestCase):
             return False
         except PermissionError:
             return True
-        return True
+        try:
+            with open(f"/proc/{pid}/stat", "rb") as stat_file:
+                record = stat_file.read()
+        except OSError:
+            return True
+        comm_end = record.rfind(b")")
+        if comm_end < 0:
+            return True
+        fields = record[comm_end + 1 :].split()
+        if not fields:
+            return True
+        return fields[0] not in (b"Z", b"X", b"x")
 
     @classmethod
     def _wait_for_process_exit(cls, pid: int, timeout: float = 2.0) -> bool:
@@ -416,6 +427,105 @@ class ProcessTreeRunnerTest(unittest.TestCase):
                 "process group could not be inspected",
             ):
                 process_runtime._process_group_alive(123)
+
+    def test_zombie_only_process_group_is_treated_as_exited(self) -> None:
+        """zombie만 남은 프로세스 그룹을 정리 완료로 간주하는지 검증."""
+
+        with patch.object(
+            process_runtime,
+            "_process_group_alive",
+            return_value=True,
+        ), patch.object(
+            process_runtime,
+            "_process_group_has_running_members",
+            return_value=False,
+        ):
+            self.assertFalse(
+                process_runtime._process_group_members_running(123)
+            )
+
+    def test_unknown_member_states_keep_the_group_alive(self) -> None:
+        """구성원 상태를 알 수 없으면 fail-closed로 생존을 유지하는지 검증."""
+
+        with patch.object(
+            process_runtime,
+            "_process_group_alive",
+            return_value=True,
+        ), patch.object(
+            process_runtime,
+            "_process_group_has_running_members",
+            return_value=None,
+        ):
+            self.assertTrue(
+                process_runtime._process_group_members_running(123)
+            )
+
+    def test_cleanup_succeeds_when_only_zombies_remain(self) -> None:
+        """zombie만 남은 그룹에서 정리가 명시적 오류 없이 끝나는지 검증."""
+
+        process = MagicMock(pid=123)
+        process.poll.return_value = 0
+
+        with patch.object(
+            process_runtime,
+            "_kill_process_group",
+            return_value=True,
+        ), patch.object(
+            process_runtime,
+            "_process_group_alive",
+            return_value=True,
+        ), patch.object(
+            process_runtime,
+            "_process_group_has_running_members",
+            return_value=False,
+        ):
+            process_runtime._terminate_process_group(
+                process,
+                drain_pipes=False,
+            )
+
+    def test_proc_scan_reports_running_and_zombie_members(self) -> None:
+        """``/proc`` 스캔이 실행 중·zombie 구성원을 구별하는지 검증."""
+
+        with tempfile.TemporaryDirectory() as proc_root:
+            zombie = Path(proc_root, "101")
+            zombie.mkdir()
+            (zombie / "stat").write_bytes(b"101 (worker) Z 1 123 123 0 -1\n")
+            with patch.object(process_runtime, "_PROC_ROOT", proc_root):
+                self.assertFalse(
+                    process_runtime._process_group_has_running_members(123)
+                )
+            runner = Path(proc_root, "102")
+            runner.mkdir()
+            (runner / "stat").write_bytes(
+                b"102 (wo rk)er) R 1 123 123 0 -1\n"
+            )
+            with patch.object(process_runtime, "_PROC_ROOT", proc_root):
+                self.assertTrue(
+                    process_runtime._process_group_has_running_members(123)
+                )
+
+    def test_proc_scan_without_group_members_is_inconclusive(self) -> None:
+        """그룹 구성원이 관측되지 않으면 판정을 유보하는지 검증."""
+
+        with tempfile.TemporaryDirectory() as proc_root:
+            other = Path(proc_root, "104")
+            other.mkdir()
+            (other / "stat").write_bytes(b"104 (other) R 1 999 999 0 -1\n")
+            with patch.object(process_runtime, "_PROC_ROOT", proc_root):
+                self.assertIsNone(
+                    process_runtime._process_group_has_running_members(123)
+                )
+
+    def test_proc_scan_missing_root_is_inconclusive(self) -> None:
+        """``/proc``이 없으면 판정을 유보하는지 검증."""
+
+        with tempfile.TemporaryDirectory() as proc_root:
+            missing = os.path.join(proc_root, "absent")
+            with patch.object(process_runtime, "_PROC_ROOT", missing):
+                self.assertIsNone(
+                    process_runtime._process_group_has_running_members(123)
+                )
 
 
 if __name__ == "__main__":

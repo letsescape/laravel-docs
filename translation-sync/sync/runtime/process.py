@@ -101,6 +101,69 @@ def _process_group_alive(process_group: int) -> bool:
     return True
 
 
+_PROC_ROOT = "/proc"
+_ZOMBIE_STAT_STATES = (b"Z", b"X", b"x")
+
+
+def _process_group_has_running_members(process_group: int) -> bool | None:
+    """zombie가 아닌 프로세스 그룹 구성원의 존재 여부 확인.
+
+    Args:
+        process_group: 확인할 프로세스 그룹 ID.
+
+    Returns:
+        실행 중 구성원이 있으면 ``True``, 관측된 구성원이 전부 zombie이면
+        ``False``, ``/proc`` 부재 등으로 구성원을 열거할 수 없으면 ``None``.
+    """
+
+    try:
+        entries = os.listdir(_PROC_ROOT)
+    except OSError:
+        return None
+    zombies_only = False
+    for entry in entries:
+        if not entry.isdigit():
+            continue
+        try:
+            with open(
+                os.path.join(_PROC_ROOT, entry, "stat"), "rb"
+            ) as stat_file:
+                record = stat_file.read()
+        except OSError:
+            continue
+        comm_end = record.rfind(b")")
+        if comm_end < 0:
+            continue
+        fields = record[comm_end + 1 :].split()
+        if len(fields) < 3:
+            continue
+        try:
+            member_group = int(fields[2])
+        except ValueError:
+            continue
+        if member_group != process_group:
+            continue
+        if fields[0] not in _ZOMBIE_STAT_STATES:
+            return True
+        zombies_only = True
+    return False if zombies_only else None
+
+
+def _process_group_members_running(process_group: int) -> bool:
+    """정리를 계속해야 하는 프로세스 그룹 구성원이 남았는지 확인.
+
+    reap되지 않은 zombie만 남은 그룹은 실행 코드가 없으므로 소멸로 간주.
+    구성원 상태를 열거할 수 없으면 fail-closed로 생존 상태를 유지.
+    """
+
+    if not _process_group_alive(process_group):
+        return False
+    running = _process_group_has_running_members(process_group)
+    if running is None:
+        return True
+    return running
+
+
 def _cleanup_error(failures: list[BaseException]) -> ProcessTreeCleanupError:
     """첫 원인을 보존하는 프로세스 정리 실패 생성."""
 
@@ -123,7 +186,7 @@ def _wait_for_process_group_exit(process_group: int, deadline: float) -> None:
         ProcessTreeCleanupError: 기한 안에 그룹 소멸을 확인하지 못한 경우.
     """
 
-    while _process_group_alive(process_group):
+    while _process_group_members_running(process_group):
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise ProcessTreeCleanupError(
@@ -253,7 +316,7 @@ def _require_empty_process_group(process: subprocess.Popen[Any]) -> None:
     """
 
     try:
-        survivors = _process_group_alive(process.pid)
+        survivors = _process_group_members_running(process.pid)
     except BaseException as inspection_error:
         try:
             _terminate_process_group(process, drain_pipes=False)
