@@ -74,6 +74,26 @@ def parse_legacy_admonition_line(line: str) -> LegacyAdmonition | None:
     return LegacyAdmonition(canonical, (match.group("body") or "").strip())
 
 
+def _visible_admonition_type(line: str) -> str | None:
+    """코드 펜스 밖의 인용문 한 줄에서 경고문 유형 추출.
+
+    Args:
+        line: HTML 주석을 제거한 Markdown 한 줄.
+
+    Returns:
+        정규 경고문 유형 또는 경고문이 아니면 ``None``.
+    """
+
+    logical, containers = _strip_reference_container(line)
+    if not containers or containers[-1] != "quote":
+        return None
+    marker = _GFM_MARKER_RE.match(logical)
+    if marker is not None:
+        return marker.group(1).upper()
+    legacy = parse_legacy_admonition_line(f"> {logical}")
+    return legacy.kind if legacy is not None else None
+
+
 def admonition_types(text: str) -> tuple[str, ...]:
     """HTML 주석과 코드 펜스 밖의 정규 경고문 유형을 문서 순서대로 반환."""
 
@@ -90,14 +110,7 @@ def admonition_types(text: str) -> tuple[str, ...]:
             opening_fence = token
             continue
 
-        logical, containers = _strip_reference_container(line)
-        if not containers or containers[-1] != "quote":
-            continue
-        marker = _GFM_MARKER_RE.match(logical)
-        if marker is not None:
-            types.append(marker.group(1).upper())
-            continue
-        legacy = parse_legacy_admonition_line(f"> {logical}")
-        if legacy is not None:
-            types.append(legacy.kind)
+        admonition_type = _visible_admonition_type(line)
+        if admonition_type is not None:
+            types.append(admonition_type)
     return tuple(types)

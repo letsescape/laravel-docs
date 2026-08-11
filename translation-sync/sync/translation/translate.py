@@ -24,6 +24,7 @@ from ..runtime.config import (
     ConfigError,
     OPENAI_API_BASE_URL,
     PROVIDER_FRAMING_OVERHEAD_TOKENS,
+    RequestBudget,
     cli_auth_environment,
     validate_cli_command,
 )
@@ -574,6 +575,50 @@ def _provider_error_message(exc: BaseException) -> str:
     return "provider request failed"
 
 
+def _transport_attempt(
+    func: Callable[[str, Config, str], str],
+    chunk: str,
+    config: Config,
+    prompt: str,
+    *,
+    deadline: float | None,
+    clock: Callable[[], float],
+    attempt_counter: ProviderAttemptCounter | None,
+) -> tuple[str | None, BaseException | None]:
+    """provider 전송 한 번을 실행하고 재시도 가능한 실패를 값으로 반환.
+
+    Args:
+        func: provider 호출 함수.
+        chunk: 번역 요청 본문.
+        config: 검증된 provider 설정.
+        prompt: 번역 system prompt.
+        deadline: 전체 번역 실행 기한.
+        clock: 단조 시계 함수.
+        attempt_counter: 전송 시도 횟수 기록기.
+
+    Returns:
+        성공 응답과 재시도 가능한 마지막 오류.
+    """
+
+    try:
+        if attempt_counter is not None:
+            attempt_counter.record_transport()
+        result = func(chunk, config, prompt)
+    except Exception as exc:
+        if isinstance(exc, ProviderPartialResponse):
+            raise
+        if _is_retryable(exc):
+            return None, exc
+        error_type = (
+            CliProviderFailed if config.provider == "cli" else ProviderRequestRejected
+        )
+        raise error_type(_provider_error_message(exc)) from None
+    require_run_deadline(deadline, clock=clock)
+    if result.strip():
+        return result, None
+    return None, ProviderPartialResponse("provider response was empty")
+
+
 def _with_retries(
     func: Callable[[str, Config, str], str],
     chunk: str,
@@ -593,26 +638,17 @@ def _with_retries(
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
         _require_deadline_budget(deadline, request_timeout, clock())
-        try:
-            if attempt_counter is not None:
-                attempt_counter.record_transport()
-            result = func(chunk, config, prompt)
-        except Exception as exc:
-            if isinstance(exc, ProviderPartialResponse):
-                raise
-            if not _is_retryable(exc):
-                error_type = (
-                    CliProviderFailed
-                    if config.provider == "cli"
-                    else ProviderRequestRejected
-                )
-                raise error_type(_provider_error_message(exc)) from None
-            last_error = exc
-        else:
-            require_run_deadline(deadline, clock=clock)
-            if result.strip():
-                return result
-            last_error = ProviderPartialResponse("provider response was empty")
+        result, last_error = _transport_attempt(
+            func,
+            chunk,
+            config,
+            prompt,
+            deadline=deadline,
+            clock=clock,
+            attempt_counter=attempt_counter,
+        )
+        if result is not None:
+            return result
         if attempt < MAX_ATTEMPTS:
             _require_deadline_budget(
                 deadline,
@@ -625,6 +661,8 @@ def _with_retries(
         raise ProviderTransientExhausted(
             "provider returned an empty response on every transport attempt"
         ) from None
+    if last_error is None:
+        raise ProviderTransientExhausted("provider request failed") from None
     raise ProviderTransientExhausted(
         _provider_error_message(last_error)
     ) from None
@@ -762,76 +800,112 @@ def _translate_cli(chunk: str, config: Config, prompt: str) -> str:
         return output_path.read_text(encoding="utf-8") if output_path.exists() else ""
 
 
-def _translate_openai(chunk: str, config: Config, prompt: str) -> str:
-    """재시도 없는 OpenAI 또는 Azure adapter로 단일 요청 실행."""
+def _known_provider_status(value: object, allowed: set[str]) -> str:
+    """provider 상태값을 허용 목록 또는 ``unknown``으로 제한.
 
-    client_runtime: dict[str, object] = {"max_retries": 0}
-    budget = config.request_budget()
-    if budget is not None:
-        client_runtime["timeout"] = _request_timeout_seconds(config)
-    if config.provider == "azure":
-        from openai import AzureOpenAI
+    Args:
+        value: SDK가 반환한 상태값.
+        allowed: 진단에 노출할 수 있는 상태 문자열 집합.
 
-        client = AzureOpenAI(
-            api_key=config.get("AZURE_OPENAI_API_KEY"),
-            api_version=config.get("AZURE_OPENAI_API_VERSION"),
-            azure_endpoint=config.get("AZURE_OPENAI_ENDPOINT"),
-            organization="",
-            project="",
-            **client_runtime,
-        )
-        response = client.chat.completions.create(
-            model=config.get("TRANSLATION_MODEL"),
-            reasoning_effort=config.get(
-                "TRANSLATION_REASONING_EFFORT", "medium"
-            ),
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": chunk},
-            ],
-            **(
-                {"max_completion_tokens": budget.reserved_output_tokens}
-                if budget is not None
-                else {}
-            ),
-        )
-        choice = response.choices[0]
-        if choice.finish_reason != "stop":
-            finish_reason = (
-                choice.finish_reason
-                if isinstance(choice.finish_reason, str)
-                and choice.finish_reason
-                in {
-                    "content_filter",
-                    "function_call",
-                    "length",
-                    "null",
-                    "tool_calls",
-                }
-                else "unknown"
-            )
-            raise ProviderPartialResponse(
-                "provider response was incomplete "
-                f"(adapter=azure, status={finish_reason})"
-            )
-        return choice.message.content or ""
-    else:
-        from openai import OpenAI
+    Returns:
+        허용된 상태 또는 ``unknown``.
+    """
 
-        client = OpenAI(
-            api_key=config.get("OPENAI_API_KEY"),
-            base_url=OPENAI_API_BASE_URL,
-            organization="",
-            project="",
-            **client_runtime,
+    return value if isinstance(value, str) and value in allowed else "unknown"
+
+
+def _translate_azure(
+    chunk: str,
+    config: Config,
+    prompt: str,
+    *,
+    client_runtime: dict[str, object],
+    budget: RequestBudget | None,
+) -> str:
+    """Azure chat completions adapter로 단일 번역 요청 실행.
+
+    Args:
+        chunk: 번역 요청 본문.
+        config: 검증된 provider 설정.
+        prompt: 번역 system prompt.
+        client_runtime: SDK 재시도·timeout 설정.
+        budget: 검증된 요청 예산.
+
+    Returns:
+        완료된 번역 응답 본문.
+    """
+
+    from openai import AzureOpenAI
+
+    client = AzureOpenAI(
+        api_key=config.get("AZURE_OPENAI_API_KEY"),
+        api_version=config.get("AZURE_OPENAI_API_VERSION"),
+        azure_endpoint=config.get("AZURE_OPENAI_ENDPOINT"),
+        organization="",
+        project="",
+        **client_runtime,
+    )
+    response = client.chat.completions.create(
+        model=config.get("TRANSLATION_MODEL"),
+        reasoning_effort=config.get("TRANSLATION_REASONING_EFFORT", "medium"),
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": chunk},
+        ],
+        **(
+            {"max_completion_tokens": budget.reserved_output_tokens}
+            if budget is not None
+            else {}
+        ),
+    )
+    choice = response.choices[0]
+    if choice.finish_reason != "stop":
+        finish_reason = _known_provider_status(
+            choice.finish_reason,
+            {"content_filter", "function_call", "length", "null", "tool_calls"},
         )
+        raise ProviderPartialResponse(
+            "provider response was incomplete "
+            f"(adapter=azure, status={finish_reason})"
+        )
+    return choice.message.content or ""
+
+
+def _translate_responses_api(
+    chunk: str,
+    config: Config,
+    prompt: str,
+    *,
+    client_runtime: dict[str, object],
+    budget: RequestBudget | None,
+) -> str:
+    """OpenAI Responses adapter로 단일 번역 요청 실행.
+
+    Args:
+        chunk: 번역 요청 본문.
+        config: 검증된 provider 설정.
+        prompt: 번역 instructions.
+        client_runtime: SDK 재시도·timeout 설정.
+        budget: 검증된 요청 예산.
+
+    Returns:
+        완료된 번역 응답 본문.
+    """
+
+    from openai import OpenAI
+
+    client = OpenAI(
+        api_key=config.get("OPENAI_API_KEY"),
+        base_url=OPENAI_API_BASE_URL,
+        organization="",
+        project="",
+        **client_runtime,
+    )
     response = client.responses.create(
         model=config.get("TRANSLATION_MODEL"),
         instructions=prompt,
         input=chunk,
-        reasoning={
-            "effort": config.get("TRANSLATION_REASONING_EFFORT", "medium")
-        },
+        reasoning={"effort": config.get("TRANSLATION_REASONING_EFFORT", "medium")},
         store=False,
         **(
             {"max_output_tokens": budget.reserved_output_tokens}
@@ -840,21 +914,36 @@ def _translate_openai(chunk: str, config: Config, prompt: str) -> str:
         ),
     )
     if response.status != "completed":
-        response_status = (
-            response.status
-            if isinstance(response.status, str)
-            and response.status
-            in {
-                "cancelled",
-                "failed",
-                "in_progress",
-                "incomplete",
-                "queued",
-            }
-            else "unknown"
+        response_status = _known_provider_status(
+            response.status,
+            {"cancelled", "failed", "in_progress", "incomplete", "queued"},
         )
         raise ProviderPartialResponse(
             "provider response was incomplete "
             f"(adapter=openai, status={response_status})"
         )
     return response.output_text or ""
+
+
+def _translate_openai(chunk: str, config: Config, prompt: str) -> str:
+    """재시도 없는 OpenAI 또는 Azure adapter로 단일 요청 실행."""
+
+    client_runtime: dict[str, object] = {"max_retries": 0}
+    budget = config.request_budget()
+    if budget is not None:
+        client_runtime["timeout"] = _request_timeout_seconds(config)
+    if config.provider == "azure":
+        return _translate_azure(
+            chunk,
+            config,
+            prompt,
+            client_runtime=client_runtime,
+            budget=budget,
+        )
+    return _translate_responses_api(
+        chunk,
+        config,
+        prompt,
+        client_runtime=client_runtime,
+        budget=budget,
+    )

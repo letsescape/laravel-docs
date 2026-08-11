@@ -202,6 +202,60 @@ def _strip_code_indent(line: str) -> str:
     return line[4:] if line.startswith("    ") else line
 
 
+def _line_comment_state(
+    line: str,
+    *,
+    offset: int,
+    inline_spans: list[tuple[int, int, str]],
+    inline_index: int,
+    in_comment: bool,
+) -> tuple[bool, int, bool]:
+    """한 줄의 보호 대상 HTML 주석 상태 추적.
+
+    Args:
+        line: 원본 줄.
+        offset: 문서에서 줄의 시작 위치.
+        inline_spans: 인라인 코드 범위 목록.
+        inline_index: 현재 인라인 코드 범위 위치.
+        in_comment: 이전 줄에서 시작한 주석 내부 여부.
+
+    Returns:
+        줄 보호 여부, 다음 인라인 범위 위치, 다음 주석 내부 상태.
+    """
+
+    protected = in_comment or bool(_INDENTED_CODE_RE.match(line))
+    cursor = 0
+    while cursor < len(line):
+        if in_comment:
+            close = line.find("-->", cursor)
+            if close < 0:
+                break
+            in_comment = False
+            cursor = close + 3
+            continue
+        opener = line.find("<!--", cursor)
+        if opener < 0:
+            break
+        absolute_opener = offset + opener
+        while (
+            inline_index < len(inline_spans)
+            and inline_spans[inline_index][1] <= absolute_opener
+        ):
+            inline_index += 1
+        if (
+            inline_index < len(inline_spans)
+            and inline_spans[inline_index][0]
+            <= absolute_opener
+            < inline_spans[inline_index][1]
+        ):
+            cursor = inline_spans[inline_index][1] - offset
+            continue
+        protected = True
+        in_comment = True
+        cursor = opener + 4
+    return protected, inline_index, in_comment
+
+
 def _strip_title_attrs_outside_protected_regions(text: str) -> str:
     """HTML 주석과 들여쓰기 코드 밖의 제목 클래스 제거."""
 
@@ -212,42 +266,106 @@ def _strip_title_attrs_outside_protected_regions(text: str) -> str:
     out: list[str] = []
 
     for line in text.splitlines(keepends=True):
-        protected = in_comment or bool(_INDENTED_CODE_RE.match(line))
-        cursor = 0
-        while cursor < len(line):
-            if in_comment:
-                close = line.find("-->", cursor)
-                if close < 0:
-                    break
-                in_comment = False
-                cursor = close + 3
-                continue
-
-            opener = line.find("<!--", cursor)
-            if opener < 0:
-                break
-            absolute_opener = offset + opener
-            while (
-                inline_index < len(inline_spans)
-                and inline_spans[inline_index][1] <= absolute_opener
-            ):
-                inline_index += 1
-            if (
-                inline_index < len(inline_spans)
-                and inline_spans[inline_index][0]
-                <= absolute_opener
-                < inline_spans[inline_index][1]
-            ):
-                cursor = inline_spans[inline_index][1] - offset
-                continue
-
-            protected = True
-            in_comment = True
-            cursor = opener + 4
-
+        protected, inline_index, in_comment = _line_comment_state(
+            line,
+            offset=offset,
+            inline_spans=inline_spans,
+            inline_index=inline_index,
+            in_comment=in_comment,
+        )
         out.append(line if protected else strip_title_attrs(line))
         offset += len(line)
     return "".join(out)
+
+
+def _containing_inline_span_end(
+    position: int,
+    spans: list[tuple[int, int, str]],
+) -> int | None:
+    """지정 위치를 포함하는 인라인 코드 범위의 끝 조회.
+
+    Args:
+        position: 확인할 문자열 위치.
+        spans: 인라인 코드 범위 목록.
+
+    Returns:
+        포함하는 범위의 끝 위치. 없으면 ``None``.
+    """
+
+    return next(
+        (
+            end
+            for span_start, end, _body in spans
+            if span_start <= position < end
+        ),
+        None,
+    )
+
+
+def _next_style_opening(
+    text: str,
+    lower: str,
+    start_at: int,
+    inline_spans: list[tuple[int, int, str]],
+) -> tuple[int, int] | None:
+    """제거 가능한 다음 ``style`` 시작 태그 범위 탐색.
+
+    Args:
+        text: 원본 문서.
+        lower: 소문자로 변환한 문서.
+        start_at: 검색 시작 위치.
+        inline_spans: 인라인 코드 범위 목록.
+
+    Returns:
+        시작 태그의 시작과 끝 위치. 없으면 ``None``.
+    """
+
+    cursor = start_at
+    while True:
+        start = lower.find(_STYLE_OPEN, cursor)
+        if start < 0:
+            return None
+        code_span_end = _containing_inline_span_end(start, inline_spans)
+        if code_span_end is not None:
+            cursor = code_span_end
+            continue
+        after_open = start + len(_STYLE_OPEN)
+        if after_open < len(text) and not (
+            text[after_open].isspace() or text[after_open] == ">"
+        ):
+            cursor = after_open
+            continue
+        line_start = text.rfind("\n", 0, start) + 1
+        if text[line_start:start] not in ("", " ", "  ", "   "):
+            cursor = after_open
+            continue
+        tag_end = text.find(">", after_open)
+        return None if tag_end < 0 else (start, tag_end)
+
+
+def _style_close_start(
+    lower: str,
+    start_at: int,
+    inline_spans: list[tuple[int, int, str]],
+) -> int | None:
+    """인라인 코드를 제외한 ``style`` 닫는 태그 위치 탐색.
+
+    Args:
+        lower: 소문자로 변환한 문서.
+        start_at: 검색 시작 위치.
+        inline_spans: 인라인 코드 범위 목록.
+
+    Returns:
+        닫는 태그 시작 위치. 없으면 ``None``.
+    """
+
+    close_start = lower.find(_STYLE_CLOSE, start_at)
+    while close_start >= 0:
+        code_span_end = _containing_inline_span_end(close_start, inline_spans)
+        if code_span_end is None:
+            return close_start
+        close_start = lower.find(_STYLE_CLOSE, code_span_end)
+    return None
 
 
 def _strip_style_blocks(text: str) -> str:
@@ -259,58 +377,22 @@ def _strip_style_blocks(text: str) -> str:
     index = 0
 
     while index < len(text):
-        start = lower.find(_STYLE_OPEN, index)
-        if start < 0:
+        opening = _next_style_opening(text, lower, index, inline_code_spans)
+        if opening is None:
             out.append(text[index:])
             break
-        code_span_end = next(
-            (
-                end
-                for span_start, end, _body in inline_code_spans
-                if span_start <= start < end
-            ),
-            None,
-        )
-        if code_span_end is not None:
-            out.append(text[index:code_span_end])
-            index = code_span_end
-            continue
-        after_open = start + len(_STYLE_OPEN)
-        if after_open < len(text) and not (
-            text[after_open].isspace() or text[after_open] == ">"
-        ):
-            out.append(text[index : start + len(_STYLE_OPEN)])
-            index = start + len(_STYLE_OPEN)
-            continue
-        line_start = text.rfind("\n", 0, start) + 1
-        line_prefix = text[line_start:start]
-        if line_prefix not in ("", " ", "  ", "   "):
-            out.append(text[index : start + len(_STYLE_OPEN)])
-            index = start + len(_STYLE_OPEN)
-            continue
-        tag_end = text.find(">", start + len(_STYLE_OPEN))
-        if tag_end < 0:
-            out.append(text[index:])
-            break
+        start, tag_end = opening
 
         remove_start = start
         while remove_start > index and text[remove_start - 1] in " \t":
             remove_start -= 1
 
-        close_start = lower.find(_STYLE_CLOSE, tag_end + 1)
-        while close_start >= 0:
-            code_span_end = next(
-                (
-                    end
-                    for span_start, end, _body in inline_code_spans
-                    if span_start <= close_start < end
-                ),
-                None,
-            )
-            if code_span_end is None:
-                break
-            close_start = lower.find(_STYLE_CLOSE, code_span_end)
-        if close_start < 0:
+        close_start = _style_close_start(
+            lower,
+            tag_end + 1,
+            inline_code_spans,
+        )
+        if close_start is None:
             out.append(text[index:])
             break
 

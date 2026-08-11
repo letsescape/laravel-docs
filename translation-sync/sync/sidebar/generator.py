@@ -283,6 +283,143 @@ def _doc_key(doc_id: str, occurrences: dict[str, int]) -> str:
     return key if occurrence == 1 else f"{key}:{occurrence}"
 
 
+def _append_external_link(
+    *,
+    items: list[dict],
+    current_category: dict | None,
+    label: str,
+    raw_href: str,
+    is_indented: bool,
+    line_number: int,
+    version: str,
+    latest_stable: str,
+    issues: list[str],
+    targets_by_digest: dict[str, str],
+    occurrences: dict[str, int],
+) -> dict | None:
+    """외부·앵커 링크 항목을 현재 카테고리 또는 루트에 추가.
+
+    Args:
+        items: 루트 사이드바 항목 목록.
+        current_category: 현재 카테고리.
+        label: 링크 표시 레이블.
+        raw_href: 원문 링크 대상.
+        is_indented: 카테고리 하위 들여쓰기 여부.
+        line_number: 진단용 원문 줄 번호.
+        version: 대상 문서 버전.
+        latest_stable: 최신 안정 버전.
+        issues: 형식 문제 누적 목록.
+        targets_by_digest: digest 충돌 검사용 링크 mapping.
+        occurrences: 링크 대상별 등장 횟수.
+
+    Returns:
+        다음 줄에 적용할 현재 카테고리.
+    """
+
+    if current_category is None and is_indented:
+        issues.append(f"line {line_number}: link is outside a category")
+        return current_category
+    href = _normalize_link_href(
+        raw_href,
+        label=label,
+        is_root=not is_indented,
+        version=version,
+        latest_stable=latest_stable,
+    )
+    digest = _link_digest(raw_href)
+    previous_target = targets_by_digest.setdefault(digest, raw_href)
+    if previous_target != raw_href:
+        issues.append(f"line {line_number}: link digest collision: {digest}")
+    occurrence = occurrences.get(raw_href, 0) + 1
+    occurrences[raw_href] = occurrence
+    key = f"link:{digest}"
+    if occurrence > 1:
+        key = f"{key}:{occurrence}"
+    link_item = {"type": "link", "label": label, "href": href, "key": key}
+    if current_category is not None and is_indented:
+        current_category["items"].append(link_item)
+        return current_category
+    items.append(link_item)
+    return None
+
+
+def _append_document_link(
+    *,
+    current_category: dict | None,
+    doc_id: str,
+    label: str,
+    is_indented: bool,
+    line_number: int,
+    issues: list[str],
+    occurrences: dict[str, int],
+    keys: set[str],
+) -> None:
+    """문서 링크를 현재 카테고리에 추가하고 번역 key 검증.
+
+    Args:
+        current_category: 현재 카테고리.
+        doc_id: 정규 문서 식별자.
+        label: 문서 표시 레이블.
+        is_indented: 카테고리 하위 들여쓰기 여부.
+        line_number: 진단용 원문 줄 번호.
+        issues: 형식 문제 누적 목록.
+        occurrences: 문서별 등장 횟수.
+        keys: 이미 사용한 문서 번역 key 집합.
+    """
+
+    if current_category is None or not is_indented:
+        issues.append(f"line {line_number}: doc link is outside a category")
+        return
+    key = _doc_key(doc_id, occurrences)
+    if key in keys:
+        issues.append(f"line {line_number}: duplicate doc translation key: {key}")
+    keys.add(key)
+    current_category["items"].append(
+        {"type": "doc", "id": doc_id, "label": label, "key": key}
+    )
+
+
+def _documentation_link(
+    line: str,
+    line_number: int,
+    issues: list[str],
+) -> tuple[str, str, str | None, bool] | None:
+    """영문 목차 한 줄에서 검증된 링크 구성 요소 추출.
+
+    Args:
+        line: 영문 목차 물리 줄.
+        line_number: 진단용 줄 번호.
+        issues: 형식 문제 누적 목록.
+
+    Returns:
+        레이블, 원문 대상, 문서 ID, 들여쓰기 여부. 링크가 아니면 ``None``.
+    """
+
+    link_match = DOC_LINK_RE.match(line)
+    if link_match is None:
+        if re.match(r"^\s*-\s*\[", line):
+            issues.append(
+                f"line {line_number}: unsupported or malformed documentation link"
+            )
+        return None
+    label = link_match.group(1).strip()
+    raw_href = link_match.group(2).strip()
+    if not label:
+        issues.append(
+            f"line {line_number}: unsupported or malformed documentation link"
+        )
+        return None
+    try:
+        doc_id = _doc_id_from_href(raw_href)
+    except ValueError:
+        issues.append(
+            f"line {line_number}: unsupported or malformed documentation link"
+        )
+        return None
+    is_indented = bool(line[: len(line) - len(line.lstrip())])
+    return label, raw_href, doc_id, is_indented
+
+
 def parse_documentation(
     text: str, *, version: str, latest_stable: str
 ) -> tuple[list[dict], list[str]]:
@@ -320,77 +457,35 @@ def parse_documentation(
             current_category = None
             continue
 
-        link_match = DOC_LINK_RE.match(line)
-        if not link_match:
-            if re.match(r"^\s*-\s*\[", line):
-                issues.append(
-                    f"line {line_number}: unsupported or malformed documentation link"
-                )
+        link = _documentation_link(line, line_number, issues)
+        if link is None:
             continue
-
-        label = link_match.group(1).strip()
-        raw_href = link_match.group(2).strip()
-        if not label:
-            issues.append(
-                f"line {line_number}: unsupported or malformed documentation link"
-            )
-            continue
-        try:
-            doc_id = _doc_id_from_href(raw_href)
-        except ValueError:
-            issues.append(
-                f"line {line_number}: unsupported or malformed documentation link"
-            )
-            continue
-        is_indented = bool(line[: len(line) - len(line.lstrip())])
+        label, raw_href, doc_id, is_indented = link
 
         if doc_id is None:
-            if current_category is None and is_indented:
-                issues.append(f"line {line_number}: link is outside a category")
-                continue
-            href = _normalize_link_href(
-                raw_href,
+            current_category = _append_external_link(
+                items=items,
+                current_category=current_category,
                 label=label,
-                is_root=not is_indented,
+                raw_href=raw_href,
+                is_indented=is_indented,
+                line_number=line_number,
                 version=version,
                 latest_stable=latest_stable,
+                issues=issues,
+                targets_by_digest=link_targets_by_digest,
+                occurrences=link_occurrences,
             )
-            digest = _link_digest(raw_href)
-            previous_target = link_targets_by_digest.setdefault(digest, raw_href)
-            if previous_target != raw_href:
-                issues.append(
-                    f"line {line_number}: link digest collision: {digest}"
-                )
-            occurrence = link_occurrences.get(raw_href, 0) + 1
-            link_occurrences[raw_href] = occurrence
-            key = f"link:{digest}"
-            if occurrence > 1:
-                key = f"{key}:{occurrence}"
-            link_item = {"type": "link", "label": label, "href": href, "key": key}
-            if current_category is not None and is_indented:
-                current_category["items"].append(link_item)
-            else:
-                items.append(link_item)
-                current_category = None
             continue
-
-        if current_category is None or not is_indented:
-            issues.append(f"line {line_number}: doc link is outside a category")
-            continue
-
-        key = _doc_key(doc_id, doc_occurrences)
-        if key in doc_keys:
-            issues.append(
-                f"line {line_number}: duplicate doc translation key: {key}"
-            )
-        doc_keys.add(key)
-        current_category["items"].append(
-            {
-                "type": "doc",
-                "id": doc_id,
-                "label": label,
-                "key": key,
-            }
+        _append_document_link(
+            current_category=current_category,
+            doc_id=doc_id,
+            label=label,
+            is_indented=is_indented,
+            line_number=line_number,
+            issues=issues,
+            occurrences=doc_occurrences,
+            keys=doc_keys,
         )
 
     return items, issues

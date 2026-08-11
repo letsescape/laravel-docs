@@ -18,6 +18,7 @@ from typing import Mapping
 from ..common.admonitions import parse_legacy_admonition_line
 from ..common.javascript import balanced_expression_end
 from ..common.markdown import (
+    MarkdownLink,
     _fenced_code_ranges,
     _inline_code_spans,
     _strip_reference_container,
@@ -111,6 +112,85 @@ def _mask_html_comments(text: str) -> str:
     return "".join(chars)
 
 
+def _containing_span_end(
+    position: int,
+    spans: list[tuple[int, int, str]],
+) -> int | None:
+    """지정 위치를 포함하는 보호 범위의 끝 위치 조회.
+
+    Args:
+        position: 확인할 문자열 위치.
+        spans: 시작·끝·본문으로 구성된 보호 범위 목록.
+
+    Returns:
+        포함하는 범위의 끝 위치. 없으면 ``None``.
+    """
+
+    return next(
+        (
+            end
+            for span_start, end, _body in spans
+            if span_start <= position < end
+        ),
+        None,
+    )
+
+
+def _img_tag_end(text: str, after_name: int) -> int | None:
+    """속성 따옴표와 표현식을 건너뛰어 ``img`` 태그 종료 위치 탐색.
+
+    Args:
+        text: 태그를 포함한 문자열.
+        after_name: ``<img`` 바로 다음 위치.
+
+    Returns:
+        닫는 ``>`` 위치. 닫히지 않았으면 ``None``.
+    """
+
+    position = after_name
+    while position < len(text):
+        char = text[position]
+        if char in ("\"", "'"):
+            quote = char
+            position = text.find(quote, position + 1)
+            if position < 0:
+                return None
+            position += 1
+            continue
+        if char == "{":
+            expression_end = balanced_expression_end(text, position)
+            if expression_end is None:
+                return None
+            position = expression_end
+            continue
+        if char == ">":
+            return position
+        position += 1
+    return None
+
+
+def _self_closing_img_tag(text: str, start: int, end: int) -> str:
+    """단일 닫힌 ``img`` 태그를 자체 닫힘 형식으로 변환.
+
+    Args:
+        text: 태그를 포함한 문자열.
+        start: ``<img`` 시작 위치.
+        end: 닫는 ``>`` 위치.
+
+    Returns:
+        자체 닫힘으로 정규화한 태그.
+    """
+
+    after_name = start + len("<img")
+    attrs = text[after_name:end].strip()
+    if attrs.endswith("/"):
+        return text[start : end + 1]
+    if not attrs:
+        return "<img/>"
+    separator = " " if _UNQUOTED_ATTRIBUTE_AT_END_RE.search(attrs) else ""
+    return f"<img {attrs}{separator}/>"
+
+
 def _img_self_closing(text: str) -> str:
     """인라인 코드 밖의 닫히지 않은 ``<img>`` 태그를 자체 닫힘 형식으로 변환."""
 
@@ -123,14 +203,7 @@ def _img_self_closing(text: str) -> str:
         if start < 0:
             out.append(text[index:])
             break
-        code_span_end = next(
-            (
-                end
-                for span_start, end, _body in inline_code_spans
-                if span_start <= start < end
-            ),
-            None,
-        )
+        code_span_end = _containing_span_end(start, inline_code_spans)
         if code_span_end is not None:
             out.append(text[index:code_span_end])
             index = code_span_end
@@ -142,44 +215,13 @@ def _img_self_closing(text: str) -> str:
             out.append(text[index:after_name])
             index = after_name
             continue
-        end = -1
-        position = after_name
-        while position < len(text):
-            char = text[position]
-            if char in ("\"", "'"):
-                quote = char
-                position += 1
-                while position < len(text) and text[position] != quote:
-                    position += 1
-                if position >= len(text):
-                    break
-                position += 1
-                continue
-            if char == "{":
-                expression_end = balanced_expression_end(text, position)
-                if expression_end is None:
-                    break
-                position = expression_end
-                continue
-            if char == ">":
-                end = position
-                break
-            position += 1
-        if end < 0:
+        end = _img_tag_end(text, after_name)
+        if end is None:
             out.append(text[index:])
             break
 
         out.append(text[index:start])
-        attrs = text[after_name:end].strip()
-        if attrs.endswith("/"):
-            out.append(text[start : end + 1])
-        elif attrs:
-            separator = (
-                " " if _UNQUOTED_ATTRIBUTE_AT_END_RE.search(attrs) else ""
-            )
-            out.append(f"<img {attrs}{separator}/>")
-        else:
-            out.append("<img/>")
+        out.append(_self_closing_img_tag(text, start, end))
         index = end + 1
     return "".join(out)
 
@@ -432,38 +474,68 @@ def normalize_stale_link_targets(
     out: list[str] = []
     cursor = 0
     for link in markdown_links(masked):
-        rule = registry.matching_rule(link.target, version)
-        if rule is None:
-            continue
-        target = canonical_stale_link_target(
-            link.target,
-            version,
+        should_replace, replacement = _stale_link_replacement(
+            text,
+            link,
+            version=version,
             registry=registry,
         )
-        if target == link.target:
+        if not should_replace:
             continue
-        standalone_list = _is_standalone_list_link(text, link.start, link.end)
-        if target is None:
-            if (
-                rule.retire_mode == "standalone-list-label" and not standalone_list
-            ) or (rule.retire_mode == "bare-inline-code" and standalone_list):
-                continue
-            replacement = (
-                link.label
-                if rule.retire_mode == "standalone-list-label"
-                else f"`{link.label}`"
-            )
-        else:
-            image = "!" if link.image else ""
-            label = link.label
-            if standalone_list and target.startswith("#"):
-                label = _heading_label_for_fragment(text, target[1:]) or label
-            replacement = f"{image}[{label}]({target}{link.title})"
         out.append(text[cursor : link.start])
         out.append(replacement)
         cursor = link.end
     out.append(text[cursor:])
     return "".join(out)
+
+
+def _stale_link_replacement(
+    text: str,
+    link: MarkdownLink,
+    *,
+    version: str,
+    registry: StaleLinkRegistry,
+) -> tuple[bool, str]:
+    """단일 오래된 링크의 적용 여부와 대체 Markdown 계산.
+
+    Args:
+        text: 원본 Markdown 문서.
+        link: 마스킹된 문서에서 파싱한 링크.
+        version: 대상 문서 버전.
+        registry: 오래된 링크 규칙 모음.
+
+    Returns:
+        대체 여부와 대체 문자열.
+    """
+
+    rule = registry.matching_rule(link.target, version)
+    if rule is None:
+        return False, ""
+    target = canonical_stale_link_target(
+        link.target,
+        version,
+        registry=registry,
+    )
+    if target == link.target:
+        return False, ""
+    standalone_list = _is_standalone_list_link(text, link.start, link.end)
+    if target is None:
+        incompatible_mode = (
+            rule.retire_mode == "standalone-list-label" and not standalone_list
+        ) or (rule.retire_mode == "bare-inline-code" and standalone_list)
+        if incompatible_mode:
+            return False, ""
+        replacement = (
+            link.label
+            if rule.retire_mode == "standalone-list-label"
+            else f"`{link.label}`"
+        )
+        return True, replacement
+    image = "!" if link.image else ""
+    label = link.label
+    if standalone_list and target.startswith("#"):
+        label = _heading_label_for_fragment(text, target[1:]) or label
+    return True, f"{image}[{label}]({target}{link.title})"
 
 
 def replace_version(text: str, version: str) -> str:

@@ -31,6 +31,34 @@ class StaleLinkRule:
     retire_mode: str | None
 
 
+def _is_supported_target(target: str) -> bool:
+    """레지스트리를 적용할 수 있는 Laravel 문서 링크 여부."""
+
+    parsed = urlsplit(target)
+    if target.startswith("//"):
+        return False
+    if not parsed.scheme:
+        return True
+    return (
+        parsed.scheme in {"http", "https"}
+        and parsed.netloc.lower() == "laravel.com"
+        and parsed.path.startswith("/docs/")
+    )
+
+
+def _matches_suffix_rule(rule: StaleLinkRule, target: str) -> bool:
+    """링크가 대체 규칙의 경계가 보존된 접미사와 일치하는지 여부."""
+
+    if rule.target is None or not target.endswith(rule.source):
+        return False
+    start = len(target) - len(rule.source)
+    return (
+        start == 0
+        or rule.source.startswith("#")
+        or (start > 0 and target[start - 1] == "/")
+    )
+
+
 @dataclass(frozen=True)
 class StaleLinkRegistry:
     """정규 JSON 원본 바이트와 SHA-256 해시를 포함한 오래된 링크 규칙 집합."""
@@ -46,15 +74,7 @@ class StaleLinkRegistry:
     ) -> StaleLinkRule | None:
         """버전과 링크 대상에 대응하는 정확한 폐기 규칙 또는 원본 접미사가 가장 긴 대체 규칙 조회."""
 
-        parsed = urlsplit(target)
-        if target.startswith("//") or (
-            parsed.scheme
-            and (
-                parsed.scheme not in {"http", "https"}
-                or parsed.netloc.lower() != "laravel.com"
-                or not parsed.path.startswith("/docs/")
-            )
-        ):
+        if not _is_supported_target(target):
             return None
 
         effective_version = version or "master"
@@ -66,18 +86,7 @@ class StaleLinkRegistry:
             if rule.target is None and target == rule.source:
                 exact_retired = rule
                 break
-            start = len(target) - len(rule.source)
-            suffix_boundary = (
-                start == 0
-                or rule.source.startswith("#")
-                or (start > 0 and target[start - 1] == "/")
-            )
-            if (
-                rule.target is not None
-                and start >= 0
-                and suffix_boundary
-                and target.endswith(rule.source)
-            ):
+            if _matches_suffix_rule(rule, target):
                 suffix_matches.append(rule)
         if exact_retired is not None:
             return exact_retired
@@ -98,6 +107,92 @@ def _invalid(message: str) -> StaleLinkRegistryError:
     return StaleLinkRegistryError(f"invalid stale-link registry: {message}")
 
 
+def _decode_registry(raw: bytes) -> dict[str, object]:
+    """레지스트리 바이트를 순서가 보존된 JSON 객체로 디코딩.
+
+    Args:
+        raw: 레지스트리 원본 바이트.
+
+    Returns:
+        검증 전 최상위 JSON 객체.
+
+    Raises:
+        StaleLinkRegistryError: UTF-8, JSON 또는 최상위 필드 계약 위반.
+    """
+
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise _invalid("file must be UTF-8") from exc
+    try:
+        value = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise _invalid("malformed JSON") from exc
+    if not isinstance(value, dict) or tuple(value) != _TOP_LEVEL_KEYS:
+        raise _invalid("top-level fields or key order")
+    return value
+
+
+def _validated_retire_mode(
+    target: str | None,
+    retire_mode: object,
+    index: int,
+) -> str | None:
+    """대체 대상 유무와 폐기 방식 조합 검증."""
+
+    if target is None:
+        if not isinstance(retire_mode, str) or retire_mode not in _RETIRE_MODES:
+            raise _invalid(f"links[{index}].retire_mode")
+        return retire_mode
+    if retire_mode is not None:
+        raise _invalid(f"links[{index}].retire_mode")
+    return None
+
+
+def _parse_rule(entry: object, index: int) -> StaleLinkRule:
+    """JSON 항목 하나를 정규 오래된 링크 규칙으로 변환."""
+
+    if not isinstance(entry, dict) or tuple(entry) != _ENTRY_KEYS:
+        raise _invalid(f"links[{index}] fields or key order")
+    try:
+        version = validate_version_token(entry["version"])
+    except ValueError as exc:
+        raise _invalid(f"links[{index}] version") from exc
+    source = entry["from"]
+    target = entry["to"]
+    if not isinstance(source, str) or not source:
+        raise _invalid(f"links[{index}].from")
+    if target is not None and (not isinstance(target, str) or not target):
+        raise _invalid(f"links[{index}].to")
+    try:
+        source.encode("utf-8")
+        if target is not None:
+            target.encode("utf-8")
+    except UnicodeEncodeError as exc:
+        raise _invalid(f"links[{index}] strings must be UTF-8") from exc
+    retire_mode = _validated_retire_mode(target, entry["retire_mode"], index)
+    return StaleLinkRule(version, source, target, retire_mode)
+
+
+def _validate_rules(rules: list[StaleLinkRule], raw: bytes, value: object) -> None:
+    """규칙 고유성·정렬·정규 JSON 바이트 계약 검증."""
+
+    identities: set[tuple[str, str]] = set()
+    for index, rule in enumerate(rules):
+        identity = (rule.version, rule.source)
+        if identity in identities:
+            raise _invalid(f"duplicate version/from at links[{index}]")
+        identities.add(identity)
+    ordering = [
+        (rule.version.encode("utf-8"), rule.source.encode("utf-8"))
+        for rule in rules
+    ]
+    if ordering != sorted(ordering):
+        raise _invalid("links must be sorted by version/from UTF-8 bytes")
+    if raw != _canonical_json(value):
+        raise _invalid("file must use canonical JSON")
+
+
 def load_stale_link_registry(path: Path = REGISTRY_PATH) -> StaleLinkRegistry:
     """정규 JSON 형식과 규칙 순서를 검증해 오래된 링크 레지스트리 로딩.
 
@@ -112,17 +207,7 @@ def load_stale_link_registry(path: Path = REGISTRY_PATH) -> StaleLinkRegistry:
             f"stale-link registry is unavailable: {path}"
         ) from exc
 
-    try:
-        text = raw.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        raise _invalid("file must be UTF-8") from exc
-    try:
-        value = json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise _invalid("malformed JSON") from exc
-
-    if not isinstance(value, dict) or tuple(value) != _TOP_LEVEL_KEYS:
-        raise _invalid("top-level fields or key order")
+    value = _decode_registry(raw)
     schema_version = value["schema_version"]
     if type(schema_version) is not int or schema_version != SCHEMA_VERSION:
         raise _invalid("unsupported schema_version")
@@ -130,51 +215,8 @@ def load_stale_link_registry(path: Path = REGISTRY_PATH) -> StaleLinkRegistry:
     if not isinstance(entries, list):
         raise _invalid("links must be an array")
 
-    rules: list[StaleLinkRule] = []
-    identities: set[tuple[str, str]] = set()
-    for index, entry in enumerate(entries):
-        if not isinstance(entry, dict) or tuple(entry) != _ENTRY_KEYS:
-            raise _invalid(f"links[{index}] fields or key order")
-        try:
-            version = validate_version_token(entry["version"])
-        except ValueError as exc:
-            raise _invalid(f"links[{index}] version") from exc
-        source = entry["from"]
-        target = entry["to"]
-        retire_mode = entry["retire_mode"]
-        if not isinstance(source, str) or not source:
-            raise _invalid(f"links[{index}].from")
-        if target is not None and (not isinstance(target, str) or not target):
-            raise _invalid(f"links[{index}].to")
-        try:
-            source.encode("utf-8")
-            if target is not None:
-                target.encode("utf-8")
-        except UnicodeEncodeError as exc:
-            raise _invalid(f"links[{index}] strings must be UTF-8") from exc
-        if target is None:
-            if (
-                not isinstance(retire_mode, str)
-                or retire_mode not in _RETIRE_MODES
-            ):
-                raise _invalid(f"links[{index}].retire_mode")
-        elif retire_mode is not None:
-            raise _invalid(f"links[{index}].retire_mode")
-
-        identity = (version, source)
-        if identity in identities:
-            raise _invalid(f"duplicate version/from at links[{index}]")
-        identities.add(identity)
-        rules.append(StaleLinkRule(version, source, target, retire_mode))
-
-    ordering = [
-        (rule.version.encode("utf-8"), rule.source.encode("utf-8"))
-        for rule in rules
-    ]
-    if ordering != sorted(ordering):
-        raise _invalid("links must be sorted by version/from UTF-8 bytes")
-    if raw != _canonical_json(value):
-        raise _invalid("file must use canonical JSON")
+    rules = [_parse_rule(entry, index) for index, entry in enumerate(entries)]
+    _validate_rules(rules, raw, value)
 
     return StaleLinkRegistry(
         raw=raw,

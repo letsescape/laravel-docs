@@ -40,6 +40,8 @@ _COMMIT_RE = {
 _VERSION_RE = re.compile(r"^(?:master|(?:0|[1-9]\d*)\.x)$")
 _MANIFEST_TOP_LEVEL_KEYS = ("schema_version", "entries")
 _MANIFEST_ENTRY_KEYS = ("version", "repository", "object_format", "commit")
+_INVALID_REF_ADVERTISEMENT = "invalid upstream ref advertisement"
+_UPSTREAM_PROCESS_ISOLATION_FAILED = "upstream process isolation failed"
 _GIT_PASSTHROUGH_ENV = {
     "ALL_PROXY",
     "GIT_SSL_CAINFO",
@@ -58,6 +60,21 @@ _GIT_PASSTHROUGH_ENV = {
     "no_proxy",
 }
 _PROCESS_RUNNER = run_process_tree
+
+
+class _UpstreamFailure(RuntimeError):
+    """CLI 진단과 종료 코드를 함께 전달하는 제어된 동기화 실패."""
+
+    def __init__(self, message: str, exit_code: int) -> None:
+        """출력할 진단과 종료 코드 저장.
+
+        Args:
+            message: 표준 오류에 출력할 진단.
+            exit_code: CLI 종료 코드.
+        """
+
+        super().__init__(message)
+        self.exit_code = exit_code
 
 
 def supported_versions() -> list[str]:
@@ -309,14 +326,14 @@ def _parse_remote_refs(
     """Git 원격 참조 응답을 버전별 커밋으로 파싱."""
 
     if not isinstance(output, str) or not output:
-        raise ValueError("invalid upstream ref advertisement")
+        raise ValueError(_INVALID_REF_ADVERTISEMENT)
     commits_by_ref: dict[str, str] = {}
     for line in output.splitlines():
         if line.count("\t") != 1:
-            raise ValueError("invalid upstream ref advertisement")
+            raise ValueError(_INVALID_REF_ADVERTISEMENT)
         commit, ref_name = line.split("\t")
         if ref_name not in expected_refs or ref_name in commits_by_ref:
-            raise ValueError("invalid upstream ref advertisement")
+            raise ValueError(_INVALID_REF_ADVERTISEMENT)
         _object_format(commit)
         commits_by_ref[ref_name] = commit
     if set(commits_by_ref) != set(expected_refs):
@@ -435,12 +452,15 @@ def write_manifest(path: Path, refs: dict[str, str]) -> None:
             temporary.unlink(missing_ok=True)
 
 
-def load_manifest_bytes(
-    contents: bytes,
-    *,
-    expected_versions: list[str] | None = None,
-) -> dict[str, str]:
-    """정규 매니페스트 바이트를 검증하고 버전별 커밋 로딩."""
+def _decode_manifest_payload(contents: bytes) -> dict[str, object]:
+    """정규 매니페스트 JSON과 최상위 schema 검증.
+
+    Args:
+        contents: UTF-8 JSON 매니페스트 바이트.
+
+    Returns:
+        검증된 최상위 JSON object.
+    """
 
     try:
         payload = json.loads(contents.decode("utf-8"))
@@ -454,29 +474,57 @@ def load_manifest_bytes(
         or not isinstance(payload["entries"], list)
     ):
         raise ValueError("invalid upstream manifest schema")
+    return payload
 
+
+def _manifest_entry_ref(entry: object, refs: dict[str, str]) -> tuple[str, str]:
+    """단일 매니페스트 항목을 검증해 버전과 커밋 추출.
+
+    Args:
+        entry: JSON에서 읽은 매니페스트 항목.
+        refs: 중복 검사용 기존 버전별 커밋 mapping.
+
+    Returns:
+        검증된 버전과 커밋.
+    """
+
+    if not isinstance(entry, dict) or tuple(entry) != _MANIFEST_ENTRY_KEYS:
+        raise ValueError("invalid upstream manifest entry schema")
+    version = entry["version"]
+    repository = entry["repository"]
+    object_format = entry["object_format"]
+    commit = entry["commit"]
+    if not isinstance(version, str) or not _VERSION_RE.fullmatch(version):
+        raise ValueError("invalid upstream manifest version")
+    if version in refs:
+        raise ValueError(f"duplicate upstream manifest version: {version}")
+    if repository != UPSTREAM_REPO:
+        raise ValueError("upstream manifest repository mismatch")
+    if (
+        not isinstance(object_format, str)
+        or object_format not in _COMMIT_RE
+        or not isinstance(commit, str)
+    ):
+        raise ValueError("invalid upstream manifest object format")
+    if not _COMMIT_RE[object_format].fullmatch(commit):
+        raise ValueError("invalid upstream manifest commit")
+    return version, commit
+
+
+def load_manifest_bytes(
+    contents: bytes,
+    *,
+    expected_versions: list[str] | None = None,
+) -> dict[str, str]:
+    """정규 매니페스트 바이트를 검증하고 버전별 커밋 로딩."""
+
+    payload = _decode_manifest_payload(contents)
+    entries = payload["entries"]
+    if not isinstance(entries, list):
+        raise TypeError("invalid upstream manifest schema")
     refs: dict[str, str] = {}
-    for entry in payload["entries"]:
-        if not isinstance(entry, dict) or tuple(entry) != _MANIFEST_ENTRY_KEYS:
-            raise ValueError("invalid upstream manifest entry schema")
-        version = entry["version"]
-        repository = entry["repository"]
-        object_format = entry["object_format"]
-        commit = entry["commit"]
-        if not isinstance(version, str) or not _VERSION_RE.fullmatch(version):
-            raise ValueError("invalid upstream manifest version")
-        if version in refs:
-            raise ValueError(f"duplicate upstream manifest version: {version}")
-        if repository != UPSTREAM_REPO:
-            raise ValueError("upstream manifest repository mismatch")
-        if (
-            not isinstance(object_format, str)
-            or object_format not in _COMMIT_RE
-            or not isinstance(commit, str)
-        ):
-            raise ValueError("invalid upstream manifest object format")
-        if not _COMMIT_RE[object_format].fullmatch(commit):
-            raise ValueError("invalid upstream manifest commit")
+    for entry in entries:
+        version, commit = _manifest_entry_ref(entry, refs)
         refs[version] = commit
 
     if expected_versions is not None and list(refs) != expected_versions:
@@ -586,6 +634,49 @@ def normalize_document_selector(document: str) -> str:
     return normalized
 
 
+def _collect_markdown_entry(
+    path: Path,
+    *,
+    directory: Path,
+    root: Path,
+    exclude_git: bool,
+    pending: list[Path],
+    documents: list[Path],
+) -> None:
+    """재귀 순회 중 단일 경로를 검증해 디렉터리 또는 문서로 수집.
+
+    Args:
+        path: 검사할 직접 하위 경로.
+        directory: 현재 순회 중인 디렉터리.
+        root: 순회 기준 루트.
+        exclude_git: 루트의 ``.git`` 제외 여부.
+        pending: 이후 순회할 디렉터리 stack.
+        documents: 검증된 Markdown 파일 누적 목록.
+    """
+
+    if exclude_git and directory == root and path.name == ".git":
+        return
+    if path.is_symlink():
+        raise ValueError(
+            "upstream Markdown symlink: "
+            + path.relative_to(root).as_posix()
+        )
+    if path.is_dir():
+        pending.append(path)
+        return
+    if path.suffix != ".md":
+        return
+    if not path.is_file():
+        raise ValueError(
+            "upstream Markdown path is unsafe: "
+            + path.relative_to(root).as_posix()
+        )
+    relative = path.relative_to(root).as_posix()
+    if normalize_document_selector(relative) != relative:
+        raise ValueError(f"upstream Markdown path is not canonical: {relative}")
+    documents.append(path)
+
+
 def _recursive_markdown_files(root: Path, *, exclude_git: bool = False) -> list[Path]:
     """심볼릭 링크를 거부하며 루트 아래의 Markdown 파일을 재귀적으로 수집."""
 
@@ -604,29 +695,14 @@ def _recursive_markdown_files(root: Path, *, exclude_git: bool = False) -> list[
             reverse=True,
         )
         for path in entries:
-            if exclude_git and directory == root and path.name == ".git":
-                continue
-            if path.is_symlink():
-                raise ValueError(
-                    "upstream Markdown symlink: "
-                    + path.relative_to(root).as_posix()
-                )
-            if path.is_dir():
-                pending.append(path)
-                continue
-            if path.suffix != ".md":
-                continue
-            if not path.is_file():
-                raise ValueError(
-                    "upstream Markdown path is unsafe: "
-                    + path.relative_to(root).as_posix()
-                )
-            relative = path.relative_to(root).as_posix()
-            if normalize_document_selector(relative) != relative:
-                raise ValueError(
-                    f"upstream Markdown path is not canonical: {relative}"
-                )
-            documents.append(path)
+            _collect_markdown_entry(
+                path,
+                directory=directory,
+                root=root,
+                exclude_git=exclude_git,
+                pending=pending,
+                documents=documents,
+            )
     return sorted(
         documents,
         key=lambda path: path.relative_to(root).as_posix().encode("utf-8"),
@@ -645,6 +721,112 @@ def _remove_empty_parents(path: Path, *, stop: Path) -> None:
         except (FileNotFoundError, OSError):
             return
         current = current.parent
+
+
+def _validated_version_destination(version: str, doc: str | None) -> tuple[Path, Path | None]:
+    """버전 캐시와 선택 문서 대상을 기존 파일까지 포함해 검증.
+
+    Args:
+        version: 지원 문서 버전.
+        doc: 선택 문서 경로.
+
+    Returns:
+        버전 캐시 경로와 선택 문서 대상 경로.
+    """
+
+    destination = _version_destination(version)
+    if doc is not None:
+        return destination, _document_destination(destination, doc)
+    for cached in _recursive_markdown_files(destination):
+        relative = cached.relative_to(destination).as_posix()
+        _document_destination(destination, relative)
+    return destination, None
+
+
+def _sync_selected_document(
+    repo_dir: Path,
+    destination: Path,
+    target: Path,
+    document: str,
+) -> int:
+    """선택한 단일 업스트림 Markdown 문서를 캐시에 동기화.
+
+    Args:
+        repo_dir: 체크아웃된 업스트림 저장소.
+        destination: 버전 캐시 경로.
+        target: 캐시의 선택 문서 대상 경로.
+        document: 업스트림 기준 문서 경로.
+
+    Returns:
+        적재한 문서 수.
+    """
+
+    source = repo_dir / document
+    if _has_symlink_component(source, root=repo_dir):
+        raise ValueError(f"upstream Markdown symlink: {source.name}")
+    try:
+        source_mode = source.lstat().st_mode
+    except FileNotFoundError:
+        unlink_file(target, missing_ok=True)
+        _remove_empty_parents(target.parent, stop=destination)
+        return 0
+    if not stat.S_ISREG(source_mode):
+        raise ValueError(f"upstream Markdown path is unsafe: {document}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    atomic_write_bytes(target, source.read_bytes())
+    return 1
+
+
+def _remove_stale_documents(
+    destination: Path,
+    source_names: set[str],
+) -> None:
+    """업스트림에 없는 캐시 문서와 비게 된 상위 디렉터리 제거.
+
+    Args:
+        destination: 버전 캐시 경로.
+        source_names: 업스트림의 정규 문서 경로 집합.
+    """
+
+    stale_parents: set[Path] = set()
+    for stale in _recursive_markdown_files(destination):
+        relative = stale.relative_to(destination).as_posix()
+        if relative not in source_names:
+            unlink_file(stale, missing_ok=True)
+            stale_parents.add(stale.parent)
+    for parent in sorted(
+        stale_parents,
+        key=lambda path: len(path.relative_to(destination).parts),
+        reverse=True,
+    ):
+        _remove_empty_parents(parent, stop=destination)
+
+
+def _sync_all_documents(repo_dir: Path, destination: Path) -> int:
+    """업스트림 Markdown 전체를 캐시에 복사하고 오래된 문서 제거.
+
+    Args:
+        repo_dir: 체크아웃된 업스트림 저장소.
+        destination: 버전 캐시 경로.
+
+    Returns:
+        적재한 문서 수.
+    """
+
+    sources = _recursive_markdown_files(repo_dir, exclude_git=True)
+    for source in sources:
+        relative = source.relative_to(repo_dir).as_posix()
+        _document_destination(destination, relative)
+    for source in sources:
+        relative = source.relative_to(repo_dir).as_posix()
+        target = _document_destination(destination, relative)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_bytes(target, source.read_bytes())
+    source_names = {
+        source.relative_to(repo_dir).as_posix() for source in sources
+    }
+    _remove_stale_documents(destination, source_names)
+    return len(sources)
 
 
 def sync_version(
@@ -675,12 +857,7 @@ def sync_version(
     """
     if doc is not None:
         doc = normalize_document_selector(doc)
-    dest = _version_destination(version)
-    if doc is not None:
-        target = _document_destination(dest, doc)
-    else:
-        for cached in _recursive_markdown_files(dest):
-            _document_destination(dest, cached.relative_to(dest).as_posix())
+    _validated_version_destination(version, doc)
     checkout_args = ["git", "checkout", "--force", ref or version]
     _run(
         checkout_args,
@@ -693,61 +870,216 @@ def sync_version(
     )
     dest = _version_destination(version)
     dest.mkdir(parents=True, exist_ok=True)
-    dest = _version_destination(version)
-    if doc is not None:
-        target = _document_destination(dest, doc)
-    else:
-        for cached in _recursive_markdown_files(dest):
-            _document_destination(dest, cached.relative_to(dest).as_posix())
+    dest, target = _validated_version_destination(version, doc)
 
     if doc is not None:
-        source = repo_dir / doc
-        if _has_symlink_component(source, root=repo_dir):
-            raise ValueError(f"upstream Markdown symlink: {source.name}")
-        try:
-            source_mode = source.lstat().st_mode
-        except FileNotFoundError:
-            unlink_file(target, missing_ok=True)
-            _remove_empty_parents(target.parent, stop=dest)
-            return 0
-        if not stat.S_ISREG(source_mode):
-            raise ValueError(f"upstream Markdown path is unsafe: {doc}")
-        target.parent.mkdir(parents=True, exist_ok=True)
-        atomic_write_bytes(target, source.read_bytes())
-        return 1
+        if target is None:
+            raise ValueError(f"invalid document destination: {doc}")
+        return _sync_selected_document(repo_dir, dest, target, doc)
+    return _sync_all_documents(repo_dir, dest)
 
-    sources = _recursive_markdown_files(repo_dir, exclude_git=True)
-    for source in sources:
-        relative = source.relative_to(repo_dir).as_posix()
-        _document_destination(dest, relative)
 
-    count = 0
-    for md in sources:
-        relative = md.relative_to(repo_dir).as_posix()
-        target = _document_destination(dest, relative)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        atomic_write_bytes(
-            target,
-            md.read_bytes(),
+def _selected_scope(
+    manifest_versions: list[str],
+    version: str | None,
+    document: str | None,
+) -> tuple[list[str], str | None]:
+    """CLI 버전과 문서 필터를 검증해 동기화 범위 결정.
+
+    Args:
+        manifest_versions: 매니페스트 전체 지원 버전.
+        version: 선택 버전.
+        document: 선택 문서 경로.
+
+    Returns:
+        선택된 버전 목록과 정규 문서 경로.
+    """
+
+    if document is not None and version is None:
+        raise ValueError("invalid document filter: --doc requires --version")
+    if version is not None and version not in manifest_versions:
+        raise ValueError(f"unsupported version: {version}")
+    selected_versions = manifest_versions if version is None else [version]
+    if document is None:
+        return selected_versions, None
+    try:
+        return selected_versions, normalize_document_selector(document)
+    except ValueError:
+        raise ValueError(f"invalid document filter: {document}") from None
+
+
+def _load_manifest_state(
+    manifest_versions: list[str],
+) -> tuple[Path | None, bytes | None, dict[str, str] | None]:
+    """환경이 지정한 기존 매니페스트와 digest 검증.
+
+    Args:
+        manifest_versions: 매니페스트에 필요한 전체 지원 버전.
+
+    Returns:
+        매니페스트 경로, 기존 바이트, 고정 ref mapping.
+    """
+
+    manifest_value = os.environ.get(MANIFEST_ENV, "").strip()
+    manifest_path = Path(manifest_value).resolve() if manifest_value else None
+    manifest_contents: bytes | None = None
+    pinned_refs: dict[str, str] | None = None
+    if manifest_path is not None and manifest_path.exists():
+        manifest_contents = manifest_path.read_bytes()
+        pinned_refs = load_manifest_bytes(
+            manifest_contents,
+            expected_versions=manifest_versions,
         )
-        count += 1
-
-    source_names = {
-        source.relative_to(repo_dir).as_posix() for source in sources
-    }
-    stale_parents: set[Path] = set()
-    for stale in _recursive_markdown_files(dest):
-        relative = stale.relative_to(dest).as_posix()
-        if relative not in source_names:
-            unlink_file(stale, missing_ok=True)
-            stale_parents.add(stale.parent)
-    for parent in sorted(
-        stale_parents,
-        key=lambda path: len(path.relative_to(dest).parts),
-        reverse=True,
+    expected_digest = os.environ.get(MANIFEST_DIGEST_ENV, "").strip()
+    if expected_digest and (
+        manifest_contents is None
+        or manifest_digest(manifest_contents) != expected_digest
     ):
-        _remove_empty_parents(parent, stop=dest)
-    return count
+        raise ValueError("upstream manifest digest mismatch")
+    return manifest_path, manifest_contents, pinned_refs
+
+
+def _resolve_manifest_refs(
+    manifest_versions: list[str],
+    *,
+    deadline: float | None,
+) -> tuple[bytes, dict[str, str]]:
+    """원격 ref를 조회해 정규 매니페스트와 고정 ref 구성.
+
+    Args:
+        manifest_versions: 조회할 전체 지원 버전.
+        deadline: 공통 워크플로 기한.
+
+    Returns:
+        생성한 매니페스트 바이트와 버전별 고정 ref.
+    """
+
+    try:
+        contents = resolve_manifest(manifest_versions, deadline=deadline)
+        refs = load_manifest_bytes(
+            contents,
+            expected_versions=manifest_versions,
+        )
+        return contents, refs
+    except ProcessTreeError as exc:
+        raise _UpstreamFailure(_UPSTREAM_PROCESS_ISOLATION_FAILED, 2) from exc
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        exit_code = 2 if deadline is not None else 1
+        raise _UpstreamFailure("upstream ref query failed", exit_code) from exc
+    except ValueError as exc:
+        raise _UpstreamFailure(f"upstream manifest error: {exc}", 1) from exc
+
+
+def _prepare_repository(
+    repo_dir: Path,
+    selected_refs: dict[str, str],
+    *,
+    document: str | None,
+    deadline: float | None,
+) -> None:
+    """선택 ref를 임시 업스트림 저장소에 준비.
+
+    Args:
+        repo_dir: 임시 업스트림 저장소 경로.
+        selected_refs: 선택 버전별 고정 ref.
+        document: 선택 문서 경로.
+        deadline: 공통 워크플로 기한.
+    """
+
+    try:
+        _prepare_upstream(
+            repo_dir,
+            selected_refs,
+            doc=document,
+            deadline=deadline,
+        )
+    except ProcessTreeError as exc:
+        raise _UpstreamFailure(_UPSTREAM_PROCESS_ISOLATION_FAILED, 2) from exc
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        exit_code = 2 if deadline is not None else 1
+        raise _UpstreamFailure("upstream fetch failed", exit_code) from exc
+    except ValueError as exc:
+        raise _UpstreamFailure(str(exc), 1) from exc
+
+
+def _sync_selected_version(
+    repo_dir: Path,
+    version: str,
+    pinned_refs: dict[str, str],
+    *,
+    document: str | None,
+    deadline: float | None,
+) -> int:
+    """준비된 저장소에서 단일 버전 원문 동기화.
+
+    Args:
+        repo_dir: 준비된 업스트림 저장소.
+        version: 동기화할 버전.
+        pinned_refs: 전체 버전별 고정 ref.
+        document: 선택 문서 경로.
+        deadline: 공통 워크플로 기한.
+
+    Returns:
+        적재한 문서 수.
+    """
+
+    try:
+        ref = manifest_ref(pinned_refs, version)
+        sync_kwargs: dict[str, object] = {"ref": ref, "doc": document}
+        if deadline is not None:
+            sync_kwargs["deadline"] = deadline
+        return sync_version(repo_dir, version, **sync_kwargs)
+    except subprocess.TimeoutExpired as exc:
+        raise _UpstreamFailure("workflow deadline exceeded", 2) from exc
+    except ProcessTreeError as exc:
+        raise _UpstreamFailure(_UPSTREAM_PROCESS_ISOLATION_FAILED, 2) from exc
+    except subprocess.CalledProcessError as exc:
+        message = f"version-{version}: pinned commit unavailable"
+        raise _UpstreamFailure(message, 1) from exc
+    except ValueError as exc:
+        raise _UpstreamFailure(str(exc), 1) from exc
+
+
+def _sync_selected_versions(
+    selected_versions: list[str],
+    pinned_refs: dict[str, str],
+    *,
+    document: str | None,
+    deadline: float | None,
+) -> None:
+    """임시 저장소에서 선택 범위 전체를 동기화하고 수량 출력.
+
+    Args:
+        selected_versions: 동기화할 버전 목록.
+        pinned_refs: 전체 버전별 고정 ref.
+        document: 선택 문서 경로.
+        deadline: 공통 워크플로 기한.
+    """
+
+    selected_refs = {
+        selected_version: manifest_ref(pinned_refs, selected_version)
+        for selected_version in selected_versions
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        repo_dir = Path(tmp) / "laravel-docs"
+        _prepare_repository(
+            repo_dir,
+            selected_refs,
+            document=document,
+            deadline=deadline,
+        )
+        total = 0
+        for selected_version in selected_versions:
+            count = _sync_selected_version(
+                repo_dir,
+                selected_version,
+                pinned_refs,
+                document=document,
+                deadline=deadline,
+            )
+            total += count
+            print(f"version-{selected_version}: {count} files")
+        print(f"total: {total} files")
 
 
 def main(*, version: str | None = None, doc: str | None = None) -> int:
@@ -776,131 +1108,40 @@ def main(*, version: str | None = None, doc: str | None = None) -> int:
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"versions.json error: {exc}", file=sys.stderr)
         return 1
-    selected_versions = manifest_versions
-    if doc is not None and version is None:
-        print(
-            "invalid document filter: --doc requires --version",
-            file=sys.stderr,
-        )
-        return 1
-    if version is not None:
-        if version not in manifest_versions:
-            print(f"unsupported version: {version}", file=sys.stderr)
-            return 1
-        selected_versions = [version]
-    if doc is not None:
-        try:
-            doc = normalize_document_selector(doc)
-        except ValueError:
-            print(f"invalid document filter: {doc}", file=sys.stderr)
-            return 1
-
-    manifest_value = os.environ.get(MANIFEST_ENV, "").strip()
-    manifest_path = Path(manifest_value).resolve() if manifest_value else None
-    manifest_contents: bytes | None = None
     try:
-        if manifest_path is not None and manifest_path.exists():
-            manifest_contents = manifest_path.read_bytes()
-            pinned_refs = load_manifest_bytes(
-                manifest_contents,
-                expected_versions=manifest_versions,
-            )
-        else:
-            pinned_refs = None
-        expected_manifest_digest = os.environ.get(
-            MANIFEST_DIGEST_ENV,
-            "",
-        ).strip()
-        if expected_manifest_digest and (
-            manifest_contents is None
-            or manifest_digest(manifest_contents) != expected_manifest_digest
-        ):
-            raise ValueError("upstream manifest digest mismatch")
+        selected_versions, doc = _selected_scope(manifest_versions, version, doc)
+    except ValueError as exc:
+        print(exc, file=sys.stderr)
+        return 1
+    try:
+        manifest_path, _, pinned_refs = _load_manifest_state(manifest_versions)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"upstream manifest error: {exc}", file=sys.stderr)
         return 1
     generated_manifest = pinned_refs is None
     if pinned_refs is None:
         try:
-            manifest_contents = resolve_manifest(
+            _, pinned_refs = _resolve_manifest_refs(
                 manifest_versions,
                 deadline=workflow_deadline,
             )
-            pinned_refs = load_manifest_bytes(
-                manifest_contents,
-                expected_versions=manifest_versions,
-            )
-        except ProcessTreeError:
-            print("upstream process isolation failed", file=sys.stderr)
-            return 2
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            print("upstream ref query failed", file=sys.stderr)
-            return 2 if workflow_deadline is not None else 1
-        except ValueError as exc:
-            print(f"upstream manifest error: {exc}", file=sys.stderr)
-            return 1
+        except _UpstreamFailure as exc:
+            print(exc, file=sys.stderr)
+            return exc.exit_code
 
     try:
-        selected_refs = {
-            selected_version: manifest_ref(pinned_refs, selected_version)
-            for selected_version in selected_versions
-        }
+        _sync_selected_versions(
+            selected_versions,
+            pinned_refs,
+            document=doc,
+            deadline=workflow_deadline,
+        )
+    except _UpstreamFailure as exc:
+        print(exc, file=sys.stderr)
+        return exc.exit_code
     except ValueError as exc:
         print(f"upstream manifest error: {exc}", file=sys.stderr)
         return 1
-
-    with tempfile.TemporaryDirectory() as tmp:
-        repo_dir = Path(tmp) / "laravel-docs"
-        try:
-            _prepare_upstream(
-                repo_dir,
-                selected_refs,
-                doc=doc,
-                deadline=workflow_deadline,
-            )
-        except ProcessTreeError:
-            print("upstream process isolation failed", file=sys.stderr)
-            return 2
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            print("upstream fetch failed", file=sys.stderr)
-            return 2 if workflow_deadline is not None else 1
-        except ValueError as exc:
-            print(exc, file=sys.stderr)
-            return 1
-
-        total = 0
-        for selected_version in selected_versions:
-            try:
-                ref = manifest_ref(pinned_refs, selected_version)
-                sync_kwargs: dict[str, object] = {
-                    "ref": ref,
-                    "doc": doc,
-                }
-                if workflow_deadline is not None:
-                    sync_kwargs["deadline"] = workflow_deadline
-                n = sync_version(
-                    repo_dir,
-                    selected_version,
-                    **sync_kwargs,
-                )
-            except subprocess.TimeoutExpired:
-                print("workflow deadline exceeded", file=sys.stderr)
-                return 2
-            except ProcessTreeError:
-                print("upstream process isolation failed", file=sys.stderr)
-                return 2
-            except subprocess.CalledProcessError:
-                print(
-                    f"version-{selected_version}: pinned commit unavailable",
-                    file=sys.stderr,
-                )
-                return 1
-            except ValueError as exc:
-                print(exc, file=sys.stderr)
-                return 1
-            total += n
-            print(f"version-{selected_version}: {n} files")
-        print(f"total: {total} files")
 
     if manifest_path is not None and generated_manifest:
         try:

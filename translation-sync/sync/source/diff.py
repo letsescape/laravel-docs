@@ -29,6 +29,16 @@ _VERSION_RE = re.compile(r"^(?:master|(?:0|[1-9]\d*)\.x)$")
 WORKFLOW_DEADLINE_ENV = "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC"
 _LOCALE_ENV_NAMES = frozenset(("LANG", "LANGUAGE", "PATH"))
 _GIT_CONFIG_OVERRIDES = ("-c", "core.fsmonitor=false")
+_PORCELAIN_STATUS_KIND = {
+    "??": "A",
+    " M": "M",
+    "M ": "M",
+    "MM": "M",
+    " D": "D",
+    "D ": "D",
+    "A ": "A",
+    "AM": "A",
+}
 
 
 class SourceDiffError(ValueError):
@@ -334,24 +344,36 @@ def _parse_porcelain_status(output: str) -> list[tuple[str, str]]:
         if len(record) < 4 or record[2] != " ":
             raise SourceDiffError("malformed git porcelain record")
 
-        state, path = record[:2], record[3:]
-        if state == "??":
-            records.append(("A", path))
-        elif state in {" M", "M ", "MM"}:
-            records.append(("M", path))
-        elif state in {" D", "D "}:
-            records.append(("D", path))
-        elif state in {"A ", "AM"}:
-            records.append(("A", path))
-        elif state in {"R ", "RM"}:
-            if index >= len(fields):
-                raise SourceDiffError("malformed git porcelain rename")
-            old_path = fields[index]
-            index += 1
-            records.extend((("D", old_path), ("A", path)))
-        else:
-            raise SourceDiffError(f"unsupported git status: {state!r}")
+        parsed_records, index = _parse_porcelain_record(record, fields, index)
+        records.extend(parsed_records)
     return records
+
+
+def _parse_porcelain_record(
+    record: str,
+    fields: list[str],
+    index: int,
+) -> tuple[tuple[tuple[str, str], ...], int]:
+    """단일 porcelain 상태 레코드를 A/M/D 변경으로 변환.
+
+    Args:
+        record: 상태 두 글자와 경로로 구성된 레코드.
+        fields: 이름 변경의 이전 경로를 포함한 전체 필드.
+        index: 다음 미처리 필드 위치.
+
+    Returns:
+        변환된 변경 레코드와 다음 필드 위치.
+    """
+
+    state, path = record[:2], record[3:]
+    status = _PORCELAIN_STATUS_KIND.get(state)
+    if status is not None:
+        return ((status, path),), index
+    if state not in {"R ", "RM"}:
+        raise SourceDiffError(f"unsupported git status: {state!r}")
+    if index >= len(fields):
+        raise SourceDiffError("malformed git porcelain rename")
+    return (("D", fields[index]), ("A", path)), index + 1
 
 
 def _git_diff_args(path: str, base_ref: str | None) -> list[str]:

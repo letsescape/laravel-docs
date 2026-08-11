@@ -8,10 +8,10 @@ from __future__ import annotations
 import re
 from collections import Counter
 from collections.abc import Callable
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from enum import Enum
 
-from ..annotation.annotate import split_blocks
+from ..annotation.annotate import Block, split_blocks
 from ..common.markdown import (
     closes_fence,
     fence_token,
@@ -31,7 +31,7 @@ from ..common.markdown import (
     strip_inline_code,
     strip_title_attr_line,
 )
-from ..source.diff import DiffHunk, hunks_between
+from ..source.diff import DiffHunk, DiffLine, hunks_between
 
 _ADMONITION_MARKER_RE = re.compile(
     r"^>\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)]\s*$", re.IGNORECASE
@@ -339,6 +339,37 @@ class _NamedSection:
 def build_create_plan(source_text: str) -> PatchPlan:
     """신규 원문 문서를 순서가 보존된 분할 불가능 owner 단위로 분해."""
 
+    _validate_create_source(source_text)
+    front_matter = _front_matter_text(source_text)
+    source_lines = source_text.splitlines(keepends=True)
+    plain_lines = source_text.splitlines()
+    ranges = _create_owner_ranges(source_text, plain_lines)
+    create_blocks, cursor = _create_blocks_from_ranges(
+        source_lines,
+        plain_lines,
+        ranges,
+    )
+    if any(line.strip() for line in source_lines[cursor:]):
+        raise PatchError("source contains an unsupported create owner block")
+    return PatchPlan(
+        changes=(),
+        new_front_matter=front_matter,
+        create_blocks=tuple(create_blocks),
+        create_suffix="".join(source_lines[cursor:]),
+        is_create=True,
+    )
+
+
+def _validate_create_source(source_text: str) -> None:
+    """신규 원문의 주석·admonition·머리말 지원 범위 검증.
+
+    Args:
+        source_text: 신규 영어 원문.
+
+    Raises:
+        PatchError: 지원하지 않는 원문 구조 발견.
+    """
+
     if has_malformed_html_comment_delimiters(source_text):
         raise PatchError("malformed standalone source HTML comment")
     _require_supported_admonition_markers(source_text)
@@ -346,26 +377,78 @@ def build_create_plan(source_text: str) -> PatchPlan:
     if front_matter is not None:
         _require_supported_front_matter(front_matter)
 
-    source_lines = source_text.splitlines(keepends=True)
-    plain_lines = source_text.splitlines()
+
+def _create_owner_ranges(
+    source_text: str,
+    plain_lines: list[str],
+) -> list[tuple[int, int, str]]:
+    """신규 원문을 분할 불가능 owner 줄 범위로 분해.
+
+    Args:
+        source_text: 신규 영어 원문.
+        plain_lines: 줄바꿈을 제외한 원문 줄.
+
+    Returns:
+        시작·끝 줄과 기본 블록 유형 목록.
+    """
+
     comment_ranges = _standalone_source_comment_ranges(source_text)
     ranges: list[tuple[int, int, str]] = []
     for block in split_blocks(plain_lines):
-        cursor = block.start
-        for comment_start, comment_end in comment_ranges:
-            if comment_end <= cursor or comment_start >= block.end:
-                continue
-            if cursor < comment_start:
-                ranges.append((cursor, comment_start, block.kind))
-            cursor = max(cursor, comment_end)
-        if cursor < block.end:
-            ranges.append((cursor, block.end, block.kind))
+        ranges.extend(_block_owner_ranges(block, comment_ranges))
     ranges.extend((start, end, "source_comment") for start, end in comment_ranges)
-    ranges = sorted(
+    return sorted(
         item
         for item in ranges
         if any(line.strip() for line in plain_lines[item[0] : item[1]])
     )
+
+
+def _block_owner_ranges(
+    block: Block,
+    comment_ranges: tuple[tuple[int, int], ...],
+) -> list[tuple[int, int, str]]:
+    """Markdown 블록에서 독립 원문 주석을 제외한 owner 범위 추출.
+
+    Args:
+        block: ``split_blocks``가 반환한 Markdown 블록.
+        comment_ranges: 독립 원문 주석 줄 범위.
+
+    Returns:
+        주석 사이의 시작·끝 줄과 블록 유형.
+    """
+
+    ranges: list[tuple[int, int, str]] = []
+    cursor = block.start
+    for comment_start, comment_end in comment_ranges:
+        if comment_end <= cursor or comment_start >= block.end:
+            continue
+        if cursor < comment_start:
+            ranges.append((cursor, comment_start, block.kind))
+        cursor = max(cursor, comment_end)
+    if cursor < block.end:
+        ranges.append((cursor, block.end, block.kind))
+    return ranges
+
+
+def _create_blocks_from_ranges(
+    source_lines: list[str],
+    plain_lines: list[str],
+    ranges: list[tuple[int, int, str]],
+) -> tuple[list[CreateBlock], int]:
+    """owner 줄 범위를 신규 문서 patch 블록으로 변환.
+
+    Args:
+        source_lines: 줄바꿈을 보존한 원문 줄.
+        plain_lines: 줄바꿈을 제외한 원문 줄.
+        ranges: 시작·끝 줄과 기본 블록 유형 목록.
+
+    Returns:
+        생성 블록 목록과 마지막 소비 줄 위치.
+
+    Raises:
+        PatchError: owner 범위가 겹치거나 지원하지 않는 공백 외 내용 발견.
+    """
 
     create_blocks: list[CreateBlock] = []
     cursor = 0
@@ -387,16 +470,7 @@ def build_create_plan(source_text: str) -> PatchPlan:
             )
         )
         cursor = end
-
-    if any(line.strip() for line in source_lines[cursor:]):
-        raise PatchError("source contains an unsupported create owner block")
-    return PatchPlan(
-        changes=(),
-        new_front_matter=front_matter,
-        create_blocks=tuple(create_blocks),
-        create_suffix="".join(source_lines[cursor:]),
-        is_create=True,
-    )
+    return create_blocks, cursor
 
 
 def _create_block_kind(base_kind: str, source: str) -> str:
@@ -518,6 +592,481 @@ def _with_source_line_ending(rendered: str, source: str) -> str:
     return rendered.rstrip("\r\n") + ending
 
 
+def reconstruct_source_pair(
+    hunks: tuple[DiffHunk, ...],
+    source_text: str,
+) -> tuple[str, str]:
+    """diff hunk를 역적용해 이전·현재 원문 쌍 재구성.
+
+    Args:
+        hunks: 현재 원문에 적용된 통합 diff 변경 구간.
+        source_text: 변경 이후의 전체 원문.
+
+    Returns:
+        변경 이전 원문과 현재 원문 쌍.
+    """
+
+    source_lines = source_text.splitlines()
+    old_source_lines = _reverse_apply_hunks(source_lines, hunks)
+    return _lines_text(old_source_lines, source_text), source_text
+
+
+@dataclass(frozen=True)
+class _PlanSources:
+    """patch 계획에 반복 사용되는 이전·현재 원문 구조."""
+
+    old_text: str
+    new_text: str
+    old_lines: list[str]
+    new_lines: list[str]
+    old_front_matter: str | None
+    new_front_matter: str | None
+    old_blocks: list[SourceBlock]
+    new_blocks: list[SourceBlock]
+    old_regions: list[tuple[int, int]]
+    new_regions: list[tuple[int, int]]
+    old_control_lines: set[int]
+    new_control_lines: set[int]
+
+
+def _plan_sources(old_text: str, new_text: str) -> _PlanSources:
+    """이전·현재 원문에서 patch 계획용 구조 정보 구성.
+
+    Args:
+        old_text: 변경 이전 영어 원문.
+        new_text: 변경 이후 영어 원문.
+
+    Returns:
+        줄·블록·code 영역·제어 줄을 포함한 계획 원문 상태.
+    """
+
+    old_lines = old_text.splitlines()
+    new_lines = new_text.splitlines()
+    old_front_matter = _front_matter_text(old_text)
+    new_front_matter = _front_matter_text(new_text)
+    if old_front_matter != new_front_matter and new_front_matter is not None:
+        _require_supported_front_matter(new_front_matter)
+    old_comments = _source_comment_line_numbers(old_text)
+    new_comments = _source_comment_line_numbers(new_text)
+    return _PlanSources(
+        old_text=old_text,
+        new_text=new_text,
+        old_lines=old_lines,
+        new_lines=new_lines,
+        old_front_matter=old_front_matter,
+        new_front_matter=new_front_matter,
+        old_blocks=_source_blocks(old_text),
+        new_blocks=_source_blocks(new_text),
+        old_regions=_code_fence_regions(old_lines),
+        new_regions=_code_fence_regions(new_lines),
+        old_control_lines=old_comments | _front_matter_line_numbers(old_text),
+        new_control_lines=new_comments | _front_matter_line_numbers(new_text),
+    )
+
+
+def _normalized_patch_plan(
+    hunks: tuple[DiffHunk, ...],
+    old_text: str,
+    new_text: str,
+    *,
+    normalize_source: Callable[[str], str] | None,
+    normalize_source_pair: Callable[[str, str], tuple[str, str]] | None,
+) -> PatchPlan | None:
+    """요청된 원문 정규화를 적용한 재귀 patch 계획 생성.
+
+    Args:
+        hunks: 현재 원문에 적용된 통합 diff 변경 구간.
+        old_text: 변경 이전 영어 원문.
+        new_text: 변경 이후 영어 원문.
+        normalize_source: 문서별 단일 원문 정규화 함수.
+        normalize_source_pair: 이전·현재 원문 쌍 정규화 함수.
+
+    Returns:
+        정규화가 요청됐으면 재구성한 계획, 아니면 ``None``.
+
+    Raises:
+        PatchError: 정규화 계약이 잘못되었거나 두 계약을 동시에 지정.
+    """
+
+    if normalize_source is not None and normalize_source_pair is not None:
+        raise PatchError("specify only one source normalizer contract")
+    if normalize_source_pair is not None:
+        normalized = normalize_source_pair(old_text, new_text)
+        if (
+            not isinstance(normalized, tuple)
+            or len(normalized) != 2
+            or not all(isinstance(item, str) for item in normalized)
+        ):
+            raise PatchError("source pair normalizer must return two strings")
+        normalized_old, normalized_new = normalized
+        return build_plan(hunks_between(normalized_old, normalized_new), normalized_new)
+    if normalize_source is not None:
+        normalized_old = normalize_source(old_text)
+        normalized_new = normalize_source(new_text)
+        return build_plan(hunks_between(normalized_old, normalized_new), normalized_new)
+    return None
+
+
+def _named_reorder_patch_plan(
+    sources: _PlanSources,
+    reorder: NamedSectionReorder | None,
+) -> PatchPlan | None:
+    """이름 anchor section 재정렬 전용 patch 계획 생성.
+
+    Args:
+        sources: 이전·현재 원문 구조.
+        reorder: 재정렬된 section 서명 또는 ``None``.
+
+    Returns:
+        section 재정렬 계획. 일반 diff면 ``None``.
+    """
+
+    if reorder is None:
+        return None
+    return PatchPlan(
+        changes=(),
+        old_source_anchors=tuple(
+            block.comment for block in _plan_source_blocks(sources.old_blocks)
+        ),
+        new_source_anchors=tuple(
+            block.comment for block in _plan_source_blocks(sources.new_blocks)
+        ),
+        old_code_blocks=_code_blocks_from_regions(
+            sources.old_lines,
+            sources.old_regions,
+        ),
+        new_code_blocks=_code_blocks_from_regions(
+            sources.new_lines,
+            sources.new_regions,
+        ),
+        old_source_comments=_source_comment_locations(sources.old_text),
+        new_source_comments=_source_comment_locations(sources.new_text),
+        named_section_reorder=reorder,
+        old_front_matter=sources.old_front_matter,
+        new_front_matter=sources.new_front_matter,
+    )
+
+
+@dataclass
+class _SegmentAccumulator:
+    """단일 hunk의 연속 add·delete 줄을 초기 segment로 누적."""
+
+    segments: list[BlockChange]
+    before_context: DiffLine | None = None
+    old_lines: list[str] = field(default_factory=list)
+    new_lines: list[str] = field(default_factory=list)
+    old_linenos: list[int] = field(default_factory=list)
+    new_linenos: list[int] = field(default_factory=list)
+
+    @property
+    def pending(self) -> bool:
+        """확정하지 않은 add·delete 줄 존재 여부."""
+
+        return bool(self.old_lines or self.new_lines)
+
+    def flush(self, after_context: DiffLine | None = None) -> None:
+        """누적 diff 줄을 하나의 초기 segment로 확정.
+
+        Args:
+            after_context: 변경 바로 다음 문맥 줄.
+        """
+
+        if self.pending:
+            self.segments.append(
+                BlockChange(
+                    old_lines=tuple(self.old_lines),
+                    new_lines=tuple(self.new_lines),
+                    before_context=_context_text(self.before_context),
+                    after_context=_context_text(after_context),
+                    old_linenos=tuple(self.old_linenos),
+                    new_linenos=tuple(self.new_linenos),
+                    before_old_lineno=(
+                        self.before_context.old_lineno if self.before_context else None
+                    ),
+                    before_new_lineno=(
+                        self.before_context.new_lineno if self.before_context else None
+                    ),
+                    after_old_lineno=after_context.old_lineno if after_context else None,
+                    after_new_lineno=after_context.new_lineno if after_context else None,
+                )
+            )
+            self.old_lines.clear()
+            self.new_lines.clear()
+            self.old_linenos.clear()
+            self.new_linenos.clear()
+        if after_context is not None:
+            self.before_context = after_context
+
+    def consume(
+        self,
+        line: DiffLine,
+        *,
+        old_control_lines: set[int],
+        new_control_lines: set[int],
+    ) -> None:
+        """hunk 줄을 제어 줄·문맥·add·delete 규칙으로 누적.
+
+        Args:
+            line: 통합 diff 줄.
+            old_control_lines: 이전 원문의 annotation·머리말 줄.
+            new_control_lines: 현재 원문의 annotation·머리말 줄.
+        """
+
+        if line.old_lineno in old_control_lines or line.new_lineno in new_control_lines:
+            if self.pending:
+                self.flush()
+            self.before_context = None
+            return
+        if line.kind == "context":
+            context = _normalize_text(line.text)
+            if self.pending and context:
+                self.flush(line)
+            elif context:
+                self.before_context = line
+            return
+        if line.kind == "delete":
+            self.old_lines.append(line.text)
+            if line.old_lineno is not None:
+                self.old_linenos.append(line.old_lineno)
+        elif line.kind == "add":
+            self.new_lines.append(line.text)
+            if line.new_lineno is not None:
+                self.new_linenos.append(line.new_lineno)
+
+
+def _hunk_without_control_lines(hunk: DiffHunk, sources: _PlanSources) -> DiffHunk:
+    """annotation·머리말 제어 줄을 제외한 hunk 생성.
+
+    Args:
+        hunk: 원본 통합 diff hunk.
+        sources: 이전·현재 원문 구조.
+
+    Returns:
+        patch 대상 줄만 포함한 hunk.
+    """
+
+    return DiffHunk(
+        old_start=hunk.old_start,
+        old_count=hunk.old_count,
+        new_start=hunk.new_start,
+        new_count=hunk.new_count,
+        lines=tuple(
+            line
+            for line in hunk.lines
+            if line.old_lineno not in sources.old_control_lines
+            and line.new_lineno not in sources.new_control_lines
+        ),
+    )
+
+
+def _initial_segments(
+    hunks: tuple[DiffHunk, ...],
+    sources: _PlanSources,
+) -> list[BlockChange]:
+    """통합 diff를 code 영역 또는 연속 줄 단위 초기 segment로 변환.
+
+    Args:
+        hunks: 현재 원문에 적용된 통합 diff 변경 구간.
+        sources: 이전·현재 원문 구조.
+
+    Returns:
+        원문 블록 확장 전 초기 변경 segment.
+    """
+
+    segments: list[BlockChange] = []
+    for hunk in hunks:
+        if _hunk_has_code_fence_change(
+            hunk,
+            old_ignored=sources.old_control_lines,
+            new_ignored=sources.new_control_lines,
+        ):
+            segments.append(
+                _hunk_region_segment(
+                    _hunk_without_control_lines(hunk, sources),
+                    sources.new_lines,
+                )
+            )
+            continue
+        accumulator = _SegmentAccumulator(segments)
+        for line in hunk.lines:
+            accumulator.consume(
+                line,
+                old_control_lines=sources.old_control_lines,
+                new_control_lines=sources.new_control_lines,
+            )
+        accumulator.flush()
+    return [segment for segment in segments if segment.old_lines or segment.new_lines]
+
+
+def _expanded_code_segment(
+    segment: BlockChange,
+    filtered: list[BlockChange],
+    sources: _PlanSources,
+    emitted_regions: set[int],
+) -> BlockChange | None:
+    """code fence 영역 변경을 블록 전체 교체 segment로 확장.
+
+    Args:
+        segment: 현재 초기 변경 segment.
+        filtered: 전체 초기 변경 segment.
+        sources: 이전·현재 원문 구조.
+        emitted_regions: 이미 확정한 현재 code 영역 순번.
+
+    Returns:
+        처음 방문한 code 영역의 확장 segment. 일반 변경 또는 중복이면 ``None``.
+    """
+
+    region, old_region = _code_region_indexes(
+        segment,
+        sources.new_regions,
+        sources.old_regions,
+    )
+    if region is None or region >= len(sources.new_regions):
+        return None
+    if region in emitted_regions:
+        return None
+    emitted_regions.add(region)
+    group = [
+        other
+        for other in filtered
+        if _code_region_indexes(
+            other,
+            sources.new_regions,
+            sources.old_regions,
+        )[0]
+        == region
+    ]
+    candidates = {
+        candidate
+        for other in group
+        for candidate in [
+            _code_region_indexes(
+                other,
+                sources.new_regions,
+                sources.old_regions,
+            )[1]
+        ]
+        if candidate is not None
+    }
+    if len(candidates) == 1:
+        old_region = candidates.pop()
+    return _code_block_segment(
+        group,
+        sources.new_lines,
+        sources.new_regions[region],
+        region,
+        old_source_lines=sources.old_lines,
+        old_regions=sources.old_regions,
+        old_block_index=old_region,
+    )
+
+
+def _expanded_segments(
+    filtered: list[BlockChange],
+    sources: _PlanSources,
+) -> list[BlockChange]:
+    """초기 변경을 번역 소유 블록 또는 code 블록 전체로 확장.
+
+    Args:
+        filtered: 제어 줄과 빈 변경을 제외한 초기 segment.
+        sources: 이전·현재 원문 구조.
+
+    Returns:
+        병합 전 소유 블록 변경 segment.
+
+    Raises:
+        PatchError: 수정 표 행의 안정 주소가 없거나 한 표의 여러 행 수정.
+    """
+
+    expanded: list[BlockChange] = []
+    emitted_regions: set[int] = set()
+    modified_tables: set[int] = set()
+    for segment in filtered:
+        region, _old_region = _code_region_indexes(
+            segment,
+            sources.new_regions,
+            sources.old_regions,
+        )
+        code_segment = _expanded_code_segment(
+            segment,
+            filtered,
+            sources,
+            emitted_regions,
+        )
+        if region is not None and region < len(sources.new_regions):
+            if code_segment is not None:
+                expanded.append(code_segment)
+            continue
+        _require_supported_modified_admonition(segment)
+        if _require_supported_modified_table(segment):
+            table_row = _source_table_row_change(segment, sources.old_lines)
+            if table_row is None:
+                raise PatchError("modified table row has no stable source address")
+            if table_row.table_ordinal in modified_tables:
+                raise PatchError("modified table must change exactly one row")
+            modified_tables.add(table_row.table_ordinal)
+        expanded.extend(
+            _expand_to_source_blocks(
+                segment,
+                new_source_blocks=sources.new_blocks,
+                old_source_blocks=sources.old_blocks,
+                new_source_lines=sources.new_lines,
+                old_source_lines=sources.old_lines,
+            )
+        )
+    return expanded
+
+
+def _final_patch_plan(
+    changes: list[BlockChange],
+    sources: _PlanSources,
+) -> PatchPlan:
+    """확장된 변경과 원문 구조 서명을 최종 patch 계획으로 조립.
+
+    Args:
+        changes: 병합이 끝난 소유 블록 변경.
+        sources: 이전·현재 원문 구조.
+
+    Returns:
+        번역 적용에 사용할 완성된 patch 계획.
+    """
+
+    return PatchPlan(
+        changes=tuple(
+            _add_neighbor_anchors(
+                _attach_deleted_code_block(
+                    change,
+                    old_source_lines=sources.old_lines,
+                    old_regions=sources.old_regions,
+                    new_source_lines=sources.new_lines,
+                    new_regions=sources.new_regions,
+                ),
+                old_source_blocks=sources.old_blocks,
+                new_source_blocks=sources.new_blocks,
+            )
+            for change in changes
+        ),
+        old_source_anchors=tuple(
+            block.comment for block in _plan_source_blocks(sources.old_blocks)
+        ),
+        new_source_anchors=tuple(
+            block.comment for block in _plan_source_blocks(sources.new_blocks)
+        ),
+        old_code_blocks=_code_blocks_from_regions(
+            sources.old_lines,
+            sources.old_regions,
+        ),
+        new_code_blocks=_code_blocks_from_regions(
+            sources.new_lines,
+            sources.new_regions,
+        ),
+        old_source_comments=_source_comment_locations(sources.old_text),
+        new_source_comments=_source_comment_locations(sources.new_text),
+        old_front_matter=sources.old_front_matter,
+        new_front_matter=sources.new_front_matter,
+    )
+
+
 def build_plan(
     hunks: tuple[DiffHunk, ...],
     source_text: str,
@@ -527,269 +1076,26 @@ def build_plan(
 ) -> PatchPlan:
     """effective line delta와 전체 이전·신규 원문 block의 결합."""
 
-    if normalize_source is not None and normalize_source_pair is not None:
-        raise PatchError("specify only one source normalizer contract")
-
-    source_lines = source_text.splitlines()
-    old_source_lines = _reverse_apply_hunks(source_lines, hunks)
-    old_source_text = _lines_text(old_source_lines, source_text)
-    if normalize_source_pair is not None:
-        normalized = normalize_source_pair(old_source_text, source_text)
-        if (
-            not isinstance(normalized, tuple)
-            or len(normalized) != 2
-            or not all(isinstance(item, str) for item in normalized)
-        ):
-            raise PatchError("source pair normalizer must return two strings")
-        normalized_old, normalized_new = normalized
-        return build_plan(
-            hunks_between(normalized_old, normalized_new),
-            normalized_new,
-        )
-    if normalize_source is not None:
-        normalized_old = normalize_source(old_source_text)
-        normalized_new = normalize_source(source_text)
-        return build_plan(
-            hunks_between(normalized_old, normalized_new),
-            normalized_new,
-        )
-
-    old_front_matter = _front_matter_text(old_source_text)
-    new_front_matter = _front_matter_text(source_text)
-    if old_front_matter != new_front_matter and new_front_matter is not None:
-        _require_supported_front_matter(new_front_matter)
-
-    named_section_reorder = _named_section_reorder(
+    old_source_text, source_text = reconstruct_source_pair(hunks, source_text)
+    normalized = _normalized_patch_plan(
+        hunks,
         old_source_text,
         source_text,
+        normalize_source=normalize_source,
+        normalize_source_pair=normalize_source_pair,
     )
-    if named_section_reorder is not None:
-        old_source_blocks = _source_blocks(old_source_text)
-        new_source_blocks = _source_blocks(source_text)
-        old_regions = _code_fence_regions(old_source_lines)
-        new_regions = _code_fence_regions(source_lines)
-        return PatchPlan(
-            changes=(),
-            old_source_anchors=tuple(
-                block.comment for block in _plan_source_blocks(old_source_blocks)
-            ),
-            new_source_anchors=tuple(
-                block.comment for block in _plan_source_blocks(new_source_blocks)
-            ),
-            old_code_blocks=_code_blocks_from_regions(
-                old_source_lines,
-                old_regions,
-            ),
-            new_code_blocks=_code_blocks_from_regions(
-                source_lines,
-                new_regions,
-            ),
-            old_source_comments=_source_comment_locations(old_source_text),
-            new_source_comments=_source_comment_locations(source_text),
-            named_section_reorder=named_section_reorder,
-            old_front_matter=old_front_matter,
-            new_front_matter=new_front_matter,
-        )
-
-    old_comment_lines = _source_comment_line_numbers(old_source_text)
-    new_comment_lines = _source_comment_line_numbers(source_text)
-    old_control_lines = old_comment_lines | _front_matter_line_numbers(old_source_text)
-    new_control_lines = new_comment_lines | _front_matter_line_numbers(source_text)
-
-    segments: list[BlockChange] = []
-
-    for hunk in hunks:
-        if _hunk_has_code_fence_change(
-            hunk,
-            old_ignored=old_control_lines,
-            new_ignored=new_control_lines,
-        ):
-            segments.append(
-                _hunk_region_segment(
-                    replace(
-                        hunk,
-                        lines=tuple(
-                            line
-                            for line in hunk.lines
-                            if line.old_lineno not in old_control_lines
-                            and line.new_lineno not in new_control_lines
-                        ),
-                    ),
-                    source_lines,
-                )
-            )
-            continue
-
-        before_context: DiffLine | None = None
-        old_lines: list[str] = []
-        new_lines: list[str] = []
-        old_linenos: list[int] = []
-        new_linenos: list[int] = []
-
-        def flush(after_context: DiffLine | None = None) -> None:
-            """누적된 diff 줄을 하나의 초기 segment로 확정."""
-
-            nonlocal before_context, old_lines, new_lines, old_linenos, new_linenos
-            if old_lines or new_lines:
-                segments.append(
-                    BlockChange(
-                        old_lines=tuple(old_lines),
-                        new_lines=tuple(new_lines),
-                        before_context=_context_text(before_context),
-                        after_context=_context_text(after_context),
-                        old_linenos=tuple(old_linenos),
-                        new_linenos=tuple(new_linenos),
-                        before_old_lineno=(
-                            before_context.old_lineno if before_context else None
-                        ),
-                        before_new_lineno=(
-                            before_context.new_lineno if before_context else None
-                        ),
-                        after_old_lineno=(
-                            after_context.old_lineno if after_context else None
-                        ),
-                        after_new_lineno=(
-                            after_context.new_lineno if after_context else None
-                        ),
-                    )
-                )
-                old_lines = []
-                new_lines = []
-                old_linenos = []
-                new_linenos = []
-            if after_context is not None:
-                before_context = after_context
-
-        for line in hunk.lines:
-            if (
-                line.old_lineno in old_control_lines
-                or line.new_lineno in new_control_lines
-            ):
-                if old_lines or new_lines:
-                    flush(None)
-                before_context = None
-                continue
-            if line.kind == "context":
-                context = _normalize_text(line.text)
-                if old_lines or new_lines:
-                    if context:
-                        flush(line)
-                elif context:
-                    before_context = line
-                continue
-            if line.kind == "delete":
-                old_lines.append(line.text)
-                if line.old_lineno is not None:
-                    old_linenos.append(line.old_lineno)
-            elif line.kind == "add":
-                new_lines.append(line.text)
-                if line.new_lineno is not None:
-                    new_linenos.append(line.new_lineno)
-
-        flush(None)
-
-    new_regions = _code_fence_regions(source_lines)
-    old_regions = _code_fence_regions(old_source_lines)
-    filtered = [
-        segment
-        for segment in segments
-        if segment.old_lines or segment.new_lines
-    ]
-    new_source_blocks = _source_blocks(source_text)
-    old_source_blocks = _source_blocks(old_source_text)
-    new_signature_text = (
-        normalize_source(source_text) if normalize_source else source_text
+    if normalized is not None:
+        return normalized
+    sources = _plan_sources(old_source_text, source_text)
+    reorder_plan = _named_reorder_patch_plan(
+        sources,
+        _named_section_reorder(old_source_text, source_text),
     )
-    old_signature_text = (
-        normalize_source(old_source_text) if normalize_source else old_source_text
-    )
-    new_signature_blocks = _source_blocks(new_signature_text)
-    old_signature_blocks = _source_blocks(old_signature_text)
-
-    expanded: list[BlockChange] = []
-    emitted_regions: set[int] = set()
-    modified_table_ordinals: set[int] = set()
-    for segment in filtered:
-        region, old_region = _code_region_indexes(
-            segment, new_regions, old_regions
-        )
-        if region is not None and region < len(new_regions):
-            if region in emitted_regions:
-                continue
-            emitted_regions.add(region)
-            group = [
-                other
-                for other in filtered
-                if _code_region_indexes(other, new_regions, old_regions)[0] == region
-            ]
-            old_region_candidates = {
-                candidate
-                for other in group
-                for candidate in [
-                    _code_region_indexes(other, new_regions, old_regions)[1]
-                ]
-                if candidate is not None
-            }
-            if len(old_region_candidates) == 1:
-                old_region = old_region_candidates.pop()
-            expanded.append(
-                _code_block_segment(
-                    group,
-                    source_lines,
-                    new_regions[region],
-                    region,
-                    old_source_lines=old_source_lines,
-                    old_regions=old_regions,
-                    old_block_index=old_region,
-                )
-            )
-            continue
-        _require_supported_modified_admonition(segment)
-        if _require_supported_modified_table(segment):
-            table_row = _source_table_row_change(segment, old_source_lines)
-            if table_row is None:
-                raise PatchError("modified table row has no stable source address")
-            if table_row.table_ordinal in modified_table_ordinals:
-                raise PatchError("modified table must change exactly one row")
-            modified_table_ordinals.add(table_row.table_ordinal)
-        expanded.extend(
-            _expand_to_source_blocks(
-                segment,
-                new_source_blocks=new_source_blocks,
-                old_source_blocks=old_source_blocks,
-                new_source_lines=source_lines,
-                old_source_lines=old_source_lines,
-            )
-        )
-    coalesced = _coalesce_source_block_segments(expanded)
-    return PatchPlan(
-        changes=tuple(
-            _add_neighbor_anchors(
-                _attach_deleted_code_block(
-                    change,
-                    old_source_lines=old_source_lines,
-                    old_regions=old_regions,
-                    new_source_lines=source_lines,
-                    new_regions=new_regions,
-                ),
-                old_source_blocks=old_source_blocks,
-                new_source_blocks=new_source_blocks,
-            )
-            for change in coalesced
-        ),
-        old_source_anchors=tuple(
-            block.comment for block in _plan_source_blocks(old_signature_blocks)
-        ),
-        new_source_anchors=tuple(
-            block.comment for block in _plan_source_blocks(new_signature_blocks)
-        ),
-        old_code_blocks=_code_blocks_from_regions(old_source_lines, old_regions),
-        new_code_blocks=_code_blocks_from_regions(source_lines, new_regions),
-        old_source_comments=_source_comment_locations(old_source_text),
-        new_source_comments=_source_comment_locations(source_text),
-        old_front_matter=old_front_matter,
-        new_front_matter=new_front_matter,
-    )
+    if reorder_plan is not None:
+        return reorder_plan
+    initial = _initial_segments(hunks, sources)
+    expanded = _expanded_segments(initial, sources)
+    return _final_patch_plan(_coalesce_source_block_segments(expanded), sources)
 
 
 def _context_text(line: DiffLine | None) -> str | None:
@@ -843,32 +1149,50 @@ def _require_supported_front_matter(front_matter: str) -> None:
         if not line.strip() or line.lstrip().startswith("#"):
             index += 1
             continue
-        if line[:1].isspace():
-            raise PatchError("unsupported front matter: nested values are not supported")
-        match = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(.*)", line)
-        if match is None:
-            raise PatchError("unsupported front matter string scalar")
-        key = match.group(1)
-        if key in keys:
-            raise PatchError("unsupported front matter: duplicate key")
-        keys.add(key)
-        end = index + 1
-        while end < len(lines) - 1 and (
-            not lines[end].strip() or lines[end][:1].isspace()
-        ):
-            end += 1
-        candidate = "\n".join(
-            [
-                "---",
-                f"description: {match.group(2)}",
-                *lines[index + 1 : end],
-                "---",
-            ]
-        )
-        description = front_matter_description(candidate)
-        if description is None or not description.valid:
-            raise PatchError("unsupported front matter string scalar")
-        index = end
+        index = _validate_front_matter_scalar(lines, index, keys)
+
+
+def _validate_front_matter_scalar(
+    lines: list[str],
+    index: int,
+    keys: set[str],
+) -> int:
+    """단일 머리말 key와 scalar를 검증하고 다음 key 위치 반환.
+
+    Args:
+        lines: 머리말 물리 줄.
+        index: 현재 key 줄 위치.
+        keys: 이미 확인한 key 집합.
+
+    Returns:
+        다음 key 또는 닫는 구분자 위치.
+
+    Raises:
+        PatchError: 중첩값·잘못된 scalar·중복 key 발견.
+    """
+
+    line = lines[index]
+    if line[:1].isspace():
+        raise PatchError("unsupported front matter: nested values are not supported")
+    match = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(.*)", line)
+    if match is None:
+        raise PatchError("unsupported front matter string scalar")
+    key = match.group(1)
+    if key in keys:
+        raise PatchError("unsupported front matter: duplicate key")
+    keys.add(key)
+    end = index + 1
+    while end < len(lines) - 1 and (
+        not lines[end].strip() or lines[end][:1].isspace()
+    ):
+        end += 1
+    candidate = "\n".join(
+        ["---", f"description: {match.group(2)}", *lines[index + 1 : end], "---"]
+    )
+    description = front_matter_description(candidate)
+    if description is None or not description.valid:
+        raise PatchError("unsupported front matter string scalar")
+    return end
 
 
 def _source_comment_line_numbers(text: str) -> set[int]:
@@ -906,27 +1230,67 @@ def existing_context(text: str, segment: BlockChange) -> str:
     blocks = _blocks(text)
     old_anchor = segment.old_source or _joined(segment.old_lines)
     if old_anchor:
-        try:
-            found = _find_old_blocks(blocks, segment)
-            return "".join(block.text for block in found).strip()
-        except PatchError:
-            applied = _find_applied_new_blocks(blocks, segment)
-            if applied:
-                return "".join(block.text for block in applied).strip()
-            if segment.is_block_range:
-                raise
-            if _single_table_row_lines(segment) is not None:
-                context = _table_row_context(text, segment)
-                if context:
-                    return context.strip()
-                raise
-            context = _context_between_raw_contexts(text, segment)
-            if context:
-                return context.strip()
-            raise
+        return _existing_replacement_context(text, blocks, segment)
     applied = _find_applied_new_blocks(blocks, segment)
     if applied:
         return "".join(block.text for block in applied).strip()
+    context = _neighbor_existing_context(blocks, segment)
+    return context if context is not None else "(none)"
+
+
+def _existing_replacement_context(
+    text: str,
+    blocks: list[AnnotatedBlock],
+    segment: BlockChange,
+) -> str:
+    """교체·삭제 segment의 기존 locale 문맥 탐색.
+
+    Args:
+        text: 기존 locale 문서.
+        blocks: annotation block 목록.
+        segment: 적용할 변경 segment.
+
+    Returns:
+        기존 또는 이미 적용된 locale 문맥.
+
+    Raises:
+        PatchError: 안정적인 기존 주소를 찾지 못함.
+    """
+
+    try:
+        found = _find_old_blocks(blocks, segment)
+        return "".join(block.text for block in found).strip()
+    except PatchError:
+        applied = _find_applied_new_blocks(blocks, segment)
+        if applied:
+            return "".join(block.text for block in applied).strip()
+        if segment.is_block_range:
+            raise
+        if _single_table_row_lines(segment) is not None:
+            context = _table_row_context(text, segment)
+            if context:
+                return context.strip()
+            raise
+        context = _context_between_raw_contexts(text, segment)
+        if context:
+            return context.strip()
+        raise
+
+
+def _neighbor_existing_context(
+    blocks: list[AnnotatedBlock],
+    segment: BlockChange,
+) -> str | None:
+    """삽입 segment의 이전·다음 anchor 문맥 탐색.
+
+    Args:
+        blocks: annotation block 목록.
+        segment: 적용할 삽입 segment.
+
+    Returns:
+        발견한 이웃 block 본문 또는 ``None``.
+    """
+
     for anchor, neighbor, ordinal in (
         (
             segment.before_context,
@@ -943,7 +1307,7 @@ def existing_context(text: str, segment: BlockChange) -> str:
             block = _context_anchor_block(blocks, anchor, neighbor, ordinal)
             if block:
                 return block.text.strip()
-    return "(none)"
+    return None
 
 
 def _existing_admonition_context(text: str, segment: BlockChange) -> str:
@@ -1126,6 +1490,52 @@ def apply_plan(
         return _render_create_plan(plan, translated_blocks)
     if existing is None:
         raise PatchError("non-create plan requires an existing locale document")
+    _validate_plan_translation_count(state, plan, translated_blocks)
+    code_state = _code_plan_state(existing, plan)
+    source_state = state is PlanState.SOURCE
+    target_state = state is PlanState.TARGET
+    working = _apply_front_matter_change(existing, plan) if source_state else existing
+    source_anchors = plan.new_source_anchors if target_state else plan.old_source_anchors
+    source_comments = plan.new_source_comments if target_state else plan.old_source_comments
+    masked_existing, source_comment_replacements = _mask_source_comment_anchors(
+        working, source_anchors or (), source_comments
+    )
+    result = _apply_plan_body(
+        masked_existing,
+        plan,
+        translated_blocks,
+        source_state=source_state,
+        target_state=target_state,
+        code_state=code_state,
+    )
+    result = _ensure_single_eof_newline(result)
+    _validate_plan_body_order(result, plan)
+    restored = _restore_plan_source_comments(
+        result,
+        plan,
+        source_comment_replacements,
+        source_state=source_state,
+    )
+    _validate_restored_source_comments(restored, plan)
+    return restored
+
+
+def _validate_plan_translation_count(
+    state: PlanState,
+    plan: PatchPlan,
+    translated_blocks: list[str],
+) -> None:
+    """계획 상태에 맞는 provider 번역 블록 개수 검증.
+
+    Args:
+        state: 현재 locale 문서의 계획 상태.
+        plan: 적용할 patch 계획.
+        translated_blocks: provider 번역 결과.
+
+    Raises:
+        PatchError: 기대 개수와 실제 번역 블록 개수가 다름.
+    """
+
     expected = (
         0
         if state is PlanState.TARGET
@@ -1135,79 +1545,121 @@ def apply_plan(
         raise PatchError(
             f"translation count mismatch: expected {expected}, got {len(translated_blocks)}"
         )
-    code_state = _code_plan_state(existing, plan)
-    source_state = state is PlanState.SOURCE
-    target_state = state is PlanState.TARGET
-    working = (
-        _apply_front_matter_change(existing, plan)
-        if source_state
-        else existing
-    )
-    source_anchors = (
-        plan.new_source_anchors
-        if target_state
-        else plan.old_source_anchors
-    )
-    source_comments = (
-        plan.new_source_comments
-        if target_state
-        else plan.old_source_comments
-    )
-    masked_existing, source_comment_replacements = _mask_source_comment_anchors(
-        working, source_anchors or (), source_comments
-    )
+
+
+def _apply_plan_body(
+    existing: str,
+    plan: PatchPlan,
+    translated_blocks: list[str],
+    *,
+    source_state: bool,
+    target_state: bool,
+    code_state: PlanState,
+) -> str:
+    """section 재정렬 또는 일반 segment를 마스킹된 문서에 적용.
+
+    Args:
+        existing: 원문 작성 주석 anchor를 마스킹한 locale 문서.
+        plan: 적용할 patch 계획.
+        translated_blocks: provider 번역 결과.
+        source_state: 문서가 변경 이전 상태인지 여부.
+        target_state: 문서가 변경 이후 상태인지 여부.
+        code_state: fenced code 구조의 현재 계획 상태.
+
+    Returns:
+        source comment 복원 전 patch 결과.
+    """
+
     if plan.named_section_reorder is not None and source_state:
-        result = _apply_named_section_reorder(
-            masked_existing,
-            plan.named_section_reorder,
-        )
-    else:
-        result = apply_segments(
-            masked_existing,
-            list(plan.changes),
-            translated_blocks,
-            source_state=source_state,
-            target_state=target_state,
-            code_state=code_state,
-        )
-    result = _ensure_single_eof_newline(result)
-    if (
-        plan.named_section_reorder is not None
-        and tuple(
+        return _apply_named_section_reorder(existing, plan.named_section_reorder)
+    return apply_segments(
+        existing,
+        list(plan.changes),
+        translated_blocks,
+        source_state=source_state,
+        target_state=target_state,
+        code_state=code_state,
+    )
+
+
+def _validate_plan_body_order(result: str, plan: PatchPlan) -> None:
+    """patch 결과의 section 또는 annotation anchor 순서 검증.
+
+    Args:
+        result: source comment 복원 전 patch 결과.
+        plan: 적용한 patch 계획.
+
+    Raises:
+        PatchError: 결과 block 순서가 목표 원문과 다름.
+    """
+
+    if plan.named_section_reorder is not None:
+        order = tuple(
             section.signature
             for section in _split_named_sections(result, translated=True)[1]
         )
-        != plan.named_section_reorder.new_order
-    ):
-        raise PatchError("patched named section order does not match the target source")
+        if order != plan.named_section_reorder.new_order:
+            raise PatchError("patched named section order does not match the target source")
+        return
     if (
-        plan.named_section_reorder is None
-        and plan.new_source_anchors is not None
+        plan.new_source_anchors is not None
+        and _annotation_anchor_sequence(result) != plan.new_source_anchors
     ):
-        result_anchors = _annotation_anchor_sequence(result)
-        if result_anchors != plan.new_source_anchors:
-            raise PatchError("patched block order does not match the target source")
-    restored = (
-        _rewrite_source_comment_anchors(
+        raise PatchError("patched block order does not match the target source")
+
+
+def _restore_plan_source_comments(
+    result: str,
+    plan: PatchPlan,
+    replacements: tuple[tuple[str, str], ...],
+    *,
+    source_state: bool,
+) -> str:
+    """마스킹된 원문 작성 주석을 목표 계획에 맞게 복원.
+
+    Args:
+        result: source comment 복원 전 patch 결과.
+        plan: 적용한 patch 계획.
+        replacements: 임시 anchor별 원래 주석 mapping.
+        source_state: 문서가 변경 이전 상태였는지 여부.
+
+    Returns:
+        원문 작성 주석 복원이 끝난 locale 문서.
+    """
+
+    if source_state and plan.named_section_reorder is None:
+        return _rewrite_source_comment_anchors(
             result,
-            source_comment_replacements,
+            replacements,
             plan.old_source_comments,
             plan.new_source_comments,
             plan.new_source_anchors or (),
         )
-        if source_state and plan.named_section_reorder is None
-        else _restore_source_comment_anchors(result, source_comment_replacements)
-    )
+    return _restore_source_comment_anchors(result, replacements)
+
+
+def _validate_restored_source_comments(result: str, plan: PatchPlan) -> None:
+    """복원된 원문 작성 주석의 목표 block 순서 검증.
+
+    Args:
+        result: source comment 복원이 끝난 locale 문서.
+        plan: 적용한 patch 계획.
+
+    Raises:
+        PatchError: 주석 순서가 목표 원문과 다름.
+    """
+
     if (
         plan.named_section_reorder is None
         and plan.new_source_anchors is not None
         and _locate_source_comment_blocks(
-            restored, plan.new_source_anchors, plan.new_source_comments
+            result,
+            plan.new_source_anchors,
+            plan.new_source_comments,
         )
         is None
     ):
         raise PatchError("patched source HTML comment order does not match the target source")
-    return restored
 
 
 def plan_state(existing: str | None, plan: PatchPlan) -> PlanState:
@@ -1220,39 +1672,8 @@ def plan_state(existing: str | None, plan: PatchPlan) -> PlanState:
     if existing is None:
         raise PatchError("non-create plan requires an existing locale document")
     if plan.named_section_reorder is not None:
-        if _matches_named_section_state(
-            existing,
-            plan.old_source_anchors or (),
-            plan.old_source_comments,
-            plan.named_section_reorder.old_order,
-        ):
-            return PlanState.SOURCE
-        if _matches_named_section_state(
-            existing,
-            plan.new_source_anchors or (),
-            plan.new_source_comments,
-            plan.named_section_reorder.new_order,
-        ):
-            return PlanState.TARGET
-        raise PatchError(
-            "existing named section order matches neither source nor target plan state"
-        )
-
-    has_anchor_transition = (
-        plan.old_source_anchors is not None
-        and plan.new_source_anchors is not None
-        and plan.old_source_anchors != plan.new_source_anchors
-        and any(change.old_anchors or change.new_anchors for change in plan.changes)
-    )
-    has_front_matter_transition = plan.old_front_matter != plan.new_front_matter
-    has_comment_transition = _source_comment_signatures(
-        plan.old_source_comments
-    ) != _source_comment_signatures(plan.new_source_comments)
-    if not (
-        has_anchor_transition
-        or has_front_matter_transition
-        or has_comment_transition
-    ):
+        return _named_section_plan_state(existing, plan)
+    if not _has_guarded_transition(plan):
         return PlanState.UNGUARDED
     if _matches_document_state(
         existing,
@@ -1268,8 +1689,65 @@ def plan_state(existing: str | None, plan: PatchPlan) -> PlanState:
         plan.new_source_comments,
     ):
         return PlanState.TARGET
+    raise PatchError("existing document matches neither source nor target plan state")
+
+
+def _has_guarded_transition(plan: PatchPlan) -> bool:
+    """계획에 상태 판정이 필요한 구조 전환이 있는지 판정.
+
+    Args:
+        plan: 판정할 patch 계획.
+
+    Returns:
+        anchor·머리말·원문 주석 구조가 변경되는지 여부.
+    """
+
+    anchor_transition = (
+        plan.old_source_anchors is not None
+        and plan.new_source_anchors is not None
+        and plan.old_source_anchors != plan.new_source_anchors
+        and any(change.old_anchors or change.new_anchors for change in plan.changes)
+    )
+    front_matter_transition = plan.old_front_matter != plan.new_front_matter
+    comment_transition = _source_comment_signatures(
+        plan.old_source_comments
+    ) != _source_comment_signatures(plan.new_source_comments)
+    return anchor_transition or front_matter_transition or comment_transition
+
+
+def _named_section_plan_state(existing: str, plan: PatchPlan) -> PlanState:
+    """이름 anchor section 재정렬 계획의 현재 상태 판정.
+
+    Args:
+        existing: 기존 locale 문서.
+        plan: section 재정렬 patch 계획.
+
+    Returns:
+        변경 이전 또는 이후 상태.
+
+    Raises:
+        PatchError: 어느 section 순서와도 일치하지 않음.
+    """
+
+    reorder = plan.named_section_reorder
+    if reorder is None:
+        raise PatchError("named section plan requires a reorder contract")
+    if _matches_named_section_state(
+        existing,
+        plan.old_source_anchors or (),
+        plan.old_source_comments,
+        reorder.old_order,
+    ):
+        return PlanState.SOURCE
+    if _matches_named_section_state(
+        existing,
+        plan.new_source_anchors or (),
+        plan.new_source_comments,
+        reorder.new_order,
+    ):
+        return PlanState.TARGET
     raise PatchError(
-        "existing document matches neither source nor target plan state"
+        "existing named section order matches neither source nor target plan state"
     )
 
 
@@ -1432,6 +1910,12 @@ def _source_comment_locations(text: str) -> tuple[SourceComment, ...]:
     source_blocks = _plan_source_blocks(_source_blocks(text))
     source_comment_lines = _source_comment_line_numbers(text)
     front_matter_lines = _front_matter_line_numbers(text)
+    has_other_content = any(
+        line.strip()
+        and lineno not in source_comment_lines
+        and lineno not in front_matter_lines
+        for lineno, line in enumerate(lines, start=1)
+    )
     comments: list[SourceComment] = []
     for start in _comment_starts(lines):
         if (
@@ -1439,54 +1923,61 @@ def _source_comment_locations(text: str) -> tuple[SourceComment, ...]:
             or start + 1 in front_matter_lines
         ):
             continue
-        end, comment_body = _read_comment(lines, start)
-        body = _normalize_text(comment_body)
-        lineno = start + 1
-        anchor_position = sum(
-            block.start_lineno < lineno for block in source_blocks
-        )
-        previous = (
-            source_blocks[anchor_position - 1]
-            if anchor_position > 0
-            else None
-        )
-        following = (
-            source_blocks[anchor_position]
-            if anchor_position < len(source_blocks)
-            else None
-        )
-        before_following = bool(following) and not any(
-            line.strip()
-            for line in lines[end : following.start_lineno - 1]
-        )
-        after_previous = bool(previous) and not any(
-            line.strip()
-            for line in lines[previous.end_lineno : start]
-        )
-        has_other_content = any(
-            line.strip()
-            and lineno not in source_comment_lines
-            and lineno not in front_matter_lines
-            for lineno, line in enumerate(lines, start=1)
-        )
-        placement = (
-            "before"
-            if before_following
-            else "after"
-            if after_previous
-            else "document"
-            if not source_blocks and not has_other_content
-            else "ambiguous"
-        )
         comments.append(
-            SourceComment(
-                body=body,
-                anchor_position=anchor_position,
-                raw="".join(lines[start:end]),
-                placement=placement,
+            _source_comment_location(
+                lines,
+                start,
+                source_blocks,
+                has_other_content=has_other_content,
             )
         )
     return tuple(comments)
+
+
+def _source_comment_location(
+    lines: list[str],
+    start: int,
+    source_blocks: list[SourceBlock],
+    *,
+    has_other_content: bool,
+) -> SourceComment:
+    """단일 원문 작성 주석의 anchor 위치와 배치 계산.
+
+    Args:
+        lines: 줄바꿈을 보존한 원문 줄.
+        start: 주석 시작 줄 위치.
+        source_blocks: 번역 계획 원문 블록.
+        has_other_content: 주석·머리말 이외의 문서 내용 존재 여부.
+
+    Returns:
+        구조 주소가 포함된 원문 주석.
+    """
+
+    end, comment_body = _read_comment(lines, start)
+    lineno = start + 1
+    position = sum(block.start_lineno < lineno for block in source_blocks)
+    previous = source_blocks[position - 1] if position > 0 else None
+    following = source_blocks[position] if position < len(source_blocks) else None
+    before_following = bool(following) and not any(
+        line.strip() for line in lines[end : following.start_lineno - 1]
+    )
+    after_previous = bool(previous) and not any(
+        line.strip() for line in lines[previous.end_lineno : start]
+    )
+    if before_following:
+        placement = "before"
+    elif after_previous:
+        placement = "after"
+    elif not source_blocks and not has_other_content:
+        placement = "document"
+    else:
+        placement = "ambiguous"
+    return SourceComment(
+        body=_normalize_text(comment_body),
+        anchor_position=position,
+        raw="".join(lines[start:end]),
+        placement=placement,
+    )
 
 
 def _mask_source_comment_anchors(
@@ -1592,32 +2083,67 @@ def _insert_source_comments(
     lines = text.splitlines(keepends=True)
     insertions: dict[int, list[SourceComment]] = {}
     for comment in comments:
-        if comment.placement == "ambiguous":
-            raise PatchError("source HTML comment structural address is ambiguous")
-        if comment.placement == "before":
-            if comment.anchor_position >= len(blocks):
-                raise PatchError("source HTML comment next anchor is missing")
-            index = blocks[comment.anchor_position].start
-        elif comment.placement == "after":
-            if comment.anchor_position == 0 or comment.anchor_position > len(blocks):
-                raise PatchError("source HTML comment previous anchor is missing")
-            index = blocks[comment.anchor_position - 1].end
-        else:
-            if blocks:
-                raise PatchError("source HTML comment document boundary is ambiguous")
-            front_matter = _front_matter_text(text)
-            index = len(front_matter.splitlines()) if front_matter else 0
+        index = _source_comment_insertion_index(text, blocks, comment)
         insertions.setdefault(index, []).append(comment)
 
     for index, group in sorted(insertions.items(), reverse=True):
-        ending = "\r\n" if any(comment.raw.endswith("\r\n") for comment in group) else "\n"
-        rendered = ending.join(
-            comment.raw.rstrip("\r\n") for comment in group
-        ) + ending
+        ending, rendered = _render_source_comment_group(group)
         before = "" if index == 0 or not lines[index - 1].strip() else ending
         after = "" if index >= len(lines) or not lines[index].strip() else ending
         lines[index:index] = [before + rendered + after]
     return "".join(lines)
+
+
+def _source_comment_insertion_index(
+    text: str,
+    blocks: list[AnnotatedBlock],
+    comment: SourceComment,
+) -> int:
+    """원문 작성 주석의 locale 삽입 줄 위치 계산.
+
+    Args:
+        text: 기존 locale 문서.
+        blocks: 번역 계획 annotation 블록.
+        comment: 삽입할 원문 작성 주석.
+
+    Returns:
+        0-based 삽입 줄 위치.
+
+    Raises:
+        PatchError: 구조 주소가 모호하거나 이웃 anchor가 없음.
+    """
+
+    if comment.placement == "ambiguous":
+        raise PatchError("source HTML comment structural address is ambiguous")
+    if comment.placement == "before":
+        if comment.anchor_position >= len(blocks):
+            raise PatchError("source HTML comment next anchor is missing")
+        return blocks[comment.anchor_position].start
+    if comment.placement == "after":
+        if comment.anchor_position == 0 or comment.anchor_position > len(blocks):
+            raise PatchError("source HTML comment previous anchor is missing")
+        return blocks[comment.anchor_position - 1].end
+    if blocks:
+        raise PatchError("source HTML comment document boundary is ambiguous")
+    front_matter = _front_matter_text(text)
+    return len(front_matter.splitlines()) if front_matter else 0
+
+
+def _render_source_comment_group(
+    comments: list[SourceComment],
+) -> tuple[str, str]:
+    """같은 위치의 원문 주석을 원래 줄바꿈 형식으로 렌더링.
+
+    Args:
+        comments: 같은 삽입 위치의 원문 주석.
+
+    Returns:
+        사용할 줄바꿈과 결합된 주석 본문.
+    """
+
+    ending = "\r\n" if any(comment.raw.endswith("\r\n") for comment in comments) else "\n"
+    rendered = ending.join(comment.raw.rstrip("\r\n") for comment in comments)
+    return ending, rendered + ending
 
 
 def _locate_source_comment_blocks(
@@ -1629,6 +2155,50 @@ def _locate_source_comment_blocks(
 
     blocks = _blocks(text)
     plan_blocks = [block for block in blocks if _is_plan_anchor(block)]
+    expected, plan_prefixes = _source_comment_expectations(anchors, comments)
+    if tuple(block.comment for block in plan_blocks) != tuple(
+        body for body, _index in expected
+    ):
+        return None
+    located, anchor_blocks = _located_plan_comment_blocks(
+        plan_blocks,
+        expected,
+        len(comments),
+    )
+    if not _locate_non_plan_comment_blocks(
+        blocks,
+        plan_blocks,
+        comments,
+        plan_prefixes,
+        located,
+    ):
+        return None
+    if any(block is None for block in located):
+        return None
+    resolved = tuple(block for block in located if block is not None)
+    lines = text.splitlines(keepends=True)
+    if not all(
+        _source_comment_placement_is_valid(lines, block, comment, anchor_blocks)
+        for block, comment in zip(resolved, comments, strict=True)
+    ):
+        return None
+    return resolved
+
+
+def _source_comment_expectations(
+    anchors: tuple[str, ...],
+    comments: tuple[SourceComment, ...],
+) -> tuple[list[tuple[str, int | None]], dict[int, int]]:
+    """원문 주석과 번역 anchor의 기대 순서 구성.
+
+    Args:
+        anchors: 번역 계획 annotation anchor 순서.
+        comments: 구조 주소가 포함된 원문 작성 주석.
+
+    Returns:
+        기대 주석 순서와 비계획 주석별 앞선 계획 anchor 수.
+    """
+
     expected: list[tuple[str, int | None]] = []
     plan_prefixes: dict[int, int] = {}
     by_position: dict[int, list[tuple[int, SourceComment]]] = {}
@@ -1642,19 +2212,54 @@ def _locate_source_comment_blocks(
                 expected.append((comment.body, index))
         if position < len(anchors):
             expected.append((anchors[position], None))
+    return expected, plan_prefixes
 
-    if tuple(block.comment for block in plan_blocks) != tuple(
-        body for body, _index in expected
-    ):
-        return None
 
-    located: list[AnnotatedBlock | None] = [None] * len(comments)
+def _located_plan_comment_blocks(
+    plan_blocks: list[AnnotatedBlock],
+    expected: list[tuple[str, int | None]],
+    comment_count: int,
+) -> tuple[list[AnnotatedBlock | None], list[AnnotatedBlock]]:
+    """계획 anchor로 사용되는 원문 주석과 번역 블록 배치.
+
+    Args:
+        plan_blocks: locale 문서의 계획 annotation 블록.
+        expected: 기대 계획 주석·anchor 순서.
+        comment_count: 전체 원문 작성 주석 수.
+
+    Returns:
+        원문 주석별 위치와 순수 번역 anchor 블록.
+    """
+
+    located: list[AnnotatedBlock | None] = [None] * comment_count
     anchor_blocks: list[AnnotatedBlock] = []
     for block, (_body, comment_index) in zip(plan_blocks, expected, strict=True):
         if comment_index is not None:
             located[comment_index] = block
         else:
             anchor_blocks.append(block)
+    return located, anchor_blocks
+
+
+def _locate_non_plan_comment_blocks(
+    blocks: list[AnnotatedBlock],
+    plan_blocks: list[AnnotatedBlock],
+    comments: tuple[SourceComment, ...],
+    plan_prefixes: dict[int, int],
+    located: list[AnnotatedBlock | None],
+) -> bool:
+    """구조·식별자 원문 주석을 본문과 앞선 계획 anchor 수로 탐색.
+
+    Args:
+        blocks: locale 문서의 전체 annotation 블록.
+        plan_blocks: 계획 anchor로 분류된 블록.
+        comments: 구조 주소가 포함된 원문 작성 주석.
+        plan_prefixes: 주석별 앞선 계획 anchor 수.
+        located: 원문 주석별 위치 누적 목록.
+
+    Returns:
+        모든 비계획 주석 occurrence가 유일하게 대응하는지 여부.
+    """
 
     non_plan_groups: dict[tuple[str, int], list[int]] = {}
     for index, comment in enumerate(comments):
@@ -1670,40 +2275,52 @@ def _locate_source_comment_blocks(
             and sum(candidate.start < block.start for candidate in plan_blocks) == prefix
         ]
         if len(candidates) != len(indexes):
-            return None
+            return False
         for index, block in zip(indexes, candidates, strict=True):
             located[index] = block
+    return True
 
-    if any(block is None for block in located):
-        return None
-    resolved = tuple(block for block in located if block is not None)
-    lines = text.splitlines(keepends=True)
-    for block, comment in zip(resolved, comments, strict=True):
-        end, _body = _read_comment(lines, block.start)
-        if "".join(lines[block.start:end]) != comment.raw:
-            return None
-        if comment.placement == "before":
-            if comment.anchor_position >= len(anchor_blocks) or any(
-                line.strip()
-                for line in lines[
-                    end : anchor_blocks[comment.anchor_position].start
-                ]
-            ):
-                return None
-        elif comment.placement == "after":
-            if comment.anchor_position == 0 or any(
-                line.strip()
-                for line in lines[
-                    anchor_blocks[comment.anchor_position - 1].end : block.start
-                ]
-            ):
-                return None
-        elif comment.placement == "document":
-            if anchor_blocks:
-                return None
-        else:
-            return None
-    return resolved
+
+def _source_comment_placement_is_valid(
+    lines: list[str],
+    block: AnnotatedBlock,
+    comment: SourceComment,
+    anchor_blocks: list[AnnotatedBlock],
+) -> bool:
+    """탐색된 원문 주석의 원문값과 이웃 anchor 배치 검증.
+
+    Args:
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        block: 탐색된 원문 주석 block.
+        comment: 기대 원문 작성 주석.
+        anchor_blocks: 순수 번역 계획 anchor 블록.
+
+    Returns:
+        주석 원문과 before·after·document 배치 일치 여부.
+    """
+
+    end, _body = _read_comment(lines, block.start)
+    if "".join(lines[block.start:end]) != comment.raw:
+        return False
+    if comment.placement == "before":
+        if comment.anchor_position >= len(anchor_blocks):
+            return False
+        return not any(
+            line.strip()
+            for line in lines[end : anchor_blocks[comment.anchor_position].start]
+        )
+    if comment.placement == "after":
+        if comment.anchor_position == 0:
+            return False
+        return not any(
+            line.strip()
+            for line in lines[
+                anchor_blocks[comment.anchor_position - 1].end : block.start
+            ]
+        )
+    if comment.placement == "document":
+        return not anchor_blocks
+    return False
 
 
 def _is_plan_anchor_comment(comment: str) -> bool:
@@ -1832,39 +2449,13 @@ def _find_anchored_blocks(
 
     if not anchors:
         return None
-    matches_by_anchor = [set(_matching_blocks(blocks, anchor)) for anchor in anchors]
-    candidates = [
-        tuple(blocks[start : start + len(anchors)])
-        for start in range(len(blocks) - len(anchors) + 1)
-        if all(
-            blocks[start + offset] in matches
-            for offset, matches in enumerate(matches_by_anchor)
-        )
-    ]
-
-    if previous_anchor:
-        previous = _matching_blocks(blocks, previous_anchor)
-        if previous:
-            previous_set = set(previous)
-            candidates = [
-                candidate
-                for candidate in candidates
-                if _neighboring_plan_anchor(
-                    blocks, blocks.index(candidate[0]), -1
-                ) in previous_set
-            ]
-    if next_anchor:
-        following = _matching_blocks(blocks, next_anchor)
-        if following:
-            following_set = set(following)
-            candidates = [
-                candidate
-                for candidate in candidates
-                if _neighboring_plan_anchor(
-                    blocks, blocks.index(candidate[-1]), 1
-                ) in following_set
-            ]
-
+    candidates = _anchored_block_candidates(blocks, anchors)
+    candidates = _filter_anchored_block_candidates(
+        blocks,
+        candidates,
+        previous_anchor=previous_anchor,
+        next_anchor=next_anchor,
+    )
     if len(candidates) == 1:
         return candidates[0]
     first_matches = _matching_blocks(blocks, anchors[0])
@@ -1879,6 +2470,71 @@ def _find_anchored_blocks(
             + " | ".join(_normalize_text(anchor) for anchor in anchors)
         )
     return None
+
+
+def _anchored_block_candidates(
+    blocks: list[AnnotatedBlock],
+    anchors: tuple[str, ...],
+) -> list[tuple[AnnotatedBlock, ...]]:
+    """연속 annotation anchor와 일치하는 locale 블록 후보 수집.
+
+    Args:
+        blocks: locale annotation 블록.
+        anchors: 순서가 보존된 원문 annotation anchor.
+
+    Returns:
+        연속 block 범위 후보.
+    """
+
+    matches = [set(_matching_blocks(blocks, anchor)) for anchor in anchors]
+    return [
+        tuple(blocks[start : start + len(anchors)])
+        for start in range(len(blocks) - len(anchors) + 1)
+        if all(
+            blocks[start + offset] in anchor_matches
+            for offset, anchor_matches in enumerate(matches)
+        )
+    ]
+
+
+def _filter_anchored_block_candidates(
+    blocks: list[AnnotatedBlock],
+    candidates: list[tuple[AnnotatedBlock, ...]],
+    *,
+    previous_anchor: str | None,
+    next_anchor: str | None,
+) -> list[tuple[AnnotatedBlock, ...]]:
+    """변경되지 않은 이전·다음 anchor로 연속 block 후보 제한.
+
+    Args:
+        blocks: locale annotation 블록.
+        candidates: 연속 block 범위 후보.
+        previous_anchor: 기대 이전 원문 anchor.
+        next_anchor: 기대 다음 원문 anchor.
+
+    Returns:
+        이웃 anchor 조건을 충족하는 후보.
+    """
+
+    if previous_anchor:
+        previous = set(_matching_blocks(blocks, previous_anchor))
+        if previous:
+            candidates = [
+                candidate
+                for candidate in candidates
+                if _neighboring_plan_anchor(blocks, blocks.index(candidate[0]), -1)
+                in previous
+            ]
+    if next_anchor:
+        following = set(_matching_blocks(blocks, next_anchor))
+        if following:
+            candidates = [
+                candidate
+                for candidate in candidates
+                if _neighboring_plan_anchor(blocks, blocks.index(candidate[-1]), 1)
+                in following
+            ]
+    return candidates
 
 
 def _neighboring_plan_anchor(
@@ -2245,6 +2901,41 @@ def _insert_block(
     windowed = _insert_within_code_region_window(lines, segment, raw_insertion)
     if windowed is not None:
         return windowed
+    contextual = _insert_at_annotation_context(
+        text,
+        lines,
+        blocks,
+        segment,
+        translated,
+        insertion,
+    )
+    if contextual is not None:
+        return contextual
+    raise PatchError("missing insertion context")
+
+
+def _insert_at_annotation_context(
+    text: str,
+    lines: list[str],
+    blocks: list[AnnotatedBlock],
+    segment: BlockChange,
+    translated: str,
+    insertion: str,
+) -> str | None:
+    """이전·다음 annotation 문맥 또는 문서 끝에 번역 블록 삽입.
+
+    Args:
+        text: 기존 locale 문서.
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        blocks: locale annotation 블록.
+        segment: 적용할 삽입 segment.
+        translated: provider 번역 블록.
+        insertion: 줄바꿈이 정규화된 번역 블록.
+
+    Returns:
+        삽입 결과 또는 해석 가능한 문맥이 없으면 ``None``.
+    """
+
     if segment.before_context:
         block = _context_anchor_block(
             blocks,
@@ -2272,7 +2963,7 @@ def _insert_block(
     if segment.after_context is None and segment.before_context:
         # 원문 끝 추가는 이전 문맥의 번역 여부와 관계없이 같은 경계 사용
         return text.rstrip("\n") + "\n\n" + _format_replacement(translated, trailing="\n")
-    raise PatchError("missing insertion context")
+    return None
 
 
 def _context_anchor_block(
@@ -2412,48 +3103,20 @@ def _apply_named_anchor_change(
     lines = text.splitlines(keepends=True)
 
     if new_anchor is not None:
-        if translated is None or translated.strip() != new_anchor:
-            raise PatchError("provider-free named anchor change has diverged")
-        target_count = segment.new_anchor_occurrences
-        matches_new = _raw_line_indexes(lines, new_anchor)
-        if target_count is not None and len(matches_new) >= target_count:
-            placement = _anchor_occurrence_at_context(
-                lines, _blocks(text), matches_new, segment
-            )
-            if placement is False:
-                raise PatchError(
-                    "existing named anchor placement does not match the target: "
-                    + new_anchor
-                )
+        _validate_named_anchor_translation(new_anchor, translated)
+        if _named_anchor_target_is_applied(text, lines, new_anchor, segment):
             return text
-
     if old_anchor is not None:
-        matches = _raw_line_indexes(lines, old_anchor)
-        if (
-            new_anchor is None
-            and segment.new_anchor_occurrences is not None
-            and len(matches) <= segment.new_anchor_occurrences
-        ):
-            placement = _anchor_occurrence_at_context(
-                lines, _blocks(text), matches, segment
-            )
-            if placement is True:
-                raise PatchError(
-                    "deleted named anchor still occupies its source position: "
-                    + old_anchor
-                )
-            return text
-        occurrence = segment.old_block_ordinal or 0
-        if occurrence >= len(matches):
-            raise PatchError(f"missing existing named anchor: {old_anchor}")
-        index = matches[occurrence]
-        if new_anchor is None:
-            return "".join(lines[:index] + lines[index + 1 :])
-        ending = "\n" if lines[index].endswith("\n") else ""
-        replacement = translated.rstrip("\r\n") + ending
-        return "".join(lines[:index]) + replacement + "".join(lines[index + 1 :])
-
-    assert new_anchor is not None
+        return _replace_or_delete_named_anchor(
+            text,
+            lines,
+            old_anchor,
+            new_anchor,
+            translated,
+            segment,
+        )
+    if new_anchor is None or translated is None:
+        raise PatchError("named anchor insertion is missing its target")
     insertion = _format_raw_insertion(translated, segment)
     annotated_index = _named_anchor_insertion_boundary(
         _blocks(text), segment
@@ -2470,6 +3133,104 @@ def _apply_named_anchor_change(
     return inserted
 
 
+def _validate_named_anchor_translation(
+    new_anchor: str,
+    translated: str | None,
+) -> None:
+    """provider-free named anchor 결과가 목표 원문과 같은지 검증.
+
+    Args:
+        new_anchor: 목표 named anchor 줄.
+        translated: provider-free 렌더링 결과.
+
+    Raises:
+        PatchError: 결과가 목표 anchor와 다름.
+    """
+
+    if translated is None or translated.strip() != new_anchor:
+        raise PatchError("provider-free named anchor change has diverged")
+
+
+def _named_anchor_target_is_applied(
+    text: str,
+    lines: list[str],
+    new_anchor: str,
+    segment: BlockChange,
+) -> bool:
+    """목표 named anchor occurrence와 구조 위치가 이미 적용됐는지 판정.
+
+    Args:
+        text: 기존 locale 문서.
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        new_anchor: 목표 named anchor 줄.
+        segment: 적용할 anchor 변경 segment.
+
+    Returns:
+        목표 occurrence가 이미 존재하는지 여부.
+
+    Raises:
+        PatchError: occurrence는 있지만 구조 위치가 목표와 다름.
+    """
+
+    target_count = segment.new_anchor_occurrences
+    matches = _raw_line_indexes(lines, new_anchor)
+    if target_count is None or len(matches) < target_count:
+        return False
+    placement = _anchor_occurrence_at_context(lines, _blocks(text), matches, segment)
+    if placement is False:
+        raise PatchError(
+            "existing named anchor placement does not match the target: " + new_anchor
+        )
+    return True
+
+
+def _replace_or_delete_named_anchor(
+    text: str,
+    lines: list[str],
+    old_anchor: str,
+    new_anchor: str | None,
+    translated: str | None,
+    segment: BlockChange,
+) -> str:
+    """기존 named anchor occurrence를 교체 또는 삭제.
+
+    Args:
+        text: 기존 locale 문서.
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        old_anchor: 변경 이전 named anchor 줄.
+        new_anchor: 목표 named anchor 줄 또는 삭제를 뜻하는 ``None``.
+        translated: provider-free 렌더링 결과.
+        segment: 적용할 anchor 변경 segment.
+
+    Returns:
+        anchor 교체·삭제 결과 또는 이미 적용된 문서.
+    """
+
+    matches = _raw_line_indexes(lines, old_anchor)
+    if (
+        new_anchor is None
+        and segment.new_anchor_occurrences is not None
+        and len(matches) <= segment.new_anchor_occurrences
+    ):
+        placement = _anchor_occurrence_at_context(lines, _blocks(text), matches, segment)
+        if placement is True:
+            raise PatchError(
+                "deleted named anchor still occupies its source position: " + old_anchor
+            )
+        return text
+    occurrence = segment.old_block_ordinal or 0
+    if occurrence >= len(matches):
+        raise PatchError(f"missing existing named anchor: {old_anchor}")
+    index = matches[occurrence]
+    if new_anchor is None:
+        return "".join(lines[:index] + lines[index + 1 :])
+    if translated is None:
+        raise PatchError("named anchor replacement is missing its target")
+    ending = "\n" if lines[index].endswith("\n") else ""
+    replacement = translated.rstrip("\r\n") + ending
+    return "".join(lines[:index]) + replacement + "".join(lines[index + 1 :])
+
+
 def _anchor_occurrence_at_context(
     lines: list[str],
     blocks: list[AnnotatedBlock],
@@ -2481,38 +3242,88 @@ def _anchor_occurrence_at_context(
     두 문맥 모두 문서에서 해석되지 않을 때 ``None`` 반환.
     이 경우 출현 횟수만 검증 가능.
     """
-    checked = False
-    if segment.after_context:
-        following_blocks = _matching_blocks(blocks, segment.after_context)
-        raw_following = _raw_context_indexes(lines, segment.after_context)
-        if following_blocks or raw_following:
-            checked = True
-            boundaries = [block.start for block in following_blocks] + raw_following
-            for index in anchor_indexes:
-                if any(
-                    index < boundary
-                    and _only_anchor_or_blank_between(lines, index + 1, boundary)
-                    for boundary in boundaries
-                ):
-                    return True
-    if segment.before_context:
-        previous_blocks = _matching_blocks(blocks, segment.before_context)
-        raw_previous = _raw_context_indexes(lines, segment.before_context)
-        if previous_blocks or raw_previous:
-            checked = True
-            boundaries = [block.end for block in previous_blocks] + [
-                position + 1 for position in raw_previous
-            ]
-            for index in anchor_indexes:
-                if any(
-                    boundary <= index
-                    and _only_anchor_or_blank_between(lines, boundary, index)
-                    for boundary in boundaries
-                ):
-                    return True
-    if not checked:
-        return None
-    return False
+    after_checked, after_matched = _anchor_after_context_match(
+        lines,
+        blocks,
+        anchor_indexes,
+        segment.after_context,
+    )
+    if after_matched:
+        return True
+    before_checked, before_matched = _anchor_before_context_match(
+        lines,
+        blocks,
+        anchor_indexes,
+        segment.before_context,
+    )
+    if before_matched:
+        return True
+    return False if after_checked or before_checked else None
+
+
+def _anchor_after_context_match(
+    lines: list[str],
+    blocks: list[AnnotatedBlock],
+    anchor_indexes: list[int],
+    context: str | None,
+) -> tuple[bool, bool]:
+    """named anchor가 다음 문맥 바로 앞에 있는지 판정.
+
+    Args:
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        blocks: locale annotation 블록.
+        anchor_indexes: named anchor 줄 위치.
+        context: 변경 다음 원문 문맥.
+
+    Returns:
+        문맥 해석 여부와 anchor 배치 일치 여부.
+    """
+
+    if not context:
+        return False, False
+    following_blocks = _matching_blocks(blocks, context)
+    raw_following = _raw_context_indexes(lines, context)
+    boundaries = [block.start for block in following_blocks] + raw_following
+    matched = any(
+        index < boundary
+        and _only_anchor_or_blank_between(lines, index + 1, boundary)
+        for index in anchor_indexes
+        for boundary in boundaries
+    )
+    return bool(boundaries), matched
+
+
+def _anchor_before_context_match(
+    lines: list[str],
+    blocks: list[AnnotatedBlock],
+    anchor_indexes: list[int],
+    context: str | None,
+) -> tuple[bool, bool]:
+    """named anchor가 이전 문맥 바로 뒤에 있는지 판정.
+
+    Args:
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        blocks: locale annotation 블록.
+        anchor_indexes: named anchor 줄 위치.
+        context: 변경 이전 원문 문맥.
+
+    Returns:
+        문맥 해석 여부와 anchor 배치 일치 여부.
+    """
+
+    if not context:
+        return False, False
+    previous_blocks = _matching_blocks(blocks, context)
+    raw_previous = _raw_context_indexes(lines, context)
+    boundaries = [block.end for block in previous_blocks] + [
+        position + 1 for position in raw_previous
+    ]
+    matched = any(
+        boundary <= index and _only_anchor_or_blank_between(lines, boundary, index)
+        for index in anchor_indexes
+        for boundary in boundaries
+    )
+    return bool(boundaries), matched
 
 
 def _only_anchor_or_blank_between(lines: list[str], start: int, end: int) -> bool:
@@ -2530,33 +3341,12 @@ def _apply_admonition_marker_change(
 
     old_marker = _meaningful_lines(segment.old_lines)[0].strip()
     new_marker = _meaningful_lines(segment.new_lines)[0].strip()
-    translated_lines = (
-        [line for line in translated.splitlines() if line.strip()]
-        if translated is not None
-        else []
-    )
-    if (
-        not translated_lines
-        or _admonition_marker_type(translated_lines[0])
-        != _admonition_marker_type(new_marker)
-    ):
-        raise PatchError("translated admonition marker change has diverged")
-
+    translated_lines = _validated_admonition_translation(new_marker, translated)
     expected_lines = [
         line for line in (segment.new_source or "").splitlines() if line.strip()
     ]
-
     lines = text.splitlines(keepends=True)
-    starts = _admonition_start_indexes(lines)
-    ordinal = segment.old_block_ordinal
-    if (
-        ordinal is None
-        or ordinal >= len(starts)
-        or not _admonition_marker_count_matches(len(starts), segment)
-    ):
-        raise PatchError(f"missing existing admonition marker: {old_marker}")
-
-    index = starts[ordinal]
+    index = _admonition_change_index(lines, segment, old_marker)
     line = lines[index]
     stripped = line.strip()
     current_type = _admonition_marker_type(stripped)
@@ -2571,26 +3361,145 @@ def _apply_admonition_marker_change(
 
     if len(expected_lines) > 1 and len(translated_lines) <= 1:
         raise PatchError("translated admonition body is missing")
-
     if len(expected_lines) > 1:
-        end = index + 1
-        while end < len(lines) and lines[end].strip().startswith(">"):
-            end += 1
-        current = "".join(lines[index:end])
-        replacement = _format_replacement(
-            translated or "",
-            trailing=_trailing_separator(current),
-        )
-        if current == replacement:
-            return text
-        return "".join(lines[:index]) + replacement + "".join(lines[end:])
-
+        return _replace_admonition_block(text, lines, index, translated or "")
     if not _admonition_body_matches_source(lines, index, segment):
         raise PatchError(
             "could not verify existing admonition body: "
             + (segment.after_context or old_marker)
         )
 
+    return _replace_admonition_marker_line(
+        text,
+        lines,
+        index,
+        new_marker,
+        old_marker,
+        old_type,
+        new_type,
+    )
+
+
+def _validated_admonition_translation(
+    new_marker: str,
+    translated: str | None,
+) -> list[str]:
+    """admonition marker 번역 결과의 목표 유형 검증.
+
+    Args:
+        new_marker: 목표 admonition marker.
+        translated: provider 번역 결과.
+
+    Returns:
+        공백 줄을 제거한 번역 결과 줄.
+
+    Raises:
+        PatchError: 번역 결과가 없거나 marker 유형이 다름.
+    """
+
+    lines = (
+        [line for line in translated.splitlines() if line.strip()]
+        if translated is not None
+        else []
+    )
+    if not lines or _admonition_marker_type(lines[0]) != _admonition_marker_type(
+        new_marker
+    ):
+        raise PatchError("translated admonition marker change has diverged")
+    return lines
+
+
+def _admonition_change_index(
+    lines: list[str],
+    segment: BlockChange,
+    old_marker: str,
+) -> int:
+    """계획 ordinal에 해당하는 기존 locale admonition marker 위치 탐색.
+
+    Args:
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        segment: 적용할 admonition 변경 segment.
+        old_marker: 오류 보고용 변경 이전 marker.
+
+    Returns:
+        기존 marker 줄 위치.
+
+    Raises:
+        PatchError: ordinal 또는 전체 marker 수가 계획과 다름.
+    """
+
+    starts = _admonition_start_indexes(lines)
+    ordinal = segment.old_block_ordinal
+    if (
+        ordinal is None
+        or ordinal >= len(starts)
+        or not _admonition_marker_count_matches(len(starts), segment)
+    ):
+        raise PatchError(f"missing existing admonition marker: {old_marker}")
+    return starts[ordinal]
+
+
+def _replace_admonition_block(
+    text: str,
+    lines: list[str],
+    index: int,
+    translated: str,
+) -> str:
+    """본문을 포함한 admonition 블록 전체 교체.
+
+    Args:
+        text: 기존 locale 문서.
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        index: 기존 marker 줄 위치.
+        translated: marker와 본문을 포함한 번역 결과.
+
+    Returns:
+        교체 결과 또는 이미 같은 문서.
+    """
+
+    end = index + 1
+    while end < len(lines) and lines[end].strip().startswith(">"):
+        end += 1
+    current = "".join(lines[index:end])
+    replacement = _format_replacement(
+        translated,
+        trailing=_trailing_separator(current),
+    )
+    if current == replacement:
+        return text
+    return "".join(lines[:index]) + replacement + "".join(lines[end:])
+
+
+def _replace_admonition_marker_line(
+    text: str,
+    lines: list[str],
+    index: int,
+    new_marker: str,
+    old_marker: str,
+    old_type: str | None,
+    new_type: str | None,
+) -> str:
+    """표준 또는 legacy admonition marker 한 줄 교체.
+
+    Args:
+        text: 기존 locale 문서.
+        lines: 줄바꿈을 보존한 locale 문서 줄.
+        index: 기존 marker 줄 위치.
+        new_marker: 목표 marker.
+        old_marker: 오류 보고용 변경 이전 marker.
+        old_type: 변경 이전 admonition 유형.
+        new_type: 목표 admonition 유형.
+
+    Returns:
+        marker 교체 결과.
+
+    Raises:
+        PatchError: 기존 줄이 지원되는 marker 형태가 아님.
+    """
+
+    line = lines[index]
+    stripped = line.strip()
+    current_type = _admonition_marker_type(stripped)
     prefix = line[: len(line) - len(line.lstrip(" \t"))]
     ending = line[len(line.rstrip("\r\n")) :]
     if current_type in (old_type, new_type) and _ADMONITION_MARKER_RE.fullmatch(
@@ -2993,230 +3902,246 @@ def _expand_to_source_blocks(
     if _has_structural_lines(segment.new_lines) or _has_structural_lines(
         segment.old_lines
     ):
-        new_source = segment.new_source or _source_from_lines(segment.new_lines)
-        named_anchor_change = segment.is_named_anchor_change
-        admonition_marker_change = segment.is_admonition_marker_change
-        old_block_ordinal = segment.old_block_ordinal
-        old_anchor_occurrences = segment.old_anchor_occurrences
-        new_anchor_occurrences = segment.new_anchor_occurrences
-        if named_anchor_change and _meaningful_lines(segment.old_lines):
-            old_block_ordinal = _raw_line_ordinal(
-                old_source_lines,
-                _meaningful_lines(segment.old_lines)[0],
-                segment.old_linenos[0],
-            )
-        elif admonition_marker_change and segment.old_linenos:
-            old_block_ordinal = _admonition_marker_ordinal(
-                old_source_lines, segment.old_linenos[0]
-            )
-            old_anchor_occurrences = len(
-                _admonition_start_indexes(old_source_lines)
-            )
-            old_source, old_start, old_end = _admonition_source_region(
-                old_source_lines,
-                segment.old_linenos[0],
-            )
-            new_source, new_start, new_end = _admonition_source_region(
-                new_source_lines,
-                segment.new_linenos[0],
-            )
-        if named_anchor_change:
-            new_anchor_occurrences = sum(
-                line
-                == (
-                    _meaningful_lines(segment.new_lines)[0]
-                    if _meaningful_lines(segment.new_lines)
-                    else _meaningful_lines(segment.old_lines)[0]
-                )
-                for line in new_source_lines
-            )
-        elif admonition_marker_change:
-            new_anchor_occurrences = len(
-                _admonition_start_indexes(new_source_lines)
-            )
-        return [
-            replace(
-                segment,
-                new_source=new_source,
-                new_anchor=(
-                    segment.new_anchor
-                    or (
-                        _primary_source_anchor(new_source)
-                        if not _meaningful_lines(segment.old_lines)
-                        else None
-                    )
-                ),
-                old_block_ordinal=old_block_ordinal,
-                old_anchor_occurrences=old_anchor_occurrences,
-                old_source=(
-                    old_source if admonition_marker_change else segment.old_source
-                ),
-                old_block_start=(
-                    old_start
-                    if admonition_marker_change
-                    else segment.old_block_start
-                ),
-                old_block_end=(
-                    old_end if admonition_marker_change else segment.old_block_end
-                ),
-                new_block_start=(
-                    new_start
-                    if admonition_marker_change
-                    else segment.new_block_start
-                ),
-                new_block_end=(
-                    new_end if admonition_marker_change else segment.new_block_end
-                ),
-                new_anchor_occurrences=new_anchor_occurrences,
-                table_row=_source_table_row_change(segment, old_source_lines),
-            )
-        ]
+        return [_expand_structural_segment(segment, new_source_lines, old_source_lines)]
+    new_blocks, old_blocks, unchanged = _resolved_segment_blocks(
+        segment,
+        new_source_blocks,
+        old_source_blocks,
+    )
+    if unchanged:
+        return []
+    range_change = _range_block_change(
+        segment,
+        new_blocks,
+        old_blocks,
+        new_source_blocks=new_source_blocks,
+        old_source_blocks=old_source_blocks,
+        new_source_lines=new_source_lines,
+        old_source_lines=old_source_lines,
+    )
+    if range_change is not None:
+        return [range_change]
+    return _paired_block_changes(
+        segment,
+        new_blocks,
+        old_blocks,
+        new_source_blocks,
+        old_source_blocks,
+    )
+
+
+def _expand_structural_segment(
+    segment: BlockChange,
+    new_lines: list[str],
+    old_lines: list[str],
+) -> BlockChange:
+    """구조 줄 변경에 raw 또는 admonition occurrence 주소 부여.
+
+    Args:
+        segment: 구조 줄을 포함한 초기 변경.
+        new_lines: 현재 영어 원문 줄.
+        old_lines: 이전 영어 원문 줄.
+
+    Returns:
+        구조 주소가 포함된 변경 segment.
+    """
+
+    new_source = segment.new_source or _source_from_lines(segment.new_lines)
+    old_ordinal = segment.old_block_ordinal
+    old_occurrences = segment.old_anchor_occurrences
+    new_occurrences = segment.new_anchor_occurrences
+    replacements: dict[str, object] = {}
+    if segment.is_named_anchor_change and _meaningful_lines(segment.old_lines):
+        old_ordinal = _raw_line_ordinal(
+            old_lines,
+            _meaningful_lines(segment.old_lines)[0],
+            segment.old_linenos[0],
+        )
+    elif segment.is_admonition_marker_change and segment.old_linenos:
+        old_ordinal = _admonition_marker_ordinal(old_lines, segment.old_linenos[0])
+        old_occurrences = len(_admonition_start_indexes(old_lines))
+        old_source, old_start, old_end = _admonition_source_region(
+            old_lines, segment.old_linenos[0]
+        )
+        new_source, new_start, new_end = _admonition_source_region(
+            new_lines, segment.new_linenos[0]
+        )
+        replacements.update(
+            old_source=old_source,
+            old_block_start=old_start,
+            old_block_end=old_end,
+            new_block_start=new_start,
+            new_block_end=new_end,
+        )
+    if segment.is_named_anchor_change:
+        meaningful = _meaningful_lines(segment.new_lines) or _meaningful_lines(
+            segment.old_lines
+        )
+        new_occurrences = sum(line == meaningful[0] for line in new_lines)
+    elif segment.is_admonition_marker_change:
+        new_occurrences = len(_admonition_start_indexes(new_lines))
+    new_anchor = segment.new_anchor
+    if new_anchor is None and not _meaningful_lines(segment.old_lines):
+        new_anchor = _primary_source_anchor(new_source)
+    return replace(
+        segment,
+        new_source=new_source,
+        new_anchor=new_anchor,
+        old_block_ordinal=old_ordinal,
+        old_anchor_occurrences=old_occurrences,
+        new_anchor_occurrences=new_occurrences,
+        table_row=_source_table_row_change(segment, old_lines),
+        **replacements,
+    )
+
+
+def _resolved_segment_blocks(
+    segment: BlockChange,
+    new_source_blocks: list[SourceBlock],
+    old_source_blocks: list[SourceBlock],
+) -> tuple[list[SourceBlock], list[SourceBlock], bool]:
+    """변경 줄 또는 공유 문맥으로 이전·현재 원문 블록 해석.
+
+    Args:
+        segment: 초기 변경 segment.
+        new_source_blocks: 현재 원문 블록.
+        old_source_blocks: 이전 원문 블록.
+
+    Returns:
+        현재 블록, 이전 블록, 의미 없는 공백 변경 여부.
+    """
 
     new_blocks = _blocks_for_linenos(new_source_blocks, segment.new_linenos)
     old_blocks = _blocks_for_linenos(old_source_blocks, segment.old_linenos)
-    whitespace_only = not _meaningful_lines(
-        segment.old_lines
-    ) and not _meaningful_lines(segment.new_lines)
-
-    if whitespace_only:
+    whitespace = not _meaningful_lines(segment.old_lines) and not _meaningful_lines(
+        segment.new_lines
+    )
+    if whitespace:
         new_blocks = _context_boundary_blocks(
-            new_source_blocks,
-            segment.before_new_lineno,
-            segment.after_new_lineno,
+            new_source_blocks, segment.before_new_lineno, segment.after_new_lineno
         )
         old_blocks = _context_boundary_blocks(
-            old_source_blocks,
-            segment.before_old_lineno,
-            segment.after_old_lineno,
+            old_source_blocks, segment.before_old_lineno, segment.after_old_lineno
         )
-        if [block.text for block in old_blocks] == [
-            block.text for block in new_blocks
-        ]:
-            return []
-
+        if [block.text for block in old_blocks] == [block.text for block in new_blocks]:
+            return new_blocks, old_blocks, True
     if not new_blocks:
-        context_block = _shared_context_block(
-            new_source_blocks,
-            segment.before_new_lineno,
-            segment.after_new_lineno,
+        context = _shared_context_block(
+            new_source_blocks, segment.before_new_lineno, segment.after_new_lineno
         )
-        if context_block is not None:
-            new_blocks = [context_block]
-
+        if context is not None:
+            new_blocks = [context]
     if not old_blocks:
-        context_block = _shared_context_block(
-            old_source_blocks,
-            segment.before_old_lineno,
-            segment.after_old_lineno,
+        context = _shared_context_block(
+            old_source_blocks, segment.before_old_lineno, segment.after_old_lineno
         )
-        if context_block is not None:
-            old_blocks = [context_block]
+        if context is not None:
+            old_blocks = [context]
+    return new_blocks, old_blocks, False
+
+
+def _range_block_change(
+    segment: BlockChange,
+    new_blocks: list[SourceBlock],
+    old_blocks: list[SourceBlock],
+    *,
+    new_source_blocks: list[SourceBlock],
+    old_source_blocks: list[SourceBlock],
+    new_source_lines: list[str],
+    old_source_lines: list[str],
+) -> BlockChange | None:
+    """삽입·개수 변경·삭제 범위를 단일 block range 변경으로 확장.
+
+    Args:
+        segment: 초기 변경 segment.
+        new_blocks: 변경에 대응하는 현재 원문 블록.
+        old_blocks: 변경에 대응하는 이전 원문 블록.
+        new_source_blocks: 현재 원문 전체 블록.
+        old_source_blocks: 이전 원문 전체 블록.
+        new_source_lines: 현재 원문 줄.
+        old_source_lines: 이전 원문 줄.
+
+    Returns:
+        범위 변경 또는 1:1 블록 처리가 필요하면 ``None``.
+    """
 
     if not old_blocks and len(new_blocks) > 1:
         _require_plain_block_range(new_blocks, new_source_lines)
-        return [
-            replace(
-                segment,
-                new_source=_join_source_blocks(new_blocks),
-                new_anchor=new_blocks[0].comment,
-                new_anchors=tuple(block.comment for block in new_blocks),
-                new_block_ordinal=_block_ordinal(new_source_blocks, new_blocks[0]),
-                new_block_start=new_blocks[0].start_lineno,
-                new_block_end=new_blocks[-1].end_lineno,
-                new_previous_anchor=_range_neighbor_anchor(
-                    new_source_blocks, new_blocks, -1
-                ),
-                new_next_anchor=_range_neighbor_anchor(
-                    new_source_blocks, new_blocks, 1
-                ),
-            )
-        ]
-
+        return replace(segment, **_new_block_range_fields(new_blocks, new_source_blocks))
     if old_blocks and new_blocks and len(old_blocks) != len(new_blocks):
         _require_plain_block_range(old_blocks, old_source_lines)
         _require_plain_block_range(new_blocks, new_source_lines)
-        return [
-            replace(
-                segment,
-                old_source=_join_source_blocks(old_blocks),
-                old_anchors=tuple(block.comment for block in old_blocks),
-                old_block_ordinal=_block_ordinal(old_source_blocks, old_blocks[0]),
-                old_block_start=old_blocks[0].start_lineno,
-                old_block_end=old_blocks[-1].end_lineno,
-                old_previous_anchor=_range_neighbor_anchor(
-                    old_source_blocks, old_blocks, -1
-                ),
-                old_next_anchor=_range_neighbor_anchor(
-                    old_source_blocks, old_blocks, 1
-                ),
-                new_source=_join_source_blocks(new_blocks),
-                new_anchor=new_blocks[0].comment,
-                new_anchors=tuple(block.comment for block in new_blocks),
-                new_block_ordinal=_block_ordinal(new_source_blocks, new_blocks[0]),
-                new_block_start=new_blocks[0].start_lineno,
-                new_block_end=new_blocks[-1].end_lineno,
-                new_previous_anchor=_range_neighbor_anchor(
-                    new_source_blocks, new_blocks, -1
-                ),
-                new_next_anchor=_range_neighbor_anchor(
-                    new_source_blocks, new_blocks, 1
-                ),
-            )
-        ]
-
+        return replace(
+            segment,
+            **_old_block_range_fields(old_blocks, old_source_blocks),
+            **_new_block_range_fields(new_blocks, new_source_blocks),
+        )
     if not new_blocks and old_blocks:
-        return [
-            replace(
-                segment,
-                old_source=_join_source_blocks(old_blocks),
-                old_anchors=tuple(block.comment for block in old_blocks),
-                old_block_ordinal=_block_ordinal(old_source_blocks, old_blocks[0]),
-                old_block_start=old_blocks[0].start_lineno,
-                old_block_end=old_blocks[-1].end_lineno,
-                old_previous_anchor=_range_neighbor_anchor(
-                    old_source_blocks, old_blocks, -1
-                ),
-                old_next_anchor=_range_neighbor_anchor(
-                    old_source_blocks, old_blocks, 1
-                ),
-            )
-        ]
-
+        return replace(segment, **_old_block_range_fields(old_blocks, old_source_blocks))
     if not new_blocks:
-        return [segment]
+        return segment
+    return None
+
+
+def _old_block_range_fields(
+    blocks: list[SourceBlock],
+    all_blocks: list[SourceBlock],
+) -> dict[str, object]:
+    """이전 원문 block range의 ``BlockChange`` 필드 구성."""
+
+    return {
+        "old_source": _join_source_blocks(blocks),
+        "old_anchors": tuple(block.comment for block in blocks),
+        "old_block_ordinal": _block_ordinal(all_blocks, blocks[0]),
+        "old_block_start": blocks[0].start_lineno,
+        "old_block_end": blocks[-1].end_lineno,
+        "old_previous_anchor": _range_neighbor_anchor(all_blocks, blocks, -1),
+        "old_next_anchor": _range_neighbor_anchor(all_blocks, blocks, 1),
+    }
+
+
+def _new_block_range_fields(
+    blocks: list[SourceBlock],
+    all_blocks: list[SourceBlock],
+) -> dict[str, object]:
+    """현재 원문 block range의 ``BlockChange`` 필드 구성."""
+
+    return {
+        "new_source": _join_source_blocks(blocks),
+        "new_anchor": blocks[0].comment,
+        "new_anchors": tuple(block.comment for block in blocks),
+        "new_block_ordinal": _block_ordinal(all_blocks, blocks[0]),
+        "new_block_start": blocks[0].start_lineno,
+        "new_block_end": blocks[-1].end_lineno,
+        "new_previous_anchor": _range_neighbor_anchor(all_blocks, blocks, -1),
+        "new_next_anchor": _range_neighbor_anchor(all_blocks, blocks, 1),
+    }
+
+
+def _paired_block_changes(
+    segment: BlockChange,
+    new_blocks: list[SourceBlock],
+    old_blocks: list[SourceBlock],
+    new_source_blocks: list[SourceBlock],
+    old_source_blocks: list[SourceBlock],
+) -> list[BlockChange]:
+    """대응 원문 블록별 1:1 변경 segment 생성."""
 
     expanded: list[BlockChange] = []
-    previous_comment = segment.before_context
+    previous = segment.before_context
     for index, new_block in enumerate(new_blocks):
         old_block = _paired_old_block(old_blocks, new_blocks, index)
-
         expanded.append(
             replace(
                 segment,
-                old_lines=_lines_in_block(
-                    segment.old_lines,
-                    segment.old_linenos,
-                    old_block,
-                ),
-                new_lines=_lines_in_block(
-                    segment.new_lines,
-                    segment.new_linenos,
-                    new_block,
-                ),
-                before_context=previous_comment,
-                after_context=(
-                    segment.after_context if index == len(new_blocks) - 1 else None
-                ),
+                old_lines=_lines_in_block(segment.old_lines, segment.old_linenos, old_block),
+                new_lines=_lines_in_block(segment.new_lines, segment.new_linenos, new_block),
+                before_context=previous,
+                after_context=segment.after_context if index == len(new_blocks) - 1 else None,
                 old_source=old_block.text if old_block is not None else None,
                 old_anchors=(old_block.comment,) if old_block is not None else (),
-                old_block_ordinal=(
-                    _block_ordinal(old_source_blocks, old_block)
-                    if old_block is not None
-                    else None
-                ),
-                old_block_start=(
-                    old_block.start_lineno if old_block is not None else None
-                ),
+                old_block_ordinal=_block_ordinal(old_source_blocks, old_block) if old_block is not None else None,
+                old_block_start=old_block.start_lineno if old_block is not None else None,
                 old_block_end=old_block.end_lineno if old_block is not None else None,
                 new_source=new_block.text,
                 new_anchor=new_block.comment,
@@ -3226,8 +4151,7 @@ def _expand_to_source_blocks(
                 new_block_end=new_block.end_lineno,
             )
         )
-        previous_comment = new_block.comment
-
+        previous = new_block.comment
     return expanded
 
 
@@ -4079,29 +5003,53 @@ def _searchable_raw_indexes(
     fence = ""
 
     for index, line in enumerate(lines):
-        if in_comment:
-            if "-->" in line:
-                in_comment = False
-            continue
-
-        if "<!--" in line:
-            if "-->" not in line.split("<!--", 1)[1]:
-                in_comment = True
-            continue
-
-        token = fence_token(line)
-        if token:
-            if include_code:
-                indexes.append(index)
-            if not in_code:
-                in_code, fence = True, token
-            elif closes_fence(line, fence):
-                in_code = False
-            continue
-        if not in_code or include_code:
+        in_comment, in_code, fence, searchable = _raw_line_scan_state(
+            line,
+            in_comment=in_comment,
+            in_code=in_code,
+            fence=fence,
+            include_code=include_code,
+        )
+        if searchable:
             indexes.append(index)
 
     return indexes
+
+
+def _raw_line_scan_state(
+    line: str,
+    *,
+    in_comment: bool,
+    in_code: bool,
+    fence: str,
+    include_code: bool,
+) -> tuple[bool, bool, str, bool]:
+    """단일 raw 줄의 주석·code 상태와 검색 가능 여부 계산.
+
+    Args:
+        line: Markdown 물리 줄.
+        in_comment: 이전 줄까지 여러 줄 HTML 주석 내부 여부.
+        in_code: 이전 줄까지 fenced code 내부 여부.
+        fence: 현재 fenced code 여는 token.
+        include_code: code 줄도 검색할지 여부.
+
+    Returns:
+        다음 주석 상태, code 상태, fence token, 검색 가능 여부.
+    """
+
+    if in_comment:
+        return "-->" not in line, in_code, fence, False
+    if "<!--" in line:
+        continued = "-->" not in line.split("<!--", 1)[1]
+        return continued, in_code, fence, False
+    token = fence_token(line)
+    if not token:
+        return False, in_code, fence, not in_code or include_code
+    if not in_code:
+        return False, True, token, include_code
+    if closes_fence(line, fence):
+        return False, False, fence, include_code
+    return False, in_code, fence, include_code
 
 
 def _table_row_cells(line: str) -> tuple[str, ...] | None:
@@ -4281,51 +5229,148 @@ def _table_row_index(
 
     reference = segment.table_row
     if reference is not None:
-        if (
-            len(tables) != reference.table_count
-            or reference.table_ordinal >= len(tables)
-        ):
-            return None
-        rows = tables[reference.table_ordinal]
-        if len(rows) != reference.row_count:
-            return None
-        index = rows[reference.row_ordinal]
-        cells = _table_row_cells(lines[index])
-        if cells is None or len(cells) != len(old_cells):
-            return None
-        if translated is not None and len(tables) == 1:
-            translated_cells = _table_row_cells(translated.rstrip("\r\n"))
-            if (
-                translated_cells is not None
-                and _table_match_cells(cells)
-                == _table_match_cells(translated_cells)
-            ):
-                return index
-        candidates = _identified_table_row_candidates(
+        return _referenced_table_row_index(
             lines,
-            [row for table in tables for row in table],
+            segment,
+            tables,
             old_cells,
             new_cells,
+            translated,
         )
-        if not candidates:
-            if len(tables) != 1 or not _table_context_identifies_row(
-                lines,
-                segment,
-                index,
-                [index],
-            ):
-                return None
-        else:
-            if index not in candidates:
-                return None
-            if len(candidates) > 1 and not _table_context_identifies_row(
-                lines,
-                segment,
-                index,
-                candidates,
-            ):
-                return None
+    return _unreferenced_table_row_index(lines, segment, tables, old_cells)
+
+
+def _referenced_table_row_index(
+    lines: list[str],
+    segment: BlockChange,
+    tables: list[list[int]],
+    old_cells: tuple[str, ...],
+    new_cells: tuple[str, ...],
+    translated: str | None,
+) -> int | None:
+    """계획에 기록된 표·행 ordinal로 locale 행 위치 검증.
+
+    Args:
+        lines: locale 문서 줄.
+        segment: 적용할 표 행 변경.
+        tables: locale 표별 데이터 행 위치.
+        old_cells: 변경 이전 원문 셀.
+        new_cells: 목표 원문 셀.
+        translated: provider 번역 행 또는 ``None``.
+
+    Returns:
+        유일하게 검증된 locale 행 위치.
+    """
+
+    reference = segment.table_row
+    if reference is None or (
+        len(tables) != reference.table_count
+        or reference.table_ordinal >= len(tables)
+    ):
+        return None
+    rows = tables[reference.table_ordinal]
+    if len(rows) != reference.row_count or reference.row_ordinal >= len(rows):
+        return None
+    index = rows[reference.row_ordinal]
+    cells = _table_row_cells(lines[index])
+    if cells is None or len(cells) != len(old_cells):
+        return None
+    if _translated_table_row_matches(cells, translated, table_count=len(tables)):
         return index
+    candidates = _identified_table_row_candidates(
+        lines,
+        [row for table in tables for row in table],
+        old_cells,
+        new_cells,
+    )
+    return _validated_referenced_table_candidate(
+        lines,
+        segment,
+        index,
+        candidates,
+        table_count=len(tables),
+    )
+
+
+def _translated_table_row_matches(
+    cells: tuple[str, ...],
+    translated: str | None,
+    *,
+    table_count: int,
+) -> bool:
+    """단일 locale 표 행이 이미 provider 번역 결과와 같은지 판정.
+
+    Args:
+        cells: 현재 locale 표 행 셀.
+        translated: provider 번역 행 또는 ``None``.
+        table_count: locale 문서의 표 개수.
+
+    Returns:
+        표가 하나이고 정규화된 번역 셀이 같은지 여부.
+    """
+
+    if translated is None or table_count != 1:
+        return False
+    translated_cells = _table_row_cells(translated.rstrip("\r\n"))
+    return bool(
+        translated_cells is not None
+        and _table_match_cells(cells) == _table_match_cells(translated_cells)
+    )
+
+
+def _validated_referenced_table_candidate(
+    lines: list[str],
+    segment: BlockChange,
+    index: int,
+    candidates: list[int],
+    *,
+    table_count: int,
+) -> int | None:
+    """계획 ordinal 행과 원문 cell 후보·문맥의 일치 여부 검증.
+
+    Args:
+        lines: locale 문서 줄.
+        segment: 적용할 표 행 변경.
+        index: 계획 ordinal로 선택된 행 위치.
+        candidates: 원문·목표 cell로 식별한 행 후보.
+        table_count: locale 문서의 표 개수.
+
+    Returns:
+        검증된 행 위치 또는 ``None``.
+    """
+
+    if not candidates:
+        if table_count != 1 or not _table_context_identifies_row(
+            lines, segment, index, [index]
+        ):
+            return None
+        return index
+    if index not in candidates:
+        return None
+    if len(candidates) > 1 and not _table_context_identifies_row(
+        lines, segment, index, candidates
+    ):
+        return None
+    return index
+
+
+def _unreferenced_table_row_index(
+    lines: list[str],
+    segment: BlockChange,
+    tables: list[list[int]],
+    old_cells: tuple[str, ...],
+) -> int | None:
+    """구버전 계획의 안정 셀과 문맥으로 locale 표 행 탐색.
+
+    Args:
+        lines: locale 문서 줄.
+        segment: 적용할 표 행 변경.
+        tables: locale 표별 데이터 행 위치.
+        old_cells: 변경 이전 원문 셀.
+
+    Returns:
+        유일하게 식별된 locale 행 위치.
+    """
 
     stable_cells = _table_match_cells(old_cells[1:])
     if not stable_cells:
@@ -4768,25 +5813,59 @@ def _prefix_reordered_with_sections(
     old_links: list[str] = []
     new_links: list[str] = []
     for old_line, new_line in zip(old_lines, new_lines):
-        old_anchor = _toc_link_anchor(old_line)
-        new_anchor = _toc_link_anchor(new_line)
-        if old_anchor is None and new_anchor is None:
-            if old_line != new_line:
-                return False
-            continue
-        if old_anchor is None or new_anchor is None:
+        pair_valid, is_link = _prefix_line_pair_is_valid(old_line, new_line)
+        if not pair_valid:
             return False
-        old_links.append(old_line)
-        new_links.append(new_line)
+        if is_link:
+            old_links.append(old_line)
+            new_links.append(new_line)
     if not old_links or Counter(old_links) != Counter(new_links):
         return False
-    link_positions: list[int] = []
-    for line in new_links:
+    link_positions = _section_link_order(new_links, positions)
+    if link_positions is None:
+        return False
+    return link_positions == sorted(link_positions)
+
+
+def _prefix_line_pair_is_valid(old_line: str, new_line: str) -> tuple[bool, bool]:
+    """section prefix의 대응 줄이 동일 본문 또는 TOC 링크인지 판정.
+
+    Args:
+        old_line: 변경 이전 prefix 줄.
+        new_line: 변경 이후 prefix 줄.
+
+    Returns:
+        줄 쌍 유효 여부와 TOC 링크 여부.
+    """
+
+    old_anchor = _toc_link_anchor(old_line)
+    new_anchor = _toc_link_anchor(new_line)
+    if old_anchor is None and new_anchor is None:
+        return old_line == new_line, False
+    return old_anchor is not None and new_anchor is not None, True
+
+
+def _section_link_order(
+    lines: list[str],
+    positions: dict[str, int],
+) -> list[int] | None:
+    """TOC 링크 줄을 목표 section 순번으로 변환.
+
+    Args:
+        lines: 변경 이후 TOC 링크 줄.
+        positions: anchor 이름별 목표 section 순번.
+
+    Returns:
+        목표 section 순번 목록. 알 수 없는 anchor면 ``None``.
+    """
+
+    order: list[int] = []
+    for line in lines:
         anchor = _toc_link_anchor(line)
         if anchor is None or anchor not in positions:
-            return False
-        link_positions.append(positions[anchor])
-    return link_positions == sorted(link_positions)
+            return None
+        order.append(positions[anchor])
+    return order
 
 
 def _toc_link_anchor(line: str) -> str | None:

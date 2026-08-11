@@ -174,6 +174,43 @@ def _replace_links(
     return "".join(out)
 
 
+def _restore_blank_labels_in_line(
+    original_line: str,
+    source_links: list[tuple[str, str, str]],
+    link_index: int,
+) -> tuple[str, int, bool]:
+    """Markdown 한 줄의 빈 일반 링크 레이블 복원.
+
+    Args:
+        original_line: 번역문 원본 한 줄.
+        source_links: 문서 순서대로 수집한 원문 링크.
+        link_index: 이 줄이 시작할 때의 일반 링크 인덱스.
+
+    Returns:
+        복원된 줄, 다음 링크 인덱스, 변경 여부.
+    """
+
+    fragments: list[str] = []
+    cursor = 0
+    changed = False
+    for link in markdown_links(original_line):
+        fragments.append(original_line[cursor : link.start])
+        if link.image:
+            fragments.append(original_line[link.start : link.end])
+            cursor = link.end
+            continue
+        source_label, _source_target, _source_title = source_links[link_index]
+        link_index += 1
+        if not " ".join(link.label.split()) and source_label:
+            fragments.append(f"[{source_label}]({link.target}{link.title})")
+            changed = True
+        else:
+            fragments.append(original_line[link.start : link.end])
+        cursor = link.end
+    fragments.append(original_line[cursor:])
+    return "".join(fragments), link_index, changed
+
+
 def restore_blank_markdown_link_labels(source: str, translated: str) -> RepairResult:
     """번역문에서 비어 있는 Markdown 링크 레이블만 대응 원문에서 복원.
 
@@ -200,24 +237,13 @@ def restore_blank_markdown_link_labels(source: str, translated: str) -> RepairRe
             out.append(original_line)
             continue
 
-        line: list[str] = []
-        cursor = 0
-        for link in markdown_links(original_line):
-            line.append(original_line[cursor : link.start])
-            if link.image:
-                line.append(original_line[link.start : link.end])
-                cursor = link.end
-                continue
-            source_label, _source_target, _source_title = source_links[link_index]
-            link_index += 1
-            if not " ".join(link.label.split()) and source_label:
-                line.append(f"[{source_label}]({link.target}{link.title})")
-                changed = True
-            else:
-                line.append(original_line[link.start : link.end])
-            cursor = link.end
-        line.append(original_line[cursor:])
-        out.append("".join(line))
+        restored, link_index, line_changed = _restore_blank_labels_in_line(
+            original_line,
+            source_links,
+            link_index,
+        )
+        out.append(restored)
+        changed = changed or line_changed
 
     if link_index != len(source_links):
         raise RepairError("translated document has fewer Markdown links than source")

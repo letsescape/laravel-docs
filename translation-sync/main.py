@@ -48,6 +48,7 @@ PRESERVED_MARKUP_FIXABLE = {
     "heading text mismatch",
 }
 MAX_SEGMENT_VERIFICATION_ATTEMPTS = translate.MAX_COMPLETED_RESPONSE_ATTEMPTS
+_MISSING_PARTIAL_TRANSLATION = "missing existing translation for partial sync"
 
 
 class OutputPathError(ValueError):
@@ -142,41 +143,49 @@ def _ja_output(change: diff.SourceChange) -> Path:
 
 def _validate_file_states(changes: list[diff.SourceChange]) -> list[str]:
     """첫 로케일 변경 전에 모든 영어·한국어·일본어 파일 상태 검증."""
+    return [
+        issue
+        for change in changes
+        for issue in _file_state_issues(change)
+    ]
+
+
+def _file_state_issues(change: diff.SourceChange) -> list[str]:
+    """단일 원문 변경의 영어·locale 파일 상태 이슈 수집.
+
+    Args:
+        change: 검사할 원문 변경.
+
+    Returns:
+        파일 상태 위반 진단 문자열.
+    """
+
+    try:
+        locale_paths = (
+            ("ko", _validated_output_path(_ko_output(change))),
+            ("ja", _validated_output_path(_ja_output(change))),
+        )
+    except OutputPathError as exc:
+        return [f"{change.path}: {exc}"]
+    if change.status not in {"A", "M", "D"}:
+        return [f"{change.path}: unsupported source status {change.status!r}"]
     issues: list[str] = []
-    for change in changes:
-        source = REPO_ROOT / change.path
-        try:
-            locale_paths = (
-                ("ko", _validated_output_path(_ko_output(change))),
-                ("ja", _validated_output_path(_ja_output(change))),
-            )
-        except OutputPathError as exc:
-            issues.append(f"{change.path}: {exc}")
-            continue
-
-        if change.status not in {"A", "M", "D"}:
-            issues.append(f"{change.path}: unsupported source status {change.status!r}")
-            continue
-        if change.status == "M" and not change.hunks:
-            issues.append(f"{change.path}: M requires raw diff hunks")
-
-        source_exists = source.is_file() and not source.is_symlink()
-        expected_source = change.status in {"A", "M"}
-        if source_exists != expected_source:
-            expectation = "existing" if expected_source else "absent"
+    if change.status == "M" and not change.hunks:
+        issues.append(f"{change.path}: M requires raw diff hunks")
+    source = REPO_ROOT / change.path
+    expected_source = change.status in {"A", "M"}
+    if (source.is_file() and not source.is_symlink()) != expected_source:
+        expectation = "existing" if expected_source else "absent"
+        issues.append(
+            f"{change.path}: {change.status} requires {expectation} English source"
+        )
+    expected_locale = change.status in {"M", "D"}
+    for locale, path in locale_paths:
+        if (path.is_file() and not path.is_symlink()) != expected_locale:
+            expectation = "existing" if expected_locale else "absent"
             issues.append(
-                f"{change.path}: {change.status} requires {expectation} English source"
+                f"{change.path}: {change.status} requires {expectation} {locale} locale"
             )
-
-        expected_locale = change.status in {"M", "D"}
-        for locale, path in locale_paths:
-            locale_exists = path.is_file() and not path.is_symlink()
-            if locale_exists != expected_locale:
-                expectation = "existing" if expected_locale else "absent"
-                issues.append(
-                    f"{change.path}: {change.status} requires {expectation} "
-                    f"{locale} locale"
-                )
     return issues
 
 
@@ -219,33 +228,42 @@ def _preflight_all_translation_targets(
                     prompts[locale],
                     dest,
                 )
-            except OutputPathError as exc:
-                issues.append(f"{locale} {change.path}: {exc}")
-            except config.ConfigError as exc:
+            except (
+                OutputPathError,
+                config.ConfigError,
+                translate.IncompleteTranslation,
+                patch_utils.PatchError,
+                UnicodeDecodeError,
+                ValueError,
+                OSError,
+            ) as exc:
                 issues.append(
-                    f"{locale} {change.path}: {_translation_config_issue(exc)}"
-                )
-            except translate.IncompleteTranslation as exc:
-                issues.append(
-                    f"{locale} {change.path}: translation preflight failed: {exc}"
-                )
-            except patch_utils.PatchError as exc:
-                issues.append(
-                    f"{locale} {change.path}: patch preflight failed: {exc}"
-                )
-            except UnicodeDecodeError as exc:
-                issues.append(
-                    f"{locale} {change.path}: translation input is not UTF-8: {exc}"
-                )
-            except ValueError as exc:
-                issues.append(
-                    f"{locale} {change.path}: translation preflight failed: {exc}"
-                )
-            except OSError as exc:
-                issues.append(
-                    f"{locale} {change.path}: translation input read failed: {exc}"
+                    f"{locale} {change.path}: {_preflight_exception_issue(exc)}"
                 )
     return prepared, issues
+
+
+def _preflight_exception_issue(exc: Exception) -> str:
+    """번역 사전검증 예외를 안정적인 CLI 진단으로 변환.
+
+    Args:
+        exc: 번역 대상 준비 중 발생한 예외.
+
+    Returns:
+        예외 유형별 사전검증 진단 문자열.
+    """
+
+    if isinstance(exc, OutputPathError):
+        return str(exc)
+    if isinstance(exc, config.ConfigError):
+        return _translation_config_issue(exc)
+    if isinstance(exc, patch_utils.PatchError):
+        return f"patch preflight failed: {exc}"
+    if isinstance(exc, UnicodeDecodeError):
+        return f"translation input is not UTF-8: {exc}"
+    if isinstance(exc, OSError):
+        return f"translation input read failed: {exc}"
+    return f"translation preflight failed: {exc}"
 
 
 def _sidebar_versions(changes: list[diff.SourceChange], version: str | None) -> list[str]:
@@ -290,10 +308,27 @@ def _select_changes(
             if _matches_filters(change, version=version, doc=doc)
         ])
 
-    repo_root = REPO_ROOT.absolute()
-    en_root = (
-        repo_root / "i18n" / "en" / "docusaurus-plugin-content-docs"
+    repo_root, en_root = _validated_english_docs_root()
+    return _migration_source_changes(
+        repo_root,
+        en_root,
+        version=version,
+        doc=doc,
     )
+
+
+def _validated_english_docs_root() -> tuple[Path, Path]:
+    """migration 대상 영어 문서 루트의 symlink·directory 안전성 검증.
+
+    Returns:
+        절대 저장소 루트와 영어 문서 루트.
+
+    Raises:
+        SourcePathError: 경로 구성 요소가 symlink이거나 directory가 아님.
+    """
+
+    repo_root = REPO_ROOT.absolute()
+    en_root = repo_root / "i18n" / "en" / "docusaurus-plugin-content-docs"
     current = repo_root
     for part in en_root.relative_to(repo_root).parts:
         current /= part
@@ -301,6 +336,27 @@ def _select_changes(
             raise SourcePathError(f"unsafe English source path: {current}")
     if not en_root.is_dir():
         raise SourcePathError(f"unsafe English source path: {en_root}")
+    return repo_root, en_root
+
+
+def _migration_source_changes(
+    repo_root: Path,
+    en_root: Path,
+    *,
+    version: str | None,
+    doc: str | None,
+) -> list[diff.SourceChange]:
+    """영어 버전 디렉터리에서 migration 대상 변경 구성.
+
+    Args:
+        repo_root: 절대 저장소 루트.
+        en_root: 검증된 영어 문서 루트.
+        version: 선택할 버전 또는 전체를 뜻하는 ``None``.
+        doc: 선택할 문서 또는 전체를 뜻하는 ``None``.
+
+    Returns:
+        선택자와 일치하는 가상 수정 변경.
+    """
 
     changes: list[diff.SourceChange] = []
     for version_root in sorted(en_root.iterdir()):
@@ -357,16 +413,7 @@ def _recursive_source_markdown(root: Path) -> list[Path]:
     pending = [root]
     while pending:
         directory = pending.pop()
-        try:
-            entries = sorted(
-                directory.iterdir(),
-                key=lambda path: path.name.encode("utf-8"),
-                reverse=True,
-            )
-        except OSError as exc:
-            raise SourcePathError(
-                f"unsafe English source path: {directory}"
-            ) from exc
+        entries = _source_directory_entries(directory)
         for path in entries:
             if path.is_symlink():
                 raise SourcePathError(f"unsafe English source path: {path}")
@@ -380,6 +427,29 @@ def _recursive_source_markdown(root: Path) -> list[Path]:
         documents,
         key=lambda path: path.relative_to(root).as_posix().encode("utf-8"),
     )
+
+
+def _source_directory_entries(directory: Path) -> list[Path]:
+    """영어 원문 directory 항목을 역 UTF-8 byte 순서로 조회.
+
+    Args:
+        directory: 조회할 검증 대상 directory.
+
+    Returns:
+        결정적 역순의 직접 자식 경로.
+
+    Raises:
+        SourcePathError: directory 항목을 읽을 수 없음.
+    """
+
+    try:
+        return sorted(
+            directory.iterdir(),
+            key=lambda path: path.name.encode("utf-8"),
+            reverse=True,
+        )
+    except OSError as exc:
+        raise SourcePathError(f"unsafe English source path: {directory}") from exc
 
 
 def _translation_request(
@@ -452,45 +522,16 @@ def _translate_added_document(
         )
         if target.state is not patch_utils.PlanState.CREATE:
             raise patch_utils.PatchError("added document is not in create state")
-        translated_blocks: list[str] = []
-        for owner in target.plan.create_blocks:
-            if not owner.provider_required:
-                continue
-            request_source = owner.source
-            feedback: str | None = None
-            contract_issues: list[str] = []
-            for attempt in range(MAX_SEGMENT_VERIFICATION_ATTEMPTS):
-                translated_block = translate.translate_request(
-                    _translation_request(
-                        request_source,
-                        None,
-                        version=change.version,
-                        verification_feedback=feedback,
-                    ),
-                    cfg,
-                    prompt,
-                    deadline=deadline,
-                )
-                contract_issues = _contract_issues(
-                    translated_block, request_source, cfg, change, locale
-                )
-                translate.require_run_deadline(deadline)
-                if not contract_issues:
-                    translated_blocks.append(translated_block)
-                    break
-                if (
-                    attempt + 1 >= MAX_SEGMENT_VERIFICATION_ATTEMPTS
-                    or not response_contract.supports_feedback_retry(
-                        translated_block,
-                        request_source,
-                        contract_issues,
-                    )
-                ):
-                    return [
-                        "provider response contract failed: "
-                        + ", ".join(contract_issues)
-                    ]
-                feedback = _verification_feedback(contract_issues)
+        translated_blocks, contract_issue = _translate_create_blocks(
+            target.plan.create_blocks,
+            change,
+            cfg,
+            prompt,
+            locale=locale,
+            deadline=deadline,
+        )
+        if contract_issue is not None:
+            return [contract_issue]
         translated = patch_utils.apply_plan(
             target.existing,
             target.plan,
@@ -501,20 +542,16 @@ def _translate_added_document(
             change.version,
             target.placeholders,
         )
-    except OutputPathError as exc:
-        return [str(exc)]
-    except patch_utils.PatchError as exc:
-        return [f"create patch failed: {exc}"]
-    except config.ConfigError as exc:
-        return [_translation_config_issue(exc)]
-    except translate.IncompleteTranslation as exc:
-        return [f"incomplete translation: {exc}"]
-    except UnicodeDecodeError as exc:
-        return [f"create translation input is not UTF-8: {exc}"]
-    except ValueError as exc:
-        return [f"create translation input failed: {exc}"]
-    except OSError as exc:
-        return [f"create translation input read failed: {exc}"]
+    except (
+        OutputPathError,
+        patch_utils.PatchError,
+        config.ConfigError,
+        translate.IncompleteTranslation,
+        UnicodeDecodeError,
+        ValueError,
+        OSError,
+    ) as exc:
+        return [_translation_exception_issue(exc, phase="create")]
     return _verify_and_admit_document(
         dest,
         out,
@@ -524,6 +561,127 @@ def _translate_added_document(
         write=True,
         canonicalize=True,
     )
+
+
+def _translate_create_blocks(
+    owners: tuple[patch_utils.CreateBlock, ...],
+    change: diff.SourceChange,
+    cfg: config.Config,
+    prompt: str,
+    *,
+    locale: str | None,
+    deadline: float | None,
+) -> tuple[list[str], str | None]:
+    """신규 문서의 provider 필요 owner 블록 번역.
+
+    Args:
+        owners: 신규 문서 owner 블록.
+        change: 원문 변경.
+        cfg: 번역 provider 설정.
+        prompt: locale 운영 프롬프트.
+        locale: 목표 locale.
+        deadline: 전체 번역 실행 기한.
+
+    Returns:
+        번역 블록과 응답 계약 실패 진단.
+    """
+
+    translated: list[str] = []
+    for owner in owners:
+        if not owner.provider_required:
+            continue
+        block, issue = _translate_create_owner(
+            owner.source,
+            change,
+            cfg,
+            prompt,
+            locale=locale,
+            deadline=deadline,
+        )
+        if issue is not None:
+            return translated, issue
+        if block is not None:
+            translated.append(block)
+    return translated, None
+
+
+def _translate_create_owner(
+    source: str,
+    change: diff.SourceChange,
+    cfg: config.Config,
+    prompt: str,
+    *,
+    locale: str | None,
+    deadline: float | None,
+) -> tuple[str | None, str | None]:
+    """신규 owner 블록을 응답 계약 feedback과 함께 번역.
+
+    Args:
+        source: 번역할 owner 원문.
+        change: 원문 변경.
+        cfg: 번역 provider 설정.
+        prompt: locale 운영 프롬프트.
+        locale: 목표 locale.
+        deadline: 전체 번역 실행 기한.
+
+    Returns:
+        성공한 번역 블록과 실패 진단 중 하나.
+    """
+
+    feedback: str | None = None
+    issues: list[str] = []
+    for attempt in range(MAX_SEGMENT_VERIFICATION_ATTEMPTS):
+        translated = translate.translate_request(
+            _translation_request(
+                source,
+                None,
+                version=change.version,
+                verification_feedback=feedback,
+            ),
+            cfg,
+            prompt,
+            deadline=deadline,
+        )
+        issues = _contract_issues(translated, source, cfg, change, locale)
+        translate.require_run_deadline(deadline)
+        if not issues:
+            return translated, None
+        retryable = response_contract.supports_feedback_retry(
+            translated,
+            source,
+            issues,
+        )
+        if attempt + 1 >= MAX_SEGMENT_VERIFICATION_ATTEMPTS or not retryable:
+            break
+        feedback = _verification_feedback(issues)
+    return None, "provider response contract failed: " + ", ".join(issues)
+
+
+def _translation_exception_issue(exc: Exception, *, phase: str) -> str:
+    """문서 번역 예외를 단계별 안정적인 CLI 진단으로 변환.
+
+    Args:
+        exc: 번역·patch·입력 처리 중 발생한 예외.
+        phase: ``create`` 또는 ``partial`` 번역 단계.
+
+    Returns:
+        예외 유형과 단계가 포함된 진단 문자열.
+    """
+
+    if isinstance(exc, OutputPathError):
+        return str(exc)
+    if isinstance(exc, config.ConfigError):
+        return _translation_config_issue(exc)
+    if isinstance(exc, patch_utils.PatchError):
+        return f"{phase} patch failed: {exc}"
+    if isinstance(exc, translate.IncompleteTranslation):
+        prefix = "incomplete translation" if phase == "create" else "partial translation failed"
+        return f"{prefix}: {exc}"
+    if isinstance(exc, UnicodeDecodeError):
+        return f"{phase} translation input is not UTF-8: {exc}"
+    if isinstance(exc, OSError):
+        return f"{phase} translation input read failed: {exc}"
+    return f"{phase} translation input failed: {exc}"
 
 
 def _prepare_block_translation(
@@ -832,7 +990,7 @@ def _prepare_translation_target(
         raise patch_utils.PatchError("missing diff hunks for partial sync")
     if not dest.exists():
         raise patch_utils.PatchError(
-            "missing existing translation for partial sync"
+            _MISSING_PARTIAL_TRANSLATION
         )
 
     existing_bytes = dest.read_bytes()
@@ -956,25 +1114,33 @@ def _normalize_plan_source_pair(
     previous: str,
     current: str,
     version: str,
-    *,
-    capture: list[preprocess.PreprocessedPair] | None = None,
-) -> tuple[str, str]:
-    """계획에 사용할 이전·현재 원문 쌍 정규화."""
+) -> tuple[tuple[str, str], preprocess.PreprocessedPair]:
+    """계획에 사용할 이전·현재 원문 쌍 정규화.
+
+    Args:
+        previous: 변경 이전 원문.
+        current: 변경 이후 원문.
+        version: 문서 버전.
+
+    Returns:
+        정규화된 원문 쌍과 자리표시자를 보존한 전처리 결과.
+    """
 
     pair = preprocess.preprocess_pair(previous, current)
-    if capture is not None:
-        capture.append(pair)
     return (
-        postprocess.postprocess(
-            pair.previous.text,
-            version,
-            pair.previous.placeholders,
+        (
+            postprocess.postprocess(
+                pair.previous.text,
+                version,
+                pair.previous.placeholders,
+            ),
+            postprocess.postprocess(
+                pair.current.text,
+                version,
+                pair.current.placeholders,
+            ),
         ),
-        postprocess.postprocess(
-            pair.current.text,
-            version,
-            pair.current.placeholders,
-        ),
+        pair,
     )
 
 
@@ -984,20 +1150,17 @@ def _build_modified_plan(
 ) -> tuple[patch_utils.PatchPlan, preprocess.PreprocessedPair]:
     """수정 문서의 패치 계획 구성."""
 
-    pairs: list[preprocess.PreprocessedPair] = []
-    plan = patch_utils.build_plan(
-        change.hunks,
-        source,
-        normalize_source_pair=lambda previous, current: _normalize_plan_source_pair(
-            previous,
-            current,
-            change.version,
-            capture=pairs,
-        ),
+    previous, current = patch_utils.reconstruct_source_pair(change.hunks, source)
+    normalized, pair = _normalize_plan_source_pair(
+        previous,
+        current,
+        change.version,
     )
-    if len(pairs) != 1:
-        raise patch_utils.PatchError("source pair preprocessing did not complete once")
-    return plan, pairs[0]
+    plan = patch_utils.build_plan(
+        diff.hunks_between(*normalized),
+        normalized[1],
+    )
+    return plan, pair
 
 
 def _annotation_source(
@@ -1140,102 +1303,28 @@ def _translate_one(
             prepared_target=prepared_target,
         )
     try:
-        dest = _validated_output_path(dest)
-        if not dest.exists():
-            return ["missing existing translation for partial sync"]
-        if not change.hunks:
-            return ["missing diff hunks for partial sync"]
-        target = prepared_target or _prepare_translation_target(
+        result = _translate_partial_document(
             change,
             cfg,
             prompt,
             dest,
+            locale=locale,
+            deadline=deadline,
+            prepared_target=prepared_target,
         )
-        existing = target.existing
-        existing_bytes = target.existing_bytes
-        if existing is None or existing_bytes is None:
-            raise patch_utils.PatchError(
-                "missing existing translation for partial sync"
-            )
-
-        if target.plan.is_noop or target.state is patch_utils.PlanState.TARGET:
-            return _verify_and_admit_document(
-                dest,
-                existing_bytes,
-                target.source,
-                change.version,
-                target.placeholders,
-                write=False,
-            )
-
-        expected_source = postprocess.postprocess(
-            target.source,
-            change.version,
-            target.placeholders,
-        )
-        if (
-            target.state is patch_utils.PlanState.UNGUARDED
-            and target.plan.old_code_blocks != target.plan.new_code_blocks
-            and not _verify_and_admit_document(
-                dest,
-                existing_bytes,
-                target.source,
-                change.version,
-                target.placeholders,
-                write=False,
-            )
-        ):
-            return []
-
-        translated_blocks: list[str] = []
-        for block_change in target.plan.changes:
-            if block_change.needs_translation:
-                if block_change.provider_free:
-                    translated_blocks.append(
-                        _render_provider_free_change(
-                            change,
-                            block_change,
-                            placeholders=target.placeholders,
-                        )
-                    )
-                else:
-                    translated_blocks.append(
-                        _translate_block_change(
-                            change,
-                            block_change,
-                            cfg,
-                            prompt,
-                            existing,
-                            locale=locale,
-                            deadline=deadline,
-                            placeholders=target.placeholders,
-                            prepared=target.block_requests.get(id(block_change)),
-                        )
-                    )
-        out = patch_utils.apply_plan(
-            existing,
-            target.plan,
-            translated_blocks,
-        )
-        out = postprocess.postprocess(
-            out,
-            change.version,
-            target.placeholders,
-        )
-    except OutputPathError as exc:
-        return [str(exc)]
-    except patch_utils.PatchError as exc:
-        return [f"partial patch failed: {exc}"]
-    except config.ConfigError as exc:
-        return [_translation_config_issue(exc)]
-    except translate.IncompleteTranslation as exc:
-        return [f"partial translation failed: {exc}"]
-    except UnicodeDecodeError as exc:
-        return [f"partial translation input is not UTF-8: {exc}"]
-    except ValueError as exc:
-        return [f"partial translation input failed: {exc}"]
-    except OSError as exc:
-        return [f"partial translation input read failed: {exc}"]
+    except (
+        OutputPathError,
+        patch_utils.PatchError,
+        config.ConfigError,
+        translate.IncompleteTranslation,
+        UnicodeDecodeError,
+        ValueError,
+        OSError,
+    ) as exc:
+        return [_translation_exception_issue(exc, phase="partial")]
+    if isinstance(result, list):
+        return result
+    dest, target, out, expected_source = result
 
     # 부분 패치는 영향을 받지 않은 로케일 문맥을 보존.
     # 전체 문서 검증 전에 해당 문맥과 패치한 블록을 함께 정규화해야 기존 경고문과 원문 주석이 오래된 상태로 남지 않음.
@@ -1249,6 +1338,162 @@ def _translate_one(
         write=True,
         canonicalize=True,
     )
+
+
+def _translate_partial_document(
+    change: diff.SourceChange,
+    cfg: config.Config,
+    prompt: str,
+    dest: Path,
+    *,
+    locale: str | None,
+    deadline: float | None,
+    prepared_target: _PreparedTranslationTarget | None,
+) -> tuple[Path, _PreparedTranslationTarget, str, str] | list[str]:
+    """부분 변경의 계획 상태 확인과 번역·patch·후처리 수행.
+
+    Args:
+        change: 수정된 원문 변경.
+        cfg: 번역 provider 설정.
+        prompt: locale 운영 프롬프트.
+        dest: locale 출력 경로.
+        locale: 목표 locale.
+        deadline: 전체 번역 실행 기한.
+        prepared_target: 사전검증에서 준비한 번역 대상.
+
+    Returns:
+        출력 경로·대상·patch 결과·검증 원문 또는 즉시 반환할 이슈.
+    """
+
+    dest = _validated_output_path(dest)
+    if not dest.exists():
+        return [_MISSING_PARTIAL_TRANSLATION]
+    if not change.hunks:
+        return ["missing diff hunks for partial sync"]
+    target = prepared_target or _prepare_translation_target(
+        change,
+        cfg,
+        prompt,
+        dest,
+    )
+    existing = target.existing
+    existing_bytes = target.existing_bytes
+    if existing is None or existing_bytes is None:
+        raise patch_utils.PatchError(_MISSING_PARTIAL_TRANSLATION)
+    if target.plan.is_noop or target.state is patch_utils.PlanState.TARGET:
+        return _verify_and_admit_document(
+            dest,
+            existing_bytes,
+            target.source,
+            change.version,
+            target.placeholders,
+            write=False,
+        )
+    expected_source = postprocess.postprocess(
+        target.source,
+        change.version,
+        target.placeholders,
+    )
+    if _unguarded_code_change_is_already_valid(dest, target, existing_bytes, change):
+        return []
+    translated_blocks = _translated_plan_blocks(
+        change,
+        target,
+        cfg,
+        prompt,
+        existing,
+        locale=locale,
+        deadline=deadline,
+    )
+    out = patch_utils.apply_plan(existing, target.plan, translated_blocks)
+    out = postprocess.postprocess(out, change.version, target.placeholders)
+    return dest, target, out, expected_source
+
+
+def _unguarded_code_change_is_already_valid(
+    dest: Path,
+    target: _PreparedTranslationTarget,
+    existing_bytes: bytes,
+    change: diff.SourceChange,
+) -> bool:
+    """비보호 code 변경의 기존 locale 문서가 이미 유효한지 판정.
+
+    Args:
+        dest: locale 출력 경로.
+        target: 준비된 번역 대상.
+        existing_bytes: 기존 locale 문서 bytes.
+        change: 수정된 원문 변경.
+
+    Returns:
+        code 구조는 바뀌었지만 현재 문서 검증이 통과하는지 여부.
+    """
+
+    return bool(
+        target.state is patch_utils.PlanState.UNGUARDED
+        and target.plan.old_code_blocks != target.plan.new_code_blocks
+        and not _verify_and_admit_document(
+            dest,
+            existing_bytes,
+            target.source,
+            change.version,
+            target.placeholders,
+            write=False,
+        )
+    )
+
+
+def _translated_plan_blocks(
+    change: diff.SourceChange,
+    target: _PreparedTranslationTarget,
+    cfg: config.Config,
+    prompt: str,
+    existing: str,
+    *,
+    locale: str | None,
+    deadline: float | None,
+) -> list[str]:
+    """부분 patch 계획에서 번역이 필요한 block 결과 생성.
+
+    Args:
+        change: 수정된 원문 변경.
+        target: 준비된 번역 대상.
+        cfg: 번역 provider 설정.
+        prompt: locale 운영 프롬프트.
+        existing: 기존 locale 문서.
+        locale: 목표 locale.
+        deadline: 전체 번역 실행 기한.
+
+    Returns:
+        계획 순서의 provider 또는 결정적 번역 블록.
+    """
+
+    translated: list[str] = []
+    for block_change in target.plan.changes:
+        if not block_change.needs_translation:
+            continue
+        if block_change.provider_free:
+            translated.append(
+                _render_provider_free_change(
+                    change,
+                    block_change,
+                    placeholders=target.placeholders,
+                )
+            )
+            continue
+        translated.append(
+            _translate_block_change(
+                change,
+                block_change,
+                cfg,
+                prompt,
+                existing,
+                locale=locale,
+                deadline=deadline,
+                placeholders=target.placeholders,
+                prepared=target.block_requests.get(id(block_change)),
+            )
+        )
+    return translated
 
 
 def _expected_source(change: diff.SourceChange) -> str:
@@ -1487,17 +1732,13 @@ def _parse_args(args: list[str]) -> tuple[set[str], dict[str, str]]:
                 "or --fix-preserved-markup"
             )
         if option in _VALUE_OPTIONS:
-            if option in values:
-                raise config.ConfigError(f"{option} may only be specified once")
-            if separator:
-                value = inline_value
-            else:
-                index += 1
-                if index >= len(args) or args[index].startswith("-"):
-                    raise config.ConfigError(f"{option} requires a value")
-                value = args[index]
-            if not value:
-                raise config.ConfigError(f"{option} requires a value")
+            value, index = _parse_value_option(
+                args,
+                index,
+                option,
+                inline_value if separator else None,
+                values,
+            )
             values[option] = value
         elif argument in _FLAG_OPTIONS:
             if argument in flags:
@@ -1506,6 +1747,56 @@ def _parse_args(args: list[str]) -> tuple[set[str], dict[str, str]]:
         else:
             raise config.ConfigError(f"unknown argument: {argument}")
         index += 1
+    _validate_cli_flags(flags)
+    return flags, values
+
+
+def _parse_value_option(
+    args: list[str],
+    index: int,
+    option: str,
+    inline_value: str | None,
+    values: dict[str, str],
+) -> tuple[str, int]:
+    """값을 요구하는 CLI option의 값과 다음 인수 위치 파싱.
+
+    Args:
+        args: 전체 명령행 인수.
+        index: 현재 option 위치.
+        option: ``--doc`` 또는 ``--version``.
+        inline_value: ``=`` 뒤 inline 값 또는 ``None``.
+        values: 이미 파싱한 option 값.
+
+    Returns:
+        파싱한 값과 소비가 끝난 인수 위치.
+
+    Raises:
+        ConfigError: option이 중복되거나 값이 없음.
+    """
+
+    if option in values:
+        raise config.ConfigError(f"{option} may only be specified once")
+    if inline_value is None:
+        index += 1
+        if index >= len(args) or args[index].startswith("-"):
+            raise config.ConfigError(f"{option} requires a value")
+        value = args[index]
+    else:
+        value = inline_value
+    if not value:
+        raise config.ConfigError(f"{option} requires a value")
+    return value, index
+
+
+def _validate_cli_flags(flags: set[str]) -> None:
+    """maintenance mode와 ``--apply`` 조합 검증.
+
+    Args:
+        flags: 파싱된 boolean option.
+
+    Raises:
+        ConfigError: maintenance mode가 중복되거나 ``--apply`` 대상이 없음.
+    """
 
     maintenance = flags & _MAINTENANCE_OPTIONS
     if len(maintenance) > 1:
@@ -1516,7 +1807,6 @@ def _parse_args(args: list[str]) -> tuple[set[str], dict[str, str]]:
         raise config.ConfigError(
             "--apply requires --annotate-existing or --fix-preserved-markup"
         )
-    return flags, values
 
 
 def main() -> int:

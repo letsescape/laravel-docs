@@ -236,6 +236,123 @@ def _canonical_comment_body(s: str) -> str:
     return normalize_annotation_anchor(s).replace("-->", "--&gt;")
 
 
+def _render_comment(run: list[str], version: str, *, canonical: bool) -> list[str]:
+    """영어 원문 묶음을 단일 또는 여러 줄 HTML 주석으로 렌더링.
+
+    Args:
+        run: 연속 영어 원문 줄.
+        version: 버전 플레이스홀더 치환값.
+        canonical: 정규 단일 줄 주석 사용 여부.
+
+    Returns:
+        삽입할 HTML 주석 줄 목록.
+    """
+
+    if canonical:
+        return [f"<!-- {_canonical_comment_body(' '.join(run))} -->"]
+    body = [_csub(line.rstrip(), version) for line in run]
+    if len(body) == 1:
+        return [f"<!-- {body[0]} -->"]
+    return ["<!--", *body, "-->"]
+
+
+def _register_heading_comment(
+    en: Block,
+    ko: Block,
+    version: str,
+    inserts: dict[int, list[str]],
+    *,
+    canonical: bool,
+) -> None:
+    """대응 제목 블록의 영어 원문 주석 등록.
+
+    Args:
+        en: 영어 제목 블록.
+        ko: 대응 번역 제목 블록.
+        version: 버전 플레이스홀더 치환값.
+        inserts: 번역 줄 위치별 삽입 주석 mapping.
+        canonical: 정규 주석 본문 사용 여부.
+    """
+
+    body = (
+        _canonical_comment_body(en.lines[0])
+        if canonical
+        else _csub(en.lines[0].rstrip(), version)
+    )
+    inserts.setdefault(ko.start, []).append(f"<!-- {body} -->")
+
+
+def _register_text_comments(
+    en: Block,
+    ko: Block,
+    version: str,
+    inserts: dict[int, list[str]],
+    *,
+    canonical: bool,
+) -> None:
+    """대응 텍스트 블록의 주석 대상 줄 묶음을 등록.
+
+    Args:
+        en: 영어 텍스트 블록.
+        ko: 대응 번역 텍스트 블록.
+        version: 버전 플레이스홀더 치환값.
+        inserts: 번역 줄 위치별 삽입 주석 mapping.
+        canonical: 정규 단일 줄 주석 사용 여부.
+    """
+
+    en_lines = en.lines
+    reference_lines = reference_definition_line_numbers("\n".join(en_lines))
+    aligned = len(en_lines) == len(ko.lines)
+    index = 0
+    while index < len(en_lines):
+        line = en_lines[index]
+        if index in reference_lines or _is_skip_line(line):
+            index += 1
+            continue
+        at = ko.start + index if aligned else ko.start
+        if line.strip().startswith("#"):
+            body = (
+                _canonical_comment_body(line)
+                if canonical
+                else _csub(line.strip(), version)
+            )
+            inserts.setdefault(at, []).append(f"<!-- {body} -->")
+            index += 1
+            continue
+        end = _next_comment_run(en_lines, index, reference_lines)
+        inserts.setdefault(at, []).extend(
+            _render_comment(en_lines[index:end], version, canonical=canonical)
+        )
+        index = end
+
+
+def _next_comment_run(
+    lines: list[str],
+    start: int,
+    reference_lines: frozenset[int],
+) -> int:
+    """주석 한 개로 묶을 연속 일반 문단의 끝 위치 탐색.
+
+    Args:
+        lines: 영어 블록 줄.
+        start: 묶음 시작 위치.
+        reference_lines: 참조 정의 줄 번호.
+
+    Returns:
+        묶음 끝의 미포함 위치.
+    """
+
+    end = start
+    while (
+        end < len(lines)
+        and end not in reference_lines
+        and not _is_skip_line(lines[end])
+        and not lines[end].strip().startswith("#")
+    ):
+        end += 1
+    return end
+
+
 def _comment_for(
     en: Block,
     ko: Block,
@@ -251,16 +368,16 @@ def _comment_for(
     탐색 전용 TOC 링크와 별도 소유자가 검증하는 인용문(``>``)·표(``|``) 줄은 제외.
     """
     if en.kind == "heading":
-        body = (
-            _canonical_comment_body(en.lines[0])
-            if canonical
-            else _csub(en.lines[0].rstrip(), version)
+        _register_heading_comment(
+            en,
+            ko,
+            version,
+            inserts,
+            canonical=canonical,
         )
-        inserts.setdefault(ko.start, []).append(f"<!-- {body} -->")
         return
 
     en_lines = en.lines
-    ko_lines = ko.lines
     if canonical and en_lines and _text_subkind(en_lines[0]) == "table":
         body = _canonical_comment_body(" ".join(en_lines))
         inserts.setdefault(ko.start, []).append(
@@ -269,54 +386,13 @@ def _comment_for(
         return
     if is_structural_html_fragment("\n".join(en_lines)):
         return
-    reference_lines = reference_definition_line_numbers(
-        "\n".join(en_lines)
+    _register_text_comments(
+        en,
+        ko,
+        version,
+        inserts,
+        canonical=canonical,
     )
-    aligned = len(en_lines) == len(ko_lines)
-
-    def make_comment(run: list[str]) -> list[str]:
-        """영어 원문 묶음의 단일 또는 여러 줄 HTML 주석 생성."""
-
-        if canonical:
-            return [f"<!-- {_canonical_comment_body(' '.join(run))} -->"]
-        body = [_csub(line.rstrip(), version) for line in run]
-        if len(body) == 1:
-            return [f"<!-- {body[0]} -->"]
-        return ["<!--", *body, "-->"]
-
-    i = 0
-    n = len(en_lines)
-    while i < n:
-        el = en_lines[i]
-        if i in reference_lines or _is_skip_line(el):
-            i += 1
-            continue
-        # verify._required_comments는 `#`로 시작하는 줄을 제목으로 보고 단독 주석 요구.
-        # 들여쓰기 코드의 `#items:`와 PHP 속성 `#[...]`도 같은 규칙 적용.
-        # 검증 규칙에 맞춰 묶음을 분리하고 단독 주석 생성.
-        if el.strip().startswith("#"):
-            at = ko.start + i if aligned else ko.start
-            body = (
-                _canonical_comment_body(el)
-                if canonical
-                else _csub(el.strip(), version)
-            )
-            inserts.setdefault(at, []).append(f"<!-- {body} -->")
-            i += 1
-            continue
-        # 연속된 일반 문단 줄을 하나의 묶음으로 결합.
-        j = i
-        while (
-            j < n
-            and j not in reference_lines
-            and not _is_skip_line(en_lines[j])
-            and not en_lines[j].strip().startswith("#")
-        ):
-            j += 1
-        run = en_lines[i:j]
-        at = ko.start + i if aligned else ko.start
-        inserts.setdefault(at, []).extend(make_comment(run))
-        i = j
 
 
 def _source_comment_bodies(source: str | None) -> list[str]:
@@ -372,6 +448,131 @@ def _comment_record_indexes(text: str) -> dict[tuple[int, int], int]:
     }
 
 
+def _standalone_comment_end(
+    lines: list[str],
+    start: int,
+    opening: int,
+) -> tuple[str, int]:
+    """독립 주석의 닫는 줄 또는 보존해야 할 불완전 상태 탐색.
+
+    Args:
+        lines: 번역 문서 줄.
+        start: 주석 시작 줄 위치.
+        opening: 줄에서 주석 opener 열 위치.
+
+    Returns:
+        ``complete``, ``quoted`` 또는 ``unclosed`` 상태와 마지막 줄 위치.
+    """
+
+    if "-->" in lines[start]:
+        return "complete", start
+    if opening:
+        return "quoted", start
+    end = start + 1
+    while end < len(lines) and "-->" not in lines[end]:
+        end += 1
+    if end == len(lines):
+        return "unclosed", end
+    return "complete", end
+
+
+def _preserve_comment(
+    *,
+    body: str,
+    start: int,
+    end: int,
+    source_comments: list[str],
+    source_index: int,
+    comment_indexes: dict[tuple[int, int], int],
+    preserved_comment_indexes: frozenset[int] | None,
+) -> bool:
+    """독립 주석이 원문 작성 또는 명시적으로 보존된 주석인지 판정.
+
+    Args:
+        body: 주석 본문.
+        start: 주석 시작 줄 위치.
+        end: 주석 마지막 줄 위치.
+        source_comments: 원문 작성 주석 본문 목록.
+        source_index: 다음 원문 작성 주석 위치.
+        comment_indexes: 줄 범위별 문서 주석 순번.
+        preserved_comment_indexes: 명시적 보존 주석 순번 집합.
+
+    Returns:
+        번역 문서에 주석을 유지할지 여부.
+    """
+
+    if preserved_comment_indexes is not None:
+        return comment_indexes.get((start, end)) in preserved_comment_indexes
+    return source_index < len(source_comments) and body == source_comments[source_index]
+
+
+def _stripped_comment_at(
+    lines: list[str],
+    start: int,
+    opening: int,
+    *,
+    source_comments: list[str],
+    source_index: int,
+    comment_indexes: dict[tuple[int, int], int],
+    preserved_comment_indexes: frozenset[int] | None,
+) -> tuple[list[str], int, bool]:
+    """현재 독립 주석의 보존 출력과 다음 줄 위치 계산.
+
+    Args:
+        lines: 번역 문서 줄.
+        start: 주석 시작 줄 위치.
+        opening: 줄에서 주석 opener 열 위치.
+        source_comments: 원문 작성 주석 본문 목록.
+        source_index: 다음 원문 작성 주석 위치.
+        comment_indexes: 줄 범위별 문서 주석 순번.
+        preserved_comment_indexes: 명시적 보존 주석 순번 집합.
+
+    Returns:
+        보존할 줄, 다음 줄 위치, 원문 주석 위치 증가 여부.
+    """
+
+    state, end = _standalone_comment_end(lines, start, opening)
+    if state == "quoted":
+        return [lines[start]], start + 1, False
+    if state == "unclosed":
+        return lines[start:], len(lines), False
+    body = _standalone_comment_body(lines, start, end, opening)
+    preserve = _preserve_comment(
+        body=body,
+        start=start,
+        end=end,
+        source_comments=source_comments,
+        source_index=source_index,
+        comment_indexes=comment_indexes,
+        preserved_comment_indexes=preserved_comment_indexes,
+    )
+    output = lines[start : end + 1] if preserve else []
+    advance_source = preserve and preserved_comment_indexes is None
+    return output, end + 1, advance_source
+
+
+def _fence_state(line: str, in_code: bool, fence: str) -> tuple[bool, bool, str]:
+    """코드 펜스 줄 여부와 다음 코드 내부 상태 계산.
+
+    Args:
+        line: Markdown 물리 줄.
+        in_code: 이전 줄까지 코드 내부 여부.
+        fence: 활성 코드 펜스 token.
+
+    Returns:
+        펜스 줄 여부, 다음 코드 내부 상태, 활성 token.
+    """
+
+    token = fence_token(line)
+    if token is None:
+        return False, in_code, fence
+    if not in_code:
+        return True, True, token
+    if closes_fence(line, fence):
+        return True, False, fence
+    return True, in_code, fence
+
+
 def strip_annotations(
     ko_text: str,
     *,
@@ -400,47 +601,326 @@ def strip_annotations(
     n = len(lines)
     while i < n:
         ln = lines[i]
-        tok = fence_token(ln)
-        if tok:
-            if not in_code:
-                in_code, fence = True, tok
-            elif closes_fence(ln, fence):
-                in_code = False
+        is_fence, in_code, fence = _fence_state(ln, in_code, fence)
+        if is_fence:
             out.append(ln)
             i += 1
             continue
         comment_start = _standalone_comment_start(ln) if not in_code else None
         if comment_start is not None:
-            if "-->" in ln:
-                end = i
-            else:
-                if comment_start:
-                    out.append(ln)
-                    i += 1
-                    continue
-                end = i + 1
-                while end < n and "-->" not in lines[end]:
-                    end += 1
-                if end == n:
-                    out.extend(lines[i:])
-                    break
-            body = _standalone_comment_body(lines, i, end, comment_start)
-            preserve = (
-                comment_indexes.get((i, end)) in preserved_comment_indexes
-                if preserved_comment_indexes is not None
-                else (
-                    source_index < len(source_comments)
-                    and body == source_comments[source_index]
-                )
+            preserved, i, advance_source = _stripped_comment_at(
+                lines,
+                i,
+                comment_start,
+                source_comments=source_comments,
+                source_index=source_index,
+                comment_indexes=comment_indexes,
+                preserved_comment_indexes=preserved_comment_indexes,
             )
-            if preserve:
-                out.extend(lines[i : end + 1])
-                if preserved_comment_indexes is None:
-                    source_index += 1
-            i = end + 1
+            out.extend(preserved)
+            source_index += int(advance_source)
             continue
         out.append(ln)
         i += 1
+    return "\n".join(out)
+
+
+def _annotation_block(
+    annotation_blocks: list[Block] | None,
+    index: int,
+    fallback: Block,
+) -> Block:
+    """정규 주석 원문 블록 또는 정렬용 영어 블록 선택.
+
+    Args:
+        annotation_blocks: 정규 주석 원문 블록 목록.
+        index: 선택할 영어 블록 위치.
+        fallback: 정규 원문이 없을 때 사용할 정렬 블록.
+
+    Returns:
+        주석 본문을 소유한 영어 블록.
+    """
+
+    return annotation_blocks[index] if annotation_blocks is not None else fallback
+
+
+def _annotate_equal_range(
+    en_blocks: list[Block],
+    ko_blocks: list[Block],
+    annotation_blocks: list[Block] | None,
+    *,
+    i1: int,
+    i2: int,
+    j1: int,
+    version: str,
+    inserts: dict[int, list[str]],
+    canonical: bool,
+) -> None:
+    """정렬이 일치한 블록 범위의 주석 등록.
+
+    Args:
+        en_blocks: 영어 정렬 블록.
+        ko_blocks: 번역 정렬 블록.
+        annotation_blocks: 정규 주석 원문 블록.
+        i1: 영어 시작 블록 위치.
+        i2: 영어 끝 블록 위치.
+        j1: 번역 시작 블록 위치.
+        version: 문서 버전.
+        inserts: 줄 위치별 삽입 주석 mapping.
+        canonical: 정규 주석 본문 사용 여부.
+    """
+
+    for offset in range(i2 - i1):
+        en_index = i1 + offset
+        english = en_blocks[en_index]
+        if english.kind not in ("heading", "text"):
+            continue
+        _comment_for(
+            _annotation_block(annotation_blocks, en_index, english),
+            ko_blocks[j1 + offset],
+            version,
+            inserts,
+            canonical=canonical,
+        )
+
+
+def _annotate_replaced_range(
+    en_blocks: list[Block],
+    ko_blocks: list[Block],
+    annotation_blocks: list[Block] | None,
+    *,
+    i1: int,
+    i2: int,
+    j1: int,
+    version: str,
+    inserts: dict[int, list[str]],
+    drifts: list[Drift],
+    canonical: bool,
+) -> None:
+    """블록 수가 같은 불일치 범위를 위치별 병기하고 drift 기록.
+
+    Args:
+        en_blocks: 영어 정렬 블록.
+        ko_blocks: 번역 정렬 블록.
+        annotation_blocks: 정규 주석 원문 블록.
+        i1: 영어 시작 블록 위치.
+        i2: 영어 끝 블록 위치.
+        j1: 번역 시작 블록 위치.
+        version: 문서 버전.
+        inserts: 줄 위치별 삽입 주석 mapping.
+        drifts: 누적 drift 목록.
+        canonical: 정규 주석 본문 사용 여부.
+    """
+
+    for offset in range(i2 - i1):
+        en_index = i1 + offset
+        english = en_blocks[en_index]
+        korean = ko_blocks[j1 + offset]
+        if english.kind in ("heading", "text") and korean.kind in (
+            "heading",
+            "text",
+        ):
+            _comment_for(
+                _annotation_block(annotation_blocks, en_index, english),
+                korean,
+                version,
+                inserts,
+                canonical=canonical,
+            )
+        drifts.append(Drift("replace", english.lines, korean.lines))
+
+
+def _annotate_missing_english(
+    en_blocks: list[Block],
+    ko_blocks: list[Block],
+    ko_lines: list[str],
+    ko_text: str,
+    annotation_blocks: list[Block] | None,
+    *,
+    i1: int,
+    i2: int,
+    j1: int,
+    version: str,
+    inserts: dict[int, list[str]],
+    drifts: list[Drift],
+    canonical: bool,
+) -> None:
+    """번역 쪽에 대응 블록이 없는 의미 있는 영어 범위 처리.
+
+    Args:
+        en_blocks: 영어 정렬 블록.
+        ko_blocks: 번역 정렬 블록.
+        ko_lines: 번역 문서 줄.
+        ko_text: 정규화된 번역 문서.
+        annotation_blocks: 정규 주석 원문 블록.
+        i1: 영어 시작 블록 위치.
+        i2: 영어 끝 블록 위치.
+        j1: 번역 삽입 경계 블록 위치.
+        version: 문서 버전.
+        inserts: 줄 위치별 삽입 주석 mapping.
+        drifts: 누적 drift 목록.
+        canonical: 정규 주석 본문 사용 여부.
+    """
+
+    if i2 <= i1:
+        return
+    segment = en_blocks[i1:i2]
+    if not any(block.kind in ("heading", "text") for block in segment):
+        return
+    en_lines = [line for block in segment for line in block.lines]
+    drifts.append(Drift("delete", en_lines=en_lines))
+    at = ko_blocks[j1].start if j1 < len(ko_blocks) else len(ko_lines)
+    anchor = Block("text", at, at, [])
+    for index, english in enumerate(segment, start=i1):
+        if english.kind not in ("heading", "text"):
+            continue
+        if not _content_present(english, ko_text):
+            continue
+        _comment_for(
+            _annotation_block(annotation_blocks, index, english),
+            anchor,
+            version,
+            inserts,
+            canonical=canonical,
+        )
+
+
+def _record_extra_translation(
+    ko_blocks: list[Block],
+    *,
+    j1: int,
+    j2: int,
+    drifts: list[Drift],
+) -> None:
+    """영어 원문에 대응하지 않는 의미 있는 번역 범위 기록.
+
+    Args:
+        ko_blocks: 번역 정렬 블록.
+        j1: 번역 시작 블록 위치.
+        j2: 번역 끝 블록 위치.
+        drifts: 누적 drift 목록.
+    """
+
+    if j2 <= j1:
+        return
+    segment = ko_blocks[j1:j2]
+    if any(block.kind in ("heading", "text") for block in segment):
+        ko_lines = [line for block in segment for line in block.lines]
+        drifts.append(Drift("insert", ko_lines=ko_lines))
+
+
+def _alignment_annotations(
+    en_blocks: list[Block],
+    ko_blocks: list[Block],
+    ko_lines: list[str],
+    ko_text: str,
+    annotation_blocks: list[Block] | None,
+    *,
+    version: str,
+    canonical: bool,
+) -> tuple[dict[int, list[str]], list[Drift]]:
+    """영어·번역 블록 정렬 연산을 주석 삽입과 drift로 변환.
+
+    Args:
+        en_blocks: 영어 정렬 블록.
+        ko_blocks: 번역 정렬 블록.
+        ko_lines: 번역 문서 줄.
+        ko_text: 정규화된 번역 문서.
+        annotation_blocks: 정규 주석 원문 블록.
+        version: 문서 버전.
+        canonical: 정규 주석 본문 사용 여부.
+
+    Returns:
+        줄 위치별 삽입 주석과 drift 목록.
+    """
+
+    en_sigs = [_sig(block, version) for block in en_blocks]
+    ko_sigs = [_sig(block, version) for block in ko_blocks]
+    matcher = difflib.SequenceMatcher(a=en_sigs, b=ko_sigs, autojunk=False)
+    inserts: dict[int, list[str]] = {}
+    drifts: list[Drift] = []
+    for op, i1, i2, j1, j2 in matcher.get_opcodes():
+        if op == "equal":
+            _annotate_equal_range(
+                en_blocks,
+                ko_blocks,
+                annotation_blocks,
+                i1=i1,
+                i2=i2,
+                j1=j1,
+                version=version,
+                inserts=inserts,
+                canonical=canonical,
+            )
+        elif op == "replace" and (i2 - i1) == (j2 - j1):
+            _annotate_replaced_range(
+                en_blocks,
+                ko_blocks,
+                annotation_blocks,
+                i1=i1,
+                i2=i2,
+                j1=j1,
+                version=version,
+                inserts=inserts,
+                drifts=drifts,
+                canonical=canonical,
+            )
+        else:
+            _annotate_missing_english(
+                en_blocks,
+                ko_blocks,
+                ko_lines,
+                ko_text,
+                annotation_blocks,
+                i1=i1,
+                i2=i2,
+                j1=j1,
+                version=version,
+                inserts=inserts,
+                drifts=drifts,
+                canonical=canonical,
+            )
+            _record_extra_translation(
+                ko_blocks,
+                j1=j1,
+                j2=j2,
+                drifts=drifts,
+            )
+    return inserts, drifts
+
+
+def _render_annotated_lines(
+    ko_lines: list[str],
+    inserts: dict[int, list[str]],
+) -> str:
+    """번역 줄을 보존하며 등록된 주석과 코드 밖 정규화 적용.
+
+    Args:
+        ko_lines: 정규화된 번역 문서 줄.
+        inserts: 줄 위치별 삽입 주석 mapping.
+
+    Returns:
+        주석이 삽입된 번역 문서.
+    """
+
+    out: list[str] = []
+    in_code = False
+    fence = ""
+    for index, line in enumerate(ko_lines):
+        out.extend(inserts.get(index, []))
+        token = fence_token(line)
+        if token:
+            if not in_code:
+                in_code, fence = True, token
+            elif closes_fence(line, fence):
+                in_code = False
+            out.append(line)
+            continue
+        if not in_code:
+            line = strip_title_attr_line(img_self_closing(line))
+        out.append(line)
+    for index in sorted(key for key in inserts if key >= len(ko_lines)):
+        out.extend(inserts[index])
     return "\n".join(out)
 
 
@@ -494,92 +974,13 @@ def annotate(
             "canonical annotation source and English view structures differ"
         )
 
-    en_sigs = [_sig(b, version) for b in en_blocks]
-    ko_sigs = [_sig(b, version) for b in ko_blocks]
-
-    sm = difflib.SequenceMatcher(a=en_sigs, b=ko_sigs, autojunk=False)
-    inserts: dict[int, list[str]] = {}
-    drifts: list[Drift] = []
-
-    for op, i1, i2, j1, j2 in sm.get_opcodes():
-        if op == "equal":
-            for k in range(i2 - i1):
-                eb, kb = en_blocks[i1 + k], ko_blocks[j1 + k]
-                if eb.kind in ("heading", "text"):
-                    _comment_for(
-                        annotation_blocks[i1 + k]
-                        if annotation_blocks is not None
-                        else eb,
-                        kb,
-                        version,
-                        inserts,
-                        canonical=canonical,
-                    )
-        elif op == "replace" and (i2 - i1) == (j2 - j1):
-            # 블록 수가 같으면 위치별로 병기하되 정렬 불일치로 기록.
-            for k in range(i2 - i1):
-                eb, kb = en_blocks[i1 + k], ko_blocks[j1 + k]
-                if eb.kind in ("heading", "text") and kb.kind in ("heading", "text"):
-                    _comment_for(
-                        annotation_blocks[i1 + k]
-                        if annotation_blocks is not None
-                        else eb,
-                        kb,
-                        version,
-                        inserts,
-                        canonical=canonical,
-                    )
-                drifts.append(Drift("replace", eb.lines, kb.lines))
-        else:
-            if i2 > i1:
-                en_seg = [line for block in en_blocks[i1:i2] for line in block.lines]
-                # 한국어 문서에 없는 영어 블록은 번역 갱신 필요.
-                # 코드 또는 앵커만 있는 구간은 제외.
-                meaningful = any(b.kind in ("heading", "text") for b in en_blocks[i1:i2])
-                if meaningful:
-                    drifts.append(Drift("delete", en_lines=en_seg))
-                    # 정렬이 깨져도 원문 주석은 항상 보존.
-                    # 불완전한 번역 출력으로 블록이 어긋나도 검증 단계의 원문 주석 누락 오류 방지.
-                    # 해당 영어 텍스트·제목 주석을 한국어 블록의 경계 위치에 삽입.
-                    at = ko_blocks[j1].start if j1 < len(ko_blocks) else len(ko_lines)
-                    anchor = Block("text", at, at, [])
-                    for offset, eb in enumerate(en_blocks[i1:i2], start=i1):
-                        if eb.kind in ("heading", "text") and _content_present(eb, ko_text):
-                            _comment_for(
-                                annotation_blocks[offset]
-                                if annotation_blocks is not None
-                                else eb,
-                                anchor,
-                                version,
-                                inserts,
-                                canonical=canonical,
-                            )
-            if j2 > j1:
-                ko_seg = [line for block in ko_blocks[j1:j2] for line in block.lines]
-                meaningful = any(b.kind in ("heading", "text") for b in ko_blocks[j1:j2])
-                if meaningful:
-                    drifts.append(Drift("insert", ko_lines=ko_seg))
-
-    # 원래 한국어 줄을 유지하면서 주석을 삽입하고 코드 밖 형식만 정제.
-    out: list[str] = []
-    in_code = False
-    fence = ""
-    for idx, ln in enumerate(ko_lines):
-        for c in inserts.get(idx, []):
-            out.append(c)
-        tok = fence_token(ln)
-        if tok:
-            if not in_code:
-                in_code, fence = True, tok
-            elif closes_fence(ln, fence):
-                in_code = False
-            out.append(ln)
-            continue
-        if not in_code:
-            ln = img_self_closing(ln)
-            ln = strip_title_attr_line(ln)
-        out.append(ln)
-    # 한국어 문서 끝 이후 위치에 등록된 주석도 누락 없이 추가.
-    for idx in sorted(k for k in inserts if k >= len(ko_lines)):
-        out.extend(inserts[idx])
-    return "\n".join(out), drifts
+    inserts, drifts = _alignment_annotations(
+        en_blocks,
+        ko_blocks,
+        ko_lines,
+        ko_text,
+        annotation_blocks,
+        version=version,
+        canonical=canonical,
+    )
+    return _render_annotated_lines(ko_lines, inserts), drifts
