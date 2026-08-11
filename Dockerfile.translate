@@ -3,10 +3,10 @@ FROM node:24-bookworm-slim
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates gh git && \
+    npm install --global --ignore-scripts @openai/codex@latest \
+        --registry=https://registry.npmjs.org && \
+    codex --version && \
     rm -rf /var/lib/apt/lists/*
-
-RUN npm install --global @openai/codex@latest --registry=https://registry.npmjs.org && \
-    codex --version
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
@@ -26,4 +26,4 @@ USER app
 WORKDIR /workspace
 
 # 저장소는 compose에서 read-only로 mount하고 candidate와 phase state는 /artifacts의 별도 volume에만 기록
-ENTRYPOINT ["uv", "run", "--directory", "/workspace/translation-sync", "--locked", "--python", "3.14", "python", "/workspace/translation-sync/workflow.py"]
+ENTRYPOINT ["uv", "run", "--directory", "/workspace/translation-sync", "--locked", "--no-build", "--python", "3.14", "python", "/workspace/translation-sync/workflow.py"]

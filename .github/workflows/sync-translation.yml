@@ -64,7 +64,7 @@ jobs:
           if [ "$TRANSLATION_PROVIDER" != 'cli' ]; then
             exit 0
           fi
-          npm install --global @openai/codex@latest \
+          npm install --global --ignore-scripts @openai/codex@latest \
             --registry=https://registry.npmjs.org
           codex --version
 
@@ -112,14 +112,14 @@ jobs:
           if [ -n "$INPUT_DOC" ]; then
             args+=(--doc "$INPUT_DOC")
           fi
-          uv run --directory translation-sync --locked --python 3.14 \
+          uv run --directory translation-sync --locked --no-build --python 3.14 \
             python workflow.py "${args[@]}"
 
       - name: Publish verified tree with compare-and-swap
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          uv run --directory translation-sync --locked --python 3.14 \
+          uv run --directory translation-sync --locked --no-build --python 3.14 \
             python workflow.py publish \
             --artifact-root "$TRANSLATION_ARTIFACT_ROOT"
 
@@ -128,7 +128,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          uv run --directory translation-sync --locked --python 3.14 \
+          uv run --directory translation-sync --locked --no-build --python 3.14 \
             python workflow.py deploy \
             --artifact-root "$TRANSLATION_ARTIFACT_ROOT"
 
