@@ -15,20 +15,16 @@ function mergeClassNames(existing: unknown, added: string[]): Array<string | num
 }
 
 /**
- * Laravel 공식 문서의 "메서드 목록" 페이지에서 각 메서드 섹션 헤딩에
- * `.collection-method` 클래스를 자동 부여하는 remark 플러그인.
+ * Laravel 공식 문서의 "메서드 목록" 페이지에서 각 메서드 섹션 헤딩에 `.collection-method` 클래스를 자동 부여하는 remark 플러그인
  *
  * 배경:
- *   laravel.com/docs의 정적 사이트 생성기는 `<a name="method-xxx"></a>` 다음
- *   heading에 `collection-method`(첫 메서드엔 추가로 `first-collection-method`)
- *   클래스를 자동 주입한다. 이 클래스에 대한 CSS(코드 폰트 크기, 섹션 여백 등)가
- *   `<style>` 블록에 포함되어 있으나 Docusaurus 빌드에는 해당 wrapping 단계가 없어
- *   스타일이 적용되지 않는다.
+ * - laravel.com/docs의 정적 사이트 생성기는 `<a name="method-xxx"></a>` 다음 heading에 `collection-method` 클래스 자동 주입
+ * - 첫 메서드에는 `first-collection-method` 클래스도 추가
+ * - 관련 CSS(코드 폰트 크기, 섹션 여백 등)가 `<style>` 블록에 포함되어 있으나 Docusaurus 빌드에는 해당 wrapping 단계가 없어 스타일 미적용
  *
  * 동작:
- *   `<a name="method-*"></a>`로 시작하는 paragraph 직후의 heading 노드에
- *   `collection-method`를 className에 추가한다. 파일 내 최초로 발견된 메서드에는
- *   `first-collection-method`도 함께 부여한다.
+ * - `<a name="method-*"></a>`로 시작하는 paragraph 이후 다음 heading 노드에 `collection-method`를 className으로 추가
+ * - 파일에서 처음 발견된 메서드에는 `first-collection-method`도 함께 부여
  */
 export default function methodClassPlugin(): Transformer<Root> {
   return (tree) => {

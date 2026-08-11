@@ -1,20 +1,30 @@
 name: Deploy to GitHub Pages
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('translation-deploy:{0}', inputs.correlation_id) || format('deploy:{0}', github.sha) }}
 
 on:
   push:
     branches:
       - main
-    # 특정 파일이 변경되었을 때만 실행하도록 설정할 수도 있습니다
+    # 특정 파일 변경 시에만 실행하려면 paths 필터 설정
     # paths:
     #   - docs/**
     #   - src/**
-    #   - docusaurus.config.js
-    #   - sidebars.js
+    #   - docusaurus.config.ts
+    #   - sidebars.ts
 
-  # 수동으로 워크플로우를 실행할 수 있도록 설정
+  # 수동 워크플로 실행 허용
   workflow_dispatch:
+    inputs:
+      expected_commit:
+        description: 'Full commit OID that must be deployed'
+        required: true
+        type: string
+      correlation_id:
+        description: 'Opaque translation run correlation identifier'
+        required: true
+        type: string
 
-# 동시에 하나의 배포만 실행되도록 설정
+# 동시 배포를 하나로 제한
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -29,8 +39,44 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Validate deployment branch
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          CORRELATION_ID: ${{ inputs.correlation_id }}
+          ACTUAL_COMMIT: ${{ github.sha }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$REF_TYPE" != 'branch' ] || [ "$REF_NAME" != 'main' ]; then
+            echo "Production deployment requires the main branch." >&2
+            exit 1
+          fi
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            case "$CORRELATION_ID" in
+              ''|[!A-Za-z0-9]*|*[!A-Za-z0-9._-]*)
+                echo 'correlation_id contains unsupported characters.' >&2
+                exit 1
+                ;;
+            esac
+            if [ "${#CORRELATION_ID}" -gt 64 ]; then
+              echo 'correlation_id is too long.' >&2
+              exit 1
+            fi
+            case "$EXPECTED_COMMIT" in
+              ''|*[!0-9a-f]*)
+                echo 'expected_commit must be a lowercase full commit OID.' >&2
+                exit 1
+                ;;
+            esac
+            if { [ "${#EXPECTED_COMMIT}" -ne 40 ] && [ "${#EXPECTED_COMMIT}" -ne 64 ]; } || \
+              [ "$ACTUAL_COMMIT" != "$EXPECTED_COMMIT" ]; then
+              echo "Deployment commit mismatch: expected '$EXPECTED_COMMIT', got '$ACTUAL_COMMIT'." >&2
+              exit 1
+            fi
+          fi
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
       - name: Setup Node
         uses: actions/setup-node@v6
         with:

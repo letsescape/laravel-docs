@@ -1,1 +1,1 @@
-"""Verification stage helpers."""
+"""검증 단계 도우미."""

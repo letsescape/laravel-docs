@@ -1,9 +1,8 @@
 name: Sync Documentation Translation
 
-# translation-sync/docs/05(T4) 트리거. 공식 원문을 받아 변경분을 번역해 실행 브랜치에 커밋한다(main일 때만 배포).
 on:
   schedule:
-    - cron: '0 13 */2 * *'   # 2일마다 22:00 KST (매월 홀수일)
+    - cron: '0 13 */2 * *'  # 매월 홀수일 22:00 KST
   workflow_dispatch:
     inputs:
       version:
@@ -11,7 +10,7 @@ on:
         required: false
         type: string
       doc:
-        description: 'Optional Markdown file filter, e.g. installation.md'
+        description: 'Optional Markdown path, e.g. collections.md'
         required: false
         type: string
 
@@ -27,68 +26,123 @@ jobs:
   sync:
     name: Sync translations
     runs-on: ubuntu-latest
+    env:
+      TRANSLATION_ARTIFACT_ROOT: ${{ runner.temp }}/translation-sync-artifacts
+      TRANSLATION_PUSH_ENDPOINT: ${{ github.server_url }}/${{ github.repository }}.git
+      TARGET_BRANCH: ${{ github.ref_name }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - name: Validate branch ref
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [ "$REF_TYPE" != 'branch' ]; then
+            echo "Translation sync requires a branch ref, got '$REF_TYPE'." >&2
+            exit 1
+          fi
+
+      - name: Checkout without write credential
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Setup uv (Python 3.14)
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39
+      - name: Setup uv and Python 3.14
+        uses: astral-sh/setup-uv@v9
         with:
           python-version: '3.14'
 
-      - name: Install dependencies
-        working-directory: translation-sync
-        run: uv sync --frozen
+      - name: Setup Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
 
-      - name: Run translation sync tests
-        working-directory: translation-sync
-        run: PYTHONPATH=. uv run --with pytest pytest
-
-      - name: Run translation sync
-        working-directory: translation-sync
+      - name: Install Codex CLI when selected
         env:
           TRANSLATION_PROVIDER: ${{ secrets.TRANSLATION_PROVIDER }}
+        run: |
+          if [ "$TRANSLATION_PROVIDER" != 'cli' ]; then
+            exit 0
+          fi
+          npm install --global --ignore-scripts @openai/codex@latest \
+            --registry=https://registry.npmjs.org
+          codex --version
+
+      - name: Initialize external artifact root
+        run: |
+          mkdir -- "$TRANSLATION_ARTIFACT_ROOT"
+          chmod 700 "$TRANSLATION_ARTIFACT_ROOT"
+
+      - name: Prepare verified publication
+        env:
+          CI: 'true'
+          NODE_OPTIONS: --max-old-space-size=4096
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_DOC: ${{ inputs.doc }}
+          TRANSLATION_PROVIDER: ${{ secrets.TRANSLATION_PROVIDER }}
           TRANSLATION_MODEL: ${{ secrets.TRANSLATION_MODEL }}
+          TRANSLATION_MODEL_PROFILE: ${{ vars.TRANSLATION_MODEL_PROFILE }}
+          TRANSLATION_REASONING_EFFORT: ${{ secrets.TRANSLATION_REASONING_EFFORT }}
+          TRANSLATION_CONTEXT_WINDOW_TOKENS: ${{ vars.TRANSLATION_CONTEXT_WINDOW_TOKENS }}
+          TRANSLATION_RESERVED_OUTPUT_TOKENS: ${{ vars.TRANSLATION_RESERVED_OUTPUT_TOKENS }}
+          TRANSLATION_REQUEST_TIMEOUT_SECONDS: ${{ vars.TRANSLATION_REQUEST_TIMEOUT_SECONDS }}
+          TRANSLATION_RUN_TIMEOUT_SECONDS: ${{ vars.TRANSLATION_RUN_TIMEOUT_SECONDS }}
+          TRANSLATION_WORKFLOW_TIMEOUT_SECONDS: '7200'
+          TRANSLATION_TOKENIZER_ENCODING: ${{ vars.TRANSLATION_TOKENIZER_ENCODING }}
+          TRANSLATION_CLI_COMMAND: ${{ vars.TRANSLATION_CLI_COMMAND }}
+          TRANSLATION_CLI_TIMEOUT: ${{ vars.TRANSLATION_CLI_TIMEOUT }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_VERSION: ${{ inputs.version }}
-          INPUT_DOC: ${{ inputs.doc }}
+          CODEX_ACCESS_TOKEN: ${{ secrets.CODEX_ACCESS_TOKEN }}
+          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
+          CODEX_HOME: ${{ vars.CODEX_HOME }}
         run: |
-          args=(--fail-fast)
+          args=(
+            prepare
+            --artifact-root "$TRANSLATION_ARTIFACT_ROOT"
+            --push-endpoint "$TRANSLATION_PUSH_ENDPOINT"
+            --branch "$TARGET_BRANCH"
+            --repository "$GITHUB_REPOSITORY"
+          )
           if [ -n "$INPUT_VERSION" ]; then
             args+=(--version "$INPUT_VERSION")
           fi
           if [ -n "$INPUT_DOC" ]; then
             args+=(--doc "$INPUT_DOC")
           fi
-          uv run python main.py "${args[@]}"
+          uv run --directory translation-sync --locked --no-build --python 3.14 \
+            python workflow.py "${args[@]}"
 
-      - name: Commit, push, and trigger deploy
+      - name: Publish verified tree with compare-and-swap
         env:
           GH_TOKEN: ${{ github.token }}
-          # 실행 브랜치(스케줄은 기본 브랜치=main, 수동 실행은 dispatch한 브랜치).
-          TARGET_BRANCH: ${{ github.ref_name }}
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          if [ -z "$(git status --porcelain)" ]; then
-            echo 'No changes to commit; skipping.'
-            exit 0
-          fi
-          git add -A
-          git commit -m 'chore(translation): sync documentation'
-          # 결과는 항상 실행한 브랜치로 커밋한다(develop에서 실행 → develop에 커밋).
-          git push origin "HEAD:${TARGET_BRANCH}"
-          # 배포는 기본 브랜치(main)에 반영됐을 때만 한다.
-          # 기본 GITHUB_TOKEN push는 deploy.yml(on: push)을 자동 발화하지 않으므로
-          # 배포 워크플로를 명시적으로 트리거한다(workflow_dispatch는 허용되는 예외).
-          if [ "$TARGET_BRANCH" = 'main' ]; then
-            gh workflow run deploy.yml --ref main
-          else
-            echo "Target branch '${TARGET_BRANCH}' is not main; skipping deploy."
-          fi
+          uv run --directory translation-sync --locked --no-build --python 3.14 \
+            python workflow.py publish \
+            --artifact-root "$TRANSLATION_ARTIFACT_ROOT"
+
+      - name: Trigger and verify production deployment
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          uv run --directory translation-sync --locked --no-build --python 3.14 \
+            python workflow.py deploy \
+            --artifact-root "$TRANSLATION_ARTIFACT_ROOT"
+
+      - name: Upload redacted workflow evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-sync-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-failure.json
+            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-*-failure.json
+            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-fixture-evidence.txt
+            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-manifest.json
+            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-published.json
+            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-deployed.json

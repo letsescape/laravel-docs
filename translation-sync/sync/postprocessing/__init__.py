@@ -1,1 +1,1 @@
-"""Postprocessing and repair stage helpers."""
+"""번역 결과의 후처리 및 마크업 복구 단계 도우미."""

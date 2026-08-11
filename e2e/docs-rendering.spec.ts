@@ -137,8 +137,8 @@ test.describe('Docs rendering', () => {
   });
 
   test('English locale is excluded from the build', async ({page}) => {
-    // en is a source-reference locale only (annotation/verification); it is not a
-    // published site. Visiting it must not serve a docs page.
+    // `en` 로캘은 주석과 검증에만 사용하는 원문 참조용이며 공개 사이트가 아님
+    // 방문 시 문서 페이지를 제공하지 않아야 함
     const response = await page.goto('/en/docs/13.x');
 
     expect(response?.status()).toBe(404);

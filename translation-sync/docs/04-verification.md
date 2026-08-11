@@ -1,597 +1,133 @@
-# 번역 결과 검증 계획
+# 문서 검증 단계 설계
 
-## 단계 흐름
+## 요약
+
+후처리된 locale 문서를 영어 verification view와 대조해 front matter, source-authored 주석, 코드, 링크, 목록, 표, 앵커, heading, 이미지, admonition과 placeholder의 구조 보존 판정.
+빈 issue 목록인 문서만 verified locale artifact로 만들어 candidate snapshot에 적재 허용.
+
+## 흐름도
 
 ```mermaid
 flowchart TD
-    A([검증 시작]) --> B["최종 한국어 문서와 영어 diff 확인"]
-    B --> X{"API 실패 / 미완료 번역 있음?"}
-    X -- " 없음 " --> C["영어 diff 반영 여부 검증"]
-    X -- " 있음 " --> R["검증 중단<br/>번역 단계 재시도 후 검증 재시작"]
-    C --> D["링크 / 앵커 / 인라인 코드 검증"]
-    D --> E["코드 블록과 이미지 검증"]
-    E --> F["전처리 / 후처리 항목 처리 여부 검증"]
-    F --> G["Markdown 구조와 HTML 태그 검증"]
-    G --> H["자동 검증 패턴 확인"]
-    H --> I["자동 판정 불가 항목 처리"]
-    I --> J["성공 / 실패 반환"]
-    J --> K([검증 종료])
+    A([문서 검증 시작]) --> B[Front matter 및 annotation·source 주석 대조]
+    B --> C[코드·링크·목록·표 대조]
+    C --> D[앵커·heading·이미지·admonition 대조]
+    D --> E[잔존 패턴 및 닫히지 않은 img 검사]
+    E --> F{Issue가 있는가?}
+    F -- 예 --> G[Candidate 적재 차단 및 실행 실패]
+    F -- 아니요 --> H[Verified locale artifact 생성]
+    H --> I[Candidate snapshot에 적재]
 ```
 
----
+## 목적
 
-## 1. 작업 목적
+번역 provider 응답 계약(response contract)을 통과한 locale 문서가 영어 verification view의 구조를 정확히 보존하는지 최종 확인.
+이 단계는 번역 의미·문체 평가가 아닌 자동 판정 가능한 구조 정합성만 소유.
 
-전처리, 번역, 후처리가 끝난 한국어 기술 문서가 원문 구조와 의미를 유지하는지 검증한다.
+## 범위
 
-검증의 목표는 다음과 같다.
+- response contract 이후, candidate snapshot 적재 직전의 전체 구조 검증 수행
+- front matter, source-authored HTML 주석, 코드, 링크, 목록, 표, 앵커, 이미지, heading, admonition, placeholder 보존 확인
+- 번역 의미 정확성, 용어 선택, 문체, 일반 HTML 렌더링은 이 단계의 자동 판정 범위에서 제외
 
-- 영어 diff의 추가/수정/삭제 사항이 누락 없이 반영되었는지 검증한다.
-- 원문 링크, 앵커, 인라인 코드, 코드 블록, 이미지가 보존되었는지 검증한다.
-- 전처리 및 후처리 항목이 정상 처리되었는지 검증한다.
-- Markdown 구조가 렌더링 가능한 상태인지 검증한다.
-- 검증 단계의 마지막 결과는 성공 또는 실패 상태만 반환한다.
+## 입력
 
----
-
-## 2. 입력 자료
-
-### 2.1 최종 한국어 문서
-
-전처리, 번역, 후처리를 거친 검증 대상 문서다.
-
-### 2.2 영어 diff
-
-변경된 영어 원문을 확인하기 위한 자료다.
-
-검증 단계에서 다음을 확인하는 데 사용한다.
-
-- 변경된 문장이 모두 반영되었는지
-- 삭제된 문장이 남아 있지 않은지
-- 추가된 문장이 빠지지 않았는지
-- 기존 영어 주석이 최신 영어 문장으로 갱신되었는지
-
-### 2.3 기존 한국어 문서
-
-기존 문서의 형식, 용어, 문체를 비교하는 기준으로 사용한다.
-
-비교 기준:
-
-- 기존 용어
-- 문체
-- 노트/경고문 형식
-- 코드 블록 처리 방식
-- 링크 처리 방식
-- 이미지 처리 방식
-- 제목 구조
-
-### 2.4 실행 로그 및 상태 데이터
-
-전처리, 번역, 후처리 실행 중 남은 로그와 상태 데이터를 검증 입력으로 사용한다.
-
-- base64 이미지 플레이스홀더 치환/복원
-- 들여쓰기 기반 코드 블록 변환
-- 페이지 디자인 전용 `<style>` 태그 및 코드 제거
-- 제목 옆 스타일 클래스 제거
-- OpenAI / Azure OpenAI / CLI provider 재시도 및 실패 상태
-- 미완료 chunk 목록
-- 자동 판정 실패 항목
-- 미복원 플레이스홀더 목록
-- `<img>` 태그 self-closing 변환
-- 노트/툴팁 admonition 형식 표준화
-- `{{version}}` 플레이스홀더 치환
-
----
-
-## 3. 검증 순서
-
-검증은 다음 순서로 진행한다.
-
-```text
-1. 최종 한국어 문서와 영어 diff 확인
-2. API 실패 / 미완료 번역 여부 확인
-3. 영어 diff 반영 검증
-4. 링크 / 앵커 / 인라인 코드 검증
-5. 코드 블록과 이미지 검증
-6. 전처리 / 후처리 항목 처리 여부 검증
-7. Markdown 구조와 HTML 태그 검증
-8. 자동 검증 패턴 확인
-9. 자동 판정 불가 항목 처리
-10. 성공 / 실패 반환
-```
-
----
-
-## 4. 영어 diff 반영 검증
-
-번역 작업 자체가 누락 없이 반영되었는지 검증한다.
-
-### 4.1 검증 기준
-
-- diff의 추가 문장이 한국어 문서에 추가되어야 한다.
-- diff의 수정 문장이 최신 영어 주석으로 교체되어야 한다.
-- 수정된 영어 문장 아래 한국어 번역이 갱신되어야 한다.
-- diff의 삭제 문장이 한국어 문서에서 제거되었거나 삭제 대상으로 표시되어야 한다.
-- 변경되지 않은 주변 한국어 문장은 불필요하게 수정되지 않아야 한다.
-- 기존 용어와 문체가 유지되어야 한다.
-
----
-
-## 5. 원문 앵커와 링크 유지 검증
-
-### 5.1 검증 대상
-
-- Markdown 링크
-- HTML `<a>` 태그
-- 제목 기반 앵커
-- 내부 문서 링크
-- 외부 URL
-- 이미지 링크
-- 참조형 링크
-
-### 5.2 검증 기준
-
-- 원문 링크 URL이 유지되어야 한다.
-- 내부 앵커가 변경되지 않아야 한다.
-- 링크 label과 URL은 모두 원문 기준으로 보존되어야 한다.
-- `#anchor-name` 형식의 앵커가 손상되지 않아야 한다.
-- `{{version}}` 치환 후 링크가 정상 형식이어야 한다.
-- 링크 괄호가 깨지지 않아야 한다.
-
-### 5.3 예시
-
-원문:
-
-```md
-See [Create a project](./projects#create-a-project).
-```
-
-번역 후 정상:
-
-```md
-[Create a project](./projects#create-a-project)를 참조하세요.
-```
-
-번역 후 문제:
-
-```md
-[프로젝트 생성](./projects#프로젝트-생성)을 참조하세요.
-```
-
-위 예시는 링크 label과 원문 앵커가 번역되어 손상된 경우다.
-
----
-
-## 6. 인라인 코드 유지 검증
-
-### 6.1 검증 대상
-
-백틱으로 감싸진 인라인 코드:
-
-```md
-`user_id`
-`access_token`
-`GET /users`
-`config.yaml`
-`npm install`
-```
-
-### 6.2 검증 기준
-
-- 인라인 코드는 번역되지 않아야 한다.
-- 백틱은 누락되지 않아야 한다.
-- 코드 내부의 대소문자는 유지되어야 한다.
-- 코드 내부의 언더스코어, 하이픈, 슬래시는 유지되어야 한다.
-- 인라인 코드는 일반 텍스트로 풀리지 않아야 한다.
-- 일반 텍스트는 불필요하게 인라인 코드로 바뀌지 않아야 한다.
-
-### 6.3 정상 예시
-
-원문:
-
-```md
-Set `user_id` to the ID of the user.
-```
-
-번역:
-
-```md
-`user_id`를 사용자의 ID로 설정합니다.
-```
-
-### 6.4 문제 예시
-
-```md
-사용자 ID를 사용자의 ID로 설정합니다.
-```
-
-위 예시는 `user_id` 인라인 코드가 번역되어 손상된 경우다.
-
----
-
-## 7. 코드 블록 유지 검증
-
-### 7.1 검증 대상
-
-- fenced code block
-- 들여쓰기 기반에서 변환된 code block
-- 명령어 예시
-- JSON/YAML 설정
-- API 요청/응답 예시
-- HTML/XML 예시
-- 코드 블록 내부 주석
-
-### 7.2 검증 기준
-
-- 코드 블록 내부 코드는 번역되지 않아야 한다.
-- 코드 블록 내부 주석은 영어 원문으로 유지되어야 한다.
-- 코드 블록의 시작/종료 백틱 수가 맞아야 한다.
-- 코드 블록 언어 태그가 적절해야 한다.
-- 들여쓰기와 줄바꿈이 유지되어야 한다.
-- JSON, YAML, HTML 등의 문법이 깨지지 않아야 한다.
-- 코드 안의 URL, 경로, 파라미터명은 보존되어야 한다.
-
-### 7.3 코드 주석 유지 예시
-
-원문:
-
-````md
-```js
-// Create a new client
-const client = new Client();
-```
-````
-
-번역 후 정상:
-
-````md
-```js
-// Create a new client
-const client = new Client();
-```
-````
-
-번역 후 문제:
-
-````md
-```js
-// 새 클라이언트를 생성합니다
-const client = new Client();
-```
-````
-
-코드 블록 내부 주석은 번역하지 않는다.
-
----
-
-## 8. 이미지 검증
-
-### 8.1 검증 기준
-
-- Markdown 이미지 문법이 유지되어야 한다.
-- HTML `<img />` 태그가 정상 형식이어야 한다.
-- `src` 속성이 유지되어야 한다.
-- `alt` 속성은 유지되거나 필요한 경우에만 번역되어야 한다.
-- base64 이미지가 원본 그대로 복원되어야 한다.
-- 이미지 경로는 번역되거나 변경되지 않아야 한다.
-
-### 8.2 예시
-
-정상:
-
-```html
-<img src="/images/tutorial.png" alt="튜토리얼 화면"/>
-```
-
-문제:
-
-```html
-<img src="/이미지/튜토리얼.png" alt="튜토리얼 화면"/>
-```
-
-이미지 경로는 번역하지 않는다.
-
----
-
-## 9. 전처리 / 후처리 항목 처리 검증
-
-정제 단계에서 처리한 항목들이 정상 반영되었는지 검증한다.
-
-### 9.1 검증 기준
-
-- 들여쓰기 기반 코드 블록은 백틱 코드 블록으로 변환되어야 한다.
-- 목록의 들여쓰기는 코드 블록으로 잘못 변환되지 않아야 한다.
-- base64 이미지 플레이스홀더는 최종 문서에서 모두 복원되어야 한다.
-- 최종 문서에 불필요한 페이지 디자인 전용 `<style>` 태그와 CSS가 남아 있지 않아야 한다.
-- 코드 예제 안의 `<style>`은 유지되어야 한다.
-- `<img>` 태그는 `<img />` 형식으로 변환되어야 한다.
-- 이미지 태그의 속성은 손상되지 않아야 한다.
-- 제목 옆 `{.class}` 스타일 클래스는 제거되어야 한다.
-- 본문 내 의미 있는 `{}` 표현은 유지되어야 한다.
-- 다양한 노트/툴팁은 의미에 맞는 admonition 형식으로 표준화되어야 한다.
-- `{{version}}` 플레이스홀더는 대상 버전 문자열로 치환되어야 한다.
-- 최종 문서에 `{{version}}`이 남아 있지 않아야 한다.
-
----
-
-## 10. Markdown 구조 검증
-
-### 10.1 검증 기준
-
-- 제목 계층이 깨지지 않아야 한다.
-- 원문과 번역본의 heading(ATX `#`) 개수가 같아야 하고, 순서대로 각 heading의 레벨이 일치해야 한다. 개수나 레벨이 어긋나면 구조 손상으로 본다.
-- 목록 번호가 정상이어야 한다.
-- 중첩 목록이 정상이어야 한다.
-- 표 구조가 깨지지 않아야 한다.
-- 코드 블록이 닫히지 않은 상태로 남아 있지 않아야 한다.
-- 인용문이 의도치 않게 이어지지 않아야 한다.
-- HTML 태그가 열린 상태로 남아 있지 않아야 한다.
-- 빈 줄과 줄바꿈이 렌더링 문제를 일으키지 않아야 한다.
-
----
-
-## 11. HTML 태그 검증
-
-### 11.1 검증 기준
-
-- `<img>` 태그는 `<img />`로 변환되어야 한다.
-- 최종 문서에 불필요한 페이지 디자인 전용 `<style>` 태그가 남아 있지 않아야 한다.
-- `<a href="">`의 `href` 값은 유지되어야 한다.
-- HTML 속성명은 번역되지 않아야 한다.
-- HTML 태그 구조는 깨지지 않아야 한다.
-
----
-
-## 12. 스타일 클래스 제거 검증
-
-### 12.1 제거되어야 하는 예
-
-```md
-### `after()` {.collection-method}
-
-## Overview {.section}
-
-# API Reference {.page-title}
-```
-
-### 12.2 제거 후
-
-```md
-### `after()`
-
-## Overview
-
-# API Reference
-```
-
-### 12.3 유지해야 하는 예
-
-```md
-Use `{ key: value }` to configure the object.
-```
-
-본문의 의미 있는 중괄호 표현은 유지한다.
-
----
-
-## 13. 노트 형식 검증
-
-### 13.1 표준 형식
-
-```md
-> [!NOTE]
-> 메시지입니다.
-```
-
-### 13.2 검증 기준
-
-- `> {note}` 형식이 남아 있지 않아야 한다.
-- `> **Note**` 형식이 남아 있지 않아야 한다.
-- `> Note:` 형식이 남아 있지 않아야 한다.
-- 노트 메시지는 인용문 안에 유지되어야 한다.
-- 여러 줄 노트의 모든 줄에 `>`가 유지되어야 한다.
-- 노트 내부 코드나 링크는 손상되지 않아야 한다.
-
----
-
-## 14. 자동 검증 권장 항목
-
-가능하면 다음 항목은 스크립트 또는 정규식으로 자동 검증한다.
-
-### 14.1 남아 있으면 안 되는 문자열
-
-```text
-{{version}}
-__BASE64_IMAGE_
-<style
-</style>
-{.collection-method}
-{.section-title}
-> {note}
-> **Note**
-> Note:
-```
-
-단, 코드 블록 안에 예시로 들어간 문자열은 예외 처리한다. `<style`과 `</style>`은 코드 블록 밖의 페이지 디자인 전용 태그만 제거 대상으로 본다.
-
-### 14.2 확인할 패턴
-
-닫히지 않은 이미지 태그:
-
-```regex
-<img\b(?![^>]*\/>)
-```
-
-제목 옆 스타일 클래스:
-
-```regex
-^(#{1,6}\s+.+?)\s+\{[^}]*\}\s*$
-```
-
-base64 이미지 플레이스홀더 잔존:
-
-```regex
-__BASE64_IMAGE_\d+__
-```
-
-버전 플레이스홀더 잔존:
-
-```regex
-\{\{version\}\}
-```
-
-기존 note 형식 잔존:
-
-```regex
-^>\s*(\{note\}|\*\*Note\*\*|Note:)
-```
-
-### 14.3 구조 정합성 자동 검증 (원문 대조)
-
-위 14.1·14.2가 잔존 패턴을 검사한다면, 다음은 원문과 번역본을 대조해 구조가 보존되었는지 자동 검증한다. Python 검증에 포함한다.
-
-- **앵커**: `<a name="...">` 명시적 앵커 집합이 원문과 번역본에서 일치해야 한다(누락/추가 검사).
-- **heading 개수/레벨**: ATX heading 개수가 같고, 순서대로 레벨이 일치해야 한다.
-- **내부 링크 대상**: 마크다운 내부 링크 대상의 multiset이 원문과 번역본에서 일치해야 한다.
-- **heading / link label**: 문서 제목, heading, Markdown 링크 label은 원문 영어 텍스트와 일치해야 한다. 번역되었거나 임의로 병기되면 실패로 본다.
-- **sidebar**: `documentation.md`의 category/doc label과 순서가 `versioned_sidebars/*.json`에 반영되어야 하며, locale별 sidebar JSON은 존재하지 않아야 한다.
-
-#### upstream stale 앵커/링크 보정
-
-upstream(공식 Laravel 문서) 원문에는 실제 앵커와 어긋난 내부 링크가 존재한다(목차 링크가 본문 앵커와 철자가 다른 경우 등). 번역본 또는 마이그레이션 대상 기존 번역이 이런 stale 링크를 보정해 둔 경우, 원문 ↔ 번역본 링크를 그대로 비교하면 위양성이 발생한다. 따라서 내부 링크 대상을 비교하기 전에 양쪽에 동일한 정규화를 적용한다.
-
-정규화 규칙:
-
-- `{{version}}` placeholder를 대상 버전으로 치환한다.
-- `https://laravel.com/docs/{version}` 절대 URL을 `/docs/{version}` 내부 경로로 바꾼다.
-- 아래 알려진 stale 링크를 보정한다. 새 stale 링크가 확인되면 매핑에 추가한다.
-
-| upstream(stale) | 보정 후 |
+| 항목 | 설명 |
 |---|---|
-| `#agents-integration` | `#agent-integration` |
-| `…#actions-handled-by-resource-controller` | `…#actions-handled-by-resource-controllers` |
-| `/migrations#writing-migrations` | `/migrations#creating-tables` |
-| `#method-array-sort-recursive-desc` | `#method-array-sort-recursive` |
-| `/errors#logging` | `/logging` |
-| `/helpers#fluent-strings` | `/strings#fluent-strings` |
-| `##date-casting` | `#date-casting` |
-| `/database-testing#writing-factories` | `/database-testing#defining-model-factories` |
+| 최종 locale 문서 | 전처리·번역·후처리를 거친 검증 대상 |
+| 영어 verification view | [후처리 단계](./03-postprocessing.md)가 현재 정규화 영어 작업 사본, version, current restore map과 stale-link registry에서 생성한 전체 문서. pipeline annotation은 포함하지 않음 |
+| expected annotation map | 후처리 단계가 같은 영어 입력에서 생성한 구조 주소·ordered occurrence·canonical annotation byte 목록 |
+| 문서 version | 상대 링크와 절대 URL의 버전 동등 비교에 사용 |
+| 검증 입력 hash | [후처리 단계 §7.8](./03-postprocessing.md#78-검증-입력-hash)의 canonical envelope와 SHA-256 hash |
+| final snapshot loader | artifact 생성 직전에 candidate locale, 영어 verification view, expected annotation map, version과 stale-link registry를 각 소유 source에서 새로 읽어 검증 입력을 재구성하는 단일 호출 seam |
 
-다음 링크는 대응 앵커가 없으므로 비교 대상에서 제외한다.
+## 출력
 
-- `#assert-similar-json`
-- `#formatting-shortcode-notifications`
+| 항목 | 설명 |
+|---|---|
+| stable issue code 목록 | [오류 처리 설계](./08-error-cases.md)의 검증 오류 code와 구조 주소 집합 |
+| 빈 목록 | 검증 통과 |
+| verified locale artifact | 빈 issue 목록과 검증 입력 hash가 결합된 candidate 적재 가능 문서 |
 
-이 보정은 기존 JS 검증(`validate-translation-structure.mjs`)이 수행하던 것으로, 번역 구조 검증을 Python으로 옮긴 뒤에도 동일하게 유지한다. 특히 기존 번역이 이미 보정해 둔 링크가 위양성으로 잡히지 않도록 반드시 적용한다.
+## 불변 조건
 
----
+1. **구조 검증과 번역 의미 평가의 경계**: 자동 판정은 원문 대비 구조 보존만 대상. 목표 언어 충분성은 번역 response contract의 검사 대상이나, 의미 정확성·용어 선택·문체는 자동 workflow가 보증하지 않는 명시적 잔여 위험.
+2. **Fail-closed**: 판정 불가 상태는 통과가 아닌 실패로 처리. issue가 하나라도 존재하면 해당 locale target의 candidate 적재 금지.
+3. **저장소 오염 방지**: 검증 실패 시 candidate snapshot과 active worktree의 locale 파일 덮어쓰기 금지.
+4. **기준본 단일성**: 비교 기준은 항상 같은 검증 입력 hash에 포함된 영어 verification view와 expected annotation map. 과거 locale 문서의 형식 차이 소급 금지.
+5. **재요청 경계**: 이 단계에서 provider 호출 및 response feedback 재요청 수행 금지.
+6. **입력 결합성**: 검증 시작과 artifact 생성 시점의 검증 입력 hash 동일성 필수. Artifact 직전에는 final snapshot loader를 정확히 한 번 호출해 새 입력 구성 필요. 시작 snapshot 객체를 다시 hash하는 방식으로 대체 금지. 불일치 시 판정 결과 폐기 및 실패 처리.
 
-## 15. 자동 판정 불가 항목
+## 검증 순서
 
-Python 코드가 자동으로 확정하기 어려운 항목은 검증 실패로 처리한다. 세부 위치와 원인은 실행 로그에 남기고, 검증 단계의 반환값에는 포함하지 않는다.
+```text
+1. front matter key 순서·문자열 scalar 형식과 title 값을 영어 verification view와 대조
+2. pipeline annotation의 canonical byte·순서·occurrence·소유 블록을 expected annotation map과 대조. 표는 전체 표 annotation 하나가 첫 행 바로 앞에 있어야 하며 행 사이 annotation은 소유 관계 불일치로 판정
+3. pipeline annotation을 제외한 source-authored HTML 주석의 값·순서·구조 주소를 대조
+4. fenced code block 목록과 본문을 영어 verification view와 대조
+5. inline 코드 multiset을 영어 verification view와 대조
+6. Markdown inline link target·label pair를 정규화 후 영어 verification view와 대조
+7. reference definition label·target·title·occurrence 순서를 영어 verification view와 대조
+8. reference-style link·image의 해석 결과(image 여부·target·title) 순서를 대조
+9. 순서 있는 목록과 순서 없는 목록의 marker 유형·깊이·checkbox 상태 ordered occurrence를 정확히 대조
+10. 표의 행 수·행 종류·행별 열 수와 separator 정렬자를 순서대로 대조
+11. 명시적 <a name> 앵커 multiset을 영어 verification view와 대조
+12. ATX heading 텍스트와 레벨 순서를 영어 verification view와 대조
+13. HTML <img> src 순서를 영어 verification view와 대조
+14. admonition marker 유형 순서를 영어 verification view와 대조
+15. 잔존 패턴 검사: Base64 placeholder, {{version}}, legacy note marker, heading 스타일 클래스
+16. 닫히지 않은 <img> 태그 검사
+17. stable issue code·구조 주소 목록과 검증 입력 hash 반환
+```
 
-실패 처리 대상:
+## 실패 정책
 
-- 목록 들여쓰기와 코드 블록의 구분이 불명확한 위치
-- 코드 블록으로 변환된 영역이 실제 코드 또는 명령어인지 불명확한 위치
-- 노트 메시지의 admonition 유형을 문맥으로만 판단할 수 있는 위치
-- `{{version}}`이 예시 플레이스홀더로 유지되어야 하는지 불명확한 위치
-- 문서 제목 또는 label 불일치가 upstream 원문 변경인지 로컬 예외인지 판단이 필요한 위치
-- 제목에서 제거한 `{.class}`가 실제 스타일 클래스인지 불명확한 위치
-- `<style>` 태그가 코드 예제인지 페이지 디자인 코드인지 불명확한 위치
+| 상태 | 처리 |
+|---|---|
+| stable issue code가 하나 이상 | 해당 locale target 실패, candidate 적재 차단 |
+| 영어 verification view 또는 expected annotation map 부재 | 구조 대조가 불가능하므로 검증 실패 처리 |
+| final snapshot 재구성 실패 또는 시작·종료 검증 입력 불일치 | `VERIFICATION_INPUT_CHANGED` 판정 및 artifact 생성 차단. stale-link registry digest 변경이 원인이면 `STALE_LINK_REGISTRY_CHANGED` 판정 |
+| API 장애로 번역 미완료 | 검증 미진입, provider 단계에서 target 실패 처리 |
 
----
+검증 issue의 provider 응답 자동 feedback 금지.
+provider 재처리가 필요하면 원인 수정 후 새 워크플로우 실행에서 [번역 단계](./02-translation.md)부터 재산출 필요.
+전체 실행은 승인 기준본 고정부터 시작 필수.
 
-## 16. 검증 결과
+## 수용 기준
 
-검증 완료 후 Python 코드는 성공 또는 실패 상태만 반환한다.
+검증을 통과한 산출물은 다음 조건 모두 충족 필요.
 
-반환값:
+1. front matter의 key·문자열 scalar 구조와 title이 영어 verification view와 일치.
+2. pipeline annotation의 canonical byte·순서·occurrence·소유 블록이 expected annotation map과 일치.
+3. source-authored HTML 주석의 값·순서·구조 주소가 일치.
+4. fenced code block 목록과 본문 및 inline code multiset이 일치.
+5. 정규화된 inline link, reference definition과 reference-style link·image 해석 결과가 일치.
+6. 목록 marker 유형·깊이·checkbox와 표의 행·열·정렬자 구조가 정확히 일치.
+7. 명시적 `<a name>` 앵커와 ATX heading 텍스트·레벨 순서가 일치.
+8. HTML `<img>` 태그의 self-closing 형식과 `src` 순서가 일치.
+9. admonition marker 유형 순서가 일치하고 중복·이탈 없음.
+10. fenced code 밖에 Base64 placeholder, `{{version}}`, legacy note marker, heading 스타일 클래스 잔존 금지.
+11. 닫히지 않은 `<img>` 태그 없음.
+12. 빈 issue 목록, 시작·종료가 같은 검증 입력 hash와 final snapshot에서 재확인한 byte가 결합된 verified locale artifact만 candidate snapshot에 적재 허용.
 
-- `success`
-- `failure`
+## 오류 분류 경계
 
----
+이 단계는 구조 issue 반환만 담당하며 진입점 종료 코드 직접 결정은 범위 밖.
+구조 검증 실패의 오류 분류와 실행 중단·복구에는 [오류 처리 및 복구 설계](./08-error-cases.md)의 정책 적용.
 
-## 17. 예외 케이스
+## 부록: 링크 정규화 규칙
 
-검증 단계에서는 API 장애를 직접 복구하지 않는다. 대신 번역 단계에서 발생한 OpenAI / Azure API 실패, CLI timeout, 미완료 chunk가 최종 문서에 섞였는지 확인하고, 발견되면 검증을
-중단한 뒤 번역 단계로 되돌린다.
+- 현재 검증 문서 버전과 같은 절대 docs URL prefix는 상대 경로와 동등하게 처리
+- 알려진 upstream stale 링크는 양쪽에 동일한 정규화를 적용하여 기존 보정본과의 위양성 방지
+- `{{version}}` placeholder는 후처리에서 대상 버전으로 치환된 상태를 비교
 
-### API 실패 상태 발견
+## 부록: 자동 판정 범위 밖 항목
 
-다음 상태가 있으면 최종 검증을 진행하지 않는다.
+Fail-closed 원칙은 이 문서가 요구하는 모든 구조 기준에 적용.
+아래 항목은 구조 기준 밖이므로 issue 부재만으로 품질 입증 불가.
+각 항목에 번역 응답 계약 또는 사이트 검증의 별도 기준 적용 필요.
+범위 밖 항목으로 필수 구조 기준 판정이 불가능한 경우에도 제외 금지 및 구조 issue 처리 필수.
 
-- OpenAI / Azure API 재시도 3회 실패
-- HTTP `429`, `500`, `502`, `503`, `504` 반복
-- timeout 또는 네트워크 오류 반복
-- CLI provider timeout 재시도 실패
-
-처리 기준:
-
-1. 검증을 중단한다.
-2. 검증 결과는 `failure`를 반환한다.
-3. 번역 단계에서 해당 chunk를 다시 요청한다.
-4. 해당 chunk가 정상 번역된 뒤 검증을 처음부터 다시 실행한다.
-
-### 미완료 번역 감지
-
-다음 상태는 미완료 번역으로 본다.
-
-- 영어 주석만 있고 한국어 번역이 없는 블록
-- 한국어 번역 대신 오류 메시지가 들어간 블록
-- provider 안내 문구, 요약, 사과문이 문서에 포함된 경우
-- 코드 블록 또는 링크가 손상된 상태로 남은 경우
-
-처리 기준:
-
-- 최종 문서로 제출하지 않는다.
-- 번역 단계로 되돌려 해당 chunk를 재처리한다.
-- 재처리 후 후처리와 검증을 다시 실행한다.
-
-### 자동 검증 패턴 실패
-
-자동 검증 패턴이 실패하면 실패 원인을 구분한다.
-
-- 원문 diff 반영 누락
-- 링크, 앵커, 인라인 코드 손상
-- 코드 블록, 이미지, 플레이스홀더 손상
-- Markdown 또는 HTML 구조 오류
-
-API 장애로 인한 미완료 번역이 원인이면 검증 단계에서 수정하지 않고 번역 단계로 되돌린다.
-
----
-
-## 18. 최종 산출물
-
-검증 완료 후 제출해야 하는 최종 산출물은 다음과 같다.
-
-- `success`
-- `failure`
-
-최종 산출 기준을 만족하지 못하면 `failure`를 반환한다. 모든 검증 기준을 만족하면 `success`를 반환한다.
-
----
-
-## 19. 최종 운영 기준
-
-검증 단계의 핵심 기준은 다음과 같다.
-
-> 번역문은 의미 변경 없이 유지한다.
-> 코드, 링크, 앵커, 이미지, 플레이스홀더는 원문 기준으로 보존한다.
-> 문서 렌더링과 유지보수에 필요한 Markdown 형식만 정제한다.
-> 자동 검증으로 성공 또는 실패를 판정한다.
-
-최종 산출물은 다음 조건을 만족해야 한다.
-
-1. 영어 diff의 변경 사항이 한국어 문서에 반영되어 있다.
-2. 기존 한국어 문서의 용어와 문체가 유지되어 있다.
-3. 코드와 인라인 코드는 번역되지 않았다.
-4. 문서 제목, heading, 링크 label, 앵커는 원문 영어 기준으로 유지되어 있다.
-5. base64 이미지는 손상 없이 복원되어 있다.
-6. 최종 문서에 불필요한 페이지 디자인 전용 `<style>` 태그와 코드는 제거되어 있다.
-7. `<img>` 태그는 `<img />` 형식이다.
-8. 제목 옆 스타일 클래스는 제거되어 있다.
-9. 노트/툴팁은 의미에 맞는 표준 admonition 형식으로 표준화되어 있다.
-10. `{{version}}` 플레이스홀더는 지정된 버전 문자열로 치환되어 있다.
-11. `documentation.md` 기준 사이드바 JSON이 갱신되어 있고, locale별 sidebar JSON이 남아 있지 않다.
+- 번역 의미의 정확성, 용어 선택과 문체
+- admonition 유형의 문맥상 적합성
+- 일반 HTML 태그의 렌더링 가능성

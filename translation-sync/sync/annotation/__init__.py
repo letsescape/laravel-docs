@@ -1,1 +1,1 @@
-"""Annotation migration helpers."""
+"""영어 원문 병기 도우미."""

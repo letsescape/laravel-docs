@@ -5,6 +5,7 @@ description = "Laravel 문서 자동 번역 동기화 구현체"
 requires-python = ">=3.14"
 dependencies = [
     "openai>=1.0",
+    "tiktoken>=0.11.0",
 ]
 
 [tool.uv]

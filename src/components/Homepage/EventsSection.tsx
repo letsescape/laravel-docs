@@ -2,7 +2,8 @@ import React, {useState, useRef, useCallback, type ReactNode} from 'react';
 import Translate, {translate} from '@docusaurus/Translate';
 import {ArrowIcon} from './SharedIcons';
 
-// 캐러셀 일시 비활성 플래그. 재활성 시 true 로 변경.
+// 캐러셀 임시 비활성화 플래그
+// 재활성화 시 true로 변경
 const SHOW_CAROUSEL = false;
 
 const events = [
@@ -58,7 +59,7 @@ const events = [
 ];
 
 export default function EventsSection(): ReactNode {
-  // Track position uses 1-based index because slide 0 is the last clone
+  // The track position uses a 1-based index because slide 0 is the last clone
   const [pos, setPos] = useState(1);
   const [animate, setAnimate] = useState(true);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -68,9 +69,8 @@ export default function EventsSection(): ReactNode {
   // Build slides: [clone-last, ...originals, clone-first]
   const slides = [events[total - 1], ...events, events[0]];
 
-  // 캐러셀 비활성 동안 displayCity / cityAnimating 애니메이션 상태 제거.
-  // 재활성 시 H2 의 <Translate id="homepage.events.title.city"> 자리를
-  // {displayCity} 로 돌리고 관련 state / useEffect 를 복구할 것.
+  // 캐러셀 비활성화 중 displayCity와 cityAnimating 애니메이션 상태 제거
+  // 재활성화 시 H2의 <Translate id="homepage.events.title.city">를 {displayCity}로 복원하고 관련 state와 useEffect 복구
 
   const handleTransitionEnd = useCallback(() => {
     isTransitioning.current = false;
@@ -138,7 +138,7 @@ export default function EventsSection(): ReactNode {
         </div>
       </section>
 
-      {/* Carousel - 일시 비활성화 (단일 트랙, 슬라이드가 뷰포트 거터로 넘침) */}
+      {/* 캐러셀 임시 비활성화(단일 트랙, 슬라이드가 뷰포트 거터로 넘침) */}
       {SHOW_CAROUSEL && (
       <section className="events-carousel-section">
         <div className="events-carousel-container">

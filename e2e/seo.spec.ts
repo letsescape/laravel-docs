@@ -1,6 +1,6 @@
 import {test, expect} from '@playwright/test';
 
-// Helper: meta 태그의 attribute 존재 검증
+// 도우미: 메타 태그 속성의 존재 여부 검증
 async function expectMetaAttribute(page: any, selector: string, attr: string, pattern: RegExp) {
   await expect(page.locator(selector)).toHaveAttribute(attr, pattern);
 }

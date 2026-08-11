@@ -1,9 +1,9 @@
 import {test, expect, type Page} from '@playwright/test';
 import {latestDocsPathPattern} from './utils/docs-version';
 
-// 로컬 사이트를 대상으로 테스트 (playwright.config.ts의 baseURL 사용)
+// 로컬 사이트 대상 테스트(`playwright.config.ts`의 `baseURL` 사용)
 
-// Helper: 가로 스크롤 없음 검증
+// 도우미: 가로 스크롤이 없는지 검증
 async function expectNoHorizontalScroll(page: Page, maxWidth: number) {
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(maxWidth + 2);

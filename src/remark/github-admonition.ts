@@ -4,8 +4,8 @@ import {visit} from 'unist-util-visit';
 
 const MARKER_RE = /^\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\](?:\n|\s)?/;
 
-// Laravel 공식 사이트는 GFM 5종을 2계열(info/warning)로 통합해 렌더링한다.
-// 동일 시각 경험을 재현하기 위해 동일하게 매핑한다.
+// Laravel 공식 사이트는 GFM 알림 다섯 종류를 두 계열(info/warning)로 통합해 렌더링
+// 동일한 시각적 경험을 재현하도록 같은 방식으로 매핑
 const TYPE_MAP: Record<string, string> = {
   NOTE: 'info',
   TIP: 'info',
@@ -25,19 +25,17 @@ function mergeClassNames(existing: unknown, added: string[]): Array<string | num
 }
 
 /**
- * GitHub Flavored Markdown의 alert 문법 `> [!NOTE]` 계열을
- * Docusaurus admonition 스타일로 매핑하는 remark 플러그인.
+ * GitHub Flavored Markdown의 alert 문법 `> [!NOTE]` 계열을 Docusaurus admonition 스타일로 매핑하는 remark 플러그인
  *
  * 배경:
- *   Laravel 원본 문서는 GitHub 표기법인 `> [!NOTE]`, `> [!WARNING]` 등을
- *   사용한다(번역본도 이 형식 유지). Docusaurus는 `:::note ... :::` 문법만
- *   admonition으로 인식하므로, 변환 없이는 단순 blockquote로만 렌더링되어
- *   admonition UI가 적용되지 않는다.
+ * - Laravel 원본 문서는 GitHub 표기법인 `> [!NOTE]`, `> [!WARNING]` 등을 사용하며 번역본도 이 형식 유지
+ * - Docusaurus는 `:::note ... :::` 문법만 admonition으로 인식
+ * - 변환 없이는 단순 blockquote로만 렌더링되어 admonition UI 미적용
  *
  * 동작:
- *   blockquote 노드의 첫 paragraph > text가 `[!TYPE]`로 시작하면
- *   마커를 제거하고 blockquote에 admonition 관련 className과 data-type을
- *   주입한다. 실제 스타일은 `src/css/custom.css`에서 해당 클래스에 부여.
+ * - blockquote 노드의 첫 paragraph > text가 `[!TYPE]`으로 시작하면 마커 제거
+ * - blockquote에 admonition 관련 className과 data-type 주입
+ * - 실제 스타일은 `src/css/custom.css`에서 해당 클래스에 부여
  */
 export default function githubAdmonitionPlugin(): Transformer<Root> {
   return (tree) => {
