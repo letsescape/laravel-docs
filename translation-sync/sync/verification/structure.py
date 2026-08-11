@@ -75,6 +75,73 @@ def _scalar_contract(
     )
 
 
+def _front_matter_entry(
+    lines: list[str],
+    index: int,
+    closing: int,
+    keys: set[str],
+) -> tuple[tuple[object, ...], bool, int]:
+    """머리말의 단일 주석·빈 줄·key 항목을 구조 서명으로 변환.
+
+    Args:
+        lines: 전체 문서 줄.
+        index: 현재 머리말 줄 위치.
+        closing: 머리말 닫는 구분자 위치.
+        keys: 앞서 관찰한 key 집합.
+
+    Returns:
+        구조 서명 항목, 유효 여부, 다음 줄 위치.
+    """
+
+    line = lines[index]
+    if not line.strip() or line.lstrip().startswith("#"):
+        return ("comment-or-blank", line.rstrip()), True, index + 1
+    if line[:1].isspace():
+        return ("orphan-continuation", line.rstrip()), False, index + 1
+    match = _FRONT_MATTER_KEY_RE.fullmatch(line)
+    if match is None:
+        return ("invalid-line", line.rstrip()), False, index + 1
+    return _front_matter_scalar_entry(lines, index, closing, keys, match)
+
+
+def _front_matter_scalar_entry(
+    lines: list[str],
+    index: int,
+    closing: int,
+    keys: set[str],
+    match: re.Match[str],
+) -> tuple[tuple[object, ...], bool, int]:
+    """검증된 머리말 key 줄과 연속 scalar 줄을 구조 서명으로 변환.
+
+    Args:
+        lines: 전체 문서 줄.
+        index: key 줄 위치.
+        closing: 머리말 닫는 구분자 위치.
+        keys: 앞서 관찰한 key 집합.
+        match: key 줄 정규식 일치 결과.
+
+    Returns:
+        scalar 구조 서명, 유효 여부, 다음 줄 위치.
+    """
+
+    key, first_value = match.groups()
+    unique = key not in keys
+    keys.add(key)
+    continuation: list[str] = []
+    index += 1
+    while index < closing and (
+        not lines[index].strip() or lines[index][:1].isspace()
+    ):
+        continuation.append(lines[index])
+        index += 1
+    scalar_signature, scalar_valid = _scalar_contract(
+        key,
+        first_value,
+        continuation,
+    )
+    return scalar_signature, unique and scalar_valid, index
+
+
 def front_matter_contract(text: str) -> FrontMatterContract:
     """선행 YAML 머리말의 fail-closed key·scalar 구조 서명."""
 
@@ -98,41 +165,14 @@ def front_matter_contract(text: str) -> FrontMatterContract:
     valid = True
     index = 1
     while index < closing:
-        line = lines[index]
-        if not line.strip() or line.lstrip().startswith("#"):
-            signature.append(("comment-or-blank", line.rstrip()))
-            index += 1
-            continue
-        if line[:1].isspace():
-            valid = False
-            signature.append(("orphan-continuation", line.rstrip()))
-            index += 1
-            continue
-        match = _FRONT_MATTER_KEY_RE.fullmatch(line)
-        if match is None:
-            valid = False
-            signature.append(("invalid-line", line.rstrip()))
-            index += 1
-            continue
-
-        key, first_value = match.groups()
-        if key in keys:
-            valid = False
-        keys.add(key)
-        continuation: list[str] = []
-        index += 1
-        while index < closing and (
-            not lines[index].strip() or lines[index][:1].isspace()
-        ):
-            continuation.append(lines[index])
-            index += 1
-        scalar_signature, scalar_valid = _scalar_contract(
-            key,
-            first_value,
-            continuation,
+        entry, entry_valid, index = _front_matter_entry(
+            lines,
+            index,
+            closing,
+            keys,
         )
-        signature.append(scalar_signature)
-        valid = valid and scalar_valid
+        signature.append(entry)
+        valid = valid and entry_valid
 
     return FrontMatterContract(True, valid, tuple(signature))
 
@@ -210,6 +250,107 @@ def blockquote_structure_signature(text: str) -> tuple[tuple[int, bool], ...]:
     )
 
 
+def _quote_content(line: str) -> tuple[int, str]:
+    """줄의 인용 깊이와 인용 표식을 제외한 본문 추출.
+
+    Args:
+        line: 표시 가능한 Markdown 줄.
+
+    Returns:
+        인용 깊이와 나머지 본문.
+    """
+
+    cursor = 0
+    quote_depth = 0
+    while True:
+        whitespace_start = cursor
+        while cursor < len(line) and line[cursor] in " \t":
+            cursor += 1
+        if cursor >= len(line) or line[cursor] != ">":
+            cursor = whitespace_start
+            break
+        quote_depth += 1
+        cursor += 1
+        if cursor < len(line) and line[cursor] in " \t":
+            cursor += 1
+    return quote_depth, line[cursor:]
+
+
+def _is_root_indented_code(
+    line: str,
+    list_content_indents: dict[int, int],
+) -> bool:
+    """최상위 들여쓰기 줄이 목록 본문이 아닌 코드인지 판정.
+
+    Args:
+        line: 표시 가능한 Markdown 줄.
+        list_content_indents: 인용 깊이별 활성 목록 본문 들여쓰기.
+
+    Returns:
+        최상위 들여쓰기 코드 여부.
+    """
+
+    initial = line[: len(line) - len(line.lstrip(" \t"))]
+    initial_width = len(initial.expandtabs(4))
+    raw_list = _LIST_ITEM_RE.match(line)
+    root_list_indent = list_content_indents.get(0)
+    if (
+        line.strip()
+        and root_list_indent is not None
+        and initial_width < root_list_indent
+        and raw_list is None
+    ):
+        list_content_indents.pop(0, None)
+        root_list_indent = None
+    return initial_width >= 4 and (
+        root_list_indent is None or initial_width < root_list_indent
+    )
+
+
+def _visible_line_record(
+    line: str,
+    list_content_indents: dict[int, int],
+) -> tuple[int, str] | None:
+    """단일 줄을 보호 범위 밖 구조 레코드로 변환.
+
+    Args:
+        line: 표시 가능한 Markdown 줄.
+        list_content_indents: 인용 깊이별 활성 목록 본문 들여쓰기.
+
+    Returns:
+        인용 깊이와 본문. 들여쓰기 코드이면 ``None``.
+    """
+
+    if _is_root_indented_code(line, list_content_indents):
+        return None
+    quote_depth, content = _quote_content(line)
+    indent = content[: len(content) - len(content.lstrip(" \t"))]
+    indent_width = len(indent.expandtabs(4))
+    content_list = _LIST_ITEM_RE.match(content)
+    quote_list_indent = list_content_indents.get(quote_depth)
+    if (
+        content.strip()
+        and quote_list_indent is not None
+        and indent_width < quote_list_indent
+        and content_list is None
+    ):
+        list_content_indents.pop(quote_depth, None)
+        quote_list_indent = None
+    if indent_width >= 4 and (
+        quote_list_indent is None or indent_width < quote_list_indent
+    ):
+        return None
+    if content_list is not None:
+        list_content_indents[quote_depth] = len(
+            content[: content_list.start("body")].expandtabs(4)
+        )
+    if line.strip():
+        for depth in tuple(list_content_indents):
+            if depth > quote_depth:
+                list_content_indents.pop(depth, None)
+    return quote_depth, content
+
+
 def _visible_structural_lines(text: str) -> tuple[tuple[int, str], ...]:
     """code와 HTML 주석을 제외한 표시 구조 줄."""
 
@@ -226,69 +367,7 @@ def _visible_structural_lines(text: str) -> tuple[tuple[int, str], ...]:
                 in_front_matter = False
             continue
 
-        initial = line[: len(line) - len(line.lstrip(" \t"))]
-        initial_width = len(initial.expandtabs(4))
-        raw_list = _LIST_ITEM_RE.match(line)
-        root_list_indent = list_content_indents.get(0)
-        if (
-            line.strip()
-            and root_list_indent is not None
-            and initial_width < root_list_indent
-            and raw_list is None
-        ):
-            list_content_indents.pop(0, None)
-            root_list_indent = None
-        if (
-            initial_width >= 4
-            and (
-                root_list_indent is None
-                or initial_width < root_list_indent
-            )
-        ):
-            # 최상위 4칸 들여쓰기는 code이며 목록 내부에서는 컨테이너 본문
-            continue
-
-        cursor = 0
-        quote_depth = 0
-        while True:
-            whitespace_start = cursor
-            while cursor < len(line) and line[cursor] in " \t":
-                cursor += 1
-            if cursor >= len(line) or line[cursor] != ">":
-                cursor = whitespace_start
-                break
-            quote_depth += 1
-            cursor += 1
-            if cursor < len(line) and line[cursor] in " \t":
-                cursor += 1
-        content = line[cursor:]
-        content_indent = content[: len(content) - len(content.lstrip(" \t"))]
-        content_indent_width = len(content_indent.expandtabs(4))
-        content_list = _LIST_ITEM_RE.match(content)
-        quote_list_indent = list_content_indents.get(quote_depth)
-        if (
-            content.strip()
-            and quote_list_indent is not None
-            and content_indent_width < quote_list_indent
-            and content_list is None
-        ):
-            list_content_indents.pop(quote_depth, None)
-            quote_list_indent = None
-        if (
-            content_indent_width >= 4
-            and (
-                quote_list_indent is None
-                or content_indent_width < quote_list_indent
-            )
-        ):
-            continue
-        records.append((quote_depth, content))
-        if content_list is not None:
-            list_content_indents[quote_depth] = len(
-                content[: content_list.start("body")].expandtabs(4)
-            )
-        if line.strip():
-            for depth in tuple(list_content_indents):
-                if depth > quote_depth:
-                    list_content_indents.pop(depth, None)
+        record = _visible_line_record(line, list_content_indents)
+        if record is not None:
+            records.append(record)
     return tuple(records)

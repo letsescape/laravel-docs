@@ -25,8 +25,6 @@ from ..common.markdown import (
     html_code_contents,
     is_heading_line,
     is_non_annotatable_line,
-    is_reference_definition_block,
-    is_reference_definition_line,
     is_structural_html_fragment,
     is_structural_html_line,
     mask_fenced_code_contents,
@@ -113,6 +111,11 @@ _HTML_IMG_SRC_RE = re.compile(
     re.IGNORECASE,
 )
 _HEADING_LINE_RE = re.compile(r"^[ \t]*#{1,6}\s.*$", re.MULTILINE)
+_PROSE_TRIM_CHARACTERS = " `*_~.,:;()[]&/,+"
+_LINK_TARGET_MISMATCH = "link target mismatch"
+_LINK_LABEL_MISMATCH = "link label mismatch"
+_LINK_PAIR_MISMATCH = "link pair mismatch"
+_LINK_TITLE_MISMATCH = "link title mismatch"
 _DOCS_PREFIX_RE = re.compile(
     r"^/docs/(?P<version>[^/#?]+)(?=/|#|\?|$)/?"
 )
@@ -378,29 +381,14 @@ def _normalize_link_target(
 ) -> str | None:
     """문서 버전과 stale-link 규칙을 적용해 링크 target 정규화."""
 
-    laravel_match = _LARAVEL_DOCS_PREFIX_RE.match(target)
-    if laravel_match and laravel_match.group("version") == version:
-        remainder = target[laravel_match.end() :]
-        prefix = target[: laravel_match.end()]
-        if (
-            remainder
-            and not remainder.startswith("/")
-            and not (prefix.endswith("/") and remainder.startswith(("#", "?")))
-        ):
-            target = remainder
+    target = _strip_matching_docs_prefix(
+        target,
+        _LARAVEL_DOCS_PREFIX_RE,
+        version,
+    )
     if _URI_SCHEME_RE.match(target):
         return target
-
-    docs_match = _DOCS_PREFIX_RE.match(target)
-    if docs_match and docs_match.group("version") == version:
-        remainder = target[docs_match.end() :]
-        prefix = target[: docs_match.end()]
-        if (
-            remainder
-            and not remainder.startswith("/")
-            and not (prefix.endswith("/") and remainder.startswith(("#", "?")))
-        ):
-            target = remainder
+    target = _strip_matching_docs_prefix(target, _DOCS_PREFIX_RE, version)
 
     if target.startswith("./"):
         remainder = target[2:]
@@ -416,6 +404,36 @@ def _normalize_link_target(
         version,
         registry=registry,
     )
+
+
+def _strip_matching_docs_prefix(
+    target: str,
+    pattern: re.Pattern[str],
+    version: str | None,
+) -> str:
+    """현재 버전과 일치하는 문서 링크 접두사를 비교용으로 제거.
+
+    Args:
+        target: 링크 대상.
+        pattern: 버전 named group을 가진 문서 접두사 정규식.
+        version: 현재 문서 버전.
+
+    Returns:
+        제거 조건을 충족하면 접두사 없는 대상, 아니면 원본 대상.
+    """
+
+    match = pattern.match(target)
+    if match is None or match.group("version") != version:
+        return target
+    remainder = target[match.end() :]
+    prefix = target[: match.end()]
+    if (
+        remainder
+        and not remainder.startswith("/")
+        and not (prefix.endswith("/") and remainder.startswith(("#", "?")))
+    ):
+        return remainder
+    return target
 
 
 def _comparable_link_target(
@@ -560,61 +578,90 @@ def _plain_prose_bodies(text: str) -> list[str]:
     for block in blocks:
         if block.kind != "text" or not block.lines:
             continue
-        first = block.lines[0].lstrip()
-        bare_links = all(
-            len(links := markdown_links(line.strip())) == 1
-            and links[0].start == 0
-            and links[0].end == len(line.strip())
-            for line in block.lines
-        )
-        identifier_links = all(
-            (
-                len(links := markdown_links(line.strip())) == 1
-                and links[0].start == 0
-                and links[0].end == len(line.strip())
-            )
-            or (
-                bool(inline_code_contents(line.strip()))
-                and not strip_inline_code(line.strip()).strip(
-                    " `*_~.,:;()[]&/,+"
-                )
-            )
-            for line in block.lines
-        )
-        indented_literal = all(
-            line.startswith("\t") or len(line) - len(line.lstrip(" ")) >= 4
-            for line in block.lines
-        )
-        legacy_pipe_table = (
-            len(block.lines) >= 2
-            and all("|" in line for line in block.lines)
-            and any(
-                re.fullmatch(
-                    r"\s*:?-{3,}:?(?:\s*\|\s*:?-{3,}:?)+\s*",
-                    line,
-                )
-                for line in block.lines
-            )
-        )
         block_text = "\n".join(block.lines)
-        inline_code_only = bool(inline_code_contents(block_text)) and not (
-            strip_inline_code(block_text).strip(" `*_~.,:;()[]&/,+")
-        )
-        if legacy_pipe_table:
+        if _is_legacy_prose_table(block.lines):
             bodies.append(block_text)
             continue
-        if (
-            bare_links
-            or identifier_links
-            or indented_literal
-            or inline_code_only
-            or is_non_annotatable_line(first)
-            or first.startswith((">", "|", "<", "@", "- ", "* ", "+ "))
-            or re.match(r"\d+[.)]\s", first)
-        ):
+        if _is_non_prose_block(block.lines, block_text):
             continue
         bodies.append(" ".join(" ".join(block.lines).split()))
     return bodies
+
+
+def _is_complete_link_line(line: str) -> bool:
+    """줄 전체가 단일 Markdown 링크인지 판정.
+
+    Args:
+        line: Markdown 물리 줄.
+
+    Returns:
+        공백 제거 후 단일 링크만 남는지 여부.
+    """
+
+    stripped = line.strip()
+    links = markdown_links(stripped)
+    return len(links) == 1 and links[0].start == 0 and links[0].end == len(stripped)
+
+
+def _is_legacy_prose_table(lines: list[str]) -> bool:
+    """일반 prose 블록이 레거시 pipe table인지 판정.
+
+    Args:
+        lines: 텍스트 블록 줄.
+
+    Returns:
+        레거시 pipe table 여부.
+    """
+
+    return bool(
+        len(lines) >= 2
+        and all("|" in line for line in lines)
+        and any(
+            re.fullmatch(
+                r"\s*:?-{3,}:?(?:\s*\|\s*:?-{3,}:?)+\s*",
+                line,
+            )
+            for line in lines
+        )
+    )
+
+
+def _is_non_prose_block(lines: list[str], block_text: str) -> bool:
+    """텍스트 블록이 언어 검사를 제외할 식별자·구조·literal인지 판정.
+
+    Args:
+        lines: 텍스트 블록 줄.
+        block_text: 줄바꿈으로 결합한 블록 본문.
+
+    Returns:
+        일반 prose 검사 제외 여부.
+    """
+
+    identifier_links = all(
+        _is_complete_link_line(line)
+        or (
+            bool(inline_code_contents(line.strip()))
+            and not strip_inline_code(line.strip()).strip(_PROSE_TRIM_CHARACTERS)
+        )
+        for line in lines
+    )
+    indented_literal = all(
+        line.startswith("\t") or len(line) - len(line.lstrip(" ")) >= 4
+        for line in lines
+    )
+    inline_code_only = bool(inline_code_contents(block_text)) and not (
+        strip_inline_code(block_text).strip(_PROSE_TRIM_CHARACTERS)
+    )
+    first = lines[0].lstrip()
+    return bool(
+        all(_is_complete_link_line(line) for line in lines)
+        or identifier_links
+        or indented_literal
+        or inline_code_only
+        or is_non_annotatable_line(first)
+        or first.startswith((">", "|", "<", "@", "- ", "* ", "+ "))
+        or re.match(r"\d+[.)]\s", first)
+    )
 
 
 def _has_untranslated_source_prose(text: str, source: str) -> bool:
@@ -674,6 +721,69 @@ def _normalize_comment_text(text: str) -> str:
     return normalize_annotation_anchor(text)
 
 
+def _list_item_is_identifier_only(stripped: str) -> bool:
+    """목록 항목 본문이 inline 또는 HTML code 식별자만 포함하는지 판정.
+
+    Args:
+        stripped: 앞뒤 공백이 제거된 Markdown 줄.
+
+    Returns:
+        목록 표식 뒤에 code 식별자만 있는지 여부.
+    """
+
+    list_body = re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", stripped)
+    return bool(
+        list_body != stripped
+        and (inline_code_contents(list_body) or html_code_contents(list_body))
+        and not strip_html_code_elements(strip_inline_code(list_body)).strip(
+            _PROSE_TRIM_CHARACTERS
+        )
+    )
+
+
+def _required_comment_line_kind(
+    line: str,
+    index: int,
+    *,
+    in_front_matter: bool,
+    source_comment_lines: frozenset[int],
+    reference_lines: frozenset[int],
+) -> tuple[str, bool]:
+    """영어 원문 줄의 annotation 처리 종류와 머리말 상태 결정.
+
+    Args:
+        line: 영어 원문 물리 줄.
+        index: 0-based 줄 위치.
+        in_front_matter: 이전 줄까지 머리말 내부 여부.
+        source_comment_lines: 원문 작성 주석의 1-based 줄 번호.
+        reference_lines: 참조 정의의 0-based 줄 번호.
+
+    Returns:
+        ``skip``, ``flush``, ``heading`` 또는 ``append``와 다음 머리말 상태.
+    """
+
+    stripped = line.strip()
+    if stripped == "---" and index == 0:
+        return "skip", True
+    if stripped == "---" and in_front_matter:
+        return "skip", False
+    if in_front_matter:
+        return "skip", True
+    if index + 1 in source_comment_lines or index in reference_lines:
+        return "flush", False
+    if not stripped:
+        return "flush", False
+    if stripped.startswith("#"):
+        return "heading", False
+    if (
+        is_structural_html_line(line)
+        or is_non_annotatable_line(line)
+        or _list_item_is_identifier_only(stripped)
+    ):
+        return "flush", False
+    return "append", False
+
+
 def _required_comments(source: str) -> list[str]:
     """영어 원문에서 locale에 필요한 annotation 본문 생성."""
 
@@ -694,46 +804,20 @@ def _required_comments(source: str) -> list[str]:
 
     for idx, line in enumerate(body.splitlines()):
         stripped = line.strip()
-        if stripped == "---" and idx == 0:
-            in_front_matter = True
+        kind, in_front_matter = _required_comment_line_kind(
+            line,
+            idx,
+            in_front_matter=in_front_matter,
+            source_comment_lines=source_comment_lines,
+            reference_lines=reference_lines,
+        )
+        if kind == "skip":
             continue
-        if stripped == "---" and in_front_matter:
-            in_front_matter = False
-            continue
-        if in_front_matter:
-            continue
-        if idx + 1 in source_comment_lines:
-            flush_paragraph()
-            continue
-        if idx in reference_lines:
-            flush_paragraph()
-            continue
-        if not stripped:
-            flush_paragraph()
-            continue
-        if stripped.startswith("#"):
+        if kind == "heading":
             flush_paragraph()
             comments.append(_normalize_comment_text(stripped))
             continue
-        if is_structural_html_line(line):
-            flush_paragraph()
-            continue
-        if is_non_annotatable_line(line):
-            flush_paragraph()
-            continue
-        list_body = re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", stripped)
-        if (
-            list_body != stripped
-            and (
-                inline_code_contents(list_body)
-                or html_code_contents(list_body)
-            )
-            and not strip_html_code_elements(
-                strip_inline_code(list_body)
-            ).strip(
-                " `*_~.,:;()[]&/,+"
-            )
-        ):
+        if kind == "flush":
             flush_paragraph()
             continue
         paragraph.append(stripped)
@@ -832,21 +916,27 @@ def _line_after_comment(text: str, end: int) -> tuple[str, int] | None:
     return text[cursor:line_end], line_end
 
 
-def _annotation_sentence_cardinality_is_valid(
-    text: str,
+def _normalized_source_comment_indexes(
+    actual: list[tuple[int, int, str]],
     source: str,
-) -> bool:
-    """Annotation과 번역 소유 블록의 문장 수 계약 검증."""
+) -> set[int] | None:
+    """정규 본문 순서로 locale 내 원문 작성 주석 위치 식별.
 
-    masked = mask_fenced_code_contents(text)
-    actual = html_comment_spans(masked)
+    Args:
+        actual: locale HTML 주석 범위와 본문 목록.
+        source: 영어 원문.
+
+    Returns:
+        원문 작성 주석 위치 집합. 순서대로 찾지 못하면 ``None``.
+    """
+
     source_comments = [
         _normalize_comment_text(body)
         for _start, _end, body in html_comment_spans(
             mask_fenced_code_contents(source)
         )
     ]
-    source_comment_indexes: set[int] = set()
+    indexes: set[int] = set()
     cursor = 0
     for source_comment in source_comments:
         while (
@@ -855,37 +945,71 @@ def _annotation_sentence_cardinality_is_valid(
         ):
             cursor += 1
         if cursor == len(actual):
-            return True
-        source_comment_indexes.add(cursor)
+            return None
+        indexes.add(cursor)
         cursor += 1
+    return indexes
+
+
+def _annotation_sentence_pair_is_valid(
+    masked: str,
+    *,
+    end: int,
+    body: str,
+    required_comments: list[str],
+) -> bool:
+    """단일 prose annotation과 다음 번역 문장의 문장 수 계약 검사.
+
+    Args:
+        masked: 코드 펜스가 제거된 locale 문서.
+        end: annotation 끝 문자 위치.
+        body: HTML 주석 본문.
+        required_comments: 원문에서 요구한 annotation 본문 목록.
+
+    Returns:
+        적용 대상이 아니거나 문장 수 계약을 충족하는지 여부.
+    """
+
+    annotation = _annotation_comment(body)
+    if annotation is None or annotation not in required_comments or annotation.startswith("#"):
+        return True
+    following = _line_after_comment(masked, end)
+    if following is None:
+        return True
+    translated_body, body_end = following
+    stripped = translated_body.lstrip()
+    if (
+        not stripped
+        or stripped.startswith((">", "|", "<", "- ", "* ", "+ "))
+        or re.match(r"\d+[.)]\s", stripped)
+    ):
+        return True
+    following_body = _line_after_comment(masked, body_end)
+    if following_body is not None and following_body[0].strip():
+        return True
+    return _sentence_cardinality_pair_is_valid(annotation, translated_body)
+
+
+def _annotation_sentence_cardinality_is_valid(
+    text: str,
+    source: str,
+) -> bool:
+    """Annotation과 번역 소유 블록의 문장 수 계약 검증."""
+
+    masked = mask_fenced_code_contents(text)
+    actual = html_comment_spans(masked)
+    source_comment_indexes = _normalized_source_comment_indexes(actual, source)
+    if source_comment_indexes is None:
+        return True
     required_comments = _required_comments(source)
     for index, (_start, end, body) in enumerate(actual):
         if index in source_comment_indexes:
             continue
-        annotation = _annotation_comment(body)
-        if (
-            annotation is None
-            or annotation not in required_comments
-            or annotation.startswith("#")
-        ):
-            continue
-        following = _line_after_comment(masked, end)
-        if following is None:
-            continue
-        translated_body, body_end = following
-        stripped = translated_body.lstrip()
-        if (
-            not stripped
-            or stripped.startswith((">", "|", "<", "- ", "* ", "+ "))
-            or re.match(r"\d+[.)]\s", stripped)
-        ):
-            continue
-        following_body = _line_after_comment(masked, body_end)
-        if following_body is not None and following_body[0].strip():
-            continue
-        if not _sentence_cardinality_pair_is_valid(
-            annotation,
-            translated_body,
+        if not _annotation_sentence_pair_is_valid(
+            masked,
+            end=end,
+            body=body,
+            required_comments=required_comments,
         ):
             return False
     return True
@@ -948,6 +1072,60 @@ def _structural_line_matches(expected: str, actual: str) -> bool:
     )
 
 
+def _structural_owner_ordinal_is_valid(
+    text: str,
+    *,
+    start: int,
+    cursor: int,
+    expected: str,
+    actual: str,
+    line_index: int,
+    expected_quote_ordinal: int | None,
+    expected_table_ordinal: int | None,
+) -> bool:
+    """첫 구조 annotation의 인용 깊이와 문서 내 구조 순번 검증.
+
+    Args:
+        text: locale 문서.
+        start: annotation 시작 문자 위치.
+        cursor: 소유 구조 줄 끝 위치.
+        expected: annotation의 기대 구조 줄.
+        actual: 실제 소유 구조 줄.
+        line_index: 여러 줄 annotation 내부 위치.
+        expected_quote_ordinal: 기대 인용 줄 순번.
+        expected_table_ordinal: 기대 표 줄 순번.
+
+    Returns:
+        구조 깊이와 순번 계약 충족 여부.
+    """
+
+    if line_index != 0:
+        return True
+    normalized = _normalize_comment_text(expected)
+    if normalized.startswith(">"):
+        line_start = max(
+            text.rfind("\n", 0, start),
+            text.rfind("\r", 0, start),
+        ) + 1
+        if _quote_depth(text[line_start:start]) != _quote_depth(actual):
+            return False
+        ordinal = sum(
+            1
+            for line in text[:cursor].splitlines()
+            if line.lstrip().startswith(">")
+            and not _ONE_LINE_COMMENT_RE.fullmatch(line)
+        ) - 1
+        return ordinal == expected_quote_ordinal
+    if normalized.startswith("|"):
+        ordinal = sum(
+            1
+            for line in strip_html_comments(text[:cursor]).splitlines()
+            if line.lstrip().startswith("|")
+        ) - 1
+        return ordinal == expected_table_ordinal
+    return True
+
+
 def _structural_annotation_owns_following(
     text: str,
     start: int,
@@ -971,32 +1149,17 @@ def _structural_annotation_owns_following(
         actual, cursor = following
         if not _structural_line_matches(expected, actual):
             return False
-        if index == 0 and _normalize_comment_text(expected).startswith(">"):
-            line_start = (
-                max(
-                    text.rfind("\n", 0, start),
-                    text.rfind("\r", 0, start),
-                )
-                + 1
-            )
-            if _quote_depth(text[line_start:start]) != _quote_depth(actual):
-                return False
-            actual_quote_ordinal = sum(
-                1
-                for line in text[:cursor].splitlines()
-                if line.lstrip().startswith(">")
-                and not _ONE_LINE_COMMENT_RE.fullmatch(line)
-            ) - 1
-            if actual_quote_ordinal != expected_quote_ordinal:
-                return False
-        if index == 0 and _normalize_comment_text(expected).startswith("|"):
-            actual_table_ordinal = sum(
-                1
-                for line in strip_html_comments(text[:cursor]).splitlines()
-                if line.lstrip().startswith("|")
-            ) - 1
-            if actual_table_ordinal != expected_table_ordinal:
-                return False
+        if not _structural_owner_ordinal_is_valid(
+            text,
+            start=start,
+            cursor=cursor,
+            expected=expected,
+            actual=actual,
+            line_index=index,
+            expected_quote_ordinal=expected_quote_ordinal,
+            expected_table_ordinal=expected_table_ordinal,
+        ):
+            return False
     return True
 
 
@@ -1022,25 +1185,23 @@ def _source_structural_comment_counts(source: str) -> Counter[str]:
     return counts
 
 
-def _source_comments_are_preserved(text: str, source: str) -> bool:
-    """원문 작성 HTML 주석의 값·순서·구조 위치 보존 여부."""
+def _optional_quoted_annotations_are_valid(
+    text: str,
+    source: str,
+    source_comment_indexes: set[int],
+) -> bool:
+    """원문 주석 이외의 선택적 인용 annotation 위치와 횟수 검증.
 
-    actual = _comment_positions(text)
-    source_comment_indexes = _source_comment_indexes(actual, source)
-    if source_comment_indexes is None:
-        return False
+    Args:
+        text: locale 문서.
+        source: 영어 원문.
+        source_comment_indexes: locale 내 원문 작성 주석 위치.
 
-    required_counts = Counter(_required_comments(source))
-    actual_counts = Counter(
-        normalized
-        for index, (body, *_position) in enumerate(actual)
-        if index not in source_comment_indexes
-        if (normalized := _annotation_comment(body))
-    )
-    if required_counts - actual_counts:
-        return False
+    Returns:
+        모든 선택적 인용 annotation이 허용 계약을 충족하는지 여부.
+    """
 
-    optional_quoted_annotations = _optional_quoted_comments(source)
+    optional = _optional_quoted_comments(source)
     lines = text.splitlines()
     for index, (body, start_line, end_line, _position) in enumerate(
         _response_comment_records(text)
@@ -1060,34 +1221,45 @@ def _source_comments_are_preserved(text: str, source: str) -> bool:
         if normalized is None:
             continue
         depth = _quote_depth(match.group(1))
-        key = (
-            normalized,
-            depth,
-            _quote_block_ordinal(lines, start_line + 1),
-        )
+        key = (normalized, depth, _quote_block_ordinal(lines, start_line + 1))
+        next_line = end_line + 1
         if (
             not _optional_quote_annotation_starts_block(lines, start_line)
-            or not optional_quoted_annotations[key]
+            or not optional[key]
+            or next_line >= len(lines)
+            or _quote_depth(lines[next_line]) != depth
+            or not _quote_body(lines[next_line])
         ):
             return False
-        next_line_index = end_line + 1
-        if (
-            next_line_index >= len(lines)
-            or _quote_depth(lines[next_line_index]) != depth
-            or not _quote_body(lines[next_line_index])
-        ):
-            return False
-        optional_quoted_annotations[key] -= 1
+        optional[key] -= 1
+    return True
+
+
+def _source_structural_annotation_state(
+    source: str,
+) -> tuple[
+    Counter[str],
+    Counter[str],
+    dict[str, list[int]],
+    dict[str, list[int]],
+]:
+    """원문 구조 annotation 횟수와 인용·표 순번 mapping 구성.
+
+    Args:
+        source: 영어 원문.
+
+    Returns:
+        단일 줄·블록 구조 횟수와 인용·표 순번 mapping.
+    """
 
     structural_annotations = Counter(
         normalized
         for line in strip_html_comments(_strip_code_blocks(source)).splitlines()
         if (normalized := _normalize_comment_text(line))
     )
-    structural_blocks = _source_structural_comment_counts(source)
     quote_ordinals: dict[str, list[int]] = {}
-    quote_ordinal = 0
     table_ordinals: dict[str, list[int]] = {}
+    quote_ordinal = 0
     table_ordinal = 0
     for line in _strip_code_blocks(source).splitlines():
         if _ONE_LINE_COMMENT_RE.fullmatch(line):
@@ -1099,53 +1271,144 @@ def _source_comments_are_preserved(text: str, source: str) -> bool:
         elif line.lstrip().startswith("|"):
             table_ordinals.setdefault(normalized, []).append(table_ordinal)
             table_ordinal += 1
+    return (
+        structural_annotations,
+        _source_structural_comment_counts(source),
+        quote_ordinals,
+        table_ordinals,
+    )
+
+
+def _consume_structural_annotation(
+    normalized: str,
+    *,
+    structural_annotations: Counter[str],
+    structural_blocks: Counter[str],
+    quote_ordinals: dict[str, list[int]],
+    table_ordinals: dict[str, list[int]],
+    consumed_quote_ordinals: Counter[str],
+    consumed_table_ordinals: Counter[str],
+) -> tuple[bool, int | None, int | None]:
+    """구조 annotation occurrence와 기대 인용·표 순번 소비.
+
+    Args:
+        normalized: 정규화된 구조 annotation 본문.
+        structural_annotations: 남은 단일 줄 구조 횟수.
+        structural_blocks: 남은 여러 줄 구조 블록 횟수.
+        quote_ordinals: 본문별 기대 인용 순번.
+        table_ordinals: 본문별 기대 표 순번.
+        consumed_quote_ordinals: 본문별 소비한 인용 순번 수.
+        consumed_table_ordinals: 본문별 소비한 표 순번 수.
+
+    Returns:
+        소비 성공 여부와 기대 인용·표 순번.
+    """
+
+    if structural_annotations[normalized]:
+        structural_annotations[normalized] -= 1
+    elif structural_blocks[normalized]:
+        structural_blocks[normalized] -= 1
+    else:
+        return False, None, None
+    expected_quote: int | None = None
+    expected_table: int | None = None
+    if normalized.lstrip().startswith(">"):
+        occurrence = consumed_quote_ordinals[normalized]
+        values = quote_ordinals.get(normalized, [])
+        if occurrence >= len(values):
+            return False, None, None
+        expected_quote = values[occurrence]
+        consumed_quote_ordinals[normalized] += 1
+    elif normalized.lstrip().startswith("|"):
+        occurrence = consumed_table_ordinals[normalized]
+        values = table_ordinals.get(normalized, [])
+        if occurrence >= len(values):
+            return False, None, None
+        expected_table = values[occurrence]
+        consumed_table_ordinals[normalized] += 1
+    return True, expected_quote, expected_table
+
+
+def _structural_annotations_are_valid(
+    text: str,
+    source: str,
+    source_comment_indexes: set[int],
+) -> bool:
+    """pipeline 구조 annotation의 occurrence·순번·소유 블록 검증.
+
+    Args:
+        text: locale 문서.
+        source: 영어 원문.
+        source_comment_indexes: locale 내 원문 작성 주석 위치.
+
+    Returns:
+        모든 구조 annotation 계약 충족 여부.
+    """
+
+    state = _source_structural_annotation_state(source)
+    structural_annotations, structural_blocks, quote_ordinals, table_ordinals = state
     consumed_quote_ordinals: Counter[str] = Counter()
     consumed_table_ordinals: Counter[str] = Counter()
     masked = mask_fenced_code_contents(text)
-    spans = html_comment_spans(masked)
-    for index, (start, end, body) in enumerate(spans):
+    for index, (start, end, body) in enumerate(html_comment_spans(masked)):
         if index in source_comment_indexes:
             continue
-        if any(
-            _TABLE_BOUNDARY_TAG_RE.fullmatch(line)
-            for line in body.splitlines()
-        ):
+        if any(_TABLE_BOUNDARY_TAG_RE.fullmatch(line) for line in body.splitlines()):
             return False
         normalized = _normalize_comment_text(body)
-        if normalized and (
+        if not normalized or not (
             is_non_annotatable_line(normalized)
             or is_structural_html_fragment(normalized)
         ):
-            if structural_annotations[normalized]:
-                structural_annotations[normalized] -= 1
-            elif structural_blocks[normalized]:
-                structural_blocks[normalized] -= 1
-            else:
-                return False
-            expected_quote_ordinal = None
-            expected_table_ordinal = None
-            if normalized.lstrip().startswith(">"):
-                occurrence = consumed_quote_ordinals[normalized]
-                if occurrence >= len(quote_ordinals.get(normalized, [])):
-                    return False
-                expected_quote_ordinal = quote_ordinals[normalized][occurrence]
-                consumed_quote_ordinals[normalized] += 1
-            elif normalized.lstrip().startswith("|"):
-                occurrence = consumed_table_ordinals[normalized]
-                if occurrence >= len(table_ordinals.get(normalized, [])):
-                    return False
-                expected_table_ordinal = table_ordinals[normalized][occurrence]
-                consumed_table_ordinals[normalized] += 1
-            if not _structural_annotation_owns_following(
-                masked,
-                start,
-                end,
-                body,
-                expected_quote_ordinal=expected_quote_ordinal,
-                expected_table_ordinal=expected_table_ordinal,
-            ):
-                return False
+            continue
+        consumed, quote_ordinal, table_ordinal = _consume_structural_annotation(
+            normalized,
+            structural_annotations=structural_annotations,
+            structural_blocks=structural_blocks,
+            quote_ordinals=quote_ordinals,
+            table_ordinals=table_ordinals,
+            consumed_quote_ordinals=consumed_quote_ordinals,
+            consumed_table_ordinals=consumed_table_ordinals,
+        )
+        if not consumed or not _structural_annotation_owns_following(
+            masked,
+            start,
+            end,
+            body,
+            expected_quote_ordinal=quote_ordinal,
+            expected_table_ordinal=table_ordinal,
+        ):
+            return False
     return True
+
+
+def _source_comments_are_preserved(text: str, source: str) -> bool:
+    """원문 작성 HTML 주석의 값·순서·구조 위치 보존 여부."""
+
+    actual = _comment_positions(text)
+    source_comment_indexes = _source_comment_indexes(actual, source)
+    if source_comment_indexes is None:
+        return False
+
+    required_counts = Counter(_required_comments(source))
+    actual_counts = Counter(
+        normalized
+        for index, (body, *_position) in enumerate(actual)
+        if index not in source_comment_indexes
+        if (normalized := _annotation_comment(body))
+    )
+    if required_counts - actual_counts:
+        return False
+
+    return _optional_quoted_annotations_are_valid(
+        text,
+        source,
+        source_comment_indexes,
+    ) and _structural_annotations_are_valid(
+        text,
+        source,
+        source_comment_indexes,
+    )
 
 
 def missing_original_comments(text: str, source: str) -> list[str]:
@@ -1162,6 +1425,428 @@ def missing_original_comments(text: str, source: str) -> list[str]:
         _translated_comments(text)
     )
     return sorted(missing.elements(), key=lambda value: value.encode("utf-8"))
+
+
+def _append_issue_once(issues: list[str], issue: str) -> None:
+    """검증 이슈를 중복 없이 추가.
+
+    Args:
+        issues: 발견 순서대로 누적 중인 이슈 목록.
+        issue: 추가할 이슈 label.
+    """
+
+    if issue not in issues:
+        issues.append(issue)
+
+
+def _basic_issues(text: str, source: str | None) -> list[str]:
+    """원문 비교 전 locale 문서 자체의 잔존 패턴 검사.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+
+    Returns:
+        발견 순서의 기본 위반 label.
+    """
+
+    body = _strip_code_blocks(text)
+    issues = [label for label, pattern in _FORBIDDEN.items() if pattern.search(body)]
+    checks = (
+        (_has_legacy_admonition(text), "legacy note marker"),
+        (has_malformed_html_comment_delimiters(text), "malformed HTML comment"),
+        (
+            source is not None and admonition_types(source) != admonition_types(text),
+            "admonition type mismatch",
+        ),
+        (_has_extra_empty_comment(body, source), "empty HTML comment"),
+        (img_self_closing(body) != body, "unclosed img tag"),
+        (has_title_attr_line(body), "title style class"),
+        (
+            _has_admonition_body_outside_blockquote(body),
+            "admonition body outside blockquote",
+        ),
+        (_has_duplicated_admonition_marker(body), "duplicate admonition marker"),
+    )
+    issues.extend(label for failed, label in checks if failed)
+    return issues
+
+
+def _inline_link_issues(
+    text: str,
+    source: str,
+    *,
+    version: str | None,
+    registry: StaleLinkRegistry,
+) -> list[str]:
+    """inline 링크·이미지 보존 이슈 수집.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+        version: 내부 문서 링크 정규화용 현재 버전.
+        registry: 알려진 원문 stale link 정규화 규칙.
+
+    Returns:
+        발견 순서의 링크 위반 label.
+    """
+
+    issues: list[str] = []
+    comparisons = (
+        (
+            _link_targets(source, version=version, registry=registry),
+            _link_targets(text, version=version, registry=registry),
+            _LINK_TARGET_MISMATCH,
+        ),
+        (
+            _link_labels(source, version=version, registry=registry),
+            _link_labels(text, version=version, registry=registry),
+            _LINK_LABEL_MISMATCH,
+        ),
+        (
+            _link_pairs(source, version=version, registry=registry),
+            _link_pairs(text, version=version, registry=registry),
+            _LINK_PAIR_MISMATCH,
+        ),
+        (
+            _link_titles(source, version=version, registry=registry),
+            _link_titles(text, version=version, registry=registry),
+            _LINK_TITLE_MISMATCH,
+        ),
+    )
+    for expected, actual, issue in comparisons:
+        if expected != actual:
+            _append_issue_once(issues, issue)
+    _append_image_link_issues(
+        issues,
+        text,
+        source,
+        version=version,
+        registry=registry,
+    )
+    return issues
+
+
+def _append_image_link_issues(
+    issues: list[str],
+    text: str,
+    source: str,
+    *,
+    version: str | None,
+    registry: StaleLinkRegistry,
+) -> None:
+    """inline 이미지 link signature 이슈 추가.
+
+    Args:
+        issues: 발견 순서대로 누적 중인 링크 이슈.
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+        version: 내부 문서 링크 정규화용 현재 버전.
+        registry: 알려진 원문 stale link 정규화 규칙.
+    """
+
+    expected = _image_signatures(source, version=version, registry=registry)
+    actual = _image_signatures(text, version=version, registry=registry)
+    if [target for target, _title in expected] != [
+        target for target, _title in actual
+    ]:
+        _append_issue_once(issues, _LINK_TARGET_MISMATCH)
+    if [title for _target, title in expected] != [
+        title for _target, title in actual
+    ]:
+        _append_issue_once(issues, _LINK_TITLE_MISMATCH)
+    if _mixed_image_order(source) != _mixed_image_order(text):
+        _append_issue_once(issues, _LINK_TARGET_MISMATCH)
+
+
+def _reference_definition_issues(
+    text: str,
+    source: str,
+    *,
+    version: str | None,
+    registry: StaleLinkRegistry,
+) -> list[str]:
+    """참조 정의의 target·label·title 보존 이슈 수집.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+        version: 내부 문서 링크 정규화용 현재 버전.
+        registry: 알려진 원문 stale link 정규화 규칙.
+
+    Returns:
+        발견 순서의 참조 정의 위반 label.
+    """
+
+    expected = _reference_definition_signatures(
+        source,
+        version=version,
+        registry=registry,
+    )
+    actual = _reference_definition_signatures(
+        text,
+        version=version,
+        registry=registry,
+    )
+    issues: list[str] = []
+    for expected_value, actual_value, issue in zip(
+        expected[:3],
+        actual[:3],
+        (_LINK_TARGET_MISMATCH, _LINK_LABEL_MISMATCH, _LINK_PAIR_MISMATCH),
+        strict=True,
+    ):
+        if expected_value != actual_value:
+            issues.append(issue)
+    if expected[2] == actual[2] and expected[3] != actual[3]:
+        issues.append(_LINK_TITLE_MISMATCH)
+    return issues
+
+
+def _comparable_reference_links(
+    text: str,
+    *,
+    version: str | None,
+    registry: StaleLinkRegistry,
+) -> tuple[tuple[bool, str | None, str], ...]:
+    """참조 링크 target을 비교 가능한 값으로 정규화.
+
+    Args:
+        text: Markdown 문서.
+        version: 내부 문서 링크 정규화용 현재 버전.
+        registry: 알려진 원문 stale link 정규화 규칙.
+
+    Returns:
+        이미지 여부·정규화 target·title tuple 목록.
+    """
+
+    return tuple(
+        (
+            image,
+            _comparable_link_target(target, version=version, registry=registry),
+            title,
+        )
+        for image, target, title in reference_link_signatures(text)
+    )
+
+
+def _reference_link_issues(
+    text: str,
+    source: str,
+    *,
+    version: str | None,
+    registry: StaleLinkRegistry,
+) -> list[str]:
+    """참조 링크 사용부의 표시·target·title 보존 이슈 수집.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+        version: 내부 문서 링크 정규화용 현재 버전.
+        registry: 알려진 원문 stale link 정규화 규칙.
+
+    Returns:
+        발견 순서의 참조 링크 위반 label.
+    """
+
+    expected = _comparable_reference_links(
+        source,
+        version=version,
+        registry=registry,
+    )
+    actual = _comparable_reference_links(
+        text,
+        version=version,
+        registry=registry,
+    )
+    issues: list[str] = []
+    if reference_link_display_signatures(source) != reference_link_display_signatures(
+        text
+    ):
+        issues.append(_LINK_LABEL_MISMATCH)
+    if tuple((image, target) for image, target, _title in expected) != tuple(
+        (image, target) for image, target, _title in actual
+    ):
+        issues.append(_LINK_TARGET_MISMATCH)
+    if tuple(title for _image, _target, title in expected) != tuple(
+        title for _image, _target, title in actual
+    ):
+        issues.append(_LINK_TITLE_MISMATCH)
+    return issues
+
+
+def _link_issues(
+    text: str,
+    source: str,
+    *,
+    version: str | None,
+    registry: StaleLinkRegistry,
+) -> list[str]:
+    """모든 Markdown 링크 계약 이슈를 중복 없이 수집.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+        version: 내부 문서 링크 정규화용 현재 버전.
+        registry: 알려진 원문 stale link 정규화 규칙.
+
+    Returns:
+        발견 순서의 링크 위반 label.
+    """
+
+    issues = _inline_link_issues(
+        text,
+        source,
+        version=version,
+        registry=registry,
+    )
+    for group in (
+        _reference_definition_issues(
+            text,
+            source,
+            version=version,
+            registry=registry,
+        ),
+        _reference_link_issues(
+            text,
+            source,
+            version=version,
+            registry=registry,
+        ),
+    ):
+        for issue in group:
+            _append_issue_once(issues, issue)
+    return issues
+
+
+def _html_structure_issues(text: str, source: str) -> list[str]:
+    """inline code·HTML 구조 보존 이슈 수집.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+
+    Returns:
+        발견 순서의 inline·HTML 위반 label.
+    """
+
+    source_body = _strip_comments(_strip_code_blocks(source))
+    translated_body = _strip_comments(_strip_code_blocks(text))
+    checks = (
+        (_inline_codes(source) != _inline_codes(text), "inline code mismatch"),
+        (_anchors(source) != _anchors(text), "anchor mismatch"),
+        (
+            _structural_html_signature(source) != _structural_html_signature(text),
+            "html tag mismatch",
+        ),
+        (
+            _dynamic_display_attribute_signatures(source)
+            != _dynamic_display_attribute_signatures(text),
+            "html display expression mismatch",
+        ),
+        (_html_img_sources(source) != _html_img_sources(text), "html image source mismatch"),
+        (
+            _dynamic_display_attribute_signatures(source, tag_name="img")
+            != _dynamic_display_attribute_signatures(text, tag_name="img"),
+            "html image display expression mismatch",
+        ),
+        (
+            html_code_contents(source_body) != html_code_contents(translated_body),
+            "html code mismatch",
+        ),
+    )
+    return [label for failed, label in checks if failed]
+
+
+def _markdown_structure_issues(text: str, source: str) -> list[str]:
+    """Markdown 코드·제목·목록·표 구조 보존 이슈 수집.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+
+    Returns:
+        발견 순서의 Markdown 구조 위반 label.
+    """
+
+    checks = (
+        (
+            _normalized_fenced_code_blocks(source)
+            != _normalized_fenced_code_blocks(text),
+            "code block mismatch",
+        ),
+        (_heading_levels(source) != _heading_levels(text), "heading mismatch"),
+        (_heading_lines(source) != _heading_lines(text), "heading text mismatch"),
+        (
+            list_structure_signature(source) != list_structure_signature(text),
+            "list marker mismatch",
+        ),
+        (
+            table_structure_signature(source) != table_structure_signature(text),
+            "table structure mismatch",
+        ),
+    )
+    return [label for failed, label in checks if failed]
+
+
+def _front_matter_issues(text: str, source: str) -> list[str]:
+    """front matter 구조·번역값 계약 이슈 수집.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+
+    Returns:
+        발견 순서의 front matter 위반 label.
+    """
+
+    expected = front_matter_contract(source)
+    actual = front_matter_contract(text)
+    issues: list[str] = []
+    if (
+        not expected.valid
+        or not actual.valid
+        or expected.present != actual.present
+        or expected.signature != actual.signature
+    ):
+        issues.append("front matter structure mismatch")
+    if _front_matter_title(source) != _front_matter_title(text):
+        issues.append("front matter title mismatch")
+    description = front_matter_description(text)
+    if description is not None and not description.valid:
+        issues.append("front matter description invalid")
+    return issues
+
+
+def _annotation_issues(
+    text: str,
+    source: str,
+    *,
+    allow_source_echo: bool,
+) -> list[str]:
+    """원문 annotation·번역 문장 계약 이슈 수집.
+
+    Args:
+        text: 검사할 locale 문서.
+        source: 비교 기준 영어 문서.
+        allow_source_echo: 영어 원문 prose 잔존 허용 여부.
+
+    Returns:
+        발견 순서의 annotation·문장 위반 label.
+    """
+
+    checks = (
+        (not _source_comments_are_preserved(text, source), "source comment mismatch"),
+        (bool(missing_original_comments(text, source)), "missing original comment"),
+        (
+            not allow_source_echo and _has_untranslated_source_prose(text, source),
+            "untranslated source text",
+        ),
+        (
+            not _annotation_sentence_cardinality_is_valid(text, source),
+            "sentence cardinality mismatch",
+        ),
+    )
+    return [label for failed, label in checks if failed]
 
 
 def verify(
@@ -1184,227 +1869,16 @@ def verify(
     Returns:
         발견 순서의 위반 label. 빈 목록이면 통과.
     """
-    body = _strip_code_blocks(text)
-    issues = [label for label, pattern in _FORBIDDEN.items() if pattern.search(body)]
-    if _has_legacy_admonition(text):
-        issues.append("legacy note marker")
-    if has_malformed_html_comment_delimiters(text):
-        issues.append("malformed HTML comment")
-    if source is not None and admonition_types(source) != admonition_types(text):
-        issues.append("admonition type mismatch")
-    if _has_extra_empty_comment(body, source):
-        issues.append("empty HTML comment")
-    if img_self_closing(body) != body:
-        issues.append("unclosed img tag")
-    if has_title_attr_line(body):
-        issues.append("title style class")
-    if _has_admonition_body_outside_blockquote(body):
-        issues.append("admonition body outside blockquote")
-    if _has_duplicated_admonition_marker(body):
-        issues.append("duplicate admonition marker")
-
+    issues = _basic_issues(text, source)
     if source is None:
         return issues
-
-    if _link_targets(
-        source,
-        version=version,
-        registry=registry,
-    ) != _link_targets(text, version=version, registry=registry):
-        issues.append("link target mismatch")
-    if _link_labels(
-        source,
-        version=version,
-        registry=registry,
-    ) != _link_labels(text, version=version, registry=registry):
-        issues.append("link label mismatch")
-    if _link_pairs(
-        source,
-        version=version,
-        registry=registry,
-    ) != _link_pairs(text, version=version, registry=registry):
-        issues.append("link pair mismatch")
-    if _link_titles(
-        source,
-        version=version,
-        registry=registry,
-    ) != _link_titles(text, version=version, registry=registry):
-        issues.append("link title mismatch")
-    source_image_signatures = _image_signatures(
-        source,
-        version=version,
-        registry=registry,
+    issues.extend(
+        _link_issues(text, source, version=version, registry=registry)
     )
-    translated_image_signatures = _image_signatures(
-        text,
-        version=version,
-        registry=registry,
+    issues.extend(_html_structure_issues(text, source))
+    issues.extend(_markdown_structure_issues(text, source))
+    issues.extend(_front_matter_issues(text, source))
+    issues.extend(
+        _annotation_issues(text, source, allow_source_echo=allow_source_echo)
     )
-    if (
-        [target for target, _title in source_image_signatures]
-        != [target for target, _title in translated_image_signatures]
-        and "link target mismatch" not in issues
-    ):
-        issues.append("link target mismatch")
-    if (
-        [title for _target, title in source_image_signatures]
-        != [title for _target, title in translated_image_signatures]
-        and "link title mismatch" not in issues
-    ):
-        issues.append("link title mismatch")
-    if (
-        _mixed_image_order(source) != _mixed_image_order(text)
-        and "link target mismatch" not in issues
-    ):
-        issues.append("link target mismatch")
-    (
-        source_definition_targets,
-        source_definition_labels,
-        source_definition_pairs,
-        source_definition_signatures,
-    ) = _reference_definition_signatures(
-        source,
-        version=version,
-        registry=registry,
-    )
-    (
-        translated_definition_targets,
-        translated_definition_labels,
-        translated_definition_pairs,
-        translated_definition_signatures,
-    ) = _reference_definition_signatures(
-        text,
-        version=version,
-        registry=registry,
-    )
-    if (
-        source_definition_targets != translated_definition_targets
-        and "link target mismatch" not in issues
-    ):
-        issues.append("link target mismatch")
-    if (
-        source_definition_labels != translated_definition_labels
-        and "link label mismatch" not in issues
-    ):
-        issues.append("link label mismatch")
-    definition_pairs_match = (
-        source_definition_pairs == translated_definition_pairs
-    )
-    if (
-        not definition_pairs_match
-        and "link pair mismatch" not in issues
-    ):
-        issues.append("link pair mismatch")
-    if (
-        definition_pairs_match
-        and source_definition_signatures
-        != translated_definition_signatures
-        and "link title mismatch" not in issues
-    ):
-        issues.append("link title mismatch")
-    source_reference_links = tuple(
-        (
-            image,
-            _comparable_link_target(
-                target,
-                version=version,
-                registry=registry,
-            ),
-            title,
-        )
-        for image, target, title in reference_link_signatures(source)
-    )
-    translated_reference_links = tuple(
-        (
-            image,
-            _comparable_link_target(
-                target,
-                version=version,
-                registry=registry,
-            ),
-            title,
-        )
-        for image, target, title in reference_link_signatures(text)
-    )
-    if (
-        reference_link_display_signatures(source)
-        != reference_link_display_signatures(text)
-        and "link label mismatch" not in issues
-    ):
-        issues.append("link label mismatch")
-    if (
-        tuple(
-            (image, target)
-            for image, target, _title in source_reference_links
-        )
-        != tuple(
-            (image, target)
-            for image, target, _title in translated_reference_links
-        )
-        and "link target mismatch" not in issues
-    ):
-        issues.append("link target mismatch")
-    if (
-        tuple(title for _image, _target, title in source_reference_links)
-        != tuple(
-            title
-            for _image, _target, title in translated_reference_links
-        )
-        and "link title mismatch" not in issues
-    ):
-        issues.append("link title mismatch")
-    if _inline_codes(source) != _inline_codes(text):
-        issues.append("inline code mismatch")
-    if _anchors(source) != _anchors(text):
-        issues.append("anchor mismatch")
-    if _structural_html_signature(source) != _structural_html_signature(text):
-        issues.append("html tag mismatch")
-    if _dynamic_display_attribute_signatures(
-        source
-    ) != _dynamic_display_attribute_signatures(text):
-        issues.append("html display expression mismatch")
-    if _html_img_sources(source) != _html_img_sources(text):
-        issues.append("html image source mismatch")
-    if _dynamic_display_attribute_signatures(
-        source,
-        tag_name="img",
-    ) != _dynamic_display_attribute_signatures(text, tag_name="img"):
-        issues.append("html image display expression mismatch")
-    if html_code_contents(_strip_comments(_strip_code_blocks(source))) != html_code_contents(
-        _strip_comments(_strip_code_blocks(text))
-    ):
-        issues.append("html code mismatch")
-    if _normalized_fenced_code_blocks(source) != _normalized_fenced_code_blocks(text):
-        issues.append("code block mismatch")
-    if _heading_levels(source) != _heading_levels(text):
-        issues.append("heading mismatch")
-    if _heading_lines(source) != _heading_lines(text):
-        issues.append("heading text mismatch")
-    if list_structure_signature(source) != list_structure_signature(text):
-        issues.append("list marker mismatch")
-    if table_structure_signature(source) != table_structure_signature(text):
-        issues.append("table structure mismatch")
-    source_front_matter = front_matter_contract(source)
-    translated_front_matter = front_matter_contract(text)
-    if (
-        not source_front_matter.valid
-        or not translated_front_matter.valid
-        or source_front_matter.present != translated_front_matter.present
-        or source_front_matter.signature != translated_front_matter.signature
-    ):
-        issues.append("front matter structure mismatch")
-    if _front_matter_title(source) != _front_matter_title(text):
-        issues.append("front matter title mismatch")
-    description = front_matter_description(text)
-    if description is not None and not description.valid:
-        issues.append("front matter description invalid")
-    if not _source_comments_are_preserved(text, source):
-        issues.append("source comment mismatch")
-    if missing_original_comments(text, source):
-        issues.append("missing original comment")
-    if not allow_source_echo and _has_untranslated_source_prose(text, source):
-        issues.append("untranslated source text")
-    if not _annotation_sentence_cardinality_is_valid(text, source):
-        issues.append("sentence cardinality mismatch")
-
     return issues

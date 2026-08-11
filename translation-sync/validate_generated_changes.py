@@ -88,6 +88,7 @@ _LOCALE_SIDEBAR_RE = re.compile(
     rf"version-(?P<version>{_VERSION})\.json"
 )
 _NAME_STATUS_RE = re.compile(r"(?:[ADMTUXB]|[CR](?:100|0\d{2}))")
+_INVALID_NAME_STATUS = "invalid git name-status output"
 _UNCHANGED_LOCALE_PATHS = {
     "ko": "versioned_docs/version-{version}/{doc}",
     "ja": ("i18n/ja/docusaurus-plugin-content-docs/version-{version}/{doc}"),
@@ -208,6 +209,163 @@ def _artifact_matches_key(
     )
 
 
+def _record_change(
+    path: str,
+    statuses: set[str],
+    *,
+    supported_versions: set[str],
+    documents: dict[tuple[str, str], dict[str, set[str]]],
+) -> _ChangeIssue | None:
+    """단일 Git 변경을 검증하고 문서 로케일 상태에 반영.
+
+    Args:
+        path: 저장소 상대 변경 경로.
+        statuses: 경로에서 관찰한 Git 상태 집합.
+        supported_versions: 허용된 문서 버전.
+        documents: 문서 키별 로케일 상태 누적 mapping.
+
+    Returns:
+        즉시 보고할 변경 문제. 문제가 없으면 ``None``.
+    """
+
+    version_match = _PATH_VERSION_RE.search(path)
+    if version_match and version_match.group("version") not in supported_versions:
+        return _ChangeIssue(
+            IssueCode.SIDEBAR_INPUT_INVALID,
+            f"unsupported translation version: {path}",
+            version=version_match.group("version"),
+        )
+    if statuses not in ({"A"}, {"M"}, {"D"}):
+        return _ChangeIssue(
+            IssueCode.OUTPUT_STATE_MISMATCH,
+            f"unsupported translation status: {path}",
+        )
+    if _SHARED_SIDEBAR_RE.fullmatch(path) and statuses == {"D"}:
+        return _ChangeIssue(
+            IssueCode.OUTPUT_STATE_MISMATCH,
+            f"shared sidebar deletion is forbidden: {path}",
+        )
+    if _LOCALE_SIDEBAR_RE.fullmatch(path) and statuses != {"D"}:
+        return _ChangeIssue(
+            IssueCode.SIDEBAR_OVERRIDE_FORBIDDEN,
+            f"locale sidebar override must only be deleted: {path}",
+        )
+    for locale, pattern in _DOCUMENT_PATHS:
+        match = pattern.fullmatch(path)
+        if match and _canonical_document(match.group("doc")):
+            key = (match.group("version"), match.group("doc"))
+            documents.setdefault(key, {})[locale] = statuses
+            break
+    return None
+
+
+def _modified_document_issues(
+    *,
+    version: str,
+    document: str,
+    label: str,
+    locale_statuses: Mapping[str, set[str]],
+    proofs: Mapping[tuple[str, str, str], VerifiedLocaleArtifact],
+) -> list[_ChangeIssue]:
+    """수정된 영어 문서와 변경·검증된 번역문의 정합성 검사.
+
+    Args:
+        version: 문서 버전.
+        document: 버전 루트 기준 문서 경로.
+        label: 진단에 사용할 문서 식별자.
+        locale_statuses: 로케일별 Git 상태.
+        proofs: 변경되지 않은 로케일 검증 산출물.
+
+    Returns:
+        수정 문서의 상태와 증명 문제 목록.
+    """
+
+    issues: list[_ChangeIssue] = []
+    if any(
+        statuses != {"M"}
+        for locale, statuses in locale_statuses.items()
+        if locale != "en"
+    ):
+        issues.append(
+            _ChangeIssue(
+                IssueCode.OUTPUT_STATE_MISMATCH,
+                f"inconsistent translation status: {label}",
+                version=version,
+                document=document,
+            )
+        )
+    for locale in sorted({"en", "ko", "ja"} - set(locale_statuses)):
+        artifact = proofs.get((version, document, locale))
+        if not _artifact_matches_key(artifact, version=version):
+            issues.append(
+                _ChangeIssue(
+                    IssueCode.UNVERIFIED_ENGLISH_ONLY_CHANGE,
+                    f"unverified unchanged translation: {label} ({locale})",
+                    version=version,
+                    locale=locale,
+                    document=document,
+                )
+            )
+    return issues
+
+
+def _document_change_issues(
+    *,
+    version: str,
+    document: str,
+    locale_statuses: Mapping[str, set[str]],
+    proofs: Mapping[tuple[str, str, str], VerifiedLocaleArtifact],
+) -> list[_ChangeIssue]:
+    """단일 문서 키의 영어·한국어·일본어 변경 상태 검사.
+
+    Args:
+        version: 문서 버전.
+        document: 버전 루트 기준 문서 경로.
+        locale_statuses: 로케일별 Git 상태.
+        proofs: 변경되지 않은 로케일 검증 산출물.
+
+    Returns:
+        문서 변경 상태 문제 목록.
+    """
+
+    label = f"version-{version}/{document}"
+    source_status = locale_statuses.get("en")
+    if source_status is None:
+        return [
+            _ChangeIssue(
+                IssueCode.OUTPUT_STATE_MISMATCH,
+                f"unpaired translation document: {label}",
+                version=version,
+                document=document,
+            )
+        ]
+    if source_status == {"M"}:
+        return _modified_document_issues(
+            version=version,
+            document=document,
+            label=label,
+            locale_statuses=locale_statuses,
+            proofs=proofs,
+        )
+    required_locales = {"en", "ko", "ja"}
+    if set(locale_statuses) != required_locales:
+        message = f"unpaired translation document: {label}"
+    elif source_status not in ({"A"}, {"D"}) or any(
+        statuses != source_status for statuses in locale_statuses.values()
+    ):
+        message = f"inconsistent translation status: {label}"
+    else:
+        return []
+    return [
+        _ChangeIssue(
+            IssueCode.OUTPUT_STATE_MISMATCH,
+            message,
+            version=version,
+            document=document,
+        )
+    ]
+
+
 def _change_issues(
     changes: Mapping[str, set[str]],
     supported_versions: set[str],
@@ -222,111 +380,24 @@ def _change_issues(
     documents: dict[tuple[str, str], dict[str, set[str]]] = {}
 
     for path, statuses in sorted(changes.items()):
-        version_match = _PATH_VERSION_RE.search(path)
-        if version_match and version_match.group("version") not in supported_versions:
-            issues.append(
-                _ChangeIssue(
-                    IssueCode.SIDEBAR_INPUT_INVALID,
-                    f"unsupported translation version: {path}",
-                    version=version_match.group("version"),
-                )
-            )
-            continue
-        if statuses not in ({"A"}, {"M"}, {"D"}):
-            issues.append(
-                _ChangeIssue(
-                    IssueCode.OUTPUT_STATE_MISMATCH,
-                    f"unsupported translation status: {path}",
-                )
-            )
-            continue
-        if _SHARED_SIDEBAR_RE.fullmatch(path) and statuses == {"D"}:
-            issues.append(
-                _ChangeIssue(
-                    IssueCode.OUTPUT_STATE_MISMATCH,
-                    f"shared sidebar deletion is forbidden: {path}",
-                )
-            )
-            continue
-        if _LOCALE_SIDEBAR_RE.fullmatch(path) and statuses != {"D"}:
-            issues.append(
-                _ChangeIssue(
-                    IssueCode.SIDEBAR_OVERRIDE_FORBIDDEN,
-                    f"locale sidebar override must only be deleted: {path}",
-                )
-            )
-            continue
-        for locale, pattern in _DOCUMENT_PATHS:
-            match = pattern.fullmatch(path)
-            if match and _canonical_document(match.group("doc")):
-                key = (match.group("version"), match.group("doc"))
-                documents.setdefault(key, {})[locale] = statuses
-                break
+        issue = _record_change(
+            path,
+            statuses,
+            supported_versions=supported_versions,
+            documents=documents,
+        )
+        if issue is not None:
+            issues.append(issue)
 
-    required_locales = {"en", "ko", "ja"}
     for (version, doc), locale_statuses in sorted(documents.items()):
-        label = f"version-{version}/{doc}"
-        source_status = locale_statuses.get("en")
-        if source_status is None:
-            issues.append(
-                _ChangeIssue(
-                    IssueCode.OUTPUT_STATE_MISMATCH,
-                    f"unpaired translation document: {label}",
-                    version=version,
-                    document=doc,
-                )
+        issues.extend(
+            _document_change_issues(
+                version=version,
+                document=doc,
+                locale_statuses=locale_statuses,
+                proofs=proofs,
             )
-            continue
-
-        if source_status == {"M"}:
-            if any(
-                statuses != {"M"}
-                for locale, statuses in locale_statuses.items()
-                if locale != "en"
-            ):
-                issues.append(
-                    _ChangeIssue(
-                        IssueCode.OUTPUT_STATE_MISMATCH,
-                        f"inconsistent translation status: {label}",
-                        version=version,
-                        document=doc,
-                    )
-                )
-            for locale in sorted(required_locales - set(locale_statuses)):
-                artifact = proofs.get((version, doc, locale))
-                if not _artifact_matches_key(artifact, version=version):
-                    issues.append(
-                        _ChangeIssue(
-                            IssueCode.UNVERIFIED_ENGLISH_ONLY_CHANGE,
-                            f"unverified unchanged translation: {label} ({locale})",
-                            version=version,
-                            locale=locale,
-                            document=doc,
-                        )
-                    )
-            continue
-
-        if set(locale_statuses) != required_locales:
-            issues.append(
-                _ChangeIssue(
-                    IssueCode.OUTPUT_STATE_MISMATCH,
-                    f"unpaired translation document: {label}",
-                    version=version,
-                    document=doc,
-                )
-            )
-            continue
-        if source_status not in ({"A"}, {"D"}) or any(
-            statuses != source_status for statuses in locale_statuses.values()
-        ):
-            issues.append(
-                _ChangeIssue(
-                    IssueCode.OUTPUT_STATE_MISMATCH,
-                    f"inconsistent translation status: {label}",
-                    version=version,
-                    document=doc,
-                )
-            )
+        )
     return issues
 
 
@@ -530,6 +601,48 @@ def _verification_candidate_paths(
     return paths
 
 
+def _verified_locales_for_document(
+    *,
+    source_path: str,
+    version: str,
+    document: str,
+    changes: Mapping[str, set[str]],
+    repo_root: Path,
+    registry_path: Path,
+) -> dict[tuple[str, str, str], VerifiedLocaleArtifact]:
+    """변경되지 않은 단일 문서 로케일의 최종 상태 증명.
+
+    Args:
+        source_path: 영어 원문 저장소 상대 경로.
+        version: 문서 버전.
+        document: 버전 루트 기준 문서 경로.
+        changes: 전체 변경 경로와 상태.
+        repo_root: 저장소 루트.
+        registry_path: 오래된 링크 레지스트리 경로.
+
+    Returns:
+        검증에 성공한 로케일별 산출물 mapping.
+    """
+
+    verified: dict[tuple[str, str, str], VerifiedLocaleArtifact] = {}
+    source = repo_root / source_path
+    for locale, template in sorted(_UNCHANGED_LOCALE_PATHS.items()):
+        target_path = template.format(version=version, doc=document)
+        if target_path in changes:
+            continue
+        if unsafe_output_paths({source_path, target_path}, repo_root):
+            continue
+        artifact = _verified_artifact(
+            source=source,
+            target=repo_root / target_path,
+            version=version,
+            registry_path=registry_path,
+        )
+        if artifact is not None:
+            verified[(version, document, locale)] = artifact
+    return verified
+
+
 def verified_unchanged_locales(
     changes: dict[str, set[str]],
     repo_root: Path = REPO_ROOT,
@@ -551,22 +664,56 @@ def verified_unchanged_locales(
             continue
         version = match.group("version")
         doc = match.group("doc")
-        source = repo_root / source_path
-        for locale, template in sorted(_UNCHANGED_LOCALE_PATHS.items()):
-            target_path = template.format(version=version, doc=doc)
-            if target_path in changes:
-                continue
-            if unsafe_output_paths({source_path, target_path}, repo_root):
-                continue
-            artifact = _verified_artifact(
-                source=source,
-                target=repo_root / target_path,
+        verified.update(
+            _verified_locales_for_document(
+                source_path=source_path,
                 version=version,
+                document=doc,
+                changes=changes,
+                repo_root=repo_root,
                 registry_path=effective_registry_path,
             )
-            if artifact is not None:
-                verified[(version, doc, locale)] = artifact
+        )
     return verified
+
+
+def _decode_name_status_entry(
+    fields: list[bytes],
+    index: int,
+) -> tuple[tuple[tuple[str, str], ...], int]:
+    """Git 이름·상태 필드 한 항목을 정규 A/M/D 항목으로 변환.
+
+    Args:
+        fields: NUL 구분을 제거한 전체 출력 필드.
+        index: 상태 필드 위치.
+
+    Returns:
+        변환한 경로 상태 항목과 다음 상태 필드 위치.
+    """
+
+    try:
+        status = fields[index].decode("ascii")
+    except UnicodeDecodeError as error:
+        raise RuntimeError(_INVALID_NAME_STATUS) from error
+    if not _NAME_STATUS_RE.fullmatch(status):
+        raise RuntimeError(_INVALID_NAME_STATUS)
+    path_count = 2 if status[0] in {"C", "R"} else 1
+    next_index = index + 1 + path_count
+    if next_index > len(fields):
+        raise RuntimeError(_INVALID_NAME_STATUS)
+    paths = [
+        field.decode("utf-8", errors="surrogateescape")
+        for field in fields[index + 1 : next_index]
+    ]
+    if any(not _canonical_repository_path(path) for path in paths):
+        raise RuntimeError(_INVALID_NAME_STATUS)
+    if status.startswith("R"):
+        entries = (("D", paths[0]), ("A", paths[1]))
+    elif status.startswith("C"):
+        entries = (("A", paths[1]),)
+    else:
+        entries = ((status, paths[0]),)
+    return entries, next_index
 
 
 def _parse_name_status(output: bytes) -> list[tuple[str, str]]:
@@ -575,37 +722,14 @@ def _parse_name_status(output: bytes) -> list[tuple[str, str]]:
     if not output:
         return []
     if not output.endswith(b"\0"):
-        raise RuntimeError("invalid git name-status output")
+        raise RuntimeError(_INVALID_NAME_STATUS)
 
     fields = output[:-1].split(b"\0")
     entries: list[tuple[str, str]] = []
     index = 0
     while index < len(fields):
-        try:
-            status = fields[index].decode("ascii")
-        except UnicodeDecodeError as error:
-            raise RuntimeError("invalid git name-status output") from error
-        index += 1
-        if not _NAME_STATUS_RE.fullmatch(status):
-            raise RuntimeError("invalid git name-status output")
-
-        path_count = 2 if status[0] in {"C", "R"} else 1
-        if index + path_count > len(fields):
-            raise RuntimeError("invalid git name-status output")
-        paths = [
-            field.decode("utf-8", errors="surrogateescape")
-            for field in fields[index : index + path_count]
-        ]
-        index += path_count
-        if any(not _canonical_repository_path(path) for path in paths):
-            raise RuntimeError("invalid git name-status output")
-
-        if status.startswith("R"):
-            entries.extend((("D", paths[0]), ("A", paths[1])))
-        elif status.startswith("C"):
-            entries.append(("A", paths[1]))
-        else:
-            entries.append((status, paths[0]))
+        parsed, index = _decode_name_status_entry(fields, index)
+        entries.extend(parsed)
     return entries
 
 

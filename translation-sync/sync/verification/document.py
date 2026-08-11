@@ -38,10 +38,12 @@ _HEADING_ANNOTATION_RE = re.compile(r"^(#{1,6})\s+(.+)$")
 _HEADING_ATTRIBUTES_RE = re.compile(
     r"\{((?:[.#][^}\s]+)(?:\s+[.#][^}\s]+)*)\}\s*$"
 )
-_LIST_ANNOTATION_RE = re.compile(r"^(?:[-*+]\s+|\d+[.)]\s+)")
+_LIST_ANNOTATION_PATTERN = r"^(?:[-*+]\s+|\d+[.)]\s+)"
+_LIST_ANNOTATION_RE = re.compile(_LIST_ANNOTATION_PATTERN)
 _LEGACY_TABLE_ANNOTATION_RE = re.compile(
     r"(?:^|\s):?-{3,}:?\s*\|\s*:?-{3,}:?(?:\s|$)"
 )
+_INVALID_VERIFICATION_INPUT = "verification input is missing, invalid, or noncanonical"
 
 
 def _utf8(value: str) -> bytes:
@@ -521,7 +523,7 @@ def _input_integrity_issues(inputs: object) -> list[VerificationIssue]:
             _issue(
                 "VERIFICATION_INPUT_CHANGED",
                 "verification-input",
-                "verification input is missing, invalid, or noncanonical",
+                _INVALID_VERIFICATION_INPUT,
             )
         ]
     assert isinstance(inputs, VerificationInput)
@@ -538,7 +540,7 @@ def _input_integrity_issues(inputs: object) -> list[VerificationIssue]:
             _issue(
                 "VERIFICATION_INPUT_CHANGED",
                 "verification-input",
-                "verification input is missing, invalid, or noncanonical",
+                _INVALID_VERIFICATION_INPUT,
             )
         ]
     try:
@@ -551,7 +553,7 @@ def _input_integrity_issues(inputs: object) -> list[VerificationIssue]:
             _issue(
                 "VERIFICATION_INPUT_CHANGED",
                 "verification-input",
-                "verification input is missing, invalid, or noncanonical",
+                _INVALID_VERIFICATION_INPUT,
             )
         ]
     if (
@@ -562,7 +564,7 @@ def _input_integrity_issues(inputs: object) -> list[VerificationIssue]:
             _issue(
                 "VERIFICATION_INPUT_CHANGED",
                 "verification-input",
-                "verification input is missing, invalid, or noncanonical",
+                _INVALID_VERIFICATION_INPUT,
             )
         ]
     expected_envelope = _verification_envelope(
@@ -596,6 +598,100 @@ def _canonical_source_annotations(source: str) -> tuple[str, ...]:
     )
 
 
+def _pipeline_annotation_owner_invalid(
+    masked: str,
+    *,
+    start: int,
+    end: int,
+    normalized: str,
+    table_annotations: frozenset[str],
+) -> bool:
+    """pipeline annotation의 독립 줄 배치와 다음 구조 소유자 검증.
+
+    Args:
+        masked: 코드 펜스가 제거된 locale 문서.
+        start: 주석 시작 위치.
+        end: 주석 끝 위치.
+        normalized: 정규화된 주석 본문.
+        table_annotations: 표 소유 주석 본문 집합.
+
+    Returns:
+        annotation 소유 위치가 잘못됐는지 여부.
+    """
+
+    line_start = masked.rfind("\n", 0, start) + 1
+    prefix = masked[line_start:start]
+    line_end = masked.find("\n", end)
+    if line_end < 0:
+        line_end = len(masked)
+    suffix = masked[end:line_end].removesuffix("\r")
+    if prefix or suffix:
+        return True
+    following = legacy_verify._line_after_comment(masked, end)
+    if following is None:
+        return True
+    return _pipeline_following_owner_invalid(
+        masked,
+        line_start=line_start,
+        following=following[0],
+        normalized=normalized,
+        table_annotations=table_annotations,
+    )
+
+
+def _pipeline_following_owner_invalid(
+    masked: str,
+    *,
+    line_start: int,
+    following: str,
+    normalized: str,
+    table_annotations: frozenset[str],
+) -> bool:
+    """pipeline annotation 다음 줄의 구조 종류와 내용 검증.
+
+    Args:
+        masked: 코드 펜스가 제거된 locale 문서.
+        line_start: annotation 물리 줄 시작 위치.
+        following: annotation 다음 물리 줄.
+        normalized: 정규화된 주석 본문.
+        table_annotations: 표 소유 주석 본문 집합.
+
+    Returns:
+        다음 구조 소유자가 잘못됐는지 여부.
+    """
+
+    following_line = following.lstrip()
+    heading = _HEADING_ANNOTATION_RE.fullmatch(normalized) is not None
+    table = normalized in table_annotations
+    previous_lines = masked[:line_start].splitlines()
+    previous_line = previous_lines[-1] if previous_lines else ""
+    if not following_line or following_line.startswith("<!--"):
+        return True
+    if heading and not legacy_verify._structural_line_matches(
+        strip_title_attr_line(normalized),
+        following,
+    ):
+        return True
+    if not heading and not table and following_line.startswith(("#", "|", ">")):
+        return True
+    if table and ("|" not in following_line or "|" in previous_line):
+        return True
+    if _LIST_ANNOTATION_RE.match(normalized) and not _LIST_ANNOTATION_RE.match(
+        following_line
+    ):
+        return True
+    expected_kind = response_contract._annotation_owner_kind(
+        normalized,
+        table_annotations,
+    )
+    actual_kind = response_contract._following_owner_kind(
+        following,
+        table_expected=expected_kind == "table",
+        allow_indented=False,
+    )
+    return actual_kind != expected_kind
+
+
 def _actual_pipeline_annotations(
     text: str,
     source: str,
@@ -626,65 +722,13 @@ def _actual_pipeline_annotations(
             continue
         annotations.append(raw_annotation)
         annotation_index = len(annotations) - 1
-        line_end = masked.find("\n", end)
-        if line_end < 0:
-            line_end = len(masked)
-        suffix = masked[end:line_end].removesuffix("\r")
-        if prefix or suffix:
-            invalid_owners.append(annotation_index)
-        following = legacy_verify._line_after_comment(masked, end)
-        if following is None:
-            invalid_owners.append(annotation_index)
-            continue
-        following_line = following[0].lstrip()
-        heading_annotation = _HEADING_ANNOTATION_RE.fullmatch(normalized) is not None
-        table_annotation = normalized in table_annotations
-        previous_line = (
-            masked[:line_start].splitlines()[-1]
-            if masked[:line_start].splitlines()
-            else ""
-        )
-        if (
-            not following_line
-            or following_line.startswith("<!--")
-            or (
-                heading_annotation
-                and not legacy_verify._structural_line_matches(
-                    strip_title_attr_line(normalized),
-                    following[0],
-                )
-            )
-            or (
-                not heading_annotation
-                and not table_annotation
-                and following_line.startswith(("#", "|", ">"))
-            )
-            or (
-                table_annotation
-                and (
-                    "|" not in following_line
-                    or "|" in previous_line
-                )
-            )
-            or (
-                re.match(r"^(?:[-*+]\s+|\d+[.)]\s+)", normalized)
-                and not re.match(
-                    r"^(?:[-*+]\s+|\d+[.)]\s+)",
-                    following_line,
-                )
-            )
+        if _pipeline_annotation_owner_invalid(
+            masked,
+            start=start,
+            end=end,
+            normalized=normalized,
+            table_annotations=table_annotations,
         ):
-            invalid_owners.append(annotation_index)
-            continue
-        expected_kind = response_contract._annotation_owner_kind(
-            normalized,
-            table_annotations,
-        )
-        if response_contract._following_owner_kind(
-            following[0],
-            table_expected=expected_kind == "table",
-            allow_indented=False,
-        ) != expected_kind:
             invalid_owners.append(annotation_index)
 
     return tuple(annotations), tuple(invalid_owners)
@@ -722,6 +766,99 @@ def _first_annotation_mismatch_address(
     return "annotations"
 
 
+def _optional_quote_comment_is_preserved(
+    *,
+    body: str,
+    start_line: int,
+    end_line: int,
+    depth: int,
+    lines: list[str],
+    optional: dict[tuple[str, int, int], int],
+) -> bool:
+    """선택적 인용 annotation의 깊이·순번·다음 본문 보존 여부 검증.
+
+    Args:
+        body: HTML 주석 본문.
+        start_line: 주석 시작 줄 위치.
+        end_line: 주석 마지막 줄 위치.
+        depth: 인용 깊이.
+        lines: locale 문서 줄.
+        optional: 원문에서 허용한 선택적 인용 annotation 횟수.
+
+    Returns:
+        선택적 인용 주석 계약 충족 여부.
+    """
+
+    normalized = response_contract._normalize_comment(body)
+    key = (
+        normalized,
+        depth,
+        response_contract._quote_block_ordinal(lines, start_line + 1),
+    )
+    next_line = end_line + 1
+    if next_line >= len(lines):
+        return False
+    next_body = lines[next_line].lstrip()
+    while next_body.startswith(">"):
+        next_body = next_body[1:].lstrip()
+    if (
+        not response_contract._optional_quote_annotation_starts_block(
+            lines,
+            start_line,
+        )
+        or not optional[key]
+        or response_contract._quote_depth(lines[next_line]) != depth
+        or not next_body
+    ):
+        return False
+    optional[key] -= 1
+    return True
+
+
+def _non_source_comment_is_valid(
+    masked: str,
+    *,
+    start: int,
+    end: int,
+    body: str,
+    record: tuple[str, int, int, object],
+    lines: list[str],
+    optional: dict[tuple[str, int, int], int],
+) -> bool:
+    """원문 작성 주석이 아닌 annotation 또는 선택적 인용 주석 검증.
+
+    Args:
+        masked: 코드 펜스가 제거된 locale 문서.
+        start: 주석 시작 문자 위치.
+        end: 주석 끝 문자 위치.
+        body: HTML 주석 본문.
+        record: 주석 본문·시작 줄·끝 줄·위치 레코드.
+        lines: locale 문서 줄.
+        optional: 허용된 선택적 인용 주석 횟수.
+
+    Returns:
+        pipeline 또는 선택적 인용 주석으로 유효한지 여부.
+    """
+
+    _record_body, start_line, end_line, _position = record
+    match = (
+        response_contract._ONE_LINE_COMMENT_RE.fullmatch(lines[start_line])
+        if start_line == end_line and start_line < len(lines)
+        else None
+    )
+    depth = response_contract._quote_depth(match.group(1)) if match else 0
+    if depth:
+        return _optional_quote_comment_is_preserved(
+            body=body,
+            start_line=start_line,
+            end_line=end_line,
+            depth=depth,
+            lines=lines,
+            optional=optional,
+        )
+    return _ANNOTATION_RE.fullmatch(masked[start:end]) is not None
+
+
 def _source_authored_comments_are_preserved(text: str, source: str) -> bool:
     """원문 작성 HTML comment의 값·순서·소유 위치 보존 여부."""
 
@@ -744,38 +881,15 @@ def _source_authored_comments_are_preserved(text: str, source: str) -> bool:
     ):
         if index in source_indexes:
             continue
-        _record_body, start_line, end_line, _position = record
-        match = (
-            response_contract._ONE_LINE_COMMENT_RE.fullmatch(lines[start_line])
-            if start_line == end_line and start_line < len(lines)
-            else None
-        )
-        depth = response_contract._quote_depth(match.group(1)) if match else 0
-        if depth:
-            normalized = response_contract._normalize_comment(body)
-            key = (
-                normalized,
-                depth,
-                response_contract._quote_block_ordinal(lines, start_line + 1),
-            )
-            next_line = end_line + 1
-            next_body = lines[next_line].lstrip() if next_line < len(lines) else ""
-            while next_body.startswith(">"):
-                next_body = next_body[1:].lstrip()
-            if (
-                not response_contract._optional_quote_annotation_starts_block(
-                    lines,
-                    start_line,
-                )
-                or not optional[key]
-                or next_line >= len(lines)
-                or response_contract._quote_depth(lines[next_line]) != depth
-                or not next_body
-            ):
-                return False
-            optional[key] -= 1
-            continue
-        if _ANNOTATION_RE.fullmatch(masked[start:end]) is None:
+        if not _non_source_comment_is_valid(
+            masked,
+            start=start,
+            end=end,
+            body=body,
+            record=record,
+            lines=lines,
+            optional=optional,
+        ):
             return False
     return True
 
@@ -846,71 +960,24 @@ def _registry_snapshot_is_valid(registry: object) -> bool:
     ):
         return False
     try:
-        value = json.loads(registry.raw.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        return False
-    if (
-        not isinstance(value, dict)
-        or tuple(value) != stale_links._TOP_LEVEL_KEYS
-        or value["schema_version"] != stale_links.SCHEMA_VERSION
-        or type(value["schema_version"]) is not int
-        or not isinstance(value["links"], list)
-    ):
-        return False
-
-    rules: list[stale_links.StaleLinkRule] = []
-    identities: set[tuple[str, str]] = set()
-    for entry in value["links"]:
-        if not isinstance(entry, dict) or tuple(entry) != stale_links._ENTRY_KEYS:
+        value = stale_links._decode_registry(registry.raw)
+        schema_version = value["schema_version"]
+        entries = value["links"]
+        if (
+            type(schema_version) is not int
+            or schema_version != stale_links.SCHEMA_VERSION
+            or not isinstance(entries, list)
+        ):
             return False
-        try:
-            version = validate_version_token(entry["version"])
-        except ValueError:
-            return False
-        source = entry["from"]
-        target = entry["to"]
-        retire_mode = entry["retire_mode"]
-        if not isinstance(source, str) or not source:
-            return False
-        if target is not None and (not isinstance(target, str) or not target):
-            return False
-        try:
-            source.encode("utf-8")
-            if target is not None:
-                target.encode("utf-8")
-        except UnicodeEncodeError:
-            return False
-        if target is None:
-            if (
-                not isinstance(retire_mode, str)
-                or retire_mode not in stale_links._RETIRE_MODES
-            ):
-                return False
-        elif retire_mode is not None:
-            return False
-        if (version, source) in identities:
-            return False
-        identities.add((version, source))
-        rules.append(
-            stale_links.StaleLinkRule(
-                version,
-                source,
-                target,
-                retire_mode,
-            )
-        )
-    try:
-        ordering = [
-            (rule.version.encode("utf-8"), rule.source.encode("utf-8"))
-            for rule in rules
+        rules = [
+            stale_links._parse_rule(entry, index)
+            for index, entry in enumerate(entries)
         ]
-        canonical = stale_links._canonical_json(value)
-    except UnicodeEncodeError:
+        stale_links._validate_rules(rules, registry.raw, value)
+    except (stale_links.StaleLinkRegistryError, UnicodeEncodeError):
         return False
     return bool(
-        ordering == sorted(ordering)
-        and registry.raw == canonical
-        and all(
+        all(
             type(rule) is stale_links.StaleLinkRule
             and type(rule.version) is str
             and type(rule.source) is str
@@ -940,6 +1007,258 @@ _FINAL_STAGE_EXCLUDED_LEGACY_ISSUES = frozenset(
         "untranslated source text",
     }
 )
+
+
+def _document_structure_issues(source: str, text: str) -> tuple[list[VerificationIssue], bool]:
+    """머리말·목록·표·인용·블록 구조 차이 검사.
+
+    Args:
+        source: 최종 영어 view.
+        text: locale 번역 문서.
+
+    Returns:
+        구조 문제 목록과 블록 구조 불일치 여부.
+    """
+
+    issues: list[VerificationIssue] = []
+    source_front_matter = front_matter_contract(source)
+    translated_front_matter = front_matter_contract(text)
+    if (
+        not source_front_matter.valid
+        or not translated_front_matter.valid
+        or source_front_matter.present != translated_front_matter.present
+        or source_front_matter.signature != translated_front_matter.signature
+    ):
+        issues.append(
+            _issue(
+                "FRONT_MATTER_MISMATCH",
+                "front-matter",
+                "front matter key order, scalar structure, or source-owned value differs",
+            )
+        )
+    if (
+        list_structure_signature(source) != list_structure_signature(text)
+        or table_structure_signature(source) != table_structure_signature(text)
+    ):
+        issues.append(
+            _issue(
+                "LIST_TABLE_STRUCTURE_MISMATCH",
+                "list-or-table",
+                "list or table ordered structural signature differs",
+            )
+        )
+    if blockquote_structure_signature(source) != blockquote_structure_signature(text):
+        issues.append(
+            _issue(
+                "SOURCE_STRUCTURE_MISMATCH",
+                "blockquote",
+                "blockquote depth, occurrence, or hard-break structure differs",
+            )
+        )
+    block_mismatch = tuple(
+        response_contract._signature(block)
+        for block in response_contract._blocks(source)
+    ) != tuple(
+        response_contract._signature(block)
+        for block in response_contract._blocks(text)
+    )
+    if block_mismatch:
+        issues.append(
+            _issue(
+                "SOURCE_STRUCTURE_MISMATCH",
+                "document-blocks",
+                "Markdown block kind, order, or structural layout differs",
+            )
+        )
+    return issues, block_mismatch
+
+
+def _pipeline_annotation_issues(
+    text: str,
+    source: str,
+    expected_map: ExpectedAnnotationMap,
+    *,
+    block_mismatch: bool,
+) -> list[VerificationIssue]:
+    """pipeline annotation 바이트·순서·소유 위치를 expected map과 비교.
+
+    Args:
+        text: locale 번역 문서.
+        source: 최종 영어 view.
+        expected_map: 원문 소유 단위별 기대 annotation map.
+        block_mismatch: 문서 블록 구조 불일치 여부.
+
+    Returns:
+        annotation 문제 목록.
+    """
+
+    actual_annotations, invalid_owners = _actual_pipeline_annotations(text, source)
+    if block_mismatch and expected_map.entries:
+        invalid_owners = (*invalid_owners, len(actual_annotations))
+    try:
+        actual_map = _map_from_canonical_annotations(actual_annotations)
+    except ValueError:
+        actual_map = None
+    if actual_map == expected_map and not invalid_owners:
+        return []
+    address = _first_annotation_mismatch_address(
+        expected_map,
+        actual_map,
+        invalid_owners,
+    )
+    return [
+        _issue(
+            "PIPELINE_ANNOTATION_MISMATCH",
+            address,
+            "pipeline annotation byte, order, occurrence, or owner differs",
+        )
+    ]
+
+
+def _legacy_document_issues(
+    text: str,
+    source: str,
+    version: str,
+    registry: StaleLinkRegistry,
+) -> list[VerificationIssue]:
+    """원문 작성 주석과 기존 구조 verifier 호환 계약 검사.
+
+    Args:
+        text: locale 번역 문서.
+        source: 최종 영어 view.
+        version: 문서 버전.
+        registry: 시작 시점 오래된 링크 registry.
+
+    Returns:
+        원문 주석과 기존 verifier 문제 목록.
+    """
+
+    issues: list[VerificationIssue] = []
+    if not _source_authored_comments_are_preserved(text, source):
+        issues.append(
+            _issue(
+                "SOURCE_COMMENT_MISMATCH",
+                "comments",
+                "source-authored comment value, order, or structural address differs",
+            )
+        )
+    legacy_issues = legacy_verify.verify(
+        text,
+        source=source,
+        version=version,
+        registry=registry,
+    )
+    issues.extend(
+        _legacy_issue(label)
+        for label in legacy_issues
+        if label not in _FINAL_STAGE_EXCLUDED_LEGACY_ISSUES
+    )
+    return issues
+
+
+def _capture_final_snapshot(
+    final_snapshot: Callable[[], tuple[VerificationInput, StaleLinkRegistry]] | None,
+) -> tuple[
+    VerificationInput | None,
+    StaleLinkRegistry | None,
+    list[VerificationIssue],
+]:
+    """종료 시점 검증 입력과 registry를 정확히 한 번 다시 구성.
+
+    Args:
+        final_snapshot: 소유 원본에서 종료 snapshot을 구성하는 callback.
+
+    Returns:
+        종료 검증 입력, registry, snapshot 문제 목록.
+    """
+
+    issues: list[VerificationIssue] = []
+    if not callable(final_snapshot):
+        issues.append(
+            _issue(
+                "VERIFICATION_INPUT_CHANGED",
+                "verification-input",
+                "verification final snapshot could not be rebuilt",
+            )
+        )
+        return None, None, issues
+    try:
+        captured = final_snapshot()
+    except stale_links.StaleLinkRegistryError:
+        issues.append(
+            _issue(
+                "STALE_LINK_REGISTRY_CHANGED",
+                "stale-link-registry",
+                "stale-link registry could not be reloaded after verification",
+            )
+        )
+        return None, None, issues
+    except Exception:
+        issues.append(
+            _issue(
+                "VERIFICATION_INPUT_CHANGED",
+                "verification-input",
+                "verification final snapshot could not be rebuilt",
+            )
+        )
+        return None, None, issues
+    if type(captured) is tuple and len(captured) == 2:
+        return captured[0], captured[1], issues
+    issues.append(
+        _issue(
+            "VERIFICATION_INPUT_CHANGED",
+            "verification-input",
+            "verification final snapshot is invalid",
+        )
+    )
+    return None, None, issues
+
+
+def _final_snapshot_issues(
+    inputs: VerificationInput,
+    registry_at_start: StaleLinkRegistry | None,
+    final_input: VerificationInput | None,
+    registry_at_end: StaleLinkRegistry | None,
+) -> list[VerificationIssue]:
+    """종료 snapshot의 독립 객체·입력 불변·registry digest 계약 검사.
+
+    Args:
+        inputs: 시작 검증 입력.
+        registry_at_start: 시작 registry snapshot.
+        final_input: 종료 검증 입력.
+        registry_at_end: 종료 registry snapshot.
+
+    Returns:
+        종료 snapshot 문제 목록.
+    """
+
+    issues: list[VerificationIssue] = []
+    if (
+        type(final_input) is not VerificationInput
+        or final_input is inputs
+        or _snapshot_changed(inputs, final_input)
+    ):
+        issues.append(
+            _issue(
+                "VERIFICATION_INPUT_CHANGED",
+                "verification-input",
+                "verification input changed before artifact creation",
+            )
+        )
+    if (
+        type(registry_at_end) is not StaleLinkRegistry
+        or registry_at_end is registry_at_start
+        or not _registry_snapshot_is_valid(registry_at_end)
+        or registry_at_end.sha256 != inputs.registry_sha256
+    ):
+        issues.append(
+            _issue(
+                "STALE_LINK_REGISTRY_CHANGED",
+                "stale-link-registry",
+                "stale-link registry changed during document verification",
+            )
+        )
+    return issues
 
 
 def verify_document(
@@ -1009,169 +1328,41 @@ def verify_document(
     text = inputs.locale_bytes.decode("utf-8")
     expected_map = parse_expected_annotation_map(inputs.annotation_map_bytes)
 
-    source_front_matter = front_matter_contract(source)
-    translated_front_matter = front_matter_contract(text)
-    if (
-        not source_front_matter.valid
-        or not translated_front_matter.valid
-        or source_front_matter.present != translated_front_matter.present
-        or source_front_matter.signature != translated_front_matter.signature
-    ):
-        issues.append(
-            _issue(
-                "FRONT_MATTER_MISMATCH",
-                "front-matter",
-                "front matter key order, scalar structure, or source-owned value differs",
-            )
-        )
-
-    if (
-        list_structure_signature(source) != list_structure_signature(text)
-        or table_structure_signature(source) != table_structure_signature(text)
-    ):
-        issues.append(
-            _issue(
-                "LIST_TABLE_STRUCTURE_MISMATCH",
-                "list-or-table",
-                "list or table ordered structural signature differs",
-            )
-        )
-
-    if blockquote_structure_signature(source) != blockquote_structure_signature(
-        text
-    ):
-        issues.append(
-            _issue(
-                "SOURCE_STRUCTURE_MISMATCH",
-                "blockquote",
-                "blockquote depth, occurrence, or hard-break structure differs",
-            )
-        )
-
-    block_structure_mismatch = tuple(
-        response_contract._signature(block)
-        for block in response_contract._blocks(source)
-    ) != tuple(
-        response_contract._signature(block)
-        for block in response_contract._blocks(text)
+    structure_issues, block_structure_mismatch = _document_structure_issues(
+        source,
+        text,
     )
-    if block_structure_mismatch:
-        issues.append(
-            _issue(
-                "SOURCE_STRUCTURE_MISMATCH",
-                "document-blocks",
-                "Markdown block kind, order, or structural layout differs",
-            )
-        )
-
-    actual_annotations, invalid_annotation_owners = (
-        _actual_pipeline_annotations(text, source)
-    )
-    if block_structure_mismatch and expected_map.entries:
-        invalid_annotation_owners = (
-            *invalid_annotation_owners,
-            len(actual_annotations),
-        )
-    try:
-        actual_map = _map_from_canonical_annotations(actual_annotations)
-    except ValueError:
-        actual_map = None
-    if (
-        actual_map != expected_map
-        or invalid_annotation_owners
-    ):
-        address = _first_annotation_mismatch_address(
-            expected_map,
-            actual_map,
-            invalid_annotation_owners,
-        )
-        issues.append(
-            _issue(
-                "PIPELINE_ANNOTATION_MISMATCH",
-                address,
-                "pipeline annotation byte, order, occurrence, or owner differs",
-            )
-        )
-
-    if type(registry_at_start) is StaleLinkRegistry:
-        if not _source_authored_comments_are_preserved(text, source):
-            issues.append(
-                _issue(
-                    "SOURCE_COMMENT_MISMATCH",
-                    "comments",
-                    "source-authored comment value, order, or structural address differs",
-                )
-            )
-        legacy_issues = legacy_verify.verify(
+    issues.extend(structure_issues)
+    issues.extend(
+        _pipeline_annotation_issues(
             text,
-            source=source,
-            version=inputs.version,
-            registry=registry_at_start,
+            source,
+            expected_map,
+            block_mismatch=block_structure_mismatch,
         )
+    )
+    if type(registry_at_start) is StaleLinkRegistry:
         issues.extend(
-            _legacy_issue(label)
-            for label in legacy_issues
-            if label not in _FINAL_STAGE_EXCLUDED_LEGACY_ISSUES
-        )
-
-    final_input: VerificationInput | None = None
-    registry_at_end: StaleLinkRegistry | None = None
-    try:
-        captured = final_snapshot() if final_snapshot is not None else None
-    except stale_links.StaleLinkRegistryError:
-        captured = None
-        issues.append(
-            _issue(
-                "STALE_LINK_REGISTRY_CHANGED",
-                "stale-link-registry",
-                "stale-link registry could not be reloaded after verification",
-            )
-        )
-    except Exception:
-        captured = None
-        issues.append(
-            _issue(
-                "VERIFICATION_INPUT_CHANGED",
-                "verification-input",
-                "verification final snapshot could not be rebuilt",
-            )
-        )
-    if type(captured) is tuple and len(captured) == 2:
-        final_input, registry_at_end = captured
-    elif captured is not None:
-        issues.append(
-            _issue(
-                "VERIFICATION_INPUT_CHANGED",
-                "verification-input",
-                "verification final snapshot is invalid",
+            _legacy_document_issues(
+                text,
+                source,
+                inputs.version,
+                registry_at_start,
             )
         )
 
-    if (
-        type(final_input) is not VerificationInput
-        or final_input is inputs
-        or _snapshot_changed(inputs, final_input)
-    ):
-        issues.append(
-            _issue(
-                "VERIFICATION_INPUT_CHANGED",
-                "verification-input",
-                "verification input changed before artifact creation",
-            )
+    final_input, registry_at_end, snapshot_issues = _capture_final_snapshot(
+        final_snapshot
+    )
+    issues.extend(snapshot_issues)
+    issues.extend(
+        _final_snapshot_issues(
+            inputs,
+            registry_at_start,
+            final_input,
+            registry_at_end,
         )
-    if (
-        type(registry_at_end) is not StaleLinkRegistry
-        or registry_at_end is registry_at_start
-        or not _registry_snapshot_is_valid(registry_at_end)
-        or registry_at_end.sha256 != inputs.registry_sha256
-    ):
-        issues.append(
-            _issue(
-                "STALE_LINK_REGISTRY_CHANGED",
-                "stale-link-registry",
-                "stale-link registry changed during document verification",
-            )
-        )
+    )
 
     issues.extend(_input_integrity_issues(inputs))
     stable = _stable_issues(issues)
