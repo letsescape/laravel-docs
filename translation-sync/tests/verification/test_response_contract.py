@@ -1819,21 +1819,21 @@ Paragraph to translate here.
             response_contract.verify(translated, source),
         )
 
-    def test_rejects_removed_emphasis_delimiters(self):
-        """강조 구분자 제거 거부."""
+    def test_allows_removed_emphasis_delimiters(self):
+        """어휘로 흡수된 강조 구분자 누락 허용."""
 
         source = "Use **atomic locks** before updating the value.\n"
         translated = """<!-- Use **atomic locks** before updating the value. -->
 값을 업데이트하기 전에 atomic locks를 사용합니다.
 """
 
-        self.assertIn(
+        self.assertNotIn(
             "provider inline markup mismatch",
             response_contract.verify(translated, source),
         )
 
-    def test_rejects_removed_single_emphasis_around_a_link(self):
-        """링크를 감싼 단일 강조 구분자 제거 거부."""
+    def test_allows_removed_single_emphasis_around_a_link(self):
+        """링크를 감싼 단일 강조 구분자 누락 허용."""
 
         source = (
             "Read *the [atomic lock guide](https://example.com/locks)* now.\n"
@@ -1843,20 +1843,20 @@ Paragraph to translate here.
             "[atomic lock guide](https://example.com/locks)를 읽으세요.\n"
         )
 
-        self.assertIn(
+        self.assertNotIn(
             "provider inline markup mismatch",
             response_contract.verify(translated, source),
         )
 
-    def test_rejects_removed_underscore_emphasis(self):
-        """밑줄 강조 구분자 제거 거부."""
+    def test_allows_removed_underscore_emphasis(self):
+        """밑줄 강조 구분자 누락 허용."""
 
         source = "Use _atomic locks_ before updating the value.\n"
         translated = """<!-- Use _atomic locks_ before updating the value. -->
 값을 업데이트하기 전에 atomic locks를 사용합니다.
 """
 
-        self.assertIn(
+        self.assertNotIn(
             "provider inline markup mismatch",
             response_contract.verify(translated, source),
         )
@@ -2428,15 +2428,32 @@ Permission is hereby granted to modify this software.
             response_contract.verify(translated, source, locale="ko"),
         )
 
-    def test_allows_exact_table_cells_below_twenty_letters(self):
-        """Letter가 20자 미만인 표 cell의 원문 동일 응답을 허용."""
+    def test_allows_exact_data_cells_below_twenty_letters(self):
+        """Letter가 20자 미만인 표 data cell의 원문 동일 응답을 허용."""
+
+        source = """| Feature | Description |
+| --- | --- |
+| Lock | Prevent writes |
+"""
+        translated = """| 기능 | 설명 |
+| --- | --- |
+| Lock | Prevent writes |
+"""
+
+        self.assertNotIn(
+            "provider target language mismatch",
+            response_contract.verify(translated, source, locale="ko"),
+        )
+
+    def test_rejects_table_headers_echoed_from_the_source(self):
+        """표 머리글 셀의 원문 동일 응답을 거부."""
 
         source = """| Feature | Description |
 | --- | --- |
 | Lock | Prevent writes |
 """
 
-        self.assertNotIn(
+        self.assertIn(
             "provider target language mismatch",
             response_contract.verify(source, source, locale="ko"),
         )

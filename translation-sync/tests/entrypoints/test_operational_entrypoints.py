@@ -74,7 +74,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertIn("@openai/codex@latest", workflow)
         self.assertIn("codex --version", workflow)
         self.assertIn("uses: actions/checkout@v6", workflow)
-        self.assertIn("uses: astral-sh/setup-uv@v9", workflow)
+        self.assertIn("uses: astral-sh/setup-uv@v7", workflow)
         self.assertIn("uses: actions/setup-node@v6", workflow)
         self.assertIn("uses: actions/upload-artifact@v7", workflow)
         self.assertNotRegex(workflow, r"uses: [^\n]+@[0-9a-f]{40}")

@@ -303,11 +303,11 @@ class CandidateRuntimeTests(unittest.TestCase):
             )
 
     def test_only_safe_node_options_are_exposed_to_validators(self) -> None:
-        """검증기에 안전한 Node 옵션만 노출하는지 검증."""
+        """검증기에 안전한 Node 옵션만 노출하고 기본 heap 값을 보장하는지 검증."""
 
         cases = (
             ("--max-old-space-size=4096", "--max-old-space-size=4096"),
-            ("--require=/tmp/untrusted.js", ""),
+            ("--require=/tmp/untrusted.js", "--max-old-space-size=4096"),
         )
         for ambient, expected in cases:
             with self.subTest(ambient=ambient), tempfile.TemporaryDirectory() as tmp:

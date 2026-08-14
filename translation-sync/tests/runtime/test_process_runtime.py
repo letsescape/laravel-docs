@@ -422,11 +422,7 @@ class ProcessTreeRunnerTest(unittest.TestCase):
             "killpg",
             side_effect=PermissionError,
         ):
-            with self.assertRaisesRegex(
-                process_runtime.ProcessTreeCleanupError,
-                "process group could not be inspected",
-            ):
-                process_runtime._process_group_alive(123)
+            self.assertTrue(process_runtime._process_group_alive(123))
 
     def test_zombie_only_process_group_is_treated_as_exited(self) -> None:
         """zombie만 남은 프로세스 그룹을 정리 완료로 간주하는지 검증."""

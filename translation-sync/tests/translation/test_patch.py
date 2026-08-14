@@ -124,6 +124,26 @@ class CreatePatchPlanTests(unittest.TestCase):
         self.assertEqual(plan.create_blocks[0].kind, "frontmatter")
         self.assertFalse(plan.create_blocks[0].provider_required)
 
+    def test_create_plan_keeps_bare_internal_link_lines_provider_free(self):
+        """목록 표식 없는 bare 내부 링크 줄 묶음을 provider 불필요로 분류함."""
+
+        source = (
+            "Intro.\n\n"
+            "[char](#column-method-char)\n"
+            "[text](#column-method-text)\n\n"
+            "After.\n"
+        )
+
+        plan = patch.build_create_plan(source)
+
+        link_blocks = [
+            owner
+            for owner in plan.create_blocks
+            if "#column-method-char" in owner.source
+        ]
+        self.assertEqual(len(link_blocks), 1)
+        self.assertFalse(link_blocks[0].provider_required)
+
     def test_create_plan_rejects_a_ragged_table(self):
         """열 수가 일정하지 않은 표의 `create` 계획을 거부함."""
 

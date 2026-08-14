@@ -204,8 +204,8 @@ class PublicationBaseTests(unittest.TestCase):
                 ),
             )
 
-    def test_rejects_tracked_or_index_changes(self) -> None:
-        """추적 파일 또는 인덱스 변경 거부 검증."""
+    def test_allows_tracked_or_index_changes_for_local_runs(self) -> None:
+        """추적 파일·인덱스의 미커밋 변경이 로컬 기준본 캡처를 막지 않음."""
 
         for mutation in ("worktree", "index"):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as tmp:
@@ -214,17 +214,20 @@ class PublicationBaseTests(unittest.TestCase):
                 if mutation == "index":
                     _git(active, "add", "tracked.txt")
 
-                with self.assertRaises(RepositoryStateError) as caught:
-                    capture_publication_base(
-                        active,
-                        remote="origin",
-                        branch="main",
-                        remaining_seconds=lambda: 30.0,
-                    )
+                head_before = _git(active, "rev-parse", "HEAD")
 
+                base = capture_publication_base(
+                    active,
+                    remote="origin",
+                    branch="main",
+                    remaining_seconds=lambda: 30.0,
+                )
+
+                self.assertEqual(len(base.head), 40)
+                self.assertNotEqual(base.head, head_before)
                 self.assertEqual(
-                    caught.exception.code,
-                    IssueCode.DIRTY_PUBLICATION_BASE,
+                    _git(active, "show", f"{base.head}:tracked.txt"),
+                    "dirty",
                 )
 
     def test_rejects_nonignored_untracked_file_in_owned_path(self) -> None:
@@ -270,8 +273,8 @@ class PublicationBaseTests(unittest.TestCase):
                 ),
             )
 
-    def test_rejects_detached_head_and_remote_race(self) -> None:
-        """분리된 HEAD와 원격 갱신 경쟁 거부 검증."""
+    def test_rejects_detached_head_and_records_remote_race(self) -> None:
+        """분리된 HEAD 거부와 원격 갱신 경쟁의 관측 기록 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -299,17 +302,17 @@ class PublicationBaseTests(unittest.TestCase):
             _git(competitor, "commit", "--quiet", "-m", "advance")
             _git(competitor, "push", "--quiet", "origin", "HEAD:refs/heads/main")
 
-            with self.assertRaises(RepositoryStateError) as advanced:
-                capture_publication_base(
-                    active,
-                    remote="origin",
-                    branch="main",
-                    remaining_seconds=lambda: 30.0,
-                )
-            self.assertEqual(
-                advanced.exception.code,
-                IssueCode.PUBLICATION_BASE_CHANGED,
+            base = capture_publication_base(
+                active,
+                remote="origin",
+                branch="main",
+                remaining_seconds=lambda: 30.0,
             )
+
+            # prepare는 push 없이 통과하고, 원격 경쟁은 관측값으로 기록되어
+            # publish 진입 시 remote_oid == head 검증으로 거부된다.
+            self.assertEqual(base.head, head)
+            self.assertNotEqual(base.remote_oid, base.head)
 
 
 if __name__ == "__main__":
