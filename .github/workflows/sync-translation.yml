@@ -27,7 +27,6 @@ jobs:
     name: Sync translations
     runs-on: ubuntu-latest
     env:
-      TRANSLATION_ARTIFACT_ROOT: ${{ runner.temp }}/translation-sync-artifacts
       TRANSLATION_PUSH_ENDPOINT: ${{ github.server_url }}/${{ github.repository }}.git
       TARGET_BRANCH: ${{ github.ref_name }}
     steps:
@@ -47,7 +46,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup uv and Python 3.14
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: '3.14'
 
@@ -70,8 +69,10 @@ jobs:
 
       - name: Initialize external artifact root
         run: |
-          mkdir -- "$TRANSLATION_ARTIFACT_ROOT"
-          chmod 700 "$TRANSLATION_ARTIFACT_ROOT"
+          root="$RUNNER_TEMP/translation-sync-artifacts"
+          mkdir -- "$root"
+          chmod 700 "$root"
+          printf 'TRANSLATION_ARTIFACT_ROOT=%s\n' "$root" >> "$GITHUB_ENV"
 
       - name: Prepare verified publication
         env:
