@@ -284,6 +284,12 @@ def standardize_admonitions(text: str) -> str:
     return _map_outside_html_comments(text, _standardize_admonitions)
 
 
+def standardize_admonitions_outside_code(text: str) -> str:
+    """코드 블록 밖에서만 경고문과 이어지는 비인용 본문을 GFM 형식으로 정규화."""
+
+    return _map_outside_code_blocks(text, standardize_admonitions)
+
+
 def admonition_types(text: str) -> tuple[str, ...]:
     """HTML 주석과 코드 펜스 밖의 표준 GFM 경고문 유형을 문서 순서로 반환."""
 

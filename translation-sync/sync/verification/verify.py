@@ -66,6 +66,7 @@ from .response_contract import (
 )
 from .structure import (
     front_matter_contract,
+    is_locale_routing_front_matter,
     list_structure_signature,
     table_structure_signature,
 )
@@ -235,7 +236,7 @@ def _link_labels(
     *,
     registry: StaleLinkRegistry = DEFAULT_STALE_LINK_REGISTRY,
 ) -> list[str]:
-    """문서 순서의 Markdown 링크 label 수집."""
+    """정렬된 multiset 순서의 Markdown 링크 label 수집."""
 
     body = mask_reference_definitions(
         _strip_code_blocks(_strip_comments(text))
@@ -254,7 +255,7 @@ def _link_labels(
         )
     ]
     labels.extend(link.label for link in markdown_autolinks(body))
-    return labels
+    return sorted(labels)
 
 
 def _link_pairs(
@@ -262,8 +263,12 @@ def _link_pairs(
     version: str | None = None,
     *,
     registry: StaleLinkRegistry = DEFAULT_STALE_LINK_REGISTRY,
-) -> tuple[tuple[str, str], ...]:
-    """문서 순서의 Markdown 링크 label·target 쌍 수집."""
+) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """label별 target 순서를 보존한 Markdown 링크 쌍 서명 수집.
+
+    등장 순서 재배열은 허용하되, 같은 label이 반복되면 그 label의
+    target 등장 순서는 보존해야 한다.
+    """
 
     body = mask_reference_definitions(
         _strip_heading_lines(_strip_code_blocks(_strip_comments(text)))
@@ -287,7 +292,15 @@ def _link_pairs(
         )
         if target is not None:
             pairs.append((autolink.start, (autolink.label, target)))
-    return tuple(pair for _position, pair in sorted(pairs))
+    per_label_targets: dict[str, list[str]] = {}
+    for _position, (label, target) in sorted(pairs):
+        per_label_targets.setdefault(label, []).append(target)
+    return tuple(
+        sorted(
+            (label, tuple(targets))
+            for label, targets in per_label_targets.items()
+        )
+    )
 
 
 def _link_titles(
@@ -1805,8 +1818,13 @@ def _front_matter_issues(text: str, source: str) -> list[str]:
     if (
         not expected.valid
         or not actual.valid
-        or expected.present != actual.present
-        or expected.signature != actual.signature
+        or (
+            not is_locale_routing_front_matter(expected, actual)
+            and (
+                expected.present != actual.present
+                or expected.signature != actual.signature
+            )
+        )
     ):
         issues.append("front matter structure mismatch")
     if _front_matter_title(source) != _front_matter_title(text):

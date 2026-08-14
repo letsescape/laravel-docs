@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import re
+from collections import Counter
 from collections.abc import Hashable, Iterator, Sequence
 from dataclasses import dataclass, field
 
@@ -19,6 +20,7 @@ from ..common.markdown import (
 )
 
 _INLINE_CODE_RE = re.compile(r"`([^`\n]+)`")
+_ANCHOR_LINE_RE = re.compile(r'<a name="[^"]+"></a>')
 _LIST_ITEM_RE = re.compile(r"^(\s*)([-*+])(\s+)(\S.*)$")
 
 
@@ -247,6 +249,331 @@ def restore_blank_markdown_link_labels(source: str, translated: str) -> RepairRe
 
     if link_index != len(source_links):
         raise RepairError("translated document has fewer Markdown links than source")
+    return RepairResult(text="".join(out), changed=changed)
+
+
+def _restore_translated_labels_in_line(
+    original_line: str,
+    unique_labels: dict[str, str],
+) -> tuple[str, bool]:
+    """Markdown 한 줄에서 번역된 링크 레이블을 target 대응 원문으로 복원."""
+
+    fragments: list[str] = []
+    cursor = 0
+    changed = False
+    for link in markdown_links(original_line):
+        fragments.append(original_line[cursor : link.start])
+        source_label = unique_labels.get(link.target)
+        if (
+            not link.image
+            and source_label is not None
+            and " ".join(link.label.split()) != source_label
+        ):
+            fragments.append(f"[{source_label}]({link.target}{link.title})")
+            changed = True
+        else:
+            fragments.append(original_line[link.start : link.end])
+        cursor = link.end
+    fragments.append(original_line[cursor:])
+    return "".join(fragments), changed
+
+
+def restore_translated_link_labels(source: str, translated: str) -> RepairResult:
+    """target이 고유한 링크의 번역된 레이블을 원문 레이블로 복원.
+
+    같은 target이 서로 다른 원문 레이블로 등장하면 대응이 모호하므로
+    해당 target은 복원 대상에서 제외한다.
+    """
+
+    labels_by_target: dict[str, set[str]] = {}
+    for label, target, _title in _links(source):
+        labels_by_target.setdefault(target, set()).add(label)
+    unique_labels = {
+        target: next(iter(labels))
+        for target, labels in labels_by_target.items()
+        if len(labels) == 1
+    }
+
+    changed = False
+    out: list[str] = []
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    for original_line in translated.splitlines(keepends=True):
+        if _is_comment_line(original_line, state) or _is_code_line(
+            original_line,
+            state,
+        ):
+            out.append(original_line)
+            continue
+        restored, line_changed = _restore_translated_labels_in_line(
+            original_line,
+            unique_labels,
+        )
+        out.append(restored)
+        changed = changed or line_changed
+    return RepairResult(text="".join(out), changed=changed)
+
+
+def remove_blank_lines_after_annotations(
+    source: str,
+    translated: str,
+) -> RepairResult:
+    """annotation 주석과 소유 본문 사이에 낀 빈 줄 제거.
+
+    요청 source에 HTML 주석이 있으면 응답 주석이 source-authored인지
+    구별할 수 없으므로 복원하지 않는다.
+    """
+
+    if "<!--" in _without_code_blocks(source):
+        return RepairResult(text=translated, changed=False)
+
+    lines = translated.splitlines(keepends=True)
+    out: list[str] = []
+    changed = False
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        is_code = _is_code_line(line, state)
+        is_comment = not is_code and _is_comment_line(line, state)
+        out.append(line)
+        index += 1
+        if is_code or not is_comment or state.in_comment:
+            continue
+        blank_end = index
+        while blank_end < len(lines) and not lines[blank_end].strip():
+            blank_end += 1
+        if blank_end > index and blank_end < len(lines):
+            index = blank_end
+            changed = True
+    return RepairResult(text="".join(out), changed=changed)
+
+
+def collapse_multiline_annotations(source: str, translated: str) -> RepairResult:
+    """여러 줄로 갈라진 annotation 주석을 한 줄로 접기.
+
+    요청 source에 HTML 주석이 있으면 응답 주석이 source-authored인지
+    구별할 수 없으므로 복원하지 않는다.
+    """
+
+    if "<!--" in _without_code_blocks(source):
+        return RepairResult(text=translated, changed=False)
+
+    lines = translated.splitlines(keepends=True)
+    out: list[str] = []
+    changed = False
+    in_code = False
+    fence = ""
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        token = fence_token(line)
+        if token and not in_code:
+            in_code, fence = True, token
+        elif token and in_code and closes_fence(line, fence):
+            in_code = False
+        stripped = line.strip()
+        if (
+            in_code
+            or not stripped.startswith("<!--")
+            or "-->" in stripped
+        ):
+            out.append(line)
+            index += 1
+            continue
+        comment_lines = [stripped]
+        end = index + 1
+        while (
+            end < len(lines)
+            and "-->" not in lines[end]
+            and not fence_token(lines[end])
+        ):
+            comment_lines.append(lines[end].strip())
+            end += 1
+        if end >= len(lines) or "-->" not in lines[end]:
+            out.append(line)
+            index += 1
+            continue
+        comment_lines.append(lines[end].strip())
+        ending = lines[end][len(lines[end].rstrip()) :]
+        out.append(" ".join(part for part in comment_lines if part) + ending)
+        index = end + 1
+        changed = True
+    return RepairResult(text="".join(out), changed=changed)
+
+
+_CJK_RE = re.compile(
+    r"[぀-ゟ゠-ヿ㐀-䶿一-鿿豈-﫿]"
+)
+
+
+def normalize_cjk_code_spacing(translated: str) -> RepairResult:
+    """inline code span과 인접한 CJK 문자 사이에 반각 공백 하나를 보장.
+
+    코드 펜스와 HTML 주석 밖의 본문에만 적용하며, 이미 공백이나
+    CJK 구두점이 있는 경계는 바꾸지 않는다.
+    """
+
+    out: list[str] = []
+    changed = False
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    for line in translated.splitlines(keepends=True):
+        if _is_comment_line(line, state) or _is_code_line(line, state):
+            out.append(line)
+            continue
+
+        def _space(match: re.Match[str]) -> str:
+            nonlocal changed
+            before, span, after = (
+                match.group("before"),
+                match.group("span"),
+                match.group("after"),
+            )
+            prefix = f"{before} " if _CJK_RE.fullmatch(before or "") else (before or "")
+            suffix = f" {after}" if _CJK_RE.fullmatch(after or "") else (after or "")
+            result = f"{prefix}{span}{suffix}"
+            if result != match.group(0):
+                changed = True
+            return result
+
+        out.append(
+            re.sub(
+                r"(?P<before>.?)(?P<span>`[^`\n]+`)(?P<after>.?)",
+                _space,
+                line,
+            )
+        )
+    return RepairResult(text="".join(out), changed=changed)
+
+
+def restore_missing_anchor_lines(source: str, translated: str) -> RepairResult:
+    """응답에서 누락된 단독 `<a name>` 앵커 줄을 원문 위치 기준으로 복원.
+
+    원문에서 앵커 바로 다음의 비어 있지 않은 줄이 응답에 정확히 한 번
+    존재할 때만 그 줄(annotation 주석이 바로 위에 있으면 주석) 앞에
+    앵커를 삽입한다.
+    """
+
+    anchor_lines = [
+        line
+        for line in _without_code_blocks(source).splitlines()
+        if _ANCHOR_LINE_RE.fullmatch(line.strip())
+    ]
+    if not anchor_lines:
+        return RepairResult(text=translated, changed=False)
+
+    source_lines = source.splitlines()
+    translated_lines = translated.splitlines(keepends=True)
+    translated_stripped = [line.strip() for line in translated_lines]
+    changed = False
+    for anchor in anchor_lines:
+        if anchor.strip() in translated_stripped:
+            continue
+        index = source_lines.index(anchor)
+        follower = next(
+            (
+                line.strip()
+                for line in source_lines[index + 1 :]
+                if line.strip()
+            ),
+            None,
+        )
+        if follower is None or translated_stripped.count(follower) != 1:
+            continue
+        position = translated_stripped.index(follower)
+        if position > 0 and translated_stripped[position - 1].startswith("<!--"):
+            position -= 1
+        translated_lines.insert(position, anchor.strip() + "\n")
+        translated_stripped.insert(position, anchor.strip())
+        changed = True
+    return RepairResult(text="".join(translated_lines), changed=changed)
+
+
+def merge_split_html_annotations(source: str, translated: str) -> RepairResult:
+    """HTML 연속 라인 블록에 행별로 갈라진 annotation 주석 병합.
+
+    HTML 라인 블록은 단일 owner이므로, 주석과 HTML 본문 한 줄이
+    빈 줄 없이 교대로 이어지면 주석들을 첫 위치의 주석 하나로 합친다.
+    병합 결과가 요청 source 전체의 canonical 한 줄 형태와 정확히 같을 때만
+    적용하며, 요청 source에 HTML 주석이 있으면 복원하지 않는다.
+    """
+
+    if "<!--" in _without_code_blocks(source):
+        return RepairResult(text=translated, changed=False)
+    expected = " ".join(
+        line.strip() for line in source.splitlines() if line.strip()
+    )
+
+    lines = translated.splitlines(keepends=True)
+    out: list[str] = []
+    changed = False
+    index = 0
+    while index < len(lines):
+        stripped = lines[index].strip()
+        if not (stripped.startswith("<!--") and stripped.endswith("-->")):
+            out.append(lines[index])
+            index += 1
+            continue
+        comments = [stripped[4:-3].strip()]
+        bodies: list[str] = []
+        cursor = index + 1
+        while cursor < len(lines):
+            body = lines[cursor].strip()
+            if body.startswith("<!--") and body.endswith("-->"):
+                if not bodies:
+                    break
+                comments.append(body[4:-3].strip())
+                cursor += 1
+                continue
+            if not body or not body.startswith("<"):
+                break
+            bodies.append(lines[cursor])
+            cursor += 1
+        merged = " ".join(comments)
+        if len(comments) > 1 and len(bodies) == len(comments) and merged == expected:
+            out.append(f"<!-- {merged} -->\n")
+            out.extend(bodies)
+            index = cursor
+            changed = True
+            continue
+        out.append(lines[index])
+        index += 1
+    return RepairResult(text="".join(out), changed=changed)
+
+
+def strip_invented_inline_code(source: str, translated: str) -> RepairResult:
+    """원문 빈도를 초과하는 inline code span에서 backtick 제거.
+
+    되돌림은 원문 어딘가에 실제로 존재하는 내용에만 적용한다.
+    원문에 없는 내용을 prose로 바꾸면 조작된 본문이 검증을 통과하므로,
+    그런 span은 그대로 두어 응답 계약이 거부하게 한다.
+    """
+
+    allowance = Counter(_inline_codes(source))
+    source_body = strip_html_comments(_without_code_blocks(source))
+    changed = False
+    out: list[str] = []
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    for line in translated.splitlines(keepends=True):
+        if (
+            _is_comment_line(line, state)
+            or _is_code_line(line, state)
+            or is_heading_line(line)
+        ):
+            out.append(line)
+            continue
+
+        def _strip(match: re.Match[str]) -> str:
+            nonlocal changed
+            content = match.group(1)
+            if allowance[content] > 0:
+                allowance[content] -= 1
+                return match.group(0)
+            if content not in source_body:
+                return match.group(0)
+            changed = True
+            return content
+
+        out.append(_INLINE_CODE_RE.sub(_strip, line))
     return RepairResult(text="".join(out), changed=changed)
 
 

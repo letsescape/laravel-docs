@@ -30,6 +30,27 @@ class FrontMatterContract:
     signature: tuple[tuple[object, ...], ...]
 
 
+def is_locale_routing_front_matter(
+    source: FrontMatterContract,
+    translated: FrontMatterContract,
+) -> bool:
+    """원문에 머리말이 없는 문서에서 locale 라우팅 ``slug`` 머리말 허용 판정.
+
+    서빙되는 locale 문서(예: 각 버전 색인)의 저장소 소유 라우팅 키는
+    영어 원문에서 파생되지 않으므로 검증·재생성에서 보존 대상.
+    """
+
+    return (
+        source.valid
+        and translated.valid
+        and not source.present
+        and translated.present
+        and len(translated.signature) == 1
+        and bool(translated.signature[0])
+        and translated.signature[0][0] == "slug"
+    )
+
+
 def _scalar_contract(
     key: str,
     first_value: str,

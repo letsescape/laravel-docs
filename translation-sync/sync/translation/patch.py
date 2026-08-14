@@ -41,6 +41,20 @@ _ANY_ADMONITION_MARKER_RE = re.compile(
 )
 _BARE_INTERNAL_LINK_RE = re.compile(r"^\[[^]\n]+]\(#[^)\s]+\)$")
 _LIST_ITEM_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+")
+_SIDEBAR_LINK_ITEM_RE = re.compile(r"\[[^]\n]+]\([^)\s]+\)")
+_SIDEBAR_CATEGORY_ITEM_RE = re.compile(r"#{1,6}\s+\S[^\n]*")
+
+
+def _is_sidebar_structure_line(line: str) -> bool:
+    """링크 label 또는 카테고리 heading만 있는 사이드바 구조 라인 여부."""
+
+    stripped, marker_count = _LIST_ITEM_PREFIX_RE.subn("", line)
+    if not marker_count:
+        return False
+    return bool(
+        _SIDEBAR_LINK_ITEM_RE.fullmatch(stripped)
+        or _SIDEBAR_CATEGORY_ITEM_RE.fullmatch(stripped)
+    )
 _LEGACY_ADMONITION_RE = re.compile(
     r"^>\s*(?:"
     r"\{(?P<braced>note|tip|warning|caution|important|참고|注意)\}"
@@ -147,7 +161,13 @@ class BlockChange:
         if self.is_inline_code_identifier_list:
             return True
         lines = [line.strip() for line in self.new_source.splitlines() if line.strip()]
-        return bool(lines) and all(_BARE_INTERNAL_LINK_RE.fullmatch(line) for line in lines)
+        if bool(lines) and all(
+            _BARE_INTERNAL_LINK_RE.fullmatch(line) for line in lines
+        ):
+            return True
+        return bool(lines) and all(
+            _is_sidebar_structure_line(line) for line in lines
+        )
 
     @property
     def is_inline_code_identifier_list(self) -> bool:
@@ -509,6 +529,10 @@ def _create_block_requires_provider(kind: str, source: str) -> bool:
         _BARE_INTERNAL_LINK_RE.fullmatch(_LIST_ITEM_PREFIX_RE.sub("", line))
         for line in lines
     ):
+        return False
+    if lines and all(_BARE_INTERNAL_LINK_RE.fullmatch(line) for line in lines):
+        return False
+    if lines and all(_is_sidebar_structure_line(line) for line in lines):
         return False
     return True
 
@@ -1762,6 +1786,19 @@ def _source_comment_signatures(
     )
 
 
+_LOCALE_ROUTING_FRONT_MATTER_RE = re.compile(
+    r"\A---\r?\nslug:[ \t]*\S[^\r\n]*\r?\n---\r?\n\Z"
+)
+
+
+def is_locale_routing_front_matter_text(front_matter: str | None) -> bool:
+    """저장소 소유 locale 라우팅 ``slug`` 머리말 여부."""
+
+    return front_matter is not None and bool(
+        _LOCALE_ROUTING_FRONT_MATTER_RE.match(front_matter)
+    )
+
+
 def _matches_document_state(
     existing: str,
     front_matter: str | None,
@@ -1770,10 +1807,13 @@ def _matches_document_state(
 ) -> bool:
     """locale 문서가 계획의 원문 또는 대상 상태와 일치하는지 여부."""
 
-    return (
-        _front_matter_text(existing) == front_matter
-        and _locate_source_comment_blocks(existing, anchors, comments) is not None
-    )
+    existing_front_matter = _front_matter_text(existing)
+    if existing_front_matter != front_matter and not (
+        front_matter is None
+        and is_locale_routing_front_matter_text(existing_front_matter)
+    ):
+        return False
+    return _locate_source_comment_blocks(existing, anchors, comments) is not None
 
 
 def _apply_front_matter_change(existing: str, plan: PatchPlan) -> str:

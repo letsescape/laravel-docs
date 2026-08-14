@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import os
+from collections import Counter
 import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -94,6 +95,8 @@ class _PreparedTranslationTarget:
     state: patch_utils.PlanState
     placeholders: Mapping[str, str]
     block_requests: Mapping[int, _PreparedBlockTranslation]
+    preserved_front_matter: str | None = None
+    reusable_blocks: Mapping[str, str] = MappingProxyType({})
 
 
 def _provider_issue_code(exc: translate.IncompleteTranslation) -> IssueCode:
@@ -366,12 +369,38 @@ def _file_state_issues(change: diff.SourceChange) -> list[str]:
         )
     expected_locale = change.status in {"M", "D"}
     for locale, path in locale_paths:
-        if (path.is_file() and not path.is_symlink()) != expected_locale:
-            expectation = "existing" if expected_locale else "absent"
-            issues.append(
-                f"{change.path}: {change.status} requires {expectation} {locale} locale"
-            )
+        present = path.is_file() and not path.is_symlink()
+        if present == expected_locale:
+            continue
+        if change.status == "A" and present and _admitted_added_locale(change, path):
+            continue
+        expectation = "existing" if expected_locale else "absent"
+        issues.append(
+            f"{change.path}: {change.status} requires {expectation} {locale} locale"
+        )
     return issues
+
+
+def _admitted_added_locale(change: diff.SourceChange, dest: Path) -> bool:
+    """추가 문서의 기존 locale 파일이 이미 승인된 번역 결과인지 여부.
+
+    같은 계획을 다시 적용하면 no-op이어야 하므로, 현재 원문 기준 문서 검증을
+    통과하는 locale 파일은 상태 충돌이 아니라 이미 반영된 결과로 판정한다.
+    """
+
+    try:
+        source = (REPO_ROOT / change.path).read_text(encoding="utf-8")
+        preprocessed = preprocess.preprocess(source)
+        return not _verify_and_admit_document(
+            dest,
+            dest.read_bytes().decode("utf-8"),
+            preprocessed.text,
+            change.version,
+            MappingProxyType(dict(preprocessed.placeholders)),
+            write=False,
+        )
+    except (OSError, UnicodeDecodeError, ValueError):
+        return False
 
 
 def _delete_outputs(change: diff.SourceChange) -> list[str]:
@@ -671,10 +700,24 @@ def _translation_request(
     )
 
 
-def _verification_feedback(issues: list[str]) -> str:
+def _verification_feedback(
+    issues: list[str],
+    translated: str | None = None,
+    source: str | None = None,
+) -> str:
     """응답 계약 문제를 길이가 제한된 프로바이더 교정 지침으로 변환."""
 
-    return translate.verification_feedback(issues)
+    exact_comments = None
+    if (
+        translated is not None
+        and source is not None
+        and any("original comment" in issue for issue in issues)
+    ):
+        exact_comments = response_contract.mismatched_required_comments(
+            translated,
+            source,
+        )
+    return translate.verification_feedback(issues, exact_comments)
 
 
 def _contract_issues(
@@ -722,6 +765,17 @@ def _translate_added_document(
         )
         if target.state is not patch_utils.PlanState.CREATE:
             raise patch_utils.PatchError("added document is not in create state")
+        if dest.exists():
+            regenerated = dest.read_bytes().decode("utf-8")
+            if not _verify_and_admit_document(
+                dest,
+                regenerated,
+                target.source,
+                change.version,
+                target.placeholders,
+                write=False,
+            ):
+                return []
         translated_blocks, contract_issue = _translate_create_blocks(
             target.plan.create_blocks,
             change,
@@ -730,6 +784,7 @@ def _translate_added_document(
             locale=locale,
             deadline=deadline,
             attempt_counter=attempt_counter,
+            reusable=target.reusable_blocks,
         )
         if contract_issue is not None:
             return [contract_issue]
@@ -743,6 +798,9 @@ def _translate_added_document(
             change.version,
             target.placeholders,
         )
+        if target.preserved_front_matter is not None:
+            out = f"{target.preserved_front_matter}\n{out}"
+        out = _normalized_locale_document(out, locale)
     except (
         OutputPathError,
         patch_utils.PatchError,
@@ -773,6 +831,7 @@ def _translate_create_blocks(
     locale: str | None,
     deadline: float | None,
     attempt_counter: translate.ProviderAttemptCounter | None,
+    reusable: Mapping[str, str] = MappingProxyType({}),
 ) -> tuple[list[str], str | None]:
     """신규 문서의 provider 필요 owner 블록 번역.
 
@@ -783,6 +842,7 @@ def _translate_create_blocks(
         prompt: locale 운영 프롬프트.
         locale: 목표 locale.
         deadline: 전체 번역 실행 기한.
+        reusable: 기존 locale 문서의 annotation별 번역 블록.
 
     Returns:
         번역 블록과 응답 계약 실패 진단.
@@ -791,6 +851,10 @@ def _translate_create_blocks(
     translated: list[str] = []
     for owner in owners:
         if not owner.provider_required:
+            continue
+        reused = _reused_create_block(owner, reusable, cfg, change, locale)
+        if reused is not None:
+            translated.append(reused)
             continue
         block, issue = _translate_create_owner(
             owner.source,
@@ -849,6 +913,8 @@ def _translate_create_owner(
         )
         if attempt_counter is not None:
             attempt_counter.record_response_evaluation()
+        if cfg.provider != "identity":
+            translated = _repaired_provider_response(source, translated)
         issues = _contract_issues(translated, source, cfg, change, locale)
         translate.require_run_deadline(deadline)
         if not issues:
@@ -857,10 +923,11 @@ def _translate_create_owner(
             translated,
             source,
             issues,
+            live=cfg.provider != "identity",
         )
         if attempt + 1 >= MAX_SEGMENT_VERIFICATION_ATTEMPTS or not retryable:
             break
-        feedback = _verification_feedback(issues)
+        feedback = _verification_feedback(issues, translated, source)
     return (
         None,
         "provider response contract failed: "
@@ -1015,6 +1082,8 @@ def _translate_block_change(
         )
         if attempt_counter is not None:
             attempt_counter.record_response_evaluation()
+        if cfg.provider != "identity":
+            translated = _repaired_provider_response(prepared.request_source, translated)
         contract_issues = _contract_issues(
             translated,
             prepared.request_source,
@@ -1030,10 +1099,15 @@ def _translate_block_change(
                     translated,
                     prepared.request_source,
                     contract_issues,
+                    live=cfg.provider != "identity",
                 )
             ):
                 break
-            feedback = _verification_feedback(contract_issues)
+            feedback = _verification_feedback(
+                contract_issues,
+                translated,
+                prepared.request_source,
+            )
             continue
 
         out = postprocess.postprocess(
@@ -1111,6 +1185,123 @@ def _preflight_create_plan(
             version=change.version,
         )
         translate.preflight_request(request, cfg, prompt)
+
+
+_DEGRADABLE_VERIFICATION_CODES = (
+    IssueCode.PATCH_LOCATION_AMBIGUOUS.value,
+    IssueCode.VERIFICATION_INPUT_CHANGED.value,
+    IssueCode.PIPELINE_ANNOTATION_MISMATCH.value,
+    IssueCode.FRONT_MATTER_MISMATCH.value,
+)
+
+
+def _repaired_provider_response(source: str, translated: str) -> str:
+    """live provider 응답에 결정적 복구를 순서대로 적용."""
+
+    for repair_step in (
+        repair.restore_translated_link_labels,
+        repair.remove_blank_lines_after_annotations,
+        repair.collapse_multiline_annotations,
+        repair.merge_split_html_annotations,
+        repair.restore_missing_anchor_lines,
+        repair.strip_invented_inline_code,
+    ):
+        translated = repair_step(source, translated).text
+    return translated
+
+
+def _normalized_locale_document(document: str, locale: str | None) -> str:
+    """로케일 표기 규약에 맞춘 결정적 문서 정규화."""
+
+    if locale != "ja":
+        return document
+    return repair.normalize_cjk_code_spacing(document).text
+
+
+def _annotated_locale_blocks(existing: str | None) -> dict[str, str]:
+    """기존 locale 문서의 canonical annotation과 소유 블록 본문 쌍 수집.
+
+    같은 annotation이 두 번 이상 나타나면 대응이 모호하므로 제외한다.
+    """
+
+    if not existing:
+        return {}
+    blocks = patch_utils._blocks(existing)
+    counts = Counter(block.comment for block in blocks)
+    return {
+        block.comment: block.text
+        for block in blocks
+        if counts[block.comment] == 1
+    }
+
+
+def _reused_create_block(
+    owner: patch_utils.CreateBlock,
+    reusable: Mapping[str, str],
+    cfg: config.Config,
+    change: diff.SourceChange,
+    locale: str | None,
+) -> str | None:
+    """영어 원문이 그대로인 owner의 기존 번역 블록 재사용 결과.
+
+    canonical annotation이 정확히 하나이고 기존 문서에서 유일하게 대응하며
+    응답 계약을 그대로 통과할 때만 재사용한다.
+    """
+
+    if not reusable:
+        return None
+    required = response_contract._required_comments(owner.source)
+    if len(required) != 1:
+        return None
+    candidate = reusable.get(required[0])
+    if candidate is None:
+        return None
+    if _contract_issues(candidate, owner.source, cfg, change, locale):
+        return None
+    return candidate
+
+
+def _issues_allow_regeneration(issues: list[str]) -> bool:
+    """위반 목록이 재생성 강등 대상인지 판정."""
+
+    return any(
+        code in issue
+        for issue in issues
+        for code in _DEGRADABLE_VERIFICATION_CODES
+    )
+
+
+def _degraded_create_target(
+    change: diff.SourceChange,
+    cfg: config.Config,
+    prompt: str,
+    existing: str | None = None,
+) -> _PreparedTranslationTarget:
+    """부분 patch로 처리할 수 없는 수정 문서의 전체 재생성 계획."""
+
+    source = (REPO_ROOT / change.path).read_text(encoding="utf-8")
+    preprocessed = preprocess.preprocess(source)
+    placeholders: Mapping[str, str] = MappingProxyType(
+        dict(preprocessed.placeholders)
+    )
+    plan = patch_utils.build_create_plan(preprocessed.text)
+    _preflight_create_plan(change, plan, cfg, prompt)
+    preserved = (
+        patch_utils._front_matter_text(existing) if existing else None
+    )
+    if not patch_utils.is_locale_routing_front_matter_text(preserved):
+        preserved = None
+    return _PreparedTranslationTarget(
+        source=preprocessed.text,
+        existing=None,
+        existing_bytes=None,
+        plan=plan,
+        state=patch_utils.PlanState.CREATE,
+        placeholders=placeholders,
+        block_requests=MappingProxyType({}),
+        preserved_front_matter=preserved,
+        reusable_blocks=MappingProxyType(_annotated_locale_blocks(existing)),
+    )
 
 
 def _preflight_modified_plan(
@@ -1192,6 +1383,9 @@ def _prepare_translation_target(
             if existing_bytes is not None
             else None
         )
+        # 이미 승인된 번역 결과가 있는 추가 문서는 같은 계획을 다시 적용한 no-op.
+        if existing is not None and _admitted_added_locale(change, dest):
+            existing, existing_bytes = None, None
         plan = patch_utils.build_create_plan(preprocessed.text)
         state = patch_utils.plan_state(existing, plan)
         _preflight_create_plan(
@@ -1223,18 +1417,22 @@ def _prepare_translation_target(
 
     existing_bytes = dest.read_bytes()
     existing = existing_bytes.decode("utf-8")
-    plan, pair = _build_modified_plan(change, source)
-    placeholders = MappingProxyType(dict(pair.current.placeholders))
-    state = patch_utils.plan_state(existing, plan)
-    block_requests = _preflight_modified_plan(
-        change,
-        plan,
-        state,
-        cfg,
-        prompt,
-        existing,
-        placeholders,
-    )
+    try:
+        plan, pair = _build_modified_plan(change, source)
+        placeholders = MappingProxyType(dict(pair.current.placeholders))
+        state = patch_utils.plan_state(existing, plan)
+        block_requests = _preflight_modified_plan(
+            change,
+            plan,
+            state,
+            cfg,
+            prompt,
+            existing,
+            placeholders,
+        )
+    except patch_utils.PatchError as exc:
+        print(f"degrading to full re-translation: {change.path}: {exc}")
+        return _degraded_create_target(change, cfg, prompt, existing=existing)
     return _PreparedTranslationTarget(
         source=pair.current.text,
         existing=existing,
@@ -1396,9 +1594,14 @@ def _annotation_source(
     version: str,
     placeholders: Mapping[str, str],
 ) -> str:
-    """원문 보기의 보호용 자리표시자를 복원해 영어 원문 주석 기준 생성."""
+    """원문 보기의 보호용 자리표시자를 복원해 영어 원문 주석 기준 생성.
+
+    영어 verification view와 같은 경고문 정규화를 적용해 두 파생의
+    블록 구조가 항상 일치하도록 유지.
+    """
 
     versioned = response_contract.identity_source_view(source, version)
+    versioned = postprocess.standardize_admonitions_outside_code(versioned)
     return postprocess.restore_placeholders(versioned, placeholders)
 
 
@@ -1531,7 +1734,9 @@ def _translate_one(
     attempt_counter: translate.ProviderAttemptCounter | None = None,
 ) -> list[str]:
     """원문 한 건을 한 로케일로 번역·후처리·검증·기록하고 위반 목록 반환."""
-    if change.status == "A":
+    if change.status == "A" or (
+        prepared_target is not None and prepared_target.plan.is_create
+    ):
         return _translate_added_document(
             change,
             cfg,
@@ -1562,22 +1767,57 @@ def _translate_one(
         ValueError,
         OSError,
     ) as exc:
-        return [_translation_exception_issue(exc, phase="partial")]
-    if isinstance(result, list):
-        return result
-    dest, target, out, expected_source = result
+        issues = [_translation_exception_issue(exc, phase="partial")]
+    else:
+        if isinstance(result, list):
+            issues = result
+        else:
+            dest, target, out, expected_source = result
 
-    # 부분 패치는 영향을 받지 않은 로케일 문맥을 보존.
-    # 전체 문서 검증 전에 해당 문맥과 패치한 블록을 함께 정규화해야 기존 경고문과 원문 주석이 오래된 상태로 남지 않음.
-    out = _repair_segment_translation(expected_source, out, change.version)
-    return _verify_and_admit_document(
+            # 부분 패치는 영향을 받지 않은 로케일 문맥을 보존.
+            # 전체 문서 검증 전에 해당 문맥과 패치한 블록을 함께 정규화해야 기존 경고문과 원문 주석이 오래된 상태로 남지 않음.
+            out = _repair_segment_translation(expected_source, out, change.version)
+            out = _normalized_locale_document(out, locale)
+            issues = _verify_and_admit_document(
+                dest,
+                out,
+                target.source,
+                change.version,
+                target.placeholders,
+                write=True,
+                canonicalize=True,
+            )
+    if not issues or not _issues_allow_regeneration(issues):
+        return issues
+    print(f"degrading to full re-translation: {change.path}")
+    try:
+        degraded = _degraded_create_target(
+            change,
+            cfg,
+            prompt,
+            existing=(
+                dest.read_text(encoding="utf-8") if dest.exists() else None
+            ),
+        )
+    except (
+        OutputPathError,
+        patch_utils.PatchError,
+        config.ConfigError,
+        translate.IncompleteTranslation,
+        UnicodeDecodeError,
+        ValueError,
+        OSError,
+    ) as exc:
+        return issues + [_translation_exception_issue(exc, phase="create")]
+    return _translate_added_document(
+        change,
+        cfg,
+        prompt,
         dest,
-        out,
-        target.source,
-        change.version,
-        target.placeholders,
-        write=True,
-        canonicalize=True,
+        locale=locale,
+        deadline=deadline,
+        prepared_target=degraded,
+        attempt_counter=attempt_counter,
     )
 
 
