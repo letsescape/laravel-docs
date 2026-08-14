@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "workflow_timeout_seconds": 7200,
+  "workflow_timeout_seconds": 21600,
   "unit_test_command": ["uv", "run", "--directory", "translation-sync", "--locked", "--python", "3.14", "python", "-m", "unittest", "discover", "-s", "tests"],
   "replay_command": ["uv", "run", "--directory", "translation-sync", "--locked", "--python", "3.14", "python", "replay.py"],
   "provider_fixture_command": ["uv", "run", "--directory", "translation-sync", "--locked", "--python", "3.14", "python", "provider_check.py"],
