@@ -107,6 +107,9 @@ _BASE_ENVIRONMENT_KEYS = frozenset(
         "TMP",
         "TMPDIR",
         "UV_CACHE_DIR",
+        "UV_PROJECT_ENVIRONMENT",
+        "UV_PYTHON_BIN_DIR",
+        "UV_PYTHON_INSTALL_DIR",
         "https_proxy",
         "http_proxy",
         "no_proxy",
@@ -1472,7 +1475,7 @@ class WorkflowPreparer:
             ) from exc
         if (
             run_timeout <= 0
-            or configured_workflow != self._settings.workflow_timeout_seconds
+            or configured_workflow > self._settings.workflow_timeout_seconds
             or run_timeout > configured_workflow
         ):
             raise WorkflowStageError(

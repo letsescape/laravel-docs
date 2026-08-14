@@ -535,7 +535,8 @@ class ApprovedBaseUnitTestRunner:
             (
                 "git",
                 "clone",
-                "--no-local",
+                "--local",
+                "--no-hardlinks",
                 "--no-checkout",
                 "--quiet",
                 "--",
