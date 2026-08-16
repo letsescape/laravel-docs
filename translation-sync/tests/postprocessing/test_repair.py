@@ -574,5 +574,88 @@ class RestoreListMarkersTests(unittest.TestCase):
         self.assertEqual(repair.restore_list_markers(source, translated), translated)
 
 
+class RestoreRequiredAnnotationsTests(unittest.TestCase):
+    """provider 응답 annotation 주석의 원문 복원 검증."""
+
+    SOURCE = (
+        "| Command | Description |\n"
+        "| ------------- | ------------- |\n"
+        "| `a();` | Adds a key. |\n"
+    )
+    CANONICAL = (
+        "| Command | Description | | ------------- | ------------- | "
+        "| `a();` | Adds a key. |"
+    )
+
+    def test_restores_comment_that_dropped_separator_row(self):
+        """구분 행이 통째로 빠진 주석을 원문 형태로 복원."""
+
+        translated = (
+            "<!-- | Command | Description | | `a();` | Adds a key. | -->\n"
+            "| 명령어 | 설명 |\n"
+        )
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            result.text, f"<!-- {self.CANONICAL} -->\n| 명령어 | 설명 |\n"
+        )
+
+    def test_restores_comment_that_dropped_row_boundary_pipe(self):
+        """행 경계 파이프가 빠진 주석을 원문 형태로 복원."""
+
+        broken = self.CANONICAL.replace("| | -------------", "| -------------", 1)
+        translated = f"<!-- {broken} -->\n| 명령어 | 설명 |\n"
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            result.text, f"<!-- {self.CANONICAL} -->\n| 명령어 | 설명 |\n"
+        )
+
+    def test_keeps_matching_comment_unchanged(self):
+        """원문과 일치하는 주석은 그대로 유지."""
+
+        translated = f"<!-- {self.CANONICAL} -->\n| 명령어 | 설명 |\n"
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+    def test_keeps_comment_whose_words_differ(self):
+        """단어 내용이 다른 주석은 다른 블록일 수 있으므로 복원하지 않음."""
+
+        translated = "<!-- | Command | Summary | | `a();` | Adds a key. | -->\n| 명령어 | 설명 |\n"
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+    def test_keeps_response_with_different_annotation_count(self):
+        """주석 개수가 원문 블록 수와 다르면 복원하지 않음."""
+
+        translated = f"<!-- {self.CANONICAL} -->\n<!-- extra -->\n| 명령어 | 설명 |\n"
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+    def test_skips_when_source_already_has_html_comment(self):
+        """요청 원문에 HTML 주석이 있으면 복원하지 않음."""
+
+        source = f"<!-- authored -->\n{self.SOURCE}"
+        translated = "<!-- | Command | Description | | `a();` | Adds a key. | -->\n"
+
+        result = repair.restore_required_annotations(source, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+
 if __name__ == "__main__":
     unittest.main()

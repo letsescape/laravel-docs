@@ -2885,5 +2885,31 @@ Permission is hereby granted to modify this software.
                 )
 
 
+class EchoedHeaderCellsTests(unittest.TestCase):
+    """번역되지 않은 표 머리글 셀 지목 검증."""
+
+    SOURCE = "| Modifier | Description |\n| --- | --- |\n| `->a()` | Does a thing. |\n"
+
+    def test_names_untranslated_header_cell(self):
+        """원문 그대로 돌아온 머리글 셀만 반환."""
+
+        translated = "| Modifier | 説明 |\n| --- | --- |\n| `->a()` | 何かをします。 |\n"
+
+        self.assertEqual(
+            response_contract.echoed_header_cells(translated, self.SOURCE),
+            ["Modifier"],
+        )
+
+    def test_returns_empty_when_header_is_translated(self):
+        """머리글이 모두 번역되면 빈 목록."""
+
+        translated = "| 修飾子 | 説明 |\n| --- | --- |\n| `->a()` | 何かをします。 |\n"
+
+        self.assertEqual(
+            response_contract.echoed_header_cells(translated, self.SOURCE),
+            [],
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

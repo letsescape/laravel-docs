@@ -3553,6 +3553,40 @@ class MainPipelineTests(unittest.TestCase):
         self.assertEqual(prompts["ko"], "KO")
         self.assertEqual(prompts["ja"], "JA")
 
+    def test_select_changes_excludes_untranslated_documents(self):
+        """원문 유지 문서는 번역 대상 선택에서 제외하는지 검증."""
+
+        changes = [
+            diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/license.md",
+                status="M",
+            ),
+            diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/queues.md",
+                status="M",
+            ),
+        ]
+
+        with patch.object(diff, "changed_sources", return_value=changes):
+            selected = main._select_changes()
+
+        self.assertEqual([change.document for change in selected], ["queues.md"])
+
+    def test_select_changes_keeps_untranslated_document_deletion(self):
+        """원문 유지 문서라도 삭제는 전파하는지 검증."""
+
+        changes = [
+            diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/license.md",
+                status="D",
+            ),
+        ]
+
+        with patch.object(diff, "changed_sources", return_value=changes):
+            selected = main._select_changes()
+
+        self.assertEqual([change.document for change in selected], ["license.md"])
+
     def test_select_changes_migrate_existing_uses_all_source_markdown_files(self):
         """기존 문서 마이그레이션에서 모든 원문 Markdown 파일을 사용하는지 검증."""
 

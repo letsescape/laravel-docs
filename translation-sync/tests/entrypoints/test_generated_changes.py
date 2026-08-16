@@ -742,6 +742,45 @@ class GeneratedChangeTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertEqual(value["code"], "OUTPUT_STATE_MISMATCH")
 
+    def test_untranslated_document_english_only_deletion_is_rejected(self):
+        """번역 제외 문서라도 영어만 삭제하면 locale 고아를 거부하는지 검증."""
+
+        issues = validate_generated_changes._document_change_issues(
+            version="13.x",
+            document="license.md",
+            locale_statuses={"en": {"D"}},
+            proofs={},
+        )
+
+        self.assertEqual(
+            [issue.message for issue in issues],
+            ["unpaired translation document: version-13.x/license.md"],
+        )
+
+    def test_untranslated_document_full_deletion_passes(self):
+        """번역 제외 문서의 세 로케일 동시 삭제는 통과하는지 검증."""
+
+        issues = validate_generated_changes._document_change_issues(
+            version="13.x",
+            document="license.md",
+            locale_statuses={"en": {"D"}, "ko": {"D"}, "ja": {"D"}},
+            proofs={},
+        )
+
+        self.assertEqual(issues, [])
+
+    def test_untranslated_document_english_only_modification_passes(self):
+        """번역 제외 문서의 영어 단독 수정은 증명 없이 통과하는지 검증."""
+
+        issues = validate_generated_changes._document_change_issues(
+            version="13.x",
+            document="license.md",
+            locale_statuses={"en": {"M"}},
+            proofs={},
+        )
+
+        self.assertEqual(issues, [])
+
     def test_main_reports_each_unverified_english_only_locale(self):
         """검증되지 않은 영어 전용 변경을 로케일별로 보고하는지 검증."""
 
