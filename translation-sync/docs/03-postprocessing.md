@@ -16,11 +16,10 @@ flowchart TD
     B --> C[Alert 경계 보정]
     C --> D[Base64 placeholder 복원]
     D --> E[Whitespace 및 hard break 정리]
-    E --> F{보존 markup이 유일하게 대응되는가?}
-    F -- 아니요 --> X[해당 target 실패]
-    F -- 예 --> G[PatchPlan을 문서 아래쪽부터 적용]
+    E --> F[보존 markup 복구]
+    F --> G[PatchPlan을 문서 아래쪽부터 적용]
     G --> H{적용 후 서명이 일치하는가?}
-    H -- 아니요 --> X
+    H -- 아니요 --> X[해당 target 실패]
     H -- 예 --> U[Expected annotation map 생성]
     U --> I[Map으로 locale 정규화]
     I --> W[영어 verification view 생성]
@@ -42,7 +41,7 @@ flowchart TD
 
 | 책임 | 설명 |
 |------|------|
-| 블록 형식 정제 | `<img>` self-closing 변환, 버전 placeholder 치환, alert 표준화, 제목 스타일 클래스 잔존 제거, trailing whitespace 정리 |
+| 블록 형식 정제 | `<img>` self-closing 변환, 버전 placeholder 치환, alert 표준화, 제목 스타일 클래스 잔존 제거, HTML 주석 종료 구분자 escape, trailing whitespace 정리 |
 | placeholder 복원 | 예약 placeholder를 전처리에서 보관한 원본 값으로 복원 |
 | 보존 markup 복구 | 번역 블록의 quote/list marker, heading, link, inline code, anchor, annotation을 유일하게 대응할 수 있을 때 복구 |
 | 계획 적용·전체 정규화 | 정제된 블록을 PatchPlan에 따라 기존 locale 문서에 적용하고 전체 문서를 canonical form으로 정규화 |
@@ -111,6 +110,7 @@ flowchart TD
    c. 지원 legacy note marker의 canonical alert 변환
    d. 제목 스타일 클래스 잔존 제거
    e. 확인된 stale 내부 링크 target 보정과 필요한 목차 label 교체
+   f. HTML 주석 본문의 `*/`를 `*&#47;`로 치환
    - pipeline annotation span은 rendered content 형식 정제에서 제외하고 9단계에서 canonical byte로 교체
 2. alert 내부 fenced code의 blockquote 경계 보정
 3. 각 블록의 Base64 이미지 placeholder를 현재 restore map으로 복원
@@ -118,7 +118,7 @@ flowchart TD
 5. 보존 markup 복구
    - 이미 보존된 inline code와 link는 재배치하지 않음
    - 누락된 markup은 내용과 주변 문맥으로 유일하게 대응될 때만 복구
-   - 복수 후보 또는 대응 불가 상태는 실패
+   - 복수 후보 또는 대응 불가 상태는 복구하지 않고 문서 검증 단계 판정에 위임
 6. 정제된 블록 수와 actionable plan 수 일치 확인
    - target plan에는 결과 블록이 없어야 함
 7. actionable plan 적용
@@ -139,7 +139,7 @@ flowchart TD
    - 지원 legacy alert와 대응 annotation을 canonical form으로 정규화
    - registry가 지정한 폐기 목록 label의 inline-code wrapper를 일반 label로 수렴
 10. 영어 verification view 생성
-   - 현재 정규화 영어 작업 사본에 version, img, alert, heading class, stale-link 정규화를 같은 순서로 적용
+   - 현재 정규화 영어 작업 사본에 version, img, alert, heading class, stale-link 정규화와 HTML 주석 종료 구분자 escape를 같은 순서로 적용
    - 현재 restore map으로 placeholder 복원
    - pipeline annotation과 locale 번역문은 추가하지 않음
 11. candidate locale 문서, 영어 verification view와 expected annotation map을 같은 검증 입력 hash로 묶어 문서 검증 단계에 전달
@@ -167,15 +167,22 @@ Base64 복원은 블록 형식 정제가 끝난 뒤 수행하여 복원된 data 
 
 | 원문 표현 | canonical form |
 |-----------|----------------|
-| `{note}`, `Note`, `Note:`, `**Note**`, `**Note:**`, `참고`, `注意`, `注` | `[!NOTE]` |
+| `{note}`, `Note`, `Note:`, `**Note**`, `**Note:**`, `참고`, `注意`, `注`, `注記` | `[!NOTE]` |
 | `{tip}`, `Tip`, `Tip:`, `**Tip**`, `**Tip:**` | `[!TIP]` |
-| `{warning}`, `Warning`, `Warning:`, `**Warning**`, `**Warning:**` | `[!WARNING]` |
+| `{warning}`, `Warning`, `Warning:`, `**Warning**`, `**Warning:**`, `경고`, `警告` | `[!WARNING]` |
 | `{caution}`, `Caution`, `Caution:`, `**Caution**`, `**Caution:**` | `[!CAUTION]` |
 | `{important}`, `Important`, `Important:`, `**Important**`, `**Important:**` | `[!IMPORTANT]` |
 
 - 후처리는 marker만 바꾸고 본문 번역 금지.
 - 지원 범위 밖의 임의 표현을 `[!NOTE]`로 추정 변환 금지.
 - 1~3칸 들여쓴 blockquote marker는 변환 대상 아님.
+
+### 7.2.1 일본어 inline code 간격 정규화
+
+일본어 문서는 코드 펜스와 HTML 주석 밖에서 inline code span과 인접한
+CJK 문자(히라가나·가타카나·한자) 사이에 반각 공백 하나를 보장.
+이미 공백이거나 CJK 구두점이 인접한 경계는 변경 금지.
+한국어 문서에는 조사가 코드에 붙는 표기가 규약이므로 적용하지 않음.
 
 ### 7.3 `{{version}}` 치환
 
@@ -269,13 +276,20 @@ Loader는 candidate locale, 영어 verification view, expected annotation map, v
 시작 때 전달받은 객체나 registry를 그대로 다시 hash하는 것은 종료 재계산으로 인정하지 않음.
 두 snapshot의 canonical envelope가 다르면 verified locale artifact 생성 금지.
 
+### 7.9 HTML 주석 종료 구분자 escape
+
+- HTML 주석 본문의 `*/`를 `*&#47;`로 치환.
+- MDX가 HTML 주석을 변환할 때 JavaScript 주석 종료 구분자가 손상되므로 무력화.
+- 대상은 fenced code와 inline code 밖의 HTML 주석 본문뿐이며 일반 본문은 변경 금지.
+- 블록 형식 정제의 마지막 변환으로 수행.
+
 ---
 
 ## 8. placeholder 복원 세부
 
 - 전처리에서 생성한 현재 restore map을 사용하여 `__BASE64_IMAGE_<N>__`을 현재 원문의 data URI로 치환.
 - 매핑이 없으면 임의 데이터 생성 금지.
-- fenced code 밖에 미복원 placeholder가 남은 결과는 이 단계에서 `POSTPROCESS_RESIDUE`로 차단하고 검증 입력으로 전달 금지; [문서 검증 단계](./04-verification.md)의 잔존 검사는 이 경계를 우회한 결함을 막는 방어적 검사이며 어느 경우에도 locale 파일로 기록 금지.
+- fenced code 밖에 미복원 placeholder가 남은 결과는 [문서 검증 단계](./04-verification.md)의 잔존 검사가 `RESIDUAL_PATTERN`으로 차단하며 어느 경우에도 locale 파일로 기록 금지.
 
 ---
 
@@ -295,7 +309,7 @@ Loader는 candidate locale, 영어 verification view, expected annotation map, v
 
 - 이미 올바르게 보존된 inline code, link와 anchor의 순서를 원문 순서에 맞추기 위한 변경 금지.
 - 누락된 markup은 내용과 주변 문맥으로 source 항목 하나에 유일하게 대응할 때만 복구해야 함.
-- 동일한 후보가 여러 개이거나 locale 어순 변경 때문에 대응을 증명할 수 없으면 임의 복구하지 않고 실패해야 함.
+- 동일한 후보가 여러 개이거나 locale 어순 변경 때문에 대응을 증명할 수 없으면 임의 복구하지 않고 해당 markup을 그대로 둬야 함.
 - 복구 뒤에도 남은 구조 불일치는 문서 검증 단계에서 실패 처리해야 함.
 
 ---
@@ -309,7 +323,7 @@ Loader는 candidate locale, 영어 verification view, expected annotation map, v
 | 번역 단계에서 실패한 블록 | 후처리 입력으로 전달하지 않음 |
 | 현재 restore map 부재 또는 복원 불가 | 해당 target 실패, 계획 적용 금지 |
 | stale-link registry 부재·schema 위반·실행 중 digest 변경 | 실행 전체 실패, 계획 적용 금지 |
-| 보존 markup 대응이 모호하거나 복구 불가 | 해당 target 실패, 계획 적용 금지 |
+| 보존 markup 대응이 모호하거나 복구 불가 | 임의 복구 금지, 문서 검증 단계 판정에 위임 |
 | actionable plan 수와 정제 블록 수 불일치 또는 target plan 출력 존재 | 해당 target 실패, 계획 적용 금지 |
 | 적용 뒤 목표 서명 불일치 | 최종 문서 폐기, 기존 locale 문서 보존 |
 | 영어 verification view 또는 expected annotation map을 결정적으로 생성할 수 없음 | 해당 target 실패, candidate 적재 금지 |

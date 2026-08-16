@@ -3,7 +3,7 @@
 ## 요약
 
 candidate의 영어 `documentation.md`를 단일 기준으로 모든 버전의 sidebar JSON과 locale override 삭제 계획을 결정적으로 생성.
-전체 산출 검증 후에만 candidate snapshot에 일괄 적재하며, 하나라도 실패하면 sidebar candidate 전체 폐기.
+계획 issue 확인과 입력 hash 재확인을 통과한 뒤 candidate snapshot에 일괄 적재하고 적재 결과를 재검증하며, 하나라도 실패하면 sidebar candidate 전체 폐기.
 
 ## 흐름도
 
@@ -15,10 +15,12 @@ flowchart TD
     D -- 예 --> X[Sidebar candidate 전체 폐기 및 실행 실패]
     D -- 아니요 --> E[기존 category collapsed 상태 로드]
     E --> F[모든 버전의 JSON 및 삭제 계획 생성]
-    F --> G[Candidate view에서 전체 정합성 검증]
+    F --> G[계획 issue 및 입력 hash 재확인]
     G -- 실패 --> X
     G -- 통과 --> H[Candidate snapshot에 일괄 적재]
-    H --> I([Sidebar 단계 완료])
+    H --> I[적재 결과 byte 및 삭제 상태 재검증]
+    I -- 실패 --> X
+    I -- 통과 --> J([Sidebar 단계 완료])
 ```
 
 ## 목적
@@ -55,7 +57,7 @@ flowchart TD
 3. **저장소 오염 방지**: 출력 경로가 저장소 밖을 가리키면 거부.
    symlink를 따라 외부에 쓰는 행위 금지.
    기존 sidebar JSON이 symlink이면 읽기 및 덮어쓰기 금지.
-   검증 전 active worktree 또는 candidate snapshot 변경 금지.
+   계획 issue 확인과 입력 hash 재확인 전에는 sidebar 파일 변경 금지.
 4. **Fail-closed**: 어느 버전에서든 parsing 또는 산출 issue 발생 시 sidebar 단계 실패 처리 및 전체 sidebar candidate set 폐기.
 5. **원자적 공개**: 모든 버전의 sidebar JSON과 locale override 삭제 계획은 검증된 하나의 candidate tree 변경으로만 공개해야 함.
 6. **Override 제거**: locale별 sidebar JSON은 stale override이므로 존재 시 삭제.
@@ -71,9 +73,10 @@ flowchart TD
    c. issue 있으면 sidebar candidate 전체 폐기 및 단계 실패
    d. 기존 sidebar JSON에서 같은 category key의 boolean collapsed 상태 읽기. 새 category는 `true`
    e. sidebar JSON byte와 locale override 삭제 계획을 메모리 또는 격리 임시 경로에 생성
-   f. candidate view에서 생성 JSON과 삭제 후 경로 상태 검증
 4. 모든 버전이 통과하면 sidebar candidate set과 검증 입력 hash 확정
-5. sidebar candidate set을 candidate snapshot에 한 번에 적재
+5. 계획을 다시 수립해 입력 hash 일치 재확인
+6. sidebar candidate set을 candidate snapshot에 한 번에 적재
+7. 적재한 sidebar JSON byte와 locale override 삭제 결과 재검증
 ```
 
 검증 입력 hash는 다음 canonical JSON envelope byte의 SHA-256.
@@ -125,6 +128,7 @@ flowchart TD
 - 동일 doc id의 여러 category 등장을 허용하며 위 occurrence 규칙으로 구별.
 - 기존 category의 `collapsed`는 같은 category key의 boolean 값만 보존.
   key 부재 시 `true`, 값이 boolean이 아니면 schema issue.
+- link item의 href는 `{{version}}` 토큰을 대상 버전 문자열로 치환한 뒤 기록하며, link key는 치환 전 raw target을 기준으로 계산.
 - `master` sidebar의 루트 API Documentation link URL은 `versions.json` 최신 안정 버전으로 정규화.
 - `versions.json`의 `master` 다음에는 안정 버전이 하나 이상 있어야 하며, 첫 항목을 최신 안정 버전으로 사용.
 - 산출 JSON은 배열 순서를 유지하고 object key를 UTF-8 byte 순으로 재귀 정렬한 뒤 2-space indent, UTF-8, LF와 마지막 newline 1개로 직렬화.
@@ -152,7 +156,7 @@ flowchart TD
 6. doc id에 대응하는 영어 원문 파일이 존재해야 함.
 7. category·doc·link의 translation key가 정의된 생성 규칙을 따르고 중복되지 않아야 함.
 8. 지원하지 않는 문법이 조용히 생략되지 않아야 함.
-9. 모든 산출 검증 완료 전 candidate snapshot 또는 active worktree의 sidebar 파일을 변경하지 않아야 함.
+9. 계획 issue 확인과 입력 hash 재확인을 통과하기 전에는 candidate snapshot 또는 active worktree의 sidebar 파일을 변경하지 않아야 하며, 적재 직후 기록 byte와 삭제 결과를 재검증해야 함.
 10. candidate snapshot에 적재된 sidebar 변경이 검증된 sidebar candidate set과 byte 단위로 일치해야 함.
 11. 같은 입력에서 생성한 sidebar JSON byte가 process 재실행과 무관하게 같아야 함.
 

@@ -2,7 +2,7 @@
 
 ## 요약
 
-후처리된 locale 문서를 영어 verification view와 대조해 front matter, source-authored 주석, 코드, 링크, 목록, 표, 앵커, heading, 이미지, admonition과 placeholder의 구조 보존 판정.
+후처리된 locale 문서를 영어 verification view와 대조해 front matter, source-authored 주석, 코드, 링크, 목록, 표, 인용, Markdown block, HTML tag, 앵커, heading, 이미지, admonition과 placeholder의 구조 보존 판정.
 빈 issue 목록인 문서만 verified locale artifact로 만들어 candidate snapshot에 적재 허용.
 
 ## 흐름도
@@ -27,7 +27,7 @@ flowchart TD
 ## 범위
 
 - response contract 이후, candidate snapshot 적재 직전의 전체 구조 검증 수행
-- front matter, source-authored HTML 주석, 코드, 링크, 목록, 표, 앵커, 이미지, heading, admonition, placeholder 보존 확인
+- front matter, source-authored HTML 주석, 코드, 링크, 목록, 표, 인용, Markdown block, HTML tag, 앵커, 이미지, heading, admonition, placeholder 보존 확인
 - 번역 의미 정확성, 용어 선택, 문체, 일반 HTML 렌더링은 이 단계의 자동 판정 범위에서 제외
 
 ## 입력
@@ -58,27 +58,33 @@ flowchart TD
 5. **재요청 경계**: 이 단계에서 provider 호출 및 response feedback 재요청 수행 금지.
 6. **입력 결합성**: 검증 시작과 artifact 생성 시점의 검증 입력 hash 동일성 필수. Artifact 직전에는 final snapshot loader를 정확히 한 번 호출해 새 입력 구성 필요. 시작 snapshot 객체를 다시 hash하는 방식으로 대체 금지. 불일치 시 판정 결과 폐기 및 실패 처리.
 
-## 검증 순서
+## 검증 항목
 
 ```text
-1. front matter key 순서·문자열 scalar 형식과 title 값을 영어 verification view와 대조
-2. pipeline annotation의 canonical byte·순서·occurrence·소유 블록을 expected annotation map과 대조. 표는 전체 표 annotation 하나가 첫 행 바로 앞에 있어야 하며 행 사이 annotation은 소유 관계 불일치로 판정
-3. pipeline annotation을 제외한 source-authored HTML 주석의 값·순서·구조 주소를 대조
-4. fenced code block 목록과 본문을 영어 verification view와 대조
-5. inline 코드 multiset을 영어 verification view와 대조
-6. Markdown inline link target·label pair를 정규화 후 영어 verification view와 대조
-7. reference definition label·target·title·occurrence 순서를 영어 verification view와 대조
-8. reference-style link·image의 해석 결과(image 여부·target·title) 순서를 대조
-9. 순서 있는 목록과 순서 없는 목록의 marker 유형·깊이·checkbox 상태 ordered occurrence를 정확히 대조
-10. 표의 행 수·행 종류·행별 열 수와 separator 정렬자를 순서대로 대조
-11. 명시적 <a name> 앵커 multiset을 영어 verification view와 대조
-12. ATX heading 텍스트와 레벨 순서를 영어 verification view와 대조
-13. HTML <img> src 순서를 영어 verification view와 대조
-14. admonition marker 유형 순서를 영어 verification view와 대조
-15. 잔존 패턴 검사: Base64 placeholder, {{version}}, legacy note marker, heading 스타일 클래스
-16. 닫히지 않은 <img> 태그 검사
-17. stable issue code·구조 주소 목록과 검증 입력 hash 반환
+- front matter key 순서·문자열 scalar 형식과 title 값을 영어 verification view와 대조
+- pipeline annotation의 canonical byte·순서·occurrence·소유 블록을 expected annotation map과 대조. 표는 전체 표 annotation 하나가 첫 행 바로 앞에 있어야 하며 행 사이 annotation은 소유 관계 불일치로 판정
+- pipeline annotation을 제외한 source-authored HTML 주석의 값·순서·구조 주소를 대조
+- fenced code block 목록과 본문을 영어 verification view와 대조
+- inline 코드 multiset을 영어 verification view와 대조
+- Markdown inline link target·label pair를 정규화 후 정렬된 multiset으로 영어 verification view와 대조 (목표 언어 어순에 따른 등장 순서 재배열 허용)
+- reference definition label·target·title·occurrence 순서를 영어 verification view와 대조
+- reference-style link·image의 해석 결과(image 여부·target·title) 순서를 대조
+- 순서 있는 목록과 순서 없는 목록의 marker 유형·깊이·checkbox 상태 ordered occurrence를 정확히 대조
+- 표의 행 수·행 종류·행별 열 수와 separator 정렬자를 순서대로 대조
+- 인용 줄의 깊이·occurrence와 명시적 hard break ordered signature를 영어 verification view와 대조
+- Markdown block 종류·순서·구조 배치를 영어 verification view와 대조
+- 명시적 <a name> 앵커 multiset을 영어 verification view와 대조
+- ATX heading 텍스트와 레벨 순서를 영어 verification view와 대조
+- HTML tag 종류·순서 서명, 동적 표시 속성 표현식과 HTML code 요소 내용을 영어 verification view와 대조
+- HTML <img> src 순서를 영어 verification view와 대조
+- admonition marker 유형 순서를 영어 verification view와 대조
+- 잔존 패턴 검사: Base64 placeholder, {{version}}, legacy note marker, heading 스타일 클래스
+- 닫히지 않은 <img> 태그 검사
+- stable issue code·구조 주소 목록과 검증 입력 hash 반환
 ```
+
+마지막 반환을 제외한 항목 사이 실행 순서는 계약 아님. pipeline annotation 대조만 Markdown block 구조 대조 결과를 입력으로 사용.
+반환 issue 목록은 (code, 구조 주소)로 중복 제거 후 UTF-8 byte 순으로 정렬되며 검사 순서를 반영하지 않음.
 
 ## 실패 정책
 
@@ -103,12 +109,14 @@ provider 재처리가 필요하면 원인 수정 후 새 워크플로우 실행�
 4. fenced code block 목록과 본문 및 inline code multiset이 일치.
 5. 정규화된 inline link, reference definition과 reference-style link·image 해석 결과가 일치.
 6. 목록 marker 유형·깊이·checkbox와 표의 행·열·정렬자 구조가 정확히 일치.
-7. 명시적 `<a name>` 앵커와 ATX heading 텍스트·레벨 순서가 일치.
-8. HTML `<img>` 태그의 self-closing 형식과 `src` 순서가 일치.
-9. admonition marker 유형 순서가 일치하고 중복·이탈 없음.
-10. fenced code 밖에 Base64 placeholder, `{{version}}`, legacy note marker, heading 스타일 클래스 잔존 금지.
-11. 닫히지 않은 `<img>` 태그 없음.
-12. 빈 issue 목록, 시작·종료가 같은 검증 입력 hash와 final snapshot에서 재확인한 byte가 결합된 verified locale artifact만 candidate snapshot에 적재 허용.
+7. 인용 줄의 깊이·occurrence와 명시적 hard break 구조가 일치.
+8. Markdown block 종류·순서·구조 배치가 일치. expected annotation map에 항목이 있으면 블록 구조 불일치는 pipeline annotation 소유 불일치로도 판정.
+9. 명시적 `<a name>` 앵커와 ATX heading 텍스트·레벨 순서가 일치.
+10. HTML tag 종류·순서 서명, 동적 표시 속성 표현식, `<code>` 요소 내용과 `<img>` 태그의 self-closing 형식·`src` 순서가 일치.
+11. admonition marker 유형 순서가 일치하고 중복·이탈 없음.
+12. fenced code 밖에 Base64 placeholder, `{{version}}`, legacy note marker, heading 스타일 클래스 잔존 금지.
+13. 닫히지 않은 `<img>` 태그 없음.
+14. 빈 issue 목록, 시작·종료가 같은 검증 입력 hash와 final snapshot에서 재확인한 byte가 결합된 verified locale artifact만 candidate snapshot에 적재 허용.
 
 ## 오류 분류 경계
 
