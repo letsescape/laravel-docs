@@ -34,6 +34,7 @@ from sync import (
 )
 from sync.common import stale_links
 from sync.common.files import atomic_write_bytes, atomic_write_text, unlink_file
+from sync.common.versions import UNTRANSLATED_DOCUMENTS
 from sync.runtime.failure import (
     ErrorClassification,
     ExitCode,
@@ -515,6 +516,8 @@ def _matches_filters(
 ) -> bool:
     """원문 변경이 정규화된 버전·문서 선택자와 일치하는지 판별."""
 
+    if change.status != "D" and change.document in UNTRANSLATED_DOCUMENTS:
+        return False
     if version and change.version != version:
         return False
     if doc:
@@ -708,16 +711,16 @@ def _verification_feedback(
     """응답 계약 문제를 길이가 제한된 프로바이더 교정 지침으로 변환."""
 
     exact_comments = None
-    if (
-        translated is not None
-        and source is not None
-        and any("original comment" in issue for issue in issues)
-    ):
-        exact_comments = response_contract.mismatched_required_comments(
-            translated,
-            source,
-        )
-    return translate.verification_feedback(issues, exact_comments)
+    echoed_cells = None
+    if translated is not None and source is not None:
+        if any("original comment" in issue for issue in issues):
+            exact_comments = response_contract.mismatched_required_comments(
+                translated,
+                source,
+            )
+        if any("target language mismatch" in issue for issue in issues):
+            echoed_cells = response_contract.echoed_header_cells(translated, source)
+    return translate.verification_feedback(issues, exact_comments, echoed_cells)
 
 
 def _contract_issues(
@@ -1203,6 +1206,7 @@ def _repaired_provider_response(source: str, translated: str) -> str:
         repair.remove_blank_lines_after_annotations,
         repair.collapse_multiline_annotations,
         repair.merge_split_html_annotations,
+        repair.restore_required_annotations,
         repair.restore_missing_anchor_lines,
         repair.strip_invented_inline_code,
     ):
@@ -2490,7 +2494,7 @@ def main() -> int:
                 _diagnostic_failure_event(
                     issue,
                     stage="translation-preflight",
-                    fallback=IssueCode.UNSUPPORTED_CHANGE_UNIT,
+                    fallback=IssueCode.INVALID_RUNTIME_OPTION,
                 )
                 for issue in preflight_issues
             ]

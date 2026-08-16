@@ -112,6 +112,8 @@ _HTML_ENTITY_RE = re.compile(r"&(?:#[xX]?[0-9A-Fa-f]+|[A-Za-z][A-Za-z0-9]+);")
 _PROSE_TRIM_CHARACTERS = " `*_~.,:;()[]&/,+"
 _MARKDOWN_TRIM_CHARACTERS = " `*_~"
 _PROTECTED_WORD_PATTERN = r"[A-Za-z][A-Za-z0-9.+#-]*"
+_QUOTED_LITERAL_RE = re.compile(r'"[^"\n]*"')
+_JSON_STRUCTURE_CHARACTERS = " \t\n{}[]:,"
 _PROVIDER_LINK_TARGET_MISMATCH = "provider link target mismatch"
 _PROVIDER_LINK_LABEL_MISMATCH = "provider link label mismatch"
 _PROVIDER_LINK_PAIR_MISMATCH = "provider link pair mismatch"
@@ -507,6 +509,31 @@ def mismatched_required_comments(text: str, source: str) -> list[str]:
         for expected, received in zip(required, actual)
         if expected != received
     ]
+
+
+def echoed_header_cells(text: str, source: str) -> list[str]:
+    """번역되지 않고 원문 그대로 돌아온 표 머리글 셀 원문."""
+
+    echoed: list[str] = []
+    for source_block, translated_block in zip(
+        _blocks(source),
+        _blocks(text),
+        strict=False,
+    ):
+        if source_block.kind != "text" or translated_block.kind != "text":
+            continue
+        if not source_block.lines or _text_kind(source_block.lines[0]) != "table":
+            continue
+        if not translated_block.lines:
+            continue
+        source_cells = _table_cells(source_block.lines[0])
+        translated_cells = _table_cells(translated_block.lines[0])
+        echoed.extend(
+            expected
+            for expected, received in zip(source_cells, translated_cells)
+            if _cell_echoes_translatable_prose(expected, received)
+        )
+    return echoed
 
 
 def _required_comments(source: str) -> list[str]:
@@ -3052,6 +3079,7 @@ def _has_target_language(
     locale: str,
     *,
     source_text: str,
+    is_list: bool = False,
 ) -> bool:
     """번역 산문이 로캘별 exact-copy와 문자 수 기준을 충족하는지 여부."""
 
@@ -3059,6 +3087,8 @@ def _has_target_language(
     sample = _normalized_language_prose(text)
     source_letter_count = _unicode_letter_count(source_sample)
     if source_letter_count >= 20 and sample == source_sample:
+        if _is_quoted_literal_data(source_sample):
+            return True
         identifier_tokens = [
             word
             for word in source_sample.split()
@@ -3072,13 +3102,59 @@ def _has_target_language(
         return False
     if source_letter_count < 40 or _is_label_and_data_list(source_sample):
         return True
-    # 정의 목록의 label은 표 data cell과 같은 데이터 열거이므로 하한 계산에서 제외.
-    remainder = _definition_list_remainder(source_sample)
-    basis = source_letter_count if remainder is None else _unicode_letter_count(remainder)
+    # 열거 항목의 고유명사·식별자와 정의 목록의 label은 데이터이므로 하한 계산에서 제외.
+    basis = _enumeration_prose_letter_count(source_sample) if is_list else None
+    if basis is None:
+        remainder = _definition_list_remainder(source_sample)
+        basis = (
+            source_letter_count
+            if remainder is None
+            else _unicode_letter_count(remainder)
+        )
     if basis < 40:
         return True
     required = max(8, math.ceil(basis * 0.10))
     return _target_script_count(sample, locale) >= required
+
+
+def _is_quoted_literal_data(source_sample: str) -> bool:
+    """모든 문자가 따옴표 리터럴 안에 있고 밖은 JSON 구조 문장부호뿐인지 여부."""
+
+    remainder = _QUOTED_LITERAL_RE.sub(" ", source_sample)
+    if _unicode_letter_count(remainder):
+        return False
+    return not remainder.strip(_JSON_STRUCTURE_CHARACTERS) and any(
+        char in remainder for char in ":{}[]"
+    )
+
+
+def _enumeration_prose_letter_count(source_sample: str) -> int | None:
+    """목록 항목 중 번역 대상 산문 토큰의 문자 수.
+
+    목록 marker를 제거한 언어 표본은 항목 하나가 한 줄이다.
+    항목이 세 개 미만이면 열거로 보지 않고 ``None`` 반환.
+    """
+
+    items = [
+        item
+        for item in source_sample.splitlines()
+        if _unicode_letter_count(item)
+    ]
+    if len(items) < 3:
+        return None
+    return sum(
+        _unicode_letter_count(token)
+        for item in items
+        for token in item.split()
+        if not _enumeration_token_is_protected(token)
+    )
+
+
+def _enumeration_token_is_protected(token: str) -> bool:
+    """열거 항목 토큰이 고유명사·식별자·버전이라 번역되지 않는지 여부."""
+
+    word = token.strip(_PROSE_TRIM_CHARACTERS)
+    return not word or word[:1].isupper() or _distinctive_technical_term(word)
 
 
 def _definition_list_remainder(source_sample: str) -> str | None:
@@ -3735,6 +3811,7 @@ def _provider_block_pair_result(
             _block_language_text(translated_block),
             locale,
             source_text=_block_language_text(source_block),
+            is_list=source_kind == "list",
         )
     )
     return [], language_missing

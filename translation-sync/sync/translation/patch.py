@@ -150,6 +150,11 @@ class BlockChange:
     def provider_free(self) -> bool:
         """provider 호출 없이 결정할 수 있는 segment인지 여부."""
 
+        rendered = [
+            line for line in source_text(self).splitlines() if line.strip()
+        ]
+        if rendered and all(is_structural_html_line(line) for line in rendered):
+            return True
         if not self.new_source:
             return False
         if self.inserted_code_block is not None:
@@ -5190,12 +5195,28 @@ def _is_changed_table_row(line: str) -> bool:
 
 
 def _require_supported_modified_table(segment: BlockChange) -> bool:
-    """변경된 table 구조의 지원 여부 검증."""
+    """변경된 table 구조의 지원 여부 검증.
 
-    lines = _meaningful_lines(segment.old_lines) + _meaningful_lines(
-        segment.new_lines
-    )
-    if not any(_is_changed_table_row(line) for line in lines):
+    이전 원문에 table row가 없고 추가 줄이 구분 행을 포함하는 순수 추가만
+    02 §7의 표 create 사례로 보아 직사각형 구조를 검증하고 일반 추가 블록
+    경로로 처리한다. 구분 행이 없으면 기존 표에 행을 더한 변경이므로
+    아래 단일 행 검사로 내려보내 §7.2 재생성 강등에 맡긴다.
+    """
+
+    old_meaningful = _meaningful_lines(segment.old_lines)
+    new_meaningful = _meaningful_lines(segment.new_lines)
+    if not any(
+        _is_changed_table_row(line)
+        for line in old_meaningful + new_meaningful
+    ):
+        return False
+    added_rows = [line for line in new_meaningful if _is_changed_table_row(line)]
+    if not any(_is_changed_table_row(line) for line in old_meaningful) and any(
+        _is_table_separator_cells(cells)
+        for cells in (_table_row_cells(line) for line in added_rows)
+        if cells is not None
+    ):
+        _require_rectangular_create_table("\n".join(added_rows))
         return False
     if _single_table_row_lines(segment) is None:
         raise PatchError(

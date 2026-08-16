@@ -163,6 +163,7 @@ class ProviderAttemptCounter:
 def verification_feedback(
     issues: list[str],
     exact_comments: list[str] | None = None,
+    echoed_cells: list[str] | None = None,
 ) -> str:
     """완료된 단일 응답에 대한 길이가 제한된 교정 지침."""
     guidance = (
@@ -187,6 +188,12 @@ def verification_feedback(
             "row, into the target language; keep only code, identifiers and "
             "product names in English."
         )
+        if echoed_cells:
+            named = ", ".join(f"`{cell}`" for cell in echoed_cells[:8])
+            guidance += (
+                f" These header cells came back untranslated: {named}. "
+                "Translate each of them."
+            )
     if any("inline markup" in issue for issue in issues):
         guidance += (
             " Do not add emphasis that the English Source does not have."

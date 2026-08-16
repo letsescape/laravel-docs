@@ -348,6 +348,79 @@ def remove_blank_lines_after_annotations(
     return RepairResult(text="".join(out), changed=changed)
 
 
+_ANNOTATION_LINE_RE = re.compile(r"^(\s*)<!--\s?(.*?)\s?-->(\s*)$", re.DOTALL)
+_ANNOTATION_WORD_RE = re.compile(r"[^\W_]+", re.UNICODE)
+
+
+def _annotation_content_key(text: str) -> str:
+    """구분자·공백 배치를 무시한 annotation 본문의 단어 내용 키."""
+
+    return " ".join(_ANNOTATION_WORD_RE.findall(text.lower()))
+
+
+def _source_annotation_texts(source: str) -> list[str]:
+    """원문 블록에서 파생한 canonical annotation 본문의 문서 순서 목록."""
+
+    texts: list[str] = []
+    block: list[str] = []
+    for line in _without_code_blocks(source).splitlines():
+        if line.strip():
+            block.append(line.strip())
+            continue
+        if block:
+            texts.append(" ".join(block))
+            block = []
+    if block:
+        texts.append(" ".join(block))
+    return texts
+
+
+def restore_required_annotations(source: str, translated: str) -> RepairResult:
+    """provider 응답의 annotation 주석을 원문 canonical 본문으로 복원.
+
+    주석 본문은 원문에서 확정되므로 provider가 되받아 적을 필요가 없다.
+    주석 개수가 원문 블록 수와 같고 각 자리의 단어 내용이 그대로일 때만
+    적용해 다른 블록의 주석으로 뒤바뀌지 않도록 한다.
+    요청 source에 HTML 주석이 있으면 응답 주석이 source-authored인지
+    구별할 수 없으므로 복원하지 않는다.
+    """
+
+    if "<!--" in _without_code_blocks(source):
+        return RepairResult(text=translated, changed=False)
+
+    expected = _source_annotation_texts(source)
+    if not expected:
+        return RepairResult(text=translated, changed=False)
+
+    lines = translated.splitlines(keepends=True)
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    positions: list[int] = []
+    for index, line in enumerate(lines):
+        if _is_code_line(line, state):
+            continue
+        if _ANNOTATION_LINE_RE.match(line):
+            positions.append(index)
+    if len(positions) != len(expected):
+        return RepairResult(text=translated, changed=False)
+
+    replacements: dict[int, str] = {}
+    for index, canonical in zip(positions, expected):
+        match = _ANNOTATION_LINE_RE.match(lines[index])
+        received = match.group(2)
+        if received == canonical:
+            continue
+        if _annotation_content_key(received) != _annotation_content_key(canonical):
+            return RepairResult(text=translated, changed=False)
+        replacements[index] = (
+            f"{match.group(1)}<!-- {canonical} -->{match.group(3)}"
+        )
+    if not replacements:
+        return RepairResult(text=translated, changed=False)
+    for index, line in replacements.items():
+        lines[index] = line
+    return RepairResult(text="".join(lines), changed=True)
+
+
 def collapse_multiline_annotations(source: str, translated: str) -> RepairResult:
     """여러 줄로 갈라진 annotation 주석을 한 줄로 접기.
 
