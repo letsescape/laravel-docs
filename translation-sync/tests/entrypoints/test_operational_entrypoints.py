@@ -122,7 +122,7 @@ class OperationalEntrypointTests(unittest.TestCase):
             "CODEX_HOME",
         ):
             self.assertIn(credential_setting, prepare_step)
-        self.assertIn("TRANSLATION_WORKFLOW_TIMEOUT_SECONDS: '7200'", prepare_step)
+        self.assertIn("TRANSLATION_WORKFLOW_TIMEOUT_SECONDS: '21600'", prepare_step)
         self.assertNotIn("TRANSLATION_RETRY_DELAY", workflow)
         for unsupported_openai_setting in (
             "OPENAI_BASE_URL",

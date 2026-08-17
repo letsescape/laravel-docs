@@ -2911,5 +2911,31 @@ class EchoedHeaderCellsTests(unittest.TestCase):
         )
 
 
+class DataCellProseTests(unittest.TestCase):
+    """표 data cell의 보호 데이터·설명 문구 구분 검증."""
+
+    def test_treats_separated_single_token_items_as_data(self):
+        """구분자로 나뉜 단일 토큰 나열은 보호 데이터."""
+
+        self.assertTrue(
+            response_contract._cell_has_no_translatable_prose(
+                "OpenAI, Gemini, Azure, Bedrock"
+            )
+        )
+
+    def test_treats_descriptive_phrase_as_prose(self):
+        """설명 문구는 대문자로 시작해도 보호 데이터가 아님."""
+
+        for text in (
+            "Configures Distributed Cache",
+            "The iterations remaining in the loop.",
+            "Read the database schema",
+        ):
+            with self.subTest(text=text):
+                self.assertFalse(
+                    response_contract._cell_has_no_translatable_prose(text)
+                )
+
+
 if __name__ == "__main__":
     unittest.main()

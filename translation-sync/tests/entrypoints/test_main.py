@@ -1825,6 +1825,47 @@ class MainPipelineTests(unittest.TestCase):
                 "A paragraph that already has an approved translation.\n",
                 encoding="utf-8",
             )
+            for dest, body in (
+                (
+                    root / "versioned_docs/version-12.x/example.md",
+                    "이미 승인된 번역이 있는 문단입니다.",
+                ),
+                (
+                    root
+                    / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md",
+                    "すでに承認された翻訳がある段落です。",
+                ),
+            ):
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(
+                    "<!-- A paragraph that already has an approved translation. -->\n"
+                    f"{body}\n",
+                    encoding="utf-8",
+                )
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="A",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._file_state_issues(change)
+
+            self.assertEqual(issues, [])
+
+    def test_added_document_with_wrong_locale_is_a_state_conflict(self):
+        """구조가 맞아도 목표 언어가 다르면 승인된 결과로 보지 않음."""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "A paragraph that already has an approved translation.\n",
+                encoding="utf-8",
+            )
             for dest in (
                 root / "versioned_docs/version-12.x/example.md",
                 root / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md",
@@ -1843,7 +1884,13 @@ class MainPipelineTests(unittest.TestCase):
             with patch.object(main, "REPO_ROOT", root):
                 issues = main._file_state_issues(change)
 
-            self.assertEqual(issues, [])
+        self.assertEqual(
+            issues,
+            [
+                "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: "
+                "A requires absent ja locale"
+            ],
+        )
 
     def test_added_document_with_stale_locale_is_a_state_conflict(self):
         """추가 문서의 locale이 현재 원문과 맞지 않으면 상태 충돌."""
@@ -3552,6 +3599,24 @@ class MainPipelineTests(unittest.TestCase):
 
         self.assertEqual(prompts["ko"], "KO")
         self.assertEqual(prompts["ja"], "JA")
+
+    def test_source_structure_mismatch_allows_regeneration(self):
+        """기존 locale 구조 불일치는 재생성 강등 대상으로 판정."""
+
+        self.assertTrue(
+            main._issues_allow_regeneration(
+                ["ko doc.md: SOURCE_STRUCTURE_MISMATCH: document: link label mismatch"]
+            )
+        )
+
+    def test_unrelated_verification_failure_is_not_degradable(self):
+        """강등 목록 밖의 검증 실패는 재생성으로 넘기지 않음."""
+
+        self.assertFalse(
+            main._issues_allow_regeneration(
+                ["ko doc.md: RESIDUAL_PATTERN: unrestored base64 placeholder"]
+            )
+        )
 
     def test_select_changes_excludes_untranslated_documents(self):
         """원문 유지 문서는 번역 대상 선택에서 제외하는지 검증."""

@@ -121,6 +121,27 @@ class RepairPreservedMarkupTests(unittest.TestCase):
             "キューに `Bus::dispatch` を渡し、`dispatch` ヘルパも使います。\n",
         )
 
+    def test_spaces_consecutive_inline_code_spans(self):
+        """연속된 inline code span 사이 경계도 빠짐없이 정규화."""
+
+        result = repair.normalize_cjk_code_spacing("`array`と`collection`を使う\n")
+
+        self.assertTrue(result.changed)
+        self.assertEqual(result.text, "`array` と `collection` を使う\n")
+        self.assertFalse(repair.normalize_cjk_code_spacing(result.text).changed)
+
+    def test_keeps_cjk_inside_an_inline_code_span(self):
+        """span 안의 CJK 내용은 경계로 오인하지 않고 그대로 둠."""
+
+        for source, expected in (
+            ("`日本語`を使う\n", "`日本語` を使う\n"),
+            ("これは`日本語`です\n", "これは `日本語` です\n"),
+            ("`設定`は`config`です\n", "`設定` は `config` です\n"),
+        ):
+            with self.subTest(source=source):
+                result = repair.normalize_cjk_code_spacing(source)
+                self.assertEqual(result.text, expected)
+
     def test_keeps_spacing_that_already_matches_or_uses_punctuation(self):
         """이미 공백이거나 CJK 구두점이 인접한 경계는 유지."""
 
@@ -134,6 +155,30 @@ class RepairPreservedMarkupTests(unittest.TestCase):
                 self.assertFalse(
                     repair.normalize_cjk_code_spacing(text).changed
                 )
+
+    def test_restores_a_fullwidth_link_closing_paren(self):
+        """전각으로 닫힌 링크를 원문 target일 때만 반각으로 복원."""
+
+        source = "Resolved by the [service container](/docs/13.x/container).\n"
+        translated = (
+            "<!-- Resolved by the [service container](/docs/13.x/container). -->\n"
+            "[service container](/docs/13.x/container）によって解決されます。\n"
+        )
+
+        result = repair.restore_ascii_link_delimiters(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn("](/docs/13.x/container)", result.text)
+
+    def test_keeps_a_fullwidth_paren_for_an_unknown_target(self):
+        """원문에 없는 target은 링크로 되돌리지 않음."""
+
+        source = "Resolved by the [service container](/docs/13.x/container).\n"
+        translated = "[other](/docs/13.x/unknown）です。\n"
+
+        self.assertFalse(
+            repair.restore_ascii_link_delimiters(source, translated).changed
+        )
 
     def test_restores_a_missing_anchor_line_before_its_heading(self):
         """누락된 앵커 줄을 heading의 annotation 앞에 복원."""
