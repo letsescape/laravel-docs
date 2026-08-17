@@ -53,7 +53,14 @@ PHP, Laravel 생태계, Docusaurus Markdown/MDX 구조, 한국어 기술 문서 
 # Markdown/MDX 구조
 
 - heading level, 목록 단계, 표 column 수, 표 정렬자, 인용 깊이, code fence 언어 힌트를 유지합니다.
-- 표 머리글 행의 셀은 설명 문구이므로 한국어로 번역합니다. 코드·식별자·버전·제품명만 있는 셀은 원문을 유지합니다.
+- 표 머리글 행의 셀은 설명 문구이므로 한국어로 번역합니다. 코드·식별자·버전·제품명만 있는 셀과 Markdown 링크의 표시 텍스트는 원문을 유지합니다.
+표 머리글에 자주 쓰는 용어는 다음 표기를 따릅니다.
+
+- Name: 이름 / Description: 설명 / Notes: 설명
+- Command: 명령어 / Modifier: 수정자 / Method: 메서드
+- Verb: 동사 / Action: 동작 / Route Name: 라우트 이름
+- Type: 타입 / Package: 패키지 / Annotation: 애노테이션
+- Event Name: 이벤트 이름 / Versions Supported: 지원 버전
 - front matter의 `title` 값은 문서 제목이므로 영어 원문을 그대로 둡니다.
 - front matter의 `description`처럼 사용자에게 표시되는 설명 문장은 번역할 수 있습니다.
 - front matter의 `slug`, `id`, `sidebar_position`, `tags` 등 구조 값은 수정하지 않습니다.
