@@ -1819,21 +1819,21 @@ Paragraph to translate here.
             response_contract.verify(translated, source),
         )
 
-    def test_rejects_removed_emphasis_delimiters(self):
-        """강조 구분자 제거 거부."""
+    def test_allows_removed_emphasis_delimiters(self):
+        """어휘로 흡수된 강조 구분자 누락 허용."""
 
         source = "Use **atomic locks** before updating the value.\n"
         translated = """<!-- Use **atomic locks** before updating the value. -->
 값을 업데이트하기 전에 atomic locks를 사용합니다.
 """
 
-        self.assertIn(
+        self.assertNotIn(
             "provider inline markup mismatch",
             response_contract.verify(translated, source),
         )
 
-    def test_rejects_removed_single_emphasis_around_a_link(self):
-        """링크를 감싼 단일 강조 구분자 제거 거부."""
+    def test_allows_removed_single_emphasis_around_a_link(self):
+        """링크를 감싼 단일 강조 구분자 누락 허용."""
 
         source = (
             "Read *the [atomic lock guide](https://example.com/locks)* now.\n"
@@ -1843,20 +1843,20 @@ Paragraph to translate here.
             "[atomic lock guide](https://example.com/locks)를 읽으세요.\n"
         )
 
-        self.assertIn(
+        self.assertNotIn(
             "provider inline markup mismatch",
             response_contract.verify(translated, source),
         )
 
-    def test_rejects_removed_underscore_emphasis(self):
-        """밑줄 강조 구분자 제거 거부."""
+    def test_allows_removed_underscore_emphasis(self):
+        """밑줄 강조 구분자 누락 허용."""
 
         source = "Use _atomic locks_ before updating the value.\n"
         translated = """<!-- Use _atomic locks_ before updating the value. -->
 값을 업데이트하기 전에 atomic locks를 사용합니다.
 """
 
-        self.assertIn(
+        self.assertNotIn(
             "provider inline markup mismatch",
             response_contract.verify(translated, source),
         )
@@ -2428,15 +2428,32 @@ Permission is hereby granted to modify this software.
             response_contract.verify(translated, source, locale="ko"),
         )
 
-    def test_allows_exact_table_cells_below_twenty_letters(self):
-        """Letter가 20자 미만인 표 cell의 원문 동일 응답을 허용."""
+    def test_allows_exact_data_cells_below_twenty_letters(self):
+        """Letter가 20자 미만인 표 data cell의 원문 동일 응답을 허용."""
+
+        source = """| Feature | Description |
+| --- | --- |
+| Lock | Prevent writes |
+"""
+        translated = """| 기능 | 설명 |
+| --- | --- |
+| Lock | Prevent writes |
+"""
+
+        self.assertNotIn(
+            "provider target language mismatch",
+            response_contract.verify(translated, source, locale="ko"),
+        )
+
+    def test_rejects_table_headers_echoed_from_the_source(self):
+        """표 머리글 셀의 원문 동일 응답을 거부."""
 
         source = """| Feature | Description |
 | --- | --- |
 | Lock | Prevent writes |
 """
 
-        self.assertNotIn(
+        self.assertIn(
             "provider target language mismatch",
             response_contract.verify(source, source, locale="ko"),
         )
@@ -2866,6 +2883,101 @@ Permission is hereby granted to modify this software.
                     "provider target language mismatch",
                     response_contract.verify(translated, source, locale=locale),
                 )
+
+
+class EchoedHeaderCellsTests(unittest.TestCase):
+    """번역되지 않은 표 머리글 셀 지목 검증."""
+
+    SOURCE = "| Modifier | Description |\n| --- | --- |\n| `->a()` | Does a thing. |\n"
+
+    def test_names_untranslated_header_cell(self):
+        """원문 그대로 돌아온 머리글 셀만 반환."""
+
+        translated = "| Modifier | 説明 |\n| --- | --- |\n| `->a()` | 何かをします。 |\n"
+
+        self.assertEqual(
+            response_contract.echoed_header_cells(translated, self.SOURCE),
+            ["Modifier"],
+        )
+
+    def test_returns_empty_when_header_is_translated(self):
+        """머리글이 모두 번역되면 빈 목록."""
+
+        translated = "| 修飾子 | 説明 |\n| --- | --- |\n| `->a()` | 何かをします。 |\n"
+
+        self.assertEqual(
+            response_contract.echoed_header_cells(translated, self.SOURCE),
+            [],
+        )
+
+
+class DataCellProseTests(unittest.TestCase):
+    """표 data cell의 보호 데이터·설명 문구 구분 검증."""
+
+    def test_treats_separated_single_token_items_as_data(self):
+        """구분자로 나뉜 단일 토큰 나열은 보호 데이터."""
+
+        self.assertTrue(
+            response_contract._cell_has_no_translatable_prose(
+                "OpenAI, Gemini, Azure, Bedrock"
+            )
+        )
+
+    def test_treats_descriptive_phrase_as_prose(self):
+        """설명 문구는 대문자로 시작해도 보호 데이터가 아님."""
+
+        for text in (
+            "Configures Distributed Cache",
+            "The iterations remaining in the loop.",
+            "Read the database schema",
+        ):
+            with self.subTest(text=text):
+                self.assertFalse(
+                    response_contract._cell_has_no_translatable_prose(text)
+                )
+
+
+class LinkTitleSignatureTests(unittest.TestCase):
+    """링크 title 서명의 재정렬 허용과 교환 거부 검증."""
+
+    SOURCE = 'See [alpha](https://a "A") and [beta](https://a "B").\n'
+
+    def _verify(self, body):
+        return response_contract.verify(
+            f"<!-- {self.SOURCE.strip()} -->\n{body}", self.SOURCE, locale="ja"
+        )
+
+    def test_allows_reordered_links(self):
+        """어순에 따른 링크 재배열은 허용."""
+
+        body = 'まず [beta](https://a "B")、次に [alpha](https://a "A") です。\n'
+
+        self.assertNotIn("provider link title mismatch", self._verify(body))
+
+    def test_rejects_swapped_titles_on_the_same_target(self):
+        """같은 target을 쓰는 링크 사이의 title 교환은 거부."""
+
+        body = 'まず [alpha](https://a "B")、次に [beta](https://a "A") です。\n'
+
+        self.assertIn("provider link title mismatch", self._verify(body))
+
+
+class TargetScriptRatioTests(unittest.TestCase):
+    """문서 단위 목표 문자 비율 계산 검증."""
+
+    def test_fully_translated_text_reaches_one(self):
+        """완전히 번역된 산문은 비율 1에 도달."""
+
+        self.assertEqual(
+            response_contract.target_script_ratio("결과를 캐시합니다", "ko"), 1.0
+        )
+
+    def test_other_locale_text_scores_zero(self):
+        """다른 로케일 문자만 있으면 비율 0."""
+
+        self.assertEqual(
+            response_contract.target_script_ratio("결과를 캐시합니다", "ja"), 0.0
+        )
 
 
 if __name__ == "__main__":

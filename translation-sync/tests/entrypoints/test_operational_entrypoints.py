@@ -74,7 +74,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertIn("@openai/codex@latest", workflow)
         self.assertIn("codex --version", workflow)
         self.assertIn("uses: actions/checkout@v6", workflow)
-        self.assertIn("uses: astral-sh/setup-uv@v9", workflow)
+        self.assertIn("uses: astral-sh/setup-uv@v7", workflow)
         self.assertIn("uses: actions/setup-node@v6", workflow)
         self.assertIn("uses: actions/upload-artifact@v7", workflow)
         self.assertNotRegex(workflow, r"uses: [^\n]+@[0-9a-f]{40}")
@@ -122,7 +122,7 @@ class OperationalEntrypointTests(unittest.TestCase):
             "CODEX_HOME",
         ):
             self.assertIn(credential_setting, prepare_step)
-        self.assertIn("TRANSLATION_WORKFLOW_TIMEOUT_SECONDS: '7200'", prepare_step)
+        self.assertIn("TRANSLATION_WORKFLOW_TIMEOUT_SECONDS: '21600'", prepare_step)
         self.assertNotIn("TRANSLATION_RETRY_DELAY", workflow)
         for unsupported_openai_setting in (
             "OPENAI_BASE_URL",

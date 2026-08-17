@@ -595,7 +595,7 @@ class MainPipelineTests(unittest.TestCase):
                 issues = main._translate_added_document(change, cfg, "prompt", dest)
 
             self.assertIn("provider original comment mismatch", issues[0])
-            self.assertEqual(provider.call_count, 1)
+            self.assertEqual(provider.call_count, 5)
             self.assertFalse(dest.exists())
 
     def test_added_table_is_admitted_with_one_whole_table_owner(self):
@@ -1111,7 +1111,7 @@ class MainPipelineTests(unittest.TestCase):
                 issues = main._translate_one(change, cfg, "prompt", dest)
 
             self.assertEqual(issues, [])
-            self.assertEqual(len(sent), 1)
+            self.assertEqual(len(sent), 0)
             self.assertEqual(
                 dest.read_text(encoding="utf-8"),
                 "<!-- # Example -->\n"
@@ -1764,8 +1764,21 @@ class MainPipelineTests(unittest.TestCase):
                 "<!-- New text. -->\n새 번역입니다.\n",
             )
 
-    def test_translate_one_reports_partial_patch_failure_without_full_retranslation(self):
-        """전체 재번역 없이 부분 패치 실패를 보고하는지 검증."""
+    def test_annotation_source_normalizes_unquoted_admonition_bodies(self):
+        """비인용 경고문 본문에서 annotation 기준과 영어 view 구조 일치 검증."""
+
+        source = "Intro.\n\n> [!NOTE]\nBody text.\n\nAfter.\n"
+
+        annotation = main._annotation_source(source, "12.x", {})
+
+        self.assertIn("> [!NOTE]\n> Body text.", annotation)
+        self.assertEqual(
+            annotation,
+            main.postprocess.postprocess(source, "12.x", {}),
+        )
+
+    def test_translate_one_degrades_partial_patch_failure_to_recreation(self):
+        """부분 patch 불가 문서를 전체 재생성으로 강등하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1786,30 +1799,187 @@ class MainPipelineTests(unittest.TestCase):
                 ],
             )
             cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            response = "<!-- New text. -->\n새 번역입니다.\n"
 
             with patch.object(main, "REPO_ROOT", root), patch.object(
                 main.translate,
-                "translate_text",
-                side_effect=AssertionError("full document fallback should not run"),
+                "translate_request",
+                return_value=response,
             ):
                 issues = main._translate_one(change, cfg, "prompt", dest)
 
-            self.assertEqual(
-                issues,
-                [
-                    (
-                        "partial patch failed: existing document matches neither "
-                        "source nor target plan state [PATCH_LOCATION_AMBIGUOUS]"
-                    )
-                ],
+            self.assertEqual(issues, [])
+            self.assertEqual(dest.read_text(encoding="utf-8"), response)
+
+    def test_added_document_with_verified_locale_is_not_a_state_conflict(self):
+        """추가 문서의 locale이 이미 검증을 통과하면 상태 충돌로 보지 않음."""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
             )
-            self.assertEqual(
-                dest.read_text(encoding="utf-8"),
-                "Unrelated translation.\n",
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "A paragraph that already has an approved translation.\n",
+                encoding="utf-8",
+            )
+            for dest, body in (
+                (
+                    root / "versioned_docs/version-12.x/example.md",
+                    "이미 승인된 번역이 있는 문단입니다.",
+                ),
+                (
+                    root
+                    / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md",
+                    "すでに承認された翻訳がある段落です。",
+                ),
+            ):
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(
+                    "<!-- A paragraph that already has an approved translation. -->\n"
+                    f"{body}\n",
+                    encoding="utf-8",
+                )
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="A",
             )
 
-    def test_translate_one_rejects_mixed_plan_state_before_provider(self):
-        """혼합된 계획 상태를 공급자 호출 전에 거부하는지 검증."""
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._file_state_issues(change)
+
+            self.assertEqual(issues, [])
+
+    def test_added_document_with_wrong_locale_is_a_state_conflict(self):
+        """구조가 맞아도 목표 언어가 다르면 승인된 결과로 보지 않음."""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "A paragraph that already has an approved translation.\n",
+                encoding="utf-8",
+            )
+            for dest in (
+                root / "versioned_docs/version-12.x/example.md",
+                root / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md",
+            ):
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(
+                    "<!-- A paragraph that already has an approved translation. -->\n"
+                    "이미 승인된 번역이 있는 문단입니다.\n",
+                    encoding="utf-8",
+                )
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="A",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._file_state_issues(change)
+
+        self.assertEqual(
+            issues,
+            [
+                "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: "
+                "A requires absent ja locale"
+            ],
+        )
+
+    def test_added_document_with_stale_locale_is_a_state_conflict(self):
+        """추가 문서의 locale이 현재 원문과 맞지 않으면 상태 충돌."""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text("A new paragraph.\n", encoding="utf-8")
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text("관련 없는 번역입니다.\n", encoding="utf-8")
+            change = diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                status="A",
+            )
+
+            with patch.object(main, "REPO_ROOT", root):
+                issues = main._file_state_issues(change)
+
+            self.assertTrue(
+                any("requires absent ko locale" in issue for issue in issues)
+            )
+
+    def test_recreation_reuses_translations_of_unchanged_blocks(self):
+        """재생성 강등이 영어 원문 그대로인 블록의 기존 번역을 재사용."""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Keep this paragraph exactly as it already is.\n"
+                "\n"
+                "New text that must be translated now.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(
+                "<!-- Keep this paragraph exactly as it already is. -->\n"
+                "이 문단은 이미 승인된 번역 그대로 유지합니다.\n"
+                "\n"
+                "<!-- Stale text. -->\n"
+                "예전 번역입니다.\n",
+                encoding="utf-8",
+            )
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("delete", "Stale text."),
+                    ("add", "New text that must be translated now."),
+                ],
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            requests: list[str] = []
+
+            def translated(request, _cfg, _prompt, **_kwargs) -> str:
+                """변경된 블록만 번역."""
+
+                requests.append(request.source)
+                return (
+                    "<!-- New text that must be translated now. -->\n"
+                    "이제 번역해야 하는 새 문장입니다.\n"
+                )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                side_effect=translated,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(len(requests), 1)
+            self.assertIn("New text that must be translated now.", requests[0])
+            written = dest.read_text(encoding="utf-8")
+            self.assertIn("이 문단은 이미 승인된 번역 그대로 유지합니다.", written)
+            self.assertIn("이제 번역해야 하는 새 문장입니다.", written)
+            self.assertNotIn("예전 번역입니다.", written)
+
+    def test_translate_one_degrades_mixed_plan_state_to_recreation(self):
+        """혼합된 계획 상태 문서를 전체 재생성으로 강등하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1843,24 +2013,89 @@ class MainPipelineTests(unittest.TestCase):
                 ],
             )
             cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            responses = [
+                "<!-- Before. -->\n앞 문장입니다.\n",
+                "<!-- New text. -->\n새 번역입니다.\n",
+                "<!-- After. -->\n뒤 문장입니다.\n",
+            ]
 
             with patch.object(main, "REPO_ROOT", root), patch.object(
                 main.translate,
-                "translate_text",
-                side_effect=AssertionError("provider should not run for mixed state"),
+                "translate_request",
+                side_effect=responses,
             ):
                 issues = main._translate_one(change, cfg, "prompt", dest)
 
+            self.assertEqual(issues, [])
             self.assertEqual(
-                issues,
-                [
-                    (
-                        "partial patch failed: existing document matches neither "
-                        "source nor target plan state [PATCH_LOCATION_AMBIGUOUS]"
-                    )
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n앞 문장입니다.\n\n"
+                "<!-- New text. -->\n새 번역입니다.\n\n"
+                "<!-- After. -->\n뒤 문장입니다.\n",
+            )
+
+    def test_translate_one_degrades_whole_table_insertion_to_recreation(self):
+        """수정 문서의 표 전체 삽입을 재생성 강등으로 처리하는지 검증."""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = (
+                root
+                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+            )
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(
+                "Before.\n\n"
+                "| Name | Value |\n| --- | --- |\n| Widget | enabled |\n\n"
+                "After.\n",
+                encoding="utf-8",
+            )
+            dest = root / "versioned_docs/version-12.x/example.md"
+            dest.parent.mkdir(parents=True)
+            existing = (
+                "<!-- Before. -->\n앞 문장입니다.\n\n"
+                "<!-- After. -->\n뒤 문장입니다.\n"
+            )
+            dest.write_text(existing, encoding="utf-8")
+            change = self._change_with_lines(
+                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                lines=[
+                    ("context", "Before."),
+                    ("context", ""),
+                    ("add", "| Name | Value |"),
+                    ("add", "| --- | --- |"),
+                    ("add", "| Widget | enabled |"),
+                    ("add", ""),
+                    ("context", "After."),
                 ],
             )
-            self.assertEqual(dest.read_text(encoding="utf-8"), existing)
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            table_response = (
+                "<!-- | Name | Value | | --- | --- | | Widget | enabled | -->\n"
+                "| 이름 | 값 |\n"
+                "| --- | --- |\n"
+                "| Widget | 활성 |\n"
+            )
+            responses = [
+                "<!-- Before. -->\n앞 문장입니다.\n",
+                table_response,
+                "<!-- After. -->\n뒤 문장입니다.\n",
+            ]
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                side_effect=responses,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest)
+
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                dest.read_text(encoding="utf-8"),
+                "<!-- Before. -->\n앞 문장입니다.\n\n"
+                f"{table_response}\n"
+                "<!-- After. -->\n뒤 문장입니다.\n",
+            )
 
     def test_translate_one_verifies_target_state_without_provider(self):
         """공급자 호출 없이 대상 상태를 확인하는지 검증."""
@@ -2717,8 +2952,8 @@ class MainPipelineTests(unittest.TestCase):
             self.assertEqual(repeated_issues, [])
             self.assertEqual(dest.read_text(encoding="utf-8"), expected)
 
-    def test_translate_one_does_not_retry_link_mismatches(self):
-        """링크 불일치 발생 시 번역을 재시도하지 않는지 검증."""
+    def test_translate_one_retries_link_mismatches_with_feedback(self):
+        """링크 불일치 발생 시 feedback 재요청으로 복구하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2782,12 +3017,13 @@ class MainPipelineTests(unittest.TestCase):
             ):
                 issues = main._translate_one(change, cfg, "prompt", dest)
 
-            self.assertIn("provider link target mismatch", issues[0])
-            self.assertEqual(len(sent), 1)
-            self.assertIn("[Old Docs](old-docs)", dest.read_text(encoding="utf-8"))
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 2)
+            self.assertIn("provider link pair mismatch", sent[1])
+            self.assertIn("[Docs](docs)", dest.read_text(encoding="utf-8"))
 
-    def test_translate_one_does_not_retry_inline_code_mismatches(self):
-        """인라인 코드 불일치 발생 시 번역을 재시도하지 않는지 검증."""
+    def test_translate_one_retries_inline_code_mismatches_with_feedback(self):
+        """인라인 코드 불일치 발생 시 feedback 재요청으로 복구하는지 검증."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -2857,9 +3093,10 @@ class MainPipelineTests(unittest.TestCase):
             ):
                 issues = main._translate_one(change, cfg, "prompt", dest)
 
-            self.assertIn("provider inline code mismatch", issues[0])
-            self.assertEqual(len(sent), 1)
-            self.assertIn("`Redis::funnel`", dest.read_text(encoding="utf-8"))
+            self.assertEqual(issues, [])
+            self.assertEqual(len(sent), 2)
+            self.assertIn("provider inline code mismatch", sent[1])
+            self.assertIn("`Redis::throttle`", dest.read_text(encoding="utf-8"))
 
     def test_translate_one_requires_hunks_for_existing_documents(self):
         """기존 문서 번역에 원시 diff 묶음이 필요한지 검증."""
@@ -3362,6 +3599,58 @@ class MainPipelineTests(unittest.TestCase):
 
         self.assertEqual(prompts["ko"], "KO")
         self.assertEqual(prompts["ja"], "JA")
+
+    def test_source_structure_mismatch_allows_regeneration(self):
+        """기존 locale 구조 불일치는 재생성 강등 대상으로 판정."""
+
+        self.assertTrue(
+            main._issues_allow_regeneration(
+                ["ko doc.md: SOURCE_STRUCTURE_MISMATCH: document: link label mismatch"]
+            )
+        )
+
+    def test_unrelated_verification_failure_is_not_degradable(self):
+        """강등 목록 밖의 검증 실패는 재생성으로 넘기지 않음."""
+
+        self.assertFalse(
+            main._issues_allow_regeneration(
+                ["ko doc.md: RESIDUAL_PATTERN: unrestored base64 placeholder"]
+            )
+        )
+
+    def test_select_changes_excludes_untranslated_documents(self):
+        """원문 유지 문서는 번역 대상 선택에서 제외하는지 검증."""
+
+        changes = [
+            diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/license.md",
+                status="M",
+            ),
+            diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/queues.md",
+                status="M",
+            ),
+        ]
+
+        with patch.object(diff, "changed_sources", return_value=changes):
+            selected = main._select_changes()
+
+        self.assertEqual([change.document for change in selected], ["queues.md"])
+
+    def test_select_changes_keeps_untranslated_document_deletion(self):
+        """원문 유지 문서라도 삭제는 전파하는지 검증."""
+
+        changes = [
+            diff.SourceChange(
+                path="i18n/en/docusaurus-plugin-content-docs/version-13.x/license.md",
+                status="D",
+            ),
+        ]
+
+        with patch.object(diff, "changed_sources", return_value=changes):
+            selected = main._select_changes()
+
+        self.assertEqual([change.document for change in selected], ["license.md"])
 
     def test_select_changes_migrate_existing_uses_all_source_markdown_files(self):
         """기존 문서 마이그레이션에서 모든 원문 Markdown 파일을 사용하는지 검증."""

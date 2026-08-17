@@ -124,6 +124,26 @@ class CreatePatchPlanTests(unittest.TestCase):
         self.assertEqual(plan.create_blocks[0].kind, "frontmatter")
         self.assertFalse(plan.create_blocks[0].provider_required)
 
+    def test_create_plan_keeps_bare_internal_link_lines_provider_free(self):
+        """목록 표식 없는 bare 내부 링크 줄 묶음을 provider 불필요로 분류함."""
+
+        source = (
+            "Intro.\n\n"
+            "[char](#column-method-char)\n"
+            "[text](#column-method-text)\n\n"
+            "After.\n"
+        )
+
+        plan = patch.build_create_plan(source)
+
+        link_blocks = [
+            owner
+            for owner in plan.create_blocks
+            if "#column-method-char" in owner.source
+        ]
+        self.assertEqual(len(link_blocks), 1)
+        self.assertFalse(link_blocks[0].provider_required)
+
     def test_create_plan_rejects_a_ragged_table(self):
         """열 수가 일정하지 않은 표의 `create` 계획을 거부함."""
 
@@ -355,17 +375,69 @@ class CodeBlockPatchTests(unittest.TestCase):
 
                 self.assertEqual(patch.apply_plan(first, plan, [inserted]), first)
 
-    def test_rejects_a_whole_table_insertion_in_a_modified_document(self):
-        """수정 문서에 표 전체를 삽입하는 변경을 거부함."""
+    def test_plans_a_whole_table_insertion_in_a_modified_document(self):
+        """수정 문서의 표 전체 삽입을 표 create 소유 단위로 계획함."""
+
+        old = "Before.\n\nAfter.\n"
+        table = "| Name | Value |\n| --- | --- |\n| New | 1 |"
+        new = f"Before.\n\n{table}\n\nAfter.\n"
+        existing = "<!-- Before. -->\n앞입니다.\n\n<!-- After. -->\n뒤입니다.\n"
+
+        plan = _plan(old, new)
+        applied = patch.apply_plan(existing, plan, [table])
+
+        self.assertIn("| New | 1 |", applied)
+        self.assertEqual(patch.apply_plan(applied, plan, [table]), applied)
+
+    def test_raw_html_line_change_is_provider_free(self):
+        """raw HTML 구조 줄만 있는 변경은 provider 호출 없이 처리함."""
+
+        old = "Intro.\n\nTail.\n"
+        new = 'Intro.\n\n<div class="grid">\n\n</div>\n\nTail.\n'
+
+        plan = _plan(old, new)
+        html = [
+            change
+            for change in plan.changes
+            if "<div" in patch.source_text(change)
+            or "</div>" in patch.source_text(change)
+        ]
+
+        self.assertTrue(html)
+        self.assertTrue(all(change.provider_free for change in html))
+
+    def test_rejects_a_row_added_to_an_existing_table(self):
+        """구분 행 없이 기존 표에 행만 더한 변경은 표 create로 보지 않음."""
+
+        old = "| Name | Value |\n| --- | --- |\n| First | 1 |\n"
+        new = "| Name | Value |\n| --- | --- |\n| First | 1 |\n| Second | 2 |\n"
+
+        with self.assertRaises(patch.PatchError):
+            _plan(old, new)
+
+    def test_rejects_a_wider_row_added_to_an_existing_table(self):
+        """기존 표보다 넓은 행 추가도 표 create 경로로 통과하지 않음."""
+
+        old = "| Name | Value |\n| --- | --- |\n| First | 1 |\n"
+        new = (
+            "| Name | Value |\n| --- | --- |\n| First | 1 |\n"
+            "| Second | 2 | extra |\n"
+        )
+
+        with self.assertRaises(patch.PatchError):
+            _plan(old, new)
+
+    def test_rejects_a_ragged_table_insertion_in_a_modified_document(self):
+        """수정 문서에 삽입된 비직사각형 표를 거부함."""
 
         old = "Before.\n\nAfter.\n"
         new = (
             "Before.\n\n"
-            "| Name | Value |\n| --- | --- |\n| New | 1 |\n\n"
+            "| Name | Value |\n| --- | --- |\n| New | 1 | extra |\n\n"
             "After.\n"
         )
 
-        with self.assertRaisesRegex(patch.PatchError, "exactly one"):
+        with self.assertRaisesRegex(patch.PatchError, "rectangular"):
             _plan(old, new)
 
     def test_reapplying_fenced_insertions_at_document_edges_is_idempotent(self):

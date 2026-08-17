@@ -84,16 +84,18 @@ def _kill_process_group(process_group: int) -> bool:
 
 
 def _process_group_alive(process_group: int) -> bool:
-    """프로세스 그룹 구성원의 생존 여부 확인."""
+    """프로세스 그룹 구성원의 생존 여부 확인.
+
+    ``kill(0)``의 ``EPERM``은 POSIX상 구성원이 존재한다는 뜻이므로
+    종료가 아닌 생존으로 판정.
+    """
 
     try:
         os.killpg(process_group, 0)
     except ProcessLookupError:
         return False
-    except PermissionError as exc:
-        raise ProcessTreeCleanupError(
-            "the process group could not be inspected"
-        ) from exc
+    except PermissionError:
+        return True
     except OSError as exc:
         raise ProcessTreeCleanupError(
             "the process group could not be inspected"

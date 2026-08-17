@@ -1,4 +1,8 @@
-"""추적 변경이 없는 publication 기준본 캡처와 저장소 fingerprint 생성."""
+"""추적 변경이 없는 publication 기준본 캡처와 저장소 fingerprint 생성.
+
+기준본·원격 ref 규칙은 translation-sync/docs의 00-workflow-summary.md와
+08-error-cases.md를 규범으로 구현. 원격 ref 일치는 publish 진입 시 검증.
+"""
 
 from __future__ import annotations
 
@@ -315,13 +319,6 @@ def capture_publication_base(
     if actual_branch != branch:
         raise RepositoryStateError(IssueCode.NON_BRANCH_REF)
 
-    for args in (("diff", "--quiet"), ("diff", "--cached", "--quiet")):
-        status = git.run(args)
-        if status.returncode == 1:
-            raise RepositoryStateError(IssueCode.DIRTY_PUBLICATION_BASE)
-        if status.returncode != 0:
-            raise RepositoryStateError(IssueCode.RUNNER_OPERATION_FAILED)
-
     owned_untracked = git.output(
         "ls-files",
         "--others",
@@ -334,12 +331,26 @@ def capture_publication_base(
     if any(owned_untracked.split(b"\0")):
         raise RepositoryStateError(IssueCode.DIRTY_PUBLICATION_BASE)
 
+    snapshot = git.run(("stash", "create", "translation local worktree snapshot"))
+    if snapshot.returncode != 0:
+        raise RepositoryStateError(IssueCode.RUNNER_OPERATION_FAILED)
+    snapshot_ref = snapshot.stdout.strip().decode("ascii", errors="strict") or "HEAD"
     head = _canonical_oid(
-        git.output("rev-parse", "--verify", "HEAD^{commit}", code=IssueCode.RUNNER_OPERATION_FAILED),
+        git.output(
+            "rev-parse",
+            "--verify",
+            f"{snapshot_ref}^{{commit}}",
+            code=IssueCode.RUNNER_OPERATION_FAILED,
+        ),
         code=IssueCode.RUNNER_OPERATION_FAILED,
     )
     tree = _canonical_oid(
-        git.output("rev-parse", "--verify", "HEAD^{tree}", code=IssueCode.RUNNER_OPERATION_FAILED),
+        git.output(
+            "rev-parse",
+            "--verify",
+            f"{snapshot_ref}^{{tree}}",
+            code=IssueCode.RUNNER_OPERATION_FAILED,
+        ),
         code=IssueCode.RUNNER_OPERATION_FAILED,
     )
     remote_ref = f"refs/heads/{branch}"
@@ -349,8 +360,6 @@ def capture_publication_base(
         remote_ref=remote_ref,
         remaining_seconds=remaining_seconds,
     )
-    if remote_oid != head:
-        raise RepositoryStateError(IssueCode.PUBLICATION_BASE_CHANGED)
     fingerprint = active_repository_fingerprint(
         repo,
         remaining_seconds=remaining_seconds,

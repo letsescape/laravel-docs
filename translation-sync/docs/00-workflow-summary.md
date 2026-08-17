@@ -68,7 +68,7 @@ flowchart TD
 | upstream 원문 저장소 | 버전별 영어 Markdown 원문 |
 | upstream manifest | 버전별 commit SHA를 기록한 JSON |
 | 기존 locale 문서 | 한국어·일본어 번역 문서 |
-| 승인 기준본 | clean publication checkout의 실행 시작 `HEAD` tree와 원격 branch ref |
+| 승인 기준본 | 동기화 소유 경로에 non-ignored untracked 파일이 없는 publication checkout에서 고정한 실행 시작 commit과 tree(미커밋 tracked 변경이 있으면 ref 없는 worktree 스냅샷 커밋)와 관측된 원격 branch ref. 원격 ref와 승인 기준본 commit의 일치는 publish 진입 조건이며 prepare·검증은 push 없이 로컬 승인 기준본 기준으로 실행 가능 |
 | `versions.json` | 처리 대상 버전 목록 |
 | `documentation.md` | 버전별 사이드바 기준 원문 |
 | 번역 프롬프트 | locale별 번역 지침 |
@@ -96,8 +96,8 @@ flowchart TD
 5. 같은 워크플로우 실행의 replay와 live 실행에는 동일한 upstream manifest SHA 및 정규화된 VERSION / DOC selector 사용 필수.
 6. 검증된 candidate tree와 다른 tree의 commit 또는 push 금지.
 7. 실패한 candidate의 publication 금지. 원인 수정 후 새 승인 기준본 고정 및 전체 워크플로우 재실행 필수.
-8. publication 가능한 live 실행은 시작 시 tracked worktree·index와 `HEAD`의 일치 및 동기화 소유 경로 내 non-ignored untracked 파일의 부재 필수. dirty worktree 검증은 격리 replay에만 허용.
-9. entrypoint 시작부터 배포 trigger 결과까지의 wall-clock은 `workflow_timeout_seconds` 이내로 제한. 각 subprocess를 남은 전체 예산보다 긴 timeout으로 시작하는 행위 금지.
+8. prepare는 시작 시 동기화 소유 경로 내 non-ignored untracked 파일의 부재만 요구하고, tracked worktree·index의 미커밋 변경은 로컬 실행을 막지 않음. 미커밋 변경이 있으면 승인 기준본을 ref 없는 worktree 스냅샷 커밋으로 캡처해 모든 하위 단계가 그 스냅샷 기준으로 동작하며, 원격 기준과의 일치 강제는 publish 진입 조건.
+9. entrypoint 시작부터 배포 trigger 결과까지의 wall-clock은 `workflow_timeout_seconds` 이내로 제한. 각 subprocess를 남은 전체 예산보다 긴 timeout으로 시작하는 행위 금지. 하위 프로세스에 전달하는 `TRANSLATION_WORKFLOW_TIMEOUT_SECONDS`는 workflow 설정값 이하여야 하며, 초과하면 설정 오류.
 
 ## 6. 단계 순서
 
@@ -122,7 +122,7 @@ publication 뒤 deadline 초과 시 이미 공개된 commit은 되돌리지 않�
 
 | 상태 | 의미 |
 |------|------|
-| 승인 기준본 | candidate sync core의 clean 시작 `HEAD`와 tree. Live는 원격 실행 branch ref도 포함하고, replay는 원격 ref를 적용하지 않음 |
+| 승인 기준본 | candidate sync core의 실행 시작 commit과 tree. Live는 미커밋 tracked 변경이 있으면 ref 없는 worktree 스냅샷 커밋으로 고정하고 관측된 원격 실행 branch ref도 기록하며(일치 강제는 publish 진입 시), replay는 활성 worktree를 반영한 sandbox commit으로 고정하고 원격 ref를 적용하지 않음 |
 | 이전 영어 원문 | 승인 기준본의 영어 원문 캐시 byte. delta의 old side |
 | 현재 raw 영어 원문 | manifest commit에서 읽어 candidate에 저장할 upstream byte. delta의 new side이자 publication 대상 |
 | 정규화된 영어 작업 사본 | 이전·현재 raw 원문에 전처리를 적용한 임시 비교 입력. publication 대상이 아님 |
@@ -138,12 +138,14 @@ publication 뒤 deadline 초과 시 이미 공개된 commit은 되돌리지 않�
 ### 6.2 원문 동기화와 파일 상태
 
 manifest 기준 현재 원문과 승인 기준본의 영어 원문 캐시를 경로별로 비교하여 다음과 같이 처리.
+원문을 그대로 유지해야 하는 법적 문서(현재 `license.md`)는 추가·수정 처리에서 제외하여 영어 원문만 candidate에 동기화하고 KO·JA를 생성·수정하지 않으며, 삭제는 다른 문서와 같이 전파.
+제외 문서의 삭제는 영어 원문 존재만 전제하고 존재하는 locale 산출물만 제거한다. 제외 이후 새로 추가된 문서는 KO·JA가 없을 수 있기 때문이다.
 
 | 상태 | 처리 |
 |------|------|
-| 추가 (`A`) | 이전 원문과 locale 파일의 부재 필수. 현재 원문 전체를 create 계획으로 번역하여 KO·JA 문서 생성. |
+| 추가 (`A`) | 이전 원문의 부재 필수. locale 파일도 부재가 원칙이나, 기존 locale 파일이 현재 원문 기준 문서 검증을 통과하면 같은 계획을 다시 적용한 no-op으로 보아 충돌이 아니며 해당 locale은 provider 호출 없이 기존 파일 유지. 그 밖에는 현재 원문 전체를 create 계획으로 번역하여 해당 locale 문서 생성. |
 | 수정 (`M`) | 승인 기준본의 이전 원문과 기존 KO·JA 문서 모두 존재 필수. 이전·현재 원문으로 effective delta 계산. |
-| 삭제 (`D`) | 승인 기준본의 영어·KO·JA 파일 모두 존재 필수. provider 호출 없이 candidate에서 세 파일 삭제. |
+| 삭제 (`D`) | 일반 번역 문서는 승인 기준본의 영어·KO·JA 파일 모두 존재 필수. 번역 제외 문서는 승인 기준본의 영어만 존재 필수이며, 존재하는 locale 산출물만 함께 제거. provider 호출 없이 candidate에서 대상 파일 삭제. |
 | rename | 삭제와 추가의 조합으로 처리. 추가 경로에서는 전체 문서 번역 수행 필수 및 기존 locale 번역의 추정 재사용 금지. |
 
 원문 정규화 결과로 effective delta가 비어 있어도 현재 raw 영어 원문의 갱신은 candidate에 유지.
@@ -183,9 +185,9 @@ candidate publication 금지 및 수정 후 새 실행은 승인 기준본 고�
 
 ### 7.1 provider 재시도 경계
 
-동일 블록의 provider 응답 평가는 최초 요청을 포함하여 최대 2회까지 허용.
-각 평가의 transport 호출은 일시 오류에 한해 최대 3회까지 허용.
-블록당 물리 provider 호출 상한은 6회.
+동일 블록의 provider 응답 평가는 최초 요청을 포함하여 최대 5회까지 허용.
+각 평가의 transport 호출은 일시 오류에 한해 최대 5회까지 허용.
+블록당 물리 provider 호출 상한은 25회.
 
 ## 8. git 반영 조건
 

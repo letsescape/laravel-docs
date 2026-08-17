@@ -21,7 +21,7 @@ flowchart TD
     H -- 예 --> I{Worktree fingerprint가 같은가?}
     I -- 아니요 --> Y[오염 실패 및 sandbox 보존]
     I -- 예 --> J[Sandbox 삭제]
-    J --> K[조건 충족 시 manifest export]
+    J --> K[조건 충족 시 manifest 및 replay state export]
     K --> L([Replay 성공])
 ```
 
@@ -48,6 +48,7 @@ Candidate sync core의 경계 정의는 [총괄 설계](./00-workflow-summary.md
 | active repository worktree | tracked 변경 및 untracked 파일 포함 |
 | upstream manifest input (선택) | pinned upstream commit SHA를 기록한 기존 파일. 존재하면 snapshot, 부재하면 setup에서 생성 |
 | manifest export path (선택) | 생성한 canonical manifest를 replay 성공 뒤 파일로 내보낼 active repository 밖 경로 |
+| replay state output path (선택) | canonical replay state를 replay 성공 뒤 파일로 내보낼 active repository 밖 경로 |
 | VERSION / DOC selector (선택) | 대상 버전·문서 필터 |
 | 전체 workflow deadline | 외부 orchestration이 확정한 절대 deadline. standalone replay는 진입 시 `workflow_timeout_seconds`로 한 번만 계산 |
 | runner artifact root | active repository 밖의 replay sandbox·실패 보고서 전용 경로 |
@@ -60,6 +61,7 @@ Candidate sync core의 경계 정의는 [총괄 설계](./00-workflow-summary.md
 | canonical manifest snapshot | 두 core 실행과 live 실행에 전달할 canonical byte와 SHA-256 digest. replay 성공 시 항상 반환 |
 | normalized selector | 두 replay core와 후속 live core에 그대로 전달할 canonical VERSION / DOC selector |
 | upstream manifest file (조건부) | export path가 있고 파일이 없으며 전체 replay가 성공한 경우에만 no-replace로 생성 |
+| canonical replay state file (조건부) | state output path가 있고 전체 replay가 성공한 경우에만 no-replace로 생성. manifest snapshot과 normalized selector를 후속 core에 전달하는 수단 |
 
 ## 불변 조건
 
@@ -108,13 +110,14 @@ Active worktree fingerprint는 다음 정보를 명시적 구분자와 Git의 �
 8. Active worktree fingerprint 재비교 (불일치 시 종료 코드 3)
 9. Sandbox 삭제
 10. Manifest export (조건부: 지정 경로에 파일이 없었고 전체 성공 시)
+11. Replay state export (조건부: 지정 경로가 있고 전체 성공 시)
 ```
 
 ## 실패 정책
 
 | 상태 | 종료 코드 | 처리 |
 |---|---|---|
-| KO/JA replay + 두 번째 수렴 성공 | 0 | sandbox 삭제, 조건부 manifest export |
+| KO/JA replay + 두 번째 수렴 성공 | 0 | sandbox 삭제, 조건부 manifest 및 replay state export |
 | sandbox 내 translation sync 실패 | 1 | sandbox 보존 (artifact root 기준 상대 식별자 출력) |
 | sandbox 준비·실행·정리 오류 | 2 | 불완전 sandbox 정리 또는 보존 |
 | active worktree fingerprint 불일치 | 3 | sandbox 보존 (artifact root 기준 상대 식별자 출력) |
@@ -122,8 +125,11 @@ Active worktree fingerprint는 다음 정보를 명시적 구분자와 Git의 �
 | sandbox·입력 경로 또는 symlink가 안전 규칙 위반 | 1 | clone 또는 외부 read/write 전에 즉시 거부 |
 | manifest 대상이 active repo 안 | 1 | export 전 거부 |
 | manifest 대상에 이미 파일 존재 | 1 | no-replace 원칙으로 덮어쓰기 방지 |
+| replay state 대상이 active repo 안 또는 symlink | 1 | setup에서 clone 전 거부 |
+| replay state 대상에 이미 파일 존재 | 1 | setup에서 clone 전 거부, no-replace 원칙으로 덮어쓰기 방지 |
+| replay state 대상이 manifest 대상 또는 실패 보고서 경로와 동일 | 1 | setup에서 clone 전 거부 |
 | replay 중 push·배포 또는 sandbox 밖 ref 변경 시도 | 2 | publication 격리 위반으로 즉시 거부 |
-| 전체 workflow deadline 초과 | 2 | 새 core 실행·manifest export를 시작하지 않고 sandbox 보존 또는 안전한 정리 |
+| 전체 workflow deadline 초과 | 2 | 새 core 실행·manifest export·replay state export를 시작하지 않고 sandbox 보존 또는 안전한 정리 |
 
 ## Selector normalization
 
@@ -193,7 +199,32 @@ Export 조건:
 - 외부 경로가 active repository 밖
 
 runner는 sandbox 삭제 전에 canonical manifest byte를 메모리에 보존하고, 삭제 성공 뒤 해당 byte만 no-replace export.
-Live 실행은 export 파일을 다시 읽지 않고 replay가 반환한 snapshot byte와 digest를 직접 사용.
+Live 실행은 manifest export 파일을 다시 읽지 않고 replay state가 전달한 snapshot byte와 digest를 직접 사용.
+
+## Replay State
+
+runner는 setup에서 canonical manifest snapshot과 정규화 selector를 replay state byte로 직렬화하고, replay 성공 뒤 지정 경로에 export.
+
+### Replay state 필드
+
+- `schema_version`은 `1`.
+- `manifest_base64`는 canonical manifest byte의 base64, `manifest_digest`는 같은 byte의 SHA-256 hex digest.
+- `selector_base64`는 정규화 selector byte의 base64, `selector_digest`는 같은 byte의 SHA-256 hex digest.
+- 위 다섯 key 외 값 불허.
+- replay state는 UTF-8, LF, 마지막 newline 1개와 위 key 순서를 사용하는 canonical JSON으로 직렬화.
+
+Export 조건:
+
+- replay 전체 성공 (종료 코드 0)
+- sandbox 삭제 성공
+- manifest export 단계 실패 없음
+- replay state output path가 지정됨
+- 외부 경로가 symlink 아님
+- 외부 경로에 동명 파일 부재 (no-replace)
+- 외부 경로가 active repository 밖
+- 외부 경로가 manifest export path 및 실패 보고서 경로와 서로 다름
+
+경로 조건은 setup에서 clone과 외부 read/write 전에 검증하며, export는 manifest export 뒤에 수행.
 
 ## 수용 기준
 
@@ -201,7 +232,7 @@ Live 실행은 export 파일을 다시 읽지 않고 replay가 반환한 snapsho
 2. 두 번째 실행은 같은 pinned source에서 새 process로 실행했을 때 변경 없음(no-op)으로 수렴해야 함.
 3. 실행 전후 active worktree fingerprint가 동일해야 함.
 4. sandbox는 성공 시 삭제하고 실패 시 보존하여 디버깅에 사용할 수 있어야 함.
-5. manifest는 조건 충족 시에만 export하며 기존 파일 덮어쓰기 금지.
+5. manifest와 replay state는 조건 충족 시에만 export하며 기존 파일 덮어쓰기 금지.
 6. replay 동안 원격 branch, 배포 workflow와 sandbox 밖 Git ref가 변경되지 않아야 함.
 7. replay 두 실행과 live 실행이 같은 canonical manifest digest를 보고해야 함.
 8. 두 core 실행이 같은 외부 workflow deadline을 사용하고 sandbox 경로는 artifact root 기준 상대 식별자로만 보고해야 함.

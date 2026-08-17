@@ -21,6 +21,9 @@ _CANONICAL_TYPES = {
     "참고": "NOTE",
     "注意": "NOTE",
     "注": "NOTE",
+    "注記": "NOTE",
+    "경고": "WARNING",
+    "警告": "WARNING",
 }
 _MARKER_PATTERN = "|".join(
     sorted((re.escape(marker) for marker in _CANONICAL_TYPES), key=len, reverse=True)

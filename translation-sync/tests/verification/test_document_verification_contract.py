@@ -174,6 +174,37 @@ class DocumentVerificationTests(unittest.TestCase):
         )
         self.assertIsNone(result.artifact)
 
+    def test_locale_routing_slug_front_matter_is_preserved(self):
+        """원문에 머리말이 없을 때 locale 라우팅 slug 머리말을 허용."""
+
+        source = "<!-- Cache guide. -->\n"
+        translated = "---\nslug: /\n---\n\n<!-- Cache guide. -->\n캐시 안내입니다.\n"
+
+        result = self._verify(
+            "Cache guide.\n",
+            translated,
+        )
+
+        self.assertNotIn(
+            "FRONT_MATTER_MISMATCH",
+            {issue.code for issue in result.issues},
+        )
+
+    def test_locale_only_front_matter_beyond_slug_is_rejected(self):
+        """slug 외 키가 있는 locale 전용 머리말은 계속 거부."""
+
+        translated = (
+            "---\nslug: /\ntitle: Cache\n---\n\n"
+            "<!-- Cache guide. -->\n캐시 안내입니다.\n"
+        )
+
+        result = self._verify("Cache guide.\n", translated)
+
+        self.assertIn(
+            "FRONT_MATTER_MISMATCH",
+            {issue.code for issue in result.issues},
+        )
+
     def test_front_matter_rejects_non_string_scalar(self):
         """문자열이 아닌 front matter scalar를 거부."""
 

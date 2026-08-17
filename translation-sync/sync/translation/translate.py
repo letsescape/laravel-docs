@@ -35,8 +35,8 @@ from ..verification.response_contract import RESPONSE_CONTRACT_VERSION
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROMPT_PATH = REPO_ROOT / "translation-sync" / "prompt.md"
 MAX_CHUNK_LINES = 400
-MAX_ATTEMPTS = 3
-MAX_COMPLETED_RESPONSE_ATTEMPTS = 2
+MAX_ATTEMPTS = 5
+MAX_COMPLETED_RESPONSE_ATTEMPTS = 5
 RETRY_DELAY_SECONDS = 300
 _CLI_DISABLED_FEATURES = (
     "apps",
@@ -160,14 +160,90 @@ class ProviderAttemptCounter:
         self.response_evaluation += 1
 
 
-def verification_feedback(issues: list[str]) -> str:
+_FEEDBACK_COMMENT_BUDGET = 2000
+
+
+def _bounded_comment_snippets(comments: list[str] | None) -> str:
+    """재시도 지침에 붙일 주석을 고정 예산 안에서 결정적으로 자른다."""
+
+    if not comments:
+        return ""
+    snippets: list[str] = []
+    remaining = _FEEDBACK_COMMENT_BUDGET
+    for comment in comments[:2]:
+        rendered = f"<!-- {comment} -->"
+        needed = len(rendered) + (1 if snippets else 0)
+        if needed > remaining:
+            break
+        snippets.append(rendered)
+        remaining -= needed
+    return " ".join(snippets)
+
+
+def verification_feedback(
+    issues: list[str],
+    exact_comments: list[str] | None = None,
+    echoed_cells: list[str] | None = None,
+) -> str:
     """완료된 단일 응답에 대한 길이가 제한된 교정 지침."""
-    return (
-        f"The previous output failed verification: {', '.join(issues)}.\n"
+    guidance = (
         "Translate the English Source again. Preserve every Markdown link label "
         "and target, heading, anchor, inline code span, fenced code block, and "
         "list marker exactly as it appears in the English Source. Include the "
         "English source comments required by the existing annotated format."
+    )
+    if any("link" in issue for issue in issues):
+        guidance += (
+            " Copy every Markdown link verbatim from the English Source: the "
+            "display text between [ and ] must stay in English, untranslated."
+        )
+    if any("inline code" in issue for issue in issues):
+        guidance += (
+            " Use each inline code span exactly as many times as it appears "
+            "in the English Source: do not repeat, drop, or invent `code` spans."
+        )
+    if any("target language mismatch" in issue for issue in issues):
+        guidance += (
+            " Translate the prose into the target language; keep only code, "
+            "identifiers, link labels and product names in English."
+        )
+        if echoed_cells:
+            named = ", ".join(f"`{cell}`" for cell in echoed_cells[:8])
+            guidance += (
+                f" These table header cells came back untranslated: {named}. "
+                "Translate each of them."
+            )
+    if any("inline markup" in issue for issue in issues):
+        guidance += (
+            " Do not add emphasis that the English Source does not have."
+        )
+    if any("block signature" in issue for issue in issues):
+        guidance += (
+            " Return the complete English Source: translate every line of "
+            "the English Source section, not only the lines highlighted in "
+            "the English Diff."
+        )
+    if any("admonition" in issue for issue in issues):
+        guidance += (
+            " Keep every admonition at the same level as the English Source: "
+            "translate a Note marker as a note and a Warning marker as a "
+            "warning, without changing the admonition type."
+        )
+    if any("original comment" in issue for issue in issues):
+        guidance += (
+            " Reproduce each English source comment character-for-character "
+            "from the English Source: do not rephrase or change punctuation "
+            "inside comments."
+        )
+        quoted = _bounded_comment_snippets(exact_comments)
+        if quoted:
+            guidance += (
+                " The following comments must appear exactly as written here: "
+                + quoted
+            )
+    return (
+        f"The previous output failed verification: {', '.join(issues)}.\n"
+        + guidance
     )
 
 
@@ -270,6 +346,10 @@ Rules:
   (`#`, `##`, `###`, and so on) inside the comment.
 - Keep `<a name="..."></a>` anchors in their original position without adding
   comments for them.
+- Treat each consecutive Markdown list as one unit: place one English source
+  comment containing the whole list collapsed to one line immediately above the
+  first translated item, keep the translated items consecutive, and do not add
+  blank lines or per-item comments between them.
 - Do not add English source comments to TOC link lists.
 - Do not add English source comments to blockquoted prose. Preserve the quote
   markers and translate only the quoted prose.

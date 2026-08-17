@@ -14,16 +14,17 @@ flowchart TD
     B --> C[소유 블록 단위 PatchPlan 생성]
     C --> D{Locale 상태가 유효한가?}
     D -- Target 상태 --> N[No-op]
-    D -- Invalid 상태 --> X[Fail-closed로 실패]
+    D -- Invalid 상태 --> R[§7.2 재생성 강등]
+    R --> F
     D -- Create 상태 --> F{Provider가 필요한가?}
     D -- Source 또는 Unguarded --> E{적용 위치가 유일한가?}
-    E -- 아니요 --> X
+    E -- 아니요 --> R
     E -- 예 --> F{Provider가 필요한가?}
     F -- 아니요 --> G[결정적 블록 확정]
     F -- 예 --> H[Provider 호출 및 응답 계약 검증]
     H -- 계약 위반 --> I{완료 응답 재요청 가능?}
     I -- 예 --> H
-    I -- 아니요 --> X
+    I -- 아니요 --> X[해당 target 실패]
     H -- 통과 --> J[검증된 locale 블록 확정]
     G --> K[PatchPlan 상태와 actionable 블록 집합 전달]
     J --> K
@@ -108,24 +109,28 @@ PatchPlan과 블록 집합은 [후처리 단계](./03-postprocessing.md)로 함�
 2. heading은 `<!-- # {current English heading text} -->` 다음에 현재 영어 원문과 같은 Markdown heading 배치; 중괄호 부분은 실제 heading text로 치환; heading 본문은 번역하지 않고 annotation은 source/target 상태 판정을 위한 서명으로 유지.
 3. blockquote 본문에는 새 annotation 추가 금지; 기존 exact quoted-source annotation은 호환용으로 허용.
 4. 순수 inline-code 식별자 목록 항목은 annotation 대상 아님.
-5. 표 수정 요청의 provider 응답에는 다음 규칙 적용: 변경 행을 하나의 임시 annotation owner로 표현 가능; 이 행 annotation은 response contract와 PatchPlan 적용 위치 판정에만 사용하고 전체 문서 후처리에서 현재 표 전체 원문을 담은 canonical annotation 하나로 교체; 최종 문서에서는 해당 annotation을 표 첫 행 바로 앞에 배치하고 표 행 사이의 HTML 주석 금지; 표 create 응답은 처음부터 표 전체를 하나의 owner로 사용.
+5. 표로만 구성된 요청(행 수정·표 create)의 provider 응답 annotation은 선택 표현: 부착하면 response contract와 PatchPlan 적용 위치 판정에만 사용하고, 생략해도 계약 위반이 아님; 전체 문서 후처리가 현재 표 전체 원문을 담은 canonical annotation 하나로 항상 재생성; 최종 문서에서는 해당 annotation을 표 첫 행 바로 앞에 배치하고 표 행 사이의 HTML 주석 금지; 표 create 응답은 표 전체를 하나의 owner로 사용.
 6. source에 없는 standalone 구조 주석을 provider가 추가하면 거부.
 
-### 5.3 fail-closed 원칙
+### 5.3 fail-closed 원칙과 재생성 강등
 
-1. 위치가 유일하게 확정되지 않으면 provider 호출이나 문서 수정 없이 실패.
-2. annotation-backed 문서 상태가 source/target 어느 쪽과도 일치하지 않는 partial/mixed/제3 상태는 적용 전에 실패.
+1. 위치가 유일하게 확정되지 않으면 provider 호출이나 문서 수정 없이 해당 부분 patch를 적용하지 않음.
+2. annotation-backed 문서 상태가 source/target 어느 쪽과도 일치하지 않는 partial/mixed/제3 상태는 부분 patch 적용 대상이 아님.
 3. 동일 계획을 이미 적용한 target 문서에 다시 적용하면 no-op이어야 함.
+4. 위 1·2처럼 부분 patch로 안전하게 처리할 수 없는 수정 문서는 실행을 실패시키지 않고
+   [§7.2 재생성 강등](#72-재생성-강등)으로 처리. 강등은 부분 적용의 모호성을 제거하는
+   보수적 처리이며 기존 locale 내용을 신뢰하지 않고 현재 전체 원문에서 다시 생성.
+   강등 후에도 response contract·후처리·문서 검증은 동일하게 적용.
 
 ### 5.4 PatchPlan 상태
 
 | 상태 | 판정 조건 | 동작 |
 |------|-----------|------|
-| `create` | 영어 파일이 추가 상태이고 locale 파일이 없음 | 현재 영어 문서 전체를 소유 단위로 나누어 생성 |
+| `create` | 영어 파일이 추가 상태이고 locale 파일이 없거나, 수정 문서가 §7.2로 강등됨 | 현재 영어 문서 전체를 소유 단위로 나누어 생성 |
 | `source` | annotation 서명이 이전 원문과 일치 | 위치를 확정한 뒤 계획 적용 |
 | `target` | annotation 서명이 현재 원문과 일치 | provider 호출과 결과 블록 없이 no-op |
 | `unguarded` | annotatable prose가 없는 결정적 블록이며 이전 구조가 정확히 한 번 존재 | 구조 주소가 유일할 때만 계획 적용 |
-| `invalid` | partial/mixed/제3 상태, 예상하지 않은 locale 부재 또는 모호한 unguarded 상태 | provider 호출 전 실패 |
+| `invalid` | partial/mixed/제3 상태, 예상하지 않은 locale 부재 또는 모호한 unguarded 상태 | provider 호출 없이 §7.2 재생성 강등 |
 
 `actionable plan`은 `create`, `source`, `unguarded` 상태의 합집합.
 결과 블록 수는 전체 PatchPlan 수가 아니라 actionable plan 수와 일치해야 함.
@@ -158,12 +163,12 @@ unguarded plan은 exact old/new 구조가 같은 문서 상태와 일치할 때�
 3. locale 문서 상태 판정
    - annotatable 주석 순서를 old/new 서명과 비교
    - create/source/target/unguarded/invalid 중 하나로 판정
-   - target 상태는 no-op, invalid 상태는 실패
+   - target 상태는 no-op, invalid 상태는 §7.2 재생성 강등
 
 4. 블록별 위치 확정
    - source/unguarded 계획은 기존 원문 주석, anchor, occurrence로 기존 locale 문서의 대응 블록 탐색
    - create 계획에는 기존 위치를 요구하지 않음
-   - 필요한 위치가 유일하게 확정되지 않으면 실패
+   - 필요한 위치가 유일하게 확정되지 않으면 §7.2 재생성 강등
 
 5. provider 호출 또는 결정적 처리
    - 소유 단위에 따라 provider 필요 여부 판정
@@ -172,7 +177,7 @@ unguarded plan은 exact old/new 구조가 같은 문서 상태와 일치할 때�
 
 6. response contract 검증
    - 구조 보존·annotation·언어 규칙 검증
-   - 위반 시 feedback 포함 재요청 (완료 응답 최대 2회)
+   - 위반 시 feedback 포함 재요청 (완료 응답 최대 5회)
 
 7. 후처리 인계
    - actionable plan마다 검증된 provider 결과 또는 결정적 블록이 있는지 확인
@@ -190,17 +195,19 @@ unguarded plan은 exact old/new 구조가 같은 문서 상태와 일치할 때�
 | 일반 문단·목록 | 필요 | annotation이 대응하는 완전한 블록 또는 연속 블록 범위 |
 | 추가 문서 | 혼합 | 현재 전체 문서를 아래 소유 단위로 분해하고 provider 필요 단위만 호출 |
 | heading | 불필요 | 현재 영어 heading과 canonical annotation을 결정적으로 생성 |
-| front matter | 불필요 | 지원되는 문자열 scalar만 현재 영어 원문에서 그대로 복사 |
+| front matter | 불필요 | 지원되는 문자열 scalar만 현재 영어 원문에서 그대로 복사. 영어 원문에 머리말이 없는 문서의 locale 라우팅 `slug` 문자열 scalar 머리말은 저장소 소유로 보존 |
 | 소유 블록 전체 삭제 | 불필요 | 유일하게 확인된 이전 블록 위치에 delete tombstone 적용 |
 | 독립 fenced-code-only 변경 | 불필요 | 원문 전체 code block을 그대로 교체 |
 | bare 내부 링크 목록 | 불필요 | 원문 구조 블록을 그대로 반영 |
+| 사이드바 구조 목록 (링크 label·카테고리 heading 항목만) | 불필요 | 링크 label과 카테고리 label은 영어 유지 대상이므로 원문 구조 블록을 그대로 반영 |
 | inline-code 식별자 목록 | 불필요 | 원문 구조 블록을 그대로 반영 |
 | 표 (지원 조건 내) | 필요 | provider 응답 범위는 수정 시 변경 전후 각 한 행·동일 열 수인 기존 행, create 시 직사각형 전체 표. 최종 문서 owner는 두 경우 모두 현재 표 전체 |
 | admonition 본문 | 필요 | marker는 구조 context로 유지, 연속 변경 본문 segment |
 | admonition marker 유형 변경 | 필요 | marker + 연속 quote 본문 전체 |
 | named `<a name="...">` 한 줄 추가·삭제·rename | 불필요 | source occurrence와 target count로 정확한 한 줄 선택 |
+| raw HTML 블록 한 줄 (`<div>`, `</div>`, 단독 `<img>`) | 불필요 | 원문 줄을 그대로 반영하고 annotation 대상 아님. 삭제와 prose가 같은 hunk에 섞인 변경은 이 소유 단위로 처리하지 않고 §7.2 재생성 강등 대상. 이전 규약으로 이런 줄 위에 annotation을 가진 기존 문서는 재생성 시 해당 annotation을 남기지 않음 |
 | standalone source HTML comment | 불필요 | 현재 영어 원문의 comment byte를 구조 주소와 ordered occurrence가 유일할 때 추가·교체·삭제 |
-| section 순서 변경 (내용 동일) | 불필요 | named anchor 기준 section 전체를 목표 순서로 이동 |
+| section 순서 변경 (내용 동일) | 불필요 | named anchor 기준 section 전체와 이를 가리키는 선행 TOC 링크 줄을 목표 순서로 이동 |
 
 prose와 fence가 한 연속 변경 범위에 함께 있으면 전체를 provider 필요 블록으로 취급.
 
@@ -208,12 +215,37 @@ prose와 fence가 한 연속 변경 범위에 함께 있으면 전체를 provide
 
 section 순서 변경은 다음 조건을 모두 만족할 때만 결정적 reorder로 분류.
 
-1. section 시작점은 문서에서 유일한 standalone named anchor이고 빈 줄만 건너뛴 다음 줄은 ATX heading이어야 하며, heading level을 section 깊이로 사용.
-2. section 범위는 시작 anchor부터 다음 `현재 깊이 이하`의 유효 section 시작점 직전까지이며, 다음 시작점이 없으면 EOF까지.
-3. 함께 재정렬하는 section은 깊이가 같고 범위가 겹치지 않아야 함.
+1. section 시작점은 code fence와 HTML 주석 밖의 standalone named anchor.
+2. section 범위는 시작 anchor부터 다음 시작점 직전까지이며, 다음 시작점이 없으면 EOF까지.
+3. 재정렬 대상 anchor의 서명은 문서 안에서 유일해야 함.
 4. 이전·현재 문서의 재정렬 대상 anchor 집합과 각 anchor에 대응하는 section의 정규화 byte가 각각 동일해야 함.
 5. 대상 anchor 순서만 달라지고 같은 effective delta에는 section 내용 수정·추가·삭제가 없어야 함.
-6. anchor가 중복되거나 연결 heading·section 경계가 모호하면 reorder 분류 사용 금지, 각 effective hunk가 7절의 다른 소유 단위에 모두 유일하게 매핑되면 해당 일반 계획을 사용하고 하나라도 매핑되지 않으면 `UNSUPPORTED_CHANGE_UNIT`으로 실패.
+6. 선행 prefix가 달라진 경우 비링크 줄은 위치별로 동일하고 TOC 링크 줄의 순열만 달라지며 그 순서가 새 section 순서와 일치해야 함.
+7. anchor가 중복되거나 연결 heading·section 경계가 모호하면 reorder 분류 사용 금지, 각 effective hunk가 7절의 다른 소유 단위에 모두 유일하게 매핑되면 해당 일반 계획을 사용하고 하나라도 매핑되지 않으면 §7.2 재생성 강등을 적용.
+
+### 7.2 재생성 강등
+
+수정 문서에서 locale별로 다음 중 하나라도 발생하면 해당 문서를 부분 patch 대신
+"추가 문서"와 동일한 전체 재생성(create) 소유 단위로 강등.
+
+1. 변경을 7절의 소유 단위로 표현할 수 없음
+   (예: 기존 표의 행 추가·삭제, 표 생성·제거, 지원 조건 밖 구조 변경으로 PatchPlan 생성 불가).
+2. 기존 locale 문서 상태가 source/target 어느 쪽으로도 판정되지 않거나 적용 위치가 유일하게 확정되지 않음.
+3. 기존 locale 문서가 검증 기준(영어 verification view 정렬·annotation 대응·front matter)과
+   정렬되지 않아 부분 patch 결과의 문서 검증을 통과할 수 없음.
+
+강등된 문서는 현재 전체 원문을 소유 단위로 분해해 재번역하고,
+기존 locale 파일을 문서 검증을 통과한 재생성 결과로 교체.
+단, 기존 locale 문서에서 canonical annotation이 정확히 일치하며 유일하게
+대응하는 소유 블록은 기존 번역을 재사용하고 provider를 호출하지 않는다.
+재사용 블록도 응답 계약을 그대로 통과해야 하며, 통과하지 못하면 재번역한다.
+이 재사용은 영어 원문이 바뀌지 않은 블록의 승인된 번역 문장을 보존하기 위한
+결정적 처리이며, 재사용 여부와 무관하게 후처리·문서 검증은 동일하게 적용.
+기존 locale 파일이 이미 현재 원문 기준 문서 검증을 통과하는 재생성 결과이면
+provider 호출 없이 no-op 처리해 강등을 멱등으로 유지.
+강등은 문서·locale 단위로 1회만 적용하며, 강등 후에도 계획 생성·response contract·문서 검증이
+실패하면 해당 오류 코드로 실행 실패 (재강등 금지).
+기존 locale 문서에 대한 수동 수정 사항은 강등 시 보존 대상이 아니며 재생성 결과로 대체됨.
 
 ---
 
@@ -277,8 +309,8 @@ Install the `Widget` package from [Package Index](/docs/master/packages) and ver
 - Run `widget:init` once.
 ```
 
-- 응답은 source-authored comment를 보존하고 prose·목록의 canonical pipeline annotation을 생성하며 inline code와 link label·target을 보존해야 함.
-- `fixture_version=1`은 위 source와 `response_contract_version=1` 규칙을 사용하며, fixture byte나 판정 규칙이 바뀌면 대응 version을 올려야 함.
+- 응답은 source-authored comment를 보존하고 prose·목록의 canonical pipeline annotation을 생성하며 inline code와 link label·target 쌍을 보존해야 함. 블록 내 링크 등장 순서는 목표 언어 어순에 따라 재배열 가능.
+- `fixture_version=1`은 위 source와 `response_contract_version=1` 규칙을 사용하며, 배포 이후 fixture byte나 판정 규칙이 바뀌면 대응 version을 올려야 함.
 - 실제 번역과 같은 adapter, model, system instructions와 locale prompt를 사용하고 adapter가 지원하면 `store=false` 적용.
 - 완료 상태, wrapper 부재, annotation, 구조 보존, 목표 언어 충분성을 live response contract로 검사.
 - transport와 response feedback 상한은 일반 블록과 같으며, 한 locale fixture라도 실패하면 실행 전체 중단.
@@ -293,7 +325,8 @@ Fixture 검사는 연결성과 최소 응답 계약만 보증.
 # Translation Sync Input
 
 ## English Diff
-{정규화된 effective delta — 값이 있을 때만 포함}
+{정규화된 effective delta를 ```diff fence로 감싼 payload — 값이 있을 때만 포함.
+fence 길이는 본문의 최장 backtick 연속보다 하나 길게 잡으며, 다른 section에는 fence를 붙이지 않음}
 
 ## English Source
 {완전한 current new_source 블록}
@@ -317,6 +350,25 @@ Return only the translated Markdown block(s) for the English Source.
 provider 응답은 적용 전에 다음 항목을 모두 통과해야 함.
 live profile은 모든 항목을 검사하고, replay profile은 목표 언어 충분성과 표 prose cell의 목표 언어 요구만 제외.
 Identity도 annotation·Markdown 구조·보존 markup·wrapper 부재 검사를 통과해야 함.
+live profile 응답은 계약 검증 전에 target이 고유한 Markdown 링크의 번역된 label을
+요청 source의 원문 label로 결정적으로 복원한다.
+같은 target이 서로 다른 원문 label로 등장하면 해당 target은 복원하지 않는다.
+요청 source에 HTML 주석이 없으면, 응답 annotation 주석과 소유 본문 사이에 낀
+빈 줄도 계약 검증 전에 제거한다.
+inline code span 되돌림은 요청 source에 실제로 존재하는 내용에만 적용한다.
+원문 빈도를 초과한 반복은 backtick을 제거해 prose로 되돌리고, 원문에 없는
+내용의 span은 되돌리지 않고 그대로 두어 응답 계약이 거부하게 한다.
+요청 source에 HTML 주석이 없으면, 여러 줄로 갈라진 annotation 주석도
+계약 검증 전에 한 줄로 접는다. 접기 대상 탐색은 code fence를 넘지 않는다.
+HTML 연속 라인 블록에 행별로 갈라진 annotation 주석은, 병합 결과가
+요청 source 전체의 canonical 한 줄 형태와 정확히 같을 때만 첫 위치의 주석
+하나로 병합한다.
+요청 source에 HTML 주석이 없고 응답 annotation 주석 수가 요청 source의 블록 수와
+같으며 각 자리 주석의 단어 내용이 대소문자·문장부호·공백을 무시하고 원문과 같으면,
+주석 본문을 요청 source의 canonical byte로 계약 검증 전에 복원한다.
+하나라도 어긋나면 복원하지 않는다.
+응답에서 누락된 단독 `<a name>` 앵커 줄은 원문에서 앵커 다음의 비어 있지
+않은 줄이 응답에 유일하게 존재할 때 그 앞에 결정적으로 복원한다.
 
 | 검증 항목 | 규칙 |
 |-----------|------|
@@ -325,39 +377,52 @@ Identity도 annotation·Markdown 구조·보존 markup·wrapper 부재 검사를
 | 목록 들여쓰기·checkbox 상태 | source와 일치 |
 | 인용 깊이·canonical admonition 유형 | source 경고 수준 보존 |
 | 표 열·정렬자 | source와 일치 |
+| 표 행 중복 | source 표 행이 모두 서로 다르면 응답 표에도 중복 행이 없어야 함 |
 | front matter 구조 값 | YAML 문자열 scalar, collection/bool/null/숫자/날짜 불허 |
 | 보존 HTML/JSX 속성 | identifier·operator 구조 보존 |
-| emphasis delimiter | 단일·이중 구분 source와 일치 |
+| emphasis delimiter | 단일·이중 구분이 source 구분자의 부분 multiset. 목표 언어가 강조를 어휘로 흡수하는 누락은 허용, 원문에 없는 강조 추가는 거부 |
 | inline-link label·target·pair·title | source와 일치 |
 | reference definition | 정규화 label과 raw target·title의 ordered occurrence 일치 |
 | prose 줄 수 | 명시적 hard break 없으면 물리 한 줄 |
-| 목표 언어 충분성 | 9.1의 locale별 결정 규칙을 만족해야 함. heading·link label·front matter title과 보호 span은 제외 |
+| 문단 문장 수 | 응답 문단의 문장 수가 source 문장 수와 절 분할 허용치의 합을 넘지 않아야 함 |
+| 목표 언어 충분성 | 9.1의 locale별 결정 규칙을 만족해야 함. heading(리스트 항목 안 `## ` 카테고리 label 포함)·link label·front matter title과 보호 span은 제외 |
 | source 밖 주석 | 추가 시 거부 |
 | 표 prose cell | 목표 언어 요구, data cell(코드·링크·식별자·타입·설정 값·버전·날짜)은 원문 허용 |
 
 ### 9.1 목표 언어 충분성 판정
 
-목표 언어 판정은 fenced/inline code, Markdown link target·label, heading 전체, front matter 전체와 HTML/JSX tag·속성을 제거한 나머지 prose에 적용.
+목표 언어 판정은 fenced/inline code, Markdown link target·label, heading 전체, GFM admonition marker, front matter 전체와 HTML/JSX tag·속성을 제거한 나머지 prose에 적용.
 일반 prose 안의 단어를 identifier나 고유명사라고 추정하여 제외 금지.
 
 1. source translatable prose의 Unicode letter가 20자 이상이고 정규화한 응답 prose가 source와 완전히 같으면 live profile에서 실패.
+   단, source prose의 letter 포함 token 전부가 소문자로 시작하는 기술 식별자이면 exact copy를 허용.
+   source prose의 모든 letter가 큰따옴표 리터럴 안에 있고 리터럴 밖 나머지가 JSON 구조 문장부호(`{}`, `[]`, `:`, `,`, 공백·탭·개행)뿐이며
+   그 나머지에 `:`, `{`, `}`, `[`, `]` 중 하나 이상이 있으면 데이터로 보아 exact copy를 허용.
 2. source translatable prose의 Unicode letter가 40자 이상이면 응답에 다음 target-script 문자가 `max(8, ceil(source letter 수 × 0.10))`개 이상 있어야 함.
    - KO: Hangul syllable 또는 Hangul Jamo.
    - JA: Hiragana, Katakana 또는 Han ideograph.
 3. 40자 미만 source에는 script 비율 하한을 적용하지 않지만 1번의 exact-copy 검사는 적용.
 4. 표 prose cell에도 cell별로 같은 규칙을 적용하고 data cell은 제외.
+   같은 취지로, 20자 미만 label과 쉼표·`and`로 구분된 보호 데이터 항목 두 개 이상만으로 구성된 prose 블록은
+   data 열거로 보아 2번의 하한을 적용하지 않음. 항목 판정은 블록 형태로만 하며 일반 prose의 개별 단어 추정은 금지.
+   한 줄로 접힌 목록 항목이 3개 이상인 블록은 대문자로 시작하거나 기술 식별자인 token을 data로 보아
+   2번의 하한 계산 기준에서 제외하고, 남은 letter 수에 같은 규칙을 적용. 이 판정을 정의 목록 label 제외보다 먼저 적용.
+   모든 항목이 20자 미만 `label:` 접두를 가진 정의 목록 블록은 label을 data key로 보아
+   2번의 하한 계산 기준에서 제외하고, label을 제외한 본문 letter 수에 같은 규칙을 적용.
 5. replay profile과 identity adapter에는 이 절 전체를 적용하지 않음.
 
 문자 수는 prose를 NFC 정규화한 뒤 Unicode 15.1 General Category `L*`에 해당하는 code point를 집계.
 exact-copy 비교는 pipeline annotation을 제거하고 CRLF를 LF로 바꾸고 바깥 공백을 제거한 뒤 NFC 정규화한 prose byte를 사용하며 내부 공백은 합치지 않음.
 이 Unicode version, 정규화 방식과 상수 `20`, `40`, `8`, `0.10`은 `response_contract_version=1`에 포함.
-하나라도 바꾸면 response contract와 fixture version을 함께 올려야 함.
+아직 배포되지 않은 version은 상향 없이 개정하며, 배포된 version의 규칙을 바꿀 때만 response contract와 fixture version을 함께 올림.
 
 ### 9.2 verification feedback
 
-주석만 남고 본문이 없거나 source 밖 prose·구조 주석이 추가된 경우 모든 profile에서 feedback을 포함해 재요청.
+주석만 남고 본문이 없거나 source 밖 prose·구조 주석이 추가된 경우, 또는 문단 문장 수 계약을 위반한 경우 모든 profile에서 feedback을 포함해 재요청.
 9.1의 exact-copy 또는 target-script 하한을 위반한 경우는 live profile에서만 재요청.
-완료 응답 평가는 블록당 최초 요청을 포함해 최대 2회이며, 계속 실패하면 해당 locale target을 candidate에 기록 금지.
+목표 언어 위반 feedback에는 원문을 그대로 되돌려준 표 머리글 셀을 지목해 포함.
+Markdown 링크 보존(label·target·pair·title), inline code 보존, inline markup 보존, 원문 주석 불일치, admonition 유형 불일치 위반도 live profile에서만 재요청.
+완료 응답 평가는 블록당 최초 요청을 포함해 최대 5회이며, 계속 실패하면 해당 locale target을 candidate에 기록 금지.
 
 자동 feedback 재요청은 이 단계만 소유.
 [문서 검증 단계](./04-verification.md)는 전체 문서 issue를 provider 재요청으로 연결하지 않으며, 실패한 candidate를 기록하지 않고 실행 종료.
@@ -384,11 +449,11 @@ exact-copy 비교는 pipeline annotation을 제거하고 CRLF를 LF로 바꾸고
 
 ### 10.2 재시도 상한
 
-- 한 논리 요청당 물리 provider 호출: 초기 요청 포함 최대 **3회**.
+- 한 논리 요청당 물리 provider 호출: 초기 요청 포함 최대 **5회**.
 - 재시도 간 대기: **5분**.
 - SDK 내부 재시도: 사용하지 않음.
-- verification feedback 포함 재요청: 완료 응답 최대 **2회** (블록당).
-- 최악 물리 호출 상한: 블록당 최대 **6회** (3회 × 2 논리 요청).
+- verification feedback 포함 재요청: 완료 응답 최대 **5회** (블록당).
+- 최악 물리 호출 상한: 블록당 최대 **25회** (5회 × 5 논리 요청).
 
 ### 10.3 최종 실패
 
@@ -406,7 +471,7 @@ live fixture locale ko, ja → versions.json 순서 → 문서 경로 UTF-8 byte
 - `run_timeout_seconds`는 첫 live fixture 직전에 시작하여 마지막 문서 응답 검증까지 계속되는 단조 시계 wall-clock 상한이며, 중간의 원문 동기화·전처리·계획 생성 동안 재설정하거나 정지하는 것 금지.
 - 번역 단계의 실제 deadline은 `run_timeout_seconds`와 남은 전체 workflow deadline 중 이른 값.
 - 다음 물리 호출과 필요한 retry 대기를 수행하면 deadline을 넘는 경우 호출하지 않고 `RUN_DEADLINE_EXCEEDED`로 실패.
-- 한 블록의 최대 provider wall-clock 상한은 `6 × request_timeout_seconds + 4 × 300초`이며, 각 논리 요청의 transport 3회 사이에만 두 번씩 대기하고 두 완료 응답 평가 사이에는 별도 고정 대기 없음.
+- 한 블록의 최대 provider wall-clock 상한은 `25 × request_timeout_seconds + 20 × 300초`이며, 각 논리 요청의 transport 5회 사이에 네 번씩 대기하고 두 완료 응답 평가 사이에는 별도 고정 대기 없음.
 - deadline 실패 시 다른 target으로 진행하지 않고 candidate 전체 publication 금지.
 
 ---
@@ -416,13 +481,12 @@ live fixture locale ko, ja → versions.json 순서 → 문서 경로 UTF-8 byte
 | 실패 유형 | 처리 |
 |-----------|------|
 | effective delta가 비어 있음 (정규화로 모든 raw delta 제거) | `NORMALIZED_NOOP`으로 기록하고 기존 locale byte를 유지한 채 영어 verification view와 expected annotation map을 생성하여 문서 검증 단계에 전달. 현재 raw 영어 원문 candidate는 유지 |
-| 위치 확정 불가 (anchor 모호, 대상 없음) | 문서 미수정, locale target 실패 |
-| PatchPlan 상태가 invalid | candidate 미적재, locale target 실패 |
+| 위치 확정 불가 (anchor 모호, 대상 없음) | §7.2 재생성 강등으로 처리 |
+| PatchPlan 상태가 invalid | §7.2 재생성 강등으로 처리 |
 | 수정 표 구조 조건 불충족 (열 수 불일치, 복수 행, separator) 또는 create 표가 직사각형이 아님 | 해당 블록 실패 |
 | admonition marker가 old/new 외 제3 유형 | 해당 블록 실패 |
 | 지원하지 않는 front matter 값 또는 source HTML comment 구조 주소 모호 | provider 호출 전 실패 |
 | 분할할 수 없는 provider 필요 단위가 request budget 초과 | `UNSUPPORTED_OVERSIZE_BLOCK`으로 provider 호출 전 해당 문서 실패 |
-| section reorder의 anchor·heading·범위 판정이 모호함 | `UNSUPPORTED_CHANGE_UNIT`으로 provider 호출 전 해당 문서 실패 |
 | live provider fixture 계약 위반 | 원문 동기화 전에 실행 전체 실패 |
 | response contract 위반 후 재요청도 실패 | locale target 미기록 |
 | transient 오류 최대 재시도 초과 | locale target 미기록 |

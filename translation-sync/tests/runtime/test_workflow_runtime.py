@@ -397,6 +397,23 @@ class WorkflowPreparerTests(unittest.TestCase):
             ).encode(),
         )
 
+    def test_child_workflow_timeout_may_be_below_the_configured_budget(self) -> None:
+        """하위 프로세스의 workflow timeout이 설정값 이하면 허용."""
+
+        config = load_config(environment(run_timeout=100, workflow_timeout=600))
+
+        self.assertEqual(self.preparer()._run_timeout_seconds(config), 100)
+
+    def test_child_workflow_timeout_above_the_configured_budget_fails(self) -> None:
+        """하위 프로세스의 workflow timeout이 설정값을 넘으면 설정 오류."""
+
+        config = load_config(environment(run_timeout=100, workflow_timeout=2000))
+
+        with self.assertRaises(WorkflowStageError) as caught:
+            self.preparer()._run_timeout_seconds(config)
+
+        self.assertEqual(caught.exception.code, IssueCode.INVALID_REQUEST_BUDGET)
+
     def test_run_deadline_is_created_immediately_before_fixture(self) -> None:
         """실행 기한을 제공자 픽스처 직전에 생성하는지 검증."""
 
@@ -1125,6 +1142,32 @@ class WorkflowPreparerTests(unittest.TestCase):
         self.assertNotIn("HOME", prepared)
         self.assertNotIn("HTTP_PROXY", prepared)
         self.assertFalse(any("TOKEN" in key or "API_KEY" in key for key in prepared))
+
+    def test_stage_environment_preserves_uv_runtime_redirection(self) -> None:
+        """격리 실행 환경에서 uv 런타임 재지정 변수를 보존하는지 검증."""
+
+        source = {
+            "PATH": "/usr/local/bin:/usr/bin",
+            "UV_CACHE_DIR": "/home/app/.cache/uv",
+            "UV_PROJECT_ENVIRONMENT": "/home/app/.venv",
+            "UV_PYTHON_BIN_DIR": "/usr/local/bin",
+            "UV_PYTHON_INSTALL_DIR": "/opt/uv-python",
+            "UV_INDEX_URL": "https://private.example",
+            "HOME": "/home/app",
+        }
+
+        staged = _stage_environment(source)
+
+        self.assertEqual(
+            staged.get("UV_PROJECT_ENVIRONMENT"), "/home/app/.venv"
+        )
+        self.assertEqual(staged.get("UV_PYTHON_BIN_DIR"), "/usr/local/bin")
+        self.assertEqual(
+            staged.get("UV_PYTHON_INSTALL_DIR"), "/opt/uv-python"
+        )
+        self.assertEqual(staged.get("UV_CACHE_DIR"), "/home/app/.cache/uv")
+        self.assertNotIn("UV_INDEX_URL", staged)
+        self.assertNotIn("HOME", staged)
 
     def test_live_environment_keeps_only_selected_provider_auth(self) -> None:
         """실제 제공자 환경에 선택한 제공자 인증만 유지하는지 검증."""

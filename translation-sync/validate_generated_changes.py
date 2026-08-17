@@ -21,7 +21,7 @@ from sync.common.stale_links import (
     StaleLinkRegistryError,
     load_stale_link_registry,
 )
-from sync.common.versions import load_versions
+from sync.common.versions import UNTRANSLATED_DOCUMENTS, load_versions
 from sync.runtime.failure import (
     ExitCode,
     FailureEvent,
@@ -329,6 +329,9 @@ def _document_change_issues(
     """
 
     label = f"version-{version}/{document}"
+    if document in UNTRANSLATED_DOCUMENTS and set(locale_statuses) == {"en"}:
+        # 제외 문서는 locale 산출물이 없을 수 있어 영어 단독 변경·삭제를 허용한다.
+        return []
     source_status = locale_statuses.get("en")
     if source_status is None:
         return [

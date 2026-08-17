@@ -92,6 +92,10 @@ _POST_UNICODE_15_1_LETTER_RANGES = (
 _DISPLAY_ATTRIBUTES = frozenset(
     ("alt", "placeholder", "aria-label", "aria-description")
 )
+_QUOTED_ADMONITION_MARKER_RE = re.compile(
+    r"^([ \t]*(?:>[ \t]*)*)\[!(?:NOTE|TIP|WARNING|CAUTION|IMPORTANT)]",
+    re.IGNORECASE,
+)
 _AUTOLINK_RE = re.compile(r"<https?://[^>]+>", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
 _SENTENCE_END_RE = re.compile(
@@ -108,10 +112,26 @@ _HTML_ENTITY_RE = re.compile(r"&(?:#[xX]?[0-9A-Fa-f]+|[A-Za-z][A-Za-z0-9]+);")
 _PROSE_TRIM_CHARACTERS = " `*_~.,:;()[]&/,+"
 _MARKDOWN_TRIM_CHARACTERS = " `*_~"
 _PROTECTED_WORD_PATTERN = r"[A-Za-z][A-Za-z0-9.+#-]*"
+_DATA_ITEM_SEPARATOR_RE = re.compile(r"\s*[,/]\s*|\s+and\s+")
+_QUOTED_LITERAL_RE = re.compile(r'"[^"\n]*"')
+_JSON_STRUCTURE_CHARACTERS = " \t\n{}[]:,"
 _PROVIDER_LINK_TARGET_MISMATCH = "provider link target mismatch"
 _PROVIDER_LINK_LABEL_MISMATCH = "provider link label mismatch"
 _PROVIDER_LINK_PAIR_MISMATCH = "provider link pair mismatch"
 _PROVIDER_LINK_TITLE_MISMATCH = "provider link title mismatch"
+_FEEDBACK_RETRYABLE_ISSUES = frozenset(
+    (
+        _PROVIDER_LINK_TARGET_MISMATCH,
+        _PROVIDER_LINK_LABEL_MISMATCH,
+        _PROVIDER_LINK_PAIR_MISMATCH,
+        _PROVIDER_LINK_TITLE_MISMATCH,
+        "provider inline code mismatch",
+        "provider inline markup mismatch",
+        "provider original comment mismatch",
+        "provider admonition type mismatch",
+        "provider target language mismatch",
+    )
+)
 _PROVIDER_PROTECTED_TERM_MISMATCH = "provider protected term mismatch"
 _LOWERCASE_TECH_TERMS = frozenset(("npm", "php", "macos"))
 _PRODUCT_NAME_PREFIXES = frozenset(("laravel",))
@@ -478,6 +498,56 @@ class _RequiredCommentAccumulator:
             self.flush()
         self.paragraph_kind = kind
         self.paragraph.append(text)
+
+
+def mismatched_required_comments(text: str, source: str) -> list[str]:
+    """응답 annotation과 위치가 대응하지만 내용이 어긋난 required 주석 원문."""
+
+    required = _required_comments(source)
+    actual = _annotation_comments(text, source)
+    return [
+        expected
+        for expected, received in zip(required, actual)
+        if expected != received
+    ]
+
+
+def target_script_ratio(text: str, locale: str) -> float:
+    """산문에서 목표 문자 체계가 차지하는 비율.
+
+    문서 단위 판정에 사용하며, 코드·링크·heading 등 보호 구간은 제외한다.
+    """
+
+    sample = _normalized_language_prose(text)
+    letters = _unicode_letter_count(sample)
+    if not letters:
+        return 1.0
+    return _target_script_count(sample, locale) / letters
+
+
+def echoed_header_cells(text: str, source: str) -> list[str]:
+    """번역되지 않고 원문 그대로 돌아온 표 머리글 셀 원문."""
+
+    echoed: list[str] = []
+    for source_block, translated_block in zip(
+        _blocks(source),
+        _blocks(text),
+        strict=False,
+    ):
+        if source_block.kind != "text" or translated_block.kind != "text":
+            continue
+        if not source_block.lines or _text_kind(source_block.lines[0]) != "table":
+            continue
+        if not translated_block.lines:
+            continue
+        source_cells = _table_cells(source_block.lines[0])
+        translated_cells = _table_cells(translated_block.lines[0])
+        echoed.extend(
+            expected
+            for expected, received in zip(source_cells, translated_cells)
+            if _cell_echoes_translatable_prose(expected, received)
+        )
+    return echoed
 
 
 def _required_comments(source: str) -> list[str]:
@@ -1745,11 +1815,17 @@ def supports_feedback_retry(
     text: str,
     source: str,
     issues: list[str] | tuple[str, ...],
+    *,
+    live: bool = True,
 ) -> bool:
-    """현재 응답 위반을 한 번의 feedback completion으로 복구 가능한지 여부."""
+    """현재 응답 위반을 한 번의 feedback completion으로 복구 가능한지 여부.
+
+    ``live``가 거짓인 결정적 profile은 언어·링크·inline code·원문 주석
+    위반을 재요청하지 않는다.
+    """
 
     issue_set = frozenset(issues)
-    if "provider target language mismatch" in issue_set:
+    if live and issue_set & _FEEDBACK_RETRYABLE_ISSUES:
         return True
 
     source_blocks = _blocks(source)
@@ -2396,10 +2472,12 @@ def _legacy_pipe_row_contract(
     ):
         if not prose:
             protected_valid = protected_valid and source_cell == translated_cell
-        elif locale is not None and not _has_target_language(
+        elif locale is not None and not _table_cell_language_is_valid(
+            source_cell,
             translated_cell,
             locale,
-            source_text=source_cell,
+            header=None,
+            is_data_cell=True,
         ):
             target_valid = False
     return True, protected_valid, target_valid
@@ -2471,6 +2549,12 @@ def _language_sample(text: str) -> str:
     """언어 판정에서 보호 markup을 제거한 표본."""
 
     text = strip_html_comments(text)
+    # heading과 GFM admonition marker는 번역 대상이 아니므로 표본에서 제외.
+    text = "\n".join(
+        _QUOTED_ADMONITION_MARKER_RE.sub(r"\1", line, count=1)
+        for line in text.splitlines()
+        if not is_heading_line(line)
+    )
     text = strip_html_code_elements(text)
     text = strip_inline_code(text)
     text = strip_markdown_links(text)
@@ -2528,6 +2612,19 @@ def _target_script_count(text: str, locale: str) -> int:
         )
 
     return sum(belongs(char) for char in text)
+
+
+def _inline_markup_is_subset(
+    actual: tuple[str, ...],
+    expected: tuple[str, ...],
+) -> bool:
+    """응답 강조 구분자가 원문 구분자의 부분 multiset인지 여부.
+
+    목표 언어가 강조를 어휘로 흡수하는 누락은 허용하고,
+    원문에 없는 강조 추가는 거부한다.
+    """
+
+    return not (Counter(actual) - Counter(expected))
 
 
 def _inline_markup_signature(text: str) -> tuple[str, ...]:
@@ -2633,10 +2730,15 @@ def _markdown_link_signatures(
 ) -> tuple[
     Counter[str],
     list[str],
-    tuple[tuple[str, str], ...],
-    list[str],
+    tuple[tuple[str, tuple[str, ...]], ...],
+    list[tuple[str, str, str]],
 ]:
-    """Markdown 링크 target 횟수, 비이미지 label·target 순서와 전체 title 순서 서명."""
+    """Markdown 링크 target 횟수, 비이미지 label·(label, target) 쌍 multiset과 전체 title 순서 서명.
+
+    label·쌍·title은 정렬된 multiset으로 비교해 목표 언어 어순에 따른
+    블록 내 등장 순서 재배열을 허용하되, 같은 label이 반복되면
+    그 label의 target 등장 순서는 보존해야 한다.
+    """
 
     body = mask_reference_definitions(
         strip_html_comments(_strip_code_blocks(text))
@@ -2655,17 +2757,26 @@ def _markdown_link_signatures(
         (link.start, link.label, link.target) for link in autolinks
     )
     ordered_pairs.sort(key=lambda item: item[0])
+    per_label_targets: dict[str, list[str]] = {}
+    for _start, label, target in ordered_pairs:
+        per_label_targets.setdefault(label, []).append(target)
     return (
         Counter(
             [link.target for link in links]
             + [link.target for link in autolinks]
         ),
-        [label for _start, label, _target in ordered_pairs],
+        sorted(label for _start, label, _target in ordered_pairs),
         tuple(
-            (label, target)
-            for _start, label, target in ordered_pairs
+            sorted(
+                (label, tuple(targets))
+                for label, targets in per_label_targets.items()
+            )
         ),
-        [link.title for link in links],
+        sorted(
+            ("" if link.image else link.label, link.target, link.title)
+            for link in links
+            if link.title
+        ),
     )
 
 
@@ -2886,6 +2997,11 @@ def _table_language_is_valid(
         if _table_line_signature(line)[0] != "separator"
     ]
     source_headers = _table_cells(source_lines[0]) if source_lines else []
+    # 구분자가 없는 행 단위 요청에는 머리글 행이 없으므로 머리글 규칙을 적용하지 않음.
+    has_header_row = any(
+        _table_line_signature(line)[0] == "separator"
+        for line in source_block.lines
+    )
     for row_index, (source_line, translated_line) in enumerate(
         zip(source_lines, translated_lines, strict=False)
     ):
@@ -2900,7 +3016,7 @@ def _table_language_is_valid(
                 translated_cell,
                 locale,
                 header=header if row_index > 0 else None,
-                is_data_cell=row_index > 0,
+                is_data_cell=row_index > 0 or not has_header_row,
             ):
                 return False
     return True
@@ -2934,6 +3050,10 @@ def _table_cell_language_is_valid(
             header=header,
         )
     if protected_kind is None:
+        if is_data_cell and _cell_has_no_translatable_prose(source):
+            return True
+        if not is_data_cell and _cell_echoes_translatable_prose(source, translated):
+            return False
         return _has_target_language(translated, locale, source_text=source)
     if _protected_cell_matches(source, translated):
         return True
@@ -2942,11 +3062,55 @@ def _table_cell_language_is_valid(
     return _has_target_language(translated, locale, source_text=source)
 
 
+def _cell_echoes_translatable_prose(source: str, translated: str) -> bool:
+    """머리글 셀이 번역 가능한 산문을 그대로 반복했는지 여부.
+
+    머리글은 코퍼스 규약상 번역 대상이므로, 길이 하한과 무관하게
+    번역 가능한 단어를 그대로 되돌려준 응답을 거부한다.
+    """
+
+    sample = _normalized_language_prose(source)
+    if sample != _normalized_language_prose(translated):
+        return False
+    return any(
+        _unicode_letter_count(word) >= 2
+        and not _distinctive_technical_term(word)
+        and word.lower() not in _PROSE_SIGNAL_WORDS
+        for word in sample.split()
+    )
+
+
+def _cell_has_no_translatable_prose(source: str) -> bool:
+    """셀이 보호 항목 나열뿐이라 목표 언어 판정이 무의미한지 여부.
+
+    구분자로 나뉜 항목이 둘 이상이고 각 항목이 보호 토큰 하나일 때만 데이터 열거로 본다.
+    설명 문구는 항목 하나에 토큰이 여러 개이므로 여기에 해당하지 않는다.
+    """
+
+    words = re.findall(_PROTECTED_WORD_PATTERN, source)
+    if len(words) < 2:
+        return False
+    remainder = re.sub(_PROTECTED_WORD_PATTERN, "", source)
+    if remainder.strip(_PROSE_TRIM_CHARACTERS):
+        return False
+    if {word.lower() for word in words} & _PROSE_SIGNAL_WORDS:
+        return False
+    items = [
+        item.strip()
+        for item in _DATA_ITEM_SEPARATOR_RE.split(source)
+        if item.strip(_PROSE_TRIM_CHARACTERS)
+    ]
+    return len(items) >= 2 and all(
+        len(re.findall(_PROTECTED_WORD_PATTERN, item)) == 1 for item in items
+    )
+
+
 def _has_target_language(
     text: str,
     locale: str,
     *,
     source_text: str,
+    is_list: bool = False,
 ) -> bool:
     """번역 산문이 로캘별 exact-copy와 문자 수 기준을 충족하는지 여부."""
 
@@ -2954,11 +3118,118 @@ def _has_target_language(
     sample = _normalized_language_prose(text)
     source_letter_count = _unicode_letter_count(source_sample)
     if source_letter_count >= 20 and sample == source_sample:
+        if _is_quoted_literal_data(source_sample):
+            return True
+        identifier_tokens = [
+            word
+            for word in source_sample.split()
+            if _unicode_letter_count(word)
+        ]
+        if identifier_tokens and all(
+            not word[:1].isupper() and _distinctive_technical_term(word)
+            for word in identifier_tokens
+        ):
+            return True
         return False
-    if source_letter_count < 40:
+    if source_letter_count < 40 or _is_label_and_data_list(source_sample):
         return True
-    required = max(8, math.ceil(source_letter_count * 0.10))
+    # 열거 항목의 고유명사·식별자와 정의 목록의 label은 데이터이므로 하한 계산에서 제외.
+    basis = _enumeration_prose_letter_count(source_sample) if is_list else None
+    if basis is None:
+        remainder = _definition_list_remainder(source_sample)
+        basis = (
+            source_letter_count
+            if remainder is None
+            else _unicode_letter_count(remainder)
+        )
+    if basis < 40:
+        return True
+    required = max(8, math.ceil(basis * 0.10))
     return _target_script_count(sample, locale) >= required
+
+
+def _is_quoted_literal_data(source_sample: str) -> bool:
+    """모든 문자가 따옴표 리터럴 안에 있고 밖은 JSON 구조 문장부호뿐인지 여부."""
+
+    remainder = _QUOTED_LITERAL_RE.sub(" ", source_sample)
+    if _unicode_letter_count(remainder):
+        return False
+    return not remainder.strip(_JSON_STRUCTURE_CHARACTERS) and any(
+        char in remainder for char in ":{}[]"
+    )
+
+
+def _enumeration_prose_letter_count(source_sample: str) -> int | None:
+    """목록 항목 중 번역 대상 산문 토큰의 문자 수.
+
+    목록 marker를 제거한 언어 표본은 항목 하나가 한 줄이다.
+    항목이 세 개 미만이면 열거로 보지 않고 ``None`` 반환.
+    """
+
+    items = [
+        item
+        for item in source_sample.splitlines()
+        if _unicode_letter_count(item)
+    ]
+    if len(items) < 3:
+        return None
+    return sum(
+        _unicode_letter_count(token)
+        for item in items
+        for token in item.split()
+        if not _enumeration_token_is_protected(token)
+    )
+
+
+def _enumeration_token_is_protected(token: str) -> bool:
+    """열거 항목 토큰이 고유명사·식별자·버전이라 번역되지 않는지 여부."""
+
+    word = token.strip(_PROSE_TRIM_CHARACTERS)
+    return not word or word[:1].isupper() or _distinctive_technical_term(word)
+
+
+def _definition_list_remainder(source_sample: str) -> str | None:
+    """모든 항목이 짧은 `label:` 접두를 가진 정의 목록의 label 제외 본문.
+
+    정의 목록이 아니면 ``None``을 반환한다.
+    """
+
+    lines = [line.strip() for line in source_sample.splitlines() if line.strip()]
+    if len(lines) < 2:
+        return None
+    remainders: list[str] = []
+    for line in lines:
+        marker = _UNORDERED_LIST_RE.match(line) or _ORDERED_LIST_RE.match(line)
+        item = marker.group(marker.re.groups) if marker else line
+        label, separator, rest = item.partition(":")
+        if not separator or _unicode_letter_count(label) >= 20:
+            return None
+        remainders.append(rest)
+    return " ".join(remainders)
+
+
+def _is_label_and_data_list(source_sample: str) -> bool:
+    """짧은 label과 보호 데이터 목록만으로 구성된 블록인지 여부.
+
+    표의 data cell과 같은 취급으로, 번역 대상 산문이 exact-copy 하한
+    미만인 데이터 열거 블록에는 목표 문자 하한을 적용하지 않는다.
+    """
+
+    label, separator, remainder = source_sample.partition(":")
+    if not separator or _unicode_letter_count(label) >= 20:
+        return False
+    items = [item.strip() for item in re.split(r",|\band\b", remainder)]
+    items = [item for item in items if _unicode_letter_count(item)]
+    if len(items) < 2:
+        return False
+    return all(
+        all(
+            word[:1].isupper() or _distinctive_technical_term(word)
+            for word in item.split()
+            if _unicode_letter_count(word)
+        )
+        for item in items
+    )
 
 
 def _annotation_owner_kind(
@@ -3214,7 +3485,8 @@ def _provider_structure_issues(
     checks = (
         (has_malformed_html_comment_delimiters(text), "provider malformed HTML comment"),
         (
-            _required_comments(source) != _annotation_comments(text, source),
+            _required_comments(source) != _annotation_comments(text, source)
+            and not _table_annotation_omitted(text, source),
             "provider original comment mismatch",
         ),
         (
@@ -3264,7 +3536,10 @@ def _provider_structure_issues(
             "provider HTML code mismatch",
         ),
         (
-            _inline_markup_signature(source) != _inline_markup_signature(text),
+            not _inline_markup_is_subset(
+                _inline_markup_signature(text),
+                _inline_markup_signature(source),
+            ),
             "provider inline markup mismatch",
         ),
     )
@@ -3432,11 +3707,28 @@ def _provider_comment_issues(text: str, source: str) -> list[str]:
             "provider source comment mismatch",
         ),
         (
-            not _annotation_ownership_is_valid(text, source),
+            not _annotation_ownership_is_valid(text, source)
+            and not _table_annotation_omitted(text, source),
             "provider annotation ownership mismatch",
         ),
     )
     return [label for failed, label in checks if failed]
+
+
+def _table_annotation_omitted(text: str, source: str) -> bool:
+    """표로만 구성된 요청에서 선택적 표 annotation이 생략됐는지 여부.
+
+    표 annotation은 적용 위치 판정 보조용 선택 표현이며, 최종 canonical
+    annotation은 후처리가 현재 표 전체 원문으로 재생성한다.
+    """
+
+    if "<!--" in text:
+        return False
+    source_lines = [line.strip() for line in source.splitlines() if line.strip()]
+    return bool(source_lines) and all(
+        line.startswith("|") and line.endswith("|")
+        for line in source_lines
+    )
 
 
 def _provider_table_block_result(
@@ -3550,6 +3842,7 @@ def _provider_block_pair_result(
             _block_language_text(translated_block),
             locale,
             source_text=_block_language_text(source_block),
+            is_list=source_kind == "list",
         )
     )
     return [], language_missing

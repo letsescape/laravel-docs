@@ -428,7 +428,7 @@ class ProviderCheckTests(unittest.TestCase):
         self.assertEqual(report["code"], "FIXTURE_CONTRACT_FAILED")
         self.assertEqual(
             report["attempts"],
-            {"response_evaluation": 2, "transport": 2},
+            {"response_evaluation": 5, "transport": 5},
         )
         self.assertTrue(report_bytes.endswith(b"\n"))
         self.assertNotIn(invalid.encode(), report_bytes)

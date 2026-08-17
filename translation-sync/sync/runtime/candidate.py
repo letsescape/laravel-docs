@@ -27,7 +27,7 @@ _PASSTHROUGH_ENV = {
     "TMPDIR",
     "UV_CACHE_DIR",
 }
-_SAFE_NODE_OPTIONS = frozenset({"--max-old-space-size=4096"})
+_DEFAULT_NODE_OPTIONS = "--max-old-space-size=4096"
 FAILURE_REPORT_ENV = "TRANSLATION_FAILURE_REPORT"
 RUN_ID_ENV = "TRANSLATION_RUN_ID"
 WORKFLOW_DEADLINE_ENV = "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC"
@@ -935,9 +935,8 @@ class CandidateRunner:
             environment[WORKFLOW_DEADLINE_ENV] = self._sync_environment[
                 WORKFLOW_DEADLINE_ENV
             ]
-        node_options = os.environ.get("NODE_OPTIONS", "")
-        if node_options in _SAFE_NODE_OPTIONS:
-            environment["NODE_OPTIONS"] = node_options
+        # 사이트 빌드는 기본 heap에서 OOM으로 실패하므로 검증된 값만 사용.
+        environment["NODE_OPTIONS"] = _DEFAULT_NODE_OPTIONS
         return environment
 
     def _process(

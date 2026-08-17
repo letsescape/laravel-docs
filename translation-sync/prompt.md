@@ -53,6 +53,14 @@ PHP, Laravel 생태계, Docusaurus Markdown/MDX 구조, 한국어 기술 문서 
 # Markdown/MDX 구조
 
 - heading level, 목록 단계, 표 column 수, 표 정렬자, 인용 깊이, code fence 언어 힌트를 유지합니다.
+- 표 머리글 행의 셀은 설명 문구이므로 한국어로 번역합니다. 코드·식별자·버전·제품명만 있는 셀과 Markdown 링크의 표시 텍스트는 원문을 유지합니다.
+표 머리글에 자주 쓰는 용어는 다음 표기를 따릅니다.
+
+- Name: 이름 / Description: 설명 / Notes: 설명
+- Command: 명령어 / Modifier: 수정자 / Method: 메서드
+- Verb: 동사 / Action: 동작 / Route Name: 라우트 이름
+- Type: 타입 / Package: 패키지 / Annotation: 애노테이션
+- Event Name: 이벤트 이름 / Versions Supported: 지원 버전
 - front matter의 `title` 값은 문서 제목이므로 영어 원문을 그대로 둡니다.
 - front matter의 `description`처럼 사용자에게 표시되는 설명 문장은 번역할 수 있습니다.
 - front matter의 `slug`, `id`, `sidebar_position`, `tags` 등 구조 값은 수정하지 않습니다.
@@ -70,7 +78,7 @@ PHP, Laravel 생태계, Docusaurus Markdown/MDX 구조, 한국어 기술 문서 
 - `<a name="..."></a>` 같은 HTML anchor는 원문과 같은 위치에 그대로 둡니다.
 - 이미지 path는 수정하지 않습니다.
 - 이미지 `alt` 텍스트는 설명 문구이므로 번역할 수 있습니다.
-- GFM admonition marker인 `> [!NOTE]`, `> [!WARNING]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!CAUTION]`은 그대로 둡니다.
+- GFM admonition marker인 `> [!NOTE]`, `> [!WARNING]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!CAUTION]`은 marker 자체를 변경하지 않고, 같은 줄 또는 다음 줄의 인용 본문은 번역합니다.
 
 # 보존 대상
 
@@ -123,7 +131,7 @@ HTML/JSX/MDX 태그 속성 값 중 사용자에게 표시되는 `alt`, `placehol
 - API, URL, URI, HTTP, HTTPS, SSL, TLS, CLI, GUI, IDE, SPA, SSR, CSR
 - ORM, DTO, MVC, CRUD, XSS, CSRF, CORS, SSO, MFA, JWT, OAuth
 - JSON, YAML, XML, HTML, CSS, SQL, GraphQL, REST, RPC, MCP, AI, LLM, SDK
-- accessor, mutator, cast, casting, Castable
+- accessor, mutator, cast, casting, Castable, nullable
 
 본문 자연어에서 사용하는 기본 한국어 표기:
 
@@ -163,6 +171,9 @@ HTML/JSX/MDX 태그 속성 값 중 사용자에게 표시되는 `alt`, `placehol
 - embedding/vector store/reranking: 임베딩/벡터 스토어/리랭킹
 - agent/tool/prompt: 에이전트/툴/프롬프트
 - structured output/streaming/transcription: 구조화 출력/스트리밍/전사
+- watcher: 워처
+- provider: 프로바이더 (`공급자`, `제공자` 같은 다른 표기를 새로 만들지 않습니다)
+- hydration: 하이드레이션
 
 예제 데이터와 고유명사:
 

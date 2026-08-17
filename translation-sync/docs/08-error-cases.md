@@ -112,12 +112,12 @@ artifact 영역이 없거나 파일이 이미 있거나 쓸 수 없으면 6.9의
 | `PROVIDER_SELECTION_INVALID` | provider 환경 변수 미설정 또는 허용값 외 | 즉시 중단해야 함. 번역 단계로 넘겨서는 안 됨. |
 | `PROVIDER_CREDENTIAL_MISSING` | provider별 필수 환경 변수 누락 | 즉시 중단해야 함. |
 | `REPLAY_PROVIDER_FORBIDDEN` | replay 전용 provider가 replay 밖에서 선택됨 | 즉시 중단해야 함. |
-| `REQUIRED_CONFIG_MISSING` | 등록된 단위 테스트 명령, locale prompt, stale-link registry 또는 runner artifact root가 없음 | 즉시 중단해야 함. 보고서 경로 자체가 없으면 stderr fallback을 사용함. |
-| `STALE_LINK_REGISTRY_INVALID` | stale-link registry의 schema·정렬·canonical JSON 규칙 위반 | 즉시 중단해야 함. |
+| `REQUIRED_CONFIG_MISSING` | 등록된 단위 테스트 명령 또는 locale prompt가 없음 | 즉시 중단해야 함. 보고서 경로 자체가 없으면 stderr fallback을 사용함. |
+| `STALE_LINK_REGISTRY_INVALID` | stale-link registry 누락 또는 schema·정렬·canonical JSON 규칙 위반 | 즉시 중단해야 함. |
 | `UNIT_TEST_SOURCE_MUTATION` | 등록된 단위 테스트 명령이 tracked source를 변경함 | 즉시 중단하고 변경된 격리 checkout을 폐기해야 함. |
 | `TOKENIZER_METADATA_UNAVAILABLE` | 선택 model의 tokenizer 또는 context window를 확정할 수 없음 | provider를 호출하지 않고 즉시 중단해야 함. |
 | `INVALID_REQUEST_BUDGET` | request budget 또는 `workflow_timeout_seconds`가 누락·비양수이거나 02 §10.4의 대소 관계를 위반함 | 즉시 중단해야 함. |
-| `INVALID_RUNTIME_OPTION` | 숫자형 런타임 옵션의 형식 오류 또는 상호 배타적인 옵션의 동시 선택. CLI 인증을 둘 이상 선택한 경우를 포함 | 즉시 중단해야 함. |
+| `INVALID_RUNTIME_OPTION` | 숫자형 런타임 옵션의 형식 오류, 상호 배타적인 옵션의 동시 선택 또는 runner artifact root가 active repository 밖의 기존 디렉터리가 아님. CLI 인증을 둘 이상 선택한 경우를 포함 | 즉시 중단해야 함. |
 | `NON_BRANCH_REF` | live 실행 ref가 branch가 아님 | 승인 기준본을 고정하기 전에 즉시 중단해야 함. |
 
 설정 오류는 재시도 대상이 아님.
@@ -129,8 +129,8 @@ artifact 영역이 없거나 파일이 이미 있거나 쓸 수 없으면 6.9의
 
 | Stable issue code | 조건 | 복구 정책 |
 |-------------------|------|-----------|
-| `DIRTY_PUBLICATION_BASE` | publication 실행의 tracked worktree·index가 `HEAD`와 다르거나 소유 경로에 non-ignored untracked 파일이 존재 | 승인 기준본을 고정하지 않고 즉시 중단해야 함. |
-| `FILE_STATE_CONFLICT` | `A`·`M`·`D` 상태의 EN·KO·JA 존재 전제가 맞지 않음 | 실행 전체를 실패 처리하고 추정 생성·삭제해서는 안 됨. |
+| `DIRTY_PUBLICATION_BASE` | 동기화 소유 경로에 non-ignored untracked 파일이 존재 | 승인 기준본을 고정하지 않고 즉시 중단해야 함. tracked worktree·index의 미커밋 변경은 로컬 실행을 막지 않음. |
+| `FILE_STATE_CONFLICT` | `A`·`M`·`D` 상태의 EN·KO·JA 존재 전제가 맞지 않음 | 실행 전체를 실패 처리하고 추정 생성·삭제해서는 안 됨. 단, `A` 상태의 locale 파일이 이미 현재 원문 기준 문서 검증을 통과하면 같은 계획을 다시 적용한 no-op으로 보아 충돌이 아님. |
 | `RAW_DIFF_MISSING` | raw 수정으로 분류됐지만 raw diff hunk를 만들 수 없음 | 실행 전체를 실패 처리해야 함. |
 | `NORMALIZED_NOOP` | raw diff는 있으나 정규화된 effective delta가 비어 있음 | 오류가 아님. locale byte를 유지하고 영어 verification view·expected annotation map 기준 검증을 계속해야 함. |
 | `PREPROCESS_PLACEHOLDER_INVALID` | Base64 placeholder를 일대일로 할당·복원할 수 없거나 서로 다른 값의 digest가 충돌함 | 작업 사본을 후속 단계로 전달하지 않고 실패해야 함. |
@@ -138,7 +138,7 @@ artifact 영역이 없거나 파일이 이미 있거나 쓸 수 없으면 6.9의
 | `INVALID_SELECTOR` | VERSION / DOC selector가 07의 값·조합·canonical 상대 경로 규칙을 위반 | replay sandbox나 live candidate를 만들기 전에 실행 전체를 실패 처리해야 함. |
 | `REPLAY_PATH_UNSAFE` | replay 입력·sandbox·export 경로 또는 symlink가 07의 안전 규칙을 위반 | 외부 경로를 읽거나 쓰지 않고 replay를 실패 처리해야 함. |
 | `INVALID_MANIFEST` | manifest JSON의 schema·정렬·OID·repository 규칙 위반 | 실행 전체를 실패 처리해야 함. |
-| `MANIFEST_COMMIT_UNRESOLVED` | manifest commit을 해석할 수 없거나 기대한 commit 객체가 아님 | 실행 전체를 실패 처리해야 함. |
+| `MANIFEST_COMMIT_UNRESOLVED` | 승인 기준본 commit을 해석할 수 없거나 기대한 commit 객체가 아님 | 실행 전체를 실패 처리해야 함. |
 | `MANIFEST_DIGEST_MISMATCH` | replay 두 실행 또는 live 실행에서 canonical manifest digest가 달라짐 | 실행 전체를 실패 처리해야 함. |
 | `MANIFEST_EXPORT_CONFLICT` | export 대상이 active repository 안이거나 이미 존재함 | 외부 파일을 쓰지 않고 replay를 실패 처리해야 함. |
 | `STALE_LINK_REGISTRY_CHANGED` | 실행 중 stale-link registry digest가 달라짐 | 실행 전체를 실패 처리해야 함. |
@@ -156,7 +156,7 @@ raw 변경을 정규화된 번역 소유 단위 변경 계획으로 변환하는
 | `ANNOTATION_STATE_INVALID` | 기존 문서의 pipeline annotation이 손상됐거나 source/target이 섞임 | 해당 locale 문서를 실패 처리해야 함. |
 | `PATCH_RESULT_CARDINALITY_INVALID` | actionable plan 수와 결과 수가 불일치하거나 target plan 결과가 존재 | 실행 전체를 실패 처리해야 함. |
 | `UNSUPPORTED_OVERSIZE_BLOCK` | 안전한 경계가 없는 atomic 소유 단위가 request budget을 초과 | 해당 문서를 실패 처리해야 함. |
-| `UNSUPPORTED_CHANGE_UNIT` | 지원하지 않는 upstream 변경 단위 또는 모호한 section reorder | 해당 문서를 실패 처리하고 7.1의 수동 처리 절차를 안내해야 함. |
+| `UNSUPPORTED_CHANGE_UNIT` | 지원하지 않는 upstream 변경 단위 | 예약 code. 현재 preflight의 모든 예외가 고유 code를 붙이므로 방출되지 않으며, 지원 외 변경은 `UNSUPPORTED_OVERSIZE_BLOCK` 또는 `PATCH_LOCATION_AMBIGUOUS`로 보고. 모호한 section reorder는 실패시키지 않고 일반 계획 경로로 처리. |
 
 변경 계획 오류의 진단 context를 해당 문서·블록으로 격리하되, 실행 단계는 즉시 실패해야 함.
 모호한 매칭을 추정 적용하거나 다음 target을 처리해서는 안 됨.
@@ -167,17 +167,17 @@ provider에 번역을 요청하고 응답을 수신하는 단계에서 발생하
 
 | Stable issue code | 조건 | 재시도 여부 | 최대 시도 | 복구 정책 |
 |-------------------|------|:-----------:|:---------:|-----------|
-| `PROVIDER_TRANSIENT_EXHAUSTED` | timeout·네트워크 오류·429·5xx 또는 빈 응답 | 예 | transport 3회 | 동일 입력과 설정으로 재요청하고, 소진 시 해당 locale target을 실패 처리해야 함. |
+| `PROVIDER_TRANSIENT_EXHAUSTED` | timeout·네트워크 오류·429·5xx 또는 빈 응답 | 예 | transport 5회 | 동일 입력과 설정으로 재요청하고, 소진 시 해당 locale target을 실패 처리해야 함. |
 | `PROVIDER_REQUEST_REJECTED` | 인증 실패·비일시 4xx | 아니오 | 1회 | 즉시 해당 target을 실패 처리해야 함. |
 | `CLI_PROVIDER_FAILED` | CLI 명령 비정상 종료 | 아니오 | 1회 | redacted stderr 진단과 함께 해당 target을 실패 처리해야 함. |
 | `PROVIDER_PARTIAL_RESPONSE` | 완료 상태가 아닌 부분 응답 | 아니오 | 1회 | 부분 Markdown을 기록하지 않고 해당 target을 실패 처리해야 함. |
-| `RESPONSE_CONTRACT_FAILED` | 구조·annotation·목표 언어 response contract 위반이 feedback 뒤에도 지속 | contract에 따라 1회 feedback | 완료 응답 2회 | 해당 locale target을 기록하지 않고 실패 처리해야 함. |
-| `FIXTURE_CONTRACT_FAILED` | live provider fixture 계약 위반 | contract에 따라 1회 feedback | 완료 응답 2회 | 원문 동기화 전에 실행 전체를 실패 처리해야 함. |
+| `RESPONSE_CONTRACT_FAILED` | 구조·annotation·목표 언어 response contract 위반이 feedback 뒤에도 지속 | contract에 따라 최대 4회 feedback | 완료 응답 5회 | 해당 locale target을 기록하지 않고 실패 처리해야 함. |
+| `FIXTURE_CONTRACT_FAILED` | live provider fixture 계약 위반 | contract에 따라 최대 4회 feedback | 완료 응답 5회 | 원문 동기화 전에 실행 전체를 실패 처리해야 함. |
 | `RUN_DEADLINE_EXCEEDED` | 실행 deadline 안에 다음 호출과 대기를 완료할 수 없음 | 아니오 | 0회 | 호출하지 않고 실행 전체를 실패 처리해야 함. |
 
-블록당 완료 응답 평가는 최초 평가를 포함해 최대 2회임.
-각 평가의 transport는 최대 3회 시도할 수 있음.
-따라서 물리 호출 상한은 블록당 6회임.
+블록당 완료 응답 평가는 최초 평가를 포함해 최대 5회임.
+각 평가의 transport는 최대 5회 시도할 수 있음.
+따라서 물리 호출 상한은 블록당 25회임.
 
 ### 6.5 후처리 오류 (R)
 
@@ -186,8 +186,8 @@ provider에 번역을 요청하고 응답을 수신하는 단계에서 발생하
 | Stable issue code | 조건 | 복구 정책 |
 |-------------------|------|-----------|
 | `RESTORE_MAP_INVALID` | 현재 restore map 부재 또는 복원 불가 | 해당 target을 즉시 실패 처리하고 계획을 적용해서는 안 됨. |
-| `MARKUP_RESTORE_AMBIGUOUS` | 링크·heading 등 보존 markup 대응이 모호함 | 유일 대응이 증명될 때만 복구하고, 그렇지 않으면 해당 target을 실패 처리해야 함. |
-| `POSTPROCESS_RESIDUE` | 형식 변환 뒤 잔존 패턴 발견 | 해당 target을 즉시 실패 처리하고 문서 검증 입력으로 전달해서는 안 됨. |
+| `MARKUP_RESTORE_AMBIGUOUS` | 링크·heading 등 보존 markup 대응이 모호함 | 예약 code. 현재 후처리는 임의 복구를 하지 않고 판정을 문서 검증 단계에 위임하므로 방출하지 않음. |
+| `POSTPROCESS_RESIDUE` | 형식 변환 뒤 잔존 패턴 발견 | 예약 code. 현재 잔존 패턴은 문서 검증 단계가 `RESIDUAL_PATTERN`으로 차단하므로 방출하지 않음. |
 | `VERIFICATION_BASIS_GENERATION_FAILED` | 영어 verification view 또는 expected annotation map을 결정적으로 생성할 수 없음 | 해당 target을 실패 처리하고 candidate에 적재해서는 안 됨. |
 | `NO_WRITE_MUTATION` | `no-write` mode에서 locale byte가 달라짐 | 변경 결과를 폐기하고 해당 target을 실패 처리해야 함. |
 
@@ -240,7 +240,7 @@ provider에 번역을 요청하고 응답을 수신하는 단계에서 발생하
 | `OUTPUT_STATE_MISMATCH` | EN·KO·JA 상태 정합성 위반 | 커밋해서는 안 됨. |
 | `UNVERIFIED_ENGLISH_ONLY_CHANGE` | 증명되지 않은 영어 단독 수정 | 커밋해서는 안 됨. |
 | `SIDEBAR_OVERRIDE_FORBIDDEN` | locale sidebar override JSON 생성·수정 | 커밋해서는 안 됨. |
-| `PUBLICATION_BASE_CHANGED` | publication 직전 checkout fingerprint 또는 원격 ref 변경·lease 실패 | 승인 기준본 경쟁 오류로 push를 금지해야 함. |
+| `PUBLICATION_BASE_CHANGED` | publish 진입 시 준비 기준본이 원격 branch head가 아니거나, publication 직전 checkout fingerprint 또는 원격 ref 변경·lease 실패 | 승인 기준본 경쟁·불일치 오류로 push를 금지해야 함. |
 | `VERIFIED_TREE_MISMATCH` | commit tree와 verified tree 불일치 | push를 금지해야 함. |
 | `PUBLICATION_CREDENTIAL_UNAVAILABLE` | tree 동일성 확인 뒤 별도 publication 단계에서 write credential을 주입할 수 없음 | push하지 않고 산출 실패로 종료해야 함. |
 | `DEPLOY_TRIGGER_FAILED` | `main` publication 뒤 배포 workflow trigger 실패 | published commit은 되돌리지 않고 산출 실패로 보고하며, 그 commit을 새 승인 기준본으로 하는 no-change 실행에서 trigger를 재시도할 수 있음. |
@@ -285,7 +285,7 @@ provider에 번역을 요청하고 응답을 수신하는 단계에서 발생하
 
 ### 7.1 지원 외 upstream 변경 수동 처리
 
-정당한 upstream 변경이 `UNSUPPORTED_OVERSIZE_BLOCK` 또는 `UNSUPPORTED_CHANGE_UNIT` 계획 오류로 중단된 경우 다음 둘 중 하나만 선택함.
+정당한 upstream 변경이 `UNSUPPORTED_OVERSIZE_BLOCK` 계획 오류로 중단된 경우 다음 둘 중 하나만 선택함.
 
 1. 반복 가능한 구조라면 소유 단위·PatchPlan·검증 계약과 fixture를 확장하고, 단위 테스트를 통과시킨 뒤 새 승인 기준본에서 전체 워크플로우를 재실행함.
 2. 일회성 구조라면 자동화 밖의 별도 검토 변경으로 현재 raw 영어 원문 캐시와 KO·JA 전체 문서를 함께 수동 갱신함.

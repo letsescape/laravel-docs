@@ -6,6 +6,8 @@ import re
 from pathlib import Path
 
 VERSION_RE = re.compile(r"^(?:master|(?:0|[1-9]\d*)\.x)$")
+# 원문을 그대로 유지해야 하는 법적 문서는 번역 대상이 아니며 삭제만 전파.
+UNTRANSLATED_DOCUMENTS = frozenset({"license.md"})
 
 
 def validate_version_token(version: object) -> str:

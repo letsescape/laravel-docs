@@ -25,6 +25,7 @@ from . import verify as legacy_verify
 from .structure import (
     blockquote_structure_signature,
     front_matter_contract,
+    is_locale_routing_front_matter,
     list_structure_signature,
     table_structure_signature,
 )
@@ -687,7 +688,6 @@ def _pipeline_following_owner_invalid(
     actual_kind = response_contract._following_owner_kind(
         following,
         table_expected=expected_kind == "table",
-        allow_indented=False,
     )
     return actual_kind != expected_kind
 
@@ -1026,8 +1026,17 @@ def _document_structure_issues(source: str, text: str) -> tuple[list[Verificatio
     if (
         not source_front_matter.valid
         or not translated_front_matter.valid
-        or source_front_matter.present != translated_front_matter.present
-        or source_front_matter.signature != translated_front_matter.signature
+        or (
+            not is_locale_routing_front_matter(
+                source_front_matter,
+                translated_front_matter,
+            )
+            and (
+                source_front_matter.present != translated_front_matter.present
+                or source_front_matter.signature
+                != translated_front_matter.signature
+            )
+        )
     ):
         issues.append(
             _issue(
@@ -1261,6 +1270,27 @@ def _final_snapshot_issues(
     return issues
 
 
+def _structure_comparison_text(source: str, text: str) -> str:
+    """저장소 소유 라우팅 slug 머리말을 구조 비교에서 제외한 locale 문서.
+
+    산출물 바이트는 머리말을 그대로 보존하며, 영어 view와의 구조·annotation
+    비교에만 머리말 제외 사본 사용.
+    """
+
+    if not is_locale_routing_front_matter(
+        front_matter_contract(source),
+        front_matter_contract(text),
+    ):
+        return text
+    lines = text.splitlines(keepends=True)
+    closing = next(
+        index
+        for index, line in enumerate(lines[1:], start=1)
+        if line.strip() == "---"
+    )
+    return "".join(lines[closing + 1 :]).lstrip("\r\n")
+
+
 def verify_document(
     inputs: VerificationInput,
     *,
@@ -1325,7 +1355,10 @@ def verify_document(
         )
 
     source = inputs.english_view_bytes.decode("utf-8")
-    text = inputs.locale_bytes.decode("utf-8")
+    text = _structure_comparison_text(
+        source,
+        inputs.locale_bytes.decode("utf-8"),
+    )
     expected_map = parse_expected_annotation_map(inputs.annotation_map_bytes)
 
     structure_issues, block_structure_mismatch = _document_structure_issues(

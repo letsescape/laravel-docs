@@ -74,7 +74,7 @@ flowchart TD
 3. 링크 URL과 앵커 변경 금지.
 4. 인라인 코드는 원문과 동일하게 유지 필수.
 5. `__BASE64_IMAGE_<N>__` namespace는 파이프라인 예약어. 두 입력 중 하나에 동일 문자열이 이미 존재하면 해당 번호 건너뛰기 필수.
-6. fenced code 밖에 남은 literal 예약어는 후처리에서 `POSTPROCESS_RESIDUE`로 차단하고 [문서 검증 단계](./04-verification.md)에서도 방어적 실패 필수. fence 안의 예제 literal은 잔존 패턴 검사 대상에서 제외.
+6. fenced code 밖에 남은 literal 예약어는 [문서 검증 단계](./04-verification.md)의 잔존 검사가 `RESIDUAL_PATTERN`으로 차단 필수. fence 안의 예제 literal은 잔존 패턴 검사 대상에서 제외.
 7. 대응하는 `</style>`이 없는 `<style>`은 삭제 금지 및 입력 그대로 보존 필수.
 8. `{#stable-id}` 보존 필수. `{.class #id}` 형태에서는 class만 제거하고 `{#id}` 유지 필수.
 9. HTML `<img class="...">` 등 HTML 속성의 `class` 제거 금지.
@@ -131,8 +131,8 @@ flowchart TD
 전처리 출력이 다음 조건을 모두 만족하는 경우에만 번역 단계 전달 허용.
 
 1. 정규화된 두 작업 사본(이전·현재)에 동일한 전처리 규칙 적용 필수.
-2. fenced code 밖에 raw Base64 data URI 부재 필수.
-3. fenced code 밖에 페이지 디자인 전용 `<style>...</style>` 블록 부재 필수.
+2. fenced code와 inline code span 밖에 raw Base64 data URI 부재 필수.
+3. fenced code와 inline code span 밖에서 줄 시작(앞 공백 3칸 이하) 위치의 페이지 디자인 전용 `<style>...</style>` 블록 부재 필수.
 4. heading 줄에 `{.class-name}` 패턴 부재 필수 (`{#id}`는 허용).
 5. 두 작업 사본의 모든 placeholder에 대해 각 입력의 원본 값 매핑 존재 필수.
 6. 목록 구조의 들여쓰기가 코드 블록으로 잘못 변환되지 않아야 함.

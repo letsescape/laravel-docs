@@ -96,6 +96,9 @@ class PostprocessTests(unittest.TestCase):
             ("참고", "NOTE"),
             ("注意", "NOTE"),
             ("注", "NOTE"),
+            ("注記", "NOTE"),
+            ("경고", "WARNING"),
+            ("警告", "WARNING"),
         )
 
         for legacy, canonical in cases:

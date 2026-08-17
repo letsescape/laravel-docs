@@ -22,6 +22,362 @@ class RepairPreservedMarkupTests(unittest.TestCase):
         self.assertTrue(result.changed)
         self.assertIn('[Docs](guide.md "Guide")', result.text)
 
+    def test_restores_a_translated_label_for_a_unique_target(self):
+        """target이 고유한 링크의 번역된 label을 원문 label로 복원."""
+
+        source = "Use the same [file classes](#attachments) as before.\n"
+        translated = (
+            "<!-- Use the same [file classes](#attachments) as before. -->\n"
+            "이전과 동일한 [파일 클래스](#attachments)를 사용합니다.\n"
+        )
+
+        result = repair.restore_translated_link_labels(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn("[file classes](#attachments)", result.text.splitlines()[1])
+
+    def test_keeps_translated_labels_for_ambiguous_targets(self):
+        """같은 target이 서로 다른 원문 label로 등장하면 복원하지 않음."""
+
+        source = "See [first](#x) and [second](#x).\n"
+        translated = (
+            "<!-- See [first](#x) and [second](#x). -->\n"
+            "[첫째](#x)와 [둘째](#x)를 보세요.\n"
+        )
+
+        result = repair.restore_translated_link_labels(source, translated)
+
+        self.assertFalse(result.changed)
+
+    def test_removes_a_blank_line_between_annotation_and_body(self):
+        """annotation 주석과 소유 본문 사이의 빈 줄을 제거."""
+
+        source = "**Supported providers:** Anthropic, Gemini\n"
+        translated = (
+            "<!-- **Supported providers:** Anthropic, Gemini -->\n"
+            "\n"
+            "**サポートされているプロバイダ:** Anthropic, Gemini\n"
+        )
+
+        result = repair.remove_blank_lines_after_annotations(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            result.text,
+            "<!-- **Supported providers:** Anthropic, Gemini -->\n"
+            "**サポートされているプロバイダ:** Anthropic, Gemini\n",
+        )
+
+    def test_keeps_blank_lines_when_source_has_html_comments(self):
+        """source-authored 주석이 있으면 빈 줄을 제거하지 않음."""
+
+        source = "<!-- keep this -->\n\nA paragraph.\n"
+        translated = "<!-- keep this -->\n\n<!-- A paragraph. -->\n문단입니다.\n"
+
+        result = repair.remove_blank_lines_after_annotations(source, translated)
+
+        self.assertFalse(result.changed)
+
+    def test_collapses_a_multiline_annotation_comment(self):
+        """여러 줄로 갈라진 annotation 주석을 한 줄로 접기."""
+
+        source = "| Package | Versions |\n| --- | --- |\n| Laravel | 13.x |\n"
+        translated = (
+            "<!-- | Package | Versions |\n"
+            "| --- | --- |\n"
+            "| Laravel | 13.x | -->\n"
+            "| 패키지 | 버전 |\n| --- | --- |\n| Laravel | 13.x |\n"
+        )
+
+        result = repair.collapse_multiline_annotations(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertTrue(
+            result.text.startswith(
+                "<!-- | Package | Versions | | --- | --- | | Laravel | 13.x | -->\n"
+            )
+        )
+
+    def test_keeps_multiline_comments_when_source_has_html_comments(self):
+        """source-authored 주석이 있으면 여러 줄 주석을 접지 않음."""
+
+        source = "<!-- keep\nthis -->\nA paragraph.\n"
+        translated = "<!-- keep\nthis -->\n<!-- A paragraph. -->\n문단입니다.\n"
+
+        result = repair.collapse_multiline_annotations(source, translated)
+
+        self.assertFalse(result.changed)
+
+    def test_normalizes_japanese_inline_code_spacing(self):
+        """일본어 inline code와 CJK 경계에 반각 공백 하나를 보장."""
+
+        result = repair.normalize_cjk_code_spacing(
+            "キューに`Bus::dispatch`を渡し、`dispatch`ヘルパも使います。\n"
+        )
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            result.text,
+            "キューに `Bus::dispatch` を渡し、`dispatch` ヘルパも使います。\n",
+        )
+
+    def test_spaces_consecutive_inline_code_spans(self):
+        """연속된 inline code span 사이 경계도 빠짐없이 정규화."""
+
+        result = repair.normalize_cjk_code_spacing("`array`と`collection`を使う\n")
+
+        self.assertTrue(result.changed)
+        self.assertEqual(result.text, "`array` と `collection` を使う\n")
+        self.assertFalse(repair.normalize_cjk_code_spacing(result.text).changed)
+
+    def test_keeps_cjk_inside_an_inline_code_span(self):
+        """span 안의 CJK 내용은 경계로 오인하지 않고 그대로 둠."""
+
+        for source, expected in (
+            ("`日本語`を使う\n", "`日本語` を使う\n"),
+            ("これは`日本語`です\n", "これは `日本語` です\n"),
+            ("`設定`は`config`です\n", "`設定` は `config` です\n"),
+        ):
+            with self.subTest(source=source):
+                result = repair.normalize_cjk_code_spacing(source)
+                self.assertEqual(result.text, expected)
+
+    def test_keeps_spacing_that_already_matches_or_uses_punctuation(self):
+        """이미 공백이거나 CJK 구두점이 인접한 경계는 유지."""
+
+        for text in (
+            "`dispatch` ヘルパ関数を使用します。\n",
+            "`dispatch`。次の行です。\n",
+            "`key`를 설정합니다.\n",
+            "```php\n$x = `a`あ;\n```\n",
+        ):
+            with self.subTest(text=text):
+                self.assertFalse(
+                    repair.normalize_cjk_code_spacing(text).changed
+                )
+
+    def test_keeps_duplicated_inline_code_when_source_has_a_raw_occurrence(self):
+        """원문에 raw 형태가 함께 있으면 초과 span을 되돌리지 않음."""
+
+        source = "Use cache and the `cache` helper.\n"
+        translated = "`cache` と `cache` ヘルパを使います。\n"
+
+        result = repair.strip_invented_inline_code(source, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+    def test_strips_excess_inline_code_without_a_raw_occurrence(self):
+        """원문에 raw 형태가 없으면 초과 span을 prose로 되돌림."""
+
+        source = "Use the `cache` helper.\n"
+        translated = "`cache` と `cache` を使います。\n"
+
+        result = repair.strip_invented_inline_code(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(result.text, "`cache` と cache を使います。\n")
+
+    def test_restores_a_fullwidth_close_with_ascii_parens_in_target(self):
+        """target에 ASCII 괄호가 있어도 전각 닫는 괄호를 복원."""
+
+        source = "See [docs](https://x.test/a_(b)).\n"
+        translated = "これは [docs](https://x.test/a_(b)）です。\n"
+
+        result = repair.restore_ascii_link_delimiters(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn("](https://x.test/a_(b))", result.text)
+
+    def test_restores_a_fullwidth_link_closing_paren(self):
+        """전각으로 닫힌 링크를 원문 target일 때만 반각으로 복원."""
+
+        source = "Resolved by the [service container](/docs/13.x/container).\n"
+        translated = (
+            "<!-- Resolved by the [service container](/docs/13.x/container). -->\n"
+            "[service container](/docs/13.x/container）によって解決されます。\n"
+        )
+
+        result = repair.restore_ascii_link_delimiters(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn("](/docs/13.x/container)", result.text)
+
+    def test_keeps_a_fullwidth_paren_for_an_unknown_target(self):
+        """원문에 없는 target은 링크로 되돌리지 않음."""
+
+        source = "Resolved by the [service container](/docs/13.x/container).\n"
+        translated = "[other](/docs/13.x/unknown）です。\n"
+
+        self.assertFalse(
+            repair.restore_ascii_link_delimiters(source, translated).changed
+        )
+
+    def test_restores_a_missing_anchor_line_before_its_heading(self):
+        """누락된 앵커 줄을 heading의 annotation 앞에 복원."""
+
+        source = (
+            '<a name="laravel-blade"></a>\n'
+            "##### `Pint/laravel_blade`\n"
+            "\n"
+            "This rule formats your Blade templates.\n"
+        )
+        translated = (
+            "<!-- ##### `Pint/laravel_blade` -->\n"
+            "##### `Pint/laravel_blade`\n"
+            "\n"
+            "<!-- This rule formats your Blade templates. -->\n"
+            "이 규칙은 Blade 템플릿을 포맷합니다.\n"
+        )
+
+        result = repair.restore_missing_anchor_lines(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertTrue(
+            result.text.startswith(
+                '<a name="laravel-blade"></a>\n'
+                "<!-- ##### `Pint/laravel_blade` -->\n"
+            )
+        )
+
+    def test_keeps_output_when_anchor_follower_is_ambiguous(self):
+        """앵커 다음 줄이 응답에 유일하지 않으면 복원하지 않음."""
+
+        source = '<a name="x"></a>\n## Title\n'
+        translated = "## Title\n\n## Title\n"
+
+        result = repair.restore_missing_anchor_lines(source, translated)
+
+        self.assertFalse(result.changed)
+
+    def test_merges_split_html_annotations(self):
+        """HTML 연속 라인의 행별 annotation 주석을 하나로 병합."""
+
+        source = (
+            "<tr><td><strong>Command</strong></td><td><code>php</code></td></tr>\n"
+            "<tr><td><strong>Args</strong></td><td><code>boost:mcp</code></td></tr>\n"
+        )
+        translated = (
+            "<!-- <tr><td><strong>Command</strong></td><td><code>php</code></td></tr> -->\n"
+            "<tr><td><strong>명령어</strong></td><td><code>php</code></td></tr>\n"
+            "<!-- <tr><td><strong>Args</strong></td><td><code>boost:mcp</code></td></tr> -->\n"
+            "<tr><td><strong>인수</strong></td><td><code>boost:mcp</code></td></tr>\n"
+        )
+
+        result = repair.merge_split_html_annotations(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            result.text,
+            "<!-- <tr><td><strong>Command</strong></td><td><code>php</code></td></tr>"
+            " <tr><td><strong>Args</strong></td><td><code>boost:mcp</code></td></tr> -->\n"
+            "<tr><td><strong>명령어</strong></td><td><code>php</code></td></tr>\n"
+            "<tr><td><strong>인수</strong></td><td><code>boost:mcp</code></td></tr>\n",
+        )
+
+    def test_keeps_annotations_for_separate_prose_blocks(self):
+        """빈 줄로 나뉜 별도 블록의 주석은 병합하지 않음."""
+
+        source = "First paragraph.\n\nSecond paragraph.\n"
+        translated = (
+            "<!-- First paragraph. -->\n"
+            "첫 문단입니다.\n"
+            "\n"
+            "<!-- Second paragraph. -->\n"
+            "둘째 문단입니다.\n"
+        )
+
+        result = repair.merge_split_html_annotations(source, translated)
+
+        self.assertFalse(result.changed)
+
+    def test_strips_invented_inline_code_spans(self):
+        """원문에 없는 내용의 inline code span에서 backtick을 제거."""
+
+        source = 'The "help" screen describes the `help` command.\n'
+        translated = (
+            '<!-- The "help" screen describes the `help` command. -->\n'
+            '`"help"` 화면은 `help` 명령어를 설명합니다.\n'
+        )
+
+        result = repair.strip_invented_inline_code(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn('"help" 화면은 `help` 명령어', result.text)
+
+    def test_keeps_fabricated_inline_code_for_the_contract_to_reject(self):
+        """원문에 없는 내용의 code span은 되돌리지 않고 계약 판정에 맡김."""
+
+        source = "Install the package before continuing.\n"
+        translated = (
+            "<!-- Install the package before continuing. -->\n"
+            "계속하기 전에 `artisan fabricate` 패키지를 설치합니다.\n"
+        )
+
+        result = repair.strip_invented_inline_code(source, translated)
+
+        self.assertFalse(result.changed)
+        self.assertIn("`artisan fabricate`", result.text)
+
+    def test_does_not_fold_a_fenced_block_into_an_annotation(self):
+        """닫히지 않은 주석이 코드 펜스를 삼키지 않음."""
+
+        source = "A paragraph.\n\n```php\n$x = 1;\n```\n"
+        translated = "<!-- A paragraph.\n문단입니다.\n\n```php\n$x = 1;\n```\n"
+
+        result = repair.collapse_multiline_annotations(source, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text.count("```"), 2)
+
+    def test_refuses_to_merge_annotations_that_do_not_cover_the_source(self):
+        """병합 결과가 요청 source 전체와 다르면 병합하지 않음."""
+
+        source = (
+            "<tr><td>A</td></tr>\n<tr><td>B</td></tr>\n<tr><td>C</td></tr>\n"
+        )
+        translated = (
+            "<!-- <tr><td>A</td></tr> -->\n<tr><td>가</td></tr>\n"
+            "<!-- <tr><td>B</td></tr> -->\n<tr><td>나</td></tr>\n"
+        )
+
+        result = repair.merge_split_html_annotations(source, translated)
+
+        self.assertFalse(result.changed)
+
+    def test_keeps_inline_code_inside_headings(self):
+        """heading 안의 inline code span은 invented로 판정하지 않음."""
+
+        source = "##### `Pint/laravel_blade`\n\nThis rule formats templates.\n"
+        translated = (
+            "<!-- ##### `Pint/laravel_blade` -->\n"
+            "##### `Pint/laravel_blade`\n"
+            "\n"
+            "<!-- This rule formats templates. -->\n"
+            "이 규칙은 템플릿을 포맷합니다.\n"
+        )
+
+        result = repair.strip_invented_inline_code(source, translated)
+
+        self.assertFalse(result.changed)
+
+    def test_strips_repeated_inline_code_spans_beyond_source_count(self):
+        """원문 빈도를 초과한 반복 span은 뒤쪽 등장부터 복원."""
+
+        source = "Set the `key` option once.\n"
+        translated = (
+            "<!-- Set the `key` option once. -->\n"
+            "`key` 옵션을 설정합니다. `key`는 한 번만 지정합니다.\n"
+        )
+
+        result = repair.strip_invented_inline_code(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn(
+            "`key` 옵션을 설정합니다. key는 한 번만 지정합니다.",
+            result.text,
+        )
+
     def test_rejects_blank_label_repair_when_link_counts_differ(self):
         """빈 label 복구 시 원문과 번역문의 링크 수가 다르면 거부."""
 
@@ -294,6 +650,89 @@ class RestoreListMarkersTests(unittest.TestCase):
         translated = "도입 문단입니다.\n\n- 가\n- 나\n"
 
         self.assertEqual(repair.restore_list_markers(source, translated), translated)
+
+
+class RestoreRequiredAnnotationsTests(unittest.TestCase):
+    """provider 응답 annotation 주석의 원문 복원 검증."""
+
+    SOURCE = (
+        "| Command | Description |\n"
+        "| ------------- | ------------- |\n"
+        "| `a();` | Adds a key. |\n"
+    )
+    CANONICAL = (
+        "| Command | Description | | ------------- | ------------- | "
+        "| `a();` | Adds a key. |"
+    )
+
+    def test_restores_comment_that_dropped_separator_row(self):
+        """구분 행이 통째로 빠진 주석을 원문 형태로 복원."""
+
+        translated = (
+            "<!-- | Command | Description | | `a();` | Adds a key. | -->\n"
+            "| 명령어 | 설명 |\n"
+        )
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            result.text, f"<!-- {self.CANONICAL} -->\n| 명령어 | 설명 |\n"
+        )
+
+    def test_restores_comment_that_dropped_row_boundary_pipe(self):
+        """행 경계 파이프가 빠진 주석을 원문 형태로 복원."""
+
+        broken = self.CANONICAL.replace("| | -------------", "| -------------", 1)
+        translated = f"<!-- {broken} -->\n| 명령어 | 설명 |\n"
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(
+            result.text, f"<!-- {self.CANONICAL} -->\n| 명령어 | 설명 |\n"
+        )
+
+    def test_keeps_matching_comment_unchanged(self):
+        """원문과 일치하는 주석은 그대로 유지."""
+
+        translated = f"<!-- {self.CANONICAL} -->\n| 명령어 | 설명 |\n"
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+    def test_keeps_comment_whose_words_differ(self):
+        """단어 내용이 다른 주석은 다른 블록일 수 있으므로 복원하지 않음."""
+
+        translated = "<!-- | Command | Summary | | `a();` | Adds a key. | -->\n| 명령어 | 설명 |\n"
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+    def test_keeps_response_with_different_annotation_count(self):
+        """주석 개수가 원문 블록 수와 다르면 복원하지 않음."""
+
+        translated = f"<!-- {self.CANONICAL} -->\n<!-- extra -->\n| 명령어 | 설명 |\n"
+
+        result = repair.restore_required_annotations(self.SOURCE, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+    def test_skips_when_source_already_has_html_comment(self):
+        """요청 원문에 HTML 주석이 있으면 복원하지 않음."""
+
+        source = f"<!-- authored -->\n{self.SOURCE}"
+        translated = "<!-- | Command | Description | | `a();` | Adds a key. | -->\n"
+
+        result = repair.restore_required_annotations(source, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
 
 
 if __name__ == "__main__":
