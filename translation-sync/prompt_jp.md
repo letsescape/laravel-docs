@@ -64,8 +64,8 @@
 表のヘッダーでよく使う語は次の表記に従います。
 
 - Name: 名前 / Description: 説明 / Notes: 説明
-- Command: 指示 / Modifier: 修飾子 / Method: メソッド
-- Verb: 動詞 / Action: アクション / Route Name: 路線名
+- Command: コマンド / Modifier: 修飾子 / Method: メソッド
+- Verb: 動詞 / Action: アクション / Route Name: ルート名
 - Type: タイプ / Package: パッケージ / Annotation: 注釈
 - Event Name: イベント名 / Versions Supported: 対応バージョン
 - インラインコード `code` と日本語(ひらがな・カタカナ・漢字)が隣接する場合は、その境界に半角スペースを一つ入れます。
