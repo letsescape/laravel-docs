@@ -172,10 +172,11 @@ def _bounded_comment_snippets(comments: list[str] | None) -> str:
     remaining = _FEEDBACK_COMMENT_BUDGET
     for comment in comments[:2]:
         rendered = f"<!-- {comment} -->"
-        if len(rendered) > remaining:
+        needed = len(rendered) + (1 if snippets else 0)
+        if needed > remaining:
             break
         snippets.append(rendered)
-        remaining -= len(rendered)
+        remaining -= needed
     return " ".join(snippets)
 
 

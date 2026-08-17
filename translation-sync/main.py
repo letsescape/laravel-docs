@@ -361,6 +361,13 @@ def _locale_state_issue(
     present = path.is_file() and not path.is_symlink()
     if present == expected:
         return None
+    if (
+        change.status == "D"
+        and not present
+        and change.document in UNTRANSLATED_DOCUMENTS
+    ):
+        # 제외 문서는 locale 산출물이 없을 수 있으므로 존재하는 것만 삭제한다.
+        return None
     if change.status == "A" and present and _admitted_added_locale(
         change, path, locale
     ):
@@ -1221,6 +1228,7 @@ def _preflight_create_plan(
     cfg: config.Config,
     prompt: str,
     reusable: Mapping[str, str] = MappingProxyType({}),
+    locale: str | None = None,
 ) -> None:
     """문서 생성 계획에서 실제 provider 호출이 필요한 owner만 사전 검증.
 
@@ -1232,7 +1240,7 @@ def _preflight_create_plan(
         if not owner.provider_required:
             continue
         if reusable and _reused_create_block(
-            owner, reusable, cfg, change, None
+            owner, reusable, cfg, change, locale
         ) is not None:
             continue
         request = _translation_request(
@@ -1335,6 +1343,7 @@ def _degraded_create_target(
     cfg: config.Config,
     prompt: str,
     existing: str | None = None,
+    locale: str | None = None,
 ) -> _PreparedTranslationTarget:
     """부분 patch로 처리할 수 없는 수정 문서의 전체 재생성 계획."""
 
@@ -1345,11 +1354,14 @@ def _degraded_create_target(
     )
     plan = patch_utils.build_create_plan(preprocessed.text)
     reusable = MappingProxyType(_annotated_locale_blocks(existing))
-    _preflight_create_plan(change, plan, cfg, prompt, reusable)
+    _preflight_create_plan(change, plan, cfg, prompt, reusable, locale)
     preserved = (
         patch_utils._front_matter_text(existing) if existing else None
     )
     if not patch_utils.is_locale_routing_front_matter_text(preserved):
+        preserved = None
+    elif patch_utils._front_matter_text(preprocessed.text) is not None:
+        # 새 원문이 front matter를 가지면 계획이 직접 만들므로 보존하면 중복이 된다.
         preserved = None
     return _PreparedTranslationTarget(
         source=preprocessed.text,
@@ -1445,20 +1457,23 @@ def _prepare_translation_target(
             else None
         )
         # 이미 승인된 번역 결과가 있는 추가 문서는 같은 계획을 다시 적용한 no-op.
-        if (
+        admitted = (
             existing is not None
             and locale is not None
             and _admitted_added_locale(change, dest, locale)
-        ):
+        )
+        if admitted:
             existing, existing_bytes = None, None
         plan = patch_utils.build_create_plan(preprocessed.text)
         state = patch_utils.plan_state(existing, plan)
-        _preflight_create_plan(
-            change,
-            plan,
-            cfg,
-            prompt,
-        )
+        if not admitted:
+            # no-op으로 끝날 작업을 요청 예산 검사로 실패시키지 않는다.
+            _preflight_create_plan(
+                change,
+                plan,
+                cfg,
+                prompt,
+            )
         return _PreparedTranslationTarget(
             source=preprocessed.text,
             existing=existing,
@@ -1497,7 +1512,9 @@ def _prepare_translation_target(
         )
     except patch_utils.PatchError as exc:
         print(f"degrading to full re-translation: {change.path}: {exc}")
-        return _degraded_create_target(change, cfg, prompt, existing=existing)
+        return _degraded_create_target(
+            change, cfg, prompt, existing=existing, locale=locale
+        )
     return _PreparedTranslationTarget(
         source=pair.current.text,
         existing=existing,
@@ -1863,6 +1880,7 @@ def _translate_one(
             existing=(
                 dest.read_text(encoding="utf-8") if dest.exists() else None
             ),
+            locale=locale,
         )
     except (
         OutputPathError,

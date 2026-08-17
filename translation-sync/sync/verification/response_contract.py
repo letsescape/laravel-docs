@@ -133,8 +133,6 @@ _FEEDBACK_RETRYABLE_ISSUES = frozenset(
     )
 )
 _PROVIDER_PROTECTED_TERM_MISMATCH = "provider protected term mismatch"
-MISMATCH_TARGET_LANGUAGE = "provider target language mismatch"
-_ANNOTATION_PREFIX_RE = re.compile(r"^\s*<!--.*?-->\s*\n?", re.DOTALL)
 _LOWERCASE_TECH_TERMS = frozenset(("npm", "php", "macos"))
 _PRODUCT_NAME_PREFIXES = frozenset(("laravel",))
 _PROSE_SIGNAL_WORDS = frozenset(
@@ -521,7 +519,7 @@ def target_script_ratio(text: str, locale: str) -> float:
     """
 
     sample = _normalized_language_prose(text)
-    letters = _unicode_letter_count(sample) + _target_script_count(sample, locale)
+    letters = _unicode_letter_count(sample)
     if not letters:
         return 1.0
     return _target_script_count(sample, locale) / letters
@@ -2733,7 +2731,7 @@ def _markdown_link_signatures(
     Counter[str],
     list[str],
     tuple[tuple[str, tuple[str, ...]], ...],
-    list[str],
+    list[tuple[str, str, str]],
 ]:
     """Markdown 링크 target 횟수, 비이미지 label·(label, target) 쌍 multiset과 전체 title 순서 서명.
 
@@ -2774,7 +2772,11 @@ def _markdown_link_signatures(
                 for label, targets in per_label_targets.items()
             )
         ),
-        sorted(link.title for link in links),
+        sorted(
+            ("" if link.image else link.label, link.target, link.title)
+            for link in links
+            if link.title
+        ),
     )
 
 

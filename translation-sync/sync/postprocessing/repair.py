@@ -524,7 +524,7 @@ def normalize_cjk_code_spacing(translated: str) -> RepairResult:
     return RepairResult(text="".join(out), changed=changed)
 
 
-_FULLWIDTH_LINK_CLOSE_RE = re.compile(r"\]\(([^()（）\n]*)）")
+_FULLWIDTH_LINK_CLOSE_RE = re.compile(r"\]\(([^（）\n]*)）")
 
 
 def restore_ascii_link_delimiters(source: str, translated: str) -> RepairResult:
@@ -674,6 +674,14 @@ def strip_invented_inline_code(source: str, translated: str) -> RepairResult:
 
     allowance = Counter(_inline_codes(source))
     source_body = strip_html_comments(_without_code_blocks(source))
+    # 원문에 raw 형태로도 존재하는 내용은 초과분 중 어느 span이 조작인지 가릴 수
+    # 없다. 위치를 옮기는 복구 대신 계약 판정에 맡긴다.
+    raw_source = _INLINE_CODE_RE.sub(" ", source_body)
+    ambiguous = {
+        content
+        for content in Counter(_inline_codes(translated))
+        if content in raw_source and content in allowance
+    }
     changed = False
     out: list[str] = []
     state = _RepairState(source_headings=iter(()), source_links=iter(()))
@@ -692,7 +700,7 @@ def strip_invented_inline_code(source: str, translated: str) -> RepairResult:
             if allowance[content] > 0:
                 allowance[content] -= 1
                 return match.group(0)
-            if content not in source_body:
+            if content not in source_body or content in ambiguous:
                 return match.group(0)
             changed = True
             return content

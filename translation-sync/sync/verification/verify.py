@@ -308,19 +308,21 @@ def _link_titles(
     version: str | None = None,
     *,
     registry: StaleLinkRegistry = DEFAULT_STALE_LINK_REGISTRY,
-) -> list[str]:
-    """정렬된 multiset 순서의 Markdown 링크 title 수집.
+) -> list[tuple[str, str, str]]:
+    """정렬된 multiset 순서의 Markdown 링크 title 서명 수집.
 
-    label·쌍과 같은 기준으로 비교해 목표 언어 어순에 따른 링크 재배열을 허용한다.
+    title을 링크 단위에 결합해 비교하므로 재배열은 허용하되 title 교환은 거부한다.
+    이미지 alt는 번역 대상이므로 이미지는 target만, 일반 링크는 label까지 결합한다.
     """
 
     body = mask_reference_definitions(
         _strip_heading_lines(_strip_code_blocks(_strip_comments(text)))
     )
     return sorted(
-        link.title
+        ("" if link.image else link.label, link.target, link.title)
         for link in markdown_links(body)
-        if (
+        if link.title
+        and (
             _comparable_link_target(
                 link.target,
                 version=version,
