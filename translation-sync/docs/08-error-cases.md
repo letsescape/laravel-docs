@@ -285,7 +285,7 @@ provider에 번역을 요청하고 응답을 수신하는 단계에서 발생하
 
 ### 7.1 지원 외 upstream 변경 수동 처리
 
-정당한 upstream 변경이 `UNSUPPORTED_OVERSIZE_BLOCK` 또는 `UNSUPPORTED_CHANGE_UNIT` 계획 오류로 중단된 경우 다음 둘 중 하나만 선택함.
+정당한 upstream 변경이 `UNSUPPORTED_OVERSIZE_BLOCK` 계획 오류로 중단된 경우 다음 둘 중 하나만 선택함.
 
 1. 반복 가능한 구조라면 소유 단위·PatchPlan·검증 계약과 fixture를 확장하고, 단위 테스트를 통과시킨 뒤 새 승인 기준본에서 전체 워크플로우를 재실행함.
 2. 일회성 구조라면 자동화 밖의 별도 검토 변경으로 현재 raw 영어 원문 캐시와 KO·JA 전체 문서를 함께 수동 갱신함.

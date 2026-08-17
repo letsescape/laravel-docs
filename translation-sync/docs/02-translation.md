@@ -14,16 +14,17 @@ flowchart TD
     B --> C[소유 블록 단위 PatchPlan 생성]
     C --> D{Locale 상태가 유효한가?}
     D -- Target 상태 --> N[No-op]
-    D -- Invalid 상태 --> X[Fail-closed로 실패]
+    D -- Invalid 상태 --> R[§7.2 재생성 강등]
+    R --> F
     D -- Create 상태 --> F{Provider가 필요한가?}
     D -- Source 또는 Unguarded --> E{적용 위치가 유일한가?}
-    E -- 아니요 --> X
+    E -- 아니요 --> R
     E -- 예 --> F{Provider가 필요한가?}
     F -- 아니요 --> G[결정적 블록 확정]
     F -- 예 --> H[Provider 호출 및 응답 계약 검증]
     H -- 계약 위반 --> I{완료 응답 재요청 가능?}
     I -- 예 --> H
-    I -- 아니요 --> X
+    I -- 아니요 --> X[해당 target 실패]
     H -- 통과 --> J[검증된 locale 블록 확정]
     G --> K[PatchPlan 상태와 actionable 블록 집합 전달]
     J --> K
@@ -480,8 +481,8 @@ live fixture locale ko, ja → versions.json 순서 → 문서 경로 UTF-8 byte
 | 실패 유형 | 처리 |
 |-----------|------|
 | effective delta가 비어 있음 (정규화로 모든 raw delta 제거) | `NORMALIZED_NOOP`으로 기록하고 기존 locale byte를 유지한 채 영어 verification view와 expected annotation map을 생성하여 문서 검증 단계에 전달. 현재 raw 영어 원문 candidate는 유지 |
-| 위치 확정 불가 (anchor 모호, 대상 없음) | 문서 미수정, locale target 실패 |
-| PatchPlan 상태가 invalid | candidate 미적재, locale target 실패 |
+| 위치 확정 불가 (anchor 모호, 대상 없음) | §7.2 재생성 강등으로 처리 |
+| PatchPlan 상태가 invalid | §7.2 재생성 강등으로 처리 |
 | 수정 표 구조 조건 불충족 (열 수 불일치, 복수 행, separator) 또는 create 표가 직사각형이 아님 | 해당 블록 실패 |
 | admonition marker가 old/new 외 제3 유형 | 해당 블록 실패 |
 | 지원하지 않는 front matter 값 또는 source HTML comment 구조 주소 모호 | provider 호출 전 실패 |

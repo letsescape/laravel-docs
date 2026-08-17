@@ -117,7 +117,7 @@ Active worktree fingerprint는 다음 정보를 명시적 구분자와 Git의 �
 
 | 상태 | 종료 코드 | 처리 |
 |---|---|---|
-| KO/JA replay + 두 번째 수렴 성공 | 0 | sandbox 삭제, 조건부 manifest export |
+| KO/JA replay + 두 번째 수렴 성공 | 0 | sandbox 삭제, 조건부 manifest 및 replay state export |
 | sandbox 내 translation sync 실패 | 1 | sandbox 보존 (artifact root 기준 상대 식별자 출력) |
 | sandbox 준비·실행·정리 오류 | 2 | 불완전 sandbox 정리 또는 보존 |
 | active worktree fingerprint 불일치 | 3 | sandbox 보존 (artifact root 기준 상대 식별자 출력) |
