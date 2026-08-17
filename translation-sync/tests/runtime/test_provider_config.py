@@ -43,6 +43,15 @@ def cli_environment() -> dict[str, str]:
 class ProviderSelectionTests(unittest.TestCase):
     """번역 제공자 선택과 필수 인증 설정 검증."""
 
+    def test_defaults_to_approved_openai_provider_and_model(self):
+        """provider와 model을 생략하면 승인된 OpenAI 기본값 사용 검증."""
+
+        loaded = config.load_config({"OPENAI_API_KEY": "test-openai-key"})
+
+        self.assertEqual(loaded.provider, "openai")
+        self.assertEqual(loaded.get("TRANSLATION_PROVIDER"), "openai")
+        self.assertEqual(loaded.get("TRANSLATION_MODEL"), "gpt-5.6-luna")
+
     def test_reports_stable_codes_for_provider_and_credential_errors(self):
         """잘못된 제공자와 누락된 인증 정보의 안정적 오류 코드 검증."""
 
@@ -54,12 +63,7 @@ class ProviderSelectionTests(unittest.TestCase):
         )
 
         with self.assertRaises(config.ConfigError) as missing_credential:
-            config.load_config(
-                {
-                    "TRANSLATION_PROVIDER": "openai",
-                    "TRANSLATION_MODEL": "gpt-5.6-luna",
-                }
-            )
+            config.load_config({})
         self.assertEqual(
             missing_credential.exception.issue_code,
             IssueCode.PROVIDER_CREDENTIAL_MISSING,
@@ -128,8 +132,8 @@ class RequestBudgetTests(unittest.TestCase):
         self.assertEqual(budget.context_window_tokens, 1_050_000)
         self.assertEqual(budget.reserved_output_tokens, 128_000)
         self.assertEqual(budget.request_timeout_seconds, 600)
-        self.assertEqual(budget.run_timeout_seconds, 1800)
-        self.assertEqual(budget.workflow_timeout_seconds, 7200)
+        self.assertEqual(budget.run_timeout_seconds, 21600)
+        self.assertEqual(budget.workflow_timeout_seconds, 21600)
         self.assertEqual(budget.tokenizer_encoding, "o200k_base")
         self.assertEqual(
             loaded.get("TRANSLATION_CONTEXT_WINDOW_TOKENS"), "1050000"

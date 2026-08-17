@@ -58,19 +58,14 @@ docker run -p 3000:3000 laravel-docs
 `publish`에서 봉인된 tree를 다시 검증한 뒤 원격 branch를 compare-and-swap 방식으로 갱신
 `main`의 `deploy`에서 정확한 published commit으로 배포를 요청하고 결과까지 대기
 
-GitHub Actions에서는 선택한 provider에 필요한 값만 구성
+GitHub Actions에서는 GitHub Variables를 사용하지 않고 OpenAI 실행에 필요한 Secret만 전달
 
-- 공통 Secrets: `TRANSLATION_PROVIDER`, `TRANSLATION_MODEL`
-- 선택 Secret: `TRANSLATION_REASONING_EFFORT`
-- 공통 Variables: `TRANSLATION_CONTEXT_WINDOW_TOKENS`, `TRANSLATION_RESERVED_OUTPUT_TOKENS`, `TRANSLATION_REQUEST_TIMEOUT_SECONDS`, `TRANSLATION_RUN_TIMEOUT_SECONDS`, `TRANSLATION_TOKENIZER_ENCODING`
-- OpenAI: Secret `OPENAI_API_KEY` 필수
-- Azure: Secrets `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_API_VERSION`, `AZURE_OPENAI_ENDPOINT`와 Variable `TRANSLATION_MODEL_PROFILE` 필수
-- CLI: Variable `TRANSLATION_CLI_COMMAND` 필수, `TRANSLATION_CLI_TIMEOUT` 선택
-- CLI 인증: Secret `CODEX_ACCESS_TOKEN`, Secret `CODEX_API_KEY`, 인증 파일이 있는 절대 경로를 담은 Variable `CODEX_HOME` 중 정확히 하나만 사용
-- CLI 인증 제한: `HOME`을 `CODEX_HOME`의 대체값으로 사용하지 않음
-- Codex CLI: Actions에서는 CLI provider 선택 시 설치·실행 확인, Docker에서는 이미지 빌드 시 설치·실행 확인
+- provider/model은 코드 기본값 `openai`/`gpt-5.6-luna` 사용
+- Secret: `OPENAI_API_KEY`
+- reasoning effort는 코드 기본값 `medium` 사용
+- 승인된 OpenAI 모델의 context/output 예산·request timeout·tokenizer는 코드의 모델 profile 기본값 사용
 
-전체 workflow timeout은 버전 관리되는 `translation-sync/workflow.json`과 Actions에서 모두 `7200`초로 고정
+provider run/workflow timeout 기본값은 코드에서 `21600`초로 관리하며, 전체 workflow timeout은 버전 관리되는 `translation-sync/workflow.json`에서 `21600`초로 관리
 request timeout ≤ run timeout ≤ workflow timeout 관계와 reserved output token < context window 관계가 필수
 값이 없거나 관계가 맞지 않으면 provider 호출 전에 실패
 
@@ -107,8 +102,7 @@ make translate \
 ```
 
 GitHub Actions도 동일하게 외부 artifact root에서 `prepare` → `publish` → `main`의 `deploy`만 호출
-CLI provider 선택 여부는 Codex 설치 판정에도 사용
-provider 설정·인증은 prepare step에만, `GH_TOKEN`은 publish/deploy step에만 주입
+OpenAI provider 설정·인증은 prepare step에만, `GH_TOKEN`은 publish/deploy step에만 주입
 실패 보고서·manifest·검증된 fixture 메타데이터·publication 및 deploy 결과만 Actions artifact로 보존
 preparation key, provider 응답 본문과 candidate는 업로드하지 않음
 Pull Request 자동 생성 없음

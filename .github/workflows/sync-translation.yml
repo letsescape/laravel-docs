@@ -26,16 +26,11 @@ jobs:
   sync:
     name: Sync translations
     runs-on: ubuntu-latest
-    env:
-      TRANSLATION_PUSH_ENDPOINT: ${{ github.server_url }}/${{ github.repository }}.git
-      TARGET_BRANCH: ${{ github.ref_name }}
     steps:
       - name: Validate branch ref
-        env:
-          REF_TYPE: ${{ github.ref_type }}
         run: |
-          if [ "$REF_TYPE" != 'branch' ]; then
-            echo "Translation sync requires a branch ref, got '$REF_TYPE'." >&2
+          if [ "$GITHUB_REF_TYPE" != 'branch' ]; then
+            echo "Translation sync requires a branch ref, got '$GITHUB_REF_TYPE'." >&2
             exit 1
           fi
 
@@ -56,55 +51,23 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install Codex CLI when selected
-        env:
-          TRANSLATION_PROVIDER: ${{ secrets.TRANSLATION_PROVIDER }}
-        run: |
-          if [ "$TRANSLATION_PROVIDER" != 'cli' ]; then
-            exit 0
-          fi
-          npm install --global --ignore-scripts @openai/codex@latest \
-            --registry=https://registry.npmjs.org
-          codex --version
-
       - name: Initialize external artifact root
         run: |
           root="$RUNNER_TEMP/translation-sync-artifacts"
           mkdir -- "$root"
           chmod 700 "$root"
-          printf 'TRANSLATION_ARTIFACT_ROOT=%s\n' "$root" >> "$GITHUB_ENV"
 
       - name: Prepare verified publication
         env:
-          CI: 'true'
-          NODE_OPTIONS: --max-old-space-size=4096
           INPUT_VERSION: ${{ inputs.version }}
           INPUT_DOC: ${{ inputs.doc }}
-          TRANSLATION_PROVIDER: ${{ secrets.TRANSLATION_PROVIDER }}
-          TRANSLATION_MODEL: ${{ secrets.TRANSLATION_MODEL }}
-          TRANSLATION_MODEL_PROFILE: ${{ vars.TRANSLATION_MODEL_PROFILE }}
-          TRANSLATION_REASONING_EFFORT: ${{ secrets.TRANSLATION_REASONING_EFFORT }}
-          TRANSLATION_CONTEXT_WINDOW_TOKENS: ${{ vars.TRANSLATION_CONTEXT_WINDOW_TOKENS }}
-          TRANSLATION_RESERVED_OUTPUT_TOKENS: ${{ vars.TRANSLATION_RESERVED_OUTPUT_TOKENS }}
-          TRANSLATION_REQUEST_TIMEOUT_SECONDS: ${{ vars.TRANSLATION_REQUEST_TIMEOUT_SECONDS }}
-          TRANSLATION_RUN_TIMEOUT_SECONDS: ${{ vars.TRANSLATION_RUN_TIMEOUT_SECONDS }}
-          TRANSLATION_WORKFLOW_TIMEOUT_SECONDS: '21600'
-          TRANSLATION_TOKENIZER_ENCODING: ${{ vars.TRANSLATION_TOKENIZER_ENCODING }}
-          TRANSLATION_CLI_COMMAND: ${{ vars.TRANSLATION_CLI_COMMAND }}
-          TRANSLATION_CLI_TIMEOUT: ${{ vars.TRANSLATION_CLI_TIMEOUT }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
-          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          CODEX_ACCESS_TOKEN: ${{ secrets.CODEX_ACCESS_TOKEN }}
-          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
-          CODEX_HOME: ${{ vars.CODEX_HOME }}
         run: |
           args=(
             prepare
-            --artifact-root "$TRANSLATION_ARTIFACT_ROOT"
-            --push-endpoint "$TRANSLATION_PUSH_ENDPOINT"
-            --branch "$TARGET_BRANCH"
+            --artifact-root "$RUNNER_TEMP/translation-sync-artifacts"
+            --push-endpoint "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+            --branch "$GITHUB_REF_NAME"
             --repository "$GITHUB_REPOSITORY"
           )
           if [ -n "$INPUT_VERSION" ]; then
@@ -122,7 +85,7 @@ jobs:
         run: |
           uv run --directory translation-sync --locked --no-build --python 3.14 \
             python workflow.py publish \
-            --artifact-root "$TRANSLATION_ARTIFACT_ROOT"
+            --artifact-root "$RUNNER_TEMP/translation-sync-artifacts"
 
       - name: Trigger and verify production deployment
         if: github.ref_name == 'main'
@@ -131,7 +94,7 @@ jobs:
         run: |
           uv run --directory translation-sync --locked --no-build --python 3.14 \
             python workflow.py deploy \
-            --artifact-root "$TRANSLATION_ARTIFACT_ROOT"
+            --artifact-root "$RUNNER_TEMP/translation-sync-artifacts"
 
       - name: Upload redacted workflow evidence
         if: ${{ always() }}
@@ -141,9 +104,9 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
           path: |
-            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-failure.json
-            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-*-failure.json
-            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-fixture-evidence.txt
-            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-manifest.json
-            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-published.json
-            ${{ env.TRANSLATION_ARTIFACT_ROOT }}/translation-sync-deployed.json
+            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-failure.json
+            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-*-failure.json
+            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-fixture-evidence.txt
+            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-manifest.json
+            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-published.json
+            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-deployed.json

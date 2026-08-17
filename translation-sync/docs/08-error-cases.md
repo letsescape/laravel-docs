@@ -109,7 +109,7 @@ artifact 영역이 없거나 파일이 이미 있거나 쓸 수 없으면 6.9의
 
 | Stable issue code | 조건 | 복구 정책 |
 |-------------------|------|-----------|
-| `PROVIDER_SELECTION_INVALID` | provider 환경 변수 미설정 또는 허용값 외 | 즉시 중단해야 함. 번역 단계로 넘겨서는 안 됨. |
+| `PROVIDER_SELECTION_INVALID` | provider 환경 변수가 허용값 외 | 즉시 중단해야 함. 번역 단계로 넘겨서는 안 됨. |
 | `PROVIDER_CREDENTIAL_MISSING` | provider별 필수 환경 변수 누락 | 즉시 중단해야 함. |
 | `REPLAY_PROVIDER_FORBIDDEN` | replay 전용 provider가 replay 밖에서 선택됨 | 즉시 중단해야 함. |
 | `REQUIRED_CONFIG_MISSING` | 등록된 단위 테스트 명령 또는 locale prompt가 없음 | 즉시 중단해야 함. 보고서 경로 자체가 없으면 stderr fallback을 사용함. |

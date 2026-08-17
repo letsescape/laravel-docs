@@ -3,7 +3,7 @@
 provider 종류, 모델, token 예산, timeout 및 CLI argv를 실행 전에 검증.
 설정 오류는 provider 호출이나 문서 변경 없이 즉시 중단.
 
-TRANSLATION_PROVIDER: openai | azure | cli | identity(replay 전용)
+TRANSLATION_PROVIDER: 기본 openai | azure | cli | identity(replay 전용)
 """
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ class ConfigError(Exception):
 
 _REQUIRED: dict[str, tuple[str, ...]] = {
     "identity": (),
-    "openai": ("TRANSLATION_MODEL", "OPENAI_API_KEY"),
+    "openai": ("OPENAI_API_KEY",),
     "azure": (
         "TRANSLATION_MODEL",
         "AZURE_OPENAI_API_KEY",
@@ -48,6 +48,8 @@ _REQUIRED: dict[str, tuple[str, ...]] = {
     ),
     "cli": ("TRANSLATION_CLI_COMMAND", "TRANSLATION_MODEL"),
 }
+_DEFAULT_PROVIDER = "openai"
+_DEFAULT_OPENAI_MODEL = "gpt-5.6-luna"
 _OPTIONAL = (
     "TRANSLATION_CLI_TIMEOUT",
     "TRANSLATION_REASONING_EFFORT",
@@ -61,8 +63,8 @@ _REQUEST_BUDGET_KEYS = (
 )
 _DEFAULT_TIMEOUT_VALUES = {
     "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "600",
-    "TRANSLATION_RUN_TIMEOUT_SECONDS": "1800",
-    "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS": "7200",
+    "TRANSLATION_RUN_TIMEOUT_SECONDS": "21600",
+    "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS": "21600",
 }
 _TOKENIZER_KEY = "TRANSLATION_TOKENIZER_ENCODING"
 _MODEL_PROFILE_KEY = "TRANSLATION_MODEL_PROFILE"
@@ -434,7 +436,7 @@ def _provider_from_environment(env: Mapping[str, str]) -> str:
         검증된 provider 이름.
     """
 
-    provider = env.get("TRANSLATION_PROVIDER", "").strip()
+    provider = env.get("TRANSLATION_PROVIDER", "").strip() or _DEFAULT_PROVIDER
     if provider not in _REQUIRED:
         raise ConfigError(
             f"TRANSLATION_PROVIDER must be one of {sorted(_REQUIRED)}, got {provider!r}",
@@ -463,6 +465,10 @@ def _required_provider_values(
     """
 
     values = {"TRANSLATION_PROVIDER": provider}
+    if provider == "openai":
+        values["TRANSLATION_MODEL"] = (
+            env.get("TRANSLATION_MODEL", "").strip() or _DEFAULT_OPENAI_MODEL
+        )
     missing: list[str] = []
     for key in _REQUIRED[provider]:
         value = env.get(key, "").strip()

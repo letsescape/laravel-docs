@@ -71,8 +71,6 @@ class OperationalEntrypointTests(unittest.TestCase):
         deploy = workflow.index("python workflow.py deploy")
         self.assertLess(prepare, publish)
         self.assertLess(publish, deploy)
-        self.assertIn("@openai/codex@latest", workflow)
-        self.assertIn("codex --version", workflow)
         self.assertIn("uses: actions/checkout@v6", workflow)
         self.assertIn("uses: astral-sh/setup-uv@v7", workflow)
         self.assertIn("uses: actions/setup-node@v6", workflow)
@@ -102,27 +100,27 @@ class OperationalEntrypointTests(unittest.TestCase):
             workflow.index("- name: Prepare verified publication") : publish_step_start
         ]
         self.assertNotIn("GH_TOKEN", prepare_step)
+        self.assertNotIn("${{ vars.", workflow)
         self.assertIn('--repository "$GITHUB_REPOSITORY"', prepare_step)
-        for required_setting in (
-            "TRANSLATION_MODEL_PROFILE",
-            "TRANSLATION_CONTEXT_WINDOW_TOKENS",
-            "TRANSLATION_RESERVED_OUTPUT_TOKENS",
-            "TRANSLATION_REQUEST_TIMEOUT_SECONDS",
+        self.assertNotIn("${{ secrets.TRANSLATION_PROVIDER }}", workflow)
+        self.assertNotIn("${{ secrets.TRANSLATION_MODEL }}", workflow)
+        self.assertIn("OPENAI_API_KEY", prepare_step)
+        for unused_setting in (
+            "CI: 'true'",
+            "NODE_OPTIONS",
+            "TRANSLATION_PROVIDER",
+            "TRANSLATION_MODEL",
+            "TRANSLATION_REASONING_EFFORT",
             "TRANSLATION_RUN_TIMEOUT_SECONDS",
-            "TRANSLATION_TOKENIZER_ENCODING",
-        ):
-            self.assertIn(required_setting, prepare_step)
-        for credential_setting in (
-            "OPENAI_API_KEY",
+            "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS",
             "AZURE_OPENAI_API_KEY",
             "AZURE_OPENAI_API_VERSION",
             "AZURE_OPENAI_ENDPOINT",
             "CODEX_ACCESS_TOKEN",
             "CODEX_API_KEY",
-            "CODEX_HOME",
         ):
-            self.assertIn(credential_setting, prepare_step)
-        self.assertIn("TRANSLATION_WORKFLOW_TIMEOUT_SECONDS: '21600'", prepare_step)
+            self.assertNotIn(unused_setting, prepare_step)
+        self.assertNotIn("Install Codex CLI when selected", workflow)
         self.assertNotIn("TRANSLATION_RETRY_DELAY", workflow)
         for unsupported_openai_setting in (
             "OPENAI_BASE_URL",
@@ -291,11 +289,9 @@ class TranslationWorkflowTests(unittest.TestCase):
                     env = os.environ.copy()
                     env.update(
                         {
-                            "TRANSLATION_ARTIFACT_ROOT": str(Path(tmp) / "artifacts"),
-                            "TRANSLATION_PUSH_ENDPOINT": (
-                                "https://github.com/owner/repository.git"
-                            ),
-                            "TARGET_BRANCH": "main",
+                            "RUNNER_TEMP": tmp,
+                            "GITHUB_SERVER_URL": "https://github.com",
+                            "GITHUB_REF_NAME": "main",
                             "GITHUB_REPOSITORY": "owner/repository",
                             "INPUT_VERSION": "",
                             "INPUT_DOC": "",
