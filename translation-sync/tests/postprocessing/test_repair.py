@@ -156,6 +156,39 @@ class RepairPreservedMarkupTests(unittest.TestCase):
                     repair.normalize_cjk_code_spacing(text).changed
                 )
 
+    def test_keeps_duplicated_inline_code_when_source_has_a_raw_occurrence(self):
+        """원문에 raw 형태가 함께 있으면 초과 span을 되돌리지 않음."""
+
+        source = "Use cache and the `cache` helper.\n"
+        translated = "`cache` と `cache` ヘルパを使います。\n"
+
+        result = repair.strip_invented_inline_code(source, translated)
+
+        self.assertFalse(result.changed)
+        self.assertEqual(result.text, translated)
+
+    def test_strips_excess_inline_code_without_a_raw_occurrence(self):
+        """원문에 raw 형태가 없으면 초과 span을 prose로 되돌림."""
+
+        source = "Use the `cache` helper.\n"
+        translated = "`cache` と `cache` を使います。\n"
+
+        result = repair.strip_invented_inline_code(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertEqual(result.text, "`cache` と cache を使います。\n")
+
+    def test_restores_a_fullwidth_close_with_ascii_parens_in_target(self):
+        """target에 ASCII 괄호가 있어도 전각 닫는 괄호를 복원."""
+
+        source = "See [docs](https://x.test/a_(b)).\n"
+        translated = "これは [docs](https://x.test/a_(b)）です。\n"
+
+        result = repair.restore_ascii_link_delimiters(source, translated)
+
+        self.assertTrue(result.changed)
+        self.assertIn("](https://x.test/a_(b))", result.text)
+
     def test_restores_a_fullwidth_link_closing_paren(self):
         """전각으로 닫힌 링크를 원문 target일 때만 반각으로 복원."""
 

@@ -742,8 +742,8 @@ class GeneratedChangeTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertEqual(value["code"], "OUTPUT_STATE_MISMATCH")
 
-    def test_untranslated_document_english_only_deletion_is_rejected(self):
-        """번역 제외 문서라도 영어만 삭제하면 locale 고아를 거부하는지 검증."""
+    def test_untranslated_document_english_only_deletion_passes(self):
+        """번역 제외 문서는 locale 산출물이 없을 수 있어 영어 단독 삭제를 허용."""
 
         issues = validate_generated_changes._document_change_issues(
             version="13.x",
@@ -752,10 +752,7 @@ class GeneratedChangeTests(unittest.TestCase):
             proofs={},
         )
 
-        self.assertEqual(
-            [issue.message for issue in issues],
-            ["unpaired translation document: version-13.x/license.md"],
-        )
+        self.assertEqual(issues, [])
 
     def test_untranslated_document_full_deletion_passes(self):
         """번역 제외 문서의 세 로케일 동시 삭제는 통과하는지 검증."""

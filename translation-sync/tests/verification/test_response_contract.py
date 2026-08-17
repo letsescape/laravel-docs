@@ -2937,5 +2937,48 @@ class DataCellProseTests(unittest.TestCase):
                 )
 
 
+class LinkTitleSignatureTests(unittest.TestCase):
+    """링크 title 서명의 재정렬 허용과 교환 거부 검증."""
+
+    SOURCE = 'See [alpha](https://a "A") and [beta](https://a "B").\n'
+
+    def _verify(self, body):
+        return response_contract.verify(
+            f"<!-- {self.SOURCE.strip()} -->\n{body}", self.SOURCE, locale="ja"
+        )
+
+    def test_allows_reordered_links(self):
+        """어순에 따른 링크 재배열은 허용."""
+
+        body = 'まず [beta](https://a "B")、次に [alpha](https://a "A") です。\n'
+
+        self.assertNotIn("provider link title mismatch", self._verify(body))
+
+    def test_rejects_swapped_titles_on_the_same_target(self):
+        """같은 target을 쓰는 링크 사이의 title 교환은 거부."""
+
+        body = 'まず [alpha](https://a "B")、次に [beta](https://a "A") です。\n'
+
+        self.assertIn("provider link title mismatch", self._verify(body))
+
+
+class TargetScriptRatioTests(unittest.TestCase):
+    """문서 단위 목표 문자 비율 계산 검증."""
+
+    def test_fully_translated_text_reaches_one(self):
+        """완전히 번역된 산문은 비율 1에 도달."""
+
+        self.assertEqual(
+            response_contract.target_script_ratio("결과를 캐시합니다", "ko"), 1.0
+        )
+
+    def test_other_locale_text_scores_zero(self):
+        """다른 로케일 문자만 있으면 비율 0."""
+
+        self.assertEqual(
+            response_contract.target_script_ratio("결과를 캐시합니다", "ja"), 0.0
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
