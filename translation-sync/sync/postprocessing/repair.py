@@ -375,6 +375,17 @@ def _source_annotation_texts(source: str) -> list[str]:
     return texts
 
 
+def _annotation_line_positions(lines: list[str]) -> list[int]:
+    """코드 펜스 밖 annotation 주석 줄의 위치 목록."""
+
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
+    return [
+        index
+        for index, line in enumerate(lines)
+        if not _is_code_line(line, state) and _ANNOTATION_LINE_RE.match(line)
+    ]
+
+
 def restore_required_annotations(source: str, translated: str) -> RepairResult:
     """provider 응답의 annotation 주석을 원문 canonical 본문으로 복원.
 
@@ -393,13 +404,7 @@ def restore_required_annotations(source: str, translated: str) -> RepairResult:
         return RepairResult(text=translated, changed=False)
 
     lines = translated.splitlines(keepends=True)
-    state = _RepairState(source_headings=iter(()), source_links=iter(()))
-    positions: list[int] = []
-    for index, line in enumerate(lines):
-        if _is_code_line(line, state):
-            continue
-        if _ANNOTATION_LINE_RE.match(line):
-            positions.append(index)
+    positions = _annotation_line_positions(lines)
     if len(positions) != len(expected):
         return RepairResult(text=translated, changed=False)
 
@@ -421,6 +426,21 @@ def restore_required_annotations(source: str, translated: str) -> RepairResult:
     return RepairResult(text="".join(lines), changed=True)
 
 
+def _unterminated_comment_end(lines: list[str], start: int) -> int | None:
+    """열린 주석이 닫히는 줄 위치. code fence를 넘거나 닫히지 않으면 ``None``."""
+
+    end = start + 1
+    while (
+        end < len(lines)
+        and "-->" not in lines[end]
+        and not fence_token(lines[end])
+    ):
+        end += 1
+    if end >= len(lines) or "-->" not in lines[end]:
+        return None
+    return end
+
+
 def collapse_multiline_annotations(source: str, translated: str) -> RepairResult:
     """여러 줄로 갈라진 annotation 주석을 한 줄로 접기.
 
@@ -434,39 +454,22 @@ def collapse_multiline_annotations(source: str, translated: str) -> RepairResult
     lines = translated.splitlines(keepends=True)
     out: list[str] = []
     changed = False
-    in_code = False
-    fence = ""
+    state = _RepairState(source_headings=iter(()), source_links=iter(()))
     index = 0
     while index < len(lines):
         line = lines[index]
-        token = fence_token(line)
-        if token and not in_code:
-            in_code, fence = True, token
-        elif token and in_code and closes_fence(line, fence):
-            in_code = False
         stripped = line.strip()
-        if (
-            in_code
-            or not stripped.startswith("<!--")
-            or "-->" in stripped
-        ):
+        opens_comment = (
+            not _is_code_line(line, state)
+            and stripped.startswith("<!--")
+            and "-->" not in stripped
+        )
+        end = _unterminated_comment_end(lines, index) if opens_comment else None
+        if end is None:
             out.append(line)
             index += 1
             continue
-        comment_lines = [stripped]
-        end = index + 1
-        while (
-            end < len(lines)
-            and "-->" not in lines[end]
-            and not fence_token(lines[end])
-        ):
-            comment_lines.append(lines[end].strip())
-            end += 1
-        if end >= len(lines) or "-->" not in lines[end]:
-            out.append(line)
-            index += 1
-            continue
-        comment_lines.append(lines[end].strip())
+        comment_lines = [stripped, *(lines[i].strip() for i in range(index + 1, end + 1))]
         ending = lines[end][len(lines[end].rstrip()) :]
         out.append(" ".join(part for part in comment_lines if part) + ending)
         index = end + 1
@@ -477,6 +480,28 @@ def collapse_multiline_annotations(source: str, translated: str) -> RepairResult
 _CJK_RE = re.compile(
     r"[぀-ゟ゠-ヿ㐀-䶿一-鿿豈-﫿]"
 )
+
+
+def _spaced_cjk_code_line(line: str) -> str:
+    """한 줄에서 inline code span과 인접한 CJK 경계에 반각 공백 하나를 넣는다.
+
+    span 전체를 단위로 훑고 바깥 문자만 검사하므로 span 내용은 바뀌지 않는다.
+    """
+
+    pieces: list[str] = []
+    cursor = 0
+    for match in _INLINE_CODE_RE.finditer(line):
+        head = line[cursor : match.start()]
+        if head and _CJK_RE.fullmatch(head[-1]):
+            head += " "
+        pieces.append(head)
+        pieces.append(match.group(0))
+        cursor = match.end()
+        following = line[cursor : cursor + 1]
+        if following and _CJK_RE.fullmatch(following):
+            pieces.append(" ")
+    pieces.append(line[cursor:])
+    return "".join(pieces)
 
 
 def normalize_cjk_code_spacing(translated: str) -> RepairResult:
@@ -493,29 +518,35 @@ def normalize_cjk_code_spacing(translated: str) -> RepairResult:
         if _is_comment_line(line, state) or _is_code_line(line, state):
             out.append(line)
             continue
-
-        def _space(match: re.Match[str]) -> str:
-            nonlocal changed
-            before, span, after = (
-                match.group("before"),
-                match.group("span"),
-                match.group("after"),
-            )
-            prefix = f"{before} " if _CJK_RE.fullmatch(before or "") else (before or "")
-            suffix = f" {after}" if _CJK_RE.fullmatch(after or "") else (after or "")
-            result = f"{prefix}{span}{suffix}"
-            if result != match.group(0):
-                changed = True
-            return result
-
-        out.append(
-            re.sub(
-                r"(?P<before>.?)(?P<span>`[^`\n]+`)(?P<after>.?)",
-                _space,
-                line,
-            )
-        )
+        spaced = _spaced_cjk_code_line(line)
+        changed = changed or spaced != line
+        out.append(spaced)
     return RepairResult(text="".join(out), changed=changed)
+
+
+_FULLWIDTH_LINK_CLOSE_RE = re.compile(r"\]\(([^()（）\n]*)）")
+
+
+def restore_ascii_link_delimiters(source: str, translated: str) -> RepairResult:
+    """전각 괄호로 닫힌 Markdown 링크를 원문 target일 때만 반각으로 되돌린다.
+
+    일본어 응답이 링크 닫는 괄호를 전각으로 출력하면 링크 구문 자체가 깨져
+    target·label·pair·title이 한꺼번에 불일치한다. 원문에 같은 target이 있는
+    경우에만 되돌려 링크를 새로 만들어내지 않는다.
+    """
+
+    targets = {link.target for link in markdown_links(source)}
+    if not targets:
+        return RepairResult(text=translated, changed=False)
+
+    def _restore(match: re.Match[str]) -> str:
+        target = match.group(1)
+        if target.split(" ", 1)[0] not in targets:
+            return match.group(0)
+        return f"]({target})"
+
+    restored = _FULLWIDTH_LINK_CLOSE_RE.sub(_restore, translated)
+    return RepairResult(text=restored, changed=restored != translated)
 
 
 def restore_missing_anchor_lines(source: str, translated: str) -> RepairResult:
@@ -561,6 +592,41 @@ def restore_missing_anchor_lines(source: str, translated: str) -> RepairResult:
     return RepairResult(text="".join(translated_lines), changed=changed)
 
 
+def _is_annotation_comment(line: str) -> bool:
+    """줄 전체가 한 줄 annotation 주석인지 여부."""
+
+    stripped = line.strip()
+    return stripped.startswith("<!--") and stripped.endswith("-->")
+
+
+def _split_html_annotation_run(
+    lines: list[str], start: int
+) -> tuple[list[str], list[str], int]:
+    """첫 주석 위치부터 이어지는 주석·HTML 본문 교대 구간 수집.
+
+    Returns:
+        주석 본문 목록, HTML 본문 줄 목록, 구간 다음 위치.
+    """
+
+    comments = [lines[start].strip()[4:-3].strip()]
+    bodies: list[str] = []
+    cursor = start + 1
+    while cursor < len(lines):
+        line = lines[cursor]
+        if _is_annotation_comment(line):
+            if not bodies:
+                break
+            comments.append(line.strip()[4:-3].strip())
+            cursor += 1
+            continue
+        body = line.strip()
+        if not body or not body.startswith("<"):
+            break
+        bodies.append(line)
+        cursor += 1
+    return comments, bodies, cursor
+
+
 def merge_split_html_annotations(source: str, translated: str) -> RepairResult:
     """HTML 연속 라인 블록에 행별로 갈라진 annotation 주석 병합.
 
@@ -581,26 +647,11 @@ def merge_split_html_annotations(source: str, translated: str) -> RepairResult:
     changed = False
     index = 0
     while index < len(lines):
-        stripped = lines[index].strip()
-        if not (stripped.startswith("<!--") and stripped.endswith("-->")):
+        if not _is_annotation_comment(lines[index]):
             out.append(lines[index])
             index += 1
             continue
-        comments = [stripped[4:-3].strip()]
-        bodies: list[str] = []
-        cursor = index + 1
-        while cursor < len(lines):
-            body = lines[cursor].strip()
-            if body.startswith("<!--") and body.endswith("-->"):
-                if not bodies:
-                    break
-                comments.append(body[4:-3].strip())
-                cursor += 1
-                continue
-            if not body or not body.startswith("<"):
-                break
-            bodies.append(lines[cursor])
-            cursor += 1
+        comments, bodies, cursor = _split_html_annotation_run(lines, index)
         merged = " ".join(comments)
         if len(comments) > 1 and len(bodies) == len(comments) and merged == expected:
             out.append(f"<!-- {merged} -->\n")

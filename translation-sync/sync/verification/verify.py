@@ -309,12 +309,15 @@ def _link_titles(
     *,
     registry: StaleLinkRegistry = DEFAULT_STALE_LINK_REGISTRY,
 ) -> list[str]:
-    """문서 순서의 Markdown 링크 title 수집."""
+    """정렬된 multiset 순서의 Markdown 링크 title 수집.
+
+    label·쌍과 같은 기준으로 비교해 목표 언어 어순에 따른 링크 재배열을 허용한다.
+    """
 
     body = mask_reference_definitions(
         _strip_heading_lines(_strip_code_blocks(_strip_comments(text)))
     )
-    return [
+    return sorted(
         link.title
         for link in markdown_links(body)
         if (
@@ -325,7 +328,7 @@ def _link_titles(
             )
             is not None
         )
-    ]
+    )
 
 
 def _image_signatures(

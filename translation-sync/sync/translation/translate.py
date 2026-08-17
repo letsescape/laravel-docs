@@ -160,6 +160,25 @@ class ProviderAttemptCounter:
         self.response_evaluation += 1
 
 
+_FEEDBACK_COMMENT_BUDGET = 2000
+
+
+def _bounded_comment_snippets(comments: list[str] | None) -> str:
+    """재시도 지침에 붙일 주석을 고정 예산 안에서 결정적으로 자른다."""
+
+    if not comments:
+        return ""
+    snippets: list[str] = []
+    remaining = _FEEDBACK_COMMENT_BUDGET
+    for comment in comments[:2]:
+        rendered = f"<!-- {comment} -->"
+        if len(rendered) > remaining:
+            break
+        snippets.append(rendered)
+        remaining -= len(rendered)
+    return " ".join(snippets)
+
+
 def verification_feedback(
     issues: list[str],
     exact_comments: list[str] | None = None,
@@ -184,14 +203,13 @@ def verification_feedback(
         )
     if any("target language mismatch" in issue for issue in issues):
         guidance += (
-            " Translate every prose cell of the table, including the header "
-            "row, into the target language; keep only code, identifiers and "
-            "product names in English."
+            " Translate the prose into the target language; keep only code, "
+            "identifiers, link labels and product names in English."
         )
         if echoed_cells:
             named = ", ".join(f"`{cell}`" for cell in echoed_cells[:8])
             guidance += (
-                f" These header cells came back untranslated: {named}. "
+                f" These table header cells came back untranslated: {named}. "
                 "Translate each of them."
             )
     if any("inline markup" in issue for issue in issues):
@@ -216,10 +234,8 @@ def verification_feedback(
             "from the English Source: do not rephrase or change punctuation "
             "inside comments."
         )
-        if exact_comments:
-            quoted = " ".join(
-                f"<!-- {comment} -->" for comment in exact_comments[:2]
-            )
+        quoted = _bounded_comment_snippets(exact_comments)
+        if quoted:
             guidance += (
                 " The following comments must appear exactly as written here: "
                 + quoted

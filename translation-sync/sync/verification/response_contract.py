@@ -112,6 +112,7 @@ _HTML_ENTITY_RE = re.compile(r"&(?:#[xX]?[0-9A-Fa-f]+|[A-Za-z][A-Za-z0-9]+);")
 _PROSE_TRIM_CHARACTERS = " `*_~.,:;()[]&/,+"
 _MARKDOWN_TRIM_CHARACTERS = " `*_~"
 _PROTECTED_WORD_PATTERN = r"[A-Za-z][A-Za-z0-9.+#-]*"
+_DATA_ITEM_SEPARATOR_RE = re.compile(r"\s*[,/]\s*|\s+and\s+")
 _QUOTED_LITERAL_RE = re.compile(r'"[^"\n]*"')
 _JSON_STRUCTURE_CHARACTERS = " \t\n{}[]:,"
 _PROVIDER_LINK_TARGET_MISMATCH = "provider link target mismatch"
@@ -132,6 +133,8 @@ _FEEDBACK_RETRYABLE_ISSUES = frozenset(
     )
 )
 _PROVIDER_PROTECTED_TERM_MISMATCH = "provider protected term mismatch"
+MISMATCH_TARGET_LANGUAGE = "provider target language mismatch"
+_ANNOTATION_PREFIX_RE = re.compile(r"^\s*<!--.*?-->\s*\n?", re.DOTALL)
 _LOWERCASE_TECH_TERMS = frozenset(("npm", "php", "macos"))
 _PRODUCT_NAME_PREFIXES = frozenset(("laravel",))
 _PROSE_SIGNAL_WORDS = frozenset(
@@ -509,6 +512,19 @@ def mismatched_required_comments(text: str, source: str) -> list[str]:
         for expected, received in zip(required, actual)
         if expected != received
     ]
+
+
+def target_script_ratio(text: str, locale: str) -> float:
+    """산문에서 목표 문자 체계가 차지하는 비율.
+
+    문서 단위 판정에 사용하며, 코드·링크·heading 등 보호 구간은 제외한다.
+    """
+
+    sample = _normalized_language_prose(text)
+    letters = _unicode_letter_count(sample) + _target_script_count(sample, locale)
+    if not letters:
+        return 1.0
+    return _target_script_count(sample, locale) / letters
 
 
 def echoed_header_cells(text: str, source: str) -> list[str]:
@@ -2716,12 +2732,12 @@ def _markdown_link_signatures(
 ) -> tuple[
     Counter[str],
     list[str],
-    tuple[tuple[str, str], ...],
+    tuple[tuple[str, tuple[str, ...]], ...],
     list[str],
 ]:
     """Markdown 링크 target 횟수, 비이미지 label·(label, target) 쌍 multiset과 전체 title 순서 서명.
 
-    label과 쌍은 정렬된 multiset으로 비교해 목표 언어 어순에 따른
+    label·쌍·title은 정렬된 multiset으로 비교해 목표 언어 어순에 따른
     블록 내 등장 순서 재배열을 허용하되, 같은 label이 반복되면
     그 label의 target 등장 순서는 보존해야 한다.
     """
@@ -2758,7 +2774,7 @@ def _markdown_link_signatures(
                 for label, targets in per_label_targets.items()
             )
         ),
-        [link.title for link in links],
+        sorted(link.title for link in links),
     )
 
 
@@ -3063,7 +3079,11 @@ def _cell_echoes_translatable_prose(source: str, translated: str) -> bool:
 
 
 def _cell_has_no_translatable_prose(source: str) -> bool:
-    """셀이 고유명사·식별자 나열뿐이라 목표 언어 판정이 무의미한지 여부."""
+    """셀이 보호 항목 나열뿐이라 목표 언어 판정이 무의미한지 여부.
+
+    구분자로 나뉜 항목이 둘 이상이고 각 항목이 보호 토큰 하나일 때만 데이터 열거로 본다.
+    설명 문구는 항목 하나에 토큰이 여러 개이므로 여기에 해당하지 않는다.
+    """
 
     words = re.findall(_PROTECTED_WORD_PATTERN, source)
     if len(words) < 2:
@@ -3071,7 +3091,16 @@ def _cell_has_no_translatable_prose(source: str) -> bool:
     remainder = re.sub(_PROTECTED_WORD_PATTERN, "", source)
     if remainder.strip(_PROSE_TRIM_CHARACTERS):
         return False
-    return not ({word.lower() for word in words} & _PROSE_SIGNAL_WORDS)
+    if {word.lower() for word in words} & _PROSE_SIGNAL_WORDS:
+        return False
+    items = [
+        item.strip()
+        for item in _DATA_ITEM_SEPARATOR_RE.split(source)
+        if item.strip(_PROSE_TRIM_CHARACTERS)
+    ]
+    return len(items) >= 2 and all(
+        len(re.findall(_PROTECTED_WORD_PATTERN, item)) == 1 for item in items
+    )
 
 
 def _has_target_language(

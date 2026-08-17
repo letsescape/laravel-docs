@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import os
+import re
 from collections import Counter
 import sys
 from collections.abc import Mapping
@@ -61,6 +62,7 @@ PRESERVED_MARKUP_FIXABLE = {
     "heading text mismatch",
 }
 MAX_SEGMENT_VERIFICATION_ATTEMPTS = translate.MAX_COMPLETED_RESPONSE_ATTEMPTS
+_ANNOTATION_PREFIX_RE = re.compile(r"^\s*<!--.*?-->\s*\n?", re.DOTALL)
 _MISSING_PARTIAL_TRANSLATION = "missing existing translation for partial sync"
 FAILURE_REPORT_ENV = "TRANSLATION_FAILURE_REPORT"
 RUN_ID_ENV = "TRANSLATION_RUN_ID"
@@ -339,6 +341,34 @@ def _validate_file_states(changes: list[diff.SourceChange]) -> list[str]:
     ]
 
 
+def _english_source_issue(change: diff.SourceChange) -> str | None:
+    """영어 원문 파일의 존재 상태가 변경 상태와 어긋나는지 판정."""
+
+    source = REPO_ROOT / change.path
+    expected = change.status in {"A", "M"}
+    if (source.is_file() and not source.is_symlink()) == expected:
+        return None
+    expectation = "existing" if expected else "absent"
+    return f"{change.path}: {change.status} requires {expectation} English source"
+
+
+def _locale_state_issue(
+    change: diff.SourceChange, locale: str, path: Path
+) -> str | None:
+    """단일 locale 파일의 존재 상태가 변경 상태와 어긋나는지 판정."""
+
+    expected = change.status in {"M", "D"}
+    present = path.is_file() and not path.is_symlink()
+    if present == expected:
+        return None
+    if change.status == "A" and present and _admitted_added_locale(
+        change, path, locale
+    ):
+        return None
+    expectation = "existing" if expected else "absent"
+    return f"{change.path}: {change.status} requires {expectation} {locale} locale"
+
+
 def _file_state_issues(change: diff.SourceChange) -> list[str]:
     """단일 원문 변경의 영어·locale 파일 상태 이슈 수집.
 
@@ -358,48 +388,60 @@ def _file_state_issues(change: diff.SourceChange) -> list[str]:
         return [f"{change.path}: {exc}"]
     if change.status not in {"A", "M", "D"}:
         return [f"{change.path}: unsupported source status {change.status!r}"]
-    issues: list[str] = []
-    if change.status == "M" and not change.hunks:
-        issues.append(f"{change.path}: M requires raw diff hunks")
-    source = REPO_ROOT / change.path
-    expected_source = change.status in {"A", "M"}
-    if (source.is_file() and not source.is_symlink()) != expected_source:
-        expectation = "existing" if expected_source else "absent"
-        issues.append(
-            f"{change.path}: {change.status} requires {expectation} English source"
-        )
-    expected_locale = change.status in {"M", "D"}
-    for locale, path in locale_paths:
-        present = path.is_file() and not path.is_symlink()
-        if present == expected_locale:
-            continue
-        if change.status == "A" and present and _admitted_added_locale(change, path):
-            continue
-        expectation = "existing" if expected_locale else "absent"
-        issues.append(
-            f"{change.path}: {change.status} requires {expectation} {locale} locale"
-        )
-    return issues
+
+    candidates = [
+        f"{change.path}: M requires raw diff hunks"
+        if change.status == "M" and not change.hunks
+        else None,
+        _english_source_issue(change),
+        *(
+            _locale_state_issue(change, locale, path)
+            for locale, path in locale_paths
+        ),
+    ]
+    return [issue for issue in candidates if issue is not None]
 
 
-def _admitted_added_locale(change: diff.SourceChange, dest: Path) -> bool:
+def _document_is_in_locale(document: str, locale: str) -> bool:
+    """annotation 주석과 소유 본문 쌍이 목표 언어 기준을 만족하는지 여부.
+
+    구조 검증은 언어를 보지 않으므로, 잘못된 locale의 문서가 이미 승인된
+    결과로 통과하지 않도록 별도로 확인한다.
+    """
+
+    blocks = patch_utils._blocks(document)
+    if not blocks:
+        return False
+    body = "\n".join(
+        _ANNOTATION_PREFIX_RE.sub("", block.text, count=1) for block in blocks
+    )
+    return response_contract.target_script_ratio(body, locale) >= 0.10
+
+
+def _admitted_added_locale(
+    change: diff.SourceChange, dest: Path, locale: str
+) -> bool:
     """추가 문서의 기존 locale 파일이 이미 승인된 번역 결과인지 여부.
 
     같은 계획을 다시 적용하면 no-op이어야 하므로, 현재 원문 기준 문서 검증을
-    통과하는 locale 파일은 상태 충돌이 아니라 이미 반영된 결과로 판정한다.
+    통과하고 목표 언어 기준도 만족하는 locale 파일은 상태 충돌이 아니라
+    이미 반영된 결과로 판정한다.
     """
 
     try:
+        document = dest.read_bytes().decode("utf-8")
         source = (REPO_ROOT / change.path).read_text(encoding="utf-8")
         preprocessed = preprocess.preprocess(source)
-        return not _verify_and_admit_document(
+        if _verify_and_admit_document(
             dest,
-            dest.read_bytes().decode("utf-8"),
+            document,
             preprocessed.text,
             change.version,
             MappingProxyType(dict(preprocessed.placeholders)),
             write=False,
-        )
+        ):
+            return False
+        return _document_is_in_locale(document, locale)
     except (OSError, UnicodeDecodeError, ValueError):
         return False
 
@@ -442,6 +484,7 @@ def _preflight_all_translation_targets(
                     cfg,
                     prompts[locale],
                     dest,
+                    locale,
                 )
             except (
                 OutputPathError,
@@ -765,6 +808,7 @@ def _translate_added_document(
             cfg,
             prompt,
             dest,
+            locale,
         )
         if target.state is not patch_utils.PlanState.CREATE:
             raise patch_utils.PatchError("added document is not in create state")
@@ -1176,11 +1220,20 @@ def _preflight_create_plan(
     plan: patch_utils.PatchPlan,
     cfg: config.Config,
     prompt: str,
+    reusable: Mapping[str, str] = MappingProxyType({}),
 ) -> None:
-    """문서 생성 계획에서 프로바이더가 필요한 소유 블록의 요청 사전 검증."""
+    """문서 생성 계획에서 실제 provider 호출이 필요한 owner만 사전 검증.
+
+    기존 번역을 재사용할 owner는 provider로 보내지 않으므로 요청 예산 검사에서
+    제외한다. 그렇지 않으면 보내지도 않을 입력 때문에 실행이 중단된다.
+    """
 
     for owner in plan.create_blocks:
         if not owner.provider_required:
+            continue
+        if reusable and _reused_create_block(
+            owner, reusable, cfg, change, None
+        ) is not None:
             continue
         request = _translation_request(
             owner.source,
@@ -1195,6 +1248,7 @@ _DEGRADABLE_VERIFICATION_CODES = (
     IssueCode.VERIFICATION_INPUT_CHANGED.value,
     IssueCode.PIPELINE_ANNOTATION_MISMATCH.value,
     IssueCode.FRONT_MATTER_MISMATCH.value,
+    IssueCode.SOURCE_STRUCTURE_MISMATCH.value,
 )
 
 
@@ -1207,6 +1261,7 @@ def _repaired_provider_response(source: str, translated: str) -> str:
         repair.collapse_multiline_annotations,
         repair.merge_split_html_annotations,
         repair.restore_required_annotations,
+        repair.restore_ascii_link_delimiters,
         repair.restore_missing_anchor_lines,
         repair.strip_invented_inline_code,
     ):
@@ -1289,7 +1344,8 @@ def _degraded_create_target(
         dict(preprocessed.placeholders)
     )
     plan = patch_utils.build_create_plan(preprocessed.text)
-    _preflight_create_plan(change, plan, cfg, prompt)
+    reusable = MappingProxyType(_annotated_locale_blocks(existing))
+    _preflight_create_plan(change, plan, cfg, prompt, reusable)
     preserved = (
         patch_utils._front_matter_text(existing) if existing else None
     )
@@ -1304,7 +1360,7 @@ def _degraded_create_target(
         placeholders=placeholders,
         block_requests=MappingProxyType({}),
         preserved_front_matter=preserved,
-        reusable_blocks=MappingProxyType(_annotated_locale_blocks(existing)),
+        reusable_blocks=reusable,
     )
 
 
@@ -1370,6 +1426,7 @@ def _prepare_translation_target(
     cfg: config.Config,
     prompt: str,
     dest: Path,
+    locale: str | None = None,
 ) -> _PreparedTranslationTarget:
     """로케일별 번역 대상 사전 준비."""
 
@@ -1388,7 +1445,11 @@ def _prepare_translation_target(
             else None
         )
         # 이미 승인된 번역 결과가 있는 추가 문서는 같은 계획을 다시 적용한 no-op.
-        if existing is not None and _admitted_added_locale(change, dest):
+        if (
+            existing is not None
+            and locale is not None
+            and _admitted_added_locale(change, dest, locale)
+        ):
             existing, existing_bytes = None, None
         plan = patch_utils.build_create_plan(preprocessed.text)
         state = patch_utils.plan_state(existing, plan)
@@ -1868,6 +1929,7 @@ def _translate_partial_document(
         cfg,
         prompt,
         dest,
+        locale,
     )
     existing = target.existing
     existing_bytes = target.existing_bytes

@@ -38,6 +38,7 @@ def is_locale_routing_front_matter(
 
     서빙되는 locale 문서(예: 각 버전 색인)의 저장소 소유 라우팅 키는
     영어 원문에서 파생되지 않으므로 검증·재생성에서 보존 대상.
+    적용 단계가 단일 줄 ``slug``만 지원하므로 판정도 같은 범위로 한정한다.
     """
 
     return (
@@ -48,7 +49,14 @@ def is_locale_routing_front_matter(
         and len(translated.signature) == 1
         and bool(translated.signature[0])
         and translated.signature[0][0] == "slug"
+        and _is_single_line_scalar(translated.signature[0])
     )
+
+
+def _is_single_line_scalar(entry: tuple[object, ...]) -> bool:
+    """머리말 항목이 continuation 없는 단일 줄 plain scalar인지 여부."""
+
+    return len(entry) >= 5 and entry[1] == "plain" and not entry[4]
 
 
 def _scalar_contract(
