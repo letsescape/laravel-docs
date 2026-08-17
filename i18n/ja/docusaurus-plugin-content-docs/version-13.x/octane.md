@@ -455,7 +455,7 @@ php artisan octane:start --max-requests=250
 ### Specifying the Max Execution Time
 
 <!-- By default, Laravel Octane sets a maximum execution time of 30 seconds for incoming requests via the `max_execution_time` option in your application's `config/octane.php` configuration file: -->
-デフォルトでは、Laravel Octaneは、アプリケーションの`config/octane.php`設定ファイルの`max_execution_time`オプションを介して、受信リクエストの最大実行時間を30秒に設定します。
+デフォルトでは、Laravel Octaneは、アプリケーションの `config/octane.php` 設定ファイルの `max_execution_time` オプションを介して、受信リクエストの最大実行時間を30秒に設定します。
 
 ```php
 'max_execution_time' => 30,
@@ -507,8 +507,8 @@ php artisan octane:status
 <!-- Since Octane boots your application once and keeps it in memory while serving requests, there are a few caveats you should consider while building your application. For example, the `register` and `boot` methods of your application's service providers will only be executed once when the request worker initially boots. On subsequent requests, the same application instance will be reused. -->
 Octane はアプリケーションを一度起動し、リクエストを処理する間メモリ内に保持するため、アプリケーションを構築する際に考慮すべき注意事項がいくつかあります。たとえば、アプリケーションのサービスプロバイダの `register` メソッドと `boot` メソッドは、リクエスト ワーカーが最初に起動するときに 1 回だけ実行されます。後続のリクエストでは、同じアプリケーション インスタンスが再利用されます。
 
-<!-- In light of this, you should take special care when injecting the application service container or request into any object's constructor. By doing so, that object may have a  stale version of the container or request on subsequent requests. -->
-これを考慮して、アプリケーション サービスコンテナまたはリクエストをオブジェクトのコンストラクターに挿入するときは、特別な注意を払う必要があります。そうすると、そのオブジェクトには、後続のリクエストでコンテナまたはリクエストの古いバージョンが含まれる可能性があります。
+<!-- In light of this, you should take special care when injecting the application service container or request into any object's constructor. By doing so, that object may have a stale version of the container or request on subsequent requests. -->
+このため、アプリケーションのサービスコンテナやリクエストをオブジェクトのコンストラクターへ注入する際は、特に注意してください。そうすると、そのオブジェクトが後続のリクエストでコンテナやリクエストの古い状態を保持してしまう可能性があります。
 
 <!-- Octane will automatically handle resetting any first-party framework state between requests. However, Octane does not always know how to reset the global state created by your application. Therefore, you should be aware of how to build your application in a way that is Octane friendly. Below, we will discuss the most common situations that may cause problems while using Octane. -->
 Octane は、リクエスト間のファーストパーティ フレームワークの状態のリセットを自動的に処理します。ただし、Octane は、アプリケーションによって作成されたグローバル状態をリセットする方法を常に知っているわけではありません。したがって、Octane に適した方法でアプリケーションを構築する方法を認識する必要があります。以下では、Octane の使用中に問題が発生する可能性のある最も一般的な状況について説明します。
@@ -813,4 +813,3 @@ return Octane::table('example')->get('uuid');
 
 > [!WARNING]
 > Swoole テーブルでサポートされている列タイプは、`string`、`int`、および `float` です。
-

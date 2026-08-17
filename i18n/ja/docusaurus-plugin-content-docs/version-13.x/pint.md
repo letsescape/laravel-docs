@@ -66,6 +66,13 @@ composer require laravel/pint --dev
 ./vendor/bin/pint app/Models/User.php
 ```
 
+<!-- By default, Pint does not format Blade templates. If you would like to format your `.blade.php` files as well, you may use the `--blade` option, which enables the [`Pint/laravel_blade`](#laravel-blade) rule for the current run without modifying your `pint.json` file: -->
+デフォルトでは、Pint は Blade テンプレートをフォーマットしません。`.blade.php` ファイルもフォーマットする場合は、`--blade` オプションを使用できます。このオプションを指定すると、`pint.json` ファイルを変更せずに、今回の実行で [`Pint/laravel_blade`](#laravel-blade) ルールが有効になります。
+
+```shell
+./vendor/bin/pint --blade
+```
+
 <!-- Pint will display a thorough list of all of the files that it updates. You can view even more detail about Pint's changes by providing the `-v` option when invoking Pint: -->
 Pint は、更新するすべてのファイルの完全なリストを表示します。 Pint を呼び出すときに `-v` オプションを指定すると、Pint の変更についてさらに詳細を表示できます。
 
@@ -177,6 +184,42 @@ Pint は [PHP CS Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) の上に�
 
 <!-- In addition to PHP CS Fixer rules, Pint provides custom rules prefixed with `Pint/`. These rules are not enabled by default, but you may enable them in your `pint.json` file. -->
 PHP CS Fixer ルールに加えて、Pint は `Pint/` というプレフィックスが付いたカスタム ルールを提供します。これらのルールはデフォルトでは有効になっていませんが、`pint.json` ファイルで有効にすることができます。
+
+<a name="laravel-blade"></a>
+<!-- ##### `Pint/laravel_blade` -->
+##### `Pint/laravel_blade`
+
+<!-- This rule formats your Blade templates, applying consistent indentation, spacing, and attribute formatting to your `.blade.php` files. By default, Pint does not format Blade files, so you must enable this rule in your `pint.json` file to opt in: -->
+このルールは Blade テンプレートを整形し、`.blade.php` ファイルのインデント、スペース、属性の書式を統一します。Pint はデフォルトでは Blade ファイルを整形しないため、使用するには `pint.json` ファイルでこのルールを有効にする必要があります。
+
+```json
+{
+    "preset": "laravel",
+    "rules": {
+        "Pint/laravel_blade": true
+    }
+}
+```
+
+<!-- Once enabled, Pint will format your Blade templates in addition to your PHP files whenever it runs: -->
+有効にすると、Pint の実行時に PHP ファイルに加えて Blade テンプレートも整形されます。
+
+```shell
+./vendor/bin/pint
+```
+
+<!-- Alternatively, if you would like to enable this rule for a single run without modifying your `pint.json` file, you may use the `--blade` option: -->
+`pint.json` ファイルを変更せず、1回の実行時だけこのルールを有効にしたい場合は、`--blade` オプションを使用できます。
+
+```shell
+./vendor/bin/pint --blade
+```
+
+<!-- Under the hood, this rule uses [Prettier](https://prettier.io) along with the `prettier-plugin-blade` and `prettier-plugin-tailwindcss` plugins, so [Node.js](https://nodejs.org) must be installed on your machine. The first time you run Pint with this rule enabled, Pint will detect any missing Prettier dependencies and prompt you to install them. -->
+このルールは内部で、`prettier-plugin-blade` および `prettier-plugin-tailwindcss` プラグインとともに [Prettier](https://prettier.io) を使用するため、環境に [Node.js](https://nodejs.org) をインストールしておく必要があります。このルールを有効にして初めて Pint を実行すると、Pint は不足している Prettier の依存関係を検出し、インストールを促します。
+
+> [!NOTE]
+> このルールは、通常独自の書式設定に依存するファイルを自動的にスキップします。たとえば、[Laravel Boost](https://github.com/laravel/boost) のガイドラインや、`resources/views/emails` および `resources/views/mail` ディレクトリにあるメールビューが該当します。
 
 <a name="phpdoc-type-annotations-only"></a>
 <!-- ##### `Pint/phpdoc_type_annotations_only` -->
@@ -293,4 +336,3 @@ jobs:
       - name: Commit linted files
         uses: stefanzweifel/git-auto-commit-action@v6
 ```
-

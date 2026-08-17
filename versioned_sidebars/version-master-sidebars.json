@@ -1,703 +1,704 @@
 {
   "tutorialSidebar": [
     {
-      "type": "category",
-      "label": "Prologue",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "releases",
+          "key": "doc:releases",
           "label": "Release Notes",
-          "key": "releases"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "upgrade",
+          "key": "doc:upgrade",
           "label": "Upgrade Guide",
-          "key": "upgrade"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "contributions",
+          "key": "doc:contributions",
           "label": "Contribution Guide",
-          "key": "contributions"
+          "type": "doc"
         }
       ],
-      "key": "Prologue"
+      "key": "category:Prologue",
+      "label": "Prologue",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "Getting Started",
-      "collapsed": false,
+      "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "installation",
+          "key": "doc:installation",
           "label": "Installation",
-          "key": "installation"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "configuration",
+          "key": "doc:configuration",
           "label": "Configuration",
-          "key": "configuration"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "ai",
+          "key": "doc:ai",
           "label": "Agentic Development",
-          "key": "ai"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "structure",
+          "key": "doc:structure",
           "label": "Directory Structure",
-          "key": "structure"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "frontend",
+          "key": "doc:frontend",
           "label": "Frontend",
-          "key": "frontend"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "starter-kits",
+          "key": "doc:starter-kits",
           "label": "Starter Kits",
-          "key": "starter-kits"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "deployment",
+          "key": "doc:deployment",
           "label": "Deployment",
-          "key": "deployment"
+          "type": "doc"
         }
       ],
-      "key": "Getting Started"
+      "key": "category:Getting Started",
+      "label": "Getting Started",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "Architecture Concepts",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "lifecycle",
+          "key": "doc:lifecycle",
           "label": "Request Lifecycle",
-          "key": "lifecycle"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "container",
+          "key": "doc:container",
           "label": "Service Container",
-          "key": "container"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "providers",
+          "key": "doc:providers",
           "label": "Service Providers",
-          "key": "providers"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "facades",
+          "key": "doc:facades",
           "label": "Facades",
-          "key": "facades"
+          "type": "doc"
         }
       ],
-      "key": "Architecture Concepts"
+      "key": "category:Architecture Concepts",
+      "label": "Architecture Concepts",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "The Basics",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "routing",
+          "key": "doc:routing",
           "label": "Routing",
-          "key": "routing"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "middleware",
+          "key": "doc:middleware",
           "label": "Middleware",
-          "key": "middleware"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "csrf",
+          "key": "doc:csrf",
           "label": "CSRF Protection",
-          "key": "csrf"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "controllers",
+          "key": "doc:controllers",
           "label": "Controllers",
-          "key": "controllers"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "requests",
+          "key": "doc:requests",
           "label": "Requests",
-          "key": "requests"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "responses",
+          "key": "doc:responses",
           "label": "Responses",
-          "key": "responses"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "views",
+          "key": "doc:views",
           "label": "Views",
-          "key": "views"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "blade",
+          "key": "doc:blade",
           "label": "Blade Templates",
-          "key": "blade"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "vite",
+          "key": "doc:vite",
           "label": "Asset Bundling",
-          "key": "vite"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "urls",
+          "key": "doc:urls",
           "label": "URL Generation",
-          "key": "urls"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "session",
+          "key": "doc:session",
           "label": "Session",
-          "key": "session"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "validation",
+          "key": "doc:validation",
           "label": "Validation",
-          "key": "validation"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "errors",
+          "key": "doc:errors",
           "label": "Error Handling",
-          "key": "errors"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "logging",
+          "key": "doc:logging",
           "label": "Logging",
-          "key": "logging"
+          "type": "doc"
         }
       ],
-      "key": "The Basics"
+      "key": "category:The Basics",
+      "label": "The Basics",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "Digging Deeper",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "artisan",
+          "key": "doc:artisan",
           "label": "Artisan Console",
-          "key": "artisan"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "broadcasting",
+          "key": "doc:broadcasting",
           "label": "Broadcasting",
-          "key": "broadcasting"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "cache",
+          "key": "doc:cache",
           "label": "Cache",
-          "key": "cache"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "collections",
+          "key": "doc:collections",
           "label": "Collections",
-          "key": "collections"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "concurrency",
+          "key": "doc:concurrency",
           "label": "Concurrency",
-          "key": "concurrency"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "context",
+          "key": "doc:context",
           "label": "Context",
-          "key": "context"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "contracts",
+          "key": "doc:contracts",
           "label": "Contracts",
-          "key": "contracts"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "events",
+          "key": "doc:events",
           "label": "Events",
-          "key": "events"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "filesystem",
+          "key": "doc:filesystem",
           "label": "File Storage",
-          "key": "filesystem"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "helpers",
+          "key": "doc:helpers",
           "label": "Helpers",
-          "key": "helpers"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "http-client",
+          "key": "doc:http-client",
           "label": "HTTP Client",
-          "key": "http-client"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "localization",
+          "key": "doc:localization",
           "label": "Localization",
-          "key": "localization"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "mail",
+          "key": "doc:mail",
           "label": "Mail",
-          "key": "mail"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "notifications",
+          "key": "doc:notifications",
           "label": "Notifications",
-          "key": "notifications"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "packages",
+          "key": "doc:packages",
           "label": "Package Development",
-          "key": "packages"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "processes",
+          "key": "doc:processes",
           "label": "Processes",
-          "key": "processes"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "queues",
+          "key": "doc:queues",
           "label": "Queues",
-          "key": "queues"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "rate-limiting",
+          "key": "doc:rate-limiting",
           "label": "Rate Limiting",
-          "key": "rate-limiting"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "search",
+          "key": "doc:search",
           "label": "Search",
-          "key": "search"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "strings",
+          "key": "doc:strings",
           "label": "Strings",
-          "key": "strings"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "scheduling",
+          "key": "doc:scheduling",
           "label": "Task Scheduling",
-          "key": "scheduling"
+          "type": "doc"
         }
       ],
-      "key": "Digging Deeper"
+      "key": "category:Digging Deeper",
+      "label": "Digging Deeper",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "Security",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "authentication",
+          "key": "doc:authentication",
           "label": "Authentication",
-          "key": "authentication"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "authorization",
+          "key": "doc:authorization",
           "label": "Authorization",
-          "key": "authorization"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "verification",
+          "key": "doc:verification",
           "label": "Email Verification",
-          "key": "verification"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "encryption",
+          "key": "doc:encryption",
           "label": "Encryption",
-          "key": "encryption"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "hashing",
+          "key": "doc:hashing",
           "label": "Hashing",
-          "key": "hashing"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "passwords",
+          "key": "doc:passwords",
           "label": "Password Reset",
-          "key": "passwords"
+          "type": "doc"
         }
       ],
-      "key": "Security"
+      "key": "category:Security",
+      "label": "Security",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "Database",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "database",
+          "key": "doc:database",
           "label": "Getting Started",
-          "key": "database"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "queries",
+          "key": "doc:queries",
           "label": "Query Builder",
-          "key": "queries"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "pagination",
+          "key": "doc:pagination",
           "label": "Pagination",
-          "key": "pagination"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "migrations",
+          "key": "doc:migrations",
           "label": "Migrations",
-          "key": "migrations"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "seeding",
+          "key": "doc:seeding",
           "label": "Seeding",
-          "key": "seeding"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "redis",
+          "key": "doc:redis",
           "label": "Redis",
-          "key": "redis"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "mongodb",
+          "key": "doc:mongodb",
           "label": "MongoDB",
-          "key": "mongodb"
+          "type": "doc"
         }
       ],
-      "key": "Database"
+      "key": "category:Database",
+      "label": "Database",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "Eloquent ORM",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "eloquent",
+          "key": "doc:eloquent",
           "label": "Getting Started",
-          "key": "eloquent"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "eloquent-relationships",
+          "key": "doc:eloquent-relationships",
           "label": "Relationships",
-          "key": "eloquent-relationships"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "eloquent-collections",
+          "key": "doc:eloquent-collections",
           "label": "Collections",
-          "key": "eloquent-collections"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "eloquent-mutators",
+          "key": "doc:eloquent-mutators",
           "label": "Mutators / Casts",
-          "key": "eloquent-mutators"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "eloquent-resources",
+          "key": "doc:eloquent-resources",
           "label": "API Resources",
-          "key": "eloquent-resources"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "eloquent-serialization",
+          "key": "doc:eloquent-serialization",
           "label": "Serialization",
-          "key": "eloquent-serialization"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "eloquent-factories",
+          "key": "doc:eloquent-factories",
           "label": "Factories",
-          "key": "eloquent-factories"
+          "type": "doc"
         }
       ],
-      "key": "Eloquent ORM"
+      "key": "category:Eloquent ORM",
+      "label": "Eloquent ORM",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "AI",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "ai-sdk",
+          "key": "doc:ai-sdk",
           "label": "AI SDK",
-          "key": "ai-sdk"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "mcp",
+          "key": "doc:mcp",
           "label": "MCP",
-          "key": "mcp"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "boost",
+          "key": "doc:boost",
           "label": "Boost",
-          "key": "boost"
+          "type": "doc"
         }
       ],
-      "key": "AI"
+      "key": "category:AI",
+      "label": "AI",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "Testing",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "testing",
+          "key": "doc:testing",
           "label": "Getting Started",
-          "key": "testing"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "http-tests",
+          "key": "doc:http-tests",
           "label": "HTTP Tests",
-          "key": "http-tests"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "console-tests",
+          "key": "doc:console-tests",
           "label": "Console Tests",
-          "key": "console-tests"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "dusk",
+          "key": "doc:dusk",
           "label": "Browser Tests",
-          "key": "dusk"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "database-testing",
+          "key": "doc:database-testing",
           "label": "Database",
-          "key": "database-testing"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "mocking",
+          "key": "doc:mocking",
           "label": "Mocking",
-          "key": "mocking"
+          "type": "doc"
         }
       ],
-      "key": "Testing"
+      "key": "category:Testing",
+      "label": "Testing",
+      "type": "category"
     },
     {
-      "type": "category",
-      "label": "Packages",
       "collapsed": true,
       "items": [
         {
-          "type": "doc",
           "id": "billing",
+          "key": "doc:billing",
           "label": "Cashier (Stripe)",
-          "key": "billing"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "cashier-paddle",
+          "key": "doc:cashier-paddle",
           "label": "Cashier (Paddle)",
-          "key": "cashier-paddle"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "dusk",
+          "key": "doc:dusk:2",
           "label": "Dusk",
-          "key": "dusk-packages"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "envoy",
+          "key": "doc:envoy",
           "label": "Envoy",
-          "key": "envoy"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "fortify",
+          "key": "doc:fortify",
           "label": "Fortify",
-          "key": "fortify"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "folio",
+          "key": "doc:folio",
           "label": "Folio",
-          "key": "folio"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "homestead",
+          "key": "doc:homestead",
           "label": "Homestead",
-          "key": "homestead"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "horizon",
+          "key": "doc:horizon",
           "label": "Horizon",
-          "key": "horizon"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "mix",
+          "key": "doc:mix",
           "label": "Mix",
-          "key": "mix"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "octane",
+          "key": "doc:octane",
           "label": "Octane",
-          "key": "octane"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "passport",
+          "key": "doc:passport",
           "label": "Passport",
-          "key": "passport"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "pennant",
+          "key": "doc:pennant",
           "label": "Pennant",
-          "key": "pennant"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "pint",
+          "key": "doc:pint",
           "label": "Pint",
-          "key": "pint"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "precognition",
+          "key": "doc:precognition",
           "label": "Precognition",
-          "key": "precognition"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "prompts",
+          "key": "doc:prompts",
           "label": "Prompts",
-          "key": "prompts"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "pulse",
+          "key": "doc:pulse",
           "label": "Pulse",
-          "key": "pulse"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "reverb",
+          "key": "doc:reverb",
           "label": "Reverb",
-          "key": "reverb"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "sail",
+          "key": "doc:sail",
           "label": "Sail",
-          "key": "sail"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "sanctum",
+          "key": "doc:sanctum",
           "label": "Sanctum",
-          "key": "sanctum"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "scout",
+          "key": "doc:scout",
           "label": "Scout",
-          "key": "scout"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "socialite",
+          "key": "doc:socialite",
           "label": "Socialite",
-          "key": "socialite"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "telescope",
+          "key": "doc:telescope",
           "label": "Telescope",
-          "key": "telescope"
+          "type": "doc"
         },
         {
-          "type": "doc",
           "id": "valet",
+          "key": "doc:valet",
           "label": "Valet",
-          "key": "valet"
+          "type": "doc"
         }
       ],
-      "key": "Packages"
+      "key": "category:Packages",
+      "label": "Packages",
+      "type": "category"
     },
     {
-      "type": "link",
+      "href": "https://api.laravel.com/docs/13.x",
+      "key": "link:dd4185ee4ff37decbaf6ba13609a10dfbc8e3ec93b87530c7ad4bd72b591e73f",
       "label": "API Documentation",
-      "href": "https://api.laravel.com/docs/13.x"
+      "type": "link"
     }
   ]
 }

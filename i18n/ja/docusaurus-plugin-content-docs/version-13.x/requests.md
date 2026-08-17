@@ -875,6 +875,16 @@ if ($request->hasFile('photo')) {
 }
 ```
 
+<!-- If the uploaded file is an image that you need to manipulate before storing, you may use the `image` method to retrieve an `Illuminate\Image\Image` instance, or `null` if the file is not present: -->
+保存する前にアップロードされた画像を加工する必要がある場合は、`image` メソッドを使用して `Illuminate\Image\Image` インスタンスを取得できます。ファイルが存在しない場合は `null` が返されます。
+
+```php
+$image = $request->image('photo');
+```
+
+<!-- For more information on manipulating images, please consult the complete [image manipulation documentation](/docs/13.x/images). -->
+画像の加工について詳しくは、[image manipulation documentation](/docs/13.x/images)を参照してください。
+
 <a name="validating-successful-uploads"></a>
 <!-- #### Validating Successful Uploads -->
 #### Validating Successful Uploads
@@ -1024,4 +1034,3 @@ Amazon AWS または別の「クラウド」ロード バランサー プロバ�
     $middleware->trustHosts(at: fn () => config('app.trusted_hosts'));
 })
 ```
-

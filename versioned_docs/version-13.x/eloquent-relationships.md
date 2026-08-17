@@ -50,7 +50,6 @@
 <!-- Database tables are often related to one another. For example, a blog post may have many comments or an order could be related to the user who placed it. Eloquent makes managing and working with these relationships easy, and supports a variety of common relationships: -->
 데이터베이스 테이블은 서로 관련되어 있는 경우가 많습니다. 예를 들어 블로그 게시물에는 여러 댓글이 있을 수 있고, 주문은 그 주문을 생성한 사용자와 관련될 수 있습니다. Eloquent는 이러한 연관관계를 쉽게 관리하고 다룰 수 있게 해주며, 자주 사용하는 다양한 연관관계를 지원합니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
 - [One To One](#one-to-one)
@@ -62,7 +61,6 @@
 - [One To Many (Polymorphic)](#one-to-many-polymorphic-relations)
 - [Many To Many (Polymorphic)](#many-to-many-polymorphic-relations)
 
-<!-- </div> -->
 </div>
 
 <a name="defining-relationships"></a>
@@ -70,7 +68,7 @@
 ## Defining Relationships
 
 <!-- Eloquent relationships are defined as methods on your Eloquent model classes. Since relationships also serve as powerful [query builders](/docs/13.x/queries), defining relationships as methods provides powerful method chaining and querying capabilities. For example, we may chain additional query constraints on this `posts` relationship: -->
-Eloquent 연관관계는 Eloquent 모델 클래스의 메서드로 정의합니다. 연관관계는 강력한 [query builders](/docs/13.x/queries) 역할도 하므로, 연관관계를 메서드로 정의하면 강력한 메서드 체이닝과 쿼리 기능을 사용할 수 있습니다. 예를 들어 이 `posts` 연관관계에 추가 쿼리 제약을 이어서 적용할 수 있습니다.
+Eloquent 연관관계는 Eloquent 모델 클래스의 메서드로 정의합니다. 연관관계는 강력한 [query builders](/docs/13.x/queries) 역할도 하므로, 연관관계를 메서드로 정의하면 메서드 체이닝과 쿼리 기능을 강력하게 활용할 수 있습니다. 예를 들어, 다음처럼 이 `posts` 연관관계에 추가 쿼리 제약 조건을 연결할 수 있습니다:
 
 ```php
 $user->posts()->where('active', 1)->get();
@@ -214,7 +212,7 @@ class Post extends Model
 Eloquent는 `Comment` 모델에 맞는 외래 키 컬럼을 자동으로 결정한다는 점을 기억하세요. 관례에 따라 Eloquent는 부모 모델 이름을 "snake case"로 바꾸고 뒤에 `_id`를 붙입니다. 따라서 이 예제에서 Eloquent는 `Comment` 모델의 외래 키 컬럼이 `post_id`라고 가정합니다.
 
 <!-- Once the relationship method has been defined, we can access the [collection](/docs/13.x/eloquent-collections) of related comments by accessing the `comments` property. Remember, since Eloquent provides "dynamic relationship properties", we can access relationship methods as if they were defined as properties on the model: -->
-연관관계 메서드를 정의한 뒤에는 `comments` 속성에 접근하여 관련 댓글의 [collection](/docs/13.x/eloquent-collections)을 가져올 수 있습니다. Eloquent가 "동적 연관관계 속성"을 제공하므로, 연관관계 메서드를 모델에 정의된 속성처럼 접근할 수 있다는 점을 기억하세요.
+연관관계 메서드를 정의하면 `comments` 프로퍼티에 접근해 관련 댓글의 [collection](/docs/13.x/eloquent-collections)에 접근할 수 있습니다. Eloquent는 "동적 연관관계 프로퍼티"를 제공하므로, 연관관계 메서드가 모델의 프로퍼티로 정의된 것처럼 접근할 수 있습니다.
 
 ```php
 use App\Models\Post;
@@ -249,7 +247,7 @@ return $this->hasMany(Comment::class, 'foreign_key', 'local_key');
 #### Automatically Hydrating Parent Models on Children
 
 <!-- Even when utilizing Eloquent eager loading, "N + 1" query problems can arise if you try to access the parent model from a child model while looping through the child models: -->
-Eloquent의 eager loading을 사용하더라도, 자식 모델을 반복 처리하는 중에 자식 모델에서 부모 모델에 접근하려고 하면 "N + 1" 쿼리 문제가 발생할 수 있습니다.
+Eloquent의 eager loading을 사용하더라도 자식 모델을 순회하면서 자식 모델에서 부모 모델에 접근하려고 하면 "N + 1" 쿼리 문제가 발생할 수 있습니다:
 
 ```php
 $posts = Post::with('comments')->get();
@@ -262,7 +260,7 @@ foreach ($posts as $post) {
 ```
 
 <!-- In the example above, an "N + 1" query problem has been introduced because, even though comments were eager loaded for every `Post` model, Eloquent does not automatically hydrate the parent `Post` on each child `Comment` model. -->
-위 예제에서는 모든 `Post` 모델에 대해 댓글을 eager loading했지만, Eloquent가 각 자식 `Comment` 모델에 부모 `Post`를 자동으로 하이드레이션하지 않기 때문에 "N + 1" 쿼리 문제가 발생합니다.
+위 예제에서는 모든 `Post` 모델에 대해 comments를 즉시 로드했지만, Eloquent가 각 자식 `Comment` 모델에 부모 `Post`를 자동으로 하이드레이션하지 않기 때문에 "N + 1" 쿼리 문제가 발생합니다.
 
 <!-- If you would like Eloquent to automatically hydrate parent models onto their children, you may invoke the `chaperone` method when defining a `hasMany` relationship: -->
 Eloquent가 부모 모델을 자식 모델에 자동으로 하이드레이션하도록 하려면 `hasMany` 연관관계를 정의할 때 `chaperone` 메서드를 호출하면 됩니다.
@@ -288,7 +286,7 @@ class Post extends Model
 ```
 
 <!-- Or, if you would like to opt-in to automatic parent hydration at run time, you may invoke the `chaperone` model when eager loading the relationship: -->
-또는 런타임에 자동 부모 하이드레이션을 선택적으로 적용하고 싶다면, 연관관계를 eager loading할 때 `chaperone` 메서드를 호출할 수 있습니다.
+또는 런타임에 자동 부모 하이드레이션을 활성화하려면 관계를 eager loading할 때 `chaperone` 모델을 호출할 수 있습니다:
 
 ```php
 use App\Models\Post;
@@ -431,7 +429,7 @@ $posts = Post::whereBelongsTo($user)->get();
 ```
 
 <!-- You may also provide a [collection](/docs/13.x/eloquent-collections) instance to the `whereBelongsTo` method. When doing so, Laravel will retrieve models that belong to any of the parent models within the collection: -->
-`whereBelongsTo` 메서드에는 [collection](/docs/13.x/eloquent-collections) 인스턴스를 전달할 수도 있습니다. 이렇게 하면 Laravel은 컬렉션 안의 부모 모델 중 어느 하나에 속하는 모델을 조회합니다.
+[collection](/docs/13.x/eloquent-collections) 인스턴스를 `whereBelongsTo` 메서드에 전달할 수도 있습니다. 이 경우 Laravel은 컬렉션에 포함된 부모 모델 중 하나에 속하는 모델을 조회합니다:
 
 ```php
 $users = User::where('vip', true)->get();
@@ -440,7 +438,8 @@ $posts = Post::whereBelongsTo($users)->get();
 ```
 
 <!-- By default, Laravel will determine the relationship associated with the given model based on the class name of the model; however, you may specify the relationship name manually by providing it as the second argument to the `whereBelongsTo` method: -->
-기본적으로 Laravel은 주어진 모델의 클래스 이름을 기준으로 해당 모델과 연결된 연관관계를 결정합니다. 하지만 `whereBelongsTo` 메서드의 두 번째 인수로 연관관계 이름을 전달하여 직접 지정할 수도 있습니다.
+기본적으로 Laravel은 모델의 클래스 이름을 기준으로 주어진 모델과 연결된 연관관계를 결정합니다. 하지만 `whereBelongsTo` 메서드의 두 번째 인수로 연관관계 이름을 전달해 수동으로 지정할 수도 있습니다.
+
 ```php
 $posts = Post::whereBelongsTo($user, 'author')->get();
 ```
@@ -463,7 +462,7 @@ public function latestOrder(): HasOne
 ```
 
 <!-- Likewise, you may define a method to retrieve the "oldest", or first, related model of a relationship: -->
-마찬가지로, 관계에서 "가장 오래된" 또는 첫 번째 관련 모델을 가져오는 메서드를 정의할 수도 있습니다.
+마찬가지로 연관관계에서 "가장 오래된", 즉 첫 번째 연관 모델을 조회하는 메서드를 정의할 수도 있습니다:
 
 ```php
 /**
@@ -476,7 +475,7 @@ public function oldestOrder(): HasOne
 ```
 
 <!-- By default, the `latestOfMany` and `oldestOfMany` methods will retrieve the latest or oldest related model based on the model's primary key, which must be sortable. However, sometimes you may wish to retrieve a single model from a larger relationship using a different sorting criteria. -->
-기본적으로 `latestOfMany`와 `oldestOfMany` 메서드는 정렬 가능한 모델의 기본 키를 기준으로 최신 또는 가장 오래된 관련 모델을 가져옵니다. 하지만 더 큰 관계에서 다른 정렬 기준을 사용해 단일 모델을 가져오고 싶을 때도 있습니다.
+기본적으로 `latestOfMany` 및 `oldestOfMany` 메서드는 정렬할 수 있어야 하는 모델의 기본 키를 기준으로 가장 최신 또는 가장 오래된 연관 모델을 가져옵니다. 그러나 때로는 다른 정렬 기준을 사용해 더 큰 연관관계에서 단일 모델을 가져오고 싶을 수 있습니다.
 
 <!-- For example, using the `ofMany` method, you may retrieve the user's most expensive order. The `ofMany` method accepts the sortable column as its first argument and which aggregate function (`min` or `max`) to apply when querying for the related model: -->
 예를 들어 `ofMany` 메서드를 사용하면 사용자의 가장 비싼 주문을 가져올 수 있습니다. `ofMany` 메서드는 첫 번째 인수로 정렬 가능한 컬럼을 받고, 관련 모델을 조회할 때 적용할 집계 함수(`min` 또는 `max`)를 두 번째 인수로 받습니다.
@@ -492,7 +491,7 @@ public function largestOrder(): HasOne
 ```
 
 > [!WARNING]
-> PostgreSQL은 UUID 컬럼에 대해 `MAX` 함수를 실행하는 것을 지원하지 않으므로, 현재 PostgreSQL UUID 컬럼과 함께 다수 중 하나 관계를 사용할 수 없습니다.
+> PostgreSQL은 UUID 컬럼에 대해 `MAX` 함수를 실행하는 기능을 지원하지 않으므로, 현재 PostgreSQL UUID 컬럼과 one-of-many 연관관계를 함께 사용할 수 없습니다.
 
 <a name="converting-many-relationships-to-has-one-relationships"></a>
 <!-- #### Converting "Many" Relationships to Has One Relationships -->
@@ -887,6 +886,7 @@ foreach ($user->roles as $role) {
     // ...
 }
 ```
+
 <!-- Since all relationships also serve as query builders, you may add further constraints to the relationship query by calling the `roles` method and continuing to chain conditions onto the query: -->
 모든 연관관계는 쿼리 빌더 역할도 하므로, `roles` 메서드를 호출한 뒤 쿼리에 조건을 계속 체이닝하여 연관관계 쿼리에 추가 제약 조건을 더할 수 있습니다:
 
@@ -973,7 +973,7 @@ return $this->belongsToMany(Role::class)->withTimestamps();
 ```
 
 > [!WARNING]
-> Eloquent가 자동으로 관리하는 타임스탬프를 사용하는 중간 테이블에는 `created_at` 및 `updated_at` 타임스탬프 컬럼이 모두 있어야 합니다.
+> Eloquent이 자동으로 관리하는 타임스탬프를 사용하는 중간 테이블에는 `created_at` 및 `updated_at` 타임스탬프 컬럼이 모두 있어야 합니다.
 
 <a name="customizing-the-pivot-attribute-name"></a>
 <!-- #### Customizing the `pivot` Attribute Name -->
@@ -1104,7 +1104,7 @@ class RoleUser extends Pivot
 ```
 
 > [!WARNING]
-> Pivot 모델은 `SoftDeletes` trait를 사용할 수 없습니다. pivot 레코드를 소프트 삭제해야 한다면 pivot 모델을 실제 Eloquent 모델로 변환하는 것을 고려하세요.
+> Pivot 모델은 `SoftDeletes` 트레이트를 사용할 수 없습니다. Pivot 레코드를 소프트 삭제해야 한다면 pivot 모델을 실제 Eloquent 모델로 변환하는 것을 고려하세요.
 
 <a name="custom-pivot-models-and-incrementing-ids"></a>
 <!-- #### Custom Pivot Models and Incrementing IDs -->
@@ -1166,7 +1166,7 @@ images
 #### Model Structure
 
 <!-- Next, let's examine the model definitions needed to build this relationship: -->
-다음으로 이 연관관계를 만들기 위해 필요한 모델 정의를 살펴보겠습니다:
+다음으로, 이 연관관계를 구성하는 데 필요한 모델 정의를 살펴보겠습니다:
 
 ```php
 <?php
@@ -1296,7 +1296,7 @@ comments
 #### Model Structure
 
 <!-- Next, let's examine the model definitions needed to build this relationship: -->
-다음으로 이 연관관계를 만들기 위해 필요한 모델 정의를 살펴보겠습니다:
+다음으로 이 연관관계를 구성하는 데 필요한 모델 정의를 살펴보겠습니다.
 
 ```php
 <?php
@@ -1345,6 +1345,7 @@ class Video extends Model
     }
 }
 ```
+
 <a name="one-to-many-polymorphic-retrieving-the-relationship"></a>
 <!-- #### Retrieving the Relationship -->
 #### Retrieving the Relationship
@@ -1381,7 +1382,7 @@ $commentable = $comment->commentable;
 #### Automatically Hydrating Parent Models on Children
 
 <!-- Even when utilizing Eloquent eager loading, "N + 1" query problems can arise if you try to access the parent model from a child model while looping through the child models: -->
-Eloquent 즉시 로딩(eager loading)을 사용하더라도, 자식 모델을 반복하면서 자식 모델에서 부모 모델에 접근하려고 하면 "N + 1" 쿼리 문제가 발생할 수 있습니다.
+Eloquent eager loading을 사용하더라도 자식 모델을 순회하면서 자식 모델에서 부모 모델에 접근하려 하면 "N + 1" 쿼리 문제가 발생할 수 있습니다:
 
 ```php
 $posts = Post::with('comments')->get();
@@ -1394,7 +1395,7 @@ foreach ($posts as $post) {
 ```
 
 <!-- In the example above, an "N + 1" query problem has been introduced because, even though comments were eager loaded for every `Post` model, Eloquent does not automatically hydrate the parent `Post` on each child `Comment` model. -->
-위 예제에서는 각 `Post` 모델에 대해 댓글을 즉시 로딩했음에도, Eloquent가 각 자식 `Comment` 모델에 부모 `Post`를 자동으로 하이드레이션하지 않기 때문에 "N + 1" 쿼리 문제가 발생합니다.
+위 예제에서는 모든 `Post` 모델의 comments를 즉시 로드했지만, Eloquent가 각 자식 `Comment` 모델에 부모 `Post`를 자동으로 하이드레이션하지 않기 때문에 "N + 1" 쿼리 문제가 발생합니다.
 
 <!-- If you would like Eloquent to automatically hydrate parent models onto their children, you may invoke the `chaperone` method when defining a `morphMany` relationship: -->
 Eloquent가 부모 모델을 자식 모델에 자동으로 하이드레이션하도록 하려면 `morphMany` 연관관계를 정의할 때 `chaperone` 메서드를 호출하면 됩니다.
@@ -1413,7 +1414,7 @@ class Post extends Model
 ```
 
 <!-- Or, if you would like to opt-in to automatic parent hydration at run time, you may invoke the `chaperone` model when eager loading the relationship: -->
-또는 런타임에 연관관계를 즉시 로딩할 때 자동 부모 하이드레이션을 사용하도록 선택하려면 `chaperone` 메서드를 호출하면 됩니다.
+또는 런타임에 자동 부모 하이드레이션을 사용하도록 선택하려면 연관관계를 Eager 로딩할 때 `chaperone` 모델을 호출하면 됩니다.
 
 ```php
 use App\Models\Post;
@@ -1441,7 +1442,7 @@ public function latestImage(): MorphOne
 ```
 
 <!-- Likewise, you may define a method to retrieve the "oldest", or first, related model of a relationship: -->
-마찬가지로 연관관계에서 "가장 오래된", 즉 첫 번째 관련 모델을 조회하는 메서드를 정의할 수도 있습니다.
+마찬가지로, 연관관계에서 "가장 오래된", 즉 첫 번째 연관 모델을 가져오는 메서드를 정의할 수 있습니다:
 
 ```php
 /**
@@ -1454,7 +1455,7 @@ public function oldestImage(): MorphOne
 ```
 
 <!-- By default, the `latestOfMany` and `oldestOfMany` methods will retrieve the latest or oldest related model based on the model's primary key, which must be sortable. However, sometimes you may wish to retrieve a single model from a larger relationship using a different sorting criteria. -->
-기본적으로 `latestOfMany`와 `oldestOfMany` 메서드는 정렬 가능한 모델의 기본 키를 기준으로 가장 최신 또는 가장 오래된 관련 모델을 조회합니다. 하지만 더 큰 연관관계에서 다른 정렬 기준을 사용해 단일 모델을 조회하고 싶을 때도 있습니다.
+기본적으로 `latestOfMany` 및 `oldestOfMany` 메서드는 정렬할 수 있어야 하는 모델의 기본 키를 기준으로 가장 최신 또는 가장 오래된 연관 모델을 가져옵니다. 그러나 경우에 따라 다른 정렬 기준을 사용해 더 큰 연관관계에서 단일 모델을 가져오고 싶을 수 있습니다.
 
 <!-- For example, using the `ofMany` method, you may retrieve the user's most "liked" image. The `ofMany` method accepts the sortable column as its first argument and which aggregate function (`min` or `max`) to apply when querying for the related model: -->
 예를 들어 `ofMany` 메서드를 사용하면 사용자의 가장 많은 "좋아요"를 받은 이미지를 조회할 수 있습니다. `ofMany` 메서드는 첫 번째 인수로 정렬 가능한 컬럼을 받고, 관련 모델을 쿼리할 때 적용할 집계 함수(`min` 또는 `max`)를 받습니다.
@@ -1470,7 +1471,7 @@ public function bestImage(): MorphOne
 ```
 
 > [!NOTE]
-> 더 고급 "여러 항목 중 하나" 연관관계를 구성할 수도 있습니다. 자세한 내용은 [has one of many documentation](#advanced-has-one-of-many-relationships)를 참고하십시오.
+> 더 고급 "여러 항목 중 하나" 연관관계를 구성할 수도 있습니다. 자세한 내용은 [has one of many documentation](#advanced-has-one-of-many-relationships)를 참고하세요.
 
 <a name="many-to-many-polymorphic-relations"></a>
 <!-- ### Many to Many (Polymorphic) -->
@@ -1503,7 +1504,7 @@ taggables
 ```
 
 > [!NOTE]
-> 다형성 다대다 연관관계를 살펴보기 전에 일반적인 [many-to-many relationships](#many-to-many)에 대한 문서를 읽어 두면 도움이 됩니다.
+> 다형 다대다 연관관계를 살펴보기 전에 일반적인 [many-to-many relationships](#many-to-many)에 대한 문서를 읽어보면 도움이 될 수 있습니다.
 
 <a name="many-to-many-polymorphic-model-structure"></a>
 <!-- #### Model Structure -->
@@ -1641,7 +1642,7 @@ $class = Relation::getMorphedModel($alias);
 ```
 
 > [!WARNING]
-> 기존 애플리케이션에 "morph map"을 추가할 때, 데이터베이스의 morphable `*_type` 컬럼 값 중 여전히 정규화된 클래스를 포함하는 모든 값은 해당 "map" 이름으로 변환해야 합니다.
+> 기존 애플리케이션에 "morph map"을 추가할 때는 데이터베이스에서 정규화된 클래스명을 여전히 포함하고 있는 모든 morphable `*_type` 컬럼 값을 해당 "map" 이름으로 변환해야 합니다.
 
 <a name="dynamic-relationships"></a>
 <!-- ### Dynamic Relationships -->
@@ -1651,7 +1652,7 @@ $class = Relation::getMorphedModel($alias);
 `resolveRelationUsing` 메서드를 사용하여 런타임에 Eloquent 모델 간의 연관관계를 정의할 수 있습니다. 일반적인 애플리케이션 개발에서는 보통 권장되지 않지만, Laravel 패키지를 개발할 때 가끔 유용할 수 있습니다.
 
 <!-- The `resolveRelationUsing` method accepts the desired relationship name as its first argument. The second argument passed to the method should be a closure that accepts the model instance and returns a valid Eloquent relationship definition. Typically, you should configure dynamic relationships within the boot method of a [service provider](/docs/13.x/providers): -->
-`resolveRelationUsing` 메서드는 첫 번째 인수로 원하는 연관관계 이름을 받습니다. 이 메서드에 전달되는 두 번째 인수는 모델 인스턴스를 받고 유효한 Eloquent 연관관계 정의를 반환하는 클로저여야 합니다. 일반적으로 동적 연관관계는 [service provider](/docs/13.x/providers)의 boot 메서드 안에서 설정해야 합니다.
+`resolveRelationUsing` 메서드는 원하는 연관관계 이름을 첫 번째 인수로 받습니다. 메서드에 전달하는 두 번째 인수는 모델 인스턴스를 받아 유효한 Eloquent 연관관계 정의를 반환하는 클로저여야 합니다. 일반적으로 [service provider](/docs/13.x/providers)의 boot 메서드에서 동적 연관관계를 설정해야 합니다:
 
 ```php
 use App\Models\Order;
@@ -1663,14 +1664,14 @@ Order::resolveRelationUsing('customer', function (Order $orderModel) {
 ```
 
 > [!WARNING]
-> 동적 연관관계를 정의할 때는 항상 Eloquent 연관관계 메서드에 명시적인 키 이름 인수를 제공하십시오.
+> 동적 연관관계를 정의할 때는 Eloquent 연관관계 메서드에 항상 명시적인 키 이름 인수를 제공해야 합니다.
 
 <a name="querying-relations"></a>
 <!-- ## Querying Relations -->
 ## Querying Relations
 
 <!-- Since all Eloquent relationships are defined via methods, you may call those methods to obtain an instance of the relationship without actually executing a query to load the related models. In addition, all types of Eloquent relationships also serve as [query builders](/docs/13.x/queries), allowing you to continue to chain constraints onto the relationship query before finally executing the SQL query against your database. -->
-모든 Eloquent 연관관계는 메서드를 통해 정의되므로, 실제로 관련 모델을 로드하는 쿼리를 실행하지 않고도 해당 메서드를 호출하여 연관관계 인스턴스를 얻을 수 있습니다. 또한 모든 종류의 Eloquent 연관관계는 [query builders](/docs/13.x/queries)로도 동작하므로, 최종적으로 데이터베이스에 대해 SQL 쿼리를 실행하기 전에 연관관계 쿼리에 계속 제약 조건을 체이닝할 수 있습니다.
+모든 Eloquent 연관관계는 메서드로 정의되므로, 연관된 모델을 로드하는 쿼리를 실제로 실행하지 않고도 해당 메서드를 호출해 연관관계 인스턴스를 가져올 수 있습니다. 또한 모든 유형의 Eloquent 연관관계는 [query builders](/docs/13.x/queries) 역할도 하므로, 데이터베이스에 대해 SQL 쿼리를 최종적으로 실행하기 전에 연관관계 쿼리에 제약 조건을 계속 연결할 수 있습니다.
 
 <!-- For example, imagine a blog application in which a `User` model has many associated `Post` models: -->
 예를 들어 `User` 모델이 여러 관련 `Post` 모델을 가지는 블로그 애플리케이션을 생각해 보겠습니다.
@@ -1707,7 +1708,7 @@ $user->posts()->where('active', 1)->get();
 ```
 
 <!-- You are able to use any of the Laravel [query builder's](/docs/13.x/queries) methods on the relationship, so be sure to explore the query builder documentation to learn about all of the methods that are available to you. -->
-연관관계에서는 Laravel [query builder's](/docs/13.x/queries)의 모든 메서드를 사용할 수 있으므로, 사용할 수 있는 모든 메서드를 알아보려면 쿼리 빌더 문서를 살펴보십시오.
+관계에서 Laravel [query builder's](/docs/13.x/queries) 메서드를 사용할 수 있으므로, 사용할 수 있는 모든 메서드를 알아보려면 쿼리 빌더 문서를 살펴보시기 바랍니다.
 
 <a name="chaining-orwhere-clauses-after-relationships"></a>
 <!-- #### Chaining `orWhere` Clauses After Relationships -->
@@ -1733,7 +1734,7 @@ where user_id = ? and active = 1 or votes >= 100
 ```
 
 <!-- In most situations, you should use [logical groups](/docs/13.x/queries#logical-grouping) to group the conditional checks between parentheses: -->
-대부분의 상황에서는 조건 검사를 괄호로 묶기 위해 [logical groups](/docs/13.x/queries#logical-grouping)을 사용해야 합니다.
+대부분의 경우 조건 검사를 괄호로 묶으려면 [logical groups](/docs/13.x/queries#logical-grouping)를 사용해야 합니다:
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
@@ -1796,6 +1797,7 @@ $posts = Post::has('comments')->get();
 // Retrieve all posts that have three or more comments...
 $posts = Post::has('comments', '>=', 3)->get();
 ```
+
 <!-- Nested `has` statements may be constructed using "dot" notation. For example, you may retrieve all posts that have at least one comment that has at least one image: -->
 중첩된 `has` 문은 "점" 표기법을 사용하여 구성할 수 있습니다. 예를 들어, 이미지가 하나 이상 있는 댓글을 하나 이상 가진 모든 게시물을 조회할 수 있습니다.
 
@@ -1822,7 +1824,7 @@ $posts = Post::whereHas('comments', function (Builder $query) {
 ```
 
 > [!WARNING]
-> Eloquent는 현재 여러 데이터베이스에 걸친 연관관계 존재 쿼리를 지원하지 않습니다. 연관관계는 반드시 같은 데이터베이스 안에 있어야 합니다.
+> Eloquent는 현재 데이터베이스 간 연관관계 존재 여부를 쿼리할 수 없습니다. 연관관계는 동일한 데이터베이스 내에 존재해야 합니다.
 
 <a name="many-to-many-relationship-existence-queries"></a>
 <!-- #### Many to Many Relationship Existence Queries -->
@@ -1836,7 +1838,7 @@ $users = User::whereAttachedTo($role)->get();
 ```
 
 <!-- You may also provide a [collection](/docs/13.x/eloquent-collections) instance to the `whereAttachedTo` method. When doing so, Laravel will retrieve models that are attached to any of the models within the collection: -->
-`whereAttachedTo` 메서드에 [collection](/docs/13.x/eloquent-collections) 인스턴스를 전달할 수도 있습니다. 이렇게 하면 Laravel은 컬렉션 안의 모델 중 하나라도 연결되어 있는 모델을 조회합니다.
+`whereAttachedTo` 메서드에 [collection](/docs/13.x/eloquent-collections) 인스턴스를 전달할 수도 있습니다. 이 경우 Laravel은 컬렉션에 포함된 모델 중 하나에 연결된 모델을 조회합니다:
 
 ```php
 $tags = Tag::whereLike('name', '%laravel%')->get();
@@ -2248,6 +2250,7 @@ $books = Book::with([
 <a name="nested-eager-loading-morphto-relationships"></a>
 <!-- #### Nested Eager Loading `morphTo` Relationships -->
 #### Nested Eager Loading `morphTo` Relationships
+
 <!-- If you would like to eager load a `morphTo` relationship, as well as nested relationships on the various entities that may be returned by that relationship, you may use the `with` method in combination with the `morphTo` relationship's `morphWith` method. To help illustrate this method, let's consider the following model: -->
 `morphTo` 연관관계와 함께, 해당 연관관계가 반환할 수 있는 여러 엔티티의 중첩된 연관관계도 즉시 로드하려면 `with` 메서드와 `morphTo` 연관관계의 `morphWith` 메서드를 함께 사용할 수 있습니다. 이 메서드를 설명하기 위해 다음 모델을 살펴보겠습니다.
 
@@ -2270,10 +2273,10 @@ class ActivityFeed extends Model
 ```
 
 <!-- In this example, let's assume `Event`, `Photo`, and `Post` models may create `ActivityFeed` models. Additionally, let's assume that `Event` models belong to a `Calendar` model, `Photo` models are associated with `Tag` models, and `Post` models belong to an `Author` model. -->
-이 예제에서는 `Event`, `Photo`, `Post` 모델이 `ActivityFeed` 모델을 생성할 수 있다고 가정하겠습니다. 또한 `Event` 모델은 `Calendar` 모델에 속하고, `Photo` 모델은 `Tag` 모델과 연결되어 있으며, `Post` 모델은 `Author` 모델에 속한다고 가정하겠습니다.
+이 예시에서는 `Event`, `Photo`, `Post` 모델이 `ActivityFeed` 모델을 생성할 수 있다고 가정하겠습니다. 또한 `Event` 모델은 `Calendar` 모델에 속하고, `Photo` 모델은 `Tag` 모델과 연관되며, `Post` 모델은 `Author` 모델에 속한다고 가정하겠습니다.
 
 <!-- Using these model definitions and relationships, we may retrieve `ActivityFeed` model instances and eager load all `parentable` models and their respective nested relationships: -->
-이러한 모델 정의와 연관관계를 사용하면 `ActivityFeed` 모델 인스턴스를 조회하면서 모든 `parentable` 모델과 각각의 중첩된 연관관계를 즉시 로드할 수 있습니다.
+이러한 모델 정의와 연관관계를 사용하면 `ActivityFeed` 모델 인스턴스를 조회하고 모든 `parentable` 모델과 각각의 중첩 연관관계를 미리 로드할 수 있습니다:
 
 ```php
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -2300,7 +2303,7 @@ $books = Book::with('author:id,name,book_id')->get();
 ```
 
 > [!WARNING]
-> 이 기능을 사용할 때는 조회하려는 컬럼 목록에 항상 `id` 컬럼과 관련된 외래 키 컬럼을 포함해야 합니다.
+> 이 기능을 사용할 때는 검색하려는 컬럼 목록에 항상 `id` 컬럼과 관련된 외래 키 컬럼을 포함해야 합니다.
 
 <a name="eager-loading-by-default"></a>
 <!-- #### Eager Loading by Default -->
@@ -2374,7 +2377,7 @@ $users = User::with(['posts' => function ($query) {
 ```
 
 <!-- In this example, Eloquent will only eager load posts where the post's `title` column contains the word `code`. You may call other [query builder](/docs/13.x/queries) methods to further customize the eager loading operation: -->
-이 예제에서 Eloquent는 `title` 컬럼에 `code`라는 단어가 포함된 게시물만 즉시 로드합니다. 다른 [query builder](/docs/13.x/queries) 메서드를 호출하여 즉시 로드 작업을 더 세부적으로 조정할 수도 있습니다.
+이 예제에서 Eloquent는 게시글의 `title` 컬럼에 `code`라는 단어가 포함된 게시글만 즉시 로딩합니다. 즉시 로딩 작업을 추가로 세부 조정하려면 다른 [query builder](/docs/13.x/queries) 메서드를 호출할 수 있습니다.
 
 ```php
 $users = User::with(['posts' => function ($query) {
@@ -2484,10 +2487,10 @@ class ActivityFeed extends Model
 ```
 
 <!-- In this example, let's assume `Event`, `Photo`, and `Post` models may create `ActivityFeed` models. Additionally, let's assume that `Event` models belong to a `Calendar` model, `Photo` models are associated with `Tag` models, and `Post` models belong to an `Author` model. -->
-이 예제에서는 `Event`, `Photo`, `Post` 모델이 `ActivityFeed` 모델을 생성할 수 있다고 가정하겠습니다. 또한 `Event` 모델은 `Calendar` 모델에 속하고, `Photo` 모델은 `Tag` 모델과 연결되어 있으며, `Post` 모델은 `Author` 모델에 속한다고 가정하겠습니다.
+이 예시에서는 `Event`, `Photo`, `Post` 모델이 `ActivityFeed` 모델을 생성할 수 있다고 가정하겠습니다. 또한 `Event` 모델은 `Calendar` 모델에 속하고, `Photo` 모델은 `Tag` 모델과 연결되며, `Post` 모델은 `Author` 모델에 속한다고 가정하겠습니다.
 
 <!-- Using these model definitions and relationships, we may retrieve `ActivityFeed` model instances and eager load all `parentable` models and their respective nested relationships: -->
-이러한 모델 정의와 연관관계를 사용하면 `ActivityFeed` 모델 인스턴스를 조회하면서 모든 `parentable` 모델과 각각의 중첩된 연관관계를 즉시 로드할 수 있습니다.
+이러한 모델 정의와 연관관계를 사용하면 `ActivityFeed` 모델 인스턴스를 조회하고 모든 `parentable` 모델과 각 모델의 중첩된 연관관계를 즉시 로드할 수 있습니다:
 
 ```php
 $activities = ActivityFeed::with('parentable')
@@ -2502,9 +2505,6 @@ $activities = ActivityFeed::with('parentable')
 <a name="automatic-eager-loading"></a>
 <!-- ### Automatic Eager Loading -->
 ### Automatic Eager Loading
-
-> [!WARNING]
-> 이 기능은 현재 커뮤니티 피드백을 수집하기 위해 베타 상태입니다. 이 기능의 동작과 기능은 패치 릴리스에서도 변경될 수 있습니다.
 
 <!-- In many cases, Laravel can automatically eager load the relationships you access. To enable automatic eager loading, you should invoke the `Model::automaticallyEagerLoadRelationships` method within the `boot` method of your application's `AppServiceProvider`: -->
 많은 경우 Laravel은 사용자가 접근하는 연관관계를 자동으로 즉시 로드할 수 있습니다. 자동 즉시 로드를 활성화하려면 애플리케이션의 `AppServiceProvider`에 있는 `boot` 메서드 안에서 `Model::automaticallyEagerLoadRelationships` 메서드를 호출해야 합니다.
@@ -2702,11 +2702,12 @@ $user->posts()->createManyQuietly([
     ['title' => 'Second post.'],
 ]);
 ```
+
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/13.x/eloquent#upserts). -->
-`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용하여 [create and update models on relationships](/docs/13.x/eloquent#upserts)할 수도 있습니다.
+`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용해 [create and update models on relationships](/docs/13.x/eloquent#upserts) 수도 있습니다.
 
 > [!NOTE]
-> `create` 메서드를 사용하기 전에 반드시 [mass assignment](/docs/13.x/eloquent#mass-assignment) 문서를 검토하세요.
+> `create` 메서드를 사용하기 전에 [mass assignment](/docs/13.x/eloquent#mass-assignment) 문서를 검토하세요.
 
 <a name="updating-belongs-to-relationships"></a>
 <!-- ### Belongs To Relationships -->
@@ -2797,7 +2798,7 @@ $user->roles()->sync([1, 2, 3]);
 ```
 
 <!-- You may also pass additional intermediate table values with the IDs: -->
-ID와 함께 추가 중간 테이블 값을 전달할 수도 있습니다.
+ID와 함께 추가적인 중간 테이블 값도 전달할 수 있습니다:
 
 ```php
 $user->roles()->sync([1 => ['expires' => true], 2, 3]);
@@ -2829,7 +2830,7 @@ $user->roles()->toggle([1, 2, 3]);
 ```
 
 <!-- You may also pass additional intermediate table values with the IDs: -->
-ID와 함께 추가 중간 테이블 값을 전달할 수도 있습니다.
+ID와 함께 추가적인 중간 테이블 값도 전달할 수 있습니다:
 
 ```php
 $user->roles()->toggle([
@@ -2899,4 +2900,4 @@ class Comment extends Model
 ```
 
 > [!WARNING]
-> 부모 모델의 타임스탬프는 자식 모델이 Eloquent의 `save` 메서드를 사용해 업데이트된 경우에만 업데이트됩니다.
+> 부모 모델의 타임스탬프는 자식 모델을 Eloquent의 `save` 메서드를 사용해 업데이트한 경우에만 업데이트됩니다.

@@ -2,6 +2,7 @@
 # Package Development
 
 - [Introduction](#introduction)
+    - [Creating a Package](#creating-a-package)
     - [A Note on Facades](#a-note-on-facades)
 - [Package Discovery](#package-discovery)
 - [Service Providers](#service-providers)
@@ -31,6 +32,20 @@
 
 <!-- On the other hand, other packages are specifically intended for use with Laravel. These packages may have routes, controllers, views, and configuration specifically intended to enhance a Laravel application. This guide primarily covers the development of those packages that are Laravel specific. -->
 一方、他のパッケージは特に Laravel で使用することを目的としています。これらのパッケージには、特に Laravel アプリケーションを強化することを目的としたルート、コントローラ、ビュー、構成が含まれている場合があります。このガイドでは主に、Laravel 固有のパッケージの開発について説明します。
+
+<a name="creating-a-package"></a>
+<!-- ### Creating a Package -->
+### Creating a Package
+
+<!-- The easiest way to start building a new Laravel package is the official [Laravel package skeleton](https://github.com/laravel/package-skeleton). The skeleton provides everything you need to build a Laravel package, including a service provider, testing via Pest, static analysis via Larastan, code formatting via Pint, and a workbench application for end-to-end package development. You can create a new package using the `package` command of the [Laravel installer CLI](/docs/13.x/installation#creating-a-laravel-project): -->
+新しい Laravel パッケージの構築を始める最も簡単な方法は、公式の [Laravel package skeleton](https://github.com/laravel/package-skeleton) を使うことです。このスケルトンには、サービスプロバイダ、Pest によるテスト、Larastan による静的解析、Pint によるコードフォーマット、エンドツーエンドのパッケージ開発に使用するワークベンチアプリケーションなど、Laravel パッケージの構築に必要なものがすべて含まれています。[Laravel installer CLI](/docs/13.x/installation#creating-a-laravel-project) の `package` コマンドを使って、新しいパッケージを作成できます。
+
+```shell
+laravel package my-package
+```
+
+<!-- An interactive configuration script will personalize the skeleton for your package, setting up your namespace, service provider, and only the features you need, such as configuration files, routes, views, translations, migrations, assets, commands, and a facade. -->
+対話形式の設定スクリプトがパッケージに合わせてスケルトンをカスタマイズし、名前空間やサービスプロバイダを設定します。また、設定ファイル、ルート、ビュー、翻訳、マイグレーション、アセット、コマンド、ファサードなど、必要な機能だけを設定します。
 
 <a name="a-note-on-facades"></a>
 <!-- ### A Note on Facades -->
@@ -529,4 +544,3 @@ php artisan vendor:publish --tag=courier-config
 ```shell
 php artisan vendor:publish --provider="Your\Package\ServiceProvider"
 ```
-

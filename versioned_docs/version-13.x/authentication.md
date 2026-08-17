@@ -137,8 +137,8 @@ Laravel Sanctum은 애플리케이션의 전체 인증 과정을 관리할 수 �
 <!-- If you are building a single-page application (SPA) that will be powered by a Laravel backend, you should use [Laravel Sanctum](/docs/13.x/sanctum). When using Sanctum, you will either need to [manually implement your own backend authentication routes](#authenticating-users) or utilize [Laravel Fortify](/docs/13.x/fortify) as a headless authentication backend service that provides routes and controllers for features such as registration, password reset, email verification, and more. -->
 Laravel 백엔드로 구동되는 단일 페이지 애플리케이션(SPA)을 구축하는 경우에는 [Laravel Sanctum](/docs/13.x/sanctum)을 사용하는 것이 좋습니다. Sanctum을 사용할 때는 [manually implement your own backend authentication routes](#authenticating-users)하거나, 회원가입, 비밀번호 재설정, 이메일 인증 같은 기능을 위한 라우트와 컨트롤러를 제공하는 헤드리스 인증 백엔드 서비스인 [Laravel Fortify](/docs/13.x/fortify)를 활용할 수 있습니다.
 
-<!-- Passport may be chosen when your application absolutely needs all of the features provided by the OAuth2 specification. -->
-애플리케이션에 OAuth2 사양에서 제공하는 모든 기능이 절대적으로 필요한 경우 Passport를 선택할 수 있습니다.
+<!-- Passport may be chosen when your application absolutely needs all of the features provided by the OAuth2 specification. Additionally, if you are building an [MCP server](/docs/13.x/mcp) that will be accessed by AI clients, you should use Passport, as MCP clients typically expect to [authenticate using OAuth](/docs/13.x/mcp#oauth). -->
+애플리케이션에 OAuth2 사양에서 제공하는 모든 기능이 절대적으로 필요한 경우 Passport를 선택할 수 있습니다. 또한 AI 클라이언트가 액세스할 [MCP server](/docs/13.x/mcp)를 구축한다면 Passport를 사용해야 합니다. MCP 클라이언트는 일반적으로 [authenticate using OAuth](/docs/13.x/mcp#oauth)할 것으로 예상하기 때문입니다.
 
 <!-- And, if you would like to get started quickly, we are pleased to recommend [our application starter kits](/docs/13.x/starter-kits) as a quick way to start a new Laravel application that already uses our preferred authentication stack of Laravel's built-in authentication services. -->
 빠르게 시작하고 싶다면, Laravel이 권장하는 내장 인증 스택을 이미 적용한 새 애플리케이션을 시작하는 방법으로 [our application starter kits](/docs/13.x/starter-kits)를 추천합니다.
@@ -426,8 +426,8 @@ if (Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
 }
 ```
 
-<!-- If your application offers "remember me" functionality, you may use the `viaRemember`  method to determine if the currently authenticated user was authenticated using the "remember me" cookie: -->
-애플리케이션이 "기억하기" 기능을 제공하는 경우 `viaRemember` 메서드를 사용하여 현재 인증된 사용자가 "기억하기" 쿠키를 사용하여 인증되었는지 확인할 수 있습니다.
+<!-- If your application offers "remember me" functionality, you may use the `viaRemember` method to determine if the currently authenticated user was authenticated using the "remember me" cookie: -->
+애플리케이션이 "기억하기" 기능을 제공하는 경우 `viaRemember` 메서드를 사용하여 현재 인증된 사용자가 "기억하기" 쿠키를 사용해 인증되었는지 확인할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -965,9 +965,9 @@ php artisan config:publish hashing
 <!-- Laravel dispatches a variety of [events](/docs/13.x/events) during the authentication process. You may [define listeners](/docs/13.x/events) for any of the following events: -->
 Laravel은 인증 과정에서 다양한 [events](/docs/13.x/events)를 디스패치합니다. 다음 이벤트에 대해 [define listeners](/docs/13.x/events)할 수 있습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Event Name | | ---------------------------------------------- | | `Illuminate\Auth\Events\Registered` | | `Illuminate\Auth\Events\Attempting` | | `Illuminate\Auth\Events\Authenticated` | | `Illuminate\Auth\Events\Login` | | `Illuminate\Auth\Events\Failed` | | `Illuminate\Auth\Events\Validated` | | `Illuminate\Auth\Events\Verified` | | `Illuminate\Auth\Events\Logout` | | `Illuminate\Auth\Events\CurrentDeviceLogout` | | `Illuminate\Auth\Events\OtherDeviceLogout` | | `Illuminate\Auth\Events\Lockout` | | `Illuminate\Auth\Events\PasswordReset` | | `Illuminate\Auth\Events\PasswordResetLinkSent` | -->
 | 이벤트 이름 |
 | --------------------------------- |
 | `Illuminate\Auth\Events\Registered` |
@@ -984,5 +984,4 @@ Laravel은 인증 과정에서 다양한 [events](/docs/13.x/events)를 디스�
 | `Illuminate\Auth\Events\PasswordReset` |
 | `Illuminate\Auth\Events\PasswordResetLinkSent` |
 
-<!-- </div> -->
 </div>

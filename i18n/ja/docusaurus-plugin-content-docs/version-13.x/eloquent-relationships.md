@@ -50,7 +50,6 @@
 <!-- Database tables are often related to one another. For example, a blog post may have many comments or an order could be related to the user who placed it. Eloquent makes managing and working with these relationships easy, and supports a variety of common relationships: -->
 多くの場合、データベース テーブルは相互に関連しています。たとえば、ブログ投稿に多くのコメントが含まれている場合や、注文がその注文を行ったユーザーに関連している場合があります。 Eloquent を使用すると、これらの関係の管理と操作が簡単になり、さまざまな一般的な関係がサポートされます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
 - [One To One](#one-to-one)
@@ -62,7 +61,6 @@
 - [One To Many (Polymorphic)](#one-to-many-polymorphic-relations)
 - [Many To Many (Polymorphic)](#many-to-many-polymorphic-relations)
 
-<!-- </div> -->
 </div>
 
 <a name="defining-relationships"></a>
@@ -70,7 +68,7 @@
 ## Defining Relationships
 
 <!-- Eloquent relationships are defined as methods on your Eloquent model classes. Since relationships also serve as powerful [query builders](/docs/13.x/queries), defining relationships as methods provides powerful method chaining and querying capabilities. For example, we may chain additional query constraints on this `posts` relationship: -->
-Eloquent リレーションシップは、Eloquent モデル クラスのメソッドとして定義されます。リレーションシップは強力な [query builders](/docs/13.x/queries) としても機能するため、リレーションシップをメソッドとして定義すると、強力なメソッド チェーン機能とクエリ機能が提供されます。たとえば、この `posts` 関係に追加のクエリ制約を連鎖させることができます。
+Eloquent リレーションは、Eloquent モデルクラスのメソッドとして定義します。リレーションは強力な [query builders](/docs/13.x/queries) としても機能するため、リレーションをメソッドとして定義すると、メソッドチェーンやクエリの組み立てに関する強力な機能を利用できます。たとえば、この `posts` リレーションに追加のクエリ条件をチェーンできます。
 
 ```php
 $user->posts()->where('active', 1)->get();
@@ -214,7 +212,7 @@ class Post extends Model
 Eloquent は、`Comment` モデルに適切な外部キー列を自動的に決定することに注意してください。慣例により、Eloquent は親モデルの「スネーク ケース」名を取得し、接尾辞として `_id` を付けます。したがって、この例では、Eloquent は、`Comment` モデルの外部キー列が `post_id` であると想定します。
 
 <!-- Once the relationship method has been defined, we can access the [collection](/docs/13.x/eloquent-collections) of related comments by accessing the `comments` property. Remember, since Eloquent provides "dynamic relationship properties", we can access relationship methods as if they were defined as properties on the model: -->
-関係メソッドが定義されたら、`comments` プロパティにアクセスすることで、関連するコメントの [collection](/docs/13.x/eloquent-collections) にアクセスできます。 Eloquent は「動的なリレーションシップ プロパティ」を提供するため、モデル上のプロパティとして定義されているかのようにリレーションシップ メソッドにアクセスできることを思い出してください。
+リレーションメソッドを定義すると、`comments` プロパティにアクセスして関連するコメントの [collection](/docs/13.x/eloquent-collections) を取得できます。Eloquent は「動的リレーションプロパティ」を提供しているため、リレーションメソッドをモデルのプロパティとして定義されているかのように利用できることを覚えておいてください。
 
 ```php
 use App\Models\Post;
@@ -249,7 +247,7 @@ return $this->hasMany(Comment::class, 'foreign_key', 'local_key');
 #### Automatically Hydrating Parent Models on Children
 
 <!-- Even when utilizing Eloquent eager loading, "N + 1" query problems can arise if you try to access the parent model from a child model while looping through the child models: -->
-Eloquent の積極的な読み込みを利用している場合でも、子モデルをループ中に子モデルから親モデルにアクセスしようとすると、「N + 1」クエリの問題が発生する可能性があります。
+Eloquent の eager loading を利用していても、子モデルをループ処理する中で子モデルから親モデルへアクセスしようとすると、「N + 1」クエリ問題が発生することがあります。
 
 ```php
 $posts = Post::with('comments')->get();
@@ -262,7 +260,7 @@ foreach ($posts as $post) {
 ```
 
 <!-- In the example above, an "N + 1" query problem has been introduced because, even though comments were eager loaded for every `Post` model, Eloquent does not automatically hydrate the parent `Post` on each child `Comment` model. -->
-上記の例では、すべての `Post` モデルに対してコメントが熱心にロードされたにもかかわらず、Eloquent が各子 `Comment` モデルの親 `Post` を自動的にハイドレートしないため、「N + 1」クエリの問題が発生しています。
+上記の例では、「N + 1」クエリ問題が発生しています。すべての `Post` モデルでコメントを Eager Load しているにもかかわらず、Eloquent は各子 `Comment` モデルに親の `Post` を自動的にハイドレートしないためです。
 
 <!-- If you would like Eloquent to automatically hydrate parent models onto their children, you may invoke the `chaperone` method when defining a `hasMany` relationship: -->
 Eloquent が親モデルをその子に自動的にハイドレートするようにしたい場合は、`hasMany` 関係を定義するときに `chaperone` メソッドを呼び出すことができます。
@@ -288,7 +286,7 @@ class Post extends Model
 ```
 
 <!-- Or, if you would like to opt-in to automatic parent hydration at run time, you may invoke the `chaperone` model when eager loading the relationship: -->
-または、実行時に自動親ハイドレーションをオプトインしたい場合は、関係を熱心にロードするときに `chaperone` モデルを呼び出すことができます。
+または、実行時に親モデルの自動ハイドレーションを有効にしたい場合は、リレーションをEagerロードする際に `chaperone` モデルを呼び出します。
 
 ```php
 use App\Models\Post;
@@ -431,7 +429,7 @@ $posts = Post::whereBelongsTo($user)->get();
 ```
 
 <!-- You may also provide a [collection](/docs/13.x/eloquent-collections) instance to the `whereBelongsTo` method. When doing so, Laravel will retrieve models that belong to any of the parent models within the collection: -->
-[collection](/docs/13.x/eloquent-collections) インスタンスを `whereBelongsTo` メソッドに提供することもできます。これを行うと、Laravel はコレクション内のいずれかの親モデルに属するモデルを取得します。
+`whereBelongsTo` メソッドには、[collection](/docs/13.x/eloquent-collections) のインスタンスも渡せます。この場合、Laravel はコレクション内のいずれかの親モデルに属するモデルを取得します。
 
 ```php
 $users = User::where('vip', true)->get();
@@ -464,7 +462,7 @@ public function latestOrder(): HasOne
 ```
 
 <!-- Likewise, you may define a method to retrieve the "oldest", or first, related model of a relationship: -->
-同様に、関係の「最も古い」つまり最初の関連モデルを取得するメソッドを定義できます。
+同様に、リレーションの「最古」、つまり最初の関連モデルを取得するメソッドを定義できます。
 
 ```php
 /**
@@ -477,7 +475,7 @@ public function oldestOrder(): HasOne
 ```
 
 <!-- By default, the `latestOfMany` and `oldestOfMany` methods will retrieve the latest or oldest related model based on the model's primary key, which must be sortable. However, sometimes you may wish to retrieve a single model from a larger relationship using a different sorting criteria. -->
-デフォルトでは、`latestOfMany` メソッドと `oldestOfMany` メソッドは、モデルの主キーに基づいて最新または最も古い関連モデルを取得します。これは並べ替え可能である必要があります。ただし、異なる並べ替え基準を使用して、より大きな関係から単一のモデルを取得したい場合があります。
+デフォルトでは、`latestOfMany` メソッドと `oldestOfMany` メソッドは、ソート可能である必要があるモデルの主キーを基準に、関連するモデルのうち最新または最古のものを取得します。ただし、大きなリレーションから、別のソート条件を使って単一のモデルを取得したい場合もあります。
 
 <!-- For example, using the `ofMany` method, you may retrieve the user's most expensive order. The `ofMany` method accepts the sortable column as its first argument and which aggregate function (`min` or `max`) to apply when querying for the related model: -->
 たとえば、`ofMany` メソッドを使用すると、ユーザーの最も高価な注文を取得できます。 `ofMany` メソッドは、最初の引数としてソート可能な列を受け入れ、関連モデルのクエリを実行するときに適用する集計関数 (`min` または `max`) を受け取ります。
@@ -493,7 +491,7 @@ public function largestOrder(): HasOne
 ```
 
 > [!WARNING]
-> PostgreSQL は UUID 列に対する `MAX` 関数の実行をサポートしていないため、現時点では、PostgreSQL UUID 列と組み合わせて 1対多(one-of-many)リレーションシップを使用することはできません。
+> PostgreSQL は UUID カラムに対する `MAX` 関数の実行をサポートしていないため、現在、one-of-many リレーションと PostgreSQL の UUID カラムを組み合わせて使用することはできません。
 
 <a name="converting-many-relationships-to-has-one-relationships"></a>
 <!-- #### Converting "Many" Relationships to Has One Relationships -->
@@ -975,7 +973,7 @@ return $this->belongsToMany(Role::class)->withTimestamps();
 ```
 
 > [!WARNING]
-> Eloquent の自動的に維持されるタイムスタンプを利用する中間テーブルには、`created_at` と `updated_at` の両方のタイムスタンプ列が必要です。
+> Eloquent が自動的に管理するタイムスタンプを利用する中間テーブルには、`created_at` と `updated_at` の両方のタイムスタンプカラムが必要です。
 
 <a name="customizing-the-pivot-attribute-name"></a>
 <!-- #### Customizing the `pivot` Attribute Name -->
@@ -1106,7 +1104,7 @@ class RoleUser extends Pivot
 ```
 
 > [!WARNING]
-> ピボット モデルは、`SoftDeletes` 特性を使用できない場合があります。ピボット レコードをソフト デリートする必要がある場合は、ピボット モデルを実際の Eloquent モデルに変換することを検討してください。
+> ピボットモデルでは `SoftDeletes` トレイトを使用できません。ピボットレコードをソフトデリートする必要がある場合は、ピボットモデルを実際の Eloquent モデルに変換することを検討してください。
 
 <a name="custom-pivot-models-and-incrementing-ids"></a>
 <!-- #### Custom Pivot Models and Incrementing IDs -->
@@ -1168,7 +1166,7 @@ images
 #### Model Structure
 
 <!-- Next, let's examine the model definitions needed to build this relationship: -->
-次に、この関係を構築するために必要なモデル定義を調べてみましょう。
+次に、このリレーションを構築するために必要なモデル定義を確認しましょう。
 
 ```php
 <?php
@@ -1298,7 +1296,7 @@ comments
 #### Model Structure
 
 <!-- Next, let's examine the model definitions needed to build this relationship: -->
-次に、この関係を構築するために必要なモデル定義を調べてみましょう。
+次に、このリレーションを構築するために必要なモデル定義を確認してみましょう。
 
 ```php
 <?php
@@ -1384,7 +1382,7 @@ $commentable = $comment->commentable;
 #### Automatically Hydrating Parent Models on Children
 
 <!-- Even when utilizing Eloquent eager loading, "N + 1" query problems can arise if you try to access the parent model from a child model while looping through the child models: -->
-Eloquent の積極的な読み込みを利用している場合でも、子モデルをループ中に子モデルから親モデルにアクセスしようとすると、「N + 1」クエリの問題が発生する可能性があります。
+Eloquent の eager loading を利用していても、子モデルをループ処理しながら子モデルから親モデルへアクセスしようとすると、「N + 1」クエリ問題が発生することがあります。
 
 ```php
 $posts = Post::with('comments')->get();
@@ -1397,7 +1395,7 @@ foreach ($posts as $post) {
 ```
 
 <!-- In the example above, an "N + 1" query problem has been introduced because, even though comments were eager loaded for every `Post` model, Eloquent does not automatically hydrate the parent `Post` on each child `Comment` model. -->
-上記の例では、すべての `Post` モデルに対してコメントが熱心にロードされたにもかかわらず、Eloquent が各子 `Comment` モデルの親 `Post` を自動的にハイドレートしないため、「N + 1」クエリの問題が発生しています。
+上の例では、すべての `Post` モデルに対してコメントを eager load しているにもかかわらず、Eloquent が各子 `Comment` モデルに親の `Post` を自動的に hydrate しないため、「N + 1」クエリ問題が発生しています。
 
 <!-- If you would like Eloquent to automatically hydrate parent models onto their children, you may invoke the `chaperone` method when defining a `morphMany` relationship: -->
 Eloquent が親モデルをその子に自動的にハイドレートするようにしたい場合は、`morphMany` 関係を定義するときに `chaperone` メソッドを呼び出すことができます。
@@ -1416,7 +1414,7 @@ class Post extends Model
 ```
 
 <!-- Or, if you would like to opt-in to automatic parent hydration at run time, you may invoke the `chaperone` model when eager loading the relationship: -->
-または、実行時に自動親ハイドレーションをオプトインしたい場合は、関係を熱心にロードするときに `chaperone` モデルを呼び出すことができます。
+または、実行時に親モデルの自動ハイドレーションを有効にする場合は、リレーションを Eager ロードする際に `chaperone` モデルを呼び出せます。
 
 ```php
 use App\Models\Post;
@@ -1444,7 +1442,7 @@ public function latestImage(): MorphOne
 ```
 
 <!-- Likewise, you may define a method to retrieve the "oldest", or first, related model of a relationship: -->
-同様に、関係の「最も古い」つまり最初の関連モデルを取得するメソッドを定義できます。
+同様に、リレーションの「最古」、つまり最初の関連モデルを取得するメソッドも定義できます。
 
 ```php
 /**
@@ -1457,7 +1455,7 @@ public function oldestImage(): MorphOne
 ```
 
 <!-- By default, the `latestOfMany` and `oldestOfMany` methods will retrieve the latest or oldest related model based on the model's primary key, which must be sortable. However, sometimes you may wish to retrieve a single model from a larger relationship using a different sorting criteria. -->
-デフォルトでは、`latestOfMany` メソッドと `oldestOfMany` メソッドは、モデルの主キーに基づいて最新または最も古い関連モデルを取得します。これは並べ替え可能である必要があります。ただし、異なる並べ替え基準を使用して、より大きな関係から単一のモデルを取得したい場合があります。
+デフォルトでは、`latestOfMany` と `oldestOfMany` メソッドは、ソート可能なモデルの主キーを基準に、関連するモデルの中から最新または最古のモデルを取得します。ただし、より大きなリレーションから、別のソート基準を使って1つのモデルを取得したい場合もあります。
 
 <!-- For example, using the `ofMany` method, you may retrieve the user's most "liked" image. The `ofMany` method accepts the sortable column as its first argument and which aggregate function (`min` or `max`) to apply when querying for the related model: -->
 たとえば、`ofMany` メソッドを使用すると、ユーザーが最も「気に入った」画像を取得できます。 `ofMany` メソッドは、最初の引数としてソート可能な列を受け入れ、関連モデルのクエリを実行するときに適用する集計関数 (`min` または `max`) を受け取ります。
@@ -1473,7 +1471,7 @@ public function bestImage(): MorphOne
 ```
 
 > [!NOTE]
-> より高度な「多数の中の一つ」の関係を構築することが可能です。詳細については、[has one of many documentation](#advanced-has-one-of-many-relationships) を参照してください。
+> より高度な「複数の中から1つ」のリレーションを構築することもできます。詳しくは、[has one of many documentation](#advanced-has-one-of-many-relationships)を参照してください。
 
 <a name="many-to-many-polymorphic-relations"></a>
 <!-- ### Many to Many (Polymorphic) -->
@@ -1506,7 +1504,7 @@ taggables
 ```
 
 > [!NOTE]
-> ポリモーフィックな多対多の関係に入る前に、一般的な [many-to-many relationships](#many-to-many) に関するドキュメントを読むと役に立つ場合があります。
+> ポリモーフィックな多対多リレーションについて詳しく学ぶ前に、一般的な [many-to-many relationships](#many-to-many) のドキュメントを読むとよいでしょう。
 
 <a name="many-to-many-polymorphic-model-structure"></a>
 <!-- #### Model Structure -->
@@ -1644,7 +1642,7 @@ $class = Relation::getMorphedModel($alias);
 ```
 
 > [!WARNING]
-> 既存のアプリケーションに「モーフ マップ」を追加する場合、完全修飾クラスがまだ含まれているデータベース内のすべてのモーフィング可能な `*_type` 列値をその「マップ」名に変換する必要があります。
+> 既存のアプリケーションに「morph map」を追加する場合、データベース内のすべての morphable な `*_type` カラム値のうち、完全修飾クラス名が残っているものを「map」名に変換する必要があります。
 
 <a name="dynamic-relationships"></a>
 <!-- ### Dynamic Relationships -->
@@ -1654,7 +1652,7 @@ $class = Relation::getMorphedModel($alias);
 `resolveRelationUsing` メソッドを使用して、実行時に Eloquent モデル間の関係を定義できます。通常のアプリケーション開発には通常推奨されませんが、Laravel パッケージを開発する場合にはこれが役立つ場合があります。
 
 <!-- The `resolveRelationUsing` method accepts the desired relationship name as its first argument. The second argument passed to the method should be a closure that accepts the model instance and returns a valid Eloquent relationship definition. Typically, you should configure dynamic relationships within the boot method of a [service provider](/docs/13.x/providers): -->
-`resolveRelationUsing` メソッドは、最初の引数として必要な関係名を受け入れます。メソッドに渡される 2 番目の引数は、モデル インスタンスを受け入れ、有効な Eloquent リレーションシップ定義を返すクロージャである必要があります。通常、[service provider](/docs/13.x/providers) のブート メソッド内で動的関係を構成する必要があります。
+`resolveRelationUsing` メソッドの第1引数には、使用するリレーション名を指定します。メソッドの第2引数には、モデルインスタンスを受け取り、有効な Eloquent リレーション定義を返すクロージャを指定します。通常、動的なリレーションは [service provider](/docs/13.x/providers) の boot メソッド内で設定します。
 
 ```php
 use App\Models\Order;
@@ -1666,14 +1664,14 @@ Order::resolveRelationUsing('customer', function (Order $orderModel) {
 ```
 
 > [!WARNING]
-> 動的リレーションシップを定義するときは、常に明示的なキー名の引数を Eloquent リレーションシップ メソッドに提供します。
+> 動的なリレーションを定義する場合は、Eloquent のリレーションメソッドに必ず明示的なキー名の引数を指定してください。
 
 <a name="querying-relations"></a>
 <!-- ## Querying Relations -->
 ## Querying Relations
 
 <!-- Since all Eloquent relationships are defined via methods, you may call those methods to obtain an instance of the relationship without actually executing a query to load the related models. In addition, all types of Eloquent relationships also serve as [query builders](/docs/13.x/queries), allowing you to continue to chain constraints onto the relationship query before finally executing the SQL query against your database. -->
-すべての Eloquent 関係はメソッド経由で定義されるため、実際にクエリを実行して関連モデルをロードしなくても、これらのメソッドを呼び出して関係のインスタンスを取得できます。さらに、すべてのタイプの Eloquent リレーションシップは [query builders](/docs/13.x/queries) としても機能するため、最終的にデータベースに対して SQL クエリを実行する前に、リレーションシップ クエリに制約を連鎖し続けることができます。
+Eloquent のリレーションはすべてメソッドとして定義されているため、関連モデルを読み込むクエリを実際に実行せずに、それらのメソッドを呼び出してリレーションのインスタンスを取得できます。さらに、Eloquent のすべてのリレーションは [query builders](/docs/13.x/queries) としても機能するため、データベースに対して SQL クエリを最終的に実行する前に、リレーションのクエリへ条件を続けて追加できます。
 
 <!-- For example, imagine a blog application in which a `User` model has many associated `Post` models: -->
 たとえば、`User` モデルに多くの関連する `Post` モデルがあるブログ アプリケーションを想像してください。
@@ -1710,7 +1708,7 @@ $user->posts()->where('active', 1)->get();
 ```
 
 <!-- You are able to use any of the Laravel [query builder's](/docs/13.x/queries) methods on the relationship, so be sure to explore the query builder documentation to learn about all of the methods that are available to you. -->
-リレーションシップでは Laravel [query builder's](/docs/13.x/queries) メソッドのいずれかを使用できるため、クエリビルダのドキュメントを参照して、利用可能なすべてのメソッドについて学習してください。
+リレーションでは Laravel の [query builder's](/docs/13.x/queries) のメソッドをすべて使用できます。利用できるメソッドを把握するために、query builder のドキュメントも確認してみてください。
 
 <a name="chaining-orwhere-clauses-after-relationships"></a>
 <!-- #### Chaining `orWhere` Clauses After Relationships -->
@@ -1736,7 +1734,7 @@ where user_id = ? and active = 1 or votes >= 100
 ```
 
 <!-- In most situations, you should use [logical groups](/docs/13.x/queries#logical-grouping) to group the conditional checks between parentheses: -->
-ほとんどの状況では、[logical groups](/docs/13.x/queries#logical-grouping) を使用してかっこ内の条件チェックをグループ化する必要があります。
+ほとんどの場合、条件チェックを括弧でグループ化するには、[logical groups](/docs/13.x/queries#logical-grouping) を使用してください。
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
@@ -1826,7 +1824,7 @@ $posts = Post::whereHas('comments', function (Builder $query) {
 ```
 
 > [!WARNING]
-> Eloquent は現在、データベース間の関係の存在に関するクエリをサポートしていません。関係は同じデータベース内に存在する必要があります。
+> Eloquent は現在、データベースをまたいでリレーションの存在をクエリする機能をサポートしていません。リレーションは同じデータベース内に存在している必要があります。
 
 <a name="many-to-many-relationship-existence-queries"></a>
 <!-- #### Many to Many Relationship Existence Queries -->
@@ -1840,7 +1838,7 @@ $users = User::whereAttachedTo($role)->get();
 ```
 
 <!-- You may also provide a [collection](/docs/13.x/eloquent-collections) instance to the `whereAttachedTo` method. When doing so, Laravel will retrieve models that are attached to any of the models within the collection: -->
-[collection](/docs/13.x/eloquent-collections) インスタンスを `whereAttachedTo` メソッドに提供することもできます。これを行うと、Laravel はコレクション内のいずれかのモデルにアタッチされているモデルを取得します。
+`whereAttachedTo` メソッドには、[collection](/docs/13.x/eloquent-collections) のインスタンスも渡せます。その場合、Laravel はコレクション内のいずれかのモデルに関連付けられているモデルを取得します。
 
 ```php
 $tags = Tag::whereLike('name', '%laravel%')->get();
@@ -2275,10 +2273,10 @@ class ActivityFeed extends Model
 ```
 
 <!-- In this example, let's assume `Event`, `Photo`, and `Post` models may create `ActivityFeed` models. Additionally, let's assume that `Event` models belong to a `Calendar` model, `Photo` models are associated with `Tag` models, and `Post` models belong to an `Author` model. -->
-この例では、`Event`、`Photo`、および `Post` モデルが `ActivityFeed` モデルを作成すると仮定します。さらに、`Event` モデルは `Calendar` モデルに属し、`Photo` モデルは `Tag` モデルに関連付けられ、`Post` モデルは `Author` モデルに属すると仮定します。
+この例では、`Event`、`Photo`、`Post` モデルが `ActivityFeed` モデルを作成するとします。また、`Event` モデルは `Calendar` モデルに属し、`Photo` モデルは `Tag` モデルと関連付けられ、`Post` モデルは `Author` モデルに属するとします。
 
 <!-- Using these model definitions and relationships, we may retrieve `ActivityFeed` model instances and eager load all `parentable` models and their respective nested relationships: -->
-これらのモデル定義と関係を使用して、`ActivityFeed` モデル インスタンスを取得し、すべての `parentable` モデルとそれぞれのネストされた関係を一括ロードできます。
+これらのモデル定義とリレーションを使うと、`ActivityFeed` モデルのインスタンスを取得し、すべての `parentable` モデルと、それぞれのネストされたリレーションをEagerロードできます。
 
 ```php
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -2305,7 +2303,7 @@ $books = Book::with('author:id,name,book_id')->get();
 ```
 
 > [!WARNING]
-> この機能を使用する場合は、取得する列のリストに `id` 列と関連する外部キー列を常に含める必要があります。
+> この機能を使用する場合、取得するカラムの一覧には必ず `id` カラムと、関連する外部キーのカラムを含めてください。
 
 <a name="eager-loading-by-default"></a>
 <!-- #### Eager Loading by Default -->
@@ -2379,7 +2377,7 @@ $users = User::with(['posts' => function ($query) {
 ```
 
 <!-- In this example, Eloquent will only eager load posts where the post's `title` column contains the word `code`. You may call other [query builder](/docs/13.x/queries) methods to further customize the eager loading operation: -->
-この例では、Eloquent は、投稿の `title` 列に `code` という単語が含まれる投稿のみを一括読み込みします。他の [query builder](/docs/13.x/queries) メソッドを呼び出して、積極的な読み込み操作をさらにカスタマイズすることもできます。
+この例では、Eloquentは投稿の `title` カラムに `code` という単語が含まれる投稿だけを eager load します。eager loading の処理をさらにカスタマイズするには、他の [query builder](/docs/13.x/queries) メソッドも呼び出せます。
 
 ```php
 $users = User::with(['posts' => function ($query) {
@@ -2489,10 +2487,10 @@ class ActivityFeed extends Model
 ```
 
 <!-- In this example, let's assume `Event`, `Photo`, and `Post` models may create `ActivityFeed` models. Additionally, let's assume that `Event` models belong to a `Calendar` model, `Photo` models are associated with `Tag` models, and `Post` models belong to an `Author` model. -->
-この例では、`Event`、`Photo`、および `Post` モデルが `ActivityFeed` モデルを作成すると仮定します。さらに、`Event` モデルは `Calendar` モデルに属し、`Photo` モデルは `Tag` モデルに関連付けられ、`Post` モデルは `Author` モデルに属すると仮定します。
+この例では、`Event`、`Photo`、`Post` モデルが `ActivityFeed` モデルを作成するとします。さらに、`Event` モデルは `Calendar` モデルに属し、`Photo` モデルは `Tag` モデルに関連付けられ、`Post` モデルは `Author` モデルに属するとします。
 
 <!-- Using these model definitions and relationships, we may retrieve `ActivityFeed` model instances and eager load all `parentable` models and their respective nested relationships: -->
-これらのモデル定義と関係を使用して、`ActivityFeed` モデル インスタンスを取得し、すべての `parentable` モデルとそれぞれのネストされた関係を一括ロードできます。
+これらのモデル定義とリレーションを使うと、`ActivityFeed` モデルのインスタンスを取得し、すべての `parentable` モデルと各モデルのネストしたリレーションを一括で読み込めます。
 
 ```php
 $activities = ActivityFeed::with('parentable')
@@ -2507,9 +2505,6 @@ $activities = ActivityFeed::with('parentable')
 <a name="automatic-eager-loading"></a>
 <!-- ### Automatic Eager Loading -->
 ### Automatic Eager Loading
-
-> [!WARNING]
-> この機能は、コミュニティからのフィードバックを収集するために現在ベータ版です。この機能の動作と機能は、パッチ リリースでも変更される可能性があります。
 
 <!-- In many cases, Laravel can automatically eager load the relationships you access. To enable automatic eager loading, you should invoke the `Model::automaticallyEagerLoadRelationships` method within the `boot` method of your application's `AppServiceProvider`: -->
 多くの場合、Laravel はアクセスする関係を自動的に積極的にロードできます。自動熱心な読み込みを有効にするには、アプリケーションの `AppServiceProvider` の `boot` メソッド内で `Model::automaticallyEagerLoadRelationships` メソッドを呼び出す必要があります。
@@ -2709,10 +2704,10 @@ $user->posts()->createManyQuietly([
 ```
 
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/13.x/eloquent#upserts). -->
-`findOrNew`、`firstOrNew`、`firstOrCreate`、および `updateOrCreate` メソッドを [create and update models on relationships](/docs/13.x/eloquent#upserts) に使用することもできます。
+`findOrNew`、`firstOrNew`、`firstOrCreate`、`updateOrCreate` メソッドを使用して、リレーション上のモデルを[create and update models on relationships](/docs/13.x/eloquent#upserts)することもできます。
 
 > [!NOTE]
-> `create` メソッドを使用する前に、必ず [mass assignment](/docs/13.x/eloquent#mass-assignment) ドキュメントを確認してください。
+> `create` メソッドを使用する前に、[mass assignment](/docs/13.x/eloquent#mass-assignment) のドキュメントを必ず確認してください。
 
 <a name="updating-belongs-to-relationships"></a>
 <!-- ### Belongs To Relationships -->
@@ -2803,7 +2798,7 @@ $user->roles()->sync([1, 2, 3]);
 ```
 
 <!-- You may also pass additional intermediate table values with the IDs: -->
-追加の中間テーブル値を ID とともに渡すこともできます。
+IDを使って、追加の中間テーブルの値を渡すこともできます。
 
 ```php
 $user->roles()->sync([1 => ['expires' => true], 2, 3]);
@@ -2835,7 +2830,7 @@ $user->roles()->toggle([1, 2, 3]);
 ```
 
 <!-- You may also pass additional intermediate table values with the IDs: -->
-追加の中間テーブル値を ID とともに渡すこともできます。
+次の ID を使って、追加の中間テーブル値を渡すこともできます。
 
 ```php
 $user->roles()->toggle([
@@ -2905,5 +2900,4 @@ class Comment extends Model
 ```
 
 > [!WARNING]
-> 親モデルのタイムスタンプは、Eloquent の `save` メソッドを使用して子モデルが更新された場合にのみ更新されます。
-
+> 子モデルを Eloquent の `save` メソッドで更新した場合にのみ、親モデルのタイムスタンプも更新されます。

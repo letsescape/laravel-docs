@@ -31,25 +31,9 @@ Laravel 애플리케이션을 프로덕션에 배포할 준비가 되었다면, 
 <!-- The Laravel framework has a few system requirements. You should ensure that your web server has the following minimum PHP version and extensions: -->
 Laravel 프레임워크에는 몇 가지 시스템 요구 사항이 있습니다. 웹 서버에 다음의 최소 PHP 버전과 확장이 있는지 확인해야 합니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- PHP >= 8.3
-- Ctype PHP Extension
-- cURL PHP Extension
-- DOM PHP Extension
-- Fileinfo PHP Extension
-- Filter PHP Extension
-- Hash PHP Extension
-- Mbstring PHP Extension
-- OpenSSL PHP Extension
-- PCRE PHP Extension
-- PDO PHP Extension
-- Session PHP Extension
-- Tokenizer PHP Extension
-- XML PHP Extension
--->
+<!-- - PHP >= 8.3 - Ctype PHP Extension - cURL PHP Extension - DOM PHP Extension - Fileinfo PHP Extension - Filter PHP Extension - Hash PHP Extension - Mbstring PHP Extension - OpenSSL PHP Extension - PCRE PHP Extension - PDO PHP Extension - Session PHP Extension - Tokenizer PHP Extension - XML PHP Extension -->
 - PHP >= 8.3
 - Ctype PHP Extension
 - cURL PHP Extension
@@ -65,7 +49,6 @@ Laravel 프레임워크에는 몇 가지 시스템 요구 사항이 있습니다
 - Tokenizer PHP Extension
 - XML PHP Extension
 
-<!-- </div> -->
 </div>
 
 <a name="server-configuration"></a>
@@ -109,6 +92,9 @@ server {
         fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
+        fastcgi_buffer_size 32k;
+        fastcgi_buffers 8 32k;
+        fastcgi_busy_buffers_size 64k;
         fastcgi_hide_header X-Powered-By;
     }
 

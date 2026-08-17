@@ -49,26 +49,26 @@ Laravel의 로깅은 "채널(channels)" 기반으로 동작합니다. 각 채널
 <!-- Each log channel is powered by a "driver". The driver determines how and where the log message is actually recorded. The following log channel drivers are available in every Laravel application. An entry for most of these drivers is already present in your application's `config/logging.php` configuration file, so be sure to review this file to become familiar with its contents: -->
 각 로그 채널은 "드라이버"로 동작합니다. 드라이버는 로그 메시지가 실제로 어떻게, 어디에 기록될지를 결정합니다. 모든 Laravel 애플리케이션에서 사용할 수 있는 로그 채널 드라이버는 다음과 같습니다. 대부분의 드라이버에 대한 설정 항목이 이미 `config/logging.php`에 포함되어 있으므로 파일 내용을 꼭 확인해보세요:
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 이름          | 설명                                                                    |
-| ------------ | ----------------------------------------------------------------------- |
-| `custom`      | 지정된 팩토리를 호출해 채널을 생성하는 드라이버                            |
-| `daily`       | 일별로 회전하는 `RotatingFileHandler` 기반 Monolog 드라이버               |
-| `errorlog`    | `ErrorLogHandler` 기반 Monolog 드라이버                                  |
-| `monolog`     | Monolog 핸들러를 자유롭게 사용할 수 있는 Monolog 팩토리 드라이버           |
-| `papertrail`  | `SyslogUdpHandler` 기반 Monolog 드라이버                                 |
-| `single`      | 단일 파일 또는 경로 기반 로거 채널 (`StreamHandler`)                      |
-| `slack`       | `SlackWebhookHandler` 기반 Monolog 드라이버                              |
-| `stack`       | 여러 채널을 묶어 "멀티 채널"을 생성하기 위한 래퍼                          |
-| `syslog`      | `SyslogHandler` 기반 Monolog 드라이버                                   |
+<!-- | Name | Description | | ------------ | -------------------------------------------------------------------- | | `custom` | A driver that calls a specified factory to create a channel. | | `daily` | A `RotatingFileHandler` based Monolog driver which rotates daily. | | `monthly` | A `RotatingFileHandler` based Monolog driver which rotates monthly. | | `errorlog` | An `ErrorLogHandler` based Monolog driver. | | `monolog` | A Monolog factory driver that may use any supported Monolog handler. | | `papertrail` | A `SyslogUdpHandler` based Monolog driver. | | `single` | A single file or path based logger channel (`StreamHandler`). | | `slack` | A `SlackWebhookHandler` based Monolog driver. | | `stack` | A wrapper to facilitate creating "multi-channel" channels. | | `syslog` | A `SyslogHandler` based Monolog driver. | -->
+| 이름         | 설명                                                          |
+| ------------ | ------------------------------------------------------------- |
+| `custom`     | 지정한 팩토리를 호출해 채널을 생성하는 드라이버입니다.       |
+| `daily`      | 매일 순환하는 `RotatingFileHandler` 기반 Monolog 드라이버입니다. |
+| `monthly`    | 매월 순환하는 `RotatingFileHandler` 기반 Monolog 드라이버입니다. |
+| `errorlog`   | `ErrorLogHandler` 기반 Monolog 드라이버입니다.                |
+| `monolog`    | 지원되는 모든 Monolog 핸들러를 사용할 수 있는 Monolog 팩토리 드라이버입니다. |
+| `papertrail` | `SyslogUdpHandler` 기반 Monolog 드라이버입니다.              |
+| `single`     | 단일 파일 또는 경로를 기반으로 하는 로거 채널(`StreamHandler`)입니다. |
+| `slack`      | `SlackWebhookHandler` 기반 Monolog 드라이버입니다.            |
+| `stack`      | "다중 채널" 채널을 쉽게 생성할 수 있도록 돕는 래퍼입니다.     |
+| `syslog`     | `SyslogHandler` 기반 Monolog 드라이버입니다.                  |
 
-<!-- </div> -->
 </div>
 
 > [!NOTE]
-> `monolog` 및 `custom` 드라이버에 대해 더 알고 싶으면 [advanced channel customization](#monolog-channel-customization) 문서를 확인하세요.
+> 자세한 내용은 `monolog` 및 `custom` 드라이버에 대해 알아볼 수 있는 [advanced channel customization](#monolog-channel-customization) 문서를 참고하세요.
 
 <a name="configuring-the-channel-name"></a>
 <!-- #### Configuring the Channel Name -->
@@ -89,37 +89,26 @@ Laravel의 로깅은 "채널(channels)" 기반으로 동작합니다. 각 채널
 <!-- ### Channel Prerequisites -->
 ### Channel Prerequisites
 
-<a name="configuring-the-single-and-daily-channels"></a>
-<!-- #### Configuring the Single and Daily Channels -->
-#### Configuring the Single and Daily Channels
+<a name="configuring-the-single-daily-and-monthly-channels"></a>
+<!-- #### Configuring the Single, Daily, and Monthly Channels -->
+#### Configuring the Single, Daily, and Monthly Channels
 
-<!-- The `single` and `daily` channels have three optional configuration options: `bubble`, `permission`, and `locking`. -->
-`single` 및 `daily` 채널은 `bubble`, `permission`, `locking` 세 가지 선택적 설정 항목을 지원합니다.
+<!-- The `single`, `daily`, and `monthly` channels have three optional configuration options: `bubble`, `permission`, and `locking`. -->
+`single`, `daily`, `monthly` 채널에는 `bubble`, `permission`, `locking`이라는 세 가지 선택적 설정 옵션이 있습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 이름          | 설명                                                               | 기본값    |
-| ------------ | ------------------------------------------------------------------ | -------- |
-| `bubble`     | 메시지가 처리된 후 다른 채널로 전파(bubble)할지 여부를 나타냅니다.   | `true`   |
-| `locking`    | 쓰기 전에 로그 파일 잠금 시도 여부                                   | `false`  |
-| `permission` | 로그 파일의 퍼미션 (권한)                                           | `0644`   |
+<!-- | Name | Description | Default | | ------------ | ----------------------------------------------------------------------------- | ------- | | `bubble` | Indicates if messages should bubble up to other channels after being handled. | `true` | | `locking` | Attempt to lock the log file before writing to it. | `false` | | `permission` | The log file's permissions. | `0644` | -->
+| 이름        | 설명                                                                        | 기본값  |
+| ----------- | --------------------------------------------------------------------------- | ------- |
+| `bubble`    | 처리된 후 메시지를 다른 채널로 전파할지 나타냅니다.                        | `true`  |
+| `locking`   | 로그 파일에 쓰기 전에 로그 파일을 잠그려고 시도합니다.                     | `false` |
+| `permission` | 로그 파일의 권한입니다.                                                     | `0644`  |
 
-<!-- </div> -->
 </div>
 
-<!-- Additionally, the retention policy for the `daily` channel can be configured via the `LOG_DAILY_DAYS` environment variable or by setting the `days` configuration option. -->
-또한, `daily` 채널의 로그 보존 기간은 `LOG_DAILY_DAYS` 환경 변수나 `days` 설정 옵션으로 구성할 수 있습니다.
-
-<!-- <div class="overflow-auto"> -->
-<div class="overflow-auto">
-
-| 이름       | 설명                                            | 기본값 |
-| ---------- | ----------------------------------------------- | ------ |
-| `days`     | 일간 로그 파일을 몇 일간 보존할지 지정합니다.    | `14`   |
-
-<!-- </div> -->
-</div>
+<!-- Additionally, the retention policy for the `daily` and `monthly` channels can be configured via the `max_files` configuration option. The `LOG_DAILY_DAYS` environment variable may also be used to configure retention for the `daily` channel. -->
+또한 `daily` 및 `monthly` 채널의 보존 정책은 `max_files` 설정 옵션으로 구성할 수 있습니다. `LOG_DAILY_DAYS` 환경 변수로 `daily` 채널의 보존 기간을 구성할 수도 있습니다.
 
 <a name="configuring-the-papertrail-channel"></a>
 <!-- #### Configuring the Papertrail Channel -->
@@ -230,7 +219,7 @@ Log::emergency('The system is down!');
 ## Writing Log Messages
 
 <!-- You may write information to the logs using the `Log` [facade](/docs/13.x/facades). As previously mentioned, the logger provides the eight logging levels defined in the [RFC 5424 specification](https://tools.ietf.org/html/rfc5424): **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info** and **debug**: -->
-`Log` [facade](/docs/13.x/facades)를 통해 로그에 내용을 기록할 수 있습니다. 앞에서 설명했듯, 로거는 [RFC 5424 specification](https://tools.ietf.org/html/rfc5424)에 정의된 8가지 로그 레벨에 맞는 메서드를 제공합니다: **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info**, **debug**
+`Log` [facade](/docs/13.x/facades)를 사용해 로그에 정보를 기록할 수 있습니다. 앞서 설명했듯이 logger는 [RFC 5424 specification](https://tools.ietf.org/html/rfc5424)에 정의된 다음 8가지 로깅 레벨을 제공합니다: **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info**, **debug**:
 
 ```php
 use Illuminate\Support\Facades\Log;
@@ -359,7 +348,7 @@ class AssignRequestId
 ```
 
 > [!NOTE]
-> 작업 큐(queued jobs)를 처리하는 중에도 로그 컨텍스트를 공유해야 한다면, [job middleware](/docs/13.x/queues#job-middleware)를 활용할 수 있습니다.
+> 큐에 등록된 잡을 처리하는 동안 로그 컨텍스트를 공유해야 한다면 [job middleware](/docs/13.x/queues#job-middleware)를 사용할 수 있습니다.
 
 <a name="writing-to-specific-channels"></a>
 <!-- ### Writing to Specific Channels -->
@@ -463,7 +452,7 @@ class CustomizeFormatter
 ```
 
 > [!NOTE]
-> "tap"에 지정한 모든 클래스는 [service container](/docs/13.x/container)가 자동으로 인스턴스 생성 및 의존성 주입을 처리합니다.
+> 모든 "tap" 클래스는 [service container](/docs/13.x/container)를 통해 해결되므로, 해당 클래스에 필요한 모든 생성자 의존성이 자동으로 주입됩니다.
 
 <a name="creating-monolog-handler-channels"></a>
 <!-- ### Creating Monolog Handler Channels -->
@@ -590,18 +579,17 @@ class CreateCustomLogger
 <!-- Often you may need to tail your application's logs in real time. For example, when debugging an issue or when monitoring your application's logs for specific types of errors. -->
 문제가 있을 때 디버깅하거나 특정 종류의 오류를 실시간 모니터링할 때 애플리케이션 로그를 실시간으로 확인(테일)해야 할 때가 많습니다.
 
-<!-- Laravel Pail is a package that allows you to easily dive into your Laravel application's log files directly from the command line. Unlike the standard `tail` command, Pail is designed to work with any log driver, including Sentry or Flare. In addition, Pail provides a set of useful filters to help you quickly find what you're looking for. -->
-Laravel Pail은 Laravel 애플리케이션의 로그 파일을 명령줄에서 간편하게 조회할 수 있는 패키지입니다. 일반적인 `tail` 명령과 달리 Pail은 Sentry나 Flare 같은 다양한 로그 드라이버와도 작동하며, 유용한 필터링 기능을 제공합니다.
+<!-- Laravel Pail is a package that allows you to easily dive into your Laravel application's log files directly from the command line. Unlike the standard `tail` command, Pail is designed to work with any log driver, including [Laravel Nightwatch](https://nightwatch.laravel.com), Sentry, or Flare. In addition, Pail provides a set of useful filters to help you quickly find what you're looking for. -->
+Laravel Pail은 명령줄에서 Laravel 애플리케이션의 로그 파일을 쉽게 살펴볼 수 있는 패키지입니다. 표준 `tail` 명령어와 달리 Pail은 [Laravel Nightwatch](https://nightwatch.laravel.com), Sentry, Flare를 비롯한 모든 로그 드라이버와 함께 작동하도록 설계되었습니다. 또한 Pail은 원하는 내용을 빠르게 찾을 수 있도록 유용한 필터를 제공합니다.
 
-<!-- <img src="https://laravel.com/img/docs/pail-example.png"/> -->
-<img src="https://laravel.com/img/docs/pail-example.png" alt="Pail 사용 예시 화면" />
+<img src="https://laravel.com/img/docs/pail-example.png"/>
 
 <a name="pail-installation"></a>
 <!-- ### Installation -->
 ### Installation
 
 > [!WARNING]
-> Laravel Pail 사용을 위해서는 [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 확장 모듈이 필요합니다.
+> Laravel Pail에는 [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 확장이 필요합니다.
 
 <!-- To get started, install Pail into your project using the Composer package manager: -->
 Composer를 이용해 개발 환경 전용 패키지로 Pail을 설치하세요:

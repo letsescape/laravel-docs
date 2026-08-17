@@ -195,7 +195,7 @@ The following dependencies are needed for the listed queue drivers. These depend
 
 - Amazon SQS: `aws/aws-sdk-php ~3.0`
 - Beanstalkd: `pda/pheanstalk ~5.0`
-- Redis: `predis/predis ~2.0` or phpredis PHP extension
+- Redis: `predis/predis ~3.0` or phpredis PHP extension
 - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb`
 
 </div>
@@ -1717,7 +1717,7 @@ class ProcessPodcast implements ShouldQueue
 Sometimes, IO blocking processes such as sockets or outgoing HTTP connections may not respect your specified timeout. Therefore, when using these features, you should always attempt to specify a timeout using their APIs as well. For example, when using [Guzzle](https://docs.guzzlephp.org), you should always specify a connection and request timeout value.
 
 > [!WARNING]
-> The [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP extension must be installed in order to specify job timeouts. In addition, a job's "timeout" value should always be less than its ["retry after"](#job-expiration) value. Otherwise, the job may be re-attempted before it has actually finished executing or timed out.
+> The [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP extension must be installed in order to specify job timeouts. In addition, a job's "timeout" value should always be less than its ["retry after"](#job-expiration) value. Otherwise, the job may be re-attempted before it has actually finished executing or timed out. The `--timeout` option has no effect when the `queue:work` command is invoked with the `--once` option.
 
 <a name="failing-on-timeout"></a>
 #### Failing on Timeout
@@ -2583,7 +2583,7 @@ php artisan queue:work --force
 <a name="resource-considerations"></a>
 #### Resource Considerations
 
-Daemon queue workers do not "reboot" the framework before processing each job. Therefore, you should release any heavy resources after each job completes. For example, if you are doing image manipulation with the [GD library](https://www.php.net/manual/en/book.image.php), you should free the memory with `imagedestroy` when you are done processing the image.
+Daemon queue workers do not "reboot" the framework before processing each job. Therefore, you should release any heavy resources after each job completes. For example, if you are doing [image manipulation](/docs/{{version}}/images) with the [GD library](https://www.php.net/manual/en/book.image.php), you should free the memory with `imagedestroy` when you are done processing the image.
 
 <a name="queue-priorities"></a>
 ### Queue Priorities
@@ -2710,13 +2710,25 @@ php artisan queue:pause database:default
 
 In this example, `database` is the queue connection name and `default` is the queue name. Once a queue is paused, any workers processing jobs from that queue will continue to finish their current job, but will not pick up any new jobs until the queue is resumed.
 
+To pause job processing for every queue on every connection, use the `--all` option:
+
+```shell
+php artisan queue:pause --all
+```
+
 To resume processing jobs on a paused queue, use the `queue:continue` command:
 
 ```shell
 php artisan queue:continue database:default
 ```
 
-After resuming a queue, workers will begin processing new jobs from that queue immediately. Note that pausing a queue does not stop the worker process itself - it only prevents the worker from processing new jobs from the specified queue.
+To resume job processing for every queue on every connection, use the `--all` option with the `queue:resume` command:
+
+```shell
+php artisan queue:resume --all
+```
+
+After resuming a queue, workers will begin processing new jobs from that queue immediately. Resuming all queues does not resume queues that were paused individually. Note that pausing a queue does not stop the worker process itself - it only prevents the worker from processing new jobs from the specified queue.
 
 <a name="worker-restart-and-pause-signals"></a>
 #### Worker Restart and Pause Signals

@@ -15,6 +15,7 @@
     - [In-Memory Cache](#in-memory-cache)
 - [Scope](#scope)
     - [Specifying the Scope](#specifying-the-scope)
+    - [Global Scope](#global-scope)
     - [Default Scope](#default-scope)
     - [Nullable Scope](#nullable-scope)
     - [Identifying Scope](#identifying-scope)
@@ -113,11 +114,7 @@ class AppServiceProvider extends ServiceProvider
 <!-- As you can see, we have the following rules for our feature: -->
 위 예시처럼 다음과 같은 규칙으로 기능을 정의할 수 있습니다.
 
-<!--
-- All internal team members should be using the new API.
-- Any high traffic customers should not be using the new API.
-- Otherwise, the feature should be randomly assigned to users with a 1 in 100 chance of being active.
--->
+<!-- - All internal team members should be using the new API. - Any high traffic customers should not be using the new API. - Otherwise, the feature should be randomly assigned to users with a 1 in 100 chance of being active. -->
 - 내부 팀 멤버는 모두 새로운 API를 사용해야 합니다.
 - 트래픽이 많은 고객은 새로운 API를 사용하지 않습니다.
 - 그 외 나머지 사용자에 대해서는 1/100 확률로 기능이 활성화됩니다.
@@ -604,6 +601,19 @@ if (Feature::for($user->team)->active('billing-v2')) {
 }
 
 // ...
+```
+
+<a name="global-scope"></a>
+<!-- ### Global Scope -->
+### Global Scope
+
+<!-- To check or interact with a feature using a global scope, regardless of the configured default scope resolver, use the `globally` method. This is useful for application-wide feature flags, such as temporarily enabling maintenance behavior or rolling out a feature to every user: -->
+글로벌 스코프를 사용해 기능을 확인하거나 상호작용하려면, 설정된 기본 스코프 리졸버와 관계없이 `globally` 메서드를 사용합니다. 이는 애플리케이션 전체에 적용되는 기능 플래그에 유용하며, 예를 들어 유지보수 동작을 일시적으로 활성화하거나 모든 사용자에게 기능을 단계적으로 출시할 때 사용할 수 있습니다:
+
+```php
+Feature::globally()->active('new-api');
+
+Feature::globally()->activate('new-api');
 ```
 
 <a name="default-scope"></a>

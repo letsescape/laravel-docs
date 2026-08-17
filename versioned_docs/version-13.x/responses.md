@@ -185,11 +185,17 @@ return response('Hello World')->cookie($cookie);
 <!-- #### Expiring Cookies Early -->
 #### Expiring Cookies Early
 
-<!-- You may remove a cookie by expiring it via the `withoutCookie` method of an outgoing response: -->
-나가는 응답의 `withoutCookie` 메서드를 통해 쿠키를 만료시켜 제거할 수 있습니다.
+<!-- You may remove a cookie by expiring it via the `withoutCookie` or `withoutCookies` method of an outgoing response: -->
+나가는 응답의 `withoutCookie` 또는 `withoutCookies` 메서드를 통해 쿠키를 만료시켜 제거할 수 있습니다.
 
 ```php
 return response('Hello World')->withoutCookie('name');
+
+return response('Hello World')->withoutCookies([
+    'name',
+    'email',
+    'preferences',
+]);
 ```
 
 <!-- If you do not yet have an instance of the outgoing response, you may use the `Cookie` facade's `expire` method to expire a cookie: -->

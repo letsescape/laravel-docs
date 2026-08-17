@@ -273,9 +273,9 @@ Route::middleware(['group-name'])->group(function () {
 <!-- Laravel includes predefined `web` and `api` middleware groups that contain common middleware you may want to apply to your web and API routes. Remember, Laravel automatically applies these middleware groups to the corresponding `routes/web.php` and `routes/api.php` files: -->
 Laravel에는 웹 라우트와 API 라우트에 적용할 수 있는 일반적인 Middleware가 포함된 미리 정의된 `web` 및 `api` Middleware 그룹이 있습니다. Laravel은 이 Middleware 그룹을 해당 `routes/web.php` 및 `routes/api.php` 파일에 자동으로 적용한다는 점을 기억하세요.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | The `web` Middleware Group | | --------------------------------------------------------- | | `Illuminate\Cookie\Middleware\EncryptCookies` | | `Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse` | | `Illuminate\Session\Middleware\StartSession` | | `Illuminate\View\Middleware\ShareErrorsFromSession` | | `Illuminate\Foundation\Http\Middleware\PreventRequestForgery` | | `Illuminate\Routing\Middleware\SubstituteBindings` | -->
 | `web` Middleware 그룹                                   |
 | --------------------------------------------------------- |
 | `Illuminate\Cookie\Middleware\EncryptCookies`             |
@@ -285,17 +285,15 @@ Laravel에는 웹 라우트와 API 라우트에 적용할 수 있는 일반적�
 | `Illuminate\Foundation\Http\Middleware\PreventRequestForgery` |
 | `Illuminate\Routing\Middleware\SubstituteBindings`        |
 
-<!-- </div> -->
 </div>
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | The `api` Middleware Group | | -------------------------------------------------- | | `Illuminate\Routing\Middleware\SubstituteBindings` | -->
 | `api` Middleware 그룹                            |
 | -------------------------------------------------- |
 | `Illuminate\Routing\Middleware\SubstituteBindings` |
 
-<!-- </div> -->
 </div>
 
 <!-- If you would like to append or prepend middleware to these groups, you may use the `web` and `api` methods within your application's `bootstrap/app.php` file. The `web` and `api` methods are convenient alternatives to the `appendToGroup` method: -->
@@ -396,9 +394,9 @@ Route::get('/profile', function () {
 <!-- For convenience, some of Laravel's built-in middleware are aliased by default. For example, the `auth` middleware is an alias for the `Illuminate\Auth\Middleware\Authenticate` middleware. Below is a list of the default middleware aliases: -->
 편의를 위해 Laravel에 내장된 일부 Middleware에는 기본적으로 별칭이 지정되어 있습니다. 예를 들어 `auth` Middleware는 `Illuminate\Auth\Middleware\Authenticate` Middleware의 별칭입니다. 다음은 기본 Middleware 별칭 목록입니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Alias | Middleware | | ------------------ | ------------------------------------------------------------------------------------------------------------- | | `auth` | `Illuminate\Auth\Middleware\Authenticate` | | `auth.basic` | `Illuminate\Auth\Middleware\AuthenticateWithBasicAuth` | | `auth.session` | `Illuminate\Session\Middleware\AuthenticateSession` | | `cache.headers` | `Illuminate\Http\Middleware\SetCacheHeaders` | | `can` | `Illuminate\Auth\Middleware\Authorize` | | `guest` | `Illuminate\Auth\Middleware\RedirectIfAuthenticated` | | `password.confirm` | `Illuminate\Auth\Middleware\RequirePassword` | | `precognitive` | `Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests` | | `signed` | `Illuminate\Routing\Middleware\ValidateSignature` | | `subscribed` | `\Spark\Http\Middleware\VerifyBillableIsSubscribed` | | `throttle` | `Illuminate\Routing\Middleware\ThrottleRequests` or `Illuminate\Routing\Middleware\ThrottleRequestsWithRedis` | | `verified` | `Illuminate\Auth\Middleware\EnsureEmailIsVerified` | -->
 | 별칭               | Middleware                                                                                                    |
 | ------------------ | ------------------------------------------------------------------------------------------------------------- |
 | `auth`             | `Illuminate\Auth\Middleware\Authenticate`                                                                     |
@@ -414,7 +412,6 @@ Route::get('/profile', function () {
 | `throttle`         | `Illuminate\Routing\Middleware\ThrottleRequests` 또는 `Illuminate\Routing\Middleware\ThrottleRequestsWithRedis` |
 | `verified`         | `Illuminate\Auth\Middleware\EnsureEmailIsVerified`                                                            |
 
-<!-- </div> -->
 </div>
 
 <a name="sorting-middleware"></a>
@@ -442,6 +439,26 @@ Route::get('/profile', function () {
     ]);
 })
 ```
+
+<!-- If you would like to add middleware to the existing priority list without replacing it, you may use the `prependToPriorityList` or `appendToPriorityList` methods. The `prependToPriorityList` method inserts the given middleware before another middleware, while the `appendToPriorityList` method inserts it after another middleware: -->
+기존 우선순위 목록을 교체하지 않고 미들웨어를 추가하려면 `prependToPriorityList` 또는 `appendToPriorityList` 메서드를 사용할 수 있습니다. `prependToPriorityList` 메서드는 지정한 미들웨어를 다른 미들웨어 앞에 삽입하고, `appendToPriorityList` 메서드는 다른 미들웨어 뒤에 삽입합니다.
+
+```php
+->withMiddleware(function (Middleware $middleware): void {
+    $middleware->prependToPriorityList(
+        before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        prepend: \App\Http\Middleware\EnsureTokenIsValid::class,
+    );
+
+    $middleware->appendToPriorityList(
+        after: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        append: \App\Http\Middleware\EnsureUserIsSubscribed::class,
+    );
+})
+```
+
+<!-- The `before` and `after` arguments may also be an array of middleware classes. -->
+`before` 및 `after` 인수에는 미들웨어 클래스의 배열을 지정할 수도 있습니다.
 
 <a name="middleware-parameters"></a>
 <!-- ## Middleware Parameters -->

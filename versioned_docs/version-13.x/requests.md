@@ -874,6 +874,16 @@ if ($request->hasFile('photo')) {
 }
 ```
 
+<!-- If the uploaded file is an image that you need to manipulate before storing, you may use the `image` method to retrieve an `Illuminate\Image\Image` instance, or `null` if the file is not present: -->
+업로드한 파일이 이미지이며 저장하기 전에 조작해야 한다면 `image` 메서드를 사용해 `Illuminate\Image\Image` 인스턴스를 가져올 수 있습니다. 파일이 없으면 `null`을 반환합니다:
+
+```php
+$image = $request->image('photo');
+```
+
+<!-- For more information on manipulating images, please consult the complete [image manipulation documentation](/docs/13.x/images). -->
+이미지 조작에 대한 자세한 내용은 전체 [image manipulation documentation](/docs/13.x/images)를 참조하세요.
+
 <a name="validating-successful-uploads"></a>
 <!-- #### Validating Successful Uploads -->
 #### Validating Successful Uploads

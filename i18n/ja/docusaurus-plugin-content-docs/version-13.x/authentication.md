@@ -137,8 +137,8 @@ Laravel Sanctum は、アプリケーションの認証プロセス全体を管�
 <!-- If you are building a single-page application (SPA) that will be powered by a Laravel backend, you should use [Laravel Sanctum](/docs/13.x/sanctum). When using Sanctum, you will either need to [manually implement your own backend authentication routes](#authenticating-users) or utilize [Laravel Fortify](/docs/13.x/fortify) as a headless authentication backend service that provides routes and controllers for features such as registration, password reset, email verification, and more. -->
 Laravel バックエンドを利用するシングルページ アプリケーション (SPA) を構築している場合は、[Laravel Sanctum](/docs/13.x/sanctum) を使用する必要があります。 Sanctum を使用する場合は、[manually implement your own backend authentication routes](#authenticating-users) を実行するか、登録、パスワードリセット、電子メール検証などの機能のルートとコントローラを提供するヘッドレス認証バックエンド サービスとして [Laravel Fortify](/docs/13.x/fortify) を利用する必要があります。
 
-<!-- Passport may be chosen when your application absolutely needs all of the features provided by the OAuth2 specification. -->
-アプリケーションが OAuth2 仕様で提供されるすべての機能を絶対に必要とする場合は、Passportを選択できます。
+<!-- Passport may be chosen when your application absolutely needs all of the features provided by the OAuth2 specification. Additionally, if you are building an [MCP server](/docs/13.x/mcp) that will be accessed by AI clients, you should use Passport, as MCP clients typically expect to [authenticate using OAuth](/docs/13.x/mcp#oauth). -->
+アプリケーションが OAuth2 仕様で提供されるすべての機能をどうしても必要とする場合は、Passport を選択できます。さらに、AI クライアントからアクセスされる [MCP server](/docs/13.x/mcp) を構築する場合は、Passport を使用してください。MCP クライアントは通常、[authenticate using OAuth](/docs/13.x/mcp#oauth) による認証を想定しているためです。
 
 <!-- And, if you would like to get started quickly, we are pleased to recommend [our application starter kits](/docs/13.x/starter-kits) as a quick way to start a new Laravel application that already uses our preferred authentication stack of Laravel's built-in authentication services. -->
 また、すぐに始めたい場合は、Laravel の組み込み認証サービスの優先認証スタックを既に使用している新しい Laravel アプリケーションを簡単に開始する方法として、[our application starter kits](/docs/13.x/starter-kits) をお勧めします。
@@ -426,8 +426,8 @@ if (Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
 }
 ```
 
-<!-- If your application offers "remember me" functionality, you may use the `viaRemember`  method to determine if the currently authenticated user was authenticated using the "remember me" cookie: -->
-アプリケーションが「remember me」機能を提供する場合、`viaRemember` メソッドを使用して、現在認証されているユーザーが「remember me」Cookie を使用して認証されたかどうかを判断できます。
+<!-- If your application offers "remember me" functionality, you may use the `viaRemember` method to determine if the currently authenticated user was authenticated using the "remember me" cookie: -->
+アプリケーションが「remember me」機能を提供している場合は、`viaRemember` メソッドを使用して、現在認証されているユーザーが「remember me」Cookie によって認証されたかどうかを判定できます。
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -965,9 +965,9 @@ php artisan config:publish hashing
 <!-- Laravel dispatches a variety of [events](/docs/13.x/events) during the authentication process. You may [define listeners](/docs/13.x/events) for any of the following events: -->
 Laravel は、認証プロセス中にさまざまな [events](/docs/13.x/events) をディスパッチします。次のイベントのいずれかに対して [define listeners](/docs/13.x/events) できます。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Event Name | | ---------------------------------------------- | | `Illuminate\Auth\Events\Registered` | | `Illuminate\Auth\Events\Attempting` | | `Illuminate\Auth\Events\Authenticated` | | `Illuminate\Auth\Events\Login` | | `Illuminate\Auth\Events\Failed` | | `Illuminate\Auth\Events\Validated` | | `Illuminate\Auth\Events\Verified` | | `Illuminate\Auth\Events\Logout` | | `Illuminate\Auth\Events\CurrentDeviceLogout` | | `Illuminate\Auth\Events\OtherDeviceLogout` | | `Illuminate\Auth\Events\Lockout` | | `Illuminate\Auth\Events\PasswordReset` | | `Illuminate\Auth\Events\PasswordResetLinkSent` | -->
 | イベント名                                     |
 | ---------------------------------------------- |
 | `Illuminate\Auth\Events\Registered`            |
@@ -984,6 +984,4 @@ Laravel は、認証プロセス中にさまざまな [events](/docs/13.x/events
 | `Illuminate\Auth\Events\PasswordReset`         |
 | `Illuminate\Auth\Events\PasswordResetLinkSent` |
 
-<!-- </div> -->
 </div>
-

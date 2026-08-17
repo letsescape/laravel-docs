@@ -36,17 +36,9 @@ Laravel은 다양한 세션 백엔드를 기본적으로 제공하며, 이를 �
 <!-- The session `driver` configuration option defines where session data will be stored for each request. Laravel includes a variety of drivers: -->
 세션의 `driver` 구성 옵션은 각 요청에서 세션 데이터가 저장될 위치를 정의합니다. Laravel은 다양한 드라이버를 포함합니다:
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `file` - sessions are stored in `storage/framework/sessions`.
-- `cookie` - sessions are stored in secure, encrypted cookies.
-- `database` - sessions are stored in a relational database.
-- `memcached` / `redis` - sessions are stored in one of these fast, cache-based stores.
-- `dynamodb` - sessions are stored in AWS DynamoDB.
-- `array` - sessions are stored in a PHP array and will not be persisted.
--->
+<!-- - `file` - sessions are stored in `storage/framework/sessions`. - `cookie` - sessions are stored in secure, encrypted cookies. - `database` - sessions are stored in a relational database. - `memcached` / `redis` - sessions are stored in one of these fast, cache-based stores. - `dynamodb` - sessions are stored in AWS DynamoDB. - `array` - sessions are stored in a PHP array and will not be persisted. -->
 - `file` - 세션이 `storage/framework/sessions` 디렉토리에 저장됩니다.
 - `cookie` - 세션이 보안이 유지되고 암호화된 쿠키에 저장됩니다.
 - `database` - 세션이 관계형 데이터베이스에 저장됩니다.
@@ -54,7 +46,6 @@ Laravel은 다양한 세션 백엔드를 기본적으로 제공하며, 이를 �
 - `dynamodb` - 세션이 AWS DynamoDB에 저장됩니다.
 - `array` - 세션이 PHP 배열에 저장되며, 영속적으로 저장되지 않습니다.
 
-<!-- </div> -->
 </div>
 
 > [!NOTE]
@@ -81,8 +72,8 @@ php artisan migrate
 <!-- #### Redis -->
 #### Redis
 
-<!-- Before using Redis sessions with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package (~1.0) via Composer. For more information on configuring Redis, consult Laravel's [Redis documentation](/docs/13.x/redis#configuration). -->
-Laravel에서 Redis 세션을 사용하기 전에, PECL을 통해 PhpRedis PHP 확장 모듈을 설치하거나 Composer를 통해 `predis/predis` 패키지(~1.0)를 설치해야 합니다. Redis 설정에 대한 자세한 내용은 Laravel의 [Redis documentation](/docs/13.x/redis#configuration)를 참고하십시오.
+<!-- Before using Redis sessions with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package via Composer. For more information on configuring Redis, consult Laravel's [Redis documentation](/docs/13.x/redis#configuration). -->
+Laravel에서 Redis 세션을 사용하기 전에, PECL을 통해 PhpRedis PHP 확장 모듈을 설치하거나 Composer를 통해 `predis/predis` 패키지를 설치해야 합니다. Redis 설정에 대한 자세한 내용은 Laravel의 [Redis documentation](/docs/13.x/redis#configuration)를 참고하십시오.
 
 > [!NOTE]
 > 세션 스토리지로 사용할 Redis 연결을 지정하려면 `SESSION_CONNECTION` 환경 변수 또는 `session.php` 구성 파일의 `connection` 옵션을 사용할 수 있습니다.
@@ -427,17 +418,9 @@ Laravel은 확장 코드를 저장할 기본 디렉터리를 제공하지 않으
 <!-- Since the purpose of these methods is not readily understandable, here is an overview of the purpose of each method: -->
 각 메서드의 목적이 명확하지 않을 수 있으니, 아래에 간단히 설명합니다:
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The `open` method would typically be used in file based session store systems. Since Laravel ships with a `file` session driver, you will rarely need to put anything in this method. You can simply leave this method empty.
-- The `close` method, like the `open` method, can also usually be disregarded. For most drivers, it is not needed.
-- The `read` method should return the string version of the session data associated with the given `$sessionId`. There is no need to do any serialization or other encoding when retrieving or storing session data in your driver, as Laravel will perform the serialization for you.
-- The `write` method should write the given `$data` string associated with the `$sessionId` to some persistent storage system, such as MongoDB or another storage system of your choice. Again, you should not perform any serialization - Laravel will have already handled that for you.
-- The `destroy` method should remove the data associated with the `$sessionId` from persistent storage.
-- The `gc` method should destroy all session data that is older than the given `$lifetime`, which is a UNIX timestamp. For self-expiring systems like Memcached and Redis, this method may be left empty.
--->
+<!-- - The `open` method would typically be used in file based session store systems. Since Laravel ships with a `file` session driver, you will rarely need to put anything in this method. You can simply leave this method empty. - The `close` method, like the `open` method, can also usually be disregarded. For most drivers, it is not needed. - The `read` method should return the string version of the session data associated with the given `$sessionId`. There is no need to do any serialization or other encoding when retrieving or storing session data in your driver, as Laravel will perform the serialization for you. - The `write` method should write the given `$data` string associated with the `$sessionId` to some persistent storage system, such as MongoDB or another storage system of your choice. Again, you should not perform any serialization - Laravel will have already handled that for you. - The `destroy` method should remove the data associated with the `$sessionId` from persistent storage. - The `gc` method should destroy all session data that is older than the given `$lifetime`, which is a UNIX timestamp. For self-expiring systems like Memcached and Redis, this method may be left empty. -->
 - `open` 메서드는 주로 파일 기반 세션 스토리지 시스템에서 사용됩니다. Laravel은 이미 `file` 세션 드라이버를 제공하므로, 일반적으로 이 메서드는 비워두어도 됩니다.
 - `close` 메서드도 `open`과 마찬가지로 대부분의 드라이버에서는 신경 쓰지 않아도 됩니다.
 - `read` 메서드는 주어진 `$sessionId`와 연결된 세션 데이터를 문자열로 반환해야 합니다. 세션 데이터의 직렬화나 인코딩은 신경 쓸 필요가 없으며, Laravel이 자동으로 처리해줍니다.
@@ -445,7 +428,6 @@ Laravel은 확장 코드를 저장할 기본 디렉터리를 제공하지 않으
 - `destroy` 메서드는 주어진 `$sessionId`와 연결된 데이터를 영속성 저장소에서 삭제해야 합니다.
 - `gc` 메서드는 주어진 `$lifetime`(UNIX 타임스탬프)보다 오래된 세션 데이터를 모두 삭제해야 합니다. Memcached나 Redis처럼 유효기간이 자동 만료되는 시스템에서는 비워두어도 괜찮습니다.
 
-<!-- </div> -->
 </div>
 
 <a name="registering-the-driver"></a>

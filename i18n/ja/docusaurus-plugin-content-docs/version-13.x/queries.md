@@ -49,7 +49,7 @@ Laravel のデータベース クエリビルダは、データベース クエ�
 Laravel クエリビルダは、PDO パラメーター バインディングを使用して、アプリケーションを SQL インジェクション攻撃から保護します。クエリ バインディングとしてクエリビルダに渡される文字列をクリーンアップまたはサニタイズする必要はありません。
 
 > [!WARNING]
-> PDO は列名のバインドをサポートしていません。したがって、「order by」列を含め、クエリで参照される列名をユーザー入力によって決定することを決して許可しないでください。
+> PDOはカラム名のバインドをサポートしていません。そのため、「order by」句のカラムを含め、クエリで参照するカラム名をユーザー入力によって決定できるようにしてはいけません。
 
 <a name="running-database-queries"></a>
 <!-- ## Running Database Queries -->
@@ -98,7 +98,7 @@ foreach ($users as $user) {
 ```
 
 > [!NOTE]
-> Laravel コレクションは、データのマッピングと削減のための非常に強力なさまざまな方法を提供します。 Laravel コレクションの詳細については、[collection documentation](/docs/13.x/collections) をチェックしてください。
+> Laravel のコレクションには、データのマッピングや縮約に使える非常に強力なメソッドが数多く用意されています。Laravel のコレクションについて詳しくは、[collection documentation](/docs/13.x/collections)を参照してください。
 
 <a name="retrieving-a-single-row-column-from-a-table"></a>
 <!-- #### Retrieving a Single Row / Column From a Table -->
@@ -221,14 +221,14 @@ DB::table('users')->where(function ($query) {
 ```
 
 > [!WARNING]
-> チャンク コールバック内のレコードを更新または削除する場合、主キーまたは外部キーに変更を加えると、チャンク クエリに影響を与える可能性があります。これにより、チャンク化された結果にレコードが含まれない可能性があります。
+> チャンクコールバック内でレコードを更新または削除する場合、主キーや外部キーを変更するとチャンククエリに影響する可能性があります。その結果、チャンク処理の結果に含まれないレコードが発生するおそれがあります。
 
 <a name="streaming-results-lazily"></a>
 <!-- ### Streaming Results Lazily -->
 ### Streaming Results Lazily
 
 <!-- The `lazy` method works similarly to [the chunk method](#chunking-results) in the sense that it executes the query in chunks. However, instead of passing each chunk into a callback, the `lazy()` method returns a [LazyCollection](/docs/13.x/collections#lazy-collections), which lets you interact with the results as a single stream: -->
-`lazy` メソッドは、クエリをチャンクで実行するという点で [the chunk method](#chunking-results) と同様に機能します。ただし、各チャンクをコールバックに渡す代わりに、`lazy()` メソッドは [LazyCollection](/docs/13.x/collections#lazy-collections) を返します。これにより、結果を単一のストリームとして操作できます。
+`lazy` メソッドは、クエリをチャンク単位で実行するという点で、[the chunk method](#chunking-results) と同様に動作します。ただし、各チャンクをコールバックに渡す代わりに、`lazy()` メソッドは [LazyCollection](/docs/13.x/collections#lazy-collections) を返します。これにより、結果を単一のストリームとして操作できます。
 
 ```php
 use Illuminate\Support\Facades\DB;
@@ -251,7 +251,7 @@ DB::table('users')->where('active', false)
 ```
 
 > [!WARNING]
-> レコードを反復処理しながらレコードを更新または削除する場合、主キーまたは外部キーへの変更がチャンク クエリに影響を与える可能性があります。これにより、レコードが結果に含まれない可能性があります。
+> レコードを反復処理しながら更新または削除する場合、主キーや外部キーを変更するとチャンククエリに影響する可能性があります。その結果、レコードが結果に含まれなくなる可能性があります。
 
 <a name="aggregates"></a>
 <!-- ### Aggregates -->
@@ -345,7 +345,7 @@ $users = DB::table('users')
 ```
 
 > [!WARNING]
-> 生のステートメントは文字列としてクエリに挿入されるため、SQL インジェクションの脆弱性が発生しないように細心の注意を払う必要があります。
+> Raw ステートメントは文字列としてクエリに挿入されるため、SQL インジェクションの脆弱性を生じさせないよう十分に注意してください。
 
 <a name="raw-methods"></a>
 <!-- ### Raw Methods -->
@@ -358,7 +358,7 @@ $users = DB::table('users')
 <!-- #### `selectRaw` -->
 #### `selectRaw`
 
-<!-- The `selectRaw` method can be used in place of `addSelect(DB::raw(/* ... *&#47;))`. This method accepts an optional array of bindings as its second argument: -->
+<!-- The `selectRaw` method can be used in place of `addSelect(DB::raw(/* ... */))`. This method accepts an optional array of bindings as its second argument: -->
 `selectRaw` メソッドは、`addSelect(DB::raw(/* ... */))` の代わりに使用できます。このメソッドは、オプションのバインディングの配列を 2 番目の引数として受け入れます。
 
 ```php
@@ -524,7 +524,7 @@ $users = DB::table('users')
 #### Lateral Joins
 
 > [!WARNING]
-> 横方向結合は現在、PostgreSQL、MySQL 8.0.14 以上、および SQL Server でサポートされています。
+> Lateral join は現在、PostgreSQL、MySQL >= 8.0.14、SQL Server でサポートされています。
 
 <!-- You may use the `joinLateral` and `leftJoinLateral` methods to perform a "lateral join" with a subquery. Each of these methods receives two arguments: the subquery and its table alias. The join condition(s) should be specified within the `where` clause of the given subquery. Lateral joins are evaluated for each row and can reference columns outside the subquery. -->
 `joinLateral` メソッドと `leftJoinLateral` メソッドを使用して、サブクエリとの「横結合」を実行できます。これらの各メソッドは、サブクエリとそのテーブル エイリアスの 2 つの引数を受け取ります。結合条件は、指定されたサブクエリの `where` 句内で指定する必要があります。横方向結合は行ごとに評価され、サブクエリの外部の列を参照できます。
@@ -632,10 +632,10 @@ $users = DB::table('users')->where([
 ```
 
 > [!WARNING]
-> PDO は列名のバインドをサポートしていません。したがって、「order by」列を含め、クエリで参照される列名をユーザー入力によって決定することを決して許可しないでください。
+> PDO はカラム名のバインドをサポートしていません。そのため、クエリで参照するカラム名（「order by」句のカラムを含む）をユーザー入力で決められるようにしてはいけません。
 
 > [!WARNING]
-> MySQL と MariaDB は、文字列と数値の比較において、文字列を整数に自動的に型castします。このプロセスでは、数値以外の文字列が `0` に変換されるため、予期しない結果が生じる可能性があります。たとえば、テーブルに `aaa` の値を持つ `secret` 列があり、`User::where('secret', 0)` を実行すると、その行が返されます。これを回避するには、クエリで使用する前に、すべての値が適切な型に型castされていることを確認してください。
+> MySQL と MariaDB は、文字列と数値を比較するときに文字列を自動的に整数へ型変換します。この処理では、数値以外の文字列が `0` に変換されるため、予期しない結果につながる可能性があります。たとえば、テーブルの `secret` カラムに `aaa` という値があり、`User::where('secret', 0)` を実行すると、その行が返されます。これを避けるには、クエリで使用する前に、すべての値を適切な型へ型変換してください。
 
 <a name="or-where-clauses"></a>
 <!-- ### Or Where Clauses -->
@@ -667,14 +667,14 @@ $users = DB::table('users')
 ```
 
 <!-- The example above will produce the following SQL: -->
-上記の例では、次の SQL が生成されます。
+上の例では、次の SQL が生成されます。
 
 ```sql
 select * from users where votes > 100 or (name = 'Abigail' and votes > 50)
 ```
 
 > [!WARNING]
-> グローバル スコープが適用されるときの予期しない動作を避けるために、`orWhere` 呼び出しを常にグループ化する必要があります。
+> グローバルスコープが適用されたときに予期しない動作が発生しないよう、`orWhere` の呼び出しは必ずグループ化してください。
 
 <a name="where-not-clauses"></a>
 <!-- ### Where Not Clauses -->
@@ -711,7 +711,7 @@ $users = DB::table('users')
 ```
 
 <!-- The query above will result in the following SQL: -->
-上記のクエリの結果は次の SQL になります。
+上のクエリを実行すると、次の SQL が生成されます。
 
 ```sql
 SELECT *
@@ -737,7 +737,7 @@ $posts = DB::table('posts')
 ```
 
 <!-- The query above will result in the following SQL: -->
-上記のクエリの結果は次の SQL になります。
+上記のクエリを実行すると、次の SQL が生成されます。
 
 ```sql
 SELECT *
@@ -763,7 +763,7 @@ $albums = DB::table('albums')
 ```
 
 <!-- The query above will result in the following SQL: -->
-上記のクエリの結果は次の SQL になります。
+上記のクエリを実行すると、次の SQL が生成されます。
 
 ```sql
 SELECT *
@@ -899,7 +899,7 @@ $users = DB::table('users')
 ```
 
 > [!WARNING]
-> `whereLike` 大文字と小文字を区別する検索オプションは、現在 SQL Server ではサポートされていません。
+> SQL Server では、`whereLike` の大文字と小文字を区別する検索オプションは現在サポートされていません。
 
 <!-- **whereIn / whereNotIn / orWhereIn / orWhereNotIn** -->
 **whereIn / whereNotIn / orWhereIn / orWhereNotIn**
@@ -934,7 +934,7 @@ $comments = DB::table('comments')
 ```
 
 <!-- The example above will produce the following SQL: -->
-上記の例では、次の SQL が生成されます。
+上の例を実行すると、次の SQL が生成されます。
 
 ```sql
 select * from comments where user_id in (
@@ -945,7 +945,7 @@ select * from comments where user_id in (
 ```
 
 > [!WARNING]
-> 整数バインディングの大規模な配列をクエリに追加する場合、`whereIntegerInRaw` メソッドまたは `whereIntegerNotInRaw` メソッドを使用すると、メモリ使用量を大幅に削減できます。
+> クエリに大量の整数バインディングを追加する場合は、`whereIntegerInRaw` または `whereIntegerNotInRaw` メソッドを使用すると、メモリ使用量を大幅に削減できます。
 
 <!-- **whereBetween / orWhereBetween** -->
 **whereBetween / orWhereBetween**
@@ -1212,7 +1212,7 @@ select * from users where name = 'John' and (votes > 100 or title = 'Admin')
 ```
 
 > [!WARNING]
-> グローバル スコープが適用されるときの予期しない動作を避けるために、`orWhere` 呼び出しを常にグループ化する必要があります。
+> グローバルスコープが適用されたときに予期しない動作が発生しないよう、`orWhere` の呼び出しは必ずグループ化してください。
 
 <a name="advanced-where-clauses"></a>
 <!-- ## Advanced Where Clauses -->
@@ -1297,10 +1297,10 @@ $incomes = Income::where('amount', '<', function (Builder $query) {
 ### Full Text Where Clauses
 
 > [!WARNING]
-> フルテキストの where 句は現在、MariaDB、MySQL、PostgreSQL でサポートされています。
+> 現在、全文の where 句は MariaDB、MySQL、PostgreSQL でのみサポートされています。
 
 <!-- The `whereFullText` and `orWhereFullText` methods may be used to add full text "where" clauses to a query for columns that have [full text indexes](/docs/13.x/migrations#available-index-types). These methods will be transformed into the appropriate SQL for the underlying database system by Laravel. For example, a `MATCH AGAINST` clause will be generated for applications utilizing MariaDB or MySQL: -->
-`whereFullText` メソッドと `orWhereFullText` メソッドは、[full text indexes](/docs/13.x/migrations#available-index-types) を持つ列のクエリにフルテキストの "where" 句を追加するために使用できます。これらのメソッドは、Laravel によって基礎となるデータベース システムに適した SQL に変換されます。たとえば、MariaDB または MySQL を利用するアプリケーションに対して `MATCH AGAINST` 句が生成されます。
+`whereFullText` メソッドと `orWhereFullText` メソッドを使用すると、[full text indexes](/docs/13.x/migrations#available-index-types) が設定されたカラムを対象とするクエリに、フルテキスト検索用の「where」句を追加できます。Laravel は、これらのメソッドを使用して、基盤となるデータベースシステムに適した SQL に変換します。たとえば、MariaDB または MySQL を使用するアプリケーションでは、`MATCH AGAINST` 句が生成されます。
 
 ```php
 $users = DB::table('users')
@@ -1313,7 +1313,7 @@ $users = DB::table('users')
 ### Vector Similarity Clauses
 
 > [!NOTE]
-> 現在、ベクトル類似性句は、`pgvector` 拡張機能を使用した PostgreSQL 接続でのみサポートされています。ベクトル列とインデックスの定義については、[migration documentation](/docs/13.x/migrations#available-column-types) を参照してください。
+> ベクトル類似度の条件は、現在 `pgvector` 拡張機能を使用する PostgreSQL 接続でのみサポートされています。ベクトルのカラムとインデックスの定義については、[migration documentation](/docs/13.x/migrations#available-column-types)を参照してください。
 
 <!-- The `whereVectorSimilarTo` method filters results by cosine similarity to a given vector and orders the results by relevance. The `minSimilarity` threshold should be a value between `0.0` and `1.0`, where `1.0` is identical: -->
 `whereVectorSimilarTo` メソッドは、指定されたベクトルに対するコサイン類似度によって結果をフィルター処理し、関連性によって結果を順序付けします。 `minSimilarity` しきい値は、`0.0` と `1.0` の間の値である必要があります。ここで、`1.0` は同一です。
@@ -1326,7 +1326,7 @@ $documents = DB::table('documents')
 ```
 
 <!-- When a plain string is given as the vector argument, Laravel will automatically generate embeddings for it using the [Laravel AI SDK](/docs/13.x/ai-sdk#embeddings): -->
-プレーンな文字列がベクトル引数として指定されると、Laravel は [Laravel AI SDK](/docs/13.x/ai-sdk#embeddings) を使用してその文字列の埋め込みを自動的に生成します。
+ベクトル引数にプレーンな文字列を渡すと、Laravel は [Laravel AI SDK](/docs/13.x/ai-sdk#embeddings) を使用して、その文字列の埋め込みを自動的に生成します。
 
 ```php
 $documents = DB::table('documents')
@@ -1623,7 +1623,7 @@ $id = DB::table('users')->insertGetId(
 ```
 
 > [!WARNING]
-> PostgreSQL を使用する場合、`insertGetId` メソッドは、自動インクリメント列の名前が `id` であることを想定します。別の「シーケンス」から ID を取得したい場合は、列名を 2 番目のパラメーターとして `insertGetId` メソッドに渡すことができます。
+> PostgreSQLを使用する場合、`insertGetId` メソッドは自動インクリメントするカラムの名前が `id` であることを前提とします。別の「sequence」からIDを取得する場合は、`insertGetId` メソッドの第2引数としてカラム名を渡してください。
 
 <a name="upserts"></a>
 <!-- ### Upserts -->
@@ -1647,7 +1647,7 @@ DB::table('flights')->upsert(
 上の例では、Laravel は 2 つのレコードを挿入しようとします。同じ `departure` 列値と `destination` 列値を持つレコードがすでに存在する場合、Laravel はそのレコードの `price` 列を更新します。
 
 > [!WARNING]
-> SQL Server を除くすべてのデータベースでは、`upsert` メソッドの 2 番目の引数の列に「プライマリ」または「一意」インデックスが必要です。さらに、MariaDB および MySQL データベース ドライバは、`upsert` メソッドの 2 番目の引数を無視し、常にテーブルの「プライマリ」インデックスと「一意」インデックスを使用して既存のレコードを検出します。
+> SQL Server 以外のすべてのデータベースでは、`upsert` メソッドの第2引数に指定するカラムに「primary」または「unique」インデックスが必要です。また、MariaDB と MySQL のデータベースドライバは `upsert` メソッドの第2引数を無視し、既存レコードの検出にはテーブルの「primary」および「unique」インデックスを常に使用します。
 
 <a name="update-statements"></a>
 <!-- ## Update Statements -->
@@ -1782,7 +1782,7 @@ DB::table('users')
 ```
 
 <!-- While not obligatory, it is recommended to wrap pessimistic locks within a [transaction](/docs/13.x/database#database-transactions). This ensures that the data retrieved remains unaltered in the database until the entire operation completes. In case of a failure, the transaction will roll back any changes and release the locks automatically: -->
-必須ではありませんが、[transaction](/docs/13.x/database#database-transactions) 内で悲観的ロックをラップすることをお勧めします。これにより、操作全体が完了するまで、取得されたデータがデータベース内で変更されないことが保証されます。失敗した場合、トランザクションは変更をロールバックし、ロックを自動的に解放します。
+必須ではありませんが、悲観的ロックは [transaction](/docs/13.x/database#database-transactions) 内で使用することをおすすめします。これにより、処理全体が完了するまで、取得したデータがデータベース内で変更されないことが保証されます。処理に失敗した場合、トランザクションが変更をロールバックし、ロックも自動的に解放します。
 
 ```php
 DB::transaction(function () {
@@ -1908,7 +1908,7 @@ DB::table('flights')
 `tap` メソッドは常にクエリビルダを返します。クエリを実行して別の値を返すオブジェクトを抽出したい場合は、代わりに `pipe` メソッドを使用できます。
 
 <!-- Consider the following query object that contains shared [pagination](/docs/13.x/pagination) logic used throughout an application. Unlike the `DestinationFilter`, which applies query conditions to the query, the `Paginate` object executes the query and returns a paginator instance: -->
-アプリケーション全体で使用される共有 [pagination](/docs/13.x/pagination) ロジックを含む次のクエリ オブジェクトについて考えてみましょう。クエリ条件をクエリに適用する `DestinationFilter` とは異なり、`Paginate` オブジェクトはクエリを実行し、ページネータ インスタンスを返します。
+アプリケーション全体で共有する [pagination](/docs/13.x/pagination) ロジックを含む、次のクエリオブジェクトを考えてみましょう。クエリに条件を適用する `DestinationFilter` とは異なり、`Paginate` オブジェクトはクエリを実行し、ページネータインスタンスを返します。
 
 ```php
 <?php
@@ -1966,4 +1966,3 @@ DB::table('users')->where('votes', '>', 100)->dumpRawSql();
 
 DB::table('users')->where('votes', '>', 100)->ddRawSql();
 ```
-

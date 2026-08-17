@@ -21,6 +21,7 @@
     - [Automatic Streaming](#automatic-streaming)
     - [File Uploads](#file-uploads)
     - [File Visibility](#file-visibility)
+    - [Image Manipulation](#image-manipulation)
 - [Deleting Files](#deleting-files)
 - [Directories](#directories)
 - [Testing](#testing)
@@ -767,6 +768,27 @@ $path = $request->file('avatar')->storePubliclyAs(
 );
 ```
 
+<a name="image-manipulation"></a>
+<!-- ### Image Manipulation -->
+### Image Manipulation
+
+<!-- If you need to resize, crop, or convert an uploaded image before storing it, you may use Laravel's [image manipulation features](/docs/13.x/images): -->
+업로드한 이미지를 저장하기 전에 크기를 조정하거나 자르거나 형식을 변환해야 한다면 Laravel의 [image manipulation features](/docs/13.x/images)를 사용할 수 있습니다.
+
+```php
+$path = $request->image('avatar')
+    ->cover(400, 400)
+    ->toWebp()
+    ->storePublicly('avatars', 'public');
+```
+
+<!-- You may also create an image instance from a file already stored on one of your filesystem disks: -->
+파일 시스템 디스크 중 하나에 이미 저장된 파일에서 이미지 인스턴스를 생성할 수도 있습니다.
+
+```php
+$image = Storage::disk('public')->image('avatars/photo.jpg');
+```
+
 <a name="local-files-and-visibility"></a>
 <!-- #### Local Files and Visibility -->
 #### Local Files and Visibility
@@ -904,6 +926,9 @@ test('albums can be uploaded', function () {
 
     // Assert that a given directory is empty...
     Storage::disk('photos')->assertDirectoryEmpty('/wallpapers');
+
+    // Assert that the disk contains no files...
+    Storage::disk('photos')->assertEmpty();
 });
 ```
 
@@ -940,6 +965,9 @@ class ExampleTest extends TestCase
 
         // Assert that a given directory is empty...
         Storage::disk('photos')->assertDirectoryEmpty('/wallpapers');
+
+        // Assert that the disk contains no files...
+        Storage::disk('photos')->assertEmpty();
     }
 }
 ```

@@ -359,6 +359,24 @@ interface EventPusher
 }
 ```
 
+<!-- For bindings that depend on an arbitrary condition, you may use the `BindWhen` attribute. The closure may receive the container and should return `true` when the binding should be applied. `Bind` and `BindWhen` attributes are evaluated in the order they are declared: -->
+任意の条件に依存するバインドには、`BindWhen` 属性を使用できます。クロージャにはコンテナが渡される場合があり、バインドを適用するときに `true` を返す必要があります。`Bind` 属性と `BindWhen` 属性は、宣言された順序で評価されます。
+
+```php
+use App\Services\BetaEventPusher;
+use Illuminate\Container\Attributes\BindWhen;
+use Laravel\Pennant\Feature;
+
+#[BindWhen(BetaEventPusher::class, static fn () => Feature::active('beta-events'))]
+interface EventPusher
+{
+    // ...
+}
+```
+
+> [!NOTE]
+> `BindWhen` 属性を使用するには、PHP 8.5 以上が必要です。
+
 <a name="contextual-binding"></a>
 <!-- ### Contextual Binding -->
 ### Contextual Binding
@@ -414,8 +432,8 @@ class PhotoController extends Controller
 }
 ```
 
-<!-- In addition to the `Storage` attribute, Laravel offers `Auth`, `Cache`, `Config`, `Context`, `DB`, `Give`, `Log`, `RouteParameter`, and [Tag](#tagging) attributes: -->
-`Storage` 属性に加えて、Laravel は `Auth`、`Cache`、`Config`、`Context`、`DB`、`Give`、`Log`、`RouteParameter`、および [Tag](#tagging) 属性を提供します:
+<!-- In addition to the `Storage` attribute, Laravel offers `Auth`, `Cache`, `Config`, `Context`, `DB`, `Give`, `Log`, `RequestAttribute`, `RouteParameter`, and [Tag](#tagging) attributes: -->
+`Storage` 属性に加えて、Laravel では `Auth`、`Cache`、`Config`、`Context`、`DB`、`Give`、`Log`、`RequestAttribute`、`RouteParameter`、および [Tag](#tagging) 属性を利用できます。
 
 ```php
 <?php
@@ -423,6 +441,7 @@ class PhotoController extends Controller
 namespace App\Http\Controllers;
 
 use App\Contracts\UserRepository;
+use App\Models\Organization;
 use App\Models\Photo;
 use App\Repositories\DatabaseRepository;
 use Illuminate\Container\Attributes\Auth;
@@ -432,6 +451,7 @@ use Illuminate\Container\Attributes\Context;
 use Illuminate\Container\Attributes\DB;
 use Illuminate\Container\Attributes\Give;
 use Illuminate\Container\Attributes\Log;
+use Illuminate\Container\Attributes\RequestAttribute;
 use Illuminate\Container\Attributes\RouteParameter;
 use Illuminate\Container\Attributes\Tag;
 use Illuminate\Contracts\Auth\Guard;
@@ -450,6 +470,7 @@ class PhotoController extends Controller
         #[DB('mysql')] protected Connection $connection,
         #[Give(DatabaseRepository::class)] protected UserRepository $users,
         #[Log('daily')] protected LoggerInterface $log,
+        #[RequestAttribute('organization')] protected Organization $organization,
         #[RouteParameter] protected Photo $photo,
         #[Tag('reports')] protected iterable $reports,
     ) {
@@ -460,6 +481,9 @@ class PhotoController extends Controller
 
 <!-- The `RouteParameter` attribute will resolve the route parameter matching the variable name. If needed, you may specify the route parameter name explicitly: `#[RouteParameter('photo')]`. -->
 `RouteParameter` 属性は、変数名に一致するルートパラメータを解決します。必要であれば、ルートパラメータ名を明示的に指定できます: `#[RouteParameter('photo')]`。
+
+<!-- The `RequestAttribute` attribute will resolve the value stored under the given key in the current request's [attribute bag](https://symfony.com/doc/current/components/http_foundation.html#accessing-request-data): `#[RequestAttribute('organization')]`. -->
+`RequestAttribute` 属性は、現在のリクエストの [attribute bag](https://symfony.com/doc/current/components/http_foundation.html#accessing-request-data) に指定されたキーで保存されている値を解決します: `#[RequestAttribute('organization')]`。
 
 <!-- In addition, Laravel provides a `CurrentUser` attribute for injecting the currently authenticated user into a given route or class: -->
 さらに、Laravel は、現在認証されているユーザーを特定のルートまたはクラスに注入するための `CurrentUser` 属性を提供します。
@@ -880,4 +904,3 @@ Route::get('/', function (ContainerInterface $container) {
 
 <!-- An exception is thrown if the given identifier can't be resolved. The exception will be an instance of `Psr\Container\NotFoundExceptionInterface` if the identifier was never bound. If the identifier was bound but was unable to be resolved, an instance of `Psr\Container\ContainerExceptionInterface` will be thrown. -->
 指定された識別子を解決できない場合は、例外がスローされます。識別子がバインドされていない場合、例外は `Psr\Container\NotFoundExceptionInterface` のインスタンスになります。識別子がバインドされているが解決できなかった場合、`Psr\Container\ContainerExceptionInterface` のインスタンスがスローされます。
-

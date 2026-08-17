@@ -22,6 +22,9 @@
 - [Programmatically Executing Commands](#programmatically-executing-commands)
     - [Calling Commands From Other Commands](#calling-commands-from-other-commands)
 - [Signal Handling](#signal-handling)
+- [The Dev Command](#the-dev-command)
+    - [Customizing Dev Processes](#customizing-dev-processes)
+    - [Filtering Dev Processes](#filtering-dev-processes)
 - [Stub Customization](#stub-customization)
 - [Events](#events)
 
@@ -272,7 +275,7 @@ class SendEmails extends Command implements Isolatable
 ```
 
 <!-- When you mark a command as `Isolatable`, Laravel automatically makes the `--isolated` option available for the command without needing to explicitly define it in the command's options. When the command is invoked with that option, Laravel will ensure that no other instances of that command are already running. Laravel accomplishes this by attempting to acquire an atomic lock using your application's default cache driver. If other instances of the command are running, the command will not execute; however, the command will still exit with a successful exit status code: -->
-コマンドを`Isolatable`としてマークすると、Laravelはコマンドのオプションで明示的に定義しなくても、自動的に`--isolated`オプションをコマンドで使用できるようになります。そのオプションを指定してコマンドが呼び出されると、Laravel はそのコマンドの他のインスタンスがすでに実行されていないことを確認します。 Laravel は、アプリケーションのデフォルトのキャッシュドライバを使用してアトミックロックの取得を試みることによってこれを実現します。コマンドの他のインスタンスが実行中の場合、コマンドは実行されません。ただし、コマンドは引き続き正常終了ステータス コードで終了します。
+コマンドを `Isolatable` としてマークすると、Laravelはコマンドのオプションで明示的に定義しなくても、自動的に `--isolated` オプションをコマンドで使用できるようになります。そのオプションを指定してコマンドが呼び出されると、Laravel はそのコマンドの他のインスタンスがすでに実行されていないことを確認します。 Laravel は、アプリケーションのデフォルトのキャッシュドライバを使用してアトミックロックの取得を試みることによってこれを実現します。コマンドの他のインスタンスが実行中の場合、コマンドは実行されません。ただし、コマンドは引き続き正常終了ステータス コードで終了します。
 
 ```shell
 php artisan mail:send 1 --isolated
@@ -563,7 +566,6 @@ return [
 ```
 
 > [!NOTE]
-> <!-- The comprehensive [Laravel Prompts](/docs/13.x/prompts) documentation includes additional information on the available prompts and their usage. -->
 > 包括的な [Laravel Prompts](/docs/13.x/prompts) ドキュメントには、使用可能なプロンプトとその使用法に関する追加情報が含まれています。
 
 <!-- If you wish to prompt the user to select or enter [options](#options), you may include prompts in your command's `handle` method. However, if you only wish to prompt the user when they have also been automatically prompted for missing arguments, then you may implement the `afterPromptingForMissingArguments` method: -->
@@ -1033,6 +1035,131 @@ $this->trap([SIGTERM, SIGQUIT], function (int $signal) {
 
     dump($signal); // SIGTERM / SIGQUIT
 });
+```
+
+<a name="the-dev-command"></a>
+<!-- ## The Dev Command -->
+## The Dev Command
+
+<!-- The `dev` Artisan command starts all of the processes needed for local development in a single terminal window. By default, it concurrently runs the PHP development server, a queue worker, log tailing via [Pail](/docs/13.x/logging#tailing-log-messages-using-pail), and Vite asset compilation: -->
+`dev` Artisan コマンドは、ローカル開発に必要なすべてのプロセスを1つのターミナルウィンドウで起動します。デフォルトでは、PHP 開発サーバー、キューワーカー、[Pail](/docs/13.x/logging#tailing-log-messages-using-pail) によるログの tailing、Vite によるアセットのコンパイルを並行して実行します。
+
+```shell
+php artisan dev
+```
+
+<!-- Under the hood, the `dev` command uses the `@laravel/multiplex` npm package to manage the processes, giving each process its own tab with searchable, scrollable output. Each process is labeled and color-coded so you can easily distinguish between them. If a process crashes, it will be restarted automatically, and when you quit, all of the output is written back to your terminal so nothing is lost. -->
+内部では、`dev` コマンドが `@laravel/multiplex` npm パッケージを使ってプロセスを管理します。各プロセスには専用のタブが割り当てられ、出力を検索したりスクロールしたりできます。各プロセスにはラベルと色が付くため、簡単に見分けられます。プロセスがクラッシュすると自動的に再起動され、終了するとすべての出力がターミナルに書き戻されるため、何も失われません。
+
+> [!NOTE]
+> `dev` コマンドには Node 22.13 以降が必要です。Windows では `concurrently` npm パッケージにフォールバックするため、タブインターフェースは利用できません。
+
+<!-- The default processes are: -->
+デフォルトのプロセスは次のとおりです。
+
+<!-- | Name | Command | | --- | --- | | `server` | `php artisan serve --host=localhost` | | `queue` | `php artisan queue:listen --tries=1 --timeout=0` | | `logs` | `php artisan pail --timeout=0` | | `vite` | `npm run dev` | -->
+| 名前 | コマンド |
+| --- | --- |
+| `server` | `php artisan serve --host=localhost` |
+| `queue` | `php artisan queue:listen --tries=1 --timeout=0` |
+| `logs` | `php artisan pail --timeout=0` |
+| `vite` | `npm run dev` |
+
+> [!NOTE]
+> `vite` プロセスは Node のパッケージマネージャ（npm、pnpm、Yarn、Bun）を自動的に検出し、適切な run コマンドを使用します。
+
+<a name="customizing-dev-processes"></a>
+<!-- ### Customizing Dev Processes -->
+### Customizing Dev Processes
+
+<!-- You may customize the processes that the `dev` command runs by using the `DevCommands` class, typically within the `boot` method of your application's `AppServiceProvider`. The `register` method accepts a command string and an optional name: -->
+`DevCommands` クラスを使うと、`dev` コマンドが実行するプロセスをカスタマイズできます。通常は、アプリケーションの `AppServiceProvider` にある `boot` メソッド内で設定します。`register` メソッドは、コマンド文字列と任意の名前を受け取ります。
+
+```php
+use Illuminate\Foundation\DevCommands;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    DevCommands::register('some-command --flag', 'my-process');
+}
+```
+
+<!-- When registering an Artisan command, you may use the `artisan` method which automatically prefixes the command with `php artisan`: -->
+Artisan コマンドを登録する場合は、コマンドの先頭に `php artisan` を自動で付ける `artisan` メソッドを使用できます。
+
+```php
+DevCommands::artisan('horizon', 'horizon');
+```
+
+<!-- Likewise, the `node` method prefixes the command with your detected package manager's run command (e.g. `npm run`), and the `nodeExec` method prefixes the command with the package manager's exec command (e.g. `npx`): -->
+同様に、`node` メソッドは検出したパッケージマネージャの run コマンド（例: `npm run`）をコマンドの先頭に付けます。また、`nodeExec` メソッドはパッケージマネージャの exec コマンド（例: `npx`）をコマンドの先頭に付けます。
+
+```php
+DevCommands::node('storybook', 'storybook');
+
+DevCommands::nodeExec('tailwindcss -i resources/css/app.css -o public/css/app.css --watch', 'tailwind');
+```
+
+<!-- If you register a process with the same name as a default process, your process will replace the default. For example, you may customize the server process to use a different port: -->
+デフォルトのプロセスと同じ名前でプロセスを登録すると、そのプロセスでデフォルトが置き換えられます。たとえば、server プロセスをカスタマイズして別のポートを使用できます。
+
+```php
+DevCommands::artisan('serve --host=localhost --port=9000', 'server');
+```
+
+<!-- You may also customize the color of a process label in your terminal. The available color methods are `blue`, `purple`, `pink`, `orange`, `green`, and `yellow`. You may also pass a custom hex color to the `color` method: -->
+ターミナルに表示するプロセスラベルの色もカスタマイズできます。使用できる色のメソッドは `blue`、`purple`、`pink`、`orange`、`green`、`yellow` です。`color` メソッドにはカスタムの16進数カラーを渡すこともできます。
+
+```php
+DevCommands::register('my-command', 'my-process')->green();
+
+DevCommands::register('my-command', 'my-process')->color('#ff6347');
+```
+
+<!-- To see all registered dev processes without starting them, use the `dev:list` command: -->
+登録済みのすべての dev プロセスを起動せずに確認するには、`dev:list` コマンドを使用します。
+
+```shell
+php artisan dev:list
+```
+
+<a name="restarting-failed-processes"></a>
+<!-- #### Restarting Failed Processes -->
+#### Restarting Failed Processes
+
+<!-- If a process crashes, Laravel will restart it after a short delay, up to five times, before marking it as failed. A process that dies within a second of starting is not restarted, since it likely never started successfully in the first place. Restarting a process manually with `r` resets the counter. -->
+プロセスがクラッシュすると、Laravel は短い待機時間の後に最大5回まで再起動を試み、それでも失敗した場合に失敗として扱います。起動から1秒以内に終了したプロセスは、そもそも正常に起動できていない可能性が高いため、再起動しません。`r` でプロセスを手動で再起動すると、カウンターがリセットされます。
+
+<!-- You may disable this behavior for a single run using the `--no-restart` option: -->
+1回の実行に限り、この動作を `--no-restart` オプションで無効にできます。
+
+```shell
+php artisan dev --no-restart
+```
+
+<!-- Or, you may disable it for your entire application using the `disableAutoRestart` method: -->
+アプリケーション全体で無効にするには、`disableAutoRestart` メソッドを使用します。
+
+```php
+DevCommands::disableAutoRestart();
+```
+
+<a name="filtering-dev-processes"></a>
+<!-- ### Filtering Dev Processes -->
+### Filtering Dev Processes
+
+<!-- You may instruct the `dev` command to only run specific processes when it is invoked using the `only` method. Similarly, you may exclude specific processes using the `except` method: -->
+`only` メソッドを使用すると、`dev` コマンドの実行時に特定のプロセスだけを実行できます。同様に、`except` メソッドを使用すると、特定のプロセスを除外できます。
+
+```php
+// Only run the server and vite processes...
+DevCommands::only('server', 'vite');
+
+// Run all processes except the queue worker...
+DevCommands::except('queue');
 ```
 
 <a name="stub-customization"></a>

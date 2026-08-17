@@ -33,14 +33,14 @@
 移行はデータベースのバージョン管理のようなもので、チームがアプリケーションのデータベース スキーマ定義を定義して共有できるようにします。ソース管理から変更を取り込んだ後、ローカル データベース スキーマに列を手動で追加するようにチームメイトに指示しなければならなかった場合は、データベースの移行によって解決される問題に直面したことがあるでしょう。
 
 <!-- The Laravel `Schema` [facade](/docs/13.x/facades) provides database agnostic support for creating and manipulating tables across all of Laravel's supported database systems. Typically, migrations will use this facade to create and modify database tables and columns. -->
-Laravel `Schema` [facade](/docs/13.x/facades) は、Laravel でサポートされているすべてのデータベース システムにわたってテーブルを作成および操作するためのデータベースに依存しないサポートを提供します。通常、移行ではこのファサードを使用してデータベースのテーブルと列を作成および変更します。
+Laravel の `Schema` [facade](/docs/13.x/facades) は、Laravel がサポートするすべてのデータベースシステムで、データベースに依存せずテーブルを作成・操作するための機能を提供します。通常、マイグレーションではこの facade を使ってデータベースのテーブルやカラムを作成・変更します。
 
 <a name="generating-migrations"></a>
 <!-- ## Generating Migrations -->
 ## Generating Migrations
 
 <!-- You may use the `make:migration` [Artisan command](/docs/13.x/artisan) to generate a database migration. The new migration will be placed in your `database/migrations` directory. Each migration filename contains a timestamp that allows Laravel to determine the order of the migrations: -->
-`make:migration` [Artisan command](/docs/13.x/artisan) を使用してデータベース移行を生成できます。新しい移行は、`database/migrations` ディレクトリに配置されます。各移行ファイル名には、Laravel が移行の順序を決定できるようにするタイムスタンプが含まれています。
+`make:migration` [Artisan command](/docs/13.x/artisan) を使用して、データベースマイグレーションを生成できます。新しいマイグレーションは `database/migrations` ディレクトリに配置されます。各マイグレーションのファイル名にはタイムスタンプが含まれており、Laravel はそれによってマイグレーションの実行順序を判断します。
 
 ```shell
 php artisan make:migration create_flights_table
@@ -53,7 +53,7 @@ Laravel は移行の名前を使用して、テーブルの名前と、移行に
 生成された移行のカスタム パスを指定したい場合は、`make:migration` コマンドを実行するときに `--path` オプションを使用できます。指定されたパスは、アプリケーションのベース パスに対する相対パスである必要があります。
 
 > [!NOTE]
-> 移行スタブは、[stub publishing](/docs/13.x/artisan#stub-customization) を使用してカスタマイズできます。
+> Migration stubs は、[stub publishing](/docs/13.x/artisan#stub-customization) を使用してカスタマイズできます。
 
 <a name="squashing-migrations"></a>
 <!-- ### Squashing Migrations -->
@@ -84,7 +84,7 @@ php artisan schema:dump --database=testing --prune
 チームの他の新しい開発者がアプリケーションの初期データベース構造を迅速に作成できるように、データベース スキーマ ファイルをソース管理にコミットする必要があります。
 
 > [!WARNING]
-> 移行スカッシングは、MariaDB、MySQL、PostgreSQL、および SQLite データベースでのみ利用可能であり、データベースのコマンドライン クライアントを利用します。
+> マイグレーションのスカッシュは MariaDB、MySQL、PostgreSQL、SQLite データベースでのみ利用でき、データベースのコマンドラインクライアントを使用します。
 
 <a name="migration-structure"></a>
 <!-- ## Migration Structure -->
@@ -219,7 +219,7 @@ php artisan migrate --isolated
 ```
 
 > [!WARNING]
-> この機能を利用するには、アプリケーションが `memcached`、`redis`、`dynamodb`、`database`、`file`、または `array` キャッシュ ドライバをアプリケーションのデフォルト キャッシュ ドライバとして使用している必要があります。さらに、すべてのサーバーが同じ中央キャッシュ サーバーと通信している必要があります。
+> この機能を利用するには、アプリケーションのデフォルトキャッシュドライバに `memcached`、`redis`、`dynamodb`、`database`、`file`、または `array` キャッシュドライバを使用している必要があります。さらに、すべてのサーバーが同じ中央キャッシュサーバーと通信している必要があります。
 
 <a name="forcing-migrations-to-run-in-production"></a>
 <!-- #### Forcing Migrations to Run in Production -->
@@ -306,14 +306,14 @@ php artisan migrate:fresh --seed
 ```
 
 <!-- By default, the `migrate:fresh` command only drops tables from the default database connection. However, you may use the `--database` option to specify the database connection that should be migrated. The database connection name should correspond to a connection defined in your application's `database` [configuration file](/docs/13.x/configuration): -->
-デフォルトでは、`migrate:fresh` コマンドはデフォルトのデータベース接続からテーブルのみを削除します。ただし、`--database` オプションを使用して、移行するデータベース接続を指定できます。データベース接続名は、アプリケーションの `database` [configuration file](/docs/13.x/configuration) で定義された接続に対応する必要があります。
+デフォルトでは、`migrate:fresh` コマンドはデフォルトのデータベース接続からテーブルを削除するだけです。ただし、`--database` オプションを使って、マイグレーションを実行するデータベース接続を指定できます。データベース接続名は、アプリケーションの `database` [configuration file](/docs/13.x/configuration) で定義されている接続に対応している必要があります。
 
 ```shell
 php artisan migrate:fresh --database=admin
 ```
 
 > [!WARNING]
-> `migrate:fresh` コマンドは、プレフィックスに関係なく、すべてのデータベース テーブルを削除します。他のアプリケーションと共有されるデータベース上で開発する場合、このコマンドは注意して使用する必要があります。
+> `migrate:fresh` コマンドは、プレフィックスに関係なくすべてのデータベーステーブルを削除します。他のアプリケーションと共有しているデータベースで開発する場合は、このコマンドの使用に注意してください。
 
 <a name="tables"></a>
 <!-- ## Tables -->
@@ -496,30 +496,20 @@ Schema::table('users', function (Blueprint $table) {
 <!-- #### Boolean Types -->
 #### Boolean Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
 <!-- [boolean](#column-method-boolean) -->
 [boolean](#column-method-boolean)
 
-<!-- </div> -->
 </div>
 
 <a name="strings-and-texts-method-list"></a>
 <!-- #### String & Text Types -->
 #### String & Text Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[char](#column-method-char)
-[longText](#column-method-longText)
-[mediumText](#column-method-mediumText)
-[string](#column-method-string)
-[text](#column-method-text)
-[tinyText](#column-method-tinyText)
--->
+<!-- [char](#column-method-char) [longText](#column-method-longText) [mediumText](#column-method-mediumText) [string](#column-method-string) [text](#column-method-text) [tinyText](#column-method-tinyText) -->
 [char](#column-method-char)
 [longText](#column-method-longText)
 [mediumText](#column-method-mediumText)
@@ -527,37 +517,15 @@ Schema::table('users', function (Blueprint $table) {
 [text](#column-method-text)
 [tinyText](#column-method-tinyText)
 
-<!-- </div> -->
 </div>
 
 <a name="numbers--method-list"></a>
 <!-- #### Numeric Types -->
 #### Numeric Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[bigIncrements](#column-method-bigIncrements)
-[bigInteger](#column-method-bigInteger)
-[decimal](#column-method-decimal)
-[double](#column-method-double)
-[float](#column-method-float)
-[id](#column-method-id)
-[increments](#column-method-increments)
-[integer](#column-method-integer)
-[mediumIncrements](#column-method-mediumIncrements)
-[mediumInteger](#column-method-mediumInteger)
-[smallIncrements](#column-method-smallIncrements)
-[smallInteger](#column-method-smallInteger)
-[tinyIncrements](#column-method-tinyIncrements)
-[tinyInteger](#column-method-tinyInteger)
-[unsignedBigInteger](#column-method-unsignedBigInteger)
-[unsignedInteger](#column-method-unsignedInteger)
-[unsignedMediumInteger](#column-method-unsignedMediumInteger)
-[unsignedSmallInteger](#column-method-unsignedSmallInteger)
-[unsignedTinyInteger](#column-method-unsignedTinyInteger)
--->
+<!-- [bigIncrements](#column-method-bigIncrements) [bigInteger](#column-method-bigInteger) [decimal](#column-method-decimal) [double](#column-method-double) [float](#column-method-float) [id](#column-method-id) [increments](#column-method-increments) [integer](#column-method-integer) [mediumIncrements](#column-method-mediumIncrements) [mediumInteger](#column-method-mediumInteger) [smallIncrements](#column-method-smallIncrements) [smallInteger](#column-method-smallInteger) [tinyIncrements](#column-method-tinyIncrements) [tinyInteger](#column-method-tinyInteger) [unsignedBigInteger](#column-method-unsignedBigInteger) [unsignedInteger](#column-method-unsignedInteger) [unsignedMediumInteger](#column-method-unsignedMediumInteger) [unsignedSmallInteger](#column-method-unsignedSmallInteger) [unsignedTinyInteger](#column-method-unsignedTinyInteger) -->
 [bigIncrements](#column-method-bigIncrements)
 [bigInteger](#column-method-bigInteger)
 [decimal](#column-method-decimal)
@@ -578,29 +546,15 @@ Schema::table('users', function (Blueprint $table) {
 [unsignedSmallInteger](#column-method-unsignedSmallInteger)
 [unsignedTinyInteger](#column-method-unsignedTinyInteger)
 
-<!-- </div> -->
 </div>
 
 <a name="dates-and-times-method-list"></a>
 <!-- #### Date & Time Types -->
 #### Date & Time Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[dateTime](#column-method-dateTime)
-[dateTimeTz](#column-method-dateTimeTz)
-[date](#column-method-date)
-[time](#column-method-time)
-[timeTz](#column-method-timeTz)
-[timestamp](#column-method-timestamp)
-[timestamps](#column-method-timestamps)
-[timestampsTz](#column-method-timestampsTz)
-[softDeletes](#column-method-softDeletes)
-[softDeletesTz](#column-method-softDeletesTz)
-[year](#column-method-year)
--->
+<!-- [dateTime](#column-method-dateTime) [dateTimeTz](#column-method-dateTimeTz) [date](#column-method-date) [time](#column-method-time) [timeTz](#column-method-timeTz) [timestamp](#column-method-timestamp) [timestamps](#column-method-timestamps) [timestampsTz](#column-method-timestampsTz) [softDeletes](#column-method-softDeletes) [softDeletesTz](#column-method-softDeletesTz) [year](#column-method-year) -->
 [dateTime](#column-method-dateTime)
 [dateTimeTz](#column-method-dateTimeTz)
 [date](#column-method-date)
@@ -613,54 +567,38 @@ Schema::table('users', function (Blueprint $table) {
 [softDeletesTz](#column-method-softDeletesTz)
 [year](#column-method-year)
 
-<!-- </div> -->
 </div>
 
 <a name="binaries-method-list"></a>
 <!-- #### Binary Types -->
 #### Binary Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
 <!-- [binary](#column-method-binary) -->
 [binary](#column-method-binary)
 
-<!-- </div> -->
 </div>
 
 <a name="object-and-jsons-method-list"></a>
 <!-- #### Object & Json Types -->
 #### Object & Json Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[json](#column-method-json)
-[jsonb](#column-method-jsonb)
--->
+<!-- [json](#column-method-json) [jsonb](#column-method-jsonb) -->
 [json](#column-method-json)
 [jsonb](#column-method-jsonb)
 
-<!-- </div> -->
 </div>
 
 <a name="uuids-and-ulids-method-list"></a>
 <!-- #### UUID & ULID Types -->
 #### UUID & ULID Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[ulid](#column-method-ulid)
-[ulidMorphs](#column-method-ulidMorphs)
-[uuid](#column-method-uuid)
-[uuidMorphs](#column-method-uuidMorphs)
-[nullableUlidMorphs](#column-method-nullableUlidMorphs)
-[nullableUuidMorphs](#column-method-nullableUuidMorphs)
--->
+<!-- [ulid](#column-method-ulid) [ulidMorphs](#column-method-ulidMorphs) [uuid](#column-method-uuid) [uuidMorphs](#column-method-uuidMorphs) [nullableUlidMorphs](#column-method-nullableUlidMorphs) [nullableUuidMorphs](#column-method-nullableUuidMorphs) -->
 [ulid](#column-method-ulid)
 [ulidMorphs](#column-method-ulidMorphs)
 [uuid](#column-method-uuid)
@@ -668,42 +606,27 @@ Schema::table('users', function (Blueprint $table) {
 [nullableUlidMorphs](#column-method-nullableUlidMorphs)
 [nullableUuidMorphs](#column-method-nullableUuidMorphs)
 
-<!-- </div> -->
 </div>
 
 <a name="spatials-method-list"></a>
 <!-- #### Spatial Types -->
 #### Spatial Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[geography](#column-method-geography)
-[geometry](#column-method-geometry)
--->
+<!-- [geography](#column-method-geography) [geometry](#column-method-geometry) -->
 [geography](#column-method-geography)
 [geometry](#column-method-geometry)
 
-<!-- </div> -->
 </div>
 
 <a name="relationship-method-list"></a>
 <!-- #### Relationship Types -->
 #### Relationship Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[foreignId](#column-method-foreignId)
-[foreignIdFor](#column-method-foreignIdFor)
-[foreignUlid](#column-method-foreignUlid)
-[foreignUuid](#column-method-foreignUuid)
-[foreignUuidFor](#column-method-foreignUuidFor)
-[morphs](#column-method-morphs)
-[nullableMorphs](#column-method-nullableMorphs)
--->
+<!-- [foreignId](#column-method-foreignId) [foreignIdFor](#column-method-foreignIdFor) [foreignUlid](#column-method-foreignUlid) [foreignUuid](#column-method-foreignUuid) [foreignUuidFor](#column-method-foreignUuidFor) [morphs](#column-method-morphs) [nullableMorphs](#column-method-nullableMorphs) -->
 [foreignId](#column-method-foreignId)
 [foreignIdFor](#column-method-foreignIdFor)
 [foreignUlid](#column-method-foreignUlid)
@@ -712,24 +635,15 @@ Schema::table('users', function (Blueprint $table) {
 [morphs](#column-method-morphs)
 [nullableMorphs](#column-method-nullableMorphs)
 
-<!-- </div> -->
 </div>
 
 <a name="specifics-method-list"></a>
 <!-- #### Specialty Types -->
 #### Specialty Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[enum](#column-method-enum)
-[set](#column-method-set)
-[macAddress](#column-method-macAddress)
-[ipAddress](#column-method-ipAddress)
-[rememberToken](#column-method-rememberToken)
-[vector](#column-method-vector)
--->
+<!-- [enum](#column-method-enum) [set](#column-method-set) [macAddress](#column-method-macAddress) [ipAddress](#column-method-ipAddress) [rememberToken](#column-method-rememberToken) [vector](#column-method-vector) -->
 [enum](#column-method-enum)
 [set](#column-method-set)
 [macAddress](#column-method-macAddress)
@@ -737,12 +651,12 @@ Schema::table('users', function (Blueprint $table) {
 [rememberToken](#column-method-rememberToken)
 [vector](#column-method-vector)
 
-<!-- </div> -->
 </div>
 
 <a name="column-method-bigIncrements"></a>
 <!-- #### `bigIncrements()` -->
 #### `bigIncrements()`
+
 <!-- The `bigIncrements` method creates an auto-incrementing `UNSIGNED BIGINT` (primary key) equivalent column: -->
 `bigIncrements` メソッドは、自動インクリメントする `UNSIGNED BIGINT` (主キー) と同等の列を作成します。
 
@@ -753,6 +667,7 @@ $table->bigIncrements('id');
 <a name="column-method-bigInteger"></a>
 <!-- #### `bigInteger()` -->
 #### `bigInteger()`
+
 <!-- The `bigInteger` method creates a `BIGINT` equivalent column: -->
 `bigInteger` メソッドは、`BIGINT` と同等の列を作成します。
 
@@ -763,6 +678,7 @@ $table->bigInteger('votes');
 <a name="column-method-binary"></a>
 <!-- #### `binary()` -->
 #### `binary()`
+
 <!-- The `binary` method creates a `BLOB` equivalent column: -->
 `binary` メソッドは、`BLOB` と同等の列を作成します。
 
@@ -782,6 +698,7 @@ $table->binary('data', length: 16, fixed: true); // BINARY(16)
 <a name="column-method-boolean"></a>
 <!-- #### `boolean()` -->
 #### `boolean()`
+
 <!-- The `boolean` method creates a `BOOLEAN` equivalent column: -->
 `boolean` メソッドは、`BOOLEAN` と同等の列を作成します。
 
@@ -792,6 +709,7 @@ $table->boolean('confirmed');
 <a name="column-method-char"></a>
 <!-- #### `char()` -->
 #### `char()`
+
 <!-- The `char` method creates a `CHAR` equivalent column with of a given length: -->
 `char` メソッドは、指定された長さの `CHAR` と同等の列を作成します。
 
@@ -802,6 +720,7 @@ $table->char('name', length: 100);
 <a name="column-method-dateTimeTz"></a>
 <!-- #### `dateTimeTz()` -->
 #### `dateTimeTz()`
+
 <!-- The `dateTimeTz` method creates a `DATETIME` (with timezone) equivalent column with an optional fractional seconds precision: -->
 `dateTimeTz` メソッドは、オプションの小数秒精度を持つ `DATETIME` (タイムゾーン付き) と同等の列を作成します。
 
@@ -812,6 +731,7 @@ $table->dateTimeTz('created_at', precision: 0);
 <a name="column-method-dateTime"></a>
 <!-- #### `dateTime()` -->
 #### `dateTime()`
+
 <!-- The `dateTime` method creates a `DATETIME` equivalent column with an optional fractional seconds precision: -->
 `dateTime` メソッドは、オプションの小数秒精度を使用して、`DATETIME` と同等の列を作成します。
 
@@ -822,6 +742,7 @@ $table->dateTime('created_at', precision: 0);
 <a name="column-method-date"></a>
 <!-- #### `date()` -->
 #### `date()`
+
 <!-- The `date` method creates a `DATE` equivalent column: -->
 `date` メソッドは、`DATE` と同等の列を作成します。
 
@@ -832,6 +753,7 @@ $table->date('created_at');
 <a name="column-method-decimal"></a>
 <!-- #### `decimal()` -->
 #### `decimal()`
+
 <!-- The `decimal` method creates a `DECIMAL` equivalent column with the given precision (total digits) and scale (decimal digits): -->
 `decimal` メソッドは、指定された精度 (合計桁数) と位取り (10 進数の桁数) を持つ `DECIMAL` と同等の列を作成します。
 
@@ -842,6 +764,7 @@ $table->decimal('amount', total: 8, places: 2);
 <a name="column-method-double"></a>
 <!-- #### `double()` -->
 #### `double()`
+
 <!-- The `double` method creates a `DOUBLE` equivalent column: -->
 `double` メソッドは、`DOUBLE` と同等の列を作成します。
 
@@ -852,6 +775,7 @@ $table->double('amount');
 <a name="column-method-enum"></a>
 <!-- #### `enum()` -->
 #### `enum()`
+
 <!-- The `enum` method creates a `ENUM` equivalent column with the given valid values: -->
 `enum` メソッドは、指定された有効な値を使用して `ENUM` と同等の列を作成します。
 
@@ -871,6 +795,7 @@ $table->enum('difficulty', Difficulty::cases());
 <a name="column-method-float"></a>
 <!-- #### `float()` -->
 #### `float()`
+
 <!-- The `float` method creates a `FLOAT` equivalent column with the given precision: -->
 `float` メソッドは、指定された精度で `FLOAT` と同等の列を作成します。
 
@@ -881,6 +806,7 @@ $table->float('amount', precision: 53);
 <a name="column-method-foreignId"></a>
 <!-- #### `foreignId()` -->
 #### `foreignId()`
+
 <!-- The `foreignId` method creates an `UNSIGNED BIGINT` equivalent column: -->
 `foreignId` メソッドは、`UNSIGNED BIGINT` と同等の列を作成します。
 
@@ -891,6 +817,7 @@ $table->foreignId('user_id');
 <a name="column-method-foreignIdFor"></a>
 <!-- #### `foreignIdFor()` -->
 #### `foreignIdFor()`
+
 <!-- The `foreignIdFor` method adds a `{column}_id` equivalent column for a given model class. The column type will be `UNSIGNED BIGINT`, `CHAR(36)`, or `CHAR(26)` depending on the model key type: -->
 `foreignIdFor` メソッドは、指定されたモデル クラスに `{column}_id` と同等の列を追加します。列のタイプは、モデルのキーのタイプに応じて、`UNSIGNED BIGINT`、`CHAR(36)`、または `CHAR(26)` になります。
 
@@ -901,6 +828,7 @@ $table->foreignIdFor(User::class);
 <a name="column-method-foreignUlid"></a>
 <!-- #### `foreignUlid()` -->
 #### `foreignUlid()`
+
 <!-- The `foreignUlid` method creates a `ULID` equivalent column: -->
 `foreignUlid` メソッドは、`ULID` と同等の列を作成します。
 
@@ -911,6 +839,7 @@ $table->foreignUlid('user_id');
 <a name="column-method-foreignUuid"></a>
 <!-- #### `foreignUuid()` -->
 #### `foreignUuid()`
+
 <!-- The `foreignUuid` method creates a `UUID` equivalent column: -->
 `foreignUuid` メソッドは、`UUID` と同等の列を作成します。
 
@@ -921,6 +850,7 @@ $table->foreignUuid('user_id');
 <a name="column-method-foreignUuidFor"></a>
 <!-- #### `foreignUuidFor()` -->
 #### `foreignUuidFor()`
+
 <!-- The `foreignUuidFor` method adds a `{column}_id` UUID equivalent column for a given model class: -->
 `foreignUuidFor` メソッドは、指定されたモデル クラスに `{column}_id` UUID に相当する列を追加します。
 
@@ -931,6 +861,7 @@ $table->foreignUuidFor(User::class);
 <a name="column-method-geography"></a>
 <!-- #### `geography()` -->
 #### `geography()`
+
 <!-- The `geography` method creates a `GEOGRAPHY` equivalent column with the given spatial type and SRID (Spatial Reference System Identifier): -->
 `geography` メソッドは、指定された空間タイプと SRID (空間参照システム識別子) を使用して、`GEOGRAPHY` と同等の列を作成します。
 
@@ -939,11 +870,12 @@ $table->geography('coordinates', subtype: 'point', srid: 4326);
 ```
 
 > [!NOTE]
-> 空間タイプのサポートは、データベース ドライバによって異なります。データベースのドキュメントを参照してください。アプリケーションが PostgreSQL データベースを利用している場合は、`geography` メソッドを使用する前に、[PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
+> 空間型のサポートはデータベースドライバによって異なります。詳しくは、使用しているデータベースのドキュメントを参照してください。アプリケーションで PostgreSQL データベースを使用している場合は、`geography` メソッドを使用する前に [PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
 
 <a name="column-method-geometry"></a>
 <!-- #### `geometry()` -->
 #### `geometry()`
+
 <!-- The `geometry` method creates a `GEOMETRY` equivalent column with the given spatial type and SRID (Spatial Reference System Identifier): -->
 `geometry` メソッドは、指定された空間タイプと SRID (空間参照システム識別子) を使用して、`GEOMETRY` と同等の列を作成します。
 
@@ -952,11 +884,12 @@ $table->geometry('positions', subtype: 'point', srid: 0);
 ```
 
 > [!NOTE]
-> 空間タイプのサポートは、データベース ドライバによって異なります。データベースのドキュメントを参照してください。アプリケーションが PostgreSQL データベースを利用している場合は、`geometry` メソッドを使用する前に、[PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
+> 空間型のサポートはデータベースドライバによって異なります。詳しくは、使用しているデータベースのドキュメントを参照してください。アプリケーションで PostgreSQL データベースを使用している場合は、`geometry` メソッドを使用する前に [PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
 
 <a name="column-method-id"></a>
 <!-- #### `id()` -->
 #### `id()`
+
 <!-- The `id` method is an alias of the `bigIncrements` method. By default, the method will create an `id` column; however, you may pass a column name if you would like to assign a different name to the column: -->
 `id` メソッドは、`bigIncrements` メソッドのエイリアスです。デフォルトでは、このメソッドは `id` 列を作成します。ただし、列に別の名前を割り当てたい場合は、列名を渡すことができます。
 
@@ -967,6 +900,7 @@ $table->id();
 <a name="column-method-increments"></a>
 <!-- #### `increments()` -->
 #### `increments()`
+
 <!-- The `increments` method creates an auto-incrementing `UNSIGNED INTEGER` equivalent column as a primary key: -->
 `increments` メソッドは、自動インクリメントする `UNSIGNED INTEGER` と同等の列を主キーとして作成します。
 
@@ -977,6 +911,7 @@ $table->increments('id');
 <a name="column-method-integer"></a>
 <!-- #### `integer()` -->
 #### `integer()`
+
 <!-- The `integer` method creates an `INTEGER` equivalent column: -->
 `integer` メソッドは、`INTEGER` と同等の列を作成します。
 
@@ -987,6 +922,7 @@ $table->integer('votes');
 <a name="column-method-ipAddress"></a>
 <!-- #### `ipAddress()` -->
 #### `ipAddress()`
+
 <!-- The `ipAddress` method creates a `VARCHAR` equivalent column: -->
 `ipAddress` メソッドは、`VARCHAR` と同等の列を作成します。
 
@@ -995,11 +931,12 @@ $table->ipAddress('visitor');
 ```
 
 <!-- When using PostgreSQL, an `INET` column will be created. -->
-PostgreSQLを使用する場合、`INET`列が作成されます。
+PostgreSQLを使用する場合、`INET` 列が作成されます。
 
 <a name="column-method-json"></a>
 <!-- #### `json()` -->
 #### `json()`
+
 <!-- The `json` method creates a `JSON` equivalent column: -->
 `json` メソッドは、`JSON` と同等の列を作成します。
 
@@ -1008,11 +945,12 @@ $table->json('options');
 ```
 
 <!-- When using SQLite, a `TEXT` column will be created. -->
-SQLiteを使用する場合、`TEXT`列が作成されます。
+SQLite を使用すると、`TEXT` カラムが作成されます。
 
 <a name="column-method-jsonb"></a>
 <!-- #### `jsonb()` -->
 #### `jsonb()`
+
 <!-- The `jsonb` method creates a `JSONB` equivalent column: -->
 `jsonb` メソッドは、`JSONB` と同等の列を作成します。
 
@@ -1021,11 +959,12 @@ $table->jsonb('options');
 ```
 
 <!-- When using SQLite, a `TEXT` column will be created. -->
-SQLiteを使用する場合、`TEXT`列が作成されます。
+SQLiteを使用すると、`TEXT` カラムが作成されます。
 
 <a name="column-method-longText"></a>
 <!-- #### `longText()` -->
 #### `longText()`
+
 <!-- The `longText` method creates a `LONGTEXT` equivalent column: -->
 `longText` メソッドは、`LONGTEXT` と同等の列を作成します。
 
@@ -1043,6 +982,7 @@ $table->longText('data')->charset('binary'); // LONGBLOB
 <a name="column-method-macAddress"></a>
 <!-- #### `macAddress()` -->
 #### `macAddress()`
+
 <!-- The `macAddress` method creates a column that is intended to hold a MAC address. Some database systems, such as PostgreSQL, have a dedicated column type for this type of data. Other database systems will use a string equivalent column: -->
 `macAddress` メソッドは、MAC アドレスを保持するための列を作成します。 PostgreSQL などの一部のデータベース システムには、このタイプのデータ専用の列タイプがあります。他のデータベース システムでは、文字列と同等の列が使用されます。
 
@@ -1053,6 +993,7 @@ $table->macAddress('device');
 <a name="column-method-mediumIncrements"></a>
 <!-- #### `mediumIncrements()` -->
 #### `mediumIncrements()`
+
 <!-- The `mediumIncrements` method creates an auto-incrementing `UNSIGNED MEDIUMINT` equivalent column as a primary key: -->
 `mediumIncrements` メソッドは、自動インクリメントする `UNSIGNED MEDIUMINT` と同等の列を主キーとして作成します。
 
@@ -1063,6 +1004,7 @@ $table->mediumIncrements('id');
 <a name="column-method-mediumInteger"></a>
 <!-- #### `mediumInteger()` -->
 #### `mediumInteger()`
+
 <!-- The `mediumInteger` method creates a `MEDIUMINT` equivalent column: -->
 `mediumInteger` メソッドは、`MEDIUMINT` と同等の列を作成します。
 
@@ -1073,6 +1015,7 @@ $table->mediumInteger('votes');
 <a name="column-method-mediumText"></a>
 <!-- #### `mediumText()` -->
 #### `mediumText()`
+
 <!-- The `mediumText` method creates a `MEDIUMTEXT` equivalent column: -->
 `mediumText` メソッドは、`MEDIUMTEXT` と同等の列を作成します。
 
@@ -1090,11 +1033,12 @@ $table->mediumText('data')->charset('binary'); // MEDIUMBLOB
 <a name="column-method-morphs"></a>
 <!-- #### `morphs()` -->
 #### `morphs()`
+
 <!-- The `morphs` method is a convenience method that adds a `{column}_type` `VARCHAR` equivalent column and a `{column}_id` equivalent column. The column type for the `{column}_id` will be `UNSIGNED BIGINT`, `CHAR(36)`, or `CHAR(26)` depending on the model key type. -->
 `morphs` メソッドは、`{column}_type` `VARCHAR` に相当する列と `{column}_id` に相当する列を追加する便利なメソッドです。 `{column}_id` の列タイプは、モデルのキー タイプに応じて、`UNSIGNED BIGINT`、`CHAR(36)`、または `CHAR(26)` になります。
 
 <!-- This method is intended to be used when defining the columns necessary for a polymorphic [Eloquent relationship](/docs/13.x/eloquent-relationships). In the following example, `taggable_type` and `taggable_id` columns would be created: -->
-このメソッドは、多態性 [Eloquent relationship](/docs/13.x/eloquent-relationships) に必要な列を定義するときに使用することを目的としています。次の例では、`taggable_type` 列と `taggable_id` 列が作成されます。
+このメソッドは、ポリモーフィックな [Eloquent relationship](/docs/13.x/eloquent-relationships) に必要なカラムを定義するときに使用します。次の例では、`taggable_type` カラムと `taggable_id` カラムが作成されます。
 
 ```php
 $table->morphs('taggable');
@@ -1103,6 +1047,7 @@ $table->morphs('taggable');
 <a name="column-method-nullableMorphs"></a>
 <!-- #### `nullableMorphs()` -->
 #### `nullableMorphs()`
+
 <!-- The method is similar to the [morphs](#column-method-morphs) method; however, the columns that are created will be "nullable": -->
 このメソッドは [morphs](#column-method-morphs) メソッドに似ています。ただし、作成される列は「NULL 可能」になります。
 
@@ -1113,6 +1058,7 @@ $table->nullableMorphs('taggable');
 <a name="column-method-nullableUlidMorphs"></a>
 <!-- #### `nullableUlidMorphs()` -->
 #### `nullableUlidMorphs()`
+
 <!-- The method is similar to the [ulidMorphs](#column-method-ulidMorphs) method; however, the columns that are created will be "nullable": -->
 このメソッドは [ulidMorphs](#column-method-ulidMorphs) メソッドに似ています。ただし、作成される列は「NULL 可能」になります。
 
@@ -1123,6 +1069,7 @@ $table->nullableUlidMorphs('taggable');
 <a name="column-method-nullableUuidMorphs"></a>
 <!-- #### `nullableUuidMorphs()` -->
 #### `nullableUuidMorphs()`
+
 <!-- The method is similar to the [uuidMorphs](#column-method-uuidMorphs) method; however, the columns that are created will be "nullable": -->
 このメソッドは [uuidMorphs](#column-method-uuidMorphs) メソッドに似ています。ただし、作成される列は「NULL 可能」になります。
 
@@ -1133,8 +1080,9 @@ $table->nullableUuidMorphs('taggable');
 <a name="column-method-rememberToken"></a>
 <!-- #### `rememberToken()` -->
 #### `rememberToken()`
+
 <!-- The `rememberToken` method creates a nullable, `VARCHAR(100)` equivalent column that is intended to store the current "remember me" [authentication token](/docs/13.x/authentication#remembering-users): -->
-`rememberToken` メソッドは、現在の「remember me」 [authentication token](/docs/13.x/authentication#remembering-users) を格納するための、null 許容の `VARCHAR(100)` と同等の列を作成します。
+`rememberToken` メソッドは、現在の「remember me」[authentication token](/docs/13.x/authentication#remembering-users)を保存するための、NULLを許容する `VARCHAR(100)` 相当のカラムを作成します。
 
 ```php
 $table->rememberToken();
@@ -1143,6 +1091,7 @@ $table->rememberToken();
 <a name="column-method-set"></a>
 <!-- #### `set()` -->
 #### `set()`
+
 <!-- The `set` method creates a `SET` equivalent column with the given list of valid values: -->
 `set` メソッドは、指定された有効な値のリストを使用して、`SET` と同等の列を作成します。
 
@@ -1153,6 +1102,7 @@ $table->set('flavors', ['strawberry', 'vanilla']);
 <a name="column-method-smallIncrements"></a>
 <!-- #### `smallIncrements()` -->
 #### `smallIncrements()`
+
 <!-- The `smallIncrements` method creates an auto-incrementing `UNSIGNED SMALLINT` equivalent column as a primary key: -->
 `smallIncrements` メソッドは、自動インクリメントする `UNSIGNED SMALLINT` と同等の列を主キーとして作成します。
 
@@ -1163,6 +1113,7 @@ $table->smallIncrements('id');
 <a name="column-method-smallInteger"></a>
 <!-- #### `smallInteger()` -->
 #### `smallInteger()`
+
 <!-- The `smallInteger` method creates a `SMALLINT` equivalent column: -->
 `smallInteger` メソッドは、`SMALLINT` と同等の列を作成します。
 
@@ -1173,6 +1124,7 @@ $table->smallInteger('votes');
 <a name="column-method-softDeletesTz"></a>
 <!-- #### `softDeletesTz()` -->
 #### `softDeletesTz()`
+
 <!-- The `softDeletesTz` method adds a nullable `deleted_at` `TIMESTAMP` (with timezone) equivalent column with an optional fractional seconds precision. This column is intended to store the `deleted_at` timestamp needed for Eloquent's "soft delete" functionality: -->
 `softDeletesTz` メソッドは、オプションの小数秒精度を持つ、NULL 許容の `deleted_at` `TIMESTAMP` (タイムゾーンあり) と同等の列を追加します。この列は、Eloquent の「論理的な削除」機能に必要な `deleted_at` タイムスタンプを保存することを目的としています。
 
@@ -1183,6 +1135,7 @@ $table->softDeletesTz('deleted_at', precision: 0);
 <a name="column-method-softDeletes"></a>
 <!-- #### `softDeletes()` -->
 #### `softDeletes()`
+
 <!-- The `softDeletes` method adds a nullable `deleted_at` `TIMESTAMP` equivalent column with an optional fractional seconds precision. This column is intended to store the `deleted_at` timestamp needed for Eloquent's "soft delete" functionality: -->
 `softDeletes` メソッドは、オプションの小数秒精度を持つ、NULL 許容の `deleted_at` `TIMESTAMP` 同等の列を追加します。この列は、Eloquent の「論理的な削除」機能に必要な `deleted_at` タイムスタンプを保存することを目的としています。
 
@@ -1193,6 +1146,7 @@ $table->softDeletes('deleted_at', precision: 0);
 <a name="column-method-string"></a>
 <!-- #### `string()` -->
 #### `string()`
+
 <!-- The `string` method creates a `VARCHAR` equivalent column of the given length: -->
 `string` メソッドは、指定された長さの `VARCHAR` と同等の列を作成します。
 
@@ -1203,6 +1157,7 @@ $table->string('name', length: 100);
 <a name="column-method-text"></a>
 <!-- #### `text()` -->
 #### `text()`
+
 <!-- The `text` method creates a `TEXT` equivalent column: -->
 `text` メソッドは、`TEXT` と同等の列を作成します。
 
@@ -1220,6 +1175,7 @@ $table->text('data')->charset('binary'); // BLOB
 <a name="column-method-timeTz"></a>
 <!-- #### `timeTz()` -->
 #### `timeTz()`
+
 <!-- The `timeTz` method creates a `TIME` (with timezone) equivalent column with an optional fractional seconds precision: -->
 `timeTz` メソッドは、オプションの小数秒精度を持つ `TIME` (タイムゾーン付き) と同等の列を作成します。
 
@@ -1230,6 +1186,7 @@ $table->timeTz('sunrise', precision: 0);
 <a name="column-method-time"></a>
 <!-- #### `time()` -->
 #### `time()`
+
 <!-- The `time` method creates a `TIME` equivalent column with an optional fractional seconds precision: -->
 `time` メソッドは、オプションの小数秒精度を使用して、`TIME` と同等の列を作成します。
 
@@ -1240,6 +1197,7 @@ $table->time('sunrise', precision: 0);
 <a name="column-method-timestampTz"></a>
 <!-- #### `timestampTz()` -->
 #### `timestampTz()`
+
 <!-- The `timestampTz` method creates a `TIMESTAMP` (with timezone) equivalent column with an optional fractional seconds precision: -->
 `timestampTz` メソッドは、オプションの小数秒精度を持つ `TIMESTAMP` (タイムゾーン付き) と同等の列を作成します。
 
@@ -1250,6 +1208,7 @@ $table->timestampTz('added_at', precision: 0);
 <a name="column-method-timestamp"></a>
 <!-- #### `timestamp()` -->
 #### `timestamp()`
+
 <!-- The `timestamp` method creates a `TIMESTAMP` equivalent column with an optional fractional seconds precision: -->
 `timestamp` メソッドは、オプションの小数秒精度を使用して、`TIMESTAMP` と同等の列を作成します。
 
@@ -1260,6 +1219,7 @@ $table->timestamp('added_at', precision: 0);
 <a name="column-method-timestampsTz"></a>
 <!-- #### `timestampsTz()` -->
 #### `timestampsTz()`
+
 <!-- The `timestampsTz` method creates `created_at` and `updated_at` `TIMESTAMP` (with timezone) equivalent columns with an optional fractional seconds precision: -->
 `timestampsTz` メソッドは、オプションの小数秒精度を使用して、`created_at` および `updated_at` `TIMESTAMP` (タイムゾーン付き) と同等の列を作成します。
 
@@ -1270,6 +1230,7 @@ $table->timestampsTz(precision: 0);
 <a name="column-method-timestamps"></a>
 <!-- #### `timestamps()` -->
 #### `timestamps()`
+
 <!-- The `timestamps` method creates `created_at` and `updated_at` `TIMESTAMP` equivalent columns with an optional fractional seconds precision: -->
 `timestamps` メソッドは、オプションの小数秒精度を使用して、`created_at` および `updated_at` `TIMESTAMP` と同等の列を作成します。
 
@@ -1280,6 +1241,7 @@ $table->timestamps(precision: 0);
 <a name="column-method-tinyIncrements"></a>
 <!-- #### `tinyIncrements()` -->
 #### `tinyIncrements()`
+
 <!-- The `tinyIncrements` method creates an auto-incrementing `UNSIGNED TINYINT` equivalent column as a primary key: -->
 `tinyIncrements` メソッドは、自動インクリメントする `UNSIGNED TINYINT` と同等の列を主キーとして作成します。
 
@@ -1290,6 +1252,7 @@ $table->tinyIncrements('id');
 <a name="column-method-tinyInteger"></a>
 <!-- #### `tinyInteger()` -->
 #### `tinyInteger()`
+
 <!-- The `tinyInteger` method creates a `TINYINT` equivalent column: -->
 `tinyInteger` メソッドは、`TINYINT` と同等の列を作成します。
 
@@ -1300,6 +1263,7 @@ $table->tinyInteger('votes');
 <a name="column-method-tinyText"></a>
 <!-- #### `tinyText()` -->
 #### `tinyText()`
+
 <!-- The `tinyText` method creates a `TINYTEXT` equivalent column: -->
 `tinyText` メソッドは、`TINYTEXT` と同等の列を作成します。
 
@@ -1317,6 +1281,7 @@ $table->tinyText('data')->charset('binary'); // TINYBLOB
 <a name="column-method-unsignedBigInteger"></a>
 <!-- #### `unsignedBigInteger()` -->
 #### `unsignedBigInteger()`
+
 <!-- The `unsignedBigInteger` method creates an `UNSIGNED BIGINT` equivalent column: -->
 `unsignedBigInteger` メソッドは、`UNSIGNED BIGINT` と同等の列を作成します。
 
@@ -1327,6 +1292,7 @@ $table->unsignedBigInteger('votes');
 <a name="column-method-unsignedInteger"></a>
 <!-- #### `unsignedInteger()` -->
 #### `unsignedInteger()`
+
 <!-- The `unsignedInteger` method creates an `UNSIGNED INTEGER` equivalent column: -->
 `unsignedInteger` メソッドは、`UNSIGNED INTEGER` と同等の列を作成します。
 
@@ -1337,6 +1303,7 @@ $table->unsignedInteger('votes');
 <a name="column-method-unsignedMediumInteger"></a>
 <!-- #### `unsignedMediumInteger()` -->
 #### `unsignedMediumInteger()`
+
 <!-- The `unsignedMediumInteger` method creates an `UNSIGNED MEDIUMINT` equivalent column: -->
 `unsignedMediumInteger` メソッドは、`UNSIGNED MEDIUMINT` と同等の列を作成します。
 
@@ -1347,6 +1314,7 @@ $table->unsignedMediumInteger('votes');
 <a name="column-method-unsignedSmallInteger"></a>
 <!-- #### `unsignedSmallInteger()` -->
 #### `unsignedSmallInteger()`
+
 <!-- The `unsignedSmallInteger` method creates an `UNSIGNED SMALLINT` equivalent column: -->
 `unsignedSmallInteger` メソッドは、`UNSIGNED SMALLINT` と同等の列を作成します。
 
@@ -1357,6 +1325,7 @@ $table->unsignedSmallInteger('votes');
 <a name="column-method-unsignedTinyInteger"></a>
 <!-- #### `unsignedTinyInteger()` -->
 #### `unsignedTinyInteger()`
+
 <!-- The `unsignedTinyInteger` method creates an `UNSIGNED TINYINT` equivalent column: -->
 `unsignedTinyInteger` メソッドは、`UNSIGNED TINYINT` と同等の列を作成します。
 
@@ -1367,11 +1336,12 @@ $table->unsignedTinyInteger('votes');
 <a name="column-method-ulidMorphs"></a>
 <!-- #### `ulidMorphs()` -->
 #### `ulidMorphs()`
+
 <!-- The `ulidMorphs` method is a convenience method that adds a `{column}_type` `VARCHAR` equivalent column and a `{column}_id` `CHAR(26)` equivalent column. -->
 `ulidMorphs` メソッドは、`{column}_type` `VARCHAR` に相当する列と、`{column}_id` `CHAR(26)` に相当する列を追加する便利なメソッドです。
 
 <!-- This method is intended to be used when defining the columns necessary for a polymorphic [Eloquent relationship](/docs/13.x/eloquent-relationships) that use ULID identifiers. In the following example, `taggable_type` and `taggable_id` columns would be created: -->
-このメソッドは、ULID 識別子を使用する多態性 [Eloquent relationship](/docs/13.x/eloquent-relationships) に必要な列を定義するときに使用することを目的としています。次の例では、`taggable_type` 列と `taggable_id` 列が作成されます。
+このメソッドは、ULID 識別子を使用するポリモーフィックな [Eloquent relationship](/docs/13.x/eloquent-relationships) に必要なカラムを定義する際に使用します。次の例では、`taggable_type` カラムと `taggable_id` カラムが作成されます。
 
 ```php
 $table->ulidMorphs('taggable');
@@ -1380,11 +1350,12 @@ $table->ulidMorphs('taggable');
 <a name="column-method-uuidMorphs"></a>
 <!-- #### `uuidMorphs()` -->
 #### `uuidMorphs()`
+
 <!-- The `uuidMorphs` method is a convenience method that adds a `{column}_type` `VARCHAR` equivalent column and a `{column}_id` `CHAR(36)` equivalent column. -->
 `uuidMorphs` メソッドは、`{column}_type` `VARCHAR` に相当する列と、`{column}_id` `CHAR(36)` に相当する列を追加する便利なメソッドです。
 
 <!-- This method is intended to be used when defining the columns necessary for a [polymorphic Eloquent relationship](/docs/13.x/eloquent-relationships#polymorphic-relationships) that use UUID identifiers. In the following example, `taggable_type` and `taggable_id` columns would be created: -->
-このメソッドは、UUID 識別子を使用する [polymorphic Eloquent relationship](/docs/13.x/eloquent-relationships#polymorphic-relationships) に必要な列を定義するときに使用することを目的としています。次の例では、`taggable_type` 列と `taggable_id` 列が作成されます。
+このメソッドは、UUID 識別子を使用する [polymorphic Eloquent relationship](/docs/13.x/eloquent-relationships#polymorphic-relationships) に必要なカラムを定義するときに使用します。次の例では、`taggable_type` カラムと `taggable_id` カラムが作成されます。
 
 ```php
 $table->uuidMorphs('taggable');
@@ -1393,6 +1364,7 @@ $table->uuidMorphs('taggable');
 <a name="column-method-ulid"></a>
 <!-- #### `ulid()` -->
 #### `ulid()`
+
 <!-- The `ulid` method creates a `ULID` equivalent column: -->
 `ulid` メソッドは、`ULID` と同等の列を作成します。
 
@@ -1403,6 +1375,7 @@ $table->ulid('id');
 <a name="column-method-uuid"></a>
 <!-- #### `uuid()` -->
 #### `uuid()`
+
 <!-- The `uuid` method creates a `UUID` equivalent column: -->
 `uuid` メソッドは、`UUID` と同等の列を作成します。
 
@@ -1413,6 +1386,7 @@ $table->uuid('id');
 <a name="column-method-vector"></a>
 <!-- #### `vector()` -->
 #### `vector()`
+
 <!-- The `vector` method creates a `vector` equivalent column: -->
 `vector` メソッドは、`vector` と同等の列を作成します。
 
@@ -1430,6 +1404,7 @@ Schema::ensureVectorExtensionExists();
 <a name="column-method-year"></a>
 <!-- #### `year()` -->
 #### `year()`
+
 <!-- The `year` method creates a `YEAR` equivalent column: -->
 `year` メソッドは、`YEAR` と同等の列を作成します。
 
@@ -1456,32 +1431,32 @@ Schema::table('users', function (Blueprint $table) {
 <!-- The following table contains all of the available column modifiers. This list does not include [index modifiers](#creating-indexes): -->
 次の表には、使用可能な列修飾子がすべて含まれています。このリストには、[index modifiers](#creating-indexes) は含まれていません。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 修飾子                            | 説明                                                                                    |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `->after('column')`                 | 列を別の列 (MariaDB / MySQL) の「後」に配置します。                                     |
-| `->autoIncrement()`                 | `INTEGER` 列を自動インクリメント (主キー) として設定します。                                      |
-| `->charset('utf8mb4')`              | カラム（MariaDB / MySQL）の文字セットを指定します。                                      |
-| `->collation('utf8mb4_unicode_ci')` | 列の照合順序を指定します。                                                            |
-| `->comment('my comment')`           | 列にコメントを追加します (MariaDB / MySQL / PostgreSQL)。                                      |
-| `->default($value)`                 | 列の「デフォルト」値を指定します。                                                      |
-| `->first()`                         | テーブル (MariaDB / MySQL) の「最初」に列を配置します。                                       |
-| `->from($integer)`                  | 自動インクリメントフィールドの開始値を設定します (MariaDB / MySQL / PostgreSQL)。           |
-| `->instant()`                       | インスタント操作 (MySQL) を使用して列を追加または変更します。                                   |
-| `->invisible()`                     | 列を `SELECT *` クエリに対して「非表示」にします (MariaDB / MySQL)。                           |
-| `->lock($mode)`                     | カラム操作のロックモードを指定します(MySQL)。                                          |
-| `->nullable($value = true)`         | `NULL` 値を列に挿入できるようにします。                                            |
-| `->storedAs($expression)`           | 格納された生成列 (MariaDB / MySQL / PostgreSQL / SQLite) を作成します。                      |
-| `->unsigned()`                      | `INTEGER` 列を `UNSIGNED` (MariaDB / MySQL) として設定します。                                         |
-| `->useCurrent()`                    | `TIMESTAMP` 列をデフォルト値として `CURRENT_TIMESTAMP` を使用するように設定します。                           |
-| `->useCurrentOnUpdate()`            | レコードの更新時に `CURRENT_TIMESTAMP` を使用するように `TIMESTAMP` 列を設定します (MariaDB / MySQL)。 |
-| `->virtualAs($expression)`          | 仮想生成列 (MariaDB / MySQL / SQLite) を作成します。                                  |
-| `->generatedAs($expression)`        | シーケンス オプションを指定して ID 列を作成します (PostgreSQL)。                        |
-| `->always()`                        | ID 列の入力に対するシーケンス値の優先順位を定義します (PostgreSQL)。      |
+<!-- | Modifier | Description | | ----------------------------------- | ---------------------------------------------------------------------------------------------- | | `->after('column')` | Place the column "after" another column (MariaDB / MySQL). | | `->autoIncrement()` | Set `INTEGER` columns as auto-incrementing (primary key). | | `->charset('utf8mb4')` | Specify a character set for the column (MariaDB / MySQL). | | `->collation('utf8mb4_unicode_ci')` | Specify a collation for the column. | | `->comment('my comment')` | Add a comment to a column (MariaDB / MySQL / PostgreSQL). | | `->default($value)` | Specify a "default" value for the column. | | `->first()` | Place the column "first" in the table (MariaDB / MySQL). | | `->from($integer)` | Set the starting value of an auto-incrementing field (MariaDB / MySQL / PostgreSQL). | | `->instant()` | Add or modify the column using an instant operation (MySQL). | | `->invisible()` | Make the column "invisible" to `SELECT *` queries (MariaDB / MySQL). | | `->lock($mode)` | Specify a lock mode for the column operation (MySQL). | | `->nullable($value = true)` | Allow `NULL` values to be inserted into the column. | | `->storedAs($expression)` | Create a stored generated column (MariaDB / MySQL / PostgreSQL / SQLite). | | `->unsigned()` | Set `INTEGER` columns as `UNSIGNED` (MariaDB / MySQL). | | `->using($expression)` | Specify a casting expression when changing the column type (PostgreSQL). | | `->useCurrent()` | Set `TIMESTAMP` columns to use `CURRENT_TIMESTAMP` as default value. | | `->useCurrentOnUpdate()` | Set `TIMESTAMP` columns to use `CURRENT_TIMESTAMP` when a record is updated (MariaDB / MySQL). | | `->virtualAs($expression)` | Create a virtual generated column (MariaDB / MySQL / SQLite). | | `->generatedAs($expression)` | Create an identity column with specified sequence options (PostgreSQL). | | `->always()` | Defines the precedence of sequence values over input for an identity column (PostgreSQL). | -->
+| 修飾子                              | 説明                                                                                     |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| `->after('column')`                 | カラムを別のカラムの「後」に配置します（MariaDB / MySQL）。                             |
+| `->autoIncrement()`                 | `INTEGER` カラムを自動インクリメント（主キー）に設定します。                             |
+| `->charset('utf8mb4')`              | カラムの文字セットを指定します（MariaDB / MySQL）。                                     |
+| `->collation('utf8mb4_unicode_ci')` | カラムの照合順序を指定します。                                                           |
+| `->comment('my comment')`           | カラムにコメントを追加します（MariaDB / MySQL / PostgreSQL）。                          |
+| `->default($value)`                 | カラムの「デフォルト」値を指定します。                                                   |
+| `->first()`                         | テーブル内でカラムを「先頭」に配置します（MariaDB / MySQL）。                            |
+| `->from($integer)`                  | 自動インクリメントフィールドの開始値を設定します（MariaDB / MySQL / PostgreSQL）。         |
+| `->instant()`                       | instant 操作を使用してカラムを追加または変更します（MySQL）。                            |
+| `->invisible()`                     | `SELECT *` クエリでカラムを「非表示」にします（MariaDB / MySQL）。                       |
+| `->lock($mode)`                     | カラム操作のロックモードを指定します（MySQL）。                                         |
+| `->nullable($value = true)`         | カラムへの `NULL` 値の挿入を許可します。                                                 |
+| `->storedAs($expression)`           | stored generated カラムを作成します（MariaDB / MySQL / PostgreSQL / SQLite）。            |
+| `->unsigned()`                      | `INTEGER` カラムを `UNSIGNED` に設定します（MariaDB / MySQL）。                          |
+| `->using($expression)`              | カラム型を変更するときの casting 式を指定します（PostgreSQL）。                          |
+| `->useCurrent()`                    | `TIMESTAMP` カラムのデフォルト値に `CURRENT_TIMESTAMP` を使用します。                     |
+| `->useCurrentOnUpdate()`            | レコードの更新時に `TIMESTAMP` カラムへ `CURRENT_TIMESTAMP` を使用します（MariaDB / MySQL）。 |
+| `->virtualAs($expression)`          | virtual generated カラムを作成します（MariaDB / MySQL / SQLite）。                       |
+| `->generatedAs($expression)`        | 指定したシーケンスオプションで identity カラムを作成します（PostgreSQL）。                |
+| `->always()`                        | identity カラムで、入力値よりもシーケンス値を優先することを定義します（PostgreSQL）。      |
 
-<!-- </div> -->
 </div>
 
 <a name="default-expressions"></a>
@@ -1516,7 +1491,7 @@ return new class extends Migration
 ```
 
 > [!WARNING]
-> デフォルトの式のサポートは、データベース ドライバ、データベース バージョン、およびフィールド タイプによって異なります。データベースのドキュメントを参照してください。
+> デフォルト式のサポートは、データベースドライバ、データベースのバージョン、フィールドの型によって異なります。使用しているデータベースのドキュメントを参照してください。
 
 <a name="column-order"></a>
 <!-- #### Column Order -->
@@ -1603,6 +1578,19 @@ $table->bigIncrements('id')->primary()->change();
 $table->char('postal_code', 10)->unique(false)->change();
 ```
 
+<a name="postgresql-column-modifications"></a>
+<!-- #### PostgreSQL Column Modifications -->
+#### PostgreSQL Column Modifications
+
+<!-- When changing a column's type on PostgreSQL, you may use the `using` modifier to specify the expression used to cast the existing values: -->
+PostgreSQL でカラムの型を変更する場合は、既存の値のキャストに使用する式を指定するために、`using` 修飾子を使えます。
+
+```php
+Schema::table('users', function (Blueprint $table) {
+    $table->date('birthday')->using('birthday::date')->change();
+});
+```
+
 <a name="renaming-columns"></a>
 <!-- ### Renaming Columns -->
 ### Renaming Columns
@@ -1645,19 +1633,18 @@ Schema::table('users', function (Blueprint $table) {
 <!-- Laravel provides several convenient methods related to dropping common types of columns. Each of these methods is described in the table below: -->
 Laravel は、一般的なタイプの列の削除に関連する便利なメソッドをいくつか提供しています。これらの各方法については、次の表で説明します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 指示                             | 説明                                           |
-| ----------------------------------- | ----------------------------------------------------- |
-| `$table->dropMorphs('morphable');`  | `morphable_type` 列と `morphable_id` 列を削除します。 |
-| `$table->dropRememberToken();`      | `remember_token` 列を削除します。                     |
-| `$table->dropSoftDeletes();`        | `deleted_at` 列を削除します。                         |
-| `$table->dropSoftDeletesTz();`      | `dropSoftDeletes()` メソッドの別名。                  |
-| `$table->dropTimestamps();`         | `created_at` 列と `updated_at` 列を削除します。       |
-| `$table->dropTimestampsTz();`       | `dropTimestamps()` メソッドの別名。                   |
+<!-- | Command | Description | | ----------------------------------- | ----------------------------------------------------- | | `$table->dropMorphs('morphable');` | Drop the `morphable_type` and `morphable_id` columns. | | `$table->dropRememberToken();` | Drop the `remember_token` column. | | `$table->dropSoftDeletes();` | Drop the `deleted_at` column. | | `$table->dropSoftDeletesTz();` | Alias of `dropSoftDeletes()` method. | | `$table->dropTimestamps();` | Drop the `created_at` and `updated_at` columns. | | `$table->dropTimestampsTz();` | Alias of `dropTimestamps()` method. | -->
+| コマンド                            | 説明                                             |
+| ----------------------------------- | ------------------------------------------------ |
+| `$table->dropMorphs('morphable');`  | `morphable_type` カラムと `morphable_id` カラムを削除します。 |
+| `$table->dropRememberToken();`      | `remember_token` カラムを削除します。            |
+| `$table->dropSoftDeletes();`        | `deleted_at` カラムを削除します。                |
+| `$table->dropSoftDeletesTz();`      | `dropSoftDeletes()` メソッドのエイリアスです。    |
+| `$table->dropTimestamps();`         | `created_at` カラムと `updated_at` カラムを削除します。 |
+| `$table->dropTimestampsTz();`       | `dropTimestamps()` メソッドのエイリアスです。     |
 
-<!-- </div> -->
 </div>
 
 <a name="indexes"></a>
@@ -1708,20 +1695,19 @@ $table->unique('email', 'unique_email');
 <!-- Laravel's schema builder blueprint class provides methods for creating each type of index supported by Laravel. Each index method accepts an optional second argument to specify the name of the index. If omitted, the name will be derived from the names of the table and column(s) used for the index, as well as the index type. Each of the available index methods is described in the table below: -->
 Laravel のスキーマ ビルダ ブループリント クラスは、Laravel でサポートされる各タイプのインデックスを作成するためのメソッドを提供します。各インデックス メソッドは、オプションの 2 番目の引数を受け入れてインデックスの名前を指定します。省略した場合、名前はインデックスに使用されるテーブルと列の名前、およびインデックス タイプから派生します。使用可能な各インデックス方法については、次の表で説明します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 指示                                          | 説明                                                    |
-| ------------------------------------------------ | -------------------------------------------------------------- |
-| `$table->primary('id');`                         | 主キーを追加します。                                            |
-| `$table->primary(['id', 'parent_id']);`          | 複合キーを追加します。                                           |
-| `$table->unique('email');`                       | 一意のインデックスを追加します。                                           |
-| `$table->index('state');`                        | インデックスを追加します。                                                 |
-| `$table->fullText('body');`                      | 全文インデックスを追加します (MariaDB / MySQL / PostgreSQL)。         |
-| `$table->fullText('body')->language('english');` | 指定した言語 (PostgreSQL) の全文インデックスを追加します。 |
-| `$table->spatialIndex('location');`              | 空間インデックスを追加します (SQLite を除く)。                          |
+<!-- | Command | Description | | ------------------------------------------------ | -------------------------------------------------------------- | | `$table->primary('id');` | Adds a primary key. | | `$table->primary(['id', 'parent_id']);` | Adds composite keys. | | `$table->unique('email');` | Adds a unique index. | | `$table->index('state');` | Adds an index. | | `$table->fullText('body');` | Adds a full text index (MariaDB / MySQL / PostgreSQL). | | `$table->fullText('body')->language('english');` | Adds a full text index of the specified language (PostgreSQL). | | `$table->spatialIndex('location');` | Adds a spatial index (except SQLite). | -->
+| コマンド                                          | 説明                                                       |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| `$table->primary('id');`                         | 主キーを追加します。                                       |
+| `$table->primary(['id', 'parent_id']);`          | 複合キーを追加します。                                     |
+| `$table->unique('email');`                       | ユニークインデックスを追加します。                         |
+| `$table->index('state');`                        | インデックスを追加します。                                 |
+| `$table->fullText('body');`                      | フルテキストインデックスを追加します（MariaDB / MySQL / PostgreSQL）。 |
+| `$table->fullText('body')->language('english');` | 指定した言語のフルテキストインデックスを追加します（PostgreSQL）。 |
+| `$table->spatialIndex('location');`              | 空間インデックスを追加します（SQLite を除く）。             |
 
-<!-- </div> -->
 </div>
 
 <a name="online-index-creation"></a>
@@ -1756,18 +1742,17 @@ $table->renameIndex('from', 'to')
 <!-- To drop an index, you must specify the index's name. By default, Laravel automatically assigns an index name based on the table name, the name of the indexed column, and the index type. Here are some examples: -->
 インデックスを削除するには、インデックスの名前を指定する必要があります。デフォルトでは、Laravel はテーブル名、インデックス付き列の名前、インデックスタイプに基づいてインデックス名を自動的に割り当てます。以下にいくつかの例を示します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 指示                                                  | 説明                                                 |
-| -------------------------------------------------------- | ----------------------------------------------------------- |
-| `$table->dropPrimary('users_id_primary');`               | 「users」テーブルから主キーを削除します。                  |
-| `$table->dropUnique('users_email_unique');`              | 「users」テーブルから一意のインデックスを削除します。                 |
-| `$table->dropIndex('geo_state_index');`                  | 「geo」テーブルから基本インデックスを削除します。                    |
-| `$table->dropFullText('posts_body_fulltext');`           | 「posts」テーブルから全文インデックスを削除します。              |
-| `$table->dropSpatialIndex('geo_location_spatialindex');` | 「geo」テーブルから空間インデックスを削除します (SQLite を除く)。 |
+<!-- | Command | Description | | -------------------------------------------------------- | ----------------------------------------------------------- | | `$table->dropPrimary('users_id_primary');` | Drop a primary key from the "users" table. | | `$table->dropUnique('users_email_unique');` | Drop a unique index from the "users" table. | | `$table->dropIndex('geo_state_index');` | Drop a basic index from the "geo" table. | | `$table->dropFullText('posts_body_fulltext');` | Drop a full text index from the "posts" table. | | `$table->dropSpatialIndex('geo_location_spatialindex');` | Drop a spatial index from the "geo" table (except SQLite). | -->
+| コマンド                                                  | 説明                                                   |
+| -------------------------------------------------------- | ------------------------------------------------------ |
+| `$table->dropPrimary('users_id_primary');`               | "users"テーブルから主キーを削除します。                 |
+| `$table->dropUnique('users_email_unique');`              | "users"テーブルからユニークインデックスを削除します。     |
+| `$table->dropIndex('geo_state_index');`                  | "geo"テーブルから通常のインデックスを削除します。         |
+| `$table->dropFullText('posts_body_fulltext');`           | "posts"テーブルから全文インデックスを削除します。         |
+| `$table->dropSpatialIndex('geo_location_spatialindex');` | "geo"テーブルから空間インデックスを削除します（SQLiteを除く）。 |
 
-<!-- </div> -->
 </div>
 
 <!-- If you pass an array of columns into a method that drops indexes, the conventional index name will be generated based on the table name, columns, and index type: -->
@@ -1830,21 +1815,20 @@ $table->foreignId('user_id')
 <!-- An alternative, expressive syntax is also provided for these actions: -->
 これらのアクションには、代替の表現力豊かな構文も提供されています。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 方法                        | 説明                                       |
-| ----------------------------- | ------------------------------------------------- |
-| `$table->cascadeOnUpdate();`  | 更新はカスケードする必要があります。                           |
-| `$table->restrictOnUpdate();` | 更新は制限されるべきです。                     |
-| `$table->nullOnUpdate();`     | 更新では外部キー値を null に設定する必要があります。 |
-| `$table->noActionOnUpdate();` | 更新に対するアクションはありません。                             |
-| `$table->cascadeOnDelete();`  | 削除はカスケードする必要があります。                           |
-| `$table->restrictOnDelete();` | 削除は制限する必要があります。                     |
-| `$table->nullOnDelete();`     | 削除では、外部キーの値を null に設定する必要があります。 |
-| `$table->noActionOnDelete();` | 子レコードが存在する場合は削除を防止します。          |
+<!-- | Method | Description | | ----------------------------- | ------------------------------------------------- | | `$table->cascadeOnUpdate();` | Updates should cascade. | | `$table->restrictOnUpdate();` | Updates should be restricted. | | `$table->nullOnUpdate();` | Updates should set the foreign key value to null. | | `$table->noActionOnUpdate();` | No action on updates. | | `$table->cascadeOnDelete();` | Deletes should cascade. | | `$table->restrictOnDelete();` | Deletes should be restricted. | | `$table->nullOnDelete();` | Deletes should set the foreign key value to null. | | `$table->noActionOnDelete();` | Prevents deletes if child records exist. | -->
+| メソッド                      | 説明                                               |
+| ----------------------------- | -------------------------------------------------- |
+| `$table->cascadeOnUpdate();`  | 更新をカスケードします。                           |
+| `$table->restrictOnUpdate();` | 更新を制限します。                                 |
+| `$table->nullOnUpdate();`     | 外部キーの値を null に設定します。              |
+| `$table->noActionOnUpdate();` | 更新時に何も実行しません。                         |
+| `$table->cascadeOnDelete();`  | 削除をカスケードします。                           |
+| `$table->restrictOnDelete();` | 削除を制限します。                                 |
+| `$table->nullOnDelete();`     | 外部キーの値を null に設定します。              |
+| `$table->noActionOnDelete();` | 子レコードが存在する場合、削除を防ぎます。       |
 
-<!-- </div> -->
 </div>
 
 <!-- Any additional [column modifiers](#column-modifiers) must be called before the `constrained` method: -->
@@ -1892,29 +1876,27 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite はデフォルトで外部キー制約を無効にします。 SQLite を使用する場合は、移行で SQLite を作成する前に、データベース構成で [enable foreign key support](/docs/13.x/database#configuration) を実行してください。
+> SQLite では、デフォルトで外部キー制約が無効になっています。SQLite を使用する場合は、マイグレーションで外部キー制約を作成する前に、データベース設定で [enable foreign key support](/docs/13.x/database#configuration) を有効にしてください。
 
 <a name="events"></a>
 <!-- ## Events -->
 ## Events
 
 <!-- For convenience, each migration operation will dispatch an [event](/docs/13.x/events). All of the following events extend the base `Illuminate\Database\Events\MigrationEvent` class: -->
-便宜上、各移行操作では [event](/docs/13.x/events) がディスパッチされます。次のイベントはすべて、基本 `Illuminate\Database\Events\MigrationEvent` クラスを拡張します。
+便宜上、各マイグレーション操作は [event](/docs/13.x/events) をディスパッチします。以下のイベントはすべて、基底クラスである `Illuminate\Database\Events\MigrationEvent` を継承します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| クラス                                            | 説明                                      |
-| ------------------------------------------------ | ------------------------------------------------ |
-| `Illuminate\Database\Events\DatabaseRefreshed`   | `migrate:refresh` コマンドが終了しました。      |
-| `Illuminate\Database\Events\MigrationsStarted`   | 移行のバッチが実行されようとしています。   |
-| `Illuminate\Database\Events\MigrationsEnded`     | 移行のバッチの実行が終了しました。    |
-| `Illuminate\Database\Events\MigrationStarted`    | 単一の移行が実行されようとしています。      |
-| `Illuminate\Database\Events\MigrationEnded`      | 1 つの移行の実行が終了しました。       |
-| `Illuminate\Database\Events\NoPendingMigrations` | 移行コマンドで保留中の移行が見つかりませんでした。 |
-| `Illuminate\Database\Events\SchemaDumped`        | データベース スキーマ ダンプが完了しました。            |
-| `Illuminate\Database\Events\SchemaLoaded`        | 既存のデータベース スキーマ ダンプがロードされました。     |
+<!-- | Class | Description | | ------------------------------------------------ | ------------------------------------------------ | | `Illuminate\Database\Events\DatabaseRefreshed` | The `migrate:refresh` command has finished. | | `Illuminate\Database\Events\MigrationsStarted` | A batch of migrations is about to be executed. | | `Illuminate\Database\Events\MigrationsEnded` | A batch of migrations has finished. | | `Illuminate\Database\Events\MigrationStarted` | A single migration is about to be executed. | | `Illuminate\Database\Events\MigrationEnded` | A single migration has finished. | | `Illuminate\Database\Events\NoPendingMigrations` | A migration command found no pending migrations. | | `Illuminate\Database\Events\SchemaDumped` | A database schema dump has finished. | | `Illuminate\Database\Events\SchemaLoaded` | An existing database schema dump has loaded. | -->
+| クラス                                           | 説明                                      |
+| ------------------------------------------------ | ----------------------------------------- |
+| `Illuminate\Database\Events\DatabaseRefreshed`   | `migrate:refresh` コマンドが完了しました。 |
+| `Illuminate\Database\Events\MigrationsStarted`   | マイグレーションのバッチを実行する直前です。 |
+| `Illuminate\Database\Events\MigrationsEnded`     | マイグレーションのバッチが完了しました。 |
+| `Illuminate\Database\Events\MigrationStarted`    | 1つのマイグレーションを実行する直前です。 |
+| `Illuminate\Database\Events\MigrationEnded`      | 1つのマイグレーションが完了しました。    |
+| `Illuminate\Database\Events\NoPendingMigrations` | マイグレーションコマンドで保留中のマイグレーションが見つかりませんでした。 |
+| `Illuminate\Database\Events\SchemaDumped`        | データベーススキーマのダンプが完了しました。 |
+| `Illuminate\Database\Events\SchemaLoaded`        | 既存のデータベーススキーマダンプが読み込まれました。 |
 
-<!-- </div> -->
 </div>
-

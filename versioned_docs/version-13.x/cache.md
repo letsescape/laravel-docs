@@ -103,8 +103,8 @@ Memcached 드라이버를 사용하려면 [Memcached PECL package](https://pecl.
 <!-- #### Redis -->
 #### Redis
 
-<!-- Before using a Redis cache with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package (~2.0) via Composer. [Laravel Sail](/docs/13.x/sail) already includes this extension. In addition, official Laravel application platforms such as [Laravel Cloud](https://cloud.laravel.com) and [Laravel Forge](https://forge.laravel.com) have the PhpRedis extension installed by default. -->
-Laravel에서 Redis 캐시를 사용하기 전에, PECL을 통해 PhpRedis PHP 확장을 설치하거나 Composer를 통해 `predis/predis` 패키지(~2.0)를 설치해야 합니다. [Laravel Sail](/docs/13.x/sail)에는 이 확장이 이미 포함되어 있습니다. 또한 [Laravel Cloud](https://cloud.laravel.com), [Laravel Forge](https://forge.laravel.com) 같은 공식 Laravel 애플리케이션 플랫폼에는 PhpRedis 확장이 기본으로 설치되어 있습니다.
+<!-- Before using a Redis cache with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package via Composer. [Laravel Sail](/docs/13.x/sail) already includes this extension. In addition, official Laravel application platforms such as [Laravel Cloud](https://cloud.laravel.com) and [Laravel Forge](https://forge.laravel.com) have the PhpRedis extension installed by default. -->
+Laravel에서 Redis 캐시를 사용하기 전에, PECL을 통해 PhpRedis PHP 확장을 설치하거나 Composer를 통해 `predis/predis` 패키지를 설치해야 합니다. [Laravel Sail](/docs/13.x/sail)에는 이 확장이 이미 포함되어 있습니다. 또한 [Laravel Cloud](https://cloud.laravel.com), [Laravel Forge](https://forge.laravel.com) 같은 공식 Laravel 애플리케이션 플랫폼에는 PhpRedis 확장이 기본으로 설치되어 있습니다.
 
 <!-- For more information on configuring Redis, consult its [Laravel documentation page](/docs/13.x/redis#configuration). -->
 Redis 설정에 대한 자세한 내용은 [Laravel documentation page](/docs/13.x/redis#configuration)를 참고하십시오.
@@ -897,9 +897,9 @@ class AppServiceProvider extends ServiceProvider
 <!-- To execute code on every cache operation, you may listen for various [events](/docs/13.x/events) dispatched by the cache: -->
 모든 캐시 작업에서 코드를 실행하려면 캐시가 디스패치하는 다양한 [events](/docs/13.x/events)를 수신할 수 있습니다:
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Event Name | |-------------------------------------------------| | `Illuminate\Cache\Events\CacheFlushed` | | `Illuminate\Cache\Events\CacheFlushing` | | `Illuminate\Cache\Events\CacheFlushFailed` | | `Illuminate\Cache\Events\CacheLocksFlushed` | | `Illuminate\Cache\Events\CacheLocksFlushing` | | `Illuminate\Cache\Events\CacheLocksFlushFailed` | | `Illuminate\Cache\Events\CacheHit` | | `Illuminate\Cache\Events\CacheMissed` | | `Illuminate\Cache\Events\ForgettingKey` | | `Illuminate\Cache\Events\KeyForgetFailed` | | `Illuminate\Cache\Events\KeyForgotten` | | `Illuminate\Cache\Events\KeyWriteFailed` | | `Illuminate\Cache\Events\KeyWritten` | | `Illuminate\Cache\Events\RetrievingKey` | | `Illuminate\Cache\Events\RetrievingManyKeys` | | `Illuminate\Cache\Events\WritingKey` | | `Illuminate\Cache\Events\WritingManyKeys` | -->
 | 이벤트 이름                                      |
 |-------------------------------------------------|
 | `Illuminate\Cache\Events\CacheFlushed`          |
@@ -920,7 +920,6 @@ class AppServiceProvider extends ServiceProvider
 | `Illuminate\Cache\Events\WritingKey`            |
 | `Illuminate\Cache\Events\WritingManyKeys`       |
 
-<!-- </div> -->
 </div>
 
 <!-- To increase performance, you may disable cache events by setting the `events` configuration option to `false` for a given cache store in your application's `config/cache.php` configuration file: -->

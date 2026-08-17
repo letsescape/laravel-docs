@@ -184,7 +184,6 @@ php artisan dusk:make LoginTest
 <?php
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Laravel\Dusk\Browser;
 
 pest()->use(DatabaseMigrations::class);
 
@@ -222,7 +221,6 @@ class ExampleTest extends DuskTestCase
 <?php
 
 use Illuminate\Foundation\Testing\DatabaseTruncation;
-use Laravel\Dusk\Browser;
 
 pest()->use(DatabaseTruncation::class);
 
@@ -397,7 +395,6 @@ protected function driver(): RemoteWebDriver
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Laravel\Dusk\Browser;
 
 pest()->use(DatabaseMigrations::class);
 
@@ -1561,90 +1558,9 @@ $browser->scrollIntoView('.selector')
 <!-- Dusk provides a variety of assertions that you may make against your application. All of the available assertions are documented in the list below: -->
 Dusk는 애플리케이션에 대해 수행할 수 있는 다양한 어설션을 제공합니다. 사용 가능한 모든 어설션은 아래 목록에 문서화되어 있습니다.
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[assertTitle](#assert-title)
-[assertTitleContains](#assert-title-contains)
-[assertUrlIs](#assert-url-is)
-[assertSchemeIs](#assert-scheme-is)
-[assertSchemeIsNot](#assert-scheme-is-not)
-[assertHostIs](#assert-host-is)
-[assertHostIsNot](#assert-host-is-not)
-[assertPortIs](#assert-port-is)
-[assertPortIsNot](#assert-port-is-not)
-[assertPathBeginsWith](#assert-path-begins-with)
-[assertPathEndsWith](#assert-path-ends-with)
-[assertPathContains](#assert-path-contains)
-[assertPathIs](#assert-path-is)
-[assertPathIsNot](#assert-path-is-not)
-[assertRouteIs](#assert-route-is)
-[assertQueryStringHas](#assert-query-string-has)
-[assertQueryStringMissing](#assert-query-string-missing)
-[assertFragmentIs](#assert-fragment-is)
-[assertFragmentBeginsWith](#assert-fragment-begins-with)
-[assertFragmentIsNot](#assert-fragment-is-not)
-[assertHasCookie](#assert-has-cookie)
-[assertHasPlainCookie](#assert-has-plain-cookie)
-[assertCookieMissing](#assert-cookie-missing)
-[assertPlainCookieMissing](#assert-plain-cookie-missing)
-[assertCookieValue](#assert-cookie-value)
-[assertPlainCookieValue](#assert-plain-cookie-value)
-[assertSee](#assert-see)
-[assertDontSee](#assert-dont-see)
-[assertSeeIn](#assert-see-in)
-[assertDontSeeIn](#assert-dont-see-in)
-[assertSeeAnythingIn](#assert-see-anything-in)
-[assertSeeNothingIn](#assert-see-nothing-in)
-[assertCount](#assert-count)
-[assertScript](#assert-script)
-[assertSourceHas](#assert-source-has)
-[assertSourceMissing](#assert-source-missing)
-[assertSeeLink](#assert-see-link)
-[assertDontSeeLink](#assert-dont-see-link)
-[assertInputValue](#assert-input-value)
-[assertInputValueIsNot](#assert-input-value-is-not)
-[assertChecked](#assert-checked)
-[assertNotChecked](#assert-not-checked)
-[assertIndeterminate](#assert-indeterminate)
-[assertRadioSelected](#assert-radio-selected)
-[assertRadioNotSelected](#assert-radio-not-selected)
-[assertSelected](#assert-selected)
-[assertNotSelected](#assert-not-selected)
-[assertSelectHasOptions](#assert-select-has-options)
-[assertSelectMissingOptions](#assert-select-missing-options)
-[assertSelectHasOption](#assert-select-has-option)
-[assertSelectMissingOption](#assert-select-missing-option)
-[assertValue](#assert-value)
-[assertValueIsNot](#assert-value-is-not)
-[assertAttribute](#assert-attribute)
-[assertAttributeMissing](#assert-attribute-missing)
-[assertAttributeContains](#assert-attribute-contains)
-[assertAttributeDoesntContain](#assert-attribute-doesnt-contain)
-[assertAriaAttribute](#assert-aria-attribute)
-[assertDataAttribute](#assert-data-attribute)
-[assertVisible](#assert-visible)
-[assertPresent](#assert-present)
-[assertNotPresent](#assert-not-present)
-[assertMissing](#assert-missing)
-[assertInputPresent](#assert-input-present)
-[assertInputMissing](#assert-input-missing)
-[assertDialogOpened](#assert-dialog-opened)
-[assertEnabled](#assert-enabled)
-[assertDisabled](#assert-disabled)
-[assertButtonEnabled](#assert-button-enabled)
-[assertButtonDisabled](#assert-button-disabled)
-[assertFocused](#assert-focused)
-[assertNotFocused](#assert-not-focused)
-[assertAuthenticated](#assert-authenticated)
-[assertGuest](#assert-guest)
-[assertAuthenticatedAs](#assert-authenticated-as)
-[assertVue](#assert-vue)
-[assertVueIsNot](#assert-vue-is-not)
-[assertVueContains](#assert-vue-contains)
-[assertVueDoesntContain](#assert-vue-doesnt-contain)
--->
+<!-- [assertTitle](#assert-title) [assertTitleContains](#assert-title-contains) [assertUrlIs](#assert-url-is) [assertSchemeIs](#assert-scheme-is) [assertSchemeIsNot](#assert-scheme-is-not) [assertHostIs](#assert-host-is) [assertHostIsNot](#assert-host-is-not) [assertPortIs](#assert-port-is) [assertPortIsNot](#assert-port-is-not) [assertPathBeginsWith](#assert-path-begins-with) [assertPathEndsWith](#assert-path-ends-with) [assertPathContains](#assert-path-contains) [assertPathIs](#assert-path-is) [assertPathIsNot](#assert-path-is-not) [assertRouteIs](#assert-route-is) [assertQueryStringHas](#assert-query-string-has) [assertQueryStringMissing](#assert-query-string-missing) [assertFragmentIs](#assert-fragment-is) [assertFragmentBeginsWith](#assert-fragment-begins-with) [assertFragmentIsNot](#assert-fragment-is-not) [assertHasCookie](#assert-has-cookie) [assertHasPlainCookie](#assert-has-plain-cookie) [assertCookieMissing](#assert-cookie-missing) [assertPlainCookieMissing](#assert-plain-cookie-missing) [assertCookieValue](#assert-cookie-value) [assertPlainCookieValue](#assert-plain-cookie-value) [assertSee](#assert-see) [assertDontSee](#assert-dont-see) [assertSeeIn](#assert-see-in) [assertDontSeeIn](#assert-dont-see-in) [assertSeeAnythingIn](#assert-see-anything-in) [assertSeeNothingIn](#assert-see-nothing-in) [assertCount](#assert-count) [assertScript](#assert-script) [assertSourceHas](#assert-source-has) [assertSourceMissing](#assert-source-missing) [assertSeeLink](#assert-see-link) [assertDontSeeLink](#assert-dont-see-link) [assertInputValue](#assert-input-value) [assertInputValueIsNot](#assert-input-value-is-not) [assertChecked](#assert-checked) [assertNotChecked](#assert-not-checked) [assertIndeterminate](#assert-indeterminate) [assertRadioSelected](#assert-radio-selected) [assertRadioNotSelected](#assert-radio-not-selected) [assertSelected](#assert-selected) [assertNotSelected](#assert-not-selected) [assertSelectHasOptions](#assert-select-has-options) [assertSelectMissingOptions](#assert-select-missing-options) [assertSelectHasOption](#assert-select-has-option) [assertSelectMissingOption](#assert-select-missing-option) [assertValue](#assert-value) [assertValueIsNot](#assert-value-is-not) [assertAttribute](#assert-attribute) [assertAttributeMissing](#assert-attribute-missing) [assertAttributeContains](#assert-attribute-contains) [assertAttributeDoesntContain](#assert-attribute-doesnt-contain) [assertAriaAttribute](#assert-aria-attribute) [assertDataAttribute](#assert-data-attribute) [assertVisible](#assert-visible) [assertPresent](#assert-present) [assertNotPresent](#assert-not-present) [assertMissing](#assert-missing) [assertInputPresent](#assert-input-present) [assertInputMissing](#assert-input-missing) [assertDialogOpened](#assert-dialog-opened) [assertEnabled](#assert-enabled) [assertDisabled](#assert-disabled) [assertButtonEnabled](#assert-button-enabled) [assertButtonDisabled](#assert-button-disabled) [assertFocused](#assert-focused) [assertNotFocused](#assert-not-focused) [assertAuthenticated](#assert-authenticated) [assertGuest](#assert-guest) [assertAuthenticatedAs](#assert-authenticated-as) [assertVue](#assert-vue) [assertVueIsNot](#assert-vue-is-not) [assertVueContains](#assert-vue-contains) [assertVueDoesntContain](#assert-vue-doesnt-contain) -->
 [assertTitle](#assert-title)
 [assertTitleContains](#assert-title-contains)
 [assertUrlIs](#assert-url-is)
@@ -1725,7 +1641,6 @@ Dusk는 애플리케이션에 대해 수행할 수 있는 다양한 어설션을
 [assertVueContains](#assert-vue-contains)
 [assertVueDoesntContain](#assert-vue-doesnt-contain)
 
-<!-- </div> -->
 </div>
 
 <a name="assert-title"></a>
@@ -2924,7 +2839,6 @@ class DatePicker extends BaseComponent
 <?php
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Laravel\Dusk\Browser;
 use Tests\Browser\Components\DatePicker;
 
 pest()->use(DatabaseMigrations::class);

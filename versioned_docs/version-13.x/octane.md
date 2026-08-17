@@ -507,8 +507,8 @@ php artisan octane:status
 <!-- Since Octane boots your application once and keeps it in memory while serving requests, there are a few caveats you should consider while building your application. For example, the `register` and `boot` methods of your application's service providers will only be executed once when the request worker initially boots. On subsequent requests, the same application instance will be reused. -->
 Octane은 애플리케이션을 한 번 부팅한 후, 요청을 처리하는 동안 메모리에 유지합니다. 이로 인해 애플리케이션 구성시 고려해야 할 몇 가지 유의 사항이 있습니다. 예를 들어, 애플리케이션의 서비스 프로바이더 내 `register`와 `boot` 메서드는 워커가 처음 부팅될 때 딱 한 번만 실행됩니다. 이후의 모든 요청은 동일한 애플리케이션 인스턴스를 재사용하게 됩니다.
 
-<!-- In light of this, you should take special care when injecting the application service container or request into any object's constructor. By doing so, that object may have a  stale version of the container or request on subsequent requests. -->
-이 점을 염두에 두고, 애플리케이션 서비스 컨테이너나 request를 객체 생성자에 주입하는 것은 주의해야 합니다. 만약 그렇게 해두면, 해당 객체가 이후 요청에서도 오래된 컨테이너나 request 인스턴스를 참조할 수 있습니다.
+<!-- In light of this, you should take special care when injecting the application service container or request into any object's constructor. By doing so, that object may have a stale version of the container or request on subsequent requests. -->
+이러한 점을 고려하면 애플리케이션 서비스 컨테이너나 요청을 객체의 생성자에 주입할 때 특히 주의해야 합니다. 이렇게 하면 해당 객체가 이후 요청에서 오래된 컨테이너나 요청을 참조할 수 있습니다.
 
 <!-- Octane will automatically handle resetting any first-party framework state between requests. However, Octane does not always know how to reset the global state created by your application. Therefore, you should be aware of how to build your application in a way that is Octane friendly. Below, we will discuss the most common situations that may cause problems while using Octane. -->
 Octane은 Laravel의 핵심 프레임워크 상태는 요청 사이마다 자동으로 리셋합니다. 하지만 애플리케이션이 생성한 전역 상태까지 항상 자동으로 리셋할 수는 없으므로, Octane 친화적인(Octane friendly) 방식으로 애플리케이션을 설계해야 합니다. 아래 예시들은 Octane 사용 시 자주 문제가 되는 상황들을 설명합니다.

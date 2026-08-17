@@ -185,11 +185,17 @@ return response('Hello World')->cookie($cookie);
 <!-- #### Expiring Cookies Early -->
 #### Expiring Cookies Early
 
-<!-- You may remove a cookie by expiring it via the `withoutCookie` method of an outgoing response: -->
-発信応答の `withoutCookie` メソッドを使用して Cookie を期限切れにすることで、Cookie を削除できます。
+<!-- You may remove a cookie by expiring it via the `withoutCookie` or `withoutCookies` method of an outgoing response: -->
+送信するレスポンスの `withoutCookie` または `withoutCookies` メソッドを使用して Cookie を期限切れにすることで、Cookie を削除できます。
 
 ```php
 return response('Hello World')->withoutCookie('name');
+
+return response('Hello World')->withoutCookies([
+    'name',
+    'email',
+    'preferences',
+]);
 ```
 
 <!-- If you do not yet have an instance of the outgoing response, you may use the `Cookie` facade's `expire` method to expire a cookie: -->
@@ -973,7 +979,7 @@ yield new StreamedEvent(
 #### Consuming Event Streams
 
 <!-- Event streams may be consumed using Laravel's `stream` npm package, which provides a convenient API for interacting with Laravel event streams. To get started, install the `@laravel/stream-react`, `@laravel/stream-vue`, or `@laravel/stream-svelte` package: -->
-イベントストリームは、Laravelの`stream` npmパッケージを使用して消費できます。これは、Laravelイベントストリームと対話するための便利なAPIを提供します。まず、`@laravel/stream-react`、`@laravel/stream-vue`、または `@laravel/stream-svelte` パッケージをインストールします。
+イベントストリームは、Laravelの `stream` npmパッケージを使用して消費できます。これは、Laravelイベントストリームと対話するための便利なAPIを提供します。まず、`@laravel/stream-react`、`@laravel/stream-vue`、または `@laravel/stream-svelte` パッケージをインストールします。
 
 ```shell tab=React
 npm install @laravel/stream-react
@@ -1169,4 +1175,3 @@ class AppServiceProvider extends ServiceProvider
 ```php
 return response()->caps('foo');
 ```
-

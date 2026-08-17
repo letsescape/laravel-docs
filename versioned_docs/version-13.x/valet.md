@@ -38,32 +38,9 @@
 
 
 
-<!-- <div id="valet-support" markdown="1"> -->
 <div id="valet-support" markdown="1">
 
-<!--
-- [Laravel](https://laravel.com)
-- [Bedrock](https://roots.io/bedrock/)
-- [CakePHP 3](https://cakephp.org)
-- [ConcreteCMS](https://www.concretecms.com/)
-- [Contao](https://contao.org/en/)
-- [Craft](https://craftcms.com)
-- [Drupal](https://www.drupal.org/)
-- [ExpressionEngine](https://www.expressionengine.com/)
-- [Jigsaw](https://jigsaw.tighten.co)
-- [Joomla](https://www.joomla.org/)
-- [Katana](https://github.com/themsaid/katana)
-- [Kirby](https://getkirby.com/)
-- [Magento](https://magento.com/)
-- [OctoberCMS](https://octobercms.com/)
-- [Sculpin](https://sculpin.io/)
-- [Slim](https://www.slimframework.com)
-- [Statamic](https://statamic.com)
-- Static HTML
-- [Symfony](https://symfony.com)
-- [WordPress](https://wordpress.org)
-- [Zend](https://framework.zend.com)
--->
+<!-- - [Laravel](https://laravel.com) - [Bedrock](https://roots.io/bedrock/) - [CakePHP 3](https://cakephp.org) - [ConcreteCMS](https://www.concretecms.com/) - [Contao](https://contao.org/en/) - [Craft](https://craftcms.com) - [Drupal](https://www.drupal.org/) - [ExpressionEngine](https://www.expressionengine.com/) - [Jigsaw](https://jigsaw.tighten.co) - [Joomla](https://www.joomla.org/) - [Katana](https://github.com/themsaid/katana) - [Kirby](https://getkirby.com/) - [Magento](https://magento.com/) - [OctoberCMS](https://octobercms.com/) - [Sculpin](https://sculpin.io/) - [Slim](https://www.slimframework.com) - [Statamic](https://statamic.com) - Static HTML - [Symfony](https://symfony.com) - [WordPress](https://wordpress.org) - [Zend](https://framework.zend.com) -->
 - [Laravel](https://laravel.com)
 - [Bedrock](https://roots.io/bedrock/)
 - [CakePHP 3](https://cakephp.org)
@@ -86,7 +63,6 @@
 - [WordPress](https://wordpress.org)
 - [Zend](https://framework.zend.com)
 
-<!-- </div> -->
 </div>
 
 <!-- However, you may extend Valet with your own [custom drivers](#custom-valet-drivers). -->
@@ -190,19 +166,13 @@ Valet가 제대로 실행되지 않는 문제가 있으면, `composer global req
 <!-- If you're upgrading from Valet 3 to Valet 4, take the following steps to properly upgrade your Valet installation: -->
 Valet 3에서 Valet 4로 업그레이드할 때는 다음 절차를 따르세요:
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- If you've added `.valetphprc` files to customize your site's PHP version, rename each `.valetphprc` file to `.valetrc`. Then, prepend `php=` to the existing content of the `.valetrc` file.
-- Update any custom drivers to match the namespace, extension, type-hints, and return type-hints of the new driver system. You may consult Valet's [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php) as an example.
-- If you use PHP 7.1 - 7.4 to serve your sites, make sure you still use Homebrew to install a version of PHP that's 8.0 or higher, as Valet will use this version, even if it's not your primary linked version, to run some of its scripts.
--->
+<!-- - If you've added `.valetphprc` files to customize your site's PHP version, rename each `.valetphprc` file to `.valetrc`. Then, prepend `php=` to the existing content of the `.valetrc` file. - Update any custom drivers to match the namespace, extension, type-hints, and return type-hints of the new driver system. You may consult Valet's [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php) as an example. - If you use PHP 7.1 - 7.4 to serve your sites, make sure you still use Homebrew to install a version of PHP that's 8.0 or higher, as Valet will use this version, even if it's not your primary linked version, to run some of its scripts. -->
 - 사이트별 PHP 버전을 커스텀하는 `.valetphprc` 파일을 사용 중이라면, 각 `.valetphprc` 파일명을 `.valetrc`로 변경하고, 기존 `.valetrc` 파일 내용 앞에 `php=`를 추가하세요.
 - 기존 커스텀 드라이버가 있다면 네임스페이스, 확장, 타입 힌트, 반환 타입 힌트를 새로운 드라이버 시스템에 맞게 업데이트하세요. 예시는 Valet의 [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php)를 참고하세요.
 - PHP 7.1~7.4 버전을 사용해 사이트를 제공하는 경우라도, Homebrew를 사용해 PHP 8.0 이상 버전을 반드시 설치하세요. Valet가 스크립트 실행용으로 이 버전을 사용하기 때문입니다(기본 링크된 PHP 버전과는 별개).
 
-<!-- </div> -->
 </div>
 
 <a name="serving-sites"></a>
@@ -301,7 +271,7 @@ valet unsecure laravel
 <!-- Sometimes, you may wish to configure Valet to serve a "default" site instead of a `404` when visiting an unknown `test` domain. To accomplish this, you may add a `default` option to your `~/.config/valet/config.json` configuration file containing the path to the site that should serve as your default site: -->
 알 수 없는 `test` 도메인으로 접속했을 때 `404` 페이지 대신 기본 사이트를 제공하고 싶다면, `~/.config/valet/config.json` 파일에 다음과 같은 `default` 옵션을 추가하세요:
 
-<!--     "default": "/Users/Sally/Sites/example-site", -->
+<!-- "default": "/Users/Sally/Sites/example-site", -->
     "default": "/Users/Sally/Sites/example-site",
 
 <a name="per-site-php-versions"></a>
@@ -354,8 +324,8 @@ valet unisolate
 <!-- Valet includes a command to share your local sites with the world, providing an easy way to test your site on mobile devices or share it with team members and clients. -->
 Valet는 로컬 사이트를 외부에 손쉽게 공유할 수 있는 명령어를 제공합니다. 모바일 기기 테스트나 팀원, 클라이언트와 빠르게 공유할 때 유용합니다.
 
-<!-- Out of the box, Valet supports sharing your sites via ngrok or Expose. Before sharing a site, you should update your Valet configuration using the `share-tool` command, specifying `ngrok`, `expose`, or  `cloudflared`: -->
-Valet는 기본적으로 ngrok 또는 Expose를 통해 사이트를 공유할 수 있습니다. 사이트 공유 전에 `share-tool` 명령어로 `ngrok`, `expose`, `cloudflared` 중 공유 도구를 설정해야 합니다:
+<!-- Out of the box, Valet supports sharing your sites via ngrok or Expose. Before sharing a site, you should update your Valet configuration using the `share-tool` command, specifying `ngrok`, `expose`, or `cloudflared`: -->
+Valet는 기본적으로 ngrok 또는 Expose를 통해 사이트를 공유할 수 있습니다. 사이트를 공유하기 전에 `share-tool` 명령어를 사용해 `ngrok`, `expose`, `cloudflared` 중 하나를 지정하여 Valet 설정을 업데이트해야 합니다:
 
 ```shell
 valet share-tool ngrok
@@ -587,9 +557,9 @@ class LocalValetDriver extends LaravelValetDriver
 <!-- ## Other Valet Commands -->
 ## Other Valet Commands
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Command | Description | | --- | --- | | `valet list` | Display a list of all Valet commands. | | `valet diagnose` | Output diagnostics to aid in debugging Valet. | | `valet directory-listing` | Determine directory-listing behavior. Default is "off", which renders a 404 page for directories. | | `valet forget` | Run this command from a "parked" directory to remove it from the parked directory list. | | `valet log` | View a list of logs which are written by Valet's services. | | `valet paths` | View all of your "parked" paths. | | `valet restart` | Restart the Valet daemons. | | `valet start` | Start the Valet daemons. | | `valet stop` | Stop the Valet daemons. | | `valet trust` | Add sudoers files for Brew and Valet to allow Valet commands to be run without prompting for your password. | | `valet uninstall` | Uninstall Valet: shows instructions for manual uninstall. Pass the `--force` option to aggressively delete all of Valet's resources. | -->
 | 명령어 | 설명 |
 | --- | --- |
 | `valet list` | 모든 Valet 명령어 목록을 출력합니다. |
@@ -604,7 +574,6 @@ class LocalValetDriver extends LaravelValetDriver
 | `valet trust` | Brew와 Valet 명령어를 암호 입력 없이 실행할 수 있도록 sudoers 파일을 추가합니다. |
 | `valet uninstall` | Valet를 제거합니다: 수동 제거 지침을 안내하며, `--force` 옵션을 추가하면 Valet의 모든 리소스를 강제로 삭제합니다. |
 
-<!-- </div> -->
 </div>
 
 <a name="valet-directories-and-files"></a>

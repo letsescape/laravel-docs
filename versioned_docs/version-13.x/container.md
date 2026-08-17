@@ -359,6 +359,24 @@ interface EventPusher
 }
 ```
 
+<!-- For bindings that depend on an arbitrary condition, you may use the `BindWhen` attribute. The closure may receive the container and should return `true` when the binding should be applied. `Bind` and `BindWhen` attributes are evaluated in the order they are declared: -->
+임의의 조건에 따라 달라지는 바인딩에는 `BindWhen` 속성을 사용할 수 있습니다. 클로저는 컨테이너를 인수로 받을 수 있으며, 바인딩을 적용해야 할 때 `true`를 반환해야 합니다. `Bind` 및 `BindWhen` 속성은 선언된 순서대로 평가됩니다:
+
+```php
+use App\Services\BetaEventPusher;
+use Illuminate\Container\Attributes\BindWhen;
+use Laravel\Pennant\Feature;
+
+#[BindWhen(BetaEventPusher::class, static fn () => Feature::active('beta-events'))]
+interface EventPusher
+{
+    // ...
+}
+```
+
+> [!NOTE]
+> `BindWhen` 속성을 사용하려면 PHP 8.5 이상이 필요합니다.
+
 <a name="contextual-binding"></a>
 <!-- ### Contextual Binding -->
 ### Contextual Binding
@@ -414,8 +432,8 @@ class PhotoController extends Controller
 }
 ```
 
-<!-- In addition to the `Storage` attribute, Laravel offers `Auth`, `Cache`, `Config`, `Context`, `DB`, `Give`, `Log`, `RouteParameter`, and [Tag](#tagging) attributes: -->
-`Storage` 속성 외에도, Laravel은 `Auth`, `Cache`, `Config`, `Context`, `DB`, `Give`, `Log`, `RouteParameter`, [Tag](#tagging) 속성을 제공합니다.
+<!-- In addition to the `Storage` attribute, Laravel offers `Auth`, `Cache`, `Config`, `Context`, `DB`, `Give`, `Log`, `RequestAttribute`, `RouteParameter`, and [Tag](#tagging) attributes: -->
+`Storage` 속성 외에도 Laravel은 `Auth`, `Cache`, `Config`, `Context`, `DB`, `Give`, `Log`, `RequestAttribute`, `RouteParameter`, [Tag](#tagging) 속성을 제공합니다.
 
 ```php
 <?php
@@ -423,6 +441,7 @@ class PhotoController extends Controller
 namespace App\Http\Controllers;
 
 use App\Contracts\UserRepository;
+use App\Models\Organization;
 use App\Models\Photo;
 use App\Repositories\DatabaseRepository;
 use Illuminate\Container\Attributes\Auth;
@@ -432,6 +451,7 @@ use Illuminate\Container\Attributes\Context;
 use Illuminate\Container\Attributes\DB;
 use Illuminate\Container\Attributes\Give;
 use Illuminate\Container\Attributes\Log;
+use Illuminate\Container\Attributes\RequestAttribute;
 use Illuminate\Container\Attributes\RouteParameter;
 use Illuminate\Container\Attributes\Tag;
 use Illuminate\Contracts\Auth\Guard;
@@ -450,6 +470,7 @@ class PhotoController extends Controller
         #[DB('mysql')] protected Connection $connection,
         #[Give(DatabaseRepository::class)] protected UserRepository $users,
         #[Log('daily')] protected LoggerInterface $log,
+        #[RequestAttribute('organization')] protected Organization $organization,
         #[RouteParameter] protected Photo $photo,
         #[Tag('reports')] protected iterable $reports,
     ) {
@@ -460,6 +481,9 @@ class PhotoController extends Controller
 
 <!-- The `RouteParameter` attribute will resolve the route parameter matching the variable name. If needed, you may specify the route parameter name explicitly: `#[RouteParameter('photo')]`. -->
 `RouteParameter` 속성은 변수 이름과 일치하는 라우트 파라미터를 해석합니다. 필요하다면 라우트 파라미터 이름을 명시적으로 지정할 수도 있습니다: `#[RouteParameter('photo')]`.
+
+<!-- The `RequestAttribute` attribute will resolve the value stored under the given key in the current request's [attribute bag](https://symfony.com/doc/current/components/http_foundation.html#accessing-request-data): `#[RequestAttribute('organization')]`. -->
+`RequestAttribute` 속성은 현재 요청의 [attribute bag](https://symfony.com/doc/current/components/http_foundation.html#accessing-request-data)에 지정한 키로 저장된 값을 해석합니다: `#[RequestAttribute('organization')]`.
 
 <!-- In addition, Laravel provides a `CurrentUser` attribute for injecting the currently authenticated user into a given route or class: -->
 더불어, 현재 인증된 사용자를 라우트나 클래스에 주입할 때 사용할 수 있는 `CurrentUser` 속성도 제공합니다.

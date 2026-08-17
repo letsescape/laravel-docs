@@ -40,7 +40,6 @@
 <!-- [Laravel Telescope](https://github.com/laravel/telescope) makes a wonderful companion to your local Laravel development environment. Telescope provides insight into the requests coming into your application, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, variable dumps, and more. -->
 [Laravel Telescope](https://github.com/laravel/telescope) は、ローカルの Laravel 開発環境の素晴らしいパートナーになります。 Telescope は、アプリケーションに送られるリクエスト、例外、ログ エントリ、データベース クエリ、キューに入れられたジョブ、メール、通知、キャッシュ操作、スケジュールされたタスク、変数ダンプなどに関する洞察を提供します。
 
-<!-- <img src="https://laravel.com/img/docs/telescope-example.png"/> -->
 <img src="https://laravel.com/img/docs/telescope-example.png"/>
 
 <a name="installation"></a>
@@ -122,6 +121,38 @@ Telescope のアセットを公開すると、そのプライマリ構成ファ�
 
 ```php
 'enabled' => env('TELESCOPE_ENABLED', true),
+```
+
+<a name="content-security-policy-csp-nonce"></a>
+<!-- #### Content Security Policy (CSP) Nonce -->
+#### Content Security Policy (CSP) Nonce
+
+<!-- If you would like to use a [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) on the script and style tags used in Telescope views as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may use the `Telescope::cspNonce` method to specify the nonce to use. This method should typically be invoked within middleware so that a new nonce is assigned for each request: -->
+Telescope のビューで使用する script タグや style タグに、[Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) の一部として [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) を設定したい場合は、使用する nonce を指定するために `Telescope::cspNonce` メソッドを使用できます。通常、このメソッドはミドルウェア内で呼び出し、リクエストごとに新しい nonce を割り当てます。
+
+```php
+use Closure;
+use Illuminate\Http\Request;
+use Laravel\Telescope\Telescope;
+use Symfony\Component\HttpFoundation\Response;
+
+public function handle(Request $request, Closure $next): Response
+{
+    Telescope::cspNonce('csp-nonce');
+
+    return $next($request);
+}
+```
+
+<!-- You may add this middleware to the `middleware` option in your application's `config/telescope.php` configuration file: -->
+このミドルウェアは、アプリケーションの `config/telescope.php` 設定ファイルにある `middleware` オプションへ追加できます。
+
+```php
+'middleware' => [
+    'web',
+    App\Http\Middleware\AddTelescopeCspNonce::class,
+    Authorize::class,
+],
 ```
 
 <a name="data-pruning"></a>
@@ -556,4 +587,3 @@ public function register(): void
     });
 }
 ```
-

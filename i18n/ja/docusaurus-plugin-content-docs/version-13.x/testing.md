@@ -291,8 +291,8 @@ php artisan test --profile
 <!-- ## Configuration Caching -->
 ## Configuration Caching
 
-<!-- When running tests, Laravel boots the application for each individual test method.  Without a cached configuration file, each configuration file in your application must be loaded at the start of a test. To build the configuration once and re-use it for all tests in a single run, you may use the `Illuminate\Foundation\Testing\WithCachedConfig` trait: -->
-テストを実行するとき、Laravel は個々のテストメソッドごとにアプリケーションを起動します。  キャッシュされた構成ファイルがない場合、テストの開始時にアプリケーション内の各構成ファイルをロードする必要があります。構成を一度構築し、それを 1 回の実行ですべてのテストに再利用するには、`Illuminate\Foundation\Testing\WithCachedConfig` トレイトを使用できます。
+<!-- When running tests, Laravel boots the application for each individual test method. Without a cached configuration file, each configuration file in your application must be loaded at the start of a test. To build the configuration once and re-use it for all tests in a single run, you may use the `Illuminate\Foundation\Testing\WithCachedConfig` trait: -->
+テストを実行すると、Laravel はテストメソッドごとにアプリケーションを起動します。設定ファイルをキャッシュしていない場合、テスト開始時にアプリケーションの各設定ファイルを読み込む必要があります。設定を一度構築し、1回の実行ですべてのテストに再利用するには、`Illuminate\Foundation\Testing\WithCachedConfig` トレイトを使用できます。
 
 ```php tab=Pest
 <?php
@@ -319,4 +319,3 @@ class ConfigTest extends TestCase
     // ...
 }
 ```
-

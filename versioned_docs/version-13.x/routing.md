@@ -716,17 +716,17 @@ Route::get('/posts/{post:slug}', function (Post $post) {
     return $post;
 });
 ```
-
-<!-- If you would like model binding to always use a database column other than `id` when retrieving a given model class, you may override the `getRouteKeyName` method on the Eloquent model: -->
-특정 모델 클래스를 가져올 때 모델 바인딩이 항상 `id`가 아닌 다른 데이터베이스 컬럼을 사용하도록 하려면, Eloquent 모델에서 `getRouteKeyName` 메서드를 오버라이드할 수 있습니다.
+<!-- If you would like model binding to always use a database column other than `id` when retrieving a given model class, you may apply the `RouteKey` attribute to the Eloquent model: -->
+특정 모델 클래스를 가져올 때 모델 바인딩이 항상 `id`가 아닌 다른 데이터베이스 컬럼을 사용하도록 하려면, Eloquent 모델에 `RouteKey` 애트리뷰트를 적용할 수 있습니다.
 
 ```php
-/**
- * Get the route key for the model.
- */
-public function getRouteKeyName(): string
+use Illuminate\Database\Eloquent\Attributes\RouteKey;
+use Illuminate\Database\Eloquent\Model;
+
+#[RouteKey('slug')]
+class Post extends Model
 {
-    return 'slug';
+    // ...
 }
 ```
 

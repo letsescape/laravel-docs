@@ -24,10 +24,14 @@
     - [Anonymous Agents](#anonymous-agents)
     - [Agent Configuration](#agent-configuration)
     - [Provider Options](#provider-options)
+- [Human Tool Approval](#human-tool-approval)
+    - [Complete Approval Flow](#complete-approval-flow)
 - [Images](#images)
 - [Audio (TTS)](#audio)
 - [Transcription (STT)](#transcription)
+- [Text Summarization](#text-summarization)
 - [Embeddings](#embeddings)
+    - [Multimodal Embeddings](#multimodal-embeddings)
     - [Querying Embeddings](#querying-embeddings)
     - [Caching Embeddings](#caching-embeddings)
 - [Reranking](#reranking)
@@ -139,7 +143,6 @@ XAI_API_KEY=
 <!-- Custom base URLs are supported for the following providers: OpenAI, Anthropic, Gemini, Groq, Cohere, DeepSeek, xAI, and OpenRouter. -->
 カスタム ベース URL は、OpenAI、Anthropic、Gemini、Groq、Cohere、DeepSeek、xAI、OpenRouter のプロバイダでサポートされています。
 
-<!-- <a name="openai-compatible-providers"></a> -->
 <a name="openai-compatible-providers"></a>
 <!-- ### OpenAI-Compatible Providers -->
 ### OpenAI-Compatible Providers
@@ -180,8 +183,43 @@ agent()->prompt('What is Laravel?', provider: 'local', model: 'local-model');
 ],
 ```
 
-<!-- OpenAI-compatible providers support text generation, streaming, tools, structured output, and image attachments. If your endpoint requires additional request body fields, provide them using [provider options](#provider-options). -->
-OpenAI 互換のプロバイダは、テキスト生成、ストリーミング、ツール、構造化出力、画像添付ファイルをサポートしています。エンドポイントが追加のリクエストボディ項目を必要とする場合は、[provider options](#provider-options) を使って指定してください。
+<!-- You may add custom HTTP headers to every outgoing request for the provider by defining a `headers` array in its configuration. This is useful when an endpoint requires an additional identifying or authentication header beyond the bearer token: -->
+プロバイダへのすべての送信リクエストにカスタム HTTP ヘッダーを追加するには、設定で `headers` 配列を定義します。これは、エンドポイントが bearer トークン以外に識別用または認証用のヘッダーを必要とする場合に便利です。
+
+```php
+'local' => [
+    'driver' => 'openai-compatible',
+    'url' => env('LOCAL_AI_URL'),
+    'key' => env('LOCAL_AI_API_KEY'),
+    'headers' => [
+        'X-Tenant-Id' => env('LOCAL_AI_TENANT_ID'),
+    ],
+],
+```
+
+<!-- OpenAI-compatible providers support text generation, streaming, tools, structured output, image attachments, and embeddings. If your endpoint requires additional request body fields, provide them using [provider options](#provider-options). -->
+OpenAI互換のプロバイダは、テキスト生成、ストリーミング、ツール、構造化出力、画像添付、埋め込みに対応しています。エンドポイントでリクエストボディに追加のフィールドが必要な場合は、[provider options](#provider-options)を使って指定してください。
+
+<a name="openai-compatible-embeddings"></a>
+<!-- #### OpenAI-Compatible Embeddings -->
+#### OpenAI-Compatible Embeddings
+
+<!-- Since arbitrary endpoints have no known models, you must configure a default embeddings model to use `embeddings()` with an OpenAI-compatible provider. You may also configure a fixed dimensions value; if omitted, the request is sent without a `dimensions` parameter and the model's native dimensions are used. -->
+任意のエンドポイントには既知のモデルがないため、OpenAI互換プロバイダで `embeddings()` を使用するには、デフォルトの embeddings モデルを設定する必要があります。固定の次元数を設定することもできます。省略した場合、リクエストは `dimensions` パラメータなしで送信され、モデル固有の次元数が使用されます。
+
+```php
+'local' => [
+    'driver' => 'openai-compatible',
+    'url' => env('LOCAL_AI_URL'),
+    'key' => env('LOCAL_AI_API_KEY'),
+    'models' => [
+        'embeddings' => [
+            'default' => 'text-embedding-qwen3-embedding-0.6b',
+            'dimensions' => 1024, // optional
+        ],
+    ],
+],
+```
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -190,20 +228,19 @@ OpenAI 互換のプロバイダは、テキスト生成、ストリーミング�
 <!-- The AI SDK supports a variety of providers across its features. The following table summarizes which providers are available for each feature: -->
 AI SDK は、その機能全体にわたってさまざまなプロバイダをサポートします。次の表は、各機能で利用できるプロバイダをまとめたものです。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini | | STT | OpenAI, ElevenLabs, Mistral, Gemini | | Embeddings | OpenAI, OpenAI-Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI | | Files | OpenAI, Anthropic, Gemini, Azure | -->
 | 機能 | プロバイダ |
 |---|---|
-| テキスト | OpenAI、OpenAI Compatible、Anthropic、Gemini、Azure、Bedrock、Groq、xAI、DeepSeek、Mistral、Ollama、OpenRouter |
-| 画像 | OpenAI、Gemini、xAI、Azure、Bedrock、OpenRouter |
-| TTS | OpenAI、ElevenLabs、Gemini |
-| STT | OpenAI、ElevenLabs、Mistral、Gemini |
-| 埋め込み | OpenAI、Gemini、Azure、Bedrock、Cohere、Mistral、Jina、VoyageAI、Ollama、OpenRouter |
-| リランキング | Cohere、Jina、VoyageAI |
-| ファイル | OpenAI、Anthropic、Gemini、Azure |
+| テキスト | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
+| 画像 | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
+| TTS | OpenAI, ElevenLabs, Gemini |
+| STT | OpenAI, ElevenLabs, Mistral, Gemini |
+| 埋め込み | OpenAI, OpenAI-Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
+| リランキング | Cohere, Jina, VoyageAI |
+| ファイル | OpenAI, Anthropic, Gemini, Azure |
 
-<!-- </div> -->
 </div>
 
 <!-- The `Laravel\Ai\Enums\Lab` enum may be used to reference providers throughout your code instead of using plain strings: -->
@@ -337,10 +374,38 @@ $agent = SalesCoach::make(user: $user);
 $response = (new SalesCoach)->prompt(
     'Analyze this sales transcript...',
     provider: Lab::Anthropic,
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-sonnet-5',
     timeout: 120,
 );
 ```
+
+<a name="raw-http-responses"></a>
+<!-- #### Raw HTTP Responses -->
+#### Raw HTTP Responses
+
+<!-- Every response returned from a text-generating agent exposes the raw HTTP response from the underlying provider API call via a `raw` property. This gives you access to provider-specific information that isn't part of the AI SDK's generic response - rate-limit headers, request IDs, or other exact payload fields: -->
+テキスト生成エージェントから返されるすべてのレスポンスには、`raw` プロパティを介して、基盤となるプロバイダ API 呼び出しの生の HTTP レスポンスが公開されます。これにより、レート制限ヘッダー、リクエスト ID、その他の正確なペイロードフィールドなど、AI SDK の汎用レスポンスには含まれないプロバイダ固有の情報にアクセスできます。
+
+```php
+$response = (new SalesCoach)->prompt('Analyze this sales transcript...');
+
+$response->raw; // Illuminate\Http\Client\Response|null
+
+$response->raw->header('X-RateLimit-Remaining-Requests');
+$response->raw->json('id');
+```
+
+<!-- In a tool-call loop, each step retains the raw response of its own request: -->
+ツール呼び出しループでは、各ステップが自身のリクエストに対する生のレスポンスを保持します。
+
+```php
+foreach ($response->steps as $step) {
+    $step->raw?->header('X-RateLimit-Remaining-Requests');
+}
+```
+
+> [!NOTE]
+> レスポンスをストリーミングしている場合、Bedrock プロバイダを使用している場合（API 呼び出しに HTTP クライアントではなく AWS SDK を使用します）、およびフェイクしたレスポンスで `withRawResponse` を使って明示的に指定していない場合、`raw` プロパティは `null` です。
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -373,7 +438,8 @@ public function messages(): iterable
 <!-- #### Remembering Conversations -->
 #### Remembering Conversations
 
-> **注意:** `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使用して AI SDK 移行を公開し、実行する必要があります。これらの移行により、会話を保存するために必要なデータベース テーブルが作成されます。
+> [!WARNING]
+> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドで AI SDK のマイグレーションを公開して実行してください。これらのマイグレーションにより、会話を保存するために必要なデータベーステーブルが作成されます。
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。この特性は、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
@@ -451,6 +517,55 @@ $response = (new SalesCoach)
 
 <!-- When using the `RemembersConversations` trait, previous messages are automatically loaded and included in the conversation context when prompting. New messages (both user and assistant) are automatically stored after each interaction. -->
 `RemembersConversations` トレイトを使用すると、以前のメッセージが自動的にロードされ、プロンプトが表示されたときに会話コンテキストに組み込まれます。新しいメッセージ (ユーザーとアシスタントの両方) は、各対話後に自動的に保存されます。
+
+<a name="conversation-participants"></a>
+<!-- #### Conversation Participants -->
+#### Conversation Participants
+
+<!-- Although users are the most common conversation participants, conversations may belong to any Eloquent model. Use the `forParticipant` method to start a conversation for another type of model: -->
+ユーザーが会話の参加者になることが最も一般的ですが、会話は任意の Eloquent モデルに属することができます。別の種類のモデルで会話を開始するには、`forParticipant` メソッドを使用します。
+
+```php
+$response = (new SalesCoach)
+    ->forParticipant($team)
+    ->prompt('Review our latest sales results.');
+```
+
+<!-- The participant's morph class and primary key are stored with the conversation. Therefore, models of different types that have the same primary key, such as `User` ID `1` and `Team` ID `1`, have separate conversation histories. The `forUser` method is an alias for `forParticipant`. -->
+参加者の morph クラスと主キーは会話とともに保存されます。そのため、`User` ID `1` と `Team` ID `1` のように主キーが同じでも型が異なるモデルは、それぞれ別の会話履歴を持ちます。`forUser` メソッドは `forParticipant` のエイリアスです。
+
+<!-- You may continue the participant's most recent conversation using the `continueLastConversation` method: -->
+参加者との直近の会話は、`continueLastConversation` メソッドを使用して続行できます。
+
+```php
+$response = (new SalesCoach)
+    ->continueLastConversation($team)
+    ->prompt('Tell me more about that.');
+```
+
+<!-- When continuing a specific conversation, pass the participant to the `continue` method: -->
+特定の会話を続ける場合は、参加者を `continue` メソッドに渡します。
+
+```php
+$response = (new SalesCoach)
+    ->continue($conversationId, as: $team)
+    ->prompt('Tell me more about that.');
+```
+
+<!-- The `HasConversations` trait may be added to any Eloquent model that participates in conversations. The resulting `conversations` relationship is a polymorphic relationship scoped to that model's type and primary key. You may also access the participant that owns a conversation through its inverse relationship: -->
+会話に参加する任意の Eloquent モデルに `HasConversations` トレイトを追加できます。これにより作成される `conversations` リレーションは、そのモデルのタイプと主キーにスコープされたポリモーフィックリレーションです。また、逆リレーションを通じて会話を所有する参加者にもアクセスできます。
+
+```php
+$conversations = $team->conversations;
+
+$participant = $conversation->participant;
+```
+
+<!-- If your application uses multiple participant model types, you should consider defining an [Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) so that stored participant types are not coupled to your model class names. -->
+アプリケーションで複数の参加者モデルの種類を使用する場合は、保存される参加者のタイプがモデルのクラス名に依存しないよう、[Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) の定義を検討してください。
+
+> [!WARNING]
+> `continue` メソッドは、指定された参加者が会話を所有しているかを検証しません。会話を続行する前に、アプリケーションでアクセスを認可してください。
 
 <a name="structured-output"></a>
 <!-- ### Structured Output -->
@@ -593,8 +708,8 @@ use Laravel\Ai\Files;
 $response = (new SalesCoach)->prompt(
     'Analyze the attached sales transcript...',
     attachments: [
-        Files\Document::fromStorage('transcript.pdf') // Attach a document from a filesystem disk...
-        Files\Document::fromPath('/home/laravel/transcript.md') // Attach a document from a local path...
+        Files\Document::fromStorage('transcript.pdf'), // Attach a document from a filesystem disk...
+        Files\Document::fromPath('/home/laravel/transcript.md'), // Attach a document from a local path...
         $request->file('transcript'), // Attach an uploaded file...
     ]
 );
@@ -610,8 +725,8 @@ use Laravel\Ai\Files;
 $response = (new ImageAnalyzer)->prompt(
     'What is in this image?',
     attachments: [
-        Files\Image::fromStorage('photo.jpg') // Attach an image from a filesystem disk...
-        Files\Image::fromPath('/home/laravel/photo.jpg') // Attach an image from a local path...
+        Files\Image::fromStorage('photo.jpg'), // Attach an image from a filesystem disk...
+        Files\Image::fromPath('/home/laravel/photo.jpg'), // Attach an image from a local path...
         $request->file('photo'), // Attach an uploaded file...
     ]
 );
@@ -704,7 +819,6 @@ foreach ($stream as $event) {
 );
 ```
 
-<!-- <a name="skipping-oversized-events"></a> -->
 <a name="skipping-oversized-events"></a>
 <!-- #### Skipping Oversized Events -->
 #### Skipping Oversized Events
@@ -908,7 +1022,7 @@ SimilaritySearch::usingModel(Document::class, 'embedding')
 ### File Storage Tools
 
 <!-- The `FileStorage` tool factory allows you to give agents access to a Laravel [filesystem disk](/docs/13.x/filesystem). The `all` method returns tools that allow the agent to list, read, inspect, generate URLs for, write, delete, and copy files on the given disk: -->
-`FileStorage` ツールファクトリを使うと、エージェントに Laravel の [filesystem disk](/docs/13.x/filesystem) へのアクセスを許可できます。`all` メソッドは、指定したディスク上のファイルを一覧表示、読み取り、確認、URL 生成、書き込み、削除、コピーできるツールを返します。
+`FileStorage` ツールファクトリを使うと、エージェントに Laravel の [filesystem disk](/docs/13.x/filesystem) へのアクセスを許可できます。`all` メソッドは、指定したディスク上のファイルを一覧表示、読み取り、検査、URL の生成、書き込み、削除、コピーするためのツールを返します。
 
 ```php
 use Laravel\Ai\Tools\FileStorage;
@@ -941,10 +1055,10 @@ return FileStorage::all('s3')
 ### MCP Tools
 
 <!-- If your application uses [Laravel MCP](/docs/13.x/mcp), you may give your agents tools exposed by [Model Context Protocol](https://modelcontextprotocol.io) servers. Using the [Laravel MCP client](/docs/13.x/mcp#client), you may connect to a remote or local MCP server and pass its tools directly to your agent. -->
-アプリケーションで [Laravel MCP](/docs/13.x/mcp) を使用している場合は、[Model Context Protocol](https://modelcontextprotocol.io) サーバが公開するツールをエージェントに与えることができます。[Laravel MCP client](/docs/13.x/mcp#client)を使用すると、リモートまたはローカルの MCP サーバに接続し、そのツールを直接エージェントに渡せます。
+アプリケーションで [Laravel MCP](/docs/13.x/mcp) を使用している場合、[Model Context Protocol](https://modelcontextprotocol.io) サーバーが提供するツールをエージェントに与えられます。[Laravel MCP client](/docs/13.x/mcp#client) を使用すると、リモートまたはローカルの MCP サーバーに接続し、そのツールをエージェントへ直接渡せます。
 
 > [!NOTE]
-> MCP ツールを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージがインストールされている必要があります。
+> MCP ツールを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
 
 <!-- Because an MCP client's `tools` method returns a collection, spread it into your agent's `tools` array using the `...` operator: -->
 MCP クライアントの `tools` メソッドはコレクションを返すため、`...` 演算子を使ってエージェントの `tools` 配列にスプレッドします。
@@ -971,7 +1085,7 @@ public function tools(): iterable
 ```
 
 <!-- The AI SDK automatically wraps each MCP tool so the agent can call it like any other tool. You may also use a [named MCP client](/docs/13.x/mcp#named-clients): -->
-AI SDK は各 MCP ツールを自動的にラップするため、エージェントは他のツールと同じように呼び出せます。[named MCP client](/docs/13.x/mcp#named-clients)を使用することもできます。
+AI SDK は各 MCP ツールを自動的にラップするため、エージェントは他のツールと同じように呼び出せます。また、[named MCP client](/docs/13.x/mcp#named-clients) を使用することもできます。
 
 ```php
 use Laravel\Mcp\Facades\Mcp;
@@ -985,7 +1099,7 @@ public function tools(): iterable
 ```
 
 <!-- Or connect to a [local MCP server](/docs/13.x/mcp#client-connecting): -->
-あるいは、[local MCP server](/docs/13.x/mcp#client-connecting)に接続することもできます。
+または、[local MCP server](/docs/13.x/mcp#client-connecting) に接続します。
 
 ```php
 use Laravel\Mcp\Client;
@@ -999,7 +1113,7 @@ public function tools(): iterable
 ```
 
 <!-- For more information on creating and authenticating MCP clients, including bearer tokens and OAuth, consult the [MCP client documentation](/docs/13.x/mcp#client). -->
-ベアラートークンや OAuth を含む MCP クライアントの作成と認証の詳細については、[MCP client documentation](/docs/13.x/mcp#client)を参照してください。
+MCP クライアントの作成と認証について詳しくは、Bearerトークンや OAuth を含めて、[MCP client documentation](/docs/13.x/mcp#client)を参照してください。
 
 <a name="provider-tools"></a>
 <!-- ### Provider Tools -->
@@ -1018,8 +1132,8 @@ public function tools(): iterable
 <!-- The `WebSearch` provider tool allows agents to search the web for real-time information. This is useful for answering questions about current events, recent data, or topics that may have changed since the model's training cutoff. -->
 `WebSearch` プロバイダ ツールを使用すると、エージェントは Web でリアルタイム情報を検索できます。これは、現在のイベント、最近のデータ、またはモデルのトレーニングのカットオフ以降に変更された可能性のあるトピックに関する質問に答えるのに役立ちます。
 
-<!-- **Supported providers:** Anthropic, OpenAI, Gemini, OpenRouter -->
-**サポートされているプロバイダ:** Anthropic、OpenAI、Gemini、OpenRouter
+<!-- **Supported providers:** Anthropic, OpenAI, Azure, Gemini, OpenRouter -->
+**対応プロバイダ:** Anthropic, OpenAI, Azure, Gemini, OpenRouter
 
 ```php
 use Laravel\Ai\Providers\Tools\WebSearch;
@@ -1354,26 +1468,16 @@ $response = agent(
 <!-- You may configure text generation options for an agent using PHP attributes. The following attributes are available: -->
 PHP 属性を使用して、エージェントのテキスト生成オプションを構成できます。次の属性が使用可能です。
 
-<!--
-- `MaxSteps`: The maximum number of steps the agent may take when using tools.
-- `MaxTokens`: The maximum number of tokens the model may generate.
-- `Model`: The model the agent should use.
-- `Provider`: The AI provider (or providers for failover) to use for the agent.
-- `Temperature`: The sampling temperature to use for generation (0.0 to 1.0).
-- `Timeout`: The HTTP timeout in seconds for agent requests (default: 60).
-- `TopP`: The nucleus sampling probability to use for generation (0.0 to 1.0).
-- `UseCheapestModel`: Use the provider's cheapest text model for cost optimization.
-- `UseSmartestModel`: Use the provider's most capable text model for complex tasks.
--->
-- `MaxSteps`: ツールを使用するときにエージェントが実行できる最大ステップ数。
+<!-- - `MaxSteps`: The maximum number of steps the agent may take when using tools. - `MaxTokens`: The maximum number of tokens the model may generate. - `Model`: The model the agent should use. - `Provider`: The AI provider (or providers for failover) to use for the agent. - `Temperature`: The sampling temperature to use for generation (0.0 to 1.0). - `Timeout`: The HTTP timeout in seconds for agent requests (default: 60). - `TopP`: The nucleus sampling probability to use for generation (0.0 to 1.0). - `UseCheapestModel`: Use the provider's cheapest text model for cost optimization. - `UseSmartestModel`: Use the provider's most capable text model for complex tasks. -->
+- `MaxSteps`: ツールの使用時にエージェントが実行できるステップの最大数。
 - `MaxTokens`: モデルが生成できるトークンの最大数。
 - `Model`: エージェントが使用するモデル。
-- `Provider`: エージェントに使用する AI プロバイダ (またはフェイルオーバー用のプロバイダ)。
-- `Temperature`: 生成に使用するサンプリング温度 (0.0 ～ 1.0)。
-- `Timeout`: エージェント要求の HTTP タイムアウト (秒単位) (デフォルト: 60)。
-- `TopP`: 生成に使用する核のサンプリング確率 (0.0 ～ 1.0)。
-- `UseCheapestModel`: コストを最適化するために、プロバイダの最も安価なテキスト モデルを使用します。
-- `UseSmartestModel`: 複雑なタスクにはプロバイダの最も機能的なテキスト モデルを使用します。
+- `Provider`: エージェントで使用する AI プロバイダ（フェイルオーバー用に複数指定することもできます）。
+- `Temperature`: 生成に使用するサンプリング温度（0.0〜1.0）。
+- `Timeout`: エージェントのリクエストに対する HTTP タイムアウト（秒）。デフォルトは 60 です。
+- `TopP`: 生成に使用する nucleus sampling の確率（0.0〜1.0）。
+- `UseCheapestModel`: コストを最適化するため、プロバイダで最も安価なテキストモデルを使用します。
+- `UseSmartestModel`: 複雑なタスクに対応するため、プロバイダで最も高性能なテキストモデルを使用します。
 
 ```php
 <?php
@@ -1392,7 +1496,7 @@ use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Promptable;
 
 #[Provider(Lab::Anthropic)]
-#[Model('claude-haiku-4-5-20251001')]
+#[Model('claude-sonnet-5')]
 #[MaxSteps(10)]
 #[MaxTokens(4096)]
 #[Temperature(0.7)]
@@ -1433,7 +1537,7 @@ class ComplexReasoner implements Agent
 ```
 
 > [!NOTE]
-> `UseCheapestModel` と `UseSmartestModel` が選択する実際のモデルは、プロバイダが新しいモデルをリリースするのに伴い、Laravel AI SDK のリリースごとに変わる可能性があります。モデルを切り替えると、動作の変化、非推奨パラメータ、大幅なコスト差が生じることがあります。安定して予測可能なモデルと料金が必要な場合は、`Model` 属性を使用してモデルを明示的に指定してください。
+> `UseCheapestModel` と `UseSmartestModel` が選択する基盤モデルは、各プロバイダが新しいモデルをリリースすることで、Laravel AI SDK のリリース間に変更される場合があります。モデルを切り替えると、動作の変更や非推奨パラメータ、コストの大きな違いが生じる可能性があります。安定した予測可能なモデルと料金が必要な場合は、`Model` 属性を使ってモデルを明示的に指定してください。
 
 <a name="provider-options"></a>
 <!-- ### Provider Options -->
@@ -1484,6 +1588,237 @@ class SalesCoach implements Agent, HasProviderOptions
 
 <!-- The Anthropic example above also enables [prompt caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) via `cache_control`. -->
 上記の Anthropic の例では、`cache_control` を介して [prompt caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) も有効にします。
+
+<a name="human-tool-approval"></a>
+<!-- ## Human Tool Approval -->
+## Human Tool Approval
+
+> [!WARNING]
+> ツールの承認には、会話履歴が保存され、保留中の呼び出しを再開できる `Conversational` エージェントが必要です。`RemembersConversations` トレイトが必要な永続化機能を提供します。
+
+<!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
+機密性の高い操作や取り消せない操作を実行するツールでは、実行前に人間の承認が必要になる場合があります。ツールを承認可能にするには、`Approvable` コントラクトを実装し、`InteractsWithApprovals` トレイトを使用します。承認可能なツールは、デフォルトで承認が必要です。
+
+```php
+<?php
+
+namespace App\Ai\Tools;
+
+use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Storage;
+use Laravel\Ai\Concerns\InteractsWithApprovals;
+use Laravel\Ai\Contracts\Approvable;
+use Laravel\Ai\Contracts\Tool;
+use Laravel\Ai\Tools\Request;
+use Stringable;
+
+class DeleteFile implements Approvable, Tool
+{
+    use InteractsWithApprovals;
+
+    /**
+     * Get the description of the tool's purpose.
+     */
+    public function description(): Stringable|string
+    {
+        return 'Delete a file from storage.';
+    }
+
+    /**
+     * Execute the tool.
+     */
+    public function handle(Request $request): Stringable|string
+    {
+        Storage::delete($request['path']);
+
+        return "Deleted [{$request['path']}].";
+    }
+
+    /**
+     * Get the tool's schema definition.
+     */
+    public function schema(JsonSchema $schema): array
+    {
+        return [
+            'path' => $schema->string()->required(),
+        ];
+    }
+}
+```
+
+<!-- To determine whether approval is needed based on the tool call's arguments, define a `needsApproval` method on the tool. This method may return a boolean or an `Approval` instance that includes a reason for the approval request: -->
+ツール呼び出しの引数に基づいて承認が必要かどうかを判断するには、ツールに `needsApproval` メソッドを定義します。このメソッドは、ブール値または承認を求める理由を含む `Approval` インスタンスを返せます。
+
+```php
+use Laravel\Ai\Approvals\Approval;
+
+/**
+ * Determine whether the tool needs approval for the given request.
+ */
+protected function needsApproval(Request $request): Approval|bool
+{
+    return str_starts_with($request['path'], 'temporary/')
+        ? false
+        : Approval::required('This will permanently delete a file.');
+}
+```
+
+<!-- You may override a tool's approval requirement when returning it from an agent's `tools` method: -->
+エージェントの `tools` メソッドからツールを返す際に、ツールの承認要件を上書きできます。
+
+```php
+public function tools(): iterable
+{
+    return [
+        (new SendNotification)->withoutApproval(),
+        (new DeleteFile)->requireApproval('Deletion review required.'),
+    ];
+}
+```
+
+<!-- When an approvable tool is called, the agent pauses before executing it. You may inspect the response's pending approvals, which contain each tool call's ID, tool name, arguments, and approval reason: -->
+承認が必要なツールが呼び出されると、エージェントは実行前に一時停止します。レスポンスの保留中の承認を確認できます。そこには各ツール呼び出しの ID、ツール名、引数、承認理由が含まれます。
+
+```php
+$response = (new FileAssistant)
+    ->forUser($user)
+    ->prompt('Delete the old invoice.');
+
+if ($response->hasPendingApprovals()) {
+    foreach ($response->pendingApprovals as $approval) {
+        // $approval->id
+        // $approval->tool
+        // $approval->arguments
+        // $approval->reason
+    }
+}
+```
+
+<!-- To resume the agent, continue the conversation and provide a `Decisions` instance containing a decision for each pending tool call. Decisions may approve the call, reject it, or edit its arguments before execution: -->
+エージェントを再開するには、会話を続け、保留中の各ツール呼び出しに対する判断を含む `Decisions` インスタンスを渡します。判断では、呼び出しを承認または拒否したり、実行前に引数を編集したりできます。
+
+```php
+use Laravel\Ai\Approvals\Decision;
+use Laravel\Ai\Approvals\Decisions;
+
+$response = (new FileAssistant)
+    ->continue($conversationId, as: $user)
+    ->prompt(Decisions::from([
+        'call_abc' => Decision::approve(),
+        'call_ghi' => Decision::reject('The invoice must be retained.'),
+    ]));
+```
+
+<!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
+ブール値の `true` と `false` は、それぞれ承認と拒否の略記として使用できます。保留中のすべてのツール呼び出しには、判定を与える必要があります。不明なツール呼び出し ID、存在しないツール呼び出し ID、またはすでに解決済みのツール呼び出し ID が指定されると、`ApprovalMismatchException` がスローされます。明示的な判定がない呼び出しに対しては、`approveRemaining` または `rejectRemaining` メソッドを使用してデフォルトの判定を指定できます。
+
+```php
+$decisions = Decisions::from([
+    'call_abc' => true,
+])->rejectRemaining('Not approved.');
+
+$response = (new FileAssistant)
+    ->continue($conversationId, as: $user)
+    ->prompt($decisions);
+```
+
+<!-- A rejection with a result, such as `Decision::reject('Not approved.')`, is returned to the model so it may continue responding. A rejection without a result stops the generation loop after recording the rejection. -->
+結果を伴う拒否（`Decision::reject('Not approved.')` など）はモデルに返され、モデルは応答を続けられます。結果を伴わない拒否は、拒否を記録したあと生成ループを停止します。
+
+<!-- Tool approval is supported by the `prompt`, `stream`, `queue`, `broadcast`, `broadcastNow`, and `broadcastOnQueue` methods. -->
+`prompt`、`stream`、`queue`、`broadcast`、`broadcastNow`、`broadcastOnQueue` メソッドでは、ツールの承認をサポートしています。
+
+<!-- During streaming and broadcasting, a pause is represented by a `tool_approval_request` event. When using the [Vercel AI SDK stream protocol](#streaming-using-the-vercel-ai-sdk-protocol), approval requests and results are emitted using the protocol's native tool approval parts. -->
+ストリーミングとブロードキャスト中、一時停止は `tool_approval_request` イベントで表されます。[Vercel AI SDK stream protocol](#streaming-using-the-vercel-ai-sdk-protocol) を使用する場合、承認リクエストと結果は、そのプロトコル固有のツール承認パーツを使って出力されます。
+
+<!-- For queued agents, the resulting response is passed to the `then` callback, and Laravel also dispatches a `ToolApprovalRequested` event. -->
+キューに入れたエージェントでは、生成されたレスポンスが `then` コールバックに渡され、Laravel は `ToolApprovalRequested` イベントもディスパッチします。
+
+<!-- Laravel stores the result of an approved tool before asking the model to continue. If generation then fails, the approval has already been resolved. Continue the conversation with a normal text prompt instead of submitting the same approval decisions again. -->
+Laravel は、モデルに続きを尋ねる前に、承認されたツールの実行結果を保存します。その後の生成に失敗した場合、承認処理はすでに完了しています。同じ承認決定を再度送信するのではなく、通常のテキストプロンプトで会話を続けてください。
+
+<a name="complete-approval-flow"></a>
+<!-- ### Complete Approval Flow -->
+### Complete Approval Flow
+
+<!-- The following routes demonstrate a complete approval flow. The `GET` route returns the chat screen, while the `POST` route accepts either a new text prompt or approval decisions from the chat screen. This example assumes the application's `User` model uses the `HasConversations` trait: -->
+以下のルートは、承認フロー全体を示しています。`GET` ルートはチャット画面を返し、`POST` ルートは新しいテキストプロンプトまたはチャット画面からの承認結果を受け取ります。この例では、アプリケーションの `User` モデルが `HasConversations` トレイトを使用していることを前提としています：
+
+```php
+use App\Ai\Agents\FileAssistant;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\Rule;
+use Laravel\Ai\Approvals\Decision;
+use Laravel\Ai\Approvals\Decisions;
+use Laravel\Ai\Models\Conversation;
+
+Route::get('/chat/{conversation}', function (Request $request, Conversation $conversation) {
+    Gate::authorize('view', $conversation);
+
+    return view('chat', [
+        'conversation' => $conversation,
+    ]);
+})->middleware('auth');
+
+Route::post('/chat/{conversation}', function (Request $request, Conversation $conversation) {
+    Gate::authorize('view', $conversation);
+
+    $validated = $request->validate([
+        'message' => ['nullable', 'string', 'required_without:decisions', 'prohibited_with:decisions'],
+        'decisions' => ['nullable', 'array', 'required_without:message', 'prohibited_with:message'],
+        'decisions.*.action' => ['required_with:decisions', Rule::in(['approve', 'reject'])],
+        'decisions.*.result' => ['nullable', 'string'],
+    ]);
+
+    $prompt = isset($validated['decisions'])
+        ? Decisions::from($validated->collect('decisions')->map(
+            fn (array $decision) => match ($decision['action']) {
+                'approve' => Decision::approve(),
+                'reject' => Decision::reject($decision['result'] ?? null),
+            }
+        )->all())
+        : $validated['message'];
+
+    $response = (new FileAssistant)
+        ->continue($conversation->id, as: $request->user())
+        ->prompt($prompt);
+
+    return [
+        'conversation_id' => $response->conversationId,
+        'status' => $response->hasPendingApprovals() ? 'awaiting_approval' : 'complete',
+        'message' => $response->text,
+        'approvals' => $response->pendingApprovals,
+    ];
+})->middleware('auth');
+```
+
+<!-- When the response status is `awaiting_approval`, the chat screen should render the pending approvals and submit the user's choices to the same endpoint using the tool call ID as each decision's key: -->
+レスポンスのステータスが `awaiting_approval` の場合、チャット画面には保留中の承認を表示し、ユーザーの選択を各判断のキーとしてツール呼び出し ID を使用し、同じエンドポイントへ送信します。
+
+```json
+{
+    "decisions": {
+        "call_abc": {
+            "action": "approve"
+        },
+        "call_def": {
+            "action": "reject",
+            "result": "The invoice must be retained."
+        }
+    }
+}
+```
+
+<!-- For a normal chat message, the screen may instead submit a `message` value: -->
+通常のチャットメッセージの場合、画面から代わりに `message` の値を送信することもできます。
+
+```json
+{
+    "message": "Delete the old invoice."
+}
+```
 
 <a name="images"></a>
 <!-- ## Images -->
@@ -1675,6 +2010,35 @@ Transcription::fromStorage('audio.mp3')
     });
 ```
 
+<a name="text-summarization"></a>
+<!-- ## Text Summarization -->
+## Text Summarization
+
+<!-- You may summarize text using the `summarize` method available via Laravel's `Stringable` class. By default, the summary will contain no more than three sentences and will be generated using the configured provider's cheapest text model: -->
+Laravel の `Stringable` クラスで利用できる `summarize` メソッドを使って、テキストを要約できます。デフォルトでは、要約は3文以内で、設定したプロバイダが提供する最も安価なテキストモデルを使って生成されます。
+
+```php
+use Illuminate\Support\Str;
+
+$summary = Str::of($article)->summarize();
+```
+
+<!-- You may specify the maximum number of sentences, provider, model, and timeout used to generate the summary. The `Str` class also offers a static version of the method: -->
+要約の生成に使用する文の最大数、プロバイダ、モデル、タイムアウトを指定できます。`Str` クラスには、このメソッドの static 版も用意されています。
+
+```php
+use Laravel\Ai\Enums\Lab;
+
+$summary = Str::of($article)->summarize(
+    sentences: 4,
+    provider: Lab::Anthropic,
+    model: 'claude-sonnet-5',
+    timeout: 30,
+);
+
+$summary = Str::summarize($article, sentences: 4);
+```
+
 <a name="embeddings"></a>
 <!-- ## Embeddings -->
 ## Embeddings
@@ -1710,6 +2074,55 @@ $response = Embeddings::for(['Napa Valley has great wine.'])
     ->dimensions(1536)
     ->generate(Lab::OpenAI, 'text-embedding-3-small');
 ```
+
+<a name="multimodal-embeddings"></a>
+<!-- ### Multimodal Embeddings -->
+### Multimodal Embeddings
+
+<!-- In addition to strings, the `Embeddings::for` method accepts image, audio, document, and video inputs, allowing you to generate embeddings for non-text content. Gemini supports image, audio, document, and video embeddings, while VoyageAI supports image and video embeddings: -->
+文字列に加えて、`Embeddings::for` メソッドは画像、音声、ドキュメント、動画の入力にも対応しているため、テキスト以外のコンテンツの埋め込みを生成できます。Gemini は画像、音声、ドキュメント、動画の埋め込みをサポートし、VoyageAI は画像と動画の埋め込みをサポートします。
+
+```php
+use Laravel\Ai\Embeddings;
+use Laravel\Ai\Enums\Lab;
+use Laravel\Ai\Files\Image;
+use Laravel\Ai\Files\Video;
+
+$response = Embeddings::for([
+    'A vineyard at sunset.',
+    Image::fromStorage('vineyard.jpg'),
+    Video::fromPath('/home/laravel/tour.mp4'),
+])->generate(Lab::Gemini);
+```
+
+<!-- Multimodal inputs use the same [file classes used for attachments](#attachments). These files may be created from a local path, a filesystem disk, a remote URL, or Base64-encoded content. Images, documents, and videos may also be created from uploaded files, while documents may be created from raw string content: -->
+マルチモーダル入力では、[file classes used for attachments](#attachments) と同じファイルクラスを使用します。これらのファイルは、ローカルパス、ファイルシステムディスク、リモート URL、または Base64 エンコードされたコンテンツから作成できます。画像、ドキュメント、動画はアップロードされたファイルからも作成でき、ドキュメントは生の文字列コンテンツから作成することもできます。
+
+```php
+use Laravel\Ai\Files\Audio;
+use Laravel\Ai\Files\Document;
+use Laravel\Ai\Files\Image;
+use Laravel\Ai\Files\Video;
+
+Image::fromPath('/home/laravel/photo.jpg');
+Image::fromStorage('photo.jpg');
+Image::fromUpload($request->file('photo'));
+
+Audio::fromPath('/home/laravel/clip.mp3');
+Audio::fromStorage('clip.mp3');
+Audio::fromUpload($request->file('clip.mp3'));
+
+Video::fromPath('/home/laravel/video.mp4');
+Video::fromStorage('video.mp4');
+Video::fromUpload($request->file('video'));
+
+Document::fromUrl('https://example.com/report.pdf');
+Document::fromString('Laravel is a PHP framework.', 'text/plain');
+Document::fromUpload($request->file('report'));
+```
+
+> [!NOTE]
+> VoyageAI では、リモート URL のメディアと Base64 エンコードされたメディアを1つのリクエストに混在させることはできません。ローカルファイル、保存済みファイル、アップロード済みファイルは Base64 エンコードされたコンテンツとして送信され、テキスト入力はどちらのメディアソースとも組み合わせられます。利用可能なマルチモーダルモデルと入力については、プロバイダのドキュメントを確認してください。
 
 <a name="querying-embeddings"></a>
 <!-- ### Querying Embeddings -->
@@ -1788,7 +2201,7 @@ $documents = Document::query()
 エージェントにツールとして類似性検索を実行できるようにしたい場合は、[Similarity Search](#similarity-search) ツールのドキュメントを確認してください。
 
 > [!NOTE]
-> 現在、ベクター クエリは、`pgvector` 拡張機能を使用した PostgreSQL 接続でのみサポートされています。
+> 現在、ベクトルクエリは `pgvector` 拡張機能を使用する PostgreSQL 接続でのみサポートされています。
 
 <a name="caching-embeddings"></a>
 <!-- ### Caching Embeddings -->
@@ -2133,7 +2546,8 @@ $document->id;
 $document->fileId;
 ```
 
-> **注意:** 通常、以前に保存されたファイルをベクター ストアに追加する場合、返されるドキュメント ID は、ファイルに以前に割り当てられた ID と一致します。ただし、一部のベクトル ストレージ プロバイダは、新しい異なる「ドキュメント ID」を返す場合があります。したがって、将来の参照のために両方の ID をデータベースに常に保存しておくことをお勧めします。
+> [!NOTE]
+> 通常、以前に保存したファイルをベクトルストアに追加すると、返されるドキュメント ID は以前に割り当てられたファイルの ID と一致します。ただし、一部のベクトルストレージプロバイダは、新しく異なる「ドキュメント ID」を返す場合があります。そのため、後で参照できるよう、常に両方の ID をデータベースに保存することをおすすめします。
 
 <!-- You may attach metadata to files when adding them to a store. This metadata can later be used to filter search results when using the [file search provider tool](#file-search): -->
 ファイルをストアに追加するときに、ファイルにメタデータを添付できます。このメタデータは、後で [file search provider tool](#file-search) を使用するときに検索結果をフィルタリングするために使用できます。
@@ -2228,6 +2642,7 @@ SalesCoach::fake(function (AgentPrompt $prompt) {
     return 'Response for: '.$prompt->prompt;
 });
 ```
+
 <!-- When faking an agent that returns structured output, you may provide arrays as responses. The agent will return a structured response containing the given data: -->
 構造化された出力を返すエージェントをフェイクする場合、レスポンスとして配列を指定できます。エージェントは、与えたデータを含む構造化レスポンスを返します:
 
@@ -2237,8 +2652,31 @@ SalesCoach::fake([
 ]);
 ```
 
-<!-- > **Note:** When `Agent::fake()` is invoked on an agent that returns structured output and fake output was not explicitly provided, Laravel will automatically generate fake data that matches your agent's defined output schema. -->
-> **注意:** 構造化された出力を返すエージェントに対して `Agent::fake()` が呼び出され、かつフェイク出力が明示的に指定されていない場合、Laravel はエージェントの定義された出力スキーマに一致する偽のデータを自動的に生成します。
+<!-- You may also fake a response that is awaiting tool approval: -->
+ツールの承認を待機しているレスポンスを偽装することもできます。
+
+```php
+use Laravel\Ai\Approvals\PendingApproval;
+use Laravel\Ai\Responses\AgentResponse;
+
+FileAssistant::fake([
+    AgentResponse::fakeWithPendingApprovals([
+        new PendingApproval(
+            id: 'call_abc',
+            tool: 'DeleteFile',
+            arguments: ['path' => 'invoice.pdf'],
+            reason: 'This will permanently delete a file.',
+        ),
+    ]),
+]);
+
+$response = (new FileAssistant)->prompt('Delete the invoice.');
+
+$response->hasPendingApprovals(); // true
+```
+
+> [!NOTE]
+> 構造化出力を返すエージェントで `Agent::fake()` を呼び出し、フェイク出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致するフェイクデータを自動的に生成します。
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 エージェントにプロンプ​​トを出した後、受け取ったプロンプトについてアサーションを行うことができます。
@@ -2255,6 +2693,25 @@ SalesCoach::assertPrompted(function (AgentPrompt $prompt) {
 SalesCoach::assertNotPrompted('Missing prompt');
 
 SalesCoach::assertNeverPrompted();
+```
+
+<!-- When asserting an approval continuation, you may inspect the prompt's approval decisions: -->
+承認の継続を検証する際は、プロンプトの承認判断を確認できます。
+
+```php
+use Laravel\Ai\Approvals\Decisions;
+use Laravel\Ai\Prompts\AgentPrompt;
+
+FileAssistant::fake();
+
+(new FileAssistant)->prompt(Decisions::from([
+    'call_abc' => true,
+]));
+
+FileAssistant::assertPrompted(function (AgentPrompt $prompt) {
+    return $prompt->hasApprovalDecisions()
+        && $prompt->approvalDecisions->get('call_abc')->isApproved();
+});
 ```
 
 <!-- For queued agent invocations, use the queued assertion methods: -->
@@ -2701,7 +3158,6 @@ $store->assertAdded(fn (StorableFile $file) => $file->content() === 'Hello, Worl
 <!-- The Laravel AI SDK dispatches a variety of [events](/docs/13.x/events), including: -->
 Laravel AI SDK は、次のようなさまざまな [events](/docs/13.x/events) をディスパッチします。
 
-<!--
 - `AddingFileToStore`
 - `AgentPrompted`
 - `AgentStreamed`
@@ -2725,32 +3181,8 @@ Laravel AI SDK は、次のようなさまざまな [events](/docs/13.x/events) 
 - `StoreCreated`
 - `StoringFile`
 - `StreamingAgent`
-- `ToolInvoked`
-- `TranscriptionGenerated`
--->
-- `AddingFileToStore`
-- `AgentPrompted`
-- `AgentStreamed`
-- `AudioGenerated`
-- `CreatingStore`
-- `EmbeddingsGenerated`
-- `FileAddedToStore`
-- `FileDeleted`
-- `FileRemovedFromStore`
-- `FileStored`
-- `GeneratingAudio`
-- `GeneratingEmbeddings`
-- `GeneratingImage`
-- `GeneratingTranscription`
-- `ImageGenerated`
-- `InvokingTool`
-- `PromptingAgent`
-- `RemovingFileFromStore`
-- `Reranked`
-- `Reranking`
-- `StoreCreated`
-- `StoringFile`
-- `StreamingAgent`
+- `ToolApprovalRequested`
+- `ToolApprovalResolved`
 - `ToolInvoked`
 - `TranscriptionGenerated`
 

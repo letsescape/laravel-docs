@@ -2,6 +2,7 @@
 # Package Development
 
 - [Introduction](#introduction)
+    - [Creating a Package](#creating-a-package)
     - [A Note on Facades](#a-note-on-facades)
 - [Package Discovery](#package-discovery)
 - [Service Providers](#service-providers)
@@ -31,6 +32,20 @@
 
 <!-- On the other hand, other packages are specifically intended for use with Laravel. These packages may have routes, controllers, views, and configuration specifically intended to enhance a Laravel application. This guide primarily covers the development of those packages that are Laravel specific. -->
 반대로, 일부 패키지는 오직 Laravel에서 사용하기 위한 목적으로 만들어집니다. 이런 패키지에는 Laravel 애플리케이션을 확장하는 데 적합한 라우트, 컨트롤러, 뷰, 설정 등이 포함돼 있을 수 있습니다. 이 가이드는 주로 Laravel에 특화된 패키지를 개발하는 방법을 다룹니다.
+
+<a name="creating-a-package"></a>
+<!-- ### Creating a Package -->
+### Creating a Package
+
+<!-- The easiest way to start building a new Laravel package is the official [Laravel package skeleton](https://github.com/laravel/package-skeleton). The skeleton provides everything you need to build a Laravel package, including a service provider, testing via Pest, static analysis via Larastan, code formatting via Pint, and a workbench application for end-to-end package development. You can create a new package using the `package` command of the [Laravel installer CLI](/docs/13.x/installation#creating-a-laravel-project): -->
+새로운 Laravel 패키지 개발을 시작하는 가장 쉬운 방법은 공식 [Laravel package skeleton](https://github.com/laravel/package-skeleton)을 사용하는 것입니다. 이 스켈레톤에는 서비스 프로바이더, Pest를 사용한 테스트, Larastan을 사용한 정적 분석, Pint를 사용한 코드 포맷팅, 엔드 투 엔드 패키지 개발을 위한 워크벤치 애플리케이션 등 Laravel 패키지를 만드는 데 필요한 모든 것이 포함되어 있습니다. [Laravel installer CLI](/docs/13.x/installation#creating-a-laravel-project)의 `package` 명령어를 사용해 새 패키지를 만들 수 있습니다.
+
+```shell
+laravel package my-package
+```
+
+<!-- An interactive configuration script will personalize the skeleton for your package, setting up your namespace, service provider, and only the features you need, such as configuration files, routes, views, translations, migrations, assets, commands, and a facade. -->
+대화형 설정 스크립트가 패키지에 맞게 스켈레톤을 구성하고, 네임스페이스와 서비스 프로바이더를 설정하며, 설정 파일, 라우트, 뷰, 번역, 마이그레이션, 에셋, 명령어, 파사드 등 필요한 기능만 추가합니다.
 
 <a name="a-note-on-facades"></a>
 <!-- ### A Note on Facades -->

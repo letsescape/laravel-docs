@@ -297,8 +297,18 @@ Herd에 대해 더 알아보려면 [Herd documentation for Windows](https://herd
 <!-- ## IDE Support -->
 ## IDE Support
 
-<!-- You are free to use any code editor you wish when developing Laravel applications. If you're looking for lightweight and extensible editors, [VS Code](https://code.visualstudio.com) or [Cursor](https://cursor.com) combined with the official [Laravel VS Code Extension](https://marketplace.visualstudio.com/items?itemName=laravel.vscode-laravel) offers excellent Laravel support with features like syntax highlighting, snippets, artisan command integration, and smart autocompletion for Eloquent models, routes, middleware, assets, config, and Inertia.js. -->
-Laravel 애플리케이션을 개발할 때 원하는 코드 에디터를 자유롭게 사용할 수 있습니다. 가볍고 확장 가능한 에디터를 찾고 있다면, [VS Code](https://code.visualstudio.com) 또는 [Cursor](https://cursor.com)에 공식 [Laravel VS Code Extension](https://marketplace.visualstudio.com/items?itemName=laravel.vscode-laravel)을 함께 사용하면 문법 강조, 스니펫, artisan 명령어 통합, Eloquent 모델, 라우트, 미들웨어, 에셋, 설정, Inertia.js에 대한 스마트 자동 완성 같은 기능으로 훌륭한 Laravel 지원을 받을 수 있습니다.
+<!-- You are free to use any code editor you wish when developing Laravel applications. The [Laravel LSP](https://github.com/laravel/lsp) provides framework-aware editor support, including code completions, hover information, diagnostics, document links, go-to definition, and quick fixes for Laravel and Blade code. -->
+Laravel 애플리케이션을 개발할 때 원하는 코드 에디터를 자유롭게 사용할 수 있습니다. [Laravel LSP](https://github.com/laravel/lsp)는 Laravel 및 Blade 코드에 대한 코드 완성, 호버 정보, 진단, 문서 링크, 정의로 이동, 빠른 수정 등 프레임워크를 인식하는 에디터 지원을 제공합니다.
+
+<!-- To install the Laravel LSP, install it globally via Composer. Ensure that Composer's global vendor bin directory is on your `PATH`: -->
+Laravel LSP를 설치하려면 Composer를 통해 전역으로 설치합니다. Composer의 전역 vendor bin 디렉터리가 `PATH`에 포함되어 있는지 확인합니다.
+
+```shell
+composer global require laravel/lsp
+```
+
+<!-- If you're looking for lightweight and extensible editors, [VS Code](https://code.visualstudio.com) or [Cursor](https://cursor.com) combined with the official [Laravel VS Code Extension](https://marketplace.visualstudio.com/items?itemName=laravel.vscode-laravel) provides syntax highlighting, snippets, Artisan command integration, and automatic Laravel LSP support. Official Laravel extensions are also available for [Sublime Text](https://github.com/laravel/sublime-extension) and [Zed](https://github.com/laravel/zed-extension). Refer to the [Laravel LSP repository](https://github.com/laravel/lsp) for setup instructions for other language-server-compatible editors, including Neovim and OpenCode. -->
+가볍고 확장 가능한 에디터를 찾고 있다면, 공식 [Laravel VS Code Extension](https://marketplace.visualstudio.com/items?itemName=laravel.vscode-laravel)과 함께 사용하는 [VS Code](https://code.visualstudio.com) 또는 [Cursor](https://cursor.com)를 통해 문법 강조, 스니펫, Artisan 명령어 통합, 자동 Laravel LSP 지원을 이용할 수 있습니다. 공식 Laravel 확장 기능은 [Sublime Text](https://github.com/laravel/sublime-extension)와 [Zed](https://github.com/laravel/zed-extension)에도 제공됩니다. Neovim과 OpenCode를 비롯한 다른 언어 서버 호환 에디터의 설정 방법은 [Laravel LSP repository](https://github.com/laravel/lsp)를 참고하세요.
 
 <!-- For extensive and robust support of Laravel, take a look at [PhpStorm](https://www.jetbrains.com/phpstorm/laravel/?utm_source=laravel.com&utm_medium=link&utm_campaign=laravel-2025&utm_content=partner&ref=laravel-2025), a JetBrains IDE. PhpStorm's built-in Laravel framework support includes Blade templates, smart autocompletion for Eloquent models, routes, views, translations, and components, along with powerful code generation and navigation across Laravel projects. -->
 Laravel에 대한 광범위하고 견고한 지원을 원한다면 JetBrains IDE인 [PhpStorm](https://www.jetbrains.com/phpstorm/laravel/?utm_source=laravel.com&utm_medium=link&utm_campaign=laravel-2025&utm_content=partner&ref=laravel-2025)을 살펴보세요. PhpStorm에 내장된 Laravel 프레임워크 지원에는 Blade 템플릿, Eloquent 모델, 라우트, 뷰, 번역, 컴포넌트에 대한 스마트 자동 완성과 Laravel 프로젝트 전반에 걸친 강력한 코드 생성 및 탐색 기능이 포함됩니다.
@@ -360,17 +370,9 @@ Laravel Boost에 자체 사용자 지정 AI 가이드라인을 추가하려면 �
 <!-- Now that you have created your Laravel application, you may be wondering what to learn next. First, we strongly recommend becoming familiar with how Laravel works by reading the following documentation: -->
 Laravel 애플리케이션을 만들고 나면 다음에 무엇을 배워야 할지 궁금할 수 있습니다. 먼저 다음 문서를 읽고 Laravel이 어떻게 동작하는지 익숙해지는 것을 강력히 권장합니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- [Request Lifecycle](/docs/13.x/lifecycle)
-- [Configuration](/docs/13.x/configuration)
-- [Directory Structure](/docs/13.x/structure)
-- [Frontend](/docs/13.x/frontend)
-- [Service Container](/docs/13.x/container)
-- [Facades](/docs/13.x/facades)
--->
+<!-- - [Request Lifecycle](/docs/13.x/lifecycle) - [Configuration](/docs/13.x/configuration) - [Directory Structure](/docs/13.x/structure) - [Frontend](/docs/13.x/frontend) - [Service Container](/docs/13.x/container) - [Facades](/docs/13.x/facades) -->
 - [Request Lifecycle](/docs/13.x/lifecycle)
 - [Configuration](/docs/13.x/configuration)
 - [Directory Structure](/docs/13.x/structure)
@@ -378,7 +380,6 @@ Laravel 애플리케이션을 만들고 나면 다음에 무엇을 배워야 할
 - [Service Container](/docs/13.x/container)
 - [Facades](/docs/13.x/facades)
 
-<!-- </div> -->
 </div>
 
 <!-- How you want to use Laravel will also dictate the next steps on your journey. There are a variety of ways to use Laravel, and we'll explore two primary use cases for the framework below. -->

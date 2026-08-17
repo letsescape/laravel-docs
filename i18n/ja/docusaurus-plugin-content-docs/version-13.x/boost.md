@@ -19,6 +19,10 @@
     - [Overriding Skills](#overriding-skills)
     - [Third-Party Package Skills](#third-party-package-skills)
 - [Guidelines vs. Skills](#guidelines-vs-skills)
+- [Project Rules](#project-rules)
+    - [Recording Rules](#recording-rules)
+    - [Inferring Your Application's Conventions](#inferring-your-applications-conventions)
+    - [Disabling Project Rules](#disabling-project-rules)
 - [Documentation API](#documentation-api)
 - [Extending Boost](#extending-boost)
     - [Adding Support for Other IDEs / AI Agents](#adding-support-for-other-ides-ai-agents)
@@ -58,7 +62,7 @@ php artisan boost:install
 Laravel Boost がインストールされたら、Cursor、Claude Code、または選択した AI エージェントを使用してコーディングを開始する準備が整います。
 
 > [!NOTE]
-> 生成された MCP 構成ファイル (`.mcp.json`)、ガイドライン ファイル (`CLAUDE.md`、`AGENTS.md`、`junie/` など)、および `boost.json` 構成ファイルをアプリケーションの `.gitignore` に自由に追加してください。これらのファイルは、`boost:install` および `boost:update` の実行時に自動的に再生成されます。
+> `boost:install` および `boost:update` の実行時にこれらのファイルは自動的に再生成されるため、生成された MCP 設定ファイル（`.mcp.json`）、ガイドラインファイル（`CLAUDE.md`、`AGENTS.md`、`junie/` など）、`boost.json` 設定ファイルをアプリケーションの `.gitignore` に自由に追加できます。
 
 <a name="set-up-your-agents"></a>
 <!-- ### Set Up Your Agents -->
@@ -144,22 +148,22 @@ Laravel Boost は、AI エージェントが Laravel アプリケーションと
 <!-- ### Available MCP Tools -->
 ### Available MCP Tools
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 名前                 | 注意事項                                                                                                       |
-| -------------------- | ----------------------------------------------------------------------------------------------------------- |
-| アプリケーション情報     | PHP と Laravel のバージョン、データベース エンジン、エコシステム パッケージのバージョンと Eloquent モデルのリストを読む |
-| ブラウザログ         | ブラウザからログとエラーを読み取る                                                                       |
-| データベース接続 | デフォルト接続を含む、利用可能なデータベース接続を検査する                                    |
-| データベースクエリ       | データベースに対してクエリを実行する                                                                        |
-| データベーススキーマ      | データベーススキーマを読み取る                                                                                    |
-| 絶対URLの取得     | エージェントが有効な URL を生成できるように、相対パス URI を絶対パスに変換します                                        |
-| 最後のエラー           | アプリケーションのログ ファイルから最後のエラーを読み取ります                                                        |
-| ログエントリの読み取り     | 最新の N 個のログ エントリを読み取る                                                                                 |
-| ドキュメントの検索          | Laravel でホストされているドキュメント API サービスにクエリを実行して、インストールされているパッケージに基づいてドキュメントを取得します    |
+<!-- | Name | Notes | | -------------------- | ----------------------------------------------------------------------------------------------------------- | | Application Info | Read PHP & Laravel versions, database engine, list of ecosystem packages with versions, and Eloquent models | | Browser Logs | Read logs and errors from the browser | | Database Connections | Inspect available database connections, including the default connection | | Database Query | Execute a query against the database | | Database Schema | Read the database schema | | Get Absolute URL | Convert relative path URIs to absolute so agents generate valid URLs | | Last Error | Read the last error from the application's log files | | Read Log Entries | Read the last N log entries | | Record Rule | Record a durable [project rule](#project-rules) into `.ai/rules` so future agents inherit it | | Search Docs | Query the Laravel hosted documentation API service to retrieve documentation based on installed packages | -->
+| 名前                 | 説明                                                                                                       |
+| -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| アプリケーション情報 | PHP と Laravel のバージョン、データベースエンジン、バージョン付きエコシステムパッケージの一覧、Eloquent モデルを読み取ります |
+| ブラウザログ         | ブラウザからログとエラーを読み取ります                                                                   |
+| データベース接続     | デフォルト接続を含む、利用可能なデータベース接続を調査します                                             |
+| データベースクエリ   | データベースに対してクエリを実行します                                                                   |
+| データベーススキーマ | データベーススキーマを読み取ります                                                                       |
+| 絶対 URL の取得      | 相対パス URI を絶対 URI に変換し、エージェントが有効な URL を生成できるようにします                       |
+| 最後のエラー         | アプリケーションのログファイルから最後のエラーを読み取ります                                             |
+| ログエントリの読み取り | 最後の N 件のログエントリを読み取ります                                                                  |
+| ルールの記録         | 将来のエージェントが継承できるよう、永続的な [project rule](#project-rules) を `.ai/rules` に記録します |
+| ドキュメントの検索   | インストール済みパッケージに基づいてドキュメントを取得するため、Laravel がホストするドキュメント API サービスにクエリを実行します |
 
-<!-- </div> -->
 </div>
 
 <a name="manually-registering-the-mcp-server"></a>
@@ -169,13 +173,8 @@ Laravel Boost は、AI エージェントが Laravel アプリケーションと
 <!-- Sometimes you may need to manually register the Laravel Boost MCP server with your editor of choice. You should register the MCP server using the following details: -->
 場合によっては、選択したエディターに Laravel Boost MCP サーバーを手動で登録する必要がある場合があります。次の詳細を使用して MCP サーバーを登録する必要があります。
 
-<!--
 <table>
-<tr><td><strong>Command</strong></td><td><code>php</code></td></tr>
-<tr><td><strong>Args</strong></td><td><code>artisan boost:mcp</code></td></tr>
-</table>
--->
-<table>
+<!-- <tr><td><strong>Command</strong></td><td><code>php</code></td></tr> <tr><td><strong>Args</strong></td><td><code>artisan boost:mcp</code></td></tr> -->
 <tr><td><strong>コマンド</strong></td><td><code>php</code></td></tr>
 <tr><td><strong>引数</strong></td><td><code>artisan boost:mcp</code></td></tr>
 </table>
@@ -208,36 +207,36 @@ AI ガイドラインは、AI エージェントに Laravel エコシステム �
 <!-- Laravel Boost includes AI guidelines for the following packages and frameworks. The `core` guidelines provide generic, generalized advice to the AI for the given package that is applicable across all versions. -->
 Laravel Boost には、次のパッケージとフレームワークの AI ガイドラインが含まれています。 `core` ガイドラインは、すべてのバージョンに適用できる、特定のパッケージに対する AI への一般的なアドバイスを提供します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| パッケージ           | サポートされているバージョン     |
+<!-- | Package | Versions Supported | | ----------------- | ---------------------- | | Core & Boost | core | | Laravel Framework | core, 10.x, 11.x, 12.x, 13.x | | Livewire | core, 2.x, 3.x, 4.x | | Flux UI | core, free, pro | | Folio | core | | Herd | core | | Inertia Laravel | core, 1.x, 2.x, 3.x | | Inertia React | core, 1.x, 2.x, 3.x | | Inertia Vue | core, 1.x, 2.x, 3.x | | Inertia Svelte | core, 1.x, 2.x, 3.x | | MCP | core | | Pennant | core | | Pest | core, 3.x, 4.x | | PHPUnit | core | | Pint | core | | Sail | core | | Tailwind CSS | core, 3.x, 4.x | | Livewire Volt | core | | Wayfinder | core | | Enforce Tests | conditional | -->
+| パッケージ        | 対応バージョン        |
 | ----------------- | ---------------------- |
 | Core & Boost      | core                   |
-| Laravel Framework | core、10.x、11.x、12.x、13.x |
-| Livewire          | core、2.x、3.x、4.x    |
-| Flux UI           | core、free、pro        |
+| Laravel Framework | core, 10.x, 11.x, 12.x, 13.x |
+| Livewire          | core, 2.x, 3.x, 4.x    |
+| Flux UI           | core, free, pro        |
 | Folio             | core                   |
 | Herd              | core                   |
-| Inertia Laravel   | core、1.x、2.x、3.x    |
-| Inertia React     | core、1.x、2.x、3.x    |
-| Inertia Vue       | core、1.x、2.x、3.x    |
-| Inertia Svelte    | core、1.x、2.x、3.x    |
+| Inertia Laravel   | core, 1.x, 2.x, 3.x    |
+| Inertia React     | core, 1.x, 2.x, 3.x    |
+| Inertia Vue       | core, 1.x, 2.x, 3.x    |
+| Inertia Svelte    | core, 1.x, 2.x, 3.x    |
 | MCP               | core                   |
 | Pennant           | core                   |
-| Pest              | core、3.x、4.x         |
+| Pest              | core, 3.x, 4.x         |
 | PHPUnit           | core                   |
 | Pint              | core                   |
 | Sail              | core                   |
-| Tailwind CSS      | core、3.x、4.x         |
+| Tailwind CSS      | core, 3.x, 4.x         |
 | Livewire Volt     | core                   |
 | Wayfinder         | core                   |
 | Enforce Tests     | conditional            |
 
-<!-- </div> -->
 </div>
 
-> **注:** AI ガイドラインを最新の状態に保つには、[Keeping Boost Resources Updated](#keeping-boost-resources-updated) セクションを参照してください。
+> [!NOTE]
+> AI ガイドラインを最新の状態に保つには、[Keeping Boost Resources Updated](#keeping-boost-resources-updated) セクションを参照してください。
 
 <a name="adding-custom-ai-guidelines"></a>
 <!-- ### Adding Custom AI Guidelines -->
@@ -290,20 +289,21 @@ $result = PackageName::featureTwo($param1, $param2);
 <!-- [Agent Skills](https://agentskills.io/home) are lightweight, targeted knowledge modules that agents can activate on-demand when working on specific domains. Unlike guidelines, which are loaded upfront, skills allow detailed patterns and best practices to be loaded only when relevant, reducing context bloat and improving the relevance of AI-generated code. -->
 [Agent Skills](https://agentskills.io/home) は、エージェントが特定のドメインで作業するときにオンデマンドでアクティブ化できる軽量の対象を絞ったナレッジ モジュールです。事前に読み込まれるガイドラインとは異なり、スキルを使用すると、関連する場合にのみ詳細なパターンとベスト プラクティスを読み込むことができるため、コンテキストの肥大化が軽減され、AI によって生成されたコードの関連性が向上します。
 
-<!-- When you run `boost:install` and select skills as a feature, skills are automatically installed based on the packages detected in your `composer.json`. For example, if your project includes `livewire/livewire`, the `livewire-development` skill will be installed automatically. -->
-`boost:install` を実行し、機能としてスキルを選択すると、`composer.json` で検出されたパッケージに基づいてスキルが自動的にインストールされます。たとえば、プロジェクトに `livewire/livewire` が含まれている場合、`livewire-development` スキルが自動的にインストールされます。
+<!-- When you run `boost:install` and select skills as a feature, skills are automatically installed based on the packages detected in your `composer.json`. For example, if your project includes `livewire/livewire`, the `livewire-development` skill will be installed automatically. Skills included with Boost, such as `infer-conventions`, are installed regardless of which packages you have. -->
+`boost:install` を実行して機能としてスキルを選択すると、`composer.json` で検出されたパッケージに基づいてスキルが自動的にインストールされます。たとえば、プロジェクトに `livewire/livewire` が含まれている場合、`livewire-development` スキルが自動的にインストールされます。`infer-conventions` など Boost に含まれるスキルは、使用しているパッケージに関係なくインストールされます。
 
 <a name="available-skills"></a>
 <!-- ### Available Skills -->
 ### Available Skills
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| スキル                      | パッケージ        |
+<!-- | Skill | Package | | -------------------------- | -------------- | | fluxui-development | Flux UI | | folio-routing | Folio | | infer-conventions | Boost | | inertia-react-development | Inertia React | | inertia-svelte-development | Inertia Svelte | | inertia-vue-development | Inertia Vue | | livewire-development | Livewire | | mcp-development | MCP | | pennant-development | Pennant | | pest-testing | Pest | | tailwindcss-development | Tailwind CSS | | volt-development | Volt | | wayfinder-development | Wayfinder | -->
+| スキル                     | パッケージ        |
 | -------------------------- | -------------- |
 | fluxui-development         | Flux UI        |
 | folio-routing              | Folio          |
+| infer-conventions          | Boost          |
 | inertia-react-development  | Inertia React  |
 | inertia-svelte-development | Inertia Svelte |
 | inertia-vue-development    | Inertia Vue    |
@@ -315,10 +315,10 @@ $result = PackageName::featureTwo($param1, $param2);
 | volt-development           | Volt           |
 | wayfinder-development      | Wayfinder      |
 
-<!-- </div> -->
 </div>
 
-> **注:** スキルを最新の状態に保つには、[Keeping Boost Resources Updated](#keeping-boost-resources-updated) セクションを参照してください。
+> [!NOTE]
+> スキルを最新の状態に保つには、[Keeping Boost Resources Updated](#keeping-boost-resources-updated) セクションを参照してください。
 
 <a name="custom-skills"></a>
 <!-- ### Custom Skills -->
@@ -389,17 +389,118 @@ Laravel Boost は、AI エージェントにアプリケーションに関する
 <!-- **Skills** are activated on-demand when working on specific tasks, containing detailed patterns for particular domains (like Livewire components or Pest tests). Loading skills only when relevant reduces context bloat and improves code quality. -->
 **スキル**は、特定のドメイン (Livewire コンポーネントや Pest テストなど) の詳細なパターンを含む特定のタスクに取り組むときにオンデマンドでアクティブ化されます。関連する場合にのみスキルを読み込むことで、コンテキストの肥大化が軽減され、コードの品質が向上します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 側面      | ガイドライン                        | スキル                           |
+<!-- | Aspect | Guidelines | Skills | | ----------- | --------------------------------- | -------------------------------- | | **Loaded** | Upfront, always present | On-demand, when relevant | | **Scope** | Broad, foundational | Focused, task-specific | | **Purpose** | Core conventions & best practices | Detailed implementation patterns | -->
+| 観点 | 指針 | スキル |
 | ----------- | --------------------------------- | -------------------------------- |
-| **ロード済み**  | 事前に、常に存在する           | 必要に応じてオンデマンドで         |
-| **範囲**   | 幅広く、基礎的な               | 焦点を絞った、特定のタスクに特化した           |
-| **目的** | 中心となる規約とベストプラクティス | 詳細な実装パターン |
+| **読み込み済み** | 最初から常に存在 | 必要に応じてオンデマンドで読み込む |
+| **範囲** | 広範で基盤となる | 限定的でタスク固有 |
+| **目的** | 中核となる規約とベストプラクティス | 詳細な実装パターン |
 
-<!-- </div> -->
 </div>
+
+<!-- Both guidelines and skills describe the Laravel ecosystem. To capture the conventions of your own application, you should use [project rules](#project-rules). -->
+ガイドラインとスキルはいずれも Laravel エコシステムについて説明しています。アプリケーション固有の規約を反映するには、[project rules](#project-rules)を使用してください。
+
+<a name="project-rules"></a>
+<!-- ## Project Rules -->
+## Project Rules
+
+<!-- While guidelines and skills teach agents how to write Laravel, project rules teach them how to write your application. A rule is anything you would otherwise need to explain again in every new session: -->
+ガイドラインやスキルはエージェントに Laravel のコードの書き方を教えますが、プロジェクトルールはアプリケーションのコードの書き方を教えます。ルールとは、新しいセッションを始めるたびに改めて説明する必要がある事柄です。
+
+<div class="content-list" markdown="1">
+
+<!-- - Decisions made along the way by you, your agents, or your teammates. - Style guidelines and preferences that are difficult to get an agent to follow. - Traps and constraints that can't be inferred from the surrounding code. -->
+- あなたやエージェント、チームメンバーが途中で下した決定。
+- エージェントに従わせるのが難しいスタイルガイドや好み。
+- 周囲のコードから推測できない落とし穴や制約。
+
+</div>
+
+<!-- Rules are stored as Markdown files within your application's `.ai/rules` directory and should be committed to source control. Unlike an agent's own memory, which is personal and session-scoped, your rules are shared with your team and with every agent that works on your application. -->
+ルールはアプリケーションの `.ai/rules` ディレクトリ内に Markdown ファイルとして保存し、ソース管理にコミットしてください。エージェント自身のメモリが個人的かつセッション単位であるのに対し、ルールはチームやアプリケーションで作業するすべてのエージェントと共有されます。
+
+<!-- Each rule file declares the file globs it applies to within its frontmatter: -->
+各ルールファイルでは、frontmatter 内に適用対象となるファイルの glob を宣言します。
+
+```markdown
+---
+paths:
+  - app/Http/Controllers/**
+---
+
+# Http Controllers
+
+## Extend BaseController for tenant scoping
+
+All controllers must extend `App\Http\Controllers\BaseController`, which applies the
+current tenant's query scope. Extending Laravel's base controller directly will leak
+data across tenants.
+```
+
+<!-- In addition, Boost maintains an `.ai/rules/index.md` file which maps globs to their rule files. Agents are instructed to consult this index before planning or editing any file, so a rule is only loaded when it is relevant: -->
+さらに、Boost は glob パターンと対応するルールファイルをマッピングした `.ai/rules/index.md` ファイルも管理しています。エージェントは、ファイルの計画や編集を行う前にこのインデックスを確認するよう指示されているため、関連する場合にのみルールが読み込まれます。
+
+```markdown
+# Project Rules Index
+
+Before planning or editing, find the row whose globs match the file's path and read that rule file.
+
+| Applies to | Rule file |
+| --- | --- |
+| app/Http/Controllers/** | .ai/rules/controllers.md |
+| app/Models/** | .ai/rules/models.md |
+```
+
+> [!NOTE]
+> `.mcp.json` と生成されたガイドラインファイルとは異なり、チームでルールを共有できるように、`.ai/rules` ディレクトリはソース管理にコミットしてください。
+
+<a name="recording-rules"></a>
+<!-- ### Recording Rules -->
+### Recording Rules
+
+<!-- To record a rule, you may simply ask your agent to remember it: -->
+ルールを記録するには、エージェントに覚えておくよう依頼するだけです。
+
+```text
+Remember that all money values are stored as integer cents, never as floats.
+```
+
+<!-- The agent will invoke Boost's `record-rule` MCP tool with a `glob`, a short `title`, and a `note`. Boost will then file the rule under the matching area, creating the rule file if needed, and update the index. -->
+エージェントは、`glob`、短い `title`、`note` を指定して Boost の `record-rule` MCP ツールを呼び出します。Boost は一致する領域にルールを保存し、必要に応じてルールファイルを作成して、インデックスを更新します。
+
+<!-- You should always record rules using the `record-rule` tool rather than creating rule files by hand. Boost regenerates `.ai/rules/index.md` as part of recording a rule, and agents rely on that index to discover which rules apply to the file they are working on. A rule file that is added manually will not be discovered until the index is next regenerated. -->
+手作業でルールファイルを作成するのではなく、必ず `record-rule` ツールを使ってルールを記録してください。Boost はルールの記録時に `.ai/rules/index.md` を再生成します。エージェントはこのインデックスを使って、作業対象のファイルに適用されるルールを見つけます。手動で追加したルールファイルは、次にインデックスが再生成されるまで検出されません。
+
+<a name="inferring-your-applications-conventions"></a>
+<!-- ### Inferring Your Application's Conventions -->
+### Inferring Your Application's Conventions
+
+<!-- Recording rules one at a time works well going forward; however, an existing application already contains years of conventions. The `infer-conventions` skill will bootstrap your rules from the code you have already written. To get started, ask your agent to use the skill: -->
+今後、ルールを1つずつ記録していく方法はうまく機能します。ただし、既存のアプリケーションにはすでに何年にもわたる慣習が蓄積されています。`infer-conventions` スキルを使うと、これまでに記述したコードからルールを自動的に作成できます。まずは、エージェントにこのスキルを使うよう依頼してください。
+
+```text
+Use the infer-conventions skill
+```
+
+<!-- The skill will sweep your application across a checklist of Laravel convention dimensions, including validation, controllers, authorization, models, architecture, testing, frontend, database, and console, followed by an open-ended pass for patterns such as base classes, shared traits, and module layouts. -->
+このスキルは、バリデーション、コントローラ、認可、モデル、アーキテクチャ、テスト、フロントエンド、データベース、コンソールなど、Laravel の規約に関する項目をチェックリストに沿ってアプリケーション全体から確認します。その後、基底クラス、共有トレイト、モジュール構成などのパターンを対象に、あらかじめ範囲を限定しない確認も行います。
+
+<!-- The skill documents what your code actually does rather than what it should do. It records only well-supported, non-default conventions, skips framework defaults and anything Pint or Rector already enforces, and reports genuinely mixed patterns instead of recording them. Before writing any rules, the skill will present each convention it discovered, along with its supporting evidence, for your approval. If you would like the skill to record all discovered conventions without confirmation, you may tell it to "yolo". -->
+このスキルは、コードがどうあるべきかではなく、実際に何をしているかを記録します。十分な根拠のある、デフォルトではない規約だけを記録し、フレームワークのデフォルトや、Pint または Rector がすでに適用している内容は除外します。また、実際にパターンが混在している場合は、それを規約として記録せずに報告します。ルールを作成する前に、スキルが発見した各規約と、その根拠となる証拠を提示して承認を求めます。確認なしですべての規約を記録させたい場合は、yolo と指示してください。
+
+<a name="disabling-project-rules"></a>
+<!-- ### Disabling Project Rules -->
+### Disabling Project Rules
+
+<!-- Project rules are enabled by default. To disable them entirely, define the following environment variable. This removes the `record-rule` MCP tool and stops Boost from managing the `.ai/rules` directory: -->
+プロジェクトルールはデフォルトで有効になっています。完全に無効にするには、次の環境変数を定義してください。これにより、`record-rule` MCP ツールが削除され、Boost による `.ai/rules` ディレクトリの管理が停止します。
+
+```ini
+BOOST_RULES_ENABLED=false
+```
 
 <a name="documentation-api"></a>
 <!-- ## Documentation API -->
@@ -411,21 +512,20 @@ Laravel Boost には、17,000 を超える Laravel 固有の情報を含む広�
 <!-- The `Search Docs` MCP tool allows agents to query the Laravel hosted documentation API service to retrieve documentation based on your installed packages. Boost's AI guidelines and skills will automatically instruct your coding agent to use this API. -->
 `Search Docs` MCP ツールを使用すると、エージェントは Laravel でホストされているドキュメント API サービスにクエリを実行し、インストールされているパッケージに基づいてドキュメントを取得できます。 Boost の AI ガイドラインとスキルは、コーディング エージェントにこの API を使用するように自動的に指示します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| パッケージ           | サポートされているバージョン |
+<!-- | Package | Versions Supported | | ----------------- | ------------------ | | Laravel Framework | 10.x, 11.x, 12.x, 13.x | | Filament | 2.x, 3.x, 4.x, 5.x | | Flux UI | 2.x Free, 2.x Pro | | Inertia | 1.x, 2.x | | Livewire | 1.x, 2.x, 3.x, 4.x | | Nova | 4.x, 5.x | | Pest | 3.x, 4.x | | Tailwind CSS | 3.x, 4.x | -->
+| パッケージ         | 対応バージョン       |
 | ----------------- | ------------------ |
-| Laravel Framework | 10.x、11.x、12.x、13.x |
-| Filament          | 2.x、3.x、4.x、5.x |
-| Flux UI           | 2.x Free、2.x Pro  |
-| Inertia           | 1.x、2.x           |
-| Livewire          | 1.x、2.x、3.x、4.x |
-| Nova              | 4.x、5.x           |
-| Pest              | 3.x、4.x           |
-| Tailwind CSS      | 3.x、4.x           |
+| Laravel Framework | 10.x, 11.x, 12.x, 13.x |
+| Filament          | 2.x, 3.x, 4.x, 5.x |
+| Flux UI           | 2.x Free, 2.x Pro  |
+| Inertia           | 1.x, 2.x           |
+| Livewire          | 1.x, 2.x, 3.x, 4.x |
+| Nova              | 4.x, 5.x           |
+| Pest              | 3.x, 4.x           |
+| Tailwind CSS      | 3.x, 4.x           |
 
-<!-- </div> -->
 </div>
 
 <a name="extending-boost"></a>
@@ -442,14 +542,10 @@ Boost は、多くの人気のある IDE および AI エージェントでそ�
 <!-- To add support for a new IDE or AI agent, create a class that extends `Laravel\Boost\Install\Agents\Agent` and implement one or more of the following contracts depending on what you need: -->
 新しい IDE または AI エージェントのサポートを追加するには、`Laravel\Boost\Install\Agents\Agent` を拡張するクラスを作成し、必要に応じて次の 1 つ以上のコントラクトを実装します。
 
-<!--
-- `Laravel\Boost\Contracts\SupportsGuidelines` - Adds support for AI guidelines.
-- `Laravel\Boost\Contracts\SupportsMcp` - Adds support for MCP.
-- `Laravel\Boost\Contracts\SupportsSkills` - Adds support for Agent Skills.
--->
+<!-- - `Laravel\Boost\Contracts\SupportsGuidelines` - Adds support for AI guidelines. - `Laravel\Boost\Contracts\SupportsMcp` - Adds support for MCP. - `Laravel\Boost\Contracts\SupportsSkills` - Adds support for Agent Skills. -->
 - `Laravel\Boost\Contracts\SupportsGuidelines` - AI ガイドラインのサポートを追加します。
 - `Laravel\Boost\Contracts\SupportsMcp` - MCP のサポートを追加します。
-- `Laravel\Boost\Contracts\SupportsSkills` - エージェント スキルのサポートを追加します。
+- `Laravel\Boost\Contracts\SupportsSkills` - Agent Skills のサポートを追加します。
 
 <a name="writing-the-agent"></a>
 <!-- #### Writing the Agent -->
@@ -494,4 +590,3 @@ public function boot(): void
 
 <!-- Once registered, your agent will be available for selection when running `php artisan boost:install`. -->
 登録すると、`php artisan boost:install` を実行するときにエージェントを選択できるようになります。
-

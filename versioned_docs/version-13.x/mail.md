@@ -256,6 +256,20 @@ public function headers(): Headers
 }
 ```
 
+<!-- To send an email through an SES [tenant](https://docs.aws.amazon.com/ses/latest/dg/tenants.html), you may return the `X-Ses-Tenant-Name` header from the `headers` method. Laravel will pass the header value as the `TenantName` option to SES when sending the message: -->
+SES [tenant](https://docs.aws.amazon.com/ses/latest/dg/tenants.html)를 통해 이메일을 보내려면 `headers` 메서드에서 `X-Ses-Tenant-Name` 헤더를 반환할 수 있습니다. Laravel은 메시지를 보낼 때 헤더 값을 `TenantName` 옵션으로 SES에 전달합니다.
+
+```php
+public function headers(): Headers
+{
+    return new Headers(
+        text: [
+            'X-Ses-Tenant-Name' => 'tenant-id',
+        ],
+    );
+}
+```
+
 <!-- If you would like to define [additional options](https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-sesv2-2019-09-27.html#sendemail) that Laravel should pass to the AWS SDK's `SendEmail` method when sending an email, you may define an `options` array within your `ses` configuration: -->
 이메일을 보낼 때 Laravel이 AWS SDK의 `SendEmail` 메서드에 전달해야 하는 [additional options](https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-sesv2-2019-09-27.html#sendemail)을 정의하고 싶다면, `ses` 설정 안에 `options` 배열을 정의할 수 있습니다.
 

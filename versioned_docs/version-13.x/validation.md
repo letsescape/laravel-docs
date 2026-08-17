@@ -1164,65 +1164,23 @@ The credit card number field is required when payment type is credit card.
 <!-- #### Booleans -->
 #### Booleans
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Accepted](#rule-accepted)
-[Accepted If](#rule-accepted-if)
-[Boolean](#rule-boolean)
-[Declined](#rule-declined)
-[Declined If](#rule-declined-if)
--->
+<!-- [Accepted](#rule-accepted) [Accepted If](#rule-accepted-if) [Boolean](#rule-boolean) [Declined](#rule-declined) [Declined If](#rule-declined-if) -->
 [Accepted](#rule-accepted)
 [Accepted If](#rule-accepted-if)
 [Boolean](#rule-boolean)
 [Declined](#rule-declined)
 [Declined If](#rule-declined-if)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Strings -->
 #### Strings
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Active URL](#rule-active-url)
-[Alpha](#rule-alpha)
-[Alpha Dash](#rule-alpha-dash)
-[Alpha Numeric](#rule-alpha-num)
-[Ascii](#rule-ascii)
-[Confirmed](#rule-confirmed)
-[Current Password](#rule-current-password)
-[Different](#rule-different)
-[Doesnt Start With](#rule-doesnt-start-with)
-[Doesnt End With](#rule-doesnt-end-with)
-[Email](#rule-email)
-[Ends With](#rule-ends-with)
-[Enum](#rule-enum)
-[Hex Color](#rule-hex-color)
-[In](#rule-in)
-[IP Address](#rule-ip)
-[JSON](#rule-json)
-[Lowercase](#rule-lowercase)
-[MAC Address](#rule-mac)
-[Max](#rule-max)
-[Min](#rule-min)
-[Not In](#rule-not-in)
-[Regular Expression](#rule-regex)
-[Not Regular Expression](#rule-not-regex)
-[Same](#rule-same)
-[Size](#rule-size)
-[Starts With](#rule-starts-with)
-[String](#rule-string)
-[Uppercase](#rule-uppercase)
-[URL](#rule-url)
-[ULID](#rule-ulid)
-[UUID](#rule-uuid)
--->
+<!-- [Active URL](#rule-active-url) [Alpha](#rule-alpha) [Alpha Dash](#rule-alpha-dash) [Alpha Numeric](#rule-alpha-num) [Ascii](#rule-ascii) [Confirmed](#rule-confirmed) [Current Password](#rule-current-password) [Different](#rule-different) [Doesnt Start With](#rule-doesnt-start-with) [Doesnt End With](#rule-doesnt-end-with) [Email](#rule-email) [Ends With](#rule-ends-with) [Enum](#rule-enum) [Hex Color](#rule-hex-color) [In](#rule-in) [IP Address](#rule-ip) [JSON](#rule-json) [Lowercase](#rule-lowercase) [MAC Address](#rule-mac) [Max](#rule-max) [Min](#rule-min) [Not In](#rule-not-in) [Regular Expression](#rule-regex) [Not Regular Expression](#rule-not-regex) [Same](#rule-same) [Size](#rule-size) [Starts With](#rule-starts-with) [String](#rule-string) [Uppercase](#rule-uppercase) [URL](#rule-url) [ULID](#rule-ulid) [UUID](#rule-uuid) -->
 [Active URL](#rule-active-url)
 [Alpha](#rule-alpha)
 [Alpha Dash](#rule-alpha-dash)
@@ -1256,35 +1214,14 @@ The credit card number field is required when payment type is credit card.
 [ULID](#rule-ulid)
 [UUID](#rule-uuid)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Numbers -->
 #### Numbers
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Between](#rule-between)
-[Decimal](#rule-decimal)
-[Different](#rule-different)
-[Digits](#rule-digits)
-[Digits Between](#rule-digits-between)
-[Greater Than](#rule-gt)
-[Greater Than Or Equal](#rule-gte)
-[Integer](#rule-integer)
-[Less Than](#rule-lt)
-[Less Than Or Equal](#rule-lte)
-[Max](#rule-max)
-[Max Digits](#rule-max-digits)
-[Min](#rule-min)
-[Min Digits](#rule-min-digits)
-[Multiple Of](#rule-multiple-of)
-[Numeric](#rule-numeric)
-[Same](#rule-same)
-[Size](#rule-size)
--->
+<!-- [Between](#rule-between) [Decimal](#rule-decimal) [Different](#rule-different) [Digits](#rule-digits) [Digits Between](#rule-digits-between) [Greater Than](#rule-gt) [Greater Than Or Equal](#rule-gte) [Integer](#rule-integer) [Less Than](#rule-lt) [Less Than Or Equal](#rule-lte) [Max](#rule-max) [Max Digits](#rule-max-digits) [Min](#rule-min) [Min Digits](#rule-min-digits) [Multiple Of](#rule-multiple-of) [Numeric](#rule-numeric) [Same](#rule-same) [Size](#rule-size) -->
 [Between](#rule-between)
 [Decimal](#rule-decimal)
 [Different](#rule-different)
@@ -1304,29 +1241,16 @@ The credit card number field is required when payment type is credit card.
 [Same](#rule-same)
 [Size](#rule-size)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Arrays -->
 #### Arrays
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
+<!-- [Array](#rule-array) [Array Keys](#rule-array-keys) [Between](#rule-between) [Contains](#rule-contains) [Doesnt Contain](#rule-doesnt-contain) [Distinct](#rule-distinct) [In Array](#rule-in-array) [In Array Keys](#rule-in-array-keys) [List](#rule-list) [Max](#rule-max) [Min](#rule-min) [Size](#rule-size) -->
 [Array](#rule-array)
-[Between](#rule-between)
-[Contains](#rule-contains)
-[Doesnt Contain](#rule-doesnt-contain)
-[Distinct](#rule-distinct)
-[In Array](#rule-in-array)
-[In Array Keys](#rule-in-array-keys)
-[List](#rule-list)
-[Max](#rule-max)
-[Min](#rule-min)
-[Size](#rule-size)
--->
-[Array](#rule-array)
+[Array Keys](#rule-array-keys)
 [Between](#rule-between)
 [Contains](#rule-contains)
 [Doesnt Contain](#rule-doesnt-contain)
@@ -1338,26 +1262,14 @@ The credit card number field is required when payment type is credit card.
 [Min](#rule-min)
 [Size](#rule-size)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Dates -->
 #### Dates
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[After](#rule-after)
-[After Or Equal](#rule-after-or-equal)
-[Before](#rule-before)
-[Before Or Equal](#rule-before-or-equal)
-[Date](#rule-date)
-[Date Equals](#rule-date-equals)
-[Date Format](#rule-date-format)
-[Different](#rule-different)
-[Timezone](#rule-timezone)
--->
+<!-- [After](#rule-after) [After Or Equal](#rule-after-or-equal) [Before](#rule-before) [Before Or Equal](#rule-before-or-equal) [Date](#rule-date) [Date Equals](#rule-date-equals) [Date Format](#rule-date-format) [Different](#rule-different) [Timezone](#rule-timezone) -->
 [After](#rule-after)
 [After Or Equal](#rule-after-or-equal)
 [Before](#rule-before)
@@ -1368,28 +1280,14 @@ The credit card number field is required when payment type is credit card.
 [Different](#rule-different)
 [Timezone](#rule-timezone)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Files -->
 #### Files
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Between](#rule-between)
-[Dimensions](#rule-dimensions)
-[Encoding](#rule-encoding)
-[Extensions](#rule-extensions)
-[File](#rule-file)
-[Image](#rule-image)
-[Max](#rule-max)
-[Min](#rule-min)
-[MIME Types](#rule-mimetypes)
-[MIME Type By File Extension](#rule-mimes)
-[Size](#rule-size)
--->
+<!-- [Between](#rule-between) [Dimensions](#rule-dimensions) [Encoding](#rule-encoding) [Extensions](#rule-extensions) [File](#rule-file) [Image](#rule-image) [Max](#rule-max) [Min](#rule-min) [MIME Types](#rule-mimetypes) [MIME Type By File Extension](#rule-mimes) [Size](#rule-size) -->
 [Between](#rule-between)
 [Dimensions](#rule-dimensions)
 [Encoding](#rule-encoding)
@@ -1402,69 +1300,25 @@ The credit card number field is required when payment type is credit card.
 [MIME Type By File Extension](#rule-mimes)
 [Size](#rule-size)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Database -->
 #### Database
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Exists](#rule-exists)
-[Unique](#rule-unique)
--->
+<!-- [Exists](#rule-exists) [Unique](#rule-unique) -->
 [Exists](#rule-exists)
 [Unique](#rule-unique)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Utilities -->
 #### Utilities
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Any Of](#rule-anyof)
-[Bail](#rule-bail)
-[Exclude](#rule-exclude)
-[Exclude If](#rule-exclude-if)
-[Exclude Unless](#rule-exclude-unless)
-[Exclude With](#rule-exclude-with)
-[Exclude Without](#rule-exclude-without)
-[Filled](#rule-filled)
-[Missing](#rule-missing)
-[Missing If](#rule-missing-if)
-[Missing Unless](#rule-missing-unless)
-[Missing With](#rule-missing-with)
-[Missing With All](#rule-missing-with-all)
-[Nullable](#rule-nullable)
-[Present](#rule-present)
-[Present If](#rule-present-if)
-[Present Unless](#rule-present-unless)
-[Present With](#rule-present-with)
-[Present With All](#rule-present-with-all)
-[Prohibited](#rule-prohibited)
-[Prohibited If](#rule-prohibited-if)
-[Prohibited If Accepted](#rule-prohibited-if-accepted)
-[Prohibited If Declined](#rule-prohibited-if-declined)
-[Prohibited Unless](#rule-prohibited-unless)
-[Prohibits](#rule-prohibits)
-[Required](#rule-required)
-[Required If](#rule-required-if)
-[Required If Accepted](#rule-required-if-accepted)
-[Required If Declined](#rule-required-if-declined)
-[Required Unless](#rule-required-unless)
-[Required With](#rule-required-with)
-[Required With All](#rule-required-with-all)
-[Required Without](#rule-required-without)
-[Required Without All](#rule-required-without-all)
-[Required Array Keys](#rule-required-array-keys)
-[Sometimes](#validating-when-present)
--->
+<!-- [Any Of](#rule-anyof) [Bail](#rule-bail) [Exclude](#rule-exclude) [Exclude If](#rule-exclude-if) [Exclude Unless](#rule-exclude-unless) [Exclude With](#rule-exclude-with) [Exclude Without](#rule-exclude-without) [Filled](#rule-filled) [Missing](#rule-missing) [Missing If](#rule-missing-if) [Missing Unless](#rule-missing-unless) [Missing With](#rule-missing-with) [Missing With All](#rule-missing-with-all) [Nullable](#rule-nullable) [Present](#rule-present) [Present If](#rule-present-if) [Present Unless](#rule-present-unless) [Present With](#rule-present-with) [Present With All](#rule-present-with-all) [Prohibited](#rule-prohibited) [Prohibited If](#rule-prohibited-if) [Prohibited If Accepted](#rule-prohibited-if-accepted) [Prohibited If Declined](#rule-prohibited-if-declined) [Prohibited Unless](#rule-prohibited-unless) [Prohibits](#rule-prohibits) [Required](#rule-required) [Required If](#rule-required-if) [Required If Accepted](#rule-required-if-accepted) [Required If Declined](#rule-required-if-declined) [Required Unless](#rule-required-unless) [Required With](#rule-required-with) [Required With All](#rule-required-with-all) [Required Without](#rule-required-without) [Required Without All](#rule-required-without-all) [Required Array Keys](#rule-required-array-keys) [Sometimes](#validating-when-present) -->
 [Any Of](#rule-anyof)
 [Bail](#rule-bail)
 [Exclude](#rule-exclude)
@@ -1523,6 +1377,15 @@ The credit card number field is required when payment type is credit card.
 
 <!-- The field under validation must have a valid A or AAAA record according to the `dns_get_record` PHP function. The hostname of the provided URL is extracted using the `parse_url` PHP function before being passed to `dns_get_record`. -->
 유효성 검증 중인 필드는 PHP `dns_get_record` 함수 기준으로 유효한 A 또는 AAAA 레코드를 가져야 합니다. 제공된 URL의 hostname은 `dns_get_record`에 전달되기 전에 PHP `parse_url` 함수를 사용해 추출됩니다.
+
+<!-- When testing validation rules that perform DNS lookups, such as `active_url` and `email:dns`, you may use the `Validator::fakeDnsLookups` method. This fakes DNS lookups while preserving the rules' other validation behavior: -->
+`active_url` 및 `email:dns`처럼 DNS 조회를 수행하는 유효성 검증 규칙을 테스트할 때는 `Validator::fakeDnsLookups` 메서드를 사용할 수 있습니다. 이 메서드는 규칙의 다른 유효성 검증 동작은 유지하면서 DNS 조회를 모의 처리합니다.
+
+```php
+use Illuminate\Support\Facades\Validator;
+
+Validator::fakeDnsLookups();
+```
 
 <a name="rule-after"></a>
 <!-- #### after:_date_ -->
@@ -1672,6 +1535,24 @@ Validator::make($input, [
 
 <!-- In general, you should always specify the array keys that are allowed to be present within your array. -->
 일반적으로 배열 안에 존재해도 되는 배열 키를 항상 지정해야 합니다.
+
+<a name="rule-array-keys"></a>
+<!-- #### array_keys:_foo_,_bar_,... -->
+#### array_keys:_foo_,_bar_,...
+
+<!-- The field under validation must be a PHP `array` whose keys are all included in the given list. At least one key must be provided: -->
+유효성 검사를 수행하는 필드는 키가 모두 지정된 목록에 포함된 PHP `array`여야 합니다. 하나 이상의 키를 제공해야 합니다:
+
+```php
+'user' => ['array_keys:name,username'],
+```
+
+<!-- For convenience, you may use the `Rule::arrayKeys` method: -->
+편의를 위해 `Rule::arrayKeys` 메서드를 사용할 수도 있습니다:
+
+```php
+'user' => [Rule::arrayKeys('name', 'username')],
+```
 
 <a name="rule-ascii"></a>
 <!-- #### ascii -->
@@ -2014,17 +1895,9 @@ distinct는 기본적으로 느슨한 변수 비교를 사용합니다. 엄격�
 <!-- The example above will apply the `RFCValidation` and `DNSCheckValidation` validations. Here's a full list of validation styles you can apply: -->
 위 예시는 `RFCValidation` 및 `DNSCheckValidation` 검증을 적용합니다. 적용할 수 있는 전체 검증 방식 목록은 다음과 같습니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `rfc`: `RFCValidation` - Validate the email address according to [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs).
-- `strict`: `NoRFCWarningsValidation` - Validate the email according to [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs), failing when warnings are found (e.g. trailing periods and multiple consecutive periods).
-- `dns`: `DNSCheckValidation` - Ensure the email address's domain has a valid MX record.
-- `spoof`: `SpoofCheckValidation` - Ensure the email address does not contain homograph or deceptive Unicode characters.
-- `filter`: `FilterEmailValidation` - Ensure the email address is valid according to PHP's `filter_var` function.
-- `filter_unicode`: `FilterEmailValidation::unicode()` - Ensure the email address is valid according to PHP's `filter_var` function, allowing some Unicode characters.
--->
+<!-- - `rfc`: `RFCValidation` - Validate the email address according to [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs). - `strict`: `NoRFCWarningsValidation` - Validate the email according to [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs), failing when warnings are found (e.g. trailing periods and multiple consecutive periods). - `dns`: `DNSCheckValidation` - Ensure the email address's domain has a valid MX record. - `spoof`: `SpoofCheckValidation` - Ensure the email address does not contain homograph or deceptive Unicode characters. - `filter`: `FilterEmailValidation` - Ensure the email address is valid according to PHP's `filter_var` function. - `filter_unicode`: `FilterEmailValidation::unicode()` - Ensure the email address is valid according to PHP's `filter_var` function, allowing some Unicode characters. -->
 - `rfc`: `RFCValidation` - [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs)에 따라 이메일 주소를 검증합니다.
 - `strict`: `NoRFCWarningsValidation` - [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs)에 따라 이메일을 검증하되, 경고가 발견되면 실패합니다(예: 끝에 붙은 마침표, 연속된 여러 마침표).
 - `dns`: `DNSCheckValidation` - 이메일 주소의 도메인에 유효한 MX 레코드가 있는지 확인합니다.
@@ -2032,7 +1905,6 @@ distinct는 기본적으로 느슨한 변수 비교를 사용합니다. 엄격�
 - `filter`: `FilterEmailValidation` - 이메일 주소가 PHP의 `filter_var` 함수 기준에 따라 유효한지 확인합니다.
 - `filter_unicode`: `FilterEmailValidation::unicode()` - 일부 Unicode 문자를 허용하면서, 이메일 주소가 PHP의 `filter_var` 함수 기준에 따라 유효한지 확인합니다.
 
-<!-- </div> -->
 </div>
 
 <!-- For convenience, email validation rules may be built using the fluent rule builder: -->
@@ -2665,21 +2537,14 @@ _anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유�
 <!-- The field under validation must be missing or empty. A field is "empty" if it meets one of the following criteria: -->
 유효성 검증 대상 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with an empty path.
--->
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with an empty path. -->
 - 값이 `null`입니다.
 - 값이 빈 문자열입니다.
 - 값이 빈 배열이거나 빈 `Countable` 객체입니다.
 - 값이 빈 경로를 가진 업로드된 파일입니다.
 
-<!-- </div> -->
 </div>
 
 <a name="rule-prohibited-if"></a>
@@ -2689,21 +2554,14 @@ _anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유�
 <!-- The field under validation must be missing or empty if the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
 _anotherfield_ 필드가 임의의 _value_와 같으면 유효성 검증 대상 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with an empty path.
--->
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with an empty path. -->
 - 값이 `null`입니다.
 - 값이 빈 문자열입니다.
 - 값이 빈 배열이거나 빈 `Countable` 객체입니다.
 - 값이 빈 경로를 가진 업로드된 파일입니다.
 
-<!-- </div> -->
 </div>
 
 <!-- If complex conditional prohibition logic is required, you may utilize the `Rule::prohibitedIf` method. This method accepts a boolean or a closure. When given a closure, the closure should return `true` or `false` to indicate if the field under validation should be prohibited: -->
@@ -2742,21 +2600,14 @@ _anotherfield_ 필드가 `"no"`, `"off"`, `0`, `"0"`, `false`, 또는 `"false"`�
 <!-- The field under validation must be missing or empty unless the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
 _anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with an empty path.
--->
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with an empty path. -->
 - 값이 `null`입니다.
 - 값이 빈 문자열입니다.
 - 값이 빈 배열이거나 빈 `Countable` 객체입니다.
 - 값이 빈 경로를 가진 업로드된 파일입니다.
 
-<!-- </div> -->
 </div>
 
 <!-- If complex conditional prohibition logic is required, you may utilize the `Rule::prohibitedUnless` method. This method accepts a boolean or a closure. When given a closure, the closure should return `true` or `false` to indicate if the field under validation should not be prohibited: -->
@@ -2782,21 +2633,14 @@ Validator::make($request->all(), [
 <!-- If the field under validation is not missing or empty, all fields in _anotherfield_ must be missing or empty. A field is "empty" if it meets one of the following criteria: -->
 유효성 검증 대상 필드가 없거나 비어 있지 않다면, _anotherfield_의 모든 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with an empty path.
--->
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with an empty path. -->
 - 값이 `null`입니다.
 - 값이 빈 문자열입니다.
 - 값이 빈 배열이거나 빈 `Countable` 객체입니다.
 - 값이 빈 경로를 가진 업로드된 파일입니다.
 
-<!-- </div> -->
 </div>
 
 <a name="rule-regex"></a>
@@ -2816,21 +2660,14 @@ Validator::make($request->all(), [
 <!-- The field under validation must be present in the input data and not empty. A field is "empty" if it meets one of the following criteria: -->
 유효성 검증 대상 필드는 입력 데이터에 존재하고 비어 있지 않아야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with no path.
--->
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with no path. -->
 - 값이 `null`입니다.
 - 값이 빈 문자열입니다.
 - 값이 빈 배열이거나 빈 `Countable` 객체입니다.
 - 값이 경로가 없는 업로드된 파일입니다.
 
-<!-- </div> -->
 </div>
 
 <a name="rule-required-if"></a>
@@ -3521,6 +3358,9 @@ $validator = Validator::make($request->all(), [
 // Require at least 8 characters...
 Password::min(8)
 
+// Require at most 256 characters...
+Password::min(16)->max(256)
+
 // Require at least one letter...
 Password::min(8)->letters()
 
@@ -3557,6 +3397,7 @@ Password::min(8)->uncompromised(3);
 
 ```php
 Password::min(8)
+    ->max(256)
     ->letters()
     ->mixedCase()
     ->numbers()

@@ -8,6 +8,7 @@
     - [Max Job Attempts](#max-job-attempts)
     - [Job Timeout](#job-timeout)
     - [Job Backoff](#job-backoff)
+    - [Other Worker Options](#other-worker-options)
     - [Silenced Jobs](#silenced-jobs)
 - [Balancing Strategies](#balancing-strategies)
     - [Auto Balancing](#auto-balancing)
@@ -27,23 +28,22 @@
 ## Introduction
 
 > [!NOTE]
-> Laravel Horizon을 본격적으로 다루기 전에, 반드시 Laravel의 기본 [queue services](/docs/13.x/queues)에 익숙해지는 것이 좋습니다. Horizon은 Laravel 큐 기능 위에 추가적인 기능을 더해주므로, 기본 큐 기능에 미숙한 경우 혼란스러울 수 있습니다.
+> Laravel Horizon을 살펴보기 전에 먼저 Laravel의 기본 [queue services](/docs/13.x/queues)에 익숙해져야 합니다. Horizon은 Laravel의 큐에 추가 기능을 제공하므로, Laravel이 제공하는 기본 큐 기능을 아직 잘 모른다면 혼란스러울 수 있습니다.
 
 <!-- [Laravel Horizon](https://github.com/laravel/horizon) provides a beautiful dashboard and code-driven configuration for your Laravel powered [Redis queues](/docs/13.x/queues). Horizon allows you to easily monitor key metrics of your queue system such as job throughput, runtime, and job failures. -->
-[Laravel Horizon](https://github.com/laravel/horizon)은 Redis 기반의 Laravel [Redis queues](/docs/13.x/queues)를 위한 아름다운 대시보드와 코드 기반의 설정을 제공합니다. Horizon을 통해 큐 시스템의 주요 지표(작업 처리량, 실행 시간, 작업 실패 등)를 손쉽게 모니터링할 수 있습니다.
+[Laravel Horizon](https://github.com/laravel/horizon)는 Laravel 기반 [Redis queues](/docs/13.x/queues)를 위한 아름다운 대시보드와 코드 기반 설정을 제공합니다. Horizon을 사용하면 잡 처리량, 실행 시간, 잡 실패와 같은 큐 시스템의 주요 메트릭을 손쉽게 모니터링할 수 있습니다.
 
 <!-- When using Horizon, all of your queue worker configuration is stored in a single, simple configuration file. By defining your application's worker configuration in a version controlled file, you may easily scale or modify your application's queue workers when deploying your application. -->
 Horizon을 사용하면 모든 큐 워커 설정이 하나의 단순한 설정 파일에 저장됩니다. 애플리케이션의 워커 구성을 버전 관리되는 파일에 정의함으로써, 배포 시 손쉽게 큐 워커의 스케일 조정이나 설정 변경이 가능합니다.
 
-<!-- <img src="https://laravel.com/img/docs/horizon-example.png"/> -->
-<img src="https://laravel.com/img/docs/horizon-example.png" />
+<img src="https://laravel.com/img/docs/horizon-example.png"/>
 
 <a name="installation"></a>
 <!-- ## Installation -->
 ## Installation
 
 > [!WARNING]
-> Laravel Horizon을 사용하기 위해서는 큐가 반드시 [Redis](https://redis.io) 기반이어야 합니다. 따라서, 애플리케이션의 `config/queue.php` 설정 파일에서 큐 연결이 `redis`로 지정되어 있는지 반드시 확인해야 합니다. 현재 Horizon은 Redis Cluster와 호환되지 않습니다.
+> Laravel Horizon을 사용하려면 큐를 구동하는 데 [Redis](https://redis.io)를 사용해야 합니다. 따라서 애플리케이션의 `config/queue.php` 설정 파일에서 큐 연결이 `redis`로 설정되어 있는지 확인해야 합니다. 현재 Horizon은 Redis Cluster와 호환되지 않습니다.
 
 <!-- You may install Horizon into your project using the Composer package manager: -->
 Composer 패키지 매니저를 사용하여 Horizon을 프로젝트에 설치할 수 있습니다.
@@ -67,7 +67,38 @@ php artisan horizon:install
 에셋을 퍼블리시한 후, Horizon의 주요 설정 파일은 `config/horizon.php`에 생성됩니다. 이 파일에서는 애플리케이션의 큐 워커 옵션을 세부적으로 설정할 수 있습니다. 각 설정에는 목적에 대한 설명이 달려 있으니, 이 파일을 꼼꼼히 살펴보는 것이 좋습니다.
 
 > [!WARNING]
-> Horizon은 내부적으로 `horizon`이라는 Redis 연결명을 사용합니다. 이 연결명은 예약된 것이므로, `database.php`의 다른 Redis 연결이나 `horizon.php`의 `use` 옵션에 이 이름을 사용해서는 안 됩니다.
+> Horizon은 내부적으로 `horizon`이라는 이름의 Redis 연결을 사용합니다. 이 Redis 연결 이름은 예약되어 있으므로 `database.php` 설정 파일에서 다른 Redis 연결에 할당하거나 `horizon.php` 설정 파일에서 `use` 옵션의 값으로 지정해서는 안 됩니다.
+
+<a name="content-security-policy-csp-nonce"></a>
+<!-- #### Content Security Policy (CSP) Nonce -->
+#### Content Security Policy (CSP) Nonce
+
+<!-- If you would like to use a [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) on the script and style tags used in Horizon views as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may use the `Horizon::cspNonce` method to specify the nonce to use. This method should typically be invoked within middleware so that a new nonce is assigned for each request: -->
+Horizon 뷰에서 사용하는 script 및 style 태그에 [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce)를 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)의 일부로 사용하려면 `Horizon::cspNonce` 메서드를 사용해 사용할 nonce를 지정할 수 있습니다. 일반적으로 이 메서드는 미들웨어에서 호출하여 각 요청에 새로운 nonce가 할당되도록 해야 합니다:
+
+```php
+use Closure;
+use Illuminate\Http\Request;
+use Laravel\Horizon\Horizon;
+use Symfony\Component\HttpFoundation\Response;
+
+public function handle(Request $request, Closure $next): Response
+{
+    Horizon::cspNonce('csp-nonce');
+
+    return $next($request);
+}
+```
+
+<!-- You may add this middleware to the `middleware` option in your application's `config/horizon.php` configuration file: -->
+애플리케이션의 `config/horizon.php` 설정 파일에서 `middleware` 옵션에 이 미들웨어를 추가할 수 있습니다:
+
+```php
+'middleware' => [
+    'web',
+    App\Http\Middleware\AddHorizonCspNonce::class,
+],
+```
 
 <a name="environments"></a>
 <!-- #### Environments -->
@@ -110,10 +141,10 @@ Horizon 설치 후 가장 먼저 제어해야 하는 주요 옵션은 `environme
 ```
 
 <!-- When you start Horizon, it will use the worker process configuration options for the environment that your application is running on. Typically, the environment is determined by the value of the `APP_ENV` [environment variable](/docs/13.x/configuration#determining-the-current-environment). For example, the default `local` Horizon environment is configured to start three worker processes and automatically balance the number of worker processes assigned to each queue. The default `production` environment is configured to start a maximum of 10 worker processes and automatically balance the number of worker processes assigned to each queue. -->
-Horizon을 시작하면, 현재 애플리케이션이 동작하는 환경에 맞는 워커 프로세스 설정이 적용됩니다. 일반적으로 환경은 `APP_ENV` [environment variable](/docs/13.x/configuration#determining-the-current-environment)의 값에 따라 결정됩니다. 예를 들어, 기본 `local` 환경에서는 워커 프로세스 3개를 시작하고, 각 큐별로 워커가 자동으로 분배(balancing)됩니다. 기본 `production` 환경에서는 최대 10개의 워커 프로세스를 시작하며 마찬가지로 자동 분산이 이루어집니다.
+Horizon을 시작하면 애플리케이션이 실행 중인 환경에 대한 워커 프로세스 설정 옵션을 사용합니다. 일반적으로 환경은 `APP_ENV` [environment variable](/docs/13.x/configuration#determining-the-current-environment)의 값으로 결정됩니다. 예를 들어 기본 `local` Horizon 환경은 워커 프로세스 3개를 시작하고 각 큐에 할당된 워커 프로세스 수를 자동으로 균형 조정하도록 설정되어 있습니다. 기본 `production` 환경은 최대 10개의 워커 프로세스를 시작하고 각 큐에 할당된 워커 프로세스 수를 자동으로 균형 조정하도록 설정되어 있습니다.
 
 > [!WARNING]
-> Horizon을 실행할 각 [environment](/docs/13.x/configuration#environment-configuration)에 대해 `horizon` 설정 파일의 `environments` 항목에 반드시 엔트리를 정의해야 합니다.
+> Horizon을 실행하려는 각 [environment](/docs/13.x/configuration#environment-configuration)에 대한 항목이 `horizon` 설정 파일의 `environments` 부분에 포함되어 있는지 확인해야 합니다.
 
 <a name="supervisors"></a>
 <!-- #### Supervisors -->
@@ -130,7 +161,7 @@ Horizon의 기본 설정 파일을 살펴보면, 각 환경에는 하나 이상�
 #### Maintenance Mode
 
 <!-- While your application is in [maintenance mode](/docs/13.x/configuration#maintenance-mode), queued jobs will not be processed by Horizon unless the supervisor's `force` option is defined as `true` within the Horizon configuration file: -->
-애플리케이션이 [maintenance mode](/docs/13.x/configuration#maintenance-mode)일 때, supervisor의 `force` 옵션이 Horizon 설정 파일에 `true`로 지정되어 있지 않다면 큐 대기 작업이 처리되지 않습니다.
+애플리케이션이 [maintenance mode](/docs/13.x/configuration#maintenance-mode) 상태인 동안에는 Horizon 설정 파일에서 supervisor의 `force` 옵션을 `true`로 설정하지 않는 한 Horizon이 큐에 대기 중인 잡을 처리하지 않습니다:
 
 ```php
 'environments' => [
@@ -155,7 +186,7 @@ Horizon의 기본 설정 파일에는 `defaults`라는 옵션이 있습니다. �
 ### Dashboard Authorization
 
 <!-- The Horizon dashboard may be accessed via the `/horizon` route. By default, you will only be able to access this dashboard in the `local` environment. However, within your `app/Providers/HorizonServiceProvider.php` file, there is an [authorization gate](/docs/13.x/authorization#gates) definition. This authorization gate controls access to Horizon in **non-local** environments. You are free to modify this gate as needed to restrict access to your Horizon installation: -->
-Horizon 대시보드는 `/horizon` 경로를 통해 접근 가능합니다. 기본적으로는 `local` 환경에서만 이 대시보드를 사용할 수 있습니다. 그러나 `app/Providers/HorizonServiceProvider.php` 파일에는 [authorization gate](/docs/13.x/authorization#gates)가 정의되어 있습니다. 이 게이트는 **로컬 환경 이외**에서 Horizon 접근을 제어합니다. 필요하다면 아래처럼 적절히 제한을 수정할 수 있습니다.
+Horizon 대시보드는 `/horizon` 라우트를 통해 이용할 수 있습니다. 기본적으로는 `local` 환경에서만 이 대시보드에 액세스할 수 있습니다. 하지만 `app/Providers/HorizonServiceProvider.php` 파일에는 [authorization gate](/docs/13.x/authorization#gates) 정의가 있습니다. 이 authorization gate는 **로컬이 아닌** 환경에서 Horizon에 대한 액세스를 제어합니다. 필요에 따라 이 gate를 수정하여 Horizon 설치에 대한 액세스를 제한할 수 있습니다:
 
 ```php
 /**
@@ -185,7 +216,7 @@ Laravel은 게이트 클로저에 인증된 사용자를 자동으로 주입합�
 ### Max Job Attempts
 
 > [!NOTE]
-> 아래 옵션을 세부적으로 조정하기에 앞서, 먼저 Laravel의 기본 [queue services](/docs/13.x/queues#max-job-attempts-and-timeout)와 '시도(attempts)' 개념에 익숙해지는 것이 좋습니다.
+> 이러한 옵션을 조정하기 전에 Laravel의 기본 [queue services](/docs/13.x/queues#max-job-attempts-and-timeout)와 'attempts' 개념을 숙지했는지 확인하세요.
 
 <!-- You can define the maximum number of attempts a job can consume within a supervisor's configuration: -->
 supervisor 설정 내에서 각 작업이 시도할 수 있는 최대 횟수를 지정할 수 있습니다.
@@ -202,7 +233,7 @@ supervisor 설정 내에서 각 작업이 시도할 수 있는 최대 횟수를 
 ```
 
 > [!NOTE]
-> 이 옵션은 Artisan 명령어로 큐를 처리할 때의 `--tries` 옵션과 유사합니다.
+> 이 옵션은 Artisan 명령어로 큐를 처리할 때 사용하는 `--tries` 옵션과 유사합니다.
 
 <!-- Adjusting the `tries` option is essential when using middlewares such as `WithoutOverlapping` or `RateLimited` because they consume attempts. To handle this, adjust the `tries` configuration value either at the supervisor level or by defining the `$tries` property on the job class. -->
 `WithoutOverlapping`, `RateLimited`과 같은 미들웨어를 사용할 경우 시도 횟수를 소비하므로 `tries` 옵션을 조정하는 것이 중요합니다. 이를 처리하려면 supervisor 단위에서 `tries` 설정 값을 조정하거나, 작업 클래스에 `$tries` 속성을 정의하여 적절히 조정해야 합니다.
@@ -224,7 +255,7 @@ supervisor 단위로 `timeout` 값을 설정할 수 있습니다. 이 값은 워
 'environments' => [
     'production' => [
         'supervisor-1' => [
-            // ...¨
+            // ...
             'timeout' => 60,
         ],
     ],
@@ -232,7 +263,7 @@ supervisor 단위로 `timeout` 값을 설정할 수 있습니다. 이 값은 워
 ```
 
 > [!WARNING]
-> `auto` 분산 전략을 사용할 때, Horizon은 스케일 다운 과정에서 프로세스 타임아웃만큼 진행 중인 워커가 "멈춤" 상태로 간주하게 됩니다. 작업 레벨의 타임아웃보다 Horizon의 타임아웃 값이 무조건 더 커야 하며, 그렇지 않으면 작업이 실행 도중 강제로 종료될 수 있습니다. 또, `timeout` 값은 반드시 `config/queue.php`의 `retry_after` 값보다 몇 초 더 짧게 설정해야 합니다. 그렇지 않으면, 동일 작업이 중복 처리될 수 있습니다.
+> `auto` 밸런싱 전략을 사용할 때 Horizon은 진행 중인 워커를 "멈춘" 상태로 간주하며, 스케일 다운 중 Horizon 타임아웃이 지나면 해당 워커를 강제로 종료합니다. 항상 Horizon 타임아웃이 잡 수준의 타임아웃보다 긴지 확인해야 합니다. 그렇지 않으면 잡이 실행 중간에 종료될 수 있습니다. 또한 `timeout` 값은 `config/queue.php` 설정 파일에 정의된 `retry_after` 값보다 항상 몇 초 이상 짧아야 합니다. 그렇지 않으면 잡이 두 번 처리될 수 있습니다.
 
 <a name="job-backoff"></a>
 <!-- ### Job Backoff -->
@@ -265,6 +296,41 @@ supervisor 단위에서 `backoff` 값을 설정하면, 예외 발생 후 작업 
     ],
 ],
 ```
+
+<a name="other-worker-options"></a>
+<!-- ### Other Worker Options -->
+### Other Worker Options
+
+<!-- In addition to `tries`, `timeout`, and `backoff`, each supervisor accepts several other options that control how its worker processes behave and when they are automatically restarted. Periodically restarting workers is a good practice for long-running processes, as it helps guard against memory leaks: -->
+`tries`, `timeout`, `backoff` 외에도 각 supervisor는 워커 프로세스의 동작 방식과 자동으로 재시작되는 시점을 제어하는 여러 옵션을 지원합니다. 메모리 누수를 방지하는 데 도움이 되므로 장시간 실행되는 프로세스에서는 워커를 주기적으로 재시작하는 것이 좋습니다.
+
+```php
+'environments' => [
+    'production' => [
+        'supervisor-1' => [
+            // ...
+            'memory' => 128,
+            'maxJobs' => 1000,
+            'maxTime' => 3600,
+            'sleep' => 3,
+            'rest' => 0,
+            'nice' => 0,
+        ],
+    ],
+],
+```
+
+<div class="content-list" markdown="1">
+
+<!-- - `memory` defines the maximum amount of memory, in megabytes, that a single worker process may consume before it is restarted. By default, this value is `128`. - `maxJobs` defines the number of jobs a worker should process before restarting. A value of `0` indicates that workers should not be restarted based on the number of jobs processed. By default, this value is `0`. - `maxTime` defines the number of seconds a worker should run before restarting. A value of `0` indicates that workers should not be restarted based on time. By default, this value is `0`. - `sleep` defines the number of seconds a worker should wait when no job is available before polling the queue for new jobs again. By default, this value is `3`. - `rest` defines the number of seconds to pause between processing each job. By default, this value is `0`. - `nice` defines the "niceness" (scheduling priority) of the worker processes. A higher value gives the process a lower priority. By default, this value is `0`. -->
+- `memory`는 단일 워커 프로세스가 재시작되기 전에 사용할 수 있는 최대 메모리 양을 메가바이트 단위로 정의합니다. 기본값은 `128`입니다.
+- `maxJobs`는 워커가 재시작되기 전에 처리해야 하는 잡의 수를 정의합니다. `0`은 처리한 잡의 수를 기준으로 워커를 재시작하지 않음을 나타냅니다. 기본값은 `0`입니다.
+- `maxTime`은 워커가 재시작되기 전에 실행되어야 하는 시간을 초 단위로 정의합니다. `0`은 시간을 기준으로 워커를 재시작하지 않음을 나타냅니다. 기본값은 `0`입니다.
+- `sleep`은 사용 가능한 잡이 없을 때 워커가 새 잡을 다시 확인하기 전에 대기할 시간을 초 단위로 정의합니다. 기본값은 `3`입니다.
+- `rest`는 각 잡을 처리하는 사이에 일시 중지할 시간을 초 단위로 정의합니다. 기본값은 `0`입니다.
+- `nice`는 워커 프로세스의 "niceness"(스케줄링 우선순위)를 정의합니다. 값이 클수록 프로세스의 우선순위가 낮아집니다. 기본값은 `0`입니다.
+
+</div>
 
 <a name="silenced-jobs"></a>
 <!-- ### Silenced Jobs -->
@@ -319,17 +385,12 @@ class ProcessPodcast implements ShouldQueue, Silenced
 <!-- When using the `auto` strategy, you may also configure the `minProcesses` and `maxProcesses` configuration options: -->
 `auto` 전략을 사용할 때는 `minProcesses`와 `maxProcesses` 옵션도 설정할 수 있습니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `minProcesses` defines the minimum number of worker processes per queue. This value must be greater than or equal to 1.
-- `maxProcesses` defines the maximum total number of worker processes Horizon may scale up to across all queues. This value should typically be greater than the number of queues multiplied by the `minProcesses` value. To prevent the supervisor from spawning any processes, you may set this value to 0.
--->
-- `minProcesses`: 각 큐별 최소 워커 프로세스 수를 정의합니다. 1 이상이어야 합니다.
-- `maxProcesses`: 모든 큐에 걸쳐 Horizon이 확장할 수 있는 최대 워커 프로세스 총합을 정의합니다. `minProcesses` * 큐 개수보다 크게 설정하는 것이 일반적입니다. 값을 0으로 설정하면 프로세스를 생성하지 않습니다.
+<!-- - `minProcesses` defines the minimum number of worker processes per queue. This value must be greater than or equal to 1. - `maxProcesses` defines the maximum total number of worker processes Horizon may scale up to across all queues. This value should typically be greater than the number of queues multiplied by the `minProcesses` value. To prevent the supervisor from spawning any processes, you may set this value to 0. -->
+- `minProcesses`는 큐마다 필요한 최소 워커 프로세스 수를 정의합니다. 이 값은 1 이상이어야 합니다.
+- `maxProcesses`는 Horizon이 모든 큐에 걸쳐 확장할 수 있는 워커 프로세스의 최대 총 개수를 정의합니다. 일반적으로 이 값은 큐의 수에 `minProcesses` 값을 곱한 수보다 커야 합니다. supervisor가 프로세스를 생성하지 않도록 하려면 이 값을 0으로 설정할 수 있습니다.
 
-<!-- </div> -->
 </div>
 
 <!-- For example, you may configure Horizon to maintain at least one process per queue and scale up to a total of 10 worker processes: -->
@@ -355,17 +416,12 @@ class ProcessPodcast implements ShouldQueue, Silenced
 <!-- The `autoScalingStrategy` configuration option determines how Horizon will assign more worker processes to queues. You can choose between two strategies: -->
 `autoScalingStrategy` 옵션은 Horizon이 큐에 워커를 증설할 때 어떤 기준을 사용할지 결정합니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The `time` strategy will assign workers based on the total estimated amount of time it will take to clear the queue.
-- The `size` strategy will assign workers based on the total number of jobs on the queue.
--->
-- `time`: 큐를 모두 소화하는 데 걸리는 총 예상 시간을 기준으로 워커를 할당합니다.
-- `size`: 큐에 남아있는 작업 개수를 기준으로 워커를 할당합니다.
+<!-- - The `time` strategy will assign workers based on the total estimated amount of time it will take to clear the queue. - The `size` strategy will assign workers based on the total number of jobs on the queue. -->
+- `time` 전략은 큐를 비우는 데 걸리는 총 예상 시간을 기준으로 워커를 할당합니다.
+- `size` 전략은 큐에 있는 전체 잡 수를 기준으로 워커를 할당합니다.
 
-<!-- </div> -->
 </div>
 
 <!-- The `balanceMaxShift` and `balanceCooldown` configuration values determine how quickly Horizon will scale to meet worker demand. In the example above, a maximum of one new process will be created or destroyed every three seconds. You are free to tweak these values as necessary based on your application's needs. -->
@@ -420,7 +476,7 @@ class ProcessPodcast implements ShouldQueue, Silenced
 이 예시에서는 기본 `queue`는 10개까지 확장 가능하고, `images` 큐는 1개의 프로세스만 사용하도록 보장됩니다. 이렇게 하면 각 큐별로 독립적 스케일링이 가능합니다.
 
 > [!NOTE]
-> 리소스 소모가 큰 작업은 별도 큐로 분리하고 `maxProcesses`를 제한하는 것이 바람직합니다. 규정 없이 무한 확장하면 시스템 과부하가 발생할 수 있습니다.
+> 리소스를 많이 사용하는 잡을 디스패치할 때는 제한된 `maxProcesses` 값을 가진 전용 큐에 할당하는 것이 좋을 때가 있습니다. 그렇지 않으면 이러한 잡이 CPU 리소스를 과도하게 사용해 시스템에 과부하를 일으킬 수 있습니다.
 
 <a name="simple-balancing"></a>
 <!-- ### Simple Balancing -->
@@ -497,17 +553,12 @@ class ProcessPodcast implements ShouldQueue, Silenced
 <!-- You can control Horizon's ability to scale worker processes using the `minProcesses` and `maxProcesses` options: -->
 워커 확장 범위는 `minProcesses`와 `maxProcesses` 옵션으로 제어할 수 있습니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `minProcesses` defines the minimum number of worker processes in total. This value must be greater than or equal to 1.
-- `maxProcesses` defines the maximum total number of worker processes Horizon may scale up to.
--->
-- `minProcesses`: 전체 최소 워커 프로세스 수. 1 이상이어야 합니다.
-- `maxProcesses`: 전체 최대 워커 프로세스 수
+<!-- - `minProcesses` defines the minimum number of worker processes in total. This value must be greater than or equal to 1. - `maxProcesses` defines the maximum total number of worker processes Horizon may scale up to. -->
+- `minProcesses`는 전체 워커 프로세스의 최소 개수를 정의합니다. 이 값은 1 이상이어야 합니다.
+- `maxProcesses`는 Horizon이 확장할 수 있는 전체 워커 프로세스의 최대 개수를 정의합니다.
 
-<!-- </div> -->
 </div>
 
 <a name="upgrading-horizon"></a>
@@ -635,7 +686,7 @@ sudo apt-get install supervisor
 ```
 
 > [!NOTE]
-> Supervisor 직접 설정이 어렵다면, [Laravel Cloud](https://cloud.laravel.com)를 활용하면 Laravel 애플리케이션의 백그라운드 프로세스를 관리할 수 있습니다.
+> Supervisor를 직접 설정하는 일이 부담스럽다면 Laravel 애플리케이션의 백그라운드 프로세스를 관리할 수 있는 [Laravel Cloud](https://cloud.laravel.com)를 사용해 보세요.
 
 <a name="supervisor-configuration"></a>
 <!-- #### Supervisor Configuration -->
@@ -660,7 +711,7 @@ stopwaitsecs=3600
 `stopwaitsecs` 값은 최장 실행 작업의 소요 시간보다 항상 크게 지정해야 합니다. 그렇지 않으면 Supervisor가 작업이 끝나기 전에 프로세스를 강제로 종료할 수 있습니다.
 
 > [!WARNING]
-> 위 예제는 Ubuntu 환경 기준입니다. 다른 운영체제에서는 Supervisor 설정 파일 위치와 확장자가 다를 수 있으니, 서버 문서를 반드시 참고하세요.
+> 위 예시는 Ubuntu 기반 서버에서 유효하지만, 다른 서버 운영 체제에서는 Supervisor 설정 파일의 위치와 예상되는 파일 확장자가 다를 수 있습니다. 자세한 내용은 서버의 문서를 참고하세요.
 
 <a name="starting-supervisor"></a>
 <!-- #### Starting Supervisor -->
@@ -678,7 +729,7 @@ sudo supervisorctl start horizon
 ```
 
 > [!NOTE]
-> Supervisor 실행에 관한 추가 정보는 [Supervisor documentation](http://supervisord.org/index.html)를 참고하세요.
+> Supervisor 실행에 관한 자세한 정보는 [Supervisor documentation](http://supervisord.org/index.html)을 참고하세요.
 
 <a name="tags"></a>
 <!-- ## Tags -->
@@ -778,7 +829,7 @@ class SendRenderNotifications implements ShouldQueue
 ## Notifications
 
 > [!WARNING]
-> Horizon에서 Slack 또는 SMS 알림을 사용하려면, 반드시 관련 [prerequisites for the relevant notification channel](/docs/13.x/notifications)을 확인하세요.
+> Horizon에서 Slack 또는 SMS 알림을 전송하도록 구성할 때는 [prerequisites for the relevant notification channel](/docs/13.x/notifications)을 검토해야 합니다.
 
 <!-- If you would like to be notified when one of your queues has a long wait time, you may use the `Horizon::routeMailNotificationsTo`, `Horizon::routeSlackNotificationsTo`, and `Horizon::routeSmsNotificationsTo` methods. You may call these methods from the `boot` method of your application's `App\Providers\HorizonServiceProvider`: -->
 특정 큐의 대기 시간이 과도하게 길어졌을 때 알림을 받고 싶다면, `Horizon::routeMailNotificationsTo`, `Horizon::routeSlackNotificationsTo`, `Horizon::routeSmsNotificationsTo` 메서드를 사용할 수 있습니다. 이 메서드는 `App\Providers\HorizonServiceProvider`의 `boot` 메서드에서 호출하세요.
@@ -826,6 +877,18 @@ Horizon은 작업 및 큐 대기 시간, 처리량 관련 정보를 확인할 �
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('horizon:snapshot')->everyFiveMinutes();
+```
+
+<!-- You may configure how many snapshots Horizon retains for its metrics graphs using the `metrics.trim_snapshots` option in your application's `config/horizon.php` configuration file. Because this option limits the number of snapshots rather than their age, the retention period depends on how frequently the `horizon:snapshot` command runs: -->
+애플리케이션의 `config/horizon.php` 설정 파일에서 `metrics.trim_snapshots` 옵션을 사용해 Horizon이 메트릭 그래프에 보관할 스냅샷 수를 설정할 수 있습니다. 이 옵션은 스냅샷의 보관 기간이 아니라 개수를 제한하므로, 보관 기간은 `horizon:snapshot` 명령어가 실행되는 빈도에 따라 달라집니다:
+
+```php
+'metrics' => [
+    'trim_snapshots' => [
+        'job' => 24,
+        'queue' => 24,
+    ],
+],
 ```
 
 <!-- If you would like to delete all metric data, you can invoke the `horizon:clear-metrics` Artisan command: -->

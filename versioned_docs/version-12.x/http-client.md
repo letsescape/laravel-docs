@@ -46,7 +46,7 @@ $response = Http::get('http://example.com');
 
 ```php
 $response->body() : string;
-$response->json($key = null, $default = null) : mixed;
+$response->json($key = null, $default = null, $flags = null) : mixed;
 $response->object() : object;
 $response->collect($key = null) : Illuminate\Support\Collection;
 $response->resource() : resource;
@@ -286,7 +286,7 @@ $response = Http::withToken('token')->post(/* ... */);
 $response = Http::timeout(3)->get(/* ... */);
 ```
 
-<!-- If the given timeout is exceeded, an instance of `Illuminate\Http\Client\ConnectionException` will  be thrown. -->
+<!-- If the given timeout is exceeded, an instance of `Illuminate\Http\Client\ConnectionException` will be thrown. -->
 지정된 시간 초과가 초과되면 `Illuminate\Http\Client\ConnectionException` 인스턴스가 발생합니다.
 
 <!-- You may specify the maximum number of seconds to wait while trying to connect to a server using the `connectTimeout` method. The default is 10 seconds: -->

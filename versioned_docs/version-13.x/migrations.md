@@ -33,14 +33,14 @@
 마이그레이션은 데이터베이스를 위한 버전 관리와 같습니다. 팀이 애플리케이션의 데이터베이스 스키마 정의를 함께 정의하고 공유할 수 있게 해 줍니다. 소스 컨트롤에서 변경 사항을 가져온 뒤, 팀원에게 로컬 데이터베이스 스키마에 컬럼을 수동으로 추가하라고 말해야 했던 적이 있다면, 이미 데이터베이스 마이그레이션이 해결하려는 문제를 겪어 본 것입니다.
 
 <!-- The Laravel `Schema` [facade](/docs/13.x/facades) provides database agnostic support for creating and manipulating tables across all of Laravel's supported database systems. Typically, migrations will use this facade to create and modify database tables and columns. -->
-Laravel `Schema` [facade](/docs/13.x/facades)는 Laravel이 지원하는 모든 데이터베이스 시스템에서 테이블을 생성하고 조작할 수 있도록, 특정 데이터베이스에 종속되지 않는 지원을 제공합니다. 일반적으로 마이그레이션은 이 facade를 사용하여 데이터베이스 테이블과 컬럼을 생성하고 수정합니다.
+Laravel의 `Schema` [facade](/docs/13.x/facades)는 Laravel이 지원하는 모든 데이터베이스 시스템에서 테이블을 생성하고 조작할 수 있도록 데이터베이스에 구애받지 않는 기능을 제공합니다. 일반적으로 마이그레이션은 이 파사드를 사용해 데이터베이스 테이블과 컬럼을 생성하고 수정합니다.
 
 <a name="generating-migrations"></a>
 <!-- ## Generating Migrations -->
 ## Generating Migrations
 
 <!-- You may use the `make:migration` [Artisan command](/docs/13.x/artisan) to generate a database migration. The new migration will be placed in your `database/migrations` directory. Each migration filename contains a timestamp that allows Laravel to determine the order of the migrations: -->
-데이터베이스 마이그레이션을 생성하려면 `make:migration` [Artisan command](/docs/13.x/artisan)를 사용할 수 있습니다. 새 마이그레이션은 `database/migrations` 디렉터리에 배치됩니다. 각 마이그레이션 파일명에는 Laravel이 마이그레이션 순서를 판단할 수 있도록 타임스탬프가 포함됩니다.
+`make:migration` [Artisan command](/docs/13.x/artisan)을 사용해 데이터베이스 마이그레이션을 생성할 수 있습니다. 새 마이그레이션은 `database/migrations` 디렉터리에 배치됩니다. 각 마이그레이션 파일 이름에는 Laravel이 마이그레이션 순서를 결정할 수 있도록 타임스탬프가 포함됩니다:
 
 ```shell
 php artisan make:migration create_flights_table
@@ -53,7 +53,7 @@ Laravel은 마이그레이션 이름을 사용하여 테이블 이름과, 해당
 생성되는 마이그레이션의 사용자 지정 경로를 지정하려면 `make:migration` 명령어를 실행할 때 `--path` 옵션을 사용할 수 있습니다. 지정한 경로는 애플리케이션의 기본 경로를 기준으로 한 상대 경로여야 합니다.
 
 > [!NOTE]
-> 마이그레이션 stub은 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용하여 사용자 지정할 수 있습니다.
+> 마이그레이션 스텁은 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용하여 사용자 지정할 수 있습니다.
 
 <a name="squashing-migrations"></a>
 <!-- ### Squashing Migrations -->
@@ -84,7 +84,7 @@ php artisan schema:dump --database=testing --prune
 팀의 다른 신규 개발자가 애플리케이션의 초기 데이터베이스 구조를 빠르게 만들 수 있도록, 데이터베이스 스키마 파일을 소스 컨트롤에 커밋해야 합니다.
 
 > [!WARNING]
-> 마이그레이션 스쿼싱은 MariaDB, MySQL, PostgreSQL, SQLite 데이터베이스에서만 사용할 수 있으며, 데이터베이스의 커맨드라인 클라이언트를 활용합니다.
+> 마이그레이션 스쿼싱은 MariaDB, MySQL, PostgreSQL, SQLite 데이터베이스에서만 사용할 수 있으며 데이터베이스의 명령줄 클라이언트를 사용합니다.
 
 <a name="migration-structure"></a>
 <!-- ## Migration Structure -->
@@ -219,7 +219,7 @@ php artisan migrate --isolated
 ```
 
 > [!WARNING]
-> 이 기능을 사용하려면 애플리케이션이 기본 캐시 드라이버로 `memcached`, `redis`, `dynamodb`, `database`, `file`, `array` 캐시 드라이버 중 하나를 사용해야 합니다. 또한 모든 서버가 동일한 중앙 캐시 서버와 통신해야 합니다.
+> 이 기능을 사용하려면 애플리케이션의 기본 캐시 드라이버로 `memcached`, `redis`, `dynamodb`, `database`, `file` 또는 `array` 캐시 드라이버를 사용해야 합니다. 또한 모든 서버가 동일한 중앙 캐시 서버와 통신해야 합니다.
 
 <a name="forcing-migrations-to-run-in-production"></a>
 <!-- #### Forcing Migrations to Run in Production -->
@@ -306,14 +306,14 @@ php artisan migrate:fresh --seed
 ```
 
 <!-- By default, the `migrate:fresh` command only drops tables from the default database connection. However, you may use the `--database` option to specify the database connection that should be migrated. The database connection name should correspond to a connection defined in your application's `database` [configuration file](/docs/13.x/configuration): -->
-기본적으로 `migrate:fresh` 명령어는 기본 데이터베이스 연결의 테이블만 삭제합니다. 하지만 `--database` 옵션을 사용하여 마이그레이션할 데이터베이스 연결을 지정할 수 있습니다. 데이터베이스 연결 이름은 애플리케이션의 `database` [configuration file](/docs/13.x/configuration)에 정의된 연결에 대응되어야 합니다.
+기본적으로 `migrate:fresh` 명령어는 기본 데이터베이스 연결의 테이블만 삭제합니다. 하지만 `--database` 옵션을 사용해 마이그레이션할 데이터베이스 연결을 지정할 수 있습니다. 데이터베이스 연결 이름은 애플리케이션의 `database` [configuration file](/docs/13.x/configuration)에 정의된 연결과 일치해야 합니다:
 
 ```shell
 php artisan migrate:fresh --database=admin
 ```
 
 > [!WARNING]
-> `migrate:fresh` 명령어는 접두사와 관계없이 모든 데이터베이스 테이블을 삭제합니다. 다른 애플리케이션과 공유되는 데이터베이스에서 개발할 때는 이 명령어를 주의해서 사용해야 합니다.
+> `migrate:fresh` 명령어는 접두사가 무엇이든 관계없이 모든 데이터베이스 테이블을 삭제합니다. 다른 애플리케이션과 공유하는 데이터베이스를 사용해 개발할 때는 이 명령어를 주의해서 사용해야 합니다.
 
 <a name="tables"></a>
 <!-- ## Tables -->
@@ -457,6 +457,7 @@ Schema::drop('users');
 
 Schema::dropIfExists('users');
 ```
+
 <a name="renaming-tables-with-foreign-keys"></a>
 <!-- #### Renaming Tables With Foreign Keys -->
 #### Renaming Tables With Foreign Keys
@@ -495,30 +496,20 @@ Schema::table('users', function (Blueprint $table) {
 <!-- #### Boolean Types -->
 #### Boolean Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
 <!-- [boolean](#column-method-boolean) -->
 [boolean](#column-method-boolean)
 
-<!-- </div> -->
 </div>
 
 <a name="strings-and-texts-method-list"></a>
 <!-- #### String & Text Types -->
 #### String & Text Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[char](#column-method-char)
-[longText](#column-method-longText)
-[mediumText](#column-method-mediumText)
-[string](#column-method-string)
-[text](#column-method-text)
-[tinyText](#column-method-tinyText)
--->
+<!-- [char](#column-method-char) [longText](#column-method-longText) [mediumText](#column-method-mediumText) [string](#column-method-string) [text](#column-method-text) [tinyText](#column-method-tinyText) -->
 [char](#column-method-char)
 [longText](#column-method-longText)
 [mediumText](#column-method-mediumText)
@@ -526,37 +517,15 @@ Schema::table('users', function (Blueprint $table) {
 [text](#column-method-text)
 [tinyText](#column-method-tinyText)
 
-<!-- </div> -->
 </div>
 
 <a name="numbers--method-list"></a>
 <!-- #### Numeric Types -->
 #### Numeric Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[bigIncrements](#column-method-bigIncrements)
-[bigInteger](#column-method-bigInteger)
-[decimal](#column-method-decimal)
-[double](#column-method-double)
-[float](#column-method-float)
-[id](#column-method-id)
-[increments](#column-method-increments)
-[integer](#column-method-integer)
-[mediumIncrements](#column-method-mediumIncrements)
-[mediumInteger](#column-method-mediumInteger)
-[smallIncrements](#column-method-smallIncrements)
-[smallInteger](#column-method-smallInteger)
-[tinyIncrements](#column-method-tinyIncrements)
-[tinyInteger](#column-method-tinyInteger)
-[unsignedBigInteger](#column-method-unsignedBigInteger)
-[unsignedInteger](#column-method-unsignedInteger)
-[unsignedMediumInteger](#column-method-unsignedMediumInteger)
-[unsignedSmallInteger](#column-method-unsignedSmallInteger)
-[unsignedTinyInteger](#column-method-unsignedTinyInteger)
--->
+<!-- [bigIncrements](#column-method-bigIncrements) [bigInteger](#column-method-bigInteger) [decimal](#column-method-decimal) [double](#column-method-double) [float](#column-method-float) [id](#column-method-id) [increments](#column-method-increments) [integer](#column-method-integer) [mediumIncrements](#column-method-mediumIncrements) [mediumInteger](#column-method-mediumInteger) [smallIncrements](#column-method-smallIncrements) [smallInteger](#column-method-smallInteger) [tinyIncrements](#column-method-tinyIncrements) [tinyInteger](#column-method-tinyInteger) [unsignedBigInteger](#column-method-unsignedBigInteger) [unsignedInteger](#column-method-unsignedInteger) [unsignedMediumInteger](#column-method-unsignedMediumInteger) [unsignedSmallInteger](#column-method-unsignedSmallInteger) [unsignedTinyInteger](#column-method-unsignedTinyInteger) -->
 [bigIncrements](#column-method-bigIncrements)
 [bigInteger](#column-method-bigInteger)
 [decimal](#column-method-decimal)
@@ -577,29 +546,15 @@ Schema::table('users', function (Blueprint $table) {
 [unsignedSmallInteger](#column-method-unsignedSmallInteger)
 [unsignedTinyInteger](#column-method-unsignedTinyInteger)
 
-<!-- </div> -->
 </div>
 
 <a name="dates-and-times-method-list"></a>
 <!-- #### Date & Time Types -->
 #### Date & Time Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[dateTime](#column-method-dateTime)
-[dateTimeTz](#column-method-dateTimeTz)
-[date](#column-method-date)
-[time](#column-method-time)
-[timeTz](#column-method-timeTz)
-[timestamp](#column-method-timestamp)
-[timestamps](#column-method-timestamps)
-[timestampsTz](#column-method-timestampsTz)
-[softDeletes](#column-method-softDeletes)
-[softDeletesTz](#column-method-softDeletesTz)
-[year](#column-method-year)
--->
+<!-- [dateTime](#column-method-dateTime) [dateTimeTz](#column-method-dateTimeTz) [date](#column-method-date) [time](#column-method-time) [timeTz](#column-method-timeTz) [timestamp](#column-method-timestamp) [timestamps](#column-method-timestamps) [timestampsTz](#column-method-timestampsTz) [softDeletes](#column-method-softDeletes) [softDeletesTz](#column-method-softDeletesTz) [year](#column-method-year) -->
 [dateTime](#column-method-dateTime)
 [dateTimeTz](#column-method-dateTimeTz)
 [date](#column-method-date)
@@ -612,54 +567,38 @@ Schema::table('users', function (Blueprint $table) {
 [softDeletesTz](#column-method-softDeletesTz)
 [year](#column-method-year)
 
-<!-- </div> -->
 </div>
 
 <a name="binaries-method-list"></a>
 <!-- #### Binary Types -->
 #### Binary Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
 <!-- [binary](#column-method-binary) -->
 [binary](#column-method-binary)
 
-<!-- </div> -->
 </div>
 
 <a name="object-and-jsons-method-list"></a>
 <!-- #### Object & Json Types -->
 #### Object & Json Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[json](#column-method-json)
-[jsonb](#column-method-jsonb)
--->
+<!-- [json](#column-method-json) [jsonb](#column-method-jsonb) -->
 [json](#column-method-json)
 [jsonb](#column-method-jsonb)
 
-<!-- </div> -->
 </div>
 
 <a name="uuids-and-ulids-method-list"></a>
 <!-- #### UUID & ULID Types -->
 #### UUID & ULID Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[ulid](#column-method-ulid)
-[ulidMorphs](#column-method-ulidMorphs)
-[uuid](#column-method-uuid)
-[uuidMorphs](#column-method-uuidMorphs)
-[nullableUlidMorphs](#column-method-nullableUlidMorphs)
-[nullableUuidMorphs](#column-method-nullableUuidMorphs)
--->
+<!-- [ulid](#column-method-ulid) [ulidMorphs](#column-method-ulidMorphs) [uuid](#column-method-uuid) [uuidMorphs](#column-method-uuidMorphs) [nullableUlidMorphs](#column-method-nullableUlidMorphs) [nullableUuidMorphs](#column-method-nullableUuidMorphs) -->
 [ulid](#column-method-ulid)
 [ulidMorphs](#column-method-ulidMorphs)
 [uuid](#column-method-uuid)
@@ -667,42 +606,27 @@ Schema::table('users', function (Blueprint $table) {
 [nullableUlidMorphs](#column-method-nullableUlidMorphs)
 [nullableUuidMorphs](#column-method-nullableUuidMorphs)
 
-<!-- </div> -->
 </div>
 
 <a name="spatials-method-list"></a>
 <!-- #### Spatial Types -->
 #### Spatial Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[geography](#column-method-geography)
-[geometry](#column-method-geometry)
--->
+<!-- [geography](#column-method-geography) [geometry](#column-method-geometry) -->
 [geography](#column-method-geography)
 [geometry](#column-method-geometry)
 
-<!-- </div> -->
 </div>
 
 <a name="relationship-method-list"></a>
 <!-- #### Relationship Types -->
 #### Relationship Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[foreignId](#column-method-foreignId)
-[foreignIdFor](#column-method-foreignIdFor)
-[foreignUlid](#column-method-foreignUlid)
-[foreignUuid](#column-method-foreignUuid)
-[foreignUuidFor](#column-method-foreignUuidFor)
-[morphs](#column-method-morphs)
-[nullableMorphs](#column-method-nullableMorphs)
--->
+<!-- [foreignId](#column-method-foreignId) [foreignIdFor](#column-method-foreignIdFor) [foreignUlid](#column-method-foreignUlid) [foreignUuid](#column-method-foreignUuid) [foreignUuidFor](#column-method-foreignUuidFor) [morphs](#column-method-morphs) [nullableMorphs](#column-method-nullableMorphs) -->
 [foreignId](#column-method-foreignId)
 [foreignIdFor](#column-method-foreignIdFor)
 [foreignUlid](#column-method-foreignUlid)
@@ -711,24 +635,15 @@ Schema::table('users', function (Blueprint $table) {
 [morphs](#column-method-morphs)
 [nullableMorphs](#column-method-nullableMorphs)
 
-<!-- </div> -->
 </div>
 
 <a name="specifics-method-list"></a>
 <!-- #### Specialty Types -->
 #### Specialty Types
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[enum](#column-method-enum)
-[set](#column-method-set)
-[macAddress](#column-method-macAddress)
-[ipAddress](#column-method-ipAddress)
-[rememberToken](#column-method-rememberToken)
-[vector](#column-method-vector)
--->
+<!-- [enum](#column-method-enum) [set](#column-method-set) [macAddress](#column-method-macAddress) [ipAddress](#column-method-ipAddress) [rememberToken](#column-method-rememberToken) [vector](#column-method-vector) -->
 [enum](#column-method-enum)
 [set](#column-method-set)
 [macAddress](#column-method-macAddress)
@@ -736,12 +651,12 @@ Schema::table('users', function (Blueprint $table) {
 [rememberToken](#column-method-rememberToken)
 [vector](#column-method-vector)
 
-<!-- </div> -->
 </div>
 
 <a name="column-method-bigIncrements"></a>
 <!-- #### `bigIncrements()` -->
 #### `bigIncrements()`
+
 <!-- The `bigIncrements` method creates an auto-incrementing `UNSIGNED BIGINT` (primary key) equivalent column: -->
 `bigIncrements` 메서드는 자동 증가하는 `UNSIGNED BIGINT`(기본 키)에 해당하는 컬럼을 생성합니다.
 
@@ -752,6 +667,7 @@ $table->bigIncrements('id');
 <a name="column-method-bigInteger"></a>
 <!-- #### `bigInteger()` -->
 #### `bigInteger()`
+
 <!-- The `bigInteger` method creates a `BIGINT` equivalent column: -->
 `bigInteger` 메서드는 `BIGINT`에 해당하는 컬럼을 생성합니다.
 
@@ -762,6 +678,7 @@ $table->bigInteger('votes');
 <a name="column-method-binary"></a>
 <!-- #### `binary()` -->
 #### `binary()`
+
 <!-- The `binary` method creates a `BLOB` equivalent column: -->
 `binary` 메서드는 `BLOB`에 해당하는 컬럼을 생성합니다.
 
@@ -781,6 +698,7 @@ $table->binary('data', length: 16, fixed: true); // BINARY(16)
 <a name="column-method-boolean"></a>
 <!-- #### `boolean()` -->
 #### `boolean()`
+
 <!-- The `boolean` method creates a `BOOLEAN` equivalent column: -->
 `boolean` 메서드는 `BOOLEAN`에 해당하는 컬럼을 생성합니다.
 
@@ -791,6 +709,7 @@ $table->boolean('confirmed');
 <a name="column-method-char"></a>
 <!-- #### `char()` -->
 #### `char()`
+
 <!-- The `char` method creates a `CHAR` equivalent column with of a given length: -->
 `char` 메서드는 지정한 길이의 `CHAR`에 해당하는 컬럼을 생성합니다.
 
@@ -801,6 +720,7 @@ $table->char('name', length: 100);
 <a name="column-method-dateTimeTz"></a>
 <!-- #### `dateTimeTz()` -->
 #### `dateTimeTz()`
+
 <!-- The `dateTimeTz` method creates a `DATETIME` (with timezone) equivalent column with an optional fractional seconds precision: -->
 `dateTimeTz` 메서드는 선택적으로 초의 소수점 정밀도를 지정할 수 있는 `DATETIME`(타임존 포함)에 해당하는 컬럼을 생성합니다.
 
@@ -811,6 +731,7 @@ $table->dateTimeTz('created_at', precision: 0);
 <a name="column-method-dateTime"></a>
 <!-- #### `dateTime()` -->
 #### `dateTime()`
+
 <!-- The `dateTime` method creates a `DATETIME` equivalent column with an optional fractional seconds precision: -->
 `dateTime` 메서드는 선택적으로 초의 소수점 정밀도를 지정할 수 있는 `DATETIME`에 해당하는 컬럼을 생성합니다.
 
@@ -821,6 +742,7 @@ $table->dateTime('created_at', precision: 0);
 <a name="column-method-date"></a>
 <!-- #### `date()` -->
 #### `date()`
+
 <!-- The `date` method creates a `DATE` equivalent column: -->
 `date` 메서드는 `DATE`에 해당하는 컬럼을 생성합니다.
 
@@ -831,6 +753,7 @@ $table->date('created_at');
 <a name="column-method-decimal"></a>
 <!-- #### `decimal()` -->
 #### `decimal()`
+
 <!-- The `decimal` method creates a `DECIMAL` equivalent column with the given precision (total digits) and scale (decimal digits): -->
 `decimal` 메서드는 지정한 정밀도(전체 자릿수)와 스케일(소수 자릿수)을 가진 `DECIMAL`에 해당하는 컬럼을 생성합니다.
 
@@ -841,6 +764,7 @@ $table->decimal('amount', total: 8, places: 2);
 <a name="column-method-double"></a>
 <!-- #### `double()` -->
 #### `double()`
+
 <!-- The `double` method creates a `DOUBLE` equivalent column: -->
 `double` 메서드는 `DOUBLE`에 해당하는 컬럼을 생성합니다.
 
@@ -851,6 +775,7 @@ $table->double('amount');
 <a name="column-method-enum"></a>
 <!-- #### `enum()` -->
 #### `enum()`
+
 <!-- The `enum` method creates a `ENUM` equivalent column with the given valid values: -->
 `enum` 메서드는 지정한 유효 값들을 가진 `ENUM`에 해당하는 컬럼을 생성합니다.
 
@@ -870,6 +795,7 @@ $table->enum('difficulty', Difficulty::cases());
 <a name="column-method-float"></a>
 <!-- #### `float()` -->
 #### `float()`
+
 <!-- The `float` method creates a `FLOAT` equivalent column with the given precision: -->
 `float` 메서드는 지정한 정밀도를 가진 `FLOAT`에 해당하는 컬럼을 생성합니다.
 
@@ -880,6 +806,7 @@ $table->float('amount', precision: 53);
 <a name="column-method-foreignId"></a>
 <!-- #### `foreignId()` -->
 #### `foreignId()`
+
 <!-- The `foreignId` method creates an `UNSIGNED BIGINT` equivalent column: -->
 `foreignId` 메서드는 `UNSIGNED BIGINT`에 해당하는 컬럼을 생성합니다.
 
@@ -890,6 +817,7 @@ $table->foreignId('user_id');
 <a name="column-method-foreignIdFor"></a>
 <!-- #### `foreignIdFor()` -->
 #### `foreignIdFor()`
+
 <!-- The `foreignIdFor` method adds a `{column}_id` equivalent column for a given model class. The column type will be `UNSIGNED BIGINT`, `CHAR(36)`, or `CHAR(26)` depending on the model key type: -->
 `foreignIdFor` 메서드는 지정한 모델 클래스에 대해 `{column}_id`에 해당하는 컬럼을 추가합니다. 컬럼 타입은 모델 키 타입에 따라 `UNSIGNED BIGINT`, `CHAR(36)` 또는 `CHAR(26)`이 됩니다.
 
@@ -900,6 +828,7 @@ $table->foreignIdFor(User::class);
 <a name="column-method-foreignUlid"></a>
 <!-- #### `foreignUlid()` -->
 #### `foreignUlid()`
+
 <!-- The `foreignUlid` method creates a `ULID` equivalent column: -->
 `foreignUlid` 메서드는 `ULID`에 해당하는 컬럼을 생성합니다.
 
@@ -910,6 +839,7 @@ $table->foreignUlid('user_id');
 <a name="column-method-foreignUuid"></a>
 <!-- #### `foreignUuid()` -->
 #### `foreignUuid()`
+
 <!-- The `foreignUuid` method creates a `UUID` equivalent column: -->
 `foreignUuid` 메서드는 `UUID`에 해당하는 컬럼을 생성합니다.
 
@@ -920,6 +850,7 @@ $table->foreignUuid('user_id');
 <a name="column-method-foreignUuidFor"></a>
 <!-- #### `foreignUuidFor()` -->
 #### `foreignUuidFor()`
+
 <!-- The `foreignUuidFor` method adds a `{column}_id` UUID equivalent column for a given model class: -->
 `foreignUuidFor` 메서드는 지정한 모델 클래스에 대해 `{column}_id` UUID에 해당하는 컬럼을 추가합니다.
 
@@ -930,6 +861,7 @@ $table->foreignUuidFor(User::class);
 <a name="column-method-geography"></a>
 <!-- #### `geography()` -->
 #### `geography()`
+
 <!-- The `geography` method creates a `GEOGRAPHY` equivalent column with the given spatial type and SRID (Spatial Reference System Identifier): -->
 `geography` 메서드는 지정한 공간 타입과 SRID(Spatial Reference System Identifier, 공간 참조 시스템 식별자)를 가진 `GEOGRAPHY`에 해당하는 컬럼을 생성합니다.
 
@@ -938,11 +870,12 @@ $table->geography('coordinates', subtype: 'point', srid: 4326);
 ```
 
 > [!NOTE]
-> 공간 타입 지원 여부는 사용하는 데이터베이스 드라이버에 따라 달라집니다. 사용하는 데이터베이스의 문서를 참고하시기 바랍니다. 애플리케이션에서 PostgreSQL 데이터베이스를 사용한다면 `geography` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장을 설치해야 합니다.
+> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 데이터베이스 문서를 참조하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용한다면 `geography` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 기능을 설치해야 합니다.
 
 <a name="column-method-geometry"></a>
 <!-- #### `geometry()` -->
 #### `geometry()`
+
 <!-- The `geometry` method creates a `GEOMETRY` equivalent column with the given spatial type and SRID (Spatial Reference System Identifier): -->
 `geometry` 메서드는 지정한 공간 타입과 SRID(Spatial Reference System Identifier, 공간 참조 시스템 식별자)를 가진 `GEOMETRY`에 해당하는 컬럼을 생성합니다.
 
@@ -951,11 +884,12 @@ $table->geometry('positions', subtype: 'point', srid: 0);
 ```
 
 > [!NOTE]
-> 공간 타입 지원 여부는 사용하는 데이터베이스 드라이버에 따라 달라집니다. 사용하는 데이터베이스의 문서를 참고하시기 바랍니다. 애플리케이션에서 PostgreSQL 데이터베이스를 사용한다면 `geometry` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장을 설치해야 합니다.
+> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 사용하는 데이터베이스의 문서를 참조하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용한다면 `geometry` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 기능을 설치해야 합니다.
 
 <a name="column-method-id"></a>
 <!-- #### `id()` -->
 #### `id()`
+
 <!-- The `id` method is an alias of the `bigIncrements` method. By default, the method will create an `id` column; however, you may pass a column name if you would like to assign a different name to the column: -->
 `id` 메서드는 `bigIncrements` 메서드의 별칭입니다. 기본적으로 이 메서드는 `id` 컬럼을 생성합니다. 하지만 컬럼에 다른 이름을 지정하고 싶다면 컬럼 이름을 전달할 수 있습니다.
 
@@ -966,6 +900,7 @@ $table->id();
 <a name="column-method-increments"></a>
 <!-- #### `increments()` -->
 #### `increments()`
+
 <!-- The `increments` method creates an auto-incrementing `UNSIGNED INTEGER` equivalent column as a primary key: -->
 `increments` 메서드는 기본 키로 사용할 자동 증가 `UNSIGNED INTEGER`에 해당하는 컬럼을 생성합니다.
 
@@ -976,6 +911,7 @@ $table->increments('id');
 <a name="column-method-integer"></a>
 <!-- #### `integer()` -->
 #### `integer()`
+
 <!-- The `integer` method creates an `INTEGER` equivalent column: -->
 `integer` 메서드는 `INTEGER`에 해당하는 컬럼을 생성합니다.
 
@@ -986,6 +922,7 @@ $table->integer('votes');
 <a name="column-method-ipAddress"></a>
 <!-- #### `ipAddress()` -->
 #### `ipAddress()`
+
 <!-- The `ipAddress` method creates a `VARCHAR` equivalent column: -->
 `ipAddress` 메서드는 `VARCHAR`에 해당하는 컬럼을 생성합니다.
 
@@ -999,6 +936,7 @@ PostgreSQL을 사용할 때는 `INET` 컬럼이 생성됩니다.
 <a name="column-method-json"></a>
 <!-- #### `json()` -->
 #### `json()`
+
 <!-- The `json` method creates a `JSON` equivalent column: -->
 `json` 메서드는 `JSON`에 해당하는 컬럼을 생성합니다.
 
@@ -1007,11 +945,12 @@ $table->json('options');
 ```
 
 <!-- When using SQLite, a `TEXT` column will be created. -->
-SQLite를 사용할 때는 `TEXT` 컬럼이 생성됩니다.
+SQLite를 사용하는 경우 `TEXT` 컬럼이 생성됩니다.
 
 <a name="column-method-jsonb"></a>
 <!-- #### `jsonb()` -->
 #### `jsonb()`
+
 <!-- The `jsonb` method creates a `JSONB` equivalent column: -->
 `jsonb` 메서드는 `JSONB`에 해당하는 컬럼을 생성합니다.
 
@@ -1020,11 +959,12 @@ $table->jsonb('options');
 ```
 
 <!-- When using SQLite, a `TEXT` column will be created. -->
-SQLite를 사용할 때는 `TEXT` 컬럼이 생성됩니다.
+SQLite를 사용하는 경우 `TEXT` 컬럼이 생성됩니다.
 
 <a name="column-method-longText"></a>
 <!-- #### `longText()` -->
 #### `longText()`
+
 <!-- The `longText` method creates a `LONGTEXT` equivalent column: -->
 `longText` 메서드는 `LONGTEXT`에 해당하는 컬럼을 생성합니다.
 
@@ -1042,6 +982,7 @@ $table->longText('data')->charset('binary'); // LONGBLOB
 <a name="column-method-macAddress"></a>
 <!-- #### `macAddress()` -->
 #### `macAddress()`
+
 <!-- The `macAddress` method creates a column that is intended to hold a MAC address. Some database systems, such as PostgreSQL, have a dedicated column type for this type of data. Other database systems will use a string equivalent column: -->
 `macAddress` 메서드는 MAC 주소를 저장하기 위한 컬럼을 생성합니다. PostgreSQL과 같은 일부 데이터베이스 시스템은 이런 데이터 전용 컬럼 타입을 제공합니다. 다른 데이터베이스 시스템에서는 문자열에 해당하는 컬럼을 사용합니다.
 
@@ -1052,6 +993,7 @@ $table->macAddress('device');
 <a name="column-method-mediumIncrements"></a>
 <!-- #### `mediumIncrements()` -->
 #### `mediumIncrements()`
+
 <!-- The `mediumIncrements` method creates an auto-incrementing `UNSIGNED MEDIUMINT` equivalent column as a primary key: -->
 `mediumIncrements` 메서드는 기본 키로 사용할 자동 증가 `UNSIGNED MEDIUMINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1062,6 +1004,7 @@ $table->mediumIncrements('id');
 <a name="column-method-mediumInteger"></a>
 <!-- #### `mediumInteger()` -->
 #### `mediumInteger()`
+
 <!-- The `mediumInteger` method creates a `MEDIUMINT` equivalent column: -->
 `mediumInteger` 메서드는 `MEDIUMINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1072,6 +1015,7 @@ $table->mediumInteger('votes');
 <a name="column-method-mediumText"></a>
 <!-- #### `mediumText()` -->
 #### `mediumText()`
+
 <!-- The `mediumText` method creates a `MEDIUMTEXT` equivalent column: -->
 `mediumText` 메서드는 `MEDIUMTEXT`에 해당하는 컬럼을 생성합니다.
 
@@ -1089,11 +1033,12 @@ $table->mediumText('data')->charset('binary'); // MEDIUMBLOB
 <a name="column-method-morphs"></a>
 <!-- #### `morphs()` -->
 #### `morphs()`
+
 <!-- The `morphs` method is a convenience method that adds a `{column}_type` `VARCHAR` equivalent column and a `{column}_id` equivalent column. The column type for the `{column}_id` will be `UNSIGNED BIGINT`, `CHAR(36)`, or `CHAR(26)` depending on the model key type. -->
 `morphs` 메서드는 `{column}_type` `VARCHAR`에 해당하는 컬럼과 `{column}_id`에 해당하는 컬럼을 추가하는 편의 메서드입니다. `{column}_id`의 컬럼 타입은 모델 키 타입에 따라 `UNSIGNED BIGINT`, `CHAR(36)`, 또는 `CHAR(26)`이 됩니다.
 
 <!-- This method is intended to be used when defining the columns necessary for a polymorphic [Eloquent relationship](/docs/13.x/eloquent-relationships). In the following example, `taggable_type` and `taggable_id` columns would be created: -->
-이 메서드는 다형성 [Eloquent relationship](/docs/13.x/eloquent-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type`과 `taggable_id` 컬럼이 생성됩니다.
+이 메서드는 다형성 [Eloquent relationship](/docs/13.x/eloquent-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type` 및 `taggable_id` 컬럼이 생성됩니다:
 
 ```php
 $table->morphs('taggable');
@@ -1102,6 +1047,7 @@ $table->morphs('taggable');
 <a name="column-method-nullableMorphs"></a>
 <!-- #### `nullableMorphs()` -->
 #### `nullableMorphs()`
+
 <!-- The method is similar to the [morphs](#column-method-morphs) method; however, the columns that are created will be "nullable": -->
 이 메서드는 [morphs](#column-method-morphs) 메서드와 비슷하지만, 생성되는 컬럼이 널을 허용합니다.
 
@@ -1112,6 +1058,7 @@ $table->nullableMorphs('taggable');
 <a name="column-method-nullableUlidMorphs"></a>
 <!-- #### `nullableUlidMorphs()` -->
 #### `nullableUlidMorphs()`
+
 <!-- The method is similar to the [ulidMorphs](#column-method-ulidMorphs) method; however, the columns that are created will be "nullable": -->
 이 메서드는 [ulidMorphs](#column-method-ulidMorphs) 메서드와 비슷하지만, 생성되는 컬럼이 널을 허용합니다.
 
@@ -1122,6 +1069,7 @@ $table->nullableUlidMorphs('taggable');
 <a name="column-method-nullableUuidMorphs"></a>
 <!-- #### `nullableUuidMorphs()` -->
 #### `nullableUuidMorphs()`
+
 <!-- The method is similar to the [uuidMorphs](#column-method-uuidMorphs) method; however, the columns that are created will be "nullable": -->
 이 메서드는 [uuidMorphs](#column-method-uuidMorphs) 메서드와 비슷하지만, 생성되는 컬럼이 널을 허용합니다.
 
@@ -1132,8 +1080,9 @@ $table->nullableUuidMorphs('taggable');
 <a name="column-method-rememberToken"></a>
 <!-- #### `rememberToken()` -->
 #### `rememberToken()`
+
 <!-- The `rememberToken` method creates a nullable, `VARCHAR(100)` equivalent column that is intended to store the current "remember me" [authentication token](/docs/13.x/authentication#remembering-users): -->
-`rememberToken` 메서드는 현재 "로그인 상태 유지" [authentication token](/docs/13.x/authentication#remembering-users)을 저장하기 위한, 널을 허용하는 `VARCHAR(100)`에 해당하는 컬럼을 생성합니다.
+`rememberToken` 메서드는 현재 "로그인 상태 기억" [authentication token](/docs/13.x/authentication#remembering-users)을 저장하기 위한 nullable `VARCHAR(100)`과 동일한 컬럼을 생성합니다:
 
 ```php
 $table->rememberToken();
@@ -1142,6 +1091,7 @@ $table->rememberToken();
 <a name="column-method-set"></a>
 <!-- #### `set()` -->
 #### `set()`
+
 <!-- The `set` method creates a `SET` equivalent column with the given list of valid values: -->
 `set` 메서드는 주어진 유효한 값 목록을 가진 `SET`에 해당하는 컬럼을 생성합니다.
 
@@ -1152,6 +1102,7 @@ $table->set('flavors', ['strawberry', 'vanilla']);
 <a name="column-method-smallIncrements"></a>
 <!-- #### `smallIncrements()` -->
 #### `smallIncrements()`
+
 <!-- The `smallIncrements` method creates an auto-incrementing `UNSIGNED SMALLINT` equivalent column as a primary key: -->
 `smallIncrements` 메서드는 기본 키로 사용할 자동 증가 `UNSIGNED SMALLINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1162,6 +1113,7 @@ $table->smallIncrements('id');
 <a name="column-method-smallInteger"></a>
 <!-- #### `smallInteger()` -->
 #### `smallInteger()`
+
 <!-- The `smallInteger` method creates a `SMALLINT` equivalent column: -->
 `smallInteger` 메서드는 `SMALLINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1172,6 +1124,7 @@ $table->smallInteger('votes');
 <a name="column-method-softDeletesTz"></a>
 <!-- #### `softDeletesTz()` -->
 #### `softDeletesTz()`
+
 <!-- The `softDeletesTz` method adds a nullable `deleted_at` `TIMESTAMP` (with timezone) equivalent column with an optional fractional seconds precision. This column is intended to store the `deleted_at` timestamp needed for Eloquent's "soft delete" functionality: -->
 `softDeletesTz` 메서드는 선택적인 소수 초 정밀도를 가진, 널을 허용하는 `deleted_at` `TIMESTAMP`(시간대 포함)에 해당하는 컬럼을 추가합니다. 이 컬럼은 Eloquent의 "소프트 삭제" 기능에 필요한 `deleted_at` 타임스탬프를 저장하기 위한 것입니다.
 
@@ -1182,6 +1135,7 @@ $table->softDeletesTz('deleted_at', precision: 0);
 <a name="column-method-softDeletes"></a>
 <!-- #### `softDeletes()` -->
 #### `softDeletes()`
+
 <!-- The `softDeletes` method adds a nullable `deleted_at` `TIMESTAMP` equivalent column with an optional fractional seconds precision. This column is intended to store the `deleted_at` timestamp needed for Eloquent's "soft delete" functionality: -->
 `softDeletes` 메서드는 선택적인 소수 초 정밀도를 가진, 널을 허용하는 `deleted_at` `TIMESTAMP`에 해당하는 컬럼을 추가합니다. 이 컬럼은 Eloquent의 "소프트 삭제" 기능에 필요한 `deleted_at` 타임스탬프를 저장하기 위한 것입니다.
 
@@ -1192,6 +1146,7 @@ $table->softDeletes('deleted_at', precision: 0);
 <a name="column-method-string"></a>
 <!-- #### `string()` -->
 #### `string()`
+
 <!-- The `string` method creates a `VARCHAR` equivalent column of the given length: -->
 `string` 메서드는 주어진 길이의 `VARCHAR`에 해당하는 컬럼을 생성합니다.
 
@@ -1202,6 +1157,7 @@ $table->string('name', length: 100);
 <a name="column-method-text"></a>
 <!-- #### `text()` -->
 #### `text()`
+
 <!-- The `text` method creates a `TEXT` equivalent column: -->
 `text` 메서드는 `TEXT`에 해당하는 컬럼을 생성합니다.
 
@@ -1219,6 +1175,7 @@ $table->text('data')->charset('binary'); // BLOB
 <a name="column-method-timeTz"></a>
 <!-- #### `timeTz()` -->
 #### `timeTz()`
+
 <!-- The `timeTz` method creates a `TIME` (with timezone) equivalent column with an optional fractional seconds precision: -->
 `timeTz` 메서드는 선택적인 소수 초 정밀도를 가진 `TIME`(시간대 포함)에 해당하는 컬럼을 생성합니다.
 
@@ -1229,6 +1186,7 @@ $table->timeTz('sunrise', precision: 0);
 <a name="column-method-time"></a>
 <!-- #### `time()` -->
 #### `time()`
+
 <!-- The `time` method creates a `TIME` equivalent column with an optional fractional seconds precision: -->
 `time` 메서드는 선택적인 소수 초 정밀도를 가진 `TIME`에 해당하는 컬럼을 생성합니다.
 
@@ -1239,6 +1197,7 @@ $table->time('sunrise', precision: 0);
 <a name="column-method-timestampTz"></a>
 <!-- #### `timestampTz()` -->
 #### `timestampTz()`
+
 <!-- The `timestampTz` method creates a `TIMESTAMP` (with timezone) equivalent column with an optional fractional seconds precision: -->
 `timestampTz` 메서드는 선택적인 소수 초 정밀도를 가진 `TIMESTAMP`(시간대 포함)에 해당하는 컬럼을 생성합니다.
 
@@ -1249,6 +1208,7 @@ $table->timestampTz('added_at', precision: 0);
 <a name="column-method-timestamp"></a>
 <!-- #### `timestamp()` -->
 #### `timestamp()`
+
 <!-- The `timestamp` method creates a `TIMESTAMP` equivalent column with an optional fractional seconds precision: -->
 `timestamp` 메서드는 선택적인 소수 초 정밀도를 가진 `TIMESTAMP`에 해당하는 컬럼을 생성합니다.
 
@@ -1259,6 +1219,7 @@ $table->timestamp('added_at', precision: 0);
 <a name="column-method-timestampsTz"></a>
 <!-- #### `timestampsTz()` -->
 #### `timestampsTz()`
+
 <!-- The `timestampsTz` method creates `created_at` and `updated_at` `TIMESTAMP` (with timezone) equivalent columns with an optional fractional seconds precision: -->
 `timestampsTz` 메서드는 선택적인 소수 초 정밀도를 가진 `created_at` 및 `updated_at` `TIMESTAMP`(시간대 포함)에 해당하는 컬럼을 생성합니다.
 
@@ -1269,6 +1230,7 @@ $table->timestampsTz(precision: 0);
 <a name="column-method-timestamps"></a>
 <!-- #### `timestamps()` -->
 #### `timestamps()`
+
 <!-- The `timestamps` method creates `created_at` and `updated_at` `TIMESTAMP` equivalent columns with an optional fractional seconds precision: -->
 `timestamps` 메서드는 선택적인 소수 초 정밀도를 가진 `created_at` 및 `updated_at` `TIMESTAMP`에 해당하는 컬럼을 생성합니다.
 
@@ -1279,6 +1241,7 @@ $table->timestamps(precision: 0);
 <a name="column-method-tinyIncrements"></a>
 <!-- #### `tinyIncrements()` -->
 #### `tinyIncrements()`
+
 <!-- The `tinyIncrements` method creates an auto-incrementing `UNSIGNED TINYINT` equivalent column as a primary key: -->
 `tinyIncrements` 메서드는 기본 키로 사용할 자동 증가 `UNSIGNED TINYINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1289,6 +1252,7 @@ $table->tinyIncrements('id');
 <a name="column-method-tinyInteger"></a>
 <!-- #### `tinyInteger()` -->
 #### `tinyInteger()`
+
 <!-- The `tinyInteger` method creates a `TINYINT` equivalent column: -->
 `tinyInteger` 메서드는 `TINYINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1299,6 +1263,7 @@ $table->tinyInteger('votes');
 <a name="column-method-tinyText"></a>
 <!-- #### `tinyText()` -->
 #### `tinyText()`
+
 <!-- The `tinyText` method creates a `TINYTEXT` equivalent column: -->
 `tinyText` 메서드는 `TINYTEXT`에 해당하는 컬럼을 생성합니다.
 
@@ -1316,6 +1281,7 @@ $table->tinyText('data')->charset('binary'); // TINYBLOB
 <a name="column-method-unsignedBigInteger"></a>
 <!-- #### `unsignedBigInteger()` -->
 #### `unsignedBigInteger()`
+
 <!-- The `unsignedBigInteger` method creates an `UNSIGNED BIGINT` equivalent column: -->
 `unsignedBigInteger` 메서드는 `UNSIGNED BIGINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1326,6 +1292,7 @@ $table->unsignedBigInteger('votes');
 <a name="column-method-unsignedInteger"></a>
 <!-- #### `unsignedInteger()` -->
 #### `unsignedInteger()`
+
 <!-- The `unsignedInteger` method creates an `UNSIGNED INTEGER` equivalent column: -->
 `unsignedInteger` 메서드는 `UNSIGNED INTEGER`에 해당하는 컬럼을 생성합니다.
 
@@ -1336,6 +1303,7 @@ $table->unsignedInteger('votes');
 <a name="column-method-unsignedMediumInteger"></a>
 <!-- #### `unsignedMediumInteger()` -->
 #### `unsignedMediumInteger()`
+
 <!-- The `unsignedMediumInteger` method creates an `UNSIGNED MEDIUMINT` equivalent column: -->
 `unsignedMediumInteger` 메서드는 `UNSIGNED MEDIUMINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1346,6 +1314,7 @@ $table->unsignedMediumInteger('votes');
 <a name="column-method-unsignedSmallInteger"></a>
 <!-- #### `unsignedSmallInteger()` -->
 #### `unsignedSmallInteger()`
+
 <!-- The `unsignedSmallInteger` method creates an `UNSIGNED SMALLINT` equivalent column: -->
 `unsignedSmallInteger` 메서드는 `UNSIGNED SMALLINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1356,6 +1325,7 @@ $table->unsignedSmallInteger('votes');
 <a name="column-method-unsignedTinyInteger"></a>
 <!-- #### `unsignedTinyInteger()` -->
 #### `unsignedTinyInteger()`
+
 <!-- The `unsignedTinyInteger` method creates an `UNSIGNED TINYINT` equivalent column: -->
 `unsignedTinyInteger` 메서드는 `UNSIGNED TINYINT`에 해당하는 컬럼을 생성합니다.
 
@@ -1366,11 +1336,12 @@ $table->unsignedTinyInteger('votes');
 <a name="column-method-ulidMorphs"></a>
 <!-- #### `ulidMorphs()` -->
 #### `ulidMorphs()`
+
 <!-- The `ulidMorphs` method is a convenience method that adds a `{column}_type` `VARCHAR` equivalent column and a `{column}_id` `CHAR(26)` equivalent column. -->
 `ulidMorphs` 메서드는 `{column}_type` `VARCHAR`에 해당하는 컬럼과 `{column}_id` `CHAR(26)`에 해당하는 컬럼을 추가하는 편의 메서드입니다.
 
 <!-- This method is intended to be used when defining the columns necessary for a polymorphic [Eloquent relationship](/docs/13.x/eloquent-relationships) that use ULID identifiers. In the following example, `taggable_type` and `taggable_id` columns would be created: -->
-이 메서드는 ULID 식별자를 사용하는 다형성 [Eloquent relationship](/docs/13.x/eloquent-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type`과 `taggable_id` 컬럼이 생성됩니다.
+이 메서드는 ULID 식별자를 사용하는 다형성 [Eloquent relationship](/docs/13.x/eloquent-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type` 및 `taggable_id` 컬럼이 생성됩니다:
 
 ```php
 $table->ulidMorphs('taggable');
@@ -1379,11 +1350,12 @@ $table->ulidMorphs('taggable');
 <a name="column-method-uuidMorphs"></a>
 <!-- #### `uuidMorphs()` -->
 #### `uuidMorphs()`
+
 <!-- The `uuidMorphs` method is a convenience method that adds a `{column}_type` `VARCHAR` equivalent column and a `{column}_id` `CHAR(36)` equivalent column. -->
 `uuidMorphs` 메서드는 `{column}_type` `VARCHAR`에 해당하는 컬럼과 `{column}_id` `CHAR(36)`에 해당하는 컬럼을 추가하는 편의 메서드입니다.
 
 <!-- This method is intended to be used when defining the columns necessary for a [polymorphic Eloquent relationship](/docs/13.x/eloquent-relationships#polymorphic-relationships) that use UUID identifiers. In the following example, `taggable_type` and `taggable_id` columns would be created: -->
-이 메서드는 UUID 식별자를 사용하는 [polymorphic Eloquent relationship](/docs/13.x/eloquent-relationships#polymorphic-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type`과 `taggable_id` 컬럼이 생성됩니다.
+이 메서드는 UUID 식별자를 사용하는 [polymorphic Eloquent relationship](/docs/13.x/eloquent-relationships#polymorphic-relationships)에 필요한 컬럼을 정의할 때 사용합니다. 다음 예시에서는 `taggable_type` 및 `taggable_id` 컬럼이 생성됩니다:
 
 ```php
 $table->uuidMorphs('taggable');
@@ -1392,6 +1364,7 @@ $table->uuidMorphs('taggable');
 <a name="column-method-ulid"></a>
 <!-- #### `ulid()` -->
 #### `ulid()`
+
 <!-- The `ulid` method creates a `ULID` equivalent column: -->
 `ulid` 메서드는 `ULID`에 해당하는 컬럼을 생성합니다.
 
@@ -1402,6 +1375,7 @@ $table->ulid('id');
 <a name="column-method-uuid"></a>
 <!-- #### `uuid()` -->
 #### `uuid()`
+
 <!-- The `uuid` method creates a `UUID` equivalent column: -->
 `uuid` 메서드는 `UUID`에 해당하는 컬럼을 생성합니다.
 
@@ -1412,6 +1386,7 @@ $table->uuid('id');
 <a name="column-method-vector"></a>
 <!-- #### `vector()` -->
 #### `vector()`
+
 <!-- The `vector` method creates a `vector` equivalent column: -->
 `vector` 메서드는 `vector`에 해당하는 컬럼을 생성합니다.
 
@@ -1429,6 +1404,7 @@ Schema::ensureVectorExtensionExists();
 <a name="column-method-year"></a>
 <!-- #### `year()` -->
 #### `year()`
+
 <!-- The `year` method creates a `YEAR` equivalent column: -->
 `year` 메서드는 `YEAR`에 해당하는 컬럼을 생성합니다.
 
@@ -1439,6 +1415,7 @@ $table->year('birth_year');
 <a name="column-modifiers"></a>
 <!-- ### Column Modifiers -->
 ### Column Modifiers
+
 <!-- In addition to the column types listed above, there are several column "modifiers" you may use when adding a column to a database table. For example, to make the column "nullable", you may use the `nullable` method: -->
 위에 나열된 컬럼 타입 외에도, 데이터베이스 테이블에 컬럼을 추가할 때 사용할 수 있는 여러 컬럼 "수정자(modifier)"가 있습니다. 예를 들어, 컬럼을 "nullable"로 만들려면 `nullable` 메서드를 사용할 수 있습니다.
 
@@ -1454,32 +1431,32 @@ Schema::table('users', function (Blueprint $table) {
 <!-- The following table contains all of the available column modifiers. This list does not include [index modifiers](#creating-indexes): -->
 다음 표에는 사용할 수 있는 모든 컬럼 수정자가 정리되어 있습니다. 이 목록에는 [index modifiers](#creating-indexes)가 포함되어 있지 않습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 수정자                              | 설명                                                                                           |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `->after('column')`                 | 컬럼을 다른 컬럼 "뒤에" 배치합니다 (MariaDB / MySQL).                                          |
-| `->autoIncrement()`                 | `INTEGER` 컬럼을 자동 증가 컬럼(기본 키)으로 설정합니다.                                       |
-| `->charset('utf8mb4')`              | 컬럼의 문자 집합을 지정합니다 (MariaDB / MySQL).                                               |
-| `->collation('utf8mb4_unicode_ci')` | 컬럼의 콜레이션을 지정합니다.                                                                  |
-| `->comment('my comment')`           | 컬럼에 주석을 추가합니다 (MariaDB / MySQL / PostgreSQL).                                       |
-| `->default($value)`                 | 컬럼의 "기본" 값을 지정합니다.                                                                 |
-| `->first()`                         | 컬럼을 테이블의 "첫 번째" 위치에 배치합니다 (MariaDB / MySQL).                                 |
-| `->from($integer)`                  | 자동 증가 필드의 시작 값을 설정합니다 (MariaDB / MySQL / PostgreSQL).                          |
-| `->instant()`                       | instant 작업을 사용하여 컬럼을 추가하거나 수정합니다 (MySQL).                                  |
-| `->invisible()`                     | `SELECT *` 쿼리에서 컬럼이 "보이지 않도록" 만듭니다 (MariaDB / MySQL).                         |
-| `->lock($mode)`                     | 컬럼 작업에 사용할 잠금 모드를 지정합니다 (MySQL).                                             |
-| `->nullable($value = true)`         | 컬럼에 `NULL` 값을 삽입할 수 있도록 허용합니다.                                                 |
-| `->storedAs($expression)`           | 저장된 생성 컬럼을 생성합니다 (MariaDB / MySQL / PostgreSQL / SQLite).                         |
-| `->unsigned()`                      | `INTEGER` 컬럼을 `UNSIGNED`로 설정합니다 (MariaDB / MySQL).                                     |
-| `->useCurrent()`                    | `TIMESTAMP` 컬럼이 기본값으로 `CURRENT_TIMESTAMP`를 사용하도록 설정합니다.                      |
-| `->useCurrentOnUpdate()`            | 레코드가 업데이트될 때 `TIMESTAMP` 컬럼이 `CURRENT_TIMESTAMP`를 사용하도록 설정합니다 (MariaDB / MySQL). |
-| `->virtualAs($expression)`          | 가상 생성 컬럼을 생성합니다 (MariaDB / MySQL / SQLite).                                        |
-| `->generatedAs($expression)`        | 지정된 시퀀스 옵션으로 identity column을 생성합니다 (PostgreSQL).                              |
-| `->always()`                        | identity column에서 입력값보다 시퀀스 값이 우선하는 방식을 정의합니다 (PostgreSQL).            |
+<!-- | Modifier | Description | | ----------------------------------- | ---------------------------------------------------------------------------------------------- | | `->after('column')` | Place the column "after" another column (MariaDB / MySQL). | | `->autoIncrement()` | Set `INTEGER` columns as auto-incrementing (primary key). | | `->charset('utf8mb4')` | Specify a character set for the column (MariaDB / MySQL). | | `->collation('utf8mb4_unicode_ci')` | Specify a collation for the column. | | `->comment('my comment')` | Add a comment to a column (MariaDB / MySQL / PostgreSQL). | | `->default($value)` | Specify a "default" value for the column. | | `->first()` | Place the column "first" in the table (MariaDB / MySQL). | | `->from($integer)` | Set the starting value of an auto-incrementing field (MariaDB / MySQL / PostgreSQL). | | `->instant()` | Add or modify the column using an instant operation (MySQL). | | `->invisible()` | Make the column "invisible" to `SELECT *` queries (MariaDB / MySQL). | | `->lock($mode)` | Specify a lock mode for the column operation (MySQL). | | `->nullable($value = true)` | Allow `NULL` values to be inserted into the column. | | `->storedAs($expression)` | Create a stored generated column (MariaDB / MySQL / PostgreSQL / SQLite). | | `->unsigned()` | Set `INTEGER` columns as `UNSIGNED` (MariaDB / MySQL). | | `->using($expression)` | Specify a casting expression when changing the column type (PostgreSQL). | | `->useCurrent()` | Set `TIMESTAMP` columns to use `CURRENT_TIMESTAMP` as default value. | | `->useCurrentOnUpdate()` | Set `TIMESTAMP` columns to use `CURRENT_TIMESTAMP` when a record is updated (MariaDB / MySQL). | | `->virtualAs($expression)` | Create a virtual generated column (MariaDB / MySQL / SQLite). | | `->generatedAs($expression)` | Create an identity column with specified sequence options (PostgreSQL). | | `->always()` | Defines the precedence of sequence values over input for an identity column (PostgreSQL). | -->
+| 수정자                              | 설명                                                                                       |
+| ----------------------------------- | -------------------------------------------------------------------------------------------- |
+| `->after('column')`                 | 다른 컬럼 "뒤에" 컬럼을 배치합니다(MariaDB / MySQL).                                        |
+| `->autoIncrement()`                 | `INTEGER` 컬럼을 자동 증가 컬럼으로 설정합니다(기본 키).                                   |
+| `->charset('utf8mb4')`              | 컬럼의 문자 집합을 지정합니다(MariaDB / MySQL).                                             |
+| `->collation('utf8mb4_unicode_ci')` | 컬럼의 데이터 정렬을 지정합니다.                                                            |
+| `->comment('my comment')`           | 컬럼에 주석을 추가합니다(MariaDB / MySQL / PostgreSQL).                                     |
+| `->default($value)`                 | 컬럼의 "기본값"을 지정합니다.                                                               |
+| `->first()`                         | 테이블에서 컬럼을 "처음"에 배치합니다(MariaDB / MySQL).                                     |
+| `->from($integer)`                  | 자동 증가 필드의 시작 값을 설정합니다(MariaDB / MySQL / PostgreSQL).                       |
+| `->instant()`                       | 즉시 작업을 사용해 컬럼을 추가하거나 수정합니다(MySQL).                                    |
+| `->invisible()`                     | `SELECT *` 쿼리에서 컬럼을 "보이지 않게" 설정합니다(MariaDB / MySQL).                       |
+| `->lock($mode)`                     | 컬럼 작업의 잠금 모드를 지정합니다(MySQL).                                                  |
+| `->nullable($value = true)`         | 컬럼에 `NULL` 값을 삽입할 수 있도록 합니다.                                                 |
+| `->storedAs($expression)`           | 저장된 생성 컬럼을 생성합니다(MariaDB / MySQL / PostgreSQL / SQLite).                       |
+| `->unsigned()`                      | `INTEGER` 컬럼을 `UNSIGNED`로 설정합니다(MariaDB / MySQL).                                  |
+| `->using($expression)`              | 컬럼 타입을 변경할 때 사용할 캐스팅 표현식을 지정합니다(PostgreSQL).                       |
+| `->useCurrent()`                    | `TIMESTAMP` 컬럼의 기본값으로 `CURRENT_TIMESTAMP`를 사용하도록 설정합니다.                  |
+| `->useCurrentOnUpdate()`            | 레코드가 업데이트될 때 `TIMESTAMP` 컬럼에 `CURRENT_TIMESTAMP`를 사용하도록 설정합니다(MariaDB / MySQL). |
+| `->virtualAs($expression)`          | 가상 생성 컬럼을 생성합니다(MariaDB / MySQL / SQLite).                                      |
+| `->generatedAs($expression)`        | 지정된 시퀀스 옵션을 사용하는 identity 컬럼을 생성합니다(PostgreSQL).                      |
+| `->always()`                        | identity 컬럼에서 입력값보다 시퀀스 값에 우선순위를 부여합니다(PostgreSQL).                 |
 
-<!-- </div> -->
 </div>
 
 <a name="default-expressions"></a>
@@ -1514,7 +1491,7 @@ return new class extends Migration
 ```
 
 > [!WARNING]
-> 기본 표현식 지원 여부는 데이터베이스 드라이버, 데이터베이스 버전, 필드 타입에 따라 달라집니다. 사용 중인 데이터베이스의 문서를 참고하십시오.
+> 기본 표현식 지원 여부는 데이터베이스 드라이버, 데이터베이스 버전 및 필드 타입에 따라 달라집니다. 사용 중인 데이터베이스의 문서를 참고하세요.
 
 <a name="column-order"></a>
 <!-- #### Column Order -->
@@ -1601,6 +1578,19 @@ $table->bigIncrements('id')->primary()->change();
 $table->char('postal_code', 10)->unique(false)->change();
 ```
 
+<a name="postgresql-column-modifications"></a>
+<!-- #### PostgreSQL Column Modifications -->
+#### PostgreSQL Column Modifications
+
+<!-- When changing a column's type on PostgreSQL, you may use the `using` modifier to specify the expression used to cast the existing values: -->
+PostgreSQL에서 컬럼의 타입을 변경할 때 `using` 수정자를 사용해 기존 값을 캐스팅하는 데 사용할 표현식을 지정할 수 있습니다.
+
+```php
+Schema::table('users', function (Blueprint $table) {
+    $table->date('birthday')->using('birthday::date')->change();
+});
+```
+
 <a name="renaming-columns"></a>
 <!-- ### Renaming Columns -->
 ### Renaming Columns
@@ -1643,19 +1633,18 @@ Schema::table('users', function (Blueprint $table) {
 <!-- Laravel provides several convenient methods related to dropping common types of columns. Each of these methods is described in the table below: -->
 Laravel은 자주 사용되는 컬럼 타입을 삭제하기 위한 몇 가지 편리한 메서드를 제공합니다. 각 메서드는 아래 표에 설명되어 있습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 명령어                              | 설명                                                  |
-| ----------------------------------- | ----------------------------------------------------- |
-| `$table->dropMorphs('morphable');`  | `morphable_type`과 `morphable_id` 컬럼을 삭제합니다. |
+<!-- | Command | Description | | ----------------------------------- | ----------------------------------------------------- | | `$table->dropMorphs('morphable');` | Drop the `morphable_type` and `morphable_id` columns. | | `$table->dropRememberToken();` | Drop the `remember_token` column. | | `$table->dropSoftDeletes();` | Drop the `deleted_at` column. | | `$table->dropSoftDeletesTz();` | Alias of `dropSoftDeletes()` method. | | `$table->dropTimestamps();` | Drop the `created_at` and `updated_at` columns. | | `$table->dropTimestampsTz();` | Alias of `dropTimestamps()` method. | -->
+| 명령어                            | 설명                                               |
+| --------------------------------- | -------------------------------------------------- |
+| `$table->dropMorphs('morphable');`  | `morphable_type` 및 `morphable_id` 컬럼을 삭제합니다. |
 | `$table->dropRememberToken();`      | `remember_token` 컬럼을 삭제합니다.                  |
 | `$table->dropSoftDeletes();`        | `deleted_at` 컬럼을 삭제합니다.                      |
 | `$table->dropSoftDeletesTz();`      | `dropSoftDeletes()` 메서드의 별칭입니다.             |
-| `$table->dropTimestamps();`         | `created_at`과 `updated_at` 컬럼을 삭제합니다.       |
+| `$table->dropTimestamps();`         | `created_at` 및 `updated_at` 컬럼을 삭제합니다.      |
 | `$table->dropTimestampsTz();`       | `dropTimestamps()` 메서드의 별칭입니다.              |
 
-<!-- </div> -->
 </div>
 
 <a name="indexes"></a>
@@ -1706,20 +1695,19 @@ $table->unique('email', 'unique_email');
 <!-- Laravel's schema builder blueprint class provides methods for creating each type of index supported by Laravel. Each index method accepts an optional second argument to specify the name of the index. If omitted, the name will be derived from the names of the table and column(s) used for the index, as well as the index type. Each of the available index methods is described in the table below: -->
 Laravel의 스키마 빌더 blueprint 클래스는 Laravel이 지원하는 각 인덱스 타입을 생성하기 위한 메서드를 제공합니다. 각 인덱스 메서드는 선택 사항인 두 번째 인수를 받아 인덱스 이름을 지정할 수 있습니다. 생략하면 인덱스에 사용된 테이블명과 컬럼명, 그리고 인덱스 타입을 기반으로 이름이 만들어집니다. 사용할 수 있는 각 인덱스 메서드는 아래 표에 설명되어 있습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 명령어                                           | 설명                                                             |
-| ------------------------------------------------ | ---------------------------------------------------------------- |
-| `$table->primary('id');`                         | 기본 키를 추가합니다.                                            |
-| `$table->primary(['id', 'parent_id']);`          | 복합 키를 추가합니다.                                            |
-| `$table->unique('email');`                       | 고유 인덱스를 추가합니다.                                        |
-| `$table->index('state');`                        | 인덱스를 추가합니다.                                             |
-| `$table->fullText('body');`                      | full text 인덱스를 추가합니다 (MariaDB / MySQL / PostgreSQL).    |
-| `$table->fullText('body')->language('english');` | 지정한 언어의 full text 인덱스를 추가합니다 (PostgreSQL).        |
-| `$table->spatialIndex('location');`              | spatial 인덱스를 추가합니다 (SQLite 제외).                       |
+<!-- | Command | Description | | ------------------------------------------------ | -------------------------------------------------------------- | | `$table->primary('id');` | Adds a primary key. | | `$table->primary(['id', 'parent_id']);` | Adds composite keys. | | `$table->unique('email');` | Adds a unique index. | | `$table->index('state');` | Adds an index. | | `$table->fullText('body');` | Adds a full text index (MariaDB / MySQL / PostgreSQL). | | `$table->fullText('body')->language('english');` | Adds a full text index of the specified language (PostgreSQL). | | `$table->spatialIndex('location');` | Adds a spatial index (except SQLite). | -->
+| 명령어                                           | 설명                                                        |
+| ------------------------------------------------ | ----------------------------------------------------------- |
+| `$table->primary('id');`                         | 기본 키를 추가합니다.                                       |
+| `$table->primary(['id', 'parent_id']);`          | 복합 키를 추가합니다.                                       |
+| `$table->unique('email');`                       | 고유 인덱스를 추가합니다.                                   |
+| `$table->index('state');`                        | 인덱스를 추가합니다.                                        |
+| `$table->fullText('body');`                      | 전문 인덱스를 추가합니다(MariaDB / MySQL / PostgreSQL).     |
+| `$table->fullText('body')->language('english');` | 지정한 언어의 전문 인덱스를 추가합니다(PostgreSQL).         |
+| `$table->spatialIndex('location');`              | 공간 인덱스를 추가합니다(SQLite 제외).                      |
 
-<!-- </div> -->
 </div>
 
 <a name="online-index-creation"></a>
@@ -1754,18 +1742,17 @@ $table->renameIndex('from', 'to')
 <!-- To drop an index, you must specify the index's name. By default, Laravel automatically assigns an index name based on the table name, the name of the indexed column, and the index type. Here are some examples: -->
 인덱스를 삭제하려면 인덱스 이름을 지정해야 합니다. 기본적으로 Laravel은 테이블명, 인덱스가 적용된 컬럼명, 인덱스 타입을 기반으로 인덱스 이름을 자동으로 지정합니다. 다음은 몇 가지 예입니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 명령어                                                   | 설명                                                       |
-| -------------------------------------------------------- | ---------------------------------------------------------- |
-| `$table->dropPrimary('users_id_primary');`               | "users" 테이블에서 기본 키를 삭제합니다.                   |
-| `$table->dropUnique('users_email_unique');`              | "users" 테이블에서 고유 인덱스를 삭제합니다.               |
-| `$table->dropIndex('geo_state_index');`                  | "geo" 테이블에서 기본 인덱스를 삭제합니다.                 |
-| `$table->dropFullText('posts_body_fulltext');`           | "posts" 테이블에서 full text 인덱스를 삭제합니다.          |
-| `$table->dropSpatialIndex('geo_location_spatialindex');` | "geo" 테이블에서 spatial 인덱스를 삭제합니다 (SQLite 제외). |
+<!-- | Command | Description | | -------------------------------------------------------- | ----------------------------------------------------------- | | `$table->dropPrimary('users_id_primary');` | Drop a primary key from the "users" table. | | `$table->dropUnique('users_email_unique');` | Drop a unique index from the "users" table. | | `$table->dropIndex('geo_state_index');` | Drop a basic index from the "geo" table. | | `$table->dropFullText('posts_body_fulltext');` | Drop a full text index from the "posts" table. | | `$table->dropSpatialIndex('geo_location_spatialindex');` | Drop a spatial index from the "geo" table (except SQLite). | -->
+| 명령어                                                  | 설명                                                   |
+| -------------------------------------------------------- | ------------------------------------------------------ |
+| `$table->dropPrimary('users_id_primary');`               | "users" 테이블에서 기본 키를 삭제합니다.              |
+| `$table->dropUnique('users_email_unique');`              | "users" 테이블에서 고유 인덱스를 삭제합니다.          |
+| `$table->dropIndex('geo_state_index');`                  | "geo" 테이블에서 기본 인덱스를 삭제합니다.            |
+| `$table->dropFullText('posts_body_fulltext');`           | "posts" 테이블에서 전문 인덱스를 삭제합니다.          |
+| `$table->dropSpatialIndex('geo_location_spatialindex');` | "geo" 테이블에서 공간 인덱스를 삭제합니다(SQLite 제외). |
 
-<!-- </div> -->
 </div>
 
 <!-- If you pass an array of columns into a method that drops indexes, the conventional index name will be generated based on the table name, columns, and index type: -->
@@ -1828,21 +1815,20 @@ $table->foreignId('user_id')
 <!-- An alternative, expressive syntax is also provided for these actions: -->
 이러한 동작을 위한 더 표현력 있는 대체 문법도 제공됩니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 메서드                        | 설명                                                      |
-| ----------------------------- | --------------------------------------------------------- |
-| `$table->cascadeOnUpdate();`  | 업데이트가 cascade되어야 합니다.                         |
-| `$table->restrictOnUpdate();` | 업데이트가 제한되어야 합니다.                            |
-| `$table->nullOnUpdate();`     | 업데이트 시 외래 키 값을 null로 설정해야 합니다.         |
-| `$table->noActionOnUpdate();` | 업데이트 시 아무 작업도 하지 않습니다.                   |
-| `$table->cascadeOnDelete();`  | 삭제가 cascade되어야 합니다.                             |
-| `$table->restrictOnDelete();` | 삭제가 제한되어야 합니다.                                |
-| `$table->nullOnDelete();`     | 삭제 시 외래 키 값을 null로 설정해야 합니다.             |
-| `$table->noActionOnDelete();` | 자식 레코드가 있으면 삭제를 방지합니다.                  |
+<!-- | Method | Description | | ----------------------------- | ------------------------------------------------- | | `$table->cascadeOnUpdate();` | Updates should cascade. | | `$table->restrictOnUpdate();` | Updates should be restricted. | | `$table->nullOnUpdate();` | Updates should set the foreign key value to null. | | `$table->noActionOnUpdate();` | No action on updates. | | `$table->cascadeOnDelete();` | Deletes should cascade. | | `$table->restrictOnDelete();` | Deletes should be restricted. | | `$table->nullOnDelete();` | Deletes should set the foreign key value to null. | | `$table->noActionOnDelete();` | Prevents deletes if child records exist. | -->
+| 메서드                        | 설명                                      |
+| ----------------------------- | ----------------------------------------- |
+| `$table->cascadeOnUpdate();`  | 업데이트가 연쇄적으로 적용됩니다.         |
+| `$table->restrictOnUpdate();` | 업데이트가 제한됩니다.                    |
+| `$table->nullOnUpdate();`     | 외래 키 값이 null로 설정됩니다.         |
+| `$table->noActionOnUpdate();` | 업데이트에 아무 작업도 수행하지 않습니다. |
+| `$table->cascadeOnDelete();`  | 삭제가 연쇄적으로 적용됩니다.             |
+| `$table->restrictOnDelete();` | 삭제가 제한됩니다.                        |
+| `$table->nullOnDelete();`     | 외래 키 값이 null로 설정됩니다.         |
+| `$table->noActionOnDelete();` | 자식 레코드가 있으면 삭제를 방지합니다.   |
 
-<!-- </div> -->
 </div>
 
 <!-- Any additional [column modifiers](#column-modifiers) must be called before the `constrained` method: -->
@@ -1890,28 +1876,27 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite는 기본적으로 외래 키 제약 조건을 비활성화합니다. SQLite를 사용할 때는 마이그레이션에서 외래 키 제약 조건을 생성하기 전에 데이터베이스 설정에서 [enable foreign key support](/docs/13.x/database#configuration)했는지 확인하십시오.
+> SQLite는 기본적으로 외래 키 제약 조건을 비활성화합니다. SQLite를 사용할 때 마이그레이션에서 외래 키 제약 조건을 생성하기 전에 데이터베이스 설정에서 [enable foreign key support](/docs/13.x/database#configuration)를 활성화해야 합니다.
 
 <a name="events"></a>
 <!-- ## Events -->
 ## Events
 
 <!-- For convenience, each migration operation will dispatch an [event](/docs/13.x/events). All of the following events extend the base `Illuminate\Database\Events\MigrationEvent` class: -->
-편의를 위해 각 마이그레이션 작업은 [event](/docs/13.x/events)를 발생시킵니다. 다음 모든 이벤트는 기본 `Illuminate\Database\Events\MigrationEvent` 클래스를 확장합니다.
+편의를 위해 각 마이그레이션 작업은 [event](/docs/13.x/events)를 디스패치합니다. 다음 이벤트는 모두 기본 `Illuminate\Database\Events\MigrationEvent` 클래스를 확장합니다:
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 클래스                                           | 설명                                                   |
-| ------------------------------------------------ | ------------------------------------------------------ |
-| `Illuminate\Database\Events\DatabaseRefreshed`   | `migrate:refresh` 명령어가 완료되었습니다.             |
-| `Illuminate\Database\Events\MigrationsStarted`   | 마이그레이션 배치가 실행되기 직전입니다.               |
-| `Illuminate\Database\Events\MigrationsEnded`     | 마이그레이션 배치 실행이 완료되었습니다.               |
-| `Illuminate\Database\Events\MigrationStarted`    | 단일 마이그레이션이 실행되기 직전입니다.               |
-| `Illuminate\Database\Events\MigrationEnded`      | 단일 마이그레이션 실행이 완료되었습니다.               |
-| `Illuminate\Database\Events\NoPendingMigrations` | 마이그레이션 명령어가 대기 중인 마이그레이션을 찾지 못했습니다. |
-| `Illuminate\Database\Events\SchemaDumped`        | 데이터베이스 스키마 덤프가 완료되었습니다.             |
-| `Illuminate\Database\Events\SchemaLoaded`        | 기존 데이터베이스 스키마 덤프가 로드되었습니다.        |
+<!-- | Class | Description | | ------------------------------------------------ | ------------------------------------------------ | | `Illuminate\Database\Events\DatabaseRefreshed` | The `migrate:refresh` command has finished. | | `Illuminate\Database\Events\MigrationsStarted` | A batch of migrations is about to be executed. | | `Illuminate\Database\Events\MigrationsEnded` | A batch of migrations has finished. | | `Illuminate\Database\Events\MigrationStarted` | A single migration is about to be executed. | | `Illuminate\Database\Events\MigrationEnded` | A single migration has finished. | | `Illuminate\Database\Events\NoPendingMigrations` | A migration command found no pending migrations. | | `Illuminate\Database\Events\SchemaDumped` | A database schema dump has finished. | | `Illuminate\Database\Events\SchemaLoaded` | An existing database schema dump has loaded. | -->
+| 클래스                                           | 설명                                      |
+| ------------------------------------------------ | ----------------------------------------- |
+| `Illuminate\Database\Events\DatabaseRefreshed`   | `migrate:refresh` 명령어가 완료되었습니다. |
+| `Illuminate\Database\Events\MigrationsStarted`   | 마이그레이션 배치를 실행하려고 합니다.    |
+| `Illuminate\Database\Events\MigrationsEnded`     | 마이그레이션 배치가 완료되었습니다.       |
+| `Illuminate\Database\Events\MigrationStarted`    | 단일 마이그레이션을 실행하려고 합니다.    |
+| `Illuminate\Database\Events\MigrationEnded`      | 단일 마이그레이션이 완료되었습니다.       |
+| `Illuminate\Database\Events\NoPendingMigrations` | 마이그레이션 명령어에서 보류 중인 마이그레이션을 찾지 못했습니다. |
+| `Illuminate\Database\Events\SchemaDumped`        | 데이터베이스 스키마 덤프가 완료되었습니다. |
+| `Illuminate\Database\Events\SchemaLoaded`        | 기존 데이터베이스 스키마 덤프를 로드했습니다. |
 
-<!-- </div> -->
 </div>

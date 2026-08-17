@@ -242,6 +242,36 @@ class UserController
 }
 ```
 
+<!-- To exclude middleware from a controller or individual controller methods, use the `WithoutMiddleware` attribute. You may use the `only` and `except` arguments to limit a class-level attribute to particular controller methods: -->
+컨트롤러 또는 개별 컨트롤러 메서드에서 미들웨어를 제외하려면 `WithoutMiddleware` 속성을 사용합니다. `only` 및 `except` 인수를 사용하면 클래스 수준 속성이 특정 컨트롤러 메서드에만 적용되도록 제한할 수 있습니다.
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Middleware\EnsureTokenIsValid;
+use Illuminate\Routing\Attributes\Controllers\WithoutMiddleware;
+
+#[WithoutMiddleware('subscribed', except: ['index'])]
+class UserController
+{
+    #[WithoutMiddleware(EnsureTokenIsValid::class)]
+    public function index()
+    {
+        // ...
+    }
+
+    public function show()
+    {
+        // ...
+    }
+}
+```
+
+<!-- Class-level `WithoutMiddleware` attributes are inherited by child controllers. The attribute can only remove route middleware and does not apply to [global middleware](/docs/13.x/middleware#global-middleware). -->
+클래스 수준의 `WithoutMiddleware` 속성은 자식 컨트롤러에 상속됩니다. 이 속성은 라우트 미들웨어만 제거할 수 있으며 [global middleware](/docs/13.x/middleware#global-middleware)에는 적용되지 않습니다.
+
 <a name="authorization-attributes"></a>
 <!-- ### Authorization Attributes -->
 ### Authorization Attributes
@@ -327,9 +357,9 @@ Route::softDeletableResources([
 <!-- #### Actions Handled by Resource Controllers -->
 #### Actions Handled by Resource Controllers
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Verb | URI | Action | Route Name | | --------- | ---------------------- | ------- | -------------- | | GET | `/photos` | index | photos.index | | GET | `/photos/create` | create | photos.create | | POST | `/photos` | store | photos.store | | GET | `/photos/{photo}` | show | photos.show | | GET | `/photos/{photo}/edit` | edit | photos.edit | | PUT/PATCH | `/photos/{photo}` | update | photos.update | | DELETE | `/photos/{photo}` | destroy | photos.destroy | -->
 | HTTP 메서드 | URI                    | 액션    | 라우트 이름    |
 | --------- | ---------------------- | ------- | -------------- |
 | GET       | `/photos`              | index   | photos.index   |
@@ -340,7 +370,6 @@ Route::softDeletableResources([
 | PUT/PATCH | `/photos/{photo}`      | update  | photos.update  |
 | DELETE    | `/photos/{photo}`      | destroy | photos.destroy |
 
-<!-- </div> -->
 </div>
 
 <a name="customizing-missing-model-behavior"></a>
@@ -497,9 +526,9 @@ Route::resource('photos.comments', CommentController::class)->shallow();
 <!-- This route definition will define the following routes: -->
 이 라우트 정의는 다음 라우트를 정의합니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Verb | URI | Action | Route Name | | --------- | --------------------------------- | ------- | ---------------------- | | GET | `/photos/{photo}/comments` | index | photos.comments.index | | GET | `/photos/{photo}/comments/create` | create | photos.comments.create | | POST | `/photos/{photo}/comments` | store | photos.comments.store | | GET | `/comments/{comment}` | show | comments.show | | GET | `/comments/{comment}/edit` | edit | comments.edit | | PUT/PATCH | `/comments/{comment}` | update | comments.update | | DELETE | `/comments/{comment}` | destroy | comments.destroy | -->
 | 동사      | URI                               | 동작    | 라우트 이름            |
 | --------- | --------------------------------- | ------- | ---------------------- |
 | GET       | `/photos/{photo}/comments`        | index   | photos.comments.index  |
@@ -510,7 +539,6 @@ Route::resource('photos.comments', CommentController::class)->shallow();
 | PUT/PATCH | `/comments/{comment}`             | update  | comments.update        |
 | DELETE    | `/comments/{comment}`             | destroy | comments.destroy       |
 
-<!-- </div> -->
 </div>
 
 <a name="restful-naming-resource-routes"></a>
@@ -638,16 +666,15 @@ Route::singleton('profile', ProfileController::class);
 <!-- The singleton resource definition above will register the following routes. As you can see, "creation" routes are not registered for singleton resources, and the registered routes do not accept an identifier since only one instance of the resource may exist: -->
 위의 싱글턴 리소스 정의는 다음 라우트를 등록합니다. 보시다시피 싱글턴 리소스에는 "생성" 라우트가 등록되지 않으며, 리소스 인스턴스가 하나만 존재할 수 있으므로 등록된 라우트는 식별자를 받지 않습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Verb | URI | Action | Route Name | | --------- | --------------- | ------ | -------------- | | GET | `/profile` | show | profile.show | | GET | `/profile/edit` | edit | profile.edit | | PUT/PATCH | `/profile` | update | profile.update | -->
 | 동사      | URI             | 동작   | 라우트 이름    |
 | --------- | --------------- | ------ | -------------- |
 | GET       | `/profile`      | show   | profile.show   |
 | GET       | `/profile/edit` | edit   | profile.edit   |
 | PUT/PATCH | `/profile`      | update | profile.update |
 
-<!-- </div> -->
 </div>
 
 <!-- Singleton resources may also be nested within a standard resource: -->
@@ -660,16 +687,15 @@ Route::singleton('photos.thumbnail', ThumbnailController::class);
 <!-- In this example, the `photos` resource would receive all of the [standard resource routes](#actions-handled-by-resource-controllers); however, the `thumbnail` resource would be a singleton resource with the following routes: -->
 이 예제에서 `photos` 리소스는 모든 [standard resource routes](#actions-handled-by-resource-controllers)를 받습니다. 하지만 `thumbnail` 리소스는 다음 라우트를 가진 싱글턴 리소스가 됩니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Verb | URI | Action | Route Name | | --------- | -------------------------------- | ------ | ----------------------- | | GET | `/photos/{photo}/thumbnail` | show | photos.thumbnail.show | | GET | `/photos/{photo}/thumbnail/edit` | edit | photos.thumbnail.edit | | PUT/PATCH | `/photos/{photo}/thumbnail` | update | photos.thumbnail.update | -->
 | 동사      | URI                              | 동작   | 라우트 이름             |
 | --------- | -------------------------------- | ------ | ----------------------- |
 | GET       | `/photos/{photo}/thumbnail`      | show   | photos.thumbnail.show   |
 | GET       | `/photos/{photo}/thumbnail/edit` | edit   | photos.thumbnail.edit   |
 | PUT/PATCH | `/photos/{photo}/thumbnail`      | update | photos.thumbnail.update |
 
-<!-- </div> -->
 </div>
 
 <a name="creatable-singleton-resources"></a>
@@ -686,9 +712,9 @@ Route::singleton('photos.thumbnail', ThumbnailController::class)->creatable();
 <!-- In this example, the following routes will be registered. As you can see, a `DELETE` route will also be registered for creatable singleton resources: -->
 이 예제에서는 다음 라우트가 등록됩니다. 보시다시피 생성 가능한 싱글턴 리소스에는 `DELETE` 라우트도 함께 등록됩니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Verb | URI | Action | Route Name | | --------- | ---------------------------------- | ------- | ------------------------ | | GET | `/photos/{photo}/thumbnail/create` | create | photos.thumbnail.create | | POST | `/photos/{photo}/thumbnail` | store | photos.thumbnail.store | | GET | `/photos/{photo}/thumbnail` | show | photos.thumbnail.show | | GET | `/photos/{photo}/thumbnail/edit` | edit | photos.thumbnail.edit | | PUT/PATCH | `/photos/{photo}/thumbnail` | update | photos.thumbnail.update | | DELETE | `/photos/{photo}/thumbnail` | destroy | photos.thumbnail.destroy | -->
 | 동사      | URI                                | 동작    | 라우트 이름              |
 | --------- | ---------------------------------- | ------- | ------------------------ |
 | GET       | `/photos/{photo}/thumbnail/create` | create  | photos.thumbnail.create  |
@@ -698,7 +724,6 @@ Route::singleton('photos.thumbnail', ThumbnailController::class)->creatable();
 | PUT/PATCH | `/photos/{photo}/thumbnail`        | update  | photos.thumbnail.update  |
 | DELETE    | `/photos/{photo}/thumbnail`        | destroy | photos.thumbnail.destroy |
 
-<!-- </div> -->
 </div>
 
 <!-- If you would like Laravel to register the `DELETE` route for a singleton resource but not register the creation or storage routes, you may utilize the `destroyable` method: -->

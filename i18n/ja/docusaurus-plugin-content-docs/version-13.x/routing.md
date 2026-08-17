@@ -183,7 +183,7 @@ Route::permanentRedirect('/here', '/there');
 ```
 
 > [!WARNING]
-> リダイレクトルートでルートパラメータを使用する場合、`destination`および`status`パラメータはLaravelによって予約されているため使用できません。
+> リダイレクトルートでルートパラメータを使用する場合、`destination` および `status` パラメータはLaravelによって予約されているため使用できません。
 
 <a name="view-routes"></a>
 <!-- ### View Routes -->
@@ -717,17 +717,17 @@ Route::get('/posts/{post:slug}', function (Post $post) {
     return $post;
 });
 ```
-
-<!-- If you would like model binding to always use a database column other than `id` when retrieving a given model class, you may override the `getRouteKeyName` method on the Eloquent model: -->
-特定のモデル クラスを取得するときに、モデル バインディングで常に `id` 以外のデータベース列を使用するようにしたい場合は、Eloquent モデルで `getRouteKeyName` メソッドをオーバーライドできます。
+<!-- If you would like model binding to always use a database column other than `id` when retrieving a given model class, you may apply the `RouteKey` attribute to the Eloquent model: -->
+特定のモデルクラスを取得する際に、モデルバインディングで常に `id` 以外のデータベースカラムを使用したい場合は、Eloquentモデルに `RouteKey` 属性を適用できます。
 
 ```php
-/**
- * Get the route key for the model.
- */
-public function getRouteKeyName(): string
+use Illuminate\Database\Eloquent\Attributes\RouteKey;
+use Illuminate\Database\Eloquent\Model;
+
+#[RouteKey('slug')]
+class Post extends Model
 {
-    return 'slug';
+    // ...
 }
 ```
 
@@ -1205,4 +1205,3 @@ php artisan route:cache
 ```shell
 php artisan route:clear
 ```
-

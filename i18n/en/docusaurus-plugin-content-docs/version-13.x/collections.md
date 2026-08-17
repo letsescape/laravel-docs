@@ -631,7 +631,7 @@ $counted->all();
 <a name="method-crossjoin"></a>
 #### `crossJoin()` {.collection-method}
 
-The `crossJoin` method cross joins the collection's values among the given arrays or collections, returning a Cartesian product with all possible permutations:
+The `crossJoin` method cross joins the collection's values among the given arrays or collections, returning a Cartesian product with all possible combinations:
 
 ```php
 $collection = collect([1, 2]);
@@ -2530,6 +2530,20 @@ $stats->total;
 // 400
 ```
 
+When reducing into a scalar or array, you should accept it by reference in the callback so that your mutations are applied to the original value:
+
+```php
+$collection = collect([1, 2, 3, 4, 5]);
+
+$even = $collection->reduceInto([], function (array &$result, int $value) {
+    if ($value % 2 === 0) {
+        $result[] = $value;
+    }
+});
+
+// [2, 4]
+```
+
 <a name="method-reduce-spread"></a>
 #### `reduceSpread()` {.collection-method}
 
@@ -4250,6 +4264,7 @@ Almost all methods available on the `Collection` class are also available on the
 [pluck](#method-pluck)
 [random](#method-random)
 [reduce](#method-reduce)
+[reduceInto](#method-reduce-into)
 [reject](#method-reject)
 [replace](#method-replace)
 [replaceRecursive](#method-replacerecursive)

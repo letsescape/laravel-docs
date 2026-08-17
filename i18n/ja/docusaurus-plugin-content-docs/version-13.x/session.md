@@ -36,17 +36,9 @@ Laravel には、表現力豊かな統合 API を通じてアクセスされる�
 <!-- The session `driver` configuration option defines where session data will be stored for each request. Laravel includes a variety of drivers: -->
 session `driver` 構成オプションは、各リクエストのセッション データが保存される場所を定義します。 Laravel にはさまざまなドライバが含まれています。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `file` - sessions are stored in `storage/framework/sessions`.
-- `cookie` - sessions are stored in secure, encrypted cookies.
-- `database` - sessions are stored in a relational database.
-- `memcached` / `redis` - sessions are stored in one of these fast, cache-based stores.
-- `dynamodb` - sessions are stored in AWS DynamoDB.
-- `array` - sessions are stored in a PHP array and will not be persisted.
--->
+<!-- - `file` - sessions are stored in `storage/framework/sessions`. - `cookie` - sessions are stored in secure, encrypted cookies. - `database` - sessions are stored in a relational database. - `memcached` / `redis` - sessions are stored in one of these fast, cache-based stores. - `dynamodb` - sessions are stored in AWS DynamoDB. - `array` - sessions are stored in a PHP array and will not be persisted. -->
 - `file` - セッションは `storage/framework/sessions` に保存されます。
 - `cookie` - セッションは安全な暗号化された Cookie に保存されます。
 - `database` - セッションはリレーショナル データベースに保存されます。
@@ -54,7 +46,6 @@ session `driver` 構成オプションは、各リクエストのセッション
 - `dynamodb` - セッションは AWS DynamoDB に保存されます。
 - `array` - セッションは PHP 配列に保存され、永続化されません。
 
-<!-- </div> -->
 </div>
 
 > [!NOTE]
@@ -69,7 +60,7 @@ session `driver` 構成オプションは、各リクエストのセッション
 #### Database
 
 <!-- When using the `database` session driver, you will need to ensure that you have a database table to contain the session data. Typically, this is included in Laravel's default `0001_01_01_000000_create_users_table.php` [database migration](/docs/13.x/migrations); however, if for any reason you do not have a `sessions` table, you may use the `make:session-table` Artisan command to generate this migration: -->
-`database` セッション ドライバを使用する場合は、セッション データを含むデータベース テーブルがあることを確認する必要があります。通常、これはLaravelのデフォルトの`0001_01_01_000000_create_users_table.php` [database migration](/docs/13.x/migrations)に含まれています。ただし、何らかの理由で `sessions` テーブルがない場合は、`make:session-table` Artisan コマンドを使用してこの移行を生成できます。
+`database` セッション ドライバを使用する場合は、セッション データを含むデータベース テーブルがあることを確認する必要があります。通常、これはLaravelのデフォルトの `0001_01_01_000000_create_users_table.php` [database migration](/docs/13.x/migrations)に含まれています。ただし、何らかの理由で `sessions` テーブルがない場合は、`make:session-table` Artisan コマンドを使用してこの移行を生成できます。
 
 ```shell
 php artisan make:session-table
@@ -81,8 +72,8 @@ php artisan migrate
 <!-- #### Redis -->
 #### Redis
 
-<!-- Before using Redis sessions with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package (~1.0) via Composer. For more information on configuring Redis, consult Laravel's [Redis documentation](/docs/13.x/redis#configuration). -->
-Laravel で Redis セッションを使用する前に、PECL 経由で PhpRedis PHP 拡張機能をインストールするか、Composer 経由で `predis/predis` パッケージ (~1.0) をインストールする必要があります。 Redis の構成の詳細については、Laravel の [Redis documentation](/docs/13.x/redis#configuration) を参照してください。
+<!-- Before using Redis sessions with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package via Composer. For more information on configuring Redis, consult Laravel's [Redis documentation](/docs/13.x/redis#configuration). -->
+Laravel で Redis セッションを使用する前に、PECL 経由で PhpRedis PHP 拡張機能をインストールするか、Composer 経由で `predis/predis` パッケージをインストールする必要があります。Redis の設定について詳しくは、Laravel の [Redis documentation](/docs/13.x/redis#configuration) を参照してください。
 
 > [!NOTE]
 > `SESSION_CONNECTION` 環境変数、または `session.php` 構成ファイルの `connection` オプションを使用して、セッション ストレージに使用する Redis 接続を指定できます。
@@ -427,17 +418,9 @@ Laravel には拡張機能を格納するデフォルトのディレクトリが
 <!-- Since the purpose of these methods is not readily understandable, here is an overview of the purpose of each method: -->
 これらのメソッドの目的はすぐには理解できないため、各メソッドの目的の概要を次に示します。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The `open` method would typically be used in file based session store systems. Since Laravel ships with a `file` session driver, you will rarely need to put anything in this method. You can simply leave this method empty.
-- The `close` method, like the `open` method, can also usually be disregarded. For most drivers, it is not needed.
-- The `read` method should return the string version of the session data associated with the given `$sessionId`. There is no need to do any serialization or other encoding when retrieving or storing session data in your driver, as Laravel will perform the serialization for you.
-- The `write` method should write the given `$data` string associated with the `$sessionId` to some persistent storage system, such as MongoDB or another storage system of your choice. Again, you should not perform any serialization - Laravel will have already handled that for you.
-- The `destroy` method should remove the data associated with the `$sessionId` from persistent storage.
-- The `gc` method should destroy all session data that is older than the given `$lifetime`, which is a UNIX timestamp. For self-expiring systems like Memcached and Redis, this method may be left empty.
--->
+<!-- - The `open` method would typically be used in file based session store systems. Since Laravel ships with a `file` session driver, you will rarely need to put anything in this method. You can simply leave this method empty. - The `close` method, like the `open` method, can also usually be disregarded. For most drivers, it is not needed. - The `read` method should return the string version of the session data associated with the given `$sessionId`. There is no need to do any serialization or other encoding when retrieving or storing session data in your driver, as Laravel will perform the serialization for you. - The `write` method should write the given `$data` string associated with the `$sessionId` to some persistent storage system, such as MongoDB or another storage system of your choice. Again, you should not perform any serialization - Laravel will have already handled that for you. - The `destroy` method should remove the data associated with the `$sessionId` from persistent storage. - The `gc` method should destroy all session data that is older than the given `$lifetime`, which is a UNIX timestamp. For self-expiring systems like Memcached and Redis, this method may be left empty. -->
 - `open` メソッドは通常、ファイル ベースのセッション ストア システムで使用されます。 Laravel には `file` セッションドライバが同梱されているため、このメソッドに何も入れる必要はほとんどありません。このメソッドは空のままにすることができます。
 - `close` メソッドも、`open` メソッドと同様に、通常は無視できます。ほとんどのドライバでは必要ありません。
 - `read` メソッドは、指定された `$sessionId` に関連付けられたセッション データの文字列バージョンを返す必要があります。 Laravel がシリアル化を実行するため、ドライバでセッション データを取得または保存するときにシリアル化やその他のエンコードを行う必要はありません。
@@ -445,7 +428,6 @@ Laravel には拡張機能を格納するデフォルトのディレクトリが
 - `destroy` メソッドは、`$sessionId` に関連付けられたデータを永続ストレージから削除する必要があります。
 - `gc` メソッドは、指定された `$lifetime` (UNIX タイムスタンプ) より古いセッション データをすべて破棄する必要があります。 Memcached や Redis などの自己期限切れシステムの場合、このメソッドは空のままにすることができます。
 
-<!-- </div> -->
 </div>
 
 <a name="registering-the-driver"></a>
@@ -490,4 +472,3 @@ class SessionServiceProvider extends ServiceProvider
 
 <!-- Once the session driver has been registered, you may specify the `mongo` driver as your application's session driver using the `SESSION_DRIVER` environment variable or within the application's `config/session.php` configuration file. -->
 セッション ドライバが登録されたら、`SESSION_DRIVER` 環境変数を使用するか、アプリケーションの `config/session.php` 構成ファイル内で、アプリケーションのセッション ドライバとして `mongo` ドライバを指定できます。
-

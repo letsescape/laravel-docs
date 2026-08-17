@@ -248,7 +248,7 @@ Laravel の組み込み検証ルールには、それぞれエラー メッセ�
 #### XHR Requests and Validation
 
 <!-- In this example, we used a traditional form to send data to the application. However, many applications receive XHR requests from a JavaScript powered frontend. When using the `validate` method during an XHR request, Laravel will not generate a redirect response. Instead, Laravel generates a [JSON response containing all of the validation errors](#validation-error-response-format). This JSON response will be sent with a 422 HTTP status code. -->
-この例では、従来のフォームを使用してデータをアプリケーションに送信しました。ただし、多くのアプリケーションは、JavaScript を利用したフロントエンドから XHR リクエストを受け取ります。 XHRリクエスト中に`validate`メソッドを使用すると、Laravelはリダイレクト応答を生成しません。代わりに、Laravel は [JSON response containing all of the validation errors](#validation-error-response-format) を生成します。この JSON 応答は 422 HTTP ステータス コードとともに送信されます。
+この例では、従来のフォームを使用してデータをアプリケーションに送信しました。ただし、多くのアプリケーションは、JavaScript を利用したフロントエンドから XHR リクエストを受け取ります。 XHRリクエスト中に `validate` メソッドを使用すると、Laravelはリダイレクト応答を生成しません。代わりに、Laravel は [JSON response containing all of the validation errors](#validation-error-response-format) を生成します。この JSON 応答は 422 HTTP ステータス コードとともに送信されます。
 
 <a name="the-at-error-directive"></a>
 <!-- #### The `@error` Directive -->
@@ -637,7 +637,7 @@ public function authorize(): bool
 ```
 
 <!-- Since all form requests extend the base Laravel request class, we may use the `user` method to access the currently authenticated user. Also, note the call to the `route` method in the example above. This method grants you access to the URI parameters defined on the route being called, such as the `{comment}` parameter in the example below: -->
-すべてのフォームリクエストは基本Laravelリクエストクラスを拡張するため、`user`メソッドを使用して現在認証されているユーザーにアクセスできます。また、上記の例の `route` メソッドの呼び出しにも注意してください。このメソッドを使用すると、以下の例の `{comment}` パラメーターなど、呼び出されるルートで定義された URI パラメーターへのアクセスが許可されます。
+すべてのフォームリクエストは基本Laravelリクエストクラスを拡張するため、`user` メソッドを使用して現在認証されているユーザーにアクセスできます。また、上記の例の `route` メソッドの呼び出しにも注意してください。このメソッドを使用すると、以下の例の `{comment}` パラメーターなど、呼び出されるルートで定義された URI パラメーターへのアクセスが許可されます。
 
 ```php
 Route::post('/comment/{comment}');
@@ -1166,65 +1166,23 @@ The credit card number field is required when payment type is credit card.
 <!-- #### Booleans -->
 #### Booleans
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Accepted](#rule-accepted)
-[Accepted If](#rule-accepted-if)
-[Boolean](#rule-boolean)
-[Declined](#rule-declined)
-[Declined If](#rule-declined-if)
--->
+<!-- [Accepted](#rule-accepted) [Accepted If](#rule-accepted-if) [Boolean](#rule-boolean) [Declined](#rule-declined) [Declined If](#rule-declined-if) -->
 [Accepted](#rule-accepted)
 [Accepted If](#rule-accepted-if)
 [Boolean](#rule-boolean)
 [Declined](#rule-declined)
 [Declined If](#rule-declined-if)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Strings -->
 #### Strings
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Active URL](#rule-active-url)
-[Alpha](#rule-alpha)
-[Alpha Dash](#rule-alpha-dash)
-[Alpha Numeric](#rule-alpha-num)
-[Ascii](#rule-ascii)
-[Confirmed](#rule-confirmed)
-[Current Password](#rule-current-password)
-[Different](#rule-different)
-[Doesnt Start With](#rule-doesnt-start-with)
-[Doesnt End With](#rule-doesnt-end-with)
-[Email](#rule-email)
-[Ends With](#rule-ends-with)
-[Enum](#rule-enum)
-[Hex Color](#rule-hex-color)
-[In](#rule-in)
-[IP Address](#rule-ip)
-[JSON](#rule-json)
-[Lowercase](#rule-lowercase)
-[MAC Address](#rule-mac)
-[Max](#rule-max)
-[Min](#rule-min)
-[Not In](#rule-not-in)
-[Regular Expression](#rule-regex)
-[Not Regular Expression](#rule-not-regex)
-[Same](#rule-same)
-[Size](#rule-size)
-[Starts With](#rule-starts-with)
-[String](#rule-string)
-[Uppercase](#rule-uppercase)
-[URL](#rule-url)
-[ULID](#rule-ulid)
-[UUID](#rule-uuid)
--->
+<!-- [Active URL](#rule-active-url) [Alpha](#rule-alpha) [Alpha Dash](#rule-alpha-dash) [Alpha Numeric](#rule-alpha-num) [Ascii](#rule-ascii) [Confirmed](#rule-confirmed) [Current Password](#rule-current-password) [Different](#rule-different) [Doesnt Start With](#rule-doesnt-start-with) [Doesnt End With](#rule-doesnt-end-with) [Email](#rule-email) [Ends With](#rule-ends-with) [Enum](#rule-enum) [Hex Color](#rule-hex-color) [In](#rule-in) [IP Address](#rule-ip) [JSON](#rule-json) [Lowercase](#rule-lowercase) [MAC Address](#rule-mac) [Max](#rule-max) [Min](#rule-min) [Not In](#rule-not-in) [Regular Expression](#rule-regex) [Not Regular Expression](#rule-not-regex) [Same](#rule-same) [Size](#rule-size) [Starts With](#rule-starts-with) [String](#rule-string) [Uppercase](#rule-uppercase) [URL](#rule-url) [ULID](#rule-ulid) [UUID](#rule-uuid) -->
 [Active URL](#rule-active-url)
 [Alpha](#rule-alpha)
 [Alpha Dash](#rule-alpha-dash)
@@ -1258,35 +1216,14 @@ The credit card number field is required when payment type is credit card.
 [ULID](#rule-ulid)
 [UUID](#rule-uuid)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Numbers -->
 #### Numbers
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Between](#rule-between)
-[Decimal](#rule-decimal)
-[Different](#rule-different)
-[Digits](#rule-digits)
-[Digits Between](#rule-digits-between)
-[Greater Than](#rule-gt)
-[Greater Than Or Equal](#rule-gte)
-[Integer](#rule-integer)
-[Less Than](#rule-lt)
-[Less Than Or Equal](#rule-lte)
-[Max](#rule-max)
-[Max Digits](#rule-max-digits)
-[Min](#rule-min)
-[Min Digits](#rule-min-digits)
-[Multiple Of](#rule-multiple-of)
-[Numeric](#rule-numeric)
-[Same](#rule-same)
-[Size](#rule-size)
--->
+<!-- [Between](#rule-between) [Decimal](#rule-decimal) [Different](#rule-different) [Digits](#rule-digits) [Digits Between](#rule-digits-between) [Greater Than](#rule-gt) [Greater Than Or Equal](#rule-gte) [Integer](#rule-integer) [Less Than](#rule-lt) [Less Than Or Equal](#rule-lte) [Max](#rule-max) [Max Digits](#rule-max-digits) [Min](#rule-min) [Min Digits](#rule-min-digits) [Multiple Of](#rule-multiple-of) [Numeric](#rule-numeric) [Same](#rule-same) [Size](#rule-size) -->
 [Between](#rule-between)
 [Decimal](#rule-decimal)
 [Different](#rule-different)
@@ -1306,29 +1243,16 @@ The credit card number field is required when payment type is credit card.
 [Same](#rule-same)
 [Size](#rule-size)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Arrays -->
 #### Arrays
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
+<!-- [Array](#rule-array) [Array Keys](#rule-array-keys) [Between](#rule-between) [Contains](#rule-contains) [Doesnt Contain](#rule-doesnt-contain) [Distinct](#rule-distinct) [In Array](#rule-in-array) [In Array Keys](#rule-in-array-keys) [List](#rule-list) [Max](#rule-max) [Min](#rule-min) [Size](#rule-size) -->
 [Array](#rule-array)
-[Between](#rule-between)
-[Contains](#rule-contains)
-[Doesnt Contain](#rule-doesnt-contain)
-[Distinct](#rule-distinct)
-[In Array](#rule-in-array)
-[In Array Keys](#rule-in-array-keys)
-[List](#rule-list)
-[Max](#rule-max)
-[Min](#rule-min)
-[Size](#rule-size)
--->
-[Array](#rule-array)
+[Array Keys](#rule-array-keys)
 [Between](#rule-between)
 [Contains](#rule-contains)
 [Doesnt Contain](#rule-doesnt-contain)
@@ -1340,26 +1264,14 @@ The credit card number field is required when payment type is credit card.
 [Min](#rule-min)
 [Size](#rule-size)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Dates -->
 #### Dates
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[After](#rule-after)
-[After Or Equal](#rule-after-or-equal)
-[Before](#rule-before)
-[Before Or Equal](#rule-before-or-equal)
-[Date](#rule-date)
-[Date Equals](#rule-date-equals)
-[Date Format](#rule-date-format)
-[Different](#rule-different)
-[Timezone](#rule-timezone)
--->
+<!-- [After](#rule-after) [After Or Equal](#rule-after-or-equal) [Before](#rule-before) [Before Or Equal](#rule-before-or-equal) [Date](#rule-date) [Date Equals](#rule-date-equals) [Date Format](#rule-date-format) [Different](#rule-different) [Timezone](#rule-timezone) -->
 [After](#rule-after)
 [After Or Equal](#rule-after-or-equal)
 [Before](#rule-before)
@@ -1370,28 +1282,14 @@ The credit card number field is required when payment type is credit card.
 [Different](#rule-different)
 [Timezone](#rule-timezone)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Files -->
 #### Files
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Between](#rule-between)
-[Dimensions](#rule-dimensions)
-[Encoding](#rule-encoding)
-[Extensions](#rule-extensions)
-[File](#rule-file)
-[Image](#rule-image)
-[Max](#rule-max)
-[Min](#rule-min)
-[MIME Types](#rule-mimetypes)
-[MIME Type By File Extension](#rule-mimes)
-[Size](#rule-size)
--->
+<!-- [Between](#rule-between) [Dimensions](#rule-dimensions) [Encoding](#rule-encoding) [Extensions](#rule-extensions) [File](#rule-file) [Image](#rule-image) [Max](#rule-max) [Min](#rule-min) [MIME Types](#rule-mimetypes) [MIME Type By File Extension](#rule-mimes) [Size](#rule-size) -->
 [Between](#rule-between)
 [Dimensions](#rule-dimensions)
 [Encoding](#rule-encoding)
@@ -1404,69 +1302,25 @@ The credit card number field is required when payment type is credit card.
 [MIME Type By File Extension](#rule-mimes)
 [Size](#rule-size)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Database -->
 #### Database
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Exists](#rule-exists)
-[Unique](#rule-unique)
--->
+<!-- [Exists](#rule-exists) [Unique](#rule-unique) -->
 [Exists](#rule-exists)
 [Unique](#rule-unique)
 
-<!-- </div> -->
 </div>
 
 <!-- #### Utilities -->
 #### Utilities
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Any Of](#rule-anyof)
-[Bail](#rule-bail)
-[Exclude](#rule-exclude)
-[Exclude If](#rule-exclude-if)
-[Exclude Unless](#rule-exclude-unless)
-[Exclude With](#rule-exclude-with)
-[Exclude Without](#rule-exclude-without)
-[Filled](#rule-filled)
-[Missing](#rule-missing)
-[Missing If](#rule-missing-if)
-[Missing Unless](#rule-missing-unless)
-[Missing With](#rule-missing-with)
-[Missing With All](#rule-missing-with-all)
-[Nullable](#rule-nullable)
-[Present](#rule-present)
-[Present If](#rule-present-if)
-[Present Unless](#rule-present-unless)
-[Present With](#rule-present-with)
-[Present With All](#rule-present-with-all)
-[Prohibited](#rule-prohibited)
-[Prohibited If](#rule-prohibited-if)
-[Prohibited If Accepted](#rule-prohibited-if-accepted)
-[Prohibited If Declined](#rule-prohibited-if-declined)
-[Prohibited Unless](#rule-prohibited-unless)
-[Prohibits](#rule-prohibits)
-[Required](#rule-required)
-[Required If](#rule-required-if)
-[Required If Accepted](#rule-required-if-accepted)
-[Required If Declined](#rule-required-if-declined)
-[Required Unless](#rule-required-unless)
-[Required With](#rule-required-with)
-[Required With All](#rule-required-with-all)
-[Required Without](#rule-required-without)
-[Required Without All](#rule-required-without-all)
-[Required Array Keys](#rule-required-array-keys)
-[Sometimes](#validating-when-present)
--->
+<!-- [Any Of](#rule-anyof) [Bail](#rule-bail) [Exclude](#rule-exclude) [Exclude If](#rule-exclude-if) [Exclude Unless](#rule-exclude-unless) [Exclude With](#rule-exclude-with) [Exclude Without](#rule-exclude-without) [Filled](#rule-filled) [Missing](#rule-missing) [Missing If](#rule-missing-if) [Missing Unless](#rule-missing-unless) [Missing With](#rule-missing-with) [Missing With All](#rule-missing-with-all) [Nullable](#rule-nullable) [Present](#rule-present) [Present If](#rule-present-if) [Present Unless](#rule-present-unless) [Present With](#rule-present-with) [Present With All](#rule-present-with-all) [Prohibited](#rule-prohibited) [Prohibited If](#rule-prohibited-if) [Prohibited If Accepted](#rule-prohibited-if-accepted) [Prohibited If Declined](#rule-prohibited-if-declined) [Prohibited Unless](#rule-prohibited-unless) [Prohibits](#rule-prohibits) [Required](#rule-required) [Required If](#rule-required-if) [Required If Accepted](#rule-required-if-accepted) [Required If Declined](#rule-required-if-declined) [Required Unless](#rule-required-unless) [Required With](#rule-required-with) [Required With All](#rule-required-with-all) [Required Without](#rule-required-without) [Required Without All](#rule-required-without-all) [Required Array Keys](#rule-required-array-keys) [Sometimes](#validating-when-present) -->
 [Any Of](#rule-anyof)
 [Bail](#rule-bail)
 [Exclude](#rule-exclude)
@@ -1504,7 +1358,6 @@ The credit card number field is required when payment type is credit card.
 [Required Array Keys](#rule-required-array-keys)
 [Sometimes](#validating-when-present)
 
-<!-- </div> -->
 </div>
 
 <a name="rule-accepted"></a>
@@ -1527,6 +1380,15 @@ The credit card number field is required when payment type is credit card.
 
 <!-- The field under validation must have a valid A or AAAA record according to the `dns_get_record` PHP function. The hostname of the provided URL is extracted using the `parse_url` PHP function before being passed to `dns_get_record`. -->
 検証対象のフィールドには、`dns_get_record` PHP 関数に従って、有効な A または AAAA レコードが必要です。指定された URL のホスト名は、`dns_get_record` に渡される前に、`parse_url` PHP 関数を使用して抽出されます。
+
+<!-- When testing validation rules that perform DNS lookups, such as `active_url` and `email:dns`, you may use the `Validator::fakeDnsLookups` method. This fakes DNS lookups while preserving the rules' other validation behavior: -->
+`active_url` や `email:dns` など、DNS ルックアップを実行するバリデーションルールをテストする場合は、`Validator::fakeDnsLookups` メソッドを使用できます。このメソッドは、ルールによるその他のバリデーション処理を維持したまま、DNS ルックアップを偽装します。
+
+```php
+use Illuminate\Support\Facades\Validator;
+
+Validator::fakeDnsLookups();
+```
 
 <a name="rule-after"></a>
 <!-- #### after:_date_ -->
@@ -1676,6 +1538,24 @@ Validator::make($input, [
 
 <!-- In general, you should always specify the array keys that are allowed to be present within your array. -->
 一般に、配列内に存在できる配列キーを常に指定する必要があります。
+
+<a name="rule-array-keys"></a>
+<!-- #### array_keys:_foo_,_bar_,... -->
+#### array_keys:_foo_,_bar_,...
+
+<!-- The field under validation must be a PHP `array` whose keys are all included in the given list. At least one key must be provided: -->
+バリデーション対象のフィールドは PHP の `array` であり、そのキーがすべて指定したリストに含まれていなければなりません。少なくとも1つのキーを指定する必要があります。
+
+```php
+'user' => ['array_keys:name,username'],
+```
+
+<!-- For convenience, you may use the `Rule::arrayKeys` method: -->
+便利な方法として、`Rule::arrayKeys` メソッドを使用することもできます。
+
+```php
+'user' => [Rule::arrayKeys('name', 'username')],
+```
 
 <a name="rule-ascii"></a>
 <!-- #### ascii -->
@@ -2019,17 +1899,9 @@ Distinct は、デフォルトで緩い変数比較を使用します。厳密�
 <!-- The example above will apply the `RFCValidation` and `DNSCheckValidation` validations. Here's a full list of validation styles you can apply: -->
 上記の例では、`RFCValidation` 検証と `DNSCheckValidation` 検証を適用します。適用できる検証スタイルの完全なリストは次のとおりです。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `rfc`: `RFCValidation` - Validate the email address according to [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs).
-- `strict`: `NoRFCWarningsValidation` - Validate the email according to [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs), failing when warnings are found (e.g. trailing periods and multiple consecutive periods).
-- `dns`: `DNSCheckValidation` - Ensure the email address's domain has a valid MX record.
-- `spoof`: `SpoofCheckValidation` - Ensure the email address does not contain homograph or deceptive Unicode characters.
-- `filter`: `FilterEmailValidation` - Ensure the email address is valid according to PHP's `filter_var` function.
-- `filter_unicode`: `FilterEmailValidation::unicode()` - Ensure the email address is valid according to PHP's `filter_var` function, allowing some Unicode characters.
--->
+<!-- - `rfc`: `RFCValidation` - Validate the email address according to [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs). - `strict`: `NoRFCWarningsValidation` - Validate the email according to [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs), failing when warnings are found (e.g. trailing periods and multiple consecutive periods). - `dns`: `DNSCheckValidation` - Ensure the email address's domain has a valid MX record. - `spoof`: `SpoofCheckValidation` - Ensure the email address does not contain homograph or deceptive Unicode characters. - `filter`: `FilterEmailValidation` - Ensure the email address is valid according to PHP's `filter_var` function. - `filter_unicode`: `FilterEmailValidation::unicode()` - Ensure the email address is valid according to PHP's `filter_var` function, allowing some Unicode characters. -->
 - `rfc`: `RFCValidation` - [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs) に従って電子メール アドレスを検証します。
 - `strict`: `NoRFCWarningsValidation` - [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs) に従って電子メールを検証し、警告 (例: 末尾のピリオドや複数の連続するピリオド) が見つかった場合は失敗します。
 - `dns`: `DNSCheckValidation` - 電子メール アドレスのドメインに有効な MX レコードがあることを確認します。
@@ -2037,7 +1909,6 @@ Distinct は、デフォルトで緩い変数比較を使用します。厳密�
 - `filter`: `FilterEmailValidation` - 電子メール アドレスが PHP の `filter_var` 関数に従って有効であることを確認します。
 - `filter_unicode`: `FilterEmailValidation::unicode()` - 電子メール アドレスが PHP の `filter_var` 関数に従って有効であることを確認し、一部の Unicode 文字を許可します。
 
-<!-- </div> -->
 </div>
 
 <!-- For convenience, email validation rules may be built using the fluent rule builder: -->
@@ -2671,21 +2542,14 @@ _anotherfield_ フィールドがいずれかの _value_ と等しくない限�
 <!-- The field under validation must be missing or empty. A field is "empty" if it meets one of the following criteria: -->
 検証中のフィールドは欠落しているか空である必要があります。次の基準のいずれかを満たしている場合、フィールドは「空」です。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with an empty path.
--->
-- 値は`null`です。
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with an empty path. -->
+- 値は `null` です。
 - 値は空の文字列です。
 - 値は空の配列または空の `Countable` オブジェクトです。
 - 値は、空のパスを持つアップロードされたファイルです。
 
-<!-- </div> -->
 </div>
 
 <a name="rule-prohibited-if"></a>
@@ -2695,21 +2559,14 @@ _anotherfield_ フィールドがいずれかの _value_ と等しくない限�
 <!-- The field under validation must be missing or empty if the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
 _anotherfield_ フィールドがいずれかの _value_ と等しい場合、検証対象のフィールドは欠落しているか空である必要があります。次の基準のいずれかを満たしている場合、フィールドは「空」です。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with an empty path.
--->
-- 値は`null`です。
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with an empty path. -->
+- 値は `null` です。
 - 値は空の文字列です。
 - 値は空の配列または空の `Countable` オブジェクトです。
 - 値は、空のパスを持つアップロードされたファイルです。
 
-<!-- </div> -->
 </div>
 
 <!-- If complex conditional prohibition logic is required, you may utilize the `Rule::prohibitedIf` method. This method accepts a boolean or a closure. When given a closure, the closure should return `true` or `false` to indicate if the field under validation should be prohibited: -->
@@ -2748,21 +2605,14 @@ _anotherfield_ フィールドが `"no"`、`"off"`、`0`、`"0"`、`false`、ま
 <!-- The field under validation must be missing or empty unless the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
 _anotherfield_ フィールドがいずれかの _value_ と等しい場合を除き、検証対象のフィールドは欠落しているか空である必要があります。次の基準のいずれかを満たしている場合、フィールドは「空」です。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with an empty path.
--->
-- 値は`null`です。
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with an empty path. -->
+- 値は `null` です。
 - 値は空の文字列です。
 - 値は空の配列または空の `Countable` オブジェクトです。
 - 値は、空のパスを持つアップロードされたファイルです。
 
-<!-- </div> -->
 </div>
 
 <!-- If complex conditional prohibition logic is required, you may utilize the `Rule::prohibitedUnless` method. This method accepts a boolean or a closure. When given a closure, the closure should return `true` or `false` to indicate if the field under validation should not be prohibited: -->
@@ -2788,21 +2638,14 @@ Validator::make($request->all(), [
 <!-- If the field under validation is not missing or empty, all fields in _anotherfield_ must be missing or empty. A field is "empty" if it meets one of the following criteria: -->
 検証中のフィールドが欠落または空でない場合、_anotherfield_ のすべてのフィールドが欠落または空である必要があります。次の基準のいずれかを満たしている場合、フィールドは「空」です。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with an empty path.
--->
-- 値は`null`です。
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with an empty path. -->
+- 値は `null` です。
 - 値は空の文字列です。
 - 値は空の配列または空の `Countable` オブジェクトです。
 - 値は、空のパスを持つアップロードされたファイルです。
 
-<!-- </div> -->
 </div>
 
 <a name="rule-regex"></a>
@@ -2822,21 +2665,14 @@ Validator::make($request->all(), [
 <!-- The field under validation must be present in the input data and not empty. A field is "empty" if it meets one of the following criteria: -->
 検証対象のフィールドは入力データに存在する必要があり、空であってはなりません。次の基準のいずれかを満たしている場合、フィールドは「空」です。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The value is `null`.
-- The value is an empty string.
-- The value is an empty array or empty `Countable` object.
-- The value is an uploaded file with no path.
--->
-- 値は`null`です。
+<!-- - The value is `null`. - The value is an empty string. - The value is an empty array or empty `Countable` object. - The value is an uploaded file with no path. -->
+- 値は `null` です。
 - 値は空の文字列です。
 - 値は空の配列または空の `Countable` オブジェクトです。
 - 値は、パスのないアップロードされたファイルです。
 
-<!-- </div> -->
 </div>
 
 <a name="rule-required-if"></a>
@@ -3529,6 +3365,9 @@ $validator = Validator::make($request->all(), [
 // Require at least 8 characters...
 Password::min(8)
 
+// Require at most 256 characters...
+Password::min(16)->max(256)
+
 // Require at least one letter...
 Password::min(8)->letters()
 
@@ -3565,6 +3404,7 @@ Password::min(8)->uncompromised(3);
 
 ```php
 Password::min(8)
+    ->max(256)
     ->letters()
     ->mixedCase()
     ->numbers()

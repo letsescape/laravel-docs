@@ -8,6 +8,7 @@
     - [Max Job Attempts](#max-job-attempts)
     - [Job Timeout](#job-timeout)
     - [Job Backoff](#job-backoff)
+    - [Other Worker Options](#other-worker-options)
     - [Silenced Jobs](#silenced-jobs)
 - [Balancing Strategies](#balancing-strategies)
     - [Auto Balancing](#auto-balancing)
@@ -35,7 +36,6 @@
 <!-- When using Horizon, all of your queue worker configuration is stored in a single, simple configuration file. By defining your application's worker configuration in a version controlled file, you may easily scale or modify your application's queue workers when deploying your application. -->
 Horizon を使用する場合、すべてのキューワーカー構成は 1 つの単純な構成ファイルに保存されます。バージョン管理されたファイルでアプリケーションのワーカー構成を定義すると、アプリケーションのデプロイ時にアプリケーションのキューワーカーを簡単に拡張または変更できます。
 
-<!-- <img src="https://laravel.com/img/docs/horizon-example.png"/> -->
 <img src="https://laravel.com/img/docs/horizon-example.png"/>
 
 <a name="installation"></a>
@@ -68,6 +68,37 @@ Horizon のアセットを公開すると、そのプライマリ構成ファイ
 
 > [!WARNING]
 > Horizon は内部で `horizon` という名前の Redis 接続を使用します。この Redis 接続名は予約されており、`database.php` 構成ファイル内の別の Redis 接続に割り当てたり、`horizon.php` 構成ファイル内の `use` オプションの値として割り当てたりしないでください。
+
+<a name="content-security-policy-csp-nonce"></a>
+<!-- #### Content Security Policy (CSP) Nonce -->
+#### Content Security Policy (CSP) Nonce
+
+<!-- If you would like to use a [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) on the script and style tags used in Horizon views as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may use the `Horizon::cspNonce` method to specify the nonce to use. This method should typically be invoked within middleware so that a new nonce is assigned for each request: -->
+Horizon のビューで使用する script タグと style タグに、[Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) の一部として [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) を指定したい場合は、`Horizon::cspNonce` メソッドを使用して nonce を指定できます。通常、このメソッドはミドルウェア内で呼び出し、リクエストごとに新しい nonce が割り当てられるようにします。
+
+```php
+use Closure;
+use Illuminate\Http\Request;
+use Laravel\Horizon\Horizon;
+use Symfony\Component\HttpFoundation\Response;
+
+public function handle(Request $request, Closure $next): Response
+{
+    Horizon::cspNonce('csp-nonce');
+
+    return $next($request);
+}
+```
+
+<!-- You may add this middleware to the `middleware` option in your application's `config/horizon.php` configuration file: -->
+このミドルウェアは、アプリケーションの `config/horizon.php` 設定ファイルにある `middleware` オプションへ追加できます。
+
+```php
+'middleware' => [
+    'web',
+    App\Http\Middleware\AddHorizonCspNonce::class,
+],
+```
 
 <a name="environments"></a>
 <!-- #### Environments -->
@@ -224,7 +255,7 @@ Laravel は認証されたユーザーをゲート クロージャに自動的�
 'environments' => [
     'production' => [
         'supervisor-1' => [
-            // ...¨
+            // ...
             'timeout' => 60,
         ],
     ],
@@ -265,6 +296,41 @@ Laravel は認証されたユーザーをゲート クロージャに自動的�
     ],
 ],
 ```
+
+<a name="other-worker-options"></a>
+<!-- ### Other Worker Options -->
+### Other Worker Options
+
+<!-- In addition to `tries`, `timeout`, and `backoff`, each supervisor accepts several other options that control how its worker processes behave and when they are automatically restarted. Periodically restarting workers is a good practice for long-running processes, as it helps guard against memory leaks: -->
+`tries`、`timeout`、`backoff` に加えて、各 supervisor は、ワーカープロセスの動作や自動的に再起動されるタイミングを制御する複数のオプションを受け付けます。長時間実行されるプロセスでは、ワーカーを定期的に再起動することをおすすめします。メモリリークの防止に役立つためです。
+
+```php
+'environments' => [
+    'production' => [
+        'supervisor-1' => [
+            // ...
+            'memory' => 128,
+            'maxJobs' => 1000,
+            'maxTime' => 3600,
+            'sleep' => 3,
+            'rest' => 0,
+            'nice' => 0,
+        ],
+    ],
+],
+```
+
+<div class="content-list" markdown="1">
+
+<!-- - `memory` defines the maximum amount of memory, in megabytes, that a single worker process may consume before it is restarted. By default, this value is `128`. - `maxJobs` defines the number of jobs a worker should process before restarting. A value of `0` indicates that workers should not be restarted based on the number of jobs processed. By default, this value is `0`. - `maxTime` defines the number of seconds a worker should run before restarting. A value of `0` indicates that workers should not be restarted based on time. By default, this value is `0`. - `sleep` defines the number of seconds a worker should wait when no job is available before polling the queue for new jobs again. By default, this value is `3`. - `rest` defines the number of seconds to pause between processing each job. By default, this value is `0`. - `nice` defines the "niceness" (scheduling priority) of the worker processes. A higher value gives the process a lower priority. By default, this value is `0`. -->
+- `memory` は、単一のワーカープロセスが再起動されるまでに使用できるメモリの最大量をメガバイト単位で定義します。デフォルト値は `128` です。
+- `maxJobs` は、ワーカーが再起動されるまでに処理するジョブ数を定義します。値に `0` を指定すると、処理したジョブ数に基づくワーカーの再起動を無効にします。デフォルト値は `0` です。
+- `maxTime` は、ワーカーが再起動されるまでの実行時間を秒単位で定義します。値に `0` を指定すると、時間に基づくワーカーの再起動を無効にします。デフォルト値は `0` です。
+- `sleep` は、利用可能なジョブがない場合に、ワーカーが新しいジョブを再びポーリングするまで待機する秒数を定義します。デフォルト値は `3` です。
+- `rest` は、各ジョブの処理間に一時停止する秒数を定義します。デフォルト値は `0` です。
+- `nice` は、ワーカープロセスの「nice 値」（スケジューリング優先度）を定義します。値を大きくすると、プロセスの優先度が下がります。デフォルト値は `0` です。
+
+</div>
 
 <a name="silenced-jobs"></a>
 <!-- ### Silenced Jobs -->
@@ -319,17 +385,12 @@ class ProcessPodcast implements ShouldQueue, Silenced
 <!-- When using the `auto` strategy, you may also configure the `minProcesses` and `maxProcesses` configuration options: -->
 `auto` 戦略を使用する場合は、`minProcesses` および `maxProcesses` 構成オプションも構成できます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `minProcesses` defines the minimum number of worker processes per queue. This value must be greater than or equal to 1.
-- `maxProcesses` defines the maximum total number of worker processes Horizon may scale up to across all queues. This value should typically be greater than the number of queues multiplied by the `minProcesses` value. To prevent the supervisor from spawning any processes, you may set this value to 0.
--->
+<!-- - `minProcesses` defines the minimum number of worker processes per queue. This value must be greater than or equal to 1. - `maxProcesses` defines the maximum total number of worker processes Horizon may scale up to across all queues. This value should typically be greater than the number of queues multiplied by the `minProcesses` value. To prevent the supervisor from spawning any processes, you may set this value to 0. -->
 - `minProcesses` は、キューごとのワーカー プロセスの最小数を定義します。この値は 1 以上である必要があります。
 - `maxProcesses` は、Horizon がすべてのキューにわたってスケールアップできるワーカー プロセスの最大合計数を定義します。この値は通常、キューの数に `minProcesses` 値を乗算した値より大きくなければなりません。スーパーバイザがプロセスを生成しないようにするには、この値を 0 に設定します。
 
-<!-- </div> -->
 </div>
 
 <!-- For example, you may configure Horizon to maintain at least one process per queue and scale up to a total of 10 worker processes: -->
@@ -355,17 +416,12 @@ class ProcessPodcast implements ShouldQueue, Silenced
 <!-- The `autoScalingStrategy` configuration option determines how Horizon will assign more worker processes to queues. You can choose between two strategies: -->
 `autoScalingStrategy` 構成オプションは、Horizon がより多くのワーカー プロセスをキューに割り当てる方法を決定します。次の 2 つの戦略から選択できます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The `time` strategy will assign workers based on the total estimated amount of time it will take to clear the queue.
-- The `size` strategy will assign workers based on the total number of jobs on the queue.
--->
+<!-- - The `time` strategy will assign workers based on the total estimated amount of time it will take to clear the queue. - The `size` strategy will assign workers based on the total number of jobs on the queue. -->
 - `time` 戦略は、キューをクリアするのにかかる推定合計時間に基づいてワーカーを割り当てます。
 - `size` ストラテジーは、キュー上のジョブの合計数に基づいてワーカーを割り当てます。
 
-<!-- </div> -->
 </div>
 
 <!-- The `balanceMaxShift` and `balanceCooldown` configuration values determine how quickly Horizon will scale to meet worker demand. In the example above, a maximum of one new process will be created or destroyed every three seconds. You are free to tweak these values as necessary based on your application's needs. -->
@@ -497,17 +553,12 @@ class ProcessPodcast implements ShouldQueue, Silenced
 <!-- You can control Horizon's ability to scale worker processes using the `minProcesses` and `maxProcesses` options: -->
 `minProcesses` および `maxProcesses` オプションを使用して、ワーカー プロセスをスケーリングする Horizon の機能を制御できます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `minProcesses` defines the minimum number of worker processes in total. This value must be greater than or equal to 1.
-- `maxProcesses` defines the maximum total number of worker processes Horizon may scale up to.
--->
+<!-- - `minProcesses` defines the minimum number of worker processes in total. This value must be greater than or equal to 1. - `maxProcesses` defines the maximum total number of worker processes Horizon may scale up to. -->
 - `minProcesses` は、ワーカー プロセスの合計の最小数を定義します。この値は 1 以上である必要があります。
 - `maxProcesses` は、Horizon がスケールアップできるワーカー プロセスの最大合計数を定義します。
 
-<!-- </div> -->
 </div>
 
 <a name="upgrading-horizon"></a>
@@ -828,6 +879,18 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('horizon:snapshot')->everyFiveMinutes();
 ```
 
+<!-- You may configure how many snapshots Horizon retains for its metrics graphs using the `metrics.trim_snapshots` option in your application's `config/horizon.php` configuration file. Because this option limits the number of snapshots rather than their age, the retention period depends on how frequently the `horizon:snapshot` command runs: -->
+Horizon がメトリクスグラフ用に保持するスナップショットの数は、アプリケーションの `config/horizon.php` 設定ファイルにある `metrics.trim_snapshots` オプションで設定できます。このオプションはスナップショットの経過時間ではなく数を制限するため、保持期間は `horizon:snapshot` コマンドの実行頻度によって異なります。
+
+```php
+'metrics' => [
+    'trim_snapshots' => [
+        'job' => 24,
+        'queue' => 24,
+    ],
+],
+```
+
 <!-- If you would like to delete all metric data, you can invoke the `horizon:clear-metrics` Artisan command: -->
 すべてのメトリック データを削除したい場合は、`horizon:clear-metrics` Artisan コマンドを呼び出します。
 
@@ -870,4 +933,3 @@ php artisan horizon:clear
 ```shell
 php artisan horizon:clear --queue=emails
 ```
-

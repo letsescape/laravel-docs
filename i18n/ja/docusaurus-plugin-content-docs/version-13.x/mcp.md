@@ -523,9 +523,9 @@ class CurrentWeatherTool extends Tool
 <!-- Available annotations include: -->
 利用可能な注釈は次のとおりです。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Annotation | Type | Description | | ------------------ | ------- | -------------------------------------------------------------------------------------------- | | `#[IsReadOnly]` | boolean | Indicates the tool does not modify its environment. | | `#[IsDestructive]` | boolean | Indicates the tool may perform destructive updates (only meaningful when not read-only). | | `#[IsIdempotent]` | boolean | Indicates repeated calls with same arguments have no additional effect (when not read-only). | | `#[IsOpenWorld]` | boolean | Indicates the tool may interact with external entities. | -->
 | 注釈         | タイプ    | 説明                                                                                  |
 | ------------------ | ------- | -------------------------------------------------------------------------------------------- |
 | `#[IsReadOnly]`    | ブール値 | ツールが環境を変更しないことを示します。                                          |
@@ -533,7 +533,6 @@ class CurrentWeatherTool extends Tool
 | `#[IsIdempotent]`  | ブール値 | 同じ引数で繰り返し呼び出しても追加の効果がないことを示します (読み取り専用でない場合)。 |
 | `#[IsOpenWorld]`   | ブール値 | ツールが外部エンティティと対話する可能性があることを示します。                                      |
 
-<!-- </div> -->
 </div>
 
 <!-- Annotation values can be explicitly set using boolean arguments: -->
@@ -1363,16 +1362,15 @@ class UserDashboardResource extends Resource
 <!-- Available annotations include: -->
 利用可能な注釈は次のとおりです。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Annotation | Type | Description | | ----------------- | ------------- | --------------------------------------------------------------------------- | | `#[Audience]` | Role or array | Specifies the intended audience (`Role::User`, `Role::Assistant`, or both). | | `#[Priority]` | float | A numerical score between 0.0 and 1.0 indicating resource importance. | | `#[LastModified]` | string | An ISO 8601 timestamp showing when the resource was last updated. | -->
 | 注釈        | タイプ          | 説明                                                                 |
 | ----------------- | ------------- | --------------------------------------------------------------------------- |
 | `#[Audience]`     | 役割または配列 | 対象読者 (`Role::User`、`Role::Assistant`、または両方) を指定します。 |
 | `#[Priority]`     | フロート         | リソースの重要性を示す 0.0 ～ 1.0 の数値スコア。       |
 | `#[LastModified]` | 文字列        | リソースが最後に更新された時間を示す ISO 8601 タイムスタンプ。           |
 
-<!-- </div> -->
 </div>
 
 <a name="conditional-resource-registration"></a>
@@ -1502,10 +1500,7 @@ Laravel MCP は、サポートされているホストのサンドボックス i
 <!-- An MCP app consists of two parts working together: -->
 MCP アプリは、連携して動作する 2 つの部分で構成されます。
 
-<!--
-- An **app resource** that returns the self-contained HTML for your application.
-- A **tool** that is linked to the app resource using the `#[RendersApp]` attribute. When the tool is called, the host fetches and renders the linked resource.
--->
+<!-- - An **app resource** that returns the self-contained HTML for your application. - A **tool** that is linked to the app resource using the `#[RendersApp]` attribute. When the tool is called, the host fetches and renders the linked resource. -->
 - アプリケーションの自己完結型 HTML を返す **アプリ リソース**。
 - `#[RendersApp]` 属性を使用してアプリ リソースにリンクされる **ツール**。ツールが呼び出されると、ホストはリンクされたリソースをフェッチしてレンダリングします。
 
@@ -1782,17 +1777,12 @@ class CurrentWeatherTool extends Tool
 <!-- Icons defined via the attribute and the `icons` method are combined automatically. Icon paths are resolved as follows: -->
 属性で定義したアイコンと `icons` メソッドで定義したアイコンは自動的に統合されます。アイコンのパスは次のように解決されます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Paths with a URI scheme, such as `https:` or `data:`, are used as-is.
-- Relative paths are resolved to a URL using Laravel's `asset` helper.
--->
+<!-- - Paths with a URI scheme, such as `https:` or `data:`, are used as-is. - Relative paths are resolved to a URL using Laravel's `asset` helper. -->
 - `https:` や `data:` などの URI スキームを持つパスは、そのまま使用されます。
 - 相対パスは、Laravel の `asset` ヘルパを使用して URL に解決されます。
 
-<!-- </div> -->
 </div>
 
 <a name="authentication"></a>
@@ -1828,8 +1818,8 @@ Mcp::web('/mcp/weather', WeatherExample::class)
 <!-- #### New Passport Installation -->
 #### New Passport Installation
 
-<!-- If your application is not already using Laravel Passport, follow Passport's  [installation and deployment guide](/docs/13.x/passport#installation) to add Passport to your application. You should have an `OAuthenticatable` model, new authentication guard, and passport keys before moving on. -->
-アプリケーションがまだ Laravel Passport を使用していない場合は、Passport の [installation and deployment guide](/docs/13.x/passport#installation) に従って、Passport をアプリケーションに追加します。次に進む前に、`OAuthenticatable` モデル、新しい認証ガード、およびPassport キーを用意する必要があります。
+<!-- If your application is not already using Laravel Passport, follow Passport's [installation and deployment guide](/docs/13.x/passport#installation) to add Passport to your application. You should have an `OAuthenticatable` model, new authentication guard, and passport keys before moving on. -->
+アプリケーションがまだ Laravel Passport を使用していない場合は、Passport の [installation and deployment guide](/docs/13.x/passport#installation) に従って、Passport をアプリケーションに追加します。次に進む前に、`OAuthenticatable` モデル、新しい認証ガード、Passport のキーを用意しておく必要があります。
 
 <!-- Next, you should publish Laravel MCP's provided Passport authorization view: -->
 次に、Laravel MCP が提供する Passport 認可ビューを公開する必要があります。

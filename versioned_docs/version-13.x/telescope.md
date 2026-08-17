@@ -40,8 +40,7 @@
 <!-- [Laravel Telescope](https://github.com/laravel/telescope) makes a wonderful companion to your local Laravel development environment. Telescope provides insight into the requests coming into your application, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, variable dumps, and more. -->
 [Laravel Telescope](https://github.com/laravel/telescope)는 로컬 Laravel 개발 환경에서 매우 유용한 도구입니다. Telescope는 애플리케이션으로 들어오는 요청, 예외, 로그 엔트리, 데이터베이스 쿼리, 큐에 등록된 작업, 메일, 알림, 캐시 동작, 예약된 작업, 변수 덤프 등 다양한 정보를 한눈에 파악할 수 있게 해줍니다.
 
-<!-- <img src="https://laravel.com/img/docs/telescope-example.png"/> -->
-<img src="https://laravel.com/img/docs/telescope-example.png" />
+<img src="https://laravel.com/img/docs/telescope-example.png"/>
 
 <a name="installation"></a>
 <!-- ## Installation -->
@@ -98,7 +97,7 @@ public function register(): void
 ```
 
 <!-- Finally, you should also prevent the Telescope package from being [auto-discovered](/docs/13.x/packages#package-discovery) by adding the following to your `composer.json` file: -->
-마지막으로, Telescope 패키지가 [auto-discovered](/docs/13.x/packages#package-discovery)되지 않도록 아래 설정을 `composer.json` 파일의 extra 섹션에 추가해야 합니다:
+마지막으로 `composer.json` 파일에 다음 내용을 추가해 Telescope 패키지가 [auto-discovered](/docs/13.x/packages#package-discovery)되지 않도록 해야 합니다:
 
 ```json
 "extra": {
@@ -124,12 +123,44 @@ Telescope의 에셋을 퍼블리시하면, 주요 설정 파일이 `config/teles
 'enabled' => env('TELESCOPE_ENABLED', true),
 ```
 
+<a name="content-security-policy-csp-nonce"></a>
+<!-- #### Content Security Policy (CSP) Nonce -->
+#### Content Security Policy (CSP) Nonce
+
+<!-- If you would like to use a [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) on the script and style tags used in Telescope views as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may use the `Telescope::cspNonce` method to specify the nonce to use. This method should typically be invoked within middleware so that a new nonce is assigned for each request: -->
+Telescope 뷰에서 사용하는 script 및 style 태그에 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)의 일부로 [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce)을 사용하려면 `Telescope::cspNonce` 메서드로 사용할 nonce를 지정할 수 있습니다. 일반적으로 이 메서드는 미들웨어에서 호출하여 각 요청에 새로운 nonce가 할당되도록 해야 합니다:
+
+```php
+use Closure;
+use Illuminate\Http\Request;
+use Laravel\Telescope\Telescope;
+use Symfony\Component\HttpFoundation\Response;
+
+public function handle(Request $request, Closure $next): Response
+{
+    Telescope::cspNonce('csp-nonce');
+
+    return $next($request);
+}
+```
+
+<!-- You may add this middleware to the `middleware` option in your application's `config/telescope.php` configuration file: -->
+애플리케이션의 `config/telescope.php` 설정 파일에서 `middleware` 옵션에 이 미들웨어를 추가할 수 있습니다.
+
+```php
+'middleware' => [
+    'web',
+    App\Http\Middleware\AddTelescopeCspNonce::class,
+    Authorize::class,
+],
+```
+
 <a name="data-pruning"></a>
 <!-- ### Data Pruning -->
 ### Data Pruning
 
 <!-- Without pruning, the `telescope_entries` table can accumulate records very quickly. To mitigate this, you should [schedule](/docs/13.x/scheduling) the `telescope:prune` Artisan command to run daily: -->
-데이터 정리를 하지 않으면 `telescope_entries` 테이블에 레코드가 빠르게 쌓일 수 있습니다. 이를 방지하기 위해서는 [schedule](/docs/13.x/scheduling)를 이용하여 `telescope:prune` Artisan 명령어를 매일 실행되도록 해야 합니다:
+정리 작업을 수행하지 않으면 `telescope_entries` 테이블에 레코드가 매우 빠르게 쌓일 수 있습니다. 이를 완화하려면 매일 `telescope:prune` Artisan 명령어가 실행되도록 [schedule](/docs/13.x/scheduling)해야 합니다:
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -151,7 +182,7 @@ Schedule::command('telescope:prune --hours=48')->daily();
 ### Dashboard Authorization
 
 <!-- The Telescope dashboard may be accessed via the `/telescope` route. By default, you will only be able to access this dashboard in the `local` environment. Within your `app/Providers/TelescopeServiceProvider.php` file, there is an [authorization gate](/docs/13.x/authorization#gates) definition. This authorization gate controls access to Telescope in **non-local** environments. You are free to modify this gate as needed to restrict access to your Telescope installation: -->
-Telescope 대시보드는 `/telescope` 경로에서 접근할 수 있습니다. 기본적으로 `local` 환경에서만 접근이 허용되어 있습니다. `app/Providers/TelescopeServiceProvider.php` 파일 내에서는 [authorization gate](/docs/13.x/authorization#gates)를 정의해두었습니다. 이 게이트를 이용하면 **로컬 환경이 아닌** 곳에서의 Telescope 접근 권한을 제어할 수 있습니다. 이 부분의 코드는 필요에 따라 수정해 특정 사용자만 접근 가능하게 제한할 수 있습니다:
+Telescope 대시보드는 `/telescope` 라우트를 통해 액세스할 수 있습니다. 기본적으로 `local` 환경에서만 이 대시보드에 액세스할 수 있습니다. `app/Providers/TelescopeServiceProvider.php` 파일에는 [authorization gate](/docs/13.x/authorization#gates) 정의가 있습니다. 이 authorization gate는 **로컬이 아닌** 환경에서 Telescope에 대한 액세스를 제어합니다. 필요에 따라 이 gate를 수정하여 Telescope 설치에 대한 액세스를 제한할 수 있습니다:
 
 ```php
 use App\Models\User;
@@ -172,7 +203,7 @@ protected function gate(): void
 ```
 
 > [!WARNING]
-> 운영 환경에서는 반드시 `APP_ENV` 환경 변수를 `production`으로 변경해야 합니다. 그렇지 않으면 Telescope 설치가 외부에 공개될 위험이 있습니다.
+> 프로덕션 환경에서는 `APP_ENV` 환경 변수를 `production`으로 변경해야 합니다. 그렇지 않으면 Telescope 설치가 공개적으로 접근 가능해집니다.
 
 <a name="upgrading-telescope"></a>
 <!-- ## Upgrading Telescope -->
@@ -332,7 +363,7 @@ Telescope의 "워처"는 요청 또는 콘솔 명령이 실행될 때 애플리�
 ### Batch Watcher
 
 <!-- The batch watcher records information about queued [batches](/docs/13.x/queues#job-batching), including the job and connection information. -->
-배치 워처는 큐에 등록된 [batches](/docs/13.x/queues#job-batching)의 정보(작업 단위와 연결 정보 등)를 기록합니다.
+배치 워처는 큐에 등록된 [batches](/docs/13.x/queues#job-batching)에 대한 정보와 잡 및 연결 정보를 기록합니다.
 
 <a name="cache-watcher"></a>
 <!-- ### Cache Watcher -->
@@ -370,7 +401,7 @@ Telescope의 "워처"는 요청 또는 콘솔 명령이 실행될 때 애플리�
 ### Event Watcher
 
 <!-- The event watcher records the payload, listeners, and broadcast data for any [events](/docs/13.x/events) dispatched by your application. The Laravel framework's internal events are ignored by the Event watcher. -->
-이벤트 워처는 애플리케이션에서 발생한 [events](/docs/13.x/events)의 페이로드, 리스너, 브로드캐스트 데이터를 기록합니다. Laravel 프레임워크에서 내부적으로 발생하는 이벤트는 워처가 기록하지 않습니다.
+이벤트 워처는 애플리케이션이 디스패치한 모든 [events](/docs/13.x/events)의 페이로드, 리스너 및 브로드캐스트 데이터를 기록합니다. Laravel 프레임워크의 내부 이벤트는 Event watcher에서 무시됩니다.
 
 <a name="exception-watcher"></a>
 <!-- ### Exception Watcher -->
@@ -384,7 +415,7 @@ Telescope의 "워처"는 요청 또는 콘솔 명령이 실행될 때 애플리�
 ### Gate Watcher
 
 <!-- The gate watcher records the data and result of [gate and policy](/docs/13.x/authorization) checks by your application. If you would like to exclude certain abilities from being recorded by the watcher, you may specify those in the `ignore_abilities` option in your `config/telescope.php` file: -->
-게이트 워처는 애플리케이션의 [gate and policy](/docs/13.x/authorization) 검사 결과 및 관련 데이터를 기록합니다. 특정 권한 검사를 기록에서 제외하려면, `config/telescope.php`의 `ignore_abilities` 옵션에 추가할 수 있습니다:
+게이트 워처는 애플리케이션에서 수행하는 [gate and policy](/docs/13.x/authorization) 검사의 데이터와 결과를 기록합니다. 워처가 특정 ability를 기록하지 않도록 하려면 `config/telescope.php` 파일의 `ignore_abilities` 옵션에 해당 ability를 지정하면 됩니다:
 
 ```php
 'watchers' => [
@@ -401,21 +432,21 @@ Telescope의 "워처"는 요청 또는 콘솔 명령이 실행될 때 애플리�
 ### HTTP Client Watcher
 
 <!-- The HTTP client watcher records outgoing [HTTP client requests](/docs/13.x/http-client) made by your application. -->
-HTTP 클라이언트 워처는 애플리케이션에서 발생한 외부 [HTTP client requests](/docs/13.x/http-client)을 기록합니다.
+HTTP 클라이언트 워처는 애플리케이션에서 수행한 발신 [HTTP client requests](/docs/13.x/http-client)을 기록합니다.
 
 <a name="job-watcher"></a>
 <!-- ### Job Watcher -->
 ### Job Watcher
 
 <!-- The job watcher records the data and status of any [jobs](/docs/13.x/queues) dispatched by your application. -->
-작업 워처는 애플리케이션에서 디스패치된 [jobs](/docs/13.x/queues)의 데이터와 상태를 기록합니다.
+잡 워처는 애플리케이션이 디스패치한 모든 [jobs](/docs/13.x/queues)의 데이터와 상태를 기록합니다.
 
 <a name="log-watcher"></a>
 <!-- ### Log Watcher -->
 ### Log Watcher
 
 <!-- The log watcher records the [log data](/docs/13.x/logging) for any logs written by your application. -->
-로그 워처는 애플리케이션이 기록한 [log data](/docs/13.x/logging)를 기록합니다.
+로그 워처는 애플리케이션이 기록하는 모든 로그의 [log data](/docs/13.x/logging)를 기록합니다.
 
 <!-- By default, Telescope will only record logs at the `error` level and above. However, you can modify the `level` option in your application's `config/telescope.php` configuration file to modify this behavior: -->
 기본적으로 Telescope는 `error` 레벨 이상의 로그만 기록합니다. 이 동작을 변경하려면, `config/telescope.php`에서 `level` 옵션 값을 수정할 수 있습니다:
@@ -436,14 +467,14 @@ HTTP 클라이언트 워처는 애플리케이션에서 발생한 외부 [HTTP c
 ### Mail Watcher
 
 <!-- The mail watcher allows you to view an in-browser preview of [emails](/docs/13.x/mail) sent by your application along with their associated data. You may also download the email as an `.eml` file. -->
-메일 워처를 사용하면 애플리케이션에서 보낸 [emails](/docs/13.x/mail)을 브라우저에서 직접 미리 볼 수 있으며, 관련 데이터도 함께 확인할 수 있습니다. 또한 이메일을 `.eml` 파일로 다운로드할 수도 있습니다.
+mail watcher를 사용하면 애플리케이션에서 전송한 [emails](/docs/13.x/mail)과 관련 데이터를 브라우저에서 미리 볼 수 있습니다. 이메일을 `.eml` 파일로 다운로드할 수도 있습니다.
 
 <a name="model-watcher"></a>
 <!-- ### Model Watcher -->
 ### Model Watcher
 
 <!-- The model watcher records model changes whenever an Eloquent [model event](/docs/13.x/eloquent#events) is dispatched. You may specify which model events should be recorded via the watcher's `events` option: -->
-모델 워처는 Eloquent [model event](/docs/13.x/eloquent#events)가 디스패치될 때마다 해당 모델 변경 사항을 기록합니다. 워처의 `events` 옵션을 사용하여 어떤 이벤트를 기록할지 지정할 수 있습니다:
+모델 워처는 Eloquent [model event](/docs/13.x/eloquent#events)가 디스패치될 때마다 모델 변경 사항을 기록합니다. 워처의 `events` 옵션을 사용해 기록할 모델 이벤트를 지정할 수 있습니다.
 
 ```php
 'watchers' => [
@@ -474,7 +505,7 @@ HTTP 클라이언트 워처는 애플리케이션에서 발생한 외부 [HTTP c
 ### Notification Watcher
 
 <!-- The notification watcher records all [notifications](/docs/13.x/notifications) sent by your application. If the notification triggers an email and you have the mail watcher enabled, the email will also be available for preview on the mail watcher screen. -->
-알림 워처는 애플리케이션에서 전송된 모든 [notifications](/docs/13.x/notifications)을 기록합니다. 만약 알림이 이메일을 트리거하고 메일 워처가 활성화되어 있다면, 해당 이메일도 메일 워처 화면에서 미리보기가 제공됩니다.
+알림 워처는 애플리케이션에서 전송한 모든 [notifications](/docs/13.x/notifications)을 기록합니다. 알림이 이메일을 트리거하고 메일 워처를 활성화한 경우, 메일 워처 화면에서 해당 이메일을 미리 볼 수도 있습니다.
 
 <a name="query-watcher"></a>
 <!-- ### Query Watcher -->
@@ -498,7 +529,7 @@ HTTP 클라이언트 워처는 애플리케이션에서 발생한 외부 [HTTP c
 ### Redis Watcher
 
 <!-- The Redis watcher records all [Redis](/docs/13.x/redis) commands executed by your application. If you are using Redis for caching, cache commands will also be recorded by the Redis watcher. -->
-Redis 워처는 애플리케이션에서 실행된 모든 [Redis](/docs/13.x/redis) 명령어를 기록합니다. 캐싱에 Redis를 사용하는 경우, 캐시 관련 명령어도 Redis 워처에 기록됩니다.
+Redis watcher는 애플리케이션이 실행한 모든 [Redis](/docs/13.x/redis) 명령어를 기록합니다. Redis를 캐시에 사용한다면 캐시 명령어도 Redis watcher에 기록됩니다.
 
 <a name="request-watcher"></a>
 <!-- ### Request Watcher -->
@@ -522,14 +553,14 @@ Redis 워처는 애플리케이션에서 실행된 모든 [Redis](/docs/13.x/red
 ### Schedule Watcher
 
 <!-- The schedule watcher records the command and output of any [scheduled tasks](/docs/13.x/scheduling) run by your application. -->
-스케줄 워처는 애플리케이션에서 실행된 [scheduled tasks](/docs/13.x/scheduling)의 명령어와 출력 결과를 기록합니다.
+스케줄 워처는 애플리케이션이 실행하는 모든 [scheduled tasks](/docs/13.x/scheduling)의 명령어와 출력을 기록합니다.
 
 <a name="view-watcher"></a>
 <!-- ### View Watcher -->
 ### View Watcher
 
 <!-- The view watcher records the [view](/docs/13.x/views) name, path, data, and "composers" used when rendering views. -->
-뷰 워처는 렌더링된 [view](/docs/13.x/views)의 이름, 경로, 데이터, 사용된 "composer" 정보를 기록합니다.
+뷰 워처는 뷰를 렌더링할 때 사용된 [view](/docs/13.x/views) 이름, 경로, 데이터 및 "컴포저"를 기록합니다.
 
 <a name="displaying-user-avatars"></a>
 <!-- ## Displaying User Avatars -->

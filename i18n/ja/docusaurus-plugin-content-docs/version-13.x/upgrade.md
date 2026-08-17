@@ -8,34 +8,29 @@
 <!-- ## High Impact Changes -->
 ## High Impact Changes
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
 - [Updating Dependencies](#updating-dependencies)
 - [Updating the Laravel Installer](#updating-the-laravel-installer)
 - [Request Forgery Protection](#request-forgery-protection)
 
-<!-- </div> -->
 </div>
 
 <a name="medium-impact-changes"></a>
 <!-- ## Medium Impact Changes -->
 ## Medium Impact Changes
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
 - [Cache `serializable_classes` Configuration](#cache-serializable_classes-configuration)
 - [Database `upsert` With MySQL or MariaDB](#database-upsert-mariadb-mysql)
 
-<!-- </div> -->
 </div>
 
 <a name="low-impact-changes"></a>
 <!-- ## Low Impact Changes -->
 ## Low Impact Changes
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
 - [Cache Prefixes and Session Cookie Names](#cache-prefixes-and-session-cookie-names)
@@ -48,9 +43,9 @@
 - [Pagination Bootstrap View Names](#pagination-bootstrap-view-names)
 - [Polymorphic Pivot Table Name Generation](#polymorphic-pivot-table-name-generation)
 - [`QueueBusy` Event Property Rename](#queuebusy-event-property-rename)
+- [Session `serialization` Configuration](#session-serialization-configuration)
 - [`Str` Factories Reset Between Tests](#str-factories-reset-between-tests)
 
-<!-- </div> -->
 </div>
 
 <a name="upgrade-13.0"></a>
@@ -80,23 +75,15 @@
 <!-- You should update the following dependencies in your application's `composer.json` file: -->
 アプリケーションの `composer.json` ファイル内の次の依存関係を更新する必要があります。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `laravel/framework` to `^13.0`
-- `laravel/boost` to `^2.0`
-- `laravel/tinker` to `^3.0`
-- `phpunit/phpunit` to `^12.0`
-- `pestphp/pest` to `^4.0`
--->
+<!-- - `laravel/framework` to `^13.0` - `laravel/boost` to `^2.0` - `laravel/tinker` to `^3.0` - `phpunit/phpunit` to `^12.0` - `pestphp/pest` to `^4.0` -->
 - `laravel/framework` ～ `^13.0`
 - `laravel/boost` ～ `^2.0`
 - `laravel/tinker` ～ `^3.0`
 - `phpunit/phpunit` ～ `^12.0`
 - `pestphp/pest` ～ `^4.0`
 
-<!-- </div> -->
 </div>
 
 <a name="updating-the-laravel-installer"></a>
@@ -452,21 +439,13 @@ $event->exception;
 <!-- If you maintain custom queue driver implementations of this contract, add implementations for: -->
 このコントラクトのカスタム キュー ドライバ実装を維持する場合は、次の実装を追加します。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `pendingSize`
-- `delayedSize`
-- `reservedSize`
-- `creationTimeOfOldestPendingJob`
--->
 - `pendingSize`
 - `delayedSize`
 - `reservedSize`
 - `creationTimeOfOldestPendingJob`
 
-<!-- </div> -->
 </div>
 
 <a name="routing"></a>
@@ -485,6 +464,26 @@ $event->exception;
 
 <!-- This allows catch-all subdomain routes to behave consistently even when non-domain routes are registered earlier. If your application relied on previous registration precedence between domain and non-domain routes, review route matching behavior. -->
 これにより、非ドメイン ルートが以前に登録されている場合でも、キャッチオール サブドメイン ルートが一貫して動作できるようになります。アプリケーションがドメイン ルートと非ドメイン ルート間の以前の登録の優先順位に依存している場合は、ルート マッチングの動作を確認してください。
+
+<a name="session"></a>
+<!-- ### Session -->
+### Session
+
+<a name="session-serialization-configuration"></a>
+<!-- #### Session `serialization` Configuration -->
+#### Session `serialization` Configuration
+
+<!-- **Likelihood Of Impact: Low** -->
+**影響度: 低**
+
+<!-- To help prevent PHP deserialization gadget chain attacks, the default application skeleton now sets the session `serialization` option to `json` in the `config/session.php` file. -->
+PHP のデシリアライズによるガジェットチェーン攻撃を防ぐため、デフォルトのアプリケーションスケルトンでは、`config/session.php` ファイルのセッション `serialization` オプションが `json` に設定されるようになりました。
+
+<!-- If you are upgrading an existing application and syncing your configuration files with the Laravel 13 skeleton, updating this value from `php` to `json` will invalidate all active user sessions. -->
+既存のアプリケーションをアップグレードし、設定ファイルを Laravel 13 のスケルトンと同期する場合、この値を `php` から `json` に変更すると、アクティブなユーザーセッションがすべて無効になります。
+
+<!-- If you wish to seamlessly maintain active sessions during your upgrade, you should ensure this value remains set to `php`. However, if your application does not store PHP objects in the session and you are comfortable requiring your users to re-authenticate, we recommend updating this value to `json` for improved security. -->
+アップグレード中もアクティブなセッションをそのまま維持したい場合は、この値を `php` に設定したままにしてください。ただし、アプリケーションがセッションに PHP オブジェクトを保存しておらず、ユーザーに再認証を求めても問題ない場合は、セキュリティを向上させるため、この値を `json` に変更することをおすすめします。
 
 <a name="scheduling"></a>
 <!-- ### Scheduling -->
@@ -638,4 +637,3 @@ pagination::simple-bootstrap-3
 
 <!-- We also encourage you to view the changes in the `laravel/laravel` [GitHub repository](https://github.com/laravel/laravel). While many of these changes are not required, you may wish to keep these files in sync with your application. Some of these changes will be covered in this upgrade guide, but others, such as changes to configuration files or comments, will not be. You can easily view the changes with the [GitHub comparison tool](https://github.com/laravel/laravel/compare/12.x...13.x) and choose which updates are important to you. -->
 `laravel/laravel` [GitHub repository](https://github.com/laravel/laravel) の変更内容も確認することをお勧めします。これらの変更の多くは必要ありませんが、これらのファイルをアプリケーションと同期させておきたい場合があります。これらの変更の一部はこのアップグレード ガイドで説明されますが、構成ファイルやコメントへの変更などのその他の変更については説明されません。 [GitHub comparison tool](https://github.com/laravel/laravel/compare/12.x...13.x) を使用して変更を簡単に表示し、どの更新が自分にとって重要かを選択できます。
-

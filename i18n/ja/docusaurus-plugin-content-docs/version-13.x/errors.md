@@ -44,8 +44,8 @@
 <!-- ### Reporting Exceptions -->
 ### Reporting Exceptions
 
-<!-- In Laravel, exception reporting is used to log exceptions or send them to an external service like [Sentry](https://github.com/getsentry/sentry-laravel) or [Flare](https://flareapp.io). By default, exceptions will be logged based on your [logging](/docs/13.x/logging) configuration. However, you are free to log exceptions however you wish. -->
-Laravel では、例外レポートを使用して例外をログに記録したり、例外を [Sentry](https://github.com/getsentry/sentry-laravel) や [Flare](https://flareapp.io) などの外部サービスに送信したりします。デフォルトでは、例外は [logging](/docs/13.x/logging) 構成に基づいて記録されます。ただし、例外を自由にログに記録することができます。
+<!-- In Laravel, exception reporting is used to log exceptions or send them to an external service like [Laravel Nightwatch](https://nightwatch.laravel.com), [Sentry](https://github.com/getsentry/sentry-laravel), or [Flare](https://flareapp.io). By default, exceptions will be logged based on your [logging](/docs/13.x/logging) configuration. However, you are free to log exceptions however you wish. -->
+Laravel では、例外レポートを使用して例外をログに記録したり、[Laravel Nightwatch](https://nightwatch.laravel.com)、[Sentry](https://github.com/getsentry/sentry-laravel)、[Flare](https://flareapp.io) などの外部サービスに送信したりします。デフォルトでは、例外は [logging](/docs/13.x/logging) の設定に基づいて記録されます。ただし、例外の記録方法は自由に選択できます。
 
 <!-- If you need to report different types of exceptions in different ways, you may use the `report` exception method in your application's `bootstrap/app.php` to register a closure that should be executed when an exception of a given type needs to be reported. Laravel will determine what type of exception the closure reports by examining the type-hint of the closure: -->
 さまざまなタイプの例外をさまざまな方法で報告する必要がある場合は、アプリケーションの `bootstrap/app.php` で `report` 例外メソッドを使用して、特定のタイプの例外を報告する必要があるときに実行する必要があるクロージャを登録できます。 Laravel は、クロージャのタイプヒントを調べることで、クロージャが報告する例外のタイプを判断します。
@@ -553,4 +553,3 @@ php artisan vendor:publish --tag=laravel-errors
 
 <!-- When defining fallback error pages, the fallback pages will not affect `404`, `500`, and `503` error responses since Laravel has internal, dedicated pages for these status codes. To customize the pages rendered for these status codes, you should define a custom error page for each of them individually. -->
 Laravel にはこれらのステータス コード用の内部専用ページがあるため、フォールバック エラー ページを定義する場合、フォールバック ページは `404`、`500`、および `503` エラー応答には影響しません。これらのステータス コードに対して表示されるページをカスタマイズするには、それぞれのステータス コードに対してカスタム エラー ページを個別に定義する必要があります。
-

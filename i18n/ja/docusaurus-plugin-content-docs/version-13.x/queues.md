@@ -14,7 +14,7 @@
     - [Rate Limiting](#rate-limiting)
     - [Preventing Job Overlaps](#preventing-job-overlaps)
     - [Throttling Exceptions](#throttling-exceptions)
-- [Releasing Jobs](#releasing-jobs)
+    - [Releasing Jobs](#releasing-jobs)
     - [Skipping Jobs](#skipping-jobs)
 - [Dispatching Jobs](#dispatching-jobs)
     - [Delayed Dispatching](#delayed-dispatching)
@@ -78,7 +78,7 @@ Laravel キューは、[Amazon SQS](https://aws.amazon.com/sqs/)、[Redis](https
 Laravel のキュー構成オプションは、アプリケーションの `config/queue.php` 構成ファイルに保存されます。このファイルには、データベース、[Amazon SQS](https://aws.amazon.com/sqs/)、[Redis](https://redis.io)、[Beanstalkd](https://beanstalkd.github.io/) ドライバや、(開発またはテスト中に使用する) ジョブを即時に実行する同期ドライバなど、フレームワークに含まれる各キュー ドライバの接続構成が含まれています。キューに入れられたジョブを破棄する `null` キュー ドライバも含まれています。
 
 > [!NOTE]
-> Laravel Horizon は、Redis を利用したキュー用の美しいダッシュボードおよび構成システムです。詳細については、[Horizon documentation](/docs/13.x/horizon) の全文をご覧ください。
+> Laravel Horizon は、Redis で動作するキュー向けの美しいダッシュボードおよび設定システムです。詳しくは、[Horizon documentation](/docs/13.x/horizon) を参照してください。
 
 <a name="connections-vs-queues"></a>
 <!-- ### Connections vs. Queues -->
@@ -116,7 +116,7 @@ php artisan queue:work --queue=high,default
 #### Database
 
 <!-- In order to use the `database` queue driver, you will need a database table to hold the jobs. Typically, this is included in Laravel's default `0001_01_01_000002_create_jobs_table.php` [database migration](/docs/13.x/migrations); however, if your application does not contain this migration, you may use the `make:queue-table` Artisan command to create it: -->
-`database` キュー ドライバを使用するには、ジョブを保持するデータベース テーブルが必要です。通常、これはLaravelのデフォルトの`0001_01_01_000002_create_jobs_table.php` [database migration](/docs/13.x/migrations)に含まれています。ただし、アプリケーションにこの移行が含まれていない場合は、`make:queue-table` Artisan コマンドを使用して移行を作成できます。
+`database` キュードライバを使用するには、ジョブを保持するためのデータベーステーブルが必要です。通常、このテーブルは Laravel のデフォルトに含まれる `0001_01_01_000002_create_jobs_table.php` [database migration](/docs/13.x/migrations) によって作成されます。ただし、アプリケーションにこのマイグレーションが含まれていない場合は、`make:queue-table` Artisan コマンドを使用して作成できます。
 
 ```shell
 php artisan make:queue-table
@@ -132,7 +132,7 @@ php artisan migrate
 `redis` キュー ドライバを使用するには、`config/database.php` 構成ファイルで Redis データベース接続を構成する必要があります。
 
 > [!WARNING]
-> `serializer` および `compression` Redis オプションは、`redis` キュー ドライバではサポートされていません。
+> `redis` キュードライバでは、`serializer` および `compression` Redis オプションはサポートされていません。
 
 <a name="redis-cluster"></a>
 <!-- ##### Redis Cluster -->
@@ -174,7 +174,7 @@ Redis キューを使用する場合、`block_for` 構成オプションを使�
 ```
 
 > [!WARNING]
-> `block_for` を `0` に設定すると、ジョブが使用可能になるまでキューワーカーが無期限にブロックされます。これにより、次のジョブが処理されるまで、`SIGTERM` などのシグナルが処理されなくなります。
+> `block_for` を `0` に設定すると、ジョブが利用可能になるまでキューワーカーが無期限にブロックされます。これにより、次のジョブが処理されるまで `SIGTERM` などのシグナルも処理されなくなります。
 
 <a name="sqs-overflow-storage"></a>
 <!-- #### SQS Overflow Storage -->
@@ -216,21 +216,14 @@ Amazon SQS は、キューに入れられたメッセージ ペイロードの�
 <!-- The following dependencies are needed for the listed queue drivers. These dependencies may be installed via the Composer package manager: -->
 リストされているキュー ドライバには次の依存関係が必要です。これらの依存関係は、Composer パッケージ マネージャーを介してインストールできます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
+<!-- - Amazon SQS: `aws/aws-sdk-php ~3.0` - Beanstalkd: `pda/pheanstalk ~5.0` - Redis: `predis/predis ~3.0` or phpredis PHP extension - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb` -->
 - Amazon SQS: `aws/aws-sdk-php ~3.0`
 - Beanstalkd: `pda/pheanstalk ~5.0`
-- Redis: `predis/predis ~2.0` or phpredis PHP extension
-- [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb`
--->
-- Amazon SQS: `aws/aws-sdk-php ~3.0`
-- Beanstalkd: `pda/pheanstalk ~5.0`
-- Redis: `predis/predis ~2.0` または phpredis PHP 拡張機能
+- Redis: `predis/predis ~3.0` または phpredis PHP 拡張
 - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb`
 
-<!-- </div> -->
 </div>
 
 <a name="creating-jobs"></a>
@@ -252,7 +245,7 @@ php artisan make:job ProcessPodcast
 生成されたクラスは `Illuminate\Contracts\Queue\ShouldQueue` インターフェイスを実装し、非同期で実行するにはジョブをキューにプッシュする必要があることを Laravel に示します。
 
 > [!NOTE]
-> ジョブ スタブは、[stub publishing](/docs/13.x/artisan#stub-customization) を使用してカスタマイズできます。
+> Job stubs は [stub publishing](/docs/13.x/artisan#stub-customization) を使用してカスタマイズできます。
 
 <a name="class-structure"></a>
 <!-- ### Class Structure -->
@@ -293,7 +286,7 @@ class ProcessPodcast implements ShouldQueue
 ```
 
 <!-- In this example, note that we were able to pass an [Eloquent model](/docs/13.x/eloquent) directly into the queued job's constructor. Because of the `Queueable` trait that the job is using, Eloquent models and their loaded relationships will be gracefully serialized and unserialized when the job is processing. -->
-この例では、[Eloquent model](/docs/13.x/eloquent) をキューに入れられたジョブのコンストラクターに直接渡すことができたことに注目してください。ジョブが使用している `Queueable` トレイトにより、Eloquent モデルとそのロードされた関係は、ジョブの処理中に正常にシリアル化およびシリアル化解除されます。
+この例では、キューに入れるジョブのコンストラクタに [Eloquent model](/docs/13.x/eloquent) を直接渡せることに注目してください。ジョブが使用している `Queueable` トレイトにより、ジョブの処理時に Eloquent モデルとロード済みのリレーションが適切にシリアライズおよびデシリアライズされます。
 
 <!-- If your queued job accepts an Eloquent model in its constructor, only the identifier for the model will be serialized onto the queue. When the job is actually handled, the queue system will automatically re-retrieve the full model instance and its loaded relationships from the database. This approach to model serialization allows for much smaller job payloads to be sent to your queue driver. -->
 キューに入れられたジョブがコンストラクターで Eloquent モデルを受け入れる場合、モデルの識別子のみがキューにシリアル化されます。ジョブが実際に処理されると、キュー システムは完全なモデル インスタンスとそのロードされた関係をデータベースから自動的に再取得します。モデルのシリアル化に対するこのアプローチにより、はるかに小さいジョブ ペイロードをキュー ドライバに送信できるようになります。
@@ -303,10 +296,10 @@ class ProcessPodcast implements ShouldQueue
 #### `handle` Method Dependency Injection
 
 <!-- The `handle` method is invoked when the job is processed by the queue. Note that we are able to type-hint dependencies on the `handle` method of the job. The Laravel [service container](/docs/13.x/container) automatically injects these dependencies. -->
-`handle` メソッドは、ジョブがキューによって処理されるときに呼び出されます。ジョブの `handle` メソッドに対する依存関係をタイプヒントできることに注意してください。 Laravel [service container](/docs/13.x/container) はこれらの依存関係を自動的に挿入します。
+ジョブがキューによって処理されると、`handle` メソッドが呼び出されます。ジョブの `handle` メソッドでは、依存関係をタイプヒントで指定できます。Laravel の [service container](/docs/13.x/container) が、これらの依存関係を自動的に注入します。
 
 <!-- If you would like to take total control over how the container injects dependencies into the `handle` method, you may use the container's `bindMethod` method. The `bindMethod` method accepts a callback which receives the job and the container. Within the callback, you are free to invoke the `handle` method however you wish. Typically, you should call this method from the `boot` method of your `App\Providers\AppServiceProvider` [service provider](/docs/13.x/providers): -->
-コンテナーが依存関係を `handle` メソッドに挿入する方法を完全に制御したい場合は、コンテナーの `bindMethod` メソッドを使用できます。 `bindMethod` メソッドは、ジョブとコンテナーを受け取るコールバックを受け入れます。コールバック内では、必要に応じて `handle` メソッドを自由に呼び出すことができます。通常、このメソッドは、`App\Providers\AppServiceProvider` [service provider](/docs/13.x/providers) の `boot` メソッドから呼び出す必要があります。
+コンテナが `handle` メソッドに依存関係を注入する方法を完全に制御したい場合は、コンテナの `bindMethod` メソッドを使用できます。`bindMethod` メソッドは、ジョブとコンテナを受け取るコールバックを指定します。コールバック内では、自由な方法で `handle` メソッドを呼び出せます。通常、このメソッドは `App\Providers\AppServiceProvider` の [service provider](/docs/13.x/providers) の `boot` メソッドから呼び出します。
 
 ```php
 use App\Jobs\ProcessPodcast;
@@ -319,7 +312,7 @@ $this->app->bindMethod([ProcessPodcast::class, 'handle'], function (ProcessPodca
 ```
 
 > [!WARNING]
-> 未処理の画像コンテンツなどのバイナリ データは、キューに入れられたジョブに渡す前に、`base64_encode` 関数を介して渡す必要があります。そうしないと、ジョブがキューに配置されるときに JSON に適切にシリアル化されない可能性があります。
+> 生の画像コンテンツなどのバイナリデータは、キューへ投入するジョブに渡す前に `base64_encode` 関数を通してください。そうしないと、キューに配置する際にジョブを JSON として正しくシリアライズできない場合があります。
 
 <a name="handling-relationships"></a>
 <!-- #### Queued Relationships -->
@@ -401,10 +394,10 @@ class ProcessPodcast implements ShouldQueue
 ### Unique Jobs
 
 > [!WARNING]
-> 固有のジョブには、[locks](/docs/13.x/cache#atomic-locks) をサポートするキャッシュ ドライバが必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`、および `array` キャッシュ ドライバはアトミック ロックをサポートしています。
+> ユニークジョブには、[locks](/docs/13.x/cache#atomic-locks)をサポートするキャッシュドライバが必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`、`array` のキャッシュドライバがアトミックロックをサポートしています。
 
 > [!WARNING]
-> 固有のジョブ制約は、バッチ内のジョブには適用されません。
+> バッチ内のジョブには、一意なジョブ制約は適用されません。
 
 <!-- Sometimes, you may want to ensure that only one instance of a specific job is on the queue at any point in time. You may do so by implementing the `ShouldBeUnique` interface on your job class. This interface does not require you to define any additional methods on your class: -->
 場合によっては、特定のジョブのインスタンスが常に 1 つだけキューに存在するようにしたい場合があります。これを行うには、ジョブ クラスに `ShouldBeUnique` インターフェイスを実装します。このインターフェイスでは、クラスに追加のメソッドを定義する必要はありません。
@@ -459,7 +452,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 上の例では、`UpdateSearchIndex` ジョブは製品 ID によって一意です。したがって、同じ製品 ID を持つジョブの新しいディスパッチは、既存のジョブの処理が完了するまで無視されます。さらに、既存のジョブが 1 時間以内に処理されない場合、一意のロックが解除され、同じ一意のキーを持つ別のジョブがキューにディスパッチされる可能性があります。
 
 > [!WARNING]
-> アプリケーションが複数の Web サーバーまたはコンテナーからジョブをディスパッチする場合は、Laravel がジョブが一意であるかどうかを正確に判断できるように、すべてのサーバーが同じ中央キャッシュ サーバーと通信していることを確認する必要があります。
+> アプリケーションが複数のWebサーバーやコンテナからジョブをディスパッチする場合は、Laravelがジョブの一意性を正確に判定できるよう、すべてのサーバーが同じ中央キャッシュサーバーと通信することを確認してください。
 
 <a name="keeping-jobs-unique-until-processing-begins"></a>
 <!-- #### Keeping Jobs Unique Until Processing Begins -->
@@ -485,7 +478,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUniqueUntilProcessing
 #### Unique Job Locks
 
 <!-- Behind the scenes, when a `ShouldBeUnique` job is dispatched, Laravel attempts to acquire a [lock](/docs/13.x/cache#atomic-locks) with the `uniqueId` key. If the lock is already held, the job is not dispatched. This lock is released when the job completes processing or fails all of its retry attempts. By default, Laravel will use the default cache driver to obtain this lock. However, if you wish to use another driver for acquiring the lock, you may define a `uniqueVia` method that returns the cache driver that should be used: -->
-バックグラウンドでは、`ShouldBeUnique` ジョブがディスパッチされると、Laravel は `uniqueId` キーを使用して [lock](/docs/13.x/cache#atomic-locks) を取得しようとします。ロックがすでに保持されている場合、ジョブはディスパッチされません。このロックは、ジョブの処理が完了するか、すべての再試行が失敗すると解放されます。デフォルトでは、Laravel はデフォルトのキャッシュドライバを使用してこのロックを取得します。ただし、ロックの取得に別のドライバを使用したい場合は、使用するキャッシュ ドライバを返す `uniqueVia` メソッドを定義できます。
+内部では、`ShouldBeUnique` ジョブがディスパッチされると、Laravel は `uniqueId` キーを使って [lock](/docs/13.x/cache#atomic-locks) の取得を試みます。すでにロックが取得されている場合、ジョブはディスパッチされません。このロックは、ジョブの処理が完了したとき、またはすべての再試行に失敗したときに解放されます。デフォルトでは、Laravel はこのロックの取得にデフォルトのキャッシュドライバを使用します。ただし、ロックの取得に別のドライバを使いたい場合は、使用するキャッシュドライバを返す `uniqueVia` メソッドを定義できます。
 
 ```php
 use Illuminate\Contracts\Cache\Repository;
@@ -506,7 +499,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 ```
 
 > [!NOTE]
-> ジョブの同時処理を制限する必要があるだけの場合は、代わりに [WithoutOverlapping](/docs/13.x/queues#preventing-job-overlaps) ジョブ ミドルウェアを使用してください。
+> ジョブの同時処理数を制限するだけでよい場合は、[WithoutOverlapping](/docs/13.x/queues#preventing-job-overlaps) ジョブミドルウェアを使用してください。
 
 <a name="debounced-jobs"></a>
 <!-- ### Debounced Jobs -->
@@ -579,17 +572,17 @@ public function debounceVia(): Repository
 デバウンスされたジョブが新しい​​ディスパッチによって置き換えられた場合、Laravel は `Illuminate\Queue\Events\JobDebounced` イベントをディスパッチし、置き換えられたジョブをキューから削除します。
 
 > [!WARNING]
-> デバウンスされたジョブと固有のジョブは相互に排他的です。 `DebounceFor` 属性を使用するジョブは、`ShouldBeUnique` を実装しないでください。
+> デバウンスされたジョブとユニークジョブは両立しません。`DebounceFor` 属性を使用するジョブでは、`ShouldBeUnique` を実装しないでください。
 
 > [!WARNING]
-> アプリケーションが複数の Web サーバーまたはコンテナーからデバウンスされたジョブをディスパッチする場合は、すべてのサーバーが同じ中央キャッシュ サーバーと通信していることを確認する必要があります。
+> アプリケーションが複数の Web サーバーやコンテナからデバウンスされたジョブをディスパッチする場合は、すべてのサーバーが同じ中央キャッシュサーバーと通信していることを確認してください。
 
 <a name="encrypted-jobs"></a>
 <!-- ### Encrypted Jobs -->
 ### Encrypted Jobs
 
 <!-- Laravel allows you to ensure the privacy and integrity of a job's data via [encryption](/docs/13.x/encryption). To get started, simply add the `ShouldBeEncrypted` interface to the job class. Once this interface has been added to the class, Laravel will automatically encrypt your job before pushing it onto a queue: -->
-Laravel を使用すると、[encryption](/docs/13.x/encryption) 経由でジョブのデータのプライバシーと整合性を確保できます。開始するには、`ShouldBeEncrypted` インターフェイスをジョブ クラスに追加するだけです。このインターフェースがクラスに追加されると、Laravel はジョブをキューにプッシュする前に自動的に暗号化します。
+Laravelでは、[encryption](/docs/13.x/encryption)によってジョブデータのプライバシーと完全性を確保できます。まず、ジョブクラスに `ShouldBeEncrypted` インターフェイスを追加してください。クラスにこのインターフェイスを追加すると、Laravelはジョブをキューへ投入する前に自動的に暗号化します。
 
 ```php
 <?php
@@ -666,7 +659,7 @@ class RateLimited
 ```
 
 <!-- As you can see, like [route middleware](/docs/13.x/middleware), job middleware receive the job being processed and a callback that should be invoked to continue processing the job. -->
-ご覧のとおり、[route middleware](/docs/13.x/middleware) のように、ジョブ ミドルウェアは、処理中のジョブと、ジョブの処理を続行するために呼び出されるコールバックを受け取ります。
+見てのとおり、[route middleware](/docs/13.x/middleware)と同様に、ジョブミドルウェアは処理中のジョブと、ジョブの処理を続けるために呼び出すコールバックを受け取ります。
 
 <!-- You can generate a new job middleware class using the `make:job-middleware` Artisan command. After creating job middleware, they may be attached to a job by returning them from the job's `middleware` method. This method does not exist on jobs scaffolded by the `make:job` Artisan command, so you will need to manually add it to your job class: -->
 `make:job-middleware` Artisan コマンドを使用して、新しいジョブ ミドルウェア クラスを生成できます。ジョブ ミドルウェアを作成した後、ジョブの `middleware` メソッドから返すことによって、ジョブ ミドルウェアをジョブにアタッチできます。このメソッドは、`make:job` Artisan コマンドによってスキャフォールディングされたジョブには存在しないため、ジョブ クラスに手動で追加する必要があります。
@@ -686,14 +679,14 @@ public function middleware(): array
 ```
 
 > [!NOTE]
-> ジョブミドルウェアは、[queueable event listeners](/docs/13.x/events#queued-event-listeners)、[mailables](/docs/13.x/mail#queueing-mail)、および [notifications](/docs/13.x/notifications#queueing-notifications) に割り当てることもできます。
+> ジョブミドルウェアは、[queueable event listeners](/docs/13.x/events#queued-event-listeners)、[mailables](/docs/13.x/mail#queueing-mail)、[notifications](/docs/13.x/notifications#queueing-notifications)にも割り当てられます。
 
 <a name="rate-limiting"></a>
 <!-- ### Rate Limiting -->
 ### Rate Limiting
 
 <!-- Although we just demonstrated how to write your own rate limiting job middleware, Laravel actually includes a rate limiting middleware that you may utilize to rate limit jobs. Like [route rate limiters](/docs/13.x/routing#defining-rate-limiters), job rate limiters are defined using the `RateLimiter` facade's `for` method. -->
-独自のレート制限ジョブ ミドルウェアを作成する方法を説明しましたが、実際には、Laravel にはジョブのレート制限に利用できるレート制限ミドルウェアが含まれています。 [route rate limiters](/docs/13.x/routing#defining-rate-limiters) と同様に、ジョブ レート リミッターは、`RateLimiter` ファサードの `for` メソッドを使用して定義されます。
+先ほど独自のジョブのレート制限ミドルウェアを作成する方法を説明しましたが、Laravel にはジョブのレートを制限するために利用できるレート制限ミドルウェアが組み込まれています。[route rate limiters](/docs/13.x/routing#defining-rate-limiters)と同様に、ジョブのレートリミッタは `RateLimiter` ファサードの `for` メソッドを使用して定義します。
 
 <!-- For example, you may wish to allow users to backup their data once per hour while imposing no such limit on premium customers. To accomplish this, you may define a `RateLimiter` in the `boot` method of your `AppServiceProvider`: -->
 たとえば、プレミアム顧客にはそのような制限を課さず、ユーザーが 1 時間に 1 回データをバックアップできるようにしたい場合があります。これを実現するには、`AppServiceProvider` の `boot` メソッドで `RateLimiter` を定義できます。
@@ -789,7 +782,7 @@ public function middleware(): array
 ```
 
 <!-- The `connection` method may be used to specify which Redis connection the middleware should use: -->
-`connection` メソッドを使用して、ミドルウェアが使用する Redis 接続を指定できます。
+`connection` メソッドを使用すると、ミドルウェアが使用する Redis 接続を指定できます。
 
 ```php
 return [(new RateLimitedWithRedis('backups'))->connection('limiter')];
@@ -868,7 +861,7 @@ public function middleware(): array
 ```
 
 > [!WARNING]
-> `WithoutOverlapping` ミドルウェアには、[locks](/docs/13.x/cache#atomic-locks) をサポートするキャッシュ ドライバが必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`、および `array` キャッシュ ドライバはアトミック ロックをサポートしています。
+> `WithoutOverlapping` ミドルウェアには、[locks](/docs/13.x/cache#atomic-locks)をサポートするキャッシュドライバが必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`、`array` のキャッシュドライバがアトミックロックをサポートしています。
 
 <a name="sharing-lock-keys"></a>
 <!-- #### Sharing Lock Keys Across Job Classes -->
@@ -1079,7 +1072,6 @@ public function middleware(): array
 return [(new ThrottlesExceptionsWithRedis(10, 10 * 60))->connection('limiter')];
 ```
 
-<!-- <a name="releasing-jobs"></a> -->
 <a name="releasing-jobs"></a>
 <!-- ### Releasing Jobs -->
 ### Releasing Jobs
@@ -1105,7 +1097,7 @@ public function middleware(): array
 ジョブをキューへ戻しても、そのジョブの総試行回数は増えます。ジョブクラスの `Tries` と `MaxExceptions` 属性は、それに応じて調整するとよいでしょう。
 
 <!-- You can also pass a `Closure` to the `when` and `unless` methods for more complex conditional evaluation: -->
-より複雑な条件評価を行いたい場合は、`when` と `unless` メソッドに `Closure` を渡すこともできます:
+より複雑な条件評価を行う場合は、`when` および `unless` メソッドに `Closure` を渡すこともできます。
 
 ```php
 use Illuminate\Queue\Middleware\Release;
@@ -1145,7 +1137,7 @@ public function middleware(): array
 ```
 
 <!-- You can also pass a `Closure` to the `when` and `unless` methods for more complex conditional evaluation: -->
-より複雑な条件評価のために、`Closure` を `when` メソッドと `unless` メソッドに渡すこともできます。
+より複雑な条件評価を行う場合は、`when` メソッドと `unless` メソッドに `Closure` を渡すこともできます。
 
 ```php
 use Illuminate\Queue\Middleware\Skip;
@@ -1254,7 +1246,7 @@ ProcessPodcast::dispatch($podcast)->withoutDelay();
 ```
 
 > [!WARNING]
-> Amazon SQS キュー サービスの最大遅延時間は 15 分です。
+> Amazon SQS キューサービスの遅延時間は最大 15 分です。
 
 <a name="synchronous-dispatching"></a>
 <!-- ### Synchronous Dispatching -->
@@ -1393,7 +1385,7 @@ class SyncPodcasts implements PreparesForDispatch, ShouldQueue
 トランザクション中に発生した例外によりトランザクションがロールバックされた場合、そのトランザクション中にディスパッチされたジョブは破棄されます。
 
 > [!NOTE]
-> `after_commit` 構成オプションを `true` に設定すると、開いているすべてのデータベース トランザクションがコミットされた後に、キューに入れられたイベント リスナ、メール可能ファイル、通知、およびブロードキャスト イベントもディスパッチされます。
+> `after_commit` 設定オプションを `true` にすると、キューに入れられたイベントリスナ、Mailable、通知、ブロードキャストイベントも、開いているすべてのデータベーストランザクションのコミット後にディスパッチされます。
 
 <a name="specifying-commit-dispatch-behavior-inline"></a>
 <!-- #### Specifying Commit Dispatch Behavior Inline -->
@@ -1449,7 +1441,7 @@ Bus::chain([
 ```
 
 > [!WARNING]
-> ジョブ内で `$this->delete()` メソッドを使用してジョブを削除しても、チェーンされたジョブの処理は妨げられません。チェーンは、チェーン内のジョブが失敗した場合にのみ実行を停止します。
+> ジョブ内で `$this->delete()` メソッドを使ってジョブを削除しても、チェーンされたジョブの処理は阻止されません。チェーンの実行が停止するのは、チェーン内のジョブが失敗した場合だけです。
 
 <a name="chain-connection-queue"></a>
 <!-- #### Chain Connection and Queue -->
@@ -1510,7 +1502,7 @@ Bus::chain([
 ```
 
 > [!WARNING]
-> チェーン コールバックはシリアル化され、後で Laravel キューによって実行されるため、チェーン コールバック内で `$this` 変数を使用しないでください。
+> チェーンのコールバックはシリアライズされ、Laravel キューによって後で実行されるため、チェーンのコールバック内では `$this` 変数を使用しないでください。
 
 <a name="customizing-the-queue-and-connection"></a>
 <!-- ### Customizing the Queue and Connection -->
@@ -1692,7 +1684,7 @@ Queue::route([
 ```
 
 > [!NOTE]
-> キュー ルーティングは、ジョブによってジョブごとにオーバーライドできます。
+> ジョブごとに、ジョブ側でキューのルーティングを上書きすることもできます。
 
 <a name="max-job-attempts-and-timeout"></a>
 <!-- ### Specifying Max Job Attempts / Timeout Values -->
@@ -1711,30 +1703,22 @@ Queue::route([
 <!-- However, an attempt does not necessarily mean the job's `handle` method was executed. Attempts can also be "consumed" in several ways: -->
 ただし、試行は必ずしもジョブの `handle` メソッドが実行されたことを意味するわけではありません。試行はいくつかの方法で「消費」することもできます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The job encounters an unhandled exception during execution.
-- The job is manually released back to the queue using `$this->release()`.
-- Middleware such as `WithoutOverlapping` or `RateLimited` fails to acquire a lock and releases the job.
-- The job timed out.
-- The job's `handle` method runs and completes without throwing an exception.
--->
-- ジョブの実行中に未処理の例外が発生しました。
-- ジョブは、`$this->release()` を使用して手動でキューに戻されます。
-- `WithoutOverlapping` や `RateLimited` などのミドルウェアはロックの取得に失敗し、ジョブを解放します。
-- ジョブがタイムアウトになりました。
-- ジョブの `handle` メソッドが実行され、例外をスローせずに完了します。
+<!-- - The job encounters an unhandled exception during execution. - The job is manually released back to the queue using `$this->release()`. - Middleware such as `WithoutOverlapping` or `RateLimited` fails to acquire a lock and releases the job. - The job timed out. - The job's `handle` method runs and completes without throwing an exception. -->
+- ジョブの実行中に未処理の例外が発生した場合。
+- `$this->release()` を使って、ジョブを手動でキューに戻した場合。
+- `WithoutOverlapping` や `RateLimited` などのミドルウェアがロックの取得に失敗し、ジョブをキューに戻した場合。
+- ジョブがタイムアウトした場合。
+- ジョブの `handle` メソッドが実行され、例外を投げずに完了した場合。
 
-<!-- </div> -->
 </div>
 
 <!-- You likely do not want to keep attempting a job indefinitely. Therefore, Laravel provides various ways to specify how many times or for how long a job may be attempted. -->
 おそらく、仕事を無期限に試し続けることは望まないでしょう。したがって、Laravel では、ジョブを試行する回数や期間を指定するさまざまな方法が提供されています。
 
 > [!NOTE]
-> デフォルトでは、Laravel はジョブを 1 回だけ試行します。ジョブが `WithoutOverlapping` や `RateLimited` などのミドルウェアを使用している場合、またはジョブを手動で解放している場合は、`tries` オプションを使用して許可される試行回数を増やす必要がある可能性があります。
+> デフォルトでは、Laravel はジョブの実行を1回だけ試みます。ジョブで `WithoutOverlapping` や `RateLimited` などのミドルウェアを使用している場合、またはジョブを手動でキューに戻している場合は、`tries` オプションで許可する試行回数を増やす必要があるでしょう。
 
 <!-- One approach to specifying the maximum number of times a job may be attempted is via the `--tries` switch on the Artisan command line. This will apply to all jobs processed by the worker unless the job being processed specifies the number of times it may be attempted: -->
 ジョブの最大試行回数を指定する方法の 1 つは、Artisan コマンド ラインの `--tries` スイッチを使用することです。これは、処理中のジョブで試行回数が指定されていない限り、ワーカーによって処理されるすべてのジョブに適用されます。
@@ -1799,7 +1783,7 @@ public function retryUntil(): DateTime
 `retryUntil` と `tries` の両方が定義されている場合、Laravel は `retryUntil` メソッドを優先します。
 
 > [!NOTE]
-> [queued event listeners](/docs/13.x/events#queued-event-listeners) および [queued notifications](/docs/13.x/notifications#queueing-notifications) で `Tries` 属性または `retryUntil` メソッドを定義することもできます。
+> `Tries` 属性や `retryUntil` メソッドは、[queued event listeners](/docs/13.x/events#queued-event-listeners) や [queued notifications](/docs/13.x/notifications#queueing-notifications) にも定義できます。
 
 <a name="max-exceptions"></a>
 <!-- #### Max Exceptions -->
@@ -1913,7 +1897,7 @@ class ProcessPodcast implements ShouldQueue
 場合によっては、ソケットや発信 HTTP 接続などの IO ブロック プロセスが、指定されたタイムアウトを尊重しないことがあります。したがって、これらの機能を使用するときは、常にその API も使用してタイムアウトを指定するようにしてください。たとえば、[Guzzle](https://docs.guzzlephp.org) を使用する場合は、常に接続とリクエストのタイムアウト値を指定する必要があります。
 
 > [!WARNING]
-> ジョブのタイムアウトを指定するには、[PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 拡張機能をインストールする必要があります。さらに、ジョブの「タイムアウト」値は常に ["retry after"](#job-expiration) 値よりも小さい必要があります。そうしないと、ジョブが実際に実行を終了するかタイムアウトになる前に再試行される可能性があります。
+> ジョブのタイムアウトを指定するには、[PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 拡張機能をインストールする必要があります。また、ジョブの timeout 値は必ず ["retry after"](#job-expiration) 値より小さくしてください。そうしないと、ジョブの実行が実際に完了するかタイムアウトする前に、再試行される可能性があります。`queue:work` コマンドを `--once` オプション付きで呼び出した場合、`--timeout` オプションは効果がありません。
 
 <a name="failing-on-timeout"></a>
 <!-- #### Failing on Timeout -->
@@ -1937,7 +1921,7 @@ class ProcessPodcast implements ShouldQueue
 ```
 
 > [!NOTE]
-> デフォルトでは、ジョブがタイムアウトすると、ジョブは 1 回の試行を消費し、キューに解放されて戻されます (再試行が許可されている場合)。ただし、タイムアウトでジョブが失敗するように構成した場合、試行回数に設定されている値に関係なく、ジョブは再試行されません。
+> デフォルトでは、ジョブがタイムアウトすると1回分の試行を消費し、再試行が許可されている場合はキューに戻されます。ただし、タイムアウト時にジョブを失敗させるよう設定した場合、tries に設定した値にかかわらず再試行されません。
 
 <a name="sqs-fifo-and-fair-queues"></a>
 <!-- ### SQS FIFO and Fair Queues -->
@@ -2026,7 +2010,7 @@ class ProcessOrder implements ShouldQueue
 FIFO キューを使用する場合は、リスナ、メール、通知のメッセージ グループも定義する必要があります。あるいは、これらのオブジェクトのキューに入れられたインスタンスを非 FIFO キューにディスパッチすることもできます。
 
 <!-- To define the message group for a [queued event listener](/docs/13.x/events#queued-event-listeners), define a `messageGroup` method on the listener. You may also optionally define a `deduplicationId` method: -->
-[queued event listener](/docs/13.x/events#queued-event-listeners) のメッセージ グループを定義するには、リスナで `messageGroup` メソッドを定義します。オプションで `deduplicationId` メソッドを定義することもできます。
+[queued event listener](/docs/13.x/events#queued-event-listeners) のメッセージグループを定義するには、リスナに `messageGroup` メソッドを定義します。必要に応じて、`deduplicationId` メソッドも定義できます。
 
 ```php
 <?php
@@ -2056,7 +2040,7 @@ class SendShipmentNotification
 ```
 
 <!-- When sending a [mail message](/docs/13.x/mail) that is going to be queued on a FIFO queue, you should invoke the `onGroup` method and optionally the `withDeduplicator` method when sending the notification: -->
-FIFO キューに入れられる [mail message](/docs/13.x/mail) を送信する場合は、通知の送信時に `onGroup` メソッドを呼び出し、オプションで `withDeduplicator` メソッドを呼び出す必要があります。
+FIFO キューにキューイングする [mail message](/docs/13.x/mail) を送信する場合は、通知の送信時に `onGroup` メソッドを呼び出し、必要に応じて `withDeduplicator` メソッドも呼び出してください。
 
 ```php
 use App\Mail\InvoicePaid;
@@ -2070,7 +2054,7 @@ Mail::to($request->user())->send($invoicePaid);
 ```
 
 <!-- When sending a [notification](/docs/13.x/notifications) that is going to be queued on a FIFO queue, you should invoke the `onGroup` method and optionally the `withDeduplicator` method when sending the notification: -->
-FIFO キューに入れられる [notification](/docs/13.x/notifications) を送信する場合は、通知の送信時に `onGroup` メソッドを呼び出し、オプションで `withDeduplicator` メソッドを呼び出す必要があります。
+FIFO キューに追加する [notification](/docs/13.x/notifications) を送信するときは、`onGroup` メソッドを呼び出してください。必要に応じて、`withDeduplicator` メソッドも呼び出せます。
 
 ```php
 use App\Notifications\InvoicePaid;
@@ -2119,13 +2103,13 @@ php artisan queue:work database
 ```
 
 > [!NOTE]
-> `sync`、`background`、または `deferred` キュー ドライバは現在の PHP プロセス内でジョブを処理するため、これらのキュー ドライバを使用した接続に対してワーカーを実行する必要はありません。
+> `sync`、`background`、`deferred` キュードライバを使用する接続では、これらのドライバが現在の PHP プロセス内でジョブを処理するため、ワーカーを実行する必要はありません。
 
 <!-- When a queue connection operation fails and failover is activated, Laravel will dispatch the `Illuminate\Queue\Events\QueueFailedOver` event, allowing you to report or log that a queue connection has failed. -->
 キュー接続操作が失敗し、フェイルオーバーがアクティブ化されると、Laravel は `Illuminate\Queue\Events\QueueFailedOver` イベントをディスパッチして、キュー接続が失敗したことをレポートまたはログに記録できるようにします。
 
 > [!NOTE]
-> Laravel Horizon を使用する場合、Horizon は Redis キューのみを管理することに注意してください。フェイルオーバー リストに `database` が含まれている場合は、Horizon と一緒に通常の `php artisan queue:work database` プロセスを実行する必要があります。
+> Laravel Horizon を使用する場合は、Horizon が管理するのは Redis キューだけであることに注意してください。フェイルオーバーリストに `database` が含まれている場合は、Horizon と並行して通常の `php artisan queue:work database` プロセスを実行してください。
 
 <a name="error-handling"></a>
 <!-- ### Error Handling -->
@@ -2191,7 +2175,7 @@ $this->fail('Something went wrong.');
 ```
 
 > [!NOTE]
-> 失敗したジョブの詳細については、[documentation on dealing with job failures](#dealing-with-failed-jobs) を確認してください。
+> 失敗したジョブの詳細については、[documentation on dealing with job failures](#dealing-with-failed-jobs) を参照してください。
 
 <a name="fail-jobs-on-exceptions"></a>
 <!-- #### Failing Jobs on Specific Exceptions -->
@@ -2347,14 +2331,14 @@ return $batch->id;
 `$batch->id` プロパティを介してアクセスできるバッチの ID は、発送後のバッチに関する情報を得るために [query the Laravel command bus](#inspecting-batches) に使用できます。
 
 > [!WARNING]
-> バッチコールバックはシリアル化され、後でLaravelキューによって実行されるため、コールバック内で`$this`変数を使用しないでください。さらに、バッチ ジョブはデータベース トランザクション内でラップされるため、暗黙的なコミットをトリガーするデータベース ステートメントはジョブ内で実行しないでください。
+> バッチコールバックはシリアライズされ、Laravel のキューによって後で実行されるため、コールバック内で `$this` 変数を使用しないでください。また、バッチジョブはデータベーストランザクション内でラップされるため、暗黙的なコミットを発生させるデータベースステートメントをジョブ内で実行しないでください。
 
 <a name="naming-batches"></a>
 <!-- #### Naming Batches -->
 #### Naming Batches
 
 <!-- Some tools such as [Laravel Horizon](/docs/13.x/horizon) and [Laravel Telescope](/docs/13.x/telescope) may provide more user-friendly debug information for batches if batches are named. To assign an arbitrary name to a batch, you may call the `name` method while defining the batch: -->
-[Laravel Horizon](/docs/13.x/horizon) や [Laravel Telescope](/docs/13.x/telescope) などの一部のツールでは、バッチに名前が付けられている場合、バッチのより使いやすいデバッグ情報が提供される場合があります。バッチに任意の名前を割り当てるには、バッチの定義中に `name` メソッドを呼び出すことができます。
+[Laravel Horizon](/docs/13.x/horizon) や [Laravel Telescope](/docs/13.x/telescope) などのツールでは、バッチに名前を付けると、バッチに関するよりわかりやすいデバッグ情報を確認できる場合があります。バッチに任意の名前を付けるには、バッチを定義するときに `name` メソッドを呼び出します。
 
 ```php
 $batch = Bus::batch([
@@ -2468,7 +2452,7 @@ public function handle(): void
 ```
 
 > [!WARNING]
-> ジョブをバッチに追加できるのは、同じバッチに属するジョブ内からのみです。
+> 同じバッチに属するジョブ内からのみ、バッチにジョブを追加できます。
 
 <a name="inspecting-batches"></a>
 <!-- ### Inspecting Batches -->
@@ -2617,7 +2601,7 @@ php artisan queue:retry-batch 32dbc76c-4f82-4749-b610-a639fe0099b5
 ### Pruning Batches
 
 <!-- Without pruning, the `job_batches` table can accumulate records very quickly. To mitigate this, you should [schedule](/docs/13.x/scheduling) the `queue:prune-batches` Artisan command to run daily: -->
-プルーニングを行わない場合、`job_batches` テーブルは非常に迅速にレコードを蓄積できます。これを軽減するには、[schedule](/docs/13.x/scheduling) `queue:prune-batches` Artisan コマンドを毎日実行する必要があります。
+削除処理を行わないと、`job_batches` テーブルには非常に速いペースでレコードが蓄積します。これを防ぐには、`queue:prune-batches` Artisan コマンドを毎日実行するよう [schedule](/docs/13.x/scheduling) してください。
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -2758,7 +2742,7 @@ dispatch(function () use ($podcast) {
 ```
 
 > [!WARNING]
-> `catch` コールバックはシリアル化され、後で Laravel キューによって実行されるため、`catch` コールバック内で `$this` 変数を使用しないでください。
+> `catch` コールバックは Laravel キューによってシリアライズされ、後から実行されるため、`catch` コールバック内で `$this` 変数を使用しないでください。
 
 <a name="running-the-queue-worker"></a>
 <!-- ## Running the Queue Worker -->
@@ -2776,7 +2760,7 @@ php artisan queue:work
 ```
 
 > [!NOTE]
-> `queue:work` プロセスをバックグラウンドで永続的に実行し続けるには、[Supervisor](#supervisor-configuration) などのプロセス モニターを使用して、キューワーカーの実行が停止しないようにする必要があります。
+> `queue:work` プロセスをバックグラウンドで常時実行するには、[Supervisor](#supervisor-configuration) などのプロセスモニタを使用して、キューワーカーが停止しないようにしてください。
 
 <!-- You may include the `-v` flag when invoking the `queue:work` command if you would like the processed job IDs, connection names, and queue names to be included in the command's output: -->
 処理されたジョブ ID、接続名、およびキュー名をコマンドの出力に含めたい場合は、`queue:work` コマンドを呼び出すときに `-v` フラグを含めることができます。
@@ -2877,7 +2861,7 @@ php artisan queue:work --sleep=3
 #### Maintenance Mode and Queues
 
 <!-- While your application is in [maintenance mode](/docs/13.x/configuration#maintenance-mode), no queued jobs will be handled. The jobs will continue to be handled as normal once the application is out of maintenance mode. -->
-アプリケーションが [maintenance mode](/docs/13.x/configuration#maintenance-mode) にある間は、キューに入れられたジョブは処理されません。アプリケーションがメンテナンス モードを終了しても、ジョブは通常どおり処理され続けます。
+アプリケーションが [maintenance mode](/docs/13.x/configuration#maintenance-mode) の間は、キューに入れられたジョブは処理されません。アプリケーションがメンテナンスモードを終了すると、ジョブは通常どおり処理されます。
 
 <!-- To force your queue workers to process jobs even if maintenance mode is enabled, you may use `--force` option: -->
 メンテナンス モードが有効になっている場合でもキューワーカーにジョブを強制的に処理させるには、`--force` オプションを使用できます。
@@ -2890,8 +2874,8 @@ php artisan queue:work --force
 <!-- #### Resource Considerations -->
 #### Resource Considerations
 
-<!-- Daemon queue workers do not "reboot" the framework before processing each job. Therefore, you should release any heavy resources after each job completes. For example, if you are doing image manipulation with the [GD library](https://www.php.net/manual/en/book.image.php), you should free the memory with `imagedestroy` when you are done processing the image. -->
-デーモン キューワーカーは、各ジョブを処理する前にフレームワークを「再起動」しません。したがって、各ジョブが完了したら、重いリソースを解放する必要があります。たとえば、[GD library](https://www.php.net/manual/en/book.image.php) を使用して画像操作を行っている場合、画像の処理が完了したら、`imagedestroy` を使用してメモリを解放する必要があります。
+<!-- Daemon queue workers do not "reboot" the framework before processing each job. Therefore, you should release any heavy resources after each job completes. For example, if you are doing [image manipulation](/docs/13.x/images) with the [GD library](https://www.php.net/manual/en/book.image.php), you should free the memory with `imagedestroy` when you are done processing the image. -->
+デーモンとして動作するキューワーカーは、各ジョブを処理する前にフレームワークを「再起動」しません。そのため、各ジョブの完了後に負荷の大きいリソースを解放してください。たとえば、[image manipulation](/docs/13.x/images) を [GD library](https://www.php.net/manual/en/book.image.php) で行う場合は、画像の処理が終わった時点で `imagedestroy` を使ってメモリを解放してください。
 
 <a name="queue-priorities"></a>
 <!-- ### Queue Priorities -->
@@ -2926,7 +2910,7 @@ php artisan queue:restart
 このコマンドは、既存のジョブが失われないように、すべてのキューワーカーに現在のジョブの処理が完了した後に正常に終了するように指示します。 `queue:restart` コマンドが実行されるとキューワーカーは終了するため、キューワーカーを自動的に再起動するには、[Supervisor](#supervisor-configuration) などのプロセス マネージャーを実行する必要があります。
 
 > [!NOTE]
-> キューは [cache](/docs/13.x/cache) を使用して再起動信号を保存するため、この機能を使用する前に、キャッシュ ドライバがアプリケーションに対して適切に構成されていることを確認する必要があります。
+> キューは再起動シグナルの保存に [cache](/docs/13.x/cache) を使用するため、この機能を使用する前に、アプリケーションでキャッシュドライバが適切に設定されていることを確認してください。
 
 <a name="reacting-to-worker-signals"></a>
 <!-- ### Reacting to Worker Signals -->
@@ -3002,7 +2986,7 @@ class ImportProducts implements ShouldQueue, Interruptible
 `config/queue.php` 構成ファイルでは、各キュー接続が `retry_after` オプションを定義します。このオプションは、処理中のジョブを再試行する前にキュー接続が待機する秒数を指定します。たとえば、`retry_after` の値が `90` に設定されている場合、ジョブは解放または削除されずに 90 秒間処理されていた場合、キューに解放されます。通常、`retry_after` 値は、ジョブの処理が完了するまでに合理的にかかる最大秒数に設定する必要があります。
 
 > [!WARNING]
-> `retry_after` 値が含まれない唯一のキュー接続は、Amazon SQS です。 SQS は、AWS コンソール内で管理される [Default Visibility Timeout](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html) に基づいてジョブを再試行します。
+> `retry_after` 値を含まないキュー接続は Amazon SQS だけです。SQS は、AWS コンソールで管理される [Default Visibility Timeout](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html) に基づいてジョブを再試行します。
 
 <a name="worker-timeouts"></a>
 <!-- #### Worker Timeouts -->
@@ -3019,7 +3003,7 @@ php artisan queue:work --timeout=60
 `retry_after` 構成オプションと `--timeout` CLI オプションは異なりますが、連携してジョブが失われず、ジョブが 1 回だけ正常に処理されるようにします。
 
 > [!WARNING]
-> `--timeout` 値は、常に `retry_after` 構成値より少なくとも数秒短くする必要があります。これにより、凍結されたジョブを処理するワーカーは、ジョブが再試行される前に必ず終了されます。 `--timeout` オプションが `retry_after` 構成値より長い場合、ジョブが 2 回処理される可能性があります。
+> `--timeout` の値は、`retry_after` の設定値より常に数秒以上短くしてください。これにより、停止したジョブを処理しているワーカーが、ジョブの再試行前に必ず終了します。`--timeout` オプションが `retry_after` の設定値より長い場合、ジョブが2回処理される可能性があります。
 
 <a name="pausing-and-resuming-queue-workers"></a>
 <!-- ### Pausing and Resuming Queue Workers -->
@@ -3038,6 +3022,13 @@ php artisan queue:pause database:default
 <!-- In this example, `database` is the queue connection name and `default` is the queue name. Once a queue is paused, any workers processing jobs from that queue will continue to finish their current job, but will not pick up any new jobs until the queue is resumed. -->
 この例では、`database` がキュー接続名、`default` がキュー名です。キューが一時停止されると、そのキューからジョブを処理するワーカーは引き続き現在のジョブを終了しますが、キューが再開されるまで新しいジョブは取得されません。
 
+<!-- To pause job processing for every queue on every connection, use the `--all` option: -->
+すべての接続上のすべてのキューでジョブ処理を一時停止するには、`--all` オプションを使用します。
+
+```shell
+php artisan queue:pause --all
+```
+
 <!-- To resume processing jobs on a paused queue, use the `queue:continue` command: -->
 一時停止されたキュー上のジョブの処理を再開するには、`queue:continue` コマンドを使用します。
 
@@ -3045,8 +3036,15 @@ php artisan queue:pause database:default
 php artisan queue:continue database:default
 ```
 
-<!-- After resuming a queue, workers will begin processing new jobs from that queue immediately. Note that pausing a queue does not stop the worker process itself - it only prevents the worker from processing new jobs from the specified queue. -->
-キューを再開すると、ワーカーはそのキューから新しいジョブの処理をすぐに開始します。キューを一時停止してもワーカー プロセス自体は停止しないことに注意してください。ワーカーが指定されたキューからの新しいジョブを処理できなくなるだけです。
+<!-- To resume job processing for every queue on every connection, use the `--all` option with the `queue:resume` command: -->
+すべての接続のすべてのキューでジョブ処理を再開するには、`queue:resume` コマンドで `--all` オプションを使用します。
+
+```shell
+php artisan queue:resume --all
+```
+
+<!-- After resuming a queue, workers will begin processing new jobs from that queue immediately. Resuming all queues does not resume queues that were paused individually. Note that pausing a queue does not stop the worker process itself - it only prevents the worker from processing new jobs from the specified queue. -->
+キューの処理を再開すると、ワーカーはそのキューの新しいジョブを直ちに処理し始めます。すべてのキューを再開しても、個別に一時停止したキューは再開されません。なお、キューを一時停止してもワーカープロセス自体は停止しません。指定したキューから新しいジョブを処理しなくなるだけです。
 
 <a name="worker-restart-and-pause-signals"></a>
 <!-- #### Worker Restart and Pause Signals -->
@@ -3087,7 +3085,7 @@ public function boot(): void
 ```
 
 > [!WARNING]
-> 割り込みポーリングが無効になっている場合、ワーカーは `queue:restart` または `queue:pause` コマンドに応答しません (無効になっている機能に応じて異なります)。
+> 割り込みポーリングを無効にすると、ワーカーは無効にした機能に応じて、`queue:restart` または `queue:pause` コマンドに応答しなくなります。
 
 <a name="supervisor-configuration"></a>
 <!-- ## Supervisor Configuration -->
@@ -3111,7 +3109,7 @@ sudo apt-get install supervisor
 ```
 
 > [!NOTE]
-> Supervisorを自分で設定および管理するのが大変だと思われる場合は、Laravel キューワーカーを実行するためのフルマネージド プラットフォームを提供する [Laravel Cloud](https://cloud.laravel.com) の使用を検討してください。
+> Supervisor の設定や管理を自分で行うのが負担に感じられる場合は、Laravel のキューワーカーを実行するためのフルマネージドプラットフォームを提供する [Laravel Cloud](https://cloud.laravel.com) の利用を検討してください。
 
 <a name="configuring-supervisor"></a>
 <!-- #### Configuring Supervisor -->
@@ -3139,7 +3137,7 @@ stopwaitsecs=3600
 この例では、`numprocs` ディレクティブは、8 つの `queue:work` プロセスを実行してすべてを監視し、失敗した場合は自動的に再起動するようにSupervisorに指示します。必要なキュー接続とワーカー オプションを反映するには、構成の `command` ディレクティブを変更する必要があります。
 
 > [!WARNING]
-> `stopwaitsecs` の値が、最も長く実行されているジョブで消費される秒数よりも大きいことを確認する必要があります。そうしないと、Supervisorがジョブの処理が完了する前にジョブを強制終了する可能性があります。
+> `stopwaitsecs` の値は、最も実行時間の長いジョブの処理にかかる秒数より大きくしてください。そうしないと、Supervisor が処理の完了前にジョブを強制終了する可能性があります。
 
 <a name="starting-supervisor"></a>
 <!-- #### Starting Supervisor -->
@@ -3164,7 +3162,7 @@ sudo supervisorctl start "laravel-worker:*"
 ## Dealing With Failed Jobs
 
 <!-- Sometimes your queued jobs will fail. Don't worry, things don't always go as planned! Laravel includes a convenient way to [specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout). After an asynchronous job has exceeded this number of attempts, it will be inserted into the `failed_jobs` database table. [Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching) that fail are not stored in this table and their exceptions are immediately handled by the application. -->
-場合によっては、キューに入れられたジョブが失敗することがあります。心配しないでください、物事は常に計画どおりに進むわけではありません。 Laravel には、[specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout) への便利な方法が含まれています。非同期ジョブはこの試行回数を超えると、`failed_jobs` データベース テーブルに挿入されます。失敗した [Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching) はこのテーブルに格納されず、その例外はアプリケーションによって即座に処理されます。
+キューに投入したジョブが失敗することもあります。心配はいりません。いつも計画どおりに進むとは限らないものです。Laravel には、ジョブの試行回数の最大値を[specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout)が用意されています。非同期ジョブの試行回数がこの値を超えると、そのジョブは `failed_jobs` データベーステーブルに登録されます。失敗した[Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching)はこのテーブルには保存されず、例外はアプリケーションによって直ちに処理されます。
 
 <!-- A migration to create the `failed_jobs` table is typically already present in new Laravel applications. However, if your application does not contain a migration for this table, you may use the `make:queue-failed-table` command to create the migration: -->
 `failed_jobs` テーブルを作成するための移行は、通常、新しい Laravel アプリケーションにすでに存在しています。ただし、アプリケーションにこのテーブルの移行が含まれていない場合は、`make:queue-failed-table` コマンドを使用して移行を作成できます。
@@ -3284,24 +3282,18 @@ class ProcessPodcast implements ShouldQueue
 ```
 
 > [!WARNING]
-> ジョブの新しいインスタンスは、`failed` メソッドを呼び出す前にインスタンス化されます。したがって、`handle` メソッド内で行われたクラス プロパティの変更は失われます。
+> `failed` メソッドを呼び出す前にジョブの新しいインスタンスが生成されます。そのため、`handle` メソッド内でクラスプロパティに加えた変更は失われます。
 
 <!-- A failed job is not necessarily one that encountered an unhandled exception. A job may also be considered failed when it has exhausted all of its allowed attempts. These attempts can be consumed in several ways: -->
 失敗したジョブは、必ずしも未処理の例外が発生したものであるとは限りません。ジョブは、許可された試行をすべて使い果たした場合にも失敗したとみなされる場合があります。これらの試行はいくつかの方法で使用できます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- The job timed out.
-- The job encounters an unhandled exception during execution.
-- The job is released back to the queue either manually or by a middleware.
--->
-- ジョブがタイムアウトになりました。
+<!-- - The job timed out. - The job encounters an unhandled exception during execution. - The job is released back to the queue either manually or by a middleware. -->
+- ジョブがタイムアウトしました。
 - ジョブの実行中に未処理の例外が発生しました。
 - ジョブは手動またはミドルウェアによってキューに戻されます。
 
-<!-- </div> -->
 </div>
 
 <!-- If the final attempt fails due to an exception thrown during job execution, that exception will be passed to the job's `failed` method. However, if the job fails because it has reached the maximum number of allowed attempts, the `$exception` will be an instance of `Illuminate\Queue\MaxAttemptsExceededException`. Similarly, if the job fails due to exceeding the configured timeout, the `$exception` will be an instance of `Illuminate\Queue\TimeoutExceededException`. -->
@@ -3354,7 +3346,7 @@ php artisan queue:forget 91401d2c-0784-4f43-824c-34f94a33c24d
 ```
 
 > [!NOTE]
-> [Horizon](/docs/13.x/horizon) を使用する場合、失敗したジョブを削除するには、`queue:forget` コマンドの代わりに `horizon:forget` コマンドを使用する必要があります。
+> [Horizon](/docs/13.x/horizon) を使用する場合、失敗したジョブを削除するには `queue:forget` コマンドではなく `horizon:forget` コマンドを使用してください。
 
 <!-- To delete all of your failed jobs from the `failed_jobs` table, you may use the `queue:flush` command: -->
 失敗したジョブをすべて `failed_jobs` テーブルから削除するには、`queue:flush` コマンドを使用します。
@@ -3498,7 +3490,7 @@ class AppServiceProvider extends ServiceProvider
 ## Clearing Jobs From Queues
 
 > [!NOTE]
-> [Horizon](/docs/13.x/horizon) を使用する場合は、`queue:clear` コマンドの代わりに、`horizon:clear` コマンドを使用してキューからジョブをクリアする必要があります。
+> [Horizon](/docs/13.x/horizon)を使用している場合は、`queue:clear` コマンドではなく `horizon:clear` コマンドを使用してキューからジョブを削除してください。
 
 <!-- If you would like to delete all jobs from the default queue of the default connection, you may do so using the `queue:clear` Artisan command: -->
 デフォルト接続のデフォルトキューからすべてのジョブを削除したい場合は、`queue:clear` Artisan コマンドを使用して削除できます。
@@ -3515,7 +3507,7 @@ php artisan queue:clear redis --queue=emails
 ```
 
 > [!WARNING]
-> キューからのジョブのクリアは、SQS、Redis、およびデータベース キュー ドライバでのみ使用できます。さらに、SQS メッセージの削除プロセスには最大 60 秒かかるため、キューをクリアしてから最大 60 秒以内に SQS キューに送信されたジョブも削除される可能性があります。
+> キューからジョブを削除できるのは、SQS、Redis、データベースのキュードライバを使用している場合だけです。また、SQS のメッセージ削除処理には最大 60 秒かかるため、キューをクリアしてから 60 秒以内に SQS キューへ送信されたジョブも削除される可能性があります。
 
 <a name="monitoring-your-queues"></a>
 <!-- ## Monitoring Your Queues -->
@@ -3525,7 +3517,7 @@ php artisan queue:clear redis --queue=emails
 キューにジョブが突然殺到すると、キューが過剰になり、ジョブが完了するまでの待ち時間が長くなる可能性があります。必要に応じて、Laravel はキューのジョブ数が指定されたしきい値を超えたときに警告を発することができます。
 
 <!-- To get started, you should schedule the `queue:monitor` command to [run every minute](/docs/13.x/scheduling). The command accepts the names of the queues you wish to monitor as well as your desired job count threshold: -->
-まず、`queue:monitor` コマンドを [run every minute](/docs/13.x/scheduling) にスケジュールする必要があります。このコマンドは、監視するキューの名前と、必要なジョブ数のしきい値を受け入れます。
+まず、`queue:monitor` コマンドを[run every minute](/docs/13.x/scheduling)するようスケジュールしてください。このコマンドでは、監視したいキューの名前と、設定したいジョブ数のしきい値を指定できます。
 
 ```shell
 php artisan queue:monitor redis:default,redis:deployments --max=100
@@ -3718,7 +3710,7 @@ Queue::fake()->except([
 ### Testing Job Chains
 
 <!-- To test job chains, you will need to utilize the `Bus` facade's faking capabilities. The `Bus` facade's `assertChained` method may be used to assert that a [chain of jobs](/docs/13.x/queues#job-chaining) was dispatched. The `assertChained` method accepts an array of chained jobs as its first argument: -->
-ジョブ チェーンをテストするには、`Bus` ファサードの偽装機能を利用する必要があります。 `Bus` ファサードの `assertChained` メソッドを使用して、[chain of jobs](/docs/13.x/queues#job-chaining) がディスパッチされたことをアサートできます。 `assertChained` メソッドは、最初の引数としてチェーンされたジョブの配列を受け入れます。
+ジョブチェーンをテストするには、`Bus` ファサードのフェイク機能を利用します。`Bus` ファサードの `assertChained` メソッドを使用すると、[chain of jobs](/docs/13.x/queues#job-chaining) がディスパッチされたことをアサートできます。`assertChained` メソッドは、チェーンされたジョブの配列を第1引数として受け取ります。
 
 ```php
 use App\Jobs\RecordShipment;
@@ -3808,7 +3800,7 @@ Bus::assertChained([
 ### Testing Job Batches
 
 <!-- The `Bus` facade's `assertBatched` method may be used to assert that a [batch of jobs](/docs/13.x/queues#job-batching) was dispatched. The closure given to the `assertBatched` method receives an instance of `Illuminate\Bus\PendingBatch`, which may be used to inspect the jobs within the batch: -->
-`Bus` ファサードの `assertBatched` メソッドを使用して、[batch of jobs](/docs/13.x/queues#job-batching) がディスパッチされたことをアサートできます。 `assertBatched` メソッドに指定されたクロージャは、バッチ内のジョブを検査するために使用される `Illuminate\Bus\PendingBatch` のインスタンスを受け取ります。
+`Bus` ファサードの `assertBatched` メソッドを使用すると、[batch of jobs](/docs/13.x/queues#job-batching) がディスパッチされたことをアサートできます。`assertBatched` メソッドに渡すクロージャは `Illuminate\Bus\PendingBatch` のインスタンスを受け取るため、バッチ内のジョブを調査できます。
 
 ```php
 use Illuminate\Bus\PendingBatch;
@@ -3911,7 +3903,7 @@ $job->assertNotFailed();
 ## Job Events
 
 <!-- Using the `before` and `after` methods on the `Queue` [facade](/docs/13.x/facades), you may specify callbacks to be executed before or after a queued job is processed. These callbacks are a great opportunity to perform additional logging or increment statistics for a dashboard. Typically, you should call these methods from the `boot` method of a [service provider](/docs/13.x/providers). For example, we may use the `AppServiceProvider` that is included with Laravel: -->
-`Queue` [facade](/docs/13.x/facades) で `before` メソッドと `after` メソッドを使用すると、キューに入れられたジョブの処理前または後に実行されるコールバックを指定できます。これらのコールバックは、追加のログを実行したり、ダッシュボードの統計を増分したりする絶好の機会です。通常、これらのメソッドは、[service provider](/docs/13.x/providers) の `boot` メソッドから呼び出す必要があります。たとえば、Laravel に含まれる `AppServiceProvider` を使用できます。
+`Queue` [facade](/docs/13.x/facades) の `before` メソッドと `after` メソッドを使用すると、キューに入れたジョブの処理前または処理後に実行するコールバックを指定できます。これらのコールバックは、追加のログを記録したり、ダッシュボード用の統計情報を増分したりするのに適しています。通常、これらのメソッドは [service provider](/docs/13.x/providers) の `boot` メソッドから呼び出します。たとえば、Laravel に含まれている `AppServiceProvider` を使用できます。
 
 ```php
 <?php
@@ -3954,7 +3946,7 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 <!-- Using the `looping` method on the `Queue` [facade](/docs/13.x/facades), you may specify callbacks that execute before the worker attempts to fetch a job from a queue. For example, you might register a closure to rollback any transactions that were left open by a previously failed job: -->
-`Queue` [facade](/docs/13.x/facades) で `looping` メソッドを使用すると、ワーカーがキューからジョブをフェッチしようとする前に実行するコールバックを指定できます。たとえば、以前に失敗したジョブによってオープンされたままになっているトランザクションをロールバックするクロージャを登録できます。
+`Queue` [facade](/docs/13.x/facades) の `looping` メソッドを使用すると、ワーカーがキューからジョブを取得しようとする前に実行するコールバックを指定できます。たとえば、以前失敗したジョブによって開いたままになっているトランザクションをロールバックするクロージャを登録できます。
 
 ```php
 use Illuminate\Support\Facades\DB;

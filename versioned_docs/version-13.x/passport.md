@@ -623,7 +623,7 @@ php artisan passport:client --public
 <!-- As this authorization grant does not provide a client secret, developers will need to generate a combination of a code verifier and a code challenge in order to request a token. -->
 이 authorization grant는 클라이언트 secret을 제공하지 않으므로, 개발자는 토큰을 요청하기 위해 code verifier(코드 검증자)와 code challenge(코드 챌린지)의 조합을 생성해야 합니다.
 
-<!-- The code verifier should be a random string of between 43 and 128 characters containing letters, numbers, and  `"-"`, `"."`, `"_"`, `"~"` characters, as defined in the [RFC 7636 specification](https://tools.ietf.org/html/rfc7636). -->
+<!-- The code verifier should be a random string of between 43 and 128 characters containing letters, numbers, and `"-"`, `"."`, `"_"`, `"~"` characters, as defined in the [RFC 7636 specification](https://tools.ietf.org/html/rfc7636). -->
 code verifier는 [RFC 7636 specification](https://tools.ietf.org/html/rfc7636)에 정의된 대로 문자, 숫자, `"-"`, `"."`, `"_"`, `"~"` 문자를 포함하는 43자 이상 128자 이하의 임의 문자열이어야 합니다.
 
 <!-- The code challenge should be a Base64 encoded string with URL and filename-safe characters. The trailing `'='` characters should be removed and no line breaks, whitespace, or other additional characters should be present. -->
@@ -1517,16 +1517,15 @@ public function boot(): void
 <!-- Passport raises events when issuing access tokens and refresh tokens. You may [listen for these events](/docs/13.x/events) to prune or revoke other access tokens in your database: -->
 Passport는 액세스 토큰과 리프레시 토큰을 발급할 때 이벤트를 발생시킵니다. 데이터베이스의 다른 액세스 토큰을 정리하거나 취소하기 위해 [listen for these events](/docs/13.x/events)할 수 있습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Event Name | | --------------------------------------------- | | `Laravel\Passport\Events\AccessTokenCreated` | | `Laravel\Passport\Events\AccessTokenRevoked` | | `Laravel\Passport\Events\RefreshTokenCreated` | -->
 | 이벤트 이름                                   |
 | --------------------------------------------- |
 | `Laravel\Passport\Events\AccessTokenCreated`  |
 | `Laravel\Passport\Events\AccessTokenRevoked`  |
 | `Laravel\Passport\Events\RefreshTokenCreated` |
 
-<!-- </div> -->
 </div>
 
 <a name="testing"></a>

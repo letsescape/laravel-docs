@@ -2174,16 +2174,6 @@ Stripe는 webhook을 통해 다양한 이벤트를 애플리케이션에 알릴 
 <!-- To ensure your application can handle Stripe webhooks, be sure to configure the webhook URL in the Stripe control panel. By default, Cashier's webhook controller responds to the `/stripe/webhook` URL path. The full list of all webhooks you should enable in the Stripe control panel are: -->
 애플리케이션이 Stripe webhook을 처리할 수 있도록 하려면 Stripe 제어판에서 webhook URL을 설정해야 합니다. 기본적으로 Cashier의 webhook 컨트롤러는 `/stripe/webhook` URL 경로에 응답합니다. Stripe 제어판에서 활성화해야 하는 모든 webhook 목록은 다음과 같습니다.
 
-<!--
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
-- `customer.updated`
-- `customer.deleted`
-- `payment_method.automatically_updated`
-- `invoice.payment_action_required`
-- `invoice.payment_succeeded`
--->
 - `customer.subscription.created`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
@@ -2246,10 +2236,6 @@ Stripe webhook은 Laravel의 [CSRF protection](/docs/13.x/csrf)를 우회해야 
 <!-- Cashier automatically handles subscription cancellations for failed charges and other common Stripe webhook events. However, if you have additional webhook events you would like to handle, you may do so by listening to the following events that are dispatched by Cashier: -->
 Cashier는 실패한 청구로 인한 구독 취소와 그 밖의 일반적인 Stripe webhook 이벤트를 자동으로 처리합니다. 하지만 추가로 처리하고 싶은 webhook 이벤트가 있다면, Cashier가 디스패치하는 다음 이벤트를 수신하여 처리할 수 있습니다.
 
-<!--
-- `Laravel\Cashier\Events\WebhookReceived`
-- `Laravel\Cashier\Events\WebhookHandled`
--->
 - `Laravel\Cashier\Events\WebhookReceived`
 - `Laravel\Cashier\Events\WebhookHandled`
 
@@ -2863,19 +2849,9 @@ try {
 <!-- On the payment confirmation page, the customer will be prompted to enter their credit card information again and perform any additional actions required by Stripe, such as "3D Secure" confirmation. After confirming their payment, the user will be redirected to the URL provided by the `redirect` parameter specified above. Upon redirection, `message` (string) and `success` (integer) query string variables will be added to the URL. The payment page currently supports the following payment method types: -->
 결제 확인 페이지에서 고객은 신용카드 정보를 다시 입력하고, "3D Secure" 확인처럼 Stripe에서 요구하는 추가 작업을 수행하라는 안내를 받습니다. 결제를 확인한 뒤 사용자는 위에서 지정한 `redirect` 파라미터가 제공한 URL로 리다이렉트됩니다. 리다이렉트될 때 `message`(문자열)와 `success`(정수) 쿼리 문자열 변수가 URL에 추가됩니다. 현재 결제 페이지는 다음 결제 수단 유형을 지원합니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Credit Cards
-- Alipay
-- Bancontact
-- BECS Direct Debit
-- EPS
-- Giropay
-- iDEAL
-- SEPA Direct Debit
--->
+<!-- - Credit Cards - Alipay - Bancontact - BECS Direct Debit - EPS - Giropay - iDEAL - SEPA Direct Debit -->
 - 신용카드
 - Alipay
 - Bancontact
@@ -2885,7 +2861,6 @@ try {
 - iDEAL
 - SEPA 자동 이체
 
-<!-- </div> -->
 </div>
 
 <!-- Alternatively, you could allow Stripe to handle the payment confirmation for you. In this case, instead of redirecting to the payment confirmation page, you may [set up Stripe's automatic billing emails](https://dashboard.stripe.com/account/billing/automatic) in your Stripe dashboard. However, if an `IncompletePayment` exception is caught, you should still inform the user they will receive an email with further payment confirmation instructions. -->
@@ -2948,7 +2923,7 @@ $subscription->withPaymentConfirmationOptions([
 <!-- ## Strong Customer Authentication -->
 ## Strong Customer Authentication
 
-<!-- If your business or one of your customers is based in Europe you will need to abide by the EU's Strong Customer Authentication (SCA) regulations. These regulations were imposed in September 2019 by the European Union to prevent payment fraud. Luckily, Stripe and Cashier are prepared for building SCA compliant applications. -->
+<!-- If your business or one of your customers is based in Europe you will need to abide by the EU's Strong Customer Authentication (SCA) regulations. These regulations were imposed in September 2019 by the European Union to prevent payment fraud. Luckily, Stripe and Cashier are prepared for building SCA compliant applications. -->
 비즈니스 또는 고객 중 한 명이 유럽에 기반을 두고 있다면 EU의 Strong Customer Authentication(SCA) 규정을 준수해야 합니다. 이 규정은 결제 사기를 방지하기 위해 유럽연합이 2019년 9월에 도입했습니다. 다행히 Stripe와 Cashier는 SCA를 준수하는 애플리케이션을 구축할 준비가 되어 있습니다.
 
 > [!WARNING]

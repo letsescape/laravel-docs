@@ -46,7 +46,7 @@ $response = Http::get('http://example.com');
 
 ```php
 $response->body() : string;
-$response->json($key = null, $default = null) : mixed;
+$response->json($key = null, $default = null, $flags = null) : mixed;
 $response->object() : object;
 $response->collect($key = null) : Illuminate\Support\Collection;
 $response->resource() : resource;
@@ -1088,4 +1088,3 @@ class LogRequest
     }
 }
 ```
-

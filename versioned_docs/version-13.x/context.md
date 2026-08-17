@@ -24,8 +24,8 @@ Laravel의 "컨텍스트" 기능은 애플리케이션 내에서 실행되는 �
 <!-- ### How it Works -->
 ### How it Works
 
-<!-- The best way to understand Laravel's context capabilities is to see it in action using  the built-in logging features. To get started, you may [add information to the context](#capturing-context) using the `Context` facade. In this example, we will use a [middleware](/docs/13.x/middleware) to add the request URL and a unique trace ID to the context on every incoming request: -->
-Laravel의 컨텍스트 기능을 이해하는 가장 좋은 방법은 내장된 로깅 기능을 활용하여 실제로 작동하는 예를 보는 것입니다. 시작하려면 `Context` 파사드를 사용해 [add information to the context](#capturing-context)부터 해봅니다. 이 예에서는 모든 들어오는 요청마다 요청 URL과 고유한 추적 ID를 컨텍스트에 추가하는 [middleware](/docs/13.x/middleware)를 사용합니다:
+<!-- The best way to understand Laravel's context capabilities is to see it in action using the built-in logging features. To get started, you may [add information to the context](#capturing-context) using the `Context` facade. In this example, we will use a [middleware](/docs/13.x/middleware) to add the request URL and a unique trace ID to the context on every incoming request: -->
+Laravel의 컨텍스트 기능을 이해하는 가장 좋은 방법은 내장된 로깅 기능을 사용해 실제로 작동하는 모습을 확인하는 것입니다. 시작하려면 `Context` 파사드를 사용해 [add information to the context](#capturing-context)에 정보를 추가할 수 있습니다. 이 예제에서는 모든 수신 요청마다 요청 URL과 고유한 추적 ID를 컨텍스트에 추가하는 [middleware](/docs/13.x/middleware)를 사용합니다:
 
 ```php
 <?php

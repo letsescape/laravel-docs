@@ -53,7 +53,7 @@
 #### Database
 
 <!-- When using the `database` cache driver, you will need a database table to contain the cache data. Typically, this is included in Laravel's default `0001_01_01_000001_create_cache_table.php` [database migration](/docs/13.x/migrations); however, if your application does not contain this migration, you may use the `make:cache-table` Artisan command to create it: -->
-`database` キャッシュ ドライバを使用する場合、キャッシュ データを含むデータベース テーブルが必要になります。通常、これはLaravelのデフォルトの`0001_01_01_000001_create_cache_table.php` [database migration](/docs/13.x/migrations)に含まれています。ただし、アプリケーションにこの移行が含まれていない場合は、`make:cache-table` Artisan コマンドを使用して移行を作成できます。
+`database` キャッシュ ドライバを使用する場合、キャッシュ データを含むデータベース テーブルが必要になります。通常、これはLaravelのデフォルトの `0001_01_01_000001_create_cache_table.php` [database migration](/docs/13.x/migrations)に含まれています。ただし、アプリケーションにこの移行が含まれていない場合は、`make:cache-table` Artisan コマンドを使用して移行を作成できます。
 
 ```shell
 php artisan make:cache-table
@@ -103,8 +103,8 @@ Memcached ドライバを使用するには、[Memcached PECL package](https://p
 <!-- #### Redis -->
 #### Redis
 
-<!-- Before using a Redis cache with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package (~2.0) via Composer. [Laravel Sail](/docs/13.x/sail) already includes this extension. In addition, official Laravel application platforms such as [Laravel Cloud](https://cloud.laravel.com) and [Laravel Forge](https://forge.laravel.com) have the PhpRedis extension installed by default. -->
-Laravel で Redis キャッシュを使用する前に、PECL 経由で PhpRedis PHP 拡張機能をインストールするか、Composer 経由で `predis/predis` パッケージ (~2.0) をインストールする必要があります。 [Laravel Sail](/docs/13.x/sail) には、この拡張機能がすでに含まれています。さらに、[Laravel Cloud](https://cloud.laravel.com) や [Laravel Forge](https://forge.laravel.com) などの公式 Laravel アプリケーション プラットフォームには、デフォルトで PhpRedis 拡張機能がインストールされています。
+<!-- Before using a Redis cache with Laravel, you will need to either install the PhpRedis PHP extension via PECL or install the `predis/predis` package via Composer. [Laravel Sail](/docs/13.x/sail) already includes this extension. In addition, official Laravel application platforms such as [Laravel Cloud](https://cloud.laravel.com) and [Laravel Forge](https://forge.laravel.com) have the PhpRedis extension installed by default. -->
+Laravel で Redis キャッシュを使用する前に、PECL 経由で PhpRedis PHP 拡張機能をインストールするか、Composer 経由で `predis/predis` パッケージをインストールする必要があります。[Laravel Sail](/docs/13.x/sail) には、この拡張機能がすでに含まれています。さらに、[Laravel Cloud](https://cloud.laravel.com) や [Laravel Forge](https://forge.laravel.com) などの公式 Laravel アプリケーションプラットフォームには、デフォルトで PhpRedis 拡張機能がインストールされています。
 
 <!-- For more information on configuring Redis, consult its [Laravel documentation page](/docs/13.x/redis#configuration). -->
 Redis の構成の詳細については、[Laravel documentation page](/docs/13.x/redis#configuration) を参照してください。
@@ -898,9 +898,9 @@ class AppServiceProvider extends ServiceProvider
 <!-- To execute code on every cache operation, you may listen for various [events](/docs/13.x/events) dispatched by the cache: -->
 すべてのキャッシュ操作でコードを実行するには、キャッシュによってディスパッチされるさまざまな [events](/docs/13.x/events) をリッスンできます。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Event Name | |-------------------------------------------------| | `Illuminate\Cache\Events\CacheFlushed` | | `Illuminate\Cache\Events\CacheFlushing` | | `Illuminate\Cache\Events\CacheFlushFailed` | | `Illuminate\Cache\Events\CacheLocksFlushed` | | `Illuminate\Cache\Events\CacheLocksFlushing` | | `Illuminate\Cache\Events\CacheLocksFlushFailed` | | `Illuminate\Cache\Events\CacheHit` | | `Illuminate\Cache\Events\CacheMissed` | | `Illuminate\Cache\Events\ForgettingKey` | | `Illuminate\Cache\Events\KeyForgetFailed` | | `Illuminate\Cache\Events\KeyForgotten` | | `Illuminate\Cache\Events\KeyWriteFailed` | | `Illuminate\Cache\Events\KeyWritten` | | `Illuminate\Cache\Events\RetrievingKey` | | `Illuminate\Cache\Events\RetrievingManyKeys` | | `Illuminate\Cache\Events\WritingKey` | | `Illuminate\Cache\Events\WritingManyKeys` | -->
 | イベント名                                      |
 |-------------------------------------------------|
 | `Illuminate\Cache\Events\CacheFlushed`          |
@@ -921,7 +921,6 @@ class AppServiceProvider extends ServiceProvider
 | `Illuminate\Cache\Events\WritingKey`            |
 | `Illuminate\Cache\Events\WritingManyKeys`       |
 
-<!-- </div> -->
 </div>
 
 <!-- To increase performance, you may disable cache events by setting the `events` configuration option to `false` for a given cache store in your application's `config/cache.php` configuration file: -->
@@ -934,4 +933,3 @@ class AppServiceProvider extends ServiceProvider
     'events' => false,
 ],
 ```
-

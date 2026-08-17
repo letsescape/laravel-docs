@@ -36,32 +36,9 @@
 <!-- Out of the box, Valet support includes, but is not limited to: -->
 すぐに使えるValet サポートには次のものが含まれますが、これらに限定されません。
 
-<!-- <div id="valet-support" markdown="1"> -->
 <div id="valet-support" markdown="1">
 
-<!--
-- [Laravel](https://laravel.com)
-- [Bedrock](https://roots.io/bedrock/)
-- [CakePHP 3](https://cakephp.org)
-- [ConcreteCMS](https://www.concretecms.com/)
-- [Contao](https://contao.org/en/)
-- [Craft](https://craftcms.com)
-- [Drupal](https://www.drupal.org/)
-- [ExpressionEngine](https://www.expressionengine.com/)
-- [Jigsaw](https://jigsaw.tighten.co)
-- [Joomla](https://www.joomla.org/)
-- [Katana](https://github.com/themsaid/katana)
-- [Kirby](https://getkirby.com/)
-- [Magento](https://magento.com/)
-- [OctoberCMS](https://octobercms.com/)
-- [Sculpin](https://sculpin.io/)
-- [Slim](https://www.slimframework.com)
-- [Statamic](https://statamic.com)
-- Static HTML
-- [Symfony](https://symfony.com)
-- [WordPress](https://wordpress.org)
-- [Zend](https://framework.zend.com)
--->
+<!-- - [Laravel](https://laravel.com) - [Bedrock](https://roots.io/bedrock/) - [CakePHP 3](https://cakephp.org) - [ConcreteCMS](https://www.concretecms.com/) - [Contao](https://contao.org/en/) - [Craft](https://craftcms.com) - [Drupal](https://www.drupal.org/) - [ExpressionEngine](https://www.expressionengine.com/) - [Jigsaw](https://jigsaw.tighten.co) - [Joomla](https://www.joomla.org/) - [Katana](https://github.com/themsaid/katana) - [Kirby](https://getkirby.com/) - [Magento](https://magento.com/) - [OctoberCMS](https://octobercms.com/) - [Sculpin](https://sculpin.io/) - [Slim](https://www.slimframework.com) - [Statamic](https://statamic.com) - Static HTML - [Symfony](https://symfony.com) - [WordPress](https://wordpress.org) - [Zend](https://framework.zend.com) -->
 - [Laravel](https://laravel.com)
 - [Bedrock](https://roots.io/bedrock/)
 - [CakePHP 3](https://cakephp.org)
@@ -84,7 +61,6 @@
 - [WordPress](https://wordpress.org)
 - [Zend](https://framework.zend.com)
 
-<!-- </div> -->
 </div>
 
 <!-- However, you may extend Valet with your own [custom drivers](#custom-valet-drivers). -->
@@ -188,19 +164,13 @@ Valet インストールを適切に実行するのに問題がある場合は�
 <!-- If you're upgrading from Valet 3 to Valet 4, take the following steps to properly upgrade your Valet installation: -->
 Valet 3 から Valet 4 にアップグレードする場合は、次の手順に従って Valet インストールを適切にアップグレードしてください。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- If you've added `.valetphprc` files to customize your site's PHP version, rename each `.valetphprc` file to `.valetrc`. Then, prepend `php=` to the existing content of the `.valetrc` file.
-- Update any custom drivers to match the namespace, extension, type-hints, and return type-hints of the new driver system. You may consult Valet's [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php) as an example.
-- If you use PHP 7.1 - 7.4 to serve your sites, make sure you still use Homebrew to install a version of PHP that's 8.0 or higher, as Valet will use this version, even if it's not your primary linked version, to run some of its scripts.
--->
+<!-- - If you've added `.valetphprc` files to customize your site's PHP version, rename each `.valetphprc` file to `.valetrc`. Then, prepend `php=` to the existing content of the `.valetrc` file. - Update any custom drivers to match the namespace, extension, type-hints, and return type-hints of the new driver system. You may consult Valet's [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php) as an example. - If you use PHP 7.1 - 7.4 to serve your sites, make sure you still use Homebrew to install a version of PHP that's 8.0 or higher, as Valet will use this version, even if it's not your primary linked version, to run some of its scripts. -->
 - サイトの PHP バージョンをカスタマイズするために `.valetphprc` ファイルを追加した場合は、各 `.valetphprc` ファイルの名前を `.valetrc` に変更します。次に、`php=` を `.valetrc` ファイルの既存のコンテンツの先頭に追加します。
 - 新しいドライバ システムの名前空間、拡張子、タイプ ヒントに一致するようにカスタム ドライバを更新し、タイプ ヒントを返します。例として、Valet の [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php) を参照してください。
 - PHP 7.1 ～ 7.4 を使用してサイトを提供している場合は、Homebrew を使用して 8.0 以降の PHP バージョンをインストールしていることを確認してください。Valet は、プライマリ リンクされたバージョンではない場合でも、このバージョンを使用してスクリプトの一部を実行します。
 
-<!-- </div> -->
 </div>
 
 <a name="serving-sites"></a>
@@ -299,7 +269,7 @@ valet unsecure laravel
 <!-- Sometimes, you may wish to configure Valet to serve a "default" site instead of a `404` when visiting an unknown `test` domain. To accomplish this, you may add a `default` option to your `~/.config/valet/config.json` configuration file containing the path to the site that should serve as your default site: -->
 場合によっては、未知の `test` ドメインにアクセスしたときに、`404` ではなく「デフォルト」サイトを提供するように Valet を設定したい場合があります。これを実現するには、デフォルト サイトとして機能するサイトへのパスを含む `default` オプションを `~/.config/valet/config.json` 構成ファイルに追加します。
 
-<!--     "default": "/Users/Sally/Sites/example-site", -->
+<!-- "default": "/Users/Sally/Sites/example-site", -->
     "default": "/Users/Sally/Sites/example-site",
 
 <a name="per-site-php-versions"></a>
@@ -352,8 +322,8 @@ valet unisolate
 <!-- Valet includes a command to share your local sites with the world, providing an easy way to test your site on mobile devices or share it with team members and clients. -->
 Valet には、ローカル サイトを世界と共有するコマンドが含まれており、モバイル デバイスでサイトをテストしたり、チーム メンバーやクライアントと共有したりする簡単な方法を提供します。
 
-<!-- Out of the box, Valet supports sharing your sites via ngrok or Expose. Before sharing a site, you should update your Valet configuration using the `share-tool` command, specifying `ngrok`, `expose`, or  `cloudflared`: -->
-Valet は、デフォルトで、ngrok または Expose を介したサイトの共有をサポートしています。サイトを共有する前に、`share-tool` コマンドを使用して、`ngrok`、`expose`、または `cloudflared` を指定して、Valet 構成を更新する必要があります。
+<!-- Out of the box, Valet supports sharing your sites via ngrok or Expose. Before sharing a site, you should update your Valet configuration using the `share-tool` command, specifying `ngrok`, `expose`, or `cloudflared`: -->
+Valet は初期状態で、ngrok または Expose を介したサイトの共有をサポートしています。サイトを共有する前に、`share-tool` コマンドを使用し、`ngrok`、`expose`、または `cloudflared` を指定して Valet の設定を更新してください。
 
 ```shell
 valet share-tool ngrok
@@ -585,9 +555,9 @@ class LocalValetDriver extends LaravelValetDriver
 <!-- ## Other Valet Commands -->
 ## Other Valet Commands
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Command | Description | | --- | --- | | `valet list` | Display a list of all Valet commands. | | `valet diagnose` | Output diagnostics to aid in debugging Valet. | | `valet directory-listing` | Determine directory-listing behavior. Default is "off", which renders a 404 page for directories. | | `valet forget` | Run this command from a "parked" directory to remove it from the parked directory list. | | `valet log` | View a list of logs which are written by Valet's services. | | `valet paths` | View all of your "parked" paths. | | `valet restart` | Restart the Valet daemons. | | `valet start` | Start the Valet daemons. | | `valet stop` | Stop the Valet daemons. | | `valet trust` | Add sudoers files for Brew and Valet to allow Valet commands to be run without prompting for your password. | | `valet uninstall` | Uninstall Valet: shows instructions for manual uninstall. Pass the `--force` option to aggressively delete all of Valet's resources. | -->
 | 指示 | 説明 |
 | --- | --- |
 | `valet list` | すべての Valet コマンドのリストを表示します。 |
@@ -602,7 +572,6 @@ class LocalValetDriver extends LaravelValetDriver
 | `valet trust` | Brew と Valet の sudoers ファイルを追加して、パスワードの入力を求めるプロンプトを表示せずに Valet コマンドを実行できるようにします。 |
 | `valet uninstall` | Valet のアンインストール: 手動アンインストールの手順を示します。 Valet のリソースをすべて積極的に削除するには、`--force` オプションを渡します。 |
 
-<!-- </div> -->
 </div>
 
 <a name="valet-directories-and-files"></a>
@@ -705,4 +674,3 @@ macOS 10.14 以降、[access to some files and directories is restricted by defa
 
 <!-- However, if you wish to serve sites from within one of those locations, you will need to give Nginx "Full Disk Access". Otherwise, you may encounter server errors or other unpredictable behavior from Nginx, especially when serving static assets. Typically, macOS will automatically prompt you to grant Nginx full access to these locations. Or, you may do so manually via `System Preferences` > `Security & Privacy` > `Privacy` and selecting `Full Disk Access`. Next, enable any `nginx` entries in the main window pane. -->
 ただし、これらの場所のいずれかからサイトにサービスを提供したい場合は、Nginx に「フル ディスク アクセス」を与える必要があります。そうしないと、特に静的アセットを提供する場合に、サーバー エラーや Nginx によるその他の予期しない動作が発生する可能性があります。通常、macOS では、これらの場所へのフル アクセスを Nginx に許可するように求めるプロンプトが自動的に表示されます。または、`System Preferences` > `Security & Privacy` > `Privacy` を選択し、`Full Disk Access` を選択して手動で行うこともできます。次に、メイン ウィンドウ ペインで `nginx` エントリを有効にします。
-

@@ -522,9 +522,9 @@ class CurrentWeatherTool extends Tool
 <!-- Available annotations include: -->
 사용 가능한 애노테이션은 다음과 같습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Annotation | Type | Description | | ------------------ | ------- | -------------------------------------------------------------------------------------------- | | `#[IsReadOnly]` | boolean | Indicates the tool does not modify its environment. | | `#[IsDestructive]` | boolean | Indicates the tool may perform destructive updates (only meaningful when not read-only). | | `#[IsIdempotent]` | boolean | Indicates repeated calls with same arguments have no additional effect (when not read-only). | | `#[IsOpenWorld]` | boolean | Indicates the tool may interact with external entities. | -->
 | 애노테이션         | 타입    | 설명                                                                                  |
 | ------------------ | ------- | -------------------------------------------------------------------------------------------- |
 | `#[IsReadOnly]`    | boolean | 도구가 환경을 수정하지 않음을 나타냅니다.                                          |
@@ -1359,9 +1359,9 @@ class UserDashboardResource extends Resource
 <!-- Available annotations include: -->
 사용 가능한 애노테이션은 다음과 같습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Annotation | Type | Description | | ----------------- | ------------- | --------------------------------------------------------------------------- | | `#[Audience]` | Role or array | Specifies the intended audience (`Role::User`, `Role::Assistant`, or both). | | `#[Priority]` | float | A numerical score between 0.0 and 1.0 indicating resource importance. | | `#[LastModified]` | string | An ISO 8601 timestamp showing when the resource was last updated. | -->
 | 애노테이션        | 타입          | 설명                                                                 |
 | ----------------- | ------------- | --------------------------------------------------------------------------- |
 | `#[Audience]`     | Role 또는 배열 | 의도한 대상(`Role::User`, `Role::Assistant`, 또는 둘 다)을 지정합니다. |
@@ -1497,10 +1497,7 @@ Laravel MCP는 [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overvi
 <!-- An MCP app consists of two parts working together: -->
 MCP 앱은 함께 동작하는 두 부분으로 구성됩니다.
 
-<!--
-- An **app resource** that returns the self-contained HTML for your application.
-- A **tool** that is linked to the app resource using the `#[RendersApp]` attribute. When the tool is called, the host fetches and renders the linked resource.
--->
+<!-- - An **app resource** that returns the self-contained HTML for your application. - A **tool** that is linked to the app resource using the `#[RendersApp]` attribute. When the tool is called, the host fetches and renders the linked resource. -->
 - 애플리케이션용 자체 포함 HTML을 반환하는 **앱 리소스**
 - `#[RendersApp]` 속성을 사용해 앱 리소스에 연결된 **도구**. 도구가 호출되면 호스트가 연결된 리소스를 가져와 렌더링합니다.
 
@@ -1777,17 +1774,12 @@ class CurrentWeatherTool extends Tool
 <!-- Icons defined via the attribute and the `icons` method are combined automatically. Icon paths are resolved as follows: -->
 속성과 `icons` 메서드로 정의한 아이콘은 자동으로 결합됩니다. 아이콘 경로는 다음 방식으로 확인됩니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Paths with a URI scheme, such as `https:` or `data:`, are used as-is.
-- Relative paths are resolved to a URL using Laravel's `asset` helper.
--->
+<!-- - Paths with a URI scheme, such as `https:` or `data:`, are used as-is. - Relative paths are resolved to a URL using Laravel's `asset` helper. -->
 - `https:` 또는 `data:` 같은 URI 스키마가 있는 경로는 그대로 사용됩니다.
 - 상대 경로는 Laravel의 `asset` 헬퍼를 사용해 URL로 확인됩니다.
 
-<!-- </div> -->
 </div>
 
 <a name="authentication"></a>
@@ -1823,8 +1815,8 @@ Mcp::web('/mcp/weather', WeatherExample::class)
 <!-- #### New Passport Installation -->
 #### New Passport Installation
 
-<!-- If your application is not already using Laravel Passport, follow Passport's  [installation and deployment guide](/docs/13.x/passport#installation) to add Passport to your application. You should have an `OAuthenticatable` model, new authentication guard, and passport keys before moving on. -->
-애플리케이션이 아직 Laravel Passport를 사용하고 있지 않다면 Passport의 [installation and deployment guide](/docs/13.x/passport#installation)에 따라 애플리케이션에 Passport를 추가하십시오. 계속 진행하기 전에 `OAuthenticatable` 모델, 새 인증 guard, Passport 키가 준비되어 있어야 합니다.
+<!-- If your application is not already using Laravel Passport, follow Passport's [installation and deployment guide](/docs/13.x/passport#installation) to add Passport to your application. You should have an `OAuthenticatable` model, new authentication guard, and passport keys before moving on. -->
+애플리케이션이 아직 Laravel Passport를 사용하고 있지 않다면 Passport의 [installation and deployment guide](/docs/13.x/passport#installation)에 따라 애플리케이션에 Passport를 추가하십시오. 계속 진행하기 전에 `OAuthenticatable` 모델, 새로운 인증 가드, Passport 키가 준비되어 있어야 합니다.
 
 <!-- Next, you should publish Laravel MCP's provided Passport authorization view: -->
 다음으로 Laravel MCP가 제공하는 Passport 인가 뷰를 퍼블리시해야 합니다.

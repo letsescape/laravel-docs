@@ -15,6 +15,7 @@
     - [In-Memory Cache](#in-memory-cache)
 - [Scope](#scope)
     - [Specifying the Scope](#specifying-the-scope)
+    - [Global Scope](#global-scope)
     - [Default Scope](#default-scope)
     - [Nullable Scope](#nullable-scope)
     - [Identifying Scope](#identifying-scope)
@@ -113,11 +114,7 @@ class AppServiceProvider extends ServiceProvider
 <!-- As you can see, we have the following rules for our feature: -->
 ご覧のとおり、この機能には次のルールがあります。
 
-<!--
-- All internal team members should be using the new API.
-- Any high traffic customers should not be using the new API.
-- Otherwise, the feature should be randomly assigned to users with a 1 in 100 chance of being active.
--->
+<!-- - All internal team members should be using the new API. - Any high traffic customers should not be using the new API. - Otherwise, the feature should be randomly assigned to users with a 1 in 100 chance of being active. -->
 - すべての内部チーム メンバーは新しい API を使用する必要があります。
 - トラフィック量の多い顧客は、新しい API を使用しないでください。
 - それ以外の場合、機能は 100 分の 1 の確率でアクティブになるユーザーにランダムに割り当てられる必要があります。
@@ -604,6 +601,19 @@ if (Feature::for($user->team)->active('billing-v2')) {
 }
 
 // ...
+```
+
+<a name="global-scope"></a>
+<!-- ### Global Scope -->
+### Global Scope
+
+<!-- To check or interact with a feature using a global scope, regardless of the configured default scope resolver, use the `globally` method. This is useful for application-wide feature flags, such as temporarily enabling maintenance behavior or rolling out a feature to every user: -->
+設定されているデフォルトのスコープリゾルバに関係なく、グローバルスコープを使用して機能を確認または操作するには、`globally` メソッドを使用します。これは、メンテナンス動作を一時的に有効にしたり、すべてのユーザーに機能を展開したりするなど、アプリケーション全体に適用する feature flag に便利です。
+
+```php
+Feature::globally()->active('new-api');
+
+Feature::globally()->activate('new-api');
 ```
 
 <a name="default-scope"></a>
@@ -1344,4 +1354,3 @@ public function boot(): void
 
 <!-- This event is dispatched when purging all features. -->
 このイベントは、すべての機能を削除するときに送出されます。
-

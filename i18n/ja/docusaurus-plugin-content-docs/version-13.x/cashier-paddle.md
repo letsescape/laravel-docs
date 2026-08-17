@@ -534,8 +534,8 @@ Cashier には、`paddle-button` [Blade component](/docs/13.x/blade#components) 
 </x-paddle-button>
 ```
 
-<!-- By default, this will display the widget using Paddle's default styling. You can customize the widget by adding [Paddle supported attributes](https://developer.paddle.com/paddlejs/html-data-attributes) like the  `data-theme='light'` attribute to the component: -->
-デフォルトでは、Paddle のデフォルトのスタイルを使用してウィジェットが表示されます。 `data-theme='light'` 属性のような [Paddle supported attributes](https://developer.paddle.com/paddlejs/html-data-attributes) をコンポーネントに追加することで、ウィジェットをカスタマイズできます。
+<!-- By default, this will display the widget using Paddle's default styling. You can customize the widget by adding [Paddle supported attributes](https://developer.paddle.com/paddlejs/html-data-attributes) like the `data-theme='light'` attribute to the component: -->
+デフォルトでは、Paddle のデフォルトスタイルを使用してウィジェットが表示されます。`data-theme='light'` 属性のような [Paddle supported attributes](https://developer.paddle.com/paddlejs/html-data-attributes) をコンポーネントに追加することで、ウィジェットをカスタマイズできます。
 
 ```html
 <x-paddle-button :checkout="$checkout" class="px-8 py-4" data-theme="light">
@@ -1535,15 +1535,7 @@ Paddle は、Webhook 経由でさまざまなイベントをアプリケーシ�
 <!-- To ensure your application can handle Paddle webhooks, be sure to [configure the webhook URL in the Paddle control panel](https://vendors.paddle.com/notifications-v2). By default, Cashier's webhook controller responds to the `/paddle/webhook` URL path. The full list of all webhooks you should enable in the Paddle control panel are: -->
 アプリケーションが Paddle Webhook を処理できることを確認するには、必ず [configure the webhook URL in the Paddle control panel](https://vendors.paddle.com/notifications-v2) を実行してください。デフォルトでは、Cashier の Webhook コントローラは `/paddle/webhook` URL パスに応答します。Paddle コントロール パネルで有効にする必要があるすべての Webhook の完全なリストは次のとおりです。
 
-<!--
-- Customer Updated
-- Transaction Completed
-- Transaction Updated
-- Subscription Created
-- Subscription Updated
-- Subscription Paused
-- Subscription Canceled
--->
+<!-- - Customer Updated - Transaction Completed - Transaction Updated - Subscription Created - Subscription Updated - Subscription Paused - Subscription Canceled -->
 - 顧客が更新しました
 - 取引完了
 - トランザクションが更新されました
@@ -1584,10 +1576,6 @@ Paddle がローカル開発中にアプリケーション Webhook を送信で�
 <!-- Cashier automatically handles subscription cancelation on failed charges and other common Paddle webhooks. However, if you have additional webhook events you would like to handle, you may do so by listening to the following events that are dispatched by Cashier: -->
 Cashier は、失敗した請求やその他の一般的な Paddle Webhook によるサブスクリプションのキャンセルを自動的に処理します。ただし、追加の Webhook イベントを処理したい場合は、Cashier によって送出される次のイベントをリッスンすることで処理できます。
 
-<!--
-- `Laravel\Paddle\Events\WebhookReceived`
-- `Laravel\Paddle\Events\WebhookHandled`
--->
 - `Laravel\Paddle\Events\WebhookReceived`
 - `Laravel\Paddle\Events\WebhookHandled`
 
@@ -1618,18 +1606,8 @@ class PaddleEventListener
 <!-- Cashier also emit events dedicated to the type of the received webhook. In addition to the full payload from Paddle, they also contain the relevant models that were used to process the webhook such as the billable model, the subscription, or the receipt: -->
 Cashier は、受信した Webhook のタイプ専用のイベントも発行します。 Paddle からの完全なペイロードに加えて、請求可能なモデル、サブスクリプション、レシートなど、Webhook の処理に使用された関連モデルも含まれています。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `Laravel\Paddle\Events\CustomerUpdated`
-- `Laravel\Paddle\Events\TransactionCompleted`
-- `Laravel\Paddle\Events\TransactionUpdated`
-- `Laravel\Paddle\Events\SubscriptionCreated`
-- `Laravel\Paddle\Events\SubscriptionUpdated`
-- `Laravel\Paddle\Events\SubscriptionPaused`
-- `Laravel\Paddle\Events\SubscriptionCanceled`
--->
 - `Laravel\Paddle\Events\CustomerUpdated`
 - `Laravel\Paddle\Events\TransactionCompleted`
 - `Laravel\Paddle\Events\TransactionUpdated`
@@ -1638,7 +1616,6 @@ Cashier は、受信した Webhook のタイプ専用のイベントも発行し
 - `Laravel\Paddle\Events\SubscriptionPaused`
 - `Laravel\Paddle\Events\SubscriptionCanceled`
 
-<!-- </div> -->
 </div>
 
 <!-- You can also override the default, built-in webhook route by defining the `CASHIER_WEBHOOK` environment variable in your application's `.env` file. This value should be the full URL to your webhook route and needs to match the URL set in your Paddle control panel: -->

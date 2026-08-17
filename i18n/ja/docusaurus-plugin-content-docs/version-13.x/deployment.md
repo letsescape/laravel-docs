@@ -31,25 +31,9 @@ Laravel アプリケーションを本番環境にデプロイする準備がで
 <!-- The Laravel framework has a few system requirements. You should ensure that your web server has the following minimum PHP version and extensions: -->
 Laravel フレームワークにはいくつかのシステム要件があります。 Web サーバーに次の最小 PHP バージョンと拡張機能が備わっていることを確認する必要があります。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- PHP >= 8.3
-- Ctype PHP Extension
-- cURL PHP Extension
-- DOM PHP Extension
-- Fileinfo PHP Extension
-- Filter PHP Extension
-- Hash PHP Extension
-- Mbstring PHP Extension
-- OpenSSL PHP Extension
-- PCRE PHP Extension
-- PDO PHP Extension
-- Session PHP Extension
-- Tokenizer PHP Extension
-- XML PHP Extension
--->
+<!-- - PHP >= 8.3 - Ctype PHP Extension - cURL PHP Extension - DOM PHP Extension - Fileinfo PHP Extension - Filter PHP Extension - Hash PHP Extension - Mbstring PHP Extension - OpenSSL PHP Extension - PCRE PHP Extension - PDO PHP Extension - Session PHP Extension - Tokenizer PHP Extension - XML PHP Extension -->
 - PHP >= 8.3
 - Ctype PHP 拡張機能
 - cURL PHP 拡張機能
@@ -65,7 +49,6 @@ Laravel フレームワークにはいくつかのシステム要件がありま
 - トークナイザー PHP 拡張機能
 - XML PHP 拡張機能
 
-<!-- </div> -->
 </div>
 
 <a name="server-configuration"></a>
@@ -109,6 +92,9 @@ server {
         fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
+        fastcgi_buffer_size 32k;
+        fastcgi_buffers 8 32k;
+        fastcgi_busy_buffers_size 64k;
         fastcgi_hide_header X-Powered-By;
     }
 
@@ -288,4 +274,3 @@ Laravel アプリケーションをクラウド上で起動して、スケーラ
 
 <!-- Laravel Forge can create servers on various infrastructure providers such as DigitalOcean, Linode, AWS, and more. In addition, Forge installs and manages all of the tools needed to build robust Laravel applications, such as Nginx, MySQL, Redis, Memcached, Beanstalk, and more. -->
 Laravel Forge は、DigitalOcean、Linode、AWS などのさまざまなインフラストラクチャプロバイダ上にサーバーを作成できます。さらに、Forge は、Nginx、MySQL、Redis、Memcached、Beanstalk など、堅牢な Laravel アプリケーションの構築に必要なすべてのツールをインストールして管理します。
-

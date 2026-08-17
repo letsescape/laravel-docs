@@ -24,8 +24,8 @@ Laravel の「コンテキスト」機能を使用すると、アプリケーシ
 <!-- ### How it Works -->
 ### How it Works
 
-<!-- The best way to understand Laravel's context capabilities is to see it in action using  the built-in logging features. To get started, you may [add information to the context](#capturing-context) using the `Context` facade. In this example, we will use a [middleware](/docs/13.x/middleware) to add the request URL and a unique trace ID to the context on every incoming request: -->
-Laravel のコンテキスト機能を理解する最良の方法は、組み込みのログ機能を使用して実際の動作を確認することです。まず、`Context` ファサードを使用して [add information to the context](#capturing-context) を実行します。この例では、[middleware](/docs/13.x/middleware) を使用して、すべての受信リクエストのコンテキストにリクエスト URL と一意のトレース ID を追加します。
+<!-- The best way to understand Laravel's context capabilities is to see it in action using the built-in logging features. To get started, you may [add information to the context](#capturing-context) using the `Context` facade. In this example, we will use a [middleware](/docs/13.x/middleware) to add the request URL and a unique trace ID to the context on every incoming request: -->
+Laravel のコンテキスト機能を理解する最良の方法は、組み込みのログ機能を使って実際の動作を確認することです。まず、`Context` ファサードを使用して [add information to the context](#capturing-context) を実行できます。この例では、[middleware](/docs/13.x/middleware) を使用して、すべての受信リクエストのコンテキストにリクエスト URL と一意のトレース ID を追加します。
 
 ```php
 <?php
@@ -501,4 +501,3 @@ public function boot(): void
 
 > [!NOTE]
 > `hydrated` コールバック内では `Context` ファサードを使用せず、コールバックに渡されるリポジトリのみを変更するようにしてください。
-

@@ -533,7 +533,7 @@ Cashier에는 `paddle-button` [Blade component](/docs/13.x/blade#components)가 
 </x-paddle-button>
 ```
 
-<!-- By default, this will display the widget using Paddle's default styling. You can customize the widget by adding [Paddle supported attributes](https://developer.paddle.com/paddlejs/html-data-attributes) like the  `data-theme='light'` attribute to the component: -->
+<!-- By default, this will display the widget using Paddle's default styling. You can customize the widget by adding [Paddle supported attributes](https://developer.paddle.com/paddlejs/html-data-attributes) like the `data-theme='light'` attribute to the component: -->
 기본적으로 이 위젯은 Paddle의 기본 스타일을 사용하여 표시됩니다. 컴포넌트에 `data-theme='light'` 속성과 같은 [Paddle supported attributes](https://developer.paddle.com/paddlejs/html-data-attributes)을 추가하여 위젯을 사용자 정의할 수 있습니다.
 
 ```html
@@ -1532,15 +1532,7 @@ Paddle은 webhook을 통해 애플리케이션에 다양한 이벤트를 알릴 
 <!-- To ensure your application can handle Paddle webhooks, be sure to [configure the webhook URL in the Paddle control panel](https://vendors.paddle.com/notifications-v2). By default, Cashier's webhook controller responds to the `/paddle/webhook` URL path. The full list of all webhooks you should enable in the Paddle control panel are: -->
 애플리케이션이 Paddle webhook을 처리할 수 있도록 하려면 [configure the webhook URL in the Paddle control panel](https://vendors.paddle.com/notifications-v2)해야 합니다. 기본적으로 Cashier의 webhook 컨트롤러는 `/paddle/webhook` URL 경로에 응답합니다. Paddle control panel에서 활성화해야 하는 모든 webhook 목록은 다음과 같습니다.
 
-<!--
-- Customer Updated
-- Transaction Completed
-- Transaction Updated
-- Subscription Created
-- Subscription Updated
-- Subscription Paused
-- Subscription Canceled
--->
+<!-- - Customer Updated - Transaction Completed - Transaction Updated - Subscription Created - Subscription Updated - Subscription Paused - Subscription Canceled -->
 - Customer Updated
 - Transaction Completed
 - Transaction Updated
@@ -1581,10 +1573,6 @@ Paddle webhook은 Laravel의 [CSRF protection](/docs/13.x/csrf)를 우회해야 
 <!-- Cashier automatically handles subscription cancelation on failed charges and other common Paddle webhooks. However, if you have additional webhook events you would like to handle, you may do so by listening to the following events that are dispatched by Cashier: -->
 Cashier는 실패한 결제에 따른 구독 취소와 기타 일반적인 Paddle webhook을 자동으로 처리합니다. 하지만 추가로 처리하고 싶은 webhook 이벤트가 있다면, Cashier가 발생시키는 다음 이벤트를 리스닝하여 처리할 수 있습니다.
 
-<!--
-- `Laravel\Paddle\Events\WebhookReceived`
-- `Laravel\Paddle\Events\WebhookHandled`
--->
 - `Laravel\Paddle\Events\WebhookReceived`
 - `Laravel\Paddle\Events\WebhookHandled`
 
@@ -1615,18 +1603,8 @@ class PaddleEventListener
 <!-- Cashier also emit events dedicated to the type of the received webhook. In addition to the full payload from Paddle, they also contain the relevant models that were used to process the webhook such as the billable model, the subscription, or the receipt: -->
 Cashier는 수신한 webhook 유형에 특화된 이벤트도 발생시킵니다. 이 이벤트들은 Paddle의 전체 페이로드뿐만 아니라, webhook을 처리하는 데 사용된 관련 모델도 포함합니다. 예를 들면 billable 모델, 구독, 영수증 등이 포함됩니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `Laravel\Paddle\Events\CustomerUpdated`
-- `Laravel\Paddle\Events\TransactionCompleted`
-- `Laravel\Paddle\Events\TransactionUpdated`
-- `Laravel\Paddle\Events\SubscriptionCreated`
-- `Laravel\Paddle\Events\SubscriptionUpdated`
-- `Laravel\Paddle\Events\SubscriptionPaused`
-- `Laravel\Paddle\Events\SubscriptionCanceled`
--->
 - `Laravel\Paddle\Events\CustomerUpdated`
 - `Laravel\Paddle\Events\TransactionCompleted`
 - `Laravel\Paddle\Events\TransactionUpdated`
@@ -1635,7 +1613,6 @@ Cashier는 수신한 webhook 유형에 특화된 이벤트도 발생시킵니다
 - `Laravel\Paddle\Events\SubscriptionPaused`
 - `Laravel\Paddle\Events\SubscriptionCanceled`
 
-<!-- </div> -->
 </div>
 
 <!-- You can also override the default, built-in webhook route by defining the `CASHIER_WEBHOOK` environment variable in your application's `.env` file. This value should be the full URL to your webhook route and needs to match the URL set in your Paddle control panel: -->

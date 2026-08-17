@@ -22,6 +22,9 @@
 - [Programmatically Executing Commands](#programmatically-executing-commands)
     - [Calling Commands From Other Commands](#calling-commands-from-other-commands)
 - [Signal Handling](#signal-handling)
+- [The Dev Command](#the-dev-command)
+    - [Customizing Dev Processes](#customizing-dev-processes)
+    - [Filtering Dev Processes](#filtering-dev-processes)
 - [Stub Customization](#stub-customization)
 - [Events](#events)
 
@@ -562,7 +565,6 @@ return [
 ```
 
 > [!NOTE]
-> <!-- The comprehensive [Laravel Prompts](/docs/13.x/prompts) documentation includes additional information on the available prompts and their usage. -->
 > 포괄적인 [Laravel Prompts](/docs/13.x/prompts) 문서에는 사용할 수 있는 프롬프트와 사용법에 대한 추가 정보가 포함되어 있습니다.
 
 <!-- If you wish to prompt the user to select or enter [options](#options), you may include prompts in your command's `handle` method. However, if you only wish to prompt the user when they have also been automatically prompted for missing arguments, then you may implement the `afterPromptingForMissingArguments` method: -->
@@ -1031,6 +1033,131 @@ $this->trap([SIGTERM, SIGQUIT], function (int $signal) {
 
     dump($signal); // SIGTERM / SIGQUIT
 });
+```
+
+<a name="the-dev-command"></a>
+<!-- ## The Dev Command -->
+## The Dev Command
+
+<!-- The `dev` Artisan command starts all of the processes needed for local development in a single terminal window. By default, it concurrently runs the PHP development server, a queue worker, log tailing via [Pail](/docs/13.x/logging#tailing-log-messages-using-pail), and Vite asset compilation: -->
+`dev` Artisan 명령어는 로컬 개발에 필요한 모든 프로세스를 하나의 터미널 창에서 시작합니다. 기본적으로 PHP 개발 서버, 큐 워커, [Pail](/docs/13.x/logging#tailing-log-messages-using-pail)을 통한 로그 추적, Vite 애셋 컴파일을 동시에 실행합니다.
+
+```shell
+php artisan dev
+```
+
+<!-- Under the hood, the `dev` command uses the `@laravel/multiplex` npm package to manage the processes, giving each process its own tab with searchable, scrollable output. Each process is labeled and color-coded so you can easily distinguish between them. If a process crashes, it will be restarted automatically, and when you quit, all of the output is written back to your terminal so nothing is lost. -->
+`dev` 명령어는 내부적으로 `@laravel/multiplex` npm 패키지를 사용해 프로세스를 관리하며, 각 프로세스에 검색 및 스크롤이 가능한 자체 탭을 제공합니다. 각 프로세스에는 레이블과 색상이 지정되므로 쉽게 구분할 수 있습니다. 프로세스가 중단되면 자동으로 다시 시작되며, 종료할 때 모든 출력이 터미널에 다시 기록되므로 아무것도 손실되지 않습니다.
+
+> [!NOTE]
+> `dev` 명령어를 사용하려면 Node 22.13 이상이 필요합니다. Windows에서는 `concurrently` npm 패키지로 대체되며 탭 인터페이스를 사용할 수 없습니다.
+
+<!-- The default processes are: -->
+기본 프로세스는 다음과 같습니다.
+
+<!-- | Name | Command | | --- | --- | | `server` | `php artisan serve --host=localhost` | | `queue` | `php artisan queue:listen --tries=1 --timeout=0` | | `logs` | `php artisan pail --timeout=0` | | `vite` | `npm run dev` | -->
+| 이름 | 명령어 |
+| --- | --- |
+| `server` | `php artisan serve --host=localhost` |
+| `queue` | `php artisan queue:listen --tries=1 --timeout=0` |
+| `logs` | `php artisan pail --timeout=0` |
+| `vite` | `npm run dev` |
+
+> [!NOTE]
+> `vite` 프로세스는 Node 패키지 관리자(npm, pnpm, Yarn 또는 Bun)를 자동으로 감지하고 적절한 실행 명령어를 사용합니다.
+
+<a name="customizing-dev-processes"></a>
+<!-- ### Customizing Dev Processes -->
+### Customizing Dev Processes
+
+<!-- You may customize the processes that the `dev` command runs by using the `DevCommands` class, typically within the `boot` method of your application's `AppServiceProvider`. The `register` method accepts a command string and an optional name: -->
+`DevCommands` 클래스를 사용해 `dev` 명령어가 실행하는 프로세스를 사용자 지정할 수 있으며, 일반적으로 애플리케이션의 `AppServiceProvider`에 있는 `boot` 메서드에서 설정합니다. `register` 메서드는 명령어 문자열과 선택적 이름을 인수로 받습니다.
+
+```php
+use Illuminate\Foundation\DevCommands;
+
+/**
+ * Bootstrap any application services.
+ */
+public function boot(): void
+{
+    DevCommands::register('some-command --flag', 'my-process');
+}
+```
+
+<!-- When registering an Artisan command, you may use the `artisan` method which automatically prefixes the command with `php artisan`: -->
+Artisan 명령어를 등록할 때는 명령어 앞에 `php artisan`을 자동으로 붙이는 `artisan` 메서드를 사용할 수 있습니다.
+
+```php
+DevCommands::artisan('horizon', 'horizon');
+```
+
+<!-- Likewise, the `node` method prefixes the command with your detected package manager's run command (e.g. `npm run`), and the `nodeExec` method prefixes the command with the package manager's exec command (e.g. `npx`): -->
+마찬가지로 `node` 메서드는 감지된 패키지 관리자의 실행 명령어(예: `npm run`)를 명령어 앞에 붙이고, `nodeExec` 메서드는 패키지 관리자의 exec 명령어(예: `npx`)를 앞에 붙입니다.
+
+```php
+DevCommands::node('storybook', 'storybook');
+
+DevCommands::nodeExec('tailwindcss -i resources/css/app.css -o public/css/app.css --watch', 'tailwind');
+```
+
+<!-- If you register a process with the same name as a default process, your process will replace the default. For example, you may customize the server process to use a different port: -->
+기본 프로세스와 같은 이름으로 프로세스를 등록하면 해당 프로세스가 기본 프로세스를 대체합니다. 예를 들어 서버 프로세스가 다른 포트를 사용하도록 사용자 지정할 수 있습니다.
+
+```php
+DevCommands::artisan('serve --host=localhost --port=9000', 'server');
+```
+
+<!-- You may also customize the color of a process label in your terminal. The available color methods are `blue`, `purple`, `pink`, `orange`, `green`, and `yellow`. You may also pass a custom hex color to the `color` method: -->
+터미널에 표시되는 프로세스 레이블의 색상도 사용자 지정할 수 있습니다. 사용할 수 있는 색상 메서드는 `blue`, `purple`, `pink`, `orange`, `green`, `yellow`입니다. `color` 메서드에 사용자 지정 16진수 색상을 전달할 수도 있습니다.
+
+```php
+DevCommands::register('my-command', 'my-process')->green();
+
+DevCommands::register('my-command', 'my-process')->color('#ff6347');
+```
+
+<!-- To see all registered dev processes without starting them, use the `dev:list` command: -->
+등록된 모든 dev 프로세스를 시작하지 않고 확인하려면 `dev:list` 명령어를 사용합니다.
+
+```shell
+php artisan dev:list
+```
+
+<a name="restarting-failed-processes"></a>
+<!-- #### Restarting Failed Processes -->
+#### Restarting Failed Processes
+
+<!-- If a process crashes, Laravel will restart it after a short delay, up to five times, before marking it as failed. A process that dies within a second of starting is not restarted, since it likely never started successfully in the first place. Restarting a process manually with `r` resets the counter. -->
+프로세스가 중단되면 Laravel은 해당 프로세스를 실패로 표시하기 전에 잠시 기다린 후 최대 5회까지 다시 시작합니다. 시작 후 1초 이내에 종료된 프로세스는 애초에 제대로 시작되지 않았을 가능성이 높으므로 다시 시작하지 않습니다. `r`을 사용해 프로세스를 수동으로 다시 시작하면 카운터가 재설정됩니다.
+
+<!-- You may disable this behavior for a single run using the `--no-restart` option: -->
+한 번의 실행에 한해 `--no-restart` 옵션으로 이 동작을 비활성화할 수 있습니다.
+
+```shell
+php artisan dev --no-restart
+```
+
+<!-- Or, you may disable it for your entire application using the `disableAutoRestart` method: -->
+또는 `disableAutoRestart` 메서드를 사용해 애플리케이션 전체에서 이 기능을 비활성화할 수 있습니다.
+
+```php
+DevCommands::disableAutoRestart();
+```
+
+<a name="filtering-dev-processes"></a>
+<!-- ### Filtering Dev Processes -->
+### Filtering Dev Processes
+
+<!-- You may instruct the `dev` command to only run specific processes when it is invoked using the `only` method. Similarly, you may exclude specific processes using the `except` method: -->
+`only` 메서드를 사용하면 `dev` 명령어가 호출될 때 특정 프로세스만 실행하도록 지정할 수 있습니다. 마찬가지로 `except` 메서드를 사용하면 특정 프로세스를 제외할 수 있습니다.
+
+```php
+// Only run the server and vite processes...
+DevCommands::only('server', 'vite');
+
+// Run all processes except the queue worker...
+DevCommands::except('queue');
 ```
 
 <a name="stub-customization"></a>

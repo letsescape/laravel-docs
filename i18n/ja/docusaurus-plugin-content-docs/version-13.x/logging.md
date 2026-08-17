@@ -49,26 +49,26 @@ Laravel は内部で、さまざまな強力なログ ハンドラーのサポ�
 <!-- Each log channel is powered by a "driver". The driver determines how and where the log message is actually recorded. The following log channel drivers are available in every Laravel application. An entry for most of these drivers is already present in your application's `config/logging.php` configuration file, so be sure to review this file to become familiar with its contents: -->
 各ログ チャネルは「ドライバ」によって駆動されます。ドライバは、ログ メッセージが実際にどのように、どこに記録されるかを決定します。次のログ チャネル ドライバは、すべての Laravel アプリケーションで利用できます。これらのドライバのほとんどのエントリはアプリケーションの `config/logging.php` 構成ファイルにすでに存在しているため、必ずこのファイルを確認してその内容を理解してください。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 名前         | 説明                                                          |
+<!-- | Name | Description | | ------------ | -------------------------------------------------------------------- | | `custom` | A driver that calls a specified factory to create a channel. | | `daily` | A `RotatingFileHandler` based Monolog driver which rotates daily. | | `monthly` | A `RotatingFileHandler` based Monolog driver which rotates monthly. | | `errorlog` | An `ErrorLogHandler` based Monolog driver. | | `monolog` | A Monolog factory driver that may use any supported Monolog handler. | | `papertrail` | A `SyslogUdpHandler` based Monolog driver. | | `single` | A single file or path based logger channel (`StreamHandler`). | | `slack` | A `SlackWebhookHandler` based Monolog driver. | | `stack` | A wrapper to facilitate creating "multi-channel" channels. | | `syslog` | A `SyslogHandler` based Monolog driver. | -->
+| 名前         | 説明                                                                 |
 | ------------ | -------------------------------------------------------------------- |
-| `custom`     | 指定されたファクトリを呼び出してチャネルを作成するドライバ。         |
-| `daily`      | 毎日ローテーションする `RotatingFileHandler` ベースの Monolog ドライバ。    |
-| `errorlog`   | `ErrorLogHandler` ベースの Monolog ドライバ。                           |
-| `monolog`    | サポートされている Monolog ハンドラーを使用できる Monolog ファクトリ ドライバ。 |
-| `papertrail` | `SyslogUdpHandler` ベースの Monolog ドライバ。                           |
-| `single`     | 単一のファイルまたはパス ベースのロガー チャネル (`StreamHandler`)。        |
-| `slack`      | `SlackWebhookHandler` ベースの Monolog ドライバ。                        |
-| `stack`      | 「マルチチャネル」チャネルの作成を容易にするラッパー。           |
-| `syslog`     | `SyslogHandler` ベースの Monolog ドライバ。                              |
+| `custom`     | 指定したファクトリを呼び出してチャネルを作成するドライバです。       |
+| `daily`      | 毎日ローテーションする、`RotatingFileHandler` ベースの Monolog ドライバです。 |
+| `monthly`    | 毎月ローテーションする、`RotatingFileHandler` ベースの Monolog ドライバです。 |
+| `errorlog`   | `ErrorLogHandler` ベースの Monolog ドライバです。                    |
+| `monolog`    | サポートされている任意の Monolog ハンドラを使用できる、Monolog ファクトリドライバです。 |
+| `papertrail` | `SyslogUdpHandler` ベースの Monolog ドライバです。                   |
+| `single`     | 単一ファイルまたはパスベースのロガーチャネル（`StreamHandler`）です。 |
+| `slack`      | `SlackWebhookHandler` ベースの Monolog ドライバです。                |
+| `stack`      | 「複数チャネル」チャネルの作成を支援するラッパーです。               |
+| `syslog`     | `SyslogHandler` ベースの Monolog ドライバです。                     |
 
-<!-- </div> -->
 </div>
 
 > [!NOTE]
-> `monolog` および `custom` ドライバの詳細については、[advanced channel customization](#monolog-channel-customization) のドキュメントを参照してください。
+> `monolog` ドライバと `custom` ドライバについて詳しく知りたい場合は、[advanced channel customization](#monolog-channel-customization) のドキュメントを参照してください。
 
 <a name="configuring-the-channel-name"></a>
 <!-- #### Configuring the Channel Name -->
@@ -89,37 +89,26 @@ Laravel は内部で、さまざまな強力なログ ハンドラーのサポ�
 <!-- ### Channel Prerequisites -->
 ### Channel Prerequisites
 
-<a name="configuring-the-single-and-daily-channels"></a>
-<!-- #### Configuring the Single and Daily Channels -->
-#### Configuring the Single and Daily Channels
+<a name="configuring-the-single-daily-and-monthly-channels"></a>
+<!-- #### Configuring the Single, Daily, and Monthly Channels -->
+#### Configuring the Single, Daily, and Monthly Channels
 
-<!-- The `single` and `daily` channels have three optional configuration options: `bubble`, `permission`, and `locking`. -->
-`single` および `daily` チャネルには、`bubble`、`permission`、および `locking` の 3 つのオプション構成オプションがあります。
+<!-- The `single`, `daily`, and `monthly` channels have three optional configuration options: `bubble`, `permission`, and `locking`. -->
+`single`、`daily`、`monthly` チャネルには、`bubble`、`permission`、`locking` という3つのオプション設定があります。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 名前         | 説明                                                                   | デフォルト |
-| ------------ | ----------------------------------------------------------------------------- | ------- |
-| `bubble`     | メッセージが処理された後に他のチャネルにバブルアップする必要があるかどうかを示します。 | `true`  |
-| `locking`    | ログ ファイルに書き込む前に、ログ ファイルをロックしてみてください。                            | `false` |
-| `permission` | ログ ファイルの権限。                                                   | `0644`  |
+<!-- | Name | Description | Default | | ------------ | ----------------------------------------------------------------------------- | ------- | | `bubble` | Indicates if messages should bubble up to other channels after being handled. | `true` | | `locking` | Attempt to lock the log file before writing to it. | `false` | | `permission` | The log file's permissions. | `0644` | -->
+| 名前         | 説明                                                    | デフォルト |
+| ------------ | ------------------------------------------------------- | ---------- |
+| `bubble`     | 処理後にメッセージをほかのチャネルへバブルアップするかを指定します。 | `true`     |
+| `locking`    | 書き込み前にログファイルのロックを試みます。            | `false`    |
+| `permission` | ログファイルのパーミッションです。                      | `0644`     |
 
-<!-- </div> -->
 </div>
 
-<!-- Additionally, the retention policy for the `daily` channel can be configured via the `LOG_DAILY_DAYS` environment variable or by setting the `days` configuration option. -->
-さらに、`daily` チャネルの保持ポリシーは、`LOG_DAILY_DAYS` 環境変数を介して、または `days` 構成オプションを設定することによって構成できます。
-
-<!-- <div class="overflow-auto"> -->
-<div class="overflow-auto">
-
-| 名前   | 説明                                                 | デフォルト |
-| ------ | ----------------------------------------------------------- | ------- |
-| `days` | 毎日のログ ファイルを保持する日数。 | `14`    |
-
-<!-- </div> -->
-</div>
+<!-- Additionally, the retention policy for the `daily` and `monthly` channels can be configured via the `max_files` configuration option. The `LOG_DAILY_DAYS` environment variable may also be used to configure retention for the `daily` channel. -->
+さらに、`daily` と `monthly` チャネルの保持ポリシーは、`max_files` 設定オプションで設定できます。`LOG_DAILY_DAYS` 環境変数を使って、`daily` チャネルの保持期間を設定することもできます。
 
 <a name="configuring-the-papertrail-channel"></a>
 <!-- #### Configuring the Papertrail Channel -->
@@ -219,7 +208,7 @@ Log::debug('An informational message.');
 ```
 
 <!-- Given our configuration, the `syslog` channel will write the message to the system log; however, since the error message is not `critical` or above, it will not be sent to Slack. However, if we log an `emergency` message, it will be sent to both the system log and Slack since the `emergency` level is above our minimum level threshold for both channels: -->
-この構成では、`syslog` チャネルはメッセージをシステム ログに書き込みます。ただし、エラーメッセージは`critical`以上ではないため、Slackには送信されません。ただし、`emergency` メッセージをログに記録すると、`emergency` レベルが両方のチャネルの最小レベルしきい値を超えているため、メッセージはシステム ログと Slack の両方に送信されます。
+この構成では、`syslog` チャネルはメッセージをシステム ログに書き込みます。ただし、エラーメッセージは `critical` 以上ではないため、Slackには送信されません。ただし、`emergency` メッセージをログに記録すると、`emergency` レベルが両方のチャネルの最小レベルしきい値を超えているため、メッセージはシステム ログと Slack の両方に送信されます。
 
 ```php
 Log::emergency('The system is down!');
@@ -230,7 +219,7 @@ Log::emergency('The system is down!');
 ## Writing Log Messages
 
 <!-- You may write information to the logs using the `Log` [facade](/docs/13.x/facades). As previously mentioned, the logger provides the eight logging levels defined in the [RFC 5424 specification](https://tools.ietf.org/html/rfc5424): **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info** and **debug**: -->
-`Log` [facade](/docs/13.x/facades) を使用して、ログに情報を書き込むことができます。前述したように、ロガーは、[RFC 5424 specification](https://tools.ietf.org/html/rfc5424) で定義された 8 つのログ レベル (**緊急**、**アラート**、**クリティカル**、**エラー**、**警告**、**通知**、**情報**、**デバッグ**) を提供します。
+`Log` [facade](/docs/13.x/facades) を使用して、ログに情報を書き込めます。前述のとおり、ロガーは [RFC 5424 specification](https://tools.ietf.org/html/rfc5424) で定義されている次の8つのログレベルを提供します。**emergency**、**alert**、**critical**、**error**、**warning**、**notice**、**info**、**debug**：
 
 ```php
 use Illuminate\Support\Facades\Log;
@@ -359,7 +348,7 @@ class AssignRequestId
 ```
 
 > [!NOTE]
-> キューに入れられたジョブの処理中にログ コンテキストを共有する必要がある場合は、[job middleware](/docs/13.x/queues#job-middleware) を利用できます。
+> キューに入れたジョブの処理中にログのコンテキストを共有する必要がある場合は、[job middleware](/docs/13.x/queues#job-middleware)を利用できます。
 
 <a name="writing-to-specific-channels"></a>
 <!-- ### Writing to Specific Channels -->
@@ -463,7 +452,7 @@ class CustomizeFormatter
 ```
 
 > [!NOTE]
-> すべての「タップ」クラスは [service container](/docs/13.x/container) によって解決されるため、必要なコンストラクターの依存関係は自動的に挿入されます。
+> すべての「tap」クラスは [service container](/docs/13.x/container) によって解決されるため、コンストラクタで必要とする依存関係は自動的に注入されます。
 
 <a name="creating-monolog-handler-channels"></a>
 <!-- ### Creating Monolog Handler Channels -->
@@ -590,10 +579,9 @@ class CreateCustomLogger
 <!-- Often you may need to tail your application's logs in real time. For example, when debugging an issue or when monitoring your application's logs for specific types of errors. -->
 多くの場合、アプリケーションのログをリアルタイムで追跡する必要があるかもしれません。たとえば、問題をデバッグする場合や、アプリケーションのログで特定の種類のエラーを監視する場合などです。
 
-<!-- Laravel Pail is a package that allows you to easily dive into your Laravel application's log files directly from the command line. Unlike the standard `tail` command, Pail is designed to work with any log driver, including Sentry or Flare. In addition, Pail provides a set of useful filters to help you quickly find what you're looking for. -->
-Laravel Pail は、コマンドラインから直接 Laravel アプリケーションのログファイルに簡単にアクセスできるパッケージです。標準の `tail` コマンドとは異なり、Pail は Sentry や Flare を含むあらゆるログ ドライバで動作するように設計されています。さらに、Pail は、探しているものをすばやく見つけるのに役立つ一連の便利なフィルターを提供します。
+<!-- Laravel Pail is a package that allows you to easily dive into your Laravel application's log files directly from the command line. Unlike the standard `tail` command, Pail is designed to work with any log driver, including [Laravel Nightwatch](https://nightwatch.laravel.com), Sentry, or Flare. In addition, Pail provides a set of useful filters to help you quickly find what you're looking for. -->
+Laravel Pailは、コマンドラインからLaravelアプリケーションのログファイルを簡単に確認できるパッケージです。標準の `tail` コマンドとは異なり、Pailは[Laravel Nightwatch](https://nightwatch.laravel.com)、Sentry、Flareなど、あらゆるログドライバに対応するよう設計されています。さらに、Pailには目的のログをすばやく見つけるための便利なフィルタが用意されています。
 
-<!-- <img src="https://laravel.com/img/docs/pail-example.png"/> -->
 <img src="https://laravel.com/img/docs/pail-example.png"/>
 
 <a name="pail-installation"></a>
@@ -601,7 +589,7 @@ Laravel Pail は、コマンドラインから直接 Laravel アプリケーシ�
 ### Installation
 
 > [!WARNING]
-> Laravel Pail には、[PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 拡張機能が必要です。
+> Laravel Pail には [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 拡張機能が必要です。
 
 <!-- To get started, install Pail into your project using the Composer package manager: -->
 まず、Composer パッケージ マネージャーを使用して Pail をプロジェクトにインストールします。
@@ -685,4 +673,3 @@ php artisan pail --level=error
 ```shell
 php artisan pail --user=1
 ```
-

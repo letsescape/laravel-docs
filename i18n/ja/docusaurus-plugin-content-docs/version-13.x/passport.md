@@ -624,8 +624,8 @@ php artisan passport:client --public
 <!-- As this authorization grant does not provide a client secret, developers will need to generate a combination of a code verifier and a code challenge in order to request a token. -->
 この認可付与ではクライアント シークレットが提供されないため、開発者はトークンを要求するためにコード検証ツールとコード チャレンジの組み合わせを生成する必要があります。
 
-<!-- The code verifier should be a random string of between 43 and 128 characters containing letters, numbers, and  `"-"`, `"."`, `"_"`, `"~"` characters, as defined in the [RFC 7636 specification](https://tools.ietf.org/html/rfc7636). -->
-コード検証子は、[RFC 7636 specification](https://tools.ietf.org/html/rfc7636) で定義されているように、文字、数字、および `"-"`、`"."`、`"_"`、`"~"` 文字を含む 43 ～ 128 文字のランダムな文字列である必要があります。
+<!-- The code verifier should be a random string of between 43 and 128 characters containing letters, numbers, and `"-"`, `"."`, `"_"`, `"~"` characters, as defined in the [RFC 7636 specification](https://tools.ietf.org/html/rfc7636). -->
+コード検証子は、[RFC 7636 specification](https://tools.ietf.org/html/rfc7636) で定義されているように、文字、数字、および `"-"`、`"."`、`"_"`、`"~"` を含む 43 ～ 128 文字のランダムな文字列である必要があります。
 
 <!-- The code challenge should be a Base64 encoded string with URL and filename-safe characters. The trailing `'='` characters should be removed and no line breaks, whitespace, or other additional characters should be present. -->
 コード チャレンジは、URL とファイル名に安全な文字を含む Base64 でエンコードされた文字列である必要があります。末尾の `'='` 文字は削除する必要があり、改行、空白、その他の追加文字が存在しないようにする必要があります。
@@ -1520,16 +1520,15 @@ public function boot(): void
 <!-- Passport raises events when issuing access tokens and refresh tokens. You may [listen for these events](/docs/13.x/events) to prune or revoke other access tokens in your database: -->
 Passportは、アクセス トークンとリフレッシュ トークンを発行するときにイベントを発生させます。 [listen for these events](/docs/13.x/events) を使用して、データベース内の他のアクセス トークンを削除または取り消すことができます。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Event Name | | --------------------------------------------- | | `Laravel\Passport\Events\AccessTokenCreated` | | `Laravel\Passport\Events\AccessTokenRevoked` | | `Laravel\Passport\Events\RefreshTokenCreated` | -->
 | イベント名                                    |
 | --------------------------------------------- |
 | `Laravel\Passport\Events\AccessTokenCreated`  |
 | `Laravel\Passport\Events\AccessTokenRevoked`  |
 | `Laravel\Passport\Events\RefreshTokenCreated` |
 
-<!-- </div> -->
 </div>
 
 <a name="testing"></a>
@@ -1607,4 +1606,3 @@ public function test_servers_can_be_retrieved(): void
     $response->assertStatus(200);
 }
 ```
-

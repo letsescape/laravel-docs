@@ -44,8 +44,8 @@
 <!-- ### Reporting Exceptions -->
 ### Reporting Exceptions
 
-<!-- In Laravel, exception reporting is used to log exceptions or send them to an external service like [Sentry](https://github.com/getsentry/sentry-laravel) or [Flare](https://flareapp.io). By default, exceptions will be logged based on your [logging](/docs/13.x/logging) configuration. However, you are free to log exceptions however you wish. -->
-Laravel에서 예외 보고는 예외를 로그에 기록하거나 [Sentry](https://github.com/getsentry/sentry-laravel), [Flare](https://flareapp.io) 같은 외부 서비스로 보내는 데 사용됩니다. 기본적으로 예외는 [logging](/docs/13.x/logging) 설정에 따라 로그에 기록됩니다. 하지만 원하는 방식으로 자유롭게 예외를 기록할 수 있습니다.
+<!-- In Laravel, exception reporting is used to log exceptions or send them to an external service like [Laravel Nightwatch](https://nightwatch.laravel.com), [Sentry](https://github.com/getsentry/sentry-laravel), or [Flare](https://flareapp.io). By default, exceptions will be logged based on your [logging](/docs/13.x/logging) configuration. However, you are free to log exceptions however you wish. -->
+Laravel에서 예외 보고는 예외를 로그에 기록하거나 [Laravel Nightwatch](https://nightwatch.laravel.com), [Sentry](https://github.com/getsentry/sentry-laravel), [Flare](https://flareapp.io) 같은 외부 서비스로 보내는 데 사용됩니다. 기본적으로 예외는 [logging](/docs/13.x/logging) 설정에 따라 로그에 기록됩니다. 하지만 원하는 방식으로 자유롭게 예외를 기록할 수 있습니다.
 
 <!-- If you need to report different types of exceptions in different ways, you may use the `report` exception method in your application's `bootstrap/app.php` to register a closure that should be executed when an exception of a given type needs to be reported. Laravel will determine what type of exception the closure reports by examining the type-hint of the closure: -->
 서로 다른 타입의 예외를 서로 다른 방식으로 보고해야 한다면, 애플리케이션의 `bootstrap/app.php`에서 `report` 예외 메서드를 사용하여 특정 타입의 예외를 보고해야 할 때 실행될 클로저를 등록할 수 있습니다. Laravel은 클로저의 타입 힌트를 검사하여 해당 클로저가 어떤 타입의 예외를 보고하는지 결정합니다.
