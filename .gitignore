@@ -89,7 +89,6 @@ venv.bak/
 *.tfstate.*
 *.tfvars
 *.tfvars.json
-.terraform.lock.hcl
 .terragrunt-cache/
 .pulumi/
 .aws/
@@ -98,7 +97,6 @@ venv.bak/
 
 # Database
 *.db
-*.sql
 *.bak
 *.sqlite
 
@@ -127,6 +125,8 @@ docker-compose.local.yml
 *.crt
 *.cer
 *.cert
+*.p12
+*.pfx
 *.jks
 *.keystore
 secrets/
@@ -144,13 +144,6 @@ application_default_credentials.json
 .git-credentials
 id_rsa*
 id_ed25519*
-*.p12
-*.pfx
-secrets/
-.secrets
-.secrets/
-auth.json
-credentials.json
 
 # IDE
 .idea/
@@ -253,6 +246,5 @@ agent-os/
 .cmux/
 .docs
 .omx/
-.omp/
 .remember
 .serena
