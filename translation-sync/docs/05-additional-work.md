@@ -1,190 +1,104 @@
-# 전체 운영 및 산출 검증 설계
+# 번역 실행 경계 설계
 
 ## 요약
 
-완성된 candidate snapshot에서 사이트 빌드와 허용 경로·상태 정합성을 검증하고 tree 식별자 봉인.
-publication commit은 이 verified tree를 정확히 참조해야 함.
-`main` 실행 결과만 별도 배포 단계로 전달.
+번역 실행 환경은 Python 코드가 원문을 동기화하고 운영 provider로 변경 문서를 번역하는 데 필요한 구성만 제공한다. 문서를 기록하고 액션이 그 변경을 커밋하는 것으로 끝난다. 운영 액션의 완료 이벤트를 배포 워크플로우가 구독하는 연계만 허용하며, 번역 워크플로우가 다른 작업을 직접 실행하거나 호출·대기·제어하지 않는다.
 
-## 흐름도
+## 1. 운영 액션
 
-```mermaid
-flowchart TD
-    A([Candidate 산출 검증 시작]) --> B[링크 유틸리티 테스트]
-    B --> C[타입 검사]
-    C --> D[Docusaurus 빌드]
-    D --> E[Fragment link 검증]
-    E --> F[허용 경로 및 상태 정합성 검증]
-    F --> G{모든 검증을 통과했는가?}
-    G -- 아니요 --> X[Candidate 폐기 및 publication 금지]
-    G -- 예 --> H[Candidate tree 식별자 봉인]
-    H --> I{변경분이 있는가?}
-    I -- 예 --> J[HEAD 재확인 및 verified tree commit]
-    I -- 아니요 --> K[HEAD·원격 ref 재확인 후 빈 커밋 생략]
-    J --> L{Commit tree가 verified tree와 같은가?}
-    L -- 아니요 --> X
-    L -- 예 --> M[Push credential 설정 및 원격 ref CAS]
-    M --> N{Main 실행인가?}
-    K --> N
-    N -- 예 --> O[배포 워크플로우 트리거 및 재검증 대기]
-    N -- 아니요 --> P([완료])
-    O --> Q{배포 검증이 통과했는가?}
-    Q -- 예 --> P
-    Q -- 아니요 --> R[Published commit 유지 및 산출 실패 보고]
-```
+`.github/workflows/sync-translation.yml`의 책임은 다음 순서로 한정한다.
 
-## 1. 목적
+1. 실행 ref가 branch인지 검증
+2. 저장소 checkout
+3. uv와 Python 3.14 준비
+4. `translation-sync` Python 단위 테스트 실행
+5. `translation-sync/main.py` 실행
+6. 갱신된 문서를 실행 branch에 커밋
 
-번역 동기화의 사이트 빌드 검증, 산출 경로 검증, git 반영 규칙을 규범적으로 정의.
+액션 권한은 커밋에 필요한 `contents: write`를 사용한다. checkout은 자격 증명을 작업 트리에 남기지 않고, 커밋 단계만 토큰을 환경 변수로 주입받는다. 번역 API 인증은 `OPENAI_API_KEY`만 실행 단계에 전달한다.
 
-## 2. 범위
+예약 트리거는 운영 동기화에 사용한다. `workflow_dispatch`는 동일한 Actions 실행을 수동으로 시험하기 위한 트리거다. `version`과 `doc` 입력은 시험 범위를 제한할 뿐이며, 실행 단계와 OpenAI API provider는 예약 실행과 동일하다.
 
-이 문서는 다음 항목만 소유.
+tag ref로는 실행하지 않는다. 커밋 대상이 실행 branch이므로, branch가 아닌 ref로 시작한 실행은 첫 단계에서 종료한다.
 
-- 사이트 빌드 검증 기준
-- 산출 경로 허용 범위 검증 기준
-- git 반영 세부 규칙
-- `main` publication 뒤 배포 trigger·재검증 결과 처리
+커밋 단계는 다음 규칙을 따른다.
 
-이 문서의 원격 publication 규칙은 live 실행에 적용.
-Replay는 [07-local-replay.md](07-local-replay.md)에 따라 verified tree를 sandbox 내부 commit으로만 연결.
-push와 배포는 금지.
+- 대상 경로는 `i18n`, `versioned_docs`, `versioned_sidebars`로 한정한다.
+- 작업 트리에 변경이 없으면 커밋하지 않고 성공으로 끝난다.
+- 앞 단계가 실패하면 실행되지 않는다. 실패한 실행의 부분 결과는 runner와 함께 폐기된다.
+- 배포 워크플로우를 직접 호출하거나 결과를 기다리지 않는다. 후속 연계는 GitHub Actions가 발행하는 워크플로우 완료 이벤트로만 수행한다.
 
-단계별 전처리·번역·후처리·문서 검증·사이드바 설계는 각 단계 문서가 소유.
+### 1.1 배포 연계 계약
 
-| 단계 | 기준 문서 |
-|------|----------|
-| 전처리 | [01-preprocessing.md](01-preprocessing.md) |
-| 번역 | [02-translation.md](02-translation.md) |
-| 후처리 | [03-postprocessing.md](03-postprocessing.md) |
-| 문서 검증 | [04-verification.md](04-verification.md) |
-| 사이드바 갱신·검증 | [06-sidebar-sync.md](06-sidebar-sync.md) |
-| 전체 순서·회귀 | [00-workflow-summary.md](00-workflow-summary.md) |
-| 로컬 replay | [07-local-replay.md](07-local-replay.md) |
-| 오류 분류·복구 | [08-error-cases.md](08-error-cases.md) |
+기본 `GITHUB_TOKEN`으로 만든 push는 다른 워크플로우를 트리거하지 않는다. 따라서 배포는 push 이벤트가 아니라 이 워크플로우의 완료 이벤트를 배포 워크플로우가 직접 구독해 이어받는다. 구독 선언과 성공·branch 판정은 배포 워크플로우가 소유하며, 번역 워크플로우에는 배포에 관한 입력·권한·호출이 없다. 이 완료 이벤트 연계 외에 번역 워크플로우가 사이트 테스트·빌드·배포 또는 다른 작업을 직접 실행하는 경로는 두지 않는다.
 
-## 3. 입력
+완료 이벤트는 실패한 실행과 `main` 이외 branch의 실행에서도 발생하므로, 구독 쪽에서 다음 조건을 만족할 때만 배포한다.
 
-| 항목 | 설명 |
-|------|------|
-| candidate snapshot | 문서 검증을 통과한 locale artifact와 검증된 sidebar candidate가 적재된 격리 파일 집합 |
-| candidate 사이트 소스 | 승인 기준본의 Docusaurus 프로젝트 전체에 candidate 변경을 적용한 소스 |
-| 승인 기준본 식별자 | 실행 시작 시 고정한 base `HEAD`, tree, clean checkout fingerprint와 원격 branch ref |
-| 전체 workflow deadline | entrypoint 시작 시 확정한 단조 시계 deadline |
+| 조건 | 처리 |
+|---|---|
+| 번역 실행의 결론이 성공 | 성공이 아니면 배포하지 않는다 |
+| 번역 실행의 branch가 `main` | 다른 branch의 실행은 배포하지 않는다 |
+| 배포 대상 commit | 기본 branch의 최신 commit을 checkout한다. 완료 이벤트의 `head_sha`는 번역 실행을 시작시킨 **이전** commit이므로 사용하지 않는다 |
+| 새 커밋 생성 여부 | 판별하지 않는다. 변경이 없어 커밋하지 않은 실행도 완료 이벤트를 만들고, 그 경우 같은 내용을 다시 배포한다 |
 
-## 4. 출력
+마지막 항목은 의도된 단순화다. 완료 이벤트만으로는 커밋 발생 여부를 알 수 없고, 정적 사이트 재배포는 결과를 바꾸지 않는다.
 
-| 항목 | 설명 |
-|------|------|
-| 사이트 검증 통과 여부 | 빌드·링크·타입·fragment 검증 결과 |
-| 산출 경로 검증 통과 여부 | 허용 범위 안의 변경만 존재하는지 여부 |
-| verified tree 식별자 | 모든 검증이 끝난 candidate tree의 불변 식별자 |
-| 실행 브랜치 커밋 | 변경분과 모든 사전 publication 검증이 있을 때만 생성되는 커밋. no-change 성공이면 없음 |
-| 배포 결과 | `main`이면 trigger와 배포 측 재검증의 최종 성공·실패, 그 외 branch면 적용 불가 |
+잡 제한 시간은 `main.py`가 계산하는 실행 기한보다 길게 설정해 기한 초과가 종료 코드로 보고된 뒤 잡이 끝나도록 한다.
 
-## 5. 불변 조건
+## 2. 로컬 실행
 
-1. 사이트 검증과 산출 경로 검증을 모두 통과하지 못한 경우 커밋 금지.
-2. 번역 동기화 범위 밖 파일 변경 금지.
-3. 문서 변경 시 영어 원문 캐시 변경 동반 필수.
-4. locale sidebar override JSON은 삭제 상태만 허용. 생성·수정 금지.
-5. 사이트 UI 번역 파일(`code.json`)은 이 검증의 삭제·수정 대상에서 제외.
-6. 사이트·산출 경로 검증 중 active worktree, index와 실행 브랜치 `HEAD` 변경 금지.
-7. publication commit tree와 verified tree 식별자의 정확한 일치 필수.
-8. 테스트·빌드의 cache와 생성 산출물은 candidate source tree 밖에 기록하거나 tree 봉인 전에 폐기 필수. 검증 명령이 tracked candidate source를 변경하면 실패 처리.
-9. 각 검증 subprocess와 배포 결과 대기의 남은 전체 workflow deadline 초과 금지.
+호스트 로컬 실행과 Docker 테스트도 운영 액션과 같은 `main.py`를 사용한다.
 
-## 6. 사이트 빌드 검증
+- `make translation-run`은 호스트에서 Python 진입점을 실행하고 `VERSION`·`DOC` 선택자와 현재 환경 변수를 전달한다.
+- 호스트 로컬 실행은 `TRANSLATION_PROVIDER` 환경 변수로 OpenAI API 또는 OpenAI CLI를 선택한다.
+- `make translate`는 Docker에서 Python 진입점을 실행하는 로컬 번역 테스트다. `main.py`가 원문 동기화부터 번역·검증·기록까지 수행하므로, Docker만의 별도 동기화 스크립트나 단계는 없다.
+- Docker 이미지에는 CLI를 설치하지 않는다. Docker 테스트는 `OPENAI_API_KEY`를 전달해 OpenAI API를 사용한다.
 
-사이트 검증은 active worktree가 아닌 candidate snapshot의 격리 checkout에서 다음 항목 순차 확인 필수.
+Makefile target은 반복되는 실행 명령과 선택자 전달만 감싼다. 후보 작업 트리, replay, publication 또는 별도 설정 생성 같은 추가 오케스트레이션을 수행하지 않는다.
 
-1. Markdown 링크 유틸리티 단위 테스트 통과 필수.
-2. 타입 검사 통과 필수.
-3. Docusaurus 빌드 통과 필수.
-4. 한국어·일본어 문서의 inline Markdown fragment link가 가리키는 빌드 산출물 HTML과 `id` 존재 필수.
-5. 검증 전후 candidate source fingerprint 동일성 필수. 빌드 도구가 source를 변경한 경우 검증 실패 처리.
+## 3. 금지된 결합
 
-fragment 없는 route, reference-style link, 일반 HTML `href`는 이 자동 검사 범위에서 제외.
+번역 액션과 Python 진입점에는 다음 로직을 두지 않는다.
 
-## 7. 산출 경로 검증
+- Node setup, npm install, 사이트 테스트 또는 사이트 빌드
+- Python 진입점의 Git credential 주입, commit, push와 원격 ref 비교
+- PR 생성 또는 병합
+- 배포 워크플로우 호출과 결과 대기
+- candidate clone, replay process와 단계 간 artifact
+- 운영 액션의 GitHub CLI 또는 Codex CLI 설치
 
-승인 기준본과 candidate snapshot의 diff를 비교하여 동기화 실행이 변경할 수 있는 경로를 다음 범위로 제한 필수.
+액션의 커밋 단계가 유일한 Git 쓰기 지점이다. `main.py`에는 어떤 Git 쓰기 경로도 두지 않는다.
 
-### 7.1 허용 경로
+사이트 검증과 배포는 저장소의 별도 워크플로우 책임이다. 번역 워크플로우는 그 존재나 결과에 의존하지 않는다.
 
-| 경로 분류 | 허용 상태 |
-|-----------|-----------|
-| 영어 원문 캐시 | 추가·수정·삭제 |
-| 한국어 문서 | 추가·수정·삭제 |
-| 일본어 문서 | 추가·수정·삭제 |
-| 공통 versioned sidebar JSON | 추가·수정 |
-| locale sidebar override JSON | 삭제만 |
+## 4. Python 실행 책임
 
-### 7.2 상태 정합성 규칙
+`main.py`는 다음 작업만 순차 수행한다.
 
-- 추가(`A`) 또는 삭제(`D`)는 영어·한국어·일본어 세 파일 모두 동일한 단일 상태 필수
-- rename은 삭제 경로의 세 파일 `D`와 추가 경로의 세 파일 `A`로 검증 필수
-- 수정(`M`)은 변경 목록에 나타난 locale 파일의 상태가 모두 `M`이어야 함
-- 수정 시 byte 변경이 없어 목록에서 빠진 locale 파일은 변경된 영어 원문 기준으로 검증하여 issue가 없음을 증명해야 함. 증명되지 않은 영어 단독 수정은 거부
-- 번역 대상이 아닌 법적 문서(현재 `license.md`)의 영어 단독 변경과 삭제는 이 증명 대상에서 제외. locale 산출물이 애초에 없을 수 있음
+1. 설정·선택자 검증
+2. upstream 원문 동기화
+3. 변경 감지
+4. 변경 문서 전처리·번역·후처리·검증·기록
+5. 사이드바 동기화
 
-### 7.3 금지 사항
+번역 실행 제한 시간은 `TRANSLATION_RUN_TIMEOUT_SECONDS`의 검증된 값으로 계산한다. 계산 시점은 설정과 프롬프트 검증을 마친 직후이며, upstream 동기화를 시작하기 전이다. 별도 상위 오케스트레이터 deadline은 사용하지 않는다.
 
-- 허용 경로 이외의 파일 변경 금지
-- locale sidebar override JSON 생성·수정 금지
-- 문서 변경 없는 영어 원문 단독 변경 금지(증명 없는 경우)
+## 5. 파일 기록 경계
 
-## 8. git 반영 세부 규칙
+- 영어 원문은 upstream 동기화 단계가 소유한다.
+- locale 문서는 해당 문서의 구조 검증을 통과한 뒤 기록한다.
+- 사이드바는 대상 문서 처리가 끝난 뒤 한 번 동기화한다.
+- 일반 실행 결과는 허용된 문서·사이드바 경로에만 기록한다. 선택적 upstream manifest와 실패 보고서는 설정된 정확한 경로에만 기록한다.
+- `main.py`는 현재 프로젝트 저장소의 `HEAD`, index, branch 또는 remote를 변경하는 Git 명령을 실행하지 않는다. upstream 조회는 격리된 임시 저장소에서 수행한다.
+- 작업 트리를 커밋 가능한 상태로 만드는 것까지가 `main.py`의 책임이고, 그 상태를 저장소 이력에 남기는 것은 액션의 커밋 단계 책임이다.
 
-1. 사이트 검증과 산출 경로 검증을 candidate snapshot에서 실행한 뒤 candidate tree 식별자 봉인 필수.
-2. publication 직전에 checkout `HEAD`·index·소유 경로 fingerprint와 승인 기준본의 동일성 확인 필수.
-3. verified tree를 정확히 참조하고 승인 기준본 `HEAD`를 parent로 사용하는, 아직 branch에 연결되지 않은 commit 구성 필수.
-4. 생성된 commit의 tree 식별자와 verified tree의 재비교 필수. 불일치 시 원격 branch ref 갱신 및 push 금지.
-5. tree 동일성 확인 후 검증된 commit 식별자를 원격 실행 branch로 직접 push 필수. 원격 ref가 승인 기준본 값일 때만 compare-and-swap 갱신 필수.
-6. 검증 실패 또는 publication 전제 조건 변경 시 원격 실행 branch 갱신 금지.
-7. 반영할 변경분이 없는 경우 빈 커밋 생성 금지.
-8. 실행 브랜치에 직접 push 필수. Pull Request 자동 생성 금지.
-9. checkout에 write credential 저장 금지. 의존성 설치·번역·검증·commit 구성에 push credential 노출 금지.
-10. mutation 가능한 commit hook의 verified tree 봉인 후 실행 금지. 필요한 hook 검사는 봉인 전 candidate에서 실행 필수.
-11. push credential 설정은 commit tree 동일성 확인이 끝난 별도 push 단계에서만 허용.
-12. push는 원격 branch가 예상한 승인 기준본에서 전진하지 않은 경우에만 허용. non-fast-forward 또는 lease 실패는 publication 실패 처리. 로컬 active branch ref 갱신은 불필요.
-13. `main` 브랜치 실행에만 배포 트리거 허용하며 해당 실행에서는 트리거 필수. commit/push와 배포 트리거 분리 필수.
-14. `main`에서는 변경이 없는 재실행도 실행 branch와 원격 branch가 승인 기준본과 같음을 확인한 뒤 배포 트리거 필요. push 후 배포 트리거만 실패한 실행의 복구가 가능해야 함.
-15. 배포 워크플로우도 사이트 검증 재실행 필수.
-16. branch가 아닌 ref(tag 등)에서의 실행은 초기 거부 필수.
-17. `main` 실행의 전체 성공에는 배포 workflow의 재검증 성공까지 필수. trigger·재검증 실패 또는 deadline 초과 시 published commit을 되돌리지 않고 산출 실패 보고 필수.
+## 6. 수용 기준
 
-## 9. 실패 정책
-
-- 사이트 또는 산출 경로 검증 실패 시: candidate publication 금지 및 워크플로우 실패 종료
-- 승인 기준본의 checkout 상태나 원격 ref 변경 시: candidate 덮어쓰기 금지 및 publication 경쟁 실패 종료
-- commit tree와 verified tree 불일치 시: push 금지 및 publication 실패 종료
-- 배포 trigger 또는 배포 측 재검증 실패 시: 이미 공개된 commit 유지 및 실패 보고서 기록. 해당 commit을 새 승인 기준본으로 사용하는 no-change 실행으로 배포만 재시도 허용
-- 사전 publication에 실패한 candidate는 디버깅 목적으로 격리 상태 보존 허용. active worktree와 실행 브랜치 반영은 금지
-
-### 9.1 Publication 이후 콘텐츠 결함 복구
-
-[문서 검증](04-verification.md)의 자동 판정 범위 밖인 번역 의미 오류·용어 오류·누락 등이 published tree에서 뒤늦게 확인되면 배포 실패와 구분되는 콘텐츠 사고로 처리.
-
-1. 결함을 처음 도입한 publication commit과 영향받은 version·locale·문서 경로 확정 필수.
-2. 원격 branch reset 및 force-push 금지. 현재 원격 branch `HEAD`를 parent로 하여 결함 publication 전체를 되돌리는 revert candidate 생성 필수.
-3. 후속 publication과 충돌하여 전체 revert를 기계적으로 적용할 수 없는 경우 자동 일부 되돌리기 금지. 현재 tree에서 해당 publication의 변경을 완전히 제거하면서 7.2의 상태 정합성 규칙을 만족하는 복구 candidate를 별도 repository review 대상으로 작성 필수.
-4. 복구 candidate도 일반 candidate와 동일하게 문서·sidebar·사이트·산출 경로 검증을 모두 통과하고 verified tree 식별자 봉인 필수.
-5. 8절의 commit tree 동일성 확인과 원격 ref compare-and-swap을 거쳐 복구 commit publication 필수. `main`이면 복구 commit의 배포 재검증까지 완료 필수.
-6. 즉시 복구 완료 후 원인 수정 및 복구 commit을 새 승인 기준본으로 한 전체 동기화 재실행 필수. 실패한 과거 candidate나 provider 응답 재사용 금지.
-
-No-change 배포 재시도는 published tree의 내용이 여전히 승인 가능하고 trigger·배포 측 실행만 실패한 경우에만 허용.
-콘텐츠 결함이 확인된 commit을 같은 내용으로 재배포하는 용도로 사용 금지.
-성공했던 과거 실행의 종료 코드와 실패 보고서 소급 변경 금지.
-콘텐츠 사고와 복구 commit 식별자는 별도 운영 기록으로 보존.
-
-## 10. 수용 기준
-
-- 사이트 빌드·타입 검사·링크 유틸리티·fragment 검증 모두 통과 필수
-- 산출 경로가 허용 범위 안에 있고 상태 정합성 규칙을 만족해야 함
-- verified tree 식별자와 publication commit tree 식별자 동일성 필수
-- publication 직전 checkout과 원격 실행 branch가 승인 기준본에서 변경되지 않았음을 확인 가능해야 함
-- push credential이 검증 및 커밋 단계에 노출되지 않았음을 확인 가능해야 함
-- `main` 실행은 배포 trigger와 배포 측 재검증의 최종 결과까지 확인 가능해야 함
-- 사이트 검증·publication·배포 결과 대기는 같은 전체 workflow deadline 안에서 수행되어야 함
-- publication 후 콘텐츠 결함은 같은 commit의 배포 재시도와 구분되고, 검증된 revert 또는 복구 commit을 통해서만 되돌릴 수 있어야 함
+- 운영 액션은 Python과 Git 외에 Node·npm·GitHub CLI·Codex CLI 런타임을 요구하지 않는다.
+- GitHub Actions, 호스트 로컬 명령과 Docker가 모두 같은 `main.py`를 실행한다.
+- Makefile은 Python 또는 Docker 실행과 선택자 전달만 담당한다.
+- 운영 액션은 OpenAI API만 사용한다. 호스트 로컬 실행은 환경 변수로 OpenAI API 또는 OpenAI CLI를 선택한다.
+- 번역 액션은 문서 동기화·번역 결과를 만들고 그 변경을 커밋한 뒤 종료한다.
+- 배포에 관한 입력·권한·상태 파일·오류 코드가 번역 코드와 번역 액션에 존재하지 않는다.
+- Git 자격 증명은 커밋 단계 밖의 어느 단계에서도 사용할 수 없다.
+- 원격 저장소 갱신에 관한 입력·권한·상태 파일·오류 코드가 번역 코드에 존재하지 않는다.

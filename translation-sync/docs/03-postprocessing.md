@@ -62,7 +62,7 @@ flowchart TD
 | 현재 restore map | 전처리에서 생성한 현재 원문 placeholder와 원본 값의 대응표 |
 | 버전 문자열 | 문서에 적용할 대상 버전 |
 | 현재 정규화 영어 작업 사본 | 전처리가 생성한 new side. expected annotation map과 verification view 생성 기준 |
-| stale-link registry snapshot | 승인 기준본의 `translation-sync/stale-links.json` byte와 SHA-256 digest |
+| stale-link registry snapshot | 문서 검증 시작 시 읽은 `translation-sync/stale-links.json` byte와 SHA-256 digest |
 | 적용 mode | actionable plan을 처리하는 `apply` 또는 PatchPlan이 없거나 모두 target인 `no-write` |
 
 ---
@@ -71,10 +71,10 @@ flowchart TD
 
 | 출력 | 설명 |
 |------|------|
-| candidate locale 문서 | `apply` mode의 정제·계획 적용 결과 또는 `no-write` mode의 기존 locale byte. 아직 candidate snapshot에는 적재되지 않음 |
+| locale 문서 초안 | `apply` mode의 정제·계획 적용 결과 또는 `no-write` mode의 기존 locale byte. 아직 작업 트리에는 기록되지 않음 |
 | 영어 verification view | 현재 정규화 영어 작업 사본에 source-side 후처리와 현재 restore map 복원을 적용한 검증 기준 |
 | expected annotation map | 구조 주소·ordered occurrence·canonical annotation byte의 순서 있는 목록 |
-| 검증 입력 | candidate locale 문서, 영어 verification view, expected annotation map, version과 stale-link registry digest |
+| 검증 입력 | locale 문서 초안, 영어 verification view, expected annotation map, version과 stale-link registry digest |
 
 ---
 
@@ -90,7 +90,7 @@ flowchart TD
 8. fenced code의 `{{version}}`은 예시 코드의 literal placeholder로 보고 치환 금지.
 9. 본문의 명시적 Markdown hard break (trailing 공백 2개) 보존.
 10. `{#stable-id}`는 보존하고 `{.class #id}` 형태에서는 class만 제거한 뒤 `{#id}` 유지.
-11. `no-write` mode의 candidate locale 문서는 기존 locale 문서와 byte 단위로 같아야 함.
+11. `no-write` mode의 locale 문서 초안은 기존 locale 문서와 byte 단위로 같아야 함.
 12. provider가 반환한 pipeline annotation을 형식 복구의 기준으로 사용하는 것 금지; `apply` mode의 최종 annotation은 expected annotation map byte로 교체해야 함.
 
 ---
@@ -142,7 +142,7 @@ flowchart TD
    - 현재 정규화 영어 작업 사본에 version, img, alert, heading class, stale-link 정규화와 HTML 주석 종료 구분자 escape를 같은 순서로 적용
    - 현재 restore map으로 placeholder 복원
    - pipeline annotation과 locale 번역문은 추가하지 않음
-11. candidate locale 문서, 영어 verification view와 expected annotation map을 같은 검증 입력 hash로 묶어 문서 검증 단계에 전달
+11. locale 문서 초안, 영어 verification view와 expected annotation map을 같은 검증 입력 hash로 묶어 문서 검증 단계에 전달
 ```
 
 Base64 복원은 블록 형식 정제가 끝난 뒤 수행하여 복원된 data URI가 다른 정제 규칙에 의해 변경되지 않게 해야 함.
@@ -231,7 +231,7 @@ stale link 정규화 규칙의 유일한 소스는 version-controlled `translati
 - 영어 원문 갱신으로 기존 target이 유효해지거나 링크가 사라지면 registry 검사가 실패해야 하며 새 원문 근거에 맞춰 규칙을 제거하거나 수정해야 함.
 - 파일이 없거나 schema·정렬·중복 규칙을 위반하면 설정 오류; 규칙이 없을 때도 빈 `links` 배열을 가진 파일 사용.
 - 파일은 UTF-8, LF, 마지막 newline 1개와 예시의 key 순서를 사용하는 canonical JSON으로 직렬화.
-- 실행 중 registry 변경 금지, 입력 byte의 SHA-256 digest를 verified locale artifact에 포함.
+- 실행 중 registry 변경 금지, 입력 byte의 SHA-256 digest를 검증 결과에 포함.
 
 ### 7.7 Expected annotation map
 
@@ -251,7 +251,7 @@ stale link 정규화 규칙의 유일한 소스는 version-controlled `translati
 - `entries`는 영어 문서 순서이며 structural address가 같은 항목은 1부터 시작하는 `occurrence`로 구별.
 - annotatable 여부와 source text 경계는 [번역 단계](./02-translation.md)의 최종 문서 소유 단위·annotation 규칙을 사용하고 provider 요청의 delta별 임시 경계는 map에 포함하지 않으며, 표는 항상 현재 표 전체가 단일 entry.
 - `annotation`은 여는 `<!--`, 공백, 정규화된 source text, 공백, 닫는 `-->`까지 포함한 완전한 canonical comment byte.
-- top-level과 entry는 예시의 필드만 가져야 하며, map은 임시 검증 산출물로서 candidate 또는 publication tree에 기록 금지.
+- top-level과 entry는 예시의 필드만 가져야 하며, map은 임시 검증 데이터로서 작업 트리에 기록 금지.
 - map은 2-space indent, UTF-8, LF, 마지막 newline 1개와 예시의 key 순서로 직렬화.
 - 이 canonical JSON byte의 SHA-256 digest를 검증 입력 hash에 포함.
 
@@ -270,11 +270,11 @@ stale link 정규화 규칙의 유일한 소스는 version-controlled `translati
 }
 ```
 
-각 digest는 대응하는 정확한 UTF-8 artifact byte의 SHA-256.
-검증기는 시작 snapshot과 artifact 생성 직전에 호출할 독립 final snapshot loader를 함께 수신.
-Loader는 candidate locale, 영어 verification view, expected annotation map, version과 stale-link registry를 각 소유 source에서 새로 읽어 envelope와 hash를 다시 만들어야 함.
-시작 때 전달받은 객체나 registry를 그대로 다시 hash하는 것은 종료 재계산으로 인정하지 않음.
-두 snapshot의 canonical envelope가 다르면 verified locale artifact 생성 금지.
+각 digest는 대응하는 정확한 UTF-8 입력 byte의 SHA-256.
+검증기는 시작 snapshot과 검증 산출물 생성 전에 호출할 독립 final snapshot loader를 함께 수신.
+Loader는 stale-link registry를 다시 읽고, 캡처한 locale 초안·정규화 영어 원문·restore map·version으로 영어 verification view와 expected annotation map을 재구성해 envelope와 hash를 다시 만들어야 함.
+시작 때 전달받은 registry나 시작 snapshot 객체만 그대로 다시 hash하는 것은 종료 재계산으로 인정하지 않음.
+두 snapshot의 canonical envelope가 다르면 locale 문서 기록 금지.
 
 ### 7.9 HTML 주석 종료 구분자 escape
 
@@ -326,11 +326,11 @@ Loader는 candidate locale, 영어 verification view, expected annotation map, v
 | 보존 markup 대응이 모호하거나 복구 불가 | 임의 복구 금지, 문서 검증 단계 판정에 위임 |
 | actionable plan 수와 정제 블록 수 불일치 또는 target plan 출력 존재 | 해당 target 실패, 계획 적용 금지 |
 | 적용 뒤 목표 서명 불일치 | 최종 문서 폐기, 기존 locale 문서 보존 |
-| 영어 verification view 또는 expected annotation map을 결정적으로 생성할 수 없음 | 해당 target 실패, candidate 적재 금지 |
+| 영어 verification view 또는 expected annotation map을 결정적으로 생성할 수 없음 | 해당 target 실패, 문서 기록 금지 |
 | `no-write` mode에서 locale byte가 달라짐 | 해당 target 실패, 변경 결과 폐기 |
 
 후처리는 provider 호출 실패를 복구하지 않음.
-후처리 결과는 active worktree나 candidate snapshot에 직접 기록하지 않고 [문서 검증 단계](./04-verification.md)에 전달해야 함.
+후처리 결과는 작업 트리에 직접 기록하지 않고 [문서 검증 단계](./04-verification.md)에 전달해야 함.
 
 ---
 
@@ -343,7 +343,7 @@ Loader는 candidate locale, 영어 verification view, expected annotation map, v
 3. 지원 legacy note marker가 canonical GitHub Markdown alert form으로 변환됨.
 4. heading 줄에 `{.class-name}` 패턴이 남아 있지 않음 (`{#id}`는 허용).
 5. 모든 `<img>` 태그가 self-closing 형식임 (fenced code·inline code 내부 제외).
-6. candidate locale의 annotation byte·순서·구조 주소가 expected annotation map과 일치.
+6. locale 문서 초안의 annotation byte·순서·구조 주소가 expected annotation map과 일치.
 7. 계획 밖의 locale 블록과 source-authored 구조가 변경되지 않음.
 8. 영어 verification view와 expected annotation map이 현재 정규화 영어 작업 사본, current restore map, version과 stale-link registry digest에서 결정적으로 생성됨.
-9. `no-write` mode에서는 candidate locale 문서와 기존 locale 문서의 byte가 같음.
+9. `no-write` mode에서는 locale 문서 초안과 기존 locale 문서의 byte가 같음.
