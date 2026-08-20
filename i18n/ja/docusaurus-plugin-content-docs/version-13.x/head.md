@@ -49,7 +49,7 @@ composer require laravel/head
 ## Quickstart
 
 <!-- Register site-wide defaults in a service provider: -->
-サービス全体のデフォルトをサービスプロバイダに登録します。
+サイト全体のデフォルトをサービスプロバイダに登録します。
 
 ```php
 use Laravel\Head\Facades\Head;

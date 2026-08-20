@@ -333,7 +333,7 @@ $path = $request->image('avatar')
 ```
 
 <!-- The `storePublicly` and `storePubliclyAs` methods store the image with `public` visibility: -->
-`storePublicly` 및 `storePubliclyAs` 메서드는 이미지의 공개 가시성을 `public`으로 설정해 저장합니다:
+`storePublicly` 및 `storePubliclyAs` 메서드는 이미지를 `public` 가시성으로 저장합니다:
 
 ```php
 $path = $request->image('avatar')
@@ -367,7 +367,7 @@ $dominantColor = $image->dominantColor();
 ```
 
 <!-- These methods operate on the processed image. For example, calling `width` after `cover(400, 400)` will return `400`. -->
-이 메서드는 처리된 이미지에 작동합니다. 예를 들어, `cover(400, 400)`을 호출한 후 `width`를 호출하면 `400`을 반환합니다.
+이러한 메서드는 처리된 이미지에 대해 동작합니다. 예를 들어, `cover(400, 400)`을 호출한 후 `width`를 호출하면 `400`을 반환합니다.
 
 <a name="image-drivers"></a>
 <!-- ## Image Drivers -->
@@ -447,7 +447,7 @@ $image = $request->image('avatar')
 ```
 
 <!-- You may also configure a custom driver as your application's default image driver using the `default` option in your application's `config/images.php` configuration file or the `IMAGE_DRIVER` environment variable: -->
-사용자 애플리케이션의 `config/images.php` 설정 파일에서 `default` 옵션을 사용하거나 `IMAGE_DRIVER` 환경 변수를 설정해 커스텀 드라이버를 애플리케이션의 기본 이미지 드라이버로 구성할 수도 있습니다:
+애플리케이션의 `config/images.php` 설정 파일에서 `default` 옵션을 사용하거나 `IMAGE_DRIVER` 환경 변수를 설정해 커스텀 드라이버를 애플리케이션의 기본 이미지 드라이버로 구성할 수도 있습니다:
 
 ```ini
 IMAGE_DRIVER=vips

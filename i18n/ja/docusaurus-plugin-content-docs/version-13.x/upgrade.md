@@ -474,7 +474,7 @@ $event->exception;
 #### Session `serialization` Configuration
 
 <!-- **Likelihood Of Impact: Low** -->
-**影響度: 低**
+**影響の可能性: 低い**
 
 <!-- To help prevent PHP deserialization gadget chain attacks, the default application skeleton now sets the session `serialization` option to `json` in the `config/session.php` file. -->
 PHP のデシリアライズによるガジェットチェーン攻撃を防ぐため、デフォルトのアプリケーションスケルトンでは、`config/session.php` ファイルのセッション `serialization` オプションが `json` に設定されるようになりました。

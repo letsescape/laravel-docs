@@ -384,7 +384,7 @@ $response = (new SalesCoach)->prompt(
 #### Raw HTTP Responses
 
 <!-- Every response returned from a text-generating agent exposes the raw HTTP response from the underlying provider API call via a `raw` property. This gives you access to provider-specific information that isn't part of the AI SDK's generic response - rate-limit headers, request IDs, or other exact payload fields: -->
-텍스트를 생성하는 에이전트가 반환하는 모든 응답은 `raw` 프로퍼티를 통해 기본 프로바이더 API 호출의 원시 HTTP 응답을 제공합니다. 이를 통해 AI SDK의 일반 응답에는 포함되지 않는 프로바이더별 정보, 즉 속도 제한 헤더, 요청 ID 또는 기타 정확한 페이로드 필드에 액세스할 수 있습니다:
+텍스트를 생성하는 에이전트가 반환하는 모든 응답은 `raw` 프로퍼티를 통해 내부에서 호출한 프로바이더 API의 원시 HTTP 응답을 제공합니다. 이를 통해 AI SDK의 일반 응답에는 포함되지 않는 프로바이더별 정보, 즉 속도 제한 헤더, 요청 ID 또는 기타 정확한 페이로드 필드에 액세스할 수 있습니다:
 
 ```php
 $response = (new SalesCoach)->prompt('Analyze this sales transcript...');
@@ -2201,7 +2201,7 @@ $documents = Document::query()
 에이전트가 도구로 유사도 검색을 수행할 수 있게 하려면 [Similarity Search](#similarity-search) 도구 문서를 확인하십시오.
 
 > [!NOTE]
-> Vector 쿼리는 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결에서만 지원됩니다.
+> 벡터 쿼리는 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결에서만 지원됩니다.
 
 <a name="caching-embeddings"></a>
 <!-- ### Caching Embeddings -->
@@ -2473,7 +2473,7 @@ $response = (new ImageAnalyzer)->prompt(
 ## Vector Stores
 
 <!-- Vector stores allow you to create searchable collections of files that can be used for retrieval-augmented generation (RAG). The `Laravel\Ai\Stores` class provides methods for creating, retrieving, and deleting vector stores: -->
-벡터 저장소를 사용하면 검색 증강 생성(RAG)에 사용할 수 있는 검색 가능한 파일 컬렉션을 만들 수 있습니다. `Laravel\Ai\Stores` 클래스는 벡터 저장소를 생성하고, 가져오고, 삭제하는 메서드를 제공합니다:
+벡터 스토어를 사용하면 검색 증강 생성(RAG)에 사용할 수 있는 검색 가능한 파일 컬렉션을 만들 수 있습니다. `Laravel\Ai\Stores` 클래스는 벡터 스토어를 생성하고, 가져오고, 삭제하는 메서드를 제공합니다:
 
 ```php
 use Laravel\Ai\Stores;
@@ -2492,7 +2492,7 @@ return $store->id;
 ```
 
 <!-- To retrieve an existing vector store by its ID, use the `get` method: -->
-기존 벡터 저장소를 ID로 가져오려면 `get` 메서드를 사용합니다:
+기존 벡터 스토어를 ID로 가져오려면 `get` 메서드를 사용합니다:
 
 ```php
 use Laravel\Ai\Stores;
@@ -2506,7 +2506,7 @@ $store->ready;
 ```
 
 <!-- To delete a vector store, use the `delete` method on the `Stores` class or the store instance: -->
-벡터 저장소를 삭제하려면 `Stores` 클래스 또는 저장소 인스턴스에서 `delete` 메서드를 사용합니다:
+벡터 스토어를 삭제하려면 `Stores` 클래스 또는 스토어 인스턴스에서 `delete` 메서드를 사용합니다:
 
 ```php
 use Laravel\Ai\Stores;
@@ -2525,7 +2525,7 @@ $store->delete();
 ### Adding Files to Stores
 
 <!-- Once you have a vector store, you may add [files](#files) to it using the `add` method. Files added to a store are automatically indexed for semantic searching using the [file search provider tool](#file-search): -->
-벡터 저장소가 준비되면 `add` 메서드를 사용하여 [files](#files)을 추가할 수 있습니다. 저장소에 추가된 파일은 [file search provider tool](#file-search)를 사용한 의미 검색을 위해 자동으로 인덱싱됩니다:
+벡터 스토어가 준비되면 `add` 메서드를 사용하여 [files](#files)을 추가할 수 있습니다. 스토어에 추가된 파일은 [file search provider tool](#file-search)를 사용한 의미 검색을 위해 자동으로 인덱싱됩니다:
 
 ```php
 use Laravel\Ai\Files\Document;
@@ -2568,7 +2568,7 @@ $store->remove('file_id');
 ```
 
 <!-- Removing a file from a vector store does not remove it from the provider's [file storage](#files). To remove a file from the vector store and delete it permanently from file storage, use the `deleteFile` argument: -->
-벡터 저장소에서 파일을 제거해도 프로바이더의 [file storage](#files)에서는 제거되지 않습니다. 벡터 저장소에서 파일을 제거하고 파일 저장소에서도 영구적으로 삭제하려면 `deleteFile` 인수를 사용합니다:
+벡터 스토어에서 파일을 제거해도 프로바이더의 [file storage](#files)에서는 제거되지 않습니다. 벡터 스토어에서 파일을 제거하고 파일 저장소에서도 영구적으로 삭제하려면 `deleteFile` 인수를 사용합니다:
 
 ```php
 $store->remove('file_abc123', deleteFile: true);
@@ -3139,7 +3139,7 @@ $store->assertNotRemoved('other_file_id');
 ```
 
 <!-- If a file is stored in the provider's [file storage](#files) and added to a vector store in the same request, you may not know the file's provider ID. In this case, you can pass a closure to the `assertAdded` method to assert against the content of the added file: -->
-파일이 프로바이더의 [file storage](#files)에 저장되고 같은 요청에서 벡터 저장소에 추가되는 경우, 해당 파일의 프로바이더 ID를 알 수 없을 수 있습니다. 이 경우 `assertAdded` 메서드에 클로저를 전달하여 추가된 파일의 내용에 대해 어설션할 수 있습니다:
+파일이 프로바이더의 [file storage](#files)에 저장되고 같은 요청에서 벡터 스토어에 추가되는 경우, 해당 파일의 프로바이더 ID를 알 수 없을 수 있습니다. 이 경우 `assertAdded` 메서드에 클로저를 전달하여 추가된 파일의 내용에 대해 어설션할 수 있습니다:
 
 ```php
 use Laravel\Ai\Contracts\Files\StorableFile;

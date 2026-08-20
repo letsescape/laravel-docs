@@ -49,7 +49,7 @@ composer require laravel/head
 ## Quickstart
 
 <!-- Register site-wide defaults in a service provider: -->
-서비스 전체 기본값을 서비스 프로바이더에 등록합니다:
+사이트 전체 기본값을 서비스 프로바이더에 등록합니다:
 
 ```php
 use Laravel\Head\Facades\Head;
@@ -376,7 +376,7 @@ Head::og(
 ```
 
 <!-- The `og(image: ...)` and `ogImage(...)` calls write to the same underlying image list, so you may use whichever is more expressive at the call site. You may use the [`meta`](#custom-tags) method for custom Open Graph extensions such as product or article properties. -->
-`og(image: ...)` 및 `ogImage(...)` 호출은 동일한 내부 이미지 목록에 기록하므로, 호출 위치에서 더 표현력이 높은 방식을 사용하면 됩니다. 제품 또는 문서 속성과 같은 사용자 지정 Open Graph 확장에는 [`meta`](#custom-tags) 메서드를 사용할 수 있습니다.
+`og(image: ...)` 및 `ogImage(...)` 호출은 동일한 내부 이미지 목록에 기록하므로, 호출 위치에서 더 표현력이 높은 방식을 사용하면 됩니다. 제품 또는 아티클 속성과 같은 사용자 지정 Open Graph 확장에는 [`meta`](#custom-tags) 메서드를 사용할 수 있습니다.
 
 <a name="twitter-cards"></a>
 <!-- ### X / Twitter Cards -->
@@ -532,7 +532,7 @@ Head::pwa(
 애플리케이션 이름, 웹 애플리케이션 매니페스트 링크, iOS 독립 실행형 메타데이터를 렌더링합니다. 제공된 경우 테마 색상, Apple 상태 표시줄 스타일, Apple 터치 아이콘도 렌더링합니다. 웹 애플리케이션 매니페스트를 생성하고 서비스 워커를 등록하는 일은 애플리케이션의 책임입니다.
 
 <!-- You may use the `pwa` method in defaults or runtime metadata. Route metadata supports the individual properties shown above. -->
-defaults 또는 runtime metadata에서 `pwa` 메서드를 사용할 수 있습니다. 라우트 메타데이터는 위에 설명된 개별 프로퍼티를 지원합니다.
+기본값 또는 런타임 메타데이터에서 `pwa` 메서드를 사용할 수 있습니다. 라우트 메타데이터는 위에 설명된 개별 프로퍼티를 지원합니다.
 
 <a name="performance-and-discovery"></a>
 <!-- ## Performance and Discovery -->
@@ -649,7 +649,7 @@ JSON-LD 스키마 데이터가 유효하지 않으면 Laravel Head는 프로덕�
 ### Breadcrumbs
 
 <!-- Breadcrumb items may be added one at a time or in bulk. Positions are assigned automatically in the order the items are added: -->
-Breadcrumb 항목은 하나씩 추가하거나 한 번에 여러 개 추가할 수 있습니다. 위치는 항목을 추가한 순서에 따라 자동으로 할당됩니다.
+브레드크럼 항목은 하나씩 추가하거나 한 번에 여러 개 추가할 수 있습니다. 위치는 항목을 추가한 순서에 따라 자동으로 할당됩니다.
 
 ```php
 Head::schema(
@@ -730,7 +730,7 @@ Head::schema(
 Laravel Head는 현재 응답의 페이지 메타데이터를 태그로 변환합니다. 이러한 태그가 렌더링되는 방식은 애플리케이션 스택에 따라 달라집니다.
 
 <!-- The HTML renderer powers the `@head` directive and the rendered elements that Laravel Head shares with Inertia via the `head` prop. The array renderer powers `Head::toArray()` for applications that need the resolved metadata as structured data. -->
-HTML 렌더러는 `@head` 디렉티브와 Laravel Head가 `head` 프로퍼티를 통해 Inertia와 공유하는 렌더링된 요소를 처리합니다. 배열 렌더러는 확인된 메타데이터를 구조화된 데이터로 사용해야 하는 애플리케이션을 위해 `Head::toArray()`를 처리합니다.
+HTML 렌더러는 `@head` 디렉티브와 Laravel Head가 `head` prop을 통해 Inertia와 공유하는 렌더링된 요소를 처리합니다. 배열 렌더러는 확인된 메타데이터를 구조화된 데이터로 사용해야 하는 애플리케이션을 위해 `Head::toArray()`를 처리합니다.
 
 <a name="blade"></a>
 <!-- ### Blade -->

@@ -1541,7 +1541,7 @@ Validator::make($input, [
 #### array_keys:_foo_,_bar_,...
 
 <!-- The field under validation must be a PHP `array` whose keys are all included in the given list. At least one key must be provided: -->
-유효성 검사를 수행하는 필드는 키가 모두 지정된 목록에 포함된 PHP `array`여야 합니다. 하나 이상의 키를 제공해야 합니다:
+유효성 검증 중인 필드는 키가 모두 지정된 목록에 포함된 PHP `array`여야 합니다. 하나 이상의 키를 제공해야 합니다:
 
 ```php
 'user' => ['array_keys:name,username'],

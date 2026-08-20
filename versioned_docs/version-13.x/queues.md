@@ -245,7 +245,7 @@ php artisan make:job ProcessPodcast
 생성된 클래스는 `Illuminate\Contracts\Queue\ShouldQueue` 인터페이스를 구현합니다. 이는 해당 잡이 비동기로 실행되도록 큐에 넣어야 한다는 것을 Laravel에 알려줍니다.
 
 > [!NOTE]
-> Job 스텁은 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용해 커스터마이즈할 수 있습니다.
+> 잡 스텁은 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용해 커스터마이즈할 수 있습니다.
 
 <a name="class-structure"></a>
 <!-- ### Class Structure -->
@@ -601,7 +601,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeEncrypted
 ## Job Middleware
 
 <!-- Job middleware allow you to wrap custom logic around the execution of queued jobs, reducing boilerplate in the jobs themselves. For example, consider the following `handle` method which leverages Laravel's Redis rate limiting features to allow only one job to process every five seconds: -->
-작업 middleware를 사용하면 큐 작업 실행 전후에 사용자 정의 로직을 감쌀 수 있어, 작업 자체에 반복 코드가 줄어듭니다. 예를 들어, 다음 `handle` 메서드는 Laravel의 Redis 처리율 제한 기능을 활용하여 5초마다 하나의 작업만 처리되도록 합니다.
+잡 미들웨어를 사용하면 큐에 등록된 잡의 실행 전후에 사용자 정의 로직을 감쌀 수 있어, 잡 자체의 반복 코드를 줄일 수 있습니다. 예를 들어, 다음 `handle` 메서드는 Laravel의 Redis 처리율 제한 기능을 활용하여 5초마다 하나의 잡만 처리되도록 합니다.
 
 ```php
 use Illuminate\Support\Facades\Redis;
@@ -624,7 +624,7 @@ public function handle(): void
 ```
 
 <!-- While this code is valid, the implementation of the `handle` method becomes noisy since it is cluttered with Redis rate limiting logic. In addition, this rate limiting logic must be duplicated for any other jobs that we want to rate limit. Instead of rate limiting in the handle method, we could define a job middleware that handles rate limiting: -->
-이 코드는 유효하지만, `handle` 메서드 구현이 Redis 처리율 제한 로직으로 복잡해져 읽기 어려워집니다. 또한 처리율 제한이 필요한 다른 작업마다 이 로직을 중복해서 작성해야 합니다. handle 메서드 안에서 처리율을 제한하는 대신, 처리율 제한을 담당하는 작업 middleware를 정의할 수 있습니다.
+이 코드는 유효하지만, `handle` 메서드 구현이 Redis 처리율 제한 로직으로 복잡해져 읽기 어려워집니다. 또한 처리율 제한이 필요한 다른 잡마다 이 로직을 중복해서 작성해야 합니다. handle 메서드 안에서 처리율을 제한하는 대신, 처리율 제한을 담당하는 잡 미들웨어를 정의할 수 있습니다.
 
 ```php
 <?php
@@ -659,10 +659,10 @@ class RateLimited
 ```
 
 <!-- As you can see, like [route middleware](/docs/13.x/middleware), job middleware receive the job being processed and a callback that should be invoked to continue processing the job. -->
-보시다시피 [route middleware](/docs/13.x/middleware)와 마찬가지로 job middleware는 처리 중인 잡과 잡 처리를 계속하려면 호출해야 하는 콜백을 전달받습니다.
+보시다시피 [route middleware](/docs/13.x/middleware)와 마찬가지로 잡 미들웨어는 처리 중인 잡과 잡 처리를 계속하려면 호출해야 하는 콜백을 전달받습니다.
 
 <!-- You can generate a new job middleware class using the `make:job-middleware` Artisan command. After creating job middleware, they may be attached to a job by returning them from the job's `middleware` method. This method does not exist on jobs scaffolded by the `make:job` Artisan command, so you will need to manually add it to your job class: -->
-`make:job-middleware` Artisan 명령어를 사용하여 새로운 작업 middleware 클래스를 생성할 수 있습니다. 작업 middleware를 만든 뒤에는 작업의 `middleware` 메서드에서 반환하여 작업에 연결할 수 있습니다. 이 메서드는 `make:job` Artisan 명령어로 스캐폴딩된 작업에는 존재하지 않으므로, 작업 클래스에 직접 추가해야 합니다.
+`make:job-middleware` Artisan 명령어를 사용하여 새로운 잡 미들웨어 클래스를 생성할 수 있습니다. 잡 미들웨어를 만든 뒤에는 잡의 `middleware` 메서드에서 반환하여 잡에 연결할 수 있습니다. 이 메서드는 `make:job` Artisan 명령어로 스캐폴딩된 잡에는 존재하지 않으므로, 잡 클래스에 직접 추가해야 합니다.
 
 ```php
 use App\Jobs\Middleware\RateLimited;
@@ -679,7 +679,7 @@ public function middleware(): array
 ```
 
 > [!NOTE]
-> Job 미들웨어는 [queueable event listeners](/docs/13.x/events#queued-event-listeners), [mailables](/docs/13.x/mail#queueing-mail), [notifications](/docs/13.x/notifications#queueing-notifications)에도 할당할 수 있습니다.
+> 잡 미들웨어는 [queueable event listeners](/docs/13.x/events#queued-event-listeners), [mailables](/docs/13.x/mail#queueing-mail), [notifications](/docs/13.x/notifications#queueing-notifications)에도 할당할 수 있습니다.
 
 <a name="rate-limiting"></a>
 <!-- ### Rate Limiting -->
@@ -2040,7 +2040,7 @@ class SendShipmentNotification
 ```
 
 <!-- When sending a [mail message](/docs/13.x/mail) that is going to be queued on a FIFO queue, you should invoke the `onGroup` method and optionally the `withDeduplicator` method when sending the notification: -->
-[FIFO queue]에 대기열에 추가될 [mail message](/docs/13.x/mail)를 보낼 때는 알림을 전송하면서 `onGroup` 메서드와 선택적으로 `withDeduplicator` 메서드를 호출해야 합니다:
+FIFO 큐에 추가될 [mail message](/docs/13.x/mail)를 보낼 때는 알림을 전송하면서 `onGroup` 메서드와 선택적으로 `withDeduplicator` 메서드를 호출해야 합니다:
 
 ```php
 use App\Mail\InvoicePaid;
@@ -2054,7 +2054,7 @@ Mail::to($request->user())->send($invoicePaid);
 ```
 
 <!-- When sending a [notification](/docs/13.x/notifications) that is going to be queued on a FIFO queue, you should invoke the `onGroup` method and optionally the `withDeduplicator` method when sending the notification: -->
-FIFO 큐에 대기열에 추가될 [notification](/docs/13.x/notifications)을 보낼 때는 알림을 전송하면서 `onGroup` 메서드를 호출하고, 선택적으로 `withDeduplicator` 메서드도 호출해야 합니다:
+FIFO 큐에 추가될 [notification](/docs/13.x/notifications)을 보낼 때는 알림을 전송하면서 `onGroup` 메서드를 호출하고, 선택적으로 `withDeduplicator` 메서드도 호출해야 합니다:
 
 ```php
 use App\Notifications\InvoicePaid;
@@ -2861,7 +2861,7 @@ php artisan queue:work --sleep=3
 #### Maintenance Mode and Queues
 
 <!-- While your application is in [maintenance mode](/docs/13.x/configuration#maintenance-mode), no queued jobs will be handled. The jobs will continue to be handled as normal once the application is out of maintenance mode. -->
-애플리케이션이 [maintenance mode](/docs/13.x/configuration#maintenance-mode)인 동안에는 큐에 대기 중인 잡을 처리하지 않습니다. 애플리케이션이 maintenance mode에서 벗어나면 잡은 평소와 같이 계속 처리됩니다.
+애플리케이션이 [maintenance mode](/docs/13.x/configuration#maintenance-mode)인 동안에는 큐에 대기 중인 잡을 처리하지 않습니다. 애플리케이션이 유지 관리 모드에서 벗어나면 잡은 평소와 같이 계속 처리됩니다.
 
 <!-- To force your queue workers to process jobs even if maintenance mode is enabled, you may use `--force` option: -->
 유지 관리 모드가 활성화되어 있어도 큐 워커가 작업을 처리하도록 강제하려면 `--force` 옵션을 사용할 수 있습니다.
@@ -3137,7 +3137,7 @@ stopwaitsecs=3600
 이 예제에서 `numprocs` 지시어는 Supervisor에게 여덟 개의 `queue:work` 프로세스를 실행하고 모두 모니터링하며, 실패하면 자동으로 다시 시작하도록 지시합니다. 설정의 `command` 지시어는 원하는 큐 연결과 워커 옵션에 맞게 변경해야 합니다.
 
 > [!WARNING]
-> `stopwaitsecs`의 값이 가장 오래 실행되는 잡에 소요되는 시간(초)보다 큰지 확인해야 합니다. 그렇지 않으면 Supervisor가 잡 처리가 끝나기 전에 종료할 수 있습니다.
+> `stopwaitsecs`의 값이 가장 오래 실행되는 잡에 소요되는 시간(초)보다 큰지 확인해야 합니다. 그렇지 않으면 Supervisor가 잡 처리가 끝나기 전에 잡을 종료할 수 있습니다.
 
 <a name="starting-supervisor"></a>
 <!-- #### Starting Supervisor -->

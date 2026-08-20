@@ -67,7 +67,7 @@ composer require laravel/pint --dev
 ```
 
 <!-- By default, Pint does not format Blade templates. If you would like to format your `.blade.php` files as well, you may use the `--blade` option, which enables the [`Pint/laravel_blade`](#laravel-blade) rule for the current run without modifying your `pint.json` file: -->
-기본적으로 Pint는 Blade 템플릿의 형식을 지정하지 않습니다. `.blade.php` 파일도 형식을 지정하려면 `--blade` 옵션을 사용할 수 있습니다. 이 옵션은 `pint.json` 파일을 수정하지 않고 현재 실행에서 [`Pint/laravel_blade`](#laravel-blade) 규칙을 활성화합니다.
+기본적으로 Pint는 Blade 템플릿의 서식을 지정하지 않습니다. `.blade.php` 파일도 서식을 지정하려면 `--blade` 옵션을 사용할 수 있습니다. 이 옵션은 `pint.json` 파일을 수정하지 않고 현재 실행에서 [`Pint/laravel_blade`](#laravel-blade) 규칙을 활성화합니다.
 
 ```shell
 ./vendor/bin/pint --blade

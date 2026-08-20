@@ -544,7 +544,7 @@ class NewApi
 ### In-Memory Cache
 
 <!-- When checking a feature, Pennant will create an in-memory cache of the result. If you are using the `database` driver, this means that re-checking the same feature flag within a single request will not trigger additional database queries. This also ensures that the feature has a consistent result for the duration of the request. -->
-特徴をチェックすると、Pennant は結果のメモリ内キャッシュを作成します。 `database` ドライバを使用している場合、これは、単一のリクエスト内で同じ機能フラグを再チェックしても、追加のデータベース クエリがトリガーされないことを意味します。これにより、リクエストの期間中、機能が一貫した結果を得ることが保証されます。
+機能をチェックすると、Pennant はその結果をメモリ内にキャッシュします。 `database` ドライバを使用している場合、同じリクエスト内で同じ機能フラグを再チェックしても、追加のデータベース クエリは発生しません。また、リクエストの処理中は機能の結果が一貫していることも保証されます。
 
 <!-- If you need to manually flush the in-memory cache, you may use the `flushCache` method offered by the `Feature` facade: -->
 メモリ内キャッシュを手動でフラッシュする必要がある場合は、`Feature` ファサードが提供する `flushCache` メソッドを使用できます。
@@ -608,7 +608,7 @@ if (Feature::for($user->team)->active('billing-v2')) {
 ### Global Scope
 
 <!-- To check or interact with a feature using a global scope, regardless of the configured default scope resolver, use the `globally` method. This is useful for application-wide feature flags, such as temporarily enabling maintenance behavior or rolling out a feature to every user: -->
-設定されているデフォルトのスコープリゾルバに関係なく、グローバルスコープを使用して機能を確認または操作するには、`globally` メソッドを使用します。これは、メンテナンス動作を一時的に有効にしたり、すべてのユーザーに機能を展開したりするなど、アプリケーション全体に適用する feature flag に便利です。
+設定されているデフォルトのスコープリゾルバに関係なく、グローバルスコープを使用して機能を確認または操作するには、`globally` メソッドを使用します。これは、メンテナンス動作を一時的に有効にしたり、すべてのユーザーに機能を展開したりするなど、アプリケーション全体に適用する機能フラグに便利です。
 
 ```php
 Feature::globally()->active('new-api');

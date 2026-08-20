@@ -3162,7 +3162,7 @@ sudo supervisorctl start "laravel-worker:*"
 ## Dealing With Failed Jobs
 
 <!-- Sometimes your queued jobs will fail. Don't worry, things don't always go as planned! Laravel includes a convenient way to [specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout). After an asynchronous job has exceeded this number of attempts, it will be inserted into the `failed_jobs` database table. [Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching) that fail are not stored in this table and their exceptions are immediately handled by the application. -->
-キューに投入したジョブが失敗することもあります。心配はいりません。いつも計画どおりに進むとは限らないものです。Laravel には、ジョブの試行回数の最大値を[specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout)が用意されています。非同期ジョブの試行回数がこの値を超えると、そのジョブは `failed_jobs` データベーステーブルに登録されます。失敗した[Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching)はこのテーブルには保存されず、例外はアプリケーションによって直ちに処理されます。
+キューに投入したジョブが失敗することもあります。心配はいりません。いつも計画どおりに進むとは限らないものです。Laravel には、[specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout)ための便利な方法が用意されています。非同期ジョブの試行回数がこの値を超えると、そのジョブは `failed_jobs` データベーステーブルに登録されます。失敗した[Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching)はこのテーブルには保存されず、例外はアプリケーションによって直ちに処理されます。
 
 <!-- A migration to create the `failed_jobs` table is typically already present in new Laravel applications. However, if your application does not contain a migration for this table, you may use the `make:queue-failed-table` command to create the migration: -->
 `failed_jobs` テーブルを作成するための移行は、通常、新しい Laravel アプリケーションにすでに存在しています。ただし、アプリケーションにこのテーブルの移行が含まれていない場合は、`make:queue-failed-table` コマンドを使用して移行を作成できます。

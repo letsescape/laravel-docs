@@ -236,7 +236,7 @@ Laravel Boost에는 다음 패키지와 프레임워크를 위한 AI 지침이 �
 </div>
 
 > [!NOTE]
-> AI 가이드라인을 최신 상태로 유지하려면 [Keeping Boost Resources Updated](#keeping-boost-resources-updated) 섹션을 참고하세요.
+> AI 지침을 최신 상태로 유지하려면 [Keeping Boost Resources Updated](#keeping-boost-resources-updated) 섹션을 참고하세요.
 
 <a name="adding-custom-ai-guidelines"></a>
 <!-- ### Adding Custom AI Guidelines -->
@@ -290,7 +290,7 @@ $result = PackageName::featureTwo($param1, $param2);
 [Agent Skills](https://agentskills.io/home)는 에이전트가 특정 도메인 작업을 할 때 필요에 따라 활성화할 수 있는 가볍고 목적이 분명한 지식 모듈입니다. 미리 로드되는 지침과 달리, 스킬은 관련성이 있을 때만 상세한 패턴과 모범 사례를 로드할 수 있게 해 줍니다. 이를 통해 문맥이 불필요하게 커지는 것을 줄이고 AI가 생성하는 코드의 관련성을 높입니다.
 
 <!-- When you run `boost:install` and select skills as a feature, skills are automatically installed based on the packages detected in your `composer.json`. For example, if your project includes `livewire/livewire`, the `livewire-development` skill will be installed automatically. Skills included with Boost, such as `infer-conventions`, are installed regardless of which packages you have. -->
-`boost:install`을 실행하고 기능으로 skills를 선택하면 `composer.json`에서 감지된 패키지를 기준으로 skills가 자동으로 설치됩니다. 예를 들어 프로젝트에 `livewire/livewire`가 포함되어 있으면 `livewire-development` skill이 자동으로 설치됩니다. `infer-conventions`처럼 Boost에 포함된 skills는 어떤 패키지를 사용하든 설치됩니다.
+`boost:install`을 실행하고 기능으로 스킬을 선택하면 `composer.json`에서 감지된 패키지를 기준으로 스킬이 자동으로 설치됩니다. 예를 들어 프로젝트에 `livewire/livewire`가 포함되어 있으면 `livewire-development` 스킬이 자동으로 설치됩니다. `infer-conventions`처럼 Boost에 포함된 스킬은 어떤 패키지를 사용하든 설치됩니다.
 
 <a name="available-skills"></a>
 <!-- ### Available Skills -->
@@ -299,7 +299,7 @@ $result = PackageName::featureTwo($param1, $param2);
 <div class="overflow-auto">
 
 <!-- | Skill | Package | | -------------------------- | -------------- | | fluxui-development | Flux UI | | folio-routing | Folio | | infer-conventions | Boost | | inertia-react-development | Inertia React | | inertia-svelte-development | Inertia Svelte | | inertia-vue-development | Inertia Vue | | livewire-development | Livewire | | mcp-development | MCP | | pennant-development | Pennant | | pest-testing | Pest | | tailwindcss-development | Tailwind CSS | | volt-development | Volt | | wayfinder-development | Wayfinder | -->
-| 기술 | 패키지 |
+| 스킬 | 패키지 |
 | -------------------------- | -------------- |
 | fluxui-development         | Flux UI        |
 | folio-routing              | Folio          |
@@ -318,7 +318,7 @@ $result = PackageName::featureTwo($param1, $param2);
 </div>
 
 > [!NOTE]
-> 기술 역량을 최신 상태로 유지하려면 [Keeping Boost Resources Updated](#keeping-boost-resources-updated) 섹션을 참고하세요.
+> 스킬을 최신 상태로 유지하려면 [Keeping Boost Resources Updated](#keeping-boost-resources-updated) 섹션을 참고하세요.
 
 <a name="custom-skills"></a>
 <!-- ### Custom Skills -->
@@ -423,7 +423,7 @@ Laravel Boost는 AI 에이전트에 애플리케이션에 대한 문맥을 제�
 규칙은 애플리케이션의 `.ai/rules` 디렉터리에 Markdown 파일로 저장하며, 소스 제어에 커밋해야 합니다. 에이전트의 자체 메모리는 개인적이고 세션 범위로 제한되지만, 규칙은 팀과 애플리케이션에서 작업하는 모든 에이전트가 공유합니다.
 
 <!-- Each rule file declares the file globs it applies to within its frontmatter: -->
-각 규칙 파일은 프런트 matter에서 적용할 파일 glob을 선언합니다:
+각 규칙 파일은 frontmatter에서 적용할 파일 glob을 선언합니다:
 
 ```markdown
 ---
@@ -479,7 +479,7 @@ Remember that all money values are stored as integer cents, never as floats.
 ### Inferring Your Application's Conventions
 
 <!-- Recording rules one at a time works well going forward; however, an existing application already contains years of conventions. The `infer-conventions` skill will bootstrap your rules from the code you have already written. To get started, ask your agent to use the skill: -->
-앞으로는 한 번에 하나씩 기록 규칙을 작성하는 방식이 잘 작동합니다. 하지만 기존 애플리케이션에는 이미 수년간 쌓인 규칙이 있습니다. `infer-conventions` 스킬은 이미 작성한 코드에서 규칙을 추출해 초기 규칙을 설정합니다. 시작하려면 에이전트에게 이 스킬을 사용하도록 요청하세요:
+앞으로는 규칙을 한 번에 하나씩 기록하는 방식이 잘 작동합니다. 하지만 기존 애플리케이션에는 이미 수년간 쌓인 규칙이 있습니다. `infer-conventions` 스킬은 이미 작성한 코드에서 규칙을 추출해 초기 규칙을 설정합니다. 시작하려면 에이전트에게 이 스킬을 사용하도록 요청하세요:
 
 ```text
 Use the infer-conventions skill

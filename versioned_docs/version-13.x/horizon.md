@@ -31,7 +31,7 @@
 > Laravel Horizon을 살펴보기 전에 먼저 Laravel의 기본 [queue services](/docs/13.x/queues)에 익숙해져야 합니다. Horizon은 Laravel의 큐에 추가 기능을 제공하므로, Laravel이 제공하는 기본 큐 기능을 아직 잘 모른다면 혼란스러울 수 있습니다.
 
 <!-- [Laravel Horizon](https://github.com/laravel/horizon) provides a beautiful dashboard and code-driven configuration for your Laravel powered [Redis queues](/docs/13.x/queues). Horizon allows you to easily monitor key metrics of your queue system such as job throughput, runtime, and job failures. -->
-[Laravel Horizon](https://github.com/laravel/horizon)는 Laravel 기반 [Redis queues](/docs/13.x/queues)를 위한 아름다운 대시보드와 코드 기반 설정을 제공합니다. Horizon을 사용하면 잡 처리량, 실행 시간, 잡 실패와 같은 큐 시스템의 주요 메트릭을 손쉽게 모니터링할 수 있습니다.
+[Laravel Horizon](https://github.com/laravel/horizon)은 Laravel 기반 [Redis queues](/docs/13.x/queues)를 위한 아름다운 대시보드와 코드 기반 설정을 제공합니다. Horizon을 사용하면 잡 처리량, 실행 시간, 잡 실패와 같은 큐 시스템의 주요 메트릭을 손쉽게 모니터링할 수 있습니다.
 
 <!-- When using Horizon, all of your queue worker configuration is stored in a single, simple configuration file. By defining your application's worker configuration in a version controlled file, you may easily scale or modify your application's queue workers when deploying your application. -->
 Horizon을 사용하면 모든 큐 워커 설정이 하나의 단순한 설정 파일에 저장됩니다. 애플리케이션의 워커 구성을 버전 관리되는 파일에 정의함으로써, 배포 시 손쉽게 큐 워커의 스케일 조정이나 설정 변경이 가능합니다.

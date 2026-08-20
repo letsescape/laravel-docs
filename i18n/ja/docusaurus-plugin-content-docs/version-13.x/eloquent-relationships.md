@@ -2798,7 +2798,7 @@ $user->roles()->sync([1, 2, 3]);
 ```
 
 <!-- You may also pass additional intermediate table values with the IDs: -->
-IDを使って、追加の中間テーブルの値を渡すこともできます。
+ID とともに追加の中間テーブル値を渡すこともできます。
 
 ```php
 $user->roles()->sync([1 => ['expires' => true], 2, 3]);
@@ -2830,7 +2830,7 @@ $user->roles()->toggle([1, 2, 3]);
 ```
 
 <!-- You may also pass additional intermediate table values with the IDs: -->
-次の ID を使って、追加の中間テーブル値を渡すこともできます。
+ID とともに追加の中間テーブル値を渡すこともできます。
 
 ```php
 $user->roles()->toggle([

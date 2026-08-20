@@ -151,7 +151,7 @@ Horizon を起動すると、アプリケーションが実行されている環
 #### Supervisors
 
 <!-- As you can see in Horizon's default configuration file, each environment can contain one or more "supervisors". By default, the configuration file defines this supervisor as `supervisor-1`; however, you are free to name your supervisors whatever you want. Each supervisor is essentially responsible for "supervising" a group of worker processes and takes care of balancing worker processes across queues. -->
-Horizon のデフォルト構成ファイルからわかるように、各環境には 1 つ以上の「スーパーバイザ」を含めることができます。デフォルトでは、構成ファイルはこのスーパーバイザを `supervisor-1` として定義します。ただし、Supervisorの名前は自由に付けることができます。各スーパーバイザは基本的に、ワーカー プロセスのグループを「監視」する責任を負い、キュー間でワーカー プロセスのバランスをとります。
+Horizon のデフォルト構成ファイルからわかるように、各環境には 1 つ以上の「スーパーバイザ」を含めることができます。デフォルトでは、構成ファイルはこのスーパーバイザを `supervisor-1` として定義します。ただし、スーパーバイザの名前は自由に付けることができます。各スーパーバイザは基本的に、ワーカー プロセスのグループを「監視」する責任を負い、キュー間でワーカー プロセスのバランスをとります。
 
 <!-- You may add additional supervisors to a given environment if you would like to define a new group of worker processes that should run in that environment. You may choose to do this if you would like to define a different balancing strategy or worker process count for a given queue used by your application. -->
 特定の環境で実行するワーカー プロセスの新しいグループを定義したい場合は、その環境にスーパーバイザを追加できます。アプリケーションで使用される特定のキューに対して別のバランシング戦略またはワーカー プロセス数を定義したい場合は、これを行うことを選択できます。
@@ -236,7 +236,7 @@ Laravel は認証されたユーザーをゲート クロージャに自動的�
 > このオプションは、Artisan コマンドを使用してキューを処理する場合の `--tries` オプションに似ています。
 
 <!-- Adjusting the `tries` option is essential when using middlewares such as `WithoutOverlapping` or `RateLimited` because they consume attempts. To handle this, adjust the `tries` configuration value either at the supervisor level or by defining the `$tries` property on the job class. -->
-`WithoutOverlapping` や `RateLimited` などのミドルウェアを使用する場合、試行回数が消費されるため、`tries` オプションの調整が不可欠です。これに対処するには、Supervisor レベルで、またはジョブ クラスで `$tries` プロパティを定義することによって、`tries` 構成値を調整します。
+`WithoutOverlapping` や `RateLimited` などのミドルウェアを使用する場合、試行回数が消費されるため、`tries` オプションの調整が不可欠です。これに対処するには、スーパーバイザ レベルで、またはジョブ クラスで `$tries` プロパティを定義することによって、`tries` 構成値を調整します。
 
 <!-- If you don't set the `tries` option, Horizon defaults to a single attempt, unless the job class defines `$tries`, which takes precedence over the Horizon configuration. -->
 `tries` オプションを設定しない場合、ジョブ クラスで `$tries` が定義されていない限り、Horizon はデフォルトで 1 回の試行を行います。これは Horizon 設定よりも優先されます。
@@ -302,7 +302,7 @@ Laravel は認証されたユーザーをゲート クロージャに自動的�
 ### Other Worker Options
 
 <!-- In addition to `tries`, `timeout`, and `backoff`, each supervisor accepts several other options that control how its worker processes behave and when they are automatically restarted. Periodically restarting workers is a good practice for long-running processes, as it helps guard against memory leaks: -->
-`tries`、`timeout`、`backoff` に加えて、各 supervisor は、ワーカープロセスの動作や自動的に再起動されるタイミングを制御する複数のオプションを受け付けます。長時間実行されるプロセスでは、ワーカーを定期的に再起動することをおすすめします。メモリリークの防止に役立つためです。
+`tries`、`timeout`、`backoff` に加えて、各スーパーバイザは、ワーカープロセスの動作や自動的に再起動されるタイミングを制御する複数のオプションを受け付けます。長時間実行されるプロセスでは、ワーカーを定期的に再起動することをおすすめします。メモリリークの防止に役立つためです。
 
 ```php
 'environments' => [

@@ -973,7 +973,7 @@ return $this->belongsToMany(Role::class)->withTimestamps();
 ```
 
 > [!WARNING]
-> Eloquent이 자동으로 관리하는 타임스탬프를 사용하는 중간 테이블에는 `created_at` 및 `updated_at` 타임스탬프 컬럼이 모두 있어야 합니다.
+> Eloquent가 자동으로 관리하는 타임스탬프를 사용하는 중간 테이블에는 `created_at` 및 `updated_at` 타임스탬프 컬럼이 모두 있어야 합니다.
 
 <a name="customizing-the-pivot-attribute-name"></a>
 <!-- #### Customizing the `pivot` Attribute Name -->
@@ -2303,7 +2303,7 @@ $books = Book::with('author:id,name,book_id')->get();
 ```
 
 > [!WARNING]
-> 이 기능을 사용할 때는 검색하려는 컬럼 목록에 항상 `id` 컬럼과 관련된 외래 키 컬럼을 포함해야 합니다.
+> 이 기능을 사용할 때는 조회하려는 컬럼 목록에 항상 `id` 컬럼과 관련된 외래 키 컬럼을 포함해야 합니다.
 
 <a name="eager-loading-by-default"></a>
 <!-- #### Eager Loading by Default -->
@@ -2704,10 +2704,10 @@ $user->posts()->createManyQuietly([
 ```
 
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/13.x/eloquent#upserts). -->
-`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용해 [create and update models on relationships](/docs/13.x/eloquent#upserts) 수도 있습니다.
+`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용해 [create and update models on relationships](/docs/13.x/eloquent#upserts)할 수도 있습니다.
 
 > [!NOTE]
-> `create` 메서드를 사용하기 전에 [mass assignment](/docs/13.x/eloquent#mass-assignment) 문서를 검토하세요.
+> `create` 메서드를 사용하기 전에 반드시 [mass assignment](/docs/13.x/eloquent#mass-assignment) 문서를 검토하세요.
 
 <a name="updating-belongs-to-relationships"></a>
 <!-- ### Belongs To Relationships -->
