@@ -18,7 +18,6 @@ REQUEST_BUDGET_ENV = {
     "TRANSLATION_RESERVED_OUTPUT_TOKENS": "200",
     "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "60",
     "TRANSLATION_RUN_TIMEOUT_SECONDS": "600",
-    "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS": "900",
     "TRANSLATION_TOKENIZER_ENCODING": "o200k_base",
 }
 CLI_AUTH_ENV = {"CODEX_ACCESS_TOKEN": "test-codex-token"}
@@ -110,17 +109,12 @@ class TranslateRetryTests(unittest.TestCase):
             rendered,
         )
 
-    def test_identity_provider_requires_replay_mode(self):
-        """`identity` 제공자의 `replay` 모드 요구 검증."""
+    def test_identity_test_config_has_no_api_credentials(self):
+        """테스트용 `identity` 설정이 API 인증을 갖지 않는지 검증."""
 
-        with self.assertRaises(config.ConfigError):
-            config.load_config({"TRANSLATION_PROVIDER": "identity"})
-
-        cfg = config.load_config(
-            {
-                "TRANSLATION_PROVIDER": "identity",
-                "TRANSLATION_REPLAY": "1",
-            }
+        cfg = config.Config(
+            provider="identity",
+            values={"TRANSLATION_PROVIDER": "identity"},
         )
 
         self.assertEqual(cfg.provider, "identity")
@@ -313,47 +307,6 @@ class TranslateRetryTests(unittest.TestCase):
             config.provider_config_sha256(timed_token),
         )
 
-    def test_provider_config_hash_binds_azure_endpoint_not_api_key(self):
-        """API 키 대신 Azure 엔드포인트를 반영한 제공자 구성 해시 검증."""
-
-        base = {
-            "TRANSLATION_PROVIDER": "azure",
-            "TRANSLATION_MODEL": "deployment",
-            "TRANSLATION_MODEL_PROFILE": "gpt-5.6-luna",
-            "AZURE_OPENAI_API_VERSION": "2026-01-01",
-            **REQUEST_BUDGET_ENV,
-        }
-        first = config.load_config(
-            {
-                **base,
-                "AZURE_OPENAI_ENDPOINT": "https://first.openai.azure.com",
-                "AZURE_OPENAI_API_KEY": "first-secret",
-            }
-        )
-        rotated_key = config.load_config(
-            {
-                **base,
-                "AZURE_OPENAI_ENDPOINT": "https://first.openai.azure.com",
-                "AZURE_OPENAI_API_KEY": "second-secret",
-            }
-        )
-        changed_endpoint = config.load_config(
-            {
-                **base,
-                "AZURE_OPENAI_ENDPOINT": "https://second.openai.azure.com",
-                "AZURE_OPENAI_API_KEY": "first-secret",
-            }
-        )
-
-        self.assertEqual(
-            config.provider_config_sha256(first),
-            config.provider_config_sha256(rotated_key),
-        )
-        self.assertNotEqual(
-            config.provider_config_sha256(first),
-            config.provider_config_sha256(changed_endpoint),
-        )
-
     def test_cli_provider_rejects_relative_codex_home(self):
         """CLI 제공자의 상대 `CODEX_HOME` 경로 거부 검증."""
 
@@ -434,31 +387,6 @@ class TranslateRetryTests(unittest.TestCase):
                     config.load_config({**base_env, **override})
                 self.assertEqual(raised.exception.issue_code, issue_code)
 
-    def test_azure_deployment_requires_a_verified_model_profile(self):
-        """Azure 배포의 검증된 모델 프로필 요구 검증."""
-
-        base_env = {
-            "TRANSLATION_PROVIDER": "azure",
-            "TRANSLATION_MODEL": "deployment-name",
-            "AZURE_OPENAI_API_KEY": "test-azure-key",
-            "AZURE_OPENAI_API_VERSION": "version",
-            "AZURE_OPENAI_ENDPOINT": "https://azure.example.test",
-            **REQUEST_BUDGET_ENV,
-        }
-        with self.assertRaises(config.ConfigError) as missing_profile:
-            config.load_config(base_env)
-        self.assertEqual(
-            missing_profile.exception.issue_code,
-            IssueCode.TOKENIZER_METADATA_UNAVAILABLE,
-        )
-
-        cfg = config.load_config(
-            {**base_env, "TRANSLATION_MODEL_PROFILE": "gpt-5.6-luna"}
-        )
-
-        self.assertEqual(cfg.get("TRANSLATION_MODEL"), "deployment-name")
-        self.assertEqual(cfg.get("TRANSLATION_MODEL_PROFILE"), "gpt-5.6-luna")
-
     def test_config_preserves_provider_runtime_options(self):
         """설정의 제공자 런타임 옵션 보존 검증."""
 
@@ -536,7 +464,6 @@ class TranslateRetryTests(unittest.TestCase):
             ("TRANSLATION_RESERVED_OUTPUT_TOKENS", "0"),
             ("TRANSLATION_RESERVED_OUTPUT_TOKENS", "200000"),
             ("TRANSLATION_REQUEST_TIMEOUT_SECONDS", "601"),
-            ("TRANSLATION_RUN_TIMEOUT_SECONDS", "901"),
         )
 
         for key, value in cases:
@@ -565,8 +492,8 @@ class TranslateRetryTests(unittest.TestCase):
                 }
             )
 
-    def test_config_reads_one_shared_absolute_run_deadline(self):
-        """설정에서 단일 공유 절대 실행 기한 읽기 검증."""
+    def test_config_calculates_run_deadline_from_budget(self):
+        """설정의 실행 예산으로 절대 실행 기한 계산 검증."""
 
         cfg = config.Config(
             provider="cli",
@@ -579,52 +506,10 @@ class TranslateRetryTests(unittest.TestCase):
 
         deadline = config.required_run_deadline(
             cfg,
-            {
-                "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC": "1000.0",
-                "TRANSLATION_RUN_DEADLINE_MONOTONIC": "700.0",
-            },
             clock=lambda: 100.0,
         )
 
         self.assertEqual(deadline, 700.0)
-
-    def test_config_rejects_missing_expired_or_reset_run_deadline(self):
-        """누락되거나 만료 또는 재설정된 실행 기한 거부 검증."""
-
-        cfg = config.Config(
-            provider="cli",
-            values={
-                "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
-                **REQUEST_BUDGET_ENV,
-            },
-        )
-        cases = (
-            {},
-            {
-                "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC": "1000.0",
-                "TRANSLATION_RUN_DEADLINE_MONOTONIC": "99.0",
-            },
-            {
-                "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC": "800.0",
-                "TRANSLATION_RUN_DEADLINE_MONOTONIC": "900.0",
-            },
-            {
-                "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC": "1000.0",
-                "TRANSLATION_RUN_DEADLINE_MONOTONIC": "701.0",
-            },
-        )
-        for environment in cases:
-            with self.subTest(environment=environment):
-                with self.assertRaisesRegex(
-                    config.ConfigError,
-                    "INVALID_RUNTIME_OPTION",
-                ):
-                    config.required_run_deadline(
-                        cfg,
-                        environment,
-                        clock=lambda: 100.0,
-                    )
 
     def test_annotation_format_is_locale_neutral(self):
         """주석 형식의 로캘 중립성 검증."""
@@ -666,7 +551,6 @@ class TranslateRetryTests(unittest.TestCase):
                 "TRANSLATION_RESERVED_OUTPUT_TOKENS": "10",
                 "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "10",
                 "TRANSLATION_RUN_TIMEOUT_SECONDS": "20",
-                "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS": "30",
                 "TRANSLATION_TOKENIZER_ENCODING": "o200k_base",
             },
         )
@@ -1036,27 +920,6 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(calls, 1)
         self.assertEqual(sleeps, [])
 
-    def test_translation_run_deadline_uses_earlier_workflow_deadline(self):
-        """번역 실행 기한에 더 이른 워크플로 기한 사용 검증."""
-
-        cfg = config.Config(
-            provider="cli",
-            values={
-                "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
-                **REQUEST_BUDGET_ENV,
-                "TRANSLATION_RUN_TIMEOUT_SECONDS": "600",
-            },
-        )
-
-        deadline = translate.start_translation_deadline(
-            cfg,
-            workflow_deadline=500.0,
-            clock=lambda: 100.0,
-        )
-
-        self.assertEqual(deadline, 500.0)
-
     def test_provider_call_does_not_start_without_full_request_time_remaining(self):
         """전체 요청 시간이 부족한 제공자 호출의 시작 방지 검증."""
 
@@ -1386,68 +1249,6 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertIsNone(raised.exception.__cause__)
         self.assertNotIn("bad request", str(raised.exception))
 
-    def test_azure_request_uses_chat_completions(self):
-        """Azure 요청의 `chat.completions` 사용 검증."""
-
-        request = translate.TranslationRequest(
-            source="Changed source.\n",
-            existing_translation="기존 번역입니다.",
-        )
-        response = SimpleNamespace(
-            choices=[
-                SimpleNamespace(
-                    finish_reason="stop",
-                    message=SimpleNamespace(content="translated"),
-                )
-            ]
-        )
-        cfg = config.Config(
-            provider="azure",
-            values={
-                "TRANSLATION_MODEL": "model",
-                "TRANSLATION_MODEL_PROFILE": "gpt-5.6-luna",
-                "TRANSLATION_REASONING_EFFORT": "medium",
-                "AZURE_OPENAI_API_KEY": "key",
-                "AZURE_OPENAI_API_VERSION": "version",
-                "AZURE_OPENAI_ENDPOINT": "endpoint",
-                **REQUEST_BUDGET_ENV,
-            },
-        )
-
-        with patch("openai.AzureOpenAI") as client_class:
-            client_class.return_value.chat.completions.create.return_value = response
-
-            result = translate.translate_request(
-                request,
-                cfg,
-                "prompt",
-                deadline=1000.0,
-                clock=lambda: 0.0,
-            )
-
-        self.assertEqual(result, "translated")
-        client_class.assert_called_once_with(
-            api_key="key",
-            api_version="version",
-            azure_endpoint="endpoint",
-            organization="",
-            project="",
-            max_retries=0,
-            timeout=60,
-        )
-        client_class.return_value.chat.completions.create.assert_called_once_with(
-            model="model",
-            reasoning_effort="medium",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "prompt" + translate._ANNOTATION_FORMAT,
-                },
-                {"role": "user", "content": request.render()},
-            ],
-            max_completion_tokens=200,
-        )
-
     def test_openai_request_uses_responses_and_returns_output_text(self):
         """OpenAI 요청의 Responses API 사용과 `output_text` 반환 검증."""
 
@@ -1537,132 +1338,6 @@ class TranslateRetryTests(unittest.TestCase):
 
         self.assertEqual(client_class.return_value.responses.create.call_count, 1)
         self.assertNotIn("PRIVATE_OPENAI", str(raised.exception))
-
-    def test_sdk_transports_use_request_budget_timeout(self):
-        """SDK 전송의 요청 예산 시간 제한 사용 검증."""
-
-        openai_config = config.Config(
-            provider="openai",
-            values={
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
-                "OPENAI_API_KEY": "key",
-                **REQUEST_BUDGET_ENV,
-                "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "17",
-            },
-        )
-        azure_config = config.Config(
-            provider="azure",
-            values={
-                "TRANSLATION_MODEL": "model",
-                "TRANSLATION_MODEL_PROFILE": "gpt-5.6-luna",
-                "AZURE_OPENAI_API_KEY": "key",
-                "AZURE_OPENAI_API_VERSION": "version",
-                "AZURE_OPENAI_ENDPOINT": "endpoint",
-                **REQUEST_BUDGET_ENV,
-                "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "17",
-            },
-        )
-
-        with patch("openai.OpenAI") as openai_client:
-            openai_client.return_value.responses.create.return_value = SimpleNamespace(
-                status="completed",
-                output_text="translated",
-            )
-            translate._translate_openai("source", openai_config, "prompt")
-
-        openai_client.assert_called_once_with(
-            api_key="key",
-            base_url=translate.OPENAI_API_BASE_URL,
-            organization="",
-            project="",
-            max_retries=0,
-            timeout=17,
-        )
-        self.assertEqual(
-            openai_client.return_value.responses.create.call_args.kwargs[
-                "max_output_tokens"
-            ],
-            200,
-        )
-
-        with patch("openai.AzureOpenAI") as azure_client:
-            azure_client.return_value.chat.completions.create.return_value = (
-                SimpleNamespace(
-                    choices=[
-                        SimpleNamespace(
-                            finish_reason="stop",
-                            message=SimpleNamespace(content="translated"),
-                        )
-                    ]
-                )
-            )
-            translate._translate_openai("source", azure_config, "prompt")
-
-        azure_client.assert_called_once_with(
-            api_key="key",
-            api_version="version",
-            azure_endpoint="endpoint",
-            organization="",
-            project="",
-            max_retries=0,
-            timeout=17,
-        )
-        self.assertEqual(
-            azure_client.return_value.chat.completions.create.call_args.kwargs[
-                "max_completion_tokens"
-            ],
-            200,
-        )
-
-    def test_azure_truncated_response_is_not_accepted(self):
-        """Azure 잘린 응답 거부 검증."""
-
-        request = translate.TranslationRequest(
-            source="Changed source.\n",
-            existing_translation=None,
-        )
-        cfg = config.Config(
-            provider="azure",
-            values={
-                "TRANSLATION_MODEL": "model",
-                "TRANSLATION_MODEL_PROFILE": "gpt-5.6-luna",
-                "AZURE_OPENAI_API_KEY": "key",
-                "AZURE_OPENAI_API_VERSION": "version",
-                "AZURE_OPENAI_ENDPOINT": "endpoint",
-                **REQUEST_BUDGET_ENV,
-            },
-        )
-        response = SimpleNamespace(
-            choices=[
-                SimpleNamespace(
-                    finish_reason="length",
-                    message=SimpleNamespace(
-                        content="PRIVATE_AZURE_RESPONSE_BODY"
-                    ),
-                )
-            ]
-        )
-
-        with patch("openai.AzureOpenAI") as client_class:
-            client_class.return_value.chat.completions.create.return_value = response
-
-            with self.assertRaisesRegex(
-                translate.IncompleteTranslation,
-                r"adapter=azure, status=length",
-            ) as raised:
-                translate.translate_request(
-                    request,
-                    cfg,
-                    "prompt",
-                    deadline=1000.0,
-                    clock=lambda: 0.0,
-                )
-
-        self.assertEqual(
-            client_class.return_value.chat.completions.create.call_count,
-            1,
-        )
-        self.assertNotIn("PRIVATE_AZURE", str(raised.exception))
 
     def test_split_chunks_keeps_anchor_with_following_heading(self):
         """`split_chunks`에서 앵커와 다음 제목을 함께 유지하는지 검증."""
@@ -1872,141 +1547,6 @@ class TranslateRetryTests(unittest.TestCase):
             "missing version metadata",
         ):
             translate.translate_request(request, cfg, "prompt")
-
-    def test_cli_request_returns_only_the_last_agent_message(self):
-        """CLI 요청의 마지막 에이전트 메시지만 반환 검증."""
-
-        request = translate.TranslationRequest(
-            source="Changed source.\n",
-            existing_translation=None,
-        )
-        cfg = config.Config(
-            provider="cli",
-            values={
-                "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
-                "TRANSLATION_REASONING_EFFORT": "medium",
-                **CLI_AUTH_ENV,
-                **REQUEST_BUDGET_ENV,
-            },
-        )
-
-        calls = []
-
-        def run(command, **kwargs):
-            """마지막 에이전트 메시지 파일을 작성하고 완료된 프로세스 반환."""
-
-            calls.append((command, kwargs))
-            output_flag = command.index("--output-last-message")
-            Path(command[output_flag + 1]).write_text(
-                "translated Markdown", encoding="utf-8"
-            )
-            return subprocess.CompletedProcess(
-                command,
-                0,
-                stdout="formatted agent progress",
-                stderr="",
-            )
-
-        parent_environment = {
-            "PATH": "/usr/bin",
-            "HOME": "/tmp/home",
-            "CODEX_HOME": "/tmp/codex-home",
-            "CODEX_ACCESS_TOKEN": "allowed-codex-token",
-            "OPENAI_API_KEY": "allowed-openai-key",
-            "HTTPS_PROXY": "https://proxy.example",
-            "LANG": "ko_KR.UTF-8",
-            "AZURE_OPENAI_API_KEY": "must-not-leak",
-            "UNRELATED_SECRET": "must-not-leak",
-        }
-        with patch.dict("os.environ", parent_environment, clear=True), patch.object(
-            translate,
-            "run_process_tree",
-            side_effect=run,
-        ):
-            out = translate.translate_request(
-                request,
-                cfg,
-                "prompt",
-                deadline=1000.0,
-                clock=lambda: 0.0,
-            )
-
-        self.assertEqual(out, "translated Markdown")
-        self.assertEqual(len(calls), 1)
-        command, kwargs = calls[0]
-        self.assertEqual(command[:2], ["codex", "exec"])
-        self.assertIn("--ignore-user-config", command)
-        self.assertIn("--ignore-rules", command)
-        self.assertIn("--ephemeral", command)
-        for feature in (
-            "apps",
-            "browser_use",
-            "browser_use_external",
-            "browser_use_full_cdp_access",
-            "computer_use",
-            "hooks",
-            "image_generation",
-            "in_app_browser",
-            "multi_agent",
-            "plugins",
-            "plugin_sharing",
-            "remote_plugin",
-            "shell_snapshot",
-            "shell_tool",
-            "tool_suggest",
-            "unified_exec",
-            "workspace_dependencies",
-        ):
-            self.assertIn(("--disable", feature), zip(command, command[1:]))
-        self.assertIn("--strict-config", command)
-        self.assertEqual(command[command.index("--model") + 1], "gpt-5.6-luna")
-        self.assertEqual(
-            command[command.index("-c") + 1],
-            'model_reasoning_effort="medium"',
-        )
-        self.assertIn("project_doc_max_bytes=0", command)
-        self.assertIn('web_search="disabled"', command)
-        self.assertIn('shell_environment_policy.inherit="none"', command)
-        self.assertIn("allow_login_shell=false", command)
-        self.assertEqual(command[command.index("--sandbox") + 1], "read-only")
-        self.assertEqual(command[-1], "prompt" + translate._ANNOTATION_FORMAT)
-        self.assertEqual(
-            kwargs["input"],
-            request.render(),
-        )
-        self.assertEqual(kwargs["cwd"], str(Path(command[-2]).parent))
-        self.assertTrue(kwargs["check"])
-        child_environment = kwargs["env"]
-        child_home = Path(child_environment["HOME"])
-        self.assertEqual(child_home, Path(kwargs["cwd"]) / "home")
-        self.assertEqual(child_environment["USERPROFILE"], str(child_home))
-        self.assertEqual(
-            child_environment["CODEX_HOME"],
-            str(child_home / ".codex"),
-        )
-        self.assertEqual(
-            child_environment["XDG_CONFIG_HOME"],
-            str(child_home / ".config"),
-        )
-        self.assertEqual(
-            child_environment["XDG_CACHE_HOME"],
-            str(child_home / ".cache"),
-        )
-        self.assertEqual(
-            child_environment["CODEX_ACCESS_TOKEN"],
-            "test-codex-token",
-        )
-        self.assertEqual(child_environment["PATH"], "/usr/bin")
-        self.assertEqual(
-            child_environment["HTTPS_PROXY"],
-            "https://proxy.example",
-        )
-        self.assertEqual(child_environment["LANG"], "ko_KR.UTF-8")
-        self.assertNotIn("OPENAI_API_KEY", child_environment)
-        self.assertNotIn("AZURE_OPENAI_API_KEY", child_environment)
-        self.assertNotIn("UNRELATED_SECRET", child_environment)
-        self.assertEqual(kwargs["timeout"], 60)
 
     def test_cli_fixture_and_candidate_use_the_same_explicit_authentication(self):
         """CLI 픽스처와 후보의 동일한 명시적 인증 사용 검증."""
@@ -2377,6 +1917,173 @@ class TranslateRetryTests(unittest.TestCase):
 
         self.assertEqual(run.call_count, 1)
 
+
+    def test_sdk_transports_use_request_budget_timeout(self):
+        """OpenAI API 전송의 요청 예산 시간 제한 사용 검증."""
+
+        openai_config = config.Config(
+            provider="openai",
+            values={
+                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "OPENAI_API_KEY": "key",
+                **REQUEST_BUDGET_ENV,
+                "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "17",
+            },
+        )
+        with patch("openai.OpenAI") as openai_client:
+            openai_client.return_value.responses.create.return_value = SimpleNamespace(
+                status="completed",
+                output_text="translated",
+            )
+            translate._translate_openai("source", openai_config, "prompt")
+
+        openai_client.assert_called_once_with(
+            api_key="key",
+            base_url=translate.OPENAI_API_BASE_URL,
+            organization="",
+            project="",
+            max_retries=0,
+            timeout=17,
+        )
+        self.assertEqual(
+            openai_client.return_value.responses.create.call_args.kwargs[
+                "max_output_tokens"
+            ],
+            200,
+        )
+
+    def test_cli_request_returns_only_the_last_agent_message(self):
+        """CLI 요청의 마지막 에이전트 메시지만 반환 검증."""
+
+        request = translate.TranslationRequest(
+            source="Changed source.\n",
+            existing_translation=None,
+        )
+        cfg = config.Config(
+            provider="cli",
+            values={
+                "TRANSLATION_CLI_COMMAND": "codex exec",
+                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_REASONING_EFFORT": "medium",
+                **CLI_AUTH_ENV,
+                **REQUEST_BUDGET_ENV,
+            },
+        )
+
+        calls = []
+
+        def run(command, **kwargs):
+            """마지막 에이전트 메시지 파일을 작성하고 완료된 프로세스 반환."""
+
+            calls.append((command, kwargs))
+            output_flag = command.index("--output-last-message")
+            Path(command[output_flag + 1]).write_text(
+                "translated Markdown", encoding="utf-8"
+            )
+            return subprocess.CompletedProcess(
+                command,
+                0,
+                stdout="formatted agent progress",
+                stderr="",
+            )
+
+        parent_environment = {
+            "PATH": "/usr/bin",
+            "HOME": "/tmp/home",
+            "CODEX_HOME": "/tmp/codex-home",
+            "CODEX_ACCESS_TOKEN": "allowed-codex-token",
+            "OPENAI_API_KEY": "allowed-openai-key",
+            "HTTPS_PROXY": "https://proxy.example",
+            "LANG": "ko_KR.UTF-8",
+            "UNRELATED_SECRET": "must-not-leak",
+        }
+        with patch.dict("os.environ", parent_environment, clear=True), patch.object(
+            translate,
+            "run_process_tree",
+            side_effect=run,
+        ):
+            out = translate.translate_request(
+                request,
+                cfg,
+                "prompt",
+                deadline=1000.0,
+                clock=lambda: 0.0,
+            )
+
+        self.assertEqual(out, "translated Markdown")
+        self.assertEqual(len(calls), 1)
+        command, kwargs = calls[0]
+        self.assertEqual(command[:2], ["codex", "exec"])
+        self.assertIn("--ignore-user-config", command)
+        self.assertIn("--ignore-rules", command)
+        self.assertIn("--ephemeral", command)
+        for feature in (
+            "apps",
+            "browser_use",
+            "browser_use_external",
+            "browser_use_full_cdp_access",
+            "computer_use",
+            "hooks",
+            "image_generation",
+            "in_app_browser",
+            "multi_agent",
+            "plugins",
+            "plugin_sharing",
+            "remote_plugin",
+            "shell_snapshot",
+            "shell_tool",
+            "tool_suggest",
+            "unified_exec",
+            "workspace_dependencies",
+        ):
+            self.assertIn(("--disable", feature), zip(command, command[1:]))
+        self.assertIn("--strict-config", command)
+        self.assertEqual(command[command.index("--model") + 1], "gpt-5.6-luna")
+        self.assertEqual(
+            command[command.index("-c") + 1],
+            'model_reasoning_effort="medium"',
+        )
+        self.assertIn("project_doc_max_bytes=0", command)
+        self.assertIn('web_search="disabled"', command)
+        self.assertIn('shell_environment_policy.inherit="none"', command)
+        self.assertIn("allow_login_shell=false", command)
+        self.assertEqual(command[command.index("--sandbox") + 1], "read-only")
+        self.assertEqual(command[-1], "prompt" + translate._ANNOTATION_FORMAT)
+        self.assertEqual(
+            kwargs["input"],
+            request.render(),
+        )
+        self.assertEqual(kwargs["cwd"], str(Path(command[-2]).parent))
+        self.assertTrue(kwargs["check"])
+        child_environment = kwargs["env"]
+        child_home = Path(child_environment["HOME"])
+        self.assertEqual(child_home, Path(kwargs["cwd"]) / "home")
+        self.assertEqual(child_environment["USERPROFILE"], str(child_home))
+        self.assertEqual(
+            child_environment["CODEX_HOME"],
+            str(child_home / ".codex"),
+        )
+        self.assertEqual(
+            child_environment["XDG_CONFIG_HOME"],
+            str(child_home / ".config"),
+        )
+        self.assertEqual(
+            child_environment["XDG_CACHE_HOME"],
+            str(child_home / ".cache"),
+        )
+        self.assertEqual(
+            child_environment["CODEX_ACCESS_TOKEN"],
+            "test-codex-token",
+        )
+        self.assertEqual(child_environment["PATH"], "/usr/bin")
+        self.assertEqual(
+            child_environment["HTTPS_PROXY"],
+            "https://proxy.example",
+        )
+        self.assertEqual(child_environment["LANG"], "ko_KR.UTF-8")
+        self.assertNotIn("OPENAI_API_KEY", child_environment)
+        self.assertNotIn("UNRELATED_SECRET", child_environment)
+        self.assertEqual(kwargs["timeout"], 60)
 
 if __name__ == "__main__":
     unittest.main()

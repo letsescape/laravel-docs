@@ -152,6 +152,36 @@ class CreatePatchPlanTests(unittest.TestCase):
         with self.assertRaisesRegex(patch.PatchError, "rectangular"):
             patch.build_create_plan(source)
 
+    def test_create_plan_accepts_an_escaped_pipe_inside_a_table_cell(self):
+        """셀 안의 `\\|`를 열 구분자로 오인하지 않고 `create` 계획을 만듦."""
+
+        source = (
+            "| Method | Description |\n"
+            "|---|---|\n"
+            "| `->days(array\\|mixed);` | Limit the task to specific days. |\n"
+        )
+
+        plan = patch.build_create_plan(source)
+
+        table_blocks = [
+            owner for owner in plan.create_blocks if owner.kind == "table"
+        ]
+        self.assertEqual(len(table_blocks), 1)
+        self.assertIn("array\\|mixed", table_blocks[0].source)
+
+    def test_create_plan_accepts_a_table_without_outer_pipes(self):
+        """바깥쪽 pipe를 생략한 유효한 GFM 표를 표 owner로 분류함."""
+
+        source = (
+            "Method | Description\n"
+            "--- | ---\n"
+            "schedule | Define a scheduled task.\n"
+        )
+
+        plan = patch.build_create_plan(source)
+
+        self.assertEqual([block.kind for block in plan.create_blocks], ["table"])
+
     def test_create_plan_rejects_an_unsupported_admonition_marker(self):
         """지원하지 않는 알림 표식이 있으면 `create` 계획을 거부함."""
 
@@ -2770,6 +2800,30 @@ class TableRowPatchTests(unittest.TestCase):
         "Intro.\n\n| Name | Value |\n|---|---|\n"
         "| First | same |\n| Second | same |\n\nTail.\n"
     )
+
+    def test_updates_a_table_row_without_outer_pipes(self):
+        """바깥쪽 pipe가 없는 표의 단일 행을 구조 주소로 갱신함."""
+
+        old = "Name | Value\n--- | ---\nFirst | Old value\n"
+        new = old.replace("Old value", "New value")
+        existing = "이름 | 값\n--- | ---\nFirst | 이전 값\n"
+        plan = _plan(old, new)
+
+        self.assertIsNotNone(plan.changes[0].table_row)
+        result = patch.apply_plan(existing, plan, ["First | 새 값"])
+
+        self.assertIn("First | 새 값", result)
+        self.assertNotIn("First | 이전 값", result)
+
+    def test_does_not_treat_a_prose_pipe_as_a_table_row(self):
+        """구분 행이 없는 산문의 pipe를 표 경계로 오인하지 않음."""
+
+        old = "Use A | B syntax here.\n"
+        new = "Use A | C syntax here.\n"
+
+        plan = _plan(old, new)
+
+        self.assertIsNone(plan.changes[0].table_row)
 
     def test_rejects_a_change_to_multiple_table_rows(self):
         """여러 표 행에 걸친 단일 변경을 거부함."""

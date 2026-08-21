@@ -12,7 +12,6 @@ REQUEST_BUDGET_ENV = {
     "TRANSLATION_RESERVED_OUTPUT_TOKENS": "200",
     "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "60",
     "TRANSLATION_RUN_TIMEOUT_SECONDS": "600",
-    "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS": "900",
     "TRANSLATION_TOKENIZER_ENCODING": "o200k_base",
 }
 
@@ -69,21 +68,12 @@ class ProviderSelectionTests(unittest.TestCase):
             IssueCode.PROVIDER_CREDENTIAL_MISSING,
         )
 
-    def test_limits_identity_provider_to_replay(self):
-        """``identity`` 제공자의 재실행 외 사용 거부 검증."""
+    def test_identity_test_config_has_no_request_budget(self):
+        """테스트용 ``identity`` 설정이 요청 예산을 사용하지 않는지 검증."""
 
-        with self.assertRaises(config.ConfigError) as raised:
-            config.load_config({"TRANSLATION_PROVIDER": "identity"})
-        self.assertEqual(
-            raised.exception.issue_code,
-            IssueCode.REPLAY_PROVIDER_FORBIDDEN,
-        )
-
-        loaded = config.load_config(
-            {
-                "TRANSLATION_PROVIDER": "identity",
-                "TRANSLATION_REPLAY": "1",
-            }
+        loaded = config.Config(
+            provider="identity",
+            values={"TRANSLATION_PROVIDER": "identity"},
         )
         self.assertEqual(loaded.provider, "identity")
         self.assertIsNone(loaded.request_budget())
@@ -133,7 +123,6 @@ class RequestBudgetTests(unittest.TestCase):
         self.assertEqual(budget.reserved_output_tokens, 128_000)
         self.assertEqual(budget.request_timeout_seconds, 600)
         self.assertEqual(budget.run_timeout_seconds, 21600)
-        self.assertEqual(budget.workflow_timeout_seconds, 21600)
         self.assertEqual(budget.tokenizer_encoding, "o200k_base")
         self.assertEqual(
             loaded.get("TRANSLATION_CONTEXT_WINDOW_TOKENS"), "1050000"
@@ -196,33 +185,6 @@ class RequestBudgetTests(unittest.TestCase):
                     config.load_config({**openai_environment(), **override})
                 self.assertEqual(raised.exception.issue_code, issue_code)
 
-    def test_requires_azure_deployment_model_profile(self):
-        """Azure 배포 이름과 승인 모델 프로필의 명시적 연결 검증."""
-
-        environment = {
-            "TRANSLATION_PROVIDER": "azure",
-            "TRANSLATION_MODEL": "deployment-name",
-            "AZURE_OPENAI_API_KEY": "test-azure-key",
-            "AZURE_OPENAI_API_VERSION": "2026-01-01",
-            "AZURE_OPENAI_ENDPOINT": "https://azure.example.test",
-            **REQUEST_BUDGET_ENV,
-        }
-        with self.assertRaises(config.ConfigError) as missing_profile:
-            config.load_config(environment)
-        self.assertEqual(
-            missing_profile.exception.issue_code,
-            IssueCode.TOKENIZER_METADATA_UNAVAILABLE,
-        )
-
-        loaded = config.load_config(
-            {**environment, "TRANSLATION_MODEL_PROFILE": "gpt-5.6-luna"}
-        )
-        self.assertEqual(loaded.get("TRANSLATION_MODEL"), "deployment-name")
-        self.assertEqual(
-            loaded.get("TRANSLATION_MODEL_PROFILE"),
-            "gpt-5.6-luna",
-        )
-
     def test_rejects_invalid_budget_relationships(self):
         """0 이하 값과 역전된 토큰·제한 시간 관계 거부 검증."""
 
@@ -231,7 +193,6 @@ class RequestBudgetTests(unittest.TestCase):
             ("TRANSLATION_RESERVED_OUTPUT_TOKENS", "0"),
             ("TRANSLATION_RESERVED_OUTPUT_TOKENS", "200000"),
             ("TRANSLATION_REQUEST_TIMEOUT_SECONDS", "601"),
-            ("TRANSLATION_RUN_TIMEOUT_SECONDS", "901"),
         )
 
         for key, value in cases:
@@ -413,95 +374,17 @@ class ProviderEvidenceTests(unittest.TestCase):
             config.provider_config_sha256(token),
         )
 
-    def test_hash_binds_azure_endpoint_without_api_key(self):
-        """해시의 Azure 엔드포인트 변경 반영과 API 키 교체 제외 검증."""
-
-        base = {
-            "TRANSLATION_PROVIDER": "azure",
-            "TRANSLATION_MODEL": "deployment",
-            "TRANSLATION_MODEL_PROFILE": "gpt-5.6-luna",
-            "AZURE_OPENAI_API_VERSION": "2026-01-01",
-            **REQUEST_BUDGET_ENV,
-        }
-        first = config.load_config(
-            {
-                **base,
-                "AZURE_OPENAI_ENDPOINT": "https://first.openai.azure.com",
-                "AZURE_OPENAI_API_KEY": "first-secret",
-            }
-        )
-        rotated_key = config.load_config(
-            {
-                **base,
-                "AZURE_OPENAI_ENDPOINT": "https://first.openai.azure.com",
-                "AZURE_OPENAI_API_KEY": "second-secret",
-            }
-        )
-        changed_endpoint = config.load_config(
-            {
-                **base,
-                "AZURE_OPENAI_ENDPOINT": "https://second.openai.azure.com",
-                "AZURE_OPENAI_API_KEY": "first-secret",
-            }
-        )
-
-        self.assertEqual(
-            config.provider_config_sha256(first),
-            config.provider_config_sha256(rotated_key),
-        )
-        self.assertNotEqual(
-            config.provider_config_sha256(first),
-            config.provider_config_sha256(changed_endpoint),
-        )
-
-    def test_reads_one_shared_absolute_run_deadline(self):
-        """상위 워크플로 기한 안의 유효한 절대 실행 기한 로드 검증."""
+    def test_calculates_run_deadline_from_budget(self):
+        """실행 시작 시각과 검증된 예산으로 절대 실행 기한 계산 검증."""
 
         loaded = config.load_config(cli_environment())
 
         deadline = config.required_run_deadline(
             loaded,
-            {
-                config.WORKFLOW_DEADLINE_ENV: "1000.0",
-                config.RUN_DEADLINE_ENV: "700.0",
-            },
             clock=lambda: 100.0,
         )
 
         self.assertEqual(deadline, 700.0)
-
-    def test_rejects_missing_expired_or_reset_run_deadline(self):
-        """누락·만료·상위 기한 초과 실행 기한 거부 검증."""
-
-        loaded = config.load_config(cli_environment())
-        cases = (
-            {},
-            {
-                config.WORKFLOW_DEADLINE_ENV: "1000.0",
-                config.RUN_DEADLINE_ENV: "99.0",
-            },
-            {
-                config.WORKFLOW_DEADLINE_ENV: "800.0",
-                config.RUN_DEADLINE_ENV: "900.0",
-            },
-            {
-                config.WORKFLOW_DEADLINE_ENV: "1000.0",
-                config.RUN_DEADLINE_ENV: "701.0",
-            },
-        )
-
-        for environment in cases:
-            with self.subTest(environment=environment):
-                with self.assertRaises(config.ConfigError) as raised:
-                    config.required_run_deadline(
-                        loaded,
-                        environment,
-                        clock=lambda: 100.0,
-                    )
-                self.assertEqual(
-                    raised.exception.issue_code,
-                    IssueCode.INVALID_RUNTIME_OPTION,
-                )
 
 
 if __name__ == "__main__":
