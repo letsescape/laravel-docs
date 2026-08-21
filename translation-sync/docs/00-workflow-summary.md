@@ -65,7 +65,7 @@ flowchart TD
 | upstream 입력 | `versions.json`의 지원 버전·순서와 코드에 정의된 upstream 저장소. 각 버전 branch는 실행 시 고정 commit으로 해석 |
 | 출력 | 갱신된 영어 원문, KO·JA 번역 문서, 공통 사이드바. 운영 액션은 이 변경을 실행 branch에 커밋 |
 
-`--doc`은 `--version`과 함께 사용한다. 선택자를 생략하면 지원하는 모든 버전을 검사한다.
+`--doc`은 `--version`과 함께 사용한다. 선택자를 생략하면 지원하는 모든 버전을 검사한다. 선택자는 upstream·문서 번역 범위만 제한하며, 공통 sidebar 동기화는 지원하는 모든 버전을 검사한다.
 
 ### 2.1 실행 환경
 

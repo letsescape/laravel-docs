@@ -2,7 +2,7 @@
 
 ## 요약
 
-원문 동기화와 번역 단계는 실패를 숨기지 않고 즉시 종료한다. provider transport와 응답 보정만 정해진 범위에서 재시도한다. 배포 관련 오류는 이 워크플로우에 존재하지 않고, Git 반영 실패는 issue code 없이 잡 실패로만 나타난다.
+원문 동기화와 번역 단계는 실패를 숨기지 않고 즉시 종료한다. provider transport와 응답 보정만 정해진 범위에서 재시도한다. 부분 번역의 강등 대상 구조 실패는 전체 재번역으로 한 번 전환하고, 그 결과도 실패하면 종료한다. 배포 관련 오류는 이 워크플로우에 존재하지 않고, Git 반영 실패는 issue code 없이 잡 실패로만 나타난다.
 
 ## 1. 공통 원칙
 
@@ -29,6 +29,8 @@
 | `X` | infrastructure | 실행 환경, 보고서 기록 또는 분류되지 않은 내부 오류 |
 
 ## 3. Stable issue code
+
+아래 목록은 호환성을 포함한 `IssueCode` registry다. `MANIFEST_EXPORT_CONFLICT`와 `UNSUPPORTED_CHANGE_UNIT`은 현재 통합 진입점에서 방출하지 않는 예약 코드다.
 
 ### 3.1 설정 (`C`)
 

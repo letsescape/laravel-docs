@@ -96,7 +96,7 @@ flowchart TD
 | provider 장애로 번역 미완료 | 검증 미진입, provider 단계에서 target 실패 처리 |
 
 검증 issue의 provider 응답 자동 feedback 금지.
-provider 재처리가 필요하면 원인 수정 후 `main.py`를 다시 실행해 upstream 원문 동기화부터 재산출해야 한다.
+provider 재처리가 필요하면 원인 수정 후 `main.py`를 다시 실행해 upstream 원문 동기화부터 재산출해야 한다. 단, 앞선 target의 기록이나 삭제가 남은 실패라면 먼저 작업 트리를 확인하고 `07-local-replay.md`의 복구 절차에 따라 실행 전 상태를 복원한다.
 
 ## 수용 기준
 
