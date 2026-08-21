@@ -1,29 +1,19 @@
-# 격리 번역 workflow용 런타임 (Node 24 + Python 3.14 + uv + git + gh)
-FROM node:24-bookworm-slim
+# 문서 동기화·번역용 Python 런타임
+FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates gh git make && \
-    npm install --global --ignore-scripts @openai/codex@latest \
-        --registry=https://registry.npmjs.org && \
-    codex --version && \
+    apt-get install -y --no-install-recommends ca-certificates git && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
-
-ENV UV_PYTHON_INSTALL_DIR=/opt/uv-python \
-    UV_PYTHON_BIN_DIR=/usr/local/bin \
-    UV_CACHE_DIR=/home/app/.cache/uv \
+ENV UV_CACHE_DIR=/home/app/.cache/uv \
     UV_PROJECT_ENVIRONMENT=/home/app/.venv
 
-RUN uv python install 3.14 && \
-    groupadd --system app && \
+RUN groupadd --system app && \
     useradd --system --gid app --home-dir /home/app --create-home app && \
-    mkdir -p /artifacts /home/app/.cache/uv /home/app/.venv /workspace && \
-    git config --system --add safe.directory /workspace && \
-    chown -R app:app /artifacts /home/app /workspace
+    mkdir -p /home/app/.cache/uv /home/app/.venv /workspace && \
+    chown -R app:app /home/app
 
 USER app
 WORKDIR /workspace
 
-# 저장소는 compose에서 read-only로 mount하고 candidate와 phase state는 /artifacts의 별도 volume에만 기록
-ENTRYPOINT ["uv", "run", "--directory", "/workspace/translation-sync", "--locked", "--no-build", "--python", "3.14", "python", "/workspace/translation-sync/workflow.py"]
+ENTRYPOINT ["uv", "run", "--directory", "/workspace/translation-sync", "--locked", "--no-build", "--python", "3.14", "python", "/workspace/translation-sync/main.py"]
