@@ -25,8 +25,7 @@ jobs:
   sync:
     name: Sync translations
     runs-on: ubuntu-latest
-    # 코드 기본 실행 기한(21,600초)보다 늦게 중단되도록 여유를 둔다.
-    timeout-minutes: 370
+    timeout-minutes: 360
     steps:
       - name: Validate branch ref
         run: |

@@ -11,8 +11,8 @@ if [ -f $(TRANSLATION_ENV_FILE) ]; then \
 	while IFS= read -r line; do \
 		case "$$line" in ''|\#*) continue ;; esac; \
 		key=$${line%%=*}; \
-		eval "current=\$${$$key-}"; \
-		[ -n "$$current" ] || eval "export $$line"; \
+		eval "present=\$${$$key+x}"; \
+		[ -n "$$present" ] || eval "export $$line"; \
 	done < $(TRANSLATION_ENV_FILE); \
 fi;
 endef
@@ -37,6 +37,7 @@ translate: ## Docker에서 원문 동기화·번역 실행
 			-e HOME=/tmp \
 			-e UV_CACHE_DIR=/tmp/translation-sync-uv-cache \
 			-e UV_PROJECT_ENVIRONMENT=/tmp/translation-sync-venv \
+			-e TRANSLATION_PROVIDER=openai \
 			$(call TRANSLATION_FORWARD_ENV,$(TRANSLATION_API_ENV_KEYS)) \
 			$(call TRANSLATION_FORWARD_ENV,$(TRANSLATION_NETWORK_ENV_KEYS)) \
 			translate "$$@"

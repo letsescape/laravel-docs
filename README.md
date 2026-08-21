@@ -51,7 +51,7 @@ docker run -p 3000:3000 laravel-docs
 
 ### 문서 갱신
 
-문서 갱신 진입점은 `translation-sync/main.py`입니다. upstream에서 원본 문서를 동기화한 뒤 변경된 문서를 Python과 OpenAI API로 번역하고 검증된 문서·사이드바를 작업 트리에 기록합니다.
+문서 갱신 진입점은 `translation-sync/main.py`입니다. upstream에서 원본 문서를 동기화한 뒤 변경된 문서를 Python과 선택한 OpenAI provider(API 또는 CLI)로 번역하고 검증된 문서·사이드바를 작업 트리에 기록합니다.
 
 `main.py`는 Git을 조작하지 않습니다. 운영 Actions는 마지막 단계에서 갱신된 문서를 실행 branch에 커밋·push합니다. 번역 워크플로우는 Node 설치, 사이트 빌드, 배포를 수행하지 않으며, 사이트 배포는 이 워크플로우의 완료 이벤트를 구독하는 별도 워크플로우가 담당합니다.
 
@@ -62,7 +62,7 @@ GitHub Actions에서는 GitHub Variables를 사용하지 않고 OpenAI 실행에
 - reasoning effort는 코드 기본값 `medium` 사용
 - 승인된 OpenAI 모델의 context/output 예산·request timeout·tokenizer는 코드의 모델 profile 기본값 사용
 
-provider run timeout 기본값은 코드에서 `21600`초로 관리
+provider run timeout 기본값은 코드에서 `21000`초로 관리
 request timeout ≤ run timeout 관계와 reserved output token < context window 관계가 필수
 기본값 적용 후에도 필수 값을 확정할 수 없거나 관계가 맞지 않으면 provider 호출 전에 실패
 
