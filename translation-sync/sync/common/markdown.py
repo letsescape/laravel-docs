@@ -2448,11 +2448,10 @@ def _protected_table_token(
     end = index + 1
     while end < len(body) and body[end] == "`":
         end += 1
-    fence = body[index:end]
-    closing = body.find(fence, end)
-    if closing < 0:
+    matched = _matching_code_span(body, opener_end=end, width=end - index)
+    if matched is None:
         return None
-    closing += len(fence)
+    closing, _code = matched
     return body[index:closing], closing
 
 
@@ -2553,7 +2552,12 @@ def mask_html_comments(text: str) -> str:
 def quote_depth(line: str) -> int:
     """Markdown 줄의 blockquote 깊이 계산."""
 
-    stripped = line.lstrip()
+    if line.startswith("\t"):
+        return 0
+    leading_spaces = len(line) - len(line.lstrip(" "))
+    if leading_spaces >= 4:
+        return 0
+    stripped = line[leading_spaces:]
     depth = 0
     while stripped.startswith(">"):
         depth += 1
