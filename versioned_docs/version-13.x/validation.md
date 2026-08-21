@@ -1928,7 +1928,7 @@ $request->validate([
 `dns` 유효성 검사기는 실제 DNS 조회를 수행해 주소의 도메인에 유효한 MX 레코드가 있는지 확인합니다. 개별 메일박스가 존재하는지는 확인하지 않습니다.
 
 <!-- Since your tests should not rely on live DNS lookups, you may use the `Validator::fakeDnsLookups` method to [fake DNS lookups](#rule-active-url) while any other requested validations, such as `rfc`, continue to run: -->
-테스트가 실시간 DNS 조회에 의존해서는 안 되므로, `Validator::fakeDnsLookups` 메서드를 사용해 [fake DNS lookups](#rule-active-url)할 수 있습니다. 이때 `rfc`와 같이 요청된 다른 유효성 검사는 계속 실행됩니다.
+테스트가 실시간 DNS 조회에 의존해서는 안 되므로, `Validator::fakeDnsLookups` 메서드를 사용하면 [fake DNS lookups](#rule-active-url) 기능을 활성화할 수 있습니다. 이때 `rfc`와 같이 요청된 다른 유효성 검사는 계속 실행됩니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;

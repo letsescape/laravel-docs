@@ -199,7 +199,7 @@ agent()->prompt('What is Laravel?', provider: 'local', model: 'local-model');
 ```
 
 <!-- OpenAI-compatible providers support text generation, streaming, tools, structured output, image attachments, embeddings, and transcription. If your endpoint requires additional request body fields, provide them using [provider options](#provider-options). -->
-OpenAI 호환 프로바이더는 텍스트 생성, 스트리밍, 툴, 구조화 출력, 이미지 첨부 파일, 임베딩, 전사를 지원합니다. 엔드포인트에 추가 요청 본문 필드가 필요하다면 [provider options](#provider-options)을 사용해 제공할 수 있습니다.
+OpenAI 호환 프로바이더는 텍스트 생성, 스트리밍, 툴, 구조화 출력, 이미지 첨부 파일, 임베딩, 전사를 지원합니다. 엔드포인트에 추가 요청 본문 필드가 필요하다면 [provider options](#provider-options)를 사용해 지정할 수 있습니다.
 
 <a name="openai-compatible-embeddings"></a>
 <!-- #### OpenAI-Compatible Embeddings -->
@@ -1071,7 +1071,7 @@ SimilaritySearch::usingModel(Document::class, 'embedding')
 ### Deferred Tool Loading
 
 <!-- By default, every tool an agent exposes is sent to the provider with each request. When an agent provides a large number of tools, this consumes tokens and may reduce the accuracy of the model's tool selection. Using the `ToolSearch` provider tool with OpenAI or Anthropic, you may defer tool definitions so that the provider only loads them when they are needed: -->
-기본적으로 에이전트가 제공하는 모든 툴은 각 요청과 함께 provider로 전송됩니다. 에이전트가 많은 수의 툴을 제공하면 토큰을 소모하고 모델의 툴 선택 정확도가 낮아질 수 있습니다. OpenAI 또는 Anthropic에서 `ToolSearch` provider 툴을 사용하면 툴 정의를 지연시켜 provider가 필요한 경우에만 해당 정의를 로드하도록 할 수 있습니다:
+기본적으로 에이전트가 제공하는 모든 툴은 각 요청과 함께 프로바이더로 전송됩니다. 에이전트가 많은 수의 툴을 제공하면 토큰을 소모하고 모델의 툴 선택 정확도가 낮아질 수 있습니다. OpenAI 또는 Anthropic에서 `ToolSearch` 프로바이더 툴을 사용하면 툴 정의를 지연시켜 프로바이더가 필요한 경우에만 해당 정의를 로드하도록 할 수 있습니다:
 
 ```php
 use App\Ai\Tools\RefundOrder;
@@ -1117,7 +1117,7 @@ Anthropic을 사용할 때는 `withProviderOptions` 메서드를 사용해 검�
 ### File Storage Tools
 
 <!-- The `FileStorage` tool factory allows you to give agents access to a Laravel [filesystem disk](/docs/13.x/filesystem). The `all` method returns tools that allow the agent to list, read, inspect, generate URLs for, write, delete, and copy files on the given disk: -->
-`FileStorage` 도구 팩토리를 사용하면 에이전트에 Laravel [filesystem disk](/docs/13.x/filesystem)에 대한 액세스 권한을 부여할 수 있습니다. `all` 메서드는 에이전트가 지정한 디스크의 파일을 나열하고, 읽고, 검사하고, URL을 생성하고, 쓰고, 삭제하고, 복사할 수 있는 도구를 반환합니다:
+`FileStorage` 툴 팩토리를 사용하면 에이전트에 Laravel [filesystem disk](/docs/13.x/filesystem)에 대한 액세스 권한을 부여할 수 있습니다. `all` 메서드는 에이전트가 지정한 디스크의 파일을 나열하고, 읽고, 검사하고, URL을 생성하고, 쓰고, 삭제하고, 복사할 수 있는 툴을 반환합니다:
 
 ```php
 use Laravel\Ai\Tools\FileStorage;

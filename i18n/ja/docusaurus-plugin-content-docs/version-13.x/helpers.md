@@ -1486,7 +1486,7 @@ $classes = Arr::toCssStyles($array);
 ```
 
 <!-- This method powers Laravel's functionality allowing [merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) as well as the `@class` [Blade directive](/docs/13.x/blade#conditional-classes). -->
-このメソッドは、[merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes)や、`@class` [Blade directive](/docs/13.x/blade#conditional-classes)を提供します。
+このメソッドは、[merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) と `@class` [Blade directive](/docs/13.x/blade#conditional-classes) を実現する Laravel の機能を支えています。
 
 <a name="method-array-undot"></a>
 <!-- #### `Arr::undot()` -->
@@ -2666,7 +2666,7 @@ return back();
 #### `bcrypt()`
 
 <!-- The `bcrypt` function [hashes](/docs/13.x/hashing) the given value using Bcrypt. You may use this function as an alternative to the `Hash` facade: -->
-`bcrypt` 関数は、指定された値を Bcrypt で [hashes](/docs/13.x/hashing) します。`Hash` ファサードの代わりにこの関数を使用することもできます。
+`bcrypt` 関数は、[hashes](/docs/13.x/hashing) 機能を使って指定した値を Bcrypt でハッシュ化します。`Hash` ファサードの代わりにこの関数を使用することもできます。
 
 ```php
 $password = bcrypt('my-secret-password');
@@ -2702,7 +2702,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners: -->
-`broadcast` 関数は、指定した [event](/docs/13.x/events) をリスナへ [broadcasts](/docs/13.x/broadcasting) します。
+`broadcast` 関数は、[broadcasts](/docs/13.x/broadcasting) 機能を使って指定した [event](/docs/13.x/events) をリスナへブロードキャストします。
 
 ```php
 broadcast(new UserRegistered($user));
@@ -2715,7 +2715,7 @@ broadcast(new UserRegistered($user))->toOthers();
 #### `broadcast_if()`
 
 <!-- The `broadcast_if` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `true`: -->
-`broadcast_if` 関数は、指定した真偽式が `true` と評価された場合に、指定した [event](/docs/13.x/events) をリスナへ [broadcasts](/docs/13.x/broadcasting) します：
+`broadcast_if` 関数は、指定した真偽式が `true` と評価された場合に、[broadcasts](/docs/13.x/broadcasting) 機能を使って指定した [event](/docs/13.x/events) をリスナへブロードキャストします：
 
 ```php
 broadcast_if($user->isActive(), new UserRegistered($user));
@@ -2728,7 +2728,7 @@ broadcast_if($user->isActive(), new UserRegistered($user))->toOthers();
 #### `broadcast_unless()`
 
 <!-- The `broadcast_unless` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `false`: -->
-`broadcast_unless` 関数は、指定したブール式が `false` と評価された場合に、指定した [event](/docs/13.x/events) をリスナへ [broadcasts](/docs/13.x/broadcasting) します。
+`broadcast_unless` 関数は、指定したブール式が `false` と評価された場合に、[broadcasts](/docs/13.x/broadcasting) 機能を使って指定した [event](/docs/13.x/events) をリスナへブロードキャストします。
 
 ```php
 broadcast_unless($user->isBanned(), new UserRegistered($user));
@@ -2860,7 +2860,7 @@ $token = csrf_token();
 #### `decrypt()`
 
 <!-- The `decrypt` function [decrypts](/docs/13.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`decrypt` 関数は、指定した値を[decrypts](/docs/13.x/encryption)。`Crypt` ファサードの代わりにこの関数を使用できます。
+`decrypt` 関数は、[decrypts](/docs/13.x/encryption) 機能を使って指定した値を復号化します。`Crypt` ファサードの代わりにこの関数を使用できます。
 
 ```php
 $password = decrypt($value);
@@ -2928,7 +2928,7 @@ dump($value1, $value2, $value3, ...);
 #### `encrypt()`
 
 <!-- The `encrypt` function [encrypts](/docs/13.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`encrypt` 関数は、指定した値を[encrypts](/docs/13.x/encryption)。`Crypt` ファサードの代わりにこの関数を使用できます。
+`encrypt` 関数は、[encrypts](/docs/13.x/encryption) 機能を使って指定した値を暗号化します。`Crypt` ファサードの代わりにこの関数を使用できます。
 
 ```php
 $secret = encrypt('my-secret-value');
@@ -3104,7 +3104,7 @@ $now = now();
 #### `old()`
 
 <!-- The `old` function [retrieves](/docs/13.x/requests#retrieving-input) an [old input](/docs/13.x/requests#old-input) value flashed into the session: -->
-`old` 関数は、セッションにフラッシュされた [old input](/docs/13.x/requests#old-input) の値を [retrieves](/docs/13.x/requests#retrieving-input) します。
+`old` 関数は、[retrieves](/docs/13.x/requests#retrieving-input) 機能を使ってセッションにフラッシュされた [old input](/docs/13.x/requests#old-input) の値を取得します。
 
 ```php
 $value = old('value');

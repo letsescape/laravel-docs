@@ -1486,7 +1486,7 @@ $classes = Arr::toCssStyles($array);
 ```
 
 <!-- This method powers Laravel's functionality allowing [merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) as well as the `@class` [Blade directive](/docs/13.x/blade#conditional-classes). -->
-이 메서드는 [merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) 기능과 `@class` [Blade directive](/docs/13.x/blade#conditional-classes)를 지원하는 Laravel의 기능을 제공합니다.
+이 메서드는 Laravel에서 [merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) 및 `@class` [Blade directive](/docs/13.x/blade#conditional-classes) 기능을 구현하는 데 사용됩니다.
 
 <a name="method-array-undot"></a>
 <!-- #### `Arr::undot()` -->
@@ -2666,7 +2666,7 @@ return back();
 #### `bcrypt()`
 
 <!-- The `bcrypt` function [hashes](/docs/13.x/hashing) the given value using Bcrypt. You may use this function as an alternative to the `Hash` facade: -->
-`bcrypt` 함수는 Bcrypt를 사용해 주어진 값을 [hashes](/docs/13.x/hashing)합니다. 이 함수를 `Hash` 파사드의 대안으로 사용할 수 있습니다:
+`bcrypt` 함수는 [hashes](/docs/13.x/hashing) 기능을 사용해 주어진 값을 Bcrypt로 해시합니다. 이 함수를 `Hash` 파사드의 대안으로 사용할 수 있습니다:
 
 ```php
 $password = bcrypt('my-secret-password');
@@ -2702,7 +2702,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [event](/docs/13.x/events)를 리스너에게 [broadcasts](/docs/13.x/broadcasting)합니다.
+`broadcast` 함수는 [broadcasts](/docs/13.x/broadcasting) 기능을 사용해 주어진 [event](/docs/13.x/events)를 리스너에 브로드캐스트합니다.
 
 ```php
 broadcast(new UserRegistered($user));
@@ -2715,7 +2715,7 @@ broadcast(new UserRegistered($user))->toOthers();
 #### `broadcast_if()`
 
 <!-- The `broadcast_if` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `true`: -->
-`broadcast_if` 함수는 주어진 불리언 표현식이 `true`로 평가될 때 주어진 [event](/docs/13.x/events)를 해당 리스너에 [broadcasts](/docs/13.x/broadcasting)합니다:
+`broadcast_if` 함수는 주어진 불리언 표현식이 `true`로 평가될 때 [broadcasts](/docs/13.x/broadcasting) 기능을 사용해 주어진 [event](/docs/13.x/events)를 리스너에 브로드캐스트합니다:
 
 ```php
 broadcast_if($user->isActive(), new UserRegistered($user));
@@ -2728,7 +2728,7 @@ broadcast_if($user->isActive(), new UserRegistered($user))->toOthers();
 #### `broadcast_unless()`
 
 <!-- The `broadcast_unless` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `false`: -->
-`broadcast_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 지정한 [event](/docs/13.x/events)를 해당 리스너에 [broadcasts](/docs/13.x/broadcasting)합니다:
+`broadcast_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 [broadcasts](/docs/13.x/broadcasting) 기능을 사용해 주어진 [event](/docs/13.x/events)를 리스너에 브로드캐스트합니다:
 
 ```php
 broadcast_unless($user->isBanned(), new UserRegistered($user));
@@ -2860,7 +2860,7 @@ $token = csrf_token();
 #### `decrypt()`
 
 <!-- The `decrypt` function [decrypts](/docs/13.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`decrypt` 함수는 주어진 값을 [decrypts](/docs/13.x/encryption)합니다. 이 함수를 `Crypt` 파사드의 대안으로 사용할 수 있습니다.
+`decrypt` 함수는 [decrypts](/docs/13.x/encryption) 기능을 사용해 주어진 값을 복호화합니다. 이 함수를 `Crypt` 파사드의 대안으로 사용할 수 있습니다.
 
 ```php
 $password = decrypt($value);
@@ -2928,7 +2928,7 @@ dump($value1, $value2, $value3, ...);
 #### `encrypt()`
 
 <!-- The `encrypt` function [encrypts](/docs/13.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`encrypt` 함수는 주어진 값을 [encrypts](/docs/13.x/encryption)합니다. 이 함수를 `Crypt` 파사드의 대안으로 사용할 수 있습니다:
+`encrypt` 함수는 [encrypts](/docs/13.x/encryption) 기능을 사용해 주어진 값을 암호화합니다. 이 함수를 `Crypt` 파사드의 대안으로 사용할 수 있습니다:
 
 ```php
 $secret = encrypt('my-secret-value');
@@ -3104,7 +3104,7 @@ $now = now();
 #### `old()`
 
 <!-- The `old` function [retrieves](/docs/13.x/requests#retrieving-input) an [old input](/docs/13.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 세션에 플래시된 [old input](/docs/13.x/requests#old-input) 값을 [retrieves](/docs/13.x/requests#retrieving-input):
+`old` 함수는 [retrieves](/docs/13.x/requests#retrieving-input) 기능을 사용해 세션에 플래시된 [old input](/docs/13.x/requests#old-input) 값을 가져옵니다:
 
 ```php
 $value = old('value');
