@@ -19,7 +19,6 @@ from ..common.javascript import (
 )
 from ..common.markdown import (
     FrontMatterDescription,
-    MarkdownLink,
     closes_fence,
     fence_token,
     front_matter_description,
@@ -27,6 +26,8 @@ from ..common.markdown import (
     html_code_contents,
     html_comment_spans,
     inline_code_contents,
+    is_gfm_pipe_table,
+    is_escaped,
     is_heading_line,
     is_named_anchor_line,
     is_non_annotatable_line,
@@ -35,21 +36,23 @@ from ..common.markdown import (
     is_reference_definition_line,
     is_structural_html_fragment,
     is_structural_html_line,
-    mask_fenced_code_contents,
     markdown_autolinks,
     markdown_links,
+    mask_fenced_code_contents,
     mask_reference_definitions,
     normalize_annotation_anchor,
-    reference_definitions,
+    quote_depth,
     reference_definition_line_numbers,
+    reference_definitions,
     reference_link_display_signatures,
     reference_link_signatures,
     standalone_html_comment_line_numbers,
-    strip_html_comments,
     strip_html_code_elements,
+    strip_html_comments,
     strip_inline_code,
     strip_markdown_links,
     strip_title_attr_line,
+    table_row_cells,
 )
 from ..common.versions import validate_version_token
 from ..postprocessing.postprocess import replace_version
@@ -540,8 +543,8 @@ def echoed_header_cells(text: str, source: str) -> list[str]:
             continue
         if not translated_block.lines:
             continue
-        source_cells = _table_cells(source_block.lines[0])
-        translated_cells = _table_cells(translated_block.lines[0])
+        source_cells = table_row_cells(source_block.lines[0])
+        translated_cells = table_row_cells(translated_block.lines[0])
         echoed.extend(
             expected
             for expected, received in zip(source_cells, translated_cells)
@@ -606,7 +609,7 @@ def _optional_quoted_comments(
         normalized = _normalize_comment(" ".join(_quote_prose_lines(block)))
         if normalized:
             comments[
-                (normalized, _quote_depth(block.lines[0]), block_ordinal)
+                (normalized, quote_depth(block.lines[0]), block_ordinal)
             ] += 1
     return comments
 
@@ -747,7 +750,7 @@ def _consume_optional_quote_annotation(
     )
     if match is None:
         return False
-    depth = _quote_depth(match.group(1))
+    depth = quote_depth(match.group(1))
     key = (normalized, depth, _quote_block_ordinal(lines, start_line + 1))
     if (
         depth == 0
@@ -808,7 +811,7 @@ def _signature(block: Block) -> tuple[object, ...]:
         return ("text", kind, _list_marker_signature(block.lines))
     if kind == "quote":
         depths = tuple(
-            (_quote_depth(line), _has_markdown_hard_break(line))
+            (quote_depth(line), _has_markdown_hard_break(line))
             for line in block.lines
         )
         return ("text", kind, depths)
@@ -842,89 +845,16 @@ def _list_marker_signature(lines: list[str]) -> tuple[str, ...]:
     return tuple(markers)
 
 
-def _quote_depth(line: str) -> int:
-    """줄 선두의 인용문 중첩 깊이."""
-
-    stripped = line.lstrip()
-    depth = 0
-    while stripped.startswith(">"):
-        depth += 1
-        stripped = stripped[1:].lstrip()
-    return depth
-
-
 def _table_line_signature(line: str) -> tuple[object, ...]:
     """표 행의 셀 수와 separator 정렬 서명."""
 
-    cells = _table_cells(line)
+    cells = table_row_cells(line)
     if cells and all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
         return (
             "separator",
             tuple((cell.startswith(":"), cell.endswith(":")) for cell in cells),
         )
     return ("row", len(cells))
-
-
-def _table_cells(line: str) -> list[str]:
-    """escape, inline code 또는 Markdown 링크에 포함된 pipe를 제외하고 table row 분할."""
-
-    body = line.strip()
-    links = {link.start: link for link in markdown_links(body)}
-    cells: list[str] = []
-    current: list[str] = []
-    index = 0
-    while index < len(body):
-        protected = _protected_table_token(body, index, links)
-        if protected is not None:
-            token, index = protected
-            current.append(token)
-            continue
-        if body[index] == "|":
-            cells.append("".join(current).strip())
-            current = []
-        else:
-            current.append(body[index])
-        index += 1
-    cells.append("".join(current).strip())
-    if cells and not cells[0]:
-        cells.pop(0)
-    if cells and not cells[-1]:
-        cells.pop()
-    return cells
-
-
-def _protected_table_token(
-    body: str,
-    index: int,
-    links: dict[int, MarkdownLink],
-) -> tuple[str, int] | None:
-    """표 셀 분할에서 보호할 링크·escape·inline code token 추출.
-
-    Args:
-        body: 표 물리 줄.
-        index: 현재 문자 위치.
-        links: 시작 위치별 Markdown 링크.
-
-    Returns:
-        보호 token과 다음 위치. 일반 문자면 ``None``.
-    """
-
-    link = links.get(index)
-    if link is not None:
-        return body[link.start : link.end], link.end
-    if body[index] == "\\" and index + 1 < len(body):
-        return body[index : index + 2], index + 2
-    if body[index] != "`":
-        return None
-    end = index + 1
-    while end < len(body) and body[end] == "`":
-        end += 1
-    fence = body[index:end]
-    closing = body.find(fence, end)
-    if closing < 0:
-        return None
-    closing += len(fence)
-    return body[index:closing], closing
 
 
 def _strip_comments_for_blocks(text: str) -> str:
@@ -1005,10 +935,10 @@ def _markdown_line_signature(line: str) -> tuple[object, ...] | None:
         indent, marker, remainder = unordered.groups()
         checkbox = _TASK_CHECKBOX_RE.match(remainder)
         list_marker = (marker, checkbox.group(1).lower() if checkbox else "")
-        return "list", indent, list_marker, _quote_depth(remainder)
+        return "list", indent, list_marker, quote_depth(remainder)
     if ordered:
         indent, number, delimiter, remainder = ordered.groups()
-        return "list", indent, (f"{number}{delimiter}", ""), _quote_depth(remainder)
+        return "list", indent, (f"{number}{delimiter}", ""), quote_depth(remainder)
     if line.lstrip().startswith(">"):
         return _quote_line_signature(line)
     if line.lstrip().startswith("|"):
@@ -1027,7 +957,7 @@ def _quote_line_signature(line: str) -> tuple[object, ...]:
     """
 
     quote = line.lstrip()
-    depth = _quote_depth(quote)
+    depth = quote_depth(quote)
     content = quote
     for _ in range(depth):
         content = content[1:].lstrip()
@@ -1263,7 +1193,7 @@ def _comment_position(
         body,
         len(prefix_blocks),
         "standalone" if standalone else "inline",
-        _quote_depth(prefix) if standalone else 0,
+        quote_depth(prefix) if standalone else 0,
         len(prefix) - len(prefix.lstrip(" \t")) if standalone else 0,
         bool(prefix.strip()) if not standalone else False,
         bool(suffix.strip()) if not standalone else False,
@@ -1425,8 +1355,8 @@ def _quote_annotation_owns_line(
         and not _ONE_LINE_COMMENT_RE.fullmatch(line)
     ) - 1
     return bool(
-        _quote_depth(annotation) > 0
-        and _quote_depth(next_line) == _quote_depth(annotation)
+        quote_depth(annotation) > 0
+        and quote_depth(next_line) == quote_depth(annotation)
         and actual_ordinal == expected_ordinal
     )
 
@@ -1898,24 +1828,13 @@ def _html_markup_signature(text: str) -> list[str]:
     return [_mask_display_attribute_values(tag) for tag in _markup_tokens(body)]
 
 
-def _is_escaped(text: str, index: int) -> bool:
-    """지정한 문자가 홀수 개의 역슬래시로 escape됐는지 여부."""
-
-    backslashes = 0
-    cursor = index - 1
-    while cursor >= 0 and text[cursor] == "\\":
-        backslashes += 1
-        cursor -= 1
-    return backslashes % 2 == 1
-
-
 def _quoted_value_end(text: str, start: int) -> int:
     """따옴표 속성값의 닫는 구분자 다음 위치."""
 
     quote = text[start]
     cursor = start + 1
     while cursor < len(text):
-        if text[cursor] == quote and not _is_escaped(text, cursor):
+        if text[cursor] == quote and not is_escaped(text, cursor):
             return cursor + 1
         cursor += 1
     return len(text)
@@ -2180,7 +2099,7 @@ def _markup_token_end(text: str, start: int) -> int | None:
         if char in ("'", '"', "`"):
             end = _quoted_value_end(text, cursor)
             if end == len(text) and (
-                text[-1] != char or _is_escaped(text, len(text) - 1)
+                text[-1] != char or is_escaped(text, len(text) - 1)
             ):
                 return None
             cursor = end
@@ -2236,7 +2155,7 @@ def _legacy_pipe_table_rows(
     """legacy pipe table의 구분 행 여부와 행별 셀 목록."""
 
     return [
-        (_table_line_signature(line)[0] == "separator", _table_cells(line))
+        (_table_line_signature(line)[0] == "separator", table_row_cells(line))
         for line in text.splitlines()
     ]
 
@@ -2660,7 +2579,7 @@ def _inline_delimiter_run(
     """
 
     marker = body[index]
-    if marker not in "*_~" or _is_escaped(body, index):
+    if marker not in "*_~" or is_escaped(body, index):
         return None
     end = index + 1
     while end < len(body) and body[end] == marker:
@@ -2721,7 +2640,7 @@ def _table_rows(block: Block) -> list[str]:
     for line in block.lines:
         if _table_line_signature(line)[0] == "separator":
             continue
-        rows.append(" ".join(_table_cells(line)))
+        rows.append(" ".join(table_row_cells(line)))
     return rows
 
 
@@ -2996,7 +2915,7 @@ def _table_language_is_valid(
         for line in translated_block.lines
         if _table_line_signature(line)[0] != "separator"
     ]
-    source_headers = _table_cells(source_lines[0]) if source_lines else []
+    source_headers = table_row_cells(source_lines[0]) if source_lines else []
     # 구분자가 없는 행 단위 요청에는 머리글 행이 없으므로 머리글 규칙을 적용하지 않음.
     has_header_row = any(
         _table_line_signature(line)[0] == "separator"
@@ -3005,8 +2924,8 @@ def _table_language_is_valid(
     for row_index, (source_line, translated_line) in enumerate(
         zip(source_lines, translated_lines, strict=False)
     ):
-        source_cells = _table_cells(source_line)
-        translated_cells = _table_cells(translated_line)
+        source_cells = table_row_cells(source_line)
+        translated_cells = table_row_cells(translated_line)
         for column, (source_cell, translated_cell) in enumerate(
             zip(source_cells, translated_cells, strict=False)
         ):
@@ -3338,7 +3257,7 @@ def _response_annotation_records(
         if match is None:
             return None
         prefix = match.group(1)
-        depth = _quote_depth(prefix)
+        depth = quote_depth(prefix)
         record = (normalized, end, depth, prefix)
         key = (normalized, depth, _quote_block_ordinal(lines, start + 1))
         if (
@@ -3409,7 +3328,7 @@ def _annotation_record_owns_following(
     indentation = len(prefix) - len(prefix.lstrip(" \t"))
     if indentation >= 4 and depth == 0:
         return False
-    if _quote_depth(body) != depth:
+    if quote_depth(body) != depth:
         return False
     if depth > 0 and indentation != len(body) - len(body.lstrip(" \t")):
         return False
@@ -3683,6 +3602,12 @@ def _provider_link_issues(text: str, source: str) -> list[str]:
     return issues
 
 
+def provider_inline_code_contents(text: str) -> list[str]:
+    """Provider 응답 계약에서 비교하는 표시 영역의 inline code 목록."""
+
+    return inline_code_contents(strip_html_comments(_strip_code_blocks(text)))
+
+
 def _provider_comment_issues(text: str, source: str) -> list[str]:
     """provider 응답의 inline code·주석 소유권 이슈 수집.
 
@@ -3694,12 +3619,8 @@ def _provider_comment_issues(text: str, source: str) -> list[str]:
         발견 순서의 code·주석 위반 label.
     """
 
-    source_code = Counter(
-        inline_code_contents(strip_html_comments(_strip_code_blocks(source)))
-    )
-    translated_code = Counter(
-        inline_code_contents(strip_html_comments(_strip_code_blocks(text)))
-    )
+    source_code = Counter(provider_inline_code_contents(source))
+    translated_code = Counter(provider_inline_code_contents(text))
     checks = (
         (source_code != translated_code, "provider inline code mismatch"),
         (
@@ -3725,9 +3646,9 @@ def _table_annotation_omitted(text: str, source: str) -> bool:
     if "<!--" in text:
         return False
     source_lines = [line.strip() for line in source.splitlines() if line.strip()]
-    return bool(source_lines) and all(
-        line.startswith("|") and line.endswith("|")
-        for line in source_lines
+    return is_gfm_pipe_table(source) or bool(
+        source_lines
+        and all(line.startswith("|") and line.endswith("|") for line in source_lines)
     )
 
 
@@ -4086,7 +4007,7 @@ def _render_identity_lines(
 
 
 def render_identity_response(source: str, version: str) -> str:
-    """전처리된 단일 owner block의 결정적 replay Markdown 렌더링.
+    """전처리된 단일 owner block의 결정적 테스트 Markdown 렌더링.
 
     fenced code 외부의 version placeholder를 렌더링되지 않은 요청 metadata로 해석한 뒤 필수 pipeline annotation 삽입.
     restore map 확장과 stale-link 정규화는 후처리 단계가 계속 소유.
@@ -4121,5 +4042,5 @@ def render_identity_response(source: str, version: str) -> str:
 
     issues = verify(rendered, source_view, locale=None)
     if issues:
-        raise ValueError("identity source cannot satisfy the replay response contract")
+        raise ValueError("identity source cannot satisfy the response contract")
     return rendered

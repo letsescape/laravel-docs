@@ -14,7 +14,6 @@ from enum import IntEnum, StrEnum
 from pathlib import Path, PurePosixPath
 from typing import TextIO
 
-REPORT_FILENAME = "translation-sync-failure.json"
 _MAX_MESSAGE_LENGTH = 240
 
 
@@ -28,7 +27,7 @@ class ErrorClassification(StrEnum):
     POSTPROCESSING = "R"
     VERIFICATION = "V"
     SIDEBAR = "S"
-    ARTIFACT = "A"
+    OUTPUT = "A"
     INFRASTRUCTURE = "X"
 
 
@@ -38,7 +37,6 @@ class ExitCode(IntEnum):
     SUCCESS = 0
     CONTROLLED_FAILURE = 1
     INFRASTRUCTURE_FAILURE = 2
-    ACTIVE_STATE_MUTATION = 3
 
 
 class IssueCode(StrEnum):
@@ -46,23 +44,17 @@ class IssueCode(StrEnum):
 
     PROVIDER_SELECTION_INVALID = "PROVIDER_SELECTION_INVALID"
     PROVIDER_CREDENTIAL_MISSING = "PROVIDER_CREDENTIAL_MISSING"
-    REPLAY_PROVIDER_FORBIDDEN = "REPLAY_PROVIDER_FORBIDDEN"
     REQUIRED_CONFIG_MISSING = "REQUIRED_CONFIG_MISSING"
     STALE_LINK_REGISTRY_INVALID = "STALE_LINK_REGISTRY_INVALID"
-    UNIT_TEST_SOURCE_MUTATION = "UNIT_TEST_SOURCE_MUTATION"
     TOKENIZER_METADATA_UNAVAILABLE = "TOKENIZER_METADATA_UNAVAILABLE"
     INVALID_REQUEST_BUDGET = "INVALID_REQUEST_BUDGET"
     INVALID_RUNTIME_OPTION = "INVALID_RUNTIME_OPTION"
-    NON_BRANCH_REF = "NON_BRANCH_REF"
 
-    DIRTY_PUBLICATION_BASE = "DIRTY_PUBLICATION_BASE"
     FILE_STATE_CONFLICT = "FILE_STATE_CONFLICT"
     RAW_DIFF_MISSING = "RAW_DIFF_MISSING"
-    NORMALIZED_NOOP = "NORMALIZED_NOOP"
     PREPROCESS_PLACEHOLDER_INVALID = "PREPROCESS_PLACEHOLDER_INVALID"
     PREPROCESS_BOUNDARY_AMBIGUOUS = "PREPROCESS_BOUNDARY_AMBIGUOUS"
     INVALID_SELECTOR = "INVALID_SELECTOR"
-    REPLAY_PATH_UNSAFE = "REPLAY_PATH_UNSAFE"
     INVALID_MANIFEST = "INVALID_MANIFEST"
     MANIFEST_COMMIT_UNRESOLVED = "MANIFEST_COMMIT_UNRESOLVED"
     MANIFEST_DIGEST_MISMATCH = "MANIFEST_DIGEST_MISMATCH"
@@ -81,7 +73,6 @@ class IssueCode(StrEnum):
     CLI_PROVIDER_FAILED = "CLI_PROVIDER_FAILED"
     PROVIDER_PARTIAL_RESPONSE = "PROVIDER_PARTIAL_RESPONSE"
     RESPONSE_CONTRACT_FAILED = "RESPONSE_CONTRACT_FAILED"
-    FIXTURE_CONTRACT_FAILED = "FIXTURE_CONTRACT_FAILED"
     RUN_DEADLINE_EXCEEDED = "RUN_DEADLINE_EXCEEDED"
 
     RESTORE_MAP_INVALID = "RESTORE_MAP_INVALID"
@@ -97,8 +88,6 @@ class IssueCode(StrEnum):
     SOURCE_COMMENT_MISMATCH = "SOURCE_COMMENT_MISMATCH"
     FRONT_MATTER_MISMATCH = "FRONT_MATTER_MISMATCH"
     VERIFICATION_INPUT_CHANGED = "VERIFICATION_INPUT_CHANGED"
-    UNIT_TEST_FAILED = "UNIT_TEST_FAILED"
-    REPLAY_NON_CONVERGENT = "REPLAY_NON_CONVERGENT"
 
     SIDEBAR_INPUT_INVALID = "SIDEBAR_INPUT_INVALID"
     SIDEBAR_DANGLING_DOC = "SIDEBAR_DANGLING_DOC"
@@ -107,23 +96,9 @@ class IssueCode(StrEnum):
     SIDEBAR_OVERRIDE_REMAINS = "SIDEBAR_OVERRIDE_REMAINS"
     SIDEBAR_INPUT_CHANGED = "SIDEBAR_INPUT_CHANGED"
 
-    SITE_VALIDATION_FAILED = "SITE_VALIDATION_FAILED"
-    CANDIDATE_SOURCE_MUTATED = "CANDIDATE_SOURCE_MUTATED"
     OUTPUT_PATH_FORBIDDEN = "OUTPUT_PATH_FORBIDDEN"
-    OUTPUT_STATE_MISMATCH = "OUTPUT_STATE_MISMATCH"
-    UNVERIFIED_ENGLISH_ONLY_CHANGE = "UNVERIFIED_ENGLISH_ONLY_CHANGE"
-    SIDEBAR_OVERRIDE_FORBIDDEN = "SIDEBAR_OVERRIDE_FORBIDDEN"
-    PUBLICATION_BASE_CHANGED = "PUBLICATION_BASE_CHANGED"
-    VERIFIED_TREE_MISMATCH = "VERIFIED_TREE_MISMATCH"
-    PUBLICATION_CREDENTIAL_UNAVAILABLE = "PUBLICATION_CREDENTIAL_UNAVAILABLE"
-    DEPLOY_TRIGGER_FAILED = "DEPLOY_TRIGGER_FAILED"
-    DEPLOY_VALIDATION_FAILED = "DEPLOY_VALIDATION_FAILED"
 
-    SANDBOX_OPERATION_FAILED = "SANDBOX_OPERATION_FAILED"
     RUNNER_OPERATION_FAILED = "RUNNER_OPERATION_FAILED"
-    WORKFLOW_DEADLINE_EXCEEDED = "WORKFLOW_DEADLINE_EXCEEDED"
-    PUBLICATION_ISOLATION_VIOLATION = "PUBLICATION_ISOLATION_VIOLATION"
-    ACTIVE_WORKTREE_MUTATED = "ACTIVE_WORKTREE_MUTATED"
     REPORT_WRITE_FAILED = "REPORT_WRITE_FAILED"
     UNCLASSIFIED_INTERNAL = "UNCLASSIFIED_INTERNAL"
 
@@ -133,26 +108,20 @@ _CODES_BY_CLASSIFICATION: Mapping[ErrorClassification, frozenset[IssueCode]] = {
         {
             IssueCode.PROVIDER_SELECTION_INVALID,
             IssueCode.PROVIDER_CREDENTIAL_MISSING,
-            IssueCode.REPLAY_PROVIDER_FORBIDDEN,
             IssueCode.REQUIRED_CONFIG_MISSING,
             IssueCode.STALE_LINK_REGISTRY_INVALID,
-            IssueCode.UNIT_TEST_SOURCE_MUTATION,
             IssueCode.TOKENIZER_METADATA_UNAVAILABLE,
             IssueCode.INVALID_REQUEST_BUDGET,
             IssueCode.INVALID_RUNTIME_OPTION,
-            IssueCode.NON_BRANCH_REF,
         }
     ),
     ErrorClassification.INPUT: frozenset(
         {
-            IssueCode.DIRTY_PUBLICATION_BASE,
             IssueCode.FILE_STATE_CONFLICT,
             IssueCode.RAW_DIFF_MISSING,
-            IssueCode.NORMALIZED_NOOP,
             IssueCode.PREPROCESS_PLACEHOLDER_INVALID,
             IssueCode.PREPROCESS_BOUNDARY_AMBIGUOUS,
             IssueCode.INVALID_SELECTOR,
-            IssueCode.REPLAY_PATH_UNSAFE,
             IssueCode.INVALID_MANIFEST,
             IssueCode.MANIFEST_COMMIT_UNRESOLVED,
             IssueCode.MANIFEST_DIGEST_MISMATCH,
@@ -177,7 +146,6 @@ _CODES_BY_CLASSIFICATION: Mapping[ErrorClassification, frozenset[IssueCode]] = {
             IssueCode.CLI_PROVIDER_FAILED,
             IssueCode.PROVIDER_PARTIAL_RESPONSE,
             IssueCode.RESPONSE_CONTRACT_FAILED,
-            IssueCode.FIXTURE_CONTRACT_FAILED,
             IssueCode.RUN_DEADLINE_EXCEEDED,
         }
     ),
@@ -199,8 +167,6 @@ _CODES_BY_CLASSIFICATION: Mapping[ErrorClassification, frozenset[IssueCode]] = {
             IssueCode.SOURCE_COMMENT_MISMATCH,
             IssueCode.FRONT_MATTER_MISMATCH,
             IssueCode.VERIFICATION_INPUT_CHANGED,
-            IssueCode.UNIT_TEST_FAILED,
-            IssueCode.REPLAY_NON_CONVERGENT,
         }
     ),
     ErrorClassification.SIDEBAR: frozenset(
@@ -213,28 +179,14 @@ _CODES_BY_CLASSIFICATION: Mapping[ErrorClassification, frozenset[IssueCode]] = {
             IssueCode.SIDEBAR_INPUT_CHANGED,
         }
     ),
-    ErrorClassification.ARTIFACT: frozenset(
+    ErrorClassification.OUTPUT: frozenset(
         {
-            IssueCode.SITE_VALIDATION_FAILED,
-            IssueCode.CANDIDATE_SOURCE_MUTATED,
             IssueCode.OUTPUT_PATH_FORBIDDEN,
-            IssueCode.OUTPUT_STATE_MISMATCH,
-            IssueCode.UNVERIFIED_ENGLISH_ONLY_CHANGE,
-            IssueCode.SIDEBAR_OVERRIDE_FORBIDDEN,
-            IssueCode.PUBLICATION_BASE_CHANGED,
-            IssueCode.VERIFIED_TREE_MISMATCH,
-            IssueCode.PUBLICATION_CREDENTIAL_UNAVAILABLE,
-            IssueCode.DEPLOY_TRIGGER_FAILED,
-            IssueCode.DEPLOY_VALIDATION_FAILED,
         }
     ),
     ErrorClassification.INFRASTRUCTURE: frozenset(
         {
-            IssueCode.SANDBOX_OPERATION_FAILED,
             IssueCode.RUNNER_OPERATION_FAILED,
-            IssueCode.WORKFLOW_DEADLINE_EXCEEDED,
-            IssueCode.PUBLICATION_ISOLATION_VIOLATION,
-            IssueCode.ACTIVE_WORKTREE_MUTATED,
             IssueCode.REPORT_WRITE_FAILED,
             IssueCode.UNCLASSIFIED_INTERNAL,
         }
@@ -267,10 +219,6 @@ def exit_code_for(code: IssueCode | str) -> ExitCode:
     """문제 코드의 프로세스 종료 의미 반환."""
 
     code = _as_issue_code(code)
-    if code is IssueCode.NORMALIZED_NOOP:
-        return ExitCode.SUCCESS
-    if code is IssueCode.ACTIVE_WORKTREE_MUTATED:
-        return ExitCode.ACTIVE_STATE_MUTATION
     if classification_for(code) is ErrorClassification.INFRASTRUCTURE:
         return ExitCode.INFRASTRUCTURE_FAILURE
     return ExitCode.CONTROLLED_FAILURE
@@ -441,21 +389,6 @@ def _validate_relative_path(value: str | None, *, name: str) -> str | None:
     return value
 
 
-def _validate_hex(value: str | None, *, name: str, lengths: set[int]) -> str | None:
-    """선택적 소문자 16진수 식별자 검증."""
-
-    if value is None:
-        return None
-    if (
-        not isinstance(value, str)
-        or len(value) not in lengths
-        or any(character not in "0123456789abcdef" for character in value)
-    ):
-        expected = " or ".join(str(length) for length in sorted(lengths))
-        raise ValueError(f"{name} must be {expected} lowercase hexadecimal characters")
-    return value
-
-
 @dataclass(frozen=True, slots=True)
 class FailureReport:
     """한 실행의 primary 실패와 전체 문제를 담은 정규 보고서."""
@@ -463,10 +396,6 @@ class FailureReport:
     run_id: str
     primary: FailureEvent
     failures: tuple[FailureEvent, ...]
-    manifest_digest: str | None = None
-    base_head: str | None = None
-    published_commit: str | None = None
-    candidate_debug_path: str | None = None
 
     @classmethod
     def build(
@@ -474,27 +403,12 @@ class FailureReport:
         *,
         run_id: str,
         failures: Iterable[FailureEvent],
-        manifest_digest: str | None = None,
-        base_head: str | None = None,
-        published_commit: str | None = None,
-        candidate_debug_path: str | None = None,
     ) -> FailureReport:
         """실패 목록을 검증하고 primary 실패가 정해진 보고서 구성."""
 
         collected = tuple(failures)
         primary = select_primary_failure(collected)
         _validate_identifier(run_id, name="run_id")
-        _validate_hex(manifest_digest, name="manifest_digest", lengths={64})
-        _validate_hex(base_head, name="base_head", lengths={40, 64})
-        _validate_hex(
-            published_commit,
-            name="published_commit",
-            lengths={40, 64},
-        )
-        _validate_relative_path(
-            candidate_debug_path,
-            name="candidate_debug_path",
-        )
         for failure in collected:
             _validate_identifier(failure.stage, name="stage")
             _validate_optional_context(failure.version, name="version")
@@ -509,10 +423,6 @@ class FailureReport:
             run_id=run_id,
             primary=primary,
             failures=collected,
-            manifest_digest=manifest_digest,
-            base_head=base_head,
-            published_commit=published_commit,
-            candidate_debug_path=candidate_debug_path,
         )
 
     def to_mapping(self) -> dict[str, object]:
@@ -530,13 +440,10 @@ class FailureReport:
         return {
             "schema_version": 1,
             "run_id": self.run_id,
-            "manifest_digest": self.manifest_digest,
-            "base_head": self.base_head,
             "stage": primary.stage,
             "classification": primary.classification.value,
             "code": primary.code.value,
             "exit_code": int(final_exit_code(self.failures)),
-            "published_commit": self.published_commit,
             "version": primary.version,
             "locale": primary.locale,
             "document": primary.document,
@@ -553,7 +460,6 @@ class FailureReport:
                 }
                 for failure in issues
             ],
-            "candidate_debug_path": self.candidate_debug_path,
         }
 
     def to_bytes(self) -> bytes:
@@ -570,31 +476,13 @@ class FailureReport:
         ).encode("utf-8")
 
 
-def write_failure_report(
-    report: FailureReport,
-    *,
-    artifact_root: Path,
-    stderr: TextIO | None = None,
-) -> Path | None:
-    """artifact root의 고정 파일명에 실패 보고서 기록."""
-
-    artifact_root = Path(artifact_root)
-    if not artifact_root.is_dir():
-        return _report_write_failed(stderr)
-    return write_failure_report_exact(
-        report,
-        target=artifact_root / REPORT_FILENAME,
-        stderr=stderr,
-    )
-
-
 def write_failure_report_exact(
     report: FailureReport,
     *,
     target: Path,
     stderr: TextIO | None = None,
 ) -> Path | None:
-    """symlink가 없는 정확한 경로에 보고서를 교체 없이 원자적 공개."""
+    """symlink가 없는 정확한 경로에 보고서를 교체 없이 원자적으로 기록."""
     target = Path(target)
     try:
         contents = report.to_bytes()
@@ -603,7 +491,7 @@ def write_failure_report_exact(
             raise ValueError("failure report target is invalid")
         parent_descriptor = _open_directory_without_symlinks(parent_path)
         try:
-            _publish_no_replace(
+            _write_no_replace(
                 parent_descriptor,
                 parent_path=parent_path,
                 target_name=target.name,
@@ -763,7 +651,7 @@ def _require_target_absent(parent_descriptor: int, target_name: str) -> None:
 
     Args:
         parent_descriptor: 대상 상위 디렉터리 설명자.
-        target_name: 공개할 실패 보고서 파일 이름.
+        target_name: 기록할 실패 보고서 파일 이름.
     """
 
     try:
@@ -815,7 +703,7 @@ def _link_temporary_report(
     """
 
     if not _directory_path_matches(parent_descriptor, parent_path):
-        raise OSError("failure report parent changed before publication")
+        raise OSError("failure report parent changed before write")
     os.link(
         temporary_name,
         target_name,
@@ -832,31 +720,31 @@ def _link_temporary_report(
         if not os.path.samestat(
             temporary_status, target_status
         ) or not _directory_path_matches(parent_descriptor, parent_path):
-            raise OSError("failure report publication path changed")
+            raise OSError("failure report path changed during write")
     except BaseException:
         _unlink_if_same(parent_descriptor, target_name, temporary_status)
         raise
 
 
-def _cleanup_failed_publication(
+def _cleanup_failed_write(
     parent_descriptor: int,
     *,
     target_name: str,
     temporary_name: str,
     temporary_status: os.stat_result,
-    published: bool,
+    linked: bool,
 ) -> None:
-    """실패한 공개 작업의 동일 파일 링크와 임시 파일 정리.
+    """실패한 기록 작업의 동일 파일 링크와 임시 파일 정리.
 
     Args:
         parent_descriptor: 대상 상위 디렉터리 설명자.
         target_name: 최종 실패 보고서 파일 이름.
         temporary_name: 임시 파일 이름.
         temporary_status: 임시 파일 생성 직후 상태.
-        published: 최종 이름 hard link 생성 여부.
+        linked: 최종 이름 hard link 생성 여부.
     """
 
-    if published:
+    if linked:
         _unlink_if_same(parent_descriptor, target_name, temporary_status)
     _unlink_if_same(parent_descriptor, temporary_name, temporary_status)
     try:
@@ -865,14 +753,14 @@ def _cleanup_failed_publication(
         pass
 
 
-def _publish_no_replace(
+def _write_no_replace(
     parent_descriptor: int,
     *,
     parent_path: Path,
     target_name: str,
     contents: bytes,
 ) -> None:
-    """fsync된 임시 파일을 기존 대상을 교체하지 않는 hard link로 원자적 공개."""
+    """fsync된 임시 파일을 기존 대상을 교체하지 않는 hard link로 원자적 기록."""
 
     _require_target_absent(parent_descriptor, target_name)
 
@@ -880,7 +768,7 @@ def _publish_no_replace(
         parent_descriptor,
         target_name,
     )
-    published = False
+    linked = False
     try:
         _write_temporary_report(
             temporary_descriptor,
@@ -897,7 +785,7 @@ def _publish_no_replace(
             target_name=target_name,
             temporary_status=temporary_status,
         )
-        published = True
+        linked = True
         if not _unlink_if_same(
             parent_descriptor,
             temporary_name,
@@ -911,12 +799,12 @@ def _publish_no_replace(
                 os.close(temporary_descriptor)
             except OSError:
                 pass
-        _cleanup_failed_publication(
+        _cleanup_failed_write(
             parent_descriptor,
             target_name=target_name,
             temporary_name=temporary_name,
             temporary_status=temporary_status,
-            published=published,
+            linked=linked,
         )
         raise
 

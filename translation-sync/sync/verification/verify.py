@@ -1,4 +1,4 @@
-"""candidate 문서와 번역 내용의 결정적 Python 검증.
+"""번역 문서 초안과 원문 구조의 결정적 Python 검증.
 
 문서와 번역 내용 검증은 Python이 담당.
 Docusaurus build 산출물 검증은 JS validate-anchors.mjs가 담당.
@@ -19,28 +19,30 @@ from ..common.markdown import (
     front_matter_description,
     has_malformed_html_comment_delimiters,
     has_title_attr_line,
-    inline_code_contents,
+    html_code_contents,
     html_comment_bodies,
     html_comment_spans,
-    html_code_contents,
+    inline_code_contents,
     is_heading_line,
     is_non_annotatable_line,
     is_structural_html_fragment,
     is_structural_html_line,
-    mask_fenced_code_contents,
     markdown_autolinks,
     markdown_links,
+    mask_fenced_code_contents,
+    mask_html_comments,
     mask_reference_definitions,
     normalize_annotation_anchor,
-    reference_definitions,
+    quote_depth,
     reference_definition_line_numbers,
+    reference_definitions,
     reference_link_display_signatures,
     reference_link_signatures,
     standalone_html_comment_line_numbers,
     strip_html_code_elements,
-    strip_title_attr_line,
     strip_html_comments,
     strip_inline_code,
+    strip_title_attr_line,
 )
 from ..common.stale_links import (
     DEFAULT_STALE_LINK_REGISTRY,
@@ -161,17 +163,6 @@ def _strip_comments(text: str) -> str:
     """HTML 주석 제거."""
 
     return strip_html_comments(text)
-
-
-def _mask_html_comments(text: str) -> str:
-    """줄바꿈을 보존하며 HTML comment 영역 마스킹."""
-
-    chars = list(text)
-    for start, end, _body in html_comment_spans(text):
-        for index in range(start, end):
-            if chars[index] not in "\r\n":
-                chars[index] = " "
-    return "".join(chars)
 
 
 def _fenced_code_blocks(text: str) -> list[str]:
@@ -699,7 +690,7 @@ def _has_admonition_body_outside_blockquote(text: str) -> bool:
     """admonition 본문이 blockquote 밖에 있는지 여부."""
 
     original = _strip_code_blocks(text)
-    body = _mask_html_comments(original)
+    body = mask_html_comments(original)
     original_lines = original.splitlines()
     lines = body.splitlines()
     for index, line in enumerate(lines[:-1]):
@@ -717,7 +708,7 @@ def _has_admonition_body_outside_blockquote(text: str) -> bool:
 
 def _has_duplicated_admonition_marker(text: str) -> bool:
     """부분 블록 치환에서 admonition marker가 두 줄 연속 중복됐는지 여부."""
-    body = _mask_html_comments(_strip_code_blocks(text))
+    body = mask_html_comments(_strip_code_blocks(text))
     lines = body.splitlines()
     for index in range(len(lines) - 1):
         if _ADMONITION_RE.match(lines[index].strip()) and _ADMONITION_RE.match(
@@ -725,12 +716,6 @@ def _has_duplicated_admonition_marker(text: str) -> bool:
         ):
             return True
     return False
-
-
-def _list_markers(text: str) -> int:
-    """code block·주석을 제외한 순서가 없는 목록 항목(`-`/`*`/`+`) 수."""
-    body = _strip_code_blocks(_strip_comments(text))
-    return len(_LIST_MARKER_RE.findall(body))
 
 
 def _normalize_comment_text(text: str) -> str:
@@ -1033,17 +1018,6 @@ def _annotation_sentence_cardinality_is_valid(
     return True
 
 
-def _quote_depth(line: str) -> int:
-    """Markdown 줄의 blockquote 깊이 계산."""
-
-    stripped = line.lstrip()
-    depth = 0
-    while stripped.startswith(">"):
-        depth += 1
-        stripped = stripped[1:].lstrip()
-    return depth
-
-
 def _quote_body(line: str) -> str:
     """Markdown blockquote marker를 제거한 본문 반환."""
 
@@ -1062,7 +1036,7 @@ def _structural_line_matches(expected: str, actual: str) -> bool:
         return True
     if expected_normalized.startswith(">"):
         return bool(
-            _quote_depth(expected_normalized) == _quote_depth(actual_normalized)
+            quote_depth(expected_normalized) == quote_depth(actual_normalized)
             and (
                 not _quote_body(expected_normalized)
                 or _quote_body(actual_normalized)
@@ -1125,7 +1099,7 @@ def _structural_owner_ordinal_is_valid(
             text.rfind("\n", 0, start),
             text.rfind("\r", 0, start),
         ) + 1
-        if _quote_depth(text[line_start:start]) != _quote_depth(actual):
+        if quote_depth(text[line_start:start]) != quote_depth(actual):
             return False
         ordinal = sum(
             1
@@ -1233,19 +1207,19 @@ def _optional_quoted_annotations_are_valid(
             if start_line == end_line
             else None
         )
-        if match is None or _quote_depth(match.group(1)) == 0:
+        if match is None or quote_depth(match.group(1)) == 0:
             continue
         normalized = _annotation_comment(body)
         if normalized is None:
             continue
-        depth = _quote_depth(match.group(1))
+        depth = quote_depth(match.group(1))
         key = (normalized, depth, _quote_block_ordinal(lines, start_line + 1))
         next_line = end_line + 1
         if (
             not _optional_quote_annotation_starts_block(lines, start_line)
             or not optional[key]
             or next_line >= len(lines)
-            or _quote_depth(lines[next_line]) != depth
+            or quote_depth(lines[next_line]) != depth
             or not _quote_body(lines[next_line])
         ):
             return False

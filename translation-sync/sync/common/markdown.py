@@ -101,7 +101,7 @@ def _inline_code_spans(text: str) -> list[tuple[int, int, str]]:
         start = text.find("`", index)
         if start < 0:
             break
-        if _is_escaped(text, start):
+        if is_escaped(text, start):
             index = start + 1
             continue
         opener_end = start + 1
@@ -323,7 +323,7 @@ def _quoted_yaml_parts(raw: str, quote: str) -> tuple[str, str]:
         if raw[index] != quote:
             index += 1
             continue
-        if quote == '"' and _is_escaped(raw, index):
+        if quote == '"' and is_escaped(raw, index):
             index += 1
             continue
         if quote == "'" and index + 1 < len(raw) and raw[index + 1] == "'":
@@ -506,7 +506,7 @@ def front_matter_description(text: str) -> FrontMatterDescription | None:
     return found
 
 
-def _is_escaped(text: str, index: int) -> bool:
+def is_escaped(text: str, index: int) -> bool:
     """지정한 문자가 역슬래시로 이스케이프됐는지 여부."""
 
     backslashes = 0
@@ -568,7 +568,7 @@ def _link_title_suffix(
     while index < len(text):
         if text[index] in "\r\n":
             return None
-        if text[index] == title_closer and not _is_escaped(text, index):
+        if text[index] == title_closer and not is_escaped(text, index):
             index += 1
             break
         index += 1
@@ -735,7 +735,7 @@ def markdown_links(text: str) -> tuple[MarkdownLink, ...]:
         label_start = text.find("[", index)
         if label_start < 0:
             break
-        if _is_escaped(text, label_start):
+        if is_escaped(text, label_start):
             index = label_start + 1
             continue
         label_end = _closing_label_bracket(text, label_start + 1)
@@ -755,7 +755,7 @@ def markdown_links(text: str) -> tuple[MarkdownLink, ...]:
         image = (
             label_start > 0
             and text[label_start - 1] == "!"
-            and not _is_escaped(text, label_start - 1)
+            and not is_escaped(text, label_start - 1)
         )
         link_start = label_start - 1 if image else label_start
         links.append(
@@ -1776,7 +1776,7 @@ def _resolved_reference_at(
         해석된 링크 서명과 다음 검색 위치.
     """
 
-    if _is_escaped(body, start):
+    if is_escaped(body, start):
         return None, start + 1
     text_end = _closing_label_bracket(body, start + 1)
     if text_end is None:
@@ -1794,7 +1794,7 @@ def _resolved_reference_at(
     image = (
         start > 0
         and body[start - 1] == "!"
-        and not _is_escaped(body, start - 1)
+        and not is_escaped(body, start - 1)
     )
     target, title = resolved
     signature = (image, body[start + 1 : text_end], target, title)
@@ -1896,13 +1896,6 @@ def is_non_annotatable_line(line: str) -> bool:
     return is_structural_html_line(line)
 
 
-def is_standalone_html_tag(line: str) -> bool:
-    """독립 HTML 태그 한 개인지 여부."""
-
-    stripped = line.strip()
-    return bool(stripped and _HTML_TAG_RE.fullmatch(stripped))
-
-
 def is_structural_html_fragment(text: str) -> bool:
     """텍스트가 HTML 태그와 공백만 포함하는지 여부."""
 
@@ -1946,7 +1939,7 @@ def strip_html_code_elements(text: str) -> str:
     return _HTML_CODE_ELEMENT_RE.sub("", text)
 
 
-def _split_line_ending(line: str) -> tuple[str, str]:
+def split_line_ending(line: str) -> tuple[str, str]:
     """본문과 줄 끝 문자 분할."""
 
     if line.endswith("\r\n"):
@@ -1996,7 +1989,7 @@ def closes_fence(line: str, opening: str) -> bool:
     opening_depth = len(opening) - len(opening.lstrip(">"))
     token_fence = token[token_depth:]
     opening_fence = opening[opening_depth:]
-    stripped, _ending = _split_line_ending(line)
+    stripped, _ending = split_line_ending(line)
     stripped = stripped.lstrip()
     while stripped.startswith(">"):
         stripped = stripped[1:].lstrip()
@@ -2062,7 +2055,7 @@ def is_ordered_list_marker(line: str) -> bool:
 def strip_title_attr_line(line: str) -> str:
     """제목 한 줄에서 ``{.class}`` 형식의 제목 속성 제거."""
 
-    body, ending = _split_line_ending(line)
+    body, ending = split_line_ending(line)
     if not is_heading_line(body):
         return line
 
@@ -2427,6 +2420,145 @@ def standalone_html_comment_line_numbers(text: str) -> frozenset[int]:
         if include:
             numbers.add(lineno)
     return frozenset(numbers)
+
+
+def _protected_table_token(
+    body: str,
+    index: int,
+    links: dict[int, MarkdownLink],
+) -> tuple[str, int] | None:
+    """표 셀 분할에서 보호할 링크·escape·inline code token 추출.
+
+    Args:
+        body: 표 물리 줄.
+        index: 현재 문자 위치.
+        links: 시작 위치별 Markdown 링크.
+
+    Returns:
+        보호 token과 다음 위치. 일반 문자면 ``None``.
+    """
+
+    link = links.get(index)
+    if link is not None:
+        return body[link.start : link.end], link.end
+    if body[index] == "\\" and index + 1 < len(body):
+        return body[index : index + 2], index + 2
+    if body[index] != "`":
+        return None
+    end = index + 1
+    while end < len(body) and body[end] == "`":
+        end += 1
+    fence = body[index:end]
+    closing = body.find(fence, end)
+    if closing < 0:
+        return None
+    closing += len(fence)
+    return body[index:closing], closing
+
+
+def table_row_cells(line: str) -> list[str]:
+    """escape, inline code 또는 Markdown 링크에 포함된 pipe를 제외하고 table row 분할.
+
+    GFM 표는 인라인 파싱 이전에 셀을 나누므로, 셀 안의 pipe는 inline code
+    안에서도 ``\\|``로만 표현할 수 있다. 표 셀을 다루는 모든 단계가 같은
+    경계를 보도록 이 함수를 공용 분할기로 사용한다.
+
+    Args:
+        line: 표 물리 줄.
+
+    Returns:
+        앞뒤 구분자를 제외한 셀 목록.
+    """
+
+    body = line.strip()
+    links = {link.start: link for link in markdown_links(body)}
+    cells: list[str] = []
+    current: list[str] = []
+    index = 0
+    while index < len(body):
+        protected = _protected_table_token(body, index, links)
+        if protected is not None:
+            token, index = protected
+            current.append(token)
+            continue
+        if body[index] == "|":
+            cells.append("".join(current).strip())
+            current = []
+        else:
+            current.append(body[index])
+        index += 1
+    cells.append("".join(current).strip())
+    if cells and not cells[0]:
+        cells.pop(0)
+    if cells and not cells[-1]:
+        cells.pop()
+    return cells
+
+
+def gfm_table_row_cells(line: str) -> list[str] | None:
+    """바깥쪽 pipe 유무를 반영해 GFM 표 행의 cell을 분리."""
+
+    if line.startswith("\t") or len(line) - len(line.lstrip(" ")) >= 4:
+        return None
+    body = line.strip()
+    cells = table_row_cells(line)
+    if len(cells) >= 2 or (
+        len(cells) == 1 and body.startswith("|") and body.endswith("|")
+    ):
+        return cells
+    return None
+
+
+def is_gfm_pipe_table_candidate(text: str) -> bool:
+    """문자열이 GFM pipe table의 머리글·구분 행으로 시작하는지 판정."""
+
+    lines = [line for line in text.splitlines() if line.strip()]
+    if len(lines) < 2:
+        return False
+    header = gfm_table_row_cells(lines[0])
+    separator = gfm_table_row_cells(lines[1])
+    return bool(
+        header is not None
+        and separator is not None
+        and all(re.fullmatch(r":?-{3,}:?", cell) for cell in separator)
+    )
+
+
+def is_gfm_pipe_table(text: str) -> bool:
+    """문자열이 직사각형 GFM pipe table 블록인지 판정."""
+
+    lines = [line for line in text.splitlines() if line.strip()]
+    if not is_gfm_pipe_table_candidate(text):
+        return False
+    rows = [gfm_table_row_cells(line) for line in lines]
+    if any(row is None for row in rows):
+        return False
+    parsed = [row for row in rows if row is not None]
+    if len({len(row) for row in parsed}) != 1:
+        return False
+    return all(re.fullmatch(r":?-{3,}:?", cell) for cell in parsed[1])
+
+
+def mask_html_comments(text: str) -> str:
+    """줄 위치를 보존하며 HTML 주석의 줄바꿈 외 문자를 공백으로 마스킹."""
+
+    chars = list(text)
+    for start, end, _body in html_comment_spans(text):
+        for index in range(start, end):
+            if chars[index] not in "\r\n":
+                chars[index] = " "
+    return "".join(chars)
+
+
+def quote_depth(line: str) -> int:
+    """Markdown 줄의 blockquote 깊이 계산."""
+
+    stripped = line.lstrip()
+    depth = 0
+    while stripped.startswith(">"):
+        depth += 1
+        stripped = stripped[1:].lstrip()
+    return depth
 
 
 def is_named_anchor_line(line: str) -> bool:

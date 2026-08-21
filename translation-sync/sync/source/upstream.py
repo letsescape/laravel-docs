@@ -30,7 +30,6 @@ UPSTREAM_REPO = "https://github.com/laravel/docs.git"
 EN_ROOT = REPO_ROOT / "i18n" / "en" / "docusaurus-plugin-content-docs"
 MANIFEST_ENV = "TRANSLATION_UPSTREAM_MANIFEST"
 MANIFEST_DIGEST_ENV = "TRANSLATION_UPSTREAM_MANIFEST_DIGEST"
-WORKFLOW_DEADLINE_ENV = "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC"
 UPSTREAM_FETCH_TIMEOUT = 300
 UPSTREAM_REF_QUERY_TIMEOUT = 30
 _COMMIT_RE = {
@@ -153,25 +152,11 @@ def _remaining_timeout(
     if deadline is None:
         return cap
     if not math.isfinite(deadline) or deadline <= 0:
-        raise ValueError("invalid workflow deadline")
+        raise ValueError("invalid source synchronization deadline")
     remaining = deadline - time.monotonic()
     if remaining <= 0:
-        raise subprocess.TimeoutExpired(["workflow-deadline"], 0)
+        raise subprocess.TimeoutExpired(["source-sync-deadline"], 0)
     return min(remaining, cap) if cap is not None else remaining
-
-
-def _environment_deadline() -> float | None:
-    """환경 변수의 단조 시계 워크플로 기한 검증 및 반환."""
-
-    raw_deadline = os.environ.get(WORKFLOW_DEADLINE_ENV)
-    if raw_deadline is None:
-        return None
-    try:
-        deadline = float(raw_deadline)
-    except ValueError as exc:
-        raise ValueError("invalid workflow deadline") from exc
-    _remaining_timeout(deadline)
-    return deadline
 
 
 def _prepare_upstream(
@@ -948,7 +933,7 @@ def _resolve_manifest_refs(
 
     Args:
         manifest_versions: 조회할 전체 지원 버전.
-        deadline: 공통 워크플로 기한.
+        deadline: 선택적 원문 동기화 기한.
 
     Returns:
         생성한 매니페스트 바이트와 버전별 고정 ref.
@@ -1030,7 +1015,7 @@ def _sync_selected_version(
             sync_kwargs["deadline"] = deadline
         return sync_version(repo_dir, version, **sync_kwargs)
     except subprocess.TimeoutExpired as exc:
-        raise _UpstreamFailure("workflow deadline exceeded", 2) from exc
+        raise _UpstreamFailure("source synchronization deadline exceeded", 2) from exc
     except ProcessTreeError as exc:
         raise _UpstreamFailure(_UPSTREAM_PROCESS_ISOLATION_FAILED, 2) from exc
     except subprocess.CalledProcessError as exc:
@@ -1092,17 +1077,9 @@ def main(*, version: str | None = None, doc: str | None = None) -> int:
     Returns:
         성공 시 0.
         제어된 입력·매니페스트·일반 Git 실패 시 1.
-        프로세스 격리 실패, 기한 초과 또는 기한이 설정된 원격 실패 시 2.
+        프로세스 격리 실패 또는 원격 프로세스 실패 시 2.
     """
 
-    try:
-        workflow_deadline = _environment_deadline()
-    except ValueError as exc:
-        print(f"workflow deadline error: {exc}", file=sys.stderr)
-        return 1
-    except subprocess.TimeoutExpired:
-        print("workflow deadline exceeded", file=sys.stderr)
-        return 2
     try:
         manifest_versions = supported_versions()
     except (OSError, ValueError, json.JSONDecodeError) as exc:
@@ -1123,7 +1100,7 @@ def main(*, version: str | None = None, doc: str | None = None) -> int:
         try:
             _, pinned_refs = _resolve_manifest_refs(
                 manifest_versions,
-                deadline=workflow_deadline,
+                deadline=None,
             )
         except _UpstreamFailure as exc:
             print(exc, file=sys.stderr)
@@ -1134,7 +1111,7 @@ def main(*, version: str | None = None, doc: str | None = None) -> int:
             selected_versions,
             pinned_refs,
             document=doc,
-            deadline=workflow_deadline,
+            deadline=None,
         )
     except _UpstreamFailure as exc:
         print(exc, file=sys.stderr)

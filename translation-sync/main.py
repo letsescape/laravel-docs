@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """번역 동기화 엔트리포인트.
 
-설정·프롬프트 확인 → 원문 동기화 → 변경 감지 → 전처리 → 번역 → 후처리 → 문서 검증·출력 → 사이드바 갱신 순서로 후보 산출물 생성.
+설정·프롬프트 확인 → 원문 동기화 → 변경 감지 → 전처리 → 번역 → 후처리 → 문서 검증·출력 → 사이드바 갱신 순서로 작업 트리 갱신.
 
 출력 로케일: ko(versioned_docs), ja(i18n/ja).
 프롬프트: ko=prompt.md, ja=prompt_jp.md.
@@ -34,7 +34,8 @@ from sync import (
     verify,
 )
 from sync.common import stale_links
-from sync.common.files import atomic_write_bytes, atomic_write_text, unlink_file
+from sync.common.files import atomic_write_bytes, unlink_file
+from sync.common.markdown import split_line_ending
 from sync.common.versions import UNTRANSLATED_DOCUMENTS
 from sync.runtime.failure import (
     ErrorClassification,
@@ -53,14 +54,7 @@ SYNC_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = SYNC_ROOT.parent
 PROMPT_PATH = SYNC_ROOT / "prompt.md"
 JA_PROMPT_PATH = SYNC_ROOT / "prompt_jp.md"
-PRESERVED_MARKUP_FIXABLE = {
-    "link target mismatch",
-    "link label mismatch",
-    "link pair mismatch",
-    "link title mismatch",
-    "heading mismatch",
-    "heading text mismatch",
-}
+
 MAX_SEGMENT_VERIFICATION_ATTEMPTS = translate.MAX_COMPLETED_RESPONSE_ATTEMPTS
 _ANNOTATION_PREFIX_RE = re.compile(r"^\s*<!--.*?-->\s*\n?", re.DOTALL)
 _MISSING_PARTIAL_TRANSLATION = "missing existing translation for partial sync"
@@ -578,87 +572,16 @@ def _matches_filters(
 
 
 def _select_changes(
-    *, migrate_existing: bool = False, version: str | None = None, doc: str | None = None
+    *, version: str | None = None, doc: str | None = None
 ) -> list[diff.SourceChange]:
-    """선택자와 실행 모드에 맞는 원문 변경 선택."""
+    """선택자에 맞는 원문 변경 선택."""
 
-    if not migrate_existing:
-        return _sort_changes([
-            change
-            for change in diff.changed_sources()
-            if _matches_filters(change, version=version, doc=doc)
-        ])
+    return _sort_changes([
+        change
+        for change in diff.changed_sources()
+        if _matches_filters(change, version=version, doc=doc)
+    ])
 
-    repo_root, en_root = _validated_english_docs_root()
-    return _migration_source_changes(
-        repo_root,
-        en_root,
-        version=version,
-        doc=doc,
-    )
-
-
-def _validated_english_docs_root() -> tuple[Path, Path]:
-    """migration 대상 영어 문서 루트의 symlink·directory 안전성 검증.
-
-    Returns:
-        절대 저장소 루트와 영어 문서 루트.
-
-    Raises:
-        SourcePathError: 경로 구성 요소가 symlink이거나 directory가 아님.
-    """
-
-    repo_root = REPO_ROOT.absolute()
-    en_root = repo_root / "i18n" / "en" / "docusaurus-plugin-content-docs"
-    current = repo_root
-    for part in en_root.relative_to(repo_root).parts:
-        current /= part
-        if current.is_symlink():
-            raise SourcePathError(f"unsafe English source path: {current}")
-    if not en_root.is_dir():
-        raise SourcePathError(f"unsafe English source path: {en_root}")
-    return repo_root, en_root
-
-
-def _migration_source_changes(
-    repo_root: Path,
-    en_root: Path,
-    *,
-    version: str | None,
-    doc: str | None,
-) -> list[diff.SourceChange]:
-    """영어 버전 디렉터리에서 migration 대상 변경 구성.
-
-    Args:
-        repo_root: 절대 저장소 루트.
-        en_root: 검증된 영어 문서 루트.
-        version: 선택할 버전 또는 전체를 뜻하는 ``None``.
-        doc: 선택할 문서 또는 전체를 뜻하는 ``None``.
-
-    Returns:
-        선택자와 일치하는 가상 수정 변경.
-    """
-
-    changes: list[diff.SourceChange] = []
-    for version_root in sorted(en_root.iterdir()):
-        if not version_root.name.startswith("version-"):
-            continue
-        if version_root.suffix == ".json":
-            continue
-        if version_root.is_symlink():
-            raise SourcePathError(
-                f"unsafe English source path: {version_root}"
-            )
-        if not version_root.is_dir():
-            continue
-        for path in _recursive_source_markdown(version_root):
-            change = diff.SourceChange(
-                path=str(path.relative_to(repo_root)),
-                status="M",
-            )
-            if _matches_filters(change, version=version, doc=doc):
-                changes.append(change)
-    return changes
 
 
 def _sort_changes(
@@ -686,51 +609,6 @@ def _sort_changes(
         ),
     )
 
-
-def _recursive_source_markdown(root: Path) -> list[Path]:
-    """심볼릭 링크를 거부하며 루트 아래의 Markdown 문서를 결정적 순서로 수집."""
-
-    documents: list[Path] = []
-    pending = [root]
-    while pending:
-        directory = pending.pop()
-        entries = _source_directory_entries(directory)
-        for path in entries:
-            if path.is_symlink():
-                raise SourcePathError(f"unsafe English source path: {path}")
-            if path.is_dir():
-                pending.append(path)
-            elif path.suffix == ".md":
-                if not path.is_file():
-                    raise SourcePathError(f"unsafe English source path: {path}")
-                documents.append(path)
-    return sorted(
-        documents,
-        key=lambda path: path.relative_to(root).as_posix().encode("utf-8"),
-    )
-
-
-def _source_directory_entries(directory: Path) -> list[Path]:
-    """영어 원문 directory 항목을 역 UTF-8 byte 순서로 조회.
-
-    Args:
-        directory: 조회할 검증 대상 directory.
-
-    Returns:
-        결정적 역순의 직접 자식 경로.
-
-    Raises:
-        SourcePathError: directory 항목을 읽을 수 없음.
-    """
-
-    try:
-        return sorted(
-            directory.iterdir(),
-            key=lambda path: path.name.encode("utf-8"),
-            reverse=True,
-        )
-    except OSError as exc:
-        raise SourcePathError(f"unsafe English source path: {directory}") from exc
 
 
 def _translation_request(
@@ -770,7 +648,19 @@ def _verification_feedback(
             )
         if any("target language mismatch" in issue for issue in issues):
             echoed_cells = response_contract.echoed_header_cells(translated, source)
-    return translate.verification_feedback(issues, exact_comments, echoed_cells)
+    feedback = translate.verification_feedback(issues, exact_comments, echoed_cells)
+    if any("inline code" in issue for issue in issues) and source is not None:
+        counts = Counter(response_contract.provider_inline_code_contents(source))
+        if counts:
+            required = ", ".join(
+                f"`{token}` × {count}"
+                for token, count in list(counts.items())[:16]
+            )
+            feedback += (
+                "\nRequired inline code counts in the translated prose: "
+                f"{required}."
+            )
+    return feedback
 
 
 def _contract_issues(
@@ -1257,6 +1147,7 @@ _DEGRADABLE_VERIFICATION_CODES = (
     IssueCode.PIPELINE_ANNOTATION_MISMATCH.value,
     IssueCode.FRONT_MATTER_MISMATCH.value,
     IssueCode.SOURCE_STRUCTURE_MISMATCH.value,
+    IssueCode.LIST_TABLE_STRUCTURE_MISMATCH.value,
 )
 
 
@@ -1598,24 +1489,12 @@ def _repair_blockquote_segment(source: str, translated: str) -> str:
 
     out: list[str] = []
     for line in translated.splitlines(keepends=True):
-        body, ending = _split_line_ending(line)
+        body, ending = split_line_ending(line)
         if not body.strip() or body.lstrip().startswith(">"):
             out.append(line)
             continue
         out.append(f"> {body}{ending}")
     return "".join(out)
-
-
-def _split_line_ending(line: str) -> tuple[str, str]:
-    """본문과 줄바꿈 문자 분리."""
-
-    if line.endswith("\r\n"):
-        return line[:-2], "\r\n"
-    if line.endswith("\n"):
-        return line[:-1], "\n"
-    if line.endswith("\r"):
-        return line[:-1], "\r"
-    return line, ""
 
 
 def _normalize_plan_source_pair(
@@ -2072,32 +1951,6 @@ def _translated_plan_blocks(
     return translated
 
 
-def _expected_source(change: diff.SourceChange) -> str:
-    """원문에 전처리와 후처리를 적용한 검증 기준 원문 생성."""
-    src = (REPO_ROOT / change.path).read_text(encoding="utf-8")
-    pre = preprocess.preprocess(src)
-    return postprocess.postprocess(pre.text, change.version, pre.placeholders)
-
-
-def _check_existing_annotations(
-    *, version: str | None = None, doc: str | None = None
-) -> list[str]:
-    """기존 한국어·일본어 문서의 영어 원문 주석 병기 형식 검증."""
-    failures: list[str] = []
-    for change in _select_changes(migrate_existing=True, version=version, doc=doc):
-        expected_source = _expected_source(change)
-        for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
-            if not dest.exists():
-                continue
-
-            issues = verify.verify(
-                dest.read_text(encoding="utf-8"),
-                source=expected_source,
-                version=change.version,
-            )
-            failures.extend(f"{locale} {change.path}: {issue}" for issue in issues)
-    return failures
-
 
 def _sync_sidebars(versions: list[str]) -> list[str]:
     """사이드바 동기화."""
@@ -2109,192 +1962,12 @@ def _sync_sidebars(versions: list[str]) -> list[str]:
     return failures
 
 
-def _annotate_existing(
-    *, apply: bool = False, version: str | None = None, doc: str | None = None
-) -> tuple[int, list[str]]:
-    """기존 한국어·일본어 문서에 영어 원문 주석을 병기하고 안전한 파일만 기록."""
-    writable = 0
-    failures: list[str] = []
-
-    for change in _select_changes(migrate_existing=True, version=version, doc=doc):
-        expected_source = _expected_source(change)
-        for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
-            label = f"{locale} {change.path}"
-            try:
-                dest = _validated_output_path(dest)
-            except OutputPathError as exc:
-                failures.append(f"{label}: {exc}")
-                continue
-            if not dest.exists():
-                continue
-
-            raw_original = dest.read_text(encoding="utf-8")
-            original = raw_original
-            original_issues = verify.verify(
-                original, source=expected_source, version=change.version
-            )
-            normalized = postprocess.postprocess(original, change.version, {})
-            normalized_issues = verify.verify(
-                normalized, source=expected_source, version=change.version
-            )
-            if not original_issues:
-                if normalized != original and not normalized_issues:
-                    writable += 1
-                    if apply:
-                        atomic_write_text(dest, normalized)
-                continue
-            if normalized != original and set(normalized_issues) < set(original_issues):
-                original = normalized
-                original_issues = normalized_issues
-                if not original_issues:
-                    writable += 1
-                    if apply:
-                        atomic_write_text(dest, original)
-                    continue
-            try:
-                repaired_labels = repair.restore_blank_markdown_link_labels(
-                    expected_source, original
-                )
-            except repair.RepairError:
-                repaired_labels = None
-            if repaired_labels and repaired_labels.changed:
-                candidate = postprocess.postprocess(
-                    repaired_labels.text, change.version, {}
-                )
-                candidate_issues = verify.verify(
-                    candidate, source=expected_source, version=change.version
-                )
-                if set(candidate_issues) < set(original_issues):
-                    original = candidate
-                    original_issues = candidate_issues
-                    if not original_issues:
-                        writable += 1
-                        if apply:
-                            atomic_write_text(dest, original)
-                        continue
-            if not {
-                "missing original comment",
-                "source comment mismatch",
-            }.intersection(original_issues):
-                if original != raw_original:
-                    writable += 1
-                    if apply:
-                        atomic_write_text(dest, original)
-                continue
-
-            annotated, drifts = annotate.annotate(expected_source, original, change.version)
-            out = postprocess.postprocess(annotated, change.version, {})
-            blocking_drifts = [drift for drift in drifts if drift.op == "delete"]
-            if blocking_drifts:
-                if "missing original comment" in original_issues:
-                    counts: dict[str, int] = {}
-                    for drift in blocking_drifts:
-                        counts[drift.op] = counts.get(drift.op, 0) + 1
-                    failures.append(f"{label}: drift {counts}")
-                elif original != raw_original:
-                    writable += 1
-                    if apply:
-                        atomic_write_text(dest, original)
-                continue
-            issues = verify.verify(
-                out, source=expected_source, version=change.version
-            )
-            if "missing original comment" in issues:
-                failures.append(f"{label}: {', '.join(issues)}")
-                continue
-            if set(issues) < set(original_issues):
-                original = out
-            if original != raw_original:
-                writable += 1
-                if apply:
-                    atomic_write_text(dest, original)
-
-    return writable, failures
-
-
-def _fix_preserved_markup_file(
-    label: str, dest: Path, expected_source: str, *, version: str, apply: bool
-) -> tuple[int, str | None]:
-    """로케일 문서 하나의 비번역 서식만 검증하고 선택적으로 원자적 기록."""
-
-    try:
-        dest = _validated_output_path(dest)
-    except OutputPathError as exc:
-        return 0, f"{label}: {exc}"
-    if not dest.exists():
-        return 0, None
-
-    original = dest.read_text(encoding="utf-8")
-    original_issues = verify.verify(
-        original, source=expected_source, version=version
-    )
-    if not original_issues:
-        return 0, None
-    if not set(original_issues).issubset(PRESERVED_MARKUP_FIXABLE):
-        return 0, f"{label}: {', '.join(original_issues)}"
-
-    try:
-        result = repair.repair_preserved_markup(expected_source, original)
-    except repair.RepairError as exc:
-        return 0, f"{label}: {exc}"
-
-    if not result.changed:
-        return 0, f"{label}: {', '.join(original_issues)}"
-
-    repaired_issues = verify.verify(
-        result.text, source=expected_source, version=version
-    )
-    if repaired_issues:
-        return 0, f"{label}: {', '.join(repaired_issues)}"
-
-    if apply:
-        atomic_write_text(dest, result.text)
-    return 1, None
-
-
-def _fix_preserved_markup(
-    *, apply: bool = False, version: str | None = None, doc: str | None = None
-) -> tuple[int, list[str]]:
-    """기존 한국어·일본어 문서의 비번역 서식만 원문 기준으로 복구."""
-    writable = 0
-    failures: list[str] = []
-
-    for change in _select_changes(migrate_existing=True, version=version, doc=doc):
-        expected_source = _expected_source(change)
-        for locale, dest in (("ko", _ko_output(change)), ("ja", _ja_output(change))):
-            label = f"{locale} {change.path}"
-            written, failure = _fix_preserved_markup_file(
-                label,
-                dest,
-                expected_source,
-                version=change.version,
-                apply=apply,
-            )
-            writable += written
-            if failure:
-                failures.append(failure)
-
-    return writable, failures
-
 
 _VALUE_OPTIONS = {"--doc", "--version"}
-_FLAG_OPTIONS = {
-    "--annotate-existing",
-    "--apply",
-    "--check-annotations",
-    "--fix-preserved-markup",
-}
-_MAINTENANCE_OPTIONS = {
-    "--annotate-existing",
-    "--check-annotations",
-    "--fix-preserved-markup",
-}
 
+def _parse_args(args: list[str]) -> dict[str, str]:
+    """명령행 선택자 파싱."""
 
-def _parse_args(args: list[str]) -> tuple[set[str], dict[str, str]]:
-    """명령행 인수 파싱."""
-
-    flags: set[str] = set()
     values: dict[str, str] = {}
     index = 0
 
@@ -2302,29 +1975,18 @@ def _parse_args(args: list[str]) -> tuple[set[str], dict[str, str]]:
         argument = args[index]
         option, separator, inline_value = argument.partition("=")
 
-        if option == "--migrate-existing":
-            raise config.ConfigError(
-                "--migrate-existing is unsupported; use --annotate-existing "
-                "or --fix-preserved-markup"
-            )
-        if option in _VALUE_OPTIONS:
-            value, index = _parse_value_option(
-                args,
-                index,
-                option,
-                inline_value if separator else None,
-                values,
-            )
-            values[option] = value
-        elif argument in _FLAG_OPTIONS:
-            if argument in flags:
-                raise config.ConfigError(f"{argument} may only be specified once")
-            flags.add(argument)
-        else:
+        if option not in _VALUE_OPTIONS:
             raise config.ConfigError(f"unknown argument: {argument}")
+        value, index = _parse_value_option(
+            args,
+            index,
+            option,
+            inline_value if separator else None,
+            values,
+        )
+        values[option] = value
         index += 1
-    _validate_cli_flags(flags)
-    return flags, values
+    return values
 
 
 def _parse_value_option(
@@ -2364,40 +2026,16 @@ def _parse_value_option(
     return value, index
 
 
-def _validate_cli_flags(flags: set[str]) -> None:
-    """maintenance mode와 ``--apply`` 조합 검증.
 
-    Args:
-        flags: 파싱된 boolean option.
-
-    Raises:
-        ConfigError: maintenance mode가 중복되거나 ``--apply`` 대상이 없음.
-    """
-
-    maintenance = flags & _MAINTENANCE_OPTIONS
-    if len(maintenance) > 1:
-        raise config.ConfigError("maintenance modes are mutually exclusive")
-    if "--apply" in flags and not maintenance.intersection(
-        {"--annotate-existing", "--fix-preserved-markup"}
-    ):
-        raise config.ConfigError(
-            "--apply requires --annotate-existing or --fix-preserved-markup"
-        )
-
-
-def main() -> int:
+def _run() -> int:
     """명령줄 진입점 실행."""
 
     try:
-        flags, values = _parse_args(sys.argv[1:])
+        values = _parse_args(sys.argv[1:])
     except config.ConfigError as exc:
         print(f"configuration failed: {exc}", file=sys.stderr)
         return 1
 
-    check_annotations = "--check-annotations" in flags
-    annotate_existing = "--annotate-existing" in flags
-    fix_preserved_markup = "--fix-preserved-markup" in flags
-    apply_annotations = "--apply" in flags
     version = values.get("--version")
     doc = values.get("--doc")
     if doc:
@@ -2414,64 +2052,6 @@ def main() -> int:
         except ValueError as exc:
             print(f"configuration failed: {exc}", file=sys.stderr)
             return 1
-
-    if annotate_existing:
-        try:
-            written, failures = _annotate_existing(
-                apply=apply_annotations, version=version, doc=doc
-            )
-        except SourcePathError as exc:
-            print(f"source selection failed: {exc}", file=sys.stderr)
-            return 1
-        for failure in failures:
-            print(f"annotate failed: {failure}", file=sys.stderr)
-        if failures:
-            print(f"{len(failures)} annotation migration(s) failed", file=sys.stderr)
-            return 1
-        action = "written" if apply_annotations else "would write"
-        print(f"existing translation annotations {action}: {written}")
-        return 0
-
-    if fix_preserved_markup:
-        try:
-            written, failures = _fix_preserved_markup(
-                apply=apply_annotations, version=version, doc=doc
-            )
-        except SourcePathError as exc:
-            print(f"source selection failed: {exc}", file=sys.stderr)
-            return 1
-        action = "written" if apply_annotations else "would write"
-        print(f"existing preserved markup fixes {action}: {written}")
-        for failure in failures:
-            print(f"preserved markup fix skipped: {failure}", file=sys.stderr)
-        if failures:
-            print(f"{len(failures)} preserved markup fix(es) skipped", file=sys.stderr)
-            return 1
-        return 0
-
-    if check_annotations:
-        try:
-            failures = _check_existing_annotations(version=version, doc=doc)
-        except SourcePathError as exc:
-            print(f"source selection failed: {exc}", file=sys.stderr)
-            return 1
-        for failure in failures:
-            print(f"verify failed: {failure}", file=sys.stderr)
-        if failures:
-            print(f"{len(failures)} annotation check(s) failed", file=sys.stderr)
-            return 1
-        print("existing translation annotations verified")
-        return 0
-
-    if (
-        os.environ.get("TRANSLATION_CANDIDATE") != "1"
-        and os.environ.get("TRANSLATION_REPLAY") != "1"
-    ):
-        print(
-            "configuration failed: translation sync requires an isolated candidate",
-            file=sys.stderr,
-        )
-        return 1
 
     # 1. 설정 확인 (실패 시 원문 캐시를 변경하지 않음)
     try:
@@ -2646,6 +2226,27 @@ def main() -> int:
 
     print(f"translated {len(changes)} doc(s) into ko, ja")
     return 0
+
+
+def main() -> int:
+    """예상하지 못한 실행 환경·내부 오류를 안정된 종료 코드로 변환."""
+
+    try:
+        return _run()
+    except OSError:
+        print("translation sync failed: runner operation failed", file=sys.stderr)
+        return _sync_failure(
+            IssueCode.RUNNER_OPERATION_FAILED,
+            stage="runner",
+            message="filesystem operation failed",
+        )
+    except Exception:
+        print("translation sync failed: unexpected internal error", file=sys.stderr)
+        return _sync_failure(
+            IssueCode.UNCLASSIFIED_INTERNAL,
+            stage="runner",
+            message="unexpected internal error",
+        )
 
 
 if __name__ == "__main__":

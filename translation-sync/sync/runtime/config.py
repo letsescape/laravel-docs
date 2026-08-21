@@ -3,13 +3,12 @@
 provider 종류, 모델, token 예산, timeout 및 CLI argv를 실행 전에 검증.
 설정 오류는 provider 호출이나 문서 변경 없이 즉시 중단.
 
-TRANSLATION_PROVIDER: 기본 openai | azure | cli | identity(replay 전용)
+TRANSLATION_PROVIDER: 기본 openai | cli
 """
 from __future__ import annotations
 
 import hashlib
 import json
-import math
 import os
 import shlex
 import time
@@ -38,14 +37,7 @@ class ConfigError(Exception):
 
 
 _REQUIRED: dict[str, tuple[str, ...]] = {
-    "identity": (),
     "openai": ("OPENAI_API_KEY",),
-    "azure": (
-        "TRANSLATION_MODEL",
-        "AZURE_OPENAI_API_KEY",
-        "AZURE_OPENAI_API_VERSION",
-        "AZURE_OPENAI_ENDPOINT",
-    ),
     "cli": ("TRANSLATION_CLI_COMMAND", "TRANSLATION_MODEL"),
 }
 _DEFAULT_PROVIDER = "openai"
@@ -59,21 +51,16 @@ _REQUEST_BUDGET_KEYS = (
     "TRANSLATION_RESERVED_OUTPUT_TOKENS",
     "TRANSLATION_REQUEST_TIMEOUT_SECONDS",
     "TRANSLATION_RUN_TIMEOUT_SECONDS",
-    "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS",
 )
 _DEFAULT_TIMEOUT_VALUES = {
     "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "600",
     "TRANSLATION_RUN_TIMEOUT_SECONDS": "21600",
-    "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS": "21600",
 }
 _TOKENIZER_KEY = "TRANSLATION_TOKENIZER_ENCODING"
-_MODEL_PROFILE_KEY = "TRANSLATION_MODEL_PROFILE"
 _CLI_TOKEN_KEYS = (
     "CODEX_ACCESS_TOKEN",
     "CODEX_API_KEY",
 )
-WORKFLOW_DEADLINE_ENV = "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC"
-RUN_DEADLINE_ENV = "TRANSLATION_RUN_DEADLINE_MONOTONIC"
 PROVIDER_BUDGET_PROFILE_VERSION = 1
 # 두 요청 문자열에 나타나지 않는 provider/API/CLI 프레이밍의 보수적 승인 여유분.
 # 측정된 overhead가 아닌 프로젝트 고정값.
@@ -114,7 +101,6 @@ class RequestBudget:
     reserved_output_tokens: int
     request_timeout_seconds: int
     run_timeout_seconds: int
-    workflow_timeout_seconds: int
     tokenizer_encoding: str
 
     @property
@@ -169,9 +155,6 @@ class Config:
                 run_timeout_seconds=int(
                     self.values["TRANSLATION_RUN_TIMEOUT_SECONDS"]
                 ),
-                workflow_timeout_seconds=int(
-                    self.values["TRANSLATION_WORKFLOW_TIMEOUT_SECONDS"]
-                ),
                 tokenizer_encoding=self.values[_TOKENIZER_KEY],
             )
         except (TypeError, ValueError) as exc:
@@ -180,7 +163,7 @@ class Config:
                 IssueCode.INVALID_REQUEST_BUDGET,
             ) from exc
         _validate_request_budget_values(budget)
-        _validate_model_metadata(self.provider, self.values, budget)
+        _validate_model_metadata(self.values, budget)
         return budget
 
 
@@ -244,21 +227,16 @@ def cli_auth_environment(cfg: Config) -> dict[str, str]:
     return {key: value}
 
 
-def _model_profile_name(provider: str, values: Mapping[str, str]) -> str:
-    """provider 종류에 대응하는 승인 모델 profile 이름."""
+def _model_profile_name(values: Mapping[str, str]) -> str:
+    """승인 모델 profile 이름."""
 
-    if provider == "azure":
-        return values.get(_MODEL_PROFILE_KEY, "").strip()
     return values.get("TRANSLATION_MODEL", "").strip()
 
 
 def provider_model_profile(cfg: Config) -> str:
     """검증 증거에 사용할 최종 승인 모델 profile 이름."""
 
-    return cfg.get(
-        _MODEL_PROFILE_KEY,
-        cfg.get("TRANSLATION_MODEL"),
-    ).strip()
+    return cfg.get("TRANSLATION_MODEL").strip()
 
 
 def provider_config_sha256(cfg: Config) -> str:
@@ -270,13 +248,6 @@ def provider_config_sha256(cfg: Config) -> str:
             auth_modes.append("OPENAI_API_KEY")
         adapter: dict[str, object] = {
             "api_base_url": OPENAI_API_BASE_URL,
-        }
-    elif cfg.provider == "azure":
-        if cfg.get("AZURE_OPENAI_API_KEY"):
-            auth_modes.append("AZURE_OPENAI_API_KEY")
-        adapter = {
-            "api_version": cfg.get("AZURE_OPENAI_API_VERSION"),
-            "endpoint": cfg.get("AZURE_OPENAI_ENDPOINT"),
         }
     elif cfg.provider == "cli":
         auth_modes.extend(
@@ -313,9 +284,6 @@ def provider_config_sha256(cfg: Config) -> str:
         ),
         "run_timeout_seconds": cfg.get("TRANSLATION_RUN_TIMEOUT_SECONDS"),
         "tokenizer_encoding": cfg.get("TRANSLATION_TOKENIZER_ENCODING"),
-        "workflow_timeout_seconds": cfg.get(
-            "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS"
-        ),
     }
     canonical = json.dumps(
         payload,
@@ -327,19 +295,17 @@ def provider_config_sha256(cfg: Config) -> str:
 
 
 def _validate_model_metadata(
-    provider: str,
     values: Mapping[str, str],
     budget: RequestBudget,
 ) -> None:
     """모델 메타데이터 검증."""
 
-    profile_name = _model_profile_name(provider, values)
+    profile_name = _model_profile_name(values)
     profile = _MODEL_PROFILES.get(profile_name)
     if profile is None:
-        label = _MODEL_PROFILE_KEY if provider == "azure" else "TRANSLATION_MODEL"
         raise ConfigError(
-            f"TOKENIZER_METADATA_UNAVAILABLE: no approved profile for {label} "
-            f"{profile_name!r}",
+            "TOKENIZER_METADATA_UNAVAILABLE: no approved profile for "
+            f"TRANSLATION_MODEL {profile_name!r}",
             IssueCode.TOKENIZER_METADATA_UNAVAILABLE,
         )
     if budget.tokenizer_encoding != profile.tokenizer_encoding:
@@ -370,7 +336,6 @@ def _validate_request_budget_values(budget: RequestBudget) -> None:
         budget.reserved_output_tokens,
         budget.request_timeout_seconds,
         budget.run_timeout_seconds,
-        budget.workflow_timeout_seconds,
     )
     if any(value <= 0 for value in numeric_values):
         raise ConfigError(
@@ -384,16 +349,11 @@ def _validate_request_budget_values(budget: RequestBudget) -> None:
             "TRANSLATION_CONTEXT_WINDOW_TOKENS",
             IssueCode.INVALID_REQUEST_BUDGET,
         )
-    if not (
-        budget.request_timeout_seconds
-        <= budget.run_timeout_seconds
-        <= budget.workflow_timeout_seconds
-    ):
+    if budget.request_timeout_seconds > budget.run_timeout_seconds:
         raise ConfigError(
             "INVALID_REQUEST_BUDGET: require "
             "TRANSLATION_REQUEST_TIMEOUT_SECONDS <= "
-            "TRANSLATION_RUN_TIMEOUT_SECONDS <= "
-            "TRANSLATION_WORKFLOW_TIMEOUT_SECONDS",
+            "TRANSLATION_RUN_TIMEOUT_SECONDS",
             IssueCode.INVALID_REQUEST_BUDGET,
         )
 
@@ -427,7 +387,7 @@ def _validate_tokenizer_encoding(name: str) -> None:
 
 
 def _provider_from_environment(env: Mapping[str, str]) -> str:
-    """환경에서 provider를 읽고 replay 사용 제약까지 검증.
+    """환경에서 provider를 읽고 지원 여부 검증.
 
     Args:
         env: 원본 환경 변수 mapping.
@@ -441,11 +401,6 @@ def _provider_from_environment(env: Mapping[str, str]) -> str:
         raise ConfigError(
             f"TRANSLATION_PROVIDER must be one of {sorted(_REQUIRED)}, got {provider!r}",
             IssueCode.PROVIDER_SELECTION_INVALID,
-        )
-    if provider == "identity" and env.get("TRANSLATION_REPLAY") != "1":
-        raise ConfigError(
-            "identity provider is only available during translation replay",
-            IssueCode.REPLAY_PROVIDER_FORBIDDEN,
         )
     return provider
 
@@ -494,7 +449,7 @@ def _add_provider_specific_values(
     env: Mapping[str, str],
     values: dict[str, str],
 ) -> None:
-    """CLI 인증 또는 Azure 모델 프로필을 설정값에 추가.
+    """CLI 인증 값을 설정값에 추가.
 
     Args:
         provider: 검증된 provider 이름.
@@ -506,25 +461,14 @@ def _add_provider_specific_values(
         validate_cli_command(values["TRANSLATION_CLI_COMMAND"])
         auth_config = Config(provider=provider, values=env)
         values.update(cli_auth_environment(auth_config))
-    if provider != "azure":
-        return
-    model_profile = env.get(_MODEL_PROFILE_KEY, "").strip()
-    if not model_profile:
-        raise ConfigError(
-            f"TOKENIZER_METADATA_UNAVAILABLE: missing {_MODEL_PROFILE_KEY}",
-            IssueCode.TOKENIZER_METADATA_UNAVAILABLE,
-        )
-    values[_MODEL_PROFILE_KEY] = model_profile
 
 
 def _default_budget_values(
-    provider: str,
     values: Mapping[str, str],
 ) -> dict[str, str]:
     """승인 모델 profile에서 파생한 request budget 기본값.
 
     Args:
-        provider: 검증된 provider 이름.
         values: 구성 중인 설정값 mapping.
 
     Returns:
@@ -532,7 +476,7 @@ def _default_budget_values(
         기본값, 없으면 빈 mapping.
     """
 
-    profile = _MODEL_PROFILES.get(_model_profile_name(provider, values))
+    profile = _MODEL_PROFILES.get(_model_profile_name(values))
     if profile is None:
         return {}
     defaults = dict(_DEFAULT_TIMEOUT_VALUES)
@@ -547,7 +491,6 @@ def _default_budget_values(
 
 
 def _add_budget_values(
-    provider: str,
     env: Mapping[str, str],
     values: dict[str, str],
 ) -> None:
@@ -557,12 +500,11 @@ def _add_budget_values(
     명시된 env 값이 항상 우선한다.
 
     Args:
-        provider: 검증된 provider 이름.
         env: 원본 환경 변수 mapping.
         values: 구성 중인 설정값 mapping.
     """
 
-    defaults = _default_budget_values(provider, values)
+    defaults = _default_budget_values(values)
     missing = [
         key
         for key in _REQUEST_BUDGET_KEYS
@@ -627,10 +569,8 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     provider = _provider_from_environment(env)
     values = _required_provider_values(provider, env)
 
-    if provider == "identity":
-        return Config(provider=provider, values=values)
     _add_provider_specific_values(provider, env, values)
-    _add_budget_values(provider, env, values)
+    _add_budget_values(env, values)
 
     budget = Config(provider=provider, values=values).request_budget()
     assert budget is not None
@@ -642,36 +582,13 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
 
 def required_run_deadline(
     cfg: Config,
-    env: Mapping[str, str] | None = None,
     *,
     clock=time.monotonic,
 ) -> float | None:
-    """live provider fixture 전에 환경의 절대 실행 기한 검증 및 로딩."""
+    """설정된 실행 제한으로 이번 번역의 절대 기한 계산."""
     if cfg.provider == "identity":
         return None
     budget = cfg.request_budget()
     if budget is None:
         return None
-    env = env if env is not None else os.environ
-    try:
-        workflow_deadline = float(env.get(WORKFLOW_DEADLINE_ENV, ""))
-        run_deadline = float(env.get(RUN_DEADLINE_ENV, ""))
-    except ValueError as exc:
-        raise ConfigError(
-            "INVALID_RUNTIME_OPTION: absolute translation deadline is missing or invalid",
-            IssueCode.INVALID_RUNTIME_OPTION,
-        ) from exc
-    now = clock()
-    if (
-        not math.isfinite(workflow_deadline)
-        or not math.isfinite(run_deadline)
-        or run_deadline <= now
-        or workflow_deadline <= now
-        or run_deadline > workflow_deadline
-        or run_deadline > now + budget.run_timeout_seconds
-    ):
-        raise ConfigError(
-            "INVALID_RUNTIME_OPTION: absolute translation deadline is missing or invalid",
-            IssueCode.INVALID_RUNTIME_OPTION,
-        )
-    return run_deadline
+    return clock() + budget.run_timeout_seconds

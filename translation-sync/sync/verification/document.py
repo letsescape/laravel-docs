@@ -1,7 +1,7 @@
 """hash에 결속되고 저장소 쓰기를 하지 않는 최종 문서 검증 계약.
 
 이 모듈의 함수는 불변 값만 변환하고 저장소 파일을 직접 읽거나 쓰지 않음.
-실패한 candidate가 검증된 산출물로 유출되지 않는 구조.
+실패한 번역 초안이 작업 트리에 기록되지 않는 구조.
 """
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from ..common import stale_links
 from ..common.markdown import (
     html_comment_spans,
     mask_fenced_code_contents,
+    quote_depth,
     strip_title_attr_line,
 )
 from ..common.stale_links import StaleLinkRegistry
@@ -807,7 +808,7 @@ def _optional_quote_comment_is_preserved(
             start_line,
         )
         or not optional[key]
-        or response_contract._quote_depth(lines[next_line]) != depth
+        or quote_depth(lines[next_line]) != depth
         or not next_body
     ):
         return False
@@ -846,7 +847,7 @@ def _non_source_comment_is_valid(
         if start_line == end_line and start_line < len(lines)
         else None
     )
-    depth = response_contract._quote_depth(match.group(1)) if match else 0
+    depth = quote_depth(match.group(1)) if match else 0
     if depth:
         return _optional_quote_comment_is_preserved(
             body=body,
@@ -1002,7 +1003,7 @@ _FINAL_STAGE_EXCLUDED_LEGACY_ISSUES = frozenset(
         "missing original comment",
         "source comment mismatch",
         # 문장 수와 미번역 원문은 live 응답 평가에서 검사.
-        # 최종 candidate 검증은 provider 독립적으로 재현 가능한 구조 검사만 수행.
+        # 최종 문서 검증은 provider 독립적으로 재현 가능한 구조 검사만 수행.
         "sentence cardinality mismatch",
         "untranslated source text",
     }

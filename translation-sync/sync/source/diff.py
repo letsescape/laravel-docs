@@ -1,17 +1,15 @@
 """Git 상태에서 변경된 영어 원문 식별.
 
-고정 업스트림 커밋을 영어 캐시에 동기화한 뒤 승인 기준본과 현재 작업 트리 비교.
+고정 업스트림 커밋을 영어 캐시에 동기화한 뒤 현재 checkout의 HEAD와 작업 트리 비교.
 정규 Markdown 경로만 선택하고 변경 상태를 추가(A), 수정(M), 삭제(D)로 제한.
 Git 이름 변경을 삭제와 추가로 분해.
 """
 from __future__ import annotations
 
 import difflib
-import math
 import os
 import re
 import subprocess
-import time
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
@@ -26,7 +24,6 @@ _HUNK_RE = re.compile(
 )
 _RENAME_STATUS_RE = re.compile(r"R(?P<score>\d{1,3})")
 _VERSION_RE = re.compile(r"^(?:master|(?:0|[1-9]\d*)\.x)$")
-WORKFLOW_DEADLINE_ENV = "TRANSLATION_WORKFLOW_DEADLINE_MONOTONIC"
 _LOCALE_ENV_NAMES = frozenset(("LANG", "LANGUAGE", "PATH"))
 _GIT_CONFIG_OVERRIDES = ("-c", "core.fsmonitor=false")
 _PORCELAIN_STATUS_KIND = {
@@ -67,34 +64,22 @@ def _git_environment() -> dict[str, str]:
     return environment
 
 
-def _remaining_workflow_timeout() -> float | None:
-    """환경 변수의 공유 기한에서 남은 실행 시간 계산."""
-
-    raw_deadline = os.environ.get(WORKFLOW_DEADLINE_ENV)
-    if raw_deadline is None:
-        return None
-    try:
-        deadline = float(raw_deadline)
-    except (TypeError, ValueError):
-        raise SourceDiffError("invalid workflow deadline") from None
-    if not math.isfinite(deadline):
-        raise SourceDiffError("invalid workflow deadline")
-    remaining = deadline - time.monotonic()
-    if remaining <= 0:
-        raise SourceDiffError("workflow deadline exceeded")
-    return remaining
-
-
 def _git_command(command: str, *arguments: str) -> list[str]:
     """파일 시스템 모니터를 비활성화한 Git 인수 벡터 구성."""
 
-    return ["git", *_GIT_CONFIG_OVERRIDES, command, *arguments]
+    return [
+        "git",
+        *_GIT_CONFIG_OVERRIDES,
+        "-c",
+        f"safe.directory={REPO_ROOT}",
+        command,
+        *arguments,
+    ]
 
 
 def _run_git(args: list[str]) -> subprocess.CompletedProcess[str]:
-    """격리된 환경과 공유 기한으로 Git 명령 실행."""
+    """격리된 환경에서 Git 명령 실행."""
 
-    timeout = _remaining_workflow_timeout()
     try:
         return run_process_tree(
             args,
@@ -103,12 +88,9 @@ def _run_git(args: list[str]) -> subprocess.CompletedProcess[str]:
             text=True,
             check=True,
             env=_git_environment(),
-            timeout=timeout,
             stdin=subprocess.DEVNULL,
             shell=False,
         )
-    except subprocess.TimeoutExpired:
-        raise SourceDiffError("workflow deadline exceeded") from None
     except (OSError, ProcessTreeError):
         raise SourceDiffError("git subprocess failed") from None
 
