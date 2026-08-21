@@ -618,6 +618,19 @@ $responses = Http::pool(fn (Pool $pool) => [
 ], concurrency: 5);
 ```
 
+<!-- If a pooled request fails at the connection level (for example, a timeout or DNS failure), the corresponding entry in the `$responses` array will be an `Illuminate\Http\Client\ConnectionException` instance instead of a `Response` instance: -->
+풀링된 요청이 연결 수준에서 실패하면(예: 타임아웃 또는 DNS 오류) `$responses` 배열의 해당 항목은 `Response` 인스턴스가 아니라 `Illuminate\Http\Client\ConnectionException` 인스턴스가 됩니다.
+
+```php
+foreach ($responses as $response) {
+    if ($response instanceof Throwable) {
+        // The request failed to connect...
+    } elseif ($response->failed()) {
+        // The request connected but received an error response...
+    }
+}
+```
+
 <a name="customizing-concurrent-requests"></a>
 <!-- #### Customizing Concurrent Requests -->
 #### Customizing Concurrent Requests

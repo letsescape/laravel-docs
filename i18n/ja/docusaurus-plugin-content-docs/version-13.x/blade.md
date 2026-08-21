@@ -32,7 +32,7 @@
     - [Anonymous Index Components](#anonymous-index-components)
     - [Data Properties / Attributes](#data-properties-attributes)
     - [Accessing Parent Data](#accessing-parent-data)
-    - [Anonymous Components Paths](#anonymous-component-paths)
+    - [Anonymous Component Paths](#anonymous-component-paths)
 - [Building Layouts](#building-layouts)
     - [Layouts Using Components](#layouts-using-components)
     - [Layouts Using Template Inheritance](#layouts-using-template-inheritance)
@@ -495,9 +495,9 @@ switch ステートメントは、`@switch`、`@case`、`@break`、`@default`、
 <!-- The `$loop` variable also contains a variety of other useful properties: -->
 `$loop` 変数には、他にもさまざまな便利なプロパティが含まれています。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Property | Description | | ------------------ | ------------------------------------------------------ | | `$loop->index` | The index of the current loop iteration (starts at 0). | | `$loop->iteration` | The current loop iteration (starts at 1). | | `$loop->remaining` | The iterations remaining in the loop. | | `$loop->count` | The total number of items in the array being iterated. | | `$loop->first` | Whether this is the first iteration through the loop. | | `$loop->last` | Whether this is the last iteration through the loop. | | `$loop->even` | Whether this is an even iteration through the loop. | | `$loop->odd` | Whether this is an odd iteration through the loop. | | `$loop->depth` | The nesting level of the current loop. | | `$loop->parent` | When in a nested loop, the parent's loop variable. | -->
 | プロパティ           | 説明                                            |
 | ------------------ | ------------------------------------------------------ |
 | `$loop->index`     | 現在のループ反復のインデックス (0 から始まります)。 |
@@ -511,7 +511,6 @@ switch ステートメントは、`@switch`、`@case`、`@break`、`@default`、
 | `$loop->depth`     | 現在のループのネスト レベル。                 |
 | `$loop->parent`    | ネストされたループ内の場合、親のループ変数。     |
 
-<!-- </div> -->
 </div>
 
 <a name="conditional-classes"></a>
@@ -1423,19 +1422,8 @@ class Alert extends Component
 <!-- By default, some keywords are reserved for Blade's internal use in order to render components. The following keywords cannot be defined as public properties or method names within your components: -->
 デフォルトでは、一部のキーワードはコンポーネントをレンダリングするために Blade の内部使用のために予約されています。次のキーワードは、コンポーネント内のパブリック プロパティまたはメソッド名として定義できません。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `data`
-- `render`
-- `resolve`
-- `resolveView`
-- `shouldRender`
-- `view`
-- `withAttributes`
-- `withName`
--->
 - `data`
 - `render`
 - `resolve`
@@ -1445,7 +1433,6 @@ class Alert extends Component
 - `withAttributes`
 - `withName`
 
-<!-- </div> -->
 </div>
 
 <a name="slots"></a>
@@ -2371,4 +2358,3 @@ public function boot(): void
     <!-- The application is not using the local disk... -->
 @enddisk
 ```
-

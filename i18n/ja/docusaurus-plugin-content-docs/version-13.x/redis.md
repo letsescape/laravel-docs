@@ -252,6 +252,16 @@ Laravel は、Predis を使用する場合のクライアント側のシャー�
     'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
 ],
 ```
+
+<!-- Laravel automatically retries safe read commands once after a transient connection failure. You may use the `command_retries` option to configure the number of retries for all Redis commands: -->
+Laravel は、一時的な接続障害が発生した場合、安全な読み取りコマンドを自動的に 1 回再試行します。すべての Redis コマンドの再試行回数は、`command_retries` オプションで設定できます。
+
+```php
+'default' => [
+    // ...
+    'command_retries' => env('REDIS_COMMAND_RETRIES', 0),
+],
+```
 <!-- Predis 3.4.0 and later supports built-in retry and backoff configuration via the `Retry` class. You may configure retries using the `max_retries` option and configure the backoff strategy using the `retry` option. The `retry` option should be an array keyed by one of the following strategy classes: `NoBackoff`, `EqualBackoff`, or `ExponentialBackoff`: -->
 Predis 3.4.0 以降では、`Retry` クラスを介した組み込みの再試行およびバックオフ構成がサポートされています。`max_retries` オプションで再試行回数を設定し、`retry` オプションでバックオフ戦略を設定できます。`retry` オプションは、次のいずれかの戦略クラスをキーにした配列にする必要があります: `NoBackoff`、`EqualBackoff`、または `ExponentialBackoff`:
 

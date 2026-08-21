@@ -19,7 +19,7 @@
 [Redis](https://redis.io)는 오픈 소스이자 고급 키-값 저장소입니다. 종종 데이터 구조 서버(data structure server)라고도 불리는데, 이는 키에 [strings](https://redis.io/docs/latest/develop/data-types/strings/), [hashes](https://redis.io/docs/latest/develop/data-types/hashes/), [lists](https://redis.io/docs/latest/develop/data-types/lists/), [sets](https://redis.io/docs/latest/develop/data-types/sets/), [sorted sets](https://redis.io/docs/latest/develop/data-types/sorted-sets/) 등 다양한 데이터 구조를 담을 수 있기 때문입니다.
 
 <!-- Before using Redis with Laravel, we encourage you to install and use the [PhpRedis](https://github.com/phpredis/phpredis) PHP extension via PECL. The extension is more complex to install compared to "user-land" PHP packages but may yield better performance for applications that make heavy use of Redis. If you are using [Laravel Sail](/docs/13.x/sail), this extension is already installed in your application's Docker container. -->
-Laravel에서 Redis를 사용하기 전에, PECL을 통해 [PhpRedis](https://github.com/phpredis/phpredis) PHP 확장 프로그램을 설치하고 사용하는 것을 권장합니다. 이 확장 프로그램은 PHP 패키지보다 설치가 더 복잡할 수 있지만, Redis를 빈번하게 사용하는 애플리케이션에서는 더 나은 성능을 보여줄 수 있습니다. 만약 [Laravel Sail](/docs/13.x/sail)을 사용 중이라면, 이 확장 프로그램은 이미 애플리케이션의 Docker 컨테이너에 설치되어 있습니다.
+Laravel에서 Redis를 사용하기 전에 PECL을 통해 [PhpRedis](https://github.com/phpredis/phpredis) PHP 확장 프로그램을 설치해 사용하는 것을 권장합니다. 이 확장 프로그램은 "사용자 영역" PHP 패키지보다 설치 과정이 복잡하지만, Redis를 많이 사용하는 애플리케이션에서 더 나은 성능을 제공할 수 있습니다. [Laravel Sail](/docs/13.x/sail)을 사용한다면 이 확장 프로그램은 애플리케이션의 Docker 컨테이너에 이미 설치되어 있습니다.
 
 <!-- If you are unable to install the PhpRedis extension, you may install the `predis/predis` package via Composer. Predis is a Redis client written entirely in PHP and does not require any additional extensions: -->
 PhpRedis 확장 프로그램을 설치할 수 없는 경우, Composer를 통해 `predis/predis` 패키지를 설치할 수 있습니다. Predis는 PHP로만 작성된 Redis 클라이언트이며, 추가 확장 프로그램 없이 사용할 수 있습니다.
@@ -252,6 +252,17 @@ Predis 패키지를 통해 Redis와 상호작용하고 싶다면, `REDIS_CLIENT`
     'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
 ],
 ```
+
+<!-- Laravel automatically retries safe read commands once after a transient connection failure. You may use the `command_retries` option to configure the number of retries for all Redis commands: -->
+Laravel은 일시적인 연결 실패가 발생하면 안전한 읽기 명령어를 한 번 자동으로 재시도합니다. `command_retries` 옵션을 사용해 모든 Redis 명령어의 재시도 횟수를 설정할 수 있습니다.
+
+```php
+'default' => [
+    // ...
+    'command_retries' => env('REDIS_COMMAND_RETRIES', 0),
+],
+```
+
 <!-- Predis 3.4.0 and later supports built-in retry and backoff configuration via the `Retry` class. You may configure retries using the `max_retries` option and configure the backoff strategy using the `retry` option. The `retry` option should be an array keyed by one of the following strategy classes: `NoBackoff`, `EqualBackoff`, or `ExponentialBackoff`: -->
 Predis 3.4.0 이상에서는 `Retry` 클래스를 통해 내장된 재시도 및 백오프 설정을 지원합니다. `max_retries` 옵션으로 재시도를 구성하고, `retry` 옵션으로 백오프 전략을 구성할 수 있습니다. `retry` 옵션은 다음 전략 클래스 중 하나를 키로 하는 배열이어야 합니다: `NoBackoff`, `EqualBackoff`, `ExponentialBackoff`:
 
@@ -331,26 +342,17 @@ PhpRedis 확장 프로그램은 다양한 직렬화(serializer) 및 압축(compr
 ```
 
 <!-- Currently supported serializers include: `Redis::SERIALIZER_NONE` (default), `Redis::SERIALIZER_PHP`, `Redis::SERIALIZER_JSON`, `Redis::SERIALIZER_IGBINARY`, and `Redis::SERIALIZER_MSGPACK`. -->
-현재 지원되는 직렬화기는 다음과 같습니다:
-- `Redis::SERIALIZER_NONE` (기본값)
-- `Redis::SERIALIZER_PHP`
-- `Redis::SERIALIZER_JSON`
-- `Redis::SERIALIZER_IGBINARY`
-- `Redis::SERIALIZER_MSGPACK`
+현재 지원되는 직렬화 방식은 `Redis::SERIALIZER_NONE`(기본값), `Redis::SERIALIZER_PHP`, `Redis::SERIALIZER_JSON`, `Redis::SERIALIZER_IGBINARY`, `Redis::SERIALIZER_MSGPACK`입니다.
 
 <!-- Supported compression algorithms include: `Redis::COMPRESSION_NONE` (default), `Redis::COMPRESSION_LZF`, `Redis::COMPRESSION_ZSTD`, and `Redis::COMPRESSION_LZ4`. -->
-지원되는 압축 알고리즘은 다음과 같습니다:
-- `Redis::COMPRESSION_NONE` (기본값)
-- `Redis::COMPRESSION_LZF`
-- `Redis::COMPRESSION_ZSTD`
-- `Redis::COMPRESSION_LZ4`
+지원되는 압축 알고리즘은 `Redis::COMPRESSION_NONE`(기본값), `Redis::COMPRESSION_LZF`, `Redis::COMPRESSION_ZSTD`, `Redis::COMPRESSION_LZ4`입니다.
 
 <a name="interacting-with-redis"></a>
 <!-- ## Interacting With Redis -->
 ## Interacting With Redis
 
 <!-- You may interact with Redis by calling various methods on the `Redis` [facade](/docs/13.x/facades). The `Redis` facade supports dynamic methods, meaning you may call any [Redis command](https://redis.io/commands) on the facade and the command will be passed directly to Redis. In this example, we will call the Redis `GET` command by calling the `get` method on the `Redis` facade: -->
-여러 가지 메서드를 사용해 `Redis` [facade](/docs/13.x/facades)를 통해 Redis와 상호작용할 수 있습니다. `Redis` 파사드는 다이나믹 메서드를 지원하므로, [Redis command](https://redis.io/commands)라면 어떤 것이든 파사드를 통해 호출할 수 있고, 해당 명령어가 직접 Redis로 전달됩니다. 아래 예시에서는 `Redis` 파사드의 `get` 메서드를 통해 Redis의 `GET` 명령어를 호출합니다.
+다양한 메서드를 호출하여 `Redis` [facade](/docs/13.x/facades)를 통해 Redis와 상호작용할 수 있습니다. `Redis` 파사드는 동적 메서드를 지원하므로, 파사드에서 모든 [Redis command](https://redis.io/commands)를 호출할 수 있으며 해당 명령어는 Redis에 직접 전달됩니다. 이 예제에서는 `Redis` 파사드의 `get` 메서드를 호출하여 Redis `GET` 명령어를 실행합니다:
 
 ```php
 <?php
@@ -428,7 +430,7 @@ Facades\Redis::transaction(function (Redis $redis) {
 ```
 
 > [!WARNING]
-> Redis 트랜잭션을 정의할 때는, 트랜잭션 내에서 Redis로부터 값을 조회할 수 없습니다. 트랜잭션은 완전히 원자적으로 실행되며, 클로저 내부의 모든 명령어가 끝난 후에야 실제 실행이 시작됨을 기억하세요.
+> Redis 트랜잭션을 정의할 때는 Redis 연결에서 어떤 값도 조회할 수 없습니다. 트랜잭션은 단일 원자적 작업으로 실행되며, 클로저가 명령어 실행을 모두 마칠 때까지 해당 작업이 실행되지 않는다는 점을 기억하세요.
 
 <!-- #### Lua Scripts -->
 #### Lua Scripts
@@ -455,7 +457,7 @@ LUA, 2, 'first-counter', 'second-counter');
 ```
 
 > [!WARNING]
-> Redis 스크립팅에 관한 더 자세한 내용은 [Redis documentation](https://redis.io/commands/eval)를 참고하세요.
+> Redis 스크립팅에 대한 자세한 내용은 [Redis documentation](https://redis.io/commands/eval)을 참고하세요.
 
 <a name="pipelining-commands"></a>
 <!-- ### Pipelining Commands -->
@@ -483,7 +485,7 @@ Facades\Redis::pipeline(function (Redis $pipe) {
 Laravel은 Redis의 `publish` 및 `subscribe` 명령어에 대한 편리한 인터페이스를 제공합니다. 이 명령어들은 특정 "채널"에 대해 메시지를 듣고(publish: 송신, subscribe: 수신) 보낼 수 있도록 해줍니다. 다른 애플리케이션이나, 심지어 다른 언어로도 메시지를 동일 채널로 발행할 수 있으므로, 애플리케이션 또는 프로세스 간의 손쉬운 통신이 가능합니다.
 
 <!-- First, let's set up a channel listener using the `subscribe` method. We'll place this method call within an [Artisan command](/docs/13.x/artisan) since calling the `subscribe` method begins a long-running process: -->
-먼저, `subscribe` 메서드를 사용해 채널 리스너를 설정해봅니다. `subscribe` 메서드는 장시간 실행되는 프로세스이므로, 보통 [Artisan command](/docs/13.x/artisan) 내에 구현합니다.
+먼저 `subscribe` 메서드를 사용해 채널 리스너를 설정하겠습니다. `subscribe` 메서드를 호출하면 장시간 실행되는 프로세스가 시작되므로 이 메서드 호출을 [Artisan command](/docs/13.x/artisan) 안에 배치하겠습니다:
 
 ```php
 <?php

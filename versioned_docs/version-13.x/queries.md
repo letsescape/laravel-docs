@@ -409,8 +409,8 @@ $orders = DB::table('orders')
 ```
 
 <a name="groupbyraw"></a>
-<!-- ### `groupByRaw` -->
-### `groupByRaw`
+<!-- #### `groupByRaw` -->
+#### `groupByRaw`
 
 <!-- The `groupByRaw` method may be used to provide a raw string as the value of the `group by` clause: -->
 `groupByRaw` 메소드는 `group by` 절의 값으로 원시 문자열을 제공하는 데 사용될 수 있습니다.

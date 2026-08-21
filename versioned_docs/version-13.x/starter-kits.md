@@ -20,6 +20,7 @@
     - [Rate Limiting](#rate-limiting)
 - [Teams](#teams)
 - [WorkOS AuthKit Authentication](#workos)
+    - [Configuring Your WorkOS Starter Kit](#configuring-your-workos-starter-kit)
 - [Inertia SSR](#inertia-ssr)
 - [Community Maintained Starter Kits](#community-maintained-starter-kits)
 - [Frequently Asked Questions](#faqs)
@@ -428,9 +429,9 @@ Livewire 스타터 키트에 포함된 로그인 페이지와 등록 페이지 �
 <!-- Fortify automatically registers the following authentication routes based on the features that are enabled in your application's `config/fortify.php` configuration file: -->
 Fortify는 애플리케이션의 `config/fortify.php` 설정 파일에서 활성화된 기능에 따라 다음 인증 라우트를 자동으로 등록합니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Route | Method | Description | | ---------------------------------- | ------ | ----------------------------------- | | `/login` | `GET` | Display login form | | `/login` | `POST` | Authenticate user | | `/logout` | `POST` | Log user out | | `/register` | `GET` | Display registration form | | `/register` | `POST` | Create new user | | `/forgot-password` | `GET` | Display password reset request form | | `/forgot-password` | `POST` | Send password reset link | | `/reset-password/{token}` | `GET` | Display password reset form | | `/reset-password` | `POST` | Update password | | `/email/verify` | `GET` | Display email verification notice | | `/email/verify/{id}/{hash}` | `GET` | Verify email address | | `/email/verification-notification` | `POST` | Resend verification email | | `/user/confirm-password` | `GET` | Display password confirmation form | | `/user/confirm-password` | `POST` | Confirm password | | `/two-factor-challenge` | `GET` | Display 2FA challenge form | | `/two-factor-challenge` | `POST` | Verify 2FA code | -->
 | 라우트                             | 메서드 | 설명                                |
 | ---------------------------------- | ------ | ----------------------------------- |
 | `/login`                           | `GET`    | 로그인 폼 표시                      |
@@ -450,7 +451,6 @@ Fortify는 애플리케이션의 `config/fortify.php` 설정 파일에서 활성
 | `/two-factor-challenge`            | `GET`    | 2FA 확인 폼 표시                    |
 | `/two-factor-challenge`            | `POST`   | 2FA 코드 검증                       |
 
-<!-- </div> -->
 </div>
 
 <!-- The `php artisan route:list` Artisan command can be used to display all of the routes in your application. -->
@@ -490,16 +490,15 @@ use Laravel\Fortify\Features;
 <!-- When a user registers or resets their password, Fortify invokes action classes located in your application's `app/Actions/Fortify` directory: -->
 사용자가 회원가입하거나 비밀번호를 재설정하면, Fortify는 애플리케이션의 `app/Actions/Fortify` 디렉터리에 있는 액션 클래스를 호출합니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | File | Description | | ----------------------------- | ------------------------------------- | | `CreateNewUser.php` | Validates and creates new users | | `ResetUserPassword.php` | Validates and updates user passwords | | `PasswordValidationRules.php` | Defines password validation rules | -->
 | 파일                          | 설명                                  |
 | ----------------------------- | ------------------------------------- |
 | `CreateNewUser.php`           | 새 사용자를 유효성 검증하고 생성합니다 |
 | `ResetUserPassword.php`       | 사용자 비밀번호를 유효성 검증하고 업데이트합니다 |
 | `PasswordValidationRules.php` | 비밀번호 유효성 검증 규칙을 정의합니다 |
 
-<!-- </div> -->
 </div>
 
 <!-- For example, to customize your application's registration logic, you should edit the `CreateNewUser` action: -->
@@ -573,21 +572,14 @@ React, Svelte, Vue, Livewire 스타터 키트는 팀 지원 기능을 포함하�
 <!-- By default, the React, Svelte, Vue, and Livewire starter kits all utilize Laravel's built-in authentication system to offer login, registration, password reset, email verification, and more. In addition, we also offer a [WorkOS AuthKit](https://authkit.com) powered variant of each starter kit that offers: -->
 기본적으로 React, Svelte, Vue, Livewire 스타터 키트는 모두 Laravel의 내장 인증 시스템을 사용하여 로그인, 회원가입, 비밀번호 재설정, 이메일 인증 등을 제공합니다. 또한 각 스타터 키트에는 [WorkOS AuthKit](https://authkit.com) 기반 변형도 제공되며, 다음 기능을 제공합니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Social authentication (Google, Microsoft, GitHub, and Apple)
-- Passkey authentication
-- Email based "Magic Auth"
-- SSO
--->
+<!-- - Social authentication (Google, Microsoft, GitHub, and Apple) - Passkey authentication - Email based "Magic Auth" - SSO -->
 - 소셜 인증(Google, Microsoft, GitHub, Apple)
 - 패스키 인증
 - 이메일 기반 "Magic Auth"
 - SSO
 
-<!-- </div> -->
 </div>
 
 <!-- Using WorkOS as your authentication provider [requires a WorkOS account](https://workos.com). WorkOS offers free authentication for applications up to 1 million monthly active users. -->
@@ -596,6 +588,7 @@ WorkOS를 인증 제공자로 사용하려면 [requires a WorkOS account](https:
 <!-- To use WorkOS AuthKit as your application's authentication provider, select the WorkOS option when creating your new starter kit powered application via `laravel new`. -->
 WorkOS AuthKit을 애플리케이션의 인증 제공자로 사용하려면, `laravel new`를 통해 새 스타터 키트 기반 애플리케이션을 만들 때 WorkOS 옵션을 선택하십시오.
 
+<a name="configuring-your-workos-starter-kit"></a>
 <!-- ### Configuring Your WorkOS Starter Kit -->
 ### Configuring Your WorkOS Starter Kit
 
@@ -714,7 +707,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 <!-- You may want to customize the default email template to better align with your application's branding. To modify this template, you should publish the email views to your application with the following command: -->
 애플리케이션의 브랜딩에 더 잘 맞도록 기본 이메일 템플릿을 사용자 정의하고 싶을 수 있습니다. 이 템플릿을 수정하려면 다음 명령어로 이메일 뷰를 애플리케이션에 게시해야 합니다.
 
-```
+```shell
 php artisan vendor:publish --tag=laravel-mail
 ```
 

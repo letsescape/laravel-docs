@@ -155,17 +155,12 @@ return Socialite::driver('github')
 <!-- Slack's API provides [different types of access tokens](https://api.slack.com/authentication/token-types), each with their own set of [permission scopes](https://api.slack.com/scopes). Socialite is compatible with both of the following Slack access tokens types: -->
 Slack の API は [different types of access tokens](https://api.slack.com/authentication/token-types) を提供し、それぞれに独自の [permission scopes](https://api.slack.com/scopes) セットが含まれます。 Socialite は、次の両方の Slack アクセス トークン タイプと互換性があります。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Bot (prefixed with `xoxb-`)
-- User (prefixed with `xoxp-`)
--->
+<!-- - Bot (prefixed with `xoxb-`) - User (prefixed with `xoxp-`) -->
 - ボット (接頭辞 `xoxb-`)
 - ユーザー (接頭辞 `xoxp-`)
 
-<!-- </div> -->
 </div>
 
 <!-- By default, the `slack` driver will generate a `user` token and invoking the driver's `user` method will return the user's details. -->
@@ -256,8 +251,12 @@ use Laravel\Socialite\Socialite;
 $user = Socialite::driver('github')->userFromToken($token);
 ```
 
-<!-- If you are using Facebook Limited Login via an iOS application, Facebook will return an OIDC token instead of an access token. Like an access token, the OIDC token can be provided to the `userFromToken` method in order to retrieve user details. -->
-iOS アプリケーション経由で Facebook 限定ログインを使用している場合、Facebook はアクセス トークンの代わりに OIDC トークンを返します。アクセス トークンと同様に、ユーザーの詳細を取得するために、OIDC トークンを `userFromToken` メソッドに提供できます。
+<!-- If you are using Facebook Limited Login via an iOS application, Facebook will return an OIDC token instead of an access token. To retrieve user details from the OIDC token, provide the nonce used to initiate the login to the `userFromToken` method: -->
+iOS アプリケーション経由で Facebook Limited Login を使用している場合、Facebook はアクセス トークンの代わりに OIDC トークンを返します。OIDC トークンからユーザー情報を取得するには、ログインの開始に使用した nonce を `userFromToken` メソッドに渡してください。
+
+```php
+$user = Socialite::driver('facebook')->userFromToken($token, $nonce);
+```
 
 <a name="stateless-authentication"></a>
 <!-- #### Stateless Authentication -->
@@ -345,4 +344,3 @@ $fakeUser = User::fake([
 
 <!-- OAuth 1 users may be faked using the `Laravel\Socialite\One\User` class. -->
 OAuth 1 のユーザーは、`Laravel\Socialite\One\User` クラスを使用して偽装できます。
-

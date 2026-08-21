@@ -32,37 +32,10 @@ Laravel の使用中に不適切な DocBlock、PHPStan、または IDE の警告
 <!-- The Laravel source code is managed on GitHub, and there are repositories for each of the Laravel projects: -->
 Laravel のソース コードは GitHub で管理されており、Laravel プロジェクトごとにリポジトリがあります。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- [Laravel Application](https://github.com/laravel/laravel)
-- [Laravel Art](https://github.com/laravel/art)
-- [Laravel Boost](https://github.com/laravel/boost)
-- [Laravel Documentation](https://github.com/laravel/docs)
-- [Laravel Dusk](https://github.com/laravel/dusk)
-- [Laravel Cashier Stripe](https://github.com/laravel/cashier)
-- [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle)
-- [Laravel Echo](https://github.com/laravel/echo)
-- [Laravel Envoy](https://github.com/laravel/envoy)
-- [Laravel Folio](https://github.com/laravel/folio)
-- [Laravel Framework](https://github.com/laravel/framework)
-- [Laravel Horizon](https://github.com/laravel/horizon)
-- [Laravel Passport](https://github.com/laravel/passport)
-- [Laravel Pennant](https://github.com/laravel/pennant)
-- [Laravel Pint](https://github.com/laravel/pint)
-- [Laravel Prompts](https://github.com/laravel/prompts)
-- [Laravel Reverb](https://github.com/laravel/reverb)
-- [Laravel Sail](https://github.com/laravel/sail)
-- [Laravel Sanctum](https://github.com/laravel/sanctum)
-- [Laravel Scout](https://github.com/laravel/scout)
-- [Laravel Socialite](https://github.com/laravel/socialite)
-- [Laravel Telescope](https://github.com/laravel/telescope)
-- [Laravel Livewire Starter Kit](https://github.com/laravel/livewire-starter-kit)
-- [Laravel React Starter Kit](https://github.com/laravel/react-starter-kit)
-- [Laravel Svelte Starter Kit](https://github.com/laravel/svelte-starter-kit)
-- [Laravel Vue Starter Kit](https://github.com/laravel/vue-starter-kit)
--->
+<!-- - [Laravel AI SDK](https://github.com/laravel/ai) - [Laravel Application](https://github.com/laravel/laravel) - [Laravel Art](https://github.com/laravel/art) - [Laravel Boost](https://github.com/laravel/boost) - [Laravel Documentation](https://github.com/laravel/docs) - [Laravel Dusk](https://github.com/laravel/dusk) - [Laravel Cashier Stripe](https://github.com/laravel/cashier) - [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle) - [Laravel Echo](https://github.com/laravel/echo) - [Laravel Envoy](https://github.com/laravel/envoy) - [Laravel Folio](https://github.com/laravel/folio) - [Laravel Framework](https://github.com/laravel/framework) - [Laravel Horizon](https://github.com/laravel/horizon) - [Laravel Passport](https://github.com/laravel/passport) - [Laravel Pennant](https://github.com/laravel/pennant) - [Laravel Pint](https://github.com/laravel/pint) - [Laravel Prompts](https://github.com/laravel/prompts) - [Laravel Reverb](https://github.com/laravel/reverb) - [Laravel Sail](https://github.com/laravel/sail) - [Laravel Sanctum](https://github.com/laravel/sanctum) - [Laravel Scout](https://github.com/laravel/scout) - [Laravel Socialite](https://github.com/laravel/socialite) - [Laravel Telescope](https://github.com/laravel/telescope) - [Laravel Livewire Starter Kit](https://github.com/laravel/livewire-starter-kit) - [Laravel React Starter Kit](https://github.com/laravel/react-starter-kit) - [Laravel Svelte Starter Kit](https://github.com/laravel/svelte-starter-kit) - [Laravel Vue Starter Kit](https://github.com/laravel/vue-starter-kit) -->
+- [Laravel AI SDK](https://github.com/laravel/ai)
 - [Laravel Application](https://github.com/laravel/laravel)
 - [Laravel Art](https://github.com/laravel/art)
 - [Laravel Boost](https://github.com/laravel/boost)
@@ -90,7 +63,6 @@ Laravel のソース コードは GitHub で管理されており、Laravel プ�
 - [Laravel Svelte Starter Kit](https://github.com/laravel/svelte-starter-kit)
 - [Laravel Vue Starter Kit](https://github.com/laravel/vue-starter-kit)
 
-<!-- </div> -->
 </div>
 
 <a name="support-questions"></a>
@@ -100,18 +72,9 @@ Laravel のソース コードは GitHub で管理されており、Laravel プ�
 <!-- Laravel's GitHub issue trackers are not intended to provide Laravel help or support. Instead, use one of the following channels: -->
 Laravel の GitHub 問題トラッカーは、Laravel のヘルプやサポートを提供することを目的としたものではありません。代わりに、次のいずれかのチャネルを使用してください。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- [GitHub Discussions](https://github.com/laravel/framework/discussions)
-- [Laracasts Forums](https://laracasts.com/discuss)
-- [Laravel.io Forums](https://laravel.io/forum)
-- [StackOverflow](https://stackoverflow.com/questions/tagged/laravel)
-- [Discord](https://discord.gg/laravel)
-- [Larachat](https://larachat.co)
-- [IRC](https://web.libera.chat/?nick=artisan&channels=#laravel)
--->
+<!-- - [GitHub Discussions](https://github.com/laravel/framework/discussions) - [Laracasts Forums](https://laracasts.com/discuss) - [Laravel.io Forums](https://laravel.io/forum) - [StackOverflow](https://stackoverflow.com/questions/tagged/laravel) - [Discord](https://discord.gg/laravel) - [Larachat](https://larachat.co) - [IRC](https://web.libera.chat/?nick=artisan&channels=#laravel) -->
 - [GitHub Discussions](https://github.com/laravel/framework/discussions)
 - [Laracasts Forums](https://laracasts.com/discuss)
 - [Laravel.io Forums](https://laravel.io/forum)
@@ -120,7 +83,6 @@ Laravel の GitHub 問題トラッカーは、Laravel のヘルプやサポー�
 - [Larachat](https://larachat.co)
 - [IRC](https://web.libera.chat/?nick=artisan&channels=#laravel)
 
-<!-- </div> -->
 </div>
 
 <a name="core-development-discussion"></a>
@@ -253,19 +215,12 @@ public function attachments(): array
 <!-- The Laravel code of conduct is derived from the Ruby code of conduct. Any violations of the code of conduct may be reported to Taylor Otwell (taylor@laravel.com): -->
 Laravel の行動規範は、Ruby の行動規範から派生しています。行動規範の違反は、Taylor Otwell (taylor@laravel.com) に報告される場合があります。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Participants will be tolerant of opposing views.
-- Participants must ensure that their language and actions are free of personal attacks and disparaging personal remarks.
-- When interpreting the words and actions of others, participants should always assume good intentions.
-- Behavior that can be reasonably considered harassment will not be tolerated.
--->
-- 参加者は反対意見にも寛容になります。
-- 参加者は、自分の言語や行動に個人攻撃や個人を軽蔑する発言がないことを確認する必要があります。
-- 他者の言葉や行動を解釈するとき、参加者は常に善意を想定する必要があります。
-- ハラスメントと合理的にみなされる行為は容認されません。
+<!-- - Participants will be tolerant of opposing views. - Participants must ensure that their language and actions are free of personal attacks and disparaging personal remarks. - When interpreting the words and actions of others, participants should always assume good intentions. - Behavior that can be reasonably considered harassment will not be tolerated. -->
+- 参加者は、異なる意見に対して寛容である必要があります。
+- 参加者は、発言や行動に個人攻撃や他者を中傷する発言が含まれないようにしてください。
+- 他者の発言や行動を解釈する際は、常に善意に基づくものと考えてください。
+- 合理的にハラスメントとみなされる行為は許容されません。
 
-<!-- </div> -->
 </div>

@@ -670,6 +670,16 @@ use Illuminate\Support\Facades\Process;
 Process::assertRan('ls -la');
 ```
 
+<!-- When the process was invoked with an array of arguments, you may pass the same array to the assertion: -->
+프로세스가 인수 배열로 호출된 경우 동일한 배열을 어설션에 전달할 수 있습니다.
+
+```php
+Process::assertRan(['php', 'artisan', 'migrate']);
+```
+
+<!-- The `assertRanTimes` and `assertDidntRun` methods also accept array commands. -->
+`assertRanTimes` 및 `assertDidntRun` 메서드도 배열 형태의 명령어를 받을 수 있습니다.
+
 <!-- The `assertRan` method also accepts a closure, which will receive an instance of a process and a process result, allowing you to inspect the process' configured options. If this closure returns `true`, the assertion will "pass": -->
 `assertRan` 메서드는 클로저도 받을 수 있습니다. 이 클로저는 프로세스 인스턴스와 프로세스 결과를 전달받으므로, 프로세스에 설정된 옵션을 검사할 수 있습니다. 이 클로저가 `true`를 반환하면 어설션은 "통과"합니다.
 
@@ -727,6 +737,23 @@ Process::assertRanTimes(function (PendingProcess $process, ProcessResult $result
     return $process->command === 'ls -la';
 }, times: 3);
 ```
+
+<a name="assert-processes-ran-in-order"></a>
+<!-- #### assertRanInOrder -->
+#### assertRanInOrder
+
+<!-- Assert that processes were invoked in a given order: -->
+프로세스가 지정된 순서대로 호출되었는지 확인합니다:
+
+```php
+Process::assertRanInOrder([
+    'git fetch',
+    'composer install',
+]);
+```
+
+<!-- The `assertRanInOrder` method accepts command strings, arrays of command arguments, or closures like the other process assertions. -->
+`assertRanInOrder` 메서드는 다른 프로세스 어설션과 마찬가지로 명령어 문자열, 명령어 인수 배열 또는 클로저를 받습니다.
 
 <a name="preventing-stray-processes"></a>
 <!-- ### Preventing Stray Processes -->

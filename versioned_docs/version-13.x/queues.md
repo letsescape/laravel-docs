@@ -1686,6 +1686,28 @@ Queue::route([
 > [!NOTE]
 > 큐 라우팅은 잡별로 해당 잡에서 계속 재정의할 수 있습니다.
 
+<!-- You may use the `forward` method to forward jobs from one queue to another queue and / or connection. This is useful when you need to change queue infrastructure without modifying individual jobs or dispatch locations: -->
+`forward` 메서드를 사용하면 잡을 한 큐에서 다른 큐 또는 연결로 전달할 수 있습니다. 개별 잡이나 디스패치 위치를 수정하지 않고 큐 인프라를 변경해야 할 때 유용합니다.
+
+```php
+Queue::forward('reports', 'reports.fifo', 'sqs');
+Queue::forward('payments', connection: 'sqs');
+Queue::forward('updates', 'notifications');
+```
+
+<!-- You may also forward multiple queues at once by passing an array: -->
+배열을 전달하면 여러 큐를 한 번에 전달할 수도 있습니다.
+
+```php
+Queue::forward([
+    'reports' => 'reports.fifo',
+    'emails' => 'emails.fifo',
+], connection: 'sqs');
+```
+
+<!-- An explicit connection configured on a job takes precedence over a forwarded connection. -->
+잡에 명시적으로 설정된 연결은 전달된 연결보다 우선합니다.
+
 <a name="max-job-attempts-and-timeout"></a>
 <!-- ### Specifying Max Job Attempts / Timeout Values -->
 ### Specifying Max Job Attempts / Timeout Values

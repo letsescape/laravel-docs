@@ -1686,6 +1686,28 @@ Queue::route([
 > [!NOTE]
 > ジョブごとに、ジョブ側でキューのルーティングを上書きすることもできます。
 
+<!-- You may use the `forward` method to forward jobs from one queue to another queue and / or connection. This is useful when you need to change queue infrastructure without modifying individual jobs or dispatch locations: -->
+`forward` メソッドを使うと、ジョブをあるキューから別のキューや接続へ転送できます。個々のジョブやディスパッチ箇所を変更せずにキューインフラストラクチャを変更したい場合に便利です。
+
+```php
+Queue::forward('reports', 'reports.fifo', 'sqs');
+Queue::forward('payments', connection: 'sqs');
+Queue::forward('updates', 'notifications');
+```
+
+<!-- You may also forward multiple queues at once by passing an array: -->
+配列を渡すことで、複数のキューを一度に転送することもできます。
+
+```php
+Queue::forward([
+    'reports' => 'reports.fifo',
+    'emails' => 'emails.fifo',
+], connection: 'sqs');
+```
+
+<!-- An explicit connection configured on a job takes precedence over a forwarded connection. -->
+ジョブに明示的な接続が設定されている場合は、転送先の接続よりも優先されます。
+
 <a name="max-job-attempts-and-timeout"></a>
 <!-- ### Specifying Max Job Attempts / Timeout Values -->
 ### Specifying Max Job Attempts / Timeout Values

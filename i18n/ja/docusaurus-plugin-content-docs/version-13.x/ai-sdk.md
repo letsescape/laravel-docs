@@ -16,6 +16,7 @@
     - [Broadcasting](#broadcasting)
     - [Queueing](#queueing)
     - [Tools](#tools)
+    - [Deferred Tool Loading](#deferred-tool-loading)
     - [File Storage Tools](#file-storage-tools)
     - [MCP Tools](#mcp-tools)
     - [Provider Tools](#provider-tools)
@@ -197,8 +198,8 @@ agent()->prompt('What is Laravel?', provider: 'local', model: 'local-model');
 ],
 ```
 
-<!-- OpenAI-compatible providers support text generation, streaming, tools, structured output, image attachments, and embeddings. If your endpoint requires additional request body fields, provide them using [provider options](#provider-options). -->
-OpenAI互換のプロバイダは、テキスト生成、ストリーミング、ツール、構造化出力、画像添付、埋め込みに対応しています。エンドポイントでリクエストボディに追加のフィールドが必要な場合は、[provider options](#provider-options)を使って指定してください。
+<!-- OpenAI-compatible providers support text generation, streaming, tools, structured output, image attachments, embeddings, and transcription. If your endpoint requires additional request body fields, provide them using [provider options](#provider-options). -->
+OpenAI 互換プロバイダは、テキスト生成、ストリーミング、ツール、構造化出力、画像添付、埋め込み、文字起こしをサポートします。エンドポイントでリクエストボディに追加のフィールドが必要な場合は、[provider options](#provider-options) を使用して指定してください。
 
 <a name="openai-compatible-embeddings"></a>
 <!-- #### OpenAI-Compatible Embeddings -->
@@ -221,6 +222,29 @@ OpenAI互換のプロバイダは、テキスト生成、ストリーミング�
 ],
 ```
 
+<a name="openai-compatible-transcriptions"></a>
+<!-- #### OpenAI-Compatible Transcriptions -->
+#### OpenAI-Compatible Transcriptions
+
+<!-- Likewise, you must configure a default transcription model to use `Transcription` with an OpenAI-compatible provider. The audio will be uploaded to the endpoint's `/audio/transcriptions` route as a standard multipart request: -->
+同様に、OpenAI互換プロバイダで `Transcription` を使用するためのデフォルトの文字起こしモデルを設定する必要があります。音声は、標準的な multipart リクエストとしてエンドポイントの `/audio/transcriptions` ルートにアップロードされます。
+
+```php
+'local' => [
+    'driver' => 'openai-compatible',
+    'url' => env('LOCAL_AI_URL'),
+    'key' => env('LOCAL_AI_API_KEY'),
+    'models' => [
+        'transcription' => [
+            'default' => 'whisper-1',
+        ],
+    ],
+],
+```
+
+> [!NOTE]
+> OpenAI-compatible および Groq プロバイダは話者分離をサポートしていません。これらのプロバイダの使用中に `diarize` メソッドを呼び出すと、例外がスローされます。
+
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
 ### Provider Support
@@ -230,16 +254,16 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 
 <div class="overflow-auto">
 
-<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini | | STT | OpenAI, ElevenLabs, Mistral, Gemini | | Embeddings | OpenAI, OpenAI-Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI | | Files | OpenAI, Anthropic, Gemini, Azure | -->
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI | | Files | OpenAI, Anthropic, Gemini, Azure | -->
 | 機能 | プロバイダ |
 |---|---|
-| テキスト | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
-| 画像 | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
+| Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
+| Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
 | TTS | OpenAI, ElevenLabs, Gemini |
-| STT | OpenAI, ElevenLabs, Mistral, Gemini |
-| 埋め込み | OpenAI, OpenAI-Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
-| リランキング | Cohere, Jina, VoyageAI |
-| ファイル | OpenAI, Anthropic, Gemini, Azure |
+| STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini |
+| Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
+| Reranking | Cohere, Jina, VoyageAI |
+| Files | OpenAI, Anthropic, Gemini, Azure |
 
 </div>
 
@@ -405,7 +429,7 @@ foreach ($response->steps as $step) {
 ```
 
 > [!NOTE]
-> レスポンスをストリーミングしている場合、Bedrock プロバイダを使用している場合（API 呼び出しに HTTP クライアントではなく AWS SDK を使用します）、およびフェイクしたレスポンスで `withRawResponse` を使って明示的に指定していない場合、`raw` プロパティは `null` です。
+> `raw` プロパティは、レスポンスをストリーミングしている場合、Bedrock プロバイダを使用している場合（API 呼び出しが HTTP クライアントではなく AWS SDK 経由で実行されるため）、および `withRawResponse` を使用して明示的に指定していないフェイクレスポンスでは `null` になります。
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -439,7 +463,7 @@ public function messages(): iterable
 #### Remembering Conversations
 
 > [!WARNING]
-> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドで AI SDK のマイグレーションを公開して実行してください。これらのマイグレーションにより、会話を保存するために必要なデータベーステーブルが作成されます。
+> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使って AI SDK のマイグレーションを公開し、実行してください。これらのマイグレーションにより、会話を保存するために必要なデータベーステーブルが作成されます。
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。この特性は、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
@@ -562,10 +586,10 @@ $participant = $conversation->participant;
 ```
 
 <!-- If your application uses multiple participant model types, you should consider defining an [Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) so that stored participant types are not coupled to your model class names. -->
-アプリケーションで複数の参加者モデルの種類を使用する場合は、保存される参加者のタイプがモデルのクラス名に依存しないよう、[Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) の定義を検討してください。
+アプリケーションで複数の参加者モデルの種類を使用している場合は、保存される参加者タイプがモデルクラス名に依存しないよう、[Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) の定義を検討してください。
 
 > [!WARNING]
-> `continue` メソッドは、指定された参加者が会話を所有しているかを検証しません。会話を続行する前に、アプリケーションでアクセスを認可してください。
+> `continue` メソッドは、指定された参加者が会話を所有しているかを検証しません。会話を継続する前に、アプリケーションでその会話へのアクセスを認可してください。
 
 <a name="structured-output"></a>
 <!-- ### Structured Output -->
@@ -950,6 +974,31 @@ public function tools(): iterable
 }
 ```
 
+<a name="repairing-tool-calls"></a>
+<!-- #### Repairing Tool Calls -->
+#### Repairing Tool Calls
+
+<!-- Use the `RepairToolCalls` attribute to let an agent recover when a model calls an unknown local tool. Laravel returns the failed call to the model with the names of the available local tools, allowing it to correct the call: -->
+`RepairToolCalls` 属性を使用すると、モデルが未知のローカルツールを呼び出した場合に、エージェントが復旧できるようになります。Laravel は利用可能なローカルツールの名前とともに失敗した呼び出しをモデルへ返すため、モデルは呼び出しを修正できます。
+
+```php
+use Laravel\Ai\Attributes\RepairToolCalls;
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Promptable;
+
+#[RepairToolCalls]
+class SupportAgent implements Agent, HasTools
+{
+    use Promptable;
+
+    // ...
+}
+```
+
+<!-- When Laravel derives the maximum number of steps automatically, this attribute adds one step for the repaired call. Explicit `MaxSteps` limits are unchanged. -->
+Laravel がステップの最大数を自動的に算出する場合、この属性によって修復された呼び出し用のステップが1つ追加されます。明示的に指定した `MaxSteps` の制限は変わりません。
+
 <a name="similarity-search"></a>
 <!-- #### Similarity Search -->
 #### Similarity Search
@@ -1017,12 +1066,58 @@ SimilaritySearch::usingModel(Document::class, 'embedding')
     ->withDescription('Search the knowledge base for relevant articles.'),
 ```
 
+<a name="deferred-tool-loading"></a>
+<!-- ### Deferred Tool Loading -->
+### Deferred Tool Loading
+
+<!-- By default, every tool an agent exposes is sent to the provider with each request. When an agent provides a large number of tools, this consumes tokens and may reduce the accuracy of the model's tool selection. Using the `ToolSearch` provider tool with OpenAI or Anthropic, you may defer tool definitions so that the provider only loads them when they are needed: -->
+デフォルトでは、エージェントが提供するすべてのツールがリクエストごとにプロバイダへ送信されます。エージェントが多数のツールを提供すると、トークンを消費し、モデルによるツール選択の精度が低下する可能性があります。OpenAI または Anthropic でプロバイダツールの `ToolSearch` を使用すると、必要になったときにプロバイダがツール定義を読み込むよう、ツール定義の読み込みを遅延できます。
+
+```php
+use App\Ai\Tools\RefundOrder;
+use App\Ai\Tools\SearchInvoices;
+use App\Ai\Tools\Weather;
+use Laravel\Ai\Providers\Tools\ToolSearch;
+
+public function tools(): iterable
+{
+    return [
+        new Weather,
+        new ToolSearch(tools: [
+            new SearchInvoices,
+            new RefundOrder,
+        ]),
+    ];
+}
+```
+
+<!-- The wrapped tools do not require any modification. The provider will search for and load them when they are relevant to the prompt, after which the agent may call them like any other tool. -->
+ラップされたツールを変更する必要はありません。プロバイダがプロンプトに関連するツールを検索して読み込むため、その後エージェントは他のツールと同じようにそれらを呼び出せます。
+
+<!-- When using Anthropic, the `strategy` argument may be used to determine how the provider should search for deferred tools. The supported strategies are `regex` (default) and `bm25`: -->
+Anthropic を使用する場合、`strategy` 引数でプロバイダが遅延ツールを検索する方法を決定できます。サポートされている戦略は `regex`（デフォルト）と `bm25` です。
+
+```php
+new ToolSearch(tools: [new SearchInvoices], strategy: 'bm25'),
+```
+
+<!-- When using Anthropic, additional provider-specific options may be passed to the search tool using the `withProviderOptions` method: -->
+Anthropic を使用する場合、`withProviderOptions` メソッドを使って検索ツールにプロバイダ固有の追加オプションを渡せます。
+
+```php
+(new ToolSearch(tools: [new SearchInvoices]))
+    ->withProviderOptions(['cache_control' => ['type' => 'ephemeral']]),
+```
+
+> [!WARNING]
+> ツール検索をサポートしていないプロバイダは、遅延ツールを暗黙的に破棄するのではなく、例外をスローします。また、Anthropic では、少なくとも1つのツールを `ToolSearch` ラッパーの外側に指定する必要があります。
+
 <a name="file-storage-tools"></a>
 <!-- ### File Storage Tools -->
 ### File Storage Tools
 
 <!-- The `FileStorage` tool factory allows you to give agents access to a Laravel [filesystem disk](/docs/13.x/filesystem). The `all` method returns tools that allow the agent to list, read, inspect, generate URLs for, write, delete, and copy files on the given disk: -->
-`FileStorage` ツールファクトリを使うと、エージェントに Laravel の [filesystem disk](/docs/13.x/filesystem) へのアクセスを許可できます。`all` メソッドは、指定したディスク上のファイルを一覧表示、読み取り、検査、URL の生成、書き込み、削除、コピーするためのツールを返します。
+`FileStorage` ツールファクトリを使用すると、エージェントから Laravel の [filesystem disk](/docs/13.x/filesystem) にアクセスできるようにします。`all` メソッドは、指定したディスク上のファイルの一覧表示、読み取り、検査、URL 生成、書き込み、削除、コピーをエージェントで実行できるツールを返します。
 
 ```php
 use Laravel\Ai\Tools\FileStorage;
@@ -1055,7 +1150,7 @@ return FileStorage::all('s3')
 ### MCP Tools
 
 <!-- If your application uses [Laravel MCP](/docs/13.x/mcp), you may give your agents tools exposed by [Model Context Protocol](https://modelcontextprotocol.io) servers. Using the [Laravel MCP client](/docs/13.x/mcp#client), you may connect to a remote or local MCP server and pass its tools directly to your agent. -->
-アプリケーションで [Laravel MCP](/docs/13.x/mcp) を使用している場合、[Model Context Protocol](https://modelcontextprotocol.io) サーバーが提供するツールをエージェントに与えられます。[Laravel MCP client](/docs/13.x/mcp#client) を使用すると、リモートまたはローカルの MCP サーバーに接続し、そのツールをエージェントへ直接渡せます。
+アプリケーションで [Laravel MCP](/docs/13.x/mcp) を使用している場合、[Model Context Protocol](https://modelcontextprotocol.io) サーバーが公開するツールをエージェントに提供できます。[Laravel MCP client](/docs/13.x/mcp#client) を使用すると、リモートまたはローカルの MCP サーバーに接続し、そのツールをエージェントへ直接渡せます。
 
 > [!NOTE]
 > MCP ツールを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
@@ -1085,7 +1180,7 @@ public function tools(): iterable
 ```
 
 <!-- The AI SDK automatically wraps each MCP tool so the agent can call it like any other tool. You may also use a [named MCP client](/docs/13.x/mcp#named-clients): -->
-AI SDK は各 MCP ツールを自動的にラップするため、エージェントは他のツールと同じように呼び出せます。また、[named MCP client](/docs/13.x/mcp#named-clients) を使用することもできます。
+AI SDKは各MCPツールを自動的にラップするため、エージェントは他のツールと同じように呼び出せます。また、[named MCP client](/docs/13.x/mcp#named-clients)も使用できます。
 
 ```php
 use Laravel\Mcp\Facades\Mcp;
@@ -1113,7 +1208,7 @@ public function tools(): iterable
 ```
 
 <!-- For more information on creating and authenticating MCP clients, including bearer tokens and OAuth, consult the [MCP client documentation](/docs/13.x/mcp#client). -->
-MCP クライアントの作成と認証について詳しくは、Bearerトークンや OAuth を含めて、[MCP client documentation](/docs/13.x/mcp#client)を参照してください。
+MCP クライアントの作成と認証について詳しくは、bearer token や OAuth についての説明を含む [MCP client documentation](/docs/13.x/mcp#client) を参照してください。
 
 <a name="provider-tools"></a>
 <!-- ### Provider Tools -->
@@ -1132,8 +1227,8 @@ MCP クライアントの作成と認証について詳しくは、Bearerトー�
 <!-- The `WebSearch` provider tool allows agents to search the web for real-time information. This is useful for answering questions about current events, recent data, or topics that may have changed since the model's training cutoff. -->
 `WebSearch` プロバイダ ツールを使用すると、エージェントは Web でリアルタイム情報を検索できます。これは、現在のイベント、最近のデータ、またはモデルのトレーニングのカットオフ以降に変更された可能性のあるトピックに関する質問に答えるのに役立ちます。
 
-<!-- **Supported providers:** Anthropic, OpenAI, Azure, Gemini, OpenRouter -->
-**対応プロバイダ:** Anthropic, OpenAI, Azure, Gemini, OpenRouter
+<!-- **Supported providers:** Anthropic, OpenAI, Azure, Gemini, xAI, OpenRouter -->
+**対応プロバイダ:** Anthropic, OpenAI, Azure, Gemini, xAI, OpenRouter
 
 ```php
 use Laravel\Ai\Providers\Tools\WebSearch;
@@ -1171,8 +1266,8 @@ Web 検索ツールを構成して、検索数を制限したり、結果を特�
 <!-- The `WebFetch` provider tool allows agents to fetch and read the contents of web pages. This is useful when you need the agent to analyze specific URLs or retrieve detailed information from known web pages. -->
 `WebFetch` プロバイダ ツールを使用すると、エージェントは Web ページのコンテンツをフェッチして読み取ることができます。これは、エージェントが特定の URL を分析したり、既知の Web ページから詳細情報を取得したりする必要がある場合に役立ちます。
 
-<!-- **Supported providers:** Anthropic, Gemini -->
-**サポートされているプロバイダ:** Anthropic、Gemini
+<!-- **Supported providers:** Anthropic, Gemini, OpenRouter -->
+**対応プロバイダ:** Anthropic、Gemini、OpenRouter
 
 ```php
 use Laravel\Ai\Providers\Tools\WebFetch;
@@ -1199,8 +1294,8 @@ Web 取得ツールを設定して、取得数を制限したり、特定のド�
 <!-- The `FileSearch` provider tool allows agents to search through [files](#files) stored in [vector stores](#vector-stores). This enables retrieval-augmented generation (RAG) by allowing the agent to search your uploaded documents for relevant information. -->
 `FileSearch` プロバイダ ツールを使用すると、エージェントは [files](#files) に保存されている [vector stores](#vector-stores) を検索できます。これにより、エージェントがアップロードされたドキュメントで関連情報を検索できるようになり、検索拡張生成 (RAG) が可能になります。
 
-<!-- **Supported providers:** OpenAI, Gemini -->
-**サポートされているプロバイダ:** OpenAI、Gemini
+<!-- **Supported providers:** OpenAI, Gemini, xAI -->
+**対応プロバイダ:** OpenAI, Gemini, xAI
 
 ```php
 use Laravel\Ai\Providers\Tools\FileSearch;
@@ -1537,7 +1632,7 @@ class ComplexReasoner implements Agent
 ```
 
 > [!NOTE]
-> `UseCheapestModel` と `UseSmartestModel` が選択する基盤モデルは、各プロバイダが新しいモデルをリリースすることで、Laravel AI SDK のリリース間に変更される場合があります。モデルを切り替えると、動作の変更や非推奨パラメータ、コストの大きな違いが生じる可能性があります。安定した予測可能なモデルと料金が必要な場合は、`Model` 属性を使ってモデルを明示的に指定してください。
+> `UseCheapestModel` と `UseSmartestModel` が選択する基盤モデルは、プロバイダが新しいモデルをリリースするため、Laravel AI SDK のリリース間で変わる可能性があります。モデルを切り替えると、動作の変更、非推奨パラメータ、コストの大きな差が生じる場合があります。安定した予測可能なモデルと料金が必要な場合は、`Model` 属性を使用してモデルを明示的に指定してください。
 
 <a name="provider-options"></a>
 <!-- ### Provider Options -->
@@ -1594,7 +1689,7 @@ class SalesCoach implements Agent, HasProviderOptions
 ## Human Tool Approval
 
 > [!WARNING]
-> ツールの承認には、会話履歴が保存され、保留中の呼び出しを再開できる `Conversational` エージェントが必要です。`RemembersConversations` トレイトが必要な永続化機能を提供します。
+> ツールの承認には、会話履歴が永続化されているため一時停止した呼び出しを再開できる `Conversational` エージェントが必要です。`RemembersConversations` トレイトが必要な永続化機能を提供します。
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 機密性の高い操作や取り消せない操作を実行するツールでは、実行前に人間の承認が必要になる場合があります。ツールを承認可能にするには、`Approvable` コントラクトを実装し、`InteractsWithApprovals` トレイトを使用します。承認可能なツールは、デフォルトで承認が必要です。
@@ -2122,7 +2217,7 @@ Document::fromUpload($request->file('report'));
 ```
 
 > [!NOTE]
-> VoyageAI では、リモート URL のメディアと Base64 エンコードされたメディアを1つのリクエストに混在させることはできません。ローカルファイル、保存済みファイル、アップロード済みファイルは Base64 エンコードされたコンテンツとして送信され、テキスト入力はどちらのメディアソースとも組み合わせられます。利用可能なマルチモーダルモデルと入力については、プロバイダのドキュメントを確認してください。
+> VoyageAI では、1つのリクエスト内でリモート URL のメディアと Base64 エンコードされたメディアを混在させることはできません。ローカルファイル、保存済みファイル、アップロードされたファイルは Base64 エンコードされたコンテンツとして送信され、テキスト入力はどちらのメディアソースとも組み合わせられます。利用可能なマルチモーダルモデルと入力については、使用するプロバイダのドキュメントを確認してください。
 
 <a name="querying-embeddings"></a>
 <!-- ### Querying Embeddings -->
@@ -2547,7 +2642,7 @@ $document->fileId;
 ```
 
 > [!NOTE]
-> 通常、以前に保存したファイルをベクトルストアに追加すると、返されるドキュメント ID は以前に割り当てられたファイルの ID と一致します。ただし、一部のベクトルストレージプロバイダは、新しく異なる「ドキュメント ID」を返す場合があります。そのため、後で参照できるよう、常に両方の ID をデータベースに保存することをおすすめします。
+> 通常、以前に保存したファイルをベクトルストアに追加すると、返されるドキュメント ID はファイルに以前割り当てられた ID と一致します。ただし、一部のベクトルストレージプロバイダは、新しい別の「ドキュメント ID」を返す場合があります。そのため、後で参照できるよう、データベースには常に両方の ID を保存することをおすすめします。
 
 <!-- You may attach metadata to files when adding them to a store. This metadata can later be used to filter search results when using the [file search provider tool](#file-search): -->
 ファイルをストアに追加するときに、ファイルにメタデータを添付できます。このメタデータは、後で [file search provider tool](#file-search) を使用するときに検索結果をフィルタリングするために使用できます。
@@ -2616,6 +2711,9 @@ $response = (new SalesCoach)->prompt(
 <a name="testing"></a>
 <!-- ## Testing -->
 ## Testing
+
+<!-- When faking queued image, audio, transcription, or embeddings generation, any `then` callback registered on the queued generation will be invoked with the faked response, allowing you to test the logic contained within the callback. If you would prefer that these callbacks are not invoked, you may fake the queue using `Queue::fake()` as well. -->
+キューに入れた画像、音声、文字起こし、または埋め込みの生成をフェイクすると、キューに入れた生成に登録された `then` コールバックはフェイクしたレスポンスを受け取って呼び出されます。これにより、コールバックに含まれるロジックをテストできます。これらのコールバックを呼び出したくない場合は、`Queue::fake()` を使ってキューもフェイクできます。
 
 <a name="testing-agents"></a>
 <!-- ### Agents -->
@@ -2689,6 +2787,8 @@ SalesCoach::assertPrompted('Analyze this...');
 SalesCoach::assertPrompted(function (AgentPrompt $prompt) {
     return $prompt->contains('Analyze');
 });
+
+SalesCoach::assertPromptedTimes(3);
 
 SalesCoach::assertNotPrompted('Missing prompt');
 
@@ -3159,6 +3259,8 @@ $store->assertAdded(fn (StorableFile $file) => $file->content() === 'Hello, Worl
 Laravel AI SDK は、次のようなさまざまな [events](/docs/13.x/events) をディスパッチします。
 
 - `AddingFileToStore`
+- `AgentFailed`
+- `AgentFailedOver`
 - `AgentPrompted`
 - `AgentStreamed`
 - `AudioGenerated`
@@ -3175,14 +3277,20 @@ Laravel AI SDK は、次のようなさまざまな [events](/docs/13.x/events) 
 - `ImageGenerated`
 - `InvokingTool`
 - `PromptingAgent`
+- `ProviderFailedOver`
 - `RemovingFileFromStore`
 - `Reranked`
 - `Reranking`
+- `StartingStep`
+- `StepCompleted`
+- `StepFailed`
 - `StoreCreated`
+- `StoreDeleted`
 - `StoringFile`
 - `StreamingAgent`
 - `ToolApprovalRequested`
 - `ToolApprovalResolved`
+- `ToolFailed`
 - `ToolInvoked`
 - `TranscriptionGenerated`
 

@@ -32,7 +32,7 @@
     - [Anonymous Index Components](#anonymous-index-components)
     - [Data Properties / Attributes](#data-properties-attributes)
     - [Accessing Parent Data](#accessing-parent-data)
-    - [Anonymous Components Paths](#anonymous-component-paths)
+    - [Anonymous Component Paths](#anonymous-component-paths)
 - [Building Layouts](#building-layouts)
     - [Layouts Using Components](#layouts-using-components)
     - [Layouts Using Template Inheritance](#layouts-using-template-inheritance)
@@ -495,9 +495,9 @@ Switch 문은 `@switch`, `@case`, `@break`, `@default` 및 `@endswitch` 지시�
 <!-- The `$loop` variable also contains a variety of other useful properties: -->
 `$loop` 변수에는 다음과 같은 다양한 유용한 속성도 포함되어 있습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Property | Description | | ------------------ | ------------------------------------------------------ | | `$loop->index` | The index of the current loop iteration (starts at 0). | | `$loop->iteration` | The current loop iteration (starts at 1). | | `$loop->remaining` | The iterations remaining in the loop. | | `$loop->count` | The total number of items in the array being iterated. | | `$loop->first` | Whether this is the first iteration through the loop. | | `$loop->last` | Whether this is the last iteration through the loop. | | `$loop->even` | Whether this is an even iteration through the loop. | | `$loop->odd` | Whether this is an odd iteration through the loop. | | `$loop->depth` | The nesting level of the current loop. | | `$loop->parent` | When in a nested loop, the parent's loop variable. | -->
 | 속성 | 설명 |
 | ------------------ | ------------------------------------------------------ |
 | `$loop->index` | 현재 루프 반복의 인덱스입니다(0에서 시작). |
@@ -511,7 +511,6 @@ Switch 문은 `@switch`, `@case`, `@break`, `@default` 및 `@endswitch` 지시�
 | `$loop->depth` | 현재 루프의 중첩 수준입니다.                 |
 | `$loop->parent` | 중첩 루프에 있는 경우 상위 루프 변수입니다.     |
 
-<!-- </div> -->
 </div>
 
 <a name="conditional-classes"></a>
@@ -1423,19 +1422,8 @@ class Alert extends Component
 <!-- By default, some keywords are reserved for Blade's internal use in order to render components. The following keywords cannot be defined as public properties or method names within your components: -->
 기본적으로 일부 키워드는 컴포넌트를 렌더링하기 위해 Blade의 내부 사용을 위해 예약되어 있습니다. 다음 키워드는 컴포넌트 내에서 공용 속성이나 메서드 이름으로 정의할 수 없습니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `data`
-- `render`
-- `resolve`
-- `resolveView`
-- `shouldRender`
-- `view`
-- `withAttributes`
-- `withName`
--->
 - `data`
 - `render`
 - `resolve`
@@ -1445,7 +1433,6 @@ class Alert extends Component
 - `withAttributes`
 - `withName`
 
-<!-- </div> -->
 </div>
 
 <a name="slots"></a>

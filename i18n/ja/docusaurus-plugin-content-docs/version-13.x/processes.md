@@ -434,7 +434,7 @@ echo $first->output();
 ### Naming Pool Processes
 
 <!-- Accessing process pool results via a numeric key is not very expressive; therefore, Laravel allows you to assign string keys to each process within a pool via the `as` method. This key will also be passed to the closure provided to the `start` method, allowing you to determine which process the output belongs to: -->
-数値キーを使用してプロセス プールの結果にアクセスすることは、あまり表現力がありません。したがって、Laravelでは、`as`メソッドを介してプール内の各プロセスに文字列キーを割り当てることができます。このキーは、`start` メソッドに提供されたクロージャにも渡され、出力がどのプロセスに属しているかを判断できるようになります。
+数値キーを使用してプロセス プールの結果にアクセスすることは、あまり表現力がありません。したがって、Laravelでは、`as` メソッドを介してプール内の各プロセスに文字列キーを割り当てることができます。このキーは、`start` メソッドに提供されたクロージャにも渡され、出力がどのプロセスに属しているかを判断できるようになります。
 
 ```php
 $pool = Process::pool(function (Pool $pool) {
@@ -671,6 +671,16 @@ use Illuminate\Support\Facades\Process;
 Process::assertRan('ls -la');
 ```
 
+<!-- When the process was invoked with an array of arguments, you may pass the same array to the assertion: -->
+プロセスを引数の配列で呼び出した場合は、同じ配列をアサーションに渡せます。
+
+```php
+Process::assertRan(['php', 'artisan', 'migrate']);
+```
+
+<!-- The `assertRanTimes` and `assertDidntRun` methods also accept array commands. -->
+`assertRanTimes` メソッドと `assertDidntRun` メソッドも、配列形式のコマンドを受け入れます。
+
 <!-- The `assertRan` method also accepts a closure, which will receive an instance of a process and a process result, allowing you to inspect the process' configured options. If this closure returns `true`, the assertion will "pass": -->
 `assertRan` メソッドは、プロセスのインスタンスとプロセス結果を受け取るクロージャーも受け入れます。これにより、プロセスの構成されたオプションを検査できるようになります。このクロージャが `true` を返す場合、アサーションは「合格」します。
 
@@ -729,6 +739,23 @@ Process::assertRanTimes(function (PendingProcess $process, ProcessResult $result
 }, times: 3);
 ```
 
+<a name="assert-processes-ran-in-order"></a>
+<!-- #### assertRanInOrder -->
+#### assertRanInOrder
+
+<!-- Assert that processes were invoked in a given order: -->
+プロセスが指定した順序で呼び出されたことをアサートします。
+
+```php
+Process::assertRanInOrder([
+    'git fetch',
+    'composer install',
+]);
+```
+
+<!-- The `assertRanInOrder` method accepts command strings, arrays of command arguments, or closures like the other process assertions. -->
+`assertRanInOrder` メソッドは、他のプロセスアサーションと同様に、コマンド文字列、コマンド引数の配列、またはクロージャを受け取ります。
+
 <a name="preventing-stray-processes"></a>
 <!-- ### Preventing Stray Processes -->
 ### Preventing Stray Processes
@@ -751,4 +778,3 @@ Process::run('ls -la');
 // An exception is thrown...
 Process::run('bash import.sh');
 ```
-

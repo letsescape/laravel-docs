@@ -155,17 +155,12 @@ return Socialite::driver('github')
 <!-- Slack's API provides [different types of access tokens](https://api.slack.com/authentication/token-types), each with their own set of [permission scopes](https://api.slack.com/scopes). Socialite is compatible with both of the following Slack access tokens types: -->
 Slack의 API는 [different types of access tokens](https://api.slack.com/authentication/token-types)과 각각의 [permission scopes](https://api.slack.com/scopes)를 제공합니다. Socialite는 아래 두 가지 Slack 액세스 토큰 유형 모두와 호환됩니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Bot (prefixed with `xoxb-`)
-- User (prefixed with `xoxp-`)
--->
+<!-- - Bot (prefixed with `xoxb-`) - User (prefixed with `xoxp-`) -->
 - Bot(봇, `xoxb-` 접두사)
 - User(사용자, `xoxp-` 접두사)
 
-<!-- </div> -->
 </div>
 
 <!-- By default, the `slack` driver will generate a `user` token and invoking the driver's `user` method will return the user's details. -->
@@ -256,8 +251,12 @@ use Laravel\Socialite\Socialite;
 $user = Socialite::driver('github')->userFromToken($token);
 ```
 
-<!-- If you are using Facebook Limited Login via an iOS application, Facebook will return an OIDC token instead of an access token. Like an access token, the OIDC token can be provided to the `userFromToken` method in order to retrieve user details. -->
-iOS 애플리케이션을 통해 Facebook Limited Login을 사용하는 경우, Facebook에서는 액세스 토큰 대신 OIDC 토큰을 반환합니다. OIDC 토큰도 액세스 토큰과 마찬가지로 `userFromToken` 메서드에 전달하여 사용자 정보를 조회할 수 있습니다.
+<!-- If you are using Facebook Limited Login via an iOS application, Facebook will return an OIDC token instead of an access token. To retrieve user details from the OIDC token, provide the nonce used to initiate the login to the `userFromToken` method: -->
+iOS 애플리케이션을 통해 Facebook Limited Login을 사용하는 경우, Facebook에서는 액세스 토큰 대신 OIDC 토큰을 반환합니다. OIDC 토큰에서 사용자 정보를 조회하려면 로그인을 시작할 때 사용한 nonce를 `userFromToken` 메서드에 전달합니다.
+
+```php
+$user = Socialite::driver('facebook')->userFromToken($token, $nonce);
+```
 
 <a name="stateless-authentication"></a>
 <!-- #### Stateless Authentication -->

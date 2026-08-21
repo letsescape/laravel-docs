@@ -20,6 +20,7 @@
     - [Rate Limiting](#rate-limiting)
 - [Teams](#teams)
 - [WorkOS AuthKit Authentication](#workos)
+    - [Configuring Your WorkOS Starter Kit](#configuring-your-workos-starter-kit)
 - [Inertia SSR](#inertia-ssr)
 - [Community Maintained Starter Kits](#community-maintained-starter-kits)
 - [Frequently Asked Questions](#faqs)
@@ -428,9 +429,9 @@ Livewire スターター キットに含まれる認証ページ (ログイン �
 <!-- Fortify automatically registers the following authentication routes based on the features that are enabled in your application's `config/fortify.php` configuration file: -->
 Fortify は、アプリケーションの `config/fortify.php` 構成ファイルで有効になっている機能に基づいて、次の認証ルートを自動的に登録します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Route | Method | Description | | ---------------------------------- | ------ | ----------------------------------- | | `/login` | `GET` | Display login form | | `/login` | `POST` | Authenticate user | | `/logout` | `POST` | Log user out | | `/register` | `GET` | Display registration form | | `/register` | `POST` | Create new user | | `/forgot-password` | `GET` | Display password reset request form | | `/forgot-password` | `POST` | Send password reset link | | `/reset-password/{token}` | `GET` | Display password reset form | | `/reset-password` | `POST` | Update password | | `/email/verify` | `GET` | Display email verification notice | | `/email/verify/{id}/{hash}` | `GET` | Verify email address | | `/email/verification-notification` | `POST` | Resend verification email | | `/user/confirm-password` | `GET` | Display password confirmation form | | `/user/confirm-password` | `POST` | Confirm password | | `/two-factor-challenge` | `GET` | Display 2FA challenge form | | `/two-factor-challenge` | `POST` | Verify 2FA code | -->
 | ルート                              | 方法 | 説明                         |
 | ---------------------------------- | ------ | ----------------------------------- |
 | `/login`                           | `GET`    | ログインフォームを表示する                  |
@@ -450,7 +451,6 @@ Fortify は、アプリケーションの `config/fortify.php` 構成ファイ�
 | `/two-factor-challenge`            | `GET`    | 2FA チャレンジフォームを表示する          |
 | `/two-factor-challenge`            | `POST`   | 2FA コードを検証する                     |
 
-<!-- </div> -->
 </div>
 
 <!-- The `php artisan route:list` Artisan command can be used to display all of the routes in your application. -->
@@ -490,16 +490,15 @@ use Laravel\Fortify\Features;
 <!-- When a user registers or resets their password, Fortify invokes action classes located in your application's `app/Actions/Fortify` directory: -->
 ユーザーがパスワードを登録またはリセットすると、Fortify はアプリケーションの `app/Actions/Fortify` ディレクトリにあるアクション クラスを呼び出します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | File | Description | | ----------------------------- | ------------------------------------- | | `CreateNewUser.php` | Validates and creates new users | | `ResetUserPassword.php` | Validates and updates user passwords | | `PasswordValidationRules.php` | Defines password validation rules | -->
 | ファイル                          | 説明                           |
 | ----------------------------- | ------------------------------------- |
 | `CreateNewUser.php`           | 新しいユーザーを検証して作成します       |
 | `ResetUserPassword.php`       | ユーザーのパスワードを検証して更新します  |
 | `PasswordValidationRules.php` | パスワード検証ルールを定義します     |
 
-<!-- </div> -->
 </div>
 
 <!-- For example, to customize your application's registration logic, you should edit the `CreateNewUser` action: -->
@@ -573,21 +572,14 @@ React、Svelte、Vue、および Livewire スターター キットは、チー�
 <!-- By default, the React, Svelte, Vue, and Livewire starter kits all utilize Laravel's built-in authentication system to offer login, registration, password reset, email verification, and more. In addition, we also offer a [WorkOS AuthKit](https://authkit.com) powered variant of each starter kit that offers: -->
 デフォルトでは、React、Svelte、Vue、Livewire スターター キットはすべて、Laravel の組み込み認証システムを利用して、ログイン、登録、パスワードリセット、電子メール検証などを提供します。さらに、以下を提供する各スターター キットの [WorkOS AuthKit](https://authkit.com) パワード バリアントも提供しています。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Social authentication (Google, Microsoft, GitHub, and Apple)
-- Passkey authentication
-- Email based "Magic Auth"
-- SSO
--->
+<!-- - Social authentication (Google, Microsoft, GitHub, and Apple) - Passkey authentication - Email based "Magic Auth" - SSO -->
 - ソーシャル認証 (Google、Microsoft、GitHub、Apple)
 - パスキー認証
 - メールベースの「Magic Auth」
 - SSO
 
-<!-- </div> -->
 </div>
 
 <!-- Using WorkOS as your authentication provider [requires a WorkOS account](https://workos.com). WorkOS offers free authentication for applications up to 1 million monthly active users. -->
@@ -596,6 +588,7 @@ WorkOS を認証プロバイダ [requires a WorkOS account](https://workos.com) 
 <!-- To use WorkOS AuthKit as your application's authentication provider, select the WorkOS option when creating your new starter kit powered application via `laravel new`. -->
 WorkOS AuthKit をアプリケーションの認証プロバイダとして使用するには、`laravel new` 経由で新しいスターター キットを利用したアプリケーションを作成するときに、WorkOS オプションを選択します。
 
+<a name="configuring-your-workos-starter-kit"></a>
 <!-- ### Configuring Your WorkOS Starter Kit -->
 ### Configuring Your WorkOS Starter Kit
 
@@ -714,10 +707,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 <!-- You may want to customize the default email template to better align with your application's branding. To modify this template, you should publish the email views to your application with the following command: -->
 デフォルトの電子メール テンプレートをカスタマイズして、アプリケーションのブランドに合わせることもできます。このテンプレートを変更するには、次のコマンドを使用して電子メール ビューをアプリケーションに公開する必要があります。
 
-```
+```shell
 php artisan vendor:publish --tag=laravel-mail
 ```
 
 <!-- This will generate several files in `resources/views/vendor/mail`. You can modify any of these files as well as the `resources/views/vendor/mail/themes/default.css` file to change the look and appearance of the default email template. -->
 これにより、`resources/views/vendor/mail` にいくつかのファイルが生成されます。これらのファイルと `resources/views/vendor/mail/themes/default.css` ファイルを変更して、デフォルトの電子メール テンプレートの外観を変更できます。
-

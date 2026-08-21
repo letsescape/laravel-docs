@@ -1928,6 +1928,25 @@ $request->validate([
 ]);
 ```
 
+<!-- The `dns` validator performs a real DNS lookup to confirm the address's domain has a valid MX record. It does not determine whether an individual mailbox exists. -->
+`dns` バリデータは実際に DNS ルックアップを実行し、アドレスのドメインに有効な MX レコードがあることを確認します。個々のメールボックスが存在するかどうかは判定しません。
+
+<!-- Since your tests should not rely on live DNS lookups, you may use the `Validator::fakeDnsLookups` method to [fake DNS lookups](#rule-active-url) while any other requested validations, such as `rfc`, continue to run: -->
+テストでは実際の DNS ルックアップに依存しないようにする必要があるため、`Validator::fakeDnsLookups` メソッドを使って [fake DNS lookups](#rule-active-url) を実行し、`rfc` など、指定したほかのバリデーションは通常どおり実行できます。
+
+```php
+use Illuminate\Support\Facades\Validator;
+
+Validator::fakeDnsLookups();
+```
+
+<!-- This allows your application to keep using its existing validation rules while testing: -->
+これにより、テスト中もアプリケーションで既存のバリデーションルールを使い続けられます。
+
+```php
+'email' => ['required', 'email:rfc,dns'],
+```
+
 > [!WARNING]
 > `dns` および `spoof` バリデーターには、PHP `intl` 拡張機能が必要です。
 

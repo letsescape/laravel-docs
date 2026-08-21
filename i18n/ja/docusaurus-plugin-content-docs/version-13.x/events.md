@@ -17,6 +17,7 @@
     - [Unique Event Listeners](#unique-event-listeners)
         - [Keeping Listeners Unique Until Processing Begins](#keeping-listeners-unique-until-processing-begins)
         - [Unique Listener Locks](#unique-listener-locks)
+    - [Debounced Event Listeners](#debounced-event-listeners)
     - [Handling Failed Jobs](#handling-failed-jobs)
 - [Dispatching Events](#dispatching-events)
     - [Dispatching Events After Database Transactions](#dispatching-events-after-database-transactions)
@@ -26,7 +27,7 @@
     - [Registering Event Subscribers](#registering-event-subscribers)
 - [Testing](#testing)
     - [Faking a Subset of Events](#faking-a-subset-of-events)
-    - [Scoped Events Fakes](#scoped-event-fakes)
+    - [Scoped Event Fakes](#scoped-event-fakes)
 
 <a name="introduction"></a>
 <!-- ## Introduction -->
@@ -713,6 +714,76 @@ class AcquireProductKey implements ShouldQueue, ShouldBeUnique
 > [!NOTE]
 > リスナの同時処理を制限する必要があるだけの場合は、代わりに [WithoutOverlapping](/docs/13.x/queues#preventing-job-overlaps) ジョブ ミドルウェアを使用してください。
 
+<a name="debounced-event-listeners"></a>
+<!-- ### Debounced Event Listeners -->
+### Debounced Event Listeners
+
+<!-- Sometimes, you may want to handle only the latest instance of an event dispatched repeatedly within a short period. You may do so by adding the `DebounceFor` attribute to a queued listener: -->
+短時間に繰り返しディスパッチされるイベントについて、最後に発生したものだけを処理したい場合があります。その場合は、キューに入れるリスナに `DebounceFor` 属性を追加します。
+
+```php
+<?php
+
+namespace App\Listeners;
+
+use App\Events\ProductUpdated;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\Attributes\DebounceFor;
+
+#[DebounceFor(30)]
+class UpdateProductSearchIndex implements ShouldQueue
+{
+    /**
+     * Handle the event.
+     */
+    public function handle(ProductUpdated $event): void
+    {
+        // Update the product's search index...
+    }
+
+    /**
+     * Get the debounce ID for the listener.
+     */
+    public function debounceId(ProductUpdated $event): string
+    {
+        return (string) $event->product->getKey();
+    }
+}
+```
+
+<!-- In the example above, repeatedly dispatching `ProductUpdated` events for the same product within `30` seconds will debounce the listener so that only the latest event is handled. Different debounce IDs are handled independently. -->
+上の例では、同じ商品に対する `ProductUpdated` イベントが `30` 秒以内に繰り返しディスパッチされると、リスナがデバウンスされ、最後のイベントだけが処理されます。異なるデバウンス ID はそれぞれ独立して処理されます。
+
+<!-- If you would like to cap how long a frequently dispatched event can defer a listener, you may provide the `maxWait` argument to the `DebounceFor` attribute: -->
+頻繁にディスパッチされるイベントによってリスナの処理が延期される時間に上限を設けたい場合は、`DebounceFor` 属性に `maxWait` 引数を指定します。
+
+```php
+#[DebounceFor(30, maxWait: 120)]
+class UpdateProductSearchIndex implements ShouldQueue
+{
+    // ...
+}
+```
+
+<!-- You may customize the cache store used for debounce tracking by defining a `debounceVia` method on your listener. The method receives the event instance and should return a cache repository: -->
+リスナに `debounceVia` メソッドを定義すると、デバウンスの追跡に使用するキャッシュストアをカスタマイズできます。このメソッドはイベントインスタンスを受け取り、キャッシュリポジトリを返します。
+
+```php
+use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Support\Facades\Cache;
+
+public function debounceVia(ProductUpdated $event): Repository
+{
+    return Cache::driver('redis');
+}
+```
+
+<!-- Debounced listeners and unique listeners are mutually exclusive. A listener using the `DebounceFor` attribute should not implement `ShouldBeUnique`. -->
+デバウンスされたリスナと一意なリスナは併用できません。`DebounceFor` 属性を使用するリスナでは、`ShouldBeUnique` を実装しないでください。
+
+> [!WARNING]
+> アプリケーションが複数の Web サーバやコンテナからイベントをディスパッチする場合は、すべてのサーバが同じ中央キャッシュサーバと通信するようにしてください。
+
 <a name="handling-failed-jobs"></a>
 <!-- ### Handling Failed Jobs -->
 ### Handling Failed Jobs
@@ -1380,4 +1451,3 @@ class ExampleTest extends TestCase
     }
 }
 ```
-

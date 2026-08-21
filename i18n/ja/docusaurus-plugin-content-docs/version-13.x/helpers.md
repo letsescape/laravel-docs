@@ -28,75 +28,9 @@ Laravel には、さまざまなグローバル「ヘルパ」PHP 関数が含�
 <!-- ### Arrays & Objects -->
 ### Arrays & Objects
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Arr::accessible](#method-array-accessible)
-[Arr::add](#method-array-add)
-[Arr::array](#method-array-array)
-[Arr::boolean](#method-array-boolean)
-[Arr::collapse](#method-array-collapse)
-[Arr::crossJoin](#method-array-crossjoin)
-[Arr::divide](#method-array-divide)
-[Arr::dot](#method-array-dot)
-[Arr::every](#method-array-every)
-[Arr::except](#method-array-except)
-[Arr::exceptValues](#method-array-except-values)
-[Arr::exists](#method-array-exists)
-[Arr::first](#method-array-first)
-[Arr::flatten](#method-array-flatten)
-[Arr::float](#method-array-float)
-[Arr::forget](#method-array-forget)
-[Arr::from](#method-array-from)
-[Arr::get](#method-array-get)
-[Arr::has](#method-array-has)
-[Arr::hasAll](#method-array-hasall)
-[Arr::hasAny](#method-array-hasany)
-[Arr::integer](#method-array-integer)
-[Arr::isAssoc](#method-array-isassoc)
-[Arr::isList](#method-array-islist)
-[Arr::join](#method-array-join)
-[Arr::keyBy](#method-array-keyby)
-[Arr::last](#method-array-last)
-[Arr::map](#method-array-map)
-[Arr::mapSpread](#method-array-map-spread)
-[Arr::mapWithKeys](#method-array-map-with-keys)
-[Arr::only](#method-array-only)
-[Arr::onlyValues](#method-array-only-values)
-[Arr::partition](#method-array-partition)
-[Arr::pluck](#method-array-pluck)
-[Arr::prepend](#method-array-prepend)
-[Arr::prependKeysWith](#method-array-prependkeyswith)
-[Arr::pull](#method-array-pull)
-[Arr::push](#method-array-push)
-[Arr::query](#method-array-query)
-[Arr::random](#method-array-random)
-[Arr::reject](#method-array-reject)
-[Arr::select](#method-array-select)
-[Arr::set](#method-array-set)
-[Arr::shuffle](#method-array-shuffle)
-[Arr::sole](#method-array-sole)
-[Arr::some](#method-array-some)
-[Arr::sort](#method-array-sort)
-[Arr::sortDesc](#method-array-sort-desc)
-[Arr::sortRecursive](#method-array-sort-recursive)
-[Arr::string](#method-array-string)
-[Arr::take](#method-array-take)
-[Arr::toCssClasses](#method-array-to-css-classes)
-[Arr::toCssStyles](#method-array-to-css-styles)
-[Arr::undot](#method-array-undot)
-[Arr::where](#method-array-where)
-[Arr::whereNotNull](#method-array-where-not-null)
-[Arr::wrap](#method-array-wrap)
-[data_fill](#method-data-fill)
-[data_get](#method-data-get)
-[data_set](#method-data-set)
-[data_forget](#method-data-forget)
-[head](#method-head)
-[last](#method-last)
-</div>
--->
+<!-- [Arr::accessible](#method-array-accessible) [Arr::add](#method-array-add) [Arr::array](#method-array-array) [Arr::boolean](#method-array-boolean) [Arr::collapse](#method-array-collapse) [Arr::crossJoin](#method-array-crossjoin) [Arr::divide](#method-array-divide) [Arr::dot](#method-array-dot) [Arr::every](#method-array-every) [Arr::except](#method-array-except) [Arr::exceptValues](#method-array-except-values) [Arr::exists](#method-array-exists) [Arr::first](#method-array-first) [Arr::flatten](#method-array-flatten) [Arr::float](#method-array-float) [Arr::forget](#method-array-forget) [Arr::from](#method-array-from) [Arr::get](#method-array-get) [Arr::has](#method-array-has) [Arr::hasAll](#method-array-hasall) [Arr::hasAny](#method-array-hasany) [Arr::integer](#method-array-integer) [Arr::isAssoc](#method-array-isassoc) [Arr::isList](#method-array-islist) [Arr::join](#method-array-join) [Arr::keyBy](#method-array-keyby) [Arr::last](#method-array-last) [Arr::map](#method-array-map) [Arr::mapSpread](#method-array-map-spread) [Arr::mapWithKeys](#method-array-map-with-keys) [Arr::only](#method-array-only) [Arr::onlyValues](#method-array-only-values) [Arr::partition](#method-array-partition) [Arr::pluck](#method-array-pluck) [Arr::prepend](#method-array-prepend) [Arr::prependKeysWith](#method-array-prependkeyswith) [Arr::pull](#method-array-pull) [Arr::push](#method-array-push) [Arr::query](#method-array-query) [Arr::random](#method-array-random) [Arr::reject](#method-array-reject) [Arr::select](#method-array-select) [Arr::set](#method-array-set) [Arr::shuffle](#method-array-shuffle) [Arr::sole](#method-array-sole) [Arr::some](#method-array-some) [Arr::sort](#method-array-sort) [Arr::sortDesc](#method-array-sort-desc) [Arr::sortRecursive](#method-array-sort-recursive) [Arr::string](#method-array-string) [Arr::take](#method-array-take) [Arr::toCssClasses](#method-array-to-css-classes) [Arr::toCssStyles](#method-array-to-css-styles) [Arr::undot](#method-array-undot) [Arr::where](#method-array-where) [Arr::whereNotNull](#method-array-where-not-null) [Arr::wrap](#method-array-wrap) [data_fill](#method-data-fill) [data_get](#method-data-get) [data_set](#method-data-set) [data_forget](#method-data-forget) [head](#method-head) [last](#method-last) -->
 [Arr::accessible](#method-array-accessible)
 [Arr::add](#method-array-add)
 [Arr::array](#method-array-array)
@@ -166,32 +100,9 @@ Laravel には、さまざまなグローバル「ヘルパ」PHP 関数が含�
 <!-- ### Numbers -->
 ### Numbers
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Number::abbreviate](#method-number-abbreviate)
-[Number::clamp](#method-number-clamp)
-[Number::currency](#method-number-currency)
-[Number::defaultCurrency](#method-default-currency)
-[Number::defaultLocale](#method-default-locale)
-[Number::fileSize](#method-number-file-size)
-[Number::forHumans](#method-number-for-humans)
-[Number::format](#method-number-format)
-[Number::ordinal](#method-number-ordinal)
-[Number::pairs](#method-number-pairs)
-[Number::parse](#method-number-parse)
-[Number::parseInt](#method-number-parse-int)
-[Number::parseFloat](#method-number-parse-float)
-[Number::percentage](#method-number-percentage)
-[Number::spell](#method-number-spell)
-[Number::spellOrdinal](#method-number-spell-ordinal)
-[Number::trim](#method-number-trim)
-[Number::useLocale](#method-number-use-locale)
-[Number::withLocale](#method-number-with-locale)
-[Number::useCurrency](#method-number-use-currency)
-[Number::withCurrency](#method-number-with-currency)
--->
+<!-- [Number::abbreviate](#method-number-abbreviate) [Number::clamp](#method-number-clamp) [Number::currency](#method-number-currency) [Number::defaultCurrency](#method-default-currency) [Number::defaultLocale](#method-default-locale) [Number::fileSize](#method-number-file-size) [Number::forHumans](#method-number-for-humans) [Number::format](#method-number-format) [Number::ordinal](#method-number-ordinal) [Number::pairs](#method-number-pairs) [Number::parse](#method-number-parse) [Number::parseInt](#method-number-parse-int) [Number::parseFloat](#method-number-parse-float) [Number::percentage](#method-number-percentage) [Number::spell](#method-number-spell) [Number::spellOrdinal](#method-number-spell-ordinal) [Number::trim](#method-number-trim) [Number::useLocale](#method-number-use-locale) [Number::withLocale](#method-number-with-locale) [Number::useCurrency](#method-number-use-currency) [Number::withCurrency](#method-number-with-currency) -->
 [Number::abbreviate](#method-number-abbreviate)
 [Number::clamp](#method-number-clamp)
 [Number::currency](#method-number-currency)
@@ -214,26 +125,15 @@ Laravel には、さまざまなグローバル「ヘルパ」PHP 関数が含�
 [Number::useCurrency](#method-number-use-currency)
 [Number::withCurrency](#method-number-with-currency)
 
-<!-- </div> -->
 </div>
 
 <a name="paths-method-list"></a>
 <!-- ### Paths -->
 ### Paths
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[app_path](#method-app-path)
-[base_path](#method-base-path)
-[config_path](#method-config-path)
-[database_path](#method-database-path)
-[lang_path](#method-lang-path)
-[public_path](#method-public-path)
-[resource_path](#method-resource-path)
-[storage_path](#method-storage-path)
--->
+<!-- [app_path](#method-app-path) [base_path](#method-base-path) [config_path](#method-config-path) [database_path](#method-database-path) [lang_path](#method-lang-path) [public_path](#method-public-path) [resource_path](#method-resource-path) [storage_path](#method-storage-path) -->
 [app_path](#method-app-path)
 [base_path](#method-base-path)
 [config_path](#method-config-path)
@@ -243,27 +143,15 @@ Laravel には、さまざまなグローバル「ヘルパ」PHP 関数が含�
 [resource_path](#method-resource-path)
 [storage_path](#method-storage-path)
 
-<!-- </div> -->
 </div>
 
 <a name="urls-method-list"></a>
 <!-- ### URLs -->
 ### URLs
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[action](#method-action)
-[asset](#method-asset)
-[route](#method-route)
-[secure_asset](#method-secure-asset)
-[secure_url](#method-secure-url)
-[to_action](#method-to-action)
-[to_route](#method-to-route)
-[uri](#method-uri)
-[url](#method-url)
--->
+<!-- [action](#method-action) [asset](#method-asset) [route](#method-route) [secure_asset](#method-secure-asset) [secure_url](#method-secure-url) [to_action](#method-to-action) [to_route](#method-to-route) [uri](#method-uri) [url](#method-url) -->
 [action](#method-action)
 [asset](#method-asset)
 [route](#method-route)
@@ -274,77 +162,15 @@ Laravel には、さまざまなグローバル「ヘルパ」PHP 関数が含�
 [uri](#method-uri)
 [url](#method-url)
 
-<!-- </div> -->
 </div>
 
 <a name="miscellaneous-method-list"></a>
 <!-- ### Miscellaneous -->
 ### Miscellaneous
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[abort](#method-abort)
-[abort_if](#method-abort-if)
-[abort_unless](#method-abort-unless)
-[app](#method-app)
-[auth](#method-auth)
-[back](#method-back)
-[bcrypt](#method-bcrypt)
-[blank](#method-blank)
-[broadcast](#method-broadcast)
-[broadcast_if](#method-broadcast-if)
-[broadcast_unless](#method-broadcast-unless)
-[cache](#method-cache)
-[class_uses_recursive](#method-class-uses-recursive)
-[collect](#method-collect)
-[config](#method-config)
-[context](#method-context)
-[cookie](#method-cookie)
-[csrf_field](#method-csrf-field)
-[csrf_token](#method-csrf-token)
-[decrypt](#method-decrypt)
-[dd](#method-dd)
-[dispatch](#method-dispatch)
-[dispatch_sync](#method-dispatch-sync)
-[dump](#method-dump)
-[encrypt](#method-encrypt)
-[env](#method-env)
-[event](#method-event)
-[fake](#method-fake)
-[filled](#method-filled)
-[info](#method-info)
-[literal](#method-literal)
-[logger](#method-logger)
-[method_field](#method-method-field)
-[now](#method-now)
-[old](#method-old)
-[once](#method-once)
-[optional](#method-optional)
-[policy](#method-policy)
-[redirect](#method-redirect)
-[report](#method-report)
-[report_if](#method-report-if)
-[report_unless](#method-report-unless)
-[request](#method-request)
-[rescue](#method-rescue)
-[resolve](#method-resolve)
-[response](#method-response)
-[retry](#method-retry)
-[session](#method-session)
-[tap](#method-tap)
-[throw_if](#method-throw-if)
-[throw_unless](#method-throw-unless)
-[today](#method-today)
-[trait_uses_recursive](#method-trait-uses-recursive)
-[transform](#method-transform)
-[validator](#method-validator)
-[value](#method-value)
-[view](#method-view)
-[with](#method-with)
-[when](#method-when)
--->
+<!-- [abort](#method-abort) [abort_if](#method-abort-if) [abort_unless](#method-abort-unless) [app](#method-app) [auth](#method-auth) [back](#method-back) [bcrypt](#method-bcrypt) [blank](#method-blank) [broadcast](#method-broadcast) [broadcast_if](#method-broadcast-if) [broadcast_unless](#method-broadcast-unless) [cache](#method-cache) [class_uses_recursive](#method-class-uses-recursive) [collect](#method-collect) [config](#method-config) [context](#method-context) [cookie](#method-cookie) [csrf_field](#method-csrf-field) [csrf_token](#method-csrf-token) [decrypt](#method-decrypt) [dd](#method-dd) [dispatch](#method-dispatch) [dispatch_sync](#method-dispatch-sync) [dump](#method-dump) [encrypt](#method-encrypt) [env](#method-env) [event](#method-event) [fake](#method-fake) [filled](#method-filled) [info](#method-info) [literal](#method-literal) [logger](#method-logger) [method_field](#method-method-field) [now](#method-now) [old](#method-old) [once](#method-once) [optional](#method-optional) [policy](#method-policy) [redirect](#method-redirect) [report](#method-report) [report_if](#method-report-if) [report_unless](#method-report-unless) [request](#method-request) [rescue](#method-rescue) [resolve](#method-resolve) [response](#method-response) [retry](#method-retry) [session](#method-session) [tap](#method-tap) [throw_if](#method-throw-if) [throw_unless](#method-throw-unless) [today](#method-today) [trait_uses_recursive](#method-trait-uses-recursive) [transform](#method-transform) [validator](#method-validator) [value](#method-value) [view](#method-view) [with](#method-with) [when](#method-when) -->
 [abort](#method-abort)
 [abort_if](#method-abort-if)
 [abort_unless](#method-abort-unless)
@@ -405,7 +231,6 @@ Laravel には、さまざまなグローバル「ヘルパ」PHP 関数が含�
 [with](#method-with)
 [when](#method-when)
 
-<!-- </div> -->
 </div>
 
 <a name="arrays"></a>
@@ -415,6 +240,7 @@ Laravel には、さまざまなグローバル「ヘルパ」PHP 関数が含�
 <a name="method-array-accessible"></a>
 <!-- #### `Arr::accessible()` -->
 #### `Arr::accessible()`
+
 <!-- The `Arr::accessible` method determines if the given value is array accessible: -->
 `Arr::accessible` メソッドは、指定された値が配列にアクセスできるかどうかを判断します。
 
@@ -442,6 +268,7 @@ $isAccessible = Arr::accessible(new stdClass);
 <a name="method-array-add"></a>
 <!-- #### `Arr::add()` -->
 #### `Arr::add()`
+
 <!-- The `Arr::add` method adds a given key / value pair to an array if the given key doesn't already exist in the array or is set to `null`: -->
 `Arr::add` メソッドは、指定されたキーが配列内に存在しない場合、または `null` に設定されている場合に、指定されたキーと値のペアを配列に追加します。
 
@@ -460,10 +287,11 @@ $array = Arr::add(['name' => 'Desk', 'price' => null], 'price', 100);
 <a name="method-array-array"></a>
 <!-- #### `Arr::array()` -->
 #### `Arr::array()`
+
 <!-- The `Arr::array` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not an `array`: -->
 `Arr::array` メソッドは、([Arr::get()](#method-array-get) と同様に) 「ドット」表記を使用して深くネストされた配列から値を取得しますが、要求された値が `array` でない場合は `InvalidArgumentException` をスローします。
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'languages' => ['PHP', 'Ruby']];
@@ -480,10 +308,11 @@ $value = Arr::array($array, 'name');
 <a name="method-array-boolean"></a>
 <!-- #### `Arr::boolean()` -->
 #### `Arr::boolean()`
+
 <!-- The `Arr::boolean` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not a `boolean`: -->
 `Arr::boolean` メソッドは、([Arr::get()](#method-array-get) と同様に) 「ドット」表記を使用して、深くネストされた配列から値を取得しますが、要求された値が `boolean` でない場合は、`InvalidArgumentException` をスローします。
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'available' => true];
@@ -501,6 +330,7 @@ $value = Arr::boolean($array, 'name');
 <a name="method-array-collapse"></a>
 <!-- #### `Arr::collapse()` -->
 #### `Arr::collapse()`
+
 <!-- The `Arr::collapse` method collapses an array of arrays or collections into a single array: -->
 `Arr::collapse` メソッドは、配列またはコレクションの配列を単一の配列に折りたたみます。
 
@@ -515,6 +345,7 @@ $array = Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
 <a name="method-array-crossjoin"></a>
 <!-- #### `Arr::crossJoin()` -->
 #### `Arr::crossJoin()`
+
 <!-- The `Arr::crossJoin` method cross joins the given arrays, returning a Cartesian product with all possible permutations: -->
 `Arr::crossJoin` メソッドは、指定された配列を相互結合し、すべての可能な順列を含むデカルト積を返します。
 
@@ -551,6 +382,7 @@ $matrix = Arr::crossJoin([1, 2], ['a', 'b'], ['I', 'II']);
 <a name="method-array-divide"></a>
 <!-- #### `Arr::divide()` -->
 #### `Arr::divide()`
+
 <!-- The `Arr::divide` method returns two arrays: one containing the keys and the other containing the values of the given array: -->
 `Arr::divide` メソッドは 2 つの配列を返します。1 つはキーを含み、もう 1 つは指定された配列の値を含みます。
 
@@ -567,6 +399,7 @@ use Illuminate\Support\Arr;
 <a name="method-array-dot"></a>
 <!-- #### `Arr::dot()` -->
 #### `Arr::dot()`
+
 <!-- The `Arr::dot` method flattens a multi-dimensional array into a single level array that uses "dot" notation to indicate depth: -->
 `Arr::dot` メソッドは、多次元配列を、深さを示すために「ドット」表記を使用する単一レベルの配列に平坦化します。
 
@@ -583,6 +416,7 @@ $flattened = Arr::dot($array);
 <a name="method-array-every"></a>
 <!-- #### `Arr::every()` -->
 #### `Arr::every()`
+
 <!-- The `Arr::every` method ensures that all values in the array pass a given truth test: -->
 `Arr::every` メソッドは、配列内のすべての値が指定された真理テストに合格することを保証します。
 
@@ -603,6 +437,7 @@ Arr::every($array, fn ($i) => $i > 2);
 <a name="method-array-except"></a>
 <!-- #### `Arr::except()` -->
 #### `Arr::except()`
+
 <!-- The `Arr::except` method removes the given key / value pairs from an array: -->
 `Arr::except` メソッドは、指定されたキーと値のペアを配列から削除します。
 
@@ -619,6 +454,7 @@ $filtered = Arr::except($array, ['price']);
 <a name="method-array-except-values"></a>
 <!-- #### `Arr::exceptValues()` -->
 #### `Arr::exceptValues()`
+
 <!-- The `Arr::exceptValues` method removes the specified values from an array: -->
 `Arr::exceptValues` メソッドは、指定された値を配列から削除します。
 
@@ -633,7 +469,7 @@ $filtered = Arr::exceptValues($array, ['foo', 'baz']);
 ```
 
 <!-- You may also pass `true` to the `strict` argument to use strict type comparisons when filtering: -->
-`true` を `strict` 引数に渡して、フィルタリング時に厳密な型比較を使用することもできます。
+フィルタリング時に厳密な型比較を使用するには、`strict` 引数に `true` を渡すこともできます。
 
 ```php
 use Illuminate\Support\Arr;
@@ -648,6 +484,7 @@ $filtered = Arr::exceptValues($array, [1, 2], strict: true);
 <a name="method-array-exists"></a>
 <!-- #### `Arr::exists()` -->
 #### `Arr::exists()`
+
 <!-- The `Arr::exists` method checks that the given key exists in the provided array: -->
 `Arr::exists` メソッドは、指定されたキーが指定された配列に存在することを確認します。
 
@@ -668,6 +505,7 @@ $exists = Arr::exists($array, 'salary');
 <a name="method-array-first"></a>
 <!-- #### `Arr::first()` -->
 #### `Arr::first()`
+
 <!-- The `Arr::first` method returns the first element of an array passing a given truth test: -->
 `Arr::first` メソッドは、指定された真理値テストに合格した配列の最初の要素を返します。
 
@@ -695,6 +533,7 @@ $first = Arr::first($array, $callback, $default);
 <a name="method-array-flatten"></a>
 <!-- #### `Arr::flatten()` -->
 #### `Arr::flatten()`
+
 <!-- The `Arr::flatten` method flattens a multi-dimensional array into a single level array: -->
 `Arr::flatten` メソッドは、多次元配列を単一レベルの配列にフラット化します。
 
@@ -711,10 +550,11 @@ $flattened = Arr::flatten($array);
 <a name="method-array-float"></a>
 <!-- #### `Arr::float()` -->
 #### `Arr::float()`
+
 <!-- The `Arr::float` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not a `float`: -->
 `Arr::float` メソッドは、([Arr::get()](#method-array-get) と同様に) 「ドット」表記を使用して、深くネストされた配列から値を取得しますが、要求された値が `float` でない場合は、`InvalidArgumentException` をスローします。
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'balance' => 123.45];
@@ -731,6 +571,7 @@ $value = Arr::float($array, 'name');
 <a name="method-array-forget"></a>
 <!-- #### `Arr::forget()` -->
 #### `Arr::forget()`
+
 <!-- The `Arr::forget` method removes a given key / value pairs from a deeply nested array using "dot" notation: -->
 `Arr::forget` メソッドは、「ドット」表記を使用して、深くネストされた配列から指定されたキーと値のペアを削除します。
 
@@ -747,6 +588,7 @@ Arr::forget($array, 'products.desk');
 <a name="method-array-from"></a>
 <!-- #### `Arr::from()` -->
 #### `Arr::from()`
+
 <!-- The `Arr::from` method converts various input types into a plain PHP array. It supports a range of input types, including arrays, objects, and several common Laravel interfaces, such as `Arrayable`, `Enumerable`, `Jsonable`, and `JsonSerializable`. Additionally, it handles `Traversable` and `WeakMap` instances: -->
 `Arr::from` メソッドは、さまざまな入力タイプをプレーンな PHP 配列に変換します。配列、オブジェクト、および `Arrayable`、`Enumerable`、`Jsonable`、`JsonSerializable` などのいくつかの一般的な Laravel インターフェイスを含む、さまざまな入力タイプをサポートします。さらに、`Traversable` インスタンスと `WeakMap` インスタンスも処理します。
 
@@ -769,6 +611,7 @@ Arr::from(new TestJsonableObject); // ['foo' => 'bar']
 <a name="method-array-get"></a>
 <!-- #### `Arr::get()` -->
 #### `Arr::get()`
+
 <!-- The `Arr::get` method retrieves a value from a deeply nested array using "dot" notation: -->
 `Arr::get` メソッドは、「ドット」表記を使用して、深くネストされた配列から値を取得します。
 
@@ -796,6 +639,7 @@ $discount = Arr::get($array, 'products.desk.discount', 0);
 <a name="method-array-has"></a>
 <!-- #### `Arr::has()` -->
 #### `Arr::has()`
+
 <!-- The `Arr::has` method checks whether a given item or items exists in an array using "dot" notation: -->
 `Arr::has` メソッドは、「ドット」表記を使用して、指定された項目が配列内に存在するかどうかをチェックします。
 
@@ -816,6 +660,7 @@ $contains = Arr::has($array, ['product.price', 'product.discount']);
 <a name="method-array-hasall"></a>
 <!-- #### `Arr::hasAll()` -->
 #### `Arr::hasAll()`
+
 <!-- The `Arr::hasAll` method determines if all of the specified keys exist in the given array using "dot" notation: -->
 `Arr::hasAll` メソッドは、「ドット」表記を使用して、指定されたすべてのキーが指定された配列に存在するかどうかを判断します。
 
@@ -832,6 +677,7 @@ Arr::hasAll($array, ['name', 'IDE']); // false
 <a name="method-array-hasany"></a>
 <!-- #### `Arr::hasAny()` -->
 #### `Arr::hasAny()`
+
 <!-- The `Arr::hasAny` method checks whether any item in a given set exists in an array using "dot" notation: -->
 `Arr::hasAny` メソッドは、「ドット」表記を使用して、指定されたセット内の項目が配列内に存在するかどうかをチェックします。
 
@@ -856,10 +702,11 @@ $contains = Arr::hasAny($array, ['category', 'product.discount']);
 <a name="method-array-integer"></a>
 <!-- #### `Arr::integer()` -->
 #### `Arr::integer()`
+
 <!-- The `Arr::integer` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not an `int`: -->
 `Arr::integer` メソッドは、([Arr::get()](#method-array-get) と同様に) 「ドット」表記を使用して深くネストされた配列から値を取得しますが、要求された値が `int` でない場合は `InvalidArgumentException` をスローします。
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'age' => 42];
@@ -876,6 +723,7 @@ $value = Arr::integer($array, 'name');
 <a name="method-array-isassoc"></a>
 <!-- #### `Arr::isAssoc()` -->
 #### `Arr::isAssoc()`
+
 <!-- The `Arr::isAssoc` method returns `true` if the given array is an associative array. An array is considered "associative" if it doesn't have sequential numerical keys beginning with zero: -->
 指定された配列が連想配列の場合、`Arr::isAssoc` メソッドは `true` を返します。配列にゼロで始まる連続した数値キーがない場合、その配列は「連想」とみなされます。
 
@@ -894,6 +742,7 @@ $isAssoc = Arr::isAssoc([1, 2, 3]);
 <a name="method-array-islist"></a>
 <!-- #### `Arr::isList()` -->
 #### `Arr::isList()`
+
 <!-- The `Arr::isList` method returns `true` if the given array's keys are sequential integers beginning from zero: -->
 指定された配列のキーがゼロから始まる連続した整数の場合、`Arr::isList` メソッドは `true` を返します。
 
@@ -912,6 +761,7 @@ $isList = Arr::isList(['product' => ['name' => 'Desk', 'price' => 100]]);
 <a name="method-array-join"></a>
 <!-- #### `Arr::join()` -->
 #### `Arr::join()`
+
 <!-- The `Arr::join` method joins array elements with a string. Using this method's third argument, you may also specify the joining string for the final element of the array: -->
 `Arr::join` メソッドは、配列要素を文字列と結合します。このメソッドの 3 番目の引数を使用して、配列の最後の要素の結合文字列を指定することもできます。
 
@@ -932,6 +782,7 @@ $joined = Arr::join($array, ', ', ', and ');
 <a name="method-array-keyby"></a>
 <!-- #### `Arr::keyBy()` -->
 #### `Arr::keyBy()`
+
 <!-- The `Arr::keyBy` method keys the array by the given key. If multiple items have the same key, only the last one will appear in the new array: -->
 `Arr::keyBy` メソッドは、指定されたキーによって配列にキーを設定します。複数の項目が同じキーを持つ場合、最後の項目だけが新しい配列に表示されます。
 
@@ -956,6 +807,7 @@ $keyed = Arr::keyBy($array, 'product_id');
 <a name="method-array-last"></a>
 <!-- #### `Arr::last()` -->
 #### `Arr::last()`
+
 <!-- The `Arr::last` method returns the last element of an array passing a given truth test: -->
 `Arr::last` メソッドは、指定された真理値テストに合格した配列の最後の要素を返します。
 
@@ -983,6 +835,7 @@ $last = Arr::last($array, $callback, $default);
 <a name="method-array-map"></a>
 <!-- #### `Arr::map()` -->
 #### `Arr::map()`
+
 <!-- The `Arr::map` method iterates through the array and passes each value and key to the given callback. The array value is replaced by the value returned by the callback: -->
 `Arr::map` メソッドは配列を反復処理し、各値とキーを指定されたコールバックに渡します。配列の値は、コールバックによって返される値に置き換えられます。
 
@@ -1001,6 +854,7 @@ $mapped = Arr::map($array, function (string $value, string $key) {
 <a name="method-array-map-spread"></a>
 <!-- #### `Arr::mapSpread()` -->
 #### `Arr::mapSpread()`
+
 <!-- The `Arr::mapSpread` method iterates over the array, passing each nested item value into the given closure. The closure is free to modify the item and return it, thus forming a new array of modified items: -->
 `Arr::mapSpread` メソッドは配列を反復処理し、ネストされた各項目の値を指定されたクロージャに渡します。クロージャは自由に項目を変更して返すことができるため、変更された項目の新しい配列が形成されます。
 
@@ -1027,6 +881,7 @@ $mapped = Arr::mapSpread($array, function (int $even, int $odd) {
 <a name="method-array-map-with-keys"></a>
 <!-- #### `Arr::mapWithKeys()` -->
 #### `Arr::mapWithKeys()`
+
 <!-- The `Arr::mapWithKeys` method iterates through the array and passes each value to the given callback. The callback should return an associative array containing a single key / value pair: -->
 `Arr::mapWithKeys` メソッドは配列を反復処理し、各値を指定されたコールバックに渡します。コールバックは、単一のキーと値のペアを含む連想配列を返す必要があります。
 
@@ -1061,6 +916,7 @@ $mapped = Arr::mapWithKeys($array, function (array $item, int $key) {
 <a name="method-array-only"></a>
 <!-- #### `Arr::only()` -->
 #### `Arr::only()`
+
 <!-- The `Arr::only` method returns only the specified key / value pairs from the given array: -->
 `Arr::only` メソッドは、指定された配列から指定されたキーと値のペアのみを返します。
 
@@ -1077,6 +933,7 @@ $slice = Arr::only($array, ['name', 'price']);
 <a name="method-array-only-values"></a>
 <!-- #### `Arr::onlyValues()` -->
 #### `Arr::onlyValues()`
+
 <!-- The `Arr::onlyValues` method returns only the specified values from an array: -->
 `Arr::onlyValues` メソッドは、配列から指定された値のみを返します。
 
@@ -1091,7 +948,7 @@ $filtered = Arr::onlyValues($array, ['foo', 'baz']);
 ```
 
 <!-- You may also pass `true` to the `strict` argument to use strict type comparisons when filtering: -->
-`true` を `strict` 引数に渡して、フィルタリング時に厳密な型比較を使用することもできます。
+フィルタリング時に厳密な型比較を行うには、`strict` 引数に `true` を渡すこともできます。
 
 ```php
 use Illuminate\Support\Arr;
@@ -1106,6 +963,7 @@ $filtered = Arr::onlyValues($array, [1, 2], strict: true);
 <a name="method-array-partition"></a>
 <!-- #### `Arr::partition()` -->
 #### `Arr::partition()`
+
 <!-- The `Arr::partition` method may be combined with PHP array destructuring to separate elements that pass a given truth test from those that do not: -->
 `Arr::partition` メソッドを PHP 配列の構造化と組み合わせて、特定の真実テストに合格する要素とそうでない要素を分離することができます。
 
@@ -1132,6 +990,7 @@ dump($equalOrAboveThree);
 <a name="method-array-pluck"></a>
 <!-- #### `Arr::pluck()` -->
 #### `Arr::pluck()`
+
 <!-- The `Arr::pluck` method retrieves all of the values for a given key from an array: -->
 `Arr::pluck` メソッドは、配列から指定されたキーのすべての値を取得します。
 
@@ -1162,6 +1021,7 @@ $names = Arr::pluck($array, 'developer.name', 'developer.id');
 <a name="method-array-prepend"></a>
 <!-- #### `Arr::prepend()` -->
 #### `Arr::prepend()`
+
 <!-- The `Arr::prepend` method will push an item onto the beginning of an array: -->
 `Arr::prepend` メソッドは、項目を配列の先頭にプッシュします。
 
@@ -1191,6 +1051,7 @@ $array = Arr::prepend($array, 'Desk', 'name');
 <a name="method-array-prependkeyswith"></a>
 <!-- #### `Arr::prependKeysWith()` -->
 #### `Arr::prependKeysWith()`
+
 <!-- The `Arr::prependKeysWith` prepends all key names of an associative array with the given prefix: -->
 `Arr::prependKeysWith` は、連想配列のすべてのキー名の前に指定されたプレフィックスを付加します。
 
@@ -1215,6 +1076,7 @@ $keyed = Arr::prependKeysWith($array, 'product.');
 <a name="method-array-pull"></a>
 <!-- #### `Arr::pull()` -->
 #### `Arr::pull()`
+
 <!-- The `Arr::pull` method returns and removes a key / value pair from an array: -->
 `Arr::pull` メソッドは、キーと値のペアを返し、配列から削除します。
 
@@ -1242,6 +1104,7 @@ $value = Arr::pull($array, $key, $default);
 <a name="method-array-push"></a>
 <!-- #### `Arr::push()` -->
 #### `Arr::push()`
+
 <!-- The `Arr::push` method pushes an item into an array using "dot" notation. If an array does not exist at the given key, it will be created: -->
 `Arr::push` メソッドは、「ドット」表記を使用して項目を配列にプッシュします。指定されたキーに配列が存在しない場合は、配列が作成されます。
 
@@ -1258,6 +1121,7 @@ Arr::push($array, 'office.furniture', 'Desk');
 <a name="method-array-query"></a>
 <!-- #### `Arr::query()` -->
 #### `Arr::query()`
+
 <!-- The `Arr::query` method converts the array into a query string: -->
 `Arr::query` メソッドは、配列をクエリ文字列に変換します。
 
@@ -1280,6 +1144,7 @@ Arr::query($array);
 <a name="method-array-random"></a>
 <!-- #### `Arr::random()` -->
 #### `Arr::random()`
+
 <!-- The `Arr::random` method returns a random value from an array: -->
 `Arr::random` メソッドは、配列からランダムな値を返します。
 
@@ -1307,6 +1172,7 @@ $items = Arr::random($array, 2);
 <a name="method-array-reject"></a>
 <!-- #### `Arr::reject()` -->
 #### `Arr::reject()`
+
 <!-- The `Arr::reject` method removes items from an array using the given closure: -->
 `Arr::reject` メソッドは、指定されたクロージャを使用して配列から項目を削除します。
 
@@ -1325,6 +1191,7 @@ $filtered = Arr::reject($array, function (string|int $value, int $key) {
 <a name="method-array-select"></a>
 <!-- #### `Arr::select()` -->
 #### `Arr::select()`
+
 <!-- The `Arr::select` method selects an array of values from an array: -->
 `Arr::select` メソッドは、配列から値の配列を選択します。
 
@@ -1345,6 +1212,7 @@ Arr::select($array, ['name', 'price']);
 <a name="method-array-set"></a>
 <!-- #### `Arr::set()` -->
 #### `Arr::set()`
+
 <!-- The `Arr::set` method sets a value within a deeply nested array using "dot" notation: -->
 `Arr::set` メソッドは、「ドット」表記を使用して、深くネストされた配列内の値を設定します。
 
@@ -1361,6 +1229,7 @@ Arr::set($array, 'products.desk.price', 200);
 <a name="method-array-shuffle"></a>
 <!-- #### `Arr::shuffle()` -->
 #### `Arr::shuffle()`
+
 <!-- The `Arr::shuffle` method randomly shuffles the items in the array: -->
 `Arr::shuffle` メソッドは、配列内の項目をランダムにシャッフルします。
 
@@ -1375,6 +1244,7 @@ $array = Arr::shuffle([1, 2, 3, 4, 5]);
 <a name="method-array-sole"></a>
 <!-- #### `Arr::sole()` -->
 #### `Arr::sole()`
+
 <!-- The `Arr::sole` method retrieves a single value from an array using the given closure. If more than one value within the array matches the given truth test, an `Illuminate\Support\MultipleItemsFoundException` exception will be thrown. If no values match the truth test, an `Illuminate\Support\ItemNotFoundException` exception will be thrown: -->
 `Arr::sole` メソッドは、指定されたクロージャを使用して配列から単一の値を取得します。配列内の複数の値が指定された真理値テストに一致する場合、`Illuminate\Support\MultipleItemsFoundException` 例外がスローされます。真実のテストに一致する値がない場合は、`Illuminate\Support\ItemNotFoundException` 例外がスローされます。
 
@@ -1391,6 +1261,7 @@ $value = Arr::sole($array, fn (string $value) => $value === 'Desk');
 <a name="method-array-some"></a>
 <!-- #### `Arr::some()` -->
 #### `Arr::some()`
+
 <!-- The `Arr::some` method ensures that at least one of the values in the array passes a given truth test: -->
 `Arr::some` メソッドは、配列内の値の少なくとも 1 つが指定された真理値テストに合格することを保証します。
 
@@ -1407,6 +1278,7 @@ Arr::some($array, fn ($i) => $i > 2);
 <a name="method-array-sort"></a>
 <!-- #### `Arr::sort()` -->
 #### `Arr::sort()`
+
 <!-- The `Arr::sort` method sorts an array by its values: -->
 `Arr::sort` メソッドは、配列を値で並べ替えます。
 
@@ -1421,7 +1293,7 @@ $sorted = Arr::sort($array);
 ```
 
 <!-- You may also sort the array by the results of a given closure: -->
-特定のクロージャの結果によって配列を並べ替えることもできます。
+指定したクロージャの結果で配列を並べ替えることもできます。
 
 ```php
 use Illuminate\Support\Arr;
@@ -1448,6 +1320,7 @@ $sorted = array_values(Arr::sort($array, function (array $value) {
 <a name="method-array-sort-desc"></a>
 <!-- #### `Arr::sortDesc()` -->
 #### `Arr::sortDesc()`
+
 <!-- The `Arr::sortDesc` method sorts an array in descending order by its values: -->
 `Arr::sortDesc` メソッドは、配列を値の降順に並べ替えます。
 
@@ -1462,7 +1335,7 @@ $sorted = Arr::sortDesc($array);
 ```
 
 <!-- You may also sort the array by the results of a given closure: -->
-特定のクロージャの結果によって配列を並べ替えることもできます。
+指定したクロージャの実行結果を基準に配列をソートすることもできます。
 
 ```php
 use Illuminate\Support\Arr;
@@ -1489,6 +1362,7 @@ $sorted = array_values(Arr::sortDesc($array, function (array $value) {
 <a name="method-array-sort-recursive"></a>
 <!-- #### `Arr::sortRecursive()` -->
 #### `Arr::sortRecursive()`
+
 <!-- The `Arr::sortRecursive` method recursively sorts an array using the `sort` function for numerically indexed sub-arrays and the `ksort` function for associative sub-arrays: -->
 `Arr::sortRecursive` メソッドは、数値インデックス付きサブ配列の場合は `sort` 関数を使用し、連想サブ配列の場合は `ksort` 関数を使用して、配列を再帰的に並べ替えます。
 
@@ -1522,10 +1396,11 @@ $sorted = Arr::sortRecursiveDesc($array);
 <a name="method-array-string"></a>
 <!-- #### `Arr::string()` -->
 #### `Arr::string()`
+
 <!-- The `Arr::string` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not a `string`: -->
 `Arr::string` メソッドは、([Arr::get()](#method-array-get) と同様に) 「ドット」表記を使用して、深くネストされた配列から値を取得しますが、要求された値が `string` でない場合は、`InvalidArgumentException` をスローします。
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'languages' => ['PHP', 'Ruby']];
@@ -1542,6 +1417,7 @@ $value = Arr::string($array, 'languages');
 <a name="method-array-take"></a>
 <!-- #### `Arr::take()` -->
 #### `Arr::take()`
+
 <!-- The `Arr::take` method returns a new array with the specified number of items: -->
 `Arr::take` メソッドは、指定された項目数を含む新しい配列を返します。
 
@@ -1569,6 +1445,7 @@ $chunk = Arr::take($array, -2);
 <a name="method-array-to-css-classes"></a>
 <!-- #### `Arr::toCssClasses()` -->
 #### `Arr::toCssClasses()`
+
 <!-- The `Arr::toCssClasses` method conditionally compiles a CSS class string. The method accepts an array of classes where the array key contains the class or classes you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the rendered class list: -->
 `Arr::toCssClasses` メソッドは、CSS クラス文字列を条件付きでコンパイルします。このメソッドはクラスの配列を受け入れます。配列キーには追加するクラスが含まれ、値はブール式です。配列要素に数値キーがある場合、その要素は常に表示されるクラス リストに含まれます。
 
@@ -1590,6 +1467,7 @@ $classes = Arr::toCssClasses($array);
 <a name="method-array-to-css-styles"></a>
 <!-- #### `Arr::toCssStyles()` -->
 #### `Arr::toCssStyles()`
+
 <!-- The `Arr::toCssStyles` method conditionally compiles a CSS style string. The method accepts an array of CSS declarations where the array key contains the CSS declaration you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the compiled CSS style string: -->
 `Arr::toCssStyles` メソッドは、条件付きで CSS スタイル文字列をコンパイルします。このメソッドは CSS 宣言の配列を受け入れます。配列キーには追加する CSS 宣言が含まれ、値はブール式です。配列要素に数値キーがある場合、コンパイルされた CSS スタイル文字列に常に含まれます。
 
@@ -1608,11 +1486,12 @@ $classes = Arr::toCssStyles($array);
 ```
 
 <!-- This method powers Laravel's functionality allowing [merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) as well as the `@class` [Blade directive](/docs/13.x/blade#conditional-classes). -->
-このメソッドは、Laravel の機能を強化し、[merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) および `@class` [Blade directive](/docs/13.x/blade#conditional-classes) を許可します。
+このメソッドは、[merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes)や、`@class` [Blade directive](/docs/13.x/blade#conditional-classes)を提供します。
 
 <a name="method-array-undot"></a>
 <!-- #### `Arr::undot()` -->
 #### `Arr::undot()`
+
 <!-- The `Arr::undot` method expands a single-dimensional array that uses "dot" notation into a multi-dimensional array: -->
 `Arr::undot` メソッドは、「ドット」表記を使用する 1 次元配列を多次元配列に拡張します。
 
@@ -1632,6 +1511,7 @@ $array = Arr::undot($array);
 <a name="method-array-where"></a>
 <!-- #### `Arr::where()` -->
 #### `Arr::where()`
+
 <!-- The `Arr::where` method filters an array using the given closure: -->
 `Arr::where` メソッドは、指定されたクロージャを使用して配列をフィルタリングします。
 
@@ -1650,6 +1530,7 @@ $filtered = Arr::where($array, function (string|int $value, int $key) {
 <a name="method-array-where-not-null"></a>
 <!-- #### `Arr::whereNotNull()` -->
 #### `Arr::whereNotNull()`
+
 <!-- The `Arr::whereNotNull` method removes all `null` values from the given array: -->
 `Arr::whereNotNull` メソッドは、指定された配列からすべての `null` 値を削除します。
 
@@ -1666,6 +1547,7 @@ $filtered = Arr::whereNotNull($array);
 <a name="method-array-wrap"></a>
 <!-- #### `Arr::wrap()` -->
 #### `Arr::wrap()`
+
 <!-- The `Arr::wrap` method wraps the given value in an array. If the given value is already an array it will be returned without modification: -->
 `Arr::wrap` メソッドは、指定された値を配列にラップします。指定された値がすでに配列である場合は、変更せずに返されます。
 
@@ -1693,6 +1575,7 @@ $array = Arr::wrap(null);
 <a name="method-data-fill"></a>
 <!-- #### `data_fill()` -->
 #### `data_fill()`
+
 <!-- The `data_fill` function sets a missing value within a nested array or object using "dot" notation: -->
 `data_fill` 関数は、「ドット」表記を使用して、ネストされた配列またはオブジェクト内の欠損値を設定します。
 
@@ -1734,6 +1617,7 @@ data_fill($data, 'products.*.price', 200);
 <a name="method-data-get"></a>
 <!-- #### `data_get()` -->
 #### `data_get()`
+
 <!-- The `data_get` function retrieves a value from a nested array or object using "dot" notation: -->
 `data_get` 関数は、「ドット」表記を使用して、ネストされた配列またはオブジェクトから値を取得します。
 
@@ -1787,6 +1671,7 @@ data_get($flight, 'segments.{first}.arrival');
 <a name="method-data-set"></a>
 <!-- #### `data_set()` -->
 #### `data_set()`
+
 <!-- The `data_set` function sets a value within a nested array or object using "dot" notation: -->
 `data_set` 関数は、「ドット」表記を使用して、ネストされた配列またはオブジェクト内の値を設定します。
 
@@ -1835,6 +1720,7 @@ data_set($data, 'products.desk.price', 200, overwrite: false);
 <a name="method-data-forget"></a>
 <!-- #### `data_forget()` -->
 #### `data_forget()`
+
 <!-- The `data_forget` function removes a value within a nested array or object using "dot" notation: -->
 `data_forget` 関数は、「ドット」表記を使用して、ネストされた配列またはオブジェクト内の値を削除します。
 
@@ -1872,6 +1758,7 @@ data_forget($data, 'products.*.price');
 <a name="method-head"></a>
 <!-- #### `head()` -->
 #### `head()`
+
 <!-- The `head` function returns the first element in the given array. If the array is empty, `false` will be returned: -->
 `head` 関数は、指定された配列の最初の要素を返します。配列が空の場合、`false` が返されます。
 
@@ -1886,6 +1773,7 @@ $first = head($array);
 <a name="method-last"></a>
 <!-- #### `last()` -->
 #### `last()`
+
 <!-- The `last` function returns the last element in the given array. If the array is empty, `false` will be returned: -->
 `last` 関数は、指定された配列の最後の要素を返します。配列が空の場合、`false` が返されます。
 
@@ -1904,6 +1792,7 @@ $last = last($array);
 <a name="method-number-abbreviate"></a>
 <!-- #### `Number::abbreviate()` -->
 #### `Number::abbreviate()`
+
 <!-- The `Number::abbreviate` method returns the human-readable format of the provided numerical value, with an abbreviation for the units: -->
 `Number::abbreviate` メソッドは、単位の略語を付けて、指定された数値を人間が判読できる形式で返します。
 
@@ -1926,6 +1815,7 @@ $number = Number::abbreviate(1230000, precision: 2);
 <a name="method-number-clamp"></a>
 <!-- #### `Number::clamp()` -->
 #### `Number::clamp()`
+
 <!-- The `Number::clamp` method ensures a given number stays within a specified range. If the number is lower than the minimum, the minimum value is returned. If the number is higher than the maximum, the maximum value is returned: -->
 `Number::clamp` メソッドは、指定された数値が指定された範囲内に収まることを保証します。数値が最小値より小さい場合は、最小値が返されます。数値が最大値より大きい場合は、最大値が返されます。
 
@@ -1952,6 +1842,7 @@ $number = Number::clamp(20, min: 10, max: 100);
 <a name="method-number-currency"></a>
 <!-- #### `Number::currency()` -->
 #### `Number::currency()`
+
 <!-- The `Number::currency` method returns the currency representation of the given value as a string: -->
 `Number::currency` メソッドは、指定された値の通貨表現を文字列として返します。
 
@@ -1978,6 +1869,7 @@ $currency = Number::currency(1000, in: 'EUR', locale: 'de', precision: 0);
 <a name="method-default-currency"></a>
 <!-- #### `Number::defaultCurrency()` -->
 #### `Number::defaultCurrency()`
+
 <!-- The `Number::defaultCurrency` method returns the default currency being used by the `Number` class: -->
 `Number::defaultCurrency` メソッドは、`Number` クラスで使用されるデフォルトの通貨を返します。
 
@@ -1992,6 +1884,7 @@ $currency = Number::defaultCurrency();
 <a name="method-default-locale"></a>
 <!-- #### `Number::defaultLocale()` -->
 #### `Number::defaultLocale()`
+
 <!-- The `Number::defaultLocale` method returns the default locale being used by the `Number` class: -->
 `Number::defaultLocale` メソッドは、`Number` クラスで使用されるデフォルトのロケールを返します。
 
@@ -2006,6 +1899,7 @@ $locale = Number::defaultLocale();
 <a name="method-number-file-size"></a>
 <!-- #### `Number::fileSize()` -->
 #### `Number::fileSize()`
+
 <!-- The `Number::fileSize` method returns the file size representation of the given byte value as a string: -->
 `Number::fileSize` メソッドは、指定されたバイト値のファイル サイズ表現を文字列として返します。
 
@@ -2028,6 +1922,7 @@ $size = Number::fileSize(1024, precision: 2);
 <a name="method-number-for-humans"></a>
 <!-- #### `Number::forHumans()` -->
 #### `Number::forHumans()`
+
 <!-- The `Number::forHumans` method returns the human-readable format of the provided numerical value: -->
 `Number::forHumans` メソッドは、指定された数値を人間が判読できる形式で返します。
 
@@ -2050,6 +1945,7 @@ $number = Number::forHumans(1230000, precision: 2);
 <a name="method-number-format"></a>
 <!-- #### `Number::format()` -->
 #### `Number::format()`
+
 <!-- The `Number::format` method formats the given number into a locale specific string: -->
 `Number::format` メソッドは、指定された数値をロケール固有の文字列にフォーマットします。
 
@@ -2076,6 +1972,7 @@ $number = Number::format(100000, locale: 'de');
 <a name="method-number-ordinal"></a>
 <!-- #### `Number::ordinal()` -->
 #### `Number::ordinal()`
+
 <!-- The `Number::ordinal` method returns a number's ordinal representation: -->
 `Number::ordinal` メソッドは、数値の序数表現を返します。
 
@@ -2098,6 +1995,7 @@ $number = Number::ordinal(21);
 <a name="method-number-pairs"></a>
 <!-- #### `Number::pairs()` -->
 #### `Number::pairs()`
+
 <!-- The `Number::pairs` method generates an array of number pairs (sub-ranges) based on a specified range and step value. This method can be useful for dividing a larger range of numbers into smaller, manageable sub-ranges for things like pagination or batching tasks. The `pairs` method returns an array of arrays, where each inner array represents a pair (sub-range) of numbers: -->
 `Number::pairs` メソッドは、指定された範囲とステップ値に基づいて数値ペア (サブ範囲) の配列を生成します。この方法は、ページネーションやタスクのバッチ処理などで、大きな範囲の数値を管理しやすい小さなサブ範囲に分割する場合に役立ちます。 `pairs` メソッドは配列の配列を返します。各内部配列は数値のペア (サブ範囲) を表します。
 
@@ -2116,6 +2014,7 @@ $result = Number::pairs(25, 10, offset: 0);
 <a name="method-number-parse"></a>
 <!-- #### `Number::parse()` -->
 #### `Number::parse()`
+
 <!-- The `Number::parse` method parses a localized numeric string using PHP's `NumberFormatter`: -->
 `Number::parse` メソッドは、PHP の `NumberFormatter` を使用して、ロケールに応じた数値文字列を解析します。
 
@@ -2134,6 +2033,7 @@ $result = Number::parse('10,123', locale: 'fr');
 <a name="method-number-parse-int"></a>
 <!-- #### `Number::parseInt()` -->
 #### `Number::parseInt()`
+
 <!-- The `Number::parseInt` method parse a string into an integer according to the specified locale: -->
 `Number::parseInt` メソッドは、指定されたロケールに従って文字列を整数に解析します。
 
@@ -2152,6 +2052,7 @@ $result = Number::parseInt('10,123', locale: 'fr');
 <a name="method-number-parse-float"></a>
 <!-- #### `Number::parseFloat()` -->
 #### `Number::parseFloat()`
+
 <!-- The `Number::parseFloat` method parse a string into a float according to the specified locale: -->
 `Number::parseFloat` メソッドは、指定されたロケールに従って文字列を float に解析します。
 
@@ -2170,6 +2071,7 @@ $result = Number::parseFloat('10', locale: 'fr');
 <a name="method-number-percentage"></a>
 <!-- #### `Number::percentage()` -->
 #### `Number::percentage()`
+
 <!-- The `Number::percentage` method returns the percentage representation of the given value as a string: -->
 `Number::percentage` メソッドは、指定された値のパーセント表現を文字列として返します。
 
@@ -2196,6 +2098,7 @@ $percentage = Number::percentage(10, precision: 2, locale: 'de');
 <a name="method-number-spell"></a>
 <!-- #### `Number::spell()` -->
 #### `Number::spell()`
+
 <!-- The `Number::spell` method transforms the given number into a string of words: -->
 `Number::spell` メソッドは、指定された数値を単語の文字列に変換します。
 
@@ -2240,6 +2143,7 @@ $number = Number::spell(10, until: 10);
 <a name="method-number-spell-ordinal"></a>
 <!-- #### `Number::spellOrdinal()` -->
 #### `Number::spellOrdinal()`
+
 <!-- The `Number::spellOrdinal` method returns the number's ordinal representation as a string of words: -->
 `Number::spellOrdinal` メソッドは、数値の序数表現を単語の文字列として返します。
 
@@ -2262,6 +2166,7 @@ $number = Number::spellOrdinal(21);
 <a name="method-number-trim"></a>
 <!-- #### `Number::trim()` -->
 #### `Number::trim()`
+
 <!-- The `Number::trim` method removes any trailing zero digits after the decimal point of the given number: -->
 `Number::trim` メソッドは、指定された数値の小数点以下の末尾のゼロの数字を削除します。
 
@@ -2280,6 +2185,7 @@ $number = Number::trim(12.30);
 <a name="method-number-use-locale"></a>
 <!-- #### `Number::useLocale()` -->
 #### `Number::useLocale()`
+
 <!-- The `Number::useLocale` method sets the default number locale globally, which affects how numbers and currency are formatted by subsequent invocations to the `Number` class's methods: -->
 `Number::useLocale` メソッドは、デフォルトの数値ロケールをグローバルに設定します。これは、`Number` クラスのメソッドの後続の呼び出しによって数値と通貨がどのようにフォーマットされるかに影響します。
 
@@ -2298,6 +2204,7 @@ public function boot(): void
 <a name="method-number-with-locale"></a>
 <!-- #### `Number::withLocale()` -->
 #### `Number::withLocale()`
+
 <!-- The `Number::withLocale` method executes the given closure using the specified locale and then restores the original locale after the callback has executed: -->
 `Number::withLocale` メソッドは、指定されたロケールを使用して指定されたクロージャを実行し、コールバックの実行後に元のロケールを復元します。
 
@@ -2312,6 +2219,7 @@ $number = Number::withLocale('de', function () {
 <a name="method-number-use-currency"></a>
 <!-- #### `Number::useCurrency()` -->
 #### `Number::useCurrency()`
+
 <!-- The `Number::useCurrency` method sets the default number currency globally, which affects how the currency is formatted by subsequent invocations to the `Number` class's methods: -->
 `Number::useCurrency` メソッドは、デフォルトの数値通貨をグローバルに設定します。これは、その後の `Number` クラスのメソッドの呼び出しによって通貨がどのようにフォーマットされるかに影響します。
 
@@ -2330,6 +2238,7 @@ public function boot(): void
 <a name="method-number-with-currency"></a>
 <!-- #### `Number::withCurrency()` -->
 #### `Number::withCurrency()`
+
 <!-- The `Number::withCurrency` method executes the given closure using the specified currency and then restores the original currency after the callback has executed: -->
 `Number::withCurrency` メソッドは、指定された通貨を使用して指定されたクロージャを実行し、コールバックの実行後に元の通貨を復元します。
 
@@ -2348,6 +2257,7 @@ $number = Number::withCurrency('GBP', function () {
 <a name="method-app-path"></a>
 <!-- #### `app_path()` -->
 #### `app_path()`
+
 <!-- The `app_path` function returns the fully qualified path to your application's `app` directory. You may also use the `app_path` function to generate a fully qualified path to a file relative to the application directory: -->
 `app_path` 関数は、アプリケーションの `app` ディレクトリへの完全修飾パスを返します。 `app_path` 関数を使用して、アプリケーション ディレクトリを基準としたファイルへの完全修飾パスを生成することもできます。
 
@@ -2360,6 +2270,7 @@ $path = app_path('Http/Controllers/Controller.php');
 <a name="method-base-path"></a>
 <!-- #### `base_path()` -->
 #### `base_path()`
+
 <!-- The `base_path` function returns the fully qualified path to your application's root directory. You may also use the `base_path` function to generate a fully qualified path to a given file relative to the project root directory: -->
 `base_path` 関数は、アプリケーションのルート ディレクトリへの完全修飾パスを返します。 `base_path` 関数を使用して、プロジェクトのルート ディレクトリを基準とした特定のファイルへの完全修飾パスを生成することもできます。
 
@@ -2372,6 +2283,7 @@ $path = base_path('vendor/bin');
 <a name="method-config-path"></a>
 <!-- #### `config_path()` -->
 #### `config_path()`
+
 <!-- The `config_path` function returns the fully qualified path to your application's `config` directory. You may also use the `config_path` function to generate a fully qualified path to a given file within the application's configuration directory: -->
 `config_path` 関数は、アプリケーションの `config` ディレクトリへの完全修飾パスを返します。 `config_path` 関数を使用して、アプリケーションの構成ディレクトリ内の特定のファイルへの完全修飾パスを生成することもできます。
 
@@ -2384,6 +2296,7 @@ $path = config_path('app.php');
 <a name="method-database-path"></a>
 <!-- #### `database_path()` -->
 #### `database_path()`
+
 <!-- The `database_path` function returns the fully qualified path to your application's `database` directory. You may also use the `database_path` function to generate a fully qualified path to a given file within the database directory: -->
 `database_path` 関数は、アプリケーションの `database` ディレクトリへの完全修飾パスを返します。 `database_path` 関数を使用して、データベース ディレクトリ内の特定のファイルへの完全修飾パスを生成することもできます。
 
@@ -2396,6 +2309,7 @@ $path = database_path('factories/UserFactory.php');
 <a name="method-lang-path"></a>
 <!-- #### `lang_path()` -->
 #### `lang_path()`
+
 <!-- The `lang_path` function returns the fully qualified path to your application's `lang` directory. You may also use the `lang_path` function to generate a fully qualified path to a given file within the directory: -->
 `lang_path` 関数は、アプリケーションの `lang` ディレクトリへの完全修飾パスを返します。 `lang_path` 関数を使用して、ディレクトリ内の特定のファイルへの完全修飾パスを生成することもできます。
 
@@ -2406,11 +2320,12 @@ $path = lang_path('en/messages.php');
 ```
 
 > [!NOTE]
-> デフォルトでは、Laravel アプリケーションのスケルトンには `lang` ディレクトリが含まれません。 Laravel の言語ファイルをカスタマイズしたい場合は、`lang:publish` Artisan コマンドを使用して言語ファイルを公開できます。
+> デフォルトでは、Laravel アプリケーションのスケルトンに `lang` ディレクトリは含まれていません。Laravel の言語ファイルをカスタマイズする場合は、`lang:publish` Artisan コマンドで公開できます。
 
 <a name="method-public-path"></a>
 <!-- #### `public_path()` -->
 #### `public_path()`
+
 <!-- The `public_path` function returns the fully qualified path to your application's `public` directory. You may also use the `public_path` function to generate a fully qualified path to a given file within the public directory: -->
 `public_path` 関数は、アプリケーションの `public` ディレクトリへの完全修飾パスを返します。 `public_path` 関数を使用して、パブリック ディレクトリ内の特定のファイルへの完全修飾パスを生成することもできます。
 
@@ -2423,6 +2338,7 @@ $path = public_path('css/app.css');
 <a name="method-resource-path"></a>
 <!-- #### `resource_path()` -->
 #### `resource_path()`
+
 <!-- The `resource_path` function returns the fully qualified path to your application's `resources` directory. You may also use the `resource_path` function to generate a fully qualified path to a given file within the resources directory: -->
 `resource_path` 関数は、アプリケーションの `resources` ディレクトリへの完全修飾パスを返します。 `resource_path` 関数を使用して、リソース ディレクトリ内の特定のファイルへの完全修飾パスを生成することもできます。
 
@@ -2435,6 +2351,7 @@ $path = resource_path('sass/app.scss');
 <a name="method-storage-path"></a>
 <!-- #### `storage_path()` -->
 #### `storage_path()`
+
 <!-- The `storage_path` function returns the fully qualified path to your application's `storage` directory. You may also use the `storage_path` function to generate a fully qualified path to a given file within the storage directory: -->
 `storage_path` 関数は、アプリケーションの `storage` ディレクトリへの完全修飾パスを返します。 `storage_path` 関数を使用して、ストレージ ディレクトリ内の特定のファイルへの完全修飾パスを生成することもできます。
 
@@ -2451,6 +2368,7 @@ $path = storage_path('app/file.txt');
 <a name="method-action"></a>
 <!-- #### `action()` -->
 #### `action()`
+
 <!-- The `action` function generates a URL for the given controller action: -->
 `action` 関数は、指定されたコントローラ アクションの URL を生成します。
 
@@ -2470,6 +2388,7 @@ $url = action([UserController::class, 'profile'], ['id' => 1]);
 <a name="method-asset"></a>
 <!-- #### `asset()` -->
 #### `asset()`
+
 <!-- The `asset` function generates a URL for an asset using the current scheme of the request (HTTP or HTTPS): -->
 `asset` 関数は、現在のリクエスト スキーム (HTTP または HTTPS) を使用してアセットの URL を生成します。
 
@@ -2489,8 +2408,9 @@ $url = asset('img/photo.jpg'); // http://example.com/assets/img/photo.jpg
 <a name="method-route"></a>
 <!-- #### `route()` -->
 #### `route()`
+
 <!-- The `route` function generates a URL for a given [named route](/docs/13.x/routing#named-routes): -->
-`route` 関数は、指定された [named route](/docs/13.x/routing#named-routes) の URL を生成します。
+`route` 関数は、指定した [named route](/docs/13.x/routing#named-routes) の URL を生成します。
 
 ```php
 $url = route('route.name');
@@ -2513,6 +2433,7 @@ $url = route('route.name', ['id' => 1], false);
 <a name="method-secure-asset"></a>
 <!-- #### `secure_asset()` -->
 #### `secure_asset()`
+
 <!-- The `secure_asset` function generates a URL for an asset using HTTPS: -->
 `secure_asset` 関数は、HTTPS を使用してアセットの URL を生成します。
 
@@ -2523,6 +2444,7 @@ $url = secure_asset('img/photo.jpg');
 <a name="method-secure-url"></a>
 <!-- #### `secure_url()` -->
 #### `secure_url()`
+
 <!-- The `secure_url` function generates a fully qualified HTTPS URL to the given path. Additional URL segments may be passed in the function's second argument: -->
 `secure_url` 関数は、指定されたパスへの完全修飾 HTTPS URL を生成します。追加の URL セグメントを関数の 2 番目の引数に渡すことができます。
 
@@ -2535,8 +2457,9 @@ $url = secure_url('user/profile', [1]);
 <a name="method-to-action"></a>
 <!-- #### `to_action()` -->
 #### `to_action()`
+
 <!-- The `to_action` function generates a [redirect HTTP response](/docs/13.x/responses#redirects) for a given controller action: -->
-`to_action` 関数は、指定されたコントローラ アクションの [redirect HTTP response](/docs/13.x/responses#redirects) を生成します。
+`to_action` 関数は、指定したコントローラアクションへの [redirect HTTP response](/docs/13.x/responses#redirects) を生成します。
 
 ```php
 use App\Http\Controllers\UserController;
@@ -2559,8 +2482,9 @@ return to_action(
 <a name="method-to-route"></a>
 <!-- #### `to_route()` -->
 #### `to_route()`
+
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/13.x/responses#redirects) for a given [named route](/docs/13.x/routing#named-routes): -->
-`to_route` 関数は、[redirect HTTP response](/docs/13.x/responses#redirects) を、指定された [named route](/docs/13.x/routing#named-routes) に対して生成します。
+`to_route` 関数は、指定された [named route](/docs/13.x/routing#named-routes) に対する [redirect HTTP response](/docs/13.x/responses#redirects) を生成します。
 
 ```php
 return to_route('users.show', ['user' => 1]);
@@ -2576,6 +2500,7 @@ return to_route('users.show', ['user' => 1], 302, ['X-Framework' => 'Laravel']);
 <a name="method-uri"></a>
 <!-- #### `uri()` -->
 #### `uri()`
+
 <!-- The `uri` function generates a [fluent URI instance](#uri) for the given URI: -->
 `uri` 関数は、指定された URI の [fluent URI instance](#uri) を生成します。
 
@@ -2604,7 +2529,7 @@ $uri = uri(UserIndexController::class);
 ```
 
 <!-- If the value given to the `uri` function matches the name of a [named route](/docs/13.x/routing#named-routes), a `Uri` instance will be generated for that route's path: -->
-`uri` 関数に指定された値が [named route](/docs/13.x/routing#named-routes) の名前と一致する場合、そのルートのパスに対して `Uri` インスタンスが生成されます。
+`uri` 関数に指定した値が [named route](/docs/13.x/routing#named-routes) の名前と一致する場合、そのルートのパスに対する `Uri` インスタンスが生成されます。
 
 ```php
 $uri = uri('users.show', ['user' => $user]);
@@ -2613,6 +2538,7 @@ $uri = uri('users.show', ['user' => $user]);
 <a name="method-url"></a>
 <!-- #### `url()` -->
 #### `url()`
+
 <!-- The `url` function generates a fully qualified URL to the given path: -->
 `url` 関数は、指定されたパスへの完全修飾 URL を生成します。
 
@@ -2634,7 +2560,7 @@ $previous = url()->previous();
 ```
 
 <!-- For more information on working with the `url` function, consult the [URL generation documentation](/docs/13.x/urls#generating-urls). -->
-`url` 関数の使用方法の詳細については、[URL generation documentation](/docs/13.x/urls#generating-urls) を参照してください。
+`url` 関数の使用方法について詳しくは、[URL generation documentation](/docs/13.x/urls#generating-urls)を参照してください。
 
 <a name="miscellaneous"></a>
 <!-- ## Miscellaneous -->
@@ -2643,8 +2569,9 @@ $previous = url()->previous();
 <a name="method-abort"></a>
 <!-- #### `abort()` -->
 #### `abort()`
+
 <!-- The `abort` function throws [an HTTP exception](/docs/13.x/errors#http-exceptions) which will be rendered by the [exception handler](/docs/13.x/errors#handling-exceptions): -->
-`abort` 関数は、[an HTTP exception](/docs/13.x/errors#http-exceptions) をスローし、これは [exception handler](/docs/13.x/errors#handling-exceptions) によってレンダリングされます。
+`abort` 関数は [an HTTP exception](/docs/13.x/errors#http-exceptions) をスローします。この例外は [exception handler](/docs/13.x/errors#handling-exceptions) によってレンダリングされます。
 
 ```php
 abort(403);
@@ -2660,6 +2587,7 @@ abort(403, 'Unauthorized.', $headers);
 <a name="method-abort-if"></a>
 <!-- #### `abort_if()` -->
 #### `abort_if()`
+
 <!-- The `abort_if` function throws an HTTP exception if a given boolean expression evaluates to `true`: -->
 指定されたブール式が `true` と評価される場合、`abort_if` 関数は HTTP 例外をスローします。
 
@@ -2668,11 +2596,12 @@ abort_if(! Auth::user()->isAdmin(), 403);
 ```
 
 <!-- Like the `abort` method, you may also provide the exception's response text as the third argument and an array of custom response headers as the fourth argument to the function. -->
-`abort` メソッドと同様に、関数の 3 番目の引数として例外の応答テキストを指定し、4 番目の引数としてカスタム応答ヘッダーの配列を指定することもできます。
+`abort` メソッドと同様に、例外のレスポンステキストを関数の第3引数として、カスタムレスポンスヘッダの配列を第4引数として指定することもできます。
 
 <a name="method-abort-unless"></a>
 <!-- #### `abort_unless()` -->
 #### `abort_unless()`
+
 <!-- The `abort_unless` function throws an HTTP exception if a given boolean expression evaluates to `false`: -->
 指定されたブール式が `false` と評価される場合、`abort_unless` 関数は HTTP 例外をスローします。
 
@@ -2681,13 +2610,14 @@ abort_unless(Auth::user()->isAdmin(), 403);
 ```
 
 <!-- Like the `abort` method, you may also provide the exception's response text as the third argument and an array of custom response headers as the fourth argument to the function. -->
-`abort` メソッドと同様に、関数の 3 番目の引数として例外の応答テキストを指定し、4 番目の引数としてカスタム応答ヘッダーの配列を指定することもできます。
+`abort` メソッドと同様に、この関数の第3引数として例外のレスポンステキストを、第4引数としてカスタムレスポンスヘッダーの配列を渡すこともできます。
 
 <a name="method-app"></a>
 <!-- #### `app()` -->
 #### `app()`
+
 <!-- The `app` function returns the [service container](/docs/13.x/container) instance: -->
-`app` 関数は、[service container](/docs/13.x/container) インスタンスを返します。
+`app` 関数は [service container](/docs/13.x/container) のインスタンスを返します。
 
 ```php
 $container = app();
@@ -2703,8 +2633,9 @@ $api = app('HelpSpot\API');
 <a name="method-auth"></a>
 <!-- #### `auth()` -->
 #### `auth()`
+
 <!-- The `auth` function returns an [authenticator](/docs/13.x/authentication) instance. You may use it as an alternative to the `Auth` facade: -->
-`auth` 関数は、[authenticator](/docs/13.x/authentication) インスタンスを返します。 `Auth` ファサードの代替として使用できます。
+`auth` 関数は [authenticator](/docs/13.x/authentication) インスタンスを返します。`Auth` ファサードの代わりに使用できます。
 
 ```php
 $user = auth()->user();
@@ -2720,8 +2651,9 @@ $user = auth('admin')->user();
 <a name="method-back"></a>
 <!-- #### `back()` -->
 #### `back()`
+
 <!-- The `back` function generates a [redirect HTTP response](/docs/13.x/responses#redirects) to the user's previous location: -->
-`back` 関数は、ユーザーの以前の場所に [redirect HTTP response](/docs/13.x/responses#redirects) を生成します。
+`back` 関数は、ユーザーが直前にいた場所への [redirect HTTP response](/docs/13.x/responses#redirects) を生成します。
 
 ```php
 return back($status = 302, $headers = [], $fallback = '/');
@@ -2732,8 +2664,9 @@ return back();
 <a name="method-bcrypt"></a>
 <!-- #### `bcrypt()` -->
 #### `bcrypt()`
+
 <!-- The `bcrypt` function [hashes](/docs/13.x/hashing) the given value using Bcrypt. You may use this function as an alternative to the `Hash` facade: -->
-`bcrypt` 関数は、Bcrypt を使用して指定された値を[hashes](/docs/13.x/hashing)します。この関数は、`Hash` ファサードの代わりに使用できます。
+`bcrypt` 関数は、指定された値を Bcrypt で [hashes](/docs/13.x/hashing) します。`Hash` ファサードの代わりにこの関数を使用することもできます。
 
 ```php
 $password = bcrypt('my-secret-password');
@@ -2742,6 +2675,7 @@ $password = bcrypt('my-secret-password');
 <a name="method-blank"></a>
 <!-- #### `blank()` -->
 #### `blank()`
+
 <!-- The `blank` function determines whether the given value is "blank": -->
 `blank` 関数は、指定された値が「空白」かどうかを判断します。
 
@@ -2766,8 +2700,9 @@ blank(false);
 <a name="method-broadcast"></a>
 <!-- #### `broadcast()` -->
 #### `broadcast()`
+
 <!-- The `broadcast` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners: -->
-`broadcast` 関数 [broadcasts](/docs/13.x/broadcasting) は、指定された [event](/docs/13.x/events) をリスナに渡します。
+`broadcast` 関数は、指定した [event](/docs/13.x/events) をリスナへ [broadcasts](/docs/13.x/broadcasting) します。
 
 ```php
 broadcast(new UserRegistered($user));
@@ -2778,8 +2713,9 @@ broadcast(new UserRegistered($user))->toOthers();
 <a name="method-broadcast-if"></a>
 <!-- #### `broadcast_if()` -->
 #### `broadcast_if()`
+
 <!-- The `broadcast_if` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `true`: -->
-指定されたブール式が `true` と評価される場合、`broadcast_if` 関数 [broadcasts](/docs/13.x/broadcasting) は指定された [event](/docs/13.x/events) をリスナに送信します。
+`broadcast_if` 関数は、指定した真偽式が `true` と評価された場合に、指定した [event](/docs/13.x/events) をリスナへ [broadcasts](/docs/13.x/broadcasting) します：
 
 ```php
 broadcast_if($user->isActive(), new UserRegistered($user));
@@ -2790,8 +2726,9 @@ broadcast_if($user->isActive(), new UserRegistered($user))->toOthers();
 <a name="method-broadcast-unless"></a>
 <!-- #### `broadcast_unless()` -->
 #### `broadcast_unless()`
+
 <!-- The `broadcast_unless` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `false`: -->
-指定されたブール式が `false` と評価される場合、`broadcast_unless` 関数 [broadcasts](/docs/13.x/broadcasting) は指定された [event](/docs/13.x/events) をリスナに送信します。
+`broadcast_unless` 関数は、指定したブール式が `false` と評価された場合に、指定した [event](/docs/13.x/events) をリスナへ [broadcasts](/docs/13.x/broadcasting) します。
 
 ```php
 broadcast_unless($user->isBanned(), new UserRegistered($user));
@@ -2802,8 +2739,9 @@ broadcast_unless($user->isBanned(), new UserRegistered($user))->toOthers();
 <a name="method-cache"></a>
 <!-- #### `cache()` -->
 #### `cache()`
+
 <!-- The `cache` function may be used to get values from the [cache](/docs/13.x/cache). If the given key does not exist in the cache, an optional default value will be returned: -->
-`cache` 関数を使用して、[cache](/docs/13.x/cache) から値を取得できます。指定されたキーがキャッシュに存在しない場合は、オプションのデフォルト値が返されます。
+`cache` 関数を使用すると、[cache](/docs/13.x/cache) から値を取得できます。指定したキーがキャッシュに存在しない場合は、オプションのデフォルト値が返されます。
 
 ```php
 $value = cache('key');
@@ -2823,6 +2761,7 @@ cache(['key' => 'value'], now()->plus(seconds: 10));
 <a name="method-class-uses-recursive"></a>
 <!-- #### `class_uses_recursive()` -->
 #### `class_uses_recursive()`
+
 <!-- The `class_uses_recursive` function returns all traits used by a class, including traits used by all of its parent classes: -->
 `class_uses_recursive` 関数は、そのすべての親クラスで使用される特性を含む、クラスで使用されるすべての特性を返します。
 
@@ -2833,6 +2772,7 @@ $traits = class_uses_recursive(App\Models\User::class);
 <a name="method-collect"></a>
 <!-- #### `collect()` -->
 #### `collect()`
+
 <!-- The `collect` function creates a [collection](/docs/13.x/collections) instance from the given value: -->
 `collect` 関数は、指定された値から [collection](/docs/13.x/collections) インスタンスを作成します。
 
@@ -2843,8 +2783,9 @@ $collection = collect(['Taylor', 'Abigail']);
 <a name="method-config"></a>
 <!-- #### `config()` -->
 #### `config()`
+
 <!-- The `config` function gets the value of a [configuration](/docs/13.x/configuration) variable. The configuration values may be accessed using "dot" syntax, which includes the name of the file and the option you wish to access. You may also provide a default value that will be returned if the configuration option does not exist: -->
-`config` 関数は、[configuration](/docs/13.x/configuration) 変数の値を取得します。設定値には、ファイル名とアクセスするオプションを含む「ドット」構文を使用してアクセスできます。構成オプションが存在しない場合に返されるデフォルト値を指定することもできます。
+`config` 関数は、[configuration](/docs/13.x/configuration) 変数の値を取得します。設定値には、ファイル名とアクセスするオプション名を含む「ドット」構文でアクセスできます。また、設定オプションが存在しない場合に返すデフォルト値も指定できます。
 
 ```php
 $value = config('app.timezone');
@@ -2862,8 +2803,9 @@ config(['app.debug' => true]);
 <a name="method-context"></a>
 <!-- #### `context()` -->
 #### `context()`
+
 <!-- The `context` function gets the value from the current [context](/docs/13.x/context). You may also provide a default value that will be returned if the context key does not exist: -->
-`context` 関数は、現在の [context](/docs/13.x/context) から値を取得します。コンテキスト キーが存在しない場合に返されるデフォルト値を指定することもできます。
+`context` 関数は、現在の [context](/docs/13.x/context) から値を取得します。context キーが存在しない場合に返すデフォルト値も指定できます。
 
 ```php
 $value = context('trace_id');
@@ -2883,8 +2825,9 @@ context(['trace_id' => Str::uuid()->toString()]);
 <a name="method-cookie"></a>
 <!-- #### `cookie()` -->
 #### `cookie()`
+
 <!-- The `cookie` function creates a new [cookie](/docs/13.x/requests#cookies) instance: -->
-`cookie` 関数は、新しい [cookie](/docs/13.x/requests#cookies) インスタンスを作成します。
+`cookie` 関数は新しい [cookie](/docs/13.x/requests#cookies) インスタンスを作成します。
 
 ```php
 $cookie = cookie('name', 'value', $minutes);
@@ -2893,8 +2836,9 @@ $cookie = cookie('name', 'value', $minutes);
 <a name="method-csrf-field"></a>
 <!-- #### `csrf_field()` -->
 #### `csrf_field()`
+
 <!-- The `csrf_field` function generates an HTML `hidden` input field containing the value of the CSRF token. For example, using [Blade syntax](/docs/13.x/blade): -->
-`csrf_field` 関数は、CSRF トークンの値を含む HTML `hidden` 入力フィールドを生成します。たとえば、[Blade syntax](/docs/13.x/blade) を使用すると、次のようになります。
+`csrf_field` 関数は、CSRF トークンの値を含む HTML の `hidden` 入力フィールドを生成します。たとえば、[Blade syntax](/docs/13.x/blade) を使用します。
 
 ```blade
 {{ csrf_field() }}
@@ -2903,6 +2847,7 @@ $cookie = cookie('name', 'value', $minutes);
 <a name="method-csrf-token"></a>
 <!-- #### `csrf_token()` -->
 #### `csrf_token()`
+
 <!-- The `csrf_token` function retrieves the value of the current CSRF token: -->
 `csrf_token` 関数は、現在の CSRF トークンの値を取得します。
 
@@ -2913,8 +2858,9 @@ $token = csrf_token();
 <a name="method-decrypt"></a>
 <!-- #### `decrypt()` -->
 #### `decrypt()`
+
 <!-- The `decrypt` function [decrypts](/docs/13.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`decrypt` 関数は、指定された値を[decrypts](/docs/13.x/encryption)します。この関数は、`Crypt` ファサードの代わりに使用できます。
+`decrypt` 関数は、指定した値を[decrypts](/docs/13.x/encryption)。`Crypt` ファサードの代わりにこの関数を使用できます。
 
 ```php
 $password = decrypt($value);
@@ -2926,6 +2872,7 @@ $password = decrypt($value);
 <a name="method-dd"></a>
 <!-- #### `dd()` -->
 #### `dd()`
+
 <!-- The `dd` function dumps the given variables and ends the execution of the script: -->
 `dd` 関数は、指定された変数をダンプし、スクリプトの実行を終了します。
 
@@ -2941,8 +2888,9 @@ dd($value1, $value2, $value3, ...);
 <a name="method-dispatch"></a>
 <!-- #### `dispatch()` -->
 #### `dispatch()`
+
 <!-- The `dispatch` function pushes the given [job](/docs/13.x/queues#creating-jobs) onto the Laravel [job queue](/docs/13.x/queues): -->
-`dispatch` 関数は、指定された [job](/docs/13.x/queues#creating-jobs) を Laravel [job queue](/docs/13.x/queues) にプッシュします。
+`dispatch` 関数は、指定した [job](/docs/13.x/queues#creating-jobs) を Laravel の [job queue](/docs/13.x/queues) に追加します。
 
 ```php
 dispatch(new App\Jobs\SendEmails);
@@ -2951,8 +2899,9 @@ dispatch(new App\Jobs\SendEmails);
 <a name="method-dispatch-sync"></a>
 <!-- #### `dispatch_sync()` -->
 #### `dispatch_sync()`
+
 <!-- The `dispatch_sync` function pushes the given job to the [sync](/docs/13.x/queues#synchronous-dispatching) queue so that it is processed immediately: -->
-`dispatch_sync` 関数は、指定されたジョブを [sync](/docs/13.x/queues#synchronous-dispatching) キューにプッシュして、すぐに処理されるようにします。
+`dispatch_sync` 関数は、指定したジョブを [sync](/docs/13.x/queues#synchronous-dispatching) キューへ投入し、直ちに処理します。
 
 ```php
 dispatch_sync(new App\Jobs\SendEmails);
@@ -2961,6 +2910,7 @@ dispatch_sync(new App\Jobs\SendEmails);
 <a name="method-dump"></a>
 <!-- #### `dump()` -->
 #### `dump()`
+
 <!-- The `dump` function dumps the given variables: -->
 `dump` 関数は、指定された変数をダンプします。
 
@@ -2976,8 +2926,9 @@ dump($value1, $value2, $value3, ...);
 <a name="method-encrypt"></a>
 <!-- #### `encrypt()` -->
 #### `encrypt()`
+
 <!-- The `encrypt` function [encrypts](/docs/13.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`encrypt` 関数は、指定された値を[encrypts](/docs/13.x/encryption)します。この関数は、`Crypt` ファサードの代わりに使用できます。
+`encrypt` 関数は、指定した値を[encrypts](/docs/13.x/encryption)。`Crypt` ファサードの代わりにこの関数を使用できます。
 
 ```php
 $secret = encrypt('my-secret-value');
@@ -2989,6 +2940,7 @@ $secret = encrypt('my-secret-value');
 <a name="method-env"></a>
 <!-- #### `env()` -->
 #### `env()`
+
 <!-- The `env` function retrieves the value of an [environment variable](/docs/13.x/configuration#environment-configuration) or returns a default value: -->
 `env` 関数は、[environment variable](/docs/13.x/configuration#environment-configuration) の値を取得するか、デフォルト値を返します。
 
@@ -2999,13 +2951,14 @@ $env = env('APP_ENV', 'production');
 ```
 
 > [!WARNING]
-> デプロイメントプロセス中に `config:cache` コマンドを実行する場合は、構成ファイル内からのみ `env` 関数を呼び出していることを確認する必要があります。構成がキャッシュされると、`.env` ファイルはロードされず、`env` 関数へのすべての呼び出しは、サーバー レベルまたはシステム レベルの環境変数、または `null` などの外部環境変数を返します。
+> デプロイプロセスで `config:cache` コマンドを実行する場合は、設定ファイル内からのみ `env` 関数を呼び出していることを確認してください。設定がキャッシュされると `.env` ファイルは読み込まれなくなり、`env` 関数の呼び出しはすべて、サーバーレベルやシステムレベルの環境変数などの外部環境変数、または `null` を返します。
 
 <a name="method-event"></a>
 <!-- #### `event()` -->
 #### `event()`
+
 <!-- The `event` function dispatches the given [event](/docs/13.x/events) to its listeners: -->
-`event` 関数は、指定された [event](/docs/13.x/events) をリスナにディスパッチします。
+`event` 関数は、指定した [event](/docs/13.x/events) をリスナへディスパッチします。
 
 ```php
 event(new UserRegistered($user));
@@ -3014,6 +2967,7 @@ event(new UserRegistered($user));
 <a name="method-fake"></a>
 <!-- #### `fake()` -->
 #### `fake()`
+
 <!-- The `fake` function resolves a [Faker](https://github.com/FakerPHP/Faker) singleton from the container, which can be useful when creating fake data in model factories, database seeding, tests, and prototyping views: -->
 `fake` 関数は、コンテナーから [Faker](https://github.com/FakerPHP/Faker) シングルトンを解決します。これは、モデル ファクトリ、データベース シーディング、テスト、およびプロトタイピング ビューで偽のデータを作成するときに役立ちます。
 
@@ -3039,6 +2993,7 @@ fake('nl_NL')->name()
 <a name="method-filled"></a>
 <!-- #### `filled()` -->
 #### `filled()`
+
 <!-- The `filled` function determines whether the given value is not "blank": -->
 `filled` 関数は、指定された値が「空白」でないかどうかを判断します。
 
@@ -3063,15 +3018,16 @@ filled(collect());
 <a name="method-info"></a>
 <!-- #### `info()` -->
 #### `info()`
+
 <!-- The `info` function will write information to your application's [log](/docs/13.x/logging): -->
-`info` 関数は、アプリケーションの [log](/docs/13.x/logging) に情報を書き込みます。
+`info` 関数はアプリケーションの [log](/docs/13.x/logging) に情報を書き込みます。
 
 ```php
 info('Some helpful information!');
 ```
 
 <!-- An array of contextual data may also be passed to the function: -->
-コンテキスト データの配列を関数に渡すこともできます。
+コンテキストデータの配列を関数に渡すこともできます。
 
 ```php
 info('User login attempt failed.', ['id' => $user->id]);
@@ -3080,6 +3036,7 @@ info('User login attempt failed.', ['id' => $user->id]);
 <a name="method-literal"></a>
 <!-- #### `literal()` -->
 #### `literal()`
+
 <!-- The `literal` function creates a new [stdClass](https://www.php.net/manual/en/class.stdclass.php) instance with the given named arguments as properties: -->
 `literal` 関数は、指定された名前付き引数をプロパティとして使用して、新しい [stdClass](https://www.php.net/manual/en/class.stdclass.php) インスタンスを作成します。
 
@@ -3096,22 +3053,23 @@ $obj->languages; // ['PHP', 'Ruby']
 <a name="method-logger"></a>
 <!-- #### `logger()` -->
 #### `logger()`
+
 <!-- The `logger` function can be used to write a `debug` level message to the [log](/docs/13.x/logging): -->
-`logger` 関数を使用して、`debug` レベルのメッセージを [log](/docs/13.x/logging) に書き込むことができます。
+`logger` 関数を使用すると、[log](/docs/13.x/logging) に `debug` レベルのメッセージを書き込めます。
 
 ```php
 logger('Debug message');
 ```
 
 <!-- An array of contextual data may also be passed to the function: -->
-コンテキスト データの配列を関数に渡すこともできます。
+関数には、コンテキストデータの配列も渡せます。
 
 ```php
 logger('User has logged in.', ['id' => $user->id]);
 ```
 
 <!-- A [logger](/docs/13.x/logging) instance will be returned if no value is passed to the function: -->
-関数に値が渡されない場合、[logger](/docs/13.x/logging) インスタンスが返されます。
+関数に値を渡さない場合は、[logger](/docs/13.x/logging) インスタンスが返されます。
 
 ```php
 logger()->error('You are not allowed here.');
@@ -3120,8 +3078,9 @@ logger()->error('You are not allowed here.');
 <a name="method-method-field"></a>
 <!-- #### `method_field()` -->
 #### `method_field()`
+
 <!-- The `method_field` function generates an HTML `hidden` input field containing the spoofed value of the form's HTTP verb. For example, using [Blade syntax](/docs/13.x/blade): -->
-`method_field` 関数は、フォームの HTTP 動詞の偽値を含む HTML `hidden` 入力フィールドを生成します。たとえば、[Blade syntax](/docs/13.x/blade) を使用すると、次のようになります。
+`method_field` 関数は、フォームの HTTP 動詞を偽装した値を含む HTML の `hidden` 入力フィールドを生成します。たとえば、[Blade syntax](/docs/13.x/blade) を使用します。
 
 ```blade
 <form method="POST">
@@ -3132,6 +3091,7 @@ logger()->error('You are not allowed here.');
 <a name="method-now"></a>
 <!-- #### `now()` -->
 #### `now()`
+
 <!-- The `now` function creates a new `Illuminate\Support\Carbon` instance for the current time: -->
 `now` 関数は、現時点での新しい `Illuminate\Support\Carbon` インスタンスを作成します。
 
@@ -3142,8 +3102,9 @@ $now = now();
 <a name="method-old"></a>
 <!-- #### `old()` -->
 #### `old()`
+
 <!-- The `old` function [retrieves](/docs/13.x/requests#retrieving-input) an [old input](/docs/13.x/requests#old-input) value flashed into the session: -->
-`old` 関数は、セッションにフラッシュされた[retrieves](/docs/13.x/requests#retrieving-input)値を[old input](/docs/13.x/requests#old-input)します。
+`old` 関数は、セッションにフラッシュされた [old input](/docs/13.x/requests#old-input) の値を [retrieves](/docs/13.x/requests#retrieving-input) します。
 
 ```php
 $value = old('value');
@@ -3165,6 +3126,7 @@ $value = old('value', 'default');
 <a name="method-once"></a>
 <!-- #### `once()` -->
 #### `once()`
+
 <!-- The `once` function executes the given callback and caches the result in memory for the duration of the request. Any subsequent calls to the `once` function with the same callback will return the previously cached result: -->
 `once` 関数は、指定されたコールバックを実行し、リクエストの間、結果をメモリにキャッシュします。同じコールバックを使用した後続の `once` 関数の呼び出しでは、以前にキャッシュされた結果が返されます。
 
@@ -3208,6 +3170,7 @@ $secondService->all(); // (cached result)
 <a name="method-optional"></a>
 <!-- #### `optional()` -->
 #### `optional()`
+
 <!-- The `optional` function accepts any argument and allows you to access properties or call methods on that object. If the given object is `null`, properties and methods will return `null` instead of causing an error: -->
 `optional` 関数は任意の引数を受け入れ、そのオブジェクトのプロパティにアクセスしたり、メソッドを呼び出したりすることができます。指定されたオブジェクトが `null` の場合、プロパティとメソッドはエラーを引き起こす代わりに `null` を返します。
 
@@ -3229,8 +3192,9 @@ return optional(User::find($id), function (User $user) {
 <a name="method-policy"></a>
 <!-- #### `policy()` -->
 #### `policy()`
+
 <!-- The `policy` method retrieves a [policy](/docs/13.x/authorization#creating-policies) instance for a given class: -->
-`policy` メソッドは、指定されたクラスの [policy](/docs/13.x/authorization#creating-policies) インスタンスを取得します。
+`policy` メソッドは、指定したクラスの [policy](/docs/13.x/authorization#creating-policies) インスタンスを取得します。
 
 ```php
 $policy = policy(App\Models\User::class);
@@ -3239,8 +3203,9 @@ $policy = policy(App\Models\User::class);
 <a name="method-redirect"></a>
 <!-- #### `redirect()` -->
 #### `redirect()`
+
 <!-- The `redirect` function returns a [redirect HTTP response](/docs/13.x/responses#redirects), or returns the redirector instance if called with no arguments: -->
-`redirect` 関数は [redirect HTTP response](/docs/13.x/responses#redirects) を返すか、引数なしで呼び出された場合はリダイレクター インスタンスを返します。
+`redirect` 関数は、[redirect HTTP response](/docs/13.x/responses#redirects) を返します。引数なしで呼び出した場合は、redirector インスタンスを返します。
 
 ```php
 return redirect($to = null, $status = 302, $headers = [], $secure = null);
@@ -3253,6 +3218,7 @@ return redirect()->route('route.name');
 <a name="method-report"></a>
 <!-- #### `report()` -->
 #### `report()`
+
 <!-- The `report` function will report an exception using your [exception handler](/docs/13.x/errors#handling-exceptions): -->
 `report` 関数は、[exception handler](/docs/13.x/errors#handling-exceptions) を使用して例外を報告します。
 
@@ -3270,8 +3236,9 @@ report('Something went wrong.');
 <a name="method-report-if"></a>
 <!-- #### `report_if()` -->
 #### `report_if()`
+
 <!-- The `report_if` function will report an exception using your [exception handler](/docs/13.x/errors#handling-exceptions) if a given boolean expression evaluates to `true`: -->
-指定されたブール式が `true` と評価される場合、`report_if` 関数は、[exception handler](/docs/13.x/errors#handling-exceptions) を使用して例外を報告します。
+`report_if` 関数は、指定した論理式が `true` と評価された場合に、[exception handler](/docs/13.x/errors#handling-exceptions) を使用して例外を報告します。
 
 ```php
 report_if($shouldReport, $e);
@@ -3282,8 +3249,9 @@ report_if($shouldReport, 'Something went wrong.');
 <a name="method-report-unless"></a>
 <!-- #### `report_unless()` -->
 #### `report_unless()`
+
 <!-- The `report_unless` function will report an exception using your [exception handler](/docs/13.x/errors#handling-exceptions) if a given boolean expression evaluates to `false`: -->
-指定されたブール式が `false` と評価される場合、`report_unless` 関数は、[exception handler](/docs/13.x/errors#handling-exceptions) を使用して例外を報告します。
+`report_unless` 関数は、指定した真偽値式が `false` と評価された場合に、[exception handler](/docs/13.x/errors#handling-exceptions) を使用して例外を報告します。
 
 ```php
 report_unless($reportingDisabled, $e);
@@ -3294,8 +3262,9 @@ report_unless($reportingDisabled, 'Something went wrong.');
 <a name="method-request"></a>
 <!-- #### `request()` -->
 #### `request()`
+
 <!-- The `request` function returns the current [request](/docs/13.x/requests) instance or obtains an input field's value from the current request: -->
-`request` 関数は、現在の [request](/docs/13.x/requests) インスタンスを返すか、現在のリクエストから入力フィールドの値を取得します。
+`request` 関数は現在の [request](/docs/13.x/requests) インスタンスを返すか、現在のリクエストから入力フィールドの値を取得します。
 
 ```php
 $request = request();
@@ -3306,8 +3275,9 @@ $value = request('key', $default);
 <a name="method-rescue"></a>
 <!-- #### `rescue()` -->
 #### `rescue()`
+
 <!-- The `rescue` function executes the given closure and catches any exceptions that occur during its execution. All exceptions that are caught will be sent to your [exception handler](/docs/13.x/errors#handling-exceptions); however, the request will continue processing: -->
-`rescue` 関数は、指定されたクロージャを実行し、その実行中に発生する例外をキャッチします。キャッチされた例外はすべて [exception handler](/docs/13.x/errors#handling-exceptions) に送信されます。ただし、リクエストは処理を続行します。
+`rescue` 関数は指定したクロージャを実行し、その実行中に発生した例外を捕捉します。捕捉したすべての例外は [exception handler](/docs/13.x/errors#handling-exceptions) に送られますが、リクエストの処理は継続されます。
 
 ```php
 return rescue(function () {
@@ -3344,8 +3314,9 @@ return rescue(function () {
 <a name="method-resolve"></a>
 <!-- #### `resolve()` -->
 #### `resolve()`
+
 <!-- The `resolve` function resolves a given class or interface name to an instance using the [service container](/docs/13.x/container): -->
-`resolve` 関数は、[service container](/docs/13.x/container) を使用して、指定されたクラスまたはインターフェイス名をインスタンスに解決します。
+`resolve` 関数は、指定されたクラス名またはインターフェイス名を [service container](/docs/13.x/container) を使ってインスタンスに解決します。
 
 ```php
 $api = resolve('HelpSpot\API');
@@ -3354,8 +3325,9 @@ $api = resolve('HelpSpot\API');
 <a name="method-response"></a>
 <!-- #### `response()` -->
 #### `response()`
+
 <!-- The `response` function creates a [response](/docs/13.x/responses) instance or obtains an instance of the response factory: -->
-`response` 関数は、[response](/docs/13.x/responses) インスタンスを作成するか、応答ファクトリーのインスタンスを取得します。
+`response` 関数は [response](/docs/13.x/responses) インスタンスを作成するか、レスポンスファクトリのインスタンスを取得します。
 
 ```php
 return response('Hello World', 200, $headers);
@@ -3366,6 +3338,7 @@ return response()->json(['foo' => 'bar'], 200, $headers);
 <a name="method-retry"></a>
 <!-- #### `retry()` -->
 #### `retry()`
+
 <!-- The `retry` function attempts to execute the given callback until the given maximum attempt threshold is met. If the callback does not throw an exception, its return value will be returned. If the callback throws an exception, it will automatically be retried. If the maximum attempt count is exceeded, the exception will be thrown: -->
 `retry` 関数は、指定された最大試行しきい値に達するまで、指定されたコールバックの実行を試行します。コールバックが例外をスローしない場合は、その戻り値が返されます。コールバックが例外をスローした場合、自動的に再試行されます。最大試行回数を超えると、例外がスローされます。
 
@@ -3425,8 +3398,9 @@ return retry(5, function () {
 <a name="method-session"></a>
 <!-- #### `session()` -->
 #### `session()`
+
 <!-- The `session` function may be used to get or set [session](/docs/13.x/session) values: -->
-`session` 関数は、[session](/docs/13.x/session) 値を取得または設定するために使用できます。
+`session` 関数を使用して、[session](/docs/13.x/session) の値を取得または設定できます。
 
 ```php
 $value = session('key');
@@ -3451,6 +3425,7 @@ session()->put('key', $value);
 <a name="method-tap"></a>
 <!-- #### `tap()` -->
 #### `tap()`
+
 <!-- The `tap` function accepts two arguments: an arbitrary `$value` and a closure. The `$value` will be passed to the closure and then be returned by the `tap` function. The return value of the closure is irrelevant: -->
 `tap` 関数は、任意の `$value` とクロージャの 2 つの引数を受け入れます。 `$value` はクロージャに渡され、`tap` 関数によって返されます。クロージャの戻り値は無関係です。
 
@@ -3484,6 +3459,7 @@ return $user->tap(function (User $user) {
 <a name="method-throw-if"></a>
 <!-- #### `throw_if()` -->
 #### `throw_if()`
+
 <!-- The `throw_if` function throws the given exception if a given boolean expression evaluates to `true`: -->
 指定されたブール式が `true` と評価される場合、`throw_if` 関数は指定された例外をスローします。
 
@@ -3500,6 +3476,7 @@ throw_if(
 <a name="method-throw-unless"></a>
 <!-- #### `throw_unless()` -->
 #### `throw_unless()`
+
 <!-- The `throw_unless` function throws the given exception if a given boolean expression evaluates to `false`: -->
 指定されたブール式が `false` と評価される場合、`throw_unless` 関数は指定された例外をスローします。
 
@@ -3516,6 +3493,7 @@ throw_unless(
 <a name="method-today"></a>
 <!-- #### `today()` -->
 #### `today()`
+
 <!-- The `today` function creates a new `Illuminate\Support\Carbon` instance for the current date: -->
 `today` 関数は、現在の日付の新しい `Illuminate\Support\Carbon` インスタンスを作成します。
 
@@ -3526,6 +3504,7 @@ $today = today();
 <a name="method-trait-uses-recursive"></a>
 <!-- #### `trait_uses_recursive()` -->
 #### `trait_uses_recursive()`
+
 <!-- The `trait_uses_recursive` function returns all traits used by a trait: -->
 `trait_uses_recursive` 関数は、特性によって使用されるすべての特性を返します。
 
@@ -3536,6 +3515,7 @@ $traits = trait_uses_recursive(\Illuminate\Notifications\Notifiable::class);
 <a name="method-transform"></a>
 <!-- #### `transform()` -->
 #### `transform()`
+
 <!-- The `transform` function executes a closure on a given value if the value is not [blank](#method-blank) and then returns the return value of the closure: -->
 `transform` 関数は、値が [blank](#method-blank) でない場合、指定された値に対してクロージャを実行し、クロージャの戻り値を返します。
 
@@ -3561,8 +3541,9 @@ $result = transform(null, $callback, 'The value is blank');
 <a name="method-validator"></a>
 <!-- #### `validator()` -->
 #### `validator()`
+
 <!-- The `validator` function creates a new [validator](/docs/13.x/validation) instance with the given arguments. You may use it as an alternative to the `Validator` facade: -->
-`validator` 関数は、指定された引数を使用して新しい [validator](/docs/13.x/validation) インスタンスを作成します。 `Validator` ファサードの代替として使用できます。
+`validator` 関数は、指定した引数を使って新しい [validator](/docs/13.x/validation) インスタンスを作成します。`Validator` ファサードの代わりに使用できます。
 
 ```php
 $validator = validator($data, $rules, $messages);
@@ -3571,6 +3552,7 @@ $validator = validator($data, $rules, $messages);
 <a name="method-value"></a>
 <!-- #### `value()` -->
 #### `value()`
+
 <!-- The `value` function returns the value it is given. However, if you pass a closure to the function, the closure will be executed and its returned value will be returned: -->
 `value` 関数は、指定された値を返します。ただし、関数にクロージャを渡すと、クロージャが実行され、その戻り値が返されます。
 
@@ -3600,8 +3582,9 @@ $result = value(function (string $name) {
 <a name="method-view"></a>
 <!-- #### `view()` -->
 #### `view()`
+
 <!-- The `view` function retrieves a [view](/docs/13.x/views) instance: -->
-`view` 関数は、[view](/docs/13.x/views) インスタンスを取得します。
+`view` 関数は [view](/docs/13.x/views) インスタンスを取得します。
 
 ```php
 return view('auth.login');
@@ -3610,6 +3593,7 @@ return view('auth.login');
 <a name="method-with"></a>
 <!-- #### `with()` -->
 #### `with()`
+
 <!-- The `with` function returns the value it is given. If a closure is passed as the second argument to the function, the closure will be executed and its returned value will be returned: -->
 `with` 関数は、指定された値を返します。クロージャが関数の 2 番目の引数として渡されると、クロージャが実行され、その戻り値が返されます。
 
@@ -3634,6 +3618,7 @@ $result = with(5, null);
 <a name="method-when"></a>
 <!-- #### `when()` -->
 #### `when()`
+
 <!-- The `when` function returns the value it is given if a given condition evaluates to `true`. Otherwise, `null` is returned. If a closure is passed as the second argument to the function, the closure will be executed and its returned value will be returned: -->
 `when` 関数は、指定された条件が `true` と評価された場合に指定された値を返します。それ以外の場合は、`null` が返されます。クロージャが関数の 2 番目の引数として渡されると、クロージャが実行され、その戻り値が返されます。
 
@@ -3750,7 +3735,7 @@ Cache::put('metrics', $metrics, minutes(10));
 ### Deferred Functions
 
 <!-- While Laravel's [queued jobs](/docs/13.x/queues) allow you to queue tasks for background processing, sometimes you may have simple tasks you would like to defer without configuring or maintaining a long-running queue worker. -->
-Laravel の [queued jobs](/docs/13.x/queues) を使用すると、バックグラウンド処理のためにタスクをキューに入れることができますが、長時間実行されるキューワーカーを構成または維持せずに、単純なタスクを延期したい場合があります。
+Laravel の [queued jobs](/docs/13.x/queues) を使えばタスクをバックグラウンドで処理するためにキューへ追加できますが、長時間稼働するキューワーカーの設定や管理をせずに、単純なタスクを遅延させたい場合もあります。
 
 <!-- Deferred functions allow you to defer the execution of a closure until after the HTTP response has been sent to the user, keeping your application feeling fast and responsive. To defer the execution of a closure, simply pass the closure to the `Illuminate\Support\defer` function: -->
 遅延関数を使用すると、HTTP 応答がユーザーに送信されるまでクロージャの実行を延期でき、アプリケーションの高速性と応答性を維持できます。クロージャの実行を延期するには、単にクロージャを `Illuminate\Support\defer` 関数に渡します。
@@ -3778,7 +3763,7 @@ defer(fn () => Metrics::reportOrder($order))->always();
 ```
 
 > [!WARNING]
-> [Swoole PHP extension](https://www.php.net/manual/en/book.swoole.php) がインストールされている場合、Laravel の `defer` 関数が Swoole 独自のグローバル `defer` 関数と競合し、Web サーバー エラーが発生する可能性があります。 Laravel の `defer` ヘルパを明示的に名前空間を指定して呼び出すようにしてください: `use function Illuminate\Support\defer;`
+> [Swoole PHP extension](https://www.php.net/manual/en/book.swoole.php) をインストールしている場合、Laravel の `defer` 関数が Swoole 独自のグローバルな `defer` 関数と競合し、Web サーバーエラーが発生することがあります。Laravel の `defer` ヘルパを呼び出す際は、名前空間を明示してください。`use function Illuminate\Support\defer;`
 
 <a name="cancelling-deferred-functions"></a>
 <!-- #### Cancelling Deferred Functions -->
@@ -3923,13 +3908,13 @@ $user = Pipeline::send($user)
 ```
 
 <!-- As you can see, each invokable class or closure in the pipeline is provided the input and a `$next` closure. Invoking the `$next` closure will invoke the next callable in the pipeline. As you may have noticed, this is very similar to [middleware](/docs/13.x/middleware). -->
-ご覧のとおり、パイプライン内の各呼び出し可能なクラスまたはクロージャには、入力と `$next` クロージャが提供されます。 `$next` クロージャーを呼び出すと、パイプライン内の次の呼び出し可能オブジェクトが呼び出されます。お気づきかと思いますが、これは [middleware](/docs/13.x/middleware) に非常に似ています。
+ご覧のとおり、パイプライン内の各呼び出し可能なクラスまたはクロージャには、入力と `$next` クロージャが渡されます。`$next` クロージャを呼び出すと、パイプライン内の次の呼び出し可能な処理が実行されます。お気づきかもしれませんが、これは [middleware](/docs/13.x/middleware) とよく似ています。
 
 <!-- When the last callable in the pipeline invokes the `$next` closure, the callable provided to the `then` method will be invoked. Typically, this callable will simply return the given input. For convenience, if you simply want to return the input after it has been processed, you may use the `thenReturn` method. -->
 パイプライン内の最後の呼び出し可能オブジェクトが `$next` クロージャーを呼び出すと、`then` メソッドに提供された呼び出し可能オブジェクトが呼び出されます。通常、この呼び出し可能関数は単に指定された入力を返します。便宜上、処理後に入力を単に返したい場合は、`thenReturn` メソッドを使用できます。
 
 <!-- Of course, as discussed previously, you are not limited to providing closures to your pipeline. You may also provide invokable classes. If a class name is provided, the class will be instantiated via Laravel's [service container](/docs/13.x/container), allowing dependencies to be injected into the invokable class: -->
-もちろん、前に説明したように、パイプラインにクロージャを提供することに限定されません。呼び出し可能なクラスを提供することもできます。クラス名が指定されている場合、クラスは Laravel の [service container](/docs/13.x/container) を介してインスタンス化され、呼び出し可能なクラスに依存関係を注入できるようになります。
+前述のとおり、パイプラインにクロージャだけを指定する必要はありません。呼び出し可能なクラスを指定することもできます。クラス名を指定すると、クラスは Laravel の [service container](/docs/13.x/container) を介してインスタンス化されるため、呼び出し可能なクラスに依存関係を注入できます。
 
 ```php
 $user = Pipeline::send($user)
@@ -4110,7 +4095,7 @@ Sleep::assertInsomniac();
 ```
 
 <!-- Sometimes it may be useful to perform an action whenever a fake sleep occurs. To achieve this, you may provide a callback to the `whenFakingSleep` method. In the following example, we use Laravel's [time manipulation helpers](/docs/13.x/mocking#interacting-with-time) to instantly progress time by the duration of each sleep: -->
-場合によっては、偽の睡眠が発生するたびにアクションを実行すると便利な場合があります。これを実現するには、`whenFakingSleep` メソッドへのコールバックを提供できます。次の例では、Laravel の [time manipulation helpers](/docs/13.x/mocking#interacting-with-time) を使用して、各スリープの継続時間ごとに時間を瞬時に進めます。
+フェイクしたスリープが発生するたびにアクションを実行したい場合があります。その場合は、`whenFakingSleep` メソッドにコールバックを渡します。次の例では、Laravel の [time manipulation helpers](/docs/13.x/mocking#interacting-with-time) を使用して、スリープする時間の分だけ時刻を即座に進めています。
 
 ```php
 use Carbon\CarbonInterval as Duration;
@@ -4290,4 +4275,3 @@ Route::get('/redirect', function () {
         ->withQuery(['sort' => 'name']);
 });
 ```
-

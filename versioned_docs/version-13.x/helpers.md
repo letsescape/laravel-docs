@@ -28,75 +28,9 @@ Laravel에는 다양한 전역 "헬퍼" PHP 함수가 포함되어 있습니다.
 <!-- ### Arrays & Objects -->
 ### Arrays & Objects
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Arr::accessible](#method-array-accessible)
-[Arr::add](#method-array-add)
-[Arr::array](#method-array-array)
-[Arr::boolean](#method-array-boolean)
-[Arr::collapse](#method-array-collapse)
-[Arr::crossJoin](#method-array-crossjoin)
-[Arr::divide](#method-array-divide)
-[Arr::dot](#method-array-dot)
-[Arr::every](#method-array-every)
-[Arr::except](#method-array-except)
-[Arr::exceptValues](#method-array-except-values)
-[Arr::exists](#method-array-exists)
-[Arr::first](#method-array-first)
-[Arr::flatten](#method-array-flatten)
-[Arr::float](#method-array-float)
-[Arr::forget](#method-array-forget)
-[Arr::from](#method-array-from)
-[Arr::get](#method-array-get)
-[Arr::has](#method-array-has)
-[Arr::hasAll](#method-array-hasall)
-[Arr::hasAny](#method-array-hasany)
-[Arr::integer](#method-array-integer)
-[Arr::isAssoc](#method-array-isassoc)
-[Arr::isList](#method-array-islist)
-[Arr::join](#method-array-join)
-[Arr::keyBy](#method-array-keyby)
-[Arr::last](#method-array-last)
-[Arr::map](#method-array-map)
-[Arr::mapSpread](#method-array-map-spread)
-[Arr::mapWithKeys](#method-array-map-with-keys)
-[Arr::only](#method-array-only)
-[Arr::onlyValues](#method-array-only-values)
-[Arr::partition](#method-array-partition)
-[Arr::pluck](#method-array-pluck)
-[Arr::prepend](#method-array-prepend)
-[Arr::prependKeysWith](#method-array-prependkeyswith)
-[Arr::pull](#method-array-pull)
-[Arr::push](#method-array-push)
-[Arr::query](#method-array-query)
-[Arr::random](#method-array-random)
-[Arr::reject](#method-array-reject)
-[Arr::select](#method-array-select)
-[Arr::set](#method-array-set)
-[Arr::shuffle](#method-array-shuffle)
-[Arr::sole](#method-array-sole)
-[Arr::some](#method-array-some)
-[Arr::sort](#method-array-sort)
-[Arr::sortDesc](#method-array-sort-desc)
-[Arr::sortRecursive](#method-array-sort-recursive)
-[Arr::string](#method-array-string)
-[Arr::take](#method-array-take)
-[Arr::toCssClasses](#method-array-to-css-classes)
-[Arr::toCssStyles](#method-array-to-css-styles)
-[Arr::undot](#method-array-undot)
-[Arr::where](#method-array-where)
-[Arr::whereNotNull](#method-array-where-not-null)
-[Arr::wrap](#method-array-wrap)
-[data_fill](#method-data-fill)
-[data_get](#method-data-get)
-[data_set](#method-data-set)
-[data_forget](#method-data-forget)
-[head](#method-head)
-[last](#method-last)
-</div>
--->
+<!-- [Arr::accessible](#method-array-accessible) [Arr::add](#method-array-add) [Arr::array](#method-array-array) [Arr::boolean](#method-array-boolean) [Arr::collapse](#method-array-collapse) [Arr::crossJoin](#method-array-crossjoin) [Arr::divide](#method-array-divide) [Arr::dot](#method-array-dot) [Arr::every](#method-array-every) [Arr::except](#method-array-except) [Arr::exceptValues](#method-array-except-values) [Arr::exists](#method-array-exists) [Arr::first](#method-array-first) [Arr::flatten](#method-array-flatten) [Arr::float](#method-array-float) [Arr::forget](#method-array-forget) [Arr::from](#method-array-from) [Arr::get](#method-array-get) [Arr::has](#method-array-has) [Arr::hasAll](#method-array-hasall) [Arr::hasAny](#method-array-hasany) [Arr::integer](#method-array-integer) [Arr::isAssoc](#method-array-isassoc) [Arr::isList](#method-array-islist) [Arr::join](#method-array-join) [Arr::keyBy](#method-array-keyby) [Arr::last](#method-array-last) [Arr::map](#method-array-map) [Arr::mapSpread](#method-array-map-spread) [Arr::mapWithKeys](#method-array-map-with-keys) [Arr::only](#method-array-only) [Arr::onlyValues](#method-array-only-values) [Arr::partition](#method-array-partition) [Arr::pluck](#method-array-pluck) [Arr::prepend](#method-array-prepend) [Arr::prependKeysWith](#method-array-prependkeyswith) [Arr::pull](#method-array-pull) [Arr::push](#method-array-push) [Arr::query](#method-array-query) [Arr::random](#method-array-random) [Arr::reject](#method-array-reject) [Arr::select](#method-array-select) [Arr::set](#method-array-set) [Arr::shuffle](#method-array-shuffle) [Arr::sole](#method-array-sole) [Arr::some](#method-array-some) [Arr::sort](#method-array-sort) [Arr::sortDesc](#method-array-sort-desc) [Arr::sortRecursive](#method-array-sort-recursive) [Arr::string](#method-array-string) [Arr::take](#method-array-take) [Arr::toCssClasses](#method-array-to-css-classes) [Arr::toCssStyles](#method-array-to-css-styles) [Arr::undot](#method-array-undot) [Arr::where](#method-array-where) [Arr::whereNotNull](#method-array-where-not-null) [Arr::wrap](#method-array-wrap) [data_fill](#method-data-fill) [data_get](#method-data-get) [data_set](#method-data-set) [data_forget](#method-data-forget) [head](#method-head) [last](#method-last) -->
 [Arr::accessible](#method-array-accessible)
 [Arr::add](#method-array-add)
 [Arr::array](#method-array-array)
@@ -166,32 +100,9 @@ Laravel에는 다양한 전역 "헬퍼" PHP 함수가 포함되어 있습니다.
 <!-- ### Numbers -->
 ### Numbers
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[Number::abbreviate](#method-number-abbreviate)
-[Number::clamp](#method-number-clamp)
-[Number::currency](#method-number-currency)
-[Number::defaultCurrency](#method-default-currency)
-[Number::defaultLocale](#method-default-locale)
-[Number::fileSize](#method-number-file-size)
-[Number::forHumans](#method-number-for-humans)
-[Number::format](#method-number-format)
-[Number::ordinal](#method-number-ordinal)
-[Number::pairs](#method-number-pairs)
-[Number::parse](#method-number-parse)
-[Number::parseInt](#method-number-parse-int)
-[Number::parseFloat](#method-number-parse-float)
-[Number::percentage](#method-number-percentage)
-[Number::spell](#method-number-spell)
-[Number::spellOrdinal](#method-number-spell-ordinal)
-[Number::trim](#method-number-trim)
-[Number::useLocale](#method-number-use-locale)
-[Number::withLocale](#method-number-with-locale)
-[Number::useCurrency](#method-number-use-currency)
-[Number::withCurrency](#method-number-with-currency)
--->
+<!-- [Number::abbreviate](#method-number-abbreviate) [Number::clamp](#method-number-clamp) [Number::currency](#method-number-currency) [Number::defaultCurrency](#method-default-currency) [Number::defaultLocale](#method-default-locale) [Number::fileSize](#method-number-file-size) [Number::forHumans](#method-number-for-humans) [Number::format](#method-number-format) [Number::ordinal](#method-number-ordinal) [Number::pairs](#method-number-pairs) [Number::parse](#method-number-parse) [Number::parseInt](#method-number-parse-int) [Number::parseFloat](#method-number-parse-float) [Number::percentage](#method-number-percentage) [Number::spell](#method-number-spell) [Number::spellOrdinal](#method-number-spell-ordinal) [Number::trim](#method-number-trim) [Number::useLocale](#method-number-use-locale) [Number::withLocale](#method-number-with-locale) [Number::useCurrency](#method-number-use-currency) [Number::withCurrency](#method-number-with-currency) -->
 [Number::abbreviate](#method-number-abbreviate)
 [Number::clamp](#method-number-clamp)
 [Number::currency](#method-number-currency)
@@ -214,26 +125,15 @@ Laravel에는 다양한 전역 "헬퍼" PHP 함수가 포함되어 있습니다.
 [Number::useCurrency](#method-number-use-currency)
 [Number::withCurrency](#method-number-with-currency)
 
-<!-- </div> -->
 </div>
 
 <a name="paths-method-list"></a>
 <!-- ### Paths -->
 ### Paths
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[app_path](#method-app-path)
-[base_path](#method-base-path)
-[config_path](#method-config-path)
-[database_path](#method-database-path)
-[lang_path](#method-lang-path)
-[public_path](#method-public-path)
-[resource_path](#method-resource-path)
-[storage_path](#method-storage-path)
--->
+<!-- [app_path](#method-app-path) [base_path](#method-base-path) [config_path](#method-config-path) [database_path](#method-database-path) [lang_path](#method-lang-path) [public_path](#method-public-path) [resource_path](#method-resource-path) [storage_path](#method-storage-path) -->
 [app_path](#method-app-path)
 [base_path](#method-base-path)
 [config_path](#method-config-path)
@@ -243,27 +143,15 @@ Laravel에는 다양한 전역 "헬퍼" PHP 함수가 포함되어 있습니다.
 [resource_path](#method-resource-path)
 [storage_path](#method-storage-path)
 
-<!-- </div> -->
 </div>
 
 <a name="urls-method-list"></a>
 <!-- ### URLs -->
 ### URLs
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[action](#method-action)
-[asset](#method-asset)
-[route](#method-route)
-[secure_asset](#method-secure-asset)
-[secure_url](#method-secure-url)
-[to_action](#method-to-action)
-[to_route](#method-to-route)
-[uri](#method-uri)
-[url](#method-url)
--->
+<!-- [action](#method-action) [asset](#method-asset) [route](#method-route) [secure_asset](#method-secure-asset) [secure_url](#method-secure-url) [to_action](#method-to-action) [to_route](#method-to-route) [uri](#method-uri) [url](#method-url) -->
 [action](#method-action)
 [asset](#method-asset)
 [route](#method-route)
@@ -274,77 +162,15 @@ Laravel에는 다양한 전역 "헬퍼" PHP 함수가 포함되어 있습니다.
 [uri](#method-uri)
 [url](#method-url)
 
-<!-- </div> -->
 </div>
 
 <a name="miscellaneous-method-list"></a>
 <!-- ### Miscellaneous -->
 ### Miscellaneous
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[abort](#method-abort)
-[abort_if](#method-abort-if)
-[abort_unless](#method-abort-unless)
-[app](#method-app)
-[auth](#method-auth)
-[back](#method-back)
-[bcrypt](#method-bcrypt)
-[blank](#method-blank)
-[broadcast](#method-broadcast)
-[broadcast_if](#method-broadcast-if)
-[broadcast_unless](#method-broadcast-unless)
-[cache](#method-cache)
-[class_uses_recursive](#method-class-uses-recursive)
-[collect](#method-collect)
-[config](#method-config)
-[context](#method-context)
-[cookie](#method-cookie)
-[csrf_field](#method-csrf-field)
-[csrf_token](#method-csrf-token)
-[decrypt](#method-decrypt)
-[dd](#method-dd)
-[dispatch](#method-dispatch)
-[dispatch_sync](#method-dispatch-sync)
-[dump](#method-dump)
-[encrypt](#method-encrypt)
-[env](#method-env)
-[event](#method-event)
-[fake](#method-fake)
-[filled](#method-filled)
-[info](#method-info)
-[literal](#method-literal)
-[logger](#method-logger)
-[method_field](#method-method-field)
-[now](#method-now)
-[old](#method-old)
-[once](#method-once)
-[optional](#method-optional)
-[policy](#method-policy)
-[redirect](#method-redirect)
-[report](#method-report)
-[report_if](#method-report-if)
-[report_unless](#method-report-unless)
-[request](#method-request)
-[rescue](#method-rescue)
-[resolve](#method-resolve)
-[response](#method-response)
-[retry](#method-retry)
-[session](#method-session)
-[tap](#method-tap)
-[throw_if](#method-throw-if)
-[throw_unless](#method-throw-unless)
-[today](#method-today)
-[trait_uses_recursive](#method-trait-uses-recursive)
-[transform](#method-transform)
-[validator](#method-validator)
-[value](#method-value)
-[view](#method-view)
-[with](#method-with)
-[when](#method-when)
--->
+<!-- [abort](#method-abort) [abort_if](#method-abort-if) [abort_unless](#method-abort-unless) [app](#method-app) [auth](#method-auth) [back](#method-back) [bcrypt](#method-bcrypt) [blank](#method-blank) [broadcast](#method-broadcast) [broadcast_if](#method-broadcast-if) [broadcast_unless](#method-broadcast-unless) [cache](#method-cache) [class_uses_recursive](#method-class-uses-recursive) [collect](#method-collect) [config](#method-config) [context](#method-context) [cookie](#method-cookie) [csrf_field](#method-csrf-field) [csrf_token](#method-csrf-token) [decrypt](#method-decrypt) [dd](#method-dd) [dispatch](#method-dispatch) [dispatch_sync](#method-dispatch-sync) [dump](#method-dump) [encrypt](#method-encrypt) [env](#method-env) [event](#method-event) [fake](#method-fake) [filled](#method-filled) [info](#method-info) [literal](#method-literal) [logger](#method-logger) [method_field](#method-method-field) [now](#method-now) [old](#method-old) [once](#method-once) [optional](#method-optional) [policy](#method-policy) [redirect](#method-redirect) [report](#method-report) [report_if](#method-report-if) [report_unless](#method-report-unless) [request](#method-request) [rescue](#method-rescue) [resolve](#method-resolve) [response](#method-response) [retry](#method-retry) [session](#method-session) [tap](#method-tap) [throw_if](#method-throw-if) [throw_unless](#method-throw-unless) [today](#method-today) [trait_uses_recursive](#method-trait-uses-recursive) [transform](#method-transform) [validator](#method-validator) [value](#method-value) [view](#method-view) [with](#method-with) [when](#method-when) -->
 [abort](#method-abort)
 [abort_if](#method-abort-if)
 [abort_unless](#method-abort-unless)
@@ -405,7 +231,6 @@ Laravel에는 다양한 전역 "헬퍼" PHP 함수가 포함되어 있습니다.
 [with](#method-with)
 [when](#method-when)
 
-<!-- </div> -->
 </div>
 
 <a name="arrays"></a>
@@ -415,6 +240,7 @@ Laravel에는 다양한 전역 "헬퍼" PHP 함수가 포함되어 있습니다.
 <a name="method-array-accessible"></a>
 <!-- #### `Arr::accessible()` -->
 #### `Arr::accessible()`
+
 <!-- The `Arr::accessible` method determines if the given value is array accessible: -->
 `Arr::accessible` 메서드는 주어진 값이 배열처럼 접근 가능한지 확인합니다.
 
@@ -442,6 +268,7 @@ $isAccessible = Arr::accessible(new stdClass);
 <a name="method-array-add"></a>
 <!-- #### `Arr::add()` -->
 #### `Arr::add()`
+
 <!-- The `Arr::add` method adds a given key / value pair to an array if the given key doesn't already exist in the array or is set to `null`: -->
 `Arr::add` 메서드는 주어진 키가 배열에 아직 존재하지 않거나 `null`로 설정되어 있을 때, 해당 키 / 값 쌍을 배열에 추가합니다.
 
@@ -460,10 +287,11 @@ $array = Arr::add(['name' => 'Desk', 'price' => null], 'price', 100);
 <a name="method-array-array"></a>
 <!-- #### `Arr::array()` -->
 #### `Arr::array()`
+
 <!-- The `Arr::array` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not an `array`: -->
 `Arr::array` 메서드는 [Arr::get()](#method-array-get)과 마찬가지로 "점" 표기법을 사용해 깊게 중첩된 배열에서 값을 가져오지만, 요청한 값이 `array`가 아니면 `InvalidArgumentException`을 던집니다.
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'languages' => ['PHP', 'Ruby']];
@@ -480,10 +308,11 @@ $value = Arr::array($array, 'name');
 <a name="method-array-boolean"></a>
 <!-- #### `Arr::boolean()` -->
 #### `Arr::boolean()`
+
 <!-- The `Arr::boolean` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not a `boolean`: -->
 `Arr::boolean` 메서드는 [Arr::get()](#method-array-get)과 마찬가지로 "점" 표기법을 사용해 깊게 중첩된 배열에서 값을 가져오지만, 요청한 값이 `boolean`이 아니면 `InvalidArgumentException`을 던집니다.
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'available' => true];
@@ -501,6 +330,7 @@ $value = Arr::boolean($array, 'name');
 <a name="method-array-collapse"></a>
 <!-- #### `Arr::collapse()` -->
 #### `Arr::collapse()`
+
 <!-- The `Arr::collapse` method collapses an array of arrays or collections into a single array: -->
 `Arr::collapse` 메서드는 배열 또는 컬렉션으로 이루어진 배열을 하나의 배열로 합칩니다.
 
@@ -515,6 +345,7 @@ $array = Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
 <a name="method-array-crossjoin"></a>
 <!-- #### `Arr::crossJoin()` -->
 #### `Arr::crossJoin()`
+
 <!-- The `Arr::crossJoin` method cross joins the given arrays, returning a Cartesian product with all possible permutations: -->
 `Arr::crossJoin` 메서드는 주어진 배열들을 크로스 조인하여, 가능한 모든 조합을 담은 데카르트 곱을 반환합니다.
 
@@ -551,6 +382,7 @@ $matrix = Arr::crossJoin([1, 2], ['a', 'b'], ['I', 'II']);
 <a name="method-array-divide"></a>
 <!-- #### `Arr::divide()` -->
 #### `Arr::divide()`
+
 <!-- The `Arr::divide` method returns two arrays: one containing the keys and the other containing the values of the given array: -->
 `Arr::divide` 메서드는 두 개의 배열을 반환합니다. 하나는 주어진 배열의 키를 담고, 다른 하나는 값을 담습니다.
 
@@ -567,6 +399,7 @@ use Illuminate\Support\Arr;
 <a name="method-array-dot"></a>
 <!-- #### `Arr::dot()` -->
 #### `Arr::dot()`
+
 <!-- The `Arr::dot` method flattens a multi-dimensional array into a single level array that uses "dot" notation to indicate depth: -->
 `Arr::dot` 메서드는 다차원 배열을 하나의 단일 레벨 배열로 평탄화하며, 깊이를 나타내기 위해 "점" 표기법을 사용합니다.
 
@@ -583,8 +416,10 @@ $flattened = Arr::dot($array);
 <a name="method-array-every"></a>
 <!-- #### `Arr::every()` -->
 #### `Arr::every()`
+
 <!-- The `Arr::every` method ensures that all values in the array pass a given truth test: -->
-`Arr::every` 메서드는 배열의 모든 값이 주어진 참/거짓 테스트를 통과하는지 확인합니다.
+`Arr::every` 메서드는 배열의 모든 값이 지정된 참·거짓 검사를 통과하는지 확인합니다:
+
 ```php
 use Illuminate\Support\Arr;
 
@@ -602,6 +437,7 @@ Arr::every($array, fn ($i) => $i > 2);
 <a name="method-array-except"></a>
 <!-- #### `Arr::except()` -->
 #### `Arr::except()`
+
 <!-- The `Arr::except` method removes the given key / value pairs from an array: -->
 `Arr::except` 메서드는 배열에서 주어진 키 / 값 쌍을 제거합니다.
 
@@ -618,6 +454,7 @@ $filtered = Arr::except($array, ['price']);
 <a name="method-array-except-values"></a>
 <!-- #### `Arr::exceptValues()` -->
 #### `Arr::exceptValues()`
+
 <!-- The `Arr::exceptValues` method removes the specified values from an array: -->
 `Arr::exceptValues` 메서드는 배열에서 지정된 값들을 제거합니다.
 
@@ -632,7 +469,7 @@ $filtered = Arr::exceptValues($array, ['foo', 'baz']);
 ```
 
 <!-- You may also pass `true` to the `strict` argument to use strict type comparisons when filtering: -->
-필터링할 때 엄격한 타입 비교를 사용하려면 `strict` 인수에 `true`를 전달할 수도 있습니다.
+필터링할 때 엄격한 타입 비교를 사용하려면 `strict` 인수에 `true`를 전달할 수도 있습니다:
 
 ```php
 use Illuminate\Support\Arr;
@@ -647,6 +484,7 @@ $filtered = Arr::exceptValues($array, [1, 2], strict: true);
 <a name="method-array-exists"></a>
 <!-- #### `Arr::exists()` -->
 #### `Arr::exists()`
+
 <!-- The `Arr::exists` method checks that the given key exists in the provided array: -->
 `Arr::exists` 메서드는 제공된 배열에 주어진 키가 존재하는지 확인합니다.
 
@@ -667,6 +505,7 @@ $exists = Arr::exists($array, 'salary');
 <a name="method-array-first"></a>
 <!-- #### `Arr::first()` -->
 #### `Arr::first()`
+
 <!-- The `Arr::first` method returns the first element of an array passing a given truth test: -->
 `Arr::first` 메서드는 주어진 조건 검사를 통과하는 배열의 첫 번째 요소를 반환합니다.
 
@@ -694,6 +533,7 @@ $first = Arr::first($array, $callback, $default);
 <a name="method-array-flatten"></a>
 <!-- #### `Arr::flatten()` -->
 #### `Arr::flatten()`
+
 <!-- The `Arr::flatten` method flattens a multi-dimensional array into a single level array: -->
 `Arr::flatten` 메서드는 다차원 배열을 단일 레벨 배열로 평탄화합니다.
 
@@ -710,10 +550,11 @@ $flattened = Arr::flatten($array);
 <a name="method-array-float"></a>
 <!-- #### `Arr::float()` -->
 #### `Arr::float()`
+
 <!-- The `Arr::float` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not a `float`: -->
 `Arr::float` 메서드는 [Arr::get()](#method-array-get)과 마찬가지로 "dot" notation(점 표기법)을 사용해 깊게 중첩된 배열에서 값을 가져옵니다. 하지만 요청한 값이 `float`가 아니면 `InvalidArgumentException`을 발생시킵니다.
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'balance' => 123.45];
@@ -730,6 +571,7 @@ $value = Arr::float($array, 'name');
 <a name="method-array-forget"></a>
 <!-- #### `Arr::forget()` -->
 #### `Arr::forget()`
+
 <!-- The `Arr::forget` method removes a given key / value pairs from a deeply nested array using "dot" notation: -->
 `Arr::forget` 메서드는 "dot" notation(점 표기법)을 사용해 깊게 중첩된 배열에서 주어진 키 / 값 쌍을 제거합니다.
 
@@ -746,6 +588,7 @@ Arr::forget($array, 'products.desk');
 <a name="method-array-from"></a>
 <!-- #### `Arr::from()` -->
 #### `Arr::from()`
+
 <!-- The `Arr::from` method converts various input types into a plain PHP array. It supports a range of input types, including arrays, objects, and several common Laravel interfaces, such as `Arrayable`, `Enumerable`, `Jsonable`, and `JsonSerializable`. Additionally, it handles `Traversable` and `WeakMap` instances: -->
 `Arr::from` 메서드는 다양한 입력 타입을 일반 PHP 배열로 변환합니다. 배열, 객체뿐 아니라 `Arrayable`, `Enumerable`, `Jsonable`, `JsonSerializable` 같은 여러 일반적인 Laravel 인터페이스를 포함해 다양한 입력 타입을 지원합니다. 또한 `Traversable` 및 `WeakMap` 인스턴스도 처리합니다.
 
@@ -768,6 +611,7 @@ Arr::from(new TestJsonableObject); // ['foo' => 'bar']
 <a name="method-array-get"></a>
 <!-- #### `Arr::get()` -->
 #### `Arr::get()`
+
 <!-- The `Arr::get` method retrieves a value from a deeply nested array using "dot" notation: -->
 `Arr::get` 메서드는 "dot" notation(점 표기법)을 사용해 깊게 중첩된 배열에서 값을 가져옵니다.
 
@@ -795,6 +639,7 @@ $discount = Arr::get($array, 'products.desk.discount', 0);
 <a name="method-array-has"></a>
 <!-- #### `Arr::has()` -->
 #### `Arr::has()`
+
 <!-- The `Arr::has` method checks whether a given item or items exists in an array using "dot" notation: -->
 `Arr::has` 메서드는 "dot" notation(점 표기법)을 사용해 주어진 항목 하나 또는 여러 항목이 배열에 존재하는지 확인합니다.
 
@@ -815,6 +660,7 @@ $contains = Arr::has($array, ['product.price', 'product.discount']);
 <a name="method-array-hasall"></a>
 <!-- #### `Arr::hasAll()` -->
 #### `Arr::hasAll()`
+
 <!-- The `Arr::hasAll` method determines if all of the specified keys exist in the given array using "dot" notation: -->
 `Arr::hasAll` 메서드는 "dot" notation(점 표기법)을 사용해 지정된 모든 키가 주어진 배열에 존재하는지 확인합니다.
 
@@ -831,6 +677,7 @@ Arr::hasAll($array, ['name', 'IDE']); // false
 <a name="method-array-hasany"></a>
 <!-- #### `Arr::hasAny()` -->
 #### `Arr::hasAny()`
+
 <!-- The `Arr::hasAny` method checks whether any item in a given set exists in an array using "dot" notation: -->
 `Arr::hasAny` 메서드는 "dot" notation(점 표기법)을 사용해 주어진 항목 집합 중 하나라도 배열에 존재하는지 확인합니다.
 
@@ -855,10 +702,11 @@ $contains = Arr::hasAny($array, ['category', 'product.discount']);
 <a name="method-array-integer"></a>
 <!-- #### `Arr::integer()` -->
 #### `Arr::integer()`
+
 <!-- The `Arr::integer` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not an `int`: -->
 `Arr::integer` 메서드는 [Arr::get()](#method-array-get)과 마찬가지로 "dot" notation(점 표기법)을 사용해 깊게 중첩된 배열에서 값을 가져옵니다. 하지만 요청한 값이 `int`가 아니면 `InvalidArgumentException`을 발생시킵니다.
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'age' => 42];
@@ -875,6 +723,7 @@ $value = Arr::integer($array, 'name');
 <a name="method-array-isassoc"></a>
 <!-- #### `Arr::isAssoc()` -->
 #### `Arr::isAssoc()`
+
 <!-- The `Arr::isAssoc` method returns `true` if the given array is an associative array. An array is considered "associative" if it doesn't have sequential numerical keys beginning with zero: -->
 `Arr::isAssoc` 메서드는 주어진 배열이 연관 배열이면 `true`를 반환합니다. 배열의 키가 0부터 시작하는 연속된 숫자 키가 아니라면 “연관 배열”로 간주됩니다.
 
@@ -893,6 +742,7 @@ $isAssoc = Arr::isAssoc([1, 2, 3]);
 <a name="method-array-islist"></a>
 <!-- #### `Arr::isList()` -->
 #### `Arr::isList()`
+
 <!-- The `Arr::isList` method returns `true` if the given array's keys are sequential integers beginning from zero: -->
 `Arr::isList` 메서드는 주어진 배열의 키가 0부터 시작하는 연속된 정수이면 `true`를 반환합니다.
 
@@ -911,6 +761,7 @@ $isList = Arr::isList(['product' => ['name' => 'Desk', 'price' => 100]]);
 <a name="method-array-join"></a>
 <!-- #### `Arr::join()` -->
 #### `Arr::join()`
+
 <!-- The `Arr::join` method joins array elements with a string. Using this method's third argument, you may also specify the joining string for the final element of the array: -->
 `Arr::join` 메서드는 배열 요소를 문자열로 이어 붙입니다. 이 메서드의 세 번째 인수를 사용하면 배열의 마지막 요소 앞에 사용할 연결 문자열도 지정할 수 있습니다.
 
@@ -931,6 +782,7 @@ $joined = Arr::join($array, ', ', ', and ');
 <a name="method-array-keyby"></a>
 <!-- #### `Arr::keyBy()` -->
 #### `Arr::keyBy()`
+
 <!-- The `Arr::keyBy` method keys the array by the given key. If multiple items have the same key, only the last one will appear in the new array: -->
 `Arr::keyBy` 메서드는 주어진 키를 기준으로 배열의 키를 다시 지정합니다. 여러 항목이 같은 키를 가진 경우, 새 배열에는 마지막 항목만 나타납니다.
 
@@ -955,6 +807,7 @@ $keyed = Arr::keyBy($array, 'product_id');
 <a name="method-array-last"></a>
 <!-- #### `Arr::last()` -->
 #### `Arr::last()`
+
 <!-- The `Arr::last` method returns the last element of an array passing a given truth test: -->
 `Arr::last` 메서드는 주어진 조건 검사를 통과하는 배열의 마지막 요소를 반환합니다.
 
@@ -982,6 +835,7 @@ $last = Arr::last($array, $callback, $default);
 <a name="method-array-map"></a>
 <!-- #### `Arr::map()` -->
 #### `Arr::map()`
+
 <!-- The `Arr::map` method iterates through the array and passes each value and key to the given callback. The array value is replaced by the value returned by the callback: -->
 `Arr::map` 메서드는 배열을 순회하면서 각 값과 키를 주어진 콜백에 전달합니다. 배열의 값은 콜백이 반환한 값으로 대체됩니다.
 
@@ -1000,6 +854,7 @@ $mapped = Arr::map($array, function (string $value, string $key) {
 <a name="method-array-map-spread"></a>
 <!-- #### `Arr::mapSpread()` -->
 #### `Arr::mapSpread()`
+
 <!-- The `Arr::mapSpread` method iterates over the array, passing each nested item value into the given closure. The closure is free to modify the item and return it, thus forming a new array of modified items: -->
 `Arr::mapSpread` 메서드는 배열을 순회하면서 각 중첩 항목의 값을 주어진 클로저에 전달합니다. 클로저는 자유롭게 항목을 수정하고 반환할 수 있으며, 그 결과 수정된 항목들로 이루어진 새 배열이 만들어집니다.
 
@@ -1022,9 +877,11 @@ $mapped = Arr::mapSpread($array, function (int $even, int $odd) {
     [1, 5, 9, 13, 17]
 */
 ```
+
 <a name="method-array-map-with-keys"></a>
 <!-- #### `Arr::mapWithKeys()` -->
 #### `Arr::mapWithKeys()`
+
 <!-- The `Arr::mapWithKeys` method iterates through the array and passes each value to the given callback. The callback should return an associative array containing a single key / value pair: -->
 `Arr::mapWithKeys` 메서드는 배열을 순회하며 각 값을 지정된 콜백에 전달합니다. 콜백은 하나의 키 / 값 쌍을 포함하는 연관 배열을 반환해야 합니다.
 
@@ -1059,6 +916,7 @@ $mapped = Arr::mapWithKeys($array, function (array $item, int $key) {
 <a name="method-array-only"></a>
 <!-- #### `Arr::only()` -->
 #### `Arr::only()`
+
 <!-- The `Arr::only` method returns only the specified key / value pairs from the given array: -->
 `Arr::only` 메서드는 주어진 배열에서 지정된 키 / 값 쌍만 반환합니다.
 
@@ -1075,6 +933,7 @@ $slice = Arr::only($array, ['name', 'price']);
 <a name="method-array-only-values"></a>
 <!-- #### `Arr::onlyValues()` -->
 #### `Arr::onlyValues()`
+
 <!-- The `Arr::onlyValues` method returns only the specified values from an array: -->
 `Arr::onlyValues` 메서드는 배열에서 지정된 값만 반환합니다.
 
@@ -1089,7 +948,7 @@ $filtered = Arr::onlyValues($array, ['foo', 'baz']);
 ```
 
 <!-- You may also pass `true` to the `strict` argument to use strict type comparisons when filtering: -->
-필터링할 때 엄격한 타입 비교를 사용하려면 `strict` 인수에 `true`를 전달할 수도 있습니다.
+필터링할 때 엄격한 타입 비교를 사용하려면 `strict` 인수에 `true`를 전달할 수도 있습니다:
 
 ```php
 use Illuminate\Support\Arr;
@@ -1104,6 +963,7 @@ $filtered = Arr::onlyValues($array, [1, 2], strict: true);
 <a name="method-array-partition"></a>
 <!-- #### `Arr::partition()` -->
 #### `Arr::partition()`
+
 <!-- The `Arr::partition` method may be combined with PHP array destructuring to separate elements that pass a given truth test from those that do not: -->
 `Arr::partition` 메서드는 PHP 배열 구조 분해와 함께 사용하여, 지정된 참 여부 검사를 통과하는 요소와 통과하지 않는 요소를 분리할 수 있습니다.
 
@@ -1130,6 +990,7 @@ dump($equalOrAboveThree);
 <a name="method-array-pluck"></a>
 <!-- #### `Arr::pluck()` -->
 #### `Arr::pluck()`
+
 <!-- The `Arr::pluck` method retrieves all of the values for a given key from an array: -->
 `Arr::pluck` 메서드는 배열에서 지정된 키에 해당하는 모든 값을 가져옵니다.
 
@@ -1160,6 +1021,7 @@ $names = Arr::pluck($array, 'developer.name', 'developer.id');
 <a name="method-array-prepend"></a>
 <!-- #### `Arr::prepend()` -->
 #### `Arr::prepend()`
+
 <!-- The `Arr::prepend` method will push an item onto the beginning of an array: -->
 `Arr::prepend` 메서드는 배열의 맨 앞에 항목을 추가합니다.
 
@@ -1189,6 +1051,7 @@ $array = Arr::prepend($array, 'Desk', 'name');
 <a name="method-array-prependkeyswith"></a>
 <!-- #### `Arr::prependKeysWith()` -->
 #### `Arr::prependKeysWith()`
+
 <!-- The `Arr::prependKeysWith` prepends all key names of an associative array with the given prefix: -->
 `Arr::prependKeysWith`는 연관 배열의 모든 키 이름 앞에 지정된 접두사를 붙입니다.
 
@@ -1213,6 +1076,7 @@ $keyed = Arr::prependKeysWith($array, 'product.');
 <a name="method-array-pull"></a>
 <!-- #### `Arr::pull()` -->
 #### `Arr::pull()`
+
 <!-- The `Arr::pull` method returns and removes a key / value pair from an array: -->
 `Arr::pull` 메서드는 배열에서 키 / 값 쌍을 반환한 뒤 제거합니다.
 
@@ -1240,6 +1104,7 @@ $value = Arr::pull($array, $key, $default);
 <a name="method-array-push"></a>
 <!-- #### `Arr::push()` -->
 #### `Arr::push()`
+
 <!-- The `Arr::push` method pushes an item into an array using "dot" notation. If an array does not exist at the given key, it will be created: -->
 `Arr::push` 메서드는 "dot" 표기법을 사용하여 배열에 항목을 추가합니다. 지정된 키에 배열이 존재하지 않으면 새로 생성됩니다.
 
@@ -1256,6 +1121,7 @@ Arr::push($array, 'office.furniture', 'Desk');
 <a name="method-array-query"></a>
 <!-- #### `Arr::query()` -->
 #### `Arr::query()`
+
 <!-- The `Arr::query` method converts the array into a query string: -->
 `Arr::query` 메서드는 배열을 쿼리 문자열로 변환합니다.
 
@@ -1278,6 +1144,7 @@ Arr::query($array);
 <a name="method-array-random"></a>
 <!-- #### `Arr::random()` -->
 #### `Arr::random()`
+
 <!-- The `Arr::random` method returns a random value from an array: -->
 `Arr::random` 메서드는 배열에서 무작위 값을 반환합니다.
 
@@ -1305,6 +1172,7 @@ $items = Arr::random($array, 2);
 <a name="method-array-reject"></a>
 <!-- #### `Arr::reject()` -->
 #### `Arr::reject()`
+
 <!-- The `Arr::reject` method removes items from an array using the given closure: -->
 `Arr::reject` 메서드는 지정된 클로저를 사용하여 배열에서 항목을 제거합니다.
 
@@ -1323,6 +1191,7 @@ $filtered = Arr::reject($array, function (string|int $value, int $key) {
 <a name="method-array-select"></a>
 <!-- #### `Arr::select()` -->
 #### `Arr::select()`
+
 <!-- The `Arr::select` method selects an array of values from an array: -->
 `Arr::select` 메서드는 배열에서 값 배열을 선택합니다.
 
@@ -1343,6 +1212,7 @@ Arr::select($array, ['name', 'price']);
 <a name="method-array-set"></a>
 <!-- #### `Arr::set()` -->
 #### `Arr::set()`
+
 <!-- The `Arr::set` method sets a value within a deeply nested array using "dot" notation: -->
 `Arr::set` 메서드는 "dot" 표기법을 사용하여 깊게 중첩된 배열 안의 값을 설정합니다.
 
@@ -1359,6 +1229,7 @@ Arr::set($array, 'products.desk.price', 200);
 <a name="method-array-shuffle"></a>
 <!-- #### `Arr::shuffle()` -->
 #### `Arr::shuffle()`
+
 <!-- The `Arr::shuffle` method randomly shuffles the items in the array: -->
 `Arr::shuffle` 메서드는 배열의 항목을 무작위로 섞습니다.
 
@@ -1373,6 +1244,7 @@ $array = Arr::shuffle([1, 2, 3, 4, 5]);
 <a name="method-array-sole"></a>
 <!-- #### `Arr::sole()` -->
 #### `Arr::sole()`
+
 <!-- The `Arr::sole` method retrieves a single value from an array using the given closure. If more than one value within the array matches the given truth test, an `Illuminate\Support\MultipleItemsFoundException` exception will be thrown. If no values match the truth test, an `Illuminate\Support\ItemNotFoundException` exception will be thrown: -->
 `Arr::sole` 메서드는 지정된 클로저를 사용하여 배열에서 단일 값을 가져옵니다. 배열 안에서 지정된 참 여부 검사를 통과하는 값이 둘 이상이면 `Illuminate\Support\MultipleItemsFoundException` 예외가 발생합니다. 참 여부 검사를 통과하는 값이 없으면 `Illuminate\Support\ItemNotFoundException` 예외가 발생합니다.
 
@@ -1389,6 +1261,7 @@ $value = Arr::sole($array, fn (string $value) => $value === 'Desk');
 <a name="method-array-some"></a>
 <!-- #### `Arr::some()` -->
 #### `Arr::some()`
+
 <!-- The `Arr::some` method ensures that at least one of the values in the array passes a given truth test: -->
 `Arr::some` 메서드는 배열의 값 중 적어도 하나가 지정된 참 여부 검사를 통과하는지 확인합니다.
 
@@ -1405,6 +1278,7 @@ Arr::some($array, fn ($i) => $i > 2);
 <a name="method-array-sort"></a>
 <!-- #### `Arr::sort()` -->
 #### `Arr::sort()`
+
 <!-- The `Arr::sort` method sorts an array by its values: -->
 `Arr::sort` 메서드는 배열을 값 기준으로 정렬합니다.
 
@@ -1419,7 +1293,7 @@ $sorted = Arr::sort($array);
 ```
 
 <!-- You may also sort the array by the results of a given closure: -->
-지정된 클로저의 결과를 기준으로 배열을 정렬할 수도 있습니다.
+주어진 클로저의 결과를 기준으로 배열을 정렬할 수도 있습니다.
 
 ```php
 use Illuminate\Support\Arr;
@@ -1446,6 +1320,7 @@ $sorted = array_values(Arr::sort($array, function (array $value) {
 <a name="method-array-sort-desc"></a>
 <!-- #### `Arr::sortDesc()` -->
 #### `Arr::sortDesc()`
+
 <!-- The `Arr::sortDesc` method sorts an array in descending order by its values: -->
 `Arr::sortDesc` 메서드는 배열의 값을 기준으로 내림차순으로 정렬합니다.
 
@@ -1460,7 +1335,7 @@ $sorted = Arr::sortDesc($array);
 ```
 
 <!-- You may also sort the array by the results of a given closure: -->
-주어진 클로저의 결과를 기준으로 배열을 정렬할 수도 있습니다.
+주어진 클로저의 결과를 기준으로 배열을 정렬할 수도 있습니다:
 
 ```php
 use Illuminate\Support\Arr;
@@ -1487,6 +1362,7 @@ $sorted = array_values(Arr::sortDesc($array, function (array $value) {
 <a name="method-array-sort-recursive"></a>
 <!-- #### `Arr::sortRecursive()` -->
 #### `Arr::sortRecursive()`
+
 <!-- The `Arr::sortRecursive` method recursively sorts an array using the `sort` function for numerically indexed sub-arrays and the `ksort` function for associative sub-arrays: -->
 `Arr::sortRecursive` 메서드는 숫자 인덱스를 가진 하위 배열에는 `sort` 함수를, 연관 배열인 하위 배열에는 `ksort` 함수를 사용하여 배열을 재귀적으로 정렬합니다.
 
@@ -1520,10 +1396,11 @@ $sorted = Arr::sortRecursiveDesc($array);
 <a name="method-array-string"></a>
 <!-- #### `Arr::string()` -->
 #### `Arr::string()`
+
 <!-- The `Arr::string` method retrieves a value from a deeply nested array using "dot" notation (just as [Arr::get()](#method-array-get) does), but throws an `InvalidArgumentException` if the requested value is not a `string`: -->
 `Arr::string` 메서드는 [Arr::get()](#method-array-get)과 마찬가지로 "dot" 표기법을 사용하여 깊게 중첩된 배열에서 값을 가져오지만, 요청한 값이 `string`이 아니면 `InvalidArgumentException`을 발생시킵니다.
 
-```
+```php
 use Illuminate\Support\Arr;
 
 $array = ['name' => 'Joe', 'languages' => ['PHP', 'Ruby']];
@@ -1540,6 +1417,7 @@ $value = Arr::string($array, 'languages');
 <a name="method-array-take"></a>
 <!-- #### `Arr::take()` -->
 #### `Arr::take()`
+
 <!-- The `Arr::take` method returns a new array with the specified number of items: -->
 `Arr::take` 메서드는 지정된 개수의 항목을 포함하는 새 배열을 반환합니다.
 
@@ -1567,6 +1445,7 @@ $chunk = Arr::take($array, -2);
 <a name="method-array-to-css-classes"></a>
 <!-- #### `Arr::toCssClasses()` -->
 #### `Arr::toCssClasses()`
+
 <!-- The `Arr::toCssClasses` method conditionally compiles a CSS class string. The method accepts an array of classes where the array key contains the class or classes you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the rendered class list: -->
 `Arr::toCssClasses` 메서드는 조건에 따라 CSS 클래스 문자열을 컴파일합니다. 이 메서드는 추가하려는 클래스 또는 클래스들이 배열 키에 들어 있고, 값에는 boolean 표현식이 들어 있는 배열을 받습니다. 배열 요소가 숫자 키를 가지고 있다면 렌더링되는 클래스 목록에 항상 포함됩니다.
 
@@ -1588,6 +1467,7 @@ $classes = Arr::toCssClasses($array);
 <a name="method-array-to-css-styles"></a>
 <!-- #### `Arr::toCssStyles()` -->
 #### `Arr::toCssStyles()`
+
 <!-- The `Arr::toCssStyles` method conditionally compiles a CSS style string. The method accepts an array of CSS declarations where the array key contains the CSS declaration you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the compiled CSS style string: -->
 `Arr::toCssStyles` 메서드는 조건에 따라 CSS 스타일 문자열을 컴파일합니다. 이 메서드는 추가하려는 CSS 선언이 배열 키에 들어 있고, 값에는 boolean 표현식이 들어 있는 CSS 선언 배열을 받습니다. 배열 요소가 숫자 키를 가지고 있다면 컴파일된 CSS 스타일 문자열에 항상 포함됩니다.
 
@@ -1606,11 +1486,12 @@ $classes = Arr::toCssStyles($array);
 ```
 
 <!-- This method powers Laravel's functionality allowing [merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) as well as the `@class` [Blade directive](/docs/13.x/blade#conditional-classes). -->
-이 메서드는 Laravel에서 [merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes)하는 기능뿐만 아니라 `@class` [Blade directive](/docs/13.x/blade#conditional-classes)의 기반이 됩니다.
+이 메서드는 [merging classes with a Blade component's attribute bag](/docs/13.x/blade#conditionally-merge-classes) 기능과 `@class` [Blade directive](/docs/13.x/blade#conditional-classes)를 지원하는 Laravel의 기능을 제공합니다.
 
 <a name="method-array-undot"></a>
 <!-- #### `Arr::undot()` -->
 #### `Arr::undot()`
+
 <!-- The `Arr::undot` method expands a single-dimensional array that uses "dot" notation into a multi-dimensional array: -->
 `Arr::undot` 메서드는 "dot" 표기법을 사용하는 1차원 배열을 다차원 배열로 확장합니다.
 
@@ -1630,6 +1511,7 @@ $array = Arr::undot($array);
 <a name="method-array-where"></a>
 <!-- #### `Arr::where()` -->
 #### `Arr::where()`
+
 <!-- The `Arr::where` method filters an array using the given closure: -->
 `Arr::where` 메서드는 주어진 클로저를 사용하여 배열을 필터링합니다.
 
@@ -1648,6 +1530,7 @@ $filtered = Arr::where($array, function (string|int $value, int $key) {
 <a name="method-array-where-not-null"></a>
 <!-- #### `Arr::whereNotNull()` -->
 #### `Arr::whereNotNull()`
+
 <!-- The `Arr::whereNotNull` method removes all `null` values from the given array: -->
 `Arr::whereNotNull` 메서드는 주어진 배열에서 모든 `null` 값을 제거합니다.
 
@@ -1664,6 +1547,7 @@ $filtered = Arr::whereNotNull($array);
 <a name="method-array-wrap"></a>
 <!-- #### `Arr::wrap()` -->
 #### `Arr::wrap()`
+
 <!-- The `Arr::wrap` method wraps the given value in an array. If the given value is already an array it will be returned without modification: -->
 `Arr::wrap` 메서드는 주어진 값을 배열로 감쌉니다. 주어진 값이 이미 배열이라면 수정하지 않고 그대로 반환합니다.
 
@@ -1691,6 +1575,7 @@ $array = Arr::wrap(null);
 <a name="method-data-fill"></a>
 <!-- #### `data_fill()` -->
 #### `data_fill()`
+
 <!-- The `data_fill` function sets a missing value within a nested array or object using "dot" notation: -->
 `data_fill` 함수는 "dot" 표기법을 사용하여 중첩된 배열 또는 객체 안의 누락된 값을 설정합니다.
 
@@ -1732,6 +1617,7 @@ data_fill($data, 'products.*.price', 200);
 <a name="method-data-get"></a>
 <!-- #### `data_get()` -->
 #### `data_get()`
+
 <!-- The `data_get` function retrieves a value from a nested array or object using "dot" notation: -->
 `data_get` 함수는 "dot" 표기법을 사용하여 중첩된 배열 또는 객체에서 값을 가져옵니다.
 
@@ -1785,6 +1671,7 @@ data_get($flight, 'segments.{first}.arrival');
 <a name="method-data-set"></a>
 <!-- #### `data_set()` -->
 #### `data_set()`
+
 <!-- The `data_set` function sets a value within a nested array or object using "dot" notation: -->
 `data_set` 함수는 "dot" 표기법을 사용하여 중첩된 배열 또는 객체 안의 값을 설정합니다.
 
@@ -1833,6 +1720,7 @@ data_set($data, 'products.desk.price', 200, overwrite: false);
 <a name="method-data-forget"></a>
 <!-- #### `data_forget()` -->
 #### `data_forget()`
+
 <!-- The `data_forget` function removes a value within a nested array or object using "dot" notation: -->
 `data_forget` 함수는 "dot" 표기법을 사용하여 중첩된 배열 또는 객체 안의 값을 제거합니다.
 
@@ -1870,8 +1758,10 @@ data_forget($data, 'products.*.price');
 <a name="method-head"></a>
 <!-- #### `head()` -->
 #### `head()`
+
 <!-- The `head` function returns the first element in the given array. If the array is empty, `false` will be returned: -->
-`head` 함수는 주어진 배열의 첫 번째 요소를 반환합니다. 배열이 비어 있으면 `false`가 반환됩니다.
+`head` 함수는 주어진 배열의 첫 번째 요소를 반환합니다. 배열이 비어 있으면 `false`를 반환합니다.
+
 ```php
 $array = [100, 200, 300];
 
@@ -1883,6 +1773,7 @@ $first = head($array);
 <a name="method-last"></a>
 <!-- #### `last()` -->
 #### `last()`
+
 <!-- The `last` function returns the last element in the given array. If the array is empty, `false` will be returned: -->
 `last` 함수는 주어진 배열의 마지막 요소를 반환합니다. 배열이 비어 있으면 `false`가 반환됩니다:
 
@@ -1901,6 +1792,7 @@ $last = last($array);
 <a name="method-number-abbreviate"></a>
 <!-- #### `Number::abbreviate()` -->
 #### `Number::abbreviate()`
+
 <!-- The `Number::abbreviate` method returns the human-readable format of the provided numerical value, with an abbreviation for the units: -->
 `Number::abbreviate` 메서드는 제공된 숫자 값을 사람이 읽기 쉬운 형식으로 반환하며, 단위는 축약형으로 표시합니다:
 
@@ -1923,6 +1815,7 @@ $number = Number::abbreviate(1230000, precision: 2);
 <a name="method-number-clamp"></a>
 <!-- #### `Number::clamp()` -->
 #### `Number::clamp()`
+
 <!-- The `Number::clamp` method ensures a given number stays within a specified range. If the number is lower than the minimum, the minimum value is returned. If the number is higher than the maximum, the maximum value is returned: -->
 `Number::clamp` 메서드는 주어진 숫자가 지정된 범위 안에 머물도록 보장합니다. 숫자가 최솟값보다 작으면 최솟값을 반환합니다. 숫자가 최댓값보다 크면 최댓값을 반환합니다:
 
@@ -1949,6 +1842,7 @@ $number = Number::clamp(20, min: 10, max: 100);
 <a name="method-number-currency"></a>
 <!-- #### `Number::currency()` -->
 #### `Number::currency()`
+
 <!-- The `Number::currency` method returns the currency representation of the given value as a string: -->
 `Number::currency` 메서드는 주어진 값을 통화 표시 형식의 문자열로 반환합니다:
 
@@ -1975,6 +1869,7 @@ $currency = Number::currency(1000, in: 'EUR', locale: 'de', precision: 0);
 <a name="method-default-currency"></a>
 <!-- #### `Number::defaultCurrency()` -->
 #### `Number::defaultCurrency()`
+
 <!-- The `Number::defaultCurrency` method returns the default currency being used by the `Number` class: -->
 `Number::defaultCurrency` 메서드는 `Number` 클래스에서 사용 중인 기본 통화를 반환합니다:
 
@@ -1989,6 +1884,7 @@ $currency = Number::defaultCurrency();
 <a name="method-default-locale"></a>
 <!-- #### `Number::defaultLocale()` -->
 #### `Number::defaultLocale()`
+
 <!-- The `Number::defaultLocale` method returns the default locale being used by the `Number` class: -->
 `Number::defaultLocale` 메서드는 `Number` 클래스에서 사용 중인 기본 로케일을 반환합니다:
 
@@ -2003,6 +1899,7 @@ $locale = Number::defaultLocale();
 <a name="method-number-file-size"></a>
 <!-- #### `Number::fileSize()` -->
 #### `Number::fileSize()`
+
 <!-- The `Number::fileSize` method returns the file size representation of the given byte value as a string: -->
 `Number::fileSize` 메서드는 주어진 바이트 값을 파일 크기 표시 형식의 문자열로 반환합니다:
 
@@ -2025,6 +1922,7 @@ $size = Number::fileSize(1024, precision: 2);
 <a name="method-number-for-humans"></a>
 <!-- #### `Number::forHumans()` -->
 #### `Number::forHumans()`
+
 <!-- The `Number::forHumans` method returns the human-readable format of the provided numerical value: -->
 `Number::forHumans` 메서드는 제공된 숫자 값을 사람이 읽기 쉬운 형식으로 반환합니다:
 
@@ -2047,6 +1945,7 @@ $number = Number::forHumans(1230000, precision: 2);
 <a name="method-number-format"></a>
 <!-- #### `Number::format()` -->
 #### `Number::format()`
+
 <!-- The `Number::format` method formats the given number into a locale specific string: -->
 `Number::format` 메서드는 주어진 숫자를 로케일에 맞는 문자열로 포맷합니다:
 
@@ -2073,6 +1972,7 @@ $number = Number::format(100000, locale: 'de');
 <a name="method-number-ordinal"></a>
 <!-- #### `Number::ordinal()` -->
 #### `Number::ordinal()`
+
 <!-- The `Number::ordinal` method returns a number's ordinal representation: -->
 `Number::ordinal` 메서드는 숫자의 서수 표현을 반환합니다:
 
@@ -2095,6 +1995,7 @@ $number = Number::ordinal(21);
 <a name="method-number-pairs"></a>
 <!-- #### `Number::pairs()` -->
 #### `Number::pairs()`
+
 <!-- The `Number::pairs` method generates an array of number pairs (sub-ranges) based on a specified range and step value. This method can be useful for dividing a larger range of numbers into smaller, manageable sub-ranges for things like pagination or batching tasks. The `pairs` method returns an array of arrays, where each inner array represents a pair (sub-range) of numbers: -->
 `Number::pairs` 메서드는 지정한 범위와 단계 값을 기준으로 숫자 쌍(하위 범위)의 배열을 생성합니다. 이 메서드는 페이지네이션이나 작업 배치 처리처럼 큰 숫자 범위를 더 작고 다루기 쉬운 하위 범위로 나눌 때 유용합니다. `pairs` 메서드는 배열들의 배열을 반환하며, 내부 배열 각각은 숫자 쌍(하위 범위)을 나타냅니다:
 
@@ -2132,6 +2033,7 @@ $result = Number::parse('10,123', locale: 'fr');
 <a name="method-number-parse-int"></a>
 <!-- #### `Number::parseInt()` -->
 #### `Number::parseInt()`
+
 <!-- The `Number::parseInt` method parse a string into an integer according to the specified locale: -->
 `Number::parseInt` 메서드는 지정한 로케일에 따라 문자열을 정수로 파싱합니다:
 
@@ -2150,6 +2052,7 @@ $result = Number::parseInt('10,123', locale: 'fr');
 <a name="method-number-parse-float"></a>
 <!-- #### `Number::parseFloat()` -->
 #### `Number::parseFloat()`
+
 <!-- The `Number::parseFloat` method parse a string into a float according to the specified locale: -->
 `Number::parseFloat` 메서드는 지정한 로케일에 따라 문자열을 float로 파싱합니다:
 
@@ -2168,6 +2071,7 @@ $result = Number::parseFloat('10', locale: 'fr');
 <a name="method-number-percentage"></a>
 <!-- #### `Number::percentage()` -->
 #### `Number::percentage()`
+
 <!-- The `Number::percentage` method returns the percentage representation of the given value as a string: -->
 `Number::percentage` 메서드는 주어진 값을 백분율 표시 형식의 문자열로 반환합니다:
 
@@ -2194,6 +2098,7 @@ $percentage = Number::percentage(10, precision: 2, locale: 'de');
 <a name="method-number-spell"></a>
 <!-- #### `Number::spell()` -->
 #### `Number::spell()`
+
 <!-- The `Number::spell` method transforms the given number into a string of words: -->
 `Number::spell` 메서드는 주어진 숫자를 단어로 된 문자열로 변환합니다:
 
@@ -2238,6 +2143,7 @@ $number = Number::spell(10, until: 10);
 <a name="method-number-spell-ordinal"></a>
 <!-- #### `Number::spellOrdinal()` -->
 #### `Number::spellOrdinal()`
+
 <!-- The `Number::spellOrdinal` method returns the number's ordinal representation as a string of words: -->
 `Number::spellOrdinal` 메서드는 숫자의 서수 표현을 단어로 된 문자열로 반환합니다:
 
@@ -2260,6 +2166,7 @@ $number = Number::spellOrdinal(21);
 <a name="method-number-trim"></a>
 <!-- #### `Number::trim()` -->
 #### `Number::trim()`
+
 <!-- The `Number::trim` method removes any trailing zero digits after the decimal point of the given number: -->
 `Number::trim` 메서드는 주어진 숫자의 소수점 뒤에 붙은 0을 제거합니다:
 
@@ -2278,6 +2185,7 @@ $number = Number::trim(12.30);
 <a name="method-number-use-locale"></a>
 <!-- #### `Number::useLocale()` -->
 #### `Number::useLocale()`
+
 <!-- The `Number::useLocale` method sets the default number locale globally, which affects how numbers and currency are formatted by subsequent invocations to the `Number` class's methods: -->
 `Number::useLocale` 메서드는 기본 숫자 로케일을 전역으로 설정합니다. 이후 `Number` 클래스의 메서드를 호출할 때 숫자와 통화가 포맷되는 방식에 영향을 줍니다:
 
@@ -2296,6 +2204,7 @@ public function boot(): void
 <a name="method-number-with-locale"></a>
 <!-- #### `Number::withLocale()` -->
 #### `Number::withLocale()`
+
 <!-- The `Number::withLocale` method executes the given closure using the specified locale and then restores the original locale after the callback has executed: -->
 `Number::withLocale` 메서드는 지정한 로케일을 사용해 주어진 클로저를 실행한 다음, 콜백 실행이 끝나면 원래 로케일을 복원합니다:
 
@@ -2310,6 +2219,7 @@ $number = Number::withLocale('de', function () {
 <a name="method-number-use-currency"></a>
 <!-- #### `Number::useCurrency()` -->
 #### `Number::useCurrency()`
+
 <!-- The `Number::useCurrency` method sets the default number currency globally, which affects how the currency is formatted by subsequent invocations to the `Number` class's methods: -->
 `Number::useCurrency` 메서드는 기본 숫자 통화를 전역으로 설정합니다. 이후 `Number` 클래스의 메서드를 호출할 때 통화가 포맷되는 방식에 영향을 줍니다:
 
@@ -2324,9 +2234,11 @@ public function boot(): void
     Number::useCurrency('GBP');
 }
 ```
+
 <a name="method-number-with-currency"></a>
 <!-- #### `Number::withCurrency()` -->
 #### `Number::withCurrency()`
+
 <!-- The `Number::withCurrency` method executes the given closure using the specified currency and then restores the original currency after the callback has executed: -->
 `Number::withCurrency` 메서드는 지정한 통화를 사용하여 주어진 클로저를 실행한 다음, 콜백 실행이 끝나면 원래 통화로 복원합니다.
 
@@ -2345,6 +2257,7 @@ $number = Number::withCurrency('GBP', function () {
 <a name="method-app-path"></a>
 <!-- #### `app_path()` -->
 #### `app_path()`
+
 <!-- The `app_path` function returns the fully qualified path to your application's `app` directory. You may also use the `app_path` function to generate a fully qualified path to a file relative to the application directory: -->
 `app_path` 함수는 애플리케이션의 `app` 디렉터리에 대한 정규화된 전체 경로를 반환합니다. 또한 `app_path` 함수를 사용하여 애플리케이션 디렉터리를 기준으로 한 파일의 정규화된 전체 경로를 생성할 수도 있습니다.
 
@@ -2357,6 +2270,7 @@ $path = app_path('Http/Controllers/Controller.php');
 <a name="method-base-path"></a>
 <!-- #### `base_path()` -->
 #### `base_path()`
+
 <!-- The `base_path` function returns the fully qualified path to your application's root directory. You may also use the `base_path` function to generate a fully qualified path to a given file relative to the project root directory: -->
 `base_path` 함수는 애플리케이션의 루트 디렉터리에 대한 정규화된 전체 경로를 반환합니다. 또한 `base_path` 함수를 사용하여 프로젝트 루트 디렉터리를 기준으로 한 특정 파일의 정규화된 전체 경로를 생성할 수도 있습니다.
 
@@ -2369,6 +2283,7 @@ $path = base_path('vendor/bin');
 <a name="method-config-path"></a>
 <!-- #### `config_path()` -->
 #### `config_path()`
+
 <!-- The `config_path` function returns the fully qualified path to your application's `config` directory. You may also use the `config_path` function to generate a fully qualified path to a given file within the application's configuration directory: -->
 `config_path` 함수는 애플리케이션의 `config` 디렉터리에 대한 정규화된 전체 경로를 반환합니다. 또한 `config_path` 함수를 사용하여 애플리케이션의 설정 디렉터리 안에 있는 특정 파일의 정규화된 전체 경로를 생성할 수도 있습니다.
 
@@ -2381,6 +2296,7 @@ $path = config_path('app.php');
 <a name="method-database-path"></a>
 <!-- #### `database_path()` -->
 #### `database_path()`
+
 <!-- The `database_path` function returns the fully qualified path to your application's `database` directory. You may also use the `database_path` function to generate a fully qualified path to a given file within the database directory: -->
 `database_path` 함수는 애플리케이션의 `database` 디렉터리에 대한 정규화된 전체 경로를 반환합니다. 또한 `database_path` 함수를 사용하여 데이터베이스 디렉터리 안에 있는 특정 파일의 정규화된 전체 경로를 생성할 수도 있습니다.
 
@@ -2393,6 +2309,7 @@ $path = database_path('factories/UserFactory.php');
 <a name="method-lang-path"></a>
 <!-- #### `lang_path()` -->
 #### `lang_path()`
+
 <!-- The `lang_path` function returns the fully qualified path to your application's `lang` directory. You may also use the `lang_path` function to generate a fully qualified path to a given file within the directory: -->
 `lang_path` 함수는 애플리케이션의 `lang` 디렉터리에 대한 정규화된 전체 경로를 반환합니다. 또한 `lang_path` 함수를 사용하여 해당 디렉터리 안에 있는 특정 파일의 정규화된 전체 경로를 생성할 수도 있습니다.
 
@@ -2403,11 +2320,12 @@ $path = lang_path('en/messages.php');
 ```
 
 > [!NOTE]
-> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면 `lang:publish` Artisan 명령어를 통해 게시할 수 있습니다.
+> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 지정하려면 `lang:publish` Artisan 명령어를 사용해 게시할 수 있습니다.
 
 <a name="method-public-path"></a>
 <!-- #### `public_path()` -->
 #### `public_path()`
+
 <!-- The `public_path` function returns the fully qualified path to your application's `public` directory. You may also use the `public_path` function to generate a fully qualified path to a given file within the public directory: -->
 `public_path` 함수는 애플리케이션의 `public` 디렉터리에 대한 정규화된 전체 경로를 반환합니다. 또한 `public_path` 함수를 사용하여 public 디렉터리 안에 있는 특정 파일의 정규화된 전체 경로를 생성할 수도 있습니다.
 
@@ -2420,6 +2338,7 @@ $path = public_path('css/app.css');
 <a name="method-resource-path"></a>
 <!-- #### `resource_path()` -->
 #### `resource_path()`
+
 <!-- The `resource_path` function returns the fully qualified path to your application's `resources` directory. You may also use the `resource_path` function to generate a fully qualified path to a given file within the resources directory: -->
 `resource_path` 함수는 애플리케이션의 `resources` 디렉터리에 대한 정규화된 전체 경로를 반환합니다. 또한 `resource_path` 함수를 사용하여 resources 디렉터리 안에 있는 특정 파일의 정규화된 전체 경로를 생성할 수도 있습니다.
 
@@ -2432,6 +2351,7 @@ $path = resource_path('sass/app.scss');
 <a name="method-storage-path"></a>
 <!-- #### `storage_path()` -->
 #### `storage_path()`
+
 <!-- The `storage_path` function returns the fully qualified path to your application's `storage` directory. You may also use the `storage_path` function to generate a fully qualified path to a given file within the storage directory: -->
 `storage_path` 함수는 애플리케이션의 `storage` 디렉터리에 대한 정규화된 전체 경로를 반환합니다. 또한 `storage_path` 함수를 사용하여 storage 디렉터리 안에 있는 특정 파일의 정규화된 전체 경로를 생성할 수도 있습니다.
 
@@ -2448,6 +2368,7 @@ $path = storage_path('app/file.txt');
 <a name="method-action"></a>
 <!-- #### `action()` -->
 #### `action()`
+
 <!-- The `action` function generates a URL for the given controller action: -->
 `action` 함수는 주어진 컨트롤러 액션에 대한 URL을 생성합니다.
 
@@ -2467,6 +2388,7 @@ $url = action([UserController::class, 'profile'], ['id' => 1]);
 <a name="method-asset"></a>
 <!-- #### `asset()` -->
 #### `asset()`
+
 <!-- The `asset` function generates a URL for an asset using the current scheme of the request (HTTP or HTTPS): -->
 `asset` 함수는 현재 요청의 스킴(HTTP 또는 HTTPS)을 사용하여 asset에 대한 URL을 생성합니다.
 
@@ -2486,8 +2408,9 @@ $url = asset('img/photo.jpg'); // http://example.com/assets/img/photo.jpg
 <a name="method-route"></a>
 <!-- #### `route()` -->
 #### `route()`
+
 <!-- The `route` function generates a URL for a given [named route](/docs/13.x/routing#named-routes): -->
-`route` 함수는 주어진 [named route](/docs/13.x/routing#named-routes)에 대한 URL을 생성합니다.
+`route` 함수는 지정한 [named route](/docs/13.x/routing#named-routes)의 URL을 생성합니다.
 
 ```php
 $url = route('route.name');
@@ -2510,6 +2433,7 @@ $url = route('route.name', ['id' => 1], false);
 <a name="method-secure-asset"></a>
 <!-- #### `secure_asset()` -->
 #### `secure_asset()`
+
 <!-- The `secure_asset` function generates a URL for an asset using HTTPS: -->
 `secure_asset` 함수는 HTTPS를 사용하여 asset에 대한 URL을 생성합니다.
 
@@ -2520,6 +2444,7 @@ $url = secure_asset('img/photo.jpg');
 <a name="method-secure-url"></a>
 <!-- #### `secure_url()` -->
 #### `secure_url()`
+
 <!-- The `secure_url` function generates a fully qualified HTTPS URL to the given path. Additional URL segments may be passed in the function's second argument: -->
 `secure_url` 함수는 주어진 경로에 대한 정규화된 HTTPS URL을 생성합니다. 추가 URL 세그먼트는 함수의 두 번째 인수로 전달할 수 있습니다.
 
@@ -2532,8 +2457,9 @@ $url = secure_url('user/profile', [1]);
 <a name="method-to-action"></a>
 <!-- #### `to_action()` -->
 #### `to_action()`
+
 <!-- The `to_action` function generates a [redirect HTTP response](/docs/13.x/responses#redirects) for a given controller action: -->
-`to_action` 함수는 주어진 컨트롤러 액션에 대한 [redirect HTTP response](/docs/13.x/responses#redirects)을 생성합니다.
+`to_action` 함수는 지정한 컨트롤러 동작에 대한 [redirect HTTP response](/docs/13.x/responses#redirects)를 생성합니다:
 
 ```php
 use App\Http\Controllers\UserController;
@@ -2556,8 +2482,9 @@ return to_action(
 <a name="method-to-route"></a>
 <!-- #### `to_route()` -->
 #### `to_route()`
+
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/13.x/responses#redirects) for a given [named route](/docs/13.x/routing#named-routes): -->
-`to_route` 함수는 [redirect HTTP response](/docs/13.x/responses#redirects)를 생성해 주어진 [named route](/docs/13.x/routing#named-routes)로 이동하게 합니다.
+`to_route` 함수는 지정한 [named route](/docs/13.x/routing#named-routes)에 대한 [redirect HTTP response](/docs/13.x/responses#redirects)를 생성합니다.
 
 ```php
 return to_route('users.show', ['user' => 1]);
@@ -2573,6 +2500,7 @@ return to_route('users.show', ['user' => 1], 302, ['X-Framework' => 'Laravel']);
 <a name="method-uri"></a>
 <!-- #### `uri()` -->
 #### `uri()`
+
 <!-- The `uri` function generates a [fluent URI instance](#uri) for the given URI: -->
 `uri` 함수는 주어진 URI에 대한 [fluent URI instance](#uri)를 생성합니다.
 
@@ -2601,7 +2529,7 @@ $uri = uri(UserIndexController::class);
 ```
 
 <!-- If the value given to the `uri` function matches the name of a [named route](/docs/13.x/routing#named-routes), a `Uri` instance will be generated for that route's path: -->
-`uri` 함수에 전달된 값이 [named route](/docs/13.x/routing#named-routes)의 이름과 일치하면, 해당 라우트의 경로에 대한 `Uri` 인스턴스가 생성됩니다.
+`uri` 함수에 전달한 값이 [named route](/docs/13.x/routing#named-routes)의 이름과 일치하면 해당 라우트의 경로에 대한 `Uri` 인스턴스가 생성됩니다:
 
 ```php
 $uri = uri('users.show', ['user' => $user]);
@@ -2610,6 +2538,7 @@ $uri = uri('users.show', ['user' => $user]);
 <a name="method-url"></a>
 <!-- #### `url()` -->
 #### `url()`
+
 <!-- The `url` function generates a fully qualified URL to the given path: -->
 `url` 함수는 주어진 경로에 대한 정규화된 전체 URL을 생성합니다.
 
@@ -2631,7 +2560,7 @@ $previous = url()->previous();
 ```
 
 <!-- For more information on working with the `url` function, consult the [URL generation documentation](/docs/13.x/urls#generating-urls). -->
-`url` 함수 사용에 대한 자세한 내용은 [URL generation documentation](/docs/13.x/urls#generating-urls)를 참고하십시오.
+`url` 함수 사용에 대한 자세한 내용은 [URL generation documentation](/docs/13.x/urls#generating-urls)을 참고하세요.
 
 <a name="miscellaneous"></a>
 <!-- ## Miscellaneous -->
@@ -2640,8 +2569,9 @@ $previous = url()->previous();
 <a name="method-abort"></a>
 <!-- #### `abort()` -->
 #### `abort()`
+
 <!-- The `abort` function throws [an HTTP exception](/docs/13.x/errors#http-exceptions) which will be rendered by the [exception handler](/docs/13.x/errors#handling-exceptions): -->
-`abort` 함수는 [an HTTP exception](/docs/13.x/errors#http-exceptions)를 발생시키며, 이는 [exception handler](/docs/13.x/errors#handling-exceptions)에 의해 렌더링됩니다.
+`abort` 함수는 [an HTTP exception](/docs/13.x/errors#http-exceptions)를 발생시키며, 이 예외는 [exception handler](/docs/13.x/errors#handling-exceptions)가 렌더링합니다:
 
 ```php
 abort(403);
@@ -2657,6 +2587,7 @@ abort(403, 'Unauthorized.', $headers);
 <a name="method-abort-if"></a>
 <!-- #### `abort_if()` -->
 #### `abort_if()`
+
 <!-- The `abort_if` function throws an HTTP exception if a given boolean expression evaluates to `true`: -->
 `abort_if` 함수는 주어진 boolean 표현식이 `true`로 평가되면 HTTP 예외를 발생시킵니다.
 
@@ -2665,11 +2596,12 @@ abort_if(! Auth::user()->isAdmin(), 403);
 ```
 
 <!-- Like the `abort` method, you may also provide the exception's response text as the third argument and an array of custom response headers as the fourth argument to the function. -->
-`abort` 메서드와 마찬가지로, 함수의 세 번째 인수로 예외의 응답 텍스트를 제공하고 네 번째 인수로 커스텀 응답 헤더 배열을 제공할 수도 있습니다.
+`abort` 메서드와 마찬가지로, 예외의 응답 텍스트를 세 번째 인수로, 사용자 지정 응답 헤더 배열을 네 번째 인수로 함수에 전달할 수도 있습니다.
 
 <a name="method-abort-unless"></a>
 <!-- #### `abort_unless()` -->
 #### `abort_unless()`
+
 <!-- The `abort_unless` function throws an HTTP exception if a given boolean expression evaluates to `false`: -->
 `abort_unless` 함수는 주어진 boolean 표현식이 `false`로 평가되면 HTTP 예외를 발생시킵니다.
 
@@ -2678,13 +2610,14 @@ abort_unless(Auth::user()->isAdmin(), 403);
 ```
 
 <!-- Like the `abort` method, you may also provide the exception's response text as the third argument and an array of custom response headers as the fourth argument to the function. -->
-`abort` 메서드와 마찬가지로, 함수의 세 번째 인수로 예외의 응답 텍스트를 제공하고 네 번째 인수로 커스텀 응답 헤더 배열을 제공할 수도 있습니다.
+`abort` 메서드와 마찬가지로 함수의 세 번째 인수로 예외의 응답 텍스트를, 네 번째 인수로 사용자 지정 응답 헤더 배열을 전달할 수도 있습니다.
 
 <a name="method-app"></a>
 <!-- #### `app()` -->
 #### `app()`
+
 <!-- The `app` function returns the [service container](/docs/13.x/container) instance: -->
-`app` 함수는 [service container](/docs/13.x/container) 인스턴스를 반환합니다.
+`app` 함수는 [service container](/docs/13.x/container) 인스턴스를 반환합니다:
 
 ```php
 $container = app();
@@ -2700,8 +2633,9 @@ $api = app('HelpSpot\API');
 <a name="method-auth"></a>
 <!-- #### `auth()` -->
 #### `auth()`
+
 <!-- The `auth` function returns an [authenticator](/docs/13.x/authentication) instance. You may use it as an alternative to the `Auth` facade: -->
-`auth` 함수는 [authenticator](/docs/13.x/authentication) 인스턴스를 반환합니다. `Auth` 파사드의 대안으로 사용할 수 있습니다.
+`auth` 함수는 [authenticator](/docs/13.x/authentication) 인스턴스를 반환합니다. `Auth` 파사드의 대안으로 사용할 수 있습니다:
 
 ```php
 $user = auth()->user();
@@ -2717,8 +2651,9 @@ $user = auth('admin')->user();
 <a name="method-back"></a>
 <!-- #### `back()` -->
 #### `back()`
+
 <!-- The `back` function generates a [redirect HTTP response](/docs/13.x/responses#redirects) to the user's previous location: -->
-`back` 함수는 사용자의 이전 위치로 이동하는 [redirect HTTP response](/docs/13.x/responses#redirects)을 생성합니다.
+`back` 함수는 사용자의 이전 위치로 [redirect HTTP response](/docs/13.x/responses#redirects)를 생성합니다:
 
 ```php
 return back($status = 302, $headers = [], $fallback = '/');
@@ -2729,8 +2664,9 @@ return back();
 <a name="method-bcrypt"></a>
 <!-- #### `bcrypt()` -->
 #### `bcrypt()`
+
 <!-- The `bcrypt` function [hashes](/docs/13.x/hashing) the given value using Bcrypt. You may use this function as an alternative to the `Hash` facade: -->
-`bcrypt` 함수는 Bcrypt를 사용하여 주어진 값을 [hashes](/docs/13.x/hashing)합니다. 이 함수는 `Hash` 파사드의 대안으로 사용할 수 있습니다.
+`bcrypt` 함수는 Bcrypt를 사용해 주어진 값을 [hashes](/docs/13.x/hashing)합니다. 이 함수를 `Hash` 파사드의 대안으로 사용할 수 있습니다:
 
 ```php
 $password = bcrypt('my-secret-password');
@@ -2739,6 +2675,7 @@ $password = bcrypt('my-secret-password');
 <a name="method-blank"></a>
 <!-- #### `blank()` -->
 #### `blank()`
+
 <!-- The `blank` function determines whether the given value is "blank": -->
 `blank` 함수는 주어진 값이 "비어 있는(blank)" 값인지 판단합니다.
 
@@ -2763,19 +2700,22 @@ blank(false);
 <a name="method-broadcast"></a>
 <!-- #### `broadcast()` -->
 #### `broadcast()`
+
 <!-- The `broadcast` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners: -->
-`broadcast` 함수는 [broadcasts](/docs/13.x/broadcasting) 기능을 사용해 주어진 [event](/docs/13.x/events)를 해당 리스너들에게 전달합니다.
+`broadcast` 함수는 주어진 [event](/docs/13.x/events)를 리스너에게 [broadcasts](/docs/13.x/broadcasting)합니다.
 
 ```php
 broadcast(new UserRegistered($user));
 
 broadcast(new UserRegistered($user))->toOthers();
 ```
+
 <a name="method-broadcast-if"></a>
 <!-- #### `broadcast_if()` -->
 #### `broadcast_if()`
+
 <!-- The `broadcast_if` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `true`: -->
-`broadcast_if` 함수는 주어진 불리언 표현식이 `true`로 평가되면 [broadcasts](/docs/13.x/broadcasting) 기능을 사용해 주어진 [event](/docs/13.x/events)를 해당 리스너들에게 전달합니다.
+`broadcast_if` 함수는 주어진 불리언 표현식이 `true`로 평가될 때 주어진 [event](/docs/13.x/events)를 해당 리스너에 [broadcasts](/docs/13.x/broadcasting)합니다:
 
 ```php
 broadcast_if($user->isActive(), new UserRegistered($user));
@@ -2786,8 +2726,9 @@ broadcast_if($user->isActive(), new UserRegistered($user))->toOthers();
 <a name="method-broadcast-unless"></a>
 <!-- #### `broadcast_unless()` -->
 #### `broadcast_unless()`
+
 <!-- The `broadcast_unless` function [broadcasts](/docs/13.x/broadcasting) the given [event](/docs/13.x/events) to its listeners if a given boolean expression evaluates to `false`: -->
-`broadcast_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 [broadcasts](/docs/13.x/broadcasting) 기능을 사용해 주어진 [event](/docs/13.x/events)를 해당 리스너들에게 전달합니다.
+`broadcast_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 지정한 [event](/docs/13.x/events)를 해당 리스너에 [broadcasts](/docs/13.x/broadcasting)합니다:
 
 ```php
 broadcast_unless($user->isBanned(), new UserRegistered($user));
@@ -2798,8 +2739,9 @@ broadcast_unless($user->isBanned(), new UserRegistered($user))->toOthers();
 <a name="method-cache"></a>
 <!-- #### `cache()` -->
 #### `cache()`
+
 <!-- The `cache` function may be used to get values from the [cache](/docs/13.x/cache). If the given key does not exist in the cache, an optional default value will be returned: -->
-`cache` 함수는 [cache](/docs/13.x/cache)에서 값을 가져오는 데 사용할 수 있습니다. 주어진 키가 캐시에 없으면 선택적으로 지정한 기본값이 반환됩니다.
+`cache` 함수로 [cache](/docs/13.x/cache)에서 값을 가져올 수 있습니다. 지정한 키가 캐시에 없으면 선택적 기본값이 반환됩니다:
 
 ```php
 $value = cache('key');
@@ -2819,6 +2761,7 @@ cache(['key' => 'value'], now()->plus(seconds: 10));
 <a name="method-class-uses-recursive"></a>
 <!-- #### `class_uses_recursive()` -->
 #### `class_uses_recursive()`
+
 <!-- The `class_uses_recursive` function returns all traits used by a class, including traits used by all of its parent classes: -->
 `class_uses_recursive` 함수는 클래스가 사용하는 모든 traits를 반환하며, 부모 클래스들이 사용하는 traits도 포함합니다.
 
@@ -2829,8 +2772,9 @@ $traits = class_uses_recursive(App\Models\User::class);
 <a name="method-collect"></a>
 <!-- #### `collect()` -->
 #### `collect()`
+
 <!-- The `collect` function creates a [collection](/docs/13.x/collections) instance from the given value: -->
-`collect` 함수는 주어진 값으로부터 [collection](/docs/13.x/collections) 인스턴스를 생성합니다.
+`collect` 함수는 주어진 값으로 [collection](/docs/13.x/collections) 인스턴스를 생성합니다:
 
 ```php
 $collection = collect(['Taylor', 'Abigail']);
@@ -2839,8 +2783,9 @@ $collection = collect(['Taylor', 'Abigail']);
 <a name="method-config"></a>
 <!-- #### `config()` -->
 #### `config()`
+
 <!-- The `config` function gets the value of a [configuration](/docs/13.x/configuration) variable. The configuration values may be accessed using "dot" syntax, which includes the name of the file and the option you wish to access. You may also provide a default value that will be returned if the configuration option does not exist: -->
-`config` 함수는 [configuration](/docs/13.x/configuration) 변수의 값을 가져옵니다. 설정 값은 파일 이름과 접근하려는 옵션 이름을 포함하는 "dot" 문법으로 접근할 수 있습니다. 설정 옵션이 존재하지 않을 때 반환할 기본값도 지정할 수 있습니다.
+`config` 함수는 [configuration](/docs/13.x/configuration) 변수의 값을 가져옵니다. 설정 값은 파일 이름과 접근하려는 옵션을 포함하는 "점" 표기법으로 접근할 수 있습니다. 설정 옵션이 존재하지 않을 때 반환할 기본값도 지정할 수 있습니다:
 
 ```php
 $value = config('app.timezone');
@@ -2858,8 +2803,9 @@ config(['app.debug' => true]);
 <a name="method-context"></a>
 <!-- #### `context()` -->
 #### `context()`
+
 <!-- The `context` function gets the value from the current [context](/docs/13.x/context). You may also provide a default value that will be returned if the context key does not exist: -->
-`context` 함수는 현재 [context](/docs/13.x/context)에서 값을 가져옵니다. context 키가 존재하지 않을 때 반환할 기본값도 지정할 수 있습니다.
+`context` 함수는 현재 [context](/docs/13.x/context)에서 값을 가져옵니다. 컨텍스트 키가 존재하지 않을 때 반환할 기본값을 지정할 수도 있습니다.
 
 ```php
 $value = context('trace_id');
@@ -2879,8 +2825,9 @@ context(['trace_id' => Str::uuid()->toString()]);
 <a name="method-cookie"></a>
 <!-- #### `cookie()` -->
 #### `cookie()`
+
 <!-- The `cookie` function creates a new [cookie](/docs/13.x/requests#cookies) instance: -->
-`cookie` 함수는 새 [cookie](/docs/13.x/requests#cookies) 인스턴스를 생성합니다.
+`cookie` 함수는 새로운 [cookie](/docs/13.x/requests#cookies) 인스턴스를 생성합니다:
 
 ```php
 $cookie = cookie('name', 'value', $minutes);
@@ -2889,8 +2836,9 @@ $cookie = cookie('name', 'value', $minutes);
 <a name="method-csrf-field"></a>
 <!-- #### `csrf_field()` -->
 #### `csrf_field()`
+
 <!-- The `csrf_field` function generates an HTML `hidden` input field containing the value of the CSRF token. For example, using [Blade syntax](/docs/13.x/blade): -->
-`csrf_field` 함수는 CSRF 토큰 값을 포함하는 HTML `hidden` 입력 필드를 생성합니다. 예를 들어 [Blade syntax](/docs/13.x/blade)을 사용하면 다음과 같습니다.
+`csrf_field` 함수는 CSRF 토큰 값을 포함하는 HTML `hidden` 입력 필드를 생성합니다. 예를 들어 [Blade syntax](/docs/13.x/blade)를 사용하면 다음과 같습니다.
 
 ```blade
 {{ csrf_field() }}
@@ -2899,6 +2847,7 @@ $cookie = cookie('name', 'value', $minutes);
 <a name="method-csrf-token"></a>
 <!-- #### `csrf_token()` -->
 #### `csrf_token()`
+
 <!-- The `csrf_token` function retrieves the value of the current CSRF token: -->
 `csrf_token` 함수는 현재 CSRF 토큰 값을 가져옵니다.
 
@@ -2909,8 +2858,9 @@ $token = csrf_token();
 <a name="method-decrypt"></a>
 <!-- #### `decrypt()` -->
 #### `decrypt()`
+
 <!-- The `decrypt` function [decrypts](/docs/13.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`decrypt` 함수는 주어진 값을 [decrypts](/docs/13.x/encryption)합니다. 이 함수는 `Crypt` 파사드 대신 사용할 수 있습니다.
+`decrypt` 함수는 주어진 값을 [decrypts](/docs/13.x/encryption)합니다. 이 함수를 `Crypt` 파사드의 대안으로 사용할 수 있습니다.
 
 ```php
 $password = decrypt($value);
@@ -2922,6 +2872,7 @@ $password = decrypt($value);
 <a name="method-dd"></a>
 <!-- #### `dd()` -->
 #### `dd()`
+
 <!-- The `dd` function dumps the given variables and ends the execution of the script: -->
 `dd` 함수는 주어진 변수들을 덤프하고 스크립트 실행을 종료합니다.
 
@@ -2937,8 +2888,9 @@ dd($value1, $value2, $value3, ...);
 <a name="method-dispatch"></a>
 <!-- #### `dispatch()` -->
 #### `dispatch()`
+
 <!-- The `dispatch` function pushes the given [job](/docs/13.x/queues#creating-jobs) onto the Laravel [job queue](/docs/13.x/queues): -->
-`dispatch` 함수는 주어진 [job](/docs/13.x/queues#creating-jobs)을 Laravel [job queue](/docs/13.x/queues)에 넣습니다.
+`dispatch` 함수는 주어진 [job](/docs/13.x/queues#creating-jobs)을 Laravel [job queue](/docs/13.x/queues)에 추가합니다.
 
 ```php
 dispatch(new App\Jobs\SendEmails);
@@ -2947,8 +2899,9 @@ dispatch(new App\Jobs\SendEmails);
 <a name="method-dispatch-sync"></a>
 <!-- #### `dispatch_sync()` -->
 #### `dispatch_sync()`
+
 <!-- The `dispatch_sync` function pushes the given job to the [sync](/docs/13.x/queues#synchronous-dispatching) queue so that it is processed immediately: -->
-`dispatch_sync` 함수는 주어진 job을 즉시 처리되도록 [sync](/docs/13.x/queues#synchronous-dispatching) 큐에 넣습니다.
+`dispatch_sync` 함수는 주어진 잡을 [sync](/docs/13.x/queues#synchronous-dispatching) 큐에 추가하여 즉시 처리합니다:
 
 ```php
 dispatch_sync(new App\Jobs\SendEmails);
@@ -2957,6 +2910,7 @@ dispatch_sync(new App\Jobs\SendEmails);
 <a name="method-dump"></a>
 <!-- #### `dump()` -->
 #### `dump()`
+
 <!-- The `dump` function dumps the given variables: -->
 `dump` 함수는 주어진 변수들을 덤프합니다.
 
@@ -2972,8 +2926,9 @@ dump($value1, $value2, $value3, ...);
 <a name="method-encrypt"></a>
 <!-- #### `encrypt()` -->
 #### `encrypt()`
+
 <!-- The `encrypt` function [encrypts](/docs/13.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`encrypt` 함수는 주어진 값을 [encrypts](/docs/13.x/encryption)합니다. 이 함수는 `Crypt` 파사드 대신 사용할 수 있습니다.
+`encrypt` 함수는 주어진 값을 [encrypts](/docs/13.x/encryption)합니다. 이 함수를 `Crypt` 파사드의 대안으로 사용할 수 있습니다:
 
 ```php
 $secret = encrypt('my-secret-value');
@@ -2985,8 +2940,9 @@ $secret = encrypt('my-secret-value');
 <a name="method-env"></a>
 <!-- #### `env()` -->
 #### `env()`
+
 <!-- The `env` function retrieves the value of an [environment variable](/docs/13.x/configuration#environment-configuration) or returns a default value: -->
-`env` 함수는 [environment variable](/docs/13.x/configuration#environment-configuration)의 값을 가져오거나 기본값을 반환합니다.
+`env` 함수는 [environment variable](/docs/13.x/configuration#environment-configuration)의 값을 가져오거나 기본값을 반환합니다:
 
 ```php
 $env = env('APP_ENV');
@@ -2995,13 +2951,14 @@ $env = env('APP_ENV', 'production');
 ```
 
 > [!WARNING]
-> 배포 과정에서 `config:cache` 명령어를 실행한다면, `env` 함수는 반드시 설정 파일 안에서만 호출해야 합니다. 설정이 캐시되면 `.env` 파일은 로드되지 않으며, `env` 함수를 호출하면 서버 수준 또는 시스템 수준의 환경 변수와 같은 외부 환경 변수 값이 반환되거나 `null`이 반환됩니다.
+> 배포 과정에서 `config:cache` 명령어를 실행한다면 설정 파일 외부에서는 `env` 함수를 호출하지 않는지 반드시 확인해야 합니다. 설정이 캐시되면 `.env` 파일이 로드되지 않으며, `env` 함수 호출은 모두 서버 수준이나 시스템 수준의 환경 변수와 같은 외부 환경 변수 또는 `null`을 반환합니다.
 
 <a name="method-event"></a>
 <!-- #### `event()` -->
 #### `event()`
+
 <!-- The `event` function dispatches the given [event](/docs/13.x/events) to its listeners: -->
-`event` 함수는 주어진 [event](/docs/13.x/events)를 해당 리스너에게 디스패치합니다.
+`event` 함수는 지정한 [event](/docs/13.x/events)를 해당 리스너에 디스패치합니다:
 
 ```php
 event(new UserRegistered($user));
@@ -3010,6 +2967,7 @@ event(new UserRegistered($user));
 <a name="method-fake"></a>
 <!-- #### `fake()` -->
 #### `fake()`
+
 <!-- The `fake` function resolves a [Faker](https://github.com/FakerPHP/Faker) singleton from the container, which can be useful when creating fake data in model factories, database seeding, tests, and prototyping views: -->
 `fake` 함수는 컨테이너에서 [Faker](https://github.com/FakerPHP/Faker) 싱글톤을 해석합니다. 이는 모델 팩토리, 데이터베이스 시딩, 테스트, 뷰 프로토타이핑에서 가짜 데이터를 만들 때 유용합니다.
 
@@ -3035,6 +2993,7 @@ fake('nl_NL')->name()
 <a name="method-filled"></a>
 <!-- #### `filled()` -->
 #### `filled()`
+
 <!-- The `filled` function determines whether the given value is not "blank": -->
 `filled` 함수는 주어진 값이 "blank"가 아닌지 판단합니다.
 
@@ -3059,15 +3018,16 @@ filled(collect());
 <a name="method-info"></a>
 <!-- #### `info()` -->
 #### `info()`
+
 <!-- The `info` function will write information to your application's [log](/docs/13.x/logging): -->
-`info` 함수는 애플리케이션의 [log](/docs/13.x/logging)에 정보를 기록합니다.
+`info` 함수는 애플리케이션의 [log](/docs/13.x/logging)에 정보를 기록합니다:
 
 ```php
 info('Some helpful information!');
 ```
 
 <!-- An array of contextual data may also be passed to the function: -->
-컨텍스트 데이터 배열도 함수에 전달할 수 있습니다.
+컨텍스트 데이터 배열도 함수에 전달할 수 있습니다:
 
 ```php
 info('User login attempt failed.', ['id' => $user->id]);
@@ -3076,6 +3036,7 @@ info('User login attempt failed.', ['id' => $user->id]);
 <a name="method-literal"></a>
 <!-- #### `literal()` -->
 #### `literal()`
+
 <!-- The `literal` function creates a new [stdClass](https://www.php.net/manual/en/class.stdclass.php) instance with the given named arguments as properties: -->
 `literal` 함수는 주어진 이름 있는 인수를 속성으로 갖는 새 [stdClass](https://www.php.net/manual/en/class.stdclass.php) 인스턴스를 생성합니다.
 
@@ -3092,22 +3053,23 @@ $obj->languages; // ['PHP', 'Ruby']
 <a name="method-logger"></a>
 <!-- #### `logger()` -->
 #### `logger()`
+
 <!-- The `logger` function can be used to write a `debug` level message to the [log](/docs/13.x/logging): -->
-`logger` 함수는 [log](/docs/13.x/logging)에 `debug` 레벨 메시지를 기록하는 데 사용할 수 있습니다.
+`logger` 함수는 [log](/docs/13.x/logging)에 `debug` 레벨 메시지를 기록하는 데 사용할 수 있습니다:
 
 ```php
 logger('Debug message');
 ```
 
 <!-- An array of contextual data may also be passed to the function: -->
-컨텍스트 데이터 배열도 함수에 전달할 수 있습니다.
+컨텍스트 데이터 배열을 함수에 전달할 수도 있습니다:
 
 ```php
 logger('User has logged in.', ['id' => $user->id]);
 ```
 
 <!-- A [logger](/docs/13.x/logging) instance will be returned if no value is passed to the function: -->
-함수에 아무 값도 전달하지 않으면 [logger](/docs/13.x/logging) 인스턴스가 반환됩니다.
+함수에 값을 전달하지 않으면 [logger](/docs/13.x/logging) 인스턴스가 반환됩니다:
 
 ```php
 logger()->error('You are not allowed here.');
@@ -3116,8 +3078,9 @@ logger()->error('You are not allowed here.');
 <a name="method-method-field"></a>
 <!-- #### `method_field()` -->
 #### `method_field()`
+
 <!-- The `method_field` function generates an HTML `hidden` input field containing the spoofed value of the form's HTTP verb. For example, using [Blade syntax](/docs/13.x/blade): -->
-`method_field` 함수는 폼의 HTTP verb를 위장한 값을 포함하는 HTML `hidden` 입력 필드를 생성합니다. 예를 들어 [Blade syntax](/docs/13.x/blade)을 사용하면 다음과 같습니다.
+`method_field` 함수는 폼의 HTTP 동사를 위조한 값이 포함된 HTML `hidden` 입력 필드를 생성합니다. 예를 들어, [Blade syntax](/docs/13.x/blade)을 사용하면 다음과 같습니다:
 
 ```blade
 <form method="POST">
@@ -3128,6 +3091,7 @@ logger()->error('You are not allowed here.');
 <a name="method-now"></a>
 <!-- #### `now()` -->
 #### `now()`
+
 <!-- The `now` function creates a new `Illuminate\Support\Carbon` instance for the current time: -->
 `now` 함수는 현재 시각에 대한 새 `Illuminate\Support\Carbon` 인스턴스를 생성합니다.
 
@@ -3138,8 +3102,9 @@ $now = now();
 <a name="method-old"></a>
 <!-- #### `old()` -->
 #### `old()`
+
 <!-- The `old` function [retrieves](/docs/13.x/requests#retrieving-input) an [old input](/docs/13.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 [retrieves](/docs/13.x/requests#retrieving-input) 동작으로 세션에 플래시된 [old input](/docs/13.x/requests#old-input) 값을 가져옵니다.
+`old` 함수는 세션에 플래시된 [old input](/docs/13.x/requests#old-input) 값을 [retrieves](/docs/13.x/requests#retrieving-input):
 
 ```php
 $value = old('value');
@@ -3161,6 +3126,7 @@ $value = old('value', 'default');
 <a name="method-once"></a>
 <!-- #### `once()` -->
 #### `once()`
+
 <!-- The `once` function executes the given callback and caches the result in memory for the duration of the request. Any subsequent calls to the `once` function with the same callback will return the previously cached result: -->
 `once` 함수는 주어진 콜백을 실행하고, 요청이 지속되는 동안 그 결과를 메모리에 캐시합니다. 같은 콜백으로 `once` 함수를 다시 호출하면 이전에 캐시된 결과가 반환됩니다.
 
@@ -3204,6 +3170,7 @@ $secondService->all(); // (cached result)
 <a name="method-optional"></a>
 <!-- #### `optional()` -->
 #### `optional()`
+
 <!-- The `optional` function accepts any argument and allows you to access properties or call methods on that object. If the given object is `null`, properties and methods will return `null` instead of causing an error: -->
 `optional` 함수는 어떤 인수든 받아들이며, 해당 객체의 속성에 접근하거나 메서드를 호출할 수 있게 해줍니다. 주어진 객체가 `null`이면 오류를 발생시키는 대신 속성과 메서드는 `null`을 반환합니다.
 
@@ -3212,6 +3179,7 @@ return optional($user->address)->street;
 
 {!! old('name', optional($user)->name) !!}
 ```
+
 <!-- The `optional` function also accepts a closure as its second argument. The closure will be invoked if the value provided as the first argument is not null: -->
 `optional` 함수는 두 번째 인수로 클로저도 받을 수 있습니다. 첫 번째 인수로 제공된 값이 null이 아니면 이 클로저가 호출됩니다.
 
@@ -3224,8 +3192,9 @@ return optional(User::find($id), function (User $user) {
 <a name="method-policy"></a>
 <!-- #### `policy()` -->
 #### `policy()`
+
 <!-- The `policy` method retrieves a [policy](/docs/13.x/authorization#creating-policies) instance for a given class: -->
-`policy` 메서드는 주어진 클래스에 대한 [policy](/docs/13.x/authorization#creating-policies) 인스턴스를 가져옵니다.
+`policy` 메서드는 지정한 클래스에 대한 [policy](/docs/13.x/authorization#creating-policies) 인스턴스를 가져옵니다:
 
 ```php
 $policy = policy(App\Models\User::class);
@@ -3234,8 +3203,9 @@ $policy = policy(App\Models\User::class);
 <a name="method-redirect"></a>
 <!-- #### `redirect()` -->
 #### `redirect()`
+
 <!-- The `redirect` function returns a [redirect HTTP response](/docs/13.x/responses#redirects), or returns the redirector instance if called with no arguments: -->
-`redirect` 함수는 [redirect HTTP response](/docs/13.x/responses#redirects)를 반환하거나, 인수 없이 호출하면 redirector 인스턴스를 반환합니다.
+`redirect` 함수는 [redirect HTTP response](/docs/13.x/responses#redirects)를 반환하거나, 인수 없이 호출하면 redirector 인스턴스를 반환합니다:
 
 ```php
 return redirect($to = null, $status = 302, $headers = [], $secure = null);
@@ -3248,8 +3218,9 @@ return redirect()->route('route.name');
 <a name="method-report"></a>
 <!-- #### `report()` -->
 #### `report()`
+
 <!-- The `report` function will report an exception using your [exception handler](/docs/13.x/errors#handling-exceptions): -->
-`report` 함수는 애플리케이션의 [exception handler](/docs/13.x/errors#handling-exceptions)를 사용하여 예외를 보고합니다.
+`report` 함수는 다음 [exception handler](/docs/13.x/errors#handling-exceptions)를 사용해 예외를 보고합니다:
 
 ```php
 report($e);
@@ -3265,8 +3236,9 @@ report('Something went wrong.');
 <a name="method-report-if"></a>
 <!-- #### `report_if()` -->
 #### `report_if()`
+
 <!-- The `report_if` function will report an exception using your [exception handler](/docs/13.x/errors#handling-exceptions) if a given boolean expression evaluates to `true`: -->
-`report_if` 함수는 주어진 불리언 표현식이 `true`로 평가되면 애플리케이션의 [exception handler](/docs/13.x/errors#handling-exceptions)를 사용하여 예외를 보고합니다.
+`report_if` 함수는 주어진 불리언 표현식이 `true`로 평가되면 [exception handler](/docs/13.x/errors#handling-exceptions)를 사용해 예외를 보고합니다:
 
 ```php
 report_if($shouldReport, $e);
@@ -3277,8 +3249,9 @@ report_if($shouldReport, 'Something went wrong.');
 <a name="method-report-unless"></a>
 <!-- #### `report_unless()` -->
 #### `report_unless()`
+
 <!-- The `report_unless` function will report an exception using your [exception handler](/docs/13.x/errors#handling-exceptions) if a given boolean expression evaluates to `false`: -->
-`report_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 애플리케이션의 [exception handler](/docs/13.x/errors#handling-exceptions)를 사용하여 예외를 보고합니다.
+`report_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 [exception handler](/docs/13.x/errors#handling-exceptions)를 사용해 예외를 보고합니다:
 
 ```php
 report_unless($reportingDisabled, $e);
@@ -3289,8 +3262,9 @@ report_unless($reportingDisabled, 'Something went wrong.');
 <a name="method-request"></a>
 <!-- #### `request()` -->
 #### `request()`
+
 <!-- The `request` function returns the current [request](/docs/13.x/requests) instance or obtains an input field's value from the current request: -->
-`request` 함수는 현재 [request](/docs/13.x/requests) 인스턴스를 반환하거나, 현재 request에서 입력 필드의 값을 가져옵니다.
+`request` 함수는 현재 [request](/docs/13.x/requests) 인스턴스를 반환하거나 현재 요청에서 입력 필드의 값을 가져옵니다.
 
 ```php
 $request = request();
@@ -3301,8 +3275,9 @@ $value = request('key', $default);
 <a name="method-rescue"></a>
 <!-- #### `rescue()` -->
 #### `rescue()`
+
 <!-- The `rescue` function executes the given closure and catches any exceptions that occur during its execution. All exceptions that are caught will be sent to your [exception handler](/docs/13.x/errors#handling-exceptions); however, the request will continue processing: -->
-`rescue` 함수는 주어진 클로저를 실행하고, 실행 중에 발생하는 모든 예외를 잡습니다. 잡힌 모든 예외는 애플리케이션의 [exception handler](/docs/13.x/errors#handling-exceptions)로 전송됩니다. 하지만 request 처리는 계속 진행됩니다.
+`rescue` 함수는 주어진 클로저를 실행하고 실행 중 발생하는 모든 예외를 처리합니다. 처리된 모든 예외는 [exception handler](/docs/13.x/errors#handling-exceptions)로 전달되지만 요청 처리는 계속됩니다:
 
 ```php
 return rescue(function () {
@@ -3339,8 +3314,9 @@ return rescue(function () {
 <a name="method-resolve"></a>
 <!-- #### `resolve()` -->
 #### `resolve()`
+
 <!-- The `resolve` function resolves a given class or interface name to an instance using the [service container](/docs/13.x/container): -->
-`resolve` 함수는 [service container](/docs/13.x/container)를 사용하여 주어진 클래스명 또는 인터페이스명을 인스턴스로 해석합니다.
+`resolve` 함수는 [service container](/docs/13.x/container)를 사용해 주어진 클래스 또는 인터페이스 이름을 인스턴스로 확인합니다:
 
 ```php
 $api = resolve('HelpSpot\API');
@@ -3349,8 +3325,9 @@ $api = resolve('HelpSpot\API');
 <a name="method-response"></a>
 <!-- #### `response()` -->
 #### `response()`
+
 <!-- The `response` function creates a [response](/docs/13.x/responses) instance or obtains an instance of the response factory: -->
-`response` 함수는 [response](/docs/13.x/responses) 인스턴스를 생성하거나 response factory의 인스턴스를 가져옵니다.
+`response` 함수는 [response](/docs/13.x/responses) 인스턴스를 생성하거나 응답 팩토리의 인스턴스를 가져옵니다:
 
 ```php
 return response('Hello World', 200, $headers);
@@ -3361,6 +3338,7 @@ return response()->json(['foo' => 'bar'], 200, $headers);
 <a name="method-retry"></a>
 <!-- #### `retry()` -->
 #### `retry()`
+
 <!-- The `retry` function attempts to execute the given callback until the given maximum attempt threshold is met. If the callback does not throw an exception, its return value will be returned. If the callback throws an exception, it will automatically be retried. If the maximum attempt count is exceeded, the exception will be thrown: -->
 `retry` 함수는 주어진 최대 시도 횟수에 도달할 때까지 주어진 콜백 실행을 시도합니다. 콜백이 예외를 던지지 않으면 반환값이 그대로 반환됩니다. 콜백이 예외를 던지면 자동으로 다시 시도됩니다. 최대 시도 횟수를 초과하면 해당 예외가 던져집니다.
 
@@ -3420,8 +3398,9 @@ return retry(5, function () {
 <a name="method-session"></a>
 <!-- #### `session()` -->
 #### `session()`
+
 <!-- The `session` function may be used to get or set [session](/docs/13.x/session) values: -->
-`session` 함수는 [session](/docs/13.x/session) 값을 가져오거나 설정하는 데 사용할 수 있습니다.
+`session` 함수로 [session](/docs/13.x/session) 값을 가져오거나 설정할 수 있습니다:
 
 ```php
 $value = session('key');
@@ -3446,6 +3425,7 @@ session()->put('key', $value);
 <a name="method-tap"></a>
 <!-- #### `tap()` -->
 #### `tap()`
+
 <!-- The `tap` function accepts two arguments: an arbitrary `$value` and a closure. The `$value` will be passed to the closure and then be returned by the `tap` function. The return value of the closure is irrelevant: -->
 `tap` 함수는 임의의 `$value`와 클로저, 두 개의 인수를 받습니다. `$value`는 클로저에 전달된 다음 `tap` 함수에 의해 반환됩니다. 클로저의 반환값은 중요하지 않습니다.
 
@@ -3479,6 +3459,7 @@ return $user->tap(function (User $user) {
 <a name="method-throw-if"></a>
 <!-- #### `throw_if()` -->
 #### `throw_if()`
+
 <!-- The `throw_if` function throws the given exception if a given boolean expression evaluates to `true`: -->
 `throw_if` 함수는 주어진 불리언 표현식이 `true`로 평가되면 주어진 예외를 던집니다.
 
@@ -3495,6 +3476,7 @@ throw_if(
 <a name="method-throw-unless"></a>
 <!-- #### `throw_unless()` -->
 #### `throw_unless()`
+
 <!-- The `throw_unless` function throws the given exception if a given boolean expression evaluates to `false`: -->
 `throw_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 주어진 예외를 던집니다.
 
@@ -3511,6 +3493,7 @@ throw_unless(
 <a name="method-today"></a>
 <!-- #### `today()` -->
 #### `today()`
+
 <!-- The `today` function creates a new `Illuminate\Support\Carbon` instance for the current date: -->
 `today` 함수는 현재 날짜에 대한 새로운 `Illuminate\Support\Carbon` 인스턴스를 생성합니다.
 
@@ -3521,6 +3504,7 @@ $today = today();
 <a name="method-trait-uses-recursive"></a>
 <!-- #### `trait_uses_recursive()` -->
 #### `trait_uses_recursive()`
+
 <!-- The `trait_uses_recursive` function returns all traits used by a trait: -->
 `trait_uses_recursive` 함수는 trait가 사용하는 모든 trait를 반환합니다.
 
@@ -3531,6 +3515,7 @@ $traits = trait_uses_recursive(\Illuminate\Notifications\Notifiable::class);
 <a name="method-transform"></a>
 <!-- #### `transform()` -->
 #### `transform()`
+
 <!-- The `transform` function executes a closure on a given value if the value is not [blank](#method-blank) and then returns the return value of the closure: -->
 `transform` 함수는 주어진 값이 [blank](#method-blank)가 아닌 경우 그 값에 대해 클로저를 실행한 다음, 클로저의 반환값을 반환합니다.
 
@@ -3556,8 +3541,9 @@ $result = transform(null, $callback, 'The value is blank');
 <a name="method-validator"></a>
 <!-- #### `validator()` -->
 #### `validator()`
+
 <!-- The `validator` function creates a new [validator](/docs/13.x/validation) instance with the given arguments. You may use it as an alternative to the `Validator` facade: -->
-`validator` 함수는 주어진 인수로 새로운 [validator](/docs/13.x/validation) 인스턴스를 생성합니다. `Validator` facade의 대안으로 사용할 수 있습니다.
+`validator` 함수는 주어진 인수로 새로운 [validator](/docs/13.x/validation) 인스턴스를 생성합니다. `Validator` 파사드의 대안으로 사용할 수 있습니다:
 
 ```php
 $validator = validator($data, $rules, $messages);
@@ -3566,6 +3552,7 @@ $validator = validator($data, $rules, $messages);
 <a name="method-value"></a>
 <!-- #### `value()` -->
 #### `value()`
+
 <!-- The `value` function returns the value it is given. However, if you pass a closure to the function, the closure will be executed and its returned value will be returned: -->
 `value` 함수는 전달받은 값을 반환합니다. 하지만 함수에 클로저를 전달하면, 해당 클로저가 실행되고 그 반환값이 반환됩니다.
 
@@ -3595,8 +3582,9 @@ $result = value(function (string $name) {
 <a name="method-view"></a>
 <!-- #### `view()` -->
 #### `view()`
+
 <!-- The `view` function retrieves a [view](/docs/13.x/views) instance: -->
-`view` 함수는 [view](/docs/13.x/views) 인스턴스를 가져옵니다.
+`view` 함수는 [view](/docs/13.x/views) 인스턴스를 가져옵니다:
 
 ```php
 return view('auth.login');
@@ -3605,6 +3593,7 @@ return view('auth.login');
 <a name="method-with"></a>
 <!-- #### `with()` -->
 #### `with()`
+
 <!-- The `with` function returns the value it is given. If a closure is passed as the second argument to the function, the closure will be executed and its returned value will be returned: -->
 `with` 함수는 전달받은 값을 반환합니다. 함수의 두 번째 인수로 클로저가 전달되면, 해당 클로저가 실행되고 그 반환값이 반환됩니다.
 
@@ -3629,6 +3618,7 @@ $result = with(5, null);
 <a name="method-when"></a>
 <!-- #### `when()` -->
 #### `when()`
+
 <!-- The `when` function returns the value it is given if a given condition evaluates to `true`. Otherwise, `null` is returned. If a closure is passed as the second argument to the function, the closure will be executed and its returned value will be returned: -->
 `when` 함수는 주어진 조건이 `true`로 평가되면 전달받은 값을 반환합니다. 그렇지 않으면 `null`이 반환됩니다. 함수의 두 번째 인수로 클로저가 전달되면, 해당 클로저가 실행되고 그 반환값이 반환됩니다.
 
@@ -3650,6 +3640,7 @@ $value = when(true, fn () => 'Hello World');
 <a name="other-utilities"></a>
 <!-- ## Other Utilities -->
 ## Other Utilities
+
 <a name="benchmarking"></a>
 <!-- ### Benchmarking -->
 ### Benchmarking
@@ -3744,7 +3735,7 @@ Cache::put('metrics', $metrics, minutes(10));
 ### Deferred Functions
 
 <!-- While Laravel's [queued jobs](/docs/13.x/queues) allow you to queue tasks for background processing, sometimes you may have simple tasks you would like to defer without configuring or maintaining a long-running queue worker. -->
-Laravel의 [queued jobs](/docs/13.x/queues)을 사용하면 백그라운드 처리를 위해 작업을 큐에 넣을 수 있습니다. 하지만 때로는 오래 실행되는 큐 워커를 설정하거나 유지 관리하지 않고, 간단한 작업만 나중에 실행하고 싶을 수 있습니다.
+Laravel의 [queued jobs](/docs/13.x/queues)를 사용하면 백그라운드 처리를 위해 작업을 큐에 넣을 수 있지만, 장시간 실행되는 큐 워커를 구성하거나 유지 관리하지 않고 간단한 작업을 지연하고 싶은 경우도 있습니다.
 
 <!-- Deferred functions allow you to defer the execution of a closure until after the HTTP response has been sent to the user, keeping your application feeling fast and responsive. To defer the execution of a closure, simply pass the closure to the `Illuminate\Support\defer` function: -->
 지연 함수는 HTTP 응답이 사용자에게 전송된 뒤 클로저 실행을 미룰 수 있게 해 줍니다. 이를 통해 애플리케이션이 빠르고 즉각적으로 반응하는 것처럼 느껴지게 할 수 있습니다. 클로저 실행을 지연하려면 클로저를 `Illuminate\Support\defer` 함수에 전달하기만 하면 됩니다.
@@ -3772,7 +3763,7 @@ defer(fn () => Metrics::reportOrder($order))->always();
 ```
 
 > [!WARNING]
-> [Swoole PHP extension](https://www.php.net/manual/en/book.swoole.php)이 설치되어 있다면 Laravel의 `defer` 함수가 Swoole 자체의 전역 `defer` 함수와 충돌하여 웹 서버 오류가 발생할 수 있습니다. Laravel의 `defer` 헬퍼를 호출할 때는 반드시 명시적으로 네임스페이스를 지정하십시오: `use function Illuminate\Support\defer;`
+> [Swoole PHP extension](https://www.php.net/manual/en/book.swoole.php)이 설치되어 있다면 Laravel의 `defer` 함수가 Swoole의 자체 전역 `defer` 함수와 충돌하여 웹 서버 오류가 발생할 수 있습니다. Laravel의 `defer` 헬퍼를 호출할 때는 반드시 네임스페이스를 명시해야 합니다: `use function Illuminate\Support\defer;`
 
 <a name="cancelling-deferred-functions"></a>
 <!-- #### Cancelling Deferred Functions -->
@@ -3917,13 +3908,13 @@ $user = Pipeline::send($user)
 ```
 
 <!-- As you can see, each invokable class or closure in the pipeline is provided the input and a `$next` closure. Invoking the `$next` closure will invoke the next callable in the pipeline. As you may have noticed, this is very similar to [middleware](/docs/13.x/middleware). -->
-보시다시피 파이프라인 안의 각 호출 가능한 클래스나 클로저에는 입력과 `$next` 클로저가 제공됩니다. `$next` 클로저를 호출하면 파이프라인의 다음 callable이 호출됩니다. 눈치채셨겠지만, 이는 [middleware](/docs/13.x/middleware)와 매우 비슷합니다.
+보시다시피 파이프라인의 각 호출 가능한 클래스 또는 클로저에는 입력과 `$next` 클로저가 전달됩니다. `$next` 클로저를 호출하면 파이프라인의 다음 호출 가능한 항목이 호출됩니다. 앞서 눈치채셨겠지만, 이는 [middleware](/docs/13.x/middleware)와 매우 유사합니다.
 
 <!-- When the last callable in the pipeline invokes the `$next` closure, the callable provided to the `then` method will be invoked. Typically, this callable will simply return the given input. For convenience, if you simply want to return the input after it has been processed, you may use the `thenReturn` method. -->
 파이프라인의 마지막 callable이 `$next` 클로저를 호출하면 `then` 메서드에 제공된 callable이 호출됩니다. 일반적으로 이 callable은 주어진 입력을 그대로 반환합니다. 편의를 위해, 처리된 입력을 그대로 반환하고 싶다면 `thenReturn` 메서드를 사용할 수 있습니다.
 
 <!-- Of course, as discussed previously, you are not limited to providing closures to your pipeline. You may also provide invokable classes. If a class name is provided, the class will be instantiated via Laravel's [service container](/docs/13.x/container), allowing dependencies to be injected into the invokable class: -->
-물론 앞서 설명했듯이 파이프라인에는 클로저만 제공할 수 있는 것이 아닙니다. 호출 가능한 클래스도 제공할 수 있습니다. 클래스 이름이 제공되면 해당 클래스는 Laravel의 [service container](/docs/13.x/container)를 통해 인스턴스화되므로, 호출 가능한 클래스에 의존성을 주입할 수 있습니다.
+앞서 설명했듯이 파이프라인에 클로저만 제공해야 하는 것은 아닙니다. 호출 가능한 클래스도 제공할 수 있습니다. 클래스 이름을 제공하면 Laravel의 [service container](/docs/13.x/container)를 통해 클래스가 인스턴스화되므로, 호출 가능한 클래스에 의존성을 주입할 수 있습니다.
 
 ```php
 $user = Pipeline::send($user)
@@ -4102,8 +4093,9 @@ Sleep::assertNeverSlept();
 // Assert that, even if Sleep was called, no execution paused occurred...
 Sleep::assertInsomniac();
 ```
+
 <!-- Sometimes it may be useful to perform an action whenever a fake sleep occurs. To achieve this, you may provide a callback to the `whenFakingSleep` method. In the following example, we use Laravel's [time manipulation helpers](/docs/13.x/mocking#interacting-with-time) to instantly progress time by the duration of each sleep: -->
-가짜 sleep이 발생할 때마다 어떤 작업을 수행하면 유용할 수 있습니다. 이를 위해 `whenFakingSleep` 메서드에 콜백을 제공할 수 있습니다. 다음 예제에서는 Laravel의 [time manipulation helpers](/docs/13.x/mocking#interacting-with-time)를 사용하여 각 sleep의 지속 시간만큼 시간을 즉시 진행합니다.
+가짜 sleep이 발생할 때마다 작업을 수행하면 유용할 수 있습니다. 이를 위해 `whenFakingSleep` 메서드에 콜백을 전달할 수 있습니다. 다음 예제에서는 각 sleep의 기간만큼 시간을 즉시 진행하기 위해 Laravel의 [time manipulation helpers](/docs/13.x/mocking#interacting-with-time)를 사용합니다:
 
 ```php
 use Carbon\CarbonInterval as Duration;

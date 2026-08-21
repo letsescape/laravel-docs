@@ -6,7 +6,7 @@
     - [The Local Driver](#the-local-driver)
     - [The Public Disk](#the-public-disk)
     - [Driver Prerequisites](#driver-prerequisites)
-    - [Scoped and Read-Only Filesystems](#scoped-and-read-only-filesystems)
+    - [Scoped, Read-Only, and Read-Through Filesystems](#scoped-and-read-only-filesystems)
     - [Amazon S3 Compatible Filesystems](#amazon-s3-compatible-filesystems)
 - [Obtaining Disk Instances](#obtaining-disk-instances)
     - [On-Demand Disks](#on-demand-disks)
@@ -203,8 +203,8 @@ Laravel の Flysystem 統合は SFTP とうまく連携します。ただし、�
 ```
 
 <a name="scoped-and-read-only-filesystems"></a>
-<!-- ### Scoped and Read-Only Filesystems -->
-### Scoped and Read-Only Filesystems
+<!-- ### Scoped, Read-Only, and Read-Through Filesystems -->
+### Scoped, Read-Only, and Read-Through Filesystems
 
 <!-- Scoped disks allow you to define a filesystem where all paths are automatically prefixed with a given path prefix. Before creating a scoped filesystem disk, you will need to install an additional Flysystem package via the Composer package manager: -->
 スコープ付きディスクを使用すると、すべてのパスに特定のパス プレフィックスが自動的に付加されるファイル システムを定義できます。スコープ付きファイルシステム ディスクを作成する前に、Composer パッケージ マネージャーを介して追加の Flysystem パッケージをインストールする必要があります。
@@ -241,6 +241,20 @@ composer require league/flysystem-read-only "^3.0"
     'read-only' => true,
 ],
 ```
+
+<!-- Read-through disks allow you to migrate files between disks without downtime. When reading a file, Laravel checks the primary disk first. If the file only exists on the fallback disk, Laravel reads the file from the fallback disk and copies it to the primary disk for future requests: -->
+Read-through ディスクを使うと、ダウンタイムなしでディスク間のファイルを移行できます。ファイルを読み取る際、Laravel はまずプライマリディスクを確認します。ファイルがフォールバックディスクにしか存在しない場合、Laravel はフォールバックディスクからファイルを読み取り、以降のリクエストに備えてプライマリディスクへコピーします。
+
+```php
+'assets' => [
+    'driver' => 'read-through',
+    'primary' => 's3',
+    'fallback' => 'legacy-s3',
+],
+```
+
+<!-- Writes and directory listings target the primary disk. File existence and metadata checks use either disk without copying files to the primary disk. If copying a fallback file to the primary disk fails, the read still succeeds by default. To throw an exception instead, set the `throw_on_promotion_failure` configuration option to `true`. -->
+書き込みとディレクトリ一覧の取得はプライマリディスクを対象にします。ファイルの存在確認とメタデータのチェックでは、ファイルをプライマリディスクへコピーせず、どちらのディスクも使用します。フォールバックディスクのファイルをプライマリディスクへコピーできなかった場合でも、デフォルトでは読み取りに成功します。代わりに例外をスローするには、`throw_on_promotion_failure` 設定オプションを `true` に設定してください。
 
 <a name="amazon-s3-compatible-filesystems"></a>
 <!-- ### Amazon S3 Compatible Filesystems -->

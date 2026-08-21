@@ -32,37 +32,10 @@ Laravel을 사용하는 중에 부적절한 DocBlock, PHPStan 또는 IDE 경고�
 <!-- The Laravel source code is managed on GitHub, and there are repositories for each of the Laravel projects: -->
 Laravel 소스 코드는 GitHub에서 관리되며, 각 Laravel 프로젝트마다 저장소가 있습니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- [Laravel Application](https://github.com/laravel/laravel)
-- [Laravel Art](https://github.com/laravel/art)
-- [Laravel Boost](https://github.com/laravel/boost)
-- [Laravel Documentation](https://github.com/laravel/docs)
-- [Laravel Dusk](https://github.com/laravel/dusk)
-- [Laravel Cashier Stripe](https://github.com/laravel/cashier)
-- [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle)
-- [Laravel Echo](https://github.com/laravel/echo)
-- [Laravel Envoy](https://github.com/laravel/envoy)
-- [Laravel Folio](https://github.com/laravel/folio)
-- [Laravel Framework](https://github.com/laravel/framework)
-- [Laravel Horizon](https://github.com/laravel/horizon)
-- [Laravel Passport](https://github.com/laravel/passport)
-- [Laravel Pennant](https://github.com/laravel/pennant)
-- [Laravel Pint](https://github.com/laravel/pint)
-- [Laravel Prompts](https://github.com/laravel/prompts)
-- [Laravel Reverb](https://github.com/laravel/reverb)
-- [Laravel Sail](https://github.com/laravel/sail)
-- [Laravel Sanctum](https://github.com/laravel/sanctum)
-- [Laravel Scout](https://github.com/laravel/scout)
-- [Laravel Socialite](https://github.com/laravel/socialite)
-- [Laravel Telescope](https://github.com/laravel/telescope)
-- [Laravel Livewire Starter Kit](https://github.com/laravel/livewire-starter-kit)
-- [Laravel React Starter Kit](https://github.com/laravel/react-starter-kit)
-- [Laravel Svelte Starter Kit](https://github.com/laravel/svelte-starter-kit)
-- [Laravel Vue Starter Kit](https://github.com/laravel/vue-starter-kit)
--->
+<!-- - [Laravel AI SDK](https://github.com/laravel/ai) - [Laravel Application](https://github.com/laravel/laravel) - [Laravel Art](https://github.com/laravel/art) - [Laravel Boost](https://github.com/laravel/boost) - [Laravel Documentation](https://github.com/laravel/docs) - [Laravel Dusk](https://github.com/laravel/dusk) - [Laravel Cashier Stripe](https://github.com/laravel/cashier) - [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle) - [Laravel Echo](https://github.com/laravel/echo) - [Laravel Envoy](https://github.com/laravel/envoy) - [Laravel Folio](https://github.com/laravel/folio) - [Laravel Framework](https://github.com/laravel/framework) - [Laravel Horizon](https://github.com/laravel/horizon) - [Laravel Passport](https://github.com/laravel/passport) - [Laravel Pennant](https://github.com/laravel/pennant) - [Laravel Pint](https://github.com/laravel/pint) - [Laravel Prompts](https://github.com/laravel/prompts) - [Laravel Reverb](https://github.com/laravel/reverb) - [Laravel Sail](https://github.com/laravel/sail) - [Laravel Sanctum](https://github.com/laravel/sanctum) - [Laravel Scout](https://github.com/laravel/scout) - [Laravel Socialite](https://github.com/laravel/socialite) - [Laravel Telescope](https://github.com/laravel/telescope) - [Laravel Livewire Starter Kit](https://github.com/laravel/livewire-starter-kit) - [Laravel React Starter Kit](https://github.com/laravel/react-starter-kit) - [Laravel Svelte Starter Kit](https://github.com/laravel/svelte-starter-kit) - [Laravel Vue Starter Kit](https://github.com/laravel/vue-starter-kit) -->
+- [Laravel AI SDK](https://github.com/laravel/ai)
 - [Laravel Application](https://github.com/laravel/laravel)
 - [Laravel Art](https://github.com/laravel/art)
 - [Laravel Boost](https://github.com/laravel/boost)
@@ -90,7 +63,6 @@ Laravel 소스 코드는 GitHub에서 관리되며, 각 Laravel 프로젝트마�
 - [Laravel Svelte Starter Kit](https://github.com/laravel/svelte-starter-kit)
 - [Laravel Vue Starter Kit](https://github.com/laravel/vue-starter-kit)
 
-<!-- </div> -->
 </div>
 
 <a name="support-questions"></a>
@@ -100,18 +72,9 @@ Laravel 소스 코드는 GitHub에서 관리되며, 각 Laravel 프로젝트마�
 <!-- Laravel's GitHub issue trackers are not intended to provide Laravel help or support. Instead, use one of the following channels: -->
 Laravel의 GitHub 이슈 트래커는 Laravel 도움말이나 지원을 제공하기 위한 곳이 아닙니다. 대신 다음 채널 중 하나를 이용하세요.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- [GitHub Discussions](https://github.com/laravel/framework/discussions)
-- [Laracasts Forums](https://laracasts.com/discuss)
-- [Laravel.io Forums](https://laravel.io/forum)
-- [StackOverflow](https://stackoverflow.com/questions/tagged/laravel)
-- [Discord](https://discord.gg/laravel)
-- [Larachat](https://larachat.co)
-- [IRC](https://web.libera.chat/?nick=artisan&channels=#laravel)
--->
+<!-- - [GitHub Discussions](https://github.com/laravel/framework/discussions) - [Laracasts Forums](https://laracasts.com/discuss) - [Laravel.io Forums](https://laravel.io/forum) - [StackOverflow](https://stackoverflow.com/questions/tagged/laravel) - [Discord](https://discord.gg/laravel) - [Larachat](https://larachat.co) - [IRC](https://web.libera.chat/?nick=artisan&channels=#laravel) -->
 - [GitHub Discussions](https://github.com/laravel/framework/discussions)
 - [Laracasts Forums](https://laracasts.com/discuss)
 - [Laravel.io Forums](https://laravel.io/forum)
@@ -120,7 +83,6 @@ Laravel의 GitHub 이슈 트래커는 Laravel 도움말이나 지원을 제공�
 - [Larachat](https://larachat.co)
 - [IRC](https://web.libera.chat/?nick=artisan&channels=#laravel)
 
-<!-- </div> -->
 </div>
 
 <a name="core-development-discussion"></a>
@@ -253,19 +215,12 @@ public function attachments(): array
 <!-- The Laravel code of conduct is derived from the Ruby code of conduct. Any violations of the code of conduct may be reported to Taylor Otwell (taylor@laravel.com): -->
 Laravel 행동 강령은 Ruby 행동 강령에서 파생되었습니다. 행동 강령 위반 사항은 Taylor Otwell(taylor@laravel.com)에게 신고할 수 있습니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- Participants will be tolerant of opposing views.
-- Participants must ensure that their language and actions are free of personal attacks and disparaging personal remarks.
-- When interpreting the words and actions of others, participants should always assume good intentions.
-- Behavior that can be reasonably considered harassment will not be tolerated.
--->
-- 참가자는 반대 의견에 관대해야 합니다.
-- 참가자는 자신의 언어와 행동에 인신공격이나 개인을 비하하는 발언이 없도록 해야 합니다.
-- 다른 사람의 말과 행동을 해석할 때, 참가자는 항상 선의를 전제로 해야 합니다.
-- 합리적으로 괴롭힘으로 간주될 수 있는 행동은 용납되지 않습니다.
+<!-- - Participants will be tolerant of opposing views. - Participants must ensure that their language and actions are free of personal attacks and disparaging personal remarks. - When interpreting the words and actions of others, participants should always assume good intentions. - Behavior that can be reasonably considered harassment will not be tolerated. -->
+- 참가자는 서로 다른 견해를 존중해야 합니다.
+- 참가자는 자신의 언어와 행동에 인신공격이나 상대를 폄하하는 개인적 발언이 포함되지 않도록 해야 합니다.
+- 다른 사람의 말과 행동을 해석할 때 참가자는 항상 선의의 의도를 전제로 해야 합니다.
+- 합리적으로 괴롭힘으로 간주할 수 있는 행동은 용납되지 않습니다.
 
-<!-- </div> -->
 </div>
