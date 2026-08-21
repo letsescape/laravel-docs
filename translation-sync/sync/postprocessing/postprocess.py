@@ -27,6 +27,7 @@ from ..common.markdown import (
     html_comment_spans,
     is_heading_line,
     markdown_links,
+    mask_html_comments,
     strip_html_comments,
     strip_title_attrs,
 )
@@ -99,17 +100,6 @@ def _map_outside_html_comments(text: str, transform) -> str:
         index = end
     out.append(transform(text[index:]))
     return "".join(out)
-
-
-def _mask_html_comments(text: str) -> str:
-    """줄 위치를 보존하며 HTML 주석의 줄바꿈 외 문자를 공백으로 마스킹."""
-
-    chars = list(text)
-    for start, end, _body in html_comment_spans(text):
-        for index in range(start, end):
-            if chars[index] not in "\r\n":
-                chars[index] = " "
-    return "".join(chars)
 
 
 def _containing_span_end(
@@ -314,7 +304,7 @@ def _quote_admonition_fences(text: str) -> str:
 
     out: list[str] = []
     lines = text.split("\n")
-    visible_lines = _mask_html_comments(text).split("\n")
+    visible_lines = mask_html_comments(text).split("\n")
     index = 0
     in_gfm_admonition = False
     outer_fence = ""
@@ -565,7 +555,7 @@ def strip_trailing_whitespace(text: str) -> str:
     in_code = False
     fence = ""
     lines = text.split("\n")
-    visible_lines = _mask_html_comments(text).split("\n")
+    visible_lines = mask_html_comments(text).split("\n")
     comment_lines: set[int] = set()
     for start, end, _body in html_comment_spans(text):
         start_line = text.count("\n", 0, start)

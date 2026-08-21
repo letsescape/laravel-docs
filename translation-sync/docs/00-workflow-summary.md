@@ -2,205 +2,158 @@
 
 ## 요약
 
-실행 시작 시 승인 기준본 고정 및 동일한 upstream manifest 기반 replay·live provider 계약 확인.
-이후 모든 산출물을 격리된 candidate snapshot에서 생성·검증.
-실행 브랜치 반영 대상은 검증된 candidate tree와 정확히 같은 tree로 한정.
+이 워크플로우가 하는 일은 세 가지뿐이다.
+
+1. upstream 저장소에서 원본 문서를 가져와 영어 원문 캐시를 동기화한다.
+2. 변경된 문서를 Python과 번역 provider로 번역하고 검증된 결과를 작업 트리에 기록한다.
+3. 운영 액션에 한해, 기록된 문서를 실행 branch에 커밋한다.
+
+Python 진입점은 커밋하지 않는다. 커밋은 액션의 마지막 단계가 수행하며, Python 실행이 실패하면 그 단계는 실행되지 않는다.
+PR 생성, 사이트 빌드, Node 설치와 배포는 이 워크플로우의 책임이 아니다.
 
 ## 흐름도
 
 ```mermaid
 flowchart TD
-    A([동기화 시작]) --> B[승인 기준본 및 단위 테스트 확정]
-    B --> C[Identity replay 및 manifest 확정]
-    C --> D{동일 SHA의 2차 replay가 no-op인가?}
-    D -- 아니요 --> X[Candidate 폐기 및 실행 실패]
-    D -- 예 --> E[Live provider fixture 계약 검사]
-    E --> F[동일 manifest로 candidate 원문 동기화]
-    F --> G[파일 상태 분류 및 전처리]
-    G --> H[Effective delta 및 PatchPlan 생성]
-    H --> I[번역 및 후처리]
-    I --> J[문서 검증 및 candidate 적재]
-    J --> K[Candidate sidebar 생성 및 검증]
-    K --> L[Candidate 사이트·경로 검증 및 tree 봉인]
-    L --> M[검증된 tree를 실행 브랜치에 반영]
-    M --> O{Main 실행인가?}
-    O -- 아니요 --> N([동기화 완료])
-    O -- 예 --> P[배포 trigger 및 재검증 대기]
-    P --> Q{성공했는가?}
-    Q -- 예 --> N
-    Q -- 아니요 --> Y[Published commit 유지 및 실행 실패]
+    A[Python 설정 및 입력 검증] --> B[Upstream 원본 문서 동기화]
+    B --> C[원문 변경 감지]
+    C --> D{번역 대상이 있는가?}
+    D -- 아니요 --> J[사이드바 동기화]
+    D -- 예 --> E[원문 전처리 및 변경 계획 생성]
+    E --> F[Provider 번역]
+    F --> G[후처리 및 구조 검증]
+    G --> H{검증 통과?}
+    H -- 아니요 --> X[실패 종료]
+    H -- 예 --> I[번역 문서 기록]
+    I --> J
+    J --> L{사이드바 동기화 성공?}
+    L -- 아니요 --> X
+    L -- 예 --> M[운영 액션에서 변경이 있으면 커밋]
+    M --> K[성공 종료]
 ```
 
-그림에서 생략한 모든 단계의 실패 경로는 candidate 폐기와 실행 실패로 수렴.
-후속 단계 진행 금지.
+## 1. 범위
 
-## 1. 목적
+### 포함
 
-번역 동기화 워크플로우의 전체 단계 순서, 실패 시 회귀 경로, git 반영 조건에 대한 규범적 정의.
+- 버전·문서 선택자 검증
+- upstream 원문 조회와 영어 원문 캐시 갱신
+- 추가·수정·삭제 문서 감지
+- Markdown 전처리, 변경 계획, provider 요청
+- 번역 응답 후처리와 구조 검증
+- KO·JA 문서 및 공통 사이드바 갱신
+- 단계별 오류 코드와 종료 코드 반환
+- 운영 액션에서 갱신된 문서를 실행 branch에 커밋
 
-## 2. 범위
+### 제외
 
-이 문서의 소유 범위는 다음 항목으로 한정.
+- Node 또는 npm 준비와 실행
+- Docusaurus 테스트·타입 검사·사이트 빌드
+- PR 생성과 병합
+- Pages 또는 다른 환경으로의 배포
+- 별도 candidate, replay, publication 오케스트레이션
+- 번역 결과 업로드를 위한 Actions artifact 생성
 
-- 동기화 단계의 실행 순서와 의존 관계
-- 실패 시 회귀 단계의 결정 규칙
-- 산출물의 git 반영 조건
+제외 항목은 필요한 경우 각각의 독립된 저장소 작업에서 수행한다. 유일한 후속 연계는 운영 GitHub Actions의 번역 워크플로우 완료 이벤트를 배포 워크플로우가 구독하는 경로다. 배포 워크플로우는 번역 실행이 성공했고 대상 branch가 `main`일 때만 배포한다. 이 연계 외에는 번역 워크플로우가 사이트 테스트·빌드·배포 또는 다른 작업을 직접 실행하거나 호출·대기·제어하지 않는다.
 
-단계별 세부 설계의 소유 문서는 각 단계 문서.
+## 2. 입력과 출력
 
-| 순서 | 단계 | 기준 문서 |
-|---:|------|----------|
-| 0 | 승인 기준본 고정·원문 동기화·파일 상태 분류 | 이 문서의 실행 상태 모델 |
-| 1 | 전처리 | [01-preprocessing.md](01-preprocessing.md) |
-| 2 | effective delta·변경 계획·번역 | [02-translation.md](02-translation.md) |
-| 3 | 후처리 | [03-postprocessing.md](03-postprocessing.md) |
-| 4 | 문서 검증 | [04-verification.md](04-verification.md) |
-| 5 | 사이드바 갱신·검증 | [06-sidebar-sync.md](06-sidebar-sync.md) |
-| 6 | 사이트·산출 경로 검증 | [05-additional-work.md](05-additional-work.md) |
-| 7 | git 반영 | [05-additional-work.md](05-additional-work.md) |
+| 구분 | 내용 |
+|---|---|
+| 운영 Actions 필수 입력 | `OPENAI_API_KEY` |
+| 범위 선택 입력 | `--version VERSION`, `--doc PATH`. 로컬 실행과 `workflow_dispatch` 테스트에서 처리 범위를 제한할 때만 사용 |
+| upstream 입력 | `versions.json`의 지원 버전·순서와 코드에 정의된 upstream 저장소. 각 버전 branch는 실행 시 고정 commit으로 해석 |
+| 출력 | 갱신된 영어 원문, KO·JA 번역 문서, 공통 사이드바. 운영 액션은 이 변경을 실행 branch에 커밋 |
 
-오류 분류와 복구 정책의 소유 문서는 [08-error-cases.md](08-error-cases.md).
+`--doc`은 `--version`과 함께 사용한다. 선택자를 생략하면 지원하는 모든 버전을 검사한다. 선택자는 upstream·문서 번역 범위만 제한하며, 공통 sidebar 동기화는 지원하는 모든 버전을 검사한다.
 
-## 3. 입력
+### 2.1 실행 환경
 
-| 항목 | 설명 |
-|------|------|
-| upstream 원문 저장소 | 버전별 영어 Markdown 원문 |
-| upstream manifest | 버전별 commit SHA를 기록한 JSON |
-| 기존 locale 문서 | 한국어·일본어 번역 문서 |
-| 승인 기준본 | 동기화 소유 경로에 non-ignored untracked 파일이 없는 publication checkout에서 고정한 실행 시작 commit과 tree(미커밋 tracked 변경이 있으면 ref 없는 worktree 스냅샷 커밋)와 관측된 원격 branch ref. 원격 ref와 승인 기준본 commit의 일치는 publish 진입 조건이며 prepare·검증은 push 없이 로컬 승인 기준본 기준으로 실행 가능 |
-| `versions.json` | 처리 대상 버전 목록 |
-| `documentation.md` | 버전별 사이드바 기준 원문 |
-| 번역 프롬프트 | locale별 번역 지침 |
-| workflow 설정 | shell 문자열이 아닌 `unit_test_command` argv 배열, provider request budget과 양의 정수 `workflow_timeout_seconds` |
-| stale-link registry | version-controlled `translation-sync/stale-links.json` |
-| VERSION / DOC selector | 선택적 처리 범위를 canonical 상대 경로와 version 값으로 정규화한 selector |
+실행 환경은 세 가지이며, 각 환경의 provider는 다음으로 고정한다.
 
-## 4. 출력
+| 환경 | 실행 | provider |
+|---|---|---|
+| 호스트 로컬 | `main.py` 직접 실행, `make translation-run` | OpenAI API 또는 OpenAI CLI |
+| 호스트 로컬 + Docker | `make translate` | OpenAI API |
+| GitHub Actions | 예약 실행, `workflow_dispatch` | OpenAI API |
 
-| 항목 | 설명 |
-|------|------|
-| 갱신된 영어 원문 캐시 | manifest SHA 기준으로 동기화된 원문 |
-| 갱신된 locale 문서 | 변경 diff가 반영된 한국어·일본어 문서 |
-| 갱신된 사이드바 JSON | `documentation.md` 기준으로 재생성된 sidebar |
-| 검증된 candidate tree | 모든 검증을 통과한 파일 집합과 tree 식별자 |
-| 실행 브랜치 커밋 | 모든 검증을 통과한 변경분 |
-| 배포 결과 | `main` 실행의 trigger와 배포 측 재검증 결과 |
+호스트 로컬 실행은 `TRANSLATION_PROVIDER`로 둘 중 하나를 선택한다. Docker 이미지에는 CLI를 설치하지 않는다.
 
-## 5. 불변 조건
+## 3. 실행 순서
 
-1. 정해진 단계 순서 준수 필수. 순서 생략 또는 역행 금지.
-2. 한 target의 실패는 현재 단계의 실패로 처리. 실패 단계의 후속 단계 실행 금지.
-3. candidate snapshot과 active worktree의 분리 필수. 최종 publication 전 실행 브랜치의 파일·index·HEAD 변경 금지.
-4. 이전 영어 원문은 승인 기준본에서만 읽기 허용. 현재 raw 영어 원문은 manifest SHA로 동기화한 candidate에서만 읽기 허용.
-5. 같은 워크플로우 실행의 replay와 live 실행에는 동일한 upstream manifest SHA 및 정규화된 VERSION / DOC selector 사용 필수.
-6. 검증된 candidate tree와 다른 tree의 commit 또는 push 금지.
-7. 실패한 candidate의 publication 금지. 원인 수정 후 새 승인 기준본 고정 및 전체 워크플로우 재실행 필수.
-8. prepare는 시작 시 동기화 소유 경로 내 non-ignored untracked 파일의 부재만 요구하고, tracked worktree·index의 미커밋 변경은 로컬 실행을 막지 않음. 미커밋 변경이 있으면 승인 기준본을 ref 없는 worktree 스냅샷 커밋으로 캡처해 모든 하위 단계가 그 스냅샷 기준으로 동작하며, 원격 기준과의 일치 강제는 publish 진입 조건.
-9. entrypoint 시작부터 배포 trigger 결과까지의 wall-clock은 `workflow_timeout_seconds` 이내로 제한. 각 subprocess를 남은 전체 예산보다 긴 timeout으로 시작하는 행위 금지. 하위 프로세스에 전달하는 `TRANSLATION_WORKFLOW_TIMEOUT_SECONDS`는 workflow 설정값 이하여야 하며, 초과하면 설정 오류.
+### 3.1 원문 동기화
 
-## 6. 단계 순서
+1. 설정과 선택자를 검증한다.
+2. 대상 버전의 upstream ref를 조회한다.
+3. 원본 Markdown을 영어 원문 캐시에 반영한다.
+4. 이전 캐시와 현재 원문을 비교해 추가(`A`)·수정(`M`)·삭제(`D`)를 결정한다.
+5. 번역 제외 문서는 영어 원문만 동기화한다.
 
-```text
-승인 기준본·단위 테스트 확정 → identity replay·upstream SHA manifest 확정 → 같은 SHA의 2차 replay(새 프로세스 수렴 확인) → live provider fixture 계약 검사 → 동일 manifest로 candidate 원문 동기화 → 파일 상태 분류 → 이전·현재 원문 전처리 → effective delta·변경 계획 생성 → 소유 단위 번역·후처리 → locale 문서 검증 및 candidate 적재 → candidate sidebar 생성·검증 → candidate 사이트·산출 경로 검증 → candidate tree 봉인 → 실행 브랜치 반영 → main이면 배포 trigger·재검증 결과 대기
+### 3.2 번역
+
+1. 변경된 일반 문서를 KO·JA 순서로 처리한다.
+2. 이전·현재 원문에 같은 전처리 규칙을 적용한다.
+3. 변경 계획을 만들고 필요한 블록만 provider에 요청한다.
+4. 응답 계약을 검사하고, 유효한 응답만 후처리한다.
+5. 원문 대비 Markdown 구조를 검증한다.
+6. 검증을 통과한 문서를 기록한다.
+7. 모든 문서 처리 뒤 공통 사이드바를 동기화한다.
+
+한 문서가 실패하면 이후 대상을 계속 처리하지 않고 실패를 반환한다. 이미 성공적으로 기록한 앞선 대상은 작업 트리에 남을 수 있으므로, 호출자는 종료 코드를 확인해야 한다.
+
+## 4. 불변 조건
+
+1. 원문 동기화가 성공하기 전에는 번역을 시작하지 않는다.
+2. 변경되지 않은 문서는 provider에 보내지 않는다.
+3. 코드 블록, 링크, 인라인 코드, 제목, 목록, 표와 source-authored 주석의 구조를 보존한다.
+4. provider 응답은 response contract와 문서 검증을 통과해야만 기록한다.
+5. 삭제된 일반 문서는 영어·KO·JA에서 함께 제거한다.
+6. 번역 제외 문서는 KO·JA를 새로 생성하거나 수정하지 않는다.
+7. Python 진입점은 현재 프로젝트 저장소의 `HEAD`, index, branch, remote를 변경하지 않는다. upstream 원문 조회와 fetch만 수행한다. 실행 branch 갱신은 운영 액션의 커밋 단계에서만 일어나고, 배포 상태는 어느 쪽도 변경하지 않는다.
+8. 번역 워크플로우는 Node 실행 환경에 의존하지 않는다.
+
+## 5. 실행 진입점
+
+모든 실행은 `translation-sync/main.py`의 단일 파이프라인을 사용한다. 운영 Actions와 호스트 로컬 직접 실행은 Python 진입점을 호출하고, Makefile과 Docker는 같은 호출을 단순히 감싼다. 별도의 Makefile·Docker 동기화 로직은 없다.
+
+```bash
+uv run --directory translation-sync --locked --python 3.14 python main.py
 ```
 
-`단위 테스트 확정`은 workflow 설정의 `unit_test_command` argv를 shell interpolation 없이 승인 기준본에서 분기한 격리 checkout의 저장소 root에서 실행하여 종료 코드 `0` 및 실행 전후 tracked source fingerprint 일치를 확인하는 절차.
-명령 부재·빈 argv·source 변경 시 설정 오류로 실패.
-명령 비정상 종료 시 검증 오류로 실패.
+필터 예시는 다음과 같다.
 
-`candidate sync core`는 고정 manifest 원문 동기화부터 파일 상태 분류, 전처리, 계획·번역·후처리, 문서·sidebar·사이트·산출 경로 검증과 tree 봉인까지의 공통 내부 실행.
-외부 orchestration의 승인 기준본·단위 테스트 확정, identity replay 호출, live fixture, 원격 publication과 배포 trigger는 범위에서 제외.
-Replay와 live는 provider profile만 달리하여 동일 core 호출 필수.
+```bash
+uv run --directory translation-sync --locked --python 3.14 \
+  python main.py --version 13.x --doc collections.md
+```
 
-전체 workflow deadline은 entrypoint 진입 시 단조 시계로 계산.
-deadline 경과 후 새 단계·provider 호출·publication 시작 금지.
-실행 중 subprocess에는 남은 시간 기준 강제 timeout 설정 필수.
-publication 뒤 deadline 초과 시 이미 공개된 commit은 되돌리지 않고 실패 보고서만 기록.
+운영 액션은 branch ref 검증, checkout, uv/Python 준비, Python 단위 테스트, 위 명령 실행, 변경 문서 커밋으로 끝난다.
 
-### 6.1 실행 상태 모델
+예약 실행은 운영 동기화에 사용한다. `workflow_dispatch`는 같은 Actions 경로를 수동으로 시험하는 트리거이며, 선택 입력은 시험 범위를 제한할 뿐 실행 단계나 provider를 바꾸지 않는다. 두 트리거 모두 OpenAI API를 사용한다.
 
-| 상태 | 의미 |
-|------|------|
-| 승인 기준본 | candidate sync core의 실행 시작 commit과 tree. Live는 미커밋 tracked 변경이 있으면 ref 없는 worktree 스냅샷 커밋으로 고정하고 관측된 원격 실행 branch ref도 기록하며(일치 강제는 publish 진입 시), replay는 활성 worktree를 반영한 sandbox commit으로 고정하고 원격 ref를 적용하지 않음 |
-| 이전 영어 원문 | 승인 기준본의 영어 원문 캐시 byte. delta의 old side |
-| 현재 raw 영어 원문 | manifest commit에서 읽어 candidate에 저장할 upstream byte. delta의 new side이자 publication 대상 |
-| 정규화된 영어 작업 사본 | 이전·현재 raw 원문에 전처리를 적용한 임시 비교 입력. publication 대상이 아님 |
-| 영어 verification view | 현재 raw 원문에 결정적 source-side 후처리를 적용한 최종 구조 검증 기준. pipeline annotation과 locale 번역문은 포함하지 않음 |
-| expected annotation map | 현재 정규화 영어 작업 사본에서 구조 주소별 canonical pipeline annotation을 파생한 검증 기준 |
-| candidate snapshot | 승인 기준본에서 분기하여 원문·locale·sidebar 변경을 누적하는 격리 snapshot |
-| verified tree | 문서·sidebar·사이트·산출 경로 검증을 모두 통과하여 식별자가 봉인된 candidate tree |
-| published tree | verified tree와 동일함이 확인된 실행 브랜치 commit tree |
+호스트 로컬 실행에서는 `make translation-run`이 위 Python 명령에 선택자를 전달한다. `make translate`는 Docker 안에서 같은 Python 진입점을 실행해 번역 결과를 현재 작업 트리에 기록하는 로컬 테스트 명령이다. 두 Make target은 별도 오케스트레이션 단계를 추가하지 않는다.
 
-`기록` 또는 `적재`는 candidate snapshot 갱신을 의미.
-실행 브랜치와 원격 저장소 변경은 `publication` 또는 `반영`에서만 허용.
+## 6. 단계 문서
 
-### 6.2 원문 동기화와 파일 상태
+| 단계 | 문서 |
+|---|---|
+| 전처리 | [01-preprocessing.md](01-preprocessing.md) |
+| 번역 및 응답 계약 | [02-translation.md](02-translation.md) |
+| 후처리 | [03-postprocessing.md](03-postprocessing.md) |
+| 문서 검증 | [04-verification.md](04-verification.md) |
+| 실행 경계 | [05-additional-work.md](05-additional-work.md) |
+| 사이드바 동기화 | [06-sidebar-sync.md](06-sidebar-sync.md) |
+| 로컬 실행 | [07-local-replay.md](07-local-replay.md) |
+| 오류와 종료 코드 | [08-error-cases.md](08-error-cases.md) |
 
-manifest 기준 현재 원문과 승인 기준본의 영어 원문 캐시를 경로별로 비교하여 다음과 같이 처리.
-원문을 그대로 유지해야 하는 법적 문서(현재 `license.md`)는 추가·수정 처리에서 제외하여 영어 원문만 candidate에 동기화하고 KO·JA를 생성·수정하지 않으며, 삭제는 다른 문서와 같이 전파.
-제외 문서의 삭제는 영어 원문 존재만 전제하고 존재하는 locale 산출물만 제거한다. 제외 이후 새로 추가된 문서는 KO·JA가 없을 수 있기 때문이다.
+## 7. 수용 기준
 
-| 상태 | 처리 |
-|------|------|
-| 추가 (`A`) | 이전 원문의 부재 필수. locale 파일도 부재가 원칙이나, 기존 locale 파일이 현재 원문 기준 문서 검증을 통과하면 같은 계획을 다시 적용한 no-op으로 보아 충돌이 아니며 해당 locale은 provider 호출 없이 기존 파일 유지. 그 밖에는 현재 원문 전체를 create 계획으로 번역하여 해당 locale 문서 생성. |
-| 수정 (`M`) | 승인 기준본의 이전 원문과 기존 KO·JA 문서 모두 존재 필수. 이전·현재 원문으로 effective delta 계산. |
-| 삭제 (`D`) | 일반 번역 문서는 승인 기준본의 영어·KO·JA 파일 모두 존재 필수. 번역 제외 문서는 승인 기준본의 영어만 존재 필수이며, 존재하는 locale 산출물만 함께 제거. provider 호출 없이 candidate에서 대상 파일 삭제. |
-| rename | 삭제와 추가의 조합으로 처리. 추가 경로에서는 전체 문서 번역 수행 필수 및 기존 locale 번역의 추정 재사용 금지. |
-
-원문 정규화 결과로 effective delta가 비어 있어도 현재 raw 영어 원문의 갱신은 candidate에 유지.
-이 경우 locale byte 변경 여부와 관계없이 영어 verification view와 expected annotation map 기준의 전체 문서 검증 통과 필수.
-
-### 6.3 Candidate publication
-
-1. 각 locale 문서의 candidate snapshot 적재는 문서 검증 통과 후에만 허용.
-2. sidebar는 모든 대상 버전의 candidate 산출 검증 완료 후 candidate snapshot에 일괄 1회 적재.
-3. 완성된 candidate snapshot을 [전체 운영 및 산출 검증 단계](05-additional-work.md)에 전달.
-4. 해당 단계에서 verified tree 식별자와 publication 성공을 함께 반환한 경우에만 원격 반영 완료로 판정.
-5. 검증 또는 publication 실패 결과를 받은 candidate의 원격 branch 반영 금지.
-
-## 7. 회귀 규칙
-
-실패 시 자동 회귀 루프 수행 금지.
-아래 표는 원인 수정 및 재검증을 담당하는 소유 단계를 표시.
-candidate publication 금지 및 수정 후 새 실행은 승인 기준본 고정 단계부터 재시작 필수.
-
-| 실패 발생 단계 | 실패 원인 | 수정·재검증 소유 단계 |
-|---------------|-----------|----------------------|
-| 검증 | 전처리 누락 | 전처리 |
-| 검증 | 구조 손상 응답·번역 누락 | 번역 |
-| 검증 | 후처리 형식 오류 | 후처리 |
-| 검증 | 사이드바 항목 누락·라벨 불일치·locale sidebar JSON 잔존 | 사이드바 갱신 |
-| 최종 산출 | 산출 기준 미달 | 검증 |
-| 배포 | trigger 또는 배포 측 재검증 실패 | 전체 운영 및 산출 검증 |
-| publication 후 운영 검토 | published 문서의 의미 오류·누락 등 콘텐츠 결함 | 전체 운영 및 산출 검증의 publication 후 콘텐츠 복구 |
-
-회귀 원칙:
-
-- 동일 실행 내 재시도는 provider transport와 response feedback에만 허용.
-- 그 밖의 publication 전 실패 시 candidate 반영 없이 실행 종료.
-- 배포 단계 실패 시 published commit 유지 및 해당 commit을 새 승인 기준본으로 삼은 no-change 전체 실행에서 배포 경로 재수행.
-- published tree 자체에 콘텐츠 결함이 있으면 같은 commit의 배포 재시도 금지. [05-additional-work.md](05-additional-work.md)의 publication 후 콘텐츠 복구 절차에 따라 검증된 revert commit 우선 publication.
-- 원인 수정 후 전체 워크플로우 신규 실행 필수. 고정 입력과 다른 실행의 중간 산출물 혼합 금지.
-
-### 7.1 provider 재시도 경계
-
-동일 블록의 provider 응답 평가는 최초 요청을 포함하여 최대 5회까지 허용.
-각 평가의 transport 호출은 일시 오류에 한해 최대 5회까지 허용.
-블록당 물리 provider 호출 상한은 25회.
-
-## 8. git 반영 조건
-
-git publication 규칙의 유일한 소유 위치는 [05-additional-work.md](05-additional-work.md)의 `git 반영 세부 규칙`.
-총괄 단계는 해당 문서가 반환한 verified tree 식별자와 publication 결과만 소비하며 별도 반영 규칙은 정의 대상에서 제외.
-
-## 9. 수용 기준
-
-- 모든 단계의 정의된 순서 준수를 확인할 수 있어야 함.
-- 실패 시 정확한 회귀 대상 단계를 식별할 수 있어야 함.
-- [05-additional-work.md](05-additional-work.md)의 publication 수용 기준을 만족하지 않는 원격 branch 갱신 금지.
-- replay 결과의 manifest digest·정규화 selector와 후속 live core 입력의 일치 필수.
-- 추가·수정·삭제·rename의 입력 전제와 candidate 산출 상태를 경로별로 판정할 수 있어야 함.
-- 승인 기준본, verified candidate tree, publication commit tree의 식별자를 대조할 수 있어야 함.
-- 모든 단계와 배포 결과가 하나의 `workflow_timeout_seconds` deadline을 공유해야 함.
-- `main` 실행은 배포 trigger와 배포 측 재검증 결과가 모두 성공한 경우에만 완료로 판정.
+- 액션, 호스트 로컬 명령과 Docker 테스트가 같은 Python 진입점을 사용한다.
+- 운영 Actions의 provider는 OpenAI API로 고정하고, 호스트 로컬 실행에서만 환경 변수로 OpenAI API 또는 OpenAI CLI를 선택한다.
+- Makefile target은 Python 또는 Docker 실행과 선택자 전달만 담당하며 별도 동기화 단계를 만들지 않는다.
+- 액션에 Node setup, npm 명령, PR 생성, 배포 단계가 없다.
+- 액션의 Git 자격 증명은 커밋 단계에만 주입한다. checkout은 자격 증명을 남기지 않는다.
+- 액션은 branch ref로만 실행한다.
+- 원문 변경이 없으면 provider를 호출하지 않고 사이드바를 동기화한 뒤 그 결과를 반환한다. 작업 트리에 변경이 없으면 커밋하지 않는다.
+- 원문 변경이 있으면 대상 번역과 검증, 문서·사이드바 기록, 액션의 커밋까지만 수행한다.
+- 테스트 또는 실행이 실패하면 호출자가 그 실패를 보존한다. 정확한 `0`·`1`·`2` 구분은 [진입점 종료 코드 계약](08-error-cases.md#7-진입점-종료-코드-계약)을 따른다.

@@ -16,7 +16,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: sync-translation
@@ -26,6 +25,7 @@ jobs:
   sync:
     name: Sync translations
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     steps:
       - name: Validate branch ref
         run: |
@@ -34,10 +34,9 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout without write credential
+      - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
           persist-credentials: false
 
       - name: Setup uv and Python 3.14
@@ -45,31 +44,18 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Setup Node 24
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Initialize external artifact root
+      - name: Run translation sync tests
         run: |
-          root="$RUNNER_TEMP/translation-sync-artifacts"
-          mkdir -- "$root"
-          chmod 700 "$root"
+          uv run --directory translation-sync --locked --no-build --python 3.14 \
+            python -m unittest discover -s tests
 
-      - name: Prepare verified publication
+      - name: Run translation sync
         env:
           INPUT_VERSION: ${{ inputs.version }}
           INPUT_DOC: ${{ inputs.doc }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          args=(
-            prepare
-            --artifact-root "$RUNNER_TEMP/translation-sync-artifacts"
-            --push-endpoint "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
-            --branch "$GITHUB_REF_NAME"
-            --repository "$GITHUB_REPOSITORY"
-          )
+          args=()
           if [ -n "$INPUT_VERSION" ]; then
             args+=(--version "$INPUT_VERSION")
           fi
@@ -77,36 +63,20 @@ jobs:
             args+=(--doc "$INPUT_DOC")
           fi
           uv run --directory translation-sync --locked --no-build --python 3.14 \
-            python workflow.py "${args[@]}"
+            python main.py "${args[@]}"
 
-      - name: Publish verified tree with compare-and-swap
+      - name: Commit synchronized documents
         env:
-          GH_TOKEN: ${{ github.token }}
+          PUSH_TOKEN: ${{ github.token }}
         run: |
-          uv run --directory translation-sync --locked --no-build --python 3.14 \
-            python workflow.py publish \
-            --artifact-root "$RUNNER_TEMP/translation-sync-artifacts"
-
-      - name: Trigger and verify production deployment
-        if: github.ref_name == 'main'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          uv run --directory translation-sync --locked --no-build --python 3.14 \
-            python workflow.py deploy \
-            --artifact-root "$RUNNER_TEMP/translation-sync-artifacts"
-
-      - name: Upload redacted workflow evidence
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: translation-sync-${{ github.run_id }}-${{ github.run_attempt }}
-          if-no-files-found: ignore
-          retention-days: 14
-          path: |
-            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-failure.json
-            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-*-failure.json
-            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-fixture-evidence.txt
-            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-manifest.json
-            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-published.json
-            ${{ runner.temp }}/translation-sync-artifacts/translation-sync-deployed.json
+          git add -A -- i18n versioned_docs versioned_sidebars
+          if git diff --cached --quiet; then
+            echo 'No documentation changes to commit.'
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m 'docs: synchronize translations'
+          git push \
+            "https://x-access-token:$PUSH_TOKEN@github.com/$GITHUB_REPOSITORY" \
+            "HEAD:$GITHUB_REF_NAME"

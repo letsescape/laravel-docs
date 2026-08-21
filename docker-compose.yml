@@ -7,7 +7,7 @@ services:
     volumes:
       - ./build:/app/build
 
-  # 격리 문서 갱신·번역 workflow
+  # 문서 동기화·번역
   translate:
     build:
       context: .
@@ -15,16 +15,12 @@ services:
     init: true
     working_dir: /workspace
     env_file:
-      - path: translation-sync/.env
+      - path: .env
         required: false
     volumes:
       - type: bind
         source: .
         target: /workspace
-        read_only: true
-      - type: volume
-        source: translation-sync-artifacts
-        target: /artifacts
       - type: volume
         source: translation-sync-python-environment
         target: /home/app/.venv
@@ -33,6 +29,5 @@ services:
         target: /home/app/.cache/uv
 
 volumes:
-  translation-sync-artifacts:
   translation-sync-python-environment:
   translation-sync-uv-cache:

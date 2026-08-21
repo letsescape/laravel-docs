@@ -256,6 +256,25 @@ def _line_comment_state(
     return protected, inline_index, in_comment
 
 
+def _inside_multiline_inline_span(
+    start: int,
+    end: int,
+    spans: list[tuple[int, int, str]],
+) -> bool:
+    """줄 전체가 여러 줄 인라인 코드 범위 안에 있는지 여부.
+
+    Args:
+        start: 줄 시작 위치.
+        end: 줄 끝 위치.
+        spans: 인라인 코드 범위 목록.
+
+    Returns:
+        줄이 범위 안에 완전히 포함되는지 여부.
+    """
+
+    return any(span_start < start and end <= span_end for span_start, span_end, _ in spans)
+
+
 def _strip_title_attrs_outside_protected_regions(text: str) -> str:
     """HTML 주석과 들여쓰기 코드 밖의 제목 클래스 제거."""
 
@@ -273,6 +292,10 @@ def _strip_title_attrs_outside_protected_regions(text: str) -> str:
             inline_index=inline_index,
             in_comment=in_comment,
         )
+        if not protected and _inside_multiline_inline_span(
+            offset, offset + len(line), inline_spans
+        ):
+            protected = True
         out.append(line if protected else strip_title_attrs(line))
         offset += len(line)
     return "".join(out)

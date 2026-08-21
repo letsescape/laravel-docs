@@ -2980,5 +2980,23 @@ class TargetScriptRatioTests(unittest.TestCase):
         )
 
 
+    def test_accepts_an_unannotated_table_without_outer_pipes(self):
+        """표 전용 응답은 바깥쪽 pipe가 없어도 annotation 생략을 허용."""
+        source = (
+            "Feature | Description\n"
+            "------- | -------\n"
+            "Lock | Prevent writes\n"
+        )
+        translated = (
+            "기능 | 설명\n"
+            "------- | -------\n"
+            "잠금 | 쓰기 방지\n"
+        )
+        self.assertEqual(
+            response_contract.verify(translated, source, locale="ko"),
+            [],
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,7 @@
 
 호출자가 전달한 locale별 운영 prompt를 system prompt로 사용.
 PatchPlan에서 확정한 atomic owner block을 분할하지 않는 요청.
-provider: openai | azure | cli.
+provider: openai | cli.
 """
 from __future__ import annotations
 
@@ -396,7 +396,7 @@ def translate_text(
 
     prompt = prompt if prompt is not None else load_prompt()
     system = effective_prompt(prompt)
-    if config.provider not in {"openai", "azure", "cli"}:
+    if config.provider not in {"openai", "cli"}:
         raise ConfigError(
             f"invalid live provider {config.provider!r}",
             IssueCode.PROVIDER_SELECTION_INVALID,
@@ -497,7 +497,7 @@ def preflight_request(
     _require_response_contract_version(request)
     if config.provider == "identity":
         return
-    if config.provider not in {"openai", "azure", "cli"}:
+    if config.provider not in {"openai", "cli"}:
         raise ConfigError(
             f"invalid live provider {config.provider!r}",
             IssueCode.PROVIDER_SELECTION_INVALID,
@@ -534,7 +534,7 @@ def translate_request(
     clock: Callable[[], float] = time.monotonic,
     attempt_counter: ProviderAttemptCounter | None = None,
 ) -> str:
-    """단일 구조화 block의 번역 또는 canonical replay 형태 렌더링."""
+    """단일 구조화 block의 번역 또는 canonical 테스트 형태 렌더링."""
 
     _require_response_contract_version(request)
     if config.provider == "identity":
@@ -575,23 +575,6 @@ def translate_request(
         clock=clock,
         **counter_arguments,
     )
-
-
-def start_translation_deadline(
-    config: Config,
-    workflow_deadline: float,
-    *,
-    clock: Callable[[], float] = time.monotonic,
-) -> float:
-    """첫 live fixture 시점의 단일 번역 실행 기한 시작."""
-
-    budget = config.request_budget()
-    if budget is None:
-        raise ConfigError(
-            "INVALID_REQUEST_BUDGET: request budget is required",
-            IssueCode.INVALID_REQUEST_BUDGET,
-        )
-    return min(workflow_deadline, clock() + budget.run_timeout_seconds)
 
 
 def _is_retryable(exc: BaseException) -> bool:
@@ -900,63 +883,6 @@ def _known_provider_status(value: object, allowed: set[str]) -> str:
     return value if isinstance(value, str) and value in allowed else "unknown"
 
 
-def _translate_azure(
-    chunk: str,
-    config: Config,
-    prompt: str,
-    *,
-    client_runtime: dict[str, object],
-    budget: RequestBudget | None,
-) -> str:
-    """Azure chat completions adapter로 단일 번역 요청 실행.
-
-    Args:
-        chunk: 번역 요청 본문.
-        config: 검증된 provider 설정.
-        prompt: 번역 system prompt.
-        client_runtime: SDK 재시도·timeout 설정.
-        budget: 검증된 요청 예산.
-
-    Returns:
-        완료된 번역 응답 본문.
-    """
-
-    from openai import AzureOpenAI
-
-    client = AzureOpenAI(
-        api_key=config.get("AZURE_OPENAI_API_KEY"),
-        api_version=config.get("AZURE_OPENAI_API_VERSION"),
-        azure_endpoint=config.get("AZURE_OPENAI_ENDPOINT"),
-        organization="",
-        project="",
-        **client_runtime,
-    )
-    response = client.chat.completions.create(
-        model=config.get("TRANSLATION_MODEL"),
-        reasoning_effort=config.get("TRANSLATION_REASONING_EFFORT", "medium"),
-        messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": chunk},
-        ],
-        **(
-            {"max_completion_tokens": budget.reserved_output_tokens}
-            if budget is not None
-            else {}
-        ),
-    )
-    choice = response.choices[0]
-    if choice.finish_reason != "stop":
-        finish_reason = _known_provider_status(
-            choice.finish_reason,
-            {"content_filter", "function_call", "length", "null", "tool_calls"},
-        )
-        raise ProviderPartialResponse(
-            "provider response was incomplete "
-            f"(adapter=azure, status={finish_reason})"
-        )
-    return choice.message.content or ""
-
-
 def _translate_responses_api(
     chunk: str,
     config: Config,
@@ -1012,20 +938,12 @@ def _translate_responses_api(
 
 
 def _translate_openai(chunk: str, config: Config, prompt: str) -> str:
-    """재시도 없는 OpenAI 또는 Azure adapter로 단일 요청 실행."""
+    """재시도 없는 OpenAI API adapter로 단일 요청 실행."""
 
     client_runtime: dict[str, object] = {"max_retries": 0}
     budget = config.request_budget()
     if budget is not None:
         client_runtime["timeout"] = _request_timeout_seconds(config)
-    if config.provider == "azure":
-        return _translate_azure(
-            chunk,
-            config,
-            prompt,
-            client_runtime=client_runtime,
-            budget=budget,
-        )
     return _translate_responses_api(
         chunk,
         config,

@@ -3,7 +3,7 @@
 ## 요약
 
 후처리된 locale 문서를 영어 verification view와 대조해 front matter, source-authored 주석, 코드, 링크, 목록, 표, 인용, Markdown block, HTML tag, 앵커, heading, 이미지, admonition과 placeholder의 구조 보존 판정.
-빈 issue 목록인 문서만 verified locale artifact로 만들어 candidate snapshot에 적재 허용.
+빈 issue 목록인 locale 문서만 작업 트리에 기록 허용.
 
 ## 흐름도
 
@@ -14,9 +14,9 @@ flowchart TD
     C --> D[앵커·heading·이미지·admonition 대조]
     D --> E[잔존 패턴 및 닫히지 않은 img 검사]
     E --> F{Issue가 있는가?}
-    F -- 예 --> G[Candidate 적재 차단 및 실행 실패]
-    F -- 아니요 --> H[Verified locale artifact 생성]
-    H --> I[Candidate snapshot에 적재]
+    F -- 예 --> G[문서 기록 차단 및 실행 실패]
+    F -- 아니요 --> H[검증된 locale 문서 확정]
+    H --> I[작업 트리에 기록]
 ```
 
 ## 목적
@@ -26,7 +26,7 @@ flowchart TD
 
 ## 범위
 
-- response contract 이후, candidate snapshot 적재 직전의 전체 구조 검증 수행
+- response contract 이후, 작업 트리 기록 직전의 전체 구조 검증 수행
 - front matter, source-authored HTML 주석, 코드, 링크, 목록, 표, 인용, Markdown block, HTML tag, 앵커, 이미지, heading, admonition, placeholder 보존 확인
 - 번역 의미 정확성, 용어 선택, 문체, 일반 HTML 렌더링은 이 단계의 자동 판정 범위에서 제외
 
@@ -39,7 +39,7 @@ flowchart TD
 | expected annotation map | 후처리 단계가 같은 영어 입력에서 생성한 구조 주소·ordered occurrence·canonical annotation byte 목록 |
 | 문서 version | 상대 링크와 절대 URL의 버전 동등 비교에 사용 |
 | 검증 입력 hash | [후처리 단계 §7.8](./03-postprocessing.md#78-검증-입력-hash)의 canonical envelope와 SHA-256 hash |
-| final snapshot loader | artifact 생성 직전에 candidate locale, 영어 verification view, expected annotation map, version과 stale-link registry를 각 소유 source에서 새로 읽어 검증 입력을 재구성하는 단일 호출 seam |
+| final snapshot loader | 검증 산출물 생성 전에 stale-link registry를 다시 읽고, 캡처한 locale 초안·정규화 영어 원문·restore map·version으로 검증 입력을 재구성하는 단일 호출 seam |
 
 ## 출력
 
@@ -47,16 +47,16 @@ flowchart TD
 |---|---|
 | stable issue code 목록 | [오류 처리 설계](./08-error-cases.md)의 검증 오류 code와 구조 주소 집합 |
 | 빈 목록 | 검증 통과 |
-| verified locale artifact | 빈 issue 목록과 검증 입력 hash가 결합된 candidate 적재 가능 문서 |
+| 검증된 locale 문서 | 빈 issue 목록과 검증 입력 hash가 결합된 기록 가능 문서 |
 
 ## 불변 조건
 
 1. **구조 검증과 번역 의미 평가의 경계**: 자동 판정은 원문 대비 구조 보존만 대상. 목표 언어 충분성은 번역 response contract의 검사 대상이나, 의미 정확성·용어 선택·문체는 자동 workflow가 보증하지 않는 명시적 잔여 위험.
-2. **Fail-closed**: 판정 불가 상태는 통과가 아닌 실패로 처리. issue가 하나라도 존재하면 해당 locale target의 candidate 적재 금지.
-3. **저장소 오염 방지**: 검증 실패 시 candidate snapshot과 active worktree의 locale 파일 덮어쓰기 금지.
+2. **Fail-closed**: 판정 불가 상태는 통과가 아닌 실패로 처리. issue가 하나라도 존재하면 해당 locale 문서 기록 금지.
+3. **저장소 오염 방지**: 검증 실패 시 작업 트리의 locale 파일 덮어쓰기 금지.
 4. **기준본 단일성**: 비교 기준은 항상 같은 검증 입력 hash에 포함된 영어 verification view와 expected annotation map. 과거 locale 문서의 형식 차이 소급 금지.
 5. **재요청 경계**: 이 단계에서 provider 호출 및 response feedback 재요청 수행 금지.
-6. **입력 결합성**: 검증 시작과 artifact 생성 시점의 검증 입력 hash 동일성 필수. Artifact 직전에는 final snapshot loader를 정확히 한 번 호출해 새 입력 구성 필요. 시작 snapshot 객체를 다시 hash하는 방식으로 대체 금지. 불일치 시 판정 결과 폐기 및 실패 처리.
+6. **입력 결합성**: 검증 시작과 산출물 생성 시점의 검증 입력 hash 동일성 필수. 산출물 생성 전에는 final snapshot loader를 정확히 한 번 호출해 stale-link registry와 그 파생 입력을 재구성해야 함. 시작 snapshot 객체만 다시 hash하는 방식으로 대체 금지. 불일치 시 판정 결과 폐기 및 실패 처리.
 
 ## 검증 항목
 
@@ -90,14 +90,13 @@ flowchart TD
 
 | 상태 | 처리 |
 |---|---|
-| stable issue code가 하나 이상 | 해당 locale target 실패, candidate 적재 차단 |
+| stable issue code가 하나 이상 | 해당 locale target 실패, 문서 기록 차단 |
 | 영어 verification view 또는 expected annotation map 부재 | 구조 대조가 불가능하므로 검증 실패 처리 |
-| final snapshot 재구성 실패 또는 시작·종료 검증 입력 불일치 | `VERIFICATION_INPUT_CHANGED` 판정 및 artifact 생성 차단. stale-link registry digest 변경이 원인이면 `STALE_LINK_REGISTRY_CHANGED` 판정 |
-| API 장애로 번역 미완료 | 검증 미진입, provider 단계에서 target 실패 처리 |
+| final snapshot 재구성 실패 또는 시작·종료 검증 입력 불일치 | `VERIFICATION_INPUT_CHANGED` 판정 및 문서 기록 차단. stale-link registry digest 변경이 원인이면 `STALE_LINK_REGISTRY_CHANGED` 판정 |
+| provider 장애로 번역 미완료 | 검증 미진입, provider 단계에서 target 실패 처리 |
 
 검증 issue의 provider 응답 자동 feedback 금지.
-provider 재처리가 필요하면 원인 수정 후 새 워크플로우 실행에서 [번역 단계](./02-translation.md)부터 재산출 필요.
-전체 실행은 승인 기준본 고정부터 시작 필수.
+provider 재처리가 필요하면 원인 수정 후 `main.py`를 다시 실행해 upstream 원문 동기화부터 재산출해야 한다. 단, 앞선 target의 기록이나 삭제가 남은 실패라면 먼저 작업 트리를 확인하고 `07-local-replay.md`의 복구 절차에 따라 실행 전 상태를 복원한다.
 
 ## 수용 기준
 
@@ -116,7 +115,7 @@ provider 재처리가 필요하면 원인 수정 후 새 워크플로우 실행�
 11. admonition marker 유형 순서가 일치하고 중복·이탈 없음.
 12. fenced code 밖에 Base64 placeholder, `{{version}}`, legacy note marker, heading 스타일 클래스 잔존 금지.
 13. 닫히지 않은 `<img>` 태그 없음.
-14. 빈 issue 목록, 시작·종료가 같은 검증 입력 hash와 final snapshot에서 재확인한 byte가 결합된 verified locale artifact만 candidate snapshot에 적재 허용.
+14. 빈 issue 목록과 시작·종료가 같은 검증 입력 hash가 결합된 locale 문서만 작업 트리에 기록 허용.
 
 ## 오류 분류 경계
 
@@ -133,7 +132,7 @@ provider 재처리가 필요하면 원인 수정 후 새 워크플로우 실행�
 
 Fail-closed 원칙은 이 문서가 요구하는 모든 구조 기준에 적용.
 아래 항목은 구조 기준 밖이므로 issue 부재만으로 품질 입증 불가.
-각 항목에 번역 응답 계약 또는 사이트 검증의 별도 기준 적용 필요.
+각 항목은 필요하면 번역 실행 밖의 별도 검토 기준을 적용.
 범위 밖 항목으로 필수 구조 기준 판정이 불가능한 경우에도 제외 금지 및 구조 issue 처리 필수.
 
 - 번역 의미의 정확성, 용어 선택과 문체

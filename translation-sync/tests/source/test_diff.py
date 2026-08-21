@@ -364,8 +364,13 @@ class DiffTests(unittest.TestCase):
         for args in calls:
             self.assertEqual(args[0], "git")
             self.assertEqual(
-                args[1:3],
-                ["-c", "core.fsmonitor=false"],
+                args[1:5],
+                [
+                    "-c",
+                    "core.fsmonitor=false",
+                    "-c",
+                    f"safe.directory={diff.REPO_ROOT}",
+                ],
             )
             self.assertIn("diff", args)
             self.assertIn("--no-ext-diff", args)
@@ -478,74 +483,6 @@ class DiffTests(unittest.TestCase):
 
             self.assertEqual(len(changes), 1)
             self.assertFalse(marker.exists())
-
-    def test_expired_workflow_deadline_rejects_before_git_subprocess(self):
-        """`changed_sources`가 만료된 workflow deadline을 Git 하위 프로세스 전에 거부하는지 검증."""
-
-        with patch.dict(
-            diff.os.environ,
-            {
-                "PATH": "/safe/bin",
-                diff.WORKFLOW_DEADLINE_ENV: "100.0",
-            },
-            clear=True,
-        ), patch.object(diff.time, "monotonic", return_value=100.0), patch.object(
-            diff,
-            "run_process_tree",
-        ) as run:
-            with self.assertRaisesRegex(
-                diff.SourceDiffError,
-                "workflow deadline exceeded",
-            ):
-                diff.changed_sources()
-
-        run.assert_not_called()
-
-    def test_git_subprocess_uses_remaining_workflow_deadline(self):
-        """`changed_sources`가 Git 하위 프로세스에 남은 workflow deadline을 전달하는지 검증."""
-
-        completed = subprocess.CompletedProcess(
-            ["git", "status"],
-            0,
-            stdout="",
-            stderr="",
-        )
-        with patch.dict(
-            diff.os.environ,
-            {
-                "PATH": "/safe/bin",
-                diff.WORKFLOW_DEADLINE_ENV: "125.5",
-            },
-            clear=True,
-        ), patch.object(diff.time, "monotonic", return_value=100.0), patch.object(
-            diff,
-            "run_process_tree",
-            return_value=completed,
-        ) as run:
-            self.assertEqual(diff.changed_sources(), [])
-
-        self.assertEqual(run.call_args.kwargs["timeout"], 25.5)
-
-    def test_git_subprocess_timeout_is_a_controlled_deadline_error(self):
-        """Git 하위 프로세스 timeout을 제어된 deadline 오류로 변환하는지 검증."""
-
-        with patch.dict(
-            diff.os.environ,
-            {
-                "PATH": "/safe/bin",
-                diff.WORKFLOW_DEADLINE_ENV: "125.5",
-            },
-            clear=True,
-        ), patch.object(diff.time, "monotonic", return_value=100.0), patch.object(
-            diff,
-            "run_process_tree",
-            side_effect=subprocess.TimeoutExpired(["git", "status"], 25.5),
-        ):
-            with self.assertRaisesRegex(
-                diff.SourceDiffError,
-                "workflow deadline exceeded",
-            ):
-                diff.changed_sources()
 
     def test_changed_sources_includes_untracked_new_markdown_files(self):
         """`changed_sources`가 미추적 신규 Markdown 파일을 포함하는지 검증."""

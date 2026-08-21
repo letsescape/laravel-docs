@@ -16,10 +16,13 @@ from ..common.markdown import (
     closes_fence,
     fence_token,
     front_matter_description,
+    gfm_table_row_cells,
     has_malformed_html_comment_delimiters,
     html_comment_spans,
     html_tags,
     inline_code_contents,
+    is_gfm_pipe_table,
+    is_gfm_pipe_table_candidate,
     is_heading_line,
     is_named_anchor_line,
     is_non_annotatable_line,
@@ -504,7 +507,7 @@ def _create_block_kind(base_kind: str, source: str) -> str:
     if base_kind != "text":
         return base_kind
     stripped = source.lstrip()
-    if stripped.startswith("|"):
+    if is_gfm_pipe_table_candidate(source):
         return "table"
     if stripped.startswith(">"):
         return "admonition"
@@ -1027,13 +1030,14 @@ def _expanded_segments(
                 expanded.append(code_segment)
             continue
         _require_supported_modified_admonition(segment)
-        if _require_supported_modified_table(segment):
+        if _require_supported_modified_table(segment, sources.old_lines):
             table_row = _source_table_row_change(segment, sources.old_lines)
             if table_row is None:
                 raise PatchError("modified table row has no stable source address")
             if table_row.table_ordinal in modified_tables:
                 raise PatchError("modified table must change exactly one row")
             modified_tables.add(table_row.table_ordinal)
+            segment = replace(segment, table_row=table_row)
         expanded.extend(
             _expand_to_source_blocks(
                 segment,
@@ -5100,10 +5104,10 @@ def _raw_line_scan_state(
 def _table_row_cells(line: str) -> tuple[str, ...] | None:
     """Markdown table row에서 분리한 cell 목록."""
 
-    stripped = line.strip()
-    if not stripped.startswith("|") or not stripped.endswith("|"):
+    raw_cells = gfm_table_row_cells(line)
+    if raw_cells is None:
         return None
-    cells = tuple(_normalize_text(cell) for cell in stripped.strip("|").split("|"))
+    cells = tuple(_normalize_text(cell) for cell in raw_cells)
     return cells if cells and any(cells) else None
 
 
@@ -5194,7 +5198,10 @@ def _is_changed_table_row(line: str) -> bool:
     return not line.startswith(("    ", "\t")) and _table_row_cells(line) is not None
 
 
-def _require_supported_modified_table(segment: BlockChange) -> bool:
+def _require_supported_modified_table(
+    segment: BlockChange,
+    old_source_lines: list[str] | None = None,
+) -> bool:
     """변경된 table 구조의 지원 여부 검증.
 
     이전 원문에 table row가 없고 추가 줄이 구분 행을 포함하는 순수 추가만
@@ -5205,6 +5212,18 @@ def _require_supported_modified_table(segment: BlockChange) -> bool:
 
     old_meaningful = _meaningful_lines(segment.old_lines)
     new_meaningful = _meaningful_lines(segment.new_lines)
+    owner_is_table = bool(
+        old_source_lines is not None
+        and _source_table_row_change(segment, old_source_lines) is not None
+    ) or is_gfm_pipe_table(
+        "\n".join(new_meaningful)
+    )
+    outer_pipe_row_changed = any(
+        line.strip().startswith("|") and line.strip().endswith("|")
+        for line in old_meaningful + new_meaningful
+    )
+    if not owner_is_table and not outer_pipe_row_changed:
+        return False
     if not any(
         _is_changed_table_row(line)
         for line in old_meaningful + new_meaningful
@@ -5232,21 +5251,33 @@ def _table_regions(lines: list[str]) -> list[list[int]]:
     for start, end in _code_fence_regions(lines):
         fenced.update(range(start, end + 1))
     tables: list[list[int]] = []
-    current: list[int] | None = None
-    for index, line in enumerate(lines):
-        cells = (
-            _table_row_cells(line)
-            if index not in fenced and not line.startswith(("    ", "\t"))
-            else None
-        )
-        if cells is None:
-            current = None
+    index = 0
+    while index + 1 < len(lines):
+        if index in fenced or index + 1 in fenced:
+            index += 1
             continue
-        if current is None:
-            current = []
-            tables.append(current)
-        if not _is_table_separator_cells(cells):
-            current.append(index)
+        header = _table_row_cells(lines[index])
+        separator = _table_row_cells(lines[index + 1])
+        if (
+            header is None
+            or separator is None
+            or len(header) != len(separator)
+            or not _is_table_separator_cells(separator)
+        ):
+            index += 1
+            continue
+
+        rows = [index]
+        cursor = index + 2
+        while cursor < len(lines) and cursor not in fenced:
+            cells = _table_row_cells(lines[cursor])
+            if cells is None or len(cells) != len(header):
+                break
+            if not _is_table_separator_cells(cells):
+                rows.append(cursor)
+            cursor += 1
+        tables.append(rows)
+        index = cursor
     return tables
 
 
@@ -5999,6 +6030,12 @@ def _source_blocks(source: str) -> list[SourceBlock]:
     reference_lines = {
         line + 1 for line in reference_definition_line_numbers(source)
     }
+    table_lines = {
+        lineno
+        for block in split_blocks(source.splitlines())
+        if block.kind == "text" and is_gfm_pipe_table("\n".join(block.lines))
+        for lineno in range(block.start + 1, block.end + 1)
+    }
 
     def flush_paragraph() -> None:
         """누적된 문단 줄을 하나의 원문 block으로 확정."""
@@ -6052,6 +6089,9 @@ def _source_blocks(source: str) -> list[SourceBlock]:
             blocks.append(SourceBlock(lineno, lineno, _normalize_text(heading), line + "\n"))
             continue
         if is_structural_html_line(line):
+            flush_paragraph()
+            continue
+        if lineno in table_lines:
             flush_paragraph()
             continue
         if is_non_annotatable_line(line):

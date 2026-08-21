@@ -46,6 +46,7 @@ class PromptTests(unittest.TestCase):
                 prompt.load_prompt(prompt_path)
 
         self.assertNotIn("sensitive filesystem detail", str(raised.exception))
+        self.assertNotIn("/fixture", str(raised.exception))
 
     def test_invalid_utf8_prompt_file_is_an_error(self):
         """UTF-8로 해석할 수 없는 프롬프트 파일 거부."""

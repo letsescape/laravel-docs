@@ -598,25 +598,6 @@ def _build_sidebar_from_documentation(
     return {"tutorialSidebar": items}, issues
 
 
-def build_sidebar(
-    version: str, *, current: dict | None = None, repo_root: Path = REPO_ROOT
-) -> tuple[dict, list[str]]:
-    """저장소 입력으로 버전별 기대 사이드바 생성."""
-
-    version = _supported_version(version, repo_root)
-    documentation_bytes, issues = _read_documentation_snapshot(
-        version,
-        repo_root=repo_root,
-    )
-    expected, build_issues = _build_sidebar_from_documentation(
-        version,
-        documentation_bytes,
-        current=current or {},
-        repo_root=repo_root,
-    )
-    return expected, [*issues, *build_issues]
-
-
 def _read_sidebar_snapshot(
     version: str, *, repo_root: Path = REPO_ROOT
 ) -> tuple[dict, bytes | None, list[str]]:
@@ -645,18 +626,6 @@ def _read_sidebar_snapshot(
             "invalid sidebar JSON schema: tutorialSidebar must be a list"
         ]
     return sidebar, content, []
-
-
-def _read_sidebar(
-    version: str, *, repo_root: Path = REPO_ROOT
-) -> tuple[dict, list[str]]:
-    """기준 사이드바 구조 읽기."""
-
-    sidebar, _content, issues = _read_sidebar_snapshot(
-        version,
-        repo_root=repo_root,
-    )
-    return sidebar, issues
 
 
 def _sort_json_keys(value: object) -> object:

@@ -15,16 +15,6 @@ from sync import config, diff, translate, verify
 class MainPipelineTests(unittest.TestCase):
     """주 번역 파이프라인의 동작과 경계 조건 테스트 모음."""
 
-    def setUp(self) -> None:
-        """테스트 사전 상태 구성."""
-
-        candidate_environment = patch.dict(
-            main.os.environ,
-            {"TRANSLATION_CANDIDATE": "1"},
-        )
-        candidate_environment.start()
-        self.addCleanup(candidate_environment.stop)
-
     def _change_with_lines(
         self, path: str, lines: list[tuple[str, str]]
     ) -> diff.SourceChange:
@@ -2138,7 +2128,7 @@ class MainPipelineTests(unittest.TestCase):
                 side_effect=AssertionError("provider should not run for target state"),
             ), patch.object(
                 main,
-                "atomic_write_text",
+                "atomic_write_bytes",
                 side_effect=AssertionError("target state must not write"),
             ):
                 issues = main._translate_one(change, cfg, "prompt", dest)
@@ -3098,6 +3088,18 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("provider inline code mismatch", sent[1])
             self.assertIn("`Redis::throttle`", dest.read_text(encoding="utf-8"))
 
+    def test_inline_code_feedback_includes_required_token_counts(self):
+        """인라인 코드 재요청에 원문 token별 필요 개수를 명시."""
+
+        feedback = main._verification_feedback(
+            ["provider inline code mismatch"],
+            translated="`Redis`와 `GET`을 사용합니다.",
+            source="Use the `Redis` facade to call `GET` on `Redis`.",
+        )
+
+        self.assertIn("`Redis` × 2", feedback)
+        self.assertIn("`GET` × 1", feedback)
+
     def test_translate_one_requires_hunks_for_existing_documents(self):
         """기존 문서 번역에 원시 diff 묶음이 필요한지 검증."""
 
@@ -3566,7 +3568,7 @@ class MainPipelineTests(unittest.TestCase):
                 side_effect=AssertionError("malformed response must not be applied"),
             ) as apply_plan, patch.object(
                 main,
-                "atomic_write_text",
+                "atomic_write_bytes",
                 side_effect=AssertionError("malformed response must not be written"),
             ) as write:
                 issues = main._translate_one(change, cfg, "prompt", dest)
@@ -3606,6 +3608,15 @@ class MainPipelineTests(unittest.TestCase):
         self.assertTrue(
             main._issues_allow_regeneration(
                 ["ko doc.md: SOURCE_STRUCTURE_MISMATCH: document: link label mismatch"]
+            )
+        )
+
+    def test_list_table_structure_mismatch_allows_regeneration(self):
+        """기존 locale의 목록·표 구조 불일치는 재생성 강등 대상으로 판정."""
+
+        self.assertTrue(
+            main._issues_allow_regeneration(
+                ["LIST_TABLE_STRUCTURE_MISMATCH: list-or-table: list marker mismatch"]
             )
         )
 
@@ -3652,66 +3663,6 @@ class MainPipelineTests(unittest.TestCase):
 
         self.assertEqual([change.document for change in selected], ["license.md"])
 
-    def test_select_changes_migrate_existing_uses_all_source_markdown_files(self):
-        """기존 문서 마이그레이션에서 모든 원문 Markdown 파일을 사용하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            source.parent.mkdir(parents=True)
-            source.write_text("# Example\n", encoding="utf-8")
-            (source.parent.parent / "version-12.x.json").write_text(
-                "{}\n",
-                encoding="utf-8",
-            )
-
-            with patch.object(main, "REPO_ROOT", root):
-                changes = main._select_changes(migrate_existing=True)
-
-        self.assertEqual(
-            changes,
-            [
-                diff.SourceChange(
-                    path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
-                    status="M",
-                )
-            ],
-        )
-
-    def test_select_changes_migrate_existing_can_filter_by_version_and_doc(self):
-        """기존 문서 마이그레이션을 버전과 문서로 필터링하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            for path in (
-                "i18n/en/docusaurus-plugin-content-docs/version-12.x/a.md",
-                "i18n/en/docusaurus-plugin-content-docs/version-12.x/b.md",
-                "i18n/en/docusaurus-plugin-content-docs/version-13.x/b.md",
-            ):
-                source = root / path
-                source.parent.mkdir(parents=True, exist_ok=True)
-                source.write_text("# Example\n", encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                changes = main._select_changes(
-                    migrate_existing=True,
-                    version="12.x",
-                    doc="b.md",
-                )
-
-        self.assertEqual(
-            changes,
-            [
-                diff.SourceChange(
-                    path="i18n/en/docusaurus-plugin-content-docs/version-12.x/b.md",
-                    status="M",
-                )
-            ],
-        )
-
     def test_nested_source_maps_to_matching_ko_and_ja_relative_paths(self):
         """중첩 원문을 대응하는 한국어와 일본어 상대 경로로 매핑하는지 검증."""
 
@@ -3742,116 +3693,6 @@ class MainPipelineTests(unittest.TestCase):
         self.assertFalse(
             main._matches_filters(change, version="13.x", doc="queues.md")
         )
-
-    def test_select_changes_migrate_existing_recurses_nested_documents(self):
-        """기존 문서 마이그레이션에서 중첩 문서를 재귀 탐색하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            nested = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/"
-                "version-13.x/guides/queues.md"
-            )
-            nested.parent.mkdir(parents=True)
-            nested.write_text("# Queues\n", encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                changes = main._select_changes(
-                    migrate_existing=True,
-                    version="13.x",
-                    doc="guides/queues.md",
-                )
-
-        self.assertEqual(
-            changes,
-            [
-                diff.SourceChange(
-                    path=(
-                        "i18n/en/docusaurus-plugin-content-docs/"
-                        "version-13.x/guides/queues.md"
-                    ),
-                    status="M",
-                )
-            ],
-        )
-
-    def test_select_changes_migrate_existing_rejects_nested_directory_symlink(self):
-        """기존 문서 마이그레이션에서 중첩 디렉터리 심볼릭 링크 거부 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            version_root = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-13.x"
-            )
-            version_root.mkdir(parents=True)
-            outside = root / "outside"
-            outside.mkdir()
-            (outside / "queues.md").write_text("# Secret\n", encoding="utf-8")
-            (version_root / "guides").symlink_to(
-                outside,
-                target_is_directory=True,
-            )
-
-            with patch.object(main, "REPO_ROOT", root):
-                with self.assertRaisesRegex(
-                    main.SourcePathError,
-                    "unsafe English source path",
-                ):
-                    main._select_changes(migrate_existing=True)
-
-    def test_select_changes_migrate_existing_rejects_source_symlinks(self):
-        """기존 문서 마이그레이션에서 원문 심볼릭 링크 거부 검증."""
-
-        for component in ("root", "version", "leaf"):
-            with self.subTest(component=component), tempfile.TemporaryDirectory() as tmp:
-                base = Path(tmp)
-                root = base / "repo"
-                root.mkdir()
-                outside = base / "outside"
-                outside.mkdir()
-
-                if component == "root":
-                    (outside / "version-13.x").mkdir()
-                    (outside / "version-13.x/example.md").write_text(
-                        "# External\n",
-                        encoding="utf-8",
-                    )
-                    (root / "i18n/en").mkdir(parents=True)
-                    (
-                        root
-                        / "i18n/en/docusaurus-plugin-content-docs"
-                    ).symlink_to(outside, target_is_directory=True)
-                elif component == "version":
-                    (outside / "example.md").write_text(
-                        "# External\n",
-                        encoding="utf-8",
-                    )
-                    en_root = (
-                        root / "i18n/en/docusaurus-plugin-content-docs"
-                    )
-                    en_root.mkdir(parents=True)
-                    (en_root / "version-13.x").symlink_to(
-                        outside,
-                        target_is_directory=True,
-                    )
-                else:
-                    outside_doc = outside / "example.md"
-                    outside_doc.write_text("# External\n", encoding="utf-8")
-                    version_root = (
-                        root
-                        / "i18n/en/docusaurus-plugin-content-docs/version-13.x"
-                    )
-                    version_root.mkdir(parents=True)
-                    (version_root / "example.md").symlink_to(outside_doc)
-
-                with patch.object(main, "REPO_ROOT", root):
-                    with self.assertRaisesRegex(
-                        main.SourcePathError,
-                        "unsafe English source path",
-                    ):
-                        main._select_changes(migrate_existing=True)
 
     def test_sidebar_versions_always_include_every_canonical_version(self):
         """사이드바 버전 목록에 모든 정규 버전을 포함하는지 검증."""
@@ -4024,27 +3865,6 @@ class MainPipelineTests(unittest.TestCase):
             "configuration failed: --version requires a value\n",
         )
 
-    def test_main_rejects_live_sync_outside_candidate_or_replay(self):
-        """후보 또는 재실행 환경 외부의 실시간 동기화 거부 검증."""
-
-        stderr = io.StringIO()
-        with redirect_stderr(stderr), patch.dict(
-            main.os.environ,
-            {"TRANSLATION_CANDIDATE": "", "TRANSLATION_REPLAY": ""},
-        ), patch.object(
-            main.config,
-            "load_config",
-            side_effect=AssertionError("configuration must not be loaded"),
-        ):
-            with patch.object(main.sys, "argv", ["main.py"]):
-                exit_code = main.main()
-
-        self.assertEqual(exit_code, 1)
-        self.assertEqual(
-            stderr.getvalue(),
-            "configuration failed: translation sync requires an isolated candidate\n",
-        )
-
     def test_main_rejects_unknown_argument_before_upstream_sync(self):
         """업스트림 동기화 전에 알 수 없는 인수를 거부하는지 검증."""
 
@@ -4085,49 +3905,6 @@ class MainPipelineTests(unittest.TestCase):
             "configuration failed: --version requires a value\n",
         )
 
-    def test_main_rejects_multiple_maintenance_modes(self):
-        """여러 유지보수 모드의 동시 사용 거부 검증."""
-
-        stderr = io.StringIO()
-
-        with redirect_stderr(stderr), patch.object(
-            main.sys,
-            "argv",
-            ["main.py", "--check-annotations", "--annotate-existing"],
-        ), patch.object(
-            main.upstream,
-            "main",
-            side_effect=AssertionError("upstream should not run"),
-        ):
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 1)
-        self.assertEqual(
-            stderr.getvalue(),
-            "configuration failed: maintenance modes are mutually exclusive\n",
-        )
-
-    def test_main_rejects_apply_without_writable_maintenance_mode(self):
-        """쓰기 가능한 유지보수 모드 없이 `--apply` 사용 시 거부하는지 검증."""
-
-        stderr = io.StringIO()
-
-        with redirect_stderr(stderr), patch.object(
-            main.sys, "argv", ["main.py", "--apply"]
-        ), patch.object(
-            main.upstream,
-            "main",
-            side_effect=AssertionError("upstream should not run"),
-        ):
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 1)
-        self.assertEqual(
-            stderr.getvalue(),
-            "configuration failed: --apply requires --annotate-existing or "
-            "--fix-preserved-markup\n",
-        )
-
     def test_main_rejects_obsolete_fail_fast_option(self):
         """폐기된 `--fail-fast` 옵션 거부 검증."""
 
@@ -4149,208 +3926,6 @@ class MainPipelineTests(unittest.TestCase):
             stderr.getvalue(),
             "configuration failed: unknown argument: --fail-fast\n",
         )
-
-    def test_main_rejects_broken_migrate_existing_mode(self):
-        """지원하지 않는 기존 문서 마이그레이션 모드 거부 검증."""
-
-        stderr = io.StringIO()
-
-        with redirect_stderr(stderr), patch.object(
-            main.sys, "argv", ["main.py", "--migrate-existing"]
-        ), patch.object(
-            main.upstream,
-            "main",
-            side_effect=AssertionError("upstream should not run"),
-        ):
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 1)
-        self.assertEqual(
-            stderr.getvalue(),
-            "configuration failed: --migrate-existing is unsupported; use "
-            "--annotate-existing or --fix-preserved-markup\n",
-        )
-
-    def test_main_allows_apply_with_annotation_maintenance(self):
-        """주석 유지보수 모드에서 `--apply` 사용을 허용하는지 검증."""
-
-        with patch.object(
-            main.sys,
-            "argv",
-            ["main.py", "--annotate-existing", "--apply", "--version=13.x"],
-        ), patch.object(
-            main, "_annotate_existing", return_value=(0, [])
-        ) as annotate_existing, patch.object(
-            main.upstream,
-            "main",
-            side_effect=AssertionError("upstream should not run"),
-        ):
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 0)
-        annotate_existing.assert_called_once_with(
-            apply=True,
-            version="13.x",
-            doc=None,
-        )
-
-    def test_fix_preserved_markup_repairs_markdown_image_target(self):
-        """보존된 Markdown 이미지 대상 복구 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-13.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text(
-                "![Tutorial](/images/tutorial.png)\n",
-                encoding="utf-8",
-            )
-            ko_doc.write_text(
-                "<!-- ![Tutorial](/images/tutorial.png) -->\n"
-                "![튜토리얼](/이미지/tutorial.png)\n",
-                encoding="utf-8",
-            )
-            stdout = io.StringIO()
-
-            with redirect_stdout(stdout), patch.object(
-                main, "REPO_ROOT", root
-            ), patch.object(
-                main.sys,
-                "argv",
-                [
-                    "main.py",
-                    "--fix-preserved-markup",
-                    "--apply",
-                    "--version",
-                    "13.x",
-                    "--doc",
-                    "example.md",
-                ],
-            ):
-                exit_code = main.main()
-
-            self.assertEqual(exit_code, 0)
-            self.assertEqual(
-                stdout.getvalue(),
-                "existing preserved markup fixes written: 1\n",
-            )
-            self.assertEqual(
-                ko_doc.read_text(encoding="utf-8"),
-                "<!-- ![Tutorial](/images/tutorial.png) -->\n"
-                "![튜토리얼](/images/tutorial.png)\n",
-            )
-
-    def test_fix_preserved_markup_repairs_markdown_link_title(self):
-        """보존된 Markdown 링크 제목 복구 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-13.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text(
-                'See [Docs](guide.md "Read more").\n',
-                encoding="utf-8",
-            )
-            ko_doc.write_text(
-                '<!-- See [Docs](guide.md "Read more"). -->\n'
-                '[Docs](guide.md "자세히 보기")를 참고하세요.\n',
-                encoding="utf-8",
-            )
-            stdout = io.StringIO()
-            stderr = io.StringIO()
-
-            with redirect_stdout(stdout), redirect_stderr(stderr), patch.object(
-                main, "REPO_ROOT", root
-            ), patch.object(
-                main.sys,
-                "argv",
-                [
-                    "main.py",
-                    "--fix-preserved-markup",
-                    "--apply",
-                    "--version",
-                    "13.x",
-                    "--doc",
-                    "example.md",
-                ],
-            ):
-                exit_code = main.main()
-
-            self.assertEqual(exit_code, 0)
-            self.assertEqual(stderr.getvalue(), "")
-            self.assertEqual(
-                stdout.getvalue(),
-                "existing preserved markup fixes written: 1\n",
-            )
-            self.assertEqual(
-                ko_doc.read_text(encoding="utf-8"),
-                '<!-- See [Docs](guide.md "Read more"). -->\n'
-                '[Docs](guide.md "Read more")를 참고하세요.\n',
-            )
-
-    def test_fix_preserved_markup_reports_unresolved_fixable_issue(self):
-        """해결되지 않은 복구 가능 마크업 문제 보고 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-13.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text(
-                "Visit <https://example.com/source>.\n",
-                encoding="utf-8",
-            )
-            original = (
-                "<!-- Visit <https://example.com/source>. -->\n"
-                "<https://example.com/wrong>을 방문하세요.\n"
-            )
-            ko_doc.write_text(original, encoding="utf-8")
-            stdout = io.StringIO()
-            stderr = io.StringIO()
-
-            with redirect_stdout(stdout), redirect_stderr(stderr), patch.object(
-                main, "REPO_ROOT", root
-            ), patch.object(
-                main.sys,
-                "argv",
-                [
-                    "main.py",
-                    "--fix-preserved-markup",
-                    "--apply",
-                    "--version",
-                    "13.x",
-                    "--doc",
-                    "example.md",
-                ],
-            ):
-                exit_code = main.main()
-
-            self.assertEqual(exit_code, 1)
-            self.assertEqual(
-                stdout.getvalue(),
-                "existing preserved markup fixes written: 0\n",
-            )
-            self.assertIn(
-                "preserved markup fix skipped: ko "
-                "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md: "
-                "link target mismatch, link label mismatch, link pair mismatch\n",
-                stderr.getvalue(),
-            )
-            self.assertEqual(ko_doc.read_text(encoding="utf-8"), original)
 
     def test_main_fail_fast_stops_after_first_verification_failure(self):
         """첫 번째 검증 실패 후 번역 처리를 중단하는지 검증."""
@@ -4528,6 +4103,42 @@ class MainPipelineTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
 
+    def test_main_redacts_unexpected_runner_and_internal_errors(self):
+        """예상하지 못한 오류가 traceback 없이 exit 2로 변환되는지 검증."""
+
+        cases = (
+            (
+                PermissionError("/Users/person/private/source.md"),
+                "translation sync failed: runner operation failed\n",
+            ),
+            (
+                RuntimeError("secret internal detail"),
+                "translation sync failed: unexpected internal error\n",
+            ),
+        )
+        for error, expected_stderr in cases:
+            with self.subTest(error=type(error).__name__):
+                stderr = io.StringIO()
+                with redirect_stderr(stderr), patch.dict(
+                    main.os.environ, {}, clear=True
+                ), patch.object(
+                    main.sys, "argv", ["main.py"]
+                ), patch.object(
+                    main.config,
+                    "load_config",
+                    return_value=config.Config(
+                        provider="cli", values={"TRANSLATION_PROVIDER": "cli"}
+                    ),
+                ), patch.object(
+                    main, "_load_prompts", return_value={"ko": "ko", "ja": "ja"}
+                ), patch.object(
+                    main.upstream, "main", side_effect=error
+                ):
+                    exit_code = main.main()
+
+                self.assertEqual(exit_code, 2)
+                self.assertEqual(stderr.getvalue(), expected_stderr)
+
     def test_main_reports_invalid_source_diff_without_traceback(self):
         """잘못된 원문 diff를 트레이스백 없이 보고하는지 검증."""
 
@@ -4613,422 +4224,6 @@ class MainPipelineTests(unittest.TestCase):
             stderr.getvalue(),
             "prompt loading failed: missing prompt file: prompt.md\n",
         )
-
-    def test_check_existing_annotations_reports_unannotated_documents(self):
-        """원문 주석이 없는 기존 문서 보고 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            ja_doc = (
-                root
-                / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            ja_doc.parent.mkdir(parents=True)
-            source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            ko_doc.write_text("# 예제\n\n본문입니다.\n", encoding="utf-8")
-            ja_doc.write_text("# 例\n\n本文です。\n", encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                issues = main._check_existing_annotations()
-
-        self.assertEqual(
-            issues,
-            [
-                "ko i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: heading text mismatch",
-                "ko i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: source comment mismatch",
-                "ko i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: missing original comment",
-                "ja i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: heading text mismatch",
-                "ja i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: source comment mismatch",
-                "ja i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md: missing original comment",
-            ],
-        )
-
-    def test_check_existing_annotations_accepts_comment_annotated_documents(self):
-        """원문 주석이 있는 기존 문서 허용 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            ja_doc = (
-                root
-                / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            ja_doc.parent.mkdir(parents=True)
-            source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            annotated = "<!-- # Example -->\n# Example\n\n<!-- Body text. -->\n본문입니다.\n"
-            ko_doc.write_text(annotated, encoding="utf-8")
-            ja_doc.write_text(annotated, encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                issues = main._check_existing_annotations()
-
-        self.assertEqual(issues, [])
-
-    def test_check_existing_annotations_skips_missing_existing_documents(self):
-        """누락된 기존 로케일 문서를 건너뛰는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            ko_doc.write_text(
-                "<!-- # Example -->\n# Example\n\n<!-- Body text. -->\n본문입니다.\n",
-                encoding="utf-8",
-            )
-
-            with patch.object(main, "REPO_ROOT", root):
-                issues = main._check_existing_annotations()
-
-        self.assertEqual(issues, [])
-
-    def test_annotate_existing_writes_clean_ko_and_ja_documents(self):
-        """정상적인 한국어와 일본어 기존 문서에 원문 주석을 기록하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            ja_doc = (
-                root
-                / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            ja_doc.parent.mkdir(parents=True)
-            source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            ko_doc.write_text("# 예제\n\n본문입니다.\n", encoding="utf-8")
-            ja_doc.write_text("# 例\n\n本文です。\n", encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                written, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(written, 2)
-            self.assertEqual(failures, [])
-            self.assertIn("<!-- # Example -->", ko_doc.read_text(encoding="utf-8"))
-            self.assertIn("<!-- Body text. -->", ja_doc.read_text(encoding="utf-8"))
-
-    def test_annotate_existing_normalizes_legacy_alert_without_missing_comments(self):
-        """원문 주석 누락 없이 기존 경고 형식을 정규화하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text(
-                "> [!NOTE]\n> Body text.\n",
-                encoding="utf-8",
-            )
-            ko_doc.write_text(
-                "> **Note:**\n> 본문입니다.\n",
-                encoding="utf-8",
-            )
-
-            with patch.object(main, "REPO_ROOT", root):
-                written, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(written, 1)
-            self.assertEqual(failures, [])
-            self.assertEqual(
-                ko_doc.read_text(encoding="utf-8"),
-                "> [!NOTE]\n> 본문입니다.\n",
-            )
-
-    def test_annotate_existing_repairs_source_comment_mismatch_without_missing_comment(self):
-        """원문 주석 누락 없이 원문 주석 불일치를 복구하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text(
-                '<a name="cache"></a>\n\nCache body.\n',
-                encoding="utf-8",
-            )
-            ko_doc.write_text(
-                '<a name="cache"></a>\n\n'
-                "<!-- Cache body. -->\n"
-                "캐시 본문입니다.\n\n"
-                '<!-- <a name="cache"></a> -->\n',
-                encoding="utf-8",
-            )
-
-            with patch.object(main, "REPO_ROOT", root):
-                written, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(written, 1)
-            self.assertEqual(failures, [])
-            self.assertNotIn(
-                '<!-- <a name="cache"></a> -->',
-                ko_doc.read_text(encoding="utf-8"),
-            )
-
-    def test_annotate_existing_writes_canonical_stale_links_when_document_verifies(self):
-        """문서 검증 성공 시 정규 형태의 오래된 링크를 기록하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text(
-                "- [Agents](#agents-integration)\n",
-                encoding="utf-8",
-            )
-            ko_doc.write_text(
-                "- [Agents](#agents-integration)\n",
-                encoding="utf-8",
-            )
-
-            with patch.object(main, "REPO_ROOT", root):
-                written, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(written, 1)
-            self.assertEqual(failures, [])
-            self.assertIn(
-                "- [Agents](#agent-integration)\n",
-                ko_doc.read_text(encoding="utf-8"),
-            )
-
-    def test_annotate_existing_restores_blank_markdown_link_label(self):
-        """비어 있는 Markdown 링크 레이블 복원 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text(
-                "See [`Type`](guide.md#type).\n",
-                encoding="utf-8",
-            )
-            ko_doc.write_text(
-                "<!-- See [`Type`](guide.md#type). -->\n"
-                "[    ](guide.md#type)을 참고하세요.\n",
-                encoding="utf-8",
-            )
-
-            with patch.object(main, "REPO_ROOT", root):
-                written, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(written, 1)
-            self.assertEqual(failures, [])
-            self.assertIn(
-                "[`Type`](guide.md#type)을 참고하세요.\n",
-                ko_doc.read_text(encoding="utf-8"),
-            )
-
-    def test_annotate_existing_skips_documents_that_already_verify(self):
-        """이미 검증된 문서를 건너뛰는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            ja_doc = (
-                root
-                / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            ja_doc.parent.mkdir(parents=True)
-            source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            annotated = "<!-- # Example -->\n# Example\n\n<!-- Body text. -->\n본문입니다.\n"
-            ko_doc.write_text(annotated, encoding="utf-8")
-            ja_doc.write_text(annotated, encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                written, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(written, 0)
-            self.assertEqual(failures, [])
-            self.assertEqual(ko_doc.read_text(encoding="utf-8"), annotated)
-            self.assertEqual(ja_doc.read_text(encoding="utf-8"), annotated)
-
-    def test_annotate_existing_dry_run_counts_writable_documents_without_writing(self):
-        """시험 실행에서 기록 가능한 문서 수만 계산하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            ja_doc = (
-                root
-                / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            ja_doc.parent.mkdir(parents=True)
-            source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            ko_original = "# 예제\n\n본문입니다.\n"
-            ja_original = "# 例\n\n本文です。\n"
-            ko_doc.write_text(ko_original, encoding="utf-8")
-            ja_doc.write_text(ja_original, encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                writable, failures = main._annotate_existing(apply=False)
-
-            self.assertEqual(writable, 2)
-            self.assertEqual(failures, [])
-            self.assertEqual(ko_doc.read_text(encoding="utf-8"), ko_original)
-            self.assertEqual(ja_doc.read_text(encoding="utf-8"), ja_original)
-
-    def test_annotate_existing_writes_comments_with_residual_non_annotation_issues(self):
-        """주석 외 문제가 남아 있어도 원문 주석을 기록하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text("Use `Cache::get`.\n", encoding="utf-8")
-            ko_original = "`Cache::put`을 사용합니다.\n"
-            ko_doc.write_text(ko_original, encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                writable, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(writable, 1)
-            self.assertEqual(failures, [])
-            self.assertEqual(
-                ko_doc.read_text(encoding="utf-8"),
-                "<!-- Use `Cache::get`. -->\n" + ko_original,
-            )
-
-    def test_annotate_existing_skips_missing_existing_documents(self):
-        """주석 추가 시 누락된 기존 로케일 문서를 건너뛰는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            ko_original = "# 예제\n\n본문입니다.\n"
-            ko_doc.write_text(ko_original, encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                writable, failures = main._annotate_existing(apply=False)
-
-            self.assertEqual(writable, 1)
-            self.assertEqual(failures, [])
-            self.assertEqual(ko_doc.read_text(encoding="utf-8"), ko_original)
-
-    def test_annotate_existing_reports_drift_without_writing_document(self):
-        """문서를 기록하지 않고 원문과 로케일 문서의 차이를 보고하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            ja_doc = (
-                root
-                / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            ja_doc.parent.mkdir(parents=True)
-            source.write_text(
-                "# Example\n\nBody text.\n\nNew text.\n", encoding="utf-8"
-            )
-            original = "# 예제\n\n본문입니다.\n"
-            ko_doc.write_text(original, encoding="utf-8")
-            ja_doc.write_text("# 例\n\n本文です。\n", encoding="utf-8")
-
-            with patch.object(main, "REPO_ROOT", root):
-                written, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(written, 0)
-            self.assertTrue(any("drift" in failure for failure in failures))
-            self.assertEqual(ko_doc.read_text(encoding="utf-8"), original)
-
-    def test_annotate_existing_writes_when_drifted_output_still_verifies(self):
-        """차이가 있는 출력도 검증을 통과하면 기록하는지 검증."""
-
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = (
-                root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            ko_doc = root / "versioned_docs/version-12.x/example.md"
-            ja_doc = (
-                root
-                / "i18n/ja/docusaurus-plugin-content-docs/version-12.x/example.md"
-            )
-            source.parent.mkdir(parents=True)
-            ko_doc.parent.mkdir(parents=True)
-            ja_doc.parent.mkdir(parents=True)
-            source.write_text("# Example\n\nBody text.\n", encoding="utf-8")
-            ko_doc.write_text(
-                "# 예제\n\n본문입니다.\n\n로컬 보충 문장입니다.\n",
-                encoding="utf-8",
-            )
-
-            with patch.object(main, "REPO_ROOT", root):
-                written, failures = main._annotate_existing(apply=True)
-
-            self.assertEqual(written, 1)
-            self.assertEqual(failures, [])
-            self.assertIn("<!-- # Example -->", ko_doc.read_text(encoding="utf-8"))
-            self.assertIn("로컬 보충 문장입니다.", ko_doc.read_text(encoding="utf-8"))
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -33,15 +33,13 @@ npm start
 npm run typecheck
 ```
 
-번역 동기화 단위 테스트와 격리 replay는 운영 publication과 분리된 진단 명령으로 실행
+번역 동기화 Python 단위 테스트와 사이트 검증은 각각 실행
 
 ```bash
-make translation-diagnostic          # Python 단위 테스트 + identity replay
-make translation-provider-diagnostic # live provider fixture만 검사
-make translation-path-diagnostic     # 현재 checkout의 산출 경로만 검사
-make site-check                       # 링크 유틸리티 + 타입 + 빌드 + 앵커 검사
-make preflight                        # live provider·publication 제외 진단
-npm run test:e2e:docker               # Playwright E2E
+make translation-test # 번역 동기화 Python 단위 테스트
+make site-check       # 링크 유틸리티 + 타입 + 빌드 + 앵커 검사
+make preflight        # 위 두 검사 실행
+npm run test:e2e:docker
 ```
 
 ### Docker 실행
@@ -53,10 +51,9 @@ docker run -p 3000:3000 laravel-docs
 
 ### 문서 갱신
 
-문서 갱신의 유일한 운영 진입점은 `translation-sync/workflow.py`의 `prepare`, `publish`, `deploy` 세 단계로 구성
-`prepare`에서 승인 기준본·단위 테스트·identity replay·live fixture·격리 candidate·사이트 및 경로 검증·publication commit 준비를 하나의 제한 시간 안에 수행
-`publish`에서 봉인된 tree를 다시 검증한 뒤 원격 branch를 compare-and-swap 방식으로 갱신
-`main`의 `deploy`에서 정확한 published commit으로 배포를 요청하고 결과까지 대기
+문서 갱신 진입점은 `translation-sync/main.py`입니다. upstream에서 원본 문서를 동기화한 뒤 변경된 문서를 Python과 선택한 OpenAI provider(API 또는 CLI)로 번역하고 검증된 문서·사이드바를 작업 트리에 기록합니다.
+
+`main.py`는 Git을 조작하지 않습니다. 운영 Actions는 마지막 단계에서 갱신된 문서를 실행 branch에 커밋·push합니다. 번역 워크플로우는 Node 설치, 사이트 빌드, 배포를 수행하지 않으며, 사이트 배포는 이 워크플로우의 완료 이벤트를 구독하는 별도 워크플로우가 담당합니다.
 
 GitHub Actions에서는 GitHub Variables를 사용하지 않고 OpenAI 실행에 필요한 Secret만 전달
 
@@ -65,50 +62,25 @@ GitHub Actions에서는 GitHub Variables를 사용하지 않고 OpenAI 실행에
 - reasoning effort는 코드 기본값 `medium` 사용
 - 승인된 OpenAI 모델의 context/output 예산·request timeout·tokenizer는 코드의 모델 profile 기본값 사용
 
-provider run/workflow timeout 기본값은 코드에서 `21600`초로 관리하며, 전체 workflow timeout은 버전 관리되는 `translation-sync/workflow.json`에서 `21600`초로 관리
-request timeout ≤ run timeout ≤ workflow timeout 관계와 reserved output token < context window 관계가 필수
-값이 없거나 관계가 맞지 않으면 provider 호출 전에 실패
+provider run timeout 기본값은 코드에서 `21000`초로 관리
+request timeout ≤ run timeout 관계와 reserved output token < context window 관계가 필수
+기본값 적용 후에도 필수 값을 확정할 수 없거나 관계가 맞지 않으면 provider 호출 전에 실패
 
-로컬 운영 실행은 저장소 밖의 새 artifact 디렉터리와 명시적인 push endpoint를 사용
-`prepare`에서 endpoint의 `owner/name`과 `REPOSITORY`의 정확한 일치 여부를 확인하고 배포 대상을 phase state에 봉인
-이후 `deploy`에는 저장소 인자를 다시 전달하지 않음
-HTTPS publication과 `main` 배포에는 `GH_TOKEN` 필요
-`translation-prepare`는 Makefile에서 push 자격 증명을 제거한 환경으로 실행
+로컬 실행은 `TRANSLATION_PROVIDER`로 OpenAI API(`openai`) 또는 OpenAI CLI(`cli`)를 선택합니다. 저장소 루트의 `.env`가 있으면 Makefile이 값을 읽어 넣고, 명시적으로 준 환경 변수가 우선합니다.
 
 ```bash
-artifact_root="$(mktemp -d)"
-
-make translation-run \
-  ARTIFACT_ROOT="$artifact_root" \
-  PUSH_ENDPOINT="https://github.com/OWNER/REPOSITORY.git" \
-  BRANCH="$(git branch --show-current)" \
-  REPOSITORY="OWNER/REPOSITORY"
+TRANSLATION_PROVIDER=openai OPENAI_API_KEY=... make translation-run
 ```
 
 `VERSION=13.x DOC=collections.md`와 같은 selector 추가 가능
-자격 증명을 단계별 shell에 따로 주입하려면 같은 `ARTIFACT_ROOT`로 `make translation-prepare`, `make translation-publish`, `make translation-deploy`를 순서대로 실행
-`main` 이외의 branch에서는 deploy 단계 생략
 
-Docker에서도 동일한 운영 CLI만 사용
-저장소는 read-only로 mount되고 candidate와 phase state는 별도 named volume의 `/artifacts` 아래에 기록
-매 실행마다 새로운 경로 선택 필요
+Docker도 Python 전용 이미지에서 같은 `main.py`를 호출하고 현재 작업 트리에 결과를 기록합니다. 이미지에 CLI를 설치하지 않으므로 Docker 테스트는 OpenAI API를 사용합니다.
 
 ```bash
-make translate \
-  DOCKER_ARTIFACT_ROOT="/artifacts/manual-001" \
-  PUSH_ENDPOINT="https://github.com/OWNER/REPOSITORY.git" \
-  BRANCH="main" \
-  REPOSITORY="OWNER/REPOSITORY"
+OPENAI_API_KEY=... make translate VERSION=13.x DOC=collections.md
 ```
 
-GitHub Actions도 동일하게 외부 artifact root에서 `prepare` → `publish` → `main`의 `deploy`만 호출
-OpenAI provider 설정·인증은 prepare step에만, `GH_TOKEN`은 publish/deploy step에만 주입
-실패 보고서·manifest·검증된 fixture 메타데이터·publication 및 deploy 결과만 Actions artifact로 보존
-preparation key, provider 응답 본문과 candidate는 업로드하지 않음
-Pull Request 자동 생성 없음
-
-개별 진단 명령은 publication evidence를 만들지 않으며 운영 동기화 대신 사용할 수 없음
-전체 계약은 [번역 동기화 작업 흐름](translation-sync/docs/00-workflow-summary.md), [전체 운영 및 산출 검증](translation-sync/docs/05-additional-work.md), [로컬 Translation Replay](translation-sync/docs/07-local-replay.md) 참고
+전체 계약은 [번역 동기화 작업 흐름](translation-sync/docs/00-workflow-summary.md), [번역 실행 경계](translation-sync/docs/05-additional-work.md), [로컬 번역 실행](translation-sync/docs/07-local-replay.md) 참고
 
 ## 라이선스
 

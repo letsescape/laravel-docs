@@ -15,6 +15,7 @@ from ..common.markdown import (
     is_heading_line,
     is_named_anchor_line,
     markdown_links,
+    split_line_ending,
     strip_html_comments,
     strip_title_attr_line,
 )
@@ -48,18 +49,6 @@ class _RepairState:
     in_code: bool = False
     fence: str = ""
     in_comment: bool = False
-
-
-def _split_line_ending(line: str) -> tuple[str, str]:
-    """문자열을 본문과 기존 줄바꿈 구분자로 분리."""
-
-    if line.endswith("\r\n"):
-        return line[:-2], "\r\n"
-    if line.endswith("\n"):
-        return line[:-1], "\n"
-    if line.endswith("\r"):
-        return line[:-1], "\r"
-    return line, ""
 
 
 def _heading_lines(text: str) -> list[str]:
@@ -848,7 +837,7 @@ def _repair_heading_line(ending: str, state: _RepairState) -> str:
 def _repair_translated_line(original_line: str, state: _RepairState) -> str:
     """단일 번역 줄의 보호 대상 마크업을 원문 순서로 복구."""
 
-    line, ending = _split_line_ending(original_line)
+    line, ending = split_line_ending(original_line)
 
     if _is_comment_line(line, state) or _is_code_line(line, state):
         return original_line

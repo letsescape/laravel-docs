@@ -187,5 +187,21 @@ class PageArtifactTests(unittest.TestCase):
         )
 
 
+    def test_preserves_heading_attributes_inside_a_multiline_code_span(self):
+        """여러 줄 인라인 코드 범위 안의 제목 클래스를 보존하는지 검증."""
+
+        source = "Use ``\n# Title {.class}\n`` literally.\n"
+
+        self.assertEqual(preprocess.preprocess(source).text, source)
+
+    def test_strips_heading_attributes_when_the_span_closes_on_the_line(self):
+        """한 줄 인라인 코드가 있는 제목에서는 클래스를 계속 제거하는지 검증."""
+
+        self.assertEqual(
+            preprocess.preprocess("# Using `make:controller` {.page-title}\n").text,
+            "# Using `make:controller`\n",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

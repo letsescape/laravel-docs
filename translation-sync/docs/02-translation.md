@@ -2,9 +2,9 @@
 
 ## 요약
 
-정규화된 이전·현재 원문의 effective delta를 완전한 번역 소유 블록으로 확장해 PatchPlan 생성.
+전처리와 동일한 source-side 후처리를 거친 이전·현재 비교 view의 effective delta를 완전한 번역 소유 블록으로 확장해 PatchPlan 생성.
 create/source/unguarded 계획만 처리하고 target 계획은 no-op으로 유지.
-live와 replay 응답 계약을 분리하되 구조 계약은 동일하게 유지.
+운영 provider 응답에 목표 언어와 Markdown 구조 계약을 동일하게 적용.
 
 ## 흐름도
 
@@ -14,7 +14,7 @@ flowchart TD
     B --> C[소유 블록 단위 PatchPlan 생성]
     C --> D{Locale 상태가 유효한가?}
     D -- Target 상태 --> N[No-op]
-    D -- Invalid 상태 --> R[§7.2 재생성 강등]
+    D -- 상태 판정 실패 --> R[§7.2 재생성 강등]
     R --> F
     D -- Create 상태 --> F{Provider가 필요한가?}
     D -- Source 또는 Unguarded --> E{적용 위치가 유일한가?}
@@ -46,12 +46,12 @@ flowchart TD
 
 | 책임 | 설명 |
 |------|------|
-| normalized delta | 정규화된 이전·현재 작업 사본 사이에서 effective hunk 계산 |
+| normalized delta | 전처리와 동일한 source-side 후처리를 거친 이전·현재 비교 view 사이에서 effective hunk 계산 |
 | PatchPlan | effective delta를 완전한 번역 소유 블록과 결합하여 적용 계획 생성 |
 | 소유 단위 | 각 블록 유형별 원자적 번역·적용 범위 정의 |
 | provider 계약 | provider adapter의 입력·출력 seam 및 호출 조건 정의 |
 | response contract | provider 응답의 구조 보존·언어·annotation 규칙 검증 |
-| provider fixture | live adapter와 locale prompt의 최소 계약을 실제 번역 전에 검사 |
+| 계약 단위 테스트 | locale prompt, provider adapter와 response contract를 각각 결정적 입력으로 검사 |
 | retry | transient 오류에 대한 재시도 정책과 상한 정의 |
 
 문서 형식 정제, placeholder 복원, 최종 문서 정규화는 [후처리 단계](./03-postprocessing.md)의 책임.
@@ -63,14 +63,14 @@ flowchart TD
 
 | 입력 | 설명 |
 |------|------|
-| 정규화된 현재 원문 작업 사본 | 전처리 출력. provider에 전달하는 `new_source`의 기준 |
-| 정규화된 이전 원문 작업 사본 | effective delta 계산의 비교 대상 |
+| 정규화된 현재 원문 작업 사본 | 전처리 출력. provider에 전달하는 `new_source`와 source-side 후처리 비교 view의 기준 |
+| 정규화된 이전 원문 작업 사본 | 같은 source-side 후처리를 거쳐 effective delta 계산에 사용하는 기준 |
 | 현재 restore map | 전처리에서 생성한 현재 원문 placeholder 복원 정보 (번역 중 변경하지 않음) |
 | 기존 locale 문서 | 수정 문서의 위치 매칭·용어·문체 참고. 추가 문서에는 존재하지 않아야 함 |
 | 파일 상태 | 총괄 단계에서 확정한 `A` 또는 `M`. `D`는 provider 없이 총괄 단계에서 처리 |
 | 설정 확인 완료 상태 | 선행 설정 검증에서 provider 설정 유효성이 확인된 상태 |
-| request budget | adapter가 확정한 `context_window_tokens`, `reserved_output_tokens`, `request_timeout_seconds`, 번역 단계의 `run_timeout_seconds`와 남은 전체 workflow deadline |
-| contract version | 현재 `response_contract_version=1`, `fixture_version=1`, `provider_budget_profile_version=1` |
+| request budget | adapter가 확정한 `context_window_tokens`, `reserved_output_tokens`, `request_timeout_seconds`, 번역 단계의 `run_timeout_seconds` |
+| contract version | 현재 `response_contract_version=1`, `provider_budget_profile_version=1` |
 
 ---
 
@@ -130,13 +130,11 @@ PatchPlan과 블록 집합은 [후처리 단계](./03-postprocessing.md)로 함�
 | `source` | annotation 서명이 이전 원문과 일치 | 위치를 확정한 뒤 계획 적용 |
 | `target` | annotation 서명이 현재 원문과 일치 | provider 호출과 결과 블록 없이 no-op |
 | `unguarded` | annotatable prose가 없는 결정적 블록이며 이전 구조가 정확히 한 번 존재 | 구조 주소가 유일할 때만 계획 적용 |
-| `invalid` | partial/mixed/제3 상태, 예상하지 않은 locale 부재 또는 모호한 unguarded 상태 | provider 호출 없이 §7.2 재생성 강등 |
-
 `actionable plan`은 `create`, `source`, `unguarded` 상태의 합집합.
 결과 블록 수는 전체 PatchPlan 수가 아니라 actionable plan 수와 일치해야 함.
 
 한 locale 문서의 annotatable plan은 모두 source이거나 모두 target이어야 함.
-source와 target이 함께 나타나는 문서는 partial/mixed 상태이므로 전체 locale target을 invalid로 판정.
+source와 target이 함께 나타나는 partial/mixed 문서는 상태 판정에 실패하므로 전체 locale target을 §7.2로 강등.
 unguarded plan은 exact old/new 구조가 같은 문서 상태와 일치할 때만 함께 존재 가능.
 
 ---
@@ -145,7 +143,7 @@ unguarded plan은 exact old/new 구조가 같은 문서 상태와 일치할 때�
 
 ```text
 1. effective delta 계산
-   - 정규화된 이전·현재 작업 사본을 비교하여 effective hunk 추출
+   - 전처리된 이전·현재 작업 사본에 같은 source-side 후처리를 적용한 비교 view에서 effective hunk 추출
    - style-only 변경은 정규화에 의해 자동 제거됨
    - 추가 문서는 빈 이전 원문과 현재 전체 원문을 비교하여 전체 문서 delta 생성
    - 수정 문서의 effective delta가 비면 PatchPlan을 만들지 않고 기존 locale byte를 유지한 채 후처리의 no-write 검증 기준 생성 경로를 거쳐 문서 검증 단계에 전달
@@ -162,8 +160,8 @@ unguarded plan은 exact old/new 구조가 같은 문서 상태와 일치할 때�
 
 3. locale 문서 상태 판정
    - annotatable 주석 순서를 old/new 서명과 비교
-   - create/source/target/unguarded/invalid 중 하나로 판정
-   - target 상태는 no-op, invalid 상태는 §7.2 재생성 강등
+   - create/source/target/unguarded 중 하나로 판정
+   - target 상태는 no-op, 판정이 실패하면 §7.2 재생성 강등
 
 4. 블록별 위치 확정
    - source/unguarded 계획은 기존 원문 주석, anchor, occurrence로 기존 locale 문서의 대응 블록 탐색
@@ -256,9 +254,10 @@ provider 호출 없이 no-op 처리해 강등을 멱등으로 유지.
 provider adapter는 `TranslationRequest`를 받아 번역 Markdown 문자열만 반환하는 seam.
 설명, 위치 지시, wrapper 문구 출력 금지.
 
+지원 adapter는 OpenAI API와 OpenAI CLI 두 가지다. GitHub Actions는 OpenAI API를 사용하고, 호스트 로컬 실행은 환경 변수로 둘 중 하나를 선택한다.
+
 Provider budget profile version 1은 `gpt-5.6`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`를 `o200k_base`, context window `1,050,000`, 최대 output `128,000`에 결합한 version-controlled 승인 목록.
-Azure의 `TRANSLATION_MODEL`이 deployment 이름이면 별도 `TRANSLATION_MODEL_PROFILE`로 이 목록의 항목을 선택.
-목록 밖 model/profile, 다른 tokenizer, 목록보다 큰 context 또는 output 예약값은 provider 호출 전에 실패.
+목록 밖 model, 다른 tokenizer, 목록보다 큰 context 또는 output 예약값은 provider 호출 전에 실패.
 
 각 요청은 다음 보수적 계산을 통과해야 함.
 
@@ -273,51 +272,34 @@ conservative_input_tokens + reserved_output_tokens <= context_window_tokens
 `utf8_byte_token_upper_bound`는 byte와 token을 같은 단위로 간주하는 측정값이 아니라 UTF-8 byte 수를 token 수의 보수적 수치 상한으로 사용하는 값.
 `framing_token_allowance`도 실제 provider 내부 framing 측정을 의미하지 않고 API·CLI의 비가시 framing을 위해 version 1이 token 단위로 고정한 허용량.
 tokenizer를 적재할 수 없거나 위 부등식을 증명할 수 없으면 provider 호출 금지.
-승인 model·tokenizer 결합, 상수 또는 계산식을 바꾸면 provider budget profile version, request budget 테스트와 fixture evidence schema·계약 테스트를 함께 갱신해야 함.
-Fixture source 또는 response 판정 규칙이 바뀌지 않았다면 이 변경만을 이유로 `fixture_version` 상향 금지.
+승인 model·tokenizer 결합, 상수 또는 계산식을 바꾸면 provider budget profile version과 request budget 테스트를 함께 갱신해야 함.
 
 ### 8.2 adapter별 요구사항
 
 | adapter | 요청 구조 | 완료 판정 |
 |---------|-----------|-----------|
-| OpenAI | `instructions` / `input` 분리, Responses API, `store=false` | `status=completed`일 때 `output_text` |
-| Azure OpenAI | system / user 메시지 분리, Chat Completions | `finish_reason=stop`일 때 첫 assistant message content |
-| CLI | 임시 디렉터리에서 실행, 사용자 설정·execpolicy·AGENTS.md 제외 | `--output-last-message` 파일 내용 |
-| Identity | replay process에서 결정적 canonical annotation과 영어 본문 생성 | 구조 계약을 만족하는 단일 Markdown 결과 |
+| OpenAI API | `instructions` / `input` 분리, Responses API, `store=false` | `status=completed`일 때 `output_text` |
+| OpenAI CLI | 임시 디렉터리에서 실행, 사용자 설정·execpolicy·AGENTS.md 제외 | `--output-last-message` 파일 내용 |
 
-### 8.3 CLI adapter 보안 경계
+단위 테스트에서는 provider transport를 호출하지 않는 결정적 test double을 사용할 수 있다. 이는 운영 provider나 사용자가 선택할 수 있는 adapter가 아니다.
 
+### 8.3 OpenAI CLI adapter 보안 경계
+
+- CLI 실행에는 `TRANSLATION_CLI_COMMAND`(실행할 CLI argv)와 `TRANSLATION_MODEL`(사용할 모델)이 필요하다.
 - browser, computer, image generation, plugin, shell, app, subagent, web search, hook 비활성화.
 - 인증은 `CODEX_ACCESS_TOKEN`, `CODEX_API_KEY`, 전용 절대 `CODEX_HOME` 중 정확히 하나만 선택, `OPENAI_API_KEY`를 기본 Codex exec의 직접 인증으로 전달 금지.
 - child process에는 선택한 인증 하나와 runtime·proxy/CA allowlist 환경 변수만 전달.
 - model이 실행하는 subprocess에는 환경 변수 상속 금지.
 
-### 8.4 Live provider fixture 검사
+### 8.4 계약 단위 테스트
 
-identity replay가 성공한 뒤 실제 원문 동기화 전에 이번 실행에서 선택한 non-identity adapter와 각 locale prompt 조합을 고정 fixture로 한 번씩 검사.
+단위 테스트는 locale prompt의 필수 규칙, adapter의 요청·완료 응답 처리와 response contract를 결정적 입력과 mock transport로 각각 검사한다. 운영 번역 실행 전 별도 fixture API 요청은 수행하지 않는다.
 
-Fixture 규칙:
+- 실제 credential이나 live provider 응답을 테스트 데이터에 포함하지 않는다.
+- 계약 또는 판정 규칙을 바꾸면 대응 단위 테스트를 함께 갱신한다.
+- response contract 테스트는 source-authored comment, prose·목록의 canonical pipeline annotation, inline code와 link label·target 쌍 보존을 검사한다. 블록 내 링크 등장 순서는 목표 언어 어순에 따라 재배열 가능하다.
 
-- 실제 문서 내용이나 credential을 fixture에 포함 금지.
-- `fixture_version=1`의 English Source는 아래 fence 내부 byte에 마지막 LF 하나를 붙인 값.
-
-```markdown
-<!-- fixture-source-comment -->
-
-Install the `Widget` package from [Package Index](/docs/master/packages) and verify that the command completes successfully before continuing.
-
-- Run `widget:init` once.
-```
-
-- 응답은 source-authored comment를 보존하고 prose·목록의 canonical pipeline annotation을 생성하며 inline code와 link label·target 쌍을 보존해야 함. 블록 내 링크 등장 순서는 목표 언어 어순에 따라 재배열 가능.
-- `fixture_version=1`은 위 source와 `response_contract_version=1` 규칙을 사용하며, 배포 이후 fixture byte나 판정 규칙이 바뀌면 대응 version을 올려야 함.
-- 실제 번역과 같은 adapter, model, system instructions와 locale prompt를 사용하고 adapter가 지원하면 `store=false` 적용.
-- 완료 상태, wrapper 부재, annotation, 구조 보존, 목표 언어 충분성을 live response contract로 검사.
-- transport와 response feedback 상한은 일반 블록과 같으며, 한 locale fixture라도 실패하면 실행 전체 중단.
-- 응답 본문과 credential의 저장·로그 출력 금지; 성공 evidence에는 adapter, model, model profile 또는 `null`, reasoning effort 또는 `null`, locale, provider budget profile version, response contract version, fixture version, 실제 instructions byte의 SHA-256과 비밀값을 제외한 effective 설정의 SHA-256 기록 필수; 설정 hash만으로 앞의 명시적 식별 필드를 대체하는 것 금지.
-
-Fixture 검사는 연결성과 최소 응답 계약만 보증.
-실제 문서 번역의 의미 정확성·용어 선택·문체를 보증하는 품질 gate로 간주 금지.
+이 테스트는 자동 판정 가능한 최소 응답 계약만 보증한다. 실제 문서 번역의 의미 정확성·용어 선택·문체를 보증하는 품질 gate로 간주하지 않는다.
 
 ### 8.5 요청 템플릿
 
@@ -348,9 +330,9 @@ Return only the translated Markdown block(s) for the English Source.
 ## 9. response contract
 
 provider 응답은 적용 전에 다음 항목을 모두 통과해야 함.
-live profile은 모든 항목을 검사하고, replay profile은 목표 언어 충분성과 표 prose cell의 목표 언어 요구만 제외.
-Identity도 annotation·Markdown 구조·보존 markup·wrapper 부재 검사를 통과해야 함.
-live profile 응답은 계약 검증 전에 target이 고유한 Markdown 링크의 번역된 label을
+운영 provider 응답은 모든 항목을 검사한다.
+테스트용 결정적 test double도 annotation·Markdown 구조·보존 markup·wrapper 부재 검사를 통과해야 한다.
+운영 provider 응답은 계약 검증 전에 target이 고유한 Markdown 링크의 번역된 label을
 요청 source의 원문 label로 결정적으로 복원한다.
 같은 target이 서로 다른 원문 label로 등장하면 해당 target은 복원하지 않는다.
 요청 source에 HTML 주석이 없으면, 응답 annotation 주석과 소유 본문 사이에 낀
@@ -394,7 +376,7 @@ HTML 연속 라인 블록에 행별로 갈라진 annotation 주석은, 병합 �
 목표 언어 판정은 fenced/inline code, Markdown link target·label, heading 전체, GFM admonition marker, front matter 전체와 HTML/JSX tag·속성을 제거한 나머지 prose에 적용.
 일반 prose 안의 단어를 identifier나 고유명사라고 추정하여 제외 금지.
 
-1. source translatable prose의 Unicode letter가 20자 이상이고 정규화한 응답 prose가 source와 완전히 같으면 live profile에서 실패.
+1. source translatable prose의 Unicode letter가 20자 이상이고 정규화한 응답 prose가 source와 완전히 같으면 운영 응답에서 실패.
    단, source prose의 letter 포함 token 전부가 소문자로 시작하는 기술 식별자이면 exact copy를 허용.
    source prose의 모든 letter가 큰따옴표 리터럴 안에 있고 리터럴 밖 나머지가 JSON 구조 문장부호(`{}`, `[]`, `:`, `,`, 공백·탭·개행)뿐이며
    그 나머지에 `:`, `{`, `}`, `[`, `]` 중 하나 이상이 있으면 데이터로 보아 exact copy를 허용.
@@ -409,23 +391,23 @@ HTML 연속 라인 블록에 행별로 갈라진 annotation 주석은, 병합 �
    2번의 하한 계산 기준에서 제외하고, 남은 letter 수에 같은 규칙을 적용. 이 판정을 정의 목록 label 제외보다 먼저 적용.
    모든 항목이 20자 미만 `label:` 접두를 가진 정의 목록 블록은 label을 data key로 보아
    2번의 하한 계산 기준에서 제외하고, label을 제외한 본문 letter 수에 같은 규칙을 적용.
-5. replay profile과 identity adapter에는 이 절 전체를 적용하지 않음.
+5. 테스트용 결정적 test double에는 이 절 전체를 적용하지 않음.
 
 문자 수는 prose를 NFC 정규화한 뒤 Unicode 15.1 General Category `L*`에 해당하는 code point를 집계.
 exact-copy 비교는 pipeline annotation을 제거하고 CRLF를 LF로 바꾸고 바깥 공백을 제거한 뒤 NFC 정규화한 prose byte를 사용하며 내부 공백은 합치지 않음.
 이 Unicode version, 정규화 방식과 상수 `20`, `40`, `8`, `0.10`은 `response_contract_version=1`에 포함.
-아직 배포되지 않은 version은 상향 없이 개정하며, 배포된 version의 규칙을 바꿀 때만 response contract와 fixture version을 함께 올림.
+계약 판정 규칙을 바꿀 때는 response contract version과 관련 계약 테스트를 함께 검토함.
 
 ### 9.2 verification feedback
 
 주석만 남고 본문이 없거나 source 밖 prose·구조 주석이 추가된 경우, 또는 문단 문장 수 계약을 위반한 경우 모든 profile에서 feedback을 포함해 재요청.
-9.1의 exact-copy 또는 target-script 하한을 위반한 경우는 live profile에서만 재요청.
+9.1의 exact-copy 또는 target-script 하한을 위반한 경우는 운영 provider 응답에서 재요청.
 목표 언어 위반 feedback에는 원문을 그대로 되돌려준 표 머리글 셀을 지목해 포함.
-Markdown 링크 보존(label·target·pair·title), inline code 보존, inline markup 보존, 원문 주석 불일치, admonition 유형 불일치 위반도 live profile에서만 재요청.
-완료 응답 평가는 블록당 최초 요청을 포함해 최대 5회이며, 계속 실패하면 해당 locale target을 candidate에 기록 금지.
+Markdown 링크 보존(label·target·pair·title), inline code 보존, inline markup 보존, 원문 주석 불일치, admonition 유형 불일치 위반도 운영 provider 응답에서 재요청.
+완료 응답 평가는 블록당 최초 요청을 포함해 최대 5회이며, 계속 실패하면 해당 locale 문서를 기록하지 않음.
 
 자동 feedback 재요청은 이 단계만 소유.
-[문서 검증 단계](./04-verification.md)는 전체 문서 issue를 provider 재요청으로 연결하지 않으며, 실패한 candidate를 기록하지 않고 실행 종료.
+[문서 검증 단계](./04-verification.md)는 전체 문서 issue를 provider 재요청으로 연결하지 않으며, 실패한 문서를 기록하지 않고 실행 종료.
 
 ---
 
@@ -445,7 +427,7 @@ Markdown 링크 보존(label·target·pair·title), inline code 보존, inline m
 |---------------|------|
 | CLI 실행 파일 누락·권한·option/model/auth 오류 | 즉시 실패 |
 | HTTP 4xx (429 제외) | 즉시 실패 |
-| 부분 응답 (OpenAI status ≠ completed, Azure finish_reason ≠ stop) | 저장하지 않고 실패 |
+| OpenAI API 부분 응답 (`status` ≠ `completed`) | 저장하지 않고 실패 |
 
 ### 10.2 재시도 상한
 
@@ -457,22 +439,21 @@ Markdown 링크 보존(label·target·pair·title), inline code 보존, inline m
 
 ### 10.3 최종 실패
 
-최대 재시도 후에도 유효 응답이 없으면 해당 locale target을 candidate에 기록하지 않고 기존 locale 파일과 active worktree 변경 금지.
+최대 재시도 후에도 유효 응답이 없으면 해당 locale 문서를 기록하지 않고 기존 locale 파일을 유지.
 
 ### 10.4 실행 순서와 시간 상한
 
 결과의 결정성을 위해 provider 요청은 병렬 실행하지 않고 다음 순서로 처리.
 
 ```text
-live fixture locale ko, ja → versions.json 순서 → 문서 경로 UTF-8 byte 오름차순 → locale ko, ja → PatchPlan 구조 주소 순서
+versions.json 순서 → 문서 경로 UTF-8 byte 오름차순 → locale ko, ja → PatchPlan 구조 주소 순서
 ```
 
-- `context_window_tokens`, `reserved_output_tokens`, `request_timeout_seconds`, `run_timeout_seconds`, `workflow_timeout_seconds`는 모두 양의 정수여야 하며, `reserved_output_tokens < context_window_tokens`와 `request_timeout_seconds <= run_timeout_seconds <= workflow_timeout_seconds`를 만족하지 않으면 설정 오류.
-- `run_timeout_seconds`는 첫 live fixture 직전에 시작하여 마지막 문서 응답 검증까지 계속되는 단조 시계 wall-clock 상한이며, 중간의 원문 동기화·전처리·계획 생성 동안 재설정하거나 정지하는 것 금지.
-- 번역 단계의 실제 deadline은 `run_timeout_seconds`와 남은 전체 workflow deadline 중 이른 값.
+- `context_window_tokens`, `reserved_output_tokens`, `request_timeout_seconds`, `run_timeout_seconds`는 모두 양의 정수여야 하며, `reserved_output_tokens < context_window_tokens`와 `request_timeout_seconds <= run_timeout_seconds`를 만족하지 않으면 설정 오류.
+- `run_timeout_seconds`는 `main.py`가 설정과 prompt를 검증한 뒤 절대 기한을 계산한 시점부터 마지막 문서 응답 검증까지 계속되는 단조 시계 wall-clock 상한이며 실행 중 재설정하거나 정지하지 않음.
 - 다음 물리 호출과 필요한 retry 대기를 수행하면 deadline을 넘는 경우 호출하지 않고 `RUN_DEADLINE_EXCEEDED`로 실패.
 - 한 블록의 최대 provider wall-clock 상한은 `25 × request_timeout_seconds + 20 × 300초`이며, 각 논리 요청의 transport 5회 사이에 네 번씩 대기하고 두 완료 응답 평가 사이에는 별도 고정 대기 없음.
-- deadline 실패 시 다른 target으로 진행하지 않고 candidate 전체 publication 금지.
+- deadline 실패 시 다른 target으로 진행하지 않고 실행 실패.
 
 ---
 
@@ -480,14 +461,13 @@ live fixture locale ko, ja → versions.json 순서 → 문서 경로 UTF-8 byte
 
 | 실패 유형 | 처리 |
 |-----------|------|
-| effective delta가 비어 있음 (정규화로 모든 raw delta 제거) | `NORMALIZED_NOOP`으로 기록하고 기존 locale byte를 유지한 채 영어 verification view와 expected annotation map을 생성하여 문서 검증 단계에 전달. 현재 raw 영어 원문 candidate는 유지 |
+| effective delta가 비어 있음 (정규화로 모든 raw delta 제거) | no-op 계획으로 처리하고 기존 locale byte를 유지한 채 영어 verification view와 expected annotation map을 생성하여 문서 검증 단계에 전달. 동기화한 현재 raw 영어 원문은 유지 |
 | 위치 확정 불가 (anchor 모호, 대상 없음) | §7.2 재생성 강등으로 처리 |
-| PatchPlan 상태가 invalid | §7.2 재생성 강등으로 처리 |
+| locale 상태 판정이 `PatchError`로 실패 | §7.2 재생성 강등으로 처리 |
 | 수정 표 구조 조건 불충족 (열 수 불일치, 복수 행, separator) 또는 create 표가 직사각형이 아님 | 해당 블록 실패 |
 | admonition marker가 old/new 외 제3 유형 | 해당 블록 실패 |
 | 지원하지 않는 front matter 값 또는 source HTML comment 구조 주소 모호 | provider 호출 전 실패 |
 | 분할할 수 없는 provider 필요 단위가 request budget 초과 | `UNSUPPORTED_OVERSIZE_BLOCK`으로 provider 호출 전 해당 문서 실패 |
-| live provider fixture 계약 위반 | 원문 동기화 전에 실행 전체 실패 |
 | response contract 위반 후 재요청도 실패 | locale target 미기록 |
 | transient 오류 최대 재시도 초과 | locale target 미기록 |
 
@@ -500,14 +480,14 @@ live fixture locale ko, ja → versions.json 순서 → 문서 경로 UTF-8 byte
 
 번역 단계 출력이 다음 조건을 모두 만족해야 [후처리 단계](./03-postprocessing.md)로 전달 가능.
 
-1. 모든 PatchPlan이 create/source/target/unguarded 중 하나이며 invalid 계획 없음.
+1. 모든 PatchPlan이 create/source/target/unguarded 중 하나임.
 2. 한 locale 문서 안에 source와 target annotatable plan이 섞여 있지 않음.
 3. 모든 actionable plan에 provider 응답 또는 결정적 생성 결과 존재.
-4. 모든 provider 응답이 현재 실행의 live 또는 replay response contract 통과.
+4. 모든 provider 응답이 현재 실행의 response contract 통과.
 5. 블록 출력 수와 actionable plan 수가 정확히 일치하고 target plan의 출력 없음.
 6. source와 unguarded 계획의 적용 위치가 유일하게 확정되었으며 create 계획은 기존 위치를 요구하지 않음.
 7. 현재 restore map이 번역 중 변경되지 않음.
-8. 기존 locale 문서와 active worktree는 후처리 단계에 인계하기 전까지 변경되지 않음.
+8. 기존 locale 문서는 후처리와 문서 검증을 통과하기 전까지 변경되지 않음.
 9. 모든 provider 요청이 request budget 안에 있고 정의된 단일 순서로 실행됨.
-10. 번역 단계가 자체 run deadline과 남은 전체 workflow deadline 중 이른 값을 넘지 않음.
-11. 모든 요청·응답과 fixture 결과가 같은 response contract·fixture version을 보고함.
+10. 번역 단계가 자체 run deadline을 넘지 않음.
+11. 모든 요청·응답이 같은 response contract version을 사용함.

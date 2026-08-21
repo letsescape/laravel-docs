@@ -9,7 +9,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 from sync.runtime.failure import (
-    REPORT_FILENAME,
     ErrorClassification,
     ExitCode,
     FailureEvent,
@@ -20,7 +19,6 @@ from sync.runtime.failure import (
     exit_code_for,
     final_exit_code,
     select_primary_failure,
-    write_failure_report,
     write_failure_report_exact,
 )
 
@@ -37,10 +35,6 @@ class FailureCodeTests(unittest.TestCase):
                 self.assertIsInstance(exit_code_for(code), ExitCode)
 
         self.assertEqual(
-            exit_code_for(IssueCode.NORMALIZED_NOOP),
-            ExitCode.SUCCESS,
-        )
-        self.assertEqual(
             exit_code_for(IssueCode.SOURCE_STRUCTURE_MISMATCH),
             ExitCode.CONTROLLED_FAILURE,
         )
@@ -48,13 +42,9 @@ class FailureCodeTests(unittest.TestCase):
             exit_code_for(IssueCode.RUNNER_OPERATION_FAILED),
             ExitCode.INFRASTRUCTURE_FAILURE,
         )
-        self.assertEqual(
-            exit_code_for(IssueCode.ACTIVE_WORKTREE_MUTATED),
-            ExitCode.ACTIVE_STATE_MUTATION,
-        )
 
-    def test_exit_priority_is_three_then_two_then_one(self) -> None:
-        """종료 코드 우선순위가 3, 2, 1 순인지 검증."""
+    def test_exit_priority_is_two_then_one(self) -> None:
+        """종료 코드 우선순위가 2, 1 순인지 검증."""
 
         failures = [
             FailureEvent(
@@ -67,31 +57,11 @@ class FailureCodeTests(unittest.TestCase):
                 stage="runner",
                 message="runner failed",
             ),
-            FailureEvent(
-                code=IssueCode.ACTIVE_WORKTREE_MUTATED,
-                stage="cleanup",
-                message="fingerprint changed",
-            ),
-            FailureEvent(
-                code=IssueCode.ACTIVE_WORKTREE_MUTATED,
-                stage="cleanup-second-check",
-                message="fingerprint still changed",
-            ),
         ]
 
-        self.assertEqual(final_exit_code(failures), ExitCode.ACTIVE_STATE_MUTATION)
-        self.assertIs(select_primary_failure(failures), failures[2])
+        self.assertEqual(final_exit_code(failures), ExitCode.INFRASTRUCTURE_FAILURE)
+        self.assertIs(select_primary_failure(failures), failures[1])
         self.assertEqual(final_exit_code([]), ExitCode.SUCCESS)
-
-    def test_non_failure_status_cannot_be_reported_as_a_failure(self) -> None:
-        """실패가 아닌 상태를 실패로 보고할 수 없는지 검증."""
-
-        with self.assertRaises(ValueError):
-            FailureEvent(
-                code=IssueCode.NORMALIZED_NOOP,
-                stage="source",
-                message="not an error",
-            )
 
     def test_attempts_are_present_only_for_provider_failures(self) -> None:
         """제공자 실패에만 시도 횟수가 포함되는지 검증."""
@@ -104,8 +74,8 @@ class FailureCodeTests(unittest.TestCase):
             )
         with self.assertRaises(ValueError):
             FailureEvent(
-                code=IssueCode.UNIT_TEST_FAILED,
-                stage="unit-test",
+                code=IssueCode.SOURCE_STRUCTURE_MISMATCH,
+                stage="verification",
                 message="test failed",
                 attempts=ProviderAttempts(response_evaluation=1, transport=1),
             )
@@ -141,9 +111,6 @@ class FailureReportTests(unittest.TestCase):
         report = FailureReport.build(
             run_id="run-20260802-1",
             failures=self._events(),
-            manifest_digest="a" * 64,
-            base_head="b" * 40,
-            candidate_debug_path="runs/run-20260802-1/candidate",
         )
         data = report.to_mapping()
 
@@ -165,8 +132,6 @@ class FailureReportTests(unittest.TestCase):
         first, second = self._events()
         kwargs = {
             "run_id": "실행-1",
-            "manifest_digest": "a" * 64,
-            "base_head": "b" * 40,
         }
         report_a = FailureReport.build(failures=[first, second], **kwargs)
         report_b = FailureReport.build(failures=[second, first], **kwargs)
@@ -237,100 +202,26 @@ class FailureReportTests(unittest.TestCase):
         self.assertIn("<redacted-path>", message)
         self.assertIn("/docs/master/routing", message)
 
-    def test_context_paths_must_be_repository_or_artifact_relative(self) -> None:
-        """문맥 경로가 저장소 또는 산출물 기준 상대 경로인지 검증."""
+    def test_document_paths_must_be_repository_relative(self) -> None:
+        """문서 경로가 저장소 기준 상대 경로인지 검증."""
 
-        for field, path in (
-            ("document", "/Users/person/repo/file.md"),
-            ("document", "../outside.md"),
-            ("document", "documentation/./routing.md"),
-            ("candidate_debug_path", "/tmp/candidate"),
-            ("candidate_debug_path", "runs/../candidate"),
-            ("candidate_debug_path", "runs//candidate"),
+        for path in (
+            "/Users/person/repo/file.md",
+            "../outside.md",
+            "documentation/./routing.md",
         ):
-            with self.subTest(field=field, path=path):
-                event_kwargs = {field: path} if field == "document" else {}
+            with self.subTest(path=path):
                 event = FailureEvent(
                     code=IssueCode.SOURCE_STRUCTURE_MISMATCH,
                     stage="verification",
                     message="mismatch",
-                    **event_kwargs,
+                    document=path,
                 )
-                report_kwargs = {field: path} if field == "candidate_debug_path" else {}
                 with self.assertRaises(ValueError):
                     FailureReport.build(
                         run_id="run-1",
                         failures=[event],
-                        **report_kwargs,
                     )
-
-    def test_write_is_no_replace_and_uses_redacted_stderr_fallback(self) -> None:
-        """보고서 기록의 무교체 동작과 가려진 표준 오류 대체 출력 검증."""
-
-        report = FailureReport.build(
-            run_id="run-1",
-            failures=[
-                FailureEvent(
-                    code=IssueCode.RUNNER_OPERATION_FAILED,
-                    stage="runner",
-                    message="failed",
-                )
-            ],
-        )
-        with tempfile.TemporaryDirectory() as tmp:
-            artifact_root = Path(tmp).resolve()
-            stderr = io.StringIO()
-
-            written = write_failure_report(
-                report,
-                artifact_root=artifact_root,
-                stderr=stderr,
-            )
-            self.assertEqual(written, artifact_root / REPORT_FILENAME)
-            self.assertEqual(written.read_bytes(), report.to_bytes())
-            self.assertEqual(stderr.getvalue(), "")
-
-            second = write_failure_report(
-                report,
-                artifact_root=artifact_root,
-                stderr=stderr,
-            )
-            self.assertIsNone(second)
-            self.assertEqual(
-                stderr.getvalue(),
-                "REPORT_WRITE_FAILED: failure report could not be written\n",
-            )
-            self.assertEqual(written.read_bytes(), report.to_bytes())
-
-    def test_missing_artifact_root_does_not_get_created(self) -> None:
-        """존재하지 않는 산출물 루트를 생성하지 않는지 검증."""
-
-        report = FailureReport.build(
-            run_id="run-1",
-            failures=[
-                FailureEvent(
-                    code=IssueCode.RUNNER_OPERATION_FAILED,
-                    stage="runner",
-                    message="failed",
-                )
-            ],
-        )
-        with tempfile.TemporaryDirectory() as tmp:
-            artifact_root = Path(tmp).resolve() / "missing"
-            stderr = io.StringIO()
-
-            self.assertIsNone(
-                write_failure_report(
-                    report,
-                    artifact_root=artifact_root,
-                    stderr=stderr,
-                )
-            )
-            self.assertFalse(artifact_root.exists())
-            self.assertEqual(
-                stderr.getvalue(),
-                "REPORT_WRITE_FAILED: failure report could not be written\n",
-            )
 
     def test_exact_path_writer_is_no_replace_and_does_not_create_parent(self) -> None:
         """정확한 경로 기록기의 무교체 동작과 상위 디렉터리 미생성 검증."""
@@ -488,7 +379,7 @@ class FailureReportTests(unittest.TestCase):
                 "REPORT_WRITE_FAILED: failure report could not be written\n",
             )
 
-    def test_directory_fsync_failure_removes_published_report_and_temporary_file(
+    def test_directory_fsync_failure_removes_linked_report_and_temporary_file(
         self,
     ) -> None:
         """디렉터리 동기화 실패 시 게시된 보고서와 임시 파일 제거 검증."""

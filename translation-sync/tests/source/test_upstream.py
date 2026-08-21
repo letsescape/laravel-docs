@@ -99,25 +99,6 @@ class UpstreamSyncTests(unittest.TestCase):
             "versions.json must not be empty",
         )
 
-    def test_main_rejects_expired_workflow_deadline_before_source_setup(self) -> None:
-        """`main`이 원문 준비 전에 만료된 워크플로 기한을 거부하는지 검증."""
-
-        with patch.dict(
-            os.environ,
-            {upstream.WORKFLOW_DEADLINE_ENV: "99"},
-        ), patch.object(
-            upstream.time,
-            "monotonic",
-            return_value=100,
-        ), patch.object(
-            upstream,
-            "supported_versions",
-        ) as supported_versions:
-            result = upstream.main()
-
-        self.assertEqual(result, 2)
-        supported_versions.assert_not_called()
-
     def test_main_reports_invalid_versions_json_without_traceback(self) -> None:
         """`main`이 잘못된 버전 JSON을 추적 정보 없이 보고하는지 검증."""
 

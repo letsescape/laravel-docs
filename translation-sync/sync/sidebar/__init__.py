@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from .generator import (
     SidebarResult,
-    build_sidebar,
     latest_stable_version,
     load_versions,
     locale_sidebar_paths,
@@ -16,7 +15,6 @@ from .generator import (
 
 __all__ = (
     "SidebarResult",
-    "build_sidebar",
     "latest_stable_version",
     "load_versions",
     "locale_sidebar_paths",
