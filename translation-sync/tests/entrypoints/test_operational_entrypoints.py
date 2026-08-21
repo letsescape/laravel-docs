@@ -84,6 +84,7 @@ class OperationalEntrypointTests(unittest.TestCase):
             for explicit, expected in (
                 ({}, "openai|codex exec|from-file"),
                 ({"TRANSLATION_PROVIDER": "cli"}, "cli|codex exec|from-file"),
+                ({"OPENAI_API_KEY": ""}, "openai|codex exec|"),
             ):
                 with self.subTest(explicit=explicit):
                     result = subprocess.run(
@@ -147,7 +148,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertIn("uses: actions/checkout@v6", workflow)
         self.assertIn("uses: astral-sh/setup-uv@v7", workflow)
         self.assertIn("permissions:\n  contents: write", workflow)
-        self.assertIn("timeout-minutes: 370", workflow)
+        self.assertIn("timeout-minutes: 360", workflow)
         self.assertIn("- name: Validate branch ref", workflow)
         # 자격 증명은 커밋 단계에만 주입한다.
         self.assertIn("persist-credentials: false", workflow)
@@ -197,6 +198,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         self.assertIn("TRANSLATION_API_ENV_KEYS := OPENAI_API_KEY", makefile)
         self.assertIn('--user "$$(id -u):$$(id -g)"', makefile)
         self.assertIn("-e HOME=/tmp", makefile)
+        self.assertIn("-e TRANSLATION_PROVIDER=openai", makefile)
         for unrelated in (
             "translation-prepare",
             "translation-publish",

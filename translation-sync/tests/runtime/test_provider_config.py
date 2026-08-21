@@ -122,7 +122,7 @@ class RequestBudgetTests(unittest.TestCase):
         self.assertEqual(budget.context_window_tokens, 1_050_000)
         self.assertEqual(budget.reserved_output_tokens, 128_000)
         self.assertEqual(budget.request_timeout_seconds, 600)
-        self.assertEqual(budget.run_timeout_seconds, 21600)
+        self.assertEqual(budget.run_timeout_seconds, 21000)
         self.assertEqual(budget.tokenizer_encoding, "o200k_base")
         self.assertEqual(
             loaded.get("TRANSLATION_CONTEXT_WINDOW_TOKENS"), "1050000"

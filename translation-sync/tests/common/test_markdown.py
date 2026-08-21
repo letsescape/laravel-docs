@@ -6,7 +6,9 @@ from sync.common.markdown import (
     _inline_code_spans,
     closes_fence,
     fence_token,
+    quote_depth,
     strip_title_attr_line,
+    table_row_cells,
 )
 
 
@@ -40,6 +42,21 @@ class MarkdownBoundaryTests(unittest.TestCase):
         self.assertTrue(closes_fence("> ````\n", ">```"))
         self.assertFalse(closes_fence("````\n", ">```"))
         self.assertFalse(closes_fence("> ```python\n", ">```"))
+
+    def test_blockquote_depth_rejects_indented_code(self):
+        """네 칸 또는 tab 들여쓰기의 ``>``를 blockquote로 보지 않음."""
+
+        self.assertEqual(quote_depth("   > quote"), 1)
+        self.assertEqual(quote_depth("    > code"), 0)
+        self.assertEqual(quote_depth("\t> code"), 0)
+
+    def test_table_cells_require_equal_width_inline_code_closer(self):
+        """더 긴 backtick run을 inline code closer로 사용하지 않음."""
+
+        self.assertEqual(
+            table_row_cells("| `a | b`` | tail |"),
+            ["`a", "b``", "tail"],
+        )
 
     def test_removes_heading_classes_while_preserving_ids(self):
         """Heading attribute에서 class만 제거하고 ID를 보존."""
