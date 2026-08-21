@@ -3012,6 +3012,49 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("provider link pair mismatch", sent[1])
             self.assertIn("[Docs](docs)", dest.read_text(encoding="utf-8"))
 
+    def test_create_owner_repairs_link_label_and_target_before_contract(self):
+        """전체 재번역 응답의 링크를 계약 검사 전에 원문대로 복구."""
+
+        source = "Use [Laravel Sail](/docs/{{version}}/sail).\n"
+        translated = (
+            "<!-- Use [Laravel Sail](/docs/{{version}}/sail). -->\n"
+            "[Laravel Sail 문서](/docs/13.x/sail)를 사용합니다.\n"
+        )
+        change = diff.SourceChange(
+            path=(
+                "i18n/en/docusaurus-plugin-content-docs/"
+                "version-13.x/redis.md"
+            ),
+            status="M",
+        )
+        cfg = config.Config(
+            provider="openai",
+            values={"TRANSLATION_PROVIDER": "openai"},
+        )
+
+        with patch.object(
+            main.translate,
+            "translate_request",
+            return_value=translated,
+        ) as provider:
+            block, issue = main._translate_create_owner(
+                source,
+                change,
+                cfg,
+                "prompt",
+                locale="ko",
+                deadline=None,
+                attempt_counter=None,
+            )
+
+        self.assertIsNone(issue)
+        self.assertEqual(provider.call_count, 1)
+        self.assertEqual(
+            block,
+            "<!-- Use [Laravel Sail](/docs/{{version}}/sail). -->\n"
+            "[Laravel Sail](/docs/{{version}}/sail)를 사용합니다.\n",
+        )
+
     def test_translate_one_retries_inline_code_mismatches_with_feedback(self):
         """인라인 코드 불일치 발생 시 feedback 재요청으로 복구하는지 검증."""
 

@@ -1154,6 +1154,10 @@ _DEGRADABLE_VERIFICATION_CODES = (
 def _repaired_provider_response(source: str, translated: str) -> str:
     """live provider 응답에 결정적 복구를 순서대로 적용."""
 
+    try:
+        translated = repair.repair_preserved_markup(source, translated).text
+    except repair.RepairError:
+        pass
     for repair_step in (
         repair.restore_translated_link_labels,
         repair.remove_blank_lines_after_annotations,
