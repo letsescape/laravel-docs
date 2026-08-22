@@ -8,7 +8,7 @@ ENV NODE_OPTIONS=--max-old-space-size=4096
 ENV DOCUSAURUS_SITEMAP_LASTMOD=0
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY docusaurus.config.ts sidebars.ts tsconfig.json versions.json ./
 COPY docs ./docs
