@@ -172,7 +172,7 @@ const config: Config = {
           changefreq: null,
           priority: null,
           filename: 'sitemap.xml',
-          ignorePatterns: ['/search', '/search/', '/**/search', '/**/search/'],
+          ignorePatterns: ['/q/', '/**/q/'],
         },
         gtag: {
           trackingID: 'G-P3YFWCWEBP',
@@ -216,7 +216,7 @@ const config: Config = {
       // 로케일 및 버전별 검색 필터링
       contextualSearch: true,
       // 검색 결과 페이지 경로 설정
-      searchPagePath: 'search',
+      searchPagePath: 'q',
       // 사용자 검색 분석 기능 활성화
       insights: true,
     },

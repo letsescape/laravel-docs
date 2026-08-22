@@ -34,7 +34,7 @@ function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactEle
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/search?q={search_term_string}`,
+        urlTemplate: `${baseUrl}/q?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },

@@ -36,6 +36,9 @@ test.describe('SEO', () => {
     const data = JSON.parse(content!);
     expect(data['@type']).toBe('WebSite');
     expect(data).toHaveProperty('potentialAction');
+    expect(data.potentialAction.target.urlTemplate).toBe(
+      'https://laravel.chanhyung.kim/q?q={search_term_string}',
+    );
   });
 
   test('page has twitter meta tags', async ({page}) => {
