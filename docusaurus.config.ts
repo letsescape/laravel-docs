@@ -8,6 +8,7 @@ import githubAdmonitionPlugin from './src/remark/github-admonition';
 import styleJsxCleanupPlugin from './src/remark/style-jsx-cleanup';
 import methodClassPlugin from './src/remark/method-class';
 import stripPandocAttrsPlugin from './src/remark/strip-pandoc-attrs';
+import safeHtmlPlugin from './src/rehype/safe-html.mjs';
 import versions from './versions.json';
 
 // This runs in Node.js.
@@ -142,6 +143,7 @@ const config: Config = {
           replacePlaceholdersPlugin,
           autoLanguagePlugin,
         ],
+        rehypePlugins: [safeHtmlPlugin],
         // origin/ 하위는 Laravel 원본 보관용
         // `{{version}}` 등의 서버 측 템플릿이 남아 있어 문서로 렌더링하면 링크가 깨지므로 사이트에서 제외
         // documentation.md는 사이드바 시드이므로 문서 페이지에서 제외
