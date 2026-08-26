@@ -17,6 +17,7 @@
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
     "test:markdown-links": "node --test scripts/markdown-link-utils.test.mjs",
+    "test:security": "node --test scripts/create-latest-doc-redirects.test.mjs src/remark/validate-local-assets.test.mjs src/rehype/safe-html.test.mjs",
     "test:e2e": "playwright test",
     "test:e2e:docker": "docker run --rm --ipc=host -v \"$PWD:/work\" -v laravel-docs-playwright-node-modules:/work/node_modules -w /work -p 3000:3000 mcr.microsoft.com/playwright:v1.60.0-noble bash -lc \"npm ci && NODE_OPTIONS=--max-old-space-size=4096 PLAYWRIGHT_PORT=3000 npx playwright test\"",
     "test:e2e:ui": "playwright test --ui",

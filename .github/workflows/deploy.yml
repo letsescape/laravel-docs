@@ -96,6 +96,8 @@ jobs:
         run: npm ci
       - name: Markdown link utilities
         run: npm run test:markdown-links
+      - name: Security boundary tests
+        run: npm run test:security
       - name: Typecheck
         run: npm run typecheck -- --pretty false
       - name: Build website

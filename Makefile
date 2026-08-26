@@ -55,8 +55,9 @@ translation-test: ## translation sync 단위 테스트
 		PYTHONPATH=. uv run --locked --python 3.14 \
 		python -m unittest discover -s tests
 
-site-test: ## Markdown 링크 유틸리티 단위 테스트
+site-test: ## Markdown 링크와 보안 경계 단위 테스트
 	@npm run test:markdown-links
+	@npm run test:security
 
 site-check: site-test ## 배포와 같은 사이트 검증
 	@npm run typecheck -- --pretty false
