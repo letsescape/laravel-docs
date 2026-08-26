@@ -33,14 +33,44 @@ permissions:
   id-token: write
 
 jobs:
+  gate:
+    name: Check deployment trigger
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
+    steps:
+      - name: Check translation sync result
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          SYNC_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          SYNC_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SYNC_BASE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if [ "$EVENT_NAME" != 'workflow_run' ]; then
+            echo 'should_deploy=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$SYNC_CONCLUSION" != 'success' ] || [ "$SYNC_BRANCH" != 'main' ]; then
+            echo "Translation sync concluded '$SYNC_CONCLUSION' on '$SYNC_BRANCH'; skipping deployment."
+            echo 'should_deploy=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          current_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq '.sha')
+          if [ "$current_sha" = "$SYNC_BASE_SHA" ]; then
+            echo 'Translation sync committed no changes; skipping deployment.'
+            echo 'should_deploy=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Translation sync advanced main to $current_sha; continuing to deployment."
+          echo 'should_deploy=true' >> "$GITHUB_OUTPUT"
+
   build:
     name: Build
     runs-on: ubuntu-latest
-    # 이어받은 실행은 번역 동기화가 main에서 성공했을 때만 배포한다.
-    if: >-
-      github.event_name != 'workflow_run' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main')
+    needs: gate
+    if: needs.gate.outputs.should_deploy == 'true'
     steps:
       - name: Validate deployment branch
         env:
@@ -53,6 +83,8 @@ jobs:
           fi
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: main
       - name: Setup Node
         uses: actions/setup-node@v6
         with:

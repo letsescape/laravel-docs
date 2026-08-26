@@ -105,8 +105,15 @@ class OperationalEntrypointTests(unittest.TestCase):
 
         deploy = read_repository_file(".github/workflows/deploy.yml")
         self.assertIn("workflows:\n      - Sync Documentation Translation", deploy)
-        self.assertIn("github.event.workflow_run.conclusion == 'success'", deploy)
-        self.assertIn("github.event.workflow_run.head_branch == 'main'", deploy)
+        self.assertIn("SYNC_CONCLUSION: ${{ github.event.workflow_run.conclusion }}", deploy)
+        self.assertIn("SYNC_BRANCH: ${{ github.event.workflow_run.head_branch }}", deploy)
+        self.assertIn("SYNC_BASE_SHA: ${{ github.event.workflow_run.head_sha }}", deploy)
+        self.assertIn(
+            """if [ "$SYNC_CONCLUSION" != 'success' ] || [ "$SYNC_BRANCH" != 'main' ]""",
+            deploy,
+        )
+        # 동기화가 커밋을 남기지 않으면 배포하지 않는다.
+        self.assertIn('if [ "$current_sha" = "$SYNC_BASE_SHA" ]', deploy)
 
     def test_sync_package_preserves_flat_module_imports(self) -> None:
         """기존 단일 계층 모듈 가져오기가 정규 패키지와 같은 객체인지 검증."""
