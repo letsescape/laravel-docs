@@ -1,3 +1,5 @@
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
@@ -8,6 +10,9 @@ import githubAdmonitionPlugin from './src/remark/github-admonition';
 import styleJsxCleanupPlugin from './src/remark/style-jsx-cleanup';
 import methodClassPlugin from './src/remark/method-class';
 import stripPandocAttrsPlugin from './src/remark/strip-pandoc-attrs';
+import validateLocalAssetsPlugin, {
+  assertFrontMatterImageAllowed,
+} from './src/remark/validate-local-assets.mjs';
 import safeHtmlPlugin from './src/rehype/safe-html.mjs';
 import versions from './versions.json';
 
@@ -22,6 +27,15 @@ const LATEST_STABLE = versions.find((v) => v !== 'master') ?? versions[0];
 const DEFAULT_LOCALE = 'ko';
 const LOCALES = ['ko', 'ja'];
 const LOCALIZED_ROUTE_PREFIXES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
+const SITE_DIR = path.dirname(fileURLToPath(import.meta.url));
+const STATIC_DIRS = [path.join(SITE_DIR, 'static')];
+const MARKDOWN_SOURCE_ROOTS = [
+  path.join(SITE_DIR, 'versioned_docs'),
+  ...LOCALIZED_ROUTE_PREFIXES.map((locale) =>
+    path.join(SITE_DIR, 'i18n', locale, 'docusaurus-plugin-content-docs'),
+  ),
+];
+const MARKDOWN_ASSET_ROOTS = [...MARKDOWN_SOURCE_ROOTS, ...STATIC_DIRS];
 const SITEMAP_LASTMOD = process.env.DOCUSAURUS_SITEMAP_LASTMOD === '0' ? null : 'date';
 const DOCS_LATEST_REDIRECT_SCRIPT = `
 (function () {
@@ -78,6 +92,16 @@ const config: Config = {
   // Blade/Livewire 특수문자는 Prism 코드 블록 내에서 토큰화되므로 실제 렌더링에 영향 없음
   markdown: {
     format: 'detect',
+    parseFrontMatter: async ({filePath, fileContent, defaultParseFrontMatter}) => {
+      const result = await defaultParseFrontMatter({filePath, fileContent});
+      await assertFrontMatterImageAllowed({
+        filePath,
+        image: result.frontMatter.image,
+        sourceRoots: MARKDOWN_SOURCE_ROOTS,
+        allowedRoots: MARKDOWN_ASSET_ROOTS,
+      });
+      return result;
+    },
     hooks: {
       onBrokenMarkdownLinks: 'warn',
     },
@@ -133,6 +157,14 @@ const config: Config = {
         // 기타 설정
         editUrl: 'https://github.com/letsescape/laravel-docs/tree/main/',
         beforeDefaultRemarkPlugins: [
+          [
+            validateLocalAssetsPlugin,
+            {
+              siteDir: SITE_DIR,
+              staticDirs: STATIC_DIRS,
+              allowedRoots: MARKDOWN_ASSET_ROOTS,
+            },
+          ],
           anchorMappingPlugin,
         ],
         remarkPlugins: [
