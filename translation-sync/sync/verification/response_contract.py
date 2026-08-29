@@ -2141,11 +2141,11 @@ def _distinctive_technical_term(token: str) -> bool:
 
 
 def _is_inline_code_only_list_item(body: str) -> bool:
-    """목록 항목이 inline code 식별자만 포함하는지 여부."""
+    """목록 항목이 code 식별자만 포함하는지 여부."""
 
-    if not inline_code_contents(body):
+    if not (inline_code_contents(body) or html_code_contents(body)):
         return False
-    remainder = strip_inline_code(body)
+    remainder = strip_html_code_elements(strip_inline_code(body))
     return not remainder.strip(_PROSE_TRIM_CHARACTERS)
 
 
