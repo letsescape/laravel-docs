@@ -2759,12 +2759,13 @@ Paragraph.
         self.assertEqual(len(blocks), 1)
         self.assertEqual(blocks[0].comment, "First line. Second line.")
 
-    def test_updates_unannotated_inline_code_identifier_list(self):
-        """주석 없는 인라인 코드 식별자 목록을 갱신함."""
+    def test_updates_mixed_code_identifier_list(self):
+        """Markdown과 HTML code 식별자 목록을 provider 없이 갱신함."""
 
         old = (
             "Before.\n\n"
             "- `FirstEvent`\n"
+            "- <code>decimal:&lt;precision&gt;</code>\n"
             "- `LastEvent`\n\n"
             "After.\n"
         )
@@ -2776,20 +2777,32 @@ Paragraph.
             "<!-- Before. -->\n이전입니다.\n\n"
             "<!--\n"
             "- `FirstEvent`\n"
+            "- <code>decimal:&lt;precision&gt;</code>\n"
             "- `LastEvent`\n"
             "-->\n"
             "- `FirstEvent`\n"
+            "- <code>decimal:&lt;precision&gt;</code>\n"
             "- `LastEvent`\n\n"
             "<!-- After. -->\n이후입니다.\n"
         )
-
-        result = patch.apply_plan(
-            existing,
-            _plan(old, new),
-            ["- `FirstEvent`\n- `AddedEvent`\n- `LastEvent`"],
+        plan = _plan(old, new)
+        translated = (
+            "- `FirstEvent`\n"
+            "- <code>decimal:&lt;precision&gt;</code>\n"
+            "- `AddedEvent`\n"
+            "- `LastEvent`"
         )
 
-        self.assertIn("- `FirstEvent`\n- `AddedEvent`\n- `LastEvent`", result)
+        self.assertTrue(plan.changes[0].provider_free)
+        self.assertFalse(
+            patch._is_plan_anchor_comment(  # noqa: SLF001
+                " ".join(translated.splitlines())
+            )
+        )
+
+        result = patch.apply_plan(existing, plan, [translated])
+
+        self.assertIn(translated, result)
         self.assertNotIn("<!--\n- `FirstEvent`", result)
 
 

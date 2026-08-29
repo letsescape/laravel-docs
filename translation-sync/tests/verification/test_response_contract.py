@@ -699,10 +699,16 @@ Acquire the cache lock.
             [],
         )
 
-    def test_accepts_unannotated_inline_code_only_identifier_list(self):
-        """annotation이 없는 inline code 식별자 목록을 허용."""
+    def test_accepts_unannotated_mixed_code_identifier_list(self):
+        """annotation이 없는 Markdown·HTML code 식별자 목록을 허용."""
 
-        source = "- `data`\n- `render`\n- `resolve`\n- `shouldRender`\n"
+        source = (
+            "- `data`\n"
+            "- <code>decimal:&lt;precision&gt;</code>\n"
+            "- `render`\n"
+            "- `resolve`\n"
+            "- `shouldRender`\n"
+        )
 
         self.assertEqual(
             response_contract.verify(source, source, locale="ko"),
