@@ -2393,6 +2393,8 @@ def _is_plan_anchor(block: AnnotatedBlock) -> bool:
 def _is_inline_code_identifier_list_comment(comment: str) -> bool:
     """code identifier list comment 여부."""
 
+    if not _LIST_ITEM_PREFIX_RE.match(comment):
+        return False
     if not (inline_code_contents(comment) or html_code_contents(comment)):
         return False
     remainder = strip_html_code_elements(strip_inline_code(comment))
