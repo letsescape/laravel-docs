@@ -108,7 +108,7 @@ PatchPlan과 블록 집합은 [후처리 단계](./03-postprocessing.md)로 함�
 1. 일반 prose는 `<!-- {canonical current English source text} -->` 다음에 목표 언어 번역문 배치; 중괄호 부분은 literal이 아닌 해당 source text로 치환.
 2. heading은 `<!-- # {current English heading text} -->` 다음에 현재 영어 원문과 같은 Markdown heading 배치; 중괄호 부분은 실제 heading text로 치환; heading 본문은 번역하지 않고 annotation은 source/target 상태 판정을 위한 서명으로 유지.
 3. blockquote 본문에는 새 annotation 추가 금지; 기존 exact quoted-source annotation은 호환용으로 허용.
-4. 순수 inline-code 식별자 목록 항목은 annotation 대상 아님.
+4. Markdown inline code 또는 raw HTML `<code>`로만 구성된 식별자 목록 항목은 annotation 대상 아님.
 5. 표로만 구성된 요청(행 수정·표 create)의 provider 응답 annotation은 선택 표현: 부착하면 response contract와 PatchPlan 적용 위치 판정에만 사용하고, 생략해도 계약 위반이 아님; 전체 문서 후처리가 현재 표 전체 원문을 담은 canonical annotation 하나로 항상 재생성; 최종 문서에서는 해당 annotation을 표 첫 행 바로 앞에 배치하고 표 행 사이의 HTML 주석 금지; 표 create 응답은 표 전체를 하나의 owner로 사용.
 6. source에 없는 standalone 구조 주석을 provider가 추가하면 거부.
 
@@ -198,7 +198,7 @@ unguarded plan은 exact old/new 구조가 같은 문서 상태와 일치할 때�
 | 독립 fenced-code-only 변경 | 불필요 | 원문 전체 code block을 그대로 교체 |
 | bare 내부 링크 목록 | 불필요 | 원문 구조 블록을 그대로 반영 |
 | 사이드바 구조 목록 (링크 label·카테고리 heading 항목만) | 불필요 | 링크 label과 카테고리 label은 영어 유지 대상이므로 원문 구조 블록을 그대로 반영 |
-| inline-code 식별자 목록 | 불필요 | 원문 구조 블록을 그대로 반영 |
+| code 식별자 목록 (Markdown inline code·raw HTML `<code>`) | 불필요 | 원문 구조 블록을 그대로 반영 |
 | 표 (지원 조건 내) | 필요 | provider 응답 범위는 수정 시 변경 전후 각 한 행·동일 열 수인 기존 행, create 시 직사각형 전체 표. 최종 문서 owner는 두 경우 모두 현재 표 전체 |
 | admonition 본문 | 필요 | marker는 구조 context로 유지, 연속 변경 본문 segment |
 | admonition marker 유형 변경 | 필요 | marker + 연속 quote 본문 전체 |

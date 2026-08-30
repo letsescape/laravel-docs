@@ -18,6 +18,7 @@ from ..common.markdown import (
     front_matter_description,
     gfm_table_row_cells,
     has_malformed_html_comment_delimiters,
+    html_code_contents,
     html_comment_spans,
     html_tags,
     inline_code_contents,
@@ -31,6 +32,7 @@ from ..common.markdown import (
     normalize_annotation_anchor,
     reference_definition_line_numbers,
     standalone_html_comment_line_numbers,
+    strip_html_code_elements,
     strip_inline_code,
     strip_title_attr_line,
 )
@@ -2389,11 +2391,13 @@ def _is_plan_anchor(block: AnnotatedBlock) -> bool:
 
 
 def _is_inline_code_identifier_list_comment(comment: str) -> bool:
-    """inline code identifier list comment 여부."""
+    """code identifier list comment 여부."""
 
-    if not inline_code_contents(comment):
+    if not _LIST_ITEM_PREFIX_RE.match(comment):
         return False
-    remainder = strip_inline_code(comment)
+    if not (inline_code_contents(comment) or html_code_contents(comment)):
+        return False
+    remainder = strip_html_code_elements(strip_inline_code(comment))
     remainder = re.sub(r"(?:[-*+]|\d+[.)])", " ", remainder)
     return not remainder.strip(" `*_~.,:;()[]&/,+")
 
@@ -6114,7 +6118,7 @@ def _plan_source_blocks(blocks: list[SourceBlock]) -> list[SourceBlock]:
 
 
 def _is_inline_code_identifier_list(text: str) -> bool:
-    """inline code identifier list 여부."""
+    """code identifier list 여부."""
 
     lines = [line for line in text.splitlines() if line.strip()]
     if not lines:
@@ -6124,7 +6128,9 @@ def _is_inline_code_identifier_list(text: str) -> bool:
         if list_item is None:
             return False
         body = line[list_item.end() :]
-        if not inline_code_contents(body) or strip_inline_code(body).strip(
+        if not (inline_code_contents(body) or html_code_contents(body)):
+            return False
+        if strip_html_code_elements(strip_inline_code(body)).strip(
             " `*_~.,:;()[]&/,+"
         ):
             return False
