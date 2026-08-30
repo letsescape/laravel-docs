@@ -2793,7 +2793,7 @@ Paragraph.
             "- `LastEvent`"
         )
 
-        self.assertTrue(plan.changes[0].provider_free)
+        self.assertEqual([change.provider_free for change in plan.changes], [True])
         self.assertFalse(
             patch._is_plan_anchor_comment(  # noqa: SLF001
                 " ".join(translated.splitlines())
@@ -2804,6 +2804,18 @@ Paragraph.
 
         self.assertIn(translated, result)
         self.assertNotIn("<!--\n- `FirstEvent`", result)
+
+    def test_updates_standalone_html_code_paragraph(self):
+        """단독 HTML code 문단을 목록으로 오인하지 않고 갱신함."""
+
+        old = "<code>Old</code>\n"
+        new = "<code>New</code>\n"
+        existing = "<!-- <code>Old</code> -->\n<code>Old</code>\n"
+        translated = "<!-- <code>New</code> -->\n<code>New</code>"
+
+        result = patch.apply_plan(existing, _plan(old, new), [translated])
+
+        self.assertEqual(result, f"{translated}\n")
 
 
 class TableRowPatchTests(unittest.TestCase):
