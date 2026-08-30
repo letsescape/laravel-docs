@@ -40,8 +40,8 @@
 <!-- #### Semantic / Vector Search -->
 #### Semantic / Vector Search
 
-<!-- For AI-powered semantic search that matches results by *meaning* rather than exact keywords, the `whereVectorSimilarTo` query builder method uses vector embeddings stored in PostgreSQL with the `pgvector` extension. For example, a search for "best wineries in Napa Valley" can surface an article titled "Top Vineyards to Visit" — even though the words don't overlap. Vector search requires PostgreSQL with the `pgvector` extension and the [Laravel AI SDK](/docs/13.x/ai-sdk). -->
-正確なキーワードではなく *意味* によって結果を照合する AI を利用したセマンティック検索の場合、`whereVectorSimilarTo` クエリビルダ メソッドは、`pgvector` 拡張子を持つ PostgreSQL に保存されたベクトル埋め込みを使用します。たとえば、「ナパバレーの最高のワイナリー」を検索すると、単語が重複していない場合でも、「訪れるべき人気のワイナリー」というタイトルの記事が表示されることがあります。ベクトル検索には、`pgvector` 拡張機能と [Laravel AI SDK](/docs/13.x/ai-sdk) を備えた PostgreSQL が必要です。
+<!-- For AI-powered semantic search that matches results by *meaning* rather than exact keywords, the `whereVectorSimilarTo` query builder method uses vector embeddings stored in PostgreSQL with the `pgvector` extension or MariaDB. For example, a search for "best wineries in Napa Valley" can surface an article titled "Top Vineyards to Visit" — even though the words don't overlap. Vector search requires PostgreSQL with the `pgvector` extension or MariaDB 11.7 or later, as well as the [Laravel AI SDK](/docs/13.x/ai-sdk). -->
+正確なキーワードではなく *意味* によって結果を照合する AI を利用したセマンティック検索では、`whereVectorSimilarTo` クエリビルダメソッドが、`pgvector` 拡張機能を備えた PostgreSQL または MariaDB に保存されたベクトル埋め込みを使用します。たとえば、「ナパバレーの最高のワイナリー」を検索すると、単語が重複していなくても、「訪れるべき人気のワイナリー」というタイトルの記事が見つかることがあります。ベクトル検索には、`pgvector` 拡張機能を備えた PostgreSQL または MariaDB 11.7 以降と、[Laravel AI SDK](/docs/13.x/ai-sdk) が必要です。
 
 <a name="introduction-reranking"></a>
 <!-- #### Reranking -->
@@ -54,8 +54,8 @@ Laravel の [AI SDK](/docs/13.x/ai-sdk) は、AI モデルを使用して、ク�
 <!-- #### Laravel Scout Search -->
 #### Laravel Scout Search
 
-<!-- For applications that want a `Searchable` trait that automatically keeps search indexes in sync with Eloquent models, [Laravel Scout](/docs/13.x/scout) offers both a built-in database engine and drivers for third-party services like Algolia, Meilisearch, and Typesense. -->
-検索インデックスを Eloquent モデルと自動的に同期させる `Searchable` トレイトが必要なアプリケーション向けに、[Laravel Scout](/docs/13.x/scout) は、組み込みデータベース エンジンと、Algolia、Meilisearch、Typesense などのサードパーティ サービス用のドライバの両方を提供します。
+<!-- For applications that want a `Searchable` trait that automatically keeps search indexes in sync with Eloquent models, [Laravel Scout](/docs/13.x/scout) offers both a built-in database engine and drivers for third-party services like Algolia, Meilisearch, Typesense, and Turbopuffer. -->
+`Searchable` トレイトを使って検索インデックスを Eloquent モデルと自動的に同期したいアプリケーション向けに、[Laravel Scout](/docs/13.x/scout) は組み込みのデータベースエンジンと、Algolia、Meilisearch、Typesense、Turbopuffer などのサードパーティサービス用ドライバの両方を提供します。
 
 <a name="full-text-search"></a>
 <!-- ## Full-Text Search -->
@@ -135,8 +135,7 @@ $articles = Article::whereFullText(
 ベクトル検索の基本的なワークフローは次のとおりです。コンテンツの各部分に対してエンベディング (数値配列) を生成し、それをデータと一緒に保存します。その後、検索時にユーザーのクエリに対してエンベディングを生成し、ベクトル空間でそれに最も近い保存されたエンベディングを検索します。
 
 > [!NOTE]
-> <!-- > Vector search requires the [Laravel AI SDK](/docs/13.x/ai-sdk) and is supported by PostgreSQL (requires the `pgvector` extension) and MongoDB (requires the [Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb)). All Postgres databases on [Laravel Cloud](https://laravel.com/cloud) already have `pgvector` installed. -->
-> ベクトル検索には [Laravel AI SDK](/docs/13.x/ai-sdk) が必要で、PostgreSQL（`pgvector` 拡張が必要）と MongoDB（[Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb) が必要）でサポートされています。[Laravel Cloud](https://laravel.com/cloud) 上のすべての Postgres データベースには、すでに `pgvector` がインストールされています。
+> ベクトル検索には [Laravel AI SDK](/docs/13.x/ai-sdk) が必要で、PostgreSQL（`pgvector` 拡張が必要）、MariaDB 11.7 以降、MongoDB（[Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb) が必要）でサポートされています。[Laravel Cloud](https://laravel.com/cloud) 上のすべての Postgres データベースには、すでに `pgvector` がインストールされています。
 
 <a name="generating-embeddings"></a>
 <!-- ### Generating Embeddings -->
@@ -190,14 +189,16 @@ Schema::create('documents', function (Blueprint $table) {
 <!-- The `Schema::ensureVectorExtensionExists` method ensures the `pgvector` extension is enabled on your PostgreSQL database before creating the table. -->
 `Schema::ensureVectorExtensionExists` メソッドは、テーブルを作成する前に、PostgreSQL データベースで `pgvector` 拡張機能が有効になっていることを確認します。
 
-<!-- On your Eloquent model, cast the vector column to an `array` so that Laravel automatically handles the conversion between PHP arrays and the database's vector format: -->
-Eloquent モデルで、Laravel が PHP 配列とデータベースのベクトル形式の間の変換を自動的に処理できるように、ベクトル列を `array` にcastします。
+<!-- On your Eloquent model, use the `AsVector` cast so that Laravel automatically handles the conversion between PHP arrays and the database's vector format: -->
+Eloquent モデルで `AsVector` castを使用すると、Laravel が PHP 配列とデータベースのベクトル形式の間の変換を自動的に処理します。
 
 ```php
+use Illuminate\Database\Eloquent\Casts\AsVector;
+
 protected function casts(): array
 {
     return [
-        'embedding' => 'array',
+        'embedding' => AsVector::class,
     ];
 }
 ```

@@ -1678,7 +1678,7 @@ Queue::route(ProcessPodcast::class, connection: 'redis');
 
 ```php
 Queue::route([
-    ProcessPodcast::class => ['podcasts', 'redis'], // Queue and connection
+    ProcessPodcast::class => ['redis', 'podcasts'], // Connection and queue
     ProcessVideo::class => 'videos', // Queue only (uses default connection)
 ]);
 ```

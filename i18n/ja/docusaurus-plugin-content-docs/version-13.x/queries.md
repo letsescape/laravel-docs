@@ -1313,7 +1313,7 @@ $users = DB::table('users')
 ### Vector Similarity Clauses
 
 > [!NOTE]
-> ベクトル類似度の条件は、現在 `pgvector` 拡張機能を使用する PostgreSQL 接続でのみサポートされています。ベクトルのカラムとインデックスの定義については、[migration documentation](/docs/13.x/migrations#available-column-types)を参照してください。
+> ベクトル類似度の条件は、現在、`pgvector` 拡張機能を使用する PostgreSQL 接続と、MariaDB 11.7 以降でサポートされています。ベクトルのカラムとインデックスの定義については、[migration documentation](/docs/13.x/migrations#available-column-types)を参照してください。
 
 <!-- The `whereVectorSimilarTo` method filters results by cosine similarity to a given vector and orders the results by relevance. The `minSimilarity` threshold should be a value between `0.0` and `1.0`, where `1.0` is identical: -->
 `whereVectorSimilarTo` メソッドは、指定されたベクトルに対するコサイン類似度によって結果をフィルター処理し、関連性によって結果を順序付けします。 `minSimilarity` しきい値は、`0.0` と `1.0` の間の値である必要があります。ここで、`1.0` は同一です。

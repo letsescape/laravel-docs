@@ -7,6 +7,7 @@
     - [Defining a Mutator](#defining-a-mutator)
 - [Attribute Casting](#attribute-casting)
     - [Array and JSON Casting](#array-and-json-casting)
+    - [Vector Casting](#vector-casting)
     - [Binary Casting](#binary-casting)
     - [Date Casting](#date-casting)
     - [Enum Casting](#enum-casting)
@@ -236,38 +237,13 @@ attribute casting은 모델에 추가 메서드를 정의하지 않아도 access
 <!-- The `casts` method should return an array where the key is the name of the attribute being cast and the value is the type you wish to cast the column to. The supported cast types are: -->
 `casts` 메서드는 배열을 반환해야 하며, 키는 casting할 속성 이름이고 값은 해당 컬럼을 casting하려는 타입입니다. 지원되는 cast 타입은 다음과 같습니다.
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
 - `array`
 - `AsFluent::class`
 - `AsStringable::class`
 - `AsUri::class`
-- `boolean`
-- `collection`
-- `date`
-- `datetime`
-- `immutable_date`
-- `immutable_datetime`
-- <code>decimal:&lt;precision&gt;</code>
-- `double`
-- `encrypted`
-- `encrypted:array`
-- `encrypted:collection`
-- `encrypted:object`
-- `float`
-- `hashed`
-- `integer`
-- `object`
-- `real`
-- `string`
-- `timestamp`
--->
-- `array`
-- `AsFluent::class`
-- `AsStringable::class`
-- `AsUri::class`
+- `AsVector::class`
 - `boolean`
 - `collection`
 - `date`
@@ -288,7 +264,6 @@ attribute casting은 모델에 추가 메서드를 정의하지 않아도 access
 - `string`
 - `timestamp`
 
-<!-- </div> -->
 </div>
 
 <!-- To demonstrate attribute casting, let's cast the `is_admin` attribute, which is stored in our database as an integer (`0` or `1`) to a boolean value: -->
@@ -591,6 +566,32 @@ class Option implements Arrayable, JsonSerializable
     }
 }
 ```
+
+<a name="vector-casting"></a>
+<!-- ### Vector Casting -->
+### Vector Casting
+
+<!-- You may use the `Illuminate\Database\Eloquent\Casts\AsVector` cast class to cast a database vector column to and from a PHP array: -->
+`Illuminate\Database\Eloquent\Casts\AsVector` 캐스트 클래스를 사용하면 데이터베이스 벡터 컬럼을 PHP 배열로, 또는 PHP 배열에서 데이터베이스 벡터 컬럼으로 변환할 수 있습니다.
+
+```php
+use Illuminate\Database\Eloquent\Casts\AsVector;
+
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'embedding' => AsVector::class,
+    ];
+}
+```
+
+<!-- When setting the attribute, the cast accepts a PHP array or an `Arrayable` instance, such as a Laravel collection. When retrieving the attribute, the cast returns an array of floats. -->
+속성을 설정할 때 캐스트는 PHP 배열 또는 Laravel 컬렉션과 같은 `Arrayable` 인스턴스를 허용합니다. 속성을 가져올 때 캐스트는 부동소수점 숫자 배열을 반환합니다.
 
 <a name="binary-casting"></a>
 <!-- ### Binary Casting -->
