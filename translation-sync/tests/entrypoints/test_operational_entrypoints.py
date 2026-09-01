@@ -152,7 +152,7 @@ class OperationalEntrypointTests(unittest.TestCase):
         commit = workflow.index("- name: Commit synchronized documents")
         self.assertLess(tests, sync_run)
         self.assertLess(sync_run, commit)
-        self.assertIn("uses: actions/checkout@v6", workflow)
+        self.assertIn("uses: actions/checkout@v7", workflow)
         self.assertIn("uses: astral-sh/setup-uv@v7", workflow)
         self.assertIn("permissions:\n  contents: write", workflow)
         self.assertIn("timeout-minutes: 360", workflow)
@@ -186,7 +186,7 @@ class OperationalEntrypointTests(unittest.TestCase):
 
         workflow = read_repository_file(".github/workflows/deploy.yml")
 
-        self.assertIn("uses: actions/setup-node@v6", workflow)
+        self.assertIn("uses: actions/setup-node@v7", workflow)
         self.assertIn("uses: actions/deploy-pages@v5", workflow)
         self.assertIn("- name: Validate deployment branch", workflow)
         self.assertIn("REF_TYPE: ${{ github.ref_type }}", workflow)
