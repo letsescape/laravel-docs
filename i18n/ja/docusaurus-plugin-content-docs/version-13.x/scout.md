@@ -46,7 +46,7 @@
 Scout には、MySQL / PostgreSQL の全文検索インデックスと `LIKE` 句を使って既存のデータベースを検索する、組み込みの `database` エンジンが用意されています。外部サービスは必要ありません。ほとんどのアプリケーションでは、これだけで十分です。Laravel で利用できる検索オプションの概要については、[search documentation](/docs/13.x/search)を参照してください。
 
 <!-- Scout also includes drivers for [Algolia](https://www.algolia.com/), [Meilisearch](https://www.meilisearch.com), [Typesense](https://typesense.org), and [Turbopuffer](https://turbopuffer.com) when you need features like typo tolerance, faceted filtering, vector search, or geo-search at massive scale. A "collection" driver is also available for local development, and you are free to write [custom engines](#custom-engines) as well. -->
-Scout には、非常に大規模な環境での typo tolerance、ファセットフィルタリング、ベクトル検索、地理検索などの機能が必要な場合に利用できる [Algolia](https://www.algolia.com/)、[Meilisearch](https://www.meilisearch.com)、[Typesense](https://typesense.org)、[Turbopuffer](https://turbopuffer.com) 用のドライバも含まれています。ローカル開発用には collection ドライバも利用でき、[custom engines](#custom-engines) を自由に作成することもできます。
+Scout には、非常に大規模な環境でのタイプミス耐性、ファセットフィルタリング、ベクトル検索、地理検索などの機能が必要な場合に利用できる [Algolia](https://www.algolia.com/)、[Meilisearch](https://www.meilisearch.com)、[Typesense](https://typesense.org)、[Turbopuffer](https://turbopuffer.com) 用のドライバも含まれています。ローカル開発用には「コレクション」ドライバも利用でき、[custom engines](#custom-engines) を自由に作成することもできます。
 
 <a name="installation"></a>
 <!-- ## Installation -->
@@ -181,7 +181,7 @@ Meilisearch の詳細については、[Meilisearch documentation](https://docs.
 さらに、[Meilisearch's documentation regarding binary compatibility](https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch) を確認して、Meilisearch バイナリ バージョンと互換性のある `meilisearch/meilisearch-php` のバージョンをインストールしていることを確認する必要があります。
 
 > [!WARNING]
-> Scout を Meilisearch を利用するアプリケーションでアップグレードする場合は、Meilisearch サービス自体に関する[review any additional breaking changes](https://github.com/meilisearch/Meilisearch/releases)。
+> Meilisearch を利用するアプリケーションで Scout をアップグレードする場合は、Meilisearch サービス自体に関する [review any additional breaking changes](https://github.com/meilisearch/Meilisearch/releases) も必ず確認してください。
 
 <a name="typesense"></a>
 <!-- ### Typesense -->
@@ -807,7 +807,7 @@ use App\Models\Article;
 ```
 
 <!-- The source attribute must be included in the model's `toSearchableArray` output. -->
-モデルの `toSearchableArray` 出力には、source 属性を含める必要があります。
+モデルの `toSearchableArray` 出力には、ソース属性を含める必要があります。
 
 <a name="indexing"></a>
 <!-- ## Third-Party Engine Indexing -->
@@ -885,7 +885,7 @@ $order->save();
 #### Adding Records via Query
 
 <!-- If you would like to add a collection of models to your search index via an Eloquent query, you may chain the `searchable` method onto the Eloquent query. The `searchable` method will [chunk the results](/docs/13.x/eloquent#chunking-results) of the query and add the records to your search index. Again, if you have configured Scout to use queues, all of the chunks will be imported in the background by your queue workers: -->
-Eloquent クエリを使ってモデルのコレクションを検索インデックスに追加する場合は、Eloquent クエリに `searchable` メソッドをチェーンできます。`searchable` メソッドはクエリの結果を [chunk the results](/docs/13.x/eloquent#chunking-results)、レコードを検索インデックスに追加します。また、Scout でキューを使用するよう設定している場合は、すべてのチャンクがキューワーカーによってバックグラウンドでインポートされます。
+Eloquent クエリを使ってモデルのコレクションを検索インデックスに追加する場合は、Eloquent クエリに `searchable` メソッドをチェーンできます。`searchable` メソッドはクエリの [chunk the results](/docs/13.x/eloquent#chunking-results) を実行し、レコードを検索インデックスに追加します。また、Scout でキューを使用するよう設定している場合は、すべてのチャンクがキューワーカーによってバックグラウンドでインポートされます。
 
 ```php
 use App\Models\Order;

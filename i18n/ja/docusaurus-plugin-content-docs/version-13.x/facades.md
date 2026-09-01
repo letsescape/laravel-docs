@@ -14,7 +14,7 @@
 ## Introduction
 
 <!-- Throughout the Laravel documentation, you will see examples of code that interacts with Laravel's features via "facades". Facades provide a "static" interface to classes that are available in the application's [service container](/docs/13.x/container). Laravel ships with many facades which provide access to almost all of Laravel's features. -->
-Laravel のドキュメント全体を通して、facades を介して Laravel の機能を操作するコード例が登場します。ファサードは、アプリケーションの [service container](/docs/13.x/container) で利用できるクラスに対して、「静的」なインターフェイスを提供します。Laravel には多数のファサードが用意されており、Laravel のほぼすべての機能にアクセスできます。
+Laravel のドキュメント全体を通して、ファサードを介して Laravel の機能を操作するコード例が登場します。ファサードは、アプリケーションの [service container](/docs/13.x/container) で利用できるクラスに対して、「静的」なインターフェイスを提供します。Laravel には多数のファサードが用意されており、Laravel のほぼすべての機能にアクセスできます。
 
 <!-- Laravel facades serve as "static proxies" to underlying classes in the service container, providing the benefit of a terse, expressive syntax while maintaining more testability and flexibility than traditional static methods. It's perfectly fine if you don't totally understand how facades work - just go with the flow and continue learning about Laravel. -->
 Laravel ファサードは、サービスコンテナ内の基礎となるクラスに対する「静的プロキシ」として機能し、従来の静的メソッドよりも高いテスト容易性と柔軟性を維持しながら、簡潔で表現力豊かな構文の利点を提供します。ファサードがどのように機能するかを完全に理解していなくても、まったく問題ありません。流れに身を任せて、Laravel について学び続けてください。

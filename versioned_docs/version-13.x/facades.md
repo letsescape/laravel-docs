@@ -218,7 +218,7 @@ class Cache extends Facade
 ```
 
 <!-- Instead, the `Cache` facade extends the base `Facade` class and defines the method `getFacadeAccessor()`. This method's job is to return the name of a service container binding. When a user references any static method on the `Cache` facade, Laravel resolves the `cache` binding from the [service container](/docs/13.x/container) and runs the requested method (in this case, `get`) against that object. -->
-대신 `Cache` 파사드는 기본 `Facade` 클래스를 확장하고 `getFacadeAccessor()` 메서드를 정의합니다. 이 메서드는 서비스 컨테이너 바인딩의 이름을 반환합니다. 사용자가 `Cache` 파사드의 정적 메서드를 참조하면 Laravel은 [service container](/docs/13.x/container)에서 `cache` 바인딩을 확인하고 해당 객체에 요청된 메서드(이 경우 `get`)를 실행합니다.
+대신 `Cache` 파사드는 기본 `Facade` 클래스를 확장하고 `getFacadeAccessor()` 메서드를 정의합니다. 이 메서드는 서비스 컨테이너 바인딩의 이름을 반환합니다. 사용자가 `Cache` 파사드의 정적 메서드를 참조하면 Laravel은 [service container](/docs/13.x/container)에서 `cache` 바인딩을 가져와 해당 객체에 요청된 메서드(이 경우 `get`)를 실행합니다.
 
 <a name="real-time-facades"></a>
 <!-- ## Real-Time Facades -->
