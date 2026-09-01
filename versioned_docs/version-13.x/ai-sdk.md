@@ -2224,7 +2224,7 @@ Document::fromUpload($request->file('report'));
 ### Querying Embeddings
 
 <!-- Once you have generated embeddings, you will typically store them in a `vector` column in your database for later querying. Laravel provides native support for vector columns on PostgreSQL via the `pgvector` extension and MariaDB. To get started, define a `vector` column in your migration, specifying the number of dimensions: -->
-임베딩을 생성한 뒤에는 보통 나중에 쿼리할 수 있도록 데이터베이스의 `vector` 컬럼에 저장합니다. Laravel은 `pgvector` 확장과 MariaDB를 통해 PostgreSQL의 벡터 컬럼을 네이티브로 지원합니다. 시작하려면 마이그레이션에서 차원 수를 지정하여 `vector` 컬럼을 정의합니다:
+임베딩을 생성한 뒤에는 보통 나중에 쿼리할 수 있도록 데이터베이스의 `vector` 컬럼에 저장합니다. Laravel은 `pgvector` 확장을 사용하는 PostgreSQL과 MariaDB의 벡터 컬럼을 네이티브로 지원합니다. 시작하려면 마이그레이션에서 차원 수를 지정하여 `vector` 컬럼을 정의합니다:
 
 ```php
 Schema::ensureVectorExtensionExists();

@@ -861,7 +861,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 큐를 사용해 모델을 일괄 가져오는 경우 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 모델 컬렉션을 잡에서 처리할 때 연관관계는 [not restored](/docs/13.x/queues#handling-relationships).
+> 큐를 사용해 모델을 일괄 가져오는 경우 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 모델 컬렉션을 잡에서 처리할 때 연관관계는 [not restored](/docs/13.x/queues#handling-relationships) 상태입니다.
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -885,7 +885,7 @@ $order->save();
 #### Adding Records via Query
 
 <!-- If you would like to add a collection of models to your search index via an Eloquent query, you may chain the `searchable` method onto the Eloquent query. The `searchable` method will [chunk the results](/docs/13.x/eloquent#chunking-results) of the query and add the records to your search index. Again, if you have configured Scout to use queues, all of the chunks will be imported in the background by your queue workers: -->
-Eloquent 쿼리를 통해 모델 컬렉션을 검색 인덱스에 추가하려면 Eloquent 쿼리에 `searchable` 메서드를 연결하면 됩니다. `searchable` 메서드는 쿼리 결과를 [chunk the results](/docs/13.x/eloquent#chunking-results) 다음 레코드를 검색 인덱스에 추가합니다. Scout가 큐를 사용하도록 설정했다면 모든 청크는 큐 워커에 의해 백그라운드에서 가져와집니다.
+Eloquent 쿼리를 통해 모델 컬렉션을 검색 인덱스에 추가하려면 Eloquent 쿼리에 `searchable` 메서드를 연결하면 됩니다. `searchable` 메서드는 쿼리 결과를 [chunk the results](/docs/13.x/eloquent#chunking-results)한 다음 레코드를 검색 인덱스에 추가합니다. Scout가 큐를 사용하도록 설정했다면 모든 청크는 큐 워커에 의해 백그라운드에서 가져와집니다.
 
 ```php
 use App\Models\Order;
