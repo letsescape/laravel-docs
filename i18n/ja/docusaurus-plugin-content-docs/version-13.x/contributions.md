@@ -125,6 +125,9 @@ Laravel に送信されたすべてのプルリクエストに感謝します。
 <!-- If you choose to use AI tools to assist with your contribution, the resulting code **must** be thoroughly reviewed, tested, and understood by you before submitting. -->
 AI ツールを使用して貢献を支援することを選択した場合、結果として得られるコードは、提出する前に**徹底的にレビュー、テストされ、理解されている必要があります**。
 
+<!-- Pull request descriptions **must** be written entirely by the contributor. Pull requests with AI-generated descriptions will be closed. -->
+プルリクエストの説明は、貢献者自身がすべて記述しなければなりません。AIが生成した説明を含むプルリクエストはクローズします。
+
 <!-- **Mass opening issues or pull requests that are entirely AI-generated will not be tolerated.** Such pull requests will be closed without review, and the contributing user may be blocked from the repository. -->
 **完全に AI によって生成された問題やプル リクエストを大量に開くことは許容されません。** このようなプル リクエストはレビューなしで閉じられ、投稿したユーザーはリポジトリからブロックされる場合があります。
 

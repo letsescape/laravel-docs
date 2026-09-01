@@ -40,8 +40,8 @@
 <!-- #### Semantic / Vector Search -->
 #### Semantic / Vector Search
 
-<!-- For AI-powered semantic search that matches results by *meaning* rather than exact keywords, the `whereVectorSimilarTo` query builder method uses vector embeddings stored in PostgreSQL with the `pgvector` extension. For example, a search for "best wineries in Napa Valley" can surface an article titled "Top Vineyards to Visit" — even though the words don't overlap. Vector search requires PostgreSQL with the `pgvector` extension and the [Laravel AI SDK](/docs/13.x/ai-sdk). -->
-정확한 키워드가 아니라 *의미*로 결과를 매칭해야 할 땐, AI 기반 의미 검색을 사용합니다. `whereVectorSimilarTo` 쿼리 빌더 메서드는 PostgreSQL의 `pgvector` 확장 기능을 활용한 벡터 임베딩(vector embedding)을 사용합니다. 예를 들어, "best wineries in Napa Valley"를 검색하면 "Top Vineyards to Visit"라는 제목의 글도 결과로 보여줄 수 있습니다. (단어는 겹치지 않아도 의미가 비슷함.) 벡터 검색은 PostgreSQL과 `pgvector` 확장, 그리고 [Laravel AI SDK](/docs/13.x/ai-sdk)가 필요합니다.
+<!-- For AI-powered semantic search that matches results by *meaning* rather than exact keywords, the `whereVectorSimilarTo` query builder method uses vector embeddings stored in PostgreSQL with the `pgvector` extension or MariaDB. For example, a search for "best wineries in Napa Valley" can surface an article titled "Top Vineyards to Visit" — even though the words don't overlap. Vector search requires PostgreSQL with the `pgvector` extension or MariaDB 11.7 or later, as well as the [Laravel AI SDK](/docs/13.x/ai-sdk). -->
+정확한 키워드가 아니라 *의미*를 기준으로 결과를 매칭하는 AI 기반 의미 검색의 경우, `whereVectorSimilarTo` 쿼리 빌더 메서드는 `pgvector` 확장 기능이 설치된 PostgreSQL 또는 MariaDB에 저장된 벡터 임베딩을 사용합니다. 예를 들어 "best wineries in Napa Valley"를 검색하면 단어가 겹치지 않더라도 "Top Vineyards to Visit"이라는 제목의 글이 검색 결과에 표시될 수 있습니다. 벡터 검색에는 `pgvector` 확장 기능이 설치된 PostgreSQL 또는 MariaDB 11.7 이상과 [Laravel AI SDK](/docs/13.x/ai-sdk)가 필요합니다.
 
 <a name="introduction-reranking"></a>
 <!-- #### Reranking -->
@@ -54,8 +54,8 @@ Laravel의 [AI SDK](/docs/13.x/ai-sdk)는 AI 모델을 사용해 쿼리에 대�
 <!-- #### Laravel Scout Search -->
 #### Laravel Scout Search
 
-<!-- For applications that want a `Searchable` trait that automatically keeps search indexes in sync with Eloquent models, [Laravel Scout](/docs/13.x/scout) offers both a built-in database engine and drivers for third-party services like Algolia, Meilisearch, and Typesense. -->
-Eloquent 모델과 검색 인덱스를 자동으로 동기화하는 `Searchable` 트레이트가 필요한 경우, [Laravel Scout](/docs/13.x/scout)는 내장 데이터베이스 엔진과 Algolia·Meilisearch·Typesense와 같은 외부 서비스용 드라이버를 모두 제공합니다.
+<!-- For applications that want a `Searchable` trait that automatically keeps search indexes in sync with Eloquent models, [Laravel Scout](/docs/13.x/scout) offers both a built-in database engine and drivers for third-party services like Algolia, Meilisearch, Typesense, and Turbopuffer. -->
+Eloquent 모델과 검색 인덱스를 자동으로 동기화하는 `Searchable` 트레이트가 필요한 경우, [Laravel Scout](/docs/13.x/scout)는 내장 데이터베이스 엔진과 Algolia·Meilisearch·Typesense·Turbopuffer와 같은 외부 서비스용 드라이버를 모두 제공합니다.
 
 <a name="full-text-search"></a>
 <!-- ## Full-Text Search -->
@@ -135,8 +135,7 @@ $articles = Article::whereFullText(
 벡터 검색의 기본 흐름은 다음과 같습니다: 콘텐츠마다 임베딩(숫자 배열)을 생성해 데이터와 함께 저장하고, 검색 시에는 사용자의 쿼리로 임베딩을 만들어서 저장된 임베딩과의 거리를 비교해 가장 가까운(의미가 비슷한) 결과를 찾습니다.
 
 > [!NOTE]
-> <!-- Vector search requires the [Laravel AI SDK](/docs/13.x/ai-sdk) and is supported by PostgreSQL (requires the `pgvector` extension) and MongoDB (requires the [Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb)). All Postgres databases on [Laravel Cloud](https://laravel.com/cloud) already have `pgvector` installed. -->
-> 벡터 검색에는 [Laravel AI SDK](/docs/13.x/ai-sdk)가 필요하며, PostgreSQL(`pgvector` 확장 필요)과 MongoDB([Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb) 필요)를 지원합니다. [Laravel Cloud](https://laravel.com/cloud)의 모든 Postgres 데이터베이스에는 `pgvector`가 이미 설치되어 있습니다.
+> 벡터 검색에는 [Laravel AI SDK](/docs/13.x/ai-sdk)가 필요하며, PostgreSQL(`pgvector` 확장 필요), MariaDB 11.7 이상, MongoDB([Laravel MongoDB package](https://laravel.com/docs/13.x/mongodb) 필요)를 지원합니다. [Laravel Cloud](https://laravel.com/cloud)의 모든 Postgres 데이터베이스에는 `pgvector`가 이미 설치되어 있습니다.
 
 <a name="generating-embeddings"></a>
 <!-- ### Generating Embeddings -->
@@ -190,14 +189,16 @@ Schema::create('documents', function (Blueprint $table) {
 <!-- The `Schema::ensureVectorExtensionExists` method ensures the `pgvector` extension is enabled on your PostgreSQL database before creating the table. -->
 `Schema::ensureVectorExtensionExists`는 테이블 생성 전에 PostgreSQL 데이터베이스에 `pgvector` 확장이 활성화되어 있는지 확인합니다.
 
-<!-- On your Eloquent model, cast the vector column to an `array` so that Laravel automatically handles the conversion between PHP arrays and the database's vector format: -->
-Eloquent 모델에서는 해당 벡터 컬럼을 `array`로 casting하면, PHP 배열과 데이터베이스의 벡터 포맷 간 변환을 Laravel이 자동으로 처리합니다.
+<!-- On your Eloquent model, use the `AsVector` cast so that Laravel automatically handles the conversion between PHP arrays and the database's vector format: -->
+Eloquent 모델에서는 `AsVector` 캐스트를 사용하면 Laravel이 PHP 배열과 데이터베이스의 벡터 포맷 간 변환을 자동으로 처리합니다.
 
 ```php
+use Illuminate\Database\Eloquent\Casts\AsVector;
+
 protected function casts(): array
 {
     return [
-        'embedding' => 'array',
+        'embedding' => AsVector::class,
     ];
 }
 ```

@@ -542,6 +542,17 @@ $flight->refresh();
 $flight->number; // "FR 900"
 ```
 
+<!-- If you need to refresh a model and acquire a pessimistic lock within a transaction, you may use the `refreshForUpdate` method. This method reloads the model using a `FOR UPDATE` lock: -->
+モデルを再読み込みし、トランザクション内で悲観的ロックを取得する必要がある場合は、`refreshForUpdate` メソッドを使用できます。このメソッドは `FOR UPDATE` ロックを使ってモデルを再読み込みします。
+
+```php
+DB::transaction(function () use ($flight) {
+    $flight->refreshForUpdate();
+
+    // Update the locked model...
+});
+```
+
 <a name="collections"></a>
 <!-- ### Collections -->
 ### Collections
@@ -2175,4 +2186,3 @@ $user->deleteQuietly();
 $user->forceDeleteQuietly();
 $user->restoreQuietly();
 ```
-

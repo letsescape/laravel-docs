@@ -125,6 +125,9 @@ Laravel에 제출되는 모든 pull request에 감사드립니다. 하지만 충
 <!-- If you choose to use AI tools to assist with your contribution, the resulting code **must** be thoroughly reviewed, tested, and understood by you before submitting. -->
 기여를 도울 목적으로 AI 도구를 사용하기로 했다면, 제출하기 전에 결과 코드가 **반드시** 본인에 의해 철저히 검토되고, 테스트되며, 이해되어야 합니다.
 
+<!-- Pull request descriptions **must** be written entirely by the contributor. Pull requests with AI-generated descriptions will be closed. -->
+pull request 설명은 **반드시** 기여자가 전부 직접 작성해야 합니다. AI가 생성한 설명이 포함된 pull request는 종료됩니다.
+
 <!-- **Mass opening issues or pull requests that are entirely AI-generated will not be tolerated.** Such pull requests will be closed without review, and the contributing user may be blocked from the repository. -->
 **전적으로 AI로 생성된 이슈나 pull request를 대량으로 여는 행위는 용납되지 않습니다.** 이러한 pull request는 검토 없이 닫히며, 기여한 사용자는 저장소에서 차단될 수 있습니다.
 

@@ -8,6 +8,7 @@
     - [Algolia](#algolia)
     - [Meilisearch](#meilisearch)
     - [Typesense](#typesense)
+    - [Turbopuffer](#turbopuffer)
 - [Configuration](#configuration)
     - [Configuring Searchable Data](#configuring-searchable-data)
 - [Database / Collection Engines](#database-and-collection-engines)
@@ -18,6 +19,7 @@
     - [Algolia](#algolia-configuration)
     - [Meilisearch](#meilisearch-configuration)
     - [Typesense](#typesense-configuration)
+    - [Turbopuffer](#turbopuffer-configuration)
 - [Third-Party Engine Indexing](#indexing)
     - [Batch Import](#batch-import)
     - [Adding Records](#adding-records)
@@ -27,6 +29,7 @@
     - [Conditionally Searchable Model Instances](#conditionally-searchable-model-instances)
 - [Searching](#searching)
     - [Where Clauses](#where-clauses)
+    - [Semantic Search](#semantic-search)
     - [Pagination](#pagination)
     - [Soft Deleting](#soft-deleting)
     - [Customizing Engine Searches](#customizing-engine-searches)
@@ -37,13 +40,13 @@
 ## Introduction
 
 <!-- [Laravel Scout](https://github.com/laravel/scout) provides a simple, driver-based solution for adding full-text search to your [Eloquent models](/docs/13.x/eloquent). Using model observers, Scout will automatically keep your search indexes in sync with your Eloquent records. -->
-[Laravel Scout](https://github.com/laravel/scout)는 [Eloquent models](/docs/13.x/eloquent)에 전체 텍스트 검색을 추가할 수 있는 간단한 드라이버 기반 솔루션을 제공합니다. Scout는 모델 옵저버를 사용하여 검색 인덱스가 Eloquent 레코드와 자동으로 동기화되도록 유지합니다.
+[Laravel Scout](https://github.com/laravel/scout)는 [Eloquent models](/docs/13.x/eloquent)에 전문 검색 기능을 추가할 수 있는 간단한 드라이버 기반 솔루션을 제공합니다. Scout는 모델 옵저버를 사용해 검색 인덱스를 Eloquent 레코드와 자동으로 동기화합니다.
 
 <!-- Scout ships with a built-in `database` engine that uses MySQL / PostgreSQL full-text indexes and `LIKE` clauses to search your existing database — no external service required. For most applications, this is all you need. For an overview of all search options available in Laravel, consult the [search documentation](/docs/13.x/search). -->
-Scout에는 MySQL / PostgreSQL 전체 텍스트 인덱스와 `LIKE` 절을 사용해 기존 데이터베이스를 검색하는 내장 `database` 엔진이 포함되어 있습니다. 외부 서비스가 필요하지 않습니다. 대부분의 애플리케이션에는 이것만으로 충분합니다. Laravel에서 사용할 수 있는 모든 검색 옵션의 개요는 [search documentation](/docs/13.x/search)를 참고하십시오.
+Scout는 MySQL / PostgreSQL 전문 검색 인덱스와 `LIKE` 절을 사용해 기존 데이터베이스를 검색하는 내장 `database` 엔진을 제공합니다. 외부 서비스가 필요하지 않습니다. 대부분의 애플리케이션에서는 이것만으로 충분합니다. Laravel에서 사용할 수 있는 모든 검색 옵션을 간략히 살펴보려면 [search documentation](/docs/13.x/search)를 참고하세요.
 
-<!-- Scout also includes drivers for [Algolia](https://www.algolia.com/), [Meilisearch](https://www.meilisearch.com), and [Typesense](https://typesense.org) when you need features like typo tolerance, faceted filtering, or geo-search at massive scale. A "collection" driver is also available for local development, and you are free to write [custom engines](#custom-engines) as well. -->
-또한 오타 허용, 패싯 필터링, 대규모 지리 검색 같은 기능이 필요할 때 사용할 수 있도록 Scout에는 [Algolia](https://www.algolia.com/), [Meilisearch](https://www.meilisearch.com), [Typesense](https://typesense.org) 드라이버도 포함되어 있습니다. 로컬 개발용으로 "collection" 드라이버도 제공되며, 필요하다면 [custom engines](#custom-engines)을 직접 작성할 수도 있습니다.
+<!-- Scout also includes drivers for [Algolia](https://www.algolia.com/), [Meilisearch](https://www.meilisearch.com), [Typesense](https://typesense.org), and [Turbopuffer](https://turbopuffer.com) when you need features like typo tolerance, faceted filtering, vector search, or geo-search at massive scale. A "collection" driver is also available for local development, and you are free to write [custom engines](#custom-engines) as well. -->
+Scout에는 대규모 환경에서 오타 허용, 패싯 필터링, 벡터 검색 또는 지리 검색과 같은 기능이 필요할 때 사용할 수 있도록 [Algolia](https://www.algolia.com/), [Meilisearch](https://www.meilisearch.com), [Typesense](https://typesense.org), [Turbopuffer](https://turbopuffer.com)용 드라이버도 포함되어 있습니다. 로컬 개발을 위한 "collection" 드라이버도 제공되며, 직접 [custom engines](#custom-engines)를 작성할 수도 있습니다.
 
 <a name="installation"></a>
 <!-- ## Installation -->
@@ -85,7 +88,7 @@ class Post extends Model
 ### Queueing
 
 <!-- When using an engine that is not the `database` or `collection` engine, you should strongly consider configuring a [queue driver](/docs/13.x/queues) before using the library. Running a queue worker will allow Scout to queue all operations that sync your model information to your search indexes, providing much better response times for your application's web interface. -->
-`database` 또는 `collection` 엔진이 아닌 엔진을 사용할 때는 라이브러리를 사용하기 전에 [queue driver](/docs/13.x/queues)를 설정하는 것을 강력히 권장합니다. 큐 워커를 실행하면 Scout가 모델 정보를 검색 인덱스와 동기화하는 모든 작업을 큐에 넣을 수 있으므로, 애플리케이션 웹 인터페이스의 응답 시간이 훨씬 좋아집니다.
+`database` 또는 `collection` 엔진이 아닌 엔진을 사용할 때는 라이브러리를 사용하기 전에 [queue driver](/docs/13.x/queues)를 구성하는 것을 적극 권장합니다. 큐 워커를 실행하면 Scout가 모델 정보를 검색 인덱스와 동기화하는 모든 작업을 큐에 추가할 수 있으므로 애플리케이션의 웹 인터페이스 응답 시간이 크게 향상됩니다.
 
 <!-- Once you have configured a queue driver, set the value of the `queue` option in your `config/scout.php` configuration file to `true`: -->
 큐 드라이버를 설정한 후에는 `config/scout.php` 설정 파일의 `queue` 옵션 값을 `true`로 설정합니다.
@@ -131,7 +134,7 @@ Scout::removeFromSearchUsing(RemoveFromSearchUniquely::class);
 ```
 
 <!-- These jobs use Laravel's [unique job locks](/docs/13.x/queues#unique-jobs) to avoid dispatching duplicate queued indexing operations for the same searchable model records while a matching job is already queued. -->
-이 잡들은 일치하는 잡이 이미 큐에 들어가 있는 동안 같은 검색 가능 모델 레코드에 대해 중복 큐 인덱싱 작업이 디스패치되는 것을 피하기 위해 Laravel의 [unique job locks](/docs/13.x/queues#unique-jobs)을 사용합니다.
+이러한 잡은 일치하는 잡이 이미 큐에 등록되어 있는 동안 동일한 검색 가능한 모델 레코드에 대해 중복된 인덱싱 작업이 큐에 등록되는 것을 방지하기 위해 Laravel의 [unique job locks](/docs/13.x/queues#unique-jobs)를 사용합니다.
 
 <a name="driver-prerequisites"></a>
 <!-- ## Driver Prerequisites -->
@@ -153,7 +156,7 @@ composer require algolia/algoliasearch-client-php
 ### Meilisearch
 
 <!-- [Meilisearch](https://www.meilisearch.com) is a fast, open source search engine. If you aren't sure how to install Meilisearch on your local machine, you may use [Laravel Sail](/docs/13.x/sail#meilisearch), Laravel's officially supported Docker development environment. -->
-[Meilisearch](https://www.meilisearch.com)는 빠른 오픈 소스 검색 엔진입니다. 로컬 머신에 Meilisearch를 설치하는 방법이 확실하지 않다면 Laravel에서 공식 지원하는 Docker 개발 환경인 [Laravel Sail](/docs/13.x/sail#meilisearch)을 사용할 수 있습니다.
+[Meilisearch](https://www.meilisearch.com)는 빠른 오픈 소스 검색 엔진입니다. 로컬 머신에 Meilisearch를 설치하는 방법을 잘 모르겠다면 Laravel에서 공식적으로 지원하는 Docker 개발 환경인 [Laravel Sail](/docs/13.x/sail#meilisearch)을 사용할 수 있습니다.
 
 <!-- When using the Meilisearch driver you will need to install the Meilisearch PHP SDK via the Composer package manager: -->
 Meilisearch 드라이버를 사용할 때는 Composer 패키지 관리자를 통해 Meilisearch PHP SDK를 설치해야 합니다.
@@ -178,7 +181,7 @@ Meilisearch에 대한 자세한 내용은 [Meilisearch documentation](https://do
 또한 [Meilisearch's documentation regarding binary compatibility](https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch)를 확인하여, 사용하는 Meilisearch 바이너리 버전과 호환되는 `meilisearch/meilisearch-php` 버전을 설치해야 합니다.
 
 > [!WARNING]
-> Meilisearch를 사용하는 애플리케이션에서 Scout를 업그레이드할 때는 Meilisearch 서비스 자체의 [review any additional breaking changes](https://github.com/meilisearch/Meilisearch/releases)을 항상 검토해야 합니다.
+> Meilisearch를 사용하는 애플리케이션에서 Scout를 업그레이드할 때는 항상 Meilisearch 서비스 자체의 [review any additional breaking changes](https://github.com/meilisearch/Meilisearch/releases)를 확인해야 합니다.
 
 <a name="typesense"></a>
 <!-- ### Typesense -->
@@ -207,7 +210,7 @@ TYPESENSE_HOST=localhost
 ```
 
 <!-- If you are using [Laravel Sail](/docs/13.x/sail), you may need to adjust the `TYPESENSE_HOST` environment variable to match the Docker container name. You may also optionally specify your installation's port, path, and protocol: -->
-[Laravel Sail](/docs/13.x/sail)을 사용하는 경우 Docker 컨테이너 이름과 일치하도록 `TYPESENSE_HOST` 환경 변수를 조정해야 할 수 있습니다. 필요하다면 설치의 포트, 경로, 프로토콜도 지정할 수 있습니다.
+[Laravel Sail](/docs/13.x/sail)을 사용하는 경우 Docker 컨테이너 이름에 맞게 `TYPESENSE_HOST` 환경 변수를 조정해야 할 수 있습니다. 또한 설치 환경의 포트, 경로, 프로토콜을 선택적으로 지정할 수도 있습니다:
 
 ```ini
 TYPESENSE_PORT=8108
@@ -217,6 +220,22 @@ TYPESENSE_PROTOCOL=http
 
 <!-- Additional settings and schema definitions for your Typesense collections can be found within your application's `config/scout.php` configuration file. For more information regarding Typesense, please consult the [Typesense documentation](https://typesense.org/docs/guide/#quick-start). -->
 Typesense 컬렉션을 위한 추가 설정과 스키마 정의는 애플리케이션의 `config/scout.php` 설정 파일에서 확인할 수 있습니다. Typesense에 대한 자세한 내용은 [Typesense documentation](https://typesense.org/docs/guide/#quick-start)를 참고하십시오.
+
+<a name="turbopuffer"></a>
+<!-- ### Turbopuffer -->
+### Turbopuffer
+
+<!-- [Turbopuffer](https://turbopuffer.com) is a search engine that supports full-text, semantic, and hybrid search. To use the Turbopuffer driver, set the `SCOUT_DRIVER` environment variable and provide your Turbopuffer API key: -->
+[Turbopuffer](https://turbopuffer.com)는 전문 검색, 시맨틱 검색 및 하이브리드 검색을 지원하는 검색 엔진입니다. Turbopuffer 드라이버를 사용하려면 `SCOUT_DRIVER` 환경 변수를 설정하고 Turbopuffer API 키를 제공하세요:
+
+```ini
+SCOUT_DRIVER=turbopuffer
+TURBOPUFFER_API_KEY=tpuf_...
+TURBOPUFFER_REGION=gcp-us-central1
+```
+
+<!-- The `TURBOPUFFER_REGION` environment variable is optional and defaults to `gcp-us-central1`. -->
+`TURBOPUFFER_REGION` 환경 변수는 선택 사항이며 기본값은 `gcp-us-central1`입니다.
 
 <a name="configuration"></a>
 <!-- ## Configuration -->
@@ -297,7 +316,7 @@ class User extends Model
 ### Database Engine
 
 > [!WARNING]
-> 데이터베이스 엔진은 현재 MySQL과 PostgreSQL을 지원하며, 둘 다 빠른 전체 텍스트 컬럼 인덱싱을 지원합니다.
+> 데이터베이스 엔진은 현재 MySQL과 PostgreSQL을 지원하며, 두 데이터베이스 엔진 모두 빠른 전문 컬럼 인덱싱을 지원합니다.
 
 <!-- The `database` engine uses MySQL / PostgreSQL full-text indexes and `LIKE` clauses to search your existing database directly. For many applications, this is the simplest and most practical way to add search — no external service or additional infrastructure required. -->
 `database` 엔진은 MySQL / PostgreSQL 전체 텍스트 인덱스와 `LIKE` 절을 사용하여 기존 데이터베이스를 직접 검색합니다. 많은 애플리케이션에서 검색을 추가하는 가장 단순하고 실용적인 방법입니다. 외부 서비스나 추가 인프라가 필요하지 않습니다.
@@ -311,6 +330,28 @@ SCOUT_DRIVER=database
 
 <!-- Once configured, you may [define your searchable data](#configuring-searchable-data) and start [executing search queries](#searching) against your models. Unlike third-party engines, the database engine requires no separate indexing step — it searches your database tables directly. -->
 설정이 끝나면 [define your searchable data](#configuring-searchable-data)를 하고 모델에 대해 [executing search queries](#searching)을 시작할 수 있습니다. 서드파티 엔진과 달리 데이터베이스 엔진은 별도의 인덱싱 단계가 필요하지 않습니다. 데이터베이스 테이블을 직접 검색합니다.
+
+<a name="database-semantic-and-hybrid-search"></a>
+<!-- #### Semantic and Hybrid Search -->
+#### Semantic and Hybrid Search
+
+<!-- The database engine supports semantic and hybrid search when using PostgreSQL with the `pgvector` extension. To get started, add a nullable vector column and a full-text index to your model's table. The vector column must be nullable because Scout stores the embedding after the model has been persisted: -->
+데이터베이스 엔진은 `pgvector` 확장 기능과 함께 PostgreSQL을 사용할 때 시맨틱 검색과 하이브리드 검색을 지원합니다. 시작하려면 모델 테이블에 널 허용 벡터 컬럼과 전문 검색 인덱스를 추가합니다. 모델이 저장된 후 Scout가 임베딩을 저장하므로 벡터 컬럼은 널을 허용해야 합니다:
+
+```php
+Schema::ensureVectorExtensionExists();
+
+Schema::table('articles', function (Blueprint $table) {
+    // ...
+
+    $table->vector('embedding', dimensions: 1536)->nullable();
+    $table->vectorIndex('embedding');
+    $table->fullText(['title', 'body']);
+});
+```
+
+<!-- Next, define a `toSearchableEmbedding` method on the model. This method may return the source text that Scout should embed or a precomputed embedding array. Scout stores embeddings in the `embedding` column by default; to use another column, define a `searchableEmbeddingColumn` method on the model. -->
+다음으로 모델에 `toSearchableEmbedding` 메서드를 정의합니다. 이 메서드는 Scout가 임베딩할 원본 텍스트 또는 미리 계산된 임베딩 배열을 반환할 수 있습니다. Scout는 기본적으로 `embedding` 컬럼에 임베딩을 저장하며, 다른 컬럼을 사용하려면 모델에 `searchableEmbeddingColumn` 메서드를 정의합니다.
 
 <!-- #### Customizing Database Searching Strategies -->
 #### Customizing Database Searching Strategies
@@ -344,7 +385,7 @@ public function toSearchableArray(): array
 ```
 
 > [!WARNING]
-> 어떤 컬럼이 전체 텍스트 쿼리 제약 조건을 사용해야 한다고 지정하기 전에, 해당 컬럼에 [full text index](/docs/13.x/migrations#available-index-types)가 지정되어 있는지 확인하십시오.
+> 컬럼에 전문 검색 쿼리 제약 조건을 사용하도록 지정하기 전에 해당 컬럼에 [full text index](/docs/13.x/migrations#available-index-types)가 할당되어 있는지 확인해야 합니다.
 
 <a name="collection-engine"></a>
 <!-- ### Collection Engine -->
@@ -406,7 +447,7 @@ class Post extends Model
 ```
 
 > [!NOTE]
-> `searchableAs` 메서드는 데이터베이스 엔진을 사용할 때는 아무 효과가 없습니다. 데이터베이스 엔진은 항상 모델의 데이터베이스 테이블을 직접 검색합니다.
+> 데이터베이스 엔진을 사용하는 경우 `searchableAs` 메서드는 아무런 영향을 주지 않습니다. 데이터베이스 엔진은 항상 모델의 데이터베이스 테이블을 직접 검색합니다.
 
 <a name="configuring-the-model-id"></a>
 <!-- #### Configuring the Model ID -->
@@ -446,7 +487,7 @@ class User extends Model
 ```
 
 > [!NOTE]
-> `getScoutKey` 및 `getScoutKeyName` 메서드는 데이터베이스 엔진을 사용할 때는 아무 효과가 없습니다. 데이터베이스 엔진은 항상 모델의 기본 키를 사용합니다.
+> 데이터베이스 엔진을 사용할 때는 `getScoutKey` 및 `getScoutKeyName` 메서드가 아무런 영향을 주지 않습니다. 데이터베이스 엔진은 항상 모델의 기본 키를 사용합니다.
 
 <a name="algolia-configuration"></a>
 <!-- ### Algolia -->
@@ -484,6 +525,7 @@ use App\Models\Flight;
     ],
 ],
 ```
+
 <!-- If the model underlying a given index is soft deletable and is included in the `index-settings` array, Scout will automatically include support for faceting on soft deleted models on that index. If you have no other faceting attributes to define for a soft deletable model index, you may simply add an empty entry to the `index-settings` array for that model: -->
 특정 인덱스의 기반이 되는 모델이 소프트 삭제 가능하고 `index-settings` 배열에 포함되어 있으면, Scout는 해당 인덱스에서 소프트 삭제된 모델에 대한 패싯 지원을 자동으로 포함합니다. 소프트 삭제 가능한 모델 인덱스에 대해 정의할 다른 패싯 속성이 없다면, 해당 모델에 대해 `index-settings` 배열에 빈 항목을 추가하기만 하면 됩니다.
 
@@ -564,6 +606,40 @@ use App\Models\Flight;
 ```shell
 php artisan scout:sync-index-settings
 ```
+
+<a name="meilisearch-semantic-and-hybrid-search"></a>
+<!-- #### Semantic and Hybrid Search -->
+#### Semantic and Hybrid Search
+
+<!-- To use semantic or hybrid search with Meilisearch, configure an embedder in the index settings and embedding settings for each searchable model: -->
+Meilisearch에서 시맨틱 또는 하이브리드 검색을 사용하려면 검색 가능한 각 모델의 인덱스 설정과 임베딩 설정에서 임베더를 구성합니다:
+
+```php
+'meilisearch' => [
+    // ...
+    'index-settings' => [
+        Article::class => [
+            'embedders' => [
+                'default' => [
+                    'source' => 'userProvided',
+                    'dimensions' => 1536,
+                ],
+            ],
+        ],
+    ],
+    'model-settings' => [
+        Article::class => [
+            'embedding' => [
+                'embedder' => 'default',
+                'dimensions' => 1536,
+            ],
+        ],
+    ],
+],
+```
+
+<!-- The model's `toSearchableEmbedding` method may return source text, which Scout embeds using the [Laravel AI SDK](/docs/13.x/ai-sdk), or a precomputed embedding array. After updating the configuration, run the `scout:sync-index-settings` command. -->
+모델의 `toSearchableEmbedding` 메서드는 Scout가 [Laravel AI SDK](/docs/13.x/ai-sdk)를 사용해 임베딩하는 원본 텍스트나 미리 계산된 임베딩 배열을 반환할 수 있습니다. 설정을 업데이트한 후 `scout:sync-index-settings` 명령어를 실행하세요.
 
 <a name="meilisearch-data-types"></a>
 <!-- #### Searchable Data Types -->
@@ -648,12 +724,97 @@ Todo::search('Groceries')->options([
 ])->get();
 ```
 
+<a name="turbopuffer-configuration"></a>
+<!-- ### Turbopuffer -->
+### Turbopuffer
+
+<!-- Turbopuffer requires a schema and searchable attributes for each model. Define them in the `model-settings` array of your `turbopuffer` configuration within the `scout` configuration file: -->
+Turbopuffer는 각 모델에 스키마와 검색 가능한 속성이 필요합니다. 이를 `scout` 설정 파일의 `turbopuffer` 설정 내 `model-settings` 배열에 정의합니다.
+
+```php
+use App\Models\Article;
+
+'turbopuffer' => [
+    // ...
+    'model-settings' => [
+        Article::class => [
+            'searchable-attributes' => [
+                'title' => 3,
+                'body' => 1,
+            ],
+            'schema' => [
+                'title' => ['type' => 'string', 'full_text_search' => true],
+                'body' => ['type' => 'string', 'full_text_search' => true],
+                'status' => ['type' => 'string'],
+            ],
+        ],
+    ],
+],
+```
+
+<!-- The numeric values assigned to `searchable-attributes` are relative BM25 weights. In the example above, matches in the article title contribute three times the score of matches in the body. -->
+`searchable-attributes`에 할당된 숫자 값은 상대적인 BM25 가중치입니다. 위 예시에서는 문서 제목의 일치 항목이 본문의 일치 항목보다 점수에 세 배 더 크게 기여합니다.
+
+<!-- To enable semantic and hybrid search, add an `embedding` setting and vector schema to the model's configuration: -->
+시맨틱 검색과 하이브리드 검색을 활성화하려면 모델 설정에 `embedding` 설정과 벡터 스키마를 추가합니다:
+
+```php
+'turbopuffer' => [
+    // ...
+    'model-settings' => [
+        Article::class => [
+            'searchable-attributes' => [
+                'title' => 3,
+                'body' => 1,
+            ],
+            'embedding' => [
+                'attribute' => 'embedding',
+                'dimensions' => 1536,
+            ],
+            'schema' => [
+                'title' => ['type' => 'string', 'full_text_search' => true],
+                'body' => ['type' => 'string', 'full_text_search' => true],
+                'embedding' => ['type' => '[1536]f32', 'ann' => true],
+            ],
+        ],
+    ],
+],
+```
+
+<!-- Your model's `toSearchableEmbedding` method should return the source text that Scout should embed or a precomputed embedding array. Scout generates source-text embeddings using the [Laravel AI SDK](/docs/13.x/ai-sdk). -->
+모델의 `toSearchableEmbedding` 메서드는 Scout가 임베딩할 원본 텍스트 또는 미리 계산된 임베딩 배열을 반환해야 합니다. Scout는 [Laravel AI SDK](/docs/13.x/ai-sdk)를 사용해 원본 텍스트의 임베딩을 생성합니다.
+
+<!-- Alternatively, you may use Turbopuffer's native embeddings without installing the Laravel AI SDK or defining a `toSearchableEmbedding` method. Set the embedding driver to `turbopuffer` and configure an `embed` schema on the searchable source attribute: -->
+또는 Laravel AI SDK를 설치하거나 `toSearchableEmbedding` 메서드를 정의하지 않고 Turbopuffer의 기본 임베딩을 사용할 수도 있습니다. 임베딩 드라이버를 `turbopuffer`로 설정하고 검색 가능한 소스 속성에 `embed` 스키마를 구성합니다:
+
+```php
+'embedding' => [
+    'driver' => 'turbopuffer',
+    'attribute' => 'embedding_text',
+],
+
+'schema' => [
+    // ...
+    'embedding_text' => [
+        'type' => 'string',
+        'embed' => [
+            'model' => 'voyage/voyage-4',
+            'dimensions' => 1024,
+            'attribute' => 'embedding',
+        ],
+    ],
+],
+```
+
+<!-- The source attribute must be included in the model's `toSearchableArray` output. -->
+source 속성은 모델의 `toSearchableArray` 출력에 포함되어야 합니다.
+
 <a name="indexing"></a>
 <!-- ## Third-Party Engine Indexing -->
 ## Third-Party Engine Indexing
 
 > [!NOTE]
-> 이 섹션에서 설명하는 인덱싱 기능은 주로 서드파티 엔진(Algolia, Meilisearch 또는 Typesense)을 사용할 때 관련이 있습니다. 데이터베이스 엔진은 데이터베이스 테이블을 직접 검색하므로 수동 인덱스 관리가 필요하지 않습니다.
+> 이 섹션에서 설명하는 인덱싱 기능은 주로 서드파티 엔진(Algolia, Meilisearch, Typesense 또는 Turbopuffer)을 사용할 때 관련이 있습니다. 데이터베이스 엔진은 데이터베이스 테이블을 직접 검색하므로 인덱스를 수동으로 관리할 필요가 없습니다.
 
 <a name="batch-import"></a>
 <!-- ### Batch Import -->
@@ -667,7 +828,7 @@ php artisan scout:import "App\Models\Post"
 ```
 
 <!-- The `scout:queue-import` command may be used to import all of your existing records using [queued jobs](/docs/13.x/queues): -->
-`scout:queue-import` 명령어를 사용하면 [queued jobs](/docs/13.x/queues)을 통해 기존 레코드를 모두 가져올 수 있습니다.
+`scout:queue-import` 명령어를 사용하면 [queued jobs](/docs/13.x/queues)을 통해 기존 레코드를 모두 가져올 수 있습니다:
 
 ```shell
 php artisan scout:queue-import "App\Models\Post" --chunk=500
@@ -700,7 +861,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 대기열을 사용하여 모델을 일괄 가져오는 경우에는 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 모델 컬렉션이 작업에 의해 처리될 때 연관관계는 [not restored](/docs/13.x/queues#handling-relationships).
+> 큐를 사용해 모델을 일괄 가져오는 경우 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 모델 컬렉션을 잡에서 처리할 때 연관관계는 [not restored](/docs/13.x/queues#handling-relationships) 상태입니다.
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -724,7 +885,7 @@ $order->save();
 #### Adding Records via Query
 
 <!-- If you would like to add a collection of models to your search index via an Eloquent query, you may chain the `searchable` method onto the Eloquent query. The `searchable` method will [chunk the results](/docs/13.x/eloquent#chunking-results) of the query and add the records to your search index. Again, if you have configured Scout to use queues, all of the chunks will be imported in the background by your queue workers: -->
-Eloquent 쿼리를 통해 모델 컬렉션을 검색 인덱스에 추가하고 싶다면, Eloquent 쿼리에 `searchable` 메서드를 체이닝할 수 있습니다. `searchable` 메서드는 쿼리 결과를 [chunk the results](/docs/13.x/eloquent#chunking-results) 레코드를 검색 인덱스에 추가합니다. 마찬가지로 Scout가 대기열을 사용하도록 구성되어 있다면, 모든 청크는 queue worker에 의해 백그라운드에서 가져오기됩니다.
+Eloquent 쿼리를 통해 모델 컬렉션을 검색 인덱스에 추가하려면 Eloquent 쿼리에 `searchable` 메서드를 연결하면 됩니다. `searchable` 메서드는 쿼리 결과를 [chunk the results](/docs/13.x/eloquent#chunking-results)한 다음 레코드를 검색 인덱스에 추가합니다. Scout가 큐를 사용하도록 설정했다면 모든 청크는 큐 워커에 의해 백그라운드에서 가져와집니다.
 
 ```php
 use App\Models\Order;
@@ -747,7 +908,7 @@ $orders->searchable();
 ```
 
 > [!NOTE]
-> `searchable` 메서드는 "upsert" 작업으로 볼 수 있습니다. 다시 말해, 모델 레코드가 이미 인덱스에 있으면 업데이트됩니다. 검색 인덱스에 없으면 인덱스에 추가됩니다.
+> `searchable` 메서드는 "upsert" 작업으로 볼 수 있습니다. 즉, 모델 레코드가 이미 인덱스에 있다면 업데이트되고, 검색 인덱스에 존재하지 않는다면 인덱스에 추가됩니다.
 
 <a name="updating-records"></a>
 <!-- ### Updating Records -->
@@ -828,7 +989,7 @@ public function searchIndexShouldBeUpdated(): bool
 ### Removing Records
 
 <!-- To remove a record from your index you may simply `delete` the model from the database. This may be done even if you are using [soft deleted](/docs/13.x/eloquent#soft-deleting) models: -->
-인덱스에서 레코드를 제거하려면 데이터베이스에서 모델을 `delete`하기만 하면 됩니다. [soft deleted](/docs/13.x/eloquent#soft-deleting) 모델을 사용 중이어도 이 작업을 수행할 수 있습니다.
+인덱스에서 레코드를 제거하려면 데이터베이스에서 모델을 간단히 `delete`하면 됩니다. [soft deleted](/docs/13.x/eloquent#soft-deleting) 모델을 사용하는 경우에도 이렇게 할 수 있습니다.
 
 ```php
 use App\Models\Order;
@@ -902,7 +1063,7 @@ public function shouldBeSearchable(): bool
 `shouldBeSearchable` 메서드는 `save` 및 `create` 메서드, 쿼리 또는 연관관계를 통해 모델을 조작할 때만 적용됩니다. `searchable` 메서드를 사용하여 모델이나 컬렉션을 직접 검색 가능하게 만들면 `shouldBeSearchable` 메서드의 결과를 덮어씁니다.
 
 > [!WARNING]
-> Scout의 "database" 엔진을 사용할 때는 검색 가능한 모든 데이터가 항상 데이터베이스에 저장되므로 `shouldBeSearchable` 메서드는 적용되지 않습니다. 데이터베이스 엔진을 사용할 때 비슷한 동작을 구현하려면 대신 [where clauses](#where-clauses)을 사용해야 합니다.
+> `shouldBeSearchable` 메서드는 Scout의 "database" 엔진을 사용할 때는 적용되지 않습니다. 검색 가능한 모든 데이터가 항상 데이터베이스에 저장되기 때문입니다. database 엔진에서 비슷한 동작을 구현하려면 대신 [where clauses](#where-clauses)를 사용해야 합니다.
 
 <a name="searching"></a>
 <!-- ## Searching -->
@@ -936,6 +1097,40 @@ Eloquent 모델로 변환되기 전의 원시 검색 결과를 얻고 싶다면 
 $orders = Order::search('Star Trek')->raw();
 ```
 
+<a name="semantic-search"></a>
+<!-- ### Semantic Search -->
+### Semantic Search
+
+<!-- The database, Meilisearch, and Turbopuffer engines support semantic search, which matches records based on the meaning of a query. When Scout generates embeddings, semantic and hybrid searches require the [Laravel AI SDK](/docs/13.x/ai-sdk). Turbopuffer's [native embeddings](#turbopuffer-configuration) and precomputed query vectors do not require the Laravel AI SDK. -->
+데이터베이스, Meilisearch, Turbopuffer 엔진은 쿼리의 의미를 기반으로 레코드를 일치시키는 시맨틱 검색을 지원합니다. Scout가 임베딩을 생성할 때 시맨틱 검색과 하이브리드 검색에는 [Laravel AI SDK](/docs/13.x/ai-sdk)가 필요합니다. Turbopuffer의 [native embeddings](#turbopuffer-configuration)와 미리 계산된 쿼리 벡터에는 Laravel AI SDK가 필요하지 않습니다.
+
+<!-- After configuring embeddings for the selected engine, invoke the `semantic` method on a search query: -->
+선택한 엔진에 임베딩을 구성한 후, 검색 쿼리에 `semantic` 메서드를 호출합니다:
+
+```php
+$articles = Article::search('staying cool in the summer')
+    ->semantic()
+    ->get();
+```
+
+<!-- You may provide a minimum similarity threshold when supported by the selected engine: -->
+선택한 엔진이 지원하는 경우 최소 유사도 임계값을 지정할 수 있습니다:
+
+```php
+$articles = Article::search('renewable energy storage')
+    ->semantic(minSimilarity: 0.6)
+    ->get();
+```
+
+<!-- To combine full-text and semantic search, use the `hybrid` method. Its first two arguments control the relative weights of text and semantic results: -->
+전문 검색과 의미 기반 검색을 결합하려면 `hybrid` 메서드를 사용합니다. 처음 두 인수는 텍스트 결과와 의미 기반 결과의 상대적 가중치를 제어합니다:
+
+```php
+$articles = Article::search('renewable energy storage')
+    ->hybrid(textWeight: 1, semanticWeight: 2)
+    ->get();
+```
+
 <a name="custom-indexes"></a>
 <!-- #### Custom Indexes -->
 #### Custom Indexes
@@ -948,6 +1143,7 @@ $orders = Order::search('Star Trek')
     ->within('tv_shows_popularity_desc')
     ->get();
 ```
+
 <a name="where-clauses"></a>
 <!-- ### Where Clauses -->
 ### Where Clauses
@@ -994,7 +1190,7 @@ $orders = Order::search('Star Trek')->whereNotIn(
 ```
 
 > [!WARNING]
-> 애플리케이션에서 Meilisearch를 사용하고 있다면 Scout의 "where" 절을 사용하기 전에 애플리케이션의 [filterable attributes](#meilisearch-index-settings)을 설정해야 합니다.
+> 애플리케이션에서 Meilisearch를 사용한다면 Scout의 "where" 절을 사용하기 전에 애플리케이션의 [filterable attributes](#meilisearch-index-settings)를 구성해야 합니다.
 
 <a name="customizing-the-eloquent-results-query"></a>
 <!-- #### Customizing the Eloquent Results Query -->
@@ -1020,7 +1216,7 @@ $orders = Order::search('Star Trek')
 ### Pagination
 
 <!-- In addition to retrieving a collection of models, you may paginate your search results using the `paginate` method. This method will return an `Illuminate\Pagination\LengthAwarePaginator` instance just as if you had [paginated a traditional Eloquent query](/docs/13.x/pagination): -->
-모델 컬렉션을 조회하는 것 외에도, `paginate` 메서드를 사용하여 검색 결과에 페이지네이션을 적용할 수 있습니다. 이 메서드는 [paginated a traditional Eloquent query](/docs/13.x/pagination)와 마찬가지로 `Illuminate\Pagination\LengthAwarePaginator` 인스턴스를 반환합니다.
+모델 컬렉션을 가져오는 것뿐만 아니라 `paginate` 메서드를 사용해 검색 결과를 페이지네이션할 수도 있습니다. 이 메서드는 기존 [paginated a traditional Eloquent query](/docs/13.x/pagination)와 마찬가지로 `Illuminate\Pagination\LengthAwarePaginator` 인스턴스를 반환합니다:
 
 ```php
 use App\Models\Order;
@@ -1043,7 +1239,7 @@ $orders = Order::search('Star Trek')->simplePaginate(15);
 ```
 
 <!-- Once you have retrieved the results, you may display the results and render the page links using [Blade](/docs/13.x/blade) just as if you had paginated a traditional Eloquent query: -->
-결과를 조회한 뒤에는 일반적인 Eloquent 쿼리에 페이지네이션을 적용했을 때와 마찬가지로 [Blade](/docs/13.x/blade)를 사용하여 결과를 표시하고 페이지 링크를 렌더링할 수 있습니다.
+결과를 가져온 후에는 기존 Eloquent 쿼리를 페이지네이션한 것처럼 [Blade](/docs/13.x/blade)를 사용해 결과를 표시하고 페이지 링크를 렌더링할 수 있습니다:
 
 ```html
 <div class="container">
@@ -1068,14 +1264,14 @@ Route::get('/orders', function (Request $request) {
 ```
 
 > [!WARNING]
-> 검색 엔진은 Eloquent 모델의 글로벌 스코프 정의를 알지 못하므로, Scout 페이지네이션을 사용하는 애플리케이션에서는 글로벌 스코프를 사용하지 않는 것이 좋습니다. 또는 Scout로 검색할 때 글로벌 스코프의 제약 조건을 다시 만들어 적용해야 합니다.
+> 검색 엔진은 Eloquent 모델의 전역 스코프 정의를 인식하지 못하므로 Scout 페이지네이션을 사용하는 애플리케이션에서는 전역 스코프를 사용하지 않아야 합니다. 또는 Scout를 통해 검색할 때 전역 스코프의 제약 조건을 다시 적용해야 합니다.
 
 <a name="soft-deleting"></a>
 <!-- ### Soft Deleting -->
 ### Soft Deleting
 
 <!-- If your indexed models are [soft deleting](/docs/13.x/eloquent#soft-deleting) and you need to search your soft deleted models, set the `soft_delete` option of the `config/scout.php` configuration file to `true`: -->
-인덱싱된 모델이 [soft deleting](/docs/13.x/eloquent#soft-deleting)를 사용하고 있으며, 소프트 삭제된 모델도 검색해야 한다면 `config/scout.php` 설정 파일의 `soft_delete` 옵션을 `true`로 설정하십시오.
+인덱싱한 모델이 [soft deleting](/docs/13.x/eloquent#soft-deleting)를 사용하며 소프트 삭제된 모델을 검색해야 한다면 `config/scout.php` 설정 파일의 `soft_delete` 옵션을 `true`로 설정합니다.
 
 ```php
 'soft_delete' => true,
@@ -1095,7 +1291,7 @@ $orders = Order::search('Star Trek')->onlyTrashed()->get();
 ```
 
 > [!NOTE]
-> 소프트 삭제된 모델이 `forceDelete`를 사용하여 영구 삭제되면, Scout는 해당 모델을 검색 인덱스에서 자동으로 제거합니다.
+> 소프트 삭제된 모델을 `forceDelete`로 영구 삭제하면 Scout가 검색 인덱스에서 자동으로 제거합니다.
 
 <a name="customizing-engine-searches"></a>
 <!-- ### Customizing Engine Searches -->

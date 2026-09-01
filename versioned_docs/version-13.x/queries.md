@@ -1313,7 +1313,7 @@ $users = DB::table('users')
 ### Vector Similarity Clauses
 
 > [!NOTE]
-> 벡터 유사성 절은 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결에서만 지원됩니다. 벡터 열 및 인덱스 정의에 대한 자세한 내용은 [migration documentation](/docs/13.x/migrations#available-column-types)를 참조하세요.
+> 벡터 유사성 절은 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결과 MariaDB 11.7 이상에서 지원됩니다. 벡터 열 및 인덱스 정의에 대한 자세한 내용은 [migration documentation](/docs/13.x/migrations#available-column-types)를 참조하세요.
 
 <!-- The `whereVectorSimilarTo` method filters results by cosine similarity to a given vector and orders the results by relevance. The `minSimilarity` threshold should be a value between `0.0` and `1.0`, where `1.0` is identical: -->
 `whereVectorSimilarTo` 방법은 주어진 벡터에 대한 코사인 유사성을 기준으로 결과를 필터링하고 관련성에 따라 결과를 정렬합니다. `minSimilarity` 임계값은 `0.0`와 `1.0` 사이의 값이어야 합니다. 여기서 `1.0`는 동일합니다.

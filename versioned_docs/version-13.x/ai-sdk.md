@@ -1861,14 +1861,14 @@ Route::post('/chat/{conversation}', function (Request $request, Conversation $co
     Gate::authorize('view', $conversation);
 
     $validated = $request->validate([
-        'message' => ['nullable', 'string', 'required_without:decisions', 'prohibited_with:decisions'],
-        'decisions' => ['nullable', 'array', 'required_without:message', 'prohibited_with:message'],
+        'message' => ['nullable', 'string', 'required_without:decisions', 'prohibits:decisions'],
+        'decisions' => ['nullable', 'array', 'required_without:message', 'prohibits:message'],
         'decisions.*.action' => ['required_with:decisions', Rule::in(['approve', 'reject'])],
         'decisions.*.result' => ['nullable', 'string'],
     ]);
 
     $prompt = isset($validated['decisions'])
-        ? Decisions::from($validated->collect('decisions')->map(
+        ? Decisions::from(collect($validated['decisions'])->map(
             fn (array $decision) => match ($decision['action']) {
                 'approve' => Decision::approve(),
                 'reject' => Decision::reject($decision['result'] ?? null),
@@ -2223,8 +2223,8 @@ Document::fromUpload($request->file('report'));
 <!-- ### Querying Embeddings -->
 ### Querying Embeddings
 
-<!-- Once you have generated embeddings, you will typically store them in a `vector` column in your database for later querying. Laravel provides native support for vector columns on PostgreSQL via the `pgvector` extension. To get started, define a `vector` column in your migration, specifying the number of dimensions: -->
-임베딩을 생성한 뒤에는 보통 나중에 쿼리할 수 있도록 데이터베이스의 `vector` 컬럼에 저장합니다. Laravel은 `pgvector` 확장을 통해 PostgreSQL의 벡터 컬럼을 네이티브로 지원합니다. 시작하려면 마이그레이션에서 차원 수를 지정하여 `vector` 컬럼을 정의합니다:
+<!-- Once you have generated embeddings, you will typically store them in a `vector` column in your database for later querying. Laravel provides native support for vector columns on PostgreSQL via the `pgvector` extension and MariaDB. To get started, define a `vector` column in your migration, specifying the number of dimensions: -->
+임베딩을 생성한 뒤에는 보통 나중에 쿼리할 수 있도록 데이터베이스의 `vector` 컬럼에 저장합니다. Laravel은 `pgvector` 확장을 사용하는 PostgreSQL과 MariaDB의 벡터 컬럼을 네이티브로 지원합니다. 시작하려면 마이그레이션에서 차원 수를 지정하여 `vector` 컬럼을 정의합니다:
 
 ```php
 Schema::ensureVectorExtensionExists();
@@ -2244,15 +2244,16 @@ Schema::create('documents', function (Blueprint $table) {
 ```php
 $table->vector('embedding', dimensions: 1536)->index();
 ```
-
-<!-- On your Eloquent model, you should cast the vector column to an `array`: -->
-Eloquent 모델에서는 벡터 컬럼을 `array`로 casting해야 합니다:
+<!-- On your Eloquent model, you should cast the vector column using the `AsVector` cast: -->
+Eloquent 모델에서는 `AsVector` 캐스트를 사용해 벡터 컬럼을 캐스팅해야 합니다:
 
 ```php
+use Illuminate\Database\Eloquent\Casts\AsVector;
+
 protected function casts(): array
 {
     return [
-        'embedding' => 'array',
+        'embedding' => AsVector::class,
     ];
 }
 ```
@@ -2296,7 +2297,7 @@ $documents = Document::query()
 에이전트가 도구로 유사도 검색을 수행할 수 있게 하려면 [Similarity Search](#similarity-search) 도구 문서를 확인하십시오.
 
 > [!NOTE]
-> 벡터 쿼리는 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결에서만 지원됩니다.
+> 벡터 쿼리는 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결과 MariaDB 11.7 이상에서 지원됩니다.
 
 <a name="caching-embeddings"></a>
 <!-- ### Caching Embeddings -->

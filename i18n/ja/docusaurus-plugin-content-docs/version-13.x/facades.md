@@ -14,7 +14,7 @@
 ## Introduction
 
 <!-- Throughout the Laravel documentation, you will see examples of code that interacts with Laravel's features via "facades". Facades provide a "static" interface to classes that are available in the application's [service container](/docs/13.x/container). Laravel ships with many facades which provide access to almost all of Laravel's features. -->
-Laravel ドキュメント全体を通して、「ファサード」を介して Laravel の機能と対話するコードの例が表示されます。ファサードは、アプリケーションの [service container](/docs/13.x/container) で使用できるクラスへの「静的」インターフェイスを提供します。 Laravel には、Laravel のほぼすべての機能へのアクセスを提供する多くのファサードが付属しています。
+Laravel のドキュメント全体を通して、ファサードを介して Laravel の機能を操作するコード例が登場します。ファサードは、アプリケーションの [service container](/docs/13.x/container) で利用できるクラスに対して、「静的」なインターフェイスを提供します。Laravel には多数のファサードが用意されており、Laravel のほぼすべての機能にアクセスできます。
 
 <!-- Laravel facades serve as "static proxies" to underlying classes in the service container, providing the benefit of a terse, expressive syntax while maintaining more testability and flexibility than traditional static methods. It's perfectly fine if you don't totally understand how facades work - just go with the flow and continue learning about Laravel. -->
 Laravel ファサードは、サービスコンテナ内の基礎となるクラスに対する「静的プロキシ」として機能し、従来の静的メソッドよりも高いテスト容易性と柔軟性を維持しながら、簡潔で表現力豊かな構文の利点を提供します。ファサードがどのように機能するかを完全に理解していなくても、まったく問題ありません。流れに身を任せて、Laravel について学び続けてください。
@@ -39,7 +39,7 @@ Laravel ドキュメント全体を通じて、例の多くはフレームワー
 #### Helper Functions
 
 <!-- To complement facades, Laravel offers a variety of global "helper functions" that make it even easier to interact with common Laravel features. Some of the common helper functions you may interact with are `view`, `response`, `url`, `config`, and more. Each helper function offered by Laravel is documented with their corresponding feature; however, a complete list is available within the dedicated [helper documentation](/docs/13.x/helpers). -->
-ファサードを補完するために、Laravel は一般的な Laravel 機能との対話をさらに容易にするさまざまなグローバル「ヘルパ関数」を提供します。操作できる一般的なヘルパ関数には、`view`、`response`、`url`、`config` などがあります。 Laravel が提供する各ヘルパ関数は、対応する機能とともに文書化されています。ただし、完全なリストは専用の [helper documentation](/docs/13.x/helpers) 内で入手できます。
+ファサードを補完するため、Laravel では一般的な Laravel の機能をさらに簡単に扱える、さまざまなグローバル「ヘルパ関数」を提供しています。よく使うヘルパ関数には、`view`、`response`、`url`、`config` などがあります。Laravel が提供する各ヘルパ関数については、それぞれ対応する機能のドキュメントで説明していますが、完全な一覧は専用の [helper documentation](/docs/13.x/helpers) で確認できます。
 
 <!-- For example, instead of using the `Illuminate\Support\Facades\Response` facade to generate a JSON response, we may simply use the `response` function. Because helper functions are globally available, you do not need to import any classes in order to use them: -->
 たとえば、`Illuminate\Support\Facades\Response` ファサードを使用して JSON 応答を生成する代わりに、単に `response` 関数を使用することもできます。ヘルパ関数はグローバルに利用できるため、使用するためにクラスをインポートする必要はありません。
@@ -218,7 +218,7 @@ class Cache extends Facade
 ```
 
 <!-- Instead, the `Cache` facade extends the base `Facade` class and defines the method `getFacadeAccessor()`. This method's job is to return the name of a service container binding. When a user references any static method on the `Cache` facade, Laravel resolves the `cache` binding from the [service container](/docs/13.x/container) and runs the requested method (in this case, `get`) against that object. -->
-代わりに、`Cache` ファサードは、基本 `Facade` クラスを拡張し、メソッド `getFacadeAccessor()` を定義します。このメソッドの仕事は、サービスコンテナ バインディングの名前を返すことです。ユーザーが`Cache`ファサードの静的メソッドを参照すると、Laravelは[service container](/docs/13.x/container)からの`cache`バインディングを解決し、そのオブジェクトに対して要求されたメソッド(この場合は`get`)を実行します。
+その代わりに、`Cache` ファサードは基底の `Facade` クラスを拡張し、`getFacadeAccessor()` メソッドを定義します。このメソッドは、サービスコンテナのバインド名を返します。`Cache` ファサードの静的メソッドを参照すると、Laravel は [service container](/docs/13.x/container) から `cache` バインドを解決し、そのオブジェクトに対して要求されたメソッド（この場合は `get`）を実行します。
 
 <a name="real-time-facades"></a>
 <!-- ## Real-Time Facades -->
@@ -331,69 +331,68 @@ class PodcastTest extends TestCase
 ## Facade Class Reference
 
 <!-- Below you will find every facade and its underlying class. This is a useful tool for quickly digging into the API documentation for a given facade root. The [service container binding](/docs/13.x/container) key is also included where applicable. -->
-以下に、すべてのファサードとその基礎となるクラスが表示されます。これは、特定のファサード ルートの API ドキュメントをすばやく調べるのに便利なツールです。該当する場合、[service container binding](/docs/13.x/container) キーも含まれます。
+以下に、すべてのファサードと、それらの基盤となるクラスを示します。特定のファサードのルートに対応する API ドキュメントをすばやく調べるのに便利です。該当する場合は、[service container binding](/docs/13.x/container) キーも記載しています。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Facade | Class | Service Container Binding | | --- | --- | --- | | App | [Illuminate\Foundation\Application](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Application.html) | `app` | | Artisan | [Illuminate\Contracts\Console\Kernel](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Console/Kernel.html) | `artisan` | | Auth (Instance) | [Illuminate\Contracts\Auth\Guard](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Auth/Guard.html) | `auth.driver` | | Auth | [Illuminate\Auth\AuthManager](https://api.laravel.com/docs/13.x/Illuminate/Auth/AuthManager.html) | `auth` | | Blade | [Illuminate\View\Compilers\BladeCompiler](https://api.laravel.com/docs/13.x/Illuminate/View/Compilers/BladeCompiler.html) | `blade.compiler` | | Broadcast (Instance) | [Illuminate\Contracts\Broadcasting\Broadcaster](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Broadcasting/Broadcaster.html) | &nbsp; | | Broadcast | [Illuminate\Contracts\Broadcasting\Factory](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Broadcasting/Factory.html) | &nbsp; | | Bus | [Illuminate\Contracts\Bus\Dispatcher](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Bus/Dispatcher.html) | &nbsp; | | Cache (Instance) | [Illuminate\Cache\Repository](https://api.laravel.com/docs/13.x/Illuminate/Cache/Repository.html) | `cache.store` | | Cache | [Illuminate\Cache\CacheManager](https://api.laravel.com/docs/13.x/Illuminate/Cache/CacheManager.html) | `cache` | | Cloud | [Illuminate\Foundation\Cloud\CloudManager](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Cloud/CloudManager.html) | &nbsp; | | Config | [Illuminate\Config\Repository](https://api.laravel.com/docs/13.x/Illuminate/Config/Repository.html) | `config` | | Context | [Illuminate\Log\Context\Repository](https://api.laravel.com/docs/13.x/Illuminate/Log/Context/Repository.html) | &nbsp; | | Cookie | [Illuminate\Cookie\CookieJar](https://api.laravel.com/docs/13.x/Illuminate/Cookie/CookieJar.html) | `cookie` | | Crypt | [Illuminate\Encryption\Encrypter](https://api.laravel.com/docs/13.x/Illuminate/Encryption/Encrypter.html) | `encrypter` | | Date | [Illuminate\Support\DateFactory](https://api.laravel.com/docs/13.x/Illuminate/Support/DateFactory.html) | `date` | | DB (Instance) | [Illuminate\Database\Connection](https://api.laravel.com/docs/13.x/Illuminate/Database/Connection.html) | `db.connection` | | DB | [Illuminate\Database\DatabaseManager](https://api.laravel.com/docs/13.x/Illuminate/Database/DatabaseManager.html) | `db` | | Event | [Illuminate\Events\Dispatcher](https://api.laravel.com/docs/13.x/Illuminate/Events/Dispatcher.html) | `events` | | Exceptions (Instance) | [Illuminate\Contracts\Debug\ExceptionHandler](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Debug/ExceptionHandler.html) | &nbsp; | | Exceptions | [Illuminate\Foundation\Exceptions\Handler](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Exceptions/Handler.html) | &nbsp; | | File | [Illuminate\Filesystem\Filesystem](https://api.laravel.com/docs/13.x/Illuminate/Filesystem/Filesystem.html) | `files` | | Gate | [Illuminate\Contracts\Auth\Access\Gate](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Auth/Access/Gate.html) | &nbsp; | | Hash | [Illuminate\Contracts\Hashing\Hasher](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Hashing/Hasher.html) | `hash` | | Http | [Illuminate\Http\Client\Factory](https://api.laravel.com/docs/13.x/Illuminate/Http/Client/Factory.html) | &nbsp; | | Lang | [Illuminate\Translation\Translator](https://api.laravel.com/docs/13.x/Illuminate/Translation/Translator.html) | `translator` | | Log | [Illuminate\Log\LogManager](https://api.laravel.com/docs/13.x/Illuminate/Log/LogManager.html) | `log` | | Mail | [Illuminate\Mail\Mailer](https://api.laravel.com/docs/13.x/Illuminate/Mail/Mailer.html) | `mailer` | | Notification | [Illuminate\Notifications\ChannelManager](https://api.laravel.com/docs/13.x/Illuminate/Notifications/ChannelManager.html) | &nbsp; | | Password (Instance) | [Illuminate\Auth\Passwords\PasswordBroker](https://api.laravel.com/docs/13.x/Illuminate/Auth/Passwords/PasswordBroker.html) | `auth.password.broker` | | Password | [Illuminate\Auth\Passwords\PasswordBrokerManager](https://api.laravel.com/docs/13.x/Illuminate/Auth/Passwords/PasswordBrokerManager.html) | `auth.password` | | Pipeline (Instance) | [Illuminate\Pipeline\Pipeline](https://api.laravel.com/docs/13.x/Illuminate/Pipeline/Pipeline.html) | &nbsp; | | Process | [Illuminate\Process\Factory](https://api.laravel.com/docs/13.x/Illuminate/Process/Factory.html) | &nbsp; | | Queue (Base Class) | [Illuminate\Queue\Queue](https://api.laravel.com/docs/13.x/Illuminate/Queue/Queue.html) | &nbsp; | | Queue (Instance) | [Illuminate\Contracts\Queue\Queue](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Queue/Queue.html) | `queue.connection` | | Queue | [Illuminate\Queue\QueueManager](https://api.laravel.com/docs/13.x/Illuminate/Queue/QueueManager.html) | `queue` | | RateLimiter | [Illuminate\Cache\RateLimiter](https://api.laravel.com/docs/13.x/Illuminate/Cache/RateLimiter.html) | &nbsp; | | Redirect | [Illuminate\Routing\Redirector](https://api.laravel.com/docs/13.x/Illuminate/Routing/Redirector.html) | `redirect` | | Redis (Instance) | [Illuminate\Redis\Connections\Connection](https://api.laravel.com/docs/13.x/Illuminate/Redis/Connections/Connection.html) | `redis.connection` | | Redis | [Illuminate\Redis\RedisManager](https://api.laravel.com/docs/13.x/Illuminate/Redis/RedisManager.html) | `redis` | | Request | [Illuminate\Http\Request](https://api.laravel.com/docs/13.x/Illuminate/Http/Request.html) | `request` | | Response (Instance) | [Illuminate\Http\Response](https://api.laravel.com/docs/13.x/Illuminate/Http/Response.html) | &nbsp; | | Response | [Illuminate\Contracts\Routing\ResponseFactory](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Routing/ResponseFactory.html) | &nbsp; | | Route | [Illuminate\Routing\Router](https://api.laravel.com/docs/13.x/Illuminate/Routing/Router.html) | `router` | | Schedule | [Illuminate\Console\Scheduling\Schedule](https://api.laravel.com/docs/13.x/Illuminate/Console/Scheduling/Schedule.html) | &nbsp; | | Schema | [Illuminate\Database\Schema\Builder](https://api.laravel.com/docs/13.x/Illuminate/Database/Schema/Builder.html) | &nbsp; | | Session (Instance) | [Illuminate\Session\Store](https://api.laravel.com/docs/13.x/Illuminate/Session/Store.html) | `session.store` | | Session | [Illuminate\Session\SessionManager](https://api.laravel.com/docs/13.x/Illuminate/Session/SessionManager.html) | `session` | | Storage (Instance) | [Illuminate\Contracts\Filesystem\Filesystem](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Filesystem/Filesystem.html) | `filesystem.disk` | | Storage | [Illuminate\Filesystem\FilesystemManager](https://api.laravel.com/docs/13.x/Illuminate/Filesystem/FilesystemManager.html) | `filesystem` | | URL | [Illuminate\Routing\UrlGenerator](https://api.laravel.com/docs/13.x/Illuminate/Routing/UrlGenerator.html) | `url` | | Validator (Instance) | [Illuminate\Validation\Validator](https://api.laravel.com/docs/13.x/Illuminate/Validation/Validator.html) | &nbsp; | | Validator | [Illuminate\Validation\Factory](https://api.laravel.com/docs/13.x/Illuminate/Validation/Factory.html) | `validator` | | View (Instance) | [Illuminate\View\View](https://api.laravel.com/docs/13.x/Illuminate/View/View.html) | &nbsp; | | View | [Illuminate\View\Factory](https://api.laravel.com/docs/13.x/Illuminate/View/Factory.html) | `view` | | Vite | [Illuminate\Foundation\Vite](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Vite.html) | &nbsp; | -->
 | ファサード | クラス | サービスコンテナのバインド |
 | --- | --- | --- |
-| アプリ | [Illuminate\Foundation\Application](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Application.html) | `app` |
+| App | [Illuminate\Foundation\Application](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Application.html) | `app` |
 | Artisan | [Illuminate\Contracts\Console\Kernel](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Console/Kernel.html) | `artisan` |
-| 認証 (インスタンス) | [Illuminate\Contracts\Auth\Guard](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Auth/Guard.html) | `auth.driver` |
-| 認証 | [Illuminate\Auth\AuthManager](https://api.laravel.com/docs/13.x/Illuminate/Auth/AuthManager.html) | `auth` |
+| Auth (Instance) | [Illuminate\Contracts\Auth\Guard](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Auth/Guard.html) | `auth.driver` |
+| Auth | [Illuminate\Auth\AuthManager](https://api.laravel.com/docs/13.x/Illuminate/Auth/AuthManager.html) | `auth` |
 | Blade | [Illuminate\View\Compilers\BladeCompiler](https://api.laravel.com/docs/13.x/Illuminate/View/Compilers/BladeCompiler.html) | `blade.compiler` |
-| ブロードキャスト (インスタンス) | [Illuminate\Contracts\Broadcasting\Broadcaster](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Broadcasting/Broadcaster.html) | &nbsp; |
+| Broadcast (Instance) | [Illuminate\Contracts\Broadcasting\Broadcaster](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Broadcasting/Broadcaster.html) | &nbsp; |
 | Broadcast | [Illuminate\Contracts\Broadcasting\Factory](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Broadcasting/Factory.html) | &nbsp; |
-| バス | [Illuminate\Contracts\Bus\Dispatcher](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Bus/Dispatcher.html) | &nbsp; |
-| キャッシュ(インスタンス) | [Illuminate\Cache\Repository](https://api.laravel.com/docs/13.x/Illuminate/Cache/Repository.html) | `cache.store` |
-| キャッシュ | [Illuminate\Cache\CacheManager](https://api.laravel.com/docs/13.x/Illuminate/Cache/CacheManager.html) | `cache` |
-| 構成 | [Illuminate\Config\Repository](https://api.laravel.com/docs/13.x/Illuminate/Config/Repository.html) | `config` |
-| コンテクスト | [Illuminate\Log\Context\Repository](https://api.laravel.com/docs/13.x/Illuminate/Log/Context/Repository.html) | &nbsp; |
-| クッキー | [Illuminate\Cookie\CookieJar](https://api.laravel.com/docs/13.x/Illuminate/Cookie/CookieJar.html) | `cookie` |
+| Bus | [Illuminate\Contracts\Bus\Dispatcher](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Bus/Dispatcher.html) | &nbsp; |
+| Cache (Instance) | [Illuminate\Cache\Repository](https://api.laravel.com/docs/13.x/Illuminate/Cache/Repository.html) | `cache.store` |
+| Cache | [Illuminate\Cache\CacheManager](https://api.laravel.com/docs/13.x/Illuminate/Cache/CacheManager.html) | `cache` |
+| Cloud | [Illuminate\Foundation\Cloud\CloudManager](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Cloud/CloudManager.html) | &nbsp; |
+| Config | [Illuminate\Config\Repository](https://api.laravel.com/docs/13.x/Illuminate/Config/Repository.html) | `config` |
+| Context | [Illuminate\Log\Context\Repository](https://api.laravel.com/docs/13.x/Illuminate/Log/Context/Repository.html) | &nbsp; |
+| Cookie | [Illuminate\Cookie\CookieJar](https://api.laravel.com/docs/13.x/Illuminate/Cookie/CookieJar.html) | `cookie` |
 | Crypt | [Illuminate\Encryption\Encrypter](https://api.laravel.com/docs/13.x/Illuminate/Encryption/Encrypter.html) | `encrypter` |
-| 日付 | [Illuminate\Support\DateFactory](https://api.laravel.com/docs/13.x/Illuminate/Support/DateFactory.html) | `date` |
-| DB（インスタンス） | [Illuminate\Database\Connection](https://api.laravel.com/docs/13.x/Illuminate/Database/Connection.html) | `db.connection` |
+| Date | [Illuminate\Support\DateFactory](https://api.laravel.com/docs/13.x/Illuminate/Support/DateFactory.html) | `date` |
+| DB (Instance) | [Illuminate\Database\Connection](https://api.laravel.com/docs/13.x/Illuminate/Database/Connection.html) | `db.connection` |
 | DB | [Illuminate\Database\DatabaseManager](https://api.laravel.com/docs/13.x/Illuminate/Database/DatabaseManager.html) | `db` |
-| イベント | [Illuminate\Events\Dispatcher](https://api.laravel.com/docs/13.x/Illuminate/Events/Dispatcher.html) | `events` |
-| 例外 (インスタンス) | [Illuminate\Contracts\Debug\ExceptionHandler](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Debug/ExceptionHandler.html) | &nbsp; |
-| 例外 | [Illuminate\Foundation\Exceptions\Handler](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Exceptions/Handler.html) | &nbsp; |
-| ファイル | [Illuminate\Filesystem\Filesystem](https://api.laravel.com/docs/13.x/Illuminate/Filesystem/Filesystem.html) | `files` |
-| ゲート | [Illuminate\Contracts\Auth\Access\Gate](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Auth/Access/Gate.html) | &nbsp; |
-| ハッシュ | [Illuminate\Contracts\Hashing\Hasher](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Hashing/Hasher.html) | `hash` |
-| HTTP | [Illuminate\Http\Client\Factory](https://api.laravel.com/docs/13.x/Illuminate/Http/Client/Factory.html) | &nbsp; |
-| ラング | [Illuminate\Translation\Translator](https://api.laravel.com/docs/13.x/Illuminate/Translation/Translator.html) | `translator` |
-| ログ | [Illuminate\Log\LogManager](https://api.laravel.com/docs/13.x/Illuminate/Log/LogManager.html) | `log` |
+| Event | [Illuminate\Events\Dispatcher](https://api.laravel.com/docs/13.x/Illuminate/Events/Dispatcher.html) | `events` |
+| Exceptions (Instance) | [Illuminate\Contracts\Debug\ExceptionHandler](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Debug/ExceptionHandler.html) | &nbsp; |
+| Exceptions | [Illuminate\Foundation\Exceptions\Handler](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Exceptions/Handler.html) | &nbsp; |
+| File | [Illuminate\Filesystem\Filesystem](https://api.laravel.com/docs/13.x/Illuminate/Filesystem/Filesystem.html) | `files` |
+| Gate | [Illuminate\Contracts\Auth\Access\Gate](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Auth/Access/Gate.html) | &nbsp; |
+| Hash | [Illuminate\Contracts\Hashing\Hasher](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Hashing/Hasher.html) | `hash` |
+| Http | [Illuminate\Http\Client\Factory](https://api.laravel.com/docs/13.x/Illuminate/Http/Client/Factory.html) | &nbsp; |
+| Lang | [Illuminate\Translation\Translator](https://api.laravel.com/docs/13.x/Illuminate/Translation/Translator.html) | `translator` |
+| Log | [Illuminate\Log\LogManager](https://api.laravel.com/docs/13.x/Illuminate/Log/LogManager.html) | `log` |
 | Mail | [Illuminate\Mail\Mailer](https://api.laravel.com/docs/13.x/Illuminate/Mail/Mailer.html) | `mailer` |
-| 通知 | [Illuminate\Notifications\ChannelManager](https://api.laravel.com/docs/13.x/Illuminate/Notifications/ChannelManager.html) | &nbsp; |
-| パスワード(インスタンス) | [Illuminate\Auth\Passwords\PasswordBroker](https://api.laravel.com/docs/13.x/Illuminate/Auth/Passwords/PasswordBroker.html) | `auth.password.broker` |
-| パスワード | [Illuminate\Auth\Passwords\PasswordBrokerManager](https://api.laravel.com/docs/13.x/Illuminate/Auth/Passwords/PasswordBrokerManager.html) | `auth.password` |
-| パイプライン (インスタンス) | [Illuminate\Pipeline\Pipeline](https://api.laravel.com/docs/13.x/Illuminate/Pipeline/Pipeline.html) | &nbsp; |
-| プロセス | [Illuminate\Process\Factory](https://api.laravel.com/docs/13.x/Illuminate/Process/Factory.html) | &nbsp; |
-| キュー (基本クラス) | [Illuminate\Queue\Queue](https://api.laravel.com/docs/13.x/Illuminate/Queue/Queue.html) | &nbsp; |
-| キュー (インスタンス) | [Illuminate\Contracts\Queue\Queue](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Queue/Queue.html) | `queue.connection` |
+| Notification | [Illuminate\Notifications\ChannelManager](https://api.laravel.com/docs/13.x/Illuminate/Notifications/ChannelManager.html) | &nbsp; |
+| Password (Instance) | [Illuminate\Auth\Passwords\PasswordBroker](https://api.laravel.com/docs/13.x/Illuminate/Auth/Passwords/PasswordBroker.html) | `auth.password.broker` |
+| Password | [Illuminate\Auth\Passwords\PasswordBrokerManager](https://api.laravel.com/docs/13.x/Illuminate/Auth/Passwords/PasswordBrokerManager.html) | `auth.password` |
+| Pipeline (Instance) | [Illuminate\Pipeline\Pipeline](https://api.laravel.com/docs/13.x/Illuminate/Pipeline/Pipeline.html) | &nbsp; |
+| Process | [Illuminate\Process\Factory](https://api.laravel.com/docs/13.x/Illuminate/Process/Factory.html) | &nbsp; |
+| Queue (Base Class) | [Illuminate\Queue\Queue](https://api.laravel.com/docs/13.x/Illuminate/Queue/Queue.html) | &nbsp; |
+| Queue (Instance) | [Illuminate\Contracts\Queue\Queue](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Queue/Queue.html) | `queue.connection` |
 | Queue | [Illuminate\Queue\QueueManager](https://api.laravel.com/docs/13.x/Illuminate/Queue/QueueManager.html) | `queue` |
-| レートリミッター | [Illuminate\Cache\RateLimiter](https://api.laravel.com/docs/13.x/Illuminate/Cache/RateLimiter.html) | &nbsp; |
-| リダイレクト | [Illuminate\Routing\Redirector](https://api.laravel.com/docs/13.x/Illuminate/Routing/Redirector.html) | `redirect` |
-| Redis (インスタンス) | [Illuminate\Redis\Connections\Connection](https://api.laravel.com/docs/13.x/Illuminate/Redis/Connections/Connection.html) | `redis.connection` |
-| レディス | [Illuminate\Redis\RedisManager](https://api.laravel.com/docs/13.x/Illuminate/Redis/RedisManager.html) | `redis` |
-| リクエスト | [Illuminate\Http\Request](https://api.laravel.com/docs/13.x/Illuminate/Http/Request.html) | `request` |
-| 応答 (インスタンス) | [Illuminate\Http\Response](https://api.laravel.com/docs/13.x/Illuminate/Http/Response.html) | &nbsp; |
-| 応答 | [Illuminate\Contracts\Routing\ResponseFactory](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Routing/ResponseFactory.html) | &nbsp; |
-| ルート | [Illuminate\Routing\Router](https://api.laravel.com/docs/13.x/Illuminate/Routing/Router.html) | `router` |
-| スケジュール | [Illuminate\Console\Scheduling\Schedule](https://api.laravel.com/docs/13.x/Illuminate/Console/Scheduling/Schedule.html) | &nbsp; |
-| スキーマ | [Illuminate\Database\Schema\Builder](https://api.laravel.com/docs/13.x/Illuminate/Database/Schema/Builder.html) | &nbsp; |
-| セッション（インスタンス） | [Illuminate\Session\Store](https://api.laravel.com/docs/13.x/Illuminate/Session/Store.html) | `session.store` |
-| セッション | [Illuminate\Session\SessionManager](https://api.laravel.com/docs/13.x/Illuminate/Session/SessionManager.html) | `session` |
-| ストレージ (インスタンス) | [Illuminate\Contracts\Filesystem\Filesystem](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Filesystem/Filesystem.html) | `filesystem.disk` |
-| ストレージ | [Illuminate\Filesystem\FilesystemManager](https://api.laravel.com/docs/13.x/Illuminate/Filesystem/FilesystemManager.html) | `filesystem` |
+| RateLimiter | [Illuminate\Cache\RateLimiter](https://api.laravel.com/docs/13.x/Illuminate/Cache/RateLimiter.html) | &nbsp; |
+| Redirect | [Illuminate\Routing\Redirector](https://api.laravel.com/docs/13.x/Illuminate/Routing/Redirector.html) | `redirect` |
+| Redis (Instance) | [Illuminate\Redis\Connections\Connection](https://api.laravel.com/docs/13.x/Illuminate/Redis/Connections/Connection.html) | `redis.connection` |
+| Redis | [Illuminate\Redis\RedisManager](https://api.laravel.com/docs/13.x/Illuminate/Redis/RedisManager.html) | `redis` |
+| Request | [Illuminate\Http\Request](https://api.laravel.com/docs/13.x/Illuminate/Http/Request.html) | `request` |
+| Response (Instance) | [Illuminate\Http\Response](https://api.laravel.com/docs/13.x/Illuminate/Http/Response.html) | &nbsp; |
+| Response | [Illuminate\Contracts\Routing\ResponseFactory](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Routing/ResponseFactory.html) | &nbsp; |
+| Route | [Illuminate\Routing\Router](https://api.laravel.com/docs/13.x/Illuminate/Routing/Router.html) | `router` |
+| Schedule | [Illuminate\Console\Scheduling\Schedule](https://api.laravel.com/docs/13.x/Illuminate/Console/Scheduling/Schedule.html) | &nbsp; |
+| Schema | [Illuminate\Database\Schema\Builder](https://api.laravel.com/docs/13.x/Illuminate/Database/Schema/Builder.html) | &nbsp; |
+| Session (Instance) | [Illuminate\Session\Store](https://api.laravel.com/docs/13.x/Illuminate/Session/Store.html) | `session.store` |
+| Session | [Illuminate\Session\SessionManager](https://api.laravel.com/docs/13.x/Illuminate/Session/SessionManager.html) | `session` |
+| Storage (Instance) | [Illuminate\Contracts\Filesystem\Filesystem](https://api.laravel.com/docs/13.x/Illuminate/Contracts/Filesystem/Filesystem.html) | `filesystem.disk` |
+| Storage | [Illuminate\Filesystem\FilesystemManager](https://api.laravel.com/docs/13.x/Illuminate/Filesystem/FilesystemManager.html) | `filesystem` |
 | URL | [Illuminate\Routing\UrlGenerator](https://api.laravel.com/docs/13.x/Illuminate/Routing/UrlGenerator.html) | `url` |
-| バリデーター (インスタンス) | [Illuminate\Validation\Validator](https://api.laravel.com/docs/13.x/Illuminate/Validation/Validator.html) | &nbsp; |
-| バリデーター | [Illuminate\Validation\Factory](https://api.laravel.com/docs/13.x/Illuminate/Validation/Factory.html) | `validator` |
-| ビュー(インスタンス) | [Illuminate\View\View](https://api.laravel.com/docs/13.x/Illuminate/View/View.html) | &nbsp; |
-| ビュー | [Illuminate\View\Factory](https://api.laravel.com/docs/13.x/Illuminate/View/Factory.html) | `view` |
+| Validator (Instance) | [Illuminate\Validation\Validator](https://api.laravel.com/docs/13.x/Illuminate/Validation/Validator.html) | &nbsp; |
+| Validator | [Illuminate\Validation\Factory](https://api.laravel.com/docs/13.x/Illuminate/Validation/Factory.html) | `validator` |
+| View (Instance) | [Illuminate\View\View](https://api.laravel.com/docs/13.x/Illuminate/View/View.html) | &nbsp; |
+| View | [Illuminate\View\Factory](https://api.laravel.com/docs/13.x/Illuminate/View/Factory.html) | `view` |
 | Vite | [Illuminate\Foundation\Vite](https://api.laravel.com/docs/13.x/Illuminate/Foundation/Vite.html) | &nbsp; |
 
-<!-- </div> -->
 </div>
-
