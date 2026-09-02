@@ -25,6 +25,7 @@
     - [Anonymous Agents](#anonymous-agents)
     - [Agent Configuration](#agent-configuration)
     - [Provider Options](#provider-options)
+    - [Prompt Caching](#prompt-caching)
 - [Human Tool Approval](#human-tool-approval)
     - [Complete Approval Flow](#complete-approval-flow)
 - [Images](#images)
@@ -243,7 +244,7 @@ OpenAI 互換プロバイダは、テキスト生成、ストリーミング、�
 ```
 
 > [!NOTE]
-> OpenAI-compatible および Groq プロバイダは話者分離をサポートしていません。これらのプロバイダの使用中に `diarize` メソッドを呼び出すと、例外がスローされます。
+> OpenAI-compatible プロバイダと Groq プロバイダは話者分離に対応していません。これらのプロバイダを使用して `diarize` メソッドを呼び出すと、例外が発生します。
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -254,15 +255,15 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 
 <div class="overflow-auto">
 
-<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI | | Files | OpenAI, Anthropic, Gemini, Azure | -->
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock | | Files | OpenAI, Anthropic, Gemini, Azure | -->
 | 機能 | プロバイダ |
 |---|---|
 | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
 | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
-| TTS | OpenAI, ElevenLabs, Gemini |
+| TTS | OpenAI, ElevenLabs, Gemini, Mistral |
 | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini |
-| Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
-| Reranking | Cohere, Jina, VoyageAI |
+| 埋め込み | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
+| リランキング | Cohere, Jina, VoyageAI, Bedrock |
 | Files | OpenAI, Anthropic, Gemini, Azure |
 
 </div>
@@ -429,7 +430,7 @@ foreach ($response->steps as $step) {
 ```
 
 > [!NOTE]
-> `raw` プロパティは、レスポンスをストリーミングしている場合、Bedrock プロバイダを使用している場合（API 呼び出しが HTTP クライアントではなく AWS SDK 経由で実行されるため）、および `withRawResponse` を使用して明示的に指定していないフェイクレスポンスでは `null` になります。
+> ストリーミングでレスポンスを返す場合、Bedrock プロバイダを使用する場合（API 呼び出しに HTTP クライアントではなく AWS SDK を使用します）、および明示的に `withRawResponse` で指定していないフェイクレスポンスでは、`raw` プロパティは `null` になります。
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -463,7 +464,7 @@ public function messages(): iterable
 #### Remembering Conversations
 
 > [!WARNING]
-> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使って AI SDK のマイグレーションを公開し、実行してください。これらのマイグレーションにより、会話を保存するために必要なデータベーステーブルが作成されます。
+> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使って AI SDK のマイグレーションを公開し、実行してください。これらのマイグレーションにより、会話の保存に必要なデータベーステーブルが作成されます。
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。この特性は、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
@@ -589,7 +590,7 @@ $participant = $conversation->participant;
 アプリケーションで複数の参加者モデルの種類を使用している場合は、保存される参加者タイプがモデルクラス名に依存しないよう、[Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) の定義を検討してください。
 
 > [!WARNING]
-> `continue` メソッドは、指定された参加者が会話を所有しているかを検証しません。会話を継続する前に、アプリケーションでその会話へのアクセスを認可してください。
+> `continue` メソッドは、指定された参加者がその会話を所有しているかを確認しません。会話を継続する前に、アプリケーションで会話へのアクセスを認可してください。
 
 <a name="structured-output"></a>
 <!-- ### Structured Output -->
@@ -974,6 +975,28 @@ public function tools(): iterable
 }
 ```
 
+<a name="validating-tool-arguments"></a>
+<!-- #### Validating Tool Arguments -->
+#### Validating Tool Arguments
+
+<!-- Although your tool's schema constrains the arguments a model may provide, you may validate the incoming arguments using the request's `validate` method: -->
+ツールのスキーマによってモデルが指定できる引数は制限されますが、リクエストの `validate` メソッドを使って受け取った引数をバリデーションできます。
+
+```php
+public function handle(Request $request): Stringable|string
+{
+    $validated = $request->validate([
+        'city' => 'required|string',
+        'days' => 'required|integer|max:7',
+    ]);
+
+    return $this->forecast($validated['city'], $validated['days']);
+}
+```
+
+<!-- When validation fails, the validation messages are returned to the model as the tool's result, allowing it to correct the arguments and call the tool again. -->
+バリデーションに失敗すると、バリデーションメッセージがツールの結果としてモデルに返されます。これにより、モデルは引数を修正してツールを再度呼び出せます。
+
 <a name="repairing-tool-calls"></a>
 <!-- #### Repairing Tool Calls -->
 #### Repairing Tool Calls
@@ -1110,7 +1133,7 @@ Anthropic を使用する場合、`withProviderOptions` メソッドを使って
 ```
 
 > [!WARNING]
-> ツール検索をサポートしていないプロバイダは、遅延ツールを暗黙的に破棄するのではなく、例外をスローします。また、Anthropic では、少なくとも1つのツールを `ToolSearch` ラッパーの外側に指定する必要があります。
+> ツール検索をサポートしていないプロバイダでは、遅延ツールを暗黙的に破棄せず、例外をスローします。また、Anthropic では、少なくとも1つのツールを `ToolSearch` ラッパーの外側で提供する必要があります。
 
 <a name="file-storage-tools"></a>
 <!-- ### File Storage Tools -->
@@ -1153,7 +1176,7 @@ return FileStorage::all('s3')
 アプリケーションで [Laravel MCP](/docs/13.x/mcp) を使用している場合、[Model Context Protocol](https://modelcontextprotocol.io) サーバーが公開するツールをエージェントに提供できます。[Laravel MCP client](/docs/13.x/mcp#client) を使用すると、リモートまたはローカルの MCP サーバーに接続し、そのツールをエージェントへ直接渡せます。
 
 > [!NOTE]
-> MCP ツールを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
+> MCP tools を使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
 
 <!-- Because an MCP client's `tools` method returns a collection, spread it into your agent's `tools` array using the `...` operator: -->
 MCP クライアントの `tools` メソッドはコレクションを返すため、`...` 演算子を使ってエージェントの `tools` 配列にスプレッドします。
@@ -1632,7 +1655,7 @@ class ComplexReasoner implements Agent
 ```
 
 > [!NOTE]
-> `UseCheapestModel` と `UseSmartestModel` が選択する基盤モデルは、プロバイダが新しいモデルをリリースするため、Laravel AI SDK のリリース間で変わる可能性があります。モデルを切り替えると、動作の変更、非推奨パラメータ、コストの大きな差が生じる場合があります。安定した予測可能なモデルと料金が必要な場合は、`Model` 属性を使用してモデルを明示的に指定してください。
+> `UseCheapestModel` と `UseSmartestModel` が選択する基盤モデルは、プロバイダが新しいモデルをリリースすると、Laravel AI SDK のリリース間で変わる可能性があります。モデルを切り替えると、動作の変更、非推奨パラメータ、コストの大きな差が生じることがあります。安定した予測可能なモデルと料金が必要な場合は、`Model` 属性を使ってモデルを明示的に指定してください。
 
 <a name="provider-options"></a>
 <!-- ### Provider Options -->
@@ -1681,15 +1704,64 @@ class SalesCoach implements Agent, HasProviderOptions
 <!-- The `providerOptions` method receives the provider currently being used (`Lab` enum or string), allowing you to return different options per provider. This is especially useful when using [failover](#failover), since each fallback provider can receive its own configuration. -->
 `providerOptions` メソッドは、現在使用されているプロバイダ (`Lab` 列挙型または文字列) を受け取り、プロバイダごとに異なるオプションを返すことができます。各フォールバック プロバイダが独自の構成を受け取ることができるため、これは [failover](#failover) を使用する場合に特に便利です。
 
-<!-- The Anthropic example above also enables [prompt caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) via `cache_control`. -->
-上記の Anthropic の例では、`cache_control` を介して [prompt caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) も有効にします。
+<!-- The Anthropic example above also enables [prompt caching](#prompt-caching) via `cache_control`. -->
+上記の Anthropic の例では、`cache_control` を介して [prompt caching](#prompt-caching) も有効になります。
+
+<a name="prompt-caching"></a>
+<!-- ### Prompt Caching -->
+### Prompt Caching
+
+<!-- Most providers cache repeated prompt prefixes automatically and bill the cached portion at a discount. OpenAI, Gemini, Groq, DeepSeek, and xAI require no configuration, and you may inspect the savings via the response's usage: -->
+多くのプロバイダは、繰り返し使用されるプロンプトのプレフィックスを自動的にキャッシュし、キャッシュされた部分には割引料金を適用します。OpenAI、Gemini、Groq、DeepSeek、xAI では設定は必要ありません。レスポンスの使用量から節約額を確認できます。
+
+```php
+$response->usage->cacheReadInputTokens;
+$response->usage->cacheWriteInputTokens;
+```
+
+<!-- The `anthropic` and `bedrock` providers only cache when asked. The `CacheInstructions` and `CacheToolDefinitions` attributes place a cache breakpoint at the end of your agent's instructions and tool definitions, so every conversation reads that prefix from the cache instead of writing it again: -->
+`anthropic` プロバイダと `bedrock` プロバイダは、明示的に指定された場合にのみキャッシュします。`CacheInstructions` 属性と `CacheToolDefinitions` 属性は、エージェントの指示とツール定義の末尾にキャッシュブレークポイントを設定します。これにより、各会話ではそのプレフィックスを再度書き込む代わりに、キャッシュから読み取ります。
+
+```php
+use Laravel\Ai\Attributes\CacheInstructions;
+use Laravel\Ai\Attributes\CacheToolDefinitions;
+
+#[CacheInstructions]
+#[CacheToolDefinitions]
+class SalesCoach implements Agent
+{
+    use Promptable;
+
+    // ...
+}
+```
+
+<!-- If your instructions change on every request, such as when they embed the current date, use `CacheToolDefinitions` alone. Caching a prefix that changes on every request creates a new cache entry each time, so you pay to write it to the cache without ever reusing it. -->
+リクエストごとに指示が変わる場合、たとえば現在の日付を埋め込む場合は、`CacheToolDefinitions` だけを使用してください。リクエストごとに変化するプレフィックスをキャッシュすると、毎回新しいキャッシュエントリが作成されます。そのため、再利用することなくキャッシュへの書き込みコストだけが発生します。
+
+<!-- Providers that do not support these attributes ignore them, so an agent may safely declare them while using [failover](#failover). -->
+これらの属性をサポートしないプロバイダは無視するため、エージェントは [failover](#failover) の使用時にも安全に宣言できます。
+
+<!-- Cached prefixes are retained for five minutes by default. Anthropic may retain them for an hour if you pass a TTL to the attribute: -->
+キャッシュされたプレフィックスは、デフォルトで5分間保持されます。属性に TTL を渡すと、Anthropic はこれらを1時間保持する場合があります。
+
+```php
+#[CacheInstructions('1h')]
+#[CacheToolDefinitions('1h')]
+```
+
+<!-- Alternatively, Anthropic's automatic caching may be enabled via a top-level `cache_control` [provider option](#provider-options). This places a single breakpoint after the last block of the request, so the breakpoint advances as the conversation grows and each turn reads the previous turns from the cache. Both mechanisms may be combined. -->
+また、トップレベルの `cache_control` [provider option](#provider-options) を使って、Anthropic の自動キャッシュを有効にすることもできます。これによりリクエストの最後のブロックの後ろに1つのブレークポイントが設定されるため、会話が進むにつれてブレークポイントも移動し、各ターンでは直前までのターンをキャッシュから読み取ります。どちらの仕組みも組み合わせて使用できます。
+
+> [!WARNING]
+> プロバイダはツール、指示、メッセージの順にプロンプトを構築するため、指示を1時間キャッシュするにはツール定義も1時間キャッシュする必要があります。この2つのキャッシュ時間が異なると、`InvalidArgumentException` がスローされます。
 
 <a name="human-tool-approval"></a>
 <!-- ## Human Tool Approval -->
 ## Human Tool Approval
 
 > [!WARNING]
-> ツールの承認には、会話履歴が永続化されているため一時停止した呼び出しを再開できる `Conversational` エージェントが必要です。`RemembersConversations` トレイトが必要な永続化機能を提供します。
+> ツールの承認には、会話履歴が永続化されており、一時停止した呼び出しを再開できる `Conversational` エージェントが必要です。`RemembersConversations` トレイトが必要な永続化機能を提供します。
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 機密性の高い操作や取り消せない操作を実行するツールでは、実行前に人間の承認が必要になる場合があります。ツールを承認可能にするには、`Approvable` コントラクトを実装し、`InteractsWithApprovals` トレイトを使用します。承認可能なツールは、デフォルトで承認が必要です。
@@ -2217,7 +2289,7 @@ Document::fromUpload($request->file('report'));
 ```
 
 > [!NOTE]
-> VoyageAI では、1つのリクエスト内でリモート URL のメディアと Base64 エンコードされたメディアを混在させることはできません。ローカルファイル、保存済みファイル、アップロードされたファイルは Base64 エンコードされたコンテンツとして送信され、テキスト入力はどちらのメディアソースとも組み合わせられます。利用可能なマルチモーダルモデルと入力については、使用するプロバイダのドキュメントを確認してください。
+> VoyageAI では、1つのリクエスト内でリモート URL のメディアと Base64 エンコードされたメディアを混在させることはできません。ローカルファイル、保存済みファイル、アップロードされたファイルは Base64 エンコードされたコンテンツとして送信され、テキスト入力はどちらのメディアソースとも組み合わせられます。利用できるマルチモーダルモデルと入力については、プロバイダのドキュメントを確認してください。
 
 <a name="querying-embeddings"></a>
 <!-- ### Querying Embeddings -->
@@ -2244,6 +2316,7 @@ Schema::create('documents', function (Blueprint $table) {
 ```php
 $table->vector('embedding', dimensions: 1536)->index();
 ```
+
 <!-- On your Eloquent model, you should cast the vector column using the `AsVector` cast: -->
 Eloquent モデルでは、`AsVector` castを使ってベクトル列をcastする必要があります。
 
@@ -2311,6 +2384,7 @@ $documents = Document::query()
     'embeddings' => [
         'cache' => true,
         'store' => env('CACHE_STORE', 'database'),
+        'individually' => true,
         // ...
     ],
 ],
@@ -2318,6 +2392,9 @@ $documents = Document::query()
 
 <!-- When caching is enabled, embeddings are cached for 30 days. The cache key is based on the provider, model, dimensions, and input content, ensuring that identical requests return cached results while different configurations generate fresh embeddings. -->
 キャッシュが有効になっている場合、埋め込みは 30 日間キャッシュされます。キャッシュ キーはプロバイダ、モデル、ディメンション、および入力コンテンツに基づいており、異なる構成で新しい埋め込みが生成される一方で、同一のリクエストがキャッシュされた結果を返すことが保証されます。
+
+<!-- By default, each input's embedding is cached under its own key, so a later request may hit the cache for inputs it has seen before even when the set of inputs or their order has changed. To instead cache the entire set of inputs under a single key, set the `ai.caching.embeddings.individually` configuration option to `false`. -->
+デフォルトでは、各入力の埋め込みがそれぞれ固有のキーでキャッシュされます。そのため、入力のセットや順序が変わっていても、後続のリクエストで以前に処理した入力のキャッシュが使用されることがあります。入力のセット全体を1つのキーでキャッシュするには、設定オプション `ai.caching.embeddings.individually` を `false` に設定してください。
 
 <!-- You may also enable caching for a specific request using the `cache` method, even when global caching is disabled: -->
 グローバル キャッシュが無効になっている場合でも、`cache` メソッドを使用して特定のリクエストのキャッシュを有効にすることもできます。
@@ -2643,7 +2720,7 @@ $document->fileId;
 ```
 
 > [!NOTE]
-> 通常、以前に保存したファイルをベクトルストアに追加すると、返されるドキュメント ID はファイルに以前割り当てられた ID と一致します。ただし、一部のベクトルストレージプロバイダは、新しい別の「ドキュメント ID」を返す場合があります。そのため、後で参照できるよう、データベースには常に両方の ID を保存することをおすすめします。
+> 通常、以前に保存したファイルをベクトルストアに追加すると、返されるドキュメント ID はそのファイルに以前割り当てられた ID と一致します。ただし、一部のベクトルストレージプロバイダは、新しく異なる「ドキュメント ID」を返すことがあります。そのため、後で参照できるよう、データベースには常に両方の ID を保存することをおすすめします。
 
 <!-- You may attach metadata to files when adding them to a store. This metadata can later be used to filter search results when using the [file search provider tool](#file-search): -->
 ファイルをストアに追加するときに、ファイルにメタデータを添付できます。このメタデータは、後で [file search provider tool](#file-search) を使用するときに検索結果をフィルタリングするために使用できます。
@@ -2775,7 +2852,7 @@ $response->hasPendingApprovals(); // true
 ```
 
 > [!NOTE]
-> 構造化出力を返すエージェントで `Agent::fake()` を呼び出し、フェイク出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致するフェイクデータを自動的に生成します。
+> 構造化出力を返すエージェントに対して `Agent::fake()` を呼び出し、偽の出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致する偽のデータを自動的に生成します。
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 エージェントにプロンプ​​トを出した後、受け取ったプロンプトについてアサーションを行うことができます。
