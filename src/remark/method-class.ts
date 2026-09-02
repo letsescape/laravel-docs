@@ -4,14 +4,14 @@ import {visit} from 'unist-util-visit';
 
 const METHOD_ANCHOR_RE = /<a\s+name=["']method-[^"']+["']\s*(?:\/?>|>\s*<\/a>)/;
 
-function mergeClassNames(existing: unknown, added: string[]): Array<string | number> {
+function mergeClassNames(existing: unknown, added: string[]): string[] {
   const current = Array.isArray(existing)
     ? existing.filter((value): value is string | number => typeof value === 'string' || typeof value === 'number')
     : typeof existing === 'string' || typeof existing === 'number'
       ? [existing]
       : [];
 
-  return [...current, ...added];
+  return [...current.map(String), ...added];
 }
 
 /**
