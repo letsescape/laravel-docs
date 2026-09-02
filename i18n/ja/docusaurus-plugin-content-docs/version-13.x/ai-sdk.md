@@ -1176,7 +1176,7 @@ return FileStorage::all('s3')
 アプリケーションで [Laravel MCP](/docs/13.x/mcp) を使用している場合、[Model Context Protocol](https://modelcontextprotocol.io) サーバーが公開するツールをエージェントに提供できます。[Laravel MCP client](/docs/13.x/mcp#client) を使用すると、リモートまたはローカルの MCP サーバーに接続し、そのツールをエージェントへ直接渡せます。
 
 > [!NOTE]
-> MCP tools を使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
+> MCP ツールを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
 
 <!-- Because an MCP client's `tools` method returns a collection, spread it into your agent's `tools` array using the `...` operator: -->
 MCP クライアントの `tools` メソッドはコレクションを返すため、`...` 演算子を使ってエージェントの `tools` 配列にスプレッドします。

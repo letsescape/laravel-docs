@@ -244,7 +244,7 @@ OpenAI 호환 프로바이더는 텍스트 생성, 스트리밍, 툴, 구조화 
 ```
 
 > [!NOTE]
-> OpenAI-compatible 및 Groq 프로바이더는 화자 분리를 지원하지 않습니다. 이러한 프로바이더를 사용할 때 `diarize` 메서드를 호출하면 예외가 발생합니다.
+> OpenAI 호환 및 Groq 프로바이더는 화자 분리를 지원하지 않습니다. 이러한 프로바이더를 사용할 때 `diarize` 메서드를 호출하면 예외가 발생합니다.
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -430,7 +430,7 @@ foreach ($response->steps as $step) {
 ```
 
 > [!NOTE]
-> 스트리밍 응답을 처리할 때, Bedrock provider를 사용할 때(AWS SDK를 통해 API를 호출하므로 HTTP client를 사용하지 않음), 그리고 `withRawResponse`를 통해 명시적으로 제공하지 않은 가짜 응답에서는 `raw` 프로퍼티가 `null`입니다.
+> 스트리밍 응답을 처리할 때, Bedrock 프로바이더를 사용할 때(AWS SDK를 통해 API를 호출하므로 HTTP 클라이언트를 사용하지 않음), 그리고 `withRawResponse`를 통해 명시적으로 제공하지 않은 가짜 응답에서는 `raw` 프로퍼티가 `null`입니다.
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -995,7 +995,7 @@ public function handle(Request $request): Stringable|string
 ```
 
 <!-- When validation fails, the validation messages are returned to the model as the tool's result, allowing it to correct the arguments and call the tool again. -->
-유효성 검증에 실패하면 유효성 검증 메시지가 도구의 결과로 모델에 반환되므로, 모델은 인수를 수정하고 도구를 다시 호출할 수 있습니다.
+유효성 검증에 실패하면 유효성 검증 메시지가 툴의 결과로 모델에 반환되므로, 모델은 인수를 수정하고 툴을 다시 호출할 수 있습니다.
 
 <a name="repairing-tool-calls"></a>
 <!-- #### Repairing Tool Calls -->
@@ -1133,7 +1133,7 @@ Anthropic을 사용할 때는 `withProviderOptions` 메서드를 사용해 검�
 ```
 
 > [!WARNING]
-> 도구 검색을 지원하지 않는 프로바이더는 지연된 툴을 조용히 삭제하는 대신 예외를 발생시킵니다. 또한 Anthropic에서는 `ToolSearch` 래퍼 외부에 하나 이상의 툴을 제공해야 합니다.
+> 툴 검색을 지원하지 않는 프로바이더는 지연된 툴을 조용히 무시하는 대신 예외를 발생시킵니다. 또한 Anthropic에서는 `ToolSearch` 래퍼 외부에 하나 이상의 툴을 제공해야 합니다.
 
 <a name="file-storage-tools"></a>
 <!-- ### File Storage Tools -->
@@ -1754,14 +1754,14 @@ class SalesCoach implements Agent
 또는 최상위 `cache_control` [provider option](#provider-options)을 통해 Anthropic의 자동 캐싱을 활성화할 수 있습니다. 이렇게 하면 요청의 마지막 블록 다음에 단일 중단점이 설정되므로, 대화가 길어질수록 중단점이 앞으로 이동하고 각 턴은 이전 턴을 캐시에서 읽습니다. 두 메커니즘을 함께 사용할 수도 있습니다.
 
 > [!WARNING]
-> 프로바이더는 툴, 지침, 메시지 순서로 프롬프트를 구성하므로, 지침을 한 시간 동안 캐시하려면 툴 정의도 한 시간 동안 캐시해야 합니다. 둘을 혼합하면 `InvalidArgumentException`이 발생합니다.
+> 프로바이더는 툴, 지침, 메시지 순서로 프롬프트를 구성하므로, 지침을 한 시간 동안 캐시하려면 툴 정의도 한 시간 동안 캐시해야 합니다. 지침과 툴 정의의 캐시 유지 시간을 서로 다르게 설정하면 `InvalidArgumentException`이 발생합니다.
 
 <a name="human-tool-approval"></a>
 <!-- ## Human Tool Approval -->
 ## Human Tool Approval
 
 > [!WARNING]
-> 도구 승인을 사용하려면 일시 중지된 호출을 재개할 수 있도록 대화 기록이 유지되는 `Conversational` 에이전트가 필요합니다. `RemembersConversations` 트레이트가 필요한 영속성을 제공합니다.
+> 툴 승인을 사용하려면 일시 중지된 호출을 재개할 수 있도록 대화 기록이 유지되는 `Conversational` 에이전트가 필요합니다. `RemembersConversations` 트레이트가 필요한 영속성을 제공합니다.
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 민감하거나 되돌릴 수 없는 작업을 수행하는 툴은 실행 전에 사람의 승인을 요구할 수 있습니다. 툴을 승인 가능하게 만들려면 `Approvable` 컨트랙트를 구현하고 `InteractsWithApprovals` 트레이트를 사용합니다. 승인 가능한 툴은 기본적으로 승인이 필요합니다:
