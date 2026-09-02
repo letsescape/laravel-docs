@@ -729,6 +729,7 @@ def _translate_added_document(
             deadline=deadline,
             attempt_counter=attempt_counter,
             reusable=target.reusable_blocks,
+            placeholders=target.placeholders,
         )
         if contract_issue is not None:
             return [contract_issue]
@@ -776,6 +777,7 @@ def _translate_create_blocks(
     deadline: float | None,
     attempt_counter: translate.ProviderAttemptCounter | None,
     reusable: Mapping[str, str] = MappingProxyType({}),
+    placeholders: Mapping[str, str] = MappingProxyType({}),
 ) -> tuple[list[str], str | None]:
     """신규 문서의 provider 필요 owner 블록 번역.
 
@@ -796,7 +798,14 @@ def _translate_create_blocks(
     for owner in owners:
         if not owner.provider_required:
             continue
-        reused = _reused_create_block(owner, reusable, cfg, change, locale)
+        reused = _reused_create_block(
+            owner,
+            reusable,
+            cfg,
+            change,
+            locale,
+            placeholders=placeholders,
+        )
         if reused is not None:
             translated.append(reused)
             continue
@@ -1119,6 +1128,7 @@ def _preflight_create_plan(
     prompt: str,
     reusable: Mapping[str, str] = MappingProxyType({}),
     locale: str | None = None,
+    placeholders: Mapping[str, str] = MappingProxyType({}),
 ) -> None:
     """문서 생성 계획에서 실제 provider 호출이 필요한 owner만 사전 검증.
 
@@ -1130,7 +1140,12 @@ def _preflight_create_plan(
         if not owner.provider_required:
             continue
         if reusable and _reused_create_block(
-            owner, reusable, cfg, change, locale
+            owner,
+            reusable,
+            cfg,
+            change,
+            locale,
+            placeholders=placeholders,
         ) is not None:
             continue
         request = _translation_request(
@@ -1203,6 +1218,8 @@ def _reused_create_block(
     cfg: config.Config,
     change: diff.SourceChange,
     locale: str | None,
+    *,
+    placeholders: Mapping[str, str],
 ) -> str | None:
     """영어 원문이 그대로인 owner의 기존 번역 블록 재사용 결과.
 
@@ -1212,13 +1229,38 @@ def _reused_create_block(
 
     if not reusable:
         return None
-    required = response_contract._required_comments(owner.source)
+    annotation_source = _annotation_source(
+        owner.source,
+        change.version,
+        placeholders,
+    )
+    required = response_contract._required_comments(annotation_source)
     if len(required) != 1:
         return None
     candidate = reusable.get(required[0])
     if candidate is None:
         return None
-    if _contract_issues(candidate, owner.source, cfg, change, locale):
+    english_view = postprocess.postprocess(
+        owner.source,
+        change.version,
+        placeholders,
+    )
+    try:
+        contract_candidate = _canonicalize_document_annotations(
+            english_view,
+            english_view,
+            candidate,
+            change.version,
+        )
+    except ValueError:
+        return None
+    if _contract_issues(contract_candidate, english_view, cfg, change, locale):
+        return None
+    if (
+        cfg.provider != "identity"
+        and locale is not None
+        and not _document_is_in_locale(candidate, locale)
+    ):
         return None
     return candidate
 
@@ -1249,7 +1291,15 @@ def _degraded_create_target(
     )
     plan = patch_utils.build_create_plan(preprocessed.text)
     reusable = MappingProxyType(_annotated_locale_blocks(existing))
-    _preflight_create_plan(change, plan, cfg, prompt, reusable, locale)
+    _preflight_create_plan(
+        change,
+        plan,
+        cfg,
+        prompt,
+        reusable,
+        locale,
+        placeholders,
+    )
     preserved = (
         patch_utils._front_matter_text(existing) if existing else None
     )

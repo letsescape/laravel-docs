@@ -1908,34 +1908,40 @@ class MainPipelineTests(unittest.TestCase):
                 any("requires absent ko locale" in issue for issue in issues)
             )
 
-    def test_recreation_reuses_translations_of_unchanged_blocks(self):
-        """재생성 강등이 영어 원문 그대로인 블록의 기존 번역을 재사용."""
+    def test_recreation_reuses_unchanged_block_with_canonical_stale_link(self):
+        """재생성 강등이 정규화된 stale link의 기존 번역 블록을 재사용."""
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source_path = (
                 root
-                / "i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md"
+                / "i18n/en/docusaurus-plugin-content-docs/version-10.x/example.md"
             )
             source_path.parent.mkdir(parents=True)
             source_path.write_text(
-                "Keep this paragraph exactly as it already is.\n"
+                "Keep this [logger paragraph](/docs/{{version}}/errors#logging) "
+                "exactly as it already is.\n"
                 "\n"
                 "New text that must be translated now.\n",
                 encoding="utf-8",
             )
-            dest = root / "versioned_docs/version-12.x/example.md"
+            dest = root / "versioned_docs/version-10.x/example.md"
             dest.parent.mkdir(parents=True)
             dest.write_text(
-                "<!-- Keep this paragraph exactly as it already is. -->\n"
-                "이 문단은 이미 승인된 번역 그대로 유지합니다.\n"
+                "<!-- Keep this [logger paragraph](/docs/10.x/errors#logging) "
+                "exactly as it already is. -->\n"
+                "[logger paragraph](/docs/10.x/logging)은 이미 승인된 번역 "
+                "그대로 유지합니다.\n"
+                "\n"
+                "<!-- Extra text. -->\n"
+                "원문에 없는 번역입니다.\n"
                 "\n"
                 "<!-- Stale text. -->\n"
                 "예전 번역입니다.\n",
                 encoding="utf-8",
             )
             change = self._change_with_lines(
-                path="i18n/en/docusaurus-plugin-content-docs/version-12.x/example.md",
+                path="i18n/en/docusaurus-plugin-content-docs/version-10.x/example.md",
                 lines=[
                     ("delete", "Stale text."),
                     ("add", "New text that must be translated now."),
@@ -1958,15 +1964,63 @@ class MainPipelineTests(unittest.TestCase):
                 "translate_request",
                 side_effect=translated,
             ):
-                issues = main._translate_one(change, cfg, "prompt", dest)
+                issues = main._translate_one(
+                    change,
+                    cfg,
+                    "prompt",
+                    dest,
+                    locale="ko",
+                )
 
             self.assertEqual(issues, [])
             self.assertEqual(len(requests), 1)
             self.assertIn("New text that must be translated now.", requests[0])
             written = dest.read_text(encoding="utf-8")
-            self.assertIn("이 문단은 이미 승인된 번역 그대로 유지합니다.", written)
+            self.assertIn(
+                "[logger paragraph](/docs/10.x/logging)은 이미 승인된 번역 "
+                "그대로 유지합니다.",
+                written,
+            )
             self.assertIn("이제 번역해야 하는 새 문장입니다.", written)
             self.assertNotIn("예전 번역입니다.", written)
+
+    def test_recreation_rejects_short_reusable_block_in_wrong_locale(self):
+        """짧은 타 언어 블록을 기존 승인 번역으로 재사용하지 않음."""
+
+        source = (
+            "Keep this [logger paragraph](/docs/{{version}}/errors#logging) "
+            "exactly as it already is.\n"
+        )
+        candidate = (
+            "<!-- Keep this [logger paragraph](/docs/10.x/errors#logging) "
+            "exactly as it already is. -->\n"
+            "[logger paragraph](/docs/10.x/logging)は承認済みです。\n"
+        )
+        owner = main.patch_utils.CreateBlock(
+            kind="paragraph",
+            source=source,
+            leading="",
+            provider_required=True,
+        )
+        change = diff.SourceChange(
+            path="i18n/en/docusaurus-plugin-content-docs/version-10.x/example.md",
+            status="M",
+        )
+        cfg = config.Config(
+            provider="cli",
+            values={"TRANSLATION_PROVIDER": "cli"},
+        )
+
+        reused = main._reused_create_block(
+            owner,
+            main._annotated_locale_blocks(candidate),
+            cfg,
+            change,
+            "ko",
+            placeholders={},
+        )
+
+        self.assertIsNone(reused)
 
     def test_translate_one_degrades_mixed_plan_state_to_recreation(self):
         """혼합된 계획 상태 문서를 전체 재생성으로 강등하는지 검증."""

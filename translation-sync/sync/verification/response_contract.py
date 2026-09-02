@@ -164,13 +164,13 @@ _PROSE_SIGNAL_WORDS = frozenset(
         "writes",
     )
 )
-_VERSION_VALUE_RE = re.compile(
-    r"^(?:core\s*,?\s*)?"
-    r"[v^~<>=]*\d+(?:\.[0-9x*]+)*(?:\+)?(?:\s+[A-Za-z][\w-]*)?"
-    r"(?:\s*(?:[-–,/]|\bor\b)\s*"
-    r"[v^~<>=]*\d+(?:\.[0-9x*]+)*(?:\+)?"
-    r"(?:\s+[A-Za-z][\w-]*)?)*$",
-    re.IGNORECASE,
+_VERSION_CORE_PREFIX_RE = re.compile(r"core\s*,?\s*", re.IGNORECASE)
+_VERSION_TOKEN_RE = re.compile(
+    r"[v^~<>=]*\d+(?:\.[0-9x*]+)*(?:\+)?", re.IGNORECASE
+)
+_VERSION_LABEL_RE = re.compile(r"\s+[A-Za-z][\w-]*", re.IGNORECASE)
+_VERSION_SEPARATOR_RE = re.compile(
+    r"\s*(?:[-–,/]|\bor\b)\s*", re.IGNORECASE
 )
 _DATE_VALUE_RE = re.compile(
     r"^(?:January|February|March|April|May|June|July|August|"
@@ -2149,6 +2149,48 @@ def _is_inline_code_only_list_item(body: str) -> bool:
     return not remainder.strip(_PROSE_TRIM_CHARACTERS)
 
 
+def _version_item_end_positions(text: str, start: int) -> list[int]:
+    """단일 버전 항목이 끝날 수 있는 위치 목록."""
+
+    token = _VERSION_TOKEN_RE.match(text, start)
+    if token is None:
+        return []
+    token_end = token.end()
+    ends = [token_end]
+    label = _VERSION_LABEL_RE.match(text, token_end)
+    if label is not None:
+        ends.extend(
+            separator.start()
+            for separator in _VERSION_SEPARATOR_RE.finditer(
+                text,
+                token_end,
+                label.end(),
+            )
+        )
+        ends.append(label.end())
+    return ends
+
+
+def _is_version_value(text: str) -> bool:
+    """버전·edition 목록을 backtracking 없이 판별."""
+
+    prefix = _VERSION_CORE_PREFIX_RE.match(text)
+    pending = [prefix.end() if prefix is not None else 0]
+    visited: set[int] = set()
+    while pending:
+        start = pending.pop()
+        if start in visited:
+            continue
+        visited.add(start)
+        for end in _version_item_end_positions(text, start):
+            if end == len(text):
+                return True
+            separator = _VERSION_SEPARATOR_RE.match(text, end)
+            if separator is not None and separator.end() not in visited:
+                pending.append(separator.end())
+    return False
+
+
 def _legacy_pipe_table_rows(
     text: str,
 ) -> list[tuple[bool, list[str]]]:
@@ -2178,7 +2220,7 @@ def _legacy_pipe_cell_is_protected(
         return True
     visible = visible.strip(".,:;")
     if (
-        _VERSION_VALUE_RE.fullmatch(visible)
+        _is_version_value(visible)
         or _DATE_VALUE_RE.fullmatch(visible)
         or _CONFIG_VALUE_RE.fullmatch(visible)
         or _PARENTHESIZED_LITERAL_RE.fullmatch(visible)
@@ -2769,7 +2811,7 @@ def _protected_cell_kind(
     if data_cell and _DATE_VALUE_RE.fullmatch(body):
         return "localizable"
     if data_cell and (
-        _VERSION_VALUE_RE.fullmatch(body)
+        _is_version_value(body)
         or _CONFIG_VALUE_RE.fullmatch(body)
         or _PARENTHESIZED_LITERAL_RE.fullmatch(body)
     ):

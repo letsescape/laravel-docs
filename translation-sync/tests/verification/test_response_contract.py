@@ -1,5 +1,6 @@
 """provider 응답의 구조·주석·언어 계약 검증."""
 
+import multiprocessing
 import unittest
 
 from sync import response_contract
@@ -2538,6 +2539,66 @@ Permission is hereby granted to modify this software.
             response_contract.verify(translated, source, locale="ja"),
             [],
         )
+
+    def test_adversarial_version_cell_does_not_block_verification(self):
+        """모호한 version cell이 응답 검증을 장시간 점유하지 않음."""
+
+        value = "0,0 a" + "-0,0 a" * 24 + "!"
+        source = f"""| Version | Description |
+| --- | --- |
+| {value} | Stable release |
+"""
+        translated = f"""| 버전 | 설명 |
+| --- | --- |
+| {value} | 안정 릴리스 |
+"""
+        process = multiprocessing.get_context("spawn").Process(
+            target=response_contract.verify,
+            args=(translated, source),
+            kwargs={"locale": "ko"},
+        )
+
+        process.start()
+        process.join(2)
+        if process.is_alive():
+            process.terminate()
+            process.join()
+            self.fail("version cell verification exceeded 2 seconds")
+        self.assertEqual(process.exitcode, 0)
+
+    def test_accepts_version_value_with_label_internal_or_separator(self):
+        """기존 version 문법의 label 내부 ``or`` 구분자를 보존."""
+
+        value = "1 extraordinarilylongedition-or 2"
+        cases = (
+            (
+                f"""| Version | Description |
+| --- | --- |
+| {value} | Stable release |
+""",
+                f"""| 버전 | 설명 |
+| --- | --- |
+| {value} | 안정 릴리스 |
+""",
+            ),
+            (
+                f"""Version | Description
+------- | -------
+{value} | Stable release
+""",
+                f"""버전 | 설명
+------- | -------
+{value} | 안정 릴리스
+""",
+            ),
+        )
+        for source, translated in cases:
+            with self.subTest(source=source):
+                translated = self._with_table_owner_annotation(source, translated)
+                self.assertEqual(
+                    response_contract.verify(translated, source, locale="ko"),
+                    [],
+                )
 
     def test_accepts_preserved_product_and_version_cells_in_table_rows(self):
         """표 행의 제품명과 버전 데이터 원문 보존을 허용."""
