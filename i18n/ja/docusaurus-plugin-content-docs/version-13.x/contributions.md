@@ -17,17 +17,17 @@
 <!-- ## Bug Reports -->
 ## Bug Reports
 
-<!-- To encourage active collaboration, Laravel strongly encourages pull requests, not just bug reports. Pull requests will only be reviewed when marked as "ready for review" (not in the "draft" state) and all tests for new features are passing. Lingering, non-active pull requests left in the "draft" state will be closed after a few days. -->
-積極的なコラボレーションを促進するために、Laravel ではバグレポートだけでなくプルリクエストを強く推奨しています。プル リクエストは、(「ドラフト」状態ではなく) 「レビュー準備完了」としてマークされ、新機能のすべてのテストが合格した場合にのみレビューされます。 「ドラフト」状態のまま残された非アクティブなプル リクエストは、数日後に閉じられます。
+<!-- To encourage active collaboration, Laravel strongly encourages pull requests that address problems, not GitHub issues. GitHub issues are disabled on most of our first-party packages. -->
+積極的なコラボレーションを促進するため、Laravel では問題に対処するプルリクエストの作成を強く推奨しており、GitHub issue の作成は推奨していません。ファーストパーティパッケージの大半では、GitHub issue を無効にしています。
 
-<!-- However, if you file a bug report, your issue should contain a title and a clear description of the issue. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a bug report is to make it easy for yourself - and others - to replicate the bug and develop a fix. -->
-ただし、バグレポートを提出する場合は、問題のタイトルと明確な説明を含める必要があります。また、できるだけ多くの関連情報と、問題を示すコード サンプルも含める必要があります。バグ レポートの目的は、自分自身や他の人がバグを再現し、修正を開発しやすくすることです。
+<!-- If you discover a problem, please create a pull request that addresses the problem. Your pull request should contain a title and a clear description of the problem and its solution. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a pull request is to make it easy for yourself - and others - to understand the problem and verify the fix. -->
+問題を見つけた場合は、その問題に対処するプルリクエストを作成してください。プルリクエストにはタイトルと、問題およびその解決方法を明確に説明する内容を含めてください。また、関連する情報をできるだけ多く添え、問題を示すコードサンプルも含めてください。プルリクエストの目的は、あなたや他の人が問題を理解し、修正を検証しやすくすることです。
 
-<!-- Remember, bug reports are created in the hope that others with the same problem will be able to collaborate with you on solving it. Do not expect that the bug report will automatically see any activity or that others will jump to fix it. Creating a bug report serves to help yourself and others start on the path of fixing the problem. If you want to chip in, you can help out by fixing [any bugs listed in our issue trackers](https://github.com/issues?q=is%3Aopen+is%3Aissue+label%3Abug+user%3Alaravel). You must be authenticated with GitHub to view all of Laravel's issues. -->
-バグ レポートは、同じ問題を抱えている他の人が協力して解決できることを期待して作成されることに注意してください。バグレポートに何らかのアクティビティが自動的に表示されることや、他の人がそれを修正するために飛びつくことを期待しないでください。バグ レポートを作成すると、自分自身や他の人が問題解決の道を歩み始めるのに役立ちます。協力したい場合は、[any bugs listed in our issue trackers](https://github.com/issues?q=is%3Aopen+is%3Aissue+label%3Abug+user%3Alaravel) を修正することで支援できます。 Laravel の問題をすべて表示するには、GitHub で認証される必要があります。
+<!-- If you do not know how to fix the problem, describe the issue to a coding agent and use it to attempt a pull request. -->
+問題を修正する方法がわからない場合は、コーディングエージェントに問題の内容を説明し、それを使ってプルリクエストを試みてください。
 
-<!-- If you notice improper DocBlock, PHPStan, or IDE warnings while using Laravel, do not create a GitHub issue. Instead, please submit a pull request to fix the problem. -->
-Laravel の使用中に不適切な DocBlock、PHPStan、または IDE の警告に気付いた場合は、GitHub の問題を作成しないでください。代わりに、問題を修正するにはプルリクエストを送信してください。
+<!-- Pull requests will only be reviewed when marked as "ready for review" (not in the "draft" state) and all tests for new features are passing. Lingering, non-active pull requests left in the "draft" state will be closed after a few days. -->
+プルリクエストは「ready for review」とマークされていて（「draft」状態ではなく）、新機能に対するすべてのテストが成功している場合にのみレビューします。「draft」状態のまま放置されている非アクティブなプルリクエストは、数日後にクローズします。
 
 <!-- The Laravel source code is managed on GitHub, and there are repositories for each of the Laravel projects: -->
 Laravel のソース コードは GitHub で管理されており、Laravel プロジェクトごとにリポジトリがあります。
@@ -85,16 +85,6 @@ Laravel の GitHub 問題トラッカーは、Laravel のヘルプやサポー�
 
 </div>
 
-<a name="core-development-discussion"></a>
-<!-- ## Core Development Discussion -->
-## Core Development Discussion
-
-<!-- You may propose new features or improvements of existing Laravel behavior in the Laravel framework repository's [GitHub discussion board](https://github.com/laravel/framework/discussions). If you propose a new feature, please be willing to implement at least some of the code that would be needed to complete the feature. -->
-Laravel フレームワーク リポジトリの [GitHub discussion board](https://github.com/laravel/framework/discussions) で、新しい機能や既存の Laravel 動作の改善を提案できます。新しい機能を提案する場合は、その機能を完成させるために必要なコードの少なくとも一部を実装してください。
-
-<!-- Informal discussion regarding bugs, new features, and implementation of existing features takes place in the `#internals` channel of the [Laravel Discord server](https://discord.gg/laravel). Taylor Otwell, the maintainer of Laravel, is typically present in the channel on weekdays from 8am-5pm (UTC-06:00 or America/Chicago), and sporadically present in the channel at other times. -->
-バグ、新機能、既存機能の実装に関する非公式のディスカッションは、[Laravel Discord server](https://discord.gg/laravel) の `#internals` チャネルで行われます。 Laravel のメンテナである Taylor Otwell は通常、平日の午前 8 時から午後 5 時 (UTC-06:00 またはアメリカ/シカゴ) までチャネルに存在し、それ以外の時間帯にも散発的にチャネルに存在します。
-
 <a name="which-branch"></a>
 <!-- ## Which Branch? -->
 ## Which Branch?
@@ -119,11 +109,11 @@ Laravel フレームワーク リポジトリの [GitHub discussion board](https
 <!-- ## AI-Generated Contributions -->
 ## AI-Generated Contributions
 
-<!-- We appreciate every pull request submitted to Laravel. However, contributions that are primarily AI-generated without thoughtful human review and consideration are not acceptable. -->
-Laravel に送信されたすべてのプルリクエストに感謝します。ただし、人間による思慮深いレビューや検討を経ずに主に AI によって生成された投稿は受け入れられません。
+<!-- We appreciate every pull request submitted to Laravel. However, substantial contributions that are primarily AI-generated without thoughtful human review and consideration are not acceptable. -->
+Laravel に送られるすべてのプルリクエストに感謝します。ただし、十分な人間によるレビューと検討を経ず、主に AI が生成した大規模な貢献は受け付けられません。
 
-<!-- If you choose to use AI tools to assist with your contribution, the resulting code **must** be thoroughly reviewed, tested, and understood by you before submitting. -->
-AI ツールを使用して貢献を支援することを選択した場合、結果として得られるコードは、提出する前に**徹底的にレビュー、テストされ、理解されている必要があります**。
+<!-- If you choose to use AI tools to assist with large or complex contributions to the framework, the resulting code **must** be thoroughly reviewed, tested, and understood by you before submitting. -->
+フレームワークへの大規模または複雑なコントリビューションを支援するために AI ツールを使用する場合、生成されたコードを提出する前に、必ず自分自身で十分にレビューし、テストし、内容を理解してください。
 
 <!-- Pull request descriptions **must** be written entirely by the contributor. Pull requests with AI-generated descriptions will be closed. -->
 プルリクエストの説明は、貢献者自身がすべて記述しなければなりません。AIが生成した説明を含むプルリクエストはクローズします。

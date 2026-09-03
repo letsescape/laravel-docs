@@ -17,17 +17,17 @@
 <!-- ## Bug Reports -->
 ## Bug Reports
 
-<!-- To encourage active collaboration, Laravel strongly encourages pull requests, not just bug reports. Pull requests will only be reviewed when marked as "ready for review" (not in the "draft" state) and all tests for new features are passing. Lingering, non-active pull requests left in the "draft" state will be closed after a few days. -->
-적극적인 협업을 장려하기 위해 Laravel은 단순한 버그 보고보다 pull request를 강력히 권장합니다. Pull request는 "ready for review"로 표시되어 있고("draft" 상태가 아니며), 새 기능에 대한 모든 테스트가 통과한 경우에만 검토됩니다. "draft" 상태로 남아 있는 오래된 비활성 pull request는 며칠 후 닫힙니다.
+<!-- To encourage active collaboration, Laravel strongly encourages pull requests that address problems, not GitHub issues. GitHub issues are disabled on most of our first-party packages. -->
+활발한 협업을 장려하기 위해 Laravel은 GitHub 이슈보다 문제를 해결하는 풀 리퀘스트를 적극적으로 권장합니다. 대부분의 공식 패키지에서는 GitHub 이슈를 비활성화하고 있습니다.
 
-<!-- However, if you file a bug report, your issue should contain a title and a clear description of the issue. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a bug report is to make it easy for yourself - and others - to replicate the bug and develop a fix. -->
-하지만 버그 보고를 작성한다면, 이슈에는 제목과 문제에 대한 명확한 설명이 포함되어야 합니다. 또한 가능한 한 관련 정보를 많이 포함하고, 문제를 보여 주는 코드 예제도 함께 제공해야 합니다. 버그 보고의 목표는 자신과 다른 사람들이 버그를 쉽게 재현하고 수정 방법을 개발할 수 있도록 하는 것입니다.
+<!-- If you discover a problem, please create a pull request that addresses the problem. Your pull request should contain a title and a clear description of the problem and its solution. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a pull request is to make it easy for yourself - and others - to understand the problem and verify the fix. -->
+문제를 발견했다면 해당 문제를 해결하는 풀 리퀘스트를 생성해 주세요. 풀 리퀘스트에는 제목과 문제 및 해결 방법에 대한 명확한 설명을 포함해야 합니다. 또한 가능한 한 관련 정보를 많이 포함하고, 문제를 보여 주는 코드 샘플도 첨부해야 합니다. 풀 리퀘스트의 목적은 자신과 다른 사람들이 문제를 쉽게 이해하고 수정 사항을 확인할 수 있도록 하는 것입니다.
 
-<!-- Remember, bug reports are created in the hope that others with the same problem will be able to collaborate with you on solving it. Do not expect that the bug report will automatically see any activity or that others will jump to fix it. Creating a bug report serves to help yourself and others start on the path of fixing the problem. If you want to chip in, you can help out by fixing [any bugs listed in our issue trackers](https://github.com/issues?q=is%3Aopen+is%3Aissue+label%3Abug+user%3Alaravel). You must be authenticated with GitHub to view all of Laravel's issues. -->
-버그 보고는 같은 문제를 겪는 다른 사람들이 문제 해결에 함께 협력할 수 있기를 기대하며 작성된다는 점을 기억하세요. 버그 보고를 작성했다고 해서 자동으로 활동이 일어나거나, 다른 사람들이 바로 수정에 뛰어들 것이라고 기대해서는 안 됩니다. 버그 보고를 작성하는 것은 자신과 다른 사람들이 문제를 해결하기 위한 출발점을 마련하는 데 도움이 됩니다. 직접 기여하고 싶다면 [any bugs listed in our issue trackers](https://github.com/issues?q=is%3Aopen+is%3Aissue+label%3Abug+user%3Alaravel)를 수정하는 데 도움을 줄 수 있습니다. Laravel의 모든 이슈를 보려면 GitHub에 인증되어 있어야 합니다.
+<!-- If you do not know how to fix the problem, describe the issue to a coding agent and use it to attempt a pull request. -->
+문제를 해결하는 방법을 모른다면 코딩 에이전트에게 문제를 설명하고, 이를 사용해 풀 리퀘스트를 시도합니다.
 
-<!-- If you notice improper DocBlock, PHPStan, or IDE warnings while using Laravel, do not create a GitHub issue. Instead, please submit a pull request to fix the problem. -->
-Laravel을 사용하는 중에 부적절한 DocBlock, PHPStan 또는 IDE 경고를 발견했다면 GitHub 이슈를 만들지 마세요. 대신 문제를 수정하는 pull request를 제출해 주세요.
+<!-- Pull requests will only be reviewed when marked as "ready for review" (not in the "draft" state) and all tests for new features are passing. Lingering, non-active pull requests left in the "draft" state will be closed after a few days. -->
+풀 리퀘스트는 "ready for review"로 표시되어 있고("draft" 상태가 아니어야 함) 새로운 기능에 대한 모든 테스트가 통과한 경우에만 검토합니다. "draft" 상태로 남아 있는 장기간의 비활성 풀 리퀘스트는 며칠 후에 종료합니다.
 
 <!-- The Laravel source code is managed on GitHub, and there are repositories for each of the Laravel projects: -->
 Laravel 소스 코드는 GitHub에서 관리되며, 각 Laravel 프로젝트마다 저장소가 있습니다.
@@ -85,16 +85,6 @@ Laravel의 GitHub 이슈 트래커는 Laravel 도움말이나 지원을 제공�
 
 </div>
 
-<a name="core-development-discussion"></a>
-<!-- ## Core Development Discussion -->
-## Core Development Discussion
-
-<!-- You may propose new features or improvements of existing Laravel behavior in the Laravel framework repository's [GitHub discussion board](https://github.com/laravel/framework/discussions). If you propose a new feature, please be willing to implement at least some of the code that would be needed to complete the feature. -->
-Laravel 프레임워크 저장소의 [GitHub discussion board](https://github.com/laravel/framework/discussions)에서 새 기능이나 기존 Laravel 동작의 개선 사항을 제안할 수 있습니다. 새 기능을 제안한다면, 해당 기능을 완성하는 데 필요한 코드 중 적어도 일부는 직접 구현할 의향이 있어야 합니다.
-
-<!-- Informal discussion regarding bugs, new features, and implementation of existing features takes place in the `#internals` channel of the [Laravel Discord server](https://discord.gg/laravel). Taylor Otwell, the maintainer of Laravel, is typically present in the channel on weekdays from 8am-5pm (UTC-06:00 or America/Chicago), and sporadically present in the channel at other times. -->
-버그, 새 기능, 기존 기능 구현에 대한 비공식 논의는 [Laravel Discord server](https://discord.gg/laravel)의 `#internals` 채널에서 이루어집니다. Laravel의 관리자인 Taylor Otwell은 보통 평일 오전 8시부터 오후 5시까지(UTC-06:00 또는 America/Chicago) 해당 채널에 있으며, 그 외 시간에도 간헐적으로 채널에 참여합니다.
-
 <a name="which-branch"></a>
 <!-- ## Which Branch? -->
 ## Which Branch?
@@ -119,11 +109,11 @@ Laravel 프레임워크 저장소의 [GitHub discussion board](https://github.co
 <!-- ## AI-Generated Contributions -->
 ## AI-Generated Contributions
 
-<!-- We appreciate every pull request submitted to Laravel. However, contributions that are primarily AI-generated without thoughtful human review and consideration are not acceptable. -->
-Laravel에 제출되는 모든 pull request에 감사드립니다. 하지만 충분한 사람의 검토와 고민 없이 주로 AI로 생성된 기여는 허용되지 않습니다.
+<!-- We appreciate every pull request submitted to Laravel. However, substantial contributions that are primarily AI-generated without thoughtful human review and consideration are not acceptable. -->
+Laravel에 제출되는 모든 풀 리퀘스트를 소중히 여깁니다. 그러나 사람의 신중한 검토와 판단 없이 주로 AI가 생성한 대규모 기여는 허용되지 않습니다.
 
-<!-- If you choose to use AI tools to assist with your contribution, the resulting code **must** be thoroughly reviewed, tested, and understood by you before submitting. -->
-기여를 도울 목적으로 AI 도구를 사용하기로 했다면, 제출하기 전에 결과 코드가 **반드시** 본인에 의해 철저히 검토되고, 테스트되며, 이해되어야 합니다.
+<!-- If you choose to use AI tools to assist with large or complex contributions to the framework, the resulting code **must** be thoroughly reviewed, tested, and understood by you before submitting. -->
+프레임워크에 대한 규모가 크거나 복잡한 기여를 지원하기 위해 AI 도구를 사용하기로 했다면, 그 결과로 나온 코드를 제출하기 전에 직접 철저히 검토하고 테스트하며 이해해야 **합니다**.
 
 <!-- Pull request descriptions **must** be written entirely by the contributor. Pull requests with AI-generated descriptions will be closed. -->
 pull request 설명은 **반드시** 기여자가 전부 직접 작성해야 합니다. AI가 생성한 설명이 포함된 pull request는 종료됩니다.
