@@ -41,6 +41,13 @@ MongoDB 데이터베이스에 연결하려면 `mongodb` PHP 확장(extension)이
 pecl install mongodb
 ```
 
+<!-- Alternatively, you may install the extension using [PIE](https://github.com/php/pie), the official PHP extension installer: -->
+또는 PHP 공식 확장 기능 설치 도구인 [PIE](https://github.com/php/pie)를 사용해 확장 기능을 설치할 수 있습니다.
+
+```shell
+pie install mongodb/mongodb-extension
+```
+
 <!-- For more information on installing the MongoDB PHP extension, check out the [MongoDB PHP extension installation instructions](https://www.php.net/manual/en/mongodb.installation.php). -->
 MongoDB PHP 확장 설치에 관한 자세한 내용은 [MongoDB PHP extension installation instructions](https://www.php.net/manual/en/mongodb.installation.php)를 참고하세요.
 
@@ -59,10 +66,7 @@ MONGODB_URI="mongodb://localhost:27017"
 MONGODB_DATABASE="laravel_app"
 ```
 
-<!--
-For hosting MongoDB in the cloud, consider using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
-To access a MongoDB Atlas cluster locally from your application, you will need to [add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/) to the project's IP Access List.
--->
+<!-- For hosting MongoDB in the cloud, consider using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas). To access a MongoDB Atlas cluster locally from your application, you will need to [add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/) to the project's IP Access List. -->
 클라우드 환경에서 MongoDB를 호스팅하려면 [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)를 고려할 수 있습니다. 애플리케이션에서 로컬로 MongoDB Atlas 클러스터에 접속하려면, [add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/)해야 합니다.
 
 <!-- The connection string for MongoDB Atlas can also be set in your `.env` file: -->
@@ -111,16 +115,7 @@ composer require mongodb/laravel-mongodb
 <!-- Once your configuration is complete, you can use the `mongodb` package and database connection in your application to leverage a variety of powerful features: -->
 설정을 완료하면, 애플리케이션 내에서 `mongodb` 패키지와 데이터베이스 연결을 사용하여 다음과 같은 강력한 기능들을 활용할 수 있습니다:
 
-<!--
-- [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/), models can be stored in MongoDB collections. In addition to the standard Eloquent features, the Laravel MongoDB package provides additional features such as embedded relationships. The package also provides direct access to the MongoDB driver, which can be used to execute operations such as raw queries and aggregation pipelines.
-- [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/) using the query builder.
-- [Similarity / vector search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/fundamentals/vector-search/) using vector embeddings and the `vectorSearch` Eloquent method.
-- The `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/) is optimized to use MongoDB features such as TTL indexes to automatically clear expired cache entries.
-- [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/) with the `mongodb` queue driver.
-- [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/filesystems/), via the [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/).
-- [Full-text search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/scout/) using the `mongodb` Scout engine.
-- Most third party packages using a database connection or Eloquent can be used with MongoDB.
--->
+<!-- - [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/), models can be stored in MongoDB collections. In addition to the standard Eloquent features, the Laravel MongoDB package provides additional features such as embedded relationships. The package also provides direct access to the MongoDB driver, which can be used to execute operations such as raw queries and aggregation pipelines. - [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/) using the query builder. - [Similarity / vector search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/fundamentals/vector-search/) using vector embeddings and the `vectorSearch` Eloquent method. - The `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/) is optimized to use MongoDB features such as TTL indexes to automatically clear expired cache entries. - [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/) with the `mongodb` queue driver. - [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/filesystems/), via the [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/). - [Full-text search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/scout/) using the `mongodb` Scout engine. - Most third party packages using a database connection or Eloquent can be used with MongoDB. -->
 - [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/), Eloquent 모델을 MongoDB 컬렉션에 저장할 수 있습니다. 일반적인 Eloquent 기능 외에도, Laravel MongoDB 패키지는 embedded relationships 같은 추가 기능을 제공합니다. 또한 MongoDB 드라이버에 직접 접근할 수 있어 raw queries나 aggregation pipelines 같은 작업을 수행할 수 있습니다.
 - [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/) 쿼리 빌더를 사용해 복잡한 쿼리를 작성할 수 있습니다.
 - [Similarity / vector search](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/fundamentals/vector-search/) 벡터 임베딩과 `vectorSearch` Eloquent 메서드를 사용한 유사도 / 벡터 검색입니다.
