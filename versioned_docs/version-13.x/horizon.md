@@ -28,7 +28,7 @@
 ## Introduction
 
 > [!NOTE]
-> Laravel Horizon을 살펴보기 전에 먼저 Laravel의 기본 [queue services](/docs/13.x/queues)에 익숙해져야 합니다. Horizon은 Laravel의 큐에 추가 기능을 제공하므로, Laravel이 제공하는 기본 큐 기능을 아직 잘 모른다면 혼란스러울 수 있습니다.
+> Laravel Horizon을 자세히 살펴보기 전에 Laravel의 기본 [queue services](/docs/13.x/queues)에 익숙해져야 합니다. Horizon은 Laravel의 큐에 추가 기능을 제공하므로, Laravel이 제공하는 기본 큐 기능을 아직 잘 모른다면 혼란스러울 수 있습니다.
 
 <!-- [Laravel Horizon](https://github.com/laravel/horizon) provides a beautiful dashboard and code-driven configuration for your Laravel powered [Redis queues](/docs/13.x/queues). Horizon allows you to easily monitor key metrics of your queue system such as job throughput, runtime, and job failures. -->
 [Laravel Horizon](https://github.com/laravel/horizon)은 Laravel 기반 [Redis queues](/docs/13.x/queues)를 위한 아름다운 대시보드와 코드 기반 설정을 제공합니다. Horizon을 사용하면 잡 처리량, 실행 시간, 잡 실패와 같은 큐 시스템의 주요 메트릭을 손쉽게 모니터링할 수 있습니다.
@@ -43,7 +43,7 @@ Horizon을 사용하면 모든 큐 워커 설정이 하나의 단순한 설정 �
 ## Installation
 
 > [!WARNING]
-> Laravel Horizon을 사용하려면 큐를 구동하는 데 [Redis](https://redis.io)를 사용해야 합니다. 따라서 애플리케이션의 `config/queue.php` 설정 파일에서 큐 연결이 `redis`로 설정되어 있는지 확인해야 합니다. 현재 Horizon은 Redis Cluster와 호환되지 않습니다.
+> Laravel Horizon을 사용하려면 큐를 구동하는 데 [Redis](https://redis.io)를 사용해야 합니다. 따라서 애플리케이션의 `config/queue.php` 설정 파일에서 큐 연결을 `redis`로 설정해야 합니다. 현재 Horizon은 Redis Cluster와 호환되지 않습니다.
 
 <!-- You may install Horizon into your project using the Composer package manager: -->
 Composer 패키지 매니저를 사용하여 Horizon을 프로젝트에 설치할 수 있습니다.
@@ -67,7 +67,7 @@ php artisan horizon:install
 에셋을 퍼블리시한 후, Horizon의 주요 설정 파일은 `config/horizon.php`에 생성됩니다. 이 파일에서는 애플리케이션의 큐 워커 옵션을 세부적으로 설정할 수 있습니다. 각 설정에는 목적에 대한 설명이 달려 있으니, 이 파일을 꼼꼼히 살펴보는 것이 좋습니다.
 
 > [!WARNING]
-> Horizon은 내부적으로 `horizon`이라는 이름의 Redis 연결을 사용합니다. 이 Redis 연결 이름은 예약되어 있으므로 `database.php` 설정 파일에서 다른 Redis 연결에 할당하거나 `horizon.php` 설정 파일에서 `use` 옵션의 값으로 지정해서는 안 됩니다.
+> Horizon은 내부적으로 `horizon`이라는 Redis 연결을 사용합니다. 이 Redis 연결 이름은 예약되어 있으므로 `database.php` 설정 파일에서 다른 Redis 연결에 할당하거나 `horizon.php` 설정 파일의 `use` 옵션 값으로 지정해서는 안 됩니다.
 
 <a name="content-security-policy-csp-nonce"></a>
 <!-- #### Content Security Policy (CSP) Nonce -->
@@ -144,7 +144,7 @@ Horizon 설치 후 가장 먼저 제어해야 하는 주요 옵션은 `environme
 Horizon을 시작하면 애플리케이션이 실행 중인 환경에 대한 워커 프로세스 설정 옵션을 사용합니다. 일반적으로 환경은 `APP_ENV` [environment variable](/docs/13.x/configuration#determining-the-current-environment)의 값으로 결정됩니다. 예를 들어 기본 `local` Horizon 환경은 워커 프로세스 3개를 시작하고 각 큐에 할당된 워커 프로세스 수를 자동으로 균형 조정하도록 설정되어 있습니다. 기본 `production` 환경은 최대 10개의 워커 프로세스를 시작하고 각 큐에 할당된 워커 프로세스 수를 자동으로 균형 조정하도록 설정되어 있습니다.
 
 > [!WARNING]
-> Horizon을 실행하려는 각 [environment](/docs/13.x/configuration#environment-configuration)에 대한 항목이 `horizon` 설정 파일의 `environments` 부분에 포함되어 있는지 확인해야 합니다.
+> Horizon을 실행할 계획인 각 [environment](/docs/13.x/configuration#environment-configuration)에 해당하는 항목이 `horizon` 설정 파일의 `environments` 부분에 포함되어 있는지 확인해야 합니다.
 
 <a name="supervisors"></a>
 <!-- #### Supervisors -->
@@ -216,7 +216,7 @@ Laravel은 게이트 클로저에 인증된 사용자를 자동으로 주입합�
 ### Max Job Attempts
 
 > [!NOTE]
-> 이러한 옵션을 조정하기 전에 Laravel의 기본 [queue services](/docs/13.x/queues#max-job-attempts-and-timeout)와 'attempts' 개념을 숙지했는지 확인하세요.
+> 이러한 옵션을 세부 조정하기 전에 Laravel의 기본 [queue services](/docs/13.x/queues#max-job-attempts-and-timeout)와 'attempts' 개념을 숙지해야 합니다.
 
 <!-- You can define the maximum number of attempts a job can consume within a supervisor's configuration: -->
 supervisor 설정 내에서 각 작업이 시도할 수 있는 최대 횟수를 지정할 수 있습니다.
@@ -233,7 +233,7 @@ supervisor 설정 내에서 각 작업이 시도할 수 있는 최대 횟수를 
 ```
 
 > [!NOTE]
-> 이 옵션은 Artisan 명령어로 큐를 처리할 때 사용하는 `--tries` 옵션과 유사합니다.
+> 이 옵션은 큐를 처리할 때 Artisan 명령어에서 사용하는 `--tries` 옵션과 비슷합니다.
 
 <!-- Adjusting the `tries` option is essential when using middlewares such as `WithoutOverlapping` or `RateLimited` because they consume attempts. To handle this, adjust the `tries` configuration value either at the supervisor level or by defining the `$tries` property on the job class. -->
 `WithoutOverlapping`, `RateLimited`과 같은 미들웨어를 사용할 경우 시도 횟수를 소비하므로 `tries` 옵션을 조정하는 것이 중요합니다. 이를 처리하려면 supervisor 단위에서 `tries` 설정 값을 조정하거나, 작업 클래스에 `$tries` 속성을 정의하여 적절히 조정해야 합니다.
@@ -263,7 +263,7 @@ supervisor 단위로 `timeout` 값을 설정할 수 있습니다. 이 값은 워
 ```
 
 > [!WARNING]
-> `auto` 밸런싱 전략을 사용할 때 Horizon은 진행 중인 워커를 "멈춘" 상태로 간주하며, 스케일 다운 중 Horizon 타임아웃이 지나면 해당 워커를 강제로 종료합니다. 항상 Horizon 타임아웃이 잡 수준의 타임아웃보다 긴지 확인해야 합니다. 그렇지 않으면 잡이 실행 중간에 종료될 수 있습니다. 또한 `timeout` 값은 `config/queue.php` 설정 파일에 정의된 `retry_after` 값보다 항상 몇 초 이상 짧아야 합니다. 그렇지 않으면 잡이 두 번 처리될 수 있습니다.
+> `auto` 밸런싱 전략을 사용할 때 Horizon은 진행 중인 워커를 "중단된" 상태로 간주하고, 스케일 다운 중 Horizon 타임아웃이 지나면 해당 워커를 강제로 종료합니다. 항상 Horizon 타임아웃이 잡 수준의 타임아웃보다 큰지 확인해야 합니다. 그렇지 않으면 잡이 실행 중에 종료될 수 있습니다. 또한 `timeout` 값은 `config/queue.php` 설정 파일에 정의된 `retry_after` 값보다 항상 몇 초 이상 짧아야 합니다. 그렇지 않으면 잡이 두 번 처리될 수 있습니다.
 
 <a name="job-backoff"></a>
 <!-- ### Job Backoff -->
@@ -413,14 +413,15 @@ class ProcessPodcast implements ShouldQueue, Silenced
 ],
 ```
 
-<!-- The `autoScalingStrategy` configuration option determines how Horizon will assign more worker processes to queues. You can choose between two strategies: -->
-`autoScalingStrategy` 옵션은 Horizon이 큐에 워커를 증설할 때 어떤 기준을 사용할지 결정합니다.
+<!-- The `autoScalingStrategy` configuration option determines how Horizon will assign more worker processes to queues. You can choose between three strategies: -->
+`autoScalingStrategy` 설정 옵션은 Horizon이 큐에 더 많은 워커 프로세스를 할당하는 방식을 결정합니다. 다음 세 가지 전략 중에서 선택할 수 있습니다.
 
 <div class="content-list" markdown="1">
 
-<!-- - The `time` strategy will assign workers based on the total estimated amount of time it will take to clear the queue. - The `size` strategy will assign workers based on the total number of jobs on the queue. -->
-- `time` 전략은 큐를 비우는 데 걸리는 총 예상 시간을 기준으로 워커를 할당합니다.
-- `size` 전략은 큐에 있는 전체 잡 수를 기준으로 워커를 할당합니다.
+<!-- - The `time` strategy will assign workers based on the total estimated amount of time it will take to clear the queue. - The `size` strategy will assign workers based on the total number of jobs on the queue. - The `log` strategy will assign workers based on the logarithm of the number of jobs on the queue. This prevents a significantly larger queue from receiving a disproportionately large share of workers. -->
+- `time` 전략은 큐를 비우는 데 걸릴 것으로 예상되는 총 시간을 기준으로 워커를 할당합니다.
+- `size` 전략은 큐에 있는 잡의 총 개수를 기준으로 워커를 할당합니다.
+- `log` 전략은 큐에 있는 잡 개수의 로그를 기준으로 워커를 할당합니다. 이를 통해 훨씬 더 큰 큐가 워커를 지나치게 많이 할당받는 것을 방지합니다.
 
 </div>
 
@@ -476,7 +477,7 @@ class ProcessPodcast implements ShouldQueue, Silenced
 이 예시에서는 기본 `queue`는 10개까지 확장 가능하고, `images` 큐는 1개의 프로세스만 사용하도록 보장됩니다. 이렇게 하면 각 큐별로 독립적 스케일링이 가능합니다.
 
 > [!NOTE]
-> 리소스를 많이 사용하는 잡을 디스패치할 때는 제한된 `maxProcesses` 값을 가진 전용 큐에 할당하는 것이 좋을 때가 있습니다. 그렇지 않으면 이러한 잡이 CPU 리소스를 과도하게 사용해 시스템에 과부하를 일으킬 수 있습니다.
+> 리소스를 많이 사용하는 잡을 디스패치할 때는 제한된 `maxProcesses` 값을 가진 전용 큐에 할당하는 것이 가장 좋을 때가 있습니다. 그렇지 않으면 이러한 잡이 CPU 리소스를 과도하게 사용해 시스템에 과부하를 일으킬 수 있습니다.
 
 <a name="simple-balancing"></a>
 <!-- ### Simple Balancing -->
@@ -711,7 +712,7 @@ stopwaitsecs=3600
 `stopwaitsecs` 값은 최장 실행 작업의 소요 시간보다 항상 크게 지정해야 합니다. 그렇지 않으면 Supervisor가 작업이 끝나기 전에 프로세스를 강제로 종료할 수 있습니다.
 
 > [!WARNING]
-> 위 예시는 Ubuntu 기반 서버에서 유효하지만, 다른 서버 운영 체제에서는 Supervisor 설정 파일의 위치와 예상되는 파일 확장자가 다를 수 있습니다. 자세한 내용은 서버의 문서를 참고하세요.
+> 위 예시는 Ubuntu 기반 서버에서 유효하지만, 다른 서버 운영 체제에서는 Supervisor 설정 파일에 예상되는 위치와 파일 확장자가 다를 수 있습니다. 자세한 내용은 사용 중인 서버의 문서를 참조하세요.
 
 <a name="starting-supervisor"></a>
 <!-- #### Starting Supervisor -->
@@ -729,7 +730,7 @@ sudo supervisorctl start horizon
 ```
 
 > [!NOTE]
-> Supervisor 실행에 관한 자세한 정보는 [Supervisor documentation](http://supervisord.org/index.html)을 참고하세요.
+> Supervisor 실행에 대한 자세한 내용은 [Supervisor documentation](http://supervisord.org/index.html)을 참고하세요.
 
 <a name="tags"></a>
 <!-- ## Tags -->
@@ -829,7 +830,7 @@ class SendRenderNotifications implements ShouldQueue
 ## Notifications
 
 > [!WARNING]
-> Horizon에서 Slack 또는 SMS 알림을 전송하도록 구성할 때는 [prerequisites for the relevant notification channel](/docs/13.x/notifications)을 검토해야 합니다.
+> Horizon에서 Slack 또는 SMS 알림을 보내도록 구성할 때는 [prerequisites for the relevant notification channel](/docs/13.x/notifications)을 검토해야 합니다.
 
 <!-- If you would like to be notified when one of your queues has a long wait time, you may use the `Horizon::routeMailNotificationsTo`, `Horizon::routeSlackNotificationsTo`, and `Horizon::routeSmsNotificationsTo` methods. You may call these methods from the `boot` method of your application's `App\Providers\HorizonServiceProvider`: -->
 특정 큐의 대기 시간이 과도하게 길어졌을 때 알림을 받고 싶다면, `Horizon::routeMailNotificationsTo`, `Horizon::routeSlackNotificationsTo`, `Horizon::routeSmsNotificationsTo` 메서드를 사용할 수 있습니다. 이 메서드는 `App\Providers\HorizonServiceProvider`의 `boot` 메서드에서 호출하세요.

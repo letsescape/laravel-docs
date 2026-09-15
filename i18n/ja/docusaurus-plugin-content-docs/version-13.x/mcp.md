@@ -8,8 +8,10 @@
     - [Server Registration](#server-registration)
     - [Web Servers](#web-servers)
     - [Local Servers](#local-servers)
+    - [Cache Hints](#cache-hints)
 - [Tools](#tools)
     - [Creating Tools](#creating-tools)
+    - [Searchable Tool Catalogs](#searchable-tool-catalogs)
     - [Tool Input Schemas](#tool-input-schemas)
     - [Tool Output Schemas](#tool-output-schemas)
     - [Validating Tool Arguments](#validating-tool-arguments)
@@ -192,6 +194,54 @@ Mcp::local('weather', WeatherServer::class);
 <!-- Once registered, you should not typically need to manually run the `mcp:start` Artisan command yourself. Instead, configure your MCP client (AI agent) to start the server or use the [MCP Inspector](#mcp-inspector). -->
 一度登録すると、通常は `mcp:start` Artisan コマンドを自分で手動で実行する必要はありません。代わりに、サーバーを起動するか、[MCP Inspector](#mcp-inspector) を使用するように MCP クライアント (AI エージェント) を構成します。
 
+<a name="cache-hints"></a>
+<!-- ### Cache Hints -->
+### Cache Hints
+
+<!-- Laravel MCP includes cache hints with responses that may be cached, such as server discovery, primitive listings, and resource reads. By default, these responses are marked as private with a time to live of zero milliseconds. -->
+Laravel MCP は、サーバーの検出、プリミティブの一覧表示、リソースの読み取りなど、キャッシュされる可能性があるレスポンスにキャッシュヒントを付与します。デフォルトでは、これらのレスポンスは有効期間 0 ミリ秒のプライベートとして扱われます。
+
+<!-- You may customize the default cache hint for a server using the `Cacheable` attribute: -->
+`Cacheable` 属性を使用して、サーバーのデフォルトのキャッシュヒントをカスタマイズできます。
+
+```php
+use Laravel\Mcp\Enums\CacheScope;
+use Laravel\Mcp\Server\Attributes\Cacheable;
+
+#[Cacheable(ttlMs: 60_000, scope: CacheScope::Public)]
+class WeatherServer extends Server
+{
+    /**
+     * Get the cache hints for individual MCP methods.
+     *
+     * @return array<string, \Laravel\Mcp\Server\Attributes\Cacheable>
+     */
+    protected function cacheHints(): array
+    {
+        return [
+            'tools/list' => new Cacheable(ttlMs: 30_000, scope: CacheScope::Public),
+        ];
+    }
+}
+```
+
+<!-- The `CacheScope::Private` scope limits cached responses to the same authorization context, while `CacheScope::Public` allows responses to be shared between users. Cache hints are advisory; the MCP client or host determines whether a response is actually cached. Method-specific hints returned by `cacheHints` take precedence over the server's `Cacheable` attribute. -->
+`CacheScope::Private` スコープでは、キャッシュされたレスポンスを同じ認可コンテキスト内に制限します。一方、`CacheScope::Public` を指定すると、ユーザー間でレスポンスを共有できます。キャッシュヒントはあくまで参考情報であり、レスポンスを実際にキャッシュするかどうかは MCP クライアントまたはホストが決定します。`cacheHints` が返すメソッド固有のヒントは、サーバーの `Cacheable` 属性よりも優先されます。
+
+<!-- You may override the server's cache hint for an individual resource by applying the `Cacheable` attribute to the resource class: -->
+リソースクラスに `Cacheable` 属性を付与すると、個別のリソースについてサーバーのキャッシュヒントを上書きできます。
+
+```php
+#[Cacheable(ttlMs: 300_000, scope: CacheScope::Public)]
+class WeatherGuidelinesResource extends Resource
+{
+    // ...
+}
+```
+
+<!-- A resource's `Cacheable` attribute takes precedence over both the method-specific hint and the server's default hint. -->
+リソースの `Cacheable` 属性は、メソッド固有のヒントとサーバーのデフォルトヒントの両方よりも優先されます。
+
 <a name="tools"></a>
 <!-- ## Tools -->
 ## Tools
@@ -276,6 +326,51 @@ class WeatherServer extends Server
 }
 ```
 
+<a name="searchable-tool-catalogs"></a>
+<!-- ### Searchable Tool Catalogs -->
+### Searchable Tool Catalogs
+
+<!-- Servers with many tools can place some tools in a searchable catalog instead of advertising every tool to the AI client. A searchable catalog exposes two tools: `search_tools`, which searches the catalog by tool name, description, and input schema; and `execute_tools`, which invokes one or more tools returned by a search. -->
+多数のツールを持つサーバーでは、すべてのツールを AI クライアントに公開する代わりに、一部のツールを検索可能なカタログに配置できます。検索可能なカタログでは、2つのツールを公開します。`search_tools` はツール名、説明、入力スキーマを条件にカタログを検索し、`execute_tools` は検索結果として返された1つ以上のツールを呼び出します。
+
+<!-- To create a searchable catalog, use the `ToolSearch` class as an array key in your server's `$tools` property: -->
+検索可能なカタログを作成するには、サーバーの `$tools` プロパティで `ToolSearch` クラスを配列キーとして使用します。
+
+```php
+<?php
+
+namespace App\Mcp\Servers;
+
+use App\Mcp\Tools\CurrentWeatherTool;
+use App\Mcp\Tools\HistoricalWeatherTool;
+use App\Mcp\Tools\WeatherAlertsTool;
+use Laravel\Mcp\Server;
+use Laravel\Mcp\Server\Tools\ToolSearch;
+
+class WeatherServer extends Server
+{
+    /**
+     * The tools registered with this MCP server.
+     *
+     * @var array<int|string, \Laravel\Mcp\Server\Tool|class-string<\Laravel\Mcp\Server\Tool>|array<int, \Laravel\Mcp\Server\Tool|class-string<\Laravel\Mcp\Server\Tool>>>
+     */
+    protected array $tools = [
+        CurrentWeatherTool::class,
+
+        ToolSearch::class => [
+            HistoricalWeatherTool::class,
+            WeatherAlertsTool::class,
+        ],
+    ];
+}
+```
+
+<!-- In this example, `CurrentWeatherTool` is advertised directly, while the historical weather and weather alert tools are available through the searchable catalog. Conditional tool registration is still respected when catalog tools are searched or executed. -->
+この例では、`CurrentWeatherTool` を直接公開し、過去の天気と気象警報のツールは検索可能なカタログから利用できるようにしています。カタログのツールを検索または実行する場合も、条件付きのツール登録は引き続き適用されます。
+
+<!-- The maximum number of tools that may be executed in one `execute_tools` call and the maximum response size are controlled by the `mcp.tool_search.max_tool_calls` and `mcp.tool_search.max_output_bytes` configuration values. -->
+1回の `execute_tools` 呼び出しで実行できるツールの最大数とレスポンスの最大サイズは、`mcp.tool_search.max_tool_calls` および `mcp.tool_search.max_output_bytes` の設定値で制御します。
+
 <a name="tool-name-title-description"></a>
 <!-- #### Tool Name, Title, and Description -->
 #### Tool Name, Title, and Description
@@ -353,8 +448,8 @@ class CurrentWeatherTool extends Tool
 <!-- ### Tool Output Schemas -->
 ### Tool Output Schemas
 
-<!-- Tools can define [output schemas](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#output-schema) to specify the structure of their responses. This enables better integration with AI clients that need parseable tool results. Use the `outputSchema` method to define your tool's output structure: -->
-ツールは [output schemas](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#output-schema) を定義して応答の構造を指定できます。これにより、解析可能なツール結果を必要とする AI クライアントとの統合が可能になります。 `outputSchema` メソッドを使用して、ツールの出力構造を定義します。
+<!-- Tools can define [output schemas](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#output-schema) to specify the structure of their responses. This enables better integration with AI clients that need parseable tool results. Use the `outputSchema` method to define your tool's output structure: -->
+ツールは [output schemas](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#output-schema) を定義して、応答の構造を指定できます。これにより、解析可能なツール結果を必要とする AI クライアントとの統合が向上します。`outputSchema` メソッドを使用して、ツールの出力構造を定義してください。
 
 ```php
 <?php
@@ -500,8 +595,8 @@ class CurrentWeatherTool extends Tool
 <!-- ### Tool Annotations -->
 ### Tool Annotations
 
-<!-- You may enhance your tools with [annotations](https://modelcontextprotocol.io/specification/2025-06-18/schema#toolannotations) to provide additional metadata to AI clients. These annotations help AI models understand the tool's behavior and capabilities. Annotations are added to tools via attributes: -->
-[annotations](https://modelcontextprotocol.io/specification/2025-06-18/schema#toolannotations) を使用してツールを強化し、AI クライアントに追加のメタデータを提供できます。これらの注釈は、AI モデルがツールの動作と機能を理解するのに役立ちます。注釈は属性を介してツールに追加されます。
+<!-- You may enhance your tools with [annotations](https://modelcontextprotocol.io/specification/2026-07-28/schema#toolannotations) to provide additional metadata to AI clients. These annotations help AI models understand the tool's behavior and capabilities. Annotations are added to tools via attributes: -->
+[annotations](https://modelcontextprotocol.io/specification/2026-07-28/schema#toolannotations) を使用してツールを拡張し、AI クライアントに追加のメタデータを提供できます。これらの注釈は、AI モデルがツールの動作と機能を理解するのに役立ちます。注釈は属性を介してツールに追加されます。
 
 ```php
 <?php
@@ -673,8 +768,8 @@ public function handle(Request $request): array
 <!-- #### Structured Responses -->
 #### Structured Responses
 
-<!-- Tools can return [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) using the `structured` method. This provides parseable data for AI clients while maintaining backward compatibility with a JSON-encoded text representation: -->
-ツールは、`structured` メソッドを使用して [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) を返すことができます。これにより、JSON エンコードされたテキスト表現との下位互換性を維持しながら、AI クライアントに解析可能なデータが提供されます。
+<!-- Tools can return [structured content](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#structured-content) using the `structured` method. This provides parseable data for AI clients while maintaining backward compatibility with a JSON-encoded text representation: -->
+ツールは、`structured` メソッドを使用して [structured content](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#structured-content) を返せます。これにより、JSON エンコードされたテキスト表現との下位互換性を維持しながら、AI クライアントに解析可能なデータを提供できます。
 
 ```php
 return Response::structured([
@@ -744,8 +839,8 @@ Web ベースのサーバーを使用する場合、ストリーミング応答�
 <!-- ## Prompts -->
 ## Prompts
 
-<!-- [Prompts](https://modelcontextprotocol.io/specification/2025-06-18/server/prompts) enable your server to share reusable prompt templates that AI clients can use to interact with language models. They provide a standardized way to structure common queries and interactions. -->
-[Prompts](https://modelcontextprotocol.io/specification/2025-06-18/server/prompts) を使用すると、AI クライアントが言語モデルと対話するために使用できる再利用可能なプロンプト テンプレートをサーバーで共有できるようになります。これらは、一般的なクエリと対話を構造化するための標準化された方法を提供します。
+<!-- [Prompts](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts) enable your server to share reusable prompt templates that AI clients can use to interact with language models. They provide a standardized way to structure common queries and interactions. -->
+[Prompts](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts) を使用すると、AI クライアントが言語モデルと対話するために利用できる再利用可能なプロンプトテンプレートをサーバーで共有できます。一般的なクエリや対話を構造化するための標準的な方法を提供します。
 
 <a name="creating-prompts"></a>
 <!-- ### Creating Prompts -->
@@ -1031,8 +1126,8 @@ class DescribeWeatherPrompt extends Prompt
 <!-- ## Resources -->
 ## Resources
 
-<!-- [Resources](https://modelcontextprotocol.io/specification/2025-06-18/server/resources) enable your server to expose data and content that AI clients can read and use as context when interacting with language models. They provide a way to share static or dynamic information like documentation, configuration, or any data that helps inform AI responses. -->
-[Resources](https://modelcontextprotocol.io/specification/2025-06-18/server/resources) を使用すると、サーバーが AI クライアントが言語モデルと対話するときにコンテキストとして読み取って使用できるデータとコンテンツを公開できるようになります。これらは、ドキュメント、構成、AI 応答の通知に役立つデータなどの静的または動的な情報を共有する方法を提供します。
+<!-- [Resources](https://modelcontextprotocol.io/specification/2026-07-28/server/resources) enable your server to expose data and content that AI clients can read and use as context when interacting with language models. They provide a way to share static or dynamic information like documentation, configuration, or any data that helps inform AI responses. -->
+[Resources](https://modelcontextprotocol.io/specification/2026-07-28/server/resources) を使用すると、サーバーが AI クライアントに対して、言語モデルとの対話時にコンテキストとして読み取り、利用できるデータやコンテンツを公開できるようになります。ドキュメントや設定、AI の応答に役立つあらゆるデータなど、静的または動的な情報を共有できます。
 
 <a name="creating-resources"></a>
 <!-- ## Creating Resources -->
@@ -1108,8 +1203,8 @@ class WeatherGuidelinesResource extends Resource
 <!-- ### Resource Templates -->
 ### Resource Templates
 
-<!-- [Resource templates](https://modelcontextprotocol.io/specification/2025-06-18/server/resources#resource-templates) enable your server to expose dynamic resources that match URI patterns with variables. Instead of defining a static URI for each resource, you can create a single resource that handles multiple URIs based on a template pattern. -->
-[Resource templates](https://modelcontextprotocol.io/specification/2025-06-18/server/resources#resource-templates) を使用すると、サーバーは URI パターンと変数を照合する動的リソースを公開できるようになります。リソースごとに静的 URI を定義する代わりに、テンプレート パターンに基づいて複数の URI を処理する単一のリソースを作成できます。
+<!-- [Resource templates](https://modelcontextprotocol.io/specification/2026-07-28/server/resources#resource-templates) enable your server to expose dynamic resources that match URI patterns with variables. Instead of defining a static URI for each resource, you can create a single resource that handles multiple URIs based on a template pattern. -->
+[Resource templates](https://modelcontextprotocol.io/specification/2026-07-28/server/resources#resource-templates) を使用すると、サーバーで変数を含む URI パターンに一致する動的リソースを公開できます。リソースごとに静的 URI を定義する代わりに、テンプレートパターンに基づいて複数の URI を処理する単一のリソースを作成できます。
 
 <a name="creating-resource-templates"></a>
 <!-- #### Creating Resource Templates -->
@@ -1336,8 +1431,8 @@ class WeatherGuidelinesResource extends Resource
 <!-- ### Resource Annotations -->
 ### Resource Annotations
 
-<!-- You may enhance your resources with [annotations](https://modelcontextprotocol.io/specification/2025-06-18/schema#resourceannotations) to provide additional metadata to AI clients. Annotations are added to resources via attributes: -->
-[annotations](https://modelcontextprotocol.io/specification/2025-06-18/schema#resourceannotations) を使用してリソースを拡張し、追加のメタデータを AI クライアントに提供できます。注釈は属性を介してリソースに追加されます。
+<!-- You may enhance your resources with [annotations](https://modelcontextprotocol.io/specification/2026-07-28/schema#annotations) to provide additional metadata to AI clients. Annotations are added to resources via attributes: -->
+[annotations](https://modelcontextprotocol.io/specification/2026-07-28/schema#annotations) を使用してリソースを拡張し、AI クライアントに追加のメタデータを提供できます。注釈は属性を介してリソースに追加されます。
 
 ```php
 <?php
@@ -1605,8 +1700,8 @@ class ShowWeatherDashboard extends Tool
 }
 ```
 
-<!-- Laravel MCP automatically advertises the `io.modelcontextprotocol/ui` capability whenever any `AppResource` is registered, so no additional server configuration is required. -->
-Laravel MCP は、`AppResource` が登録されるたびに、`io.modelcontextprotocol/ui` 機能を自動的にアドバタイズするため、追加のサーバー構成は必要ありません。
+<!-- Laravel MCP automatically advertises the `io.modelcontextprotocol/ui` extension within the server's `extensions` capability whenever any `AppResource` is registered, so no additional server configuration is required. -->
+Laravel MCP は、`AppResource` が登録されるたびに、サーバーの `extensions` 機能内で `io.modelcontextprotocol/ui` 拡張機能を自動的に通知するため、追加のサーバー設定は必要ありません。
 
 <a name="app-tool-visibility"></a>
 <!-- ### App Tool Visibility -->
@@ -1672,8 +1767,8 @@ Laravel MCP には、MCP アプリを構築するための専用の [Boost](/doc
 <!-- ## Metadata -->
 ## Metadata
 
-<!-- Laravel MCP also supports the `_meta` field as defined in the [MCP specification](https://modelcontextprotocol.io/specification/2025-06-18/basic#meta), which is required by certain MCP clients or integrations. Metadata can be applied to all MCP primitives, including tools, resources, and prompts, as well as their responses. -->
-Laravel MCP は、特定の MCP クライアントまたは統合で必要な [MCP specification](https://modelcontextprotocol.io/specification/2025-06-18/basic#meta) で定義されている `_meta` フィールドもサポートしています。メタデータは、ツール、リソース、プロンプトとその応答を含むすべての MCP プリミティブに適用できます。
+<!-- Laravel MCP also supports the `_meta` field as defined in the [MCP specification](https://modelcontextprotocol.io/specification/2026-07-28/basic#_meta), which is required by certain MCP clients or integrations. Metadata can be applied to all MCP primitives, including tools, resources, and prompts, as well as their responses. -->
+Laravel MCP は、特定の MCP クライアントまたは統合で必要とされる [MCP specification](https://modelcontextprotocol.io/specification/2026-07-28/basic#_meta) で定義された `_meta` フィールドもサポートしています。メタデータは、ツール、リソース、プロンプト、およびそれらのレスポンスを含む、すべての MCP プリミティブに適用できます。
 
 <!-- You can attach metadata to individual response content using the `withMeta` method: -->
 `withMeta` メソッドを使用して、個々の応答コンテンツにメタデータを添付できます。
@@ -1947,16 +2042,15 @@ use Laravel\Mcp\Client;
 $client = Client::local('php', ['artisan', 'mcp:start']);
 ```
 
-<!-- The client connects lazily, automatically establishing the connection the first time you list or call tools. If you need to manage the connection manually, you may use the `connect`, `connected`, `ping`, and `disconnect` methods: -->
-クライアントは遅延的に接続し、最初にツールを一覧表示または呼び出したときに自動的に接続を確立します。接続を手動で管理する必要がある場合は、`connect`、`connected`、`ping`、`disconnect` メソッドを使用できます。
+<!-- The client connects lazily, automatically establishing the connection the first time you list or call tools. If you need to manage the connection manually, you may use the `connect`, `connected`, and `disconnect` methods: -->
+クライアントは遅延接続を行い、ツールを初めて一覧表示または呼び出ししたときに自動的に接続を確立します。接続を手動で管理する必要がある場合は、`connect`、`connected`、`disconnect` メソッドを使用できます。
 
 ```php
 $client->connect();
 
-$client->ping();
-
 if ($client->connected()) {
-    // ...
+    $capabilities = $client->capabilities();
+    $server = $client->serverInfo();
 }
 
 $client->disconnect();
@@ -2027,7 +2121,10 @@ Mcp::registerClient('github', fn () => Client::web('https://mcp.example.com')->w
 ```
 
 > [!NOTE]
-> MCP サーバーが [dynamic client registration](https://datatracker.ietf.org/doc/html/rfc7591) をサポートしている場合は `clientId` と `clientSecret` 引数を省略でき、その場合クライアントは自動的に自身を登録します。
+> `clientId` と `clientSecret` 引数は省略できます。認可サーバーがサポートしている場合、Laravel は [Client ID Metadata Document](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/client-registration#client-id-metadata-documents) を使用し、レガシーなサーバーでは [dynamic client registration](https://datatracker.ietf.org/doc/html/rfc7591) にフォールバックします。
+
+<!-- The authorization server must advertise support for the `S256` PKCE code challenge method in its authorization server metadata. Laravel will reject the authorization attempt if PKCE support is not advertised. -->
+認可サーバーは、認可サーバーのメタデータで `S256` PKCE コードチャレンジ方式のサポートを明示する必要があります。PKCE のサポートが明示されていない場合、Laravel は認可試行を拒否します。
 
 <!-- Next, register the OAuth routes for the named client in your `routes/ai.php` file using the `oAuthRoutesFor` method. The closure you provide receives the client name and resulting `TokenSet` after the authorization code has been exchanged for an access token: -->
 次に、`oAuthRoutesFor` メソッドを使用して、名前付きクライアントの OAuth ルートを `routes/ai.php` ファイルに登録します。指定したクロージャは、認可コードがアクセストークンと交換された後に、クライアント名と生成された `TokenSet` を受け取ります。
@@ -2046,8 +2143,30 @@ Mcp::oAuthRoutesFor('github', function (string $client, TokenSet $token) {
 });
 ```
 
-<!-- This registers two named routes: a connect route (`mcp.oauth.{client}.connect`) that redirects the user to the authorization server, and a callback route (`mcp.oauth.{client}.callback`) that exchanges the authorization code and invokes your handler. Both routes use the `web` middleware group by default, which you may override using the `middleware` argument. -->
-これにより、2 つの名前付きルートが登録されます。ユーザーを認可サーバーへリダイレクトする接続ルート (`mcp.oauth.{client}.connect`) と、認可コードを交換してハンドラを呼び出すコールバックルート (`mcp.oauth.{client}.callback`) です。どちらのルートもデフォルトで `web` ミドルウェアグループを使用し、`middleware` 引数で上書きできます。
+<!-- This registers three named routes: a connect route (`mcp.oauth.{client}.connect`) that redirects the user to the authorization server, a callback route (`mcp.oauth.{client}.callback`) that exchanges the authorization code and invokes your handler, and a public Client ID Metadata Document route (`mcp.oauth.{client}.client-metadata`). The connect and callback routes use the `web` middleware group by default, which you may override using the `middleware` argument. The metadata route does not use this middleware because the authorization server must be able to retrieve it. -->
+これにより、3つの名前付きルートが登録されます。ユーザーを認可サーバーへリダイレクトする接続ルート (`mcp.oauth.{client}.connect`)、認可コードを交換してハンドラを呼び出すコールバックルート (`mcp.oauth.{client}.callback`)、そしてパブリックな Client ID メタデータドキュメントのルート (`mcp.oauth.{client}.client-metadata`) です。接続ルートとコールバックルートはデフォルトで `web` ミドルウェアグループを使用し、`middleware` 引数で上書きできます。認可サーバーがメタデータを取得できる必要があるため、メタデータルートではこのミドルウェアを使用しません。
+
+<!-- The metadata document describes your application as a public OAuth client and uses your application's `APP_URL` to generate the client ID and callback URL. Therefore, you should ensure the `APP_URL` environment variable is set correctly in production. You may customize the metadata route and provide additional metadata using the `clientMetadataUri` and `clientMetadata` arguments: -->
+メタデータドキュメントはアプリケーションをパブリックな OAuth クライアントとして記述し、アプリケーションの `APP_URL` を使ってクライアント ID とコールバック URL を生成します。そのため、本番環境では `APP_URL` 環境変数が正しく設定されていることを確認してください。`clientMetadataUri` 引数と `clientMetadata` 引数を使って、メタデータルートをカスタマイズしたり、追加のメタデータを指定したりできます。
+
+```php
+use Laravel\Mcp\Client\OAuth\TokenSet;
+use Laravel\Mcp\Facades\Mcp;
+
+Mcp::oAuthRoutesFor(
+    'github',
+    function (string $client, TokenSet $token) {
+        // Store the token...
+
+        return redirect('/dashboard');
+    },
+    clientMetadataUri: 'oauth/github/client.json',
+    clientMetadata: [
+        'client_name' => 'Acme Weather Dashboard',
+        'logo_uri' => 'https://acme.com/logo.png',
+    ],
+);
+```
 
 <!-- To begin the authorization flow, redirect the user to the connect route: -->
 認可フローを開始するには、ユーザーを接続ルートへリダイレクトします。

@@ -32,8 +32,8 @@
 <!-- ## Introduction -->
 ## Introduction
 
-<!-- Artisan is the command line interface included with Laravel. Artisan exists at the root of your application as the `artisan` script and provides a number of helpful commands that can assist you while you build your application. To view a list of all available Artisan commands, you may use the `list` command: -->
-Artisan は、Laravel に含まれるコマンドライン インターフェイスです。 Artisan は、アプリケーションのルートに `artisan` スクリプトとして存在し、アプリケーションの構築時に役立つ多数の便利なコマンドを提供します。使用可能なすべての Artisan コマンドのリストを表示するには、`list` コマンドを使用します。
+<!-- Artisan is the command line interface included with Laravel. Artisan exists at the root of your application as the `artisan` script and provides a number of helpful commands you can use while building your application. To view a list of all available Artisan commands, you may use the `list` command: -->
+Artisan は、Laravel に含まれるコマンドラインインターフェイスです。Artisan はアプリケーションのルートに `artisan` スクリプトとして配置されており、アプリケーションの構築中に役立つ便利なコマンドを多数提供します。利用可能なすべての Artisan コマンドの一覧を表示するには、`list` コマンドを使用します。
 
 ```shell
 php artisan list

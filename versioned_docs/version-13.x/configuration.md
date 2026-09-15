@@ -91,9 +91,9 @@ Laravel의 기본 `.env` 파일에는 로컬 환경과 운영 웹 서버에서 �
 <!-- All variables in your `.env` files are typically parsed as strings, so some reserved values have been created to allow you to return a wider range of types from the `env()` function: -->
 `.env` 파일의 모든 변수는 일반적으로 문자열로 파싱되지만, `env()` 함수에서 좀 더 다양한 타입을 반환할 수 있도록 예약된 값들이 마련되어 있습니다.
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | `.env` Value | `env()` Value | | ------------ | ------------- | | true | (bool) true | | (true) | (bool) true | | false | (bool) false | | (false) | (bool) false | | empty | (string) '' | | (empty) | (string) '' | | null | (null) null | | (null) | (null) null | -->
 | `.env` 값    | `env()` 반환값   |
 | ------------ | --------------- |
 | true         | (bool) true     |
@@ -105,7 +105,6 @@ Laravel의 기본 `.env` 파일에는 로컬 환경과 운영 웹 서버에서 �
 | null         | (null) null     |
 | (null)       | (null) null     |
 
-<!-- </div> -->
 </div>
 
 <!-- If you need to define an environment variable with a value that contains spaces, you may do so by enclosing the value in double quotes: -->
@@ -222,7 +221,28 @@ APP_URL=eyJpdiI6...
 환경 파일을 복호화할 때는 Laravel이 사용된 형식을 자동으로 감지하므로, `env:decrypt` 명령어에 추가 옵션이 필요하지 않습니다.
 
 > [!NOTE]
-> `--readable` 옵션을 사용할 경우, 원본 환경 파일의 주석 및 빈 줄은 암호화된 파일에 포함되지 않습니다.
+> `--readable` 옵션을 사용할 경우, 원본 환경 파일의 주석과 빈 줄은 암호화된 출력에 포함되지 않습니다.
+
+<a name="updating-readable-environment-files"></a>
+<!-- #### Updating Readable Environment Files -->
+#### Updating Readable Environment Files
+
+<!-- When updating a readable encrypted environment file, Laravel preserves unchanged values and removes variables that no longer exist in the source environment file: -->
+읽을 수 있는 암호화 환경 파일을 업데이트하면 Laravel은 변경되지 않은 값을 유지하고 원본 환경 파일에 더 이상 존재하지 않는 변수를 제거합니다.
+
+```shell
+php artisan env:encrypt --readable --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
+```
+
+<!-- The encrypted file will be created if it does not exist. When updating an existing file, provide the same encryption key and cipher used to create it. If the file cannot be decrypted, the command will fail without overwriting it. -->
+암호화된 파일이 존재하지 않으면 새로 생성합니다. 기존 파일을 업데이트할 때는 해당 파일을 생성할 때 사용한 것과 동일한 암호화 키와 암호를 제공해야 합니다. 파일을 복호화할 수 없으면 기존 파일을 덮어쓰지 않고 명령어가 실패합니다.
+
+<!-- To encrypt all values again, use the `--force` option. This allows you to change the encryption key or replace an invalid encrypted file: -->
+모든 값을 다시 암호화하려면 `--force` 옵션을 사용합니다. 이 옵션을 사용하면 암호화 키를 변경하거나 유효하지 않은 암호화 파일을 교체할 수 있습니다.
+
+```shell
+php artisan env:encrypt --readable --force --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
+```
 
 <a name="decryption"></a>
 <!-- #### Decryption -->

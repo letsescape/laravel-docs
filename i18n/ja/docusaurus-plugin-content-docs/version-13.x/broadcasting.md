@@ -7,10 +7,12 @@
     - [Reverb](#reverb)
     - [Pusher Channels](#pusher-channels)
     - [Ably](#ably)
+    - [Mercure](#mercure)
 - [Client Side Installation](#client-side-installation)
     - [Reverb](#client-reverb)
     - [Pusher Channels](#client-pusher-channels)
     - [Ably](#client-ably)
+    - [Mercure](#client-mercure)
 - [Concept Overview](#concept-overview)
     - [Using an Example Application](#using-example-application)
 - [Defining Broadcast Events](#defining-broadcast-events)
@@ -62,11 +64,11 @@
 <!-- #### Supported Drivers -->
 #### Supported Drivers
 
-<!-- By default, Laravel includes three server-side broadcasting drivers for you to choose from: [Laravel Reverb](https://reverb.laravel.com), [Pusher Channels](https://pusher.com/channels), and [Ably](https://ably.com). -->
-デフォルトでは、Laravel には、[Laravel Reverb](https://reverb.laravel.com)、[Pusher Channels](https://pusher.com/channels)、および [Ably](https://ably.com) から選択できる 3 つのサーバー側ブロードキャスト ドライバが含まれています。
+<!-- By default, Laravel includes four server-side broadcasting drivers for you to choose from: [Laravel Reverb](https://reverb.laravel.com), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), and [Mercure](https://mercure.rocks). -->
+デフォルトでは、Laravel には次の4つのサーバーサイドブロードキャストドライバが用意されており、いずれかを選択できます。[Laravel Reverb](https://reverb.laravel.com)、[Pusher Channels](https://pusher.com/channels)、[Ably](https://ably.com)、[Mercure](https://mercure.rocks) です。
 
 > [!NOTE]
-> イベントブロードキャストに入る前に、[events and listeners](/docs/13.x/events) にある Laravel のドキュメントを必ず読んでください。
+> イベントブロードキャストについて詳しく説明する前に、Laravel の [events and listeners](/docs/13.x/events) に関するドキュメントを読んでおいてください。
 
 <a name="quickstart"></a>
 <!-- ## Quickstart -->
@@ -82,8 +84,8 @@ php artisan install:broadcasting
 <!-- The `install:broadcasting` command will prompt you for which event broadcasting service you would like to use. In addition, it will create the `config/broadcasting.php` configuration file and the `routes/channels.php` file where you may register your application's broadcast authorization routes and callbacks. -->
 `install:broadcasting` コマンドを実行すると、使用するイベント ブロードキャスト サービスを指定するよう求められます。さらに、アプリケーションのブロードキャスト認可ルートとコールバックを登録できる `config/broadcasting.php` 構成ファイルと `routes/channels.php` ファイルが作成されます。
 
-<!-- Laravel supports several broadcast drivers out of the box: [Laravel Reverb](/docs/13.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), and a `log` driver for local development and debugging. Additionally, a `null` driver is included which allows you to disable broadcasting during testing. A configuration example is included for each of these drivers in the `config/broadcasting.php` configuration file. -->
-Laravel は、すぐに使用できるいくつかのブロードキャストドライバ ([Laravel Reverb](/docs/13.x/reverb)、[Pusher Channels](https://pusher.com/channels)、[Ably](https://ably.com)、ローカル開発およびデバッグ用の `log` ドライバ) をサポートしています。さらに、テスト中にブロードキャストを無効にすることができる `null` ドライバが含まれています。これらの各ドライバの構成例は、`config/broadcasting.php` 構成ファイルに含まれています。
+<!-- Laravel supports several broadcast drivers out of the box: [Laravel Reverb](/docs/13.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), [Mercure](https://mercure.rocks), and a `log` driver for local development and debugging. Additionally, a `null` driver is included which allows you to disable broadcasting during testing. A configuration example is included for each of these drivers in the `config/broadcasting.php` configuration file. -->
+Laravel は、標準で複数のブロードキャストドライバをサポートしています。[Laravel Reverb](/docs/13.x/reverb)、[Pusher Channels](https://pusher.com/channels)、[Ably](https://ably.com)、[Mercure](https://mercure.rocks)、そしてローカル開発やデバッグに使用する `log` ドライバです。また、テスト中にブロードキャストを無効にできる `null` ドライバも用意されています。これらの各ドライバの設定例は、`config/broadcasting.php` 設定ファイルに含まれています。
 
 <!-- All of your application's event broadcasting configuration is stored in the `config/broadcasting.php` configuration file. Don't worry if this file does not exist in your application; it will be created when you run the `install:broadcasting` Artisan command. -->
 アプリケーションのイベント ブロードキャスト設定はすべて、`config/broadcasting.php` 設定ファイルに保存されます。このファイルがアプリケーションに存在しなくても心配する必要はありません。 `install:broadcasting` Artisan コマンドを実行すると作成されます。
@@ -96,7 +98,7 @@ Laravel は、すぐに使用できるいくつかのブロードキャストド
 イベント ブロードキャストを有効にすると、[defining broadcast events](#defining-broadcast-events) と [listening for events](#listening-for-events) について詳しく学ぶことができます。 Laravel の React、Vue、または Svelte [starter kits](/docs/13.x/starter-kits) を使用している場合は、Echo の [useEcho hook](#using-react-or-vue) を使用してイベントをリッスンできます。
 
 > [!NOTE]
-> イベントをブロードキャストする前に、まず [queue worker](/docs/13.x/queues) を構成して実行する必要があります。すべてのイベント ブロードキャストはキューに入れられたジョブを介して行われるため、ブロードキャストされるイベントによってアプリケーションの応答時間が重大な影響を受けることはありません。
+> イベントをブロードキャストする前に、まず[queue worker](/docs/13.x/queues)を設定して実行してください。すべてのイベントのブロードキャストはキューに入れたジョブを通じて行われるため、ブロードキャストされるイベントによってアプリケーションのレスポンスタイムが大きく影響を受けることはありません。
 
 <a name="server-side-installation"></a>
 <!-- ## Server Side Installation -->
@@ -186,14 +188,14 @@ BROADCAST_CONNECTION=pusher
 ```
 
 <!-- Finally, you are ready to install and configure [Laravel Echo](#client-side-installation), which will receive the broadcast events on the client-side. -->
-最後に、クライアント側でブロードキャスト イベントを受信する [Laravel Echo](#client-side-installation) をインストールして構成する準備が整いました。
+これで、クライアント側でブロードキャストイベントを受信する [Laravel Echo](#client-side-installation) をインストールして設定する準備が整いました。
 
 <a name="ably"></a>
 <!-- ### Ably -->
 ### Ably
 
 > [!NOTE]
-> 以下のドキュメントでは、Ably を「プッシャー互換性」モードで使用する方法について説明しています。ただし、Ably チームは、Ably が提供する独自の機能を活用できるブロードキャスタと Echo クライアントを推奨し、維持しています。 Ably が保守するドライバの使用の詳細については、[consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster) を参照してください。
+> 以下のドキュメントでは、Ably を「Pusher compatibility」モードで使用する方法について説明します。ただし、Ably チームは、Ably 独自の機能を活用できるブロードキャスタと Echo クライアントを推奨し、メンテナンスしています。Ably がメンテナンスするドライバの使用方法については、[consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster) を参照してください。
 
 <!-- To quickly enable support for Laravel's broadcasting features while using [Ably](https://ably.com) as your event broadcaster, invoke the `install:broadcasting` Artisan command with the `--ably` option. This Artisan command will prompt you for your Ably credentials, install the Ably PHP and JavaScript SDKs, and update your application's `.env` file with the appropriate variables: -->
 [Ably](https://ably.com) をイベント ブロードキャスタとして使用しているときに Laravel のブロードキャスト機能のサポートをすぐに有効にするには、`--ably` オプションを指定して `install:broadcasting` Artisan コマンドを呼び出します。この Artisan コマンドは、Ably 認証情報の入力を求め、Ably PHP および JavaScript SDK をインストールし、適切な変数を使用してアプリケーションの `.env` ファイルを更新します。
@@ -203,7 +205,7 @@ php artisan install:broadcasting --ably
 ```
 
 <!-- **Before continuing, you should enable Pusher protocol support in your Ably application settings. You may enable this feature within the "Protocol Adapter Settings" portion of your Ably application's settings dashboard.** -->
-**続行する前に、Ably アプリケーション設定でプッシャー プロトコルのサポートを有効にする必要があります。 Ably アプリケーションの設定ダッシュボードの「プロトコル アダプター設定」部分でこの機能を有効にすることができます。**
+**続行する前に、Ably アプリケーションの設定で Pusher プロトコルのサポートを有効にしてください。Ably アプリケーションの設定ダッシュボードにある「Protocol Adapter Settings」から、この機能を有効にできます。**
 
 <a name="ably-manual-installation"></a>
 <!-- #### Manual Installation -->
@@ -231,7 +233,32 @@ BROADCAST_CONNECTION=ably
 ```
 
 <!-- Finally, you are ready to install and configure [Laravel Echo](#client-side-installation), which will receive the broadcast events on the client-side. -->
-最後に、クライアント側でブロードキャスト イベントを受信する [Laravel Echo](#client-side-installation) をインストールして構成する準備が整いました。
+最後に、クライアント側でブロードキャストイベントを受信する [Laravel Echo](#client-side-installation) をインストールして設定する準備が整いました。
+
+<a name="mercure"></a>
+<!-- ### Mercure -->
+### Mercure
+
+<!-- [Mercure](https://mercure.rocks) is a real-time protocol that uses server-sent events. To broadcast events through a Mercure hub, configure the `mercure` connection in your application's `.env` file: -->
+[Mercure](https://mercure.rocks) は、サーバー送信イベントを使用するリアルタイムプロトコルです。Mercure ハブを介してイベントをブロードキャストするには、アプリケーションの `.env` ファイルで `mercure` 接続を設定します。
+
+```ini
+BROADCAST_CONNECTION=mercure
+
+MERCURE_URL=https://mercure.example.com/.well-known/mercure
+MERCURE_PUBLIC_URL=https://mercure.example.com/.well-known/mercure
+MERCURE_JWT_SECRET=<your-mercure-jwt-secret>
+```
+
+<!-- The `MERCURE_URL` value is the URL Laravel uses to publish updates, while `MERCURE_PUBLIC_URL` is the URL that browser clients use to subscribe. Your Mercure hub must be configured with the same JWT secret. -->
+`MERCURE_URL` の値は Laravel が更新情報を公開するために使用する URL であり、`MERCURE_PUBLIC_URL` はブラウザクライアントが購読するために使用する URL です。Mercure hub には同じ JWT secret を設定する必要があります。
+
+<!-- To use end-to-end encrypted private channels, configure a 32-byte `MERCURE_ENCRYPTION_KEY` environment variable: -->
+エンドツーエンドで暗号化されたプライベートチャネルを使用するには、32バイトの `MERCURE_ENCRYPTION_KEY` 環境変数を設定します。
+
+```ini
+MERCURE_ENCRYPTION_KEY=<your-32-byte-encryption-key>
+```
 
 <a name="client-side-installation"></a>
 <!-- ## Client Side Installation -->
@@ -242,7 +269,7 @@ BROADCAST_CONNECTION=ably
 ### Reverb
 
 <!-- [Laravel Echo](https://github.com/laravel/echo) is a JavaScript library that makes it painless to subscribe to channels and listen for events broadcast by your server-side broadcasting driver. -->
-[Laravel Echo](https://github.com/laravel/echo) は、チャンネルのサブスクライブや、サーバー側のブロードキャスト ドライバによってブロードキャストされるイベントのリッスンを簡単に行うことができる JavaScript ライブラリです。
+[Laravel Echo](https://github.com/laravel/echo) は、チャネルへのサブスクライブや、サーバー側のブロードキャストドライバがブロードキャストするイベントのリッスンを簡単にする JavaScript ライブラリです。
 
 <!-- When installing Laravel Reverb via the `install:broadcasting` Artisan command, Reverb and Echo's scaffolding and configuration will be injected into your application automatically. However, if you wish to manually configure Laravel Echo, you may do so by following the instructions below. -->
 `install:broadcasting` Artisan コマンドを使用して Laravel Reverb をインストールすると、Reverb と Echo のスキャフォールディングと構成がアプリケーションに自動的に挿入されます。ただし、Laravel Echo を手動で構成したい場合は、以下の手順に従って行うことができます。
@@ -328,14 +355,14 @@ npm run build
 ```
 
 > [!WARNING]
-> Laravel Echo `reverb` ブロードキャスタには、laravel-echo v1.16.0+ が必要です。
+> Laravel Echo の `reverb` ブロードキャスタには laravel-echo v1.16.0 以降が必要です。
 
 <a name="client-pusher-channels"></a>
 <!-- ### Pusher Channels -->
 ### Pusher Channels
 
 <!-- [Laravel Echo](https://github.com/laravel/echo) is a JavaScript library that makes it painless to subscribe to channels and listen for events broadcast by your server-side broadcasting driver. -->
-[Laravel Echo](https://github.com/laravel/echo) は、チャンネルのサブスクライブや、サーバー側のブロードキャスト ドライバによってブロードキャストされるイベントのリッスンを簡単に行うことができる JavaScript ライブラリです。
+[Laravel Echo](https://github.com/laravel/echo) は、チャネルを購読し、サーバー側のブロードキャストドライバがブロードキャストするイベントを簡単にリッスンできる JavaScript ライブラリです。
 
 <!-- When installing broadcasting support via the `install:broadcasting --pusher` Artisan command, Pusher and Echo's scaffolding and configuration will be injected into your application automatically. However, if you wish to manually configure Laravel Echo, you may do so by following the instructions below. -->
 `install:broadcasting --pusher` Artisan コマンドを使用してブロードキャスト サポートをインストールすると、Pusher と Echo のスキャフォールディングと構成がアプリケーションに自動的に挿入されます。ただし、Laravel Echo を手動で構成したい場合は、以下の手順に従って行うことができます。
@@ -345,14 +372,14 @@ npm run build
 #### Manual Installation
 
 <!-- To manually configure Laravel Echo for your application's frontend, first install the `laravel-echo` and `pusher-js` packages which utilize the Pusher protocol for WebSocket subscriptions, channels, and messages: -->
-アプリケーションのフロントエンド用に Laravel Echo を手動で構成するには、まず WebSocket サブスクリプション、チャネル、メッセージにプッシャー プロトコルを利用する `laravel-echo` および `pusher-js` パッケージをインストールします。
+アプリケーションのフロントエンドで Laravel Echo を手動設定するには、まず WebSocket のサブスクリプション、チャネル、メッセージに Pusher プロトコルを使用する `laravel-echo` パッケージと `pusher-js` パッケージをインストールします。
 
 ```shell
 npm install --save-dev laravel-echo pusher-js
 ```
 
 <!-- Once Echo is installed, you are ready to create a fresh Echo instance in your application's `resources/js/app.js` file: -->
-Echo がインストールされたら、アプリケーションの `resources/js/app.js` ファイルに新しい Echo インスタンスを作成する準備が整います。
+Echo をインストールしたら、アプリケーションの `resources/js/app.js` ファイルに新しい Echo インスタンスを作成できます。
 
 ```js tab=JavaScript
 import Echo from 'laravel-echo';
@@ -441,7 +468,7 @@ npm run build
 ```
 
 > [!NOTE]
-> アプリケーションの JavaScript アセットのコンパイルの詳細については、[Vite](/docs/13.x/vite) のドキュメントを参照してください。
+> アプリケーションの JavaScript アセットのコンパイルについて詳しくは、[Vite](/docs/13.x/vite) のドキュメントを参照してください。
 
 <a name="using-an-existing-client-instance"></a>
 <!-- #### Using an Existing Client Instance -->
@@ -470,10 +497,10 @@ window.Echo = new Echo({
 ### Ably
 
 > [!NOTE]
-> 以下のドキュメントでは、Ably を「プッシャー互換性」モードで使用する方法について説明しています。ただし、Ably チームは、Ably が提供する独自の機能を活用できるブロードキャスタと Echo クライアントを推奨し、維持しています。 Ably が保守するドライバの使用の詳細については、[consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster) を参照してください。
+> 以下のドキュメントでは、Ablyを「Pusher compatibility」モードで使用する方法について説明します。ただし、Ablyチームは、Ablyが提供する独自の機能を活用できるブロードキャスタとEchoクライアントを推奨し、保守しています。Ablyが保守するドライバの使用方法については、[consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)を参照してください。
 
 <!-- [Laravel Echo](https://github.com/laravel/echo) is a JavaScript library that makes it painless to subscribe to channels and listen for events broadcast by your server-side broadcasting driver. -->
-[Laravel Echo](https://github.com/laravel/echo) は、チャンネルのサブスクライブや、サーバー側のブロードキャスト ドライバによってブロードキャストされるイベントのリッスンを簡単に行うことができる JavaScript ライブラリです。
+[Laravel Echo](https://github.com/laravel/echo) は、チャネルを購読し、サーバー側のブロードキャストドライバがブロードキャストするイベントを簡単にリッスンできる JavaScript ライブラリです。
 
 <!-- When installing broadcasting support via the `install:broadcasting --ably` Artisan command, Ably and Echo's scaffolding and configuration will be injected into your application automatically. However, if you wish to manually configure Laravel Echo, you may do so by following the instructions below. -->
 `install:broadcasting --ably` Artisan コマンドを使用してブロードキャスト サポートをインストールすると、Ably と Echo のスキャフォールディングと構成がアプリケーションに自動的に挿入されます。ただし、Laravel Echo を手動で構成したい場合は、以下の手順に従って行うことができます。
@@ -483,17 +510,17 @@ window.Echo = new Echo({
 #### Manual Installation
 
 <!-- To manually configure Laravel Echo for your application's frontend, first install the `laravel-echo` and `pusher-js` packages which utilize the Pusher protocol for WebSocket subscriptions, channels, and messages: -->
-アプリケーションのフロントエンド用に Laravel Echo を手動で構成するには、まず WebSocket サブスクリプション、チャネル、メッセージにプッシャー プロトコルを利用する `laravel-echo` および `pusher-js` パッケージをインストールします。
+アプリケーションのフロントエンドで Laravel Echo を手動設定するには、まず、WebSocket のサブスクリプション、チャネル、メッセージに Pusher プロトコルを使用する `laravel-echo` パッケージと `pusher-js` パッケージをインストールします。
 
 ```shell
 npm install --save-dev laravel-echo pusher-js
 ```
 
 <!-- **Before continuing, you should enable Pusher protocol support in your Ably application settings. You may enable this feature within the "Protocol Adapter Settings" portion of your Ably application's settings dashboard.** -->
-**続行する前に、Ably アプリケーション設定でプッシャー プロトコルのサポートを有効にする必要があります。 Ably アプリケーションの設定ダッシュボードの「プロトコル アダプター設定」部分でこの機能を有効にすることができます。**
+**続行する前に、Ably アプリケーションの設定で Pusher プロトコルのサポートを有効にしてください。この機能は、Ably アプリケーションの設定ダッシュボードにある「Protocol Adapter Settings」セクションで有効にできます。**
 
 <!-- Once Echo is installed, you are ready to create a fresh Echo instance in your application's `resources/js/app.js` file: -->
-Echo がインストールされたら、アプリケーションの `resources/js/app.js` ファイルに新しい Echo インスタンスを作成する準備が整います。
+Echo をインストールしたら、アプリケーションの `resources/js/app.js` ファイルで新しい Echo インスタンスを作成できます。
 
 ```js tab=JavaScript
 import Echo from 'laravel-echo';
@@ -561,14 +588,68 @@ npm run dev
 ```
 
 > [!NOTE]
-> アプリケーションの JavaScript アセットのコンパイルの詳細については、[Vite](/docs/13.x/vite) のドキュメントを参照してください。
+> アプリケーションの JavaScript アセットのコンパイルについて詳しくは、[Vite](/docs/13.x/vite) のドキュメントを参照してください。
+
+<a name="client-mercure"></a>
+<!-- ### Mercure -->
+### Mercure
+
+<!-- To use Mercure with Laravel Echo, install the `laravel-echo` package: -->
+MercureをLaravel Echoで使用するには、`laravel-echo` パッケージをインストールします。
+
+```shell
+npm install --save-dev laravel-echo
+```
+
+<!-- Next, create an Echo instance with the `mercure` broadcaster. The `host` option defaults to `/.well-known/mercure` on the current origin: -->
+次に、`mercure` ブロードキャスタを使用して Echo インスタンスを作成します。`host` オプションのデフォルト値は、現在のオリジンにある `/.well-known/mercure` です。
+
+```js tab=JavaScript
+import Echo from 'laravel-echo';
+
+window.Echo = new Echo({
+    broadcaster: 'mercure',
+    host: import.meta.env.VITE_MERCURE_HUB_URL,
+});
+```
+
+```js tab=React
+import { configureEcho } from "@laravel/echo-react";
+
+configureEcho({
+    broadcaster: "mercure",
+});
+```
+
+```js tab=Vue
+import { configureEcho } from "@laravel/echo-vue";
+
+configureEcho({
+    broadcaster: "mercure",
+});
+```
+
+```js tab=Svelte
+import { configureEcho } from "@laravel/echo-svelte";
+
+configureEcho({
+    broadcaster: "mercure",
+});
+```
+
+<!-- Define the hub URL in your `.env` file: -->
+`.env` ファイルで hub URL を定義します：
+
+```ini
+VITE_MERCURE_HUB_URL="${MERCURE_PUBLIC_URL}"
+```
 
 <a name="concept-overview"></a>
 <!-- ## Concept Overview -->
 ## Concept Overview
 
-<!-- Laravel's event broadcasting allows you to broadcast your server-side Laravel events to your client-side JavaScript application using a driver-based approach to WebSockets. Currently, Laravel ships with [Laravel Reverb](https://reverb.laravel.com), [Pusher Channels](https://pusher.com/channels), and [Ably](https://ably.com) drivers. The events may be easily consumed on the client-side using the [Laravel Echo](#client-side-installation) JavaScript package. -->
-Laravel のイベント ブロードキャストを使用すると、WebSocket へのドライバベースのアプローチを使用して、サーバー側の Laravel イベントをクライアント側の JavaScript アプリケーションにブロードキャストできます。現在、Laravel には [Laravel Reverb](https://reverb.laravel.com)、[Pusher Channels](https://pusher.com/channels)、および [Ably](https://ably.com) ドライバが同梱されています。イベントは、[Laravel Echo](#client-side-installation) JavaScript パッケージを使用してクライアント側で簡単に使用できます。
+<!-- Laravel's event broadcasting allows you to broadcast your server-side Laravel events to your client-side JavaScript application using a driver-based approach. Currently, Laravel ships with [Laravel Reverb](https://reverb.laravel.com), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), and [Mercure](https://mercure.rocks) drivers. The events may be easily consumed on the client-side using the [Laravel Echo](#client-side-installation) JavaScript package. -->
+Laravelのイベントブロードキャストでは、ドライバベースの仕組みを使って、サーバー側のLaravelイベントをクライアント側のJavaScriptアプリケーションへブロードキャストできます。現在、Laravelには [Laravel Reverb](https://reverb.laravel.com)、[Pusher Channels](https://pusher.com/channels)、[Ably](https://ably.com)、[Mercure](https://mercure.rocks) のドライバが用意されています。クライアント側では、[Laravel Echo](#client-side-installation) JavaScriptパッケージを使ってイベントを簡単に利用できます。
 
 <!-- Events are broadcast over "channels", which may be specified as public or private. Any visitor to your application may subscribe to a public channel without any authentication or authorization; however, in order to subscribe to a private channel, a user must be authenticated and authorized to listen on that channel. -->
 イベントは、パブリックまたはプライベートとして指定できる「チャネル」を介してブロードキャストされます。アプリケーションへの訪問者は誰でも、認証や許可なしでパブリック チャネルに登録できます。ただし、プライベート チャネルに登録するには、ユーザーが認証され、そのチャネルでリッスンする権限が与えられている必要があります。
@@ -672,10 +753,10 @@ Broadcast::channel('orders.{orderId}', function (User $user, int $orderId) {
 ```
 
 <!-- The `channel` method accepts two arguments: the name of the channel and a callback which returns `true` or `false` indicating whether the user is authorized to listen on the channel. -->
-`channel` メソッドは、チャネルの名前と、ユーザーがチャネルでリッスンする権限があるかどうかを示す `true` または `false` を返すコールバックの 2 つの引数を受け入れます。
+`channel` メソッドは、チャネル名と、ユーザーがそのチャネルをリッスンする認可を受けているかを示す `true` または `false` を返すコールバックの2つの引数を受け取ります。
 
 <!-- All authorization callbacks receive the currently authenticated user as their first argument and any additional wildcard parameters as their subsequent arguments. In this example, we are using the `{orderId}` placeholder to indicate that the "ID" portion of the channel name is a wildcard. -->
-すべての認可コールバックは、現在認証されているユーザーを最初の引数として受け取り、追加のワイルドカード パラメーターを後続の引数として受け取ります。この例では、`{orderId}` プレースホルダーを使用して、チャネル名の「ID」部分がワイルドカードであることを示しています。
+すべての認可コールバックは、現在認証されているユーザーを最初の引数として受け取り、その後の引数として追加のワイルドカードパラメータを受け取ります。この例では、チャネル名の「ID」部分がワイルドカードであることを示すために、`{orderId}` プレースホルダを使用しています。
 
 <a name="listening-for-event-broadcasts"></a>
 <!-- #### Listening for Event Broadcasts -->
@@ -924,7 +1005,7 @@ class ServerCreated implements ShouldBroadcast, ShouldDispatchAfterCommit
 ```
 
 > [!NOTE]
-> これらの問題の回避方法の詳細については、[queued jobs and database transactions](/docs/13.x/queues#jobs-and-database-transactions) に関するドキュメントを参照してください。
+> これらの問題への対処方法について詳しくは、[queued jobs and database transactions](/docs/13.x/queues#jobs-and-database-transactions) のドキュメントを確認してください。
 
 <a name="authorizing-channels"></a>
 <!-- ## Authorizing Channels -->
@@ -960,10 +1041,10 @@ Broadcast::channel('orders.{orderId}', function (User $user, int $orderId) {
 ```
 
 <!-- The `channel` method accepts two arguments: the name of the channel and a callback which returns `true` or `false` indicating whether the user is authorized to listen on the channel. -->
-`channel` メソッドは、チャネルの名前と、ユーザーがチャネルでリッスンする権限があるかどうかを示す `true` または `false` を返すコールバックの 2 つの引数を受け入れます。
+`channel` メソッドは2つの引数を受け取ります。チャネル名と、ユーザーがそのチャネルをリッスンする認可を受けているかどうかを示す `true` または `false` を返すコールバックです。
 
 <!-- All authorization callbacks receive the currently authenticated user as their first argument and any additional wildcard parameters as their subsequent arguments. In this example, we are using the `{orderId}` placeholder to indicate that the "ID" portion of the channel name is a wildcard. -->
-すべての認可コールバックは、現在認証されているユーザーを最初の引数として受け取り、追加のワイルドカード パラメーターを後続の引数として受け取ります。この例では、`{orderId}` プレースホルダーを使用して、チャネル名の「ID」部分がワイルドカードであることを示しています。
+すべての認可コールバックは、現在認証されているユーザーを最初の引数として受け取り、その後の引数として追加のワイルドカードパラメータを受け取ります。この例では、チャネル名の「ID」部分がワイルドカードであることを示すために、`{orderId}` プレースホルダを使用しています。
 
 <!-- You may view a list of your application's broadcast authorization callbacks using the `channel:list` Artisan command: -->
 `channel:list` Artisan コマンドを使用して、アプリケーションのブロードキャスト認可コールバックのリストを表示できます。
@@ -989,7 +1070,7 @@ Broadcast::channel('orders.{order}', function (User $user, Order $order) {
 ```
 
 > [!WARNING]
-> HTTP ルート モデル バインディングとは異なり、チャネル モデル バインディングは自動 [implicit model binding scoping](/docs/13.x/routing#implicit-model-binding-scoping) をサポートしません。ただし、ほとんどのチャネルは単一モデルの一意の主キーに基づいてスコープを設定できるため、これが問題になることはほとんどありません。
+> HTTP ルートモデルバインディングとは異なり、チャネルモデルバインディングでは自動的な [implicit model binding scoping](/docs/13.x/routing#implicit-model-binding-scoping) はサポートされません。ただし、ほとんどのチャネルは単一モデルの一意な主キーに基づいてスコープを設定できるため、これはほとんど問題になりません。
 
 <a name="authorization-callback-authentication"></a>
 <!-- #### Authorization Callback Authentication -->
@@ -1053,7 +1134,7 @@ class OrderChannel
 ```
 
 > [!NOTE]
-> Laravel の他の多くのクラスと同様に、チャネル クラスは [service container](/docs/13.x/container) によって自動的に解決されます。したがって、コンストラクターでチャネルに必要な依存関係をタイプヒントで指定できます。
+> Laravel の他の多くのクラスと同様に、チャネルクラスは自動的に [service container](/docs/13.x/container)によって解決されます。そのため、チャネルのコンストラクタで必要な依存関係を型指定できます。
 
 <a name="broadcasting-events"></a>
 <!-- ## Broadcasting Events -->
@@ -1095,7 +1176,7 @@ axios.post('/task', task)
 ただし、タスクの作成もブロードキャストすることに注意してください。タスク リストにタスクを追加するために JavaScript アプリケーションもこのイベントをリッスンしている場合、リストには重複したタスク (エンドポイントからのタスクとブロードキャストからのタスク) が 1 つずつ存在することになります。これを解決するには、`toOthers` メソッドを使用して、現在のユーザーにイベントをブロードキャストしないようにブロードキャスタに指示します。
 
 > [!WARNING]
-> `toOthers` メソッドを呼び出すには、イベントで `Illuminate\Broadcasting\InteractsWithSockets` 特性を使用する必要があります。
+> `toOthers` メソッドを呼び出すには、イベントで `Illuminate\Broadcasting\InteractsWithSockets` トレイトを使用する必要があります。
 
 <a name="only-to-others-configuration"></a>
 <!-- #### Configuration -->
@@ -1599,23 +1680,15 @@ const status = useConnectionStatus();
 <!-- The possible status values are: -->
 可能なステータス値は次のとおりです。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `connected` - Successfully connected to the WebSocket server.
-- `connecting` - Initial connection attempt in progress.
-- `reconnecting` - Attempting to reconnect after a disconnection.
-- `disconnected` - Not connected and not attempting to reconnect.
-- `failed` - Connection failed and won't retry.
--->
+<!-- - `connected` - Successfully connected to the WebSocket server. - `connecting` - Initial connection attempt in progress. - `reconnecting` - Attempting to reconnect after a disconnection. - `disconnected` - Not connected and not attempting to reconnect. - `failed` - Connection failed and won't retry. -->
 - `connected` - WebSocket サーバーに正常に接続されました。
 - `connecting` - 初期接続試行中です。
 - `reconnecting` - 切断後に再接続を試みています。
 - `disconnected` - 接続されておらず、再接続を試行していません。
 - `failed` - 接続に失敗したため、再試行しません。
 
-<!-- </div> -->
 </div>
 
 <a name="react-vue-socket-id"></a>
@@ -1758,7 +1831,7 @@ Echo.join(`chat.${roomId}`)
 ## Model Broadcasting
 
 > [!WARNING]
-> モデルブロードキャストに関する以下のドキュメントを読む前に、Laravel のモデルブロードキャストサービスの一般的な概念とブロードキャストイベントを手動で作成してリッスンする方法を理解しておくことをお勧めします。
+> モデルのブロードキャストに関する以下のドキュメントを読む前に、Laravel のモデルブロードキャストサービスの一般的な概念と、ブロードキャストイベントを手動で作成してリッスンする方法を理解しておくことをおすすめします。
 
 <!-- It is common to broadcast events when your application's [Eloquent models](/docs/13.x/eloquent) are created, updated, or deleted. Of course, this can easily be accomplished by manually [defining custom events for Eloquent model state changes](/docs/13.x/eloquent#events) and marking those events with the `ShouldBroadcast` interface. -->
 アプリケーションの [Eloquent models](/docs/13.x/eloquent) が作成、更新、または削除されたときにイベントをブロードキャストするのが一般的です。もちろん、これは手動で [defining custom events for Eloquent model state changes](/docs/13.x/eloquent#events) を実行し、それらのイベントを `ShouldBroadcast` インターフェイスでマークすることで簡単に実現できます。
@@ -2021,7 +2094,7 @@ useEchoModel<User, "App.Models.User">("App.Models.User", userId, ["UserUpdated"]
 ## Client Events
 
 > [!NOTE]
-> [Pusher Channels](https://pusher.com/channels) を使用する場合、クライアント イベントを送信するには、[application dashboard](https://dashboard.pusher.com/) の [アプリ設定] セクションで [クライアント イベント] オプションを有効にする必要があります。
+> [Pusher Channels](https://pusher.com/channels) を使用する場合、クライアントイベントを送信するには、[application dashboard](https://dashboard.pusher.com/) の「App Settings」セクションで「Client Events」オプションを有効にする必要があります。
 
 <!-- Sometimes you may wish to broadcast an event to other connected clients without hitting your Laravel application at all. This can be particularly useful for things like "typing" notifications, where you want to alert users of your application that another user is typing a message on a given screen. -->
 Laravel アプリケーションをまったく起動せずに、接続されている他のクライアントにイベントをブロードキャストしたい場合があります。これは、「入力」通知など、別のユーザーが特定の画面でメッセージを入力していることをアプリケーションのユーザーに警告する場合に特に便利です。
@@ -2194,4 +2267,3 @@ Echo.private(`App.Models.User.${userId}`)
 Echo.private(`App.Models.User.${userId}`)
     .stopListeningForNotification(callback);
 ```
-

@@ -91,9 +91,9 @@ Laravel のデフォルトの `.env` ファイルには、アプリケーショ�
 <!-- All variables in your `.env` files are typically parsed as strings, so some reserved values have been created to allow you to return a wider range of types from the `env()` function: -->
 `.env` ファイル内のすべての変数は通常、文字列として解析されるため、`env()` 関数からより広範囲の型を返すことができるように、いくつかの予約値が作成されています。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | `.env` Value | `env()` Value | | ------------ | ------------- | | true | (bool) true | | (true) | (bool) true | | false | (bool) false | | (false) | (bool) false | | empty | (string) '' | | (empty) | (string) '' | | null | (null) null | | (null) | (null) null | -->
 | `.env` 値 | `env()` 値 |
 | ------------ | ------------- |
 | true         | (bool) true   |
@@ -105,7 +105,6 @@ Laravel のデフォルトの `.env` ファイルには、アプリケーショ�
 | null         | (null) null   |
 | (null)       | (null) null   |
 
-<!-- </div> -->
 </div>
 
 <!-- If you need to define an environment variable with a value that contains spaces, you may do so by enclosing the value in double quotes: -->
@@ -223,6 +222,27 @@ APP_URL=eyJpdiI6...
 
 > [!NOTE]
 > `--readable` オプションを使用する場合、元の環境ファイルのコメントと空白行は暗号化された出力に含まれません。
+
+<a name="updating-readable-environment-files"></a>
+<!-- #### Updating Readable Environment Files -->
+#### Updating Readable Environment Files
+
+<!-- When updating a readable encrypted environment file, Laravel preserves unchanged values and removes variables that no longer exist in the source environment file: -->
+読み取り可能な暗号化環境ファイルを更新すると、Laravel は変更されていない値を保持し、元の環境ファイルに存在しなくなった変数を削除します。
+
+```shell
+php artisan env:encrypt --readable --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
+```
+
+<!-- The encrypted file will be created if it does not exist. When updating an existing file, provide the same encryption key and cipher used to create it. If the file cannot be decrypted, the command will fail without overwriting it. -->
+暗号化ファイルが存在しない場合は作成されます。既存のファイルを更新する場合は、作成時に使用したものと同じ暗号化キーと暗号方式を指定してください。ファイルを復号できない場合、コマンドは失敗し、ファイルを上書きしません。
+
+<!-- To encrypt all values again, use the `--force` option. This allows you to change the encryption key or replace an invalid encrypted file: -->
+すべての値を再度暗号化するには、`--force` オプションを使用します。これにより、暗号化キーを変更したり、無効な暗号化ファイルを置き換えたりできます。
+
+```shell
+php artisan env:encrypt --readable --force --key=3UVsEgGVK36XN82KKeyLFMhvosbZN1aF
+```
 
 <a name="decryption"></a>
 <!-- #### Decryption -->
@@ -483,4 +503,3 @@ php artisan up
 
 <!-- Since maintenance mode requires your application to have several seconds of downtime, consider running your applications on a fully-managed platform like [Laravel Cloud](https://cloud.laravel.com) to accomplish zero-downtime deployment with Laravel. -->
 メンテナンスモードではアプリケーションに数秒のダウンタイムが必要なため、Laravel でゼロダウンタイムのデプロイメントを実現するには、[Laravel Cloud](https://cloud.laravel.com) のような完全に管理されたプラットフォームでアプリケーションを実行することを検討してください。
-

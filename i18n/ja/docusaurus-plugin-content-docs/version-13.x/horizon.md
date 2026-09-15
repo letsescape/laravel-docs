@@ -28,7 +28,7 @@
 ## Introduction
 
 > [!NOTE]
-> Laravel Horizon について詳しく知る前に、Laravel のベース [queue services](/docs/13.x/queues) についてよく理解しておく必要があります。 Horizon は、Laravel が提供する基本的なキュー機能にまだ慣れていない場合、混乱を招く可能性がある追加機能で Laravel のキューを強化します。
+> Laravel Horizon について詳しく学ぶ前に、まず Laravel の基本的な [queue services](/docs/13.x/queues) について理解しておいてください。Horizon は Laravel のキューに追加機能を提供するため、Laravel が提供する基本的なキュー機能にまだ慣れていない場合は、混乱する可能性があります。
 
 <!-- [Laravel Horizon](https://github.com/laravel/horizon) provides a beautiful dashboard and code-driven configuration for your Laravel powered [Redis queues](/docs/13.x/queues). Horizon allows you to easily monitor key metrics of your queue system such as job throughput, runtime, and job failures. -->
 [Laravel Horizon](https://github.com/laravel/horizon) は、Laravel を利用した [Redis queues](/docs/13.x/queues) に美しいダッシュボードとコード駆動の構成を提供します。 Horizon を使用すると、ジョブのスループット、実行時間、ジョブの失敗など、キュー システムの主要なメトリクスを簡単に監視できます。
@@ -43,7 +43,7 @@ Horizon を使用する場合、すべてのキューワーカー構成は 1 つ
 ## Installation
 
 > [!WARNING]
-> Laravel Horizon では、キューに電力を供給するために [Redis](https://redis.io) を使用する必要があります。したがって、アプリケーションの `config/queue.php` 構成ファイルでキュー接続が `redis` に設定されていることを確認する必要があります。現時点では、Horizon は Redis Cluster と互換性がありません。
+> Laravel Horizon を使用するには、キューの処理に [Redis](https://redis.io) を使用する必要があります。そのため、アプリケーションの `config/queue.php` 設定ファイルで、キュー接続が `redis` に設定されていることを確認してください。現在、Horizon は Redis Cluster と互換性がありません。
 
 <!-- You may install Horizon into your project using the Composer package manager: -->
 Composer パッケージ マネージャーを使用して、Horizon をプロジェクトにインストールできます。
@@ -67,7 +67,7 @@ php artisan horizon:install
 Horizon のアセットを公開すると、そのプライマリ構成ファイルは `config/horizon.php` に配置されます。この構成ファイルを使用すると、アプリケーションのキューワーカー オプションを構成できます。各構成オプションにはその目的の説明が含まれているため、このファイルをよく調べてください。
 
 > [!WARNING]
-> Horizon は内部で `horizon` という名前の Redis 接続を使用します。この Redis 接続名は予約されており、`database.php` 構成ファイル内の別の Redis 接続に割り当てたり、`horizon.php` 構成ファイル内の `use` オプションの値として割り当てたりしないでください。
+> Horizon は内部で `horizon` という名前の Redis 接続を使用します。この Redis 接続名は予約されているため、`database.php` 設定ファイルで別の Redis 接続に割り当てたり、`horizon.php` 設定ファイルの `use` オプションの値として指定したりしないでください。
 
 <a name="content-security-policy-csp-nonce"></a>
 <!-- #### Content Security Policy (CSP) Nonce -->
@@ -144,7 +144,7 @@ public function handle(Request $request, Closure $next): Response
 Horizon を起動すると、アプリケーションが実行されている環境のワーカー プロセス構成オプションが使用されます。通常、環境は `APP_ENV` [environment variable](/docs/13.x/configuration#determining-the-current-environment) の値によって決まります。たとえば、デフォルトの `local` Horizon 環境は、3 つのワーカー プロセスを開始し、各キューに割り当てられたワーカー プロセスの数のバランスを自動的に調整するように構成されています。デフォルトの `production` 環境は、最大 10 個のワーカー プロセスを開始し、各キューに割り当てられるワーカー プロセスの数のバランスを自動的に調整するように構成されています。
 
 > [!WARNING]
-> `horizon` 構成ファイルの `environments` 部分に、Horizon を実行する予定の各 [environment](/docs/13.x/configuration#environment-configuration) のエントリが含まれていることを確認する必要があります。
+> `horizon` 設定ファイルの `environments` セクションに、Horizon を実行する予定の各 [environment](/docs/13.x/configuration#environment-configuration)用のエントリが含まれていることを確認してください。
 
 <a name="supervisors"></a>
 <!-- #### Supervisors -->
@@ -216,7 +216,7 @@ Laravel は認証されたユーザーをゲート クロージャに自動的�
 ### Max Job Attempts
 
 > [!NOTE]
-> これらのオプションを調整する前に、Laravel のデフォルトの [queue services](/docs/13.x/queues#max-job-attempts-and-timeout) と「試行」の概念をよく理解してください。
+> これらのオプションを調整する前に、Laravel のデフォルトの [queue services](/docs/13.x/queues#max-job-attempts-and-timeout) と「試行回数」の概念を理解しておいてください。
 
 <!-- You can define the maximum number of attempts a job can consume within a supervisor's configuration: -->
 スーパーバイザの設定内でジョブが消費できる最大試行回数を定義できます。
@@ -233,7 +233,7 @@ Laravel は認証されたユーザーをゲート クロージャに自動的�
 ```
 
 > [!NOTE]
-> このオプションは、Artisan コマンドを使用してキューを処理する場合の `--tries` オプションに似ています。
+> このオプションは、Artisan コマンドでキューを処理するときの `--tries` オプションと似ています。
 
 <!-- Adjusting the `tries` option is essential when using middlewares such as `WithoutOverlapping` or `RateLimited` because they consume attempts. To handle this, adjust the `tries` configuration value either at the supervisor level or by defining the `$tries` property on the job class. -->
 `WithoutOverlapping` や `RateLimited` などのミドルウェアを使用する場合、試行回数が消費されるため、`tries` オプションの調整が不可欠です。これに対処するには、スーパーバイザ レベルで、またはジョブ クラスで `$tries` プロパティを定義することによって、`tries` 構成値を調整します。
@@ -263,7 +263,7 @@ Laravel は認証されたユーザーをゲート クロージャに自動的�
 ```
 
 > [!WARNING]
-> `auto` バランス戦略を使用する場合、Horizon は進行中のワーカーを「ハング」とみなし、スケールダウン中の Horizon タイムアウト後にそれらを強制終了します。 Horizon タイムアウトがどのジョブ レベルのタイムアウトよりも大きいことを常に確認してください。そうしないと、ジョブが実行中に終了する可能性があります。さらに、`timeout` 値は、`config/queue.php` 構成ファイルで定義されている `retry_after` 値よりも常に少なくとも数秒短くする必要があります。そうしないと、ジョブが 2 回処理される可能性があります。
+> `auto` バランシング戦略を使用すると、Horizon は処理中のワーカーを「ハングしている」とみなし、スケールダウン時に Horizon のタイムアウトを超えたワーカーを強制終了します。ジョブが実行途中で終了されないよう、Horizon のタイムアウトがジョブレベルのタイムアウトより長くなっていることを必ず確認してください。また、`timeout` の値は、`config/queue.php` の設定ファイルで定義されている `retry_after` の値より常に数秒以上短くしてください。そうしないと、ジョブが2回処理される可能性があります。
 
 <a name="job-backoff"></a>
 <!-- ### Job Backoff -->
@@ -413,14 +413,15 @@ class ProcessPodcast implements ShouldQueue, Silenced
 ],
 ```
 
-<!-- The `autoScalingStrategy` configuration option determines how Horizon will assign more worker processes to queues. You can choose between two strategies: -->
-`autoScalingStrategy` 構成オプションは、Horizon がより多くのワーカー プロセスをキューに割り当てる方法を決定します。次の 2 つの戦略から選択できます。
+<!-- The `autoScalingStrategy` configuration option determines how Horizon will assign more worker processes to queues. You can choose between three strategies: -->
+`autoScalingStrategy` 設定オプションは、Horizon がキューに追加のワーカープロセスを割り当てる方法を決定します。3つの戦略から選択できます。
 
 <div class="content-list" markdown="1">
 
-<!-- - The `time` strategy will assign workers based on the total estimated amount of time it will take to clear the queue. - The `size` strategy will assign workers based on the total number of jobs on the queue. -->
-- `time` 戦略は、キューをクリアするのにかかる推定合計時間に基づいてワーカーを割り当てます。
-- `size` ストラテジーは、キュー上のジョブの合計数に基づいてワーカーを割り当てます。
+<!-- - The `time` strategy will assign workers based on the total estimated amount of time it will take to clear the queue. - The `size` strategy will assign workers based on the total number of jobs on the queue. - The `log` strategy will assign workers based on the logarithm of the number of jobs on the queue. This prevents a significantly larger queue from receiving a disproportionately large share of workers. -->
+- `time` 戦略は、キューを空にするまでにかかる推定合計時間に基づいてワーカーを割り当てます。
+- `size` 戦略は、キュー上のジョブの総数に基づいてワーカーを割り当てます。
+- `log` 戦略は、キュー上のジョブ数の対数に基づいてワーカーを割り当てます。これにより、はるかに大きなキューにワーカーが不均衡に多く割り当てられるのを防ぎます。
 
 </div>
 
@@ -476,7 +477,7 @@ class ProcessPodcast implements ShouldQueue, Silenced
 この例では、デフォルトの `queue` は最大 10 プロセスまでスケールできますが、`images` キューは 1 プロセスに制限されています。この構成により、キューを独立して拡張できるようになります。
 
 > [!NOTE]
-> リソースを大量に消費するジョブをディスパッチする場合、`maxProcesses` 値を制限した専用キューにジョブを割り当てることが最善の場合があります。そうしないと、これらのジョブが過剰な CPU リソースを消費し、システムに過負荷がかかる可能性があります。
+> リソースを大量に消費するジョブをディスパッチする場合は、`maxProcesses` の値を制限した専用のキューに割り当てるのが適切なことがあります。そうしないと、これらのジョブが過剰な CPU リソースを消費し、システムに負荷をかける可能性があります。
 
 <a name="simple-balancing"></a>
 <!-- ### Simple Balancing -->
@@ -686,7 +687,7 @@ sudo apt-get install supervisor
 ```
 
 > [!NOTE]
-> Supervisorを自分で設定するのが大変だと思われる場合は、Laravel アプリケーションのバックグラウンド プロセスを管理できる [Laravel Cloud](https://cloud.laravel.com) の使用を検討してください。
+> Supervisor の設定を自分で行うのが難しそうなら、Laravel アプリケーションのバックグラウンドプロセスを管理できる [Laravel Cloud](https://cloud.laravel.com) の利用を検討してください。
 
 <a name="supervisor-configuration"></a>
 <!-- #### Supervisor Configuration -->
@@ -711,7 +712,7 @@ stopwaitsecs=3600
 Supervisor構成を定義するときは、`stopwaitsecs` の値が、最も長く実行されているジョブで消費される秒数よりも大きいことを確認する必要があります。そうしないと、Supervisorがジョブの処理が完了する前にジョブを強制終了する可能性があります。
 
 > [!WARNING]
-> 上記の例は Ubuntu ベースのサーバに有効ですが、スーパーバイザ設定ファイルに予期される場所とファイル拡張子は、他のサーバ オペレーティング システムでは異なる場合があります。詳細については、サーバーのドキュメントを参照してください。
+> 上記の例は Ubuntu ベースのサーバーでは有効ですが、Supervisor の設定ファイルに期待される場所や拡張子は、ほかのサーバー OS では異なる場合があります。詳しくは、使用しているサーバーのドキュメントを確認してください。
 
 <a name="starting-supervisor"></a>
 <!-- #### Starting Supervisor -->
@@ -729,7 +730,7 @@ sudo supervisorctl start horizon
 ```
 
 > [!NOTE]
-> スーパーバイザの実行の詳細については、[Supervisor documentation](http://supervisord.org/index.html) を参照してください。
+> Supervisor の実行方法について詳しくは、[Supervisor documentation](http://supervisord.org/index.html) を参照してください。
 
 <a name="tags"></a>
 <!-- ## Tags -->
@@ -829,7 +830,7 @@ class SendRenderNotifications implements ShouldQueue
 ## Notifications
 
 > [!WARNING]
-> Slack または SMS 通知を送信するように Horizon を構成する場合は、[prerequisites for the relevant notification channel](/docs/13.x/notifications) を確認する必要があります。
+> Horizon で Slack または SMS 通知を送信するよう設定する場合は、[prerequisites for the relevant notification channel](/docs/13.x/notifications) を確認してください。
 
 <!-- If you would like to be notified when one of your queues has a long wait time, you may use the `Horizon::routeMailNotificationsTo`, `Horizon::routeSlackNotificationsTo`, and `Horizon::routeSmsNotificationsTo` methods. You may call these methods from the `boot` method of your application's `App\Providers\HorizonServiceProvider`: -->
 キューの 1 つで長い待ち時間が発生したときに通知を受け取りたい場合は、`Horizon::routeMailNotificationsTo`、`Horizon::routeSlackNotificationsTo`、および `Horizon::routeSmsNotificationsTo` メソッドを使用できます。これらのメソッドは、アプリケーションの `App\Providers\HorizonServiceProvider` の `boot` メソッドから呼び出すことができます。
