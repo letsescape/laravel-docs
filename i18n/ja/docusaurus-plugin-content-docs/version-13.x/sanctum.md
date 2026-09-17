@@ -237,7 +237,7 @@ Route::get('/orders', function () {
 
 ```php
 return $request->user()->id === $server->user_id &&
-       $request->user()->tokenCan('server:update')
+       $request->user()->tokenCan('server:update');
 ```
 
 <!-- At first, allowing the `tokenCan` method to be called and always return `true` for first-party UI initiated requests may seem strange; however, it is convenient to be able to always assume an API token is available and can be inspected via the `tokenCan` method. By taking this approach, you may always call the `tokenCan` method within your application's authorization policies without worrying about whether the request was triggered from your application's UI or was initiated by one of your API's third-party consumers. -->
@@ -408,7 +408,7 @@ axios.get('/sanctum/csrf-cookie').then(response => {
 #### Logging In
 
 <!-- Once CSRF protection has been initialized, you should make a `POST` request to your Laravel application's `/login` route. This `/login` route may be [implemented manually](/docs/13.x/authentication#authenticating-users) or using a headless authentication package like [Laravel Fortify](/docs/13.x/fortify). -->
-CSRF保護が初期化されたら、Laravelアプリケーションの`/login`ルートに対して`POST`リクエストを行う必要があります。この `/login` ルートは、[implemented manually](/docs/13.x/authentication#authenticating-users) であるか、[Laravel Fortify](/docs/13.x/fortify) のようなヘッドレス認証パッケージを使用している可能性があります。
+CSRF保護が初期化されたら、Laravelアプリケーションの `/login` ルートに対して `POST` リクエストを行う必要があります。この `/login` ルートは、[implemented manually](/docs/13.x/authentication#authenticating-users) であるか、[Laravel Fortify](/docs/13.x/fortify) のようなヘッドレス認証パッケージを使用している可能性があります。
 
 <!-- If the login request is successful, you will be authenticated and subsequent requests to your application's routes will automatically be authenticated via the session cookie that the Laravel application issued to your client. In addition, since your application already made a request to the `/sanctum/csrf-cookie` route, subsequent requests should automatically receive CSRF protection as long as your JavaScript HTTP client sends the value of the `XSRF-TOKEN` cookie in the `X-XSRF-TOKEN` header. -->
 ログインリクエストが成功すると認証され、アプリケーションのルートへの後続のリクエストは、Laravel アプリケーションがクライアントに発行したセッション Cookie を介して自動的に認証されます。さらに、アプリケーションはすでに `/sanctum/csrf-cookie` ルートにリクエストを行っているため、JavaScript HTTP クライアントが `X-XSRF-TOKEN` ヘッダーの `XSRF-TOKEN` Cookie の値を送信している限り、後続のリクエストは自動的に CSRF 保護を受ける必要があります。
@@ -454,6 +454,7 @@ return Application::configure(basePath: dirname(__DIR__))
         __DIR__.'/../routes/channels.php',
         ['prefix' => 'api', 'middleware' => ['api', 'auth:sanctum']],
     )
+    ->create();
 ```
 
 <!-- Next, in order for Pusher's authorization requests to succeed, you will need to provide a custom Pusher `authorizer` when initializing [Laravel Echo](/docs/13.x/broadcasting#client-side-installation). This allows your application to configure Pusher to use the `axios` instance that is [properly configured for cross-domain requests](#cors-and-cookies): -->
@@ -609,4 +610,3 @@ Sanctum::actingAs(
     ['*']
 );
 ```
-

@@ -387,7 +387,7 @@ JavaScript を利用したフロントエンドを構築している場合は、
 ユーザーの 2 要素リカバリー コードも表示する必要があります。これらのリカバリ コードを使用すると、モバイル デバイスにアクセスできなくなった場合にユーザーを認証できます。 Blade を使用してアプリケーションのフロントエンドをレンダリングしている場合は、認証されたユーザー インスタンスを介してリカバリ コードにアクセスできます。
 
 ```php
-(array) $request->user()->recoveryCodes()
+(array) $request->user()->recoveryCodes();
 ```
 
 <!-- If you are building a JavaScript powered frontend, you may make an XHR GET request to the `/user/two-factor-recovery-codes` endpoint. This endpoint will return a JSON array containing the user's recovery codes. -->
@@ -566,17 +566,12 @@ await Passkeys.register({
 <!-- If the request is successful, Fortify will log the user into the configured guard and return either: -->
 リクエストが成功すると、Fortify は設定されたガードにユーザーをログインさせ、次のいずれかを返します。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- A redirect response to your intended destination for standard requests.
-- A `200` HTTP response containing a JSON payload with a `redirect` key for XHR requests.
--->
+<!-- - A redirect response to your intended destination for standard requests. - A `200` HTTP response containing a JSON payload with a `redirect` key for XHR requests. -->
 - 標準リクエストの目的の宛先へのリダイレクト応答。
 - XHR リクエストの `redirect` キーを含む JSON ペイロードを含む `200` HTTP レスポンス。
 
-<!-- </div> -->
 </div>
 
 <a name="confirming-password-with-passkeys"></a>
@@ -595,17 +590,12 @@ await Passkeys.register({
 <!-- If the request is successful, Fortify marks the current session as password confirmed and returns either: -->
 リクエストが成功すると、Fortify は現在のセッションをパスワード確認済みとしてマークし、次のいずれかを返します。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- A redirect response to your intended destination for standard requests.
-- A `200` HTTP response containing a JSON payload with a `redirect` key for XHR requests.
--->
+<!-- - A redirect response to your intended destination for standard requests. - A `200` HTTP response containing a JSON payload with a `redirect` key for XHR requests. -->
 - 標準リクエストの目的の宛先へのリダイレクト応答。
 - XHR リクエストの `redirect` キーを含む JSON ペイロードを含む `200` HTTP レスポンス。
 
-<!-- </div> -->
 </div>
 
 <a name="registering-passkeys"></a>
@@ -621,17 +611,12 @@ await Passkeys.register({
 <!-- If the request is successful, Fortify will return either: -->
 リクエストが成功すると、Fortify は次のいずれかを返します。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- A redirect back response with a `passkey-registered` status in the session for standard requests.
-- A `200` HTTP response with a JSON payload containing a `status` key, along with the newly registered passkey's `id` and `name`.
--->
+<!-- - A redirect back response with a `passkey-registered` status in the session for standard requests. - A `200` HTTP response with a JSON payload containing a `status` key, along with the newly registered passkey's `id` and `name`. -->
 - 標準リクエストのセッションでの `passkey-registered` ステータスのリダイレクト応答。
 - `status` キーと、新しく登録されたパスキーの `id` および `name` を含む JSON ペイロードを含む `200` HTTP 応答。
 
-<!-- </div> -->
 </div>
 
 <a name="deleting-passkeys"></a>
@@ -644,17 +629,12 @@ await Passkeys.register({
 <!-- If the request is successful, Fortify will return either: -->
 リクエストが成功すると、Fortify は次のいずれかを返します。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- A redirect back response with a `passkey-deleted` status in the session for standard requests.
-- A `200` HTTP response with a JSON payload containing a `status` key for XHR requests.
--->
+<!-- - A redirect back response with a `passkey-deleted` status in the session for standard requests. - A `200` HTTP response with a JSON payload containing a `status` key for XHR requests. -->
 - 標準リクエストのセッションでの `passkey-deleted` ステータスのリダイレクト応答。
 - XHR リクエストの `status` キーを含む JSON ペイロードを含む `200` HTTP レスポンス。
 
-<!-- </div> -->
 </div>
 
 <a name="registration"></a>
@@ -926,4 +906,3 @@ Fortify は、このビューを返す `/user/confirm-password` エンドポイ�
 
 <!-- If the request was not successful, the user will be redirected back to the confirm password screen and the validation errors will be available to you via the shared `$errors` Blade template variable. Or, in the case of an XHR request, the validation errors will be returned with a 422 HTTP response. -->
 リクエストが成功しなかった場合、ユーザーはパスワード確認画面にリダイレクトされ、共有の `$errors` Blade テンプレート変数を介して検証エラーが表示されます。または、XHR リクエストの場合、検証エラーは 422 HTTP レスポンスで返されます。
-

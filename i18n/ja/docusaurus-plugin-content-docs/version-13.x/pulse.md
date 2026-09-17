@@ -301,7 +301,7 @@ Pulse がユーザー情報を取得して表示する方法をカスタマイ�
 <!-- Most Pulse recorders will automatically capture entries based on framework events dispatched by Laravel. However, the [servers recorder](#servers-recorder) and some third-party cards must poll for information regularly. To use these cards, you must run the `pulse:check` daemon on all of your individual application servers: -->
 ほとんどの Pulse レコーダーは、Laravel によって送出されたフレームワーク イベントに基づいてエントリを自動的にキャプチャします。ただし、[servers recorder](#servers-recorder) および一部のサードパーティ カードは定期的に情報をポーリングする必要があります。これらのカードを使用するには、すべての個々のアプリケーション サーバーで `pulse:check` デーモンを実行する必要があります。
 
-```php
+```shell
 php artisan pulse:check
 ```
 
@@ -602,7 +602,7 @@ PULSE_REDIS_CONNECTION=pulse
 <!-- When using the Redis ingest, you will need to run the `pulse:work` command to monitor the stream and move entries from Redis into Pulse's database tables. -->
 Redis インジェストを使用する場合、`pulse:work` コマンドを実行してストリームを監視し、エントリを Redis から Pulse のデータベース テーブルに移動する必要があります。
 
-```php
+```shell
 php artisan pulse:work
 ```
 
@@ -843,13 +843,6 @@ Pulse::record('user_sale', $user->id, $sale->amount)
 <!-- The available aggregation methods are: -->
 使用可能な集計方法は次のとおりです。
 
-<!--
-* `avg`
-* `count`
-* `max`
-* `min`
-* `sum`
--->
 * `avg`
 * `count`
 * `max`
@@ -986,4 +979,3 @@ class Deployments
     }
 }
 ```
-

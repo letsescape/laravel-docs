@@ -467,7 +467,7 @@ $this->assertThrows(
 ```php
 $this->assertThrows(
     fn () => (new ProcessOrder)->execute(),
-    fn (OrderInvalid $e) => $e->orderId() === 123;
+    fn (OrderInvalid $e) => $e->orderId() === 123
 );
 ```
 
@@ -1108,94 +1108,9 @@ class BasicTest extends TestCase
 <!-- Laravel's `Illuminate\Testing\TestResponse` class provides a variety of custom assertion methods that you may utilize when testing your application. These assertions may be accessed on the response that is returned by the `json`, `get`, `post`, `put`, and `delete` test methods: -->
 Laravel の `Illuminate\Testing\TestResponse` クラスは、アプリケーションのテスト時に利用できるさまざまなカスタム アサーション メソッドを提供します。これらのアサーションは、`json`、`get`、`post`、`put`、および `delete` テスト メソッドによって返される応答でアクセスできます。
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[assertAccepted](#assert-accepted)
-[assertBadRequest](#assert-bad-request)
-[assertClientError](#assert-client-error)
-[assertConflict](#assert-conflict)
-[assertCookie](#assert-cookie)
-[assertCookieExpired](#assert-cookie-expired)
-[assertCookieNotExpired](#assert-cookie-not-expired)
-[assertCookieMissing](#assert-cookie-missing)
-[assertCreated](#assert-created)
-[assertDontSee](#assert-dont-see)
-[assertDontSeeText](#assert-dont-see-text)
-[assertDownload](#assert-download)
-[assertExactJson](#assert-exact-json)
-[assertExactJsonStructure](#assert-exact-json-structure)
-[assertFailedDependency](#assert-failed-dependency)
-[assertForbidden](#assert-forbidden)
-[assertFound](#assert-found)
-[assertGone](#assert-gone)
-[assertHeader](#assert-header)
-[assertHeaderContains](#assert-header-contains)
-[assertHeaderMissing](#assert-header-missing)
-[assertInternalServerError](#assert-internal-server-error)
-[assertJson](#assert-json)
-[assertJsonCount](#assert-json-count)
-[assertJsonFragment](#assert-json-fragment)
-[assertJsonIsArray](#assert-json-is-array)
-[assertJsonIsObject](#assert-json-is-object)
-[assertJsonMissing](#assert-json-missing)
-[assertJsonMissingExact](#assert-json-missing-exact)
-[assertJsonMissingValidationErrors](#assert-json-missing-validation-errors)
-[assertJsonPath](#assert-json-path)
-[assertJsonPaths](#assert-json-paths)
-[assertJsonMissingPath](#assert-json-missing-path)
-[assertJsonMissingPaths](#assert-json-missing-paths)
-[assertJsonStructure](#assert-json-structure)
-[assertJsonValidationErrors](#assert-json-validation-errors)
-[assertJsonValidationErrorFor](#assert-json-validation-error-for)
-[assertLocation](#assert-location)
-[assertMethodNotAllowed](#assert-method-not-allowed)
-[assertMovedPermanently](#assert-moved-permanently)
-[assertContent](#assert-content)
-[assertNoContent](#assert-no-content)
-[assertStreamed](#assert-streamed)
-[assertStreamedContent](#assert-streamed-content)
-[assertNotFound](#assert-not-found)
-[assertOk](#assert-ok)
-[assertPaymentRequired](#assert-payment-required)
-[assertPlainCookie](#assert-plain-cookie)
-[assertRedirect](#assert-redirect)
-[assertRedirectBack](#assert-redirect-back)
-[assertRedirectBackWithErrors](#assert-redirect-back-with-errors)
-[assertRedirectBackWithoutErrors](#assert-redirect-back-without-errors)
-[assertRedirectContains](#assert-redirect-contains)
-[assertRedirectToRoute](#assert-redirect-to-route)
-[assertRedirectToSignedRoute](#assert-redirect-to-signed-route)
-[assertRequestTimeout](#assert-request-timeout)
-[assertSee](#assert-see)
-[assertSeeInOrder](#assert-see-in-order)
-[assertSeeText](#assert-see-text)
-[assertSeeTextInOrder](#assert-see-text-in-order)
-[assertServerError](#assert-server-error)
-[assertServiceUnavailable](#assert-service-unavailable)
-[assertSessionHas](#assert-session-has)
-[assertSessionHasInput](#assert-session-has-input)
-[assertSessionHasAll](#assert-session-has-all)
-[assertSessionHasErrors](#assert-session-has-errors)
-[assertSessionHasErrorsIn](#assert-session-has-errors-in)
-[assertSessionHasNoErrors](#assert-session-has-no-errors)
-[assertSessionDoesntHaveErrors](#assert-session-doesnt-have-errors)
-[assertSessionMissing](#assert-session-missing)
-[assertSessionMissingInput](#assert-session-missing-input)
-[assertStatus](#assert-status)
-[assertSuccessful](#assert-successful)
-[assertTooManyRequests](#assert-too-many-requests)
-[assertUnauthorized](#assert-unauthorized)
-[assertUnprocessable](#assert-unprocessable)
-[assertUnsupportedMediaType](#assert-unsupported-media-type)
-[assertValid](#assert-valid)
-[assertInvalid](#assert-invalid)
-[assertViewHas](#assert-view-has)
-[assertViewHasAll](#assert-view-has-all)
-[assertViewIs](#assert-view-is)
-[assertViewMissing](#assert-view-missing)
--->
+<!-- [assertAccepted](#assert-accepted) [assertBadRequest](#assert-bad-request) [assertClientError](#assert-client-error) [assertConflict](#assert-conflict) [assertCookie](#assert-cookie) [assertCookieExpired](#assert-cookie-expired) [assertCookieNotExpired](#assert-cookie-not-expired) [assertCookieMissing](#assert-cookie-missing) [assertCreated](#assert-created) [assertDontSee](#assert-dont-see) [assertDontSeeText](#assert-dont-see-text) [assertDownload](#assert-download) [assertExactJson](#assert-exact-json) [assertExactJsonStructure](#assert-exact-json-structure) [assertFailedDependency](#assert-failed-dependency) [assertForbidden](#assert-forbidden) [assertFound](#assert-found) [assertGone](#assert-gone) [assertHeader](#assert-header) [assertHeaderContains](#assert-header-contains) [assertHeaderMissing](#assert-header-missing) [assertInternalServerError](#assert-internal-server-error) [assertJson](#assert-json) [assertJsonCount](#assert-json-count) [assertJsonFragment](#assert-json-fragment) [assertJsonIsArray](#assert-json-is-array) [assertJsonIsObject](#assert-json-is-object) [assertJsonMissing](#assert-json-missing) [assertJsonMissingExact](#assert-json-missing-exact) [assertJsonMissingValidationErrors](#assert-json-missing-validation-errors) [assertJsonPath](#assert-json-path) [assertJsonPaths](#assert-json-paths) [assertJsonMissingPath](#assert-json-missing-path) [assertJsonMissingPaths](#assert-json-missing-paths) [assertJsonStructure](#assert-json-structure) [assertJsonValidationErrors](#assert-json-validation-errors) [assertJsonValidationErrorFor](#assert-json-validation-error-for) [assertLocation](#assert-location) [assertMethodNotAllowed](#assert-method-not-allowed) [assertMovedPermanently](#assert-moved-permanently) [assertContent](#assert-content) [assertNoContent](#assert-no-content) [assertStreamed](#assert-streamed) [assertStreamedContent](#assert-streamed-content) [assertNotFound](#assert-not-found) [assertOk](#assert-ok) [assertPaymentRequired](#assert-payment-required) [assertPlainCookie](#assert-plain-cookie) [assertRedirect](#assert-redirect) [assertRedirectBack](#assert-redirect-back) [assertRedirectBackWithErrors](#assert-redirect-back-with-errors) [assertRedirectBackWithoutErrors](#assert-redirect-back-without-errors) [assertRedirectContains](#assert-redirect-contains) [assertRedirectToRoute](#assert-redirect-to-route) [assertRedirectToSignedRoute](#assert-redirect-to-signed-route) [assertRequestTimeout](#assert-request-timeout) [assertSee](#assert-see) [assertSeeInOrder](#assert-see-in-order) [assertSeeText](#assert-see-text) [assertSeeTextInOrder](#assert-see-text-in-order) [assertServerError](#assert-server-error) [assertServiceUnavailable](#assert-service-unavailable) [assertSessionHas](#assert-session-has) [assertSessionHasInput](#assert-session-has-input) [assertSessionHasAll](#assert-session-has-all) [assertSessionHasErrors](#assert-session-has-errors) [assertSessionHasErrorsIn](#assert-session-has-errors-in) [assertSessionHasNoErrors](#assert-session-has-no-errors) [assertSessionDoesntHaveErrors](#assert-session-doesnt-have-errors) [assertSessionMissing](#assert-session-missing) [assertSessionMissingInput](#assert-session-missing-input) [assertStatus](#assert-status) [assertSuccessful](#assert-successful) [assertTooManyRequests](#assert-too-many-requests) [assertUnauthorized](#assert-unauthorized) [assertUnprocessable](#assert-unprocessable) [assertUnsupportedMediaType](#assert-unsupported-media-type) [assertValid](#assert-valid) [assertInvalid](#assert-invalid) [assertViewHas](#assert-view-has) [assertViewHasAll](#assert-view-has-all) [assertViewIs](#assert-view-is) [assertViewMissing](#assert-view-missing) -->
 [assertAccepted](#assert-accepted)
 [assertBadRequest](#assert-bad-request)
 [assertClientError](#assert-client-error)
@@ -1280,7 +1195,6 @@ Laravel の `Illuminate\Testing\TestResponse` クラスは、アプリケーシ�
 [assertViewIs](#assert-view-is)
 [assertViewMissing](#assert-view-missing)
 
-<!-- </div> -->
 </div>
 
 <a name="assert-accepted"></a>
@@ -2537,4 +2451,3 @@ $response->assertInvalid([
     'email' => 'valid email address',
 ]);
 ```
-

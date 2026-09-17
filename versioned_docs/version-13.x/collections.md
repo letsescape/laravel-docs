@@ -1585,7 +1585,7 @@ collect([1, 2, 3])->hasMany();
 collect([
     ['age' => 2],
     ['age' => 3],
-])->hasMany(fn ($item) => $item['age'] === 2)
+])->hasMany(fn ($item) => $item['age'] === 2);
 
 // false
 ```

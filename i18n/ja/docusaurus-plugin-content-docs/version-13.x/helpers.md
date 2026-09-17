@@ -2987,7 +2987,7 @@ event(new UserRegistered($user));
 デフォルトでは、`fake` 関数は、`config/app.php` 構成の `app.faker_locale` 構成オプションを利用します。通常、この構成オプションは `APP_FAKER_LOCALE` 環境変数を介して設定されます。ロケールを `fake` 関数に渡して指定することもできます。各ロケールは個別のシングルトンを解決します。
 
 ```php
-fake('nl_NL')->name()
+fake('nl_NL')->name();
 ```
 
 <a name="method-filled"></a>

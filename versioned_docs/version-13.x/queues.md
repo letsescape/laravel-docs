@@ -2122,7 +2122,7 @@ QUEUE_CONNECTION=failover
 <!-- Next, start at least one worker for each connection in your failover connection list: -->
 다음으로, 장애 조치 연결 목록에 있는 각 연결마다 최소 하나의 워커를 시작합니다.
 
-```bash
+```shell
 php artisan queue:work redis
 php artisan queue:work database
 ```

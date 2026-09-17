@@ -265,7 +265,7 @@ Laravel Boost에 직접 만든 커스텀 AI 지침을 추가하려면 애플리�
 <!-- AI guidelines should provide a short overview of what your package does, outline any required file structure or conventions, and explain how to create or use its main features (with example commands or code snippets). Keep them concise, actionable, and focused on best practices so AI can generate correct code for your users. Here is an example: -->
 AI 지침에는 패키지가 무엇을 하는지에 대한 짧은 개요, 필요한 파일 구조나 규칙, 주요 기능을 만들거나 사용하는 방법(예시 명령어 또는 코드 조각 포함)을 담아야 합니다. AI가 사용자에게 올바른 코드를 생성할 수 있도록 간결하고 실행 가능하며 모범 사례에 집중해서 작성하세요. 예시는 다음과 같습니다.
 
-```php
+```markdown
 ## Package Name
 
 This package provides [brief description of functionality].

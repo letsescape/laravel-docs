@@ -387,7 +387,7 @@ QR 코드를 보여줄 뿐 아니라, 사용자가 인증 코드를 입력해서
 사용자에게 2단계 인증 복구 코드도 반드시 보여주어야 합니다. 복구 코드는 사용자가 기기에 접근할 수 없게 되었을 때 인증에 사용할 수 있습니다. 애플리케이션 프런트엔드를 Blade로 렌더링하는 경우, 인증된 사용자 인스턴스를 통해 복구 코드에 접근할 수 있습니다.
 
 ```php
-(array) $request->user()->recoveryCodes()
+(array) $request->user()->recoveryCodes();
 ```
 
 <!-- If you are building a JavaScript powered frontend, you may make an XHR GET request to the `/user/two-factor-recovery-codes` endpoint. This endpoint will return a JSON array containing the user's recovery codes. -->
@@ -566,17 +566,12 @@ await Passkeys.register({
 <!-- If the request is successful, Fortify will log the user into the configured guard and return either: -->
 요청이 성공하면 Fortify는 설정된 가드로 사용자를 로그인시키고 다음 중 하나를 반환합니다:
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- A redirect response to your intended destination for standard requests.
-- A `200` HTTP response containing a JSON payload with a `redirect` key for XHR requests.
--->
+<!-- - A redirect response to your intended destination for standard requests. - A `200` HTTP response containing a JSON payload with a `redirect` key for XHR requests. -->
 - 표준 요청의 경우 의도한 목적지로 향하는 리디렉션 응답.
 - XHR 요청의 경우 `redirect` 키가 포함된 JSON 페이로드를 담은 `200` HTTP 응답.
 
-<!-- </div> -->
 </div>
 
 <a name="confirming-password-with-passkeys"></a>
@@ -595,17 +590,12 @@ await Passkeys.register({
 <!-- If the request is successful, Fortify marks the current session as password confirmed and returns either: -->
 요청이 성공하면 Fortify는 현재 세션을 비밀번호 확인됨으로 표시하고 다음 중 하나를 반환합니다:
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- A redirect response to your intended destination for standard requests.
-- A `200` HTTP response containing a JSON payload with a `redirect` key for XHR requests.
--->
+<!-- - A redirect response to your intended destination for standard requests. - A `200` HTTP response containing a JSON payload with a `redirect` key for XHR requests. -->
 - 표준 요청의 경우 의도한 목적지로 향하는 리디렉션 응답.
 - XHR 요청의 경우 `redirect` 키가 포함된 JSON 페이로드를 담은 `200` HTTP 응답.
 
-<!-- </div> -->
 </div>
 
 <a name="registering-passkeys"></a>
@@ -621,17 +611,12 @@ await Passkeys.register({
 <!-- If the request is successful, Fortify will return either: -->
 요청이 성공하면 Fortify는 다음 중 하나를 반환합니다:
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- A redirect back response with a `passkey-registered` status in the session for standard requests.
-- A `200` HTTP response with a JSON payload containing a `status` key, along with the newly registered passkey's `id` and `name`.
--->
+<!-- - A redirect back response with a `passkey-registered` status in the session for standard requests. - A `200` HTTP response with a JSON payload containing a `status` key, along with the newly registered passkey's `id` and `name`. -->
 - 표준 요청의 경우 세션에 `passkey-registered` 상태를 담아 이전 페이지로 리디렉션하는 응답.
 - 새로 등록된 패스키의 `id`와 `name`과 함께 `status` 키를 포함하는 JSON 페이로드를 담은 `200` HTTP 응답.
 
-<!-- </div> -->
 </div>
 
 <a name="deleting-passkeys"></a>
@@ -644,17 +629,12 @@ await Passkeys.register({
 <!-- If the request is successful, Fortify will return either: -->
 요청이 성공하면 Fortify는 다음 중 하나를 반환합니다:
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- A redirect back response with a `passkey-deleted` status in the session for standard requests.
-- A `200` HTTP response with a JSON payload containing a `status` key for XHR requests.
--->
+<!-- - A redirect back response with a `passkey-deleted` status in the session for standard requests. - A `200` HTTP response with a JSON payload containing a `status` key for XHR requests. -->
 - 표준 요청의 경우 세션에 `passkey-deleted` 상태를 담아 이전 페이지로 리디렉션하는 응답.
 - XHR 요청의 경우 `status` 키가 포함된 JSON 페이로드를 담은 `200` HTTP 응답.
 
-<!-- </div> -->
 </div>
 
 <a name="registration"></a>

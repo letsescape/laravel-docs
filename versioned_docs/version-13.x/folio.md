@@ -26,7 +26,7 @@
 <!-- For example, to create a page that is accessible at the `/greeting` URL, just create a `greeting.blade.php` file in your application's `resources/views/pages` directory: -->
 예를 들어, `/greeting` URL로 접근할 수 있는 페이지를 만들고 싶다면, 애플리케이션의 `resources/views/pages` 디렉터리에 `greeting.blade.php` 파일을 생성하면 됩니다:
 
-```php
+```blade
 <div>
     Hello World
 </div>
@@ -309,7 +309,7 @@ name('users.index');
 <!-- Just like Laravel's named routes, you may use the `route` function to generate URLs to Folio pages that have been assigned a name: -->
 Laravel의 이름이 지정된 라우트처럼, `route` 함수를 이용해 이름이 지정된 Folio 페이지에 대한 URL을 생성할 수 있습니다:
 
-```php
+```blade
 <a href="{{ route('users.index') }}">
     All Users
 </a>

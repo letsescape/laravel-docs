@@ -171,7 +171,8 @@ class NewApi
 클래스 기반 기능의 인스턴스를 직접 생성하고 싶다면 `Feature` 파사드의 `instance` 메서드를 사용할 수 있습니다.
 
 ```php
-use Illuminate\Support\Facades\Feature;
+use App\Features\NewApi;
+use Laravel\Pennant\Feature;
 
 $instance = Feature::instance(NewApi::class);
 ```

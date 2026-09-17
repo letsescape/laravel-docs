@@ -171,7 +171,8 @@ class NewApi
 クラスベースの機能のインスタンスを手動で解決したい場合は、`Feature` ファサードで `instance` メソッドを呼び出すことができます。
 
 ```php
-use Illuminate\Support\Facades\Feature;
+use App\Features\NewApi;
+use Laravel\Pennant\Feature;
 
 $instance = Feature::instance(NewApi::class);
 ```

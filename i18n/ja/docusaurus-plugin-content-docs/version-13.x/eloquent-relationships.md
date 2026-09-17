@@ -2094,7 +2094,7 @@ $book->loadCount('genres');
 ```php
 $book->loadCount(['reviews' => function (Builder $query) {
     $query->where('rating', 5);
-}])
+}]);
 ```
 
 <a name="relationship-counting-and-custom-select-statements"></a>

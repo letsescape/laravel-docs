@@ -876,7 +876,7 @@ public function broadcastAs(): string
 <!-- If you customize the broadcast name using the `broadcastAs` method, you should make sure to register your listener with a leading `.` character. This will instruct Echo to not prepend the application's namespace to the event: -->
 `broadcastAs` メソッドを使用してブロードキャスト名をカスタマイズする場合は、先頭に `.` 文字を使用してリスナを登録する必要があります。これにより、アプリケーションの名前空間をイベントの前に付加しないように Echo に指示されます。
 
-```javascript
+```js
 .listen('.server.created', function (e) {
     // ...
 });

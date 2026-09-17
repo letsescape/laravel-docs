@@ -2292,7 +2292,7 @@ $browser->assertAriaAttribute($selector, $attribute, $value);
 예를 들어 `<button aria-label="Add"></button>` 마크업이 주어졌다면, 다음과 같이 `aria-label` 속성에 대해 확인할 수 있습니다:
 
 ```php
-$browser->assertAriaAttribute('button', 'label', 'Add')
+$browser->assertAriaAttribute('button', 'label', 'Add');
 ```
 
 <a name="assert-data-attribute"></a>
@@ -2310,7 +2310,7 @@ $browser->assertDataAttribute($selector, $attribute, $value);
 예를 들어 `<tr id="row-1" data-content="attendees"></tr>` 마크업이 주어졌다면, 다음과 같이 `data-content` 속성에 대해 확인할 수 있습니다:
 
 ```php
-$browser->assertDataAttribute('#row-1', 'content', 'attendees')
+$browser->assertDataAttribute('#row-1', 'content', 'attendees');
 ```
 <a name="assert-visible"></a>
 <!-- #### assertVisible -->

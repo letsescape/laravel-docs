@@ -864,7 +864,7 @@ Http::fake([
 `Illuminate\Http\Client\RequestException` がスローされた場合のアプリケーションの動作をテストするには、`failedRequest` メソッドを使用できます。
 
 ```php
-$this->mock(GithubService::class);
+$this->mock(GithubService::class)
     ->shouldReceive('getUser')
     ->andThrow(
         Http::failedRequest(['code' => 'not_found'], 404)

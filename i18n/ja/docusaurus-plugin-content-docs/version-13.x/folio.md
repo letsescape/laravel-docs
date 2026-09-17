@@ -26,7 +26,7 @@
 <!-- For example, to create a page that is accessible at the `/greeting` URL, just create a `greeting.blade.php` file in your application's `resources/views/pages` directory: -->
 たとえば、`/greeting` URL でアクセスできるページを作成するには、アプリケーションの `resources/views/pages` ディレクトリに `greeting.blade.php` ファイルを作成するだけです。
 
-```php
+```blade
 <div>
     Hello World
 </div>
@@ -309,7 +309,7 @@ name('users.index');
 <!-- Just like Laravel's named routes, you may use the `route` function to generate URLs to Folio pages that have been assigned a name: -->
 Laravel の名前付きルートと同様に、`route` 関数を使用して、名前が割り当てられた Folio ページへの URL を生成できます。
 
-```php
+```blade
 <a href="{{ route('users.index') }}">
     All Users
 </a>
@@ -390,4 +390,3 @@ Folio::path(resource_path('views/pages'))->middleware([
 
 <!-- When using Folio, you should always take advantage of [Laravel's route caching capabilities](/docs/13.x/routing#route-caching). Folio listens for the `route:cache` Artisan command to ensure that Folio page definitions and route names are properly cached for maximum performance. -->
 Folio を使用する場合は、常に [Laravel's route caching capabilities](/docs/13.x/routing#route-caching) を活用する必要があります。 Folio は、`route:cache` Artisan コマンドをリッスンして、最大限のパフォーマンスを得るために Folio ページ定義とルート名が適切にキャッシュされていることを確認します。
-

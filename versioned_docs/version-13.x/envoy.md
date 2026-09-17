@@ -132,7 +132,7 @@ Envoy를 이용해 여러 서버에서 동시에 작업을 실행할 수 있습�
 <!-- Sometimes, you may need to execute arbitrary PHP code before running your Envoy tasks. You may use the `@setup` directive to define a block of PHP code that should execute before your tasks: -->
 Envoy 작업 실행 전에 임의 PHP 코드를 실행해야 할 때 `@setup` 지시어를 사용합니다:
 
-```php
+```blade
 @setup
     $now = new DateTime;
 @endsetup

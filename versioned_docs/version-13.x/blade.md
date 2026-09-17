@@ -176,7 +176,7 @@ Hello, @{{ name }}.
 <!-- Sometimes you may pass an array to your view with the intention of rendering it as JSON in order to initialize a JavaScript variable. For example: -->
 때로는 JavaScript 변수를 초기화하기 위해 배열을 JSON로 렌더링하려는 의도로 뷰에 배열을 전달할 수도 있습니다. 예를 들어:
 
-```php
+```blade
 <script>
     var app = <?php echo json_encode($array); ?>;
 </script>
@@ -1154,7 +1154,7 @@ return function (array $data) {
     // $data['slot'];
 
     return '<div {{ $attributes }}>Components content</div>';
-}
+};
 ```
 
 > [!WARNING]

@@ -1840,7 +1840,7 @@ Validator::make($data, [
 `minRatio`, `maxRatio`, `ratioBetween` 메서드를 사용하여 종횡비 제약 조건을 fluent하게 정의할 수도 있습니다.
 
 ```php
-Rule::dimensions()->ratioBetween(min: 1 / 2, max: 3 / 2)
+Rule::dimensions()->ratioBetween(min: 1 / 2, max: 3 / 2);
 ```
 
 <a name="rule-distinct"></a>
@@ -2923,21 +2923,21 @@ Validator::make($data, [
 모델 키의 값을 `ignore` 메서드에 전달하는 대신, 전체 모델 인스턴스를 전달할 수도 있습니다. Laravel은 모델에서 키를 자동으로 추출합니다.
 
 ```php
-Rule::unique('users')->ignore($user)
+Rule::unique('users')->ignore($user);
 ```
 
 <!-- If your table uses a primary key column name other than `id`, you may specify the name of the column when calling the `ignore` method: -->
 테이블에서 `id`가 아닌 다른 기본 키 컬럼 이름을 사용하는 경우, `ignore` 메서드를 호출할 때 컬럼 이름을 지정할 수 있습니다.
 
 ```php
-Rule::unique('users')->ignore($user->id, 'user_id')
+Rule::unique('users')->ignore($user->id, 'user_id');
 ```
 
 <!-- By default, the `unique` rule will check the uniqueness of the column matching the name of the attribute being validated. However, you may pass a different column name as the second argument to the `unique` method: -->
 기본적으로 `unique` 규칙은 유효성 검증 중인 속성 이름과 일치하는 컬럼의 고유성을 확인합니다. 하지만 `unique` 메서드의 두 번째 인수로 다른 컬럼 이름을 전달할 수 있습니다.
 
 ```php
-Rule::unique('users', 'email_address')->ignore($user->id)
+Rule::unique('users', 'email_address')->ignore($user->id);
 ```
 
 <!-- **Adding Additional Where Clauses:** -->
@@ -3349,7 +3349,7 @@ File::image()->dimensions(
     Rule::dimensions()
         ->maxWidth(1000)
         ->maxHeight(500)
-)
+);
 ```
 > [!NOTE]
 > 이미지 크기 유효성 검증에 대한 자세한 내용은 [dimension rule documentation](#rule-dimensions)에서 확인할 수 있습니다.
@@ -3375,29 +3375,29 @@ $validator = Validator::make($request->all(), [
 
 ```php
 // Require at least 8 characters...
-Password::min(8)
+Password::min(8);
 
 // Require at most 256 characters...
-Password::min(16)->max(256)
+Password::min(16)->max(256);
 
 // Require at least one letter...
-Password::min(8)->letters()
+Password::min(8)->letters();
 
 // Require at least one uppercase and one lowercase letter...
-Password::min(8)->mixedCase()
+Password::min(8)->mixedCase();
 
 // Require at least one number...
-Password::min(8)->numbers()
+Password::min(8)->numbers();
 
 // Require at least one symbol...
-Password::min(8)->symbols()
+Password::min(8)->symbols();
 ```
 
 <!-- In addition, you may ensure that a password has not been compromised in a public password data breach leak using the `uncompromised` method: -->
 또한 `uncompromised` 메서드를 사용하여 공개 비밀번호 데이터 유출 사고에서 해당 비밀번호가 유출된 적이 없는지 확인할 수 있습니다.
 
 ```php
-Password::min(8)->uncompromised()
+Password::min(8)->uncompromised();
 ```
 
 <!-- Internally, the `Password` rule object uses the [k-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) model to determine if a password has been leaked via the [haveibeenpwned.com](https://haveibeenpwned.com) service without sacrificing the user's privacy or security. -->
@@ -3421,7 +3421,7 @@ Password::min(8)
     ->mixedCase()
     ->numbers()
     ->symbols()
-    ->uncompromised()
+    ->uncompromised();
 ```
 
 <!-- You may convert a `Password` rule object to a string suitable for the HTML `passwordrules` attribute using the `toPasswordRulesString` method: -->

@@ -863,7 +863,7 @@ Http::fake([
 `Illuminate\Http\Client\RequestException`이 발생했을 때 애플리케이션의 동작을 테스트하려면 `failedRequest` 메서드를 사용할 수 있습니다.
 
 ```php
-$this->mock(GithubService::class);
+$this->mock(GithubService::class)
     ->shouldReceive('getUser')
     ->andThrow(
         Http::failedRequest(['code' => 'not_found'], 404)

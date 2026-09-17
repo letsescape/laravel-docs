@@ -1732,7 +1732,7 @@ PostgreSQL を使用する場合、これにより、インデックス作成ス
 インデックスの名前を変更するには、スキーマ ビルダ ブループリントによって提供される `renameIndex` メソッドを使用できます。このメソッドは、現在のインデックス名を最初の引数として受け入れ、目的の名前を 2 番目の引数として受け入れます。
 
 ```php
-$table->renameIndex('from', 'to')
+$table->renameIndex('from', 'to');
 ```
 
 <a name="dropping-indexes"></a>

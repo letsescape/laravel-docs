@@ -1732,7 +1732,7 @@ PostgreSQL을 사용할 때는 인덱스 생성 구문에 `CONCURRENTLY` 옵션�
 인덱스 이름을 변경하려면 스키마 빌더 blueprint가 제공하는 `renameIndex` 메서드를 사용할 수 있습니다. 이 메서드는 첫 번째 인수로 현재 인덱스 이름을, 두 번째 인수로 원하는 이름을 받습니다.
 
 ```php
-$table->renameIndex('from', 'to')
+$table->renameIndex('from', 'to');
 ```
 
 <a name="dropping-indexes"></a>

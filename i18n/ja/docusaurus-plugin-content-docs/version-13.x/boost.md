@@ -265,7 +265,7 @@ Laravel Boost には、次のパッケージとフレームワークの AI ガ�
 <!-- AI guidelines should provide a short overview of what your package does, outline any required file structure or conventions, and explain how to create or use its main features (with example commands or code snippets). Keep them concise, actionable, and focused on best practices so AI can generate correct code for your users. Here is an example: -->
 AI ガイドラインでは、パッケージが何を行うのかについての簡単な概要を提供し、必要なファイル構造や規則の概要を示し、その主な機能の作成方法や使用方法を (コマンド例やコード スニペットを使用して) 説明する必要があります。 AI がユーザー向けに正しいコードを生成できるように、簡潔で実用的でベスト プラクティスに焦点を当てたものにしてください。以下に例を示します。
 
-```php
+```markdown
 ## Package Name
 
 This package provides [brief description of functionality].

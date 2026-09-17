@@ -2987,7 +2987,7 @@ event(new UserRegistered($user));
 기본적으로 `fake` 함수는 `config/app.php` 설정의 `app.faker_locale` 설정 옵션을 사용합니다. 일반적으로 이 설정 옵션은 `APP_FAKER_LOCALE` 환경 변수를 통해 지정됩니다. `fake` 함수에 로케일을 전달하여 직접 지정할 수도 있습니다. 각 로케일은 개별 싱글톤으로 해석됩니다.
 
 ```php
-fake('nl_NL')->name()
+fake('nl_NL')->name();
 ```
 
 <a name="method-filled"></a>

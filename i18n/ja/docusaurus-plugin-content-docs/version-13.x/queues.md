@@ -2122,7 +2122,7 @@ QUEUE_CONNECTION=failover
 <!-- Next, start at least one worker for each connection in your failover connection list: -->
 次に、フェイルオーバー接続リスト内の接続ごとに少なくとも 1 つのワーカーを開始します。
 
-```bash
+```shell
 php artisan queue:work redis
 php artisan queue:work database
 ```

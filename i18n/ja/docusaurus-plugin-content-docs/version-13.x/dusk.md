@@ -2296,7 +2296,7 @@ $browser->assertAriaAttribute($selector, $attribute, $value);
 たとえば、マークアップ `<button aria-label="Add"></button>` がある場合、次のように `aria-label` 属性に対してアサートできます。
 
 ```php
-$browser->assertAriaAttribute('button', 'label', 'Add')
+$browser->assertAriaAttribute('button', 'label', 'Add');
 ```
 
 <a name="assert-data-attribute"></a>
@@ -2314,7 +2314,7 @@ $browser->assertDataAttribute($selector, $attribute, $value);
 たとえば、マークアップ `<tr id="row-1" data-content="attendees"></tr>` がある場合、次のように `data-content` 属性に対してアサートできます。
 
 ```php
-$browser->assertDataAttribute('#row-1', 'content', 'attendees')
+$browser->assertDataAttribute('#row-1', 'content', 'attendees');
 ```
 
 <a name="assert-visible"></a>

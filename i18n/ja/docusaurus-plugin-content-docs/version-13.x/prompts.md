@@ -38,7 +38,6 @@
 <!-- [Laravel Prompts](https://github.com/laravel/prompts) is a PHP package for adding beautiful and user-friendly forms to your command-line applications, with browser-like features including placeholder text and validation. -->
 [Laravel Prompts](https://github.com/laravel/prompts) は、プレースホルダー テキストや検証などのブラウザーのような機能を備えた、美しくユーザーフレンドリーなフォームをコマンドライン アプリケーションに追加するための PHP パッケージです。
 
-<!-- <img src="https://laravel.com/img/docs/prompts-example.png"/> -->
 <img src="https://laravel.com/img/docs/prompts-example.png"/>
 
 <!-- Laravel Prompts is perfect for accepting user input in your [Artisan console commands](/docs/13.x/artisan#writing-commands), but it may also be used in any command-line PHP project. -->
@@ -701,7 +700,7 @@ $name = suggest(
     label: 'What is your name?',
     options: fn ($value) => collect(['Taylor', 'Dayle'])
         ->filter(fn ($name) => Str::contains($name, $value, ignoreCase: true))
-)
+);
 ```
 
 <!-- You may also include placeholder text, a default value, and an informational hint: -->

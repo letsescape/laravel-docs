@@ -160,9 +160,9 @@ Schedule::exec('node /home/forge/script.js')->daily();
 <!-- We've already seen a few examples of how you may configure a task to run at specified intervals. However, there are many more task schedule frequencies that you may assign to a task: -->
 指定した間隔でタスクを実行するように構成する方法の例をいくつか見てきました。ただし、タスクに割り当てることができるタスクスケジュールの頻度は他にもたくさんあります。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Method | Description | | ---------------------------------- | -------------------------------------------------------- | | `->cron('* * * * *');` | Run the task on a custom cron schedule. | | `->everySecond();` | Run the task every second. | | `->everyTwoSeconds();` | Run the task every two seconds. | | `->everyFiveSeconds();` | Run the task every five seconds. | | `->everyTenSeconds();` | Run the task every ten seconds. | | `->everyFifteenSeconds();` | Run the task every fifteen seconds. | | `->everyTwentySeconds();` | Run the task every twenty seconds. | | `->everyThirtySeconds();` | Run the task every thirty seconds. | | `->everyMinute();` | Run the task every minute. | | `->everyTwoMinutes();` | Run the task every two minutes. | | `->everyThreeMinutes();` | Run the task every three minutes. | | `->everyFourMinutes();` | Run the task every four minutes. | | `->everyFiveMinutes();` | Run the task every five minutes. | | `->everyTenMinutes();` | Run the task every ten minutes. | | `->everyFifteenMinutes();` | Run the task every fifteen minutes. | | `->everyThirtyMinutes();` | Run the task every thirty minutes. | | `->hourly();` | Run the task every hour. | | `->hourlyAt(17);` | Run the task every hour at 17 minutes past the hour. | | `->everyOddHour($minutes = 0);` | Run the task every odd hour. | | `->everyTwoHours($minutes = 0);` | Run the task every two hours. | | `->everyThreeHours($minutes = 0);` | Run the task every three hours. | | `->everyFourHours($minutes = 0);` | Run the task every four hours. | | `->everySixHours($minutes = 0);` | Run the task every six hours. | | `->daily();` | Run the task every day at midnight. | | `->dailyAt('13:00');` | Run the task every day at 13:00. | | `->twiceDaily(1, 13);` | Run the task daily at 1:00 & 13:00. | | `->twiceDailyAt(1, 13, 15);` | Run the task daily at 1:15 & 13:15. | | `->daysOfMonth([1, 10, 20]);` | Run the task on specific days of the month. | | `->weekly();` | Run the task every Sunday at 00:00. | | `->weeklyOn(1, '8:00');` | Run the task every week on Monday at 8:00. | | `->monthly();` | Run the task on the first day of every month at 00:00. | | `->monthlyOn(4, '15:00');` | Run the task every month on the 4th at 15:00. | | `->twiceMonthly(1, 16, '13:00');` | Run the task monthly on the 1st and 16th at 13:00. | | `->lastDayOfMonth('15:00');` | Run the task on the last day of the month at 15:00. | | `->quarterly();` | Run the task on the first day of every quarter at 00:00. | | `->quarterlyOn(4, '14:00');` | Run the task every quarter on the 4th at 14:00. | | `->yearly();` | Run the task on the first day of every year at 00:00. | | `->yearlyOn(6, 1, '17:00');` | Run the task every year on June 1st at 17:00. | | `->timezone('America/New_York');` | Set the timezone for the task. | -->
 | 方法                             | 説明                                              |
 | ---------------------------------- | -------------------------------------------------------- |
 | `->cron('* * * * *');`             | カスタム cron スケジュールでタスクを実行します。                  |
@@ -205,7 +205,6 @@ Schedule::exec('node /home/forge/script.js')->daily();
 | `->yearlyOn(6, 1, '17:00');`       | タスクは毎年 6 月 1 日の 17:00 に実行します。            |
 | `->timezone('America/New_York');`  | タスクのタイムゾーンを設定します。                           |
 
-<!-- </div> -->
 </div>
 
 <!-- These methods may be combined with additional constraints to create even more finely tuned schedules that only run on certain days of the week. For example, you may schedule a command to run weekly on Monday: -->
@@ -230,9 +229,9 @@ Schedule::command('foo')
 <!-- A list of additional schedule constraints may be found below: -->
 追加のスケジュール制約のリストは以下にあります。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Method | Description | | ---------------------------------------- | ------------------------------------------------------ | | `->weekdays();` | Limit the task to weekdays. | | `->weekends();` | Limit the task to weekends. | | `->sundays();` | Limit the task to Sunday. | | `->mondays();` | Limit the task to Monday. | | `->tuesdays();` | Limit the task to Tuesday. | | `->wednesdays();` | Limit the task to Wednesday. | | `->thursdays();` | Limit the task to Thursday. | | `->fridays();` | Limit the task to Friday. | | `->saturdays();` | Limit the task to Saturday. | | `->days(array\|mixed);` | Limit the task to specific days. | | `->between($startTime, $endTime);` | Limit the task to run between start and end times. | | `->unlessBetween($startTime, $endTime);` | Limit the task to not run between start and end times. | | `->when(Closure);` | Limit the task based on a truth test. | | `->environments($env);` | Limit the task to specific environments. | -->
 | 方法                                   | 説明                                            |
 | ---------------------------------------- | ------------------------------------------------------ |
 | `->weekdays();`                          | タスクを平日に限定します。                            |
@@ -250,7 +249,6 @@ Schedule::command('foo')
 | `->when(Closure);`                       | 真実のテストに基づいてタスクを制限します。                  |
 | `->environments($env);`                  | タスクを特定の環境に限定します。               |
 
-<!-- </div> -->
 </div>
 
 <a name="day-constraints"></a>
@@ -352,7 +350,7 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('report:generate')
     ->timezone('America/New_York')
-    ->at('2:00')
+    ->at('2:00');
 ```
 
 <!-- If you are repeatedly assigning the same timezone to all of your scheduled tasks, you can specify which timezone should be assigned to all schedules by defining a `schedule_timezone` option within your application's `app` configuration file: -->
@@ -365,7 +363,6 @@ Schedule::command('report:generate')
 ```
 
 > [!WARNING]
-> <!-- > Remember that some timezones utilize daylight saving time. When daylight saving time changes occur, your scheduled task may run twice or even not run at all. For this reason, we recommend avoiding timezone scheduling when possible. -->
 > 一部のタイムゾーンでは夏時間が採用されていることに注意してください。夏時間の変更が発生すると、スケジュールされたタスクが 2 回実行されるか、まったく実行されない場合があります。このため、可能な限りタイムゾーンを指定したスケジュールは避けることを推奨します。
 
 <a name="preventing-task-overlaps"></a>
@@ -738,9 +735,9 @@ Schedule::command('emails:send')
 <!-- Laravel dispatches a variety of [events](/docs/13.x/events) during the scheduling process. You may [define listeners](/docs/13.x/events) for any of the following events: -->
 Laravel は、スケジューリングプロセス中にさまざまな [events](/docs/13.x/events) をディスパッチします。次のイベントのいずれかに対して [define listeners](/docs/13.x/events) を行うことができます。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Event Name | | ----------------------------------------------------------- | | `Illuminate\Console\Events\ScheduledTaskStarting` | | `Illuminate\Console\Events\ScheduledTaskFinished` | | `Illuminate\Console\Events\ScheduledBackgroundTaskFinished` | | `Illuminate\Console\Events\ScheduledTaskSkipped` | | `Illuminate\Console\Events\ScheduledTaskFailed` | -->
 | イベント名                                                  |
 | ----------------------------------------------------------- |
 | `Illuminate\Console\Events\ScheduledTaskStarting`           |
@@ -749,5 +746,4 @@ Laravel は、スケジューリングプロセス中にさまざまな [events]
 | `Illuminate\Console\Events\ScheduledTaskSkipped`            |
 | `Illuminate\Console\Events\ScheduledTaskFailed`             |
 
-<!-- </div> -->
 </div>

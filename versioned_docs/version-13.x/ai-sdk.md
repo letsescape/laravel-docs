@@ -839,7 +839,7 @@ foreach ($stream as $event) {
 
 ```php
 (new SalesCoach)->broadcastOnQueue(
-    'Analyze this sales transcript...'
+    'Analyze this sales transcript...',
     new Channel('channel-name'),
 );
 ```
@@ -1561,7 +1561,7 @@ $response = agent(
     instructions: 'You are an expert at software development.',
     messages: [],
     tools: [],
-)->prompt('Tell me about Laravel')
+)->prompt('Tell me about Laravel');
 ```
 
 <!-- Anonymous agents may also produce structured output: -->
@@ -1576,7 +1576,7 @@ $response = agent(
     schema: fn (JsonSchema $schema) => [
         'number' => $schema->integer()->required(),
     ],
-)->prompt('Generate a random number less than 100')
+)->prompt('Generate a random number less than 100');
 ```
 
 <a name="agent-configuration"></a>
@@ -2541,7 +2541,7 @@ use App\Ai\Agents\SalesCoach;
 use Laravel\Ai\Files;
 
 $response = (new SalesCoach)->prompt(
-    'Analyze the attached sales transcript...'
+    'Analyze the attached sales transcript...',
     attachments: [
         Files\Document::fromId('file-id') // Attach a stored document...
     ]
@@ -3234,7 +3234,7 @@ Document::fromString('Hello, Laravel!', mimeType: 'text/plain')
 // Make assertions...
 Files::assertStored(fn (StorableFile $file) =>
     (string) $file === 'Hello, Laravel!' &&
-        $file->mimeType() === 'text/plain';
+        $file->mimeType() === 'text/plain'
 );
 
 Files::assertNotStored(fn (StorableFile $file) =>
