@@ -408,7 +408,7 @@ axios.get('/sanctum/csrf-cookie').then(response => {
 #### Logging In
 
 <!-- Once CSRF protection has been initialized, you should make a `POST` request to your Laravel application's `/login` route. This `/login` route may be [implemented manually](/docs/13.x/authentication#authenticating-users) or using a headless authentication package like [Laravel Fortify](/docs/13.x/fortify). -->
-CSRF保護が初期化されたら、Laravelアプリケーションの `/login` ルートに対して `POST` リクエストを行う必要があります。この `/login` ルートは、[implemented manually](/docs/13.x/authentication#authenticating-users) であるか、[Laravel Fortify](/docs/13.x/fortify) のようなヘッドレス認証パッケージを使用している可能性があります。
+CSRF保護が初期化されたら、Laravelアプリケーションの `/login` ルートに対して `POST` リクエストを行う必要があります。この `/login` ルートは、[implemented manually](/docs/13.x/authentication#authenticating-users) に記載された方法で手動実装するか、[Laravel Fortify](/docs/13.x/fortify) のようなヘッドレス認証パッケージを使用して実装できます。
 
 <!-- If the login request is successful, you will be authenticated and subsequent requests to your application's routes will automatically be authenticated via the session cookie that the Laravel application issued to your client. In addition, since your application already made a request to the `/sanctum/csrf-cookie` route, subsequent requests should automatically receive CSRF protection as long as your JavaScript HTTP client sends the value of the `XSRF-TOKEN` cookie in the `X-XSRF-TOKEN` header. -->
 ログインリクエストが成功すると認証され、アプリケーションのルートへの後続のリクエストは、Laravel アプリケーションがクライアントに発行したセッション Cookie を介して自動的に認証されます。さらに、アプリケーションはすでに `/sanctum/csrf-cookie` ルートにリクエストを行っているため、JavaScript HTTP クライアントが `X-XSRF-TOKEN` ヘッダーの `XSRF-TOKEN` Cookie の値を送信している限り、後続のリクエストは自動的に CSRF 保護を受ける必要があります。

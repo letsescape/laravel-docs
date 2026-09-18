@@ -3345,7 +3345,7 @@ $result = Str::of('bar foo bar')->matchAll('/bar/');
 ```
 
 <!-- If you specify a matching group within the expression, Laravel will return a collection of the first matching group's matches: -->
-式内で一致グループを指定すると、Laravel は最初に一致したグループのマッチ結果をコレクションとして返します。
+式の中でキャプチャグループを指定すると、Laravel は最初のキャプチャグループに一致した結果のコレクションを返します。
 
 ```php
 use Illuminate\Support\Str;
