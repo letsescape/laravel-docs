@@ -1654,6 +1654,7 @@ class ProcessPodcast implements ShouldQueue
 use App\Concerns\RequiresVideo;
 use App\Jobs\ProcessPodcast;
 use App\Jobs\ProcessVideo;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Support\Facades\Queue;
 
 /**
@@ -1663,6 +1664,7 @@ public function boot(): void
 {
     Queue::route(ProcessPodcast::class, connection: 'redis', queue: 'podcasts');
     Queue::route(RequiresVideo::class, queue: 'video');
+    Queue::route(ShouldBroadcast::class, queue: 'events');
 }
 ```
 

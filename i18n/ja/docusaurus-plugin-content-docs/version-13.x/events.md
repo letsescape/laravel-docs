@@ -432,6 +432,9 @@ public function withDelay(OrderShipped $event): int
 }
 ```
 
+<!-- If you would like all of your queued listeners to use the same queue without customizing each listener class, you may [route the `ShouldQueue` contract to a queue](/docs/13.x/queues#queue-routing) instead. -->
+各リスナクラスを個別にカスタマイズせず、キューに投入するすべてのリスナで同じキューを使用したい場合は、代わりに [route the `ShouldQueue` contract to a queue](/docs/13.x/queues#queue-routing)こともできます。
+
 <a name="conditionally-queueing-listeners"></a>
 <!-- #### Conditionally Queueing Listeners -->
 #### Conditionally Queueing Listeners

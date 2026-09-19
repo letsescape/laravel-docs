@@ -579,6 +579,20 @@ if (! Storage::put('file.jpg', $contents)) {
 ],
 ```
 
+<!-- Alternatively, you may define the `report` option within your filesystem disk's configuration array. When this option is defined as `true`, Laravel will log the underlying exception using your application's exception handler when a "write" operation fails, without throwing the exception or interrupting the write operation's return value: -->
+또는 파일 시스템 디스크의 설정 배열에 `report` 옵션을 정의할 수 있습니다. 이 옵션을 `true`로 정의하면 "write" 작업이 실패할 때 예외를 발생시키거나 write 작업의 반환 값을 중단하지 않고, Laravel이 애플리케이션의 예외 핸들러를 사용해 근본 예외를 로그에 기록합니다.
+
+```php
+'public' => [
+    'driver' => 'local',
+    // ...
+    'report' => true,
+],
+```
+
+<!-- If neither the `throw` nor `report` options are defined, the disk will silently return `false` on failure and the underlying exception will not be thrown or logged. -->
+`throw`와 `report` 옵션 중 어느 것도 정의하지 않으면 디스크는 실패 시 조용히 `false`를 반환하며, 근본 예외가 발생하거나 로그에 기록되지 않습니다.
+
 <a name="prepending-appending-to-files"></a>
 <!-- ### Prepending and Appending To Files -->
 ### Prepending and Appending To Files

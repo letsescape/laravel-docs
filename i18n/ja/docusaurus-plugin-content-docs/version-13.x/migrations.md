@@ -53,7 +53,7 @@ Laravel は移行の名前を使用して、テーブルの名前と、移行に
 生成された移行のカスタム パスを指定したい場合は、`make:migration` コマンドを実行するときに `--path` オプションを使用できます。指定されたパスは、アプリケーションのベース パスに対する相対パスである必要があります。
 
 > [!NOTE]
-> Migration stubs は、[stub publishing](/docs/13.x/artisan#stub-customization) を使用してカスタマイズできます。
+> マイグレーションのスタブは、[stub publishing](/docs/13.x/artisan#stub-customization) を使用してカスタマイズできます。
 
 <a name="squashing-migrations"></a>
 <!-- ### Squashing Migrations -->
@@ -219,7 +219,7 @@ php artisan migrate --isolated
 ```
 
 > [!WARNING]
-> この機能を利用するには、アプリケーションのデフォルトキャッシュドライバに `memcached`、`redis`、`dynamodb`、`database`、`file`、または `array` キャッシュドライバを使用している必要があります。さらに、すべてのサーバーが同じ中央キャッシュサーバーと通信している必要があります。
+> この機能を利用するには、アプリケーションのデフォルトキャッシュドライバとして `memcached`、`redis`、`dynamodb`、`database`、`file`、または `array` キャッシュドライバを使用している必要があります。また、すべてのサーバーが同じ中央キャッシュサーバーと通信している必要があります。
 
 <a name="forcing-migrations-to-run-in-production"></a>
 <!-- #### Forcing Migrations to Run in Production -->
@@ -884,7 +884,7 @@ $table->geometry('positions', subtype: 'point', srid: 0);
 ```
 
 > [!NOTE]
-> 空間型のサポートはデータベースドライバによって異なります。詳しくは、使用しているデータベースのドキュメントを参照してください。アプリケーションで PostgreSQL データベースを使用している場合は、`geometry` メソッドを使用する前に [PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
+> 空間型のサポートはデータベースドライバによって異なります。詳しくは、使用するデータベースのドキュメントを参照してください。アプリケーションで PostgreSQL データベースを使用している場合は、`geometry` メソッドを使用する前に [PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
 
 <a name="column-method-id"></a>
 <!-- #### `id()` -->
@@ -945,7 +945,7 @@ $table->json('options');
 ```
 
 <!-- When using SQLite, a `TEXT` column will be created. -->
-SQLite を使用すると、`TEXT` カラムが作成されます。
+SQLiteを使用すると、`TEXT` カラムが作成されます。
 
 <a name="column-method-jsonb"></a>
 <!-- #### `jsonb()` -->
@@ -1383,22 +1383,29 @@ $table->ulid('id');
 $table->uuid('id');
 ```
 
-<a name="column-method-vector"></a>
-<!-- #### `vector()` -->
-#### `vector()`
+<a name="column-method-"></a>
+<!-- #### `()` -->
+#### `()`
 
 <!-- The `vector` method creates a `vector` equivalent column: -->
 `vector` メソッドは、`vector` と同等の列を作成します。
 
 ```php
-$table->vector('embedding', dimensions: 100);
+$table->vector('embedding', dimensions: 1536);
 ```
 
-<!-- When utilizing PostgreSQL, the `pgvector` extension must be loaded before `vector` columns can be created: -->
-PostgreSQL を利用する場合、`vector` 列を作成する前に、`pgvector` 拡張機能をロードする必要があります。
+<!-- Vector columns are supported on PostgreSQL connections using the `pgvector` extension and MariaDB 11.7 or later. When utilizing PostgreSQL, `pgvector` must be loaded before `vector` columns can be created: -->
+PostgreSQL 接続では `pgvector` 拡張機能を使用してベクトルカラムを利用でき、MariaDB 11.7 以降でもサポートされています。PostgreSQL を使用する場合は、`vector` カラムを作成する前に `pgvector` をロードする必要があります。
 
 ```php
 Schema::ensureVectorExtensionExists();
+```
+
+<!-- To speed up [vector similarity queries](/docs/13.x/queries#vector-similarity-clauses), you may add a vector index to the column. Calling the `index` method on a `vector` column creates a vector index using cosine distance: -->
+[vector similarity queries](/docs/13.x/queries#vector-similarity-clauses) を高速化するには、カラムにベクトルインデックスを追加できます。`vector` カラムで `index` メソッドを呼び出すと、コサイン距離を使用するベクトルインデックスが作成されます。
+
+```php
+$table->vector('embedding', dimensions: 1536)->index();
 ```
 
 <a name="column-method-year"></a>
@@ -1697,16 +1704,17 @@ Laravel のスキーマ ビルダ ブループリント クラスは、Laravel �
 
 <div class="overflow-auto">
 
-<!-- | Command | Description | | ------------------------------------------------ | -------------------------------------------------------------- | | `$table->primary('id');` | Adds a primary key. | | `$table->primary(['id', 'parent_id']);` | Adds composite keys. | | `$table->unique('email');` | Adds a unique index. | | `$table->index('state');` | Adds an index. | | `$table->fullText('body');` | Adds a full text index (MariaDB / MySQL / PostgreSQL). | | `$table->fullText('body')->language('english');` | Adds a full text index of the specified language (PostgreSQL). | | `$table->spatialIndex('location');` | Adds a spatial index (except SQLite). | -->
-| コマンド                                          | 説明                                                       |
-| ------------------------------------------------ | ---------------------------------------------------------- |
-| `$table->primary('id');`                         | 主キーを追加します。                                       |
-| `$table->primary(['id', 'parent_id']);`          | 複合キーを追加します。                                     |
-| `$table->unique('email');`                       | ユニークインデックスを追加します。                         |
-| `$table->index('state');`                        | インデックスを追加します。                                 |
+<!-- | Command | Description | | ------------------------------------------------ | -------------------------------------------------------------- | | `$table->primary('id');` | Adds a primary key. | | `$table->primary(['id', 'parent_id']);` | Adds composite keys. | | `$table->unique('email');` | Adds a unique index. | | `$table->index('state');` | Adds an index. | | `$table->fullText('body');` | Adds a full text index (MariaDB / MySQL / PostgreSQL). | | `$table->fullText('body')->language('english');` | Adds a full text index of the specified language (PostgreSQL). | | `$table->spatialIndex('location');` | Adds a spatial index (except SQLite). | | `$table->vectorIndex('embedding');` | Adds a vector index (MariaDB / PostgreSQL). | -->
+| コマンド                                          | 説明                                                            |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| `$table->primary('id');`                         | 主キーを追加します。                                            |
+| `$table->primary(['id', 'parent_id']);`          | 複合キーを追加します。                                          |
+| `$table->unique('email');`                       | ユニークインデックスを追加します。                              |
+| `$table->index('state');`                        | インデックスを追加します。                                      |
 | `$table->fullText('body');`                      | フルテキストインデックスを追加します（MariaDB / MySQL / PostgreSQL）。 |
 | `$table->fullText('body')->language('english');` | 指定した言語のフルテキストインデックスを追加します（PostgreSQL）。 |
-| `$table->spatialIndex('location');`              | 空間インデックスを追加します（SQLite を除く）。             |
+| `$table->spatialIndex('location');`              | 空間インデックスを追加します（SQLite を除く）。                  |
+| `$table->vectorIndex('embedding');`              | ベクトルインデックスを追加します（MariaDB / PostgreSQL）。       |
 
 </div>
 
@@ -1744,14 +1752,15 @@ $table->renameIndex('from', 'to');
 
 <div class="overflow-auto">
 
-<!-- | Command | Description | | -------------------------------------------------------- | ----------------------------------------------------------- | | `$table->dropPrimary('users_id_primary');` | Drop a primary key from the "users" table. | | `$table->dropUnique('users_email_unique');` | Drop a unique index from the "users" table. | | `$table->dropIndex('geo_state_index');` | Drop a basic index from the "geo" table. | | `$table->dropFullText('posts_body_fulltext');` | Drop a full text index from the "posts" table. | | `$table->dropSpatialIndex('geo_location_spatialindex');` | Drop a spatial index from the "geo" table (except SQLite). | -->
-| コマンド                                                  | 説明                                                   |
-| -------------------------------------------------------- | ------------------------------------------------------ |
-| `$table->dropPrimary('users_id_primary');`               | "users"テーブルから主キーを削除します。                 |
-| `$table->dropUnique('users_email_unique');`              | "users"テーブルからユニークインデックスを削除します。     |
-| `$table->dropIndex('geo_state_index');`                  | "geo"テーブルから通常のインデックスを削除します。         |
-| `$table->dropFullText('posts_body_fulltext');`           | "posts"テーブルから全文インデックスを削除します。         |
-| `$table->dropSpatialIndex('geo_location_spatialindex');` | "geo"テーブルから空間インデックスを削除します（SQLiteを除く）。 |
+<!-- | Command | Description | | ------------------------------------------------------------- | ----------------------------------------------------------- | | `$table->dropPrimary('users_id_primary');` | Drop a primary key from the "users" table. | | `$table->dropUnique('users_email_unique');` | Drop a unique index from the "users" table. | | `$table->dropIndex('geo_state_index');` | Drop a basic index from the "geo" table. | | `$table->dropFullText('posts_body_fulltext');` | Drop a full text index from the "posts" table. | | `$table->dropSpatialIndex('geo_location_spatialindex');` | Drop a spatial index from the "geo" table (except SQLite). | | `$table->dropVectorIndex('documents_embedding_vectorindex');` | Drop a vector index from the "documents" table. | -->
+| コマンド                                                       | 説明                                                     |
+| ------------------------------------------------------------- | -------------------------------------------------------- |
+| `$table->dropPrimary('users_id_primary');`                    | "users" テーブルから主キーを削除します。                 |
+| `$table->dropUnique('users_email_unique');`                   | "users" テーブルからユニークインデックスを削除します。   |
+| `$table->dropIndex('geo_state_index');`                       | "geo" テーブルから通常のインデックスを削除します。       |
+| `$table->dropFullText('posts_body_fulltext');`                | "posts" テーブルから全文インデックスを削除します。       |
+| `$table->dropSpatialIndex('geo_location_spatialindex');`      | SQLite を除き、"geo" テーブルから空間インデックスを削除します。 |
+| `$table->dropVectorIndex('documents_embedding_vectorindex');` | "documents" テーブルからベクトルインデックスを削除します。 |
 
 </div>
 
@@ -1876,7 +1885,7 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite では、デフォルトで外部キー制約が無効になっています。SQLite を使用する場合は、マイグレーションで外部キー制約を作成する前に、データベース設定で [enable foreign key support](/docs/13.x/database#configuration) を有効にしてください。
+> SQLiteでは、外部キー制約がデフォルトで無効になっています。SQLiteを使用する場合は、マイグレーションで外部キー制約を作成する前に、データベース設定で [enable foreign key support](/docs/13.x/database#configuration) を有効にしてください。
 
 <a name="events"></a>
 <!-- ## Events -->

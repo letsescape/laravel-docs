@@ -53,7 +53,7 @@ Laravel은 마이그레이션 이름을 사용하여 테이블 이름과, 해당
 생성되는 마이그레이션의 사용자 지정 경로를 지정하려면 `make:migration` 명령어를 실행할 때 `--path` 옵션을 사용할 수 있습니다. 지정한 경로는 애플리케이션의 기본 경로를 기준으로 한 상대 경로여야 합니다.
 
 > [!NOTE]
-> 마이그레이션 스텁은 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용하여 사용자 지정할 수 있습니다.
+> Migration stubs는 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용해 커스터마이즈할 수 있습니다.
 
 <a name="squashing-migrations"></a>
 <!-- ### Squashing Migrations -->
@@ -219,7 +219,7 @@ php artisan migrate --isolated
 ```
 
 > [!WARNING]
-> 이 기능을 사용하려면 애플리케이션의 기본 캐시 드라이버로 `memcached`, `redis`, `dynamodb`, `database`, `file` 또는 `array` 캐시 드라이버를 사용해야 합니다. 또한 모든 서버가 동일한 중앙 캐시 서버와 통신해야 합니다.
+> 이 기능을 사용하려면 애플리케이션에서 `memcached`, `redis`, `dynamodb`, `database`, `file` 또는 `array` 캐시 드라이버를 기본 캐시 드라이버로 사용해야 합니다. 또한 모든 서버가 동일한 중앙 캐시 서버와 통신해야 합니다.
 
 <a name="forcing-migrations-to-run-in-production"></a>
 <!-- #### Forcing Migrations to Run in Production -->
@@ -313,7 +313,7 @@ php artisan migrate:fresh --database=admin
 ```
 
 > [!WARNING]
-> `migrate:fresh` 명령어는 접두사가 무엇이든 관계없이 모든 데이터베이스 테이블을 삭제합니다. 다른 애플리케이션과 공유하는 데이터베이스를 사용해 개발할 때는 이 명령어를 주의해서 사용해야 합니다.
+> `migrate:fresh` 명령어는 접두사가 무엇이든 관계없이 모든 데이터베이스 테이블을 삭제합니다. 이 명령어는 다른 애플리케이션과 공유하는 데이터베이스에서 개발할 때 주의해서 사용해야 합니다.
 
 <a name="tables"></a>
 <!-- ## Tables -->
@@ -870,7 +870,7 @@ $table->geography('coordinates', subtype: 'point', srid: 4326);
 ```
 
 > [!NOTE]
-> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 데이터베이스 문서를 참조하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용한다면 `geography` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 기능을 설치해야 합니다.
+> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 자세한 내용은 데이터베이스 문서를 참고하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용하는 경우 `geography` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 프로그램을 설치해야 합니다.
 
 <a name="column-method-geometry"></a>
 <!-- #### `geometry()` -->
@@ -884,7 +884,7 @@ $table->geometry('positions', subtype: 'point', srid: 0);
 ```
 
 > [!NOTE]
-> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 사용하는 데이터베이스의 문서를 참조하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용한다면 `geometry` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 기능을 설치해야 합니다.
+> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 데이터베이스의 문서를 참조하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용한다면 `geometry` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 프로그램을 설치해야 합니다.
 
 <a name="column-method-id"></a>
 <!-- #### `id()` -->
@@ -945,7 +945,7 @@ $table->json('options');
 ```
 
 <!-- When using SQLite, a `TEXT` column will be created. -->
-SQLite를 사용하는 경우 `TEXT` 컬럼이 생성됩니다.
+SQLite를 사용하면 `TEXT` 컬럼이 생성됩니다.
 
 <a name="column-method-jsonb"></a>
 <!-- #### `jsonb()` -->
@@ -1383,22 +1383,29 @@ $table->ulid('id');
 $table->uuid('id');
 ```
 
-<a name="column-method-vector"></a>
-<!-- #### `vector()` -->
-#### `vector()`
+<a name="column-method-"></a>
+<!-- #### `()` -->
+#### `()`
 
 <!-- The `vector` method creates a `vector` equivalent column: -->
 `vector` 메서드는 `vector`에 해당하는 컬럼을 생성합니다.
 
 ```php
-$table->vector('embedding', dimensions: 100);
+$table->vector('embedding', dimensions: 1536);
 ```
 
-<!-- When utilizing PostgreSQL, the `pgvector` extension must be loaded before `vector` columns can be created: -->
-PostgreSQL을 사용할 때는 `vector` 컬럼을 생성하기 전에 `pgvector` 확장을 로드해야 합니다.
+<!-- Vector columns are supported on PostgreSQL connections using the `pgvector` extension and MariaDB 11.7 or later. When utilizing PostgreSQL, `pgvector` must be loaded before `vector` columns can be created: -->
+`pgvector` 확장을 사용하는 PostgreSQL 연결과 MariaDB 11.7 이상에서 벡터 컬럼을 지원합니다. PostgreSQL을 사용하는 경우 `vector` 컬럼을 생성하기 전에 `pgvector`를 로드해야 합니다:
 
 ```php
 Schema::ensureVectorExtensionExists();
+```
+
+<!-- To speed up [vector similarity queries](/docs/13.x/queries#vector-similarity-clauses), you may add a vector index to the column. Calling the `index` method on a `vector` column creates a vector index using cosine distance: -->
+[vector similarity queries](/docs/13.x/queries#vector-similarity-clauses)의 속도를 높이려면 컬럼에 벡터 인덱스를 추가할 수 있습니다. `vector` 컬럼에서 `index` 메서드를 호출하면 코사인 거리를 사용하는 벡터 인덱스가 생성됩니다:
+
+```php
+$table->vector('embedding', dimensions: 1536)->index();
 ```
 
 <a name="column-method-year"></a>
@@ -1491,7 +1498,7 @@ return new class extends Migration
 ```
 
 > [!WARNING]
-> 기본 표현식 지원 여부는 데이터베이스 드라이버, 데이터베이스 버전 및 필드 타입에 따라 달라집니다. 사용 중인 데이터베이스의 문서를 참고하세요.
+> 기본 표현식 지원 여부는 데이터베이스 드라이버, 데이터베이스 버전 및 필드 타입에 따라 달라집니다. 자세한 내용은 데이터베이스 문서를 참조하세요.
 
 <a name="column-order"></a>
 <!-- #### Column Order -->
@@ -1697,16 +1704,17 @@ Laravel의 스키마 빌더 blueprint 클래스는 Laravel이 지원하는 각 �
 
 <div class="overflow-auto">
 
-<!-- | Command | Description | | ------------------------------------------------ | -------------------------------------------------------------- | | `$table->primary('id');` | Adds a primary key. | | `$table->primary(['id', 'parent_id']);` | Adds composite keys. | | `$table->unique('email');` | Adds a unique index. | | `$table->index('state');` | Adds an index. | | `$table->fullText('body');` | Adds a full text index (MariaDB / MySQL / PostgreSQL). | | `$table->fullText('body')->language('english');` | Adds a full text index of the specified language (PostgreSQL). | | `$table->spatialIndex('location');` | Adds a spatial index (except SQLite). | -->
-| 명령어                                           | 설명                                                        |
-| ------------------------------------------------ | ----------------------------------------------------------- |
-| `$table->primary('id');`                         | 기본 키를 추가합니다.                                       |
-| `$table->primary(['id', 'parent_id']);`          | 복합 키를 추가합니다.                                       |
-| `$table->unique('email');`                       | 고유 인덱스를 추가합니다.                                   |
-| `$table->index('state');`                        | 인덱스를 추가합니다.                                        |
-| `$table->fullText('body');`                      | 전문 인덱스를 추가합니다(MariaDB / MySQL / PostgreSQL).     |
-| `$table->fullText('body')->language('english');` | 지정한 언어의 전문 인덱스를 추가합니다(PostgreSQL).         |
-| `$table->spatialIndex('location');`              | 공간 인덱스를 추가합니다(SQLite 제외).                      |
+<!-- | Command | Description | | ------------------------------------------------ | -------------------------------------------------------------- | | `$table->primary('id');` | Adds a primary key. | | `$table->primary(['id', 'parent_id']);` | Adds composite keys. | | `$table->unique('email');` | Adds a unique index. | | `$table->index('state');` | Adds an index. | | `$table->fullText('body');` | Adds a full text index (MariaDB / MySQL / PostgreSQL). | | `$table->fullText('body')->language('english');` | Adds a full text index of the specified language (PostgreSQL). | | `$table->spatialIndex('location');` | Adds a spatial index (except SQLite). | | `$table->vectorIndex('embedding');` | Adds a vector index (MariaDB / PostgreSQL). | -->
+| 명령어                                          | 설명                                                    |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| `$table->primary('id');`                         | 기본 키를 추가합니다.                                            |
+| `$table->primary(['id', 'parent_id']);`          | 복합 키를 추가합니다.                                           |
+| `$table->unique('email');`                       | 고유 인덱스를 추가합니다.                                       |
+| `$table->index('state');`                        | 인덱스를 추가합니다.                                           |
+| `$table->fullText('body');`                      | 전문 인덱스를 추가합니다(MariaDB / MySQL / PostgreSQL).         |
+| `$table->fullText('body')->language('english');` | 지정한 언어의 전문 인덱스를 추가합니다(PostgreSQL).             |
+| `$table->spatialIndex('location');`              | 공간 인덱스를 추가합니다(SQLite 제외).                         |
+| `$table->vectorIndex('embedding');`              | 벡터 인덱스를 추가합니다(MariaDB / PostgreSQL).                 |
 
 </div>
 
@@ -1744,14 +1752,15 @@ $table->renameIndex('from', 'to');
 
 <div class="overflow-auto">
 
-<!-- | Command | Description | | -------------------------------------------------------- | ----------------------------------------------------------- | | `$table->dropPrimary('users_id_primary');` | Drop a primary key from the "users" table. | | `$table->dropUnique('users_email_unique');` | Drop a unique index from the "users" table. | | `$table->dropIndex('geo_state_index');` | Drop a basic index from the "geo" table. | | `$table->dropFullText('posts_body_fulltext');` | Drop a full text index from the "posts" table. | | `$table->dropSpatialIndex('geo_location_spatialindex');` | Drop a spatial index from the "geo" table (except SQLite). | -->
-| 명령어                                                  | 설명                                                   |
-| -------------------------------------------------------- | ------------------------------------------------------ |
-| `$table->dropPrimary('users_id_primary');`               | "users" 테이블에서 기본 키를 삭제합니다.              |
-| `$table->dropUnique('users_email_unique');`              | "users" 테이블에서 고유 인덱스를 삭제합니다.          |
-| `$table->dropIndex('geo_state_index');`                  | "geo" 테이블에서 기본 인덱스를 삭제합니다.            |
-| `$table->dropFullText('posts_body_fulltext');`           | "posts" 테이블에서 전문 인덱스를 삭제합니다.          |
-| `$table->dropSpatialIndex('geo_location_spatialindex');` | "geo" 테이블에서 공간 인덱스를 삭제합니다(SQLite 제외). |
+<!-- | Command | Description | | ------------------------------------------------------------- | ----------------------------------------------------------- | | `$table->dropPrimary('users_id_primary');` | Drop a primary key from the "users" table. | | `$table->dropUnique('users_email_unique');` | Drop a unique index from the "users" table. | | `$table->dropIndex('geo_state_index');` | Drop a basic index from the "geo" table. | | `$table->dropFullText('posts_body_fulltext');` | Drop a full text index from the "posts" table. | | `$table->dropSpatialIndex('geo_location_spatialindex');` | Drop a spatial index from the "geo" table (except SQLite). | | `$table->dropVectorIndex('documents_embedding_vectorindex');` | Drop a vector index from the "documents" table. | -->
+| 명령어                                                       | 설명                                                  |
+| ------------------------------------------------------------- | ----------------------------------------------------- |
+| `$table->dropPrimary('users_id_primary');`                    | "users" 테이블에서 기본 키를 삭제합니다.             |
+| `$table->dropUnique('users_email_unique');`                   | "users" 테이블에서 고유 인덱스를 삭제합니다.         |
+| `$table->dropIndex('geo_state_index');`                       | "geo" 테이블에서 기본 인덱스를 삭제합니다.           |
+| `$table->dropFullText('posts_body_fulltext');`                | "posts" 테이블에서 전문 인덱스를 삭제합니다.         |
+| `$table->dropSpatialIndex('geo_location_spatialindex');`      | "geo" 테이블에서 공간 인덱스를 삭제합니다(SQLite 제외). |
+| `$table->dropVectorIndex('documents_embedding_vectorindex');` | "documents" 테이블에서 벡터 인덱스를 삭제합니다.     |
 
 </div>
 
