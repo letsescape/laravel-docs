@@ -947,7 +947,7 @@ public function broadcastQueue(): string
 ```
 
 <!-- If you would like all of your broadcast events to use the same queue without customizing each event class, you may [route the `ShouldBroadcast` contract to a queue](/docs/13.x/queues#queue-routing) instead. -->
-各イベントクラスを個別にカスタマイズせず、すべてのブロードキャストイベントで同じキューを使用したい場合は、代わりに [route the `ShouldBroadcast` contract to a queue](/docs/13.x/queues#queue-routing)できます。
+各イベントクラスを個別にカスタマイズせず、すべてのブロードキャストイベントで同じキューを使用したい場合は、代わりに [route the `ShouldBroadcast` contract to a queue](/docs/13.x/queues#queue-routing) の設定を利用できます。
 
 <!-- If you would like to broadcast your event using the `sync` queue instead of the default queue driver, you can implement the `ShouldBroadcastNow` interface instead of `ShouldBroadcast`: -->
 デフォルトのキュードライバの代わりに `sync` キューを使用してイベントをブロードキャストする場合は、`ShouldBroadcast` の代わりに `ShouldBroadcastNow` インターフェイスを実装できます。

@@ -53,7 +53,7 @@ Laravel은 마이그레이션 이름을 사용하여 테이블 이름과, 해당
 생성되는 마이그레이션의 사용자 지정 경로를 지정하려면 `make:migration` 명령어를 실행할 때 `--path` 옵션을 사용할 수 있습니다. 지정한 경로는 애플리케이션의 기본 경로를 기준으로 한 상대 경로여야 합니다.
 
 > [!NOTE]
-> Migration stubs는 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용해 커스터마이즈할 수 있습니다.
+> 마이그레이션 스텁은 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용해 커스터마이즈할 수 있습니다.
 
 <a name="squashing-migrations"></a>
 <!-- ### Squashing Migrations -->
@@ -1383,9 +1383,9 @@ $table->ulid('id');
 $table->uuid('id');
 ```
 
-<a name="column-method-"></a>
-<!-- #### `()` -->
-#### `()`
+<a name="column-method-vector"></a>
+<!-- #### `vector()` -->
+#### `vector()`
 
 <!-- The `vector` method creates a `vector` equivalent column: -->
 `vector` 메서드는 `vector`에 해당하는 컬럼을 생성합니다.

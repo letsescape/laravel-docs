@@ -580,7 +580,7 @@ if (! Storage::put('file.jpg', $contents)) {
 ```
 
 <!-- Alternatively, you may define the `report` option within your filesystem disk's configuration array. When this option is defined as `true`, Laravel will log the underlying exception using your application's exception handler when a "write" operation fails, without throwing the exception or interrupting the write operation's return value: -->
-また、ファイルシステムのディスクの設定配列内で `report` オプションを定義することもできます。このオプションを `true` にすると、「write」操作が失敗した際に、Laravel はアプリケーションの例外ハンドラを使用して内部の例外をログに記録します。例外をスローしたり、「write」操作の戻り値を妨げたりすることはありません。
+また、ファイルシステムのディスクの設定配列内で `report` オプションを定義することもできます。このオプションを `true` にすると、書き込み操作が失敗した際に、Laravel はアプリケーションの例外ハンドラを使用して原因となった例外をログに記録します。例外をスローしたり、書き込み操作の戻り値を変更したりすることはありません。
 
 ```php
 'public' => [

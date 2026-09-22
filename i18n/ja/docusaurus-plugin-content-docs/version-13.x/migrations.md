@@ -1383,9 +1383,9 @@ $table->ulid('id');
 $table->uuid('id');
 ```
 
-<a name="column-method-"></a>
-<!-- #### `()` -->
-#### `()`
+<a name="column-method-vector"></a>
+<!-- #### `vector()` -->
+#### `vector()`
 
 <!-- The `vector` method creates a `vector` equivalent column: -->
 `vector` メソッドは、`vector` と同等の列を作成します。
