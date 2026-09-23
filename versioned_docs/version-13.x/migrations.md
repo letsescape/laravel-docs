@@ -1732,6 +1732,28 @@ $table->string('email')->unique()->online();
 <!-- When using PostgreSQL, this adds the `CONCURRENTLY` option to the index creation statement. When using SQL Server, this adds the `WITH (online = on)` option. -->
 PostgreSQL을 사용할 때는 인덱스 생성 구문에 `CONCURRENTLY` 옵션이 추가됩니다. SQL Server를 사용할 때는 `WITH (online = on)` 옵션이 추가됩니다.
 
+<!-- When using MySQL, you may chain the `inplace` modifier onto an index or foreign key definition to specify that the operation should use the `INPLACE` algorithm: -->
+MySQL을 사용할 때는 인덱스 또는 외래 키 정의에 `inplace` 수정자를 연결해 해당 작업에서 `INPLACE` 알고리즘을 사용하도록 지정할 수 있습니다:
+
+```php
+$table->index('email')->inplace();
+
+$table->foreign('user_id')->references('id')->on('users')->inplace();
+```
+
+<!-- The `inplace` modifier may be combined with the `lock` modifier to control table locking during the operation: -->
+`inplace` 수정자는 작업 중 테이블 잠금을 제어하기 위해 `lock` 수정자와 함께 사용할 수 있습니다:
+
+```php
+$table->index('email')->inplace()->lock('none');
+```
+
+<!-- When using the `inplace` modifier for a foreign key operation, foreign key checks must be disabled. -->
+외래 키 작업에 `inplace` 수정자를 사용할 때는 외래 키 검사를 비활성화해야 합니다.
+
+<!-- Refer to [MySQL's documentation](https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl-operations.html) to determine which operations support the `INPLACE` algorithm and lock modes. -->
+어떤 작업이 `INPLACE` 알고리즘과 잠금 모드를 지원하는지 확인하려면 [MySQL's documentation](https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl-operations.html)을 참고하세요.
+
 <a name="renaming-indexes"></a>
 <!-- ### Renaming Indexes -->
 ### Renaming Indexes

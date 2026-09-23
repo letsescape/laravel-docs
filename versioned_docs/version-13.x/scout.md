@@ -641,6 +641,37 @@ Meilisearch에서 시맨틱 또는 하이브리드 검색을 사용하려면 검
 <!-- The model's `toSearchableEmbedding` method may return source text, which Scout embeds using the [Laravel AI SDK](/docs/13.x/ai-sdk), or a precomputed embedding array. After updating the configuration, run the `scout:sync-index-settings` command. -->
 모델의 `toSearchableEmbedding` 메서드는 Scout가 [Laravel AI SDK](/docs/13.x/ai-sdk)를 사용해 임베딩하는 원본 텍스트나 미리 계산된 임베딩 배열을 반환할 수 있습니다. 설정을 업데이트한 후 `scout:sync-index-settings` 명령어를 실행하세요.
 
+<!-- Alternatively, you may use Meilisearch's native embeddings by setting the embedding `driver` to `meilisearch`. In this mode, Meilisearch generates document and query embeddings using the configured embedder, so the `dimensions` option and `toSearchableEmbedding` method are not required: -->
+또는 임베딩 `driver`를 `meilisearch`로 설정해 Meilisearch의 네이티브 임베딩을 사용할 수 있습니다. 이 모드에서는 Meilisearch가 설정된 임베더를 사용해 문서와 쿼리의 임베딩을 생성하므로 `dimensions` 옵션과 `toSearchableEmbedding` 메서드가 필요하지 않습니다.
+
+```php
+'meilisearch' => [
+    'index-settings' => [
+        Article::class => [
+            'embedders' => [
+                'default' => [
+                    'source' => 'openAi',
+                    'apiKey' => env('OPENAI_API_KEY'),
+                    'model' => 'text-embedding-3-small',
+                    'documentTemplate' => 'An article titled {{ doc.title }}: {{ doc.body }}',
+                ],
+            ],
+        ],
+    ],
+    'model-settings' => [
+        Article::class => [
+            'embedding' => [
+                'embedder' => 'default',
+                'driver' => 'meilisearch',
+            ],
+        ],
+    ],
+],
+```
+
+<!-- When using native embeddings, Scout will not generate or add vectors to indexed documents. You may still provide a precomputed query vector using the `vector` search option. -->
+네이티브 임베딩을 사용하면 Scout는 색인된 문서에 벡터를 생성하거나 추가하지 않습니다. 그래도 `vector` 검색 옵션을 사용해 미리 계산한 쿼리 벡터를 제공할 수 있습니다.
+
 <a name="meilisearch-data-types"></a>
 <!-- #### Searchable Data Types -->
 #### Searchable Data Types

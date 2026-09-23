@@ -641,6 +641,37 @@ Meilisearch でセマンティック検索またはハイブリッド検索を�
 <!-- The model's `toSearchableEmbedding` method may return source text, which Scout embeds using the [Laravel AI SDK](/docs/13.x/ai-sdk), or a precomputed embedding array. After updating the configuration, run the `scout:sync-index-settings` command. -->
 モデルの `toSearchableEmbedding` メソッドは、Scout が [Laravel AI SDK](/docs/13.x/ai-sdk) を使って埋め込むソーステキスト、または事前計算済みの埋め込み配列を返せます。設定を更新したら、`scout:sync-index-settings` コマンドを実行してください。
 
+<!-- Alternatively, you may use Meilisearch's native embeddings by setting the embedding `driver` to `meilisearch`. In this mode, Meilisearch generates document and query embeddings using the configured embedder, so the `dimensions` option and `toSearchableEmbedding` method are not required: -->
+また、埋め込みの `driver` に `meilisearch` を設定して、Meilisearch のネイティブ埋め込みを使用することもできます。このモードでは、Meilisearch が設定済みの embedder を使ってドキュメントとクエリの埋め込みを生成するため、`dimensions` オプションと `toSearchableEmbedding` メソッドは必要ありません。
+
+```php
+'meilisearch' => [
+    'index-settings' => [
+        Article::class => [
+            'embedders' => [
+                'default' => [
+                    'source' => 'openAi',
+                    'apiKey' => env('OPENAI_API_KEY'),
+                    'model' => 'text-embedding-3-small',
+                    'documentTemplate' => 'An article titled {{ doc.title }}: {{ doc.body }}',
+                ],
+            ],
+        ],
+    ],
+    'model-settings' => [
+        Article::class => [
+            'embedding' => [
+                'embedder' => 'default',
+                'driver' => 'meilisearch',
+            ],
+        ],
+    ],
+],
+```
+
+<!-- When using native embeddings, Scout will not generate or add vectors to indexed documents. You may still provide a precomputed query vector using the `vector` search option. -->
+ネイティブ埋め込みを使用する場合、Scout はインデックス済みのドキュメントに対するベクトルの生成や追加を行いません。ただし、検索の `vector` オプションを使って、事前計算済みのクエリベクトルを指定できます。
+
 <a name="meilisearch-data-types"></a>
 <!-- #### Searchable Data Types -->
 #### Searchable Data Types

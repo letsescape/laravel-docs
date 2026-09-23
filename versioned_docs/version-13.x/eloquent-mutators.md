@@ -474,6 +474,35 @@ protected function casts(): array
 }
 ```
 
+<!-- By default, assigning `null` to an attribute cast with `AsArrayObject` or `AsCollection` will store the JSON `null` value in the database. If you would like `null` values to be stored as native SQL `NULL` values instead, you may invoke the `nullable` method when defining the cast: -->
+기본적으로 `AsArrayObject` 또는 `AsCollection`으로 캐스팅된 속성에 `null`을 할당하면 데이터베이스에 JSON `null` 값이 저장됩니다. `null` 값을 네이티브 SQL `NULL` 값으로 저장하려면 캐스트를 정의할 때 `nullable` 메서드를 호출하면 됩니다.
+
+```php
+use Illuminate\Database\Eloquent\Casts\AsCollection;
+
+/**
+ * Get the attributes that should be cast.
+ *
+ * @return array<string, string>
+ */
+protected function casts(): array
+{
+    return [
+        'options' => AsCollection::nullable(),
+    ];
+}
+```
+
+<!-- The `nullable` method may also be combined with a custom collection class: -->
+`nullable` 메서드는 커스텀 컬렉션 클래스와 함께 사용할 수도 있습니다.
+
+```php
+'options' => AsCollection::nullable(OptionCollection::class),
+```
+
+<!-- The `AsArrayObject` cast also provides a `nullable` method with the same behavior. -->
+`AsArrayObject` 캐스트에도 동일한 동작을 하는 `nullable` 메서드가 제공됩니다.
+
 <!-- If you would like the `AsCollection` cast to instantiate a custom collection class instead of Laravel's base collection class, you may provide the collection class name as a cast argument: -->
 `AsCollection` cast가 Laravel의 기본 컬렉션 클래스 대신 커스텀 컬렉션 클래스를 인스턴스화하도록 하려면, 컬렉션 클래스 이름을 cast 인수로 제공할 수 있습니다.
 

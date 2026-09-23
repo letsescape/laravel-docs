@@ -37,9 +37,11 @@
     - [Querying Embeddings](#querying-embeddings)
     - [Caching Embeddings](#caching-embeddings)
 - [Reranking](#reranking)
+- [Classification](#classification)
 - [Files](#files)
 - [Vector Stores](#vector-stores)
     - [Adding Files to Stores](#adding-files-to-stores)
+- [Usage](#usage)
 - [Failover](#failover)
 - [Testing](#testing)
     - [Agents](#testing-agents)
@@ -48,6 +50,7 @@
     - [Transcriptions](#testing-transcriptions)
     - [Embeddings](#testing-embeddings)
     - [Reranking](#testing-reranking)
+    - [Classification](#testing-classification)
     - [Files](#testing-files)
     - [Vector Stores](#testing-vector-stores)
 - [Events](#events)
@@ -106,6 +109,7 @@ OPENAI_COMPATIBLE_API_KEY=
 OPENAI_COMPATIBLE_URL=
 OPENROUTER_API_KEY=
 JINA_API_KEY=
+TYPESAFE_API_KEY=
 VOYAGEAI_API_KEY=
 XAI_API_KEY=
 ```
@@ -244,7 +248,7 @@ OpenAI 互換プロバイダは、テキスト生成、ストリーミング、�
 ```
 
 > [!NOTE]
-> OpenAI-compatible プロバイダと Groq プロバイダは話者分離に対応していません。これらのプロバイダを使用して `diarize` メソッドを呼び出すと、例外が発生します。
+> OpenAI互換およびGroqプロバイダは話者分離をサポートしていません。これらのプロバイダで `diarize` メソッドを呼び出すと、例外がスローされます。
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -255,16 +259,17 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 
 <div class="overflow-auto">
 
-<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock | | Files | OpenAI, Anthropic, Gemini, Azure | -->
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
 | 機能 | プロバイダ |
 |---|---|
-| Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
-| Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
-| TTS | OpenAI, ElevenLabs, Gemini, Mistral |
-| STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini |
+| テキスト | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
+| 画像 | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
+| TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter |
+| STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter |
 | 埋め込み | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
-| リランキング | Cohere, Jina, VoyageAI, Bedrock |
-| Files | OpenAI, Anthropic, Gemini, Azure |
+| リランキング | Cohere, Jina, VoyageAI, Bedrock, OpenRouter |
+| 分類 | TypeSafe, OpenRouter |
+| ファイル | OpenAI, Anthropic, Gemini, Azure, OpenRouter |
 
 </div>
 
@@ -430,7 +435,7 @@ foreach ($response->steps as $step) {
 ```
 
 > [!NOTE]
-> ストリーミングでレスポンスを返す場合、Bedrock プロバイダを使用する場合（API 呼び出しに HTTP クライアントではなく AWS SDK を使用します）、および明示的に `withRawResponse` で指定していないフェイクレスポンスでは、`raw` プロパティは `null` になります。
+> ストリーミングでレスポンスを返す場合、Bedrockプロバイダを使用する場合（HTTPクライアントではなくAWS SDK経由でAPIを呼び出すため）、および `withRawResponse` で明示的に指定していないフェイクレスポンスでは、`raw` プロパティは `null` です。
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -440,31 +445,45 @@ foreach ($response->steps as $step) {
 エージェントが `Conversational` インターフェイスを実装している場合、該当する場合は、`messages` メソッドを使用して前の会話コンテキストを返すことができます。
 
 ```php
-use App\Models\History;
-use Laravel\Ai\Messages\Message;
-
 /**
  * Get the list of messages comprising the conversation so far.
  */
 public function messages(): iterable
 {
-    return History::where('user_id', $this->user->id)
+    return $this->user->history()
         ->latest()
         ->limit(50)
         ->get()
         ->reverse()
-        ->map(function ($message) {
-            return new Message($message->role, $message->content);
-        })->all();
+        ->map(fn ($message) => new Message(
+            $message->role, $message->content,
+        ))->all();
 }
 ```
+
+<!-- If your agent does not implement the `Conversational` interface, you may use the `withMessages` method to provide the conversation history for a single run, such as a history posted by your application's frontend: -->
+エージェントが `Conversational` インターフェースを実装していない場合は、`withMessages` メソッドを使って、1回の実行に会話履歴を提供できます。たとえば、アプリケーションのフロントエンドから投稿された履歴などです。
+
+```php
+use Laravel\Ai\Messages\Message;
+
+$response = (new SalesCoach)
+    ->withMessages([
+        new Message('user', 'Analyze this sales transcript...'),
+        new Message('assistant', 'The rep never asked for the close.'),
+    ])
+    ->prompt('What should they say next time?');
+```
+
+<!-- Agents that implement the `Conversational` interface load their own history, so combining the two approaches will throw a `LogicException`. -->
+`Conversational` インターフェースを実装するエージェントは独自に履歴を読み込むため、2つのアプローチを組み合わせると `LogicException` がスローされます。
 
 <a name="remembering-conversations"></a>
 <!-- #### Remembering Conversations -->
 #### Remembering Conversations
 
 > [!WARNING]
-> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使って AI SDK のマイグレーションを公開し、実行してください。これらのマイグレーションにより、会話の保存に必要なデータベーステーブルが作成されます。
+> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使って AI SDK のマイグレーションを公開し、実行してください。これらのマイグレーションによって、会話を保存するために必要なデータベーステーブルが作成されます。
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。この特性は、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
@@ -540,8 +559,23 @@ $response = (new SalesCoach)
     ->prompt('Tell me more about that.');
 ```
 
-<!-- When using the `RemembersConversations` trait, previous messages are automatically loaded and included in the conversation context when prompting. New messages (both user and assistant) are automatically stored after each interaction. -->
-`RemembersConversations` トレイトを使用すると、以前のメッセージが自動的にロードされ、プロンプトが表示されたときに会話コンテキストに組み込まれます。新しいメッセージ (ユーザーとアシスタントの両方) は、各対話後に自動的に保存されます。
+<!-- The `continueOrStart` method may be used to continue the given conversation, or start a new conversation if the given ID is `null`: -->
+指定した ID が `null` の場合は新しい会話を開始し、それ以外の場合は指定した会話を継続するために `continueOrStart` メソッドを使用できます。
+
+```php
+$response = (new SalesCoach)
+    ->continueOrStart($conversationId, as: $user)
+    ->prompt('Hello!');
+```
+
+<!-- When using the `RemembersConversations` trait, previous messages are automatically loaded and included in the conversation context when prompting. New messages (both user and assistant) are automatically stored after each interaction. Each response also contains the IDs of the conversation and messages that were stored: -->
+`RemembersConversations` トレイトを使用すると、プロンプトを送信する際に過去のメッセージが自動的に読み込まれ、会話のコンテキストに含まれます。新しいメッセージ（ユーザーとアシスタントの両方）は、各やり取りの後に自動的に保存されます。各レスポンスには、保存された会話とメッセージの ID も含まれます。
+
+```php
+$response->conversationId;
+$response->userMessageId;
+$response->assistantMessageId;
+```
 
 <a name="conversation-participants"></a>
 <!-- #### Conversation Participants -->
@@ -559,8 +593,8 @@ $response = (new SalesCoach)
 <!-- The participant's morph class and primary key are stored with the conversation. Therefore, models of different types that have the same primary key, such as `User` ID `1` and `Team` ID `1`, have separate conversation histories. The `forUser` method is an alias for `forParticipant`. -->
 参加者の morph クラスと主キーは会話とともに保存されます。そのため、`User` ID `1` と `Team` ID `1` のように主キーが同じでも型が異なるモデルは、それぞれ別の会話履歴を持ちます。`forUser` メソッドは `forParticipant` のエイリアスです。
 
-<!-- You may continue the participant's most recent conversation using the `continueLastConversation` method: -->
-参加者との直近の会話は、`continueLastConversation` メソッドを使用して続行できます。
+<!-- You may continue the participant's most recent conversation with the agent using the `continueLastConversation` method. Conversations are scoped to the agent, so only conversations that the agent participated in will be continued: -->
+`continueLastConversation` メソッドを使うと、参加者がエージェントと行った直近の会話を続けられます。会話はエージェント単位で管理されるため、そのエージェントが参加した会話だけが続行されます。
 
 ```php
 $response = (new SalesCoach)
@@ -590,7 +624,74 @@ $participant = $conversation->participant;
 アプリケーションで複数の参加者モデルの種類を使用している場合は、保存される参加者タイプがモデルクラス名に依存しないよう、[Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) の定義を検討してください。
 
 > [!WARNING]
-> `continue` メソッドは、指定された参加者がその会話を所有しているかを確認しません。会話を継続する前に、アプリケーションで会話へのアクセスを認可してください。
+> `continue` と `continueOrStart` メソッドは、指定された参加者が会話を所有しているかを確認しません。会話を続行する前に、アプリケーションで会話へのアクセスを認可してください。
+
+<a name="inspecting-stored-conversations"></a>
+<!-- #### Inspecting Stored Conversations -->
+#### Inspecting Stored Conversations
+
+<!-- When displaying a conversation to your users, you often need details such as message IDs, timestamps, and tool calls. You may resolve the conversation store from the service container to read the stored messages without querying the AI SDK's tables directly: -->
+ユーザーに会話を表示する際は、メッセージ ID、タイムスタンプ、ツール呼び出しなどの詳細が必要になることがよくあります。AI SDK のテーブルを直接クエリすることなく、サービスコンテナから会話ストアを解決して保存済みのメッセージを読み取れます。
+
+```php
+use Laravel\Ai\Contracts\ConversationStore;
+
+$store = app(ConversationStore::class);
+```
+
+<!-- Messages are paginated newest first using a cursor and are returned as `StoredMessage` instances, which contain each message's ID, timestamps, usage, metadata, and attachments: -->
+メッセージはカーソルを使用して新しいものから順にページネーションされ、各メッセージの ID、タイムスタンプ、使用状況、メタデータ、添付ファイルを含む `StoredMessage` インスタンスとして返されます。
+
+```php
+$messages = $store->paginateConversationMessages($conversationId, perPage: 25);
+
+foreach ($messages as $message) {
+    $message->id;
+    $message->role;
+    $message->content;
+    $message->createdAt;
+    $message->usage;
+    $message->status;
+}
+```
+
+<!-- Each turn, which consists of a user prompt and the assistant's reply, is stored as a list of steps. A step is a single request to the provider, so a turn in which the model calls tools will contain several steps. Each tool result is recorded on the tool call that produced it. The `toolCalls`, `providerToolCalls`, and `toolResults` methods flatten these steps in order, so you do not need to traverse them yourself: -->
+各ターンは、ユーザーのプロンプトとアシスタントの返信で構成され、ステップのリストとして保存されます。1つのステップはプロバイダへの単一のリクエストです。そのため、モデルがツールを呼び出すターンには複数のステップが含まれます。各ツールの結果は、その結果を生成したツール呼び出しに記録されます。`toolCalls`、`providerToolCalls`、`toolResults` メソッドは、これらのステップを順番に平坦化するため、自分でたどる必要はありません。
+
+```php
+$message->steps;
+
+$message->toolCalls();
+$message->providerToolCalls();
+$message->toolResults();
+```
+
+<!-- A tool call contains a `result` once it has been executed. Tool calls that contain an `approval_reason` but no `result` are still awaiting a [tool approval](#human-tool-approval). -->
+ツール呼び出しは、実行されると `result` を含みます。`approval_reason` は含むものの `result` を含まないツール呼び出しは、まだ [tool approval](#human-tool-approval) を待機中です。
+
+<!-- The `status` property contains a `Laravel\Ai\Enums\MessageStatus` instance. A turn that failed partway through is stored as `Failed` along with the steps it had already completed, so tool calls that ran before the failure remain in the history. When the conversation continues, any tool call without a recorded result is sent to the model marked as interrupted, since Laravel cannot determine whether it ran. -->
+`status` プロパティには、`Laravel\Ai\Enums\MessageStatus` のインスタンスが含まれます。途中で失敗したターンは、それまでに完了したステップとともに `Failed` として保存されるため、失敗する前に実行されたツール呼び出しは履歴に残ります。会話を続行するとき、実行結果が記録されていないツール呼び出しは、中断されたものとしてモデルに送信されます。Laravel には、そのツール呼び出しが実行されたかどうかを判断できないためです。
+
+<!-- Before continuing a conversation via an ID provided by your application's frontend, you should verify that the conversation was stored for the given participant: -->
+アプリケーションのフロントエンドから提供された ID を使って会話を続行する前に、指定された参加者の会話が保存されていることを確認してください。
+
+```php
+abort_unless($store->conversationBelongsTo(
+    $conversationId, $user->getMorphClass(), $user->getKey()
+), 403);
+```
+
+<!-- If the most recent turn is paused awaiting [tool approval](#human-tool-approval), you may render its pending tool calls after a page reload without resuming the run: -->
+最新のターンが [tool approval](#human-tool-approval) の承認待ちで一時停止している場合は、実行を再開せずにページを再読み込みした後、保留中のツール呼び出しを表示できます。
+
+```php
+foreach ($store->pendingApprovalsFor($conversationId) as $approval) {
+    // $approval->id, $approval->tool, $approval->arguments, $approval->reason...
+}
+```
+
+<!-- These methods are defined by the `PaginatesConversations`, `VerifiesConversationOwnership`, and `ResolvesPendingApprovals` contracts. The included database store implements all three, while a custom store may implement only the contracts it needs. -->
+これらのメソッドは、`PaginatesConversations`、`VerifiesConversationOwnership`、`ResolvesPendingApprovals` の各コントラクトで定義されています。付属のデータベースストアは3つすべてを実装していますが、カスタムストアでは必要なコントラクトのみを実装できます。
 
 <a name="structured-output"></a>
 <!-- ### Structured Output -->
@@ -799,9 +900,30 @@ foreach ($stream as $event) {
 }
 ```
 
+<!-- The response also contains the model's reasoning and any sources it cited. Both are stored with the assistant message when using the `RemembersConversations` trait: -->
+レスポンスには、モデルの推論と引用したソースも含まれます。`RemembersConversations` トレイトを使用すると、これらはアシスタントメッセージとともに保存されます。
+
+```php
+use Laravel\Ai\Responses\StreamedAgentResponse;
+
+(new SalesCoach)
+    ->stream('Analyze this sales transcript...')
+    ->then(function (StreamedAgentResponse $response) {
+        $response->reasoning; // '' unless the model returned reasoning text...
+        $response->meta->citations;
+    });
+```
+
+<!-- Reasoning is also available on responses returned by the `prompt` method. -->
+`prompt` メソッドが返すレスポンスでは、推論も利用できます。
+
 <a name="streaming-using-the-vercel-ai-sdk-protocol"></a>
-<!-- #### Streaming Using the Vercel AI SDK Protocol -->
-#### Streaming Using the Vercel AI SDK Protocol
+<a name="stream-protocols"></a>
+<!-- #### Stream Protocols -->
+#### Stream Protocols
+
+<!-- By default, streamed responses use the AI SDK's own event format. However, you may use a frontend streaming protocol instead, which allows you to pair your agent with an existing chat interface rather than building your own. -->
+デフォルトでは、ストリーミングされたレスポンスに AI SDK 独自のイベント形式を使用します。ただし、代わりにフロントエンドのストリーミングプロトコルを使用することもできます。これにより、独自のチャットインターフェースを構築するのではなく、既存のチャットインターフェースとエージェントを組み合わせられます。
 
 <!-- You may stream the events using the [Vercel AI SDK stream protocol](https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol) by invoking the `usingVercelDataProtocol` method on the streamable response: -->
 ストリーミング可能な応答で `usingVercelDataProtocol` メソッドを呼び出すことにより、[Vercel AI SDK stream protocol](https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol) を使用してイベントをストリーミングできます。
@@ -814,6 +936,104 @@ Route::get('/coach', function () {
         ->stream('Analyze this sales transcript...')
         ->usingVercelDataProtocol();
 });
+```
+
+<!-- You may pass a message ID if your application's frontend assigns its own: -->
+アプリケーションのフロントエンドで独自のメッセージ ID を割り当てている場合は、そのメッセージ ID を渡すこともできます。
+
+```php
+->usingVercelDataProtocol($request->string('messageId'));
+```
+
+<!-- Alternatively, the `usingAgentUserInteractionProtocol` method may be used to stream using the [Agent User Interaction (AG-UI) protocol](https://docs.ag-ui.com): -->
+別の方法として、[Agent User Interaction (AG-UI) protocol](https://docs.ag-ui.com) を使用してストリーミングするには、`usingAgentUserInteractionProtocol` メソッドを利用できます。
+
+```php
+Route::post('/coach', function (Request $request) {
+    return (new SalesCoach)
+        ->forUser($request->user())
+        ->stream($request->string('prompt'))
+        ->usingAgentUserInteractionProtocol();
+});
+```
+
+<!-- The `threadId` and `runId` arguments are optional and default to the conversation ID and the invocation ID: -->
+`threadId` と `runId` の引数はオプションで、省略すると会話 ID と呼び出し ID がデフォルト値として使用されます：
+
+```php
+->usingAgentUserInteractionProtocol(
+    threadId: $request->input('threadId'),
+    runId: $request->input('runId'),
+);
+```
+
+<!-- To use a protocol that the AI SDK does not implement, you may pass your own `Laravel\Ai\Streaming\Protocols\StreamProtocol` implementation to the `usingProtocol` method: -->
+AI SDK が実装していないプロトコルを使用するには、独自の `Laravel\Ai\Streaming\Protocols\StreamProtocol` 実装を `usingProtocol` メソッドに渡します。
+
+```php
+use App\Ai\Protocols\CustomProtocol;
+
+return (new SalesCoach)
+    ->stream('Analyze this sales transcript...')
+    ->usingProtocol(new CustomProtocol);
+```
+
+<a name="chat-requests"></a>
+<a name="frontend-integration"></a>
+<!-- #### Frontend Integration -->
+#### Frontend Integration
+
+<!-- Chat interfaces built with libraries such as Vercel's `useChat` or CopilotKit already render messages, tool calls, and approval prompts, so your application only needs to handle the requests they send. Each request contains the conversation history, the newest user message, and any tool approval responses. -->
+`useChat` や CopilotKit などのライブラリで構築されたチャットインターフェイスは、メッセージ、ツール呼び出し、承認プロンプトをすでに描画するため、アプリケーションではそれらが送信するリクエストを処理するだけで済みます。各リクエストには、会話履歴、最新のユーザーメッセージ、ツールの承認レスポンスが含まれます。
+
+<!-- The `Vercel::chat` and `AgentUserInteraction::chat` methods convert such a request into an object that may be passed directly to an agent's `stream` method: -->
+`Vercel::chat` と `AgentUserInteraction::chat` メソッドは、このようなリクエストをエージェントの `stream` メソッドに直接渡せるオブジェクトへ変換します。
+
+```php
+use Laravel\Ai\Vercel\Vercel;
+
+Route::post('/chat', function (Request $request) {
+    $chat = Vercel::chat($request);
+
+    return (new SupportAgent)
+        ->withMessages($chat->history())
+        ->stream($chat)
+        ->usingProtocol($chat->protocol());
+});
+```
+
+<!-- If the request contains [approval decisions](#human-tool-approval), the agent will resume using those decisions. Otherwise, the agent is prompted with the request's newest user message and attachments. The `protocol` method returns the protocol used by the client. -->
+リクエストに [approval decisions](#human-tool-approval) が含まれている場合、エージェントはその決定を使用して処理を再開します。それ以外の場合、エージェントにはリクエストに含まれる最新のユーザーメッセージと添付ファイルが提示されます。`protocol` メソッドは、クライアントが使用したプロトコルを返します。
+
+> [!NOTE]
+> `Conversational` インターフェイスを実装するエージェントは独自に履歴を読み込むため、`withMessages` メソッドは省略できます。
+
+<!-- The `AgentUserInteraction::chat` method provides the same API for AG-UI clients, in addition to the request's thread and run IDs: -->
+`AgentUserInteraction::chat` メソッドは、リクエストのスレッドIDと実行IDに加えて、AG-UI クライアントにも同じ API を提供します。
+
+```php
+use Laravel\Ai\AgentUserInteraction\AgentUserInteraction;
+
+$chat = AgentUserInteraction::chat($request);
+
+$chat->threadId();
+$chat->runId();
+```
+
+<!-- You may also convert stored messages back into the format a client expects, allowing the client to display a previous conversation, such as after a page reload: -->
+保存されたメッセージをクライアントが期待する形式に戻すこともできます。これにより、ページを再読み込みした後などに、クライアントで以前の会話を表示できます。
+
+```php
+$messages = $conversation->messages()->oldest()->get();
+
+return ['messages' => Vercel::toUiMessages($messages)];
+```
+
+<!-- The `AgentUserInteraction::toClientState` method performs the same conversion for AG-UI clients, in addition to returning any pending approval interrupts: -->
+`AgentUserInteraction::toClientState` メソッドは、保留中の承認割り込みを返すことに加えて、AG-UI クライアントに対しても同じ変換を実行します。
+
+```php
+return AgentUserInteraction::toClientState($messages);
 ```
 
 <a name="broadcasting"></a>
@@ -975,6 +1195,28 @@ public function tools(): iterable
 }
 ```
 
+<a name="runtime-tool-overrides"></a>
+<!-- #### Runtime Tool Overrides -->
+#### Runtime Tool Overrides
+
+<!-- The `withTools` method may be used to replace the tools declared by an agent instance. This is useful for per-tenant or feature-flagged tool sets: -->
+`withTools` メソッドを使用すると、エージェントインスタンスで宣言されているツールを置き換えられます。これは、テナントごと、または機能フラグで切り替えるツールセットに便利です。
+
+```php
+$response = (new SupportAgent)
+    ->withTools([new LookupOrder])
+    ->prompt('Where is order 12345?');
+```
+
+<!-- You may also pass a closure, which receives the agent's declared tools, allowing you to append to or filter them: -->
+クロージャを渡すこともできます。このクロージャにはエージェントが宣言したツールが渡されるため、ツールを追加したり、絞り込んだりできます。
+
+```php
+$response = (new SupportAgent)
+    ->withTools(fn (array $tools) => [...$tools, new LookupOrder])
+    ->prompt('Where is order 12345?');
+```
+
 <a name="validating-tool-arguments"></a>
 <!-- #### Validating Tool Arguments -->
 #### Validating Tool Arguments
@@ -1133,7 +1375,7 @@ Anthropic を使用する場合、`withProviderOptions` メソッドを使って
 ```
 
 > [!WARNING]
-> ツール検索をサポートしていないプロバイダでは、遅延ツールを暗黙的に破棄せず、例外をスローします。また、Anthropic では、少なくとも1つのツールを `ToolSearch` ラッパーの外側で提供する必要があります。
+> ツール検索をサポートしていないプロバイダは、遅延ツールを黙って破棄するのではなく、例外をスローします。また、Anthropic では、`ToolSearch` ラッパーの外部に少なくとも1つのツールを指定する必要があります。
 
 <a name="file-storage-tools"></a>
 <!-- ### File Storage Tools -->
@@ -1176,7 +1418,7 @@ return FileStorage::all('s3')
 アプリケーションで [Laravel MCP](/docs/13.x/mcp) を使用している場合、[Model Context Protocol](https://modelcontextprotocol.io) サーバーが公開するツールをエージェントに提供できます。[Laravel MCP client](/docs/13.x/mcp#client) を使用すると、リモートまたはローカルの MCP サーバーに接続し、そのツールをエージェントへ直接渡せます。
 
 > [!NOTE]
-> MCP ツールを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
+> MCPツールを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
 
 <!-- Because an MCP client's `tools` method returns a collection, spread it into your agent's `tools` array using the `...` operator: -->
 MCP クライアントの `tools` メソッドはコレクションを返すため、`...` 演算子を使ってエージェントの `tools` 配列にスプレッドします。
@@ -1361,6 +1603,34 @@ new FileSearch(stores: ['store_id'], where: fn (FileSearchQuery $query) =>
 );
 ```
 
+<a name="code-execution"></a>
+<!-- #### Code Execution -->
+#### Code Execution
+
+<!-- The `CodeExecution` provider tool allows agents to run code in a sandbox hosted by the AI provider. This is useful for performing calculations and analyzing data. -->
+`CodeExecution` プロバイダツールを使うと、エージェントは AI プロバイダがホストするサンドボックス内でコードを実行できます。計算の実行やデータの分析に便利です。
+
+<!-- **Supported providers:** Anthropic, OpenAI, Azure, Gemini, xAI -->
+**対応プロバイダ:** Anthropic, OpenAI, Azure, Gemini, xAI
+
+```php
+use Laravel\Ai\Providers\Tools\CodeExecution;
+
+public function tools(): iterable
+{
+    return [new CodeExecution];
+}
+```
+
+<!-- When using OpenAI or Azure, you may make [stored files](#files) available to the sandbox via provider options: -->
+OpenAI または Azure を使用する場合は、プロバイダオプションを通じて[stored files](#files)をサンドボックスで利用できるようにします。
+
+```php
+(new CodeExecution)->withProviderOptions([
+    'container' => ['type' => 'auto', 'file_ids' => ['file_123']],
+]);
+```
+
 <a name="sub-agents"></a>
 <!-- ### Sub-Agents -->
 ### Sub-Agents
@@ -1410,31 +1680,13 @@ class CustomerSupportAgent implements Agent, HasTools
 サブエージェントが親エージェントに公開される方法をカスタマイズするには、サブエージェントに `CanActAsTool` インターフェイスを実装し、ツールに表示される名前と説明を定義します。
 
 ```php
-<?php
-
-namespace App\Ai\Agents;
-
-use App\Ai\Tools\LookupOrder;
 use Laravel\Ai\Attributes\Provider;
-use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\CanActAsTool;
-use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Enums\Lab;
-use Laravel\Ai\Promptable;
 
 #[Provider(Lab::Anthropic)]
 class RefundsAgent implements Agent, CanActAsTool, HasTools
 {
-    use Promptable;
-
-    /**
-     * Get the instructions that the agent should follow.
-     */
-    public function instructions(): string
-    {
-        return 'You are a refunds specialist. Use order details and the refund policy to give concise eligibility guidance.';
-    }
-
     /**
      * Get the agent's tool name.
      */
@@ -1451,29 +1703,37 @@ class RefundsAgent implements Agent, CanActAsTool, HasTools
         return 'Determine whether an order is eligible for a refund and explain the next step.';
     }
 
-    /**
-     * Get the tools available to the agent.
-     *
-     * @return Tool[]
-     */
-    public function tools(): iterable
-    {
-        return [
-            new LookupOrder,
-        ];
-    }
+    // ...
 }
 ```
 
 <!-- If a sub-agent does not implement `CanActAsTool`, Laravel will use the agent's class basename as the tool name and a generic description that asks the parent agent to pass a clear, self-contained task description. Each sub-agent invocation runs in isolation and does not receive the parent agent's conversation history. -->
 サブエージェントが `CanActAsTool` を実装していない場合、Laravel はエージェントのクラスのベース名をツール名として使用し、親エージェントに明確な自己完結型タスクの説明を渡すように要求する一般的な説明を使用します。各サブエージェントの呼び出しは独立して実行され、親エージェントの会話履歴を受け取りません。
 
+<!-- When the parent agent is [streaming](#streaming), its sub-agents stream as well. The parent agent emits `ToolResult` events containing the text the sub-agent has produced so far. These events are marked as preliminary and are followed by the tool call's final result, so you may skip them when iterating events manually: -->
+親エージェントが [streaming](#streaming) 中の場合、そのサブエージェントも同様にストリーミングします。親エージェントは、サブエージェントがそれまでに生成したテキストを含む `ToolResult` イベントを発行します。これらのイベントには暫定的な結果であることを示す印が付いており、ツール呼び出しの最終結果が続いて届くため、イベントを手動で反復処理する際はスキップしてかまいません。
+
+```php
+use Laravel\Ai\Streaming\Events\ToolResult;
+
+foreach ($stream as $event) {
+    if ($event instanceof ToolResult && $event->preliminary) {
+        continue;
+    }
+
+    // ...
+}
+```
+
+<!-- Response values such as `text`, `usage`, and `toolResults` ignore preliminary events. The [Vercel protocol](#stream-protocols) renders them as native streaming tool output, so `useChat` displays the progress without any custom code, while the AG-UI protocol reports them as activity snapshots. The completed response's text, reasoning, citations, and usage include those of the sub-agent. -->
+`text`、`usage`、`toolResults` などのレスポンス値は、初期イベントを無視します。[Vercel protocol](#stream-protocols) はこれらをネイティブなストリーミングツール出力として処理するため、`useChat` はカスタムコードなしで進行状況を表示できます。一方、AG-UI プロトコルではアクティビティスナップショットとして報告されます。完了したレスポンスのテキスト、推論、引用、使用量には、サブエージェントのものも含まれます。
+
 <a name="middleware"></a>
 <!-- ### Middleware -->
 ### Middleware
 
-<!-- Agents support middleware, allowing you to intercept and modify prompts before they are sent to the provider. Middleware can be created using the `make:agent-middleware` Artisan command: -->
-エージェントはミドルウェアをサポートしているため、プロンプトがプロバイダに送信される前にインターセプトして変更することができます。ミドルウェアは、`make:agent-middleware` Artisan コマンドを使用して作成できます。
+<!-- Agents support middleware, allowing you to intercept and modify each generation step before it is sent to the provider. Middleware is invoked once per step, so a run that takes three steps will invoke it three times. Middleware can be created using the `make:agent-middleware` Artisan command: -->
+Agents はミドルウェアをサポートしているため、各生成ステップがプロバイダに送信される前にインターセプトして変更できます。ミドルウェアはステップごとに1回呼び出されるため、3ステップかかる実行では3回呼び出されます。ミドルウェアは、`make:agent-middleware` Artisan コマンドで作成できます。
 
 ```shell
 php artisan make:agent-middleware LogPrompts
@@ -1510,8 +1770,8 @@ class SalesCoach implements Agent, HasMiddleware
 }
 ```
 
-<!-- Each middleware class should define a `handle` method that receives the `AgentPrompt` and a `Closure` to pass the prompt to the next middleware: -->
-各ミドルウェア クラスは、`AgentPrompt` と `Closure` を受け取り、プロンプトを次のミドルウェアに渡す `handle` メソッドを定義する必要があります。
+<!-- Each middleware class should define a `handle` method that receives a `PendingStep` and a `Closure` that passes the step to the next middleware: -->
+各ミドルウェアクラスでは、`PendingStep` と、そのステップを次のミドルウェアへ渡す `Closure` を受け取る `handle` メソッドを定義してください。
 
 ```php
 <?php
@@ -1519,33 +1779,93 @@ class SalesCoach implements Agent, HasMiddleware
 namespace App\Ai\Middleware;
 
 use Closure;
-use Laravel\Ai\Prompts\AgentPrompt;
+use Illuminate\Support\Facades\Log;
+use Laravel\Ai\PendingStep;
 
 class LogPrompts
 {
     /**
-     * Handle the incoming prompt.
+     * Handle the pending generation step.
      */
-    public function handle(AgentPrompt $prompt, Closure $next)
+    public function handle(PendingStep $step, Closure $next)
     {
-        Log::info('Prompting agent', ['prompt' => $prompt->prompt]);
+        Log::info('Prompting agent', ['model' => $step->model]);
 
-        return $next($prompt);
+        return $next($step);
     }
 }
 ```
 
-<!-- You may use the `then` method on the response to execute code after the agent has finished processing. This works for both synchronous and streaming responses: -->
-エージェントの処理が完了した後に、応答で `then` メソッドを使用してコードを実行できます。これは、同期応答とストリーミング応答の両方で機能します。
+<!-- In addition to the `provider`, `model`, `instructions`, `messages`, and `tools` that are about to be sent, the step exposes the steps that have already completed, their combined usage, and the progress of the run: -->
+これから送信する `provider`、`model`、`instructions`、`messages`、`tools` に加えて、このステップでは、すでに完了したステップ、それらの合計使用量、実行の進捗状況を取得できます。
 
 ```php
-public function handle(AgentPrompt $prompt, Closure $next)
+$step->steps;
+$step->usage;
+
+$step->number;
+$step->isFirstStep();
+$step->isFinalStep;
+```
+
+<!-- The `withModel`, `withInstructions`, `withMessages`, `withTools`, `onlyTools`, `withoutTools`, `withToolChoice`, `withMaxTokens`, and `withProviderOptions` methods each return a copy of the step. For example, you may remove an expensive tool once the agent has used it: -->
+`withModel`、`withInstructions`、`withMessages`、`withTools`、`onlyTools`、`withoutTools`、`withToolChoice`、`withMaxTokens`、`withProviderOptions` の各メソッドは、ステップのコピーを返します。たとえば、エージェントが使用した後に、コストの高いツールを削除できます。
+
+```php
+public function handle(PendingStep $step, Closure $next)
 {
-    return $next($prompt)->then(function (AgentResponse $response) {
+    if (! $step->isFirstStep()) {
+        $step = $step->withoutTools('SearchDocumentation');
+    }
+
+    return $next($step);
+}
+```
+
+<!-- Or, you may keep a long tool calling loop within the context window by summarizing the middle of the conversation: -->
+または、会話の途中部分を要約することで、長いツール呼び出しループをコンテキストウィンドウ内に保持できます。
+
+```php
+use App\Ai\Agents\Summarizer;
+use Laravel\Ai\Messages\UserMessage;
+
+public function handle(PendingStep $step, Closure $next)
+{
+    if (count($step->messages) > 40) {
+        $summary = (new Summarizer)->prompt(
+            collect(array_slice($step->messages, 1, -10))->map->content->implode("\n"),
+        )->text;
+
+        $step = $step->withMessages([
+            $step->messages[0],
+            new UserMessage("Summary of the conversation so far: {$summary}"),
+            ...array_slice($step->messages, -10),
+        ]);
+    }
+
+    return $next($step);
+}
+```
+
+<!-- Messages passed to the `withMessages` method only change what is sent for the current step. Later steps and the stored conversation continue to use the full, unsummarized history. -->
+`withMessages` メソッドに渡したメッセージは、現在のステップで送信される内容だけを変更します。後続のステップと保存された会話では、引き続き要約されていない完全な履歴が使用されます。
+
+<!-- You may use the `then` method to execute code once the model has answered the step, before its tool calls are executed. This works for both synchronous and streaming responses: -->
+モデルがステップに回答した後、ツール呼び出しが実行される前にコードを実行するには、`then` メソッドを使用できます。これは同期レスポンスとストリーミングレスポンスの両方で機能します。
+
+```php
+use Laravel\Ai\Gateway\StepResponse;
+
+public function handle(PendingStep $step, Closure $next)
+{
+    return $next($step)->then(function (StepResponse $response) {
         Log::info('Agent responded', ['text' => $response->text]);
     });
 }
 ```
+
+<!-- Middleware must return the result of `$next`, or its own `StepResponse` to answer the step without invoking the model, such as when serving a cached response. Returning any other value will throw a `LogicException`. -->
+ミドルウェアは `$next` の結果、または独自の `StepResponse` を返す必要があります。後者は、キャッシュ済みのレスポンスを返す場合など、モデルを呼び出さずにステップへ応答するために使います。それ以外の値を返すと `LogicException` がスローされます。
 
 <a name="anonymous-agents"></a>
 <!-- ### Anonymous Agents -->
@@ -1655,7 +1975,7 @@ class ComplexReasoner implements Agent
 ```
 
 > [!NOTE]
-> `UseCheapestModel` と `UseSmartestModel` が選択する基盤モデルは、プロバイダが新しいモデルをリリースすると、Laravel AI SDK のリリース間で変わる可能性があります。モデルを切り替えると、動作の変更、非推奨パラメータ、コストの大きな差が生じることがあります。安定した予測可能なモデルと料金が必要な場合は、`Model` 属性を使ってモデルを明示的に指定してください。
+> `UseCheapestModel` と `UseSmartestModel` が選択する基盤モデルは、プロバイダが新しいモデルをリリースすることで、Laravel AI SDK のリリース間で変更される場合があります。モデルを切り替えると、動作の変更、非推奨パラメータ、コストの大幅な違いが生じる可能性があります。安定した予測可能なモデルと料金が必要な場合は、`Model` 属性を使用してモデルを明示的に指定してください。
 
 <a name="provider-options"></a>
 <!-- ### Provider Options -->
@@ -1707,6 +2027,39 @@ class SalesCoach implements Agent, HasProviderOptions
 <!-- The Anthropic example above also enables [prompt caching](#prompt-caching) via `cache_control`. -->
 上記の Anthropic の例では、`cache_control` を介して [prompt caching](#prompt-caching) も有効になります。
 
+<!-- The [image](#images), [audio](#audio), [transcription](#transcription), [embedding](#embeddings), and [reranking](#reranking) builders accept provider options as well: -->
+[image](#images)、[audio](#audio)、[transcription](#transcription)、[embedding](#embeddings)、[reranking](#reranking) の各ビルダもプロバイダオプションを受け付けます。
+
+```php
+use Laravel\Ai\Audio;
+
+$audio = Audio::of('I love coding with Laravel.')
+    ->withProviderOptions(['speed' => 1.25])
+    ->generate();
+```
+
+<!-- You may also pass a closure instead of an array, which will receive the provider currently being used. -->
+配列の代わりにクロージャを渡すこともできます。このクロージャには、現在使用されているプロバイダが渡されます。
+
+<a name="custom-http-headers"></a>
+<!-- #### Custom HTTP Headers -->
+#### Custom HTTP Headers
+
+<!-- Headers configured for a provider within your application's `config/ai.php` configuration file are sent with every request that provider makes. To send headers on a per-request basis, such as metadata used by an AI gateway, you may use the `withHeaders` method, which is available on the image, audio, transcription, embedding, and reranking builders, as well as on [file uploads](#files): -->
+アプリケーションの `config/ai.php` 設定ファイルでプロバイダに設定したヘッダーは、そのプロバイダが実行するすべてのリクエストに送信されます。AI gateway で使用するメタデータなど、リクエストごとにヘッダーを送信するには、画像、音声、文字起こし、埋め込み、リランキングの各ビルダと [file uploads](#files) で利用できる `withHeaders` メソッドを使用します。
+
+```php
+use Laravel\Ai\Embeddings;
+
+$embeddings = Embeddings::for($chunks)
+    ->withHeaders(['cf-aig-metadata' => json_encode(['team' => $team->id])])
+    ->withProviderOptions(['dimensions' => 1024])
+    ->generate();
+```
+
+<!-- Headers may also be given as a closure, which receives the provider currently being used. Headers are not included in the request body and do not affect [embedding cache keys](#caching-embeddings). -->
+Headers は、現在使用しているプロバイダを受け取るクロージャとして指定することもできます。Headers はリクエストボディに含まれず、[embedding cache keys](#caching-embeddings) にも影響しません。
+
 <a name="prompt-caching"></a>
 <!-- ### Prompt Caching -->
 ### Prompt Caching
@@ -1718,6 +2071,9 @@ class SalesCoach implements Agent, HasProviderOptions
 $response->usage->cacheReadInputTokens;
 $response->usage->cacheWriteInputTokens;
 ```
+
+<!-- Both of these counts are subsets of the input token total, which is discussed further in the [usage documentation](#usage). -->
+どちらのカウントも入力トークン総数に含まれるもので、その総数については [usage documentation](#usage) で詳しく説明します。
 
 <!-- The `anthropic` and `bedrock` providers only cache when asked. The `CacheInstructions` and `CacheToolDefinitions` attributes place a cache breakpoint at the end of your agent's instructions and tool definitions, so every conversation reads that prefix from the cache instead of writing it again: -->
 `anthropic` プロバイダと `bedrock` プロバイダは、明示的に指定された場合にのみキャッシュします。`CacheInstructions` 属性と `CacheToolDefinitions` 属性は、エージェントの指示とツール定義の末尾にキャッシュブレークポイントを設定します。これにより、各会話ではそのプレフィックスを再度書き込む代わりに、キャッシュから読み取ります。
@@ -1754,14 +2110,14 @@ class SalesCoach implements Agent
 また、トップレベルの `cache_control` [provider option](#provider-options) を使って、Anthropic の自動キャッシュを有効にすることもできます。これによりリクエストの最後のブロックの後ろに1つのブレークポイントが設定されるため、会話が進むにつれてブレークポイントも移動し、各ターンでは直前までのターンをキャッシュから読み取ります。どちらの仕組みも組み合わせて使用できます。
 
 > [!WARNING]
-> プロバイダはツール、指示、メッセージの順にプロンプトを構築するため、指示を1時間キャッシュするにはツール定義も1時間キャッシュする必要があります。この2つのキャッシュ時間が異なると、`InvalidArgumentException` がスローされます。
+> プロバイダはツール、指示、メッセージの順にプロンプトを構築するため、指示を1時間キャッシュするには、ツール定義も1時間キャッシュする必要があります。両者のキャッシュ期間を混在させると、`InvalidArgumentException` が発生します。
 
 <a name="human-tool-approval"></a>
 <!-- ## Human Tool Approval -->
 ## Human Tool Approval
 
 > [!WARNING]
-> ツールの承認には、会話履歴が永続化されており、一時停止した呼び出しを再開できる `Conversational` エージェントが必要です。`RemembersConversations` トレイトが必要な永続化機能を提供します。
+> ツールの承認には、実行再開時に一時停止されたターンの履歴を利用できる必要があります。`RemembersConversations` トレイトを使用する `Conversational` エージェントなどを使うか、アプリケーションのフロントエンドから [`withMessages` method](#conversation-context) を使用して履歴を渡してください。どちらも行わないエージェントは、ツールが一時停止した際に `ApprovalNotResumableException` をスローします。
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 機密性の高い操作や取り消せない操作を実行するツールでは、実行前に人間の承認が必要になる場合があります。ツールを承認可能にするには、`Approvable` コントラクトを実装し、`InteractsWithApprovals` トレイトを使用します。承認可能なツールは、デフォルトで承認が必要です。
@@ -1876,6 +2232,9 @@ $response = (new FileAssistant)
     ]));
 ```
 
+> [!IMPORTANT]
+> 一時停止されたターンは、一時停止した参加者ではなく、その会話と保留中のツール呼び出しによって照合されます。そのため、アプリケーションでは、[complete approval flow](#complete-approval-flow) に示されているように、再開する前に会話へのアクセスを認可するか、会話ストアの `conversationBelongsTo` メソッドを使用してアクセス権を確認してください。
+
 <!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
 ブール値の `true` と `false` は、それぞれ承認と拒否の略記として使用できます。保留中のすべてのツール呼び出しには、判定を与える必要があります。不明なツール呼び出し ID、判定が指定されていないツール呼び出し ID、またはすでに解決済みのツール呼び出し ID があると、`ApprovalMismatchException` がスローされます。明示的な判定がない呼び出しに対しては、`approveRemaining` または `rejectRemaining` メソッドを使用してデフォルトの判定を指定できます。
 
@@ -1895,8 +2254,23 @@ $response = (new FileAssistant)
 <!-- Tool approval is supported by the `prompt`, `stream`, `queue`, `broadcast`, `broadcastNow`, and `broadcastOnQueue` methods. -->
 `prompt`、`stream`、`queue`、`broadcast`、`broadcastNow`、`broadcastOnQueue` メソッドでは、ツールの承認をサポートしています。
 
-<!-- During streaming and broadcasting, a pause is represented by a `tool_approval_request` event. When using the [Vercel AI SDK stream protocol](#streaming-using-the-vercel-ai-sdk-protocol), approval requests and results are emitted using the protocol's native tool approval parts. -->
-ストリーミングとブロードキャスト中、一時停止は `tool_approval_request` イベントで表されます。[Vercel AI SDK stream protocol](#streaming-using-the-vercel-ai-sdk-protocol) を使用する場合、承認リクエストと結果は、そのプロトコル固有のツール承認パーツを使って出力されます。
+<!-- During streaming and broadcasting, a pause is represented by a `tool_approval_request` event. When using the [Vercel AI SDK stream protocol](#stream-protocols), approval requests and results are emitted using the protocol's native tool approval parts, and the Agent User Interaction protocol reports them as interrupts. -->
+ストリーミングおよびブロードキャスト中の一時停止は、`tool_approval_request` イベントで表されます。[Vercel AI SDK stream protocol](#stream-protocols) を使用する場合、承認リクエストと結果はプロトコル固有のツール承認パートとして発行され、Agent User Interaction protocol では割り込みとして報告されます。
+
+<!-- Clients that use either protocol post their decisions along with the rest of the conversation, so a [chat request](#frontend-integration) may be passed directly to the agent: -->
+いずれのプロトコルを使用するクライアントも、会話の他の内容と一緒に判断結果を送信するため、[chat request](#frontend-integration) をエージェントに直接渡せます。
+
+```php
+$chat = Vercel::chat($request);
+
+return (new FileAssistant)
+    ->continue($conversationId, as: $request->user())
+    ->stream($chat)
+    ->usingProtocol($chat->protocol());
+```
+
+<!-- When a paused turn is resumed, the resumed steps are merged into that turn, so each turn is stored as a single assistant message. The response's `assistantMessageId` contains the ID of the paused message, and that message's usage includes both the pause and the resume. -->
+一時停止したターンを再開すると、再開後のステップがそのターンにマージされるため、各ターンは単一の assistant メッセージとして保存されます。レスポンスの `assistantMessageId` には一時停止したメッセージの ID が含まれ、そのメッセージの usage には一時停止と再開の両方が含まれます。
 
 <!-- For queued agents, the resulting response is passed to the `then` callback, and Laravel also dispatches a `ToolApprovalRequested` event. -->
 キューに入れたエージェントでは、生成されたレスポンスが `then` コールバックに渡され、Laravel は `ToolApprovalRequested` イベントもディスパッチします。
@@ -1908,8 +2282,8 @@ Laravel は、モデルに続きを尋ねる前に、承認されたツールの
 <!-- ### Complete Approval Flow -->
 ### Complete Approval Flow
 
-<!-- The following routes demonstrate a complete approval flow. The `GET` route returns the chat screen, while the `POST` route accepts either a new text prompt or approval decisions from the chat screen. This example assumes the application's `User` model uses the `HasConversations` trait: -->
-以下のルートは、承認フロー全体を示しています。`GET` ルートはチャット画面を返し、`POST` ルートは新しいテキストプロンプトまたはチャット画面からの承認結果を受け取ります。この例では、アプリケーションの `User` モデルが `HasConversations` トレイトを使用していることを前提としています：
+<!-- The following route demonstrates a complete approval flow, accepting either a new text prompt or approval decisions from the chat screen. This example assumes the application's `User` model uses the `HasConversations` trait: -->
+次のルートは、新しいテキストプロンプトまたはチャット画面からの承認判断を受け付ける、完全な承認フローを示しています。この例では、アプリケーションの `User` モデルが `HasConversations` トレイトを使用することを前提としています。
 
 ```php
 use App\Ai\Agents\FileAssistant;
@@ -1920,14 +2294,6 @@ use Illuminate\Validation\Rule;
 use Laravel\Ai\Approvals\Decision;
 use Laravel\Ai\Approvals\Decisions;
 use Laravel\Ai\Models\Conversation;
-
-Route::get('/chat/{conversation}', function (Request $request, Conversation $conversation) {
-    Gate::authorize('view', $conversation);
-
-    return view('chat', [
-        'conversation' => $conversation,
-    ]);
-})->middleware('auth');
 
 Route::post('/chat/{conversation}', function (Request $request, Conversation $conversation) {
     Gate::authorize('view', $conversation);
@@ -1961,8 +2327,8 @@ Route::post('/chat/{conversation}', function (Request $request, Conversation $co
 })->middleware('auth');
 ```
 
-<!-- When the response status is `awaiting_approval`, the chat screen should render the pending approvals and submit the user's choices to the same endpoint using the tool call ID as each decision's key: -->
-レスポンスのステータスが `awaiting_approval` の場合、チャット画面には保留中の承認を表示し、ユーザーの選択を各判断のキーとしてツール呼び出し ID を使用し、同じエンドポイントへ送信します。
+<!-- When the response status is `awaiting_approval`, the chat screen should render the pending approvals and submit the user's choices to the same endpoint using the tool call ID as each decision's key. Otherwise, the screen may submit a plain `message` value: -->
+レスポンスのステータスが `awaiting_approval` の場合、チャット画面には保留中の承認を表示し、ユーザーの選択を同じエンドポイントへ送信します。このとき、各判断のキーには tool call ID を使用します。それ以外の場合、画面からは単純な `message` 値を送信できます。
 
 ```json
 {
@@ -1975,15 +2341,6 @@ Route::post('/chat/{conversation}', function (Request $request, Conversation $co
             "result": "The invoice must be retained."
         }
     }
-}
-```
-
-<!-- For a normal chat message, the screen may instead submit a `message` value: -->
-通常のチャットメッセージの場合、画面から代わりに `message` の値を送信することもできます。
-
-```json
-{
-    "message": "Delete the old invoice."
 }
 ```
 
@@ -2031,6 +2388,19 @@ $image = Image::of('Update this photo of me to be in the style of an impressioni
     ])
     ->landscape()
     ->generate();
+```
+
+<!-- Some providers may generate multiple images in a single request. OpenAI, Azure, and xAI accept an `n` [provider option](#provider-options), and the response will contain every image that was returned: -->
+プロバイダによっては、1回のリクエストで複数の画像を生成できます。OpenAI、Azure、xAI は `n` [provider option](#provider-options) を受け付け、レスポンスには返されたすべての画像が含まれます。
+
+```php
+$response = Image::of('A donut sitting on the kitchen counter')
+    ->withProviderOptions(['n' => 4])
+    ->generate();
+
+count($response);           // 4
+$response->images;          // A collection of generated images...
+$response->firstImage();    // The first generated image...
 ```
 
 <!-- Generated images may be easily stored on the default disk configured in your application's `config/filesystems.php` configuration file: -->
@@ -2289,7 +2659,7 @@ Document::fromUpload($request->file('report'));
 ```
 
 > [!NOTE]
-> VoyageAI では、1つのリクエスト内でリモート URL のメディアと Base64 エンコードされたメディアを混在させることはできません。ローカルファイル、保存済みファイル、アップロードされたファイルは Base64 エンコードされたコンテンツとして送信され、テキスト入力はどちらのメディアソースとも組み合わせられます。利用できるマルチモーダルモデルと入力については、プロバイダのドキュメントを確認してください。
+> VoyageAI では、1つのリクエスト内でリモート URL のメディアと Base64 エンコードされたメディアを混在させることはできません。ローカルファイル、保存済みファイル、アップロードされたファイルは Base64 エンコードされたコンテンツとして送信され、テキスト入力はどちらのメディアソースとも組み合わせられます。利用できるマルチモーダルモデルと入力については、使用するプロバイダのドキュメントを確認してください。
 
 <a name="querying-embeddings"></a>
 <!-- ### Querying Embeddings -->
@@ -2450,12 +2820,13 @@ $response->first()->score;    // 0.95
 $response->first()->index;    // 1 (original position)
 ```
 
-<!-- The `limit` method may be used to restrict the number of results returned: -->
-`limit` メソッドを使用して、返される結果の数を制限できます。
+<!-- The `limit` method may be used to restrict the number of results returned, while the `timeout` method may be used to specify the HTTP timeout in seconds, which defaults to 30: -->
+`limit` メソッドを使うと返される結果の数を制限できます。一方、`timeout` メソッドでは HTTP のタイムアウトを秒単位で指定できます。デフォルトは 30 秒です。
 
 ```php
 $response = Reranking::of($documents)
     ->limit(5)
+    ->timeout(60)
     ->rerank('search query');
 ```
 
@@ -2489,8 +2860,129 @@ $reranked = $posts->rerank(
     by: 'content',
     query: 'Laravel tutorials',
     limit: 10,
-    provider: Lab::Cohere
+    provider: Lab::Cohere,
+    timeout: 60,
 );
+```
+
+<a name="classification"></a>
+<!-- ## Classification -->
+## Classification
+
+> [!WARNING]
+> 分類機能は現在試験的なものであり、AI SDK の今後のマイナーリリースで API が変更される可能性があります。
+
+<!-- Classification allows you to ask a fixed set of questions about a given string or array of data and receive a typed answer, backed by a probability, for each question instead of free-form text. This is useful for routing, moderation, and scoring, where you need to compare an answer against a threshold or make assertions about it in your tests. -->
+Classification を使うと、指定した文字列またはデータ配列に対してあらかじめ定めた質問を行い、自由形式のテキストではなく、各質問への型付きの回答とその確率を受け取れます。これは、回答をしきい値と比較したり、テストで回答をアサーションしたりする必要があるルーティング、モデレーション、スコアリングに役立ちます。
+
+<!-- The `Laravel\Ai\Classification` class may be used to classify content. Each question is given a key, and the corresponding answer may be retrieved from the response using that key: -->
+`Laravel\Ai\Classification` クラスを使用してコンテンツを分類できます。各質問にはキーが割り当てられ、そのキーを使って対応する回答をレスポンスから取得できます。
+
+```php
+use Laravel\Ai\Classification;
+use Laravel\Ai\Classification\Boolean;
+use Laravel\Ai\Classification\Choice;
+use Laravel\Ai\Classification\Score;
+
+$result = Classification::of($supportRequest)
+    ->questions([
+        'urgent' => new Boolean('Does this request need an immediate response?', [
+            'true' => 'Explicitly time-sensitive',
+            'false' => 'No urgency expressed',
+        ]),
+        'department' => new Choice('Which team should handle this request?', [
+            'billing' => 'Payments, invoices, and refunds',
+            'technical' => 'Bugs, outages, and integrations',
+            'sales' => 'Pricing, plans, and upgrades',
+        ]),
+        'frustration' => new Score('How frustrated is the customer?', [
+            'Calm',
+            'Frustrated',
+            'Very angry',
+        ]),
+    ])
+    ->classify();
+```
+
+<!-- `Boolean` questions return the probability that the answer is "true". The `isTrue` method may be used to determine whether that probability meets a given threshold, which defaults to `0.5`: -->
+`Boolean` 形式の質問は、回答が「true」である確率を返します。`isTrue` メソッドを使うと、その確率が指定したしきい値を満たすか判定できます。デフォルトは `0.5` です。
+
+```php
+$result['urgent']->probability;             // 0.94
+$result['urgent']->isTrue(threshold: 0.8);  // true
+```
+
+<!-- `Choice` questions return one of the given options along with the probability of each option. The `confidence` property indicates how certain the provider is across the full set of probabilities, and will be `null` when the provider is unable to measure it: -->
+`Choice` 質問は、指定された選択肢のいずれかと、各選択肢の確率を返します。`confidence` プロパティは、すべての確率を考慮したプロバイダの確信度を示します。プロバイダが確信度を測定できない場合は `null` になります。
+
+```php
+$result['department']->choice;                      // 'technical'
+$result['department']->probabilityOf('technical');  // 0.87
+$result['department']->probabilities;               // ['billing' => 0.08, 'technical' => 0.87, 'sales' => 0.05]
+$result['department']->confidence;                  // 0.82
+```
+
+<!-- `Score` questions return a position on the ordered levels that were provided. The `score` property is probability-weighted and may fall between two levels, while the `level` and `label` methods describe the most probable level: -->
+`Score` の質問は、指定された順序付きレベル上の位置を返します。`score` プロパティは確率で重み付けされるため、2つのレベルの間の値になる場合があります。一方、`level` メソッドと `label` メソッドは、最も可能性の高いレベルを表します。
+
+```php
+$result['frustration']->score;          // 1.24, the probability-weighted level
+$result['frustration']->level();        // 1, the most probable level
+$result['frustration']->label();        // 'Frustrated'
+$result['frustration']->normalized();   // 0.62, the score as a fraction of the highest level
+$result['frustration']->probabilities;  // [0.12, 0.52, 0.36]
+```
+
+<!-- The criteria given to a `Boolean` question, the option descriptions given to a `Choice` question, and the levels given to a `Score` question may each be an array when a single sentence is not sufficient. `Choice` questions require at least two options, while `Score` questions require at least two levels. -->
+`Boolean` 質問に指定する判定基準、`Choice` 質問に指定する選択肢の説明、`Score` 質問に指定するレベルは、1文では不十分な場合にそれぞれ配列にできます。`Choice` 質問には少なくとも2つの選択肢が必要で、`Score` 質問には少なくとも2つのレベルが必要です。
+
+<!-- The response may be iterated, counted, and accessed as an array. In addition, the `answer` method may be used to retrieve a single answer, while the `collect` method returns all of the answers as a [collection](/docs/13.x/collections): -->
+レスポンスは反復処理やカウントができ、配列としてアクセスできます。さらに、`answer` メソッドを使うと単一の回答を取得でき、`collect` メソッドを使うとすべての回答を [collection](/docs/13.x/collections) として返します。
+
+```php
+$result->answer('urgent');
+$result->collect();
+
+$result->usage;
+$result->meta->provider;
+```
+
+<!-- For a single yes or no decision, you may use the `decide` method available via Laravel's `Stringable` class, which returns a boolean instead of a full response. You may describe what a "yes" and a "no" mean, and specify the probability the answer must reach, which defaults to `0.5`: -->
+単純な yes または no の判定には、Laravel の `Stringable` クラスで利用できる `decide` メソッドを使用できます。このメソッドは完全なレスポンスではなく、boolean を返します。「yes」と「no」が何を意味するかを説明し、回答が到達すべき確率も指定できます。デフォルトは `0.5` です。
+
+```php
+use Illuminate\Support\Str;
+
+if (Str::of($message)->decide('Is this spam?')) {
+    // ...
+}
+
+$spam = Str::of($message)->decide('Is this spam?', criteria: [
+    'true' => 'Unsolicited bulk mail.',
+    'false' => 'A genuine message from a customer.',
+], threshold: 0.9);
+```
+
+<!-- By default, classification is performed by [TypeSafe](https://typesafe.ai). You may change this using the `default_for_classification` option within your application's `config/ai.php` configuration file. You may also specify the provider and model when classifying: -->
+デフォルトでは、分類は [TypeSafe](https://typesafe.ai) によって実行されます。アプリケーションの `config/ai.php` 設定ファイルで `default_for_classification` オプションを使うと、この設定を変更できます。分類時にプロバイダとモデルを指定することもできます。
+
+```php
+use Laravel\Ai\Enums\Lab;
+
+$result = Classification::of($supportRequest)
+    ->questions($questions)
+    ->classify(Lab::OpenRouter, 'model-name');
+```
+
+<!-- The `timeout` method may be used to specify the HTTP timeout in seconds, which defaults to 30. [Provider options](#provider-options) and custom headers may be given as well: -->
+`timeout` メソッドを使用すると、秒単位で HTTP タイムアウトを指定できます。デフォルトは 30 秒です。[Provider options](#provider-options) とカスタムヘッダーも指定できます。
+
+```php
+$result = Classification::of($supportRequest)
+    ->questions($questions)
+    ->timeout(60)
+    ->withProviderOptions(['temperature' => 0])
+    ->classify();
 ```
 
 <a name="files"></a>
@@ -2720,7 +3212,10 @@ $document->fileId;
 ```
 
 > [!NOTE]
-> 通常、以前に保存したファイルをベクトルストアに追加すると、返されるドキュメント ID はそのファイルに以前割り当てられた ID と一致します。ただし、一部のベクトルストレージプロバイダは、新しく異なる「ドキュメント ID」を返すことがあります。そのため、後で参照できるよう、データベースには常に両方の ID を保存することをおすすめします。
+> 通常、以前に保存したファイルをベクトルストアに追加すると、返されるドキュメント ID はファイルに以前割り当てられた ID と一致します。ただし、一部のベクトルストレージプロバイダでは、新しい別の「ドキュメント ID」が返される場合があります。そのため、将来参照できるよう、データベースには常に両方の ID を保存することをおすすめします。
+
+<!-- When adding a file to a Gemini store, Laravel waits for the import to finish so that the document is searchable once the call returns. A `Laravel\Ai\Exceptions\AiException` will be thrown if the import fails or exceeds five minutes, so you may wish to add Gemini files from a [queued job](/docs/13.x/queues). -->
+Gemini ストアにファイルを追加すると、Laravel はインポートが完了するまで待機するため、呼び出しが返ると同時にドキュメントを検索できます。インポートに失敗した場合や5分を超えた場合は `Laravel\Ai\Exceptions\AiException` がスローされるため、Gemini ファイルは [queued job](/docs/13.x/queues) から追加するとよいでしょう。
 
 <!-- You may attach metadata to files when adding them to a store. This metadata can later be used to filter search results when using the [file search provider tool](#file-search): -->
 ファイルをストアに追加するときに、ファイルにメタデータを添付できます。このメタデータは、後で [file search provider tool](#file-search) を使用するときに検索結果をフィルタリングするために使用できます。
@@ -2745,6 +3240,63 @@ $store->remove('file_id');
 
 ```php
 $store->remove('file_abc123', deleteFile: true);
+```
+
+<a name="usage"></a>
+<!-- ## Usage -->
+## Usage
+
+<!-- Every response contains a `usage` property containing the token counts reported by the provider. The input and output counts are totals, so tokens counted as cached or reasoning tokens are also included in the total they belong to: -->
+すべてのレスポンスには、プロバイダが報告したトークン数を含む `usage` プロパティがあります。入力と出力のカウントは合計値であるため、キャッシュされたトークンや推論トークンとしてカウントされたトークンも、それぞれ該当する合計に含まれます。
+
+```php
+$response = (new SalesCoach)->prompt('Analyze this sales transcript...');
+
+$response->usage->inputTokens;
+$response->usage->outputTokens;
+$response->usage->totalTokens();
+```
+
+<!-- Text generation returns a `Laravel\Ai\Responses\Data\TextUsage` instance, which breaks these totals down further. Each of these values will be `null`, rather than `0`, when the provider does not report it: -->
+テキスト生成は `Laravel\Ai\Responses\Data\TextUsage` インスタンスを返し、これらの合計をさらに詳細に分類できます。プロバイダが値を報告しない場合、各値は `0` ではなく `null` になります。
+
+```php
+$response->usage->cacheReadInputTokens; // Subset of the input tokens read from a prompt cache...
+$response->usage->cacheWriteInputTokens; // Subset of the input tokens written to a prompt cache...
+$response->usage->reasoningTokens; // Subset of the output tokens spent on reasoning...
+
+$response->usage->uncachedInputTokens(); // Input tokens that were neither read from nor written to the cache...
+```
+
+<!-- Cache reads, cache writes, and uncached input are billed at different rates, so you should price these three counts separately instead of using the input total alone. -->
+キャッシュからの読み取り、キャッシュへの書き込み、キャッシュを使用しない入力は料金が異なるため、入力の合計だけを使うのではなく、これら3つを分けて料金を見積もる必要があります。
+
+<!-- The remaining capabilities return a usage object containing the counts specific to them: -->
+残りの機能は、それぞれに固有のカウントを含む使用状況オブジェクトを返します。
+
+<div class="overflow-auto">
+
+<!-- | Capability | Usage object | Adds | |---|---|---| | Text, classification | `TextUsage` | Cache read, cache write, and reasoning tokens | | Images | `ImageUsage` | `imageInputTokens` and `imageOutputTokens` | | Transcription | `TranscriptionUsage` | `audioSeconds`, the duration of the transcribed audio | | Reranking | `RerankingUsage` | `searchUnits`, which some providers bill instead of tokens | | Audio, embeddings | `Usage` | | -->
+| 機能 | 使用量オブジェクト | 追加される情報 |
+|---|---|---|
+| テキスト、分類 | `TextUsage` | キャッシュの読み取り、キャッシュへの書き込み、推論トークン |
+| 画像 | `ImageUsage` | `imageInputTokens` と `imageOutputTokens` |
+| 文字起こし | `TranscriptionUsage` | `audioSeconds`。文字起こしした音声の長さ |
+| リランキング | `RerankingUsage` | `searchUnits`。トークンの代わりに一部のプロバイダが課金する単位 |
+| 音声、埋め込み | `Usage` | |
+
+</div>
+
+<!-- Not every provider reports every count, and counts that a provider does not report will be `null`: -->
+すべてのプロバイダがすべてのカウントを報告するわけではありません。プロバイダが報告しないカウントは `null` になります。
+
+```php
+use Laravel\Ai\Image;
+use Laravel\Ai\Transcription;
+
+Image::of('A donut sitting on the kitchen counter')->generate()->usage->imageOutputTokens;
+
+Transcription::fromPath('/home/laravel/meeting.mp3')->generate()->usage->audioSeconds;
 ```
 
 <a name="failover"></a>
@@ -2851,8 +3403,27 @@ $response = (new FileAssistant)->prompt('Delete the invoice.');
 $response->hasPendingApprovals(); // true
 ```
 
+<!-- In addition, you can fake a response that includes reasoning. The fake emits reasoning events, so the reasoning is reported on streamed runs as well: -->
+さらに、推論を含むレスポンスを偽装できます。この偽装レスポンスは推論イベントを発行するため、ストリーミング実行でも推論が報告されます。
+
+```php
+use Laravel\Ai\Responses\AgentResponse;
+
+SalesCoach::fake([
+    AgentResponse::fakeWithReasoning('They asked about pricing.', 'Plans start at $10.'),
+]);
+
+$response = (new SalesCoach)->stream('What does it cost?');
+
+foreach ($response as $event) {
+    // ...
+}
+
+$response->reasoning; // 'They asked about pricing.'
+```
+
 > [!NOTE]
-> 構造化出力を返すエージェントに対して `Agent::fake()` を呼び出し、偽の出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致する偽のデータを自動的に生成します。
+> 構造化出力を返すエージェントで `Agent::fake()` を呼び出し、フェイク出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致するフェイクデータを自動的に生成します。
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 エージェントにプロンプ​​トを出した後、受け取ったプロンプトについてアサーションを行うことができます。
@@ -3206,6 +3777,58 @@ Reranking::assertNotReranked(
 Reranking::assertNothingReranked();
 ```
 
+<a name="testing-classification"></a>
+<!-- ### Classification -->
+### Classification
+
+<!-- Classification may be faked by invoking the `fake` method on the `Classification` class. If no custom responses are provided, Laravel will automatically generate answers that match the shape of each question: -->
+`Classification` クラスの `fake` メソッドを呼び出すことで、分類をモックできます。カスタムレスポンスを指定しない場合、Laravel は各質問の形式に合う回答を自動的に生成します。
+
+```php
+use Laravel\Ai\Classification;
+use Laravel\Ai\Prompts\ClassificationPrompt;
+use Laravel\Ai\Responses\Data\BooleanAnswer;
+use Laravel\Ai\Responses\Data\ChoiceAnswer;
+
+// Automatically generate fake answers...
+Classification::fake();
+
+// Provide answers for specific questions...
+Classification::fake([
+    [
+        'urgent' => new BooleanAnswer(0.94),
+        'department' => new ChoiceAnswer('technical', [
+            'billing' => 0.08,
+            'technical' => 0.87,
+            'sales' => 0.05,
+        ], confidence: 0.82),
+    ],
+]);
+
+// Build answers from the prompt...
+Classification::fake(fn (ClassificationPrompt $prompt) => [
+    'urgent' => new BooleanAnswer($prompt->contains('ASAP') ? 1.0 : 0.0),
+]);
+```
+
+<!-- Questions that are omitted from a fake response will still receive a generated answer, so your tests only need to provide the answers they make assertions against. -->
+フェイクレスポンスで省略した質問にも生成された回答が返されるため、テストではアサーションの対象にする回答だけを指定すれば十分です。
+
+<!-- After classifying, you may make assertions about the operations that were performed: -->
+分類した後は、実行された操作についてアサーションを記述できます。
+
+```php
+Classification::assertClassified(function (ClassificationPrompt $prompt) {
+    return $prompt->contains('refund') && $prompt->asks('department');
+});
+
+Classification::assertNotClassified(
+    fn (ClassificationPrompt $prompt) => $prompt->asks('sentiment')
+);
+
+Classification::assertNothingClassified();
+```
+
 <a name="testing-files"></a>
 <!-- ### Files -->
 ### Files
@@ -3342,6 +3965,8 @@ Laravel AI SDK は、次のようなさまざまな [events](/docs/13.x/events) 
 - `AgentPrompted`
 - `AgentStreamed`
 - `AudioGenerated`
+- `Classified`
+- `Classifying`
 - `CreatingStore`
 - `EmbeddingsGenerated`
 - `FileAddedToStore`

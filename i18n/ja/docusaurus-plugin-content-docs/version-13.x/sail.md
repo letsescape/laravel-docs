@@ -447,6 +447,17 @@ MAIL_ENCRYPTION=null
 <!-- When Sail is running, you may access the Mailpit web interface at: http://localhost:8025 -->
 Sail の実行中は、http://localhost:8025 で Mailpit Web インターフェイスにアクセスできます。
 
+<!-- If you chose to install the [Mailtrap Local](https://github.com/mailtrap/mailtrap-local) service when installing Sail, or added it later using the `sail:add` Artisan command, your application's `compose.yaml` file will contain an entry for this email catcher instead. Mailtrap Local's default host is `mailtrap-local` and is available via port 3535: -->
+Sail のインストール時に [Mailtrap Local](https://github.com/mailtrap/mailtrap-local) サービスをインストールするか、後から `sail:add` Artisan コマンドで追加した場合、アプリケーションの `compose.yaml` ファイルには、代わりにこのメールキャッチャーのエントリが含まれます。Mailtrap Local のデフォルトホストは `mailtrap-local` で、ポート 3535 から利用できます。
+
+```ini
+MAIL_HOST=mailtrap-local
+MAIL_PORT=3535
+```
+
+<!-- When Sail is running, you may access the Mailtrap Local web interface at: http://localhost:3550 -->
+Sail の実行中は、http://localhost:3550 で Mailtrap Local Web インターフェイスにアクセスできます。
+
 <a name="sail-container-cli"></a>
 <!-- ## Container CLI -->
 ## Container CLI
