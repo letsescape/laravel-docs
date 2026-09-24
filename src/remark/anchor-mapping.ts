@@ -19,6 +19,7 @@ const ANCHOR_RE = /<a\s+name=["']([^"']+)["']\s*(?:\/?>|>\s*<\/a>)/;
  * 동작:
  * - 해당 `paragraph` 이후 다음 `heading` 노드에 Docusaurus heading ID 주석 주입
  * - TOC와 실제 HTML 헤딩 ID를 같은 값으로 설정
+ * - 같은 `paragraph`의 추가 앵커는 별도 `id`로 보존
  */
 export default function anchorMappingPlugin(): Transformer<Root> {
   return (tree) => {
@@ -36,6 +37,11 @@ export default function anchorMappingPlugin(): Transformer<Root> {
       for (let j = index + 1; j < siblings.length; j++) {
         const next = siblings[j];
         if (next.type === 'heading') {
+          for (const child of para.children.slice(1)) {
+            if (child.type === 'html' && ANCHOR_RE.test(child.value)) {
+              child.value = child.value.replace('name=', 'id=');
+            }
+          }
           // Docusaurus heading 플러그인은 후행 `<!-- #id -->`를 명시적 ID로 사용
           // TOC 수집 전에 `data.id`와 `hProperties.id`를 함께 설정
           next.children.push({type: 'html', value: `<!-- #${anchorId} -->`} as Html);
