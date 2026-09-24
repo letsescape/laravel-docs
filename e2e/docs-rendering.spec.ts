@@ -37,6 +37,35 @@ test.describe('Docs rendering', () => {
     expect(bodyText).not.toContain('{{version}}');
   });
 
+  for (const locale of ['', '/ja']) {
+    for (const [slug, text] of [
+      ['broadcasting', 'Illuminate\\Broadcasting\\InteractsWithSockets'],
+      ['eloquent-mutators', 'Illuminate\\Contracts\\Support\\Arrayable'],
+      ['filesystem', 'League\\Flysystem\\WhitespacePathNormalizer::normalizePath'],
+    ]) {
+      test(`${locale || 'ko'} ${slug} admonition scrolls without overflowing the page`, async ({page}) => {
+        await page.setViewportSize({width: 390, height: 844});
+        await page.goto(`${locale}${docsPath(slug)}`);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        await page.evaluate(() => document.fonts.ready);
+
+        const admonition = page.locator('blockquote.admonition').filter({hasText: text});
+        await expect(admonition).toHaveCount(1);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+        expect(await admonition.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+
+        await admonition.hover();
+        await page.mouse.wheel(250, 0);
+        await expect.poll(() => admonition.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+        expect(await page.evaluate(() => window.scrollX)).toBe(0);
+
+        await page.setViewportSize({width: 1440, height: 1000});
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1440);
+        expect(await admonition.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+      });
+    }
+  }
+
   test('sidebar labels stay in English while body text is localized', async ({page}) => {
     await page.goto(docsPath('collections'));
 
