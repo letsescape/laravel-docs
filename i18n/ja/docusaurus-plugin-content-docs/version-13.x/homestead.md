@@ -57,40 +57,9 @@ Homestead は Windows、macOS、または Linux システム上で実行でき�
 <!-- ### Included Software -->
 ### Included Software
 
-<!-- <div id="software-list" markdown="1"> -->
 <div id="software-list" markdown="1">
 
-<!--
-- Ubuntu 22.04
-- Git
-- PHP 8.3
-- PHP 8.2
-- PHP 8.1
-- PHP 8.0
-- PHP 7.4
-- PHP 7.3
-- PHP 7.2
-- PHP 7.1
-- PHP 7.0
-- PHP 5.6
-- Nginx
-- MySQL 8.0
-- lmm
-- Sqlite3
-- PostgreSQL 15
-- Composer
-- Docker
-- Node (With Yarn, Bower, Grunt, and Gulp)
-- Redis
-- Memcached
-- Beanstalkd
-- Mailpit
-- avahi
-- ngrok
-- Xdebug
-- XHProf / Tideways / XHGui
-- wp-cli
--->
+<!-- - Ubuntu 22.04 - Git - PHP 8.3 - PHP 8.2 - PHP 8.1 - PHP 8.0 - PHP 7.4 - PHP 7.3 - PHP 7.2 - PHP 7.1 - PHP 7.0 - PHP 5.6 - Nginx - MySQL 8.0 - lmm - Sqlite3 - PostgreSQL 15 - Composer - Docker - Node (With Yarn, Bower, Grunt, and Gulp) - Redis - Memcached - Beanstalkd - Mailpit - avahi - ngrok - Xdebug - XHProf / Tideways / XHGui - wp-cli -->
 - Ubuntu 22.04
 - Git
 - PHP8.3
@@ -121,49 +90,15 @@ Homestead は Windows、macOS、または Linux システム上で実行でき�
 - XHProf / Tideways / XHGui
 - wp-cli
 
-<!-- </div> -->
 </div>
 
 <a name="optional-software"></a>
 <!-- ### Optional Software -->
 ### Optional Software
 
-<!-- <div id="software-list" markdown="1"> -->
 <div id="software-list" markdown="1">
 
-<!--
-- Apache
-- Blackfire
-- Cassandra
-- Chronograf
-- CouchDB
-- Crystal & Lucky Framework
-- Elasticsearch
-- EventStoreDB
-- Flyway
-- Gearman
-- Go
-- Grafana
-- InfluxDB
-- Logstash
-- MariaDB
-- Meilisearch
-- MinIO
-- MongoDB
-- Neo4j
-- Oh My Zsh
-- Open Resty
-- PM2
-- Python
-- R
-- RabbitMQ
-- Rust
-- RVM (Ruby Version Manager)
-- Solr
-- TimescaleDB
-- Trader <small>(PHP extension)</small>
-- Webdriver & Laravel Dusk Utilities
--->
+<!-- - Apache - Blackfire - Cassandra - Chronograf - CouchDB - Crystal & Lucky Framework - Elasticsearch - EventStoreDB - Flyway - Gearman - Go - Grafana - InfluxDB - Logstash - MariaDB - Meilisearch - MinIO - MongoDB - Neo4j - Oh My Zsh - Open Resty - PM2 - Python - R - RabbitMQ - Rust - RVM (Ruby Version Manager) - Solr - TimescaleDB - Trader <small>(PHP extension)</small> - Webdriver & Laravel Dusk Utilities -->
 - Apache
 - Blackfire
 - Cassandra
@@ -196,7 +131,6 @@ Homestead は Windows、macOS、または Linux システム上で実行でき�
 - Trader <small>(PHP 拡張機能)</small>
 - Webdriver と Laravel Dusk ユーティリティ
 
-<!-- </div> -->
 </div>
 
 <a name="installation-and-setup"></a>
@@ -210,10 +144,7 @@ Homestead は Windows、macOS、または Linux システム上で実行でき�
 <!-- Before launching your Homestead environment, you must install [Vagrant](https://developer.hashicorp.com/vagrant/downloads) as well as one of the following supported providers: -->
 Homestead 環境を起動する前に、[Vagrant](https://developer.hashicorp.com/vagrant/downloads) と次のサポートされているプロバイダのいずれかをインストールする必要があります。
 
-<!--
-- [VirtualBox 6.1.x](https://www.virtualbox.org/wiki/Download_Old_Builds_6_1)
-- [Parallels](https://www.parallels.com/products/desktop/)
--->
+<!-- - [VirtualBox 6.1.x](https://www.virtualbox.org/wiki/Download_Old_Builds_6_1) - [Parallels](https://www.parallels.com/products/desktop/) -->
 - [VirtualBox 6.1.x](https://www.virtualbox.org/wiki/Download_Old_Builds_6_1)
 - [Parallels](https://www.parallels.com/products/desktop/)
 
@@ -228,7 +159,7 @@ Parallels プロバイダを使用するには、[Parallels Vagrant plug-in](htt
 #### Installing Homestead
 
 <!-- You may install Homestead by cloning the Homestead repository onto your host machine. Consider cloning the repository into a `Homestead` folder within your "home" directory, as the Homestead virtual machine will serve as the host to all of your Laravel applications. Throughout this documentation, we will refer to this directory as your "Homestead directory": -->
-Homestead リポジトリをホスト マシンに複製することで、Homestead をインストールできます。 Homestead仮想マシンはすべてのLaravelアプリケーションのホストとして機能するため、「ホーム」ディレクトリ内の`Homestead`フォルダーにリポジトリのクローンを作成することを検討してください。このドキュメントでは、このディレクトリを「Homestead ディレクトリ」と呼びます。
+Homestead リポジトリをホスト マシンに複製することで、Homestead をインストールできます。 Homestead仮想マシンはすべてのLaravelアプリケーションのホストとして機能するため、「ホーム」ディレクトリ内の `Homestead` フォルダーにリポジトリのクローンを作成することを検討してください。このドキュメントでは、このディレクトリを「Homestead ディレクトリ」と呼びます。
 
 ```shell
 git clone https://github.com/laravel/homestead.git ~/Homestead
@@ -486,8 +417,8 @@ Elasticsearch のサポートされているバージョンを指定できます
 <!-- #### MariaDB -->
 #### MariaDB
 
-<!-- Enabling MariaDB will remove MySQL and install MariaDB. MariaDB typically serves as a drop-in replacement for MySQL, so you should still use the `mysql` database driver in your application's database configuration. -->
-MariaDB を有効にすると、MySQL が削除され、MariaDB がインストールされます。 MariaDB は通常、MySQL のドロップイン代替として機能するため、アプリケーションのデータベース構成では引き続き `mysql` データベース ドライバを使用する必要があります。
+<!-- Enabling MariaDB will remove MySQL and install MariaDB. Your application should use the `mariadb` database driver rather than `mysql`: both will connect, but only the `mariadb` driver emits MariaDB-specific SQL, such as vector distance queries. -->
+MariaDB を有効にすると、MySQL が削除され、MariaDB がインストールされます。アプリケーションでは `mysql` ではなく `mariadb` データベースドライバを使用してください。どちらでも接続できますが、ベクトル距離クエリなど、MariaDB 固有の SQL を生成するのは `mariadb` ドライバだけです。
 
 <a name="mongodb"></a>
 <!-- #### MongoDB -->
@@ -671,17 +602,12 @@ variables:
 <!-- By default, the following ports are forwarded to your Homestead environment: -->
 デフォルトでは、次のポートが Homestead 環境に転送されます。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- **HTTP:** 8000 &rarr; Forwards To 80
-- **HTTPS:** 44300 &rarr; Forwards To 443
--->
+<!-- - **HTTP:** 8000 &rarr; Forwards To 80 - **HTTPS:** 44300 &rarr; Forwards To 443 -->
 - **HTTP:** 8000 → 80 に転送
 - **HTTPS:** 44300 → 443 に転送
 
-<!-- </div> -->
 </div>
 
 <a name="forwarding-additional-ports"></a>
@@ -703,18 +629,9 @@ ports:
 <!-- Below is a list of additional Homestead service ports that you may wish to map from your host machine to your Vagrant box: -->
 以下は、ホスト マシンから Vagrant ボックスにマッピングする追加の Homestead サービス ポートのリストです。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- **SSH:** 2222 &rarr; To 22
-- **ngrok UI:** 4040 &rarr; To 4040
-- **MySQL:** 33060 &rarr; To 3306
-- **PostgreSQL:** 54320 &rarr; To 5432
-- **MongoDB:** 27017 &rarr; To 27017
-- **Mailpit:** 8025 &rarr; To 8025
-- **Minio:** 9600 &rarr; To 9600
--->
+<!-- - **SSH:** 2222 &rarr; To 22 - **ngrok UI:** 4040 &rarr; To 4040 - **MySQL:** 33060 &rarr; To 3306 - **PostgreSQL:** 54320 &rarr; To 5432 - **MongoDB:** 27017 &rarr; To 27017 - **Mailpit:** 8025 &rarr; To 8025 - **Minio:** 9600 &rarr; To 9600 -->
 - **SSH:** 2222 → 22 へ
 - **ngrok UI:** 4040 → 4040 へ
 - **MySQL:** 33060 → 3306 へ
@@ -723,7 +640,6 @@ ports:
 - **Mailpit:** 8025 → 8025 へ
 - **Minio:** 9600 → 9600へ
 
-<!-- </div> -->
 </div>
 
 <a name="php-versions"></a>
@@ -1069,4 +985,3 @@ sudo apt-get -y \
 provider: virtualbox
 natdnshostresolver: 'off'
 ```
-

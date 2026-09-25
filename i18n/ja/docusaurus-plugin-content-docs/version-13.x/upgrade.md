@@ -269,8 +269,8 @@ MariaDB および MySQL データベース ドライバは `uniqueBy` 値を無�
 <!-- Laravel now compiles full `DELETE ... JOIN` queries including `ORDER BY` and `LIMIT` for MySQL grammar. -->
 Laravel は、MySQL 文法用の `ORDER BY` および `LIMIT` を含む完全な `DELETE ... JOIN` クエリをコンパイルするようになりました。
 
-<!-- In previous versions, `ORDER BY` / `LIMIT` clauses could be silently ignored on joined deletes. In Laravel 13, these clauses are included in the generated SQL. As a result, database engines that do not support this syntax (such as standard MySQL / MariaDB variants) may now throw a `QueryException` instead of executing an unbounded delete. -->
-以前のバージョンでは、結合削除時に `ORDER BY` / `LIMIT` 句がサイレントに無視される可能性がありました。 Laravel 13 では、これらの句は生成される SQL に含まれます。その結果、この構文をサポートしないデータベース エンジン (標準の MySQL / MariaDB バリアントなど) は、無制限の削除を実行する代わりに `QueryException` をスローする可能性があります。
+<!-- In previous versions, `ORDER BY` / `LIMIT` clauses could be silently ignored on joined deletes. In Laravel 13, these clauses are included in the generated SQL. As a result, database engines that do not support this syntax (MySQL, and MariaDB before 11.8.1) may now throw a `QueryException` instead of executing an unbounded delete. -->
+以前のバージョンでは、結合削除時に `ORDER BY` / `LIMIT` 句が黙って無視される可能性がありました。Laravel 13 では、これらの句が生成される SQL に含まれます。その結果、この構文をサポートしていないデータベースエンジン（MySQL、および 11.8.1 より前の MariaDB）では、無制限の削除を実行する代わりに `QueryException` がスローされる可能性があります。
 
 <a name="eloquent"></a>
 <!-- ### Eloquent -->
