@@ -239,8 +239,26 @@ BROADCAST_CONNECTION=ably
 <!-- ### Mercure -->
 ### Mercure
 
-<!-- [Mercure](https://mercure.rocks) is a real-time protocol that uses server-sent events. To broadcast events through a Mercure hub, configure the `mercure` connection in your application's `.env` file: -->
-[Mercure](https://mercure.rocks) は、サーバー送信イベントを使用するリアルタイムプロトコルです。Mercure ハブを介してイベントをブロードキャストするには、アプリケーションの `.env` ファイルで `mercure` 接続を設定します。
+<!-- To quickly enable support for Laravel's broadcasting features while using Mercure as your event broadcaster, invoke the `install:broadcasting` Artisan command with the `--mercure` option. This Artisan command will prompt you for your Mercure credentials, install the Mercure PHP and JavaScript SDKs, and update your application's `.env` file with the appropriate variables: -->
+Mercure をイベントブロードキャスタとして使用しながら Laravel のブロードキャスト機能をすばやく有効にするには、`--mercure` オプションを指定して `install:broadcasting` Artisan コマンドを実行します。この Artisan コマンドは Mercure の認証情報を尋ね、Mercure の PHP および JavaScript SDK をインストールし、適切な変数でアプリケーションの `.env` ファイルを更新します。
+
+```shell
+php artisan install:broadcasting --mercure
+```
+
+<a name="mercure-manual-installation"></a>
+<!-- #### Manual Installation -->
+#### Manual Installation
+
+<!-- To install Mercure support manually, you should install the Symfony Mercure component and the JWT library: -->
+Mercure のサポートを手動でインストールするには、Symfony Mercure コンポーネントと JWT ライブラリをインストールします。
+
+```shell
+composer require symfony/mercure:^0.8 web-token/jwt-library:^4.1
+```
+
+<!-- Next, you should configure the Mercure connection in your application's `.env` file: -->
+次に、アプリケーションの `.env` ファイルで Mercure 接続を設定します。
 
 ```ini
 BROADCAST_CONNECTION=mercure
@@ -259,6 +277,9 @@ MERCURE_JWT_SECRET=<your-mercure-jwt-secret>
 ```ini
 MERCURE_ENCRYPTION_KEY=<your-32-byte-encryption-key>
 ```
+
+<!-- Finally, you are ready to install and configure [Laravel Echo](#client-side-installation), which will receive the broadcast events on the client-side. -->
+最後に、クライアント側でブロードキャストイベントを受信する [Laravel Echo](#client-side-installation) をインストールして設定する準備が整いました。
 
 <a name="client-side-installation"></a>
 <!-- ## Client Side Installation -->

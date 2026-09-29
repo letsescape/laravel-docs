@@ -458,7 +458,7 @@ return $results['first']->output();
 プロセス プールの `running` メソッドは、プール内で呼び出されたすべてのプロセスのコレクションを提供するため、基になるプールのプロセス ID に簡単にアクセスできます。
 
 ```php
-$processIds = $pool->running()->each->id();
+$processIds = $pool->running()->map->id();
 ```
 
 <!-- And, for convenience, you may invoke the `signal` method on a process pool to send a signal to every process within the pool: -->

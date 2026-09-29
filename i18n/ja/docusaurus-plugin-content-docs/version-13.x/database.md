@@ -21,23 +21,15 @@
 <!-- Almost every modern web application interacts with a database. Laravel makes interacting with databases extremely simple across a variety of supported databases using raw SQL, a [fluent query builder](/docs/13.x/queries), and the [Eloquent ORM](/docs/13.x/eloquent). Currently, Laravel provides first-party support for five databases: -->
 ほとんどすべての最新の Web アプリケーションはデータベースと対話します。 Laravel では、生の SQL、[fluent query builder](/docs/13.x/queries)、および [Eloquent ORM](/docs/13.x/eloquent) を使用して、サポートされているさまざまなデータベース間でデータベースとの対話を非常に簡単にします。現在、Laravel は次の 5 つのデータベースのファーストパーティ サポートを提供しています。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- MariaDB 10.3+ ([Version Policy](https://mariadb.org/about/#maintenance-policy))
-- MySQL 5.7+ ([Version Policy](https://en.wikipedia.org/wiki/MySQL#Release_history))
-- PostgreSQL 10.0+ ([Version Policy](https://www.postgresql.org/support/versioning/))
-- SQLite 3.26.0+
-- SQL Server 2017+ ([Version Policy](https://docs.microsoft.com/en-us/lifecycle/products/?products=sql-server))
--->
+<!-- - MariaDB 10.3+ ([Version Policy](https://mariadb.org/about/#maintenance-policy)) - MySQL 5.7+ ([Version Policy](https://en.wikipedia.org/wiki/MySQL#Release_history)) - PostgreSQL 10.0+ ([Version Policy](https://www.postgresql.org/support/versioning/)) - SQLite 3.26.0+ - SQL Server 2017+ ([Version Policy](https://docs.microsoft.com/en-us/lifecycle/products/?products=sql-server)) -->
 - MariaDB 10.3+ ([Version Policy](https://mariadb.org/about/#maintenance-policy))
 - MySQL 5.7+ ([Version Policy](https://en.wikipedia.org/wiki/MySQL#Release_history))
 - PostgreSQL 10.0+ ([Version Policy](https://www.postgresql.org/support/versioning/))
 - SQLite 3.26.0+
 - SQL Server 2017+ ([Version Policy](https://docs.microsoft.com/en-us/lifecycle/products/?products=sql-server))
 
-<!-- </div> -->
 </div>
 
 <!-- Additionally, MongoDB is supported via the `mongodb/laravel-mongodb` package, which is officially maintained by MongoDB. Check out the [Laravel MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/) documentation for more information. -->
@@ -279,7 +271,7 @@ $burgers = DB::scalar(
 
 ```php
 [$options, $notifications] = DB::selectResultSets(
-    "CALL get_user_options_and_notifications(?)", $request->user()->id
+    "CALL get_user_options_and_notifications(?)", [$request->user()->id]
 );
 ```
 
@@ -650,4 +642,3 @@ public function boot(): void
     });
 }
 ```
-

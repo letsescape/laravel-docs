@@ -2213,8 +2213,8 @@ Validator::make($data, [
 <!-- #### image -->
 #### image
 
-<!-- The file under validation must be an image (jpg, jpeg, png, bmp, gif, or webp). -->
-유효성 검증 중인 파일은 이미지(jpg, jpeg, png, bmp, gif 또는 webp)여야 합니다.
+<!-- The file under validation must be an image (jpg, jpeg, png, bmp, gif, webp, avif, heic, or heif). -->
+유효성 검증 중인 파일은 이미지(jpg, jpeg, png, bmp, gif, webp, avif, heic 또는 heif)여야 합니다.
 
 > [!WARNING]
 > 기본적으로 image 규칙은 XSS 취약점 가능성 때문에 SVG 파일을 허용하지 않습니다. SVG 파일을 허용해야 하는 경우 `image` 규칙에 `allow_svg` 지시어를 제공할 수 있습니다(`image:allow_svg`).
@@ -3306,8 +3306,8 @@ File::types(['mp3', 'wav'])
 <!-- #### Validating Image Files -->
 #### Validating Image Files
 
-<!-- If your application accepts images uploaded by your users, you may use the `File` rule's `image` constructor method to ensure that the file under validation is an image (jpg, jpeg, png, bmp, gif, or webp). -->
-애플리케이션이 사용자가 업로드한 이미지를 받는 경우, `File` 규칙의 `image` 생성자 메서드를 사용해 유효성 검증 중인 파일이 이미지(jpg, jpeg, png, bmp, gif 또는 webp)인지 확인할 수 있습니다.
+<!-- If your application accepts images uploaded by your users, you may use the `File` rule's `image` constructor method to ensure that the file under validation is an image (jpg, jpeg, png, bmp, gif, webp, avif, heic, or heif). -->
+애플리케이션이 사용자가 업로드한 이미지를 받는 경우, `File` 규칙의 `image` 생성자 메서드를 사용해 유효성 검증 중인 파일이 이미지(jpg, jpeg, png, bmp, gif, webp, avif, heic 또는 heif)인지 확인할 수 있습니다.
 
 <!-- In addition, the `dimensions` rule may be used to limit the dimensions of the image: -->
 또한 `dimensions` 규칙을 사용해 이미지의 크기를 제한할 수 있습니다.

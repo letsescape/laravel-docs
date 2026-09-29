@@ -1851,6 +1851,26 @@ class ProcessPodcast implements ShouldQueue
 <!-- In this example, the job is released for ten seconds if the application is unable to obtain a Redis lock and will continue to be retried up to 25 times. However, the job will fail if three unhandled exceptions are thrown by the job. -->
 이 예제에서는 애플리케이션이 Redis 락을 획득하지 못하면 작업을 10초 뒤에 다시 시도하도록 큐에 반환하며, 최대 25번까지 계속 재시도합니다. 하지만 작업에서 처리되지 않은 예외가 세 번 발생하면 해당 작업은 실패합니다.
 
+<!-- By default, an attempt that ends because the worker process crashed or was killed, such as when it runs out of memory, does not count towards the job's maximum number of exceptions. If you would like these attempts to count as an exception, you may add the `CountCrashesAsExceptions` attribute to your job class: -->
+기본적으로 메모리 부족 등으로 워커 프로세스가 충돌하거나 종료되어 끝난 시도는 작업의 최대 예외 횟수에 포함되지 않습니다. 이러한 시도도 예외로 계산하려면 작업 클래스에 `CountCrashesAsExceptions` 속성을 추가하면 됩니다.
+
+```php
+use Illuminate\Queue\Attributes\CountCrashesAsExceptions;
+use Illuminate\Queue\Attributes\MaxExceptions;
+use Illuminate\Queue\Attributes\Tries;
+
+#[Tries(25)]
+#[MaxExceptions(3)]
+#[CountCrashesAsExceptions]
+class ProcessPodcast implements ShouldQueue
+{
+    // ...
+}
+```
+
+<!-- When this attribute is present, the worker stores a marker in your application's cache while the job is processing. If the marker still exists when the job is next attempted, the previous attempt is counted as an exception. -->
+이 속성이 있으면 워커는 작업을 처리하는 동안 애플리케이션의 캐시에 표시를 저장합니다. 작업을 다음에 시도할 때 이 표시가 여전히 존재하면 이전 시도는 예외로 계산됩니다.
+
 <a name="stopping-retries-by-exception"></a>
 <!-- #### Stopping Retries by Exception -->
 #### Stopping Retries by Exception

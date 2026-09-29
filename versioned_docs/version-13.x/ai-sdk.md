@@ -6,6 +6,7 @@
     - [Configuration](#configuration)
     - [Custom Base URLs](#custom-base-urls)
     - [OpenAI-Compatible Providers](#openai-compatible-providers)
+    - [On-Demand Providers](#on-demand-providers)
     - [Provider Support](#provider-support)
 - [Agents](#agents)
     - [Prompting](#prompting)
@@ -38,6 +39,8 @@
     - [Caching Embeddings](#caching-embeddings)
 - [Reranking](#reranking)
 - [Classification](#classification)
+    - [Yes or No Decisions](#yes-or-no-decisions)
+    - [Choosing From Collections](#choosing-from-collections)
 - [Files](#files)
 - [Vector Stores](#vector-stores)
     - [Adding Files to Stores](#adding-files-to-stores)
@@ -249,6 +252,55 @@ OpenAI 호환 프로바이더는 텍스트 생성, 스트리밍, 툴, 구조화 
 
 > [!NOTE]
 > OpenAI-compatible 및 Groq 프로바이더는 화자 분리를 지원하지 않습니다. 이러한 프로바이더를 사용할 때 `diarize` 메서드를 호출하면 예외가 발생합니다.
+
+<a name="on-demand-providers"></a>
+<!-- ### On-Demand Providers -->
+### On-Demand Providers
+
+<!-- Sometimes you may need to use provider credentials that are not defined in your application's configuration file, such as API keys that are stored in your database for each tenant of a multi-tenant application. You may use the `Ai::build` method to create a provider from a configuration array. The array should have the same structure as a provider entry in your application's `config/ai.php` configuration file: -->
+멀티테넌트 애플리케이션의 각 테넌트에 대해 데이터베이스에 저장된 API 키처럼 애플리케이션의 설정 파일에 정의되지 않은 프로바이더 자격 증명을 사용해야 할 때가 있습니다. 설정 배열에서 프로바이더를 생성하려면 `Ai::build` 메서드를 사용할 수 있습니다. 이 배열은 애플리케이션의 `config/ai.php` 설정 파일에 있는 프로바이더 항목과 같은 구조여야 합니다.
+
+```php
+use App\Ai\Agents\SalesCoach;
+use Laravel\Ai\Ai;
+
+$response = (new SalesCoach)->prompt('Analyze this sales transcript...', provider: [
+    Ai::build([
+        'driver' => 'anthropic',
+        'key' => $user->anthropic_key,
+    ]),
+]);
+```
+
+<!-- On-demand providers may be used anywhere a provider is accepted, including [failover](#failover) lists and when generating images, audio, transcriptions, and embeddings. To specify a model for an on-demand provider, include a `models` array in its configuration: -->
+온디맨드 프로바이더는 프로바이더를 허용하는 모든 곳에서 사용할 수 있으며, 여기에는 [failover](#failover) 목록과 이미지, 오디오, 전사 및 임베딩을 생성하는 경우가 포함됩니다. 온디맨드 프로바이더에 사용할 모델을 지정하려면 설정에 `models` 배열을 포함하세요.
+
+```php
+$response = (new SalesCoach)->prompt('Analyze this sales transcript...', provider: [
+    Ai::build(['driver' => 'anthropic', 'key' => $user->anthropic_key]),
+    Ai::build([
+        'driver' => 'openai',
+        'key' => $user->openai_key,
+        'models' => ['text' => ['default' => 'gpt-6']],
+    ]),
+]);
+```
+
+<!-- When an agent should always use an on-demand provider, you may return the provider from the agent's `provider` method. Since the provider is rebuilt when the agent is used, this approach also works well for [queued](#queueing) agents: -->
+에이전트가 항상 온디맨드 프로바이더를 사용해야 한다면 에이전트의 `provider` 메서드에서 프로바이더를 반환할 수 있습니다. 에이전트를 사용할 때 프로바이더가 다시 생성되므로 이 방식은 [queued](#queueing) 에이전트에도 잘 맞습니다.
+
+```php
+use Laravel\Ai\Ai;
+use Laravel\Ai\Providers\Provider;
+
+public function provider(): Provider
+{
+    return Ai::build($this->user->aiConfiguration());
+}
+```
+
+> [!NOTE]
+> 위 예시와 같이 온디맨드 프로바이더는 배열 안에 전달해야 합니다. 온디맨드 프로바이더의 설정 배열에 `name`을 지정하는 경우, 해당 이름이 기본 제공 프로바이더 또는 `config/ai.php` 설정 파일에 정의된 프로바이더와 일치하지 않을 수 있습니다.
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -2947,6 +2999,10 @@ $result->usage;
 $result->meta->provider;
 ```
 
+<a name="yes-or-no-decisions"></a>
+<!-- ### Yes or No Decisions -->
+### Yes or No Decisions
+
 <!-- For a single yes or no decision, you may use the `decide` method available via Laravel's `Stringable` class, which returns a boolean instead of a full response. You may describe what a "yes" and a "no" mean, and specify the probability the answer must reach, which defaults to `0.5`: -->
 단일 예/아니요 결정을 내려야 한다면 `Stringable` 클래스에서 사용할 수 있는 `decide` 메서드를 사용할 수 있습니다. 이 메서드는 전체 응답 대신 불리언을 반환합니다. "예"와 "아니요"가 의미하는 내용을 설명하고, 답변이 도달해야 하는 확률을 지정할 수도 있으며, 기본값은 `0.5`입니다:
 
@@ -2962,27 +3018,50 @@ $spam = Str::of($message)->decide('Is this spam?', criteria: [
     'false' => 'A genuine message from a customer.',
 ], threshold: 0.9);
 ```
+<a name="choosing-from-collections"></a>
+<!-- ### Choosing From Collections -->
+### Choosing From Collections
 
-<!-- By default, classification is performed by [TypeSafe](https://typesafe.ai). You may change this using the `default_for_classification` option within your application's `config/ai.php` configuration file. You may also specify the provider and model when classifying: -->
-기본적으로 분류는 [TypeSafe](https://typesafe.ai)가 수행합니다. 애플리케이션의 `config/ai.php` 설정 파일에서 `default_for_classification` 옵션을 사용해 이를 변경할 수 있습니다. 분류할 때 프로바이더와 모델을 지정할 수도 있습니다.
+<!-- To quickly choose a single item from a list of options, you may use the `decide` method available on Laravel's `Collection` class. The method accepts a question and the text to classify, and returns the chosen item from the collection. -->
+옵션 목록에서 항목 하나를 빠르게 선택하려면 Laravel의 `Collection` 클래스에서 제공하는 `decide` 메서드를 사용할 수 있습니다. 이 메서드는 질문과 분류할 텍스트를 받아 컬렉션에서 선택한 항목을 반환합니다.
+
+<!-- Collections of strings and enums may be used directly, while other items should be named using the `by` argument. You may also provide a field, array of fields, or closure via the `describe` argument to give the model more detail about each option: -->
+문자열과 enum으로 구성된 컬렉션은 직접 사용할 수 있으며, 그 외의 항목은 `by` 인수를 사용해 이름을 지정해야 합니다. `describe` 인수를 통해 필드, 필드 배열 또는 클로저를 제공하면 각 옵션에 대한 더 자세한 정보를 모델에 전달할 수도 있습니다.
 
 ```php
-use Laravel\Ai\Enums\Lab;
+$department = collect(['billing', 'technical', 'sales'])
+    ->decide('Which team should handle this request?', $ticket->body);
 
-$result = Classification::of($supportRequest)
-    ->questions($questions)
-    ->classify(Lab::OpenRouter, 'model-name');
+$priority = collect(Priority::cases())
+    ->decide('How urgent is this request?', $ticket->body);
+
+$department = Department::all()->decide(
+    'Which department should handle this request?',
+    $ticket->body,
+    by: 'name',
+    describe: 'description',
+);
 ```
 
-<!-- The `timeout` method may be used to specify the HTTP timeout in seconds, which defaults to 30. [Provider options](#provider-options) and custom headers may be given as well: -->
-`timeout` 메서드를 사용하면 HTTP 타임아웃을 초 단위로 지정할 수 있으며, 기본값은 30초입니다. [Provider options](#provider-options)과 사용자 지정 헤더도 지정할 수 있습니다.
+<!-- The description defined via the `describe` argument serves as the criteria the model uses to determine whether the text matches that option, which is helpful when an option's name alone is ambiguous. When a closure is provided to the `describe` argument, it receives each item and should return a string or array describing it: -->
+`describe` 인수를 통해 정의한 설명은 모델이 텍스트가 해당 옵션과 일치하는지 판단할 때 사용하는 기준이 됩니다. 따라서 옵션 이름만으로는 의미가 모호한 경우에 유용합니다. `describe` 인수에 클로저를 전달하면 클로저는 각 항목을 받아 해당 항목을 설명하는 문자열 또는 배열을 반환해야 합니다.
 
 ```php
-$result = Classification::of($supportRequest)
-    ->questions($questions)
-    ->timeout(60)
-    ->withProviderOptions(['temperature' => 0])
-    ->classify();
+$priority = collect(Priority::cases())->decide(
+    'How urgent is this request?',
+    $ticket->body,
+    describe: fn (Priority $priority) => $priority->description(),
+);
+```
+
+<!-- When a collection of strings is keyed by strings, its keys are used as the options and its values as their descriptions, and the chosen key is returned. If a `threshold` is given and the probability of the chosen option is below it, `null` is returned: -->
+문자열 키로 구성된 문자열 컬렉션을 사용하면 키가 옵션으로, 값이 해당 옵션의 설명으로 사용되며 선택된 키가 반환됩니다. `threshold`를 지정하고 선택된 옵션의 확률이 해당 임계값보다 낮으면 `null`이 반환됩니다.
+
+```php
+$department = collect([
+    'billing' => 'Payments, invoices, and refunds',
+    'technical' => 'Bugs, outages, and integrations',
+])->decide('Which team should handle this request?', $ticket->body, threshold: 0.6) ?? 'triage';
 ```
 
 <a name="files"></a>

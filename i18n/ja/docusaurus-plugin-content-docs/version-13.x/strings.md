@@ -4584,7 +4584,7 @@ Str::of('Laravel')->wrap('"');
 
 // "Laravel"
 
-Str::is('is')->wrap(before: 'This ', after: ' Laravel!');
+Str::of('is')->wrap(before: 'This ', after: ' Laravel!');
 
 // This is Laravel!
 ```

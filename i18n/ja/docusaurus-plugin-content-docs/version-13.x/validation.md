@@ -2217,8 +2217,8 @@ Validator::make($data, [
 <!-- #### image -->
 #### image
 
-<!-- The file under validation must be an image (jpg, jpeg, png, bmp, gif, or webp). -->
-検証対象のファイルは画像 (jpg、jpeg、png、bmp、gif、または webp) である必要があります。
+<!-- The file under validation must be an image (jpg, jpeg, png, bmp, gif, webp, avif, heic, or heif). -->
+検証対象のファイルは、jpg、jpeg、png、bmp、gif、webp、avif、heic、または heif 形式の画像である必要があります。
 
 > [!WARNING]
 > デフォルトでは、XSS 脆弱性の可能性があるため、画像ルールは SVG ファイルを許可しません。 SVG ファイルを許可する必要がある場合は、`allow_svg` ディレクティブを `image` ルール (`image:allow_svg`) に指定できます。
@@ -3312,8 +3312,8 @@ File::types(['mp3', 'wav'])
 <!-- #### Validating Image Files -->
 #### Validating Image Files
 
-<!-- If your application accepts images uploaded by your users, you may use the `File` rule's `image` constructor method to ensure that the file under validation is an image (jpg, jpeg, png, bmp, gif, or webp). -->
-アプリケーションがユーザーによってアップロードされた画像を受け入れる場合、`File` ルールの `image` コンストラクター メソッドを使用して、検証中のファイルが画像 (jpg、jpeg、png、bmp、gif、または webp) であることを確認できます。
+<!-- If your application accepts images uploaded by your users, you may use the `File` rule's `image` constructor method to ensure that the file under validation is an image (jpg, jpeg, png, bmp, gif, webp, avif, heic, or heif). -->
+アプリケーションでユーザーがアップロードした画像を受け付ける場合は、`File` ルールの `image` コンストラクタメソッドを使用して、バリデーション対象のファイルが画像（jpg、jpeg、png、bmp、gif、webp、avif、heic、または heif）であることを確認できます。
 
 <!-- In addition, the `dimensions` rule may be used to limit the dimensions of the image: -->
 さらに、`dimensions` ルールを使用して画像のサイズを制限することもできます。

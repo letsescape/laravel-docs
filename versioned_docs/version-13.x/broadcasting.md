@@ -239,8 +239,26 @@ BROADCAST_CONNECTION=ably
 <!-- ### Mercure -->
 ### Mercure
 
-<!-- [Mercure](https://mercure.rocks) is a real-time protocol that uses server-sent events. To broadcast events through a Mercure hub, configure the `mercure` connection in your application's `.env` file: -->
-[Mercure](https://mercure.rocks)는 서버 전송 이벤트를 사용하는 실시간 프로토콜입니다. Mercure 허브를 통해 이벤트를 브로드캐스트하려면 애플리케이션의 `.env` 파일에서 `mercure` 연결을 구성합니다:
+<!-- To quickly enable support for Laravel's broadcasting features while using Mercure as your event broadcaster, invoke the `install:broadcasting` Artisan command with the `--mercure` option. This Artisan command will prompt you for your Mercure credentials, install the Mercure PHP and JavaScript SDKs, and update your application's `.env` file with the appropriate variables: -->
+Mercure를 이벤트 브로드캐스터로 사용하면서 Laravel의 브로드캐스팅 기능을 빠르게 활성화하려면 `--mercure` 옵션과 함께 `install:broadcasting` Artisan 명령어를 실행합니다. 이 Artisan 명령어는 Mercure 자격 증명을 입력하도록 요청하고, Mercure PHP 및 JavaScript SDK를 설치하며, 애플리케이션의 `.env` 파일을 적절한 변수로 업데이트합니다:
+
+```shell
+php artisan install:broadcasting --mercure
+```
+
+<a name="mercure-manual-installation"></a>
+<!-- #### Manual Installation -->
+#### Manual Installation
+
+<!-- To install Mercure support manually, you should install the Symfony Mercure component and the JWT library: -->
+Mercure 지원을 수동으로 설치하려면 Symfony Mercure 컴포넌트와 JWT 라이브러리를 설치해야 합니다:
+
+```shell
+composer require symfony/mercure:^0.8 web-token/jwt-library:^4.1
+```
+
+<!-- Next, you should configure the Mercure connection in your application's `.env` file: -->
+다음으로 애플리케이션의 `.env` 파일에서 Mercure 연결을 구성해야 합니다:
 
 ```ini
 BROADCAST_CONNECTION=mercure
@@ -259,6 +277,9 @@ MERCURE_JWT_SECRET=<your-mercure-jwt-secret>
 ```ini
 MERCURE_ENCRYPTION_KEY=<your-32-byte-encryption-key>
 ```
+
+<!-- Finally, you are ready to install and configure [Laravel Echo](#client-side-installation), which will receive the broadcast events on the client-side. -->
+마지막으로, 클라이언트 측에서 브로드캐스트 이벤트를 수신할 [Laravel Echo](#client-side-installation)를 설치하고 설정할 준비가 되었습니다.
 
 <a name="client-side-installation"></a>
 <!-- ## Client Side Installation -->

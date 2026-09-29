@@ -380,8 +380,8 @@ $dominantColor = $image->dominantColor();
 <!-- Laravel's image manager extends Laravel's base `Illuminate\Support\Manager` class. This means you may register custom image drivers using the `extend` method available on the image manager and `Image` facade. -->
 Laravel のイメージマネージャは、Laravel の基底クラスである `Illuminate\Support\Manager` を継承しています。これにより、イメージマネージャと `Image` ファサードで利用できる `extend` メソッドを使って、カスタムイメージドライバを登録できます。
 
-<!-- Custom image drivers should implement the `Illuminate\Contracts\Image\Driver` interface. The `process` method receives the original image contents and the ordered `Illuminate\Image\ImagePipeline` that should be applied to the image, and should return the processed image bytes: -->
-カスタム画像ドライバは、`Illuminate\Contracts\Image\Driver` インターフェースを実装する必要があります。`process` メソッドは元の画像コンテンツと、画像に適用する順序付けられた `Illuminate\Image\ImagePipeline` を受け取り、処理済みの画像バイト列を返します。
+<!-- Custom image drivers should implement the `Illuminate\Contracts\Image\Driver` interface. The `process` method receives the original image contents and the ordered `Illuminate\Image\ImagePipeline` that should be applied to the image, and should return the processed image bytes. The `dimensions` method should return the image's width and height, while the `dominantColor` method should return the image's average color as a hex string: -->
+カスタム画像ドライバは、`Illuminate\Contracts\Image\Driver` インターフェースを実装する必要があります。`process` メソッドは元の画像コンテンツと、画像に適用する順序付けられた `Illuminate\Image\ImagePipeline` を受け取り、処理済みの画像バイト列を返します。`dimensions` メソッドは画像の幅と高さを返し、`dominantColor` メソッドは画像の平均色を16進数文字列として返す必要があります。
 
 ```php
 <?php
@@ -401,6 +401,26 @@ class VipsDriver implements Driver
         // Apply the pipeline's transformations and output options...
 
         return $contents;
+    }
+
+    /**
+     * Get the dimensions of the given image contents.
+     */
+    public function dimensions(string $contents): array
+    {
+        // Read the image's width and height...
+
+        return [0, 0];
+    }
+
+    /**
+     * Get the dominant (average) color of the image as a hex string.
+     */
+    public function dominantColor(string $contents): string
+    {
+        // Calculate the image's average color...
+
+        return '#000000';
     }
 
     /**

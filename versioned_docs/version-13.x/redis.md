@@ -42,7 +42,7 @@ composer require predis/predis
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
     ],
 
     'default' => [
@@ -76,7 +76,7 @@ composer require predis/predis
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
     ],
 
     'default' => [
@@ -123,7 +123,7 @@ composer require predis/predis
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
     ],
 
     'clusters' => [
@@ -332,7 +332,7 @@ PhpRedis 확장 프로그램은 다양한 직렬화(serializer) 및 압축(compr
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
         'serializer' => Redis::SERIALIZER_MSGPACK,
         'compression' => Redis::COMPRESSION_LZ4,
     ],

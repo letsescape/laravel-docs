@@ -365,7 +365,7 @@ class UserResource extends JsonResource
 use App\Models\User;
 
 Route::get('/user/{id}', function (string $id) {
-    return User::findOrFail($id)->toUserResource();
+    return User::findOrFail($id)->toResource();
 });
 ```
 
@@ -1440,4 +1440,3 @@ class UserResource extends JsonResource
     }
 }
 ```
-

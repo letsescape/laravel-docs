@@ -457,7 +457,7 @@ return $results['first']->output();
 프로세스 풀의 `running` 메서드는 풀 안에서 호출된 모든 프로세스의 컬렉션을 제공하므로, 기본 풀 프로세스 ID에 쉽게 접근할 수 있습니다.
 
 ```php
-$processIds = $pool->running()->each->id();
+$processIds = $pool->running()->map->id();
 ```
 
 <!-- And, for convenience, you may invoke the `signal` method on a process pool to send a signal to every process within the pool: -->

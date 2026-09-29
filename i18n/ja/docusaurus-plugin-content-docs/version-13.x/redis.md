@@ -42,7 +42,7 @@ composer require predis/predis
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
     ],
 
     'default' => [
@@ -76,7 +76,7 @@ Redis 接続を表す単一の URL を定義しない限り、構成ファイル
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
     ],
 
     'default' => [
@@ -123,7 +123,7 @@ Redis 接続を表す単一の URL を定義しない限り、構成ファイル
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
     ],
 
     'clusters' => [
@@ -331,7 +331,7 @@ PhpRedis 拡張機能は、さまざまなシリアライザーや圧縮アル�
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
         'serializer' => Redis::SERIALIZER_MSGPACK,
         'compression' => Redis::COMPRESSION_LZ4,
     ],

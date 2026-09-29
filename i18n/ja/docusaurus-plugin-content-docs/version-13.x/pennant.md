@@ -378,7 +378,7 @@ if ($user->features()->active('new-api')) {
 
 ```php
 // Values...
-$value = $user->features()->value('purchase-button')
+$value = $user->features()->value('purchase-button');
 $values = $user->features()->values(['new-api', 'purchase-button']);
 
 // State...
