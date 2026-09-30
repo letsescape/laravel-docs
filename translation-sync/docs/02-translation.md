@@ -70,7 +70,7 @@ flowchart TD
 | 파일 상태 | 총괄 단계에서 확정한 `A` 또는 `M`. `D`는 provider 없이 총괄 단계에서 처리 |
 | 설정 확인 완료 상태 | 선행 설정 검증에서 provider 설정 유효성이 확인된 상태 |
 | request budget | adapter가 확정한 `context_window_tokens`, `reserved_output_tokens`, `request_timeout_seconds`, 번역 단계의 `run_timeout_seconds` |
-| contract version | 현재 `response_contract_version=1`, `provider_budget_profile_version=1` |
+| contract version | 현재 `response_contract_version=1`, `provider_budget_profile_version=2` |
 
 ---
 
@@ -256,7 +256,7 @@ provider adapter는 `TranslationRequest`를 받아 번역 Markdown 문자열만 
 
 지원 adapter는 OpenAI API와 OpenAI CLI 두 가지다. GitHub Actions는 OpenAI API를 사용하고, 호스트 로컬 실행은 환경 변수로 둘 중 하나를 선택한다.
 
-Provider budget profile version 1은 `gpt-5.6`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`를 `o200k_base`, context window `1,050,000`, 최대 output `128,000`에 결합한 version-controlled 승인 목록.
+Provider budget profile version 2는 `gpt-6-astra`, `gpt-6-sol`, `gpt-6-luna`, `gpt-6.1-sol`을 `o200k_base`, context window `1,050,000`, 최대 output `128,000`에 결합한 version-controlled 승인 목록.
 목록 밖 model, 다른 tokenizer, 목록보다 큰 context 또는 output 예약값은 provider 호출 전에 실패.
 
 각 요청은 다음 보수적 계산을 통과해야 함.
@@ -270,7 +270,7 @@ conservative_input_tokens + reserved_output_tokens <= context_window_tokens
 ```
 
 `utf8_byte_token_upper_bound`는 byte와 token을 같은 단위로 간주하는 측정값이 아니라 UTF-8 byte 수를 token 수의 보수적 수치 상한으로 사용하는 값.
-`framing_token_allowance`도 실제 provider 내부 framing 측정을 의미하지 않고 API·CLI의 비가시 framing을 위해 version 1이 token 단위로 고정한 허용량.
+`framing_token_allowance`도 실제 provider 내부 framing 측정을 의미하지 않고 API·CLI의 비가시 framing을 위해 version 2가 token 단위로 고정한 허용량.
 tokenizer를 적재할 수 없거나 위 부등식을 증명할 수 없으면 provider 호출 금지.
 승인 model·tokenizer 결합, 상수 또는 계산식을 바꾸면 provider budget profile version과 request budget 테스트를 함께 갱신해야 함.
 

@@ -57,7 +57,7 @@ docker run -p 3000:3000 laravel-docs
 
 GitHub Actions에서는 GitHub Variables를 사용하지 않고 OpenAI 실행에 필요한 Secret만 전달
 
-- provider/model은 코드 기본값 `openai`/`gpt-5.6-luna` 사용
+- provider/model은 코드 기본값 `openai`/`gpt-6-luna` 사용
 - Secret: `OPENAI_API_KEY`
 - reasoning effort는 코드 기본값 `medium` 사용
 - 승인된 OpenAI 모델의 context/output 예산·request timeout·tokenizer는 코드의 모델 profile 기본값 사용

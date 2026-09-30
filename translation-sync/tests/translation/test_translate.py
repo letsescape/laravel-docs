@@ -161,7 +161,7 @@ class TranslateRetryTests(unittest.TestCase):
                 {
                     "TRANSLATION_PROVIDER": "cli",
                     "TRANSLATION_CLI_COMMAND": "codex exec",
-                    "TRANSLATION_MODEL": "gpt-5.6-luna",
+                    "TRANSLATION_MODEL": "gpt-6-luna",
                     "OPENAI_API_KEY": "not-cli-authentication",
                     **REQUEST_BUDGET_ENV,
                 }
@@ -180,7 +180,7 @@ class TranslateRetryTests(unittest.TestCase):
                 {
                     "TRANSLATION_PROVIDER": "cli",
                     "TRANSLATION_CLI_COMMAND": "codex exec",
-                    "TRANSLATION_MODEL": "gpt-5.6-luna",
+                    "TRANSLATION_MODEL": "gpt-6-luna",
                     "CODEX_ACCESS_TOKEN": "access-token",
                     "CODEX_API_KEY": "api-key",
                     "CODEX_HOME": "/tmp/codex-home",
@@ -206,7 +206,7 @@ class TranslateRetryTests(unittest.TestCase):
                     {
                         "TRANSLATION_PROVIDER": "cli",
                         "TRANSLATION_CLI_COMMAND": "codex exec",
-                        "TRANSLATION_MODEL": "gpt-5.6-luna",
+                        "TRANSLATION_MODEL": "gpt-6-luna",
                         key: value,
                         **REQUEST_BUDGET_ENV,
                     }
@@ -219,7 +219,7 @@ class TranslateRetryTests(unittest.TestCase):
 
         base = {
             "TRANSLATION_PROVIDER": "openai",
-            "TRANSLATION_MODEL": "gpt-5.6-luna",
+            "TRANSLATION_MODEL": "gpt-6-luna",
             "OPENAI_API_KEY": "key",
             **REQUEST_BUDGET_ENV,
         }
@@ -252,7 +252,7 @@ class TranslateRetryTests(unittest.TestCase):
 
         base = {
             "TRANSLATION_PROVIDER": "openai",
-            "TRANSLATION_MODEL": "gpt-5.6-luna",
+            "TRANSLATION_MODEL": "gpt-6-luna",
             **REQUEST_BUDGET_ENV,
         }
         first = config.load_config({**base, "OPENAI_API_KEY": "first-secret"})
@@ -263,7 +263,11 @@ class TranslateRetryTests(unittest.TestCase):
         self.assertEqual(len(digest), 64)
         self.assertEqual(digest, config.provider_config_sha256(second))
         self.assertNotIn("first-secret", digest)
-        with patch.object(config, "PROVIDER_BUDGET_PROFILE_VERSION", 2):
+        with patch.object(
+            config,
+            "PROVIDER_BUDGET_PROFILE_VERSION",
+            config.PROVIDER_BUDGET_PROFILE_VERSION + 1,
+        ):
             self.assertNotEqual(digest, config.provider_config_sha256(first))
         with patch.object(config, "PROVIDER_FRAMING_OVERHEAD_TOKENS", 64_000):
             self.assertNotEqual(digest, config.provider_config_sha256(first))
@@ -274,7 +278,7 @@ class TranslateRetryTests(unittest.TestCase):
         base = {
             "TRANSLATION_PROVIDER": "cli",
             "TRANSLATION_CLI_COMMAND": "codex exec",
-            "TRANSLATION_MODEL": "gpt-5.6-luna",
+            "TRANSLATION_MODEL": "gpt-6-luna",
             **REQUEST_BUDGET_ENV,
         }
         first_home = config.load_config(
@@ -315,7 +319,7 @@ class TranslateRetryTests(unittest.TestCase):
                 {
                     "TRANSLATION_PROVIDER": "cli",
                     "TRANSLATION_CLI_COMMAND": "codex exec",
-                    "TRANSLATION_MODEL": "gpt-5.6-luna",
+                    "TRANSLATION_MODEL": "gpt-6-luna",
                     "CODEX_HOME": "relative/codex-home",
                     **REQUEST_BUDGET_ENV,
                 }
@@ -340,7 +344,7 @@ class TranslateRetryTests(unittest.TestCase):
                         {
                             "TRANSLATION_PROVIDER": "cli",
                             "TRANSLATION_CLI_COMMAND": command,
-                            "TRANSLATION_MODEL": "gpt-5.6-luna",
+                            "TRANSLATION_MODEL": "gpt-6-luna",
                             **CLI_AUTH_ENV,
                             **REQUEST_BUDGET_ENV,
                         }
@@ -355,7 +359,7 @@ class TranslateRetryTests(unittest.TestCase):
 
         base_env = {
             "TRANSLATION_PROVIDER": "openai",
-            "TRANSLATION_MODEL": "gpt-5.6-luna",
+            "TRANSLATION_MODEL": "gpt-6-luna",
             "OPENAI_API_KEY": "test-openai-key",
             **REQUEST_BUDGET_ENV,
         }
@@ -394,7 +398,7 @@ class TranslateRetryTests(unittest.TestCase):
             {
                 "TRANSLATION_PROVIDER": "cli",
                 "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "TRANSLATION_REASONING_EFFORT": "low",
                 "TRANSLATION_CLI_TIMEOUT": "60",
                 **CLI_AUTH_ENV,
@@ -412,7 +416,7 @@ class TranslateRetryTests(unittest.TestCase):
             {
                 "TRANSLATION_PROVIDER": "cli",
                 "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "TRANSLATION_RETRY_DELAY": "0",
                 **CLI_AUTH_ENV,
                 **REQUEST_BUDGET_ENV,
@@ -427,7 +431,7 @@ class TranslateRetryTests(unittest.TestCase):
         base_env = {
             "TRANSLATION_PROVIDER": "cli",
             "TRANSLATION_CLI_COMMAND": "codex exec",
-            "TRANSLATION_MODEL": "gpt-5.6-luna",
+            "TRANSLATION_MODEL": "gpt-6-luna",
             **CLI_AUTH_ENV,
             **REQUEST_BUDGET_ENV,
         }
@@ -455,7 +459,7 @@ class TranslateRetryTests(unittest.TestCase):
         base_env = {
             "TRANSLATION_PROVIDER": "cli",
             "TRANSLATION_CLI_COMMAND": "codex exec",
-            "TRANSLATION_MODEL": "gpt-5.6-luna",
+            "TRANSLATION_MODEL": "gpt-6-luna",
             **CLI_AUTH_ENV,
             **REQUEST_BUDGET_ENV,
         }
@@ -485,7 +489,7 @@ class TranslateRetryTests(unittest.TestCase):
                 {
                     "TRANSLATION_PROVIDER": "cli",
                     "TRANSLATION_CLI_COMMAND": "codex exec",
-                    "TRANSLATION_MODEL": "gpt-5.6-luna",
+                    "TRANSLATION_MODEL": "gpt-6-luna",
                     **CLI_AUTH_ENV,
                     **REQUEST_BUDGET_ENV,
                     "TRANSLATION_TOKENIZER_ENCODING": "not-a-tokenizer",
@@ -499,7 +503,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **REQUEST_BUDGET_ENV,
             },
         )
@@ -546,7 +550,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "TRANSLATION_CONTEXT_WINDOW_TOKENS": "50",
                 "TRANSLATION_RESERVED_OUTPUT_TOKENS": "10",
                 "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "10",
@@ -583,13 +587,13 @@ class TranslateRetryTests(unittest.TestCase):
 
         instructions = "System"
         payload = "한글 payload"
-        self.assertEqual(config.PROVIDER_BUDGET_PROFILE_VERSION, 1)
+        self.assertEqual(config.PROVIDER_BUDGET_PROFILE_VERSION, 2)
         self.assertEqual(translate.PROVIDER_FRAMING_OVERHEAD_TOKENS, 128_000)
         cfg = config.Config(
             provider="openai",
             values={
                 "TRANSLATION_PROVIDER": "openai",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **REQUEST_BUDGET_ENV,
             },
         )
@@ -622,7 +626,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="openai",
             values={
                 "TRANSLATION_PROVIDER": "openai",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **REQUEST_BUDGET_ENV,
                 "TRANSLATION_CONTEXT_WINDOW_TOKENS": str(
                     translate.PROVIDER_FRAMING_OVERHEAD_TOKENS
@@ -652,7 +656,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **REQUEST_BUDGET_ENV,
             },
         )
@@ -681,7 +685,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="openai",
             values={
                 "TRANSLATION_PROVIDER": "openai",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "OPENAI_API_KEY": "test-openai-key",
             },
         )
@@ -717,7 +721,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="openai",
             values={
                 "TRANSLATION_PROVIDER": "openai",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "OPENAI_API_KEY": "test-openai-key",
                 **REQUEST_BUDGET_ENV,
             },
@@ -816,7 +820,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **REQUEST_BUDGET_ENV,
                 "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "1",
             },
@@ -897,7 +901,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **REQUEST_BUDGET_ENV,
                 "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "10",
             },
@@ -936,7 +940,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **REQUEST_BUDGET_ENV,
                 "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "10",
             },
@@ -1256,14 +1260,11 @@ class TranslateRetryTests(unittest.TestCase):
             source="Changed source.\n",
             existing_translation="기존 번역입니다.",
         )
-        cfg = config.Config(
-            provider="openai",
-            values={
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
-                "TRANSLATION_REASONING_EFFORT": "medium",
+        cfg = config.load_config(
+            {
                 "OPENAI_API_KEY": "key",
                 **REQUEST_BUDGET_ENV,
-            },
+            }
         )
 
         with patch("openai.OpenAI") as client_class:
@@ -1290,7 +1291,7 @@ class TranslateRetryTests(unittest.TestCase):
             timeout=60,
         )
         client_class.return_value.responses.create.assert_called_once_with(
-            model="gpt-5.6-luna",
+            model="gpt-6-luna",
             instructions="prompt" + translate._ANNOTATION_FORMAT,
             input=request.render(),
             reasoning={"effort": "medium"},
@@ -1308,7 +1309,7 @@ class TranslateRetryTests(unittest.TestCase):
         cfg = config.Config(
             provider="openai",
             values={
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "OPENAI_API_KEY": "key",
                 **REQUEST_BUDGET_ENV,
             },
@@ -1381,7 +1382,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_PROVIDER": "cli",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **REQUEST_BUDGET_ENV,
             },
         )
@@ -1595,7 +1596,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **CLI_AUTH_ENV,
                 **REQUEST_BUDGET_ENV,
                 "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "17",
@@ -1628,7 +1629,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **CLI_AUTH_ENV,
                 **REQUEST_BUDGET_ENV,
             },
@@ -1668,7 +1669,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **CLI_AUTH_ENV,
                 **REQUEST_BUDGET_ENV,
             },
@@ -1710,7 +1711,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "CODEX_ACCESS_TOKEN": "secret-token",
                 **REQUEST_BUDGET_ENV,
             },
@@ -1781,7 +1782,7 @@ class TranslateRetryTests(unittest.TestCase):
                 provider="cli",
                 values={
                     "TRANSLATION_CLI_COMMAND": "codex exec",
-                    "TRANSLATION_MODEL": "gpt-5.6-luna",
+                    "TRANSLATION_MODEL": "gpt-6-luna",
                     "CODEX_HOME": tmp,
                     **REQUEST_BUDGET_ENV,
                 },
@@ -1820,7 +1821,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **CLI_AUTH_ENV,
                 **REQUEST_BUDGET_ENV,
             },
@@ -1856,7 +1857,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_CLI_COMMAND": "/missing/codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **CLI_AUTH_ENV,
                 **REQUEST_BUDGET_ENV,
             },
@@ -1892,7 +1893,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_CLI_COMMAND": "/invalid/codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 **CLI_AUTH_ENV,
                 **REQUEST_BUDGET_ENV,
             },
@@ -1924,7 +1925,7 @@ class TranslateRetryTests(unittest.TestCase):
         openai_config = config.Config(
             provider="openai",
             values={
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "OPENAI_API_KEY": "key",
                 **REQUEST_BUDGET_ENV,
                 "TRANSLATION_REQUEST_TIMEOUT_SECONDS": "17",
@@ -1963,7 +1964,7 @@ class TranslateRetryTests(unittest.TestCase):
             provider="cli",
             values={
                 "TRANSLATION_CLI_COMMAND": "codex exec",
-                "TRANSLATION_MODEL": "gpt-5.6-luna",
+                "TRANSLATION_MODEL": "gpt-6-luna",
                 "TRANSLATION_REASONING_EFFORT": "medium",
                 **CLI_AUTH_ENV,
                 **REQUEST_BUDGET_ENV,
@@ -2038,7 +2039,7 @@ class TranslateRetryTests(unittest.TestCase):
         ):
             self.assertIn(("--disable", feature), zip(command, command[1:]))
         self.assertIn("--strict-config", command)
-        self.assertEqual(command[command.index("--model") + 1], "gpt-5.6-luna")
+        self.assertEqual(command[command.index("--model") + 1], "gpt-6-luna")
         self.assertEqual(
             command[command.index("-c") + 1],
             'model_reasoning_effort="medium"',

@@ -21,7 +21,7 @@ def openai_environment() -> dict[str, str]:
 
     return {
         "TRANSLATION_PROVIDER": "openai",
-        "TRANSLATION_MODEL": "gpt-5.6-luna",
+        "TRANSLATION_MODEL": "gpt-6-luna",
         "OPENAI_API_KEY": "test-openai-key",
         **REQUEST_BUDGET_ENV,
     }
@@ -33,7 +33,7 @@ def cli_environment() -> dict[str, str]:
     return {
         "TRANSLATION_PROVIDER": "cli",
         "TRANSLATION_CLI_COMMAND": "codex exec",
-        "TRANSLATION_MODEL": "gpt-5.6-luna",
+        "TRANSLATION_MODEL": "gpt-6-luna",
         "CODEX_ACCESS_TOKEN": "test-codex-token",
         **REQUEST_BUDGET_ENV,
     }
@@ -49,7 +49,7 @@ class ProviderSelectionTests(unittest.TestCase):
 
         self.assertEqual(loaded.provider, "openai")
         self.assertEqual(loaded.get("TRANSLATION_PROVIDER"), "openai")
-        self.assertEqual(loaded.get("TRANSLATION_MODEL"), "gpt-5.6-luna")
+        self.assertEqual(loaded.get("TRANSLATION_MODEL"), "gpt-6-luna")
 
     def test_reports_stable_codes_for_provider_and_credential_errors(self):
         """잘못된 제공자와 누락된 인증 정보의 안정적 오류 코드 검증."""
@@ -81,12 +81,12 @@ class ProviderSelectionTests(unittest.TestCase):
     def test_seals_a_copy_of_validated_values(self):
         """원본 매핑 변경과 직접 수정에서 설정값 보호 검증."""
 
-        values = {"TRANSLATION_MODEL": "gpt-5.6-luna"}
+        values = {"TRANSLATION_MODEL": "gpt-6-luna"}
         loaded = config.Config(provider="identity", values=values)
 
         values["TRANSLATION_MODEL"] = "changed"
 
-        self.assertEqual(loaded.get("TRANSLATION_MODEL"), "gpt-5.6-luna")
+        self.assertEqual(loaded.get("TRANSLATION_MODEL"), "gpt-6-luna")
         with self.assertRaises(TypeError):
             loaded.values["TRANSLATION_MODEL"] = "changed"  # type: ignore[index]
 
@@ -114,19 +114,29 @@ class RequestBudgetTests(unittest.TestCase):
         for key in REQUEST_BUDGET_ENV:
             del environment[key]
 
-        loaded = config.load_config(environment)
-        budget = loaded.request_budget()
+        for model in (
+            "gpt-6-astra",
+            "gpt-6-sol",
+            "gpt-6-luna",
+            "gpt-6.1-sol",
+        ):
+            with self.subTest(model=model):
+                loaded = config.load_config(
+                    {**environment, "TRANSLATION_MODEL": model}
+                )
+                budget = loaded.request_budget()
 
-        self.assertIsNotNone(budget)
-        assert budget is not None
-        self.assertEqual(budget.context_window_tokens, 1_050_000)
-        self.assertEqual(budget.reserved_output_tokens, 128_000)
-        self.assertEqual(budget.request_timeout_seconds, 600)
-        self.assertEqual(budget.run_timeout_seconds, 21000)
-        self.assertEqual(budget.tokenizer_encoding, "o200k_base")
-        self.assertEqual(
-            loaded.get("TRANSLATION_CONTEXT_WINDOW_TOKENS"), "1050000"
-        )
+                self.assertEqual(loaded.get("TRANSLATION_MODEL"), model)
+                self.assertIsNotNone(budget)
+                assert budget is not None
+                self.assertEqual(budget.context_window_tokens, 1_050_000)
+                self.assertEqual(budget.reserved_output_tokens, 128_000)
+                self.assertEqual(budget.request_timeout_seconds, 600)
+                self.assertEqual(budget.run_timeout_seconds, 21000)
+                self.assertEqual(budget.tokenizer_encoding, "o200k_base")
+                self.assertEqual(
+                    loaded.get("TRANSLATION_CONTEXT_WINDOW_TOKENS"), "1050000"
+                )
 
     def test_environment_budget_overrides_profile_defaults(self):
         """명시된 env 예산 값이 profile 기본값보다 우선하는지 검증."""
@@ -346,7 +356,7 @@ class ProviderEvidenceTests(unittest.TestCase):
         with mock.patch.object(
             config,
             "PROVIDER_BUDGET_PROFILE_VERSION",
-            2,
+            config.PROVIDER_BUDGET_PROFILE_VERSION + 1,
         ):
             self.assertNotEqual(digest, config.provider_config_sha256(first))
 

@@ -41,7 +41,7 @@ _REQUIRED: dict[str, tuple[str, ...]] = {
     "cli": ("TRANSLATION_CLI_COMMAND", "TRANSLATION_MODEL"),
 }
 _DEFAULT_PROVIDER = "openai"
-_DEFAULT_OPENAI_MODEL = "gpt-5.6-luna"
+_DEFAULT_OPENAI_MODEL = "gpt-6-luna"
 _OPTIONAL = (
     "TRANSLATION_CLI_TIMEOUT",
     "TRANSLATION_REASONING_EFFORT",
@@ -61,7 +61,7 @@ _CLI_TOKEN_KEYS = (
     "CODEX_ACCESS_TOKEN",
     "CODEX_API_KEY",
 )
-PROVIDER_BUDGET_PROFILE_VERSION = 1
+PROVIDER_BUDGET_PROFILE_VERSION = 2
 # 두 요청 문자열에 나타나지 않는 provider/API/CLI 프레이밍의 보수적 승인 여유분.
 # 측정된 overhead가 아닌 프로젝트 고정값.
 PROVIDER_FRAMING_OVERHEAD_TOKENS = 128_000
@@ -85,10 +85,10 @@ _MODEL_PROFILES: Mapping[str, ModelProfile] = {
         max_output_tokens=128_000,
     )
     for name in (
-        "gpt-5.6",
-        "gpt-5.6-luna",
-        "gpt-5.6-sol",
-        "gpt-5.6-terra",
+        "gpt-6-astra",
+        "gpt-6-sol",
+        "gpt-6-luna",
+        "gpt-6.1-sol",
     )
 }
 
