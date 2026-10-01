@@ -1726,7 +1726,7 @@ Laravel のスキーマ ビルダ ブループリント クラスは、Laravel �
 デフォルトでは、大きなテーブルにインデックスを作成するとテーブルがロックされ、インデックスの構築中に読み取りまたは書き込みがブロックされることがあります。 PostgreSQL または SQL Server を使用する場合、`online` メソッドをインデックス定義にチェーンして、テーブルをロックせずにインデックスを作成すると、インデックス作成中にアプリケーションがデータの読み取りと書き込みを継続できるようになります。
 
 ```php
-$table->string('email')->unique()->online();
+$table->unique('email')->online();
 ```
 
 <!-- When using PostgreSQL, this adds the `CONCURRENTLY` option to the index creation statement. When using SQL Server, this adds the `WITH (online = on)` option. -->

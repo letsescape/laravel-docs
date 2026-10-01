@@ -629,7 +629,7 @@ Laravel의 복수형 변환기는 [several different languages which you may con
 ```text
 /publicacion/crear
 
-/publicacion/{publicaciones}/editar
+/publicacion/{publicacion}/editar
 ```
 
 <a name="restful-supplementing-resource-controllers"></a>
@@ -640,7 +640,7 @@ Laravel의 복수형 변환기는 [several different languages which you may con
 기본 리소스 라우트 집합 외에 리소스 컨트롤러에 추가 라우트를 더해야 하는 경우, `Route::resource` 메서드를 호출하기 전에 해당 라우트를 정의해야 합니다. 그렇지 않으면 `resource` 메서드가 정의한 라우트가 보완 라우트보다 의도치 않게 우선될 수 있습니다.
 
 ```php
-use App\Http\Controller\PhotoController;
+use App\Http\Controllers\PhotoController;
 
 Route::get('/photos/popular', [PhotoController::class, 'popular']);
 Route::resource('photos', PhotoController::class);

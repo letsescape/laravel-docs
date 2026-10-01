@@ -3048,7 +3048,7 @@ $chunks->toArray();
 これは、[eachSpread](#method-eachspread) メソッドと組み合わせると特に便利です。
 
 ```php
-$transactions->sliding(2)->eachSpread(function (Collection $previous, Collection $current) {
+$transactions->sliding(2)->eachSpread(function ($previous, $current) {
     $current->total = $previous->total + $current->amount;
 });
 ```
@@ -3107,8 +3107,8 @@ $collection->sole();
 // ['product' => 'Desk', 'price' => 200]
 ```
 
-<!-- If there are no elements in the collection that should be returned by the `sole` method, an `\Illuminate\Collections\ItemNotFoundException` exception will be thrown. If there is more than one element that should be returned, an `\Illuminate\Collections\MultipleItemsFoundException` will be thrown. -->
-`sole` メソッドによって返される必要がある要素がコレクション内にない場合、`\Illuminate\Collections\ItemNotFoundException` 例外がスローされます。返すべき要素が複数ある場合は、`\Illuminate\Collections\MultipleItemsFoundException` がスローされます。
+<!-- If there are no elements in the collection that should be returned by the `sole` method, an `\Illuminate\Support\ItemNotFoundException` exception will be thrown. If there is more than one element that should be returned, an `\Illuminate\Support\MultipleItemsFoundException` will be thrown. -->
+コレクションに `sole` メソッドが返す要素がない場合は、`\Illuminate\Support\ItemNotFoundException` 例外がスローされます。返す要素が複数ある場合は、`\Illuminate\Support\MultipleItemsFoundException` 例外がスローされます。
 
 <a name="method-some"></a>
 <!-- #### `some()` -->
@@ -3611,11 +3611,7 @@ $collection = collect(['name' => 'Desk', 'price' => 200]);
 
 $collection->toArray();
 
-/*
-    [
-        ['name' => 'Desk', 'price' => 200],
-    ]
-*/
+// ['name' => 'Desk', 'price' => 200]
 ```
 
 > [!WARNING]
@@ -4407,7 +4403,7 @@ LazyCollection::make(function () {
     }
 
     fclose($handle);
-})->chunk(4)->map(function (array $lines) {
+})->chunk(4)->map(function (LazyCollection $lines) {
     return LogEntry::fromLines($lines);
 })->each(function (LogEntry $logEntry) {
     // Process the log entry...

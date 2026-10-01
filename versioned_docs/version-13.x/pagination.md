@@ -183,22 +183,14 @@ select * from users where id > 15 order by id asc limit 15;
 <!-- The cursor pagination query offers the following advantages over offset pagination: -->
 커서 페이징 쿼리는 offset 페이징 대비 다음과 같은 장점이 있습니다:
 
-<!--
-- For large data-sets, cursor pagination will offer better performance if the "order by" columns are indexed. This is because the "offset" clause scans through all previously matched data.
-- For data-sets with frequent writes, offset pagination may skip records or show duplicates if results have been recently added to or deleted from the page a user is currently viewing.
--->
+<!-- - For large data-sets, cursor pagination will offer better performance if the "order by" columns are indexed. This is because the "offset" clause scans through all previously matched data. - For data-sets with frequent writes, offset pagination may skip records or show duplicates if results have been recently added to or deleted from the page a user is currently viewing. -->
 - 대용량 데이터셋의 경우, "order by" 컬럼이 인덱싱되어 있다면 커서 페이징이 더 좋은 성능을 제공합니다. 이는 "offset" 절이 이전에 일치하는 모든 데이터를 탐색하기 때문입니다.
 - 데이터가 자주 변경(추가/삭제)되는 상황에서, offset 페이징은 사용자가 보고 있는 페이지에 최근에 레코드가 추가되거나 삭제되면 레코드 누락 또는 중복 표시 문제가 생길 수 있습니다.
 
 <!-- However, cursor pagination has the following limitations: -->
 하지만 커서 페이징에는 다음과 같은 제한 사항도 있습니다:
 
-<!--
-- Like `simplePaginate`, cursor pagination can only be used to display "Next" and "Previous" links and does not support generating links with page numbers.
-- It requires that the ordering is based on at least one unique column or a combination of columns that are unique. Columns with `null` values are not supported.
-- Query expressions in "order by" clauses are supported only if they are aliased and added to the "select" clause as well.
-- Query expressions with parameters are not supported.
--->
+<!-- - Like `simplePaginate`, cursor pagination can only be used to display "Next" and "Previous" links and does not support generating links with page numbers. - It requires that the ordering is based on at least one unique column or a combination of columns that are unique. Columns with `null` values are not supported. - Query expressions in "order by" clauses are supported only if they are aliased and added to the "select" clause as well. - Query expressions with parameters are not supported. -->
 - `simplePaginate`와 마찬가지로 커서 페이징은 "다음", "이전" 링크 표시만 가능하며, 페이지 번호 링크 생성은 지원하지 않습니다.
 - 적어도 하나 이상의 유니크한 컬럼을 기준으로 정렬해야 하며, 정렬 컬럼에 `null` 값이 있으면 사용할 수 없습니다.
 - "order by" 절에 사용된 쿼리 표현식은 별칭(alias)으로 지정해서 "select" 절에도 반드시 포함시켜야 합니다.
@@ -334,7 +326,6 @@ Route::get('/users', function () {
    "per_page": 15,
    "current_page": 1,
    "last_page": 4,
-   "current_page_url": "http://laravel.app?page=1",
    "first_page_url": "http://laravel.app?page=1",
    "last_page_url": "http://laravel.app?page=4",
    "next_page_url": "http://laravel.app?page=2",
@@ -429,9 +420,9 @@ public function boot(): void
 <!-- Each paginator instance provides additional pagination information via the following methods: -->
 각 페이지네이터 인스턴스는 다음과 같은 메서드를 통해 추가 페이지네이션 정보를 제공합니다:
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Method | Description | | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ | | `$paginator->count()` | Get the number of items for the current page. | | `$paginator->currentPage()` | Get the current page number. | | `$paginator->firstItem()` | Get the result number of the first item in the results. | | `$paginator->getOptions()` | Get the paginator options. | | `$paginator->getUrlRange($start, $end)` | Create a range of pagination URLs. | | `$paginator->hasPages()` | Determine if there are enough items to split into multiple pages. | | `$paginator->hasMorePages()` | Determine if there are more items in the data store. | | `$paginator->items()` | Get the items for the current page. | | `$paginator->lastItem()` | Get the result number of the last item in the results. | | `$paginator->lastPage()` | Get the page number of the last available page. (Not available when using `simplePaginate`). | | `$paginator->nextPageUrl()` | Get the URL for the next page. | | `$paginator->onFirstPage()` | Determine if the paginator is on the first page. | | `$paginator->onLastPage()` | Determine if the paginator is on the last page. | | `$paginator->perPage()` | The number of items to be shown per page. | | `$paginator->previousPageUrl()` | Get the URL for the previous page. | | `$paginator->total()` | Determine the total number of matching items in the data store. (Not available when using `simplePaginate`). | | `$paginator->url($page)` | Get the URL for a given page number. | | `$paginator->getPageName()` | Get the query string variable used to store the page. | | `$paginator->setPageName($name)` | Set the query string variable used to store the page. | | `$paginator->through($callback)` | Transform each item using a callback. | -->
 | 메서드                                     | 설명                                                                                      |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `$paginator->count()`                     | 현재 페이지의 항목 개수 가져오기.                                                         |
@@ -455,7 +446,6 @@ public function boot(): void
 | `$paginator->setPageName($name)`          | 페이지를 저장할 때 사용하는 쿼리 문자열 변수명 지정.                                      |
 | `$paginator->through($callback)`          | 콜백을 활용해 각 항목 변환.                                                              |
 
-<!-- </div> -->
 </div>
 
 <a name="cursor-paginator-instance-methods"></a>
@@ -465,9 +455,9 @@ public function boot(): void
 <!-- Each cursor paginator instance provides additional pagination information via the following methods: -->
 각 커서 페이지네이터 인스턴스는 다음과 같은 메서드를 통해 추가 페이지네이션 정보를 제공합니다:
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Method | Description | | ------------------------------- | ----------------------------------------------------------------- | | `$paginator->count()` | Get the number of items for the current page. | | `$paginator->cursor()` | Get the current cursor instance. | | `$paginator->getOptions()` | Get the paginator options. | | `$paginator->hasPages()` | Determine if there are enough items to split into multiple pages. | | `$paginator->hasMorePages()` | Determine if there are more items in the data store. | | `$paginator->getCursorName()` | Get the query string variable used to store the cursor. | | `$paginator->items()` | Get the items for the current page. | | `$paginator->nextCursor()` | Get the cursor instance for the next set of items. | | `$paginator->nextPageUrl()` | Get the URL for the next page. | | `$paginator->onFirstPage()` | Determine if the paginator is on the first page. | | `$paginator->onLastPage()` | Determine if the paginator is on the last page. | | `$paginator->perPage()` | The number of items to be shown per page. | | `$paginator->previousCursor()` | Get the cursor instance for the previous set of items. | | `$paginator->previousPageUrl()` | Get the URL for the previous page. | | `$paginator->setCursorName()` | Set the query string variable used to store the cursor. | | `$paginator->url($cursor)` | Get the URL for a given cursor instance. | -->
 | 메서드                          | 설명                                                         |
 | ------------------------------- | ------------------------------------------------------------ |
 | `$paginator->count()`           | 현재 페이지의 항목 개수 가져오기.                            |
@@ -487,5 +477,4 @@ public function boot(): void
 | `$paginator->setCursorName()`   | 커서를 저장할 때 사용하는 쿼리 문자열 변수명 지정.           |
 | `$paginator->url($cursor)`      | 특정 커서 인스턴스에 대한 URL 가져오기.                      |
 
-<!-- </div> -->
 </div>

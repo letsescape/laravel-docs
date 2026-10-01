@@ -420,13 +420,13 @@ Laravel은 확장 코드를 저장할 기본 디렉터리를 제공하지 않으
 
 <div class="content-list" markdown="1">
 
-<!-- - The `open` method would typically be used in file based session store systems. Since Laravel ships with a `file` session driver, you will rarely need to put anything in this method. You can simply leave this method empty. - The `close` method, like the `open` method, can also usually be disregarded. For most drivers, it is not needed. - The `read` method should return the string version of the session data associated with the given `$sessionId`. There is no need to do any serialization or other encoding when retrieving or storing session data in your driver, as Laravel will perform the serialization for you. - The `write` method should write the given `$data` string associated with the `$sessionId` to some persistent storage system, such as MongoDB or another storage system of your choice. Again, you should not perform any serialization - Laravel will have already handled that for you. - The `destroy` method should remove the data associated with the `$sessionId` from persistent storage. - The `gc` method should destroy all session data that is older than the given `$lifetime`, which is a UNIX timestamp. For self-expiring systems like Memcached and Redis, this method may be left empty. -->
-- `open` 메서드는 주로 파일 기반 세션 스토리지 시스템에서 사용됩니다. Laravel은 이미 `file` 세션 드라이버를 제공하므로, 일반적으로 이 메서드는 비워두어도 됩니다.
-- `close` 메서드도 `open`과 마찬가지로 대부분의 드라이버에서는 신경 쓰지 않아도 됩니다.
-- `read` 메서드는 주어진 `$sessionId`와 연결된 세션 데이터를 문자열로 반환해야 합니다. 세션 데이터의 직렬화나 인코딩은 신경 쓸 필요가 없으며, Laravel이 자동으로 처리해줍니다.
-- `write` 메서드는 주어진 `$sessionId`에 대해 `$data` 문자열을 MongoDB 등 원하는 영속성 저장소에 저장해야 합니다. 이 또한 직접 직렬화는 하지 않아도 됩니다.
-- `destroy` 메서드는 주어진 `$sessionId`와 연결된 데이터를 영속성 저장소에서 삭제해야 합니다.
-- `gc` 메서드는 주어진 `$lifetime`(UNIX 타임스탬프)보다 오래된 세션 데이터를 모두 삭제해야 합니다. Memcached나 Redis처럼 유효기간이 자동 만료되는 시스템에서는 비워두어도 괜찮습니다.
+<!-- - The `open` method would typically be used in file based session store systems. Since Laravel ships with a `file` session driver, you will rarely need to put anything in this method. You can simply leave this method empty. - The `close` method, like the `open` method, can also usually be disregarded. For most drivers, it is not needed. - The `read` method should return the string version of the session data associated with the given `$sessionId`. There is no need to do any serialization or other encoding when retrieving or storing session data in your driver, as Laravel will perform the serialization for you. - The `write` method should write the given `$data` string associated with the `$sessionId` to some persistent storage system, such as MongoDB or another storage system of your choice. Again, you should not perform any serialization - Laravel will have already handled that for you. - The `destroy` method should remove the data associated with the `$sessionId` from persistent storage. - The `gc` method should destroy all session data that is older than the given `$lifetime`, which is a number of seconds. For self-expiring systems like Memcached and Redis, this method may be left empty. -->
+- `open` 메서드는 일반적으로 파일 기반 세션 저장 시스템에서 사용됩니다. Laravel은 `file` 세션 드라이버를 제공하므로, 이 메서드에 코드를 작성할 일은 거의 없습니다. 메서드를 비워두어도 됩니다.
+- `close` 메서드도 `open` 메서드와 마찬가지로 보통은 신경 쓰지 않아도 됩니다. 대부분의 드라이버에서는 필요하지 않습니다.
+- `read` 메서드는 주어진 `$sessionId`와 연결된 세션 데이터를 문자열로 반환해야 합니다. 드라이버에서 세션 데이터를 가져오거나 저장할 때 직렬화하거나 다른 방식으로 인코딩할 필요는 없습니다. Laravel이 직렬화를 처리하기 때문입니다.
+- `write` 메서드는 `$sessionId`와 연결된 주어진 `$data` 문자열을 MongoDB나 원하는 다른 영속성 저장소에 기록해야 합니다. 이때도 직접 직렬화하지 않아도 됩니다. Laravel이 이미 처리합니다.
+- `destroy` 메서드는 `$sessionId`와 연결된 데이터를 영속성 저장소에서 삭제해야 합니다.
+- `gc` 메서드는 초 단위로 지정된 주어진 `$lifetime`보다 오래된 세션 데이터를 모두 삭제해야 합니다. Memcached나 Redis처럼 데이터가 자동으로 만료되는 시스템에서는 이 메서드를 비워두어도 됩니다.
 
 </div>
 

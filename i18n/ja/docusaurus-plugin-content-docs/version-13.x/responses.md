@@ -122,8 +122,8 @@ return response($content)->withoutHeader(['X-Debug', 'X-Powered-By']);
 <!-- #### Cache Control Middleware -->
 #### Cache Control Middleware
 
-<!-- Laravel includes a `cache.headers` middleware, which may be used to quickly set the `Cache-Control` header for a group of routes. Directives should be provided using the "snake case" equivalent of the corresponding cache-control directive and should be separated by a semicolon. If `etag` is specified in the list of directives, an MD5 hash of the response content will automatically be set as the ETag identifier: -->
-Laravel には `cache.headers` ミドルウェアが含まれており、ルートのグループに `Cache-Control` ヘッダーをすばやく設定するために使用できます。ディレクティブは、対応するキャッシュ制御ディレクティブと同等の「スネーク ケース」を使用して指定する必要があり、セミコロンで区切る必要があります。ディレクティブのリストで `etag` が指定されている場合、応答コンテンツの MD5 ハッシュが ETag 識別子として自動的に設定されます。
+<!-- Laravel includes a `cache.headers` middleware, which may be used to quickly set the `Cache-Control` header for a group of routes. Directives should be provided using the "snake case" equivalent of the corresponding cache-control directive and should be separated by a semicolon. If `etag` is specified in the list of directives, an xxh128 hash of the response content will automatically be set as the ETag identifier: -->
+Laravel には `cache.headers` ミドルウェアが含まれており、ルートグループの `Cache-Control` ヘッダーをすばやく設定できます。ディレクティブは、対応するキャッシュ制御ディレクティブの「スネークケース」形式で指定し、セミコロンで区切ります。ディレクティブのリストに `etag` を指定すると、レスポンスコンテンツの xxh128 ハッシュが ETag 識別子として自動的に設定されます。
 
 ```php
 Route::middleware('cache.headers:public;max_age=30;s_maxage=300;stale_while_revalidate=600;etag')->group(function () {

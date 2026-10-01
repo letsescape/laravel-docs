@@ -50,37 +50,12 @@ $names = User::all()->reject(function (User $user) {
 <!-- All Eloquent collections extend the base [Laravel collection](/docs/13.x/collections#available-methods) object; therefore, they inherit all of the powerful methods provided by the base collection class. -->
 すべての Eloquent コレクションは、基本 [Laravel collection](/docs/13.x/collections#available-methods) オブジェクトを拡張します。したがって、これらは、基本コレクション クラスによって提供される強力なメソッドをすべて継承します。
 
-<!-- In addition, the `Illuminate\Database\Eloquent\Collection` class provides a superset of methods to aid with managing your model collections. Most methods return `Illuminate\Database\Eloquent\Collection` instances; however, some methods, like `modelKeys`, return an `Illuminate\Support\Collection` instance. -->
-さらに、`Illuminate\Database\Eloquent\Collection` クラスは、モデル コレクションの管理を支援するメソッドのスーパーセットを提供します。ほとんどのメソッドは `Illuminate\Database\Eloquent\Collection` インスタンスを返します。ただし、`modelKeys` などの一部のメソッドは、`Illuminate\Support\Collection` インスタンスを返します。
+<!-- In addition, the `Illuminate\Database\Eloquent\Collection` class provides a superset of methods to aid with managing your model collections. Most methods return `Illuminate\Database\Eloquent\Collection` instances; however, some methods, like `pluck`, return an `Illuminate\Support\Collection` instance. -->
+さらに、`Illuminate\Database\Eloquent\Collection` クラスには、モデルのコレクションを管理するための追加のメソッドが用意されています。ほとんどのメソッドは `Illuminate\Database\Eloquent\Collection` のインスタンスを返しますが、`pluck` など一部のメソッドは `Illuminate\Support\Collection` のインスタンスを返します。
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[append](#method-append)
-[contains](#method-contains)
-[diff](#method-diff)
-[except](#method-except)
-[find](#method-find)
-[findOrFail](#method-find-or-fail)
-[fresh](#method-fresh)
-[intersect](#method-intersect)
-[load](#method-load)
-[loadMissing](#method-loadMissing)
-[modelKeys](#method-modelKeys)
-[makeVisible](#method-makeVisible)
-[makeHidden](#method-makeHidden)
-[mergeVisible](#method-mergeVisible)
-[mergeHidden](#method-mergeHidden)
-[only](#method-only)
-[partition](#method-partition)
-[setAppends](#method-setAppends)
-[setVisible](#method-setVisible)
-[setHidden](#method-setHidden)
-[toQuery](#method-toquery)
-[unique](#method-unique)
-[withoutAppends](#method-withoutAppends)
--->
+<!-- [append](#method-append) [contains](#method-contains) [diff](#method-diff) [except](#method-except) [find](#method-find) [findOrFail](#method-find-or-fail) [fresh](#method-fresh) [intersect](#method-intersect) [load](#method-load) [loadMissing](#method-loadMissing) [modelKeys](#method-modelKeys) [makeVisible](#method-makeVisible) [makeHidden](#method-makeHidden) [mergeVisible](#method-mergeVisible) [mergeHidden](#method-mergeHidden) [only](#method-only) [partition](#method-partition) [setAppends](#method-setAppends) [setVisible](#method-setVisible) [setHidden](#method-setHidden) [toQuery](#method-toquery) [unique](#method-unique) [withoutAppends](#method-withoutAppends) -->
 [append](#method-append)
 [contains](#method-contains)
 [diff](#method-diff)
@@ -105,7 +80,6 @@ $names = User::all()->reject(function (User $user) {
 [unique](#method-unique)
 [withoutAppends](#method-withoutAppends)
 
-<!-- </div> -->
 </div>
 
 <a name="method-append"></a>
@@ -433,4 +407,3 @@ class User extends Model
 
 <!-- If you would like to use a custom collection for every model in your application, you should define the `newCollection` method on a base model class that is extended by all of your application's models. -->
 アプリケーション内のすべてのモデルにカスタム コレクションを使用したい場合は、アプリケーションのすべてのモデルによって拡張される基本モデル クラスで `newCollection` メソッドを定義する必要があります。
-

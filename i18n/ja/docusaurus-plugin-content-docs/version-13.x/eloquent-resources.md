@@ -1259,8 +1259,8 @@ JsonApiResource::maxRelationshipDepth(3);
 <!-- ### Resource Type and ID -->
 ### Resource Type and ID
 
-<!-- By default, the resource's `type` is derived from the resource class name. For example, `PostResource` produces the type `posts` and `BlogPostResource` produces `blog-posts`. The resource's `id` is resolved from the model's primary key. -->
-デフォルトでは、リソースの `type` はリソース クラス名から派生します。たとえば、`PostResource` はタイプ `posts` を生成し、`BlogPostResource` は `blog-posts` を生成します。リソースの `id` は、モデルの主キーから解決されます。
+<!-- By default, the resource's `type` is derived from the resource class name. For example, `PostResource` produces the type `posts` and `BlogPostResource` produces `blog_posts`. The resource's `id` is resolved from the model's primary key. -->
+デフォルトでは、リソースの `type` はリソースクラス名から決まります。たとえば、`PostResource` のタイプは `posts`、`BlogPostResource` のタイプは `blog_posts` になります。リソースの `id` はモデルの主キーから決まります。
 
 <!-- If you need to customize these values, you may override the `toType` and `toId` methods on your resource: -->
 これらの値をカスタマイズする必要がある場合は、リソースの `toType` メソッドと `toId` メソッドをオーバーライドできます。

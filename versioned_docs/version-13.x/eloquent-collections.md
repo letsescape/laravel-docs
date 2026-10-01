@@ -50,37 +50,12 @@ $names = User::all()->reject(function (User $user) {
 <!-- All Eloquent collections extend the base [Laravel collection](/docs/13.x/collections#available-methods) object; therefore, they inherit all of the powerful methods provided by the base collection class. -->
 모든 Eloquent 컬렉션은 기본 [Laravel collection](/docs/13.x/collections#available-methods) 개체를 확장합니다. 따라서 기본 컬렉션 클래스에서 제공하는 강력한 메서드를 모두 상속합니다.
 
-<!-- In addition, the `Illuminate\Database\Eloquent\Collection` class provides a superset of methods to aid with managing your model collections. Most methods return `Illuminate\Database\Eloquent\Collection` instances; however, some methods, like `modelKeys`, return an `Illuminate\Support\Collection` instance. -->
-또한 `Illuminate\Database\Eloquent\Collection` 클래스는 모델 컬렉션 관리에 도움이 되는 메서드의 상위 집합을 제공합니다. 대부분의 메소드는 `Illuminate\Database\Eloquent\Collection` 인스턴스를 반환합니다. 그러나 `modelKeys`와 같은 일부 메서드는 `Illuminate\Support\Collection` 인스턴스를 반환합니다.
+<!-- In addition, the `Illuminate\Database\Eloquent\Collection` class provides a superset of methods to aid with managing your model collections. Most methods return `Illuminate\Database\Eloquent\Collection` instances; however, some methods, like `pluck`, return an `Illuminate\Support\Collection` instance. -->
+또한 `Illuminate\Database\Eloquent\Collection` 클래스는 모델 컬렉션을 관리하는 데 도움이 되는 다양한 메서드를 제공합니다. 대부분의 메서드는 `Illuminate\Database\Eloquent\Collection` 인스턴스를 반환하지만, `pluck`과 같은 일부 메서드는 `Illuminate\Support\Collection` 인스턴스를 반환합니다.
 
-<!-- <div class="collection-method-list" markdown="1"> -->
 <div class="collection-method-list" markdown="1">
 
-<!--
-[append](#method-append)
-[contains](#method-contains)
-[diff](#method-diff)
-[except](#method-except)
-[find](#method-find)
-[findOrFail](#method-find-or-fail)
-[fresh](#method-fresh)
-[intersect](#method-intersect)
-[load](#method-load)
-[loadMissing](#method-loadMissing)
-[modelKeys](#method-modelKeys)
-[makeVisible](#method-makeVisible)
-[makeHidden](#method-makeHidden)
-[mergeVisible](#method-mergeVisible)
-[mergeHidden](#method-mergeHidden)
-[only](#method-only)
-[partition](#method-partition)
-[setAppends](#method-setAppends)
-[setVisible](#method-setVisible)
-[setHidden](#method-setHidden)
-[toQuery](#method-toquery)
-[unique](#method-unique)
-[withoutAppends](#method-withoutAppends)
--->
+<!-- [append](#method-append) [contains](#method-contains) [diff](#method-diff) [except](#method-except) [find](#method-find) [findOrFail](#method-find-or-fail) [fresh](#method-fresh) [intersect](#method-intersect) [load](#method-load) [loadMissing](#method-loadMissing) [modelKeys](#method-modelKeys) [makeVisible](#method-makeVisible) [makeHidden](#method-makeHidden) [mergeVisible](#method-mergeVisible) [mergeHidden](#method-mergeHidden) [only](#method-only) [partition](#method-partition) [setAppends](#method-setAppends) [setVisible](#method-setVisible) [setHidden](#method-setHidden) [toQuery](#method-toquery) [unique](#method-unique) [withoutAppends](#method-withoutAppends) -->
 [append](#method-append)
 [contains](#method-contains)
 [diff](#method-diff)
@@ -105,7 +80,6 @@ $names = User::all()->reject(function (User $user) {
 [unique](#method-unique)
 [withoutAppends](#method-withoutAppends)
 
-<!-- </div> -->
 </div>
 
 <a name="method-append"></a>

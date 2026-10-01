@@ -1257,8 +1257,8 @@ JsonApiResource::maxRelationshipDepth(3);
 <!-- ### Resource Type and ID -->
 ### Resource Type and ID
 
-<!-- By default, the resource's `type` is derived from the resource class name. For example, `PostResource` produces the type `posts` and `BlogPostResource` produces `blog-posts`. The resource's `id` is resolved from the model's primary key. -->
-기본적으로 리소스의 `type`은 리소스 클래스 이름에서 파생됩니다. 예를 들어 `PostResource`는 `posts` 타입을 생성하고, `BlogPostResource`는 `blog-posts` 타입을 생성합니다. 리소스의 `id`는 모델의 기본 키에서 해석됩니다.
+<!-- By default, the resource's `type` is derived from the resource class name. For example, `PostResource` produces the type `posts` and `BlogPostResource` produces `blog_posts`. The resource's `id` is resolved from the model's primary key. -->
+기본적으로 리소스의 `type`은 리소스 클래스 이름에서 파생됩니다. 예를 들어 `PostResource`는 `posts` 타입을 생성하고, `BlogPostResource`는 `blog_posts` 타입을 생성합니다. 리소스의 `id`는 모델의 기본 키에서 확인합니다.
 
 <!-- If you need to customize these values, you may override the `toType` and `toId` methods on your resource: -->
 이 값을 사용자 지정해야 한다면 리소스에서 `toType`과 `toId` 메서드를 재정의할 수 있습니다.

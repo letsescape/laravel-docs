@@ -2622,8 +2622,8 @@ public function boot(): void
 <!-- After preventing lazy loading, Eloquent will throw a `Illuminate\Database\LazyLoadingViolationException` exception when your application attempts to lazy load any Eloquent relationship. -->
 지연 로딩을 방지한 뒤에는 애플리케이션이 Eloquent 연관관계를 지연 로드하려고 시도할 때 Eloquent가 `Illuminate\Database\LazyLoadingViolationException` 예외를 발생시킵니다.
 
-<!-- You may customize the behavior of lazy loading violations using the `handleLazyLoadingViolationsUsing` method. For example, using this method, you may instruct lazy loading violations to only be logged instead of interrupting the application's execution with exceptions: -->
-`handleLazyLoadingViolationsUsing` 메서드를 사용하여 지연 로딩 위반 동작을 사용자 정의할 수 있습니다. 예를 들어 이 메서드를 사용하면 지연 로딩 위반이 예외로 애플리케이션 실행을 중단하지 않고 로그에만 기록되도록 지시할 수 있습니다.
+<!-- You may customize the behavior of lazy loading violations using the `handleLazyLoadingViolationUsing` method. For example, using this method, you may instruct lazy loading violations to only be logged instead of interrupting the application's execution with exceptions: -->
+`handleLazyLoadingViolationUsing` 메서드를 사용하여 지연 로딩 위반 동작을 사용자 정의할 수 있습니다. 예를 들어 이 메서드를 사용하면 지연 로딩 위반이 예외를 발생시켜 애플리케이션 실행을 중단하는 대신 로그에만 기록되도록 설정할 수 있습니다:
 
 ```php
 Model::handleLazyLoadingViolationUsing(function (Model $model, string $relation) {

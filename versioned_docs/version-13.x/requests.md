@@ -454,8 +454,8 @@ $name = $request->string('name')->trim();
 <!-- #### Retrieving Integer Input Values -->
 #### Retrieving Integer Input Values
 
-<!-- To retrieve input values as integers, you may use the `integer` method. This method will attempt to cast the input value to an integer. If the input is not present or the cast fails, it will return the default value you specify. This is particularly useful for pagination or other numeric inputs: -->
-입력값을 정수로 조회하려면 `integer` 메서드를 사용할 수 있습니다. 이 메서드는 입력값을 정수로 casting하려고 시도합니다. 입력값이 없거나 casting에 실패하면 지정한 기본값을 반환합니다. 이 메서드는 특히 페이지네이션이나 기타 숫자 입력값에 유용합니다.
+<!-- To retrieve input values as integers, you may use the `integer` method. This method will attempt to cast the input value to an integer. If the input is not present, it will return the default value you specify. This is particularly useful for pagination or other numeric inputs: -->
+입력값을 정수로 조회하려면 `integer` 메서드를 사용할 수 있습니다. 이 메서드는 입력값을 정수로 casting하려고 시도합니다. 입력값이 없으면 지정한 기본값을 반환합니다. 페이지네이션이나 기타 숫자 입력값을 처리할 때 특히 유용합니다.
 
 ```php
 $perPage = $request->integer('per_page');

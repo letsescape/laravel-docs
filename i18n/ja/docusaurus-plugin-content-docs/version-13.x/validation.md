@@ -332,11 +332,11 @@ $request->validate([
 
 ```json
 {
-    "message": "The team name must be a string. (and 4 more errors)",
+    "message": "The team name field must be a string. (and 4 more errors)",
     "errors": {
         "team_name": [
-            "The team name must be a string.",
-            "The team name must be at least 1 characters."
+            "The team name field must be a string.",
+            "The team name field must be at least 1 characters."
         ],
         "authorization.role": [
             "The selected authorization.role is invalid."
@@ -345,7 +345,7 @@ $request->validate([
             "The users.0.email field is required."
         ],
         "users.2.email": [
-            "The users.2.email must be a valid email address."
+            "The users.2.email field must be a valid email address."
         ]
     }
 }
@@ -3414,7 +3414,7 @@ Password::min(8)->uncompromised();
 デフォルトでは、パスワードがデータ漏洩の際に少なくとも 1 回出現すると、そのパスワードは侵害されたとみなされます。このしきい値は、`uncompromised` メソッドの最初の引数を使用してカスタマイズできます。
 
 ```php
-// Ensure the password appears less than 3 times in the same data leak...
+// Ensure the password appears no more than 3 times in the same data leak...
 Password::min(8)->uncompromised(3);
 ```
 

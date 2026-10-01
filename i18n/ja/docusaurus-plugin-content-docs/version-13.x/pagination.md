@@ -183,22 +183,14 @@ select * from users where id > 15 order by id asc limit 15;
 <!-- The cursor pagination query offers the following advantages over offset pagination: -->
 カーソル ページネーション クエリには、オフセット ページネーションに比べて次の利点があります。
 
-<!--
-- For large data-sets, cursor pagination will offer better performance if the "order by" columns are indexed. This is because the "offset" clause scans through all previously matched data.
-- For data-sets with frequent writes, offset pagination may skip records or show duplicates if results have been recently added to or deleted from the page a user is currently viewing.
--->
+<!-- - For large data-sets, cursor pagination will offer better performance if the "order by" columns are indexed. This is because the "offset" clause scans through all previously matched data. - For data-sets with frequent writes, offset pagination may skip records or show duplicates if results have been recently added to or deleted from the page a user is currently viewing. -->
 - 大規模なデータセットの場合、「order by」列にインデックスが付けられている場合、カーソルのページネーションのパフォーマンスが向上します。これは、「offset」句が以前に一致したすべてのデータをスキャンするためです。
 - 書き込みが頻繁に行われるデータセットの場合、ユーザーが現在表示しているページに最近結果が追加または削除された場合、オフセット ページネーションによってレコードがスキップされたり、重複が表示されたりする可能性があります。
 
 <!-- However, cursor pagination has the following limitations: -->
 ただし、カーソルのページネーションには次の制限があります。
 
-<!--
-- Like `simplePaginate`, cursor pagination can only be used to display "Next" and "Previous" links and does not support generating links with page numbers.
-- It requires that the ordering is based on at least one unique column or a combination of columns that are unique. Columns with `null` values are not supported.
-- Query expressions in "order by" clauses are supported only if they are aliased and added to the "select" clause as well.
-- Query expressions with parameters are not supported.
--->
+<!-- - Like `simplePaginate`, cursor pagination can only be used to display "Next" and "Previous" links and does not support generating links with page numbers. - It requires that the ordering is based on at least one unique column or a combination of columns that are unique. Columns with `null` values are not supported. - Query expressions in "order by" clauses are supported only if they are aliased and added to the "select" clause as well. - Query expressions with parameters are not supported. -->
 - `simplePaginate` と同様、カーソル ページネーションは「次へ」と「前へ」リンクを表示するためにのみ使用でき、ページ番号付きのリンクの生成はサポートされていません。
 - 少なくとも 1 つの一意の列、または一意の列の組み合わせに基づいて順序付けする必要があります。 `null` 値を含む列はサポートされていません。
 - 「order by」句のクエリ式は、エイリアス化され、「select」句にも追加されている場合にのみサポートされます。
@@ -334,7 +326,6 @@ Route::get('/users', function () {
    "per_page": 15,
    "current_page": 1,
    "last_page": 4,
-   "current_page_url": "http://laravel.app?page=1",
    "first_page_url": "http://laravel.app?page=1",
    "last_page_url": "http://laravel.app?page=4",
    "next_page_url": "http://laravel.app?page=2",
@@ -429,9 +420,9 @@ public function boot(): void
 <!-- Each paginator instance provides additional pagination information via the following methods: -->
 各ページネータ インスタンスは、次のメソッドを介して追加のページネーション情報を提供します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Method | Description | | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ | | `$paginator->count()` | Get the number of items for the current page. | | `$paginator->currentPage()` | Get the current page number. | | `$paginator->firstItem()` | Get the result number of the first item in the results. | | `$paginator->getOptions()` | Get the paginator options. | | `$paginator->getUrlRange($start, $end)` | Create a range of pagination URLs. | | `$paginator->hasPages()` | Determine if there are enough items to split into multiple pages. | | `$paginator->hasMorePages()` | Determine if there are more items in the data store. | | `$paginator->items()` | Get the items for the current page. | | `$paginator->lastItem()` | Get the result number of the last item in the results. | | `$paginator->lastPage()` | Get the page number of the last available page. (Not available when using `simplePaginate`). | | `$paginator->nextPageUrl()` | Get the URL for the next page. | | `$paginator->onFirstPage()` | Determine if the paginator is on the first page. | | `$paginator->onLastPage()` | Determine if the paginator is on the last page. | | `$paginator->perPage()` | The number of items to be shown per page. | | `$paginator->previousPageUrl()` | Get the URL for the previous page. | | `$paginator->total()` | Determine the total number of matching items in the data store. (Not available when using `simplePaginate`). | | `$paginator->url($page)` | Get the URL for a given page number. | | `$paginator->getPageName()` | Get the query string variable used to store the page. | | `$paginator->setPageName($name)` | Set the query string variable used to store the page. | | `$paginator->through($callback)` | Transform each item using a callback. | -->
 | 方法                                  | 説明                                                                                                  |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `$paginator->count()`                   | 現在のページの項目数を取得します。                                                                |
@@ -455,7 +446,6 @@ public function boot(): void
 | `$paginator->setPageName($name)`        | ページの保存に使用されるクエリ文字列変数を設定します。                                                        |
 | `$paginator->through($callback)`        | コールバックを使用して各項目を変換します。                                                                        |
 
-<!-- </div> -->
 </div>
 
 <a name="cursor-paginator-instance-methods"></a>
@@ -465,9 +455,9 @@ public function boot(): void
 <!-- Each cursor paginator instance provides additional pagination information via the following methods: -->
 各カーソル ページネーション インスタンスは、次のメソッドを介して追加のページネーション情報を提供します。
 
-<!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
+<!-- | Method | Description | | ------------------------------- | ----------------------------------------------------------------- | | `$paginator->count()` | Get the number of items for the current page. | | `$paginator->cursor()` | Get the current cursor instance. | | `$paginator->getOptions()` | Get the paginator options. | | `$paginator->hasPages()` | Determine if there are enough items to split into multiple pages. | | `$paginator->hasMorePages()` | Determine if there are more items in the data store. | | `$paginator->getCursorName()` | Get the query string variable used to store the cursor. | | `$paginator->items()` | Get the items for the current page. | | `$paginator->nextCursor()` | Get the cursor instance for the next set of items. | | `$paginator->nextPageUrl()` | Get the URL for the next page. | | `$paginator->onFirstPage()` | Determine if the paginator is on the first page. | | `$paginator->onLastPage()` | Determine if the paginator is on the last page. | | `$paginator->perPage()` | The number of items to be shown per page. | | `$paginator->previousCursor()` | Get the cursor instance for the previous set of items. | | `$paginator->previousPageUrl()` | Get the URL for the previous page. | | `$paginator->setCursorName()` | Set the query string variable used to store the cursor. | | `$paginator->url($cursor)` | Get the URL for a given cursor instance. | -->
 | 方法                          | 説明                                                       |
 | ------------------------------- | ----------------------------------------------------------------- |
 | `$paginator->count()`           | 現在のページの項目数を取得します。                     |
@@ -487,6 +477,4 @@ public function boot(): void
 | `$paginator->setCursorName()`   | カーソルを格納するために使用されるクエリ文字列変数を設定します。           |
 | `$paginator->url($cursor)`      | 指定されたカーソル インスタンスの URL を取得します。                          |
 
-<!-- </div> -->
 </div>
-

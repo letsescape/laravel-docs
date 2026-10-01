@@ -971,9 +971,9 @@ public function shouldRender(): bool
 때로는 컴포넌트가 컴포넌트 그룹의 일부이고 단일 디렉터리 내에서 관련 컴포넌트를 그룹화할 수도 있습니다. 예를 들어, 다음과 같은 클래스 구조를 가진 "카드" 컴포넌트를 상상해 보세요.
 
 ```text
-App\Views\Components\Card\Card
-App\Views\Components\Card\Header
-App\Views\Components\Card\Body
+App\View\Components\Card\Card
+App\View\Components\Card\Header
+App\View\Components\Card\Body
 ```
 
 <!-- Since the root `Card` component is nested within a `Card` directory, you might expect that you would need to render the component via `<x-card.card>`. However, when a component's file name matches the name of the component's directory, Laravel automatically assumes that component is the "root" component and allows you to render the component without repeating the directory name: -->

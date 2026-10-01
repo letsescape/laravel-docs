@@ -1726,7 +1726,7 @@ Laravel의 스키마 빌더 blueprint 클래스는 Laravel이 지원하는 각 �
 기본적으로 큰 테이블에 인덱스를 생성하면 인덱스가 만들어지는 동안 테이블이 잠기고 읽기 또는 쓰기가 차단될 수 있습니다. PostgreSQL 또는 SQL Server를 사용할 때는 인덱스 정의에 `online` 메서드를 연결하여 테이블을 잠그지 않고 인덱스를 생성할 수 있습니다. 이렇게 하면 인덱스 생성 중에도 애플리케이션이 계속 데이터를 읽고 쓸 수 있습니다.
 
 ```php
-$table->string('email')->unique()->online();
+$table->unique('email')->online();
 ```
 
 <!-- When using PostgreSQL, this adds the `CONCURRENTLY` option to the index creation statement. When using SQL Server, this adds the `WITH (online = on)` option. -->

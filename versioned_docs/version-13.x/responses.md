@@ -122,8 +122,8 @@ return response($content)->withoutHeader(['X-Debug', 'X-Powered-By']);
 <!-- #### Cache Control Middleware -->
 #### Cache Control Middleware
 
-<!-- Laravel includes a `cache.headers` middleware, which may be used to quickly set the `Cache-Control` header for a group of routes. Directives should be provided using the "snake case" equivalent of the corresponding cache-control directive and should be separated by a semicolon. If `etag` is specified in the list of directives, an MD5 hash of the response content will automatically be set as the ETag identifier: -->
-Laravel에는 라우트 그룹에 대해 `Cache-Control` 헤더를 빠르게 설정하는 데 사용할 수 있는 `cache.headers` Middleware가 포함되어 있습니다. 디렉티브는 해당 cache-control 디렉티브에 대응하는 "snake case" 형식으로 제공해야 하며, 세미콜론으로 구분해야 합니다. 디렉티브 목록에 `etag`가 지정되어 있으면 응답 콘텐츠의 MD5 해시가 자동으로 ETag 식별자로 설정됩니다.
+<!-- Laravel includes a `cache.headers` middleware, which may be used to quickly set the `Cache-Control` header for a group of routes. Directives should be provided using the "snake case" equivalent of the corresponding cache-control directive and should be separated by a semicolon. If `etag` is specified in the list of directives, an xxh128 hash of the response content will automatically be set as the ETag identifier: -->
+Laravel에는 라우트 그룹의 `Cache-Control` 헤더를 빠르게 설정하는 데 사용할 수 있는 `cache.headers` 미들웨어가 포함되어 있습니다. 디렉티브는 해당 캐시 제어 디렉티브에 대응하는 "snake case" 형식으로 제공하고 세미콜론으로 구분해야 합니다. 디렉티브 목록에 `etag`가 지정되어 있으면 응답 콘텐츠의 xxh128 해시가 ETag 식별자로 자동 설정됩니다:
 
 ```php
 Route::middleware('cache.headers:public;max_age=30;s_maxage=300;stale_while_revalidate=600;etag')->group(function () {

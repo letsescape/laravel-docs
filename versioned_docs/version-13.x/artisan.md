@@ -76,7 +76,7 @@ composer require laravel/tinker
 ```
 
 > [!NOTE]
-> Laravel 애플리케이션과 상호작용할 때 핫 리로딩, 여러 줄 코드 편집, 자동 완성을 찾고 있나요? [Tinkerwell](https://tinkerwell.app)을 확인해 보세요!
+> Laravel 애플리케이션과 상호작용할 때 핫 리로딩, 여러 줄 코드 편집, 자동 완성 기능을 찾고 계신가요? [Tinkerwell](https://tinkerwell.app)을 확인해 보세요!
 
 <a name="usage"></a>
 <!-- #### Usage -->
@@ -97,7 +97,7 @@ php artisan vendor:publish --provider="Laravel\Tinker\TinkerServiceProvider"
 ```
 
 > [!WARNING]
-> `dispatch` 헬퍼 함수와 `Dispatchable` 클래스의 `dispatch` 메서드는 작업을 큐에 넣기 위해 가비지 컬렉션에 의존합니다. 따라서 Tinker를 사용할 때는 작업을 디스패치하려면 `Bus::dispatch` 또는 `Queue::push`를 사용해야 합니다.
+> `dispatch` 헬퍼 함수와 `Dispatchable` 클래스의 `dispatch` 메서드는 가비지 컬렉션을 통해 잡을 큐에 넣습니다. 따라서 Tinker를 사용할 때는 `Bus::dispatch` 또는 `Queue::push`를 사용해 잡을 디스패치해야 합니다.
 
 <a name="command-allow-list"></a>
 <!-- #### Command Allow List -->
@@ -179,7 +179,7 @@ class SendEmails extends Command
 ```
 
 > [!NOTE]
-> 코드를 더 잘 재사용하려면 콘솔 명령어는 가볍게 유지하고, 실제 작업은 애플리케이션 서비스에 위임하는 것이 좋습니다. 위 예제에서는 이메일 전송이라는 "무거운 작업"을 수행하기 위해 서비스 클래스를 주입한다는 점에 주목하세요.
+> 코드를 더 많이 재사용하려면 콘솔 명령어는 가볍게 유지하고 작업은 애플리케이션 서비스에 맡기는 것이 좋습니다. 위 예시에서는 이메일 전송이라는 핵심 작업을 처리하도록 서비스 클래스를 주입한다는 점에 주목하세요.
 
 <a name="exit-codes"></a>
 <!-- #### Exit Codes -->
@@ -255,7 +255,7 @@ Artisan::command('mail:send {user}', function (string $user) {
 ### Isolatable Commands
 
 > [!WARNING]
-> 이 기능을 사용하려면 애플리케이션의 기본 캐시 드라이버로 `memcached`, `redis`, `dynamodb`, `database`, `file`, `array` 캐시 드라이버 중 하나를 사용해야 합니다. 또한 모든 서버가 동일한 중앙 캐시 서버와 통신해야 합니다.
+> 이 기능을 사용하려면 애플리케이션의 기본 캐시 드라이버로 `memcached`, `redis`, `dynamodb`, `database`, `file` 또는 `array`를 사용해야 합니다. 또한 모든 서버가 동일한 중앙 캐시 서버와 통신해야 합니다.
 
 <!-- Sometimes you may wish to ensure that only one instance of a command can run at a time. To accomplish this, you may implement the `Illuminate\Contracts\Console\Isolatable` interface on your command class: -->
 때로는 명령어 인스턴스가 한 번에 하나만 실행되도록 보장하고 싶을 수 있습니다. 이를 위해 명령어 클래스에 `Illuminate\Contracts\Console\Isolatable` 인터페이스를 구현할 수 있습니다.
@@ -465,6 +465,7 @@ php artisan mail:send 1 2
 ```php
 'mail:send {--id=*}'
 ```
+
 <!-- Such a command may be invoked by passing multiple `--id` arguments: -->
 이러한 명령어는 여러 개의 `--id` 인수를 전달하여 호출할 수 있습니다.
 
@@ -565,7 +566,7 @@ return [
 ```
 
 > [!NOTE]
-> 포괄적인 [Laravel Prompts](/docs/13.x/prompts) 문서에는 사용할 수 있는 프롬프트와 사용법에 대한 추가 정보가 포함되어 있습니다.
+> 종합적인 [Laravel Prompts](/docs/13.x/prompts) 문서에는 사용할 수 있는 프롬프트와 사용법에 관한 추가 정보가 있습니다.
 
 <!-- If you wish to prompt the user to select or enter [options](#options), you may include prompts in your command's `handle` method. However, if you only wish to prompt the user when they have also been automatically prompted for missing arguments, then you may implement the `afterPromptingForMissingArguments` method: -->
 사용자가 [options](#options)를 선택하거나 입력하도록 요청하고 싶다면, 명령어의 `handle` 메서드 안에 프롬프트를 포함할 수 있습니다. 하지만 누락된 인수에 대해 자동으로 프롬프트가 표시된 경우에만 사용자에게 추가로 묻고 싶다면 `afterPromptingForMissingArguments` 메서드를 구현할 수 있습니다.
@@ -657,7 +658,7 @@ $queue = $this->input('queue', 'default');
 ### Prompting for Input
 
 > [!NOTE]
-> [Laravel Prompts](/docs/13.x/prompts)는 명령줄 애플리케이션에 아름답고 사용하기 쉬운 폼을 추가하기 위한 PHP 패키지입니다. 플레이스홀더 텍스트와 유효성 검증을 포함한 브라우저와 비슷한 기능을 제공합니다.
+> [Laravel Prompts](/docs/13.x/prompts)는 명령줄 애플리케이션에 아름답고 사용자 친화적인 양식을 추가하는 PHP 패키지로, 자리 표시자 텍스트와 유효성 검증 등 브라우저와 유사한 기능을 제공합니다.
 
 <!-- In addition to displaying output, you may also ask the user to provide input during the execution of your command. The `ask` method will prompt the user with the given question, accept their input, and then return the user's input back to your command: -->
 출력을 표시하는 것뿐만 아니라, 명령어 실행 중에 사용자에게 입력을 요청할 수도 있습니다. `ask` 메서드는 주어진 질문을 사용자에게 표시하고, 사용자의 입력을 받은 뒤, 그 입력을 명령어로 반환합니다.
@@ -935,6 +936,7 @@ Route::post('/mail', function () {
 <a name="passing-boolean-values"></a>
 <!-- #### Passing Boolean Values -->
 #### Passing Boolean Values
+
 <!-- If you need to specify the value of an option that does not accept string values, such as the `--force` flag on the `migrate:refresh` command, you should pass `true` or `false` as the value of the option: -->
 문자열 값을 받지 않는 옵션의 값을 지정해야 하는 경우가 있습니다. 예를 들어 `migrate:refresh` 명령어의 `--force` 플래그가 그렇습니다. 이 경우 옵션 값으로 `true` 또는 `false`를 전달해야 합니다.
 
@@ -1055,16 +1057,16 @@ php artisan dev
 <!-- The default processes are: -->
 기본 프로세스는 다음과 같습니다.
 
-<!-- | Name | Command | | --- | --- | | `server` | `php artisan serve --host=localhost` | | `queue` | `php artisan queue:listen --tries=1 --timeout=0` | | `logs` | `php artisan pail --timeout=0` | | `vite` | `npm run dev` | -->
+<!-- | Name | Command | | --- | --- | | `server` | `php artisan serve` | | `queue` | `php artisan queue:listen --tries=1 --timeout=0` | | `logs` | `php artisan pail --timeout=0` | | `vite` | `npm run dev` | -->
 | 이름 | 명령어 |
 | --- | --- |
-| `server` | `php artisan serve --host=localhost` |
+| `server` | `php artisan serve` |
 | `queue` | `php artisan queue:listen --tries=1 --timeout=0` |
 | `logs` | `php artisan pail --timeout=0` |
 | `vite` | `npm run dev` |
 
 > [!NOTE]
-> `vite` 프로세스는 Node 패키지 관리자(npm, pnpm, Yarn 또는 Bun)를 자동으로 감지하고 적절한 실행 명령어를 사용합니다.
+> `vite` 프로세스는 Node 패키지 관리자(npm, pnpm, Yarn 또는 Bun)를 자동으로 감지하고 적절한 실행 명령을 사용합니다.
 
 <a name="customizing-dev-processes"></a>
 <!-- ### Customizing Dev Processes -->

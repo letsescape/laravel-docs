@@ -2618,8 +2618,8 @@ $result = Str::of('The   Laravel   Framework')->deduplicate();
 // The Laravel Framework
 ```
 
-<!-- You may specify a different character to deduplicate by passing it in as the second argument to the method: -->
-重複排除する対象として別の文字を指定するには、その文字をメソッドの第2引数として渡します。
+<!-- You may specify a different character to deduplicate by passing it in as the first argument to the method: -->
+重複排除する対象として別の文字を指定するには、その文字をメソッドの第1引数として渡します。
 
 ```php
 use Illuminate\Support\Str;
@@ -3297,8 +3297,8 @@ $string = Str::of('taylor@example.com')->mask('*', 3);
 // tay***************
 ```
 
-<!-- If needed, you may provide negative numbers as the third or fourth argument to the `mask` method, which will instruct the method to begin masking at the given distance from the end of the string: -->
-必要に応じて、`mask` メソッドの 3 番目または 4 番目の引数として負の数値を指定できます。これにより、文字列の末尾から指定された距離でマスクを開始するようにメソッドに指示されます。
+<!-- If needed, you may provide negative numbers as the second or third argument to the `mask` method, which will instruct the method to begin masking at the given distance from the end of the string: -->
+必要に応じて、`mask` メソッドの第2引数または第3引数に負の数値を指定できます。これにより、文字列の末尾から指定した距離の位置でマスクを開始できます。
 
 ```php
 $string = Str::of('taylor@example.com')->mask('*', -15, 3);

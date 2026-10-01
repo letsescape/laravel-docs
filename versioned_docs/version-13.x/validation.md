@@ -332,11 +332,11 @@ $request->validate([
 
 ```json
 {
-    "message": "The team name must be a string. (and 4 more errors)",
+    "message": "The team name field must be a string. (and 4 more errors)",
     "errors": {
         "team_name": [
-            "The team name must be a string.",
-            "The team name must be at least 1 characters."
+            "The team name field must be a string.",
+            "The team name field must be at least 1 characters."
         ],
         "authorization.role": [
             "The selected authorization.role is invalid."
@@ -345,7 +345,7 @@ $request->validate([
             "The users.0.email field is required."
         ],
         "users.2.email": [
-            "The users.2.email must be a valid email address."
+            "The users.2.email field must be a valid email address."
         ]
     }
 }
@@ -3407,7 +3407,7 @@ Password::min(8)->uncompromised();
 기본적으로 비밀번호가 데이터 유출 목록에 한 번이라도 나타나면 유출된 것으로 간주됩니다. `uncompromised` 메서드의 첫 번째 인수를 사용하여 이 임계값을 사용자 정의할 수 있습니다.
 
 ```php
-// Ensure the password appears less than 3 times in the same data leak...
+// Ensure the password appears no more than 3 times in the same data leak...
 Password::min(8)->uncompromised(3);
 ```
 

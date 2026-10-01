@@ -76,7 +76,7 @@ composer require laravel/tinker
 ```
 
 > [!NOTE]
-> Laravel アプリケーションを操作する際に、ホットリロード、複数行のコード編集、オートコンプリートをお探しですか? [Tinkerwell](https://tinkerwell.app) をチェックしてください。
+> Laravel アプリケーションを操作しながら、ホットリロードや複数行のコード編集、オートコンプリートを使いたい場合は、[Tinkerwell](https://tinkerwell.app) をチェックしてみてください。
 
 <a name="usage"></a>
 <!-- #### Usage -->
@@ -97,7 +97,7 @@ php artisan vendor:publish --provider="Laravel\Tinker\TinkerServiceProvider"
 ```
 
 > [!WARNING]
-> `Dispatchable` クラスの `dispatch` ヘルパ関数と `dispatch` メソッドは、ガベージ コレクションに依存してジョブをキューに配置します。したがって、Tinker を使用する場合は、`Bus::dispatch` または `Queue::push` を使用してジョブをディスパッチする必要があります。
+> `dispatch` ヘルパ関数と `Dispatchable` クラスの `dispatch` メソッドは、ガベージコレクションによってジョブをキューに追加します。そのため、Tinker でジョブをディスパッチする場合は、`Bus::dispatch` または `Queue::push` を使用してください。
 
 <a name="command-allow-list"></a>
 <!-- #### Command Allow List -->
@@ -179,7 +179,7 @@ class SendEmails extends Command
 ```
 
 > [!NOTE]
-> コードをより再利用しやすくするには、コンソールコマンドを軽量に保ち、タスクの実行はアプリケーションサービスに任せるのがよいでしょう。上の例では、メール送信という「重い処理」を行うためにサービスクラスを注入している点に注目してください。
+> コードを再利用しやすくするため、コンソールコマンドはシンプルに保ち、処理はアプリケーションサービスに委ねるのが望ましい方法です。上の例では、メール送信の「主要な処理」を担うサービスクラスを依存注入している点に注目してください。
 
 <a name="exit-codes"></a>
 <!-- #### Exit Codes -->
@@ -255,7 +255,7 @@ Artisan::command('mail:send {user}', function (string $user) {
 ### Isolatable Commands
 
 > [!WARNING]
-> この機能を利用するには、アプリケーションが `memcached`、`redis`、`dynamodb`、`database`、`file`、または `array` キャッシュ ドライバをアプリケーションのデフォルト キャッシュ ドライバとして使用している必要があります。さらに、すべてのサーバーが同じ中央キャッシュ サーバーと通信している必要があります。
+> この機能を使用するには、アプリケーションのデフォルトのキャッシュドライバとして `memcached`、`redis`、`dynamodb`、`database`、`file`、または `array` を使用する必要があります。また、すべてのサーバが同じ中央キャッシュサーバと通信している必要があります。
 
 <!-- Sometimes you may wish to ensure that only one instance of a command can run at a time. To accomplish this, you may implement the `Illuminate\Contracts\Console\Isolatable` interface on your command class: -->
 場合によっては、コマンドのインスタンスを一度に 1 つだけ実行できるようにしたい場合があります。これを実現するには、コマンド クラスに `Illuminate\Contracts\Console\Isolatable` インターフェイスを実装します。
@@ -566,7 +566,7 @@ return [
 ```
 
 > [!NOTE]
-> 包括的な [Laravel Prompts](/docs/13.x/prompts) ドキュメントには、使用可能なプロンプトとその使用法に関する追加情報が含まれています。
+> 充実した [Laravel Prompts](/docs/13.x/prompts) のドキュメントでは、利用可能なプロンプトとその使い方について詳しく説明しています。
 
 <!-- If you wish to prompt the user to select or enter [options](#options), you may include prompts in your command's `handle` method. However, if you only wish to prompt the user when they have also been automatically prompted for missing arguments, then you may implement the `afterPromptingForMissingArguments` method: -->
 ユーザーに [options](#options) の選択または入力を求めるプロンプトを表示したい場合は、コマンドの `handle` メソッドにプロンプ​​トを含めることができます。ただし、不足している引数についても自動的にプロンプ​​トが表示された場合にのみユーザーにプロンプ​​トを表示したい場合は、`afterPromptingForMissingArguments` メソッドを実装できます。
@@ -658,7 +658,7 @@ $queue = $this->input('queue', 'default');
 ### Prompting for Input
 
 > [!NOTE]
-> [Laravel Prompts](/docs/13.x/prompts) は、プレースホルダー テキストや検証などのブラウザーのような機能を備えた、美しくユーザーフレンドリーなフォームをコマンドライン アプリケーションに追加するための PHP パッケージです。
+> [Laravel Prompts](/docs/13.x/prompts) は、プレースホルダーテキストやバリデーションなど、ブラウザのような機能を備えた、使いやすく見た目にも優れたフォームをコマンドラインアプリケーションに追加するための PHP パッケージです。
 
 <!-- In addition to displaying output, you may also ask the user to provide input during the execution of your command. The `ask` method will prompt the user with the given question, accept their input, and then return the user's input back to your command: -->
 出力を表示するだけでなく、コマンドの実行中にユーザーに入力を求めることもできます。 `ask` メソッドは、ユーザーに指定された質問を表示し、入力を受け入れて、ユーザーの入力をコマンドに返します。
@@ -859,7 +859,7 @@ $bar->finish();
 ```
 
 > [!NOTE]
-> より高度なオプションについては、[Symfony Progress Bar component documentation](https://symfony.com/doc/current/components/console/helpers/progressbar.html) を確認してください。
+> より高度なオプションについては、[Symfony Progress Bar component documentation](https://symfony.com/doc/current/components/console/helpers/progressbar.html)を参照してください。
 
 <a name="registering-commands"></a>
 <!-- ## Registering Commands -->
@@ -1052,21 +1052,21 @@ php artisan dev
 内部では、`dev` コマンドが `@laravel/multiplex` npm パッケージを使ってプロセスを管理します。各プロセスには専用のタブが割り当てられ、出力を検索したりスクロールしたりできます。各プロセスにはラベルと色が付くため、簡単に見分けられます。プロセスがクラッシュすると自動的に再起動され、終了するとすべての出力がターミナルに書き戻されるため、何も失われません。
 
 > [!NOTE]
-> `dev` コマンドには Node 22.13 以降が必要です。Windows では `concurrently` npm パッケージにフォールバックするため、タブインターフェースは利用できません。
+> `dev` コマンドの実行には Node 22.13 以降が必要です。Windows では `concurrently` npm パッケージにフォールバックするため、タブ付きインターフェースは使用できません。
 
 <!-- The default processes are: -->
 デフォルトのプロセスは次のとおりです。
 
-<!-- | Name | Command | | --- | --- | | `server` | `php artisan serve --host=localhost` | | `queue` | `php artisan queue:listen --tries=1 --timeout=0` | | `logs` | `php artisan pail --timeout=0` | | `vite` | `npm run dev` | -->
+<!-- | Name | Command | | --- | --- | | `server` | `php artisan serve` | | `queue` | `php artisan queue:listen --tries=1 --timeout=0` | | `logs` | `php artisan pail --timeout=0` | | `vite` | `npm run dev` | -->
 | 名前 | コマンド |
 | --- | --- |
-| `server` | `php artisan serve --host=localhost` |
+| `server` | `php artisan serve` |
 | `queue` | `php artisan queue:listen --tries=1 --timeout=0` |
 | `logs` | `php artisan pail --timeout=0` |
 | `vite` | `npm run dev` |
 
 > [!NOTE]
-> `vite` プロセスは Node のパッケージマネージャ（npm、pnpm、Yarn、Bun）を自動的に検出し、適切な run コマンドを使用します。
+> `vite` プロセスは Node のパッケージマネージャー（npm、pnpm、Yarn、Bun）を自動的に検出し、適切な実行コマンドを使用します。
 
 <a name="customizing-dev-processes"></a>
 <!-- ### Customizing Dev Processes -->
