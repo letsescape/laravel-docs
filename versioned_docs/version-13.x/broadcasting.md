@@ -38,6 +38,7 @@
     - [Authorizing Presence Channels](#authorizing-presence-channels)
     - [Joining Presence Channels](#joining-presence-channels)
     - [Broadcasting to Presence Channels](#broadcasting-to-presence-channels)
+- [Encrypted Private Channels](#encrypted-private-channels)
 - [Model Broadcasting](#model-broadcasting)
     - [Model Broadcasting Conventions](#model-broadcasting-conventions)
     - [Listening for Model Broadcasts](#listening-for-model-broadcasts)
@@ -190,6 +191,27 @@ BROADCAST_CONNECTION=pusher
 <!-- Finally, you are ready to install and configure [Laravel Echo](#client-side-installation), which will receive the broadcast events on the client-side. -->
 이제 클라이언트 측에서 브로드캐스트 이벤트를 수신할 [Laravel Echo](#client-side-installation)를 설치하고 설정할 준비가 되었습니다.
 
+<a name="pusher-manual-installation-encrypted-private-channels"></a>
+<!-- #### Encrypted Private Channels -->
+#### Encrypted Private Channels
+
+<!-- If you plan to use [end-to-end encrypted private channels](#encrypted-private-channels), you should add an `encryption_master_key_base64` option containing a base64 encoded, 32-byte key to the `pusher` connection's `options` array: -->
+[end-to-end encrypted private channels](#encrypted-private-channels)을 사용하려면 `pusher` 연결의 `options` 배열에 base64로 인코딩된 32바이트 키를 포함하는 `encryption_master_key_base64` 옵션을 추가해야 합니다.
+
+```php
+'options' => [
+    // ...
+    'encryption_master_key_base64' => env('PUSHER_ENCRYPTION_MASTER_KEY'),
+],
+```
+
+<!-- You may generate a suitable key using the `openssl` command: -->
+`openssl` 명령어를 사용해 적합한 키를 생성할 수 있습니다.
+
+```shell
+openssl rand -base64 32
+```
+
 <a name="ably"></a>
 <!-- ### Ably -->
 ### Ably
@@ -271,8 +293,8 @@ MERCURE_JWT_SECRET=<your-mercure-jwt-secret>
 <!-- The `MERCURE_URL` value is the URL Laravel uses to publish updates, while `MERCURE_PUBLIC_URL` is the URL that browser clients use to subscribe. Your Mercure hub must be configured with the same JWT secret. -->
 `MERCURE_URL` 값은 Laravel이 업데이트를 게시할 때 사용하는 URL이며, `MERCURE_PUBLIC_URL`은 브라우저 클라이언트가 구독할 때 사용하는 URL입니다. Mercure 허브는 동일한 JWT 시크릿으로 구성해야 합니다.
 
-<!-- To use end-to-end encrypted private channels, configure a 32-byte `MERCURE_ENCRYPTION_KEY` environment variable: -->
-종단 간 암호화된 비공개 채널을 사용하려면 32바이트 `MERCURE_ENCRYPTION_KEY` 환경 변수를 설정합니다.
+<!-- To use [end-to-end encrypted private channels](#encrypted-private-channels), configure a 32-byte `MERCURE_ENCRYPTION_KEY` environment variable: -->
+[end-to-end encrypted private channels](#encrypted-private-channels)을 사용하려면 32바이트 `MERCURE_ENCRYPTION_KEY` 환경 변수를 설정합니다:
 
 ```ini
 MERCURE_ENCRYPTION_KEY=<your-32-byte-encryption-key>
@@ -1848,6 +1870,53 @@ Echo.join(`chat.${roomId}`)
     .listen('NewMessage', (e) => {
         // ...
     });
+```
+
+<a name="encrypted-private-channels"></a>
+<!-- ## Encrypted Private Channels -->
+## Encrypted Private Channels
+
+<!-- Private channels ensure that only authorized users may listen on a channel. However, the event data itself still passes through your broadcasting service in plain text. When using Pusher Channels or Mercure, you may use end-to-end encrypted private channels so that only your application and its authorized clients are able to read the event's data. -->
+프라이빗 채널에서는 권한이 있는 사용자만 채널을 구독할 수 있습니다. 하지만 이벤트 데이터 자체는 여전히 브로드캐스팅 서비스를 거칠 때 평문으로 전달됩니다. Pusher Channels 또는 Mercure를 사용할 때는 종단 간 암호화된 프라이빗 채널을 사용해 애플리케이션과 권한이 있는 클라이언트만 이벤트 데이터를 읽도록 할 수 있습니다.
+
+<!-- To get started, configure an encryption key for [Pusher Channels](#pusher-manual-installation) or [Mercure](#mercure-manual-installation). Then, return an instance of `EncryptedPrivateChannel` from your event's `broadcastOn` method: -->
+시작하려면 [Pusher Channels](#pusher-manual-installation) 또는 [Mercure](#mercure-manual-installation)의 암호화 키를 설정합니다. 그런 다음 이벤트의 `broadcastOn` 메서드에서 `EncryptedPrivateChannel` 인스턴스를 반환합니다.
+
+```php
+use Illuminate\Broadcasting\EncryptedPrivateChannel;
+
+/**
+ * Get the channels the event should broadcast on.
+ *
+ * @return array<int, \Illuminate\Broadcasting\Channel>
+ */
+public function broadcastOn(): array
+{
+    return [
+        new EncryptedPrivateChannel('orders.'.$this->order->id),
+    ];
+}
+```
+
+<!-- Encrypted private channels are authorized exactly like private channels, so an `orders.{orderId}` authorization callback in your application's `routes/channels.php` file will also authorize the encrypted `orders.1` channel. -->
+암호화된 프라이빗 채널은 일반 프라이빗 채널과 동일한 방식으로 인가됩니다. 따라서 애플리케이션의 `routes/channels.php` 파일에 있는 `orders.{orderId}` 인가 콜백으로 암호화된 `orders.1` 채널도 인가할 수 있습니다.
+
+<!-- In your JavaScript application, you may subscribe to the channel using Echo's `encryptedPrivate` method: -->
+JavaScript 애플리케이션에서는 Echo의 `encryptedPrivate` 메서드를 사용해 채널을 구독할 수 있습니다.
+
+```js
+Echo.encryptedPrivate(`orders.${orderId}`)
+    .listen('OrderShipmentStatusUpdated', (e) => {
+        console.log(e.order);
+    });
+```
+
+<!-- When using Pusher Channels, the default `pusher-js` build does not include the code needed to decrypt messages. Instead, you should import the `with-encryption` build when [configuring Echo](#pusher-client-manual-installation): -->
+Pusher Channels를 사용할 때 기본 `pusher-js` 빌드에는 메시지 복호화에 필요한 코드가 포함되어 있지 않습니다. 대신 [configuring Echo](#pusher-client-manual-installation) `with-encryption` 빌드를 가져와야 합니다.
+
+```js
+import Pusher from 'pusher-js/with-encryption';
+window.Pusher = Pusher;
 ```
 
 <a name="model-broadcasting"></a>

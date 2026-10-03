@@ -339,8 +339,8 @@ class Flight extends Model
 }
 ```
 
-<!-- If you need to customize the format of your model's timestamps, you may use the `dateFormat` argument on the `Table` attribute. This determines how date attributes are stored in the database as well as their format when the model is serialized to an array or JSON: -->
-モデルのタイムスタンプの形式をカスタマイズする必要がある場合は、`Table` 属性で `dateFormat` 引数を使用できます。これにより、モデルが配列または JSON にシリアル化されるときの日付属性のデータベースへの保存方法とその形式が決まります。
+<!-- If you need to customize the format of your model's timestamps, you may use the `dateFormat` argument on the `Table` attribute. This determines how date attributes are stored in the database: -->
+モデルのタイムスタンプの形式をカスタマイズする必要がある場合は、`Table` 属性で `dateFormat` 引数を使用できます。これにより、日付属性がデータベースにどのように保存されるかが決まります。
 
 ```php
 <?php

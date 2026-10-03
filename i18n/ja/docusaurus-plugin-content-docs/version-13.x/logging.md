@@ -51,24 +51,23 @@ Laravel は内部で、さまざまな強力なログ ハンドラーのサポ�
 
 <div class="overflow-auto">
 
-<!-- | Name | Description | | ------------ | -------------------------------------------------------------------- | | `custom` | A driver that calls a specified factory to create a channel. | | `daily` | A `RotatingFileHandler` based Monolog driver which rotates daily. | | `monthly` | A `RotatingFileHandler` based Monolog driver which rotates monthly. | | `errorlog` | An `ErrorLogHandler` based Monolog driver. | | `monolog` | A Monolog factory driver that may use any supported Monolog handler. | | `papertrail` | A `SyslogUdpHandler` based Monolog driver. | | `single` | A single file or path based logger channel (`StreamHandler`). | | `slack` | A `SlackWebhookHandler` based Monolog driver. | | `stack` | A wrapper to facilitate creating "multi-channel" channels. | | `syslog` | A `SyslogHandler` based Monolog driver. | -->
-| 名前         | 説明                                                                 |
-| ------------ | -------------------------------------------------------------------- |
-| `custom`     | 指定したファクトリを呼び出してチャネルを作成するドライバです。       |
-| `daily`      | 毎日ローテーションする、`RotatingFileHandler` ベースの Monolog ドライバです。 |
-| `monthly`    | 毎月ローテーションする、`RotatingFileHandler` ベースの Monolog ドライバです。 |
-| `errorlog`   | `ErrorLogHandler` ベースの Monolog ドライバです。                    |
+<!-- | Name | Description | | ------------ | -------------------------------------------------------------------- | | `custom` | A driver that calls a specified factory to create a channel. | | `daily` | A `RotatingFileHandler` based Monolog driver which rotates daily. | | `monthly` | A `RotatingFileHandler` based Monolog driver which rotates monthly. | | `errorlog` | An `ErrorLogHandler` based Monolog driver. | | `monolog` | A Monolog factory driver that may use any supported Monolog handler. | | `single` | A single file or path based logger channel (`StreamHandler`). | | `slack` | A `SlackWebhookHandler` based Monolog driver. | | `stack` | A wrapper to facilitate creating "multi-channel" channels. | | `syslog` | A `SyslogHandler` based Monolog driver. | -->
+| 名前         | 説明                                                          |
+| ------------ | ------------------------------------------------------------ |
+| `custom`     | 指定したファクトリを呼び出してチャネルを作成するドライバです。         |
+| `daily`      | 毎日ローテーションする、`RotatingFileHandler` ベースの Monolog ドライバです。    |
+| `monthly`    | 毎月ローテーションする、`RotatingFileHandler` ベースの Monolog ドライバです。  |
+| `errorlog`   | `ErrorLogHandler` ベースの Monolog ドライバです。                           |
 | `monolog`    | サポートされている任意の Monolog ハンドラを使用できる、Monolog ファクトリドライバです。 |
-| `papertrail` | `SyslogUdpHandler` ベースの Monolog ドライバです。                   |
-| `single`     | 単一ファイルまたはパスベースのロガーチャネル（`StreamHandler`）です。 |
-| `slack`      | `SlackWebhookHandler` ベースの Monolog ドライバです。                |
-| `stack`      | 「複数チャネル」チャネルの作成を支援するラッパーです。               |
-| `syslog`     | `SyslogHandler` ベースの Monolog ドライバです。                     |
+| `single`     | 単一のファイルまたはパスを使用するロガーチャネルです（`StreamHandler`）。        |
+| `slack`      | `SlackWebhookHandler` ベースの Monolog ドライバです。                        |
+| `stack`      | 「マルチチャネル」チャネルを簡単に作成するためのラッパーです。           |
+| `syslog`     | `SyslogHandler` ベースの Monolog ドライバです。                              |
 
 </div>
 
 > [!NOTE]
-> `monolog` ドライバと `custom` ドライバについて詳しく知りたい場合は、[advanced channel customization](#monolog-channel-customization) のドキュメントを参照してください。
+> 詳しくは、`monolog` ドライバと `custom` ドライバについて説明している [advanced channel customization](#monolog-channel-customization) のドキュメントを参照してください。
 
 <a name="configuring-the-channel-name"></a>
 <!-- #### Configuring the Channel Name -->
@@ -348,7 +347,7 @@ class AssignRequestId
 ```
 
 > [!NOTE]
-> キューに入れたジョブの処理中にログのコンテキストを共有する必要がある場合は、[job middleware](/docs/13.x/queues#job-middleware)を利用できます。
+> キューに登録されたジョブの処理中にログコンテキストを共有する必要がある場合は、[job middleware](/docs/13.x/queues#job-middleware) を利用できます。
 
 <a name="writing-to-specific-channels"></a>
 <!-- ### Writing to Specific Channels -->
@@ -452,7 +451,7 @@ class CustomizeFormatter
 ```
 
 > [!NOTE]
-> すべての「tap」クラスは [service container](/docs/13.x/container) によって解決されるため、コンストラクタで必要とする依存関係は自動的に注入されます。
+> すべての「tap」クラスは[service container](/docs/13.x/container)によって解決されるため、コンストラクタで必要とする依存関係は自動的に注入されます。
 
 <a name="creating-monolog-handler-channels"></a>
 <!-- ### Creating Monolog Handler Channels -->
@@ -589,7 +588,7 @@ Laravel Pailは、コマンドラインからLaravelアプリケーションの�
 ### Installation
 
 > [!WARNING]
-> Laravel Pail には [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 拡張機能が必要です。
+> Laravel Pail を使用するには、PHP の [PCNTL](https://www.php.net/manual/en/book.pcntl.php) 拡張機能が必要です。
 
 <!-- To get started, install Pail into your project using the Composer package manager: -->
 まず、Composer パッケージ マネージャーを使用して Pail をプロジェクトにインストールします。

@@ -32,17 +32,12 @@
 <!-- The password reset `driver` configuration option defines where password reset data will be stored. Laravel includes two drivers: -->
 パスワードリセット `driver` 構成オプションは、パスワードリセット データが保存される場所を定義します。 Laravel には 2 つのドライバが含まれています。
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `database` - password reset data is stored in a relational database.
-- `cache` - password reset data is stored in one of your cache-based stores.
--->
+<!-- - `database` - password reset data is stored in a relational database. - `cache` - password reset data is stored in one of your cache-based stores. -->
 - `database` - パスワードリセット データはリレーショナル データベースに保存されます。
 - `cache` - パスワードリセット データは、キャッシュ ベースのストアの 1 つに保存されます。
 
-<!-- </div> -->
 </div>
 
 <a name="driver-prerequisites"></a>
@@ -54,14 +49,14 @@
 #### Database
 
 <!-- When using the default `database` driver, a table must be created to store your application's password reset tokens. Typically, this is included in Laravel's default `0001_01_01_000000_create_users_table.php` database migration. -->
-デフォルトの `database` ドライバを使用する場合、アプリケーションのパスワードリセット トークンを保存するテーブルを作成する必要があります。通常、これはLaravelのデフォルトの`0001_01_01_000000_create_users_table.php`データベース移行に含まれています。
+デフォルトの `database` ドライバを使用する場合、アプリケーションのパスワードリセット トークンを保存するテーブルを作成する必要があります。通常、これはLaravelのデフォルトの `0001_01_01_000000_create_users_table.php` データベース移行に含まれています。
 
 <a name="cache"></a>
 <!-- #### Cache -->
 #### Cache
 
-<!-- There is also a cache driver available for handling password resets, which does not require a dedicated database table. Entries are keyed by the user's email address, so ensure you are not using email addresses as a cache key elsewhere in your application: -->
-専用のデータベース テーブルを必要としない、パスワードリセットの処理に使用できるキャッシュ ドライバもあります。エントリはユーザーの電子メール アドレスによってキー設定されるため、アプリケーション内の他の場所で電子メール アドレスをキャッシュ キーとして使用していないことを確認してください。
+<!-- There is also a cache driver available for handling password resets, which does not require a dedicated database table. Entries are keyed by a SHA-256 hash of the user's email address: -->
+専用のデータベーステーブルを必要とせず、パスワードリセットに使用できるキャッシュドライバもあります。エントリのキーには、ユーザーのメールアドレスの SHA-256 ハッシュが使われます。
 
 ```php
 'passwords' => [
@@ -308,4 +303,3 @@ public function sendPasswordResetNotification($token): void
     $this->notify(new ResetPasswordNotification($url));
 }
 ```
-

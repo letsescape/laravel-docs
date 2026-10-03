@@ -53,7 +53,7 @@ Laravel은 마이그레이션 이름을 사용하여 테이블 이름과, 해당
 생성되는 마이그레이션의 사용자 지정 경로를 지정하려면 `make:migration` 명령어를 실행할 때 `--path` 옵션을 사용할 수 있습니다. 지정한 경로는 애플리케이션의 기본 경로를 기준으로 한 상대 경로여야 합니다.
 
 > [!NOTE]
-> 마이그레이션 스텁은 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용해 커스터마이즈할 수 있습니다.
+> 마이그레이션 스텁은 [stub publishing](/docs/13.x/artisan#stub-customization)을 사용해 사용자 지정할 수 있습니다.
 
 <a name="squashing-migrations"></a>
 <!-- ### Squashing Migrations -->
@@ -84,7 +84,7 @@ php artisan schema:dump --database=testing --prune
 팀의 다른 신규 개발자가 애플리케이션의 초기 데이터베이스 구조를 빠르게 만들 수 있도록, 데이터베이스 스키마 파일을 소스 컨트롤에 커밋해야 합니다.
 
 > [!WARNING]
-> 마이그레이션 스쿼싱은 MariaDB, MySQL, PostgreSQL, SQLite 데이터베이스에서만 사용할 수 있으며 데이터베이스의 명령줄 클라이언트를 사용합니다.
+> 마이그레이션 스쿼싱은 MariaDB, MySQL, PostgreSQL, SQLite 데이터베이스에서만 사용할 수 있으며 데이터베이스의 명령줄 클라이언트를 이용합니다.
 
 <a name="migration-structure"></a>
 <!-- ## Migration Structure -->
@@ -219,7 +219,7 @@ php artisan migrate --isolated
 ```
 
 > [!WARNING]
-> 이 기능을 사용하려면 애플리케이션에서 `memcached`, `redis`, `dynamodb`, `database`, `file` 또는 `array` 캐시 드라이버를 기본 캐시 드라이버로 사용해야 합니다. 또한 모든 서버가 동일한 중앙 캐시 서버와 통신해야 합니다.
+> 이 기능을 사용하려면 애플리케이션의 기본 캐시 드라이버로 `memcached`, `redis`, `dynamodb`, `database`, `file` 또는 `array`를 사용해야 합니다. 또한 모든 서버가 동일한 중앙 캐시 서버와 통신해야 합니다.
 
 <a name="forcing-migrations-to-run-in-production"></a>
 <!-- #### Forcing Migrations to Run in Production -->
@@ -313,7 +313,7 @@ php artisan migrate:fresh --database=admin
 ```
 
 > [!WARNING]
-> `migrate:fresh` 명령어는 접두사가 무엇이든 관계없이 모든 데이터베이스 테이블을 삭제합니다. 이 명령어는 다른 애플리케이션과 공유하는 데이터베이스에서 개발할 때 주의해서 사용해야 합니다.
+> `migrate:fresh` 명령어는 접두사와 관계없이 모든 데이터베이스 테이블을 삭제합니다. 다른 애플리케이션과 공유하는 데이터베이스를 사용해 개발할 때는 이 명령어를 주의해서 사용해야 합니다.
 
 <a name="tables"></a>
 <!-- ## Tables -->
@@ -870,7 +870,7 @@ $table->geography('coordinates', subtype: 'point', srid: 4326);
 ```
 
 > [!NOTE]
-> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 자세한 내용은 데이터베이스 문서를 참고하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용하는 경우 `geography` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 프로그램을 설치해야 합니다.
+> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 데이터베이스 문서를 참고하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용하는 경우 `geography` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 프로그램을 설치해야 합니다.
 
 <a name="column-method-geometry"></a>
 <!-- #### `geometry()` -->
@@ -884,7 +884,7 @@ $table->geometry('positions', subtype: 'point', srid: 0);
 ```
 
 > [!NOTE]
-> 공간 타입 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 데이터베이스의 문서를 참조하세요. 애플리케이션에서 PostgreSQL 데이터베이스를 사용한다면 `geometry` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 프로그램을 설치해야 합니다.
+> 공간 유형 지원 여부는 데이터베이스 드라이버에 따라 달라집니다. 데이터베이스 문서를 참조하십시오. 애플리케이션에서 PostgreSQL 데이터베이스를 사용하는 경우 `geometry` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장 프로그램을 설치해야 합니다.
 
 <a name="column-method-id"></a>
 <!-- #### `id()` -->
@@ -945,7 +945,7 @@ $table->json('options');
 ```
 
 <!-- When using SQLite, a `TEXT` column will be created. -->
-SQLite를 사용하면 `TEXT` 컬럼이 생성됩니다.
+SQLite를 사용할 때는 `TEXT` 컬럼이 생성됩니다.
 
 <a name="column-method-jsonb"></a>
 <!-- #### `jsonb()` -->
@@ -1498,7 +1498,7 @@ return new class extends Migration
 ```
 
 > [!WARNING]
-> 기본 표현식 지원 여부는 데이터베이스 드라이버, 데이터베이스 버전 및 필드 타입에 따라 달라집니다. 자세한 내용은 데이터베이스 문서를 참조하세요.
+> 기본값 표현식 지원 여부는 데이터베이스 드라이버, 데이터베이스 버전 및 필드 유형에 따라 달라집니다. 데이터베이스 문서를 참조하세요.
 
 <a name="column-order"></a>
 <!-- #### Column Order -->
@@ -1907,27 +1907,27 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite는 기본적으로 외래 키 제약 조건을 비활성화합니다. SQLite를 사용할 때 마이그레이션에서 외래 키 제약 조건을 생성하기 전에 데이터베이스 설정에서 [enable foreign key support](/docs/13.x/database#configuration)를 활성화해야 합니다.
+> SQLite는 기본적으로 외래 키 제약 조건을 비활성화합니다. SQLite를 사용하는 경우 마이그레이션에서 외래 키 제약 조건을 만들기 전에 데이터베이스 설정에서 [enable foreign key support](/docs/13.x/database#configuration)를 활성화해야 합니다.
 
 <a name="events"></a>
 <!-- ## Events -->
 ## Events
 
-<!-- For convenience, each migration operation will dispatch an [event](/docs/13.x/events). All of the following events extend the base `Illuminate\Database\Events\MigrationEvent` class: -->
-편의를 위해 각 마이그레이션 작업은 [event](/docs/13.x/events)를 디스패치합니다. 다음 이벤트는 모두 기본 `Illuminate\Database\Events\MigrationEvent` 클래스를 확장합니다:
+<!-- For convenience, each migration operation will dispatch an [event](/docs/13.x/events). With the exception of `SchemaDumped` and `SchemaLoaded`, all of the following events implement the `Illuminate\Contracts\Database\Events\MigrationEvent` interface: -->
+각 마이그레이션 작업은 편의를 위해 [event](/docs/13.x/events)를 디스패치합니다. `SchemaDumped`와 `SchemaLoaded`를 제외한 다음 이벤트는 모두 `Illuminate\Contracts\Database\Events\MigrationEvent` 인터페이스를 구현합니다:
 
 <div class="overflow-auto">
 
-<!-- | Class | Description | | ------------------------------------------------ | ------------------------------------------------ | | `Illuminate\Database\Events\DatabaseRefreshed` | The `migrate:refresh` command has finished. | | `Illuminate\Database\Events\MigrationsStarted` | A batch of migrations is about to be executed. | | `Illuminate\Database\Events\MigrationsEnded` | A batch of migrations has finished. | | `Illuminate\Database\Events\MigrationStarted` | A single migration is about to be executed. | | `Illuminate\Database\Events\MigrationEnded` | A single migration has finished. | | `Illuminate\Database\Events\NoPendingMigrations` | A migration command found no pending migrations. | | `Illuminate\Database\Events\SchemaDumped` | A database schema dump has finished. | | `Illuminate\Database\Events\SchemaLoaded` | An existing database schema dump has loaded. | -->
+<!-- | Class | Description | | ------------------------------------------------ | ------------------------------------------------ | | `Illuminate\Database\Events\DatabaseRefreshed` | The `migrate:fresh` or `migrate:refresh` command has finished. | | `Illuminate\Database\Events\MigrationsStarted` | A batch of migrations is about to be executed. | | `Illuminate\Database\Events\MigrationsEnded` | A batch of migrations has finished. | | `Illuminate\Database\Events\MigrationStarted` | A single migration is about to be executed. | | `Illuminate\Database\Events\MigrationEnded` | A single migration has finished. | | `Illuminate\Database\Events\NoPendingMigrations` | A migration command found no pending migrations. | | `Illuminate\Database\Events\SchemaDumped` | A database schema dump has finished. | | `Illuminate\Database\Events\SchemaLoaded` | An existing database schema dump has loaded. | -->
 | 클래스                                           | 설명                                      |
-| ------------------------------------------------ | ----------------------------------------- |
-| `Illuminate\Database\Events\DatabaseRefreshed`   | `migrate:refresh` 명령어가 완료되었습니다. |
-| `Illuminate\Database\Events\MigrationsStarted`   | 마이그레이션 배치를 실행하려고 합니다.    |
-| `Illuminate\Database\Events\MigrationsEnded`     | 마이그레이션 배치가 완료되었습니다.       |
-| `Illuminate\Database\Events\MigrationStarted`    | 단일 마이그레이션을 실행하려고 합니다.    |
-| `Illuminate\Database\Events\MigrationEnded`      | 단일 마이그레이션이 완료되었습니다.       |
-| `Illuminate\Database\Events\NoPendingMigrations` | 마이그레이션 명령어에서 보류 중인 마이그레이션을 찾지 못했습니다. |
-| `Illuminate\Database\Events\SchemaDumped`        | 데이터베이스 스키마 덤프가 완료되었습니다. |
-| `Illuminate\Database\Events\SchemaLoaded`        | 기존 데이터베이스 스키마 덤프를 로드했습니다. |
+| ------------------------------------------------ | ------------------------------------------------ |
+| `Illuminate\Database\Events\DatabaseRefreshed`   | `migrate:fresh` 또는 `migrate:refresh` 명령어가 완료되었습니다. |
+| `Illuminate\Database\Events\MigrationsStarted`   | 마이그레이션 배치를 실행하려고 합니다.   |
+| `Illuminate\Database\Events\MigrationsEnded`     | 마이그레이션 배치가 완료되었습니다.              |
+| `Illuminate\Database\Events\MigrationStarted`    | 단일 마이그레이션을 실행하려고 합니다.      |
+| `Illuminate\Database\Events\MigrationEnded`      | 단일 마이그레이션이 완료되었습니다.                 |
+| `Illuminate\Database\Events\NoPendingMigrations` | 마이그레이션 명령어에서 대기 중인 마이그레이션을 찾지 못했습니다. |
+| `Illuminate\Database\Events\SchemaDumped`        | 데이터베이스 스키마 덤프가 완료되었습니다.             |
+| `Illuminate\Database\Events\SchemaLoaded`        | 기존 데이터베이스 스키마 덤프를 불러왔습니다.     |
 
 </div>

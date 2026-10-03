@@ -652,7 +652,7 @@ class StoreUserRequest extends FormRequest
      *
      * @return array
      */
-    protected function rules()
+    public function rules()
     {
         return [
             'password' => [
@@ -683,7 +683,7 @@ class StoreUserRequest extends FormRequest
  *
  * @return array
  */
-protected function rules()
+public function rules()
 {
     return [
         'avatar' => [

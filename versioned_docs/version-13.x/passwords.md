@@ -32,17 +32,12 @@
 <!-- The password reset `driver` configuration option defines where password reset data will be stored. Laravel includes two drivers: -->
 비밀번호 재설정의 `driver` 설정 옵션은 비밀번호 재설정 데이터를 어디에 저장할지 정의합니다. Laravel은 두 가지 드라이버를 제공합니다:
 
-<!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
 
-<!--
-- `database` - password reset data is stored in a relational database.
-- `cache` - password reset data is stored in one of your cache-based stores.
--->
+<!-- - `database` - password reset data is stored in a relational database. - `cache` - password reset data is stored in one of your cache-based stores. -->
 - `database` - 비밀번호 재설정 데이터가 관계형 데이터베이스에 저장됩니다.
 - `cache` - 비밀번호 재설정 데이터가 캐시 기반 저장소에 저장됩니다.
 
-<!-- </div> -->
 </div>
 
 <a name="driver-prerequisites"></a>
@@ -60,8 +55,8 @@
 <!-- #### Cache -->
 #### Cache
 
-<!-- There is also a cache driver available for handling password resets, which does not require a dedicated database table. Entries are keyed by the user's email address, so ensure you are not using email addresses as a cache key elsewhere in your application: -->
-비밀번호 재설정을 위한 별도 데이터베이스 테이블이 필요 없는 캐시 드라이버도 존재합니다. 항목들은 사용자의 이메일 주소를 키로 저장되므로, 애플리케이션에서 이메일 주소를 다른 캐시 키로 사용하지 않도록 주의해야 합니다.
+<!-- There is also a cache driver available for handling password resets, which does not require a dedicated database table. Entries are keyed by a SHA-256 hash of the user's email address: -->
+비밀번호 재설정에 사용할 수 있는 캐시 드라이버도 있습니다. 이 드라이버는 별도의 데이터베이스 테이블이 필요하지 않습니다. 항목은 사용자 이메일 주소의 SHA-256 해시를 키로 사용합니다:
 
 ```php
 'passwords' => [

@@ -218,9 +218,9 @@ Amazon SQS は、キューに入れられたメッセージ ペイロードの�
 
 <div class="content-list" markdown="1">
 
-<!-- - Amazon SQS: `aws/aws-sdk-php ~3.0` - Beanstalkd: `pda/pheanstalk ~5.0` - Redis: `predis/predis ~3.0` or phpredis PHP extension - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb` -->
+<!-- - Amazon SQS: `aws/aws-sdk-php ~3.0` - Beanstalkd: `pda/pheanstalk ^7.0|^8.0` - Redis: `predis/predis ~3.0` or phpredis PHP extension - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb` -->
 - Amazon SQS: `aws/aws-sdk-php ~3.0`
-- Beanstalkd: `pda/pheanstalk ~5.0`
+- Beanstalkd: `pda/pheanstalk ^7.0|^8.0`
 - Redis: `predis/predis ~3.0` または phpredis PHP 拡張
 - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb`
 
@@ -2056,13 +2056,16 @@ class ProcessOrder implements ShouldQueue
 <!-- When utilizing FIFO queues, you will also need to define message groups on listeners, mail, and notifications. Alternatively, you can dispatch queued instances of these objects to a non-FIFO queue. -->
 FIFO キューを使用する場合は、リスナ、メール、通知のメッセージ グループも定義する必要があります。あるいは、これらのオブジェクトのキューに入れられたインスタンスを非 FIFO キューにディスパッチすることもできます。
 
-<!-- To define the message group for a [queued event listener](/docs/13.x/events#queued-event-listeners), define a `messageGroup` method on the listener. You may also optionally define a `deduplicationId` method: -->
-[queued event listener](/docs/13.x/events#queued-event-listeners) のメッセージグループを定義するには、リスナに `messageGroup` メソッドを定義します。必要に応じて、`deduplicationId` メソッドも定義できます。
+<!-- To define the message group for a [queued event listener](/docs/13.x/events#queued-event-listeners), define a `messageGroup` method on the listener. You may also optionally define a `deduplicator` method, which receives the event and should return a closure that generates the deduplication ID: -->
+[queued event listener](/docs/13.x/events#queued-event-listeners) のメッセージグループを定義するには、リスナに `messageGroup` メソッドを定義します。必要に応じて、イベントを受け取り、重複排除 ID を生成するクロージャを返す `deduplicator` メソッドも定義できます。
 
 ```php
 <?php
 
 namespace App\Listeners;
+
+use App\Events\OrderShipped;
+use Closure;
 
 class SendShipmentNotification
 {
@@ -2077,11 +2080,11 @@ class SendShipmentNotification
     }
 
     /**
-     * Get the job's deduplication ID.
+     * Get the job's deduplicator.
      */
-    public function deduplicationId(): string
+    public function deduplicator(OrderShipped $event): Closure
     {
-        return "shipment-notification-{$this->shipment->id}";
+        return fn () => "shipment-notification-{$event->order->id}";
     }
 }
 ```

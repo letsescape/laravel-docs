@@ -51,24 +51,23 @@ Laravel의 로깅은 "채널(channels)" 기반으로 동작합니다. 각 채널
 
 <div class="overflow-auto">
 
-<!-- | Name | Description | | ------------ | -------------------------------------------------------------------- | | `custom` | A driver that calls a specified factory to create a channel. | | `daily` | A `RotatingFileHandler` based Monolog driver which rotates daily. | | `monthly` | A `RotatingFileHandler` based Monolog driver which rotates monthly. | | `errorlog` | An `ErrorLogHandler` based Monolog driver. | | `monolog` | A Monolog factory driver that may use any supported Monolog handler. | | `papertrail` | A `SyslogUdpHandler` based Monolog driver. | | `single` | A single file or path based logger channel (`StreamHandler`). | | `slack` | A `SlackWebhookHandler` based Monolog driver. | | `stack` | A wrapper to facilitate creating "multi-channel" channels. | | `syslog` | A `SyslogHandler` based Monolog driver. | -->
-| 이름         | 설명                                                          |
-| ------------ | ------------------------------------------------------------- |
-| `custom`     | 지정한 팩토리를 호출해 채널을 생성하는 드라이버입니다.       |
-| `daily`      | 매일 순환하는 `RotatingFileHandler` 기반 Monolog 드라이버입니다. |
-| `monthly`    | 매월 순환하는 `RotatingFileHandler` 기반 Monolog 드라이버입니다. |
-| `errorlog`   | `ErrorLogHandler` 기반 Monolog 드라이버입니다.                |
+<!-- | Name | Description | | ------------ | -------------------------------------------------------------------- | | `custom` | A driver that calls a specified factory to create a channel. | | `daily` | A `RotatingFileHandler` based Monolog driver which rotates daily. | | `monthly` | A `RotatingFileHandler` based Monolog driver which rotates monthly. | | `errorlog` | An `ErrorLogHandler` based Monolog driver. | | `monolog` | A Monolog factory driver that may use any supported Monolog handler. | | `single` | A single file or path based logger channel (`StreamHandler`). | | `slack` | A `SlackWebhookHandler` based Monolog driver. | | `stack` | A wrapper to facilitate creating "multi-channel" channels. | | `syslog` | A `SyslogHandler` based Monolog driver. | -->
+| 이름         | 설명                                                                  |
+| ------------ | -------------------------------------------------------------------- |
+| `custom`     | 지정된 팩토리를 호출해 채널을 생성하는 드라이버입니다.                |
+| `daily`      | 매일 로그 파일을 순환하는 `RotatingFileHandler` 기반 Monolog 드라이버입니다. |
+| `monthly`    | 매월 로그 파일을 순환하는 `RotatingFileHandler` 기반 Monolog 드라이버입니다. |
+| `errorlog`   | `ErrorLogHandler` 기반 Monolog 드라이버입니다.                         |
 | `monolog`    | 지원되는 모든 Monolog 핸들러를 사용할 수 있는 Monolog 팩토리 드라이버입니다. |
-| `papertrail` | `SyslogUdpHandler` 기반 Monolog 드라이버입니다.              |
 | `single`     | 단일 파일 또는 경로를 기반으로 하는 로거 채널(`StreamHandler`)입니다. |
-| `slack`      | `SlackWebhookHandler` 기반 Monolog 드라이버입니다.            |
-| `stack`      | "다중 채널" 채널을 쉽게 생성할 수 있도록 돕는 래퍼입니다.     |
-| `syslog`     | `SyslogHandler` 기반 Monolog 드라이버입니다.                  |
+| `slack`      | `SlackWebhookHandler` 기반 Monolog 드라이버입니다.                     |
+| `stack`      | "멀티 채널" 채널을 쉽게 생성할 수 있도록 돕는 래퍼입니다.              |
+| `syslog`     | `SyslogHandler` 기반 Monolog 드라이버입니다.                           |
 
 </div>
 
 > [!NOTE]
-> 자세한 내용은 `monolog` 및 `custom` 드라이버에 대해 알아볼 수 있는 [advanced channel customization](#monolog-channel-customization) 문서를 참고하세요.
+> `monolog` 및 `custom` 드라이버에 대해 자세히 알아보려면 [advanced channel customization](#monolog-channel-customization) 문서를 참조하세요.
 
 <a name="configuring-the-channel-name"></a>
 <!-- #### Configuring the Channel Name -->
@@ -348,7 +347,7 @@ class AssignRequestId
 ```
 
 > [!NOTE]
-> 큐에 등록된 잡을 처리하는 동안 로그 컨텍스트를 공유해야 한다면 [job middleware](/docs/13.x/queues#job-middleware)를 사용할 수 있습니다.
+> 대기열에 추가된 잡을 처리하는 동안 로그 컨텍스트를 공유해야 한다면 [job middleware](/docs/13.x/queues#job-middleware)를 사용할 수 있습니다.
 
 <a name="writing-to-specific-channels"></a>
 <!-- ### Writing to Specific Channels -->
@@ -452,7 +451,7 @@ class CustomizeFormatter
 ```
 
 > [!NOTE]
-> 모든 "tap" 클래스는 [service container](/docs/13.x/container)를 통해 해결되므로, 해당 클래스에 필요한 모든 생성자 의존성이 자동으로 주입됩니다.
+> 모든 "tap" 클래스는 [service container](/docs/13.x/container)에서 해결되므로, 클래스에 필요한 생성자 의존성이 자동으로 주입됩니다.
 
 <a name="creating-monolog-handler-channels"></a>
 <!-- ### Creating Monolog Handler Channels -->
@@ -589,7 +588,7 @@ Laravel Pail은 명령줄에서 Laravel 애플리케이션의 로그 파일을 �
 ### Installation
 
 > [!WARNING]
-> Laravel Pail에는 [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 확장이 필요합니다.
+> Laravel Pail에는 [PCNTL](https://www.php.net/manual/en/book.pcntl.php) PHP 확장 기능이 필요합니다.
 
 <!-- To get started, install Pail into your project using the Composer package manager: -->
 Composer를 이용해 개발 환경 전용 패키지로 Pail을 설치하세요:

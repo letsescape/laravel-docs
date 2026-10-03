@@ -1501,11 +1501,11 @@ $result = $data->groupBy(['skill', function (array $item) {
             10 => ['user' => 1, 'skill' => 1, 'roles' => ['Role_1', 'Role_3']],
             20 => ['user' => 2, 'skill' => 1, 'roles' => ['Role_1', 'Role_2']],
         ],
-        'Role_2' => [
-            20 => ['user' => 2, 'skill' => 1, 'roles' => ['Role_1', 'Role_2']],
-        ],
         'Role_3' => [
             10 => ['user' => 1, 'skill' => 1, 'roles' => ['Role_1', 'Role_3']],
+        ],
+        'Role_2' => [
+            20 => ['user' => 2, 'skill' => 1, 'roles' => ['Role_1', 'Role_2']],
         ],
     ],
     2 => [
@@ -1717,8 +1717,8 @@ $intersect->all();
 <!-- #### `intersectAssocUsing()` -->
 #### `intersectAssocUsing()`
 
-<!-- The `intersectAssocUsing` method compares the original collection against another collection or array, returning the key / value pairs that are present in both, using a custom comparison callback to determine equality for both keys and values: -->
-`intersectAssocUsing` 메서드는 원래 컬렉션을 다른 컬렉션이나 배열과 비교하여 두 컬렉션에 모두 존재하는 키/값 쌍을 반환하고, 사용자 지정 비교 콜백을 사용하여 키와 값이 같은지 확인합니다.
+<!-- The `intersectAssocUsing` method compares the original collection against another collection or array, returning the key / value pairs that are present in both, using a custom comparison callback to compare the keys: -->
+`intersectAssocUsing` 메서드는 원래 컬렉션을 다른 컬렉션이나 배열과 비교하여 두 컬렉션에 모두 있는 키/값 쌍을 반환하며, 키를 비교할 때 사용자 지정 비교 콜백을 사용합니다.
 
 ```php
 $collection = collect([
@@ -3755,7 +3755,7 @@ $collection = collect(['name' => 'Desk', 'price' => 200]);
 
 $collection->toJson();
 
-// '{"name":"Desk", "price":200}'
+// '{"name":"Desk","price":200}'
 ```
 
 <a name="method-to-pretty-json"></a>
@@ -4864,7 +4864,7 @@ if ($lock->get()) {
             ->lazy()
             ->withHeartbeat(
                 CarbonInterval::minutes(4),
-                fn () => $lock->extend(CarbonInterval::minutes(5))
+                fn () => $lock->refresh()
             )
             ->each(fn ($report) => $report->process());
     } finally {

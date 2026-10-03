@@ -902,8 +902,8 @@ public function boot(): void
 <x-package-alert/>
 ```
 
-<!-- Alternatively, you may use the `componentNamespace` method to autoload component classes by convention. For example, a `Nightshade` package might have `Calendar` and `ColorPicker` components that reside within the `Package\Views\Components` namespace: -->
-あるいは、`componentNamespace` メソッドを使用して、規則に従ってコンポーネント クラスを自動ロードすることもできます。たとえば、`Nightshade` パッケージには、`Package\Views\Components` 名前空間内に存在する `Calendar` コンポーネントと `ColorPicker` コンポーネントが含まれる場合があります。
+<!-- Alternatively, you may use the `componentNamespace` method to autoload component classes by convention. For example, a `Nightshade` package might have `Calendar` and `ColorPicker` components that reside within the `Nightshade\Views\Components` namespace: -->
+あるいは、`componentNamespace` メソッドを使って、規約に従ってコンポーネントクラスを自動ロードすることもできます。たとえば、`Nightshade` パッケージの `Calendar` コンポーネントと `ColorPicker` コンポーネントは、`Nightshade\Views\Components` 名前空間に配置できます。
 
 ```php
 use Illuminate\Support\Facades\Blade;
@@ -1160,8 +1160,8 @@ return function (array $data) {
 > [!WARNING]
 > `$data` 配列内の要素は、`render` メソッドによって返される Blade 文字列に直接埋め込まないでください。埋め込むと、悪意のある属性コンテンツを介してリモート コードが実行される可能性があります。
 
-<!-- The `componentName` is equal to the name used in the HTML tag after the `x-` prefix. So `<x-alert />`'s `componentName` will be `alert`. The `attributes` element will contain all of the attributes that were present on the HTML tag. The `slot` element is an `Illuminate\Support\HtmlString` instance with the contents of the component's slot. -->
-`componentName` は、HTML タグで `x-` プレフィックスの後に使用される名前と同じです。したがって、`<x-alert />` の `componentName` は `alert` になります。 `attributes` 要素には、HTML タグに存在したすべての属性が含まれます。 `slot` 要素は、コンポーネントのスロットの内容を含む `Illuminate\Support\HtmlString` インスタンスです。
+<!-- The `componentName` is equal to the name used in the HTML tag after the `x-` prefix. So `<x-alert />`'s `componentName` will be `alert`. The `attributes` element will contain all of the attributes that were present on the HTML tag. The `slot` element is an `Illuminate\View\ComponentSlot` instance with the contents of the component's slot. -->
+`componentName` は、HTML タグの `x-` プレフィックスに続く名前と同じです。つまり、`<x-alert />` の `componentName` は `alert` になります。`attributes` 要素には、HTML タグに指定されたすべての属性が含まれます。`slot` 要素は、コンポーネントのスロットの内容を持つ `Illuminate\View\ComponentSlot` インスタンスです。
 
 <!-- The closure should return a string. If the returned string corresponds to an existing view, that view will be rendered; otherwise, the returned string will be evaluated as an inline Blade view. -->
 クロージャは文字列を返す必要があります。返された文字列が既存のビューに対応する場合、そのビューがレンダリングされます。それ以外の場合、返された文字列はインライン Blade ビューとして評価されます。
@@ -1650,8 +1650,8 @@ public function boot(): void
 <!-- #### Autoloading Package Components -->
 #### Autoloading Package Components
 
-<!-- Alternatively, you may use the `componentNamespace` method to autoload component classes by convention. For example, a `Nightshade` package might have `Calendar` and `ColorPicker` components that reside within the `Package\Views\Components` namespace: -->
-あるいは、`componentNamespace` メソッドを使用して、規則に従ってコンポーネント クラスを自動ロードすることもできます。たとえば、`Nightshade` パッケージには、`Package\Views\Components` 名前空間内に存在する `Calendar` コンポーネントと `ColorPicker` コンポーネントが含まれる場合があります。
+<!-- Alternatively, you may use the `componentNamespace` method to autoload component classes by convention. For example, a `Nightshade` package might have `Calendar` and `ColorPicker` components that reside within the `Nightshade\Views\Components` namespace: -->
+あるいは、`componentNamespace` メソッドを使って、規約に従ってコンポーネントクラスを自動ロードすることもできます。たとえば、`Nightshade` パッケージの `Calendar` コンポーネントと `ColorPicker` コンポーネントは、`Nightshade\Views\Components` 名前空間に配置できます。
 
 ```php
 use Illuminate\Support\Facades\Blade;

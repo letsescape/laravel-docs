@@ -222,8 +222,8 @@ php artisan route:list -v
 php artisan route:list -vv
 ```
 
-<!-- You may also instruct Laravel to only show routes that begin with a given URI: -->
-특정 URI로 시작하는 라우트만 표시하도록 Laravel에 지시할 수도 있습니다.
+<!-- You may also instruct Laravel to only show routes whose URI contains a given string: -->
+지정한 문자열을 URI에 포함하는 라우트만 표시하도록 Laravel에 지시할 수도 있습니다.
 
 ```shell
 php artisan route:list --path=api

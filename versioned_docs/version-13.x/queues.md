@@ -218,10 +218,10 @@ Amazon SQS는 큐에 들어가는 메시지 페이로드의 최대 크기를 제
 
 <div class="content-list" markdown="1">
 
-<!-- - Amazon SQS: `aws/aws-sdk-php ~3.0` - Beanstalkd: `pda/pheanstalk ~5.0` - Redis: `predis/predis ~3.0` or phpredis PHP extension - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb` -->
+<!-- - Amazon SQS: `aws/aws-sdk-php ~3.0` - Beanstalkd: `pda/pheanstalk ^7.0|^8.0` - Redis: `predis/predis ~3.0` or phpredis PHP extension - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb` -->
 - Amazon SQS: `aws/aws-sdk-php ~3.0`
-- Beanstalkd: `pda/pheanstalk ~5.0`
-- Redis: `predis/predis ~3.0` 또는 phpredis PHP extension
+- Beanstalkd: `pda/pheanstalk ^7.0|^8.0`
+- Redis: `predis/predis ~3.0` 또는 phpredis PHP 확장
 - [MongoDB](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/): `mongodb/laravel-mongodb`
 
 </div>
@@ -2056,13 +2056,16 @@ class ProcessOrder implements ShouldQueue
 <!-- When utilizing FIFO queues, you will also need to define message groups on listeners, mail, and notifications. Alternatively, you can dispatch queued instances of these objects to a non-FIFO queue. -->
 FIFO 큐를 사용할 때는 리스너, 메일, 알림에도 메시지 그룹을 정의해야 합니다. 또는 이러한 객체의 큐 인스턴스를 FIFO가 아닌 큐로 디스패치할 수도 있습니다.
 
-<!-- To define the message group for a [queued event listener](/docs/13.x/events#queued-event-listeners), define a `messageGroup` method on the listener. You may also optionally define a `deduplicationId` method: -->
-[queued event listener](/docs/13.x/events#queued-event-listeners)의 메시지 그룹을 정의하려면 리스너에 `messageGroup` 메서드를 정의합니다. 선택적으로 `deduplicationId` 메서드도 정의할 수 있습니다:
+<!-- To define the message group for a [queued event listener](/docs/13.x/events#queued-event-listeners), define a `messageGroup` method on the listener. You may also optionally define a `deduplicator` method, which receives the event and should return a closure that generates the deduplication ID: -->
+[queued event listener](/docs/13.x/events#queued-event-listeners)의 메시지 그룹을 정의하려면 리스너에 `messageGroup` 메서드를 정의합니다. 선택적으로 이벤트를 인수로 받아 중복 제거 ID를 생성하는 클로저를 반환하는 `deduplicator` 메서드도 정의할 수 있습니다:
 
 ```php
 <?php
 
 namespace App\Listeners;
+
+use App\Events\OrderShipped;
+use Closure;
 
 class SendShipmentNotification
 {
@@ -2077,11 +2080,11 @@ class SendShipmentNotification
     }
 
     /**
-     * Get the job's deduplication ID.
+     * Get the job's deduplicator.
      */
-    public function deduplicationId(): string
+    public function deduplicator(OrderShipped $event): Closure
     {
-        return "shipment-notification-{$this->shipment->id}";
+        return fn () => "shipment-notification-{$event->order->id}";
     }
 }
 ```

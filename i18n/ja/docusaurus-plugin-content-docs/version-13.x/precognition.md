@@ -653,7 +653,7 @@ class StoreUserRequest extends FormRequest
      *
      * @return array
      */
-    protected function rules()
+    public function rules()
     {
         return [
             'password' => [
@@ -684,7 +684,7 @@ class StoreUserRequest extends FormRequest
  *
  * @return array
  */
-protected function rules()
+public function rules()
 {
     return [
         'avatar' => [
@@ -775,4 +775,3 @@ public function test_it_validates_registration_form_with_precognition()
     $this->assertSame(0, User::count());
 }
 ```
-

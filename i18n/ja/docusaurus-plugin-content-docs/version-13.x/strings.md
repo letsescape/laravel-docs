@@ -1309,8 +1309,8 @@ $padded = Str::padRight('James', 10);
 <!-- #### `Str::password()` -->
 #### `Str::password()`
 
-<!-- The `Str::password` method may be used to generate a secure, random password of a given length. The password will consist of a combination of letters, numbers, symbols, and spaces. By default, passwords are 32 characters long: -->
-`Str::password` メソッドを使用すると、指定された長さの安全なランダムなパスワードを生成できます。パスワードは文字、数字、記号、スペースの組み合わせで構成されます。デフォルトでは、パスワードの長さは 32 文字です。
+<!-- The `Str::password` method may be used to generate a secure, random password of a given length. The password will consist of a combination of letters, numbers, and symbols. By default, passwords are 32 characters long: -->
+`Str::password` メソッドを使用すると、指定した長さの安全なランダムパスワードを生成できます。パスワードは文字、数字、記号を組み合わせて構成されます。デフォルトでは、パスワードの長さは 32 文字です。
 
 ```php
 use Illuminate\Support\Str;
@@ -2220,8 +2220,8 @@ $string = str('Taylor')->append(' Otwell');
 // 'Taylor Otwell'
 ```
 
-<!-- If no argument is provided to the `str` function, the function returns an instance of `Illuminate\Support\Str`: -->
-`str` 関数に引数が指定されていない場合、関数は `Illuminate\Support\Str` のインスタンスを返します。
+<!-- If no argument is provided to the `str` function, the function returns an object that proxies method calls to `Illuminate\Support\Str`: -->
+`str` 関数に引数を指定しない場合、`Illuminate\Support\Str` へのメソッド呼び出しを中継するオブジェクトを返します。
 
 ```php
 $snake = str()->snake('FooBar');
