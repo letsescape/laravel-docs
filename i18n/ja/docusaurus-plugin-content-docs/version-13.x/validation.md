@@ -235,7 +235,7 @@ $request->validate([
 Laravel の組み込み検証ルールには、それぞれエラー メッセージがあり、アプリケーションの `lang/en/validation.php` ファイルにあります。アプリケーションに `lang` ディレクトリがない場合は、`lang:publish` Artisan コマンドを使用してディレクトリを作成するように Laravel に指示できます。
 
 <!-- Within the `lang/en/validation.php` file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application. -->
-`lang/en/validation.php` ファイル内に、各検証ルールの変換エントリがあります。アプリケーションのニーズに基づいて、これらのメッセージを自由に変更または修正できます。
+`lang/en/validation.php` ファイル内に、各検証ルールの翻訳エントリがあります。アプリケーションのニーズに基づいて、これらのメッセージを自由に変更または修正できます。
 
 <!-- In addition, you may copy this file to another language directory to translate the messages for your application's language. To learn more about Laravel localization, check out the complete [localization documentation](/docs/13.x/localization). -->
 さらに、このファイルを別の言語ディレクトリにコピーして、メッセージをアプリケーションの言語に翻訳することもできます。 Laravel ローカリゼーションの詳細については、完全な [localization documentation](/docs/13.x/localization) を確認してください。
@@ -525,7 +525,7 @@ class StorePostRequest extends FormRequest
 ```
 
 <!-- You may also enable this behavior globally for all form requests from your `AppServiceProvider`: -->
-`AppServiceProvider` からのすべてのフォームリクエストに対してこの動作をグローバルに有効にすることもできます。
+`AppServiceProvider` で、すべてのフォームリクエストに対してこの動作をグローバルに有効にすることもできます。
 
 ```php
 use Illuminate\Foundation\Http\FormRequest;
@@ -674,7 +674,7 @@ public function authorize(): bool
 ### Customizing the Error Messages
 
 <!-- You may customize the error messages used by the form request by overriding the `messages` method. This method should return an array of attribute / rule pairs and their corresponding error messages: -->
-`messages` メソッドをオーバーライドすることで、フォーム リクエストで使用されるエラー メッセージをカスタマイズできます。このメソッドは、属性とルールのペアの配列と、それに対応するエラー メッセージを返す必要があります。
+`messages` メソッドをオーバーライドすることで、フォーム リクエストで使用されるエラー メッセージをカスタマイズできます。このメソッドは、属性とルールの組をキーとし、対応するエラー メッセージを値とする配列を返す必要があります。
 
 ```php
 /**
@@ -817,7 +817,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 ### Automatic Redirection
 
 <!-- If you would like to create a validator instance manually but still take advantage of the automatic redirection offered by the HTTP request's `validate` method, you may call the `validate` method on an existing validator instance. If validation fails, the user will automatically be redirected or, in the case of an XHR request, a [JSON response will be returned](#validation-error-response-format): -->
-バリデーター インスタンスを手動で作成したいが、HTTP リクエストの `validate` メソッドによって提供される自動リダイレクトを利用したい場合は、既存のバリデーター インスタンスで `validate` メソッドを呼び出すことができます。検証が失敗した場合、ユーザーは自動的にリダイレクトされるか、XHR リクエストの場合は [JSON response will be returned](#validation-error-response-format) にリダイレクトされます。
+バリデーター インスタンスを手動で作成したいが、HTTP リクエストの `validate` メソッドによって提供される自動リダイレクトを利用したい場合は、既存のバリデーター インスタンスで `validate` メソッドを呼び出すことができます。検証に失敗すると、通常はユーザーが自動的にリダイレクトされますが、XHR リクエストの場合は JSON レスポンスが返されます（[JSON response will be returned](#validation-error-response-format)）。
 
 ```php
 Validator::make($request->all(), [
@@ -1075,7 +1075,7 @@ if ($errors->has('email')) {
 Laravel の組み込み検証ルールには、それぞれエラー メッセージがあり、アプリケーションの `lang/en/validation.php` ファイルにあります。アプリケーションに `lang` ディレクトリがない場合は、`lang:publish` Artisan コマンドを使用してディレクトリを作成するように Laravel に指示できます。
 
 <!-- Within the `lang/en/validation.php` file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application. -->
-`lang/en/validation.php` ファイル内に、各検証ルールの変換エントリがあります。アプリケーションのニーズに基づいて、これらのメッセージを自由に変更または修正できます。
+`lang/en/validation.php` ファイル内に、各検証ルールの翻訳エントリがあります。アプリケーションのニーズに基づいて、これらのメッセージを自由に変更または修正できます。
 
 <!-- In addition, you may copy this file to another language directory to translate the messages for your application's language. To learn more about Laravel localization, check out the complete [localization documentation](/docs/13.x/localization). -->
 さらに、このファイルを別の言語ディレクトリにコピーして、メッセージをアプリケーションの言語に翻訳することもできます。 Laravel ローカリゼーションの詳細については、完全な [localization documentation](/docs/13.x/localization) を確認してください。
@@ -1395,7 +1395,7 @@ Validator::fakeDnsLookups();
 #### after:_date_
 
 <!-- The field under validation must be a value after a given date. The dates will be passed into the `strtotime` PHP function in order to be converted to a valid `DateTime` instance: -->
-検証対象のフィールドは、指定された日付以降の値である必要があります。日付は、有効な `DateTime` インスタンスに変換されるために、`strtotime` PHP 関数に渡されます。
+検証対象のフィールドは、指定された日付より後の値である必要があります。日付は、有効な `DateTime` インスタンスに変換されるために、`strtotime` PHP 関数に渡されます。
 
 ```php
 'start_date' => ['required', 'date', 'after:tomorrow']
@@ -1421,7 +1421,7 @@ use Illuminate\Validation\Rule;
 ```
 
 <!-- The `afterToday` and `todayOrAfter` methods may be used to fluently express the date and must be after today, or today or after, respectively: -->
-`afterToday` メソッドと `todayOrAfter` メソッドは日付をスムーズに表現するために使用でき、それぞれ今日以降、または今日以降である必要があります。
+`afterToday` メソッドと `todayOrAfter` メソッドは日付をスムーズに表現するために使用でき、それぞれ今日より後、または今日以降である必要があります。
 
 ```php
 'start_date' => [
@@ -2054,10 +2054,10 @@ Validator::make($request->all(), [
 #### exclude_unless:_anotherfield_,_value_
 
 <!-- The field under validation will be excluded from the request data returned by the `validate` and `validated` methods unless _anotherfield_'s field is equal to _value_. If _value_ is `null` (`exclude_unless:name,null`), the field under validation will be excluded unless the comparison field is `null` or the comparison field is missing from the request data. -->
-検証中のフィールドは、_anotherfield_ のフィールドが _value_ と等しい場合を除き、`validate` メソッドおよび `validated` メソッドによって返されるリクエスト データから除外されます。 _value_ が `null` (`exclude_unless:name,null`) の場合、比較フィールドが `null` でない限り、または比較フィールドがリクエスト データに欠落している場合を除き、検証対象のフィールドは除外されます。
+検証中のフィールドは、_anotherfield_ のフィールドが _value_ と等しい場合を除き、`validate` メソッドおよび `validated` メソッドによって返されるリクエスト データから除外されます。 _value_ が `null` (`exclude_unless:name,null`) の場合、比較フィールドが `null` であるか、リクエスト データに欠落している場合を除き、検証対象のフィールドは除外されます。
 
 <!-- If complex conditional exclusion logic is required, you may utilize the `Rule::excludeUnless` method. This method accepts a boolean or a closure. When given a closure, the closure should return `true` or `false` to indicate if the field under validation should not be excluded: -->
-複雑な条件付き除外ロジックが必要な場合は、`Rule::excludeUnless` メソッドを利用できます。このメソッドはブール値またはクロージャを受け入れます。クロージャが指定された場合、クロージャは `true` または `false` を返し、検証中のフィールドを除外すべきかどうかを示す必要があります。
+複雑な条件付き除外ロジックが必要な場合は、`Rule::excludeUnless` メソッドを利用できます。このメソッドはブール値またはクロージャを受け入れます。クロージャが指定された場合、クロージャは `true` または `false` を返し、検証中のフィールドを除外しないかどうかを示す必要があります。
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -2461,7 +2461,7 @@ _anotherfield_ フィールドがいずれかの _value_ と等しくない限�
 #### missing_with:_foo_,_bar_,...
 
 <!-- The field under validation must not be present _only if_ any of the other specified fields are present. -->
-検証中のフィールドは、他の指定されたフィールドが存在する場合にのみ存在してはなりません。
+検証中のフィールドは、他の指定されたフィールドのいずれかが存在する場合にのみ存在してはなりません。
 
 <a name="rule-missing-with-all"></a>
 <!-- #### missing_with_all:_foo_,_bar_,... -->
@@ -2503,7 +2503,7 @@ Validator::make($data, [
 #### nullable
 
 <!-- The field under validation may be `null`. -->
-検証中のフィールドは `null` である可能性があります。
+検証対象のフィールドでは `null` が許容されます。
 
 <a name="rule-numeric"></a>
 <!-- #### numeric -->
@@ -2635,7 +2635,7 @@ _anotherfield_ フィールドがいずれかの _value_ と等しい場合を�
 </div>
 
 <!-- If complex conditional prohibition logic is required, you may utilize the `Rule::prohibitedUnless` method. This method accepts a boolean or a closure. When given a closure, the closure should return `true` or `false` to indicate if the field under validation should not be prohibited: -->
-複雑な条件付き禁止ロジックが必要な場合は、`Rule::prohibitedUnless` メソッドを利用できます。このメソッドはブール値またはクロージャを受け入れます。クロージャが指定された場合、クロージャは `true` または `false` を返し、検証中のフィールドを禁止すべきかどうかを示す必要があります。
+複雑な条件付き禁止ロジックが必要な場合は、`Rule::prohibitedUnless` メソッドを利用できます。このメソッドはブール値またはクロージャを受け入れます。クロージャが指定された場合、クロージャは `true` または `false` を返し、検証中のフィールドを禁止しないかどうかを示す必要があります。
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -2655,7 +2655,7 @@ Validator::make($request->all(), [
 #### prohibits:_anotherfield_,...
 
 <!-- If the field under validation is not missing or empty, all fields in _anotherfield_ must be missing or empty. A field is "empty" if it meets one of the following criteria: -->
-検証中のフィールドが欠落または空でない場合、_anotherfield_ のすべてのフィールドが欠落または空である必要があります。次の基準のいずれかを満たしている場合、フィールドは「空」です。
+検証中のフィールドが存在し、空でない場合、_anotherfield_ のすべてのフィールドが欠落または空である必要があります。次の基準のいずれかを満たしている場合、フィールドは「空」です。
 
 <div class="content-list" markdown="1">
 
@@ -2736,7 +2736,7 @@ _anotherfield_ フィールドが `"no"`、`"off"`、`0`、`"0"`、`false`、ま
 #### required_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty unless the _anotherfield_ field is equal to any _value_. This also means _anotherfield_ must be present in the request data unless _value_ is `null`. If _value_ is `null` (`required_unless:name,null`), the field under validation will be required unless the comparison field is `null` or the comparison field is missing from the request data. -->
-検証中のフィールドは存在する必要があり、_anotherfield_ フィールドがいずれかの _value_ と等しい場合を除き、空であってはなりません。これは、_value_ が `null` でない限り、_anotherfield_ がリクエスト データに存在する必要があることも意味します。 _value_ が `null` (`required_unless:name,null`) の場合、比較フィールドが `null` でない限り、または比較フィールドがリクエスト データに欠落している場合を除き、検証対象のフィールドが必要になります。
+_anotherfield_ フィールドがいずれかの _value_ と等しい場合を除き、検証対象のフィールドは存在し、空でない必要があります。これは、_value_ が `null` でない限り、_anotherfield_ がリクエスト データに存在する必要があることも意味します。 _value_ が `null` (`required_unless:name,null`) の場合、比較フィールドが `null` であるか、リクエスト データに欠落している場合を除き、検証対象のフィールドが必須になります。
 
 <!-- If you would like to construct a more complex condition for the `required_unless` rule, you may use the `Rule::requiredUnless` method. This method accepts a boolean or a closure. When passed a closure, the closure should return `true` or `false` to indicate if the field under validation is not required: -->
 `required_unless` ルールのより複雑な条件を作成したい場合は、`Rule::requiredUnless` メソッドを使用できます。このメソッドはブール値またはクロージャを受け入れます。クロージャが渡されると、クロージャは `true` または `false` を返して、検証中のフィールドが不要かどうかを示す必要があります。
@@ -2759,7 +2759,7 @@ Validator::make($request->all(), [
 #### required_with:_foo_,_bar_,...
 
 <!-- The field under validation must be present and not empty _only if_ any of the other specified fields are present and not empty. -->
-検証対象のフィールドは、他の指定されたフィールドが存在し、空でない場合にのみ、存在し、空であってはなりません。
+検証対象のフィールドは、他の指定されたフィールドのいずれかが存在し、空でない場合にのみ、存在し、空であってはなりません。
 
 <a name="rule-required-with-all"></a>
 <!-- #### required_with_all:_foo_,_bar_,... -->
@@ -2773,7 +2773,7 @@ Validator::make($request->all(), [
 #### required_without:_foo_,_bar_,...
 
 <!-- The field under validation must be present and not empty _only when_ any of the other specified fields are empty or not present. -->
-検証対象のフィールドは、指定された他のフィールドが空であるか存在しない場合にのみ、空ではなく存在する必要があります。
+検証対象のフィールドは、指定された他のフィールドのいずれかが空であるか存在しない場合にのみ、空ではなく存在する必要があります。
 
 <a name="rule-required-without-all"></a>
 <!-- #### required_without_all:_foo_,_bar_,... -->
@@ -3054,7 +3054,7 @@ $validator = Validator::make($data, [
 #### Validating When Present
 
 <!-- In some situations, you may wish to run validation checks against a field **only** if that field is present in the data being validated. To quickly accomplish this, add the `sometimes` rule to your rule list: -->
-状況によっては、フィールドが検証対象のデータに存在する場合にのみ**、そのフィールドに対して検証チェックを実行したい場合があります。これをすばやく実行するには、`sometimes` ルールをルール リストに追加します。
+状況によっては、フィールドが検証対象のデータに存在する**場合にのみ**、そのフィールドに対して検証チェックを実行したい場合があります。これをすばやく実行するには、`sometimes` ルールをルール リストに追加します。
 
 ```php
 $validator = Validator::make($data, [
@@ -3683,4 +3683,4 @@ php artisan make:rule Uppercase --implicit
 ```
 
 > [!WARNING]
-> 「暗黙の」ルールは、属性が必須であることを_暗黙的に示すだけです。欠落している属性または空の属性を実際に無効にするかどうかは、ユーザー次第です。
+> 「暗黙の」ルールは、属性が必須であることを _暗黙的に示す_ だけです。欠落している属性または空の属性を実際に無効にするかどうかは、ユーザー次第です。

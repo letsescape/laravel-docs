@@ -2590,7 +2590,7 @@ $containsAll = Str::of('This is my name')->containsAll(['MY', 'NAME'], ignoreCas
 #### `decrypt`
 
 <!-- The `decrypt` method [decrypts](/docs/13.x/encryption) the encrypted string: -->
-`decrypt` 메서드는 암호화된 문자열을 [decrypts](/docs/13.x/encryption):
+`decrypt` 메서드는 [decrypts](/docs/13.x/encryption) 기능을 사용해 암호화된 문자열을 복호화합니다:
 
 ```php
 use Illuminate\Support\Str;
@@ -2753,7 +2753,7 @@ $result = Str::of('This is my name')->doesntStartWith(['What', 'That', 'There'])
 #### `encrypt`
 
 <!-- The `encrypt` method [encrypts](/docs/13.x/encryption) the string: -->
-`encrypt` 메서드는 문자열을 [encrypts](/docs/13.x/encryption)합니다.
+`encrypt` 메서드는 [encrypts](/docs/13.x/encryption) 기능을 사용해 문자열을 암호화합니다.
 
 ```php
 use Illuminate\Support\Str;
@@ -4097,7 +4097,7 @@ $email = Str::of('ⓣⓔⓢⓣ@ⓛⓐⓡⓐⓥⓔⓛ.ⓒⓞⓜ')->transliterate(
 #### `trim`
 
 <!-- The `trim` method trims the given string. Unlike PHP's native `trim` function, Laravel's `trim` method also removes unicode whitespace characters: -->
-`trim` 메서드는 주어진 문자열의 양끝을 잘라냅니다. PHP의 기본 `trim` 함수와 달리, Laravel의 `trim` 메서드는 유니코드 공백 문자도 제거합니다.
+`trim` 메서드는 주어진 문자열의 양끝에서 공백 또는 지정한 문자를 제거합니다. PHP의 기본 `trim` 함수와 달리, Laravel의 `trim` 메서드는 유니코드 공백 문자도 제거합니다.
 
 ```php
 use Illuminate\Support\Str;
@@ -4116,7 +4116,7 @@ $string = Str::of('/Laravel/')->trim('/');
 #### `ltrim`
 
 <!-- The `ltrim` method trims the left side of the string. Unlike PHP's native `ltrim` function, Laravel's `ltrim` method also removes unicode whitespace characters: -->
-`ltrim` 메서드는 문자열의 왼쪽 부분을 잘라냅니다. PHP의 기본 `ltrim` 함수와 달리, Laravel의 `ltrim` 메서드는 유니코드 공백 문자도 제거합니다.
+`ltrim` 메서드는 문자열의 시작 부분에서 공백 또는 지정한 문자를 제거합니다. PHP의 기본 `ltrim` 함수와 달리, Laravel의 `ltrim` 메서드는 유니코드 공백 문자도 제거합니다.
 
 ```php
 use Illuminate\Support\Str;
@@ -4135,7 +4135,7 @@ $string = Str::of('/Laravel/')->ltrim('/');
 #### `rtrim`
 
 <!-- The `rtrim` method trims the right side of the given string. Unlike PHP's native `rtrim` function, Laravel's `rtrim` method also removes unicode whitespace characters: -->
-`rtrim` 메서드는 주어진 문자열의 오른쪽을 잘라냅니다. PHP의 기본 `rtrim` 함수와 달리, Laravel의 `rtrim` 메서드는 유니코드 공백 문자도 제거합니다.
+`rtrim` 메서드는 주어진 문자열의 끝 부분에서 공백 또는 지정한 문자를 제거합니다. PHP의 기본 `rtrim` 함수와 달리, Laravel의 `rtrim` 메서드는 유니코드 공백 문자도 제거합니다.
 
 ```php
 use Illuminate\Support\Str;

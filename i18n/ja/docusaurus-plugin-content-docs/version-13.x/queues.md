@@ -204,7 +204,7 @@ Amazon SQS は、キューに入れられたメッセージ ペイロードの�
 ```
 
 <!-- When overflow storage is enabled, Laravel will store payloads that are at least 1 MB in the configured cache store. If the `always` option is `true`, every SQS payload will be stored in the cache store regardless of its size. Since queued jobs will need to retrieve their payloads from the cache store when they are processed, you should choose a store that can retain the payloads until your workers process them. By default, stored payloads are deleted after their jobs have been successfully processed and deleted from SQS. -->
-オーバーフローストレージが有効になっている場合、Laravel は構成されたキャッシュストアに少なくとも 1 MB のペイロードを保存します。 `always` オプションが `true` の場合、すべての SQS ペイロードは、サイズに関係なくキャッシュ ストアに保存されます。キューに入れられたジョブは処理時にキャッシュ ストアからペイロードを取得する必要があるため、ワーカーがペイロードを処理するまでペイロードを保持できるストアを選択する必要があります。デフォルトでは、保存されたペイロードは、ジョブが正常に処理され、SQS から削除された後に削除されます。
+オーバーフローストレージが有効になっている場合、Laravel は構成されたキャッシュストアにサイズが 1 MB 以上のペイロードを保存します。 `always` オプションが `true` の場合、すべての SQS ペイロードは、サイズに関係なくキャッシュ ストアに保存されます。キューに入れられたジョブは処理時にキャッシュ ストアからペイロードを取得する必要があるため、ワーカーがペイロードを処理するまでペイロードを保持できるストアを選択する必要があります。デフォルトでは、保存されたペイロードは、ジョブが正常に処理され、SQS から削除された後に削除されます。
 
 <!-- If the `flush_on_clear` option is `true`, the configured overflow cache store will be flushed when the `queue:clear` command clears the SQS queue. Since flushing a cache store may remove all items from that store, you should configure SQS overflow storage to use a dedicated cache store when enabling this option. -->
 `flush_on_clear` オプションが `true` の場合、構成されたオーバーフロー キャッシュ ストアは、`queue:clear` コマンドが SQS キューをクリアするときにフラッシュされます。キャッシュ ストアをフラッシュすると、そのストアからすべてのアイテムが削除される可能性があるため、このオプションを有効にする場合は、専用のキャッシュ ストアを使用するように SQS オーバーフロー ストレージを構成する必要があります。
@@ -343,7 +343,7 @@ $this->podcast = $podcast->withoutRelation('comments');
 ```
 
 <!-- If you are using [PHP constructor property promotion](https://www.php.net/manual/en/language.oop5.decon.php#language.oop5.decon.constructor.promotion) and would like to indicate that an Eloquent model should not have its relations serialized, you may use the `WithoutRelations` attribute: -->
-[PHP constructor property promotion](https://www.php.net/manual/en/language.oop5.decon.php#language.oop5.decon.constructor.promotion) を使用していて、Eloquent モデルの関係をシリアル化する必要がないことを示したい場合は、`WithoutRelations` 属性を使用できます。
+[PHP constructor property promotion](https://www.php.net/manual/en/language.oop5.decon.php#language.oop5.decon.constructor.promotion) を使用していて、Eloquent モデルの関係をシリアル化しないことを示したい場合は、`WithoutRelations` 属性を使用できます。
 
 ```php
 use Illuminate\Queue\Attributes\WithoutRelations;
@@ -449,7 +449,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 }
 ```
 <!-- In the example above, the `UpdateSearchIndex` job is unique by a product ID. So, any new dispatches of the job with the same product ID will be ignored until the existing job has completed processing. In addition, if the existing job is not processed within one hour, the unique lock will be released and another job with the same unique key can be dispatched to the queue. -->
-上の例では、`UpdateSearchIndex` ジョブは製品 ID によって一意です。したがって、同じ製品 ID を持つジョブの新しいディスパッチは、既存のジョブの処理が完了するまで無視されます。さらに、既存のジョブが 1 時間以内に処理されない場合、一意のロックが解除され、同じ一意のキーを持つ別のジョブがキューにディスパッチされる可能性があります。
+上の例では、`UpdateSearchIndex` ジョブは製品 ID によって一意です。したがって、同じ製品 ID を持つジョブの新しいディスパッチは、既存のジョブの処理が完了するまで無視されます。さらに、既存のジョブが 1 時間以内に処理されない場合、一意のロックが解除され、同じ一意のキーを持つ別のジョブをキューにディスパッチできるようになります。
 
 > [!WARNING]
 > アプリケーションが複数のWebサーバーやコンテナからジョブをディスパッチする場合は、Laravelがジョブの一意性を正確に判定できるよう、すべてのサーバーが同じ中央キャッシュサーバーと通信することを確認してください。
@@ -733,7 +733,7 @@ public function middleware(): array
 ```
 
 <!-- Releasing a rate limited job back onto the queue will still increment the job's total number of `attempts`. You may wish to tune your `Tries` and `MaxExceptions` attributes on your job class accordingly. Or, you may wish to use the [retryUntil method](#time-based-attempts) to define the amount of time until the job should no longer be attempted. -->
-レート制限されたジョブをキューに解放しても、ジョブの合計数 `attempts` は増加します。それに応じてジョブ クラスの `Tries` 属性と `MaxExceptions` 属性を調整することもできます。または、[retryUntil method](#time-based-attempts) を使用して、ジョブが試行されなくなるまでの時間を定義することもできます。
+レート制限されたジョブをキューに解放しても、ジョブの総試行回数 `attempts` は増加します。それに応じてジョブ クラスの `Tries` 属性と `MaxExceptions` 属性を調整することもできます。または、[retryUntil method](#time-based-attempts) を使用して、ジョブが試行されなくなるまでの時間を定義することもできます。
 
 <!-- Using the `releaseAfter` method, you may also specify the number of seconds that must elapse before the released job will be attempted again: -->
 `releaseAfter` メソッドを使用すると、キューに戻されたジョブが再試行されるまでに経過する必要がある秒数を指定することもできます。
@@ -932,7 +932,7 @@ public function retryUntil(): DateTime
 ```
 
 <!-- The first constructor argument accepted by the middleware is the number of exceptions the job can throw before being throttled, while the second constructor argument is the number of seconds that should elapse before the job is attempted again once it has been throttled. In the code example above, if the job throws 10 consecutive exceptions, we will wait 5 minutes before attempting the job again, constrained by the 30-minute time limit. -->
-ミドルウェアによって受け入れられる最初のコンストラクター引数は、ジョブが調整される前にスローできる例外の数です。一方、2 番目のコンストラクター引数は、ジョブが調整された後にジョブが再試行されるまでに経過する必要がある秒数です。上記のコード例では、ジョブが 10 回連続して例外をスローした場合、30 分の時間制限による制約を受けて、5 分間待ってからジョブを再試行します。
+ミドルウェアによって受け入れられる最初のコンストラクター引数は、ジョブの実行が制限される前にスローできる例外の数です。一方、2 番目のコンストラクター引数は、ジョブの実行が制限された後にジョブが再試行されるまでに経過する必要がある秒数です。上記のコード例では、ジョブが 10 回連続して例外をスローした場合、30 分の時間制限による制約を受けて、5 分間待ってからジョブを再試行します。
 
 <!-- When a job throws an exception but the exception threshold has not yet been reached, the job will typically be retried immediately. However, you may specify the number of minutes such a job should be delayed by calling the `backoff` method when attaching the middleware to the job: -->
 ジョブが例外をスローしたが、まだ例外しきい値に達していない場合、ジョブは通常、すぐに再試行されます。ただし、ミドルウェアをジョブにアタッチするときに `backoff` メソッドを呼び出すことで、そのようなジョブを遅延させる分数を指定できます。
@@ -975,7 +975,7 @@ public function middleware(): array
 ```
 
 <!-- Internally, this middleware uses Laravel's cache system to implement rate limiting, and the job's class name is utilized as the cache "key". You may override this key by calling the `by` method when attaching the middleware to your job. This may be useful if you have multiple jobs interacting with the same third-party service and you would like them to share a common throttling "bucket" ensuring they respect a single shared limit: -->
-内部的には、このミドルウェアは Laravel のキャッシュ システムを使用してレート制限を実装し、ジョブのクラス名がキャッシュの「キー」として利用されます。ミドルウェアをジョブにアタッチするときに `by` メソッドを呼び出すことで、このキーをオーバーライドできます。これは、同じサードパーティ サービスと対話する複数のジョブがあり、それらのジョブが共通の調整「バケット」を共有して、単一の共有制限を確実に遵守したい場合に便利です。
+内部的には、このミドルウェアは Laravel のキャッシュ システムを使用してレート制限を実装し、ジョブのクラス名がキャッシュの「キー」として利用されます。ミドルウェアをジョブにアタッチするときに `by` メソッドを呼び出すことで、このキーをオーバーライドできます。これは、同じサードパーティ サービスと対話する複数のジョブがあり、それらのジョブが共通のスロットリング「バケット」を共有して、単一の共有制限を確実に遵守したい場合に便利です。
 
 ```php
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
@@ -1030,7 +1030,7 @@ public function middleware(): array
 ```
 
 <!-- If you would like to have the throttled exceptions reported to your application's exception handler, you can do so by invoking the `report` method when attaching the middleware to your job. Optionally, you may provide a closure to the `report` method and the exception will only be reported if the given closure returns `true`: -->
-調整された例外をアプリケーションの例外ハンドラーに報告したい場合は、ミドルウェアをジョブにアタッチするときに `report` メソッドを呼び出すことで実行できます。オプションで、`report` メソッドにクロージャを提供すると、指定されたクロージャが `true` を返した場合にのみ例外が報告されます。
+スロットリングの対象となった例外をアプリケーションの例外ハンドラーに報告したい場合は、ミドルウェアをジョブにアタッチするときに `report` メソッドを呼び出すことで実行できます。オプションで、`report` メソッドにクロージャを提供すると、指定されたクロージャが `true` を返した場合にのみ例外が報告されます。
 
 ```php
 use Illuminate\Http\Client\HttpClientException;
@@ -1054,7 +1054,7 @@ public function middleware(): array
 #### Throttling Exceptions With Redis
 
 <!-- If you are using Redis, you may use the `Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis` middleware, which is fine-tuned for Redis and more efficient than the basic exception throttling middleware: -->
-Redis を使用している場合は、`Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis` ミドルウェアを使用できます。これは Redis 用に微調整されており、基本的な例外調整ミドルウェアよりも効率的です。
+Redis を使用している場合は、`Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis` ミドルウェアを使用できます。これは Redis 用に微調整されており、基本的な例外スロットリングミドルウェアよりも効率的です。
 
 ```php
 use Illuminate\Queue\Middleware\ThrottlesExceptionsWithRedis;
@@ -1325,7 +1325,7 @@ Bus::bulk(
 ### Preparing Jobs Before Dispatch
 
 <!-- If a job needs to prepare or inspect its state before it is pushed onto the queue, the job may implement the `Illuminate\Contracts\Queue\PreparesForDispatch` interface. Laravel will invoke the job's `prepareForDispatch` method before dispatching the job. If this method returns `false`, the job will not be dispatched: -->
-ジョブがキューにプッシュされる前にその状態を準備または検査する必要がある場合、ジョブは `Illuminate\Contracts\Queue\PreparesForDispatch` インターフェイスを実装することがあります。 Laravel は、ジョブをディスパッチする前に、ジョブの `prepareForDispatch` メソッドを呼び出します。このメソッドが `false` を返した場合、ジョブはディスパッチされません。
+ジョブがキューにプッシュされる前にその状態を準備または検査する必要がある場合、ジョブは `Illuminate\Contracts\Queue\PreparesForDispatch` インターフェイスを実装できます。 Laravel は、ジョブをディスパッチする前に、ジョブの `prepareForDispatch` メソッドを呼び出します。このメソッドが `false` を返した場合、ジョブはディスパッチされません。
 
 ```php
 <?php
@@ -1463,7 +1463,7 @@ Bus::chain([
 #### Adding Jobs to the Chain
 
 <!-- Occasionally, you may need to prepend or append a job to an existing job chain from within another job in that chain. You may accomplish this using the `prependToChain` and `appendToChain` methods: -->
-場合によっては、既存のジョブ チェーンに、そのチェーン内の別のジョブ内からジョブを追加または追加する必要が生じることがあります。これは、`prependToChain` メソッドと `appendToChain` メソッドを使用して実行できます。
+場合によっては、既存のジョブ チェーンに、そのチェーン内の別のジョブ内からジョブを先頭または末尾に追加する必要が生じることがあります。これは、`prependToChain` メソッドと `appendToChain` メソッドを使用して実行できます。
 
 ```php
 /**
@@ -1645,7 +1645,7 @@ class ProcessPodcast implements ShouldQueue
 `Queue` ファサードの `route` メソッドを使用して、特定のジョブ クラスのデフォルトの接続とキューを定義できます。これは、ジョブで接続やキューを指定する必要がなく、特定のジョブが常に特定のキューを使用するようにしたい場合に便利です。
 
 <!-- In addition to routing specific job classes, you may also pass an interface, trait, or parent class to the `route` method. When you do this, any job that implements the interface, uses the trait, or extends the parent class will automatically use the configured connection and queue. -->
-特定のジョブ クラスをルーティングすることに加えて、インターフェイス、特性、または親クラスを `route` メソッドに渡すこともできます。これを行うと、インターフェイスを実装するジョブ、トレイトを使用するジョブ、または親クラスを拡張するジョブは、設定された接続とキューを自動的に使用します。
+特定のジョブ クラスをルーティングすることに加えて、インターフェイス、トレイト、または親クラスを `route` メソッドに渡すこともできます。これを行うと、インターフェイスを実装するジョブ、トレイトを使用するジョブ、または親クラスを拡張するジョブは、設定された接続とキューを自動的に使用します。
 
 <!-- Typically, you should call the `route` method from the `boot` method of a service provider: -->
 通常、サービスプロバイダの `boot` メソッドから `route` メソッドを呼び出す必要があります。
@@ -1722,7 +1722,7 @@ Queue::forward([
 ジョブ試行は、Laravel のキュー システムの中核概念であり、多くの高度な機能を強化します。最初は混乱するように思えるかもしれませんが、デフォルトの構成を変更する前に、それらがどのように機能するかを理解することが重要です。
 
 <!-- When a job is dispatched, it is pushed onto the queue. A worker then picks it up and attempts to execute it. This is a job attempt. -->
-ジョブがディスパッチされると、ジョブはキューにプッシュされます。次に、ワーカーがそれを拾い上げ、実行しようとします。これは仕事の試みです。
+ジョブがディスパッチされると、ジョブはキューにプッシュされます。次に、ワーカーがそれを拾い上げ、実行しようとします。これがジョブの1回の試行です。
 
 <!-- However, an attempt does not necessarily mean the job's `handle` method was executed. Attempts can also be "consumed" in several ways: -->
 ただし、試行は必ずしもジョブの `handle` メソッドが実行されたことを意味するわけではありません。試行はいくつかの方法で「消費」することもできます。
@@ -1739,7 +1739,7 @@ Queue::forward([
 </div>
 
 <!-- You likely do not want to keep attempting a job indefinitely. Therefore, Laravel provides various ways to specify how many times or for how long a job may be attempted. -->
-おそらく、仕事を無期限に試し続けることは望まないでしょう。したがって、Laravel では、ジョブを試行する回数や期間を指定するさまざまな方法が提供されています。
+おそらく、ジョブの試行を無期限に続けることは望まないでしょう。したがって、Laravel では、ジョブを試行する回数や期間を指定するさまざまな方法が提供されています。
 
 > [!NOTE]
 > デフォルトでは、Laravel はジョブの実行を1回だけ試みます。ジョブで `WithoutOverlapping` や `RateLimited` などのミドルウェアを使用している場合、またはジョブを手動でキューに戻している場合は、`tries` オプションで許可する試行回数を増やす必要があるでしょう。
@@ -1849,7 +1849,7 @@ class ProcessPodcast implements ShouldQueue
 ```
 
 <!-- In this example, the job is released for ten seconds if the application is unable to obtain a Redis lock and will continue to be retried up to 25 times. However, the job will fail if three unhandled exceptions are thrown by the job. -->
-この例では、アプリケーションが Redis ロックを取得できない場合、ジョブは 10 秒間解放され、最大 25 回まで再試行され続けます。ただし、ジョブによって 3 つの未処理の例外がスローされた場合、ジョブは失敗します。
+この例では、アプリケーションが Redis ロックを取得できない場合、ジョブは 10 秒後に再試行可能になるようキューへ戻され、最大 25 回まで再試行され続けます。ただし、ジョブによって 3 つの未処理の例外がスローされた場合、ジョブは失敗します。
 
 <!-- By default, an attempt that ends because the worker process crashed or was killed, such as when it runs out of memory, does not count towards the job's maximum number of exceptions. If you would like these attempts to count as an exception, you may add the `CountCrashesAsExceptions` attribute to your job class: -->
 デフォルトでは、メモリ不足などによってワーカープロセスがクラッシュまたは強制終了されて試行が終了しても、ジョブの最大例外数にはカウントされません。このような試行も例外としてカウントするには、ジョブクラスに `CountCrashesAsExceptions` 属性を追加します。
@@ -1978,7 +1978,7 @@ Laravel は、[Amazon SQS FIFO (First-In-First-Out)](https://docs.aws.amazon.com
 FIFO キューには、どのジョブを並列処理できるかを決定するためのメッセージ グループ ID が必要です。同じグループ ID を持つジョブは順番に処理されますが、異なるグループ ID を持つメッセージは同時に処理できます。
 
 <!-- Laravel provides a fluent `onGroup` method to specify the message group ID when dispatching jobs: -->
-Laravel は、ジョブをディスパッチするときにメッセージ グループ ID を指定するための流暢な `onGroup` メソッドを提供します。
+Laravel は、ジョブをディスパッチするときにメッセージ グループ ID を指定するためのメソッドチェーンで呼び出せる `onGroup` メソッドを提供します。
 
 ```php
 ProcessOrder::dispatch($order)
@@ -2166,7 +2166,7 @@ php artisan queue:work database
 ### Error Handling
 
 <!-- If an exception is thrown while the job is being processed, the job will automatically be released back onto the queue so it may be attempted again. The job will continue to be released until it has been attempted the maximum number of times allowed by your application. The maximum number of attempts is defined by the `--tries` switch used on the `queue:work` Artisan command. Alternatively, the maximum number of attempts may be defined on the job class itself. More information on running the queue worker [can be found below](#running-the-queue-worker). -->
-ジョブの処理中に例外がスローされた場合、ジョブは自動的にキューに解放され、再試行できるようになります。ジョブは、アプリケーションで許可されている最大回数試行されるまで解放され続けます。最大試行回数は、`queue:work` Artisan コマンドで使用される `--tries` スイッチによって定義されます。あるいは、最大試行回数をジョブ クラス自体に定義することもできます。キューワーカー [can be found below](#running-the-queue-worker) の実行に関する詳細情報。
+ジョブの処理中に例外がスローされた場合、ジョブは自動的にキューに解放され、再試行できるようになります。ジョブは、アプリケーションで許可されている最大回数試行されるまで解放され続けます。最大試行回数は、`queue:work` Artisan コマンドで使用される `--tries` スイッチによって定義されます。あるいは、最大試行回数をジョブ クラス自体に定義することもできます。キューワーカーの実行に関する詳細は、[can be found below](#running-the-queue-worker) を参照してください。
 
 <a name="manually-releasing-a-job"></a>
 <!-- #### Manually Releasing a Job -->
@@ -2188,7 +2188,7 @@ public function handle(): void
 ```
 
 <!-- By default, the `release` method will release the job back onto the queue for immediate processing. However, you may instruct the queue to not make the job available for processing until a given number of seconds has elapsed by passing an integer or date instance to the `release` method: -->
-デフォルトでは、`release` メソッドはジョブをキューに解放して即時処理します。ただし、整数または日付インスタンスを `release` メソッドに渡すことで、指定した秒数が経過するまでジョブを処理できないようにキューに指示できます。
+デフォルトでは、`release` メソッドはジョブを即時に処理できるようキューへ戻します。ただし、整数または日付インスタンスを `release` メソッドに渡すことで、指定した秒数が経過するまでジョブを処理できないようにキューに指示できます。
 
 ```php
 $this->release(10);
@@ -2232,7 +2232,7 @@ $this->fail('Something went wrong.');
 #### Failing Jobs on Specific Exceptions
 
 <!-- The `FailOnException` [job middleware](#job-middleware) allows you to short-circuit retries when specific exceptions are thrown. This allows retrying on transient exceptions such as external API errors, but failing the job permanently on persistent exceptions, such as a user's permissions being revoked: -->
-`FailOnException` [job middleware](#job-middleware) を使用すると、特定の例外がスローされたときに再試行を短縮できます。これにより、外部 API エラーなどの一時的な例外では再試行できますが、ユーザーの権限が取り消されるなどの永続的な例外ではジョブを永続的に失敗することができます。
+`FailOnException` [job middleware](#job-middleware) を使用すると、特定の例外がスローされたときに再試行を即座に中止できます。これにより、外部 API エラーなどの一時的な例外では再試行できますが、ユーザーの権限が取り消されるなどの永続的な例外ではジョブを最終的な失敗として処理できます。
 
 ```php
 <?php
@@ -2306,7 +2306,7 @@ php artisan migrate
 ### Defining Batchable Jobs
 
 <!-- To define a batchable job, you should [create a queueable job](#creating-jobs) as normal; however, you should add the `Illuminate\Bus\Batchable` trait to the job class. This trait provides access to a `batch` method which may be used to retrieve the current batch that the job is executing within: -->
-バッチ可能ジョブを定義するには、通常どおり [create a queueable job](#creating-jobs) を実行する必要があります。ただし、ジョブ クラスに `Illuminate\Bus\Batchable` 特性を追加する必要があります。この特性は、ジョブが実行されている現在のバッチを取得するために使用できる `batch` メソッドへのアクセスを提供します。
+バッチ可能ジョブを定義するには、通常どおり [create a queueable job](#creating-jobs) を実行する必要があります。ただし、ジョブ クラスに `Illuminate\Bus\Batchable` トレイトを追加する必要があります。このトレイトは、ジョブが実行されている現在のバッチを取得するために使用できる `batch` メソッドへのアクセスを提供します。
 
 ```php
 <?php
@@ -2378,7 +2378,7 @@ return $batch->id;
 ```
 
 <!-- The batch's ID, which may be accessed via the `$batch->id` property, may be used to [query the Laravel command bus](#inspecting-batches) for information about the batch after it has been dispatched. -->
-`$batch->id` プロパティを介してアクセスできるバッチの ID は、発送後のバッチに関する情報を得るために [query the Laravel command bus](#inspecting-batches) に使用できます。
+`$batch->id` プロパティを介してアクセスできるバッチの ID は、ディスパッチ後のバッチに関する情報を得るために [query the Laravel command bus](#inspecting-batches) に使用できます。
 
 > [!WARNING]
 > バッチコールバックはシリアライズされ、Laravel のキューによって後で実行されるため、コールバック内で `$this` 変数を使用しないでください。また、バッチジョブはデータベーストランザクション内でラップされるため、暗黙的なコミットを発生させるデータベースステートメントをジョブ内で実行しないでください。
@@ -2625,7 +2625,7 @@ $batch = Bus::batch([
 ```
 
 <!-- You may optionally provide a closure to the `allowFailures` method, which will be executed on each job failure: -->
-オプションで、ジョブが失敗するたびに実行される `allowFailures` メソッドにクロージャーを提供できます。
+必要に応じて `allowFailures` メソッドにクロージャーを渡すことができます。このクロージャーは、ジョブが失敗するたびに実行されます。
 
 ```php
 $batch = Bus::batch([
@@ -2660,7 +2660,7 @@ Schedule::command('queue:prune-batches')->daily();
 ```
 
 <!-- By default, all finished batches that are more than 24 hours old will be pruned. You may use the `hours` option when calling the command to determine how long to retain batch data. For example, the following command will delete all batches that finished over 48 hours ago: -->
-デフォルトでは、24 時間以上経過した完了したバッチはすべて削除されます。コマンドを呼び出すときに `hours` オプションを使用して、バッチ データを保持する期間を決定できます。たとえば、次のコマンドは 48 時間以上前に終了したすべてのバッチを削除します。
+デフォルトでは、完了から 24 時間を超えたバッチはすべて削除されます。コマンドを呼び出すときに `hours` オプションを使用して、バッチ データを保持する期間を決定できます。たとえば、次のコマンドは、完了から 48 時間を超えたすべてのバッチを削除します。
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -2738,7 +2738,7 @@ composer require aws/aws-sdk-php
 [DynamoDB](https://aws.amazon.com/dynamodb) を使用してジョブ バッチ情報を保存する場合、リレーショナル データベースに保存されているバッチのプルーニングに使用される一般的なプルーニング コマンドは機能しません。代わりに、[DynamoDB's native TTL functionality](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html) を利用して、古いバッチのレコードを自動的に削除できます。
 
 <!-- If you defined your DynamoDB table with a `ttl` attribute, you may define configuration parameters to instruct Laravel how to prune batch records. The `queue.batching.ttl_attribute` configuration value defines the name of the attribute holding the TTL, while the `queue.batching.ttl` configuration value defines the number of seconds after which a batch record can be removed from the DynamoDB table, relative to the last time the record was updated: -->
-`ttl` 属性を使用して DynamoDB テーブルを定義した場合は、設定パラメータを定義して、Laravel にバッチレコードのプルーニング方法を指示できます。 `queue.batching.ttl_attribute` 設定値は、TTL を保持する属性の名前を定義します。一方、`queue.batching.ttl` 設定値は、バッチ レコードが DynamoDB テーブルから削除されるまでの秒数を、レコードが最後に更新された時刻と相対的に定義します。
+`ttl` 属性を使用して DynamoDB テーブルを定義した場合は、設定パラメータを定義して、Laravel にバッチレコードのプルーニング方法を指示できます。 `queue.batching.ttl_attribute` 設定値は、TTL を保持する属性の名前を定義します。一方、`queue.batching.ttl` 設定値は、レコードが最後に更新された時刻を基準に、バッチレコードが DynamoDB テーブルから削除可能になるまでの秒数を定義します。
 
 ```php
 'batching' => [
@@ -2967,7 +2967,7 @@ php artisan queue:restart
 ### Reacting to Worker Signals
 
 <!-- When a queue worker receives a termination signal such as `SIGQUIT`, `SIGTERM`, or `SIGINT` while processing a job, the worker will finish its current job before exiting. However, your job may need to react to the signal before the process is stopped by your server or container orchestrator. For example, a long-running import job may need to stop pulling new records and save its current progress. -->
-キューワーカーがジョブの処理中に `SIGQUIT`、`SIGTERM`、`SIGINT` などの終了シグナルを受信すると、ワーカーは終了する前に現在のジョブを終了します。ただし、サーバーまたはコンテナー オーケストレーターによってプロセスが停止される前に、ジョブがシグナルに反応する必要がある場合があります。たとえば、長時間実行されるインポート ジョブでは、新しいレコードの取得を停止し、現在の進行状況を保存する必要がある場合があります。
+キューワーカーがジョブの処理中に `SIGQUIT`、`SIGTERM`、`SIGINT` などの終了シグナルを受信すると、ワーカーは現在のジョブの処理を完了してから終了します。ただし、サーバーまたはコンテナー オーケストレーターによってプロセスが停止される前に、ジョブがシグナルに反応する必要がある場合があります。たとえば、長時間実行されるインポート ジョブでは、新しいレコードの取得を停止し、現在の進行状況を保存する必要がある場合があります。
 
 <!-- To react to worker signals from within a job, implement the `Illuminate\Contracts\Queue\Interruptible` interface and define an `interrupted` method on your job. The signal number received by the worker will be passed to the `interrupted` method: -->
 ジョブ内からワーカー信号に反応するには、`Illuminate\Contracts\Queue\Interruptible` インターフェイスを実装し、ジョブに `interrupted` メソッドを定義します。ワーカーが受信したシグナル番号は、`interrupted` メソッドに渡されます。
@@ -3070,7 +3070,7 @@ php artisan queue:pause database:default
 ```
 
 <!-- In this example, `database` is the queue connection name and `default` is the queue name. Once a queue is paused, any workers processing jobs from that queue will continue to finish their current job, but will not pick up any new jobs until the queue is resumed. -->
-この例では、`database` がキュー接続名、`default` がキュー名です。キューが一時停止されると、そのキューからジョブを処理するワーカーは引き続き現在のジョブを終了しますが、キューが再開されるまで新しいジョブは取得されません。
+この例では、`database` がキュー接続名、`default` がキュー名です。キューが一時停止されると、そのキューのジョブを処理しているワーカーは現在のジョブの処理を最後まで続けますが、キューが再開されるまで新しいジョブは取得されません。
 
 <!-- To pause job processing for every queue on every connection, use the `--all` option: -->
 すべての接続上のすべてのキューでジョブ処理を一時停止するには、`--all` オプションを使用します。
@@ -3119,7 +3119,7 @@ public function boot(): void
 ```
 
 <!-- Alternatively, you may disable restart or pause polling individually by setting the static `$restartable` or `$pausable` properties on the `Illuminate\Queue\Worker` class: -->
-あるいは、`Illuminate\Queue\Worker` クラスの静的 `$restartable` プロパティまたは `$pausable` プロパティを設定することで、ポーリングの再起動または一時停止を個別に無効にすることもできます。
+あるいは、`Illuminate\Queue\Worker` クラスの静的 `$restartable` プロパティまたは `$pausable` プロパティを設定することで、再起動シグナルまたは一時停止シグナルのポーリングを個別に無効にすることもできます。
 
 ```php
 use Illuminate\Queue\Worker;
@@ -3335,7 +3335,7 @@ class ProcessPodcast implements ShouldQueue
 > `failed` メソッドを呼び出す前にジョブの新しいインスタンスが生成されます。そのため、`handle` メソッド内でクラスプロパティに加えた変更は失われます。
 
 <!-- A failed job is not necessarily one that encountered an unhandled exception. A job may also be considered failed when it has exhausted all of its allowed attempts. These attempts can be consumed in several ways: -->
-失敗したジョブは、必ずしも未処理の例外が発生したものであるとは限りません。ジョブは、許可された試行をすべて使い果たした場合にも失敗したとみなされる場合があります。これらの試行はいくつかの方法で使用できます。
+失敗したジョブは、必ずしも未処理の例外が発生したものであるとは限りません。ジョブは、許可された試行をすべて使い果たした場合にも失敗したとみなされる場合があります。これらの試行回数は、いくつかの状況で消費されます。
 
 <div class="content-list" markdown="1">
 
@@ -3448,7 +3448,7 @@ php artisan queue:prune-failed
 ```
 
 <!-- By default, all the failed job records that are more than 24 hours old will be pruned. If you provide the `--hours` option to the command, only the failed job records that were inserted within the last N number of hours will be retained. For example, the following command will delete all the failed job records that were inserted more than 48 hours ago: -->
-デフォルトでは、24 時間以上経過した失敗したジョブ レコードはすべて削除されます。コマンドに `--hours` オプションを指定すると、過去 N 時間以内に挿入された失敗したジョブ レコードのみが保持されます。たとえば、次のコマンドは、48 時間以上前に挿入された失敗したジョブ レコードをすべて削除します。
+デフォルトでは、24 時間を超えて経過した失敗したジョブ レコードはすべて削除されます。コマンドに `--hours` オプションを指定すると、過去 N 時間以内に挿入された失敗したジョブ レコードのみが保持されます。たとえば、次のコマンドは、挿入から 48 時間を超えたすべての失敗したジョブ レコードを削除します。
 
 ```shell
 php artisan queue:prune-failed --hours=48
@@ -3698,7 +3698,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- You may pass a closure to the `assertPushed`, `assertNotPushed`, `assertClosurePushed`, or `assertClosureNotPushed` methods in order to assert that a job was pushed that passes a given "truth test". If at least one job was pushed that passes the given truth test then the assertion will be successful: -->
-特定の「真実テスト」に合格したジョブがプッシュされたことをアサートするために、`assertPushed`、`assertNotPushed`、`assertClosurePushed`、または `assertClosureNotPushed` メソッドにクロージャーを渡すことができます。指定された真実テストに合格する少なくとも 1 つのジョブがプッシュされた場合、アサーションは成功します。
+特定の条件を満たすジョブがプッシュされたことをアサートするために、`assertPushed`、`assertNotPushed`、`assertClosurePushed`、または `assertClosureNotPushed` メソッドにクロージャーを渡すことができます。指定された条件を満たすジョブが少なくとも 1 つプッシュされた場合、アサーションは成功します。
 
 ```php
 use Illuminate\Queue\CallQueuedClosure;

@@ -42,7 +42,7 @@
 ## Configuration
 
 <!-- Your application's cache configuration file is located at `config/cache.php`. In this file, you may specify which cache store you would like to be used by default throughout your application. Laravel supports popular caching backends like [Memcached](https://memcached.org), [Redis](https://redis.io), [DynamoDB](https://aws.amazon.com/dynamodb), relational databases, and filesystem disks out of the box. In addition, a file based cache driver is available, while `array` and `null` cache drivers provide convenient cache backends for your automated tests. -->
-アプリケーションのキャッシュ構成ファイルは、`config/cache.php` にあります。このファイルでは、アプリケーション全体でデフォルトで使用するキャッシュ ストアを指定できます。 Laravel は、[Memcached](https://memcached.org)、[Redis](https://redis.io)、[DynamoDB](https://aws.amazon.com/dynamodb) などの一般的なキャッシュ バックエンド、リレーショナル データベース、ファイル システム ディスクをすぐにサポートします。さらに、ファイル ベースのキャッシュ ドライバも利用でき、`array` および `null` キャッシュ ドライバは自動テストに便利なキャッシュ バックエンドを提供します。
+アプリケーションのキャッシュ構成ファイルは、`config/cache.php` にあります。このファイルでは、アプリケーション全体でデフォルトで使用するキャッシュ ストアを指定できます。 Laravel は、[Memcached](https://memcached.org)、[Redis](https://redis.io)、[DynamoDB](https://aws.amazon.com/dynamodb) などの一般的なキャッシュ バックエンド、リレーショナル データベース、ファイル システム ディスクを標準でサポートしています。さらに、ファイル ベースのキャッシュ ドライバも利用でき、`array` および `null` キャッシュ ドライバは自動テストに便利なキャッシュ バックエンドを提供します。
 
 <!-- The cache configuration file also contains a variety of other options that you may review. By default, Laravel is configured to use the `database` cache driver, which stores the serialized, cached objects in your application's database. -->
 キャッシュ構成ファイルには、検討できる他のさまざまなオプションも含まれています。デフォルトでは、Laravel は `database` キャッシュドライバを使用するように構成されており、シリアル化されたキャッシュされたオブジェクトがアプリケーションのデータベースに保存されます。
@@ -310,10 +310,10 @@ $value = Cache::rememberForever('users', function () {
 #### Stale While Revalidate
 
 <!-- When using the `Cache::remember` method, some users may experience slow response times if the cached value has expired. For certain types of data, it can be useful to allow partially stale data to be served while the cached value is recalculated in the background, preventing some users from experiencing slow response times while cached values are calculated. This is often referred to as the "stale-while-revalidate" pattern, and the `Cache::flexible` method provides an implementation of this pattern. -->
-`Cache::remember` メソッドを使用する場合、キャッシュされた値の有効期限が切れていると、一部のユーザーは応答時間が遅くなる可能性があります。特定の種類のデータの場合、キャッシュされた値がバックグラウンドで再計算されている間、部分的に古いデータを提供できるようにすると、キャッシュされた値の計算中に一部のユーザーが応答時間の低下を経験するのを防ぐことができると便利です。これは、「再検証中に失効する」パターンと呼ばれることが多く、`Cache::flexible` メソッドはこのパターンの実装を提供します。
+`Cache::remember` メソッドを使用する場合、キャッシュされた値の有効期限が切れていると、一部のユーザーは応答時間が遅くなる可能性があります。特定の種類のデータでは、キャッシュされた値をバックグラウンドで再計算している間に多少古いデータを返すことで、一部のユーザーの応答が遅くなるのを防げます。これは、「stale-while-revalidate」パターンと呼ばれることが多く、`Cache::flexible` メソッドはこのパターンの実装を提供します。
 
 <!-- The flexible method accepts an array that specifies how long the cached value is considered "fresh" and when it becomes "stale". The first value in the array represents the number of seconds the cache is considered fresh, while the second value defines how long it can be served as stale data before recalculation is necessary. -->
-この柔軟なメソッドは、キャッシュされた値が「新しい」とみなされる期間と、いつ「古くなった」とみなされるかを指定する配列を受け入れます。配列の最初の値はキャッシュが新しいとみなされる秒数を表し、2 番目の値は再計算が必要になるまで古いデータとして提供できる期間を定義します。
+flexible メソッドは、キャッシュされた値が「新しい」とみなされる期間と、いつ「古くなった」とみなされるかを指定する配列を受け入れます。配列の最初の値はキャッシュが新しいとみなされる秒数を表し、2 番目の値は再計算が必要になるまで古いデータとして提供できる期間を定義します。
 
 <!-- If a request is made within the fresh period (before the first value), the cache is returned immediately without recalculation. If a request is made during the stale period (between the two values), the stale value is served to the user, and a [deferred function](/docs/13.x/helpers#deferred-functions) is registered to refresh the cached value after the response is sent to the user. If a request is made after the second value, the cache is considered expired, and the value is recalculated immediately, which may result in a slower response for the user: -->
 新しい期間内 (最初の値の前) にリクエストが行われた場合、キャッシュは再計算されずにすぐに返されます。古い期間 (2 つの値の間) にリクエストが行われた場合、古い値がユーザーに提供され、応答がユーザーに送信された後にキャッシュされた値を更新するために [deferred function](/docs/13.x/helpers#deferred-functions) が登録されます。 2 番目の値の後にリクエストが行われた場合、キャッシュは期限切れとみなされ、値はすぐに再計算されます。その結果、ユーザーの応答が遅くなる可能性があります。
@@ -736,7 +736,7 @@ Cache::funnel('foo')
 ```
 
 <!-- The `funnel` key identifies the resource being limited. The `limit` method defines the maximum concurrent executions. The `releaseAfter` method sets a safety timeout in seconds before an acquired slot is automatically released. The `block` method sets how many seconds to wait for an available slot. -->
-`funnel` キーは、制限されているリソースを識別します。 `limit` メソッドは、最大同時実行数を定義します。 `releaseAfter` メソッドは、取得したスロットが自動的に解放される前に、安全タイムアウトを秒単位で設定します。 `block` メソッドは、使用可能なスロットを待機する秒数を設定します。
+`funnel` キーは、制限されているリソースを識別します。 `limit` メソッドは、最大同時実行数を定義します。 `releaseAfter` メソッドは、取得したスロットが自動的に解放されるまでの安全タイムアウトを秒単位で設定します。 `block` メソッドは、使用可能なスロットを待機する秒数を設定します。
 
 <!-- If you prefer to handle the timeout via exceptions instead of providing a failure closure, you may omit the second closure. An `Illuminate\Cache\Limiters\LimiterTimeoutException` will be thrown if the lock cannot be acquired within the specified wait time: -->
 失敗クロージャを提供する代わりに例外によってタイムアウトを処理したい場合は、2 番目のクロージャを省略できます。指定された待機時間内にロックを取得できない場合は、`Illuminate\Cache\Limiters\LimiterTimeoutException` がスローされます。

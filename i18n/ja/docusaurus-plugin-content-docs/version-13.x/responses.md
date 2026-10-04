@@ -414,7 +414,7 @@ return response()
 ### File Downloads
 
 <!-- The `download` method may be used to generate a response that forces the user's browser to download the file at the given path. The `download` method accepts a filename as the second argument to the method, which will determine the filename that is seen by the user downloading the file. Finally, you may pass an array of HTTP headers as the third argument to the method: -->
-`download` メソッドは、ユーザーのブラウザに指定されたパスにファイルをダウンロードさせる応答を生成するために使用できます。 `download` メソッドは、メソッドの 2 番目の引数としてファイル名を受け入れます。これにより、ファイルをダウンロードするユーザーに表示されるファイル名が決まります。最後に、HTTP ヘッダーの配列を 3 番目の引数としてメソッドに渡すことができます。
+`download` メソッドは、ユーザーのブラウザに指定されたパスにあるファイルをダウンロードさせる応答を生成するために使用できます。 `download` メソッドは、メソッドの 2 番目の引数としてファイル名を受け入れます。これにより、ファイルをダウンロードするユーザーに表示されるファイル名が決まります。最後に、HTTP ヘッダーの配列を 3 番目の引数としてメソッドに渡すことができます。
 
 ```php
 return response()->download($pathToFile);
@@ -948,7 +948,7 @@ const loadUsers = () => {
 ### Event Streams (SSE)
 
 <!-- The `eventStream` method may be used to return a server-sent events (SSE) streamed response using the `text/event-stream` content type. The `eventStream` method accepts a closure which should [yield](https://www.php.net/manual/en/language.generators.overview.php) responses to the stream as the responses become available: -->
-`eventStream` メソッドは、`text/event-stream` コンテンツ タイプを使用してサーバー送信イベント (SSE) ストリーミング応答を返すために使用できます。 `eventStream` メソッドは、応答が利用可能になったときに [yield](https://www.php.net/manual/en/language.generators.overview.php) がストリームに応答する必要があるクロージャを受け入れます。
+`eventStream` メソッドは、`text/event-stream` コンテンツ タイプを使用してサーバー送信イベント (SSE) ストリーミング応答を返すために使用できます。 `eventStream` メソッドはクロージャを受け取り、このクロージャは応答が利用可能になるたびに、その応答をストリームへ [yield](https://www.php.net/manual/en/language.generators.overview.php) する必要があります。
 
 ```php
 Route::get('/chat', function () {
@@ -963,7 +963,7 @@ Route::get('/chat', function () {
 ```
 
 <!-- If you would like to customize the name of the event, you may yield an instance of the `StreamedEvent` class: -->
-イベントの名前をカスタマイズしたい場合は、`StreamedEvent` クラスのインスタンスを生成します。
+イベントの名前をカスタマイズしたい場合は、`StreamedEvent` クラスのインスタンスを yield できます。
 
 ```php
 use Illuminate\Http\StreamedEvent;

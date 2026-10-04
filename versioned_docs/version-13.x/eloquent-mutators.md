@@ -79,7 +79,7 @@ $firstName = $user->first_name;
 ```
 
 > [!NOTE]
-> 이렇게 계산된 값을 모델의 배열 / JSON 표현에 추가하고 싶다면 [you will need to append them](/docs/13.x/eloquent-serialization#appending-values-to-json).
+> 이렇게 계산된 값을 모델의 배열 / JSON 표현에 추가하고 싶다면 추가 속성으로 지정해야 합니다([you will need to append them](/docs/13.x/eloquent-serialization#appending-values-to-json)).
 
 <a name="building-value-objects-from-multiple-attributes"></a>
 <!-- #### Building Value Objects From Multiple Attributes -->
@@ -395,7 +395,7 @@ $user->save();
 ```
 
 <!-- To update a single field of a JSON attribute with a more terse syntax, you may [make the attribute mass assignable](/docs/13.x/eloquent#mass-assignment-json-columns) and use the `->` operator when calling the `update` method: -->
-JSON 속성의 단일 필드를 더 간결한 문법으로 업데이트하려면, [make the attribute mass assignable](/docs/13.x/eloquent#mass-assignment-json-columns) `update` 메서드를 호출할 때 `->` 연산자를 사용할 수 있습니다.
+JSON 속성의 단일 필드를 더 간결한 문법으로 업데이트하려면, 속성을 대량 할당 가능하게 설정하고([make the attribute mass assignable](/docs/13.x/eloquent#mass-assignment-json-columns)) `update` 메서드를 호출할 때 `->` 연산자를 사용할 수 있습니다.
 
 ```php
 $user = User::find(1);
@@ -667,7 +667,7 @@ return $user->uuid;
 기본적으로 Eloquent는 `created_at` 및 `updated_at` 컬럼을 [Carbon](https://github.com/briannesbitt/Carbon) 인스턴스로 casting합니다. Carbon은 PHP의 `DateTime` 클래스를 확장하며 다양한 유용한 메서드를 제공합니다. 모델의 `casts` 메서드 안에 추가 날짜 cast를 정의하여 다른 날짜 속성도 casting할 수 있습니다. 일반적으로 날짜는 `datetime` 또는 `immutable_datetime` cast 타입을 사용해 casting해야 합니다.
 
 <!-- When defining a `date` or `datetime` cast, you may also specify the date's format. This format will be used when the [model is serialized to an array or JSON](/docs/13.x/eloquent-serialization): -->
-`date` 또는 `datetime` cast를 정의할 때 날짜 형식도 지정할 수 있습니다. 이 형식은 [model is serialized to an array or JSON](/docs/13.x/eloquent-serialization) 사용됩니다.
+`date` 또는 `datetime` cast를 정의할 때 날짜 형식도 지정할 수 있습니다. 이 형식은 모델이 배열 또는 JSON으로 직렬화될 때 사용됩니다([model is serialized to an array or JSON](/docs/13.x/eloquent-serialization)).
 
 ```php
 /**
@@ -795,7 +795,7 @@ protected function casts(): array
 #### Key Rotation
 
 <!-- As you may know, Laravel encrypts strings using the `key` configuration value specified in your application's `app` configuration file. Typically, this value corresponds to the value of the `APP_KEY` environment variable. If you need to rotate your application's encryption key, you may [gracefully do so](/docs/13.x/encryption#gracefully-rotating-encryption-keys). -->
-알고 있듯이 Laravel은 애플리케이션의 `app` 설정 파일에 지정된 `key` 설정 값을 사용하여 문자열을 암호화합니다. 일반적으로 이 값은 `APP_KEY` 환경 변수의 값에 해당합니다. 애플리케이션의 암호화 키를 교체해야 한다면 [gracefully do so](/docs/13.x/encryption#gracefully-rotating-encryption-keys).
+알고 있듯이 Laravel은 애플리케이션의 `app` 설정 파일에 지정된 `key` 설정 값을 사용하여 문자열을 암호화합니다. 일반적으로 이 값은 `APP_KEY` 환경 변수의 값에 해당합니다. 애플리케이션의 암호화 키를 교체해야 한다면 원활하게 교체할 수 있습니다([gracefully do so](/docs/13.x/encryption#gracefully-rotating-encryption-keys)).
 
 <a name="query-time-casting"></a>
 <!-- ### Query Time Casting -->

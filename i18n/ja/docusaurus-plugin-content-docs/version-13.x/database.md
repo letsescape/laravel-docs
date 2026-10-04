@@ -433,7 +433,7 @@ class AppServiceProvider extends ServiceProvider
 ### Monitoring Cumulative Query Time
 
 <!-- A common performance bottleneck of modern web applications is the amount of time they spend querying databases. Thankfully, Laravel can invoke a closure or callback of your choice when it spends too much time querying the database during a single request. To get started, provide a query time threshold (in milliseconds) and closure to the `whenQueryingForLongerThan` method. You may invoke this method in the `boot` method of a [service provider](/docs/13.x/providers): -->
-最新の Web アプリケーションの一般的なパフォーマンスのボトルネックは、データベースのクエリに費やす時間です。ありがたいことに、Laravel は、1 回のリクエスト中にデータベースのクエリに時間がかかりすぎる場合に、選択したクロージャまたはコールバックを呼び出すことができます。まず、クエリ時間のしきい値 (ミリ秒単位) とクロージャーを `whenQueryingForLongerThan` メソッドに指定します。このメソッドは、[service provider](/docs/13.x/providers) の `boot` メソッドで呼び出すことができます。
+最新の Web アプリケーションの一般的なパフォーマンスのボトルネックは、データベースのクエリに費やす時間です。ありがたいことに、Laravel は、1 回のリクエスト中にデータベースのクエリに費やした累積時間が長すぎる場合に、選択したクロージャまたはコールバックを呼び出すことができます。まず、クエリ時間のしきい値 (ミリ秒単位) とクロージャーを `whenQueryingForLongerThan` メソッドに指定します。このメソッドは、[service provider](/docs/13.x/providers) の `boot` メソッドで呼び出すことができます。
 
 ```php
 <?php
@@ -489,7 +489,7 @@ DB::transaction(function () {
 #### Handling Deadlocks
 
 <!-- The `transaction` method accepts an optional second argument which defines the number of times a transaction should be retried when a deadlock occurs. Once these attempts have been exhausted, an exception will be thrown: -->
-`transaction` メソッドは、デッドロックが発生したときにトランザクションを再試行する回数を定義するオプションの 2 番目の引数を受け入れます。これらの試行がすべて完了すると、例外がスローされます。
+`transaction` メソッドは、デッドロックが発生したときにトランザクションを再試行する回数を定義するオプションの 2 番目の引数を受け入れます。指定された再試行回数を使い切っても成功しなかった場合は、例外がスローされます。
 
 ```php
 use Illuminate\Support\Facades\DB;

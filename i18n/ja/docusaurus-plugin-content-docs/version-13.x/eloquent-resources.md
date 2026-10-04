@@ -25,7 +25,7 @@
 ## Introduction
 
 <!-- When building an API, you may need a transformation layer that sits between your Eloquent models and the JSON responses that are actually returned to your application's users. For example, you may wish to display certain attributes for a subset of users and not others, or you may wish to always include certain relationships in the JSON representation of your models. Eloquent's resource classes allow you to expressively and easily transform your models and model collections into JSON. -->
-API を構築するときは、Eloquent モデルと実際にアプリケーションのユーザーに返される JSON 応答の間に位置する変換レイヤーが必要になる場合があります。たとえば、ユーザーのサブセットに対して特定の属性を表示し、その他の属性は表示しないようにしたい場合や、モデルの JSON 表現に特定の関係を常に含めたい場合があります。 Eloquent のリソース クラスを使用すると、モデルとモデル コレクションを表現力豊かかつ簡単に JSON に変換できます。
+API を構築するときは、Eloquent モデルと実際にアプリケーションのユーザーに返される JSON 応答の間に位置する変換レイヤーが必要になる場合があります。たとえば、一部のユーザーには特定の属性を表示し、他のユーザーには表示しないようにしたい場合や、モデルの JSON 表現に特定の関係を常に含めたい場合があります。 Eloquent のリソース クラスを使用すると、モデルとモデル コレクションを表現力豊かかつ簡単に JSON に変換できます。
 
 <!-- Of course, you may always convert Eloquent models or collections to JSON using their `toJson` methods; however, Eloquent resources provide more granular and robust control over the JSON serialization of your models and their relationships. -->
 もちろん、`toJson` メソッドを使用して、いつでも Eloquent モデルまたはコレクションを JSON に変換できます。ただし、Eloquent リソースでは、モデルとその関係の JSON シリアル化をより詳細かつ堅牢に制御できます。
@@ -99,7 +99,7 @@ class UserResource extends JsonResource
 すべてのリソース クラスは、リソースがルートまたはコントローラ メソッドからの応答として返されるときに JSON に変換する必要がある属性の配列を返す `toArray` メソッドを定義します。
 
 <!-- Note that we can access model properties directly from the `$this` variable. This is because a resource class will automatically proxy property and method access down to the underlying model for convenient access. Once the resource is defined, it may be returned from a route or controller. The resource accepts the underlying model instance via its constructor: -->
-`$this` 変数からモデル プロパティに直接アクセスできることに注意してください。これは、アクセスを容易にするために、リソース クラスがプロパティとメソッドへのアクセスを基になるモデルに自動的にプロキシするためです。リソースが定義されると、ルートまたはコントローラから返されることがあります。リソースは、コンストラクターを介して基礎となるモデル インスタンスを受け入れます。
+`$this` 変数からモデル プロパティに直接アクセスできることに注意してください。これは、アクセスを容易にするために、リソース クラスがプロパティとメソッドへのアクセスを基になるモデルに自動的にプロキシするためです。リソースを定義したら、ルートまたはコントローラから返すことができます。リソースは、コンストラクターを介して基礎となるモデル インスタンスを受け入れます。
 
 ```php
 use App\Http\Resources\UserResource;
@@ -240,7 +240,7 @@ class UserCollection extends ResourceCollection
 ```
 
 <!-- After defining your resource collection, it may be returned from a route or controller: -->
-リソース コレクションを定義すると、ルートまたはコントローラから返される場合があります。
+リソース コレクションを定義したら、ルートまたはコントローラから返すことができます。
 
 ```php
 use App\Http\Resources\UserCollection;
@@ -359,7 +359,7 @@ class UserResource extends JsonResource
 ```
 
 <!-- Once a resource has been defined, it may be returned directly from a route or controller: -->
-リソースが定義されると、ルートまたはコントローラから直接返されることがあります。
+リソースを定義したら、ルートまたはコントローラから直接返すことができます。
 
 ```php
 use App\Models\User;
@@ -447,7 +447,7 @@ class UserCollection extends ResourceCollection
 ```
 
 <!-- Like singular resources, resource collections may be returned directly from routes or controllers: -->
-単一リソースと同様に、リソース コレクションはルートまたはコントローラから直接返される場合があります。
+単一リソースと同様に、リソース コレクションはルートまたはコントローラから直接返すことができます。
 
 ```php
 use App\Http\Resources\UserCollection;
@@ -613,7 +613,7 @@ Route::get('/users', function () {
 ```
 
 <!-- Or, for convenience, you may use the paginator's `toResourceCollection` method, which will use framework conventions to automatically discover the paginated model's underlying resource collection: -->
-または、便宜上、ページネーションの `toResourceCollection` メソッドを使用することもできます。このメソッドは、フレームワーク規則を使用して、ページ分割されたモデルの基になるリソース コレクションを自動的に検出します。
+または、便宜上、ページネータの `toResourceCollection` メソッドを使用することもできます。このメソッドは、フレームワーク規則を使用して、ページ分割されたモデルの基になるリソース コレクションを自動的に検出します。
 
 ```php
 return User::paginate()->toResourceCollection();
@@ -735,7 +735,7 @@ public function toArray(Request $request): array
 #### Merging Conditional Attributes
 
 <!-- Sometimes you may have several attributes that should only be included in the resource response based on the same condition. In this case, you may use the `mergeWhen` method to include the attributes in the response only when the given condition is `true`: -->
-場合によっては、同じ条件に基づいてリソース応答にのみ含めるべき複数の属性がある場合があります。この場合、指定された条件が `true` の場合にのみ、`mergeWhen` メソッドを使用して属性を応答に含めることができます。
+同じ条件が満たされた場合にのみリソース応答に含めたい属性が複数あることがあります。この場合、指定された条件が `true` の場合にのみ属性を応答に含めるには、`mergeWhen` メソッドを使用できます。
 
 ```php
 /**
@@ -932,7 +932,7 @@ public function toArray(Request $request): array
 #### Top Level Meta Data
 
 <!-- Sometimes you may wish to only include certain meta data with a resource response if the resource is the outermost resource being returned. Typically, this includes meta information about the response as a whole. To define this meta data, add a `with` method to your resource class. This method should return an array of meta data to be included with the resource response only when the resource is the outermost resource being transformed: -->
-リソースが返される最も外側のリソースである場合、リソース応答に特定のメタデータのみを含めたい場合があります。通常、これには応答全体に関するメタ情報が含まれます。このメタデータを定義するには、リソース クラスに `with` メソッドを追加します。このメソッドは、リソースが変換される最も外側のリソースである場合にのみ、リソース応答に含まれるメタデータの配列を返す必要があります。
+返されるリソースが最も外側のリソースである場合にのみ、特定のメタデータをリソース応答に含めたいことがあります。通常、これには応答全体に関するメタ情報が含まれます。このメタデータを定義するには、リソース クラスに `with` メソッドを追加します。このメソッドは、リソースが変換される最も外側のリソースである場合にのみ、リソース応答に含まれるメタデータの配列を返す必要があります。
 
 ```php
 <?php
@@ -1036,7 +1036,7 @@ class PostResource extends JsonApiResource
 ```
 
 <!-- JSON:API resources may be returned from routes and controllers just like standard resources: -->
-JSON:API リソースは、標準リソースと同様にルートおよびコントローラから返される場合があります。
+JSON:API リソースは、標準リソースと同様にルートおよびコントローラから返すことができます。
 
 ```php
 use App\Http\Resources\PostResource;
@@ -1317,7 +1317,7 @@ return $post->toResource()
 #### Including Previously Loaded Relationships
 
 <!-- By default, relationships are only included in the response when requested via the `include` query parameter. If you would like to include all previously eager-loaded relationships regardless of the query string, you may call the `includePreviouslyLoadedRelationships` method: -->
-デフォルトでは、関係は、`include` クエリ パラメーターを介して要求された場合にのみ応答に含まれます。クエリ文字列に関係なく、以前に熱心にロードされたすべての関係を含めたい場合は、`includePreviouslyLoadedRelationships` メソッドを呼び出すことができます。
+デフォルトでは、関係は、`include` クエリ パラメーターを介して要求された場合にのみ応答に含まれます。クエリ文字列に関係なく、以前に一括ロードされたすべてのリレーションシップを含めたい場合は、`includePreviouslyLoadedRelationships` メソッドを呼び出すことができます。
 
 ```php
 return $post->load('author', 'comments')
@@ -1380,7 +1380,7 @@ public function toMeta(Request $request): array
 ## Resource Responses
 
 <!-- As you have already read, resources may be returned directly from routes and controllers: -->
-すでに読んだとおり、リソースはルートとコントローラから直接返される場合があります。
+すでに読んだとおり、リソースはルートとコントローラから直接返すことができます。
 
 ```php
 use App\Models\User;

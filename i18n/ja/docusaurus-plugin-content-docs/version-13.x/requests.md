@@ -174,7 +174,7 @@ $request->fullUrlWithQuery(['type' => 'phone']);
 ```
 
 <!-- If you would like to get the current URL without a given query string parameter, you may utilize the `fullUrlWithoutQuery` method: -->
-特定のクエリ文字列パラメータを指定せずに現在の URL を取得したい場合は、`fullUrlWithoutQuery` メソッドを利用できます。
+指定したクエリ文字列パラメータを除いた現在の URL を取得したい場合は、`fullUrlWithoutQuery` メソッドを利用できます。
 
 ```php
 $request->fullUrlWithoutQuery(['type']);
@@ -466,7 +466,7 @@ $perPage = $request->integer('per_page');
 #### Retrieving Boolean Input Values
 
 <!-- When dealing with HTML elements like checkboxes, your application may receive "truthy" values that are actually strings. For example, "true" or "on". For convenience, you may use the `boolean` method to retrieve these values as booleans. The `boolean` method returns `true` for 1, "1", true, "true", "on", and "yes". All other values will return `false`: -->
-チェックボックスなどの HTML 要素を処理する場合、アプリケーションは実際には文字列である「真実の」値を受け取ることがあります。たとえば、「true」または「on」です。便宜上、`boolean` メソッドを使用してこれらの値をブール値として取得できます。 `boolean` メソッドは、1、「1」、true、「true」、「on」、および「yes」の場合、`true` を返します。他のすべての値は `false` を返します。
+チェックボックスなどの HTML 要素を処理する場合、アプリケーションは実際には文字列である「真と評価される」値を受け取ることがあります。たとえば、「true」または「on」です。便宜上、`boolean` メソッドを使用してこれらの値をブール値として取得できます。 `boolean` メソッドは、1、「1」、true、「true」、「on」、および「yes」の場合、`true` を返します。他のすべての値は `false` を返します。
 
 ```php
 $archived = $request->boolean('archived');
@@ -550,7 +550,7 @@ $status = $request->enum('status', Status::class, Status::Pending);
 ```
 
 <!-- If the input value is an array of values that correspond to a PHP enum, you may use the `enums` method to retrieve the array of values as enum instances: -->
-入力値が PHP 列挙型に対応する値の配列である場合、`enums` メソッドを使用して値の配列を列挙型インスタンスとして取得できます。
+入力値が PHP 列挙型に対応する値の配列である場合、`enums` メソッドを使用して列挙型インスタンスの配列として取得できます。
 
 ```php
 use App\Enums\Product;
@@ -633,7 +633,7 @@ $request->whenHas('name', function (string $input) {
 ```
 
 <!-- A second closure may be passed to the `whenHas` method that will be executed if the specified value is not present on the request: -->
-2 番目のクロージャーは、指定された値がリクエストに存在しない場合に実行される `whenHas` メソッドに渡すことができます。
+`whenHas` メソッドには、指定された値がリクエストに存在しない場合に実行される 2 番目のクロージャーを渡すこともできます。
 
 ```php
 $request->whenHas('name', function (string $input) {
@@ -689,7 +689,7 @@ $request->whenFilled('name', function (string $input) {
 ```
 
 <!-- A second closure may be passed to the `whenFilled` method that will be executed if the specified value is not "filled": -->
-2 番目のクロージャーは、指定された値が「満たされていない」場合に実行される `whenFilled` メソッドに渡すことができます。
+`whenFilled` メソッドには、指定された値が存在しないか空の文字列である場合に実行される 2 番目のクロージャーを渡すこともできます。
 
 ```php
 $request->whenFilled('name', function (string $input) {

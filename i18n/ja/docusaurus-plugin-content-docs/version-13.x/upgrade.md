@@ -56,7 +56,7 @@
 #### Estimated Upgrade Time: 10 Minutes
 
 > [!NOTE]
-> 私たちは、考えられるすべての重大な変更を文書化するよう努めます。これらの重大な変更の一部はフレームワークのあいまいな部分にあるため、実際にアプリケーションに影響を与える可能性があるのは、これらの変更の一部だけです。時間を節約するには、[Shift](https://laravelshift.com) を使用できます。 Shift は、Laravel のアップグレードを自動化するコミュニティによって管理されるサービスです。
+> 私たちは、考えられるすべての破壊的変更を文書化するよう努めます。これらの破壊的変更の一部はフレームワークのあまり知られていない部分にあるため、実際にアプリケーションに影響を与える可能性があるのは、これらの変更の一部だけです。時間を節約するには、[Shift](https://laravelshift.com) を使用できます。 Shift は、Laravel のアップグレードを自動化するコミュニティによって管理されるサービスです。
 
 <a name="upgrading-using-ai"></a>
 <!-- ### Upgrading Using AI -->
@@ -78,11 +78,11 @@
 <div class="content-list" markdown="1">
 
 <!-- - `laravel/framework` to `^13.0` - `laravel/boost` to `^2.0` - `laravel/tinker` to `^3.0` - `phpunit/phpunit` to `^12.0` - `pestphp/pest` to `^4.0` -->
-- `laravel/framework` ～ `^13.0`
-- `laravel/boost` ～ `^2.0`
-- `laravel/tinker` ～ `^3.0`
-- `phpunit/phpunit` ～ `^12.0`
-- `pestphp/pest` ～ `^4.0`
+- `laravel/framework` を `^13.0` に更新
+- `laravel/boost` を `^2.0` に更新
+- `laravel/tinker` を `^3.0` に更新
+- `phpunit/phpunit` を `^12.0` に更新
+- `pestphp/pest` を `^4.0` に更新
 
 </div>
 
@@ -161,7 +161,7 @@ public function touch($key, $seconds);
 **影響の可能性: 中**
 
 <!-- The default application `cache` configuration now includes a `serializable_classes` option set to `false`. This hardens cache unserialization behavior to help prevent PHP deserialization gadget chain attacks if your application's `APP_KEY` is leaked. If your application intentionally stores PHP objects in cache, you should explicitly list the classes that may be unserialized: -->
-デフォルトのアプリケーションの `cache` 構成には、`false` に設定された `serializable_classes` オプションが含まれるようになりました。これにより、キャッシュのシリアル化解除動作が強化され、アプリケーションの `APP_KEY` が漏洩した場合に PHP シリアル化解除ガジェット チェーン攻撃を防ぐことができます。アプリケーションが意図的に PHP オブジェクトをキャッシュに保存する場合は、シリアル化解除される可能性のあるクラスを明示的にリストする必要があります。
+デフォルトのアプリケーションの `cache` 構成には、`false` に設定された `serializable_classes` オプションが含まれるようになりました。これにより、キャッシュのシリアル化解除動作が強化され、アプリケーションの `APP_KEY` が漏洩した場合に PHP シリアル化解除ガジェット チェーン攻撃を防ぐのに役立ちます。アプリケーションが意図的に PHP オブジェクトをキャッシュに保存する場合は、シリアル化解除を許可するクラスを明示的にリストする必要があります。
 
 ```php
 'serializable_classes' => [
@@ -197,7 +197,7 @@ $container->call(function (?Carbon $date = null) {
 ```
 
 <!-- If your method-call injection logic depended on the previous behavior, you may need to update it. -->
-メソッド呼び出し挿入ロジックが以前の動作に依存していた場合は、それを更新する必要がある場合があります。
+メソッド呼び出し時の依存性注入ロジックが以前の動作に依存していた場合は、それを更新する必要がある場合があります。
 
 <a name="contracts"></a>
 <!-- ### Contracts -->
@@ -224,7 +224,7 @@ $container->call(function (?Carbon $date = null) {
 **影響の可能性: 非常に低い**
 
 <!-- The `Illuminate\Contracts\Routing\ResponseFactory` contract now includes an `eventStream` signature. -->
-`Illuminate\Contracts\Routing\ResponseFactory` コントラクトに `eventStream` 署名が含まれるようになりました。
+`Illuminate\Contracts\Routing\ResponseFactory` コントラクトに `eventStream` のメソッドシグネチャが含まれるようになりました。
 
 <!-- If you maintain a custom implementation of this contract, you should add this method. -->
 このコントラクトのカスタム実装を維持する場合は、このメソッドを追加する必要があります。
@@ -284,10 +284,10 @@ Laravel は、MySQL 文法用の `ORDER BY` および `LIMIT` を含む完全な
 **影響の可能性: 非常に低い**
 
 <!-- Creating a new model instance while that model is still booting is now disallowed and throws a `LogicException`. -->
-モデルの起動中に新しいモデル インスタンスを作成することは禁止され、`LogicException` がスローされます。
+モデルのブート中にそのモデルの新しいインスタンスを作成することは禁止され、`LogicException` がスローされます。
 
 <!-- This affects code that instantiates models from inside model `boot` methods or trait `boot*` methods: -->
-これは、モデル `boot` メソッドまたは特性 `boot*` メソッド内からモデルをインスタンス化するコードに影響します。
+これは、モデル `boot` メソッドまたはトレイトの `boot*` メソッド内からモデルをインスタンス化するコードに影響します。
 
 ```php
 protected static function boot()
@@ -326,7 +326,7 @@ protected static function boot()
 Eloquent モデル コレクションがシリアル化されて復元されるとき (キューに入れられたジョブなど)、コレクションのモデルに対して一括ロードされたリレーションが復元されるようになりました。
 
 <!-- If your code depended on relations not being present after deserialization, you may need to adjust that logic. -->
-コードが、逆シリアル化後に存在しないリレーションに依存している場合は、そのロジックを調整する必要がある場合があります。
+コードが、逆シリアル化後にリレーションが存在しないことに依存している場合は、そのロジックを調整する必要がある場合があります。
 
 <a name="http-client"></a>
 <!-- ### HTTP Client -->
@@ -373,7 +373,7 @@ Reset your password
 ```
 
 <!-- If your tests, assertions, or translation overrides depend on the previous default string, update them accordingly. -->
-テスト、アサーション、または変換のオーバーライドが以前のデフォルト文字列に依存している場合は、それに応じてそれらを更新します。
+テスト、アサーション、または翻訳のオーバーライドが以前のデフォルト文字列に依存している場合は、それに応じてそれらを更新します。
 
 <a name="queued-notifications-and-missing-models"></a>
 <!-- #### Queued Notifications and Missing Models -->
@@ -561,7 +561,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 Laravel は、テストのティアダウン中にカスタム `Str` ファクトリをリセットするようになりました。
 
 <!-- If your tests depended on custom UUID / ULID / random string factories persisting between test methods, you should set them in each relevant test or setup hook. -->
-テストがテスト メソッド間で持続するカスタム UUID / ULID / ランダム文字列ファクトリに依存している場合は、関連する各テスト フックまたはセットアップ フックでそれらを設定する必要があります。
+テストがテスト メソッド間で持続するカスタム UUID / ULID / ランダム文字列ファクトリに依存している場合は、関連する各テストまたはセットアップ フックでそれらを設定する必要があります。
 
 <a name="jsfrom-uses-unescaped-unicode-by-default"></a>
 <!-- #### `Js::from` Uses Unescaped Unicode By Default -->
@@ -636,4 +636,4 @@ pagination::simple-bootstrap-3
 ### Miscellaneous
 
 <!-- We also encourage you to view the changes in the `laravel/laravel` [GitHub repository](https://github.com/laravel/laravel). While many of these changes are not required, you may wish to keep these files in sync with your application. Some of these changes will be covered in this upgrade guide, but others, such as changes to configuration files or comments, will not be. You can easily view the changes with the [GitHub comparison tool](https://github.com/laravel/laravel/compare/12.x...13.x) and choose which updates are important to you. -->
-`laravel/laravel` [GitHub repository](https://github.com/laravel/laravel) の変更内容も確認することをお勧めします。これらの変更の多くは必要ありませんが、これらのファイルをアプリケーションと同期させておきたい場合があります。これらの変更の一部はこのアップグレード ガイドで説明されますが、構成ファイルやコメントへの変更などのその他の変更については説明されません。 [GitHub comparison tool](https://github.com/laravel/laravel/compare/12.x...13.x) を使用して変更を簡単に表示し、どの更新が自分にとって重要かを選択できます。
+`laravel/laravel` [GitHub repository](https://github.com/laravel/laravel) の変更内容も確認することをお勧めします。これらの変更の多くは必須ではありませんが、これらのファイルをアプリケーションと同期させておきたい場合があります。これらの変更の一部はこのアップグレード ガイドで説明されますが、構成ファイルやコメントへの変更などのその他の変更については説明されません。 [GitHub comparison tool](https://github.com/laravel/laravel/compare/12.x...13.x) を使用して変更を簡単に表示し、どの更新が自分にとって重要かを選択できます。

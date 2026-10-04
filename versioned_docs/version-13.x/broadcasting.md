@@ -196,7 +196,7 @@ BROADCAST_CONNECTION=pusher
 #### Encrypted Private Channels
 
 <!-- If you plan to use [end-to-end encrypted private channels](#encrypted-private-channels), you should add an `encryption_master_key_base64` option containing a base64 encoded, 32-byte key to the `pusher` connection's `options` array: -->
-[end-to-end encrypted private channels](#encrypted-private-channels)을 사용하려면 `pusher` 연결의 `options` 배열에 base64로 인코딩된 32바이트 키를 포함하는 `encryption_master_key_base64` 옵션을 추가해야 합니다.
+[end-to-end encrypted private channels](#encrypted-private-channels)을 사용하려면 `pusher` 연결의 `options` 배열에 32바이트 키를 base64로 인코딩한 값을 포함하는 `encryption_master_key_base64` 옵션을 추가해야 합니다.
 
 ```php
 'options' => [
@@ -1405,7 +1405,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening for Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-[leaving the channel](#leaving-a-channel) 특정 이벤트 수신만 중지하려면 `stopListening` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 특정 이벤트 수신만 중지하려면 `stopListening` 메서드를 사용할 수 있습니다.
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1515,7 +1515,7 @@ useEcho(
 ```
 
 <!-- You may also specify the shape of the broadcast event payload data, providing greater type safety and editing convenience: -->
-브로드캐스트 이벤트 페이로드 데이터의 형태도 지정할 수 있으며, 이를 통해 더 높은 타입 안정성과 편집 편의성을 얻을 수 있습니다.
+브로드캐스트 이벤트 페이로드 데이터의 형태도 지정할 수 있으며, 이를 통해 더 높은 타입 안전성과 편집 편의성을 얻을 수 있습니다.
 
 ```ts
 type OrderData = {
@@ -1788,7 +1788,7 @@ const socketId = useSocketId();
 ### Authorizing Presence Channels
 
 <!-- All presence channels are also private channels; therefore, users must be [authorized to access them](#authorizing-channels). However, when defining authorization callbacks for presence channels, you will not return `true` if the user is authorized to join the channel. Instead, you should return an array of data about the user. -->
-모든 프레즌스 채널은 비공개 채널이기도 합니다. 따라서 사용자는 해당 채널에 접근하도록 [authorized to access them](#authorizing-channels). 하지만 프레즌스 채널의 인가 콜백을 정의할 때는 사용자가 채널에 참여할 수 있더라도 `true`를 반환하지 않습니다. 대신 사용자에 대한 데이터 배열을 반환해야 합니다.
+모든 프레즌스 채널은 비공개 채널이기도 합니다. 따라서 사용자는 [authorized to access them](#authorizing-channels)에 설명된 인가를 받아야 합니다. 하지만 프레즌스 채널의 인가 콜백을 정의할 때는 사용자가 채널에 참여할 수 있더라도 `true`를 반환하지 않습니다. 대신 사용자에 대한 데이터 배열을 반환해야 합니다.
 
 <!-- The data returned by the authorization callback will be made available to the presence channel event listeners in your JavaScript application. If the user is not authorized to join the presence channel, you should return `false` or `null`: -->
 인가 콜백이 반환한 데이터는 JavaScript 애플리케이션의 프레즌스 채널 이벤트 리스너에서 사용할 수 있게 됩니다. 사용자가 프레즌스 채널에 참여할 권한이 없다면 `false` 또는 `null`을 반환해야 합니다.
@@ -1912,7 +1912,7 @@ Echo.encryptedPrivate(`orders.${orderId}`)
 ```
 
 <!-- When using Pusher Channels, the default `pusher-js` build does not include the code needed to decrypt messages. Instead, you should import the `with-encryption` build when [configuring Echo](#pusher-client-manual-installation): -->
-Pusher Channels를 사용할 때 기본 `pusher-js` 빌드에는 메시지 복호화에 필요한 코드가 포함되어 있지 않습니다. 대신 [configuring Echo](#pusher-client-manual-installation) `with-encryption` 빌드를 가져와야 합니다.
+Pusher Channels를 사용할 때 기본 `pusher-js` 빌드에는 메시지 복호화에 필요한 코드가 포함되어 있지 않습니다. 대신 [configuring Echo](#pusher-client-manual-installation) 과정에서 `with-encryption` 빌드를 가져와야 합니다.
 
 ```js
 import Pusher from 'pusher-js/with-encryption';
@@ -2167,7 +2167,7 @@ useEchoModel("App.Models.User", userId, ["UserUpdated"], (e) => {
 ```
 
 <!-- You may also specify the shape of the model event payload data, providing greater type safety and editing convenience: -->
-모델 이벤트 페이로드 데이터의 형태를 지정하여 더 높은 타입 안정성과 편리한 편집 환경을 제공할 수도 있습니다.
+모델 이벤트 페이로드 데이터의 형태를 지정하여 더 높은 타입 안전성과 편리한 편집 환경을 제공할 수도 있습니다.
 
 ```ts
 type User = {
@@ -2345,7 +2345,7 @@ channel().notification((notification) => {
 #### Stop Listening for Notifications
 
 <!-- If you would like to stop listening to notifications without [leaving the channel](#leaving-a-channel), you may use the `stopListeningForNotification` method: -->
-[leaving the channel](#leaving-a-channel) 않고 알림 수신을 중지하려면 `stopListeningForNotification` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 알림 수신을 중지하려면 `stopListeningForNotification` 메서드를 사용할 수 있습니다.
 
 ```js
 const callback = (notification) => {

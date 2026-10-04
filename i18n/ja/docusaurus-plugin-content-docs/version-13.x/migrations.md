@@ -94,7 +94,7 @@ php artisan schema:dump --database=testing --prune
 移行クラスには、`up` と `down` の 2 つのメソッドが含まれています。 `up` メソッドは、新しいテーブル、列、またはインデックスをデータベースに追加するために使用されますが、`down` メソッドは、`up` メソッドによって実行された操作を元に戻す必要があります。
 
 <!-- Within both of these methods, you may use the Laravel schema builder to expressively create and modify tables. To learn about all of the methods available on the `Schema` builder, [check out its documentation](#creating-tables). For example, the following migration creates a `flights` table: -->
-これらの両方のメソッド内で、Laravel スキーマ ビルダを使用して、テーブルを表現的に作成および変更できます。 `Schema` ビルダ、[check out its documentation](#creating-tables) で使用できるすべてのメソッドについて学習するには。たとえば、次の移行では `flights` テーブルが作成されます。
+これらの両方のメソッド内で、Laravel スキーマ ビルダを使用して、テーブルを表現的に作成および変更できます。 `Schema` ビルダで使用できるすべてのメソッドについては、[check out its documentation](#creating-tables) を参照してください。たとえば、次の移行では `flights` テーブルが作成されます。
 
 ```php
 <?php
@@ -157,7 +157,7 @@ public function up(): void
 #### Skipping Migrations
 
 <!-- Sometimes a migration might be meant to support a feature that is not yet active and you do not want it to run yet. In this case you may define a `shouldRun` method on the migration. If the `shouldRun` method returns `false`, the migration will be skipped: -->
-場合によっては、移行は、まだアクティブではなく、まだ実行したくない機能をサポートすることを目的としている場合があります。この場合、移行時に `shouldRun` メソッドを定義できます。 `shouldRun` メソッドが `false` を返した場合、移行はスキップされます。
+まだ有効になっていない機能をサポートするためのマイグレーションを、まだ実行したくない場合があります。この場合、マイグレーションに `shouldRun` メソッドを定義できます。 `shouldRun` メソッドが `false` を返した場合、移行はスキップされます。
 
 ```php
 use App\Models\Flight;
@@ -306,7 +306,7 @@ php artisan migrate:fresh --seed
 ```
 
 <!-- By default, the `migrate:fresh` command only drops tables from the default database connection. However, you may use the `--database` option to specify the database connection that should be migrated. The database connection name should correspond to a connection defined in your application's `database` [configuration file](/docs/13.x/configuration): -->
-デフォルトでは、`migrate:fresh` コマンドはデフォルトのデータベース接続からテーブルを削除するだけです。ただし、`--database` オプションを使って、マイグレーションを実行するデータベース接続を指定できます。データベース接続名は、アプリケーションの `database` [configuration file](/docs/13.x/configuration) で定義されている接続に対応している必要があります。
+デフォルトでは、`migrate:fresh` コマンドはデフォルトのデータベース接続にあるテーブルだけを削除します。ただし、`--database` オプションを使って、マイグレーションを実行するデータベース接続を指定できます。データベース接続名は、アプリケーションの `database` [configuration file](/docs/13.x/configuration) で定義されている接続に対応している必要があります。
 
 ```shell
 php artisan migrate:fresh --database=admin
@@ -755,7 +755,7 @@ $table->date('created_at');
 #### `decimal()`
 
 <!-- The `decimal` method creates a `DECIMAL` equivalent column with the given precision (total digits) and scale (decimal digits): -->
-`decimal` メソッドは、指定された精度 (合計桁数) と位取り (10 進数の桁数) を持つ `DECIMAL` と同等の列を作成します。
+`decimal` メソッドは、指定された精度 (合計桁数) とスケール (小数点以下の桁数) を持つ `DECIMAL` と同等の列を作成します。
 
 ```php
 $table->decimal('amount', total: 8, places: 2);
@@ -1853,11 +1853,11 @@ $table->foreignId('user_id')
 | ----------------------------- | -------------------------------------------------- |
 | `$table->cascadeOnUpdate();`  | 更新をカスケードします。                           |
 | `$table->restrictOnUpdate();` | 更新を制限します。                                 |
-| `$table->nullOnUpdate();`     | 外部キーの値を null に設定します。              |
+| `$table->nullOnUpdate();`     | 更新時に外部キーの値を null に設定します。              |
 | `$table->noActionOnUpdate();` | 更新時に何も実行しません。                         |
 | `$table->cascadeOnDelete();`  | 削除をカスケードします。                           |
 | `$table->restrictOnDelete();` | 削除を制限します。                                 |
-| `$table->nullOnDelete();`     | 外部キーの値を null に設定します。              |
+| `$table->nullOnDelete();`     | 削除時に外部キーの値を null に設定します。              |
 | `$table->noActionOnDelete();` | 子レコードが存在する場合、削除を防ぎます。       |
 
 </div>
@@ -1907,7 +1907,7 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite では、デフォルトで外部キー制約が無効になっています。SQLite を使用する場合は、マイグレーションで外部キー制約を作成する前に、データベース設定で[enable foreign key support](/docs/13.x/database#configuration)。
+> SQLite では、デフォルトで外部キー制約が無効になっています。SQLite を使用する場合は、マイグレーションで外部キー制約を作成する前に、データベース設定で [enable foreign key support](/docs/13.x/database#configuration) を有効にしてください。
 
 <a name="events"></a>
 <!-- ## Events -->
@@ -1922,9 +1922,9 @@ Schema::withoutForeignKeyConstraints(function () {
 | クラス                                           | 説明                                           |
 | ------------------------------------------------ | ------------------------------------------------ |
 | `Illuminate\Database\Events\DatabaseRefreshed`   | `migrate:fresh` または `migrate:refresh` コマンドが完了しました。 |
-| `Illuminate\Database\Events\MigrationsStarted`   | マイグレーションの一括実行を開始します。   |
+| `Illuminate\Database\Events\MigrationsStarted`   | マイグレーションの一括実行が開始される直前です。   |
 | `Illuminate\Database\Events\MigrationsEnded`     | マイグレーションの一括実行が完了しました。              |
-| `Illuminate\Database\Events\MigrationStarted`    | 1つのマイグレーションの実行を開始します。      |
+| `Illuminate\Database\Events\MigrationStarted`    | 1つのマイグレーションの実行が開始される直前です。      |
 | `Illuminate\Database\Events\MigrationEnded`      | 1つのマイグレーションの実行が完了しました。                 |
 | `Illuminate\Database\Events\NoPendingMigrations` | マイグレーションコマンドの実行時に、未実行のマイグレーションがありませんでした。 |
 | `Illuminate\Database\Events\SchemaDumped`        | データベーススキーマのダンプが完了しました。             |

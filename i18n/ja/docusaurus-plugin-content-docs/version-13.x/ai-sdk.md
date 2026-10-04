@@ -63,7 +63,7 @@
 ## Introduction
 
 <!-- The [Laravel AI SDK](https://github.com/laravel/ai) provides a unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, and more. With the AI SDK, you can build intelligent agents with tools and structured output, generate images, synthesize and transcribe audio, create vector embeddings, and much more — all using a consistent, Laravel-friendly interface. -->
-[Laravel AI SDK](https://github.com/laravel/ai) は、OpenAI、Anthropic、Gemini などの AI プロバイダと対話するための統合された表現力豊かな API を提供します。 AI SDK を使用すると、一貫した Laravel フレンドリーなインターフェイスを使用して、ツールと構造化された出力を備えたインテリジェント エージェントの構築、画像の生成、音声の合成と転写、ベクトル埋め込みの作成などを行うことができます。
+[Laravel AI SDK](https://github.com/laravel/ai) は、OpenAI、Anthropic、Gemini などの AI プロバイダと対話するための統合された表現力豊かな API を提供します。 AI SDK を使用すると、一貫した Laravel フレンドリーなインターフェイスを使用して、ツールと構造化された出力を備えたインテリジェント エージェントの構築、画像の生成、音声の合成と文字起こし、ベクトル埋め込みの作成などを行うことができます。
 
 <a name="installation"></a>
 <!-- ## Installation -->
@@ -84,7 +84,7 @@ php artisan vendor:publish --provider="Laravel\Ai\AiServiceProvider"
 ```
 
 <!-- Finally, you should run your application's database migrations. This will create a `agent_conversations` and `agent_conversation_messages` table that the AI SDK uses to power its conversation storage: -->
-最後に、アプリケーションのデータベース移行を実行する必要があります。これにより、AI SDK が会話ストレージを強化するために使用する `agent_conversations` テーブルと `agent_conversation_messages` テーブルが作成されます。
+最後に、アプリケーションのデータベース移行を実行する必要があります。これにより、AI SDK が会話を保存するために使用する `agent_conversations` テーブルと `agent_conversation_messages` テーブルが作成されます。
 
 ```shell
 php artisan migrate
@@ -300,7 +300,7 @@ public function provider(): Provider
 ```
 
 > [!NOTE]
-> 上記の例のように、オンデマンドプロバイダは配列内で渡してください。設定配列でオンデマンドプロバイダに `name` を指定した場合、その名前が組み込みプロバイダや `config/ai.php` 設定ファイルで定義されたプロバイダと一致しない可能性があります。
+> 上記の例のように、オンデマンドプロバイダは配列内で渡してください。設定配列でオンデマンドプロバイダに `name` を指定した場合、その名前は、組み込みプロバイダや `config/ai.php` 設定ファイルで定義されたプロバイダの名前と一致してはいけません。
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -343,7 +343,7 @@ Lab::Gemini;
 ## Agents
 
 <!-- Agents are the fundamental building block for interacting with AI providers in the Laravel AI SDK. Each agent is a dedicated PHP class that encapsulates the instructions, conversation context, tools, and output schema needed to interact with a large language model. Think of an agent as a specialized assistant — a sales coach, a document analyzer, a support bot — that you configure once and prompt as needed throughout your application. -->
-エージェントは、Laravel AI SDK で AI プロバイダと対話するための基本的な構成要素です。各エージェントは、大規模な言語モデルと対話するために必要な命令、会話コンテキスト、ツール、出力スキーマをカプセル化する専用の PHP クラスです。エージェントは、一度構成すれば、アプリケーション全体で必要に応じてプロンプトを表示できる、セールス コーチ、ドキュメント アナライザー、サポート ボットなどの専門アシスタントと考えてください。
+エージェントは、Laravel AI SDK で AI プロバイダと対話するための基本的な構成要素です。各エージェントは、大規模な言語モデルと対話するために必要な命令、会話コンテキスト、ツール、出力スキーマをカプセル化する専用の PHP クラスです。エージェントは、一度構成すれば、アプリケーション全体で必要に応じてプロンプトを送信できる、セールス コーチ、ドキュメント アナライザー、サポート ボットなどの専門アシスタントと考えてください。
 
 <!-- You can create an agent via the `make:agent` Artisan command: -->
 `make:agent` Artisan コマンドを使用してエージェントを作成できます。
@@ -433,7 +433,7 @@ class SalesCoach implements Agent, Conversational, HasTools, HasStructuredOutput
 ### Prompting
 
 <!-- To prompt an agent, first create an instance using the `make` method or standard instantiation, then call `prompt`: -->
-エージェントにプロンプ​​トを表示するには、まず `make` メソッドまたは標準のインスタンス化を使用してインスタンスを作成し、次に `prompt` を呼び出します。
+エージェントにプロンプトを送信するには、まず `make` メソッドまたは標準のインスタンス化を使用してインスタンスを作成し、次に `prompt` を呼び出します。
 
 ```php
 $response = (new SalesCoach)
@@ -450,7 +450,7 @@ $agent = SalesCoach::make(user: $user);
 ```
 
 <!-- By passing additional arguments to the `prompt` method, you may override the default provider, model, or HTTP timeout when prompting: -->
-追加の引数を `prompt` メソッドに渡すことで、プロンプトが表示されたときにデフォルトのプロバイダ、モデル、または HTTP タイムアウトをオーバーライドできます。
+追加の引数を `prompt` メソッドに渡すことで、プロンプトを送信するときにデフォルトのプロバイダ、モデル、または HTTP タイムアウトをオーバーライドできます。
 
 ```php
 $response = (new SalesCoach)->prompt(
@@ -538,7 +538,7 @@ $response = (new SalesCoach)
 > `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使って AI SDK のマイグレーションを公開し、実行してください。これらのマイグレーションによって、会話を保存するために必要なデータベーステーブルが作成されます。
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
-Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。この特性は、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
+Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。このトレイトは、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
 
 ```php
 <?php
@@ -568,7 +568,7 @@ class SalesCoach implements Agent, Conversational
 `RemembersConversations` トレイトを使用する場合は、エージェントクラスに `messages` メソッドを手動で定義しないでください。`messages` メソッドが存在すると、トレイトの実装より優先され、会話履歴がデータベースから読み込まれなくなります。
 
 <!-- To start a new conversation for a user, call the `forUser` method before prompting: -->
-ユーザーに対して新しい会話を開始するには、プロンプトを表示する前に `forUser` メソッドを呼び出します。
+ユーザーに対して新しい会話を開始するには、プロンプトを送信する前に `forUser` メソッドを呼び出します。
 
 ```php
 $response = (new SalesCoach)->forUser($user)->prompt('Hello!');
@@ -594,7 +594,7 @@ class User extends Authenticatable
 ```
 
 <!-- Once the trait has been added to your model, you may retrieve and query the user's conversations via the `conversations` relationship: -->
-特性がモデルに追加されると、`conversations` 関係を介してユーザーの会話を取得してクエリできます。
+トレイトをモデルに追加すると、`conversations` リレーションを介してユーザーの会話を取得してクエリできます。
 
 ```php
 $conversations = $user->conversations()
@@ -692,7 +692,7 @@ $store = app(ConversationStore::class);
 ```
 
 <!-- Messages are paginated newest first using a cursor and are returned as `StoredMessage` instances, which contain each message's ID, timestamps, usage, metadata, and attachments: -->
-メッセージはカーソルを使用して新しいものから順にページネーションされ、各メッセージの ID、タイムスタンプ、使用状況、メタデータ、添付ファイルを含む `StoredMessage` インスタンスとして返されます。
+メッセージはカーソルを使用して新しいものから順にページネーションされ、各メッセージの ID、タイムスタンプ、使用量、メタデータ、添付ファイルを含む `StoredMessage` インスタンスとして返されます。
 
 ```php
 $messages = $store->paginateConversationMessages($conversationId, perPage: 25);
@@ -725,7 +725,7 @@ $message->toolResults();
 `status` プロパティには、`Laravel\Ai\Enums\MessageStatus` のインスタンスが含まれます。途中で失敗したターンは、それまでに完了したステップとともに `Failed` として保存されるため、失敗する前に実行されたツール呼び出しは履歴に残ります。会話を続行するとき、実行結果が記録されていないツール呼び出しは、中断されたものとしてモデルに送信されます。Laravel には、そのツール呼び出しが実行されたかどうかを判断できないためです。
 
 <!-- Before continuing a conversation via an ID provided by your application's frontend, you should verify that the conversation was stored for the given participant: -->
-アプリケーションのフロントエンドから提供された ID を使って会話を続行する前に、指定された参加者の会話が保存されていることを確認してください。
+アプリケーションのフロントエンドから提供された ID を使って会話を続行する前に、その会話が指定された参加者のものとして保存されていることを確認してください。
 
 ```php
 abort_unless($store->conversationBelongsTo(
@@ -781,7 +781,7 @@ class SalesCoach implements Agent, HasStructuredOutput
 ```
 
 <!-- When prompting an agent that returns structured output, you can access the returned `StructuredAgentResponse` like an array: -->
-構造化された出力を返すエージェントにプロンプ​​トを表示する場合、配列のように返された `StructuredAgentResponse` にアクセスできます。
+構造化された出力を返すエージェントにプロンプトを送信すると、返された `StructuredAgentResponse` に配列のようにアクセスできます。
 
 ```php
 $response = (new SalesCoach)->prompt('Analyze this sales transcript...');
@@ -877,7 +877,7 @@ public function schema(JsonSchema $schema): array
 ### Attachments
 
 <!-- When prompting, you may also pass attachments with the prompt to allow the model to inspect images and documents: -->
-プロンプトを表示するときに、プロンプトとともに添付ファイルを渡して、モデルが画像やドキュメントを検査できるようにすることもできます。
+プロンプトを送信するときに、プロンプトとともに添付ファイルを渡して、モデルが画像やドキュメントを検査できるようにすることもできます。
 
 ```php
 use App\Ai\Agents\SalesCoach;
@@ -915,7 +915,7 @@ $response = (new ImageAnalyzer)->prompt(
 ### Streaming
 
 <!-- You may stream an agent's response by invoking the `stream` method. The returned `StreamableAgentResponse` may be returned from a route to automatically send a streaming response (SSE) to the client: -->
-`stream` メソッドを呼び出すことで、エージェントの応答をストリーミングできます。返される `StreamableAgentResponse` は、ストリーミング応答 (SSE) をクライアントに自動的に送信するルートから返される場合があります。
+`stream` メソッドを呼び出すことで、エージェントの応答をストリーミングできます。返された `StreamableAgentResponse` をルートから返すと、ストリーミング応答 (SSE) がクライアントに自動的に送信されます。
 
 ```php
 use App\Ai\Agents\SalesCoach;
@@ -1036,7 +1036,7 @@ return (new SalesCoach)
 #### Frontend Integration
 
 <!-- Chat interfaces built with libraries such as Vercel's `useChat` or CopilotKit already render messages, tool calls, and approval prompts, so your application only needs to handle the requests they send. Each request contains the conversation history, the newest user message, and any tool approval responses. -->
-`useChat` や CopilotKit などのライブラリで構築されたチャットインターフェイスは、メッセージ、ツール呼び出し、承認プロンプトをすでに描画するため、アプリケーションではそれらが送信するリクエストを処理するだけで済みます。各リクエストには、会話履歴、最新のユーザーメッセージ、ツールの承認レスポンスが含まれます。
+Vercel の `useChat` や CopilotKit などのライブラリで構築されたチャットインターフェイスは、メッセージ、ツール呼び出し、承認プロンプトをすでに描画するため、アプリケーションではそれらが送信するリクエストを処理するだけで済みます。各リクエストには、会話履歴、最新のユーザーメッセージ、ツールの承認レスポンスが含まれます。
 
 <!-- The `Vercel::chat` and `AgentUserInteraction::chat` methods convert such a request into an object that may be passed directly to an agent's `stream` method: -->
 `Vercel::chat` と `AgentUserInteraction::chat` メソッドは、このようなリクエストをエージェントの `stream` メソッドに直接渡せるオブジェクトへ変換します。
@@ -1121,7 +1121,7 @@ foreach ($stream as $event) {
 #### Skipping Oversized Events
 
 <!-- Some broadcasting platforms limit WebSocket messages to around 10KB. Data-heavy stream events, like large tool results, can exceed this limit and cause broadcasting to fail. You may exclude specific event types from broadcasting using the `WithoutBroadcasting` attribute: -->
-一部のブロードキャストプラットフォームでは、WebSocket メッセージのサイズが 10KB 前後に制限されています。大きな tool の結果のようにデータ量の多い stream event は、この制限を超えてブロードキャストに失敗することがあります。`WithoutBroadcasting` 属性を使うと、特定の event type をブロードキャスト対象から除外できます。
+一部のブロードキャストプラットフォームでは、WebSocket メッセージのサイズが 10KB 前後に制限されています。大きなツール結果のようにデータ量の多いストリームイベントは、この制限を超えてブロードキャストに失敗することがあります。`WithoutBroadcasting` 属性を使うと、特定のイベント型をブロードキャスト対象から除外できます。
 
 ```php
 <?php
@@ -1145,14 +1145,14 @@ class SearchAgent implements Agent, HasTools
 ```
 
 <!-- The excluded events are never broadcast, but they are still persisted to the `agent_conversation_messages` table, so your frontend can load the full tool data after the stream completes. This works for both queued (`broadcastOnQueue`) and synchronous (`broadcast` / `broadcastNow`) broadcasting. -->
-除外した event は一切ブロードキャストされませんが、`agent_conversation_messages` テーブルには保存されるため、stream の完了後にフロントエンドで完全な tool data を読み込めます。これは、キューを使う場合の `broadcastOnQueue` と、同期的な `broadcast` / `broadcastNow` の両方で機能します。
+除外したイベントは一切ブロードキャストされませんが、`agent_conversation_messages` テーブルには保存されるため、ストリームの完了後にフロントエンドで完全なツールデータを読み込めます。これは、キューを使う場合の `broadcastOnQueue` と、同期的な `broadcast` / `broadcastNow` の両方で機能します。
 
 <a name="queueing"></a>
 <!-- ### Queueing -->
 ### Queueing
 
 <!-- Using an agent's `queue` method, you may prompt the agent, but allow it to process the response in the background, keeping your application feeling fast and responsive. The `then` and `catch` methods may be used to register closures that will be invoked when a response is available or if an exception occurs: -->
-エージェントの `queue` メソッドを使用すると、エージェントにプロンプ​​トを表示しながら、エージェントがバックグラウンドで応答を処理できるようにすることで、アプリケーションの高速性と応答性を維持できます。 `then` メソッドと `catch` メソッドは、応答が利用可能な場合、または例外が発生した場合に呼び出されるクロージャを登録するために使用できます。
+エージェントの `queue` メソッドを使用すると、エージェントにプロンプトを送信し、応答をバックグラウンドで処理させることで、アプリケーションの高速性と応答性を維持できます。 `then` メソッドと `catch` メソッドは、応答が利用可能な場合、または例外が発生した場合に呼び出されるクロージャを登録するために使用できます。
 
 ```php
 use Illuminate\Http\Request;
@@ -1535,7 +1535,7 @@ MCP クライアントの作成と認証について詳しくは、bearer token 
 プロバイダ ツールは、AI プロバイダによってネイティブに実装される特別なツールで、Web 検索、URL フェッチ、ファイル検索などの機能を提供します。通常のツールとは異なり、プロバイダ ツールはアプリケーションではなくプロバイダ自体によって実行されます。
 
 <!-- Provider tools can be returned by your agent's `tools` method. -->
-プロバイダ ツールは、エージェントの `tools` メソッドによって返されます。
+プロバイダ ツールは、エージェントの `tools` メソッドから返すことができます。
 
 <a name="web-search"></a>
 <!-- #### Web Search -->
@@ -1609,7 +1609,7 @@ Web 取得ツールを設定して、取得数を制限したり、特定のド�
 #### File Search
 
 <!-- The `FileSearch` provider tool allows agents to search through [files](#files) stored in [vector stores](#vector-stores). This enables retrieval-augmented generation (RAG) by allowing the agent to search your uploaded documents for relevant information. -->
-`FileSearch` プロバイダ ツールを使用すると、エージェントは [files](#files) に保存されている [vector stores](#vector-stores) を検索できます。これにより、エージェントがアップロードされたドキュメントで関連情報を検索できるようになり、検索拡張生成 (RAG) が可能になります。
+`FileSearch` プロバイダ ツールを使用すると、エージェントは [vector stores](#vector-stores) に保存されている [files](#files) を検索できます。これにより、エージェントがアップロードされたドキュメントで関連情報を検索できるようになり、検索拡張生成 (RAG) が可能になります。
 
 <!-- **Supported providers:** OpenAI, Gemini, xAI -->
 **対応プロバイダ:** OpenAI, Gemini, xAI
@@ -1688,7 +1688,7 @@ OpenAI または Azure を使用する場合は、プロバイダオプション
 ### Sub-Agents
 
 <!-- Agents may also be returned from another agent's `tools` method. When an agent is returned as a tool, the parent agent may delegate a specific task to the sub-agent and use the sub-agent's response while answering the original prompt. This is useful when a general-purpose agent needs access to specialized agents with their own instructions, tools, model configuration, or provider preferences. -->
-エージェントは、別のエージェントの `tools` メソッドから返される場合もあります。エージェントがツールとして返されると、親エージェントは特定のタスクをサブエージェントに委任し、元のプロンプトに応答する際にサブエージェントの応答を使用することができます。これは、汎用エージェントが独自の命令、ツール、モデル構成、またはプロバイダ設定を備えた専門エージェントにアクセスする必要がある場合に役立ちます。
+別のエージェントの `tools` メソッドからエージェントを返すこともできます。エージェントがツールとして返されると、親エージェントは特定のタスクをサブエージェントに委任し、元のプロンプトに応答する際にサブエージェントの応答を使用することができます。これは、汎用エージェントが独自の命令、ツール、モデル構成、またはプロバイダ設定を備えた専門エージェントにアクセスする必要がある場合に役立ちます。
 
 <!-- For example, a customer support agent could delegate refund eligibility questions to a dedicated refunds agent: -->
 たとえば、カスタマー サポート エージェントは、払い戻し資格に関する質問を専用の払い戻しエージェントに委任できます。
@@ -1729,7 +1729,7 @@ class CustomerSupportAgent implements Agent, HasTools
 ```
 
 <!-- To customize how the sub-agent is exposed to the parent agent, implement the `CanActAsTool` interface on the sub-agent and define a tool-facing name and description: -->
-サブエージェントが親エージェントに公開される方法をカスタマイズするには、サブエージェントに `CanActAsTool` インターフェイスを実装し、ツールに表示される名前と説明を定義します。
+サブエージェントが親エージェントに公開される方法をカスタマイズするには、サブエージェントに `CanActAsTool` インターフェイスを実装し、ツールとして公開する名前と説明を定義します。
 
 ```php
 use Laravel\Ai\Attributes\Provider;
@@ -1778,14 +1778,14 @@ foreach ($stream as $event) {
 ```
 
 <!-- Response values such as `text`, `usage`, and `toolResults` ignore preliminary events. The [Vercel protocol](#stream-protocols) renders them as native streaming tool output, so `useChat` displays the progress without any custom code, while the AG-UI protocol reports them as activity snapshots. The completed response's text, reasoning, citations, and usage include those of the sub-agent. -->
-`text`、`usage`、`toolResults` などのレスポンス値は、初期イベントを無視します。[Vercel protocol](#stream-protocols) はこれらをネイティブなストリーミングツール出力として処理するため、`useChat` はカスタムコードなしで進行状況を表示できます。一方、AG-UI プロトコルではアクティビティスナップショットとして報告されます。完了したレスポンスのテキスト、推論、引用、使用量には、サブエージェントのものも含まれます。
+`text`、`usage`、`toolResults` などのレスポンス値は、暫定的な結果を示すイベントを無視します。[Vercel protocol](#stream-protocols) はこれらをネイティブなストリーミングツール出力として処理するため、`useChat` はカスタムコードなしで進行状況を表示できます。一方、AG-UI プロトコルではアクティビティスナップショットとして報告されます。完了したレスポンスのテキスト、推論、引用、使用量には、サブエージェントのものも含まれます。
 
 <a name="middleware"></a>
 <!-- ### Middleware -->
 ### Middleware
 
 <!-- Agents support middleware, allowing you to intercept and modify each generation step before it is sent to the provider. Middleware is invoked once per step, so a run that takes three steps will invoke it three times. Middleware can be created using the `make:agent-middleware` Artisan command: -->
-Agents はミドルウェアをサポートしているため、各生成ステップがプロバイダに送信される前にインターセプトして変更できます。ミドルウェアはステップごとに1回呼び出されるため、3ステップかかる実行では3回呼び出されます。ミドルウェアは、`make:agent-middleware` Artisan コマンドで作成できます。
+エージェントはミドルウェアをサポートしているため、各生成ステップがプロバイダに送信される前にインターセプトして変更できます。ミドルウェアはステップごとに1回呼び出されるため、3ステップかかる実行では3回呼び出されます。ミドルウェアは、`make:agent-middleware` Artisan コマンドで作成できます。
 
 ```shell
 php artisan make:agent-middleware LogPrompts
@@ -1937,7 +1937,7 @@ $response = agent(
 ```
 
 <!-- Anonymous agents may also produce structured output: -->
-匿名エージェントは構造化された出力を生成することもあります。
+匿名エージェントは構造化された出力を生成することもできます。
 
 ```php
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -2034,7 +2034,7 @@ class ComplexReasoner implements Agent
 ### Provider Options
 
 <!-- If your agent needs to pass provider-specific options (such as OpenAI reasoning effort or penalty settings), implement the `HasProviderOptions` contract and define a `providerOptions` method: -->
-エージェントがプロバイダ固有のオプション (OpenAI 推論作業やペナルティ設定など) を渡す必要がある場合は、`HasProviderOptions` コントラクトを実装し、`providerOptions` メソッドを定義します。
+エージェントがプロバイダ固有のオプション (OpenAI の推論量やペナルティ設定など) を渡す必要がある場合は、`HasProviderOptions` コントラクトを実装し、`providerOptions` メソッドを定義します。
 
 ```php
 <?php
@@ -2110,7 +2110,7 @@ $embeddings = Embeddings::for($chunks)
 ```
 
 <!-- Headers may also be given as a closure, which receives the provider currently being used. Headers are not included in the request body and do not affect [embedding cache keys](#caching-embeddings). -->
-Headers は、現在使用しているプロバイダを受け取るクロージャとして指定することもできます。Headers はリクエストボディに含まれず、[embedding cache keys](#caching-embeddings) にも影響しません。
+ヘッダーは、現在使用しているプロバイダを受け取るクロージャとして指定することもできます。ヘッダーはリクエストボディに含まれず、[embedding cache keys](#caching-embeddings) にも影響しません。
 
 <a name="prompt-caching"></a>
 <!-- ### Prompt Caching -->
@@ -2151,7 +2151,7 @@ class SalesCoach implements Agent
 これらの属性をサポートしないプロバイダは無視するため、エージェントは [failover](#failover) の使用時にも安全に宣言できます。
 
 <!-- Cached prefixes are retained for five minutes by default. Anthropic may retain them for an hour if you pass a TTL to the attribute: -->
-キャッシュされたプレフィックスは、デフォルトで5分間保持されます。属性に TTL を渡すと、Anthropic はこれらを1時間保持する場合があります。
+キャッシュされたプレフィックスは、デフォルトで5分間保持されます。属性に TTL を渡すことで、Anthropic での保持期間を1時間に指定できます。
 
 ```php
 #[CacheInstructions('1h')]
@@ -2322,7 +2322,7 @@ return (new FileAssistant)
 ```
 
 <!-- When a paused turn is resumed, the resumed steps are merged into that turn, so each turn is stored as a single assistant message. The response's `assistantMessageId` contains the ID of the paused message, and that message's usage includes both the pause and the resume. -->
-一時停止したターンを再開すると、再開後のステップがそのターンにマージされるため、各ターンは単一の assistant メッセージとして保存されます。レスポンスの `assistantMessageId` には一時停止したメッセージの ID が含まれ、そのメッセージの usage には一時停止と再開の両方が含まれます。
+一時停止したターンを再開すると、再開後のステップがそのターンにマージされるため、各ターンは単一のアシスタントメッセージとして保存されます。レスポンスの `assistantMessageId` には一時停止したメッセージの ID が含まれ、そのメッセージの使用量には一時停止と再開の両方の使用量が含まれます。
 
 <!-- For queued agents, the resulting response is passed to the `then` callback, and Laravel also dispatches a `ToolApprovalRequested` event. -->
 キューに入れたエージェントでは、生成されたレスポンスが `then` コールバックに渡され、Laravel は `ToolApprovalRequested` イベントもディスパッチします。
@@ -2380,7 +2380,7 @@ Route::post('/chat/{conversation}', function (Request $request, Conversation $co
 ```
 
 <!-- When the response status is `awaiting_approval`, the chat screen should render the pending approvals and submit the user's choices to the same endpoint using the tool call ID as each decision's key. Otherwise, the screen may submit a plain `message` value: -->
-レスポンスのステータスが `awaiting_approval` の場合、チャット画面には保留中の承認を表示し、ユーザーの選択を同じエンドポイントへ送信します。このとき、各判断のキーには tool call ID を使用します。それ以外の場合、画面からは単純な `message` 値を送信できます。
+レスポンスのステータスが `awaiting_approval` の場合、チャット画面には保留中の承認を表示し、ユーザーの選択を同じエンドポイントへ送信します。このとき、各判断のキーにはツール呼び出し ID を使用します。それ以外の場合、画面からは単純な `message` 値を送信できます。
 
 ```json
 {
@@ -2468,7 +2468,7 @@ $path = $image->storePubliclyAs('image.jpg');
 ```
 
 <!-- Image generation may also be queued: -->
-イメージ生成もキューに入れられる場合があります。
+イメージ生成をキューに入れることもできます。
 
 ```php
 use Laravel\Ai\Image;
@@ -2544,7 +2544,7 @@ $path = $audio->storePubliclyAs('audio.mp3');
 ```
 
 <!-- Audio generation may also be queued: -->
-オーディオ生成もキューに入れられる場合があります。
+オーディオ生成をキューに入れることもできます。
 
 ```php
 use Laravel\Ai\Audio;
@@ -2577,7 +2577,7 @@ return (string) $transcript;
 ```
 
 <!-- The `diarize` method may be used to indicate you would like the response to include the diarized transcript in addition to the raw text transcript, allowing you to access the segmented transcript by speaker: -->
-`diarize` メソッドを使用すると、生のテキストのトランスクリプトに加えて話者分離されたトランスクリプトを応答に含めることを希望することを示すことができ、これにより、話者ごとにセグメント化されたトランスクリプトにアクセスできるようになります。
+`diarize` メソッドを使用すると、通常の文字起こしテキストに加え、話者ごとに分割した文字起こしを応答に含めるよう指定できます。これにより、話者別の文字起こしにアクセスできます。
 
 ```php
 $transcript = Transcription::fromStorage('audio.mp3')
@@ -2586,7 +2586,7 @@ $transcript = Transcription::fromStorage('audio.mp3')
 ```
 
 <!-- Transcription generation may also be queued: -->
-文字起こしの生成もキューに入れられる場合があります。
+文字起こしの生成をキューに入れることもできます。
 
 ```php
 use Laravel\Ai\Transcription;
@@ -2740,7 +2740,7 @@ $table->vector('embedding', dimensions: 1536)->index();
 ```
 
 <!-- On your Eloquent model, you should cast the vector column using the `AsVector` cast: -->
-Eloquent モデルでは、`AsVector` castを使ってベクトル列をcastする必要があります。
+Eloquent モデルでは、`AsVector` キャストを使ってベクトル列をキャストする必要があります。
 
 ```php
 use Illuminate\Database\Eloquent\Casts\AsVector;
@@ -2754,7 +2754,7 @@ protected function casts(): array
 ```
 
 <!-- To query for similar records, use the `whereVectorSimilarTo` method. This method filters results by a minimum cosine similarity (between `0.0` and `1.0`, where `1.0` is identical) and orders the results by similarity: -->
-同様のレコードをクエリするには、`whereVectorSimilarTo` メソッドを使用します。このメソッドは、最小のコサイン類似度 (`0.0` と `1.0` の間、`1.0` は同一) によって結果をフィルターし、類似度によって結果を並べ替えます。
+類似するレコードをクエリするには、`whereVectorSimilarTo` メソッドを使用します。このメソッドは、コサイン類似度の下限値 (`0.0` と `1.0` の間、`1.0` は同一) によって結果をフィルターし、類似度によって結果を並べ替えます。
 
 ```php
 use App\Models\Document;
@@ -3004,7 +3004,7 @@ $result->meta->provider;
 ### Yes or No Decisions
 
 <!-- For a single yes or no decision, you may use the `decide` method available via Laravel's `Stringable` class, which returns a boolean instead of a full response. You may describe what a "yes" and a "no" mean, and specify the probability the answer must reach, which defaults to `0.5`: -->
-単純な yes または no の判定には、Laravel の `Stringable` クラスで利用できる `decide` メソッドを使用できます。このメソッドは完全なレスポンスではなく、boolean を返します。「yes」と「no」が何を意味するかを説明し、回答が到達すべき確率も指定できます。デフォルトは `0.5` です。
+はい・いいえの判定を1つ行うには、Laravel の `Stringable` クラスで利用できる `decide` メソッドを使用できます。このメソッドは完全なレスポンスではなく、boolean を返します。「yes」と「no」が何を意味するかを説明し、回答が到達すべき確率も指定できます。デフォルトは `0.5` です。
 
 ```php
 use Illuminate\Support\Str;
@@ -3044,7 +3044,7 @@ $department = Department::all()->decide(
 ```
 
 <!-- The description defined via the `describe` argument serves as the criteria the model uses to determine whether the text matches that option, which is helpful when an option's name alone is ambiguous. When a closure is provided to the `describe` argument, it receives each item and should return a string or array describing it: -->
-`describe` 引数で定義した説明は、テキストがその選択肢に一致するかどうかをモデルが判断する基準になります。選択肢の名前だけでは曖昧な場合に便利です。`describe` 引数にクロージャを指定すると、各項目を受け取り、その項目を説明する文字列または配列を返します。
+`describe` 引数で定義した説明は、テキストがその選択肢に一致するかどうかをモデルが判断する基準になります。選択肢の名前だけでは曖昧な場合に便利です。`describe` 引数にクロージャを指定すると、そのクロージャは各項目を受け取ります。クロージャからは、その項目を説明する文字列または配列を返してください。
 
 ```php
 $priority = collect(Priority::cases())->decide(
@@ -3351,7 +3351,7 @@ $response->usage->uncachedInputTokens(); // Input tokens that were neither read 
 キャッシュからの読み取り、キャッシュへの書き込み、キャッシュを使用しない入力は料金が異なるため、入力の合計だけを使うのではなく、これら3つを分けて料金を見積もる必要があります。
 
 <!-- The remaining capabilities return a usage object containing the counts specific to them: -->
-残りの機能は、それぞれに固有のカウントを含む使用状況オブジェクトを返します。
+残りの機能は、それぞれに固有のカウントを含む使用量オブジェクトを返します。
 
 <div class="overflow-auto">
 
@@ -3383,7 +3383,7 @@ Transcription::fromPath('/home/laravel/meeting.mp3')->generate()->usage->audioSe
 ## Failover
 
 <!-- When prompting or generating other media, you may provide an array of providers / models to automatically failover to a backup provider / model if a service interruption or rate limit is encountered on the primary provider: -->
-他のメディアをプロンプトまたは生成するときに、プライマリ プロバイダでサービスの中断またはレート制限が発生した場合に、バックアップ プロバイダ/モデルに自動的にフェイルオーバーするプロバイダ/モデルの配列を指定できます。
+プロンプトを送信したり、その他のメディアを生成したりするときに、プライマリ プロバイダでサービスの中断またはレート制限が発生した場合に、バックアップ プロバイダ/モデルに自動的にフェイルオーバーするプロバイダ/モデルの配列を指定できます。
 
 ```php
 use App\Ai\Agents\SalesCoach;
@@ -3543,7 +3543,7 @@ FileAssistant::assertPrompted(function (AgentPrompt $prompt) {
 ```
 
 <!-- For queued agent invocations, use the queued assertion methods: -->
-キューに入れられたエージェント呼び出しの場合は、キューに入れられたアサーション メソッドを使用します。
+キューに入れられたエージェント呼び出しの場合は、キューへの登録を検証するアサーションメソッドを使用します。
 
 ```php
 use Laravel\Ai\QueuedAgentPrompt;
@@ -3571,7 +3571,7 @@ SalesCoach::fake()->preventStrayPrompts();
 ### Images
 
 <!-- Image generations may be faked by invoking the `fake` method on the `Image` class. Once image has been faked, various assertions may be performed against the recorded image generation prompts: -->
-`Image` クラスの `fake` メソッドを呼び出すことで、イメージの生成を偽装することができます。画像が偽造されると、記録された画像生成プロンプトに対してさまざまなアサーションが実行される可能性があります。
+`Image` クラスの `fake` メソッドを呼び出すことで、画像生成をフェイクできます。画像生成をフェイクすると、記録された画像生成プロンプトに対してさまざまなアサーションを行えます。
 
 ```php
 use Laravel\Ai\Image;
@@ -3607,7 +3607,7 @@ Image::assertNothingGenerated();
 ```
 
 <!-- For queued image generations, use the queued assertion methods: -->
-キューに入れられたイメージを生成するには、キューに入れられたアサーション メソッドを使用します。
+キューに入れた画像生成を検証するには、キューへの登録を検証するアサーションメソッドを使用します。
 
 ```php
 Image::assertQueued(
@@ -3631,7 +3631,7 @@ Image::fake()->preventStrayImages();
 ### Audio
 
 <!-- Audio generations may be faked by invoking the `fake` method on the `Audio` class. Once audio has been faked, various assertions may be performed against the recorded audio generation prompts: -->
-オーディオ生成は、`Audio` クラスの `fake` メソッドを呼び出すことによって偽装される可能性があります。オーディオが偽造されると、録音されたオーディオ生成プロンプトに対してさまざまなアサーションが実行される可能性があります。
+`Audio` クラスの `fake` メソッドを呼び出すことで、音声生成をフェイクできます。音声生成をフェイクすると、記録された音声生成プロンプトに対してさまざまなアサーションを行えます。
 
 ```php
 use Laravel\Ai\Audio;
@@ -3667,7 +3667,7 @@ Audio::assertNothingGenerated();
 ```
 
 <!-- For queued audio generations, use the queued assertion methods: -->
-キューに入れられたオーディオ生成の場合は、キューに入れられたアサーション メソッドを使用します。
+キューに入れられたオーディオ生成の場合は、キューへの登録を検証するアサーションメソッドを使用します。
 
 ```php
 Audio::assertQueued(
@@ -3691,7 +3691,7 @@ Audio::fake()->preventStrayAudio();
 ### Transcriptions
 
 <!-- Transcription generations may be faked by invoking the `fake` method on the `Transcription` class. Once transcription has been faked, various assertions may be performed against the recorded transcription generation prompts: -->
-転写世代は、`Transcription` クラスの `fake` メソッドを呼び出すことによって偽装される可能性があります。転写が偽造されると、記録された転写生成プロンプトに対してさまざまなアサーションが実行される可能性があります。
+`Transcription` クラスの `fake` メソッドを呼び出すことで、文字起こしの生成をフェイクできます。文字起こしの生成をフェイクすると、記録された文字起こし生成プロンプトに対してさまざまなアサーションを行えます。
 
 ```php
 use Laravel\Ai\Transcription;
@@ -3729,7 +3729,7 @@ Transcription::assertNothingGenerated();
 ```
 
 <!-- For queued transcription generations, use the queued assertion methods: -->
-キューに入れられたトランスクリプション生成の場合は、キューに入れられたアサーション メソッドを使用します。
+キューに入れられたトランスクリプション生成の場合は、キューへの登録を検証するアサーションメソッドを使用します。
 
 ```php
 Transcription::assertQueued(
@@ -3755,7 +3755,7 @@ Transcription::fake()->preventStrayTranscriptions();
 ### Embeddings
 
 <!-- Embeddings generations may be faked by invoking the `fake` method on the `Embeddings` class. Once embeddings has been faked, various assertions may be performed against the recorded embeddings generation prompts: -->
-埋め込みの生成は、`Embeddings` クラスの `fake` メソッドを呼び出すことによって偽装される可能性があります。エンベディングが偽造されると、記録されたエンベディング生成プロンプトに対してさまざまなアサーションが実行される可能性があります。
+`Embeddings` クラスの `fake` メソッドを呼び出すことで、埋め込みの生成をフェイクできます。埋め込みの生成をフェイクすると、記録された埋め込み生成プロンプトに対してさまざまなアサーションを行えます。
 
 ```php
 use Laravel\Ai\Embeddings;
@@ -3796,7 +3796,7 @@ Embeddings::assertNothingGenerated();
 ```
 
 <!-- For queued embeddings generations, use the queued assertion methods: -->
-キューに入れられた埋め込み生成の場合は、キューに入れられたアサーション メソッドを使用します。
+キューに入れられた埋め込み生成の場合は、キューへの登録を検証するアサーションメソッドを使用します。
 
 ```php
 Embeddings::assertQueued(
@@ -3913,7 +3913,7 @@ Classification::assertNothingClassified();
 ### Files
 
 <!-- File operations may be faked by invoking the `fake` method on the `Files` class: -->
-ファイル操作は、`Files` クラスの `fake` メソッドを呼び出すことで偽装される可能性があります。
+ファイル操作は、`Files` クラスの `fake` メソッドを呼び出すことでフェイクできます。
 
 ```php
 use Laravel\Ai\Files;
@@ -3960,7 +3960,7 @@ Files::assertNothingDeleted();
 ### Vector Stores
 
 <!-- Vector store operations may be faked by invoking the `fake` method on the `Stores` class. Faking stores will also fake [file operations](#files) automatically: -->
-ベクター ストア操作は、`Stores` クラスの `fake` メソッドを呼び出すことで偽装される可能性があります。偽装ストアは自動的に [file operations](#files) も偽装します。
+`Stores` クラスの `fake` メソッドを呼び出すことで、ベクターストアの操作をフェイクできます。ストアをフェイクすると、[file operations](#files) も自動的にフェイクされます。
 
 ```php
 use Laravel\Ai\Stores;

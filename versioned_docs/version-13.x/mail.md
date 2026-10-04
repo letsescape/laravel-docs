@@ -1205,10 +1205,10 @@ class OrderShipped extends Mailable implements ShouldQueue
 #### Queued Mailables and Database Transactions
 
 <!-- When queued mailables are dispatched within database transactions, they may be processed by the queue before the database transaction has committed. When this happens, any updates you have made to models or database records during the database transaction may not yet be reflected in the database. In addition, any models or database records created within the transaction may not exist in the database. If your mailable depends on these models, unexpected errors can occur when the job that sends the queued mailable is processed. -->
-큐 처리된 mailable이 데이터베이스 트랜잭션 안에서 디스패치되면, 데이터베이스 트랜잭션이 커밋되기 전에 큐에서 처리될 수 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델이나 데이터베이스 레코드에 적용한 업데이트가 아직 데이터베이스에 반영되지 않았을 수 있습니다. 또한 트랜잭션 안에서 생성된 모델이나 데이터베이스 레코드가 아직 데이터베이스에 존재하지 않을 수도 있습니다. mailable이 이러한 모델에 의존한다면, 큐 처리된 mailable을 보내는 job이 처리될 때 예상치 못한 오류가 발생할 수 있습니다.
+큐에 넣은 mailable이 데이터베이스 트랜잭션 안에서 디스패치되면, 데이터베이스 트랜잭션이 커밋되기 전에 큐에서 처리될 수 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델이나 데이터베이스 레코드에 적용한 업데이트가 아직 데이터베이스에 반영되지 않았을 수 있습니다. 또한 트랜잭션 안에서 생성된 모델이나 데이터베이스 레코드가 아직 데이터베이스에 존재하지 않을 수도 있습니다. mailable이 이러한 모델에 의존한다면, 큐에 넣은 mailable을 보내는 job이 처리될 때 예상치 못한 오류가 발생할 수 있습니다.
 
 <!-- If your queue connection's `after_commit` configuration option is set to `false`, you may still indicate that a particular queued mailable should be dispatched after all open database transactions have been committed by calling the `afterCommit` method when sending the mail message: -->
-큐 연결의 `after_commit` 설정 옵션이 `false`로 설정되어 있더라도, 메일 메시지를 보낼 때 `afterCommit` 메서드를 호출하면 특정 큐 처리 mailable이 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 뒤에 디스패치되도록 지정할 수 있습니다.
+큐 연결의 `after_commit` 설정 옵션이 `false`로 설정되어 있더라도, 메일 메시지를 보낼 때 `afterCommit` 메서드를 호출하면 큐에 넣은 특정 mailable이 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 뒤에 디스패치되도록 지정할 수 있습니다.
 
 ```php
 Mail::to($request->user())->send(
@@ -1251,7 +1251,7 @@ class OrderShipped extends Mailable implements ShouldQueue
 #### Queued Email Failures
 
 <!-- When a queued email fails, the `failed` method on the queued mailable class will be invoked if it has been defined. The `Throwable` instance that caused the queued email to fail will be passed to the `failed` method: -->
-큐 처리된 이메일이 실패하면, 큐 처리된 mailable 클래스에 `failed` 메서드가 정의되어 있을 경우 해당 메서드가 호출됩니다. 큐 처리된 이메일이 실패하게 만든 `Throwable` 인스턴스가 `failed` 메서드로 전달됩니다.
+큐에 넣은 이메일의 전송이 실패하면, 해당 mailable 클래스에 `failed` 메서드가 정의되어 있을 경우 해당 메서드가 호출됩니다. 큐에 넣은 이메일의 전송을 실패하게 만든 `Throwable` 인스턴스가 `failed` 메서드로 전달됩니다.
 
 ```php
 <?php
@@ -1551,7 +1551,7 @@ Mail::assertOutgoingCount(3);
 ```
 
 <!-- You may pass a closure to the `assertSent`, `assertNotSent`, `assertQueued`, or `assertNotQueued` methods in order to assert that a mailable was sent that passes a given "truth test". If at least one mailable was sent that passes the given truth test then the assertion will be successful: -->
-`assertSent`, `assertNotSent`, `assertQueued`, `assertNotQueued` 메서드에 클로저를 전달하여, 주어진 "진리 테스트"를 통과하는 mailable이 전송되었는지 확인할 수 있습니다. 주어진 진리 테스트를 통과하는 mailable이 하나라도 전송되었다면 assertion은 성공합니다.
+`assertSent`, `assertNotSent`, `assertQueued`, `assertNotQueued` 메서드에 클로저를 전달하여, 주어진 조건을 만족하는 mailable이 전송되었는지 확인할 수 있습니다. 주어진 조건을 만족하는 mailable이 하나라도 전송되었다면 assertion은 성공합니다.
 
 ```php
 Mail::assertSent(function (OrderShipped $mail) use ($order) {

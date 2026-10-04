@@ -189,7 +189,7 @@ $users = $users->intersect(User::whereIn('id', [1, 2, 3])->get());
 #### `load($relations)`
 
 <!-- The `load` method eager loads the given relationships for all models in the collection: -->
-`load` 메소드는 컬렉션의 모든 모델에 대해 지정된 관계를 로드합니다.
+`load` 메소드는 컬렉션의 모든 모델에 대해 지정된 관계를 즉시 로드합니다.
 
 ```php
 $users->load(['comments', 'posts']);
@@ -204,7 +204,7 @@ $users->load(['comments', 'posts' => fn ($query) => $query->where('active', 1)])
 #### `loadMissing($relations)`
 
 <!-- The `loadMissing` method eager loads the given relationships for all models in the collection if the relationships are not already loaded: -->
-`loadMissing` 메소드는 관계가 아직 로드되지 않은 경우 컬렉션의 모든 모델에 대해 지정된 관계를 로드합니다.
+`loadMissing` 메소드는 관계가 아직 로드되지 않은 경우 컬렉션의 모든 모델에 대해 지정된 관계를 즉시 로드합니다.
 
 ```php
 $users->loadMissing(['comments', 'posts']);
@@ -232,7 +232,7 @@ $users->modelKeys();
 #### `makeVisible($attributes)`
 
 <!-- The `makeVisible` method [makes attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json) that are typically "hidden" on each model in the collection: -->
-`makeVisible` 메서드는 일반적으로 컬렉션의 각 모델에 "숨겨진" [makes attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)합니다.
+`makeVisible` 메서드는 컬렉션의 각 모델에서 일반적으로 숨겨진 속성을 표시합니다([makes attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)).
 
 ```php
 $users = $users->makeVisible(['address', 'phone_number']);
@@ -243,7 +243,7 @@ $users = $users->makeVisible(['address', 'phone_number']);
 #### `makeHidden($attributes)`
 
 <!-- The `makeHidden` method [hides attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json) that are typically "visible" on each model in the collection: -->
-`makeHidden` 메서드는 컬렉션의 각 모델에서 일반적으로 "표시"되는 [hides attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json):
+`makeHidden` 메서드는 컬렉션의 각 모델에서 일반적으로 표시되는 속성을 숨깁니다([hides attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)).
 
 ```php
 $users = $users->makeHidden(['address', 'phone_number']);
@@ -254,7 +254,7 @@ $users = $users->makeHidden(['address', 'phone_number']);
 #### `mergeVisible($attributes)`
 
 <!-- The `mergeVisible` method [makes additional attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json) while retaining existing visible attributes: -->
-`mergeVisible` 메소드는 기존 가시 속성을 유지하면서 [makes additional attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)합니다.
+`mergeVisible` 메소드는 기존에 표시되는 속성을 유지하면서 추가 속성을 표시합니다([makes additional attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)).
 
 ```php
 $users = $users->mergeVisible(['middle_name']);
@@ -265,7 +265,7 @@ $users = $users->mergeVisible(['middle_name']);
 #### `mergeHidden($attributes)`
 
 <!-- The `mergeHidden` method [hides additional attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json) while retaining existing hidden attributes: -->
-`mergeHidden` 방법은 기존 숨겨진 속성을 유지하면서 [hides additional attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json):
+`mergeHidden` 메소드는 기존에 숨겨진 속성을 유지하면서 추가 속성을 숨깁니다([hides additional attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)).
 
 ```php
 $users = $users->mergeHidden(['last_login_at']);
@@ -313,7 +313,7 @@ $users = $users->setAppends(['is_admin']);
 #### `setVisible($attributes)`
 
 <!-- The `setVisible` method [temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility) all of the visible attributes on each model in the collection: -->
-`setVisible` 메서드는 컬렉션의 각 모델에 표시되는 모든 속성을 [temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility)합니다.
+`setVisible` 메서드는 컬렉션의 각 모델에 표시되는 모든 속성을 일시적으로 재정의합니다([temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility)).
 
 ```php
 $users = $users->setVisible(['id', 'name']);
@@ -324,7 +324,7 @@ $users = $users->setVisible(['id', 'name']);
 #### `setHidden($attributes)`
 
 <!-- The `setHidden` method [temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility) all of the hidden attributes on each model in the collection: -->
-`setHidden` 메서드는 컬렉션의 각 모델에 대한 모든 숨겨진 속성을 [temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility)합니다.
+`setHidden` 메서드는 컬렉션의 각 모델에 대한 모든 숨겨진 속성을 일시적으로 재정의합니다([temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility)).
 
 ```php
 $users = $users->setHidden(['email', 'password', 'remember_token']);

@@ -654,7 +654,7 @@ Route::resource('photos', PhotoController::class);
 ### Singleton Resource Controllers
 
 <!-- Sometimes, your application will have resources that may only have a single instance. For example, a user's "profile" can be edited or updated, but a user may not have more than one "profile". Likewise, an image may have a single "thumbnail". These resources are called "singleton resources", meaning one and only one instance of the resource may exist. In these scenarios, you may register a "singleton" resource controller: -->
-때로는 애플리케이션에 단 하나의 인스턴스만 가질 수 있는 리소스가 있을 수 있습니다. 예를 들어 사용자의 "profile"은 편집하거나 업데이트할 수 있지만, 사용자가 하나 이상의 "profile"을 가질 수는 없습니다. 마찬가지로 이미지는 하나의 "thumbnail"만 가질 수 있습니다. 이러한 리소스를 "싱글턴 리소스"라고 하며, 이는 해당 리소스의 인스턴스가 오직 하나만 존재할 수 있음을 의미합니다. 이런 상황에서는 "singleton" 리소스 컨트롤러를 등록할 수 있습니다.
+때로는 애플리케이션에 단 하나의 인스턴스만 가질 수 있는 리소스가 있을 수 있습니다. 예를 들어 사용자의 "profile"은 편집하거나 업데이트할 수 있지만, 사용자가 둘 이상의 "profile"을 가질 수는 없습니다. 마찬가지로 이미지는 하나의 "thumbnail"만 가질 수 있습니다. 이러한 리소스를 "싱글턴 리소스"라고 하며, 이는 해당 리소스의 인스턴스가 오직 하나만 존재할 수 있음을 의미합니다. 이런 상황에서는 "singleton" 리소스 컨트롤러를 등록할 수 있습니다.
 
 ```php
 use App\Http\Controllers\ProfileController;

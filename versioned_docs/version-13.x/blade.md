@@ -92,7 +92,7 @@ Hello, {{ $name }}.
 ```
 
 > [!NOTE]
-> Blade의 `{{ }}` 에코 문은 XSS 공격을 방지하기 위해 PHP의 `htmlspecialchars` 기능을 통해 자동으로 전송됩니다.
+> Blade의 `{{ }}` 에코 문은 XSS 공격을 방지하기 위해 출력할 데이터를 PHP의 `htmlspecialchars` 함수로 자동 처리합니다.
 
 <!-- You are not limited to displaying the contents of the variables passed to the view. You may also echo the results of any PHP function. In fact, you can put any PHP code you wish inside of a Blade echo statement: -->
 뷰에 전달된 변수의 내용을 표시하는 것으로 제한되지는 않습니다. PHP 함수의 결과를 에코할 수도 있습니다. 실제로 Blade echo 문 안에 원하는 PHP 코드를 넣을 수 있습니다.
@@ -133,7 +133,7 @@ class AppServiceProvider extends ServiceProvider
 #### Displaying Unescaped Data
 
 <!-- By default, Blade `{{ }}` statements are automatically sent through PHP's `htmlspecialchars` function to prevent XSS attacks. If you do not want your data to be escaped, you may use the following syntax: -->
-기본적으로 Blade `{{ }}` 문은 XSS 공격을 방지하기 위해 PHP의 `htmlspecialchars` 기능을 통해 자동으로 전송됩니다. 데이터가 이스케이프되는 것을 원하지 않으면 다음 구문을 사용할 수 있습니다.
+기본적으로 Blade `{{ }}` 문은 XSS 공격을 방지하기 위해 출력할 데이터를 PHP의 `htmlspecialchars` 함수로 자동 처리합니다. 데이터가 이스케이프되는 것을 원하지 않으면 다음 구문을 사용할 수 있습니다.
 
 ```blade
 Hello, {!! $name !!}.
@@ -183,7 +183,7 @@ Hello, @{{ name }}.
 ```
 
 <!-- However, instead of manually calling `json_encode`, you may use the `Illuminate\Support\Js::from` method. The `from` method accepts the same arguments as PHP's `json_encode` function; however, it will ensure that the resulting JSON has been properly escaped for inclusion within HTML quotes. The `from` method will return a string `JSON.parse` JavaScript statement that will convert the given object or array into a valid JavaScript object: -->
-그러나 `json_encode`를 수동으로 호출하는 대신 `Illuminate\Support\Js::from` 메서드를 사용할 수도 있습니다. `from` 메서드는 PHP의 `json_encode` 함수와 동일한 인수를 허용합니다. 그러나 결과 JSON가 HTML 인용문에 포함되도록 올바르게 이스케이프되었는지 확인합니다. `from` 메소드는 주어진 개체 또는 배열을 유효한 JavaScript 개체로 변환하는 문자열 `JSON.parse` JavaScript 문을 반환합니다.
+그러나 `json_encode`를 수동으로 호출하는 대신 `Illuminate\Support\Js::from` 메서드를 사용할 수도 있습니다. `from` 메서드는 PHP의 `json_encode` 함수와 동일한 인수를 허용합니다. 다만 결과 JSON을 HTML 따옴표 안에 포함할 수 있도록 올바르게 이스케이프합니다. `from` 메소드는 주어진 개체 또는 배열을 유효한 JavaScript 개체로 변환하는 문자열 `JSON.parse` JavaScript 문을 반환합니다.
 
 ```blade
 <script>
@@ -192,7 +192,7 @@ Hello, @{{ name }}.
 ```
 
 <!-- The latest versions of the Laravel application skeleton include a `Js` facade, which provides convenient access to this functionality within your Blade templates: -->
-Laravel 애플리케이션 스켈레톤의 최신 버전에는 `Js` 외관이 포함되어 있어 Blade 템플릿 내에서 이 기능에 편리하게 액세스할 수 있습니다.
+Laravel 애플리케이션 스켈레톤의 최신 버전에는 `Js` 파사드가 포함되어 있어 Blade 템플릿 내에서 이 기능에 편리하게 액세스할 수 있습니다.
 
 ```blade
 <script>
@@ -201,7 +201,7 @@ Laravel 애플리케이션 스켈레톤의 최신 버전에는 `Js` 외관이 �
 ```
 
 > [!WARNING]
-> 기존 변수를 JSON로 렌더링하려면 `Js::from` 메서드만 사용해야 합니다. Blade 템플릿은 정규식을 기반으로 하며 복잡한 표현식을 지시문에 전달하려고 하면 예기치 않은 오류가 발생할 수 있습니다.
+> `Js::from` 메서드는 기존 변수를 JSON으로 렌더링할 때만 사용해야 합니다. Blade 템플릿은 정규식을 기반으로 하며 복잡한 표현식을 지시문에 전달하려고 하면 예기치 않은 오류가 발생할 수 있습니다.
 
 <a name="the-at-verbatim-directive"></a>
 <!-- #### The `@verbatim` Directive -->
@@ -647,7 +647,7 @@ Blade의 `@include` 지시어를 사용하면 다른 뷰 내에 Blade 뷰를 포
 ```
 
 <!-- If you would like to `@include` a view if a given boolean expression evaluates to `true` or `false`, you may use the `@includeWhen` and `@includeUnless` directives: -->
-주어진 부울 표현식이 `true` 또는 `false`로 평가되는 경우 `@include` 및 뷰를 수행하려면 `@includeWhen` 및 `@includeUnless` 지시문을 사용할 수 있습니다.
+주어진 부울 표현식이 `true` 또는 `false`로 평가될 때 뷰를 `@include`하려면 `@includeWhen` 및 `@includeUnless` 지시문을 사용할 수 있습니다.
 
 ```blade
 @includeWhen($boolean, 'view.name', ['status' => 'complete'])
@@ -701,7 +701,7 @@ Blade의 `@each` 지시문을 사용하여 루프와 포함을 한 줄로 결합
 ### The `@once` Directive
 
 <!-- The `@once` directive allows you to define a portion of the template that will only be evaluated once per rendering cycle. This may be useful for pushing a given piece of JavaScript into the page's header using [stacks](#stacks). For example, if you are rendering a given [component](#components) within a loop, you may wish to only push the JavaScript to the header the first time the component is rendered: -->
-`@once` 지시문을 사용하면 렌더링 주기당 한 번만 평가되는 템플릿 부분을 정의할 수 있습니다. 이는 [stacks](#stacks)을 사용하여 JavaScript의 특정 부분을 페이지 헤더에 푸시하는 데 유용할 수 있습니다. 예를 들어, 루프 내에서 특정 [component](#components)를 렌더링하는 경우 컴포넌트가 처음 렌더링될 때 JavaScript만 헤더에 푸시할 수 있습니다.
+`@once` 지시문을 사용하면 렌더링 주기당 한 번만 평가되는 템플릿 부분을 정의할 수 있습니다. 이는 [stacks](#stacks)을 사용하여 JavaScript의 특정 부분을 페이지 헤더에 푸시하는 데 유용할 수 있습니다. 예를 들어, 루프 내에서 특정 [component](#components)를 렌더링하는 경우 컴포넌트가 처음 렌더링될 때만 JavaScript를 헤더에 푸시할 수 있습니다.
 
 ```blade
 @once
@@ -753,7 +753,7 @@ Blade의 `@each` 지시문을 사용하여 루프와 포함을 한 줄로 결합
 ```
 
 <!-- Or, if you only need to use PHP to import a class, you may use the `@use` directive: -->
-또는 클래스를 가져오기 위해 PHP만 사용해야 하는 경우 `@use` 지시문을 사용할 수 있습니다.
+또는 PHP가 필요한 작업이 클래스 가져오기뿐이라면 `@use` 지시문을 사용할 수 있습니다.
 
 ```blade
 @use('App\Models\Flight')
@@ -926,7 +926,7 @@ public function boot(): void
 ```
 
 <!-- Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation. -->
-Blade는 컴포넌트 이름을 파스칼 대소문자로 구분하여 이 컴포넌트에 연결된 클래스를 자동으로 감지합니다. 하위 디렉터리도 "점" 표기법을 사용하여 지원됩니다.
+Blade는 컴포넌트 이름을 파스칼 케이스로 변환하여 이 컴포넌트에 연결된 클래스를 자동으로 감지합니다. 하위 디렉터리도 "점" 표기법을 사용하여 지원됩니다.
 
 <a name="rendering-components"></a>
 <!-- ### Rendering Components -->
@@ -1440,7 +1440,7 @@ class Alert extends Component
 ### Slots
 
 <!-- You will often need to pass additional content to your component via "slots". Component slots are rendered by echoing the `$slot` variable. To explore this concept, let's imagine that an `alert` component has the following markup: -->
-"슬롯"을 통해 컴포넌트에 추가 콘텐츠를 전달해야 하는 경우가 종종 있습니다. 컴포넌트 슬롯은 `$slot` 변수를 반영하여 렌더링됩니다. 이 개념을 살펴보기 위해 `alert` 컴포넌트에 다음 마크업이 있다고 가정해 보겠습니다.
+"슬롯"을 통해 컴포넌트에 추가 콘텐츠를 전달해야 하는 경우가 종종 있습니다. 컴포넌트 슬롯은 `$slot` 변수를 출력하여 렌더링됩니다. 이 개념을 살펴보기 위해 `alert` 컴포넌트에 다음 마크업이 있다고 가정해 보겠습니다.
 
 ```blade
 <!-- /resources/views/components/alert.blade.php -->
@@ -1473,7 +1473,7 @@ class Alert extends Component
 ```
 
 <!-- You may define the content of the named slot using the `x-slot` tag. Any content not within an explicit `x-slot` tag will be passed to the component in the `$slot` variable: -->
-`x-slot` 태그를 사용하여 명명된 슬롯의 내용을 정의할 수 있습니다. 명시적인 `x-slot` 태그 내에 없는 모든 콘텐츠는 `$slot` 변수의 컴포넌트에 전달됩니다.
+`x-slot` 태그를 사용하여 명명된 슬롯의 내용을 정의할 수 있습니다. 명시적인 `x-slot` 태그 내에 없는 모든 콘텐츠는 `$slot` 변수에 담겨 컴포넌트에 전달됩니다.
 
 ```xml
 <x-alert>
@@ -1514,7 +1514,7 @@ class Alert extends Component
 #### Scoped Slots
 
 <!-- If you have used a JavaScript framework such as Vue, you may be familiar with "scoped slots", which allow you to access data or methods from the component within your slot. You may achieve similar behavior in Laravel by defining public methods or properties on your component and accessing the component within your slot via the `$component` variable. In this example, we will assume that the `x-alert` component has a public `formatAlert` method defined on its component class: -->
-Vue와 같은 JavaScript 프레임워크를 사용한 적이 있다면 슬롯 내 컴포넌트의 데이터나 메서드에 액세스할 수 있는 "범위 지정 슬롯"에 익숙할 수 있습니다. 컴포넌트에 공용 메서드나 속성을 정의하고 `$component` 변수를 통해 슬롯 내의 컴포넌트에 액세스하면 Laravel에서 유사한 동작을 얻을 수 있습니다. 이 예에서는 `x-alert` 컴포넌트의 컴포넌트 클래스에 공개 `formatAlert` 메서드가 정의되어 있다고 가정합니다.
+Vue와 같은 JavaScript 프레임워크를 사용한 적이 있다면 슬롯 안에서 컴포넌트의 데이터나 메서드에 액세스할 수 있는 "범위 지정 슬롯"에 익숙할 수 있습니다. 컴포넌트에 공용 메서드나 속성을 정의하고 슬롯 안에서 `$component` 변수를 통해 해당 컴포넌트에 액세스하면 Laravel에서 유사한 동작을 얻을 수 있습니다. 이 예에서는 `x-alert` 컴포넌트의 컴포넌트 클래스에 공개 `formatAlert` 메서드가 정의되어 있다고 가정합니다.
 
 ```blade
 <x-alert>
@@ -1531,7 +1531,7 @@ Vue와 같은 JavaScript 프레임워크를 사용한 적이 있다면 슬롯 �
 #### Slot Attributes
 
 <!-- Like Blade components, you may assign additional [attributes](#component-attributes) to slots such as CSS class names: -->
-Blade 컴포넌트와 마찬가지로 CSS 클래스 이름과 같은 슬롯에 추가 [attributes](#component-attributes)을 할당할 수 있습니다.
+Blade 컴포넌트와 마찬가지로 슬롯에도 CSS 클래스 이름과 같은 추가 [attributes](#component-attributes)를 할당할 수 있습니다.
 
 ```xml
 <x-card class="shadow-sm">
@@ -1625,7 +1625,7 @@ php artisan make:component Alert --inline
 자신의 애플리케이션에 대한 컴포넌트를 작성할 때 컴포넌트는 `app/View/Components` 디렉터리 및 `resources/views/components` 디렉터리 내에서 자동으로 검색됩니다.
 
 <!-- However, if you are building a package that utilizes Blade components or placing components in non-conventional directories, you will need to manually register your component class and its HTML tag alias so that Laravel knows where to find the component. You should typically register your components in the `boot` method of your package's service provider: -->
-그러나 Blade 컴포넌트를 활용하는 패키지를 구축하거나 기존 디렉토리가 아닌 디렉토리에 컴포넌트를 배치하는 경우 Laravel가 컴포넌트를 찾을 수 있는 위치를 알 수 있도록 컴포넌트 클래스와 해당 HTML 태그 별칭을 수동으로 등록해야 합니다. 일반적으로 패키지 서비스 프로바이더의 `boot` 메서드에 컴포넌트를 등록해야 합니다.
+그러나 Blade 컴포넌트를 활용하는 패키지를 구축하거나 기본 규칙을 따르지 않는 디렉터리에 컴포넌트를 배치하는 경우 Laravel가 컴포넌트를 찾을 수 있는 위치를 알 수 있도록 컴포넌트 클래스와 해당 HTML 태그 별칭을 수동으로 등록해야 합니다. 일반적으로 패키지 서비스 프로바이더의 `boot` 메서드에 컴포넌트를 등록해야 합니다.
 
 ```php
 use Illuminate\Support\Facades\Blade;
@@ -1674,7 +1674,7 @@ public function boot(): void
 ```
 
 <!-- Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation. -->
-Blade는 컴포넌트 이름을 파스칼 대소문자로 구분하여 이 컴포넌트에 연결된 클래스를 자동으로 감지합니다. 하위 디렉터리도 "점" 표기법을 사용하여 지원됩니다.
+Blade는 컴포넌트 이름을 파스칼 케이스로 변환하여 이 컴포넌트에 연결된 클래스를 자동으로 감지합니다. 하위 디렉터리도 "점" 표기법을 사용하여 지원됩니다.
 
 <a name="anonymous-components"></a>
 <!-- ## Anonymous Components -->
@@ -1770,7 +1770,7 @@ php artisan make:component forms.input --view
 ### Accessing Parent Data
 
 <!-- Sometimes you may want to access data from a parent component inside a child component. In these cases, you may use the `@aware` directive. For example, imagine we are building a complex menu component consisting of a parent `<x-menu>` and child `<x-menu.item>`: -->
-때로는 하위 컴포넌트 내부의 상위 컴포넌트에서 데이터에 액세스하고 싶을 수도 있습니다. 이러한 경우 `@aware` 지시문을 사용할 수 있습니다. 예를 들어, 상위 `<x-menu>`와 하위 `<x-menu.item>`로 구성된 복잡한 메뉴 컴포넌트를 구축한다고 가정해 보겠습니다.
+때로는 하위 컴포넌트 안에서 상위 컴포넌트의 데이터에 액세스하고 싶을 수도 있습니다. 이러한 경우 `@aware` 지시문을 사용할 수 있습니다. 예를 들어, 상위 `<x-menu>`와 하위 `<x-menu.item>`로 구성된 복잡한 메뉴 컴포넌트를 구축한다고 가정해 보겠습니다.
 
 ```blade
 <x-menu color="purple">
@@ -1793,7 +1793,7 @@ php artisan make:component forms.input --view
 ```
 
 <!-- Because the `color` prop was only passed into the parent (`<x-menu>`), it won't be available inside `<x-menu.item>`. However, if we use the `@aware` directive, we can make it available inside `<x-menu.item>` as well: -->
-`color` 소품은 상위(`<x-menu>`)에만 전달되었으므로 `<x-menu.item>` 내에서는 사용할 수 없습니다. 그러나 `@aware` 지시어를 사용하면 `<x-menu.item>` 내부에서도 사용할 수 있습니다.
+`color` 속성은 상위(`<x-menu>`)에만 전달되었으므로 `<x-menu.item>` 내에서는 사용할 수 없습니다. 그러나 `@aware` 지시어를 사용하면 `<x-menu.item>` 내부에서도 사용할 수 있습니다.
 
 ```blade
 <!-- /resources/views/components/menu/item.blade.php -->
@@ -1995,10 +1995,10 @@ Route::get('/tasks', function () {
 이 예에서 `sidebar` 섹션은 `@@parent` 지시문을 활용하여 레이아웃의 사이드바에 콘텐츠를 덮어쓰는 대신 추가합니다. `@@parent` 지시어는 뷰가 렌더링될 때 레이아웃의 내용으로 대체됩니다.
 
 > [!NOTE]
-> 이전 예와 달리 이 `sidebar` 섹션은 `@show` 대신 `@endsection`로 끝납니다. `@endsection` 지시문은 섹션만 정의하는 반면, `@show`는 섹션을 정의하고 **즉시 생성**합니다.
+> 이전 예와 달리 이 `sidebar` 섹션은 `@show` 대신 `@endsection`로 끝납니다. `@endsection` 지시문은 섹션만 정의하는 반면, `@show`는 섹션을 정의하고 **즉시 출력**합니다.
 
 <!-- The `@yield` directive also accepts a default value as its second parameter. This value will be rendered if the section being yielded is undefined: -->
-`@yield` 지시문은 두 번째 매개변수로 기본값을 허용합니다. 생성되는 섹션이 정의되지 않은 경우 이 값이 렌더링됩니다.
+`@yield` 지시문은 두 번째 매개변수로 기본값을 허용합니다. 출력할 섹션이 정의되지 않은 경우 이 값이 렌더링됩니다.
 
 ```blade
 @yield('content', 'Default content')
@@ -2100,7 +2100,7 @@ HTML 양식은 `PUT`, `PATCH` 또는 `DELETE` 요청을 만들 수 없으므로 
 ## Stacks
 
 <!-- Blade allows you to push to named stacks which can be rendered somewhere else in another view or layout. This can be particularly useful for specifying any JavaScript libraries required by your child views: -->
-Blade를 사용하면 다른 뷰 또는 레이아웃의 다른 위치에 렌더링될 수 있는 명명된 스택으로 푸시할 수 있습니다. 이는 자녀 뷰에 필요한 JavaScript 라이브러리를 지정하는 데 특히 유용할 수 있습니다.
+Blade를 사용하면 다른 뷰 또는 레이아웃의 다른 위치에 렌더링될 수 있는 명명된 스택으로 푸시할 수 있습니다. 이는 하위 뷰에 필요한 JavaScript 라이브러리를 지정하는 데 특히 유용할 수 있습니다.
 
 ```blade
 @push('scripts')
@@ -2109,7 +2109,7 @@ Blade를 사용하면 다른 뷰 또는 레이아웃의 다른 위치에 렌더�
 ```
 
 <!-- If you would like to `@push` content if a given boolean expression evaluates to `true`, you may use the `@pushIf` directive: -->
-주어진 부울 표현식이 `true`로 평가되는 경우 `@push` 콘텐츠를 원하는 경우 `@pushIf` 지시문을 사용할 수 있습니다.
+주어진 부울 표현식이 `true`로 평가될 때 콘텐츠를 `@push`하려면 `@pushIf` 지시문을 사용할 수 있습니다.
 
 ```blade
 @pushIf($shouldPush, 'scripts')
@@ -2159,7 +2159,7 @@ Blade를 사용하면 다른 뷰 또는 레이아웃의 다른 위치에 렌더�
 ## Service Injection
 
 <!-- The `@inject` directive may be used to retrieve a service from the Laravel [service container](/docs/13.x/container). The first argument passed to `@inject` is the name of the variable the service will be placed into, while the second argument is the class or interface name of the service you wish to resolve: -->
-`@inject` 지시어는 Laravel [service container](/docs/13.x/container)에서 서비스를 검색하는 데 사용될 수 있습니다. `@inject`에 전달된 첫 번째 인수는 서비스가 배치될 변수의 이름이고, 두 번째 인수는 해결하려는 서비스의 클래스 또는 인터페이스 이름입니다.
+`@inject` 지시어는 Laravel [service container](/docs/13.x/container)에서 서비스를 검색하는 데 사용될 수 있습니다. `@inject`에 전달된 첫 번째 인수는 서비스가 배치될 변수의 이름이고, 두 번째 인수는 컨테이너에서 가져올 서비스의 클래스 또는 인터페이스 이름입니다.
 
 ```blade
 @inject('metrics', 'App\Services\MetricsService')
@@ -2297,7 +2297,7 @@ class AppServiceProvider extends ServiceProvider
 Blade를 사용하여 개체를 "에코"하려고 하면 개체의 `__toString` 메서드가 호출됩니다. [__toString](https://www.php.net/manual/en/language.oop5.magic.php#object.tostring) 메서드는 PHP에 내장된 "마법 메서드" 중 하나입니다. 그러나 상호 작용하는 클래스가 타사 라이브러리에 속하는 경우와 같이 특정 클래스의 `__toString` 메서드를 제어할 수 없는 경우도 있습니다.
 
 <!-- In these cases, Blade allows you to register a custom echo handler for that particular type of object. To accomplish this, you should invoke Blade's `stringable` method. The `stringable` method accepts a closure. This closure should type-hint the type of object that it is responsible for rendering. Typically, the `stringable` method should be invoked within the `boot` method of your application's `AppServiceProvider` class: -->
-이러한 경우 Blade를 사용하면 특정 유형의 개체에 대한 사용자 지정 에코 처리기를 등록할 수 있습니다. 이를 수행하려면 Blade의 `stringable` 메서드를 호출해야 합니다. `stringable` 메소드는 클로저를 허용합니다. 이 클로저는 렌더링을 담당하는 객체의 유형을 유형 힌트해야 합니다. 일반적으로 `stringable` 메서드는 애플리케이션 `AppServiceProvider` 클래스의 `boot` 메서드 내에서 호출되어야 합니다.
+이러한 경우 Blade를 사용하면 특정 유형의 개체에 대한 사용자 지정 에코 처리기를 등록할 수 있습니다. 이를 수행하려면 Blade의 `stringable` 메서드를 호출해야 합니다. `stringable` 메소드는 클로저를 허용합니다. 이 클로저는 자신이 렌더링할 객체의 타입을 인수의 타입 힌트로 선언해야 합니다. 일반적으로 `stringable` 메서드는 애플리케이션 `AppServiceProvider` 클래스의 `boot` 메서드 내에서 호출되어야 합니다.
 
 ```php
 use Illuminate\Support\Facades\Blade;

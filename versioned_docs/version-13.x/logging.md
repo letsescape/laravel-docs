@@ -131,7 +131,7 @@ Laravel의 로깅은 "채널(channels)" 기반으로 동작합니다. 각 채널
 ### Logging Deprecation Warnings
 
 <!-- PHP, Laravel, and other libraries often notify their users that some of their features have been deprecated and will be removed in a future version. If you would like to log these deprecation warnings, you may specify your preferred `deprecations` log channel using the `LOG_DEPRECATIONS_CHANNEL` environment variable, or within your application's `config/logging.php` configuration file: -->
-PHP, Laravel 및 다른 라이브러리들은 언제 제거될 예정인 기능 등에 대해 사용 중단(deprecation) 경고를 알리는 경우가 많습니다. 이러한 경고를 로그에 기록하고자 한다면, `LOG_DEPRECATIONS_CHANNEL` 환경 변수나 `config/logging.php` 설정 파일에 선호하는 `deprecations` 로그 채널을 지정할 수 있습니다:
+PHP, Laravel 및 다른 라이브러리는 일부 기능이 더 이상 권장되지 않으며 향후 버전에서 제거될 예정임을 사용자에게 알리는 경우가 많습니다. 이러한 경고를 로그에 기록하고자 한다면, `LOG_DEPRECATIONS_CHANNEL` 환경 변수나 `config/logging.php` 설정 파일에 선호하는 `deprecations` 로그 채널을 지정할 수 있습니다:
 
 ```php
 'deprecations' => [
@@ -266,7 +266,7 @@ class UserController extends Controller
 ### Contextual Information
 
 <!-- An array of contextual data may be passed to the log methods. This contextual data will be formatted and displayed with the log message: -->
-로그 메서드에는 로그 메시지와 함께 표시할 추가적인 컨텍스트 데이터를 배열로 전달할 수 있습니다.
+로그 메서드에 컨텍스트 데이터 배열을 전달할 수 있습니다. 이 데이터는 형식이 지정되어 로그 메시지와 함께 표시됩니다.
 
 ```php
 use Illuminate\Support\Facades\Log;
@@ -354,7 +354,7 @@ class AssignRequestId
 ### Writing to Specific Channels
 
 <!-- Sometimes you may wish to log a message to a channel other than your application's default channel. You may use the `channel` method on the `Log` facade to retrieve and log to any channel defined in your configuration file: -->
-애플리케이션의 기본 로그 채널이 아닌 특정 채널에 메시지를 기록하고 싶을 때도 있습니다. 이 경우 `Log` 파사드의 `channel` 메서드를 사용해 구성 파일에 정의된 원하는 채널을 선택할 수 있습니다:
+애플리케이션의 기본 로그 채널이 아닌 특정 채널에 메시지를 기록하고 싶을 때도 있습니다. 이 경우 `Log` 파사드의 `channel` 메서드를 사용해 구성 파일에 정의된 원하는 채널을 선택하여 로그를 기록할 수 있습니다:
 
 ```php
 use Illuminate\Support\Facades\Log;
@@ -386,7 +386,7 @@ Log::build([
 ```
 
 <!-- You may also wish to include an on-demand channel in an on-demand logging stack. This can be achieved by including your on-demand channel instance in the array passed to the `stack` method: -->
-즉석 채널을 포함하는 스택을 만들고 싶다면, `stack` 메서드에 즉석 채널 인스턴스를 포함시키면 됩니다:
+즉석 채널을 포함하는 스택을 만들고 싶다면, `stack` 메서드에 전달하는 배열에 즉석 채널 인스턴스를 포함시키면 됩니다:
 
 ```php
 use Illuminate\Support\Facades\Log;
@@ -538,7 +538,7 @@ Monolog은 로그 메시지가 기록되기 전 처리하는 프로세서도 지
 ### Creating Custom Channels via Factories
 
 <!-- If you would like to define an entirely custom channel in which you have full control over Monolog's instantiation and configuration, you may specify a `custom` driver type in your `config/logging.php` configuration file. Your configuration should include a `via` option that contains the name of the factory class which will be invoked to create the Monolog instance: -->
-Monolog 인스턴스 생성과 구성을 완전 직접 제어하는 맞춤 채널을 만들고 싶다면, `config/logging.php`에 `custom` 드라이버 유형을 지정할 수 있습니다. 그리고 `via` 옵션에 Monolog 인스턴스를 생성할 팩토리 클래스명을 적어야 합니다:
+Monolog 인스턴스 생성과 구성을 완전히 제어하는 맞춤 채널을 만들고 싶다면, `config/logging.php`에 `custom` 드라이버 유형을 지정할 수 있습니다. 그리고 `via` 옵션에 Monolog 인스턴스를 생성할 팩토리 클래스명을 적어야 합니다:
 
 ```php
 'channels' => [

@@ -435,7 +435,7 @@ public function boot(): void
 ```
 
 <!-- Once the pattern has been defined, it is automatically applied to all routes using that parameter name: -->
-パターンが定義されると、そのパラメータ名を使用してすべてのルートに自動的に適用されます。
+パターンが定義されると、そのパラメータ名を使用するすべてのルートに自動的に適用されます。
 
 ```php
 Route::get('/user/{id}', function (string $id) {
@@ -736,7 +736,7 @@ class Post extends Model
 #### Custom Keys and Scoping
 
 <!-- When implicitly binding multiple Eloquent models in a single route definition, you may wish to scope the second Eloquent model such that it must be a child of the previous Eloquent model. For example, consider this route definition that retrieves a blog post by slug for a specific user: -->
-単一のルート定義で複数の Eloquent モデルを暗黙的にバインドする場合、前の Eloquent モデルの子である必要があるように 2 番目の Eloquent モデルのスコープを設定したい場合があります。たとえば、特定のユーザーのスラッグによってブログ投稿を取得する次のルート定義について考えてみましょう。
+単一のルート定義で複数の Eloquent モデルを暗黙的にバインドする場合、前の Eloquent モデルの子である必要があるように 2 番目の Eloquent モデルのスコープを設定したい場合があります。たとえば、特定のユーザーのブログ投稿を、その投稿のスラッグによって取得する次のルート定義について考えてみましょう。
 
 ```php
 use App\Models\Post;
@@ -864,7 +864,7 @@ Route::get('/users/{user}', function (User $user) {
 ```
 
 <!-- Since we have bound all `{user}` parameters to the `App\Models\User` model, an instance of that class will be injected into the route. So, for example, a request to `users/1` will inject the `User` instance from the database which has an ID of `1`. -->
-すべての `{user}` パラメーターを `App\Models\User` モデルにバインドしているため、そのクラスのインスタンスがルートに挿入されます。したがって、たとえば、`users/1` へのリクエストは、`1` の ID を持つデータベースから `User` インスタンスを挿入します。
+すべての `{user}` パラメーターを `App\Models\User` モデルにバインドしているため、そのクラスのインスタンスがルートに挿入されます。したがって、たとえば、`users/1` へのリクエストは、データベースから ID が `1` の `User` インスタンスを取得し、ルートに注入します。
 
 <!-- If a matching model instance is not found in the database, a 404 HTTP response will be automatically generated. -->
 一致するモデル インスタンスがデータベース内に見つからない場合、404 HTTP 応答が自動的に生成されます。
@@ -1072,7 +1072,7 @@ RateLimiter::for('uploads', function (Request $request) {
 受信リクエストのレート制限に加えて、Laravel では、`after` メソッドを使用してレスポンスに基づいてレート制限を行うことができます。これは、検証エラー、404 応答、その他の特定の HTTP ステータス コードなど、特定の応答のみをレート制限にカウントしたい場合に便利です。
 
 <!-- The `after` method accepts a closure that receives the response and should return `true` if the response should be counted toward the rate limit, or `false` if it should be ignored. This is particularly useful for preventing enumeration attacks by limiting consecutive 404 responses, or allowing users to retry requests that fail validation without exhausting their rate limit on an endpoint that should only throttle successful operations: -->
-`after` メソッドは、応答を受け取るクロージャを受け入れ、応答をレート制限にカウントする必要がある場合は `true` を返し、無視する必要がある場合は `false` を返す必要があります。これは、連続する 404 応答を制限することによって列挙型攻撃を防止したり、成功した操作のみを制限するエンドポイントのレート制限を使い果たさずに検証に失敗したリクエストをユーザーが再試行できるようにする場合に特に役立ちます。
+`after` メソッドは、応答を受け取るクロージャを受け入れます。このクロージャは、応答をレート制限にカウントする場合は `true` を、無視する場合は `false` を返す必要があります。これは、連続する 404 応答を制限することによって列挙攻撃を防止したり、成功した操作のみを制限するエンドポイントのレート制限を使い果たさずに検証に失敗したリクエストをユーザーが再試行できるようにする場合に特に役立ちます。
 
 ```php
 use Illuminate\Cache\RateLimiting\Limit;

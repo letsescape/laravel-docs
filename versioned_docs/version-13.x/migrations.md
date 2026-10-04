@@ -94,7 +94,7 @@ php artisan schema:dump --database=testing --prune
 마이그레이션 클래스에는 `up`과 `down` 두 개의 메서드가 포함됩니다. `up` 메서드는 데이터베이스에 새 테이블, 컬럼 또는 인덱스를 추가하는 데 사용되며, `down` 메서드는 `up` 메서드가 수행한 작업을 되돌려야 합니다.
 
 <!-- Within both of these methods, you may use the Laravel schema builder to expressively create and modify tables. To learn about all of the methods available on the `Schema` builder, [check out its documentation](#creating-tables). For example, the following migration creates a `flights` table: -->
-이 두 메서드 안에서는 Laravel 스키마 빌더를 사용하여 테이블을 표현력 있게 생성하고 수정할 수 있습니다. `Schema` 빌더에서 사용할 수 있는 모든 메서드를 알아보려면 [check out its documentation](#creating-tables). 예를 들어, 다음 마이그레이션은 `flights` 테이블을 생성합니다.
+이 두 메서드 안에서는 Laravel 스키마 빌더를 사용하여 테이블을 표현력 있게 생성하고 수정할 수 있습니다. `Schema` 빌더에서 사용할 수 있는 모든 메서드를 알아보려면 [check out its documentation](#creating-tables)를 참고하세요. 예를 들어, 다음 마이그레이션은 `flights` 테이블을 생성합니다.
 
 ```php
 <?php
@@ -1853,11 +1853,11 @@ $table->foreignId('user_id')
 | ----------------------------- | ----------------------------------------- |
 | `$table->cascadeOnUpdate();`  | 업데이트가 연쇄적으로 적용됩니다.         |
 | `$table->restrictOnUpdate();` | 업데이트가 제한됩니다.                    |
-| `$table->nullOnUpdate();`     | 외래 키 값이 null로 설정됩니다.         |
+| `$table->nullOnUpdate();`     | 업데이트 시 외래 키 값이 null로 설정됩니다.         |
 | `$table->noActionOnUpdate();` | 업데이트에 아무 작업도 수행하지 않습니다. |
 | `$table->cascadeOnDelete();`  | 삭제가 연쇄적으로 적용됩니다.             |
 | `$table->restrictOnDelete();` | 삭제가 제한됩니다.                        |
-| `$table->nullOnDelete();`     | 외래 키 값이 null로 설정됩니다.         |
+| `$table->nullOnDelete();`     | 삭제 시 외래 키 값이 null로 설정됩니다.         |
 | `$table->noActionOnDelete();` | 자식 레코드가 있으면 삭제를 방지합니다.   |
 
 </div>

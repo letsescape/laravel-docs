@@ -120,7 +120,7 @@ return $this->hasOne(Phone::class, 'foreign_key');
 ```
 
 <!-- Additionally, Eloquent assumes that the foreign key should have a value matching the primary key column of the parent. In other words, Eloquent will look for the value of the user's `id` column in the `user_id` column of the `Phone` record. If you would like the relationship to use a primary key value other than `id` or your model's primary key, you may pass a third argument to the `hasOne` method: -->
-さらに、Eloquent は、外部キーの値が親の主キー列と一致する必要があると想定しています。つまり、Eloquent は、`Phone` レコードの `user_id` 列でユーザーの `id` 列の値を検索します。リレーションシップで `id` 以外の主キー値またはモデルの主キーを使用したい場合は、3 番目の引数を `hasOne` メソッドに渡すことができます。
+さらに、Eloquent は、外部キーの値が親の主キー列と一致する必要があると想定しています。つまり、Eloquent は、`Phone` レコードの `user_id` 列でユーザーの `id` 列の値を検索します。リレーションシップで `id` またはモデルの主キー以外のキーを使用したい場合は、ローカルキーの名前を `hasOne` メソッドの 3 番目の引数に渡すことができます。
 
 ```php
 return $this->hasOne(Phone::class, 'foreign_key', 'local_key');
@@ -645,7 +645,7 @@ class Mechanic extends Model
 ```
 
 <!-- Or, as discussed earlier, if the relevant relationships have already been defined on all of the models involved in the relationship, you may fluently define a "has-one-through" relationship by invoking the `through` method and supplying the names of those relationships. This approach offers the advantage of reusing the key conventions already defined on the existing relationships: -->
-または、前に説明したように、関係に関係するすべてのモデルで関連する関係がすでに定義されている場合は、`through` メソッドを呼び出してそれらの関係の名前を指定することによって、「has-one-through」関係をスムーズに定義できます。このアプローチには、既存の関係ですでに定義されている主要な規則を再利用できるという利点があります。
+または、前に説明したように、関係に関係するすべてのモデルで関連する関係がすでに定義されている場合は、`through` メソッドを呼び出してそれらの関係の名前を指定することによって、「has-one-through」関係をスムーズに定義できます。このアプローチには、既存の関係ですでに定義されているキーの規則を再利用できるという利点があります。
 
 ```php
 // String based syntax...
@@ -743,7 +743,7 @@ class Application extends Model
 ```
 
 <!-- Or, as discussed earlier, if the relevant relationships have already been defined on all of the models involved in the relationship, you may fluently define a "has-many-through" relationship by invoking the `through` method and supplying the names of those relationships. This approach offers the advantage of reusing the key conventions already defined on the existing relationships: -->
-または、前に説明したように、関係に関係するすべてのモデルで関連する関係がすでに定義されている場合は、`through` メソッドを呼び出してそれらの関係の名前を指定することによって、「has-many-through」関係をスムーズに定義できます。このアプローチには、既存の関係ですでに定義されている主要な規則を再利用できるという利点があります。
+または、前に説明したように、関係に関係するすべてのモデルで関連する関係がすでに定義されている場合は、`through` メソッドを呼び出してそれらの関係の名前を指定することによって、「has-many-through」関係をスムーズに定義できます。このアプローチには、既存の関係ですでに定義されているキーの規則を再利用できるという利点があります。
 
 ```php
 // String based syntax...
@@ -1505,7 +1505,7 @@ public function oldestImage(): MorphOne
 デフォルトでは、`latestOfMany` と `oldestOfMany` メソッドは、ソート可能なモデルの主キーを基準に、関連するモデルの中から最新または最古のモデルを取得します。ただし、より大きなリレーションから、別のソート基準を使って1つのモデルを取得したい場合もあります。
 
 <!-- For example, using the `ofMany` method, you may retrieve the user's most "liked" image. The `ofMany` method accepts the sortable column as its first argument and which aggregate function (`min` or `max`) to apply when querying for the related model: -->
-たとえば、`ofMany` メソッドを使用すると、ユーザーが最も「気に入った」画像を取得できます。 `ofMany` メソッドは、最初の引数としてソート可能な列を受け入れ、関連モデルのクエリを実行するときに適用する集計関数 (`min` または `max`) を受け取ります。
+たとえば、`ofMany` メソッドを使用すると、ユーザーの画像のうち、最も多くの「いいね」を獲得した画像を取得できます。 `ofMany` メソッドは、最初の引数としてソート可能な列を受け入れ、関連モデルのクエリを実行するときに適用する集計関数 (`min` または `max`) を受け取ります。
 
 ```php
 /**
@@ -1561,7 +1561,7 @@ taggables
 次に、モデル上の関係を定義する準備が整います。 `Post` モデルと `Video` モデルには両方とも、基本 Eloquent モデル クラスによって提供される `morphToMany` メソッドを呼び出す `tags` メソッドが含まれます。
 
 <!-- The `morphToMany` method accepts the name of the related model as well as the "relationship name". Based on the name we assigned to our intermediate table name and the keys it contains, we will refer to the relationship as "taggable": -->
-`morphToMany` メソッドは、関連モデルの名前と「関係名」を受け入れます。中間テーブル名に割り当てた名前とそれに含まれるキーに基づいて、この関係を「タグ付け可能」と呼びます。
+`morphToMany` メソッドは、関連モデルの名前と「関係名」を受け入れます。中間テーブル名に割り当てた名前とそれに含まれるキーに基づいて、この関係を「taggable」と呼びます。
 
 ```php
 <?php
@@ -1591,7 +1591,7 @@ class Post extends Model
 次に、`Tag` モデルで、考えられる親モデルごとにメソッドを定義する必要があります。したがって、この例では、`posts` メソッドと `videos` メソッドを定義します。これらのメソッドは両方とも、`morphedByMany` メソッドの結果を返す必要があります。
 
 <!-- The `morphedByMany` method accepts the name of the related model as well as the "relationship name". Based on the name we assigned to our intermediate table name and the keys it contains, we will refer to the relationship as "taggable": -->
-`morphedByMany` メソッドは、関連モデルの名前と「関係名」を受け入れます。中間テーブル名に割り当てた名前とそれに含まれるキーに基づいて、この関係を「タグ付け可能」と呼びます。
+`morphedByMany` メソッドは、関連モデルの名前と「関係名」を受け入れます。中間テーブル名に割り当てた名前とそれに含まれるキーに基づいて、この関係を「taggable」と呼びます。
 
 ```php
 <?php
@@ -1821,7 +1821,7 @@ foreach ($user->posts as $post) {
 ```
 
 <!-- Dynamic relationship properties perform "lazy loading", meaning they will only load their relationship data when you actually access them. Because of this, developers often use [eager loading](#eager-loading) to pre-load relationships they know will be accessed after loading the model. Eager loading provides a significant reduction in SQL queries that must be executed to load a model's relations. -->
-動的関係プロパティは「遅延読み込み」を実行します。つまり、実際にアクセスしたときにのみ関係データが読み込まれます。このため、開発者は多くの場合、[eager loading](#eager-loading) を使用して、モデルのロード後にアクセスされることがわかっている関係を事前にロードします。積極的な読み込みにより、モデルの関係を読み込むために実行する必要がある SQL クエリが大幅に削減されます。
+動的関係プロパティは「遅延読み込み」を実行します。つまり、実際にアクセスしたときにのみ関係データが読み込まれます。このため、開発者は多くの場合、[eager loading](#eager-loading) を使用して、モデルのロード後にアクセスされることがわかっている関係を事前にロードします。Eager ローディングにより、モデルの関係を読み込むために実行する必要がある SQL クエリが大幅に削減されます。
 
 <a name="querying-relationship-existence"></a>
 <!-- ### Querying Relationship Existence -->
@@ -2202,7 +2202,7 @@ $activities->loadMorphCount('parentable', [
 ## Eager Loading
 
 <!-- When accessing Eloquent relationships as properties, the related models are "lazy loaded". This means the relationship data is not actually loaded until you first access the property. However, Eloquent can "eager load" relationships at the time you query the parent model. Eager loading alleviates the "N + 1" query problem. To illustrate the N + 1 query problem, consider a `Book` model that "belongs to" to an `Author` model: -->
-Eloquent 関係にプロパティとしてアクセスすると、関連モデルは「遅延読み込み」されます。これは、最初にプロパティにアクセスするまで、リレーションシップ データが実際には読み込まれないことを意味します。ただし、Eloquent は、親モデルをクエリするときに関係を「熱心にロード」できます。積極的な読み込みにより、「N + 1」クエリの問題が軽減されます。 N + 1 クエリの問題を説明するために、`Author` モデルに「属する」 `Book` モデルを考えてみましょう。
+Eloquent 関係にプロパティとしてアクセスすると、関連モデルは「遅延読み込み」されます。これは、最初にプロパティにアクセスするまで、リレーションシップ データが実際には読み込まれないことを意味します。ただし、Eloquent は、親モデルをクエリするときに関係を Eager ロードできます。Eager ローディングにより、「N + 1」クエリの問題が軽減されます。 N + 1 クエリの問題を説明するために、`Author` モデルに「属する」 `Book` モデルを考えてみましょう。
 
 ```php
 <?php
@@ -2241,7 +2241,7 @@ foreach ($books as $book) {
 このループは、データベース テーブル内のすべての書籍を取得するために 1 つのクエリを実行し、次に書籍ごとに別のクエリを実行して書籍の著者を取得します。したがって、書籍が 25 冊ある場合、上記のコードは 26 のクエリを実行します。1 つは元の書籍に対して 1 クエリで、各書籍の著者を取得するために 25 の追加クエリが実行されます。
 
 <!-- Thankfully, we can use eager loading to reduce this operation to just two queries. When building a query, you may specify which relationships should be eager loaded using the `with` method: -->
-ありがたいことに、積極的な読み込みを使用すると、この操作を 2 つのクエリのみに減らすことができます。クエリを構築するとき、`with` メソッドを使用して、どのリレーションシップを積極的にロードする必要があるかを指定できます。
+ありがたいことに、Eager ローディングを使用すると、この操作を 2 つのクエリのみに減らすことができます。クエリを構築するとき、`with` メソッドを使用して、どのリレーションシップを Eager ロードするかを指定できます。
 
 ```php
 $books = Book::with('author')->get();
@@ -2265,7 +2265,7 @@ select * from authors where id in (1, 2, 3, 4, 5, ...)
 #### Eager Loading Multiple Relationships
 
 <!-- Sometimes you may need to eager load several different relationships. To do so, just pass an array of relationships to the `with` method: -->
-場合によっては、複数の異なる関係を積極的にロードする必要があるかもしれません。これを行うには、関係の配列を `with` メソッドに渡すだけです。
+場合によっては、複数の異なる関係を Eager ロードする必要があるかもしれません。これを行うには、関係の配列を `with` メソッドに渡すだけです。
 
 ```php
 $books = Book::with(['author', 'publisher'])->get();
@@ -2276,7 +2276,7 @@ $books = Book::with(['author', 'publisher'])->get();
 #### Nested Eager Loading
 
 <!-- To eager load a relationship's relationships, you may use "dot" syntax. For example, let's eager load all of the book's authors and all of the author's personal contacts: -->
-関係の関係を積極的にロードするには、「ドット」構文を使用できます。たとえば、本の著者すべてと著者の個人的な連絡先すべてを熱心にロードしてみましょう。
+関係の関係を Eager ロードするには、「ドット」構文を使用できます。たとえば、本の著者すべてと著者の個人的な連絡先すべてを Eager ロードしてみましょう。
 
 ```php
 $books = Book::with('author.contacts')->get();
@@ -2413,7 +2413,7 @@ $books = Book::withOnly('genre')->get();
 ### Constraining Eager Loads
 
 <!-- Sometimes you may wish to eager load a relationship but also specify additional query conditions for the eager loading query. You can accomplish this by passing an array of relationships to the `with` method where the array key is a relationship name and the array value is a closure that adds additional constraints to the eager loading query: -->
-場合によっては、リレーションシップを一括読み込みしたいときに、一括読み込みクエリに追加のクエリ条件を指定することもできます。これを実現するには、関係の配列を `with` メソッドに渡します。ここで、配列のキーは関係名、配列の値は、熱心な読み込みクエリに追加の制約を追加するクロージャです。
+場合によっては、リレーションシップを一括読み込みしたいときに、一括読み込みクエリに追加のクエリ条件を指定することもできます。これを実現するには、関係の配列を `with` メソッドに渡します。ここで、配列のキーは関係名、配列の値は、Eager ローディングのクエリに追加の制約を追加するクロージャです。
 
 ```php
 use App\Models\User;
@@ -2437,7 +2437,7 @@ $users = User::with(['posts' => function ($query) {
 #### Constraining Eager Loading of `morphTo` Relationships
 
 <!-- If you are eager loading a `morphTo` relationship, Eloquent will run multiple queries to fetch each type of related model. You may add additional constraints to each of these queries using the `MorphTo` relation's `constrain` method: -->
-`morphTo` 関係を積極的にロードしている場合、Eloquent は複数のクエリを実行して、各タイプの関連モデルを取得します。 `MorphTo` リレーションの `constrain` メソッドを使用して、これらのクエリのそれぞれに追加の制約を追加できます。
+`morphTo` 関係を Eager ロードしている場合、Eloquent は複数のクエリを実行して、各タイプの関連モデルを取得します。 `MorphTo` リレーションの `constrain` メソッドを使用して、これらのクエリのそれぞれに追加の制約を追加できます。
 
 ```php
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -2455,7 +2455,7 @@ $comments = Comment::with(['commentable' => function (MorphTo $morphTo) {
 ```
 
 <!-- In this example, Eloquent will only eager load posts that have not been hidden and videos that have a `type` value of "educational". -->
-この例では、Eloquent は、非表示になっていない投稿と、`type` 値が「教育」であるビデオのみを積極的に読み込みます。
+この例では、Eloquent は、非表示になっていない投稿と、`type` 値が「educational」であるビデオのみを Eager ロードします。
 
 <a name="constraining-eager-loads-with-relationship-existence"></a>
 <!-- #### Constraining Eager Loads With Relationship Existence -->
@@ -2477,7 +2477,7 @@ $users = User::withWhereHas('posts', function ($query) {
 ### Lazy Eager Loading
 
 <!-- Sometimes you may need to eager load a relationship after the parent model has already been retrieved. For example, this may be useful if you need to dynamically decide whether to load related models: -->
-場合によっては、親モデルがすでに取得された後でリレーションシップを積極的にロードする必要がある場合があります。たとえば、これは、関連モデルをロードするかどうかを動的に決定する必要がある場合に便利です。
+場合によっては、親モデルがすでに取得された後でリレーションシップを Eager ロードする必要がある場合があります。たとえば、これは、関連モデルをロードするかどうかを動的に決定する必要がある場合に便利です。
 
 ```php
 use App\Models\Book;
@@ -2490,7 +2490,7 @@ if ($condition) {
 ```
 
 <!-- If you need to set additional query constraints on the eager loading query, you may pass an array keyed by the relationships you wish to load. The array values should be closure instances which receive the query instance: -->
-熱心な読み込みクエリに追加のクエリ制約を設定する必要がある場合は、読み込みたい関係をキーとする配列を渡すことができます。配列値は、クエリ インスタンスを受け取るクロージャ インスタンスである必要があります。
+Eager ローディングのクエリに追加のクエリ制約を設定する必要がある場合は、読み込みたい関係をキーとする配列を渡すことができます。配列値は、クエリ インスタンスを受け取るクロージャ インスタンスである必要があります。
 
 ```php
 $author->load(['books' => function ($query) {
@@ -2554,7 +2554,7 @@ $activities = ActivityFeed::with('parentable')
 ### Automatic Eager Loading
 
 <!-- In many cases, Laravel can automatically eager load the relationships you access. To enable automatic eager loading, you should invoke the `Model::automaticallyEagerLoadRelationships` method within the `boot` method of your application's `AppServiceProvider`: -->
-多くの場合、Laravel はアクセスする関係を自動的に積極的にロードできます。自動熱心な読み込みを有効にするには、アプリケーションの `AppServiceProvider` の `boot` メソッド内で `Model::automaticallyEagerLoadRelationships` メソッドを呼び出す必要があります。
+多くの場合、Laravel はアクセスする関係を自動的に Eager ロードできます。自動 Eager ローディングを有効にするには、アプリケーションの `AppServiceProvider` の `boot` メソッド内で `Model::automaticallyEagerLoadRelationships` メソッドを呼び出す必要があります。
 
 ```php
 use Illuminate\Database\Eloquent\Model;
@@ -2586,10 +2586,10 @@ foreach ($users as $user) {
 ```
 
 <!-- Typically, the code above would execute a query for each user in order to retrieve their posts, as well as a query for each post to retrieve its comments. However, when the `automaticallyEagerLoadRelationships` feature has been enabled, Laravel will automatically [lazy eager load](#lazy-eager-loading) the posts for all users in the user collection when you attempt to access the posts on any of the retrieved users. Likewise, when you attempt to access the comments for any retrieved post, all comments will be lazy eager loaded for all posts that were originally retrieved. -->
-通常、上記のコードは、投稿を取得するために各ユーザーに対してクエリを実行し、コメントを取得するために各投稿に対してクエリを実行します。ただし、`automaticallyEagerLoadRelationships` 機能が有効になっている場合、取得したユーザーのいずれかの投稿にアクセスしようとすると、Laravel はユーザーコレクション内のすべてのユーザーの投稿を自動的に [lazy eager load](#lazy-eager-loading) します。同様に、取得した投稿のコメントにアクセスしようとすると、最初に取得したすべての投稿に対して、すべてのコメントが遅延熱心にロードされます。
+通常、上記のコードは、投稿を取得するために各ユーザーに対してクエリを実行し、コメントを取得するために各投稿に対してクエリを実行します。ただし、`automaticallyEagerLoadRelationships` 機能が有効になっている場合、取得したユーザーのいずれかの投稿にアクセスしようとすると、Laravel はユーザーコレクション内のすべてのユーザーの投稿を自動的に [lazy eager load](#lazy-eager-loading) します。同様に、取得した投稿のコメントにアクセスしようとすると、最初に取得したすべての投稿に対して、すべてのコメントが遅延 Eager ロードされます。
 
 <!-- If you do not want to globally enable automatic eager loading, you can still enable this feature for a single Eloquent collection instance by invoking the `withRelationshipAutoloading` method on the collection: -->
-自動熱心な読み込みをグローバルに有効にしたくない場合でも、コレクションで `withRelationshipAutoloading` メソッドを呼び出すことで、単一の Eloquent コレクション インスタンスに対してこの機能を有効にすることができます。
+自動 Eager ローディングをグローバルに有効にしたくない場合でも、コレクションで `withRelationshipAutoloading` メソッドを呼び出すことで、単一の Eloquent コレクション インスタンスに対してこの機能を有効にすることができます。
 
 ```php
 $users = User::where('vip', true)->get();
@@ -2602,7 +2602,7 @@ return $users->withRelationshipAutoloading();
 ### Preventing Lazy Loading
 
 <!-- As previously discussed, eager loading relationships can often provide significant performance benefits to your application. Therefore, if you would like, you may instruct Laravel to always prevent the lazy loading of relationships. To accomplish this, you may invoke the `preventLazyLoading` method offered by the base Eloquent model class. Typically, you should call this method within the `boot` method of your application's `AppServiceProvider` class. -->
-前述したように、積極的な読み込み関係により、多くの場合、アプリケーションに大幅なパフォーマンス上の利点がもたらされます。したがって、必要に応じて、リレーションシップの遅延読み込みを常に防止するように Laravel に指示することもできます。これを実現するには、基本 Eloquent モデル クラスによって提供される `preventLazyLoading` メソッドを呼び出すことができます。通常、このメソッドはアプリケーションの `AppServiceProvider` クラスの `boot` メソッド内で呼び出す必要があります。
+前述したように、関係を Eager ロードすることで、多くの場合、アプリケーションに大幅なパフォーマンス上の利点がもたらされます。したがって、必要に応じて、リレーションシップの遅延読み込みを常に防止するように Laravel に指示することもできます。これを実現するには、基本 Eloquent モデル クラスによって提供される `preventLazyLoading` メソッドを呼び出すことができます。通常、このメソッドはアプリケーションの `AppServiceProvider` クラスの `boot` メソッド内で呼び出す必要があります。
 
 <!-- The `preventLazyLoading` method accepts an optional boolean argument that indicates if lazy loading should be prevented. For example, you may wish to only disable lazy loading in non-production environments so that your production environment will continue to function normally even if a lazy loaded relationship is accidentally present in production code: -->
 `preventLazyLoading` メソッドは、遅延読み込みを防止する必要があるかどうかを示すオプションのブール引数を受け入れます。たとえば、非実稼働環境でのみ遅延ロードを無効にして、実稼働コードに遅延ロード関係が誤って存在した場合でも実稼働環境が正常に機能し続けるようにすることができます。
@@ -2774,7 +2774,7 @@ $user->save();
 ```
 
 <!-- To remove a parent model from a child model, you may use the `dissociate` method. This method will set the relationship's foreign key to `null`: -->
-子モデルから親モデルを削除するには、`dissociate` メソッドを使用できます。このメソッドは、リレーションシップの外部キーを `null` に設定します。
+子モデルと親モデルの関連付けを解除するには、`dissociate` メソッドを使用できます。このメソッドは、リレーションシップの外部キーを `null` に設定します。
 
 ```php
 $user->account()->dissociate();

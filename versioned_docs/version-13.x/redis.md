@@ -67,7 +67,7 @@ composer require predis/predis
 ```
 
 <!-- Each Redis server defined in your configuration file is required to have a name, host, and a port unless you define a single URL to represent the Redis connection: -->
-설정 파일에 정의된 각 Redis 서버는 이름, 호스트, 그리고 포트를 반드시 지정해야 하며, 또는 Redis 연결을 나타내는 하나의 URL을 정의할 수도 있습니다.
+Redis 연결을 나타내는 하나의 URL을 정의하지 않는다면, 설정 파일의 각 Redis 서버에 이름, 호스트, 포트를 지정해야 합니다.
 
 ```php
 'redis' => [
@@ -439,7 +439,7 @@ Facades\Redis::transaction(function (Redis $redis) {
 `eval` 메서드는 여러 Redis 명령어를 하나의 원자적 작업으로 실행하는 또 다른 방법입니다. 특히 `eval` 메서드는 해당 작업에서 Redis 키의 값을 읽고, 조건을 판단하여 동적으로 명령을 실행할 수 있습니다. Redis 스크립트는 [Lua programming language](https://www.lua.org)로 작성해야 합니다.
 
 <!-- The `eval` method can be a bit scary at first, but we'll explore a basic example to break the ice. The `eval` method expects several arguments. First, you should pass the Lua script (as a string) to the method. Secondly, you should pass the number of keys (as an integer) that the script interacts with. Thirdly, you should pass the names of those keys. Finally, you may pass any other additional arguments that you need to access within your script. -->
-`eval` 메서드는 처음에는 다소 어렵게 느껴질 수 있지만, 기본 예시를 통해 차근차근 살펴보겠습니다. `eval` 메서드는 여러 개의 인수를 받습니다. 먼저 Lua 스크립트 자체(문자열), 두 번째로는 이 스크립트에서 다루는 키의 개수(정수), 세 번째부터는 해당 키들의 이름, 마지막으로 나머지 추가 인수들을 순서대로 전달해야 합니다.
+`eval` 메서드는 처음에는 다소 어렵게 느껴질 수 있지만, 기본 예시를 통해 차근차근 살펴보겠습니다. `eval` 메서드는 여러 개의 인수를 받습니다. 먼저 Lua 스크립트 자체(문자열), 두 번째로는 이 스크립트에서 다루는 키의 개수(정수), 세 번째부터는 해당 키들의 이름을 순서대로 전달해야 합니다. 마지막으로 스크립트에서 필요한 추가 인수를 전달할 수 있습니다.
 
 <!-- In this example, we will increment a counter, inspect its new value, and increment a second counter if the first counter's value is greater than five. Finally, we will return the value of the first counter: -->
 아래 예시는 카운터를 증가시키고 새 값을 검사하여, 5보다 크면 두 번째 카운터를 추가로 증가시킵니다. 마지막엔 첫 번째 카운터의 값을 반환합니다.
@@ -464,7 +464,7 @@ LUA, 2, 'first-counter', 'second-counter');
 ### Pipelining Commands
 
 <!-- Sometimes you may need to execute dozens of Redis commands. Instead of making a network trip to your Redis server for each command, you may use the `pipeline` method. The `pipeline` method accepts one argument: a closure that receives a Redis instance. You may issue all of your commands to this Redis instance and they will all be sent to the Redis server at the same time to reduce network trips to the server. The commands will still be executed in the order they were issued: -->
-수십 개의 Redis 명령어를 실행해야 할 때, 각각을 서버에 따로따로 전송하면 네트워크 비용이 큽니다. 이럴 때는 `pipeline` 메서드를 사용하세요. `pipeline` 메서드는 Redis 인스턴스를 인수로 받는 클로저를 전달받아, 해당 클로저 내에서 수행한 모든 명령어를 한 번에 처리합니다. 명령어들은 실행 순서를 그대로 유지합니다.
+수십 개의 Redis 명령어를 실행해야 할 때, 각각을 서버에 따로따로 전송하면 네트워크 비용이 큽니다. 이럴 때는 `pipeline` 메서드를 사용하세요. `pipeline` 메서드는 Redis 인스턴스를 받는 클로저를 유일한 인수로 받습니다. 이 인스턴스에 모든 명령어를 전달하면 명령어가 Redis 서버로 한 번에 전송되어 네트워크 왕복 횟수를 줄일 수 있습니다. 명령어는 전달된 순서대로 실행됩니다.
 
 ```php
 use Redis;

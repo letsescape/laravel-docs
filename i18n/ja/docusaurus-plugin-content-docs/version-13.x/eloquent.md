@@ -109,7 +109,7 @@ php artisan make:model Member -p
 #### Inspecting Models
 
 <!-- Sometimes it can be difficult to determine all of a model's available attributes and relationships just by skimming its code. Instead, try the `model:show` Artisan command, which provides a convenient overview of all the model's attributes and relations: -->
-コードをざっと読んだだけでは、モデルで使用可能な属性と関係をすべて判断するのが難しい場合があります。代わりに、`model:show` Artisan コマンドを試してください。このコマンドは、すべてのモデルの属性と関係の便利な概要を提供します。
+コードをざっと読んだだけでは、モデルで使用可能な属性と関係をすべて判断するのが難しい場合があります。代わりに、`model:show` Artisan コマンドを試してください。このコマンドは、そのモデルのすべての属性と関係の便利な概要を提供します。
 
 ```shell
 php artisan model:show Flight
@@ -140,7 +140,7 @@ class Flight extends Model
 ### Table Names
 
 <!-- After glancing at the example above, you may have noticed that we did not tell Eloquent which database table corresponds to our `Flight` model. By convention, the "snake case", plural name of the class will be used as the table name unless another name is explicitly specified. So, in this case, Eloquent will assume the `Flight` model stores records in the `flights` table, while an `AirTrafficController` model would store records in an `air_traffic_controllers` table. -->
-上記の例を見た後、どのデータベース テーブルが `Flight` モデルに対応するかを Eloquent に伝えていないことに気付いたかもしれません。慣例により、別の名前が明示的に指定されない限り、「スネークケース」クラスの複数名がテーブル名として使用されます。したがって、この場合、Eloquent は、`Flight` モデルが `flights` テーブルにレコードを保存するのに対し、`AirTrafficController` モデルは `air_traffic_controllers` テーブルにレコードを保存すると想定します。
+上記の例を見た後、どのデータベース テーブルが `Flight` モデルに対応するかを Eloquent に伝えていないことに気付いたかもしれません。慣例により、別の名前が明示的に指定されない限り、クラス名をスネークケースの複数形にした名前がテーブル名として使用されます。したがって、この場合、Eloquent は、`Flight` モデルが `flights` テーブルにレコードを保存するのに対し、`AirTrafficController` モデルは `air_traffic_controllers` テーブルにレコードを保存すると想定します。
 
 <!-- If your model's corresponding database table does not fit this convention, you may manually specify the model's table name using the `Table` attribute: -->
 モデルの対応するデータベース テーブルがこの規則に適合しない場合は、`Table` 属性を使用してモデルのテーブル名を手動で指定できます。
@@ -224,7 +224,7 @@ class Flight extends Model
 #### "Composite" Primary Keys
 
 <!-- Eloquent requires each model to have at least one uniquely identifying "ID" that can serve as its primary key. "Composite" primary keys are not supported by Eloquent models. However, you are free to add additional multi-column, unique indexes to your database tables in addition to the table's uniquely identifying primary key. -->
-Eloquent では、各モデルに主キーとして機能する一意に識別できる「ID」を少なくとも 1 つ持つ必要があります。 「複合」主キーは Eloquent モデルではサポートされていません。ただし、テーブルを一意に識別する主キーに加えて、複数列の一意のインデックスをデータベース テーブルに自由に追加できます。
+Eloquent では、各モデルに主キーとして機能する一意に識別できる「ID」を少なくとも 1 つ持つ必要があります。 「複合」主キーは Eloquent モデルではサポートされていません。ただし、テーブルのレコードを一意に識別する主キーに加えて、複数列の一意のインデックスをデータベース テーブルに自由に追加できます。
 
 <a name="uuid-and-ulid-keys"></a>
 <!-- ### UUID and ULID Keys -->
@@ -281,7 +281,7 @@ public function uniqueIds(): array
 ```
 
 <!-- If you wish, you may choose to utilize "ULIDs" instead of UUIDs. ULIDs are similar to UUIDs; however, they are only 26 characters in length. Like ordered UUIDs, ULIDs are lexicographically sortable for efficient database indexing. To utilize ULIDs, you should use the `Illuminate\Database\Eloquent\Concerns\HasUlids` trait on your model. You should also ensure that the model has a [ULID equivalent primary key column](/docs/13.x/migrations#column-method-ulid): -->
-必要に応じて、UUID の代わりに「ULID」を使用することを選択できます。 ULID は UUID に似ています。ただし、長さはわずか 26 文字です。順序付けされた UUID と同様に、ULID は辞書編集的にソート可能であり、効率的なデータベースのインデックス作成が可能です。 ULID を利用するには、モデルで `Illuminate\Database\Eloquent\Concerns\HasUlids` トレイトを使用する必要があります。モデルに [ULID equivalent primary key column](/docs/13.x/migrations#column-method-ulid) があることも確認する必要があります。
+必要に応じて、UUID の代わりに「ULID」を使用することを選択できます。 ULID は UUID に似ています。ただし、長さはわずか 26 文字です。順序付けされた UUID と同様に、ULID は辞書順にソート可能であり、効率的なデータベースのインデックス作成が可能です。 ULID を利用するには、モデルで `Illuminate\Database\Eloquent\Concerns\HasUlids` トレイトを使用する必要があります。モデルに [ULID equivalent primary key column](/docs/13.x/migrations#column-method-ulid) があることも確認する必要があります。
 
 ```php
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -867,7 +867,7 @@ $flight = Flight::firstOrNew(
 ### Retrieving Aggregates
 
 <!-- When interacting with Eloquent models, you may also use the `count`, `sum`, `max`, and other [aggregate methods](/docs/13.x/queries#aggregates) provided by the Laravel [query builder](/docs/13.x/queries). As you might expect, these methods return a scalar value instead of an Eloquent model instance: -->
-Eloquent モデルを操作するときは、Laravel [aggregate methods](/docs/13.x/queries#aggregates) によって提供される `count`、`sum`、`max`、およびその他の [query builder](/docs/13.x/queries) を使用することもできます。ご想像のとおり、これらのメソッドは Eloquent モデル インスタンスの代わりにスカラー値を返します。
+Eloquent モデルを操作するときは、`count`、`sum`、`max` などの集計メソッド（[aggregate methods](/docs/13.x/queries#aggregates)）も使用できます。これらは Laravel の [query builder](/docs/13.x/queries) が提供します。ご想像のとおり、これらのメソッドは Eloquent モデル インスタンスの代わりにスカラー値を返します。
 
 ```php
 $count = Flight::where('active', 1)->count();
@@ -964,7 +964,7 @@ $flight->updateOrFail(['name' => 'Paris to London']);
 ```
 
 <!-- Occasionally, you may need to update an existing model or create a new model if no matching model exists. Like the `firstOrCreate` method, the `updateOrCreate` method persists the model, so there's no need to manually call the `save` method. -->
-場合によっては、既存のモデルを更新するか、一致するモデルが存在しない場合は新しいモデルを作成することが必要になることがあります。 `firstOrCreate` メソッドと同様、`updateOrCreate` メソッドはモデルを保持するため、`save` メソッドを手動で呼び出す必要はありません。
+場合によっては、既存のモデルを更新するか、一致するモデルが存在しない場合は新しいモデルを作成することが必要になることがあります。 `firstOrCreate` メソッドと同様、`updateOrCreate` メソッドはモデルをデータベースに保存するため、`save` メソッドを手動で呼び出す必要はありません。
 
 <!-- In the example below, if a flight exists with a `departure` location of `Oakland` and a `destination` location of `San Diego`, its `price` and `discounted` columns will be updated. If no such flight exists, a new flight will be created which has the attributes resulting from merging the first argument array with the second argument array: -->
 以下の例では、`Oakland` の `departure` 位置と `San Diego` の `destination` 位置を持つフライトが存在する場合、その `price` 列と `discounted` 列が更新されます。そのようなフライトが存在しない場合は、最初の引数の配列と 2 番目の引数の配列をマージした結果の属性を持つ新しいフライトが作成されます。
@@ -1444,7 +1444,7 @@ $flight->history()->withTrashed()->get();
 #### Retrieving Only Soft Deleted Models
 
 <!-- The `onlyTrashed` method will retrieve **only** soft deleted models: -->
-`onlyTrashed` メソッドは、**のみ** 論理的に削除されたモデルを取得します。
+`onlyTrashed` メソッドは、論理的に削除されたモデル**のみ**を取得します。
 
 ```php
 $flights = Flight::onlyTrashed()
@@ -1714,7 +1714,7 @@ select * from `users` where `created_at` < 0021-02-18 00:00:00
 #### Anonymous Global Scopes
 
 <!-- Eloquent also allows you to define global scopes using closures, which is particularly useful for simple scopes that do not warrant a separate class of their own. When defining a global scope using a closure, you should provide a scope name of your own choosing as the first argument to the `addGlobalScope` method: -->
-Eloquent では、クロージャを使用してグローバル スコープを定義することもできます。これは、独自の別のクラスを保証しない単純なスコープに特に役立ちます。クロージャを使用してグローバル スコープを定義する場合は、`addGlobalScope` メソッドの最初の引数として独自に選択したスコープ名を指定する必要があります。
+Eloquent では、クロージャを使用してグローバル スコープを定義することもできます。これは、専用のクラスを作成するほどではない単純なスコープに特に役立ちます。クロージャを使用してグローバル スコープを定義する場合は、`addGlobalScope` メソッドの最初の引数として独自に選択したスコープ名を指定する必要があります。
 
 ```php
 <?php

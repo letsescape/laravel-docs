@@ -79,7 +79,7 @@ $firstName = $user->first_name;
 ```
 
 > [!NOTE]
-> これらの計算値をモデルの配列/JSON 表現に追加したい場合は、[you will need to append them](/docs/13.x/eloquent-serialization#appending-values-to-json)。
+> これらの計算値をモデルの配列 / JSON 表現に追加したい場合は、追加属性として指定する必要があります（[you will need to append them](/docs/13.x/eloquent-serialization#appending-values-to-json)）。
 
 <a name="building-value-objects-from-multiple-attributes"></a>
 <!-- #### Building Value Objects From Multiple Attributes -->
@@ -395,7 +395,7 @@ $user->save();
 ```
 
 <!-- To update a single field of a JSON attribute with a more terse syntax, you may [make the attribute mass assignable](/docs/13.x/eloquent#mass-assignment-json-columns) and use the `->` operator when calling the `update` method: -->
-JSON 属性の単一フィールドをより簡潔な構文で更新するには、`update` メソッドを呼び出すときに [make the attribute mass assignable](/docs/13.x/eloquent#mass-assignment-json-columns) を実行し、`->` 演算子を使用します。
+JSON 属性の単一フィールドをより簡潔な構文で更新するには、属性を一括割り当て可能に設定し（[make the attribute mass assignable](/docs/13.x/eloquent#mass-assignment-json-columns)）、`update` メソッドを呼び出すときに `->` 演算子を使用できます。
 
 ```php
 $user = User::find(1);

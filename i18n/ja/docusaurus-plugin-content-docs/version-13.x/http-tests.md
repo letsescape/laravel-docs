@@ -627,7 +627,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- The `assertJsonPath` method also accepts a closure, which may be used to dynamically determine if the assertion should pass: -->
-`assertJsonPath` メソッドはクロージャーも受け入れます。これは、アサーションを渡す必要があるかどうかを動的に決定するために使用できます。
+`assertJsonPath` メソッドはクロージャーも受け入れます。これは、アサーションが成功するかどうかを動的に決定するために使用できます。
 
 ```php
 $response->assertJsonPath('team.owner.name', fn (string $name) => strlen($name) >= 3);
@@ -761,7 +761,7 @@ Route::get('/users', function () {
 ```
 
 <!-- In these situations, we may use the fluent JSON object's `has` method to make assertions against the users included in the response. For example, let's assert that the JSON response contains three users. Next, we'll make some assertions about the first user in the collection using the `first` method. The `first` method accepts a closure which receives another assertable JSON string that we can use to make assertions about the first object in the JSON collection: -->
-このような状況では、Fluent JSON オブジェクトの `has` メソッドを使用して、応答に含まれるユーザーに対してアサーションを行うことができます。たとえば、JSON 応答に 3 人のユーザーが含まれていると仮定します。次に、`first` メソッドを使用して、コレクション内の最初のユーザーに関するいくつかのアサーションを作成します。 `first` メソッドは、JSON コレクションの最初のオブジェクトについてアサーションを行うために使用できる別のアサート可能な JSON 文字列を受け取るクロージャを受け入れます。
+このような状況では、Fluent JSON オブジェクトの `has` メソッドを使用して、応答に含まれるユーザーに対してアサーションを行うことができます。たとえば、JSON 応答に 3 人のユーザーが含まれていることをアサートします。次に、`first` メソッドを使用して、コレクション内の最初のユーザーに関するいくつかのアサーションを作成します。 `first` メソッドは、JSON コレクションの最初のオブジェクトについてアサーションを行うために使用できる別のアサート可能な JSON 文字列を受け取るクロージャを受け入れます。
 
 ```php
 $response
@@ -1055,7 +1055,7 @@ $view->assertSee('Taylor');
 ## Caching Routes
 
 <!-- Before a test runs, Laravel boots a fresh instance of the application, including collecting all defined routes. If your applications have many route files, you may wish to add the `Illuminate\Foundation\Testing\WithCachedRoutes` trait to your test cases. On tests which use this trait, routes are built once and stored in memory, meaning the route collection process is only run once for all tests in your suite: -->
-テストを実行する前に、Laravel はアプリケーションの新しいインスタンスを起動し、定義されたすべてのルートを収集します。アプリケーションに多くのルート ファイルがある場合は、`Illuminate\Foundation\Testing\WithCachedRoutes` 特性をテスト ケースに追加するとよいでしょう。この特性を使用するテストでは、ルートは一度構築されてメモリに保存されます。つまり、ルート収集プロセスはスイート内のすべてのテストに対して 1 回だけ実行されます。
+テストを実行する前に、Laravel はアプリケーションの新しいインスタンスを起動し、定義されたすべてのルートを収集します。アプリケーションに多くのルート ファイルがある場合は、`Illuminate\Foundation\Testing\WithCachedRoutes` トレイトをテスト ケースに追加するとよいでしょう。このトレイトを使用するテストでは、ルートは一度構築されてメモリに保存されます。つまり、ルート収集プロセスはスイート内のすべてのテストに対して 1 回だけ実行されます。
 
 ```php tab=Pest
 <?php
@@ -1733,7 +1733,7 @@ $response->assertJsonValidationErrors(array $data, $responseKey = 'errors');
 ```
 
 > [!NOTE]
-> より汎用的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたことを主張する ** または ** エラーがセッション ストレージにフラッシュされたことを主張できます。
+> より汎用的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたこと、**または** エラーがセッション ストレージにフラッシュされたことをアサートできます。
 
 <a name="assert-json-validation-error-for"></a>
 <!-- #### assertJsonValidationErrorFor -->
@@ -1762,7 +1762,7 @@ $response->assertMethodNotAllowed();
 #### assertMovedPermanently
 
 <!-- Assert that the response has a moved permanently (301) HTTP status code: -->
-応答に完全に移動された (301) HTTP ステータス コードがあることをアサートします。
+応答に恒久的なリダイレクト (301) HTTP ステータス コードがあることをアサートします。
 
 ```php
 $response->assertMovedPermanently();
@@ -1894,7 +1894,7 @@ $response->assertRedirectBack();
 #### assertRedirectBackWithErrors
 
 <!-- Assert whether the response is redirecting back to the previous page and the [session has the given errors](#assert-session-has-errors): -->
-応答が前のページと [session has the given errors](#assert-session-has-errors) にリダイレクトされているかどうかを確認します。
+応答が前のページにリダイレクトされ、セッションに指定したエラーがあること（[session has the given errors](#assert-session-has-errors)）を確認します。
 
 ```php
 $response->assertRedirectBackWithErrors(
@@ -2116,7 +2116,7 @@ $response->assertSessionHasErrors([
 ```
 
 > [!NOTE]
-> より汎用的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたことを主張する ** または ** エラーがセッション ストレージにフラッシュされたことを主張できます。
+> より汎用的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたこと、**または** エラーがセッション ストレージにフラッシュされたことをアサートできます。
 
 <a name="assert-session-has-errors-in"></a>
 <!-- #### assertSessionHasErrorsIn -->

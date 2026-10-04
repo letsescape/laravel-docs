@@ -208,7 +208,7 @@ if (Process::run('ls -la')->seeInOutput('laravel')) {
 #### Disabling Process Output
 
 <!-- If your process is writing a significant amount of output that you are not interested in, you can conserve memory by disabling output retrieval entirely. To accomplish this, invoke the `quietly` method while building the process: -->
-프로세스가 관심 없는 대량의 출력을 작성하고 있다면, 출력 검색을 완전히 비활성화하여 메모리를 절약할 수 있습니다. 이를 수행하려면 프로세스를 구성할 때 `quietly` 메서드를 호출하십시오.
+프로세스가 관심 없는 대량의 출력을 작성하고 있다면, 출력 수집을 완전히 비활성화하여 메모리를 절약할 수 있습니다. 이를 수행하려면 프로세스를 구성할 때 `quietly` 메서드를 호출하십시오.
 
 ```php
 use Illuminate\Support\Facades\Process;
@@ -454,7 +454,7 @@ return $results['first']->output();
 <!-- ### Pool Process IDs and Signals -->
 ### Pool Process IDs and Signals
 <!-- Since the process pool's `running` method provides a collection of all invoked processes within the pool, you may easily access the underlying pool process IDs: -->
-프로세스 풀의 `running` 메서드는 풀 안에서 호출된 모든 프로세스의 컬렉션을 제공하므로, 기본 풀 프로세스 ID에 쉽게 접근할 수 있습니다.
+프로세스 풀의 `running` 메서드는 풀 안에서 호출된 모든 프로세스의 컬렉션을 제공하므로, 풀 내 각 프로세스의 ID에 쉽게 접근할 수 있습니다.
 
 ```php
 $processIds = $pool->running()->map->id();
@@ -655,7 +655,7 @@ Process::fake([
 ### Available Assertions
 
 <!-- As [previously discussed](#faking-processes), Laravel provides several process assertions for your feature tests. We'll discuss each of these assertions below. -->
-[previously discussed](#faking-processes), Laravel은 기능 테스트를 위한 여러 프로세스 어설션을 제공합니다. 아래에서 각 어설션을 살펴보겠습니다.
+앞서 설명한 것처럼([previously discussed](#faking-processes)), Laravel은 기능 테스트를 위한 여러 프로세스 어설션을 제공합니다. 아래에서 각 어설션을 살펴보겠습니다.
 
 <a name="assert-process-ran"></a>
 <!-- #### assertRan -->

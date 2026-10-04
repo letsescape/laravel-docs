@@ -197,7 +197,7 @@ PHP、Laravel、およびその他のライブラリは、機能の一部が非�
 #### Log Levels
 
 <!-- Take note of the `level` configuration option present on the `syslog` and `slack` channel configurations in the example above. This option determines the minimum "level" a message must be in order to be logged by the channel. Monolog, which powers Laravel's logging services, offers all of the log levels defined in the [RFC 5424 specification](https://tools.ietf.org/html/rfc5424). In descending order of severity, these log levels are: **emergency**, **alert**, **critical**, **error**, **warning**, **notice**, **info**, and **debug**. -->
-上記の例の `syslog` および `slack` チャネル構成に存在する `level` 構成オプションに注目してください。このオプションは、チャネルによってログに記録されるメッセージの最小「レベル」を決定します。 Laravel のロギング サービスを強化する Monolog は、[RFC 5424 specification](https://tools.ietf.org/html/rfc5424) で定義されたすべてのログ レベルを提供します。これらのログ レベルは、重大度の降順で、**緊急**、**アラート**、**重大**、**エラー**、**警告**、**通知**、**情報**、**デバッグ**です。
+上記の例の `syslog` および `slack` チャネル構成に存在する `level` 構成オプションに注目してください。このオプションは、チャネルによってログに記録されるメッセージの最小「レベル」を決定します。 Laravel のロギング サービスを支える Monolog は、[RFC 5424 specification](https://tools.ietf.org/html/rfc5424) で定義されたすべてのログ レベルを提供します。これらのログ レベルは、重大度の降順で、**emergency**、**alert**、**critical**、**error**、**warning**、**notice**、**info**、**debug**です。
 
 <!-- So, imagine we log a message using the `debug` method: -->
 そこで、`debug` メソッドを使用してメッセージをログに記録するとします。
@@ -458,7 +458,7 @@ class CustomizeFormatter
 ### Creating Monolog Handler Channels
 
 <!-- Monolog has a variety of [available handlers](https://github.com/Seldaek/monolog/tree/main/src/Monolog/Handler) and Laravel does not include a built-in channel for each one. In some cases, you may wish to create a custom channel that is merely an instance of a specific Monolog handler that does not have a corresponding Laravel log driver. These channels can be easily created using the `monolog` driver. -->
-Monolog にはさまざまな [available handlers](https://github.com/Seldaek/monolog/tree/main/src/Monolog/Handler) があり、Laravel にはそれぞれの組み込みチャネルが含まれていません。場合によっては、対応する Laravel ログ ドライバを持たない特定の Monolog ハンドラーのインスタンスにすぎないカスタム チャネルを作成したい場合があります。これらのチャネルは、`monolog` ドライバを使用して簡単に作成できます。
+Monolog にはさまざまな [available handlers](https://github.com/Seldaek/monolog/tree/main/src/Monolog/Handler) があり、Laravel にはすべてのハンドラーに対応する組み込みチャネルが用意されているわけではありません。場合によっては、対応する Laravel ログ ドライバを持たない特定の Monolog ハンドラーのインスタンスにすぎないカスタム チャネルを作成したい場合があります。これらのチャネルは、`monolog` ドライバを使用して簡単に作成できます。
 
 <!-- When using the `monolog` driver, the `handler` configuration option is used to specify which handler will be instantiated. Optionally, any constructor parameters the handler needs may be specified using the `handler_with` configuration option: -->
 `monolog` ドライバを使用する場合、`handler` 構成オプションを使用して、インスタンス化されるハンドラーを指定します。オプションで、ハンドラーに必要なコンストラクター パラメーターは、`handler_with` 構成オプションを使用して指定できます。

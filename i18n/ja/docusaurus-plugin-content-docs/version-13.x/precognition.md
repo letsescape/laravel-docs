@@ -547,7 +547,7 @@ Precognition を使用してこれを行うには、`validate` メソッドを�
 #### Repopulating Old Form Data
 
 <!-- In the user creation example discussed above, we are using Precognition to perform live validation; however, we are performing a traditional server-side form submission to submit the form. So, the form should be populated with any "old" input and validation errors returned from the server-side form submission: -->
-上で説明したユーザー作成の例では、Precognition を使用してライブ検証を実行しています。ただし、フォームを送信するために従来のサーバー側のフォーム送信を実行しています。したがって、サーバー側のフォーム送信から返された「古い」入力エラーと検証エラーをフォームに入力する必要があります。
+上で説明したユーザー作成の例では、Precognition を使用してライブ検証を実行しています。ただし、フォームを送信するために従来のサーバー側のフォーム送信を実行しています。したがって、サーバー側のフォーム送信から返された「以前の入力値」と検証エラーをフォームに設定する必要があります。
 
 ```html
 <form x-data="{
@@ -676,7 +676,7 @@ class StoreUserRequest extends FormRequest
 デフォルトでは、Laravel Precognition は、事前認識検証リクエスト中にファイルをアップロードまたは検証しません。これにより、大きなファイルが不必要に複数回アップロードされることがなくなります。
 
 <!-- Because of this behavior, you should ensure that your application [customizes the corresponding form request's validation rules](#customizing-validation-rules) to specify the field is only required for full form submissions: -->
-この動作のため、フィールドを指定するアプリケーション [customizes the corresponding form request's validation rules](#customizing-validation-rules) が完全なフォーム送信の場合にのみ必要であることを確認する必要があります。
+この動作に合わせて、アプリケーションで [customizes the corresponding form request's validation rules](#customizing-validation-rules) を行い、このフィールドがフォーム全体の送信時にのみ必須になるようにしてください。
 
 ```php
 /**

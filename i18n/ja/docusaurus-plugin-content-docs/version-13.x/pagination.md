@@ -31,7 +31,7 @@
 #### Tailwind
 
 <!-- If you are using Laravel's default Tailwind pagination views with Tailwind 4.x, your application's `resources/css/app.css` file will already be properly configured to `@source` Laravel's pagination views: -->
-Tailwind 4.x で Laravel のデフォルトの Tailwind ページネーション ビューを使用している場合、アプリケーションの `resources/css/app.css` ファイルはすでに `@source` Laravel のページネーション ビューに適切に設定されています。
+Tailwind 4.x で Laravel のデフォルトの Tailwind ページネーション ビューを使用している場合、アプリケーションの `resources/css/app.css` ファイルは、`@source` で Laravel のページネーション ビューを読み込むように、すでに適切に設定されています。
 
 ```css
 @import 'tailwindcss';
@@ -192,7 +192,7 @@ select * from users where id > 15 order by id asc limit 15;
 
 <!-- - Like `simplePaginate`, cursor pagination can only be used to display "Next" and "Previous" links and does not support generating links with page numbers. - It requires that the ordering is based on at least one unique column or a combination of columns that are unique. Columns with `null` values are not supported. - Query expressions in "order by" clauses are supported only if they are aliased and added to the "select" clause as well. - Query expressions with parameters are not supported. -->
 - `simplePaginate` と同様、カーソル ページネーションは「次へ」と「前へ」リンクを表示するためにのみ使用でき、ページ番号付きのリンクの生成はサポートされていません。
-- 少なくとも 1 つの一意の列、または一意の列の組み合わせに基づいて順序付けする必要があります。 `null` 値を含む列はサポートされていません。
+- 少なくとも 1 つの一意の列、または組み合わせると一意になる複数の列に基づいて順序付けする必要があります。 `null` 値を含む列はサポートされていません。
 - 「order by」句のクエリ式は、エイリアス化され、「select」句にも追加されている場合にのみサポートされます。
 - パラメータを含むクエリ式はサポートされていません。
 
@@ -423,7 +423,7 @@ public function boot(): void
 <div class="overflow-auto">
 
 <!-- | Method | Description | | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ | | `$paginator->count()` | Get the number of items for the current page. | | `$paginator->currentPage()` | Get the current page number. | | `$paginator->firstItem()` | Get the result number of the first item in the results. | | `$paginator->getOptions()` | Get the paginator options. | | `$paginator->getUrlRange($start, $end)` | Create a range of pagination URLs. | | `$paginator->hasPages()` | Determine if there are enough items to split into multiple pages. | | `$paginator->hasMorePages()` | Determine if there are more items in the data store. | | `$paginator->items()` | Get the items for the current page. | | `$paginator->lastItem()` | Get the result number of the last item in the results. | | `$paginator->lastPage()` | Get the page number of the last available page. (Not available when using `simplePaginate`). | | `$paginator->nextPageUrl()` | Get the URL for the next page. | | `$paginator->onFirstPage()` | Determine if the paginator is on the first page. | | `$paginator->onLastPage()` | Determine if the paginator is on the last page. | | `$paginator->perPage()` | The number of items to be shown per page. | | `$paginator->previousPageUrl()` | Get the URL for the previous page. | | `$paginator->total()` | Determine the total number of matching items in the data store. (Not available when using `simplePaginate`). | | `$paginator->url($page)` | Get the URL for a given page number. | | `$paginator->getPageName()` | Get the query string variable used to store the page. | | `$paginator->setPageName($name)` | Set the query string variable used to store the page. | | `$paginator->through($callback)` | Transform each item using a callback. | -->
-| 方法                                  | 説明                                                                                                  |
+| メソッド                                  | 説明                                                                                                  |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `$paginator->count()`                   | 現在のページの項目数を取得します。                                                                |
 | `$paginator->currentPage()`             | 現在のページ番号を取得します。                                                                                 |
@@ -458,7 +458,7 @@ public function boot(): void
 <div class="overflow-auto">
 
 <!-- | Method | Description | | ------------------------------- | ----------------------------------------------------------------- | | `$paginator->count()` | Get the number of items for the current page. | | `$paginator->cursor()` | Get the current cursor instance. | | `$paginator->getOptions()` | Get the paginator options. | | `$paginator->hasPages()` | Determine if there are enough items to split into multiple pages. | | `$paginator->hasMorePages()` | Determine if there are more items in the data store. | | `$paginator->getCursorName()` | Get the query string variable used to store the cursor. | | `$paginator->items()` | Get the items for the current page. | | `$paginator->nextCursor()` | Get the cursor instance for the next set of items. | | `$paginator->nextPageUrl()` | Get the URL for the next page. | | `$paginator->onFirstPage()` | Determine if the paginator is on the first page. | | `$paginator->onLastPage()` | Determine if the paginator is on the last page. | | `$paginator->perPage()` | The number of items to be shown per page. | | `$paginator->previousCursor()` | Get the cursor instance for the previous set of items. | | `$paginator->previousPageUrl()` | Get the URL for the previous page. | | `$paginator->setCursorName()` | Set the query string variable used to store the cursor. | | `$paginator->url($cursor)` | Get the URL for a given cursor instance. | -->
-| 方法                          | 説明                                                       |
+| メソッド                          | 説明                                                       |
 | ------------------------------- | ----------------------------------------------------------------- |
 | `$paginator->count()`           | 現在のページの項目数を取得します。                     |
 | `$paginator->cursor()`          | 現在のカーソルインスタンスを取得します。                                  |

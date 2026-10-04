@@ -61,7 +61,7 @@ use App\Exceptions\InvalidOrderException;
 ```
 
 <!-- When you register a custom exception reporting callback using the `report` method, Laravel will still log the exception using the default logging configuration for the application. If you wish to stop the propagation of the exception to the default logging stack, you may use the `stop` method when defining your reporting callback or return `false` from the callback: -->
-`report` メソッドを使用してカスタム例外レポート コールバックを登録すると、Laravel はアプリケーションのデフォルトのログ構成を使用して例外をログに記録します。デフォルトのログ スタックへの例外の伝播を停止したい場合は、レポート コールバックを定義するときに `stop` メソッドを使用するか、コールバックから `false` を返します。
+`report` メソッドを使用してカスタム例外レポート コールバックを登録しても、Laravel はアプリケーションのデフォルトのログ構成を使用して引き続き例外をログに記録します。デフォルトのログ スタックへの例外の伝播を停止したい場合は、レポート コールバックを定義するときに `stop` メソッドを使用するか、コールバックから `false` を返します。
 
 ```php
 use App\Exceptions\InvalidOrderException;
@@ -420,7 +420,7 @@ public function report(): bool
 ```
 
 > [!NOTE]
-> `report` メソッドの必要な依存関係をタイプヒントで指定すると、それらは Laravel の [service container](/docs/13.x/container) によってメソッドに自動的に挿入されます。
+> `report` メソッドの必要な依存関係をタイプヒントで指定すると、それらは Laravel の [service container](/docs/13.x/container) によってメソッドに自動的に注入されます。
 
 <a name="throttling-reported-exceptions"></a>
 <!-- ### Throttling Reported Exceptions -->
@@ -430,7 +430,7 @@ public function report(): bool
 アプリケーションが非常に多くの例外を報告する場合、実際にログに記録される、またはアプリケーションの外部エラー追跡サービスに送信される例外の数を調整することができます。
 
 <!-- To take a random sample rate of exceptions, you may use the `throttle` exception method in your application's `bootstrap/app.php` file. The `throttle` method receives a closure that should return a `Lottery` instance: -->
-例外のランダムなサンプルレートを取得するには、アプリケーションの `bootstrap/app.php` ファイルで `throttle` 例外メソッドを使用できます。 `throttle` メソッドは、`Lottery` インスタンスを返すクロージャを受け取ります。
+例外を一定の割合でランダムにサンプリングするには、アプリケーションの `bootstrap/app.php` ファイルで `throttle` 例外メソッドを使用できます。 `throttle` メソッドは、`Lottery` インスタンスを返すクロージャを受け取ります。
 
 ```php
 use Illuminate\Support\Lottery;
@@ -444,7 +444,7 @@ use Throwable;
 ```
 
 <!-- It is also possible to conditionally sample based on the exception type. If you would like to only sample instances of a specific exception class, you may return a `Lottery` instance only for that class: -->
-例外タイプに基づいて条件付きでサンプリングすることも可能です。特定の例外クラスのインスタンスのみをサンプルしたい場合は、そのクラスのみの `Lottery` インスタンスを返すことができます。
+例外タイプに基づいて条件付きでサンプリングすることも可能です。特定の例外クラスのインスタンスのみをサンプルしたい場合は、そのクラスの場合にのみ `Lottery` インスタンスを返すことができます。
 
 ```php
 use App\Exceptions\ApiMonitoringException;
@@ -520,7 +520,7 @@ use Throwable;
 ## HTTP Exceptions
 
 <!-- Some exceptions describe HTTP error codes from the server. For example, this may be a "page not found" error (404), an "unauthorized error" (401), or even a developer generated 500 error. In order to generate such a response from anywhere in your application, you may use the `abort` helper: -->
-一部の例外は、サーバーからの HTTP エラー コードを示します。たとえば、これは「ページが見つかりません」エラー (404)、「不正エラー」(401)、または開発者が生成した 500 エラーである可能性があります。アプリケーション内の任意の場所からこのような応答を生成するには、`abort` ヘルパを使用できます。
+一部の例外は、サーバーからの HTTP エラー コードを示します。たとえば、これは「ページが見つかりません」エラー (404)、「認証エラー」(401)、または開発者が生成した 500 エラーである可能性があります。アプリケーション内の任意の場所からこのような応答を生成するには、`abort` ヘルパを使用できます。
 
 ```php
 abort(404);

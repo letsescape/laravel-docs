@@ -761,7 +761,7 @@ Route::get('/users', function () {
 ```
 
 <!-- In these situations, we may use the fluent JSON object's `has` method to make assertions against the users included in the response. For example, let's assert that the JSON response contains three users. Next, we'll make some assertions about the first user in the collection using the `first` method. The `first` method accepts a closure which receives another assertable JSON string that we can use to make assertions about the first object in the JSON collection: -->
-이러한 상황에서는 유연한 JSON 개체의 `has` 메서드를 사용하여 응답에 포함된 사용자에 대해 어설션을 만들 수 있습니다. 예를 들어 JSON 응답에 세 명의 사용자가 포함되어 있다고 가정해 보겠습니다. 다음으로 `first` 메서드를 사용하여 컬렉션의 첫 번째 사용자에 대한 몇 가지 어설션을 만듭니다. `first` 메소드는 JSON 컬렉션의 첫 번째 개체에 대한 주장을 만드는 데 사용할 수 있는 또 다른 주장 가능한 JSON 문자열을 수신하는 클로저를 허용합니다.
+이러한 상황에서는 유연한 JSON 개체의 `has` 메서드를 사용하여 응답에 포함된 사용자에 대해 어설션을 만들 수 있습니다. 예를 들어 JSON 응답에 세 명의 사용자가 포함되어 있는지 어설션해 보겠습니다. 다음으로 `first` 메서드를 사용하여 컬렉션의 첫 번째 사용자에 대한 몇 가지 어설션을 만듭니다. `first` 메소드는 JSON 컬렉션의 첫 번째 개체에 대한 주장을 만드는 데 사용할 수 있는 또 다른 주장 가능한 JSON 문자열을 수신하는 클로저를 허용합니다.
 
 ```php
 $response
@@ -1015,7 +1015,7 @@ $contents = (string) $this->view('welcome');
 #### Sharing Errors
 
 <!-- Some views may depend on errors shared in the [global error bag provided by Laravel](/docs/13.x/validation#quick-displaying-the-validation-errors). To hydrate the error bag with error messages, you may use the `withViewErrors` method: -->
-일부 뷰는 [global error bag provided by Laravel](/docs/13.x/validation#quick-displaying-the-validation-errors)에 공유된 오류에 따라 달라질 수 있습니다. 오류 메시지와 함께 오류 백을 수화하려면 `withViewErrors` 메소드를 사용할 수 있습니다.
+일부 뷰는 [global error bag provided by Laravel](/docs/13.x/validation#quick-displaying-the-validation-errors)에 공유된 오류에 따라 달라질 수 있습니다. 오류 백에 오류 메시지를 채우려면 `withViewErrors` 메소드를 사용할 수 있습니다.
 
 ```php
 $view = $this->withViewErrors([
@@ -1055,7 +1055,7 @@ $view->assertSee('Taylor');
 ## Caching Routes
 
 <!-- Before a test runs, Laravel boots a fresh instance of the application, including collecting all defined routes. If your applications have many route files, you may wish to add the `Illuminate\Foundation\Testing\WithCachedRoutes` trait to your test cases. On tests which use this trait, routes are built once and stored in memory, meaning the route collection process is only run once for all tests in your suite: -->
-테스트가 실행되기 전에 Laravel는 정의된 모든 라우트 수집을 포함하여 애플리케이션의 새로운 인스턴스를 부팅합니다. 애플리케이션에 라우트 파일이 많으면 테스트 케이스에 `Illuminate\Foundation\Testing\WithCachedRoutes` 특성을 추가할 수 있습니다. 이 특성을 사용하는 테스트에서 라우트는 한 번 빌드되어 메모리에 저장됩니다. 즉, 라우트 수집 프로세스는 제품군의 모든 테스트에 대해 한 번만 실행됩니다.
+테스트가 실행되기 전에 Laravel는 정의된 모든 라우트 수집을 포함하여 애플리케이션의 새로운 인스턴스를 부팅합니다. 애플리케이션에 라우트 파일이 많으면 테스트 케이스에 `Illuminate\Foundation\Testing\WithCachedRoutes` 트레이트를 추가할 수 있습니다. 이 트레이트를 사용하는 테스트에서 라우트는 한 번 빌드되어 메모리에 저장됩니다. 즉, 라우트 수집 프로세스는 테스트 스위트의 모든 테스트에 대해 한 번만 실행됩니다.
 
 ```php tab=Pest
 <?php
@@ -2203,7 +2203,7 @@ $response->assertSuccessful();
 #### assertTooManyRequests
 
 <!-- Assert that the response has a too many requests (429) HTTP status code: -->
-응답에 너무 많은 요청(429)이 있는지 확인합니다. HTTP 상태 코드:
+응답의 HTTP 상태 코드가 Too Many Requests(429)인지 확인합니다:
 
 ```php
 $response->assertTooManyRequests();

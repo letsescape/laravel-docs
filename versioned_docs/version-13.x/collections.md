@@ -400,7 +400,7 @@ $chunks->all();
 ```
 
 <!-- This method is especially useful in [views](/docs/13.x/views) when working with a grid system such as [Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/). For example, imagine you have a collection of [Eloquent](/docs/13.x/eloquent) models you want to display in a grid: -->
-이 메서드는 [views](/docs/13.x/views)과 같은 그리드 시스템으로 작업할 때 [Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/)에서 특히 유용합니다. 예를 들어 그리드에 표시하려는 [Eloquent](/docs/13.x/eloquent) 모델 컬렉션이 있다고 가정해 보겠습니다.
+이 메서드는 [views](/docs/13.x/views)에서 [Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/)과 같은 그리드 시스템으로 작업할 때 특히 유용합니다. 예를 들어 그리드에 표시하려는 [Eloquent](/docs/13.x/eloquent) 모델 컬렉션이 있다고 가정해 보겠습니다.
 
 ```blade
 @foreach ($products->chunk(3) as $chunk)
@@ -1044,7 +1044,7 @@ $collection->eachSpread(function (string $name, int $age) {
 #### `ensure()`
 
 <!-- The `ensure` method may be used to verify that all elements of a collection are of a given type or list of types. Otherwise, an `UnexpectedValueException` will be thrown: -->
-`ensure` 메서드는 컬렉션의 모든 요소가 지정된 유형 또는 유형 목록인지 확인하는 데 사용할 수 있습니다. 그렇지 않으면 `UnexpectedValueException`가 발생합니다.
+`ensure` 메서드는 컬렉션의 모든 요소가 지정된 유형 또는 지정된 유형 목록에 포함된 유형에 해당하는지 확인하는 데 사용할 수 있습니다. 그렇지 않으면 `UnexpectedValueException`가 발생합니다.
 
 ```php
 return $collection->ensure(User::class);
@@ -1237,7 +1237,7 @@ $collection->firstWhere('age');
 #### `flatMap()`
 
 <!-- The `flatMap` method iterates through the collection and passes each value to the given closure. The closure is free to modify the item and return it, thus forming a new collection of modified items. Then, the array is flattened by one level: -->
-`flatMap` 메서드는 컬렉션을 반복하고 각 값을 지정된 클로저에 전달합니다. 클로저는 항목을 자유롭게 수정하고 반환할 수 있으므로 수정된 항목의 새로운 컬렉션을 형성합니다. 그런 다음 배열은 한 수준씩 평면화됩니다.
+`flatMap` 메서드는 컬렉션을 반복하고 각 값을 지정된 클로저에 전달합니다. 클로저는 항목을 자유롭게 수정하고 반환할 수 있으므로 수정된 항목의 새로운 컬렉션을 형성합니다. 그런 다음 배열은 한 단계만 평면화됩니다.
 
 ```php
 $collection = collect([
@@ -1316,7 +1316,7 @@ $products->values()->all();
 #### `flip()`
 
 <!-- The `flip` method swaps the collection's keys with their corresponding values: -->
-`flip` 메서드는 컬렉션의 키를 해당 값으로 바꿉니다.
+`flip` 메서드는 컬렉션의 키와 해당 값을 서로 바꿉니다.
 
 ```php
 $collection = collect(['name' => 'Taylor', 'framework' => 'Laravel']);
@@ -1457,7 +1457,7 @@ $grouped->all();
 ```
 
 <!-- Instead of passing a string `key`, you may pass a callback. The callback should return the value you wish to key the group by: -->
-문자열 `key`를 전달하는 대신 콜백을 전달할 수 있습니다. 콜백은 다음을 통해 그룹에 키를 지정하려는 값을 반환해야 합니다.
+문자열 `key`를 전달하는 대신 콜백을 전달할 수 있습니다. 콜백은 그룹의 키로 사용할 값을 반환해야 합니다.
 
 ```php
 $grouped = $collection->groupBy(function (array $item, int $key) {
@@ -1595,7 +1595,7 @@ collect([
 #### `hasSole()`
 
 <!-- The `hasSole` method determines if the collection contains a single item, optionally matching the given criteria: -->
-`hasSole` 메서드는 컬렉션에 단일 항목이 포함되어 있는지 확인하고 선택적으로 주어진 기준과 일치합니다.
+`hasSole` 메서드는 컬렉션에 항목이 정확히 하나 있는지 확인합니다. 선택적으로 기준을 지정하면 그 기준과 일치하는 항목이 정확히 하나 있는지 확인합니다.
 
 ```php
 collect([])->hasSole();
@@ -1639,7 +1639,7 @@ collect([1, 2, 3, 4, 5])->implode('-');
 ```
 
 <!-- You may pass a closure to the `implode` method if you would like to format the values being imploded: -->
-내포되는 값의 형식을 지정하려면 `implode` 메서드에 클로저를 전달할 수 있습니다.
+결합할 값의 형식을 지정하려면 `implode` 메서드에 클로저를 전달할 수 있습니다.
 
 ```php
 $collection->implode(function (array $item, int $key) {
@@ -1745,7 +1745,7 @@ $intersect->all();
 #### `intersectByKeys()`
 
 <!-- The `intersectByKeys` method removes any keys and their corresponding values from the original collection that are not present in the given array or collection: -->
-`intersectByKeys` 메서드는 지정된 배열이나 컬렉션에 없는 원본 컬렉션에서 모든 키와 해당 값을 제거합니다.
+`intersectByKeys` 메서드는 원본 컬렉션에서 지정된 배열이나 컬렉션에 없는 키와 해당 값을 제거합니다.
 
 ```php
 $collection = collect([
@@ -1828,7 +1828,7 @@ $keyed->all();
 ```
 
 <!-- You may also pass a callback to the method. The callback should return the value to key the collection by: -->
-메서드에 콜백을 전달할 수도 있습니다. 콜백은 다음을 통해 컬렉션의 키 값을 반환해야 합니다.
+메서드에 콜백을 전달할 수도 있습니다. 콜백은 컬렉션의 키로 사용할 값을 반환해야 합니다.
 
 ```php
 $keyed = $collection->keyBy(function (array $item, int $key) {
@@ -1920,7 +1920,7 @@ $count = $hugeCollection
 ```
 
 <!-- By converting the collection to a `LazyCollection`, we avoid having to allocate a ton of additional memory. Though the original collection still keeps _its_ values in memory, the subsequent filters will not. Therefore, virtually no additional memory will be allocated when filtering the collection's results. -->
-컬렉션을 `LazyCollection`로 변환하면 엄청난 양의 추가 메모리를 할당할 필요가 없습니다. 원래 컬렉션은 여전히 ​​_its_ 값을 메모리에 유지하지만 후속 필터는 그렇지 않습니다. 따라서 컬렉션 결과를 필터링할 때 사실상 추가 메모리가 할당되지 않습니다.
+컬렉션을 `LazyCollection`로 변환하면 엄청난 양의 추가 메모리를 할당할 필요가 없습니다. 원래 컬렉션은 여전히 _자신의_ 값을 메모리에 유지하지만, 이후의 필터링 결과는 메모리에 모두 저장되지 않습니다. 따라서 컬렉션 결과를 필터링할 때 사실상 추가 메모리가 할당되지 않습니다.
 
 <a name="method-macro"></a>
 <!-- #### `macro()` -->
@@ -2017,7 +2017,7 @@ $sequence->all();
 #### `mapToGroups()`
 
 <!-- The `mapToGroups` method groups the collection's items by the given closure. The closure should return an associative array containing a single key / value pair, thus forming a new collection of grouped values: -->
-`mapToGroups` 메서드는 주어진 클로저에 따라 컬렉션의 항목을 그룹화합니다. 클로저는 단일 키/값 쌍을 포함하는 연관 배열을 반환해야 하며, 따라서 그룹화된 값의 새로운 컬렉션을 형성해야 합니다.
+`mapToGroups` 메서드는 주어진 클로저에 따라 컬렉션의 항목을 그룹화합니다. 클로저는 단일 키/값 쌍을 포함하는 연관 배열을 반환해야 하며, 이 반환값들로 그룹화된 값의 새로운 컬렉션이 만들어집니다.
 
 ```php
 $collection = collect([
@@ -2872,7 +2872,7 @@ $replaced->all();
 #### `replaceRecursive()`
 
 <!-- The `replaceRecursive` method behaves similarly to `replace`, but it will recur into arrays and apply the same replacement process to the inner values: -->
-`replaceRecursive` 메서드는 `replace`와 유사하게 동작하지만 배열로 반복되고 내부 값에 동일한 대체 프로세스를 적용합니다.
+`replaceRecursive` 메서드는 `replace`와 유사하게 동작하지만 배열 내부로 재귀적으로 들어가 내부 값에도 동일한 대체 과정을 적용합니다.
 
 ```php
 $collection = collect([
@@ -4278,7 +4278,7 @@ $filtered->all();
 #### `whereIn()`
 
 <!-- The `whereIn` method removes elements from the collection that do not have a specified item value that is contained within the given array: -->
-`whereIn` 메서드는 지정된 배열 내에 포함된 지정된 항목 값이 없는 컬렉션에서 요소를 제거합니다.
+`whereIn` 메서드는 컬렉션에서 지정된 키의 값이 주어진 배열에 포함되지 않는 요소를 제거합니다.
 
 ```php
 $collection = collect([
@@ -4367,7 +4367,7 @@ $filtered->all();
 #### `whereNotIn()`
 
 <!-- The `whereNotIn` method removes elements from the collection that have a specified item value that is contained within the given array: -->
-`whereNotIn` 메서드는 지정된 배열 내에 포함된 지정된 항목 값이 있는 컬렉션에서 요소를 제거합니다.
+`whereNotIn` 메서드는 컬렉션에서 지정된 키의 값이 주어진 배열에 포함되는 요소를 제거합니다.
 
 ```php
 $collection = collect([
@@ -4404,7 +4404,7 @@ $filtered->all();
 #### `whereNotNull()`
 
 <!-- The `whereNotNull` method returns items from the collection where the given key is not `null`: -->
-`whereNotNull` 메서드는 주어진 키가 `null`가 아닌 컬렉션에서 항목을 반환합니다.
+`whereNotNull` 메서드는 컬렉션에서 지정된 키의 값이 `null`이 아닌 항목을 반환합니다.
 
 ```php
 $collection = collect([
@@ -4434,7 +4434,7 @@ $filtered->all();
 #### `whereNull()`
 
 <!-- The `whereNull` method returns items from the collection where the given key is `null`: -->
-`whereNull` 메서드는 지정된 키가 `null`인 컬렉션에서 항목을 반환합니다.
+`whereNull` 메서드는 컬렉션에서 지정된 키의 값이 `null`인 항목을 반환합니다.
 
 ```php
 $collection = collect([
@@ -4544,7 +4544,7 @@ return $users->sum->votes;
 이미 강력한 `Collection` 클래스를 보완하기 위해 `LazyCollection` 클래스는 PHP의 [generators](https://www.php.net/manual/en/language.generators.overview.php)를 활용하여 메모리 사용량을 낮게 유지하면서 매우 큰 데이터 세트로 작업할 수 있도록 해줍니다.
 
 <!-- For example, imagine your application needs to process a multi-gigabyte log file while taking advantage of Laravel's collection methods to parse the logs. Instead of reading the entire file into memory at once, lazy collections may be used to keep only a small part of the file in memory at a given time: -->
-예를 들어, 애플리케이션이 로그를 구문 분석하기 위해 Laravel의 컬렉션 메서드를 활용하면서 멀티 기가바이트 로그 파일을 처리해야 한다고 가정해 보세요. 전체 파일을 한 번에 메모리로 읽는 대신, 지정된 시간에 파일의 작은 부분만 메모리에 유지하기 위해 지연 컬렉션을 사용할 수 있습니다.
+예를 들어, 애플리케이션이 로그를 구문 분석하기 위해 Laravel의 컬렉션 메서드를 활용하면서 멀티 기가바이트 로그 파일을 처리해야 한다고 가정해 보세요. 전체 파일을 한 번에 메모리로 읽는 대신, 한 번에 파일의 작은 부분만 메모리에 유지하기 위해 지연 컬렉션을 사용할 수 있습니다.
 
 ```php
 use App\Models\LogEntry;
@@ -4791,7 +4791,7 @@ Invoice::pending()->cursor()
 #### `tapEach()`
 
 <!-- While the `each` method calls the given callback for each item in the collection right away, the `tapEach` method only calls the given callback as the items are being pulled out of the list one by one: -->
-`each` 메서드는 컬렉션의 각 항목에 대해 지정된 콜백을 즉시 호출하는 반면, `tapEach` 메서드는 항목이 목록에서 하나씩 제거될 때 지정된 콜백만 호출합니다.
+`each` 메서드는 컬렉션의 각 항목에 대해 지정된 콜백을 즉시 호출하는 반면, `tapEach` 메서드는 항목을 목록에서 하나씩 가져올 때만 지정된 콜백을 호출합니다.
 
 ```php
 // Nothing has been dumped so far...
@@ -4850,7 +4850,7 @@ $users->take(20)->all();
 #### `withHeartbeat()`
 
 <!-- The `withHeartbeat` method allows you to execute a callback at regular time intervals while a lazy collection is being enumerated. This is particularly useful for long-running operations that require periodic maintenance tasks, such as extending locks or sending progress updates: -->
-`withHeartbeat` 메서드를 사용하면 지연 컬렉션이 열거되는 동안 정기적인 시간 간격으로 콜백을 실행할 수 있습니다. 이는 잠금 확장 또는 진행률 업데이트 전송과 같이 정기적인 유지 관리 작업이 필요한 장기 실행 작업에 특히 유용합니다.
+`withHeartbeat` 메서드를 사용하면 지연 컬렉션이 열거되는 동안 정기적인 시간 간격으로 콜백을 실행할 수 있습니다. 이는 잠금 유효 기간 연장 또는 진행률 업데이트 전송과 같이 정기적인 유지 관리 작업이 필요한 장기 실행 작업에 특히 유용합니다.
 
 ```php
 use Carbon\CarbonInterval;

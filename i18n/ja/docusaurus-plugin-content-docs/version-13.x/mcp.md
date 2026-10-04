@@ -192,7 +192,7 @@ Mcp::local('weather', WeatherServer::class);
 ```
 
 <!-- Once registered, you should not typically need to manually run the `mcp:start` Artisan command yourself. Instead, configure your MCP client (AI agent) to start the server or use the [MCP Inspector](#mcp-inspector). -->
-一度登録すると、通常は `mcp:start` Artisan コマンドを自分で手動で実行する必要はありません。代わりに、サーバーを起動するか、[MCP Inspector](#mcp-inspector) を使用するように MCP クライアント (AI エージェント) を構成します。
+一度登録すると、通常は `mcp:start` Artisan コマンドを自分で手動で実行する必要はありません。代わりに、MCP クライアント (AI エージェント) がサーバーを起動するように構成するか、[MCP Inspector](#mcp-inspector) を使用します。
 
 <a name="cache-hints"></a>
 <!-- ### Cache Hints -->
@@ -539,7 +539,7 @@ $validated = $request->validate([
 #### Tool Dependency Injection
 
 <!-- The Laravel [service container](/docs/13.x/container) is used to resolve all tools. As a result, you are able to type-hint any dependencies your tool may need in its constructor. The declared dependencies will automatically be resolved and injected into the tool instance: -->
-Laravel [service container](/docs/13.x/container) は、すべてのツールを解決するために使用されます。その結果、ツールのコンストラクターで必要な依存関係をタイプヒントで指定できるようになります。宣言された依存関係は自動的に解決され、ツール インスタンスに挿入されます。
+Laravel [service container](/docs/13.x/container) は、すべてのツールを解決するために使用されます。その結果、ツールのコンストラクターで必要な依存関係をタイプヒントで指定できるようになります。宣言された依存関係は自動的に解決され、ツール インスタンスに注入されます。
 
 ```php
 <?php
@@ -563,7 +563,7 @@ class CurrentWeatherTool extends Tool
 ```
 
 <!-- In addition to constructor injection, you may also type-hint dependencies in your tool's `handle()` method. The service container will automatically resolve and inject the dependencies when the method is called: -->
-コンストラクターの注入に加えて、ツールの `handle()` メソッドでタイプヒントの依存関係を指定することもできます。サービスコンテナーは、メソッドが呼び出されるときに依存関係を自動的に解決して挿入します。
+コンストラクターの注入に加えて、ツールの `handle()` メソッドでタイプヒントの依存関係を指定することもできます。サービスコンテナーは、メソッドが呼び出されるときに依存関係を自動的に解決して注入します。
 
 ```php
 <?php
@@ -1000,7 +1000,7 @@ $validated = $request->validate([
 ### Prompt Dependency Injection
 
 <!-- The Laravel [service container](/docs/13.x/container) is used to resolve all prompts. As a result, you are able to type-hint any dependencies your prompt may need in its constructor. The declared dependencies will automatically be resolved and injected into the prompt instance: -->
-Laravel [service container](/docs/13.x/container) は、すべてのプロンプトを解決するために使用されます。その結果、プロンプトのコンストラクターで必要な依存関係をタイプヒントで指定できるようになります。宣言された依存関係は自動的に解決され、プロンプト インスタンスに挿入されます。
+Laravel [service container](/docs/13.x/container) は、すべてのプロンプトを解決するために使用されます。その結果、プロンプトのコンストラクターで必要な依存関係をタイプヒントで指定できるようになります。宣言された依存関係は自動的に解決され、プロンプト インスタンスに注入されます。
 
 ```php
 <?php
@@ -1024,7 +1024,7 @@ class DescribeWeatherPrompt extends Prompt
 ```
 
 <!-- In addition to constructor injection, you may also type-hint dependencies in your prompt's `handle` method. The service container will automatically resolve and inject the dependencies when the method is called: -->
-コンストラクターの注入に加えて、プロンプトの `handle` メソッドでタイプヒントの依存関係を使用することもできます。サービスコンテナーは、メソッドが呼び出されるときに依存関係を自動的に解決して挿入します。
+コンストラクターの注入に加えて、プロンプトの `handle` メソッドでタイプヒントの依存関係を使用することもできます。サービスコンテナーは、メソッドが呼び出されるときに依存関係を自動的に解決して注入します。
 
 ```php
 <?php
@@ -1085,7 +1085,7 @@ class CurrentWeatherPrompt extends Prompt
 ### Prompt Responses
 
 <!-- Prompts may return a single `Laravel\Mcp\Response` or an iterable of `Laravel\Mcp\Response` instances. These responses encapsulate the content that will be sent to the AI client: -->
-プロンプトは、単一の `Laravel\Mcp\Response` または反復可能な `Laravel\Mcp\Response` インスタンスを返す場合があります。これらの応答は、AI クライアントに送信されるコンテンツをカプセル化します。
+プロンプトは、単一の `Laravel\Mcp\Response` または `Laravel\Mcp\Response` インスタンスを要素とする iterable を返せます。これらの応答は、AI クライアントに送信されるコンテンツをカプセル化します。
 
 ```php
 <?php
@@ -1377,7 +1377,7 @@ class WeatherGuidelinesResource extends Resource
 ### Resource Dependency Injection
 
 <!-- The Laravel [service container](/docs/13.x/container) is used to resolve all resources. As a result, you are able to type-hint any dependencies your resource may need in its constructor. The declared dependencies will automatically be resolved and injected into the resource instance: -->
-Laravel [service container](/docs/13.x/container) は、すべてのリソースを解決するために使用されます。その結果、リソースがコンストラクターで必要とする依存関係をタイプヒントで指定できるようになります。宣言された依存関係は自動的に解決され、リソース インスタンスに挿入されます。
+Laravel [service container](/docs/13.x/container) は、すべてのリソースを解決するために使用されます。その結果、リソースがコンストラクターで必要とする依存関係をタイプヒントで指定できるようになります。宣言された依存関係は自動的に解決され、リソース インスタンスに注入されます。
 
 ```php
 <?php
@@ -1401,7 +1401,7 @@ class WeatherGuidelinesResource extends Resource
 ```
 
 <!-- In addition to constructor injection, you may also type-hint dependencies in your resource's `handle` method. The service container will automatically resolve and inject the dependencies when the method is called: -->
-コンストラクターのインジェクションに加えて、リソースの `handle` メソッドでタイプヒントの依存関係を指定することもできます。サービスコンテナーは、メソッドが呼び出されるときに依存関係を自動的に解決して挿入します。
+コンストラクターのインジェクションに加えて、リソースの `handle` メソッドでタイプヒントの依存関係を指定することもできます。サービスコンテナーは、メソッドが呼び出されるときに依存関係を自動的に解決して注入します。
 
 ```php
 <?php
@@ -1462,7 +1462,7 @@ class UserDashboardResource extends Resource
 <!-- | Annotation | Type | Description | | ----------------- | ------------- | --------------------------------------------------------------------------- | | `#[Audience]` | Role or array | Specifies the intended audience (`Role::User`, `Role::Assistant`, or both). | | `#[Priority]` | float | A numerical score between 0.0 and 1.0 indicating resource importance. | | `#[LastModified]` | string | An ISO 8601 timestamp showing when the resource was last updated. | -->
 | 注釈        | タイプ          | 説明                                                                 |
 | ----------------- | ------------- | --------------------------------------------------------------------------- |
-| `#[Audience]`     | 役割または配列 | 対象読者 (`Role::User`、`Role::Assistant`、または両方) を指定します。 |
+| `#[Audience]`     | Role または配列 | 対象読者 (`Role::User`、`Role::Assistant`、または両方) を指定します。 |
 | `#[Priority]`     | フロート         | リソースの重要性を示す 0.0 ～ 1.0 の数値スコア。       |
 | `#[LastModified]` | 文字列        | リソースが最後に更新された時間を示す ISO 8601 タイムスタンプ。           |
 
@@ -1701,14 +1701,14 @@ class ShowWeatherDashboard extends Tool
 ```
 
 <!-- Laravel MCP automatically advertises the `io.modelcontextprotocol/ui` extension within the server's `extensions` capability whenever any `AppResource` is registered, so no additional server configuration is required. -->
-Laravel MCP は、`AppResource` が登録されるたびに、サーバーの `extensions` 機能内で `io.modelcontextprotocol/ui` 拡張機能を自動的に通知するため、追加のサーバー設定は必要ありません。
+Laravel MCP は、いずれかの `AppResource` が登録されていれば、サーバーの `extensions` 機能内で `io.modelcontextprotocol/ui` 拡張機能のサポートを自動的に公開するため、追加のサーバー設定は必要ありません。
 
 <a name="app-tool-visibility"></a>
 <!-- ### App Tool Visibility -->
 ### App Tool Visibility
 
 <!-- Each `#[RendersApp]` tool can limit who may invoke it via the `visibility` argument. This is useful for exposing private, app-only tools that the UI calls to load or refresh data without making those tools visible to the model: -->
-各 `#[RendersApp]` ツールは、`visibility` 引数を介してそれを呼び出すことができるユーザーを制限できます。これは、UI がデータをロードまたは更新するために呼び出すプライベートなアプリ専用ツールを、モデルに表示せずに公開する場合に便利です。
+各 `#[RendersApp]` ツールは、`visibility` 引数を介して呼び出し元を制限できます。これは、UI がデータをロードまたは更新するために呼び出すプライベートなアプリ専用ツールを、モデルに表示せずに公開する場合に便利です。
 
 ```php
 use Laravel\Mcp\Server\Attributes\RendersApp;
@@ -1768,7 +1768,7 @@ Laravel MCP には、MCP アプリを構築するための専用の [Boost](/doc
 ## Metadata
 
 <!-- Laravel MCP also supports the `_meta` field as defined in the [MCP specification](https://modelcontextprotocol.io/specification/2026-07-28/basic#_meta), which is required by certain MCP clients or integrations. Metadata can be applied to all MCP primitives, including tools, resources, and prompts, as well as their responses. -->
-Laravel MCP は、特定の MCP クライアントまたは統合で必要とされる [MCP specification](https://modelcontextprotocol.io/specification/2026-07-28/basic#_meta) で定義された `_meta` フィールドもサポートしています。メタデータは、ツール、リソース、プロンプト、およびそれらのレスポンスを含む、すべての MCP プリミティブに適用できます。
+Laravel MCP は、[MCP specification](https://modelcontextprotocol.io/specification/2026-07-28/basic#_meta) で定義された `_meta` フィールドもサポートしています。このフィールドは、特定の MCP クライアントや統合で必要とされます。メタデータは、ツール、リソース、プロンプトを含むすべての MCP プリミティブと、それらのレスポンスに適用できます。
 
 <!-- You can attach metadata to individual response content using the `withMeta` method: -->
 `withMeta` メソッドを使用して、個々の応答コンテンツにメタデータを添付できます。
@@ -2198,7 +2198,7 @@ foreach ($tools as $tool) {
 ```
 
 <!-- The client automatically paginates through all available tools. You may limit the number of tools returned using the `limit` argument: -->
-クライアントは利用可能なすべてのツールを自動的にページネーションします。`limit` 引数を使用して、返されるツールの数を制限できます。
+クライアントはすべてのページを自動的に取得し、利用可能なツールを返します。`limit` 引数を使用して、返されるツールの数を制限できます。
 
 ```php
 $tools = Mcp::client('github')->tools(limit: 10);
@@ -2257,7 +2257,7 @@ foreach ($prompts as $prompt) {
 ```
 
 <!-- The client automatically paginates through all available prompts. You may limit the number of prompts returned using the `limit` argument: -->
-クライアントは利用可能なすべてのプロンプトを自動的にページネーションします。`limit` 引数を使用して、返されるプロンプトの数を制限できます。
+クライアントはすべてのページを自動的に取得し、利用可能なプロンプトを返します。`limit` 引数を使用して、返されるプロンプトの数を制限できます。
 
 ```php
 $prompts = Mcp::client('github')->prompts(limit: 10);
@@ -2305,7 +2305,7 @@ foreach ($resources as $resource) {
 ```
 
 <!-- The client automatically paginates through all available resources. You may limit the number of resources returned using the `limit` argument: -->
-クライアントは利用可能なすべてのリソースを自動的にページネーションします。`limit` 引数を使用して、返されるリソースの数を制限できます。
+クライアントはすべてのページを自動的に取得し、利用可能なリソースを返します。`limit` 引数を使用して、返されるリソースの数を制限できます。
 
 ```php
 $resources = Mcp::client('github')->resources(limit: 10);
@@ -2437,7 +2437,7 @@ $response->assertHasErrors([
 ```
 
 <!-- You may assert that a response does not contain an error using the `assertHasNoErrors` method: -->
-`assertHasNoErrors` メソッドを使用して、応答にエラーが含まれていないことを主張できます。
+`assertHasNoErrors` メソッドを使用して、応答にエラーが含まれていないことをアサートできます。
 
 ```php
 $response->assertHasNoErrors();
@@ -2453,7 +2453,7 @@ $response->assertDescription('Fetches the current weather forecast for a specifi
 ```
 
 <!-- You may assert that notifications were sent using the `assertSentNotification` and `assertNotificationCount` methods: -->
-通知が `assertSentNotification` および `assertNotificationCount` メソッドを使用して送信されたと主張できます。
+`assertSentNotification` および `assertNotificationCount` メソッドを使用して、通知が送信されたことをアサートできます。
 
 ```php
 $response->assertSentNotification('processing/progress', [

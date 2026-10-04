@@ -184,7 +184,7 @@ $instance = Feature::instance(NewApi::class);
 #### Customizing the Stored Feature Name
 
 <!-- By default, Pennant will store the feature class's fully qualified class name. If you would like to decouple the stored feature name from the application's internal structure, you may add the `Name` attribute on the feature class. The value of this attribute will be stored in place of the class name: -->
-기본적으로 Pennant는 기능 클래스의 전체 네임스페이스를 저장합니다. 저장되는 기능 이름을 코드 구조와 분리하고 싶다면, 클래스에 `Name` 속성(attribute)을 달 수 있습니다. 이 속성의 값이 클래스 이름 대신 저장됩니다.
+기본적으로 Pennant는 네임스페이스를 포함한 기능 클래스의 전체 이름을 저장합니다. 저장되는 기능 이름을 코드 구조와 분리하고 싶다면, 클래스에 `Name` 속성(attribute)을 달 수 있습니다. 이 속성의 값이 클래스 이름 대신 저장됩니다.
 
 ```php
 <?php
@@ -262,7 +262,7 @@ Feature::someAreInactive(['new-api', 'site-redesign']);
 ```
 
 > [!NOTE]
-> Artisan 명령어 또는 큐 작업 등 HTTP 컨텍스트 밖에서 Pennant를 사용할 경우, [explicitly specify the feature's scope](#specifying-the-scope)하는 것이 일반적입니다. 또는, [default scope](#default-scope)를 지정해 인증된 HTTP/비인증 상황 모두에 대응할 수 있습니다.
+> Artisan 명령어 또는 큐 작업 등 HTTP 컨텍스트 밖에서 Pennant를 사용할 경우, 일반적으로 기능의 스코프를 명시적으로 지정해야 합니다([explicitly specify the feature's scope](#specifying-the-scope)). 또는, [default scope](#default-scope)를 지정해 인증된 HTTP/비인증 상황 모두에 대응할 수 있습니다.
 
 <a name="checking-class-based-features"></a>
 <!-- #### Checking Class Based Features -->
@@ -302,7 +302,7 @@ class PodcastController
 ### Conditional Execution
 
 <!-- The `when` method may be used to fluently execute a given closure if a feature is active. Additionally, a second closure may be provided and will be executed if the feature is inactive: -->
-`when` 메서드를 사용하면 기능이 활성화된 경우 지정한 클로저를, 비활성화된 경우 두 번째 클로저를 실행할 수 있습니다.
+`when` 메서드는 기능이 활성화된 경우 지정한 클로저를 실행합니다. 두 번째 클로저를 추가로 제공하면, 기능이 비활성화된 경우 해당 클로저가 실행됩니다.
 
 ```php
 <?php
@@ -442,7 +442,7 @@ Route::get('/api/servers', function () {
 #### Customizing the Response
 
 <!-- If you would like to customize the response that is returned by the middleware when one of the listed features is inactive, you may use the `whenInactive` method provided by the `EnsureFeaturesAreActive` middleware. Typically, this method should be invoked within the `boot` method of one of your application's service providers: -->
-지정한 기능 중 하나라도 비활성 상태라면 미들웨어가 반환하는 응답을 사용자 지정 하고 싶다면, `EnsureFeaturesAreActive` 미들웨어의 `whenInactive` 메서드를 사용하세요. 이 메서드는 주로 애플리케이션의 서비스 프로바이더 `boot` 메서드 내에서 호출합니다.
+지정한 기능 중 하나라도 비활성 상태일 때 미들웨어가 반환하는 응답을 사용자 지정하려면, `EnsureFeaturesAreActive` 미들웨어의 `whenInactive` 메서드를 사용하세요. 이 메서드는 주로 애플리케이션의 서비스 프로바이더 `boot` 메서드 내에서 호출합니다.
 
 ```php
 use Illuminate\Http\Request;
@@ -469,7 +469,7 @@ public function boot(): void
 ### Intercepting Feature Checks
 
 <!-- Sometimes it can be useful to perform some in-memory checks before retrieving the stored value of a given feature. Imagine you are developing a new API behind a feature flag and want the ability to disable the new API without losing any of the resolved feature values in storage. If you notice a bug in the new API, you could easily disable it for everyone except internal team members, fix the bug, and then re-enable the new API for the users that previously had access to the feature. -->
-경우에 따라 저장된 기능 값을 가져오기 전에 인메모리에서 추가적인 검사를 하는 것이 필요할 수 있습니다. 예를 들어, 새로운 API를 기능 플래그 뒤에서 개발하고 있는데, 저장소의 기존 기능 값은 유지하면서도 API를 신속하게 전체 비활성화하고 싶을 수 있습니다. 버그가 발견되면 내부 팀을 제외한 모든 사용자에게 기능을 끄고 수정 후 다시 활성화할 수도 있습니다.
+경우에 따라 저장된 기능 값을 가져오기 전에 인메모리에서 추가적인 검사를 하는 것이 필요할 수 있습니다. 예를 들어, 새로운 API를 기능 플래그 뒤에서 개발하고 있는데, 저장소의 기존 기능 값은 유지하면서도 API를 신속하게 전체 비활성화하고 싶을 수 있습니다. 버그가 발견되면 내부 팀을 제외한 모든 사용자에게 기능을 끄고, 버그를 수정한 후 이전에 이 기능을 사용할 수 있었던 사용자에게 다시 활성화할 수 있습니다.
 
 <!-- You can achieve this with a [class-based feature's](#class-based-features) `before` method. When present, the `before` method is always run in-memory before retrieving the value from storage. If a non-`null` value is returned from the method, it will be used in place of the feature's stored value for the duration of the request: -->
 이런 상황에서는 [class-based feature's](#class-based-features)의 `before` 메서드를 활용할 수 있습니다. `before` 메서드는 저장소에서 값을 가져오기 전에 항상 인메모리에서 실행되며, 이 메서드에서 `null`이 아닌 값을 반환하면 저장된 값 대신 해당 값을 이번 요청 동안 사용합니다.
@@ -510,7 +510,7 @@ class NewApi
 ```
 
 <!-- You could also use this feature to schedule the global rollout of a feature that was previously behind a feature flag: -->
-기능 플래그 뒤에 있던 기능을 글로벌하게 롤아웃 하고 싶을 때도 사용할 수 있습니다.
+이 기능을 사용해 기존에 기능 플래그로 제어하던 기능을 전체 사용자에게 배포할 일정을 예약할 수도 있습니다.
 
 ```php
 <?php
@@ -572,7 +572,7 @@ return Feature::for($user)->active('new-api')
 ```
 
 <!-- Of course, feature scopes are not limited to "users". Imagine you have built a new billing experience that you are rolling out to entire teams rather than individual users. Perhaps you would like the oldest teams to have a slower rollout than the newer teams. Your feature resolution closure might look something like the following: -->
-스코프는 "사용자"에만 제한되지 않습니다. 예를 들어, 개별 사용자 대신 전체 팀 단위로 새로운 결제 경험을 롤아웃한다고 가정해봅시다. 오래된 팀일수록 롤아웃 속도를 조절할 수도 있습니다.
+스코프는 "사용자"에만 제한되지 않습니다. 예를 들어, 개별 사용자 대신 전체 팀 단위로 새로운 결제 경험을 롤아웃한다고 가정해봅시다. 오래된 팀에는 새 팀보다 더 천천히 기능을 배포하고 싶을 수 있습니다. 이때 기능 값을 결정하는 클로저는 다음과 같이 작성할 수 있습니다.
 
 ```php
 use App\Models\Team;
@@ -609,7 +609,7 @@ if (Feature::for($user->team)->active('billing-v2')) {
 ### Global Scope
 
 <!-- To check or interact with a feature using a global scope, regardless of the configured default scope resolver, use the `globally` method. This is useful for application-wide feature flags, such as temporarily enabling maintenance behavior or rolling out a feature to every user: -->
-글로벌 스코프를 사용해 기능을 확인하거나 상호작용하려면, 설정된 기본 스코프 리졸버와 관계없이 `globally` 메서드를 사용합니다. 이는 애플리케이션 전체에 적용되는 기능 플래그에 유용하며, 예를 들어 유지보수 동작을 일시적으로 활성화하거나 모든 사용자에게 기능을 단계적으로 출시할 때 사용할 수 있습니다:
+글로벌 스코프를 사용해 기능을 확인하거나 상호작용하려면, 설정된 기본 스코프 리졸버와 관계없이 `globally` 메서드를 사용합니다. 이는 애플리케이션 전체에 적용되는 기능 플래그에 유용하며, 예를 들어 유지보수 동작을 일시적으로 활성화하거나 모든 사용자에게 기능을 제공할 때 사용할 수 있습니다:
 
 ```php
 Feature::globally()->active('new-api');
@@ -622,7 +622,7 @@ Feature::globally()->activate('new-api');
 ### Default Scope
 
 <!-- It is also possible to customize the default scope Pennant uses to check features. For example, maybe all of your features are checked against the currently authenticated user's team instead of the user. Instead of having to call `Feature::for($user->team)` every time you check a feature, you may instead specify the team as the default scope. Typically, this should be done in one of your application's service providers: -->
-Pennant가 기능 확인 시 사용할 기본 스코프를 변경할 수도 있습니다. 예를 들어, 모든 기능을 인증된 사용자가 아닌, 사용자의 팀 단위로 확인하도록 하고 싶을 때마다 `Feature::for($user->team)`을 반복적으로 작성하지 않아도 됩니다. 이 경우 서비스 프로바이더에서 기본 스코프를 지정하세요.
+Pennant가 기능 확인 시 사용할 기본 스코프를 변경할 수도 있습니다. 예를 들어, 모든 기능을 현재 인증된 사용자 대신 해당 사용자의 팀을 기준으로 확인한다고 가정해봅시다. 기능을 확인할 때마다 `Feature::for($user->team)`을 호출하는 대신 팀을 기본 스코프로 지정할 수 있습니다. 일반적으로 애플리케이션의 서비스 프로바이더에서 설정합니다.
 
 ```php
 <?php
@@ -990,7 +990,7 @@ Feature::deactivateForEveryone('new-api');
 ```
 
 > [!NOTE]
-> 이 작업은 Pennant 저장소에 저장된 resolved 값을 업데이트합니다. 애플리케이션의 기능 정의도 함께 변경하는 것이 필요합니다.
+> 이 작업은 Pennant의 저장소 드라이버에 저장된, 이미 결정된 기능 값만 업데이트합니다. 애플리케이션의 기능 정의도 함께 변경하는 것이 필요합니다.
 
 <a name="purging-features"></a>
 <!-- ### Purging Features -->
@@ -1059,7 +1059,7 @@ Feature::define('purchase-button', fn () => Arr::random([
 ```
 
 <!-- To modify the feature's returned value in your tests, you may re-define the feature at the beginning of the test. The following test will always pass, even though the `Arr::random()` implementation is still present in the service provider: -->
-테스트에서는 기능의 반환 값을 고정하여 재정의할 수 있습니다. 아래 테스트는 서비스 프로바이더의 `Arr::random()` 구현과 상관없이 항상 통과합니다.
+테스트를 시작할 때 기능을 재정의하여 반환 값을 변경할 수 있습니다. 아래 테스트는 서비스 프로바이더의 `Arr::random()` 구현과 상관없이 항상 통과합니다.
 
 ```php tab=Pest
 use Laravel\Pennant\Feature;
@@ -1272,7 +1272,7 @@ Pennant는 기능 플래그를 추적할 때 유용한 다양한 이벤트를 �
 ### `Laravel\Pennant\Events\UnknownFeatureResolved`
 
 <!-- This event is dispatched the first time an unknown feature is resolved for a specific scope. Listening to this event may be useful if you have intended to remove a feature flag but have accidentally left stray references to it throughout your application: -->
-이 이벤트는 특정 스코프에 대해 처음으로 "알 수 없는" 기능이 확인된 경우 발생합니다. 기능 플래그를 제거할 의도로 남겨둔 코드에서 실수로 참조가 남아 있을 때 추적할 수 있습니다.
+이 이벤트는 특정 스코프에 대해 처음으로 "알 수 없는" 기능이 확인된 경우 발생합니다. 기능 플래그를 제거하려 했지만 애플리케이션에 해당 참조를 실수로 남겨두었다면, 이 이벤트를 수신해 추적할 수 있습니다.
 
 ```php
 <?php
@@ -1308,7 +1308,7 @@ class AppServiceProvider extends ServiceProvider
 ### `Laravel\Pennant\Events\UnexpectedNullScopeEncountered`
 
 <!-- This event is dispatched when a `null` scope is passed to a feature definition that [doesn't support null](#nullable-scope). -->
-이 이벤트는 [doesn't support null](#nullable-scope) 기능 정의에 `null` 스코프가 전달될 때 발생합니다.
+이 이벤트는 null을 지원하지 않는 기능 정의([doesn't support null](#nullable-scope))에 `null` 스코프가 전달될 때 발생합니다.
 
 <!-- This situation is handled gracefully and the feature will return `false`. However, if you would like to opt out of this feature's default graceful behavior, you may register a listener for this event in the `boot` method of your application's `AppServiceProvider`: -->
 이 상황은 기본적으로 문제없이 처리되어 해당 기능의 반환 값은 `false`가 됩니다. 그러나 이러한 동작을 비활성화하고 싶을 때는, 애플리케이션의 `AppServiceProvider`의 `boot` 메서드에 이 이벤트에 대한 리스너를 등록할 수 있습니다.

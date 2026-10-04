@@ -196,7 +196,7 @@ BROADCAST_CONNECTION=pusher
 #### Encrypted Private Channels
 
 <!-- If you plan to use [end-to-end encrypted private channels](#encrypted-private-channels), you should add an `encryption_master_key_base64` option containing a base64 encoded, 32-byte key to the `pusher` connection's `options` array: -->
-[end-to-end encrypted private channels](#encrypted-private-channels)を使用する場合は、`pusher` 接続の `options` 配列に、base64 エンコードされた32バイトのキーを含む `encryption_master_key_base64` オプションを追加してください。
+[end-to-end encrypted private channels](#encrypted-private-channels)を使用する場合は、`pusher` 接続の `options` 配列に、32バイトのキーを base64 エンコードした値を含む `encryption_master_key_base64` オプションを追加してください。
 
 ```php
 'options' => [
@@ -1252,7 +1252,7 @@ broadcast(new OrderShipmentStatusUpdated($update))->via('pusher');
 ```
 
 <!-- Alternatively, you may specify the event's broadcast connection by calling the `broadcastVia` method within the event's constructor. However, before doing so, you should ensure that the event class uses the `InteractsWithBroadcasting` trait: -->
-あるいは、イベントのコンストラクター内で `broadcastVia` メソッドを呼び出して、イベントのブロードキャスト接続を指定することもできます。ただし、これを行う前に、イベント クラスが `InteractsWithBroadcasting` 特性を使用していることを確認する必要があります。
+あるいは、イベントのコンストラクター内で `broadcastVia` メソッドを呼び出して、イベントのブロードキャスト接続を指定することもできます。ただし、これを行う前に、イベント クラスが `InteractsWithBroadcasting` トレイトを使用していることを確認する必要があります。
 
 ```php
 <?php
@@ -1381,7 +1381,7 @@ class ServerCreated implements ShouldBroadcast, ShouldRescue
 ### Listening for Events
 
 <!-- Once you have [installed and instantiated Laravel Echo](#client-side-installation), you are ready to start listening for events that are broadcast from your Laravel application. First, use the `channel` method to retrieve an instance of a channel, then call the `listen` method to listen for a specified event: -->
-[installed and instantiated Laravel Echo](#client-side-installation) を取得したら、Laravel アプリケーションからブロードキャストされるイベントのリッスンを開始する準備が整います。まず、`channel` メソッドを使用してチャネルのインスタンスを取得し、次に `listen` メソッドを呼び出して指定されたイベントをリッスンします。
+[installed and instantiated Laravel Echo](#client-side-installation) の手順で Laravel Echo のインストールとインスタンス化を完了したら、Laravel アプリケーションからブロードキャストされるイベントのリッスンを開始する準備が整います。まず、`channel` メソッドを使用してチャネルのインスタンスを取得し、次に `listen` メソッドを呼び出して指定されたイベントをリッスンします。
 
 ```js
 Echo.channel(`orders.${this.order.id}`)
@@ -1405,7 +1405,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening for Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-[leaving the channel](#leaving-a-channel) を使用せずに特定のイベントのリッスンを停止したい場合は、`stopListening` メソッドを使用できます。
+[leaving the channel](#leaving-a-channel) を行わずに特定のイベントのリッスンを停止したい場合は、`stopListening` メソッドを使用できます。
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1972,7 +1972,7 @@ class Post extends Model
 ```
 
 <!-- Once your model includes this trait and defines its broadcast channels, it will begin automatically broadcasting events when a model instance is created, updated, deleted, trashed, or restored. -->
-モデルにこの特性が含まれ、ブロードキャスト チャネルが定義されると、モデル インスタンスが作成、更新、削除、破棄、または復元されたときに、イベントのブロードキャストが自動的に開始されます。
+モデルにこのトレイトが含まれ、ブロードキャスト チャネルが定義されると、モデル インスタンスが作成、更新、削除、論理削除、または復元されたときに、イベントのブロードキャストが自動的に開始されます。
 
 <!-- In addition, you may have noticed that the `broadcastOn` method receives a string `$event` argument. This argument contains the type of event that has occurred on the model and will have a value of `created`, `updated`, `deleted`, `trashed`, or `restored`. By inspecting the value of this variable, you may determine which channels (if any) the model should broadcast to for a particular event: -->
 さらに、`broadcastOn` メソッドが文字列 `$event` 引数を受け取ることに気づいたかもしれません。この引数には、モデルで発生したイベントのタイプが含まれ、値は `created`、`updated`、`deleted`、`trashed`、または `restored` になります。この変数の値を検査することで、モデルが特定のイベントに対してどのチャネル (存在する場合) にブロードキャストするかを決定できます。
@@ -2116,13 +2116,13 @@ public function broadcastWith(string $event): array
 ### Listening for Model Broadcasts
 
 <!-- Once you have added the `BroadcastsEvents` trait to your model and defined your model's `broadcastOn` method, you are ready to start listening for broadcasted model events within your client-side application. Before getting started, you may wish to consult the complete documentation on [listening for events](#listening-for-events). -->
-`BroadcastsEvents` 特性をモデルに追加し、モデルの `broadcastOn` メソッドを定義したら、クライアント側アプリケーション内でブロードキャストされたモデル イベントのリッスンを開始する準備が整います。始める前に、[listening for events](#listening-for-events) の完全なドキュメントを参照してください。
+`BroadcastsEvents` トレイトをモデルに追加し、モデルの `broadcastOn` メソッドを定義したら、クライアント側アプリケーション内でブロードキャストされたモデル イベントのリッスンを開始する準備が整います。始める前に、[listening for events](#listening-for-events) の完全なドキュメントを参照してください。
 
 <!-- First, use the `private` method to retrieve an instance of a channel, then call the `listen` method to listen for a specified event. Typically, the channel name given to the `private` method should correspond to Laravel's [model broadcasting conventions](#model-broadcasting-conventions). -->
 まず、`private` メソッドを使用してチャネルのインスタンスを取得し、次に `listen` メソッドを呼び出して指定されたイベントをリッスンします。通常、`private` メソッドに指定されるチャネル名は、Laravel の [model broadcasting conventions](#model-broadcasting-conventions) に対応する必要があります。
 
 <!-- Once you have obtained a channel instance, you may use the `listen` method to listen for a particular event. Since model broadcast events are not associated with an "actual" event within your application's `App\Events` directory, the [event name](#model-broadcasting-event-conventions) must be prefixed with a `.` to indicate it does not belong to a particular namespace. Each model broadcast event has a `model` property which contains all of the broadcastable properties of the model: -->
-チャネル インスタンスを取得したら、`listen` メソッドを使用して特定のイベントをリッスンできます。モデル ブロードキャスト イベントは、アプリケーションの `App\Events` ディレクトリ内の「実際の」イベントに関連付けられていないため、特定の名前空間に属していないことを示すために、[event name](#model-broadcasting-event-conventions) の先頭に `.` を付ける必要があります。各モデルのブロードキャスト イベントには、モデルのブロードCastableなプロパティがすべて含まれる `model` プロパティがあります。
+チャネル インスタンスを取得したら、`listen` メソッドを使用して特定のイベントをリッスンできます。モデル ブロードキャスト イベントは、アプリケーションの `App\Events` ディレクトリ内の「実際の」イベントに関連付けられていないため、特定の名前空間に属していないことを示すために、[event name](#model-broadcasting-event-conventions) の先頭に `.` を付ける必要があります。各モデルのブロードキャスト イベントには、モデルのブロードキャスト可能なプロパティがすべて含まれる `model` プロパティがあります。
 
 ```js
 Echo.private(`App.Models.User.${this.user.id}`)
@@ -2190,7 +2190,7 @@ useEchoModel<User, "App.Models.User">("App.Models.User", userId, ["UserUpdated"]
 > [Pusher Channels](https://pusher.com/channels) を使用する場合、クライアントイベントを送信するには、[application dashboard](https://dashboard.pusher.com/) の「App Settings」セクションで「Client Events」オプションを有効にする必要があります。
 
 <!-- Sometimes you may wish to broadcast an event to other connected clients without hitting your Laravel application at all. This can be particularly useful for things like "typing" notifications, where you want to alert users of your application that another user is typing a message on a given screen. -->
-Laravel アプリケーションをまったく起動せずに、接続されている他のクライアントにイベントをブロードキャストしたい場合があります。これは、「入力」通知など、別のユーザーが特定の画面でメッセージを入力していることをアプリケーションのユーザーに警告する場合に特に便利です。
+Laravel アプリケーションにまったくリクエストを送らずに、接続されている他のクライアントにイベントをブロードキャストしたい場合があります。これは、「入力」通知など、別のユーザーが特定の画面でメッセージを入力していることをアプリケーションのユーザーに警告する場合に特に便利です。
 
 <!-- To broadcast client events, you may use Echo's `whisper` method: -->
 クライアント イベントをブロードキャストするには、Echo の `whisper` メソッドを使用できます。
@@ -2345,7 +2345,7 @@ channel().notification((notification) => {
 #### Stop Listening for Notifications
 
 <!-- If you would like to stop listening to notifications without [leaving the channel](#leaving-a-channel), you may use the `stopListeningForNotification` method: -->
-[leaving the channel](#leaving-a-channel) を使用せずに通知のリスニングを停止したい場合は、`stopListeningForNotification` メソッドを使用できます。
+[leaving the channel](#leaving-a-channel) を行わずに通知のリスニングを停止したい場合は、`stopListeningForNotification` メソッドを使用できます。
 
 ```js
 const callback = (notification) => {

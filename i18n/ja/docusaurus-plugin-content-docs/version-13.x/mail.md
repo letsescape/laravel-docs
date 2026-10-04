@@ -357,7 +357,7 @@ MAIL_MAILER=failover
 ## Generating Mailables
 
 <!-- When building Laravel applications, each type of email sent by your application is represented as a "mailable" class. These classes are stored in the `app/Mail` directory. Don't worry if you don't see this directory in your application, since it will be generated for you when you create your first mailable class using the `make:mail` Artisan command: -->
-Laravel アプリケーションを構築する場合、アプリケーションによって送信される各種類の電子メールは、「メール可能」クラスとして表されます。これらのクラスは、`app/Mail` ディレクトリに保存されます。アプリケーションにこのディレクトリが表示されなくても心配する必要はありません。このディレクトリは、`make:mail` Artisan コマンドを使用して最初のメール可能クラスを作成するときに生成されるためです。
+Laravel アプリケーションを構築する場合、アプリケーションによって送信される各種類の電子メールは、「Mailable」クラスとして表されます。これらのクラスは、`app/Mail` ディレクトリに保存されます。アプリケーションにこのディレクトリが表示されなくても心配する必要はありません。このディレクトリは、`make:mail` Artisan コマンドを使用して最初の Mailable クラスを作成するときに生成されるためです。
 
 ```shell
 php artisan make:mail OrderShipped
@@ -368,7 +368,7 @@ php artisan make:mail OrderShipped
 ## Writing Mailables
 
 <!-- Once you have generated a mailable class, open it up so we can explore its contents. Mailable class configuration is done in several methods, including the `envelope`, `content`, and `attachments` methods. -->
-メール可能なクラスを生成したら、そのクラスを開いて、その内容を探索できるようにします。メール可能クラスの構成は、`envelope`、`content`、`attachments` メソッドなど、いくつかのメソッドで行われます。
+Mailable クラスを生成したら、そのファイルを開いて内容を確認しましょう。Mailable クラスの構成は、`envelope`、`content`、`attachments` メソッドなど、いくつかのメソッドで行われます。
 
 <!-- The `envelope` method returns an `Illuminate\Mail\Mailables\Envelope` object that defines the subject and, sometimes, the recipients of the message. The `content` method returns an `Illuminate\Mail\Mailables\Content` object that defines the [Blade template](/docs/13.x/blade) that will be used to generate the message content. -->
 `envelope` メソッドは、メッセージの件名と、場合によっては受信者を定義する `Illuminate\Mail\Mailables\Envelope` オブジェクトを返します。 `content` メソッドは、メッセージ コンテンツの生成に使用される [Blade template](/docs/13.x/blade) を定義する `Illuminate\Mail\Mailables\Content` オブジェクトを返します。
@@ -418,7 +418,7 @@ return new Envelope(
 #### Using a Global `from` Address
 
 <!-- However, if your application uses the same "from" address for all of its emails, it can become cumbersome to add it to each mailable class you generate. Instead, you may specify a global "from" address in your `config/mail.php` configuration file. This address will be used if no other "from" address is specified within the mailable class: -->
-ただし、アプリケーションがすべての電子メールに同じ「差出人」アドレスを使用する場合、生成する各メール可能クラスにそのアドレスを追加するのが面倒になる可能性があります。代わりに、`config/mail.php` 構成ファイルでグローバル「送信元」アドレスを指定できます。このアドレスは、メール可能クラス内に他の「差出人」アドレスが指定されていない場合に使用されます。
+ただし、アプリケーションがすべての電子メールに同じ「差出人」アドレスを使用する場合、生成する各 Mailable クラスにそのアドレスを追加するのが面倒になる可能性があります。代わりに、`config/mail.php` 構成ファイルでグローバル「送信元」アドレスを指定できます。このアドレスは、Mailable クラス内に他の「差出人」アドレスが指定されていない場合に使用されます。
 
 ```php
 'from' => [
@@ -442,7 +442,7 @@ return new Envelope(
 ### Configuring the View
 
 <!-- Within a mailable class's `content` method, you may define the `view`, or which template should be used when rendering the email's contents. Since each email typically uses a [Blade template](/docs/13.x/blade) to render its contents, you have the full power and convenience of the Blade templating engine when building your email's HTML: -->
-メール可能クラスの `content` メソッド内で、`view`、または電子メールのコンテンツをレンダリングするときに使用するテンプレートを定義できます。通常、各電子メールは [Blade template](/docs/13.x/blade) を使用してコンテンツをレンダリングするため、電子メールの HTML を構築するときに、Blade テンプレート エンジンの能力と利便性を最大限に活用できます。
+Mailable クラスの `content` メソッド内で、`view`、または電子メールのコンテンツをレンダリングするときに使用するテンプレートを定義できます。通常、各電子メールは [Blade template](/docs/13.x/blade) を使用してコンテンツをレンダリングするため、電子メールの HTML を構築するときに、Blade テンプレート エンジンの能力と利便性を最大限に活用できます。
 
 ```php
 /**
@@ -498,7 +498,7 @@ return new Content(
 #### Via Public Properties
 
 <!-- Typically, you will want to pass some data to your view that you can utilize when rendering the email's HTML. There are two ways you may make data available to your view. First, any public property defined on your mailable class will automatically be made available to the view. So, for example, you may pass data into your mailable class's constructor and set that data to public properties defined on the class: -->
-通常、電子メールの HTML をレンダリングするときに利用できるデータをビューに渡す必要があります。ビューでデータを利用できるようにするには 2 つの方法があります。まず、メール可能クラスで定義されたパブリック プロパティは自動的にビューで利用できるようになります。したがって、たとえば、メール可能クラスのコンストラクターにデータを渡し、そのデータをクラスで定義されたパブリック プロパティに設定できます。
+通常、電子メールの HTML をレンダリングするときに利用できるデータをビューに渡す必要があります。ビューでデータを利用できるようにするには 2 つの方法があります。まず、Mailable クラスで定義されたパブリック プロパティは自動的にビューで利用できるようになります。したがって、たとえば、Mailable クラスのコンストラクターにデータを渡し、そのデータをクラスで定義されたパブリック プロパティに設定できます。
 
 ```php
 <?php
@@ -548,7 +548,7 @@ class OrderShipped extends Mailable
 #### Via the `with` Parameter:
 
 <!-- If you would like to customize the format of your email's data before it is sent to the template, you may manually pass your data to the view via the `Content` definition's `with` parameter. Typically, you will still pass data via the mailable class's constructor; however, you should set this data to `protected` or `private` properties so the data is not automatically made available to the template: -->
-テンプレートに送信される前に電子メールのデータの形式をカスタマイズしたい場合は、`Content` 定義の `with` パラメーターを介してデータをビューに手動で渡すことができます。通常は、メール可能クラスのコンストラクターを介してデータを渡します。ただし、データがテンプレートで自動的に使用可能にならないように、このデータを `protected` または `private` プロパティに設定する必要があります。
+テンプレートに送信される前に電子メールのデータの形式をカスタマイズしたい場合は、`Content` 定義の `with` パラメーターを介してデータをビューに手動で渡すことができます。通常は、Mailable クラスのコンストラクターを介してデータを渡します。ただし、データがテンプレートで自動的に使用可能にならないように、このデータを `protected` または `private` プロパティに設定する必要があります。
 
 ```php
 <?php
@@ -644,7 +644,7 @@ public function attachments(): array
 #### Attaching Files From Disk
 
 <!-- If you have stored a file on one of your [filesystem disks](/docs/13.x/filesystem), you may attach it to the email using the `fromStorage` attachment method: -->
-[filesystem disks](/docs/13.x/filesystem) のいずれかにファイルを保存している場合は、`fromStorage` 添付方法を使用してそのファイルを電子メールに添付できます。
+[filesystem disks](/docs/13.x/filesystem) のいずれかにファイルを保存している場合は、`fromStorage` 添付メソッドを使用してそのファイルを電子メールに添付できます。
 
 ```php
 /**
@@ -703,7 +703,7 @@ public function attachments(): array
 #### Raw Data Attachments
 
 <!-- The `fromData` attachment method may be used to attach a raw string of bytes as an attachment. For example, you might use this method if you have generated a PDF in memory and want to attach it to the email without writing it to disk. The `fromData` method accepts a closure which resolves the raw data bytes as well as the name that the attachment should be assigned: -->
-`fromData` 添付メソッドを使用して、生のバイト文字列を添付ファイルとして添付できます。たとえば、メモリ内に PDF を生成し、それをディスクに書き込まずに電子メールに添付したい場合は、この方法を使用できます。 `fromData` メソッドは、生データ バイトと添付ファイルに割り当てる名前を解決するクロージャを受け入れます。
+`fromData` 添付メソッドを使用して、生のバイト文字列を添付ファイルとして添付できます。たとえば、メモリ内に PDF を生成し、それをディスクに書き込まずに電子メールに添付したい場合は、この方法を使用できます。 `fromData` メソッドは、生データのバイト列を返すクロージャと、添付ファイルに割り当てる名前を引数として受け取ります。
 
 ```php
 /**
@@ -758,7 +758,7 @@ public function attachments(): array
 ### Attachable Objects
 
 <!-- While attaching files to messages via simple string paths is often sufficient, in many cases the attachable entities within your application are represented by classes. For example, if your application is attaching a photo to a message, your application may also have a `Photo` model that represents that photo. When that is the case, wouldn't it be convenient to simply pass the `Photo` model to the `attach` method? Attachable objects allow you to do just that. -->
-多くの場合、単純な文字列パスを介してメッセージにファイルを添付するだけで十分ですが、多くの場合、アプリケーション内の添付可能なエンティティはクラスによって表されます。たとえば、アプリケーションがメッセージに写真を添付し​​ている場合、アプリケーションにはその写真を表す `Photo` モデルも含まれる可能性があります。その場合、`Photo` モデルを `attach` メソッドに渡すだけで便利ではないでしょうか。アタッチ可能なオブジェクトを使用すると、まさにそれが可能になります。
+多くの場合、単純な文字列パスを介してメッセージにファイルを添付するだけで十分ですが、多くの場合、アプリケーション内の添付可能なエンティティはクラスによって表されます。たとえば、アプリケーションがメッセージに写真を添付している場合、アプリケーションにはその写真を表す `Photo` モデルも含まれる可能性があります。その場合、`Photo` モデルを `attach` メソッドに渡すだけで便利ではないでしょうか。アタッチ可能なオブジェクトを使用すると、まさにそれが可能になります。
 
 <!-- To get started, implement the `Illuminate\Contracts\Mail\Attachable` interface on the object that will be attachable to messages. This interface dictates that your class defines a `toMailAttachment` method that returns an `Illuminate\Mail\Attachment` instance: -->
 まず、メッセージに添付できるオブジェクトに `Illuminate\Contracts\Mail\Attachable` インターフェイスを実装します。このインターフェイスは、クラスが `Illuminate\Mail\Attachment` インスタンスを返す `toMailAttachment` メソッドを定義することを指示します。
@@ -834,7 +834,7 @@ return Attachment::fromPath('/path/to/file')
 場合によっては、送信メッセージに追加のヘッダーを添付する必要がある場合があります。たとえば、カスタム `Message-Id` またはその他の任意のテキスト ヘッダーを設定する必要がある場合があります。
 
 <!-- To accomplish this, define a `headers` method on your mailable. The `headers` method should return an `Illuminate\Mail\Mailables\Headers` instance. This class accepts `messageId`, `references`, and `text` parameters. Of course, you may provide only the parameters you need for your particular message: -->
-これを実現するには、メール可能ファイルで `headers` メソッドを定義します。 `headers` メソッドは、`Illuminate\Mail\Mailables\Headers` インスタンスを返す必要があります。このクラスは、`messageId`、`references`、および `text` パラメーターを受け入れます。もちろん、特定のメッセージに必要なパラメータのみを指定することもできます。
+これを実現するには、Mailable で `headers` メソッドを定義します。 `headers` メソッドは、`Illuminate\Mail\Mailables\Headers` インスタンスを返す必要があります。このクラスは、`messageId`、`references`、および `text` パラメーターを受け入れます。もちろん、特定のメッセージに必要なパラメータのみを指定することもできます。
 
 ```php
 use Illuminate\Mail\Mailables\Headers;
@@ -919,21 +919,21 @@ public function envelope(): Envelope
 ## Markdown Mailables
 
 <!-- Markdown mailable messages allow you to take advantage of the pre-built templates and components of [mail notifications](/docs/13.x/notifications#mail-notifications) in your mailables. Since the messages are written in Markdown, Laravel is able to render beautiful, responsive HTML templates for the messages while also automatically generating a plain-text counterpart. -->
-マークダウンのメール可能メッセージを使用すると、メール可能メッセージで事前に構築されたテンプレートと [mail notifications](/docs/13.x/notifications#mail-notifications) のコンポーネントを利用できます。メッセージは Markdown で記述されているため、Laravel はメッセージ用の美しく応答性の高い HTML テンプレートをレンダリングできると同時に、対応するプレーンテキストも自動的に生成します。
+Markdown の Mailable メッセージを使用すると、Mailable で [mail notifications](/docs/13.x/notifications#mail-notifications) の既成のテンプレートとコンポーネントを利用できます。メッセージは Markdown で記述されているため、Laravel はメッセージ用の美しいレスポンシブ HTML テンプレートをレンダリングできると同時に、対応するプレーンテキストも自動的に生成します。
 
 <a name="generating-markdown-mailables"></a>
 <!-- ### Generating Markdown Mailables -->
 ### Generating Markdown Mailables
 
 <!-- To generate a mailable with a corresponding Markdown template, you may use the `--markdown` option of the `make:mail` Artisan command: -->
-対応する Markdown テンプレートを使用してメール可能ファイルを生成するには、`make:mail` Artisan コマンドの `--markdown` オプションを使用できます。
+対応する Markdown テンプレートとともに Mailable を生成するには、`make:mail` Artisan コマンドの `--markdown` オプションを使用できます。
 
 ```shell
 php artisan make:mail OrderShipped --markdown=mail.orders.shipped
 ```
 
 <!-- Then, when configuring the mailable `Content` definition within its `content` method, use the `markdown` parameter instead of the `view` parameter: -->
-次に、`content` メソッド内でメール可能な `Content` 定義を構成するときに、`view` パラメーターの代わりに `markdown` パラメーターを使用します。
+次に、`content` メソッド内で Mailable の `Content` 定義を構成するときに、`view` パラメーターの代わりに `markdown` パラメーターを使用します。
 
 ```php
 use Illuminate\Mail\Mailables\Content;
@@ -957,7 +957,7 @@ public function content(): Content
 ### Writing Markdown Messages
 
 <!-- Markdown mailables use a combination of Blade components and Markdown syntax which allow you to easily construct mail messages while leveraging Laravel's pre-built email UI components: -->
-Markdown メール可能ファイルは、Blade コンポーネントと Markdown 構文の組み合わせを使用するため、Laravel の事前構築済み電子メール UI コンポーネントを活用しながら、メール メッセージを簡単に作成できます。
+Markdown Mailable は、Blade コンポーネントと Markdown 構文の組み合わせを使用するため、Laravel の事前構築済み電子メール UI コンポーネントを活用しながら、メール メッセージを簡単に作成できます。
 
 ```blade
 <x-mail::message>
@@ -1044,14 +1044,14 @@ php artisan vendor:publish --tag=laravel-mail
 Laravel の Markdown コンポーネント用にまったく新しいテーマを構築したい場合は、CSS ファイルを `html/themes` ディレクトリ内に配置できます。 CSS ファイルに名前を付けて保存した後、アプリケーションの `config/mail.php` 構成ファイルの `theme` オプションを新しいテーマの名前と一致するように更新します。
 
 <!-- To customize the theme for an individual mailable, you may set the `$theme` property of the mailable class to the name of the theme that should be used when sending that mailable. -->
-個々のメール可能ファイルのテーマをカスタマイズするには、メール可能クラスの `$theme` プロパティを、そのメール可能ファイルの送信時に使用するテーマの名前に設定します。
+個々の Mailable のテーマをカスタマイズするには、Mailable クラスの `$theme` プロパティを、その Mailable の送信時に使用するテーマの名前に設定します。
 
 <a name="sending-mail"></a>
 <!-- ## Sending Mail -->
 ## Sending Mail
 
 <!-- To send a message, use the `to` method on the `Mail` [facade](/docs/13.x/facades). The `to` method accepts an email address, a user instance, or a collection of users. If you pass an object or collection of objects, the mailer will automatically use their `email` and `name` properties when determining the email's recipients, so make sure these attributes are available on your objects. Once you have specified your recipients, you may pass an instance of your mailable class to the `send` method: -->
-メッセージを送信するには、`Mail` [facade](/docs/13.x/facades) で `to` メソッドを使用します。 `to` メソッドは、電子メール アドレス、ユーザー インスタンス、またはユーザーのコレクションを受け入れます。オブジェクトまたはオブジェクトのコレクションを渡す場合、メーラーは電子メールの受信者を決定するときに `email` および `name` プロパティを自動的に使用するため、これらの属性がオブジェクトで使用できることを確認してください。受信者を指定したら、メール可能クラスのインスタンスを `send` メソッドに渡すことができます。
+メッセージを送信するには、`Mail` [facade](/docs/13.x/facades) で `to` メソッドを使用します。 `to` メソッドは、電子メール アドレス、ユーザー インスタンス、またはユーザーのコレクションを受け入れます。オブジェクトまたはオブジェクトのコレクションを渡す場合、メーラーは電子メールの受信者を決定するときに `email` および `name` プロパティを自動的に使用するため、これらの属性がオブジェクトで使用できることを確認してください。受信者を指定したら、Mailable クラスのインスタンスを `send` メソッドに渡すことができます。
 
 ```php
 <?php
@@ -1097,7 +1097,7 @@ Mail::to($request->user())
 #### Looping Over Recipients
 
 <!-- Occasionally, you may need to send a mailable to a list of recipients by iterating over an array of recipients / email addresses. However, since the `to` method appends email addresses to the mailable's list of recipients, each iteration through the loop will send another email to every previous recipient. Therefore, you should always re-create the mailable instance for each recipient: -->
-場合によっては、受信者/電子メール アドレスの配列を反復処理して、受信者のリストにメール可能ファイルを送信する必要がある場合があります。ただし、`to` メソッドは電子メール アドレスをメール可能受信者のリストに追加するため、ループを繰り返すたびに、前のすべての受信者に別の電子メールが送信されます。したがって、受信者ごとにメール可能インスタンスを常に再作成する必要があります。
+場合によっては、受信者/電子メール アドレスの配列を反復処理して、受信者のリストに Mailable を送信する必要がある場合があります。ただし、`to` メソッドは電子メール アドレスを Mailable の受信者のリストに追加するため、ループを繰り返すたびに、前のすべての受信者に別の電子メールが送信されます。したがって、受信者ごとに Mailable インスタンスを常に再作成する必要があります。
 
 ```php
 foreach (['taylor@example.com', 'dries@example.com'] as $recipient) {
@@ -1158,7 +1158,7 @@ Mail::to($request->user())
 #### Pushing to Specific Queues
 
 <!-- Since all mailable classes generated using the `make:mail` command make use of the `Illuminate\Bus\Queueable` trait, you may call the `onQueue` and `onConnection` methods on any mailable class instance, allowing you to specify the connection and queue name for the message: -->
-`make:mail` コマンドを使用して生成されたすべてのメール可能クラスは `Illuminate\Bus\Queueable` 特性を利用するため、任意のメール可能クラス インスタンスで `onQueue` メソッドと `onConnection` メソッドを呼び出して、メッセージの接続とキュー名を指定できます。
+`make:mail` コマンドを使用して生成されたすべての Mailable クラスは `Illuminate\Bus\Queueable` トレイトを利用するため、任意の Mailable クラス インスタンスで `onQueue` メソッドと `onConnection` メソッドを呼び出して、メッセージの接続とキュー名を指定できます。
 
 ```php
 $message = (new OrderShipped($order))
@@ -1172,7 +1172,7 @@ Mail::to($request->user())
 ```
 
 <!-- Alternatively, you may specify the connection and queue using the `Connection` and `Queue` attributes on the mailable class: -->
-または、メール可能クラスで `Connection` 属性と `Queue` 属性を使用して、接続とキューを指定することもできます。
+または、Mailable クラスで `Connection` 属性と `Queue` 属性を使用して、接続とキューを指定することもできます。
 
 ```php
 use Illuminate\Queue\Attributes\Connection;
@@ -1191,7 +1191,7 @@ class OrderShipped extends Mailable
 #### Queueing by Default
 
 <!-- If you have mailable classes that you want to always be queued, you may implement the `ShouldQueue` contract on the class. Now, even if you call the `send` method when mailing, the mailable will still be queued since it implements the contract: -->
-常にキューに入れておきたいメール可能なクラスがある場合は、そのクラスに `ShouldQueue` コントラクトを実装できます。ここで、メール送信時に `send` メソッドを呼び出したとしても、メール可能ファイルはコントラクトを実装しているため、引き続きキューに入れられます。
+常にキューに入れておきたい Mailable クラスがある場合は、そのクラスに `ShouldQueue` コントラクトを実装できます。ここで、メール送信時に `send` メソッドを呼び出したとしても、Mailable はコントラクトを実装しているため、引き続きキューに入れられます。
 
 ```php
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -1207,10 +1207,10 @@ class OrderShipped extends Mailable implements ShouldQueue
 #### Queued Mailables and Database Transactions
 
 <!-- When queued mailables are dispatched within database transactions, they may be processed by the queue before the database transaction has committed. When this happens, any updates you have made to models or database records during the database transaction may not yet be reflected in the database. In addition, any models or database records created within the transaction may not exist in the database. If your mailable depends on these models, unexpected errors can occur when the job that sends the queued mailable is processed. -->
-キューに入れられたメール可能ファイルがデータベース トランザクション内でディスパッチされると、データベース トランザクションがコミットされる前にキューによって処理される可能性があります。この問題が発生すると、データベース トランザクション中にモデルまたはデータベース レコードに対して行った更新がまだデータベースに反映されていない可能性があります。さらに、トランザクション内で作成されたモデルやデータベース レコードはデータベースに存在しない可能性があります。メール可能ファイルがこれらのモデルに依存している場合、キューに入れられたメール可能ファイルを送信するジョブの処理時に予期しないエラーが発生する可能性があります。
+キューに入れられた Mailable がデータベース トランザクション内でディスパッチされると、データベース トランザクションがコミットされる前にキューによって処理される可能性があります。この問題が発生すると、データベース トランザクション中にモデルまたはデータベース レコードに対して行った更新がまだデータベースに反映されていない可能性があります。さらに、トランザクション内で作成されたモデルやデータベース レコードはデータベースに存在しない可能性があります。Mailable がこれらのモデルに依存している場合、キューに入れられた Mailable を送信するジョブの処理時に予期しないエラーが発生する可能性があります。
 
 <!-- If your queue connection's `after_commit` configuration option is set to `false`, you may still indicate that a particular queued mailable should be dispatched after all open database transactions have been committed by calling the `afterCommit` method when sending the mail message: -->
-キュー接続の `after_commit` 構成オプションが `false` に設定されている場合でも、メール メッセージの送信時に `afterCommit` メソッドを呼び出して、開いているすべてのデータベース トランザクションがコミットされた後に特定のキューに入れられたメール可能ファイルをディスパッチする必要があることを指定できます。
+キュー接続の `after_commit` 構成オプションが `false` に設定されている場合でも、メール メッセージの送信時に `afterCommit` メソッドを呼び出して、開いているすべてのデータベース トランザクションがコミットされた後にキューに入れられた特定の Mailable をディスパッチする必要があることを指定できます。
 
 ```php
 Mail::to($request->user())->send(
@@ -1219,7 +1219,7 @@ Mail::to($request->user())->send(
 ```
 
 <!-- Alternatively, you may call the `afterCommit` method from your mailable's constructor: -->
-あるいは、メール可能ファイルのコンストラクターから `afterCommit` メソッドを呼び出すこともできます。
+あるいは、Mailable のコンストラクターから `afterCommit` メソッドを呼び出すこともできます。
 
 ```php
 <?php
@@ -1253,7 +1253,7 @@ class OrderShipped extends Mailable implements ShouldQueue
 #### Queued Email Failures
 
 <!-- When a queued email fails, the `failed` method on the queued mailable class will be invoked if it has been defined. The `Throwable` instance that caused the queued email to fail will be passed to the `failed` method: -->
-キューに入れられた電子メールが失敗すると、キューに入れられたメール可能クラスの `failed` メソッドが定義されている場合は呼び出されます。キューに入れられた電子メールの失敗の原因となった `Throwable` インスタンスは、`failed` メソッドに渡されます。
+キューに入れられた電子メールが失敗すると、キューに入れられた Mailable クラスの `failed` メソッドが定義されている場合は呼び出されます。キューに入れられた電子メールの失敗の原因となった `Throwable` インスタンスは、`failed` メソッドに渡されます。
 
 ```php
 <?php
@@ -1284,7 +1284,7 @@ class OrderDelayed extends Mailable implements ShouldQueue
 ## Rendering Mailables
 
 <!-- Sometimes you may wish to capture the HTML content of a mailable without sending it. To accomplish this, you may call the `render` method of the mailable. This method will return the evaluated HTML content of the mailable as a string: -->
-メール可能ファイルを送信せずに、その HTML コンテンツをキャプチャしたい場合があります。これを実現するには、メール可能ファイルの `render` メソッドを呼び出します。このメソッドは、メール可能ファイルの評価された HTML コンテンツを文字列として返します。
+Mailable を送信せずに、その HTML コンテンツをキャプチャしたい場合があります。これを実現するには、Mailable の `render` メソッドを呼び出します。このメソッドは、Mailable の評価された HTML コンテンツを文字列として返します。
 
 ```php
 use App\Mail\InvoicePaid;
@@ -1300,7 +1300,7 @@ return (new InvoicePaid($invoice))->render();
 ### Previewing Mailables in the Browser
 
 <!-- When designing a mailable's template, it is convenient to quickly preview the rendered mailable in your browser like a typical Blade template. For this reason, Laravel allows you to return any mailable directly from a route closure or controller. When a mailable is returned, it will be rendered and displayed in the browser, allowing you to quickly preview its design without needing to send it to an actual email address: -->
-メール可能ファイルのテンプレートを設計する場合、一般的な Blade テンプレートと同様に、レンダリングされたメール可能ファイルをブラウザーですばやくプレビューできると便利です。このため、Laravel では、ルート クロージャーまたはコントローラから直接メール可能ファイルを返すことができます。メール可能ファイルが返されると、レンダリングされてブラウザに表示されるため、実際の電子メール アドレスに送信しなくても、そのデザインをすばやくプレビューできます。
+Mailable のテンプレートを設計する場合、一般的な Blade テンプレートと同様に、レンダリングされた Mailable をブラウザーですばやくプレビューできると便利です。このため、Laravel では、ルート クロージャーまたはコントローラから直接 Mailable を返すことができます。Mailable が返されると、レンダリングされてブラウザに表示されるため、実際の電子メール アドレスに送信しなくても、そのデザインをすばやくプレビューできます。
 
 ```php
 Route::get('/mailable', function () {
@@ -1315,10 +1315,10 @@ Route::get('/mailable', function () {
 ## Localizing Mailables
 
 <!-- Laravel allows you to send mailables in a locale other than the request's current locale, and will even remember this locale if the mail is queued. -->
-Laravel では、リクエストの現在のロケール以外のロケールでメール可能ファイルを送信することができ、メールがキューに入れられている場合でもこのロケールを記憶します。
+Laravel では、リクエストの現在のロケール以外のロケールで Mailable を送信することができ、メールがキューに入れられている場合でもこのロケールを記憶します。
 
 <!-- To accomplish this, the `Mail` facade offers a `locale` method to set the desired language. The application will change into this locale when the mailable's template is being evaluated and then revert back to the previous locale when evaluation is complete: -->
-これを実現するために、`Mail` ファサードは、希望の言語を設定するための `locale` メソッドを提供します。アプリケーションは、メール可能テンプレートの評価中にこのロケールに変更され、評価が完了すると前のロケールに戻ります。
+これを実現するために、`Mail` ファサードは、希望の言語を設定するための `locale` メソッドを提供します。アプリケーションは、Mailable のテンプレートの評価中にこのロケールに変更され、評価が完了すると前のロケールに戻ります。
 
 ```php
 Mail::to($request->user())->locale('es')->send(
@@ -1349,7 +1349,7 @@ class User extends Model implements HasLocalePreference
 ```
 
 <!-- Once you have implemented the interface, Laravel will automatically use the preferred locale when sending mailables and notifications to the model. Therefore, there is no need to call the `locale` method when using this interface: -->
-インターフェースを実装すると、Laravel はメール可能ファイルや通知をモデルに送信するときに優先ロケールを自動的に使用します。したがって、このインターフェイスを使用する場合は、`locale` メソッドを呼び出す必要はありません。
+インターフェースを実装すると、Laravel は Mailable や通知をモデルに送信するときに優先ロケールを自動的に使用します。したがって、このインターフェイスを使用する場合は、`locale` メソッドを呼び出す必要はありません。
 
 ```php
 Mail::to($request->user())->send(new OrderShipped($order));
@@ -1364,7 +1364,7 @@ Mail::to($request->user())->send(new OrderShipped($order));
 ### Testing Mailable Content
 
 <!-- Laravel provides a variety of methods for inspecting your mailable's structure. In addition, Laravel provides several convenient methods for testing that your mailable contains the content that you expect: -->
-Laravel は、メーラブルの構造を検査するためのさまざまな方法を提供します。さらに、Laravel には、メール可能ファイルに期待するコンテンツが含まれているかどうかをテストするための便利な方法がいくつか用意されています。
+Laravel は、Mailable の構造を検査するためのさまざまなメソッドを提供します。さらに、Laravel には、Mailable に期待するコンテンツが含まれているかどうかをテストするための便利なメソッドがいくつか用意されています。
 
 ```php tab=Pest
 use App\Mail\InvoicePaid;
@@ -1436,17 +1436,17 @@ public function test_mailable_content(): void
 ```
 
 <!-- As you might expect, the "HTML" assertions assert that the HTML version of your mailable contains a given string, while the "text" assertions assert that the plain-text version of your mailable contains a given string. -->
-ご想像のとおり、「HTML」アサーションはメール可能ファイルの HTML バージョンに特定の文字列が含まれていることをアサートし、「テキスト」アサーションはメール可能ファイルのプレーンテキスト バージョンに特定の文字列が含まれていることをアサートします。
+ご想像のとおり、「HTML」アサーションは Mailable の HTML バージョンに特定の文字列が含まれていることをアサートし、「テキスト」アサーションは Mailable のプレーンテキスト バージョンに特定の文字列が含まれていることをアサートします。
 
 <a name="testing-mailable-sending"></a>
 <!-- ### Testing Mailable Sending -->
 ### Testing Mailable Sending
 
 <!-- We suggest testing the content of your mailables separately from your tests that assert that a given mailable was "sent" to a specific user. Typically, the content of mailables is not relevant to the code you are testing, and it is sufficient to simply assert that Laravel was instructed to send a given mailable. -->
-特定のメール可能ファイルが特定のユーザーに「送信された」ことを確認するテストとは別に、メール可能ファイルのコンテンツをテストすることをお勧めします。通常、メール可能ファイルの内容はテストしているコードとは無関係であり、Laravel が特定のメール可能ファイルを送信するように指示されたことを単に主張するだけで十分です。
+特定の Mailable が特定のユーザーに「送信された」ことを確認するテストとは別に、Mailable のコンテンツをテストすることをお勧めします。通常、Mailable の内容はテストしているコードとは無関係であり、Laravel が特定の Mailable を送信するように指示されたことを単にアサートするだけで十分です。
 
 <!-- You may use the `Mail` facade's `fake` method to prevent mail from being sent. After calling the `Mail` facade's `fake` method, you may then assert that mailables were instructed to be sent to users and even inspect the data the mailables received: -->
-`Mail` ファサードの `fake` メソッドを使用して、メールが送信されないようにすることができます。 `Mail` ファサードの `fake` メソッドを呼び出した後、メール可能ファイルがユーザーに送信されるように指示されたことをアサートし、メール可能ファイルが受信したデータを検査することもできます。
+`Mail` ファサードの `fake` メソッドを使用して、メールが送信されないようにすることができます。 `Mail` ファサードの `fake` メソッドを呼び出した後、Mailable がユーザーに送信されるように指示されたことをアサートし、Mailable が受信したデータを検査することもできます。
 
 ```php tab=Pest
 <?php
@@ -1536,7 +1536,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- If you are queueing mailables for delivery in the background, you should use the `assertQueued` method instead of `assertSent`: -->
-バックグラウンドで配信のためにメール可能ファイルをキューに入れている場合は、`assertSent` の代わりに `assertQueued` メソッドを使用する必要があります。
+バックグラウンドで配信のために Mailable をキューに入れている場合は、`assertSent` の代わりに `assertQueued` メソッドを使用する必要があります。
 
 ```php
 Mail::assertQueued(OrderShipped::class);
@@ -1547,14 +1547,14 @@ Mail::assertQueuedCount(3);
 ```
 
 <!-- You can also assert the total number of mailables that have been sent or queued using the `assertOutgoingCount` method: -->
-`assertOutgoingCount` メソッドを使用して、送信またはキューに入れられたメール可能ファイルの合計数をアサートすることもできます。
+`assertOutgoingCount` メソッドを使用して、送信またはキューに入れられた Mailable の合計数をアサートすることもできます。
 
 ```php
 Mail::assertOutgoingCount(3);
 ```
 
 <!-- You may pass a closure to the `assertSent`, `assertNotSent`, `assertQueued`, or `assertNotQueued` methods in order to assert that a mailable was sent that passes a given "truth test". If at least one mailable was sent that passes the given truth test then the assertion will be successful: -->
-特定の「真実テスト」に合格したメール可能ファイルが送信されたことをアサートするために、`assertSent`、`assertNotSent`、`assertQueued`、または `assertNotQueued` メソッドにクロージャを渡すことができます。指定された真実テストに合格する少なくとも 1 つのメール可能ファイルが送信された場合、アサーションは成功します。
+指定された条件を満たす Mailable が送信されたことをアサートするために、`assertSent`、`assertNotSent`、`assertQueued`、または `assertNotQueued` メソッドにクロージャを渡すことができます。指定された条件を満たす少なくとも 1 つの Mailable が送信された場合、アサーションは成功します。
 
 ```php
 Mail::assertSent(function (OrderShipped $mail) use ($order) {
@@ -1563,7 +1563,7 @@ Mail::assertSent(function (OrderShipped $mail) use ($order) {
 ```
 
 <!-- When calling the `Mail` facade's assertion methods, the mailable instance accepted by the provided closure exposes helpful methods for examining the mailable: -->
-`Mail` ファサードのアサーション メソッドを呼び出すと、提供されたクロージャによって受け入れられるメール可能インスタンスは、メール可能を調べるための役立つメソッドを公開します。
+`Mail` ファサードのアサーション メソッドを呼び出すと、提供されたクロージャによって受け入れられる Mailable インスタンスは、Mailable を調べるのに役立つメソッドを公開します。
 
 ```php
 Mail::assertSent(OrderShipped::class, function (OrderShipped $mail) use ($user) {
@@ -1579,7 +1579,7 @@ Mail::assertSent(OrderShipped::class, function (OrderShipped $mail) use ($user) 
 ```
 
 <!-- The mailable instance also includes several helpful methods for examining the attachments on a mailable: -->
-メール可能インスタンスには、メール可能ファイルの添付ファイルを調べるための便利なメソッドもいくつか含まれています。
+Mailable インスタンスには、Mailable の添付ファイルを調べるための便利なメソッドもいくつか含まれています。
 
 ```php
 use Illuminate\Mail\Mailables\Attachment;
@@ -1606,7 +1606,7 @@ Mail::assertSent(OrderShipped::class, function (OrderShipped $mail) use ($pdfDat
 ```
 
 <!-- You may have noticed that there are two methods for asserting that mail was not sent: `assertNotSent` and `assertNotQueued`. Sometimes you may wish to assert that no mail was sent **or** queued. To accomplish this, you may use the `assertNothingOutgoing` and `assertNotOutgoing` methods: -->
-メールが送信されなかったことを確認するには、`assertNotSent` と `assertNotQueued` という 2 つの方法があることに気づいたかもしれません。場合によっては、メールが送信されなかったり、キューに入れられたりしていないことを主張したい場合があります。これを実現するには、`assertNothingOutgoing` メソッドと `assertNotOutgoing` メソッドを使用できます。
+メールが送信されなかったことを確認するには、`assertNotSent` と `assertNotQueued` という 2 つの方法があることに気づいたかもしれません。場合によっては、メールが送信もキューへの投入もされていないことをアサートしたい場合があります。これを実現するには、`assertNothingOutgoing` メソッドと `assertNotOutgoing` メソッドを使用できます。
 
 ```php
 Mail::assertNothingOutgoing();

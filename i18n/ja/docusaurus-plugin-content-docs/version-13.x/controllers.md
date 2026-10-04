@@ -80,7 +80,7 @@ Route::get('/user/{id}', [UserController::class, 'show']);
 受信リクエストが指定されたルート URI と一致すると、`App\Http\Controllers\UserController` クラスの `show` メソッドが呼び出され、ルート パラメーターがメソッドに渡されます。
 
 > [!NOTE]
-> コントローラは基本クラスを拡張するために**必要ありません**。ただし、すべてのコントローラで共有する必要があるメソッドを含む基本コントローラ クラスを拡張すると便利な場合があります。
+> コントローラは基本クラスを継承する**必要はありません**。ただし、すべてのコントローラで共有する必要があるメソッドを含む基本コントローラ クラスを拡張すると便利な場合があります。
 
 <a name="single-action-controllers"></a>
 <!-- ### Single Action Controllers -->
@@ -360,7 +360,7 @@ Route::softDeletableResources([
 <div class="overflow-auto">
 
 <!-- | Verb | URI | Action | Route Name | | --------- | ---------------------- | ------- | -------------- | | GET | `/photos` | index | photos.index | | GET | `/photos/create` | create | photos.create | | POST | `/photos` | store | photos.store | | GET | `/photos/{photo}` | show | photos.show | | GET | `/photos/{photo}/edit` | edit | photos.edit | | PUT/PATCH | `/photos/{photo}` | update | photos.update | | DELETE | `/photos/{photo}` | destroy | photos.destroy | -->
-| 動詞      | URI                    | アクション  | 路線名     |
+| 動詞      | URI                    | アクション  | ルート名     |
 | --------- | ---------------------- | ------- | -------------- |
 | GET       | `/photos`              | index   | photos.index   |
 | GET       | `/photos/create`       | create  | photos.create  |
@@ -377,7 +377,7 @@ Route::softDeletableResources([
 #### Customizing Missing Model Behavior
 
 <!-- Typically, a 404 HTTP response will be generated if an implicitly bound resource model is not found. However, you may customize this behavior by calling the `missing` method when defining your resource route. The `missing` method accepts a closure that will be invoked if an implicitly bound model cannot be found for any of the resource's routes: -->
-通常、暗黙的にバインドされたリソース モデルが見つからない場合は、404 HTTP 応答が生成されます。ただし、リソース ルートを定義するときに `missing` メソッドを呼び出すことで、この動作をカスタマイズできます。 `missing` メソッドは、リソースのルートのいずれにも暗黙的にバインドされたモデルが見つからない場合に呼び出されるクロージャを受け入れます。
+通常、暗黙的にバインドされたリソース モデルが見つからない場合は、404 HTTP 応答が生成されます。ただし、リソース ルートを定義するときに `missing` メソッドを呼び出すことで、この動作をカスタマイズできます。 `missing` メソッドは、リソースのいずれかのルートで暗黙的にバインドされたモデルが見つからない場合に呼び出されるクロージャを受け入れます。
 
 ```php
 use App\Http\Controllers\PhotoController;
@@ -415,7 +415,7 @@ Route::resource('photos', PhotoController::class)->withTrashed(['show']);
 #### Specifying the Resource Model
 
 <!-- If you are using [route model binding](/docs/13.x/routing#route-model-binding) and would like the resource controller's methods to type-hint a model instance, you may use the `--model` option when generating the controller: -->
-[route model binding](/docs/13.x/routing#route-model-binding) を使用していて、リソース コントローラのメソッドでモデル インスタンスのタイプヒントを取得したい場合は、コントローラの生成時に `--model` オプションを使用できます。
+[route model binding](/docs/13.x/routing#route-model-binding) を使用していて、リソース コントローラのメソッドにモデル インスタンスの型宣言を追加したい場合は、コントローラの生成時に `--model` オプションを使用できます。
 
 ```shell
 php artisan make:controller PhotoController --model=Photo --resource
@@ -456,7 +456,7 @@ Route::resource('photos', PhotoController::class)->except([
 #### API Resource Routes
 
 <!-- When declaring resource routes that will be consumed by APIs, you will commonly want to exclude routes that present HTML templates such as `create` and `edit`. For convenience, you may use the `apiResource` method to automatically exclude these two routes: -->
-API によって使用されるリソース ルートを宣言する場合、一般的に、`create` や `edit` などの HTML テンプレートを提示するルートを除外する必要があります。便宜上、`apiResource` メソッドを使用して、これら 2 つのルートを自動的に除外できます。
+API によって使用されるリソース ルートを宣言する場合、一般的には、`create` や `edit` などの HTML テンプレートを表示するルートを除外したいことが多いでしょう。便宜上、`apiResource` メソッドを使用して、これら 2 つのルートを自動的に除外できます。
 
 ```php
 use App\Http\Controllers\PhotoController;
@@ -530,7 +530,7 @@ Route::resource('photos.comments', CommentController::class)->shallow();
 <div class="overflow-auto">
 
 <!-- | Verb | URI | Action | Route Name | | --------- | --------------------------------- | ------- | ---------------------- | | GET | `/photos/{photo}/comments` | index | photos.comments.index | | GET | `/photos/{photo}/comments/create` | create | photos.comments.create | | POST | `/photos/{photo}/comments` | store | photos.comments.store | | GET | `/comments/{comment}` | show | comments.show | | GET | `/comments/{comment}/edit` | edit | comments.edit | | PUT/PATCH | `/comments/{comment}` | update | comments.update | | DELETE | `/comments/{comment}` | destroy | comments.destroy | -->
-| 動詞      | URI                               | アクション  | 路線名             |
+| 動詞      | URI                               | アクション  | ルート名             |
 | --------- | --------------------------------- | ------- | ---------------------- |
 | GET       | `/photos/{photo}/comments`        | index   | photos.comments.index  |
 | GET       | `/photos/{photo}/comments/create` | create  | photos.comments.create |
@@ -648,7 +648,7 @@ Route::resource('photos', PhotoController::class);
 ```
 
 > [!NOTE]
-> コントローラに集中することを忘れないでください。一般的なリソース アクションのセット以外のメソッドが日常的に必要な場合は、コントローラを 2 つの小さなコントローラに分割することを検討してください。
+> コントローラの責務を絞ることを忘れないでください。一般的なリソース アクションのセット以外のメソッドが日常的に必要な場合は、コントローラを 2 つの小さなコントローラに分割することを検討してください。
 
 <a name="singleton-resource-controllers"></a>
 <!-- ### Singleton Resource Controllers -->
@@ -670,7 +670,7 @@ Route::singleton('profile', ProfileController::class);
 <div class="overflow-auto">
 
 <!-- | Verb | URI | Action | Route Name | | --------- | --------------- | ------ | -------------- | | GET | `/profile` | show | profile.show | | GET | `/profile/edit` | edit | profile.edit | | PUT/PATCH | `/profile` | update | profile.update | -->
-| 動詞      | URI             | アクション | 路線名     |
+| 動詞      | URI             | アクション | ルート名     |
 | --------- | --------------- | ------ | -------------- |
 | GET       | `/profile`      | show   | profile.show   |
 | GET       | `/profile/edit` | edit   | profile.edit   |
@@ -691,7 +691,7 @@ Route::singleton('photos.thumbnail', ThumbnailController::class);
 <div class="overflow-auto">
 
 <!-- | Verb | URI | Action | Route Name | | --------- | -------------------------------- | ------ | ----------------------- | | GET | `/photos/{photo}/thumbnail` | show | photos.thumbnail.show | | GET | `/photos/{photo}/thumbnail/edit` | edit | photos.thumbnail.edit | | PUT/PATCH | `/photos/{photo}/thumbnail` | update | photos.thumbnail.update | -->
-| 動詞      | URI                              | アクション | 路線名              |
+| 動詞      | URI                              | アクション | ルート名              |
 | --------- | -------------------------------- | ------ | ----------------------- |
 | GET       | `/photos/{photo}/thumbnail`      | show   | photos.thumbnail.show   |
 | GET       | `/photos/{photo}/thumbnail/edit` | edit   | photos.thumbnail.edit   |
@@ -716,7 +716,7 @@ Route::singleton('photos.thumbnail', ThumbnailController::class)->creatable();
 <div class="overflow-auto">
 
 <!-- | Verb | URI | Action | Route Name | | --------- | ---------------------------------- | ------- | ------------------------ | | GET | `/photos/{photo}/thumbnail/create` | create | photos.thumbnail.create | | POST | `/photos/{photo}/thumbnail` | store | photos.thumbnail.store | | GET | `/photos/{photo}/thumbnail` | show | photos.thumbnail.show | | GET | `/photos/{photo}/thumbnail/edit` | edit | photos.thumbnail.edit | | PUT/PATCH | `/photos/{photo}/thumbnail` | update | photos.thumbnail.update | | DELETE | `/photos/{photo}/thumbnail` | destroy | photos.thumbnail.destroy | -->
-| 動詞      | URI                                | アクション  | 路線名               |
+| 動詞      | URI                                | アクション  | ルート名               |
 | --------- | ---------------------------------- | ------- | ------------------------ |
 | GET       | `/photos/{photo}/thumbnail/create` | create  | photos.thumbnail.create  |
 | POST      | `/photos/{photo}/thumbnail`        | store   | photos.thumbnail.store   |
@@ -853,7 +853,7 @@ class UserController extends Controller
 #### Method Injection
 
 <!-- In addition to constructor injection, you may also type-hint dependencies on your controller's methods. A common use-case for method injection is injecting the `Illuminate\Http\Request` instance into your controller methods: -->
-コンストラクターのインジェクションに加えて、コントローラのメソッドに対するタイプヒントの依存関係を指定することもできます。メソッド インジェクションの一般的な使用例は、コントローラ メソッドに `Illuminate\Http\Request` インスタンスを挿入することです。
+コンストラクターへの依存性注入に加えて、コントローラのメソッドの引数に型を宣言して依存関係を指定することもできます。メソッド インジェクションの一般的な使用例は、コントローラ メソッドに `Illuminate\Http\Request` インスタンスを挿入することです。
 
 ```php
 <?php

@@ -310,7 +310,7 @@ use Predis\Retry\Strategy\NoBackoff;
 #### Unix Socket Connections
 
 <!-- Redis connections can also be configured to use Unix sockets instead of TCP. This can offer improved performance by eliminating TCP overhead for connections to Redis instances on the same server as your application. To configure Redis to use a Unix socket, set your `REDIS_HOST` environment variable to the path of the Redis socket and the `REDIS_PORT` environment variable to `0`: -->
-Redis 接続は、TCP の代わりに Unix ソケットを使用するように構成することもできます。これにより、アプリケーションと同じサーバー上の Redis インスタンスへの接続の TCP オーバーヘッドが排除され、パフォーマンスが向上します。 Unix ソケットを使用するように Redis を構成するには、`REDIS_HOST` 環境変数を Redis ソケットのパスに設定し、`REDIS_PORT` 環境変数を `0` に設定します。
+Redis 接続は、TCP の代わりに Unix ソケットを使用するように構成することもできます。これにより、アプリケーションと同じサーバー上の Redis インスタンスへの接続の TCP オーバーヘッドが排除され、パフォーマンスが向上する可能性があります。 Unix ソケットを使用するように Redis を構成するには、`REDIS_HOST` 環境変数を Redis ソケットのパスに設定し、`REDIS_PORT` 環境変数を `0` に設定します。
 
 ```env
 REDIS_HOST=/run/redis/redis.sock

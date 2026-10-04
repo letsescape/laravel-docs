@@ -117,7 +117,7 @@ class AppServiceProvider extends ServiceProvider
 <!-- - All internal team members should be using the new API. - Any high traffic customers should not be using the new API. - Otherwise, the feature should be randomly assigned to users with a 1 in 100 chance of being active. -->
 - すべての内部チーム メンバーは新しい API を使用する必要があります。
 - トラフィック量の多い顧客は、新しい API を使用しないでください。
-- それ以外の場合、機能は 100 分の 1 の確率でアクティブになるユーザーにランダムに割り当てられる必要があります。
+- それ以外のユーザーには、100 分の 1 の確率で有効になるように機能をランダムに割り当てます。
 
 <!-- The first time the `new-api` feature is checked for a given user, the result of the closure will be stored by the storage driver. The next time the feature is checked against the same user, the value will be retrieved from storage and the closure will not be invoked. -->
 特定のユーザーに対して初めて `new-api` 機能がチェックされると、クロージャーの結果がストレージ ドライバによって保存されます。次回この機能が同じユーザーに対してチェックされるとき、値はストレージから取得され、クロージャは呼び出されません。
@@ -262,7 +262,7 @@ Feature::someAreInactive(['new-api', 'site-redesign']);
 ```
 
 > [!NOTE]
-> Artisan コマンドやキューに入れられたジョブなど、HTTP コンテキストの外部でPennant を使用する場合は、通常、[explicitly specify the feature's scope](#specifying-the-scope) を使用する必要があります。あるいは、認証された HTTP コンテキストと未認証のコンテキストの両方を考慮した [default scope](#default-scope) を定義することもできます。
+> Artisan コマンドやキューに入れられたジョブなど、HTTP コンテキストの外部でPennant を使用する場合は、通常は機能のスコープを明示的に指定してください（[explicitly specify the feature's scope](#specifying-the-scope)）。あるいは、認証された HTTP コンテキストと未認証のコンテキストの両方を考慮した [default scope](#default-scope) を定義することもできます。
 
 <a name="checking-class-based-features"></a>
 <!-- #### Checking Class Based Features -->
@@ -365,7 +365,7 @@ class User extends Authenticatable
 ```
 
 <!-- Once the trait has been added to your model, you may easily check features by invoking the `features` method: -->
-特性をモデルに追加したら、`features` メソッドを呼び出して特徴を簡単にチェックできます。
+トレイトをモデルに追加したら、`features` メソッドを呼び出して機能を簡単にチェックできます。
 
 ```php
 if ($user->features()->active('new-api')) {
@@ -407,7 +407,7 @@ $user->features()->unless('new-api',
 ### Blade Directive
 
 <!-- To make checking features in Blade a seamless experience, Pennant offers the `@feature` and `@featureany` directive: -->
-Blade のチェック機能をシームレスに行うために、Pennant では `@feature` および `@featureany` ディレクティブを提供しています。
+Blade 内で機能をスムーズにチェックできるように、Pennant では `@feature` および `@featureany` ディレクティブを提供しています。
 
 ```blade
 @feature('site-redesign')
@@ -669,7 +669,7 @@ Feature::for($user->team)->active('billing-v2');
 したがって、機能に渡すスコープが `null` である可能性があり、その機能の値リゾルバーを呼び出す必要がある場合は、機能の定義でそれを考慮する必要があります。 Artisan コマンド、キューに入れられたジョブ、または認証されていないルート内の機能をチェックすると、`null` スコープが発生する可能性があります。通常、これらのコンテキストには認証されたユーザーが存在しないため、デフォルトのスコープは `null` になります。
 
 <!-- If you do not always [explicitly specify your feature scope](#specifying-the-scope) then you should ensure the scope's type is "nullable" and handle the `null` scope value within your feature definition logic: -->
-常に [explicitly specify your feature scope](#specifying-the-scope) ではない場合は、スコープのタイプが「nullable」であることを確認し、機能定義ロジック内で `null` スコープ値を処理する必要があります。
+機能のスコープを常に明示的に指定するとは限らない場合は（[explicitly specify your feature scope](#specifying-the-scope)）、スコープのタイプが「nullable」であることを確認し、機能定義ロジック内で `null` スコープ値を処理する必要があります。
 
 ```php
 use App\Models\User;
@@ -866,7 +866,7 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 <!-- The `discover` method will register all of the feature classes in your application's `app/Features` directory. The `all` method will now include these classes in its results, regardless of whether they have been checked during the current request: -->
-`discover` メソッドは、アプリケーションの `app/Features` ディレクトリにすべてのフィーチャクラスを登録します。 `all` メソッドは、現在のリクエスト中にチェックされたかどうかに関係なく、これらのクラスを結果に含めるようになりました。
+`discover` メソッドは、アプリケーションの `app/Features` ディレクトリ内のすべてのフィーチャクラスを登録します。 `all` メソッドは、現在のリクエスト中にチェックされたかどうかに関係なく、これらのクラスを結果に含めるようになりました。
 
 ```php
 Feature::all();
@@ -884,7 +884,7 @@ Feature::all();
 ## Eager Loading
 
 <!-- Although Pennant keeps an in-memory cache of all resolved features for a single request, it is still possible to encounter performance issues. To alleviate this, Pennant offers the ability to eager load feature values. -->
-Pennant は 1 つのリクエストに対して解決されたすべての機能のメモリ内キャッシュを保持しますが、それでもパフォーマンスの問題が発生する可能性があります。これを軽減するために、Pennant は特徴値を一括ロードする機能を提供します。
+Pennant は 1 つのリクエストに対して解決されたすべての機能のメモリ内キャッシュを保持しますが、それでもパフォーマンスの問題が発生する可能性があります。これを軽減するために、Pennant は機能の値を一括ロードする機能を提供します。
 
 <!-- To illustrate this, imagine that we are checking if a feature is active within a loop: -->
 これを説明するために、ループ内で機能がアクティブかどうかをチェックしていると想像してください。
@@ -900,7 +900,7 @@ foreach ($users as $user) {
 ```
 
 <!-- Assuming we are using the database driver, this code will execute a database query for every user in the loop - executing potentially hundreds of queries. However, using Pennant's `load` method, we can remove this potential performance bottleneck by eager loading the feature values for a collection of users or scopes: -->
-データベース ドライバを使用していると仮定すると、このコードはループ内のすべてのユーザーに対してデータベース クエリを実行します。これにより、数百のクエリが実行される可能性があります。ただし、Pennant の `load` メソッドを使用すると、ユーザーまたはスコープのコレクションの特徴値を積極的にロードすることで、この潜在的なパフォーマンスのボトルネックを取り除くことができます。
+データベース ドライバを使用していると仮定すると、このコードはループ内のすべてのユーザーに対してデータベース クエリを実行します。これにより、数百のクエリが実行される可能性があります。ただし、Pennant の `load` メソッドを使用すると、ユーザーまたはスコープのコレクションの機能の値を事前に一括ロードすることで、この潜在的なパフォーマンスのボトルネックを取り除くことができます。
 
 ```php
 Feature::for($users)->load(['notifications-beta']);
@@ -913,7 +913,7 @@ foreach ($users as $user) {
 ```
 
 <!-- To load feature values only when they have not already been loaded, you may use the `loadMissing` method: -->
-特徴値がまだロードされていない場合にのみロードするには、`loadMissing` メソッドを使用できます。
+機能の値がまだロードされていない場合にのみロードするには、`loadMissing` メソッドを使用できます。
 
 ```php
 Feature::for($users)->loadMissing([
@@ -969,7 +969,7 @@ Feature::forget('purchase-button');
 ### Bulk Updates
 
 <!-- To update stored feature values in bulk, you may use the `activateForEveryone` and `deactivateForEveryone` methods. -->
-保存された特徴値を一括更新するには、`activateForEveryone` メソッドと `deactivateForEveryone` メソッドを使用できます。
+保存された機能の値を一括更新するには、`activateForEveryone` メソッドと `deactivateForEveryone` メソッドを使用できます。
 
 <!-- For example, imagine you are now confident in the `new-api` feature's stability and have landed on the best `'purchase-button'` color for your checkout flow - you can update the stored value for all users accordingly: -->
 たとえば、`new-api` 機能の安定性に自信があり、チェックアウト フローに最適な `'purchase-button'` カラーを見つけたと想像してください。それに応じて、すべてのユーザーの保存値を更新できます。
@@ -990,7 +990,7 @@ Feature::deactivateForEveryone('new-api');
 ```
 
 > [!NOTE]
-> これにより、Pennant のストレージ ドライバによって保存されている解決された特徴値のみが更新されます。アプリケーションの機能定義も更新する必要があります。
+> これにより、Pennant のストレージ ドライバによって保存されている解決された機能の値のみが更新されます。アプリケーションの機能定義も更新する必要があります。
 
 <a name="purging-features"></a>
 <!-- ### Purging Features -->
@@ -1027,7 +1027,7 @@ php artisan pennant:purge new-api purchase-button
 ```
 
 <!-- It is also possible to purge all features _except_ those in a given feature list. For example, imagine you wanted to purge all features but keep the values for the "new-api" and "purchase-button" features in storage. To accomplish this, you can pass those feature names to the `--except` option: -->
-特定の機能リスト内の機能を除くすべての機能を削除することもできます。たとえば、すべての機能を削除し、「new-api」機能と「purchase-button」機能の値をストレージに保持したいとします。これを実現するには、これらの機能名を `--except` オプションに渡すことができます。
+特定の機能リスト内の機能を除くすべての機能を削除することもできます。たとえば、「new-api」機能と「purchase-button」機能の値をストレージに保持し、それ以外のすべての機能を削除したいとします。これを実現するには、これらの機能名を `--except` オプションに渡すことができます。
 
 ```shell
 php artisan pennant:purge --except=new-api --except=purchase-button
@@ -1260,7 +1260,7 @@ Pennant は、アプリケーション全体で機能フラグを追跡すると
 ### `Laravel\Pennant\Events\FeatureRetrieved`
 
 <!-- This event is dispatched whenever a [feature is checked](#checking-features). This event may be useful for creating and tracking metrics against a feature flag's usage throughout your application. -->
-このイベントは、[feature is checked](#checking-features)たびに送出されます。このイベントは、アプリケーション全体での機能フラグの使用状況に対するメトリクスの作成と追跡に役立つ場合があります。
+このイベントは、機能がチェックされるたびに送出されます（[feature is checked](#checking-features)）。このイベントは、アプリケーション全体での機能フラグの使用状況に対するメトリクスの作成と追跡に役立つ場合があります。
 
 <!-- ### `Laravel\Pennant\Events\FeatureResolved` -->
 ### `Laravel\Pennant\Events\FeatureResolved`
@@ -1308,7 +1308,7 @@ class AppServiceProvider extends ServiceProvider
 ### `Laravel\Pennant\Events\UnexpectedNullScopeEncountered`
 
 <!-- This event is dispatched when a `null` scope is passed to a feature definition that [doesn't support null](#nullable-scope). -->
-このイベントは、`null` スコープが [doesn't support null](#nullable-scope) 機能定義に渡されたときに送出されます。
+このイベントは、`null` スコープが null をサポートしない機能定義（[doesn't support null](#nullable-scope)）に渡されたときに送出されます。
 
 <!-- This situation is handled gracefully and the feature will return `false`. However, if you would like to opt out of this feature's default graceful behavior, you may register a listener for this event in the `boot` method of your application's `AppServiceProvider`: -->
 この状況は適切に処理され、機能は `false` を返します。ただし、この機能のデフォルトの正常な動作をオプトアウトしたい場合は、アプリケーションの `AppServiceProvider` の `boot` メソッドでこのイベントのリスナを登録できます。

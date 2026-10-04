@@ -672,7 +672,7 @@ sail debug migrate
 PhpStorm을 사용하고 있다면 [zero-configuration debugging](https://www.jetbrains.com/help/phpstorm/zero-configuration-debugging.html)에 관한 JetBrains 문서를 확인하세요.
 
 > [!WARNING]
-> Laravel Sail은 애플리케이션을 제공하기 위해 `artisan serve`에 의존합니다. `artisan serve` 명령어는 Laravel 버전 8.53.0부터 `XDEBUG_CONFIG`와 `XDEBUG_MODE` 변수만 허용합니다. 이전 Laravel 버전(8.52.0 이하)은 이러한 변수를 지원하지 않으며 디버그 연결을 허용하지 않습니다.
+> Laravel Sail은 애플리케이션을 제공하기 위해 `artisan serve`에 의존합니다. `artisan serve` 명령어에서 `XDEBUG_CONFIG`와 `XDEBUG_MODE` 변수를 사용하려면 Laravel 버전 8.53.0 이상이 필요합니다. 이전 Laravel 버전(8.52.0 이하)은 이러한 변수를 지원하지 않으며 디버그 연결을 허용하지 않습니다.
 
 <a name="sail-customization"></a>
 <!-- ## Customization -->

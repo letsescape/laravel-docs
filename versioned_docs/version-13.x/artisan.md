@@ -225,7 +225,7 @@ Artisan::command('mail:send {user}', function (string $user) {
 #### Type-Hinting Dependencies
 
 <!-- In addition to receiving your command's arguments and options, command closures may also type-hint additional dependencies that you would like resolved out of the [service container](/docs/13.x/container): -->
-명령어의 인수와 옵션을 받는 것 외에도, 명령어 클로저는 [service container](/docs/13.x/container)에서 해결하고 싶은 추가 의존성을 타입 힌트할 수 있습니다.
+명령어의 인수와 옵션을 받는 것 외에도, 명령어 클로저에서는 [service container](/docs/13.x/container)를 통해 주입받을 추가 의존성을 타입 힌트로 선언할 수 있습니다.
 
 ```php
 use App\Models\User;
@@ -630,7 +630,7 @@ $options = $this->options();
 ```
 
 <!-- You may use the `input` method to retrieve a command's arguments and options as an `Illuminate\Console\CommandInput` instance, which provides the same typed accessors that are available on HTTP requests and other data containers: -->
-`input` 메서드를 사용해 명령어의 인수와 옵션을 `Illuminate\Console\CommandInput` 인스턴스로 가져올 수 있습니다. 이 인스턴스는 HTTP 요청과 다른 데이터 컨테이너에서 사용할 수 있는 것과 동일한 형식 지정 접근자를 제공합니다:
+`input` 메서드를 사용해 명령어의 인수와 옵션을 `Illuminate\Console\CommandInput` 인스턴스로 가져올 수 있습니다. 이 인스턴스는 HTTP 요청과 다른 데이터 컨테이너에서 사용할 수 있는 것과 동일한 타입별 접근자를 제공합니다:
 
 ```php
 use App\Enums\ReportType;

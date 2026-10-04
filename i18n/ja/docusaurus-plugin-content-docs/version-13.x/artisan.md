@@ -148,7 +148,7 @@ php artisan make:command SendEmails
 ### Command Structure
 
 <!-- After generating your command, you should define the command's signature and description using the `Signature` and `Description` attributes. The `Signature` attribute also allows you to define [your command's input expectations](#defining-input-expectations). The `handle` method will be called when your command is executed. You may place your command logic in this method. -->
-コマンドを生成した後、`Signature` 属性と `Description` 属性を使用してコマンドの署名と説明を定義する必要があります。 `Signature` 属性を使用すると、[your command's input expectations](#defining-input-expectations) を定義することもできます。コマンドが実行されると、`handle` メソッドが呼び出されます。コマンド ロジックをこのメソッドに配置できます。
+コマンドを生成した後、`Signature` 属性と `Description` 属性を使用してコマンドのシグネチャと説明を定義する必要があります。 `Signature` 属性を使用すると、[your command's input expectations](#defining-input-expectations) を定義することもできます。コマンドが実行されると、`handle` メソッドが呼び出されます。コマンド ロジックをこのメソッドに配置できます。
 
 <!-- Let's take a look at an example command. Note that we are able to request any dependencies we need via the command's `handle` method. The Laravel [service container](/docs/13.x/container) will automatically inject all dependencies that are type-hinted in this method's signature: -->
 コマンドの例を見てみましょう。コマンドの `handle` メソッドを介して、必要な依存関係をリクエストできることに注意してください。 Laravel [service container](/docs/13.x/container) は、このメソッドのシグネチャでタイプヒントされているすべての依存関係を自動的に挿入します。
@@ -349,7 +349,7 @@ protected $signature = 'mail:send {user}';
 ```
 
 <!-- You may also make arguments optional or define default values for arguments: -->
-引数をオプションにしたり、引数のデフォルト値を定義したりすることもできます。
+引数を省略可能にしたり、引数のデフォルト値を定義したりすることもできます。
 
 ```php
 // Optional argument...
@@ -449,7 +449,7 @@ php artisan mail:send 1 2
 ```
 
 <!-- This `*` character can be combined with an optional argument definition to allow zero or more instances of an argument: -->
-この `*` 文字をオプションの引数定義と組み合わせて、引数の 0 個以上のインスタンスを許可できます。
+この `*` 文字を省略可能な引数の定義と組み合わせると、引数の値を 0 個以上受け取ることができます。
 
 ```php
 'mail:send {user?*}'
@@ -741,7 +741,7 @@ $name = $this->anticipate('What is your address?', function (string $input) {
 #### Multiple Choice Questions
 
 <!-- If you need to give the user a predefined set of choices when asking a question, you may use the `choice` method. You may set the array index of the default value to be returned if no option is chosen by passing the index as the third argument to the method: -->
-質問するときにユーザーに事前定義された一連の選択肢を提供する必要がある場合は、`choice` メソッドを使用できます。オプションが選択されていない場合に、メソッドの 3 番目の引数としてインデックスを渡すことにより、デフォルト値の配列インデックスが返されるように設定できます。
+質問するときにユーザーに事前定義された一連の選択肢を提供する必要がある場合は、`choice` メソッドを使用できます。何も選択されなかった場合に返すデフォルト値は、その値の配列インデックスをメソッドの 3 番目の引数に渡すことで指定できます。
 
 ```php
 $name = $this->choice(
@@ -829,7 +829,7 @@ $this->table(
 #### Progress Bars
 
 <!-- For long running tasks, it can be helpful to show a progress bar that informs users how complete the task is. Using the `withProgressBar` method, Laravel will display a progress bar and advance its progress for each iteration over a given iterable value: -->
-長時間実行されるタスクの場合は、タスクの完了度をユーザーに知らせる進行状況バーを表示すると便利です。 `withProgressBar` メソッドを使用すると、Laravel は進行状況バーを表示し、指定された反復可能な値を超えて反復ごとに進行状況を進めます。
+長時間実行されるタスクの場合は、タスクの完了度をユーザーに知らせる進行状況バーを表示すると便利です。 `withProgressBar` メソッドを使用すると、Laravel は進行状況バーを表示し、指定された反復可能な値の各要素を処理するたびにバーを進めます。
 
 ```php
 use App\Models\User;
@@ -866,7 +866,7 @@ $bar->finish();
 ## Registering Commands
 
 <!-- By default, Laravel automatically registers all commands within the `app/Console/Commands` directory. However, you can instruct Laravel to scan other directories for Artisan commands using the `withCommands` method in your application's `bootstrap/app.php` file: -->
-デフォルトでは、Laravel はすべてのコマンドを `app/Console/Commands` ディレクトリ内に自動的に登録します。ただし、アプリケーションの `bootstrap/app.php` ファイル内の `withCommands` メソッドを使用して、他のディレクトリで Artisan コマンドをスキャンするように Laravel に指示することができます。
+デフォルトでは、Laravel は `app/Console/Commands` ディレクトリ内にあるすべてのコマンドを自動的に登録します。ただし、アプリケーションの `bootstrap/app.php` ファイル内の `withCommands` メソッドを使用して、他のディレクトリで Artisan コマンドをスキャンするように Laravel に指示することができます。
 
 ```php
 ->withCommands([

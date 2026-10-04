@@ -97,7 +97,7 @@ $spy->shouldHaveReceived('process');
 ## Mocking Facades
 
 <!-- Unlike traditional static method calls, [facades](/docs/13.x/facades) (including [real-time facades](/docs/13.x/facades#real-time-facades)) may be mocked. This provides a great advantage over traditional static methods and grants you the same testability that you would have if you were using traditional dependency injection. When testing, you may often want to mock a call to a Laravel facade that occurs in one of your controllers. For example, consider the following controller action: -->
-従来の静的メソッド呼び出しとは異なり、[facades](/docs/13.x/facades) ([real-time facades](/docs/13.x/facades#real-time-facades) を含む) はモックされる可能性があります。これにより、従来の静的メソッドに比べて大きな利点が得られ、従来の依存注入を使用した場合と同じテスト容易性が得られます。テストする場合、コントローラの 1 つで発生する Laravel ファサードへの呼び出しをモックしたい場合があります。たとえば、次のコントローラ アクションを考えてみましょう。
+従来の静的メソッド呼び出しとは異なり、[facades](/docs/13.x/facades) ([real-time facades](/docs/13.x/facades#real-time-facades) を含む) はモックできます。これにより、従来の静的メソッドに比べて大きな利点が得られ、従来の依存注入を使用した場合と同じテスト容易性が得られます。テストする場合、コントローラの 1 つで発生する Laravel ファサードへの呼び出しをモックしたい場合があります。たとえば、次のコントローラ アクションを考えてみましょう。
 
 ```php
 <?php
@@ -165,7 +165,7 @@ class UserControllerTest extends TestCase
 ```
 
 > [!WARNING]
-> `Request` ファサードをモックしないでください。代わりに、テストを実行するときに、`get` や `post` などの必要な入力を [HTTP testing methods](/docs/13.x/http-tests) に渡します。同様に、`Config` ファサードをモックする代わりに、テストで `Config::set` メソッドを呼び出します。
+> `Request` ファサードをモックしないでください。代わりに、テストを実行するときに、必要な入力を `get` や `post` などの [HTTP testing methods](/docs/13.x/http-tests) に渡してください。同様に、`Config` ファサードをモックする代わりに、テストで `Config::set` メソッドを呼び出します。
 
 <a name="facade-spies"></a>
 <!-- ### Facade Spies -->
@@ -258,7 +258,7 @@ public function test_time_can_be_manipulated(): void
 ```
 
 <!-- You may also provide a closure to the various time travel methods. The closure will be invoked with time frozen at the specified time. Once the closure has executed, time will resume as normal: -->
-さまざまなタイムトラベル方法にクロージャを提供することもできます。クロージャは、指定された時刻に時間を凍結して呼び出されます。クロージャーが実行されると、時間は通常どおりに再開されます。
+さまざまなタイムトラベル方法にクロージャを提供することもできます。クロージャは、指定された時刻に時間を凍結して呼び出されます。クロージャの実行が完了すると、時間は通常どおりに再開されます。
 
 ```php
 $this->travel(5)->days(function () {
@@ -271,7 +271,7 @@ $this->travelTo(now()->minus(days: 10), function () {
 ```
 
 <!-- The `freezeTime` method may be used to freeze the current time. Similarly, the `freezeSecond` method will freeze the current time but at the start of the current second: -->
-`freezeTime` メソッドを使用して、現在時刻を固定することができます。同様に、`freezeSecond` メソッドは現在時刻をフリーズしますが、現在の秒の始まりをフリーズします。
+`freezeTime` メソッドを使用して、現在時刻を固定することができます。同様に、`freezeSecond` メソッドは現在の秒の開始時点で時刻を固定します。
 
 ```php
 use Illuminate\Support\Carbon;

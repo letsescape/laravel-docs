@@ -223,14 +223,14 @@ $response = Http::withHeaders([
 ```
 
 <!-- You may use the `accept` method to specify the content type that your application is expecting in response to your request: -->
-`accept` メソッドを使用して、アプリケーションがリクエストに応じて期待するコンテンツ タイプを指定できます。
+`accept` メソッドを使用して、アプリケーションがリクエストへの応答として期待するコンテンツ タイプを指定できます。
 
 ```php
 $response = Http::accept('application/json')->get('http://example.com/users');
 ```
 
 <!-- For convenience, you may use the `acceptJson` method to quickly specify that your application expects the `application/json` content type in response to your request: -->
-便宜上、`acceptJson` メソッドを使用して、アプリケーションがリクエストに応じて `application/json` コンテンツ タイプを予期していることをすばやく指定できます。
+便宜上、`acceptJson` メソッドを使用して、アプリケーションがリクエストへの応答として `application/json` コンテンツ タイプを期待していることをすばやく指定できます。
 
 ```php
 $response = Http::acceptJson()->get('http://example.com/users');
@@ -811,7 +811,7 @@ $response = Http::post(/* ... */);
 #### Faking Specific URLs
 
 <!-- Alternatively, you may pass an array to the `fake` method. The array's keys should represent URL patterns that you wish to fake and their associated responses. The `*` character may be used as a wildcard character. You may use the `Http` facade's `response` method to construct stub / fake responses for these endpoints: -->
-あるいは、配列を `fake` メソッドに渡すこともできます。配列のキーは、偽装したい URL パターンとそれに関連する応答を表す必要があります。 `*` 文字はワイルドカード文字として使用できます。 `Http` ファサードの `response` メソッドを使用して、次のエンドポイントのスタブ/偽の応答を構築できます。
+あるいは、配列を `fake` メソッドに渡すこともできます。配列のキーは偽装したい URL パターンを表し、値はそれに対応する応答を表す必要があります。 `*` 文字はワイルドカード文字として使用できます。 `Http` ファサードの `response` メソッドを使用して、次のエンドポイントのスタブ/偽の応答を構築できます。
 
 ```php
 Http::fake([
@@ -933,7 +933,7 @@ Http::fake(function (Request $request) {
 応答を偽装する場合、アプリケーションが正しいデータまたはヘッダーを送信していることを確認するために、クライアントが受信するリクエストを検査したい場合があります。これを行うには、`Http::fake` を呼び出した後に `Http::assertSent` メソッドを呼び出します。
 
 <!-- The `assertSent` method accepts a closure which will receive an `Illuminate\Http\Client\Request` instance and should return a boolean value indicating if the request matches your expectations. In order for the test to pass, at least one request must have been issued matching the given expectations: -->
-`assertSent` メソッドは、`Illuminate\Http\Client\Request` インスタンスを受け取るクロージャーを受け入れ、リクエストが期待と一致するかどうかを示すブール値を返す必要があります。テストに合格するには、指定された期待に一致するリクエストが少なくとも 1 つ発行されている必要があります。
+`assertSent` メソッドは、`Illuminate\Http\Client\Request` インスタンスを受け取るクロージャーを受け入れます。このクロージャーは、リクエストが期待と一致するかどうかを示すブール値を返す必要があります。テストに合格するには、指定された期待に一致するリクエストが少なくとも 1 つ発行されている必要があります。
 
 ```php
 use Illuminate\Http\Client\Request;

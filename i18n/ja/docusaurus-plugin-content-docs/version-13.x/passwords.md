@@ -20,7 +20,7 @@
 ほとんどの Web アプリケーションには、ユーザーが忘れたパスワードをリセットする方法が用意されています。作成するアプリケーションごとにこれを手動で再実装することを強制するのではなく、Laravel は、パスワードリセット リンクを送信し、パスワードを安全にリセットするための便利なサービスを提供します。
 
 > [!NOTE]
-> すぐに始めたいですか?新しい Laravel アプリケーションに Laravel [application starter kit](/docs/13.x/starter-kits) をインストールします。 Laravel のスターター キットは、忘れたパスワードのリセットを含む、認証システム全体の足場を処理します。
+> すぐに始めたいですか?新しい Laravel アプリケーションに Laravel [application starter kit](/docs/13.x/starter-kits) をインストールします。 Laravel のスターター キットは、忘れたパスワードのリセットを含む、認証システム全体のひな形を用意します。
 
 <a name="configuration"></a>
 <!-- ### Configuration -->
@@ -78,10 +78,10 @@
 ### Model Preparation
 
 <!-- Before using the password reset features of Laravel, your application's `App\Models\User` model must use the `Illuminate\Notifications\Notifiable` trait. Typically, this trait is already included on the default `App\Models\User` model that is created with new Laravel applications. -->
-Laravel のパスワードリセット機能を使用する前に、アプリケーションの `App\Models\User` モデルは `Illuminate\Notifications\Notifiable` トレイトを使用する必要があります。通常、この特性は、新しい Laravel アプリケーションで作成されるデフォルトの `App\Models\User` モデルにすでに含まれています。
+Laravel のパスワードリセット機能を使用する前に、アプリケーションの `App\Models\User` モデルは `Illuminate\Notifications\Notifiable` トレイトを使用する必要があります。通常、このトレイトは、新しい Laravel アプリケーションで作成されるデフォルトの `App\Models\User` モデルにすでに含まれています。
 
 <!-- Next, verify that your `App\Models\User` model implements the `Illuminate\Contracts\Auth\CanResetPassword` contract. The `App\Models\User` model included with the framework already implements this interface, and uses the `Illuminate\Auth\Passwords\CanResetPassword` trait to include the methods needed to implement the interface. -->
-次に、`App\Models\User` モデルが `Illuminate\Contracts\Auth\CanResetPassword` コントラクトを実装していることを確認します。フレームワークに含まれる `App\Models\User` モデルはすでにこのインターフェイスを実装しており、`Illuminate\Auth\Passwords\CanResetPassword` 特性を使用してインターフェイスの実装に必要なメソッドを含めています。
+次に、`App\Models\User` モデルが `Illuminate\Contracts\Auth\CanResetPassword` コントラクトを実装していることを確認します。フレームワークに含まれる `App\Models\User` モデルはすでにこのインターフェイスを実装しており、`Illuminate\Auth\Passwords\CanResetPassword` トレイトを使用してインターフェイスの実装に必要なメソッドを含めています。
 
 <a name="configuring-trusted-hosts"></a>
 <!-- ### Configuring Trusted Hosts -->
@@ -94,7 +94,7 @@ Laravel のパスワードリセット機能を使用する前に、アプリケ
 通常、指定されたホスト名に一致するリクエストのみをアプリケーションに送信するように、Nginx や Apache などの Web サーバーを構成する必要があります。ただし、Web サーバーを直接カスタマイズする機能がなく、特定のホスト名にのみ応答するように Laravel に指示する必要がある場合は、アプリケーションの `bootstrap/app.php` ファイルで `trustHosts` ミドルウェア メソッドを使用してこれを行うことができます。これは、アプリケーションがパスワードリセット機能を提供する場合に特に重要です。
 
 <!-- To learn more about this middleware method, please consult the [TrustHosts middleware documentation](/docs/13.x/requests#configuring-trusted-hosts). -->
-このミドルウェア方式の詳細については、[TrustHosts middleware documentation](/docs/13.x/requests#configuring-trusted-hosts) を参照してください。
+このミドルウェアメソッドの詳細については、[TrustHosts middleware documentation](/docs/13.x/requests#configuring-trusted-hosts) を参照してください。
 
 <a name="routing"></a>
 <!-- ## Routing -->
@@ -151,7 +151,7 @@ Route::post('/forgot-password', function (Request $request) {
 次に進む前に、このルートを詳しく調べてみましょう。まず、リクエストの `email` 属性が検証されます。次に、Laravel の組み込み「パスワード ブローカー」を (`Password` ファサード経由で) 使用して、パスワードリセット リンクをユーザーに送信します。パスワードブローカーは、指定されたフィールド (この場合は電子メールアドレス) によるユーザーの取得と、Laravel の組み込み [notification system](/docs/13.x/notifications) を介したパスワードリセットリンクの送信を処理します。
 
 <!-- The `sendResetLink` method returns a "status" slug. This status may be translated using Laravel's [localization](/docs/13.x/localization) helpers in order to display a user-friendly message to the user regarding the status of their request. The translation of the password reset status is determined by your application's `lang/{lang}/passwords.php` language file. An entry for each possible value of the status slug is located within the `passwords` language file. -->
-`sendResetLink` メソッドは、「ステータス」スラッグを返します。このステータスは、リクエストのステータスに関するわかりやすいメッセージをユーザーに表示するために、Laravel の [localization](/docs/13.x/localization) ヘルパを使用して変換できます。パスワードリセット ステータスの翻訳は、アプリケーションの `lang/{lang}/passwords.php` 言語ファイルによって決まります。ステータス スラッグの考えられる各値のエントリは、`passwords` 言語ファイル内にあります。
+`sendResetLink` メソッドは、「ステータス」スラッグを返します。このステータスは、リクエストのステータスに関するわかりやすいメッセージをユーザーに表示するために、Laravel の [localization](/docs/13.x/localization) ヘルパを使用して翻訳できます。パスワードリセット ステータスの翻訳は、アプリケーションの `lang/{lang}/passwords.php` 言語ファイルによって決まります。ステータス スラッグの考えられる各値のエントリは、`passwords` 言語ファイル内にあります。
 
 > [!NOTE]
 > デフォルトでは、Laravel アプリケーションのスケルトンには `lang` ディレクトリが含まれません。 Laravel の言語ファイルをカスタマイズしたい場合は、`lang:publish` Artisan コマンドを使用して言語ファイルを公開できます。
@@ -230,7 +230,7 @@ Route::post('/reset-password', function (Request $request) {
 パスワード ブローカーに指定されたトークン、電子メール アドレス、およびパスワードが有効な場合、`reset` メソッドに渡されたクロージャが呼び出されます。ユーザー インスタンスとパスワードリセット フォームに提供されたプレーンテキストのパスワードを受け取るこのクロージャー内で、データベース内のユーザーのパスワードを更新できます。
 
 <!-- The `reset` method returns a "status" slug. This status may be translated using Laravel's [localization](/docs/13.x/localization) helpers in order to display a user-friendly message to the user regarding the status of their request. The translation of the password reset status is determined by your application's `lang/{lang}/passwords.php` language file. An entry for each possible value of the status slug is located within the `passwords` language file. If your application does not contain a `lang` directory, you may create it using the `lang:publish` Artisan command. -->
-`reset` メソッドは、「ステータス」スラッグを返します。このステータスは、リクエストのステータスに関するわかりやすいメッセージをユーザーに表示するために、Laravel の [localization](/docs/13.x/localization) ヘルパを使用して変換できます。パスワードリセット ステータスの翻訳は、アプリケーションの `lang/{lang}/passwords.php` 言語ファイルによって決まります。ステータス スラッグの考えられる各値のエントリは、`passwords` 言語ファイル内にあります。アプリケーションに `lang` ディレクトリが含まれていない場合は、`lang:publish` Artisan コマンドを使用してディレクトリを作成できます。
+`reset` メソッドは、「ステータス」スラッグを返します。このステータスは、リクエストのステータスに関するわかりやすいメッセージをユーザーに表示するために、Laravel の [localization](/docs/13.x/localization) ヘルパを使用して翻訳できます。パスワードリセット ステータスの翻訳は、アプリケーションの `lang/{lang}/passwords.php` 言語ファイルによって決まります。ステータス スラッグの考えられる各値のエントリは、`passwords` 言語ファイル内にあります。アプリケーションに `lang` ディレクトリが含まれていない場合は、`lang:publish` Artisan コマンドを使用してディレクトリを作成できます。
 
 <!-- Before moving on, you may be wondering how Laravel knows how to retrieve the user record from your application's database when calling the `Password` facade's `reset` method. The Laravel password broker utilizes your authentication system's "user providers" to retrieve database records. The user provider used by the password broker is configured within the `passwords` configuration array of your `config/auth.php` configuration file. To learn more about writing custom user providers, consult the [authentication documentation](/docs/13.x/authentication#adding-custom-user-providers). -->
 次に進む前に、`Password` ファサードの `reset` メソッドを呼び出すときに、Laravel がアプリケーションのデータベースからユーザー レコードを取得する方法をどのように認識するのか疑問に思うかもしれません。 Laravel パスワードブローカーは、認証システムの「ユーザープロバイダ」を利用してデータベースレコードを取得します。パスワード ブローカーによって使用されるユーザー プロバイダは、`config/auth.php` 構成ファイルの `passwords` 構成配列内で構成されます。カスタム ユーザー プロバイダの作成の詳細については、[authentication documentation](/docs/13.x/authentication#adding-custom-user-providers) を参照してください。

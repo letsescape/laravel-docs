@@ -120,7 +120,7 @@ return $this->hasOne(Phone::class, 'foreign_key');
 ```
 
 <!-- Additionally, Eloquent assumes that the foreign key should have a value matching the primary key column of the parent. In other words, Eloquent will look for the value of the user's `id` column in the `user_id` column of the `Phone` record. If you would like the relationship to use a primary key value other than `id` or your model's primary key, you may pass a third argument to the `hasOne` method: -->
-또한 Eloquent는 외래 키가 부모 모델의 기본 키 컬럼과 일치하는 값을 가져야 한다고 가정합니다. 다시 말해 Eloquent는 `Phone` 레코드의 `user_id` 컬럼에서 사용자의 `id` 컬럼 값을 찾습니다. 연관관계에서 `id` 또는 모델의 기본 키가 아닌 다른 기본 키 값을 사용하고 싶다면 `hasOne` 메서드의 세 번째 인수로 값을 전달할 수 있습니다.
+또한 Eloquent는 외래 키가 부모 모델의 기본 키 컬럼과 일치하는 값을 가져야 한다고 가정합니다. 다시 말해 Eloquent는 `Phone` 레코드의 `user_id` 컬럼에서 사용자의 `id` 컬럼 값을 찾습니다. 연관관계에서 `id` 또는 모델의 기본 키가 아닌 다른 키를 사용하고 싶다면 `hasOne` 메서드의 세 번째 인수로 로컬 키 이름을 전달할 수 있습니다.
 
 ```php
 return $this->hasOne(Phone::class, 'foreign_key', 'local_key');
@@ -2774,7 +2774,7 @@ $user->save();
 ```
 
 <!-- To remove a parent model from a child model, you may use the `dissociate` method. This method will set the relationship's foreign key to `null`: -->
-자식 모델에서 부모 모델을 제거하려면 `dissociate` 메서드를 사용할 수 있습니다. 이 메서드는 연관관계의 외래 키를 `null`로 설정합니다.
+자식 모델과 부모 모델의 연결을 해제하려면 `dissociate` 메서드를 사용할 수 있습니다. 이 메서드는 연관관계의 외래 키를 `null`로 설정합니다.
 
 ```php
 $user->account()->dissociate();

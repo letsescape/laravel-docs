@@ -224,7 +224,7 @@ class Flight extends Model
 #### "Composite" Primary Keys
 
 <!-- Eloquent requires each model to have at least one uniquely identifying "ID" that can serve as its primary key. "Composite" primary keys are not supported by Eloquent models. However, you are free to add additional multi-column, unique indexes to your database tables in addition to the table's uniquely identifying primary key. -->
-Eloquent는 각 모델에 기본 키 역할을 할 수 있는, 고유하게 식별 가능한 "ID"가 최소 하나 있어야 한다고 요구합니다. "복합" 기본 키는 Eloquent 모델에서 지원되지 않습니다. 하지만 테이블을 고유하게 식별하는 기본 키와 별개로, 데이터베이스 테이블에 여러 컬럼으로 구성된 고유 인덱스를 추가하는 것은 자유롭게 할 수 있습니다.
+Eloquent는 각 모델에 기본 키 역할을 할 수 있는, 고유하게 식별 가능한 "ID"가 최소 하나 있어야 한다고 요구합니다. "복합" 기본 키는 Eloquent 모델에서 지원되지 않습니다. 하지만 테이블의 레코드를 고유하게 식별하는 기본 키와 별개로, 데이터베이스 테이블에 여러 컬럼으로 구성된 고유 인덱스를 추가하는 것은 자유롭게 할 수 있습니다.
 
 <a name="uuid-and-ulid-keys"></a>
 <!-- ### UUID and ULID Keys -->
@@ -460,7 +460,7 @@ class Flight extends Model
 ### Refreshing Attributes After Writes
 
 <!-- If your database contains generated columns, you may configure Eloquent to refresh specific attributes after a model is inserted or updated. To do so, define the `Refreshes` attribute on your model: -->
-데이터베이스에 생성된 컬럼이 있다면 모델이 삽입되거나 업데이트된 후 Eloquent가 특정 속성을 새로 고치도록 설정할 수 있습니다. 이를 위해 모델에 `Refreshes` 속성을 정의합니다:
+데이터베이스에 생성 컬럼(generated column)이 있다면 모델이 삽입되거나 업데이트된 후 Eloquent가 특정 속성을 새로 고치도록 설정할 수 있습니다. 이를 위해 모델에 `Refreshes` 속성을 정의합니다:
 
 ```php
 use Illuminate\Database\Eloquent\Attributes\Refreshes;
@@ -480,7 +480,7 @@ class User extends Model
 ```
 
 <!-- After the model is written, the configured attributes will be refreshed from the database. -->
-모델이 저장된 후 설정된 속성이 데이터베이스에서 새로 고쳐집니다.
+모델이 저장된 후 설정된 속성을 데이터베이스에서 다시 읽어와 갱신합니다.
 
 <a name="configuring-eloquent-strictness"></a>
 <!-- ### Configuring Eloquent Strictness -->

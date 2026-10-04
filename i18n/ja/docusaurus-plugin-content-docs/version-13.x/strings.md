@@ -269,7 +269,7 @@ echo __('messages.welcome');
 ```
 
 <!-- If the specified translation string or key does not exist, the `__` function will return the given value. So, using the example above, the `__` function would return `messages.welcome` if that translation key does not exist. -->
-指定された変換文字列またはキーが存在しない場合、`__` 関数は指定された値を返します。したがって、上記の例を使用すると、変換キーが存在しない場合、`__` 関数は `messages.welcome` を返します。
+指定された翻訳文字列またはキーが存在しない場合、`__` 関数は指定された値を返します。したがって、上記の例を使用すると、翻訳キーが存在しない場合、`__` 関数は `messages.welcome` を返します。
 
 <a name="method-class-basename"></a>
 <!-- #### `class_basename()` -->
@@ -317,7 +317,7 @@ $replaced = preg_replace_array('/:[a-z_]+/', ['8:30', '9:00'], $string);
 #### `Str::after()`
 
 <!-- The `Str::after` method returns everything after the given value in a string. The entire string will be returned if the value does not exist within the string: -->
-`Str::after` メソッドは、文字列内の指定された値以降のすべてを返します。文字列内に値が存在しない場合は、文字列全体が返されます。
+`Str::after` メソッドは、文字列内の指定された値より後のすべてを返します。文字列内に値が存在しない場合は、文字列全体が返されます。
 
 ```php
 use Illuminate\Support\Str;
@@ -392,7 +392,7 @@ $slice = Str::before('This is my name', 'my name');
 #### `Str::beforeLast()`
 
 <!-- The `Str::beforeLast` method returns everything before the last occurrence of the given value in a string: -->
-`Str::beforeLast` メソッドは、文字列内の指定された値が最後に出現するまでのすべてを返します。
+`Str::beforeLast` メソッドは、文字列内の指定された値が最後に出現する位置より前のすべてを返します。
 
 ```php
 use Illuminate\Support\Str;
@@ -619,7 +619,7 @@ $doesntContain = Str::doesntContain('This is name', 'MY', ignoreCase: true);
 #### `Str::deduplicate()`
 
 <!-- The `Str::deduplicate` method replaces consecutive instances of a character with a single instance of that character in the given string. By default, the method deduplicates spaces: -->
-`Str::deduplicate` メソッドは、指定された文字列内の文字の連続したインスタンスをその文字の単一のインスタンスに置き換えます。デフォルトでは、このメソッドはスペースを重複排除します。
+`Str::deduplicate` メソッドは、指定された文字列内で連続する同じ文字を、その文字 1 つに置き換えます。デフォルトでは、このメソッドはスペースを重複排除します。
 
 ```php
 use Illuminate\Support\Str;
@@ -763,7 +763,7 @@ $excerpt = Str::excerpt('This is my name', 'name', [
 #### `Str::finish()`
 
 <!-- The `Str::finish` method adds a single instance of the given value to a string if it does not already end with that value: -->
-`Str::finish` メソッドは、指定された値の単一インスタンスを文字列に追加します (指定された値で終わっていない場合)。
+`Str::finish` メソッドは、文字列が指定された値で終わっていない場合、その値を末尾に 1 回だけ追加します。
 
 ```php
 use Illuminate\Support\Str;
@@ -1240,7 +1240,7 @@ $result = Str::isMatch('/foo (.*)/', 'laravel');
 #### `Str::orderedUuid()`
 
 <!-- The `Str::orderedUuid` method generates a "timestamp first" UUID that may be efficiently stored in an indexed database column. Each UUID that is generated using this method will be sorted after UUIDs previously generated using the method: -->
-`Str::orderedUuid` メソッドは、インデックス付きデータベース列に効率的に格納できる「タイムスタンプ優先」の UUID を生成します。このメソッドを使用して生成された各 UUID は、以前に次のメソッドを使用して生成された UUID の後にソートされます。
+`Str::orderedUuid` メソッドは、インデックス付きデータベース列に効率的に格納できる「タイムスタンプ優先」の UUID を生成します。このメソッドを使用して生成された各 UUID は、以前にこのメソッドを使用して生成された UUID の後にソートされます。
 
 ```php
 use Illuminate\Support\Str;
@@ -1393,7 +1393,7 @@ $label = Str::plural('car', 1000, prependCount: true);
 #### `Str::pluralStudly()`
 
 <!-- The `Str::pluralStudly` method converts a singular word string formatted in studly caps case to its plural form. This function supports [any of the languages supported by Laravel's pluralizer](/docs/13.x/localization#pluralization-language): -->
-`Str::pluralStudly` メソッドは、大文字小文字でフォーマットされた単数形の単語文字列を複数形に変換します。この関数は [any of the languages supported by Laravel's pluralizer](/docs/13.x/localization#pluralization-language) をサポートします。
+`Str::pluralStudly` メソッドは、StudlyCase 形式の単数形の単語文字列を複数形に変換します。この関数は [any of the languages supported by Laravel's pluralizer](/docs/13.x/localization#pluralization-language) をサポートします。
 
 ```php
 use Illuminate\Support\Str;
@@ -1728,7 +1728,7 @@ $converted = Str::snake('fooBar', '-');
 #### `Str::squish()`
 
 <!-- The `Str::squish` method removes all extraneous white space from a string, including extraneous white space between words: -->
-`Str::squish` メソッドは、単語間の無関係な空白を含め、文字列から無関係な空白をすべて削除します。
+`Str::squish` メソッドは、単語間の余分な空白を含め、文字列から余分な空白をすべて削除します。
 
 ```php
 use Illuminate\Support\Str;
@@ -1743,7 +1743,7 @@ $string = Str::squish('    laravel    framework    ');
 #### `Str::start()`
 
 <!-- The `Str::start` method adds a single instance of the given value to a string if it does not already start with that value: -->
-`Str::start` メソッドは、指定された値の単一インスタンスを文字列に追加します (まだその値で始まっていない場合)。
+`Str::start` メソッドは、文字列が指定された値で始まっていない場合、その値を先頭に 1 回だけ追加します。
 
 ```php
 use Illuminate\Support\Str;
@@ -2157,7 +2157,7 @@ Str::wordCount('Hello, world!'); // 2
 #### `Str::wordWrap()`
 
 <!-- The `Str::wordWrap` method wraps a string to a given number of characters: -->
-`Str::wordWrap` メソッドは、文字列を指定された文字数にラップします。
+`Str::wordWrap` メソッドは、指定された文字数に合わせて文字列を折り返します。
 
 ```php
 use Illuminate\Support\Str;
@@ -2234,28 +2234,28 @@ $snake = str()->snake('FooBar');
 #### `trans()`
 
 <!-- The `trans` function translates the given translation key using your [language files](/docs/13.x/localization): -->
-`trans` 関数は、[language files](/docs/13.x/localization) を使用して、指定された変換キーを変換します。
+`trans` 関数は、[language files](/docs/13.x/localization) を使用して、指定された翻訳キーを翻訳します。
 
 ```php
 echo trans('messages.welcome');
 ```
 
 <!-- If the specified translation key does not exist, the `trans` function will return the given key. So, using the example above, the `trans` function would return `messages.welcome` if the translation key does not exist. -->
-指定された変換キーが存在しない場合、`trans` 関数は指定されたキーを返します。したがって、上記の例を使用すると、変換キーが存在しない場合、`trans` 関数は `messages.welcome` を返します。
+指定された翻訳キーが存在しない場合、`trans` 関数は指定されたキーを返します。したがって、上記の例を使用すると、翻訳キーが存在しない場合、`trans` 関数は `messages.welcome` を返します。
 
 <a name="method-trans-choice"></a>
 <!-- #### `trans_choice()` -->
 #### `trans_choice()`
 
 <!-- The `trans_choice` function translates the given translation key with inflection: -->
-`trans_choice` 関数は、指定された変換キーを語形変化を使用して変換します。
+`trans_choice` 関数は、指定された翻訳キーを語形変化を使用して翻訳します。
 
 ```php
 echo trans_choice('messages.notifications', $unreadCount);
 ```
 
 <!-- If the specified translation key does not exist, the `trans_choice` function will return the given key. So, using the example above, the `trans_choice` function would return `messages.notifications` if the translation key does not exist. -->
-指定された変換キーが存在しない場合、`trans_choice` 関数は指定されたキーを返します。したがって、上記の例を使用すると、変換キーが存在しない場合、`trans_choice` 関数は `messages.notifications` を返します。
+指定された翻訳キーが存在しない場合、`trans_choice` 関数は指定されたキーを返します。したがって、上記の例を使用すると、翻訳キーが存在しない場合、`trans_choice` 関数は `messages.notifications` を返します。
 
 <a name="fluent-strings"></a>
 <!-- ## Fluent Strings -->
@@ -2269,7 +2269,7 @@ Fluent String は、文字列値を操作するためのより流暢なオブジ
 #### `after`
 
 <!-- The `after` method returns everything after the given value in a string. The entire string will be returned if the value does not exist within the string: -->
-`after` メソッドは、文字列内の指定された値以降のすべてを返します。文字列内に値が存在しない場合は、文字列全体が返されます。
+`after` メソッドは、文字列内の指定された値より後のすべてを返します。文字列内に値が存在しない場合は、文字列全体が返されます。
 
 ```php
 use Illuminate\Support\Str;
@@ -2355,7 +2355,7 @@ $string = Str::of('/foo/bar/baz')->basename();
 ```
 
 <!-- If needed, you may provide an "extension" that will be removed from the trailing component: -->
-必要に応じて、後続コンポーネントから削除される「拡張機能」を指定できます。
+必要に応じて、末尾の名前から削除する「拡張子」を指定できます。
 
 ```php
 use Illuminate\Support\Str;
@@ -2385,7 +2385,7 @@ $slice = Str::of('This is my name')->before('my name');
 #### `beforeLast`
 
 <!-- The `beforeLast` method returns everything before the last occurrence of the given value in a string: -->
-`beforeLast` メソッドは、文字列内の指定された値が最後に出現するまでのすべてを返します。
+`beforeLast` メソッドは、文字列内の指定された値が最後に出現する位置より前のすべてを返します。
 
 ```php
 use Illuminate\Support\Str;
@@ -2590,7 +2590,7 @@ $containsAll = Str::of('This is my name')->containsAll(['MY', 'NAME'], ignoreCas
 #### `decrypt`
 
 <!-- The `decrypt` method [decrypts](/docs/13.x/encryption) the encrypted string: -->
-`decrypt` メソッドは、暗号化された文字列を[decrypts](/docs/13.x/encryption)します。
+`decrypt` メソッドは、[decrypts](/docs/13.x/encryption) 機能を使って暗号化された文字列を復号化します。
 
 ```php
 use Illuminate\Support\Str;
@@ -2608,7 +2608,7 @@ $decrypted = $encrypted->decrypt();
 #### `deduplicate`
 
 <!-- The `deduplicate` method replaces consecutive instances of a character with a single instance of that character in the given string. By default, the method deduplicates spaces: -->
-`deduplicate` メソッドは、指定された文字列内の文字の連続したインスタンスをその文字の単一のインスタンスに置き換えます。デフォルトでは、このメソッドはスペースを重複排除します。
+`deduplicate` メソッドは、指定された文字列内で連続する同じ文字を、その文字 1 つに置き換えます。デフォルトでは、このメソッドはスペースを重複排除します。
 
 ```php
 use Illuminate\Support\Str;
@@ -2753,7 +2753,7 @@ $result = Str::of('This is my name')->doesntStartWith(['What', 'That', 'There'])
 #### `encrypt`
 
 <!-- The `encrypt` method [encrypts](/docs/13.x/encryption) the string: -->
-`encrypt` メソッドは、文字列を[encrypts](/docs/13.x/encryption)します。
+`encrypt` メソッドは、[encrypts](/docs/13.x/encryption) 機能を使って文字列を暗号化します。
 
 ```php
 use Illuminate\Support\Str;
@@ -2863,7 +2863,7 @@ $collection = Str::of('foo bar baz')->explode(' ');
 #### `finish`
 
 <!-- The `finish` method adds a single instance of the given value to a string if it does not already end with that value: -->
-`finish` メソッドは、指定された値の単一インスタンスを文字列に追加します (指定された値で終わっていない場合)。
+`finish` メソッドは、文字列が指定された値で終わっていない場合、その値を末尾に 1 回だけ追加します。
 
 ```php
 use Illuminate\Support\Str;
@@ -3824,7 +3824,7 @@ $segments = Str::of('one, two, three')->split('/[\s,]+/');
 #### `squish`
 
 <!-- The `squish` method removes all extraneous white space from a string, including extraneous white space between words: -->
-`squish` メソッドは、単語間の無関係な空白を含め、文字列から無関係な空白をすべて削除します。
+`squish` メソッドは、単語間の余分な空白を含め、文字列から余分な空白をすべて削除します。
 
 ```php
 use Illuminate\Support\Str;
@@ -3839,7 +3839,7 @@ $string = Str::of('    laravel    framework    ')->squish();
 #### `start`
 
 <!-- The `start` method adds a single instance of the given value to a string if it does not already start with that value: -->
-`start` メソッドは、指定された値の単一インスタンスを文字列に追加します (まだその値で始まっていない場合)。
+`start` メソッドは、文字列が指定された値で始まっていない場合、その値を先頭に 1 回だけ追加します。
 
 ```php
 use Illuminate\Support\Str;
@@ -4233,7 +4233,7 @@ $adjusted = Str::of('laravel')->upper();
 #### `when`
 
 <!-- The `when` method invokes the given closure if a given condition is `true`. The closure will receive the fluent string instance: -->
-`when` メソッドは、指定された条件が `true` の場合、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`when` メソッドは、指定された条件が `true` の場合、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4255,7 +4255,7 @@ $string = Str::of('Taylor')
 #### `whenContains`
 
 <!-- The `whenContains` method invokes the given closure if the string contains the given value. The closure will receive the fluent string instance: -->
-`whenContains` メソッドは、文字列に指定された値が含まれている場合に、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenContains` メソッドは、文字列に指定された値が含まれている場合に、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4292,7 +4292,7 @@ $string = Str::of('tony stark')
 #### `whenContainsAll`
 
 <!-- The `whenContainsAll` method invokes the given closure if the string contains all of the given sub-strings. The closure will receive the fluent string instance: -->
-`whenContainsAll` メソッドは、文字列に指定されたサブ文字列がすべて含まれている場合に、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenContainsAll` メソッドは、文字列に指定されたサブ文字列がすべて含まれている場合に、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4314,7 +4314,7 @@ $string = Str::of('tony stark')
 #### `whenDoesntEndWith`
 
 <!-- The `whenDoesntEndWith` method invokes the given closure if the string doesn't end with the given sub-string. The closure will receive the fluent string instance: -->
-`whenDoesntEndWith` メソッドは、文字列が指定された部分文字列で終わっていない場合に、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenDoesntEndWith` メソッドは、文字列が指定された部分文字列で終わっていない場合に、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4332,7 +4332,7 @@ $string = Str::of('disney world')->whenDoesntEndWith('land', function (Stringabl
 #### `whenDoesntStartWith`
 
 <!-- The `whenDoesntStartWith` method invokes the given closure if the string doesn't start with the given sub-string. The closure will receive the fluent string instance: -->
-`whenDoesntStartWith` メソッドは、文字列が指定された部分文字列で始まらない場合に、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenDoesntStartWith` メソッドは、文字列が指定された部分文字列で始まらない場合に、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4350,7 +4350,7 @@ $string = Str::of('disney world')->whenDoesntStartWith('sea', function (Stringab
 #### `whenEmpty`
 
 <!-- The `whenEmpty` method invokes the given closure if the string is empty. If the closure returns a value, that value will also be returned by the `whenEmpty` method. If the closure does not return a value, the fluent string instance will be returned: -->
-`whenEmpty` メソッドは、文字列が空の場合、指定されたクロージャを呼び出します。クロージャが値を返す場合、その値は `whenEmpty` メソッドによっても返されます。クロージャが値を返さない場合は、流暢な文字列インスタンスが返されます。
+`whenEmpty` メソッドは、文字列が空の場合、指定されたクロージャを呼び出します。クロージャが値を返す場合、その値は `whenEmpty` メソッドによっても返されます。クロージャが値を返さない場合は、Fluent String インスタンスが返されます。
 
 ```php
 use Illuminate\Support\Str;
@@ -4368,7 +4368,7 @@ $string = Str::of('  ')->trim()->whenEmpty(function (Stringable $string) {
 #### `whenNotEmpty`
 
 <!-- The `whenNotEmpty` method invokes the given closure if the string is not empty. If the closure returns a value, that value will also be returned by the `whenNotEmpty` method. If the closure does not return a value, the fluent string instance will be returned: -->
-文字列が空でない場合、`whenNotEmpty` メソッドは指定されたクロージャを呼び出します。クロージャが値を返す場合、その値は `whenNotEmpty` メソッドによっても返されます。クロージャが値を返さない場合は、流暢な文字列インスタンスが返されます。
+文字列が空でない場合、`whenNotEmpty` メソッドは指定されたクロージャを呼び出します。クロージャが値を返す場合、その値は `whenNotEmpty` メソッドによっても返されます。クロージャが値を返さない場合は、Fluent String インスタンスが返されます。
 
 ```php
 use Illuminate\Support\Str;
@@ -4386,7 +4386,7 @@ $string = Str::of('Framework')->whenNotEmpty(function (Stringable $string) {
 #### `whenStartsWith`
 
 <!-- The `whenStartsWith` method invokes the given closure if the string starts with the given sub-string. The closure will receive the fluent string instance: -->
-`whenStartsWith` メソッドは、文字列が指定された部分文字列で始まる場合に、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenStartsWith` メソッドは、文字列が指定された部分文字列で始まる場合に、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4404,7 +4404,7 @@ $string = Str::of('disney world')->whenStartsWith('disney', function (Stringable
 #### `whenEndsWith`
 
 <!-- The `whenEndsWith` method invokes the given closure if the string ends with the given sub-string. The closure will receive the fluent string instance: -->
-`whenEndsWith` メソッドは、文字列が指定された部分文字列で終わる場合に、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenEndsWith` メソッドは、文字列が指定された部分文字列で終わる場合に、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4422,7 +4422,7 @@ $string = Str::of('disney world')->whenEndsWith('world', function (Stringable $s
 #### `whenExactly`
 
 <!-- The `whenExactly` method invokes the given closure if the string exactly matches the given string. The closure will receive the fluent string instance: -->
-`whenExactly` メソッドは、文字列が指定された文字列と正確に一致する場合、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenExactly` メソッドは、文字列が指定された文字列と正確に一致する場合、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4440,7 +4440,7 @@ $string = Str::of('laravel')->whenExactly('laravel', function (Stringable $strin
 #### `whenNotExactly`
 
 <!-- The `whenNotExactly` method invokes the given closure if the string does not exactly match the given string. The closure will receive the fluent string instance: -->
-`whenNotExactly` メソッドは、文字列が指定された文字列と正確に一致しない場合、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenNotExactly` メソッドは、文字列が指定された文字列と正確に一致しない場合、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4458,7 +4458,7 @@ $string = Str::of('framework')->whenNotExactly('laravel', function (Stringable $
 #### `whenIs`
 
 <!-- The `whenIs` method invokes the given closure if the string matches a given pattern. Asterisks may be used as wildcard values. The closure will receive the fluent string instance: -->
-`whenIs` メソッドは、文字列が指定されたパターンに一致する場合に、指定されたクロージャを呼び出します。アスタリスクはワイルドカード値として使用できます。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenIs` メソッドは、文字列が指定されたパターンに一致する場合に、指定されたクロージャを呼び出します。アスタリスクはワイルドカード値として使用できます。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4494,7 +4494,7 @@ $string = Str::of('laravel')->whenIsAscii(function (Stringable $string) {
 #### `whenIsUlid`
 
 <!-- The `whenIsUlid` method invokes the given closure if the string is a valid ULID. The closure will receive the fluent string instance: -->
-文字列が有効な ULID の場合、`whenIsUlid` メソッドは指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+文字列が有効な ULID の場合、`whenIsUlid` メソッドは指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4511,7 +4511,7 @@ $string = Str::of('01gd6r360bp37zj17nxb55yv40')->whenIsUlid(function (Stringable
 #### `whenIsUuid`
 
 <!-- The `whenIsUuid` method invokes the given closure if the string is a valid UUID. The closure will receive the fluent string instance: -->
-文字列が有効な UUID の場合、`whenIsUuid` メソッドは指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+文字列が有効な UUID の場合、`whenIsUuid` メソッドは指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;
@@ -4529,7 +4529,7 @@ $string = Str::of('a0a2a2d2-0b87-4a18-83f2-2529882be2de')->whenIsUuid(function (
 #### `whenTest`
 
 <!-- The `whenTest` method invokes the given closure if the string matches the given regular expression. The closure will receive the fluent string instance: -->
-`whenTest` メソッドは、文字列が指定された正規表現と一致する場合に、指定されたクロージャを呼び出します。クロージャは流暢な文字列インスタンスを受け取ります。
+`whenTest` メソッドは、文字列が指定された正規表現と一致する場合に、指定されたクロージャを呼び出します。クロージャは Fluent String インスタンスを受け取ります。
 
 ```php
 use Illuminate\Support\Str;

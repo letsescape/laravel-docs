@@ -2168,7 +2168,7 @@ $number = Number::spellOrdinal(21);
 #### `Number::trim()`
 
 <!-- The `Number::trim` method removes any trailing zero digits after the decimal point of the given number: -->
-`Number::trim` 메서드는 주어진 숫자의 소수점 뒤에 붙은 0을 제거합니다:
+`Number::trim` 메서드는 주어진 숫자의 소수 부분 끝에 붙은 0을 제거합니다:
 
 ```php
 use Illuminate\Support\Number;
@@ -3316,7 +3316,7 @@ return rescue(function () {
 #### `resolve()`
 
 <!-- The `resolve` function resolves a given class or interface name to an instance using the [service container](/docs/13.x/container): -->
-`resolve` 함수는 [service container](/docs/13.x/container)를 사용해 주어진 클래스 또는 인터페이스 이름을 인스턴스로 확인합니다:
+`resolve` 함수는 [service container](/docs/13.x/container)를 사용해 주어진 클래스 또는 인터페이스 이름을 인스턴스로 해석합니다:
 
 ```php
 $api = resolve('HelpSpot\API');
@@ -3738,7 +3738,7 @@ Cache::put('metrics', $metrics, minutes(10));
 Laravel의 [queued jobs](/docs/13.x/queues)를 사용하면 백그라운드 처리를 위해 작업을 큐에 넣을 수 있지만, 장시간 실행되는 큐 워커를 구성하거나 유지 관리하지 않고 간단한 작업을 지연하고 싶은 경우도 있습니다.
 
 <!-- Deferred functions allow you to defer the execution of a closure until after the HTTP response has been sent to the user, keeping your application feeling fast and responsive. To defer the execution of a closure, simply pass the closure to the `Illuminate\Support\defer` function: -->
-지연 함수는 HTTP 응답이 사용자에게 전송된 뒤 클로저 실행을 미룰 수 있게 해 줍니다. 이를 통해 애플리케이션이 빠르고 즉각적으로 반응하는 것처럼 느껴지게 할 수 있습니다. 클로저 실행을 지연하려면 클로저를 `Illuminate\Support\defer` 함수에 전달하기만 하면 됩니다.
+지연 함수는 클로저 실행을 HTTP 응답이 사용자에게 전송된 뒤로 미룰 수 있게 해 줍니다. 이를 통해 애플리케이션이 빠르고 즉각적으로 반응하는 것처럼 느껴지게 할 수 있습니다. 클로저 실행을 지연하려면 클로저를 `Illuminate\Support\defer` 함수에 전달하기만 하면 됩니다.
 
 ```php
 use App\Services\Metrics;
@@ -4155,7 +4155,7 @@ use Illuminate\Support\Timebox;
 ### URI
 
 <!-- Laravel's `Uri` class provides a convenient and fluent interface for creating and manipulating URIs. This class wraps the functionality provided by the underlying League URI package and integrates seamlessly with Laravel's routing system. -->
-Laravel의 `Uri` 클래스는 URI를 만들고 조작할 수 있는 편리하고 유창한 인터페이스를 제공합니다. 이 클래스는 기반이 되는 League URI 패키지가 제공하는 기능을 감싸며, Laravel의 라우팅 시스템과 자연스럽게 통합됩니다.
+Laravel의 `Uri` 클래스는 메서드를 이어 호출하여 URI를 만들고 조작할 수 있는 편리한 인터페이스를 제공합니다. 이 클래스는 기반이 되는 League URI 패키지가 제공하는 기능을 감싸며, Laravel의 라우팅 시스템과 자연스럽게 통합됩니다.
 
 <!-- You can create a `Uri` instance easily using static methods: -->
 정적 메서드를 사용하면 `Uri` 인스턴스를 쉽게 만들 수 있습니다.
@@ -4181,7 +4181,7 @@ $uri = $request->uri();
 ```
 
 <!-- Once you have a URI instance, you can fluently modify it: -->
-URI 인스턴스를 얻은 뒤에는 이를 유창하게 수정할 수 있습니다.
+URI 인스턴스를 얻은 뒤에는 메서드를 이어 호출하여 수정할 수 있습니다.
 
 ```php
 $uri = Uri::of('https://example.com')

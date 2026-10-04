@@ -1392,7 +1392,7 @@ Validator::fakeDnsLookups();
 #### after:_date_
 
 <!-- The field under validation must be a value after a given date. The dates will be passed into the `strtotime` PHP function in order to be converted to a valid `DateTime` instance: -->
-유효성 검증 중인 필드는 주어진 날짜 이후의 값이어야 합니다. 날짜는 유효한 `DateTime` 인스턴스로 변환하기 위해 PHP `strtotime` 함수에 전달됩니다.
+유효성 검증 중인 필드는 주어진 날짜보다 뒤의 값이어야 합니다. 날짜는 유효한 `DateTime` 인스턴스로 변환하기 위해 PHP `strtotime` 함수에 전달됩니다.
 
 ```php
 'start_date' => ['required', 'date', 'after:tomorrow']
@@ -1418,7 +1418,7 @@ use Illuminate\Validation\Rule;
 ```
 
 <!-- The `afterToday` and `todayOrAfter` methods may be used to fluently express the date and must be after today, or today or after, respectively: -->
-`afterToday`와 `todayOrAfter` 메서드를 사용하면 날짜가 각각 오늘 이후여야 하거나, 오늘 또는 그 이후여야 한다는 조건을 fluent하게 표현할 수 있습니다.
+`afterToday`와 `todayOrAfter` 메서드를 사용하면 날짜가 각각 오늘보다 뒤여야 하거나, 오늘 또는 그 이후여야 한다는 조건을 fluent하게 표현할 수 있습니다.
 
 ```php
 'start_date' => [
@@ -2650,7 +2650,7 @@ Validator::make($request->all(), [
 #### prohibits:_anotherfield_,...
 
 <!-- If the field under validation is not missing or empty, all fields in _anotherfield_ must be missing or empty. A field is "empty" if it meets one of the following criteria: -->
-유효성 검증 대상 필드가 없거나 비어 있지 않다면, _anotherfield_의 모든 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
+유효성 검증 대상 필드가 존재하고 비어 있지 않다면, _anotherfield_의 모든 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
 
 <div class="content-list" markdown="1">
 
@@ -2731,7 +2731,7 @@ _anotherfield_ 필드가 `"no"`, `"off"`, `0`, `"0"`, `false`, 또는 `"false"`�
 #### required_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty unless the _anotherfield_ field is equal to any _value_. This also means _anotherfield_ must be present in the request data unless _value_ is `null`. If _value_ is `null` (`required_unless:name,null`), the field under validation will be required unless the comparison field is `null` or the comparison field is missing from the request data. -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 존재하고 비어 있지 않아야 합니다. 이는 _value_가 `null`이 아닌 한 _anotherfield_도 요청 데이터에 존재해야 한다는 뜻입니다. _value_가 `null`인 경우(`required_unless:name,null`), 비교 필드가 `null`이거나 비교 필드가 요청 데이터에 없지 않은 한 유효성 검증 대상 필드는 필수입니다.
+_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 존재하고 비어 있지 않아야 합니다. 이는 _value_가 `null`이 아닌 한 _anotherfield_도 요청 데이터에 존재해야 한다는 뜻입니다. _value_가 `null`인 경우(`required_unless:name,null`), 비교 필드가 `null`이거나 요청 데이터에 없는 경우를 제외하면 유효성 검증 대상 필드는 필수입니다.
 
 <!-- If you would like to construct a more complex condition for the `required_unless` rule, you may use the `Rule::requiredUnless` method. This method accepts a boolean or a closure. When passed a closure, the closure should return `true` or `false` to indicate if the field under validation is not required: -->
 `required_unless` 규칙에 더 복잡한 조건을 구성하려면 `Rule::requiredUnless` 메서드를 사용할 수 있습니다. 이 메서드는 불리언 또는 클로저를 받습니다. 클로저가 전달되면, 해당 클로저는 유효성 검증 대상 필드가 필수가 아닌지 나타내기 위해 `true` 또는 `false`를 반환해야 합니다.
@@ -2852,7 +2852,7 @@ use Illuminate\Validation\Rule;
 유효성 검증 대상 필드는 `DateTimeZone::listIdentifiers` 메서드 기준으로 유효한 시간대 식별자여야 합니다.
 
 <!-- The arguments [accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php) may also be provided to this validation rule: -->
-[accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php)도 이 유효성 검증 규칙에 제공할 수 있습니다.
+[accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php)에서 설명하는 인수도 이 유효성 검증 규칙에 제공할 수 있습니다.
 
 ```php
 'timezone' => ['required', 'timezone:all'];
@@ -3186,7 +3186,7 @@ $validator = Validator::make($request->all(), [
 ```
 
 <!-- Likewise, you may use the `*` character when specifying [custom validation messages in your language files](#custom-messages-for-specific-attributes), making it a breeze to use a single validation message for array-based fields: -->
-마찬가지로 [custom validation messages in your language files](#custom-messages-for-specific-attributes) `*` 문자를 사용할 수 있으므로, 배열 기반 필드에 대해 하나의 유효성 검증 메시지를 쉽게 사용할 수 있습니다.
+마찬가지로 [custom validation messages in your language files](#custom-messages-for-specific-attributes)를 지정할 때 `*` 문자를 사용할 수 있으므로, 배열 기반 필드에 대해 하나의 유효성 검증 메시지를 쉽게 사용할 수 있습니다.
 
 ```php
 'custom' => [

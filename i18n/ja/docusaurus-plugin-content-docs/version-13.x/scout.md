@@ -191,7 +191,7 @@ Meilisearch の詳細については、[Meilisearch documentation](https://docs.
 [Typesense](https://typesense.org) は超高速のオープンソース検索エンジンで、キーワード検索、セマンティック検索、地理検索、ベクトル検索をサポートしています。
 
 <!-- You can [self-host](https://typesense.org/docs/guide/install-typesense.html#option-2-local-machine-self-hosting) Typesense or use [Typesense Cloud](https://cloud.typesense.org). -->
-[self-host](https://typesense.org/docs/guide/install-typesense.html#option-2-local-machine-self-hosting) Typesense または [Typesense Cloud](https://cloud.typesense.org) を使用できます。
+Typesense を [self-host](https://typesense.org/docs/guide/install-typesense.html#option-2-local-machine-self-hosting) するか、[Typesense Cloud](https://cloud.typesense.org) を使用できます。
 
 <!-- To get started using Typesense with Scout, install the Typesense PHP SDK via the Composer package manager: -->
 Scout で Typesense の使用を開始するには、Composer パッケージ マネージャーを介して Typesense PHP SDK をインストールします。
@@ -246,7 +246,7 @@ TURBOPUFFER_REGION=gcp-us-central1
 ### Configuring Searchable Data
 
 <!-- By default, the entire `toArray` form of a given model will be persisted to its search index. If you would like to customize the data that is synchronized to the search index, you may override the `toSearchableArray` method on the model: -->
-デフォルトでは、特定のモデルの `toArray` フォーム全体が検索インデックスに保存されます。検索インデックスに同期されるデータをカスタマイズしたい場合は、モデルの `toSearchableArray` メソッドをオーバーライドできます。
+デフォルトでは、特定のモデルの `toArray` で得られる配列全体が検索インデックスに保存されます。検索インデックスに同期されるデータをカスタマイズしたい場合は、モデルの `toSearchableArray` メソッドをオーバーライドできます。
 
 ```php
 <?php
@@ -395,7 +395,7 @@ public function toSearchableArray(): array
 「コレクション」エンジンは、迅速なプロトタイプ、非常に小さなデータセット (数百レコード)、またはテストの実行を目的としています。データベースからすべての可能なレコードを取得し、Laravel の `Str::is` ヘルパを使用してそれらを PHP でフィルタリングするため、インデックス作成やデータベース固有の機能は必要ありません。些細な使用例を超える場合は、代わりに [database engine](#database-engine) を使用する必要があります。
 
 <!-- To use the collection engine, you may simply set the value of the `SCOUT_DRIVER` environment variable to `collection`, or specify the `collection` driver directly in your application's `scout` configuration file: -->
-収集エンジンを使用するには、単に `SCOUT_DRIVER` 環境変数の値を `collection` に設定するか、アプリケーションの `scout` 構成ファイルで `collection` ドライバを直接指定します。
+コレクションエンジンを使用するには、単に `SCOUT_DRIVER` 環境変数の値を `collection` に設定するか、アプリケーションの `scout` 構成ファイルで `collection` ドライバを直接指定します。
 
 ```ini
 SCOUT_DRIVER=collection
@@ -677,7 +677,7 @@ Meilisearch でセマンティック検索またはハイブリッド検索を�
 #### Searchable Data Types
 
 <!-- Meilisearch will only perform filter operations (`>`, `<`, etc.) on data of the correct type. When customizing your searchable data, you should ensure that numeric values are cast to their correct type: -->
-Meilisearch は、正しいタイプのデータに対してフィルター操作 (`>`、`<` など) のみを実行します。検索可能なデータをカスタマイズするときは、数値が正しい型にcastされていることを確認する必要があります。
+Meilisearch は、正しい型のデータに対してのみフィルター操作 (`>`、`<` など) を実行します。検索可能なデータをカスタマイズするときは、数値が正しい型にcastされていることを確認する必要があります。
 
 ```php
 public function toSearchableArray()
@@ -821,7 +821,7 @@ use App\Models\Article;
 ```
 
 <!-- The numeric values assigned to `searchable-attributes` are relative BM25 weights. In the example above, matches in the article title contribute three times the score of matches in the body. -->
-`searchable-attributes` に割り当てる数値は、相対的な BM25 の重みです。上の例では、記事タイトルの一致は本文の一致の 3 倍のスコアに加算されます。
+`searchable-attributes` に割り当てる数値は、相対的な BM25 の重みです。上の例では、記事タイトルの一致によって加算されるスコアは、本文の一致によるスコアの 3 倍です。
 
 <!-- To enable semantic and hybrid search, add an `embedding` setting and vector schema to the model's configuration: -->
 セマンティック検索とハイブリッド検索を有効にするには、モデルの設定に `embedding` 設定とベクトルスキーマを追加します。
@@ -914,7 +914,7 @@ php artisan scout:flush "App\Models\Post"
 #### Modifying the Import Query
 
 <!-- If you would like to modify the query that is used to retrieve all of your models for batch importing, you may define a `makeAllSearchableUsing` method on your model. This is a great place to add any eager relationship loading that may be necessary before importing your models: -->
-バッチインポート用にすべてのモデルを取得するために使用されるクエリを変更したい場合は、モデルに `makeAllSearchableUsing` メソッドを定義できます。ここは、モデルをインポートする前に必要となる可能性のある積極的な関係の読み込みを追加するのに最適な場所です。
+バッチインポート用にすべてのモデルを取得するために使用されるクエリを変更したい場合は、モデルに `makeAllSearchableUsing` メソッドを定義できます。ここは、モデルをインポートする前に必要となる可能性のあるリレーションの Eager Loading を追加するのに適した場所です。
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
@@ -929,14 +929,14 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> キューを使用してモデルをバッチインポートする場合、`makeAllSearchableUsing` メソッドは適用できないことがあります。モデルのコレクションをジョブで処理すると、リレーションは [not restored](/docs/13.x/queues#handling-relationships) されません。
+> キューを使用してモデルをバッチインポートする場合、`makeAllSearchableUsing` メソッドは適用できないことがあります。モデルのコレクションをジョブで処理すると、リレーションは復元されません（[not restored](/docs/13.x/queues#handling-relationships)）。
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
 ### Adding Records
 
 <!-- Once you have added the `Laravel\Scout\Searchable` trait to a model, all you need to do is `save` or `create` a model instance and it will automatically be added to your search index. If you have configured Scout to [use queues](#queueing) this operation will be performed in the background by your queue worker: -->
-`Laravel\Scout\Searchable` トレイトをモデルに追加したら、モデル インスタンスに `save` または `create` を追加するだけで、検索インデックスに自動的に追加されます。 Scout を [use queues](#queueing) に構成した場合、この操作はキューワーカーによってバックグラウンドで実行されます。
+`Laravel\Scout\Searchable` トレイトをモデルに追加したら、`save` または `create` でモデルインスタンスを保存するだけで、検索インデックスに自動的に追加されます。 Scout を [use queues](#queueing) に構成した場合、この操作はキューワーカーによってバックグラウンドで実行されます。
 
 ```php
 use App\Models\Order;
@@ -983,7 +983,7 @@ $orders->searchable();
 ### Updating Records
 
 <!-- To update a searchable model, you only need to update the model instance's properties and `save` the model to your database. Scout will automatically persist the changes to your search index: -->
-検索可能なモデルを更新するには、モデル インスタンスのプロパティとデータベースのモデルを `save` 更新するだけです。 Scout は、検索インデックスへの変更を自動的に永続化します。
+検索可能なモデルを更新するには、モデルインスタンスのプロパティを更新し、`save` でモデルをデータベースに保存するだけです。 Scout は、検索インデックスへの変更を自動的に永続化します。
 
 ```php
 use App\Models\Order;
@@ -1417,7 +1417,7 @@ abstract public function flush($model);
 #### Registering the Engine
 
 <!-- Once you have written your custom engine, you may register it with Scout using the `extend` method of the Scout engine manager. Scout's engine manager may be resolved from the Laravel service container. You should call the `extend` method from the `boot` method of your `App\Providers\AppServiceProvider` class or any other service provider used by your application: -->
-カスタム エンジンを作成したら、Scout エンジン マネージャーの `extend` メソッドを使用して、Scout に登録できます。 Scout のエンジン マネージャーは、Laravel サービスコンテナーから解決される場合があります。 `App\Providers\AppServiceProvider` クラスの `boot` メソッド、またはアプリケーションで使用される他のサービスプロバイダから `extend` メソッドを呼び出す必要があります。
+カスタム エンジンを作成したら、Scout エンジン マネージャーの `extend` メソッドを使用して、Scout に登録できます。 Scout のエンジン マネージャーは、Laravel サービスコンテナーから解決できます。 `App\Providers\AppServiceProvider` クラスの `boot` メソッド、またはアプリケーションで使用される他のサービスプロバイダから `extend` メソッドを呼び出す必要があります。
 
 ```php
 use App\ScoutExtensions\MySqlSearchEngine;

@@ -612,7 +612,7 @@ php artisan scout:sync-index-settings
 #### Semantic and Hybrid Search
 
 <!-- To use semantic or hybrid search with Meilisearch, configure an embedder in the index settings and embedding settings for each searchable model: -->
-Meilisearch에서 시맨틱 또는 하이브리드 검색을 사용하려면 검색 가능한 각 모델의 인덱스 설정과 임베딩 설정에서 임베더를 구성합니다:
+Meilisearch에서 시맨틱 또는 하이브리드 검색을 사용하려면 인덱스 설정에 임베더를 구성하고 검색 가능한 각 모델의 임베딩 설정을 구성합니다:
 
 ```php
 'meilisearch' => [
@@ -853,7 +853,7 @@ use App\Models\Article;
 모델의 `toSearchableEmbedding` 메서드는 Scout가 임베딩할 원본 텍스트 또는 미리 계산된 임베딩 배열을 반환해야 합니다. Scout는 [Laravel AI SDK](/docs/13.x/ai-sdk)를 사용해 원본 텍스트의 임베딩을 생성합니다.
 
 <!-- Alternatively, you may use Turbopuffer's native embeddings without installing the Laravel AI SDK or defining a `toSearchableEmbedding` method. Set the embedding driver to `turbopuffer` and configure an `embed` schema on the searchable source attribute: -->
-또는 Laravel AI SDK를 설치하거나 `toSearchableEmbedding` 메서드를 정의하지 않고 Turbopuffer의 기본 임베딩을 사용할 수도 있습니다. 임베딩 드라이버를 `turbopuffer`로 설정하고 검색 가능한 소스 속성에 `embed` 스키마를 구성합니다:
+또는 Laravel AI SDK를 설치하거나 `toSearchableEmbedding` 메서드를 정의하지 않고 Turbopuffer의 네이티브 임베딩을 사용할 수도 있습니다. 임베딩 드라이버를 `turbopuffer`로 설정하고 검색 가능한 소스 속성에 `embed` 스키마를 구성합니다:
 
 ```php
 'embedding' => [

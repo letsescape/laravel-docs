@@ -172,7 +172,7 @@ class UserControllerTest extends TestCase
 ### Facade Spies
 
 <!-- If you would like to [spy](http://docs.mockery.io/en/latest/reference/spies.html) on a facade, you may call the `spy` method on the corresponding facade. Spies are similar to mocks; however, spies record any interaction between the spy and the code being tested, allowing you to make assertions after the code is executed: -->
-파사드에 대해 [spy](http://docs.mockery.io/en/latest/reference/spies.html)하고 싶을 경우, 해당 파사드에서 `spy` 메서드를 호출할 수 있습니다. 스파이는 목과 유사하지만, 테스트 코드 실행 도중의 모든 상호작용을 기록해두었다가 어서션에 활용할 수 있습니다:
+파사드에 대해 [spy](http://docs.mockery.io/en/latest/reference/spies.html)하고 싶을 경우, 해당 파사드에서 `spy` 메서드를 호출할 수 있습니다. 스파이는 목과 유사하지만, 스파이와 테스트 대상 코드 사이의 모든 상호작용을 기록하므로 코드 실행 후에 어서션을 수행할 수 있습니다:
 
 ```php tab=Pest
 <?php
@@ -271,7 +271,7 @@ $this->travelTo(now()->minus(days: 10), function () {
 ```
 
 <!-- The `freezeTime` method may be used to freeze the current time. Similarly, the `freezeSecond` method will freeze the current time but at the start of the current second: -->
-현재 시간을 완전히 고정하려면 `freezeTime` 메서드를 사용할 수 있습니다. 비슷하게, `freezeSecond`는 현재 초 단위로 시간을 고정합니다:
+현재 시간을 완전히 고정하려면 `freezeTime` 메서드를 사용할 수 있습니다. 비슷하게, `freezeSecond`는 현재 초의 시작 시각으로 시간을 고정합니다:
 
 ```php
 use Illuminate\Support\Carbon;

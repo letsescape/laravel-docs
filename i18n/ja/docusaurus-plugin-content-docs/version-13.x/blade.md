@@ -92,7 +92,7 @@ Hello, {{ $name }}.
 ```
 
 > [!NOTE]
-> Blade の `{{ }}` エコー ステートメントは、PHP の `htmlspecialchars` 関数を通じて自動的に送信され、XSS 攻撃を防ぎます。
+> Blade の `{{ }}` エコー ステートメントでは、XSS 攻撃を防ぐため、出力するデータが PHP の `htmlspecialchars` 関数で自動的に処理されます。
 
 <!-- You are not limited to displaying the contents of the variables passed to the view. You may also echo the results of any PHP function. In fact, you can put any PHP code you wish inside of a Blade echo statement: -->
 ビューに渡された変数の内容を表示することに限定されません。任意の PHP 関数の結果をエコーすることもできます。実際、Blade echo ステートメント内に任意の PHP コードを含めることができます。
@@ -133,7 +133,7 @@ class AppServiceProvider extends ServiceProvider
 #### Displaying Unescaped Data
 
 <!-- By default, Blade `{{ }}` statements are automatically sent through PHP's `htmlspecialchars` function to prevent XSS attacks. If you do not want your data to be escaped, you may use the following syntax: -->
-デフォルトでは、Bladeの `{{ }}` ステートメントは、XSS 攻撃を防ぐために、PHP の `htmlspecialchars` 関数を通じて自動的に送信されます。データをエスケープしたくない場合は、次の構文を使用できます。
+デフォルトでは、Blade の `{{ }}` ステートメントで出力するデータは、XSS 攻撃を防ぐために PHP の `htmlspecialchars` 関数で自動的に処理されます。データをエスケープしたくない場合は、次の構文を使用できます。
 
 ```blade
 Hello, {!! $name !!}.
@@ -201,7 +201,7 @@ Laravel アプリケーション スケルトンの最新バージョンには�
 ```
 
 > [!WARNING]
-> 既存の変数を JSON としてレンダリングする場合は、`Js::from` メソッドのみを使用してください。 Blade テンプレートは正規表現に基づいており、複雑な表現をディレクティブに渡そうとすると、予期しないエラーが発生する可能性があります。
+> `Js::from` メソッドは、既存の変数を JSON としてレンダリングする場合にのみ使用してください。 Blade テンプレートは正規表現に基づいており、複雑な表現をディレクティブに渡そうとすると、予期しないエラーが発生する可能性があります。
 
 <a name="the-at-verbatim-directive"></a>
 <!-- #### The `@verbatim` Directive -->
@@ -753,7 +753,7 @@ Blade の `@each` ディレクティブを使用して、ループとインク�
 ```
 
 <!-- Or, if you only need to use PHP to import a class, you may use the `@use` directive: -->
-または、クラスのインポートに PHP のみを使用する必要がある場合は、`@use` ディレクティブを使用できます。
+また、PHP が必要なのがクラスのインポートだけであれば、`@use` ディレクティブを使用できます。
 
 ```blade
 @use('App\Models\Flight')
@@ -926,7 +926,7 @@ public function boot(): void
 ```
 
 <!-- Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation. -->
-Blade は、コンポーネント名をパスカル文字に変換することで、このコンポーネントにリンクされているクラスを自動的に検出します。サブディレクトリは、「ドット」表記を使用してサポートされています。
+Blade は、コンポーネント名をパスカルケースに変換することで、このコンポーネントにリンクされているクラスを自動的に検出します。サブディレクトリは、「ドット」表記を使用してサポートされています。
 
 <a name="rendering-components"></a>
 <!-- ### Rendering Components -->
@@ -1275,7 +1275,7 @@ class Alert extends Component
 #### Conditionally Merge Classes
 
 <!-- Sometimes you may wish to merge classes if a given condition is `true`. You can accomplish this via the `class` method, which accepts an array of classes where the array key contains the class or classes you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the rendered class list: -->
-特定の条件が `true` の場合、クラスをマージしたい場合があります。これは、`class` メソッドを使用して実行できます。このメソッドは、値がブール式の場合、配列キーに追加するクラスが含まれるクラスの配列を受け取ります。配列要素に数値キーがある場合、その要素は常に表示されるクラス リストに含まれます。
+特定の条件が `true` の場合、クラスをマージしたい場合があります。これは、`class` メソッドを使用して実行できます。このメソッドは、追加するクラスを配列キーに、ブール式を値に持つクラスの配列を受け取ります。配列要素に数値キーがある場合、その要素は常に表示されるクラス リストに含まれます。
 
 ```blade
 <div {{ $attributes->class(['p-4', 'bg-red' => $hasError]) }}>
@@ -1473,7 +1473,7 @@ class Alert extends Component
 ```
 
 <!-- You may define the content of the named slot using the `x-slot` tag. Any content not within an explicit `x-slot` tag will be passed to the component in the `$slot` variable: -->
-`x-slot` タグを使用して、名前付きスロットの内容を定義できます。明示的な `x-slot` タグ内にないコンテンツは、`$slot` 変数のコンポーネントに渡されます。
+`x-slot` タグを使用して、名前付きスロットの内容を定義できます。明示的な `x-slot` タグ内にないコンテンツは、`$slot` 変数に格納されてコンポーネントに渡されます。
 
 ```xml
 <x-alert>
@@ -1514,7 +1514,7 @@ class Alert extends Component
 #### Scoped Slots
 
 <!-- If you have used a JavaScript framework such as Vue, you may be familiar with "scoped slots", which allow you to access data or methods from the component within your slot. You may achieve similar behavior in Laravel by defining public methods or properties on your component and accessing the component within your slot via the `$component` variable. In this example, we will assume that the `x-alert` component has a public `formatAlert` method defined on its component class: -->
-Vue などの JavaScript フレームワークを使用したことがある場合は、スロット内のコンポーネントからデータまたはメソッドにアクセスできる「スコープ スロット」に精通しているかもしれません。コンポーネント上でパブリックメソッドまたはプロパティを定義し、`$component` 変数を介してスロット内のコンポーネントにアクセスすることで、Laravel でも同様の動作を実現できます。この例では、`x-alert` コンポーネントのコンポーネント クラスにパブリック `formatAlert` メソッドが定義されていると仮定します。
+Vue などの JavaScript フレームワークを使用したことがある場合は、スロット内からコンポーネントのデータまたはメソッドにアクセスできる「スコープ スロット」に精通しているかもしれません。コンポーネント上でパブリックメソッドまたはプロパティを定義し、スロット内から `$component` 変数を介してそのコンポーネントにアクセスすることで、Laravel でも同様の動作を実現できます。この例では、`x-alert` コンポーネントのコンポーネント クラスにパブリック `formatAlert` メソッドが定義されていると仮定します。
 
 ```blade
 <x-alert>
@@ -1531,7 +1531,7 @@ Vue などの JavaScript フレームワークを使用したことがある場�
 #### Slot Attributes
 
 <!-- Like Blade components, you may assign additional [attributes](#component-attributes) to slots such as CSS class names: -->
-Blade コンポーネントと同様に、CSS クラス名などのスロットに追加の [attributes](#component-attributes) を割り当てることができます。
+Blade コンポーネントと同様に、スロットにも CSS クラス名などの追加の [attributes](#component-attributes) を割り当てることができます。
 
 ```xml
 <x-card class="shadow-sm">
@@ -1674,7 +1674,7 @@ public function boot(): void
 ```
 
 <!-- Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation. -->
-Blade は、コンポーネント名をパスカル文字に変換することで、このコンポーネントにリンクされているクラスを自動的に検出します。サブディレクトリは、「ドット」表記を使用してサポートされています。
+Blade は、コンポーネント名をパスカルケースに変換することで、このコンポーネントにリンクされているクラスを自動的に検出します。サブディレクトリは、「ドット」表記を使用してサポートされています。
 
 <a name="anonymous-components"></a>
 <!-- ## Anonymous Components -->
@@ -1770,7 +1770,7 @@ php artisan make:component forms.input --view
 ### Accessing Parent Data
 
 <!-- Sometimes you may want to access data from a parent component inside a child component. In these cases, you may use the `@aware` directive. For example, imagine we are building a complex menu component consisting of a parent `<x-menu>` and child `<x-menu.item>`: -->
-場合によっては、子コンポーネント内の親コンポーネントからデータにアクセスしたい場合があります。このような場合、`@aware` ディレクティブを使用できます。たとえば、親 `<x-menu>` と子 `<x-menu.item>` で構成される複雑なメニュー コンポーネントを構築していると想像してください。
+場合によっては、子コンポーネント内から親コンポーネントのデータにアクセスしたい場合があります。このような場合、`@aware` ディレクティブを使用できます。たとえば、親 `<x-menu>` と子 `<x-menu.item>` で構成される複雑なメニュー コンポーネントを構築していると想像してください。
 
 ```blade
 <x-menu color="purple">
@@ -1995,10 +1995,10 @@ Route::get('/tasks', function () {
 この例では、`sidebar` セクションは `@@parent` ディレクティブを利用して、レイアウトのサイドバーにコンテンツを (上書きではなく) 追加しています。 `@@parent` ディレクティブは、ビューがレンダリングされるときにレイアウトのコンテンツに置き換えられます。
 
 > [!NOTE]
-> 前の例とは異なり、この `sidebar` セクションは、`@show` ではなく `@endsection` で終わります。 `@endsection` ディレクティブはセクションを定義するだけですが、`@show` はセクションを定義して **即座に生成**します。
+> 前の例とは異なり、この `sidebar` セクションは、`@show` ではなく `@endsection` で終わります。 `@endsection` ディレクティブはセクションを定義するだけですが、`@show` はセクションを定義して **即座に出力**します。
 
 <!-- The `@yield` directive also accepts a default value as its second parameter. This value will be rendered if the section being yielded is undefined: -->
-`@yield` ディレクティブは、2 番目のパラメーターとしてデフォルト値も受け入れます。この値は、生成されるセクションが未定義の場合に表示されます。
+`@yield` ディレクティブは、2 番目のパラメーターとしてデフォルト値も受け入れます。この値は、出力するセクションが未定義の場合に表示されます。
 
 ```blade
 @yield('content', 'Default content')

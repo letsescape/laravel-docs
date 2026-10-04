@@ -506,7 +506,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 ### Debounced Jobs
 
 <!-- Sometimes, you may want to ensure that when the same job is dispatched many times in a short window, only the latest dispatch actually executes. You may do so by adding the `DebounceFor` attribute to your job: -->
-때로는 동일한 작업이 짧은 시간 동안 여러 번 dispatch될 때, 가장 마지막 dispatch만 실제로 실행되도록 보장하고 싶을 수 있습니다. 이를 위해 작업에 `DebounceFor` 속성을 추가할 수 있습니다.
+때로는 동일한 작업이 짧은 시간 동안 여러 번 디스패치될 때, 가장 마지막 디스패치만 실제로 실행되도록 보장하고 싶을 수 있습니다. 이를 위해 작업에 `DebounceFor` 속성을 추가할 수 있습니다.
 
 ```php
 <?php
@@ -540,10 +540,10 @@ class UpdateSearchIndex implements ShouldQueue
 ```
 
 <!-- In the example above, repeatedly dispatching `UpdateSearchIndex` for the same product within `30` seconds will debounce the job so that only the latest dispatch runs. -->
-위 예시에서는 동일한 상품에 대해 `30`초 안에 `UpdateSearchIndex`를 반복해서 dispatch하면 작업이 debounce되어, 가장 마지막 dispatch만 실행됩니다.
+위 예시에서는 동일한 상품에 대해 `30`초 안에 `UpdateSearchIndex`를 반복해서 디스패치하면 작업이 디바운스되어, 가장 마지막 디스패치만 실행됩니다.
 
 <!-- If you would like to cap how long a frequently re-dispatched job can be deferred, you may provide the `maxWait` argument to the `DebounceFor` attribute: -->
-자주 다시 dispatch되는 작업이 지연될 수 있는 최대 시간을 제한하려면 `DebounceFor` 속성에 `maxWait` 인수를 제공할 수 있습니다.
+자주 다시 디스패치되는 작업이 지연될 수 있는 최대 시간을 제한하려면 `DebounceFor` 속성에 `maxWait` 인수를 제공할 수 있습니다.
 
 ```php
 #[DebounceFor(30, maxWait: 120)]
@@ -556,7 +556,7 @@ class UpdateSearchIndex implements ShouldQueue
 ```
 
 <!-- You may customize the cache store used for debounce tracking by defining a `debounceVia` method on your job: -->
-작업에 `debounceVia` 메서드를 정의하여 debounce 추적에 사용할 cache store를 직접 지정할 수 있습니다.
+작업에 `debounceVia` 메서드를 정의하여 디바운스 추적에 사용할 캐시 저장소를 직접 지정할 수 있습니다.
 
 ```php
 use Illuminate\Contracts\Cache\Repository;
@@ -569,7 +569,7 @@ public function debounceVia(): Repository
 ```
 
 <!-- If a debounced job is superseded by a newer dispatch, Laravel will dispatch the `Illuminate\Queue\Events\JobDebounced` event and remove the superseded job from the queue. -->
-debounce된 작업이 더 새로운 dispatch로 대체되면, Laravel은 `Illuminate\Queue\Events\JobDebounced` 이벤트를 dispatch하고 대체된 작업을 큐에서 제거합니다.
+디바운스된 작업이 더 새로운 디스패치로 대체되면, Laravel은 `Illuminate\Queue\Events\JobDebounced` 이벤트를 디스패치하고 대체된 작업을 큐에서 제거합니다.
 
 > [!WARNING]
 > 디바운스된 잡과 고유 잡은 함께 사용할 수 없습니다. `DebounceFor` 속성을 사용하는 잡은 `ShouldBeUnique`를 구현해서는 안 됩니다.
@@ -686,7 +686,7 @@ public function middleware(): array
 ### Rate Limiting
 
 <!-- Although we just demonstrated how to write your own rate limiting job middleware, Laravel actually includes a rate limiting middleware that you may utilize to rate limit jobs. Like [route rate limiters](/docs/13.x/routing#defining-rate-limiters), job rate limiters are defined using the `RateLimiter` facade's `for` method. -->
-방금 직접 레이트 리미팅 잡 미들웨어를 작성하는 방법을 살펴봤지만, Laravel에는 잡의 실행 속도를 제한하는 데 사용할 수 있는 레이트 리미팅 미들웨어가 실제로 포함되어 있습니다. [route rate limiters](/docs/13.x/routing#defining-rate-limiters)와 마찬가지로 잡 레이트 리미터는 `RateLimiter` 파사드의 `for` 메서드를 사용해 정의합니다.
+방금 직접 레이트 리미팅 잡 미들웨어를 작성하는 방법을 살펴봤지만, Laravel에는 잡의 실행 빈도를 제한하는 데 사용할 수 있는 레이트 리미팅 미들웨어가 실제로 포함되어 있습니다. [route rate limiters](/docs/13.x/routing#defining-rate-limiters)와 마찬가지로 잡 레이트 리미터는 `RateLimiter` 파사드의 `for` 메서드를 사용해 정의합니다.
 
 <!-- For example, you may wish to allow users to backup their data once per hour while imposing no such limit on premium customers. To accomplish this, you may define a `RateLimiter` in the `boot` method of your `AppServiceProvider`: -->
 예를 들어, 일반 사용자는 한 시간에 한 번만 데이터를 백업할 수 있도록 제한하되, 프리미엄 고객에게는 이러한 제한을 적용하지 않고 싶을 수 있습니다. 이를 위해 `AppServiceProvider`의 `boot` 메서드에서 `RateLimiter`를 정의할 수 있습니다.
@@ -716,7 +716,7 @@ return Limit::perMinute(50)->by($job->user->id);
 ```
 
 <!-- Once you have defined your rate limit, you may attach the rate limiter to your job using the `Illuminate\Queue\Middleware\RateLimited` middleware. Each time the job exceeds the rate limit, this middleware will release the job back to the queue with an appropriate delay based on the rate limit duration: -->
-처리율 제한을 정의한 뒤에는 `Illuminate\Queue\Middleware\RateLimited` middleware를 사용하여 rate limiter를 작업에 연결할 수 있습니다. 작업이 처리율 제한을 초과할 때마다 이 middleware는 처리율 제한 기간에 따라 적절한 지연 시간을 적용하여 작업을 다시 큐로 반환합니다.
+처리율 제한을 정의한 뒤에는 `Illuminate\Queue\Middleware\RateLimited` 미들웨어를 사용하여 처리율 제한기를 작업에 연결할 수 있습니다. 작업이 처리율 제한을 초과할 때마다 이 미들웨어는 처리율 제한 기간에 따라 적절한 지연 시간을 적용하여 작업을 다시 큐로 반환합니다.
 
 ```php
 use Illuminate\Queue\Middleware\RateLimited;
@@ -770,7 +770,7 @@ public function middleware(): array
 #### Rate Limiting With Redis
 
 <!-- If you are using Redis, you may use the `Illuminate\Queue\Middleware\RateLimitedWithRedis` middleware, which is fine-tuned for Redis and more efficient than the basic rate limiting middleware: -->
-Redis를 사용하고 있다면 `Illuminate\Queue\Middleware\RateLimitedWithRedis` middleware를 사용할 수 있습니다. 이 middleware는 Redis에 맞게 조정되어 있으며 기본 처리율 제한 middleware보다 더 효율적입니다.
+Redis를 사용하고 있다면 `Illuminate\Queue\Middleware\RateLimitedWithRedis` 미들웨어를 사용할 수 있습니다. 이 미들웨어는 Redis에 맞게 조정되어 있으며 기본 처리율 제한 미들웨어보다 더 효율적입니다.
 
 ```php
 use Illuminate\Queue\Middleware\RateLimitedWithRedis;
@@ -793,10 +793,10 @@ return [(new RateLimitedWithRedis('backups'))->connection('limiter')];
 ### Preventing Job Overlaps
 
 <!-- Laravel includes an `Illuminate\Queue\Middleware\WithoutOverlapping` middleware that allows you to prevent job overlaps based on an arbitrary key. This can be helpful when a queued job is modifying a resource that should only be modified by one job at a time. -->
-Laravel에는 임의의 키를 기준으로 작업의 중복 실행을 방지할 수 있는 `Illuminate\Queue\Middleware\WithoutOverlapping` middleware가 포함되어 있습니다. 큐 작업이 한 번에 하나의 작업만 수정해야 하는 리소스를 수정하는 경우 유용합니다.
+Laravel에는 임의의 키를 기준으로 작업의 중복 실행을 방지할 수 있는 `Illuminate\Queue\Middleware\WithoutOverlapping` 미들웨어가 포함되어 있습니다. 한 번에 하나의 작업만 수정할 수 있어야 하는 리소스를 큐 작업이 수정할 때 유용합니다.
 
 <!-- For example, let's imagine you have a queued job that updates a user's credit score and you want to prevent credit score update job overlaps for the same user ID. To accomplish this, you can return the `WithoutOverlapping` middleware from your job's `middleware` method: -->
-예를 들어, 사용자의 신용 점수를 업데이트하는 큐 작업이 있고 동일한 사용자 ID에 대해 신용 점수 업데이트 작업이 중복 실행되지 않도록 하고 싶다고 가정해 보겠습니다. 이를 위해 작업의 `middleware` 메서드에서 `WithoutOverlapping` middleware를 반환할 수 있습니다.
+예를 들어, 사용자의 신용 점수를 업데이트하는 큐 작업이 있고 동일한 사용자 ID에 대해 신용 점수 업데이트 작업이 중복 실행되지 않도록 하고 싶다고 가정해 보겠습니다. 이를 위해 작업의 `middleware` 메서드에서 `WithoutOverlapping` 미들웨어를 반환할 수 있습니다.
 
 ```php
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -813,7 +813,7 @@ public function middleware(): array
 ```
 
 <!-- Releasing an overlapping job back onto the queue will still increment the job's total number of attempts. You may wish to tune your `Tries` and `MaxExceptions` attributes on your job class accordingly. For example, leaving `Tries` to 1 as it is by default would prevent any overlapping job from being retried later. -->
-중복 실행되는 작업을 다시 큐에 반환하더라도 작업의 총 시도 횟수는 증가합니다. 따라서 작업 클래스의 `Tries` 및 `MaxExceptions` 속성을 그에 맞게 조정하는 것이 좋습니다. 예를 들어 기본값처럼 `Tries`를 1로 두면, 중복 실행된 작업은 나중에 다시 시도되지 않습니다.
+중복 실행을 피하기 위해 작업을 다시 큐에 반환하더라도 작업의 총 시도 횟수는 증가합니다. 따라서 작업 클래스의 `Tries` 및 `MaxExceptions` 속성을 그에 맞게 조정하는 것이 좋습니다. 예를 들어 기본값처럼 `Tries`를 1로 두면, 중복 실행 때문에 큐에 반환된 작업은 나중에 다시 시도되지 않습니다.
 
 <!-- Any overlapping jobs of the same type will be released back to the queue. You may also specify the number of seconds that must elapse before the released job will be attempted again: -->
 같은 타입의 모든 중복 작업은 다시 큐로 반환됩니다. 또한 반환된 작업을 다시 시도하기 전에 지나야 하는 초 단위 시간을 지정할 수도 있습니다.
@@ -846,7 +846,7 @@ public function middleware(): array
 ```
 
 <!-- The `WithoutOverlapping` middleware is powered by Laravel's atomic lock feature. Sometimes, your job may unexpectedly fail or timeout in such a way that the lock is not released. Therefore, you may explicitly define a lock expiration time using the `expireAfter` method. For example, the example below will instruct Laravel to release the `WithoutOverlapping` lock three minutes after the job has started processing: -->
-`WithoutOverlapping` middleware는 Laravel의 atomic lock 기능을 기반으로 동작합니다. 때로는 작업이 예기치 않게 실패하거나 timeout되어 lock이 해제되지 않을 수 있습니다. 따라서 `expireAfter` 메서드를 사용해 lock 만료 시간을 명시적으로 정의할 수 있습니다. 예를 들어 아래 예시는 작업 처리가 시작된 지 3분 후 Laravel이 `WithoutOverlapping` lock을 해제하도록 지시합니다.
+`WithoutOverlapping` 미들웨어는 Laravel의 원자적 락 기능을 기반으로 동작합니다. 때로는 작업이 예기치 않게 실패하거나 타임아웃되어 락이 해제되지 않을 수 있습니다. 따라서 `expireAfter` 메서드를 사용해 락 만료 시간을 명시적으로 정의할 수 있습니다. 예를 들어 아래 예시는 작업 처리가 시작된 지 3분 후 Laravel이 `WithoutOverlapping` 락을 해제하도록 지시합니다.
 
 ```php
 /**
@@ -868,7 +868,7 @@ public function middleware(): array
 #### Sharing Lock Keys Across Job Classes
 
 <!-- By default, the `WithoutOverlapping` middleware will only prevent overlapping jobs of the same class. So, although two different job classes may use the same lock key, they will not be prevented from overlapping. However, you can instruct Laravel to apply the key across job classes using the `shared` method: -->
-기본적으로 `WithoutOverlapping` middleware는 같은 클래스의 작업끼리만 중복 실행을 방지합니다. 따라서 서로 다른 두 작업 클래스가 같은 lock key를 사용하더라도, 서로 중복 실행되는 것은 방지되지 않습니다. 하지만 `shared` 메서드를 사용하면 Laravel이 해당 키를 작업 클래스 전체에 적용하도록 지시할 수 있습니다.
+기본적으로 `WithoutOverlapping` 미들웨어는 같은 클래스의 작업끼리만 중복 실행을 방지합니다. 따라서 서로 다른 두 작업 클래스가 같은 락 키를 사용하더라도, 서로 중복 실행되는 것은 방지되지 않습니다. 하지만 `shared` 메서드를 사용하면 Laravel이 해당 키를 작업 클래스 전체에 적용하도록 지시할 수 있습니다.
 
 ```php
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -903,10 +903,10 @@ class ProviderIsUp
 ### Throttling Exceptions
 
 <!-- Laravel includes a `Illuminate\Queue\Middleware\ThrottlesExceptions` middleware that allows you to throttle exceptions. Once the job throws a given number of exceptions, all further attempts to execute the job are delayed until a specified time interval lapses. This middleware is particularly useful for jobs that interact with third-party services that are unstable. -->
-Laravel에는 예외 발생을 throttle할 수 있는 `Illuminate\Queue\Middleware\ThrottlesExceptions` middleware가 포함되어 있습니다. 작업이 지정된 횟수만큼 예외를 던지면, 이후의 모든 작업 실행 시도는 지정된 시간 간격이 지날 때까지 지연됩니다. 이 middleware는 불안정한 서드파티 서비스와 상호작용하는 작업에 특히 유용합니다.
+Laravel에는 예외 발생을 제한할 수 있는 `Illuminate\Queue\Middleware\ThrottlesExceptions` 미들웨어가 포함되어 있습니다. 작업이 지정된 횟수만큼 예외를 던지면, 이후의 모든 작업 실행 시도는 지정된 시간 간격이 지날 때까지 지연됩니다. 이 미들웨어는 불안정한 서드파티 서비스와 상호작용하는 작업에 특히 유용합니다.
 
 <!-- For example, let's imagine a queued job that interacts with a third-party API that begins throwing exceptions. To throttle exceptions, you can return the `ThrottlesExceptions` middleware from your job's `middleware` method. Typically, this middleware should be paired with a job that implements [time based attempts](#time-based-attempts): -->
-예를 들어, 예외를 던지기 시작한 서드파티 API와 상호작용하는 큐 작업이 있다고 가정해 보겠습니다. 예외를 throttle하려면 작업의 `middleware` 메서드에서 `ThrottlesExceptions` middleware를 반환할 수 있습니다. 일반적으로 이 middleware는 [time based attempts](#time-based-attempts)를 구현한 작업과 함께 사용해야 합니다.
+예를 들어, 예외를 던지기 시작한 서드파티 API와 상호작용하는 큐 작업이 있다고 가정해 보겠습니다. 예외를 제한하려면 작업의 `middleware` 메서드에서 `ThrottlesExceptions` 미들웨어를 반환할 수 있습니다. 일반적으로 이 미들웨어는 [time based attempts](#time-based-attempts)를 구현한 작업과 함께 사용해야 합니다.
 
 ```php
 use DateTime;
@@ -932,7 +932,7 @@ public function retryUntil(): DateTime
 ```
 
 <!-- The first constructor argument accepted by the middleware is the number of exceptions the job can throw before being throttled, while the second constructor argument is the number of seconds that should elapse before the job is attempted again once it has been throttled. In the code example above, if the job throws 10 consecutive exceptions, we will wait 5 minutes before attempting the job again, constrained by the 30-minute time limit. -->
-middleware가 받는 첫 번째 생성자 인수는 작업이 throttle되기 전에 던질 수 있는 예외 횟수이며, 두 번째 생성자 인수는 작업이 throttle된 후 다시 시도되기 전에 지나야 하는 초 단위 시간입니다. 위 코드 예시에서 작업이 연속으로 10번 예외를 던지면, 30분 시간 제한 안에서 5분을 기다린 뒤 작업을 다시 시도합니다.
+미들웨어가 받는 첫 번째 생성자 인수는 작업이 제한되기 전에 던질 수 있는 예외 횟수이며, 두 번째 생성자 인수는 작업이 제한된 후 다시 시도되기 전에 지나야 하는 초 단위 시간입니다. 위 코드 예시에서 작업이 연속으로 10번 예외를 던지면, 30분 시간 제한 안에서 5분을 기다린 뒤 작업을 다시 시도합니다.
 
 <!-- When a job throws an exception but the exception threshold has not yet been reached, the job will typically be retried immediately. However, you may specify the number of minutes such a job should be delayed by calling the `backoff` method when attaching the middleware to the job: -->
 잡에서 예외가 발생했지만 예외 임계값에 아직 도달하지 않았다면 일반적으로 해당 잡은 즉시 재시도됩니다. 그러나 잡에 미들웨어를 연결할 때 `backoff` 메서드를 호출하면 해당 잡의 재시도까지 지연할 시간을 분 단위로 지정할 수 있습니다:
@@ -1368,7 +1368,7 @@ class SyncPodcasts implements PreparesForDispatch, ShouldQueue
 데이터베이스 트랜잭션 안에서 작업을 디스패치하는 것 자체는 전혀 문제가 없지만, 작업이 실제로 성공적으로 실행될 수 있는지 각별히 주의해야 합니다. 트랜잭션 안에서 작업을 디스패치할 때, 부모 트랜잭션이 커밋되기 전에 워커가 해당 작업을 처리할 수 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델이나 데이터베이스 레코드에 적용한 업데이트가 아직 데이터베이스에 반영되지 않았을 수 있습니다. 또한 트랜잭션 안에서 생성한 모델이나 데이터베이스 레코드가 아직 데이터베이스에 존재하지 않을 수도 있습니다.
 
 <!-- Thankfully, Laravel provides several methods of working around this problem. First, you may set the `after_commit` connection option in your queue connection's configuration array: -->
-다행히 Laravel은 이 문제를 우회할 수 있는 여러 메서드를 제공합니다. 먼저 큐 연결의 설정 배열에서 `after_commit` 연결 옵션을 설정할 수 있습니다.
+다행히 Laravel은 이 문제를 우회할 수 있는 여러 방법을 제공합니다. 먼저 큐 연결의 설정 배열에서 `after_commit` 연결 옵션을 설정할 수 있습니다.
 
 ```php
 'redis' => [
@@ -1852,7 +1852,7 @@ class ProcessPodcast implements ShouldQueue
 이 예제에서는 애플리케이션이 Redis 락을 획득하지 못하면 작업을 10초 뒤에 다시 시도하도록 큐에 반환하며, 최대 25번까지 계속 재시도합니다. 하지만 작업에서 처리되지 않은 예외가 세 번 발생하면 해당 작업은 실패합니다.
 
 <!-- By default, an attempt that ends because the worker process crashed or was killed, such as when it runs out of memory, does not count towards the job's maximum number of exceptions. If you would like these attempts to count as an exception, you may add the `CountCrashesAsExceptions` attribute to your job class: -->
-기본적으로 메모리 부족 등으로 워커 프로세스가 충돌하거나 종료되어 끝난 시도는 작업의 최대 예외 횟수에 포함되지 않습니다. 이러한 시도도 예외로 계산하려면 작업 클래스에 `CountCrashesAsExceptions` 속성을 추가하면 됩니다.
+기본적으로 메모리 부족 등으로 워커 프로세스가 충돌하거나 강제 종료되어 끝난 시도는 작업의 최대 예외 횟수에 포함되지 않습니다. 이러한 시도도 예외로 계산하려면 작업 클래스에 `CountCrashesAsExceptions` 속성을 추가하면 됩니다.
 
 ```php
 use Illuminate\Queue\Attributes\CountCrashesAsExceptions;
@@ -1978,7 +1978,7 @@ Laravel은 [Amazon SQS FIFO (First-In-First-Out)](https://docs.aws.amazon.com/AW
 FIFO 큐는 어떤 작업을 병렬로 처리할 수 있는지 결정하기 위해 메시지 그룹 ID가 필요합니다. 같은 그룹 ID를 가진 작업은 순차적으로 처리되고, 서로 다른 그룹 ID를 가진 메시지는 동시에 처리될 수 있습니다.
 
 <!-- Laravel provides a fluent `onGroup` method to specify the message group ID when dispatching jobs: -->
-Laravel은 작업을 디스패치할 때 메시지 그룹 ID를 지정할 수 있도록 유창한 `onGroup` 메서드를 제공합니다.
+Laravel은 작업을 디스패치할 때 메시지 그룹 ID를 지정할 수 있도록 메서드 체이닝을 지원하는 `onGroup` 메서드를 제공합니다.
 
 ```php
 ProcessOrder::dispatch($order)
@@ -2054,7 +2054,7 @@ class ProcessOrder implements ShouldQueue
 #### FIFO Listeners, Mail, and Notifications
 
 <!-- When utilizing FIFO queues, you will also need to define message groups on listeners, mail, and notifications. Alternatively, you can dispatch queued instances of these objects to a non-FIFO queue. -->
-FIFO 큐를 사용할 때는 리스너, 메일, 알림에도 메시지 그룹을 정의해야 합니다. 또는 이러한 객체의 큐 인스턴스를 FIFO가 아닌 큐로 디스패치할 수도 있습니다.
+FIFO 큐를 사용할 때는 리스너, 메일, 알림에도 메시지 그룹을 정의해야 합니다. 또는 이러한 객체의 인스턴스를 FIFO가 아닌 큐로 디스패치할 수도 있습니다.
 
 <!-- To define the message group for a [queued event listener](/docs/13.x/events#queued-event-listeners), define a `messageGroup` method on the listener. You may also optionally define a `deduplicator` method, which receives the event and should return a closure that generates the deduplication ID: -->
 [queued event listener](/docs/13.x/events#queued-event-listeners)의 메시지 그룹을 정의하려면 리스너에 `messageGroup` 메서드를 정의합니다. 선택적으로 이벤트를 인수로 받아 중복 제거 ID를 생성하는 클로저를 반환하는 `deduplicator` 메서드도 정의할 수 있습니다:
@@ -2104,7 +2104,7 @@ Mail::to($request->user())->send($invoicePaid);
 ```
 
 <!-- When sending a [notification](/docs/13.x/notifications) that is going to be queued on a FIFO queue, you should invoke the `onGroup` method and optionally the `withDeduplicator` method when sending the notification: -->
-FIFO 큐에 추가될 [notification](/docs/13.x/notifications)을 보낼 때는 알림을 전송하면서 `onGroup` 메서드를 호출하고, 선택적으로 `withDeduplicator` 메서드도 호출해야 합니다:
+FIFO 큐에 추가될 [notification](/docs/13.x/notifications)을 보낼 때는 알림을 전송하면서 `onGroup` 메서드를 호출하고, 선택적으로 `withDeduplicator` 메서드도 호출할 수 있습니다:
 
 ```php
 use App\Notifications\InvoicePaid;
@@ -2166,7 +2166,7 @@ php artisan queue:work database
 ### Error Handling
 
 <!-- If an exception is thrown while the job is being processed, the job will automatically be released back onto the queue so it may be attempted again. The job will continue to be released until it has been attempted the maximum number of times allowed by your application. The maximum number of attempts is defined by the `--tries` switch used on the `queue:work` Artisan command. Alternatively, the maximum number of attempts may be defined on the job class itself. More information on running the queue worker [can be found below](#running-the-queue-worker). -->
-작업이 처리되는 동안 예외가 발생하면, 해당 작업은 다시 시도될 수 있도록 자동으로 큐에 다시 반환됩니다. 작업은 애플리케이션에서 허용한 최대 시도 횟수에 도달할 때까지 계속 다시 반환됩니다. 최대 시도 횟수는 `queue:work` Artisan 명령어에서 사용하는 `--tries` 스위치로 정의됩니다. 또는 작업 클래스 자체에 최대 시도 횟수를 정의할 수도 있습니다. 큐 워커 실행에 대한 자세한 정보는 [can be found below](#running-the-queue-worker).
+작업이 처리되는 동안 예외가 발생하면, 해당 작업은 다시 시도될 수 있도록 자동으로 큐에 다시 반환됩니다. 작업은 애플리케이션에서 허용한 최대 시도 횟수에 도달할 때까지 계속 다시 반환됩니다. 최대 시도 횟수는 `queue:work` Artisan 명령어에서 사용하는 `--tries` 스위치로 정의됩니다. 또는 작업 클래스 자체에 최대 시도 횟수를 정의할 수도 있습니다. 큐 워커 실행에 대한 자세한 정보는 [can be found below](#running-the-queue-worker)에서 확인할 수 있습니다.
 
 <a name="manually-releasing-a-job"></a>
 <!-- #### Manually Releasing a Job -->
@@ -2216,7 +2216,7 @@ public function handle(): void
 ```
 
 <!-- If you would like to mark your job as failed because of an exception that you have caught, you may pass the exception to the `fail` method. Or, for convenience, you may pass a string error message which will be converted to an exception for you: -->
-잡은 예외 때문에 작업을 실패로 표시하려는 경우, 해당 예외를 `fail` 메서드에 전달할 수 있습니다. 또는 편의를 위해 문자열 오류 메시지를 전달할 수 있으며, 이 메시지는 자동으로 예외로 변환됩니다.
+포착한 예외 때문에 작업을 실패로 표시하려는 경우, 해당 예외를 `fail` 메서드에 전달할 수 있습니다. 또는 편의를 위해 문자열 오류 메시지를 전달할 수 있으며, 이 메시지는 자동으로 예외로 변환됩니다.
 
 ```php
 $this->fail($exception);

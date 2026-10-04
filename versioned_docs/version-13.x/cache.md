@@ -288,7 +288,7 @@ $value = Cache::remember('users', $seconds, function () {
 항목이 캐시에 없으면 `remember` 메서드에 전달된 클로저가 실행되고, 그 결과가 캐시에 저장됩니다.
 
 <!-- If you need to know whether the item was retrieved from the cache instead of by executing the given closure, you may use the `rememberWithWarmth` method. This method returns an array containing the cached value and a boolean indicating whether the item was "warm", meaning it was retrieved from the cache and not resolved from the closure: -->
-항목이 주어진 클로저를 실행한 결과가 아니라 캐시에서 조회되었는지 알아야 한다면 `rememberWithWarmth` 메서드를 사용할 수 있습니다. 이 메서드는 캐시된 값과, 해당 항목이 "warm"했는지를 나타내는 불리언 값을 담은 배열을 반환합니다. "warm"하다는 것은 항목이 클로저에서 확인된 것이 아니라 캐시에서 조회되었음을 의미합니다.
+항목이 주어진 클로저를 실행한 결과가 아니라 캐시에서 조회되었는지 알아야 한다면 `rememberWithWarmth` 메서드를 사용할 수 있습니다. 이 메서드는 캐시된 값과, 해당 항목이 "warm"했는지를 나타내는 불리언 값을 담은 배열을 반환합니다. "warm"하다는 것은 항목이 클로저 실행으로 얻어진 것이 아니라 캐시에서 조회되었음을 의미합니다.
 
 ```php
 [$value, $warm] = Cache::rememberWithWarmth('users', $seconds, function () {
@@ -447,7 +447,7 @@ Cache::flushLocks();
 ### Cache Memoization
 
 <!-- Laravel's `memo` cache driver allows you to temporarily store resolved cache values in memory during a single request or job execution. This prevents repeated cache hits within the same execution, significantly improving performance. -->
-Laravel의 `memo` 캐시 드라이버를 사용하면 단일 요청 또는 작업 실행 중에 확인된 캐시 값을 메모리에 임시로 저장할 수 있습니다. 이렇게 하면 같은 실행 안에서 반복적으로 캐시에 접근하는 일을 막아 성능을 크게 향상시킬 수 있습니다.
+Laravel의 `memo` 캐시 드라이버를 사용하면 단일 요청 또는 작업 실행 중에 조회한 캐시 값을 메모리에 임시로 저장할 수 있습니다. 이렇게 하면 같은 실행 안에서 반복적으로 캐시에 접근하는 일을 막아 성능을 크게 향상시킬 수 있습니다.
 
 <!-- To use the memoized cache, invoke the `memo` method: -->
 메모이즈된 캐시를 사용하려면 `memo` 메서드를 호출합니다.

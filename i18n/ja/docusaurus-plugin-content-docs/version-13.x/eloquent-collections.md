@@ -156,7 +156,7 @@ $user = $users->findOrFail(1);
 <!-- #### `fresh($with = [])` -->
 #### `fresh($with = [])`
 <!-- The `fresh` method retrieves a fresh instance of each model in the collection from the database. In addition, any specified relationships will be eager loaded: -->
-`fresh` メソッドは、コレクション内の各モデルの新しいインスタンスをデータベースから取得します。さらに、指定された関係はすべて積極的にロードされます。
+`fresh` メソッドは、コレクション内の各モデルの新しいインスタンスをデータベースから取得します。さらに、指定されたリレーションシップはすべて一括ロードされます。
 
 ```php
 $users = $users->fresh();
@@ -180,7 +180,7 @@ $users = $users->intersect(User::whereIn('id', [1, 2, 3])->get());
 <!-- #### `load($relations)` -->
 #### `load($relations)`
 <!-- The `load` method eager loads the given relationships for all models in the collection: -->
-`load` メソッドは、コレクション内のすべてのモデルの指定された関係を積極的に読み込みます。
+`load` メソッドは、コレクション内のすべてのモデルに対して、指定されたリレーションシップを一括ロードします。
 
 ```php
 $users->load(['comments', 'posts']);
@@ -194,7 +194,7 @@ $users->load(['comments', 'posts' => fn ($query) => $query->where('active', 1)])
 <!-- #### `loadMissing($relations)` -->
 #### `loadMissing($relations)`
 <!-- The `loadMissing` method eager loads the given relationships for all models in the collection if the relationships are not already loaded: -->
-`loadMissing` メソッドは、リレーションシップがまだロードされていない場合、コレクション内のすべてのモデルに対して指定されたリレーションシップを積極的にロードします。
+`loadMissing` メソッドは、リレーションシップがまだロードされていない場合、コレクション内のすべてのモデルに対して指定されたリレーションシップを一括ロードします。
 
 ```php
 $users->loadMissing(['comments', 'posts']);
@@ -220,7 +220,7 @@ $users->modelKeys();
 <!-- #### `makeVisible($attributes)` -->
 #### `makeVisible($attributes)`
 <!-- The `makeVisible` method [makes attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json) that are typically "hidden" on each model in the collection: -->
-`makeVisible` メソッドは、通常コレクション内の各モデルで「非表示」になっている[makes attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json):
+`makeVisible` メソッドは、コレクション内の各モデルで通常は非表示になっている属性を表示します（[makes attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)）。
 
 ```php
 $users = $users->makeVisible(['address', 'phone_number']);
@@ -230,7 +230,7 @@ $users = $users->makeVisible(['address', 'phone_number']);
 <!-- #### `makeHidden($attributes)` -->
 #### `makeHidden($attributes)`
 <!-- The `makeHidden` method [hides attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json) that are typically "visible" on each model in the collection: -->
-`makeHidden` メソッドは、通常コレクション内の各モデルで「表示」されている[hides attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json):
+`makeHidden` メソッドは、コレクション内の各モデルで通常は表示されている属性を非表示にします（[hides attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)）。
 
 ```php
 $users = $users->makeHidden(['address', 'phone_number']);
@@ -240,7 +240,7 @@ $users = $users->makeHidden(['address', 'phone_number']);
 <!-- #### `mergeVisible($attributes)` -->
 #### `mergeVisible($attributes)`
 <!-- The `mergeVisible` method [makes additional attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json) while retaining existing visible attributes: -->
-`mergeVisible` メソッドは、既存の表示属性を保持したまま[makes additional attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json):
+`mergeVisible` メソッドは、既存の表示属性を保持したまま追加の属性を表示します（[makes additional attributes visible](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)）。
 
 ```php
 $users = $users->mergeVisible(['middle_name']);
@@ -250,7 +250,7 @@ $users = $users->mergeVisible(['middle_name']);
 <!-- #### `mergeHidden($attributes)` -->
 #### `mergeHidden($attributes)`
 <!-- The `mergeHidden` method [hides additional attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json) while retaining existing hidden attributes: -->
-`mergeHidden` メソッドは、既存の非表示属性を保持したまま[hides additional attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json):
+`mergeHidden` メソッドは、既存の非表示属性を保持したまま追加の属性を非表示にします（[hides additional attributes](/docs/13.x/eloquent-serialization#hiding-attributes-from-json)）。
 
 ```php
 $users = $users->mergeHidden(['last_login_at']);
@@ -294,7 +294,7 @@ $users = $users->setAppends(['is_admin']);
 <!-- #### `setVisible($attributes)` -->
 #### `setVisible($attributes)`
 <!-- The `setVisible` method [temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility) all of the visible attributes on each model in the collection: -->
-`setVisible` メソッドは、コレクション内の各モデルのすべての表示属性を[temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility):
+`setVisible` メソッドは、コレクション内の各モデルのすべての表示属性を一時的にオーバーライドします（[temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility)）。
 
 ```php
 $users = $users->setVisible(['id', 'name']);
@@ -304,7 +304,7 @@ $users = $users->setVisible(['id', 'name']);
 <!-- #### `setHidden($attributes)` -->
 #### `setHidden($attributes)`
 <!-- The `setHidden` method [temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility) all of the hidden attributes on each model in the collection: -->
-`setHidden` メソッドは、コレクション内の各モデルのすべての非表示属性を[temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility):
+`setHidden` メソッドは、コレクション内の各モデルのすべての非表示属性を一時的にオーバーライドします（[temporarily overrides](/docs/13.x/eloquent-serialization#temporarily-modifying-attribute-visibility)）。
 
 ```php
 $users = $users->setHidden(['email', 'password', 'remember_token']);

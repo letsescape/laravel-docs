@@ -192,7 +192,7 @@ select * from users where id > 15 order by id asc limit 15;
 
 <!-- - Like `simplePaginate`, cursor pagination can only be used to display "Next" and "Previous" links and does not support generating links with page numbers. - It requires that the ordering is based on at least one unique column or a combination of columns that are unique. Columns with `null` values are not supported. - Query expressions in "order by" clauses are supported only if they are aliased and added to the "select" clause as well. - Query expressions with parameters are not supported. -->
 - `simplePaginate`와 마찬가지로 커서 페이징은 "다음", "이전" 링크 표시만 가능하며, 페이지 번호 링크 생성은 지원하지 않습니다.
-- 적어도 하나 이상의 유니크한 컬럼을 기준으로 정렬해야 하며, 정렬 컬럼에 `null` 값이 있으면 사용할 수 없습니다.
+- 하나 이상의 유니크한 컬럼 또는 조합했을 때 유일한 값을 갖는 컬럼들을 기준으로 정렬해야 합니다. `null` 값이 있는 컬럼은 지원하지 않습니다.
 - "order by" 절에 사용된 쿼리 표현식은 별칭(alias)으로 지정해서 "select" 절에도 반드시 포함시켜야 합니다.
 - 파라미터가 포함된 쿼리 표현식은 지원되지 않습니다.
 
@@ -349,7 +349,7 @@ Route::get('/users', function () {
 ## Customizing the Pagination View
 
 <!-- By default, the views rendered to display the pagination links are compatible with the [Tailwind CSS](https://tailwindcss.com) framework. However, if you are not using Tailwind, you are free to define your own views to render these links. When calling the `links` method on a paginator instance, you may pass the view name as the first argument to the method: -->
-기본적으로 페이지네이션 링크를 표시하는 뷰는 [Tailwind CSS](https://tailwindcss.com) 프레임워크와 호환됩니다. Tailwind를 사용하지 않을 경우, 직접 뷰를 정의해 래퍼의 페이지네이션 링크를 렌더링할 수 있습니다. 페이지네이터 인스턴스의 `links` 메서드의 첫 번째 인수로 뷰 이름을 전달하면 지정한 뷰로 렌더링할 수 있습니다:
+기본적으로 페이지네이션 링크를 표시하는 뷰는 [Tailwind CSS](https://tailwindcss.com) 프레임워크와 호환됩니다. Tailwind를 사용하지 않을 경우, 직접 뷰를 정의해 페이지네이션 링크를 렌더링할 수 있습니다. 페이지네이터 인스턴스의 `links` 메서드의 첫 번째 인수로 뷰 이름을 전달하면 지정한 뷰로 렌더링할 수 있습니다:
 
 ```blade
 {{ $paginator->links('view.name') }}

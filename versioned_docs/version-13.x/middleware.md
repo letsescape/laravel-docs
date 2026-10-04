@@ -70,7 +70,7 @@ class EnsureTokenIsValid
 Middleware는 HTTP 요청이 애플리케이션에 도달하기 전에 반드시 통과해야 하는 일련의 "계층"으로 생각하는 것이 좋습니다. 각 계층은 요청을 검사할 수 있으며, 요청을 완전히 거부할 수도 있습니다.
 
 > [!NOTE]
-> 모든 Middleware는 [service container](/docs/13.x/container)를 통해 해결되므로, Middleware의 생성자에서 필요한 의존성을 타입 힌트할 수 있습니다.
+> 모든 Middleware 인스턴스는 [service container](/docs/13.x/container)를 통해 제공되므로, Middleware의 생성자에 필요한 의존성을 타입 힌트로 선언할 수 있습니다.
 
 <a name="middleware-and-responses"></a>
 <!-- #### Middleware and Responses -->
@@ -559,7 +559,7 @@ class TerminatingMiddleware
 `terminate` 메서드는 요청과 응답을 모두 받아야 합니다. 종료 가능 Middleware를 정의한 후에는 애플리케이션의 `bootstrap/app.php` 파일에서 라우트 목록이나 전역 Middleware 목록에 추가해야 합니다.
 
 <!-- When calling the `terminate` method on your middleware, Laravel will resolve a fresh instance of the middleware from the [service container](/docs/13.x/container). If you would like to use the same middleware instance when the `handle` and `terminate` methods are called, register the middleware with the container using the container's `singleton` method. Typically this should be done in the `register` method of your `AppServiceProvider`: -->
-Middleware의 `terminate` 메서드를 호출할 때 Laravel은 [service container](/docs/13.x/container)에서 Middleware의 새 인스턴스를 해결합니다. `handle` 메서드와 `terminate` 메서드가 호출될 때 동일한 Middleware 인스턴스를 사용하고 싶다면, 컨테이너의 `singleton` 메서드를 사용하여 Middleware를 컨테이너에 등록하십시오. 일반적으로 이 작업은 `AppServiceProvider`의 `register` 메서드에서 수행해야 합니다.
+Middleware의 `terminate` 메서드를 호출할 때 Laravel은 [service container](/docs/13.x/container)에서 Middleware의 새 인스턴스를 가져옵니다. `handle` 메서드와 `terminate` 메서드가 호출될 때 동일한 Middleware 인스턴스를 사용하고 싶다면, 컨테이너의 `singleton` 메서드를 사용하여 Middleware를 컨테이너에 등록하십시오. 일반적으로 이 작업은 `AppServiceProvider`의 `register` 메서드에서 수행해야 합니다.
 
 ```php
 use App\Http\Middleware\TerminatingMiddleware;

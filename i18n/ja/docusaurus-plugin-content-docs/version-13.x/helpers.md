@@ -242,7 +242,7 @@ Laravel には、さまざまなグローバル「ヘルパ」PHP 関数が含�
 #### `Arr::accessible()`
 
 <!-- The `Arr::accessible` method determines if the given value is array accessible: -->
-`Arr::accessible` メソッドは、指定された値が配列にアクセスできるかどうかを判断します。
+`Arr::accessible` メソッドは、指定された値に配列のようにアクセスできるかどうかを判断します。
 
 ```php
 use Illuminate\Support\Arr;
@@ -418,7 +418,7 @@ $flattened = Arr::dot($array);
 #### `Arr::every()`
 
 <!-- The `Arr::every` method ensures that all values in the array pass a given truth test: -->
-`Arr::every` メソッドは、配列内のすべての値が指定された真理テストに合格することを保証します。
+`Arr::every` メソッドは、配列内のすべての値が指定された条件を満たすかどうかを判定します。
 
 ```php
 use Illuminate\Support\Arr;
@@ -507,7 +507,7 @@ $exists = Arr::exists($array, 'salary');
 #### `Arr::first()`
 
 <!-- The `Arr::first` method returns the first element of an array passing a given truth test: -->
-`Arr::first` メソッドは、指定された真理値テストに合格した配列の最初の要素を返します。
+`Arr::first` メソッドは、配列内で指定された条件を満たす最初の要素を返します。
 
 ```php
 use Illuminate\Support\Arr;
@@ -522,7 +522,7 @@ $first = Arr::first($array, function (int $value, int $key) {
 ```
 
 <!-- A default value may also be passed as the third parameter to the method. This value will be returned if no value passes the truth test: -->
-デフォルト値を 3 番目のパラメータとしてメソッドに渡すこともできます。真実テストに合格する値がない場合、この値が返されます。
+デフォルト値を 3 番目のパラメータとしてメソッドに渡すこともできます。条件を満たす値がない場合、この値が返されます。
 
 ```php
 use Illuminate\Support\Arr;
@@ -679,7 +679,7 @@ Arr::hasAll($array, ['name', 'IDE']); // false
 #### `Arr::hasAny()`
 
 <!-- The `Arr::hasAny` method checks whether any item in a given set exists in an array using "dot" notation: -->
-`Arr::hasAny` メソッドは、「ドット」表記を使用して、指定されたセット内の項目が配列内に存在するかどうかをチェックします。
+`Arr::hasAny` メソッドは、「ドット」表記を使用して、指定された集合の項目のうち少なくとも 1 つが配列内に存在するかどうかをチェックします。
 
 ```php
 use Illuminate\Support\Arr;
@@ -809,7 +809,7 @@ $keyed = Arr::keyBy($array, 'product_id');
 #### `Arr::last()`
 
 <!-- The `Arr::last` method returns the last element of an array passing a given truth test: -->
-`Arr::last` メソッドは、指定された真理値テストに合格した配列の最後の要素を返します。
+`Arr::last` メソッドは、配列内で指定された条件を満たす最後の要素を返します。
 
 ```php
 use Illuminate\Support\Arr;
@@ -824,7 +824,7 @@ $last = Arr::last($array, function (int $value, int $key) {
 ```
 
 <!-- A default value may be passed as the third argument to the method. This value will be returned if no value passes the truth test: -->
-デフォルト値は、メソッドの 3 番目の引数として渡すことができます。真実テストに合格する値がない場合、この値が返されます。
+デフォルト値は、メソッドの 3 番目の引数として渡すことができます。条件を満たす値がない場合、この値が返されます。
 
 ```php
 use Illuminate\Support\Arr;
@@ -965,7 +965,7 @@ $filtered = Arr::onlyValues($array, [1, 2], strict: true);
 #### `Arr::partition()`
 
 <!-- The `Arr::partition` method may be combined with PHP array destructuring to separate elements that pass a given truth test from those that do not: -->
-`Arr::partition` メソッドを PHP 配列の構造化と組み合わせて、特定の真実テストに合格する要素とそうでない要素を分離することができます。
+`Arr::partition` メソッドを PHP 配列の分割代入と組み合わせて、指定された条件を満たす要素と満たさない要素を分離することができます。
 
 ```php
 <?php
@@ -1246,7 +1246,7 @@ $array = Arr::shuffle([1, 2, 3, 4, 5]);
 #### `Arr::sole()`
 
 <!-- The `Arr::sole` method retrieves a single value from an array using the given closure. If more than one value within the array matches the given truth test, an `Illuminate\Support\MultipleItemsFoundException` exception will be thrown. If no values match the truth test, an `Illuminate\Support\ItemNotFoundException` exception will be thrown: -->
-`Arr::sole` メソッドは、指定されたクロージャを使用して配列から単一の値を取得します。配列内の複数の値が指定された真理値テストに一致する場合、`Illuminate\Support\MultipleItemsFoundException` 例外がスローされます。真実のテストに一致する値がない場合は、`Illuminate\Support\ItemNotFoundException` 例外がスローされます。
+`Arr::sole` メソッドは、指定されたクロージャを使用して配列から単一の値を取得します。配列内の複数の値が指定された条件を満たす場合、`Illuminate\Support\MultipleItemsFoundException` 例外がスローされます。条件を満たす値がない場合は、`Illuminate\Support\ItemNotFoundException` 例外がスローされます。
 
 ```php
 use Illuminate\Support\Arr;
@@ -1263,7 +1263,7 @@ $value = Arr::sole($array, fn (string $value) => $value === 'Desk');
 #### `Arr::some()`
 
 <!-- The `Arr::some` method ensures that at least one of the values in the array passes a given truth test: -->
-`Arr::some` メソッドは、配列内の値の少なくとも 1 つが指定された真理値テストに合格することを保証します。
+`Arr::some` メソッドは、配列内の値の少なくとも 1 つが指定された条件を満たすかどうかを判定します。
 
 ```php
 use Illuminate\Support\Arr;
@@ -1592,7 +1592,7 @@ data_fill($data, 'products.desk.discount', 10);
 ```
 
 <!-- This function also accepts asterisks as wildcards and will fill the target accordingly: -->
-この関数はワイルドカードとしてアスタリスクも受け入れ、それに応じてターゲットを入力します。
+この関数はワイルドカードとしてアスタリスクも受け入れ、それに応じて対象の欠損値を埋めます。
 
 ```php
 $data = [
@@ -2115,7 +2115,7 @@ $number = Number::spell(88, locale: 'fr');
 ```
 
 <!-- The `after` argument allows you to specify a value after which all numbers should be spelled out: -->
-`after` 引数を使用すると、すべての数値の後に続く値を指定できます。
+`after` 引数を使用すると、その値より大きい数値をすべて単語で表記するための境界値を指定できます。
 
 ```php
 $number = Number::spell(10, after: 10);
@@ -2128,7 +2128,7 @@ $number = Number::spell(11, after: 10);
 ```
 
 <!-- The `until` argument allows you to specify a value before which all numbers should be spelled out: -->
-`until` 引数を使用すると、すべての数値の前にスペルアウトする必要がある値を指定できます。
+`until` 引数を使用すると、その値より小さい数値をすべて単語で表記するための境界値を指定できます。
 
 ```php
 $number = Number::spell(5, until: 10);
@@ -2763,7 +2763,7 @@ cache(['key' => 'value'], now()->plus(seconds: 10));
 #### `class_uses_recursive()`
 
 <!-- The `class_uses_recursive` function returns all traits used by a class, including traits used by all of its parent classes: -->
-`class_uses_recursive` 関数は、そのすべての親クラスで使用される特性を含む、クラスで使用されるすべての特性を返します。
+`class_uses_recursive` 関数は、そのすべての親クラスで使用されるトレイトを含む、クラスで使用されるすべてのトレイトを返します。
 
 ```php
 $traits = class_uses_recursive(App\Models\User::class);
@@ -3448,7 +3448,7 @@ $user = tap($user)->update([
 ```
 
 <!-- To add a `tap` method to a class, you may add the `Illuminate\Support\Traits\Tappable` trait to the class. The `tap` method of this trait accepts a Closure as its only argument. The object instance itself will be passed to the Closure and then be returned by the `tap` method: -->
-`tap` メソッドをクラスに追加するには、`Illuminate\Support\Traits\Tappable` 特性をクラスに追加します。このトレイトの `tap` メソッドは、唯一の引数として Closure を受け入れます。オブジェクト インスタンス自体はクロージャに渡され、`tap` メソッドによって返されます。
+`tap` メソッドをクラスに追加するには、`Illuminate\Support\Traits\Tappable` トレイトをクラスに追加します。このトレイトの `tap` メソッドは、唯一の引数として Closure を受け入れます。オブジェクト インスタンス自体はクロージャに渡され、`tap` メソッドによって返されます。
 
 ```php
 return $user->tap(function (User $user) {
@@ -3506,7 +3506,7 @@ $today = today();
 #### `trait_uses_recursive()`
 
 <!-- The `trait_uses_recursive` function returns all traits used by a trait: -->
-`trait_uses_recursive` 関数は、特性によって使用されるすべての特性を返します。
+`trait_uses_recursive` 関数は、トレイトによって使用されるすべてのトレイトを返します。
 
 ```php
 $traits = trait_uses_recursive(\Illuminate\Notifications\Notifiable::class);
@@ -3738,7 +3738,7 @@ Cache::put('metrics', $metrics, minutes(10));
 Laravel の [queued jobs](/docs/13.x/queues) を使えばタスクをバックグラウンドで処理するためにキューへ追加できますが、長時間稼働するキューワーカーの設定や管理をせずに、単純なタスクを遅延させたい場合もあります。
 
 <!-- Deferred functions allow you to defer the execution of a closure until after the HTTP response has been sent to the user, keeping your application feeling fast and responsive. To defer the execution of a closure, simply pass the closure to the `Illuminate\Support\defer` function: -->
-遅延関数を使用すると、HTTP 応答がユーザーに送信されるまでクロージャの実行を延期でき、アプリケーションの高速性と応答性を維持できます。クロージャの実行を延期するには、単にクロージャを `Illuminate\Support\defer` 関数に渡します。
+遅延関数を使用すると、クロージャの実行を HTTP 応答がユーザーに送信された後まで延期でき、アプリケーションの高速性と応答性を維持できます。クロージャの実行を延期するには、単にクロージャを `Illuminate\Support\defer` 関数に渡します。
 
 ```php
 use App\Services\Metrics;
@@ -3833,7 +3833,7 @@ abstract class TestCase extends BaseTestCase
 ### Lottery
 
 <!-- Laravel's lottery class may be used to execute callbacks based on a set of given odds. This can be particularly useful when you only want to execute code for a percentage of your incoming requests: -->
-Laravel の宝くじクラスは、指定されたオッズのセットに基づいてコールバックを実行するために使用できます。これは、受信リクエストの一部のコードのみを実行したい場合に特に便利です。
+Laravel の Lottery クラスは、指定された確率に基づいてコールバックを実行するために使用できます。受信リクエストのうち一定の割合に対してのみコードを実行したい場合に特に便利です。
 
 ```php
 use Illuminate\Support\Lottery;
@@ -3845,7 +3845,7 @@ Lottery::odds(1, 20)
 ```
 
 <!-- You may combine Laravel's lottery class with other Laravel features. For example, you may wish to only report a small percentage of slow queries to your exception handler. And, since the lottery class is callable, we may pass an instance of the class into any method that accepts callables: -->
-Laravel のロッタリークラスを他の Laravel 機能と組み合わせることができます。たとえば、低速クエリのほんの一部だけを例外ハンドラーに報告したい場合があります。また、lottery クラスは呼び出し可能であるため、呼び出し可能オブジェクトを受け入れる任意のメソッドにクラスのインスタンスを渡すことができます。
+Laravel の Lottery クラスを他の Laravel 機能と組み合わせることができます。たとえば、低速クエリのほんの一部だけを例外ハンドラーに報告したい場合があります。また、Lottery クラスは呼び出し可能であるため、呼び出し可能オブジェクトを受け入れる任意のメソッドにクラスのインスタンスを渡すことができます。
 
 ```php
 use Carbon\CarbonInterval;
@@ -3863,7 +3863,7 @@ DB::whenQueryingForLongerThan(
 #### Testing Lotteries
 
 <!-- Laravel provides some simple methods to allow you to easily test your application's lottery invocations: -->
-Laravel には、アプリケーションの宝くじ呼び出しを簡単にテストできるようにするための簡単なメソッドがいくつか用意されています。
+Laravel には、アプリケーションの Lottery の呼び出しを簡単にテストできるようにするための簡単なメソッドがいくつか用意されています。
 
 ```php
 // Lottery will always win...
@@ -4018,7 +4018,7 @@ while ($waiting) {
 ```
 
 <!-- Typically, testing this code would take _at least_ one second. Luckily, the `Sleep` class allows us to "fake" sleeping so that our test suite stays fast: -->
-通常、このコードのテストには少なくとも 1 秒かかります。幸いなことに、`Sleep` クラスを使用すると、テスト スイートの速度を維持するために、睡眠を「偽装」することができます。
+通常、このコードのテストには少なくとも 1 秒かかります。幸いなことに、`Sleep` クラスを使用すると、テスト スイートの速度を維持するために、スリープを「偽装」することができます。
 
 ```php tab=Pest
 it('waits until ready', function () {
@@ -4111,7 +4111,7 @@ Sleep::whenFakingSleep(function (Duration $duration) {
 ```
 
 <!-- As progressing time is a common requirement, the `fake` method accepts a `syncWithCarbon` argument to keep Carbon in sync when sleeping within a test: -->
-進行時間は一般的な要件であるため、`fake` メソッドは `syncWithCarbon` 引数を受け入れて、テスト内でスリープしているときに Carbon の同期を維持します。
+テスト中に時刻を進めることはよくある要件であるため、`fake` メソッドは `syncWithCarbon` 引数を受け入れて、テスト内でスリープしているときに Carbon の同期を維持します。
 
 ```php
 Sleep::fake(syncWithCarbon: true);

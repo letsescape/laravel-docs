@@ -68,7 +68,7 @@ Route::get('/users', function () {
 ファサードには多くの利点があります。これらは、手動で挿入または設定する必要がある長いクラス名を覚えなくても、Laravel の機能を使用できる簡潔で覚えやすい構文を提供します。さらに、PHP の動的メソッドを独自に使用しているため、テストが簡単です。
 
 <!-- However, some care must be taken when using facades. The primary danger of facades is class "scope creep". Since facades are so easy to use and do not require injection, it can be easy to let your classes continue to grow and use many facades in a single class. Using dependency injection, this potential is mitigated by the visual feedback a large constructor gives you that your class is growing too large. So, when using facades, pay special attention to the size of your class so that its scope of responsibility stays narrow. If your class is getting too large, consider splitting it into multiple smaller classes. -->
-ただし、ファサードを使用する場合は注意が必要です。ファサードの主な危険は「スコープクリープ」クラスです。ファサードは非常に使いやすく、注入の必要がないため、クラスを成長させ続けて 1 つのクラスで多くのファサードを使用することも簡単です。依存関係の注入を使用すると、大規模なコンストラクターがクラスが大きくなりすぎていることを視覚的にフィードバックすることで、この可能性が軽減されます。したがって、ファサードを使用するときは、クラスの責任範囲が狭くならないように、クラスの規模に特に注意してください。クラスが大きくなりすぎる場合は、複数の小さなクラスに分割することを検討してください。
+ただし、ファサードを使用する場合は注意が必要です。ファサードの主な危険は、クラスの「スコープクリープ」、つまり責任範囲が広がりすぎることです。ファサードは非常に使いやすく、注入の必要がないため、クラスを成長させ続けて 1 つのクラスで多くのファサードを使用することも簡単です。依存関係の注入を使用すると、大規模なコンストラクターがクラスが大きくなりすぎていることを視覚的にフィードバックすることで、この可能性が軽減されます。したがって、ファサードを使用するときは、クラスの責任範囲を狭く保つように、クラスの規模に特に注意してください。クラスが大きくなりすぎる場合は、複数の小さなクラスに分割することを検討してください。
 
 <a name="facades-vs-dependency-injection"></a>
 <!-- ### Facades vs. Dependency Injection -->
@@ -171,10 +171,10 @@ public function test_basic_example(): void
 ## How Facades Work
 
 <!-- In a Laravel application, a facade is a class that provides access to an object from the container. The machinery that makes this work is in the `Facade` class. Laravel's facades, and any custom facades you create, will extend the base `Illuminate\Support\Facades\Facade` class. -->
-Laravel アプリケーションでは、ファサードはコンテナからオブジェクトへのアクセスを提供するクラスです。これを機能させる機械は、`Facade` クラスにあります。 Laravel のファサード、および作成するカスタム ファサードは、基本 `Illuminate\Support\Facades\Facade` クラスを拡張します。
+Laravel アプリケーションでは、ファサードはコンテナからオブジェクトへのアクセスを提供するクラスです。これを実現する仕組みは、`Facade` クラスにあります。 Laravel のファサード、および作成するカスタム ファサードは、基本 `Illuminate\Support\Facades\Facade` クラスを拡張します。
 
 <!-- The `Facade` base class makes use of the `__callStatic()` magic-method to defer calls from your facade to an object resolved from the container. In the example below, a call is made to the Laravel cache system. By glancing at this code, one might assume that the static `get` method is being called on the `Cache` class: -->
-`Facade` 基本クラスは、`__callStatic()` マジック メソッドを利用して、ファサードからコンテナーから解決されたオブジェクトへの呼び出しを延期します。以下の例では、Laravel キャッシュ システムへの呼び出しが行われます。このコードを一目見ると、静的 `get` メソッドが `Cache` クラスで呼び出されていると思われるかもしれません。
+`Facade` 基本クラスは、`__callStatic()` マジック メソッドを利用して、ファサードへの呼び出しを、コンテナから解決されたオブジェクトに委譲します。以下の例では、Laravel キャッシュ システムへの呼び出しが行われます。このコードを一目見ると、静的 `get` メソッドが `Cache` クラスで呼び出されていると思われるかもしれません。
 
 ```php
 <?php

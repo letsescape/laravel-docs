@@ -78,7 +78,7 @@ Route::get('/users', function () {
 의존성 주입의 주요 장점은 주입 받은 클래스의 구현체를 쉽게 바꿀 수 있다는 점입니다. 예를 들어, 테스트 시에는 실제 객체 대신 Mock(가짜 객체)이나 Stub을 주입해서, 특정 메서드가 제대로 호출되었는지 확인할 수 있습니다.
 
 <!-- Typically, it would not be possible to mock or stub a truly static class method. However, since facades use dynamic methods to proxy method calls to objects resolved from the service container, we actually can test facades just as we would test an injected class instance. For example, given the following route: -->
-전통적인 정적(static) 클래스 메서드는 Mock이나 Stub으로 대체할 수가 없습니다. 하지만 파사드는 동적 메서드를 사용해 메서드 호출을 서비스 컨테이너에서 가져온 객체로 프록시 처리하기 때문에, 실제로 의존성 주입과 동일하게 테스트할 수 있습니다. 예를 들어, 아래와 같은 라우트 코드가 있다고 가정해보겠습니다.
+일반적으로 실제 정적(static) 클래스 메서드는 Mock이나 Stub으로 대체할 수 없습니다. 하지만 파사드는 동적 메서드를 사용해 메서드 호출을 서비스 컨테이너에서 가져온 객체로 프록시 처리하기 때문에, 실제로 의존성 주입과 동일하게 테스트할 수 있습니다. 예를 들어, 아래와 같은 라우트 코드가 있다고 가정해보겠습니다.
 
 ```php
 use Illuminate\Support\Facades\Cache;
@@ -278,7 +278,7 @@ class Podcast extends Model
 ```
 
 <!-- When the real-time facade is used, the publisher implementation will be resolved out of the service container using the portion of the interface or class name that appears after the `Facades` prefix. When testing, we can use Laravel's built-in facade testing helpers to mock this method call: -->
-실시간 파사드를 사용할 때는, `Facades` 프리픽스 이후의 인터페이스 또는 클래스 이름을 기반으로 서비스 컨테이너에서 해당 클래스를 해석해 객체를 가져옵니다. 테스트 시에도, Laravel이 제공하는 파사드 테스트 헬퍼를 그대로 사용할 수 있습니다.
+실시간 파사드를 사용할 때는, `Facades` 프리픽스 이후의 인터페이스 또는 클래스 이름을 기반으로 서비스 컨테이너에서 해당 클래스를 해석해 객체를 가져옵니다. 테스트 시에는 Laravel이 제공하는 파사드 테스트 헬퍼를 사용해 이 메서드 호출을 목 처리할 수 있습니다.
 
 ```php tab=Pest
 <?php

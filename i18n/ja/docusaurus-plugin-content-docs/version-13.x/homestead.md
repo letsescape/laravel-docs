@@ -408,7 +408,7 @@ features:
 #### Elasticsearch
 
 <!-- You may specify a supported version of Elasticsearch, which must be an exact version number (major.minor.patch). The default installation will create a cluster named 'homestead'. You should never give Elasticsearch more than half of the operating system's memory, so make sure your Homestead virtual machine has at least twice the Elasticsearch allocation. -->
-Elasticsearch のサポートされているバージョンを指定できます。これは正確なバージョン番号 (major.minor.patch) である必要があります。デフォルトのインストールでは、「homestead」という名前のクラスターが作成されます。 Elasticsearch にはオペレーティング システムのメモリの半分を超えて割り当てないでください。そのため、Homestead 仮想マシンには少なくとも 2 倍の Elasticsearch 割り当てがあることを確認してください。
+Elasticsearch のサポートされているバージョンを指定できます。これは正確なバージョン番号 (major.minor.patch) である必要があります。デフォルトのインストールでは、「homestead」という名前のクラスターが作成されます。 Elasticsearch にはオペレーティング システムのメモリの半分を超えて割り当てないでください。そのため、Homestead 仮想マシンに、Elasticsearch に割り当てるメモリの少なくとも 2 倍のメモリがあることを確認してください。
 
 > [!NOTE]
 > 構成をカスタマイズする方法については、[Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current) を確認してください。
@@ -854,7 +854,7 @@ Homestead には、[Xdebug](https://xdebug.org) を使用したステップ デ�
 #### Autostarting Xdebug
 
 <!-- When debugging functional tests that make requests to the web server, it is easier to autostart debugging rather than modifying tests to pass through a custom header or cookie to trigger debugging. To force Xdebug to start automatically, modify the `/etc/php/7.x/fpm/conf.d/20-xdebug.ini` file inside your Homestead virtual machine and add the following configuration: -->
-Web サーバーにリクエストを行う機能テストをデバッグする場合、カスタム ヘッダーまたは Cookie を通過するようにテストを変更してデバッグをトリガーするよりも、デバッグを自動開始する方が簡単です。 Xdebug を強制的に自動的に開始するには、Homestead 仮想マシン内の `/etc/php/7.x/fpm/conf.d/20-xdebug.ini` ファイルを変更し、次の構成を追加します。
+Web サーバーにリクエストを行う機能テストをデバッグする場合、カスタム ヘッダーまたは Cookie を送信するようにテストを変更してデバッグをトリガーするよりも、デバッグを自動開始する方が簡単です。 Xdebug を強制的に自動的に開始するには、Homestead 仮想マシン内の `/etc/php/7.x/fpm/conf.d/20-xdebug.ini` ファイルを変更し、次の構成を追加します。
 
 ```ini
 ; If Homestead.yaml contains a different subnet for the IP address, this address may be different...
@@ -897,7 +897,7 @@ features:
 ```
 
 <!-- Blackfire server credentials and client credentials [require a Blackfire account](https://blackfire.io/signup). Blackfire offers various options to profile an application, including a CLI tool and browser extension. Please [review the Blackfire documentation for more details](https://blackfire.io/docs/php/integrations/laravel/index). -->
-Blackfire サーバー認証情報とクライアント認証情報 [require a Blackfire account](https://blackfire.io/signup)。 Blackfire は、CLI ツールやブラウザ拡張機能など、アプリケーションをプロファイリングするためのさまざまなオプションを提供します。 [review the Blackfire documentation for more details](https://blackfire.io/docs/php/integrations/laravel/index) してください。
+Blackfire のサーバー認証情報とクライアント認証情報を利用するには、アカウントが必要です（[require a Blackfire account](https://blackfire.io/signup)）。 Blackfire は、CLI ツールやブラウザ拡張機能など、アプリケーションをプロファイリングするためのさまざまなオプションを提供します。 [review the Blackfire documentation for more details](https://blackfire.io/docs/php/integrations/laravel/index) してください。
 
 <a name="network-interfaces"></a>
 <!-- ## Network Interfaces -->

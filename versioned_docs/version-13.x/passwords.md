@@ -101,7 +101,7 @@ Laravel의 비밀번호 재설정 기능을 사용하기 전에, 애플리케이
 ## Routing
 
 <!-- To properly implement support for allowing users to reset their passwords, we will need to define several routes. First, we will need a pair of routes to handle allowing the user to request a password reset link via their email address. Second, we will need a pair of routes to handle actually resetting the password once the user visits the password reset link that is emailed to them and completes the password reset form. -->
-사용자가 비밀번호를 재설정할 수 있도록 적절하게 지원하려면 여러 개의 라우트를 정의해야 합니다. 먼저, 사용자가 자신의 이메일 주소로 비밀번호 재설정 링크를 요청할 수 있도록 하는 라우트 두 개가 필요합니다. 두 번째로, 이메일로 발송된 비밀번호 재설정 링크를 클릭하여 실제로 비밀번호를 재설정하는 라우트 두 개가 필요합니다.
+사용자가 비밀번호를 재설정할 수 있도록 적절하게 지원하려면 여러 개의 라우트를 정의해야 합니다. 먼저, 사용자가 자신의 이메일 주소로 비밀번호 재설정 링크를 요청할 수 있도록 하는 라우트 두 개가 필요합니다. 두 번째로, 이메일로 발송된 비밀번호 재설정 링크에 접속하고 재설정 폼을 작성한 뒤 실제로 비밀번호를 재설정하는 라우트 두 개가 필요합니다.
 
 <a name="requesting-the-password-reset-link"></a>
 <!-- ### Requesting the Password Reset Link -->
@@ -171,7 +171,7 @@ Laravel에서 어떻게 데이터베이스에서 사용자를 조회하는지 �
 #### The Password Reset Form
 
 <!-- Next, we will define the routes necessary to actually reset the password once the user clicks on the password reset link that has been emailed to them and provides a new password. First, let's define the route that will display the reset password form that is displayed when the user clicks the reset password link. This route will receive a `token` parameter that we will use later to verify the password reset request: -->
-다음으로, 이메일로 비밀번호 재설정 링크를 받은 사용자가 실제로 비밀번호를 변경할 수 있도록 필요한 라우트를 정의하겠습니다. 먼저, 사용자가 이메일에 포함된 비밀번호 재설정 링크를 클릭하면 표시되는 비밀번호 재설정 폼을 보여주는 라우트를 만듭니다. 이 라우트는 나중에 비밀번호 재설정 요청을 검증할 때 사용할 `token` 파라미터를 전달받습니다.
+다음으로, 사용자가 이메일로 받은 비밀번호 재설정 링크를 클릭하고 새 비밀번호를 입력한 뒤 실제로 비밀번호를 변경할 수 있도록 필요한 라우트를 정의하겠습니다. 먼저, 사용자가 이메일에 포함된 비밀번호 재설정 링크를 클릭하면 표시되는 비밀번호 재설정 폼을 보여주는 라우트를 만듭니다. 이 라우트는 나중에 비밀번호 재설정 요청을 검증할 때 사용할 `token` 파라미터를 전달받습니다.
 
 ```php
 Route::get('/reset-password/{token}', function (string $token) {
@@ -240,7 +240,7 @@ password broker에 제공된 토큰, 이메일, 비밀번호가 모두 유효하
 ## Deleting Expired Tokens
 
 <!-- If you are using the `database` driver, password reset tokens that have expired will still be present within your database. However, you may easily delete these records using the `auth:clear-resets` Artisan command: -->
-`database` 드라이버를 사용할 경우, 만료된 비밀번호 재설정 토큰이 데이터베이스에 남아 있을 수 있습니다. 하지만, `auth:clear-resets` Artisan 명령어를 사용해 손쉽게 이 레코드들을 삭제할 수 있습니다.
+`database` 드라이버를 사용할 경우, 만료된 비밀번호 재설정 토큰이 데이터베이스에 남아 있습니다. 하지만, `auth:clear-resets` Artisan 명령어를 사용해 손쉽게 이 레코드들을 삭제할 수 있습니다.
 
 ```shell
 php artisan auth:clear-resets

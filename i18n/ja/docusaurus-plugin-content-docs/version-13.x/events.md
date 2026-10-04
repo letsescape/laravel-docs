@@ -248,7 +248,7 @@ Event::listen(queueable(function (PodcastProcessed $event) {
 ```
 
 <!-- If you would like to handle anonymous queued listener failures, you may provide a closure to the `catch` method while defining the `queueable` listener. This closure will receive the event instance and the `Throwable` instance that caused the listener's failure: -->
-匿名のキューに入れられたリスナの失敗を処理したい場合は、`queueable` リスナを定義するときに、`catch` メソッドにクロージャを提供できます。このクロージャは、リスナの失敗の原因となったイベント インスタンスと `Throwable` インスタンスを受け取ります。
+匿名のキューに入れられたリスナの失敗を処理したい場合は、`queueable` リスナを定義するときに、`catch` メソッドにクロージャを提供できます。このクロージャは、イベント インスタンスと、リスナの失敗の原因となった `Throwable` インスタンスを受け取ります。
 
 ```php
 use App\Events\PodcastProcessed;
@@ -404,7 +404,7 @@ class SendShipmentNotification implements ShouldQueue
 }
 ```
 <!-- If you would like to define the listener's queue connection, queue name, or delay at runtime, you may define `viaConnection`, `viaQueue`, or `withDelay` methods on the listener: -->
-リスナのキュー接続、キュー名、または実行時の遅延を定義したい場合は、リスナで `viaConnection`、`viaQueue`、または `withDelay` メソッドを定義できます。
+リスナのキュー接続、キュー名、または遅延を実行時に定義したい場合は、リスナで `viaConnection`、`viaQueue`、または `withDelay` メソッドを定義できます。
 
 ```php
 /**
@@ -475,7 +475,7 @@ class RewardGiftCard implements ShouldQueue
 ### Manually Interacting With the Queue
 
 <!-- If you need to manually access the listener's underlying queue job's `delete` and `release` methods, you may do so using the `Illuminate\Queue\InteractsWithQueue` trait. This trait is imported by default on generated listeners and provides access to these methods: -->
-リスナの基になるキュー ジョブの `delete` および `release` メソッドに手動でアクセスする必要がある場合は、`Illuminate\Queue\InteractsWithQueue` 特性を使用してアクセスできます。この特性は、生成されたリスナにデフォルトでインポートされ、次のメソッドへのアクセスを提供します。
+リスナの基になるキュー ジョブの `delete` および `release` メソッドに手動でアクセスする必要がある場合は、`Illuminate\Queue\InteractsWithQueue` トレイトを使用してアクセスできます。このトレイトは、生成されたリスナにデフォルトでインポートされ、次のメソッドへのアクセスを提供します。
 
 ```php
 <?php
@@ -594,7 +594,7 @@ class SendShipmentNotification implements ShouldQueue, ShouldBeEncrypted
 ### Unique Event Listeners
 
 > [!WARNING]
-> 固有のリスナには、[locks](/docs/13.x/cache#atomic-locks) をサポートするキャッシュ ドライバが必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`、および `array` キャッシュ ドライバはアトミック ロックをサポートしています。
+> 一意なリスナには、[locks](/docs/13.x/cache#atomic-locks) をサポートするキャッシュ ドライバが必要です。現在、`memcached`、`redis`、`dynamodb`、`database`、`file`、および `array` キャッシュ ドライバはアトミック ロックをサポートしています。
 
 <!-- Sometimes, you may want to ensure that only one instance of a specific listener is on the queue at any point in time. You may do so by implementing the `ShouldBeUnique` interface on your listener class: -->
 場合によっては、特定のリスナのインスタンスが常に 1 つだけキューに存在するようにしたい場合があります。これを行うには、リスナ クラスに `ShouldBeUnique` インターフェイスを実装します。
@@ -909,7 +909,7 @@ public function backoff(OrderShipped $event): int
 ```
 
 <!-- You may easily configure "exponential" backoffs by returning an array of backoff values from the `backoff` method. In this example, the retry delay will be 1 second for the first retry, 5 seconds for the second retry, 10 seconds for the third retry, and 10 seconds for every subsequent retry if there are more attempts remaining: -->
-`backoff` メソッドからバックオフ値の配列を返すことで、「指数関数的」バックオフを簡単に構成できます。この例では、再試行の遅​​延は、最初の再試行では 1 秒、2 回目の再試行では 5 秒、3 回目の再試行では 10 秒、さらに試行が残っている場合はその後の再試行ごとに 10 秒になります。
+`backoff` メソッドからバックオフ値の配列を返すことで、「指数関数的」バックオフを簡単に構成できます。この例では、再試行の遅延は、最初の再試行では 1 秒、2 回目の再試行では 5 秒、3 回目の再試行では 10 秒、さらに試行が残っている場合はその後の再試行ごとに 10 秒になります。
 
 ```php
 /**
@@ -1317,7 +1317,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- You may pass a closure to the `assertDispatched` or `assertNotDispatched` methods in order to assert that an event was dispatched that passes a given "truth test". If at least one event was dispatched that passes the given truth test then the assertion will be successful: -->
-特定の「真実テスト」に合格するイベントがディスパッチされたことをアサートするために、`assertDispatched` メソッドまたは `assertNotDispatched` メソッドにクロージャーを渡すことができます。指定された真実テストに合格する少なくとも 1 つのイベントがディスパッチされた場合、アサーションは成功します。
+指定された条件を満たすイベントがディスパッチされたことをアサートするために、`assertDispatched` メソッドまたは `assertNotDispatched` メソッドにクロージャーを渡すことができます。指定された条件を満たす少なくとも 1 つのイベントがディスパッチされた場合、アサーションは成功します。
 
 ```php
 Event::assertDispatched(function (OrderShipped $event) use ($order) {

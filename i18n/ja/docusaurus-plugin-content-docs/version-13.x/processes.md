@@ -104,7 +104,7 @@ $result = Process::input('Hello World')->run('cat');
 #### Timeouts
 
 <!-- By default, processes will throw an instance of `Illuminate\Process\Exceptions\ProcessTimedOutException` after executing for more than 60 seconds. However, you can customize this behavior via the `timeout` method: -->
-デフォルトでは、プロセスは 60 秒以上実行された後に `Illuminate\Process\Exceptions\ProcessTimedOutException` のインスタンスをスローします。ただし、`timeout` メソッドを使用してこの動作をカスタマイズできます。
+デフォルトでは、プロセスは 60 秒を超えて実行された場合に `Illuminate\Process\Exceptions\ProcessTimedOutException` のインスタンスをスローします。ただし、`timeout` メソッドを使用してこの動作をカスタマイズできます。
 
 ```php
 $result = Process::timeout(120)->run('bash import.sh');
@@ -304,7 +304,7 @@ $result = $process->wait();
 ### Process IDs and Signals
 
 <!-- The `id` method may be used to retrieve the operating system assigned process ID of the running process: -->
-`id` メソッドは、オペレーティング システムに割り当てられた、実行中のプロセスのプロセス ID を取得するために使用できます。
+`id` メソッドは、オペレーティング システムによって割り当てられた、実行中のプロセスのプロセス ID を取得するために使用できます。
 
 ```php
 $process = Process::start('bash import.sh');
@@ -417,7 +417,7 @@ echo $results[0]->output();
 ```
 
 <!-- Or, for convenience, the `concurrently` method may be used to start an asynchronous process pool and immediately wait on its results. This can provide particularly expressive syntax when combined with PHP's array destructuring capabilities: -->
-または、便宜上、`concurrently` メソッドを使用して非同期プロセス プールを開始し、その結果をすぐに待機することもできます。これを PHP の配列分割機能と組み合わせると、特に表現力豊かな構文を提供できます。
+または、便宜上、`concurrently` メソッドを使用して非同期プロセス プールを開始し、その結果をすぐに待機することもできます。これを PHP の配列の分割代入機能と組み合わせると、特に表現力豊かな構文を提供できます。
 
 ```php
 [$first, $second, $third] = Process::concurrently(function (Pool $pool) {
@@ -570,7 +570,7 @@ Process::fake([
 前の例でお気づきかと思いますが、`Process` ファサードでは、配列を `fake` メソッドに渡すことで、プロセスごとに異なる偽の結果を指定できます。
 
 <!-- The array's keys should represent command patterns that you wish to fake and their associated results. The `*` character may be used as a wildcard character. Any process commands that have not been faked will actually be invoked. You may use the `Process` facade's `result` method to construct stub / fake results for these commands: -->
-配列のキーは、偽装したいコマンド パターンとそれに関連する結果を表す必要があります。 `*` 文字はワイルドカード文字として使用できます。偽装されていないプロセス コマンドは実際に呼び出されます。 `Process` ファサードの `result` メソッドを使用して、次のコマンドのスタブ/偽の結果を構築できます。
+配列では、フェイク対象のコマンドパターンをキーにし、対応する結果を値に指定してください。 `*` 文字はワイルドカード文字として使用できます。偽装されていないプロセス コマンドは実際に呼び出されます。 `Process` ファサードの `result` メソッドを使用して、これらのコマンドのスタブ/偽の結果を構築できます。
 
 ```php
 Process::fake([
@@ -656,7 +656,7 @@ Process::fake([
 ### Available Assertions
 
 <!-- As [previously discussed](#faking-processes), Laravel provides several process assertions for your feature tests. We'll discuss each of these assertions below. -->
-[previously discussed](#faking-processes) として、Laravel は機能テスト用にいくつかのプロセス アサーションを提供します。これらの各主張については、以下で説明します。
+[previously discussed](#faking-processes) で説明したように、Laravel は機能テスト用にいくつかのプロセス アサーションを提供します。これらの各アサーションについては、以下で説明します。
 
 <a name="assert-process-ran"></a>
 <!-- #### assertRan -->

@@ -433,7 +433,7 @@ class AppServiceProvider extends ServiceProvider
 ### Monitoring Cumulative Query Time
 
 <!-- A common performance bottleneck of modern web applications is the amount of time they spend querying databases. Thankfully, Laravel can invoke a closure or callback of your choice when it spends too much time querying the database during a single request. To get started, provide a query time threshold (in milliseconds) and closure to the `whenQueryingForLongerThan` method. You may invoke this method in the `boot` method of a [service provider](/docs/13.x/providers): -->
-웹 애플리케이션의 주요 성능 병목지점 중 하나는 데이터베이스 쿼리에 소요되는 시간입니다. Laravel에서는 한 요청 내에서 쿼리 수행 시간이 너무 길어질 때, 지정한 클로저나 콜백을 호출할 수 있습니다. 설정 방법은 `whenQueryingForLongerThan` 메서드에 임계 시간(밀리초 단위)과 클로저를 전달하는 것입니다. 이 메서드는 [service provider](/docs/13.x/providers)의 `boot` 메서드에서 사용할 수 있습니다:
+웹 애플리케이션의 주요 성능 병목지점 중 하나는 데이터베이스 쿼리에 소요되는 시간입니다. Laravel에서는 한 요청 내에서 데이터베이스 쿼리에 소요된 누적 시간이 너무 길어질 때, 지정한 클로저나 콜백을 호출할 수 있습니다. 설정 방법은 `whenQueryingForLongerThan` 메서드에 임계 시간(밀리초 단위)과 클로저를 전달하는 것입니다. 이 메서드는 [service provider](/docs/13.x/providers)의 `boot` 메서드에서 사용할 수 있습니다:
 
 ```php
 <?php

@@ -102,7 +102,7 @@ php artisan make:mcp-server WeatherServer
 ```
 
 <!-- This command will create a new server class in the `app/Mcp/Servers` directory. The generated server class extends Laravel MCP's base `Laravel\Mcp\Server` class and provides attributes and properties for configuring the server and registering tools, resources, and prompts: -->
-이 명령어는 `app/Mcp/Servers` 디렉터리에 새 서버 클래스를 생성합니다. 생성된 서버 클래스는 Laravel MCP의 기본 `Laravel\Mcp\Server` 클래스를 확장하며, 서버를 설정하고 도구, 리소스, 프롬프트를 등록하기 위한 속성과 속성(attribute)을 제공합니다.
+이 명령어는 `app/Mcp/Servers` 디렉터리에 새 서버 클래스를 생성합니다. 생성된 서버 클래스는 Laravel MCP의 기본 `Laravel\Mcp\Server` 클래스를 확장하며, 서버를 설정하고 도구, 리소스, 프롬프트를 등록하기 위한 어트리뷰트와 프로퍼티를 제공합니다.
 
 ```php
 <?php
@@ -1664,7 +1664,7 @@ class WeatherDashboardApp extends AppResource
 ```
 
 <!-- The `createMcpApp` global is provided by the bundled SDK and handles connecting the iframe to the server, applying host theming, and exposing helpers such as `callServerTool`, `sendMessage`, `openLink`, and event callbacks. For the full client-side API, refer to the [MCP Apps specification](https://modelcontextprotocol.io/extensions/apps/overview). -->
-`createMcpApp` 전역 객체는 번들된 SDK에서 제공되며, iframe을 서버에 연결하고, 호스트 테마를 적용하며, `callServerTool`, `sendMessage`, `openLink`, 이벤트 콜백 같은 헬퍼를 노출합니다. 전체 클라이언트 측 API는 [MCP Apps specification](https://modelcontextprotocol.io/extensions/apps/overview)를 참고하십시오.
+`createMcpApp` 전역 함수는 번들된 SDK에서 제공되며, iframe을 서버에 연결하고, 호스트 테마를 적용하며, `callServerTool`, `sendMessage`, `openLink`, 이벤트 콜백 같은 헬퍼를 노출합니다. 전체 클라이언트 측 API는 [MCP Apps specification](https://modelcontextprotocol.io/extensions/apps/overview)를 참고하십시오.
 
 <a name="rendering-apps-from-tools"></a>
 <!-- ### Rendering Apps From Tools -->
@@ -1867,13 +1867,13 @@ class CurrentWeatherTool extends Tool
 ```
 
 <!-- Icons defined via the attribute and the `icons` method are combined automatically. Icon paths are resolved as follows: -->
-속성과 `icons` 메서드로 정의한 아이콘은 자동으로 결합됩니다. 아이콘 경로는 다음 방식으로 확인됩니다.
+속성과 `icons` 메서드로 정의한 아이콘은 자동으로 결합됩니다. 아이콘 경로는 다음 방식으로 해석됩니다.
 
 <div class="content-list" markdown="1">
 
 <!-- - Paths with a URI scheme, such as `https:` or `data:`, are used as-is. - Relative paths are resolved to a URL using Laravel's `asset` helper. -->
-- `https:` 또는 `data:` 같은 URI 스키마가 있는 경로는 그대로 사용됩니다.
-- 상대 경로는 Laravel의 `asset` 헬퍼를 사용해 URL로 확인됩니다.
+- `https:` 또는 `data:` 같은 URI 스킴이 있는 경로는 그대로 사용됩니다.
+- 상대 경로는 Laravel의 `asset` 헬퍼를 사용해 URL로 변환됩니다.
 
 </div>
 
@@ -2090,7 +2090,7 @@ $client = Mcp::client('github');
 ### Client Authentication
 
 <!-- To connect to a web MCP server that is protected by a bearer token, use the `withToken` method. You may pass a token string or a closure that lazily resolves the token: -->
-bearer 토큰으로 보호되는 웹 MCP 서버에 연결하려면 `withToken` 메서드를 사용합니다. 토큰 문자열을 전달하거나 토큰을 지연 해결하는 클로저를 전달할 수 있습니다.
+bearer 토큰으로 보호되는 웹 MCP 서버에 연결하려면 `withToken` 메서드를 사용합니다. 토큰 문자열을 전달하거나 필요할 때 토큰을 가져오는 클로저를 전달할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -2194,7 +2194,7 @@ foreach ($tools as $tool) {
 ```
 
 <!-- The client automatically paginates through all available tools. You may limit the number of tools returned using the `limit` argument: -->
-클라이언트는 사용 가능한 모든 도구를 자동으로 페이지네이션합니다. 반환되는 도구 수를 제한하려면 `limit` 인수를 사용할 수 있습니다.
+클라이언트는 모든 페이지를 자동으로 조회하여 사용 가능한 도구를 가져옵니다. 반환되는 도구 수를 제한하려면 `limit` 인수를 사용할 수 있습니다.
 
 ```php
 $tools = Mcp::client('github')->tools(limit: 10);
@@ -2253,7 +2253,7 @@ foreach ($prompts as $prompt) {
 ```
 
 <!-- The client automatically paginates through all available prompts. You may limit the number of prompts returned using the `limit` argument: -->
-클라이언트는 사용 가능한 모든 프롬프트를 자동으로 페이지네이션합니다. 반환되는 프롬프트 수를 제한하려면 `limit` 인수를 사용할 수 있습니다.
+클라이언트는 모든 페이지를 자동으로 조회하여 사용 가능한 프롬프트를 가져옵니다. 반환되는 프롬프트 수를 제한하려면 `limit` 인수를 사용할 수 있습니다.
 
 ```php
 $prompts = Mcp::client('github')->prompts(limit: 10);
@@ -2301,7 +2301,7 @@ foreach ($resources as $resource) {
 ```
 
 <!-- The client automatically paginates through all available resources. You may limit the number of resources returned using the `limit` argument: -->
-클라이언트는 사용 가능한 모든 리소스를 자동으로 페이지네이션합니다. 반환되는 리소스 수를 제한하려면 `limit` 인수를 사용할 수 있습니다.
+클라이언트는 모든 페이지를 자동으로 조회하여 사용 가능한 리소스를 가져옵니다. 반환되는 리소스 수를 제한하려면 `limit` 인수를 사용할 수 있습니다.
 
 ```php
 $resources = Mcp::client('github')->resources(limit: 10);

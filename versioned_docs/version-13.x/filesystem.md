@@ -362,7 +362,7 @@ return Storage::download('file.jpg', $name, $headers);
 ### File URLs
 
 <!-- You may use the `url` method to get the URL for a given file. If you are using the `local` driver, this will typically just prepend `/storage` to the given path and return a relative URL to the file. If you are using the `s3` driver, the fully qualified remote URL will be returned: -->
-`url` 메서드를 이용해 특정 파일의 URL을 얻을 수 있습니다. `local` 드라이버를 사용할 경우, 이 메서드는 일반적으로 지정된 경로에 `/storage`를 앞에 붙여 상대 URL을 반환합니다. `s3` 드라이버를 쓰는 경우에는 완전히 실제 원격 URL이 반환됩니다:
+`url` 메서드를 이용해 특정 파일의 URL을 얻을 수 있습니다. `local` 드라이버를 사용할 경우, 이 메서드는 일반적으로 지정된 경로에 `/storage`를 앞에 붙여 상대 URL을 반환합니다. `s3` 드라이버를 쓰는 경우에는 완전한 형식의 원격 URL이 반환됩니다:
 
 ```php
 use Illuminate\Support\Facades\Storage;
@@ -447,7 +447,7 @@ $url = Storage::temporaryUrl(
 #### Customizing Temporary URLs
 
 <!-- If you need to customize how temporary URLs are created for a specific storage disk, you can use the `buildTemporaryUrlsUsing` method. For example, this can be useful if you have a controller that allows you to download files stored via a disk that doesn't typically support temporary URLs. Usually, this method should be called from the `boot` method of a service provider: -->
-특정 스토리지 디스크에 대해 임시 URL 생성 방식을 사용자 지정하고 싶다면, `buildTemporaryUrlsUsing` 메서드를 사용할 수 있습니다. 예를 들어, 일반적으로 임시 URL을 지원하지 않는 디스크에 저장된 파일을 서명된 라우트를 통해 다운로드하는 컨트롤러가 있다고 가정할 수 있습니다. 이 메서드는 일반적으로 서비스 프로바이더의 `boot` 메서드에서 호출하는 것이 좋습니다:
+특정 스토리지 디스크에 대해 임시 URL 생성 방식을 사용자 지정하고 싶다면, `buildTemporaryUrlsUsing` 메서드를 사용할 수 있습니다. 예를 들어, 일반적으로 임시 URL을 지원하지 않는 디스크에 저장된 파일을 다운로드할 수 있는 컨트롤러가 있다면 유용합니다. 이 메서드는 일반적으로 서비스 프로바이더의 `boot` 메서드에서 호출하는 것이 좋습니다:
 
 ```php
 <?php
@@ -569,7 +569,7 @@ if (! Storage::put('file.jpg', $contents)) {
 ```
 
 <!-- If you wish, you may define the `throw` option within your filesystem disk's configuration array. When this option is defined as `true`, "write" methods such as `put` will throw an instance of `League\Flysystem\UnableToWriteFile` when write operations fail: -->
-원한다면, 파일 시스템 디스크 설정 배열에 `throw` 옵션을 추가할 수 있습니다. 이 옵셥이 `true`로 설정된 경우, `put`와 같은 "쓰기" 메서드가 실패하면 `League\Flysystem\UnableToWriteFile` 예외가 발생합니다:
+원한다면, 파일 시스템 디스크 설정 배열에 `throw` 옵션을 추가할 수 있습니다. 이 옵션이 `true`로 설정된 경우, `put`와 같은 "쓰기" 메서드가 실패하면 `League\Flysystem\UnableToWriteFile` 예외가 발생합니다:
 
 ```php
 'public' => [
@@ -774,7 +774,7 @@ $extension = $file->extension(); // Determine the file's extension based on the 
 ### File Visibility
 
 <!-- In Laravel's Flysystem integration, "visibility" is an abstraction of file permissions across multiple platforms. Files may either be declared `public` or `private`. When a file is declared `public`, you are indicating that the file should generally be accessible to others. For example, when using the S3 driver, you may retrieve URLs for `public` files. -->
-Laravel의 Flysystem 통합에서 "visibility(공개 범위)"는 다양한 플랫폼 간 파일 권한의 추상 개념입니다. 파일은 `public`(공개) 또는 `private`(비공개)로 지정할 수 있습니다. 파일을 `public`으로 지정하면, 누군가(주로 웹 사용자가) 해당 파일에 접근할 수 있음을 나타냅니다. 예를 들어, S3 드라이버를 사용할 때 `public` 파일의 URL을 얻는 것이 가능합니다.
+Laravel의 Flysystem 통합에서 "visibility(공개 범위)"는 다양한 플랫폼 간 파일 권한의 추상 개념입니다. 파일은 `public`(공개) 또는 `private`(비공개)로 지정할 수 있습니다. 파일을 `public`으로 지정하면, 일반적으로 다른 사람이 해당 파일에 접근할 수 있어야 함을 나타냅니다. 예를 들어, S3 드라이버를 사용할 때 `public` 파일의 URL을 얻는 것이 가능합니다.
 
 <!-- You can set the visibility when writing the file via the `put` method: -->
 파일 저장 시 `put` 메서드로 visibility를 지정할 수 있습니다:
@@ -901,7 +901,7 @@ $files = Storage::allFiles($directory);
 #### Get All Directories Within a Directory
 
 <!-- The `directories` method returns an array of all directories within a given directory. If you would like to retrieve a list of all directories within a given directory including subdirectories, you may use the `allDirectories` method: -->
-`directories` 메서드는 지정한 디렉터리 내의 모든 하위 디렉터리 경로 배열을 반환합니다. 하위 디렉터리까지 포함한 전체 리스트를 얻으려면 `allDirectories`를 사용하세요:
+`directories` 메서드는 지정한 디렉터리 바로 아래에 있는 디렉터리의 경로 배열을 반환합니다. 중첩된 하위 디렉터리까지 포함한 전체 리스트를 얻으려면 `allDirectories`를 사용하세요:
 
 ```php
 $directories = Storage::directories($directory);
@@ -936,7 +936,7 @@ Storage::deleteDirectory($directory);
 ## Testing
 
 <!-- The `Storage` facade's `fake` method allows you to easily generate a fake disk that, combined with the file generation utilities of the `Illuminate\Http\UploadedFile` class, greatly simplifies the testing of file uploads. For example: -->
-`Storage` 파사드의 `fake` 메서드를 사용하면, 임의의 디스크를 쉽게 생성해 파일 업로드 테스트를 단순화할 수 있습니다. 이는 `Illuminate\Http\UploadedFile` 클래스의 파일 생성 기능과 함께 쓰이는데 매우 유용합니다. 예를 들어:
+`Storage` 파사드의 `fake` 메서드를 사용하면, 테스트용 가짜 디스크를 쉽게 생성해 파일 업로드 테스트를 단순화할 수 있습니다. 이는 `Illuminate\Http\UploadedFile` 클래스의 파일 생성 기능과 함께 쓰이는데 매우 유용합니다. 예를 들어:
 
 ```php tab=Pest
 <?php

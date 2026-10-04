@@ -394,7 +394,7 @@ $chunks->all();
 ```
 
 <!-- This method is especially useful in [views](/docs/13.x/views) when working with a grid system such as [Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/). For example, imagine you have a collection of [Eloquent](/docs/13.x/eloquent) models you want to display in a grid: -->
-この方法は、[views](/docs/13.x/views) などのグリッド システムを操作する場合、[Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/) で特に便利です。たとえば、グリッドに表示したい [Eloquent](/docs/13.x/eloquent) モデルのコレクションがあるとします。
+このメソッドは、[views](/docs/13.x/views) で [Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/) などのグリッド システムを使用する場合に特に便利です。たとえば、グリッドに表示したい [Eloquent](/docs/13.x/eloquent) モデルのコレクションがあるとします。
 
 ```blade
 @foreach ($products->chunk(3) as $chunk)
@@ -805,7 +805,7 @@ $diff->all();
 ```
 
 <!-- The callback must be a comparison function that returns an integer less than, equal to, or greater than zero. For more information, refer to the PHP documentation on [array_diff_uassoc](https://www.php.net/array_diff_uassoc#refsect1-function.array-diff-uassoc-parameters), which is the PHP function that the `diffAssocUsing` method utilizes internally. -->
-コールバックは、ゼロ以下、ゼロ以上の整数を返す比較関数である必要があります。詳細については、[array_diff_uassoc](https://www.php.net/array_diff_uassoc#refsect1-function.array-diff-uassoc-parameters) に関する PHP ドキュメントを参照してください。これは、`diffAssocUsing` メソッドが内部で使用する PHP 関数です。
+コールバックは、ゼロより小さい整数、ゼロ、またはゼロより大きい整数を返す比較関数である必要があります。詳細については、[array_diff_uassoc](https://www.php.net/array_diff_uassoc#refsect1-function.array-diff-uassoc-parameters) に関する PHP ドキュメントを参照してください。これは、`diffAssocUsing` メソッドが内部で使用する PHP 関数です。
 
 <a name="method-diffkeys"></a>
 <!-- #### `diffKeys()` -->
@@ -838,7 +838,7 @@ $diff->all();
 <!-- #### `doesntContain()` -->
 #### `doesntContain()`
 <!-- The `doesntContain` method determines whether the collection does not contain a given item. You may pass a closure to the `doesntContain` method to determine if an element does not exist in the collection matching a given truth test: -->
-`doesntContain` メソッドは、コレクションに特定の項目が含まれていないかどうかを判断します。クロージャを `doesntContain` メソッドに渡して、指定された真理値テストに一致する要素がコレクション内に存在するかどうかを判断できます。
+`doesntContain` メソッドは、コレクションに特定の項目が含まれていないかどうかを判断します。クロージャを `doesntContain` メソッドに渡して、指定された条件を満たす要素がコレクション内に存在しないかどうかを判断できます。
 
 ```php
 $collection = collect([1, 2, 3, 4, 5]);
@@ -1013,7 +1013,7 @@ $collection->eachSpread(function (string $name, int $age) {
 <!-- #### `ensure()` -->
 #### `ensure()`
 <!-- The `ensure` method may be used to verify that all elements of a collection are of a given type or list of types. Otherwise, an `UnexpectedValueException` will be thrown: -->
-`ensure` メソッドは、コレクションのすべての要素が特定の型または型のリストであることを検証するために使用できます。それ以外の場合は、`UnexpectedValueException` がスローされます。
+`ensure` メソッドは、コレクションのすべての要素が指定された型、または指定された型のリストのいずれかに該当することを検証するために使用できます。それ以外の場合は、`UnexpectedValueException` がスローされます。
 
 ```php
 return $collection->ensure(User::class);
@@ -1187,7 +1187,7 @@ $collection->firstWhere('age', '>=', 18);
 ```
 
 <!-- Like the [where](#method-where) method, you may pass one argument to the `firstWhere` method. In this scenario, the `firstWhere` method will return the first item where the given item key's value is "truthy": -->
-[where](#method-where) メソッドと同様に、`firstWhere` メソッドに 1 つの引数を渡すことができます。このシナリオでは、`firstWhere` メソッドは、指定された項目キーの値が「真実」である最初の項目を返します。
+[where](#method-where) メソッドと同様に、`firstWhere` メソッドに 1 つの引数を渡すことができます。このシナリオでは、`firstWhere` メソッドは、指定された項目キーの値が真と評価される最初の項目を返します。
 
 ```php
 $collection->firstWhere('age');
@@ -1546,7 +1546,7 @@ collect([
 <!-- #### `hasSole()` -->
 #### `hasSole()`
 <!-- The `hasSole` method determines if the collection contains a single item, optionally matching the given criteria: -->
-`hasSole` メソッドは、コレクションに単一の項目が含まれているかどうかを判断し、オプションで指定された基準に一致するかどうかを判断します。
+`hasSole` メソッドは、コレクションに項目がちょうど 1 つあるかどうかを判断します。オプションで条件を指定すると、その条件に一致する項目がちょうど 1 つあるかどうかを判断します。
 
 ```php
 collect([])->hasSole();
@@ -1589,7 +1589,7 @@ collect([1, 2, 3, 4, 5])->implode('-');
 ```
 
 <!-- You may pass a closure to the `implode` method if you would like to format the values being imploded: -->
-内部分解される値をフォーマットしたい場合は、`implode` メソッドにクロージャーを渡すことができます。
+結合する値をフォーマットしたい場合は、`implode` メソッドにクロージャーを渡すことができます。
 
 ```php
 $collection->implode(function (array $item, int $key) {
@@ -1858,7 +1858,7 @@ $count = $hugeCollection
 ```
 
 <!-- By converting the collection to a `LazyCollection`, we avoid having to allocate a ton of additional memory. Though the original collection still keeps _its_ values in memory, the subsequent filters will not. Therefore, virtually no additional memory will be allocated when filtering the collection's results. -->
-コレクションを `LazyCollection` に変換することで、大量の追加メモリを割り当てる必要がなくなります。元のコレクションはメモリ内に _its_ 値を保持しますが、後続のフィルターは保持しません。したがって、コレクションの結果をフィルタリングするときに追加のメモリが割り当てられることは事実上ありません。
+コレクションを `LazyCollection` に変換することで、大量の追加メモリを割り当てる必要がなくなります。元のコレクションは _自身の_ 値をメモリに保持しますが、後続のフィルタリング結果はすべてメモリに保持されるわけではありません。したがって、コレクションの結果をフィルタリングするときに追加のメモリが割り当てられることは事実上ありません。
 
 <a name="method-macro"></a>
 <!-- #### `macro()` -->
@@ -1949,7 +1949,7 @@ $sequence->all();
 <!-- #### `mapToGroups()` -->
 #### `mapToGroups()`
 <!-- The `mapToGroups` method groups the collection's items by the given closure. The closure should return an associative array containing a single key / value pair, thus forming a new collection of grouped values: -->
-`mapToGroups` メソッドは、指定されたクロージャによってコレクションの項目をグループ化します。クロージャは、単一のキーと値のペアを含む連想配列を返し、グループ化された値の新しいコレクションを形成する必要があります。
+`mapToGroups` メソッドは、指定されたクロージャによってコレクションの項目をグループ化します。クロージャは、単一のキーと値のペアを含む連想配列を返す必要があります。これらの戻り値から、グループ化された値の新しいコレクションが作成されます。
 
 ```php
 $collection = collect([
@@ -2255,7 +2255,7 @@ $filtered->all();
 <!-- #### `partition()` -->
 #### `partition()`
 <!-- The `partition` method may be combined with PHP array destructuring to separate elements that pass a given truth test from those that do not: -->
-`partition` メソッドを PHP 配列の構造化と組み合わせて、特定の真実テストに合格する要素とそうでない要素を分離することができます。
+`partition` メソッドを PHP 配列の分割代入と組み合わせて、指定された条件を満たす要素と満たさない要素を分離することができます。
 
 ```php
 $collection = collect([1, 2, 3, 4, 5, 6]);
@@ -2947,7 +2947,7 @@ $collection->all();
 <!-- #### `skipUntil()` -->
 #### `skipUntil()`
 <!-- The `skipUntil` method skips over items from the collection while the given callback returns `false`. Once the callback returns `true` all of the remaining items in the collection will be returned as a new collection: -->
-`skipUntil` メソッドはコレクションの項目をスキップし、指定されたコールバックは `false` を返します。コールバックが `true` を返すと、コレクション内の残りのすべての項目が新しいコレクションとして返されます。
+`skipUntil` メソッドは、指定されたコールバックが `false` を返す間、コレクションの項目をスキップします。コールバックが `true` を返すと、コレクション内の残りのすべての項目が新しいコレクションとして返されます。
 
 ```php
 $collection = collect([1, 2, 3, 4]);
@@ -2981,7 +2981,7 @@ $subset->all();
 <!-- #### `skipWhile()` -->
 #### `skipWhile()`
 <!-- The `skipWhile` method skips over items from the collection while the given callback returns `true`. Once the callback returns `false` all of the remaining items in the collection will be returned as a new collection: -->
-`skipWhile` メソッドはコレクションの項目をスキップし、指定されたコールバックは `true` を返します。コールバックが `false` を返すと、コレクション内の残りのすべての項目が新しいコレクションとして返されます。
+`skipWhile` メソッドは、指定されたコールバックが `true` を返す間、コレクションの項目をスキップします。コールバックが `false` を返すと、コレクション内の残りのすべての項目が新しいコレクションとして返されます。
 
 ```php
 $collection = collect([1, 2, 3, 4]);
@@ -3070,7 +3070,7 @@ $chunks->toArray();
 <!-- #### `sole()` -->
 #### `sole()`
 <!-- The `sole` method returns the first element in the collection that passes a given truth test, but only if the truth test matches exactly one element: -->
-`sole` メソッドは、指定された真実テストに合格したコレクション内の最初の要素を返します。ただし、真実テストが 1 つの要素と正確に一致する場合に限ります。
+`sole` メソッドは、指定された条件を満たすコレクション内の最初の要素を返します。ただし、条件を満たす要素がちょうど 1 つだけの場合に限ります。
 
 ```php
 collect([1, 2, 3, 4])->sole(function (int $value, int $key) {
@@ -3081,7 +3081,7 @@ collect([1, 2, 3, 4])->sole(function (int $value, int $key) {
 ```
 
 <!-- You may also pass a key / value pair to the `sole` method, which will return the first element in the collection that matches the given pair, but only if it exactly one element matches: -->
-キーと値のペアを `sole` メソッドに渡すこともできます。これは、指定されたペアに一致するコレクション内の最初の要素を返しますが、それは 1 つの要素が正確に一致する場合に限られます。
+キーと値のペアを `sole` メソッドに渡すこともできます。これは、指定されたペアに一致するコレクション内の最初の要素を返しますが、一致する要素がちょうど 1 つだけの場合に限られます。
 
 ```php
 $collection = collect([
@@ -3352,7 +3352,7 @@ $sorted->all();
 ```
 
 <!-- The callback must be a comparison function that returns an integer less than, equal to, or greater than zero. For more information, refer to the PHP documentation on [uksort](https://www.php.net/manual/en/function.uksort.php#refsect1-function.uksort-parameters), which is the PHP function that `sortKeysUsing` method utilizes internally. -->
-コールバックは、ゼロ以下、ゼロ以上の整数を返す比較関数である必要があります。詳細については、`sortKeysUsing` メソッドが内部で使用する PHP 関数である [uksort](https://www.php.net/manual/en/function.uksort.php#refsect1-function.uksort-parameters) に関する PHP ドキュメントを参照してください。
+コールバックは、ゼロより小さい整数、ゼロ、またはゼロより大きい整数を返す比較関数である必要があります。詳細については、`sortKeysUsing` メソッドが内部で使用する PHP 関数である [uksort](https://www.php.net/manual/en/function.uksort.php#refsect1-function.uksort-parameters) に関する PHP ドキュメントを参照してください。
 
 <a name="method-splice"></a>
 <!-- #### `splice()` -->
@@ -4252,7 +4252,7 @@ $filtered->all();
 <!-- #### `whereNotNull()` -->
 #### `whereNotNull()`
 <!-- The `whereNotNull` method returns items from the collection where the given key is not `null`: -->
-`whereNotNull` メソッドは、指定されたキーが `null` ではないコレクションから項目を返します。
+`whereNotNull` メソッドは、コレクションから指定されたキーの値が `null` ではない項目を返します。
 
 ```php
 $collection = collect([
@@ -4281,7 +4281,7 @@ $filtered->all();
 <!-- #### `whereNull()` -->
 #### `whereNull()`
 <!-- The `whereNull` method returns items from the collection where the given key is `null`: -->
-`whereNull` メソッドは、指定されたキーが `null` であるコレクションから項目を返します。
+`whereNull` メソッドは、コレクションから指定されたキーの値が `null` である項目を返します。
 
 ```php
 $collection = collect([
@@ -4690,7 +4690,7 @@ $users->take(20)->all();
 <!-- #### `withHeartbeat()` -->
 #### `withHeartbeat()`
 <!-- The `withHeartbeat` method allows you to execute a callback at regular time intervals while a lazy collection is being enumerated. This is particularly useful for long-running operations that require periodic maintenance tasks, such as extending locks or sending progress updates: -->
-`withHeartbeat` メソッドを使用すると、遅延コレクションが列挙されている間、一定の時間間隔でコールバックを実行できます。これは、ロックの拡張や進行状況の更新の送信など、定期的なメンテナンス タスクを必要とする長時間実行の操作に特に役立ちます。
+`withHeartbeat` メソッドを使用すると、遅延コレクションが列挙されている間、一定の時間間隔でコールバックを実行できます。これは、ロックの有効期間の延長や進行状況の更新の送信など、定期的なメンテナンス タスクを必要とする長時間実行の操作に特に役立ちます。
 
 ```php
 use Carbon\CarbonInterval;

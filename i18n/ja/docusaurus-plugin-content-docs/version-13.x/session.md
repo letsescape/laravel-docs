@@ -34,7 +34,7 @@ Laravel には、表現力豊かな統合 API を通じてアクセスされる�
 アプリケーションのセッション構成ファイルは、`config/session.php` に保存されます。このファイルで使用できるオプションを必ず確認してください。デフォルトでは、Laravel は `database` セッションドライバを使用するように構成されています。
 
 <!-- The session `driver` configuration option defines where session data will be stored for each request. Laravel includes a variety of drivers: -->
-session `driver` 構成オプションは、各リクエストのセッション データが保存される場所を定義します。 Laravel にはさまざまなドライバが含まれています。
+セッションの `driver` 構成オプションは、各リクエストのセッション データが保存される場所を定義します。 Laravel にはさまざまなドライバが含まれています。
 
 <div class="content-list" markdown="1">
 
@@ -49,7 +49,7 @@ session `driver` 構成オプションは、各リクエストのセッション
 </div>
 
 > [!NOTE]
-> アレイ ドライバは主に [testing](/docs/13.x/testing) 中に使用され、セッションに保存されたデータが永続化されるのを防ぎます。
+> array ドライバは主に [testing](/docs/13.x/testing) 中に使用され、セッションに保存されたデータが永続化されるのを防ぎます。
 
 <a name="driver-prerequisites"></a>
 <!-- ### Driver Prerequisites -->
@@ -87,7 +87,7 @@ Laravel で Redis セッションを使用する前に、PECL 経由で PhpRedis
 ### Retrieving Data
 
 <!-- There are two primary ways of working with session data in Laravel: the global `session` helper and via a `Request` instance. First, let's look at accessing the session via a `Request` instance, which can be type-hinted on a route closure or controller method. Remember, controller method dependencies are automatically injected via the Laravel [service container](/docs/13.x/container): -->
-Laravel でセッション データを操作するには、主に 2 つの方法があります。グローバル `session` ヘルパを使用する方法と、`Request` インスタンスを使用する方法です。まず、`Request` インスタンスを介してセッションにアクセスする方法を見てみましょう。これは、ルート クロージャまたはコントローラ メソッドでタイプヒントを指定できます。コントローラメソッドの依存関係は、Laravel [service container](/docs/13.x/container) 経由で自動的に挿入されることに注意してください。
+Laravel でセッション データを操作するには、主に 2 つの方法があります。グローバル `session` ヘルパを使用する方法と、`Request` インスタンスを使用する方法です。まず、`Request` インスタンスを介してセッションにアクセスする方法を見てみましょう。これは、ルート クロージャまたはコントローラ メソッドでタイプヒントを指定できます。コントローラメソッドの依存関係は、Laravel [service container](/docs/13.x/container) 経由で自動的に注入されることに注意してください。
 
 ```php
 <?php
@@ -147,7 +147,7 @@ Route::get('/home', function () {
 ```
 
 > [!NOTE]
-> HTTP リクエスト インスタンス経由でセッションを使用する場合と、グローバル `session` ヘルパを使用する場合には、実質的な違いはほとんどありません。どちらのメソッドも、すべてのテスト ケースで使用できる `assertSessionHas` メソッドを介した [testable](/docs/13.x/testing) です。
+> HTTP リクエスト インスタンス経由でセッションを使用する場合と、グローバル `session` ヘルパを使用する場合には、実質的な違いはほとんどありません。どちらの方法も、すべてのテスト ケースで使用できる `assertSessionHas` メソッドを使ってテストできます（[testable](/docs/13.x/testing)）。
 
 <a name="retrieving-all-session-data"></a>
 <!-- #### Retrieving All Session Data -->
@@ -263,14 +263,14 @@ $request->session()->decrement('count', $decrementBy = 2);
 ### Flash Data
 
 <!-- Sometimes you may wish to store items in the session for the next request. You may do so using the `flash` method. Data stored in the session using this method will be available immediately and during the subsequent HTTP request. After the subsequent HTTP request, the flashed data will be deleted. Flash data is primarily useful for short-lived status messages: -->
-場合によっては、次のリクエストに備えてセッションに項目を保存したい場合があります。これは、`flash` メソッドを使用して行うことができます。このメソッドを使用してセッションに保存されたデータは、後続の HTTP リクエスト中にすぐに使用できるようになります。後続の HTTP リクエストの後、フラッシュされたデータは削除されます。フラッシュ データは主に、短期間のステータス メッセージに役立ちます。
+場合によっては、次のリクエストに備えてセッションに項目を保存したい場合があります。これは、`flash` メソッドを使用して行うことができます。このメソッドを使用してセッションに保存されたデータは、保存直後から使用でき、次の HTTP リクエスト中も使用できます。後続の HTTP リクエストの後、フラッシュされたデータは削除されます。フラッシュ データは主に、短期間のステータス メッセージに役立ちます。
 
 ```php
 $request->session()->flash('status', 'Task was successful!');
 ```
 
 <!-- If you need to persist your flash data for several requests, you may use the `reflash` method, which will keep all of the flash data for an additional request. If you only need to keep specific flash data, you may use the `keep` method: -->
-複数のリクエストに対してフラッシュ データを保持する必要がある場合は、追加のリクエストに備えてすべてのフラッシュ データを保持する `reflash` メソッドを使用できます。特定のフラッシュ データのみを保持する必要がある場合は、`keep` メソッドを使用できます。
+複数のリクエストに対してフラッシュ データを保持する必要がある場合は、追加の1リクエストの間、すべてのフラッシュ データを保持する `reflash` メソッドを使用できます。特定のフラッシュ データのみを保持する必要がある場合は、`keep` メソッドを使用できます。
 
 ```php
 $request->session()->reflash();
@@ -413,7 +413,7 @@ class MongoSessionHandler implements \SessionHandlerInterface
 ```
 
 <!-- Since Laravel does not include a default directory to house your extensions. You are free to place them anywhere you like. In this example, we have created an `Extensions` directory to house the `MongoSessionHandler`. -->
-Laravel には拡張機能を格納するデフォルトのディレクトリが含まれていないためです。好きな場所に自由に配置できます。この例では、`MongoSessionHandler` を格納する `Extensions` ディレクトリを作成しました。
+Laravel には拡張機能を格納するデフォルトのディレクトリが含まれていないため、好きな場所に自由に配置できます。この例では、`MongoSessionHandler` を格納する `Extensions` ディレクトリを作成しました。
 
 <!-- Since the purpose of these methods is not readily understandable, here is an overview of the purpose of each method: -->
 これらのメソッドの目的はすぐには理解できないため、各メソッドの目的の概要を次に示します。
@@ -423,10 +423,10 @@ Laravel には拡張機能を格納するデフォルトのディレクトリが
 <!-- - The `open` method would typically be used in file based session store systems. Since Laravel ships with a `file` session driver, you will rarely need to put anything in this method. You can simply leave this method empty. - The `close` method, like the `open` method, can also usually be disregarded. For most drivers, it is not needed. - The `read` method should return the string version of the session data associated with the given `$sessionId`. There is no need to do any serialization or other encoding when retrieving or storing session data in your driver, as Laravel will perform the serialization for you. - The `write` method should write the given `$data` string associated with the `$sessionId` to some persistent storage system, such as MongoDB or another storage system of your choice. Again, you should not perform any serialization - Laravel will have already handled that for you. - The `destroy` method should remove the data associated with the `$sessionId` from persistent storage. - The `gc` method should destroy all session data that is older than the given `$lifetime`, which is a number of seconds. For self-expiring systems like Memcached and Redis, this method may be left empty. -->
 - `open` メソッドは通常、ファイルベースのセッションストアで使用します。Laravel には `file` セッションドライバが用意されているため、このメソッドに実装を追加する必要はほとんどありません。空のままにしておいても構いません。
 - `close` メソッドも `open` メソッドと同様、通常は実装する必要がありません。ほとんどのドライバでは不要です。
-- `read` メソッドは、指定された `$sessionId` に関連付けられたセッションデータを文字列として返します。Laravel がシリアライズを行うため、ドライバでセッションデータを取得または保存するときに、シリアライズやその他のエンコードを行う必要はありません。
-- `write` メソッドは、`$sessionId` に関連付けられた `$data` 文字列を、MongoDB など任意の永続ストレージに書き込みます。ここでもシリアライズは不要です。Laravel がすでに処理しています。
-- `destroy` メソッドは、永続ストレージから `$sessionId` に関連付けられたデータを削除します。
-- `gc` メソッドは、指定された `$lifetime`（秒数）より古いセッションデータをすべて破棄します。Memcached や Redis など、自動的に有効期限が切れるシステムでは、このメソッドを空のままにしておいても構いません。
+- `read` メソッドは、指定された `$sessionId` に関連付けられたセッションデータを文字列として返す必要があります。Laravel がシリアライズを行うため、ドライバでセッションデータを取得または保存するときに、シリアライズやその他のエンコードを行う必要はありません。
+- `write` メソッドは、`$sessionId` に関連付けられた `$data` 文字列を、MongoDB など任意の永続ストレージに書き込む必要があります。ここでもシリアライズしてはいけません。Laravel がすでに処理しています。
+- `destroy` メソッドは、永続ストレージから `$sessionId` に関連付けられたデータを削除する必要があります。
+- `gc` メソッドは、指定された `$lifetime`（秒数）より古いセッションデータをすべて破棄する必要があります。Memcached や Redis など、自動的に有効期限が切れるシステムでは、このメソッドを空のままにしておいても構いません。
 
 </div>
 

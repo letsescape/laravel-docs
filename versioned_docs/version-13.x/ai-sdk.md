@@ -300,7 +300,7 @@ public function provider(): Provider
 ```
 
 > [!NOTE]
-> 위 예시와 같이 온디맨드 프로바이더는 배열 안에 전달해야 합니다. 온디맨드 프로바이더의 설정 배열에 `name`을 지정하는 경우, 해당 이름이 기본 제공 프로바이더 또는 `config/ai.php` 설정 파일에 정의된 프로바이더와 일치하지 않을 수 있습니다.
+> 위 예시와 같이 온디맨드 프로바이더는 배열 안에 전달해야 합니다. 온디맨드 프로바이더의 설정 배열에 `name`을 지정하는 경우, 해당 이름은 기본 제공 프로바이더 또는 `config/ai.php` 설정 파일에 정의된 프로바이더의 이름과 일치하면 안 됩니다.
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -514,7 +514,7 @@ public function messages(): iterable
 ```
 
 <!-- If your agent does not implement the `Conversational` interface, you may use the `withMessages` method to provide the conversation history for a single run, such as a history posted by your application's frontend: -->
-에이전트가 `Conversational` 인터페이스를 구현하지 않는다면, 애플리케이션의 프런트엔드에서 게시한 기록처럼 단일 실행에 사용할 대화 기록을 제공하기 위해 `withMessages` 메서드를 사용할 수 있습니다.
+에이전트가 `Conversational` 인터페이스를 구현하지 않는다면, 애플리케이션의 프런트엔드에서 전송한 기록처럼 단일 실행에 사용할 대화 기록을 제공하기 위해 `withMessages` 메서드를 사용할 수 있습니다.
 
 ```php
 use Laravel\Ai\Messages\Message;
@@ -683,7 +683,7 @@ $participant = $conversation->participant;
 #### Inspecting Stored Conversations
 
 <!-- When displaying a conversation to your users, you often need details such as message IDs, timestamps, and tool calls. You may resolve the conversation store from the service container to read the stored messages without querying the AI SDK's tables directly: -->
-사용자에게 대화를 표시할 때는 메시지 ID, 타임스탬프, 툴 호출과 같은 세부 정보가 필요한 경우가 많습니다. AI SDK의 테이블을 직접 조회하지 않고 저장된 메시지를 읽으려면 서비스 컨테이너에서 대화 저장소를 확인할 수 있습니다.
+사용자에게 대화를 표시할 때는 메시지 ID, 타임스탬프, 툴 호출과 같은 세부 정보가 필요한 경우가 많습니다. AI SDK의 테이블을 직접 조회하지 않고 저장된 메시지를 읽으려면 서비스 컨테이너에서 대화 저장소 인스턴스를 가져올 수 있습니다.
 
 ```php
 use Laravel\Ai\Contracts\ConversationStore;
@@ -1036,7 +1036,7 @@ return (new SalesCoach)
 #### Frontend Integration
 
 <!-- Chat interfaces built with libraries such as Vercel's `useChat` or CopilotKit already render messages, tool calls, and approval prompts, so your application only needs to handle the requests they send. Each request contains the conversation history, the newest user message, and any tool approval responses. -->
-`useChat` 또는 CopilotKit과 같은 라이브러리로 구축된 채팅 인터페이스는 이미 메시지, 툴 호출, 승인 프롬프트를 렌더링하므로 애플리케이션에서는 해당 인터페이스가 보내는 요청만 처리하면 됩니다. 각 요청에는 대화 기록, 가장 최근의 사용자 메시지, 툴 승인 응답이 포함됩니다.
+Vercel의 `useChat` 또는 CopilotKit과 같은 라이브러리로 구축된 채팅 인터페이스는 이미 메시지, 툴 호출, 승인 프롬프트를 렌더링하므로 애플리케이션에서는 해당 인터페이스가 보내는 요청만 처리하면 됩니다. 각 요청에는 대화 기록, 가장 최근의 사용자 메시지, 툴 승인 응답이 포함됩니다.
 
 <!-- The `Vercel::chat` and `AgentUserInteraction::chat` methods convert such a request into an object that may be passed directly to an agent's `stream` method: -->
 `Vercel::chat` 및 `AgentUserInteraction::chat` 메서드는 이러한 요청을 에이전트의 `stream` 메서드에 직접 전달할 수 있는 객체로 변환합니다:
@@ -1609,7 +1609,7 @@ public function tools(): iterable
 #### File Search
 
 <!-- The `FileSearch` provider tool allows agents to search through [files](#files) stored in [vector stores](#vector-stores). This enables retrieval-augmented generation (RAG) by allowing the agent to search your uploaded documents for relevant information. -->
-`FileSearch` 제공자 도구를 사용하면 에이전트가 [files](#files)에 저장된 [vector stores](#vector-stores)를 검색할 수 있습니다. 이를 통해 에이전트가 업로드된 문서에서 관련 정보를 검색할 수 있으므로 검색 증강 생성(RAG)을 사용할 수 있습니다.
+`FileSearch` 제공자 도구를 사용하면 에이전트가 [vector stores](#vector-stores)에 저장된 [files](#files)를 검색할 수 있습니다. 이를 통해 에이전트가 업로드된 문서에서 관련 정보를 검색할 수 있으므로 검색 증강 생성(RAG)을 사용할 수 있습니다.
 
 <!-- **Supported providers:** OpenAI, Gemini, xAI -->
 **지원되는 프로바이더:** OpenAI, Gemini, xAI
@@ -1763,7 +1763,7 @@ class RefundsAgent implements Agent, CanActAsTool, HasTools
 하위 에이전트가 `CanActAsTool`을 구현하지 않으면 Laravel은 에이전트 클래스의 basename을 툴 이름으로 사용하고, 부모 에이전트가 명확하고 독립적인 작업 설명을 전달하도록 요청하는 기본 설명을 사용합니다. 각 하위 에이전트 호출은 격리되어 실행되며 부모 에이전트의 대화 기록을 받지 않습니다.
 
 <!-- When the parent agent is [streaming](#streaming), its sub-agents stream as well. The parent agent emits `ToolResult` events containing the text the sub-agent has produced so far. These events are marked as preliminary and are followed by the tool call's final result, so you may skip them when iterating events manually: -->
-상위 에이전트가 [streaming](#streaming) 중이면 하위 에이전트도 스트리밍합니다. 상위 에이전트는 하위 에이전트가 지금까지 생성한 텍스트가 포함된 `ToolResult` 이벤트를 내보냅니다. 이러한 이벤트는 예비 결과로 표시되며 툴 호출의 최종 결과가 뒤따르므로, 이벤트를 수동으로 반복 처리할 때는 건너뛸 수 있습니다:
+상위 에이전트가 [streaming](#streaming) 중이면 하위 에이전트도 스트리밍합니다. 상위 에이전트는 하위 에이전트가 지금까지 생성한 텍스트가 포함된 `ToolResult` 이벤트를 내보냅니다. 이러한 이벤트는 중간 결과로 표시되며 툴 호출의 최종 결과가 뒤따르므로, 이벤트를 수동으로 반복 처리할 때는 건너뛸 수 있습니다:
 
 ```php
 use Laravel\Ai\Streaming\Events\ToolResult;
@@ -1778,7 +1778,7 @@ foreach ($stream as $event) {
 ```
 
 <!-- Response values such as `text`, `usage`, and `toolResults` ignore preliminary events. The [Vercel protocol](#stream-protocols) renders them as native streaming tool output, so `useChat` displays the progress without any custom code, while the AG-UI protocol reports them as activity snapshots. The completed response's text, reasoning, citations, and usage include those of the sub-agent. -->
-`text`, `usage`, `toolResults`와 같은 응답 값은 초기 이벤트를 무시합니다. [Vercel protocol](#stream-protocols)은 이러한 값을 네이티브 스트리밍 툴 출력으로 렌더링하므로 `useChat`은 별도의 커스텀 코드 없이 진행 상황을 표시하며, AG-UI protocol은 이를 활동 스냅샷으로 보고합니다. 완료된 응답의 텍스트, 추론, 인용, 사용량에는 하위 에이전트의 값도 포함됩니다.
+`text`, `usage`, `toolResults`와 같은 응답 값은 중간 결과 이벤트를 무시합니다. [Vercel protocol](#stream-protocols)은 이러한 이벤트를 네이티브 스트리밍 툴 출력으로 렌더링하므로 `useChat`은 별도의 커스텀 코드 없이 진행 상황을 표시하며, AG-UI protocol은 이를 활동 스냅샷으로 보고합니다. 완료된 응답의 텍스트, 추론, 인용, 사용량에는 하위 에이전트의 값도 포함됩니다.
 
 <a name="middleware"></a>
 <!-- ### Middleware -->
@@ -2151,7 +2151,7 @@ class SalesCoach implements Agent
 이러한 속성을 지원하지 않는 프로바이더는 해당 속성을 무시하므로, 에이전트는 [failover](#failover)를 사용하면서도 이를 안전하게 선언할 수 있습니다.
 
 <!-- Cached prefixes are retained for five minutes by default. Anthropic may retain them for an hour if you pass a TTL to the attribute: -->
-캐시된 접두사는 기본적으로 5분 동안 유지됩니다. 속성에 TTL을 전달하면 Anthropic이 최대 1시간 동안 유지할 수 있습니다.
+캐시된 접두사는 기본적으로 5분 동안 유지됩니다. 속성에 TTL을 전달하면 Anthropic이 1시간 동안 유지할 수 있습니다.
 
 ```php
 #[CacheInstructions('1h')]
@@ -2162,7 +2162,7 @@ class SalesCoach implements Agent
 또는 최상위 `cache_control` [provider option](#provider-options)을 통해 Anthropic의 자동 캐싱을 활성화할 수 있습니다. 이렇게 하면 요청의 마지막 블록 다음에 단일 중단점이 설정되므로, 대화가 길어질수록 중단점이 앞으로 이동하고 각 턴은 이전 턴을 캐시에서 읽습니다. 두 메커니즘을 함께 사용할 수도 있습니다.
 
 > [!WARNING]
-> 프로바이더는 툴, 지침, 메시지 순서로 프롬프트를 구성하므로, 지침을 한 시간 동안 캐시하려면 툴 정의도 한 시간 동안 캐시해야 합니다. 두 가지를 혼합하면 `InvalidArgumentException`이 발생합니다.
+> 프로바이더는 툴, 지침, 메시지 순서로 프롬프트를 구성하므로, 지침을 한 시간 동안 캐시하려면 툴 정의도 한 시간 동안 캐시해야 합니다. 이때 툴 정의에 다른 캐시 유지 시간을 지정하면 `InvalidArgumentException`이 발생합니다.
 
 <a name="human-tool-approval"></a>
 <!-- ## Human Tool Approval -->
@@ -2685,7 +2685,7 @@ $response = Embeddings::for([
 ```
 
 <!-- Multimodal inputs use the same [file classes used for attachments](#attachments). These files may be created from a local path, a filesystem disk, a remote URL, or Base64-encoded content. Images, documents, and videos may also be created from uploaded files, while documents may be created from raw string content: -->
-멀티모달 입력은 [file classes used for attachments](#attachments)에 사용되는 것과 동일한 파일 클래스를 사용합니다. 이러한 파일은 로컬 경로, 파일시스템 디스크, 원격 URL 또는 Base64로 인코딩된 콘텐츠에서 생성할 수 있습니다. 이미지, 문서, 동영상은 업로드된 파일에서도 생성할 수 있으며, 문서는 원시 문자열 콘텐츠에서도 생성할 수 있습니다:
+멀티모달 입력도 [file classes used for attachments](#attachments)를 그대로 사용합니다. 이러한 파일은 로컬 경로, 파일시스템 디스크, 원격 URL 또는 Base64로 인코딩된 콘텐츠에서 생성할 수 있습니다. 이미지, 문서, 동영상은 업로드된 파일에서도 생성할 수 있으며, 문서는 원시 문자열 콘텐츠에서도 생성할 수 있습니다:
 
 ```php
 use Laravel\Ai\Files\Audio;
@@ -3348,7 +3348,7 @@ $response->usage->uncachedInputTokens(); // Input tokens that were neither read 
 ```
 
 <!-- Cache reads, cache writes, and uncached input are billed at different rates, so you should price these three counts separately instead of using the input total alone. -->
-캐시 읽기, 캐시 쓰기, 캐시되지 않은 입력에는 서로 다른 요금이 부과되므로 입력 총량만 사용하는 대신 이 세 가지 수치를 별도로 산정해야 합니다.
+캐시 읽기, 캐시 쓰기, 캐시되지 않은 입력에는 서로 다른 요금이 부과되므로 입력 총량만 사용하는 대신 이 세 가지 수치에 각각의 요율을 적용해 비용을 계산해야 합니다.
 
 <!-- The remaining capabilities return a usage object containing the counts specific to them: -->
 나머지 기능은 해당 기능에 특화된 카운트를 포함하는 사용량 객체를 반환합니다:
