@@ -2923,6 +2923,16 @@ php artisan queue:work --force
 <a name="resource-considerations"></a>
 <!-- #### Resource Considerations -->
 #### Resource Considerations
+<!-- The `--memory` option specifies the memory limit in megabytes at which the worker should exit. By default, this limit is 128 megabytes. You may also specify a percentage of PHP's configured `memory_limit`: -->
+`--memory` 옵션은 워커가 종료되어야 하는 메모리 제한을 메가바이트 단위로 지정합니다. 기본 제한은 128메가바이트입니다. PHP에 설정된 `memory_limit`의 백분율로 지정할 수도 있습니다.
+
+```shell
+php artisan queue:work --memory=60%
+```
+
+<!-- Percentage-based limits require a finite PHP `memory_limit`. If PHP's memory limit is unlimited (`-1`), use a limit in megabytes instead. A process monitor such as [Supervisor](#supervisor-configuration) can automatically restart the worker after it exits. -->
+백분율로 제한하려면 PHP의 `memory_limit`이 유한한 값이어야 합니다. PHP 메모리 제한이 무제한(`-1`)이면 메가바이트 단위로 제한을 지정하세요. [Supervisor](#supervisor-configuration)와 같은 프로세스 모니터를 사용하면 워커가 종료된 후 자동으로 다시 시작할 수 있습니다.
+
 
 <!-- Daemon queue workers do not "reboot" the framework before processing each job. Therefore, you should release any heavy resources after each job completes. For example, if you are doing [image manipulation](/docs/13.x/images) with the [GD library](https://www.php.net/manual/en/book.image.php), you should free the memory with `imagedestroy` when you are done processing the image. -->
 데몬 큐 워커는 각 잡을 처리하기 전에 프레임워크를 "재부팅"하지 않습니다. 따라서 각 잡이 완료된 후에는 무거운 리소스를 해제해야 합니다. 예를 들어 [image manipulation](/docs/13.x/images)을 위해 [GD library](https://www.php.net/manual/en/book.image.php)를 사용한다면, 이미지 처리를 마친 후 `imagedestroy`로 메모리를 해제해야 합니다.
@@ -3711,6 +3721,18 @@ Queue::assertClosurePushed(function (CallQueuedClosure $job) {
     return $job->name === 'validate-order';
 });
 ```
+
+<!-- Alternatively, you may pass an array of expected property values as the second argument to `assertPushed` or `assertNotPushed`, or as the third argument to `assertPushedOn`: -->
+또는 예상 속성 값 배열을 `assertPushed` 또는 `assertNotPushed`의 두 번째 인수로, `assertPushedOn`의 세 번째 인수로 전달할 수 있습니다.
+
+```php
+Queue::assertPushed(ShipOrder::class, ['order' => $order]);
+
+Queue::assertPushedOn('shipping', ShipOrder::class, ['order' => $order]);
+```
+
+<!-- All specified properties must match. Values are compared using strict equality, while Eloquent models are compared using their `is` method. The `Bus` facade's `assertDispatched`, `assertNotDispatched`, `assertDispatchedSync`, and `assertDispatchedAfterResponse` methods also accept an array of expected property values as their second argument. -->
+지정한 속성이 모두 일치해야 합니다. 값은 엄격한 동등성으로 비교하고, Eloquent 모델은 `is` 메서드로 비교합니다. `Bus` 파사드의 `assertDispatched`, `assertNotDispatched`, `assertDispatchedSync`, `assertDispatchedAfterResponse` 메서드도 예상 속성 값 배열을 두 번째 인수로 받습니다.
 
 <a name="faking-a-subset-of-jobs"></a>
 <!-- ### Faking a Subset of Jobs -->

@@ -110,10 +110,14 @@ Route::put($uri, $callback);
 Route::patch($uri, $callback);
 Route::delete($uri, $callback);
 Route::options($uri, $callback);
+Route::query($uri, $callback);
 ```
 
-<!-- Sometimes you may need to register a route that responds to multiple HTTP verbs. You may do so using the `match` method. Or, you may even register a route that responds to all HTTP verbs using the `any` method: -->
-場合によっては、複数の HTTP 動詞に応答するルートを登録する必要があるかもしれません。これは、`match` メソッドを使用して行うことができます。または、`any` メソッドを使用して、すべての HTTP 動詞に応答するルートを登録することもできます。
+<!-- The `query` method registers a route that responds to the `QUERY` HTTP verb, allowing clients to send a request body for a query. `QUERY` routes in the `web` middleware group are subject to [CSRF protection](/docs/13.x/csrf). -->
+`query` メソッドは、`QUERY` HTTP 動詞に応答するルートを登録します。これにより、クライアントはクエリ用のリクエストボディを送信できます。`web` ミドルウェアグループ内の `QUERY` ルートには、[CSRF protection](/docs/13.x/csrf) が適用されます。
+
+<!-- Sometimes you may need to register a route that responds to multiple HTTP verbs. You may do so using the `match` method. Or, you may even register a route that responds to all HTTP verbs, including `QUERY`, using the `any` method: -->
+複数の HTTP メソッドに応答するルートを登録したい場合は、`match` メソッドを使います。また、`any` メソッドを使えば、`QUERY` を含むすべての HTTP メソッドに応答するルートを登録できます。
 
 ```php
 Route::match(['get', 'post'], '/', function () {
@@ -126,7 +130,7 @@ Route::any('/', function () {
 ```
 
 > [!NOTE]
-> 同じ URI を共有する複数のルートを定義する場合は、`get`、`post`、`put`、`patch`、`delete`、および `options` メソッドを使用するルートを、`any`、`match`、および `redirect` メソッドを使用するルートより前に定義する必要があります。これにより、受信リクエストが正しいルートと一致することが保証されます。
+> 同じ URI を共有する複数のルートを定義する場合は、`get`、`post`、`put`、`patch`、`delete`、`options`、`query` メソッドを使うルートを、`any`、`match`、`redirect` メソッドを使うルートより先に定義してください。これにより、受信したリクエストが正しいルートにマッチします。
 
 <a name="dependency-injection"></a>
 <!-- #### Dependency Injection -->
@@ -183,7 +187,7 @@ Route::permanentRedirect('/here', '/there');
 ```
 
 > [!WARNING]
-> リダイレクトルートでルートパラメータを使用する場合、`destination` および `status` パラメータはLaravelによって予約されているため使用できません。
+> リダイレクトルートでルートパラメータを使用する場合、次のパラメータは Laravel によって予約されているため使用できません: `destination` と `status`。
 
 <a name="view-routes"></a>
 <!-- ### View Routes -->
@@ -199,7 +203,7 @@ Route::view('/welcome', 'welcome', ['name' => 'Taylor']);
 ```
 
 > [!WARNING]
-> ビュールートでルートパラメーターを使用する場合、`view`、`data`、`status`、および `headers` のパラメーターは Laravel によって予約されているため使用できません。
+> view ルートでルートパラメータを使用する場合、次のパラメータは Laravel によって予約されているため使用できません: `view`、`data`、`status`、`headers`。
 
 <a name="listing-your-routes"></a>
 <!-- ### Listing Your Routes -->
@@ -457,7 +461,7 @@ Route::get('/search/{search}', function (string $search) {
 ```
 
 > [!WARNING]
-> エンコードされたスラッシュは、最後のルート セグメント内でのみサポートされます。
+> エンコードされたスラッシュは、ルートの最後のセグメント内でのみサポートされます。
 
 <a name="named-routes"></a>
 <!-- ## Named Routes -->
@@ -483,7 +487,7 @@ Route::get(
 ```
 
 > [!WARNING]
-> ルート名は常に一意である必要があります。
+> ルート名は必ず一意にしてください。
 
 <a name="generating-urls-to-named-routes"></a>
 <!-- #### Generating URLs to Named Routes -->
@@ -527,7 +531,7 @@ $url = route('profile', ['id' => 1, 'photos' => 'yes']);
 ```
 
 > [!NOTE]
-> 現在のロケールなど、URL パラメータにリクエスト全体のデフォルト値を指定したい場合があります。これを実現するには、[URL::defaults method](/docs/13.x/urls#default-values) を使用できます。
+> URL パラメータに現在のロケールなど、リクエスト全体で適用するデフォルト値を指定したい場合があります。その場合は、[URL::defaults method](/docs/13.x/urls#default-values)を使用できます。
 
 <a name="inspecting-the-current-route"></a>
 <!-- #### Inspecting the Current Route -->
@@ -717,6 +721,7 @@ Route::get('/posts/{post:slug}', function (Post $post) {
     return $post;
 });
 ```
+
 <!-- If you would like model binding to always use a database column other than `id` when retrieving a given model class, you may apply the `RouteKey` attribute to the Eloquent model: -->
 特定のモデルクラスを取得する際に、モデルバインディングで常に `id` 以外のデータベースカラムを使用したい場合は、Eloquentモデルに `RouteKey` 属性を適用できます。
 
@@ -1183,7 +1188,7 @@ php artisan config:publish cors
 このコマンドは、アプリケーションの `config` ディレクトリ内に `cors.php` 構成ファイルを配置します。
 
 > [!NOTE]
-> CORS および CORS ヘッダーの詳細については、[MDN web documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The_HTTP_response_headers) を参照してください。
+> CORS と CORS ヘッダーの詳細については、[MDN web documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The_HTTP_response_headers)を参照してください。
 
 <a name="route-caching"></a>
 <!-- ## Route Caching -->

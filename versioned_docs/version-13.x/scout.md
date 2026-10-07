@@ -155,8 +155,8 @@ composer require algolia/algoliasearch-client-php
 <!-- ### Meilisearch -->
 ### Meilisearch
 
-<!-- [Meilisearch](https://www.meilisearch.com) is a fast, open source search engine. If you aren't sure how to install Meilisearch on your local machine, you may use [Laravel Sail](/docs/13.x/sail#meilisearch), Laravel's officially supported Docker development environment. -->
-[Meilisearch](https://www.meilisearch.com)는 빠른 오픈 소스 검색 엔진입니다. 로컬 머신에 Meilisearch를 설치하는 방법을 잘 모르겠다면 Laravel에서 공식적으로 지원하는 Docker 개발 환경인 [Laravel Sail](/docs/13.x/sail#meilisearch)을 사용할 수 있습니다.
+<!-- [Meilisearch](https://www.meilisearch.com) is a fast, open source search engine that supports full-text, semantic, and hybrid search. If you aren't sure how to install Meilisearch on your local machine, you may use [Laravel Sail](/docs/13.x/sail#meilisearch), Laravel's officially supported Docker development environment. For production, you can [self-host](https://www.meilisearch.com/docs/learn/self_hosted/getting_started_with_self_hosted_meilisearch) Meilisearch or use [Meilisearch Cloud](https://www.meilisearch.com/cloud). -->
+[Meilisearch](https://www.meilisearch.com)는 전문 검색, 시맨틱 검색, 하이브리드 검색을 지원하는 빠른 오픈 소스 검색 엔진입니다. 로컬 머신에 Meilisearch를 설치하는 방법을 잘 모르겠다면 Laravel에서 공식 지원하는 Docker 개발 환경인 [Laravel Sail](/docs/13.x/sail#meilisearch)을 사용할 수 있습니다. 프로덕션 환경에서는 Meilisearch를 [self-host](https://www.meilisearch.com/docs/learn/self_hosted/getting_started_with_self_hosted_meilisearch)하거나 [Meilisearch Cloud](https://www.meilisearch.com/cloud)를 사용할 수 있습니다.
 
 <!-- When using the Meilisearch driver you will need to install the Meilisearch PHP SDK via the Composer package manager: -->
 Meilisearch 드라이버를 사용할 때는 Composer 패키지 관리자를 통해 Meilisearch PHP SDK를 설치해야 합니다.
@@ -174,14 +174,8 @@ MEILISEARCH_HOST=http://127.0.0.1:7700
 MEILISEARCH_KEY=masterKey
 ```
 
-<!-- For more information regarding Meilisearch, please consult the [Meilisearch documentation](https://docs.meilisearch.com/learn/getting_started/quick_start.html). -->
-Meilisearch에 대한 자세한 내용은 [Meilisearch documentation](https://docs.meilisearch.com/learn/getting_started/quick_start.html)를 참고하십시오.
-
-<!-- In addition, you should ensure that you install a version of `meilisearch/meilisearch-php` that is compatible with your Meilisearch binary version by reviewing [Meilisearch's documentation regarding binary compatibility](https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch). -->
-또한 [Meilisearch's documentation regarding binary compatibility](https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch)를 확인하여, 사용하는 Meilisearch 바이너리 버전과 호환되는 `meilisearch/meilisearch-php` 버전을 설치해야 합니다.
-
-> [!WARNING]
-> Meilisearch를 사용하는 애플리케이션에서 Scout를 업그레이드할 때는 항상 Meilisearch 서비스 자체의 [review any additional breaking changes](https://github.com/meilisearch/Meilisearch/releases)를 확인해야 합니다.
+<!-- For more information regarding Meilisearch, please consult the [Meilisearch documentation](https://www.meilisearch.com/docs/getting_started/overview). -->
+Meilisearch에 관한 자세한 내용은 [Meilisearch documentation](https://www.meilisearch.com/docs/getting_started/overview)를 참조하세요.
 
 <a name="typesense"></a>
 <!-- ### Typesense -->
@@ -316,7 +310,7 @@ class User extends Model
 ### Database Engine
 
 > [!WARNING]
-> 데이터베이스 엔진은 현재 MySQL과 PostgreSQL을 지원하며, 두 데이터베이스 엔진 모두 빠른 전문 컬럼 인덱싱을 지원합니다.
+> 데이터베이스 엔진은 현재 MySQL과 PostgreSQL을 지원하며, 두 엔진 모두 빠른 전체 텍스트 컬럼 인덱싱을 지원합니다.
 
 <!-- The `database` engine uses MySQL / PostgreSQL full-text indexes and `LIKE` clauses to search your existing database directly. For many applications, this is the simplest and most practical way to add search — no external service or additional infrastructure required. -->
 `database` 엔진은 MySQL / PostgreSQL 전체 텍스트 인덱스와 `LIKE` 절을 사용하여 기존 데이터베이스를 직접 검색합니다. 많은 애플리케이션에서 검색을 추가하는 가장 단순하고 실용적인 방법입니다. 외부 서비스나 추가 인프라가 필요하지 않습니다.
@@ -385,7 +379,7 @@ public function toSearchableArray(): array
 ```
 
 > [!WARNING]
-> 컬럼에 전문 검색 쿼리 제약 조건을 사용하도록 지정하기 전에 해당 컬럼에 [full text index](/docs/13.x/migrations#available-index-types)가 할당되어 있는지 확인해야 합니다.
+> 컬럼에 [full text index](/docs/13.x/migrations#available-index-types)가 지정되었는지 확인한 후, 해당 컬럼에 전문 검색 쿼리 제약 조건을 지정해야 합니다.
 
 <a name="collection-engine"></a>
 <!-- ### Collection Engine -->
@@ -669,8 +663,11 @@ Meilisearch에서 시맨틱 또는 하이브리드 검색을 사용하려면 인
 ],
 ```
 
-<!-- When using native embeddings, Scout will not generate or add vectors to indexed documents. You may still provide a precomputed query vector using the `vector` search option. -->
-네이티브 임베딩을 사용하면 Scout는 색인된 문서에 벡터를 생성하거나 추가하지 않습니다. 그래도 `vector` 검색 옵션을 사용해 미리 계산한 쿼리 벡터를 제공할 수 있습니다.
+<!-- When using native embeddings, Scout will not generate or add vectors to indexed documents. You may still provide a precomputed query vector using the `vector` search option. As with other index settings, run the `scout:sync-index-settings` command after updating the embedder configuration. -->
+네이티브 임베딩을 사용할 때 Scout는 색인된 문서에 벡터를 생성하거나 추가하지 않습니다. 그래도 `vector` 검색 옵션을 사용해 미리 계산한 쿼리 벡터를 제공할 수 있습니다. 다른 인덱스 설정과 마찬가지로 임베더 설정을 업데이트한 후 `scout:sync-index-settings` 명령어를 실행하세요.
+
+<!-- For more information regarding the available embedder sources and their options, please consult the [Meilisearch hybrid search documentation](https://www.meilisearch.com/docs/capabilities/hybrid_search/getting_started). -->
+사용 가능한 임베더 소스와 옵션에 대한 자세한 내용은 [Meilisearch hybrid search documentation](https://www.meilisearch.com/docs/capabilities/hybrid_search/getting_started)를 참조하세요.
 
 <a name="meilisearch-data-types"></a>
 <!-- #### Searchable Data Types -->
@@ -882,7 +879,7 @@ source 속성은 모델의 `toSearchableArray` 출력에 포함되어야 합니�
 ## Third-Party Engine Indexing
 
 > [!NOTE]
-> 이 섹션에서 설명하는 인덱싱 기능은 주로 서드파티 엔진(Algolia, Meilisearch, Typesense 또는 Turbopuffer)을 사용할 때 관련이 있습니다. 데이터베이스 엔진은 데이터베이스 테이블을 직접 검색하므로 인덱스를 수동으로 관리할 필요가 없습니다.
+> 이 절에서 설명하는 인덱싱 기능은 주로 타사 엔진(Algolia, Meilisearch, Typesense 또는 Turbopuffer)을 사용할 때 관련이 있습니다. 데이터베이스 엔진은 데이터베이스 테이블을 직접 검색하므로 인덱스를 수동으로 관리할 필요가 없습니다.
 
 <a name="batch-import"></a>
 <!-- ### Batch Import -->
@@ -929,7 +926,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 큐를 사용해 모델을 일괄 가져오는 경우 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 모델 컬렉션을 잡에서 처리할 때 연관관계는 [not restored](/docs/13.x/queues#handling-relationships) 상태입니다.
+> 큐를 사용해 모델을 일괄 가져오는 경우 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 잡이 모델 컬렉션을 처리할 때 연관관계는 [not restored](/docs/13.x/queues#handling-relationships) 상태입니다.
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -976,7 +973,7 @@ $orders->searchable();
 ```
 
 > [!NOTE]
-> `searchable` 메서드는 "upsert" 작업으로 볼 수 있습니다. 즉, 모델 레코드가 이미 인덱스에 있다면 업데이트되고, 검색 인덱스에 존재하지 않는다면 인덱스에 추가됩니다.
+> `searchable` 메서드는 "업서트" 작업으로 볼 수 있습니다. 즉, 모델 레코드가 이미 인덱스에 있으면 업데이트되고, 검색 인덱스에 없으면 인덱스에 추가됩니다.
 
 <a name="updating-records"></a>
 <!-- ### Updating Records -->
@@ -1131,7 +1128,7 @@ public function shouldBeSearchable(): bool
 `shouldBeSearchable` 메서드는 `save` 및 `create` 메서드, 쿼리 또는 연관관계를 통해 모델을 조작할 때만 적용됩니다. `searchable` 메서드를 사용하여 모델이나 컬렉션을 직접 검색 가능하게 만들면 `shouldBeSearchable` 메서드의 결과를 덮어씁니다.
 
 > [!WARNING]
-> `shouldBeSearchable` 메서드는 Scout의 "database" 엔진을 사용할 때는 적용되지 않습니다. 검색 가능한 모든 데이터가 항상 데이터베이스에 저장되기 때문입니다. database 엔진에서 비슷한 동작을 구현하려면 대신 [where clauses](#where-clauses)를 사용해야 합니다.
+> Scout의 "database" 엔진을 사용할 때는 `shouldBeSearchable` 메서드가 적용되지 않습니다. 검색 가능한 데이터가 항상 데이터베이스에 저장되기 때문입니다. database 엔진에서 비슷한 동작을 구현하려면 [where clauses](#where-clauses)를 사용해야 합니다.
 
 <a name="searching"></a>
 <!-- ## Searching -->
@@ -1258,7 +1255,7 @@ $orders = Order::search('Star Trek')->whereNotIn(
 ```
 
 > [!WARNING]
-> 애플리케이션에서 Meilisearch를 사용한다면 Scout의 "where" 절을 사용하기 전에 애플리케이션의 [filterable attributes](#meilisearch-index-settings)를 구성해야 합니다.
+> 애플리케이션에서 Meilisearch를 사용한다면 Scout의 "where" 절을 사용하기 전에 애플리케이션의 [filterable attributes](#meilisearch-index-settings)를 반드시 구성해야 합니다.
 
 <a name="customizing-the-eloquent-results-query"></a>
 <!-- #### Customizing the Eloquent Results Query -->
@@ -1332,7 +1329,7 @@ Route::get('/orders', function (Request $request) {
 ```
 
 > [!WARNING]
-> 검색 엔진은 Eloquent 모델의 전역 스코프 정의를 인식하지 못하므로 Scout 페이지네이션을 사용하는 애플리케이션에서는 전역 스코프를 사용하지 않아야 합니다. 또는 Scout를 통해 검색할 때 전역 스코프의 제약 조건을 다시 적용해야 합니다.
+> 검색 엔진은 Eloquent 모델의 전역 스코프 정의를 알지 못하므로 Scout 페이지네이션을 사용하는 애플리케이션에서는 전역 스코프를 사용하지 않아야 합니다. 또는 Scout로 검색할 때 전역 스코프의 제약 조건을 다시 적용해야 합니다.
 
 <a name="soft-deleting"></a>
 <!-- ### Soft Deleting -->
@@ -1359,7 +1356,7 @@ $orders = Order::search('Star Trek')->onlyTrashed()->get();
 ```
 
 > [!NOTE]
-> 소프트 삭제된 모델을 `forceDelete`로 영구 삭제하면 Scout가 검색 인덱스에서 자동으로 제거합니다.
+> 소프트 삭제된 모델을 `forceDelete`를 사용해 영구 삭제하면 Scout가 검색 인덱스에서 자동으로 제거합니다.
 
 <a name="customizing-engine-searches"></a>
 <!-- ### Customizing Engine Searches -->

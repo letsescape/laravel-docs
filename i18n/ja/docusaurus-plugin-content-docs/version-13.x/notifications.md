@@ -2047,6 +2047,16 @@ Notification::assertSentTo(
 );
 ```
 
+<!-- Alternatively, you may pass an array of expected property values as the third argument to `assertSentTo` or `assertNotSentTo`: -->
+または、期待するプロパティ値の配列を `assertSentTo` または `assertNotSentTo` の第3引数として渡すこともできます。
+
+```php
+Notification::assertSentTo($user, OrderShipped::class, ['order' => $order]);
+```
+
+<!-- All specified properties must match. Values are compared using strict equality, while Eloquent models are compared using their `is` method. You may also pass an array of expected property values as the second argument to `assertSentOnDemand`. -->
+指定したすべてのプロパティが一致する必要があります。値は厳密な等価性で比較され、Eloquent モデルは `is` メソッドで比較されます。また、期待するプロパティ値の配列を `assertSentOnDemand` の第2引数として渡すこともできます。
+
 <a name="testing-on-demand-notifications"></a>
 <!-- #### On-Demand Notifications -->
 #### On-Demand Notifications

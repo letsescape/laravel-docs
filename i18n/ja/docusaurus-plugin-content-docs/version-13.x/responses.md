@@ -13,6 +13,7 @@
 - [Other Response Types](#other-response-types)
     - [View Responses](#view-responses)
     - [JSON Responses](#json-responses)
+    - [Markdown Responses](#markdown-responses)
     - [File Downloads](#file-downloads)
     - [File Responses](#file-responses)
 - [Streamed Responses](#streamed-responses)
@@ -407,6 +408,24 @@ JSONP 応答を作成したい場合は、`json` メソッドを `withCallback` 
 return response()
     ->json(['name' => 'Abigail', 'state' => 'CA'])
     ->withCallback($request->input('callback'));
+```
+
+<a name="markdown-responses"></a>
+<!-- ### Markdown Responses -->
+### Markdown Responses
+
+<!-- The `markdown` method may be used to return Markdown content with the `Content-Type` header set to `text/markdown`: -->
+`markdown` メソッドを使うと、`Content-Type` ヘッダーを `text/markdown` に設定して Markdown コンテンツを返せます。
+
+```php
+return response()->markdown("# Hello\n\nWorld");
+```
+
+<!-- You may pass a custom HTTP status code and an array of additional headers as the second and third arguments: -->
+第2引数と第3引数には、任意の HTTP ステータスコードと追加のヘッダー配列を渡せます。
+
+```php
+return response()->markdown('# Not Found', 404, ['X-Custom-Header' => 'Value']);
 ```
 
 <a name="file-downloads"></a>

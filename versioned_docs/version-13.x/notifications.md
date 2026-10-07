@@ -2043,6 +2043,16 @@ Notification::assertSentTo(
 );
 ```
 
+<!-- Alternatively, you may pass an array of expected property values as the third argument to `assertSentTo` or `assertNotSentTo`: -->
+또는 `assertSentTo` 또는 `assertNotSentTo`의 세 번째 인수로 예상 속성 값 배열을 전달할 수 있습니다.
+
+```php
+Notification::assertSentTo($user, OrderShipped::class, ['order' => $order]);
+```
+
+<!-- All specified properties must match. Values are compared using strict equality, while Eloquent models are compared using their `is` method. You may also pass an array of expected property values as the second argument to `assertSentOnDemand`. -->
+지정한 모든 속성이 일치해야 합니다. 값은 엄격한 동등성으로 비교하고, Eloquent 모델은 `is` 메서드로 비교합니다. `assertSentOnDemand`의 두 번째 인수로도 예상 속성 값 배열을 전달할 수 있습니다.
+
 <a name="testing-on-demand-notifications"></a>
 <!-- #### On-Demand Notifications -->
 #### On-Demand Notifications

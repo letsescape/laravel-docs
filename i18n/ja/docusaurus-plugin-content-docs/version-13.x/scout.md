@@ -155,8 +155,8 @@ composer require algolia/algoliasearch-client-php
 <!-- ### Meilisearch -->
 ### Meilisearch
 
-<!-- [Meilisearch](https://www.meilisearch.com) is a fast, open source search engine. If you aren't sure how to install Meilisearch on your local machine, you may use [Laravel Sail](/docs/13.x/sail#meilisearch), Laravel's officially supported Docker development environment. -->
-[Meilisearch](https://www.meilisearch.com) は高速なオープンソース検索エンジンです。ローカルマシンへの Meilisearch のインストール方法がわからない場合は、Laravel が公式にサポートしている Docker 開発環境の [Laravel Sail](/docs/13.x/sail#meilisearch) を使用できます。
+<!-- [Meilisearch](https://www.meilisearch.com) is a fast, open source search engine that supports full-text, semantic, and hybrid search. If you aren't sure how to install Meilisearch on your local machine, you may use [Laravel Sail](/docs/13.x/sail#meilisearch), Laravel's officially supported Docker development environment. For production, you can [self-host](https://www.meilisearch.com/docs/learn/self_hosted/getting_started_with_self_hosted_meilisearch) Meilisearch or use [Meilisearch Cloud](https://www.meilisearch.com/cloud). -->
+[Meilisearch](https://www.meilisearch.com) は、全文検索、セマンティック検索、ハイブリッド検索に対応した高速なオープンソースの検索エンジンです。Meilisearch をローカルマシンにインストールする方法がわからない場合は、Laravel が公式にサポートする Docker 開発環境の [Laravel Sail](/docs/13.x/sail#meilisearch) を利用できます。本番環境では、Meilisearch を[self-host](https://www.meilisearch.com/docs/learn/self_hosted/getting_started_with_self_hosted_meilisearch)するか、[Meilisearch Cloud](https://www.meilisearch.com/cloud)を利用できます。
 
 <!-- When using the Meilisearch driver you will need to install the Meilisearch PHP SDK via the Composer package manager: -->
 Meilisearch ドライバを使用する場合は、Composer パッケージ マネージャーを介して Meil​​isearch PHP SDK をインストールする必要があります。
@@ -174,14 +174,8 @@ MEILISEARCH_HOST=http://127.0.0.1:7700
 MEILISEARCH_KEY=masterKey
 ```
 
-<!-- For more information regarding Meilisearch, please consult the [Meilisearch documentation](https://docs.meilisearch.com/learn/getting_started/quick_start.html). -->
-Meilisearch の詳細については、[Meilisearch documentation](https://docs.meilisearch.com/learn/getting_started/quick_start.html) を参照してください。
-
-<!-- In addition, you should ensure that you install a version of `meilisearch/meilisearch-php` that is compatible with your Meilisearch binary version by reviewing [Meilisearch's documentation regarding binary compatibility](https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch). -->
-さらに、[Meilisearch's documentation regarding binary compatibility](https://github.com/meilisearch/meilisearch-php#-compatibility-with-meilisearch) を確認して、Meilisearch バイナリ バージョンと互換性のある `meilisearch/meilisearch-php` のバージョンをインストールしていることを確認する必要があります。
-
-> [!WARNING]
-> Meilisearch を利用するアプリケーションで Scout をアップグレードする場合は、Meilisearch サービス自体に関する [review any additional breaking changes](https://github.com/meilisearch/Meilisearch/releases) も必ず確認してください。
+<!-- For more information regarding Meilisearch, please consult the [Meilisearch documentation](https://www.meilisearch.com/docs/getting_started/overview). -->
+Meilisearch の詳細については、[Meilisearch documentation](https://www.meilisearch.com/docs/getting_started/overview)を参照してください。
 
 <a name="typesense"></a>
 <!-- ### Typesense -->
@@ -316,7 +310,7 @@ class User extends Model
 ### Database Engine
 
 > [!WARNING]
-> 現在、データベースエンジンは MySQL と PostgreSQL をサポートしており、どちらも高速な全文カラムインデックスをサポートしています。
+> データベースエンジンが現在サポートしているのは MySQL と PostgreSQL です。どちらも高速な全文カラムインデックスに対応しています。
 
 <!-- The `database` engine uses MySQL / PostgreSQL full-text indexes and `LIKE` clauses to search your existing database directly. For many applications, this is the simplest and most practical way to add search — no external service or additional infrastructure required. -->
 `database` エンジンは、MySQL / PostgreSQL フルテキスト インデックスと `LIKE` 句を使用して、既存のデータベースを直接検索します。多くのアプリケーションにとって、これは検索を追加する最も簡単で実用的な方法であり、外部サービスや追加のインフラストラクチャは必要ありません。
@@ -385,7 +379,7 @@ public function toSearchableArray(): array
 ```
 
 > [!WARNING]
-> カラムでフルテキストクエリの制約を使用するよう指定する前に、そのカラムに [full text index](/docs/13.x/migrations#available-index-types) が割り当てられていることを確認してください。
+> カラムに全文検索クエリ制約を指定する前に、そのカラムに [full text index](/docs/13.x/migrations#available-index-types) が設定されていることを確認してください。
 
 <a name="collection-engine"></a>
 <!-- ### Collection Engine -->
@@ -447,7 +441,7 @@ class Post extends Model
 ```
 
 > [!NOTE]
-> データベースエンジンを使用する場合、`searchableAs` メソッドは効果がありません。データベースエンジンは常にモデルのデータベーステーブルを直接検索します。
+> `searchableAs` メソッドはデータベースエンジンを使用する場合、効果がありません。データベースエンジンは常にモデルのデータベーステーブルを直接検索します。
 
 <a name="configuring-the-model-id"></a>
 <!-- #### Configuring the Model ID -->
@@ -487,7 +481,7 @@ class User extends Model
 ```
 
 > [!NOTE]
-> データベースエンジンを使用する場合、`getScoutKey` と `getScoutKeyName` メソッドは効果がありません。データベースエンジンは常にモデルの主キーを使用します。
+> データベースエンジンを使用する場合、`getScoutKey` と `getScoutKeyName` メソッドは効果がありません。データベースエンジンでは常にモデルの主キーが使用されます。
 
 <a name="algolia-configuration"></a>
 <!-- ### Algolia -->
@@ -669,8 +663,11 @@ Meilisearch でセマンティック検索またはハイブリッド検索を�
 ],
 ```
 
-<!-- When using native embeddings, Scout will not generate or add vectors to indexed documents. You may still provide a precomputed query vector using the `vector` search option. -->
-ネイティブ埋め込みを使用する場合、Scout はインデックス済みのドキュメントに対するベクトルの生成や追加を行いません。ただし、検索の `vector` オプションを使って、事前計算済みのクエリベクトルを指定できます。
+<!-- When using native embeddings, Scout will not generate or add vectors to indexed documents. You may still provide a precomputed query vector using the `vector` search option. As with other index settings, run the `scout:sync-index-settings` command after updating the embedder configuration. -->
+ネイティブの埋め込みを使用する場合、Scout はインデックス対象のドキュメントにベクトルを生成・追加しません。ただし、検索オプションの `vector` を使って、事前に計算したクエリベクトルを指定できます。他のインデックス設定と同様に、埋め込みモデルの設定を更新した後は `scout:sync-index-settings` コマンドを実行してください。
+
+<!-- For more information regarding the available embedder sources and their options, please consult the [Meilisearch hybrid search documentation](https://www.meilisearch.com/docs/capabilities/hybrid_search/getting_started). -->
+利用可能な埋め込みソースとそのオプションについて詳しくは、[Meilisearch hybrid search documentation](https://www.meilisearch.com/docs/capabilities/hybrid_search/getting_started)を参照してください。
 
 <a name="meilisearch-data-types"></a>
 <!-- #### Searchable Data Types -->
@@ -882,7 +879,7 @@ use App\Models\Article;
 ## Third-Party Engine Indexing
 
 > [!NOTE]
-> このセクションで説明するインデックス機能は、主にサードパーティ製エンジン（Algolia、Meilisearch、Typesense、Turbopuffer）を使用する場合に関係します。データベースエンジンはデータベースのテーブルを直接検索するため、手動でインデックスを管理する必要はありません。
+> このセクションで説明するインデックス機能は、主にサードパーティの検索エンジン（Algolia、Meilisearch、Typesense、Turbopuffer）を使用する場合に関係します。データベースエンジンはデータベーステーブルを直接検索するため、手動でインデックスを管理する必要はありません。
 
 <a name="batch-import"></a>
 <!-- ### Batch Import -->
@@ -929,7 +926,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> キューを使用してモデルをバッチインポートする場合、`makeAllSearchableUsing` メソッドは適用できないことがあります。モデルのコレクションをジョブで処理すると、リレーションは復元されません（[not restored](/docs/13.x/queues#handling-relationships)）。
+> `makeAllSearchableUsing` メソッドは、キューを使ってモデルを一括インポートする場合には適用できないことがあります。ジョブがモデルのコレクションを処理するとき、リレーションは[not restored](/docs/13.x/queues#handling-relationships)。
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -976,7 +973,7 @@ $orders->searchable();
 ```
 
 > [!NOTE]
-> `searchable` メソッドは、「アップサート」操作と考えることができます。つまり、モデルのレコードがすでにインデックスに存在する場合は更新され、検索インデックスに存在しない場合はインデックスに追加されます。
+> `searchable` メソッドは「upsert」操作と見なせます。つまり、モデルのレコードがインデックスにすでに存在する場合は更新され、存在しない場合は検索インデックスに追加されます。
 
 <a name="updating-records"></a>
 <!-- ### Updating Records -->
@@ -1131,7 +1128,7 @@ public function shouldBeSearchable(): bool
 `shouldBeSearchable` メソッドは、`save` および `create` メソッド、クエリ、または関係を通じてモデルを操作する場合にのみ適用されます。 `searchable` メソッドを使用してモデルまたはコレクションを直接検索可能にすると、`shouldBeSearchable` メソッドの結果がオーバーライドされます。
 
 > [!WARNING]
-> Scout の "database" エンジンを使用する場合、検索可能なデータは常にデータベースに保存されるため、`shouldBeSearchable` メソッドは使用できません。database エンジンで同様の動作を実現するには、代わりに [where clauses](#where-clauses) を使用してください。
+> Scout の「database」エンジンを使用する場合、検索可能なデータは常にデータベースに保存されるため、`shouldBeSearchable` メソッドは適用されません。database エンジンで同様の動作を実現するには、代わりに [where clauses](#where-clauses) を使用してください。
 
 <a name="searching"></a>
 <!-- ## Searching -->
@@ -1258,7 +1255,7 @@ $orders = Order::search('Star Trek')->whereNotIn(
 ```
 
 > [!WARNING]
-> アプリケーションで Meilisearch を使用している場合は、Scout の「where」句を利用する前に、アプリケーションの [filterable attributes](#meilisearch-index-settings) を設定する必要があります。
+> アプリケーションで Meilisearch を使用している場合、Scout の「where」句を使う前に、アプリケーションの [filterable attributes](#meilisearch-index-settings) を設定する必要があります。
 
 <a name="customizing-the-eloquent-results-query"></a>
 <!-- #### Customizing the Eloquent Results Query -->
@@ -1332,7 +1329,7 @@ Route::get('/orders', function (Request $request) {
 ```
 
 > [!WARNING]
-> 検索エンジンは Eloquent モデルのグローバルスコープ定義を認識しないため、Scout のページネーションを利用するアプリケーションではグローバルスコープを使用しないでください。または、Scout で検索する際にグローバルスコープの制約を再現してください。
+> 検索エンジンは Eloquent モデルのグローバルスコープの定義を認識しないため、Scout のページネーションを利用するアプリケーションではグローバルスコープを使用しないでください。使用する場合は、Scout で検索するときにグローバルスコープの制約を再現してください。
 
 <a name="soft-deleting"></a>
 <!-- ### Soft Deleting -->

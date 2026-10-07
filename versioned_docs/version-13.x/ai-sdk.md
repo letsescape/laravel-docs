@@ -20,6 +20,7 @@
     - [Deferred Tool Loading](#deferred-tool-loading)
     - [File Storage Tools](#file-storage-tools)
     - [MCP Tools](#mcp-tools)
+    - [Skills](#skills)
     - [Provider Tools](#provider-tools)
     - [Sub-Agents](#sub-agents)
     - [Middleware](#middleware)
@@ -1527,6 +1528,71 @@ public function tools(): iterable
 <!-- For more information on creating and authenticating MCP clients, including bearer tokens and OAuth, consult the [MCP client documentation](/docs/13.x/mcp#client). -->
 MCP 클라이언트 생성 및 인증과 bearer 토큰, OAuth에 대한 자세한 내용은 [MCP client documentation](/docs/13.x/mcp#client)를 참고하세요.
 
+<a name="skills"></a>
+<!-- ### Skills -->
+### Skills
+
+<!-- [Agent Skills](https://agentskills.io) are folders of instructions and supporting files that teach an agent how to perform a specific task. Because skills follow an open standard, the same skill may be shared between your application's agents and the coding agents you use to build your application. -->
+[Agent Skills](https://agentskills.io)는 에이전트가 특정 작업을 수행하는 방법을 익히도록 지침과 지원 파일을 담은 폴더입니다. 스킬은 개방형 표준을 따르므로, 애플리케이션의 에이전트와 애플리케이션을 구축할 때 사용하는 코딩 에이전트가 같은 스킬을 공유할 수 있습니다.
+
+<!-- Each skill is a directory within your application's `resources/skills` directory that contains a `SKILL.md` file. Any other files in the directory, such as reference documents, are bundled with the skill: -->
+각 스킬은 애플리케이션의 `resources/skills` 디렉터리 안에 있는 `SKILL.md` 파일을 포함하는 디렉터리입니다. 참조 문서와 같은 다른 파일도 해당 디렉터리에 있으면 스킬에 함께 포함됩니다.
+
+```text
+resources/skills/
+└── refund-policy/
+    ├── SKILL.md
+    └── references/EDGE-CASES.md
+```
+
+<!-- The `SKILL.md` file begins with YAML frontmatter containing the skill's `name` and a `description` of when the skill should be used, followed by the skill's instructions: -->
+`SKILL.md` 파일은 스킬의 `name`과 스킬을 언제 사용해야 하는지 설명하는 `description`을 포함한 YAML frontmatter로 시작하며, 그 뒤에 스킬 지침이 이어집니다.
+
+```markdown
+---
+name: refund-policy
+description: Use when a customer asks for a refund or disputes a charge.
+---
+
+# Refund Policy
+
+Customers may request a full refund within 30 days of purchase...
+```
+
+<!-- If the `name` is omitted, the name of the skill's directory will be used. Skills without a `description` are ignored. -->
+`name`을 생략하면 스킬 디렉터리의 이름을 사용합니다. `description`이 없는 스킬은 무시됩니다.
+
+<!-- To give an agent access to your skills, implement the `HasSkills` interface and return your skill sources from the `skills` method: -->
+에이전트가 스킬에 접근할 수 있도록 하려면 `HasSkills` 인터페이스를 구현하고 `skills` 메서드에서 스킬 소스를 반환합니다.
+
+```php
+use Laravel\Ai\Contracts\HasSkills;
+use Laravel\Ai\Skills\Skill;
+
+class SupportAgent implements Agent, HasSkills
+{
+    use Promptable;
+
+    public function skills(): iterable
+    {
+        return [
+            resource_path('skills'),
+            base_path('.agents/skills'),
+            new Skill('house-style', 'Use when you write copy for a customer.', view('skills.house-style')),
+            fn () => $this->user->team->skills->map(
+                fn ($skill) => new Skill($skill->name, $skill->description, $skill->instructions)
+            ),
+        ];
+    }
+}
+```
+
+<!-- Sources may be directories, `Skill` instances, or closures returning skills, which are only invoked once the agent needs them. When two skills share a name, the source listed first takes precedence. -->
+소스는 디렉터리, `Skill` 인스턴스 또는 스킬을 반환하는 클로저일 수 있으며, 에이전트가 필요로 할 때만 클로저가 호출됩니다. 두 스킬의 이름이 같으면 먼저 나열된 소스가 우선합니다.
+
+<!-- The agent receives a `LoadSkill` tool that lists each skill's name and description, loading a skill's full instructions and bundled text files only when a prompt calls for it. Binary files and files larger than 256 KB are not returned. -->
+에이전트에는 각 스킬의 이름과 설명을 나열하는 `LoadSkill` 툴이 제공됩니다. 프롬프트에서 스킬을 요청할 때만 스킬의 전체 지침과 함께 포함된 텍스트 파일을 불러옵니다. 바이너리 파일과 크기가 256 KB를 초과하는 파일은 반환하지 않습니다.
+
 <a name="provider-tools"></a>
 <!-- ### Provider Tools -->
 ### Provider Tools
@@ -2792,7 +2858,7 @@ $documents = Document::query()
 에이전트가 도구로 유사도 검색을 수행할 수 있게 하려면 [Similarity Search](#similarity-search) 도구 문서를 확인하십시오.
 
 > [!NOTE]
-> 현재 벡터 쿼리는 `pgvector` 확장을 사용하는 PostgreSQL 연결과 MariaDB 11.7 이상에서 지원됩니다.
+> 현재 벡터 쿼리는 `pgvector` 확장을 사용하는 PostgreSQL 연결 또는 네이티브 벡터 기능을 사용하는 MariaDB 11.7 이상에서 지원됩니다.
 
 <a name="caching-embeddings"></a>
 <!-- ### Caching Embeddings -->

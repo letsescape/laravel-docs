@@ -110,10 +110,14 @@ Route::put($uri, $callback);
 Route::patch($uri, $callback);
 Route::delete($uri, $callback);
 Route::options($uri, $callback);
+Route::query($uri, $callback);
 ```
 
-<!-- Sometimes you may need to register a route that responds to multiple HTTP verbs. You may do so using the `match` method. Or, you may even register a route that responds to all HTTP verbs using the `any` method: -->
-때로는 여러 HTTP verb에 응답하는 라우트를 등록해야 할 수 있습니다. 이때는 `match` 메서드를 사용할 수 있습니다. 또는 `any` 메서드를 사용하여 모든 HTTP verb에 응답하는 라우트를 등록할 수도 있습니다.
+<!-- The `query` method registers a route that responds to the `QUERY` HTTP verb, allowing clients to send a request body for a query. `QUERY` routes in the `web` middleware group are subject to [CSRF protection](/docs/13.x/csrf). -->
+`query` 메서드는 `QUERY` HTTP 동사에 응답하는 라우트를 등록하여 클라이언트가 쿼리용 요청 본문을 전송할 수 있도록 합니다. `web` 미들웨어 그룹의 `QUERY` 라우트에는 [CSRF protection](/docs/13.x/csrf)이 적용됩니다.
+
+<!-- Sometimes you may need to register a route that responds to multiple HTTP verbs. You may do so using the `match` method. Or, you may even register a route that responds to all HTTP verbs, including `QUERY`, using the `any` method: -->
+여러 HTTP 메서드에 응답하는 라우트를 등록해야 할 때가 있습니다. 이때 `match` 메서드를 사용할 수 있습니다. 또는 `any` 메서드를 사용해 `QUERY`를 포함한 모든 HTTP 메서드에 응답하는 라우트를 등록할 수도 있습니다:
 
 ```php
 Route::match(['get', 'post'], '/', function () {
@@ -126,7 +130,7 @@ Route::any('/', function () {
 ```
 
 > [!NOTE]
-> 동일한 URI를 공유하는 여러 라우트를 정의할 때는 `any`, `match`, `redirect` 메서드를 사용하는 라우트보다 `get`, `post`, `put`, `patch`, `delete`, `options` 메서드를 사용하는 라우트를 먼저 정의해야 합니다. 이렇게 해야 들어오는 요청이 올바른 라우트와 매칭됩니다.
+> URI가 같은 여러 라우트를 정의할 때는 `get`, `post`, `put`, `patch`, `delete`, `options`, `query` 메서드를 사용하는 라우트를 `any`, `match`, `redirect` 메서드를 사용하는 라우트보다 먼저 정의해야 합니다. 이렇게 하면 들어오는 요청이 올바른 라우트와 일치합니다.
 
 <a name="dependency-injection"></a>
 <!-- #### Dependency Injection -->
@@ -183,7 +187,7 @@ Route::permanentRedirect('/here', '/there');
 ```
 
 > [!WARNING]
-> 리다이렉트 라우트에서 라우트 파라미터를 사용할 때, 다음 파라미터는 Laravel에서 예약되어 있으므로 사용할 수 없습니다: `destination`, `status`.
+> 리디렉션 라우트에서 라우트 파라미터를 사용할 때 `destination`과 `status`는 Laravel에서 예약한 파라미터이므로 사용할 수 없습니다.
 
 <a name="view-routes"></a>
 <!-- ### View Routes -->
@@ -199,7 +203,7 @@ Route::view('/welcome', 'welcome', ['name' => 'Taylor']);
 ```
 
 > [!WARNING]
-> 뷰 라우트에서 라우트 파라미터를 사용할 때, 다음 파라미터는 Laravel에서 예약되어 있으므로 사용할 수 없습니다: `view`, `data`, `status`, `headers`.
+> 뷰 라우트에서 라우트 파라미터를 사용할 때는 다음 파라미터를 Laravel에서 예약하므로 사용할 수 없습니다: `view`, `data`, `status`, `headers`.
 
 <a name="listing-your-routes"></a>
 <!-- ### Listing Your Routes -->
@@ -448,7 +452,8 @@ Route::get('/user/{id}', function (string $id) {
 #### Encoded Forward Slashes
 
 <!-- The Laravel routing component allows all characters except `/` to be present within route parameter values. You must explicitly allow `/` to be part of your placeholder using a `where` condition regular expression: -->
-Laravel 라우팅 컴포넌트는 라우트 파라미터 값 안에 `/`를 제외한 모든 문자가 포함되는 것을 허용합니다. `/`가 플레이스홀더의 일부가 될 수 있도록 하려면 `where` 조건 정규 표현식을 사용하여 명시적으로 허용해야 합니다.
+Laravel 라우팅 컴포넌트에서는 `/`를 제외한 모든 문자를 라우트 파라미터 값에 사용할 수 있습니다. `/`를 플레이스홀더에 포함하려면 `where` 조건 정규 표현식에서 이를 명시적으로 허용해야 합니다:
+
 ```php
 Route::get('/search/{search}', function (string $search) {
     return $search;
@@ -456,7 +461,7 @@ Route::get('/search/{search}', function (string $search) {
 ```
 
 > [!WARNING]
-> 인코딩된 슬래시는 마지막 라우트 세그먼트 안에서만 지원됩니다.
+> 인코딩된 슬래시는 라우트의 마지막 세그먼트에서만 지원됩니다.
 
 <a name="named-routes"></a>
 <!-- ## Named Routes -->
@@ -526,7 +531,7 @@ $url = route('profile', ['id' => 1, 'photos' => 'yes']);
 ```
 
 > [!NOTE]
-> 경우에 따라 현재 로케일처럼 URL 파라미터에 대해 요청 전체에서 사용할 기본값을 지정하고 싶을 수 있습니다. 이를 위해 [URL::defaults method](/docs/13.x/urls#default-values)를 사용할 수 있습니다.
+> 경우에 따라 현재 로케일처럼 URL 파라미터에 요청 전체에 적용되는 기본값을 지정하고 싶을 수 있습니다. 이를 위해 [URL::defaults method](/docs/13.x/urls#default-values)를 사용할 수 있습니다.
 
 <a name="inspecting-the-current-route"></a>
 <!-- #### Inspecting the Current Route -->
@@ -716,6 +721,7 @@ Route::get('/posts/{post:slug}', function (Post $post) {
     return $post;
 });
 ```
+
 <!-- If you would like model binding to always use a database column other than `id` when retrieving a given model class, you may apply the `RouteKey` attribute to the Eloquent model: -->
 특정 모델 클래스를 가져올 때 모델 바인딩이 항상 `id`가 아닌 다른 데이터베이스 컬럼을 사용하도록 하려면, Eloquent 모델에 `RouteKey` 속성을 적용할 수 있습니다.
 
@@ -906,6 +912,7 @@ public function resolveRouteBinding($value, $field = null)
     return $this->where('name', $value)->firstOrFail();
 }
 ```
+
 <!-- If a route is utilizing [implicit binding scoping](#implicit-model-binding-scoping), the `resolveChildRouteBinding` method will be used to resolve the child binding of the parent model: -->
 라우트가 [implicit binding scoping](#implicit-model-binding-scoping)을 사용하고 있다면, 부모 모델의 자식 바인딩을 해석하기 위해 `resolveChildRouteBinding` 메서드가 사용됩니다.
 
@@ -1181,7 +1188,7 @@ php artisan config:publish cors
 이 명령어는 애플리케이션의 `config` 디렉터리 안에 `cors.php` 설정 파일을 배치합니다.
 
 > [!NOTE]
-> CORS와 CORS 헤더에 대한 자세한 내용은 [MDN web documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The_HTTP_response_headers)를 참고하십시오.
+> CORS 및 CORS 헤더에 관한 자세한 내용은 [MDN web documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#The_HTTP_response_headers)를 참고하세요.
 
 <a name="route-caching"></a>
 <!-- ## Route Caching -->

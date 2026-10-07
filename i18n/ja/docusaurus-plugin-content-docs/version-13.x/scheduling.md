@@ -413,6 +413,21 @@ Schedule::command('report:generate')
     ->onOneServer();
 ```
 
+<!-- To apply `onOneServer` to all scheduled tasks, you may call the `alwaysOnOneServer` method in the `boot` method of your application's `AppServiceProvider`: -->
+すべてのスケジュールタスクに `onOneServer` を適用するには、アプリケーションの `AppServiceProvider` の `boot` メソッドで `alwaysOnOneServer` メソッドを呼び出します。
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+public function boot(): void
+{
+    Schedule::alwaysOnOneServer();
+}
+```
+
+<!-- Scheduled closures without a [name](#naming-unique-jobs) are excluded and will continue to run on every server. -->
+[name](#naming-unique-jobs) が設定されていないスケジュール済みクロージャは対象外となり、引き続きすべてのサーバーで実行されます。
+
 <!-- You may use the `useCache` method to customize the cache store used by the scheduler to obtain the atomic locks necessary for single-server tasks: -->
 `useCache` メソッドを使用して、単一サーバーのタスクに必要なアトミック ロックを取得するためにスケジューラによって使用されるキャッシュ ストアをカスタマイズできます。
 

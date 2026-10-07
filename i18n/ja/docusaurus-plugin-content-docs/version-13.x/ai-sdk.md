@@ -20,6 +20,7 @@
     - [Deferred Tool Loading](#deferred-tool-loading)
     - [File Storage Tools](#file-storage-tools)
     - [MCP Tools](#mcp-tools)
+    - [Skills](#skills)
     - [Provider Tools](#provider-tools)
     - [Sub-Agents](#sub-agents)
     - [Middleware](#middleware)
@@ -1527,6 +1528,71 @@ public function tools(): iterable
 <!-- For more information on creating and authenticating MCP clients, including bearer tokens and OAuth, consult the [MCP client documentation](/docs/13.x/mcp#client). -->
 MCP クライアントの作成と認証について詳しくは、bearer token や OAuth についての説明を含む [MCP client documentation](/docs/13.x/mcp#client) を参照してください。
 
+<a name="skills"></a>
+<!-- ### Skills -->
+### Skills
+
+<!-- [Agent Skills](https://agentskills.io) are folders of instructions and supporting files that teach an agent how to perform a specific task. Because skills follow an open standard, the same skill may be shared between your application's agents and the coding agents you use to build your application. -->
+[Agent Skills](https://agentskills.io) は、エージェントに特定のタスクの実行方法を教えるための手順や関連ファイルをまとめたフォルダです。スキルはオープンスタンダードに準拠しているため、アプリケーションのエージェントと、アプリケーションの開発に使用するコーディングエージェントの間で同じスキルを共有できます。
+
+<!-- Each skill is a directory within your application's `resources/skills` directory that contains a `SKILL.md` file. Any other files in the directory, such as reference documents, are bundled with the skill: -->
+各スキルは、アプリケーションの `resources/skills` ディレクトリ内にある `SKILL.md` ファイルを含むディレクトリです。リファレンス文書など、ディレクトリ内のほかのファイルもスキルに含まれます。
+
+```text
+resources/skills/
+└── refund-policy/
+    ├── SKILL.md
+    └── references/EDGE-CASES.md
+```
+
+<!-- The `SKILL.md` file begins with YAML frontmatter containing the skill's `name` and a `description` of when the skill should be used, followed by the skill's instructions: -->
+`SKILL.md` ファイルの先頭には、スキルの `name` と、どのような場合にスキルを使うべきかを示す `description` を含む YAML frontmatter を記述し、その後にスキルの指示を続けます。
+
+```markdown
+---
+name: refund-policy
+description: Use when a customer asks for a refund or disputes a charge.
+---
+
+# Refund Policy
+
+Customers may request a full refund within 30 days of purchase...
+```
+
+<!-- If the `name` is omitted, the name of the skill's directory will be used. Skills without a `description` are ignored. -->
+`name` を省略すると、スキルのディレクトリ名が使用されます。`description` のないスキルは無視されます。
+
+<!-- To give an agent access to your skills, implement the `HasSkills` interface and return your skill sources from the `skills` method: -->
+エージェントがスキルを利用できるようにするには、`HasSkills` インターフェイスを実装し、`skills` メソッドからスキルのソースを返します。
+
+```php
+use Laravel\Ai\Contracts\HasSkills;
+use Laravel\Ai\Skills\Skill;
+
+class SupportAgent implements Agent, HasSkills
+{
+    use Promptable;
+
+    public function skills(): iterable
+    {
+        return [
+            resource_path('skills'),
+            base_path('.agents/skills'),
+            new Skill('house-style', 'Use when you write copy for a customer.', view('skills.house-style')),
+            fn () => $this->user->team->skills->map(
+                fn ($skill) => new Skill($skill->name, $skill->description, $skill->instructions)
+            ),
+        ];
+    }
+}
+```
+
+<!-- Sources may be directories, `Skill` instances, or closures returning skills, which are only invoked once the agent needs them. When two skills share a name, the source listed first takes precedence. -->
+ソースにはディレクトリ、`Skill` インスタンス、またはスキルを返すクロージャを指定できます。クロージャはエージェントがスキルを必要としたときにのみ呼び出されます。同じ名前のスキルが複数ある場合は、先に指定されたソースが優先されます。
+
+<!-- The agent receives a `LoadSkill` tool that lists each skill's name and description, loading a skill's full instructions and bundled text files only when a prompt calls for it. Binary files and files larger than 256 KB are not returned. -->
+エージェントには各スキルの名前と説明を一覧表示する `LoadSkill` ツールが渡されます。プロンプトで要求された場合にのみ、スキルのすべての指示と同梱されたテキストファイルが読み込まれます。バイナリファイルと 256 KB を超えるファイルは返されません。
+
 <a name="provider-tools"></a>
 <!-- ### Provider Tools -->
 ### Provider Tools
@@ -2792,7 +2858,7 @@ $documents = Document::query()
 エージェントにツールとして類似性検索を実行できるようにしたい場合は、[Similarity Search](#similarity-search) ツールのドキュメントを確認してください。
 
 > [!NOTE]
-> 現在、ベクトルクエリは `pgvector` 拡張機能を使用する PostgreSQL 接続と、MariaDB 11.7 以降でサポートされています。
+> ベクトルクエリは現在、`pgvector` 拡張機能を使用する PostgreSQL 接続、またはネイティブのベクトルサポートを使用する MariaDB 11.7 以降でサポートされています。
 
 <a name="caching-embeddings"></a>
 <!-- ### Caching Embeddings -->

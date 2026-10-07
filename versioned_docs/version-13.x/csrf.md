@@ -38,8 +38,8 @@ CSRF 보호가 없다면, 악의적인 웹사이트는 애플리케이션의 `/u
 <!-- If the malicious website automatically submits the form when the page is loaded, the malicious user only needs to lure an unsuspecting user of your application to visit their website and their email address will be changed in your application. -->
 악의적인 웹사이트가 페이지가 로드될 때 폼을 자동으로 제출한다면, 공격자는 아무것도 모르는 애플리케이션 사용자가 자신의 웹사이트를 방문하도록 유도하기만 하면 됩니다. 그러면 해당 사용자의 이메일 주소가 애플리케이션에서 변경됩니다.
 
-<!-- To prevent this vulnerability, we need to inspect every incoming `POST`, `PUT`, `PATCH`, or `DELETE` request for a secret session value that the malicious application is unable to access. -->
-이 취약점을 막으려면 들어오는 모든 `POST`, `PUT`, `PATCH`, `DELETE` 요청에서 악의적인 애플리케이션이 접근할 수 없는 비밀 세션 값을 검사해야 합니다.
+<!-- To prevent this vulnerability, we need to inspect every incoming `POST`, `PUT`, `PATCH`, `DELETE`, or `QUERY` request for a secret session value that the malicious application is unable to access. -->
+이 취약점을 막으려면 들어오는 모든 `POST`, `PUT`, `PATCH`, `DELETE`, `QUERY` 요청에서 악의적인 애플리케이션이 접근할 수 없는 비밀 세션 값을 검사해야 합니다.
 
 <a name="preventing-csrf-requests"></a>
 <!-- ## Preventing CSRF Requests -->

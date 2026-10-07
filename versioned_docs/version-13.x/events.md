@@ -1323,6 +1323,16 @@ Event::assertDispatched(function (OrderShipped $event) use ($order) {
 });
 ```
 
+<!-- Alternatively, you may pass an array of expected property values as the second argument to `assertDispatched` or `assertNotDispatched`: -->
+또는 `assertDispatched`나 `assertNotDispatched`의 두 번째 인수로 예상 속성 값 배열을 전달할 수 있습니다.
+
+```php
+Event::assertDispatched(OrderShipped::class, ['order' => $order]);
+```
+
+<!-- All specified properties must match. Values are compared using strict equality, while Eloquent models are compared using their `is` method. -->
+지정한 모든 속성이 일치해야 합니다. 값은 엄격한 동등성으로 비교하고, Eloquent 모델은 `is` 메서드로 비교합니다.
+
 <!-- If you would simply like to assert that an event listener is listening to a given event, you may use the `assertListening` method: -->
 특정 이벤트에 어떤 이벤트 리스너가 연결되어 있는지만 검증하고 싶다면 `assertListening` 메서드를 사용할 수 있습니다.
 

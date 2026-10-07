@@ -13,6 +13,7 @@
 - [Other Response Types](#other-response-types)
     - [View Responses](#view-responses)
     - [JSON Responses](#json-responses)
+    - [Markdown Responses](#markdown-responses)
     - [File Downloads](#file-downloads)
     - [File Responses](#file-responses)
 - [Streamed Responses](#streamed-responses)
@@ -407,6 +408,24 @@ JSONP 응답을 만들고 싶다면 `json` 메서드와 `withCallback` 메서드
 return response()
     ->json(['name' => 'Abigail', 'state' => 'CA'])
     ->withCallback($request->input('callback'));
+```
+
+<a name="markdown-responses"></a>
+<!-- ### Markdown Responses -->
+### Markdown Responses
+
+<!-- The `markdown` method may be used to return Markdown content with the `Content-Type` header set to `text/markdown`: -->
+`markdown` 메서드를 사용하면 `Content-Type` 헤더를 `text/markdown`으로 설정해 Markdown 콘텐츠를 반환할 수 있습니다.
+
+```php
+return response()->markdown("# Hello\n\nWorld");
+```
+
+<!-- You may pass a custom HTTP status code and an array of additional headers as the second and third arguments: -->
+두 번째와 세 번째 인수로 사용자 지정 HTTP 상태 코드와 추가 헤더 배열을 전달할 수 있습니다.
+
+```php
+return response()->markdown('# Not Found', 404, ['X-Custom-Header' => 'Value']);
 ```
 
 <a name="file-downloads"></a>

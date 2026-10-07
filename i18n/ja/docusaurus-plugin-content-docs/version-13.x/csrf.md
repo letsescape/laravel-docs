@@ -38,8 +38,8 @@ CSRF 保護がないと、悪意のある Web サイトは、アプリケーシ�
 <!-- If the malicious website automatically submits the form when the page is loaded, the malicious user only needs to lure an unsuspecting user of your application to visit their website and their email address will be changed in your application. -->
 悪意のある Web サイトがページのロード時にフォームを自動的に送信する場合、悪意のあるユーザーは、アプリケーションの疑いを持たないユーザーを誘導して Web サイトにアクセスさせるだけでよく、そのユーザーの電子メール アドレスはアプリケーション内で変更されます。
 
-<!-- To prevent this vulnerability, we need to inspect every incoming `POST`, `PUT`, `PATCH`, or `DELETE` request for a secret session value that the malicious application is unable to access. -->
-この脆弱性を防ぐには、悪意のあるアプリケーションがアクセスできないシークレット セッション値について、すべての受信 `POST`、`PUT`、`PATCH`、または `DELETE` リクエストを検査する必要があります。
+<!-- To prevent this vulnerability, we need to inspect every incoming `POST`, `PUT`, `PATCH`, `DELETE`, or `QUERY` request for a secret session value that the malicious application is unable to access. -->
+この脆弱性を防ぐには、悪意のあるアプリケーションがアクセスできないシークレットセッション値について、受信したすべての `POST`、`PUT`、`PATCH`、`DELETE`、または `QUERY` リクエストを検査する必要があります。
 
 <a name="preventing-csrf-requests"></a>
 <!-- ## Preventing CSRF Requests -->
@@ -176,4 +176,3 @@ Laravel は、フレームワークによって生成された各応答に含ま
 
 <!-- This cookie is primarily sent as a developer convenience since some JavaScript frameworks and libraries, like Angular and Axios, automatically place its value in the `X-XSRF-TOKEN` header on same-origin requests. -->
 Angular や Axios などの一部の JavaScript フレームワークおよびライブラリでは、同一オリジン リクエストの `X-XSRF-TOKEN` ヘッダーにその値が自動的に配置されるため、この Cookie は主に開発者の利便性を目的として送信されます。
-
