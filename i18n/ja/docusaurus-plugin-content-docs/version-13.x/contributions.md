@@ -33,7 +33,7 @@ Laravel のソース コードは GitHub で管理されており、Laravel プ�
 
 <div class="content-list" markdown="1">
 
-<!-- - [Laravel AI SDK](https://github.com/laravel/ai) - [Laravel Application](https://github.com/laravel/laravel) - [Laravel Art](https://github.com/laravel/art) - [Laravel Boost](https://github.com/laravel/boost) - [Laravel Documentation](https://github.com/laravel/docs) - [Laravel Dusk](https://github.com/laravel/dusk) - [Laravel Cashier Stripe](https://github.com/laravel/cashier) - [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle) - [Laravel Echo](https://github.com/laravel/echo) - [Laravel Envoy](https://github.com/laravel/envoy) - [Laravel Folio](https://github.com/laravel/folio) - [Laravel Framework](https://github.com/laravel/framework) - [Laravel Horizon](https://github.com/laravel/horizon) - [Laravel Passport](https://github.com/laravel/passport) - [Laravel Pennant](https://github.com/laravel/pennant) - [Laravel Pint](https://github.com/laravel/pint) - [Laravel Prompts](https://github.com/laravel/prompts) - [Laravel Reverb](https://github.com/laravel/reverb) - [Laravel Sail](https://github.com/laravel/sail) - [Laravel Sanctum](https://github.com/laravel/sanctum) - [Laravel Scout](https://github.com/laravel/scout) - [Laravel Socialite](https://github.com/laravel/socialite) - [Laravel Telescope](https://github.com/laravel/telescope) - [Laravel Livewire Starter Kit](https://github.com/laravel/livewire-starter-kit) - [Laravel React Starter Kit](https://github.com/laravel/react-starter-kit) - [Laravel Svelte Starter Kit](https://github.com/laravel/svelte-starter-kit) - [Laravel Vue Starter Kit](https://github.com/laravel/vue-starter-kit) -->
+<!-- - [Laravel AI SDK](https://github.com/laravel/ai) - [Laravel Application](https://github.com/laravel/laravel) - [Laravel Art](https://github.com/laravel/art) - [Laravel Boost](https://github.com/laravel/boost) - [Laravel Documentation](https://github.com/laravel/docs) - [Laravel Dusk](https://github.com/laravel/dusk) - [Laravel Cashier Stripe](https://github.com/laravel/cashier) - [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle) - [Laravel Echo](https://github.com/laravel/echo) - [Laravel Envoy](https://github.com/laravel/envoy) - [Laravel Folio](https://github.com/laravel/folio) - [Laravel Framework](https://github.com/laravel/framework) - [Laravel Horizon](https://github.com/laravel/horizon) - [Laravel Passport](https://github.com/laravel/passport) - [Laravel Pennant](https://github.com/laravel/pennant) - [Laravel Pint](https://github.com/laravel/pint) - [Laravel Prompts](https://github.com/laravel/prompts) - [Laravel Reverb](https://github.com/laravel/reverb) - [Laravel Sail](https://github.com/laravel/sail) - [Laravel Sanctum](https://github.com/laravel/sanctum) - [Laravel Scout](https://github.com/laravel/scout) - [Laravel Socialite](https://github.com/laravel/socialite) - [Laravel Telescope](https://github.com/laravel/telescope) - [Laravel Starter Kits (Maestro)](https://github.com/laravel/maestro) -->
 - [Laravel AI SDK](https://github.com/laravel/ai)
 - [Laravel Application](https://github.com/laravel/laravel)
 - [Laravel Art](https://github.com/laravel/art)
@@ -57,10 +57,7 @@ Laravel のソース コードは GitHub で管理されており、Laravel プ�
 - [Laravel Scout](https://github.com/laravel/scout)
 - [Laravel Socialite](https://github.com/laravel/socialite)
 - [Laravel Telescope](https://github.com/laravel/telescope)
-- [Laravel Livewire Starter Kit](https://github.com/laravel/livewire-starter-kit)
-- [Laravel React Starter Kit](https://github.com/laravel/react-starter-kit)
-- [Laravel Svelte Starter Kit](https://github.com/laravel/svelte-starter-kit)
-- [Laravel Vue Starter Kit](https://github.com/laravel/vue-starter-kit)
+- [Laravel Starter Kits (Maestro)](https://github.com/laravel/maestro)
 
 </div>
 

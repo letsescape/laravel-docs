@@ -40,6 +40,7 @@
     - [Caching Embeddings](#caching-embeddings)
 - [Reranking](#reranking)
 - [Classification](#classification)
+    - [Classifying Images](#classifying-images)
     - [Yes or No Decisions](#yes-or-no-decisions)
     - [Choosing From Collections](#choosing-from-collections)
 - [Files](#files)
@@ -301,7 +302,7 @@ public function provider(): Provider
 ```
 
 > [!NOTE]
-> 위 예시와 같이 온디맨드 프로바이더는 배열 안에 전달해야 합니다. 온디맨드 프로바이더의 설정 배열에 `name`을 지정하는 경우, 해당 이름은 기본 제공 프로바이더 또는 `config/ai.php` 설정 파일에 정의된 프로바이더의 이름과 일치하면 안 됩니다.
+> 위 예시와 같이 온디맨드 프로바이더는 배열로 전달해야 합니다. 온디맨드 프로바이더의 설정 배열에 `name`을 지정하면, 그 이름이 내장 프로바이더나 `config/ai.php` 설정 파일에 정의된 프로바이더와 일치하지 않을 수 있습니다.
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -312,7 +313,7 @@ AI SDK는 다양한 기능에서 여러 프로바이더를 지원합니다. 다�
 
 <div class="overflow-auto">
 
-<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
 | 기능 | 프로바이더 |
 |---|---|
 | 텍스트 | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
@@ -321,7 +322,7 @@ AI SDK는 다양한 기능에서 여러 프로바이더를 지원합니다. 다�
 | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter |
 | 임베딩 | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
 | 리랭킹 | Cohere, Jina, VoyageAI, Bedrock, OpenRouter |
-| 분류 | TypeSafe, OpenRouter |
+| 분류 | OpenAI, TypeSafe, OpenRouter |
 | 파일 | OpenAI, Anthropic, Gemini, Azure, OpenRouter |
 
 </div>
@@ -488,7 +489,7 @@ foreach ($response->steps as $step) {
 ```
 
 > [!NOTE]
-> 응답을 스트리밍하거나, HTTP 클라이언트 대신 AWS SDK를 통해 API를 호출하는 Bedrock provider를 사용하거나, `withRawResponse`를 통해 명시적으로 제공하지 않은 가짜 응답에서는 `raw` 프로퍼티가 `null`입니다.
+> 응답을 스트리밍할 때, HTTP 클라이언트 대신 AWS SDK를 통해 API를 호출하는 Bedrock 프로바이더를 사용할 때, 그리고 `withRawResponse`를 통해 명시적으로 제공하지 않은 모의 응답에서는 `raw` 프로퍼티가 `null`입니다.
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -536,7 +537,7 @@ $response = (new SalesCoach)
 #### Remembering Conversations
 
 > [!WARNING]
-> `RemembersConversations` 트레이트를 사용하기 전에 `vendor:publish` Artisan 명령어를 사용해 AI SDK 마이그레이션을 게시하고 실행해야 합니다. 이 마이그레이션은 대화를 저장하는 데 필요한 데이터베이스 테이블을 생성합니다.
+> `RemembersConversations` 트레이트를 사용하기 전에 `vendor:publish` Artisan 명령어로 AI SDK 마이그레이션을 게시하고 실행해야 합니다. 이 마이그레이션은 대화를 저장하는 데 필요한 데이터베이스 테이블을 생성합니다.
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel이 에이전트의 대화 기록을 자동으로 저장하고 가져오도록 하려면 `RemembersConversations` trait를 사용할 수 있습니다. 이 trait는 `Conversational` 인터페이스를 직접 구현하지 않아도 대화 메시지를 데이터베이스에 유지할 수 있는 간단한 방법을 제공합니다.
@@ -677,7 +678,7 @@ $participant = $conversation->participant;
 애플리케이션에서 여러 참여자 모델 타입을 사용한다면, 저장된 참여자 타입이 모델 클래스 이름에 종속되지 않도록 [Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types)을 정의하는 것이 좋습니다.
 
 > [!WARNING]
-> `continue` 및 `continueOrStart` 메서드는 지정된 participant가 대화를 소유하고 있는지 확인하지 않습니다. 대화를 계속하기 전에 애플리케이션에서 해당 대화에 대한 접근 권한을 인가해야 합니다.
+> `continue` 및 `continueOrStart` 메서드는 지정된 참여자가 해당 대화의 소유자인지 확인하지 않습니다. 대화를 계속하기 전에 애플리케이션에서 대화에 대한 접근을 인가해야 합니다.
 
 <a name="inspecting-stored-conversations"></a>
 <!-- #### Inspecting Stored Conversations -->
@@ -1059,7 +1060,7 @@ Route::post('/chat', function (Request $request) {
 요청에 [approval decisions](#human-tool-approval)이 포함되어 있으면 에이전트는 해당 결정을 사용해 작업을 재개합니다. 그렇지 않으면 요청의 최신 사용자 메시지와 첨부 파일을 바탕으로 에이전트에 프롬프트가 전달됩니다. `protocol` 메서드는 클라이언트가 사용하는 프로토콜을 반환합니다.
 
 > [!NOTE]
-> `Conversational` 인터페이스를 구현하는 에이전트는 자체 기록을 로드하므로 `withMessages` 메서드를 생략할 수 있습니다.
+> `Conversational` 인터페이스를 구현하는 에이전트는 자체 기록을 불러오므로 `withMessages` 메서드를 생략해도 됩니다.
 
 <!-- The `AgentUserInteraction::chat` method provides the same API for AG-UI clients, in addition to the request's thread and run IDs: -->
 `AgentUserInteraction::chat` 메서드는 요청의 스레드 및 실행 ID와 함께 AG-UI 클라이언트에도 동일한 API를 제공합니다:
@@ -1388,8 +1389,8 @@ SimilaritySearch::usingModel(Document::class, 'embedding')
 <!-- ### Deferred Tool Loading -->
 ### Deferred Tool Loading
 
-<!-- By default, every tool an agent exposes is sent to the provider with each request. When an agent provides a large number of tools, this consumes tokens and may reduce the accuracy of the model's tool selection. Using the `ToolSearch` provider tool with OpenAI or Anthropic, you may defer tool definitions so that the provider only loads them when they are needed: -->
-기본적으로 에이전트가 제공하는 모든 툴은 각 요청과 함께 프로바이더로 전송됩니다. 에이전트가 많은 수의 툴을 제공하면 토큰을 소모하고 모델의 툴 선택 정확도가 낮아질 수 있습니다. OpenAI 또는 Anthropic에서 `ToolSearch` 프로바이더 툴을 사용하면 툴 정의를 지연시켜 프로바이더가 필요한 경우에만 해당 정의를 로드하도록 할 수 있습니다:
+<!-- By default, every tool an agent exposes is sent to the provider with each request. When an agent provides a large number of tools, this consumes tokens and may reduce the accuracy of the model's tool selection. Using the `ToolSearch` provider tool with OpenAI, Azure, or Anthropic, you may defer tool definitions so that the provider only loads them when they are needed: -->
+기본적으로 에이전트가 노출하는 모든 툴은 각 요청과 함께 프로바이더에 전송됩니다. 에이전트가 많은 툴을 제공하면 토큰을 소모하고 모델의 툴 선택 정확도가 낮아질 수 있습니다. OpenAI, Azure 또는 Anthropic에서 `ToolSearch` 프로바이더 툴을 사용하면 툴 정의를 지연 로드하여 필요한 경우에만 프로바이더가 로드하도록 할 수 있습니다.
 
 ```php
 use App\Ai\Tools\RefundOrder;
@@ -1428,14 +1429,14 @@ Anthropic을 사용할 때는 `withProviderOptions` 메서드를 사용해 검�
 ```
 
 > [!WARNING]
-> 도구 검색을 지원하지 않는 프로바이더는 지연된 툴을 조용히 삭제하는 대신 예외를 발생시킵니다. 또한 Anthropic은 `ToolSearch` 래퍼 외부에 하나 이상의 툴이 제공되어야 합니다.
+> 도구 검색을 지원하지 않는 프로바이더는 지연된 도구를 조용히 무시하는 대신 예외를 발생시킵니다. 또한 Anthropic에서는 `ToolSearch` 래퍼 밖에 도구를 하나 이상 제공해야 합니다.
 
 <a name="file-storage-tools"></a>
 <!-- ### File Storage Tools -->
 ### File Storage Tools
 
-<!-- The `FileStorage` tool factory allows you to give agents access to a Laravel [filesystem disk](/docs/13.x/filesystem). The `all` method returns tools that allow the agent to list, read, inspect, generate URLs for, write, delete, and copy files on the given disk: -->
-`FileStorage` 툴 팩토리를 사용하면 에이전트에 Laravel [filesystem disk](/docs/13.x/filesystem)에 대한 액세스 권한을 부여할 수 있습니다. `all` 메서드는 에이전트가 지정한 디스크의 파일을 나열하고, 읽고, 검사하고, URL을 생성하고, 쓰고, 삭제하고, 복사할 수 있는 툴을 반환합니다:
+<!-- The `FileStorage` tool factory allows you to give agents access to a Laravel [filesystem disk](/docs/13.x/filesystem). The `all` method returns tools that allow the agent to list, read, inspect, generate URLs for, write, delete, copy, and move files on the given disk: -->
+`FileStorage` 도구 팩토리를 사용하면 에이전트가 Laravel [filesystem disk](/docs/13.x/filesystem)에 접근할 수 있습니다. `all` 메서드는 에이전트가 지정한 디스크의 파일을 나열하고, 읽고, 검사하고, URL을 생성하고, 쓰고, 삭제하고, 복사하고, 이동할 수 있는 도구를 반환합니다.
 
 ```php
 use Laravel\Ai\Tools\FileStorage;
@@ -1610,8 +1611,8 @@ class SupportAgent implements Agent, HasSkills
 <!-- The `WebSearch` provider tool allows agents to search the web for real-time information. This is useful for answering questions about current events, recent data, or topics that may have changed since the model's training cutoff. -->
 `WebSearch` 제공자 도구를 사용하면 에이전트가 실시간 정보를 얻기 위해 웹을 검색할 수 있습니다. 모델의 학습 기준 시점 이후 변경되었을 수 있는 최신 사건, 최근 데이터, 또는 주제에 관한 질문에 답할 때 유용합니다.
 
-<!-- **Supported providers:** Anthropic, OpenAI, Azure, Gemini, xAI, OpenRouter -->
-**지원되는 프로바이더:** Anthropic, OpenAI, Azure, Gemini, xAI, OpenRouter
+<!-- **Supported providers:** Anthropic, OpenAI, Azure, Gemini, xAI, Groq, OpenRouter -->
+**지원 프로바이더:** Anthropic, OpenAI, Azure, Gemini, xAI, Groq, OpenRouter
 
 ```php
 use Laravel\Ai\Providers\Tools\WebSearch;
@@ -1641,6 +1642,9 @@ public function tools(): iterable
     country: 'US'
 );
 ```
+
+> [!NOTE]
+> Groq는 GPT-OSS 모델에서만 웹 검색을 지원하며 `max`, `allow`, `location` 메서드는 무시합니다.
 
 <a name="web-fetch"></a>
 <!-- #### Web Fetch -->
@@ -1728,8 +1732,8 @@ new FileSearch(stores: ['store_id'], where: fn (FileSearchQuery $query) =>
 <!-- The `CodeExecution` provider tool allows agents to run code in a sandbox hosted by the AI provider. This is useful for performing calculations and analyzing data. -->
 `CodeExecution` 프로바이더 툴을 사용하면 에이전트가 AI 프로바이더가 호스팅하는 샌드박스에서 코드를 실행할 수 있습니다. 계산을 수행하고 데이터를 분석할 때 유용합니다.
 
-<!-- **Supported providers:** Anthropic, OpenAI, Azure, Gemini, xAI -->
-**지원되는 프로바이더:** Anthropic, OpenAI, Azure, Gemini, xAI
+<!-- **Supported providers:** Anthropic, OpenAI, Azure, Gemini, xAI, Groq -->
+**지원하는 프로바이더:** Anthropic, OpenAI, Azure, Gemini, xAI, Groq
 
 ```php
 use Laravel\Ai\Providers\Tools\CodeExecution;
@@ -1748,6 +1752,9 @@ OpenAI 또는 Azure를 사용할 때는 프로바이더 옵션을 통해 [stored
     'container' => ['type' => 'auto', 'file_ids' => ['file_123']],
 ]);
 ```
+
+> [!NOTE]
+> Groq는 GPT-OSS 모델에서만 코드 실행을 지원합니다.
 
 <a name="sub-agents"></a>
 <!-- ### Sub-Agents -->
@@ -2093,7 +2100,7 @@ class ComplexReasoner implements Agent
 ```
 
 > [!NOTE]
-> `UseCheapestModel` 및 `UseSmartestModel`이 선택하는 기반 모델은 프로바이더가 새로운 모델을 출시함에 따라 Laravel AI SDK 릴리스 간에 변경될 수 있습니다. 모델을 전환하면 동작 변경, 더 이상 사용되지 않는 파라미터, 상당한 비용 차이가 발생할 수 있습니다. 안정적이고 예측 가능한 모델과 가격이 필요하다면 `Model` 속성을 사용해 모델을 명시적으로 지정하세요.
+> `UseCheapestModel`과 `UseSmartestModel`이 선택하는 기본 모델은 프로바이더가 새 모델을 출시함에 따라 Laravel AI SDK의 릴리스마다 달라질 수 있습니다. 모델을 변경하면 동작이 달라지거나, 더 이상 사용되지 않는 파라미터가 생기거나, 비용이 크게 달라질 수 있습니다. 안정적이고 예측 가능한 모델과 가격을 원한다면 `Model` 속성을 사용해 모델을 명시적으로 지정하세요.
 
 <a name="provider-options"></a>
 <!-- ### Provider Options -->
@@ -2228,14 +2235,14 @@ class SalesCoach implements Agent
 또는 최상위 `cache_control` [provider option](#provider-options)을 통해 Anthropic의 자동 캐싱을 활성화할 수 있습니다. 이렇게 하면 요청의 마지막 블록 다음에 단일 중단점이 설정되므로, 대화가 길어질수록 중단점이 앞으로 이동하고 각 턴은 이전 턴을 캐시에서 읽습니다. 두 메커니즘을 함께 사용할 수도 있습니다.
 
 > [!WARNING]
-> 프로바이더는 툴, 지침, 메시지 순서로 프롬프트를 구성하므로, 지침을 한 시간 동안 캐시하려면 툴 정의도 한 시간 동안 캐시해야 합니다. 이때 툴 정의에 다른 캐시 유지 시간을 지정하면 `InvalidArgumentException`이 발생합니다.
+> 프로바이더는 툴, 지침, 메시지 순서로 프롬프트를 구성하므로 지침을 한 시간 동안 캐시하려면 툴 정의도 한 시간 동안 캐시해야 합니다. 두 설정을 서로 다르게 지정하면 `InvalidArgumentException`이 발생합니다.
 
 <a name="human-tool-approval"></a>
 <!-- ## Human Tool Approval -->
 ## Human Tool Approval
 
 > [!WARNING]
-> 도구 승인을 사용하려면 실행이 재개될 때 일시 중지된 턴의 기록을 사용할 수 있어야 합니다. `RemembersConversations` 트레이트를 사용하는 `Conversational` 에이전트와 같은 에이전트를 사용하거나, 애플리케이션 프런트엔드에서 [`withMessages` method](#conversation-context)를 사용해 기록을 제공해야 합니다. 어느 방법도 사용하지 않는 에이전트는 도구가 일시 중지될 때 `ApprovalNotResumableException`을 발생시킵니다.
+> 실행을 재개할 때 일시 중지된 턴의 기록을 사용할 수 있어야 도구 승인이 가능합니다. `RemembersConversations` 트레이트를 사용하는 에이전트와 같은 `Conversational` 에이전트를 사용하거나, 애플리케이션 프런트엔드에서 [`withMessages` method](#conversation-context)를 사용해 기록을 제공해야 합니다. 두 방법 중 어느 것도 사용하지 않는 에이전트는 도구가 일시 중지될 때 `ApprovalNotResumableException`을 발생시킵니다.
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 민감하거나 되돌릴 수 없는 작업을 수행하는 툴은 실행 전에 사람의 승인을 요구할 수 있습니다. 툴을 승인 가능하게 만들려면 `Approvable` 컨트랙트를 구현하고 `InteractsWithApprovals` 트레이트를 사용합니다. 승인 가능한 툴은 기본적으로 승인이 필요합니다:
@@ -2351,7 +2358,7 @@ $response = (new FileAssistant)
 ```
 
 > [!IMPORTANT]
-> 일시 중지된 턴은 일시 중지한 참여자가 아니라 대화와 대기 중인 툴 호출을 기준으로 매칭됩니다. 따라서 애플리케이션은 [complete approval flow](#complete-approval-flow)에 설명된 것처럼 대화를 재개하기 전에 대화에 대한 액세스를 인가하거나, 대화 스토어의 `conversationBelongsTo` 메서드를 사용해 액세스 권한을 확인해야 합니다.
+> 일시 중지된 턴은 이를 일시 중지한 참가자가 아니라 대화와 대기 중인 툴 호출을 기준으로 매칭됩니다. 따라서 애플리케이션은 턴을 재개하기 전에 대화에 대한 접근을 인가해야 합니다. 이는 [complete approval flow](#complete-approval-flow)에서 확인할 수 있습니다. 또는 대화 스토어의 `conversationBelongsTo` 메서드로 접근 권한을 확인해야 합니다.
 
 <!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
 불리언 값인 `true`와 `false`는 승인과 거부를 나타내는 축약형으로 사용할 수 있습니다. 대기 중인 모든 도구 호출에는 결정을 내려야 합니다. 알 수 없거나 누락된 도구 호출 ID 또는 이미 해결된 도구 호출 ID를 전달하면 `ApprovalMismatchException`이 발생합니다. 명시적인 결정을 내리지 않은 호출에는 `approveRemaining` 또는 `rejectRemaining` 메서드를 사용해 기본값을 지정할 수 있습니다:
@@ -2777,7 +2784,7 @@ Document::fromUpload($request->file('report'));
 ```
 
 > [!NOTE]
-> VoyageAI는 단일 요청에서 원격 URL 미디어와 Base64로 인코딩된 미디어를 함께 사용할 수 없습니다. 로컬 파일, 저장된 파일, 업로드된 파일은 Base64로 인코딩된 콘텐츠로 전송되며, 텍스트 입력은 어느 미디어 소스와도 함께 사용할 수 있습니다. 어떤 멀티모달 모델과 입력을 사용할 수 있는지는 해당 프로바이더의 문서를 참조하세요.
+> VoyageAI에서는 하나의 요청에 원격 URL 미디어와 Base64로 인코딩된 미디어를 함께 사용할 수 없습니다. 로컬 파일, 저장된 파일, 업로드된 파일은 Base64로 인코딩된 콘텐츠로 전송되며, 텍스트 입력은 두 미디어 소스 중 어느 쪽과도 함께 사용할 수 있습니다. 사용 가능한 멀티모달 모델과 입력 유형은 프로바이더의 문서를 확인하세요.
 
 <a name="querying-embeddings"></a>
 <!-- ### Querying Embeddings -->
@@ -2858,7 +2865,7 @@ $documents = Document::query()
 에이전트가 도구로 유사도 검색을 수행할 수 있게 하려면 [Similarity Search](#similarity-search) 도구 문서를 확인하십시오.
 
 > [!NOTE]
-> 현재 벡터 쿼리는 `pgvector` 확장을 사용하는 PostgreSQL 연결 또는 네이티브 벡터 기능을 사용하는 MariaDB 11.7 이상에서 지원됩니다.
+> 벡터 쿼리는 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결이나 네이티브 벡터 기능을 사용하는 MariaDB 11.7 이상에서 지원됩니다.
 
 <a name="caching-embeddings"></a>
 <!-- ### Caching Embeddings -->
@@ -3065,6 +3072,25 @@ $result->usage;
 $result->meta->provider;
 ```
 
+<a name="classifying-images"></a>
+<!-- ### Classifying Images -->
+### Classifying Images
+
+<!-- When using OpenAI, images may be classified alongside the given content by passing them as the second argument to the `of` method. Images may be created using the same [file classes used for attachments](#attachments): -->
+OpenAI를 사용할 때 이미지를 `of` 메서드의 두 번째 인수로 전달하면 주어진 콘텐츠와 함께 분류할 수 있습니다. 이미지는 첨부 파일에 사용하는 것과 동일한 [file classes used for attachments](#attachments)를 사용해 만들 수 있습니다:
+
+```php
+use Laravel\Ai\Classification;
+use Laravel\Ai\Classification\Boolean;
+use Laravel\Ai\Files\Image;
+
+$result = Classification::of('Inspect the product in this photo.', [
+    Image::fromPath($photo),
+])
+    ->question('damaged', new Boolean('Does the product have visible damage?'))
+    ->classify(provider: 'openai');
+```
+
 <a name="yes-or-no-decisions"></a>
 <!-- ### Yes or No Decisions -->
 ### Yes or No Decisions
@@ -3084,6 +3110,7 @@ $spam = Str::of($message)->decide('Is this spam?', criteria: [
     'false' => 'A genuine message from a customer.',
 ], threshold: 0.9);
 ```
+
 <a name="choosing-from-collections"></a>
 <!-- ### Choosing From Collections -->
 ### Choosing From Collections
@@ -3357,7 +3384,7 @@ $document->fileId;
 ```
 
 > [!NOTE]
-> 일반적으로 이전에 저장한 파일을 벡터 스토어에 추가하면 반환되는 문서 ID가 파일에 이전에 할당된 ID와 일치합니다. 하지만 일부 벡터 스토리지 프로바이더는 새롭고 다른 "문서 ID"를 반환할 수 있습니다. 따라서 나중에 참조할 수 있도록 데이터베이스에 두 ID를 항상 모두 저장하는 것이 좋습니다.
+> 일반적으로 벡터 스토어에 이미 저장된 파일을 추가하면 반환된 문서 ID는 파일에 이전에 할당된 ID와 일치합니다. 하지만 일부 벡터 스토리지 프로바이더는 새롭고 다른 "문서 ID"를 반환할 수 있습니다. 따라서 나중에 참조할 수 있도록 두 ID를 모두 데이터베이스에 저장하는 것이 좋습니다.
 
 <!-- When adding a file to a Gemini store, Laravel waits for the import to finish so that the document is searchable once the call returns. A `Laravel\Ai\Exceptions\AiException` will be thrown if the import fails or exceeds five minutes, so you may wish to add Gemini files from a [queued job](/docs/13.x/queues). -->
 Gemini 스토어에 파일을 추가하면 Laravel은 호출이 반환된 후 문서를 검색할 수 있도록 가져오기가 완료될 때까지 기다립니다. 가져오기에 실패하거나 5분을 초과하면 `Laravel\Ai\Exceptions\AiException`이 발생하므로, [queued job](/docs/13.x/queues)에서 Gemini 파일을 추가하는 것이 좋습니다.
@@ -3568,7 +3595,7 @@ $response->reasoning; // 'They asked about pricing.'
 ```
 
 > [!NOTE]
-> 구조화된 출력을 반환하는 에이전트에서 `Agent::fake()`를 호출했으며 가짜 출력이 명시적으로 제공되지 않았다면, Laravel은 에이전트에 정의된 출력 스키마와 일치하는 가짜 데이터를 자동으로 생성합니다.
+> 구조화된 출력을 반환하는 에이전트에서 `Agent::fake()`를 호출했지만 가짜 출력을 명시적으로 제공하지 않은 경우, Laravel은 에이전트에 정의된 출력 스키마와 일치하는 가짜 데이터를 자동으로 생성합니다.
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 에이전트에 프롬프트를 전달한 후에는 수신된 프롬프트에 대해 검증할 수 있습니다.
