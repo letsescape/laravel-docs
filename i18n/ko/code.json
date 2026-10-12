@@ -570,15 +570,15 @@
     "description": "The message for the translation banner shown on locales that are still being translated"
   },
   "homepage.title": {
-    "message": "라라벨 - 웹 장인을 위한 PHP 프레임워크",
+    "message": "Laravel 한국어 문서",
     "description": "The title for the homepage"
   },
   "homepage.description": {
-    "message": "라라벨은 표현력이 풍부하고 우아한 문법을 갖춘 PHP 웹 애플리케이션 프레임워크입니다. 사소한 부분에 얽매이지 않고 창작에만 집중할 수 있습니다.",
+    "message": "Laravel 한국어 문서. 설치, 라우팅, 인증, Eloquent ORM 등 주요 기능 안내.",
     "description": "The description for the homepage"
   },
   "homepage.imageAlt": {
-    "message": "라라벨 - 웹 장인을 위한 PHP 프레임워크",
+    "message": "Laravel 한국어 문서",
     "description": "The image alt text for the homepage"
   }
 }

@@ -562,15 +562,15 @@
     "description": "The title of the tag list page"
   },
   "homepage.title": {
-    "message": "Laravel - ウェブ職人のためのPHPフレームワーク",
+    "message": "Laravel 日本語ドキュメント",
     "description": "The title for the homepage"
   },
   "homepage.description": {
-    "message": "Laravelは表現力豊かでエレガントな構文を持つPHPウェブアプリケーションフレームワークです。細かいことに悩まず、創作に集中できます。",
+    "message": "Laravelの日本語ドキュメントを提供しています。インストール、ルーティング、認証、Eloquent ORMなどの開発ドキュメントを参照できます。",
     "description": "The description for the homepage"
   },
   "homepage.imageAlt": {
-    "message": "Laravel - ウェブ職人のためのPHPフレームワーク",
+    "message": "Laravel 日本語ドキュメント",
     "description": "The image alt text for the homepage"
   },
   "homepage.cta.title.part1": {
