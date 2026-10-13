@@ -26,7 +26,7 @@ export default defineConfig({
       use: {...devices['Desktop Chrome']},
     },
   ],
-  webServer: {
+  webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER === '1' ? undefined : {
     command: `npm run build && npm run serve -- --host 127.0.0.1 --port ${port}`,
     url: baseURL,
     reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === '1',

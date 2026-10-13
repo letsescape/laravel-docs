@@ -14,6 +14,7 @@ import validateLocalAssetsPlugin, {
   assertFrontMatterImageAllowed,
 } from './src/remark/validate-local-assets.mjs';
 import safeHtmlPlugin from './src/rehype/safe-html.mjs';
+import {addDocumentSeo} from './src/utils/document-seo.mjs';
 import versions from './versions.json';
 
 // This runs in Node.js.
@@ -100,7 +101,7 @@ const config: Config = {
         sourceRoots: MARKDOWN_SOURCE_ROOTS,
         allowedRoots: MARKDOWN_ASSET_ROOTS,
       });
-      return result;
+      return addDocumentSeo({filePath, siteDir: SITE_DIR, result});
     },
     hooks: {
       onBrokenMarkdownLinks: 'warn',

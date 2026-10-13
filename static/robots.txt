@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://laravel.chanhyung.kim/sitemap.xml
+Sitemap: https://laravel.chanhyung.kim/ja/sitemap.xml
