@@ -95,7 +95,7 @@ jobs:
         uses: actions/configure-pages@v6
       - name: Install dependencies
         run: npm ci
-      - name: Markdown link utilities
+      - name: Markdown processing tests
         run: npm run test:markdown-links
       - name: Security boundary tests
         run: npm run test:security
@@ -103,6 +103,10 @@ jobs:
         run: npm run typecheck -- --pretty false
       - name: Build website
         run: npm run build
+      - name: Build output tests
+        env:
+          PLAYWRIGHT_SKIP_WEBSERVER: '1'
+        run: npm run test:e2e -- e2e/build.spec.ts --reporter=line
       - name: Validate anchors
         run: npm run validate-anchors
       - name: Upload artifact

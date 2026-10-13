@@ -62,6 +62,7 @@ site-test: ## Markdown 링크와 보안 경계 단위 테스트
 site-check: site-test ## 배포와 같은 사이트 검증
 	@npm run typecheck -- --pretty false
 	@npm run build
+	@PLAYWRIGHT_SKIP_WEBSERVER=1 npm run test:e2e -- e2e/build.spec.ts --reporter=line
 	@npm run validate-anchors
 
 preflight: translation-test site-check ## 번역 단위 테스트와 사이트 검증
