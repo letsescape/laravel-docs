@@ -793,9 +793,9 @@
     "message": "コードカテゴリ",
     "description": "카테고리 탭 aria-label"
   },
-  "theme.keywords": {
-    "message": "Laravel, PHPフレームワーク, PHP artisan, PHP, ウェブ開発, ドキュメント, チュートリアル, はじめに",
-    "description": "The keywords meta tag for the site"
+  "theme.siteName": {
+    "message": "Laravel 日本語ドキュメント",
+    "description": "The localized Open Graph site name"
   },
   "homepage.footer.community.note": {
     "message": "個人が作成した非公式サイトです。",

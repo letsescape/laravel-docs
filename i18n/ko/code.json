@@ -561,9 +561,9 @@
     "message": "태그",
     "description": "The title of the tag list page"
   },
-  "theme.keywords": {
-    "message": "라라벨, Laravel, PHP 프레임워크, PHP artisan, PHP, 웹 개발, 한글 문서, 튜토리얼, 시작하기",
-    "description": "The keywords meta tag for the site"
+  "theme.siteName": {
+    "message": "Laravel 한국어 문서",
+    "description": "The localized Open Graph site name"
   },
   "theme.translationBanner.message": {
     "message": "이 문서는 현재 번역 중입니다. 일부 페이지가 영어로 표시될 수 있습니다.",
