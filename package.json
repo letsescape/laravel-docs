@@ -55,6 +55,7 @@
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "@types/mdast": "^4.0.4",
+    "cheerio": "1.0.0-rc.12",
     "husky": "^9.1.7"
   },
   "overrides": {
