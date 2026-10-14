@@ -325,6 +325,7 @@ for (const width of [390, 768]) {
     test(`Navbar keyboard — ${locale} ${width}px`, async ({page}) => {
       await page.setViewportSize({width, height: 844});
       await page.goto(locale === 'ja' ? '/ja/' : '/');
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
       await page.evaluate(() => { document.body.style.overflow = 'auto'; });
       const hamburger = page.locator('.nav-mobile-hamburger');
       await hamburger.focus();
@@ -373,6 +374,7 @@ for (const width of [390, 768]) {
 test('Navbar keyboard activates the Docs link', async ({page}) => {
   await page.setViewportSize({width: 390, height: 844});
   await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
   await page.evaluate(() => { document.body.style.overflow = 'auto'; });
   await page.locator('.nav-mobile-hamburger').focus();
   await page.keyboard.press('Space');
@@ -388,6 +390,7 @@ test('Navbar keyboard activates the Docs link', async ({page}) => {
 test('Navbar modal restores desktop focus and scrolling after resize', async ({page}) => {
   await page.setViewportSize({width: 390, height: 844});
   await page.goto('/ja/');
+  await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
   await page.evaluate(() => { document.body.style.overflow = 'auto'; });
   await page.locator('.nav-mobile-hamburger').click();
   await page.getByRole('dialog').getByRole('button', {name: 'Framework', exact: true}).click();
