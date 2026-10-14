@@ -348,6 +348,66 @@ Widget | 안전 작업
             response_contract.verify(translated, source, locale="ko"),
         )
 
+    def test_table_row_headers_preserve_multiword_product_names(self):
+        """행 단위 응답에서도 원본 열 제목으로 여러 단어인 제품명을 보호."""
+
+        source = "| Text | OpenAI Compatible, Cohere |\n"
+        for locale, label in (("ko", "텍스트"), ("ja", "テキスト")):
+            with self.subTest(locale=locale):
+                translated = source.replace("Text", label)
+
+                self.assertIn(
+                    "provider target language mismatch",
+                    response_contract.verify(translated, source, locale=locale),
+                )
+                self.assertEqual(
+                    response_contract.verify(
+                        translated,
+                        source,
+                        locale=locale,
+                        table_row_headers=("Feature", "Providers"),
+                    ),
+                    [],
+                )
+
+    def test_table_row_headers_do_not_exempt_untranslated_prose(self):
+        """원본 열 제목을 전달해도 설명 셀의 미번역 산문은 거부."""
+
+        source = "| Text | Prevent concurrent writes with an atomic lock. |\n"
+        translated = source.replace("Text", "텍스트")
+
+        self.assertIn(
+            "provider target language mismatch",
+            response_contract.verify(
+                translated,
+                source,
+                locale="ko",
+                table_row_headers=("Feature", "Description"),
+            ),
+        )
+
+    def test_complete_table_uses_its_own_headers(self):
+        """표 전체의 열 제목을 외부 행 문맥으로 대체하지 않음."""
+
+        source = (
+            "| Feature | Description |\n"
+            "| --- | --- |\n"
+            "| Text | Prevent Concurrent Writes |\n"
+        )
+        translated = source.replace("Feature", "기능").replace(
+            "Description", "설명"
+        ).replace("Text", "텍스트")
+
+        self.assertIn(
+            "provider target language mismatch",
+            response_contract.verify(
+                translated,
+                source,
+                locale="ko",
+                table_row_headers=("Feature", "Providers"),
+            ),
+        )
+
     def test_rejects_swapped_targets_for_repeated_inline_link_labels(self):
         """label이 같은 반복 inline link의 target 교환을 거부."""
 
