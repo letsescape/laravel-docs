@@ -319,3 +319,84 @@ test.describe('Navbar — Docs responsive menu', () => {
     await expect(rightItems.locator('.navbar-locale-dropdown')).toBeVisible();
   });
 });
+
+for (const width of [390, 768]) {
+  for (const locale of ['ko', 'ja']) {
+    test(`Navbar keyboard — ${locale} ${width}px`, async ({page}) => {
+      await page.setViewportSize({width, height: 844});
+      await page.goto(locale === 'ja' ? '/ja/' : '/');
+      await page.evaluate(() => { document.body.style.overflow = 'auto'; });
+      const hamburger = page.locator('.nav-mobile-hamburger');
+      await hamburger.focus();
+      await page.keyboard.press('Enter');
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toHaveAccessibleName(/\S/);
+      await expect(hamburger).toHaveAttribute('aria-expanded', 'true');
+      await expect(dialog.locator('.nav-mobile-close').first()).toBeFocused();
+      const docs = dialog.getByRole('link', {name: 'Docs', exact: true});
+      await docs.focus();
+      await page.keyboard.press('Tab');
+      await expect(dialog.locator('.nav-mobile-logo')).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(docs).toBeFocused();
+
+      const framework = dialog.getByRole('button', {name: 'Framework', exact: true});
+      await framework.focus();
+      await page.keyboard.press('Enter');
+      const back = dialog.locator('.nav-mobile-back');
+      await expect(back).toBeFocused();
+      const lastLink = dialog.getByRole('link', {name: 'Laravel Learn', exact: true});
+      await page.keyboard.press('Shift+Tab');
+      await expect(lastLink).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(back).toBeFocused();
+      await page.keyboard.press('Space');
+      await expect(framework).toBeFocused();
+      await page.keyboard.press('Space');
+      await expect(back).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(dialog).toHaveCount(0);
+      await expect(hamburger).toBeFocused();
+      await expect(hamburger).toHaveAttribute('aria-expanded', 'false');
+      await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('auto');
+      await page.keyboard.press('Space');
+      await expect(dialog.locator('.nav-mobile-close').first()).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(dialog).toHaveCount(0);
+      await expect(hamburger).toBeFocused();
+      await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('auto');
+    });
+  }
+}
+
+test('Navbar keyboard activates the Docs link', async ({page}) => {
+  await page.setViewportSize({width: 390, height: 844});
+  await page.goto('/');
+  await page.evaluate(() => { document.body.style.overflow = 'auto'; });
+  await page.locator('.nav-mobile-hamburger').focus();
+  await page.keyboard.press('Space');
+  const dialog = page.getByRole('dialog');
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+  await dialog.getByRole('link', {name: 'Docs', exact: true}).focus();
+  await page.keyboard.press('Enter');
+  await expect.poll(() => new URL(page.url()).pathname.replace(/\/$/, '')).toBe(docsPath());
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+});
+
+test('Navbar modal restores desktop focus and scrolling after resize', async ({page}) => {
+  await page.setViewportSize({width: 390, height: 844});
+  await page.goto('/ja/');
+  await page.evaluate(() => { document.body.style.overflow = 'auto'; });
+  await page.locator('.nav-mobile-hamburger').click();
+  await page.getByRole('dialog').getByRole('button', {name: 'Framework', exact: true}).click();
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+  await page.setViewportSize({width: 1280, height: 800});
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('#trigger-framework')).toBeFocused();
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('auto');
+  await page.setViewportSize({width: 390, height: 844});
+  await page.locator('.nav-mobile-hamburger').click();
+  await expect(page.getByRole('dialog').getByRole('link', {name: 'Docs', exact: true})).toBeVisible();
+});
