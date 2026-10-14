@@ -38,11 +38,13 @@
     - [Querying Embeddings](#querying-embeddings)
     - [Caching Embeddings](#caching-embeddings)
 - [Reranking](#reranking)
+    - [Reranking Collections](#reranking-collections)
 - [Classification](#classification)
     - [Classifying Images](#classifying-images)
     - [Yes or No Decisions](#yes-or-no-decisions)
     - [Choosing From Collections](#choosing-from-collections)
 - [Files](#files)
+    - [Using Stored Files in Conversations](#using-stored-files-in-conversations)
 - [Vector Stores](#vector-stores)
     - [Adding Files to Stores](#adding-files-to-stores)
 - [Usage](#usage)
@@ -284,7 +286,7 @@ The AI SDK supports a variety of providers across its features. The following ta
 
 | Feature | Providers |
 |---|---|
-| Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
+| Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere |
 | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
 | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter |
 | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter |
@@ -1510,7 +1512,7 @@ You may configure the web fetch tool to limit the number of fetches or restrict 
 
 The `FileSearch` provider tool allows agents to search through [files](#files) stored in [vector stores](#vector-stores). This enables retrieval-augmented generation (RAG) by allowing the agent to search your uploaded documents for relevant information.
 
-**Supported providers:** OpenAI, Gemini, xAI
+**Supported providers:** OpenAI, Azure, Gemini, xAI
 
 ```php
 use Laravel\Ai\Providers\Tools\FileSearch;

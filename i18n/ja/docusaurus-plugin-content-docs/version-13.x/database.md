@@ -7,6 +7,7 @@
     - [Pooled PostgreSQL Connections](#pooled-postgresql-connections)
 - [Running SQL Queries](#running-queries)
     - [Using Multiple Database Connections](#using-multiple-database-connections)
+    - [Running Analytical Queries on Vitess](#running-analytical-queries-on-vitess)
     - [Listening for Query Events](#listening-for-query-events)
     - [Monitoring Cumulative Query Time](#monitoring-cumulative-query-time)
 - [Database Transactions](#database-transactions)
@@ -385,6 +386,33 @@ $users = DB::connection('sqlite')->select(/* ... */);
 
 ```php
 $pdo = DB::connection()->getPdo();
+```
+
+<a name="running-analytical-queries-on-vitess"></a>
+<!-- ### Running Analytical Queries on Vitess -->
+### Running Analytical Queries on Vitess
+
+<!-- When using a Vitess database, such as PlanetScale, you may use the `olap` method to execute analytical queries using the OLAP workload: -->
+Vitess データベース（PlanetScale など）を使用している場合は、`olap` メソッドを使って OLAP ワークロードで分析クエリを実行できます。
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$totals = DB::connection('mysql')->olap(fn ($connection) => $connection->table('orders')
+    ->selectRaw('customer_id, sum(total) as total')
+    ->groupBy('customer_id')
+    ->get()
+);
+```
+
+<!-- Laravel sets the workload on both the read and write connections, then resets it to OLTP when the callback finishes, even if an exception is thrown. The `olap` method returns the callback's result. On MySQL connections that are not using Vitess, the callback is executed without changing the workload. -->
+Laravel は読み取り接続と書き込み接続の両方にワークロードを設定し、例外が発生した場合も含め、コールバックの完了後に OLTP へ戻します。`olap` メソッドはコールバックの戻り値を返します。Vitess を使用していない MySQL 接続では、ワークロードを変更せずにコールバックを実行します。
+
+<!-- You may determine whether a MySQL connection is using Vitess via the `isVitess` method: -->
+`isVitess` メソッドを使うと、MySQL 接続で Vitess が使用されているかどうかを確認できます。
+
+```php
+$isVitess = DB::connection('mysql')->isVitess();
 ```
 
 <a name="listening-for-query-events"></a>

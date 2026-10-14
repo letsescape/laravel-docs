@@ -800,8 +800,8 @@ Fortify は、このビューを表示するルートの定義を処理します
 <!-- ### Customizing Password Resets -->
 ### Customizing Password Resets
 
-<!-- The password reset process may be customized by modifying the `App\Actions\ResetUserPassword` action that was generated when you installed Laravel Fortify. -->
-パスワードのリセットプロセスは、Laravel Fortify のインストール時に生成された `App\Actions\ResetUserPassword` アクションを変更することでカスタマイズできます。
+<!-- The password reset process may be customized by modifying the `App\Actions\Fortify\ResetUserPassword` action that was generated when you installed Laravel Fortify. -->
+パスワードリセットのプロセスは、Laravel Fortify のインストール時に生成された `App\Actions\Fortify\ResetUserPassword` アクションを変更することでカスタマイズできます。
 
 <a name="email-verification"></a>
 <!-- ## Email Verification -->

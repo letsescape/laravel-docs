@@ -800,8 +800,8 @@ XHR 요청인 경우 200 HTTP 응답을 반환합니다.
 <!-- ### Customizing Password Resets -->
 ### Customizing Password Resets
 
-<!-- The password reset process may be customized by modifying the `App\Actions\ResetUserPassword` action that was generated when you installed Laravel Fortify. -->
-비밀번호 재설정 프로세스는 Fortify 설치 시 생성된 `App\Actions\ResetUserPassword` 액션을 수정하여 사용자 지정할 수 있습니다.
+<!-- The password reset process may be customized by modifying the `App\Actions\Fortify\ResetUserPassword` action that was generated when you installed Laravel Fortify. -->
+비밀번호 재설정 프로세스는 Fortify 설치 시 생성된 `App\Actions\Fortify\ResetUserPassword` 액션을 수정하여 사용자 지정할 수 있습니다.
 
 <a name="email-verification"></a>
 <!-- ## Email Verification -->

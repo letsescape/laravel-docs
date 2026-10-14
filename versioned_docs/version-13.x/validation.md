@@ -26,6 +26,7 @@
     - [Specifying Attributes in Language Files](#specifying-attribute-in-language-files)
     - [Specifying Values in Language Files](#specifying-values-in-language-files)
 - [Available Validation Rules](#available-validation-rules)
+    - [Rule Builders](#rule-builders)
 - [Conditionally Adding Rules](#conditionally-adding-rules)
 - [Validating Arrays](#validating-arrays)
     - [Validating Nested Array Input](#validating-nested-array-input)
@@ -1357,6 +1358,43 @@ The credit card number field is required when payment type is credit card.
 [Sometimes](#validating-when-present)
 </div>
 
+<a name="rule-builders"></a>
+<!-- ### Rule Builders -->
+### Rule Builders
+
+<!-- In addition to strings, many validation rules may be defined using methods on the `Illuminate\Validation\Rule` class. These methods offer IDE autocompletion and may be combined with string rules: -->
+문자열뿐 아니라 `Illuminate\Validation\Rule` 클래스의 메서드를 사용해 여러 유효성 검증 규칙을 정의할 수 있습니다. 이러한 메서드는 IDE 자동 완성을 지원하며 문자열 규칙과 함께 사용할 수도 있습니다:
+
+```php
+use Illuminate\Validation\Rule;
+
+'name' => [Rule::required(), Rule::string()->max(255)],
+'terms' => [Rule::accepted()],
+'enabled' => [Rule::boolean()],
+'website' => [Rule::nullable(), Rule::activeUrl()],
+```
+
+<!-- Method names use camel case, such as `Rule::hexColor()`, `Rule::macAddress()`, and `Rule::requiredArrayKeys(['name', 'email'])`. Rules that depend on other fields accept the field names or comparison values as arguments: -->
+메서드 이름은 `Rule::hexColor()`, `Rule::macAddress()`, `Rule::requiredArrayKeys(['name', 'email'])`처럼 카멜 케이스를 사용합니다. 다른 필드에 따라 달라지는 규칙은 필드 이름이나 비교 값을 인수로 받습니다:
+
+```php
+'terms' => [Rule::acceptedIf('account_type', ['personal', 'business'])],
+'nickname' => [Rule::excludeWith('name')],
+'email' => [Rule::requiredWithout(['phone', 'mobile'])],
+'settings' => [Rule::presentIf('account_type', 'business')],
+```
+
+<!-- The `acceptedIf`, `declinedIf`, `missingIf`, `missingUnless`, `presentIf`, and `presentUnless` methods accept a comparison value or an array of comparison values. Methods such as `requiredWith`, `requiredWithAll`, `requiredWithout`, `requiredWithoutAll`, `missingWith`, `missingWithAll`, `presentWith`, `presentWithAll`, and `prohibits` accept an array of field names or multiple field name arguments. -->
+`acceptedIf`, `declinedIf`, `missingIf`, `missingUnless`, `presentIf`, `presentUnless` 메서드는 비교 값 하나 또는 비교 값 배열을 받습니다. `requiredWith`, `requiredWithAll`, `requiredWithout`, `requiredWithoutAll`, `missingWith`, `missingWithAll`, `presentWith`, `presentWithAll`, `prohibits` 등의 메서드는 필드 이름 배열이나 여러 필드 이름 인수를 받습니다.
+
+<!-- Regular expressions may also be defined using the `regex` and `notRegex` methods: -->
+`regex` 및 `notRegex` 메서드로 정규식도 정의할 수 있습니다:
+
+```php
+'username' => [Rule::required(), Rule::regex('/^[a-z]+$/i')],
+'code' => [Rule::notRegex('/^test-/i')],
+```
+
 <a name="rule-accepted"></a>
 <!-- #### accepted -->
 #### accepted
@@ -1646,15 +1684,29 @@ use Illuminate\Validation\Rule;
 'foo' => ['boolean:strict']
 ```
 
+<!-- Alternatively, you may use the `Rule::boolean` method, passing `true` to enable strict validation: -->
+또는 `true`를 전달해 엄격한 유효성 검증을 활성화하는 `Rule::boolean` 메서드를 사용할 수도 있습니다.
+
+```php
+'foo' => [Rule::boolean(true)],
+```
+
 <a name="rule-confirmed"></a>
 <!-- #### confirmed -->
 #### confirmed
 
 <!-- The field under validation must have a matching field of `{field}_confirmation`. For example, if the field under validation is `password`, a matching `password_confirmation` field must be present in the input. -->
-유효성 검증 중인 필드에는 `{field}_confirmation` 형식의 일치하는 필드가 있어야 합니다. 예를 들어 유효성 검증 중인 필드가 `password`라면, 입력값 안에 일치하는 `password_confirmation` 필드가 있어야 합니다.
+검증 대상 필드에는 `{field}_confirmation` 형식의 이름을 가진 일치하는 필드가 있어야 합니다. 예를 들어 검증 대상 필드가 `password`라면 입력에 `password_confirmation` 필드가 있어야 합니다.
 
 <!-- You may also pass a custom confirmation field name. For example, `confirmed:repeat_username` will expect the field `repeat_username` to match the field under validation. -->
-사용자 지정 확인 필드 이름을 전달할 수도 있습니다. 예를 들어 `confirmed:repeat_username`은 `repeat_username` 필드가 유효성 검증 중인 필드와 일치할 것으로 기대합니다.
+사용자 지정 확인 필드 이름을 전달할 수도 있습니다. 예를 들어 `confirmed:repeat_username`은 `repeat_username` 필드가 검증 대상 필드와 일치해야 합니다.
+
+<!-- You may also use the `Rule::confirmed` method, specifying a custom confirmation field via the `customField` method: -->
+`customField` 메서드로 사용자 지정 확인 필드를 지정하는 `Rule::confirmed` 메서드를 사용할 수도 있습니다.
+
+```php
+'username' => [Rule::confirmed()->customField('repeat_username')],
+```
 
 <a name="rule-contains"></a>
 <!-- #### contains:_foo_,_bar_,... -->
@@ -1707,6 +1759,13 @@ Validator::make($data, [
 'password' => ['current_password:api']
 ```
 
+<!-- Alternatively, you may use the `Rule::currentPassword` method and specify the authentication guard via the `guard` method: -->
+또는 `Rule::currentPassword` 메서드를 사용하고 `guard` 메서드로 인증 가드를 지정할 수 있습니다.
+
+```php
+'password' => [Rule::currentPassword()->guard('api')],
+```
+
 <a name="rule-date"></a>
 <!-- #### date -->
 #### date
@@ -1720,6 +1779,18 @@ Validator::make($data, [
 
 <!-- The field under validation must be equal to the given date. The dates will be passed into the PHP `strtotime` function in order to be converted into a valid `DateTime` instance. -->
 유효성 검증 중인 필드는 주어진 날짜와 같아야 합니다. 날짜는 유효한 `DateTime` 인스턴스로 변환하기 위해 PHP `strtotime` 함수에 전달됩니다.
+
+<!-- For convenience, date-based rules may be constructed using the fluent `date` rule builder: -->
+편의를 위해 fluent `date` 규칙 빌더를 사용해 날짜 기반 규칙을 구성할 수 있습니다.
+
+```php
+use Illuminate\Validation\Rule;
+
+'start_date' => [Rule::date()->equals('2026-01-01')],
+```
+
+<!-- The `equals` method accepts a date string, a `DateTimeInterface` instance, or the name of another field to compare against. -->
+`equals` 메서드는 날짜 문자열, `DateTimeInterface` 인스턴스 또는 비교할 다른 필드의 이름을 인수로 받습니다.
 
 <a name="rule-date-format"></a>
 <!-- #### date_format:_format_,... -->
@@ -1866,6 +1937,13 @@ distinct는 기본적으로 느슨한 변수 비교를 사용합니다. 엄격�
 
 ```php
 'foo.*.id' => ['distinct:ignore_case']
+```
+
+<!-- Alternatively, you may use the `Rule::distinct` method, chaining the `strict` and `ignoreCase` methods as needed: -->
+또는 필요에 따라 `strict` 및 `ignoreCase` 메서드를 연결해 `Rule::distinct` 메서드를 사용할 수도 있습니다.
+
+```php
+'foo.*.id' => [Rule::distinct()->strict()->ignoreCase()],
 ```
 
 <a name="rule-doesnt-start-with"></a>
@@ -2299,6 +2377,15 @@ Validator::make($input, [
 
 <!-- The field under validation must be an IP address. -->
 유효성 검증 중인 필드는 IP 주소여야 합니다.
+
+<!-- You may also use the `Rule::ip` method, optionally restricting the IP version to `4` or `6`: -->
+`Rule::ip` 메서드를 사용할 수도 있으며, 선택적으로 IP 버전을 `4` 또는 `6`으로 제한할 수 있습니다:
+
+```php
+'ip_address' => [Rule::ip()],
+'ipv4_address' => [Rule::ip()->version(4)],
+'ipv6_address' => [Rule::ip()->version(6)],
+```
 
 <a name="ipv4"></a>
 <!-- #### ipv4 -->
@@ -2862,6 +2949,13 @@ use Illuminate\Validation\Rule;
 'timezone' => ['required', 'timezone:per_country,US'];
 ```
 
+<!-- Alternatively, you may use the `Rule::timezone` method, passing any `listIdentifiers` arguments as an array: -->
+또는 `listIdentifiers` 인수를 배열로 전달해 `Rule::timezone` 메서드를 사용할 수도 있습니다.
+
+```php
+'timezone' => [Rule::timezone(['per_country', 'US'])],
+```
+
 <a name="rule-unique"></a>
 <!-- #### unique:_table_,_column_ -->
 #### unique:_table_,_column_
@@ -2990,6 +3084,13 @@ Rule::unique('users')->withoutTrashed('was_deleted_at');
 'game' => ['url:minecraft,steam'],
 ```
 
+<!-- Alternatively, you may use the `Rule::url` method, specifying the allowed protocols via the `protocols` method: -->
+또는 허용할 프로토콜을 `protocols` 메서드로 지정해 `Rule::url` 메서드를 사용할 수도 있습니다.
+
+```php
+'url' => [Rule::url()->protocols(['http', 'https'])],
+```
+
 <a name="rule-ulid"></a>
 <!-- #### ulid -->
 #### ulid
@@ -3009,6 +3110,13 @@ Rule::unique('users')->withoutTrashed('was_deleted_at');
 
 ```php
 'uuid' => ['uuid:4']
+```
+
+<!-- Alternatively, you may use the `Rule::uuid` method and specify the UUID version via the `version` method: -->
+또는 `Rule::uuid` 메서드를 사용하고 `version` 메서드로 UUID 버전을 지정할 수도 있습니다.
+
+```php
+'uuid' => [Rule::uuid()->version(4)],
 ```
 
 <a name="conditionally-adding-rules"></a>

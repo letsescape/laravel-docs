@@ -39,11 +39,13 @@
     - [Querying Embeddings](#querying-embeddings)
     - [Caching Embeddings](#caching-embeddings)
 - [Reranking](#reranking)
+    - [Reranking Collections](#reranking-collections)
 - [Classification](#classification)
     - [Classifying Images](#classifying-images)
     - [Yes or No Decisions](#yes-or-no-decisions)
     - [Choosing From Collections](#choosing-from-collections)
 - [Files](#files)
+    - [Using Stored Files in Conversations](#using-stored-files-in-conversations)
 - [Vector Stores](#vector-stores)
     - [Adding Files to Stores](#adding-files-to-stores)
 - [Usage](#usage)
@@ -302,7 +304,7 @@ public function provider(): Provider
 ```
 
 > [!NOTE]
-> オンデマンドプロバイダは、上記の例のように配列内で渡してください。オンデマンドプロバイダの設定配列で `name` を指定する場合、その名前は組み込みプロバイダや `config/ai.php` 設定ファイルで定義したプロバイダと一致しないことがあります。
+> オンデマンドプロバイダは、上記の例のように配列内で渡してください。オンデマンドプロバイダの設定配列に `name` を指定する場合、その名前は組み込みプロバイダや `config/ai.php` 設定ファイルで定義したプロバイダの名前と一致しないことがあります。
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -313,10 +315,10 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 
 <div class="overflow-auto">
 
-<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
 | 機能 | プロバイダ |
 |---|---|
-| テキスト | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter |
+| テキスト | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere |
 | 画像 | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter |
 | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter |
 | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter |
@@ -489,7 +491,7 @@ foreach ($response->steps as $step) {
 ```
 
 > [!NOTE]
-> ストリーミングでレスポンスを取得する場合、Bedrock プロバイダを使用する場合（API 呼び出しに HTTP クライアントではなく AWS SDK を使用します）、および `withRawResponse` で明示的に指定していないフェイクレスポンスでは、`raw` プロパティは `null` になります。
+> `raw` プロパティは、レスポンスをストリーミングしている場合、Bedrock プロバイダ（HTTP クライアントではなく AWS SDK 経由で API を呼び出します）を使用している場合、および `withRawResponse` で明示的に指定されていないフェイクレスポンスでは `null` です。
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -537,7 +539,7 @@ $response = (new SalesCoach)
 #### Remembering Conversations
 
 > [!WARNING]
-> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドで AI SDK のマイグレーションを公開して実行してください。このマイグレーションによって、会話を保存するために必要なデータベーステーブルが作成されます。
+> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使って AI SDK のマイグレーションを公開し、実行してください。このマイグレーションにより、会話の保存に必要なデータベーステーブルが作成されます。
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。このトレイトは、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
@@ -678,7 +680,7 @@ $participant = $conversation->participant;
 アプリケーションで複数の参加者モデルの種類を使用している場合は、保存される参加者タイプがモデルクラス名に依存しないよう、[Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) の定義を検討してください。
 
 > [!WARNING]
-> `continue` メソッドと `continueOrStart` メソッドは、指定された参加者がその会話の所有者であることを確認しません。会話を続ける前に、アプリケーション側でアクセスを認可してください。
+> `continue` メソッドと `continueOrStart` メソッドは、指定された参加者が会話の所有者であるかを確認しません。会話を続行する前に、アプリケーションでその会話へのアクセスを認可してください。
 
 <a name="inspecting-stored-conversations"></a>
 <!-- #### Inspecting Stored Conversations -->
@@ -1060,7 +1062,7 @@ Route::post('/chat', function (Request $request) {
 リクエストに [approval decisions](#human-tool-approval) が含まれている場合、エージェントはその決定を使用して処理を再開します。それ以外の場合、エージェントにはリクエストに含まれる最新のユーザーメッセージと添付ファイルが提示されます。`protocol` メソッドは、クライアントが使用したプロトコルを返します。
 
 > [!NOTE]
-> `Conversational` インターフェースを実装するエージェントは自身の履歴を読み込むため、`withMessages` メソッドは省略できます。
+> `Conversational` インターフェイスを実装するエージェントは自身の履歴を読み込むため、`withMessages` メソッドは省略できます。
 
 <!-- The `AgentUserInteraction::chat` method provides the same API for AG-UI clients, in addition to the request's thread and run IDs: -->
 `AgentUserInteraction::chat` メソッドは、リクエストのスレッドIDと実行IDに加えて、AG-UI クライアントにも同じ API を提供します。
@@ -1429,7 +1431,7 @@ Anthropic を使用する場合、`withProviderOptions` メソッドを使って
 ```
 
 > [!WARNING]
-> ツール検索に対応していないプロバイダでは、遅延ツールを黙って破棄するのではなく、例外が発生します。また、Anthropic では、少なくとも1つのツールを `ToolSearch` ラッパーの外で指定する必要があります。
+> ツール検索に対応していないプロバイダでは、遅延ツールが黙って破棄されるのではなく、例外が発生します。また、Anthropic では、少なくとも1つのツールを `ToolSearch` ラッパーの外側に指定する必要があります。
 
 <a name="file-storage-tools"></a>
 <!-- ### File Storage Tools -->
@@ -1644,7 +1646,7 @@ Web 検索ツールを構成して、検索数を制限したり、結果を特�
 ```
 
 > [!NOTE]
-> GroqはGPT-OSSモデルでのみウェブ検索をサポートしており、`max`、`allow`、`location` メソッドは無視します。
+> Groq は GPT-OSS モデルでのみウェブ検索をサポートしており、`max`、`allow`、`location` メソッドは無視します。
 
 <a name="web-fetch"></a>
 <!-- #### Web Fetch -->
@@ -1681,8 +1683,8 @@ Web 取得ツールを設定して、取得数を制限したり、特定のド�
 <!-- The `FileSearch` provider tool allows agents to search through [files](#files) stored in [vector stores](#vector-stores). This enables retrieval-augmented generation (RAG) by allowing the agent to search your uploaded documents for relevant information. -->
 `FileSearch` プロバイダ ツールを使用すると、エージェントは [vector stores](#vector-stores) に保存されている [files](#files) を検索できます。これにより、エージェントがアップロードされたドキュメントで関連情報を検索できるようになり、検索拡張生成 (RAG) が可能になります。
 
-<!-- **Supported providers:** OpenAI, Gemini, xAI -->
-**対応プロバイダ:** OpenAI, Gemini, xAI
+<!-- **Supported providers:** OpenAI, Azure, Gemini, xAI -->
+**対応プロバイダ:** OpenAI, Azure, Gemini, xAI
 
 ```php
 use Laravel\Ai\Providers\Tools\FileSearch;
@@ -2100,7 +2102,7 @@ class ComplexReasoner implements Agent
 ```
 
 > [!NOTE]
-> `UseCheapestModel` と `UseSmartestModel` が選択するモデルは、プロバイダが新しいモデルをリリースするたびに、Laravel AI SDK のリリース間で変更される場合があります。モデルを切り替えると、動作の変更や非推奨のパラメータ、コストの大幅な差が生じる可能性があります。安定した予測可能なモデルと料金を使いたい場合は、`Model` 属性でモデルを明示的に指定してください。
+> `UseCheapestModel` と `UseSmartestModel` が選択するモデルは、プロバイダが新しいモデルをリリースするたびに、Laravel AI SDK のリリース間で変更される可能性があります。モデルを切り替えると、動作の変化や非推奨パラメータの発生、コストの大幅な違いにつながることがあります。安定した予測可能なモデルと料金を利用する必要がある場合は、`Model` 属性を使ってモデルを明示的に指定してください。
 
 <a name="provider-options"></a>
 <!-- ### Provider Options -->
@@ -2235,14 +2237,14 @@ class SalesCoach implements Agent
 また、トップレベルの `cache_control` [provider option](#provider-options) を使って、Anthropic の自動キャッシュを有効にすることもできます。これによりリクエストの最後のブロックの後ろに1つのブレークポイントが設定されるため、会話が進むにつれてブレークポイントも移動し、各ターンでは直前までのターンをキャッシュから読み取ります。どちらの仕組みも組み合わせて使用できます。
 
 > [!WARNING]
-> プロバイダはツール、指示、メッセージの順にプロンプトを組み立てるため、指示を1時間キャッシュする場合は、ツール定義も1時間キャッシュする必要があります。両者のキャッシュ期間を混在させると、`InvalidArgumentException` が発生します。
+> プロバイダはツール、指示、メッセージの順にプロンプトを構築するため、指示を1時間キャッシュするにはツール定義も1時間キャッシュする必要があります。両者のキャッシュ期間が異なると、`InvalidArgumentException` がスローされます。
 
 <a name="human-tool-approval"></a>
 <!-- ## Human Tool Approval -->
 ## Human Tool Approval
 
 > [!WARNING]
-> 実行を再開する際、ツールの承認には一時停止したターンの履歴が必要です。`RemembersConversations` トレイトを使用するエージェントなど、`Conversational` エージェントを使うか、アプリケーションのフロントエンドから [`withMessages` method](#conversation-context) を使って履歴を渡してください。どちらも行わないエージェントは、ツールによって処理が一時停止したときに `ApprovalNotResumableException` をスローします。
+> ツールの承認には、実行再開時に一時停止したターンの履歴を利用できる必要があります。`RemembersConversations` トレイトを使う `Conversational` エージェントを使用するか、アプリケーションのフロントエンドから [`withMessages` method](#conversation-context) を使って履歴を渡してください。どちらも行わないエージェントは、ツールの実行が一時停止した際に `ApprovalNotResumableException` をスローします。
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 機密性の高い操作や取り消せない操作を実行するツールでは、実行前に人間の承認が必要になる場合があります。ツールを承認可能にするには、`Approvable` コントラクトを実装し、`InteractsWithApprovals` トレイトを使用します。承認可能なツールは、デフォルトで承認が必要です。
@@ -2358,7 +2360,7 @@ $response = (new FileAssistant)
 ```
 
 > [!IMPORTANT]
-> 一時停止中のターンは、一時停止した参加者ではなく、その会話と保留中のツール呼び出しに基づいて照合されます。そのため、[complete approval flow](#complete-approval-flow) の例のように、再開する前にアプリケーションで会話へのアクセスを認可するか、会話ストアの `conversationBelongsTo` メソッドを使ってアクセス権を確認してください。
+> 一時停止されたターンは、一時停止させた参加者ではなく、会話と保留中のツール呼び出しによって照合されます。そのため、[complete approval flow](#complete-approval-flow)のように、再開する前にアプリケーションで会話へのアクセスを認可するか、会話ストアの `conversationBelongsTo` メソッドを使ってアクセス権を確認してください。
 
 <!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
 ブール値の `true` と `false` は、それぞれ承認と拒否の略記として使用できます。保留中のすべてのツール呼び出しには、判定を与える必要があります。不明なツール呼び出し ID、判定が指定されていないツール呼び出し ID、またはすでに解決済みのツール呼び出し ID があると、`ApprovalMismatchException` がスローされます。明示的な判定がない呼び出しに対しては、`approveRemaining` または `rejectRemaining` メソッドを使用してデフォルトの判定を指定できます。
@@ -2784,7 +2786,7 @@ Document::fromUpload($request->file('report'));
 ```
 
 > [!NOTE]
-> VoyageAI では、1つのリクエストにリモート URL のメディアと Base64 エンコードされたメディアを混在させることはできません。ローカルファイル、保存済みファイル、アップロード済みファイルは Base64 エンコードされたコンテンツとして送信されます。また、テキスト入力はどちらのメディアソースとも組み合わせられます。利用可能なマルチモーダルモデルと入力については、プロバイダのドキュメントを確認してください。
+> VoyageAI では、1つのリクエスト内でリモート URL のメディアと Base64 エンコードされたメディアを混在させることはできません。ローカルファイル、保存済みファイル、アップロードされたファイルは Base64 エンコードされたコンテンツとして送信されます。テキスト入力は、どちらのメディアソースとも組み合わせられます。利用可能なマルチモーダルモデルと入力については、プロバイダのドキュメントを確認してください。
 
 <a name="querying-embeddings"></a>
 <!-- ### Querying Embeddings -->
@@ -2865,7 +2867,7 @@ $documents = Document::query()
 エージェントにツールとして類似性検索を実行できるようにしたい場合は、[Similarity Search](#similarity-search) ツールのドキュメントを確認してください。
 
 > [!NOTE]
-> ベクトルクエリは現在、`pgvector` 拡張を使用する PostgreSQL 接続、またはネイティブのベクトル機能を使用する MariaDB 11.7 以降でサポートされています。
+> 現在、ベクトルクエリは `pgvector` 拡張機能を使用する PostgreSQL 接続、またはネイティブのベクトルサポートを使用する MariaDB 11.7 以降の接続でサポートされています。
 
 <a name="caching-embeddings"></a>
 <!-- ### Caching Embeddings -->
@@ -3384,7 +3386,7 @@ $document->fileId;
 ```
 
 > [!NOTE]
-> 通常、以前に保存したファイルをベクトルストアに追加すると、返されるドキュメント ID はそのファイルに以前割り当てられた ID と一致します。ただし、一部のベクトルストレージプロバイダは、新しい別の「ドキュメント ID」を返す場合があります。そのため、後で参照できるよう、両方の ID をデータベースに保存しておくことをおすすめします。
+> 通常、ベクトルストアに以前保存したファイルを追加すると、返されるドキュメント ID は以前割り当てられた ID と一致します。ただし、ベクトルストレージプロバイダによっては、新しい別の「ドキュメント ID」が返されることがあります。そのため、今後参照できるよう、両方の ID をデータベースに保存しておくことをおすすめします。
 
 <!-- When adding a file to a Gemini store, Laravel waits for the import to finish so that the document is searchable once the call returns. A `Laravel\Ai\Exceptions\AiException` will be thrown if the import fails or exceeds five minutes, so you may wish to add Gemini files from a [queued job](/docs/13.x/queues). -->
 Gemini ストアにファイルを追加すると、Laravel はインポートが完了するまで待機するため、呼び出しが返ると同時にドキュメントを検索できます。インポートに失敗した場合や5分を超えた場合は `Laravel\Ai\Exceptions\AiException` がスローされるため、Gemini ファイルは [queued job](/docs/13.x/queues) から追加するとよいでしょう。
@@ -3595,7 +3597,7 @@ $response->reasoning; // 'They asked about pricing.'
 ```
 
 > [!NOTE]
-> 構造化出力を返すエージェントに対して `Agent::fake()` を呼び出し、偽の出力を明示的に指定していない場合、Laravel はエージェントで定義された出力スキーマに一致する偽データを自動生成します。
+> `Agent::fake()` を構造化出力を返すエージェントに対して呼び出し、偽の出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに合う偽のデータを自動的に生成します。
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 エージェントにプロンプ​​トを出した後、受け取ったプロンプトについてアサーションを行うことができます。

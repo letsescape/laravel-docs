@@ -578,7 +578,7 @@ User::find($userId)->tokens()->each(function (Token $token) {
 php artisan passport:purge
 
 # Only purge tokens expired for more than 6 hours...
-php artisan passport:purge --hours=6
+php artisan passport:purge --expired --hours=6
 
 # Only purge revoked tokens, auth codes, and device codes...
 php artisan passport:purge --revoked
