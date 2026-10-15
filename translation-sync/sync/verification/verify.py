@@ -63,6 +63,7 @@ from .response_contract import (
     _quote_block_ordinal,
     _sentence_cardinality_pair_is_valid,
     _table_line_signature,
+    _unpaired_strong_delimiters,
     _UNPARSED_MARKUP_PREFIX,
     contains_untranslated_source_phrase,
 )
@@ -1459,6 +1460,11 @@ def _basic_issues(text: str, source: str | None) -> list[str]:
             "admonition body outside blockquote",
         ),
         (_has_duplicated_admonition_marker(body), "duplicate admonition marker"),
+        (
+            source is not None
+            and bool(_unpaired_strong_delimiters(text) - _unpaired_strong_delimiters(source)),
+            "malformed strong emphasis",
+        ),
     )
     issues.extend(label for failed, label in checks if failed)
     return issues
