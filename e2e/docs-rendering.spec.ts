@@ -103,6 +103,36 @@ test.describe('Docs rendering', () => {
     expect(box!.y).toBeLessThan(220);
   });
 
+  for (const locale of ['', '/ja']) {
+    test(`${locale || 'ko'} repeated heading permalinks reach their own sections`, async ({page}) => {
+      const originalId = 'stopping-on-first-validation-failure';
+      await page.goto(`${locale}${docsPath('validation')}`);
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+
+      const first = page.locator(`h4[id="${originalId}"]`);
+      const second = page.locator(`h4[id="${originalId}-1"]`);
+      await expect(first).toHaveCount(1);
+      await expect(second).toHaveCount(1);
+      await second.locator('a.hash-link').click();
+      await expect(page).toHaveURL(new RegExp(`#${originalId}-1$`));
+      await expect.poll(() => second.evaluate((heading) => heading.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+      await expect.poll(() => second.evaluate((heading) => heading.getBoundingClientRect().top)).toBeLessThan(220);
+      expect(await first.evaluate((heading) => heading.getBoundingClientRect().top)).toBeLessThan(0);
+
+      await first.locator('a.hash-link').click();
+      await expect(page).toHaveURL(new RegExp(`#${originalId}$`));
+      await expect.poll(() => first.evaluate((heading) => heading.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
+      await expect.poll(() => first.evaluate((heading) => heading.getBoundingClientRect().top)).toBeLessThan(220);
+    });
+
+    test(`${locale || 'ko'} consecutive aliases remain alongside their heading IDs`, async ({page}) => {
+      await page.goto(`${locale}${docsPath('ai-sdk')}`);
+      for (const id of ['streaming-using-the-vercel-ai-sdk-protocol', 'stream-protocols', 'chat-requests', 'frontend-integration']) {
+        await expect(page.locator(`[id="${id}"]`)).toHaveCount(1);
+      }
+    });
+  }
+
   test('table of contents links point to rendered heading ids', async ({page}) => {
     await page.goto(docsPath());
 
