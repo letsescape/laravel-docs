@@ -157,7 +157,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
     for (const item of ['Installation', 'Agent Setup', 'Eloquent ORM', 'Artisan Console', 'Routing']) {
       await expect(menu.getByRole('link', {name: item})).toBeVisible();
     }
-    await expect(menu.getByRole('link', {name: 'Installation'})).toHaveAttribute('href', docsPath());
+    await expect(menu.getByRole('link', {name: 'Installation'})).toHaveAttribute('href', `${docsPath()}/`);
   });
 
   test('N-3d: Framework > Starter kits', async ({page}) => {
@@ -177,7 +177,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
   test('N-7: Docs 링크', async ({page}) => {
     const docsLink = page.locator('.nav-docs-link');
     await expect(docsLink).toBeVisible();
-    await expect(docsLink).toHaveAttribute('href', docsPath());
+    await expect(docsLink).toHaveAttribute('href', `${docsPath()}/`);
   });
 
   test('N-12: 네비바 상단 고정', async ({page}) => {
@@ -267,7 +267,7 @@ test.describe('Navbar — Mobile (430px)', () => {
   });
 
   test('N-23: Docs 직접 링크', async ({page}) => {
-    await verifyMobileDirectLink(page, 'Docs', docsPath());
+    await verifyMobileDirectLink(page, 'Docs', `${docsPath()}/`);
   });
 
   test('N-24: 서브메뉴 뒤로가기', async ({page}) => {
@@ -371,6 +371,72 @@ test.describe('Navbar — Narrow homepage', () => {
           );
         });
         expect(logoUncovered).toBe(true);
+      });
+    }
+  }
+});
+
+test.describe('Navbar — Homepage locale navigation', () => {
+  for (const locale of ['ko', 'ja']) {
+    for (const width of [1280, 430]) {
+      for (const version of [latestDocsVersion, 'master']) {
+        test(`N-33: ${locale} ${width}px 홈 ${version} 선택 후 Docs 클릭 시 언어 유지`, async ({page}) => {
+          const localePrefix = locale === 'ko' ? '' : `/${locale}`;
+          const versionDropdown = page.locator('.navbar__items--right .navbar-version-dropdown');
+          await page.setViewportSize({width: 1280, height: 932});
+          await page.goto(`${localePrefix}/`);
+          await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+          if (version !== latestDocsVersion) {
+            await versionDropdown.click();
+            await page.locator('.navbar__items--right').getByRole('link', {name: version, exact: true}).click();
+            await page.locator('.navbar__brand').first().click();
+          }
+          await expect(versionDropdown).toHaveText(version);
+          await expect.poll(() => new URL(page.url()).pathname).toBe(`${localePrefix}/`);
+          await expect(page.locator('html')).toHaveAttribute('lang', locale);
+          await page.setViewportSize({width, height: 932});
+
+          if (width < 1280) {
+            await page.locator('.nav-mobile-hamburger').click();
+            await page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'}).click();
+          } else {
+            await page.locator('.nav-docs-link').click();
+          }
+
+          await expect.poll(() => new URL(page.url()).pathname.replace(/\/$/, '')).toBe(
+            `${localePrefix}${docsPath()}`,
+          );
+          await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        });
+      }
+
+      test(`N-34: ${locale} ${width}px Framework 내부 링크 언어 유지`, async ({page}) => {
+        const localePrefix = locale === 'ko' ? '' : `/${locale}`;
+        await page.setViewportSize({width, height: 932});
+        await page.goto(`${localePrefix}/`);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+
+        if (width < 1280) {
+          await page.locator('.nav-mobile-hamburger').click();
+          await page.locator('.nav-mobile-menu-item', {hasText: 'Framework'}).click();
+          const menu = page.locator('.nav-mobile-submenu');
+          await expect(menu.getByRole('link', {name: 'Overview', exact: true})).toHaveAttribute('href', `${localePrefix}/`);
+          await expect(menu.getByRole('link', {name: 'Starter Kits', exact: true})).toHaveAttribute('href', `${localePrefix}${docsPath('starter-kits')}/`);
+          await expect(menu.getByRole('link', {name: 'Documentation', exact: true})).toHaveAttribute('href', `${localePrefix}${docsPath()}/`);
+          await menu.getByRole('link', {name: 'Release Notes', exact: true}).click();
+        } else {
+          await openDropdown(page, 'framework');
+          const menu = page.locator('#content-framework');
+          await expect(menu.getByRole('link', {name: /^Overview/})).toHaveAttribute('href', `${localePrefix}/`);
+          for (const [name, slug] of [['Installation', ''], ['Agent Setup', 'ai'], ['Eloquent ORM', 'eloquent'], ['Artisan Console', 'artisan'], ['Routing', 'routing'], ['View all', '']]) {
+            await expect(menu.getByRole('link', {name, exact: true})).toHaveAttribute('href', `${localePrefix}${docsPath(slug)}/`);
+          }
+          await expect(menu.getByRole('link', {name: /Starter kits/i})).toHaveAttribute('href', `${localePrefix}${docsPath('starter-kits')}/`);
+          await menu.getByRole('link', {name: /^Changelog/}).click();
+        }
+
+        await expect.poll(() => new URL(page.url()).pathname.replace(/\/$/, '')).toBe(`${localePrefix}${docsPath('releases')}`);
+        await expect(page.locator('html')).toHaveAttribute('lang', locale);
       });
     }
   }
