@@ -8,6 +8,98 @@ from sync import response_contract, verify
 class VerifyContentTests(unittest.TestCase):
     """내용 검증의 동작과 경계 조건 테스트 모음."""
 
+    def test_rejects_a_missing_opening_strong_delimiter(self):
+        """기존 번역본에 닫는 강조 기호만 남아 있어도 최종 검증에서 거부."""
+
+        source = "Minor releases should **never** contain breaking changes.\n"
+        translated = (
+            "<!-- Minor releases should **never** contain breaking changes. -->\n"
+            "マイナーリリースには重大な変更が含まれてはなりません**。\n"
+        )
+
+        self.assertIn(
+            "malformed strong emphasis",
+            verify.verify(translated, source=source),
+        )
+
+    def test_strong_delimiters_cannot_pair_across_list_items_or_table_cells(self):
+        """서로 다른 목록 항목·표 셀의 기호를 하나의 강조 쌍으로 보지 않음."""
+
+        cases = (
+            (
+                "- **First** item\n- Second item\n",
+                "- **첫 번째 항목\n- 두 번째 항목**\n",
+            ),
+            (
+                "| **Name** | Value |\n| --- | --- |\n| Cache | Stores values |\n",
+                "| **이름 | 값** |\n| --- | --- |\n| 캐시 | 값 저장 |\n",
+            ),
+        )
+        for source, translated in cases:
+            with self.subTest(source=source):
+                self.assertIn(
+                    "malformed strong emphasis",
+                    verify.verify(translated, source=source),
+                )
+
+    def test_preserves_literal_markers_and_valid_strong_emphasis(self):
+        """literal·보호 영역·정상 강조와 강조 전체 생략을 오탐하지 않음."""
+
+        cases = (
+            ("Use 2 ** 3 as a value.", "값으로 2 ** 3을 사용합니다."),
+            (r"Use \** as a token.", r"기호로 \**를 사용합니다."),
+            ("Use `**` and ``__`` as tokens.", "기호로 `**`와 ``__``를 사용합니다."),
+            ("<code>**</code> is literal.", "<code>**</code>는 문자입니다."),
+            ('<span title="**">Value</span>', '<span title="**">값</span>'),
+            (
+                "Read [guide](https://example.com/**) now.",
+                "[guide](https://example.com/**)를 읽습니다.",
+            ),
+            ("[guide]: /path/**\n", "[guide]: /path/**\n"),
+            ("```text\n**\n```\n", "```text\n**\n```\n"),
+            ("Use **`cache`** now.", "**`cache`** 를 사용합니다."),
+            ("Use ***nested emphasis*** now.", "***중첩 강조***를 사용합니다."),
+            ("Use **first\nsecond** words.", "**첫째\n둘째** 단어를 사용합니다."),
+            ("- **First\n  second** item", "- **첫째\n  둘째** 항목"),
+            ("You should **never** do this.", "이렇게 해서는 안 됩니다."),
+        )
+        for source, translated in cases:
+            with self.subTest(source=source):
+                self.assertNotIn(
+                    "malformed strong emphasis",
+                    verify.verify(translated, source=source),
+                )
+                self.assertNotIn(
+                    "provider inline markup mismatch",
+                    response_contract.verify(translated, source),
+                )
+
+    def test_source_indented_code_does_not_hide_broken_translated_emphasis(self):
+        """영어 PHPDoc의 별표가 번역 본문의 깨진 강조를 상쇄하지 않음."""
+
+        source = (
+            "Minor releases should **never** contain breaking changes.\n\n"
+            "    /**\n"
+            "     * Run an operation.\n"
+            "     */\n"
+            "    public function run() {}\n"
+        )
+        translated = (
+            "<!-- Minor releases should **never** contain breaking changes. -->\n"
+            "マイナーリリースには重大な変更が含まれてはなりません**。\n\n"
+            "```php\n"
+            "/**\n"
+            " * Run an operation.\n"
+            " */\n"
+            "public function run() {}\n"
+            "```\n"
+        )
+
+        self.assertIn(
+            "malformed strong emphasis",
+            verify.verify(translated, source=source),
+        )
+
     def test_accepts_preserved_reference_definition_as_structure(self):
         """보존된 reference definition을 구조로 허용."""
 

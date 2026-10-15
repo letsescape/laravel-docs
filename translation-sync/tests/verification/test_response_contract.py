@@ -1826,6 +1826,20 @@ Paragraph to translate here.
             response_contract.verify(translated, source),
         )
 
+    def test_rejects_a_missing_opening_strong_delimiter(self):
+        """일본어 번역에 닫는 강조 기호만 남은 응답을 거부."""
+
+        source = "Minor releases should **never** contain breaking changes.\n"
+        translated = (
+            "<!-- Minor releases should **never** contain breaking changes. -->\n"
+            "マイナーリリースには重大な変更が含まれてはなりません**。\n"
+        )
+
+        self.assertIn(
+            "provider inline markup mismatch",
+            response_contract.verify(translated, source, locale="ja"),
+        )
+
     def test_allows_removed_emphasis_delimiters(self):
         """어휘로 흡수된 강조 구분자 누락 허용."""
 
@@ -1837,6 +1851,20 @@ Paragraph to translate here.
         self.assertNotIn(
             "provider inline markup mismatch",
             response_contract.verify(translated, source),
+        )
+
+    def test_rejects_an_unpaired_strong_delimiter_in_a_link_label(self):
+        """링크 대상은 보호하되 렌더링되는 label의 깨진 강조는 검출."""
+
+        source = "Read [**guide**](https://example.com/guide) before starting.\n"
+        translated = (
+            "<!-- Read [**guide**](https://example.com/guide) before starting. -->\n"
+            "開始する前に[guide**](https://example.com/guide)を読んでください。\n"
+        )
+
+        self.assertIn(
+            "provider inline markup mismatch",
+            response_contract.verify(translated, source, locale="ja"),
         )
 
     def test_allows_removed_single_emphasis_around_a_link(self):
