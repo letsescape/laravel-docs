@@ -118,7 +118,7 @@ return $this->hasOne(Phone::class, 'foreign_key');
 ```
 
 <!-- Additionally, Eloquent assumes that the foreign key should have a value matching the primary key column of the parent. In other words, Eloquent will look for the value of the user's `id` column in the `user_id` column of the `Phone` record. If you would like the relationship to use a primary key value other than `id` or your model's `$primaryKey` property, you may pass a third argument to the `hasOne` method: -->
-또한, Eloquent는 기본적으로 부모 모델의 프라이머리 키(primary key) 컬럼 값을 외래 키와 매칭합니다. 즉, 위 예제에서는 사용자의 `id` 컬럼의 값이 `Phone` 모델의 `user_id` 컬럼에 저장되어 있다고 간주합니다. 만약 `id`가 아닌 다른 컬럼을 프라이머리 키로 활용하거나, `$primaryKey` 속성을 별도로 지정하고 싶다면, `hasOne`의 세 번째 인수로 로컬(부모) 키 컬럼명을 넘기면 됩니다.
+또한, Eloquent는 기본적으로 부모 모델의 프라이머리 키(primary key) 컬럼 값을 외래 키와 매칭합니다. 즉, 위 예제에서는 사용자의 `id` 컬럼의 값이 `Phone` 모델의 `user_id` 컬럼에 저장되어 있다고 간주합니다. 만약 `id`나 `$primaryKey` 속성으로 지정된 프라이머리 키 외의 컬럼을 활용하고 싶다면, `hasOne`의 세 번째 인수로 로컬(부모) 키 컬럼명을 넘기면 됩니다.
 
 ```
 return $this->hasOne(Phone::class, 'foreign_key', 'local_key');
@@ -277,7 +277,7 @@ return $comment->post->title;
 ```
 
 <!-- In the example above, Eloquent will attempt to find a `Post` model that has an `id` which matches the `post_id` column on the `Comment` model. -->
-위 예제에서 Eloquent는 `Comment` 모델의 `post_id` 값과 일치하는 `Post` 모델의 `id` 값을 찾아 반환합니다.
+위 예제에서 Eloquent는 `Comment` 모델의 `post_id` 값과 일치하는 `id` 값을 가진 `Post` 모델을 찾으려고 시도합니다.
 
 <!-- Eloquent determines the default foreign key name by examining the name of the relationship method and suffixing the method name with a `_` followed by the name of the parent model's primary key column. So, in this example, Eloquent will assume the `Post` model's foreign key on the `comments` table is `post_id`. -->
 Eloquent는 관계 메서드명을 기반으로 기본 외래 키명을 결정합니다. 메서드명 다음에 `_`와 부모 모델 프라이머리 키명을 붙인 형태가 됩니다. 위 예제라면 `comments` 테이블에 대한 `Post` 모델의 외래 키가 `post_id`라고 간주합니다.
@@ -897,7 +897,7 @@ return $this->belongsToMany(Badge::class)
 다대다 관계의 중간 테이블을 나타내는 커스텀 모델을 정의하고 싶다면, 관계 정의 시 `using` 메서드를 사용할 수 있습니다. 커스텀 pivot 모델을 사용하면, 그 모델에 메서드나 속성 변환(casts) 등 추가 동작을 정의할 수 있습니다.
 
 <!-- Custom many-to-many pivot models should extend the `Illuminate\Database\Eloquent\Relations\Pivot` class while custom polymorphic many-to-many pivot models should extend the `Illuminate\Database\Eloquent\Relations\MorphPivot` class. For example, we may define a `Role` model which uses a custom `RoleUser` pivot model: -->
-커스텀 다대다 pivot 모델은 `Illuminate\Database\Eloquent\Relations\Pivot` 클래스를 상속해야 하며, 커스텀 다형 다대다(polimorphic many-to-many) pivot 모델은 `Illuminate\Database\Eloquent\Relations\MorphPivot` 클래스를 상속해야 합니다. 예를 들어, 커스텀 `RoleUser` pivot 모델을 사용하는 `Role` 모델을 정의할 수 있습니다.
+커스텀 다대다 pivot 모델은 `Illuminate\Database\Eloquent\Relations\Pivot` 클래스를 상속해야 하며, 커스텀 다형 다대다(polymorphic many-to-many) pivot 모델은 `Illuminate\Database\Eloquent\Relations\MorphPivot` 클래스를 상속해야 합니다. 예를 들어, 커스텀 `RoleUser` pivot 모델을 사용하는 `Role` 모델을 정의할 수 있습니다.
 
 ```
 <?php
@@ -1409,14 +1409,14 @@ $class = Relation::getMorphedModel($alias);
 ```
 
 > [!WARNING]
-> 기존 애플리케이션에 "morph map"을 추가할 때, 데이터베이스 내의 모든 `*_type` 컬럼 값이 기존의 완전히 수식된 클래스명을 포함하고 있다면 반드시 새로 지정한 "맵" 이름으로 변환해주어야 합니다.
+> 기존 애플리케이션에 "morph map"을 추가할 때, 데이터베이스 내의 다형성 `*_type` 컬럼 값 중 기존의 완전히 수식된 클래스명을 포함하는 값은 모두 반드시 새로 지정한 "맵" 이름으로 변환해주어야 합니다.
 
 <a name="dynamic-relationships"></a>
 <!-- ### Dynamic Relationships -->
 ### Dynamic Relationships
 
 <!-- You may use the `resolveRelationUsing` method to define relations between Eloquent models at runtime. While not typically recommended for normal application development, this may occasionally be useful when developing Laravel packages. -->
-`resolveRelationUsing` 메서드를 사용하면 Eloquent 모델 간의 관계를 런타임에 정의할 수 있습니다. 일반적인 애플리케이션 개발에서는 자주 사용하지 않지만, Laravel 패키지 개발 시에는 가끔 유용하게 쓸 수 있습니다.
+`resolveRelationUsing` 메서드를 사용하면 Eloquent 모델 간의 관계를 런타임에 정의할 수 있습니다. 일반적인 애플리케이션 개발에서는 보통 권장되지 않지만, Laravel 패키지 개발 시에는 가끔 유용하게 쓸 수 있습니다.
 
 <!-- The `resolveRelationUsing` method accepts the desired relationship name as its first argument. The second argument passed to the method should be a closure that accepts the model instance and returns a valid Eloquent relationship definition. Typically, you should configure dynamic relationships within the boot method of a [service provider](/docs/9.x/providers): -->
 `resolveRelationUsing`는 첫 번째 인자로 원하는 관계 이름을 받고, 두 번째 인자로는 해당 모델 인스턴스를 받아 유효한 Eloquent 관계 정의를 반환하는 클로저를 받습니다. 보통 이 동적 관계 설정은 [service provider](/docs/9.x/providers)의 boot 메서드 내에서 구성해야 합니다.
@@ -1639,7 +1639,7 @@ $posts = Post::whereDoesntHave('comments', function (Builder $query) {
 ```
 
 <!-- You may use "dot" notation to execute a query against a nested relationship. For example, the following query will retrieve all posts that do not have comments; however, posts that have comments from authors that are not banned will be included in the results: -->
-"닷(dot)" 표기법을 사용해 중첩 관계에도 쿼리를 적용할 수 있습니다. 아래 쿼리는 댓글이 없는 게시글을 가져오는 대신, 금지(banned)되지 않은 저자가 쓴 댓글이 있는 게시글은 결과에 포함합니다.
+"닷(dot)" 표기법을 사용해 중첩 관계에도 쿼리를 적용할 수 있습니다. 아래 쿼리는 댓글이 없는 게시글을 가져오며, 금지(banned)되지 않은 저자가 쓴 댓글이 있는 게시글은 결과에 포함합니다.
 
 ```
 use Illuminate\Database\Eloquent\Builder;
@@ -2382,7 +2382,7 @@ $post->comments()->createMany([
 ```
 
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/9.x/eloquent#upserts). -->
-또한, `findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 등의 메서드를 이용하여 [create and update models on relationships](/docs/9.x/eloquent#upserts)할 수도 있습니다.
+또한, `findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 등의 메서드를 이용하여 [create and update models on relationships](/docs/9.x/eloquent#upserts)에 설명된 것처럼 연관관계에서 모델을 생성하거나 수정할 수도 있습니다.
 
 > [!NOTE]
 > `create` 메서드를 사용하기 전에, 반드시 [mass assignment](/docs/9.x/eloquent#mass-assignment) 문서를 확인해야 합니다.
@@ -2537,10 +2537,10 @@ $user->roles()->updateExistingPivot($roleId, [
 ## Touching Parent Timestamps
 
 <!-- When a model defines a `belongsTo` or `belongsToMany` relationship to another model, such as a `Comment` which belongs to a `Post`, it is sometimes helpful to update the parent's timestamp when the child model is updated. -->
-모델이 `belongsTo` 또는 `belongsToMany` 관계를 가지고 있을 경우, 예를 들어, `Comment`가 `Post`에 속해 있다면, 자식 모델이 업데이트될 때 부모 모델의 타임스탬프도 같이 업데이트되고 싶을 때가 있습니다.
+모델이 `belongsTo` 또는 `belongsToMany` 관계를 가지고 있을 경우, 예를 들어, `Comment`가 `Post`에 속해 있다면, 자식 모델이 업데이트될 때 부모 모델의 타임스탬프도 같이 업데이트하고 싶을 때가 있습니다.
 
 <!-- For example, when a `Comment` model is updated, you may want to automatically "touch" the `updated_at` timestamp of the owning `Post` so that it is set to the current date and time. To accomplish this, you may add a `touches` property to your child model containing the names of the relationships that should have their `updated_at` timestamps updated when the child model is updated: -->
-예를 들어, `Comment` 모델이 업데이트될 때 소유한 `Post`의 `updated_at` 타임스탬프를 현재 시각으로 자동 갱신하고 싶을 경우, 자식 모델에 `touches` 속성을 추가하여, 해당 모델이 업데이트될 때 같이 `updated_at` 타임스탬프를 갱신할 관계명을 지정하면 됩니다.
+예를 들어, `Comment` 모델이 업데이트될 때 해당 모델이 속한 `Post`의 `updated_at` 타임스탬프를 현재 시각으로 자동 갱신하고 싶을 경우, 자식 모델에 `touches` 속성을 추가하여, 해당 모델이 업데이트될 때 같이 `updated_at` 타임스탬프를 갱신할 관계명을 지정하면 됩니다.
 
 ```
 <?php

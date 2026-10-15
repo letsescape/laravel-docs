@@ -19,7 +19,7 @@
 그런데 여기서 "부트스트랩"이란 무엇을 의미할까요? 일반적으로, **각종 리소스 등록 작업**을 말합니다. 예를 들면, 서비스 컨테이너 바인딩 등록, 이벤트 리스너 등록, 미들웨어 및 라우트 등록 등 다양한 설정이 포함됩니다. 즉, 서비스 제공자는 애플리케이션의 설정을 모아두는 중심 장소입니다.
 
 <!-- If you open the `config/app.php` file included with Laravel, you will see a `providers` array. These are all of the service provider classes that will be loaded for your application. By default, a set of Laravel core service providers are listed in this array. These providers bootstrap the core Laravel components, such as the mailer, queue, cache, and others. Many of these providers are "deferred" providers, meaning they will not be loaded on every request, but only when the services they provide are actually needed. -->
-Laravel의 `config/app.php` 파일을 열어보면 `providers` 배열이 있습니다. 여기에 나열된 모든 서비스 제공자 클래스들은 애플리케이션이 실행될 때 함께 로드됩니다. 기본적으로 Laravel의 핵심 서비스 제공자들이 이 배열에 등록되어 있습니다. 이들 제공자는 메일러, 큐, 캐시 같은 Laravel의 핵심 기능들을 초기화합니다. 그리고 이 중 상당수는 "지연 제공자"로, 제공하는 서비스가 실제로 필요할 때만 로드됩니다. 즉, 매 요청마다 로딩되지 않고, 서비스가 요청될 때에만 필요한 서비스 제공자가 로드되어 성능을 높여줍니다.
+Laravel의 `config/app.php` 파일을 열어보면 `providers` 배열이 있습니다. 여기에는 애플리케이션에서 로드할 모든 서비스 제공자 클래스들이 나열되어 있습니다. 기본적으로 Laravel의 핵심 서비스 제공자들이 이 배열에 등록되어 있습니다. 이들 제공자는 메일러, 큐, 캐시 같은 Laravel의 핵심 기능들을 초기화합니다. 그리고 이 중 상당수는 "지연 제공자"로, 제공하는 서비스가 실제로 필요할 때만 로드됩니다. 즉, 매 요청마다 로딩되지 않고, 서비스가 요청될 때에만 필요한 서비스 제공자가 로드되어 성능을 높여줍니다.
 
 <!-- In this overview, you will learn how to write your own service providers and register them with your Laravel application. -->
 이 안내서에서는 여러분만의 서비스 제공자를 작성하고, Laravel 애플리케이션에 등록하는 방법을 배울 수 있습니다.
@@ -156,7 +156,7 @@ class ComposerServiceProvider extends ServiceProvider
 #### Boot Method Dependency Injection
 
 <!-- You may type-hint dependencies for your service provider's `boot` method. The [service container](/docs/9.x/container) will automatically inject any dependencies you need: -->
-서비스 제공자의 `boot` 메서드에서 의존성 주입(Dependency Injection)을 활용할 수도 있습니다. [service container](/docs/9.x/container)가 필요한 의존성을 자동으로 주입해줍니다.
+서비스 제공자의 `boot` 메서드에 의존성을 타입 힌트로 지정할 수 있습니다. [service container](/docs/9.x/container)가 필요한 의존성을 자동으로 주입해줍니다.
 
 ```
 use Illuminate\Contracts\Routing\ResponseFactory;

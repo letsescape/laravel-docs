@@ -56,7 +56,7 @@ Laravel의 비밀번호 재설정 기능을 사용하려면, 애플리케이션�
 ## Routing
 
 <!-- To properly implement support for allowing users to reset their passwords, we will need to define several routes. First, we will need a pair of routes to handle allowing the user to request a password reset link via their email address. Second, we will need a pair of routes to handle actually resetting the password once the user visits the password reset link that is emailed to them and completes the password reset form. -->
-사용자가 비밀번호를 재설정하도록 지원하려면 여러 개의 라우트를 정의해야 합니다. 먼저, 사용자가 이메일 주소로 비밀번호 재설정 링크를 요청할 수 있도록 관련된 두 개의 라우트를 정의합니다. 그리고 사용자가 이메일로 받은 비밀번호 재설정 링크를 통해 실제로 비밀번호를 변경할 수 있도록 또 다른 두 개의 라우트를 정의합니다.
+사용자가 비밀번호를 재설정하도록 지원하려면 여러 개의 라우트를 정의해야 합니다. 먼저, 사용자가 이메일 주소로 비밀번호 재설정 링크를 요청할 수 있도록 관련된 두 개의 라우트를 정의합니다. 그리고 사용자가 이메일로 받은 비밀번호 재설정 링크에 접속하고 재설정 폼을 작성하여 실제로 비밀번호를 변경할 수 있도록 또 다른 두 개의 라우트를 정의합니다.
 
 <a name="requesting-the-password-reset-link"></a>
 <!-- ### Requesting the Password Reset Link -->
@@ -195,7 +195,7 @@ Route::post('/reset-password', function (Request $request) {
 ## Deleting Expired Tokens
 
 <!-- Password reset tokens that have expired will still be present within your database. However, you may easily delete these records using the `auth:clear-resets` Artisan command: -->
-만료된 비밀번호 재설정 토큰도 데이터베이스에는 남아 있을 수 있습니다. 하지만 다음의 `auth:clear-resets` 아티즌 명령어를 사용해서 손쉽게 모든 만료된 레코드를 삭제할 수 있습니다:
+만료된 비밀번호 재설정 토큰도 데이터베이스에는 남아 있습니다. 하지만 다음의 `auth:clear-resets` 아티즌 명령어를 사용해서 손쉽게 모든 만료된 레코드를 삭제할 수 있습니다:
 
 ```shell
 php artisan auth:clear-resets

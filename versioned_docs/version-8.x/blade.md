@@ -587,7 +587,7 @@ Property  | Description
 ### The `@once` Directive
 
 <!-- The `@once` directive allows you to define a portion of the template that will only be evaluated once per rendering cycle. This may be useful for pushing a given piece of JavaScript into the page's header using [stacks](#stacks). For example, if you are rendering a given [component](#components) within a loop, you may wish to only push the JavaScript to the header the first time the component is rendered: -->
-`@once` 디렉티브는 해당 부분의 템플릿을 한 번만 평가하도록 해줍니다. 예를 들어 [stacks](#stacks)을 활용해 특정 자바스크립트 코드를 한 번만 헤더에 삽입하고 싶을 때 유용하게 사용할 수 있습니다. 루프 내에서 [component](#components)를 여러 번 렌더링해도 한 번만 자바스크립트 코드를 출력하고 싶을 때 아래와 같이 사용할 수 있습니다.
+`@once` 디렉티브는 해당 부분의 템플릿을 렌더링 주기당 한 번만 평가하도록 해줍니다. 예를 들어 [stacks](#stacks)을 활용해 특정 자바스크립트 코드를 한 번만 헤더에 삽입하고 싶을 때 유용하게 사용할 수 있습니다. 루프 내에서 [component](#components)를 여러 번 렌더링해도 한 번만 자바스크립트 코드를 출력하고 싶을 때 아래와 같이 사용할 수 있습니다.
 
 ```
 @once
@@ -1720,7 +1720,7 @@ HTML 폼은 `PUT`, `PATCH`, `DELETE` 요청을 직접 보낼 수 없기 때문�
 ```
 
 <!-- You may pass [the name of a specific error bag](/docs/8.x/validation#named-error-bags) as the second parameter to the `@error` directive to retrieve validation error messages on pages containing multiple forms: -->
-여러 개의 폼이 있는 페이지에서 [the name of a specific error bag](/docs/8.x/validation#named-error-bags)을 `@error` 디렉티브의 두 번째 인자로 전달해, 해당 이름을 가진 에러 메시지를 얻을 수도 있습니다.
+여러 개의 폼이 있는 페이지에서 [the name of a specific error bag](/docs/8.x/validation#named-error-bags)을 `@error` 디렉티브의 두 번째 인자로 전달해, 해당 에러 백의 유효성 검사 에러 메시지를 얻을 수도 있습니다.
 
 ```html
 <!-- /resources/views/auth.blade.php -->
@@ -1778,7 +1778,7 @@ Blade에서는 명명된 스택에 콘텐츠를 추가(push)하고, 이 스택�
 ## Service Injection
 
 <!-- The `@inject` directive may be used to retrieve a service from the Laravel [service container](/docs/8.x/container). The first argument passed to `@inject` is the name of the variable the service will be placed into, while the second argument is the class or interface name of the service you wish to resolve: -->
-`@inject` 디렉티브를 사용해 Laravel의 [service container](/docs/8.x/container)에서 서비스를 내려받을 수 있습니다. `@inject`에 전달하는 첫 번째 인자는 서비스가 할당될 변수명이며, 두 번째 인자는 주입할 서비스의 클래스나 인터페이스 이름입니다.
+`@inject` 디렉티브를 사용해 Laravel의 [service container](/docs/8.x/container)에서 서비스를 가져올 수 있습니다. `@inject`에 전달하는 첫 번째 인자는 서비스가 할당될 변수명이며, 두 번째 인자는 주입할 서비스의 클래스나 인터페이스 이름입니다.
 
 ```html
 @inject('metrics', 'App\Services\MetricsService')

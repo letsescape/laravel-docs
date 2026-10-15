@@ -61,7 +61,7 @@ return $users->toArray();
 ### Serializing to JSON
 
 <!-- To convert a model to JSON, you should use the `toJson` method. Like `toArray`, the `toJson` method is recursive, so all attributes and relations will be converted to JSON. You may also specify any JSON encoding options that are [supported by PHP](https://secure.php.net/manual/en/function.json-encode.php): -->
-모델을 JSON으로 변환하려면 `toJson` 메서드를 사용해야 합니다. `toArray`와 마찬가지로 `toJson` 메서드도 재귀적으로 동작하므로 모든 속성과 연관관계가 JSON으로 변환됩니다. 또한 [supported by PHP](https://secure.php.net/manual/en/function.json-encode.php) JSON 인코딩 옵션을 지정할 수도 있습니다.
+모델을 JSON으로 변환하려면 `toJson` 메서드를 사용해야 합니다. `toArray`와 마찬가지로 `toJson` 메서드도 재귀적으로 동작하므로 모든 속성과 연관관계가 JSON으로 변환됩니다. 또한 [supported by PHP](https://secure.php.net/manual/en/function.json-encode.php)에 나열된 JSON 인코딩 옵션을 지정할 수도 있습니다.
 
 ```php
 use App\Models\User;

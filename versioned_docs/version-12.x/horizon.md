@@ -74,7 +74,7 @@ php artisan horizon:install
 #### Environments
 
 <!-- After installation, the primary Horizon configuration option that you should familiarize yourself with is the `environments` configuration option. This configuration option is an array of environments that your application runs on and defines the worker process options for each environment. By default, this entry contains a `production` and `local` environment. However, you are free to add more environments as needed: -->
-Horizon 설치 후 가장 먼저 제어해야 하는 주요 옵션은 `environments` 설정입니다. 이 옵션은 애플리케이션이 동작하는 여러 환경(environment)에 따라 각 워커 프로세스 옵션을 정의합니다. 기본적으로는 `production`과 `local` 환경이 정의되어 있지만, 필요한 만큼 환경을 추가할 수 있습니다.
+Horizon 설치 후 가장 먼저 익숙해져야 하는 주요 옵션은 `environments` 설정입니다. 이 옵션은 애플리케이션이 동작하는 여러 환경(environment)에 따라 각 워커 프로세스 옵션을 정의합니다. 기본적으로는 `production`과 `local` 환경이 정의되어 있지만, 필요한 만큼 환경을 추가할 수 있습니다.
 
 ```php
 'environments' => [
@@ -232,14 +232,14 @@ supervisor 단위로 `timeout` 값을 설정할 수 있습니다. 이 값은 워
 ```
 
 > [!WARNING]
-> `auto` 분산 전략을 사용할 때, Horizon은 스케일 다운 과정에서 프로세스 타임아웃만큼 진행 중인 워커가 "멈춤" 상태로 간주하게 됩니다. 작업 레벨의 타임아웃보다 Horizon의 타임아웃 값이 무조건 더 커야 하며, 그렇지 않으면 작업이 실행 도중 강제로 종료될 수 있습니다. 또, `timeout` 값은 반드시 `config/queue.php`의 `retry_after` 값보다 몇 초 더 짧게 설정해야 합니다. 그렇지 않으면, 동일 작업이 중복 처리될 수 있습니다.
+> `auto` 분산 전략을 사용할 때, Horizon은 스케일 다운 과정에서 진행 중인 워커를 "멈춤" 상태로 간주하고 Horizon 타임아웃이 지나면 강제로 종료합니다. 작업 레벨의 타임아웃보다 Horizon의 타임아웃 값이 무조건 더 커야 하며, 그렇지 않으면 작업이 실행 도중 강제로 종료될 수 있습니다. 또, `timeout` 값은 반드시 `config/queue.php`의 `retry_after` 값보다 몇 초 더 짧게 설정해야 합니다. 그렇지 않으면, 동일 작업이 중복 처리될 수 있습니다.
 
 <a name="job-backoff"></a>
 <!-- ### Job Backoff -->
 ### Job Backoff
 
 <!-- You can define the `backoff` value at the supervisor level to specify how long Horizon should wait before retrying a job that encounters an unhandled exception: -->
-supervisor 단위에서 `backoff` 값을 설정하면, 예외 발생 후 작업 재시도까지 대기할 시간을 지정할 수 있습니다.
+supervisor 단위에서 `backoff` 값을 설정하면, 처리되지 않은 예외 발생 후 작업 재시도까지 대기할 시간을 지정할 수 있습니다.
 
 ```php
 'environments' => [
@@ -253,7 +253,7 @@ supervisor 단위에서 `backoff` 값을 설정하면, 예외 발생 후 작업 
 ```
 
 <!-- You may also configure "exponential" backoffs by using an array for the `backoff` value. In this example, the retry delay will be 1 second for the first retry, 5 seconds for the second retry, 10 seconds for the third retry, and 10 seconds for every subsequent retry if there are more attempts remaining: -->
-`backoff` 값에 배열을 사용하면 "지수적(exponential)" 백오프 설정도 가능합니다. 예를 들어 아래처럼 배열로 설정한 경우, 첫 번째 재시도는 1초, 두 번째는 5초, 세 번째는 10초를 대기하며, 이후엔 계속 10초 동안 대기합니다.
+`backoff` 값에 배열을 사용하면 "지수적(exponential)" 백오프 설정도 가능합니다. 예를 들어 아래처럼 배열로 설정한 경우, 첫 번째 재시도는 1초, 두 번째는 5초, 세 번째는 10초를 대기하며, 이후에도 남은 시도 횟수가 있으면 재시도마다 10초 동안 대기합니다.
 
 ```php
 'environments' => [
@@ -420,7 +420,7 @@ class ProcessPodcast implements ShouldQueue, Silenced
 이 예시에서는 기본 `queue`는 10개까지 확장 가능하고, `images` 큐는 1개의 프로세스만 사용하도록 보장됩니다. 이렇게 하면 각 큐별로 독립적 스케일링이 가능합니다.
 
 > [!NOTE]
-> 리소스 소모가 큰 작업은 별도 큐로 분리하고 `maxProcesses`를 제한하는 것이 바람직합니다. 규정 없이 무한 확장하면 시스템 과부하가 발생할 수 있습니다.
+> 리소스 소모가 큰 작업은 경우에 따라 별도 큐로 분리하고 `maxProcesses`를 제한하는 것이 바람직합니다. 그렇지 않으면 이러한 작업이 CPU 리소스를 과도하게 소비하여 시스템 과부하가 발생할 수 있습니다.
 
 <a name="simple-balancing"></a>
 <!-- ### Simple Balancing -->
@@ -667,7 +667,7 @@ stopwaitsecs=3600
 #### Starting Supervisor
 
 <!-- Once the configuration file has been created, you may update the Supervisor configuration and start the monitored processes using the following commands: -->
-설정 파일 생성 후, 다음 명령어로 Supervisor 설정을 갱신하고 모니터링을 시작할 수 있습니다.
+설정 파일 생성 후, 다음 명령어로 Supervisor 설정을 갱신하고 모니터링 대상 프로세스를 시작할 수 있습니다.
 
 ```shell
 sudo supervisorctl reread

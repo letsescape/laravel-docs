@@ -61,7 +61,7 @@ php artisan octane:install
 ### RoadRunner
 
 <!-- [RoadRunner](https://roadrunner.dev) is powered by the RoadRunner binary, which is built using Go. The first time you start a RoadRunner based Octane server, Octane will offer to download and install the RoadRunner binary for you. -->
-[RoadRunner](https://roadrunner.dev)는 Go로 빌드된 RoadRunner 바이너리를 기반으로 동작합니다. RoadRunner 기반 Octane 서버를 처음 시작할 때, Octane은 RoadRunner 바이너리를 자동으로 다운로드 및 설치해줍니다.
+[RoadRunner](https://roadrunner.dev)는 Go로 빌드된 RoadRunner 바이너리를 기반으로 동작합니다. RoadRunner 기반 Octane 서버를 처음 시작할 때, Octane은 RoadRunner 바이너리의 다운로드 및 설치를 제안합니다.
 
 <a name="roadrunner-via-laravel-sail"></a>
 <!-- #### RoadRunner Via Laravel Sail -->
@@ -357,7 +357,7 @@ Octane은 프레임워크의 1차적인 상태는 요청마다 자동으로 초�
 ### Container Injection
 
 <!-- In general, you should avoid injecting the application service container or HTTP request instance into the constructors of other objects. For example, the following binding injects the entire application service container into an object that is bound as a singleton: -->
-서비스 컨테이너나 HTTP 리퀘스트 인스턴스를 다른 객체의 생성자에서 직접 주입하는 일은 일반적으로 피해야 합니다. 아래 예시는 전체 애플리케이션 서비스 컨테이너를 싱글턴으로 바인딩하는 상황입니다.
+서비스 컨테이너나 HTTP 리퀘스트 인스턴스를 다른 객체의 생성자에서 직접 주입하는 일은 일반적으로 피해야 합니다. 아래 예시는 전체 애플리케이션 서비스 컨테이너를 싱글턴으로 바인딩된 객체에 주입하는 상황입니다.
 
 ```php
 use App\Service;
@@ -585,7 +585,7 @@ Octane::tick('simple-ticker', fn () => ray('Ticking...'))
 > 이 기능을 사용하려면 [Swoole](#swoole)이 필요합니다.
 
 <!-- When using Swoole, you may leverage the Octane cache driver, which provides read and write speeds of up to 2 million operations per second. Therefore, this cache driver is an excellent choice for applications that need extreme read / write speeds from their caching layer. -->
-Swoole을 사용할 때는 Octane 캐시 드라이버를 활용할 수 있습니다. Octane 캐시는 초당 최대 2백만 건 이상의 읽기/쓰기 작업이 가능한 매우 빠른 캐시 드라이버로, 극한의 성능이 필요한 상황에 적합합니다.
+Swoole을 사용할 때는 Octane 캐시 드라이버를 활용할 수 있습니다. Octane 캐시는 초당 최대 2백만 건의 읽기/쓰기 작업이 가능한 매우 빠른 캐시 드라이버로, 극한의 성능이 필요한 상황에 적합합니다.
 
 <!-- This cache driver is powered by [Swoole tables](https://www.swoole.co.uk/docs/modules/swoole-table). All data stored in the cache is available to all workers on the server. However, the cached data will be flushed when the server is restarted: -->
 이 캐시 드라이버는 [Swoole tables](https://www.swoole.co.uk/docs/modules/swoole-table) 위에서 동작합니다. 저장된 데이터는 서버 내 모든 워커가 접근할 수 있지만, 서버가 재시작되면 캐시된 데이터는 모두 사라집니다.

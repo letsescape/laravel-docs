@@ -325,7 +325,7 @@ $payLink = $request->user()->newSubscription('default', $premium = 34567)
 #### Payments Requiring Additional Confirmation
 
 <!-- Sometimes additional verification is required in order to confirm and process a payment. When this happens, Paddle will present a payment confirmation screen. Payment confirmation screens presented by Paddle or Cashier may be tailored to a specific bank or card issuer's payment flow and can include additional card confirmation, a temporary small charge, separate device authentication, or other forms of verification. -->
-일부 결제의 경우, 추가적인 확인 절차가 필요할 수 있습니다. 이럴 때 Paddle은 별도의 결제 확인 화면을 보여줍니다. Paddle이 보여주는 결제 확인 화면은, 결제 은행 또는 카드사에 따라 추가 카드 인증, 임시 소액 청구, 별도 디바이스 인증 등 여러 종류가 있을 수 있습니다.
+일부 결제의 경우, 추가적인 확인 절차가 필요할 수 있습니다. 이럴 때 Paddle은 별도의 결제 확인 화면을 보여줍니다. Paddle이나 Cashier가 보여주는 결제 확인 화면은, 결제 은행 또는 카드사에 따라 추가 카드 인증, 임시 소액 청구, 별도 디바이스 인증 등 여러 종류가 있을 수 있습니다.
 
 <a name="inline-checkout"></a>
 <!-- ### Inline Checkout -->
@@ -375,7 +375,7 @@ $options = [
 #### Manually Rendering An Inline Checkout
 
 <!-- You may also manually render an inline checkout without using Laravel's built-in Blade components. To get started, generate the pay link URL [as demonstrated in previous examples](#pay-links). -->
-Laravel의 Blade 컴포넌트를 사용하지 않고 인라인 결제를 직접 구현할 수도 있습니다. [as demonstrated in previous examples](#pay-links)하세요.
+Laravel의 Blade 컴포넌트를 사용하지 않고 인라인 결제를 직접 구현할 수도 있습니다. 먼저 [as demonstrated in previous examples](#pay-links)에 설명된 대로 페이 링크 URL을 생성하세요.
 
 <!-- Next, you may use Paddle.js to initialize the checkout. To keep this example simple, we will demonstrate this using [Alpine.js](https://github.com/alpinejs/alpine); however, you are free to translate this example to your own frontend stack: -->
 그다음, Paddle.js를 사용해서 결제 위젯을 초기화할 수 있습니다. 아래 예시는 [Alpine.js](https://github.com/alpinejs/alpine)를 이용한 것이지만, 여러분의 프론트엔드 환경에 맞게 참고해 구현 가능합니다.
@@ -621,7 +621,7 @@ Route::get('/user/subscribe', function (Request $request) {
 ```
 
 <!-- After the user has finished their checkout, a `subscription_created` webhook will be dispatched from Paddle. Cashier will receive this webhook and setup the subscription for your customer. In order to make sure all webhooks are properly received and handled by your application, ensure you have properly [setup webhook handling](#handling-paddle-webhooks). -->
-사용자가 결제를 완료하면, Paddle에서 `subscription_created` 웹훅이 발송됩니다. Cashier가 이 웹훅을 수신하여 해당 고객의 구독을 설정해줍니다. 모든 웹훅이 제대로 수신/처리되는지 반드시 [setup webhook handling](#handling-paddle-webhooks)이 필요한 점을 유념하세요.
+사용자가 결제를 완료하면, Paddle에서 `subscription_created` 웹훅이 발송됩니다. Cashier가 이 웹훅을 수신하여 해당 고객의 구독을 설정해줍니다. 모든 웹훅이 제대로 수신/처리되도록 [setup webhook handling](#handling-paddle-webhooks)이 올바르게 설정되었는지 반드시 확인하세요.
 
 <a name="additional-details"></a>
 <!-- #### Additional Details -->
@@ -815,7 +815,7 @@ public function register()
 ```
 
 > [!NOTE]
-> 구독이 `past_due` 상태일 때는 결제 정보가 갱신되기 전까지 상태를 변경할 수 없습니다. 따라서 `swap` 및 `updateQuantity` 메서드가 `past_due` 상태에서 호출되면 예외가 발생합니다.
+> 구독이 `past_due` 상태일 때는 결제 정보가 갱신되기 전까지 구독을 변경할 수 없습니다. 따라서 `swap` 및 `updateQuantity` 메서드가 `past_due` 상태에서 호출되면 예외가 발생합니다.
 
 <a name="subscription-scopes"></a>
 <!-- #### Subscription Scopes -->
@@ -909,7 +909,7 @@ $user->subscription('default')->swap($premium = 34567);
 ```
 
 <!-- If you would like to swap plans and immediately invoice the user instead of waiting for their next billing cycle, you may use the `swapAndInvoice` method: -->
-요금제 변경 시 다음 결제 주기까지 기다리지 않고 곧바로 사용자를 청구하려면 `swapAndInvoice` 메서드를 사용하세요.
+요금제 변경 시 다음 결제 주기까지 기다리지 않고 곧바로 사용자에게 청구하려면 `swapAndInvoice` 메서드를 사용하세요.
 
 ```
 $user = User::find(1);
@@ -1347,7 +1347,7 @@ Cashier는 수신된 웹훅 타입별로 전용 이벤트도 발생시킵니다.
 </div>
 
 <!-- You can also override the default, built-in webhook route by defining the `CASHIER_WEBHOOK` environment variable in your application's `.env` file. This value should be the full URL to your webhook route and needs to match the URL set in your Paddle control panel: -->
-또한, `.env` 파일에 `CASHIER_WEBHOOK` 환경 변수를 정의하면 기본 내장 웹훅 라우트를 원하는 값으로 변경할 수 있습니다. 반드시 Paddle 제어 패널에 설정한 웹훅 URL과 일치해야 합니다.
+또한, `.env` 파일에 `CASHIER_WEBHOOK` 환경 변수를 정의하면 기본 내장 웹훅 라우트를 원하는 값으로 변경할 수 있습니다. 이 값은 웹훅 라우트의 전체 URL이어야 하며, 반드시 Paddle 제어 패널에 설정한 웹훅 URL과 일치해야 합니다.
 
 ```bash
 CASHIER_WEBHOOK=https://example.com/my-paddle-webhook-url
@@ -1411,7 +1411,7 @@ CASHIER_CURRENCY=EUR
 ```
 
 <!-- You can also [override prices per currency](https://developer.paddle.com/api-reference/product-api/pay-links/createpaylink#price-overrides) using Paddle's dynamic pricing matching system. To do so, pass an array of prices instead of a fixed amount: -->
-또한, Paddle의 동적 가격 일치 기능을 사용해 [override prices per currency](https://developer.paddle.com/api-reference/product-api/pay-links/createpaylink#price-overrides)할 수도 있습니다. 이 경우, 고정 금액 대신 여러 통화가 포함된 배열을 전달합니다.
+또한, Paddle의 동적 가격 일치 기능을 사용해 [override prices per currency](https://developer.paddle.com/api-reference/product-api/pay-links/createpaylink#price-overrides)할 수도 있습니다. 이 경우, 고정 금액 대신 통화별 가격이 포함된 배열을 전달합니다.
 
 ```
 $payLink = $user->charge([
@@ -1549,7 +1549,7 @@ Next payment: {{ $nextPayment->amount() }} due on {{ $nextPayment->date()->forma
 구독 결제는 카드 만료, 잔액 부족 등 다양한 이유로 실패할 수 있습니다. 이런 상황에서는 Paddle이 결제 실패 처리를 담당하도록 맡기는 것이 좋습니다. 구체적으로, Paddle 대시보드에서 [setup Paddle's automatic billing emails](https://vendors.paddle.com/subscription-settings)을 설정할 수 있습니다.
 
 <!-- Alternatively, you can perform more precise customization by catching the [`subscription_payment_failed`](https://developer.paddle.com/webhook-reference/subscription-alerts/subscription-payment-failed) webhook and enabling the "Subscription Payment Failed" option in the Webhook settings of your Paddle dashboard: -->
-좀 더 세밀한 처리가 필요하다면 [`subscription_payment_failed`](https://developer.paddle.com/webhook-reference/subscription-alerts/subscription-payment-failed) 웹훅을 수신해, Paddle 대시보드의 Webhook 설정에서 "Subscription Payment Failed" 옵션을 활성화하면 됩니다.
+좀 더 세밀한 처리가 필요하다면 [`subscription_payment_failed`](https://developer.paddle.com/webhook-reference/subscription-alerts/subscription-payment-failed) 웹훅을 수신하도록 처리하고 Paddle 대시보드의 Webhook 설정에서 "Subscription Payment Failed" 옵션을 활성화하면 됩니다.
 
 ```
 <?php

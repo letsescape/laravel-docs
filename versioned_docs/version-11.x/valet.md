@@ -157,7 +157,7 @@ php=php@8.2
 ```
 
 <!-- Once this file has been created, you may simply execute the `valet use` command and the command will determine the site's preferred PHP version by reading the file. -->
-이 파일이 만들어지면, `valet use` 명령어를 실행하면 Valet가 파일을 읽어 최적의 PHP 버전을 자동으로 적용해줍니다.
+이 파일이 만들어지면, `valet use` 명령어를 실행하면 Valet가 파일을 읽어 사이트에 지정된 PHP 버전을 자동으로 적용해줍니다.
 
 > [!WARNING]
 > 여러 PHP 버전이 설치되어 있더라도 Valet는 한 번에 하나의 PHP 버전만 제공합니다.
@@ -199,7 +199,7 @@ Valet 3에서 Valet 4로 업그레이드하려면 아래 단계를 순서대로 
 - If you use PHP 7.1 - 7.4 to serve your sites, make sure you still use Homebrew to install a version of PHP that's 8.0 or higher, as Valet will use this version, even if it's not your primary linked version, to run some of its scripts.
 -->
 - 사이트별 PHP 버전을 커스터마이즈하기 위해 `.valetphprc` 파일을 추가했다면, 각 `.valetphprc` 파일명을 `.valetrc`로 변경합니다. 그리고 `.valetrc` 파일의 기존 내용 앞에 `php=`를 붙여줍니다.
-- 기존 커스텀 드라이버가 있다면 새로운 드라이버 시스템의 네임스페이스, 확장자, 타입힌트, 반환 타입힌트 방식에 맞게 업데이트해야 합니다. 예시는 Valet의 [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php)에서 참고할 수 있습니다.
+- 기존 커스텀 드라이버가 있다면 새로운 드라이버 시스템의 네임스페이스, 상속 관계, 타입힌트, 반환 타입힌트 방식에 맞게 업데이트해야 합니다. 예시는 Valet의 [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php)에서 참고할 수 있습니다.
 - PHP 7.1~7.4 버전으로 사이트를 운영 중이라면, 여전히 Homebrew를 통해 PHP 8.0 이상의 버전을 설치해야 합니다. Valet는 본인의 주요 PHP 버전이 아니더라도 이 버전을 사용해 일부 스크립트를 실행하니 꼭 설치해두어야 합니다.
 
 <!-- </div> -->
@@ -281,7 +281,7 @@ valet unlink
 ### Securing Sites With TLS
 
 <!-- By default, Valet serves sites over HTTP. However, if you would like to serve a site over encrypted TLS using HTTP/2, you may use the `secure` command. For example, if your site is being served by Valet on the `laravel.test` domain, you should run the following command to secure it: -->
-Valet는 기본적으로 사이트를 HTTP로 제공합니다. 그러나, HTTPS(HTTP/2로 암호화된 TLS)를 적용하고 싶다면 `secure` 명령어를 사용하면 됩니다. 예를 들어, `laravel.test` 도메인을 Valet에서 제공 중이라면 다음과 같이 실행해 보안 설정을 적용할 수 있습니다.
+Valet는 기본적으로 사이트를 HTTP로 제공합니다. 그러나, HTTPS(TLS로 암호화된 HTTP/2)를 적용하고 싶다면 `secure` 명령어를 사용하면 됩니다. 예를 들어, `laravel.test` 도메인을 Valet에서 제공 중이라면 다음과 같이 실행해 보안 설정을 적용할 수 있습니다.
 
 ```shell
 valet secure laravel
@@ -411,10 +411,10 @@ Expose로 사이트를 공유하려면 [create an Expose account](https://expose
 Valet는 개발 머신이 인터넷으로부터 보안 위험에 노출되지 않도록, 기본적으로 `127.0.0.1` 내부 인터페이스로 들어오는 트래픽만 허용합니다.
 
 <!-- If you wish to allow other devices on your local network to access the Valet sites on your machine via your machine's IP address (eg: `192.168.1.10/application.test`), you will need to manually edit the appropriate Nginx configuration file for that site to remove the restriction on the `listen` directive. You should remove the `127.0.0.1:` prefix on the `listen` directive for ports 80 and 443. -->
-그러나, 같은 로컬 네트워크에 연결된 다른 기기(예: `192.168.1.10/application.test`)에서 Valet 사이트에 접근하게 하려면, 해당 사이트의 Nginx 설정 파일에서 `listen` 디렉티브에 있는 `127.0.0.1:` 접두어를 제거해야 합니다. 이는 80과 443 포트의 `listen` 디렉티브 모두에 적용됩니다.
+그러나, 같은 로컬 네트워크에 연결된 다른 기기에서 개발 머신의 IP 주소(예: `192.168.1.10/application.test`)로 Valet 사이트에 접근하게 하려면, 해당 사이트의 Nginx 설정 파일에서 `listen` 디렉티브에 있는 `127.0.0.1:` 접두어를 제거해야 합니다. 이는 80과 443 포트의 `listen` 디렉티브 모두에 적용됩니다.
 
 <!-- If you have not run `valet secure` on the project, you can open up network access for all non-HTTPS sites by editing the `/usr/local/etc/nginx/valet/valet.conf` file. However, if you're serving the project site over HTTPS (you have run `valet secure` for the site) then you should edit the `~/.config/valet/Nginx/app-name.test` file. -->
-`valet secure`를 실행하지 않은 일반 HTTP 기반 사이트의 경우 `/usr/local/etc/nginx/valet/valet.conf` 파일에서 설정을 수정하세요. 만약 특정 사이트에 `valet secure`를 적용하여 HTTPS로 제공 중이라면, `~/.config/valet/Nginx/app-name.test` 파일을 수정해야 합니다.
+`valet secure`를 실행하지 않은 일반 HTTP 기반 사이트의 경우 `/usr/local/etc/nginx/valet/valet.conf` 파일에서 설정을 수정하여 모든 비 HTTPS 사이트의 네트워크 접근을 열 수 있습니다. 만약 특정 사이트에 `valet secure`를 적용하여 HTTPS로 제공 중이라면, `~/.config/valet/Nginx/app-name.test` 파일을 수정해야 합니다.
 
 <!-- Once you have updated your Nginx configuration, run the `valet restart` command to apply the configuration changes. -->
 Nginx 설정을 변경한 뒤에는 `valet restart` 명령어로 변경사항을 적용합니다.
@@ -424,7 +424,7 @@ Nginx 설정을 변경한 뒤에는 `valet restart` 명령어로 변경사항을
 ## Site Specific Environment Variables
 
 <!-- Some applications using other frameworks may depend on server environment variables but do not provide a way for those variables to be configured within your project. Valet allows you to configure site specific environment variables by adding a `.valet-env.php` file within the root of your project. This file should return an array of site / environment variable pairs which will be added to the global `$_SERVER` array for each site specified in the array: -->
-다른 프레임워크를 사용하는 일부 애플리케이션은 서버 환경 변수에 의존하지만, 프로젝트 내에서 환경 변수를 직접 설정하기 어려운 경우가 있습니다. 이럴 때, 프로젝트 루트에 `.valet-env.php` 파일을 추가하면 사이트별 환경 변수를 직접 지정할 수 있습니다. 이 파일은 각 사이트/환경 변수 쌍을 배열 형태로 반환해야 하며, 지정한 값들은 사이트별로 글로벌 `$_SERVER` 배열에 추가됩니다.
+다른 프레임워크를 사용하는 일부 애플리케이션은 서버 환경 변수에 의존하지만, 프로젝트 내에서 환경 변수를 설정할 방법을 제공하지 않는 경우가 있습니다. 이럴 때, 프로젝트 루트에 `.valet-env.php` 파일을 추가하면 사이트별 환경 변수를 직접 지정할 수 있습니다. 이 파일은 각 사이트/환경 변수 쌍을 배열 형태로 반환해야 하며, 지정한 값들은 사이트별로 글로벌 `$_SERVER` 배열에 추가됩니다.
 
 ```
 <?php
@@ -703,7 +703,7 @@ PHP-FPM 풀 설정 파일입니다.
 ### Disk Access
 
 <!-- Since macOS 10.14, [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf). These restrictions include the Desktop, Documents, and Downloads directories. In addition, network volume and removable volume access is restricted. Therefore, Valet recommends your site folders are located outside of these protected locations. -->
-macOS 10.14부터는 [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf). 데스크톱, 문서, 다운로드 폴더 등이 이에 해당하며, 네트워크 및 이동식 볼륨 접근도 제한됩니다. 따라서 Valet에서는 사이트 폴더를 이러한 보호된 위치 밖에 두는 것을 권장합니다.
+macOS 10.14부터는 [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf)에 설명된 대로 일부 파일과 디렉터리에 대한 접근이 기본적으로 제한됩니다. 데스크톱, 문서, 다운로드 폴더 등이 이에 해당하며, 네트워크 및 이동식 볼륨 접근도 제한됩니다. 따라서 Valet에서는 사이트 폴더를 이러한 보호된 위치 밖에 두는 것을 권장합니다.
 
 <!-- However, if you wish to serve sites from within one of those locations, you will need to give Nginx "Full Disk Access". Otherwise, you may encounter server errors or other unpredictable behavior from Nginx, especially when serving static assets. Typically, macOS will automatically prompt you to grant Nginx full access to these locations. Or, you may do so manually via `System Preferences` > `Security & Privacy` > `Privacy` and selecting `Full Disk Access`. Next, enable any `nginx` entries in the main window pane. -->
 만약 해당 위치에서 사이트를 제공하려면, Nginx에 "전체 디스크 접근 권한(Full Disk Access)"을 부여해야 합니다. 그렇지 않으면 Nginx가 정적 리소스를 제공하지 못하거나 서버 오류 등 예기치 못한 문제가 발생할 수 있습니다. 일반적으로 macOS에서 해당 폴더에 처음 접근할 때 권한 승인을 요청하지만, 수동으로도 설정할 수 있습니다. `System Preferences` > `Security & Privacy` > `Privacy`에서 `Full Disk Access`를 선택한 뒤, 메인 목록에서 `nginx` 항목을 활성화하세요.

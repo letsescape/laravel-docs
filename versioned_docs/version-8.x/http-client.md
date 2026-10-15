@@ -408,7 +408,7 @@ $response = Http::github()->get('/');
 ## Testing
 
 <!-- Many Laravel services provide functionality to help you easily and expressively write tests, and Laravel's HTTP wrapper is no exception. The `Http` facade's `fake` method allows you to instruct the HTTP client to return stubbed / dummy responses when requests are made. -->
-Laravel의 다양한 서비스들은 테스트 작성을 보다 쉽고 표현적으로 할 수 있게 도와주는 기능을 제공합니다. HTTP 래퍼 역시 예외는 아닙니다. `Http` 파사드의 `fake` 메서드를 이용하면, 요청 시 미리 준비된(stub) 또는 더미(dummmy) 응답을 반환하도록 지정할 수 있습니다.
+Laravel의 다양한 서비스들은 테스트 작성을 보다 쉽고 표현적으로 할 수 있게 도와주는 기능을 제공합니다. HTTP 래퍼 역시 예외는 아닙니다. `Http` 파사드의 `fake` 메서드를 이용하면, 요청 시 미리 준비된(stub) 또는 더미(dummy) 응답을 반환하도록 지정할 수 있습니다.
 
 <a name="faking-responses"></a>
 <!-- ### Faking Responses -->
@@ -586,7 +586,7 @@ Http::assertNothingSent();
 Laravel은 HTTP 요청 전송 과정에서 세 가지 이벤트를 발생시킵니다. `RequestSending` 이벤트는 요청이 전송되기 전에 발생하고, `ResponseReceived` 이벤트는 주어진 요청에 대한 응답을 받은 후 발생합니다. 요청에 응답을 받지 못할 경우에는 `ConnectionFailed` 이벤트가 발생합니다.
 
 <!-- The `RequestSending` and `ConnectionFailed` events both contain a public `$request` property that you may use to inspect the `Illuminate\Http\Client\Request` instance. Likewise, the `ResponseReceived` event contains a `$request` property as well as a `$response` property which may be used to inspect the `Illuminate\Http\Client\Response` instance. You may register event listeners for this event in your `App\Providers\EventServiceProvider` service provider: -->
-`RequestSending`과 `ConnectionFailed` 이벤트 모두 `Illuminate\Http\Client\Request` 인스턴스를 검사할 수 있도록 public `$request` 속성을 포함합니다. `ResponseReceived` 이벤트는 `$request`뿐만 아니라 `$response` 속성도 포함하여, `Illuminate\Http\Client\Response` 인스턴스를 검사할 수 있습니다. 이 이벤트에 대한 리스터는 애플리케이션의 `App\Providers\EventServiceProvider` 서비스 프로바이더에서 등록할 수 있습니다.
+`RequestSending`과 `ConnectionFailed` 이벤트 모두 `Illuminate\Http\Client\Request` 인스턴스를 검사할 수 있도록 public `$request` 속성을 포함합니다. `ResponseReceived` 이벤트는 `$request`뿐만 아니라 `$response` 속성도 포함하여, `Illuminate\Http\Client\Response` 인스턴스를 검사할 수 있습니다. 이 이벤트에 대한 리스너는 애플리케이션의 `App\Providers\EventServiceProvider` 서비스 프로바이더에서 등록할 수 있습니다.
 
 ```
 /**

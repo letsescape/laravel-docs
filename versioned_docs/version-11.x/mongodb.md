@@ -35,7 +35,7 @@ composer require mongodb/laravel-mongodb
 ### MongoDB Driver
 
 <!-- To connect to a MongoDB database, the `mongodb` PHP extension is required. If you are developing locally using [Laravel Herd](https://herd.laravel.com) or installed PHP via `php.new`, you already have this extension installed on your system. However, if you need to install the extension manually, you may do so via PECL: -->
-MongoDB 데이터베이스와 연결하려면 `mongodb` PHP 확장이 필요합니다. [Laravel Herd](https://herd.laravel.com)를 사용하거나, `php.new`를 통해 PHP를 설치한 경우 이 확장이 이미 설치되어 있을 수 있습니다. 만약 직접 확장을 설치해야 한다면, PECL을 통해 손쉽게 설치할 수 있습니다:
+MongoDB 데이터베이스와 연결하려면 `mongodb` PHP 확장이 필요합니다. [Laravel Herd](https://herd.laravel.com)를 사용하거나, `php.new`를 통해 PHP를 설치한 경우 이 확장이 이미 설치되어 있습니다. 만약 직접 확장을 설치해야 한다면, PECL을 통해 손쉽게 설치할 수 있습니다:
 
 ```shell
 pecl install mongodb
@@ -64,7 +64,7 @@ For hosting MongoDB in the cloud, consider using [MongoDB Atlas](https://www.mon
 To access a MongoDB Atlas cluster locally from your application, you will need to [add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/) to the project's IP Access List.
 -->
 클라우드 환경에서 MongoDB를 사용하려는 경우 [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) 서비스를 고려해볼 수 있습니다.
-애플리케이션에서 MongoDB Atlas 클러스터에 로컬 환경에서 접근하려면, 먼저 [add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/)해야 합니다.
+애플리케이션에서 MongoDB Atlas 클러스터에 로컬 환경에서 접근하려면, 먼저 클러스터의 네트워크 설정에서 자신의 IP 주소를 프로젝트의 IP 접근 목록에 추가해야 합니다([add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/)).
 
 <!-- The connection string for MongoDB Atlas can also be set in your `.env` file: -->
 MongoDB Atlas의 연결 문자열도 `.env` 파일에서 설정할 수 있습니다:
@@ -121,10 +121,10 @@ composer require mongodb/laravel-mongodb
 - Most third party packages using a database connection or Eloquent can be used with MongoDB.
 -->
 - [Using Eloquent](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/eloquent-models/) 시, 모델을 MongoDB 컬렉션에 저장할 수 있습니다. 기본 Eloquent의 기능 외에도, Laravel MongoDB 패키지는 임베디드(embedded) 관계 등 추가적인 기능을 제공하며, MongoDB 드라이버에 직접 접근해 원시 쿼리나 집계 파이프라인 같은 작업도 수행할 수 있습니다.
-- 쿼리 빌더를 사용하여 [Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/)이 가능합니다.
+- 쿼리 빌더를 사용하여 복잡한 쿼리를 작성할 수 있습니다([Write complex queries](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/query-builder/)).
 - `mongodb` [cache driver](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/cache/)는 만료된 캐시 항목을 자동으로 삭제하는 TTL 인덱스 등 MongoDB의 기능을 적극적으로 활용하도록 최적화되어 있습니다.
-- `mongodb` 큐 드라이버로 [Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/)할 수 있습니다.
-- [Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/gridfs/)를 이용해 [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/)이 가능합니다.
+- `mongodb` 큐 드라이버로 큐 작업을 디스패치하고 처리할 수 있습니다([Dispatch and process queued jobs](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/queues/)).
+- [GridFS Adapter for Flysystem](https://flysystem.thephpleague.com/docs/adapter/gridfs/)을 이용해 GridFS에 파일을 저장할 수 있습니다([Storing files in GridFS](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/gridfs/)).
 - 데이터베이스 연결이나 Eloquent를 사용하는 대부분의 서드파티 패키지를 MongoDB와 함께 사용할 수 있습니다.
 
 <!-- To continue learning how to use MongoDB and Laravel, refer to MongoDB's [Quick Start guide](https://www.mongodb.com/docs/drivers/php/laravel-mongodb/current/quick-start/). -->

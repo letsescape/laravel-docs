@@ -347,7 +347,7 @@ return Storage::download('file.jpg', $name, $headers);
 ### File URLs
 
 <!-- You may use the `url` method to get the URL for a given file. If you are using the `local` driver, this will typically just prepend `/storage` to the given path and return a relative URL to the file. If you are using the `s3` driver, the fully qualified remote URL will be returned: -->
-`url` 메서드를 이용해 특정 파일의 URL을 얻을 수 있습니다. `local` 드라이버를 사용할 경우, 이 메서드는 일반적으로 지정된 경로에 `/storage`를 앞에 붙여 상대 URL을 반환합니다. `s3` 드라이버를 쓰는 경우에는 완전히 실제 원격 URL이 반환됩니다:
+`url` 메서드를 이용해 특정 파일의 URL을 얻을 수 있습니다. `local` 드라이버를 사용할 경우, 이 메서드는 일반적으로 지정된 경로에 `/storage`를 앞에 붙여 상대 URL을 반환합니다. `s3` 드라이버를 쓰는 경우에는 완전한 형식의 원격 URL이 반환됩니다:
 
 ```php
 use Illuminate\Support\Facades\Storage;
@@ -383,7 +383,7 @@ $url = Storage::url('file.jpg');
 ### Temporary URLs
 
 <!-- Using the `temporaryUrl` method, you may create temporary URLs to files stored using the `local` and `s3` drivers. This method accepts a path and a `DateTime` instance specifying when the URL should expire: -->
-`temporaryUrl` 메서드를 사용해 `local` 또는 `s3` 드라이버로 저장된 파일의 임시 접근 URL을 생성할 수 있습니다. 이 메서드는 경로와 URL의 만료 시간을 `DateTime` 인스턴스로 받습니다:
+`temporaryUrl` 메서드를 사용해 `local` 또는 `s3` 드라이버로 저장된 파일의 임시 접근 URL을 생성할 수 있습니다. 이 메서드는 경로와 URL의 만료 시간을 지정하는 `DateTime` 인스턴스를 받습니다:
 
 ```php
 use Illuminate\Support\Facades\Storage;
@@ -432,7 +432,7 @@ $url = Storage::temporaryUrl(
 #### Customizing Temporary URLs
 
 <!-- If you need to customize how temporary URLs are created for a specific storage disk, you can use the `buildTemporaryUrlsUsing` method. For example, this can be useful if you have a controller that allows you to download files stored via a disk that doesn't typically support temporary URLs. Usually, this method should be called from the `boot` method of a service provider: -->
-특정 스토리지 디스크에 대해 임시 URL 생성 방식을 사용자 지정하고 싶다면, `buildTemporaryUrlsUsing` 메서드를 사용할 수 있습니다. 예를 들어, 일반적으로 임시 URL을 지원하지 않는 디스크에 저장된 파일을 서명된 라우트를 통해 다운로드하는 컨트롤러가 있다고 가정할 수 있습니다. 이 메서드는 일반적으로 서비스 프로바이더의 `boot` 메서드에서 호출하는 것이 좋습니다:
+특정 스토리지 디스크에 대해 임시 URL 생성 방식을 사용자 지정하고 싶다면, `buildTemporaryUrlsUsing` 메서드를 사용할 수 있습니다. 예를 들어, 일반적으로 임시 URL을 지원하지 않는 디스크에 저장된 파일을 다운로드하는 컨트롤러가 있다고 가정할 수 있습니다. 이 메서드는 일반적으로 서비스 프로바이더의 `boot` 메서드에서 호출하는 것이 좋습니다:
 
 ```php
 <?php
@@ -554,7 +554,7 @@ if (! Storage::put('file.jpg', $contents)) {
 ```
 
 <!-- If you wish, you may define the `throw` option within your filesystem disk's configuration array. When this option is defined as `true`, "write" methods such as `put` will throw an instance of `League\Flysystem\UnableToWriteFile` when write operations fail: -->
-원한다면, 파일 시스템 디스크 설정 배열에 `throw` 옵션을 추가할 수 있습니다. 이 옵셥이 `true`로 설정된 경우, `put`와 같은 "쓰기" 메서드가 실패하면 `League\Flysystem\UnableToWriteFile` 예외가 발생합니다:
+원한다면, 파일 시스템 디스크 설정 배열에 `throw` 옵션을 추가할 수 있습니다. 이 옵션이 `true`로 설정된 경우, `put`와 같은 "쓰기" 메서드가 실패하면 `League\Flysystem\UnableToWriteFile` 예외가 발생합니다:
 
 ```php
 'public' => [
@@ -840,7 +840,7 @@ $files = Storage::allFiles($directory);
 #### Get All Directories Within a Directory
 
 <!-- The `directories` method returns an array of all directories within a given directory. If you would like to retrieve a list of all directories within a given directory including subdirectories, you may use the `allDirectories` method: -->
-`directories` 메서드는 지정한 디렉터리 내의 모든 하위 디렉터리 경로 배열을 반환합니다. 하위 디렉터리까지 포함한 전체 리스트를 얻으려면 `allDirectories`를 사용하세요:
+`directories` 메서드는 지정한 디렉터리 바로 아래에 있는 모든 디렉터리의 경로 배열을 반환합니다. 중첩된 하위 디렉터리까지 포함한 전체 리스트를 얻으려면 `allDirectories`를 사용하세요:
 
 ```php
 $directories = Storage::directories($directory);
@@ -875,7 +875,7 @@ Storage::deleteDirectory($directory);
 ## Testing
 
 <!-- The `Storage` facade's `fake` method allows you to easily generate a fake disk that, combined with the file generation utilities of the `Illuminate\Http\UploadedFile` class, greatly simplifies the testing of file uploads. For example: -->
-`Storage` 파사드의 `fake` 메서드를 사용하면, 임의의 디스크를 쉽게 생성해 파일 업로드 테스트를 단순화할 수 있습니다. 이는 `Illuminate\Http\UploadedFile` 클래스의 파일 생성 기능과 함께 쓰이는데 매우 유용합니다. 예를 들어:
+`Storage` 파사드의 `fake` 메서드를 사용하면, 테스트용 가짜 디스크를 쉽게 생성해 파일 업로드 테스트를 단순화할 수 있습니다. 이는 `Illuminate\Http\UploadedFile` 클래스의 파일 생성 기능과 함께 쓰이는데 매우 유용합니다. 예를 들어:
 
 ```php tab=Pest
 <?php

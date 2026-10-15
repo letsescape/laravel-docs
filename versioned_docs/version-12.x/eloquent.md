@@ -226,7 +226,7 @@ class Flight extends Model
 #### "Composite" Primary Keys
 
 <!-- Eloquent requires each model to have at least one uniquely identifying "ID" that can serve as its primary key. "Composite" primary keys are not supported by Eloquent models. However, you are free to add additional multi-column, unique indexes to your database tables in addition to the table's uniquely identifying primary key. -->
-Eloquent는 각 모델에 기본 키로 사용할 수 있는, 최소 하나의 고유하게 식별되는 "ID"가 있어야 한다고 요구합니다. "복합" 기본 키는 Eloquent 모델에서 지원되지 않습니다. 하지만 테이블을 고유하게 식별하는 기본 키와 별도로, 데이터베이스 테이블에 여러 컬럼으로 구성된 추가 고유 인덱스를 자유롭게 추가할 수 있습니다.
+Eloquent는 각 모델에 기본 키로 사용할 수 있는, 최소 하나의 고유하게 식별되는 "ID"가 있어야 한다고 요구합니다. "복합" 기본 키는 Eloquent 모델에서 지원되지 않습니다. 하지만 테이블의 레코드를 고유하게 식별하는 기본 키와 별도로, 데이터베이스 테이블에 여러 컬럼으로 구성된 추가 고유 인덱스를 자유롭게 추가할 수 있습니다.
 
 <a name="uuid-and-ulid-keys"></a>
 <!-- ### UUID and ULID Keys -->
@@ -662,7 +662,7 @@ foreach ($users as $user) {
 ```
 
 <!-- Although the `cursor` method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). If you're dealing with a very large number of Eloquent records, consider using [the `lazy` method](#chunking-using-lazy-collections) instead. -->
-`cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만(한 번에 하나의 Eloquent 모델만 메모리에 보관하기 때문입니다), 결국에는 여전히 메모리가 부족해질 수 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). 매우 많은 수의 Eloquent 레코드를 다루고 있다면 대신 [the `lazy` method](#chunking-using-lazy-collections)를 사용하는 것을 고려하세요.
+`cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만(한 번에 하나의 Eloquent 모델만 메모리에 보관하기 때문입니다), 결국에는 여전히 메모리가 부족해질 수 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)에 설명된 PDO 드라이버의 쿼리 결과 버퍼링 때문입니다. 매우 많은 수의 Eloquent 레코드를 다루고 있다면 대신 [the `lazy` method](#chunking-using-lazy-collections)를 사용하는 것을 고려하세요.
 
 <a name="advanced-subqueries"></a>
 <!-- ### Advanced Subqueries -->
@@ -967,7 +967,7 @@ $user->isClean(); // true
 ```
 
 <!-- The `wasChanged` method determines if any attributes were changed when the model was last saved within the current request cycle. If needed, you may pass an attribute name to see if a particular attribute was changed: -->
-`wasChanged` 메서드는 현재 요청 주기 안에서 모델이 마지막으로 저장될 때 어떤 속성이 변경되었는지 확인합니다. 필요한 경우 속성 이름을 전달하여 특정 속성이 변경되었는지 확인할 수 있습니다.
+`wasChanged` 메서드는 현재 요청 주기 안에서 모델이 마지막으로 저장될 때 변경된 속성이 있는지 확인합니다. 필요한 경우 속성 이름을 전달하여 특정 속성이 변경되었는지 확인할 수 있습니다.
 
 ```php
 $user = User::create([
@@ -1441,7 +1441,7 @@ php artisan model:prune --pretend
 ```
 
 > [!WARNING]
-> 소프트 삭제된 모델이 prunable 쿼리와 일치하면 영구적으로 삭제됩니다(`forceDelete`).
+> 소프트 삭제를 사용하는 모델이 prunable 쿼리와 일치하면 영구적으로 삭제됩니다(`forceDelete`).
 
 <a name="mass-pruning"></a>
 <!-- #### Mass Pruning -->

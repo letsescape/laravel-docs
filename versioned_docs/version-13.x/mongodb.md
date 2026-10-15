@@ -67,7 +67,7 @@ MONGODB_DATABASE="laravel_app"
 ```
 
 <!-- For hosting MongoDB in the cloud, consider using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas). To access a MongoDB Atlas cluster locally from your application, you will need to [add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/) to the project's IP Access List. -->
-클라우드 환경에서 MongoDB를 호스팅하려면 [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)를 고려할 수 있습니다. 애플리케이션에서 로컬로 MongoDB Atlas 클러스터에 접속하려면, [add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/)해야 합니다.
+클라우드 환경에서 MongoDB를 호스팅하려면 [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)를 고려할 수 있습니다. 애플리케이션에서 로컬로 MongoDB Atlas 클러스터에 접속하려면, 클러스터의 네트워크 설정에서 자신의 IP 주소를 프로젝트의 IP 접근 목록에 추가해야 합니다([add your own IP address in the cluster's network settings](https://www.mongodb.com/docs/atlas/security/add-ip-address-to-list/)).
 
 <!-- The connection string for MongoDB Atlas can also be set in your `.env` file: -->
 MongoDB Atlas 연결 문자열도 `.env` 파일에 다음과 같이 설정할 수 있습니다:

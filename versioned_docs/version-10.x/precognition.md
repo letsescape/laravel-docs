@@ -642,7 +642,7 @@ client.use(window.axios)
 프리코그니션 요청에서 실행되는 유효성 검증 규칙은 요청의 `isPrecognitive` 메서드를 이용해 커스터마이즈할 수 있습니다.
 
 <!-- For example, on a user creation form, we may want to validate that a password is "uncompromised" only on the final form submission. For precognitive validation requests, we will simply validate that the password is required and has a minimum of 8 characters. Using the `isPrecognitive` method, we can customize the rules defined by our form request: -->
-예를 들어, 사용자 생성 폼에서 실제 최종 제출 때만 비밀번호가 "보안 위협에 노출되지 않았는지" 확인하고 싶을 수 있습니다. 프리코그니션 유효성 검증 요청인 경우엔 비밀번호의 길이 조건만 검사하고, 실제 제출 때만 uncompromised 조건을 추가합니다. `isPrecognitive` 메서드를 활용하면 폼 요청 클래스에서 아래와 같이 규칙을 다르게 지정할 수 있습니다.
+예를 들어, 사용자 생성 폼에서 실제 최종 제출 때만 비밀번호가 "보안 위협에 노출되지 않았는지" 확인하고 싶을 수 있습니다. 프리코그니션 유효성 검증 요청인 경우엔 비밀번호가 필수이며 최소 8자 이상인지 검사하고, 실제 제출 때만 uncompromised 조건을 추가합니다. `isPrecognitive` 메서드를 활용하면 폼 요청 클래스에서 아래와 같이 규칙을 다르게 지정할 수 있습니다.
 
 ```php
 <?php
@@ -682,7 +682,7 @@ class StoreUserRequest extends FormRequest
 기본적으로, Laravel Precognition은 프리코그니션 유효성 검증 요청 중에는 파일을 업로드하거나 검증하지 않습니다. 이로 인해 불필요하게 대용량 파일이 여러 번 업로드되는 일을 막아줍니다.
 
 <!-- Because of this behavior, you should ensure that your application [customizes the corresponding form request's validation rules](#customizing-validation-rules) to specify the field is only required for full form submissions: -->
-이러한 기본 동작을 고려해, [customizes the corresponding form request's validation rules](#customizing-validation-rules)하여 실제 폼 최종 제출에서만 해당 필드가 필수임을 지정해야 합니다.
+이러한 기본 동작을 고려해, [customizes the corresponding form request's validation rules](#customizing-validation-rules)에 설명된 대로 유효성 검증 규칙을 조정하여 실제 폼 최종 제출에서만 해당 필드가 필수임을 지정해야 합니다.
 
 ```php
 /**

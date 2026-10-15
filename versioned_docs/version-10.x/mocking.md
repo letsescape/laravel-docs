@@ -65,7 +65,7 @@ $mock = $this->partialMock(Service::class, function (MockInterface $mock) {
 ```
 
 <!-- Similarly, if you want to [spy](http://docs.mockery.io/en/latest/reference/spies.html) on an object, Laravel's base test case class offers a `spy` method as a convenient wrapper around the `Mockery::spy` method. Spies are similar to mocks; however, spies record any interaction between the spy and the code being tested, allowing you to make assertions after the code is executed: -->
-이와 비슷하게, 객체의 동작을 [spy](http://docs.mockery.io/en/latest/reference/spies.html)하고 싶을 때에는, `Mockery::spy`의 편리한 래퍼로 Laravel 테스트 케이스의 `spy` 메서드를 사용할 수 있습니다. 스파이는 목(Mocking)과 유사하지만, 실제 코드가 수행된 뒤에 그 상호작용(어떤 메서드가 몇 번 호출됐는지 등)을 기록해두었다가, 그 단위 테스트 끝에 assert로 검증할 수 있습니다.
+이와 비슷하게, 객체의 동작을 [spy](http://docs.mockery.io/en/latest/reference/spies.html)하고 싶을 때에는, `Mockery::spy`의 편리한 래퍼로 Laravel 테스트 케이스의 `spy` 메서드를 사용할 수 있습니다. 스파이는 목(Mocking)과 유사하지만, 코드 실행 중 상호작용(어떤 메서드가 몇 번 호출됐는지 등)을 기록해두었다가, 코드 실행 후에 assert로 검증할 수 있습니다.
 
 ```
 use App\Service;

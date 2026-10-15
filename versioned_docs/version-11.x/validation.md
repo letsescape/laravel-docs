@@ -142,7 +142,7 @@ public function store(Request $request): RedirectResponse
 ```
 
 <!-- As you can see, the validation rules are passed into the `validate` method. Don't worry - all available validation rules are [documented](#available-validation-rules). Again, if the validation fails, the proper response will automatically be generated. If the validation passes, our controller will continue executing normally. -->
-보시다시피, 유효성 검증 규칙들은 `validate` 메서드에 전달됩니다. 걱정하지 마세요. 사용 가능한 모든 유효성 검증 규칙은 [documented](#available-validation-rules). 다시 한 번 강조드리면, 검증 실패 시 적절한 응답이 자동으로 생성됩니다. 검증 성공 시 컨트롤러는 정상적으로 계속 실행됩니다.
+보시다시피, 유효성 검증 규칙들은 `validate` 메서드에 전달됩니다. 걱정하지 마세요. 사용 가능한 모든 유효성 검증 규칙은 [documented](#available-validation-rules)되어 있습니다. 다시 한 번 강조드리면, 검증 실패 시 적절한 응답이 자동으로 생성됩니다. 검증 성공 시 컨트롤러는 정상적으로 계속 실행됩니다.
 
 <!-- Alternatively, validation rules may be specified as arrays of rules instead of a single `|` delimited string: -->
 또한, 검증 규칙들은 단일 `|`로 구분된 문자열이 아니라, 규칙 배열로도 지정할 수 있습니다.
@@ -317,7 +317,7 @@ Laravel은 또한 전역 `old` 헬퍼 함수를 제공합니다. [Blade template
 ### A Note on Optional Fields
 
 <!-- By default, Laravel includes the `TrimStrings` and `ConvertEmptyStringsToNull` middleware in your application's global middleware stack. Because of this, you will often need to mark your "optional" request fields as `nullable` if you do not want the validator to consider `null` values as invalid. For example: -->
-기본적으로, Laravel은 여러분의 애플리케이션 전역 미들웨어 스택에 `TrimStrings`와 `ConvertEmptyStringsToNull` 미들웨어를 포함하고 있습니다. 이 때문에 "옵션" 요청 필드 값을 `null`로 처리하고 싶다면, 해당 필드 규칙에 `nullable`을 명시해야 합니다. 예를 들어,
+기본적으로, Laravel은 여러분의 애플리케이션 전역 미들웨어 스택에 `TrimStrings`와 `ConvertEmptyStringsToNull` 미들웨어를 포함하고 있습니다. 이 때문에 "옵션" 요청 필드의 `null` 값을 유효한 값으로 허용하려면, 해당 필드 규칙에 `nullable`을 명시해야 하는 경우가 많습니다. 예를 들어,
 
 ```
 $request->validate([
@@ -564,7 +564,7 @@ return $this->user()->can('update', $this->comment);
 ```
 
 <!-- If the `authorize` method returns `false`, an HTTP response with a 403 status code will automatically be returned and your controller method will not execute. -->
-만약 `authorize` 메서드가 `false`를 반환하면, 자동으로 HTTP 403 상태 코드와 함께 컨트롤러 메서드는 실행되지 않습니다.
+만약 `authorize` 메서드가 `false`를 반환하면, HTTP 403 상태 코드의 응답이 자동으로 반환되며 컨트롤러 메서드는 실행되지 않습니다.
 
 <!-- If you plan to handle authorization logic for the request in another part of your application, you may remove the `authorize` method completely, or simply return `true`: -->
 요청에 대한 인가 로직을 애플리케이션의 다른 부분에서 처리할 계획이라면, `authorize` 메서드를 아예 제거하거나, 단순히 `true`를 반환해도 됩니다.
@@ -718,7 +718,7 @@ class PostController extends Controller
 #### Stopping on First Validation Failure
 
 <!-- The `stopOnFirstFailure` method will inform the validator that it should stop validating all attributes once a single validation failure has occurred: -->
-`stopOnFirstFailure` 메서드를 사용하면, 첫 번째 유효성 검증 실패가 발생한 순간 해당 속성(attribute) 검증을 즉시 중단하고 이후 검증을 진행하지 않습니다.
+`stopOnFirstFailure` 메서드를 사용하면, 첫 번째 유효성 검증 실패가 발생한 순간 모든 속성(attribute)에 대한 검증을 즉시 중단합니다.
 
 ```
 if ($validator->stopOnFirstFailure()->fails()) {
@@ -731,7 +731,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 ### Automatic Redirection
 
 <!-- If you would like to create a validator instance manually but still take advantage of the automatic redirection offered by the HTTP request's `validate` method, you may call the `validate` method on an existing validator instance. If validation fails, the user will automatically be redirected or, in the case of an XHR request, a [JSON response will be returned](#validation-error-response-format): -->
-Validator 인스턴스를 수동으로 생성하더라도, HTTP 요청의 `validate` 메서드가 제공하는 자동 리다이렉트 기능을 그대로 활용하고 싶다면, 기존 Validator 인스턴스에서 `validate` 메서드를 호출하면 됩니다. 유효성 검증에 실패하면, 사용자에게 자동으로 리다이렉트되거나, XHR 요청의 경우 [JSON response will be returned](#validation-error-response-format).
+Validator 인스턴스를 수동으로 생성하더라도, HTTP 요청의 `validate` 메서드가 제공하는 자동 리다이렉트 기능을 그대로 활용하고 싶다면, 기존 Validator 인스턴스에서 `validate` 메서드를 호출하면 됩니다. 유효성 검증에 실패하면, 사용자가 자동으로 리다이렉트되거나, XHR 요청의 경우 JSON 응답이 반환됩니다([JSON response will be returned](#validation-error-response-format)).
 
 ```
 Validator::make($request->all(), [
@@ -824,7 +824,7 @@ $validator = Validator::make($input, $rules, $messages, [
 ### Performing Additional Validation
 
 <!-- Sometimes you need to perform additional validation after your initial validation is complete. You can accomplish this using the validator's `after` method. The `after` method accepts a closure or an array of callables which will be invoked after validation is complete. The given callables will receive an `Illuminate\Validation\Validator` instance, allowing you to raise additional error messages if necessary: -->
-초기 유효성 검증 이후에 추가 검증 로직이 필요할 때는, Validator의 `after` 메서드를 사용할 수 있습니다. 이 `after` 메서드는 클로저나 콜러블(callable) 배열을 인수로 받아, 검증이 끝난 후 실행됩니다. 각 콜러블에는 `Illuminate\Validation\Validator` 인스턴스가 전달되므로, 필요한 경우 에러 메시지를 추가할 수 있습니다.
+초기 유효성 검증 이후에 추가 검증 로직이 필요할 때는, Validator의 `after` 메서드를 사용할 수 있습니다. 이 `after` 메서드는 검증이 끝난 후 실행할 클로저나 콜러블(callable) 배열을 인수로 받습니다. 각 콜러블에는 `Illuminate\Validation\Validator` 인스턴스가 전달되므로, 필요한 경우 에러 메시지를 추가할 수 있습니다.
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -995,7 +995,7 @@ Laravel이 내장한 각 유효성 검증 규칙에는 에러 메시지가 기�
 또한 이 파일을 다른 언어 경로에 복사해, 애플리케이션이 지원하는 언어별로 메시지를 번역할 수도 있습니다. Laravel의 로컬라이제이션에 대해 더 알고 싶다면, [localization documentation](/docs/11.x/localization)를 참고하세요.
 
 > [!WARNING]
-> 기본적으로, Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이징하고 싶다면, `lang:publish` Artisan 명령어를 통해 발행해야 합니다.
+> 기본적으로, Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이징하고 싶다면, `lang:publish` Artisan 명령어를 통해 발행할 수 있습니다.
 
 <a name="custom-messages-for-specific-attributes"></a>
 <!-- #### Custom Messages for Specific Attributes -->
@@ -1027,7 +1027,7 @@ Laravel의 내장 에러 메시지는 대부분 `:attribute` 플레이스홀더�
 ```
 
 > [!WARNING]
-> 기본적으로, Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이징하고 싶다면, `lang:publish` Artisan 명령어를 통해 발행해야 합니다.
+> 기본적으로, Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이징하고 싶다면, `lang:publish` Artisan 명령어를 통해 발행할 수 있습니다.
 
 <a name="specifying-values-in-language-files"></a>
 <!-- ### Specifying Values in Language Files -->
@@ -1061,7 +1061,7 @@ The credit card number field is required when payment type is cc.
 ```
 
 > [!WARNING]
-> 기본적으로, Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이징하고 싶다면, `lang:publish` Artisan 명령어를 통해 발행해야 합니다.
+> 기본적으로, Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이징하고 싶다면, `lang:publish` Artisan 명령어를 통해 발행할 수 있습니다.
 
 <!-- After defining this value, the validation rule will produce the following error message: -->
 이처럼 값을 정의하면, 검증 규칙이 실패할 때 아래와 같이 더 이해하기 쉬운 에러 메시지가 출력됩니다.
@@ -1447,7 +1447,7 @@ The credit card number field is required when payment type is credit card.
 ```
 
 <!-- For convenience, date based rules may be constructed using the fluent `date` rule builder: -->
-더 편리하게 날짜 기반 규칙을 만들고 싶다면, 유창한(Fluent) `date` 규칙 빌더를 사용할 수 있습니다.
+더 편리하게 날짜 기반 규칙을 만들고 싶다면, 플루언트(Fluent) `date` 규칙 빌더를 사용할 수 있습니다.
 
 ```
 use Illuminate\Validation\Rule;
@@ -1477,7 +1477,7 @@ use Illuminate\Validation\Rule;
 유효성 검사가 진행되는 필드는 지정된 날짜와 같거나 이후여야 합니다. 자세한 내용은 [after](#rule-after) 규칙을 참고하십시오.
 
 <!-- For convenience, date based rules may be constructed using the fluent `date` rule builder: -->
-편의를 위해, 날짜 기반 규칙은 유창한 `date` 규칙 빌더를 사용하여 생성할 수 있습니다.
+편의를 위해, 날짜 기반 규칙은 플루언트 `date` 규칙 빌더를 사용하여 생성할 수 있습니다.
 
 ```
 use Illuminate\Validation\Rule;
@@ -1590,7 +1590,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 유효성 검사가 진행되는 필드는 지정된 날짜 이전이어야 합니다. 날짜 값은 PHP의 `strtotime` 함수에 전달되어 유효한 `DateTime` 인스턴스로 변환됩니다. 또한, [`after`](#rule-after) 규칙과 마찬가지로 검증 대상인 다른 필드의 이름을 `date` 값으로 제공할 수도 있습니다.
 
 <!-- For convenience, date based rules may also be constructed using the fluent `date` rule builder: -->
-날짜 기반 규칙 역시 유창한 `date` 규칙 빌더를 활용하여 생성할 수 있습니다.
+날짜 기반 규칙 역시 플루언트 `date` 규칙 빌더를 활용하여 생성할 수 있습니다.
 
 ```
 use Illuminate\Validation\Rule;
@@ -1619,7 +1619,7 @@ use Illuminate\Validation\Rule;
 유효성 검사가 진행되는 필드는 지정된 날짜와 같거나 이전이어야 합니다. 날짜 값은 PHP의 `strtotime` 함수에 전달되어 유효한 `DateTime` 인스턴스로 변환됩니다. 또한, [`after`](#rule-after) 규칙과 마찬가지로 검증 대상 필드의 이름을 `date` 값으로 제공할 수도 있습니다.
 
 <!-- For convenience, date based rules may also be constructed using the fluent `date` rule builder: -->
-날짜 기반 규칙 역시 유창한 `date` 규칙 빌더를 활용하여 생성할 수 있습니다.
+날짜 기반 규칙 역시 플루언트 `date` 규칙 빌더를 활용하여 생성할 수 있습니다.
 
 ```
 use Illuminate\Validation\Rule;
@@ -1694,7 +1694,7 @@ use Illuminate\Validation\Rule;
 유효성 검사가 진행되는 필드는 지정한 _formats_ 중 하나와 동일한 형식이어야 합니다. 한 필드에 대해 `date` 또는 `date_format` 중 **하나만** 사용해야 합니다. 이 규칙은 PHP의 [DateTime](https://www.php.net/manual/en/class.datetime.php) 클래스에서 지원하는 모든 형식을 지원합니다.
 
 <!-- For convenience, date based rules may be constructed using the fluent `date` rule builder: -->
-편의를 위해 날짜 기반 규칙은 유창한 `date` 규칙 빌더로 생성할 수 있습니다.
+편의를 위해 날짜 기반 규칙은 플루언트 `date` 규칙 빌더로 생성할 수 있습니다.
 
 ```
 use Illuminate\Validation\Rule;
@@ -1777,7 +1777,7 @@ _ratio_ 제약 조건은 너비를 높이로 나눈 값(비율)로 표현해야 
 ```
 
 <!-- Since this rule requires several arguments, it is often more convenient to use use the `Rule::dimensions` method to fluently construct the rule: -->
-이 규칙은 인자가 많기 때문에, 보통 `Rule::dimensions` 메서드를 사용해서 유창하게 작성하는 것이 더 편리합니다.
+이 규칙은 인자가 많기 때문에, 보통 `Rule::dimensions` 메서드를 사용해서 플루언트 방식으로 작성하는 것이 더 편리합니다.
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -1869,7 +1869,7 @@ Distinct는 기본적으로 느슨한 비교(loose comparison)로 동작합니�
 </div>
 
 <!-- For convenience, email validation rules may be built using the fluent rule builder: -->
-이메일 검증 규칙 역시 유창한 규칙 빌더로 작성할 수 있습니다.
+이메일 검증 규칙 역시 플루언트 규칙 빌더로 작성할 수 있습니다.
 
 ```php
 use Illuminate\Validation\Rule;
@@ -1893,7 +1893,7 @@ $request->validate([
 #### ends_with:_foo_,_bar_,...
 
 <!-- The field under validation must end with one of the given values. -->
-유효성 검사가 진행되는 필드는 지정한 값들로 끝나야 합니다.
+유효성 검사가 진행되는 필드는 지정한 값들 중 하나로 끝나야 합니다.
 
 <a name="rule-enum"></a>
 <!-- #### enum -->
@@ -1942,7 +1942,7 @@ Rule::enum(ServerStatus::class)
 #### exclude
 
 <!-- The field under validation will be excluded from the request data returned by the `validate` and `validated` methods. -->
-유효성 검사에 통과한 해당 필드는 `validate` 및 `validated` 메서드가 반환하는 요청 데이터에서 제외됩니다.
+유효성 검사 대상 필드는 `validate` 및 `validated` 메서드가 반환하는 요청 데이터에서 제외됩니다.
 
 <a name="rule-exclude-if"></a>
 <!-- #### exclude_if:_anotherfield_,_value_ -->
@@ -1972,7 +1972,7 @@ Validator::make($request->all(), [
 #### exclude_unless:_anotherfield_,_value_
 
 <!-- The field under validation will be excluded from the request data returned by the `validate` and `validated` methods unless _anotherfield_'s field is equal to _value_. If _value_ is `null` (`exclude_unless:name,null`), the field under validation will be excluded unless the comparison field is `null` or the comparison field is missing from the request data. -->
-유효성 검사가 진행되는 필드는 _anotherfield_ 필드가 _value_와 같지 않을 때 `validate` 및 `validated` 메서드가 반환하는 요청 데이터에서 제외됩니다. _value_가 `null`(`exclude_unless:name,null`)일 경우, 비교 대상 필드가 `null`이거나 요청 데이터에 존재하지 않으면 해당 필드는 제외됩니다.
+유효성 검사가 진행되는 필드는 _anotherfield_ 필드가 _value_와 같지 않을 때 `validate` 및 `validated` 메서드가 반환하는 요청 데이터에서 제외됩니다. _value_가 `null`(`exclude_unless:name,null`)일 경우, 비교 대상 필드가 `null`이거나 요청 데이터에 존재하지 않으면 해당 필드는 제외되지 않습니다.
 
 <a name="rule-exclude-with"></a>
 <!-- #### exclude_with:_anotherfield_ -->
@@ -2117,7 +2117,7 @@ Validator::make($data, [
 #### in:_foo_,_bar_,...
 
 <!-- The field under validation must be included in the given list of values. Since this rule often requires you to `implode` an array, the `Rule::in` method may be used to fluently construct the rule: -->
-유효성 검사가 진행되는 필드는 지정된 값 목록 안에 포함되어야 합니다. 이 규칙은 보통 배열을 `implode`해야 하기 때문에, `Rule::in` 메서드로 규칙을 유창하게 생성할 수 있습니다.
+유효성 검사가 진행되는 필드는 지정된 값 목록 안에 포함되어야 합니다. 이 규칙은 보통 배열을 `implode`해야 하기 때문에, `Rule::in` 메서드로 규칙을 플루언트 방식으로 생성할 수 있습니다.
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -2272,7 +2272,7 @@ Validator::make($input, [
 ```
 
 <!-- Even though you only need to specify the extensions, this rule actually validates the MIME type of the file by reading the file's contents and guessing its MIME type. A full listing of MIME types and their corresponding extensions may be found at the following location: -->
-확장자만 지정하면 되지만, 이 규칙은 실제로 파일의 내용을 읽어 MIME 타입을 추측하여 검사합니다. 확장자별 전체 MIME 타입 목록은 다음에서 확인할 수 있습니다.:
+확장자만 지정하면 되지만, 이 규칙은 실제로 파일의 내용을 읽어 MIME 타입을 추측하여 검사합니다. 확장자별 전체 MIME 타입 목록은 다음에서 확인할 수 있습니다:
 
 <!-- [https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types](https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types) -->
 [https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types](https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types)
@@ -2317,14 +2317,14 @@ Validator::make($input, [
 #### missing_if:_anotherfield_,_value_,...
 
 <!-- The field under validation must not be present if the _anotherfield_ field is equal to any _value_. -->
-_ anotherfield_ 필드가 지정한 _value_ 중 하나와 같으면, 유효성 검사를 수행하는 필드는 존재해서는 안 됩니다.
+_anotherfield_ 필드가 지정한 _value_ 중 하나와 같으면, 유효성 검사를 수행하는 필드는 존재해서는 안 됩니다.
 
 <a name="rule-missing-unless"></a>
 <!-- #### missing_unless:_anotherfield_,_value_ -->
 #### missing_unless:_anotherfield_,_value_
 
 <!-- The field under validation must not be present unless the _anotherfield_ field is equal to any _value_. -->
-_ anotherfield_ 필드가 지정한 _value_ 중 하나와 같지 않으면, 유효성 검사를 수행하는 필드는 입력 데이터에 존재해서는 안 됩니다.
+_anotherfield_ 필드가 지정한 _value_ 중 어느 것과도 같지 않으면, 유효성 검사를 수행하는 필드는 입력 데이터에 존재해서는 안 됩니다.
 
 <a name="rule-missing-with"></a>
 <!-- #### missing_with:_foo_,_bar_,... -->
@@ -2397,14 +2397,14 @@ Validator::make($data, [
 #### present_if:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present if the _anotherfield_ field is equal to any _value_. -->
-_ anotherfield_ 필드가 지정한 _value_ 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 존재해야 합니다.
+_anotherfield_ 필드가 지정한 _value_ 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 존재해야 합니다.
 
 <a name="rule-present-unless"></a>
 <!-- #### present_unless:_anotherfield_,_value_ -->
 #### present_unless:_anotherfield_,_value_
 
 <!-- The field under validation must be present unless the _anotherfield_ field is equal to any _value_. -->
-_ anotherfield_ 필드가 지정한 _value_ 중 하나와 같지 않을 경우, 유효성 검사를 수행하는 필드는 존재해야 합니다.
+_anotherfield_ 필드가 지정한 _value_ 중 어느 것과도 같지 않을 경우, 유효성 검사를 수행하는 필드는 존재해야 합니다.
 
 <a name="rule-present-with"></a>
 <!-- #### present_with:_foo_,_bar_,... -->
@@ -2449,7 +2449,7 @@ _ anotherfield_ 필드가 지정한 _value_ 중 하나와 같지 않을 경우, 
 #### prohibited_if:_anotherfield_,_value_,...
 
 <!-- The field under validation must be missing or empty if the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
-_ anotherfield_ 필드가 지정한 _value_ 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 누락되어 있거나 비어 있어야 합니다. "비어 있다"의 기준은 다음과 같습니다.
+_anotherfield_ 필드가 지정한 _value_ 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 누락되어 있거나 비어 있어야 합니다. "비어 있다"의 기준은 다음과 같습니다.
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -2489,7 +2489,7 @@ Validator::make($request->all(), [
 #### prohibited_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be missing or empty unless the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
-_ anotherfield_ 필드가 지정한 _value_ 중 하나와 같지 않을 경우, 유효성 검사를 수행하는 필드는 누락되어 있거나 비어 있어야 합니다. "비어 있다"의 기준은 다음과 같습니다.
+_anotherfield_ 필드가 지정한 _value_ 중 어느 것과도 같지 않을 경우, 유효성 검사를 수행하는 필드는 누락되어 있거나 비어 있어야 합니다. "비어 있다"의 기준은 다음과 같습니다.
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -2574,7 +2574,7 @@ _ anotherfield_ 필드가 지정한 _value_ 중 하나와 같지 않을 경우, 
 #### required_if:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty if the _anotherfield_ field is equal to any _value_. -->
-_ anotherfield_ 필드가 지정한 _value_ 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 반드시 존재하며 비어 있지 않아야 합니다.
+_anotherfield_ 필드가 지정한 _value_ 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 반드시 존재하며 비어 있지 않아야 합니다.
 
 <!-- If you would like to construct a more complex condition for the `required_if` rule, you may use the `Rule::requiredIf` method. This method accepts a boolean or a closure. When passed a closure, the closure should return `true` or `false` to indicate if the field under validation is required: -->
 `required_if` 규칙에 대해 더 복잡한 조건을 사용하려면 `Rule::requiredIf` 메서드를 활용할 수 있습니다. 이 메서드는 불리언 또는 클로저를 인자로 받으며, 클로저가 `true` 또는 `false`를 반환하면 해당 값에 따라 필드의 필수 여부를 결정합니다.
@@ -2597,21 +2597,21 @@ Validator::make($request->all(), [
 #### required_if_accepted:_anotherfield_,...
 
 <!-- The field under validation must be present and not empty if the _anotherfield_ field is equal to `"yes"`, `"on"`, `1`, `"1"`, `true`, or `"true"`. -->
-_ anotherfield_ 필드의 값이 `"yes"`, `"on"`, `1`, `"1"`, `true`, `"true"` 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 반드시 존재하며 비어 있지 않아야 합니다.
+_anotherfield_ 필드의 값이 `"yes"`, `"on"`, `1`, `"1"`, `true`, `"true"` 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 반드시 존재하며 비어 있지 않아야 합니다.
 
 <a name="rule-required-if-declined"></a>
 <!-- #### required_if_declined:_anotherfield_,... -->
 #### required_if_declined:_anotherfield_,...
 
 <!-- The field under validation must be present and not empty if the _anotherfield_ field is equal to `"no"`, `"off"`, `0`, `"0"`, `false`, or `"false"`. -->
-_ anotherfield_ 필드의 값이 `"no"`, `"off"`, `0`, `"0"`, `false`, `"false"` 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 반드시 존재하며 비어 있지 않아야 합니다.
+_anotherfield_ 필드의 값이 `"no"`, `"off"`, `0`, `"0"`, `false`, `"false"` 중 하나와 같을 경우, 유효성 검사를 수행하는 필드는 반드시 존재하며 비어 있지 않아야 합니다.
 
 <a name="rule-required-unless"></a>
 <!-- #### required_unless:_anotherfield_,_value_,... -->
 #### required_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty unless the _anotherfield_ field is equal to any _value_. This also means _anotherfield_ must be present in the request data unless _value_ is `null`. If _value_ is `null` (`required_unless:name,null`), the field under validation will be required unless the comparison field is `null` or the comparison field is missing from the request data. -->
-_ anotherfield_ 필드가 지정한 _value_ 중 하나와 같지 않은 경우, 유효성 검사를 수행하는 필드는 반드시 존재하며 비어 있지 않아야 합니다. 또한 _anotherfield_는 _value_가 `null`인 경우를 제외하고 요청 데이터에 반드시 존재해야 합니다. _value_에 `null`이 지정되면(`required_unless:name,null`), 비교 대상 필드가 `null`이거나 요청 데이터에서 누락된 경우에만 검증 대상 필드는 필수가 아닙니다.
+_anotherfield_ 필드가 지정한 _value_ 중 어느 것과도 같지 않은 경우, 유효성 검사를 수행하는 필드는 반드시 존재하며 비어 있지 않아야 합니다. 또한 _anotherfield_는 _value_가 `null`인 경우를 제외하고 요청 데이터에 반드시 존재해야 합니다. _value_에 `null`이 지정되면(`required_unless:name,null`), 비교 대상 필드가 `null`이거나 요청 데이터에서 누락된 경우에만 검증 대상 필드는 필수가 아닙니다.
 
 <a name="rule-required-with"></a>
 <!-- #### required_with:_foo_,_bar_,... -->
@@ -2698,7 +2698,7 @@ _ anotherfield_ 필드가 지정한 _value_ 중 하나와 같지 않은 경우, 
 유효성 검사를 수행하는 필드는 `DateTimeZone::listIdentifiers` 메서드에 따라 유효한 타임존 식별자여야 합니다.
 
 <!-- The arguments [accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php) may also be provided to this validation rule: -->
-이 유효성 검사 규칙에는 [accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php)을 추가로 전달할 수 있습니다.
+이 유효성 검사 규칙에는 [accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php)에서 설명하는 인수를 추가로 전달할 수 있습니다.
 
 ```
 'timezone' => 'required|timezone:all';
@@ -2873,7 +2873,7 @@ $validator = Validator::make($data, [
 ```
 
 <!-- Alternatively, you may use the `exclude_unless` rule to not validate a given field unless another field has a given value: -->
-반대로, `exclude_unless` 규칙을 사용하면 다른 필드가 특정 값일 때만 검증을 생략할 수 있습니다.
+반대로, `exclude_unless` 규칙을 사용하면 다른 필드가 특정 값이 아닐 때 검증을 생략할 수 있습니다.
 
 ```
 $validator = Validator::make($data, [
@@ -2907,7 +2907,7 @@ $validator = Validator::make($data, [
 #### Complex Conditional Validation
 
 <!-- Sometimes you may wish to add validation rules based on more complex conditional logic. For example, you may wish to require a given field only if another field has a greater value than 100. Or, you may need two fields to have a given value only when another field is present. Adding these validation rules doesn't have to be a pain. First, create a `Validator` instance with your _static rules_ that never change: -->
-다른 필드의 값이 특정 조건을 만족할 때만 규칙을 추가하는 등, 더 복잡한 조건부 유효성 검사가 필요할 수도 있습니다. 예를 들어, 다른 필드의 값이 100보다 클 때만 특정 필드를 필수로 지정하거나, 두 필드가 동시에 특정 값을 가져야만 하는 조건을 지정할 수 있습니다. 이런 규칙들을 쉽게 만들 수 있도록, 변경되지 않는 _기본(static)_ 규칙들로 우선 `Validator` 인스턴스를 생성합니다.
+다른 필드의 값이 특정 조건을 만족할 때만 규칙을 추가하는 등, 더 복잡한 조건부 유효성 검사가 필요할 수도 있습니다. 예를 들어, 다른 필드의 값이 100보다 클 때만 특정 필드를 필수로 지정하거나, 다른 필드가 존재할 때만 두 필드가 특정 값을 가져야 하는 조건을 지정할 수 있습니다. 이런 규칙들을 쉽게 만들 수 있도록, 변경되지 않는 _기본(static)_ 규칙들로 우선 `Validator` 인스턴스를 생성합니다.
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -3104,7 +3104,7 @@ Validator::validate($input, [
 ## Validating Files
 
 <!-- Laravel provides a variety of validation rules that may be used to validate uploaded files, such as `mimes`, `image`, `min`, and `max`. While you are free to specify these rules individually when validating files, Laravel also offers a fluent file validation rule builder that you may find convenient: -->
-Laravel은 업로드된 파일을 검증하기 위한 다양한 규칙(`mimes`, `image`, `min`, `max` 등)을 제공합니다. 개별 파일 검증 규칙을 직접 지정해도 되지만, Laravel에서 제공하는 플루언트(flunt) 방식의 파일 유효성 규칙 빌더를 사용하면 더 편리합니다.
+Laravel은 업로드된 파일을 검증하기 위한 다양한 규칙(`mimes`, `image`, `min`, `max` 등)을 제공합니다. 개별 파일 검증 규칙을 직접 지정해도 되지만, Laravel에서 제공하는 플루언트(fluent) 방식의 파일 유효성 규칙 빌더를 사용하면 더 편리합니다.
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -3350,7 +3350,7 @@ $request->validate([
 #### Translating Validation Messages
 
 <!-- Instead of providing a literal error message to the `$fail` closure, you may also provide a [translation string key](/docs/11.x/localization) and instruct Laravel to translate the error message: -->
-에러 메시지를 `$fail` 콜백에 직접 문자열로 넘기는 대신, [translation string key](/docs/11.x/localization)를 전달하면 Laravel이 자동으로 에러 메시지를 번역해 줍니다.
+에러 메시지를 `$fail` 콜백에 직접 문자열로 넘기는 대신, [translation string key](/docs/11.x/localization)를 전달하고 Laravel이 에러 메시지를 번역하도록 지시할 수 있습니다.
 
 ```
 if (strtoupper($value) !== $value) {
@@ -3483,7 +3483,7 @@ Validator::make($input, $rules)->passes(); // true
 ```
 
 <!-- For a custom rule to run even when an attribute is empty, the rule must imply that the attribute is required. To quickly generate a new implicit rule object, you may use the `make:rule` Artisan command with the `--implicit` option: -->
-속성이 비어 있어도 항상 커스텀 규칙을 실행하고 싶다면, 해당 규칙이 속성 필수(requested)를 "암묵적으로" 요구하도록 만들어야 합니다. 새로운 암묵적 규칙 객체를 빠르게 생성하려면 `make:rule` Artisan 명령어에 `--implicit` 옵션을 붙이면 됩니다.
+속성이 비어 있어도 항상 커스텀 규칙을 실행하고 싶다면, 해당 규칙이 속성 필수(required)를 "암묵적으로" 요구하도록 만들어야 합니다. 새로운 암묵적 규칙 객체를 빠르게 생성하려면 `make:rule` Artisan 명령어에 `--implicit` 옵션을 붙이면 됩니다.
 
 ```shell
 php artisan make:rule Uppercase --implicit

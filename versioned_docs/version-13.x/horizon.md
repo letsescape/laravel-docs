@@ -105,7 +105,7 @@ public function handle(Request $request, Closure $next): Response
 #### Environments
 
 <!-- After installation, the primary Horizon configuration option that you should familiarize yourself with is the `environments` configuration option. This configuration option is an array of environments that your application runs on and defines the worker process options for each environment. By default, this entry contains a `production` and `local` environment. However, you are free to add more environments as needed: -->
-Horizon 설치 후 가장 먼저 제어해야 하는 주요 옵션은 `environments` 설정입니다. 이 옵션은 애플리케이션이 동작하는 여러 환경(environment)에 따라 각 워커 프로세스 옵션을 정의합니다. 기본적으로는 `production`과 `local` 환경이 정의되어 있지만, 필요한 만큼 환경을 추가할 수 있습니다.
+Horizon 설치 후 가장 먼저 익숙해져야 하는 주요 옵션은 `environments` 설정입니다. 이 옵션은 애플리케이션이 동작하는 여러 환경(environment)에 따라 각 워커 프로세스 옵션을 정의합니다. 기본적으로는 `production`과 `local` 환경이 정의되어 있지만, 필요한 만큼 환경을 추가할 수 있습니다.
 
 ```php
 'environments' => [
@@ -270,7 +270,7 @@ supervisor 단위로 `timeout` 값을 설정할 수 있습니다. 이 값은 워
 ### Job Backoff
 
 <!-- You can define the `backoff` value at the supervisor level to specify how long Horizon should wait before retrying a job that encounters an unhandled exception: -->
-supervisor 단위에서 `backoff` 값을 설정하면, 예외 발생 후 작업 재시도까지 대기할 시간을 지정할 수 있습니다.
+supervisor 단위에서 `backoff` 값을 설정하면, 처리되지 않은 예외 발생 후 작업 재시도까지 대기할 시간을 지정할 수 있습니다.
 
 ```php
 'environments' => [
@@ -284,7 +284,7 @@ supervisor 단위에서 `backoff` 값을 설정하면, 예외 발생 후 작업 
 ```
 
 <!-- You may also configure "exponential" backoffs by using an array for the `backoff` value. In this example, the retry delay will be 1 second for the first retry, 5 seconds for the second retry, 10 seconds for the third retry, and 10 seconds for every subsequent retry if there are more attempts remaining: -->
-`backoff` 값에 배열을 사용하면 "지수적(exponential)" 백오프 설정도 가능합니다. 예를 들어 아래처럼 배열로 설정한 경우, 첫 번째 재시도는 1초, 두 번째는 5초, 세 번째는 10초를 대기하며, 이후엔 계속 10초 동안 대기합니다.
+`backoff` 값에 배열을 사용하면 "지수적(exponential)" 백오프 설정도 가능합니다. 예를 들어 아래처럼 배열로 설정한 경우, 첫 번째 재시도는 1초, 두 번째는 5초, 세 번째는 10초를 대기하며, 이후에도 남은 시도 횟수가 있으면 재시도마다 10초 동안 대기합니다.
 
 ```php
 'environments' => [
@@ -719,7 +719,7 @@ stopwaitsecs=3600
 #### Starting Supervisor
 
 <!-- Once the configuration file has been created, you may update the Supervisor configuration and start the monitored processes using the following commands: -->
-설정 파일 생성 후, 다음 명령어로 Supervisor 설정을 갱신하고 모니터링을 시작할 수 있습니다.
+설정 파일 생성 후, 다음 명령어로 Supervisor 설정을 갱신하고 모니터링 대상 프로세스를 시작할 수 있습니다.
 
 ```shell
 sudo supervisorctl reread

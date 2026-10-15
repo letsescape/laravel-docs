@@ -366,13 +366,13 @@ expose
 ### Sharing Sites On Your Local Network
 
 <!-- Valet restricts incoming traffic to the internal `127.0.0.1` interface by default so that your development machine isn't exposed to security risks from the Internet. -->
-기본적으로 Valet은 보안을 위해 내부 `127.0.0.1`(로컬 인터페이스)로만 외부 트래픽을 허용합니다.
+기본적으로 Valet은 보안을 위해 내부 `127.0.0.1`(로컬 인터페이스)로만 들어오는 트래픽을 허용합니다.
 
 <!-- If you wish to allow other devices on your local network to access the Valet sites on your machine via your machine's IP address (eg: `192.168.1.10/application.test`), you will need to manually edit the appropriate Nginx configuration file for that site to remove the restriction on the `listen` directive. You should remove the `127.0.0.1:` prefix on the `listen` directive for ports 80 and 443. -->
 만약 같은 네트워크에 있는 다른 기기에서 Valet 사이트에 접속하고 싶다면(예: `192.168.1.10/application.test`), 해당 사이트의 Nginx 설정 파일에서 `listen` 항목의 `127.0.0.1:` 부분을 제거해야 합니다. 이때 포트 80, 443 모두의 `listen` 항목에 해당됩니다.
 
 <!-- If you have not run `valet secure` on the project, you can open up network access for all non-HTTPS sites by editing the `/usr/local/etc/nginx/valet/valet.conf` file. However, if you're serving the project site over HTTPS (you have run `valet secure` for the site) then you should edit the `~/.config/valet/Nginx/app-name.test` file. -->
-프로젝트에 대해 `valet secure` 명령어를 실행하지 않은 경우, `/usr/local/etc/nginx/valet/valet.conf` 파일에서 네트워크 접근 제한을 해제할 수 있습니다. 반면, HTTPS로 서비스를 하고 있다면(`valet secure`를 사용한 경우) `~/.config/valet/Nginx/app-name.test` 파일을 수정해야 합니다.
+프로젝트에 대해 `valet secure` 명령어를 실행하지 않은 경우, `/usr/local/etc/nginx/valet/valet.conf` 파일에서 모든 비 HTTPS 사이트의 네트워크 접근 제한을 해제할 수 있습니다. 반면, HTTPS로 서비스를 하고 있다면(`valet secure`를 사용한 경우) `~/.config/valet/Nginx/app-name.test` 파일을 수정해야 합니다.
 
 <!-- Once you have updated your Nginx configuration, run the `valet restart` command to apply the configuration changes. -->
 Nginx 설정을 업데이트한 후에는 `valet restart` 명령어로 변경 사항을 적용하세요.
@@ -695,7 +695,7 @@ SSL 인증서 생성을 위한 기본 Nginx 설정 파일입니다.
 ### Disk Access
 
 <!-- Since macOS 10.14, [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf). These restrictions include the Desktop, Documents, and Downloads directories. In addition, network volume and removable volume access is restricted. Therefore, Valet recommends your site folders are located outside of these protected locations. -->
-macOS 10.14 이후로는 [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf)됩니다. 데스크탑, 문서, 다운로드 폴더를 비롯해, 네트워크 및 이동식 볼륨 접근도 제한을 받습니다. 따라서 Valet에서 사이트 폴더는 이런 보호된 위치가 아닌 곳에 두는 것이 좋습니다.
+macOS 10.14 이후로는 [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf)에 설명된 대로 일부 파일과 디렉터리에 대한 접근이 기본적으로 제한됩니다. 데스크탑, 문서, 다운로드 폴더를 비롯해, 네트워크 및 이동식 볼륨 접근도 제한을 받습니다. 따라서 Valet에서 사이트 폴더는 이런 보호된 위치가 아닌 곳에 두는 것이 좋습니다.
 
 <!-- However, if you wish to serve sites from within one of those locations, you will need to give Nginx "Full Disk Access". Otherwise, you may encounter server errors or other unpredictable behavior from Nginx, especially when serving static assets. Typically, macOS will automatically prompt you to grant Nginx full access to these locations. Or, you may do so manually via `System Preferences` > `Security & Privacy` > `Privacy` and selecting `Full Disk Access`. Next, enable any `nginx` entries in the main window pane. -->
 하지만 이 경로 내에서 서비스를 진행해야 한다면, Nginx에게 "전체 디스크 접근 권한(Full Disk Access)"을 부여해야 합니다. 그렇지 않으면 서버 에러나 정적 에셋 관련 예기치 않은 문제가 발생할 수 있습니다. 일반적으로 macOS가 자동으로 접근 권한 요청 알림을 띄워주지만, 직접 설정하려면 `System Preferences` > `Security & Privacy` > `Privacy` 메뉴의 `Full Disk Access`에서 Nginx를 추가로 선택해주면 됩니다. 이후 메인 창에서 `nginx` 항목을 활성화하세요.

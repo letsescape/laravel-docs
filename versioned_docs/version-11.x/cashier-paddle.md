@@ -114,7 +114,7 @@ PADDLE_SANDBOX=true
 ```
 
 <!-- After you have finished developing your application you may [apply for a Paddle vendor account](https://paddle.com). Before your application is placed into production, Paddle will need to approve your application's domain. -->
-개발을 모두 마친 후에는 [apply for a Paddle vendor account](https://paddle.com)을 신청할 수 있습니다. 본격적인 운영 환경(프로덕션)에 애플리케이션을 배포하기 전, Paddle에서는 여러분의 애플리케이션 도메인에 대한 승인 절차를 거칠 수 있습니다.
+개발을 모두 마친 후에는 [apply for a Paddle vendor account](https://paddle.com)을 신청할 수 있습니다. 본격적인 운영 환경(프로덕션)에 애플리케이션을 배포하기 전, 여러분의 애플리케이션 도메인에 대해 Paddle의 승인을 받아야 합니다.
 
 <a name="configuration"></a>
 <!-- ## Configuration -->
@@ -393,7 +393,7 @@ Route::get('/subscribe', function (Request $request) {
 ```
 
 <!-- Now, when the Subscribe button is clicked, the customer will be able to enter their payment details and initiate their subscription. To know when their subscription has actually started (since some payment methods require a few seconds to process), you should also [configure Cashier's webhook handling](#handling-paddle-webhooks). -->
-이제 구독 버튼을 클릭하면, 고객이 결제 정보를 입력해 구독을 바로 시작할 수 있습니다. 단, 일부 결제수단은 결제 처리에 시간이 다소 걸릴 수도 있으므로, 구독이 실제로 시작됐는지 확인할 수 있도록 [configure Cashier's webhook handling](#handling-paddle-webhooks)도 꼭 설정해야 합니다.
+이제 구독 버튼을 클릭하면, 고객이 결제 정보를 입력해 구독을 시작할 수 있습니다. 단, 일부 결제수단은 결제 처리에 시간이 다소 걸릴 수도 있으므로, 구독이 실제로 시작됐는지 확인할 수 있도록 [configure Cashier's webhook handling](#handling-paddle-webhooks)도 꼭 설정해야 합니다.
 
 <!-- Now that customers can start subscriptions, we need to restrict certain portions of our application so that only subscribed users can access them. Of course, we can always determine a user's current subscription status via the `subscribed` method provided by Cashier's `Billable` trait: -->
 고객이 구독을 할 수 있게 됐다면, 이제 애플리케이션에서 구독된 사용자만 접근할 수 있는 특정 영역(페이지 등)을 제한하는 것이 필요합니다. Cashier의 `Billable` 트레이트가 제공하는 `subscribed` 메서드를 활용해, 사용자의 현재 구독 상태를 쉽게 확인할 수 있습니다:
@@ -422,7 +422,7 @@ Route::get('/subscribe', function (Request $request) {
 #### Building a Subscribed Middleware
 
 <!-- For convenience, you may wish to create a [middleware](/docs/11.x/middleware) which determines if the incoming request is from a subscribed user. Once this middleware has been defined, you may easily assign it to a route to prevent users that are not subscribed from accessing the route: -->
-실제 현업에서는, 요청이 구독한 사용자인지를 판단하는 [middleware](/docs/11.x/middleware)를 구현해두면 편리합니다. 이 미들웨어를 관련 라우트에 지정하면, 구독하지 않은 사용자의 접근을 손쉽게 차단할 수 있습니다:
+실제 현업에서는, 요청을 보낸 사용자가 구독 중인지 판단하는 [middleware](/docs/11.x/middleware)를 구현해두면 편리합니다. 이 미들웨어를 관련 라우트에 지정하면, 구독하지 않은 사용자의 접근을 손쉽게 차단할 수 있습니다:
 
 ```
 <?php
@@ -495,7 +495,7 @@ Route::put('/subscription/cancel', function (Request $request, $price) {
 이렇게 하면, 구독은 현재 청구 기간이 끝나는 시점에 취소됩니다.
 
 > [!NOTE]
-> Cashier의 webhook 처리를 올바르게 설정해 놓았다면, Cashier는 Paddle로부터 수신된 웹훅을 분석하여 애플리케이션의 Cashier 관련 DB 테이블이 항상 동기화되도록 자동으로 관리해줍니다. 예를 들어, Paddle 대시보드 상에서 직접 고객의 구독을 취소했을 때도, Cashier는 해당 웹훅을 받아와 애플리케이션의 구독 상태를 "취소됨"으로 즉시 갱신합니다.
+> Cashier의 webhook 처리를 올바르게 설정해 놓았다면, Cashier는 Paddle로부터 수신된 웹훅을 분석하여 애플리케이션의 Cashier 관련 DB 테이블이 항상 동기화되도록 자동으로 관리해줍니다. 예를 들어, Paddle 대시보드 상에서 직접 고객의 구독을 취소했을 때도, Cashier는 해당 웹훅을 받아와 애플리케이션의 구독 상태를 "취소됨"으로 갱신합니다.
 
 <a name="checkout-sessions"></a>
 <!-- ## Checkout Sessions -->
@@ -594,7 +594,7 @@ $custom = $checkout->getCustomData();
 ### Inline Checkout
 
 <!-- If you don't want to make use of Paddle's "overlay" style checkout widget, Paddle also provides the option to display the widget inline. While this approach does not allow you to adjust any of the checkout's HTML fields, it allows you to embed the widget within your application. -->
-Paddle의 "오버레이" 방식 대신, 결제 위젯을 화면 내부에 직접 표출(임베드)할 수도 있습니다. 이 방식은 결제 HTML 필드를 마크업 수준에서 직접 조정할 수는 없지만, 애플리케이션 내에서 결제되지도록 위젯을 삽입하는 데에 적합합니다.
+Paddle의 "오버레이" 방식 대신, 결제 위젯을 화면 내부에 직접 표출(임베드)할 수도 있습니다. 이 방식은 결제 HTML 필드를 마크업 수준에서 직접 조정할 수는 없지만, 애플리케이션 내에 위젯을 삽입할 수 있습니다.
 
 <!-- To make it easy for you to get started with inline checkout, Cashier includes a `paddle-checkout` Blade component. To get started, you should [generate a checkout session](#overlay-checkout): -->
 Cashier는 인라인 체크아웃도 쉽게 구현할 수 있도록 `paddle-checkout` Blade 컴포넌트를 제공합니다. 먼저, [generate a checkout session](#overlay-checkout)합니다:
@@ -1129,7 +1129,7 @@ $user->subscription()->swapAndInvoice($premium = 'pri_456');
 #### Prorations
 
 <!-- By default, Paddle prorates charges when swapping between plans. The `noProrate` method may be used to update the subscriptions without prorating the charges: -->
-기본적으로 Paddle은 요금제 변경 시 요금을 일할 계산하여 환불 또는 추가 청구합니다. 일할 계산 없이 구독을 업데이트하려면 `noProrate` 메서드를 연결해 사용하면 됩니다.
+기본적으로 Paddle은 요금제 변경 시 요금을 일할 계산합니다. 일할 계산 없이 구독을 업데이트하려면 `noProrate` 메서드를 연결해 사용하면 됩니다.
 
 ```
 $user->subscription('default')->noProrate()->swap($premium = 'pri_456');
@@ -1240,7 +1240,7 @@ $user->subscription()->swap(['price_chat', 'price_original' => 2]);
 ```
 
 <!-- The example above will add the new price, but the customer will not be billed for it until their next billing cycle. If you would like to bill the customer immediately you may use the `swapAndInvoice` method: -->
-이렇게 하면 새 가격이 추가되지만, 실제로 고객이 청구되는 것은 다음 결제 주기 때입니다. 즉시 빌링을 하려면 `swapAndInvoice` 메서드를 이용하세요.
+이렇게 하면 새 가격이 추가되지만, 실제로 고객에게 청구되는 것은 다음 결제 주기 때입니다. 즉시 빌링을 하려면 `swapAndInvoice` 메서드를 이용하세요.
 
 ```
 $user->subscription()->swapAndInvoice(['price_chat', 'price_original' => 2]);
@@ -1261,7 +1261,7 @@ $user->subscription()->swap(['price_original' => 2]);
 ### Multiple Subscriptions
 
 <!-- Paddle allows your customers to have multiple subscriptions simultaneously. For example, you may run a gym that offers a swimming subscription and a weight-lifting subscription, and each subscription may have different pricing. Of course, customers should be able to subscribe to either or both plans. -->
-Paddle은 한 사용자가 동시에 여러 구독을 가질 수 있도록 지원합니다. 예를 들어, 헬스장에서 수영 구독과 웨이트 구독을 별도로 운용할 수 있습니다. 고객은 두 종류 모두, 혹은 원하는 한 가지만 선택해 구독할 수 있습니다.
+Paddle은 한 사용자가 동시에 여러 구독을 가질 수 있도록 지원합니다. 예를 들어, 헬스장에서 수영 구독과 웨이트 구독을 별도로 운용할 수 있으며, 각 구독의 가격은 다를 수 있습니다. 고객은 두 종류 모두, 혹은 원하는 한 가지만 선택해 구독할 수 있습니다.
 
 <!-- When your application creates subscriptions, you may provide the type of the subscription to the `subscribe` method as the second argument. The type may be any string that represents the type of subscription the user is initiating: -->
 애플리케이션에서 구독 생성 시, `subscribe` 메서드의 두 번째 인자로 구독 타입을 지정할 수 있으며, 사용자가 시작하려는 구독의 종류를 나타내는 임의의 문자열을 사용할 수 있습니다.
@@ -1472,7 +1472,7 @@ $user->createAsCustomer([
 ```
 
 <!-- Cashier refers to this type of trial as a "generic trial", since it is not attached to any existing subscription. The `onTrial` method on the `User` instance will return `true` if the current date is not past the value of `trial_ends_at`: -->
-Cashier에서는 이 방식을 "일반(generic) 체험 기간"이라고 부르며, 특정 구독에 연결되지 않은 체험 기간입니다. `User` 인스턴스의 `onTrial` 메서드는 현재 날짜가 `trial_ends_at` 값보다 이전이면 `true`를 반환합니다.
+Cashier에서는 이 방식을 "일반(generic) 체험 기간"이라고 부르며, 특정 구독에 연결되지 않은 체험 기간입니다. `User` 인스턴스의 `onTrial` 메서드는 현재 날짜가 `trial_ends_at` 값을 지나지 않았다면 `true`를 반환합니다.
 
 ```
 if ($user->onTrial()) {
@@ -1741,7 +1741,7 @@ $response = $transaction->refund('Accidental charge');
 환불에 대한 추가 안내는 [Paddle's refund documentation](https://developer.paddle.com/build/transactions/create-transaction-adjustments)를 참고하세요.
 
 > [!WARNING]
-> 환불은 항상 Paddle의 승인이 필요하며, Paddle이 완전히 처리하기 전까지 효력이 없습니다.
+> 환불이 완전히 처리되려면 항상 Paddle의 승인을 받아야 합니다.
 
 <a name="crediting-transactions"></a>
 <!-- ### Crediting Transactions -->
@@ -1761,7 +1761,7 @@ $response = $transaction->credit('Compensation', 'pri_123');
 자세한 내용은 [see Paddle's documentation on crediting](https://developer.paddle.com/build/transactions/create-transaction-adjustments)를 확인하세요.
 
 > [!WARNING]
-> 크레딧은 수동 결제에만 적용할 수 있습니다. 자동 결제 거래에 대해서는 Paddle에서 자체적으로 관리합니다.
+> 크레딧은 수동 결제에만 적용할 수 있습니다. 자동 결제 거래의 크레딧은 Paddle에서 자체적으로 처리합니다.
 
 <a name="transactions"></a>
 <!-- ## Transactions -->
@@ -1828,7 +1828,7 @@ $nextPayment = $subscription->nextPayment();
 ```
 
 <!-- Both of these methods will return an instance of `Laravel\Paddle\Payment`; however, `lastPayment` will return `null` when transactions have not been synced by webhooks yet, while `nextPayment` will return `null` when the billing cycle has ended (such as when a subscription has been canceled): -->
-이 두 메서드는 모두 `Laravel\Paddle\Payment` 인스턴스를 반환합니다. 단, 거래 내용이 아직 웹훅으로 동기화되지 않았다면 `lastPayment`에서는 `null`을 반환할 수 있고, 결제 주기가 끝났거나(예: 구독 취소)한 경우 `nextPayment`는 `null`을 반환합니다.
+이 두 메서드는 모두 `Laravel\Paddle\Payment` 인스턴스를 반환합니다. 단, 거래 내용이 아직 웹훅으로 동기화되지 않았다면 `lastPayment`에서는 `null`을 반환하고, 결제 주기가 끝난 경우(예: 구독 취소) `nextPayment`는 `null`을 반환합니다.
 
 ```blade
 Next payment: {{ $nextPayment->amount() }} due on {{ $nextPayment->date()->format('d/m/Y') }}

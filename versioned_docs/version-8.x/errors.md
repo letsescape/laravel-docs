@@ -152,7 +152,7 @@ public function isValid($value)
 ### Ignoring Exceptions By Type
 
 <!-- When building your application, there will be some types of exceptions you simply want to ignore and never report. Your application's exception handler contains a `$dontReport` property which is initialized to an empty array. Any classes that you add to this property will never be reported; however, they may still have custom rendering logic: -->
-애플리케이션을 개발하다 보면, 특정 예외 타입은 아예 보고하지 않고 무시하고 싶은 경우가 있을 수 있습니다. 예외 핸들러 클래스에는 `$dontReport` 프로퍼티가 있는데, 기본적으로는 빈 배열입니다. 여기에 추가한 클래스들은 예외가 발행되어도 로그로 기록되지 않습니다. 하지만, 커스텀 렌더링 로직은 여전히 적용할 수 있습니다.
+애플리케이션을 개발하다 보면, 특정 예외 타입은 아예 보고하지 않고 무시하고 싶은 경우가 있을 수 있습니다. 예외 핸들러 클래스에는 `$dontReport` 프로퍼티가 있는데, 기본적으로는 빈 배열입니다. 여기에 추가한 클래스들은 예외가 발생해도 로그로 기록되지 않습니다. 하지만, 커스텀 렌더링 로직은 여전히 적용할 수 있습니다.
 
 ```
 use App\Exceptions\InvalidOrderException;

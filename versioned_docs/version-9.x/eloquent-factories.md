@@ -131,7 +131,7 @@ class FlightFactory extends Factory
 상태(States) 조작 메서드를 사용하면, 모델 팩토리의 속성 값을 다양한 조합으로 선택적으로 수정할 수 있습니다. 예를 들어, `Database\Factories\UserFactory`에서 기본 속성 값을 변경하는 `suspended` 상태 메서드를 추가할 수 있습니다.
 
 <!-- State transformation methods typically call the `state` method provided by Laravel's base factory class. The `state` method accepts a closure which will receive the array of raw attributes defined for the factory and should return an array of attributes to modify: -->
-상태 변환 메서드는 주로 Laravel의 기본 팩토리 클래스가 제공하는 `state` 메서드를 호출하여 구현합니다. `state` 메서드는 현재 팩토리의 원시 속성 배열을 파라미터로 전달하는 클로저를 인자로 받으며, 변경할 속성 배열을 반환해야 합니다.
+상태 변환 메서드는 주로 Laravel의 기본 팩토리 클래스가 제공하는 `state` 메서드를 호출하여 구현합니다. `state` 메서드는 현재 팩토리의 원시 속성 배열을 파라미터로 전달받는 클로저를 인자로 받으며, 이 클로저는 변경할 속성 배열을 반환해야 합니다.
 
 ```
 /**
@@ -213,7 +213,7 @@ $user = User::factory()->make();
 ```
 
 <!-- You may create a collection of many models using the `count` method: -->
-`count` 메서드를 사용하면 여러 개의 모델 컬렉션을 한 번에 만들 수 있습니다.
+`count` 메서드를 사용하면 여러 모델을 담은 컬렉션을 한 번에 만들 수 있습니다.
 
 ```
 $users = User::factory()->count(3)->make();
@@ -317,7 +317,7 @@ $users = User::factory()
 ```
 
 <!-- Within a sequence closure, you may access the `$index` or `$count` properties on the sequence instance that is injected into the closure. The `$index` property contains the number of iterations through the sequence that have occurred thus far, while the `$count` property contains the total number of times the sequence will be invoked: -->
-시퀀스 클로저 안에서는, 시퀀스 인스턴스에 주입된 `$index`나 `$count` 속성을 사용할 수 있습니다. `$index`는 지금까지 시퀀스가 반복된 횟수를, `$count`는 시퀀스가 호출될 총 횟수를 나타냅니다.
+시퀀스 클로저 안에서는, 클로저에 주입된 시퀀스 인스턴스의 `$index`나 `$count` 속성을 사용할 수 있습니다. `$index`는 지금까지 시퀀스가 반복된 횟수를, `$count`는 시퀀스가 호출될 총 횟수를 나타냅니다.
 
 ```
 $users = User::factory()

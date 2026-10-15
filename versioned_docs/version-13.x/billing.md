@@ -87,7 +87,7 @@
 Cashier의 새 버전으로 업그레이드할 때는 [the upgrade guide](https://github.com/laravel/cashier-stripe/blob/16.x/UPGRADE.md)를 꼼꼼히 검토하는 것이 중요합니다.
 
 > [!WARNING]
-> 호환성이 깨지는 변경을 방지하기 위해 Cashier는 고정된 Stripe API 버전을 사용합니다. Cashier 16은 Stripe API 버전 `2025-06-30.basil`을 사용합니다. 새로운 Stripe 기능과 개선 사항을 활용할 수 있도록 Stripe API 버전은 마이너 릴리스에서 업데이트됩니다.
+> Cashier는 설치된 `stripe/stripe-php` SDK 버전에서 고정한 Stripe API 버전을 사용합니다. 예를 들어, `stripe/stripe-php` 21.x는 Stripe API 버전 `2026-08-26.dahlia`를 사용합니다. Stripe SDK의 새 메이저 버전은 일반적으로 새로운 Stripe API 버전을 대상으로 하므로, `stripe/stripe-php`를 새 메이저 버전으로 업그레이드하기 전에 [Stripe's API changelog](https://docs.stripe.com/changelog)를 검토해야 합니다.
 
 <a name="installation"></a>
 <!-- ## Installation -->
@@ -580,7 +580,7 @@ $stripeCustomer = $user->updateStripeCustomer($options);
 ### Balances
 
 <!-- Stripe allows you to credit or debit a customer's "balance". Later, this balance will be credited or debited on new invoices. To check the customer's total balance you may use the `balance` method that is available on your billable model. The `balance` method will return a formatted string representation of the balance in the customer's currency: -->
-Stripe에서는 고객의 "balance(잔액)"를 credit(입금)하거나 debit(차감)할 수 있습니다. 이후 새 인보이스에서 이 잔액이 입금 또는 차감됩니다. 고객의 총 잔액을 확인하려면 결제 가능 모델에서 사용할 수 있는 `balance` 메서드를 사용하면 됩니다. `balance` 메서드는 고객의 통화로 형식화된 잔액 문자열을 반환합니다.
+Stripe에서는 고객의 "balance(잔액)"에 credit(청구액 차감)이나 debit(청구액 가산)을 반영할 수 있습니다. 이후 새 인보이스에 이 잔액이 적용됩니다. 고객의 총 잔액을 확인하려면 결제 가능 모델에서 사용할 수 있는 `balance` 메서드를 사용하면 됩니다. `balance` 메서드는 고객의 통화로 형식화된 잔액 문자열을 반환합니다.
 
 ```php
 $balance = $user->balance();
@@ -594,7 +594,7 @@ $user->creditBalance(500, 'Premium customer top-up.');
 ```
 
 <!-- Providing a value to the `debitBalance` method will debit the customer's balance: -->
-`debitBalance` 메서드에 값을 제공하면 고객의 잔액에서 debit이 차감됩니다.
+`debitBalance` 메서드에 값을 제공하면 고객의 잔액에 debit이 반영되어 청구액이 늘어납니다.
 
 ```php
 $user->debitBalance(300, 'Bad usage penalty.');
@@ -642,7 +642,7 @@ $taxId = $user->createTaxId('eu_vat', 'BE0123456789');
 ```
 
 <!-- The `createTaxId` method will immediately add the VAT ID to the customer's account. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation); however, this is an asynchronous process. You can be notified of verification updates by subscribing to the `customer.tax_id.updated` webhook event and inspecting [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification). For more information on handling webhooks, please consult the [documentation on defining webhook handlers](#handling-stripe-webhooks). -->
-`createTaxId` 메서드는 VAT ID를 고객 계정에 즉시 추가합니다. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation)하지만, 이 과정은 비동기적으로 처리됩니다. `customer.tax_id.updated` webhook 이벤트를 구독하고 [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification)를 검사하면 검증 업데이트 알림을 받을 수 있습니다. webhook 처리에 대한 자세한 내용은 [documentation on defining webhook handlers](#handling-stripe-webhooks)를 참고하십시오.
+`createTaxId` 메서드는 VAT ID를 고객 계정에 즉시 추가합니다. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation)에 설명된 VAT ID 검증도 Stripe에서 수행하지만, 이 과정은 비동기적으로 처리됩니다. `customer.tax_id.updated` webhook 이벤트를 구독하고 [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification)를 검사하면 검증 업데이트 알림을 받을 수 있습니다. webhook 처리에 대한 자세한 내용은 [documentation on defining webhook handlers](#handling-stripe-webhooks)를 참고하십시오.
 
 <!-- You may delete a tax ID using the `deleteTaxId` method: -->
 `deleteTaxId` 메서드를 사용해 세금 ID를 삭제할 수 있습니다.
@@ -820,7 +820,7 @@ Payment Element를 사용해 구독을 생성하는 대신 고객의 기본 결�
 #### Payment Element for Single Charges
 
 <!-- For one-off payments, create a Payment Intent using Cashier's `pay` method. Typically, you should store the Payment Intent ID on your application's corresponding order so that the order can be retrieved after Stripe redirects the customer back to your application. The following example assumes your application has an `Order` model with `user_id`, `amount`, `status`, and `stripe_payment_intent_id` columns: -->
-일회성 결제의 경우 Cashier의 `pay` 메서드를 사용해 Payment Intent를 생성합니다. 일반적으로 Stripe가 고객을 애플리케이션으로 다시 리디렉션한 뒤 주문을 조회할 수 있도록 애플리케이션의 해당 주문에 Payment Intent ID를 저장해야 합니다. 다음 예시는 애플리케이션에 `Order`, `user_id`, `amount`, `status` 컬럼을 가진 `stripe_payment_intent_id` 모델이 있다고 가정합니다.
+일회성 결제의 경우 Cashier의 `pay` 메서드를 사용해 Payment Intent를 생성합니다. 일반적으로 Stripe가 고객을 애플리케이션으로 다시 리디렉션한 뒤 주문을 조회할 수 있도록 애플리케이션의 해당 주문에 Payment Intent ID를 저장해야 합니다. 다음 예시는 애플리케이션에 `user_id`, `amount`, `status`, `stripe_payment_intent_id` 컬럼을 가진 `Order` 모델이 있다고 가정합니다.
 
 ```php
 use App\Models\Order;
@@ -2197,8 +2197,8 @@ php artisan cashier:webhook
 php artisan cashier:webhook --url "https://example.com/stripe/webhook"
 ```
 
-<!-- The webhook that is created will use the Stripe API version that your version of Cashier is compatible with. If you would like to use a different Stripe version, you may provide the `--api-version` option: -->
-생성되는 webhook은 사용 중인 Cashier 버전과 호환되는 Stripe API 버전을 사용합니다. 다른 Stripe 버전을 사용하려면 `--api-version` 옵션을 제공할 수 있습니다.
+<!-- The webhook that is created will use the same Stripe API version as Cashier, which is determined by your installed version of `stripe/stripe-php`. If you would like to use a different Stripe version, you may provide the `--api-version` option: -->
+생성되는 webhook은 Cashier와 동일한 Stripe API 버전을 사용하며, 이 버전은 설치된 `stripe/stripe-php` 버전에 따라 결정됩니다. 다른 Stripe 버전을 사용하려면 `--api-version` 옵션을 제공할 수 있습니다.
 
 ```shell
 php artisan cashier:webhook --api-version="2019-12-03"
@@ -2820,7 +2820,7 @@ Route::get('/product-checkout', function (Request $request) {
 });
 ```
 <!-- After a guest checkout has been completed, Stripe can dispatch a `checkout.session.completed` webhook event, so make sure to [configure your Stripe webhook](https://dashboard.stripe.com/webhooks) to actually send this event to your application. Once the webhook has been enabled within the Stripe dashboard, you may [handle the webhook with Cashier](#handling-stripe-webhooks). The object contained in the webhook payload will be a [checkout object](https://stripe.com/docs/api/checkout/sessions/object) that you may inspect in order to fulfill your customer's order. -->
-게스트 체크아웃이 완료되면 Stripe는 `checkout.session.completed` 웹훅 이벤트를 디스패치할 수 있으므로, 이 이벤트가 실제로 애플리케이션으로 전송되도록 [configure your Stripe webhook](https://dashboard.stripe.com/webhooks)해야 합니다. Stripe 대시보드에서 웹훅을 활성화한 뒤에는 [handle the webhook with Cashier](#handling-stripe-webhooks)할 수 있습니다. 웹훅 페이로드에 포함된 객체는 [checkout object](https://stripe.com/docs/api/checkout/sessions/object)이며, 고객의 주문을 처리하기 위해 이 객체를 확인할 수 있습니다.
+게스트 체크아웃이 완료되면 Stripe는 `checkout.session.completed` 웹훅 이벤트를 디스패치할 수 있으므로, 이 이벤트가 실제로 애플리케이션으로 전송되도록 [configure your Stripe webhook](https://dashboard.stripe.com/webhooks)을 참고하여 웹훅을 설정해야 합니다. Stripe 대시보드에서 웹훅을 활성화한 뒤에는 [handle the webhook with Cashier](#handling-stripe-webhooks)에 따라 웹훅을 처리할 수 있습니다. 웹훅 페이로드에 포함된 객체는 [checkout object](https://stripe.com/docs/api/checkout/sessions/object)이며, 고객의 주문을 처리하기 위해 이 객체를 확인할 수 있습니다.
 
 <a name="handling-failed-payments"></a>
 <!-- ## Handling Failed Payments -->
@@ -2864,7 +2864,7 @@ try {
 </div>
 
 <!-- Alternatively, you could allow Stripe to handle the payment confirmation for you. In this case, instead of redirecting to the payment confirmation page, you may [set up Stripe's automatic billing emails](https://dashboard.stripe.com/account/billing/automatic) in your Stripe dashboard. However, if an `IncompletePayment` exception is caught, you should still inform the user they will receive an email with further payment confirmation instructions. -->
-또는 Stripe가 결제 확인을 대신 처리하도록 할 수도 있습니다. 이 경우 결제 확인 페이지로 리다이렉트하는 대신 Stripe 대시보드에서 [set up Stripe's automatic billing emails](https://dashboard.stripe.com/account/billing/automatic)할 수 있습니다. 하지만 `IncompletePayment` 예외가 잡힌 경우에는 추가 결제 확인 안내가 포함된 이메일을 받게 된다는 사실을 사용자에게 알려야 합니다.
+또는 Stripe가 결제 확인을 대신 처리하도록 할 수도 있습니다. 이 경우 결제 확인 페이지로 리다이렉트하는 대신 Stripe 대시보드에서 [set up Stripe's automatic billing emails](https://dashboard.stripe.com/account/billing/automatic)을 참고하여 자동 청구 이메일을 설정할 수 있습니다. 하지만 `IncompletePayment` 예외가 잡힌 경우에는 추가 결제 확인 안내가 포함된 이메일을 받게 된다는 사실을 사용자에게 알려야 합니다.
 
 <!-- Payment exceptions may be thrown for the following methods: `charge`, `invoiceFor`, and `invoice` on models using the `Billable` trait. When interacting with subscriptions, the `create` method on the `SubscriptionBuilder`, and the `incrementAndInvoice` and `swapAndInvoice` methods on the `Subscription` and `SubscriptionItem` models may throw incomplete payment exceptions. -->
 결제 예외는 `Billable` trait을 사용하는 모델의 `charge`, `invoiceFor`, `invoice` 메서드에서 발생할 수 있습니다. 구독과 상호작용할 때는 `SubscriptionBuilder`의 `create` 메서드와 `Subscription` 및 `SubscriptionItem` 모델의 `incrementAndInvoice`, `swapAndInvoice` 메서드가 불완전한 결제 예외를 발생시킬 수 있습니다.
@@ -2961,7 +2961,7 @@ CASHIER_PAYMENT_NOTIFICATION=Laravel\Cashier\Notifications\ConfirmPayment
 ```
 
 <!-- To ensure that off-session payment confirmation notifications are delivered, verify that [Stripe webhooks are configured](#handling-stripe-webhooks) for your application and the `invoice.payment_action_required` webhook is enabled in your Stripe dashboard. In addition, your `Billable` model should also use Laravel's `Illuminate\Notifications\Notifiable` trait. -->
-오프 세션 결제 확인 알림이 전달되도록 하려면 애플리케이션에 [Stripe webhooks are configured](#handling-stripe-webhooks)되어 있고 Stripe 대시보드에서 `invoice.payment_action_required` 웹훅이 활성화되어 있는지 확인하십시오. 또한 `Billable` 모델은 Laravel의 `Illuminate\Notifications\Notifiable` trait도 사용해야 합니다.
+오프 세션 결제 확인 알림이 전달되도록 하려면 애플리케이션에 [Stripe webhooks are configured](#handling-stripe-webhooks)에 따라 웹훅이 설정되어 있고 Stripe 대시보드에서 `invoice.payment_action_required` 웹훅이 활성화되어 있는지 확인하십시오. 또한 `Billable` 모델은 Laravel의 `Illuminate\Notifications\Notifiable` trait도 사용해야 합니다.
 
 > [!WARNING]
 > 고객이 추가 확인이 필요한 결제를 수동으로 진행하는 경우에도 알림이 전송됩니다. 안타깝게도 Stripe는 결제가 수동으로 이루어졌는지 또는 "오프 세션"으로 이루어졌는지 알 수 없습니다. 하지만 고객이 이미 결제를 확인한 뒤 결제 페이지를 방문하면 단순히 "Payment Successful" 메시지를 보게 됩니다. 고객이 실수로 같은 결제를 두 번 확인하여 의도치 않은 두 번째 청구가 발생하는 일은 허용되지 않습니다.

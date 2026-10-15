@@ -37,7 +37,7 @@ accessor, 변조자(mutator), 그리고 속성(attribute) casting을 통해 Eloq
 accessor는 Eloquent 속성의 값을 읽을 때 자동으로 변환해주는 메서드입니다. accessor를 정의하려면, 모델 안에 해당 속성을 나타내는 보호된(protected) 메서드를 생성합니다. 이 메서드의 이름은 가능하다면 실제 모델 속성/데이터베이스 컬럼명을 "카멜 케이스(camel case)"로 표기해야 합니다.
 
 <!-- In this example, we'll define an accessor for the `first_name` attribute. The accessor will automatically be called by Eloquent when attempting to retrieve the value of the `first_name` attribute. All attribute accessor / mutator methods must declare a return type-hint of `Illuminate\Database\Eloquent\Casts\Attribute`: -->
-아래 예시에서는 `first_name` 속성에 accessor를 정의합니다. 이 accessor는 Eloquent가 `first_name` 속성 값을 읽으려고 할 때마다 자동으로 호출됩니다. 모든 어트리뷰트 accessor/변조자 메서드는 반드시 `Illuminate\Database\Eloquent\Casts\Attribute` 타입을 반환해야 합니다.
+아래 예시에서는 `first_name` 속성에 accessor를 정의합니다. 이 accessor는 Eloquent가 `first_name` 속성 값을 읽으려고 할 때마다 자동으로 호출됩니다. 모든 어트리뷰트 accessor/변조자 메서드는 반드시 `Illuminate\Database\Eloquent\Casts\Attribute` 반환 타입 힌트를 선언해야 합니다.
 
 ```
 <?php
@@ -76,7 +76,7 @@ $firstName = $user->first_name;
 ```
 
 > [!NOTE]
-> 이렇게 가공된(computed) 값을 모델의 배열/JSON 표현에 포함하고 싶으면, [you will need to append them](/docs/11.x/eloquent-serialization#appending-values-to-json).
+> 이렇게 가공된(computed) 값을 모델의 배열/JSON 표현에 포함하고 싶으면, 추가 속성으로 지정해야 합니다([you will need to append them](/docs/11.x/eloquent-serialization#appending-values-to-json)).
 
 <a name="building-value-objects-from-multiple-attributes"></a>
 <!-- #### Building Value Objects From Multiple Attributes -->
@@ -122,7 +122,7 @@ $user->save();
 ```
 
 <!-- However, you may sometimes wish to enable caching for primitive values like strings and booleans, particularly if they are computationally intensive. To accomplish this, you may invoke the `shouldCache` method when defining your accessor: -->
-하지만 문자열, 불리언 등 기본값(primitive value)에 대해서도, 복잡한 연산이 필요한 경우 캐싱을 활성화하고 싶을 수 있습니다. 이럴 때는 accessor 정의 시 `shouldCache` 메서드를 호출하면 됩니다.
+하지만 문자열, 불리언 등 원시 값(primitive value)에 대해서도, 복잡한 연산이 필요한 경우 캐싱을 활성화하고 싶을 수 있습니다. 이럴 때는 accessor 정의 시 `shouldCache` 메서드를 호출하면 됩니다.
 
 ```php
 protected function hash(): Attribute
@@ -333,7 +333,7 @@ $user->mergeCasts([
 ```
 
 > [!WARNING]
-> 값이 `null`인 속성은 casting되지 않습니다. 또한, 관계명과 동일한 이름의 속성에 cast를 정의하거나, 모델 기본키에 cast를 지정해서는 안 됩니다.
+> 값이 `null`인 속성은 casting되지 않습니다. 또한, 관계명과 동일한 이름의 cast(또는 속성)를 정의하거나, 모델 기본키에 cast를 지정해서는 안 됩니다.
 
 <a name="stringable-casting"></a>
 <!-- #### Stringable Casting -->
@@ -414,7 +414,7 @@ $user->save();
 ```
 
 <!-- To update a single field of a JSON attribute with a more terse syntax, you may [make the attribute mass assignable](/docs/11.x/eloquent#mass-assignment-json-columns) and use the `->` operator when calling the `update` method: -->
-JSON 속성의 특정 필드만 간결하게 업데이트하려면, [make the attribute mass assignable](/docs/11.x/eloquent#mass-assignment-json-columns) `update` 메서드에서 `->` 연산자를 사용할 수 있습니다.
+JSON 속성의 특정 필드만 간결하게 업데이트하려면, 속성을 대량 할당 가능하게 설정하고([make the attribute mass assignable](/docs/11.x/eloquent#mass-assignment-json-columns)) `update` 메서드에서 `->` 연산자를 사용할 수 있습니다.
 
 ```
 $user = User::find(1);
@@ -501,7 +501,7 @@ protected function casts(): array
 Eloquent는 기본적으로 `created_at`과 `updated_at` 컬럼을 [Carbon](https://github.com/briannesbitt/Carbon) 인스턴스로 변환합니다. Carbon은 PHP의 `DateTime` 클래스를 확장해 다양한 편리한 메서드를 제공합니다. 추가적인 날짜 속성도 모델의 `casts` 메서드에서 직접 지정해 casting할 수 있습니다. 보통 날짜 관련 속성은 `datetime` 또는 `immutable_datetime` 타입으로 casting합니다.
 
 <!-- When defining a `date` or `datetime` cast, you may also specify the date's format. This format will be used when the [model is serialized to an array or JSON](/docs/11.x/eloquent-serialization): -->
-`date` 또는 `datetime` casting을 정의할 때, 날짜 형식(format)을 함께 지정할 수도 있습니다. 이 형식은 [model is serialized to an array or JSON](/docs/11.x/eloquent-serialization) 사용됩니다.
+`date` 또는 `datetime` casting을 정의할 때, 날짜 형식(format)을 함께 지정할 수도 있습니다. 이 형식은 모델이 배열 또는 JSON으로 직렬화될 때 사용됩니다([model is serialized to an array or JSON](/docs/11.x/eloquent-serialization)).
 
 ```
 /**
@@ -579,7 +579,7 @@ protected function casts(): array
 ```
 
 <!-- Once you have defined the cast on your model, the specified attribute will be automatically cast to and from an enum when you interact with the attribute: -->
-이렇게 casting을 정의하면, 해당 속성에 접근하거나 값을 저장하는 과정에서 자동으로 enum 객체로 변환됩니다.
+이렇게 casting을 정의하면, 해당 속성에 접근하거나 값을 저장하는 과정에서 enum 객체와 원래 값 사이에서 자동으로 변환됩니다.
 
 ```
 if ($server->status == ServerStatus::Provisioned) {

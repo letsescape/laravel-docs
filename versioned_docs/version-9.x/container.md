@@ -125,7 +125,7 @@ Route::get('/', function (Request $request) {
 **그러면, 컨테이너와 직접 상호작용해야 하는 경우는 언제일까요?** 아래 두 가지 상황을 예로 들 수 있습니다.
 
 <!-- First, if you write a class that implements an interface and you wish to type-hint that interface on a route or class constructor, you must [tell the container how to resolve that interface](#binding-interfaces-to-implementations). Secondly, if you are [writing a Laravel package](/docs/9.x/packages) that you plan to share with other Laravel developers, you may need to bind your package's services into the container. -->
-첫째, 어떤 인터페이스를 구현하는 클래스를 작성하고, 그 인터페이스를 라우트나 클래스 생성자에 타입 힌트할 경우, [tell the container how to resolve that interface](#binding-interfaces-to-implementations).
+첫째, 어떤 인터페이스를 구현하는 클래스를 작성하고, 그 인터페이스를 라우트나 클래스 생성자에 타입 힌트할 경우, 컨테이너에 해당 인터페이스를 해석하는 방법을 알려주어야 합니다([tell the container how to resolve that interface](#binding-interfaces-to-implementations)).
 둘째, [writing a Laravel package](/docs/9.x/packages)를 작성해 다른 Laravel 개발자와 공유할 계획이 있을 경우, 여러분의 패키지 서비스들을 컨테이너에 바인딩해야 하는 상황이 올 수 있습니다.
 
 <a name="binding"></a>
@@ -361,7 +361,7 @@ class Firewall
 ```
 
 <!-- Using contextual binding, you may resolve this dependency by providing the `give` method with a closure that returns an array of resolved `Filter` instances: -->
-컨텍스트 바인딩을 사용하면, 위와 같이 가변 인수로 받은 `Filter` 객체 배열을 `give` 메서드의 클로저에서 원하는 대로 반환해 의존성을 주입할 수 있습니다.
+컨텍스트 바인딩을 사용하면, 해석된 `Filter` 객체 배열을 반환하는 클로저를 `give` 메서드에 전달해 이 의존성을 주입할 수 있습니다.
 
 ```
 $this->app->when(Firewall::class)

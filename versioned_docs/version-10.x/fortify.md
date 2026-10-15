@@ -352,7 +352,7 @@ $request->user()->twoFactorQrCodeSvg();
 #### Confirming Two Factor Authentication
 
 <!-- In addition to displaying the user's two factor authentication QR code, you should provide a text input where the user can supply a valid authentication code to "confirm" their two factor authentication configuration. This code should be provided to the Laravel application via a POST request to the `/user/confirmed-two-factor-authentication` endpoint defined by Fortify. -->
-2차 QR 코드를 보여주면서, 사용자가 인증 앱에서 생성된 코드를 입력할 수 있는 입력란을 제공해야 합니다. 이 코드는 Fortify의 `/user/confirmed-two-factor-authentication` 엔드포인트로 POST 요청으로 전송되어야 합니다.
+이중 인증용 QR 코드를 보여주면서, 사용자가 인증 앱에서 생성된 코드를 입력해 이중 인증 설정을 확인할 수 있는 입력란을 제공해야 합니다. 이 코드는 Fortify의 `/user/confirmed-two-factor-authentication` 엔드포인트로 POST 요청으로 전송되어야 합니다.
 
 <!-- If the request is successful, the user will be redirected back to the previous URL and the `status` session variable will be set to `two-factor-authentication-confirmed`: -->
 요청이 성공하면 사용자는 이전 URL로 리디렉션되고, 세션 변수 `status` 값이 `two-factor-authentication-confirmed`로 설정됩니다.

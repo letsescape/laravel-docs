@@ -1891,7 +1891,7 @@ $posts = Post::whereDoesntHave('comments', function (Builder $query) {
 ```
 
 <!-- You may use "dot" notation to execute a query against a nested relationship. For example, the following query will retrieve all posts that do not have comments as well as posts that have comments where none of the comments are from banned users: -->
-"dot" 표기법을 사용하여 중첩된 연관관계에 대해 쿼리를 실행할 수 있습니다. 예를 들어, 다음 쿼리는 댓글이 없는 모든 게시물과, 댓글은 있지만 그 댓글 중 금지된 사용자에게 작성된 댓글이 하나도 없는 게시물을 조회합니다.
+"dot" 표기법을 사용하여 중첩된 연관관계에 대해 쿼리를 실행할 수 있습니다. 예를 들어, 다음 쿼리는 댓글이 없는 모든 게시물과, 댓글은 있지만 그 댓글 중 금지된 사용자가 작성한 댓글이 하나도 없는 게시물을 조회합니다.
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
@@ -2703,7 +2703,7 @@ $user->posts()->createManyQuietly([
 ]);
 ```
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/master/eloquent#upserts). -->
-`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용하여 [create and update models on relationships](/docs/master/eloquent#upserts)할 수도 있습니다.
+`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용하여 [create and update models on relationships](/docs/master/eloquent#upserts)에 설명된 것처럼 연관관계에서 모델을 생성하거나 수정할 수도 있습니다.
 
 > [!NOTE]
 > `create` 메서드를 사용하기 전에 반드시 [mass assignment](/docs/master/eloquent#mass-assignment) 문서를 확인하십시오.

@@ -156,7 +156,7 @@ class ComposerServiceProvider extends ServiceProvider
 #### Boot Method Dependency Injection
 
 <!-- You may type-hint dependencies for your service provider's `boot` method. The [service container](/docs/8.x/container) will automatically inject any dependencies you need: -->
-서비스 프로바이더의 `boot` 메서드에는 의존성 주입을 사용할 수 있습니다. [service container](/docs/8.x/container)가 필요로 하는 모든 의존성을 자동으로 주입해줍니다:
+서비스 프로바이더의 `boot` 메서드에 의존성을 타입힌트로 지정할 수 있습니다. [service container](/docs/8.x/container)가 필요로 하는 모든 의존성을 자동으로 주입해줍니다:
 
 ```
 use Illuminate\Contracts\Routing\ResponseFactory;

@@ -31,7 +31,7 @@ Laravel은 표현적이고 우아한 문법을 제공하는 웹 애플리케이�
 Laravel은 강력한 기능(예: 완전한 의존성 주입, 표현력 있는 데이터베이스 추상화 계층, 큐와 예약 작업, 단위 테스트와 통합 테스트 등)은 물론, 개발자가 멋진 경험을 누릴 수 있도록 끊임없이 노력하고 있습니다.
 
 <!-- Whether you are new to PHP or web frameworks or have years of experience, Laravel is a framework that can grow with you. We'll help you take your first steps as a web developer or give you a boost as you take your expertise to the next level. We can't wait to see what you build. -->
-PHP나 웹 프레임워크가 처음인 분도, 수년간 경험이 있으신 분도 Laravel은 여러분과 함께 성장할 수 있는 프레임워크입니다. 여러분이 웹 개발자에 첫 발을 내딛도록 도와드릴 수도 있고, 이미 숙련된 분이라면 새로운 수준에 도달하도록 한 단계 더 도약할 수 있도록 지원합니다. 여러분이 Laravel로 어떤 멋진 것을 만들지 저희도 무척 기대하고 있습니다.
+PHP나 웹 프레임워크가 처음인 분도, 수년간 경험이 있으신 분도 Laravel은 여러분과 함께 성장할 수 있는 프레임워크입니다. 여러분이 웹 개발자로서 첫발을 내딛도록 도와드릴 수도 있고, 이미 숙련된 분이라면 새로운 수준에 도달하도록 한 단계 더 도약할 수 있도록 지원합니다. 여러분이 Laravel로 어떤 멋진 것을 만들지 저희도 무척 기대하고 있습니다.
 
 <a name="why-laravel"></a>
 <!-- ### Why Laravel? -->

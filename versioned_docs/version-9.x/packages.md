@@ -133,7 +133,7 @@ $value = config('courier.option');
 ```
 
 > [!WARNING]
-> 설정 파일 안에 클로저(익명 함수)를 정의하지 않아야 합니다. 사용자가 `config:cache` 아티즌 명령어를 실행할 때 정상적으로 직렬화되지 않을 수 있습니다.
+> 설정 파일 안에 클로저(익명 함수)를 정의하지 않아야 합니다. 사용자가 `config:cache` 아티즌 명령어를 실행할 때 정상적으로 직렬화될 수 없습니다.
 
 <a name="default-package-configuration"></a>
 <!-- #### Default Package Configuration -->

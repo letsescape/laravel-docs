@@ -44,7 +44,7 @@
 ## Introduction
 
 <!-- Laravel includes Eloquent, an object-relational mapper (ORM) that makes it enjoyable to interact with your database. When using Eloquent, each database table has a corresponding "Model" that is used to interact with that table. In addition to retrieving records from the database table, Eloquent models allow you to insert, update, and delete records from the table as well. -->
-Laravel에는 Eloquent라는 객체-관계 매퍼(ORM)가 포함되어 있어 데이터베이스와 더욱 즐겁고 쉽게 상호작용할 수 있습니다. Eloquent를 사용할 때 각 데이터베이스 테이블에는 해당 테이블과 연동되는 "모델"이 하나씩 만들어집니다. Eloquent 모델을 통해 데이터베이스 테이블에서 레코드를 조회할 뿐만 아니라, 레코드를 삽입, 수정, 삭제하는 작업도 할 수 있습니다.
+Laravel에는 Eloquent라는 객체-관계 매퍼(ORM)가 포함되어 있어 데이터베이스와 더욱 즐겁고 쉽게 상호작용할 수 있습니다. Eloquent를 사용할 때 각 데이터베이스 테이블에는 해당 테이블과 연동되는 "모델"이 대응됩니다. Eloquent 모델을 통해 데이터베이스 테이블에서 레코드를 조회할 뿐만 아니라, 레코드를 삽입, 수정, 삭제하는 작업도 할 수 있습니다.
 
 > [!NOTE]
 > 시작하기 전에 애플리케이션의 `config/database.php` 설정 파일에서 데이터베이스 연결을 반드시 구성해야 합니다. 데이터베이스 설정에 관한 자세한 내용은 [the database configuration documentation](/docs/10.x/database#configuration)를 참고하십시오.
@@ -447,7 +447,7 @@ public function boot(): void
 ```
 
 <!-- Also, you may instruct Laravel to throw an exception when attempting to fill an unfillable attribute by invoking the `preventSilentlyDiscardingAttributes` method. This can help prevent unexpected errors during local development when attempting to set an attribute that has not been added to the model's `fillable` array: -->
-또한, 모델에 없는 속성을 할당하려 하면 에러를 던지도록 `preventSilentlyDiscardingAttributes` 메서드를 사용할 수 있습니다. 이 설정은 모델의 `fillable` 배열에 추가되지 않은 속성에 값을 할당할 때 발생하는 예기치 않은 에러를 개발 단계에서 미리 방지하는 데 도움이 됩니다.
+또한, 모델에서 대량 할당이 허용되지 않은 속성을 할당하려 하면 예외를 던지도록 `preventSilentlyDiscardingAttributes` 메서드를 사용할 수 있습니다. 이 설정은 모델의 `fillable` 배열에 추가되지 않은 속성에 값을 할당할 때 발생하는 예기치 않은 에러를 개발 단계에서 미리 방지하는 데 도움이 됩니다.
 
 ```php
 Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
@@ -613,7 +613,7 @@ Flight::where('departed', true)
 `cursor` 메서드는 단 한 번만 데이터베이스 쿼리를 실행하지만, 각각의 Eloquent 모델은 실제로 반복문에서 접근될 때까지 하이드레이션(데이터 주입)되지 않습니다. 따라서 루프를 도는 동안 어느 한 시점에는 단 하나의 Eloquent 모델만 메모리에 남게 됩니다.
 
 > [!WARNING]
-> `cursor` 메서드는 한 번에 하나의 모델만 메모리에 보관하기 때문에, 연관관계(eager loading)는 사용할 수 없습니다. 연관관계를 미리 로드해야 한다면 [the `lazy` method](#chunking-using-lazy-collections) 사용을 권장합니다.
+> `cursor` 메서드는 한 번에 하나의 모델만 메모리에 보관하기 때문에, 연관관계의 즉시 로딩(eager loading)은 사용할 수 없습니다. 연관관계를 미리 로드해야 한다면 [the `lazy` method](#chunking-using-lazy-collections) 사용을 권장합니다.
 
 <!-- Internally, the `cursor` method uses PHP [generators](https://www.php.net/manual/en/language.generators.overview.php) to implement this functionality: -->
 내부적으로, `cursor` 메서드는 PHP의 [generators](https://www.php.net/manual/en/language.generators.overview.php)를 활용해 동작합니다.
@@ -642,7 +642,7 @@ foreach ($users as $user) {
 ```
 
 <!-- Although the `cursor` method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). If you're dealing with a very large number of Eloquent records, consider using [the `lazy` method](#chunking-using-lazy-collections) instead. -->
-비록 `cursor` 메서드는 한 번에 한 개의 모델만 메모리에 보관하기 때문에 일반 쿼리보다 메모리 사용량이 훨씬 적지만, 결국에는 메모리가 모두 소모될 수 있습니다. 그 이유는 PHP의 PDO 드라이버가 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)입니다. 아주 많은 Eloquent 레코드를 다루고 있다면, [the `lazy` method](#chunking-using-lazy-collections) 사용을 고려하시기 바랍니다.
+비록 `cursor` 메서드는 한 번에 한 개의 모델만 메모리에 보관하기 때문에 일반 쿼리보다 메모리 사용량이 훨씬 적지만, 결국에는 메모리가 모두 소모될 수 있습니다. 그 이유는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)에 설명된 PDO 드라이버의 쿼리 결과 버퍼링입니다. 아주 많은 Eloquent 레코드를 다루고 있다면, [the `lazy` method](#chunking-using-lazy-collections) 사용을 고려하시기 바랍니다.
 
 <a name="advanced-subqueries"></a>
 
@@ -784,7 +784,7 @@ $flight = Flight::firstOrNew(
 ### Retrieving Aggregates
 
 <!-- When interacting with Eloquent models, you may also use the `count`, `sum`, `max`, and other [aggregate methods](/docs/10.x/queries#aggregates) provided by the Laravel [query builder](/docs/10.x/queries). As you might expect, these methods return a scalar value instead of an Eloquent model instance: -->
-Eloquent 모델과 상호작용할 때, Laravel [aggregate methods](/docs/10.x/queries#aggregates)가 제공하는 `count`, `sum`, `max`와 같은 [query builder](/docs/10.x/queries)도 사용할 수 있습니다. 이 메서드들은 기대하신 대로 Eloquent 모델 인스턴스가 아니라 스칼라 값(숫자 등)을 반환합니다.
+Eloquent 모델과 상호작용할 때, Laravel [query builder](/docs/10.x/queries)가 제공하는 `count`, `sum`, `max`와 같은 [aggregate methods](/docs/10.x/queries#aggregates)도 사용할 수 있습니다. 이 메서드들은 기대하신 대로 Eloquent 모델 인스턴스가 아니라 스칼라 값(숫자 등)을 반환합니다.
 
 ```
 $count = Flight::where('active', 1)->count();
@@ -848,7 +848,7 @@ $flight = Flight::create([
 ```
 
 <!-- However, before using the `create` method, you will need to specify either a `fillable` or `guarded` property on your model class. These properties are required because all Eloquent models are protected against mass assignment vulnerabilities by default. To learn more about mass assignment, please consult the [mass assignment documentation](#mass-assignment). -->
-단, `create` 메서드를 사용하려면 모델 클래스에 `fillable` 또는 `guarded` 속성(property)을 반드시 지정해야 합니다. 이는 기본적으로 Eloquent 모델이 대량 할당(vulnerabilities)로부터 보호되기 때문입니다. 대량 할당(mass assignment) 보안에 대한 자세한 내용은 [mass assignment documentation](#mass-assignment)를 참고하시기 바랍니다.
+단, `create` 메서드를 사용하려면 모델 클래스에 `fillable` 또는 `guarded` 속성(property)을 반드시 지정해야 합니다. 이는 기본적으로 Eloquent 모델이 대량 할당 취약점(vulnerabilities)로부터 보호되기 때문입니다. 대량 할당(mass assignment) 보안에 대한 자세한 내용은 [mass assignment documentation](#mass-assignment)를 참고하시기 바랍니다.
 
 <a name="updates"></a>
 <!-- ### Updates -->
@@ -1058,7 +1058,7 @@ protected $guarded = [];
 기본적으로 `$fillable` 배열에 포함되지 않은 속성은 대량 할당 연산 시 조용히 무시됩니다(silently discarded). 운영 환경에서는 이런 동작이 정상입니다. 그러나 개발 환경에서는 모델 변경이 적용되지 않아 혼란을 줄 수 있습니다.
 
 <!-- If you wish, you may instruct Laravel to throw an exception when attempting to fill an unfillable attribute by invoking the `preventSilentlyDiscardingAttributes` method. Typically, this method should be invoked within the `boot` method of one of your application's service providers: -->
-원한다면, Laravel이 안전하지 않은 속성에 대량 할당 시 예외를 발생시키도록 설정할 수 있습니다. 이를 위해 `preventSilentlyDiscardingAttributes` 메서드를 호출하세요. 이 메서드는 보통 애플리케이션 서비스 프로바이더의 `boot` 메서드에서 호출합니다.
+원한다면, Laravel이 대량 할당이 허용되지 않은 속성을 채우려 할 때 예외를 발생시키도록 설정할 수 있습니다. 이를 위해 `preventSilentlyDiscardingAttributes` 메서드를 호출하세요. 이 메서드는 보통 애플리케이션 서비스 프로바이더의 `boot` 메서드에서 호출합니다.
 
 ```
 use Illuminate\Database\Eloquent\Model;
@@ -1377,7 +1377,7 @@ php artisan model:prune --pretend
 ```
 
 > [!WARNING]
-> 소프트 삭제된 모델이 prunable 쿼리에 해당된다면, 해당 모델은 영구적으로 삭제(`forceDelete`)됩니다.
+> 소프트 삭제를 사용하는 모델이 prunable 쿼리에 해당된다면, 해당 모델은 영구적으로 삭제(`forceDelete`)됩니다.
 
 <a name="mass-pruning"></a>
 <!-- #### Mass Pruning -->
@@ -1624,7 +1624,7 @@ User::withoutGlobalScopes([
 지역 스코프를 사용하면, 애플리케이션 내에서 반복적으로 사용되는 쿼리 제약 조건 집합을 재사용할 수 있습니다. 예를 들어 "인기 있는(popular)" 사용자만 자주 조회하고 싶을 수 있습니다. 스코프를 정의하려면, Eloquent 모델 메서드에 `scope` 접두어를 붙여 만드십시오.
 
 <!-- Scopes should always return the same query builder instance or `void`: -->
-스코프 메서드는 항상 쿼리 빌더 인스턴스 또는 `void`를 반환해야 합니다.
+스코프 메서드는 항상 동일한 쿼리 빌더 인스턴스 또는 `void`를 반환해야 합니다.
 
 ```
 <?php
@@ -1711,7 +1711,7 @@ class User extends Model
 ```
 
 <!-- Once the expected arguments have been added to your scope method's signature, you may pass the arguments when calling the scope: -->
-이제 스코프 메서드에 정의된 파라미터 개수에 맞춰, 스코프를 호출할 때 값을 전달하면 됩니다.
+이제 스코프를 호출할 때 스코프 메서드에 추가한 파라미터에 해당하는 값을 전달하면 됩니다.
 
 ```
 $users = User::ofType('admin')->get();
@@ -1722,7 +1722,7 @@ $users = User::ofType('admin')->get();
 ## Comparing Models
 
 <!-- Sometimes you may need to determine if two models are the "same" or not. The `is` and `isNot` methods may be used to quickly verify two models have the same primary key, table, and database connection or not: -->
-두 모델이 같은 모델 객체인지 판별해야 할 때가 있습니다. `is` 및 `isNot` 메서드는 두 모델이 동일한 기본키(primary key), 테이블, 그리고 데이터베이스 연결까지 모두 같은지 신속하게 확인할 수 있습니다.
+두 모델이 "같은" 모델인지 판별해야 할 때가 있습니다. `is` 및 `isNot` 메서드는 두 모델이 동일한 기본키(primary key), 테이블, 그리고 데이터베이스 연결까지 모두 같은지 신속하게 확인할 수 있습니다.
 
 ```
 if ($post->is($anotherPost)) {
@@ -1789,7 +1789,7 @@ class User extends Authenticatable
 이처럼 Eloquent 이벤트를 정의하고 매핑한 후에는, [event listeners](/docs/10.x/events#defining-listeners)로 실제 이벤트를 처리할 수 있습니다.
 
 > [!WARNING]
-> Eloquent를 통해 대량의 update 또는 delete 쿼리를 실행할 경우, 해당 모델 이벤트(`saved`, `updated`, `deleting`, `deleted`)는 발생하지 않습니다. 이는 대량 연산 시 모델이 실제로 조회되지 않기 때문입니다.
+> Eloquent를 통해 대량 업데이트 또는 삭제 쿼리를 실행할 경우, 해당 모델 이벤트(`saved`, `updated`, `deleting`, `deleted`)는 발생하지 않습니다. 이는 대량 연산 시 모델이 실제로 조회되지 않기 때문입니다.
 
 <a name="events-using-closures"></a>
 <!-- ### Using Closures -->
@@ -1914,7 +1914,7 @@ class User extends Authenticatable
 ```
 
 <!-- Or, you may manually register an observer by calling the `observe` method on the model you wish to observe. You may register observers in the `boot` method of your application's `App\Providers\EventServiceProvider` service provider: -->
-또는, 옵저버로 등록하려는 모델의 `observe` 메서드를 직접 호출해서 수동으로 등록할 수도 있습니다. 보통 애플리케이션의 `App\Providers\EventServiceProvider` 서비스 프로바이더의 `boot` 메서드에서 옵저버를 등록합니다.
+또는, 관찰하려는 모델의 `observe` 메서드를 직접 호출해서 수동으로 등록할 수도 있습니다. 보통 애플리케이션의 `App\Providers\EventServiceProvider` 서비스 프로바이더의 `boot` 메서드에서 옵저버를 등록합니다.
 
 ```
 use App\Models\User;

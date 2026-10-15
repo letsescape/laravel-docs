@@ -650,7 +650,7 @@ class PostController extends Controller
 ```
 
 <!-- If a [policy is registered](#registering-policies) for the given model, the `can` method will automatically call the appropriate policy and return the boolean result. If no policy is registered for the model, the `can` method will attempt to call the closure-based Gate matching the given action name. -->
-주어진 모델에 대해 [policy is registered](#registering-policies) 있다면, `can` 메서드는 자동으로 적절한 정책을 호출하고 boolean 결과를 반환합니다. 모델에 등록된 정책이 없다면, `can` 메서드는 주어진 액션 이름과 일치하는 클로저 기반 Gate를 호출하려고 시도합니다.
+주어진 모델에 대해 [policy is registered](#registering-policies)되어 있다면, `can` 메서드는 자동으로 적절한 정책을 호출하고 boolean 결과를 반환합니다. 모델에 등록된 정책이 없다면, `can` 메서드는 주어진 액션 이름과 일치하는 클로저 기반 Gate를 호출하려고 시도합니다.
 
 <a name="user-model-actions-that-dont-require-models"></a>
 <!-- #### Actions That Don't Require Models -->

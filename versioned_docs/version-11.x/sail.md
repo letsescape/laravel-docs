@@ -43,7 +43,7 @@
 Sail의 핵심은 프로젝트 루트에 위치한 `docker-compose.yml` 파일과 `sail` 스크립트입니다. `sail` 스크립트는 `docker-compose.yml`에 정의된 Docker 컨테이너들과 쉽게 상호작용할 수 있는 CLI 명령들을 제공합니다.
 
 <!-- Laravel Sail is supported on macOS, Linux, and Windows (via [WSL2](https://docs.microsoft.com/en-us/windows/wsl/about)). -->
-Laravel Sail은 macOS, Linux, 그리고 Windows([WSL2](https://docs.microsoft.com/en-us/windows/wsl/about) 통해)에서 지원됩니다.
+Laravel Sail은 macOS, Linux, 그리고 Windows([WSL2](https://docs.microsoft.com/en-us/windows/wsl/about)를 통해)에서 지원됩니다.
 
 <a name="installation"></a>
 <!-- ## Installation and Setup -->
@@ -64,7 +64,7 @@ composer require laravel/sail --dev
 ```
 
 <!-- After Sail has been installed, you may run the `sail:install` Artisan command. This command will publish Sail's `docker-compose.yml` file to the root of your application and modify your `.env` file with the required environment variables in order to connect to the Docker services: -->
-Sail 설치가 완료되면, `sail:install` Artisan 명령어를 실행하세요. 이 명령어는 Sail의 `docker-compose.yml` 파일을 애플리케이션 루트에 복사해주고, Docker 서비스에 연결에 필요한 환경 변수를 `.env` 파일에 추가/수정합니다.
+Sail 설치가 완료되면, `sail:install` Artisan 명령어를 실행하세요. 이 명령어는 Sail의 `docker-compose.yml` 파일을 애플리케이션 루트에 복사해주고, Docker 서비스에 연결하는 데 필요한 환경 변수를 `.env` 파일에 추가/수정합니다.
 
 ```shell
 php artisan sail:install
@@ -223,7 +223,7 @@ sail composer require laravel/sanctum
 #### Installing Composer Dependencies for Existing Applications
 
 <!-- If you are developing an application with a team, you may not be the one that initially creates the Laravel application. Therefore, none of the application's Composer dependencies, including Sail, will be installed after you clone the application's repository to your local computer. -->
-팀 프로젝트에서 개발을 시작할 때는, Laravel 애플리케이션 자체를 직접 생성하지 않고 리포지터리를 클론만 하는 경우가 많습니다. 이런 경우에는 Composer 의존성, 포함하여 Sail도 아직 설치 전일 수 있습니다.
+팀 프로젝트에서 개발을 시작할 때는, Laravel 애플리케이션 자체를 직접 생성하지 않고 리포지터리를 클론만 하는 경우가 많습니다. 저장소를 로컬 컴퓨터에 클론한 직후에는 Sail을 포함한 Composer 의존성이 아직 설치되지 않은 상태입니다.
 
 <!-- You may install the application's dependencies by navigating to the application's directory and executing the following command. This command uses a small Docker container containing PHP and Composer to install the application's dependencies: -->
 애플리케이션 폴더로 이동한 뒤, 아래와 같이 Docker 컨테이너(PHP와 Composer 포함)를 임시로 띄워서 의존성을 설치할 수 있습니다.
@@ -318,20 +318,20 @@ MONGODB_URI=mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@mongodb:27017
 ### Redis
 
 <!-- Your application's `docker-compose.yml` file also contains an entry for a [Redis](https://redis.io) container. This container uses a [Docker volume](https://docs.docker.com/storage/volumes/) so that the data stored in your Redis instance is persisted even when stopping and restarting your containers. Once you have started your containers, you may connect to the Redis instance within your application by setting your `REDIS_HOST` environment variable within your application's `.env` file to `redis`. -->
-`docker-compose.yml` 파일에는 [Redis](https://redis.io) 컨테이너도 포함되어 있습니다. 이 컨테이너 역시 [Docker volume](https://docs.docker.com/storage/volumes/)을 통해 데이터가 유지됩니다. 컨테이너 실행 후, `.env`의 `REDIS_HOST` 값을 `redis`로 설정하면 애플리케이션에서 Redis에 연결할 수 있습니다.
+`docker-compose.yml` 파일에는 [Redis](https://redis.io) 컨테이너도 포함되어 있습니다. 이 컨테이너 역시 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용하므로 컨테이너를 중지하거나 재시작해도 데이터가 유지됩니다. 컨테이너 실행 후, `.env`의 `REDIS_HOST` 값을 `redis`로 설정하면 애플리케이션에서 Redis에 연결할 수 있습니다.
 
 <!-- To connect to your application's Redis database from your local machine, you may use a graphical database management application such as [TablePlus](https://tableplus.com). By default, the Redis database is accessible at `localhost` port 6379. -->
-로컬 머신에서는 [TablePlus](https://tableplus.com) 같은 GUI를 쓰거나, `localhost`의 6379 포트로 직접 접근할 수 있습니다.
+로컬 머신에서는 [TablePlus](https://tableplus.com) 같은 GUI를 사용할 수 있습니다. 기본적으로 Redis는 `localhost`의 6379 포트에서 접근할 수 있습니다.
 
 <a name="valkey"></a>
 <!-- ### Valkey -->
 ### Valkey
 
 <!-- If you choose to install Valkey service when installing Sail, your application's `docker-compose.yml` file will contain an entry for [Valkey](https://valkey.io/). This container uses a [Docker volume](https://docs.docker.com/storage/volumes/) so that the data stored in your Valkey instance is persisted even when stopping and restarting your containers. You can connect to this container in you application by setting your `REDIS_HOST` environment variable within your application's `.env` file to `valkey`. -->
-Sail 설치 시 Valkey 서비스를 선택하면, 애플리케이션의 `docker-compose.yml` 파일에 [Valkey](https://valkey.io/) 컨테이너가 추가됩니다. 이 컨테이너 역시 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용해 데이터가 보존되며, 애플리케이션의 `.env` 파일에서 `REDIS_HOST` 값을 `valkey`로 설정해 연결할 수 있습니다.
+Sail 설치 시 Valkey 서비스를 선택하면, 애플리케이션의 `docker-compose.yml` 파일에 [Valkey](https://valkey.io/) 컨테이너가 추가됩니다. 이 컨테이너 역시 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용하므로 컨테이너를 중지하거나 재시작해도 데이터가 보존되며, 애플리케이션의 `.env` 파일에서 `REDIS_HOST` 값을 `valkey`로 설정해 연결할 수 있습니다.
 
 <!-- To connect to your application's Valkey database from your local machine, you may use a graphical database management application such as [TablePlus](https://tableplus.com). By default, the Valkey database is accessible at `localhost` port 6379. -->
-로컬 머신에서는 [TablePlus](https://tableplus.com)와 같은 데이터베이스 관리 도구로 `localhost` 6379 포트에 접속할 수 있습니다.
+로컬 머신에서는 [TablePlus](https://tableplus.com)와 같은 데이터베이스 관리 도구를 사용할 수 있습니다. 기본적으로 Valkey는 `localhost` 6379 포트에서 접근할 수 있습니다.
 
 <a name="meilisearch"></a>
 <!-- ### Meilisearch -->
@@ -381,7 +381,7 @@ AWS_USE_PATH_STYLE_ENDPOINT=true
 ```
 
 <!-- In order for Laravel's Flysystem integration to generate proper URLs when using MinIO, you should define the `AWS_URL` environment variable so that it matches your application's local URL and includes the bucket name in the URL path: -->
-Flysystem 통합을 통해 URL이 올바르게 생성되도록 하려면, `AWS_URL` 환경변수도 아래처럼 정의해야 합니다(로컬 URL 및 버킷명을 포함).
+Flysystem 통합을 통해 URL이 올바르게 생성되도록 하려면, `AWS_URL` 환경변수도 애플리케이션의 로컬 URL과 일치하고 URL 경로에 버킷명이 포함되도록 아래처럼 정의해야 합니다.
 
 ```ini
 AWS_URL=http://localhost:9000/local

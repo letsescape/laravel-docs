@@ -675,7 +675,7 @@ public function toArray($request)
 속성 외에도, 연관관계를 모델에 이미 로드했는지에 따라 선택적으로 리소스 응답에 포함할 수 있습니다. 이렇게 하면, 로드가 필요한 연관관계를 컨트롤러에서 직접 결정하고, 리소스에서는 실제로 로드된 경우에만 연관관계를 쉽게 응답에 포함할 수 있습니다. 궁극적으로, 리소스 사용 시 "N+1" 쿼리 문제를 예방하기 쉬워집니다.
 
 <!-- The `whenLoaded` method may be used to conditionally load a relationship. In order to avoid unnecessarily loading relationships, this method accepts the name of the relationship instead of the relationship itself: -->
-연관관계를 조건부로 포함하고 싶을 때는 `whenLoaded` 메서드를 사용할 수 있습니다. 이 메서드는 불필요한 쿼리 실행을 막기 위해, 연관관계 자체가 아니라 연관관계의 이름을 인자로 전달합니다.
+연관관계를 조건부로 포함하고 싶을 때는 `whenLoaded` 메서드를 사용할 수 있습니다. 이 메서드는 불필요한 쿼리 실행을 막기 위해, 연관관계 자체가 아니라 연관관계의 이름을 인자로 받습니다.
 
 ```
 use App\Http\Resources\PostResource;

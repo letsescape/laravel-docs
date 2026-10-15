@@ -282,7 +282,7 @@ class SetDefaultLocaleForUrls
 #### URL Defaults & Middleware Priority
 
 <!-- Setting URL default values can interfere with Laravel's handling of implicit model bindings. Therefore, you should [prioritize your middleware](/docs/8.x/middleware#sorting-middleware) that set URL defaults to be executed before Laravel's own `SubstituteBindings` middleware. You can accomplish this by making sure your middleware occurs before the `SubstituteBindings` middleware within the `$middlewarePriority` property of your application's HTTP kernel. -->
-URL의 기본값을 설정하는 미들웨어는 Laravel의 암묵적 모델 바인딩 처리에 영향을 줄 수 있습니다. 따라서, URL 기본값을 설정하는 [prioritize your middleware](/docs/8.x/middleware#sorting-middleware)하여 반드시 Laravel의 기본 `SubstituteBindings` 미들웨어보다 먼저 실행되도록 해야 합니다. 이를 위해서는 애플리케이션의 HTTP 커널에서 `$middlewarePriority` 속성에 해당 미들웨어가 `SubstituteBindings`보다 앞에 나오도록 설정해야 합니다.
+URL의 기본값을 설정하는 미들웨어는 Laravel의 암묵적 모델 바인딩 처리에 영향을 줄 수 있습니다. 따라서, [prioritize your middleware](/docs/8.x/middleware#sorting-middleware)에 따라 URL 기본값을 설정하는 미들웨어의 우선순위를 조정하여 반드시 Laravel의 기본 `SubstituteBindings` 미들웨어보다 먼저 실행되도록 해야 합니다. 이를 위해서는 애플리케이션의 HTTP 커널에서 `$middlewarePriority` 속성에 해당 미들웨어가 `SubstituteBindings`보다 앞에 나오도록 설정해야 합니다.
 
 <!-- The `$middlewarePriority` property is defined in the base `Illuminate\Foundation\Http\Kernel` class. You may copy its definition from that class and overwrite it in your application's HTTP kernel in order to modify it: -->
 `$middlewarePriority` 속성은 기본적으로 `Illuminate\Foundation\Http\Kernel` 클래스에 정의되어 있습니다. 이 정의를 앱의 HTTP 커널로 복사해서 원하는 대로 수정할 수 있습니다.

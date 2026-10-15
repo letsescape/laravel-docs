@@ -43,7 +43,7 @@
 Laravel은 공식 Vite 플러그인과 Blade 디렉티브를 제공하여, 개발 및 운영 환경 모두에서 에셋 로딩이 원활히 통합되도록 지원합니다.
 
 > [!NOTE]
-> 혹시 Laravel Mix를 사용하고 계신가요? Vite는 최신 Laravel 설치에서 기존 Laravel Mix를 대체합니다. Mix 관련 문서는 [Laravel Mix](https://laravel-mix.com/) 웹사이트에서 확인할 수 있습니다. Vite로 전환하고 싶다면 [migration guide](https://github.com/laravel/vite-plugin/blob/main/UPGRADE.md#migrating-from-laravel-mix-to-vite)를 참고하세요.
+> 혹시 Laravel Mix를 사용하고 계신가요? Vite는 새로 설치한 Laravel에서 기존 Laravel Mix를 대체합니다. Mix 관련 문서는 [Laravel Mix](https://laravel-mix.com/) 웹사이트에서 확인할 수 있습니다. Vite로 전환하고 싶다면 [migration guide](https://github.com/laravel/vite-plugin/blob/main/UPGRADE.md#migrating-from-laravel-mix-to-vite)를 참고하세요.
 
 <a name="vite-or-mix"></a>
 <!-- #### Choosing Between Vite and Laravel Mix -->
@@ -53,7 +53,7 @@ Laravel은 공식 Vite 플러그인과 Blade 디렉티브를 제공하여, 개�
 Vite가 도입되기 전까지, 새로운 Laravel 애플리케이션은 에셋 번들링 시 [Mix](https://laravel-mix.com/)를 사용했으며, 이는 [webpack](https://webpack.js.org/) 기반입니다. Vite는 풍부한 자바스크립트 애플리케이션을 개발할 때 훨씬 빠르고 생산적인 경험을 제공합니다. [Inertia](https://inertiajs.com)와 같은 도구를 사용해 SPA(Single Page Application)을 개발하는 경우, Vite가 최적의 선택입니다.
 
 <!-- Vite also works well with traditional server-side rendered applications with JavaScript "sprinkles", including those using [Livewire](https://livewire.laravel.com). However, it lacks some features that Laravel Mix supports, such as the ability to copy arbitrary assets into the build that are not referenced directly in your JavaScript application. -->
-또한, Vite는 [Livewire](https://livewire.laravel.com) 등 자바스크립트 "스프링클"이 적용된 전통적인 서버 사이드 렌더링 방식의 애플리케이션에서도 잘 동작합니다. 다만, 운영 환경에 포함되지 않는 파일을 별도로 빌드 디렉터리로 복사하는 기능 등 일부 Laravel Mix의 기능은 지원하지 않습니다.
+또한, Vite는 [Livewire](https://livewire.laravel.com) 등 자바스크립트 "스프링클"이 적용된 전통적인 서버 사이드 렌더링 방식의 애플리케이션에서도 잘 동작합니다. 다만, JavaScript 애플리케이션에서 직접 참조하지 않는 임의의 에셋을 빌드에 복사하는 기능 등 일부 Laravel Mix의 기능은 지원하지 않습니다.
 
 <a name="migrating-back-to-mix"></a>
 <!-- #### Migrating Back to Mix -->
@@ -881,7 +881,7 @@ php artisan inertia:start-ssr
 ### Content Security Policy (CSP) Nonce
 
 <!-- If you wish to include a [`nonce` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) on your script and style tags as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may generate or specify a nonce using the `useCspNonce` method within a custom [middleware](/docs/11.x/middleware): -->
-[`nonce` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)의 일환으로, script 및 style 태그에 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)을 포함시키고 싶다면, 커스텀 [middleware](/docs/11.x/middleware)에서 `useCspNonce` 메서드로 nonce 값을 생성 또는 지정할 수 있습니다.
+[Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)의 일환으로, script 및 style 태그에 [`nonce` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)을 포함시키고 싶다면, 커스텀 [middleware](/docs/11.x/middleware)에서 `useCspNonce` 메서드로 nonce 값을 생성 또는 지정할 수 있습니다.
 
 ```php
 <?php
@@ -915,7 +915,7 @@ class AddContentSecurityPolicyHeaders
 `useCspNonce` 메서드를 호출하면, Laravel은 자동으로 생성되는 모든 script 및 style 태그에 `nonce` 속성을 포함시켜줍니다.
 
 <!-- If you need to specify the nonce elsewhere, including the [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) included with Laravel's [starter kits](/docs/11.x/starter-kits), you may retrieve it using the `cspNonce` method: -->
-이미 할당된 nonce 값을 다른 곳에서도 사용해야 하거나, Laravel [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy)에 포함된 [starter kits](/docs/11.x/starter-kits)에서 nonce를 명시해야 한다면, `cspNonce` 메서드를 통해 값을 가져올 수 있습니다.
+이미 할당된 nonce 값을 다른 곳에서도 사용해야 하거나, Laravel [starter kits](/docs/11.x/starter-kits)에 포함된 [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy)에서 nonce를 명시해야 한다면, `cspNonce` 메서드를 통해 값을 가져올 수 있습니다.
 
 ```blade
 @routes(nonce: Vite::cspNonce())
@@ -933,7 +933,7 @@ Vite::useCspNonce($nonce);
 ### Subresource Integrity (SRI)
 
 <!-- If your Vite manifest includes `integrity` hashes for your assets, Laravel will automatically add the `integrity` attribute on any script and style tags it generates in order to enforce [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity). By default, Vite does not include the `integrity` hash in its manifest, but you may enable it by installing the [`vite-plugin-manifest-sri`](https://www.npmjs.com/package/vite-plugin-manifest-sri) NPM plugin: -->
-Vite 매니페스트에 에셋의 `integrity` 해시가 포함되어 있다면, Laravel은 생성되는 script, style 태그에 자동으로 `integrity` 속성을 추가하여 [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)을 보장합니다. 기본적으로 Vite는 매니페스트에 `integrity` 해시를 포함하지 않으며, [`vite-plugin-manifest-sri`](https://www.npmjs.com/package/vite-plugin-manifest-sri) NPM 플러그인을 설치해 활성화해야 합니다.
+Vite 매니페스트에 에셋의 `integrity` 해시가 포함되어 있다면, Laravel은 생성되는 script, style 태그에 자동으로 `integrity` 속성을 추가하여 [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)을 보장합니다. 기본적으로 Vite는 매니페스트에 `integrity` 해시를 포함하지 않으며, [`vite-plugin-manifest-sri`](https://www.npmjs.com/package/vite-plugin-manifest-sri) NPM 플러그인을 설치해 활성화할 수 있습니다.
 
 ```shell
 npm install --save-dev vite-plugin-manifest-sri
@@ -1062,7 +1062,7 @@ export default defineConfig({
 ### Dev Server Cross-Origin Resource Sharing (CORS)
 
 <!-- If you are experiencing Cross-Origin Resource Sharing (CORS) issues in the browser while fetching assets from the Vite dev server, you may need to grant your custom origin access to the dev server. Vite combined with the Laravel plugin allows the following origins without any additional configuration: -->
-Vite 개발 서버에서 에셋을 가져올 때 브라우저에서 CORS(Cross-Origin Resource Sharing) 오류가 발생한다면, 여러분이 이용 중인 출처(origin)가 개발 서버에 접근할 수 있도록 허용해야 합니다. Laravel 플러그인과 함께 사용할 때는 아래의 오리진이 별도 설정 없이 자동 허용됩니다.
+Vite 개발 서버에서 에셋을 가져올 때 브라우저에서 CORS(Cross-Origin Resource Sharing) 오류가 발생한다면, 여러분이 이용 중인 출처(origin)가 개발 서버에 접근할 수 있도록 허용해야 할 수 있습니다. Laravel 플러그인과 함께 사용할 때는 아래의 오리진이 별도 설정 없이 자동 허용됩니다.
 
 <!--
 - `::1`
@@ -1154,7 +1154,7 @@ Vite 생태계의 일부 플러그인은 슬래시(/)로 시작하는 URL이 항
 `vite-imagetools`에서는 URL이 `/@imagetools`로 시작하면 해당 URL을 Vite가 가로채어 처리한다고 가정합니다. 이런 동작을 기대하는 플러그인을 사용할 경우 직접 URL을 보정해주어야 합니다. 이때 `vite.config.js`의 `transformOnServe` 옵션을 사용할 수 있습니다.
 
 <!-- In this particular example, we will prepend the dev server URL to all occurrences of `/@imagetools` within the generated code: -->
-아래 예시에서는 `/@imagetools` 경로를 개발 서버의 실제 URL로 치환하는 방식입니다.
+아래 예시에서는 생성된 코드 내 모든 `/@imagetools` 앞에 개발 서버 URL을 붙입니다.
 
 ```js
 import { defineConfig } from 'vite';

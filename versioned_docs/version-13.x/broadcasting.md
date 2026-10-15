@@ -1770,7 +1770,7 @@ const status = useConnectionStatus();
 #### Socket ID
 
 <!-- You may retrieve the current WebSocket socket ID using the `useSocketId` hook, which provides a reactive value that automatically updates when the connection reconnects with a new socket ID: -->
-`useSocketId` 훅을 사용하면 현재 WebSocket 소켓 ID를 가져올 수 있으며, 이 값은 새로운 소켓 ID로 연결이 다시 연결될 때 자동으로 갱신되는 반응형 값을 제공합니다.
+`useSocketId` 훅을 사용하면 현재 WebSocket 소켓 ID를 가져올 수 있으며, 이 훅은 새로운 소켓 ID로 재연결될 때 자동으로 갱신되는 반응형 값을 제공합니다.
 
 ```js tab=React
 import { useSocketId } from "@laravel/echo-react";

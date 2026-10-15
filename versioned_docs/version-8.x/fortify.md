@@ -127,7 +127,7 @@ Fortify 서비스 프로바이더는 퍼블리시된 액션들을 등록하고, 
 ### Fortify Features
 
 <!-- The `fortify` configuration file contains a `features` configuration array. This array defines which backend routes / features Fortify will expose by default. If you are not using Fortify in combination with [Laravel Jetstream](https://jetstream.laravel.com), we recommend that you only enable the following features, which are the basic authentication features provided by most Laravel applications: -->
-`fortify` 설정 파일에는 `features` 배열이 있습니다. 이 배열에서 Fortify가 기본적으로 노출할 백엔드 라우트와 기능을 결정합니다. [Laravel Jetstream](https://jetstream.laravel.com)과 Fortify를 함께 사용하지 않는다면, 대부분의 Laravel 애플리케이션에서 필요한 로그인, 회원가입, 비밀번호 재설정 등 인증 기본 기능만 활성화하는 것을 추천합니다:
+`fortify` 설정 파일에는 `features` 배열이 있습니다. 이 배열에서 Fortify가 기본적으로 노출할 백엔드 라우트와 기능을 결정합니다. [Laravel Jetstream](https://jetstream.laravel.com)과 Fortify를 함께 사용하지 않는다면, 대부분의 Laravel 애플리케이션에서 필요한 다음 기본 인증 기능만 활성화하는 것을 추천합니다:
 
 ```php
 'features' => [
@@ -274,7 +274,7 @@ Fortify::authenticateThrough(function (Request $request) {
 로그인에 성공하면 Fortify는 `fortify` 설정 파일의 `home` 옵션에 지정한 URI로 리디렉션합니다. XHR 요청이라면 200 HTTP 응답이 반환됩니다. 사용자가 로그아웃하면, 기본적으로 `/` URI로 리디렉션됩니다.
 
 <!-- If you need advanced customization of this behavior, you may bind implementations of the `LoginResponse` and `LogoutResponse` contracts into the Laravel [service container](/docs/8.x/container). Typically, this should be done within the `register` method of your application's `App\Providers\FortifyServiceProvider` class: -->
-만약 이 동작을 더 세밀하게 제어하고 싶다면, `LoginResponse` 및 `LogoutResponse` 계약을 Laravel의 [service container](/docs/8.x/container)에 바인딩하세요. 보통 `App\Providers\FortifyServiceProvider` 클래스의 `register` 메서드에서 처리합니다:
+만약 이 동작을 더 세밀하게 제어하고 싶다면, `LoginResponse` 및 `LogoutResponse` 계약의 구현체를 Laravel의 [service container](/docs/8.x/container)에 바인딩하세요. 보통 `App\Providers\FortifyServiceProvider` 클래스의 `register` 메서드에서 처리합니다:
 
 ```php
 use Laravel\Fortify\Contracts\LogoutResponse;

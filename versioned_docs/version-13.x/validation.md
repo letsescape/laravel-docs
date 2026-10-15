@@ -2128,7 +2128,7 @@ Validator::make($request->all(), [
 #### exclude_unless:_anotherfield_,_value_
 
 <!-- The field under validation will be excluded from the request data returned by the `validate` and `validated` methods unless _anotherfield_'s field is equal to _value_. If _value_ is `null` (`exclude_unless:name,null`), the field under validation will be excluded unless the comparison field is `null` or the comparison field is missing from the request data. -->
-유효성 검증 중인 필드는 _anotherfield_ 필드가 _value_와 같지 않은 한 `validate` 및 `validated` 메서드가 반환하는 요청 데이터에서 제외됩니다. _value_가 `null`(`exclude_unless:name,null`)이면, 비교 대상 필드가 `null`이거나 요청 데이터에 비교 대상 필드가 없는 경우를 제외하고 유효성 검증 중인 필드는 제외됩니다.
+유효성 검증 중인 필드는 _anotherfield_ 필드가 _value_와 같지 않으면 `validate` 및 `validated` 메서드가 반환하는 요청 데이터에서 제외됩니다. _value_가 `null`(`exclude_unless:name,null`)이면, 비교 대상 필드가 `null`이거나 요청 데이터에 비교 대상 필드가 없는 경우를 제외하고 유효성 검증 중인 필드는 제외됩니다.
 
 <!-- If complex conditional exclusion logic is required, you may utilize the `Rule::excludeUnless` method. This method accepts a boolean or a closure. When given a closure, the closure should return `true` or `false` to indicate if the field under validation should not be excluded: -->
 복잡한 조건부 제외 로직이 필요한 경우 `Rule::excludeUnless` 메서드를 사용할 수 있습니다. 이 메서드는 boolean 또는 closure를 받습니다. closure가 주어지면, 해당 closure는 유효성 검증 중인 필드를 제외하지 않아야 하는지 나타내기 위해 `true` 또는 `false`를 반환해야 합니다.
@@ -2536,7 +2536,7 @@ _anotherfield_ 필드가 임의의 _value_와 같으면 유효성 검증 대상 
 #### missing_unless:_anotherfield_,_value_
 
 <!-- The field under validation must not be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 존재하지 않아야 합니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 유효성 검증 대상 필드는 존재하지 않아야 합니다.
 
 <a name="rule-missing-with"></a>
 <!-- #### missing_with:_foo_,_bar_,... -->
@@ -2557,7 +2557,7 @@ _anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유�
 #### not_in:_foo_,_bar_,...
 
 <!-- The field under validation must not be included in the given list of values. The `Rule::notIn` method may be used to fluently construct the rule: -->
-유효성 검증 대상 필드는 주어진 값 목록에 포함되면 안 됩니다. `Rule::notIn` 메서드를 사용하여 유창한 방식으로 규칙을 구성할 수 있습니다.
+유효성 검증 대상 필드는 주어진 값 목록에 포함되면 안 됩니다. `Rule::notIn` 메서드를 사용하여 플루언트 방식으로 규칙을 구성할 수 있습니다.
 
 ```php
 use Illuminate\Validation\Rule;
@@ -2620,7 +2620,7 @@ _anotherfield_ 필드가 임의의 _value_와 같으면 유효성 검증 대상 
 #### present_unless:_anotherfield_,_value_
 
 <!-- The field under validation must be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 존재해야 합니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 유효성 검증 대상 필드는 존재해야 합니다.
 
 <a name="rule-present-with"></a>
 <!-- #### present_with:_foo_,_bar_,... -->
@@ -2704,7 +2704,7 @@ _anotherfield_ 필드가 `"no"`, `"off"`, `0`, `"0"`, `false`, 또는 `"false"`�
 #### prohibited_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be missing or empty unless the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 유효성 검증 대상 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
 
 <div class="content-list" markdown="1">
 
@@ -2818,7 +2818,7 @@ _anotherfield_ 필드가 `"no"`, `"off"`, `0`, `"0"`, `false`, 또는 `"false"`�
 #### required_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty unless the _anotherfield_ field is equal to any _value_. This also means _anotherfield_ must be present in the request data unless _value_ is `null`. If _value_ is `null` (`required_unless:name,null`), the field under validation will be required unless the comparison field is `null` or the comparison field is missing from the request data. -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 존재하고 비어 있지 않아야 합니다. 이는 _value_가 `null`이 아닌 한 _anotherfield_도 요청 데이터에 존재해야 한다는 뜻입니다. _value_가 `null`인 경우(`required_unless:name,null`), 비교 필드가 `null`이거나 요청 데이터에 없는 경우를 제외하면 유효성 검증 대상 필드는 필수입니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 유효성 검증 대상 필드는 존재하고 비어 있지 않아야 합니다. 이는 _value_가 `null`이 아닌 한 _anotherfield_도 요청 데이터에 존재해야 한다는 뜻입니다. _value_가 `null`인 경우(`required_unless:name,null`), 비교 필드가 `null`이거나 요청 데이터에 없는 경우를 제외하면 유효성 검증 대상 필드는 필수입니다.
 
 <!-- If you would like to construct a more complex condition for the `required_unless` rule, you may use the `Rule::requiredUnless` method. This method accepts a boolean or a closure. When passed a closure, the closure should return `true` or `false` to indicate if the field under validation is not required: -->
 `required_unless` 규칙에 더 복잡한 조건을 구성하려면 `Rule::requiredUnless` 메서드를 사용할 수 있습니다. 이 메서드는 불리언 또는 클로저를 받습니다. 클로저가 전달되면, 해당 클로저는 유효성 검증 대상 필드가 필수가 아닌지 나타내기 위해 `true` 또는 `false`를 반환해야 합니다.
@@ -2914,7 +2914,7 @@ Validator::make($request->all(), [
 유효성 검증 대상 필드는 문자열이어야 합니다. 필드가 `null`도 허용되도록 하려면 해당 필드에 `nullable` 규칙을 지정해야 합니다.
 
 <!-- For convenience, string validation rules may also be constructed using the fluent `Rule::string()` rule builder: -->
-편의를 위해 문자열 유효성 검증 규칙은 유창한 `Rule::string()` 규칙 빌더를 사용하여 구성할 수도 있습니다.
+편의를 위해 문자열 유효성 검증 규칙은 플루언트 `Rule::string()` 규칙 빌더를 사용하여 구성할 수도 있습니다.
 
 ```php
 use Illuminate\Validation\Rule;
@@ -3141,7 +3141,7 @@ $validator = Validator::make($data, [
 ```
 
 <!-- Alternatively, you may use the `exclude_unless` rule to not validate a given field unless another field has a given value: -->
-또는 `exclude_unless` 규칙을 사용해, 다른 필드가 특정 값을 가지지 않는 한 주어진 필드를 검증하지 않도록 할 수 있습니다.
+또는 `exclude_unless` 규칙을 사용해, 다른 필드가 특정 값을 갖지 않을 때 주어진 필드를 검증하지 않도록 할 수 있습니다.
 
 ```php
 $validator = Validator::make($data, [
@@ -3309,7 +3309,7 @@ $validator = Validator::make($request->all(), [
 #### Accessing Nested Array Data
 
 <!-- Sometimes you may need to access the value for a given nested array element when assigning validation rules to the attribute. You may accomplish this using the `Rule::forEach` method. The `forEach` method accepts a closure that will be invoked for each iteration of the array attribute under validation and will receive the attribute's value and explicit, fully-expanded attribute name. The closure should return an array of rules to assign to the array element: -->
-때로는 속성에 유효성 검증 규칙을 할당할 때 주어진 중첩 배열 요소의 값에 접근해야 할 수 있습니다. 이는 `Rule::forEach` 메서드를 사용해 수행할 수 있습니다. `forEach` 메서드는 유효성 검증 중인 배열 속성의 각 반복마다 호출되는 클로저를 받으며, 속성의 값과 명시적으로 완전히 확장된 속성 이름을 전달받습니다. 클로저는 배열 요소에 할당할 규칙 배열을 반환해야 합니다.
+때로는 속성에 유효성 검증 규칙을 할당할 때 주어진 중첩 배열 요소의 값에 접근해야 할 수 있습니다. 이는 `Rule::forEach` 메서드를 사용해 수행할 수 있습니다. `forEach` 메서드는 유효성 검증 중인 배열 속성의 각 반복마다 호출되는 클로저를 받으며, 이 클로저는 속성의 값과 명시적으로 완전히 확장된 속성 이름을 전달받습니다. 클로저는 배열 요소에 할당할 규칙 배열을 반환해야 합니다.
 
 ```php
 use App\Rules\HasPermission;

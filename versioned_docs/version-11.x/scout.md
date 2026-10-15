@@ -544,7 +544,7 @@ SCOUT_DRIVER=database
 #### Customizing Database Searching Strategies
 
 <!-- By default, the database engine will execute a "where like" query against every model attribute that you have [configured as searchable](#configuring-searchable-data). However, in some situations, this may result in poor performance. Therefore, the database engine's search strategy can be configured so that some specified columns utilize full text search queries or only use "where like" constraints to search the prefixes of strings (`example%`) instead of searching within the entire string (`%example%`). -->
-기본적으로 데이터베이스 엔진은 [configured as searchable](#configuring-searchable-data) 모든 모델 속성을 사용해 "where like" 쿼리를 실행합니다. 경우에 따라 성능 문제가 발생할 수 있으므로, 데이터베이스 엔진의 검색 전략을 지정된 컬럼은 풀 텍스트 검색 쿼리를 쓰거나, 문자열의 접두사만 검색하는 등(`example%`), 특정 제약을 줄 수도 있습니다(전체 문자열 검색: `%example%` 대신).
+기본적으로 데이터베이스 엔진은 [configured as searchable](#configuring-searchable-data)로 설정한 모든 모델 속성을 사용해 "where like" 쿼리를 실행합니다. 경우에 따라 성능 문제가 발생할 수 있으므로, 특정 컬럼에 풀 텍스트 검색 쿼리를 사용하거나, 전체 문자열(`%example%`) 대신 문자열의 접두사(`example%`)만 검색하는 "where like" 제약 조건을 사용하도록 데이터베이스 엔진의 검색 전략을 설정할 수도 있습니다.
 
 <!-- To define this behavior, you may assign PHP attributes to your model's `toSearchableArray` method. Any columns that are not assigned additional search strategy behavior will continue to use the default "where like" strategy: -->
 이 동작은 모델의 `toSearchableArray` 메서드에 PHP Attributes를 정의하여 지정할 수 있습니다. 추가 검색 전략을 부여하지 않은 컬럼은 기본 "where like" 전략을 그대로 사용합니다:
@@ -642,7 +642,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 모델을 일괄 등록할 때 큐를 사용한다면 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 큐 작업으로 모델 컬렉션이 처리될 때는 [not restored](/docs/11.x/queues#handling-relationships).
+> 모델을 일괄 등록할 때 큐를 사용한다면 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 큐 작업으로 모델 컬렉션이 처리될 때는 관계가 복원되지 않습니다([not restored](/docs/11.x/queues#handling-relationships)).
 
 <a name="adding-records"></a>
 
@@ -683,7 +683,7 @@ $user->orders()->searchable();
 ```
 
 <!-- Or, if you already have a collection of Eloquent models in memory, you may call the `searchable` method on the collection instance to add the model instances to their corresponding index: -->
-또, 이미 메모리에 여러 Eloquent 모델 컬렉션을 가지고 있다면, 해당 컬렉션 인스턴스에서 `searchable` 메서드를 호출하여 각각 해당하는 인덱스에 모델 인스턴스를 추가할 수 있습니다.
+또, 이미 메모리에 여러 Eloquent 모델이 담긴 컬렉션을 가지고 있다면, 해당 컬렉션 인스턴스에서 `searchable` 메서드를 호출하여 각각 해당하는 인덱스에 모델 인스턴스를 추가할 수 있습니다.
 
 ```
 $orders->searchable();
@@ -835,7 +835,7 @@ public function shouldBeSearchable(): bool
 ## Searching
 
 <!-- You may begin searching a model using the `search` method. The search method accepts a single string that will be used to search your models. You should then chain the `get` method onto the search query to retrieve the Eloquent models that match the given search query: -->
-`search` 메서드를 사용하여 모델에 대해 검색을 시작할 수 있습니다. 이 메서드는 검색어 문자열 하나를 받아 해당 검색어로 모델을 조회합니다. 검색 쿼리에는 반드시 `get` 메서드를 체이닝하여, 조건에 맞는 Eloquent 모델 컬렉션을 가져올 수 있습니다.
+`search` 메서드를 사용하여 모델에 대해 검색을 시작할 수 있습니다. 이 메서드는 검색어 문자열 하나를 받아 해당 검색어로 모델을 조회합니다. 검색 쿼리에 `get` 메서드를 체이닝하면, 조건에 맞는 Eloquent 모델 컬렉션을 가져올 수 있습니다.
 
 ```
 use App\Models\Order;
@@ -1062,7 +1062,7 @@ abstract public function flush($model);
 #### Registering the Engine
 
 <!-- Once you have written your custom engine, you may register it with Scout using the `extend` method of the Scout engine manager. Scout's engine manager may be resolved from the Laravel service container. You should call the `extend` method from the `boot` method of your `App\Providers\AppServiceProvider` class or any other service provider used by your application: -->
-커스텀 엔진을 작성했다면, Scout 엔진 매니저의 `extend` 메서드를 사용해 등록할 수 있습니다. Scout 엔진 매니저는 Laravel 서비스 컨테이너에서 가져올 수 있습니다. 보통 `App\Providers\AppServiceProvider` 클래스의 `boot` 메서드나, 애플리케이션에서 사용하는 다른 서비스 프로바이더에서 `extend` 메서드를 호출하면 됩니다.
+커스텀 엔진을 작성했다면, Scout 엔진 매니저의 `extend` 메서드를 사용해 등록할 수 있습니다. Scout 엔진 매니저는 Laravel 서비스 컨테이너에서 가져올 수 있습니다. 보통 `App\Providers\AppServiceProvider` 클래스나 애플리케이션에서 사용하는 다른 서비스 프로바이더의 `boot` 메서드에서 `extend` 메서드를 호출하면 됩니다.
 
 ```
 use App\ScoutExtensions\MySqlSearchEngine;

@@ -589,7 +589,7 @@ $name = $this->anticipate('What is your address?', function ($input) {
 #### Multiple Choice Questions
 
 <!-- If you need to give the user a predefined set of choices when asking a question, you may use the `choice` method. You may set the array index of the default value to be returned if no option is chosen by passing the index as the third argument to the method: -->
-사용자에게 미리 정해진 값 중에서 선택하게 하려면 `choice` 메서드를 사용할 수 있습니다. 선택지가 없으면 반환할 기본값의 배열 인덱스를 세 번째 인자로 넘길 수 있습니다.
+사용자에게 미리 정해진 값 중에서 선택하게 하려면 `choice` 메서드를 사용할 수 있습니다. 사용자가 아무 선택지도 고르지 않았을 때 반환할 기본값의 배열 인덱스를 세 번째 인자로 넘길 수 있습니다.
 
 ```
 $name = $this->choice(
@@ -682,7 +682,7 @@ $this->table(
 #### Progress Bars
 
 <!-- For long running tasks, it can be helpful to show a progress bar that informs users how complete the task is. Using the `withProgressBar` method, Laravel will display a progress bar and advance its progress for each iteration over a given iterable value: -->
-실행 시간이 오래 걸리는 작업에는, 사용자가 진행 상태를 시각적으로 알 수 있도록 진행바를 표시할 수 있습니다. `withProgressBar` 메서드를 사용하면, 반복 처리되는 이터러블 입력값 수만큼 진행바를 표시할 수 있습니다.
+실행 시간이 오래 걸리는 작업에는, 사용자가 진행 상태를 시각적으로 알 수 있도록 진행바를 표시할 수 있습니다. `withProgressBar` 메서드를 사용하면, 진행바를 표시하고 이터러블 입력값의 각 항목을 처리할 때마다 진행률을 증가시킬 수 있습니다.
 
 ```
 use App\Models\User;

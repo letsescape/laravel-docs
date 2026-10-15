@@ -398,7 +398,7 @@ $url = Storage::url('file.jpg');
 ### Temporary URLs
 
 <!-- Using the `temporaryUrl` method, you may create temporary URLs to files stored using the `local` and `s3` drivers. This method accepts a path and a `DateTime` instance specifying when the URL should expire: -->
-`temporaryUrl` 메서드를 사용해 `local` 또는 `s3` 드라이버로 저장된 파일의 임시 접근 URL을 생성할 수 있습니다. 이 메서드는 경로와 URL의 만료 시간을 `DateTime` 인스턴스로 받습니다:
+`temporaryUrl` 메서드를 사용해 `local` 또는 `s3` 드라이버로 저장된 파일의 임시 접근 URL을 생성할 수 있습니다. 이 메서드는 경로와 URL의 만료 시간을 지정하는 `DateTime` 인스턴스를 받습니다:
 
 ```php
 use Illuminate\Support\Facades\Storage;

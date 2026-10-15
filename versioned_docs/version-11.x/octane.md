@@ -114,7 +114,7 @@ services:
 ```
 
 <!-- Typically, you should access your FrankenPHP Sail application via `https://localhost`, as using `https://127.0.0.1` requires additional configuration and is [discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker). -->
-일반적으로 FrankenPHP Sail 애플리케이션에는 `https://localhost`를 통해 접근해야 하며, `https://127.0.0.1` 사용은 추가 구성이 필요하므로 [discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker).
+일반적으로 FrankenPHP Sail 애플리케이션에는 `https://localhost`를 통해 접근해야 하며, `https://127.0.0.1` 사용은 추가 구성이 필요하고 권장되지 않습니다([discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker)).
 
 <a name="frankenphp-via-docker"></a>
 <!-- #### FrankenPHP via Docker -->
@@ -296,7 +296,7 @@ php artisan octane:start
 ### Serving Your Application via HTTPS
 
 <!-- By default, applications running via Octane generate links prefixed with `http://`. The `OCTANE_HTTPS` environment variable, used within your application's `config/octane.php` configuration file, can be set to `true` when serving your application via HTTPS. When this configuration value is set to `true`, Octane will instruct Laravel to prefix all generated links with `https://`: -->
-기본적으로 Octane을 통해 실행되는 애플리케이션은 `http://`로 시작하는 링크를 생성합니다. 만약 HTTPS로 서비스를 제공한다면, 애플리케이션의 `config/octane.php` 설정 파일에서 `OCTANE_HTTPS` 환경 변수를 `true`로 지정해야 합니다. 이 값을 `true`로 설정하면 Octane이 Laravel에게 모든 링크를 `https://`로 시작하도록 안내합니다.
+기본적으로 Octane을 통해 실행되는 애플리케이션은 `http://`로 시작하는 링크를 생성합니다. 만약 HTTPS로 서비스를 제공한다면, 애플리케이션의 `config/octane.php` 설정 파일에서 `OCTANE_HTTPS` 환경 변수를 `true`로 지정할 수 있습니다. 이 값을 `true`로 설정하면 Octane이 Laravel에게 모든 링크를 `https://`로 시작하도록 안내합니다.
 
 ```php
 'https' => env('OCTANE_HTTPS', false),
@@ -460,17 +460,17 @@ php artisan octane:status
 Octane은 애플리케이션을 한 번만 부팅해서 메모리에 올리고, 요청을 처리할 때마다 같은 애플리케이션 인스턴스를 계속 재사용합니다. 이로 인해 애플리케이션을 개발할 때 유의해야 할 사항이 있습니다. 예를 들어, 서비스 프로바이더의 `register`나 `boot` 메서드는 워커가 처음 부팅될 때 단 한 번만 실행됩니다. 이후 요청에서는 항상 같은 애플리케이션 인스턴스가 사용됩니다.
 
 <!-- In light of this, you should take special care when injecting the application service container or request into any object's constructor. By doing so, that object may have a  stale version of the container or request on subsequent requests. -->
-이로 인해, 애플리케이션 서비스 컨테이너나 요청(Request) 객체 등을 클래스의 생성자에 주입하면 이후 요청에서 오래된 컨테이너나 요청 인스턴스를 참조하게 되므로 주의가 필요합니다.
+이로 인해, 애플리케이션 서비스 컨테이너나 요청(Request) 객체 등을 클래스의 생성자에 주입하면 이후 요청에서 오래된 컨테이너나 요청 인스턴스를 참조할 수 있으므로 주의가 필요합니다.
 
 <!-- Octane will automatically handle resetting any first-party framework state between requests. However, Octane does not always know how to reset the global state created by your application. Therefore, you should be aware of how to build your application in a way that is Octane friendly. Below, we will discuss the most common situations that may cause problems while using Octane. -->
-Laravel 프레임워크의 기본 상태는 Octane이 자동으로 요청마다 초기화해줍니다. 하지만 애플리케이션이 전역 상태를 직접 관리하는 경우에는 Octane이 이를 알 수 없으므로 주의해서 개발해야 합니다. 아래에서는 Octane 사용 시 문제가 될 수 있는 대표적인 상황을 안내합니다.
+Laravel 프레임워크의 기본 상태는 Octane이 자동으로 요청마다 초기화해줍니다. 하지만 애플리케이션이 전역 상태를 직접 관리하는 경우에는 Octane이 이를 초기화하는 방법을 항상 알 수 있는 것은 아니므로 주의해서 개발해야 합니다. 아래에서는 Octane 사용 시 문제가 될 수 있는 대표적인 상황을 안내합니다.
 
 <a name="container-injection"></a>
 <!-- ### Container Injection -->
 ### Container Injection
 
 <!-- In general, you should avoid injecting the application service container or HTTP request instance into the constructors of other objects. For example, the following binding injects the entire application service container into an object that is bound as a singleton: -->
-일반적으로, 애플리케이션 서비스 컨테이너나 HTTP 요청 인스턴스를 다른 객체의 생성자에 직접 주입하는 것은 피하는 것이 좋습니다. 예를 들어, 다음 바인딩은 서비스 전체에 애플리케이션 컨테이너를 싱글톤 형태로 주입하고 있습니다.
+일반적으로, 애플리케이션 서비스 컨테이너나 HTTP 요청 인스턴스를 다른 객체의 생성자에 직접 주입하는 것은 피하는 것이 좋습니다. 예를 들어, 다음 바인딩은 애플리케이션 서비스 컨테이너 전체를 싱글톤으로 바인딩된 객체에 주입하고 있습니다.
 
 ```php
 use App\Service;

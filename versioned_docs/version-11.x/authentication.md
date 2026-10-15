@@ -84,7 +84,7 @@ Laravel은 기본적으로 `app/Models` 디렉터리에 `App\Models\User` [Eloqu
 Laravel은 인증과 관련된 여러 패키지를 제공합니다. 본격적으로 시작하기 전에, Laravel의 전반적인 인증 생태계와 각 패키지의 목적에 대해 간략히 살펴보겠습니다.
 
 <!-- First, consider how authentication works. When using a web browser, a user will provide their username and password via a login form. If these credentials are correct, the application will store information about the authenticated user in the user's [session](/docs/11.x/session). A cookie issued to the browser contains the session ID so that subsequent requests to the application can associate the user with the correct session. After the session cookie is received, the application will retrieve the session data based on the session ID, note that the authentication information has been stored in the session, and will consider the user as "authenticated". -->
-우선 인증 방식의 개념부터 생각해 봅시다. 웹 브라우저에서 사용자는 로그인 폼을 통해 사용자명과 비밀번호를 입력합니다. 이 자격 증명이 정확하다면, 애플리케이션은 인증된 사용자 정보를 [session](/docs/11.x/session)에 저장합니다. 브라우저에 발급된 쿠키에는 세션 ID가 담기며, 이후 애플리케이션의 요청마다 이 세션 ID로 사용자를 식별할 수 있습니다. 세션 쿠키가 브라우저에 전달되면, 애플리케이션은 해당 세션 ID로 세션 데이터를 조회하고 인증 정보를 확인해서 사용자를 "인증됨" 상태로 간주합니다.
+우선 인증 방식의 개념부터 생각해 봅시다. 웹 브라우저에서 사용자는 로그인 폼을 통해 사용자명과 비밀번호를 입력합니다. 이 자격 증명이 정확하다면, 애플리케이션은 인증된 사용자 정보를 [session](/docs/11.x/session)에 저장합니다. 브라우저에 발급된 쿠키에는 세션 ID가 담기며, 이후 애플리케이션의 요청마다 이 세션 ID로 사용자를 식별할 수 있습니다. 세션 쿠키가 애플리케이션에 전달되면, 애플리케이션은 해당 세션 ID로 세션 데이터를 조회하고 인증 정보를 확인해서 사용자를 "인증됨" 상태로 간주합니다.
 
 <!-- When a remote service needs to authenticate to access an API, cookies are not typically used for authentication because there is no web browser. Instead, the remote service sends an API token to the API on each request. The application may validate the incoming token against a table of valid API tokens and "authenticate" the request as being performed by the user associated with that API token. -->
 반면, 외부 서비스가 API에 접근하기 위해 인증해야 할 때에는 보통 쿠키를 사용하지 않습니다(브라우저가 없기 때문입니다). 대신, 외부 서비스는 매 요청마다 API 토큰을 전달합니다. 애플리케이션은 들어온 토큰을 유효한 토큰 테이블과 대조해 사용자를 인증하며, 해당 API 토큰을 가진 사용자가 요청을 보낸 것으로 판단합니다.
@@ -122,7 +122,7 @@ Laravel은 API 토큰을 관리하고 토큰 기반 인증을 처리하는 데 �
 **Passport**
 
 <!-- Passport is an OAuth2 authentication provider, offering a variety of OAuth2 "grant types" which allow you to issue various types of tokens. In general, this is a robust and complex package for API authentication. However, most applications do not require the complex features offered by the OAuth2 spec, which can be confusing for both users and developers. In addition, developers have been historically confused about how to authenticate SPA applications or mobile applications using OAuth2 authentication providers like Passport. -->
-Passport는 OAuth2 인증 제공자로, 다양한 OAuth2 "grant type"을 지원하여 여러 유형의 토큰을 발급할 수 있습니다. 이는 robust하면서도 복잡한 API 인증 패키지입니다. 하지만 일반적으로 OAuth2 명세의 복잡한 기능까지 필요한 애플리케이션은 많지 않으며, 오히려 개발자나 사용자 모두 혼란을 겪을 수 있습니다. SPA나 모바일 애플리케이션이 Passport와 같은 OAuth2 인증 제공자를 어떻게 사용해야 할지 난해했던 이슈도 있었습니다.
+Passport는 OAuth2 인증 제공자로, 다양한 OAuth2 "grant type"을 지원하여 여러 유형의 토큰을 발급할 수 있습니다. 이는 강력하면서도 복잡한 API 인증 패키지입니다. 하지만 일반적으로 OAuth2 명세의 복잡한 기능까지 필요한 애플리케이션은 많지 않으며, 오히려 개발자나 사용자 모두 혼란을 겪을 수 있습니다. SPA나 모바일 애플리케이션이 Passport와 같은 OAuth2 인증 제공자를 어떻게 사용해야 할지 난해했던 이슈도 있었습니다.
 
 <!-- **Sanctum** -->
 **Sanctum**
@@ -144,7 +144,7 @@ Sanctum이 [Laravel Jetstream](https://jetstream.laravel.com) 스타터 키트�
 요약하자면, 브라우저로 접근하는 모놀리식 Laravel 애플리케이션을 만든다면 기본 내장 인증 서비스를 쓰게 됩니다.
 
 <!-- Next, if your application offers an API that will be consumed by third parties, you will choose between [Passport](/docs/11.x/passport) or [Sanctum](/docs/11.x/sanctum) to provide API token authentication for your application. In general, Sanctum should be preferred when possible since it is a simple, complete solution for API authentication, SPA authentication, and mobile authentication, including support for "scopes" or "abilities". -->
-추가로 외부에서 API를 제공해야 한다면, [Passport](/docs/11.x/passport)와 [Sanctum](/docs/11.x/sanctum) 중 하나를 선택해 API 토큰 인증을 구현할 수 있습니다. 대부분의 경우, Sanctum이 더 단순하고 완성도 높은 API, SPA, 모바일 인증 솔루션이므로 우선적으로 사용하는 것이 좋습니다. Sanctum 역시 "scope" 또는 "ability" 지원이 포함되어 있습니다.
+추가로 외부에서 사용할 API를 제공해야 한다면, [Passport](/docs/11.x/passport)와 [Sanctum](/docs/11.x/sanctum) 중 하나를 선택해 API 토큰 인증을 구현할 수 있습니다. 대부분의 경우, Sanctum이 더 단순하고 완성도 높은 API, SPA, 모바일 인증 솔루션이므로 우선적으로 사용하는 것이 좋습니다. Sanctum 역시 "scope" 또는 "ability" 지원이 포함되어 있습니다.
 
 <!-- If you are building a single-page application (SPA) that will be powered by a Laravel backend, you should use [Laravel Sanctum](/docs/11.x/sanctum). When using Sanctum, you will either need to [manually implement your own backend authentication routes](#authenticating-users) or utilize [Laravel Fortify](/docs/11.x/fortify) as a headless authentication backend service that provides routes and controllers for features such as registration, password reset, email verification, and more. -->
 만약 Laravel 백엔드와 함께 동작하는 SPA(single-page application)를 만든다면, [Laravel Sanctum](/docs/11.x/sanctum)을 사용하는 것이 권장됩니다. 이때는 [manually implement your own backend authentication routes](#authenticating-users)하거나, [Laravel Fortify](/docs/11.x/fortify)를 헤드리스 인증 서비스로 사용해 회원가입, 비밀번호 재설정, 이메일 인증 등을 처리할 수도 있습니다.
@@ -336,7 +336,7 @@ class LoginController extends Controller
 ```
 
 <!-- The `attempt` method accepts an array of key / value pairs as its first argument. The values in the array will be used to find the user in your database table. So, in the example above, the user will be retrieved by the value of the `email` column. If the user is found, the hashed password stored in the database will be compared with the `password` value passed to the method via the array. You should not hash the incoming request's `password` value, since the framework will automatically hash the value before comparing it to the hashed password in the database. An authenticated session will be started for the user if the two hashed passwords match. -->
-`attempt` 메서드는 첫 번째 인수로 key/value 쌍의 배열을 받습니다. 이 배열의 값으로 데이터베이스에서 사용자를 검색합니다. 위 예시에서는 `email` 컬럼 값으로 사용자를 조회합니다. 사용자가 존재하면 데이터베이스의 해시된 비밀번호와 배열로 전달된 `password` 값을 비교합니다. 이때 들어온 요청의 `password` 값을 별도로 해시할 필요는 없습니다 — 프레임워크가 자동으로 해시해서 비교해 줍니다. 두 비밀번호가 일치하면 인증 세션이 시작됩니다.
+`attempt` 메서드는 첫 번째 인수로 key/value 쌍의 배열을 받습니다. 이 배열의 값으로 데이터베이스에서 사용자를 검색합니다. 위 예시에서는 `email` 컬럼 값으로 사용자를 조회합니다. 사용자가 존재하면 데이터베이스의 해시된 비밀번호와 배열로 전달된 `password` 값을 비교합니다. 이때 들어온 요청의 `password` 값을 별도로 해시하면 안 됩니다 — 프레임워크가 자동으로 해시해서 비교해 줍니다. 두 비밀번호가 일치하면 인증 세션이 시작됩니다.
 
 <!-- Remember, Laravel's authentication services will retrieve users from your database based on your authentication guard's "provider" configuration. In the default `config/auth.php` configuration file, the Eloquent user provider is specified and it is instructed to use the `App\Models\User` model when retrieving users. You may change these values within your configuration file based on the needs of your application. -->
 Laravel의 인증 서비스는 "가드"의 "프로바이더" 설정에 따라 데이터베이스에서 사용자를 가져옵니다. 기본 설정(`config/auth.php`)에서는 Eloquent user provider를 사용하며, `App\Models\User` 모델을 지정하도록 되어 있습니다. 필요하다면 이 값을 변경할 수 있습니다.
@@ -946,10 +946,10 @@ MySQL을 사용하는 경우에는 보통 해당 레코드의 자동 증가 기�
 ## Automatic Password Rehashing
 
 <!-- Laravel's default password hashing algorithm is bcrypt. The "work factor" for bcrypt hashes can be adjusted via your application's `config/hashing.php` configuration file or the `BCRYPT_ROUNDS` environment variable. -->
-Laravel에서는 기본적으로 bcrypt 해싱 알고리즘으로 비밀번호를 암호화합니다. bcrypt의 "연산 강도(work factor)"는 애플리케이션의 `config/hashing.php` 설정 파일 혹은 `BCRYPT_ROUNDS` 환경 변수로 조정할 수 있습니다.
+Laravel에서는 기본적으로 bcrypt 해싱 알고리즘으로 비밀번호를 해시합니다. bcrypt의 "연산 강도(work factor)"는 애플리케이션의 `config/hashing.php` 설정 파일 혹은 `BCRYPT_ROUNDS` 환경 변수로 조정할 수 있습니다.
 
 <!-- Typically, the bcrypt work factor should be increased over time as CPU / GPU processing power increases. If you increase the bcrypt work factor for your application, Laravel will gracefully and automatically rehash user passwords as users authenticate with your application via Laravel's starter kits or when you [manually authenticate users](#authenticating-users) via the `attempt` method. -->
-일반적으로 CPU/GPU 성능이 향상됨에 따라 bcrypt 연산 강도도 점진적으로 높이는 것이 바람직합니다. 어플리케이션의 bcrypt 연산 강도를 높이면, Laravel은 [스타터 킷을 통한 로그인]이나 [manually authenticate users](#authenticating-users)에서 `attempt` 메서드를 통해 사용자가 인증할 때 비밀번호를 자동으로 안전하게 재암호화합니다.
+일반적으로 CPU/GPU 성능이 향상됨에 따라 bcrypt 연산 강도도 점진적으로 높이는 것이 바람직합니다. 어플리케이션의 bcrypt 연산 강도를 높이면, Laravel은 [스타터 킷을 통한 로그인]이나 [manually authenticate users](#authenticating-users)에서 `attempt` 메서드를 통해 사용자가 인증할 때 비밀번호를 자동으로 안전하게 다시 해시합니다.
 
 <!-- Typically, automatic password rehashing should not disrupt your application; however, you may disable this behavior by publishing the `hashing` configuration file: -->
 자동 비밀번호 리해시 기능이 애플리케이션에 불편을 주는 경우는 드물지만, 원하지 않는다면 `hashing` 설정 파일을 퍼블리시하여 비활성화할 수 있습니다.

@@ -173,7 +173,7 @@ Route::get('/users', function () {
 #### Preserving Collection Keys
 
 <!-- When returning a resource collection from a route, Laravel resets the collection's keys so that they are in numerical order. However, you may add a `preserveKeys` property to your resource class indicating whether a collection's original keys should be preserved: -->
-라우트에서 리소스 컬렉션을 반환할 때, Laravel은 컬렉션의 키를 숫자 순서로 자동 재정렬합니다. 하지만 컬렉션의 원래 키를 유지하고 싶다면, 리소스 클래스에 `preserveKeys` 속성을 추가해서 원래 키를 지킬 것인지 지정할 수 있습니다.
+라우트에서 리소스 컬렉션을 반환할 때, Laravel은 컬렉션의 키를 숫자 순서로 자동 재설정합니다. 하지만 컬렉션의 원래 키를 유지하고 싶다면, 리소스 클래스에 `preserveKeys` 속성을 추가해서 원래 키를 지킬 것인지 지정할 수 있습니다.
 
 ```
 <?php
@@ -398,7 +398,7 @@ Route::get('/users', function () {
 ```
 
 <!-- If you would like to disable the wrapping of the outermost resource, you should invoke the `withoutWrapping` method on the base `Illuminate\Http\Resources\Json\JsonResource` class. Typically, you should call this method from your `AppServiceProvider` or another [service provider](/docs/10.x/providers) that is loaded on every request to your application: -->
-외부 리소스의 wrapping(래핑)을 비활성화하고 싶다면, 기본 `Illuminate\Http\Resources\Json\JsonResource` 클래스의 `withoutWrapping` 메서드를 호출해야 합니다. 일반적으로 이 메서드는 애플리케이션의 모든 요청에서 동작하는 `AppServiceProvider` 또는 다른 [service provider](/docs/10.x/providers)에서 호출하는 것이 좋습니다.
+가장 바깥쪽 리소스의 wrapping(래핑)을 비활성화하고 싶다면, 기본 `Illuminate\Http\Resources\Json\JsonResource` 클래스의 `withoutWrapping` 메서드를 호출해야 합니다. 일반적으로 이 메서드는 애플리케이션의 모든 요청에서 동작하는 `AppServiceProvider` 또는 다른 [service provider](/docs/10.x/providers)에서 호출하는 것이 좋습니다.
 
 ```
 <?php
@@ -429,7 +429,7 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 > [!WARNING]
-> `withoutWrapping` 메서드는 가장 바깥쪽 응답에만 영향을 주며, 직접 추가한 리소스 컬렉션의 `data` 키에는 영향을 주지 않습니다.
+> `withoutWrapping` 메서드는 가장 바깥쪽 응답에만 영향을 주며, 리소스 컬렉션에 직접 추가한 `data` 키에는 영향을 주지 않습니다.
 
 <a name="wrapping-nested-resources"></a>
 <!-- #### Wrapping Nested Resources -->

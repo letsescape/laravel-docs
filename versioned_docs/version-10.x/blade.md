@@ -278,7 +278,7 @@ Hello, @{{ name }}.
 #### Authentication Directives
 
 <!-- The `@auth` and `@guest` directives may be used to quickly determine if the current user is [authenticated](/docs/10.x/authentication) or is a guest: -->
-현재 사용자가 [authenticated](/docs/10.x/authentication) 또는 비회원(게스트)인지 신속하게 확인하고 싶을 때는 `@auth`, `@guest` 디렉티브를 사용할 수 있습니다.
+현재 사용자가 [authenticated](/docs/10.x/authentication) 또는 비로그인 상태(게스트)인지 신속하게 확인하고 싶을 때는 `@auth`, `@guest` 디렉티브를 사용할 수 있습니다.
 
 ```blade
 @auth
@@ -690,7 +690,7 @@ Blade의 `@each` 디렉티브를 사용하면 반복문과 포함 지시문을 �
 ### The `@once` Directive
 
 <!-- The `@once` directive allows you to define a portion of the template that will only be evaluated once per rendering cycle. This may be useful for pushing a given piece of JavaScript into the page's header using [stacks](#stacks). For example, if you are rendering a given [component](#components) within a loop, you may wish to only push the JavaScript to the header the first time the component is rendered: -->
-`@once` 디렉티브를 사용하면 템플릿 내의 특정 부분을 한 번만 실행하도록 지정할 수 있습니다. 이 기능은 [stacks](#stacks)을 이용해 한 번만 JavaScript를 페이지의 헤더에 추가하고 싶을 때 유용합니다. 예를 들어, [component](#components)를 반복 렌더링하면서 JavaScript를 처음 한 번만 헤더에 push하고 싶다면 아래와 같이 작성할 수 있습니다.
+`@once` 디렉티브를 사용하면 템플릿 내의 특정 부분을 렌더링 주기당 한 번만 실행하도록 지정할 수 있습니다. 이 기능은 [stacks](#stacks)을 이용해 한 번만 JavaScript를 페이지의 헤더에 추가하고 싶을 때 유용합니다. 예를 들어, [component](#components)를 반복 렌더링하면서 JavaScript를 처음 한 번만 헤더에 push하고 싶다면 아래와 같이 작성할 수 있습니다.
 
 ```blade
 @once
@@ -1896,7 +1896,7 @@ Route::get('/tasks', function () {
 ```
 
 <!-- In this example, the `sidebar` section is utilizing the `@@parent` directive to append (rather than overwriting) content to the layout's sidebar. The `@@parent` directive will be replaced by the content of the layout when the view is rendered. -->
-위 예시에서, `sidebar` 부분은 `@@parent` 디렉티브를 사용해 부모 레이아웃의 기존 콘텐츠에 내용을 추가(덮어쓰기 대신)합니다. 렌더링 시, 레이아웃의 해당 부분이 `@@parent`로 교체되어 출력됩니다.
+위 예시에서, `sidebar` 부분은 `@@parent` 디렉티브를 사용해 부모 레이아웃의 기존 콘텐츠에 내용을 추가(덮어쓰기 대신)합니다. 렌더링 시, `@@parent`가 레이아웃의 해당 내용으로 교체되어 출력됩니다.
 
 > [!NOTE]
 > 이전 예시와 달리, 이 `sidebar` 영역은 `@show`가 아니라 `@endsection`으로 끝나는 점에 주의하세요. `@endsection`은 해당 영역만 정의하는 반면, `@show`는 정의와 동시에 **즉시 출력**까지 처리합니다.
@@ -2194,7 +2194,7 @@ class AppServiceProvider extends ServiceProvider
 Blade에서 어떤 객체를 "echo"하면, 해당 객체의 `__toString` 메서드가 호출됩니다. [`__toString`](https://www.php.net/manual/en/language.oop5.magic.php#object.tostring) 메서드는 PHP에서 기본적으로 제공하는 "매직 메서드" 중 하나입니다. 하지만 사용 중인 클래스가 서드파티 라이브러리 소속이어서 직접 `__toString`을 수정할 수 없는 경우가 있을 수 있습니다.
 
 <!-- In these cases, Blade allows you to register a custom echo handler for that particular type of object. To accomplish this, you should invoke Blade's `stringable` method. The `stringable` method accepts a closure. This closure should type-hint the type of object that it is responsible for rendering. Typically, the `stringable` method should be invoked within the `boot` method of your application's `AppServiceProvider` class: -->
-이런 경우 Blade는 특정 타입의 객체에 대해 커스텀 echo 핸들러를 등록할 수 있도록 `stringable` 메서드를 제공합니다. `stringable` 메서드는 클로저를 인수로 받으며, 이 클로저에서 렌더링할 객체 타입을 타입힌트로 지정할 수 있습니다. 일반적으로 `stringable` 메서드는 애플리케이션의 `AppServiceProvider` 클래스의 `boot` 메서드 안에서 호출합니다.
+이런 경우 Blade는 특정 타입의 객체에 대해 커스텀 echo 핸들러를 등록할 수 있도록 `stringable` 메서드를 제공합니다. `stringable` 메서드는 클로저를 인수로 받으며, 이 클로저에서 렌더링할 객체 타입을 타입힌트로 지정해야 합니다. 일반적으로 `stringable` 메서드는 애플리케이션의 `AppServiceProvider` 클래스의 `boot` 메서드 안에서 호출합니다.
 
 ```
 use Illuminate\Support\Facades\Blade;

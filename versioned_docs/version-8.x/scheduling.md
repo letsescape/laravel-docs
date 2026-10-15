@@ -178,7 +178,7 @@ Method  | Description
 `->everyFifteenMinutes();`  |  15분마다 작업을 실행합니다
 `->everyThirtyMinutes();`  |  30분마다 작업을 실행합니다
 `->hourly();`  |  1시간마다 작업을 실행합니다
-`->hourlyAt(17);`  |  매 시 17분마다 작업을 실행합니다
+`->hourlyAt(17);`  |  매 시 17분에 작업을 실행합니다
 `->everyTwoHours();`  |  2시간마다 작업을 실행합니다
 `->everyThreeHours();`  |  3시간마다 작업을 실행합니다
 `->everyFourHours();`  |  4시간마다 작업을 실행합니다
@@ -328,7 +328,7 @@ $schedule->command('emails:send')->daily()->skip(function () {
 #### Environment Constraints
 
 <!-- The `environments` method may be used to execute tasks only on the given environments (as defined by the `APP_ENV` [environment variable](/docs/8.x/configuration#environment-configuration)): -->
-`environments` 메서드를 사용하면, 지정한 [environment variable](/docs/8.x/configuration#environment-configuration)의 값(`APP_ENV`)에 해당하는 환경에서만 작업이 실행되게 할 수 있습니다.
+`environments` 메서드를 사용하면, `APP_ENV` [environment variable](/docs/8.x/configuration#environment-configuration)의 값에 해당하는 지정된 환경에서만 작업이 실행되게 할 수 있습니다.
 
 ```
 $schedule->command('emails:send')

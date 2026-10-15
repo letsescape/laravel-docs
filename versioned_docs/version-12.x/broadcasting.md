@@ -47,10 +47,10 @@
 ## Introduction
 
 <!-- In many modern web applications, WebSockets are used to implement realtime, live-updating user interfaces. When some data is updated on the server, a message is typically sent over a WebSocket connection to be handled by the client. WebSockets provide a more efficient alternative to continually polling your application's server for data changes that should be reflected in your UI. -->
-많은 최신 웹 애플리케이션에서 WebSocket은 실시간으로 업데이트되는 사용자 인터페이스를 구현하는 데 사용됩니다. 서버에서 일부 데이터가 업데이트되면 일반적으로 클라이언트에서 처리할 메시지가 WebSocket 연결을 통해 전송됩니다. WebSocket은 UI에 반영되어야 하는 데이터 변경 사항에 대해 애플리케이션 서버를 지속적으로 폴링하는 보다 효율적인 대안을 제공합니다.
+많은 최신 웹 애플리케이션에서 WebSocket은 실시간으로 업데이트되는 사용자 인터페이스를 구현하는 데 사용됩니다. 서버에서 일부 데이터가 업데이트되면 일반적으로 클라이언트에서 처리할 메시지가 WebSocket 연결을 통해 전송됩니다. WebSocket은 UI에 반영되어야 하는 데이터 변경 사항에 대해 애플리케이션 서버를 지속적으로 폴링하는 방식보다 효율적인 대안을 제공합니다.
 
 <!-- For example, imagine your application is able to export a user's data to a CSV file and email it to them. However, creating this CSV file takes several minutes so you choose to create and mail the CSV within a [queued job](/docs/12.x/queues). When the CSV has been created and mailed to the user, we can use event broadcasting to dispatch an `App\Events\UserDataExported` event that is received by our application's JavaScript. Once the event is received, we can display a message to the user that their CSV has been emailed to them without them ever needing to refresh the page. -->
-예를 들어, 애플리케이션이 사용자의 데이터를 CSV 파일로 내보내고 이메일로 보낼 수 있다고 가정해 보세요. 그러나 이 CSV 파일을 생성하는 데는 몇 분이 걸리므로 [queued job](/docs/12.x/queues) 내에서 CSV를 생성하여 메일로 보내도록 선택하세요. CSV가 생성되어 사용자에게 메일로 전송되면 애플리케이션의 JavaScript에서 수신한 디스패치 및 `App\Events\UserDataExported` 이벤트에 대한 이벤트 브로드캐스팅을 사용할 수 있습니다. 이벤트가 수신되면 사용자가 페이지를 새로 고칠 필요 없이 CSV가 이메일로 전송되었다는 메시지를 사용자에게 표시할 수 있습니다.
+예를 들어, 애플리케이션이 사용자의 데이터를 CSV 파일로 내보내고 이메일로 보낼 수 있다고 가정해 보세요. 그러나 이 CSV 파일을 생성하는 데는 몇 분이 걸리므로 [queued job](/docs/12.x/queues) 내에서 CSV를 생성하여 메일로 보내도록 선택하세요. CSV가 생성되어 사용자에게 메일로 전송되면 이벤트 브로드캐스팅을 사용해 `App\Events\UserDataExported` 이벤트를 디스패치하고, 애플리케이션의 JavaScript에서 이를 수신할 수 있습니다. 이벤트가 수신되면 사용자가 페이지를 새로 고칠 필요 없이 CSV가 이메일로 전송되었다는 메시지를 사용자에게 표시할 수 있습니다.
 
 <!-- To assist you in building these types of features, Laravel makes it easy to "broadcast" your server-side Laravel [events](/docs/12.x/events) over a WebSocket connection. Broadcasting your Laravel events allows you to share the same event names and data between your server-side Laravel application and your client-side JavaScript application. -->
 이러한 유형의 기능을 구축하는 데 도움을 주기 위해 Laravel을 사용하면 WebSocket 연결을 통해 서버측 Laravel [events](/docs/12.x/events)를 쉽게 "브로드캐스트"할 수 있습니다. Laravel 이벤트를 브로드캐스트하면 서버 측 Laravel 애플리케이션과 클라이언트 측 JavaScript 애플리케이션 간에 동일한 이벤트 이름과 데이터를 공유할 수 있습니다.
@@ -83,7 +83,7 @@ php artisan install:broadcasting
 `install:broadcasting` 명령은 사용하려는 이벤트 브로드캐스팅 서비스를 묻는 메시지를 표시합니다. 또한 애플리케이션의 브로드캐스트 인가 라우트 및 콜백을 등록할 수 있는 `config/broadcasting.php` 구성 파일과 `routes/channels.php` 파일을 생성합니다.
 
 <!-- Laravel supports several broadcast drivers out of the box: [Laravel Reverb](/docs/12.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), and a `log` driver for local development and debugging. Additionally, a `null` driver is included which allows you to disable broadcasting during testing. A configuration example is included for each of these drivers in the `config/broadcasting.php` configuration file. -->
-Laravel는 기본적으로 여러 브로드캐스트 드라이버를 지원합니다. [Laravel Reverb](/docs/12.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com) 및 로컬 개발을 위한 `log` 드라이버 디버깅. 또한 테스트 시 브로드캐스팅을 비활성화할 수 있는 `null` 드라이버가 포함되어 있습니다. `config/broadcasting.php` 구성 파일에는 이러한 각 드라이버에 대한 구성 예가 포함되어 있습니다.
+Laravel은 기본적으로 여러 브로드캐스트 드라이버를 지원합니다. [Laravel Reverb](/docs/12.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com) 및 로컬 개발과 디버깅을 위한 `log` 드라이버가 있습니다. 또한 테스트 시 브로드캐스팅을 비활성화할 수 있는 `null` 드라이버가 포함되어 있습니다. `config/broadcasting.php` 구성 파일에는 이러한 각 드라이버에 대한 구성 예가 포함되어 있습니다.
 
 <!-- All of your application's event broadcasting configuration is stored in the `config/broadcasting.php` configuration file. Don't worry if this file does not exist in your application; it will be created when you run the `install:broadcasting` Artisan command. -->
 애플리케이션의 모든 이벤트 브로드캐스팅 구성은 `config/broadcasting.php` 구성 파일에 저장됩니다. 이 파일이 애플리케이션에 존재하지 않더라도 걱정하지 마세요. `install:broadcasting` Artisan 명령을 실행할 때 생성됩니다.
@@ -176,7 +176,7 @@ PUSHER_APP_CLUSTER="mt1"
 ```
 
 <!-- The `config/broadcasting.php` file's `pusher` configuration also allows you to specify additional `options` that are supported by Channels, such as the cluster. -->
-`config/broadcasting.php` 파일의 `pusher` 구성을 사용하면 클러스터와 같은 채널에서 지원되는 추가 `options`를 지정할 수도 있습니다.
+`config/broadcasting.php` 파일의 `pusher` 구성을 사용하면 Channels가 지원하는 클러스터 같은 추가 `options`를 지정할 수도 있습니다.
 
 <!-- Then, set the `BROADCAST_CONNECTION` environment variable to `pusher` in your application's `.env` file: -->
 그런 다음 애플리케이션의 `.env` 파일에서 `BROADCAST_CONNECTION` 환경 변수를 `pusher`로 설정합니다.
@@ -193,7 +193,7 @@ BROADCAST_CONNECTION=pusher
 ### Ably
 
 > [!NOTE]
-> 아래 문서에서는 "푸셔 호환성" 모드에서 Ably를 사용하는 방법을 설명합니다. 그러나 Ably 팀은 Ably가 제공하는 고유한 기능을 활용할 수 있는 브로드캐스터와 Echo 클라이언트를 권장하고 유지 관리합니다. Ably에서 유지 관리하는 드라이버 사용에 대한 자세한 내용은 [consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)하세요.
+> 아래 문서에서는 "푸셔 호환성" 모드에서 Ably를 사용하는 방법을 설명합니다. 그러나 Ably 팀은 Ably가 제공하는 고유한 기능을 활용할 수 있는 브로드캐스터와 Echo 클라이언트를 권장하고 유지 관리합니다. Ably에서 유지 관리하는 드라이버 사용에 대한 자세한 내용은 [consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)를 참고하세요.
 
 <!-- To quickly enable support for Laravel's broadcasting features while using [Ably](https://ably.com) as your event broadcaster, invoke the `install:broadcasting` Artisan command with the `--ably` option. This Artisan command will prompt you for your Ably credentials, install the Ably PHP and JavaScript SDKs, and update your application's `.env` file with the appropriate variables: -->
 [Ably](https://ably.com)를 이벤트 브로드캐스터로 사용하는 동안 Laravel의 브로드캐스팅 기능에 대한 지원을 빠르게 활성화하려면 `--ably` 옵션과 함께 `install:broadcasting` Artisan 명령을 호출하세요. 이 Artisan 명령은 Ably 자격 증명을 묻는 메시지를 표시하고, Ably PHP 및 JavaScript SDK를 설치하고, 애플리케이션의 `.env` 파일을 적절한 변수로 업데이트합니다.
@@ -441,7 +441,7 @@ window.Echo = new Echo({
 ### Ably
 
 > [!NOTE]
-> 아래 문서에서는 "푸셔 호환성" 모드에서 Ably를 사용하는 방법을 설명합니다. 그러나 Ably 팀은 Ably가 제공하는 고유한 기능을 활용할 수 있는 브로드캐스터와 Echo 클라이언트를 권장하고 유지 관리합니다. Ably에서 유지 관리하는 드라이버 사용에 대한 자세한 내용은 [consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)하세요.
+> 아래 문서에서는 "푸셔 호환성" 모드에서 Ably를 사용하는 방법을 설명합니다. 그러나 Ably 팀은 Ably가 제공하는 고유한 기능을 활용할 수 있는 브로드캐스터와 Echo 클라이언트를 권장하고 유지 관리합니다. Ably에서 유지 관리하는 드라이버 사용에 대한 자세한 내용은 [consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)를 참고하세요.
 
 <!-- [Laravel Echo](https://github.com/laravel/echo) is a JavaScript library that makes it painless to subscribe to channels and listen for events broadcast by your server-side broadcasting driver. -->
 [Laravel Echo](https://github.com/laravel/echo)는 채널을 구독하고 서버 측 브로드캐스트 드라이버에서 브로드캐스트하는 이벤트를 수신하기 쉽게 해주는 JavaScript 라이브러리입니다.
@@ -552,7 +552,7 @@ OrderShipmentStatusUpdated::dispatch($order);
 #### The `ShouldBroadcast` Interface
 
 <!-- When a user is viewing one of their orders, we don't want them to have to refresh the page to view status updates. Instead, we want to broadcast the updates to the application as they are created. So, we need to mark the `OrderShipmentStatusUpdated` event with the `ShouldBroadcast` interface. This will instruct Laravel to broadcast the event when it is fired: -->
-사용자가 주문 중 하나를 볼 때 상태 업데이트를 확인하기 위해 페이지를 새로 고칠 필요가 없습니다. 대신, 업데이트가 생성될 때 애플리케이션에 업데이트를 브로드캐스트하려고 합니다. 따라서 `OrderShipmentStatusUpdated` 이벤트를 `ShouldBroadcast` 인터페이스로 표시해야 합니다. 이는 Laravel가 실행될 때 이벤트를 브로드캐스트하도록 지시합니다.
+사용자가 주문 중 하나를 볼 때 상태 업데이트를 확인하기 위해 페이지를 새로 고칠 필요가 없습니다. 대신, 업데이트가 생성될 때 애플리케이션에 업데이트를 브로드캐스트하려고 합니다. 따라서 `OrderShipmentStatusUpdated` 이벤트를 `ShouldBroadcast` 인터페이스로 표시해야 합니다. 이는 이벤트가 발생할 때 Laravel이 해당 이벤트를 브로드캐스트하도록 지시합니다.
 
 ```php
 <?php
@@ -851,10 +851,10 @@ public function broadcastWhen(): bool
 #### Broadcasting and Database Transactions
 
 <!-- When broadcast events are dispatched within database transactions, they may be processed by the queue before the database transaction has committed. When this happens, any updates you have made to models or database records during the database transaction may not yet be reflected in the database. In addition, any models or database records created within the transaction may not exist in the database. If your event depends on these models, unexpected errors can occur when the job that broadcasts the event is processed. -->
-브로드캐스트 이벤트가 데이터베이스 트랜잭션 내의 디스패치인 경우 데이터베이스 트랜잭션이 커밋되기 전에 큐에 의해 처리될 수 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델 또는 데이터베이스 레코드에 대해 수행한 업데이트가 아직 데이터베이스에 반영되지 않을 수 있습니다. 또한 트랜잭션 내에서 생성된 모델 또는 데이터베이스 레코드가 데이터베이스에 존재하지 않을 수도 있습니다. 이벤트가 이러한 모델에 의존하는 경우 이벤트를 브로드캐스트하는 작업이 처리될 때 예기치 않은 오류가 발생할 수 있습니다.
+브로드캐스트 이벤트가 데이터베이스 트랜잭션 내에서 디스패치되면 데이터베이스 트랜잭션이 커밋되기 전에 큐에 의해 처리될 수 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델 또는 데이터베이스 레코드에 대해 수행한 업데이트가 아직 데이터베이스에 반영되지 않을 수 있습니다. 또한 트랜잭션 내에서 생성된 모델 또는 데이터베이스 레코드가 데이터베이스에 존재하지 않을 수도 있습니다. 이벤트가 이러한 모델에 의존하는 경우 이벤트를 브로드캐스트하는 작업이 처리될 때 예기치 않은 오류가 발생할 수 있습니다.
 
 <!-- If your queue connection's `after_commit` configuration option is set to `false`, you may still indicate that a particular broadcast event should be dispatched after all open database transactions have been committed by implementing the `ShouldDispatchAfterCommit` interface on the event class: -->
-큐 연결의 `after_commit` 구성 옵션이 `false`로 설정된 경우에도 이벤트 클래스에서 `ShouldDispatchAfterCommit` 인터페이스를 구현하여 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 후에도 특정 브로드캐스트 이벤트가 디스패치여야 함을 나타낼 수 있습니다.
+큐 연결의 `after_commit` 구성 옵션이 `false`로 설정된 경우에도 이벤트 클래스에서 `ShouldDispatchAfterCommit` 인터페이스를 구현하여 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 후에 특정 브로드캐스트 이벤트가 디스패치되어야 함을 나타낼 수 있습니다.
 
 ```php
 <?php
@@ -1001,7 +1001,7 @@ class OrderChannel
 ```
 
 > [!NOTE]
-> Laravel의 다른 많은 클래스와 마찬가지로 채널 클래스는 [service container](/docs/12.x/container)에 의해 자동으로 확인됩니다. 따라서 생성자에서 채널에 필요한 종속성을 유형 힌트로 지정할 수 있습니다.
+> Laravel의 다른 많은 클래스와 마찬가지로 채널 클래스는 [service container](/docs/12.x/container)에 의해 자동으로 의존성이 해결됩니다. 따라서 생성자에서 채널에 필요한 종속성을 유형 힌트로 지정할 수 있습니다.
 
 <a name="broadcasting-events"></a>
 <!-- ## Broadcasting Events -->
@@ -1226,7 +1226,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening for Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-[leaving the channel](#leaving-a-channel) 않고 특정 이벤트 수신을 중지하려면 `stopListening` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 특정 이벤트 수신을 중지하려면 `stopListening` 메서드를 사용할 수 있습니다.
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1698,7 +1698,7 @@ protected function newBroadcastableEvent(string $event): BroadcastableModelEvent
 아시다시피 위의 모델 예제에서 `broadcastOn` 메서드는 `Channel` 인스턴스를 반환하지 않았습니다. 대신 Eloquent 모델이 직접 반환되었습니다. Eloquent 모델 인스턴스가 모델의 `broadcastOn` 메서드에 의해 반환되거나 메서드에 의해 반환된 배열에 포함된 경우, Laravel는 모델의 클래스 이름과 기본 키 식별자를 채널 이름으로 사용하여 모델에 대한 비공개 채널 인스턴스를 자동으로 인스턴스화합니다.
 
 <!-- So, an `App\Models\User` model with an `id` of `1` would be converted into an `Illuminate\Broadcasting\PrivateChannel` instance with a name of `App.Models.User.1`. Of course, in addition to returning Eloquent model instances from your model's `broadcastOn` method, you may return complete `Channel` instances in order to have full control over the model's channel names: -->
-따라서 `1`의 `id`가 포함된 `App\Models\User` 모델은 이름이 `App.Models.User.1`인 `Illuminate\Broadcasting\PrivateChannel` 인스턴스로 변환됩니다. 물론 모델의 `broadcastOn` 메서드에서 Eloquent 모델 인스턴스를 반환하는 것 외에도 모델의 채널 이름을 완전히 제어하기 위해 완전한 `Channel` 인스턴스를 반환할 수도 있습니다.
+따라서 `1`을 `id` 값으로 갖는 `App\Models\User` 모델은 이름이 `App.Models.User.1`인 `Illuminate\Broadcasting\PrivateChannel` 인스턴스로 변환됩니다. 물론 모델의 `broadcastOn` 메서드에서 Eloquent 모델 인스턴스를 반환하는 것 외에도 모델의 채널 이름을 완전히 제어하기 위해 완전한 `Channel` 인스턴스를 반환할 수도 있습니다.
 
 ```php
 use Illuminate\Broadcasting\PrivateChannel;
@@ -1724,7 +1724,7 @@ return [new Channel($this->user)];
 ```
 
 <!-- If you need to determine the channel name of a model, you may call the `broadcastChannel` method on any model instance. For example, this method returns the string `App.Models.User.1` for an `App\Models\User` model with an `id` of `1`: -->
-모델의 채널 이름을 확인해야 하는 경우 모델 인스턴스에서 `broadcastChannel` 메서드를 호출할 수 있습니다. 예를 들어, 이 메서드는 `1`의 `id`를 사용하여 `App\Models\User` 모델에 대해 `App.Models.User.1` 문자열을 반환합니다.
+모델의 채널 이름을 확인해야 하는 경우 모델 인스턴스에서 `broadcastChannel` 메서드를 호출할 수 있습니다. 예를 들어, 이 메서드는 `1`을 `id` 값으로 갖는 `App\Models\User` 모델에 대해 `App.Models.User.1` 문자열을 반환합니다.
 
 ```php
 $user->broadcastChannel();
@@ -1853,7 +1853,7 @@ useEchoModel<User, "App.Models.User">("App.Models.User", userId, ["UserUpdated"]
 > [Pusher Channels](https://pusher.com/channels)을 사용할 때 클라이언트 이벤트를 보내려면 [application dashboard](https://dashboard.pusher.com/)의 "앱 설정" 섹션에서 "클라이언트 이벤트" 옵션을 활성화해야 합니다.
 
 <!-- Sometimes you may wish to broadcast an event to other connected clients without hitting your Laravel application at all. This can be particularly useful for things like "typing" notifications, where you want to alert users of your application that another user is typing a message on a given screen. -->
-때로는 Laravel 애플리케이션을 전혀 실행하지 않고 연결된 다른 클라이언트에 이벤트를 브로드캐스트하고 싶을 수도 있습니다. 이는 다른 사용자가 특정 화면에 메시지를 입력하고 있음을 애플리케이션 사용자에게 알리려는 "입력" 알림과 같은 작업에 특히 유용할 수 있습니다.
+때로는 Laravel 애플리케이션을 전혀 거치지 않고 연결된 다른 클라이언트에 이벤트를 브로드캐스트하고 싶을 수도 있습니다. 이는 다른 사용자가 특정 화면에 메시지를 입력하고 있음을 애플리케이션 사용자에게 알리려는 "입력" 알림과 같은 작업에 특히 유용할 수 있습니다.
 
 <!-- To broadcast client events, you may use Echo's `whisper` method: -->
 클라이언트 이벤트를 브로드캐스트하려면 Echo의 `whisper` 메서드를 사용할 수 있습니다.
@@ -1970,7 +1970,7 @@ channel().notification((notification) => {
 #### Stop Listening for Notifications
 
 <!-- If you would like to stop listening to notifications without [leaving the channel](#leaving-a-channel), you may use the `stopListeningForNotification` method: -->
-[leaving the channel](#leaving-a-channel) 않고 알림 수신을 중지하려면 `stopListeningForNotification` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 알림 수신을 중지하려면 `stopListeningForNotification` 메서드를 사용할 수 있습니다.
 
 ```js
 const callback = (notification) => {

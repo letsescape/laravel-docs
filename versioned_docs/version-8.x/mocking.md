@@ -226,7 +226,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- You may pass a closure to the available methods in order to assert that a job was dispatched that passes a given "truth test". If at least one job was dispatched that passes the given truth test then the assertion will be successful. For example, you may wish to assert that a job was dispatched for a specific order: -->
-이러한 메서드들에는 클로저를 전달하여, 주어진 "조건"을 만족하는 잡이 실제로 디스패치됐는지 세밀하게 검증할 수도 있습니다. 예를 들어, 특정 주문에 대한 잡이 디스패치됐는지 확인하려면 다음과 같이 작성합니다.
+이러한 메서드들에는 클로저를 전달하여, 주어진 "조건"을 만족하는 잡이 최소 하나라도 디스패치되었는지 검증할 수도 있습니다. 예를 들어, 특정 주문에 대한 잡이 디스패치됐는지 확인하려면 다음과 같이 작성합니다.
 
 ```
 Bus::assertDispatched(function (ShipOrder $job) use ($order) {
@@ -478,7 +478,7 @@ Mail::assertNothingQueued();
 ```
 
 <!-- You may pass a closure to the `assertSent`, `assertNotSent`, `assertQueued`, or `assertNotQueued` methods in order to assert that a mailable was sent that passes a given "truth test". If at least one mailable was sent that passes the given truth test then the assertion will be successful: -->
-`assertSent`, `assertNotSent`, `assertQueued`, `assertNotQueued` 등에는 클로저를 전달해, 조건을 만족하는 mailable이 실제 전송됐는지 세밀하게 검증할 수 있습니다.
+`assertSent`, `assertNotSent`, `assertQueued`, `assertNotQueued` 등에는 클로저를 전달해, 조건을 만족하는 mailable을 전송하도록 지시했는지 세밀하게 검증할 수 있습니다.
 
 ```
 Mail::assertSent(function (OrderShipped $mail) use ($order) {
@@ -516,7 +516,7 @@ Mail::assertNotOutgoing(function (OrderShipped $mail) use ($order) {
 `Notification` 파사드의 `fake` 메서드를 사용하면, 실제로 알림이 전송되지 않도록 할 수 있습니다. 거의 대부분의 경우, 전달된 알림이 실제로 사용자에게 전송되는지 보다는, "Laravel이 해당 알림을 전송하도록 지시했는가"만을 확인하는 것으로 충분합니다.
 
 <!-- After calling the `Notification` facade's `fake` method, you may then assert that [notifications](/docs/8.x/notifications) were instructed to be sent to users and even inspect the data the notifications received: -->
-`Notification` 파사드의 `fake` 메서드를 호출한 후에는, [notifications](/docs/8.x/notifications)이 실제로 전송됐는지, 그리고 어떤 데이터가 전달됐는지 아래와 같이 검증할 수 있습니다.
+`Notification` 파사드의 `fake` 메서드를 호출한 후에는, [notifications](/docs/8.x/notifications)을 전송하도록 지시했는지, 그리고 어떤 데이터가 전달됐는지 아래와 같이 검증할 수 있습니다.
 
 ```
 <?php
@@ -554,7 +554,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- You may pass a closure to the `assertSentTo` or `assertNotSentTo` methods in order to assert that a notification was sent that passes a given "truth test". If at least one notification was sent that passes the given truth test then the assertion will be successful: -->
-`assertSentTo`, `assertNotSentTo`에 클로저를 전달해, 특정 조건을 만족하는 알림이 실제 전송됐는지 세부적으로 검증할 수 있습니다.
+`assertSentTo`, `assertNotSentTo`에 클로저를 전달해, 특정 조건을 만족하는 알림을 전송하도록 지시했는지 세부적으로 검증할 수 있습니다.
 
 ```
 Notification::assertSentTo(
@@ -640,7 +640,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- You may pass a closure to the `assertPushed` or `assertNotPushed` methods in order to assert that a job was pushed that passes a given "truth test". If at least one job was pushed that passes the given truth test then the assertion will be successful: -->
-`assertPushed`, `assertNotPushed` 등의 메서드에는 클로저를 활용해, 조건을 만족하는 잡이 실제로 푸시됐는지 세밀하게 확인할 수 있습니다.
+`assertPushed`, `assertNotPushed` 등의 메서드에는 클로저를 활용해, 조건을 만족하는 잡을 푸시하려 했는지 세밀하게 확인할 수 있습니다.
 
 ```
 Queue::assertPushed(function (ShipOrder $job) use ($order) {

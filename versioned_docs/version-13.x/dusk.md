@@ -110,7 +110,7 @@ php artisan dusk:chrome-driver --detect
 ```
 
 > [!WARNING]
-> Dusk는 `chromedriver` 바이너리가 실행 가능해야 합니다. Dusk 실행에 문제가 있다면, 다음 명령어를 사용해 바이너리가 실행 가능한 상태인지 확인해야 합니다: `chmod -R 0755 vendor/laravel/dusk/bin/`.
+> Dusk는 `chromedriver` 바이너리가 실행 가능해야 합니다. Dusk 실행에 문제가 있다면, 다음 명령어를 사용해 바이너리에 실행 권한을 부여해야 합니다: `chmod -R 0755 vendor/laravel/dusk/bin/`.
 
 <a name="using-other-browsers"></a>
 <!-- ### Using Other Browsers -->
@@ -824,7 +824,7 @@ $browser->type('tags', 'foo')
 ```
 
 <!-- You may clear the value of an input using the `clear` method: -->
-`clear` 메서드를 사용하여 입력 값를 비울 수 있습니다.
+`clear` 메서드를 사용하여 입력 값을 비울 수 있습니다.
 
 ```php
 $browser->clear('email');
@@ -978,14 +978,14 @@ $browser->keys('.app', ['{command}', 'j']);
 ```
 
 > [!NOTE]
-> `{command}`와 같은 모든 수정 키는 `{}` 문자로 감싸며, `Facebook\WebDriver\WebDriverKeys` 클래스에 정의된 상수와 일치합니다. 이 클래스는 [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php).
+> `{command}`와 같은 모든 수정 키는 `{}` 문자로 감싸며, `Facebook\WebDriver\WebDriverKeys` 클래스에 정의된 상수와 일치합니다. 이 클래스는 [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php)에서 확인할 수 있습니다.
 
 <a name="fluent-keyboard-interactions"></a>
 <!-- #### Fluent Keyboard Interactions -->
 #### Fluent Keyboard Interactions
 
 <!-- Dusk also provides a `withKeyboard` method, allowing you to fluently perform complex keyboard interactions via the `Laravel\Dusk\Keyboard` class. The `Keyboard` class provides `press`, `release`, `type`, and `pause` methods: -->
-Dusk는 `withKeyboard` 메서드도 제공합니다. 이 메서드를 사용하면 `Laravel\Dusk\Keyboard` 클래스를 통해 복잡한 키보드 상호작용을 유창하게 수행할 수 있습니다. `Keyboard` 클래스는 `press`, `release`, `type`, `pause` 메서드를 제공합니다.
+Dusk는 `withKeyboard` 메서드도 제공합니다. 이 메서드를 사용하면 `Laravel\Dusk\Keyboard` 클래스의 메서드를 연속으로 호출하여 복잡한 키보드 상호작용을 수행할 수 있습니다. `Keyboard` 클래스는 `press`, `release`, `type`, `pause` 메서드를 제공합니다.
 
 ```php
 use Laravel\Dusk\Keyboard;
@@ -1420,7 +1420,7 @@ $browser->waitForLocation('/secret');
 ```
 
 <!-- The `waitForLocation` method can also be used to wait for the current window location to be a fully qualified URL: -->
-`waitForLocation` 메서드는 현재 창의 위치가 정규화된 전체 URL이 될 때까지 기다리는 데에도 사용할 수 있습니다.
+`waitForLocation` 메서드는 현재 창의 위치가 전체 URL과 일치할 때까지 기다리는 데에도 사용할 수 있습니다.
 
 ```php
 $browser->waitForLocation('https://example.com/path');
@@ -2172,7 +2172,7 @@ $browser->assertNotSelected($field, $value);
 #### assertSelectHasOptions
 
 <!-- Assert that the given array of values are available to be selected: -->
-주어진 값 배열을 선택할 수 있는지 확인합니다:
+주어진 배열의 값들을 선택할 수 있는지 확인합니다:
 
 ```php
 $browser->assertSelectHasOptions($field, $values);
@@ -2183,7 +2183,7 @@ $browser->assertSelectHasOptions($field, $values);
 #### assertSelectMissingOptions
 
 <!-- Assert that the given array of values are not available to be selected: -->
-주어진 값 배열을 선택할 수 없는지 확인합니다:
+주어진 배열의 값들을 선택할 수 없는지 확인합니다:
 
 ```php
 $browser->assertSelectMissingOptions($field, $values);
@@ -2596,7 +2596,7 @@ php artisan dusk:page Login
 ### Configuring Pages
 
 <!-- By default, pages have three methods: `url`, `assert`, and `elements`. We will discuss the `url` and `assert` methods now. The `elements` method will be [discussed in more detail below](#shorthand-selectors). -->
-기본적으로 페이지에는 `url`, `assert`, `elements` 세 가지 메서드가 있습니다. 먼저 `url` 및 `assert` 메서드를 살펴보겠습니다. `elements` 메서드는 [discussed in more detail below](#shorthand-selectors).
+기본적으로 페이지에는 `url`, `assert`, `elements` 세 가지 메서드가 있습니다. 먼저 `url` 및 `assert` 메서드를 살펴보겠습니다. `elements` 메서드는 [discussed in more detail below](#shorthand-selectors)에서 자세히 설명합니다.
 
 <a name="the-url-method"></a>
 <!-- #### The `url` Method -->

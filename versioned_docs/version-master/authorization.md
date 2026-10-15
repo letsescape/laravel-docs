@@ -353,7 +353,7 @@ php artisan make:policy PostPolicy --model=Post
 #### Policy Discovery
 
 <!-- By default, Laravel automatically discover policies as long as the model and policy follow standard Laravel naming conventions. Specifically, the policies must be in a `Policies` directory at or above the directory that contains your models. So, for example, the models may be placed in the `app/Models` directory while the policies may be placed in the `app/Policies` directory. In this situation, Laravel will check for policies in `app/Models/Policies` then `app/Policies`. In addition, the policy name must match the model name and have a `Policy` suffix. So, a `User` model would correspond to a `UserPolicy` policy class. -->
-기본적으로 Laravel은 모델과 정책 이름이 표준 규칙을 따르기만 하면 자동으로 정책을 찾아줍니다. 구체적으로, 정책은 모델이 들어 있는 디렉토리이거나 그 상위에 위치한 `Policies` 디렉토리에 있어야 합니다. 예를 들어, 모델은 `app/Models`에, 정책은 `app/Policies` 디렉토리에 위치한 경우, Laravel은 `app/Models/Policies`와 `app/Policies`에서 정책을 탐색합니다. 또한 정책 이름은 모델명과 같고 `Policy` 접미어가 붙어 있어야 합니다. 예를 들어 `User` 모델은 `UserPolicy` 정책과 연결됩니다.
+기본적으로 Laravel은 모델과 정책 이름이 표준 규칙을 따르기만 하면 자동으로 정책을 찾아줍니다. 구체적으로, 정책은 모델이 들어 있는 디렉토리 또는 그 상위 디렉토리의 `Policies` 디렉토리에 있어야 합니다. 예를 들어, 모델은 `app/Models`에, 정책은 `app/Policies` 디렉토리에 위치한 경우, Laravel은 `app/Models/Policies`와 `app/Policies`에서 정책을 탐색합니다. 또한 정책 이름은 모델명과 같고 `Policy` 접미어가 붙어 있어야 합니다. 예를 들어 `User` 모델은 `UserPolicy` 정책과 연결됩니다.
 
 <!-- If you would like to define your own policy discovery logic, you may register a custom policy discovery callback using the `Gate::guessPolicyNamesUsing` method. Typically, this method should be called from the `boot` method of your application's `AppServiceProvider`: -->
 직접 정책 탐색 방식을 정의하고 싶으면 `Gate::guessPolicyNamesUsing` 메서드로 커스텀 콜백을 등록할 수 있습니다. 보통은 애플리케이션의 `AppServiceProvider` 클래스 `boot` 메서드에서 호출합니다:
@@ -560,7 +560,7 @@ public function create(User $user): bool
 ### Guest Users
 
 <!-- By default, all gates and policies automatically return `false` if the incoming HTTP request was not initiated by an authenticated user. However, you may allow these authorization checks to pass through to your gates and policies by declaring an "optional" type-hint or supplying a `null` default value for the user argument definition: -->
-기본적으로 게이트와 정책은 인증되지 않은 사용자가 요청을 보내면 자동으로 `false`를 반환합니다. 하지만 사용자 인수에 nullable 타입힌트를 사용하거나 `null` 기본값을 지정하면, 인증되지 않은 사용자에 대해서도 인가 로직을 통과시킬 수 있습니다:
+기본적으로 게이트와 정책은 인증되지 않은 사용자가 요청을 보내면 자동으로 `false`를 반환합니다. 하지만 사용자 인수에 nullable 타입힌트를 사용하거나 `null` 기본값을 지정하면, 인증되지 않은 사용자에 대해서도 게이트와 정책에 인가 검사를 전달할 수 있습니다:
 
 ```php
 <?php

@@ -912,7 +912,7 @@ Http::fake(function (Request $request) {
 응답을 fake 처리할 때, 애플리케이션이 올바른 데이터나 헤더를 전송하는지 확인하기 위해 클라이언트가 받은 요청을 검사하고 싶을 때가 있습니다. 이는 `Http::fake`를 호출한 뒤 `Http::assertSent` 메서드를 호출하여 수행할 수 있습니다.
 
 <!-- The `assertSent` method accepts a closure which will receive an `Illuminate\Http\Client\Request` instance and should return a boolean value indicating if the request matches your expectations. In order for the test to pass, at least one request must have been issued matching the given expectations: -->
-`assertSent` 메서드는 `Illuminate\Http\Client\Request` 인스턴스를 전달받는 클로저를 인수로 받으며, 해당 요청이 기대한 조건과 일치하는지를 나타내는 boolean 값을 반환해야 합니다. 테스트가 통과하려면, 주어진 기대 조건과 일치하는 요청이 하나 이상 발생해야 합니다.
+`assertSent` 메서드는 `Illuminate\Http\Client\Request` 인스턴스를 전달받는 클로저를 인수로 받으며, 이 클로저는 해당 요청이 기대한 조건과 일치하는지를 나타내는 boolean 값을 반환해야 합니다. 테스트가 통과하려면, 주어진 기대 조건과 일치하는 요청이 하나 이상 발생해야 합니다.
 
 ```php
 use Illuminate\Http\Client\Request;

@@ -210,7 +210,7 @@ return URL::signedRoute('unsubscribe', ['user' => 1], absolute: false);
 ```
 
 <!-- If you would like to generate a temporary signed route URL that expires after a specified amount of time, you may use the `temporarySignedRoute` method. When Laravel validates a temporary signed route URL, it will ensure that the expiration timestamp that is encoded into the signed URL has not elapsed: -->
-지정한 시간 이후 만료되는 임시 서명 라우트 URL을 생성하려면 `temporarySignedRoute` 메서드를 사용합니다. 이때 Laravel은 서명된 URL에서 인코딩된 만료 타임스탬프가 경과하지 않았는지 검사합니다:
+지정한 시간 이후 만료되는 임시 서명 라우트 URL을 생성하려면 `temporarySignedRoute` 메서드를 사용합니다. Laravel은 임시 서명 라우트 URL을 검증할 때 서명된 URL에 인코딩된 만료 타임스탬프가 경과하지 않았는지 검사합니다:
 
 ```php
 use Illuminate\Support\Facades\URL;

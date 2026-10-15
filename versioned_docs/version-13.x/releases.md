@@ -103,7 +103,7 @@ Laravel 13은 first-party [Laravel AI SDK](https://laravel.com/ai)를 도입합�
 AI SDK를 사용하면 일관된 Laravel-native 개발자 경험을 유지하면서, 특정 제공자에 종속되지 않는 AI 기능을 만들 수 있습니다.
 
 <!-- For example, a basic agent can be prompted with a single call: -->
-예를 들어, 기본 에이전트는 한 번의 호출로 프롬프트를 전달할 수 있습니다.
+예를 들어, 기본 에이전트에 한 번의 호출로 프롬프트를 전달할 수 있습니다.
 
 ```php
 use App\Ai\Agents\SalesCoach;

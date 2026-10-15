@@ -682,7 +682,7 @@ public function attachments(): array
 #### Raw Data Attachments
 
 <!-- The `fromData` attachment method may be used to attach a raw string of bytes as an attachment. For example, you might use this method if you have generated a PDF in memory and want to attach it to the email without writing it to disk. The `fromData` method accepts a closure which resolves the raw data bytes as well as the name that the attachment should be assigned: -->
-`fromData` 첨부 메서드는 바이트 배열 형태의 원시 문자열을 첨부 파일로 추가할 때 사용할 수 있습니다. 예를 들어, 메모리상에서 PDF 파일을 생성한 뒤 이를 디스크에 저장하지 않고 이메일에 첨부하고 싶을 때 이 방법을 사용할 수 있습니다. `fromData` 메서드는 첨부할 원시 데이터 바이트를 반환하는 클로저와 첨부 파일에 지정할 파일명을 받습니다.
+`fromData` 첨부 메서드는 원시 바이트 문자열을 첨부 파일로 추가할 때 사용할 수 있습니다. 예를 들어, 메모리상에서 PDF 파일을 생성한 뒤 이를 디스크에 저장하지 않고 이메일에 첨부하고 싶을 때 이 방법을 사용할 수 있습니다. `fromData` 메서드는 첨부할 원시 데이터 바이트를 반환하는 클로저와 첨부 파일에 지정할 파일명을 받습니다.
 
 ```
 /**
@@ -737,7 +737,7 @@ public function attachments(): array
 ### Attachable Objects
 
 <!-- While attaching files to messages via simple string paths is often sufficient, in many cases the attachable entities within your application are represented by classes. For example, if your application is attaching a photo to a message, your application may also have a `Photo` model that represents that photo. When that is the case, wouldn't it be convenient to simply pass the `Photo` model to the `attach` method? Attachable objects allow you to do just that. -->
-파일 경로 문자열로 메시지에 파일을 첨부하는 것만으로는 충분한 경우도 있지만, 애플리케이션 내부에서 첨부할 대상 자체가 클래스로 표현되는 경우가 많습니다. 예를 들어, 애플리케이션에서 사진을 메시지에 첨부하는데 `Photo` 모델이 그 사진을 나타낼 수 있습니다. 이럴 때, 단순히 `Photo` 모델을 `attach` 메서드에 전달하는 것으로 첨부가 된다면 어떨까요? 첨부 가능 객체(Attachable Object)를 사용하면 바로 이런 기능을 간편하게 구현할 수 있습니다.
+파일 경로 문자열로 메시지에 파일을 첨부하는 것만으로도 충분한 경우가 많지만, 애플리케이션 내부에서 첨부할 대상 자체가 클래스로 표현되는 경우가 많습니다. 예를 들어, 애플리케이션에서 사진을 메시지에 첨부하는데 `Photo` 모델이 그 사진을 나타낼 수 있습니다. 이럴 때, 단순히 `Photo` 모델을 `attach` 메서드에 전달하는 것으로 첨부가 된다면 어떨까요? 첨부 가능 객체(Attachable Object)를 사용하면 바로 이런 기능을 간편하게 구현할 수 있습니다.
 
 <!-- To get started, implement the `Illuminate\Contracts\Mail\Attachable` interface on the object that will be attachable to messages. This interface dictates that your class defines a `toMailAttachment` method that returns an `Illuminate\Mail\Attachment` instance: -->
 먼저, 메시지에 첨부하려는 객체에 `Illuminate\Contracts\Mail\Attachable` 인터페이스를 구현합니다. 이 인터페이스는 클래스에 `toMailAttachment` 메서드를 정의해야 한다고 규정하고 있으며, 이 메서드는 `Illuminate\Mail\Attachment` 인스턴스를 반환해야 합니다.
@@ -954,7 +954,7 @@ Thanks,<br>
 ```
 
 > [!NOTE]
-> Markdown 이메일을 작성할 때 불필요한 들여쓰기를 사용하지 마세요. Markdown 표준에 따라, 들여쓰기된 내용은 코드 블록으로 처리될 수 있습니다.
+> Markdown 이메일을 작성할 때 불필요한 들여쓰기를 사용하지 마세요. Markdown 표준에 따라, 들여쓰기된 내용은 코드 블록으로 처리됩니다.
 
 <a name="button-component"></a>
 <!-- #### Button Component -->
@@ -1556,7 +1556,7 @@ Mail::assertNotOutgoing(function (OrderShipped $mail) use ($order) {
 #### Using a Global `to` Address
 
 <!-- Finally, you may specify a global "to" address by invoking the `alwaysTo` method offered by the `Mail` facade. Typically, this method should be called from the `boot` method of one of your application's service providers: -->
-마지막으로, `Mail` 파사드의 `alwaysTo` 메서드를 사용하여, 모든 이메일을 단일 "전체 전송" 주소로 지정할 수도 있습니다. 이 메서드는 보통 애플리케이션의 서비스 프로바이더 중 하나의 `boot` 메서드에서 호출해야 합니다.
+마지막으로, `Mail` 파사드의 `alwaysTo` 메서드를 사용하여, 모든 이메일에 적용할 전역 "to" 주소를 지정할 수도 있습니다. 이 메서드는 보통 애플리케이션의 서비스 프로바이더 중 하나의 `boot` 메서드에서 호출해야 합니다.
 
 ```
 use Illuminate\Support\Facades\Mail;

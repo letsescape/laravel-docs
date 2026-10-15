@@ -2237,7 +2237,7 @@ class SalesCoach implements Agent
 또는 최상위 `cache_control` [provider option](#provider-options)을 통해 Anthropic의 자동 캐싱을 활성화할 수 있습니다. 이렇게 하면 요청의 마지막 블록 다음에 단일 중단점이 설정되므로, 대화가 길어질수록 중단점이 앞으로 이동하고 각 턴은 이전 턴을 캐시에서 읽습니다. 두 메커니즘을 함께 사용할 수도 있습니다.
 
 > [!WARNING]
-> 프로바이더는 툴, 지침, 메시지 순서로 프롬프트를 구성하므로, 지침을 한 시간 동안 캐시하려면 툴 정의도 한 시간 동안 캐시해야 합니다. 두 설정을 혼합하면 `InvalidArgumentException`이 발생합니다.
+> 프로바이더는 툴, 지침, 메시지 순서로 프롬프트를 구성하므로, 지침을 한 시간 동안 캐시하려면 툴 정의도 한 시간 동안 캐시해야 합니다. 지침의 캐시 유지 시간은 한 시간으로, 툴 정의는 기본 5분으로 설정하면 `InvalidArgumentException`이 발생합니다.
 
 <a name="human-tool-approval"></a>
 <!-- ## Human Tool Approval -->

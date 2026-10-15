@@ -96,7 +96,7 @@ Laravel에서 Redis 세션을 사용하기 전에, PECL을 통해 PhpRedis PHP �
 ### Retrieving Data
 
 <!-- There are two primary ways of working with session data in Laravel: the global `session` helper and via a `Request` instance. First, let's look at accessing the session via a `Request` instance, which can be type-hinted on a route closure or controller method. Remember, controller method dependencies are automatically injected via the Laravel [service container](/docs/master/container): -->
-Laravel에서 세션 데이터를 다루는 대표적인 방법은 두 가지가 있습니다: 전역 `session` 헬퍼를 사용하는 방법과 `Request` 인스턴스를 사용하는 방법입니다. 먼저 `Request` 인스턴스를 통해 세션에 접근하는 방법을 살펴보겠습니다. 이 방법은 라우트 클로저나 컨트롤러 메서드의 타입힌트로 주입할 수 있습니다. 컨트롤러의 의존성은 Laravel [service container](/docs/master/container)를 통해 자동으로 주입됩니다:
+Laravel에서 세션 데이터를 다루는 대표적인 방법은 두 가지가 있습니다: 전역 `session` 헬퍼를 사용하는 방법과 `Request` 인스턴스를 사용하는 방법입니다. 먼저 `Request` 인스턴스를 통해 세션에 접근하는 방법을 살펴보겠습니다. 이 인스턴스는 라우트 클로저나 컨트롤러 메서드에 타입힌트를 지정하여 주입받을 수 있습니다. 컨트롤러의 의존성은 Laravel [service container](/docs/master/container)를 통해 자동으로 주입됩니다:
 
 ```php
 <?php
@@ -156,7 +156,7 @@ Route::get('/home', function () {
 ```
 
 > [!NOTE]
-> HTTP 요청 인스턴스를 통해 세션을 사용하는 것과 전역 session 헬퍼를 사용하는 것 사이에는 거의 실질적인 차이가 없습니다. 두 방법 모두 테스트 시 `assertSessionHas` 메서드를 사용하여 [testable](/docs/master/testing)할 수 있습니다.
+> HTTP 요청 인스턴스를 통해 세션을 사용하는 것과 전역 session 헬퍼를 사용하는 것 사이에는 거의 실질적인 차이가 없습니다. 두 방법 모두 테스트 시 `assertSessionHas` 메서드를 사용하여 테스트할 수 있습니다([testable](/docs/master/testing)).
 
 <a name="retrieving-all-session-data"></a>
 <!-- #### Retrieving All Session Data -->
@@ -279,7 +279,7 @@ $request->session()->flash('status', 'Task was successful!');
 ```
 
 <!-- If you need to persist your flash data for several requests, you may use the `reflash` method, which will keep all of the flash data for an additional request. If you only need to keep specific flash data, you may use the `keep` method: -->
-플래시 데이터를 여러 요청에 걸쳐 유지하고 싶다면 `reflash` 메서드를 사용할 수 있습니다. 특정 플래시 데이터만 유지하려면 `keep` 메서드를 사용합니다:
+플래시 데이터를 여러 요청에 걸쳐 유지하고 싶다면 `reflash` 메서드를 사용할 수 있습니다. 이 메서드는 모든 플래시 데이터를 추가 요청 한 번 동안 유지합니다. 특정 플래시 데이터만 유지하려면 `keep` 메서드를 사용합니다:
 
 ```php
 $request->session()->reflash();
@@ -316,7 +316,7 @@ $request->session()->flush();
 ### Regenerating the Session ID
 
 <!-- Regenerating the session ID is often done in order to prevent malicious users from exploiting a [session fixation](https://owasp.org/www-community/attacks/Session_fixation) attack on your application. -->
-세션 ID를 재생성하는 것은 주로 악의적인 사용자가 애플리케이션에 [session fixation](https://owasp.org/www-community/attacks/Session_fixation) 공격을 시도하는 것을 방지하기 위해 사용됩니다.
+세션 ID 재생성은 주로 악의적인 사용자의 [session fixation](https://owasp.org/www-community/attacks/Session_fixation) 공격으로부터 애플리케이션을 보호하는 데 사용됩니다.
 
 <!-- Laravel automatically regenerates the session ID during authentication if you are using one of the Laravel [application starter kits](/docs/master/starter-kits) or [Laravel Fortify](/docs/master/fortify); however, if you need to manually regenerate the session ID, you may use the `regenerate` method: -->
 Laravel은 [application starter kits](/docs/master/starter-kits)나 [Laravel Fortify](/docs/master/fortify)를 사용할 경우 인증 시 자동으로 세션 ID를 재생성합니다. 다만, 수동으로 세션 ID를 재생성해야 한다면 `regenerate` 메서드를 사용할 수 있습니다:
@@ -364,7 +364,7 @@ Laravel 캐시 메서드에 대한 자세한 정보는 [cache documentation](/do
 > 세션 블로킹을 사용하려면, 애플리케이션이 [atomic locks](/docs/master/cache#atomic-locks)을 지원하는 캐시 드라이버를 사용해야 합니다. 현재 지원되는 드라이버는 `memcached`, `dynamodb`, `redis`, `mongodb`(공식 `mongodb/laravel-mongodb` 패키지 포함), `database`, `file`, array 드라이버입니다. 또한 `cookie` 세션 드라이버는 사용할 수 없습니다.
 
 <!-- By default, Laravel allows requests using the same session to execute concurrently. So, for example, if you use a JavaScript HTTP library to make two HTTP requests to your application, they will both execute at the same time. For many applications, this is not a problem; however, session data loss can occur in a small subset of applications that make concurrent requests to two different application endpoints which both write data to the session. -->
-Laravel은 기본적으로 동일한 세션을 사용하는 여러 요청이 동시에 실행될 수 있도록 허용합니다. 예를 들어 JavaScript HTTP 라이브러리를 사용하여 동시에 두 번의 HTTP 요청을 보내면, 두 요청이 동시에 처리됩니다. 대부분의 애플리케이션에서는 큰 문제가 없으나, 서로 다른 엔드포인트로 동시에 데이터를 쓰는 일부 케이스에서는 세션 데이터가 유실될 수 있습니다.
+Laravel은 기본적으로 동일한 세션을 사용하는 여러 요청이 동시에 실행될 수 있도록 허용합니다. 예를 들어 JavaScript HTTP 라이브러리를 사용하여 동시에 두 번의 HTTP 요청을 보내면, 두 요청이 동시에 처리됩니다. 대부분의 애플리케이션에서는 큰 문제가 없으나, 서로 다른 엔드포인트에 동시에 요청하고 양쪽 모두 세션에 데이터를 쓰는 일부 케이스에서는 세션 데이터가 유실될 수 있습니다.
 
 <!-- To mitigate this, Laravel provides functionality that allows you to limit concurrent requests for a given session. To get started, you may simply chain the `block` method onto your route definition. In this example, an incoming request to the `/profile` endpoint would acquire a session lock. While this lock is being held, any incoming requests to the `/profile` or `/order` endpoints which share the same session ID will wait for the first request to finish executing before continuing their execution: -->
 이 문제를 예방하기 위해, Laravel은 특정 세션에 대한 동시 요청을 제한하는 기능을 제공합니다. 사용하려면 라우트 정의에 `block` 메서드를 체이닝하면 됩니다. 아래 예시에서 `/profile` 엔드포인트로 들어오는 요청은 세션 락을 획득합니다. 락이 유지되는 동안 동일 세션 ID를 공유하는 또 다른 `/profile` 또는 `/order` 요청은 첫 번째 요청이 끝날 때까지 대기합니다:
@@ -441,7 +441,7 @@ Laravel은 확장 코드를 저장할 기본 디렉터리를 제공하지 않으
 - `open` 메서드는 주로 파일 기반 세션 스토리지 시스템에서 사용됩니다. Laravel은 이미 `file` 세션 드라이버를 제공하므로, 일반적으로 이 메서드는 비워두어도 됩니다.
 - `close` 메서드도 `open`과 마찬가지로 대부분의 드라이버에서는 신경 쓰지 않아도 됩니다.
 - `read` 메서드는 주어진 `$sessionId`와 연결된 세션 데이터를 문자열로 반환해야 합니다. 세션 데이터의 직렬화나 인코딩은 신경 쓸 필요가 없으며, Laravel이 자동으로 처리해줍니다.
-- `write` 메서드는 주어진 `$sessionId`에 대해 `$data` 문자열을 MongoDB 등 원하는 영속성 저장소에 저장해야 합니다. 이 또한 직접 직렬화는 하지 않아도 됩니다.
+- `write` 메서드는 주어진 `$sessionId`에 대해 `$data` 문자열을 MongoDB 등 원하는 영속성 저장소에 저장해야 합니다. 여기서도 직접 직렬화해서는 안 됩니다.
 - `destroy` 메서드는 주어진 `$sessionId`와 연결된 데이터를 영속성 저장소에서 삭제해야 합니다.
 - `gc` 메서드는 주어진 `$lifetime`(UNIX 타임스탬프)보다 오래된 세션 데이터를 모두 삭제해야 합니다. Memcached나 Redis처럼 유효기간이 자동 만료되는 시스템에서는 비워두어도 괜찮습니다.
 

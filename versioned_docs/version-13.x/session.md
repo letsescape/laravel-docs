@@ -87,7 +87,7 @@ Laravel에서 Redis 세션을 사용하기 전에, PECL을 통해 PhpRedis PHP �
 ### Retrieving Data
 
 <!-- There are two primary ways of working with session data in Laravel: the global `session` helper and via a `Request` instance. First, let's look at accessing the session via a `Request` instance, which can be type-hinted on a route closure or controller method. Remember, controller method dependencies are automatically injected via the Laravel [service container](/docs/13.x/container): -->
-Laravel에서 세션 데이터를 다루는 대표적인 방법은 두 가지가 있습니다: 전역 `session` 헬퍼를 사용하는 방법과 `Request` 인스턴스를 사용하는 방법입니다. 먼저 `Request` 인스턴스를 통해 세션에 접근하는 방법을 살펴보겠습니다. 이 방법은 라우트 클로저나 컨트롤러 메서드의 타입힌트로 주입할 수 있습니다. 컨트롤러의 의존성은 Laravel [service container](/docs/13.x/container)를 통해 자동으로 주입됩니다:
+Laravel에서 세션 데이터를 다루는 대표적인 방법은 두 가지가 있습니다: 전역 `session` 헬퍼를 사용하는 방법과 `Request` 인스턴스를 사용하는 방법입니다. 먼저 `Request` 인스턴스를 통해 세션에 접근하는 방법을 살펴보겠습니다. 이 인스턴스는 라우트 클로저나 컨트롤러 메서드에 타입힌트를 지정하여 주입받을 수 있습니다. 컨트롤러의 의존성은 Laravel [service container](/docs/13.x/container)를 통해 자동으로 주입됩니다:
 
 ```php
 <?php
@@ -307,7 +307,7 @@ $request->session()->flush();
 ### Regenerating the Session ID
 
 <!-- Regenerating the session ID is often done in order to prevent malicious users from exploiting a [session fixation](https://owasp.org/www-community/attacks/Session_fixation) attack on your application. -->
-세션 ID를 재생성하는 것은 주로 악의적인 사용자가 애플리케이션에 [session fixation](https://owasp.org/www-community/attacks/Session_fixation) 공격을 시도하는 것을 방지하기 위해 사용됩니다.
+세션 ID 재생성은 주로 악의적인 사용자의 [session fixation](https://owasp.org/www-community/attacks/Session_fixation) 공격으로부터 애플리케이션을 보호하는 데 사용됩니다.
 
 <!-- Laravel automatically regenerates the session ID during authentication if you are using one of the Laravel [application starter kits](/docs/13.x/starter-kits) or [Laravel Fortify](/docs/13.x/fortify); however, if you need to manually regenerate the session ID, you may use the `regenerate` method: -->
 Laravel은 [application starter kits](/docs/13.x/starter-kits)나 [Laravel Fortify](/docs/13.x/fortify)를 사용할 경우 인증 시 자동으로 세션 ID를 재생성합니다. 다만, 수동으로 세션 ID를 재생성해야 한다면 `regenerate` 메서드를 사용할 수 있습니다:

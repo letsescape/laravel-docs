@@ -103,7 +103,7 @@ if (RateLimiter::remaining('send-message:'.$user->id, $perMinute = 5)) {
 ```
 
 <!-- If you would like to increment the value for a given rate limiter key by more than one, you may provide the desired amount to the `increment` method: -->
-특정 요청 제한 키의 값을 한 번에 여러 번 증가시키고 싶다면, `increment` 메서드에 원하는 증가 값을 전달하면 됩니다:
+특정 요청 제한 키의 값을 한 번에 1보다 큰 값만큼 증가시키고 싶다면, `increment` 메서드에 원하는 증가 값을 전달하면 됩니다:
 
 ```php
 RateLimiter::increment('send-message:'.$user->id, amount: 5);

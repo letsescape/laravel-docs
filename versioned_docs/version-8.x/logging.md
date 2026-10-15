@@ -136,7 +136,7 @@ Name | Description | Default
 ### Logging Deprecation Warnings
 
 <!-- PHP, Laravel, and other libraries often notify their users that some of their features have been deprecated and will be removed in a future version. If you would like to log these deprecation warnings, you may specify your preferred `deprecations` log channel in your application's `config/logging.php` configuration file: -->
-PHP, Laravel, 그리고 기타 라이브러리는 일부 기능이 더 이상 지원되지 않고, 앞으로 제거될 예정이라는 메시지(Deprecated Warnings)를 종종 제공합니다. 이러한 폐기 예정 경고를 로그로 남기고 싶을 땐, 애플리케이션의 `config/logging.php` 파일에서 원하는 `deprecations` 로그 채널을 지정할 수 있습니다:
+PHP, Laravel, 그리고 기타 라이브러리는 일부 기능의 사용이 더 이상 권장되지 않고, 향후 버전에서 제거될 예정이라는 메시지(Deprecated Warnings)를 종종 제공합니다. 이러한 폐기 예정 경고를 로그로 남기고 싶을 땐, 애플리케이션의 `config/logging.php` 파일에서 원하는 `deprecations` 로그 채널을 지정할 수 있습니다:
 
 ```
 'deprecations' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),

@@ -169,7 +169,7 @@ Route::get('/home', function () {
 ```
 
 > [!NOTE]
-> HTTP 요청 인스턴스를 통해 세션에 접근하는 것과 전역 `session` 헬퍼를 사용하는 것의 실제적인 차이는 거의 없습니다. 두 방법 모두 테스트케이스에서 제공되는 `assertSessionHas` 메서드를 통해 [testable](/docs/9.x/testing)할 수 있습니다.
+> HTTP 요청 인스턴스를 통해 세션에 접근하는 것과 전역 `session` 헬퍼를 사용하는 것의 실제적인 차이는 거의 없습니다. 두 방법 모두 테스트케이스에서 제공되는 `assertSessionHas` 메서드를 통해 테스트할 수 있습니다([testable](/docs/9.x/testing)).
 
 <a name="retrieving-all-session-data"></a>
 <!-- #### Retrieving All Session Data -->
@@ -279,7 +279,7 @@ $request->session()->flash('status', 'Task was successful!');
 ```
 
 <!-- If you need to persist your flash data for several requests, you may use the `reflash` method, which will keep all of the flash data for an additional request. If you only need to keep specific flash data, you may use the `keep` method: -->
-Flash 데이터를 여러 요청에 걸쳐 유지하고 싶다면 `reflash` 메서드를 사용하면 됩니다. 특정 flash 데이터만 유지하려면 `keep` 메서드를 사용할 수 있습니다.
+Flash 데이터를 여러 요청에 걸쳐 유지하고 싶다면 `reflash` 메서드를 사용하면 됩니다. 이 메서드는 모든 플래시 데이터를 추가 요청 한 번 동안 유지합니다. 특정 flash 데이터만 유지하려면 `keep` 메서드를 사용할 수 있습니다.
 
 ```
 $request->session()->reflash();
@@ -417,7 +417,7 @@ class MongoSessionHandler implements \SessionHandlerInterface
 - `open` 메서드는 주로 파일 기반 세션 저장소에서 사용됩니다. Laravel은 `file` 세션 드라이버를 기본 제공하므로, 이 메서드는 대부분의 경우 구현하지 않고 비워둬도 됩니다.
 - `close` 메서드 역시 `open`과 마찬가지로 대부분의 드라이버에서 구현할 필요가 없습니다.
 - `read` 메서드는 주어진 `$sessionId`와 연결된 세션 데이터를 문자열로 반환해야 합니다. 세션 데이터를 직렬화(serialize)하거나 별도의 인코딩을 처리할 필요는 없습니다. Laravel이 자동으로 처리해 줍니다.
-- `write` 메서드는 전달받은 `$sessionId`와 `$data` 문자열을 MongoDB 또는 사용자가 선택한 영구 저장소에 저장해야 합니다. 마찬가지로, 직렬화 작업은 Laravel이 처리하므로 신경 쓸 필요가 없습니다.
+- `write` 메서드는 전달받은 `$sessionId`와 `$data` 문자열을 MongoDB 또는 사용자가 선택한 영구 저장소에 저장해야 합니다. 마찬가지로, 직렬화 작업은 Laravel이 처리하므로 직접 직렬화해서는 안 됩니다.
 - `destroy` 메서드는 주어진 `$sessionId`에 해당하는 데이터를 저장소에서 삭제해야 합니다.
 - `gc` 메서드는 주어진 `$lifetime`(UNIX 타임스탬프)보다 오래된 모든 세션 데이터를 삭제해야 합니다. Memcached, Redis처럼 데이터가 알아서 만료되는 시스템의 경우 이 메서드를 비워둘 수 있습니다.
 

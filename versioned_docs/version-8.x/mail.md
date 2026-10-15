@@ -200,7 +200,7 @@ failover mailer를 정의했다면, 이 mailer를 애플리케이션의 기본 m
 ## Generating Mailables
 
 <!-- When building Laravel applications, each type of email sent by your application is represented as a "mailable" class. These classes are stored in the `app/Mail` directory. Don't worry if you don't see this directory in your application, since it will be generated for you when you create your first mailable class using the `make:mail` Artisan command: -->
-Laravel 애플리케이션을 개발할 때, 애플리케이션에서 발송하는 각 이메일 유형은 "메일러블(mailable)" 클래스 하나로 표현됩니다. 이 클래스들은 `app/Mail` 디렉터리에 저장됩니다. 만약 이 디렉터리를 처음 보신다면 걱정하지 마세요. 메일러블 클래스를 `make:mail` 아티즌 명령어로 처음 생성하면 자동으로 만들어집니다.
+Laravel 애플리케이션을 개발할 때, 애플리케이션에서 발송하는 각 이메일 유형은 "메일러블(mailable)" 클래스 하나로 표현됩니다. 이 클래스들은 `app/Mail` 디렉터리에 저장됩니다. 만약 이 디렉터리가 보이지 않더라도 걱정하지 마세요. 메일러블 클래스를 `make:mail` 아티즌 명령어로 처음 생성하면 자동으로 만들어집니다.
 
 ```
 php artisan make:mail OrderShipped
@@ -662,7 +662,7 @@ Thanks,<br>
 ```
 
 > [!TIP]
-> 마크다운 이메일을 작성할 때는 들여쓰기를 과하게 사용하지 마세요. 마크다운 표준에 따라, 들여쓰기된 내용은 코드 블록으로 처리될 수 있습니다.
+> 마크다운 이메일을 작성할 때는 들여쓰기를 과하게 사용하지 마세요. 마크다운 표준에 따라, 들여쓰기된 내용은 코드 블록으로 처리됩니다.
 
 <a name="button-component"></a>
 <!-- #### Button Component -->
@@ -738,7 +738,7 @@ Laravel의 마크다운 컴포넌트용으로 완전히 새로운 테마를 만�
 ## Sending Mail
 
 <!-- To send a message, use the `to` method on the `Mail` [facade](/docs/8.x/facades). The `to` method accepts an email address, a user instance, or a collection of users. If you pass an object or collection of objects, the mailer will automatically use their `email` and `name` properties when determining the email's recipients, so make sure these attributes are available on your objects. Once you have specified your recipients, you may pass an instance of your mailable class to the `send` method: -->
-메일을 보내려면, `Mail` [facade](/docs/8.x/facades)에서 `to` 메서드를 사용합니다. `to` 메서드는 이메일 주소, 사용자 인스턴스, 또는 사용자 컬렉션을 받을 수 있습니다. 객체나 객체의 컬렉션을 전달하면, 메일러가 자동으로 해당 객체의 `email` 및 `name` 속성을 참조해 수신자를 결정합니다. 수신자를 지정한 후, 메일러블 클래스 인스턴스를 `send` 메서드에 전달하면 됩니다.
+메일을 보내려면, `Mail` [facade](/docs/8.x/facades)에서 `to` 메서드를 사용합니다. `to` 메서드는 이메일 주소, 사용자 인스턴스, 또는 사용자 컬렉션을 받을 수 있습니다. 객체나 객체의 컬렉션을 전달하면, 메일러가 자동으로 해당 객체의 `email` 및 `name` 속성을 참조해 수신자를 결정하므로, 해당 속성이 객체에 있는지 확인해야 합니다. 수신자를 지정한 후, 메일러블 클래스 인스턴스를 `send` 메서드에 전달하면 됩니다.
 
 ```
 <?php
@@ -883,7 +883,7 @@ class OrderShipped extends Mailable implements ShouldQueue
 큐에 쌓인 메일러블이 데이터베이스 트랜잭션 도중에 디스패치 되면, 큐에서 작업이 처리되는 시점에 아직 트랜잭션이 완료되지 않았을 수 있습니다. 이 경우 트랜잭션 내에서 변경된 모델이나 데이터가 데이터베이스에 반영되지 않았거나, 트랜잭션 내에서 새로 생성된 레코드가 아직 없을 수도 있습니다. 그래서 메일러블이 해당 모델이나 레코드를 필요로 하는 경우, 큐 작업 실행 중 예기치 못한 오류가 발생할 수 있습니다.
 
 <!-- If your queue connection's `after_commit` configuration option is set to `false`, you may still indicate that a particular queued mailable should be dispatched after all open database transactions have been committed by calling the `afterCommit` method when sending the mail message: -->
-만약 큐 연결의 `after_commit` 설정이 `false`로 되어 있다면, `afterCommit` 메서드를 호출해 메일 메시지를 데이터베이스 트랜잭션 커밋 이후에 디스패치되도록 지정할 수 있습니다.
+만약 큐 연결의 `after_commit` 설정이 `false`로 되어 있다면, `afterCommit` 메서드를 호출해 메일 메시지가 열려 있는 모든 데이터베이스 트랜잭션의 커밋 이후에 디스패치되도록 지정할 수 있습니다.
 
 ```
 Mail::to($request->user())->send(

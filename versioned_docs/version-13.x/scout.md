@@ -1414,7 +1414,7 @@ abstract public function flush($model);
 #### Registering the Engine
 
 <!-- Once you have written your custom engine, you may register it with Scout using the `extend` method of the Scout engine manager. Scout's engine manager may be resolved from the Laravel service container. You should call the `extend` method from the `boot` method of your `App\Providers\AppServiceProvider` class or any other service provider used by your application: -->
-사용자 정의 엔진을 작성한 뒤에는 Scout 엔진 매니저의 `extend` 메서드를 사용하여 Scout에 등록할 수 있습니다. Scout의 엔진 매니저는 Laravel 서비스 컨테이너에서 resolve할 수 있습니다. `extend` 메서드는 `App\Providers\AppServiceProvider` 클래스의 `boot` 메서드나 애플리케이션에서 사용하는 다른 서비스 프로바이더에서 호출해야 합니다.
+사용자 정의 엔진을 작성한 뒤에는 Scout 엔진 매니저의 `extend` 메서드를 사용하여 Scout에 등록할 수 있습니다. Scout의 엔진 매니저는 Laravel 서비스 컨테이너에서 resolve할 수 있습니다. `extend` 메서드는 `App\Providers\AppServiceProvider` 클래스나 애플리케이션에서 사용하는 다른 서비스 프로바이더의 `boot` 메서드에서 호출해야 합니다.
 
 ```php
 use App\ScoutExtensions\MySqlSearchEngine;

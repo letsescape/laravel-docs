@@ -56,7 +56,7 @@ Schedule::call(new DeleteRecentUsers)->daily();
 ```
 
 <!-- If you prefer to reserve your `routes/console.php` file for command definitions only, you may use the `withSchedule` method in your application's `bootstrap/app.php` file to define your scheduled tasks. This method accepts a closure that receives an instance of the scheduler: -->
-만약 `routes/console.php` 파일을 명령어 정의로만 사용하고 싶다면, 애플리케이션의 `bootstrap/app.php` 파일에서 `withSchedule` 메서드를 사용하여 예약 작업을 정의할 수 있습니다. 이 메서드는 스케줄러 인스턴스를 전달하는 클로저를 인자로 받습니다:
+만약 `routes/console.php` 파일을 명령어 정의로만 사용하고 싶다면, 애플리케이션의 `bootstrap/app.php` 파일에서 `withSchedule` 메서드를 사용하여 예약 작업을 정의할 수 있습니다. 이 메서드는 스케줄러 인스턴스를 전달받는 클로저를 인자로 받습니다:
 
 ```php
 use Illuminate\Console\Scheduling\Schedule;
@@ -487,7 +487,7 @@ Schedule::command('emails:send')->evenInMaintenanceMode();
 비슷한 설정을 가진 여러 예약 작업을 정의할 때는, Laravel의 작업 그룹 기능을 사용해 같은 설정을 반복 입력하지 않고 코드를 간결하게 작성할 수 있습니다. 그룹화로 연관된 작업들의 일관성을 유지할 수 있습니다.
 
 <!-- To create a group of scheduled tasks, invoke the desired task configuration methods, followed by the `group` method. The `group` method accepts a closure that is responsible for defining the tasks that share the specified configuration: -->
-예약 작업 그룹을 만들려면, 먼저 원하는 작업 설정 메서드들을 호출한 후, `group` 메서드 뒤에 그 설정을 공유할 작업들을 정의하는 클로저를 넘기세요. `group` 메서드는 지정된 설정을 공유하는 작업을 정의하는 클로저를 받습니다:
+예약 작업 그룹을 만들려면, 먼저 원하는 작업 설정 메서드들을 호출한 후, `group` 메서드에 그 설정을 공유할 작업들을 정의하는 클로저를 넘기세요. `group` 메서드는 지정된 설정을 공유하는 작업을 정의하는 클로저를 받습니다:
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -534,7 +534,7 @@ Schedule::call(function () {
 애플리케이션 내에 1분 미만 간격 작업이 정의되면, `schedule:run` 명령어는 실행 후 즉시 종료되지 않고 해당 분이 끝날 때까지 계속 동작합니다. 이를 통해 매분 내내 모든 짧은 주기의 예약 작업이 올바르게 수행됩니다.
 
 <!-- Since sub-minute tasks that take longer than expected to run could delay the execution of later sub-minute tasks, it is recommended that all sub-minute tasks dispatch queued jobs or background commands to handle the actual task processing: -->
-예상보다 시간이 오래 걸리는 1분 미만 작업으로 이후 작업 실행이 지연될 수 있으므로, 이러한 경우에는 실제 처리는 큐 작업 디스패치나 백그라운드 명령으로 분리하는 것이 좋습니다:
+예상보다 시간이 오래 걸리는 1분 미만 작업으로 이후 작업 실행이 지연될 수 있으므로, 모든 1분 미만 간격 작업의 실제 처리는 큐 작업 디스패치나 백그라운드 명령으로 분리하는 것이 좋습니다:
 
 ```php
 use App\Jobs\DeleteRecentUsers;
@@ -549,10 +549,10 @@ Schedule::command('users:delete')->everyTenSeconds()->runInBackground();
 #### Interrupting Sub-Minute Tasks
 
 <!-- As the `schedule:run` command runs for the entire minute of invocation when sub-minute tasks are defined, you may sometimes need to interrupt the command when deploying your application. Otherwise, an instance of the `schedule:run` command that is already running would continue using your application's previously deployed code until the current minute ends. -->
-1분 미만 작업이 정의되어 있으면, `schedule:run` 명령어는 전체 분마다 계속 실행됩니다. 배포(deploy) 중에는 이미 실행 중인 `schedule:run` 인스턴스를 중단해야 할 수도 있습니다. 그렇지 않으면 이미 실행 중이던 명령어가 이전 배포된 코드로 계속 실행될 수 있습니다.
+1분 미만 작업이 정의되어 있으면, `schedule:run` 명령어는 호출된 현재 분이 끝날 때까지 계속 실행됩니다. 배포(deploy) 중에는 이미 실행 중인 `schedule:run` 인스턴스를 중단해야 할 수도 있습니다. 그렇지 않으면 이미 실행 중이던 명령어가 현재 분이 끝날 때까지 이전 배포된 코드로 계속 실행될 수 있습니다.
 
 <!-- To interrupt in-progress `schedule:run` invocations, you may add the `schedule:interrupt` command to your application's deployment script. This command should be invoked after your application is finished deploying: -->
-이 경우, 배포가 끝난 뒤에 `schedule:interrupt` 명령어를 배포 스크립트에 추가해서 실행 중인 `schedule:run` 명령어를 중단할 수 있습니다:
+이 경우, 배포 스크립트에 `schedule:interrupt` 명령어를 추가하고 배포가 끝난 뒤 이 명령어를 실행하여 실행 중인 `schedule:run` 명령어를 중단할 수 있습니다:
 
 ```shell
 php artisan schedule:interrupt
@@ -709,7 +709,7 @@ Schedule::command('emails:send')
 ## Events
 
 <!-- Laravel dispatches a variety of [events](/docs/12.x/events) during the scheduling process. You may [define listeners](/docs/12.x/events) for any of the following events: -->
-Laravel은 스케줄링 과정에서 다양한 [events](/docs/12.x/events)를 발생시킵니다. 아래 이벤트들에 대해 [define listeners](/docs/12.x/events)할 수 있습니다:
+Laravel은 스케줄링 과정에서 다양한 [events](/docs/12.x/events)를 발생시킵니다. 아래 이벤트들에 대해 [define listeners](/docs/12.x/events) 문서를 참고해 리스너를 정의할 수 있습니다:
 
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">

@@ -117,7 +117,7 @@ return $this->hasOne(Phone::class, 'foreign_key');
 ```
 
 <!-- Additionally, Eloquent assumes that the foreign key should have a value matching the primary key column of the parent. In other words, Eloquent will look for the value of the user's `id` column in the `user_id` column of the `Phone` record. If you would like the relationship to use a primary key value other than `id` or your model's `$primaryKey` property, you may pass a third argument to the `hasOne` method: -->
-또한 Eloquent는 외래 키에 저장된 값이 부모 모델의 기본키(primary key) 컬럼 값과 일치한다고 가정합니다. 즉, Eloquent는 `Phone` 레코드의 `user_id` 컬럼에서 사용자의 `id` 컬럼 값을 찾아줍니다. 만약 `id`가 아닌 다른 컬럼을 기본키로 사용하고 싶거나, 모델의 `$primaryKey` 속성 외의 값을 사용하고 싶다면, `hasOne` 메서드의 세 번째 인자로 로컬 키(local key)를 명시하면 됩니다.
+또한 Eloquent는 외래 키에 저장된 값이 부모 모델의 기본키(primary key) 컬럼 값과 일치한다고 가정합니다. 즉, Eloquent는 `Phone` 레코드의 `user_id` 컬럼에서 사용자의 `id` 컬럼 값을 찾아줍니다. 만약 `id`나 모델의 `$primaryKey` 속성으로 지정된 기본키 외의 컬럼을 사용하고 싶다면, `hasOne` 메서드의 세 번째 인자로 로컬 키(local key)를 명시하면 됩니다.
 
 ```
 return $this->hasOne(Phone::class, 'foreign_key', 'local_key');
@@ -1183,7 +1183,7 @@ public function bestImage()
 #### Table Structure
 
 <!-- Many-to-many polymorphic relations are slightly more complicated than "morph one" and "morph many" relationships. For example, a `Post` model and `Video` model could share a polymorphic relation to a `Tag` model. Using a many-to-many polymorphic relation in this situation would allow your application to have a single table of unique tags that may be associated with posts or videos. First, let's examine the table structure required to build this relationship: -->
-다대다(polymorphic) 관계는 "morph one" 및 "morph many" 관계보다 조금 더 복잡합니다. 예를 들어, `Post` 모델과 `Video` 모델이 `Tag` 모델과 다형성 다대다 관계를 가질 수 있습니다. 이런 경우 하나의 태그 테이블을 통해 게시글과 비디오 모두에 고유한 태그를 연결할 수 있습니다. 아래는 이 관계를 구현하기에 필요한 테이블 구조입니다.
+다대다 다형성(polymorphic) 관계는 "morph one" 및 "morph many" 관계보다 조금 더 복잡합니다. 예를 들어, `Post` 모델과 `Video` 모델이 `Tag` 모델과 다형성 다대다 관계를 가질 수 있습니다. 이런 경우 하나의 태그 테이블을 통해 게시글과 비디오 모두에 고유한 태그를 연결할 수 있습니다. 아래는 이 관계를 구현하기에 필요한 테이블 구조입니다.
 
 ```
 posts
@@ -1364,7 +1364,7 @@ Order::resolveRelationUsing('customer', function ($orderModel) {
 ```
 
 > [!NOTE]
-> 동적 관계를 정의할 때는 Eloquent 관계 메서드에 키 이름을 명확하게 지정하는 것이 좋습니다.
+> 동적 관계를 정의할 때는 Eloquent 관계 메서드에 키 이름을 항상 명시적으로 지정해야 합니다.
 
 <a name="querying-relations"></a>
 <!-- ## Querying Relations -->
@@ -1530,7 +1530,7 @@ $posts = Post::whereHas('comments', function (Builder $query) {
 #### Inline Relationship Existence Queries
 
 <!-- If you would like to query for a relationship's existence with a single, simple where condition attached to the relationship query, you may find it more convenient to use the `whereRelation` and `whereMorphRelation` methods. For example, we may query for all posts that have unapproved comments: -->
-관계 쿼리에 단일 where 조건을 곁들여 있고 싶을 때는 `whereRelation`과 `whereMorphRelation` 메서드를 활용하면 더 간결한 코드를 작성할 수 있습니다. 예를 들어, 승인되지 않은 댓글이 달린 게시글을 다음과 같이 조회할 수 있습니다.
+관계 쿼리에 단일 where 조건을 추가해 관계의 존재 여부를 확인하고 싶을 때는 `whereRelation`과 `whereMorphRelation` 메서드를 활용하면 더 간결한 코드를 작성할 수 있습니다. 예를 들어, 승인되지 않은 댓글이 달린 게시글을 다음과 같이 조회할 수 있습니다.
 
 ```
 use App\Models\Post;
@@ -2049,7 +2049,7 @@ $users = User::with(['posts' => function ($query) {
 #### Constraining Eager Loading Of `morphTo` Relationships
 
 <!-- If you are eager loading a `morphTo` relationship, Eloquent will run multiple queries to fetch each type of related model. You may add additional constraints to each of these queries using the `MorphTo` relation's `constrain` method: -->
-`morphTo` 연관관계를 eager load 할 때는, Eloquent가 각 관련된 모델별로 여러 쿼리를 실행합니다. 이 경우 각 쿼리에 제약 조건을 추가하려면, `MorphTo` 관계의 `constrain` 메서드를 이용할 수 있습니다:
+`morphTo` 연관관계를 eager load 할 때는, Eloquent가 각 관련 모델 타입을 가져오기 위해 여러 쿼리를 실행합니다. 이 경우 각 쿼리에 제약 조건을 추가하려면, `MorphTo` 관계의 `constrain` 메서드를 이용할 수 있습니다:
 
 ```
 use Illuminate\Database\Eloquent\Builder;
@@ -2279,7 +2279,7 @@ $post->comments()->createMany([
 ```
 
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/8.x/eloquent#upserts). -->
-또한, `findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드로도 [create and update models on relationships](/docs/8.x/eloquent#upserts)할 수 있습니다.
+또한, `findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드로도 [create and update models on relationships](/docs/8.x/eloquent#upserts)에 설명된 것처럼 연관관계에서 모델을 생성하거나 수정할 수 있습니다.
 
 > [!TIP]
 > `create` 메서드를 사용하기 전에 [mass assignment](/docs/8.x/eloquent#mass-assignment) 관련 문서를 꼭 살펴보시기 바랍니다.
@@ -2427,7 +2427,7 @@ $user->roles()->updateExistingPivot($roleId, [
 `belongsTo` 또는 `belongsToMany` 관계를 정의할 때(예: `Comment` → `Post`), 자식 모델이 수정될 때 부모 모델의 타임스탬프를 자동으로 업데이트하는 것이 유용할 때가 있습니다.
 
 <!-- For example, when a `Comment` model is updated, you may want to automatically "touch" the `updated_at` timestamp of the owning `Post` so that it is set to the current date and time. To accomplish this, you may add a `touches` property to your child model containing the names of the relationships that should have their `updated_at` timestamps updated when the child model is updated: -->
-예를 들어, `Comment` 모델을 수정하면 소유하고 있는 `Post`의 `updated_at` 값도 현재 시간으로 자동 업데이트하고 싶을 수 있습니다. 이런 경우, 자식 모델에 `touches` 속성을 추가하고, 자식 모델이 수정될 때 `updated_at` 타임스탬프를 함께 갱신할 관계 이름을 배열로 지정하면 됩니다.
+예를 들어, `Comment` 모델을 수정하면 해당 모델이 속한 `Post`의 `updated_at` 값도 현재 시간으로 자동 업데이트하고 싶을 수 있습니다. 이런 경우, 자식 모델에 `touches` 속성을 추가하고, 자식 모델이 수정될 때 `updated_at` 타임스탬프를 함께 갱신할 관계 이름을 배열로 지정하면 됩니다.
 
 ```
 <?php

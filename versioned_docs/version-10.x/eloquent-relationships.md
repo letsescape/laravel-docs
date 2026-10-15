@@ -105,7 +105,7 @@ class User extends Model
 ```
 
 <!-- The first argument passed to the `hasOne` method is the name of the related model class. Once the relationship is defined, we may retrieve the related record using Eloquent's dynamic properties. Dynamic properties allow you to access relationship methods as if they were properties defined on the model: -->
-`hasOne` 메서드의 첫 번째 인수에는 연관된 모델 클래스명을 지정합니다. 일대일 관계가 정의되면, Eloquent의 동적 속성(dyanmic property) 기능을 사용해서 관련된 레코드를 불러올 수 있습니다. 동적 속성 덕분에 연관관계 메서드를 모델의 속성처럼 접근할 수 있습니다.
+`hasOne` 메서드의 첫 번째 인수에는 연관된 모델 클래스명을 지정합니다. 일대일 관계가 정의되면, Eloquent의 동적 속성(dynamic property) 기능을 사용해서 관련된 레코드를 불러올 수 있습니다. 동적 속성 덕분에 연관관계 메서드를 모델의 속성처럼 접근할 수 있습니다.
 
 ```
 $phone = User::find(1)->phone;
@@ -119,7 +119,7 @@ return $this->hasOne(Phone::class, 'foreign_key');
 ```
 
 <!-- Additionally, Eloquent assumes that the foreign key should have a value matching the primary key column of the parent. In other words, Eloquent will look for the value of the user's `id` column in the `user_id` column of the `Phone` record. If you would like the relationship to use a primary key value other than `id` or your model's `$primaryKey` property, you may pass a third argument to the `hasOne` method: -->
-또한 Eloquent는 외래 키의 값이 부모의 기본 키 컬럼 값과 일치해야 한다고 가정합니다. 즉, Eloquent는 `Phone` 레코드의 `user_id` 컬럼에서 사용자의 `id` 값을 찾게 됩니다. 만약 기본 키 컬럼이 `id`가 아니거나, `$primaryKey` 속성에 지정된 값과 다르다면, `hasOne` 메서드의 세 번째 인수로 원하는 로컬 키(local key) 이름을 지정할 수 있습니다.
+또한 Eloquent는 외래 키의 값이 부모의 기본 키 컬럼 값과 일치해야 한다고 가정합니다. 즉, Eloquent는 `Phone` 레코드의 `user_id` 컬럼에서 사용자의 `id` 값을 찾게 됩니다. 만약 `id`나 `$primaryKey` 속성으로 지정된 기본 키 외의 컬럼을 사용하고 싶다면, `hasOne` 메서드의 세 번째 인수로 원하는 로컬 키(local key) 이름을 지정할 수 있습니다.
 
 ```
 return $this->hasOne(Phone::class, 'foreign_key', 'local_key');
@@ -421,7 +421,7 @@ public function oldestOrder(): HasOne
 ```
 
 <!-- By default, the `latestOfMany` and `oldestOfMany` methods will retrieve the latest or oldest related model based on the model's primary key, which must be sortable. However, sometimes you may wish to retrieve a single model from a larger relationship using a different sorting criteria. -->
-`latestOfMany`와 `oldestOfMany` 메서드는 기본적으로 모델의 기본 키(primary key)를 기준으로 최신 또는 가장 오래된 모델을 찾아옵니다. 하지만, 더 복잡한 정렬 기준으로 하나만 가져오고 싶을 때도 있습니다.
+`latestOfMany`와 `oldestOfMany` 메서드는 기본적으로 정렬 가능해야 하는 모델의 기본 키(primary key)를 기준으로 최신 또는 가장 오래된 모델을 찾아옵니다. 하지만, 더 복잡한 정렬 기준으로 하나만 가져오고 싶을 때도 있습니다.
 
 <!-- For example, using the `ofMany` method, you may retrieve the user's most expensive order. The `ofMany` method accepts the sortable column as its first argument and which aggregate function (`min` or `max`) to apply when querying for the related model: -->
 예를 들어, `ofMany` 메서드를 사용해 사용자의 가장 비싼 주문(가격 기준)을 가져올 수 있습니다. `ofMany` 메서드는 첫 번째 인수로 정렬 기준이 될 컬럼명을, 두 번째 인수로(`min` 또는 `max`) 사용할 집계 함수를 받습니다.
@@ -469,7 +469,7 @@ public function largestOrder(): HasOne
 #### Advanced Has One of Many Relationships
 
 <!-- It is possible to construct more advanced "has one of many" relationships. For example, a `Product` model may have many associated `Price` models that are retained in the system even after new pricing is published. In addition, new pricing data for the product may be able to be published in advance to take effect at a future date via a `published_at` column. -->
-좀 더 복잡한 "여러 개 중 하나" 연관관계도 정의할 수 있습니다. 예를 들면, `Product` 모델이 여러 `Price` 모델(과거 가격 정보까지 모두 저장됨)과 연관되어 있고, 새로운 가격 정보가 미래 시점에 미리 발행(publish)될 수도 있습니다(`published_at` 컬럼 사용).
+좀 더 복잡한 "여러 개 중 하나" 연관관계도 정의할 수 있습니다. 예를 들면, `Product` 모델이 여러 `Price` 모델(과거 가격 정보까지 모두 저장됨)과 연관되어 있고, 새로운 가격 정보를 미리 발행(publish)해 미래 시점에 적용되도록 할 수도 있습니다(`published_at` 컬럼 사용).
 
 <!-- So, in summary, we need to retrieve the latest published pricing where the published date is not in the future. In addition, if two prices have the same published date, we will prefer the price with the greatest ID. To accomplish this, we must pass an array to the `ofMany` method that contains the sortable columns which determine the latest price. In addition, a closure will be provided as the second argument to the `ofMany` method. This closure will be responsible for adding additional publish date constraints to the relationship query: -->
 정리하자면, 우리는 "발행일이 미래가 아닌 현재까지 중 가장 최신으로 발행된 가격"을 가져오고 싶습니다. 추가로, 발행일이 같은 가격이 여러 개라면, 그 중에서 ID 값이 가장 큰(최신 등록된) 가격을 우선합니다. 이를 위해서, `ofMany` 메서드에 가장 최신 가격을 결정하는 정렬 기준 컬럼들을 배열로 넘겨야 합니다. 또한 `ofMany` 메서드의 두 번째 인수로 클로저를 전달하면, 이 클로저가 관계 쿼리에 추가적인 발행일 제약 조건을 적용하는 역할을 합니다.
@@ -856,7 +856,7 @@ return $this->belongsToMany(Role::class)->withTimestamps();
 앞서 설명했듯, 중간 테이블의 속성들은 모델에서 `pivot` 속성을 통해 접근할 수 있습니다. 하지만, 이 속성 이름은 용도에 따라 더 알맞게 커스터마이징할 수 있습니다.
 
 <!-- For example, if your application contains users that may subscribe to podcasts, you likely have a many-to-many relationship between users and podcasts. If this is the case, you may wish to rename your intermediate table attribute to `subscription` instead of `pivot`. This can be done using the `as` method when defining the relationship: -->
-예를 들어, 사용자와 팟캐스트 간에 구독(구매) 관계가 있는 경우, 중간 테이블 속성의 이름을 `pivot` 대신 `subscription`으로 변경하고 싶을 수 있습니다. 이때는 관계를 정의할 때 `as` 메서드를 사용하면 됩니다:
+예를 들어, 사용자와 팟캐스트 간에 구독 관계가 있는 경우, 중간 테이블 속성의 이름을 `pivot` 대신 `subscription`으로 변경하고 싶을 수 있습니다. 이때는 관계를 정의할 때 `as` 메서드를 사용하면 됩니다:
 
 ```
 return $this->belongsToMany(Podcast::class)
@@ -1466,7 +1466,7 @@ $class = Relation::getMorphedModel($alias);
 ### Dynamic Relationships
 
 <!-- You may use the `resolveRelationUsing` method to define relations between Eloquent models at runtime. While not typically recommended for normal application development, this may occasionally be useful when developing Laravel packages. -->
-`resolveRelationUsing` 메서드를 사용하면 Eloquent 모델들 사이의 관계를 실행 중에 동적으로 정의할 수 있습니다. 일반적인 애플리케이션 개발에서는 자주 사용하지 않지만, Laravel 패키지를 개발할 때 가끔 유용하게 사용할 수 있습니다.
+`resolveRelationUsing` 메서드를 사용하면 Eloquent 모델들 사이의 관계를 실행 중에 동적으로 정의할 수 있습니다. 일반적인 애플리케이션 개발에서는 보통 권장되지 않지만, Laravel 패키지를 개발할 때 가끔 유용하게 사용할 수 있습니다.
 
 <!-- The `resolveRelationUsing` method accepts the desired relationship name as its first argument. The second argument passed to the method should be a closure that accepts the model instance and returns a valid Eloquent relationship definition. Typically, you should configure dynamic relationships within the boot method of a [service provider](/docs/10.x/providers): -->
 `resolveRelationUsing` 메서드의 첫 번째 인수는 원하는 관계 이름이며, 두 번째 인수로는 모델 인스턴스를 받아서 유효한 Eloquent 관계 정의를 반환하는 클로저를 넘깁니다. 보통 이런 동적 관계 정의는 [service provider](/docs/10.x/providers)의 boot 메서드 내부에서 설정합니다.
@@ -1690,7 +1690,7 @@ $posts = Post::whereDoesntHave('comments', function (Builder $query) {
 ```
 
 <!-- You may use "dot" notation to execute a query against a nested relationship. For example, the following query will retrieve all posts that do not have comments; however, posts that have comments from authors that are not banned will be included in the results: -->
-"dot" 표기법을 써서 중첩된 관계 쿼리를 실행할 수도 있습니다. 예를 들어, 아래 쿼리는 댓글이 없는 게시글을 조회하는데, 만약 댓글이 있더라도 저자(author)가 차단되지 않은(banned = 0) 댓글은 결과에 포함됩니다.
+"dot" 표기법을 써서 중첩된 관계 쿼리를 실행할 수도 있습니다. 예를 들어, 아래 쿼리는 댓글이 없는 게시글을 조회하는데, 만약 댓글이 있더라도 저자(author)가 차단되지 않은(banned = 0) 댓글이 있는 게시글은 결과에 포함됩니다.
 
 ```
 use Illuminate\Database\Eloquent\Builder;
@@ -2449,7 +2449,7 @@ $user->posts()->createManyQuietly([
 ```
 
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/10.x/eloquent#upserts). -->
-또한, `findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 등의 메서드를 사용하여 [create and update models on relationships](/docs/10.x/eloquent#upserts)도 가능합니다.
+또한, `findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 등의 메서드를 사용하여 [create and update models on relationships](/docs/10.x/eloquent#upserts)에 설명된 연관관계 모델 생성 및 수정 작업도 가능합니다.
 
 > [!NOTE]
 > `create` 메서드를 사용하기 전에 [mass assignment](/docs/10.x/eloquent#mass-assignment) 문서를 꼭 읽어보시기 바랍니다.

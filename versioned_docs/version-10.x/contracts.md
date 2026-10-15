@@ -38,7 +38,7 @@ Laravel의 [facades](/docs/10.x/facades)와 도우미 함수(helper)는 서비�
 계약과 파사드 중 무엇을 사용할지는 여러분 자신 또는 팀의 개발 스타일에 따라 결정할 수 있습니다. 계약과 파사드 어느 쪽이든 Laravel 애플리케이션을 충분히 견고하고 테스트하기 쉽게 만들 수 있습니다. 계약과 파사드는 상호 배타적이지 않으며, 애플리케이션 내 어떤 부분에서는 파사드를, 다른 부분에서는 계약을 사용할 수도 있습니다. 클래스들의 책임만 명확히 분리하고 있다면, 계약과 파사드 사용 사이에서 실제로 느껴지는 차이는 거의 없습니다.
 
 <!-- In general, most applications can use facades without issue during development. If you are building a package that integrates with multiple PHP frameworks you may wish to use the `illuminate/contracts` package to define your integration with Laravel's services without the need to require Laravel's concrete implementations in your package's `composer.json` file. -->
-일반적으로, 대부분의 애플리케이션에서는 개발 과정에서 파사드를 자유롭게 사용해도 괜찮습니다. 만약 여러 PHP 프레임워크와 연동되는 패키지를 제작하고 있다면, `illuminate/contracts` 패키지를 사용하면 Laravel의 구체적인 구현체를 패키지의 `composer.json`에 직접 의존하지 않고도 Laravel 서비스와 연동할 수 있습니다.
+일반적으로, 대부분의 애플리케이션에서는 개발 과정에서 파사드를 자유롭게 사용해도 괜찮습니다. 만약 여러 PHP 프레임워크와 연동되는 패키지를 제작하고 있다면, `illuminate/contracts` 패키지를 사용하면 Laravel의 구체적인 구현체를 패키지의 `composer.json`에 직접 의존성으로 추가하지 않고도 Laravel 서비스와 연동할 수 있습니다.
 
 <a name="how-to-use-contracts"></a>
 <!-- ## How to Use Contracts -->

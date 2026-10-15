@@ -278,7 +278,7 @@ class User extends Model
 > 데이터베이스 엔진은 현재 MySQL과 PostgreSQL만 지원하며, 두 데이터베이스 모두 빠른 전체 텍스트 컬럼 인덱싱을 지원합니다.
 
 <!-- The `database` engine uses MySQL / PostgreSQL full-text indexes and `LIKE` clauses to search your existing database directly. For many applications, this is the simplest and most practical way to add search — no external service or additional infrastructure required. -->
-`database` 엔진은 MySQL / PostgreSQL의 전체 텍스트 인덱스와 `LIKE` 절을 활용하여 기존 데이터베이스에서 직접 검색을 수행합니다. 별도의 외부 서비스나 인프라 없이 가장 간단하고 실용적으로 검색 기능을 추가할 수 있습니다.
+`database` 엔진은 MySQL / PostgreSQL의 전체 텍스트 인덱스와 `LIKE` 절을 활용하여 기존 데이터베이스에서 직접 검색을 수행합니다. 많은 애플리케이션에서 별도의 외부 서비스나 인프라 없이 가장 간단하고 실용적으로 검색 기능을 추가할 수 있는 방법입니다.
 
 <!-- To use the database engine, set the `SCOUT_DRIVER` environment variable to `database`: -->
 데이터베이스 엔진을 사용하려면 .env 파일에서 `SCOUT_DRIVER` 환경 변수 값을 `database`로 지정합니다:
@@ -538,7 +538,7 @@ use App\Models\Flight;
 ```
 
 <!-- After configuring your application's index settings, you must invoke the `scout:sync-index-settings` Artisan command. This command will inform Meilisearch of your currently configured index settings. For convenience, you may wish to make this command part of your deployment process: -->
-설정을 마치고 나면, `scout:sync-index-settings` Artisan 명령어를 실행해야 하며, 이 과정도 배포 과정에서 자동 실행하도록 포함하는 것이 좋습니다:
+설정을 마치고 나면, `scout:sync-index-settings` Artisan 명령어를 실행해야 합니다. 이 명령어는 현재 설정된 인덱스 설정을 Meilisearch에 알려줍니다. 이 과정도 배포 과정에서 자동 실행하도록 포함하는 것이 좋습니다:
 
 ```shell
 php artisan scout:sync-index-settings
@@ -589,7 +589,7 @@ public function toSearchableArray(): array
 ```
 
 <!-- You should also define your Typesense collection schemas in your application's `config/scout.php` file. A collection schema describes the data types of each field that is searchable via Typesense. For more information on all available schema options, please consult the [Typesense documentation](https://typesense.org/docs/latest/api/collections.html#schema-parameters). -->
-Typesense 컬렉션 스키마는 `config/scout.php` 파일에서 정의할 수 있습니다. 컬렉션 스키마는 Typesense에서 검색 가능한 각 필드의 데이터 타입을 지정합니다. 사용 가능한 스키마 옵션에 대한 자세한 정보는 [Typesense documentation](https://typesense.org/docs/latest/api/collections.html#schema-parameters)를 참고하세요.
+Typesense 컬렉션 스키마도 `config/scout.php` 파일에서 정의해야 합니다. 컬렉션 스키마는 Typesense에서 검색 가능한 각 필드의 데이터 타입을 지정합니다. 사용 가능한 스키마 옵션에 대한 자세한 정보는 [Typesense documentation](https://typesense.org/docs/latest/api/collections.html#schema-parameters)를 참고하세요.
 
 <!-- If you need to change your Typesense collection's schema after it has been defined, you may either run `scout:flush` and `scout:import`, which will delete all existing indexed data and recreate the schema. Or, you may use Typesense's API to modify the collection's schema without removing any indexed data. -->
 기존에 정의된 스키마를 변경하려면 `scout:flush`와 `scout:import`를 실행하여 모든 인덱스 데이터를 삭제하고 스키마를 재생성하거나, Typesense API를 이용하여 컬렉션의 스키마만 수정할 수도 있습니다.
@@ -679,7 +679,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 큐를 사용하여 배치 임포트할 때는 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 큐 작업 처리 중에는 [not restored](/docs/master/queues#handling-relationships).
+> 큐를 사용하여 배치 임포트할 때는 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 큐 작업이 모델 컬렉션을 처리할 때는 관계가 복원되지 않습니다([not restored](/docs/master/queues#handling-relationships)).
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -790,7 +790,7 @@ public function makeSearchableUsing(Collection $models): Collection
 #### Conditionally Updating the Search Index
 
 <!-- By default, Scout will reindex an updated model regardless of which attributes were modified. If you would like to customize this behavior, you may define a `searchIndexShouldBeUpdated` method on your model: -->
-기본적으로 Scout는 어떤 속성이 수정됐는지에 상관없이 모델이 업데이트되면 곧바로 인덱스도 갱신합니다. 이 동작을 사용자 지정하려면, 모델에 `searchIndexShouldBeUpdated` 메서드를 정의할 수 있습니다:
+기본적으로 Scout는 어떤 속성이 수정됐는지에 상관없이 모델이 업데이트되면 인덱스도 갱신합니다. 이 동작을 사용자 지정하려면, 모델에 `searchIndexShouldBeUpdated` 메서드를 정의할 수 있습니다:
 
 ```php
 /**
@@ -979,7 +979,7 @@ $orders = Order::search('Star Trek')
 ```
 
 <!-- When using a third-party engine, this callback is invoked after the relevant models have already been retrieved from the search engine, so it should not be used for "filtering" results — use [Scout where clauses](#where-clauses) instead. However, when using the database engine, the `query` method's constraints are applied directly to the database query, so you may use it for filtering as well. -->
-서드파티 엔진 사용 시에는 이 콜백이 이미 검색 엔진에서 모델을 받아온 후에 실행되므로, 필터링 용도가 아닌 추가 가공 용도로만 사용해야 합니다. 대신 [Scout where clauses](#where-clauses)을 사용하세요. 하지만 데이터베이스 엔진 사용 시에는 `query` 메서드의 제약이 바로 데이터베이스 쿼리에 반영되므로 필터링에도 활용할 수 있습니다.
+서드파티 엔진 사용 시에는 이 콜백이 이미 검색 엔진에서 모델을 받아온 후에 실행되므로, 필터링 용도로 사용해서는 안 됩니다. 대신 [Scout where clauses](#where-clauses)을 사용하세요. 하지만 데이터베이스 엔진 사용 시에는 `query` 메서드의 제약이 바로 데이터베이스 쿼리에 반영되므로 필터링에도 활용할 수 있습니다.
 
 <a name="pagination"></a>
 <!-- ### Pagination -->

@@ -17,7 +17,7 @@
 Laravel 공식 문서 전반에 걸쳐, Laravel의 다양한 기능을 "파사드(facade)"를 통해 사용하는 코드 예제를 자주 보게 됩니다. 파사드는 애플리케이션의 [service container](/docs/9.x/container)에서 사용할 수 있는 클래스에 "정적(static)" 인터페이스를 제공합니다. Laravel은 거의 모든 핵심 기능에 접근할 수 있도록 다양한 파사드를 기본으로 제공하고 있습니다.
 
 <!-- Laravel facades serve as "static proxies" to underlying classes in the service container, providing the benefit of a terse, expressive syntax while maintaining more testability and flexibility than traditional static methods. It's perfectly fine if you don't totally understand how facades work - just go with the flow and continue learning about Laravel. -->
-Laravel 파사드는 서비스 컨테이너 내부 클래스에 대한 "정적 프록시" 역할을 하며, 전통적인 정적 메서드에 비해 테스트 가능성과 유연성은 그대로 유지하면서 더욱 간결하고 표현력 있는 문법을 사용할 수 있게 해줍니다. 파사드가 정확히 어떻게 작동하는지 아직 완전히 이해하지 못해도 괜찮으니 우선 계속 Laravel을 학습해 나가시기 바랍니다.
+Laravel 파사드는 서비스 컨테이너 내부 클래스에 대한 "정적 프록시" 역할을 하며, 전통적인 정적 메서드보다 더 높은 테스트 가능성과 유연성을 제공하면서 더욱 간결하고 표현력 있는 문법을 사용할 수 있게 해줍니다. 파사드가 정확히 어떻게 작동하는지 아직 완전히 이해하지 못해도 괜찮으니 우선 계속 Laravel을 학습해 나가시기 바랍니다.
 
 <!-- All of Laravel's facades are defined in the `Illuminate\Support\Facades` namespace. So, we can easily access a facade like so: -->
 Laravel의 모든 파사드는 `Illuminate\Support\Facades` 네임스페이스에 정의되어 있습니다. 파사드는 아래처럼 쉽게 사용할 수 있습니다.

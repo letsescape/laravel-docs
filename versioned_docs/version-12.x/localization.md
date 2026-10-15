@@ -129,7 +129,7 @@ public function boot(): void
 ```
 
 > [!WARNING]
-> pluralizer의 언어를 변경하는 경우, 반드시 Eloquent 모델의 [table names](/docs/12.x/eloquent#table-names)을 명시적으로 정의해야 합니다.
+> pluralizer의 언어를 변경하는 경우, Eloquent 모델의 [table names](/docs/12.x/eloquent#table-names)을 명시적으로 정의하는 것이 좋습니다.
 
 <a name="defining-translation-strings"></a>
 <!-- ## Defining Translation Strings -->
@@ -164,7 +164,7 @@ return [
 ```
 
 > [!WARNING]
-> 지명이나 국가는 ISO 15897 표준에 따라 언어 디렉터리를 명명해야 합니다. 예를 들어 영국 영어는 "en_GB"로, "en-gb"가 아닙니다.
+> 지역에 따라 구분되는 언어는 ISO 15897 표준에 따라 언어 디렉터리를 명명해야 합니다. 예를 들어 영국 영어는 "en_GB"로, "en-gb"가 아닙니다.
 
 <a name="using-translation-strings-as-keys"></a>
 <!-- ### Using Translation Strings as Keys -->

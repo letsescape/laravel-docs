@@ -200,7 +200,7 @@ php artisan make:controller PhotoController --resource
 ```
 
 <!-- This command will generate a controller at `app/Http/Controllers/PhotoController.php`. The controller will contain a method for each of the available resource operations. Next, you may register a resource route that points to the controller: -->
-이 명령어는 `app/Http/Controllers/PhotoController.php` 위치에 컨트롤러를 생성합니다. 생성된 컨트롤러에는 각 리소스 작업을 위한 메서드가 미리 구현된 형태로 들어있습니다. 이제 다음과 같이 리소스 라우트를 컨트롤러에 매핑할 수 있습니다.
+이 명령어는 `app/Http/Controllers/PhotoController.php` 위치에 컨트롤러를 생성합니다. 생성된 컨트롤러에는 각 리소스 작업을 위한 메서드가 미리 정의된 형태로 들어있습니다. 이제 다음과 같이 리소스 라우트를 컨트롤러에 매핑할 수 있습니다.
 
 ```
 use App\Http\Controllers\PhotoController;
@@ -495,7 +495,7 @@ public function boot(): void
 ```
 
 <!-- Laravel's pluralizer supports [several different languages which you may configure based on your needs](/docs/11.x/localization#pluralization-language). Once the verbs and pluralization language have been customized, a resource route registration such as `Route::resource('publicacion', PublicacionController::class)` will produce the following URIs: -->
-Laravel의 복수화 기능은 [several different languages which you may configure based on your needs](/docs/11.x/localization#pluralization-language)하므로, 필요에 따라 언어를 지정하여 사용할 수 있습니다. 동사와 복수화 언어를 커스터마이즈한 경우, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`로 등록하면 다음과 같은 URI가 생성됩니다.
+Laravel의 복수화 기능은 [several different languages which you may configure based on your needs](/docs/11.x/localization#pluralization-language)를 지원하므로, 필요에 따라 언어를 지정하여 사용할 수 있습니다. 동사와 복수화 언어를 커스터마이즈한 경우, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`로 등록하면 다음과 같은 URI가 생성됩니다.
 
 ```
 /publicacion/crear

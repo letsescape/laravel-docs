@@ -94,7 +94,7 @@ Laravel의 이벤트 브로드캐스팅을 사용하려면, 먼저 Laravel 애�
 #### Broadcast Service Provider
 
 <!-- Before broadcasting any events, you will first need to register the `App\Providers\BroadcastServiceProvider`. In new Laravel applications, you only need to uncomment this provider in the `providers` array of your `config/app.php` configuration file. This `BroadcastServiceProvider` contains the code necessary to register the broadcast authorization routes and callbacks. -->
-이벤트를 브로드캐스트하기 전에, 먼저 `App\Providers\BroadcastServiceProvider`를 등록해야 합니다. 최신 Laravel 애플리케이션에서는 `config/app.php` 설정 파일의 `providers` 배열에서 이 프로바이더의 주석만 해제하면 됩니다. `BroadcastServiceProvider`에는 브로드캐스트 인가(authorization) 라우트와 콜백을 등록하는데 필요한 코드가 들어있습니다.
+이벤트를 브로드캐스트하기 전에, 먼저 `App\Providers\BroadcastServiceProvider`를 등록해야 합니다. 새로 생성한 Laravel 애플리케이션에서는 `config/app.php` 설정 파일의 `providers` 배열에서 이 프로바이더의 주석만 해제하면 됩니다. `BroadcastServiceProvider`에는 브로드캐스트 인가(authorization) 라우트와 콜백을 등록하는데 필요한 코드가 들어있습니다.
 
 <a name="queue-configuration"></a>
 
@@ -102,7 +102,7 @@ Laravel의 이벤트 브로드캐스팅을 사용하려면, 먼저 Laravel 애�
 #### Queue Configuration
 
 <!-- You will also need to configure and run a [queue worker](/docs/10.x/queues). All event broadcasting is done via queued jobs so that the response time of your application is not seriously affected by events being broadcast. -->
-또한 [queue worker](/docs/10.x/queues)를 설정하고 실행해야 합니다. 모든 이벤트 브로드캐스팅 작업은 큐에 쌓인 작업(job)으로 처리되어, 이벤트 브로드캐스팅이 애플리케이션의 응답 속도에 영향을 주지 않도록 설계되어 있습니다.
+또한 [queue worker](/docs/10.x/queues)를 설정하고 실행해야 합니다. 모든 이벤트 브로드캐스팅 작업은 큐에 쌓인 작업(job)으로 처리되어, 이벤트 브로드캐스팅이 애플리케이션의 응답 속도에 큰 영향을 주지 않도록 설계되어 있습니다.
 
 <a name="reverb"></a>
 
@@ -175,7 +175,7 @@ BROADCAST_DRIVER=pusher
 ### Ably
 
 > [!NOTE]
-> 아래 설명은 Ably를 "Pusher 호환" 모드로 사용할 때에 대한 안내입니다. 하지만 Ably 팀에서는 Ably 고유의 기능을 최대한 활용할 수 있는 자체 브로드캐스터 및 Echo 클라이언트를 직접 제공하고 있습니다. 이에 대해 더 알아보고 싶다면 [consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)를 참고하시기 바랍니다.
+> 아래 설명은 Ably를 "Pusher 호환" 모드로 사용할 때에 대한 안내입니다. 하지만 Ably 팀에서는 Ably 고유의 기능을 최대한 활용할 수 있는 자체 브로드캐스터 및 Echo 클라이언트를 권장하고 유지 관리합니다. 이에 대해 더 알아보고 싶다면 [consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)를 참고하시기 바랍니다.
 
 <!-- If you plan to broadcast your events using [Ably](https://ably.com), you should install the Ably PHP SDK using the Composer package manager: -->
 [Ably](https://ably.com)를 통해 이벤트를 브로드캐스트하려면, Composer로 Ably PHP SDK를 설치해야 합니다.
@@ -329,7 +329,7 @@ window.Echo = new Echo({
 ### Ably
 
 > [!NOTE]
-> 아래 설명은 Ably를 "Pusher 호환" 모드로 사용하는 방법을 안내합니다. 그러나 Ably 팀은 Ably만의 특화된 기능을 최대한 활용할 수 있도록 자체 브로드캐스터와 Echo 클라이언트를 제공하므로, 이에 대한 자세한 사항은 [consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)를 참고해 주세요.
+> 아래 설명은 Ably를 "Pusher 호환" 모드로 사용하는 방법을 안내합니다. 그러나 Ably 팀은 Ably만의 특화된 기능을 최대한 활용할 수 있도록 자체 브로드캐스터와 Echo 클라이언트를 권장하고 유지 관리하므로, 이에 대한 자세한 사항은 [consult Ably's Laravel broadcaster documentation](https://github.com/ably/laravel-broadcaster)를 참고해 주세요.
 
 <!-- [Laravel Echo](https://github.com/laravel/echo) is a JavaScript library that makes it painless to subscribe to channels and listen for events broadcast by your server-side broadcasting driver. You may install Echo via the NPM package manager. In this example, we will also install the `pusher-js` package. -->
 [Laravel Echo](https://github.com/laravel/echo)는 서버 브로드캐스트 드라이버가 브로드캐스트하는 이벤트를 손쉽게 구독하고 수신할 수 있는 자바스크립트 라이브러리입니다. Echo는 NPM 패키지 매니저로 설치할 수 있으며, 이 예시에서도 `pusher-js` 패키지를 함께 설치합니다.
@@ -1052,7 +1052,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening for Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-특정 이벤트에 대한 수신을 중단(채널에서 [leaving the channel](#leaving-a-channel))하고 싶을 때는, `stopListening` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 특정 이벤트에 대한 수신만 중단하고 싶을 때는, `stopListening` 메서드를 사용할 수 있습니다.
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1311,7 +1311,7 @@ protected function newBroadcastableEvent(string $event): BroadcastableModelEvent
 #### Channel Conventions
 
 <!-- As you may have noticed, the `broadcastOn` method in the model example above did not return `Channel` instances. Instead, Eloquent models were returned directly. If an Eloquent model instance is returned by your model's `broadcastOn` method (or is contained in an array returned by the method), Laravel will automatically instantiate a private channel instance for the model using the model's class name and primary key identifier as the channel name. -->
-위 모델 예시에서 `broadcastOn` 메서드가 `Channel` 인스턴스를 반환하지 않고, Eloquent 모델 자체를 반환하는 것을 볼 수 있습니다. 만약 `broadcastOn` 메서드에서 Eloquent 모델 인스턴스를 반환하면, Laravel에서는 해당 모델의 클래스명과 기본키(pk)를 조합하여 프라이빗 채널 인스턴스를 자동 생성합니다.
+위 모델 예시에서 `broadcastOn` 메서드가 `Channel` 인스턴스를 반환하지 않고, Eloquent 모델 자체를 반환하는 것을 볼 수 있습니다. 만약 `broadcastOn` 메서드에서 Eloquent 모델 인스턴스를 반환하거나 반환 배열에 포함하면, Laravel에서는 해당 모델의 클래스명과 기본키(pk)를 조합하여 프라이빗 채널 인스턴스를 자동 생성합니다.
 
 <!-- So, an `App\Models\User` model with an `id` of `1` would be converted into an `Illuminate\Broadcasting\PrivateChannel` instance with a name of `App.Models.User.1`. Of course, in addition to returning Eloquent model instances from your model's `broadcastOn` method, you may return complete `Channel` instances in order to have full control over the model's channel names: -->
 예를 들어, `App\Models\User` 모델의 `id`가 `1`인 경우, Laravel에서는 이를 `App.Models.User.1`이라는 이름을 가진 `Illuminate\Broadcasting\PrivateChannel` 인스턴스로 변환합니다. 물론, 모델의 `broadcastOn` 메서드에서 Eloquent 모델 인스턴스 대신 직접 `Channel` 인스턴스를 반환해, 채널 이름을 완전히 직접 제어할 수도 있습니다.

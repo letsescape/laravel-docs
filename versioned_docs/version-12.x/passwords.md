@@ -106,7 +106,7 @@ Laravel의 비밀번호 재설정 기능을 사용하기 전에, 애플리케이
 ## Routing
 
 <!-- To properly implement support for allowing users to reset their passwords, we will need to define several routes. First, we will need a pair of routes to handle allowing the user to request a password reset link via their email address. Second, we will need a pair of routes to handle actually resetting the password once the user visits the password reset link that is emailed to them and completes the password reset form. -->
-사용자가 비밀번호를 재설정할 수 있도록 적절하게 지원하려면 여러 개의 라우트를 정의해야 합니다. 먼저, 사용자가 자신의 이메일 주소로 비밀번호 재설정 링크를 요청할 수 있도록 하는 라우트 두 개가 필요합니다. 두 번째로, 이메일로 발송된 비밀번호 재설정 링크를 클릭하여 실제로 비밀번호를 재설정하는 라우트 두 개가 필요합니다.
+사용자가 비밀번호를 재설정할 수 있도록 적절하게 지원하려면 여러 개의 라우트를 정의해야 합니다. 먼저, 사용자가 자신의 이메일 주소로 비밀번호 재설정 링크를 요청할 수 있도록 하는 라우트 두 개가 필요합니다. 두 번째로, 사용자가 이메일로 발송된 비밀번호 재설정 링크에 접속하고 재설정 폼을 작성하여 실제로 비밀번호를 재설정할 수 있도록 하는 라우트 두 개가 필요합니다.
 
 <a name="requesting-the-password-reset-link"></a>
 <!-- ### Requesting the Password Reset Link -->
@@ -117,7 +117,7 @@ Laravel의 비밀번호 재설정 기능을 사용하기 전에, 애플리케이
 #### The Password Reset Link Request Form
 
 <!-- First, we will define the routes that are needed to request password reset links. To get started, we will define a route that returns a view with the password reset link request form: -->
-우선, 비밀번호 재설정 링크를 요청하는 데 필요한 라우트부터 정의하겠습니다. 시작을 위해, 비밀번호 재설정 링크 요청 폼을 반환하는 뷰를 제공하는 라우트를 정의합니다.
+우선, 비밀번호 재설정 링크를 요청하는 데 필요한 라우트부터 정의하겠습니다. 시작을 위해, 비밀번호 재설정 링크 요청 폼이 포함된 뷰를 반환하는 라우트를 정의합니다.
 
 ```php
 Route::get('/forgot-password', function () {
@@ -153,7 +153,7 @@ Route::post('/forgot-password', function (Request $request) {
 ```
 
 <!-- Before moving on, let's examine this route in more detail. First, the request's `email` attribute is validated. Next, we will use Laravel's built-in "password broker" (via the `Password` facade) to send a password reset link to the user. The password broker will take care of retrieving the user by the given field (in this case, the email address) and sending the user a password reset link via Laravel's built-in [notification system](/docs/12.x/notifications). -->
-진행하기 전에 이 라우트가 어떤 역할을 하는지 자세히 살펴보겠습니다. 먼저, 요청에서 받은 `email` 속성을 유효성 검증합니다. 다음으로, Laravel의 내장 "password broker"(즉, `Password` 파사드)를 사용해 해당 사용자에게 비밀번호 재설정 링크를 전송합니다. password broker는 지정된 필드(여기에서는 이메일 주소)를 기준으로 사용자를 조회하고, Laravel의 내장 [notification system](/docs/12.x/notifications)을 통해 비밀번호 재설정 링크를 보냅니다.
+진행하기 전에 이 라우트가 어떤 역할을 하는지 자세히 살펴보겠습니다. 먼저, 요청에서 받은 `email` 속성을 유효성 검증합니다. 다음으로, `Password` 파사드를 통해 Laravel의 내장 "password broker"를 사용해 해당 사용자에게 비밀번호 재설정 링크를 전송합니다. password broker는 지정된 필드(여기에서는 이메일 주소)를 기준으로 사용자를 조회하고, Laravel의 내장 [notification system](/docs/12.x/notifications)을 통해 비밀번호 재설정 링크를 보냅니다.
 
 <!-- The `sendResetLink` method returns a "status" slug. This status may be translated using Laravel's [localization](/docs/12.x/localization) helpers in order to display a user-friendly message to the user regarding the status of their request. The translation of the password reset status is determined by your application's `lang/{lang}/passwords.php` language file. An entry for each possible value of the status slug is located within the `passwords` language file. -->
 `sendResetLink` 메서드는 "status" 슬러그를 반환합니다. 이 status는 Laravel의 [localization](/docs/12.x/localization) 도우미 함수를 활용하여, 요청 상태에 대한 사용자의 이해를 돕는 메시지로 표시할 수 있습니다. 비밀번호 재설정 status 번역은 애플리케이션의 `lang/{lang}/passwords.php` 언어 파일에서 결정됩니다. 해당 슬러그별로 `passwords` 언어 파일에 각각의 항목이 존재합니다.
@@ -229,7 +229,7 @@ Route::post('/reset-password', function (Request $request) {
 ```
 
 <!-- Before moving on, let's examine this route in more detail. First, the request's `token`, `email`, and `password` attributes are validated. Next, we will use Laravel's built-in "password broker" (via the `Password` facade) to validate the password reset request credentials. -->
-진행하기 전에, 이 라우트의 동작을 자세히 살펴보겠습니다. 먼저, 요청에서 받은 `token`, `email`, `password` 속성이 올바른지 유효성 검증을 합니다. 그런 다음, Laravel의 내장 "password broker"(즉, `Password` 파사드)를 통해 비밀번호 재설정 요청 자격 증명을 검증합니다.
+진행하기 전에, 이 라우트의 동작을 자세히 살펴보겠습니다. 먼저, 요청에서 받은 `token`, `email`, `password` 속성이 올바른지 유효성 검증을 합니다. 그런 다음, `Password` 파사드를 통해 Laravel의 내장 "password broker"를 사용하여 비밀번호 재설정 요청 자격 증명을 검증합니다.
 
 <!-- If the token, email address, and password given to the password broker are valid, the closure passed to the `reset` method will be invoked. Within this closure, which receives the user instance and the plain-text password provided to the password reset form, we may update the user's password in the database. -->
 password broker에 제공된 토큰, 이메일, 비밀번호가 모두 유효하다면, `reset` 메서드에 전달된 클로저가 호출됩니다. 이 클로저는 사용자 인스턴스와 비밀번호 재설정 폼에서 제공된 평문 비밀번호를 인수로 받으며, 여기서 데이터베이스의 사용자 비밀번호를 실제로 변경할 수 있습니다.
@@ -245,7 +245,7 @@ password broker에 제공된 토큰, 이메일, 비밀번호가 모두 유효하
 ## Deleting Expired Tokens
 
 <!-- If you are using the `database` driver, password reset tokens that have expired will still be present within your database. However, you may easily delete these records using the `auth:clear-resets` Artisan command: -->
-`database` 드라이버를 사용할 경우, 만료된 비밀번호 재설정 토큰이 데이터베이스에 남아 있을 수 있습니다. 하지만, `auth:clear-resets` Artisan 명령어를 사용해 손쉽게 이 레코드들을 삭제할 수 있습니다.
+`database` 드라이버를 사용할 경우, 만료된 비밀번호 재설정 토큰이 데이터베이스에 남아 있습니다. 하지만, `auth:clear-resets` Artisan 명령어를 사용해 손쉽게 이 레코드들을 삭제할 수 있습니다.
 
 ```shell
 php artisan auth:clear-resets

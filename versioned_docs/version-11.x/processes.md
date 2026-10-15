@@ -102,7 +102,7 @@ $result = Process::input('Hello World')->run('cat');
 #### Timeouts
 
 <!-- By default, processes will throw an instance of `Illuminate\Process\Exceptions\ProcessTimedOutException` after executing for more than 60 seconds. However, you can customize this behavior via the `timeout` method: -->
-기본적으로 프로세스가 60초 이상 실행되면 `Illuminate\Process\Exceptions\ProcessTimedOutException` 예외가 발생합니다. `timeout` 메서드를 사용해 이 동작을 원하는 시간(초 단위)으로 변경할 수 있습니다.
+기본적으로 프로세스가 60초를 초과하여 실행되면 `Illuminate\Process\Exceptions\ProcessTimedOutException` 예외가 발생합니다. `timeout` 메서드를 사용해 이 동작을 원하는 시간(초 단위)으로 변경할 수 있습니다.
 
 ```php
 $result = Process::timeout(120)->run('bash import.sh');
@@ -384,7 +384,7 @@ echo $results[0]->output();
 ```
 
 <!-- Or, for convenience, the `concurrently` method may be used to start an asynchronous process pool and immediately wait on its results. This can provide particularly expressive syntax when combined with PHP's array destructuring capabilities: -->
-더 편하게, `concurrently` 메서드를 사용하면 비동기 프로세스 풀을 즉시 시작하고, 결과도 바로 받아볼 수 있습니다. 이 방법은 PHP의 배열 구조 분해 문법과 함께 사용하면 매우 직관적입니다.
+더 편하게, `concurrently` 메서드를 사용하면 비동기 프로세스 풀을 시작하고 즉시 결과를 기다릴 수 있습니다. 이 방법은 PHP의 배열 구조 분해 문법과 함께 사용하면 매우 직관적입니다.
 
 ```php
 [$first, $second, $third] = Process::concurrently(function (Pool $pool) {
@@ -461,7 +461,7 @@ Route::get('/import', function () {
 ```
 
 <!-- When testing this route, we can instruct Laravel to return a fake, successful process result for every invoked process by calling the `fake` method on the `Process` facade with no arguments. In addition, we can even [assert](#available-assertions) that a given process was "run": -->
-이 라우트를 테스트할 때는, `Process` 파사드의 `fake` 메서드를 인자 없이 호출해 모든 실행된 프로세스에 대해 성공 결과를 가짜로 반환하게 만들 수 있습니다. 또한, 해당 프로세스가 실제로 "실행되었는지" [assert](#available-assertions)도 할 수 있습니다.
+이 라우트를 테스트할 때는, `Process` 파사드의 `fake` 메서드를 인자 없이 호출해 모든 실행된 프로세스에 대해 성공 결과를 가짜로 반환하게 만들 수 있습니다. 또한, 해당 프로세스가 호출되었는지 [assert](#available-assertions)도 할 수 있습니다.
 
 ```php tab=Pest
 <?php
@@ -623,7 +623,7 @@ Process::fake([
 ### Available Assertions
 
 <!-- As [previously discussed](#faking-processes), Laravel provides several process assertions for your feature tests. We'll discuss each of these assertions below. -->
-[previously discussed](#faking-processes) Laravel은 기능 테스트에서 사용할 수 있는 다양한 프로세스 assertion을 제공합니다. 아래에서 각 assertion에 대해 간단하게 설명합니다.
+앞서 설명한 것처럼([previously discussed](#faking-processes)), Laravel은 기능 테스트에서 사용할 수 있는 다양한 프로세스 assertion을 제공합니다. 아래에서 각 assertion에 대해 간단하게 설명합니다.
 
 <a name="assert-process-ran"></a>
 <!-- #### assertRan -->

@@ -725,7 +725,7 @@ foreach ($users as $user) {
 ```
 
 <!-- Although the `cursor` method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). If you're dealing with a very large number of Eloquent records, consider using [the `lazy` method](#chunking-using-lazy-collections) instead. -->
-`cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만(한 번에 Eloquent 모델 하나만 메모리에 보관하기 때문입니다), 결국에는 여전히 메모리가 부족해질 수 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)입니다. 매우 많은 수의 Eloquent 레코드를 다룬다면 대신 [the `lazy` method](#chunking-using-lazy-collections)를 사용하는 것을 고려하세요.
+`cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만(한 번에 Eloquent 모델 하나만 메모리에 보관하기 때문입니다), 결국에는 여전히 메모리가 부족해질 수 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)에 설명된 PDO 드라이버의 쿼리 결과 버퍼링 때문입니다. 매우 많은 수의 Eloquent 레코드를 다룬다면 대신 [the `lazy` method](#chunking-using-lazy-collections)를 사용하는 것을 고려하세요.
 
 <a name="advanced-subqueries"></a>
 <!-- ### Advanced Subqueries -->
@@ -1527,7 +1527,7 @@ php artisan model:prune --pretend
 ```
 
 > [!WARNING]
-> 소프트 삭제된 모델이 정리 대상 쿼리와 일치하면 영구 삭제(`forceDelete`)됩니다.
+> 소프트 삭제를 사용하는 모델이 정리 대상 쿼리와 일치하면 영구 삭제(`forceDelete`)됩니다.
 
 <a name="mass-pruning"></a>
 <!-- #### Mass Pruning -->

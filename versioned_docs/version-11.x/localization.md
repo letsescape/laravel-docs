@@ -125,7 +125,7 @@ public function boot(): void
 ```
 
 > [!WARNING]
-> 플루럴라이저 언어를 커스터마이즈했다면, Eloquent 모델의 [table names](/docs/11.x/eloquent#table-names)을 반드시 명시적으로 정의해야 합니다.
+> 플루럴라이저 언어를 커스터마이즈했다면, Eloquent 모델의 [table names](/docs/11.x/eloquent#table-names)을 명시적으로 정의하는 것이 좋습니다.
 
 <a name="defining-translation-strings"></a>
 <!-- ## Defining Translation Strings -->

@@ -80,7 +80,7 @@ ProcessPodcast::dispatch($podcast);
 ```
 
 <!-- When the job is dispatched, any information currently stored in the context is captured and shared with the job. The captured information is then hydrated back into the current context while the job is executing. So, if our job's handle method was to write to the log: -->
-작업이 디스패치될 때, 현재 컨텍스트에 저장된 모든 정보가 캡처되어 작업과 함께 공유됩니다. 그리고 작업이 실행되는 동안 캡처된 정보가 다시 현재 컨텍스트로 "활성화"됩니다. 만약 작업의 handle 메서드가 로그를 작성한다면:
+작업이 디스패치될 때, 현재 컨텍스트에 저장된 모든 정보가 캡처되어 작업과 함께 공유됩니다. 그리고 작업이 실행되는 동안 캡처된 정보가 다시 현재 컨텍스트에 복원됩니다. 만약 작업의 handle 메서드가 로그를 작성한다면:
 
 ```php
 class ProcessPodcast implements ShouldQueue
@@ -437,7 +437,7 @@ Context::forgetHidden(/* ... */);
 ## Events
 
 <!-- Context dispatches two events that allow you to hook into the hydration and dehydration process of the context. -->
-컨텍스트는 컨텍스트의 활성화(hydration)와 비활성화(dehydration) 과정에 훅을 걸 수 있도록 두 가지 이벤트를 발행합니다.
+컨텍스트는 컨텍스트의 복원(hydration)과 디하이드레이션(dehydration) 과정에 훅을 걸 수 있도록 두 가지 이벤트를 발행합니다.
 
 <!-- To illustrate how these events may be used, imagine that in a middleware of your application you set the `app.locale` configuration value based on the incoming HTTP request's `Accept-Language` header. Context's events allow you to capture this value during the request and restore it on the queue, ensuring notifications sent on the queue have the correct `app.locale` value. We can use context's events and [hidden](#hidden-context) data to achieve this, which the following documentation will illustrate. -->
 예를 들어, 애플리케이션 미들웨어에서 들어오는 HTTP 요청의 `Accept-Language` 헤더를 기반으로 `app.locale` 설정 값을 지정한다고 가정해봅시다. 컨텍스트 이벤트를 활용하면 이 값을 요청 동안 캡처하고, 큐에서 복원하여, 큐에서 실행되는 알림 등이 올바른 `app.locale` 설정을 사용할 수 있도록 할 수 있습니다. 이 과정에서 [hidden](#hidden-context)를 함께 사용합니다. 아래 문서를 통해 구현 예를 확인할 수 있습니다.
@@ -447,7 +447,7 @@ Context::forgetHidden(/* ... */);
 ### Dehydrating
 
 <!-- Whenever a job is dispatched to the queue the data in the context is "dehydrated" and captured alongside the job's payload. The `Context::dehydrating` method allows you to register a closure that will be invoked during the dehydration process. Within this closure, you may make changes to the data that will be shared with the queued job. -->
-작업이 큐에 디스패치될 때마다, 컨텍스트의 데이터는 "비활성화"되어 작업 페이로드와 함께 캡처됩니다. `Context::dehydrating` 메서드를 통해 비활성화 과정 동안 호출될 클로저를 등록할 수 있습니다. 이 클로저 내에서 큐 작업과 함께 공유할 데이터를 수정할 수 있습니다.
+작업이 큐에 디스패치될 때마다, 컨텍스트의 데이터는 디하이드레이션(dehydration) 처리되어 작업 페이로드와 함께 캡처됩니다. `Context::dehydrating` 메서드를 통해 디하이드레이션 과정 동안 호출될 클로저를 등록할 수 있습니다. 이 클로저 내에서 큐 작업과 함께 공유할 데이터를 수정할 수 있습니다.
 
 <!-- Typically, you should register `dehydrating` callbacks within the `boot` method of your application's `AppServiceProvider` class: -->
 일반적으로 `AppServiceProvider` 클래스의 `boot` 메서드에서 `dehydrating` 콜백을 등록합니다:
@@ -469,14 +469,14 @@ public function boot(): void
 ```
 
 > [!NOTE]
-> `dehydrating` 콜백 안에서 `Context` 파사드 사용은 권장하지 않습니다. 현재 프로세스의 컨텍스트가 변경될 수 있으므로, 반드시 콜백에 전달된 저장소 인스턴스에서만 작업하세요.
+> `dehydrating` 콜백 안에서는 `Context` 파사드를 사용하지 마십시오. 현재 프로세스의 컨텍스트가 변경되므로, 반드시 콜백에 전달된 저장소 인스턴스에서만 작업하세요.
 
 <a name="hydrated"></a>
 <!-- ### Hydrated -->
 ### Hydrated
 
 <!-- Whenever a queued job begins executing on the queue, any context that was shared with the job will be "hydrated" back into the current context. The `Context::hydrated` method allows you to register a closure that will be invoked during the hydration process. -->
-큐에 디스패치된 작업이 실행되기 시작할 때, 작업과 함께 공유된 컨텍스트가 현재 컨텍스트로 "활성화"됩니다. `Context::hydrated` 메서드를 통해 활성화 과정에서 호출될 클로저를 등록할 수 있습니다.
+큐에 디스패치된 작업이 실행되기 시작할 때, 작업과 함께 공유된 컨텍스트가 현재 컨텍스트에 복원됩니다. `Context::hydrated` 메서드를 통해 복원 과정에서 호출될 클로저를 등록할 수 있습니다.
 
 <!-- Typically, you should register `hydrated` callbacks within the `boot` method of your application's `AppServiceProvider` class: -->
 일반적으로 `AppServiceProvider` 클래스의 `boot` 메서드에서 `hydrated` 콜백을 등록합니다:
@@ -500,4 +500,4 @@ public function boot(): void
 ```
 
 > [!NOTE]
-> `hydrated` 콜백 내에서 `Context` 파사드를 직접 사용하지 말고, 반드시 콜백에 전달된 저장소 인스턴스를 통해만 작업하세요.
+> `hydrated` 콜백 내에서 `Context` 파사드를 직접 사용하지 말고, 반드시 콜백에 전달된 저장소 인스턴스를 통해서만 작업하세요.

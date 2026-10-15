@@ -162,7 +162,7 @@ public function via(object $notifiable): array
 ### Queueing Notifications
 
 > [!WARNING]
-> 알림을 큐에 넣기 전에 큐를 설정하고 [start a worker](/docs/13.x/queues#running-the-queue-worker)해야 합니다.
+> 알림을 큐에 넣기 전에 큐를 설정하고 [start a worker](/docs/13.x/queues#running-the-queue-worker)에 따라 워커를 시작해야 합니다.
 
 <!-- Sending notifications can take time, especially if the channel needs to make an external API call to deliver the notification. To speed up your application's response time, let your notification be queued by adding the `ShouldQueue` interface and `Queueable` trait to your class. The interface and trait are already imported for all notifications generated using the `make:notification` command, so you may immediately add them to your notification class: -->
 알림 전송에는 시간이 걸릴 수 있습니다. 특히 채널이 알림을 전달하기 위해 외부 API 호출을 해야 한다면 더 그렇습니다. 애플리케이션의 응답 시간을 빠르게 하려면 알림 클래스에 `ShouldQueue` 인터페이스와 `Queueable` 트레이트를 추가하여 알림이 큐에 들어가도록 하십시오. `make:notification` 명령어로 생성된 모든 알림에는 이 인터페이스와 트레이트가 이미 import되어 있으므로, 바로 알림 클래스에 추가할 수 있습니다.
@@ -1727,10 +1727,10 @@ public function toSlack(object $notifiable): SlackMessage
 ### Slack Interactivity
 
 <!-- Slack's Block Kit notification system provides powerful features to [handle user interaction](https://api.slack.com/interactivity/handling). To utilize these features, your Slack App should have "Interactivity" enabled and a "Request URL" configured that points to a URL served by your application. These settings can be managed from the "Interactivity & Shortcuts" App management tab within Slack. -->
-Slack의 Block Kit 알림 시스템은 [handle user interaction](https://api.slack.com/interactivity/handling)할 수 있는 강력한 기능을 제공합니다. 이 기능을 사용하려면 Slack App에서 "Interactivity"를 활성화하고, 애플리케이션이 제공하는 URL을 가리키는 "Request URL"을 설정해야 합니다. 이러한 설정은 Slack의 "Interactivity & Shortcuts" App 관리 탭에서 관리할 수 있습니다.
+Slack의 Block Kit 알림 시스템은 [handle user interaction](https://api.slack.com/interactivity/handling)에 설명된 사용자 상호작용을 처리할 수 있는 강력한 기능을 제공합니다. 이 기능을 사용하려면 Slack App에서 "Interactivity"를 활성화하고, 애플리케이션이 제공하는 URL을 가리키는 "Request URL"을 설정해야 합니다. 이러한 설정은 Slack의 "Interactivity & Shortcuts" App 관리 탭에서 관리할 수 있습니다.
 
 <!-- In the following example, which utilizes the `actionsBlock` method, Slack will send a `POST` request to your "Request URL" with a payload containing the Slack user who clicked the button, the ID of the clicked button, and more. Your application can then determine the action to take based on the payload. You should also [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack) was made by Slack: -->
-다음 예시는 `actionsBlock` 메서드를 사용합니다. Slack은 버튼을 클릭한 Slack 사용자, 클릭된 버튼의 ID 등을 포함한 페이로드와 함께 "Request URL"로 `POST` 요청을 보냅니다. 그러면 애플리케이션은 페이로드를 바탕으로 수행할 작업을 결정할 수 있습니다. 또한 해당 요청이 Slack에서 온 것인지 [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack)해야 합니다.
+다음 예시는 `actionsBlock` 메서드를 사용합니다. Slack은 버튼을 클릭한 Slack 사용자, 클릭된 버튼의 ID 등을 포함한 페이로드와 함께 "Request URL"로 `POST` 요청을 보냅니다. 그러면 애플리케이션은 페이로드를 바탕으로 수행할 작업을 결정할 수 있습니다. 또한 해당 요청이 Slack에서 온 것인지 [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack)에 따라 검증해야 합니다.
 
 ```php
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;

@@ -104,7 +104,7 @@ Vue 스타터 키트는 [Inertia](https://inertiajs.com)를 사용하여 Vue 프
 Inertia를 사용하면 클래식 서버 측 라우팅 및 컨트롤러를 사용하여 최신 단일 페이지 Vue 애플리케이션을 구축할 수 있습니다. 이를 통해 Laravel의 놀라운 백엔드 생산성 및 초고속 Vite 컴파일과 결합된 Vue의 프론트엔드 성능을 즐길 수 있습니다.
 
 <!-- The Vue starter kit utilizes the Vue Composition API, TypeScript, Tailwind, and the [shadcn-vue](https://www.shadcn-vue.com/) component library. -->
-Vue 스타터 키트는 Vue 구성 API, TypeScript, Tailwind 및 [shadcn-vue](https://www.shadcn-vue.com/) 컴포넌트 라이브러리를 활용합니다.
+Vue 스타터 키트는 Vue Composition API, TypeScript, Tailwind 및 [shadcn-vue](https://www.shadcn-vue.com/) 컴포넌트 라이브러리를 활용합니다.
 
 <a name="livewire"></a>
 <!-- ### Livewire -->
@@ -128,7 +128,7 @@ Livewire 스타터 키트는 Livewire, Tailwind 및 [Flux UI](https://fluxui.dev
 ### React
 
 <!-- Our React starter kit is built with Inertia 2, React 19, Tailwind 4, and [shadcn/ui](https://ui.shadcn.com). As with all of our starter kits, all of the backend and frontend code exists within your application to allow for full customization. -->
-React 스타터 키트는 Inertia 2, React 19, Tailwind 4 및 [shadcn/ui](https://ui.shadcn.com)로 제작되었습니다. 모든 스타터 키트와 마찬가지로 모든 백엔드 및 프론트엔드 코드가 애플리케이션 내에 존재하므로 완전한 사용자 지정가 가능합니다.
+React 스타터 키트는 Inertia 2, React 19, Tailwind 4 및 [shadcn/ui](https://ui.shadcn.com)로 제작되었습니다. 모든 스타터 키트와 마찬가지로 모든 백엔드 및 프론트엔드 코드가 애플리케이션 내에 존재하므로 완전한 사용자 지정이 가능합니다.
 
 <!-- The majority of the frontend code is located in the `resources/js` directory. You are free to modify any of the code to customize the appearance and behavior of your application: -->
 프론트엔드 코드의 대부분은 `resources/js` 디렉터리에 있습니다. 애플리케이션의 모양과 동작을 사용자 지정하기 위해 코드를 자유롭게 수정할 수 있습니다.
@@ -144,7 +144,7 @@ resources/js/
 ```
 
 <!-- To publish additional shadcn components, first [find the component you want to publish](https://ui.shadcn.com). Then, publish the component using `npx`: -->
-추가 shadcn 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://ui.shadcn.com). 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
+추가 shadcn 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://ui.shadcn.com)에서 게시할 컴포넌트를 찾으세요. 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
 
 ```shell
 npx shadcn@latest add switch
@@ -211,7 +211,7 @@ import AuthLayoutTemplate from '@/layouts/auth/auth-split-layout'; // [tl! add]
 ### Svelte
 
 <!-- Our Svelte starter kit is built with Inertia 2, Svelte 5, Tailwind, and [shadcn-svelte](https://www.shadcn-svelte.com/). As with all of our starter kits, all of the backend and frontend code exists within your application to allow for full customization. -->
-Svelte 스타터 키트는 Inertia 2, Svelte 5, Tailwind 및 [shadcn-svelte](https://www.shadcn-svelte.com/)로 제작되었습니다. 모든 스타터 키트와 마찬가지로 모든 백엔드 및 프론트엔드 코드가 애플리케이션 내에 존재하므로 완전한 사용자 지정가 가능합니다.
+Svelte 스타터 키트는 Inertia 2, Svelte 5, Tailwind 및 [shadcn-svelte](https://www.shadcn-svelte.com/)로 제작되었습니다. 모든 스타터 키트와 마찬가지로 모든 백엔드 및 프론트엔드 코드가 애플리케이션 내에 존재하므로 완전한 사용자 지정이 가능합니다.
 
 <!-- The majority of the frontend code is located in the `resources/js` directory. You are free to modify any of the code to customize the appearance and behavior of your application: -->
 프론트엔드 코드의 대부분은 `resources/js` 디렉터리에 있습니다. 애플리케이션의 모양과 동작을 사용자 지정하기 위해 코드를 자유롭게 수정할 수 있습니다.
@@ -226,7 +226,7 @@ resources/js/
 ```
 
 <!-- To publish additional shadcn-svelte components, first [find the component you want to publish](https://www.shadcn-svelte.com). Then, publish the component using `npx`: -->
-추가 shadcn-svelte 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://www.shadcn-svelte.com). 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
+추가 shadcn-svelte 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://www.shadcn-svelte.com)에서 게시할 컴포넌트를 찾으세요. 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
 
 ```shell
 npx shadcn-svelte@latest add switch
@@ -289,7 +289,7 @@ import AuthLayout from '@/layouts/auth/AuthSplitLayout.svelte'; // [tl! add]
 ### Vue
 
 <!-- Our Vue starter kit is built with Inertia 2, Vue 3 Composition API, Tailwind, and [shadcn-vue](https://www.shadcn-vue.com/). As with all of our starter kits, all of the backend and frontend code exists within your application to allow for full customization. -->
-Vue 스타터 키트는 Inertia 2, Vue 3 구성 API, Tailwind 및 [shadcn-vue](https://www.shadcn-vue.com/)로 제작되었습니다. 모든 스타터 키트와 마찬가지로 모든 백엔드 및 프론트엔드 코드가 애플리케이션 내에 존재하므로 완전한 사용자 지정가 가능합니다.
+Vue 스타터 키트는 Inertia 2, Vue 3 Composition API, Tailwind 및 [shadcn-vue](https://www.shadcn-vue.com/)로 제작되었습니다. 모든 스타터 키트와 마찬가지로 모든 백엔드 및 프론트엔드 코드가 애플리케이션 내에 존재하므로 완전한 사용자 지정이 가능합니다.
 
 <!-- The majority of the frontend code is located in the `resources/js` directory. You are free to modify any of the code to customize the appearance and behavior of your application: -->
 프론트엔드 코드의 대부분은 `resources/js` 디렉터리에 있습니다. 애플리케이션의 모양과 동작을 사용자 지정하기 위해 코드를 자유롭게 수정할 수 있습니다.
@@ -305,7 +305,7 @@ resources/js/
 ```
 
 <!-- To publish additional shadcn-vue components, first [find the component you want to publish](https://www.shadcn-vue.com). Then, publish the component using `npx`: -->
-추가 shadcn-vue 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://www.shadcn-vue.com). 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
+추가 shadcn-vue 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://www.shadcn-vue.com)에서 게시할 컴포넌트를 찾으세요. 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
 
 ```shell
 npx shadcn-vue@latest add switch
@@ -370,7 +370,7 @@ import AuthLayout from '@/layouts/auth/AuthSplitLayout.vue'; // [tl! add]
 ### Livewire
 
 <!-- Our Livewire starter kit is built with Livewire 4, Tailwind, and [Flux UI](https://fluxui.dev/). As with all of our starter kits, all of the backend and frontend code exists within your application to allow for full customization. -->
-Livewire 스타터 키트는 Livewire 4, Tailwind 및 [Flux UI](https://fluxui.dev/)로 제작되었습니다. 모든 스타터 키트와 마찬가지로 모든 백엔드 및 프론트엔드 코드가 애플리케이션 내에 존재하므로 완전한 사용자 지정가 가능합니다.
+Livewire 스타터 키트는 Livewire 4, Tailwind 및 [Flux UI](https://fluxui.dev/)로 제작되었습니다. 모든 스타터 키트와 마찬가지로 모든 백엔드 및 프론트엔드 코드가 애플리케이션 내에 존재하므로 완전한 사용자 지정이 가능합니다.
 
 <!-- The majority of the frontend code is located in the `resources/views` directory. You are free to modify any of the code to customize the appearance and behavior of your application: -->
 프론트엔드 코드의 대부분은 `resources/views` 디렉터리에 있습니다. 애플리케이션의 모양과 동작을 사용자 지정하기 위해 코드를 자유롭게 수정할 수 있습니다.
@@ -391,7 +391,7 @@ resources/views
 #### Available Layouts
 
 <!-- The Livewire starter kit includes two different primary layouts for you to choose from: a "sidebar" layout and a "header" layout. The sidebar layout is the default, but you can switch to the header layout by modifying the layout that is used by your application's `resources/views/layouts/app.blade.php` file. In addition, you should add the `container` attribute to the main Flux component: -->
-Livewire 스타터 키트에는 선택할 수 있는 두 가지 기본 레이아웃, 즉 "사이드바" 레이아웃과 "헤더" 레이아웃이 포함되어 있습니다. 사이드바 레이아웃이 기본값이지만 애플리케이션의 `resources/views/layouts/app.blade.php` 파일에서 사용되는 레이아웃을 수정하여 헤더 레이아웃으로 전환할 수 있습니다. 또한 기본 Flux 컴포넌트에 `container` 속성을 추가해야 합니다.
+Livewire 스타터 키트에는 선택할 수 있는 두 가지 기본 레이아웃, 즉 "사이드바" 레이아웃과 "헤더" 레이아웃이 포함되어 있습니다. 사이드바 레이아웃이 기본값이지만 애플리케이션의 `resources/views/layouts/app.blade.php` 파일에서 사용되는 레이아웃을 수정하여 헤더 레이아웃으로 전환할 수 있습니다. 또한 메인 Flux 컴포넌트에 `container` 속성을 추가해야 합니다.
 
 ```blade
 <x-layouts::app.header>
@@ -481,7 +481,7 @@ use Laravel\Fortify\Features;
 ### Customizing User Creation and Password Reset
 
 <!-- When a user registers or resets their password, Fortify invokes action classes located in your application's `app/Actions/Fortify` directory: -->
-사용자가 비밀번호를 등록하거나 재설정하면 Fortify는 애플리케이션의 `app/Actions/Fortify` 디렉토리에 있는 작업 클래스를 호출합니다.
+사용자가 회원가입하거나 비밀번호를 재설정하면 Fortify는 애플리케이션의 `app/Actions/Fortify` 디렉토리에 있는 작업 클래스를 호출합니다.
 
 | 파일 | 설명 |
 | ----------------------------- | ------------------------------------- |
@@ -562,7 +562,7 @@ RateLimiter::for('login', function ($request) {
 </div>
 
 <!-- Using WorkOS as your authentication provider [requires a WorkOS account](https://workos.com). WorkOS offers free authentication for applications up to 1 million monthly active users. -->
-WorkOS를 인증으로 사용 프로바이더 [requires a WorkOS account](https://workos.com) WorkOS는 최대 100만 명의 월간 활성 사용자가 있는 애플리케이션에 대해 무료 인증을 제공합니다.
+WorkOS를 인증 프로바이더로 사용하려면 [requires a WorkOS account](https://workos.com)에 설명된 대로 WorkOS 계정이 필요합니다. WorkOS는 최대 100만 명의 월간 활성 사용자가 있는 애플리케이션에 대해 무료 인증을 제공합니다.
 
 <!-- To use WorkOS AuthKit as your application's authentication provider, select the WorkOS option when creating your new starter kit powered application via `laravel new`. -->
 WorkOS AuthKit를 애플리케이션 인증 프로바이더로 사용하려면 `laravel new`를 통해 새 스타터 키트 구동 애플리케이션을 생성할 때 WorkOS 옵션을 선택하세요.
@@ -648,7 +648,7 @@ laravel new my-app --using=example/starter-kit
 #### How do I enable email verification?
 
 <!-- Email verification can be added by uncommenting the `MustVerifyEmail` import in your `App/Models/User.php` model and ensuring the model implements the `MustVerifyEmail` interface: -->
-`App/Models/User.php` 모델에서 가져오기 `MustVerifyEmail`의 주석 처리를 제거하고 모델이 `MustVerifyEmail` 인터페이스를 구현하는지 확인하여 이메일 확인을 추가할 수 있습니다.
+`App/Models/User.php` 모델에서 `MustVerifyEmail` 가져오기 구문의 주석 처리를 제거하고 모델이 `MustVerifyEmail` 인터페이스를 구현하는지 확인하여 이메일 확인을 추가할 수 있습니다.
 
 ```php
 <?php
@@ -690,4 +690,4 @@ php artisan vendor:publish --tag=laravel-mail
 ```
 
 <!-- This will generate several files in `resources/views/vendor/mail`. You can modify any of these files as well as the `resources/views/vendor/mail/themes/default.css` file to change the look and appearance of the default email template. -->
-그러면 `resources/views/vendor/mail`에 여러 파일이 생성됩니다. 이러한 파일과 `resources/views/vendor/mail/themes/default.css` 파일을 수정하여 기본 이메일 템플릿의 모양과 모양을 변경할 수 있습니다.
+그러면 `resources/views/vendor/mail`에 여러 파일이 생성됩니다. 이러한 파일과 `resources/views/vendor/mail/themes/default.css` 파일을 수정하여 기본 이메일 템플릿의 모양을 변경할 수 있습니다.

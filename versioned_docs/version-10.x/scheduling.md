@@ -409,7 +409,7 @@ $schedule->command('emails:send')->withoutOverlapping();
 ```
 
 <!-- In this example, the `emails:send` [Artisan command](/docs/10.x/artisan) will be run every minute if it is not already running. The `withoutOverlapping` method is especially useful if you have tasks that vary drastically in their execution time, preventing you from predicting exactly how long a given task will take. -->
-이 예시에서 `emails:send` [Artisan command](/docs/10.x/artisan)는 이전 실행이 끝난 경우에만 1분마다 실행됩니다. `withoutOverlapping` 메서드는 실행 시간이 들쑥날쑥해 다음 실행 시간을 정확히 예측할 수 없는 작업에서 특히 유용합니다.
+이 예시에서 `emails:send` [Artisan command](/docs/10.x/artisan)는 이전 실행이 끝난 경우에만 1분마다 실행됩니다. `withoutOverlapping` 메서드는 실행 시간이 들쑥날쑥해 작업에 걸리는 시간을 정확히 예측할 수 없는 작업에서 특히 유용합니다.
 
 <!-- If needed, you may specify how many minutes must pass before the "without overlapping" lock expires. By default, the lock will expire after 24 hours: -->
 필요하다면, "중복 방지" 락이 만료되기까지 대기할 분(minutes) 수를 지정할 수 있습니다. 기본 설정은 24시간 후 락이 만료됩니다.
@@ -491,7 +491,7 @@ $schedule->command('analytics:report')
 ### Maintenance Mode
 
 <!-- Your application's scheduled tasks will not run when the application is in [maintenance mode](/docs/10.x/configuration#maintenance-mode), since we don't want your tasks to interfere with any unfinished maintenance you may be performing on your server. However, if you would like to force a task to run even in maintenance mode, you may call the `evenInMaintenanceMode` method when defining the task: -->
-애플리케이션이 [maintenance mode](/docs/10.x/configuration#maintenance-mode)에 들어가면, 예약 작업이 자동으로 중지됩니다. 이는 작업이 서버 유지보수 작업과 충돌하는 것을 방지하기 위해서입니다. 하지만, 꼭 유지보수 모드 중에도 특정 작업을 강제로 실행해야 한다면, 해당 작업 정의에 `evenInMaintenanceMode` 메서드를 추가하세요.
+애플리케이션이 [maintenance mode](/docs/10.x/configuration#maintenance-mode)에 들어가면, 예약 작업은 실행되지 않습니다. 이는 작업이 서버 유지보수 작업과 충돌하는 것을 방지하기 위해서입니다. 하지만, 꼭 유지보수 모드 중에도 특정 작업을 강제로 실행해야 한다면, 해당 작업 정의에 `evenInMaintenanceMode` 메서드를 추가하세요.
 
 ```
 $schedule->command('emails:send')->evenInMaintenanceMode();
@@ -528,7 +528,7 @@ $schedule->call(function () {
 1분 미만 작업(sub-minute tasks)이 애플리케이션 내에 정의되어 있을 때, `schedule:run` 명령어는 즉시 종료되지 않고, 해당 분이 끝날 때까지 계속 실행됩니다. 이 방식은 1초 단위 등 짧은 간격의 예약 작업이 분 단위로 모두 실행될 수 있도록 도와줍니다.
 
 <!-- Since sub-minute tasks that take longer than expected to run could delay the execution of later sub-minute tasks, it is recommend that all sub-minute tasks dispatch queued jobs or background commands to handle the actual task processing: -->
-하지만 1분 미만 작업의 실행 시간이 길어지면 뒤따르는 다른 작업들이 지연될 수 있습니다. 이런 경우에는 1분 미만 작업에서는 실제 처리를 큐 작업 또는 백그라운드 명령어로 디스패치하는 것이 좋습니다.
+하지만 1분 미만 작업의 실행 시간이 길어지면 뒤따르는 다른 작업들이 지연될 수 있습니다. 따라서 모든 1분 미만 작업에서는 실제 처리를 큐 작업 또는 백그라운드 명령어로 디스패치하는 것이 좋습니다.
 
 ```
 use App\Jobs\DeleteRecentUsers;
@@ -543,7 +543,7 @@ $schedule->command('users:delete')->everyTenSeconds()->runInBackground();
 #### Interrupting Sub-Minute Tasks
 
 <!-- As the `schedule:run` command runs for the entire minute of invocation when sub-minute tasks are defined, you may sometimes need to interrupt the command when deploying your application. Otherwise, an instance of the `schedule:run` command that is already running would continue using your application's previously deployed code until the current minute ends. -->
-1분 미만 작업이 정의된 경우 `schedule:run` 명령어가 전체 1분 동안 동작하기 때문에, 애플리케이션 배포(deploy) 시에 이 과정을 중단해야 할 필요가 있습니다. 그렇지 않으면 이미 실행 중이던 `schedule:run` 명령어가 현재 분이 끝날 때까지 이전 코드를 계속 사용할 수 있습니다.
+1분 미만 작업이 정의된 경우 `schedule:run` 명령어가 전체 1분 동안 동작하기 때문에, 애플리케이션 배포(deploy) 시에 이 과정을 중단해야 할 필요가 있을 수 있습니다. 그렇지 않으면 이미 실행 중이던 `schedule:run` 명령어가 현재 분이 끝날 때까지 이전 코드를 계속 사용할 수 있습니다.
 
 <!-- To interrupt in-progress `schedule:run` invocations, you may add the `schedule:interrupt` command to your application's deployment script. This command should be invoked after your application is finished deploying: -->
 이런 상황에서는 배포 스크립트의 마지막 단계에서 `schedule:interrupt` 명령어를 호출해 진행 중인 `schedule:run`을 안전하게 중단할 수 있습니다.
@@ -626,7 +626,7 @@ $schedule->command('emails:send')
 ```
 
 <!-- The `onSuccess` and `onFailure` methods allow you to specify code to be executed if the scheduled task succeeds or fails. A failure indicates that the scheduled Artisan or system command terminated with a non-zero exit code: -->
-`onSuccess`와 `onFailure` 메서드는 작업이 성공 또는 실패할 때(즉, 예약된 Artisan 또는 시스템 명령어가 0 이외의 종료 코드로 종료될 때) 실행할 코드를 지정합니다.
+`onSuccess`와 `onFailure` 메서드는 작업이 성공 또는 실패할 때 실행할 코드를 지정합니다. 실패는 예약된 Artisan 또는 시스템 명령어가 0 이외의 종료 코드로 종료된 경우를 의미합니다.
 
 ```
 $schedule->command('emails:send')

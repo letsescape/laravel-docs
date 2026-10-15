@@ -856,7 +856,7 @@ $files = Storage::allFiles($directory);
 #### Get All Directories Within a Directory
 
 <!-- The `directories` method returns an array of all the directories within a given directory. Additionally, you may use the `allDirectories` method to get a list of all directories within a given directory and all of its subdirectories: -->
-`directories` 메서드는 주어진 디렉터리 내 모든 하위 디렉터리의 배열을 반환합니다. 또한, `allDirectories` 메서드를 사용하면 지정한 디렉터리와 그 하위 디렉터리 전체의 모든 디렉터리 목록을 가져올 수 있습니다:
+`directories` 메서드는 주어진 디렉터리 바로 아래에 있는 모든 디렉터리의 배열을 반환합니다. 또한, `allDirectories` 메서드를 사용하면 지정한 디렉터리 안에 있는 디렉터리 목록을 중첩된 하위 디렉터리까지 가져올 수 있습니다:
 
 ```
 $directories = Storage::directories($directory);

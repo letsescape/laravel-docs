@@ -829,7 +829,7 @@ $diff->all();
 #### `doesntContain()`
 
 <!-- The `doesntContain` method determines whether the collection does not contain a given item. You may pass a closure to the `doesntContain` method to determine if an element does not exist in the collection matching a given truth test: -->
-`doesntContain` 메서드는 컬렉션에 특정 값이 포함되어 있지 않은지 확인합니다. `doesntContain` 메서드에 콜백(클로저)을 전달하여 주어진 조건을 만족하지 않는 요소가 컬렉션에 존재하는지 검사할 수 있습니다.
+`doesntContain` 메서드는 컬렉션에 특정 값이 포함되어 있지 않은지 확인합니다. `doesntContain` 메서드에 콜백(클로저)을 전달하여 주어진 조건을 만족하는 요소가 컬렉션에 존재하지 않는지 검사할 수 있습니다.
 
 ```
 $collection = collect([1, 2, 3, 4, 5]);
@@ -1134,7 +1134,7 @@ $collection->firstWhere('age');
 #### `flatMap()`
 
 <!-- The `flatMap` method iterates through the collection and passes each value to the given closure. The closure is free to modify the item and return it, thus forming a new collection of modified items. Then, the array is flattened by one level: -->
-`flatMap` 메서드는 컬렉션의 각 값을 주어진 콜백에 전달하여 값을 수정할 수 있으며, 이후 반환된 모든 배열을 1차원으로 평탄화(flatten)해서 새로운 컬렉션을 만듭니다.
+`flatMap` 메서드는 컬렉션의 각 값을 주어진 콜백에 전달하여 값을 수정할 수 있으며, 이후 반환된 모든 배열을 한 단계만 평탄화(flatten)해서 새로운 컬렉션을 만듭니다.
 
 ```
 $collection = collect([
@@ -1157,7 +1157,7 @@ $flattened->all();
 #### `flatten()`
 
 <!-- The `flatten` method flattens a multi-dimensional collection into a single dimension: -->
-`flatten` 메서드는 다차원(중첩) 컬렉션을 단일 차원 1차원 배열로 변환합니다.
+`flatten` 메서드는 다차원(중첩) 컬렉션을 1차원 컬렉션으로 변환합니다.
 
 ```
 $collection = collect([
@@ -2293,7 +2293,7 @@ $collection->random();
 ```
 
 <!-- You may pass an integer to `random` to specify how many items you would like to randomly retrieve. A collection of items is always returned when explicitly passing the number of items you wish to receive: -->
-`random`에 정수를 인자로 전달하면, 해당 개수만큼 임의의 아이템을 추출하여 컬렉션 형태로 반환합니다. 요청한 개수를 명시적으로 전달하면, 항상 여러 개의 아이템을 담은 컬렉션이 반환됩니다.
+`random`에 정수를 인자로 전달하면, 해당 개수만큼 임의의 아이템을 추출하여 컬렉션 형태로 반환합니다. 요청한 개수를 명시적으로 전달하면, 항상 아이템을 담은 컬렉션이 반환됩니다.
 
 ```
 $random = $collection->random(3);
@@ -3209,7 +3209,7 @@ $subset->all();
 ```
 
 > [!NOTE]
-> 만약 전달한 값이 없거나, 콜백이 한 번도 `true`를 반환하지 않으면 `takeUntil` 메서드는 컬렉션의 모든 항목을 반환합니다.
+> 만약 전달한 값이 컬렉션에 없거나, 콜백이 한 번도 `true`를 반환하지 않으면 `takeUntil` 메서드는 컬렉션의 모든 항목을 반환합니다.
 
 <a name="method-takewhile"></a>
 <!-- #### `takeWhile()` -->

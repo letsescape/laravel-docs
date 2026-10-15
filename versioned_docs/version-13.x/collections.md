@@ -3928,7 +3928,7 @@ $unique->values()->all();
 #### `unless()`
 
 <!-- The `unless` method will execute the given callback unless the first argument given to the method evaluates to `true`. The collection instance and the first argument given to the `unless` method will be provided to the closure: -->
-`unless` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가되지 않는 한 지정된 콜백을 실행합니다. `unless` 메서드에 제공된 컬렉션 인스턴스와 첫 번째 인수는 클로저에 제공됩니다.
+`unless` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가되지 않는 한 지정된 콜백을 실행합니다. `unless` 메서드는 컬렉션 인스턴스와 전달받은 첫 번째 인수를 클로저에 제공합니다.
 
 ```php
 $collection = collect([1, 2, 3]);
@@ -4049,7 +4049,7 @@ $values->all();
 #### `when()`
 
 <!-- The `when` method will execute the given callback when the first argument given to the method evaluates to `true`. The collection instance and the first argument given to the `when` method will be provided to the closure: -->
-`when` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가될 때 지정된 콜백을 실행합니다. `when` 메서드에 제공된 컬렉션 인스턴스와 첫 번째 인수는 클로저에 제공됩니다.
+`when` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가될 때 지정된 콜백을 실행합니다. `when` 메서드는 컬렉션 인스턴스와 전달받은 첫 번째 인수를 클로저에 제공합니다.
 
 ```php
 $collection = collect([1, 2, 3]);

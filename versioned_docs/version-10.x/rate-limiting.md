@@ -12,7 +12,7 @@
 ## Introduction
 
 <!-- Laravel includes a simple to use rate limiting abstraction which, in conjunction with your application's [cache](cache), provides an easy way to limit any action during a specified window of time. -->
-Laravel에서는 애플리케이션의 [cache](/docs/10.x/cache)와 함께 사용할 수 있는 단순한 요청 제한(rate limiting) 추상화 기능을 제공합니다. 이를 통해 지정한 시간 동안 어떤 작업이 허용되는지 손쉽게 제한할 수 있습니다.
+Laravel에서는 애플리케이션의 [cache](/docs/10.x/cache)와 함께 사용할 수 있는 단순한 요청 제한(rate limiting) 추상화 기능을 제공합니다. 이를 통해 지정한 시간 동안 특정 작업의 실행 횟수를 손쉽게 제한할 수 있습니다.
 
 > [!NOTE]
 > 만약 외부에서 들어오는 HTTP 요청에 대한 속도 제한이 궁금하다면, [rate limiter middleware documentation](/docs/10.x/routing#rate-limiting)를 참고하시기 바랍니다.
@@ -103,7 +103,7 @@ if (RateLimiter::remaining('send-message:'.$user->id, $perMinute = 5)) {
 ```
 
 <!-- If you would like to increment the value for a given rate limiter key by more than one, you may provide the desired amount to the `increment` method: -->
-또한, 만약 한 번에 1 이상으로 시도 횟수를 증가시키고 싶다면, `increment` 메서드에 원하는 증가값을 지정할 수 있습니다.
+또한, 만약 한 번에 1보다 큰 값만큼 시도 횟수를 증가시키고 싶다면, `increment` 메서드에 원하는 증가값을 지정할 수 있습니다.
 
 ```
 RateLimiter::increment('send-message:'.$user->id, amount: 5);

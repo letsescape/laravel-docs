@@ -55,7 +55,7 @@ php vendor/bin/envoy
 작업(Task)은 Envoy의 기본 단위로, 원격 서버에서 실행할 쉘 명령어를 정의합니다. 예를 들어, 모든 큐 작업자 서버에서 `php artisan queue:restart` 명령어를 실행하는 작업을 정의할 수 있습니다.
 
 <!-- All of your Envoy tasks should be defined in an `Envoy.blade.php` file at the root of your application. Here's an example to get you started: -->
-모든 Envoy 작업은 애플리케이션 루트에 `Envoy.blade.php` 파일에 정의해야 합니다. 다음은 기본 예제입니다:
+모든 Envoy 작업은 애플리케이션 루트의 `Envoy.blade.php` 파일에 정의해야 합니다. 다음은 기본 예제입니다:
 
 ```blade
 @servers(['web' => ['user@192.168.1.1'], 'workers' => ['user@192.168.1.2']])
@@ -96,7 +96,7 @@ php vendor/bin/envoy
 ### Multiple Servers
 
 <!-- Envoy allows you to easily run a task across multiple servers. First, add additional servers to your `@servers` declaration. Each server should be assigned a unique name. Once you have defined your additional servers you may list each of the servers in the task's `on` array: -->
-Envoy를 이용해 여러 서버에서 동시에 작업을 실행할 수 있습니다. 먼저 `@servers` 선언에 서버를 추가하고 각 서버에 고유 이름을 부여하세요. 그 다음 작업의 `on` 배열에 실행할 서버 이름들을 나열합니다:
+Envoy를 이용해 여러 서버에서 작업을 실행할 수 있습니다. 먼저 `@servers` 선언에 서버를 추가하고 각 서버에 고유 이름을 부여하세요. 그 다음 작업의 `on` 배열에 실행할 서버 이름들을 나열합니다:
 
 ```blade
 @servers(['web-1' => '192.168.1.1', 'web-2' => '192.168.1.2'])

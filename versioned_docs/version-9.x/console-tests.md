@@ -108,7 +108,7 @@ $this->artisan('module:import')
 #### Table Expectations
 
 <!-- If your command displays a table of information using Artisan's `table` method, it can be cumbersome to write output expectations for the entire table. Instead, you may use the `expectsTable` method. This method accepts the table's headers as its first argument and the table's data as its second argument: -->
-만약 여러분의 명령어가 Artisan의 `table` 메서드를 사용해서 정보 테이블을 출력한다면, 전체 테이블 전체를 대상으로 출력 결과를 검사하는 코드를 작성하는 것은 다소 번거로울 수 있습니다. 이런 경우, `expectsTable` 메서드를 사용할 수 있습니다. 이 메서드는 첫 번째 인자로 테이블의 헤더, 두 번째 인자로 테이블 데이터를 받습니다.
+만약 여러분의 명령어가 Artisan의 `table` 메서드를 사용해서 정보 테이블을 출력한다면, 전체 테이블을 대상으로 출력 결과를 검사하는 코드를 작성하는 것은 다소 번거로울 수 있습니다. 이런 경우, `expectsTable` 메서드를 사용할 수 있습니다. 이 메서드는 첫 번째 인자로 테이블의 헤더, 두 번째 인자로 테이블 데이터를 받습니다.
 
 ```
 $this->artisan('users:all')

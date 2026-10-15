@@ -59,7 +59,7 @@
 > 이 문서는 Cashier Paddle 2.x와 Paddle Billing의 통합에 관한 문서입니다. 아직 Paddle Classic을 사용하고 있다면 [Cashier Paddle 1.x](https://github.com/laravel/cashier-paddle/tree/1.x)를 사용해야 합니다.
 
 <!-- [Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle) provides an expressive, fluent interface to [Paddle's](https://paddle.com) subscription billing services. It handles almost all of the boilerplate subscription billing code you are dreading. In addition to basic subscription management, Cashier can handle: swapping subscriptions, subscription "quantities", subscription pausing, cancelation grace periods, and more. -->
-[Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle)은 [Paddle's](https://paddle.com)의 구독 청구 서비스에 대해 표현력 있고 유창한 인터페이스를 제공합니다. 신경 쓰고 싶지 않은 거의 모든 반복적인 구독 청구 코드를 처리해 줍니다. 기본적인 구독 관리 외에도 Cashier는 구독 교체, 구독 "수량", 구독 일시 중지, 취소 유예 기간 등을 처리할 수 있습니다.
+[Laravel Cashier Paddle](https://github.com/laravel/cashier-paddle)은 [Paddle's](https://paddle.com)의 구독 청구 서비스에 대해 표현력이 풍부한 플루언트 인터페이스를 제공합니다. 신경 쓰고 싶지 않은 거의 모든 반복적인 구독 청구 코드를 처리해 줍니다. 기본적인 구독 관리 외에도 Cashier는 구독 교체, 구독 "수량", 구독 일시 중지, 취소 유예 기간 등을 처리할 수 있습니다.
 
 <!-- Before digging into Cashier Paddle, we recommend you also review Paddle's [concept guides](https://developer.paddle.com/concepts/overview) and [API documentation](https://developer.paddle.com/api-reference/overview). -->
 Cashier Paddle을 자세히 살펴보기 전에 Paddle의 [concept guides](https://developer.paddle.com/concepts/overview)와 [API documentation](https://developer.paddle.com/api-reference/overview)도 함께 검토하는 것을 권장합니다.

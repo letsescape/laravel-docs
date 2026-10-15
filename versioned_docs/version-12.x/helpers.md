@@ -2856,7 +2856,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/12.x/broadcasting) the given [event](/docs/12.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [broadcasts](/docs/12.x/broadcasting)를 리스너에게 [event](/docs/12.x/events)합니다.
+`broadcast` 함수는 [broadcasts](/docs/12.x/broadcasting) 기능을 사용해 주어진 [event](/docs/12.x/events)를 리스너에게 브로드캐스트합니다.
 
 ```php
 broadcast(new UserRegistered($user));
@@ -2869,7 +2869,7 @@ broadcast(new UserRegistered($user))->toOthers();
 #### `broadcast_if()`
 
 <!-- The `broadcast_if` function [broadcasts](/docs/12.x/broadcasting) the given [event](/docs/12.x/events) to its listeners if a given boolean expression evaluates to `true`: -->
-`broadcast_if` 함수는 주어진 불리언 표현식이 `true`로 평가되면 주어진 [broadcasts](/docs/12.x/broadcasting)를 리스너에게 [event](/docs/12.x/events)합니다.
+`broadcast_if` 함수는 주어진 불리언 표현식이 `true`로 평가되면 [broadcasts](/docs/12.x/broadcasting) 기능을 사용해 주어진 [event](/docs/12.x/events)를 리스너에게 브로드캐스트합니다.
 
 ```php
 broadcast_if($user->isActive(), new UserRegistered($user));
@@ -2882,7 +2882,7 @@ broadcast_if($user->isActive(), new UserRegistered($user))->toOthers();
 #### `broadcast_unless()`
 
 <!-- The `broadcast_unless` function [broadcasts](/docs/12.x/broadcasting) the given [event](/docs/12.x/events) to its listeners if a given boolean expression evaluates to `false`: -->
-`broadcast_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 주어진 [broadcasts](/docs/12.x/broadcasting)를 리스너에게 [event](/docs/12.x/events)합니다.
+`broadcast_unless` 함수는 주어진 불리언 표현식이 `false`로 평가되면 [broadcasts](/docs/12.x/broadcasting) 기능을 사용해 주어진 [event](/docs/12.x/events)를 리스너에게 브로드캐스트합니다.
 
 ```php
 broadcast_unless($user->isBanned(), new UserRegistered($user));
@@ -3258,7 +3258,7 @@ $now = now();
 #### `old()`
 
 <!-- The `old` function [retrieves](/docs/12.x/requests#retrieving-input) an [old input](/docs/12.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 세션에 플래시된 [retrieves](/docs/12.x/requests#retrieving-input) 값을 [old input](/docs/12.x/requests#old-input).
+`old` 함수는 [retrieves](/docs/12.x/requests#retrieving-input) 기능을 사용해 세션에 플래시된 [old input](/docs/12.x/requests#old-input) 값을 가져옵니다.
 
 ```php
 $value = old('value');

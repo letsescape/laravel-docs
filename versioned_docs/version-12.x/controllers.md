@@ -503,7 +503,7 @@ public function boot(): void
 ```
 
 <!-- Laravel's pluralizer supports [several different languages which you may configure based on your needs](/docs/12.x/localization#pluralization-language). Once the verbs and pluralization language have been customized, a resource route registration such as `Route::resource('publicacion', PublicacionController::class)` will produce the following URIs: -->
-Laravel의 복수화(pluralizer) 기능은 [several different languages which you may configure based on your needs](/docs/12.x/localization#pluralization-language)하며, 필요에 따라 설정할 수 있습니다. 동사와 복수화 언어를 사용자 지정하면, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`은 아래와 같은 URI를 생성합니다.
+Laravel의 복수화(pluralizer) 기능은 [several different languages which you may configure based on your needs](/docs/12.x/localization#pluralization-language)를 지원하며, 필요에 따라 설정할 수 있습니다. 동사와 복수화 언어를 사용자 지정하면, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`은 아래와 같은 URI를 생성합니다.
 
 ```text
 /publicacion/crear

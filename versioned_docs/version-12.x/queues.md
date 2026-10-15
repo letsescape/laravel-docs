@@ -473,7 +473,7 @@ class UpdateSearchIndex implements ShouldQueue, ShouldBeUnique
 ### Encrypted Jobs
 
 <!-- Laravel allows you to ensure the privacy and integrity of a job's data via [encryption](/docs/12.x/encryption). To get started, simply add the `ShouldBeEncrypted` interface to the job class. Once this interface has been added to the class, Laravel will automatically encrypt your job before pushing it onto a queue: -->
-Laravel은 [encryption](/docs/12.x/encryption)를 통해 작업 데이터의 개인정보 보호와 무결성을 보장할 수 있도록 지원합니다. 시작하려면 작업 클래스에 `ShouldBeEncrypted` 인터페이스를 추가하기만 하면 됩니다. 이 인터페이스가 클래스에 추가되면 Laravel은 작업을 큐에 넣기 전에 자동으로 암호화합니다.
+Laravel은 [encryption](/docs/12.x/encryption)를 통해 작업 데이터의 기밀성과 무결성을 보장할 수 있도록 지원합니다. 시작하려면 작업 클래스에 `ShouldBeEncrypted` 인터페이스를 추가하기만 하면 됩니다. 이 인터페이스가 클래스에 추가되면 Laravel은 작업을 큐에 넣기 전에 자동으로 암호화합니다.
 
 ```php
 <?php
@@ -684,7 +684,7 @@ return [(new RateLimitedWithRedis('backups'))->connection('limiter')];
 ### Preventing Job Overlaps
 
 <!-- Laravel includes an `Illuminate\Queue\Middleware\WithoutOverlapping` middleware that allows you to prevent job overlaps based on an arbitrary key. This can be helpful when a queued job is modifying a resource that should only be modified by one job at a time. -->
-Laravel에는 임의의 키를 기준으로 작업 중복 실행을 방지할 수 있는 `Illuminate\Queue\Middleware\WithoutOverlapping` 미들웨어가 포함되어 있습니다. 이는 큐 작업이 한 번에 하나의 작업만 수정해야 하는 리소스를 변경할 때 유용합니다.
+Laravel에는 임의의 키를 기준으로 작업 중복 실행을 방지할 수 있는 `Illuminate\Queue\Middleware\WithoutOverlapping` 미들웨어가 포함되어 있습니다. 이는 큐 작업이 한 번에 하나의 작업만 수정할 수 있어야 하는 리소스를 변경할 때 유용합니다.
 
 <!-- For example, let's imagine you have a queued job that updates a user's credit score and you want to prevent credit score update job overlaps for the same user ID. To accomplish this, you can return the `WithoutOverlapping` middleware from your job's `middleware` method: -->
 예를 들어 사용자의 신용 점수를 업데이트하는 큐 작업이 있고, 같은 사용자 ID에 대한 신용 점수 업데이트 작업이 서로 겹쳐 실행되지 않도록 하고 싶다고 가정해 보겠습니다. 이를 위해 작업의 `middleware` 메서드에서 `WithoutOverlapping` 미들웨어를 반환할 수 있습니다.
@@ -704,7 +704,7 @@ public function middleware(): array
 ```
 
 <!-- Releasing an overlapping job back onto the queue will still increment the job's total number of attempts. You may wish to tune your `tries` and `maxExceptions` properties on your job class accordingly. For example, leaving the `tries` property to 1 as it is by default would prevent any overlapping job from being retried later. -->
-겹쳐 실행되는 작업을 다시 큐에 반환해도 작업의 총 시도 횟수는 증가합니다. 따라서 작업 클래스의 `tries` 및 `maxExceptions` 속성을 상황에 맞게 조정해야 할 수 있습니다. 예를 들어 `tries` 속성을 기본값인 1로 그대로 두면, 겹쳐 실행된 작업은 나중에 다시 시도되지 않습니다.
+겹쳐 실행되는 작업을 다시 큐에 반환해도 작업의 총 시도 횟수는 증가합니다. 따라서 작업 클래스의 `tries` 및 `maxExceptions` 속성을 상황에 맞게 조정해야 할 수 있습니다. 예를 들어 `tries` 속성을 기본값인 1로 그대로 두면, 중복 실행을 피하기 위해 큐에 반환된 작업은 나중에 다시 시도되지 않습니다.
 
 <!-- Any overlapping jobs of the same type will be released back to the queue. You may also specify the number of seconds that must elapse before the released job will be attempted again: -->
 같은 유형의 겹쳐 실행되는 작업은 다시 큐로 반환됩니다. 반환된 작업을 다시 시도하기 전에 지나야 하는 초 단위 시간을 지정할 수도 있습니다.
@@ -1640,7 +1640,7 @@ Laravel은 [Amazon SQS FIFO (First-In-First-Out)](https://docs.aws.amazon.com/AW
 FIFO 큐는 어떤 작업을 병렬로 처리할 수 있는지 판단하기 위해 메시지 그룹 ID가 필요합니다. 같은 그룹 ID를 가진 작업은 순차적으로 처리되고, 서로 다른 그룹 ID를 가진 메시지는 동시에 처리될 수 있습니다.
 
 <!-- Laravel provides a fluent `onGroup` method to specify the message group ID when dispatching jobs: -->
-Laravel은 작업을 디스패치할 때 메시지 그룹 ID를 지정할 수 있도록 유창한 `onGroup` 메서드를 제공합니다.
+Laravel은 작업을 디스패치할 때 메시지 그룹 ID를 지정할 수 있도록 메서드 체이닝을 지원하는 `onGroup` 메서드를 제공합니다.
 
 ```php
 ProcessOrder::dispatch($order)
@@ -1788,7 +1788,7 @@ php artisan queue:work database
 ### Error Handling
 
 <!-- If an exception is thrown while the job is being processed, the job will automatically be released back onto the queue so it may be attempted again. The job will continue to be released until it has been attempted the maximum number of times allowed by your application. The maximum number of attempts is defined by the `--tries` switch used on the `queue:work` Artisan command. Alternatively, the maximum number of attempts may be defined on the job class itself. More information on running the queue worker [can be found below](#running-the-queue-worker). -->
-작업이 처리되는 동안 예외가 발생하면, 작업은 다시 시도될 수 있도록 자동으로 큐에 반환됩니다. 작업은 애플리케이션에서 허용한 최대 시도 횟수에 도달할 때까지 계속 반환됩니다. 최대 시도 횟수는 `queue:work` Artisan 명령어에서 사용하는 `--tries` 스위치로 정의됩니다. 또는 작업 클래스 자체에 최대 시도 횟수를 정의할 수도 있습니다. 큐 워커 실행에 대한 자세한 내용은 [can be found below](#running-the-queue-worker).
+작업이 처리되는 동안 예외가 발생하면, 작업은 다시 시도될 수 있도록 자동으로 큐에 반환됩니다. 작업은 애플리케이션에서 허용한 최대 시도 횟수에 도달할 때까지 계속 반환됩니다. 최대 시도 횟수는 `queue:work` Artisan 명령어에서 사용하는 `--tries` 스위치로 정의됩니다. 또는 작업 클래스 자체에 최대 시도 횟수를 정의할 수도 있습니다. 큐 워커 실행에 대한 자세한 내용은 [can be found below](#running-the-queue-worker)에서 확인할 수 있습니다.
 
 <a name="manually-releasing-a-job"></a>
 <!-- #### Manually Releasing a Job -->
@@ -1927,7 +1927,7 @@ php artisan migrate
 ### Defining Batchable Jobs
 
 <!-- To define a batchable job, you should [create a queueable job](#creating-jobs) as normal; however, you should add the `Illuminate\Bus\Batchable` trait to the job class. This trait provides access to a `batch` method which may be used to retrieve the current batch that the job is executing within: -->
-배치 가능한 작업을 정의하려면 일반적인 방식으로 [create a queueable job](#creating-jobs)하면 됩니다. 다만 작업 클래스에 `Illuminate\Bus\Batchable` trait을 추가해야 합니다. 이 trait은 현재 작업이 실행 중인 배치를 가져오는 데 사용할 수 있는 `batch` 메서드를 제공합니다.
+배치 가능한 작업을 정의하려면 [create a queueable job](#creating-jobs) 문서에 따라 일반적인 큐 작업을 생성하면 됩니다. 다만 작업 클래스에 `Illuminate\Bus\Batchable` trait을 추가해야 합니다. 이 trait은 현재 작업이 실행 중인 배치를 가져오는 데 사용할 수 있는 `batch` 메서드를 제공합니다.
 
 ```php
 <?php
@@ -1999,7 +1999,7 @@ return $batch->id;
 ```
 
 <!-- The batch's ID, which may be accessed via the `$batch->id` property, may be used to [query the Laravel command bus](#inspecting-batches) for information about the batch after it has been dispatched. -->
-`$batch->id` 속성으로 접근할 수 있는 배치의 ID는, 배치가 디스패치된 후 해당 배치에 대한 정보를 [query the Laravel command bus](#inspecting-batches)하는 데 사용할 수 있습니다.
+`$batch->id` 속성으로 접근할 수 있는 배치의 ID는, 배치가 디스패치된 후 [query the Laravel command bus](#inspecting-batches) 문서의 설명에 따라 해당 배치에 대한 정보를 조회하는 데 사용할 수 있습니다.
 
 > [!WARNING]
 > 배치 콜백은 직렬화되어 나중에 Laravel 큐에 의해 실행되므로, 콜백 안에서 `$this` 변수를 사용하면 안 됩니다. 또한 배치된 작업은 데이터베이스 트랜잭션 안에서 감싸지므로, 암묵적 커밋을 유발하는 데이터베이스 구문은 작업 안에서 실행하면 안 됩니다.
@@ -2440,7 +2440,7 @@ php artisan queue:work -v
 ```
 
 <!-- Remember, queue workers are long-lived processes and store the booted application state in memory. As a result, they will not notice changes in your code base after they have been started. So, during your deployment process, be sure to [restart your queue workers](#queue-workers-and-deployment). In addition, remember that any static state created or modified by your application will not be automatically reset between jobs. -->
-큐 워커는 오래 실행되는 프로세스이며, 부팅된 애플리케이션 상태를 메모리에 저장한다는 점을 기억하십시오. 따라서 시작된 이후에는 코드베이스의 변경 사항을 감지하지 못합니다. 그러므로 배포 과정에서 반드시 [restart your queue workers](#queue-workers-and-deployment)해야 합니다. 또한 애플리케이션이 생성하거나 수정한 모든 정적 상태는 작업 사이에 자동으로 초기화되지 않는다는 점도 기억하십시오.
+큐 워커는 오래 실행되는 프로세스이며, 부팅된 애플리케이션 상태를 메모리에 저장한다는 점을 기억하십시오. 따라서 시작된 이후에는 코드베이스의 변경 사항을 감지하지 못합니다. 그러므로 배포 과정에서 반드시 [restart your queue workers](#queue-workers-and-deployment) 문서에 따라 큐 워커를 재시작해야 합니다. 또한 애플리케이션이 생성하거나 수정한 모든 정적 상태는 작업 사이에 자동으로 초기화되지 않는다는 점도 기억하십시오.
 
 <!-- Alternatively, you may run the `queue:listen` command. When using the `queue:listen` command, you don't have to manually restart the worker when you want to reload your updated code or reset the application state; however, this command is significantly less efficient than the `queue:work` command: -->
 또는 `queue:listen` 명령어를 실행할 수 있습니다. `queue:listen` 명령어를 사용하면 업데이트된 코드를 다시 로드하거나 애플리케이션 상태를 초기화하려고 할 때 워커를 수동으로 재시작할 필요가 없습니다. 하지만 이 명령어는 `queue:work` 명령어보다 훨씬 비효율적입니다.
@@ -2454,7 +2454,7 @@ php artisan queue:listen
 #### Running Multiple Queue Workers
 
 <!-- To assign multiple workers to a queue and process jobs concurrently, you should simply start multiple `queue:work` processes. This can either be done locally via multiple tabs in your terminal or in production using your process manager's configuration settings. [When using Supervisor](#supervisor-configuration), you may use the `numprocs` configuration value. -->
-여러 워커를 하나의 큐에 할당하고 작업을 동시에 처리하려면 여러 `queue:work` 프로세스를 시작하면 됩니다. 이는 로컬에서는 터미널의 여러 탭을 통해 수행할 수 있고, 프로덕션에서는 프로세스 관리자의 설정을 통해 수행할 수 있습니다. [When using Supervisor](#supervisor-configuration)는 `numprocs` 설정값을 사용할 수 있습니다.
+여러 워커를 하나의 큐에 할당하고 작업을 동시에 처리하려면 여러 `queue:work` 프로세스를 시작하면 됩니다. 이는 로컬에서는 터미널의 여러 탭을 통해 수행할 수 있고, 프로덕션에서는 프로세스 관리자의 설정을 통해 수행할 수 있습니다. Supervisor를 사용할 때는 [When using Supervisor](#supervisor-configuration) 문서에 설명된 `numprocs` 설정값을 사용할 수 있습니다.
 
 <a name="specifying-the-connection-queue"></a>
 <!-- #### Specifying the Connection and Queue -->
@@ -3105,7 +3105,7 @@ php artisan queue:clear redis --queue=emails
 큐에 작업이 갑자기 많이 들어오면 큐가 감당하기 어려워질 수 있고, 그 결과 작업이 완료되기까지 대기 시간이 길어질 수 있습니다. 원한다면 큐 작업 수가 지정한 임계값을 초과했을 때 Laravel이 알림을 보내도록 할 수 있습니다.
 
 <!-- To get started, you should schedule the `queue:monitor` command to [run every minute](/docs/12.x/scheduling). The command accepts the names of the queues you wish to monitor as well as your desired job count threshold: -->
-시작하려면 `queue:monitor` 명령어가 [run every minute](/docs/12.x/scheduling)되도록 스케줄링해야 합니다. 이 명령어는 모니터링하려는 큐 이름과 원하는 작업 수 임계값을 인수로 받습니다.
+시작하려면 `queue:monitor` 명령어가 [run every minute](/docs/12.x/scheduling) 문서에 따라 매분 실행되도록 스케줄링해야 합니다. 이 명령어는 모니터링하려는 큐 이름과 원하는 작업 수 임계값을 인수로 받습니다.
 
 ```shell
 php artisan queue:monitor redis:default,redis:deployments --max=100
@@ -3333,7 +3333,7 @@ Bus::assertDispatchedWithoutChain(ShipOrder::class);
 #### Testing Chain Modifications
 
 <!-- If a chained job [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain), you may use the job's `assertHasChain` method to assert that the job has the expected chain of remaining jobs: -->
-체인 작업이 [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain)한다면, 작업의 `assertHasChain` 메서드를 사용하여 작업에 예상한 남은 작업 체인이 있는지 단언할 수 있습니다.
+체인 작업이 [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain) 문서의 설명대로 기존 체인의 앞이나 뒤에 작업을 추가한다면, 작업의 `assertHasChain` 메서드를 사용하여 작업에 예상한 남은 작업 체인이 있는지 단언할 수 있습니다.
 
 ```php
 $job = new ProcessPodcast;
@@ -3359,7 +3359,7 @@ $job->assertDoesntHaveChain();
 #### Testing Chained Batches
 
 <!-- If your job chain [contains a batch of jobs](#chains-and-batches), you may assert that the chained batch matches your expectations by inserting a `Bus::chainedBatch` definition within your chain assertion: -->
-작업 체인에 [contains a batch of jobs](#chains-and-batches)가 포함되어 있다면, 체인 단언 안에 `Bus::chainedBatch` 정의를 삽입하여 체인 배치가 기대와 일치하는지 단언할 수 있습니다.
+작업 체인에 [contains a batch of jobs](#chains-and-batches) 문서에서 설명하는 작업 배치가 포함되어 있다면, 체인 단언 안에 `Bus::chainedBatch` 정의를 삽입하여 체인 배치가 기대와 일치하는지 단언할 수 있습니다.
 
 ```php
 use App\Jobs\ShipOrder;

@@ -416,7 +416,7 @@ Facades\Redis::transaction(function (Redis $redis) {
 `eval` 메서드는 여러 Redis 명령어를 하나의 원자적 작업으로 실행하는 또 다른 방법입니다. 특히 `eval` 메서드는 해당 작업에서 Redis 키의 값을 읽고, 조건을 판단하여 동적으로 명령을 실행할 수 있습니다. Redis 스크립트는 [Lua programming language](https://www.lua.org)로 작성해야 합니다.
 
 <!-- The `eval` method can be a bit scary at first, but we'll explore a basic example to break the ice. The `eval` method expects several arguments. First, you should pass the Lua script (as a string) to the method. Secondly, you should pass the number of keys (as an integer) that the script interacts with. Thirdly, you should pass the names of those keys. Finally, you may pass any other additional arguments that you need to access within your script. -->
-`eval` 메서드는 처음에는 다소 어렵게 느껴질 수 있지만, 기본 예시를 통해 차근차근 살펴보겠습니다. `eval` 메서드는 여러 개의 인수를 받습니다. 먼저 Lua 스크립트 자체(문자열), 두 번째로는 이 스크립트에서 다루는 키의 개수(정수), 세 번째부터는 해당 키들의 이름, 마지막으로 나머지 추가 인수들을 순서대로 전달해야 합니다.
+`eval` 메서드는 처음에는 다소 어렵게 느껴질 수 있지만, 기본 예시를 통해 차근차근 살펴보겠습니다. `eval` 메서드는 여러 개의 인수를 받습니다. 먼저 Lua 스크립트 자체(문자열), 두 번째로는 이 스크립트에서 다루는 키의 개수(정수), 세 번째부터는 해당 키들의 이름을 순서대로 전달해야 합니다. 마지막으로 스크립트에서 필요한 추가 인수를 전달할 수 있습니다.
 
 <!-- In this example, we will increment a counter, inspect its new value, and increment a second counter if the first counter's value is greater than five. Finally, we will return the value of the first counter: -->
 아래 예시는 카운터를 증가시키고 새 값을 검사하여, 5보다 크면 두 번째 카운터를 추가로 증가시킵니다. 마지막엔 첫 번째 카운터의 값을 반환합니다.
@@ -441,7 +441,7 @@ LUA, 2, 'first-counter', 'second-counter');
 ### Pipelining Commands
 
 <!-- Sometimes you may need to execute dozens of Redis commands. Instead of making a network trip to your Redis server for each command, you may use the `pipeline` method. The `pipeline` method accepts one argument: a closure that receives a Redis instance. You may issue all of your commands to this Redis instance and they will all be sent to the Redis server at the same time to reduce network trips to the server. The commands will still be executed in the order they were issued: -->
-수십 개의 Redis 명령어를 실행해야 할 때, 각각을 서버에 따로따로 전송하면 네트워크 비용이 큽니다. 이럴 때는 `pipeline` 메서드를 사용하세요. `pipeline` 메서드는 Redis 인스턴스를 인수로 받는 클로저를 전달받아, 해당 클로저 내에서 수행한 모든 명령어를 한 번에 처리합니다. 명령어들은 실행 순서를 그대로 유지합니다.
+수십 개의 Redis 명령어를 실행해야 할 때, 각각을 서버에 따로따로 전송하면 네트워크 비용이 큽니다. 이럴 때는 `pipeline` 메서드를 사용하세요. `pipeline` 메서드는 Redis 인스턴스를 인수로 받는 클로저를 전달받아, 해당 클로저 내에서 호출한 모든 명령어를 Redis 서버에 한 번에 전송합니다. 명령어들은 실행 순서를 그대로 유지합니다.
 
 ```php
 use Redis;
@@ -462,7 +462,7 @@ Facades\Redis::pipeline(function (Redis $pipe) {
 Laravel은 Redis의 `publish` 및 `subscribe` 명령어에 대한 편리한 인터페이스를 제공합니다. 이 명령어들은 특정 "채널"에 대해 메시지를 듣고(publish: 송신, subscribe: 수신) 보낼 수 있도록 해줍니다. 다른 애플리케이션이나, 심지어 다른 언어로도 메시지를 동일 채널로 발행할 수 있으므로, 애플리케이션 또는 프로세스 간의 손쉬운 통신이 가능합니다.
 
 <!-- First, let's set up a channel listener using the `subscribe` method. We'll place this method call within an [Artisan command](/docs/12.x/artisan) since calling the `subscribe` method begins a long-running process: -->
-먼저, `subscribe` 메서드를 사용해 채널 리스너를 설정해봅니다. `subscribe` 메서드는 장시간 실행되는 프로세스이므로, 보통 [Artisan command](/docs/12.x/artisan) 내에 구현합니다.
+먼저, `subscribe` 메서드를 사용해 채널 리스너를 설정해봅니다. `subscribe` 메서드를 호출하면 장시간 실행되는 프로세스가 시작되므로, 보통 [Artisan command](/docs/12.x/artisan) 내에 구현합니다.
 
 ```php
 <?php

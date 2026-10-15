@@ -1213,7 +1213,7 @@ $flattened->all();
 #### `flatten()`
 
 <!-- The `flatten` method flattens a multi-dimensional collection into a single dimension: -->
-`flatten` 메서드는 다차원 컬렉션을 한 단계(flat)로 평탄화(단일 배열로 만듦)합니다.
+`flatten` 메서드는 다차원 컬렉션을 1차원 컬렉션으로 평탄화합니다.
 
 ```
 $collection = collect([
@@ -3585,7 +3585,7 @@ $unique->values()->all();
 `unique` 메서드는 값 비교 시 "느슨한(loose)" 비교를 사용합니다. 즉, 정수 값의 문자열과 정수가 같은 값으로 간주됩니다. "엄격한(strict)" 비교를 사용해 필터링하려면 [`uniqueStrict`](#method-uniquestrict) 메서드를 사용하세요.
 
 > [!NOTE]
-> 이 메서드는 [Eloquent Collections](/docs/9.x/eloquent-collections#method-unique)에서 사용할 때 동작 방식이 다를 수 있습니다.
+> 이 메서드는 [Eloquent Collections](/docs/9.x/eloquent-collections#method-unique)에서 사용할 때 동작 방식이 달라집니다.
 
 <a name="method-uniquestrict"></a>
 <!-- #### `uniqueStrict()` -->

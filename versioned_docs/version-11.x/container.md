@@ -111,7 +111,7 @@ Route::get('/', function (Request $request) {
 이처럼 자동 의존성 주입과 [facades](/docs/11.x/facades)의 도움으로, 대부분의 Laravel 애플리케이션은 컨테이너에 바인딩하거나 직접 해결(resolve)하는 작업 없이 개발이 가능합니다. **그렇다면 언제 직접 서비스 컨테이너와 상호작용해야 할까요?** 대표적으로 아래 두 가지 상황이 있습니다.
 
 <!-- First, if you write a class that implements an interface and you wish to type-hint that interface on a route or class constructor, you must [tell the container how to resolve that interface](#binding-interfaces-to-implementations). Secondly, if you are [writing a Laravel package](/docs/11.x/packages) that you plan to share with other Laravel developers, you may need to bind your package's services into the container. -->
-첫째, 인터페이스를 구현한 클래스를 만들고, 라우트나 클래스 생성자에 그 인터페이스를 타입 힌트하고 싶을 때는 [tell the container how to resolve that interface](#binding-interfaces-to-implementations) 합니다. 둘째, [writing a Laravel package](/docs/11.x/packages)를 작성해 다른 개발자와 공유하고자 할 때에도, 패키지 서비스를 컨테이너에 바인딩하는 작업이 필요합니다.
+첫째, 인터페이스를 구현한 클래스를 만들고, 라우트나 클래스 생성자에 그 인터페이스를 타입 힌트하고 싶을 때는 컨테이너에 해당 인터페이스를 해결하는 방법을 알려주어야 합니다([tell the container how to resolve that interface](#binding-interfaces-to-implementations)). 둘째, [writing a Laravel package](/docs/11.x/packages)를 작성해 다른 개발자와 공유하고자 할 때에도, 패키지 서비스를 컨테이너에 바인딩하는 작업이 필요할 수 있습니다.
 
 <a name="binding"></a>
 <!-- ## Binding -->
@@ -187,7 +187,7 @@ $this->app->singleton(Transistor::class, function (Application $app) {
 ```
 
 <!-- You may use the `singletonIf` method to register a singleton container binding only if a binding has not already been registered for the given type: -->
-`singletonIf` 메서드를 사용하면, 해당 타입에 싱글턴 바인딩이 등록되어 있지 않을 때만 새로 싱글턴 바인딩을 적용할 수 있습니다.
+`singletonIf` 메서드를 사용하면, 해당 타입에 바인딩이 등록되어 있지 않을 때만 새로 싱글턴 바인딩을 적용할 수 있습니다.
 
 ```php
 $this->app->singletonIf(Transistor::class, function (Application $app) {
@@ -213,7 +213,7 @@ $this->app->scoped(Transistor::class, function (Application $app) {
 ```
 
 <!-- You may use the `scopedIf` method to register a scoped container binding only if a binding has not already been registered for the given type: -->
-`scopedIf` 메서드는 범위 바인딩이 미등록된 경우에만 바인딩을 적용합니다.
+`scopedIf` 메서드는 해당 타입에 바인딩이 미등록된 경우에만 범위 바인딩을 적용합니다.
 
 ```
 $this->app->scopedIf(Transistor::class, function (Application $app) {
@@ -376,7 +376,7 @@ Route::get('/user', function (#[CurrentUser] User $user) {
 #### Defining Custom Attributes
 
 <!-- You can create your own contextual attributes by implementing the `Illuminate\Contracts\Container\ContextualAttribute` contract. The container will call your attribute's `resolve` method, which should resolve the value that should be injected into the class utilizing the attribute. In the example below, we will re-implement Laravel's built-in `Config` attribute: -->
-컨테이너에 주입되는 값을 커스텀 속성(Attribute)으로 만들고 싶다면, `Illuminate\Contracts\Container\ContextualAttribute` 컨트랙트를 구현하세요. 컨테이너가 해당 속성의 `resolve` 메서드를 호출하여, 실제로 어떤 값을 주입해야 하는지 결정합니다. 아래는 Laravel에 내장된 `Config` 속성의 간단한 재구현 예시입니다.
+클래스에 값을 주입하는 커스텀 컨텍스트 속성(Attribute)을 만들고 싶다면, `Illuminate\Contracts\Container\ContextualAttribute` 컨트랙트를 구현하세요. 컨테이너가 해당 속성의 `resolve` 메서드를 호출하여, 실제로 어떤 값을 주입해야 하는지 결정합니다. 아래는 Laravel에 내장된 `Config` 속성의 간단한 재구현 예시입니다.
 
 ```php
 <?php
@@ -524,7 +524,7 @@ $this->app->when(ReportAggregator::class)
 ### Tagging
 
 <!-- Occasionally, you may need to resolve all of a certain "category" of binding. For example, perhaps you are building a report analyzer that receives an array of many different `Report` interface implementations. After registering the `Report` implementations, you can assign them a tag using the `tag` method: -->
-때로는 여러 "종류"의 바인딩을 한꺼번에 해결해야 할 때가 있습니다. 예를 들어, 다양한 `Report` 인터페이스 구현체로 이루어진 배열을 주입하고 싶을 때, 먼저 각 `Report` 구현체를 바인딩하고, `tag` 메서드를 이용해 이들을 하나의 태그로 묶을 수 있습니다.
+때로는 특정 "종류"에 속한 모든 바인딩을 한꺼번에 해결해야 할 때가 있습니다. 예를 들어, 다양한 `Report` 인터페이스 구현체로 이루어진 배열을 주입하고 싶을 때, 먼저 각 `Report` 구현체를 바인딩하고, `tag` 메서드를 이용해 이들을 하나의 태그로 묶을 수 있습니다.
 
 ```
 $this->app->bind(CpuReport::class, function () {

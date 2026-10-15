@@ -147,10 +147,10 @@ Redis 큐 커넥션이 Redis 클러스터를 사용하는 경우, 큐 이름에 
 **블로킹(Blocking)**
 
 <!-- When using the Redis queue, you may use the `block_for` configuration option to specify how long the driver should wait for a job to become available before iterating through the worker loop and re-polling the Redis database. -->
-Redis 큐를 사용할 때는 `block_for` 설정 옵션을 사용하여 잡이 대기 중일 때 큐 워커 루프가 Redis를 재폴링(반복 조회)하기 전, 얼마나 대기할지 지정할 수 있습니다.
+Redis 큐를 사용할 때는 `block_for` 설정 옵션을 사용하여 큐 워커 루프가 Redis를 재폴링(반복 조회)하기 전, 처리할 잡이 생길 때까지 얼마나 대기할지 지정할 수 있습니다.
 
 <!-- Adjusting this value based on your queue load can be more efficient than continually polling the Redis database for new jobs. For instance, you may set the value to `5` to indicate that the driver should block for five seconds while waiting for a job to become available: -->
-이 값을 큐 적재량에 맞게 조절하면, 지속적으로 Redis에서 새 잡을 폴링하는 것보다 효율적으로 처리할 수 있습니다. 예를 들어, 값을 `5`로 설정하면 잡이 대기 중일 때 최대 5초 동안 대기하도록 지정할 수 있습니다.
+이 값을 큐 적재량에 맞게 조절하면, 지속적으로 Redis에서 새 잡을 폴링하는 것보다 효율적으로 처리할 수 있습니다. 예를 들어, 값을 `5`로 설정하면 처리할 잡이 생길 때까지 최대 5초 동안 대기하도록 지정할 수 있습니다.
 
 ```
 'redis' => [
@@ -574,7 +574,7 @@ return Limit::perMinute(50)->by($job->user->id);
 ```
 
 <!-- Once you have defined your rate limit, you may attach the rate limiter to your job using the `Illuminate\Queue\Middleware\RateLimited` middleware. Each time the job exceeds the rate limit, this middleware will release the job back to the queue with an appropriate delay based on the rate limit duration. -->
-속도 제한자를 정의했다면, 이제 해당 잡에 `Illuminate\Queue\Middleware\RateLimited` 미들웨어를 붙여 적용할 수 있습니다. 잡이 속도 제한을 초과할 때마다, 이 미들웨어는 정해진 제한 시간만큼 딜레이를 두고 잡을 다시 큐에 반환합니다.
+속도 제한자를 정의했다면, 이제 해당 잡에 `Illuminate\Queue\Middleware\RateLimited` 미들웨어를 붙여 적용할 수 있습니다. 잡이 속도 제한을 초과할 때마다, 이 미들웨어는 제한 기간에 따라 적절한 딜레이를 두고 잡을 다시 큐에 반환합니다.
 
 ```
 use Illuminate\Queue\Middleware\RateLimited;
@@ -681,7 +681,7 @@ public function middleware(): array
 ```
 
 > [!WARNING]
-> `WithoutOverlapping` 미들웨어를 사용하려면 [locks](/docs/11.x/cache#atomic-locks) 기능을 지원하는 캐시 드라이버가 필요합니다. 현재 `memcached`, `redis`, `dynamodb`, `database`, `file`, `array` 캐시 드라이버만이 원자적 락을 사용할 수 있습니다.
+> `WithoutOverlapping` 미들웨어를 사용하려면 [locks](/docs/11.x/cache#atomic-locks) 기능을 지원하는 캐시 드라이버가 필요합니다. 현재 `memcached`, `redis`, `dynamodb`, `database`, `file`, `array` 캐시 드라이버가 원자적 락을 사용할 수 있습니다.
 
 <a name="sharing-lock-keys"></a>
 
@@ -958,7 +958,7 @@ class PodcastController extends Controller
 ```
 
 <!-- In some cases, jobs may have a default delay configured. If you need to bypass this delay and dispatch a job for immediate processing, you may use the `withoutDelay` method: -->
-경우에 따라, 잡에 기본 지연(delay)이 설정되어 있을 수도 있습니다. 이 기본 지연을 무시하고 즉시 잡을 디스패치하려면, `withoutDelay` 메서드를 사용하시면 됩니다.
+경우에 따라, 잡에 기본 지연(delay)이 설정되어 있을 수도 있습니다. 이 기본 지연을 무시하고 잡을 즉시 처리할 수 있도록 디스패치하려면, `withoutDelay` 메서드를 사용하시면 됩니다.
 
 ```
 ProcessPodcast::dispatch($podcast)->withoutDelay();
@@ -972,7 +972,7 @@ ProcessPodcast::dispatch($podcast)->withoutDelay();
 #### Dispatching After the Response is Sent to the Browser
 
 <!-- Alternatively, the `dispatchAfterResponse` method delays dispatching a job until after the HTTP response is sent to the user's browser if your web server is using FastCGI. This will still allow the user to begin using the application even though a queued job is still executing. This should typically only be used for jobs that take about a second, such as sending an email. Since they are processed within the current HTTP request, jobs dispatched in this fashion do not require a queue worker to be running in order for them to be processed: -->
-`dispatchAfterResponse` 메서드는 웹 서버가 FastCGI를 사용하는 경우, HTTP 응답이 사용자의 브라우저에 전송된 후에 잡을 디스패치하도록 지연시킬 수 있습니다. 이를 통해 사용자가 애플리케이션을 바로 사용할 수 있도록 하고, 잡은 그 뒤에 실행됩니다. 일반적으로 1초 이내에 끝나는 짧은 잡(예: 메일 발송)에만 사용하는 것이 좋습니다. 이 방식을 사용할 때는 별도의 큐 워커가 실행 중이지 않아도 현재 HTTP 요청 내에서 잡 처리가 완료됩니다.
+`dispatchAfterResponse` 메서드는 웹 서버가 FastCGI를 사용하는 경우, HTTP 응답이 사용자의 브라우저에 전송된 후에 잡을 디스패치하도록 지연시킬 수 있습니다. 이를 통해 사용자가 애플리케이션을 바로 사용할 수 있도록 하고, 잡은 그 뒤에 실행됩니다. 일반적으로 1초 정도 걸리는 짧은 잡(예: 메일 발송)에만 사용하는 것이 좋습니다. 이 방식을 사용할 때는 별도의 큐 워커가 실행 중이지 않아도 현재 HTTP 요청 내에서 잡 처리가 완료됩니다.
 
 ```
 use App\Jobs\SendNotification;
@@ -1327,7 +1327,7 @@ php artisan queue:work --tries=3
 ```
 
 <!-- If a job exceeds its maximum number of attempts, it will be considered a "failed" job. For more information on handling failed jobs, consult the [failed job documentation](#dealing-with-failed-jobs). If `--tries=0` is provided to the `queue:work` command, the job will be retried indefinitely. -->
-작업이 최대 시도 횟수에 도달하면 해당 작업은 "실패(failed)"로 간주됩니다. 실패한 작업의 처리에 관한 자세한 내용은 [failed job documentation](#dealing-with-failed-jobs) 문서를 참고하십시오. 만약 `queue:work` 명령어에 `--tries=0`을 지정하면 작업은 무한정 재시도됩니다.
+작업이 최대 시도 횟수를 초과하면 해당 작업은 "실패(failed)"로 간주됩니다. 실패한 작업의 처리에 관한 자세한 내용은 [failed job documentation](#dealing-with-failed-jobs) 문서를 참고하십시오. 만약 `queue:work` 명령어에 `--tries=0`을 지정하면 작업은 무한정 재시도됩니다.
 
 <!-- You may take a more granular approach by defining the maximum number of times a job may be attempted on the job class itself. If the maximum number of attempts is specified on the job, it will take precedence over the `--tries` value provided on the command line: -->
 더 세밀하게, 작업 클래스 자체에서 최대 시도 횟수를 지정할 수도 있습니다. 이 경우, 해당 작업에 지정된 값이 명령줄에서 지정한 `--tries` 값보다 우선 적용됩니다.
@@ -1366,7 +1366,7 @@ public function tries(): int
 #### Time Based Attempts
 
 <!-- As an alternative to defining how many times a job may be attempted before it fails, you may define a time at which the job should no longer be attempted. This allows a job to be attempted any number of times within a given time frame. To define the time at which a job should no longer be attempted, add a `retryUntil` method to your job class. This method should return a `DateTime` instance: -->
-작업이 실패 처리되기까지 몇 번이나 시도할지 대신, 언제까지 이 작업을 더 이상 재시도하지 않을지 종료 시점을 지정할 수도 있습니다. 이렇게 하면 지정한 시간 내에서는 몇 번이든 재시도할 수 있습니다. 종료 시점을 지정하려면 작업 클래스에 `retryUntil` 메서드를 추가합니다. 이 메서드는 `DateTime` 인스턴스를 반환해야 합니다.
+작업이 실패 처리되기까지 몇 번이나 시도할지 대신, 언제부터 이 작업을 더 이상 재시도하지 않을지 종료 시점을 지정할 수도 있습니다. 이렇게 하면 지정한 시간 내에서는 몇 번이든 재시도할 수 있습니다. 종료 시점을 지정하려면 작업 클래스에 `retryUntil` 메서드를 추가합니다. 이 메서드는 `DateTime` 인스턴스를 반환해야 합니다.
 
 ```
 use DateTime;
@@ -1728,7 +1728,7 @@ Bus::chain([
 ### Adding Jobs to Batches
 
 <!-- Sometimes it may be useful to add additional jobs to a batch from within a batched job. This pattern can be useful when you need to batch thousands of jobs which may take too long to dispatch during a web request. So, instead, you may wish to dispatch an initial batch of "loader" jobs that hydrate the batch with even more jobs: -->
-경우에 따라, 일괄 처리 중인 작업 내에서 추가 작업을 같은 배치에 동적으로 등록할 필요가 있습니다. 이를 활용하면 수천 개의 작업을 웹 요청 중에 한 번에 처리하는 대신, "로더" 작업을 먼저 일괄로 디스패치하고, 그 작업이 추가 작업을 동일 배치에 주입하는 방식이 가능합니다.
+경우에 따라, 일괄 처리 중인 작업 내에서 추가 작업을 같은 배치에 동적으로 등록할 필요가 있습니다. 이를 활용하면 수천 개의 작업을 웹 요청 중에 한 번에 디스패치하는 대신, "로더" 작업을 먼저 일괄로 디스패치하고, 그 작업이 추가 작업을 동일 배치에 주입하는 방식이 가능합니다.
 
 ```
 $batch = Bus::batch([
@@ -2058,7 +2058,7 @@ php artisan queue:work -v
 ```
 
 <!-- Remember, queue workers are long-lived processes and store the booted application state in memory. As a result, they will not notice changes in your code base after they have been started. So, during your deployment process, be sure to [restart your queue workers](#queue-workers-and-deployment). In addition, remember that any static state created or modified by your application will not be automatically reset between jobs. -->
-큐 워커는 장시간 실행되는 프로세스이므로 현재 부팅된 애플리케이션 상태를 메모리에 저장합니다. 즉, 워커가 이미 시작된 이후 코드베이스에 변경이 있어도 이를 감지하지 못합니다. 따라서 배포 과정 중에는 [restart your queue workers](#queue-workers-and-deployment)해야 합니다. 또한, 애플리케이션 내에서 생성하거나 변경된 정적(static) 상태는 작업 간에 자동으로 초기화되지 않는 점도 기억해야 합니다.
+큐 워커는 장시간 실행되는 프로세스이므로 현재 부팅된 애플리케이션 상태를 메모리에 저장합니다. 즉, 워커가 이미 시작된 이후 코드베이스에 변경이 있어도 이를 감지하지 못합니다. 따라서 배포 과정 중에는 [restart your queue workers](#queue-workers-and-deployment) 문서에 따라 큐 워커를 재시작해야 합니다. 또한, 애플리케이션 내에서 생성하거나 변경된 정적(static) 상태는 작업 간에 자동으로 초기화되지 않는 점도 기억해야 합니다.
 
 <!-- Alternatively, you may run the `queue:listen` command. When using the `queue:listen` command, you don't have to manually restart the worker when you want to reload your updated code or reset the application state; however, this command is significantly less efficient than the `queue:work` command: -->
 대신 `queue:listen` 명령어를 사용할 수도 있습니다. `queue:listen` 명령어를 사용하는 경우, 코드가 업데이트되거나 애플리케이션 상태를 리셋하려면 워커를 직접 재시작할 필요가 없습니다. 하지만 이 명령어는 `queue:work` 명령어에 비해 성능이 떨어집니다.
@@ -2072,7 +2072,7 @@ php artisan queue:listen
 #### Running Multiple Queue Workers
 
 <!-- To assign multiple workers to a queue and process jobs concurrently, you should simply start multiple `queue:work` processes. This can either be done locally via multiple tabs in your terminal or in production using your process manager's configuration settings. [When using Supervisor](#supervisor-configuration), you may use the `numprocs` configuration value. -->
-큐에 여러 워커를 할당해 동시에 작업을 처리하고 싶다면, `queue:work` 프로세스를 여러 개 실행하면 됩니다. 이는 로컬에서는 터미널의 여러 탭을 활용해 실행할 수 있고, 운영 환경에서는 프로세스 관리자의 설정을 이용해 가능합니다. [When using Supervisor](#supervisor-configuration)에는 `numprocs` 설정 값을 사용할 수 있습니다.
+큐에 여러 워커를 할당해 동시에 작업을 처리하고 싶다면, `queue:work` 프로세스를 여러 개 실행하면 됩니다. 이는 로컬에서는 터미널의 여러 탭을 활용해 실행할 수 있고, 운영 환경에서는 프로세스 관리자의 설정을 이용해 가능합니다. Supervisor를 사용할 때는 [When using Supervisor](#supervisor-configuration) 문서에 설명된 `numprocs` 설정 값을 사용할 수 있습니다.
 
 <a name="specifying-the-connection-queue"></a>
 <!-- #### Specifying the Connection and Queue -->
@@ -2219,7 +2219,7 @@ php artisan queue:restart
 #### Worker Timeouts
 
 <!-- The `queue:work` Artisan command exposes a `--timeout` option. By default, the `--timeout` value is 60 seconds. If a job is processing for longer than the number of seconds specified by the timeout value, the worker processing the job will exit with an error. Typically, the worker will be restarted automatically by a [process manager configured on your server](#supervisor-configuration): -->
-`queue:work` Artisan 명령어에는 `--timeout` 옵션이 있습니다. 기본적으로 `--timeout` 값은 60초입니다. 지정한 타임아웃 시간보다 오래 작업이 처리될 경우, 해당 작업을 담당하는 워커는 오류와 함께 종료됩니다. 보통 서버에 [process manager configured on your server](#supervisor-configuration)에 의해 워커가 자동으로 재시작됩니다.
+`queue:work` Artisan 명령어에는 `--timeout` 옵션이 있습니다. 기본적으로 `--timeout` 값은 60초입니다. 지정한 타임아웃 시간보다 오래 작업이 처리될 경우, 해당 작업을 담당하는 워커는 오류와 함께 종료됩니다. 보통 [process manager configured on your server](#supervisor-configuration)에 의해 워커가 자동으로 재시작됩니다.
 
 ```shell
 php artisan queue:work --timeout=60
@@ -2318,7 +2318,7 @@ php artisan migrate
 ```
 
 <!-- When running a [queue worker](#running-the-queue-worker) process, you may specify the maximum number of times a job should be attempted using the `--tries` switch on the `queue:work` command. If you do not specify a value for the `--tries` option, jobs will only be attempted once or as many times as specified by the job class' `$tries` property: -->
-[queue worker](#running-the-queue-worker) 프로세스를 실행할 때는, `queue:work` 명령어에 `--tries` 옵션을 추가해 작업별 최대 시도 횟수를 지정할 수 있습니다. `--tries` 옵션에 값을 지정하지 않으면, 각 잡 클래스의 `$tries` 속성값이나 기본값에 따라 단 한 번만 시도됩니다.
+[queue worker](#running-the-queue-worker) 프로세스를 실행할 때는, `queue:work` 명령어에 `--tries` 옵션을 추가해 작업별 최대 시도 횟수를 지정할 수 있습니다. `--tries` 옵션에 값을 지정하지 않으면, 잡은 기본적으로 한 번만 시도되거나, 잡 클래스의 `$tries` 속성에 지정된 횟수만큼 시도됩니다.
 
 ```shell
 php artisan queue:work redis --tries=3
@@ -2376,7 +2376,7 @@ public function backoff(): array
 ### Cleaning Up After Failed Jobs
 
 <!-- When a particular job fails, you may want to send an alert to your users or revert any actions that were partially completed by the job. To accomplish this, you may define a `failed` method on your job class. The `Throwable` instance that caused the job to fail will be passed to the `failed` method: -->
-특정 작업이 실패할 경우, 사용자의 알림을 보내거나 작업 도중 일부만 실행된 기능들을 되돌리는 등의 후처리가 필요할 수 있습니다. 이를 위해, 잡 클래스에 `failed` 메서드를 정의하면 됩니다. 이때 작업이 실패하게 만든 `Throwable` 인스턴스가 `failed` 메서드로 전달됩니다.
+특정 작업이 실패할 경우, 사용자에게 알림을 보내거나 작업 도중 일부만 실행된 기능들을 되돌리는 등의 후처리가 필요할 수 있습니다. 이를 위해, 잡 클래스에 `failed` 메서드를 정의하면 됩니다. 이때 작업이 실패하게 만든 `Throwable` 인스턴스가 `failed` 메서드로 전달됩니다.
 
 ```
 <?php
@@ -2485,7 +2485,7 @@ php artisan queue:flush
 Eloquent 모델을 작업에 직접 삽입할 경우, 해당 모델은 큐에 저장되기 전에 자동으로 직렬화되고, 작업 처리 시 데이터베이스에서 다시 조회됩니다. 다만, 작업이 처리 대기 중일 때 해당 모델이 삭제된 경우, 해당 작업은 `ModelNotFoundException`과 함께 실패할 수 있습니다.
 
 <!-- For convenience, you may choose to automatically delete jobs with missing models by setting your job's `deleteWhenMissingModels` property to `true`. When this property is set to `true`, Laravel will quietly discard the job without raising an exception: -->
-편의를 위해, 작업 클래스의 `deleteWhenMissingModels` 속성을 `true`로 지정할 수 있습니다. 이 속성이 `true`로 설정되어 있으면, 모델이 존재하지 않을 경우 Laravel이 예외를 발생하지 않고 조용히 해당 작업을 삭제합니다.
+편의를 위해, 작업 클래스의 `deleteWhenMissingModels` 속성을 `true`로 지정할 수 있습니다. 이 속성이 `true`로 설정되어 있으면, 모델이 존재하지 않을 경우 Laravel이 예외를 발생시키지 않고 조용히 해당 작업을 삭제합니다.
 
 ```
 /**
@@ -2628,7 +2628,7 @@ php artisan queue:clear redis --queue=emails
 만약 큐에 작업이 갑자기 대량으로 몰리면 큐가 과부하되어 각 작업의 완료 대기 시간이 길어질 수 있습니다. 원한다면, 큐에 쌓인 작업 수가 특정 임계치(Threshold)를 넘어서면 Laravel이 이를 알림으로 통지하도록 설정할 수 있습니다.
 
 <!-- To get started, you should schedule the `queue:monitor` command to [run every minute](/docs/11.x/scheduling). The command accepts the names of the queues you wish to monitor as well as your desired job count threshold: -->
-먼저, `queue:monitor` 명령어를 [run every minute](/docs/11.x/scheduling)되도록 스케줄링해야 합니다. 이 명령어는 모니터링하고 싶은 큐 이름들과 임계치 작업 수를 파라미터로 받을 수 있습니다.
+먼저, `queue:monitor` 명령어를 [run every minute](/docs/11.x/scheduling) 문서에 따라 매분 실행하도록 스케줄링해야 합니다. 이 명령어는 모니터링하고 싶은 큐 이름들과 임계치 작업 수를 파라미터로 받을 수 있습니다.
 
 ```shell
 php artisan queue:monitor redis:default,redis:deployments --max=100
@@ -2799,7 +2799,7 @@ Queue::fake()->except([
 ### Testing Job Chains
 
 <!-- To test job chains, you will need to utilize the `Bus` facade's faking capabilities. The `Bus` facade's `assertChained` method may be used to assert that a [chain of jobs](/docs/11.x/queues#job-chaining) was dispatched. The `assertChained` method accepts an array of chained jobs as its first argument: -->
-작업 체인(Chained Job)을 테스트하려면 `Bus` 파사드의 fake 기능을 활용해야 합니다. `Bus` 파사드의 `assertChained` 메서드는 [chain of jobs](/docs/11.x/queues#job-chaining)이 실제로 디스패치되었는지 검증할 수 있습니다. `assertChained` 메서드는 첫 번째 인자로 체인에 들어갈 작업 클래스명을 배열로 전달받습니다.
+작업 체인(Chained Job)을 테스트하려면 `Bus` 파사드의 fake 기능을 활용해야 합니다. `Bus` 파사드의 `assertChained` 메서드는 [chain of jobs](/docs/11.x/queues#job-chaining)이 실제로 디스패치되었는지 검증할 수 있습니다. `assertChained` 메서드는 첫 번째 인자로 체인에 들어갈 작업을 배열로 전달받습니다.
 
 ```
 use App\Jobs\RecordShipment;
@@ -2841,7 +2841,7 @@ Bus::assertDispatchedWithoutChain(ShipOrder::class);
 #### Testing Chain Modifications
 
 <!-- If a chained job [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain), you may use the job's `assertHasChain` method to assert that the job has the expected chain of remaining jobs: -->
-만약 체인에 속한 작업이 [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain)한다면, 해당 작업의 `assertHasChain` 메서드를 이용하여 남은 체인이 예상대로 되어 있는지 검증할 수 있습니다.
+만약 체인에 속한 작업이 [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain) 문서의 설명대로 기존 체인의 앞이나 뒤에 작업을 추가한다면, 해당 작업의 `assertHasChain` 메서드를 이용하여 남은 체인이 예상대로 되어 있는지 검증할 수 있습니다.
 
 ```php
 $job = new ProcessPodcast;
@@ -2867,7 +2867,7 @@ $job->assertDoesntHaveChain();
 #### Testing Chained Batches
 
 <!-- If your job chain [contains a batch of jobs](#chains-and-batches), you may assert that the chained batch matches your expectations by inserting a `Bus::chainedBatch` definition within your chain assertion: -->
-작업 체인이 [contains a batch of jobs](#chains-and-batches)를 포함할 경우, 체인 검증 배열에 `Bus::chainedBatch` 정의를 넣어서 해당 배치가 예상과 일치하는지 확인할 수 있습니다.
+작업 체인이 [contains a batch of jobs](#chains-and-batches) 문서에서 설명하는 작업 배치를 포함할 경우, 체인 검증 배열에 `Bus::chainedBatch` 정의를 넣어서 해당 배치가 예상과 일치하는지 확인할 수 있습니다.
 
 ```
 use App\Jobs\ShipOrder;
@@ -2943,7 +2943,7 @@ $this->assertEmpty($batch->added);
 때로는 큐에 등록된 작업이 스스로 큐에 다시 반환되는지([releases itself back onto the queue](#manually-releasing-a-job)), 또는 작업 자체를 삭제하는지 테스트해야 하는 상황이 있습니다. 이때 작업 인스턴스를 생성해 `withFakeQueueInteractions` 메서드를 호출하여 큐와의 상호작용을 가짜로 만들 수 있습니다.
 
 <!-- Once the job's queue interactions have been faked, you may invoke the `handle` method on the job. After invoking the job, the `assertReleased`, `assertDeleted`, `assertNotDeleted`, `assertFailed`, `assertFailedWith`, and `assertNotFailed` methods may be used to make assertions against the job's queue interactions: -->
-작업의 큐 상호작용을 fake로 만들고 나면, 바로 `handle` 메서드를 호출하면 됩니다. 이후 `assertReleased`, `assertDeleted`, `assertNotDeleted`, `assertFailed`, `assertFailedWith`, `assertNotFailed` 등 다양한 assert 메서드를 이용해 큐와의 실제 상호작용을 검증할 수 있습니다.
+작업의 큐 상호작용을 fake로 만들고 나면, 바로 `handle` 메서드를 호출하면 됩니다. 이후 `assertReleased`, `assertDeleted`, `assertNotDeleted`, `assertFailed`, `assertFailedWith`, `assertNotFailed` 등 다양한 assert 메서드를 이용해 가짜로 만든 큐와의 상호작용을 검증할 수 있습니다.
 
 ```php
 use App\Exceptions\CorruptedAudioException;

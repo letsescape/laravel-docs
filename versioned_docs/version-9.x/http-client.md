@@ -282,7 +282,7 @@ $response = Http::connectTimeout(3)->get(/* ... */);
 ### Retries
 
 <!-- If you would like the HTTP client to automatically retry the request if a client or server error occurs, you may use the `retry` method. The `retry` method accepts the maximum number of times the request should be attempted and the number of milliseconds that Laravel should wait in between attempts: -->
-HTTP 클라이언트가 클라이언트 또는 서버 에러가 발생했을 때, 자동으로 요청을 재시도하도록 하려면 `retry` 메서드를 사용할 수 있습니다. 이 `retry` 메서드는 최대 재시도 횟수와 각 시도 사이에 기다릴 밀리초(ms) 시간을 받습니다.
+HTTP 클라이언트가 클라이언트 또는 서버 에러가 발생했을 때, 자동으로 요청을 재시도하도록 하려면 `retry` 메서드를 사용할 수 있습니다. 이 `retry` 메서드는 요청을 시도할 최대 횟수와 각 시도 사이에 기다릴 밀리초(ms) 시간을 받습니다.
 
 ```
 $response = Http::retry(3, 100)->post(/* ... */);
@@ -460,7 +460,7 @@ $response = Http::withOptions([
 여러 HTTP 요청을 동시에 보내고 싶을 때가 있습니다. 즉, 요청을 순차적으로 보내지 않고, 여러 개를 동시에 처리하고 싶은 경우입니다. 이는 느린 HTTP API와 상호작용할 때 성능을 크게 개선할 수 있습니다.
 
 <!-- Thankfully, you may accomplish this using the `pool` method. The `pool` method accepts a closure which receives an `Illuminate\Http\Client\Pool` instance, allowing you to easily add requests to the request pool for dispatching: -->
-이런 동작은 `pool` 메서드를 사용해 구현할 수 있습니다. `pool` 메서드는 `Illuminate\Http\Client\Pool` 인스턴스를 받아 요청 풀에 쉽게 요청을 추가할 수 있도록 클로저를 받습니다.
+이런 동작은 `pool` 메서드를 사용해 구현할 수 있습니다. `pool` 메서드는 `Illuminate\Http\Client\Pool` 인스턴스를 받는 클로저를 인수로 받아 요청 풀에 쉽게 요청을 추가할 수 있도록 합니다.
 
 ```
 use Illuminate\Http\Client\Pool;

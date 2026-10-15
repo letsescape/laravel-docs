@@ -35,7 +35,7 @@ Laravel의 [facades](/docs/9.x/facades)와 다양한 헬퍼 함수들은 서비�
 ## When To Use Contracts
 
 <!-- The decision to use contracts or facades will come down to personal taste and the tastes of your development team. Both contracts and facades can be used to create robust, well-tested Laravel applications. Contracts and facades are not mutually exclusive. Some parts of your applications may use facades while others depend on contracts. As long as you are keeping your class' responsibilities focused, you will notice very few practical differences between using contracts and facades. -->
-컨트랙트와 파사드 중 어떤 것을 사용할지는 여러분이나 팀의 취향에 따라 결정하면 됩니다. 둘 다 사용해서 견고하고 테스트 가능한 Laravel 애플리케이션을 충분히 만들 수 있습니다. 게다가 컨트랙트와 파사드는 서로 독립적인 관계가 아닌, 상황에 따라 일부 코드는 파사드를, 다른 코드는 컨트랙트를 사용할 수도 있습니다. 클래스의 역할만 명확하게 분리한다면 두 방식 모두 실질적으로 큰 차이를 느끼기 어렵습니다.
+컨트랙트와 파사드 중 어떤 것을 사용할지는 여러분이나 팀의 취향에 따라 결정하면 됩니다. 둘 다 사용해서 견고하고 테스트 가능한 Laravel 애플리케이션을 충분히 만들 수 있습니다. 게다가 컨트랙트와 파사드는 상호 배타적인 관계가 아니므로, 상황에 따라 일부 코드는 파사드를, 다른 코드는 컨트랙트를 사용할 수도 있습니다. 클래스의 역할만 명확하게 분리한다면 두 방식 모두 실질적으로 큰 차이를 느끼기 어렵습니다.
 
 <!-- In general, most applications can use facades without issue during development. If you are building a package that integrates with multiple PHP frameworks you may wish to use the `illuminate/contracts` package to define your integration with Laravel's services without the need to require Laravel's concrete implementations in your package's `composer.json` file. -->
 일반적으로는 개발 과정에서 파사드만 사용해도 문제가 없지만, 만약 여러 PHP 프레임워크와 연동되는 패키지를 만들고 있다면 `illuminate/contracts` 패키지를 통해 구현체를 직접 의존하지 않고 Laravel 서비스와 통합할 수 있습니다. 이를 통해 패키지의 `composer.json` 파일에 Laravel의 구체적인 구현체를 명시하지 않고도 연동할 수 있습니다.

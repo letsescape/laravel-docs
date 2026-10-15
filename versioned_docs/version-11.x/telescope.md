@@ -528,7 +528,7 @@ Redis 워처는 애플리케이션에서 실행한 모든 [Redis](/docs/11.x/red
 ### View Watcher
 
 <!-- The view watcher records the [view](/docs/11.x/views) name, path, data, and "composers" used when rendering views. -->
-뷰 워처는 뷰의 [view](/docs/11.x/views), 경로, 뷰 데이터, 렌더링 시 사용된 "컴포저" 정보를 기록합니다.
+뷰 워처는 [view](/docs/11.x/views)의 이름, 경로, 뷰 데이터, 렌더링 시 사용된 "컴포저" 정보를 기록합니다.
 
 <a name="displaying-user-avatars"></a>
 <!-- ## Displaying User Avatars -->

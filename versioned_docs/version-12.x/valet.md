@@ -299,7 +299,7 @@ valet unsecure laravel
 ### Serving a Default Site
 
 <!-- Sometimes, you may wish to configure Valet to serve a "default" site instead of a `404` when visiting an unknown `test` domain. To accomplish this, you may add a `default` option to your `~/.config/valet/config.json` configuration file containing the path to the site that should serve as your default site: -->
-알 수 없는 `test` 도메인으로 접속했을 때 `404` 페이지 대신 기본 사이트를 제공하고 싶다면, `~/.config/valet/config.json` 파일에 다음과 같은 `default` 옵션을 추가하세요:
+알 수 없는 `test` 도메인으로 접속했을 때 `404` 페이지 대신 기본 사이트를 제공하고 싶다면, `~/.config/valet/config.json` 파일에 기본 사이트로 사용할 경로를 담은 `default` 옵션을 추가하세요:
 
 <!--     "default": "/Users/Sally/Sites/example-site", -->
     "default": "/Users/Sally/Sites/example-site",
@@ -362,7 +362,7 @@ valet share-tool ngrok
 ```
 
 <!-- If you choose a tool and don't have it installed via Homebrew (for ngrok and cloudflared) or Composer (for Expose), Valet will automatically prompt you to install it. Of course, both tools require you to authenticate your ngrok or Expose account before you can start sharing sites. -->
-선택한 도구가 Homebrew(ngrok, cloudflared)나 Composer(Expose)를 통해 설치되어 있지 않으면 Valet가 자동 설치를 권장합니다. 단, 두 도구 모두 공유를 시작하기 전에 계정 인증이 필요합니다.
+선택한 도구가 Homebrew(ngrok, cloudflared)나 Composer(Expose)를 통해 설치되어 있지 않으면 Valet가 자동으로 설치를 안내합니다. 단, ngrok과 Expose는 공유를 시작하기 전에 해당 계정의 인증이 필요합니다.
 
 <!-- To share a site, navigate to the site's directory in your terminal and run Valet's `share` command. A publicly accessible URL will be placed into your clipboard and is ready to paste directly into your browser or to be shared with your team: -->
 사이트 폴더로 이동해 `share` 명령어를 실행하면 공개 가능한 URL이 클립보드에 복사되어 브라우저에 붙여넣거나 공유할 수 있습니다:
@@ -414,7 +414,7 @@ Valet는 기본적으로 외부의 인터넷 접속으로부터 개발 머신을
 만약 같은 로컬 네트워크 내 다른 기기에서 머신의 IP 주소(예: `192.168.1.10/application.test`)로 Valet 사이트에 접속하려면, 해당 사이트의 Nginx 설정 파일을 수동으로 수정해 `listen` 지시문의 `127.0.0.1:` 접두어를 제거해야 합니다(포트 80, 443의 `listen` 지시문 모두 해당).
 
 <!-- If you have not run `valet secure` on the project, you can open up network access for all non-HTTPS sites by editing the `/usr/local/etc/nginx/valet/valet.conf` file. However, if you're serving the project site over HTTPS (you have run `valet secure` for the site) then you should edit the `~/.config/valet/Nginx/app-name.test` file. -->
-`valet secure` 명령어를 실행하지 않은 경우에는 `/usr/local/etc/nginx/valet/valet.conf` 파일을 수정해 HTTPS 미사용 사이트에 대해 네트워크 접근을 열 수 있습니다. 만약 사이트가 HTTPS로 제공되고 있다면(`valet secure`가 실행된 상태), `~/.config/valet/Nginx/app-name.test` 파일을 수정하세요.
+`valet secure` 명령어를 실행하지 않은 경우에는 `/usr/local/etc/nginx/valet/valet.conf` 파일을 수정해 HTTPS를 사용하지 않는 모든 사이트에 대해 네트워크 접근을 열 수 있습니다. 만약 사이트가 HTTPS로 제공되고 있다면(`valet secure`가 실행된 상태), `~/.config/valet/Nginx/app-name.test` 파일을 수정하세요.
 
 <!-- Once you have updated your Nginx configuration, run the `valet restart` command to apply the configuration changes. -->
 Nginx 설정을 수정한 뒤에는 `valet restart` 명령을 실행해 변경 사항을 적용해야 합니다.
@@ -447,7 +447,7 @@ return [
 ## Proxying Services
 
 <!-- Sometimes you may wish to proxy a Valet domain to another service on your local machine. For example, you may occasionally need to run Valet while also running a separate site in Docker; however, Valet and Docker can't both bind to port 80 at the same time. -->
-가끔 Valet 도메인을 로컬 머신 내 다른 서비스로 프록시해야 할 때가 있습니다. 예를 들어, Valet를 실행하면서 Docker에서 별도의 사이트를 띄우려 할 때, 두 시스템 모두 80번 포트를 사용할 수 없으므로 프록시가 필요합니다.
+가끔 Valet 도메인을 로컬 머신 내 다른 서비스로 프록시해야 할 때가 있습니다. 예를 들어, Valet를 실행하면서 Docker에서 별도의 사이트를 띄우려 할 때, 두 시스템이 동시에 80번 포트를 사용할 수 없으므로 프록시가 필요합니다.
 
 <!-- To solve this, you may use the `proxy` command to generate a proxy. For example, you may proxy all traffic from `http://elasticsearch.test` to `http://127.0.0.1:9200`: -->
 `proxy` 명령어를 사용해 프록시를 생성할 수 있습니다. 예를 들어, `http://elasticsearch.test`의 모든 트래픽을 `http://127.0.0.1:9200`으로 프록시하려면:
@@ -495,7 +495,7 @@ Valet가 기본 지원하지 않는 프레임워크나 CMS의 PHP 애플리케�
 #### The `serves` Method
 
 <!-- The `serves` method should return `true` if your driver should handle the incoming request. Otherwise, the method should return `false`. So, within this method, you should attempt to determine if the given `$sitePath` contains a project of the type you are trying to serve. -->
-`serves` 메서드는 해당 요청을 드라이버가 처리할지 결정하며, 처리한다면 `true`, 아니면 `false`를 반환해야 합니다. 이 메서드에서는 `$sitePath`에 해당 프로젝트가 존재하는지 판단하는 로직을 작성합니다.
+`serves` 메서드는 해당 요청을 드라이버가 처리할지 결정하며, 처리한다면 `true`, 아니면 `false`를 반환해야 합니다. 이 메서드에서는 `$sitePath`에 서비스하려는 유형의 프로젝트가 존재하는지 판단하는 로직을 작성합니다.
 
 <!-- For example, let's imagine we are writing a `WordPressValetDriver`. Our `serves` method might look something like this: -->
 예를 들어 `WordPressValetDriver`라면 `serves` 메서드는 아래와 같을 수 있습니다:
@@ -595,13 +595,13 @@ class LocalValetDriver extends LaravelValetDriver
 | `valet list` | 모든 Valet 명령어 목록을 출력합니다. |
 | `valet diagnose` | Valet 디버깅에 도움이 되는 진단 정보를 출력합니다. |
 | `valet directory-listing` | 디렉토리 리스트 동작을 결정합니다. 기본값은 "off"로, 디렉토리에 대해 404 페이지를 반환합니다. |
-| `valet forget` | "park" 상태인 디렉토리를 목록에서 제거합니다. |
+| `valet forget` | "park" 상태인 디렉토리 안에서 실행하여 해당 디렉토리를 목록에서 제거합니다. |
 | `valet log` | Valet의 서비스가 기록하는 로그 목록을 봅니다. |
 | `valet paths` | "park"된 모든 경로를 확인합니다. |
 | `valet restart` | Valet 데몬을 재시작합니다. |
 | `valet start` | Valet 데몬을 시작합니다. |
 | `valet stop` | Valet 데몬을 중지합니다. |
-| `valet trust` | Brew와 Valet 명령어를 암호 입력 없이 실행할 수 있도록 sudoers 파일을 추가합니다. |
+| `valet trust` | Valet 명령어를 암호 입력 없이 실행할 수 있도록 Brew와 Valet용 sudoers 파일을 추가합니다. |
 | `valet uninstall` | Valet를 제거합니다: 수동 제거 지침을 안내하며, `--force` 옵션을 추가하면 Valet의 모든 리소스를 강제로 삭제합니다. |
 
 <!-- </div> -->
@@ -703,7 +703,7 @@ PHP-FPM 풀 구성 파일입니다.
 ### Disk Access
 
 <!-- Since macOS 10.14, [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf). These restrictions include the Desktop, Documents, and Downloads directories. In addition, network volume and removable volume access is restricted. Therefore, Valet recommends your site folders are located outside of these protected locations. -->
-macOS 10.14부터 [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf). 여기에는 바탕화면, 문서, 다운로드 디렉토리뿐 아니라 네트워크 볼륨 및 외장 볼륨이 포함됩니다. 따라서 Valet를 사용할 때는 이러한 위치 외부에 사이트 폴더를 두는 것이 권장됩니다.
+macOS 10.14부터 [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf)에 설명된 대로 일부 파일과 디렉터리에 대한 접근이 기본적으로 제한됩니다. 여기에는 바탕화면, 문서, 다운로드 디렉토리뿐 아니라 네트워크 볼륨 및 외장 볼륨이 포함됩니다. 따라서 Valet를 사용할 때는 이러한 위치 외부에 사이트 폴더를 두는 것이 권장됩니다.
 
 <!-- However, if you wish to serve sites from within one of those locations, you will need to give Nginx "Full Disk Access". Otherwise, you may encounter server errors or other unpredictable behavior from Nginx, especially when serving static assets. Typically, macOS will automatically prompt you to grant Nginx full access to these locations. Or, you may do so manually via `System Preferences` > `Security & Privacy` > `Privacy` and selecting `Full Disk Access`. Next, enable any `nginx` entries in the main window pane. -->
 만약 보호된 위치에 사이트를 두고 서빙해야 한다면, Nginx에 "전체 디스크 접근 권한(Full Disk Access)"을 부여해야 합니다. 그렇지 않으면 서버 오류나 정적 자원 제공 시 예측 불가능한 문제가 발생할 수 있습니다. 일반적으로 macOS는 Nginx가 권한을 필요로 할 때 자동으로 접근 권한 요청 창을 띄웁니다. 수동으로 설정하려면 `System Preferences` > `Security & Privacy` > `Privacy` 탭에서 `Full Disk Access`를 선택하고, 메인 창에 나타나는 `nginx` 항목을 활성화하세요.

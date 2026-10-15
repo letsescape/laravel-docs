@@ -656,7 +656,7 @@ sites:
 ```
 
 <!-- [Within your Homestead virtual machine](#connecting-via-ssh), you may use any of the supported PHP versions via the CLI: -->
-[Within your Homestead virtual machine](#connecting-via-ssh) CLI를 통해 지원되는 PHP 버전 중 아무 버전이나 사용할 수 있습니다.
+[Within your Homestead virtual machine](#connecting-via-ssh)에서는 CLI를 통해 지원되는 PHP 버전 중 아무 버전이나 사용할 수 있습니다.
 
 ```shell
 php5.6 artisan list

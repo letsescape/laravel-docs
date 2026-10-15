@@ -467,7 +467,7 @@ $schedule->command('analytics:report')
 ### Maintenance Mode
 
 <!-- Your application's scheduled tasks will not run when the application is in [maintenance mode](/docs/9.x/configuration#maintenance-mode), since we don't want your tasks to interfere with any unfinished maintenance you may be performing on your server. However, if you would like to force a task to run even in maintenance mode, you may call the `evenInMaintenanceMode` method when defining the task: -->
-애플리케이션이 [maintenance mode](/docs/9.x/configuration#maintenance-mode)에 있을 때는 예약된 작업이 실행되지 않습니다. 이는 서버 유지보수 중 실행 중인 작업들이 영향을 받지 않도록 하기 위함입니다. 그러나 유지보수 모드 상태에서도 특정 작업을 강제로 실행하고 싶다면, 예약 작업 정의 시 `evenInMaintenanceMode` 메서드를 추가로 호출하면 됩니다.
+애플리케이션이 [maintenance mode](/docs/9.x/configuration#maintenance-mode)에 있을 때는 예약된 작업이 실행되지 않습니다. 이는 서버에서 진행 중인 유지보수 작업이 예약 작업의 영향을 받지 않도록 하기 위함입니다. 그러나 유지보수 모드 상태에서도 특정 작업을 강제로 실행하고 싶다면, 예약 작업 정의 시 `evenInMaintenanceMode` 메서드를 추가로 호출하면 됩니다.
 
 ```
 $schedule->command('emails:send')->evenInMaintenanceMode();

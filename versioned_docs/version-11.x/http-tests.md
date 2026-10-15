@@ -1484,7 +1484,7 @@ $response->assertJsonMissing(array $data);
 #### assertJsonMissingExact
 
 <!-- Assert that the response does not contain the exact JSON data: -->
-응답에 지정한 JSON 데이터가 정확히 존재하지 않는지 확인합니다.
+응답에 지정한 JSON 데이터와 정확히 일치하는 데이터가 포함되어 있지 않은지 확인합니다.
 
 ```
 $response->assertJsonMissingExact(array $data);
@@ -1596,7 +1596,7 @@ $response->assertJsonStructure([
 ```
 
 <!-- Sometimes, JSON responses returned by your application may contain arrays of objects: -->
-때때로, 애플리케이션이 반환하는 JSON 응답이 객체 배열일 수도 있습니다.
+때때로, 애플리케이션이 반환하는 JSON 응답에 객체 배열이 포함될 수도 있습니다.
 
 ```json
 {
@@ -1997,7 +1997,7 @@ $response->assertSessionHasErrors([
 #### assertSessionHasErrorsIn
 
 <!-- Assert that the session contains an error for the given `$keys` within a specific [error bag](/docs/11.x/validation#named-error-bags). If `$keys` is an associative array, assert that the session contains a specific error message (value) for each field (key), within the error bag: -->
-특정 [error bag](/docs/11.x/validation#named-error-bags)에서, 지정한 `$keys`가 오류를 포함하고 있는지 확인합니다. `$keys`가 연관 배열이면, 에러 백 안에서 각 필드(키)에 대해 특정 오류 메시지(값)가 존재하는지 검증합니다.
+세션의 특정 [error bag](/docs/11.x/validation#named-error-bags)에 지정한 `$keys`에 대한 오류가 포함되어 있는지 확인합니다. `$keys`가 연관 배열이면, 에러 백 안에서 각 필드(키)에 대해 특정 오류 메시지(값)가 존재하는지 검증합니다.
 
 ```
 $response->assertSessionHasErrorsIn($errorBag, $keys = [], $format = null);
@@ -2231,7 +2231,7 @@ $response->assertViewMissing($key);
 ### Authentication Assertions
 
 <!-- Laravel also provides a variety of authentication related assertions that you may utilize within your application's feature tests. Note that these methods are invoked on the test class itself and not the `Illuminate\Testing\TestResponse` instance returned by methods such as `get` and `post`. -->
-Laravel은 애플리케이션의 기능 테스트에서 사용할 수 있는 다양한 인증 관련 assertion도 제공합니다. 이 메서드들은 `get`, `post`와 같이 `Illuminate\Testing\TestResponse` 인스턴스가 반환되는 메서드가 아니라, 테스트 클래스 자체에서 호출된다는 점에 유의하세요.
+Laravel은 애플리케이션의 기능 테스트에서 사용할 수 있는 다양한 인증 관련 assertion도 제공합니다. 이 메서드들은 `get`, `post`와 같은 메서드가 반환하는 `Illuminate\Testing\TestResponse` 인스턴스가 아니라, 테스트 클래스 자체에서 호출된다는 점에 유의하세요.
 
 <a name="assert-authenticated"></a>
 <!-- #### assertAuthenticated -->

@@ -79,7 +79,7 @@ DB_FOREIGN_KEYS=false
 #### Microsoft SQL Server Configuration
 
 <!-- To use a Microsoft SQL Server database, you should ensure that you have the `sqlsrv` and `pdo_sqlsrv` PHP extensions installed as well as any dependencies they may require such as the Microsoft SQL ODBC driver. -->
-Microsoft SQL Server 데이터베이스를 사용하려면, `sqlsrv` 및 `pdo_sqlsrv` PHP 확장자와 해당 확장자가 필요로 하는 Microsoft SQL ODBC 드라이버 등의 모든 종속성을 설치해야 합니다.
+Microsoft SQL Server 데이터베이스를 사용하려면, `sqlsrv` 및 `pdo_sqlsrv` PHP 확장 모듈과 해당 확장 모듈이 필요로 하는 Microsoft SQL ODBC 드라이버 등의 모든 종속성을 설치해야 합니다.
 
 <a name="configuration-using-urls"></a>
 <!-- #### Configuration Using URLs -->
@@ -396,7 +396,7 @@ class AppServiceProvider extends ServiceProvider
 ### Monitoring Cumulative Query Time
 
 <!-- A common performance bottleneck of modern web applications is the amount of time they spend querying databases. Thankfully, Laravel can invoke a closure or callback of your choice when it spends too much time querying the database during a single request. To get started, provide a query time threshold (in milliseconds) and closure to the `whenQueryingForLongerThan` method. You may invoke this method in the `boot` method of a [service provider](/docs/11.x/providers): -->
-현대 웹 애플리케이션의 성능 병목 현상 중 하나는 데이터베이스 쿼리에 소요되는 시간입니다. Laravel에서는 한 번의 요청 동안 데이터베이스 쿼리 시간이 일정 임계치를 초과하면 특정 클로저(또는 콜백)를 실행할 수 있습니다. 이렇게 하려면, 임계 시간(밀리초 단위)과 실행할 클로저를 `whenQueryingForLongerThan` 메서드에 전달하면 됩니다. 이 메서드는 [service provider](/docs/11.x/providers)의 `boot` 메서드에서 사용할 수 있습니다.
+현대 웹 애플리케이션의 성능 병목 현상 중 하나는 데이터베이스 쿼리에 소요되는 시간입니다. Laravel에서는 한 번의 요청 동안 누적 데이터베이스 쿼리 시간이 일정 임계치를 초과하면 특정 클로저(또는 콜백)를 실행할 수 있습니다. 이렇게 하려면, 임계 시간(밀리초 단위)과 실행할 클로저를 `whenQueryingForLongerThan` 메서드에 전달하면 됩니다. 이 메서드는 [service provider](/docs/11.x/providers)의 `boot` 메서드에서 사용할 수 있습니다.
 
 ```
 <?php
@@ -576,7 +576,7 @@ php artisan db:table users
 `db:monitor` 아티즌 명령어를 사용하면, 데이터베이스의 열린 연결 수가 지정한 최대값을 초과했을 때 `Illuminate\Database\Events\DatabaseBusy` 이벤트가 발생하도록 Laravel에 지시할 수 있습니다.
 
 <!-- To get started, you should schedule the `db:monitor` command to [run every minute](/docs/11.x/scheduling). The command accepts the names of the database connection configurations that you wish to monitor as well as the maximum number of open connections that should be tolerated before dispatching an event: -->
-먼저 `db:monitor` 명령어가 [run every minute](/docs/11.x/scheduling) 스케줄링해야 합니다. 이 명령어에는 모니터링하려는 데이터베이스 연결 구성의 이름과, 이벤트를 발생시키기 전까지 허용할 최대 열린 연결 수를 전달할 수 있습니다.
+먼저 `db:monitor` 명령어가 매분 실행되도록 스케줄링해야 합니다([run every minute](/docs/11.x/scheduling)). 이 명령어에는 모니터링하려는 데이터베이스 연결 구성의 이름과, 이벤트를 발생시키기 전까지 허용할 최대 열린 연결 수를 전달할 수 있습니다.
 
 ```shell
 php artisan db:monitor --databases=mysql,pgsql --max=100

@@ -21,7 +21,7 @@ Laravel은 테스트를 염두에 두고 설계되었습니다. 실제로 [Pest]
 기본적으로 애플리케이션의 `tests` 디렉토리에는 `Feature`와 `Unit`이라는 두 개의 하위 디렉토리가 존재합니다. 단위 테스트(Unit test)는 코드의 매우 작은, 분리된 부분에 집중하는 테스트입니다. 대부분의 경우 단위 테스트는 하나의 메서드만을 검증합니다. "Unit" 테스트 디렉토리에 위치한 테스트들은 Laravel 애플리케이션을 부트하지 않으므로, 애플리케이션의 데이터베이스나 기타 프레임워크 서비스에 접근할 수 없습니다.
 
 <!-- Feature tests may test a larger portion of your code, including how several objects interact with each other or even a full HTTP request to a JSON endpoint. **Generally, most of your tests should be feature tests. These types of tests provide the most confidence that your system as a whole is functioning as intended.** -->
-기능 테스트(Feature test)는 여러 오브젝트 간의 상호작용이나, 심지어 전체 HTTP 요청이 JSON 엔드포인트에 도달하는 모습까지 좀 더 큰 코드 범위를 검증할 수 있습니다. **일반적으로 테스트의 대부분은 기능 테스트로 작성하는 것이 좋습니다. 이러한 테스트가 시스템 전체가 의도한 대로 동작하는지 가장 높은 신뢰도로 보장합니다.**
+기능 테스트(Feature test)는 여러 오브젝트 간의 상호작용이나, 심지어 전체 HTTP 요청이 JSON 엔드포인트에 도달하는 모습까지 좀 더 큰 코드 범위를 검증할 수 있습니다. **일반적으로 테스트의 대부분은 기능 테스트로 작성하는 것이 좋습니다. 이러한 테스트는 시스템 전체가 의도한 대로 동작한다는 가장 높은 신뢰를 제공합니다.**
 
 <!-- An `ExampleTest.php` file is provided in both the `Feature` and `Unit` test directories. After installing a new Laravel application, execute the `vendor/bin/pest`, `vendor/bin/phpunit`, or `php artisan test` commands to run your tests. -->
 `Feature` 및 `Unit` 테스트 디렉토리 모두에 `ExampleTest.php` 파일이 제공됩니다. 새로운 Laravel 애플리케이션을 설치한 후에는, `vendor/bin/pest`, `vendor/bin/phpunit`, 또는 `php artisan test` 명령어를 실행하여 테스트를 수행할 수 있습니다.
@@ -31,7 +31,7 @@ Laravel은 테스트를 염두에 두고 설계되었습니다. 실제로 [Pest]
 ## Environment
 
 <!-- When running tests, Laravel will automatically set the [configuration environment](/docs/12.x/configuration#environment-configuration) to `testing` because of the environment variables defined in the `phpunit.xml` file. Laravel also automatically configures the session and cache to the `array` driver so that no session or cache data will be persisted while testing. -->
-테스트를 실행할 때 Laravel은 `phpunit.xml` 파일에 정의된 환경 변수 덕분에 [configuration environment](/docs/12.x/configuration#environment-configuration)을 자동으로 `testing`으로 설정합니다. 또한 세션과 캐시도 `array` 드라이버로 자동 설정하여, 테스트 실행 중에는 세션이나 캐시 데이터가 실제로 저장되지 않습니다.
+테스트를 실행할 때 Laravel은 `phpunit.xml` 파일에 정의된 환경 변수 덕분에 [configuration environment](/docs/12.x/configuration#environment-configuration)을 자동으로 `testing`으로 설정합니다. 또한 세션과 캐시도 `array` 드라이버로 자동 설정하여, 테스트 실행 중에는 세션이나 캐시 데이터가 영구적으로 저장되지 않습니다.
 
 <!-- You are free to define other testing environment configuration values as necessary. The `testing` environment variables may be configured in your application's `phpunit.xml` file, but make sure to clear your configuration cache using the `config:clear` Artisan command before running your tests! -->
 필요에 따라 기타 테스트 환경 관련 설정 값을 자유롭게 정의할 수 있습니다. `testing` 환경 변수는 애플리케이션의 `phpunit.xml` 파일에서 지정할 수 있고, 테스트를 실행하기 전에 반드시 `config:clear` Artisan 명령어로 설정 캐시를 지워야 합니다!
@@ -147,7 +147,7 @@ php artisan test --parallel --processes=4
 ```
 
 > [!WARNING]
-> 병렬 테스트 실행 시, 일부 Pest / PHPUnit 옵션(`--do-not-cache-result` 등)은 사용할 수 없습니다.
+> 병렬 테스트 실행 시, 일부 Pest / PHPUnit 옵션(`--do-not-cache-result` 등)은 사용할 수 없을 수 있습니다.
 
 <a name="parallel-testing-and-databases"></a>
 <!-- #### Parallel Testing and Databases -->
@@ -266,7 +266,7 @@ php artisan test --profile
 ## Configuration Caching
 
 <!-- When running tests, Laravel boots the application for each individual test method.  Without a cached configuration file, each configuration file in your application must be loaded at the start of a test. To build the configuration once and re-use it for all tests in a single run, you may use the `Illuminate\Foundation\Testing\WithCachedConfig` trait: -->
-테스트를 실행할 때, Laravel은 개별 테스트 메서드마다 애플리케이션을 부트합니다. 설정 파일이 캐시되어 있지 않다면, 테스트 시작 시마다 모든 설정 파일을 다시 읽어야 하므로 느려질 수 있습니다. 한 번 설정을 만들어 모든 테스트에서 재사용하고 싶다면, `Illuminate\Foundation\Testing\WithCachedConfig` 트레이트를 사용할 수 있습니다:
+테스트를 실행할 때, Laravel은 개별 테스트 메서드마다 애플리케이션을 부트합니다. 설정 파일이 캐시되어 있지 않다면, 테스트 시작 시마다 모든 설정 파일을 다시 읽어야 하므로 느려질 수 있습니다. 한 번 설정을 만들어 한 번의 실행에 포함된 모든 테스트에서 재사용하고 싶다면, `Illuminate\Foundation\Testing\WithCachedConfig` 트레이트를 사용할 수 있습니다:
 
 ```php tab=Pest
 <?php

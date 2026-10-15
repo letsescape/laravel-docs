@@ -423,7 +423,7 @@ protected function throttle(Throwable $e): mixed
 ```
 
 <!-- You may also rate limit exceptions logged or sent to an external error tracking service by returning a `Limit` instance instead of a `Lottery`. This is useful if you want to protect against sudden bursts of exceptions flooding your logs, for example, when a third-party service used by your application is down: -->
-외부 에러 추적 서비스로 전송하거나 로그에 기록하는 비율을 조정하고 싶다면, `Lottery` 대신 `Limit` 인스턴스를 반환할 수도 있습니다. 이 방법은, 예를 들어 서드파티 서비스가 다운되어 대량의 예외가 발생할 때 로그가 넘쳐나는 것을 방지하는 데 유용합니다:
+외부 에러 추적 서비스로 전송하거나 로그에 기록하는 횟수를 일정 시간당 제한하고 싶다면, `Lottery` 대신 `Limit` 인스턴스를 반환할 수도 있습니다. 이 방법은, 예를 들어 서드파티 서비스가 다운되어 대량의 예외가 발생할 때 로그가 넘쳐나는 것을 방지하는 데 유용합니다:
 
 ```php
 use Illuminate\Broadcasting\BroadcastException;
@@ -488,7 +488,7 @@ protected function throttle(Throwable $e): mixed
 ## HTTP Exceptions
 
 <!-- Some exceptions describe HTTP error codes from the server. For example, this may be a "page not found" error (404), an "unauthorized error" (401), or even a developer generated 500 error. In order to generate such a response from anywhere in your application, you may use the `abort` helper: -->
-어떤 예외는 서버의 HTTP 에러 코드를 나타냅니다. 예를 들어 "페이지를 찾을 수 없음" (404), "권한 없음" (401), 또는 개발자가 직접 발생시킨 500 에러 등이 이에 해당합니다. 애플리케이션 어디에서든 이러한 응답을 발생시키려면 `abort` 헬퍼를 사용할 수 있습니다:
+어떤 예외는 서버의 HTTP 에러 코드를 나타냅니다. 예를 들어 "페이지를 찾을 수 없음" (404), "인증되지 않음" (401), 또는 개발자가 직접 발생시킨 500 에러 등이 이에 해당합니다. 애플리케이션 어디에서든 이러한 응답을 발생시키려면 `abort` 헬퍼를 사용할 수 있습니다:
 
 ```
 abort(404);

@@ -473,7 +473,7 @@ HTTP 클라이언트 워처는 애플리케이션에서 외부로 보낸 [HTTP c
 ### Query Watcher
 
 <!-- The query watcher records the raw SQL, bindings, and execution time for all queries that are executed by your application. The watcher also tags any queries slower than 100 milliseconds as `slow`. You may customize the slow query threshold using the watcher's `slow` option: -->
-쿼리 워처는 실행된 모든 쿼리의 원본 SQL, 바인딩 데이터, 실행 시간 등을 기록합니다. 기본적으로 100밀리초 이상 걸리는 쿼리는 `slow` 태그가 붙고, 이 임계값은 `slow` 옵션으로 원하는 값으로 조절할 수 있습니다.
+쿼리 워처는 실행된 모든 쿼리의 원본 SQL, 바인딩 데이터, 실행 시간 등을 기록합니다. 기본적으로 100밀리초를 초과하는 쿼리는 `slow` 태그가 붙고, 이 임계값은 `slow` 옵션으로 원하는 값으로 조절할 수 있습니다.
 
 ```
 'watchers' => [

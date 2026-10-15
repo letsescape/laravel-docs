@@ -52,7 +52,7 @@ Laravel에서는 [views](/docs/master/views)와 [Blade](/docs/master/blade)를 �
 ```
 
 <!-- When building applications in this fashion, form submissions and other page interactions typically receive an entirely new HTML document from the server and the entire page is re-rendered by the browser. Even today, many applications may be perfectly suited to having their frontends constructed in this way using simple Blade templates. -->
-이 방식으로 애플리케이션을 개발할 때, 폼 전송이나 페이지 내 상호작용이 발생하면 서버에서 완전히 새로운 HTML 문서를 받아오며, 브라우저는 전체 페이지를 새로 렌더링합니다. 지금도 많은 애플리케이션에서는 이처럼 단순한 Blade 템플릿만으로도 충분히 프론트엔드를 구성할 수 있습니다.
+이 방식으로 애플리케이션을 개발할 때, 폼 전송이나 페이지 내 상호작용이 발생하면 일반적으로 서버에서 완전히 새로운 HTML 문서를 받아오며, 브라우저는 전체 페이지를 새로 렌더링합니다. 지금도 많은 애플리케이션에서는 이처럼 단순한 Blade 템플릿만으로도 충분히 프론트엔드를 구성할 수 있습니다.
 
 <a name="growing-expectations"></a>
 <!-- #### Growing Expectations -->
@@ -62,7 +62,7 @@ Laravel에서는 [views](/docs/master/views)와 [Blade](/docs/master/blade)를 �
 하지만 웹 애플리케이션에 대한 사용자 기대치가 발전함에 따라, 더 세련되고 동적인 프론트엔드를 만들고자 하는 요구가 커졌습니다. 그래서 일부 개발자들은 React, Svelte, Vue 같은 자바스크립트 프레임워크를 이용해 프론트엔드 개발을 시작하기도 합니다.
 
 <!-- Others, preferring to stick with the backend language they are comfortable with, have developed solutions that allow the construction of modern web application UIs while still primarily utilizing their backend language of choice. For example, in the [Rails](https://rubyonrails.org/) ecosystem, this has spurred the creation of libraries such as [Turbo](https://turbo.hotwired.dev/) [Hotwire](https://hotwired.dev/), and [Stimulus](https://stimulus.hotwired.dev/). -->
-반면 익숙한 백엔드 언어(PHP)에 머무르길 원하는 개발자들은, 주요 개발 언어(백엔드 언어)만으로도 현대적인 웹 애플리케이션 UI를 제작할 수 있는 솔루션을 만들어 왔습니다. 예를 들어 [Rails](https://rubyonrails.org/) 생태계에서는 [Turbo](https://turbo.hotwired.dev/), [Hotwire](https://hotwired.dev/), [Stimulus](https://stimulus.hotwired.dev/) 같은 라이브러리가 그렇습니다.
+반면 익숙한 백엔드 언어에 머무르길 원하는 개발자들은, 주로 자신이 선택한 백엔드 언어를 사용하여 현대적인 웹 애플리케이션 UI를 제작할 수 있는 솔루션을 만들어 왔습니다. 예를 들어 [Rails](https://rubyonrails.org/) 생태계에서는 [Turbo](https://turbo.hotwired.dev/), [Hotwire](https://hotwired.dev/), [Stimulus](https://stimulus.hotwired.dev/) 같은 라이브러리가 그렇습니다.
 
 <!-- Within the Laravel ecosystem, the need to create modern, dynamic frontends by primarily using PHP has led to the creation of [Laravel Livewire](https://livewire.laravel.com) and [Alpine.js](https://alpinejs.dev/). -->
 Laravel 생태계에서는 주로 PHP로 동적이고 현대적인 프론트엔드를 만들 필요성 때문에 [Laravel Livewire](https://livewire.laravel.com)와 [Alpine.js](https://alpinejs.dev/)가 만들어졌습니다.
@@ -121,10 +121,10 @@ PHP와 Livewire로 프론트엔드를 구축하고 싶다면, [Livewire starter 
 ## Using React, Svelte, or Vue
 
 <!-- Although it's possible to build modern frontends using Laravel and Livewire, many developers still prefer to leverage the power of a JavaScript framework like React, Svelte, or Vue. This allows developers to take advantage of the rich ecosystem of JavaScript packages and tools available via NPM. -->
-Laravel과 Livewire만으로도 충분히 현대적인 프론트엔드를 만들 수 있으나, 더 많은 개발자들은 여전히 React, Svelte, Vue와 같은 JavaScript 프레임워크가 가진 강력함을 활용하기를 선호합니다. 이런 선택을 통해 개발자는 NPM을 통해 제공되는 다양한 JavaScript 패키지와 툴의 풍부한 생태계를 사용할 수 있습니다.
+Laravel과 Livewire만으로도 충분히 현대적인 프론트엔드를 만들 수 있으나, 많은 개발자들은 여전히 React, Svelte, Vue와 같은 JavaScript 프레임워크가 가진 강력함을 활용하기를 선호합니다. 이런 선택을 통해 개발자는 NPM을 통해 제공되는 다양한 JavaScript 패키지와 툴의 풍부한 생태계를 사용할 수 있습니다.
 
 <!-- However, without additional tooling, pairing Laravel with React, Svelte, or Vue would leave us needing to solve a variety of complicated problems such as client-side routing, data hydration, and authentication. Client-side routing is often simplified by using opinionated React / Svelte / Vue frameworks such as [Next](https://nextjs.org/) and [Nuxt](https://nuxt.com/); however, data hydration and authentication remain complicated and cumbersome problems to solve when pairing a backend framework like Laravel with these frontend frameworks. -->
-하지만 추가적인 도구 없이 Laravel을 React, Svelte, Vue와 연동하면, 클라이언트 사이드 라우팅, 데이터 하이드레이션, 인증(authentication)과 같은 복잡한 문제들을 직접 해결해야 합니다. 클라이언트 사이드 라우팅의 경우에는 [Next](https://nextjs.org/), [Nuxt](https://nuxt.com/) 같은 프레임워크가 해결해 주지만, 데이터 하이드레이션과 인증 문제는 여전히 복잡하고 번거롭게 남습니다.
+하지만 추가적인 도구 없이 Laravel을 React, Svelte, Vue와 연동하면, 클라이언트 사이드 라우팅, 데이터 하이드레이션, 인증(authentication)과 같은 복잡한 문제들을 직접 해결해야 합니다. 클라이언트 사이드 라우팅의 경우에는 [Next](https://nextjs.org/), [Nuxt](https://nuxt.com/) 같은 프레임워크가 대체로 간소화해 주지만, 데이터 하이드레이션과 인증 문제는 여전히 복잡하고 번거롭게 남습니다.
 
 <!-- In addition, developers are left maintaining two separate code repositories, often needing to coordinate maintenance, releases, and deployments across both repositories. While these problems are not insurmountable, we don't believe it's a productive or enjoyable way to develop applications. -->
 또한, 백엔드와 프론트엔드 각각 별도의 코드 저장소를 관리해야 하고, 그에 따른 유지보수나 배포도 별도로 해야 하는 문제가 발생합니다. 이런 문제들은 극복이 불가능한 것은 아니지만, 개발에 있어 생산적이거나 즐거운 방식은 아닙니다.

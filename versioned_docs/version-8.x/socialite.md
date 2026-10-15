@@ -218,7 +218,7 @@ $user = Socialite::driver('github')->userFromToken($token);
 #### Retrieving User Details From A Token And Secret (OAuth1)
 
 <!-- If you already have a valid token and secret for a user, you can retrieve their details using Socialite's `userFromTokenAndSecret` method: -->
-이미 사용자의 토큰과 시크릿이 있다면, Socialite의 `userFromTokenAndSecret` 메서드로 사용자 정보를 받아올 수 있습니다.
+이미 사용자의 유효한 토큰과 시크릿이 있다면, Socialite의 `userFromTokenAndSecret` 메서드로 사용자 정보를 받아올 수 있습니다.
 
 ```
 use Laravel\Socialite\Facades\Socialite;

@@ -34,7 +34,7 @@
 ### A Note On Facades
 
 <!-- When writing a Laravel application, it generally does not matter if you use contracts or facades since both provide essentially equal levels of testability. However, when writing packages, your package will not typically have access to all of Laravel's testing helpers. If you would like to be able to write your package tests as if the package were installed inside a typical Laravel application, you may use the [Orchestral Testbench](https://github.com/orchestral/testbench) package. -->
-Laravel 애플리케이션을 작성할 때는 contract나 파사드를 사용하는 것에 큰 차이가 없습니다. 두 방식 모두 테스트 코드 작성에 있어서 거의 동일한 수준의 효율성을 제공합니다. 그러나 패키지를 작성할 때에는 Laravel의 테스트 관련 도우미(헬퍼)에 모두 접근할 수 없을 수도 있습니다. 만약 패키지를 일반적인 Laravel 애플리케이션 안에 설치한 것처럼 테스트하고 싶다면, [Orchestral Testbench](https://github.com/orchestral/testbench) 패키지를 사용하면 됩니다.
+Laravel 애플리케이션을 작성할 때는 contract나 파사드를 사용하는 것에 큰 차이가 없습니다. 두 방식 모두 거의 동일한 수준의 테스트 가능성을 제공합니다. 그러나 패키지를 작성할 때에는 Laravel의 테스트 관련 도우미(헬퍼)에 모두 접근할 수 없을 수도 있습니다. 만약 패키지를 일반적인 Laravel 애플리케이션 안에 설치한 것처럼 테스트하고 싶다면, [Orchestral Testbench](https://github.com/orchestral/testbench) 패키지를 사용하면 됩니다.
 
 <a name="package-discovery"></a>
 <!-- ## Package Discovery -->

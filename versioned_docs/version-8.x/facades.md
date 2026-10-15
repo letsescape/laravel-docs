@@ -134,7 +134,7 @@ Route::get('/cache', function () {
 ```
 
 <!-- Under the hood, the `cache` helper is going to call the `get` method on the class underlying the `Cache` facade. So, even though we are using the helper function, we can write the following test to verify that the method was called with the argument we expected: -->
-실제로 `cache` 헬퍼 함수는 내부적으로 `Cache` 파사드를 감싼 클래스의 `get` 메서드를 호출합니다. 따라서, 헬퍼 함수를 사용하더라도 다음과 같이 해당 메서드가 기대한 인수로 호출되었는지 테스트할 수 있습니다.
+실제로 `cache` 헬퍼 함수는 내부적으로 `Cache` 파사드가 감싸고 있는 클래스의 `get` 메서드를 호출합니다. 따라서, 헬퍼 함수를 사용하더라도 다음과 같이 해당 메서드가 기대한 인수로 호출되었는지 테스트할 수 있습니다.
 
 ```
 use Illuminate\Support\Facades\Cache;
@@ -164,7 +164,7 @@ public function testBasicExample()
 Laravel 애플리케이션에서 파사드는 서비스 컨테이너 내 객체에 접근하는 역할을 하는 클래스입니다. 이 작업을 가능하게 해주는 핵심 로직은 `Facade` 클래스 안에 구현되어 있습니다. Laravel이 제공하는 모든 파사드 및 여러분이 직접 만드는 파사드는 모두 기본적으로 `Illuminate\Support\Facades\Facade` 클래스를 확장(extends)합니다.
 
 <!-- The `Facade` base class makes use of the `__callStatic()` magic-method to defer calls from your facade to an object resolved from the container. In the example below, a call is made to the Laravel cache system. By glancing at this code, one might assume that the static `get` method is being called on the `Cache` class: -->
-`Facade` 기본 클래스는 PHP의 `__callStatic()` 매직 메서드를 활용하여, 파사드를 통해 호출된 모든 정적 메서드 호출을 서비스 컨테이너에서 꺼낸 객체로 위임(defer)합니다. 예를 들어, 아래 코드는 Laravel의 캐시 시스템을 호출합니다. 이 코드를 보면 `Cache` 클래스의 정적 `get` 메서드가 실행되는 것처럼 보이지만,
+`Facade` 기본 클래스는 PHP의 `__callStatic()` 매직 메서드를 활용하여, 파사드를 통해 호출된 모든 정적 메서드 호출을 서비스 컨테이너에서 꺼낸 객체로 위임(defer)합니다. 예를 들어, 아래 코드는 Laravel의 캐시 시스템을 호출합니다. 이 코드를 보면 `Cache` 클래스의 정적 `get` 메서드가 실행되는 것처럼 보일 수 있습니다.
 
 ```
 <?php

@@ -159,14 +159,14 @@
 #### The Events Directory
 
 <!-- This directory does not exist by default, but will be created for you by the `event:generate` and `make:event` Artisan commands. The `Events` directory houses [event classes](/docs/8.x/events). Events may be used to alert other parts of your application that a given action has occurred, providing a great deal of flexibility and decoupling. -->
-이 디렉터리는 기본적으로 존재하지 않지만, `event:generate` 또는 `make:event` 아티즌 명령어를 실행하면 자동으로 생성됩니다. `Events` 디렉터리에는 [event classes](/docs/8.x/events)가 저장됩니다. 이벤트는 특정 행동이 발생했음을 애플리케이션의 다른 부분에 알릴 때 사용되며, 유연성과 결합도를 낮추는 데 매우 유용합니다.
+이 디렉터리는 기본적으로 존재하지 않지만, `event:generate` 또는 `make:event` 아티즌 명령어를 실행하면 자동으로 생성됩니다. `Events` 디렉터리에는 [event classes](/docs/8.x/events)가 저장됩니다. 이벤트는 특정 행동이 발생했음을 애플리케이션의 다른 부분에 알릴 때 사용되며, 유연성을 높이고 결합도를 낮추는 데 매우 유용합니다.
 
 <a name="the-exceptions-directory"></a>
 <!-- #### The Exceptions Directory -->
 #### The Exceptions Directory
 
 <!-- The `Exceptions` directory contains your application's exception handler and is also a good place to place any exceptions thrown by your application. If you would like to customize how your exceptions are logged or rendered, you should modify the `Handler` class in this directory. -->
-`Exceptions` 디렉터리에는 애플리케이션의 예외 처리기가 들어 있으며, 애플리케이션에서 발생하는 예외를 정의하는 것도 좋은 위치입니다. 예외가 기록되거나 렌더링되는 방식을 커스터마이즈하려면 이 디렉터리 내의 `Handler` 클래스를 수정하면 됩니다.
+`Exceptions` 디렉터리에는 애플리케이션의 예외 처리기가 들어 있으며, 애플리케이션에서 발생하는 예외를 정의하기에도 좋은 위치입니다. 예외가 기록되거나 렌더링되는 방식을 커스터마이즈하려면 이 디렉터리 내의 `Handler` 클래스를 수정하면 됩니다.
 
 <a name="the-http-directory"></a>
 <!-- #### The Http Directory -->

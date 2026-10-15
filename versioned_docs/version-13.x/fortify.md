@@ -281,7 +281,7 @@ Fortify::authenticateThrough(function (Request $request) {
 로그인에 성공하면 Fortify는 `fortify` 설정 파일 내의 `home` 옵션에 지정된 URI로 리디렉션합니다. 로그인 요청이 XHR일 경우 200 HTTP 응답을 반환합니다. 사용자가 로그아웃하면 `/`로 이동하게 됩니다.
 
 <!-- If you need advanced customization of this behavior, you may bind implementations of the `LoginResponse` and `LogoutResponse` contracts into the Laravel [service container](/docs/13.x/container). Typically, this should be done within the `register` method of your application's `App\Providers\FortifyServiceProvider` class: -->
-이 동작을 더 세밀하게 사용자 지정해야 한다면, Laravel [service container](/docs/13.x/container)에 `LoginResponse`, `LogoutResponse` 계약의 인스턴스를 바인딩해서 구현할 수 있습니다. 주로 `App\Providers\FortifyServiceProvider` 클래스의 `register` 메서드에서 이 바인딩을 처리합니다.
+이 동작을 더 세밀하게 사용자 지정해야 한다면, Laravel [service container](/docs/13.x/container)에 `LoginResponse`, `LogoutResponse` 계약의 구현체를 바인딩해서 구현할 수 있습니다. 주로 `App\Providers\FortifyServiceProvider` 클래스의 `register` 메서드에서 이 바인딩을 처리합니다.
 
 ```php
 use Laravel\Fortify\Contracts\LogoutResponse;

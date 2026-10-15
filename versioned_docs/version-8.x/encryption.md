@@ -62,7 +62,7 @@ class DigitalOceanTokenController extends Controller
 #### Decrypting A Value
 
 <!-- You may decrypt values using the `decryptString` method provided by the `Crypt` facade. If the value can not be properly decrypted, such as when the message authentication code is invalid, an `Illuminate\Contracts\Encryption\DecryptException` will be thrown: -->
-`Crypt` 파사드에서 제공하는 `decryptString` 메서드를 사용해 암호화된 값을 복호화할 수 있습니다. 만약 메시지 인증 코드가 유효하지 않아 값을 올바르게 복호화할 수 없는 경우, `Illuminate\Contracts\Encryption\DecryptException` 예외가 발생합니다.
+`Crypt` 파사드에서 제공하는 `decryptString` 메서드를 사용해 암호화된 값을 복호화할 수 있습니다. 메시지 인증 코드가 유효하지 않은 경우 등을 포함해 값을 올바르게 복호화할 수 없는 경우, `Illuminate\Contracts\Encryption\DecryptException` 예외가 발생합니다.
 
 ```
 use Illuminate\Contracts\Encryption\DecryptException;
