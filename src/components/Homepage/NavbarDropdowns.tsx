@@ -57,6 +57,57 @@ export default function NavbarDropdowns(): ReactNode {
   const [mobileThemeMode, setMobileThemeMode] = useState<'light' | 'dark' | 'system'>('system');
   const {setColorMode} = useColorMode();
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileDialogRef = useRef<HTMLDialogElement>(null);
+  const mobileMainPanelRef = useRef<HTMLDivElement>(null);
+  const mobileSubPanelRef = useRef<HTMLDivElement>(null);
+  const mobileSubMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+    setMobileSubMenu(null);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const dialog = mobileDialogRef.current;
+    if (!dialog) return;
+
+    dialog.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const desktop = window.matchMedia('(min-width: 1280px)');
+    const closeOnDesktop = () => {
+      if (desktop.matches) closeMobileMenu();
+    };
+    desktop.addEventListener('change', closeOnDesktop);
+    closeOnDesktop();
+
+    return () => {
+      desktop.removeEventListener('change', closeOnDesktop);
+      document.body.style.overflow = previousOverflow;
+      dialog.close();
+      mobileSubMenuTriggerRef.current = null;
+      const trigger = mobileMenuButtonRef.current;
+      if (trigger?.getClientRects().length) {
+        trigger.focus();
+      } else {
+        wrapperRef.current?.querySelector<HTMLButtonElement>('.nav-dropdown-trigger')?.focus();
+      }
+    };
+  }, [mobileMenuOpen, closeMobileMenu]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    if (mobileSubMenu) {
+      mobileSubPanelRef.current?.querySelector<HTMLButtonElement>('.nav-mobile-back')?.focus();
+    } else if (mobileSubMenuTriggerRef.current) {
+      mobileSubMenuTriggerRef.current.focus();
+      mobileSubMenuTriggerRef.current = null;
+    } else {
+      mobileMainPanelRef.current?.querySelector<HTMLButtonElement>('.nav-mobile-close')?.focus();
+    }
+  }, [mobileMenuOpen, mobileSubMenu]);
 
   // Synchronize mobileThemeMode with the stored preference on mount
   useEffect(() => {
@@ -608,8 +659,12 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Mobile hamburger button */}
       <button
+        ref={mobileMenuButtonRef}
         className="nav-mobile-hamburger"
         aria-label="Open menu"
+        aria-haspopup="dialog"
+        aria-expanded={mobileMenuOpen}
+        aria-controls="mobile-navigation"
         onClick={() => setMobileMenuOpen(true)}
       >
         <svg width="22" height="22" viewBox="0 0 30 30" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -620,15 +675,37 @@ export default function NavbarDropdowns(): ReactNode {
 
       {/* Mobile fullscreen overlay */}
       {mobileMenuOpen && (
-        <div className="nav-mobile-overlay" role="button" tabIndex={0} onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMobileMenuOpen(false); setMobileSubMenu(null); } }}>
-          <div className="nav-mobile-fullscreen" role="presentation" onClick={e => e.stopPropagation()}>
+        <dialog
+          ref={mobileDialogRef}
+          id="mobile-navigation"
+          className="nav-mobile-overlay"
+          aria-label="Navigation menu"
+          aria-modal="true"
+          onCancel={e => { e.preventDefault(); closeMobileMenu(); }}
+          onClick={e => { if (e.target === e.currentTarget) closeMobileMenu(); }}
+          onKeyDown={e => {
+            if (e.key !== 'Tab') return;
+            const panel = mobileSubMenu ? mobileSubPanelRef.current : mobileMainPanelRef.current;
+            const controls = panel?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+            const first = controls?.[0];
+            const last = controls?.[controls.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              last?.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first?.focus();
+            }
+          }}
+        >
+          <div className="nav-mobile-fullscreen">
             {/* Main menu */}
-            <div className="nav-mobile-panel" style={{transform: mobileSubMenu ? 'translateX(-100%)' : 'translateX(0)'}}>
+            <div ref={mobileMainPanelRef} className="nav-mobile-panel" inert={mobileSubMenu !== null} aria-hidden={mobileSubMenu !== null} style={{transform: mobileSubMenu ? 'translateX(-100%)' : 'translateX(0)'}}>
               <div className="nav-mobile-top">
                 <a href="https://laravel.com" className="nav-mobile-logo">
                   <img src="/img/logotype.min.svg" alt="Laravel" className="nav-logo-img" />
                 </a>
-                <button className="nav-mobile-close" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} aria-label="Close menu">
+                <button className="nav-mobile-close" onClick={closeMobileMenu} aria-label="Close menu">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 18L18 6M6 6l12 12"/>
                   </svg>
@@ -637,7 +714,7 @@ export default function NavbarDropdowns(): ReactNode {
               <nav className="nav-mobile-menu">
                 {/* Resources/Events 임시 비활성화 */}
                 {(['framework', 'products'] as const).map(name => (
-                  <button key={name} className="nav-mobile-menu-item" onClick={() => setMobileSubMenu(name)}>
+                  <button key={name} className="nav-mobile-menu-item" onClick={e => { mobileSubMenuTriggerRef.current = e.currentTarget; setMobileSubMenu(name); }}>
                     <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c0c0c0" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="nav-mobile-chevron">
                       <path d="M8.25 4.5l7.5 7.5-7.5 7.5" fill="none"/>
@@ -656,7 +733,7 @@ export default function NavbarDropdowns(): ReactNode {
             </div>
 
             {/* Submenu */}
-            <div className="nav-mobile-panel nav-mobile-subpanel" style={{transform: mobileSubMenu ? 'translateX(0)' : 'translateX(100%)'}}>
+            <div ref={mobileSubPanelRef} className="nav-mobile-panel nav-mobile-subpanel" inert={mobileSubMenu === null} aria-hidden={mobileSubMenu === null} style={{transform: mobileSubMenu ? 'translateX(0)' : 'translateX(100%)'}}>
               <div className="nav-mobile-top">
                 <button className="nav-mobile-back" onClick={() => setMobileSubMenu(null)}>
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className="nav-mobile-back-icon">
@@ -664,7 +741,7 @@ export default function NavbarDropdowns(): ReactNode {
                   </svg>
                   <span>{mobileSubMenu ? mobileSubMenu.charAt(0).toUpperCase() + mobileSubMenu.slice(1) : ''}</span>
                 </button>
-                <button className="nav-mobile-close" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} aria-label="Close menu">
+                <button className="nav-mobile-close" onClick={closeMobileMenu} aria-label="Close menu">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 18L18 6M6 6l12 12"/>
                   </svg>
@@ -696,7 +773,7 @@ export default function NavbarDropdowns(): ReactNode {
               </nav>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );
