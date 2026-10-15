@@ -244,6 +244,10 @@
     gap: 2rem;
   }
 
+  .footer-column a {
+    white-space: normal;
+  }
+
   .hp-footer .footer-brand {
     width: 100%;
     flex-basis: 100%;
