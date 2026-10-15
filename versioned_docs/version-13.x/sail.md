@@ -595,7 +595,7 @@ sail share --subdomain=my-sail-site
 ## Debugging With Xdebug
 
 <!-- Laravel Sail's Docker configuration includes support for [Xdebug](https://xdebug.org/), a popular and powerful debugger for PHP. To enable Xdebug, ensure you have [published your Sail configuration](#sail-customization). Then, add the following variables to your application's `.env` file to configure Xdebug: -->
-Laravel Sail의 Docker 설정에는 PHP에서 널리 사용되는 강력한 디버거인 [Xdebug](https://xdebug.org/) 지원이 포함되어 있습니다. Xdebug를 활성화하려면 먼저 [published your Sail configuration](#sail-customization)했는지 확인하세요. 그런 다음 Xdebug를 설정하기 위해 애플리케이션의 `.env` 파일에 다음 변수를 추가하세요.
+Laravel Sail의 Docker 설정에는 PHP에서 널리 사용되는 강력한 디버거인 [Xdebug](https://xdebug.org/) 지원이 포함되어 있습니다. Xdebug를 활성화하려면 먼저 [published your Sail configuration](#sail-customization)의 절차에 따라 Sail 설정을 게시했는지 확인하세요. 그런 다음 Xdebug를 설정하기 위해 애플리케이션의 `.env` 파일에 다음 변수를 추가하세요.
 
 ```ini
 SAIL_XDEBUG_MODE=develop,debug,coverage

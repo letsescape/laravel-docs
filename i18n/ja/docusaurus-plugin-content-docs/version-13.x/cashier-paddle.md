@@ -247,7 +247,7 @@ public function boot(): void
 アプリケーション経由で製品やサブスクリプションの請求を行うのは、威圧的な場合があります。ただし、Cashier と [Paddle's Checkout Overlay](https://developer.paddle.com/concepts/sell/overlay-checkout) のおかげで、最新の堅牢な支払い統合を簡単に構築できます。
 
 <!-- To charge customers for non-recurring, single-charge products, we'll utilize Cashier to charge customers with Paddle's Checkout Overlay, where they will provide their payment details and confirm their purchase. Once the payment has been made via the Checkout Overlay, the customer will be redirected to a success URL of your choosing within your application: -->
-非定期的な 1 回限りの製品に対して顧客に請求するには、Cashier を利用して顧客に Paddle の Checkout Overlay を請求します。顧客はそこで支払いの詳細を提供し、購入を確認します。チェックアウト オーバーレイ経由で支払いが完了すると、顧客はアプリケーション内で選択した成功 URL にリダイレクトされます。
+非定期的な 1 回限りの製品に対して顧客に請求するには、Cashier を利用して Paddle の Checkout Overlay 経由で顧客に請求します。顧客はそこで支払いの詳細を提供し、購入を確認します。チェックアウト オーバーレイ経由で支払いが完了すると、顧客はアプリケーション内で選択した成功 URL にリダイレクトされます。
 
 ```php
 use Illuminate\Http\Request;
@@ -992,7 +992,7 @@ if ($user->subscription()->onGracePeriod()) {
 #### Past Due Status
 
 <!-- If a payment fails for a subscription, it will be marked as `past_due`. When your subscription is in this state it will not be active until the customer has updated their payment information. You may determine if a subscription is past due using the `pastDue` method on the subscription instance: -->
-サブスクリプションの支払いが失敗した場合、`past_due` としてマークされます。サブスクリプションがこの状態にある場合、顧客が支払い情報を更新するまでアクティブになりません。サブスクリプション インスタンスの `pastDue` メソッドを使用して、サブスクリプションの期限が過ぎているかどうかを確認できます。
+サブスクリプションの支払いが失敗した場合、`past_due` としてマークされます。サブスクリプションがこの状態にある場合、顧客が支払い情報を更新するまでアクティブになりません。サブスクリプション インスタンスの `pastDue` メソッドを使用して、サブスクリプションの支払いが延滞しているかどうかを確認できます。
 
 ```php
 if ($user->subscription()->pastDue()) {
@@ -1001,7 +1001,7 @@ if ($user->subscription()->pastDue()) {
 ```
 
 <!-- When a subscription is past due, you should instruct the user to [update their payment information](#updating-payment-information). -->
-サブスクリプションの期限を過ぎた場合は、ユーザーに [update their payment information](#updating-payment-information) を指示する必要があります。
+サブスクリプションの支払いが延滞している場合は、ユーザーに [update their payment information](#updating-payment-information) を指示する必要があります。
 
 <!-- If you would like subscriptions to still be considered valid when they are `past_due`, you may use the `keepPastDueSubscriptionsActive` method provided by Cashier. Typically, this method should be called in the `register` method of your `AppServiceProvider`: -->
 サブスクリプションが `past_due` の場合でも有効であると見なしたい場合は、Cashier が提供する `keepPastDueSubscriptionsActive` メソッドを使用できます。通常、このメソッドは、`AppServiceProvider` の `register` メソッドで呼び出す必要があります。
@@ -1135,7 +1135,7 @@ $user->subscription('default')->noProrate()->swap($premium = 'pri_456');
 ```
 
 <!-- If you would like to disable proration and invoice customers immediately, you may use the `swapAndInvoice` method in combination with `noProrate`: -->
-日割り計算と請求書の顧客をすぐに無効にしたい場合は、`swapAndInvoice` メソッドを `noProrate` と組み合わせて使用​​できます。
+日割り計算を無効にして顧客にすぐに請求したい場合は、`swapAndInvoice` メソッドを `noProrate` と組み合わせて使用できます。
 
 ```php
 $user->subscription('default')->noProrate()->swapAndInvoice($premium = 'pri_456');
@@ -1680,7 +1680,7 @@ $checkout = $user->checkout('pri_tshirt')
 ### Refunding Transactions
 
 <!-- Refunding transactions will return the refunded amount to your customer's payment method that was used at the time of purchase. If you need to refund a Paddle purchase, you may use the `refund` method on a `Cashier\Paddle\Transaction` model. This method accepts a reason as the first argument, one or more price ID's to refund with optional amounts as an associative array. You may retrieve the transactions for a given billable model using the `transactions` method. -->
-返金取引では、購入時に使用された顧客の支払い方法に返金金額が返されます。 Paddle の購入を返金する必要がある場合は、`Cashier\Paddle\Transaction` モデルで `refund` メソッドを使用できます。このメソッドは、最初の引数として理由を受け入れ、オプションの金額を連想配列として返金する 1 つ以上の価格 ID を受け取ります。 `transactions` メソッドを使用して、特定の請求可能モデルのトランザクションを取得できます。
+返金取引では、購入時に使用された顧客の支払い方法に返金金額が返されます。 Paddle の購入を返金する必要がある場合は、`Cashier\Paddle\Transaction` モデルで `refund` メソッドを使用できます。このメソッドは、最初の引数として理由を受け入れ、返金対象の 1 つ以上の価格 ID と任意の金額を連想配列として受け取ります。 `transactions` メソッドを使用して、特定の請求可能モデルのトランザクションを取得できます。
 
 <!-- For example, imagine we want to refund a specific transaction for prices `pri_123` and `pri_456`. We want to fully refund `pri_123`, but only refund two dollars for `pri_456`: -->
 たとえば、価格 `pri_123` および `pri_456` の特定のトランザクションを返金したいとします。 `pri_123` は全額返金したいのですが、`pri_456` については 2 ドルのみ返金したいと考えています。
@@ -1706,7 +1706,7 @@ $response = $transaction->refund('Accidental charge');
 ```
 
 <!-- For more information on refunds, please consult [Paddle's refund documentation](https://developer.paddle.com/build/transactions/create-transaction-adjustments). -->
-払い戻しの詳細については、[Paddle's refund documentation](https://developer.paddle.com/build/transactions/create-transaction-adjustments) にお問い合わせください。
+払い戻しの詳細については、[Paddle's refund documentation](https://developer.paddle.com/build/transactions/create-transaction-adjustments) を参照してください。
 
 > [!WARNING]
 > 返金は完全に処理される前に必ず Paddle の承認を受ける必要があります。
@@ -1716,7 +1716,7 @@ $response = $transaction->refund('Accidental charge');
 ### Crediting Transactions
 
 <!-- Just like refunding, you can also credit transactions. Crediting transactions will add the funds to the customer's balance so it may be used for future purchases. Crediting transactions can only be done for manually-collected transactions and not for automatically-collected transactions (like subscriptions) since Paddle handles subscription credits automatically: -->
-払い戻しと同様に、トランザクションをクレジット処理することもできます。トランザクションをクレジットすると、資金が顧客の残高に追加され、将来の購入に使用できるようになります。 Paddle はサブスクリプション クレジットを自動的に処理するため、トランザクションのクレジット付与は手動で収集されたトランザクションに対してのみ実行でき、自動収集されたトランザクション (サブスクリプションなど) に対しては実行できません。
+払い戻しと同様に、トランザクションをクレジット処理することもできます。トランザクションをクレジットすると、資金が顧客の残高に追加され、将来の購入に使用できるようになります。 Paddle はサブスクリプション クレジットを自動的に処理するため、トランザクションのクレジット付与は手動請求のトランザクションに対してのみ実行でき、自動請求のトランザクション (サブスクリプションなど) に対しては実行できません。
 
 ```php
 $transaction = $user->transactions()->first();
@@ -1729,7 +1729,7 @@ $response = $transaction->credit('Compensation', 'pri_123');
 詳細については、[see Paddle's documentation on crediting](https://developer.paddle.com/build/transactions/create-transaction-adjustments) をご覧ください。
 
 > [!WARNING]
-> クレジットは手動で収集されたトランザクションにのみ適用できます。自動的に収集されたトランザクションは、Paddle 自体によって入金されます。
+> クレジットは手動請求のトランザクションにのみ適用できます。自動請求のトランザクションへのクレジット付与は、Paddle 自体が処理します。
 
 <a name="transactions"></a>
 <!-- ## Transactions -->

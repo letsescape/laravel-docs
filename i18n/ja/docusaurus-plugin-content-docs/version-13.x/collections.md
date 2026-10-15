@@ -3976,7 +3976,7 @@ $collection->all();
 ```
 
 <!-- A second closure may be passed to the `whenEmpty` method that will be executed when the collection is not empty: -->
-2 番目のクロージャは、コレクションが空でない場合に実行される `whenEmpty` メソッドに渡すことができます。
+`whenEmpty` メソッドには、2 番目のクロージャを渡すことができます。このクロージャは、コレクションが空でない場合に実行されます。
 
 ```php
 $collection = collect(['Michael', 'Tom']);
@@ -4024,7 +4024,7 @@ $collection->all();
 ```
 
 <!-- A second closure may be passed to the `whenNotEmpty` method that will be executed when the collection is empty: -->
-2 番目のクロージャは、コレクションが空のときに実行される `whenNotEmpty` メソッドに渡すことができます。
+`whenNotEmpty` メソッドには、2 番目のクロージャを渡すことができます。このクロージャは、コレクションが空のときに実行されます。
 
 ```php
 $collection = collect();
@@ -4617,7 +4617,7 @@ $lazyCollection->each(function (int $number) {
 ```
 
 <!-- To illustrate the usage of this method, imagine an application that submits invoices from the database using a cursor. You could define a [scheduled task](/docs/13.x/scheduling) that runs every 15 minutes and only processes invoices for a maximum of 14 minutes: -->
-このメソッドの使用法を説明するために、カーソルを使用してデータベースから請求書を送信するアプリケーションを想像してください。 15 分ごとに実行し、最大 14 分間請求書のみを処理する [scheduled task](/docs/13.x/scheduling) を定義できます。
+このメソッドの使用法を説明するために、カーソルを使用してデータベースから請求書を送信するアプリケーションを想像してください。 15 分ごとに実行し、請求書を最大 14 分間だけ処理する [scheduled task](/docs/13.x/scheduling) を定義できます。
 
 ```php
 use App\Models\Invoice;

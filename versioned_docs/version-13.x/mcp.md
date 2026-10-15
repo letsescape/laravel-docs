@@ -2093,7 +2093,7 @@ $client = Mcp::client('github');
 ```
 
 <!-- Named clients are resolved once per request and automatically disconnect at the end of the request lifecycle. -->
-이름이 지정된 클라이언트는 요청마다 한 번만 확인되며, 요청 수명 주기가 끝나면 자동으로 연결이 해제됩니다.
+이름이 지정된 클라이언트는 요청마다 인스턴스를 한 번 가져와 재사용하며, 요청 수명 주기가 끝나면 자동으로 연결이 해제됩니다.
 
 <a name="client-authentication"></a>
 <!-- ### Client Authentication -->
@@ -2146,13 +2146,13 @@ Mcp::registerClient('projects', fn () => Client::web('https://projects.example.c
 ```
 
 > [!NOTE]
-> `clientId` 및 `clientSecret` 인수는 생략할 수 있습니다. Laravel은 인증 서버가 지원하는 경우 [Client ID Metadata Document](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/client-registration#client-id-metadata-documents)를 사용하고, 레거시 서버에서는 [dynamic client registration](https://datatracker.ietf.org/doc/html/rfc7591)을 대신 사용합니다.
+> `clientId` 및 `clientSecret` 인수는 생략할 수 있습니다. Laravel은 인가 서버가 지원하는 경우 [Client ID Metadata Document](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/client-registration#client-id-metadata-documents)를 사용하고, 레거시 서버에서는 [dynamic client registration](https://datatracker.ietf.org/doc/html/rfc7591)을 대신 사용합니다.
 
 <!-- The authorization server must advertise support for the `S256` PKCE code challenge method in its authorization server metadata. Laravel will reject the authorization attempt if PKCE support is not advertised. -->
 인가 서버는 인가 서버 메타데이터에서 `S256` PKCE 코드 챌린지 메서드 지원을 명시해야 합니다. PKCE 지원이 명시되지 않으면 Laravel은 인가 시도를 거부합니다.
 
 <!-- Next, register the account-linking routes in your `routes/ai.php` file. The callback receives the client name and resulting `TokenSet`, allowing you to save the token for the signed-in user: -->
-다음으로 `routes/ai.php` 파일에 계정 연결 라우트를 등록합니다. 콜백은 클라이언트 이름과 결과로 받은 `TokenSet`을 전달하므로, 로그인한 사용자의 토큰을 저장할 수 있습니다:
+다음으로 `routes/ai.php` 파일에 계정 연결 라우트를 등록합니다. 콜백은 클라이언트 이름과 결과로 받은 `TokenSet`을 전달받으므로, 로그인한 사용자의 토큰을 저장할 수 있습니다:
 
 ```php
 use Illuminate\Support\Facades\Auth;
@@ -2169,7 +2169,7 @@ Mcp::oAuthRoutesFor('projects', function (string $client, TokenSet $token) {
 ```
 
 <!-- The `oAuthRoutesFor` method registers three named routes: a connect route (`mcp.oauth.{client}.connect`) that redirects the user to the authorization server, a callback route (`mcp.oauth.{client}.callback`) that exchanges the authorization code and invokes your handler, and a public Client ID Metadata Document route (`mcp.oauth.{client}.client-metadata`). -->
-`oAuthRoutesFor` 메서드는 이름이 지정된 라우트 세 개를 등록합니다. 사용자에게 인증 서버로 리디렉션하는 연결 라우트(`mcp.oauth.{client}.connect`), 인증 코드를 교환하고 핸들러를 호출하는 콜백 라우트(`mcp.oauth.{client}.callback`), 공개 Client ID 메타데이터 문서 라우트(`mcp.oauth.{client}.client-metadata`)입니다.
+`oAuthRoutesFor` 메서드는 이름이 지정된 라우트 세 개를 등록합니다. 사용자를 인가 서버로 리디렉션하는 연결 라우트(`mcp.oauth.{client}.connect`), 인가 코드를 교환하고 핸들러를 호출하는 콜백 라우트(`mcp.oauth.{client}.callback`), 공개 Client ID 메타데이터 문서 라우트(`mcp.oauth.{client}.client-metadata`)입니다.
 
 <!-- The connect and callback routes use the `web` middleware group by default; the account-linking example above adds `auth` to require a signed-in user. The metadata route does not use this middleware because the authorization server must be able to retrieve it. -->
 connect 및 callback 라우트는 기본적으로 `web` 미들웨어 그룹을 사용합니다. 위의 계정 연결 예시에서는 로그인한 사용자만 이용할 수 있도록 `auth`를 추가합니다. 인가 서버가 메타데이터를 가져올 수 있어야 하므로 메타데이터 라우트에는 이 미들웨어를 사용하지 않습니다.

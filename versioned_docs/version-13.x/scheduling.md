@@ -414,7 +414,7 @@ Schedule::command('report:generate')
 ```
 
 <!-- To apply `onOneServer` to all scheduled tasks, you may call the `alwaysOnOneServer` method in the `boot` method of your application's `AppServiceProvider`: -->
-모든 예약 작업에 `onOneServer`를 적용하려면 애플리케이션의 `AppServiceProvider`에서 `boot` 메서드를 호출할 때 `alwaysOnOneServer` 메서드를 호출하면 됩니다.
+모든 예약 작업에 `onOneServer`를 적용하려면 애플리케이션의 `AppServiceProvider`에 있는 `boot` 메서드 안에서 `alwaysOnOneServer` 메서드를 호출하면 됩니다.
 
 ```php
 use Illuminate\Support\Facades\Schedule;

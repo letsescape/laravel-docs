@@ -817,7 +817,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 ### Automatic Redirection
 
 <!-- If you would like to create a validator instance manually but still take advantage of the automatic redirection offered by the HTTP request's `validate` method, you may call the `validate` method on an existing validator instance. If validation fails, the user will automatically be redirected or, in the case of an XHR request, a [JSON response will be returned](#validation-error-response-format): -->
-Validator 인스턴스를 수동으로 생성하면서도 HTTP request의 `validate` 메서드가 제공하는 자동 리디렉션을 활용하고 싶다면, 기존 validator 인스턴스에서 `validate` 메서드를 호출할 수 있습니다. 유효성 검증이 실패하면 사용자는 자동으로 리디렉션되며, XHR 요청의 경우 [JSON response will be returned](#validation-error-response-format).
+Validator 인스턴스를 수동으로 생성하면서도 HTTP request의 `validate` 메서드가 제공하는 자동 리디렉션을 활용하고 싶다면, 기존 validator 인스턴스에서 `validate` 메서드를 호출할 수 있습니다. 유효성 검증이 실패하면 사용자는 자동으로 리디렉션되며, XHR 요청의 경우 JSON 응답이 반환됩니다([JSON response will be returned](#validation-error-response-format)).
 
 ```php
 Validator::make($request->all(), [

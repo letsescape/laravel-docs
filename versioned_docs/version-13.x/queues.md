@@ -3850,7 +3850,7 @@ $job->assertDoesntHaveChain();
 #### Testing Chained Batches
 
 <!-- If your job chain [contains a batch of jobs](#chains-and-batches), you may assert that the chained batch matches your expectations by inserting a `Bus::chainedBatch` definition within your chain assertion: -->
-작업 체인에 [contains a batch of jobs](#chains-and-batches) 있다면, 체인 검증 안에 `Bus::chainedBatch` 정의를 삽입하여 체인된 배치가 기대한 내용과 일치하는지 검증할 수 있습니다.
+작업 체인에 작업 배치가 포함되어 있다면([contains a batch of jobs](#chains-and-batches)), 체인 검증 안에 `Bus::chainedBatch` 정의를 삽입하여 체인된 배치가 기대한 내용과 일치하는지 검증할 수 있습니다.
 
 ```php
 use App\Jobs\ShipOrder;

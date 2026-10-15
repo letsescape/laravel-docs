@@ -247,7 +247,7 @@ public function boot(): void
 애플리케이션을 통해 제품 및 구독 청구를 제공하는 일은 부담스러울 수 있습니다. 하지만 Cashier와 [Paddle's Checkout Overlay](https://developer.paddle.com/concepts/sell/overlay-checkout) 덕분에 현대적이고 견고한 결제 통합을 쉽게 구축할 수 있습니다.
 
 <!-- To charge customers for non-recurring, single-charge products, we'll utilize Cashier to charge customers with Paddle's Checkout Overlay, where they will provide their payment details and confirm their purchase. Once the payment has been made via the Checkout Overlay, the customer will be redirected to a success URL of your choosing within your application: -->
-반복 청구가 아닌 단건 청구 제품에 대해 고객에게 청구하려면 Cashier를 사용하여 Paddle의 Checkout Overlay로 고객에게 청구합니다. 이 과정에서 고객은 결제 정보를 입력하고 구매를 확인합니다. Checkout Overlay를 통해 결제가 완료되면 고객은 애플리케이션 내에서 사용자가 선택한 성공 URL로 리디렉션됩니다.
+반복 청구가 아닌 단건 청구 제품에 대해 고객에게 청구하려면 Cashier를 사용하여 Paddle의 Checkout Overlay로 고객에게 청구합니다. 이 과정에서 고객은 결제 정보를 입력하고 구매를 확인합니다. Checkout Overlay를 통해 결제가 완료되면 고객은 애플리케이션 내에서 여러분이 선택한 성공 URL로 리디렉션됩니다.
 
 ```php
 use Illuminate\Http\Request;

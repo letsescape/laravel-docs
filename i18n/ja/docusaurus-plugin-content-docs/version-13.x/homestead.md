@@ -79,7 +79,7 @@ Homestead は Windows、macOS、または Linux システム上で実行でき�
 - PostgreSQL15
 - Composer
 - Docker
-- ノード (Yarn、Bower、Grunt、Gulp あり)
+- Node (Yarn、Bower、Grunt、Gulp あり)
 - Redis
 - Memcached
 - Beanstalkd

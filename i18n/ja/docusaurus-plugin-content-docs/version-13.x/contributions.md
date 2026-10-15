@@ -92,7 +92,7 @@ Laravel の GitHub 問題トラッカーは、Laravel のヘルプやサポー�
 現在のリリースと**完全に下位互換性がある**、**マイナー**機能は、最新の安定したブランチ (現在 `13.x`) に送信される場合があります。
 
 <!-- **Major** new features or features with breaking changes should always be sent to the `master` branch, which contains the upcoming release. -->
-**主要な**新機能または重大な変更を伴う機能は、次のリリースが含まれる `master` ブランチに常に送信する必要があります。
+**主要な**新機能または互換性を損なう変更を伴う機能は、次のリリースが含まれる `master` ブランチに常に送信する必要があります。
 
 <a name="compiled-assets"></a>
 <!-- ## Compiled Assets -->

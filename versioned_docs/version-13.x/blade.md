@@ -429,7 +429,7 @@ Switch 문은 `@switch`, `@case`, `@break`, `@default` 및 `@endswitch` 지시�
 > `foreach` 루프를 반복하는 동안 [loop variable](#the-loop-variable)를 사용하여 루프를 통해 첫 번째 또는 마지막 반복에 있는지와 같은 루프에 대한 귀중한 정보를 얻을 수 있습니다.
 
 <!-- When using loops you may also skip the current iteration or end the loop using the `@continue` and `@break` directives: -->
-루프를 사용할 때 현재 반복을 건너뛰거나 `@continue` 및 `@break` 지시문을 사용하여 루프를 종료할 수도 있습니다.
+루프를 사용할 때 `@continue` 지시문으로 현재 반복을 건너뛰거나 `@break` 지시문으로 루프를 종료할 수도 있습니다.
 
 ```blade
 @foreach ($users as $user)

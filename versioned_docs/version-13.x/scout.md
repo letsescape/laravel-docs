@@ -351,7 +351,7 @@ Schema::table('articles', function (Blueprint $table) {
 #### Customizing Database Searching Strategies
 
 <!-- By default, the database engine will execute a `LIKE` query against every model attribute that you have [configured as searchable](#configuring-searchable-data). However, you can assign more efficient search strategies to specific columns. The `SearchUsingFullText` attribute will use your database's full-text index for that column, while `SearchUsingPrefix` will only match the beginning of strings (`example%`) instead of searching within the entire string (`%example%`). -->
-기본적으로 데이터베이스 엔진은 [configured as searchable](#configuring-searchable-data) 모든 모델 속성에 대해 `LIKE` 쿼리를 실행합니다. 하지만 특정 컬럼에는 더 효율적인 검색 전략을 지정할 수 있습니다. `SearchUsingFullText` 속성은 해당 컬럼에 데이터베이스의 전체 텍스트 인덱스를 사용하고, `SearchUsingPrefix`는 전체 문자열 안에서 검색하는 방식(`%example%`) 대신 문자열의 시작 부분(`example%`)만 일치시킵니다.
+기본적으로 데이터베이스 엔진은 검색 가능하도록 구성한([configured as searchable](#configuring-searchable-data)) 모든 모델 속성에 대해 `LIKE` 쿼리를 실행합니다. 하지만 특정 컬럼에는 더 효율적인 검색 전략을 지정할 수 있습니다. `SearchUsingFullText` 속성은 해당 컬럼에 데이터베이스의 전체 텍스트 인덱스를 사용하고, `SearchUsingPrefix`는 전체 문자열 안에서 검색하는 방식(`%example%`) 대신 문자열의 시작 부분(`example%`)만 일치시킵니다.
 
 <!-- To define this behavior, assign PHP attributes to your model's `toSearchableArray` method. Any columns without an attribute will continue to use the default `LIKE` strategy: -->
 이 동작을 정의하려면 모델의 `toSearchableArray` 메서드에 PHP 속성을 지정합니다. 속성이 없는 컬럼은 계속 기본 `LIKE` 전략을 사용합니다.

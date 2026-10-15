@@ -799,7 +799,7 @@ class PostController extends Controller
 `make` メソッドに渡される最初の引数は、検証対象のデータです。 2 番目の引数は、データに適用する必要がある検証ルールの配列です。
 
 <!-- After determining whether the request validation failed, you may use the `withErrors` method to flash the error messages to the session. When using this method, the `$errors` variable will automatically be shared with your views after redirection, allowing you to easily display them back to the user. The `withErrors` method accepts a validator, a `MessageBag`, or a PHP `array`. -->
-リクエストの検証が失敗したかどうかを確認した後、`withErrors` メソッドを使用してエラー メッセージをセッションにフラッシュできます。この方法を使用すると、リダイレクト後に `$errors` 変数がビューと自動的に共有されるため、ビューを簡単にユーザーに表示できるようになります。 `withErrors` メソッドは、バリデータ、`MessageBag`、または PHP `array` を受け入れます。
+リクエストの検証が失敗したかどうかを確認した後、`withErrors` メソッドを使用してエラー メッセージをセッションにフラッシュできます。この方法を使用すると、リダイレクト後に `$errors` 変数がビューと自動的に共有されるため、エラー メッセージを簡単にユーザーに表示できるようになります。 `withErrors` メソッドは、バリデータ、`MessageBag`、または PHP `array` を受け入れます。
 
 <!-- #### Stopping on First Validation Failure -->
 #### Stopping on First Validation Failure
@@ -932,7 +932,7 @@ if ($validator->fails()) {
 ```
 
 <!-- As noted, the `after` method also accepts an array of callables, which is particularly convenient if your "after validation" logic is encapsulated in invokable classes, which will receive an `Illuminate\Validation\Validator` instance via their `__invoke` method: -->
-前述したように、`after` メソッドは呼び出し可能な配列も受け入れます。これは、「検証後」ロジックが呼び出し可能なクラスにカプセル化されている場合に特に便利です。呼び出し可能なクラスは、`__invoke` メソッドを介して `Illuminate\Validation\Validator` インスタンスを受け取ります。
+前述したように、`after` メソッドはコールバックの配列も受け入れます。これは、「検証後」ロジックが呼び出し可能なクラスにカプセル化されている場合に特に便利です。呼び出し可能なクラスは、`__invoke` メソッドを介して `Illuminate\Validation\Validator` インスタンスを受け取ります。
 
 ```php
 use App\Validation\ValidateShippingTime;
@@ -1525,7 +1525,7 @@ use Illuminate\Validation\Rule;
 #### alpha_dash
 
 <!-- The field under validation must be entirely Unicode alpha-numeric characters contained in [\p{L}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [\p{M}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), [\p{N}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=), as well as ASCII dashes (`-`) and ASCII underscores (`_`). -->
-検証対象のフィールドは、[\p{L}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=)、[\p{M}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=)、[\p{N}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)、ASCII ダッシュ (`-`) および ASCII アンダースコア (`_`) に含まれる完全に Unicode の英数字である必要があります。
+検証対象のフィールドは、[\p{L}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=)、[\p{M}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=)、[\p{N}](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=) に含まれる Unicode の英数字と、ASCII ダッシュ (`-`) および ASCII アンダースコア (`_`) のみで構成される必要があります。
 
 <!-- To restrict this validation rule to characters in the ASCII range (`a-z`, `A-Z`, and `0-9`), you may provide the `ascii` option to the validation rule: -->
 この検証ルールを ASCII 範囲の文字 (`a-z`、`A-Z`、および `0-9`) に制限するには、検証ルールに `ascii` オプションを指定できます。
@@ -1699,7 +1699,7 @@ use Illuminate\Validation\Rule;
 #### confirmed
 
 <!-- The field under validation must have a matching field of `{field}_confirmation`. For example, if the field under validation is `password`, a matching `password_confirmation` field must be present in the input. -->
-バリデーション対象のフィールドには、対応する `{field}_confirmation` フィールドが必要です。たとえば、バリデーション対象が `password` の場合、入力に対応する `password_confirmation` フィールドが含まれていなければなりません。
+バリデーション対象のフィールドには、値が一致する `{field}_confirmation` フィールドが必要です。たとえば、バリデーション対象が `password` の場合、入力に対応する `password_confirmation` フィールドが含まれていなければなりません。
 
 <!-- You may also pass a custom confirmation field name. For example, `confirmed:repeat_username` will expect the field `repeat_username` to match the field under validation. -->
 確認用フィールド名はカスタマイズすることもできます。たとえば、`confirmed:repeat_username` を指定すると、`repeat_username` フィールドの値がバリデーション対象のフィールドの値と一致する必要があります。
@@ -2383,7 +2383,7 @@ Validator::make($input, [
 検証対象のフィールドは IP アドレスである必要があります。
 
 <!-- You may also use the `Rule::ip` method, optionally restricting the IP version to `4` or `6`: -->
-IP バージョンを `4` または `6` に制限して、`Rule::ip` メソッドを使用することもできます:
+`Rule::ip` メソッドを使用し、必要に応じて IP バージョンを `4` または `6` に制限することもできます:
 
 ```php
 'ip_address' => [Rule::ip()],
@@ -2934,7 +2934,7 @@ use Illuminate\Validation\Rule;
 ```
 
 <!-- The string rule builder provides methods for common string constraints, including `alpha`, `alphaDash`, `alphaNumeric`, `ascii`, `between`, `doesntEndWith`, `doesntStartWith`, `endsWith`, `exactly`, `lowercase`, `max`, `min`, `startsWith`, and `uppercase`. Since the rule builder is conditionable, you may also use the `when` and `unless` methods to conditionally apply constraints. -->
-文字列ルール ビルダは、`alpha`、`alphaDash`、`alphaNumeric`、`ascii`、`between`、`doesntEndWith`、`doesntStartWith`、`endsWith`、`exactly` などの一般的な文字列制約のメソッドを提供します。 `lowercase`、`max`、`min`、`startsWith`、および `uppercase`。ルール ビルダは条件付きであるため、`when` メソッドと `unless` メソッドを使用して条件付きで制約を適用することもできます。
+文字列ルール ビルダは、`alpha`、`alphaDash`、`alphaNumeric`、`ascii`、`between`、`doesntEndWith`、`doesntStartWith`、`endsWith`、`exactly`、`lowercase`、`max`、`min`、`startsWith`、および `uppercase` などの一般的な文字列制約のメソッドを提供します。ルール ビルダは条件付きであるため、`when` メソッドと `unless` メソッドを使用して条件付きで制約を適用することもできます。
 
 <a name="rule-timezone"></a>
 <!-- #### timezone -->
@@ -3516,7 +3516,7 @@ Password::min(8)->uncompromised();
 ```
 
 <!-- Internally, the `Password` rule object uses the [k-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) model to determine if a password has been leaked via the [haveibeenpwned.com](https://haveibeenpwned.com) service without sacrificing the user's privacy or security. -->
-内部的には、`Password` ルール オブジェクトは [k-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) モデルを使用して、ユーザーのプライバシーやセキュリティを犠牲にすることなく、パスワードが [haveibeenpwned.com](https://haveibeenpwned.com) サービス経由で漏洩したかどうかを判断します。
+内部的には、`Password` ルール オブジェクトは [k-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) モデルを使用して、ユーザーのプライバシーやセキュリティを犠牲にすることなく、[haveibeenpwned.com](https://haveibeenpwned.com) サービスを通じて、パスワードが漏洩したかどうかを判断します。
 
 <!-- By default, if a password appears at least once in a data leak, it will be considered compromised. You can customize this threshold using the first argument of the `uncompromised` method: -->
 デフォルトでは、パスワードがデータ漏洩の際に少なくとも 1 回出現すると、そのパスワードは侵害されたとみなされます。このしきい値は、`uncompromised` メソッドの最初の引数を使用してカスタマイズできます。
@@ -3612,7 +3612,7 @@ php artisan make:rule Uppercase
 ```
 
 <!-- Once the rule has been created, we are ready to define its behavior. A rule object contains a single method: `validate`. This method receives the attribute name, its value, and a callback that should be invoked on failure with the validation error message: -->
-ルールを作成したら、その動作を定義する準備が整います。ルール オブジェクトには、`validate` という 1 つのメソッドが含まれています。このメソッドは、属性名、その値、および検証エラー メッセージが表示されて失敗した場合に呼び出されるコールバックを受け取ります。
+ルールを作成したら、その動作を定義する準備が整います。ルール オブジェクトには、`validate` という 1 つのメソッドが含まれています。このメソッドは、属性名、その値、および検証に失敗した場合に検証エラー メッセージを渡して呼び出す必要があるコールバックを受け取ります。
 
 ```php
 <?php
@@ -3747,7 +3747,7 @@ class Uppercase implements ValidationRule, ValidatorAwareRule
 ### Using Closures
 
 <!-- If you only need the functionality of a custom rule once throughout your application, you may use a closure instead of a rule object. The closure receives the attribute's name, the attribute's value, and a `$fail` callback that should be called if validation fails: -->
-アプリケーション全体でカスタム ルールの機能が 1 回だけ必要な場合は、ルール オブジェクトの代わりにクロージャを使用できます。クロージャは、属性の名前、属性の値、および検証が失敗した場合に呼び出される `$fail` コールバックを受け取ります。
+アプリケーション全体でカスタム ルールの機能が 1 回だけ必要な場合は、ルール オブジェクトの代わりにクロージャを使用できます。クロージャは、属性の名前、属性の値、および検証が失敗した場合に呼び出す必要がある `$fail` コールバックを受け取ります。
 
 ```php
 use Illuminate\Support\Facades\Validator;

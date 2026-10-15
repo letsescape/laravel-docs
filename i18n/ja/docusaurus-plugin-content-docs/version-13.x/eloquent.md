@@ -664,7 +664,7 @@ Flight::where(function ($query) {
 ### Chunking Using Lazy Collections
 
 <!-- The `lazy` method works similarly to [the `chunk` method](#chunking-results) in the sense that, behind the scenes, it executes the query in chunks. However, instead of passing each chunk directly into a callback as is, the `lazy` method returns a flattened [LazyCollection](/docs/13.x/collections#lazy-collections) of Eloquent models, which lets you interact with the results as a single stream: -->
-`lazy` メソッドは、バックグラウンドでクエリをチャンク単位で実行するという意味で、[the `chunk` method](#chunking-results) と同様に機能します。ただし、各チャンクをそのままコールバックに直接渡す代わりに、`lazy` メソッドは Eloquent モデルのフラット化された [LazyCollection](/docs/13.x/collections#lazy-collections) を返します。これにより、結果を単一のストリームとして操作できます。
+`lazy` メソッドは、内部でクエリをチャンク単位で実行するという意味で、[the `chunk` method](#chunking-results) と同様に機能します。ただし、各チャンクをそのままコールバックに直接渡す代わりに、`lazy` メソッドは Eloquent モデルのフラット化された [LazyCollection](/docs/13.x/collections#lazy-collections) を返します。これにより、結果を単一のストリームとして操作できます。
 
 ```php
 use App\Models\Flight;
@@ -737,7 +737,7 @@ foreach ($users as $user) {
 #### Subquery Selects
 
 <!-- Eloquent also offers advanced subquery support, which allows you to pull information from related tables in a single query. For example, let's imagine that we have a table of flight `destinations` and a table of `flights` to destinations. The `flights` table contains an `arrived_at` column which indicates when the flight arrived at the destination. -->
-Eloquent は、高度なサブクエリ サポートも提供しており、これにより、単一のクエリで関連テーブルから情報を取得できます。たとえば、目的地へのフライト `destinations` のテーブルと `flights` のテーブルがあると想像してみましょう。 `flights` テーブルには、フライトが目的地にいつ到着したかを示す `arrived_at` 列が含まれています。
+Eloquent は、高度なサブクエリ サポートも提供しており、これにより、単一のクエリで関連テーブルから情報を取得できます。たとえば、フライトの目的地を表す `destinations` テーブルと、その目的地へ向かうフライトを表す `flights` テーブルがあると想像してみましょう。 `flights` テーブルには、フライトが目的地にいつ到着したかを示す `arrived_at` 列が含まれています。
 
 <!-- Using the subquery functionality available to the query builder's `select` and `addSelect` methods, we can select all of the `destinations` and the name of the flight that most recently arrived at that destination using a single query: -->
 クエリビルダの `select` メソッドと `addSelect` メソッドで利用できるサブクエリ機能を使用すると、単一のクエリを使用して、すべての `destinations` とその目的地に最後に到着したフライトの名前を選択できます。
@@ -1505,7 +1505,7 @@ Schedule::command('model:prune')->daily();
 ```
 
 <!-- Behind the scenes, the `model:prune` command will automatically detect "Prunable" models within your application's `app/Models` directory. If your models are in a different location, you may use the `--model` option to specify the model class names: -->
-バックグラウンドで、`model:prune` コマンドは、アプリケーションの `app/Models` ディレクトリ内の「Prunable」モデルを自動的に検出します。モデルが別の場所にある場合は、`--model` オプションを使用してモデル クラス名を指定できます。
+内部では、`model:prune` コマンドは、アプリケーションの `app/Models` ディレクトリ内の「Prunable」モデルを自動的に検出します。モデルが別の場所にある場合は、`--model` オプションを使用してモデル クラス名を指定できます。
 
 ```php
 Schedule::command('model:prune', [

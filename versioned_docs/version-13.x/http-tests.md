@@ -279,7 +279,7 @@ $this->actingAs($user, 'web');
 ```
 
 <!-- If you would like to ensure the request is unauthenticated, you may use the `actingAsGuest` method: -->
-요청이 인증되지 않았는지 확인하려면 `actingAsGuest` 메소드를 사용할 수 있습니다.
+요청을 인증되지 않은 상태로 실행하려면 `actingAsGuest` 메소드를 사용할 수 있습니다.
 
 ```php
 $this->actingAsGuest();
@@ -1301,7 +1301,7 @@ $response->assertCreated();
 #### assertDontSee
 
 <!-- Assert that the given string is not contained within the response returned by the application. This assertion will automatically escape the given string unless you pass a second argument of `false`: -->
-주어진 문자열이 애플리케이션이 반환한 응답에 포함되어 있지 않은지 확인합니다. 이 어설션은 `false`의 두 번째 인수를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다.
+주어진 문자열이 애플리케이션이 반환한 응답에 포함되어 있지 않은지 확인합니다. 이 어설션은 두 번째 인수로 `false`를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다.
 
 ```php
 $response->assertDontSee($value, $escape = true);
@@ -1312,7 +1312,7 @@ $response->assertDontSee($value, $escape = true);
 #### assertDontSeeText
 
 <!-- Assert that the given string is not contained within the response text. This assertion will automatically escape the given string unless you pass a second argument of `false`. This method will pass the response content to the `strip_tags` PHP function before making the assertion: -->
-주어진 문자열이 응답 텍스트에 포함되어 있지 않은지 확인합니다. 이 어설션은 `false`의 두 번째 인수를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다. 이 메소드는 어설션을 수행하기 전에 응답 내용을 `strip_tags` PHP 함수에 전달합니다.
+주어진 문자열이 응답 텍스트에 포함되어 있지 않은지 확인합니다. 이 어설션은 두 번째 인수로 `false`를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다. 이 메소드는 어설션을 수행하기 전에 응답 내용을 `strip_tags` PHP 함수에 전달합니다.
 
 ```php
 $response->assertDontSeeText($value, $escape = true);
@@ -1894,7 +1894,7 @@ $response->assertRedirectBack();
 #### assertRedirectBackWithErrors
 
 <!-- Assert whether the response is redirecting back to the previous page and the [session has the given errors](#assert-session-has-errors): -->
-응답이 이전 페이지로 다시 리디렉션되고 [session has the given errors](#assert-session-has-errors)인지 확인합니다.
+응답이 이전 페이지로 다시 리디렉션되고 세션에 지정한 오류가 있는지 확인합니다([session has the given errors](#assert-session-has-errors)).
 
 ```php
 $response->assertRedirectBackWithErrors(
@@ -1962,7 +1962,7 @@ $response->assertRequestTimeout();
 #### assertSee
 
 <!-- Assert that the given string is contained within the response. This assertion will automatically escape the given string unless you pass a second argument of `false`: -->
-주어진 문자열이 응답 내에 포함되어 있는지 확인합니다. 이 어설션은 `false`의 두 번째 인수를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다.
+주어진 문자열이 응답 내에 포함되어 있는지 확인합니다. 이 어설션은 두 번째 인수로 `false`를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다.
 
 ```php
 $response->assertSee($value, $escape = true);
@@ -1973,7 +1973,7 @@ $response->assertSee($value, $escape = true);
 #### assertSeeInOrder
 
 <!-- Assert that the given strings are contained in order within the response. This assertion will automatically escape the given strings unless you pass a second argument of `false`: -->
-주어진 문자열이 응답 내에 순서대로 포함되어 있는지 확인합니다. 이 어설션은 `false`의 두 번째 인수를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다.
+주어진 문자열이 응답 내에 순서대로 포함되어 있는지 확인합니다. 이 어설션은 두 번째 인수로 `false`를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다.
 
 ```php
 $response->assertSeeInOrder(array $values, $escape = true);
@@ -1984,7 +1984,7 @@ $response->assertSeeInOrder(array $values, $escape = true);
 #### assertSeeText
 
 <!-- Assert that the given string is contained within the response text. This assertion will automatically escape the given string unless you pass a second argument of `false`. The response content will be passed to the `strip_tags` PHP function before the assertion is made: -->
-주어진 문자열이 응답 텍스트 내에 포함되어 있는지 확인합니다. 이 어설션은 `false`의 두 번째 인수를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다. 어설션이 이루어지기 전에 응답 콘텐츠가 `strip_tags` PHP 함수에 전달됩니다.
+주어진 문자열이 응답 텍스트 내에 포함되어 있는지 확인합니다. 이 어설션은 두 번째 인수로 `false`를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다. 어설션이 이루어지기 전에 응답 콘텐츠가 `strip_tags` PHP 함수에 전달됩니다.
 
 ```php
 $response->assertSeeText($value, $escape = true);
@@ -1995,7 +1995,7 @@ $response->assertSeeText($value, $escape = true);
 #### assertSeeTextInOrder
 
 <!-- Assert that the given strings are contained in order within the response text. This assertion will automatically escape the given strings unless you pass a second argument of `false`. The response content will be passed to the `strip_tags` PHP function before the assertion is made: -->
-주어진 문자열이 응답 텍스트 내에 순서대로 포함되어 있는지 확인합니다. 이 어설션은 `false`의 두 번째 인수를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다. 어설션이 이루어지기 전에 응답 콘텐츠가 `strip_tags` PHP 함수에 전달됩니다.
+주어진 문자열이 응답 텍스트 내에 순서대로 포함되어 있는지 확인합니다. 이 어설션은 두 번째 인수로 `false`를 전달하지 않는 한 자동으로 주어진 문자열을 이스케이프합니다. 어설션이 이루어지기 전에 응답 콘텐츠가 `strip_tags` PHP 함수에 전달됩니다.
 
 ```php
 $response->assertSeeTextInOrder(array $values, $escape = true);

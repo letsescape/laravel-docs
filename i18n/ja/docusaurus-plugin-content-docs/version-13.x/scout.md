@@ -351,7 +351,7 @@ Schema::table('articles', function (Blueprint $table) {
 #### Customizing Database Searching Strategies
 
 <!-- By default, the database engine will execute a `LIKE` query against every model attribute that you have [configured as searchable](#configuring-searchable-data). However, you can assign more efficient search strategies to specific columns. The `SearchUsingFullText` attribute will use your database's full-text index for that column, while `SearchUsingPrefix` will only match the beginning of strings (`example%`) instead of searching within the entire string (`%example%`). -->
-デフォルトでは、データベース エンジンは、[configured as searchable](#configuring-searchable-data) を持つすべてのモデル属性に対して `LIKE` クエリを実行します。ただし、より効率的な検索戦略を特定の列に割り当てることができます。 `SearchUsingFullText` 属性はその列に対してデータベースのフルテキスト インデックスを使用しますが、`SearchUsingPrefix` は文字列全体 (`%example%`) 内を検索するのではなく、文字列の先頭 (`example%`) のみに一致します。
+デフォルトでは、データベース エンジンは、検索可能に設定したすべてのモデル属性（[configured as searchable](#configuring-searchable-data)）に対して `LIKE` クエリを実行します。ただし、より効率的な検索戦略を特定の列に割り当てることができます。 `SearchUsingFullText` 属性はその列に対してデータベースのフルテキスト インデックスを使用しますが、`SearchUsingPrefix` は文字列全体 (`%example%`) 内を検索するのではなく、文字列の先頭 (`example%`) のみに一致します。
 
 <!-- To define this behavior, assign PHP attributes to your model's `toSearchableArray` method. Any columns without an attribute will continue to use the default `LIKE` strategy: -->
 この動作を定義するには、モデルの `toSearchableArray` メソッドに PHP 属性を割り当てます。属性のない列は、引き続きデフォルトの `LIKE` 戦略を使用します。
@@ -926,7 +926,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> `makeAllSearchableUsing` メソッドは、キューを使ってモデルを一括インポートする場合には適用できないことがあります。ジョブがモデルのコレクションを処理するとき、リレーションは[not restored](/docs/13.x/queues#handling-relationships)。
+> `makeAllSearchableUsing` メソッドは、キューを使ってモデルを一括インポートする場合には適用できないことがあります。ジョブがモデルのコレクションを処理するとき、リレーションは復元されません（[not restored](/docs/13.x/queues#handling-relationships)）。
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->

@@ -280,7 +280,7 @@ Route::group([
 ## Authorization Code Grant
 
 <!-- Using OAuth2 via authorization codes is how most developers are familiar with OAuth2. When using authorization codes, a client application will redirect a user to your server where they will either approve or deny the request to issue an access token to the client. -->
-인가 코드를 통해 OAuth2를 사용하는 방식은 대부분의 개발자에게 익숙한 OAuth2 사용 방식입니다. 인가 코드를 사용할 때 클라이언트 애플리케이션은 사용자를 사용자의 서버로 리디렉션하며, 사용자는 클라이언트에 액세스 토큰을 발급하는 요청을 승인하거나 거부합니다.
+인가 코드를 통해 OAuth2를 사용하는 방식은 대부분의 개발자에게 익숙한 OAuth2 사용 방식입니다. 인가 코드를 사용할 때 클라이언트 애플리케이션은 사용자를 여러분의 서버로 리디렉션하며, 사용자는 클라이언트에 액세스 토큰을 발급하는 요청을 승인하거나 거부합니다.
 
 <!-- To get started, we need to instruct Passport how to return our "authorization" view. -->
 시작하려면 Passport가 "authorization" 뷰를 어떻게 반환해야 하는지 지정해야 합니다.
@@ -321,7 +321,7 @@ Passport는 이 뷰를 반환하는 `/oauth/authorize` 라우트를 자동으로
 ### Managing Clients
 
 <!-- Developers building applications that need to interact with your application's API will need to register their application with yours by creating a "client". Typically, this consists of providing the name of their application and a URI that your application can redirect to after users approve their request for authorization. -->
-애플리케이션의 API와 상호작용해야 하는 애플리케이션을 만드는 개발자는 "client"를 생성하여 자신의 애플리케이션을 사용자의 애플리케이션에 등록해야 합니다. 일반적으로 이는 애플리케이션 이름과 사용자가 인가 요청을 승인한 후 사용자의 애플리케이션이 리디렉션할 URI를 제공하는 방식으로 이루어집니다.
+애플리케이션의 API와 상호작용해야 하는 애플리케이션을 만드는 개발자는 "client"를 생성하여 자신의 애플리케이션을 여러분의 애플리케이션에 등록해야 합니다. 일반적으로 이는 애플리케이션 이름과 사용자가 인가 요청을 승인한 후 여러분의 애플리케이션이 리디렉션할 URI를 제공하는 방식으로 이루어집니다.
 
 <a name="managing-first-party-clients"></a>
 <!-- #### First-Party Clients -->
@@ -379,7 +379,7 @@ $clients = $user->oauthApps()->get();
 #### Redirecting for Authorization
 
 <!-- Once a client has been created, developers may use their client ID and secret to request an authorization code and access token from your application. First, the consuming application should make a redirect request to your application's `/oauth/authorize` route like so: -->
-클라이언트가 생성되면 개발자는 클라이언트 ID와 secret을 사용하여 애플리케이션에서 인가 코드와 액세스 토큰을 요청할 수 있습니다. 먼저 소비 애플리케이션은 다음과 같이 사용자의 애플리케이션의 `/oauth/authorize` 라우트로 리디렉션 요청을 보내야 합니다.
+클라이언트가 생성되면 개발자는 클라이언트 ID와 secret을 사용하여 애플리케이션에서 인가 코드와 액세스 토큰을 요청할 수 있습니다. 먼저 소비 애플리케이션은 다음과 같이 여러분의 애플리케이션의 `/oauth/authorize` 라우트로 리디렉션 요청을 보내야 합니다.
 
 ```php
 use Illuminate\Http\Request;
@@ -450,7 +450,7 @@ class Client extends BaseClient
 #### Converting Authorization Codes to Access Tokens
 
 <!-- If the user approves the authorization request, they will be redirected back to the consuming application. The consumer should first verify the `state` parameter against the value that was stored prior to the redirect. If the state parameter matches then the consumer should issue a `POST` request to your application to request an access token. The request should include the authorization code that was issued by your application when the user approved the authorization request: -->
-사용자가 인가 요청을 승인하면 소비 애플리케이션으로 다시 리디렉션됩니다. 소비자는 먼저 `state` 파라미터를 리디렉션 전에 저장해 둔 값과 비교하여 검증해야 합니다. state 파라미터가 일치하면 소비자는 액세스 토큰을 요청하기 위해 사용자의 애플리케이션에 `POST` 요청을 보내야 합니다. 요청에는 사용자가 인가 요청을 승인했을 때 사용자의 애플리케이션이 발급한 인가 코드가 포함되어야 합니다.
+사용자가 인가 요청을 승인하면 소비 애플리케이션으로 다시 리디렉션됩니다. 소비자는 먼저 `state` 파라미터를 리디렉션 전에 저장해 둔 값과 비교하여 검증해야 합니다. state 파라미터가 일치하면 소비자는 액세스 토큰을 요청하기 위해 여러분의 애플리케이션에 `POST` 요청을 보내야 합니다. 요청에는 사용자가 인가 요청을 승인했을 때 여러분의 애플리케이션이 발급한 인가 코드가 포함되어야 합니다.
 ```php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
