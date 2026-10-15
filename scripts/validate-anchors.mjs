@@ -6,6 +6,7 @@
  *
  * - Docusaurus 내장 앵커 오류 검증과 별도로 Laravel 원본 문서의 `<a name="xxx">` 앵커가 실제 빌드 HTML의 `id`로 렌더링되는지 확인
  * - 실제 빌드 산출물(HTML)을 기준으로 원본 Markdown의 앵커 링크가 HTML `id`와 일치하는지 검증
+ * - 링크 참조 여부와 관계없이 빌드된 문서 본문의 중복 `id` 검사
  * - stale-link 레지스트리의 교체·폐기 규칙을 적용한 최종 대상 검증
  *
  * 전제:
@@ -20,7 +21,7 @@
  * 종료 코드:
  *
  * - 0 — 검증 실패 없음
- * - 1 — 검증 실패 1건 이상(`id` 또는 대상 HTML 누락), 상세 목록 출력
+ * - 1 — 검증 실패 1건 이상(`id` 중복·누락 또는 대상 HTML 누락), 상세 목록 출력
  * - 2 — `build/` 디렉터리 없음(선행 빌드 필요)
  */
 import {readFileSync, existsSync, readdirSync} from 'node:fs';
@@ -37,6 +38,7 @@ import {
   sourceUrl,
 } from './anchor-routes.mjs';
 import {staleLinkResolution} from './stale-links.mjs';
+import {collectDocumentHtmlIds} from './document-html-ids.mjs';
 
 // Windows에서 `new URL(...).pathname`은 `/C:/...` 형식으로 나타나거나 공백을 `%20`으로 인코딩
 // `fs` API가 해석하지 못하므로 `fileURLToPath`로 플랫폼 독립 경로 획득
@@ -88,10 +90,10 @@ if (!existsSync(BUILD_ROOT)) {
 }
 
 const htmlCache = new Map();
-function readHtml(path) {
+function readHtmlIds(path) {
   let cached = htmlCache.get(path);
   if (cached === undefined) {
-    cached = readFileSync(path, 'utf-8');
+    cached = collectDocumentHtmlIds(readFileSync(path, 'utf-8'));
     htmlCache.set(path, cached);
   }
   return cached;
@@ -102,6 +104,7 @@ let ok = 0;
 let missingHtml = 0;
 let idNotFound = 0;
 const broken = [];
+const documentHtmlPaths = new Set();
 
 for (const docsRoot of DOCS_ROOTS) {
   if (!existsSync(docsRoot.path)) continue;
@@ -109,6 +112,10 @@ for (const docsRoot of DOCS_ROOTS) {
     const src = stripCode(readFileSync(md, 'utf-8'));
     const srcUrl = sourceUrl(md, docsRoot.path, docsRoot.localePrefix);
     const srcVersion = docsVersionFromUrl(srcUrl);
+    const sourceHtml = htmlPathFor(srcUrl);
+    if (sourceHtml !== null && existsSync(sourceHtml)) {
+      documentHtmlPaths.add(sourceHtml);
+    }
 
     for (const {url: href} of extractMarkdownLinks(src)) {
       if (!href.includes('#')) continue; // 앵커 참조 아님
@@ -152,8 +159,7 @@ for (const docsRoot of DOCS_ROOTS) {
         broken.push({md: relative(REPO_ROOT, md), src: srcUrl, target: targetUrl, anchor, reason: 'target HTML missing'});
         continue;
       }
-      const html = readHtml(hp);
-      if (html.includes(`id="${anchor}"`)) {
+      if (readHtmlIds(hp).ids.has(anchor)) {
         ok++;
       } else {
         idNotFound++;
@@ -163,15 +169,34 @@ for (const docsRoot of DOCS_ROOTS) {
   }
 }
 
+const duplicateIds = [];
+for (const path of documentHtmlPaths) {
+  for (const [id, count] of readHtmlIds(path).bodyIdCounts) {
+    if (count > 1) {
+      duplicateIds.push({path: relative(BUILD_ROOT, path), id, count});
+    }
+  }
+}
+
 console.log(`Total anchor links:  ${total}`);
 console.log(`  OK (id in HTML):   ${ok}`);
 console.log(`  Target HTML gone:  ${missingHtml}`);
 console.log(`  id not found:      ${idNotFound}`);
+console.log(`  Document HTML:     ${documentHtmlPaths.size}`);
+console.log(`  Duplicate doc IDs: ${duplicateIds.length}`);
 
 if (broken.length) {
   console.log('\nBroken details:');
   for (const b of broken) {
     console.log(`  [${b.reason}] ${b.md} on ${b.src} -> ${b.target}#${b.anchor}`);
   }
+}
+if (duplicateIds.length) {
+  console.log('\nDuplicate document IDs:');
+  for (const {path, id, count} of duplicateIds) {
+    console.log(`  [duplicate ID] ${path} #${id} (${count} occurrences)`);
+  }
+}
+if (broken.length || duplicateIds.length) {
   process.exit(1);
 }
