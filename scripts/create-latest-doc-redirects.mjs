@@ -9,7 +9,7 @@ import {
 import {basename, isAbsolute, relative, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-import {parseDocumentFrontMatter} from './document-front-matter.mjs';
+import {parseDocumentFrontMatter} from '../src/utils/document-front-matter.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const locales = ['', 'ja'];

@@ -9,9 +9,9 @@ import {DEFAULT_PARSE_FRONT_MATTER} from '@docusaurus/utils';
 import {visit} from 'unist-util-visit';
 
 import {parseDocumentFrontMatter} from './document-front-matter.mjs';
-import {frontMatterSlug} from './create-latest-doc-redirects.mjs';
+import {frontMatterSlug} from '../../scripts/create-latest-doc-redirects.mjs';
 
-const siteDir = fileURLToPath(new URL('..', import.meta.url));
+const siteDir = fileURLToPath(new URL('../..', import.meta.url));
 const filePath = path.join(siteDir, 'versioned_docs/version-13.x/security-fixture.md');
 const {siteConfig} = await loadSiteConfig({siteDir});
 const [, docsOptions] = siteConfig.plugins.find(

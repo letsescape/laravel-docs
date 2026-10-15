@@ -16,7 +16,7 @@ import validateLocalAssetsPlugin, {
 } from './src/remark/validate-local-assets.mjs';
 import safeHtmlPlugin from './src/rehype/safe-html.mjs';
 import {addDocumentSeo} from './src/utils/document-seo.mjs';
-import {parseDocumentFrontMatter} from './scripts/document-front-matter.mjs';
+import {parseDocumentFrontMatter} from './src/utils/document-front-matter.mjs';
 import versions from './versions.json';
 
 // This runs in Node.js.

@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {existsSync, readdirSync, readFileSync} from 'node:fs';
 import {join, relative, resolve, sep} from 'node:path';
-import {parseDocumentFrontMatter} from '../scripts/document-front-matter.mjs';
+import {parseDocumentFrontMatter} from '../src/utils/document-front-matter.mjs';
 import {load} from 'cheerio';
 import versions from '../versions.json';
 
