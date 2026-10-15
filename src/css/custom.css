@@ -320,14 +320,16 @@ svg[class*="text-laravel-red"] path {
     position: static !important;
   }
 
-  .navbar__items--right > .navbar__toggle {
-    display: flex !important;
-    order: 5;
-  }
-
   .navbar__items--right .DocSearch-Button-Placeholder,
   .navbar__items--right .DocSearch-Button-Keys {
     display: none !important;
+  }
+}
+
+@media (max-width: 996px) {
+  .navbar__items--right > .navbar__toggle {
+    display: flex !important;
+    order: 5;
   }
 
   /* Docs pages: hide version and locale dropdowns on tablets and mobile devices only.

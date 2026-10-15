@@ -1,5 +1,5 @@
 import {test, expect, type Page, type Locator} from '@playwright/test';
-import {docsPath} from './utils/docs-version';
+import {docsPath, latestDocsVersion} from './utils/docs-version';
 
 // 로컬 사이트 대상 테스트(`playwright.config.ts`의 `baseURL` 사용)
 
@@ -18,6 +18,8 @@ async function expectControlsAlignedLeftToRight(page: Page, controls: Locator[])
   expect(navbarBox).not.toBeNull();
   for (const box of boxes) {
     expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(page.viewportSize()!.width + ORDER_TOLERANCE);
   }
 
   for (let index = 0; index < boxes.length - 1; index += 1) {
@@ -302,7 +304,7 @@ test.describe('Navbar — Docs responsive menu', () => {
     await page.goto(docsPath());
     await expectDocsResponsiveHeaderControls(page, 430);
     await page.locator('.navbar__items--right > .navbar__toggle').click();
-    await expect(page.locator('.navbar-sidebar--show')).toBeVisible();
+    await expect(page.locator('.navbar-sidebar--show .navbar-sidebar')).toBeVisible();
   });
 
   test('N-29: 좁은 모바일에서도 헤더 버튼 순서 유지', async ({page}) => {
@@ -311,11 +313,65 @@ test.describe('Navbar — Docs responsive menu', () => {
     await expectDocsResponsiveHeaderControls(page, 390);
   });
 
-  test('N-30: 데스크톱 문서에서 버전/언어 컨트롤 노출', async ({page}) => {
-    await page.setViewportSize({width: 1280, height: 800});
+  for (const width of [997, 1024, 1279, 1280]) {
+    test(`N-30: ${width}px 문서에서 버전/언어 컨트롤 노출`, async ({page}) => {
+      await page.setViewportSize({width, height: 800});
+      await page.goto(docsPath());
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      const rightItems = page.locator('.navbar__items--right');
+      await expect(rightItems.locator('.navbar-version-dropdown')).toBeVisible();
+      await expect(rightItems.locator('.navbar-locale-dropdown')).toBeVisible();
+      await expect(rightItems.locator('.navbar__toggle')).toBeHidden();
+    });
+  }
+
+  test('N-31: 996px 메뉴를 연 뒤 화면을 확대해도 닫고 다시 열 수 있음', async ({page}) => {
+    await page.setViewportSize({width: 996, height: 800});
     await page.goto(docsPath());
-    const rightItems = page.locator('.navbar__items--right');
-    await expect(rightItems.locator('.navbar-version-dropdown')).toBeVisible();
-    await expect(rightItems.locator('.navbar-locale-dropdown')).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+    const toggle = page.locator('.navbar__items--right > .navbar__toggle');
+    await toggle.click();
+    await expect(page.locator('.navbar-sidebar--show .navbar-sidebar')).toBeVisible();
+
+    await page.setViewportSize({width: 997, height: 800});
+    await expect(page.locator('.navbar-sidebar--show')).toHaveCount(0);
+    await expect(toggle).toBeHidden();
+    await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
+
+    await page.setViewportSize({width: 996, height: 800});
+    await toggle.click();
+    await expect(page.locator('.navbar-sidebar--show .navbar-sidebar')).toBeVisible();
+    await page.locator('.navbar-sidebar__close').click();
+    await expect(page.locator('.navbar-sidebar--show')).toHaveCount(0);
   });
+});
+
+test.describe('Navbar — Narrow homepage', () => {
+  for (const width of [320, 360, 390]) {
+    for (const version of [latestDocsVersion, 'master']) {
+      test(`N-32: ${width}px 홈 ${version}에서 로고와 컨트롤이 겹치지 않음`, async ({page}) => {
+        await page.goto('/');
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        if (version !== latestDocsVersion) {
+          await page.locator('.navbar-version-dropdown').click();
+          await page.locator('.navbar__items--right').getByRole('link', {name: version, exact: true}).click();
+          await page.locator('.navbar__brand').first().click();
+        }
+        await expect(page.locator('.navbar-version-dropdown')).toHaveText(version);
+        await page.setViewportSize({width, height: 844});
+        await page.evaluate(() => document.fonts.ready);
+        await expectHomepageResponsiveHeaderControls(page);
+
+        const logo = page.locator('.navbar__brand').first().locator('img:visible');
+        await expectControlsAlignedLeftToRight(page, [logo, page.locator('.nav-mobile-mode-toggle')]);
+        const logoUncovered = await logo.evaluate((element) => {
+          const box = element.getBoundingClientRect();
+          return [0.1, 0.5, 0.9].every((position) =>
+            element.closest('a')?.contains(document.elementFromPoint(box.x + box.width * position, box.y + box.height / 2)),
+          );
+        });
+        expect(logoUncovered).toBe(true);
+      });
+    }
+  }
 });

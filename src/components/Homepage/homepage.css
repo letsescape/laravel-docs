@@ -2771,6 +2771,45 @@
   }
 }
 
+@media (max-width: 430px) {
+  body.homepage-layout .navbar {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  body.homepage-layout .navbar__inner {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  body.homepage-layout .navbar__brand {
+    flex-shrink: 0;
+    margin-right: 0;
+  }
+
+  body.homepage-layout .navbar__logo {
+    margin-right: 0;
+  }
+
+  body.homepage-layout .navbar__items--right {
+    margin-right: 30px !important;
+    gap: 0 !important;
+  }
+
+  body.homepage-layout .navbar__items--right > .navbar__item {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  body.homepage-layout .nav-mobile-mode-toggle {
+    margin-right: 4px;
+  }
+
+  body.homepage-layout .nav-mobile-hamburger {
+    right: 0;
+  }
+}
+
 /* Responsive color mode toggle, hidden by default */
 .nav-mobile-mode-toggle {
   display: none;
