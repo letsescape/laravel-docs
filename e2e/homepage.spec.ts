@@ -9,6 +9,39 @@ async function expectNoHorizontalScroll(page: Page, maxWidth: number) {
   expect(scrollWidth).toBeLessThanOrEqual(maxWidth + 2);
 }
 
+for (const width of [320, 360, 390, 820, 941, 1024, 1280, 1440, 1920]) {
+  test(`Japanese hero keeps the stack phrase on one line at ${width}px`, async ({page}) => {
+    await page.setViewportSize({width, height: 900});
+    await page.goto('/ja/');
+    await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+    await page.evaluate(() => document.fonts.ready);
+
+    const phrases = await page.locator('.hero-h1').evaluate((heading) => {
+      const walker = document.createTreeWalker(heading, NodeFilter.SHOW_TEXT);
+      const results: {text: string; lines: number}[] = [];
+      let node: Node | null;
+      while ((node = walker.nextNode())) {
+        if (!node.textContent?.trim()) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        results.push({
+          text: node.textContent,
+          lines: new Set(Array.from(range.getClientRects(), (rect) => rect.top)).size,
+        });
+      }
+      return results;
+    });
+
+    expect(phrases).toEqual([
+      {text: 'Artisanとエージェントのための', lines: width < 768 ? 2 : 1},
+      {text: '無駄のないスタック。', lines: 1},
+    ]);
+    const box = await page.locator('.hero-h1').boundingBox();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+  });
+}
+
 // =============================================================================
 // 데스크톱 (1280px)
 // =============================================================================
