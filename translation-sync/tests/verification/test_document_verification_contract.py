@@ -226,6 +226,63 @@ class DocumentVerificationTests(unittest.TestCase):
                 self.assertEqual(accepted.issues, ())
                 self.assertIsNotNone(accepted.artifact)
 
+    def test_emphasis_scopes_and_nesting_are_checked_before_publication(self):
+        """문단 간 상쇄와 교차 강조를 응답 및 최종 artifact 검사에서 거부."""
+
+        cases = (
+            (
+                "Use 2 ** 3 as a value.\n\nMinor releases should **never** contain breaking changes.",
+                "値として二の三乗を使います。\n\nマイナーリリースには重大な変更が含まれてはなりません**。",
+                "値として二の三乗を使います。\n\nマイナーリリースには重大な変更が**含まれてはなりません**。",
+                "ja",
+            ),
+            (
+                "**outer __inner__ outer**",
+                "**바깥 __안쪽** 바깥__",
+                "**바깥 __안쪽__ 바깥**",
+                "ko",
+            ),
+        )
+
+        for source, broken, fixed, locale in cases:
+            for body, rejected in ((broken, True), (fixed, False)):
+                with self.subTest(source=source, rejected=rejected):
+                    translated = "\n\n".join(
+                        f"<!-- {original} -->\n{paragraph}"
+                        for original, paragraph in zip(
+                            source.split("\n\n"), body.split("\n\n"), strict=True,
+                        )
+                    ) + "\n"
+                    provider_issues = response_contract.verify(
+                        translated, source + "\n", locale=locale,
+                    )
+                    result = self._verify(source + "\n", translated)
+                    self.assertEqual(
+                        "provider inline markup mismatch" in provider_issues, rejected,
+                    )
+                    self.assertEqual(
+                        "malformed strong emphasis" in [issue.message for issue in result.issues],
+                        rejected,
+                    )
+                    self.assertEqual(result.artifact is None, rejected)
+                    if not rejected:
+                        self.assertEqual(provider_issues, [])
+                        self.assertEqual(result.issues, ())
+
+    def test_quoted_html_attribute_delimiters_remain_literal(self):
+        """따옴표 속성 안의 > 뒤에 남은 강조 기호를 본문으로 검사하지 않음."""
+
+        source = '<span aria-label="** > options">Use this value.</span>\n'
+        translated = (
+            '<!-- <span aria-label="** > options">Use this value.</span> -->\n'
+            '<span aria-label="선택 > **">이 값을 사용합니다.</span>\n'
+        )
+
+        self.assertEqual(response_contract.verify(translated, source, locale="ko"), [])
+        result = self._verify(source, translated)
+        self.assertEqual(result.issues, ())
+        self.assertIsNotNone(result.artifact)
+
     def test_front_matter_key_order_and_scalar_shape_are_exact(self):
         """front matter의 key 순서와 scalar 형태가 정확히 일치하는지 검증."""
 

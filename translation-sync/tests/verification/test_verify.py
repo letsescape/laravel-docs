@@ -36,17 +36,25 @@ class VerifyContentTests(unittest.TestCase):
             ),
         )
         for source, translated in cases:
-            with self.subTest(source=source):
-                self.assertIn(
-                    "malformed strong emphasis",
-                    verify.verify(translated, source=source),
-                )
+            for prefix in ("", "> ", "> > "):
+                with self.subTest(source=source, prefix=prefix):
+                    original = "\n".join(prefix + line for line in source.splitlines())
+                    broken = "\n".join(prefix + line for line in translated.splitlines())
+                    self.assertIn(
+                        "malformed strong emphasis",
+                        verify.verify(broken, source=original),
+                    )
+                    self.assertIn(
+                        "provider inline markup mismatch",
+                        response_contract.verify(broken, original),
+                    )
 
     def test_preserves_literal_markers_and_valid_strong_emphasis(self):
         """literal·보호 영역·정상 강조와 강조 전체 생략을 오탐하지 않음."""
 
         cases = (
             ("Use 2 ** 3 as a value.", "값으로 2 ** 3을 사용합니다."),
+            ("Use **unfinished text.", "**미완성 문장을 사용합니다."),
             (r"Use \** as a token.", r"기호로 \**를 사용합니다."),
             ("Use `**` and ``__`` as tokens.", "기호로 `**`와 ``__``를 사용합니다."),
             ("<code>**</code> is literal.", "<code>**</code>는 문자입니다."),
