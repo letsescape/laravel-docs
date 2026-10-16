@@ -6,6 +6,7 @@ import contentTitle from '@docusaurus/mdx-loader/lib/remark/contentTitle/index.j
 import toc from '@docusaurus/mdx-loader/lib/remark/toc/index.js';
 import rehypeRaw from 'rehype-raw';
 import remarkParse from 'remark-parse';
+import remarkMdx from 'remark-mdx';
 import remarkRehype from 'remark-rehype';
 import {unified} from 'unified';
 import {visit} from 'unist-util-visit';
@@ -100,6 +101,22 @@ for (const {name, markdown, ids} of [
     ids: ['software-list', 'software-list-2', 'software-list-1', 'software-list-3'],
   },
   {
+    name: 'reserves unquoted raw HTML IDs before automatic headings',
+    markdown: '<div id=software-list></div>\n\n## Software List',
+    ids: ['software-list', 'software-list-1'],
+  },
+  {
+    name: 'compares decoded HTML IDs and preserves encoded attributes when suffixing',
+    markdown: '<div id="a&amp;b"></div>\n\n<span id="a&#38;b"></span>\n\n' +
+      '<div id="a&amp;&quot;b"></div>\n\n<span id="a&#38;&#34;b"></span>',
+    ids: ['a&b', 'a&b-1', 'a&"b', 'a&"b-1'],
+  },
+  {
+    name: 'ignores tag-like strings inside HTML attribute values',
+    markdown: '<div data-example="<span id=\'sample\'>"></div>\n\n## Sample',
+    ids: ['sample'],
+  },
+  {
     name: 'keeps a mapped heading before a colliding raw HTML target',
     markdown: '<a name="same"></a>\n\n## Title\n\n<div id="same"></div>',
     ids: ['same', 'same-1'],
@@ -136,6 +153,34 @@ for (const {name, markdown, ids} of [
     const renderedIds = elements.filter((node) => node.properties.id).map((node) => node.properties.id);
     assert.deepEqual(renderedIds, ids);
     assert.equal(new Set(renderedIds).size, renderedIds.length);
+  });
+}
+
+for (const {markdown, ids} of [
+  {markdown: '## Title {/* #stable-id */}', ids: ['stable-id']},
+  {
+    markdown: '## Stable Id\n\n## Title {/* #stable-id */}\n\n' +
+      '## Other {/* #stable-id */}\n\n## Last {/* #stable-id-1 */}',
+    ids: ['stable-id-3', 'stable-id', 'stable-id-2', 'stable-id-1'],
+  },
+]) {
+  test(`preserves MDX comment IDs and TOC values: ${ids.join(', ')}`, async () => {
+    const processor = unified()
+      .use(remarkParse)
+      .use(remarkMdx)
+      .use(anchorMappingPlugin)
+      .use(headings.default, {anchorsMaintainCase: false})
+      .use(toc.default);
+    const tree = await processor.run(processor.parse(markdown));
+    const headingNodes = tree.children.filter((node) => node.type === 'heading');
+    assert.deepEqual(headingNodes.map((node) => node.data.id), ids);
+    assert.ok(headingNodes.every((node) => node.children.every((child) => child.type === 'text')));
+    const exportNode = tree.children.find((node) => node.type === 'mdxjsEsm');
+    const tocItems = exportNode.data.estree.body[0].declaration.declarations[0].init.elements;
+    assert.deepEqual(
+      tocItems.map((item) => item.properties.find((property) => property.key.value === 'id').value.value),
+      ids,
+    );
   });
 }
 

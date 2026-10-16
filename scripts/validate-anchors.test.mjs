@@ -19,7 +19,7 @@ async function validateFixture(t, files) {
   symlinkSync(
     fileURLToPath(new URL('../node_modules', import.meta.url)),
     join(root, 'node_modules'),
-    'dir',
+    'junction',
   );
   for (const [path, content] of Object.entries(files)) {
     const target = join(root, path);
