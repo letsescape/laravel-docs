@@ -167,7 +167,7 @@ export default function NavbarDropdowns(): ReactNode {
             <div className="nav-dd-col">
               <h3 className="nav-dd-heading">Explore Laravel</h3>
               <ul className="nav-dd-list">
-                <li><Link to="/" className="nav-dd-item-link">
+                <li><Link to="/" className="nav-dd-item-link" onClick={() => setOpenDropdown(null)}>
                   <img src="/img/nav/fw-overview.png" alt="" className="nav-dd-icon" />
                   <div>
                     <span className="nav-dd-item-name">Overview</span>
