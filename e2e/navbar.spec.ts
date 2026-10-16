@@ -378,6 +378,20 @@ test.describe('Navbar — Narrow homepage', () => {
 
 test.describe('Navbar — Homepage locale navigation', () => {
   for (const locale of ['ko', 'ja']) {
+    test(`N-35: ${locale} 홈에서 Overview 클릭 시 드롭다운 닫힘`, async ({page}) => {
+      const homepage = locale === 'ko' ? '/' : `/${locale}/`;
+      await page.setViewportSize({width: 1280, height: 932});
+      await page.goto(homepage);
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      await openDropdown(page, 'framework');
+      await page.locator('#content-framework').getByRole('link', {name: /^Overview/}).click();
+
+      await expect.poll(() => new URL(page.url()).pathname).toBe(homepage);
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.locator('#trigger-framework')).toHaveAttribute('aria-expanded', 'false');
+      await expect(page.locator('#content-framework')).toHaveCount(0);
+    });
+
     for (const width of [1280, 430]) {
       for (const version of [latestDocsVersion, 'master']) {
         test(`N-33: ${locale} ${width}px 홈 ${version} 선택 후 Docs 클릭 시 언어 유지`, async ({page}) => {
