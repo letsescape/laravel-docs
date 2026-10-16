@@ -1,11 +1,12 @@
 import type {Transformer} from 'unified';
 import type {Heading, Html, Paragraph, Root} from 'mdast';
+import type {Token} from 'parse5';
 import {createSlugger, parseMarkdownHeadingId} from '@docusaurus/utils';
+import {load} from 'cheerio';
 import {toString} from 'mdast-util-to-string';
 import {visit} from 'unist-util-visit';
 
 const ANCHOR_RE = /<a\s+name=["']([^"']+)["']\s*(?:\/?>|>\s*<\/a>)/;
-const HTML_ID_RE = /<[a-z][^>]*?\sid=(["'])([^"']+)\1[^>]*>/gi;
 
 function headingText(heading: Heading): string {
   const children = heading.children.filter(({type}) => type !== 'html');
@@ -71,9 +72,13 @@ export default function anchorMappingPlugin(): Transformer<Root> {
     visit(tree, 'heading', (heading: Heading) => {
       const mapping = mapped.get(heading);
       const last = heading.children.at(-1);
+      const expression = last?.type === 'mdxTextExpression' ? last.data?.estree : undefined;
+      const mdxComment = expression?.body.length === 0 && expression.comments?.length === 1
+        ? expression.comments[0].value.trim().split(' ')[0]
+        : undefined;
       const comment = last?.type === 'html'
         ? /^<!--\s*#([^\s]+)[\s\S]*-->$/.exec(last.value)?.[1]
-        : undefined;
+        : mdxComment?.startsWith('#') ? mdxComment.slice(1) : undefined;
       const classic = parseMarkdownHeadingId(headingText(heading));
       const id = mapping?.id ?? comment ?? classic.id;
       if (!id) {
@@ -90,8 +95,8 @@ export default function anchorMappingPlugin(): Transformer<Root> {
               (_, prefix) => prefix + finalId,
             );
             heading.children.push({type: 'html', value: `<!-- #${finalId} -->`});
-          } else if (comment && last?.type === 'html') {
-            last.value = `<!-- #${finalId} -->`;
+          } else if (comment) {
+            heading.children[heading.children.length - 1] = {type: 'html', value: `<!-- #${finalId} -->`};
           } else if (finalId !== id && last?.type === 'text') {
             last.value = `${parseMarkdownHeadingId(last.value).text} {#${finalId}}`;
           }
@@ -101,23 +106,26 @@ export default function anchorMappingPlugin(): Transformer<Root> {
 
     const htmlEdits = new Map<Html, {start: number; end: number; value: string}[]>();
     visit(tree, 'html', (node: Html) => {
-      const content = node.value.replace(/<!--[\s\S]*?-->/g, (comment) => ' '.repeat(comment.length));
-      for (const match of content.matchAll(HTML_ID_RE)) {
+      const $ = load(node.value, {sourceCodeLocationInfo: true}, false);
+      $('[id]').each((_, element) => {
+        const originalId = $(element).attr('id');
+        const location = (element.sourceCodeLocation as Token.ElementLocation)?.attrs?.id;
+        if (!originalId || !location) return;
         targets.push({
-          id: match[2],
-          offset: (node.position?.start.offset ?? 0) + match.index,
+          id: originalId,
+          offset: (node.position?.start.offset ?? 0) + location.startOffset,
           assign: (id) => {
-            if (id === match[2]) return;
+            if (id === originalId) return;
             const edits = htmlEdits.get(node) ?? [];
             edits.push({
-              start: match.index,
-              end: match.index + match[0].length,
-              value: match[0].replace(/(\sid=["'])[^"']+/i, (_, prefix) => prefix + id),
+              start: location.startOffset,
+              end: location.endOffset,
+              value: `id="${id.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}"`,
             });
             htmlEdits.set(node, edits);
           },
         });
-      }
+      });
     });
 
     const reserved = new Set(targets.map(({id}) => id));
