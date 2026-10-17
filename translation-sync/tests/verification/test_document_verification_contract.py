@@ -9,7 +9,7 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 
-from sync import verify as legacy_verify
+from sync import response_contract, verify as legacy_verify
 from sync.common.stale_links import (
     DEFAULT_STALE_LINK_REGISTRY,
     StaleLinkRegistry,
@@ -159,6 +159,129 @@ class DocumentVerificationTests(unittest.TestCase):
             expected_annotation_map=annotations,
         )
         return _verify_inputs(inputs)
+
+    def test_broken_translation_emphasis_is_rejected_before_publication(self):
+        """실제 번역 결함의 여섯 형태를 응답과 최종 artifact 계약 모두에서 거부."""
+
+        cases = (
+            (
+                "Minor releases should **never** contain breaking changes.",
+                "マイナーリリースには重大な変更が含まれてはなりません**。",
+                "マイナーリリースには重大な変更が**含まれてはなりません**。",
+                "ja",
+            ),
+            (
+                "Validate a field **only** if it is present.",
+                "フィールドが存在する場合にのみ**、検証を実行します。",
+                "フィールドが存在する場合に**のみ**、検証を実行します。",
+                "ja",
+            ),
+            (
+                "Assert JSON errors **or** session errors.",
+                "JSON エラー ** または ** セッションのエラーを検証します。",
+                "JSON エラー **または** セッションのエラーを検証します。",
+                "ja",
+            ),
+            (
+                "Transform values when they are set on the model.",
+                "모델의 속성 값을 **입력(할당)**할 때만 변환합니다.",
+                "모델의 속성 값을 입력(할당)할 때만 변환합니다.",
+                "ko",
+            ),
+            (
+                "The `flush` method accepts an `$hours` argument in hours.",
+                "`flush`는 `$hours`로 **몇 시간 이상 된 것인지(시간 단위)**를 지정합니다.",
+                "`flush`는 `$hours`로 몇 시간 이상 된 것인지(시간 단위)를 지정합니다.",
+                "ko",
+            ),
+            (
+                "The `password` rule has been renamed to `current_password`.",
+                "`password` 규칙의 이름이 **`current_password`**로 변경되었습니다.",
+                "`password` 규칙의 이름이 `current_password`로 변경되었습니다.",
+                "ko",
+            ),
+        )
+
+        for source, broken, fixed, locale in cases:
+            with self.subTest(broken=broken):
+                annotation = f"<!-- {source} -->\n"
+                invalid = annotation + broken + "\n"
+                valid = annotation + fixed + "\n"
+
+                self.assertIn(
+                    "provider inline markup mismatch",
+                    response_contract.verify(invalid, source + "\n", locale=locale),
+                )
+                result = self._verify(source + "\n", invalid)
+                self.assertIn(
+                    "malformed strong emphasis",
+                    [issue.message for issue in result.issues],
+                )
+                self.assertIsNone(result.artifact)
+                self.assertEqual(
+                    response_contract.verify(valid, source + "\n", locale=locale),
+                    [],
+                )
+                accepted = self._verify(source + "\n", valid)
+                self.assertEqual(accepted.issues, ())
+                self.assertIsNotNone(accepted.artifact)
+
+    def test_emphasis_scopes_and_nesting_are_checked_before_publication(self):
+        """문단 간 상쇄와 교차 강조를 응답 및 최종 artifact 검사에서 거부."""
+
+        cases = (
+            (
+                "Use 2 ** 3 as a value.\n\nMinor releases should **never** contain breaking changes.",
+                "値として二の三乗を使います。\n\nマイナーリリースには重大な変更が含まれてはなりません**。",
+                "値として二の三乗を使います。\n\nマイナーリリースには重大な変更が**含まれてはなりません**。",
+                "ja",
+            ),
+            (
+                "**outer __inner__ outer**",
+                "**바깥 __안쪽** 바깥__",
+                "**바깥 __안쪽__ 바깥**",
+                "ko",
+            ),
+        )
+
+        for source, broken, fixed, locale in cases:
+            for body, rejected in ((broken, True), (fixed, False)):
+                with self.subTest(source=source, rejected=rejected):
+                    translated = "\n\n".join(
+                        f"<!-- {original} -->\n{paragraph}"
+                        for original, paragraph in zip(
+                            source.split("\n\n"), body.split("\n\n"), strict=True,
+                        )
+                    ) + "\n"
+                    provider_issues = response_contract.verify(
+                        translated, source + "\n", locale=locale,
+                    )
+                    result = self._verify(source + "\n", translated)
+                    self.assertEqual(
+                        "provider inline markup mismatch" in provider_issues, rejected,
+                    )
+                    self.assertEqual(
+                        "malformed strong emphasis" in [issue.message for issue in result.issues],
+                        rejected,
+                    )
+                    self.assertEqual(result.artifact is None, rejected)
+                    if not rejected:
+                        self.assertEqual(provider_issues, [])
+                        self.assertEqual(result.issues, ())
+
+    def test_quoted_html_attribute_delimiters_remain_literal(self):
+        """따옴표 속성 안의 > 뒤에 남은 강조 기호를 본문으로 검사하지 않음."""
+
+        source = '<span aria-label="** > options">Use this value.</span>\n'
+        translated = (
+            '<!-- <span aria-label="** > options">Use this value.</span> -->\n'
+            '<span aria-label="선택 > **">이 값을 사용합니다.</span>\n'
+        )
+
+        self.assertEqual(response_contract.verify(translated, source, locale="ko"), [])
+        result = self._verify(source, translated)
+        self.assertEqual(result.issues, ())
+        self.assertIsNotNone(result.artifact)
 
     def test_front_matter_key_order_and_scalar_shape_are_exact(self):
         """front matter의 key 순서와 scalar 형태가 정확히 일치하는지 검증."""

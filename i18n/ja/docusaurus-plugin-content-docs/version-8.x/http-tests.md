@@ -1183,7 +1183,7 @@ $response->assertJsonValidationErrors(array $data, $responseKey = 'errors');
 ```
 
 > [!TIP]
-> より一般的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたことを主張する ** または ** エラーがセッション ストレージにフラッシュされたことを主張できます。
+> より一般的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたことを主張する **または** エラーがセッション ストレージにフラッシュされたことを主張できます。
 
 <a name="assert-json-validation-error-for"></a>
 <!-- #### assertJsonValidationErrorFor -->

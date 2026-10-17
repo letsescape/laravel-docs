@@ -851,7 +851,7 @@ Laravel의 `opis/closure` 의존성이 `laravel/serializable-closure`로 대체�
 **영향 가능성: 낮음**
 
 <!-- The `flush` method defined by the `Illuminate\Queue\Failed\FailedJobProviderInterface` interface now accepts an `$hours` argument which determines how old a failed job must be (in hours) before it is flushed by the `queue:flush` command. If you are manually implementing the `FailedJobProviderInterface` you should ensure that your implementation is updated to reflect this new argument: -->
-`Illuminate\Queue\Failed\FailedJobProviderInterface` 인터페이스의 `flush` 메서드는 이제 `$hours` 인수를 받아, 실패한 작업을 `queue:flush` 명령으로 삭제할 때 해당 작업이 **몇 시간 이상 된 것인지(시간 단위)**를 지정할 수 있습니다. `FailedJobProviderInterface`를 직접 구현 중이라면 아래와 같이 시그니처를 변경해 주세요.
+`Illuminate\Queue\Failed\FailedJobProviderInterface` 인터페이스의 `flush` 메서드는 이제 `$hours` 인수를 받아, 실패한 작업을 `queue:flush` 명령으로 삭제할 때 해당 작업이 몇 시간 이상 된 것인지(시간 단위)를 지정할 수 있습니다. `FailedJobProviderInterface`를 직접 구현 중이라면 아래와 같이 시그니처를 변경해 주세요.
 
 ```php
 public function flush($hours = null);
@@ -944,7 +944,7 @@ public function validated($key = null, $default = null)
 **영향 가능성: 중간**
 
 <!-- The `password` rule, which validates that the given input value matches the authenticated user's current password, has been renamed to `current_password`. -->
-입력값이 현재 인증된 사용자의 비밀번호와 일치하는지 검사하는 `password` 규칙의 이름이 **`current_password`**로 변경되었습니다.
+입력값이 현재 인증된 사용자의 비밀번호와 일치하는지 검사하는 `password` 규칙의 이름이 `current_password`로 변경되었습니다.
 
 <a name="unvalidated-array-keys"></a>
 <!-- #### Unvalidated Array Keys -->
