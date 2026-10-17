@@ -12,9 +12,11 @@ import methodClassPlugin from './src/remark/method-class';
 import stripPandocAttrsPlugin from './src/remark/strip-pandoc-attrs';
 import validateLocalAssetsPlugin, {
   assertFrontMatterImageAllowed,
+  isPathInside,
 } from './src/remark/validate-local-assets.mjs';
 import safeHtmlPlugin from './src/rehype/safe-html.mjs';
 import {addDocumentSeo} from './src/utils/document-seo.mjs';
+import {parseDocumentFrontMatter} from './scripts/document-front-matter.mjs';
 import versions from './versions.json';
 
 // This runs in Node.js.
@@ -37,6 +39,10 @@ const MARKDOWN_SOURCE_ROOTS = [
   ),
 ];
 const MARKDOWN_ASSET_ROOTS = [...MARKDOWN_SOURCE_ROOTS, ...STATIC_DIRS];
+const DOCUMENT_SOURCE_ROOTS = [
+  ...MARKDOWN_SOURCE_ROOTS,
+  path.join(SITE_DIR, 'i18n', DEFAULT_LOCALE, 'docusaurus-plugin-content-docs'),
+];
 const SITEMAP_LASTMOD = process.env.DOCUSAURUS_SITEMAP_LASTMOD === '0' ? null : 'date';
 const DOCS_LATEST_REDIRECT_SCRIPT = `
 (function () {
@@ -94,7 +100,9 @@ const config: Config = {
   markdown: {
     format: 'detect',
     parseFrontMatter: async ({filePath, fileContent, defaultParseFrontMatter}) => {
-      const result = await defaultParseFrontMatter({filePath, fileContent});
+      const result = DOCUMENT_SOURCE_ROOTS.some((root) => isPathInside(root, filePath))
+        ? await parseDocumentFrontMatter({filePath, fileContent, defaultParseFrontMatter})
+        : await defaultParseFrontMatter({filePath, fileContent});
       await assertFrontMatterImageAllowed({
         filePath,
         image: result.frontMatter.image,

@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {existsSync, readdirSync, readFileSync} from 'node:fs';
 import {join, relative, resolve, sep} from 'node:path';
-import {DEFAULT_PARSE_FRONT_MATTER} from '@docusaurus/utils';
+import {parseDocumentFrontMatter} from '../scripts/document-front-matter.mjs';
 import {load} from 'cheerio';
 import versions from '../versions.json';
 
@@ -29,7 +29,7 @@ test.beforeAll(async () => {
         if (!entry.isFile() || !entry.name.endsWith('.md') || entry.name.startsWith('_') ||
           ['documentation.md', 'readme.md'].includes(entry.name)) continue;
         const filePath = join(sourceDir, entry.name);
-        const {frontMatter} = await DEFAULT_PARSE_FRONT_MATTER({filePath, fileContent: readFileSync(filePath, 'utf8')});
+        const {frontMatter} = await parseDocumentFrontMatter({filePath, fileContent: readFileSync(filePath, 'utf8')});
         const rawSlug = Object.hasOwn(frontMatter, 'slug') ? frontMatter.slug : entry.name.slice(0, -3);
         expect(typeof rawSlug, filePath).toBe('string');
         const slug = String(rawSlug).replace(/^\//, '');
