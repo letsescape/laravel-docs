@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback, type ReactNode} from 'react';
+import Link from '@docusaurus/Link';
 import {useColorMode} from '@docusaurus/theme-common';
 import {docsPath} from '@site/src/utils/docs';
 import './homepage.css';
@@ -155,7 +156,7 @@ export default function NavbarDropdowns(): ReactNode {
             <ChevronDown open={isOpen(name)} />
           </button>
         ))}
-        <a href={docsPath()} className="nav-docs-link">Docs</a>
+        <Link to={docsPath()} className="nav-docs-link">Docs</Link>
       </div>
 
       {/* Framework */}
@@ -166,20 +167,20 @@ export default function NavbarDropdowns(): ReactNode {
             <div className="nav-dd-col">
               <h3 className="nav-dd-heading">Explore Laravel</h3>
               <ul className="nav-dd-list">
-                <li><a href="/" className="nav-dd-item-link">
+                <li><Link to="/" className="nav-dd-item-link" onClick={() => setOpenDropdown(null)}>
                   <img src="/img/nav/fw-overview.png" alt="" className="nav-dd-icon" />
                   <div>
                     <span className="nav-dd-item-name">Overview</span>
                     <span className="nav-dd-item-desc">Discover the magic of Laravel</span>
                   </div>
-                </a></li>
-                <li><a href={docsPath('releases')} className="nav-dd-item-link">
+                </Link></li>
+                <li><Link to={docsPath('releases')} className="nav-dd-item-link">
                   <img src="/img/nav/fw-changelog.png" alt="" className="nav-dd-icon" />
                   <div>
                     <span className="nav-dd-item-name">Changelog</span>
                     <span className="nav-dd-item-desc">Read the latest changes</span>
                   </div>
-                </a></li>
+                </Link></li>
                 <li><a href="https://laravel.com/learn" className="nav-dd-item-link">
                   <img src="/img/nav/fw-learn.png" alt="" className="nav-dd-icon" />
                   <div>
@@ -220,46 +221,46 @@ export default function NavbarDropdowns(): ReactNode {
             <div className="nav-dd-col nav-dd-col-docs">
               <h3 className="nav-dd-heading">Documentation</h3>
               <ul className="nav-dd-list nav-dd-list-simple">
-                <li><a href={docsPath()} className="nav-dd-link nav-dd-doc-link">
+                <li><Link to={docsPath()} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M4.3335 5.00016L5.66683 6.3335L4.3335 7.66683M6.3335 7.66683H7.66683M2.3335 2.3335H13.6668V13.6668H2.3335V2.3335Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Installation
-                </a></li>
-                <li><a href={docsPath('ai')} className="nav-dd-link nav-dd-doc-link">
+                </Link></li>
+                <li><Link to={docsPath('ai')} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" fillRule="evenodd" clipRule="evenodd" d="M14.3332 7.99984C9.93502 7.99984 7.99984 9.93502 7.99984 14.3332C7.99984 9.93502 6.06465 7.99984 1.6665 7.99984C6.06465 7.99984 7.99984 6.06465 7.99984 1.6665C7.99984 6.06465 9.93502 7.99984 14.3332 7.99984Z" stroke="currentColor" strokeLinejoin="round"/>
                   </svg>
                   Agent Setup
-                </a></li>
-                <li><a href={docsPath('eloquent')} className="nav-dd-link nav-dd-doc-link">
+                </Link></li>
+                <li><Link to={docsPath('eloquent')} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M13 3.42576C13 4.39738 10.7614 5.18502 8 5.18502C5.23858 5.18502 3 4.39738 3 3.42576M13 3.42576C13 2.45415 10.7614 1.6665 8 1.6665C5.23858 1.6665 3 2.45415 3 3.42576M13 3.42576V12.5739C13 13.5455 10.7614 14.3332 8 14.3332C5.23858 14.3332 3 13.5455 3 12.5739V3.42576M13 7.92562C13 8.89723 10.7614 9.68488 8 9.68488C5.23858 9.68488 3 8.89723 3 7.92562" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Eloquent ORM
-                </a></li>
-                <li><a href={docsPath('artisan')} className="nav-dd-link nav-dd-doc-link">
+                </Link></li>
+                <li><Link to={docsPath('artisan')} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M3 4.3335L6.66667 8.00016L3 11.6668M8.33333 11.6668H13" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Artisan Console
-                </a></li>
-                <li><a href={docsPath('routing')} className="nav-dd-link nav-dd-doc-link">
+                </Link></li>
+                <li><Link to={docsPath('routing')} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M7.99984 5.66683V2.3335H12.9998L14.3332 4.00016L12.9998 5.66683H7.99984ZM7.99984 5.66683V9.00016M7.99984 5.66683H2.99984L1.6665 7.3335L2.99984 9.00016H7.99984M7.99984 9.00016V13.6668M7.99984 13.6668H5.6665M7.99984 13.6668H10.3332" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Routing
-                </a></li>
+                </Link></li>
               </ul>
-              <a href={docsPath()} className="nav-dd-link nav-dd-viewall" style={{display: 'flex', alignItems: 'center', gap: 4}}>
+              <Link to={docsPath()} className="nav-dd-link nav-dd-viewall" style={{display: 'flex', alignItems: 'center', gap: 4}}>
                 View all
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
                   <path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" />
                 </svg>
-              </a>
+              </Link>
             </div>
             {/* Starter kits */}
-            <a href={docsPath('starter-kits')} className="nav-dd-col nav-dd-col-starter">
+            <Link to={docsPath('starter-kits')} className="nav-dd-col nav-dd-col-starter">
               <span className="nav-dd-starter-label">
                 <span>Starter kits</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" className="nav-dd-starter-arrow">
@@ -270,7 +271,7 @@ export default function NavbarDropdowns(): ReactNode {
                 <img src="/img/nav/fw-starter-cards.svg" alt="Starter kits preview" className="nav-dd-starter-img nav-dd-starter-img--light" />
                 <img src="/img/nav/fw-starter-cards-dark.svg" alt="Starter kits preview" className="nav-dd-starter-img nav-dd-starter-img--dark" />
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       )}
@@ -649,9 +650,9 @@ export default function NavbarDropdowns(): ReactNode {
                   <span>Events</span>
                 </a>
                 */}
-                <a href={docsPath()} className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
+                <Link to={docsPath()} className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
                   <span>Docs</span>
-                </a>
+                </Link>
               </nav>
             </div>
 
@@ -672,10 +673,10 @@ export default function NavbarDropdowns(): ReactNode {
               </div>
               <nav className="nav-mobile-submenu">
                 {mobileSubMenu === 'framework' && <>
-                  <a href="/" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Overview</a>
-                  <a href={docsPath('starter-kits')} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Starter Kits</a>
-                  <a href={docsPath('releases')} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Release Notes</a>
-                  <a href={docsPath()} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Documentation</a>
+                  <Link to="/" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Overview</Link>
+                  <Link to={docsPath('starter-kits')} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Starter Kits</Link>
+                  <Link to={docsPath('releases')} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Release Notes</Link>
+                  <Link to={docsPath()} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Documentation</Link>
                   <a href="https://laravel.com/learn" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Laravel Learn</a>
                 </>}
                 {mobileSubMenu === 'products' && <>
