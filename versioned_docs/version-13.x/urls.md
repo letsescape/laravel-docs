@@ -266,6 +266,9 @@ Route::post('/unsubscribe/{user}', function (Request $request) {
 })->name('unsubscribe')->middleware('signed:relative');
 ```
 
+> [!WARNING]
+> 서명은 URL의 경로와 쿼리 문자열만 포함합니다. 폼이나 JSON 요청 본문과 같은 다른 요청 입력은 서명되지 않으므로 사용자가 자유롭게 수정할 수 있습니다. Laravel은 이러한 입력 소스를 하나로 병합하고 쿼리 문자열보다 요청 본문을 우선하므로, `query` 이외의 메서드(예: `input`, `all`)나 동적 요청 프로퍼티를 사용해 입력을 가져오면 서명된 쿼리 문자열 값을 덮어쓰는 서명되지 않은 값이 반환될 수 있습니다. 따라서 `$request->query('email')`처럼 항상 `query` 메서드로 서명된 값을 가져와야 합니다. 특별히 조작된 `GET` 요청에는 JSON 요청 본문이 포함될 수도 있으므로 `GET` 요청도 예외가 아닙니다.
+
 <a name="responding-to-invalid-signed-routes"></a>
 <!-- #### Responding to Invalid Signed Routes -->
 #### Responding to Invalid Signed Routes
