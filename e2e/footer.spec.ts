@@ -65,6 +65,56 @@ test.describe('Homepage footer — mid widths (800–1000px)', () => {
   }
 });
 
+test.describe('Homepage footer — responsive links', () => {
+  for (const path of ['/', '/ja/']) {
+    for (const colorScheme of ['light', 'dark'] as const) {
+      for (const width of [320, 360, 390, 768, 1280]) {
+        test(`FT-R: ${path} ${colorScheme} ${width}px에서 링크 전체 표시`, async ({page}) => {
+          await page.setViewportSize({width, height: 1000});
+          await page.emulateMedia({colorScheme});
+          await page.goto(path);
+          await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+          await expect(page.locator('html')).toHaveAttribute('data-theme', colorScheme);
+          await page.evaluate(() => document.fonts.ready);
+          await expectFooterWithinViewport(page, width, HOME_COLUMNS);
+
+          const dimensions = await page.evaluate(() => {
+            window.scrollTo({left: 100, behavior: 'instant'});
+            return {
+              documentWidth: document.documentElement.scrollWidth,
+              bodyWidth: document.body.scrollWidth,
+              scrollX: window.scrollX,
+            };
+          });
+          expect(dimensions).toEqual({documentWidth: width, bodyWidth: width, scrollX: 0});
+
+          const links = await page.locator('.hp-footer .footer-column a').evaluateAll((elements) =>
+            elements.map((element) => {
+              const column = element.closest('.footer-column')!.getBoundingClientRect();
+              const range = document.createRange();
+              range.selectNodeContents(element);
+              const lines = Array.from(range.getClientRects());
+              return {
+                text: element.textContent,
+                lineCount: lines.length,
+                withinColumn: lines.every((line) => line.left >= column.left - 1 && line.right <= column.right + 1),
+              };
+            }),
+          );
+          for (const link of links) {
+            expect(link.lineCount, `${link.text}가 표시되어야 함`).toBeGreaterThan(0);
+            expect(link.withinColumn, `${link.text} 전체가 컬럼 안에 표시되어야 함`).toBe(true);
+          }
+          if (width === 320) {
+            const partner = links.find((link) => link.text === 'Steadfast Collective');
+            expect(partner?.lineCount, '긴 파트너명은 잘리지 않고 줄바꿈되어야 함').toBeGreaterThan(1);
+          }
+        });
+      }
+    }
+  }
+});
+
 // =============================================================================
 // 메인 페이지 푸터 변형 — 제품군 컬럼 유지, Community 없음
 // =============================================================================
@@ -142,9 +192,11 @@ test.describe('Docs footer variant', () => {
     await expect(page.locator('.footer__links')).toHaveCount(0);
   });
 
-  test('FT-D-5: 문서 페이지 푸터도 800–1000px에서 오버플로 없음', async ({page}) => {
-    await page.setViewportSize({width: 900, height: 1000});
-    await page.goto(docsPath());
-    await expectFooterWithinViewport(page, 900, ['Community']);
-  });
+  for (const width of [320, 900]) {
+    test(`FT-D-5: 문서 페이지 푸터도 ${width}px에서 오버플로 없음`, async ({page}) => {
+      await page.setViewportSize({width, height: 1000});
+      await page.goto(docsPath());
+      await expectFooterWithinViewport(page, width, ['Community']);
+    });
+  }
 });
