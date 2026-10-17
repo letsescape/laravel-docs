@@ -49,6 +49,8 @@ docker build -t laravel-docs .
 docker run -p 3000:3000 laravel-docs
 ```
 
+`make init`과 `make dev`는 사이트 빌드와 npm 패키지 설치를 수행합니다. 기본 `docker compose up`은 사이트 빌드 서비스만 실행합니다. Docker 번역은 `make translate` 또는 `translation` profile을 명시해 실행합니다.
+
 ### 문서 갱신
 
 문서 갱신 진입점은 `translation-sync/main.py`입니다. upstream에서 원본 문서를 동기화한 뒤 변경된 문서를 Python과 선택한 OpenAI provider(API 또는 CLI)로 번역하고 검증된 문서·사이드바를 작업 트리에 기록합니다.
