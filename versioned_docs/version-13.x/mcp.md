@@ -1913,6 +1913,7 @@ Mcp::web('/mcp/weather', WeatherExample::class)
     ->middleware('auth:api');
 ```
 
+<a name="new-passport-installation"></a>
 <!-- #### New Passport Installation -->
 #### New Passport Installation
 
@@ -1969,6 +1970,29 @@ OAuth2.1은 Model Context Protocol 명세에 문서화된 인증 메커니즘이
 
 <!-- If your application is already using [Sanctum](/docs/13.x/sanctum) then adding Passport may be cumbersome. In this instance, we recommend using Sanctum without Passport until you have a clear, necessary requirement to use an MCP client that only supports OAuth. -->
 애플리케이션이 이미 [Sanctum](/docs/13.x/sanctum)을 사용하고 있다면 Passport를 추가하는 일이 번거로울 수 있습니다. 이 경우 OAuth만 지원하는 MCP 클라이언트를 사용해야 하는 명확하고 필요한 요구사항이 생기기 전까지는 Passport 없이 Sanctum을 사용하는 것을 권장합니다.
+
+<a name="rate-limiting-oauth-routes"></a>
+<!-- #### Rate Limiting OAuth Routes -->
+#### Rate Limiting OAuth Routes
+
+<!-- As expected by the MCP specification and RFC 7591, the dynamic client registration route registered by `Mcp::oauthRoutes` is publicly accessible, allowing any MCP client to register itself without authentication. Since each registration creates a new OAuth client in your database, you should protect these routes using rate limiting that fits your application's traffic. You may do so by registering the routes within a route group that applies Laravel's `throttle` middleware: -->
+MCP 사양과 RFC 7591에 따라 `Mcp::oauthRoutes`가 등록하는 동적 클라이언트 등록 라우트는 공개적으로 접근할 수 있으며, 모든 MCP 클라이언트가 인증 없이 스스로를 등록할 수 있습니다. 등록할 때마다 데이터베이스에 새 OAuth 클라이언트가 생성되므로 애플리케이션의 트래픽에 맞는 속도 제한을 적용해 이 라우트를 보호해야 합니다. Laravel의 `throttle` 미들웨어를 적용하는 라우트 그룹 안에 라우트를 등록하면 됩니다.
+
+```php
+use Illuminate\Support\Facades\Route;
+use Laravel\Mcp\Facades\Mcp;
+
+Route::middleware('throttle:10,1')->group(function () {
+    Mcp::oauthRoutes();
+});
+```
+
+<!-- If your MCP clients do not need to register themselves dynamically, you may disable the client registration route entirely by passing `false` to the `registration` argument: -->
+MCP 클라이언트가 동적으로 스스로를 등록할 필요가 없다면 `registration` 인수에 `false`를 전달해 클라이언트 등록 라우트를 완전히 비활성화할 수 있습니다.
+
+```php
+Mcp::oauthRoutes(registration: false);
+```
 
 <a name="sanctum"></a>
 <!-- ### Sanctum -->

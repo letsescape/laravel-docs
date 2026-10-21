@@ -1913,6 +1913,7 @@ Mcp::web('/mcp/weather', WeatherExample::class)
     ->middleware('auth:api');
 ```
 
+<a name="new-passport-installation"></a>
 <!-- #### New Passport Installation -->
 #### New Passport Installation
 
@@ -1969,6 +1970,29 @@ OAuth2.1 はモデル コンテキスト プロトコル仕様で文書化され
 
 <!-- If your application is already using [Sanctum](/docs/13.x/sanctum) then adding Passport may be cumbersome. In this instance, we recommend using Sanctum without Passport until you have a clear, necessary requirement to use an MCP client that only supports OAuth. -->
 アプリケーションがすでに [Sanctum](/docs/13.x/sanctum) を使用している場合、Passport の追加は面倒な場合があります。この場合、OAuth のみをサポートする MCP クライアントを使用するための明確な必要な要件が得られるまで、Passport なしで Sanctum を使用することをお勧めします。
+
+<a name="rate-limiting-oauth-routes"></a>
+<!-- #### Rate Limiting OAuth Routes -->
+#### Rate Limiting OAuth Routes
+
+<!-- As expected by the MCP specification and RFC 7591, the dynamic client registration route registered by `Mcp::oauthRoutes` is publicly accessible, allowing any MCP client to register itself without authentication. Since each registration creates a new OAuth client in your database, you should protect these routes using rate limiting that fits your application's traffic. You may do so by registering the routes within a route group that applies Laravel's `throttle` middleware: -->
+MCP の仕様および RFC 7591 が想定しているとおり、`Mcp::oauthRoutes` が登録する動的なクライアント登録ルートは、すべての MCP クライアントが認証なしで自身を登録できるよう、公開されています。登録のたびにデータベースに新しい OAuth クライアントが作成されるため、アプリケーションのトラフィックに応じたレート制限を適用して、これらのルートを保護してください。Laravel の `throttle` ミドルウェアを適用するルートグループ内でルートを登録すると、レート制限を設定できます。
+
+```php
+use Illuminate\Support\Facades\Route;
+use Laravel\Mcp\Facades\Mcp;
+
+Route::middleware('throttle:10,1')->group(function () {
+    Mcp::oauthRoutes();
+});
+```
+
+<!-- If your MCP clients do not need to register themselves dynamically, you may disable the client registration route entirely by passing `false` to the `registration` argument: -->
+MCP クライアントが自身を動的に登録する必要がない場合は、`registration` 引数に `false` を渡して、クライアント登録ルートを無効にできます。
+
+```php
+Mcp::oauthRoutes(registration: false);
+```
 
 <a name="sanctum"></a>
 <!-- ### Sanctum -->

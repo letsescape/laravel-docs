@@ -153,8 +153,8 @@ XAI_API_KEY=
 <!-- This is useful when routing requests through a proxy service (such as LiteLLM or Azure OpenAI Gateway) or using alternative endpoints. -->
 これは、プロキシ サービス (LiteLLM や Azure OpenAI Gateway など) を介して要求をルーティングする場合、または代替エンドポイントを使用する場合に便利です。
 
-<!-- Custom base URLs are supported for the following providers: OpenAI, Anthropic, Gemini, Groq, Cohere, DeepSeek, xAI, and OpenRouter. -->
-カスタム ベース URL は、OpenAI、Anthropic、Gemini、Groq、Cohere、DeepSeek、xAI、OpenRouter のプロバイダでサポートされています。
+<!-- Custom base URLs are supported for the following providers: OpenAI, Anthropic, Gemini, Groq, Cohere, DeepSeek, xAI, OpenRouter, and TypeSafe. -->
+次のプロバイダでは、カスタムのベース URL をサポートしています: OpenAI、Anthropic、Gemini、Groq、Cohere、DeepSeek、xAI、OpenRouter、TypeSafe。
 
 <a name="openai-compatible-providers"></a>
 <!-- ### OpenAI-Compatible Providers -->
@@ -210,8 +210,8 @@ agent()->prompt('What is Laravel?', provider: 'local', model: 'local-model');
 ],
 ```
 
-<!-- OpenAI-compatible providers support text generation, streaming, tools, structured output, image attachments, embeddings, and transcription. If your endpoint requires additional request body fields, provide them using [provider options](#provider-options). -->
-OpenAI 互換プロバイダは、テキスト生成、ストリーミング、ツール、構造化出力、画像添付、埋め込み、文字起こしをサポートします。エンドポイントでリクエストボディに追加のフィールドが必要な場合は、[provider options](#provider-options) を使用して指定してください。
+<!-- OpenAI-compatible providers support text generation, streaming, tools, structured output, image attachments, embeddings, transcription, and classification. If your endpoint requires additional request body fields, provide them using [provider options](#provider-options). -->
+OpenAI互換プロバイダは、テキスト生成、ストリーミング、ツール、構造化出力、画像の添付、埋め込み、文字起こし、分類をサポートしています。エンドポイントでリクエストボディに追加のフィールドが必要な場合は、[provider options](#provider-options) を使って指定してください。
 
 <a name="openai-compatible-embeddings"></a>
 <!-- #### OpenAI-Compatible Embeddings -->
@@ -255,7 +255,27 @@ OpenAI 互換プロバイダは、テキスト生成、ストリーミング、�
 ```
 
 > [!NOTE]
-> OpenAI互換プロバイダとGroqプロバイダは話者分離をサポートしていません。これらのプロバイダを使用しているときに `diarize` メソッドを呼び出すと、例外が発生します。
+> OpenAI互換プロバイダとGroqプロバイダは話者分離をサポートしていません。これらのプロバイダを使用しているときに `diarize` メソッドを呼び出すと、例外がスローされます。
+
+<a name="openai-compatible-classification"></a>
+<!-- #### OpenAI-Compatible Classification -->
+#### OpenAI-Compatible Classification
+
+<!-- If your endpoint implements OpenAI's decisions endpoint, you may use [classification](#classification) with an OpenAI-compatible provider. The SDK sends questions to the endpoint's `/decisions` route and supports [image attachments](#classifying-images). Since the SDK does not know which models your endpoint supports, configure a default classification model or pass a model to the `classify` method: -->
+エンドポイントが OpenAI の decisions endpoint を実装している場合は、OpenAI 互換プロバイダで [classification](#classification) を使用できます。SDK はエンドポイントの `/decisions` ルートに質問を送信し、[image attachments](#classifying-images) にも対応しています。SDK はエンドポイントがどのモデルに対応しているかを把握していないため、デフォルトの分類モデルを設定するか、`classify` メソッドにモデルを渡してください。
+
+```php
+'local' => [
+    'driver' => 'openai-compatible',
+    'url' => env('LOCAL_AI_URL'),
+    'key' => env('LOCAL_AI_API_KEY'),
+    'models' => [
+        'classification' => [
+            'default' => env('LOCAL_AI_MODEL'),
+        ],
+    ],
+],
+```
 
 <a name="on-demand-providers"></a>
 <!-- ### On-Demand Providers -->
@@ -304,7 +324,7 @@ public function provider(): Provider
 ```
 
 > [!NOTE]
-> オンデマンドプロバイダは、上記の例のように配列内で渡してください。オンデマンドプロバイダの設定配列に `name` を指定する場合、その名前は組み込みプロバイダや `config/ai.php` 設定ファイルで定義したプロバイダの名前と一致してはいけません。
+> オンデマンドプロバイダは、上記の例のように配列で渡してください。オンデマンドプロバイダの設定配列で `name` を指定する場合、その名前は組み込みプロバイダや `config/ai.php` 設定ファイルで定義したプロバイダと一致しないことがあります。
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -315,7 +335,7 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 
 <div class="overflow-auto">
 
-<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, OpenAI Compatible, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
 | 機能 | プロバイダ |
 |---|---|
 | テキスト | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere |
@@ -324,7 +344,7 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter |
 | 埋め込み | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
 | リランキング | Cohere, Jina, VoyageAI, Bedrock, OpenRouter |
-| 分類 | OpenAI, TypeSafe, OpenRouter |
+| 分類 | OpenAI, OpenAI Compatible, TypeSafe, OpenRouter |
 | ファイル | OpenAI, Anthropic, Gemini, Azure, OpenRouter |
 
 </div>
@@ -491,7 +511,7 @@ foreach ($response->steps as $step) {
 ```
 
 > [!NOTE]
-> `raw` プロパティは、レスポンスをストリーミングしている場合、Bedrock プロバイダ（HTTP クライアントではなく AWS SDK 経由で API を呼び出します）を使用している場合、および `withRawResponse` で明示的に指定されていないフェイクレスポンスでは `null` です。
+> ストリーミングでレスポンスを返す場合、HTTP クライアントではなく AWS SDK 経由で API を呼び出す Bedrock プロバイダを使用する場合、および `withRawResponse` で明示的に指定していないフェイクレスポンスの場合、`raw` プロパティは `null` です。
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -539,7 +559,7 @@ $response = (new SalesCoach)
 #### Remembering Conversations
 
 > [!WARNING]
-> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドを使って AI SDK のマイグレーションを公開し、実行してください。このマイグレーションにより、会話の保存に必要なデータベーステーブルが作成されます。
+> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドで AI SDK のマイグレーションを公開して実行してください。このマイグレーションにより、会話を保存するために必要なデータベーステーブルが作成されます。
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。このトレイトは、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
@@ -680,7 +700,7 @@ $participant = $conversation->participant;
 アプリケーションで複数の参加者モデルの種類を使用している場合は、保存される参加者タイプがモデルクラス名に依存しないよう、[Eloquent morph map](/docs/13.x/eloquent-relationships#custom-polymorphic-types) の定義を検討してください。
 
 > [!WARNING]
-> `continue` メソッドと `continueOrStart` メソッドは、指定された参加者が会話の所有者であるかを確認しません。会話を続行する前に、アプリケーションでその会話へのアクセスを認可してください。
+> `continue` メソッドと `continueOrStart` メソッドは、指定された参加者がその会話の所有者であるかを確認しません。会話を続行する前に、アプリケーションで会話へのアクセスを認可してください。
 
 <a name="inspecting-stored-conversations"></a>
 <!-- #### Inspecting Stored Conversations -->
@@ -1062,7 +1082,7 @@ Route::post('/chat', function (Request $request) {
 リクエストに [approval decisions](#human-tool-approval) が含まれている場合、エージェントはその決定を使用して処理を再開します。それ以外の場合、エージェントにはリクエストに含まれる最新のユーザーメッセージと添付ファイルが提示されます。`protocol` メソッドは、クライアントが使用したプロトコルを返します。
 
 > [!NOTE]
-> `Conversational` インターフェイスを実装するエージェントは自身の履歴を読み込むため、`withMessages` メソッドは省略できます。
+> `Conversational` インターフェースを実装するエージェントは自身の履歴を読み込むため、`withMessages` メソッドは省略できます。
 
 <!-- The `AgentUserInteraction::chat` method provides the same API for AG-UI clients, in addition to the request's thread and run IDs: -->
 `AgentUserInteraction::chat` メソッドは、リクエストのスレッドIDと実行IDに加えて、AG-UI クライアントにも同じ API を提供します。
@@ -1431,7 +1451,7 @@ Anthropic を使用する場合、`withProviderOptions` メソッドを使って
 ```
 
 > [!WARNING]
-> ツール検索に対応していないプロバイダでは、遅延ツールが黙って破棄されるのではなく、例外が発生します。また、Anthropic では、少なくとも1つのツールを `ToolSearch` ラッパーの外側に指定する必要があります。
+> ツール検索に対応していないプロバイダでは、遅延ツールを黙って破棄せず、例外が発生します。また、Anthropic では少なくとも1つのツールを `ToolSearch` ラッパーの外側に指定する必要があります。
 
 <a name="file-storage-tools"></a>
 <!-- ### File Storage Tools -->
@@ -1474,7 +1494,7 @@ return FileStorage::all('s3')
 アプリケーションで [Laravel MCP](/docs/13.x/mcp) を使用している場合、[Model Context Protocol](https://modelcontextprotocol.io) サーバーが公開するツールをエージェントに提供できます。[Laravel MCP client](/docs/13.x/mcp#client) を使用すると、リモートまたはローカルの MCP サーバーに接続し、そのツールをエージェントへ直接渡せます。
 
 > [!NOTE]
-> MCP ツールを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
+> MCP toolsを使用するには、アプリケーションに [Laravel MCP](/docs/13.x/mcp) パッケージをインストールする必要があります。
 
 <!-- Because an MCP client's `tools` method returns a collection, spread it into your agent's `tools` array using the `...` operator: -->
 MCP クライアントの `tools` メソッドはコレクションを返すため、`...` 演算子を使ってエージェントの `tools` 配列にスプレッドします。
@@ -1756,7 +1776,7 @@ OpenAI または Azure を使用する場合は、プロバイダオプション
 ```
 
 > [!NOTE]
-> Groq は GPT-OSS モデルでのみコード実行をサポートしています。
+> Groqでは、GPT-OSSモデルのみがコード実行をサポートしています。
 
 <a name="sub-agents"></a>
 <!-- ### Sub-Agents -->
@@ -1837,8 +1857,11 @@ class RefundsAgent implements Agent, CanActAsTool, HasTools
 <!-- If a sub-agent does not implement `CanActAsTool`, Laravel will use the agent's class basename as the tool name and a generic description that asks the parent agent to pass a clear, self-contained task description. Each sub-agent invocation runs in isolation and does not receive the parent agent's conversation history. -->
 サブエージェントが `CanActAsTool` を実装していない場合、Laravel はエージェントのクラスのベース名をツール名として使用し、親エージェントに明確な自己完結型タスクの説明を渡すように要求する一般的な説明を使用します。各サブエージェントの呼び出しは独立して実行され、親エージェントの会話履歴を受け取りません。
 
-<!-- When the parent agent is [streaming](#streaming), its sub-agents stream as well. The parent agent emits `ToolResult` events containing the text the sub-agent has produced so far. These events are marked as preliminary and are followed by the tool call's final result, so you may skip them when iterating events manually: -->
-親エージェントが [streaming](#streaming) 中の場合、そのサブエージェントも同様にストリーミングします。親エージェントは、サブエージェントがそれまでに生成したテキストを含む `ToolResult` イベントを発行します。これらのイベントには暫定的な結果であることを示す印が付いており、ツール呼び出しの最終結果が続いて届くため、イベントを手動で反復処理する際はスキップしてかまいません。
+> [!WARNING]
+> サブエージェントは現在、[human approval](#human-tool-approval) が必要なツールをサポートしていません。サブエージェントが承認を必要とするツールを使うと、処理が一時停止します。しかし、親エージェントには通常のツール結果が返されるため、アプリケーションに承認待ちであることを通知しないまま処理を続行します。承認が必要なツールは、トップレベルエージェントに登録してください。
+
+<!-- When the parent agent is [streaming](#streaming), its sub-agents stream as well, unless they produce [structured output](#structured-output). For streaming sub-agents, the parent agent emits preliminary `ToolResult` events containing the text the sub-agent has produced so far. The tool call's final result follows these events, so you may skip preliminary events when iterating events manually: -->
+親エージェントが[streaming](#streaming)している場合、[structured output](#structured-output)を生成するサブエージェントを除き、そのサブエージェントもストリーミングします。ストリーミング中のサブエージェントについて、親エージェントはサブエージェントがそれまでに生成したテキストを含む予備の `ToolResult` イベントを出力します。ツール呼び出しの最終結果はこれらのイベントの後に続くため、イベントを手動で反復処理する場合は予備イベントをスキップできます。
 
 ```php
 use Laravel\Ai\Streaming\Events\ToolResult;
@@ -1991,8 +2014,48 @@ public function handle(PendingStep $step, Closure $next)
 }
 ```
 
-<!-- Middleware must return the result of `$next`, or its own `StepResponse` to answer the step without invoking the model, such as when serving a cached response. Returning any other value will throw a `LogicException`. -->
-ミドルウェアは `$next` の結果、または独自の `StepResponse` を返す必要があります。後者は、キャッシュ済みのレスポンスを返す場合など、モデルを呼び出さずにステップへ応答するために使います。それ以外の値を返すと `LogicException` がスローされます。
+<!-- Middleware must return the result of `$next`, a `StepResponse`, or `StepResult::stop()`. Return a `StepResponse` to answer the step without invoking the model, such as when serving a cached response. Return `StepResult::stop()` to end the run. Any other return value causes a `LogicException`. -->
+ミドルウェアは、`$next` の結果、`StepResponse`、または `StepResult::stop()` を返す必要があります。キャッシュ済みの応答を返す場合など、モデルを呼び出さずにステップへ応答するには `StepResponse` を返してください。実行を終了するには `StepResult::stop()` を返します。それ以外の値を返すと、`LogicException` が発生します。
+
+<a name="stopping-runs"></a>
+<!-- #### Stopping Runs -->
+#### Stopping Runs
+
+<!-- To end an agent's run before its next model call, use the `Stop` middleware. For example, you may stop a run when a user presses a "stop" button or the run reaches an input-token budget. The response retains the completed steps and their combined usage: -->
+エージェントの次のモデル呼び出しを行う前に実行を終了するには、`Stop` ミドルウェアを使用します。たとえば、ユーザーが「停止」ボタンを押したときや、実行が入力トークンの予算に達したときに終了できます。レスポンスには、完了したステップと、それらの合計使用量が保持されます。
+
+```php
+use Illuminate\Support\Facades\Cache;
+use Laravel\Ai\Contracts\HasMiddleware;
+use Laravel\Ai\Middleware\Stop;
+use Laravel\Ai\PendingStep;
+
+public function middleware(): array
+{
+    return [
+        // Stop when the user has pressed the "stop" button...
+        Stop::when(fn (PendingStep $step) => Cache::has("chat:{$this->user->id}:stopped")),
+
+        // Stop when the run has used at least 50,000 input tokens...
+        Stop::unless(fn (PendingStep $step) => $step->usage->inputTokens < 50_000),
+    ];
+}
+```
+
+<!-- Before each step, `when` stops the run if the condition is true, and `unless` stops the run if the condition is false. A stopped streaming run has a `cancelled` finish reason. -->
+各ステップの前に、`when` は条件が true の場合に実行を停止し、`unless` は条件が false の場合に実行を停止します。停止したストリーミング実行の終了理由は `cancelled` です。
+
+<!-- Custom middleware may also end the run by returning `StepResult::stop()` instead of the result of `$next`: -->
+カスタムミドルウェアは、`$next` の結果ではなく `StepResult::stop()` を返して処理を終了させることもできます。
+
+```php
+use Laravel\Ai\Gateway\StepResult;
+
+public function handle(PendingStep $step, Closure $next)
+{
+    return $this->cancelled($step) ? StepResult::stop() : $next($step);
+}
+```
 
 <a name="anonymous-agents"></a>
 <!-- ### Anonymous Agents -->
@@ -2102,7 +2165,7 @@ class ComplexReasoner implements Agent
 ```
 
 > [!NOTE]
-> `UseCheapestModel` と `UseSmartestModel` が選択するモデルは、プロバイダが新しいモデルをリリースするたびに、Laravel AI SDK のリリース間で変更される可能性があります。モデルを切り替えると、動作の変化や非推奨パラメータの発生、コストの大幅な違いにつながることがあります。安定した予測可能なモデルと料金を利用する必要がある場合は、`Model` 属性を使ってモデルを明示的に指定してください。
+> `UseCheapestModel` と `UseSmartestModel` が選択するモデルは、プロバイダから新しいモデルがリリースされると、Laravel AI SDK のリリースごとに変更される場合があります。モデルを切り替えると、挙動の変化、非推奨のパラメータ、コストの大幅な違いが生じる可能性があります。安定した予測可能なモデルと料金を求める場合は、`Model` 属性を使ってモデルを明示してください。
 
 <a name="provider-options"></a>
 <!-- ### Provider Options -->
@@ -2237,14 +2300,14 @@ class SalesCoach implements Agent
 また、トップレベルの `cache_control` [provider option](#provider-options) を使って、Anthropic の自動キャッシュを有効にすることもできます。これによりリクエストの最後のブロックの後ろに1つのブレークポイントが設定されるため、会話が進むにつれてブレークポイントも移動し、各ターンでは直前までのターンをキャッシュから読み取ります。どちらの仕組みも組み合わせて使用できます。
 
 > [!WARNING]
-> プロバイダはツール、指示、メッセージの順にプロンプトを構築するため、指示を1時間キャッシュするにはツール定義も1時間キャッシュする必要があります。両者のキャッシュ期間が異なると、`InvalidArgumentException` がスローされます。
+> プロバイダはツール、指示、メッセージの順にプロンプトを構築するため、指示を1時間キャッシュする場合は、ツール定義も1時間キャッシュする必要があります。異なる期間を指定すると、`InvalidArgumentException` がスローされます。
 
 <a name="human-tool-approval"></a>
 <!-- ## Human Tool Approval -->
 ## Human Tool Approval
 
 > [!WARNING]
-> ツールの承認には、実行再開時に一時停止したターンの履歴を利用できる必要があります。`RemembersConversations` トレイトを使う `Conversational` エージェントを使用するか、アプリケーションのフロントエンドから [`withMessages` method](#conversation-context) を使って履歴を渡してください。どちらも行わないエージェントは、ツールの実行が一時停止した際に `ApprovalNotResumableException` をスローします。
+> ツールの承認後に実行を再開するには、一時停止したターンの履歴を利用できる必要があります。`RemembersConversations` トレイトを使うエージェントなどの `Conversational` エージェントを使用するか、アプリケーションのフロントエンドから [`withMessages` method](#conversation-context) を使って履歴を渡してください。どちらも行わないエージェントは、ツールの実行が一時停止したときに `ApprovalNotResumableException` をスローします。
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 機密性の高い操作や取り消せない操作を実行するツールでは、実行前に人間の承認が必要になる場合があります。ツールを承認可能にするには、`Approvable` コントラクトを実装し、`InteractsWithApprovals` トレイトを使用します。承認可能なツールは、デフォルトで承認が必要です。
@@ -2360,7 +2423,7 @@ $response = (new FileAssistant)
 ```
 
 > [!IMPORTANT]
-> 一時停止されたターンは、一時停止させた参加者ではなく、会話と保留中のツール呼び出しによって照合されます。そのため、[complete approval flow](#complete-approval-flow)のように、再開する前にアプリケーションで会話へのアクセスを認可するか、会話ストアの `conversationBelongsTo` メソッドを使ってアクセス権を確認してください。
+> 一時停止中のターンは、一時停止した参加者ではなく、その会話と保留中のツール呼び出しによって識別されます。そのため、再開する前に、[complete approval flow](#complete-approval-flow)のようにアプリケーションで会話へのアクセスを認可するか、conversation store の `conversationBelongsTo` メソッドを使ってアクセス権を確認してください。
 
 <!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
 ブール値の `true` と `false` は、それぞれ承認と拒否の略記として使用できます。保留中のすべてのツール呼び出しには、判定を与える必要があります。不明なツール呼び出し ID、判定が指定されていないツール呼び出し ID、またはすでに解決済みのツール呼び出し ID があると、`ApprovalMismatchException` がスローされます。明示的な判定がない呼び出しに対しては、`approveRemaining` または `rejectRemaining` メソッドを使用してデフォルトの判定を指定できます。
@@ -2867,7 +2930,7 @@ $documents = Document::query()
 エージェントにツールとして類似性検索を実行できるようにしたい場合は、[Similarity Search](#similarity-search) ツールのドキュメントを確認してください。
 
 > [!NOTE]
-> 現在、ベクトルクエリは `pgvector` 拡張機能を使用する PostgreSQL 接続、またはネイティブのベクトルサポートを使用する MariaDB 11.7 以降の接続でサポートされています。
+> ベクトルクエリは現在、`pgvector` 拡張機能を使用する PostgreSQL 接続、またはネイティブのベクトルサポートを備えた MariaDB 11.7 以降で利用できます。
 
 <a name="caching-embeddings"></a>
 <!-- ### Caching Embeddings -->
@@ -3078,8 +3141,8 @@ $result->meta->provider;
 <!-- ### Classifying Images -->
 ### Classifying Images
 
-<!-- When using OpenAI, images may be classified alongside the given content by passing them as the second argument to the `of` method. Images may be created using the same [file classes used for attachments](#attachments): -->
-OpenAI を使用する場合、画像を `of` メソッドの第2引数として渡すことで、指定したコンテンツと併せて分類できます。画像は、添付ファイルに使う [file classes used for attachments](#attachments) と同じものを使って作成できます。
+<!-- When using the OpenAI, OpenAI-compatible, TypeSafe, or OpenRouter providers, images may be classified alongside the given content by passing them as the second argument to the `of` method. Images may be created using the same [file classes used for attachments](#attachments): -->
+OpenAI、OpenAI互換、TypeSafe、またはOpenRouterプロバイダを使用する場合、画像を `of` メソッドの第2引数として渡すことで、指定したコンテンツと併せて画像を分類できます。画像は、[file classes used for attachments](#attachments) と同じクラスを使って作成できます。
 
 ```php
 use Laravel\Ai\Classification;
@@ -3091,6 +3154,18 @@ $result = Classification::of('Inspect the product in this photo.', [
 ])
     ->question('damaged', new Boolean('Does the product have visible damage?'))
     ->classify(provider: 'openai');
+```
+
+<!-- To refer to a specific image in a question, attach images with string keys. The SDK sends each image's key to the provider as its name: -->
+質問内で特定の画像を指定するには、文字列キーを使って画像を添付します。SDK は各画像のキーを名前としてプロバイダに送信します。
+
+```php
+$result = Classification::of('Inspect the products in these photos.', [
+    'front' => Image::fromPath($front),
+    'back' => Image::fromPath($back),
+])
+    ->question('damaged', new Boolean('Is the product in `front` or `back` damaged?'))
+    ->classify();
 ```
 
 <a name="yes-or-no-decisions"></a>
@@ -3386,7 +3461,7 @@ $document->fileId;
 ```
 
 > [!NOTE]
-> 通常、ベクトルストアに以前保存したファイルを追加すると、返されるドキュメント ID は以前割り当てられた ID と一致します。ただし、ベクトルストレージプロバイダによっては、新しい別の「ドキュメント ID」が返されることがあります。そのため、今後参照できるよう、両方の ID をデータベースに保存しておくことをおすすめします。
+> ベクトルストアに以前保存したファイルを追加すると、通常、返されるドキュメント ID はファイルに以前割り当てられた ID と同じです。ただし、ベクトルストレージプロバイダによっては、新しい異なる「ドキュメント ID」が返される場合があります。そのため、後で参照できるよう、両方の ID を常にデータベースに保存しておくことをおすすめします。
 
 <!-- When adding a file to a Gemini store, Laravel waits for the import to finish so that the document is searchable once the call returns. A `Laravel\Ai\Exceptions\AiException` will be thrown if the import fails or exceeds five minutes, so you may wish to add Gemini files from a [queued job](/docs/13.x/queues). -->
 Gemini ストアにファイルを追加すると、Laravel はインポートが完了するまで待機するため、呼び出しが返ると同時にドキュメントを検索できます。インポートに失敗した場合や5分を超えた場合は `Laravel\Ai\Exceptions\AiException` がスローされるため、Gemini ファイルは [queued job](/docs/13.x/queues) から追加するとよいでしょう。
@@ -3597,7 +3672,7 @@ $response->reasoning; // 'They asked about pricing.'
 ```
 
 > [!NOTE]
-> `Agent::fake()` を構造化出力を返すエージェントに対して呼び出し、偽の出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに合う偽のデータを自動的に生成します。
+> 構造化出力を返すエージェントに対して `Agent::fake()` を呼び出し、フェイク出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致するフェイクデータを自動的に生成します。
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 エージェントにプロンプ​​トを出した後、受け取ったプロンプトについてアサーションを行うことができます。
@@ -4134,14 +4209,19 @@ $store->assertAdded(fn (StorableFile $file) => $file->content() === 'Hello, Worl
 Laravel AI SDK は、次のようなさまざまな [events](/docs/13.x/events) をディスパッチします。
 
 - `AddingFileToStore`
+- `AddingFileToStoreFailed`
 - `AgentFailed`
 - `AgentFailedOver`
 - `AgentPrompted`
 - `AgentStreamed`
+- `AudioFailed`
 - `AudioGenerated`
+- `ClassificationFailed`
 - `Classified`
 - `Classifying`
 - `CreatingStore`
+- `CreatingStoreFailed`
+- `EmbeddingsFailed`
 - `EmbeddingsGenerated`
 - `FileAddedToStore`
 - `FileDeleted`
@@ -4151,24 +4231,29 @@ Laravel AI SDK は、次のようなさまざまな [events](/docs/13.x/events) 
 - `GeneratingEmbeddings`
 - `GeneratingImage`
 - `GeneratingTranscription`
+- `ImageFailed`
 - `ImageGenerated`
 - `InvokingTool`
 - `PromptingAgent`
 - `ProviderFailedOver`
 - `RemovingFileFromStore`
+- `RemovingFileFromStoreFailed`
 - `Reranked`
 - `Reranking`
+- `RerankingFailed`
 - `StartingStep`
 - `StepCompleted`
 - `StepFailed`
 - `StoreCreated`
 - `StoreDeleted`
 - `StoringFile`
+- `StoringFileFailed`
 - `StreamingAgent`
 - `ToolApprovalRequested`
 - `ToolApprovalResolved`
 - `ToolFailed`
 - `ToolInvoked`
+- `TranscriptionFailed`
 - `TranscriptionGenerated`
 
 <!-- You can listen to any of these events to log or store AI SDK usage information. -->
