@@ -1,10 +1,9 @@
-import React, {useState, type ReactNode} from 'react';
+import React, {useEffect, useState, type ReactNode} from 'react';
 import Translate, {translate} from '@docusaurus/Translate';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import {useStorageSlot} from '@docusaurus/theme-common';
+import {DISMISSAL_ATTRIBUTE, DISMISSAL_STORAGE_KEY} from './constants';
 import styles from './styles.module.css';
-
-const DISMISSAL_STORAGE_KEY = 'laravel-docs.security-notice.php-critical-vulnerability-response-updates.dismissed';
 
 export default function AnnouncementBar(): ReactNode {
   const isBrowser = useIsBrowser();
@@ -13,12 +12,16 @@ export default function AnnouncementBar(): ReactNode {
   });
   const [isDismissed, setIsDismissed] = useState(false);
 
+  useEffect(() => {
+    if (isBrowser) document.documentElement.removeAttribute(DISMISSAL_ATTRIBUTE);
+  }, [isBrowser]);
+
   function dismiss() {
     setIsDismissed(true);
     storage.set('true');
   }
 
-  if (!isBrowser || isDismissed || storedDismissal === 'true') return null;
+  if (isDismissed || storedDismissal === 'true') return null;
 
   return (
     <aside

@@ -8,6 +8,10 @@
   line-height: 1.5;
 }
 
+:global(html[data-security-notice-initially-dismissed='true']) .notice {
+  display: none;
+}
+
 .content,
 .message,
 .link {
@@ -88,7 +92,7 @@
 }
 
 @media (min-width: 997px) {
-  .notice ~ :global(.main-wrapper .theme-doc-sidebar-container .menu) {
+  :global(html:not([data-security-notice-initially-dismissed='true'])) .notice ~ :global(.main-wrapper .theme-doc-sidebar-container .menu) {
     margin-bottom: calc(3rem + 1px);
   }
 }
