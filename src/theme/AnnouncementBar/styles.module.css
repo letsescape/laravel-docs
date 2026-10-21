@@ -21,6 +21,7 @@
 }
 
 .content {
+  min-height: 2rem;
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
@@ -33,12 +34,13 @@
 }
 
 .link {
-  min-height: 2rem;
-  padding: 0.25rem 0.75rem;
+  min-height: 1.6rem;
+  padding: 0.2rem 0.6rem;
   color: #1b1b18;
   background: #fff;
   border: 1px solid #e3e3e0;
-  border-radius: 0.375rem;
+  border-radius: 0.3rem;
+  font-size: 0.7rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -103,12 +105,16 @@
   }
 
   .content {
-    align-items: flex-start;
-    flex-direction: column;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
   }
 
-  .close {
-    top: 0.25rem;
-    transform: none;
+  .message {
+    min-width: 0;
+  }
+
+  .link {
+    flex-shrink: 0;
   }
 }

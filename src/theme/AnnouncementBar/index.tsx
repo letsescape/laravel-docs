@@ -34,14 +34,13 @@ export default function AnnouncementBar(): ReactNode {
         <span className={styles.message}>
           <span aria-hidden="true">⚠</span>
           <Translate id="theme.securityNotice.message">
-            PHP 치명적 보안 취약점 대응 안내
+            PHP 취약점 대응 업데이트
           </Translate>
         </span>
         <a
           className={styles.link}
           href="https://laravel.com/blog/php-critical-vulnerability-response-updates">
-          <Translate id="theme.securityNotice.link">대응 안내 보기</Translate>
-          <span aria-hidden="true">→</span>
+          <Translate id="theme.securityNotice.link">Read Now</Translate>
         </a>
       </div>
       <button
