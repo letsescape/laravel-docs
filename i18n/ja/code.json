@@ -561,6 +561,18 @@
     "message": "タグ",
     "description": "The title of the tag list page"
   },
+  "theme.securityNotice.label": {
+    "message": "重要なセキュリティのお知らせ"
+  },
+  "theme.securityNotice.message": {
+    "message": "PHPの深刻な脆弱性への対応について"
+  },
+  "theme.securityNotice.link": {
+    "message": "対応状況を見る"
+  },
+  "theme.securityNotice.dismiss": {
+    "message": "セキュリティのお知らせを閉じる"
+  },
   "homepage.title": {
     "message": "Laravel 日本語ドキュメント",
     "description": "The title for the homepage"

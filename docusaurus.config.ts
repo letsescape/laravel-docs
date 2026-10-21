@@ -16,6 +16,7 @@ import validateLocalAssetsPlugin, {
 import safeHtmlPlugin from './src/rehype/safe-html.mjs';
 import {addDocumentSeo} from './src/utils/document-seo.mjs';
 import versions from './versions.json';
+import {DISMISSAL_ATTRIBUTE, DISMISSAL_STORAGE_KEY} from './src/theme/AnnouncementBar/constants';
 
 // This runs in Node.js.
 // Do not use client-side code here (browser APIs, JSX, etc.).
@@ -73,6 +74,19 @@ const config: Config = {
   baseUrl: '/',
   trailingSlash: true,
   headTags: [
+    {
+      tagName: 'script',
+      attributes: {},
+      innerHTML: `
+(function () {
+  try {
+    if (localStorage.getItem(${JSON.stringify(DISMISSAL_STORAGE_KEY)}) === 'true') {
+      document.documentElement.setAttribute(${JSON.stringify(DISMISSAL_ATTRIBUTE)}, 'true');
+    }
+  } catch (error) {}
+})();
+`,
+    },
     {
       tagName: 'script',
       attributes: {},
