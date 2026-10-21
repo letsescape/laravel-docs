@@ -5,16 +5,18 @@ const dismissalKey = 'laravel-docs.security-notice.php-critical-vulnerability-re
 const noticeSelector = 'aside[aria-label="중요 보안 공지"]';
 
 for (const [locale, label] of [['', '중요 보안 공지'], ['/ja', '重要なセキュリティのお知らせ']]) {
-  test(`security notice is visible without JavaScript in ${locale || 'ko'}`, async ({browser, baseURL}) => {
-    const context = await browser.newContext({baseURL, javaScriptEnabled: false});
-    try {
-      const page = await context.newPage();
-      await page.goto(`${locale}${docsPath()}`);
-      await expect(page.getByRole('complementary', {name: label})).toBeVisible();
-    } finally {
-      await context.close();
-    }
-  });
+  for (const path of ['/', docsPath()]) {
+    test(`security notice is visible without JavaScript at ${locale}${path}`, async ({browser, baseURL}) => {
+      const context = await browser.newContext({baseURL, javaScriptEnabled: false});
+      try {
+        const page = await context.newPage();
+        await page.goto(`${locale}${path}`);
+        await expect(page.getByRole('complementary', {name: label})).toBeVisible();
+      } finally {
+        await context.close();
+      }
+    });
+  }
 }
 
 for (const dismissed of [false, true]) {
@@ -74,6 +76,7 @@ test('security notice dismissal persists across tabs, reloads and locales', asyn
   const otherPage = await context.newPage();
   await otherPage.goto('/');
   await expect(otherPage.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+  await expect(otherPage.locator(noticeSelector)).toBeVisible();
   await page.getByRole('button', {name: '보안 공지 닫기'}).click();
   await expect(otherPage.locator(noticeSelector)).toHaveCount(0);
   await page.reload();
