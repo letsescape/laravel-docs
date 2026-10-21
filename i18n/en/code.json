@@ -561,6 +561,18 @@
     "message": "Tags",
     "description": "The title of the tag list page"
   },
+  "theme.securityNotice.label": {
+    "message": "Important security notice"
+  },
+  "theme.securityNotice.message": {
+    "message": "PHP critical vulnerability response updates"
+  },
+  "theme.securityNotice.link": {
+    "message": "Read the update"
+  },
+  "theme.securityNotice.dismiss": {
+    "message": "Dismiss security notice"
+  },
   "homepage.title": {
     "message": "Laravel - The PHP Framework for Web Artisans",
     "description": "The title for the homepage"
