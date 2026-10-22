@@ -3,7 +3,7 @@ import {docsPath} from './utils/docs-version';
 
 // 메인 페이지와 문서 페이지에 서로 다른 푸터 변형 사용
 // - 메인 페이지: 브랜드 + 링크 컬럼 4개(Products/Packages/Resources/Partners)
-// - 문서 페이지: 브랜드 + Community 섹션(제품군 컬럼 제거)
+// - 문서 페이지: 브랜드 + Community/GitHub 섹션(제품군 컬럼 제거)
 // 중간 해상도(800~1000px)의 레이아웃 깨짐 재발과 메인/문서 푸터 변형 혼용 방지
 
 const HOME_COLUMNS = ['Products', 'Packages', 'Resources', 'Partners'];
@@ -90,6 +90,43 @@ test.describe('Homepage footer variant', () => {
     await expect(footerColumn(page, 'Products')).toBeVisible();
     await expect(footerColumn(page, 'Community')).toHaveCount(0);
   });
+
+  test('FT-H-4: Learn은 공식 학습 페이지로 연결된다', async ({page}) => {
+    await page.goto('/');
+    await expect(footerColumn(page, 'Resources').getByRole('link', {name: 'Learn', exact: true}))
+      .toHaveAttribute('href', 'https://laravel.com/learn');
+  });
+});
+
+test.describe('Localized footer navigation', () => {
+  for (const {locale, prefix, note} of [
+    {locale: 'ko', prefix: '', note: '개인이 만든 비공식 사이트입니다.'},
+    {locale: 'ja', prefix: '/ja', note: '個人が作成した非公式サイトです。'},
+  ]) {
+    for (const width of [320, 1280]) {
+      test(`${locale} ${width}px 홈에서 문서 푸터까지 이동`, async ({page}) => {
+        await page.setViewportSize({width, height: 900});
+        await page.goto(`${prefix}/`);
+        await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        await page.evaluate(() => document.fonts.ready);
+        await expectFooterWithinViewport(page, width, HOME_COLUMNS);
+
+        const documentation = footerColumn(page, 'Resources').getByRole('link', {name: 'Documentation', exact: true});
+        await expect(documentation).toHaveAttribute('href', `${prefix}${docsPath()}/`);
+        await documentation.click();
+        await expect(page.locator('article')).toBeVisible();
+        await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        await expect(page.locator('.hp-footer--docs')).toBeVisible();
+        await expectFooterWithinViewport(page, width, ['Community', 'GitHub']);
+        await expect(footerColumn(page, 'Community').locator('.footer-note')).toHaveText(note);
+        const github = footerColumn(page, 'GitHub');
+        await expect(github.getByRole('link', {name: 'Documentation', exact: true}))
+          .toHaveAttribute('href', 'https://github.com/letsescape/laravel-docs');
+        await expect(github.getByRole('link', {name: 'Chat', exact: true}))
+          .toHaveAttribute('href', 'https://github.com/letsescape/laravel-chat');
+      });
+    }
+  }
 });
 
 // =============================================================================
