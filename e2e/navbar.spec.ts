@@ -157,7 +157,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
     for (const item of ['Installation', 'Agent Setup', 'Eloquent ORM', 'Artisan Console', 'Routing']) {
       await expect(menu.getByRole('link', {name: item})).toBeVisible();
     }
-    await expect(menu.getByRole('link', {name: 'Installation'})).toHaveAttribute('href', docsPath());
+    await expect(menu.getByRole('link', {name: 'Installation'})).toHaveAttribute('href', `${docsPath()}/`);
   });
 
   test('N-3d: Framework > Starter kits', async ({page}) => {
@@ -177,7 +177,7 @@ test.describe('Navbar — Desktop (1280px)', () => {
   test('N-7: Docs 링크', async ({page}) => {
     const docsLink = page.locator('.nav-docs-link');
     await expect(docsLink).toBeVisible();
-    await expect(docsLink).toHaveAttribute('href', docsPath());
+    await expect(docsLink).toHaveAttribute('href', `${docsPath()}/`);
   });
 
   test('N-12: 네비바 상단 고정', async ({page}) => {
@@ -267,7 +267,7 @@ test.describe('Navbar — Mobile (430px)', () => {
   });
 
   test('N-23: Docs 직접 링크', async ({page}) => {
-    await verifyMobileDirectLink(page, 'Docs', docsPath());
+    await verifyMobileDirectLink(page, 'Docs', `${docsPath()}/`);
   });
 
   test('N-24: 서브메뉴 뒤로가기', async ({page}) => {
@@ -371,6 +371,133 @@ test.describe('Navbar — Narrow homepage', () => {
           );
         });
         expect(logoUncovered).toBe(true);
+      });
+    }
+  }
+});
+
+test.describe('Navbar — Localized homepage links', () => {
+  for (const {locale, prefix} of [{locale: 'ko', prefix: ''}, {locale: 'ja', prefix: '/ja'}]) {
+    test(`${locale} 데스크톱 Overview 선택 후 메뉴 닫힘`, async ({page}) => {
+      await page.setViewportSize({width: 1280, height: 900});
+      await page.goto(`${prefix}/`);
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      await openDropdown(page, 'framework');
+      await page.locator('#content-framework').getByRole('link', {name: /^Overview/}).click();
+      await expect(page).toHaveURL(new RegExp(`${prefix}/$`));
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.locator('#trigger-framework')).toHaveAttribute('aria-expanded', 'false');
+      await expect(page.locator('#content-framework')).toHaveCount(0);
+    });
+
+    for (const key of ['Enter', 'Space']) {
+      test(`${locale} 모바일 ${key}로 하위 메뉴를 열고 문서 이동`, async ({page}) => {
+        await page.setViewportSize({width: 390, height: 844});
+        await page.goto(`${prefix}/`);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        await page.locator('.nav-mobile-hamburger').click();
+        await page.locator('button.nav-mobile-menu-item', {hasText: 'Framework'}).press(key);
+        const documentation = page.locator('.nav-mobile-submenu').getByRole('link', {name: 'Documentation', exact: true});
+        await expect(documentation).toBeVisible();
+        await documentation.press('Enter');
+        await expect(page).toHaveURL(new RegExp(`${prefix}/docs/${latestDocsVersion.replace('.', '\\.')}/?$`));
+        await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        await expect(page.locator('article')).toBeVisible();
+        await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
+        await page.goBack();
+        await expect(page.locator('.nav-mobile-hamburger')).toBeVisible();
+        await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
+      });
+    }
+
+    test(`${locale} 모바일 Docs 키보드 이동`, async ({page}) => {
+      await page.setViewportSize({width: 390, height: 844});
+      await page.goto(`${prefix}/`);
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      await page.locator('.nav-mobile-hamburger').click();
+      await page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'}).press('Enter');
+      await expect(page).toHaveURL(new RegExp(`${prefix}/docs/${latestDocsVersion.replace('.', '\\.')}/?$`));
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.locator('article')).toBeVisible();
+      await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
+    });
+
+    test(`${locale} 모바일 메뉴 포커스가 활성 패널 안에서 순환`, async ({page}) => {
+      await page.setViewportSize({width: 390, height: 844});
+      await page.goto(`${prefix}/`);
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      await page.locator('.nav-mobile-hamburger').click();
+      const docsLink = page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'});
+      await docsLink.focus();
+      await page.keyboard.press('Tab');
+      await expect(page.locator('.nav-mobile-logo')).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(docsLink).toBeFocused();
+
+      await page.locator('button.nav-mobile-menu-item', {hasText: 'Framework'}).press('Enter');
+      const back = page.locator('.nav-mobile-back');
+      await expect(back).toBeFocused();
+      const lastLink = page.locator('.nav-mobile-submenu').getByRole('link', {name: 'Laravel Learn', exact: true});
+      await lastLink.focus();
+      await page.keyboard.press('Tab');
+      await expect(back).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(lastLink).toBeFocused();
+      await back.press('Enter');
+      await expect(page.locator('.nav-mobile-close').first()).toBeFocused();
+      await expect(page.locator('.nav-mobile-overlay')).toBeVisible();
+    });
+
+    test(`${locale} 모바일 Escape와 닫기 버튼으로 닫으면 포커스 복귀`, async ({page}) => {
+      await page.setViewportSize({width: 390, height: 844});
+      await page.goto(`${prefix}/`);
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      const hamburger = page.locator('.nav-mobile-hamburger');
+      await hamburger.press('Enter');
+      await page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'}).focus();
+      await page.keyboard.press('Escape');
+      await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
+      await expect(hamburger).toBeFocused();
+      await hamburger.press('Enter');
+      await page.locator('button.nav-mobile-menu-item', {hasText: 'Framework'}).press('Enter');
+      await page.locator('.nav-mobile-subpanel .nav-mobile-close').press('Enter');
+      await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
+      await expect(hamburger).toBeFocused();
+    });
+
+    for (const width of [1280, 390]) {
+      test(`${locale} ${width}px 홈 메뉴에서 문서 언어 유지`, async ({page}) => {
+        const mobile = width < 1280;
+        const localizedDocs = `${prefix}${docsPath()}/`;
+        await page.setViewportSize({width, height: 900});
+        await page.goto(`${prefix}/`);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        if (mobile) {
+          await page.locator('.nav-mobile-hamburger').click();
+        }
+        const docsLink = page.locator(mobile ? 'a.nav-mobile-menu-item' : '.nav-docs-link', {hasText: 'Docs'});
+        await expect(docsLink).toHaveAttribute('href', localizedDocs);
+
+        if (mobile) {
+          await page.locator('button.nav-mobile-menu-item', {hasText: 'Framework'}).click();
+        } else {
+          await openDropdown(page, 'framework');
+        }
+        const links = page.locator(`${mobile ? '.nav-mobile-submenu' : '#content-framework'} a[href^="/"]`);
+        const slugs = mobile
+          ? ['starter-kits', 'releases', '']
+          : ['releases', '', 'ai', 'eloquent', 'artisan', 'routing', '', 'starter-kits'];
+        await expect(links).toHaveCount(slugs.length + 1);
+        expect(await links.evaluateAll((elements) => elements.map((element) => element.getAttribute('href'))))
+          .toEqual([`${prefix}/`, ...slugs.map((slug) => `${prefix}${docsPath(slug)}/`)]);
+        if (mobile) {
+          await page.locator('.nav-mobile-back').click();
+        }
+
+        await docsLink.click();
+        await expect(page).toHaveURL(new RegExp(`${prefix}/docs/${latestDocsVersion.replace('.', '\\.')}/?$`));
+        await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        await expect(page.locator('article')).toBeVisible();
       });
     }
   }
