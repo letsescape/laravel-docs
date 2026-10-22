@@ -1,6 +1,6 @@
 .notice {
   position: relative;
-  padding: 0.5rem 3.5rem;
+  padding: 0.5rem 5.5rem;
   color: #b42318;
   background: linear-gradient(90deg, #fff1f0, #fff);
   border-bottom: 1px solid #f5d0ca;
@@ -14,6 +14,8 @@
 
 .content,
 .message,
+.actions,
+.githubLink,
 .link {
   display: flex;
   align-items: center;
@@ -28,9 +30,39 @@
 }
 
 .message {
+  color: inherit;
   font-weight: 600;
   word-break: keep-all;
   overflow-wrap: anywhere;
+}
+
+.message:hover {
+  color: inherit;
+}
+
+.actions {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  transform: translateY(-50%);
+  gap: calc(0.25rem + 3px);
+}
+
+.githubLink {
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 0.3rem;
+  color: inherit;
+}
+
+.githubLink:hover {
+  color: inherit;
+}
+
+.githubLink svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .link {
@@ -52,10 +84,6 @@
 }
 
 .close {
-  position: absolute;
-  top: 50%;
-  right: 0.25rem;
-  transform: translateY(-50%);
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
@@ -67,11 +95,14 @@
   cursor: pointer;
 }
 
-.close:hover {
+.close:hover,
+.githubLink:hover {
   background: rgb(180 35 24 / 10%);
 }
 
+.message:focus-visible,
 .link:focus-visible,
+.githubLink:focus-visible,
 .close:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 2px;
@@ -101,7 +132,7 @@
 
 @media (max-width: 640px) {
   .notice {
-    padding: 0.75rem 3.5rem 0.75rem 1rem;
+    padding: 0.75rem 5.5rem 0.75rem 1rem;
   }
 
   .content {
@@ -112,6 +143,7 @@
 
   .message {
     min-width: 0;
+    gap: 0.25rem;
   }
 
   .link {

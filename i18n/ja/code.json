@@ -565,10 +565,10 @@
     "message": "重要なセキュリティのお知らせ"
   },
   "theme.securityNotice.message": {
-    "message": "PHP脆弱性対応の最新情報"
+    "message": "脆弱性対応の最新情報"
   },
   "theme.securityNotice.link": {
-    "message": "Read Now"
+    "message": "Read"
   },
   "theme.securityNotice.dismiss": {
     "message": "セキュリティのお知らせを閉じる"
