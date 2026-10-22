@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs';
 
 const REGISTRY_URL = new URL(
-  '../translation-sync/stale-links.json',
+  '../../translation-sync/stale-links.json',
   import.meta.url,
 );
 const TOP_LEVEL_FIELDS = ['schema_version', 'links'];
