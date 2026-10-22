@@ -1,11 +1,24 @@
 .notice {
+  --notice-color: #b42318;
+  --notice-background: #fff1f0;
+  --notice-border: #f5d0ca;
+  --notice-hover: rgb(180 35 24 / 10%);
+  --notice-link-background: #fff;
+  --notice-link-border: #e3e3e0;
   position: relative;
   padding: 0.5rem 5.5rem;
-  color: #b42318;
-  background: linear-gradient(90deg, #fff1f0, #fff);
-  border-bottom: 1px solid #f5d0ca;
+  color: var(--notice-color);
+  background: linear-gradient(90deg, var(--notice-background), #fff);
+  border-bottom: 1px solid var(--notice-border);
   font-size: 0.875rem;
   line-height: 1.5;
+}
+
+.notice[data-variant='info'] {
+  --notice-color: #175cd3;
+  --notice-background: #eff8ff;
+  --notice-border: #b2ddff;
+  --notice-hover: rgb(23 92 211 / 10%);
 }
 
 :global(html[data-security-notice-initially-dismissed='true']) .notice {
@@ -69,8 +82,8 @@
   min-height: 1.6rem;
   padding: 0.2rem 0.6rem;
   color: #1b1b18;
-  background: #fff;
-  border: 1px solid #e3e3e0;
+  background: var(--notice-link-background);
+  border: 1px solid var(--notice-link-border);
   border-radius: 0.3rem;
   font-size: 0.7rem;
   font-weight: 500;
@@ -78,7 +91,7 @@
 }
 
 .link:hover {
-  color: #b42318;
+  color: var(--notice-color);
   border-color: currentColor;
   text-decoration: none;
 }
@@ -97,7 +110,7 @@
 
 .close:hover,
 .githubLink:hover {
-  background: rgb(180 35 24 / 10%);
+  background: var(--notice-hover);
 }
 
 .message:focus-visible,
@@ -109,15 +122,25 @@
 }
 
 [data-theme='dark'] .notice {
-  color: #ffb4a5;
-  background: linear-gradient(90deg, #2e1714, #171717);
-  border-color: #62302a;
+  --notice-color: #ffb4a5;
+  --notice-background: #2e1714;
+  --notice-border: #62302a;
+  --notice-link-background: #281b19;
+  --notice-link-border: #935044;
+  background: linear-gradient(90deg, var(--notice-background), #171717);
+}
+
+[data-theme='dark'] .notice[data-variant='info'] {
+  --notice-color: #84caff;
+  --notice-background: #102a43;
+  --notice-border: #175cd3;
+  --notice-hover: rgb(132 202 255 / 10%);
+  --notice-link-background: #102a43;
+  --notice-link-border: #2e90fa;
 }
 
 [data-theme='dark'] .link {
-  color: #ffb4a5;
-  background: #281b19;
-  border-color: #935044;
+  color: var(--notice-color);
 }
 
 [data-theme='dark'] .link:hover {
