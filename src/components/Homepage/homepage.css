@@ -220,6 +220,10 @@
     overflow-wrap: break-word;
     word-break: break-word;
   }
+
+  html[lang='ja'] .hero-h1 {
+    font-size: 1.875rem;
+  }
 }
 
 @media (min-width: 640px) {
@@ -231,6 +235,10 @@
 @media (min-width: 768px) {
   .hero-h1 {
     font-size: 4.5rem;
+  }
+
+  html[lang='ja'] .hero-h1 {
+    font-size: 3.5rem;
   }
 }
 
