@@ -18,6 +18,7 @@ import safeHtmlPlugin from './src/rehype/safe-html.mjs';
 import {addDocumentSeo} from './src/utils/document-seo.mjs';
 import {parseDocumentFrontMatter} from './src/utils/document-front-matter.mjs';
 import versions from './versions.json';
+import {announcement} from './src/theme/AnnouncementBar/config';
 import {DISMISSAL_ATTRIBUTE, DISMISSAL_STORAGE_KEY} from './src/theme/AnnouncementBar/constants';
 
 // This runs in Node.js.
@@ -80,7 +81,7 @@ const config: Config = {
   baseUrl: '/',
   trailingSlash: true,
   headTags: [
-    {
+    ...(announcement.enabled ? [{
       tagName: 'script',
       attributes: {},
       innerHTML: `
@@ -92,7 +93,7 @@ const config: Config = {
   } catch (error) {}
 })();
 `,
-    },
+    }] : []),
     {
       tagName: 'script',
       attributes: {},

@@ -4,6 +4,8 @@ import {join, relative, resolve, sep} from 'node:path';
 import {parseDocumentFrontMatter} from '../src/utils/document-front-matter.mjs';
 import {load} from 'cheerio';
 import versions from '../versions.json';
+import {announcement} from '../src/theme/AnnouncementBar/config';
+import {DISMISSAL_STORAGE_KEY} from '../src/theme/AnnouncementBar/constants';
 
 const siteDir = resolve(__dirname, '..');
 const buildDir = join(siteDir, 'build');
@@ -50,6 +52,16 @@ test('build contains its homepage and static assets', () => {
 });
 
 for (const {locale, prefix, label} of locales) {
+  test(`${locale} build respects notice visibility`, () => {
+    for (const route of [`${prefix}/`, `${prefix}/docs/${versions[0]}/`]) {
+      const html = readFileSync(join(buildDir, route, 'index.html'), 'utf8');
+      const $ = load(html);
+      const notice = $(`aside[aria-label="${announcement.locales[locale].label}"]`);
+      expect(notice).toHaveLength(announcement.enabled ? 1 : 0);
+      if (!announcement.enabled) expect(html).not.toContain(DISMISSAL_STORAGE_KEY);
+    }
+  });
+
   for (const version of ['', ...versions]) {
     test(`${locale}/${version || 'home and query'} build metadata and alternate links`, async () => {
       const sourceRoutes = documents.get(`${locale}/${version}`);
