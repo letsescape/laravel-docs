@@ -467,6 +467,13 @@ test.describe('Navbar — Consistent control spacing', () => {
             await expect(page.locator('.navbar__brand').first().locator('img:visible')).toHaveCSS('height', '20px');
             if (width >= 390) {
               await expect(navbar).toHaveCSS('height', '64px');
+              const navbarBox = (await navbar.boundingBox())!;
+              const navbarCenterY = navbarBox.y + navbarBox.height / 2;
+              for (const control of controls) {
+                const box = (await control.boundingBox())!;
+                const controlCenterY = box.y + box.height / 2;
+                expect(Math.abs(controlCenterY - navbarCenterY)).toBeLessThanOrEqual(VERTICAL_CENTER_TOLERANCE);
+              }
             }
 
             if (showMenu) {

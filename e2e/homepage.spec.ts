@@ -20,8 +20,10 @@ test('Korean homepage text keeps words together when wrapping', async ({page}) =
         document.documentElement.style.fontSize = `${size}px`;
         await document.fonts.ready;
       }, fontSize);
-      const text = page.locator(fontSize === 16 ? '.homepage h1, .homepage h2, .homepage h3, .homepage p' : '.hero-subtitle');
-      const layouts = await text.evaluateAll((elements) => elements.map((element) => {
+      const text = page.locator('.homepage h1, .homepage h2, .homepage h3, .homepage p');
+      const layouts = await text.evaluateAll((elements, size) => elements.map((element) => {
+        // 확대된 제목의 긴 단어는 가로 넘침을 막는 줄바꿈을 허용합니다.
+        const checkWordSplits = size === 16 || element.matches('.hero-subtitle');
         const splitWords: string[] = [];
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
         while (walker.nextNode()) {
@@ -32,9 +34,9 @@ test('Korean homepage text keeps words together when wrapping', async ({page}) =
             if (range.getClientRects().length > 1) splitWords.push(match[0]);
           }
         }
-        return {text: element.textContent, splitWords, fits: element.scrollWidth <= element.clientWidth};
-      }));
-      expect(layouts.filter(({splitWords, fits}) => splitWords.length > 0 || !fits), `${width}px viewport, ${fontSize}px text`).toEqual([]);
+        return {text: element.textContent, splitWords, checkWordSplits, fits: element.scrollWidth <= element.clientWidth};
+      }), fontSize);
+      expect(layouts.filter(({splitWords, checkWordSplits, fits}) => (checkWordSplits && splitWords.length > 0) || !fits), `${width}px viewport, ${fontSize}px text`).toEqual([]);
     }
   }
 });
