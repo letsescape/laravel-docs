@@ -65,6 +65,72 @@ test.describe('Homepage footer — mid widths (800–1000px)', () => {
   }
 });
 
+test.describe('Homepage footer — enlarged text', () => {
+  for (const {locale, prefix} of [{locale: 'ko', prefix: ''}, {locale: 'ja', prefix: '/ja'}]) {
+    for (const width of [320, 1080, 1280]) {
+      test(`${locale} ${width}px에서 확대된 푸터 링크가 화면 안에 표시된다`, async ({page}) => {
+        await page.setViewportSize({width, height: 900});
+        await page.goto(`${prefix}/`);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        await page.evaluate(async () => {
+          document.documentElement.style.fontSize = '32px';
+          await document.fonts.ready;
+        });
+
+        const overflow = await page.locator('.hp-footer').evaluate((footer) => ({
+          width: footer.clientWidth,
+          scrollWidth: footer.scrollWidth,
+          outside: [...footer.querySelectorAll('a, h4, .footer-brand-bottom span')]
+            .filter((element) => [...element.getClientRects()].some((rect) =>
+              rect.left < -2 || rect.right > window.innerWidth + 2,
+            ))
+            .map((element) => element.textContent?.trim()),
+        }));
+        expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.width + 2);
+        expect(overflow.outside).toEqual([]);
+      });
+    }
+  }
+});
+
+test.describe('Docs footer — enlarged text', () => {
+  for (const {locale, path} of [
+    {locale: 'ko', path: docsPath()},
+    {locale: 'ja', path: `/ja${docsPath('facades')}`},
+  ]) {
+    for (const theme of ['light', 'dark'] as const) {
+      test(`${locale} ${theme} 320px에서 확대된 문서 푸터 링크가 화면 안에 표시된다`, async ({page}) => {
+        await page.emulateMedia({colorScheme: theme});
+        await page.setViewportSize({width: 320, height: 780});
+        await page.goto(path);
+        await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        await page.evaluate(async () => {
+          document.documentElement.style.fontSize = '32px';
+          await document.fonts.ready;
+        });
+
+        const footer = page.locator('.hp-footer--docs');
+        await expect(footer.getByRole('link', {name: 'Status', exact: true})).toBeVisible();
+        const overflow = await footer.evaluate((footer) => ({
+          width: footer.clientWidth,
+          scrollWidth: footer.scrollWidth,
+          pageScrollWidth: document.documentElement.scrollWidth,
+          outside: [...footer.querySelectorAll('a, h4, .footer-brand-bottom span')]
+            .filter((element) => [...element.getClientRects()].some((rect) =>
+              rect.left < -2 || rect.right > window.innerWidth + 2,
+            ))
+            .map((element) => element.textContent?.trim()),
+        }));
+        expect(overflow.outside).toEqual([]);
+        expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.width + 2);
+        expect(overflow.pageScrollWidth).toBeLessThanOrEqual(322);
+      });
+    }
+  }
+});
+
 // =============================================================================
 // 메인 페이지 푸터 변형 — 제품군 컬럼 유지, Community 없음
 // =============================================================================
