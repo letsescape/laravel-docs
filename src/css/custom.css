@@ -65,7 +65,7 @@ body {
   justify-content: space-between !important;
   max-width: 1280px !important;
   margin: 0 auto !important;
-  padding: 0 !important;
+  padding: 0;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -76,7 +76,7 @@ body {
 }
 
 .navbar__items--right {
-  flex: 0 1 auto !important;
+  flex: 0 1 auto;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
@@ -135,7 +135,7 @@ body {
 /* Logo styling */
 .navbar-logo,
 .navbar__logo img {
-  height: 20px !important;
+  height: 20px;
 }
 
 .navbar__brand {

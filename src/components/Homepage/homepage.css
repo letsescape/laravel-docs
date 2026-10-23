@@ -673,6 +673,10 @@
   white-space: nowrap;
 }
 
+.homepage:lang(ko) .ai-heading-line2 {
+  white-space: normal;
+}
+
 .tablet-br {
   display: none;
 }

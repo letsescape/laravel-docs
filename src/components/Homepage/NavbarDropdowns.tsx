@@ -50,10 +50,10 @@ function ChevronDown({open}: Readonly<{open: boolean}>): ReactNode {
   );
 }
 
-export default function NavbarDropdowns({mobileMenuOpen, onMobileMenuClose}: {
+export default function NavbarDropdowns({mobileMenuOpen, onMobileMenuClose}: Readonly<{
   mobileMenuOpen: boolean;
   onMobileMenuClose: () => void;
-}): ReactNode {
+}>): ReactNode {
   const [openDropdown, setOpenDropdown] = useState<DropdownName | null>(null);
   const [mobileSubMenu, setMobileSubMenu] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
