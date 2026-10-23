@@ -1,11 +1,14 @@
 .notice {
   position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
   padding: 0.5rem 5.5rem;
-  color: #b42318;
-  background: linear-gradient(90deg, #fff1f0, #fff);
-  border-bottom: 1px solid #f5d0ca;
+  color: #f53003;
+  background: linear-gradient(90deg, #fff1f1, #fff 60%);
+  border-bottom: 1px solid #f5f5f5;
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.25rem;
 }
 
 :global(html[data-security-notice-initially-dismissed='true']) .notice {
@@ -23,15 +26,16 @@
 }
 
 .content {
-  min-height: 2rem;
+  flex: 1;
+  min-width: 0;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
+  gap: 0.5rem 0.75rem;
 }
 
 .message {
   color: inherit;
-  font-weight: 600;
+  font-weight: 500;
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
@@ -66,14 +70,16 @@
 }
 
 .link {
-  min-height: 1.6rem;
-  padding: 0.2rem 0.6rem;
+  min-height: 1.625rem;
+  padding: 0.25rem 0.625rem;
   color: #1b1b18;
   background: #fff;
-  border: 1px solid #e3e3e0;
-  border-radius: 0.3rem;
-  font-size: 0.7rem;
-  font-weight: 500;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 1px rgb(0 0 0 / 3%), 0 1px 2px rgb(0 0 0 / 6%);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1rem;
   white-space: nowrap;
 }
 
@@ -84,15 +90,22 @@
 }
 
 .close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
   padding: 0;
   border: 0;
   border-radius: 0.375rem;
-  color: inherit;
+  color: #8d8d86;
   background: transparent;
-  font-size: 1.5rem;
   cursor: pointer;
+}
+
+.close svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .close:hover,
@@ -124,20 +137,23 @@
   border-color: currentColor;
 }
 
+[data-theme='dark'] .close {
+  color: #a1a09a;
+}
+
 @media (min-width: 997px) {
   :global(html:not([data-security-notice-initially-dismissed='true'])) .notice ~ :global(.main-wrapper .theme-doc-sidebar-container .menu) {
-    margin-bottom: calc(3rem + 1px);
+    margin-bottom: 2.75rem;
   }
 }
 
 @media (max-width: 640px) {
   .notice {
-    padding: 0.75rem 5.5rem 0.75rem 1rem;
+    padding: 0.5rem 5.25rem 0.5rem 1.25rem;
   }
 
   .content {
     justify-content: flex-start;
-    flex-wrap: nowrap;
     gap: 0.5rem;
   }
 

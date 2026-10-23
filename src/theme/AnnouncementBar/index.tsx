@@ -66,7 +66,9 @@ export default function AnnouncementBar(): ReactNode {
             id: 'theme.securityNotice.dismiss',
             message: '보안 공지 닫기',
           })}>
-          <span aria-hidden="true">×</span>
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
+            <path d="m6 6 8 8M14 6l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
         </button>
       </div>
     </aside>

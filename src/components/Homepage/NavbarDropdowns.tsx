@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useRef, useCallback, type ReactNode} from 'react';
-import {useColorMode} from '@docusaurus/theme-common';
 import Link from '@docusaurus/Link';
 import {docsPath} from '@site/src/utils/docs';
 import './homepage.css';
@@ -51,21 +50,19 @@ function ChevronDown({open}: Readonly<{open: boolean}>): ReactNode {
   );
 }
 
-export default function NavbarDropdowns(): ReactNode {
+export default function NavbarDropdowns({mobileMenuOpen, onMobileMenuClose}: {
+  mobileMenuOpen: boolean;
+  onMobileMenuClose: () => void;
+}): ReactNode {
   const [openDropdown, setOpenDropdown] = useState<DropdownName | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSubMenu, setMobileSubMenu] = useState<string | null>(null);
-  const [mobileThemeMode, setMobileThemeMode] = useState<'light' | 'dark' | 'system'>('system');
-  const {setColorMode} = useColorMode();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeMobileMenu = useCallback(() => {
-    setMobileMenuOpen(false);
     setMobileSubMenu(null);
-    mobileMenuButtonRef.current?.focus({preventScroll: true});
-  }, []);
+    onMobileMenuClose();
+  }, [onMobileMenuClose]);
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -98,15 +95,6 @@ export default function NavbarDropdowns(): ReactNode {
     }
   }
 
-  // Synchronize mobileThemeMode with the stored preference on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'light' || stored === 'dark') {
-      setMobileThemeMode(stored);
-    } else {
-      setMobileThemeMode('system');
-    }
-  }, []);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [randomPartners, setRandomPartners] = useState(() => ALL_PARTNERS.slice(0, 6));
   useEffect(() => {
@@ -606,61 +594,6 @@ export default function NavbarDropdowns(): ReactNode {
           </div>
         </div>
       )}
-      {/* Mobile color mode toggle: cycles light → dark → system */}
-      <button
-        className="nav-mobile-mode-toggle"
-        aria-label="Toggle color mode"
-        onClick={() => {
-          const modes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
-          const idx = modes.indexOf(mobileThemeMode);
-          const next = modes[(idx + 1) % modes.length];
-          setMobileThemeMode(next);
-          try {
-            if (next === 'system') {
-              localStorage.removeItem('theme');
-              const prefersDark = globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false;
-              setColorMode(prefersDark ? 'dark' : 'light');
-            } else {
-              localStorage.setItem('theme', next);
-              setColorMode(next);
-            }
-          } catch {
-            // localStorage may be unavailable (private browsing, etc.)
-          }
-        }}
-      >
-        {mobileThemeMode === 'light' && (
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <path d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"/>
-          </svg>
-        )}
-        {mobileThemeMode === 'dark' && (
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <path d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"/>
-          </svg>
-        )}
-        {mobileThemeMode === 'system' && (
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <path d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"/>
-          </svg>
-        )}
-      </button>
-
-      {/* Mobile hamburger button */}
-      <button
-        ref={mobileMenuButtonRef}
-        className="nav-mobile-hamburger"
-        aria-label="Open menu"
-        aria-expanded={mobileMenuOpen}
-        aria-controls="homepage-mobile-menu"
-        onClick={() => setMobileMenuOpen(true)}
-      >
-        <svg width="22" height="22" viewBox="0 0 30 30" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-          <line x1="4" y1="11" x2="26" y2="11"/>
-          <line x1="4" y1="21" x2="26" y2="21"/>
-        </svg>
-      </button>
-
       {/* Mobile fullscreen overlay */}
       {mobileMenuOpen && (
         <div ref={mobileMenuRef} id="homepage-mobile-menu" className="nav-mobile-overlay" role="dialog" aria-modal="true" aria-label="Navigation menu" tabIndex={-1} onClick={closeMobileMenu} onKeyDown={handleMobileMenuKeyDown}>
@@ -688,7 +621,7 @@ export default function NavbarDropdowns(): ReactNode {
                   </button>
                 ))}
                 {/*
-                <a href="https://laravel.com/community" className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
+                <a href="https://laravel.com/community" className="nav-mobile-menu-item" onClick={closeMobileMenu}>
                   <span>Events</span>
                 </a>
                 */}
@@ -729,12 +662,12 @@ export default function NavbarDropdowns(): ReactNode {
                 </>}
                 {/* Resources 서브메뉴 임시 비활성화(메인 메뉴 진입 경로 제거) */}
                 {SHOW_DISABLED_NAV && mobileSubMenu === 'resources' && <>
-                  <a href="https://laravel.com/blog" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Blog</a>
-                  <a href="https://laravel.com/partners" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Partners</a>
-                  <a href="https://laravel.com/careers" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Careers</a>
-                  <a href="https://trust.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Trust</a>
-                  <a href="https://laravel.com/legal" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Legal</a>
-                  <a href="https://status.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Status</a>
+                  <a href="https://laravel.com/blog" className="nav-mobile-subitem" onClick={closeMobileMenu}>Blog</a>
+                  <a href="https://laravel.com/partners" className="nav-mobile-subitem" onClick={closeMobileMenu}>Partners</a>
+                  <a href="https://laravel.com/careers" className="nav-mobile-subitem" onClick={closeMobileMenu}>Careers</a>
+                  <a href="https://trust.laravel.com" className="nav-mobile-subitem" onClick={closeMobileMenu}>Trust</a>
+                  <a href="https://laravel.com/legal" className="nav-mobile-subitem" onClick={closeMobileMenu}>Legal</a>
+                  <a href="https://status.laravel.com" className="nav-mobile-subitem" onClick={closeMobileMenu}>Status</a>
                 </>}
               </nav>
             </div>

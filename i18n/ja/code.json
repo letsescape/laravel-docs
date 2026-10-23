@@ -1,4 +1,10 @@
 {
+  "navbar.version.development": {
+    "message": "master (開発版)"
+  },
+  "navbar.version.label": {
+    "message": "ドキュメントのバージョン: {version}"
+  },
   "theme.ErrorPageContent.title": {
     "message": "エラーが発生しました",
     "description": "The title of the fallback page when the page crashed"
