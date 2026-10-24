@@ -687,7 +687,7 @@ public function serialize($model, string $key, $value, array $attributes)
 ### Inbound Casting
 
 <!-- Occasionally, you may need to write a custom cast that only transforms values that are being set on the model and does not perform any operations when attributes are being retrieved from the model. A classic example of an inbound only cast is a "hashing" cast. Inbound only custom casts should implement the `CastsInboundAttributes` interface, which only requires a `set` method to be defined. -->
-간혹 모델의 속성 값을 **입력(할당)**할 때만 변환하고 조회할 때는 별도로 변환을 적용하지 않는 커스텀 cast가 필요할 때도 있습니다. 대표적인 예시가 "해싱" cast입니다. 입력 전용 casting을 구현하려면 `CastsInboundAttributes` 인터페이스를 구현하면 됩니다. 이때는 `set` 메서드만 구현하면 됩니다.
+간혹 모델의 속성 값을 입력(할당)할 때만 변환하고 조회할 때는 별도로 변환을 적용하지 않는 커스텀 cast가 필요할 때도 있습니다. 대표적인 예시가 "해싱" cast입니다. 입력 전용 casting을 구현하려면 `CastsInboundAttributes` 인터페이스를 구현하면 됩니다. 이때는 `set` 메서드만 구현하면 됩니다.
 
 ```
 <?php

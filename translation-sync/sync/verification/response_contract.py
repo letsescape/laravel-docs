@@ -18,6 +18,9 @@ from ..common.javascript import (
     top_level_plus_positions,
 )
 from ..common.markdown import (
+    _HTML_CODE_ELEMENT_RE,
+    _HTML_TAG_RE,
+    _inline_code_spans,
     FrontMatterDescription,
     closes_fence,
     fence_token,
@@ -2606,6 +2609,87 @@ def _inline_markup_signature(text: str) -> tuple[str, ...]:
     return tuple(delimiters)
 
 
+def _unpaired_strong_delimiters(text: str) -> Counter[tuple[int, str]]:
+    """블록별로 짝을 이루지 못한 굵은 강조 기호 수집.
+
+    코드·링크 대상·HTML 속성은 건너뛰되 flanking은 원래 문자를 기준으로 판정한다.
+    같은 블록의 원문 literal 기호와 비교하며 강조의 전체 생략은 허용된다.
+    """
+
+    scopes: list[str] = []
+    for block in _blocks(text):
+        if block.kind not in ("text", "heading") or _is_indented_literal_block(block):
+            continue
+        content_lines = [re.sub(r"^(?:[ \t]*>[ \t]*)+", "", line) for line in block.lines]
+        body = "\n".join(content_lines)
+        if is_gfm_pipe_table(body):
+            scopes.extend(cell for line in content_lines for cell in table_row_cells(line))
+            continue
+        lines: list[str] = []
+        for line in content_lines:
+            if lines and (
+                _UNORDERED_LIST_RE.match(line) or _ORDERED_LIST_RE.match(line)
+            ):
+                scopes.append("\n".join(lines))
+                lines = []
+            lines.append(line)
+        scopes.append("\n".join(lines))
+
+    unpaired: Counter[tuple[int, str]] = Counter()
+    for scope_index, body in enumerate(scopes):
+        protected = [(start, end) for start, end, _ in _inline_code_spans(body)]
+        protected.extend(
+            (link.start + len(link.label) + 1 + int(link.image), link.end)
+            for link in markdown_links(body)
+        )
+        protected.extend((link.start, link.end) for link in markdown_autolinks(body))
+        protected.extend(match.span() for match in _HTML_CODE_ELEMENT_RE.finditer(body))
+        protected.extend(match.span() for match in _HTML_TAG_RE.finditer(body))
+        protected.extend((item.start, item.end) for item in reference_definitions(body))
+        protected.sort()
+        span_index = 0
+        pending: list[str] = []
+        index = 0
+        while index < len(body):
+            while span_index < len(protected) and protected[span_index][1] <= index:
+                span_index += 1
+            if span_index < len(protected) and protected[span_index][0] <= index:
+                index = protected[span_index][1]
+                continue
+            run = _inline_delimiter_run(body, index)
+            if run is None:
+                index += 1
+                continue
+            token, end, _significant = run
+            can_open, can_close, previous_punctuation, following_punctuation = (
+                _delimiter_flanking(body, index, end)
+            )
+            index = end
+            if token[0] == "~" or len(token) < 2:
+                continue
+            if token[0] == "_":
+                can_open, can_close = (
+                    can_open and (not can_close or previous_punctuation),
+                    can_close and (not can_open or following_punctuation),
+                )
+            marker = token[:2]
+            count = len(token) // 2
+            if can_close:
+                while count and marker in pending:
+                    opener = len(pending) - 1
+                    while pending[opener] != marker:
+                        opener -= 1
+                    unpaired.update((scope_index, crossed) for crossed in pending[opener + 1:])
+                    del pending[opener:]
+                    count -= 1
+            if can_open:
+                pending.extend([marker] * count)
+            else:
+                unpaired[scope_index, marker] += count
+        unpaired.update((scope_index, marker) for marker in pending)
+    return +unpaired
+
+
 def _inline_delimiter_run(
     body: str,
     index: int,
@@ -3507,7 +3591,8 @@ def _provider_structure_issues(
             not _inline_markup_is_subset(
                 _inline_markup_signature(text),
                 _inline_markup_signature(source),
-            ),
+            )
+            or bool(_unpaired_strong_delimiters(text) - _unpaired_strong_delimiters(source)),
             "provider inline markup mismatch",
         ),
     )

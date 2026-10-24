@@ -1260,7 +1260,7 @@ $response->assertJsonValidationErrors(array $data, $responseKey = 'errors');
 ```
 
 > [!NOTE]
-> より汎用的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたことを主張する ** または ** エラーがセッション ストレージにフラッシュされたことを主張できます。
+> より汎用的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたことを主張する **または** エラーがセッション ストレージにフラッシュされたことを主張できます。
 
 <a name="assert-json-validation-error-for"></a>
 <!-- #### assertJsonValidationErrorFor -->
@@ -1529,7 +1529,7 @@ $response->assertSessionHasErrors([
 ```
 
 > [!NOTE]
-> より汎用的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたことを主張する ** または ** エラーがセッション ストレージにフラッシュされたことを主張できます。
+> より汎用的な [assertInvalid](#assert-invalid) メソッドを使用すると、応答に検証エラーが JSON として返されたことを主張する **または** エラーがセッション ストレージにフラッシュされたことを主張できます。
 
 <a name="assert-session-has-errors-in"></a>
 <!-- #### assertSessionHasErrorsIn -->

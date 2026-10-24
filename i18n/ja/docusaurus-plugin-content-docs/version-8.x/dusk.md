@@ -68,7 +68,7 @@ composer require --dev laravel/dusk
 ```
 
 > [!NOTE]
-> Dusk のサービスプロバイダを手動で登録する場合は、実稼働環境に登録しないでください**。登録すると、任意のユーザーがアプリケーションで認証できる可能性があります。
+> Dusk のサービスプロバイダを手動で登録する場合は、実稼働環境に**登録しないでください**。登録すると、任意のユーザーがアプリケーションで認証できる可能性があります。
 
 <!-- After installing the Dusk package, execute the `dusk:install` Artisan command. The `dusk:install` command will create a `tests/Browser` directory and an example Dusk test: -->
 Dusk パッケージをインストールした後、`dusk:install` Artisan コマンドを実行します。 `dusk:install` コマンドは、`tests/Browser` ディレクトリとサンプルの Dusk テストを作成します。
