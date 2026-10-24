@@ -8,9 +8,14 @@
 
 /* Horizontal overflow is handled on the .homepage wrapper in homepage.css, not globally on the body, to avoid breaking position: sticky and other layouts. */
 
+html,
+body {
+  min-width: 320px;
+}
 
 /* You can override the default Infima variables here. */
 :root {
+  --ifm-navbar-height: 4rem;
   --ifm-color-primary: #f53003;
   --ifm-color-primary-dark: #dd2b03;
   --ifm-color-primary-darker: #d02902;
@@ -57,38 +62,93 @@
 
 .navbar__inner {
   align-items: center !important;
-}
-
-.navbar__inner {
   justify-content: space-between !important;
-  max-width: 1340px !important;
+  max-width: 1280px !important;
   margin: 0 auto !important;
-  padding: 0 1.5rem !important;
+  padding: 0;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .navbar__items:not(.navbar__items--right) {
   flex: none !important;
+  min-width: max-content;
 }
 
 .navbar__items--right {
-  flex: none !important;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 100%;
+  margin-left: auto;
+}
+
+.navbar {
+  height: auto;
+  min-height: var(--ifm-navbar-height);
+  padding-left: 18px;
+  padding-right: 18px;
+  border-bottom: 1px solid #00000018;
+  background: #fff;
+  box-shadow: none;
+}
+
+[data-theme='dark'] .navbar {
+  border-bottom-color: #fff2;
+  background: #171717;
+}
+
+.main-wrapper {
+  --ifm-navbar-height: var(--site-navbar-height, 4rem);
+}
+
+.navbar__items--right > .navbar__item,
+.navbar__items--right > [class*='navbarSearchContainer'] {
+  padding: 0;
+  margin: 0;
+}
+
+.navbar__items--right > [class*='navbarSearchContainer'] {
+  position: static;
+}
+
+.navbar-color-mode-toggle {
+  display: flex !important;
+}
+
+.navbar__items--right :is(.navbar-color-mode-toggle, .navbar__toggle, .nav-mobile-hamburger) {
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.navbar__items--right :is(.navbar__toggle, .nav-mobile-hamburger) svg {
+  width: 22px;
+  height: 22px;
 }
 
 /* Logo styling */
 .navbar-logo,
 .navbar__logo img {
-  height: 22px !important;
+  height: 20px;
 }
 
 .navbar__brand {
   display: flex !important;
   align-items: center !important;
   height: 100% !important;
+  margin-right: 20px;
 }
 
 .navbar__logo {
   display: flex !important;
   align-items: center !important;
+  margin-right: 0;
 }
 
 /* SVG logo styling using CSS variables */
@@ -248,8 +308,121 @@ svg[class*="text-laravel-red"] path {
   color: var(--svg-logo-color);
 }
 
-.navbar-locale-dropdown > svg {
+.navbar-locale-label > svg {
   display: none !important;
+}
+
+.navbar__items--right :is(.navbar-version-dropdown, .navbar-locale-dropdown, .DocSearch-Button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #171717;
+  box-shadow: 0 0 1px rgb(0 0 0 / 3%), 0 1px 2px rgb(0 0 0 / 6%);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  white-space: nowrap;
+}
+
+.navbar__items--right :is(.navbar-version-dropdown, .navbar-locale-dropdown)::after {
+  width: 0.375rem;
+  height: 0.375rem;
+  flex-shrink: 0;
+  margin: 0 0.125rem;
+  border: solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  top: 0;
+  transform: translateY(-2px) rotate(45deg);
+  opacity: 0.5;
+}
+
+.navbar__items--right .dropdown:is(:hover, .dropdown--show) > :is(.navbar-version-dropdown, .navbar-locale-dropdown),
+.navbar__items--right .DocSearch-Button:hover {
+  background: #fafafa;
+  color: #171717;
+}
+
+.navbar__items--right .dropdown:is(:hover, .dropdown--show) > :is(.navbar-version-dropdown, .navbar-locale-dropdown)::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.navbar__items--right :is(.navbar-version-dropdown, .navbar-locale-dropdown, .DocSearch-Button):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+[data-theme='dark'] .navbar__items--right :is(.navbar-version-dropdown, .navbar-locale-dropdown, .DocSearch-Button) {
+  border-color: #404040;
+  background: #262626;
+  color: #ededed;
+}
+
+[data-theme='dark'] .navbar__items--right .dropdown:is(:hover, .dropdown--show) > :is(.navbar-version-dropdown, .navbar-locale-dropdown),
+[data-theme='dark'] .navbar__items--right .DocSearch-Button:hover {
+  background: #404040;
+  color: #fff;
+}
+
+.navbar-locale-code,
+.navbar-version-code {
+  display: none;
+}
+
+.navbar__items--right .DocSearch-Button {
+  margin: 0;
+  box-sizing: border-box;
+  height: 2rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+  transition-property: background-color, border-color, color, box-shadow;
+}
+
+.navbar__items--right .DocSearch-Search-Icon {
+  width: 1rem;
+  height: 1rem;
+  color: #a1a1a1;
+}
+
+.navbar__items--right .DocSearch-Button-Placeholder {
+  padding: 0 0 0 0.5rem;
+  color: #737373;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.navbar__items--right .DocSearch-Button-Keys {
+  min-width: 0;
+}
+
+.navbar__items--right .DocSearch-Button .DocSearch-Button-Key {
+  width: auto;
+  height: auto;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: #a1a1a1;
+  font: inherit;
+}
+
+[data-theme='dark'] .navbar__items--right .DocSearch-Button-Placeholder {
+  color: #d4d4d4;
+}
+
+[data-theme='dark'] .navbar__items--right .DocSearch-Search-Icon,
+[data-theme='dark'] .navbar__items--right .DocSearch-Button-Key {
+  color: #737373;
+}
+
+@media (min-width: 1024px) {
+  .navbar__items--right .DocSearch-Button {
+    min-width: 10rem;
+  }
 }
 
 /* Active link color */
@@ -273,177 +446,46 @@ svg[class*="text-laravel-red"] path {
   border-bottom: 1px solid var(--translation-banner-border);
 }
 
-/* Responsive navbar (tablet and mobile): logo on the left and control cluster on the right.
- * Shared rules live here; each breakpoint below only overrides sizing and spacing.
- */
-@media (max-width: 1279px) {
-  /* Collapse inline nav links; keep only the right control cluster */
+@media (max-width: 1023px) {
   .navbar__items:not(.navbar__items--right) > .navbar__item {
     display: none !important;
   }
 
-  .navbar__items--right {
-    display: flex !important;
-    align-items: center !important;
-    flex: 0 0 auto !important;
-    margin-left: auto !important;
+  .navbar__items--right > .navbar__item {
+    display: flex;
   }
 
-  .navbar__items--right > * {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+  .navbar__brand,
+  .navbar__logo {
+    margin-right: 0;
   }
 
-  /* Control order: color mode (1) → version (2) → locale (3) → search (4) → sidebar toggle (5) */
-  .navbar__items--right > .navbar-color-mode-toggle {
-    display: flex !important;
-    order: 1;
+  .navbar__logo {
+    height: auto;
   }
 
-  body.homepage-layout .navbar__items--right > .navbar-color-mode-toggle {
-    display: none !important;
-  }
-
-  .navbar__items--right > .navbar-version-dropdown,
-  .navbar__items--right > .navbar__item.dropdown:nth-child(1) {
-    order: 2;
-  }
-
-  .navbar__items--right > .navbar-locale-dropdown,
-  .navbar__items--right > .navbar__item.dropdown:nth-child(2) {
-    order: 3;
-  }
-
-  .navbar__items--right [class*="navbarSearchContainer"] {
-    order: 4;
-    position: static !important;
-  }
-
+  .navbar-locale-label,
+  .navbar-version-label,
   .navbar__items--right .DocSearch-Button-Placeholder,
   .navbar__items--right .DocSearch-Button-Keys {
-    display: none !important;
+    display: none;
+  }
+
+  .navbar-locale-code,
+  .navbar-version-code {
+    display: inline;
+  }
+
+  .navbar__items--right .DocSearch-Button {
+    width: 2rem;
+    padding: 0;
+    justify-content: center;
   }
 }
 
 @media (max-width: 996px) {
   .navbar__items--right > .navbar__toggle {
-    display: flex !important;
-    order: 5;
-  }
-
-  /* Docs pages: hide version and locale dropdowns on tablets and mobile devices only.
-   * Desktop docs keep them because Docusaurus sets `docs-wrapper` on <html> for docs routes.
-   * The class hook sits on the <a>, so target the wrapping .navbar__item.
-   * :has() uses the stable class; the nth-child fallback covers older browsers.
-   */
-  html.docs-wrapper .navbar__items--right > .navbar__item:has(> .navbar-version-dropdown),
-  html.docs-wrapper .navbar__items--right > .navbar__item:has(> .navbar-locale-dropdown),
-  html.docs-wrapper .navbar__items--right > .navbar__item.dropdown:nth-child(1),
-  html.docs-wrapper .navbar__items--right > .navbar__item.dropdown:nth-child(2) {
-    display: none !important;
-  }
-}
-
-/* Tablet navbar: logo left, responsive controls right */
-@media (min-width: 768px) and (max-width: 1279px) {
-  .navbar__inner {
-    gap: 0 !important;
-  }
-
-  .navbar__items:not(.navbar__items--right) {
-    flex: 1 !important;
-  }
-
-  .navbar__items--right {
-    gap: 0.75rem !important;
-  }
-
-  .navbar__items--right > .navbar-color-mode-toggle,
-  .navbar__items--right .DocSearch-Button {
-    width: 2.25rem;
-    height: 2.25rem;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .navbar__items--right > .navbar-color-mode-toggle > button {
-    width: 2.25rem;
-    height: 2.25rem;
-    padding: 0;
-  }
-
-  /* Position dropdown triggers */
-  .nav-dropdowns-wrapper {
-    flex: 1;
-    display: flex !important;
-    justify-content: flex-start;
-  }
-}
-
-/* Mobile navbar: logo left, hamburger right */
-@media (max-width: 767px) {
-  .navbar__inner {
-    justify-content: space-between !important;
-    flex-wrap: nowrap !important;
-    gap: 0 !important;
-    padding: 0 0.75rem !important;
-  }
-
-  .navbar__items:not(.navbar__items--right) {
-    flex: 1 1 auto !important;
-    min-width: 0;
-  }
-
-  .navbar > .navbar__inner > .navbar__items:not(.navbar__items--right) > .navbar__toggle {
-    display: none !important;
-  }
-
-  .navbar__items--right {
-    gap: 0.5rem !important;
-  }
-
-  .navbar__items--right > .navbar-color-mode-toggle,
-  .navbar__items--right .DocSearch-Button {
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .navbar__items--right > .navbar-color-mode-toggle > button {
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-  }
-}
-
-@media (max-width: 430px) {
-  .navbar__inner {
-    padding: 0 0.625rem !important;
-  }
-
-  .navbar__items--right {
-    gap: 0.25rem !important;
-  }
-
-  .navbar__items--right > .navbar__item {
-    padding-left: 0.35rem !important;
-    padding-right: 0.35rem !important;
-    font-size: 0.875rem;
-  }
-
-  .navbar__items--right > .navbar-color-mode-toggle,
-  .navbar__items--right .DocSearch-Button {
-    width: 1.875rem;
-    height: 1.875rem;
-  }
-
-  .navbar__items--right > .navbar-color-mode-toggle > button {
-    width: 1.875rem;
-    height: 1.875rem;
+    display: flex;
   }
 }
 

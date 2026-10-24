@@ -16,6 +16,41 @@ for (const [locale, label] of [['', '중요 보안 공지'], ['/ja', '重要な�
         await context.close();
       }
     });
+
+    test(`security notice enlarged text does not overlap actions at ${locale}${path}`, async ({page}) => {
+      await page.setViewportSize({width: 320, height: 844});
+      await page.goto(`${locale}${path}`);
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      await page.evaluate(async () => {
+        document.documentElement.style.fontSize = '32px';
+        await document.fonts.ready;
+      });
+      const notice = page.getByRole('complementary', {name: label});
+      const geometry = await notice.evaluate((element) => {
+        const controls = [...element.querySelectorAll('a, button')];
+        const message = controls[0];
+        const actions = controls.slice(1).map((control) => control.getBoundingClientRect());
+        const text = document.createTreeWalker(message, NodeFilter.SHOW_TEXT);
+        const rectangles: DOMRect[] = [];
+        while (text.nextNode()) {
+          if (!text.currentNode.textContent?.trim() || text.currentNode.parentElement?.closest('[aria-hidden="true"]')) continue;
+          const range = document.createRange();
+          range.selectNodeContents(text.currentNode);
+          rectangles.push(...range.getClientRects());
+        }
+        return {
+          textPresent: rectangles.length > 0,
+          withinViewport: [...rectangles, ...actions].every((rect) => rect.left >= 0 && rect.right <= innerWidth + 1),
+          clearOfActions: rectangles.every((rect) => actions.every((action) =>
+            rect.right <= action.left + 1 || action.right <= rect.left + 1 ||
+            rect.bottom <= action.top + 1 || action.bottom <= rect.top + 1,
+          )),
+        };
+      });
+      expect(geometry).toEqual({textPresent: true, withinViewport: true, clearOfActions: true});
+      await notice.getByRole('button').click();
+      await expect(notice).toHaveCount(0);
+    });
   }
 }
 
