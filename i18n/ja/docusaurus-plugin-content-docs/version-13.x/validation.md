@@ -2501,6 +2501,9 @@ Validator::make($input, [
 <!-- This validation rule does not verify agreement between the MIME type and the extension the user assigned to the file. For example, the `mimes:png` validation rule would consider a file containing valid PNG content to be a valid PNG image, even if the file is named `photo.txt`. If you would like to validate the user-assigned extension of the file, you may use the [extensions](#rule-extensions) rule. -->
 この検証ルールは、MIME タイプとユーザーがファイルに割り当てた拡張子との間の一致を検証しません。たとえば、`mimes:png` 検証ルールでは、ファイルの名前が `photo.txt` であっても、有効な PNG コンテンツを含むファイルは有効な PNG イメージであると見なされます。ユーザーが割り当てたファイルの拡張子を検証したい場合は、[extensions](#rule-extensions) ルールを使用できます。
 
+> [!WARNING]
+> 画像の検証に通っても、`.php` 拡張子で保存されたファイルが PHP として実行されるのを防ぐことはできません。GIF または JPEG のマジックバイトで始まるファイルは、PHP のペイロードを含んでいても `mimes:gif` または `mimes:jpg` の検証に通ることがあります。アップロードファイルの保存には、必ず `hashName()` などで生成したファイル名を使用し、storage ディレクトリ内で PHP が実行されないよう Web サーバを設定してください。
+
 <a name="rule-min"></a>
 <!-- #### min:_value_ -->
 #### min:_value_

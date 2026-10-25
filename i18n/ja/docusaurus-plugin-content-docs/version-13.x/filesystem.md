@@ -45,7 +45,7 @@ Laravel のファイルシステム構成ファイルは、`config/filesystems.p
 `local` ドライバは、Laravel アプリケーションを実行しているサーバー上にローカルに保存されているファイルと対話し、`sftp` ストレージドライバは SSH キーベースの FTP に使用されます。 `s3` ドライバは、Amazon の S3 クラウド ストレージ サービスへの書き込みに使用されます。
 
 > [!NOTE]
-> ディスクは好きなだけ構成でき、同じドライバを使用する複数のディスクを使用することもできます。
+> 必要な数だけディスクを設定できます。また、同じドライバを使うディスクを複数設定することもできます。
 
 <a name="the-local-driver"></a>
 <!-- ### The Local Driver -->
@@ -374,7 +374,7 @@ $url = Storage::url('file.jpg');
 `local` ドライバを使用する場合、パブリックにアクセスできるすべてのファイルを `storage/app/public` ディレクトリに配置する必要があります。さらに、`storage/app/public` ディレクトリを指す `public/storage` で [create a symbolic link](#the-public-disk) する必要があります。
 
 > [!WARNING]
-> `local` ドライバを使用する場合、`url` の戻り値は URL エンコードされません。このため、常に有効な URL を作成できる名前を使用してファイルを保存することをお勧めします。
+> `local` ドライバを使用する場合、`url` の戻り値は URL エンコードされません。そのため、有効な URL を生成できる名前でファイルを保存することをおすすめします。
 
 <a name="url-host-customization"></a>
 <!-- #### URL Host Customization -->
@@ -484,7 +484,7 @@ class AppServiceProvider extends ServiceProvider
 #### Temporary Upload URLs
 
 > [!WARNING]
-> 一時アップロード URL を生成する機能は、`s3` ドライバと `local` ドライバでのみサポートされています。
+> 一時アップロード URL を生成する機能は、`s3` および `local` ドライバでのみサポートされています。
 
 <!-- If you need to generate a temporary URL that can be used to upload a file directly from your client-side application, you may use the `temporaryUploadUrl` method. This method accepts a path and a `DateTime` instance specifying when the URL should expire. The `temporaryUploadUrl` method returns an associative array which may be destructured into the upload URL and the headers that should be included with the upload request: -->
 クライアント側アプリケーションからファイルを直接アップロードするために使用できる一時 URL を生成する必要がある場合は、`temporaryUploadUrl` メソッドを使用できます。このメソッドは、パスと、URL の有効期限がいつ切れるかを指定する `DateTime` インスタンスを受け入れます。 `temporaryUploadUrl` メソッドは、アップロード URL とアップロード リクエストに含めるヘッダーに分解できる連想配列を返します。
@@ -719,7 +719,10 @@ $path = Storage::putFileAs(
 ```
 
 > [!WARNING]
-> 印刷不可能な Unicode 文字や無効な Unicode 文字は、ファイル パスから自動的に削除されます。したがって、ファイルパスをLaravelのファイルストレージメソッドに渡す前に、ファイルパスをサニタイズすることをお勧めします。ファイル パスは、`League\Flysystem\WhitespacePathNormalizer::normalizePath` メソッドを使用して正規化されます。
+> `storeAs` または `putFileAs` のファイル名引数に、ユーザー入力をそのまま使用しないでください。攻撃者が `shell.php` のような名前を指定すると、Web からアクセス可能な場合、保存したファイルが PHP として実行されるおそれがあります。保存するファイル名には `hashName()` またはシステムが生成した識別子を使用し、表示に元のファイル名が必要な場合は別途保存してください。
+
+> [!WARNING]
+> ファイルパスに含まれる印字できない文字や無効な Unicode 文字は、自動的に削除されます。そのため、Laravel のファイルストレージメソッドに渡す前に、ファイルパスをサニタイズしてください。ファイルパスは `League\Flysystem\WhitespacePathNormalizer::normalizePath` メソッドを使って正規化されます。
 
 <a name="specifying-a-disk"></a>
 <!-- #### Specifying a Disk -->
@@ -1015,7 +1018,7 @@ class ExampleTest extends TestCase
 デフォルトでは、`fake` メソッドは一時ディレクトリ内のすべてのファイルを削除します。これらのファイルを保持したい場合は、代わりに「persistentFake」メソッドを使用できます。ファイルのアップロードのテストの詳細については、[HTTP testing documentation's information on file uploads](/docs/13.x/http-tests#testing-file-uploads) を参照してください。
 
 > [!WARNING]
-> `image` メソッドには、[GD extension](https://www.php.net/manual/en/book.image.php) が必要です。
+> `image` メソッドを使用するには、[GD extension](https://www.php.net/manual/en/book.image.php) が必要です。
 
 <a name="custom-filesystems"></a>
 <!-- ## Custom Filesystems -->
