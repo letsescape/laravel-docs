@@ -345,7 +345,7 @@ stopwaitsecs=3600
 > 서버 설정을 직접 관리하거나 다양한 서비스를 직접 구성하는 것에 익숙하지 않다면, [Laravel Cloud](https://cloud.laravel.com)를 참고하세요. Laravel Cloud는 완전 관리형 Laravel Octane 서비스를 제공합니다.
 
 <!-- In production environments, you should serve your Octane application behind a traditional web server such as Nginx or Apache. Doing so will allow the web server to serve your static assets such as images and stylesheets, as well as manage your SSL certificate termination. -->
-운영 환경에서는 Octane 애플리케이션을 Nginx 또는 Apache와 같은 전통적인 웹 서버 뒤에서 서비스하는 것이 좋습니다. 이렇게 하면 정적 자산(이미지, 스타일시트 등) 서비스와 SSL 인증서 종료를 전통적 웹 서버에서 처리할 수 있습니다.
+운영 환경에서는 Octane 애플리케이션을 Nginx 또는 Apache와 같은 전통적인 웹 서버 뒤에서 서비스하는 것이 좋습니다. 이렇게 하면 정적 자산(이미지, 스타일시트 등) 서비스와 SSL 종단 처리를 전통적 웹 서버에서 처리할 수 있습니다.
 
 <!-- In the Nginx configuration example below, Nginx will serve the site's static assets and proxy requests to the Octane server that is running on port 8000: -->
 아래 Nginx 설정 예시에서 Nginx는 사이트의 정적 자산을 서비스하고, 8000번 포트에서 실행 중인 Octane 서버로 요청을 프록시합니다:

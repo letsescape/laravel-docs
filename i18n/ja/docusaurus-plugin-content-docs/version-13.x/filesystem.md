@@ -719,10 +719,10 @@ $path = Storage::putFileAs(
 ```
 
 > [!WARNING]
-> `storeAs` または `putFileAs` のファイル名引数に、ユーザー入力をそのまま使用しないでください。攻撃者が `shell.php` のような名前を指定すると、Web からアクセス可能な場合、保存したファイルが PHP として実行されるおそれがあります。保存するファイル名には `hashName()` またはシステムが生成した識別子を使用し、表示に元のファイル名が必要な場合は別途保存してください。
+> `storeAs` または `putFileAs` のファイル名引数を、ユーザー入力に基づいて決めてはいけません。攻撃者が `shell.php` のような名前を指定すると、Web からアクセス可能な場合、保存したファイルが PHP として実行されるおそれがあります。保存するファイル名には `hashName()` またはシステムが生成した識別子を使用し、表示に元のファイル名が必要な場合は別途保存してください。
 
 > [!WARNING]
-> ファイルパスに含まれる印字できない文字や無効な Unicode 文字は、自動的に削除されます。そのため、Laravel のファイルストレージメソッドに渡す前に、ファイルパスをサニタイズしてください。ファイルパスは `League\Flysystem\WhitespacePathNormalizer::normalizePath` メソッドを使って正規化されます。
+> ファイルパスに含まれる印字できない文字や無効な Unicode 文字は、自動的に削除されます。そのため、Laravel のファイルストレージメソッドに渡す前に、ファイルパスをサニタイズすることを検討してください。ファイルパスは `League\Flysystem\WhitespacePathNormalizer::normalizePath` メソッドを使って正規化されます。
 
 <a name="specifying-a-disk"></a>
 <!-- #### Specifying a Disk -->

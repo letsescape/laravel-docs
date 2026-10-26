@@ -2999,7 +2999,7 @@ use Illuminate\Validation\Rule;
 때로는 unique 유효성 검증 중에 지정한 ID를 무시하고 싶을 수 있습니다. 예를 들어 사용자의 이름, 이메일 주소, 위치를 포함하는 "프로필 수정" 화면을 생각해 보겠습니다. 일반적으로 이메일 주소가 고유한지 확인하고 싶을 것입니다. 하지만 사용자가 이메일 필드는 그대로 두고 이름 필드만 변경했다면, 해당 사용자가 이미 그 이메일 주소의 소유자이므로 유효성 검증 오류가 발생해서는 안 됩니다.
 
 <!-- To instruct the validator to ignore the user's ID, we'll use the `Rule` class to fluently define the rule. -->
-Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용해 규칙을 유연하게 정의합니다.
+Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용해 규칙을 플루언트 방식으로 정의합니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -3374,7 +3374,7 @@ Validator::validate($input, [
 ## Validating Files
 
 <!-- Laravel provides a variety of validation rules that may be used to validate uploaded files, such as `mimes`, `image`, `min`, and `max`. While you are free to specify these rules individually when validating files, Laravel also offers a fluent file validation rule builder that you may find convenient: -->
-Laravel은 업로드된 파일을 검증하는 데 사용할 수 있는 `mimes`, `image`, `min`, `max`와 같은 다양한 유효성 검증 규칙을 제공합니다. 파일을 검증할 때 이러한 규칙을 개별적으로 지정해도 되지만, Laravel은 편리하게 사용할 수 있는 유연한 파일 유효성 검증 규칙 빌더도 제공합니다.
+Laravel은 업로드된 파일을 검증하는 데 사용할 수 있는 `mimes`, `image`, `min`, `max`와 같은 다양한 유효성 검증 규칙을 제공합니다. 파일을 검증할 때 이러한 규칙을 개별적으로 지정해도 되지만, Laravel은 편리하게 사용할 수 있는 플루언트 파일 유효성 검증 규칙 빌더도 제공합니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;

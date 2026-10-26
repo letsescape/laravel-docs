@@ -256,7 +256,7 @@ Laravel の組み込み検証ルールには、それぞれエラー メッセ�
 #### The `@error` Directive
 
 <!-- You may use the `@error` [Blade](/docs/13.x/blade) directive to quickly determine if validation error messages exist for a given attribute. Within an `@error` directive, you may echo the `$message` variable to display the error message: -->
-`@error` [Blade](/docs/13.x/blade) ディレクティブを使用すると、特定の属性に検証エラー メッセージが存在するかどうかを迅速に判断できます。 `@error` ディレクティブ内で、`$message` 変数をエコーし​​てエラー メッセージを表示できます。
+`@error` [Blade](/docs/13.x/blade) ディレクティブを使用すると、特定の属性に検証エラー メッセージが存在するかどうかを迅速に判断できます。 `@error` ディレクティブ内で、`$message` 変数をエコーしてエラー メッセージを表示できます。
 
 ```blade
 <!-- /resources/views/post/create.blade.php -->
@@ -972,7 +972,7 @@ $validated = $request->safe()->all();
 ```
 
 <!-- In addition, the `Illuminate\Support\ValidatedInput` instance may be iterated over and accessed like an array: -->
-さらに、`Illuminate\Support\ValidatedInput` インスタンスは配列のように反復され、アクセスされる場合があります。
+さらに、`Illuminate\Support\ValidatedInput` インスタンスは配列のように反復処理し、アクセスできます。
 
 ```php
 // Validated data may be iterated...
@@ -1447,7 +1447,7 @@ Validator::fakeDnsLookups();
 ```
 
 <!-- For convenience, date-based rules may be constructed using the fluent `date` rule builder: -->
-便宜上、日付ベースのルールは、滑らかな `date` ルール ビルダを使用して構築できます。
+便宜上、日付ベースのルールは、Fluent `date` ルール ビルダを使用して構築できます。
 
 ```php
 use Illuminate\Validation\Rule;
@@ -1459,7 +1459,7 @@ use Illuminate\Validation\Rule;
 ```
 
 <!-- The `afterToday` and `todayOrAfter` methods may be used to fluently express the date and must be after today, or today or after, respectively: -->
-`afterToday` メソッドと `todayOrAfter` メソッドは日付をスムーズに表現するために使用でき、それぞれ今日より後、または今日以降である必要があります。
+`afterToday` メソッドと `todayOrAfter` メソッドを使用すると、日付がそれぞれ今日より後、または今日以降であるという条件を Fluent API で表現できます。
 
 ```php
 'start_date' => [
@@ -1476,7 +1476,7 @@ use Illuminate\Validation\Rule;
 検証対象のフィールドは、指定された日付以降の値である必要があります。詳細については、[after](#rule-after) ルールを参照してください。
 
 <!-- For convenience, date-based rules may be constructed using the fluent `date` rule builder: -->
-便宜上、日付ベースのルールは、滑らかな `date` ルール ビルダを使用して構築できます。
+便宜上、日付ベースのルールは、Fluent `date` ルール ビルダを使用して構築できます。
 
 ```php
 use Illuminate\Validation\Rule;
@@ -1626,7 +1626,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 検証対象のフィールドは、指定された日付より前の値である必要があります。日付は、有効な `DateTime` インスタンスに変換されるために、PHP `strtotime` 関数に渡されます。さらに、[after](#rule-after) ルールと同様に、検証中の別のフィールドの名前を `date` の値として指定することもできます。
 
 <!-- For convenience, date-based rules may also be constructed using the fluent `date` rule builder: -->
-便宜上、日付ベースのルールは、滑らかな `date` ルール ビルダを使用して構築することもできます。
+便宜上、日付ベースのルールは、Fluent `date` ルール ビルダを使用して構築することもできます。
 
 ```php
 use Illuminate\Validation\Rule;
@@ -1638,7 +1638,7 @@ use Illuminate\Validation\Rule;
 ```
 
 <!-- The `beforeToday` and `todayOrBefore` methods may be used to fluently express the date and must be before today, or today or before, respectively: -->
-`beforeToday` メソッドと `todayOrBefore` メソッドは日付をスムーズに表現するために使用でき、それぞれ今日より前、または今日以前である必要があります。
+`beforeToday` メソッドと `todayOrBefore` メソッドを使用すると、日付がそれぞれ今日より前、または今日以前であるという条件を Fluent API で表現できます。
 
 ```php
 'start_date' => [
@@ -1655,7 +1655,7 @@ use Illuminate\Validation\Rule;
 検証対象のフィールドは、指定された日付以前の値である必要があります。日付は、有効な `DateTime` インスタンスに変換されるために、PHP `strtotime` 関数に渡されます。さらに、[after](#rule-after) ルールと同様に、検証中の別のフィールドの名前を `date` の値として指定することもできます。
 
 <!-- For convenience, date-based rules may also be constructed using the fluent `date` rule builder: -->
-便宜上、日付ベースのルールは、滑らかな `date` ルール ビルダを使用して構築することもできます。
+便宜上、日付ベースのルールは、Fluent `date` ルール ビルダを使用して構築することもできます。
 
 ```php
 use Illuminate\Validation\Rule;
@@ -1716,7 +1716,7 @@ use Illuminate\Validation\Rule;
 #### contains:_foo_,_bar_,...
 
 <!-- The field under validation must be an array that contains all of the given parameter values. Since this rule often requires you to `implode` an array, the `Rule::contains` method may be used to fluently construct the rule: -->
-検証対象のフィールドは、指定されたパラメータ値をすべて含む配列である必要があります。このルールでは配列を `implode` する必要があることが多いため、ルールをスムーズに構築するために `Rule::contains` メソッドを使用できます。
+検証対象のフィールドは、指定されたパラメータ値をすべて含む配列である必要があります。このルールでは配列を `implode` する必要があることが多いため、ルールを Fluent API で構築するために `Rule::contains` メソッドを使用できます。
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -1736,7 +1736,7 @@ Validator::make($data, [
 #### doesnt_contain:_foo_,_bar_,...
 
 <!-- The field under validation must be an array that does not contain any of the given parameter values. Since this rule often requires you to `implode` an array, the `Rule::doesntContain` method may be used to fluently construct the rule: -->
-検証対象のフィールドは、指定されたパラメータ値を含まない配列である必要があります。このルールでは配列を `implode` する必要があることが多いため、ルールをスムーズに構築するために `Rule::doesntContain` メソッドを使用できます。
+検証対象のフィールドは、指定されたパラメータ値を含まない配列である必要があります。このルールでは配列を `implode` する必要があることが多いため、ルールを Fluent API で構築するために `Rule::doesntContain` メソッドを使用できます。
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -1803,7 +1803,7 @@ use Illuminate\Validation\Rule;
 検証中のフィールドは、指定された_formats_のいずれかに一致する必要があります。フィールドを検証するときは、`date` または `date_format` の両方ではなく、**どちらか** を使用する必要があります。この検証ルールは、PHP の [DateTime](https://www.php.net/manual/en/class.datetime.php) クラスでサポートされるすべての形式をサポートします。
 
 <!-- For convenience, date-based rules may be constructed using the fluent `date` rule builder: -->
-便宜上、日付ベースのルールは、滑らかな `date` ルール ビルダを使用して構築できます。
+便宜上、日付ベースのルールは、Fluent `date` ルール ビルダを使用して構築できます。
 
 ```php
 use Illuminate\Validation\Rule;
@@ -1893,7 +1893,7 @@ _min\_ratio_ および _max\_ratio_ 制約を使用して、許容されるア�
 ```
 
 <!-- Since this rule requires several arguments, it is often more convenient to use the `Rule::dimensions` method to fluently construct the rule: -->
-このルールには複数の引数が必要なため、多くの場合、`Rule::dimensions` メソッドを使用してルールをスムーズに構築する方が便利です。
+このルールには複数の引数が必要なため、多くの場合、`Rule::dimensions` メソッドを使用してルールを Fluent API で構築する方が便利です。
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -1911,7 +1911,7 @@ Validator::make($data, [
 ```
 
 <!-- You may also use the `minRatio`, `maxRatio`, and `ratioBetween` methods to fluently define ratio constraints: -->
-`minRatio`、`maxRatio`、および `ratioBetween` メソッドを使用して、比率制約をスムーズに定義することもできます。
+`minRatio`、`maxRatio`、および `ratioBetween` メソッドを使用して、比率制約を Fluent API で定義することもできます。
 
 ```php
 Rule::dimensions()->ratioBetween(min: 1 / 2, max: 3 / 2);
@@ -1983,7 +1983,7 @@ Distinct は、デフォルトで緩い変数比較を使用します。厳密�
 - `rfc`: `RFCValidation` - [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs) に従って電子メール アドレスを検証します。
 - `strict`: `NoRFCWarningsValidation` - [supported RFCs](https://github.com/egulias/EmailValidator?tab=readme-ov-file#supported-rfcs) に従って電子メールを検証し、警告 (例: 末尾のピリオドや複数の連続するピリオド) が見つかった場合は失敗します。
 - `dns`: `DNSCheckValidation` - 電子メール アドレスのドメインに有効な MX レコードがあることを確認します。
-- `spoof`: `SpoofCheckValidation` - 電子メール アドレスに同形異義語や欺瞞的な Unicode 文字が含まれていないことを確認してください。
+- `spoof`: `SpoofCheckValidation` - 電子メール アドレスに、見た目が似た別の文字（ホモグラフ）や、誤認を誘う Unicode 文字が含まれていないことを確認します。
 - `filter`: `FilterEmailValidation` - 電子メール アドレスが PHP の `filter_var` 関数に従って有効であることを確認します。
 - `filter_unicode`: `FilterEmailValidation::unicode()` - 電子メール アドレスが PHP の `filter_var` 関数に従って有効であることを確認し、一部の Unicode 文字を許可します。
 
@@ -2060,7 +2060,7 @@ Validator::validate($input, [
 #### enum
 
 <!-- The `Enum` rule is a class-based rule that validates whether the field under validation contains a valid enum value. The `Enum` rule accepts the name of the enum as its only constructor argument. When validating primitive values, a backed Enum should be provided to the `Enum` rule: -->
-`Enum` ルールは、検証対象のフィールドに有効な列挙値が含まれているかどうかを検証するクラスベースのルールです。 `Enum` ルールは、列挙型の名前を唯一のコンストラクター引数として受け入れます。プリミティブ値を検証するときは、裏付けされた Enum を `Enum` ルールに提供する必要があります。
+`Enum` ルールは、検証対象のフィールドに有効な列挙値が含まれているかどうかを検証するクラスベースのルールです。 `Enum` ルールは、列挙型の名前を唯一のコンストラクター引数として受け入れます。プリミティブ値を検証するときは、値を持つ列挙型（Backed Enum）を `Enum` ルールに提供する必要があります。
 
 ```php
 use App\Enums\ServerStatus;
@@ -2208,7 +2208,7 @@ _anotherfield_ フィールドが存在しない場合、検証中のフィー�
 ```
 
 <!-- If you would like to customize the query executed by the validation rule, you may use the `Rule` class to fluently define the rule. -->
-検証ルールによって実行されるクエリをカスタマイズしたい場合は、`Rule` クラスを使用してルールをスムーズに定義できます。
+検証ルールによって実行されるクエリをカスタマイズしたい場合は、`Rule` クラスを使用してルールを Fluent API で定義できます。
 
 ```php
 use Illuminate\Database\Query\Builder;
@@ -2254,7 +2254,7 @@ Validator::make($data, [
 ```
 
 > [!WARNING]
-> ユーザーが割り当てた拡張子のみによるファイルの検証に依存しないでください。通常、このルールは常に [mimes](#rule-mimes) ルールまたは [mimetypes](#rule-mimetypes) ルールと組み合わせて使用​​する必要があります。
+> ユーザーが割り当てた拡張子のみによるファイルの検証に依存しないでください。通常、このルールは常に [mimes](#rule-mimes) ルールまたは [mimetypes](#rule-mimetypes) ルールと組み合わせて使用する必要があります。
 
 <a name="rule-file"></a>
 <!-- #### file -->
@@ -2306,7 +2306,7 @@ Validator::make($data, [
 #### in:_foo_,_bar_,...
 
 <!-- The field under validation must be included in the given list of values. Since this rule often requires you to `implode` an array, the `Rule::in` method may be used to fluently construct the rule: -->
-検証中のフィールドは、指定された値のリストに含まれている必要があります。このルールでは配列を `implode` する必要があることが多いため、ルールをスムーズに構築するために `Rule::in` メソッドを使用できます。
+検証中のフィールドは、指定された値のリストに含まれている必要があります。このルールでは配列を `implode` する必要があることが多いため、ルールを Fluent API で構築するために `Rule::in` メソッドを使用できます。
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -2373,7 +2373,7 @@ Validator::make($input, [
 ```
 
 > [!WARNING]
-> この検証ルールは、入力が「整数」変数タイプであることを検証するのではなく、入力が PHP の `FILTER_VALIDATE_INT` ルールで受け入れられるタイプであることのみを検証します。入力が数値であることを検証する必要がある場合は、このルールを [the `numeric` validation rule](#rule-numeric) と組み合わせて使用​​してください。
+> この検証ルールは、入力が「整数」変数タイプであることを検証するのではなく、入力が PHP の `FILTER_VALIDATE_INT` ルールで受け入れられるタイプであることのみを検証します。入力が数値であることを検証する必要がある場合は、このルールを [the `numeric` validation rule](#rule-numeric) と組み合わせて使用してください。
 
 <a name="rule-ip"></a>
 <!-- #### ip -->
@@ -2544,7 +2544,7 @@ _anotherfield_ フィールドがいずれかの _value_ と等しい場合、�
 #### missing_unless:_anotherfield_,_value_
 
 <!-- The field under validation must not be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ フィールドがいずれかの _value_ と等しくない限り、検証中のフィールドは存在してはなりません。
+_anotherfield_ フィールドがいずれかの _value_ と等しい場合を除き、検証中のフィールドは存在してはなりません。
 
 <a name="rule-missing-with"></a>
 <!-- #### missing_with:_foo_,_bar_,... -->
@@ -2565,7 +2565,7 @@ _anotherfield_ フィールドがいずれかの _value_ と等しくない限�
 #### not_in:_foo_,_bar_,...
 
 <!-- The field under validation must not be included in the given list of values. The `Rule::notIn` method may be used to fluently construct the rule: -->
-検証中のフィールドは、指定された値のリストに含めてはなりません。 `Rule::notIn` メソッドを使用すると、ルールをスムーズに構築できます。
+検証中のフィールドは、指定された値のリストに含めてはなりません。 `Rule::notIn` メソッドを使用すると、ルールを Fluent API で構築できます。
 
 ```php
 use Illuminate\Validation\Rule;
@@ -2628,7 +2628,7 @@ _anotherfield_ フィールドがいずれかの _value_ と等しい場合、�
 #### present_unless:_anotherfield_,_value_
 
 <!-- The field under validation must be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ フィールドがいずれかの _value_ と等しくない限り、検証対象のフィールドが存在する必要があります。
+_anotherfield_ フィールドがいずれかの _value_ と等しい場合を除き、検証対象のフィールドが存在する必要があります。
 
 <a name="rule-present-with"></a>
 <!-- #### present_with:_foo_,_bar_,... -->
@@ -2922,7 +2922,7 @@ Validator::make($request->all(), [
 検証対象のフィールドは文字列である必要があります。フィールドを `null` にすることも許可したい場合は、フィールドに `nullable` ルールを割り当てる必要があります。
 
 <!-- For convenience, string validation rules may also be constructed using the fluent `Rule::string()` rule builder: -->
-便宜上、文字列検証ルールは、滑らかな `Rule::string()` ルール ビルダを使用して構築することもできます。
+便宜上、文字列検証ルールは、Fluent `Rule::string()` ルール ビルダを使用して構築することもできます。
 
 ```php
 use Illuminate\Validation\Rule;
@@ -3005,7 +3005,7 @@ use Illuminate\Validation\Rule;
 場合によっては、一意の検証中に特定の ID を無視したい場合があります。たとえば、ユーザーの名前、電子メール アドレス、場所が含まれる「プロフィールの更新」画面を考えてみましょう。おそらく、電子メール アドレスが一意であることを確認する必要があるでしょう。ただし、ユーザーが名前フィールドのみを変更し、電子メール フィールドを変更しない場合、ユーザーはすでに問題の電子メール アドレスの所有者であるため、検証エラーがスローされることは望ましくありません。
 
 <!-- To instruct the validator to ignore the user's ID, we'll use the `Rule` class to fluently define the rule. -->
-ユーザーの ID を無視するようにバリデーターに指示するには、`Rule` クラスを使用してルールをスムーズに定義します。
+ユーザーの ID を無視するようにバリデーターに指示するには、`Rule` クラスを使用してルールを Fluent API で定義します。
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -3177,7 +3177,7 @@ $validator = Validator::make($data, [
 上記の例では、`email` フィールドは、`$data` 配列に存在する場合にのみ検証されます。
 
 > [!NOTE]
-> 常に存在する必要があるフィールドが空である可能性があることを検証しようとしている場合は、[this note on optional fields](#a-note-on-optional-fields) をチェックしてください。
+> 常に存在する必要がある一方、空の値を許容するフィールドを検証する場合は、[this note on optional fields](#a-note-on-optional-fields) を確認してください。
 
 <a name="complex-conditional-validation"></a>
 <!-- #### Complex Conditional Validation -->
@@ -3196,7 +3196,7 @@ $validator = Validator::make($request->all(), [
 ```
 
 <!-- Let's assume our web application is for game collectors. If a game collector registers with our application and they own more than 100 games, we want them to explain why they own so many games. For example, perhaps they run a game resale shop, or maybe they just enjoy collecting games. To conditionally add this requirement, we can use the `sometimes` method on the `Validator` instance. -->
-Web アプリケーションがゲーム コレクター向けであると仮定しましょう。ゲームコレクターが当社のアプリケーションに登録し、100 以上のゲームを所有している場合、なぜそんなに多くのゲームを所有しているのか説明してもらいたいと考えています。たとえば、ゲームの再販ショップを経営しているかもしれませんし、単にゲームを収集するのが趣味かもしれません。この要件を条件付きで追加するには、`Validator` インスタンスで `sometimes` メソッドを使用します。
+Web アプリケーションがゲーム コレクター向けであると仮定しましょう。ゲームコレクターが当社のアプリケーションに登録し、100 を超える数のゲームを所有している場合、なぜそんなに多くのゲームを所有しているのか説明してもらいたいと考えています。たとえば、ゲームの再販ショップを経営しているかもしれませんし、単にゲームを収集するのが趣味かもしれません。この要件を条件付きで追加するには、`Validator` インスタンスで `sometimes` メソッドを使用します。
 
 ```php
 use Illuminate\Support\Fluent;
@@ -3216,7 +3216,7 @@ $validator->sometimes(['reason', 'cost'], 'required', function (Fluent $input) {
 ```
 
 > [!NOTE]
-> クロージャーに渡される `$input` パラメーターは `Illuminate\Support\Fluent` のインスタンスとなり、検証中の入力およびファイルにアクセスするために使用される場合があります。
+> クロージャーに渡される `$input` パラメーターは `Illuminate\Support\Fluent` のインスタンスとなり、検証中の入力およびファイルにアクセスするために使用できます。
 
 <a name="complex-conditional-array-validation"></a>
 <!-- #### Complex Conditional Array Validation -->
@@ -3380,7 +3380,7 @@ Validator::validate($input, [
 ## Validating Files
 
 <!-- Laravel provides a variety of validation rules that may be used to validate uploaded files, such as `mimes`, `image`, `min`, and `max`. While you are free to specify these rules individually when validating files, Laravel also offers a fluent file validation rule builder that you may find convenient: -->
-Laravel は、`mimes`、`image`、`min`、`max` など、アップロードされたファイルの検証に使用できるさまざまな検証ルールを提供します。ファイルを検証するときにこれらのルールを個別に自由に指定できますが、Laravel では、便利だと思われる滑らかなファイル検証ルール ビルダも提供しています。
+Laravel は、`mimes`、`image`、`min`、`max` など、アップロードされたファイルの検証に使用できるさまざまな検証ルールを提供します。ファイルを検証するときにこれらのルールを個別に自由に指定できますが、Laravel では、便利だと思われる Fluent ファイル検証ルール ビルダも提供しています。
 
 ```php
 use Illuminate\Support\Facades\Validator;

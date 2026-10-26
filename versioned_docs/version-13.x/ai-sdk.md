@@ -324,7 +324,7 @@ public function provider(): Provider
 ```
 
 > [!NOTE]
-> 위 예시처럼 온디맨드 프로바이더는 배열에 전달해야 합니다. 온디맨드 프로바이더의 설정 배열에 `name`을 지정하면, 해당 이름이 기본 제공 프로바이더나 `config/ai.php` 설정 파일에 정의된 프로바이더와 일치하지 않을 수 있습니다.
+> 위 예시처럼 온디맨드 프로바이더는 배열에 전달해야 합니다. 온디맨드 프로바이더의 설정 배열에 `name`을 지정할 때는 기본 제공 프로바이더나 `config/ai.php` 설정 파일에 정의된 프로바이더와 같은 이름을 사용해서는 안 됩니다.
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -2015,7 +2015,7 @@ public function handle(PendingStep $step, Closure $next)
 ```
 
 <!-- Middleware must return the result of `$next`, a `StepResponse`, or `StepResult::stop()`. Return a `StepResponse` to answer the step without invoking the model, such as when serving a cached response. Return `StepResult::stop()` to end the run. Any other return value causes a `LogicException`. -->
-미들웨어는 `$next`, `StepResponse` 또는 `StepResult::stop()`의 결과를 반환해야 합니다. 캐시된 응답을 제공하는 경우처럼 모델을 호출하지 않고 단계에 응답하려면 `StepResponse`를 반환합니다. 실행을 종료하려면 `StepResult::stop()`을 반환합니다. 그 외의 반환 값은 `LogicException`을 발생시킵니다.
+미들웨어는 `$next`의 결과, `StepResponse` 또는 `StepResult::stop()`을 반환해야 합니다. 캐시된 응답을 제공하는 경우처럼 모델을 호출하지 않고 단계에 응답하려면 `StepResponse`를 반환합니다. 실행을 종료하려면 `StepResult::stop()`을 반환합니다. 그 외의 반환 값은 `LogicException`을 발생시킵니다.
 
 <a name="stopping-runs"></a>
 <!-- #### Stopping Runs -->
@@ -3060,7 +3060,7 @@ $reranked = $posts->rerank(
 ## Classification
 
 > [!WARNING]
-> 분류 기능은 현재 실험 단계이며, AI SDK의 API는 향후 마이너 릴리스에서 변경될 수 있습니다.
+> 분류 기능은 현재 실험 단계이며, 이 기능의 API는 향후 AI SDK의 마이너 릴리스에서 변경될 수 있습니다.
 
 <!-- Classification allows you to ask a fixed set of questions about a given string or array of data and receive a typed answer, backed by a probability, for each question instead of free-form text. This is useful for routing, moderation, and scoring, where you need to compare an answer against a threshold or make assertions about it in your tests. -->
 분류를 사용하면 주어진 문자열이나 데이터 배열에 대해 정해진 질문 집합을 하고, 자유 형식의 텍스트 대신 각 질문에 대해 확률이 함께 제공되는 타입이 지정된 답변을 받을 수 있습니다. 이는 답변을 임계값과 비교하거나 테스트에서 답변에 대한 단정을 작성해야 하는 라우팅, 모더레이션, 스코어링에 유용합니다.

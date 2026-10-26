@@ -324,7 +324,7 @@ public function provider(): Provider
 ```
 
 > [!NOTE]
-> オンデマンドプロバイダは、上記の例のように配列で渡してください。オンデマンドプロバイダの設定配列で `name` を指定する場合、その名前は組み込みプロバイダや `config/ai.php` 設定ファイルで定義したプロバイダと一致しないことがあります。
+> オンデマンドプロバイダは、上記の例のように配列で渡してください。オンデマンドプロバイダの設定配列で `name` を指定する場合、組み込みプロバイダや `config/ai.php` 設定ファイルで定義したプロバイダと同じ名前を使用してはいけません。
 
 <a name="provider-support"></a>
 <!-- ### Provider Support -->
@@ -3675,7 +3675,7 @@ $response->reasoning; // 'They asked about pricing.'
 > 構造化出力を返すエージェントに対して `Agent::fake()` を呼び出し、フェイク出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致するフェイクデータを自動的に生成します。
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
-エージェントにプロンプ​​トを出した後、受け取ったプロンプトについてアサーションを行うことができます。
+エージェントにプロンプトを出した後、受け取ったプロンプトについてアサーションを行うことができます。
 
 ```php
 use Laravel\Ai\Prompts\AgentPrompt;

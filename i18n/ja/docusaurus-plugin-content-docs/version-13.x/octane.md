@@ -345,10 +345,10 @@ stopwaitsecs=3600
 > 独自のサーバー構成を管理する準備がまだ整っていない場合、または堅牢な Laravel Octane アプリケーションを実行するために必要なさまざまなサービスをすべて構成することに慣れていない場合は、フルマネージド Laravel Octane サポートを提供する [Laravel Cloud](https://cloud.laravel.com) をチェックしてください。
 
 <!-- In production environments, you should serve your Octane application behind a traditional web server such as Nginx or Apache. Doing so will allow the web server to serve your static assets such as images and stylesheets, as well as manage your SSL certificate termination. -->
-運用環境では、Nginx や Apache などの従来の Web サーバーの背後で Octane アプリケーションを提供する必要があります。これにより、Web サーバーが画像やスタイルシートなどの静的資産を提供したり、SSL 証明書の終了を管理したりできるようになります。
+運用環境では、Nginx や Apache などの従来の Web サーバーの背後で Octane アプリケーションを提供する必要があります。これにより、Web サーバーが画像やスタイルシートなどの静的資産を提供したり、SSL の終端処理を管理したりできるようになります。
 
 <!-- In the Nginx configuration example below, Nginx will serve the site's static assets and proxy requests to the Octane server that is running on port 8000: -->
-以下の Nginx 構成例では、Nginx はサイトの静的アセットとプロキシ リクエストをポート 8000 で実行されている Octane サーバーに提供します。
+以下の Nginx 構成例では、Nginx はサイトの静的アセットを配信し、リクエストをポート 8000 で実行されている Octane サーバーにプロキシします。
 
 ```nginx
 map $http_upgrade $connection_upgrade {
@@ -694,7 +694,7 @@ public function index(Request $request): array
 > この機能には [Swoole](#swoole) が必要です。
 
 <!-- When using Swoole, you may execute operations concurrently via light-weight background tasks. You may accomplish this using Octane's `concurrently` method. You may combine this method with PHP array destructuring to retrieve the results of each operation: -->
-Swoole を使用する場合、軽量のバックグラウンド タスクを介して操作を同時に実行できます。これは、Octane の `concurrently` メソッドを使用して実現できます。このメソッドと PHP 配列の構造化を組み合わせて、各操作の結果を取得できます。
+Swoole を使用する場合、軽量のバックグラウンド タスクを介して操作を同時に実行できます。これは、Octane の `concurrently` メソッドを使用して実現できます。このメソッドと PHP の配列の分割代入を組み合わせて、各操作の結果を取得できます。
 
 ```php
 use App\Models\User;
@@ -752,7 +752,7 @@ Octane::tick('simple-ticker', fn () => ray('Ticking...'))
 > この機能には [Swoole](#swoole) が必要です。
 
 <!-- When using Swoole, you may leverage the Octane cache driver, which provides read and write speeds of up to 2 million operations per second. Therefore, this cache driver is an excellent choice for applications that need extreme read / write speeds from their caching layer. -->
-Swoole を使用する場合は、1 秒あたり最大 200 万回の読み取りおよび書き込み速度を提供する Octane キャッシュ ドライバを利用できます。したがって、このキャッシュ ドライバは、キャッシュ層から​​の非常に高い読み取り/書き込み速度を必要とするアプリケーションにとって優れた選択肢です。
+Swoole を使用する場合は、1 秒あたり最大 200 万回の読み取りおよび書き込み速度を提供する Octane キャッシュ ドライバを利用できます。したがって、このキャッシュ ドライバは、キャッシュ層からの非常に高い読み取り/書き込み速度を必要とするアプリケーションにとって優れた選択肢です。
 
 <!-- This cache driver is powered by [Swoole tables](https://www.swoole.co.uk/docs/modules/swoole-table). All data stored in the cache is available to all workers on the server. However, the cached data will be flushed when the server is restarted: -->
 このキャッシュ ドライバは [Swoole tables](https://www.swoole.co.uk/docs/modules/swoole-table) によって動作します。キャッシュに保存されているすべてのデータは、サーバー上のすべてのワーカーが利用できます。ただし、キャッシュされたデータはサーバーが再起動されるとフラッシュされます。

@@ -2447,7 +2447,7 @@ _anotherfield_ フィールドがいずれかの _value_ と等しい場合、�
 #### missing_unless:_anotherfield_,_value_
 
 <!-- The field under validation must not be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ フィールドがいずれかの _value_ と等しくない限り、検証中のフィールドは存在してはなりません。
+_anotherfield_ フィールドがいずれかの _value_ と等しい場合を除き、検証中のフィールドは存在してはなりません。
 
 <a name="rule-missing-with"></a>
 <!-- #### missing_with:_foo_,_bar_,... -->
@@ -2534,7 +2534,7 @@ _anotherfield_ フィールドがいずれかの _value_ と等しい場合、�
 #### present_unless:_anotherfield_,_value_
 
 <!-- The field under validation must be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ フィールドがいずれかの _value_ と等しくない限り、検証対象のフィールドが存在する必要があります。
+_anotherfield_ フィールドがいずれかの _value_ と等しい場合を除き、検証対象のフィールドが存在する必要があります。
 
 <a name="rule-present-with"></a>
 <!-- #### present_with:_foo_,_bar_,... -->
