@@ -496,6 +496,20 @@ svg[class*="text-laravel-red"] path {
   fill: currentColor !important;
 }
 
+.theme-doc-markdown :is(.collection-method-list, #collection-method-list) > p {
+  columns: 10.8em 3;
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+
+.theme-doc-markdown :is(.collection-method-list, #collection-method-list) a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+}
+
 /*
  * Laravel-style admonitions
  * ─────────────────────────
