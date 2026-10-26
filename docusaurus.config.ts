@@ -45,6 +45,7 @@ const DOCUMENT_SOURCE_ROOTS = [
   path.join(SITE_DIR, 'i18n', DEFAULT_LOCALE, 'docusaurus-plugin-content-docs'),
 ];
 const SITEMAP_LASTMOD = process.env.DOCUSAURUS_SITEMAP_LASTMOD === '0' ? null : 'date';
+const CHAT_LOCAL_DEMO = process.env.LARAVEL_CHAT_LOCAL_DEMO;
 const DOCS_LATEST_REDIRECT_SCRIPT = `
 (function () {
   var latest = ${JSON.stringify(LATEST_STABLE)};
@@ -79,6 +80,13 @@ const config: Config = {
   // For GitHub Pages deployment, it is often '/<projectName>/'.
   baseUrl: '/',
   trailingSlash: true,
+  customFields: {
+    chat: {
+      sdkUrl: process.env.LARAVEL_CHAT_SDK_URL ?? (CHAT_LOCAL_DEMO ? '/__chat/__sdk/index.js' : ''),
+      endpoint: process.env.LARAVEL_CHAT_API_URL ?? (CHAT_LOCAL_DEMO ? '/__chat/v1/chat' : ''),
+      browserManifestUrl: process.env.LARAVEL_CHAT_BROWSER_MANIFEST_URL ?? '',
+    },
+  },
   headTags: [
     {
       tagName: 'script',
@@ -164,6 +172,8 @@ const config: Config = {
   themes: [],
 
   plugins: [
+    ...(process.env.LARAVEL_CHAT_PUBLICATION_REVISION ? ['./src/plugins/chat-publication.mjs'] : []),
+    ...(CHAT_LOCAL_DEMO ? [['./src/plugins/chat-local-proxy.mjs', {target: CHAT_LOCAL_DEMO}]] : []),
     [
       '@docusaurus/plugin-content-docs',
       {

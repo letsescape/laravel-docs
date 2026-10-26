@@ -2,6 +2,7 @@ import React from 'react';
 import Head from '@docusaurus/Head';
 import Translate, {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import ChatWidget from '@site/src/components/ChatWidget';
 
 const TRANSLATION_IN_PROGRESS_LOCALES = new Set(['en']);
 
@@ -40,6 +41,7 @@ function Root({children}: Readonly<{children: React.ReactNode}>): React.ReactEle
         </div>
       )}
       {children}
+      <ChatWidget />
     </>
   );
 }

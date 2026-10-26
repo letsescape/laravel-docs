@@ -99,6 +99,8 @@ jobs:
         run: npm run test:markdown-links
       - name: Security boundary tests
         run: npm run test:security
+      - name: Chat integration tests
+        run: npm run test:chat
       - name: Typecheck
         run: npm run typecheck -- --pretty false
       - name: Build website

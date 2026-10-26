@@ -1,4 +1,4 @@
-.PHONY: help dev check claude init speckit translate translation-run translation-test site-test site-check preflight
+.PHONY: help dev check claude init speckit translate translation-run translation-test site-test site-check preflight chat-build chat-index
 
 .DEFAULT_GOAL := help
 
@@ -55,9 +55,17 @@ translation-test: ## translation sync 단위 테스트
 		PYTHONPATH=. uv run --locked --python 3.14 \
 		python -m unittest discover -s tests
 
-site-test: ## Markdown 링크와 보안 경계 단위 테스트
+site-test: ## 문서·보안·채팅 연결 단위 테스트
 	@npm run test:markdown-links
 	@npm run test:security
+	@npm run test:chat
+	@npm run test:chat-index
+
+chat-build: ## 게시 정보를 포함한 새 문서 빌드 (ARGS="--output tmp/chat-publication")
+	@npm run chat:build -- $(ARGS)
+
+chat-index: ## 문서 채팅 색인 준비 (ARGS="sqlite|browser|openai --output ...")
+	@npm run chat:index -- $(ARGS)
 
 site-check: site-test ## 배포와 같은 사이트 검증
 	@npm run typecheck -- --pretty false
