@@ -145,7 +145,7 @@ XAI_API_KEY=
     'anthropic' => [
         'driver' => 'anthropic',
         'key' => env('ANTHROPIC_API_KEY'),
-        'url' => env('ANTHROPIC_BASE_URL'),
+        'url' => env('ANTHROPIC_URL'),
     ],
 ],
 ```
@@ -357,7 +357,7 @@ use Laravel\Ai\Enums\Lab;
 
 Lab::Anthropic;
 Lab::OpenAI;
-Lab::OpenAiCompatible;
+Lab::OpenAICompatible;
 Lab::Gemini;
 // ...
 ```
