@@ -69,6 +69,8 @@ npm run build
 
 SDK 호스트는 `sdk/dist/` 전체의 상대 경로를 유지해야 합니다. 외부 호스트를 쓰면 SDK와 API에서 문서 사이트 origin의 요청을 허용해야 합니다. SDK를 사이트에 함께 배포한다면 SDK URL에 `/chat-sdk/index.js` 같은 경로를 사용할 수 있습니다.
 
+GitHub Actions 배포에서는 저장소 변수 `LARAVEL_CHAT_SDK_URL`·`LARAVEL_CHAT_API_URL`을 설정합니다. 브라우저 로컬 실행을 제공하면 `LARAVEL_CHAT_BROWSER_MANIFEST_URL`도 설정합니다. API와 SDK 연결 검증이 끝난 뒤 `LARAVEL_CHAT_ENABLED`를 `true`로 지정해야 배포 빌드에 URL을 전달합니다. 이 값이 없거나 `true`가 아니면 위젯을 비활성화한 사이트를 빌드합니다. 위의 직접 빌드 명령에는 이 활성화 변수가 필요하지 않습니다.
+
 `LARAVEL_CHAT_BROWSER_MANIFEST_URL`을 명시하면 로컬 모델 선택을 연결합니다. 생략하면 기본 서버 채팅만 사용합니다. 개발 프록시를 쓸 때는 같은 문서 release의 색인을 제공하는 `/__chat/__browser/manifest.json`을 지정할 수 있습니다. 브라우저 색인 호스트도 문서 사이트 origin의 요청을 허용해야 합니다. 피드백 수집은 연결하지 않습니다.
 
 위젯은 게시 revision을 전달하지 않습니다. 기본 API는 질문과 이전 대화에 버전이 없으면 기본 안정 버전을 사용합니다. 특정 버전이 필요하면 질문에 명시합니다. 로컬 검색은 현재 페이지의 버전과 언어를 사용합니다.
