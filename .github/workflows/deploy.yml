@@ -104,6 +104,10 @@ jobs:
       - name: Typecheck
         run: npm run typecheck -- --pretty false
       - name: Build website
+        env:
+          LARAVEL_CHAT_SDK_URL: ${{ vars.LARAVEL_CHAT_ENABLED == 'true' && vars.LARAVEL_CHAT_SDK_URL || '' }}
+          LARAVEL_CHAT_API_URL: ${{ vars.LARAVEL_CHAT_ENABLED == 'true' && vars.LARAVEL_CHAT_API_URL || '' }}
+          LARAVEL_CHAT_BROWSER_MANIFEST_URL: ${{ vars.LARAVEL_CHAT_ENABLED == 'true' && vars.LARAVEL_CHAT_BROWSER_MANIFEST_URL || '' }}
         run: npm run build
       - name: Build output tests
         env:
