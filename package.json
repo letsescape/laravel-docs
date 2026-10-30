@@ -46,6 +46,7 @@
     "@docusaurus/types": "^3.10.1",
     "@docusaurus/utils": "^3.10.2",
     "mdast-util-to-string": "^4.0.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "remark-parse": "^11.0.0",
