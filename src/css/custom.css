@@ -181,7 +181,7 @@ body {
 }
 
 /* Target SVGs with inline width and height attributes */
-:not(.hero-illustration-svg):not(.nav-social-icon) > svg[width][height]:not(.footer-social-svg):not(.cta-arrow-icon):not(.nav-dd-doc-icon):not(.nav-mobile-chevron) path {
+:not(.hero-illustration-svg):not(.nav-social-icon) > svg[width][height]:not(.footer-social-svg):not(.cta-arrow-icon):not(.nav-dd-doc-icon):not(.nav-mobile-chevron):not(.docs-print-qr) path {
   fill: var(--svg-logo-color) !important;
 }
 
@@ -579,4 +579,183 @@ blockquote.admonition-warning::before {
 [data-theme='dark'] blockquote.admonition-warning {
   --admonition-border: rgba(245, 48, 3, 0.45);
   background: rgba(245, 48, 3, 0.15);
+}
+
+.docs-print-header {
+  display: none;
+}
+
+@media print {
+  @page docs {
+    margin: 15mm;
+  }
+
+  html.docs-doc-page {
+    --ifm-background-color: #fff;
+    --ifm-font-color-base: #111;
+    --ifm-heading-color: #111;
+    --ifm-link-color: #111;
+    --ifm-color-content: #111;
+    --ifm-color-content-secondary: #333;
+    color-scheme: light;
+    background: #fff;
+  }
+
+  html.docs-doc-page body {
+    page: docs;
+    color: #111;
+    background: #fff;
+  }
+
+  html.docs-doc-page,
+  html.docs-doc-page body {
+    position: static;
+    overflow: visible !important;
+    height: auto;
+    min-width: 0;
+  }
+
+  html.docs-doc-page :is(
+    .navbar, .theme-announcement-bar, .translation-banner, .hp-footer,
+    .theme-doc-sidebar-container, .theme-doc-toc-desktop, .theme-doc-toc-mobile,
+    .theme-doc-breadcrumbs, .theme-doc-version-banner, .theme-doc-version-badge,
+    .theme-doc-footer, .pagination-nav, .theme-back-to-top-button,
+    .hash-link, .DocSearch-Container
+  ),
+  html.docs-doc-page .theme-code-block button,
+  html.docs-doc-page main > .container > .row > .col--3 {
+    display: none;
+  }
+
+  html.docs-doc-page .main-wrapper,
+  html.docs-doc-page .main-wrapper > div,
+  html.docs-doc-page .main-wrapper > div > div,
+  html.docs-doc-page main,
+  html.docs-doc-page main > .container,
+  html.docs-doc-page main > .container > .row,
+  html.docs-doc-page main > .container > .row > .col:not(.col--3) {
+    display: block;
+    width: auto;
+    max-width: none !important;
+    min-height: 0;
+    margin: 0;
+    padding: 0 !important;
+  }
+
+  html.docs-doc-page .docs-print-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #aaa;
+    break-inside: avoid;
+    break-after: avoid;
+  }
+
+  html.docs-doc-page .docs-print-header a {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 0.85rem;
+  }
+
+  html.docs-doc-page .docs-print-qr {
+    flex-shrink: 0;
+    width: 30mm;
+    height: 30mm;
+  }
+
+  html.docs-doc-page .theme-doc-markdown {
+    overflow-wrap: anywhere;
+  }
+
+  html.docs-doc-page .theme-doc-markdown a {
+    color: #111;
+    text-decoration: underline;
+  }
+
+  html.docs-doc-page .theme-doc-markdown :is(h1, h2, h3, h4, h5, h6) {
+    break-after: avoid;
+  }
+
+  html.docs-doc-page .theme-doc-markdown h1 {
+    font-size: 1.8rem;
+  }
+
+  html.docs-doc-page .theme-doc-markdown h2 {
+    font-size: 1.4rem;
+  }
+
+  html.docs-doc-page .theme-doc-markdown :is(p, li) {
+    orphans: 3;
+    widows: 3;
+  }
+
+  html.docs-doc-page :is(.theme-code-block, pre, code, blockquote.admonition, table, tr, th, td),
+  html.docs-doc-page pre span {
+    color: #111 !important;
+    background: transparent !important;
+    box-shadow: none;
+    text-shadow: none;
+  }
+
+  html.docs-doc-page .theme-code-block {
+    border: 1px solid #bbb;
+  }
+
+  html.docs-doc-page :is(pre, blockquote.admonition),
+  html.docs-doc-page pre code {
+    display: block;
+    overflow: visible;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    break-inside: auto;
+  }
+
+  html.docs-doc-page pre code {
+    float: none;
+    min-width: 0;
+  }
+
+  html.docs-doc-page blockquote.admonition {
+    white-space: normal;
+    border: 1px solid #888;
+    border-left: 3px solid #555;
+  }
+
+  html.docs-doc-page blockquote.admonition::before {
+    display: none;
+  }
+
+  html.docs-doc-page blockquote.admonition-warning::before {
+    content: '!';
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 0;
+    background: none;
+    font-weight: bold;
+  }
+
+  html.docs-doc-page .theme-doc-markdown table {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    overflow: visible;
+  }
+
+  html.docs-doc-page .theme-doc-markdown :is(th, td) {
+    border-color: #aaa;
+  }
+
+  html.docs-doc-page .theme-doc-markdown :is(tr, img) {
+    break-inside: avoid;
+  }
+
+  html.docs-doc-page .theme-doc-markdown :is(.collection-method-list, #collection-method-list) a {
+    overflow: visible;
+    white-space: normal;
+    text-overflow: clip;
+  }
 }

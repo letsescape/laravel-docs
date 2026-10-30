@@ -25,7 +25,7 @@ export default function AnnouncementBar(): ReactNode {
 
   return (
     <aside
-      className={styles.notice}
+      className={`theme-announcement-bar ${styles.notice}`}
       aria-label={translate({
         id: 'theme.securityNotice.label',
         message: '중요 보안 공지',
