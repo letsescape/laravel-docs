@@ -63,7 +63,8 @@ test.describe('Document printing', () => {
   }
 
   test('prints code, tables, and method names without horizontal clipping', async ({page}) => {
-    await page.setViewportSize({width: 680, height: 900});
+    const viewportWidth = 680;
+    await page.setViewportSize({width: viewportWidth, height: 900});
     await page.goto(docsPath('collections'));
     await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
     await page.emulateMedia({media: 'print', colorScheme: 'dark'});
@@ -74,6 +75,8 @@ test.describe('Document printing', () => {
         .map(element => element.textContent?.slice(0, 80)),
     );
     expect(clipped).toEqual([]);
+    expect(await page.locator('html').evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(viewportWidth + 1);
+    expect(await content.evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(viewportWidth + 1);
     await expect(content.locator('blockquote.admonition-warning').first()).toBeVisible();
     await expect(content.locator('pre code').first()).toHaveCSS('float', 'none');
 
@@ -82,6 +85,8 @@ test.describe('Document printing', () => {
     expect(await page.locator('.theme-doc-markdown table').evaluateAll(tables =>
       tables.every(table => table.scrollWidth <= table.clientWidth + 1),
     )).toBe(true);
+    expect(await page.locator('html').evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(viewportWidth + 1);
+    expect(await content.evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(viewportWidth + 1);
   });
 
   test('updates the QR source on client navigation and leaves the homepage unchanged', async ({page}) => {
