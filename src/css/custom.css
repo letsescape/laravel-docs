@@ -609,9 +609,9 @@ blockquote.admonition-warning::before {
 
   html.docs-doc-page,
   html.docs-doc-page body {
-    position: static !important;
+    position: static;
     overflow: visible !important;
-    height: auto !important;
+    height: auto;
     min-width: 0;
   }
 
@@ -624,7 +624,7 @@ blockquote.admonition-warning::before {
   ),
   html.docs-doc-page .theme-code-block button,
   html.docs-doc-page main > .container > .row > .col--3 {
-    display: none !important;
+    display: none;
   }
 
   html.docs-doc-page .main-wrapper,
@@ -633,7 +633,7 @@ blockquote.admonition-warning::before {
   html.docs-doc-page main,
   html.docs-doc-page main > .container,
   html.docs-doc-page main > .container > .row,
-  html.docs-doc-page main > .container > .row > .col {
+  html.docs-doc-page main > .container > .row > .col:not(.col--3) {
     display: block;
     width: auto;
     max-width: none !important;

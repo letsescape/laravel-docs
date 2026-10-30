@@ -21,12 +21,16 @@ test.describe('Document printing', () => {
       await expect(page.locator('body')).toHaveCSS('color', 'rgb(17, 17, 17)');
       await expect(page.locator('.docs-print-qr path').first()).toHaveCSS('fill', 'rgb(255, 255, 255)');
       await expect(page.locator('.docs-print-qr path').last()).toHaveCSS('fill', 'rgb(0, 0, 0)');
+      const code = page.locator('.theme-code-block pre').first();
+      await expect(code).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+      await expect(code.locator('span[style]').first()).toHaveCSS('color', 'rgb(17, 17, 17)');
 
       for (const selector of [
         '.navbar', '.theme-announcement-bar', '.hp-footer',
         '.theme-doc-sidebar-container', '.theme-doc-toc-desktop',
         '.theme-doc-toc-mobile', '.theme-doc-breadcrumbs',
         '.theme-doc-footer', '.pagination-nav', '.theme-back-to-top-button',
+        'main > .container > .row > .col--3',
       ]) {
         await expect(page.locator(selector)).toBeHidden();
       }
@@ -36,6 +40,7 @@ test.describe('Document printing', () => {
 
       const article = await page.locator('article').boundingBox();
       expect(article!.x).toBeLessThanOrEqual(1);
+      expect(article!.y).toBeLessThanOrEqual(1);
       expect(article!.width).toBeGreaterThanOrEqual(page.viewportSize()!.width - 2);
 
       await page.emulateMedia({media: 'screen'});
@@ -116,5 +121,8 @@ test.describe('Document printing', () => {
     await expect(page.locator('body')).toHaveCSS('position', 'static');
     await expect(page.locator('body')).toHaveCSS('overflow', 'visible');
     await expect(page.locator('.theme-doc-markdown')).toBeVisible();
+    const body = await page.locator('body').boundingBox();
+    const article = await page.locator('article').boundingBox();
+    expect(body!.height).toBeGreaterThanOrEqual(article!.height);
   });
 });
