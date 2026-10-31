@@ -6,6 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 import autoLanguagePlugin from './src/remark/auto-language-plugin';
 import replacePlaceholdersPlugin from './src/remark/replace-placeholders';
 import anchorMappingPlugin from './src/remark/anchor-mapping';
+import documentTocPlugin from './src/remark/document-toc';
 import githubAdmonitionPlugin from './src/remark/github-admonition';
 import styleJsxCleanupPlugin from './src/remark/style-jsx-cleanup';
 import methodClassPlugin from './src/remark/method-class';
@@ -189,6 +190,7 @@ const config: Config = {
             },
           ],
           anchorMappingPlugin,
+          documentTocPlugin,
         ],
         remarkPlugins: [
           styleJsxCleanupPlugin,
