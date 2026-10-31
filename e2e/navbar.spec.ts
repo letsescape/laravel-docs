@@ -656,12 +656,15 @@ test.describe('Navbar — Localized homepage links', () => {
       await page.setViewportSize({width: 390, height: 844});
       await page.goto(`${prefix}/`);
       await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      const previousOverflow = await page.evaluate(() => document.body.style.overflow);
       await page.locator('.nav-mobile-hamburger').click();
+      await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
       await page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'}).press('Enter');
       await expect(page).toHaveURL(new RegExp(`${prefix}/docs/${latestDocsVersion.replace('.', '\\.')}/?$`));
       await expect(page.locator('html')).toHaveAttribute('lang', locale);
       await expect(page.locator('article')).toBeVisible();
       await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
+      await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe(previousOverflow);
     });
 
     test(`${locale} 모바일 메뉴 포커스가 활성 패널 안에서 순환`, async ({page}) => {
@@ -676,36 +679,94 @@ test.describe('Navbar — Localized homepage links', () => {
       await page.keyboard.press('Shift+Tab');
       await expect(docsLink).toBeFocused();
 
-      await page.locator('button.nav-mobile-menu-item', {hasText: 'Framework'}).press('Enter');
-      const back = page.locator('.nav-mobile-back');
-      await expect(back).toBeFocused();
-      const lastLink = page.locator('.nav-mobile-submenu').getByRole('link', {name: 'Laravel Learn', exact: true});
-      await lastLink.focus();
-      await page.keyboard.press('Tab');
-      await expect(back).toBeFocused();
-      await page.keyboard.press('Shift+Tab');
-      await expect(lastLink).toBeFocused();
-      await back.press('Enter');
-      await expect(page.locator('.nav-mobile-close').first()).toBeFocused();
-      await expect(page.locator('.nav-mobile-overlay')).toBeVisible();
+      for (const {menu, lastItem} of [{menu: 'Framework', lastItem: 'Laravel Learn'}, {menu: 'Products', lastItem: 'Nova'}]) {
+        const trigger = page.locator('button.nav-mobile-menu-item', {hasText: menu});
+        await trigger.press('Enter');
+        const back = page.locator('.nav-mobile-back');
+        await expect(back).toBeFocused();
+        const lastLink = page.locator('.nav-mobile-submenu').getByRole('link', {name: lastItem, exact: true});
+        await lastLink.focus();
+        await page.keyboard.press('Tab');
+        await expect(back).toBeFocused();
+        await page.keyboard.press('Shift+Tab');
+        await expect(lastLink).toBeFocused();
+        await back.press('Enter');
+        await expect(trigger).toBeFocused();
+        await expect(page.locator('.nav-mobile-overlay')).toBeVisible();
+      }
     });
 
-    test(`${locale} 모바일 Escape와 닫기 버튼으로 닫으면 포커스 복귀`, async ({page}) => {
-      await page.setViewportSize({width: 390, height: 844});
-      await page.goto(`${prefix}/`);
-      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
-      const hamburger = page.locator('.nav-mobile-hamburger');
-      await hamburger.press('Enter');
-      await page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'}).focus();
-      await page.keyboard.press('Escape');
-      await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
-      await expect(hamburger).toBeFocused();
-      await hamburger.press('Enter');
-      await page.locator('button.nav-mobile-menu-item', {hasText: 'Framework'}).press('Enter');
-      await page.locator('.nav-mobile-subpanel .nav-mobile-close').press('Enter');
-      await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
-      await expect(hamburger).toBeFocused();
-    });
+    for (const width of [390, 768]) {
+      test(`${locale} ${width}px 모바일 Escape와 닫기 버튼으로 닫으면 포커스와 스크롤 복귀`, async ({page}) => {
+        await page.setViewportSize({width, height: 844});
+        await page.goto(`${prefix}/`);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        const previousOverflow = width === 390 ? 'auto' : '';
+        await page.evaluate((overflow) => { document.body.style.overflow = overflow; }, previousOverflow);
+        const hamburger = page.locator('.nav-mobile-hamburger');
+        await hamburger.press('Enter');
+        const menu = page.getByRole('dialog', {name: 'Navigation menu'});
+        await expect(menu).toBeVisible();
+        await expect(hamburger).toHaveAttribute('aria-expanded', 'true');
+        await expect(menu.locator('.nav-mobile-close').first()).toBeFocused();
+        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+        await page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'}).focus();
+        await page.keyboard.press('Escape');
+        await expect(menu).toHaveCount(0);
+        await expect(hamburger).toBeFocused();
+        await expect(hamburger).toHaveAttribute('aria-expanded', 'false');
+        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe(previousOverflow);
+        await hamburger.press('Space');
+        await page.locator('button.nav-mobile-menu-item', {hasText: 'Framework'}).press('Enter');
+        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+        await page.locator('.nav-mobile-subpanel .nav-mobile-close').press('Enter');
+        await expect(menu).toHaveCount(0);
+        await expect(hamburger).toBeFocused();
+        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe(previousOverflow);
+      });
+    }
+
+    for (const submenu of [null, 'Framework', 'Products']) {
+      test(`${locale} ${submenu ?? '기본'} 메뉴가 1024px 전환 시 닫히고 해당 메뉴로 포커스 복귀`, async ({page}) => {
+        await page.setViewportSize({width: 1023, height: 844});
+        await page.goto(`${prefix}/`);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        await page.evaluate(() => { document.body.style.overflow = 'auto'; });
+        const hamburger = page.locator('.nav-mobile-hamburger');
+        await hamburger.press('Enter');
+        if (submenu) {
+          await page.locator('button.nav-mobile-menu-item', {hasText: submenu}).press('Enter');
+        }
+        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+        await page.setViewportSize({width: 1024, height: 844});
+        await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
+        await expect(page.locator(`#trigger-${(submenu ?? 'Framework').toLowerCase()}`)).toBeFocused();
+        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('auto');
+        await page.setViewportSize({width: 768, height: 844});
+        await hamburger.press('Enter');
+        await expect(page.locator('a.nav-mobile-menu-item', {hasText: 'Docs'})).toBeVisible();
+        await expect(page.locator('.nav-mobile-close').first()).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('auto');
+      });
+    }
+
+    for (const shortcut of ['Control+k', 'Meta+k']) {
+      test(`${locale} 모바일 메뉴의 ${shortcut}로 검색 입력에 포커스 이동`, async ({page}) => {
+        await page.setViewportSize({width: shortcut === 'Control+k' ? 390 : 768, height: 844});
+        await page.goto(`${prefix}/`);
+        await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+        await page.locator('.nav-mobile-hamburger').press('Enter');
+        await page.locator('button.nav-mobile-menu-item', {hasText: 'Products'}).press('Enter');
+        await page.keyboard.press(shortcut);
+        await expect(page.locator('.nav-mobile-overlay')).toHaveCount(0);
+        await expect(page.locator('.DocSearch-Modal')).toBeVisible();
+        await expect(page.locator('.DocSearch-Input')).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(page.locator('.DocSearch-Modal')).toHaveCount(0);
+        await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
+      });
+    }
 
     for (const width of [1280, 390]) {
       test(`${locale} ${width}px 홈 메뉴에서 문서 언어 유지`, async ({page}) => {

@@ -58,14 +58,42 @@ export default function NavbarDropdowns({mobileMenuOpen, onMobileMenuClose}: Rea
   const [mobileSubMenu, setMobileSubMenu] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileSubMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const closeMobileMenu = useCallback(() => {
+    mobileSubMenuTriggerRef.current = null;
     setMobileSubMenu(null);
     onMobileMenuClose();
   }, [onMobileMenuClose]);
 
   useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const closeOnDesktop = () => {
+      if (!desktop.matches) return;
+      const menuName = mobileSubMenuTriggerRef.current?.dataset.menu ?? 'framework';
+      closeMobileMenu();
+      wrapperRef.current?.querySelector<HTMLButtonElement>(`#trigger-${menuName}`)?.focus({preventScroll: true});
+    };
+    desktop.addEventListener('change', closeOnDesktop);
+    closeOnDesktop();
+
+    return () => {
+      desktop.removeEventListener('change', closeOnDesktop);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileMenuOpen, closeMobileMenu]);
+
+  useEffect(() => {
     if (mobileMenuOpen) {
+      if (!mobileSubMenu && mobileSubMenuTriggerRef.current) {
+        mobileSubMenuTriggerRef.current.focus({preventScroll: true});
+        mobileSubMenuTriggerRef.current = null;
+        return;
+      }
       mobileMenuRef.current
         ?.querySelector<HTMLElement>('.nav-mobile-panel:not([inert]) button')
         ?.focus({preventScroll: true});
@@ -73,6 +101,10 @@ export default function NavbarDropdowns({mobileMenuOpen, onMobileMenuClose}: Rea
   }, [mobileMenuOpen, mobileSubMenu]);
 
   function handleMobileMenuKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      closeMobileMenu();
+      return;
+    }
     if (e.key === 'Escape') {
       e.preventDefault();
       closeMobileMenu();
@@ -613,7 +645,7 @@ export default function NavbarDropdowns({mobileMenuOpen, onMobileMenuClose}: Rea
               <nav className="nav-mobile-menu">
                 {/* Resources/Events 임시 비활성화 */}
                 {(['framework', 'products'] as const).map(name => (
-                  <button key={name} className="nav-mobile-menu-item" onClick={() => setMobileSubMenu(name)}>
+                  <button key={name} className="nav-mobile-menu-item" data-menu={name} onClick={e => { mobileSubMenuTriggerRef.current = e.currentTarget; setMobileSubMenu(name); }}>
                     <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c0c0c0" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="nav-mobile-chevron">
                       <path d="M8.25 4.5l7.5 7.5-7.5 7.5" fill="none"/>
