@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback, type ReactNode} from 'react';
-import {useColorMode} from '@docusaurus/theme-common';
+import Link from '@docusaurus/Link';
 import {docsPath} from '@site/src/utils/docs';
 import './homepage.css';
 
@@ -50,23 +50,51 @@ function ChevronDown({open}: Readonly<{open: boolean}>): ReactNode {
   );
 }
 
-export default function NavbarDropdowns(): ReactNode {
+export default function NavbarDropdowns({mobileMenuOpen, onMobileMenuClose}: Readonly<{
+  mobileMenuOpen: boolean;
+  onMobileMenuClose: () => void;
+}>): ReactNode {
   const [openDropdown, setOpenDropdown] = useState<DropdownName | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSubMenu, setMobileSubMenu] = useState<string | null>(null);
-  const [mobileThemeMode, setMobileThemeMode] = useState<'light' | 'dark' | 'system'>('system');
-  const {setColorMode} = useColorMode();
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Synchronize mobileThemeMode with the stored preference on mount
+  const closeMobileMenu = useCallback(() => {
+    setMobileSubMenu(null);
+    onMobileMenuClose();
+  }, [onMobileMenuClose]);
+
   useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'light' || stored === 'dark') {
-      setMobileThemeMode(stored);
-    } else {
-      setMobileThemeMode('system');
+    if (mobileMenuOpen) {
+      mobileMenuRef.current
+        ?.querySelector<HTMLElement>('.nav-mobile-panel:not([inert]) button')
+        ?.focus({preventScroll: true});
     }
-  }, []);
+  }, [mobileMenuOpen, mobileSubMenu]);
+
+  function handleMobileMenuKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeMobileMenu();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+
+    const panel = e.currentTarget.querySelector('.nav-mobile-panel:not([inert])');
+    const controls = panel?.querySelectorAll<HTMLElement>('a[href], button');
+    const first = controls?.[0];
+    const last = controls?.[controls.length - 1];
+    if (!first || !last) return;
+
+    if (e.shiftKey && (document.activeElement === first || !panel?.contains(document.activeElement))) {
+      e.preventDefault();
+      last.focus({preventScroll: true});
+    } else if (!e.shiftKey && (document.activeElement === last || !panel?.contains(document.activeElement))) {
+      e.preventDefault();
+      first.focus({preventScroll: true});
+    }
+  }
+
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [randomPartners, setRandomPartners] = useState(() => ALL_PARTNERS.slice(0, 6));
   useEffect(() => {
@@ -155,7 +183,7 @@ export default function NavbarDropdowns(): ReactNode {
             <ChevronDown open={isOpen(name)} />
           </button>
         ))}
-        <a href={docsPath()} className="nav-docs-link">Docs</a>
+        <Link to={docsPath()} className="nav-docs-link">Docs</Link>
       </div>
 
       {/* Framework */}
@@ -166,20 +194,20 @@ export default function NavbarDropdowns(): ReactNode {
             <div className="nav-dd-col">
               <h3 className="nav-dd-heading">Explore Laravel</h3>
               <ul className="nav-dd-list">
-                <li><a href="/" className="nav-dd-item-link">
+                <li><Link to="/" className="nav-dd-item-link" onClick={() => setOpenDropdown(null)}>
                   <img src="/img/nav/fw-overview.png" alt="" className="nav-dd-icon" />
                   <div>
                     <span className="nav-dd-item-name">Overview</span>
                     <span className="nav-dd-item-desc">Discover the magic of Laravel</span>
                   </div>
-                </a></li>
-                <li><a href={docsPath('releases')} className="nav-dd-item-link">
+                </Link></li>
+                <li><Link to={docsPath('releases')} className="nav-dd-item-link">
                   <img src="/img/nav/fw-changelog.png" alt="" className="nav-dd-icon" />
                   <div>
                     <span className="nav-dd-item-name">Changelog</span>
                     <span className="nav-dd-item-desc">Read the latest changes</span>
                   </div>
-                </a></li>
+                </Link></li>
                 <li><a href="https://laravel.com/learn" className="nav-dd-item-link">
                   <img src="/img/nav/fw-learn.png" alt="" className="nav-dd-icon" />
                   <div>
@@ -220,46 +248,46 @@ export default function NavbarDropdowns(): ReactNode {
             <div className="nav-dd-col nav-dd-col-docs">
               <h3 className="nav-dd-heading">Documentation</h3>
               <ul className="nav-dd-list nav-dd-list-simple">
-                <li><a href={docsPath()} className="nav-dd-link nav-dd-doc-link">
+                <li><Link to={docsPath()} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M4.3335 5.00016L5.66683 6.3335L4.3335 7.66683M6.3335 7.66683H7.66683M2.3335 2.3335H13.6668V13.6668H2.3335V2.3335Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Installation
-                </a></li>
-                <li><a href={docsPath('ai')} className="nav-dd-link nav-dd-doc-link">
+                </Link></li>
+                <li><Link to={docsPath('ai')} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" fillRule="evenodd" clipRule="evenodd" d="M14.3332 7.99984C9.93502 7.99984 7.99984 9.93502 7.99984 14.3332C7.99984 9.93502 6.06465 7.99984 1.6665 7.99984C6.06465 7.99984 7.99984 6.06465 7.99984 1.6665C7.99984 6.06465 9.93502 7.99984 14.3332 7.99984Z" stroke="currentColor" strokeLinejoin="round"/>
                   </svg>
                   Agent Setup
-                </a></li>
-                <li><a href={docsPath('eloquent')} className="nav-dd-link nav-dd-doc-link">
+                </Link></li>
+                <li><Link to={docsPath('eloquent')} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M13 3.42576C13 4.39738 10.7614 5.18502 8 5.18502C5.23858 5.18502 3 4.39738 3 3.42576M13 3.42576C13 2.45415 10.7614 1.6665 8 1.6665C5.23858 1.6665 3 2.45415 3 3.42576M13 3.42576V12.5739C13 13.5455 10.7614 14.3332 8 14.3332C5.23858 14.3332 3 13.5455 3 12.5739V3.42576M13 7.92562C13 8.89723 10.7614 9.68488 8 9.68488C5.23858 9.68488 3 8.89723 3 7.92562" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Eloquent ORM
-                </a></li>
-                <li><a href={docsPath('artisan')} className="nav-dd-link nav-dd-doc-link">
+                </Link></li>
+                <li><Link to={docsPath('artisan')} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M3 4.3335L6.66667 8.00016L3 11.6668M8.33333 11.6668H13" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Artisan Console
-                </a></li>
-                <li><a href={docsPath('routing')} className="nav-dd-link nav-dd-doc-link">
+                </Link></li>
+                <li><Link to={docsPath('routing')} className="nav-dd-link nav-dd-doc-link">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="nav-dd-doc-icon">
                     <path fill="none" d="M7.99984 5.66683V2.3335H12.9998L14.3332 4.00016L12.9998 5.66683H7.99984ZM7.99984 5.66683V9.00016M7.99984 5.66683H2.99984L1.6665 7.3335L2.99984 9.00016H7.99984M7.99984 9.00016V13.6668M7.99984 13.6668H5.6665M7.99984 13.6668H10.3332" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Routing
-                </a></li>
+                </Link></li>
               </ul>
-              <a href={docsPath()} className="nav-dd-link nav-dd-viewall" style={{display: 'flex', alignItems: 'center', gap: 4}}>
+              <Link to={docsPath()} className="nav-dd-link nav-dd-viewall" style={{display: 'flex', alignItems: 'center', gap: 4}}>
                 View all
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
                   <path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" />
                 </svg>
-              </a>
+              </Link>
             </div>
             {/* Starter kits */}
-            <a href={docsPath('starter-kits')} className="nav-dd-col nav-dd-col-starter">
+            <Link to={docsPath('starter-kits')} className="nav-dd-col nav-dd-col-starter">
               <span className="nav-dd-starter-label">
                 <span>Starter kits</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="12" height="12" className="nav-dd-starter-arrow">
@@ -270,7 +298,7 @@ export default function NavbarDropdowns(): ReactNode {
                 <img src="/img/nav/fw-starter-cards.svg" alt="Starter kits preview" className="nav-dd-starter-img nav-dd-starter-img--light" />
                 <img src="/img/nav/fw-starter-cards-dark.svg" alt="Starter kits preview" className="nav-dd-starter-img nav-dd-starter-img--dark" />
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       )}
@@ -566,69 +594,17 @@ export default function NavbarDropdowns(): ReactNode {
           </div>
         </div>
       )}
-      {/* Mobile color mode toggle: cycles light → dark → system */}
-      <button
-        className="nav-mobile-mode-toggle"
-        aria-label="Toggle color mode"
-        onClick={() => {
-          const modes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
-          const idx = modes.indexOf(mobileThemeMode);
-          const next = modes[(idx + 1) % modes.length];
-          setMobileThemeMode(next);
-          try {
-            if (next === 'system') {
-              localStorage.removeItem('theme');
-              const prefersDark = globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false;
-              setColorMode(prefersDark ? 'dark' : 'light');
-            } else {
-              localStorage.setItem('theme', next);
-              setColorMode(next);
-            }
-          } catch {
-            // localStorage may be unavailable (private browsing, etc.)
-          }
-        }}
-      >
-        {mobileThemeMode === 'light' && (
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <path d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"/>
-          </svg>
-        )}
-        {mobileThemeMode === 'dark' && (
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <path d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"/>
-          </svg>
-        )}
-        {mobileThemeMode === 'system' && (
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <path d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"/>
-          </svg>
-        )}
-      </button>
-
-      {/* Mobile hamburger button */}
-      <button
-        className="nav-mobile-hamburger"
-        aria-label="Open menu"
-        onClick={() => setMobileMenuOpen(true)}
-      >
-        <svg width="22" height="22" viewBox="0 0 30 30" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-          <line x1="4" y1="11" x2="26" y2="11"/>
-          <line x1="4" y1="21" x2="26" y2="21"/>
-        </svg>
-      </button>
-
       {/* Mobile fullscreen overlay */}
       {mobileMenuOpen && (
-        <div className="nav-mobile-overlay" role="button" tabIndex={0} onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMobileMenuOpen(false); setMobileSubMenu(null); } }}>
+        <div ref={mobileMenuRef} id="homepage-mobile-menu" className="nav-mobile-overlay" role="dialog" aria-modal="true" aria-label="Navigation menu" tabIndex={-1} onClick={closeMobileMenu} onKeyDown={handleMobileMenuKeyDown}>
           <div className="nav-mobile-fullscreen" role="presentation" onClick={e => e.stopPropagation()}>
             {/* Main menu */}
-            <div className="nav-mobile-panel" style={{transform: mobileSubMenu ? 'translateX(-100%)' : 'translateX(0)'}}>
+            <div className="nav-mobile-panel" inert={mobileSubMenu !== null} style={{transform: mobileSubMenu ? 'translateX(-100%)' : 'translateX(0)'}}>
               <div className="nav-mobile-top">
                 <a href="https://laravel.com" className="nav-mobile-logo">
                   <img src="/img/logotype.min.svg" alt="Laravel" className="nav-logo-img" />
                 </a>
-                <button className="nav-mobile-close" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} aria-label="Close menu">
+                <button className="nav-mobile-close" onClick={closeMobileMenu} aria-label="Close menu">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 18L18 6M6 6l12 12"/>
                   </svg>
@@ -645,18 +621,18 @@ export default function NavbarDropdowns(): ReactNode {
                   </button>
                 ))}
                 {/*
-                <a href="https://laravel.com/community" className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
+                <a href="https://laravel.com/community" className="nav-mobile-menu-item" onClick={closeMobileMenu}>
                   <span>Events</span>
                 </a>
                 */}
-                <a href={docsPath()} className="nav-mobile-menu-item" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>
+                <Link to={docsPath()} className="nav-mobile-menu-item" onClick={closeMobileMenu}>
                   <span>Docs</span>
-                </a>
+                </Link>
               </nav>
             </div>
 
             {/* Submenu */}
-            <div className="nav-mobile-panel nav-mobile-subpanel" style={{transform: mobileSubMenu ? 'translateX(0)' : 'translateX(100%)'}}>
+            <div className="nav-mobile-panel nav-mobile-subpanel" inert={mobileSubMenu === null} style={{transform: mobileSubMenu ? 'translateX(0)' : 'translateX(100%)'}}>
               <div className="nav-mobile-top">
                 <button className="nav-mobile-back" onClick={() => setMobileSubMenu(null)}>
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className="nav-mobile-back-icon">
@@ -664,7 +640,7 @@ export default function NavbarDropdowns(): ReactNode {
                   </svg>
                   <span>{mobileSubMenu ? mobileSubMenu.charAt(0).toUpperCase() + mobileSubMenu.slice(1) : ''}</span>
                 </button>
-                <button className="nav-mobile-close" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }} aria-label="Close menu">
+                <button className="nav-mobile-close" onClick={closeMobileMenu} aria-label="Close menu">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 18L18 6M6 6l12 12"/>
                   </svg>
@@ -672,26 +648,26 @@ export default function NavbarDropdowns(): ReactNode {
               </div>
               <nav className="nav-mobile-submenu">
                 {mobileSubMenu === 'framework' && <>
-                  <a href="/" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Overview</a>
-                  <a href={docsPath('starter-kits')} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Starter Kits</a>
-                  <a href={docsPath('releases')} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Release Notes</a>
-                  <a href={docsPath()} className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Documentation</a>
-                  <a href="https://laravel.com/learn" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Laravel Learn</a>
+                  <Link to="/" className="nav-mobile-subitem" onClick={closeMobileMenu}>Overview</Link>
+                  <Link to={docsPath('starter-kits')} className="nav-mobile-subitem" onClick={closeMobileMenu}>Starter Kits</Link>
+                  <Link to={docsPath('releases')} className="nav-mobile-subitem" onClick={closeMobileMenu}>Release Notes</Link>
+                  <Link to={docsPath()} className="nav-mobile-subitem" onClick={closeMobileMenu}>Documentation</Link>
+                  <a href="https://laravel.com/learn" className="nav-mobile-subitem" onClick={closeMobileMenu}>Laravel Learn</a>
                 </>}
                 {mobileSubMenu === 'products' && <>
-                  <a href="https://cloud.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Laravel Cloud</a>
-                  <a href="https://forge.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Forge</a>
-                  <a href="https://nightwatch.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Nightwatch</a>
-                  <a href="https://nova.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Nova</a>
+                  <a href="https://cloud.laravel.com" className="nav-mobile-subitem" onClick={closeMobileMenu}>Laravel Cloud</a>
+                  <a href="https://forge.laravel.com" className="nav-mobile-subitem" onClick={closeMobileMenu}>Forge</a>
+                  <a href="https://nightwatch.laravel.com" className="nav-mobile-subitem" onClick={closeMobileMenu}>Nightwatch</a>
+                  <a href="https://nova.laravel.com" className="nav-mobile-subitem" onClick={closeMobileMenu}>Nova</a>
                 </>}
                 {/* Resources 서브메뉴 임시 비활성화(메인 메뉴 진입 경로 제거) */}
                 {SHOW_DISABLED_NAV && mobileSubMenu === 'resources' && <>
-                  <a href="https://laravel.com/blog" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Blog</a>
-                  <a href="https://laravel.com/partners" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Partners</a>
-                  <a href="https://laravel.com/careers" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Careers</a>
-                  <a href="https://trust.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Trust</a>
-                  <a href="https://laravel.com/legal" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Legal</a>
-                  <a href="https://status.laravel.com" className="nav-mobile-subitem" onClick={() => { setMobileMenuOpen(false); setMobileSubMenu(null); }}>Status</a>
+                  <a href="https://laravel.com/blog" className="nav-mobile-subitem" onClick={closeMobileMenu}>Blog</a>
+                  <a href="https://laravel.com/partners" className="nav-mobile-subitem" onClick={closeMobileMenu}>Partners</a>
+                  <a href="https://laravel.com/careers" className="nav-mobile-subitem" onClick={closeMobileMenu}>Careers</a>
+                  <a href="https://trust.laravel.com" className="nav-mobile-subitem" onClick={closeMobileMenu}>Trust</a>
+                  <a href="https://laravel.com/legal" className="nav-mobile-subitem" onClick={closeMobileMenu}>Legal</a>
+                  <a href="https://status.laravel.com" className="nav-mobile-subitem" onClick={closeMobileMenu}>Status</a>
                 </>}
               </nav>
             </div>

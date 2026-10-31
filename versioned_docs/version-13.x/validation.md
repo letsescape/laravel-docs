@@ -2496,6 +2496,9 @@ Validator::make($input, [
 <!-- This validation rule does not verify agreement between the MIME type and the extension the user assigned to the file. For example, the `mimes:png` validation rule would consider a file containing valid PNG content to be a valid PNG image, even if the file is named `photo.txt`. If you would like to validate the user-assigned extension of the file, you may use the [extensions](#rule-extensions) rule. -->
 이 유효성 검증 규칙은 MIME 타입과 사용자가 파일에 지정한 확장자가 일치하는지 확인하지 않습니다. 예를 들어 `mimes:png` 유효성 검증 규칙은 파일 이름이 `photo.txt`이더라도, 파일 내용이 유효한 PNG 콘텐츠라면 유효한 PNG 이미지로 간주합니다. 사용자가 지정한 파일 확장자를 검증하려면 [extensions](#rule-extensions) 규칙을 사용할 수 있습니다.
 
+> [!WARNING]
+> 이미지 유효성 검증을 통과하더라도 파일을 `.php` 확장자로 저장하면 PHP로 실행될 수 있습니다. GIF 또는 JPEG 매직 바이트로 시작하는 파일은 PHP 페이로드를 포함하면서도 `mimes:gif` 또는 `mimes:jpg` 유효성 검증을 통과할 수 있습니다. 업로드한 파일을 저장할 때는 항상 시스템이 생성한 파일 이름(예: `hashName()`)을 사용하고, 웹 서버에서 스토리지 디렉터리 내 PHP 실행을 차단하도록 설정하세요.
+
 <a name="rule-min"></a>
 <!-- #### min:_value_ -->
 #### min:_value_
@@ -2996,7 +2999,7 @@ use Illuminate\Validation\Rule;
 때로는 unique 유효성 검증 중에 지정한 ID를 무시하고 싶을 수 있습니다. 예를 들어 사용자의 이름, 이메일 주소, 위치를 포함하는 "프로필 수정" 화면을 생각해 보겠습니다. 일반적으로 이메일 주소가 고유한지 확인하고 싶을 것입니다. 하지만 사용자가 이메일 필드는 그대로 두고 이름 필드만 변경했다면, 해당 사용자가 이미 그 이메일 주소의 소유자이므로 유효성 검증 오류가 발생해서는 안 됩니다.
 
 <!-- To instruct the validator to ignore the user's ID, we'll use the `Rule` class to fluently define the rule. -->
-Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용해 규칙을 유연하게 정의합니다.
+Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용해 규칙을 플루언트 방식으로 정의합니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -3371,7 +3374,7 @@ Validator::validate($input, [
 ## Validating Files
 
 <!-- Laravel provides a variety of validation rules that may be used to validate uploaded files, such as `mimes`, `image`, `min`, and `max`. While you are free to specify these rules individually when validating files, Laravel also offers a fluent file validation rule builder that you may find convenient: -->
-Laravel은 업로드된 파일을 검증하는 데 사용할 수 있는 `mimes`, `image`, `min`, `max`와 같은 다양한 유효성 검증 규칙을 제공합니다. 파일을 검증할 때 이러한 규칙을 개별적으로 지정해도 되지만, Laravel은 편리하게 사용할 수 있는 유연한 파일 유효성 검증 규칙 빌더도 제공합니다.
+Laravel은 업로드된 파일을 검증하는 데 사용할 수 있는 `mimes`, `image`, `min`, `max`와 같은 다양한 유효성 검증 규칙을 제공합니다. 파일을 검증할 때 이러한 규칙을 개별적으로 지정해도 되지만, Laravel은 편리하게 사용할 수 있는 플루언트 파일 유효성 검증 규칙 빌더도 제공합니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;

@@ -36,7 +36,7 @@ import {
   fragmentTarget,
   sourceUrl,
 } from './anchor-routes.mjs';
-import {staleLinkResolution} from './stale-links.mjs';
+import {staleLinkResolution} from '../src/utils/stale-links.mjs';
 
 // Windows에서 `new URL(...).pathname`은 `/C:/...` 형식으로 나타나거나 공백을 `%20`으로 인코딩
 // `fs` API가 해석하지 못하므로 `fileURLToPath`로 플랫폼 독립 경로 획득

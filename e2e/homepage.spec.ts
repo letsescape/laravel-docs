@@ -9,7 +9,39 @@ async function expectNoHorizontalScroll(page: Page, maxWidth: number) {
   expect(scrollWidth).toBeLessThanOrEqual(maxWidth + 2);
 }
 
-for (const width of [320, 360, 390, 820, 941, 1024, 1280, 1440, 1920]) {
+test('Korean homepage text keeps words together when wrapping', async ({page}) => {
+  await page.goto('/');
+  const subtitle = page.locator('.hero-subtitle');
+  await expect(subtitle).toBeVisible();
+  for (const width of [1280, 1440, 768, 390, 320]) {
+    for (const fontSize of [16, 32]) {
+      await page.setViewportSize({width, height: 900});
+      await page.evaluate(async (size) => {
+        document.documentElement.style.fontSize = `${size}px`;
+        await document.fonts.ready;
+      }, fontSize);
+      const text = page.locator('.homepage h1, .homepage h2, .homepage h3, .homepage p');
+      const layouts = await text.evaluateAll((elements, size) => elements.map((element) => {
+        // 확대된 제목의 긴 단어는 가로 넘침을 막는 줄바꿈을 허용합니다.
+        const checkWordSplits = size === 16 || element.matches('.hero-subtitle');
+        const splitWords: string[] = [];
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+          for (const match of walker.currentNode.textContent!.matchAll(/\S+/g)) {
+            const range = document.createRange();
+            range.setStart(walker.currentNode, match.index!);
+            range.setEnd(walker.currentNode, match.index! + match[0].length);
+            if (range.getClientRects().length > 1) splitWords.push(match[0]);
+          }
+        }
+        return {text: element.textContent, splitWords, checkWordSplits, fits: element.scrollWidth <= element.clientWidth};
+      }), fontSize);
+      expect(layouts.filter(({splitWords, checkWordSplits, fits}) => (checkWordSplits && splitWords.length > 0) || !fits), `${width}px viewport, ${fontSize}px text`).toEqual([]);
+    }
+  }
+});
+
+for (const width of [320, 360, 390, 430, 431, 639, 640, 767, 768, 769, 820, 941, 1024, 1280, 1440, 1920]) {
   test(`Japanese hero keeps the stack phrase on one line at ${width}px`, async ({page}) => {
     await page.setViewportSize({width, height: 900});
     await page.goto('/ja/');
@@ -32,13 +64,17 @@ for (const width of [320, 360, 390, 820, 941, 1024, 1280, 1440, 1920]) {
       return results;
     });
 
-    expect(phrases).toEqual([
-      {text: 'Artisanとエージェントのための', lines: width < 768 ? 2 : 1},
-      {text: '無駄のないスタック。', lines: 1},
+    expect(phrases.map(({text}) => text)).toEqual([
+      'Artisanとエージェントのための',
+      '無駄のないスタック。',
     ]);
+    expect(phrases[0].lines).toBeGreaterThan(0);
+    expect(phrases[0].lines).toBeLessThanOrEqual(width < 768 ? 2 : 1);
+    expect(phrases[1].lines).toBe(1);
     const box = await page.locator('.hero-h1').boundingBox();
     expect(box!.x).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+    await expectNoHorizontalScroll(page, width);
   });
 }
 

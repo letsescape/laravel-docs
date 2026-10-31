@@ -45,7 +45,7 @@ Laravel의 파일 시스템 설정 파일은 `config/filesystems.php`에 위치�
 `local` 드라이버는 Laravel 애플리케이션이 실행 중인 서버에 저장된 파일과 직접 상호작용하며, `sftp` 드라이버는 SSH 키 기반의 FTP에 사용됩니다. `s3` 드라이버는 Amazon의 S3 클라우드 스토리지 서비스를 이용할 때 사용됩니다.
 
 > [!NOTE]
-> 원하는 만큼 다양한 디스크를 설정할 수 있으며, 동일한 드라이버를 사용하는 여러 디스크를 동시에 구성하는 것도 가능합니다.
+> 원하는 만큼 디스크를 구성할 수 있으며, 같은 드라이버를 사용하는 디스크를 여러 개 구성할 수도 있습니다.
 
 <a name="the-local-driver"></a>
 <!-- ### The Local Driver -->
@@ -195,7 +195,7 @@ Laravel의 Flysystem 통합 기능은 SFTP에서도 잘 동작하지만, 프레�
     // 'hostFingerprint' => env('SFTP_HOST_FINGERPRINT'),
     // 'maxTries' => 4,
     // 'passphrase' => env('SFTP_PASSPHRASE'),
-    // 'port' => env('SFTP_PORT', 22),
+    // 'port' => (int) env('SFTP_PORT', 22),
     // 'root' => env('SFTP_ROOT', ''),
     // 'timeout' => 30,
     // 'useAgent' => true,
@@ -374,7 +374,7 @@ $url = Storage::url('file.jpg');
 `local` 드라이버를 쓸 때는 공개적으로 접근 가능한 모든 파일이 `storage/app/public` 디렉터리에 있어야 합니다. 또한, `storage/app/public` 디렉터리를 가리키는 [create a symbolic link](#the-public-disk)를 `public/storage`에 생성해야 합니다.
 
 > [!WARNING]
-> `local` 드라이버를 사용할 때 `url` 메서드의 반환값은 URL 인코딩되지 않습니다. 그러므로, 파일 이름은 항상 유효한 URL을 생성할 수 있도록 작성하는 것이 좋습니다.
+> `local` 드라이버를 사용할 때 `url`의 반환값은 URL 인코딩되지 않습니다. 따라서 항상 유효한 URL을 생성하는 이름으로 파일을 저장하는 것이 좋습니다.
 
 <a name="url-host-customization"></a>
 <!-- #### URL Host Customization -->
@@ -484,7 +484,7 @@ class AppServiceProvider extends ServiceProvider
 #### Temporary Upload URLs
 
 > [!WARNING]
-> 임시 업로드 URL 생성 기능은 `s3`와 `local` 드라이버만 지원됩니다.
+> 임시 업로드 URL 생성 기능은 `s3` 및 `local` 드라이버에서만 지원합니다.
 
 <!-- If you need to generate a temporary URL that can be used to upload a file directly from your client-side application, you may use the `temporaryUploadUrl` method. This method accepts a path and a `DateTime` instance specifying when the URL should expire. The `temporaryUploadUrl` method returns an associative array which may be destructured into the upload URL and the headers that should be included with the upload request: -->
 클라이언트(브라우저 등)에서 파일을 직접 업로드할 수 있는 임시 URL이 필요하다면 `temporaryUploadUrl` 메서드를 사용하세요. 이 메서드는 경로와 URL이 만료될 시점을 지정하는 `DateTime` 인스턴스를 받습니다. `temporaryUploadUrl` 메서드는 업로드 URL과 업로드 요청에 포함해야 하는 헤더로 구조 분해할 수 있는 연관 배열을 반환합니다:
@@ -719,7 +719,10 @@ $path = Storage::putFileAs(
 ```
 
 > [!WARNING]
-> 출력이 불가능하거나, 잘못된 유니코드 문자는 파일 경로에서 자동으로 제거됩니다. 따라서 Laravel의 파일 저장 메서드에 경로를 전달하기 전에 파일 경로를 정제(sanitize)하는 것이 좋습니다. 파일 경로는 `League\Flysystem\WhitespacePathNormalizer::normalizePath` 메서드를 통해 정규화됩니다.
+> `storeAs` 또는 `putFileAs`의 파일명 인수를 사용자 입력에서 가져오지 마세요. 공격자가 `shell.php`와 같은 이름을 입력하면, 저장된 파일을 웹에서 접근할 수 있을 때 PHP 코드로 실행될 수 있습니다. 저장할 파일명에는 `hashName()` 또는 시스템에서 생성한 식별자를 사용하고, 표시해야 한다면 원래 이름은 별도로 저장하세요.
+
+> [!WARNING]
+> 파일 경로에서 출력할 수 없거나 유효하지 않은 유니코드 문자는 자동으로 제거됩니다. 따라서 Laravel의 파일 저장 메서드에 전달하기 전에 파일 경로를 정리하는 것이 좋습니다. 파일 경로는 `League\Flysystem\WhitespacePathNormalizer::normalizePath` 메서드를 사용해 정규화됩니다.
 
 <a name="specifying-a-disk"></a>
 <!-- #### Specifying a Disk -->
@@ -1015,7 +1018,7 @@ class ExampleTest extends TestCase
 기본적으로 `fake` 메서드는 임시 디렉터리 내의 모든 파일을 삭제합니다. 만약 임시 파일을 유지하고 싶다면 "persistentFake" 메서드를 사용할 수 있습니다. 파일 업로드 테스트에 대한 더 자세한 내용은 [HTTP testing documentation's information on file uploads](/docs/13.x/http-tests#testing-file-uploads)을 참고하세요.
 
 > [!WARNING]
-> `image` 메서드는 [GD extension](https://www.php.net/manual/en/book.image.php)이 필요합니다.
+> `image` 메서드를 사용하려면 [GD extension](https://www.php.net/manual/en/book.image.php)이 필요합니다.
 
 <a name="custom-filesystems"></a>
 <!-- ## Custom Filesystems -->
