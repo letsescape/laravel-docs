@@ -2885,7 +2885,7 @@ $validator = Validator::make($data, [
 #### Validating When Present
 
 <!-- In some situations, you may wish to run validation checks against a field **only** if that field is present in the data being validated. To quickly accomplish this, add the `sometimes` rule to your rule list: -->
-状況によっては、フィールドが検証対象のデータに存在する場合にのみ**、そのフィールドに対して検証チェックを実行したい場合があります。これをすばやく実行するには、`sometimes` ルールをルール リストに追加します。
+状況によっては、フィールドが検証対象のデータに存在する場合に**のみ**、そのフィールドに対して検証チェックを実行したい場合があります。これをすばやく実行するには、`sometimes` ルールをルール リストに追加します。
 
 ```
 $validator = Validator::make($data, [
