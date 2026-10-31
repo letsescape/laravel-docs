@@ -289,7 +289,7 @@ public function uniqueIds(): array
 ```
 
 <!-- If you wish, you may choose to utilize "ULIDs" instead of UUIDs. ULIDs are similar to UUIDs; however, they are only 26 characters in length. Like ordered UUIDs, ULIDs are lexicographically sortable for efficient database indexing. To utilize ULIDs, you should use the `Illuminate\Database\Eloquent\Concerns\HasUlids` trait on your model. You should also ensure that the model has a [ULID equivalent primary key column](/docs/11.x/migrations#column-method-ulid): -->
-원한다면 UUID 대신 "ULID"를 사용할 수도 있습니다. ULID도 UUID와 유사하지만, 길이가 26자밖에 되지 않습니다. 순서가 보장되는(lexicographically sortable) 특성이 있어서 인덱싱에 효율적입니다. ULID를 사용하려면 모델에서 `Illuminate\Database\Eloquent\Concerns\HasUlids` 트레이트를 적용해야 하고, 모델의 기본 키 컬럼도 [ULID equivalent primary key column](/docs/11.x/migrations#column-method-ulid)이어야 합니다.
+원한다면 UUID 대신 "ULID"를 사용할 수도 있습니다. ULID도 UUID와 유사하지만, 길이가 26자밖에 되지 않습니다. 사전식으로 정렬할 수 있는(lexicographically sortable) 특성이 있어서 인덱싱에 효율적입니다. ULID를 사용하려면 모델에서 `Illuminate\Database\Eloquent\Concerns\HasUlids` 트레이트를 적용해야 하고, 모델의 기본 키 컬럼도 [ULID equivalent primary key column](/docs/11.x/migrations#column-method-ulid)이어야 합니다.
 
 ```
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -565,7 +565,7 @@ Flight::chunk(200, function (Collection $flights) {
 ```
 
 <!-- The first argument passed to the `chunk` method is the number of records you wish to receive per "chunk". The closure passed as the second argument will be invoked for each chunk that is retrieved from the database. A database query will be executed to retrieve each chunk of records passed to the closure. -->
-`chunk` 메서드에 전달되는 첫 번째 인자는 한 번에 처리할 레코드 수입니다. 두 번째 인자인 클로저는 데이터베이스에서 각 청크를 읽어올 때마다 호출됩니다. 각 청크를 위한 데이터베이스 쿼리가 실행되어, 클로저에 전달됩니다.
+`chunk` 메서드에 전달되는 첫 번째 인자는 한 번에 처리할 레코드 수입니다. 두 번째 인자인 클로저는 데이터베이스에서 각 청크를 읽어올 때마다 호출됩니다. 각 청크를 위한 데이터베이스 쿼리가 실행되어, 조회 결과가 클로저에 전달됩니다.
 
 <!-- If you are filtering the results of the `chunk` method based on a column that you will also be updating while iterating over the results, you should use the `chunkById` method. Using the `chunk` method in these scenarios could lead to unexpected and inconsistent results. Internally, the `chunkById` method will always retrieve models with an `id` column greater than the last model in the previous chunk: -->
 반복 처리 중에 동시에 업데이트할 컬럼을 기준으로 `chunk` 메서드의 결과를 필터링하는 경우에는 `chunkById` 메서드를 사용해야 합니다. 이런 상황에서 `chunk` 메서드를 사용하면 예기치 않은 비일관적인 결과가 발생할 수 있습니다. 내부적으로 `chunkById`는 이전 청크의 마지막 모델의 `id`보다 큰 행만 계속 조회하면서 처리합니다.
@@ -658,7 +658,7 @@ foreach ($users as $user) {
 ```
 
 <!-- Although the `cursor` method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). If you're dealing with a very large number of Eloquent records, consider using [the `lazy` method](#chunking-using-lazy-collections) instead. -->
-커서(`cursor`) 메서드는 일반 쿼리 방식에 비해 메모리 사용량이 훨씬 적지만, 결국에는 메모리가 고갈될 수 있습니다. 그 이유는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)하기 때문입니다. 정말 막대한 양의 Eloquent 레코드를 다뤄야 한다면, [the `lazy` method](#chunking-using-lazy-collections) 사용을 고려해보세요.
+커서(`cursor`) 메서드는 일반 쿼리 방식에 비해 메모리 사용량이 훨씬 적지만, 결국에는 메모리가 고갈될 수 있습니다. 그 이유는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)에 설명된 PDO 드라이버의 쿼리 결과 버퍼링입니다. 정말 막대한 양의 Eloquent 레코드를 다뤄야 한다면, [the `lazy` method](#chunking-using-lazy-collections) 사용을 고려해보세요.
 
 <a name="advanced-subqueries"></a>
 
@@ -800,7 +800,7 @@ $flight = Flight::firstOrNew(
 ### Retrieving Aggregates
 
 <!-- When interacting with Eloquent models, you may also use the `count`, `sum`, `max`, and other [aggregate methods](/docs/11.x/queries#aggregates) provided by the Laravel [query builder](/docs/11.x/queries). As you might expect, these methods return a scalar value instead of an Eloquent model instance: -->
-Eloquent 모델을 사용할 때도, Laravel [aggregate methods](/docs/11.x/queries#aggregates)에서 제공하는 `count`, `sum`, `max` 등 [query builder](/docs/11.x/queries)를 그대로 사용할 수 있습니다. 이 메서드들은 Eloquent 모델 인스턴스가 아니라, 스칼라 값(숫자 또는 문자열)을 반환합니다.
+Eloquent 모델을 사용할 때도, Laravel [query builder](/docs/11.x/queries)에서 제공하는 `count`, `sum`, `max` 등 [aggregate methods](/docs/11.x/queries#aggregates)를 그대로 사용할 수 있습니다. 이 메서드들은 Eloquent 모델 인스턴스가 아니라, 스칼라 값(숫자 또는 문자열)을 반환합니다.
 
 ```
 $count = Flight::where('active', 1)->count();
@@ -923,7 +923,7 @@ Flight::where('active', 1)
 Eloquent는 모델의 내부 상태를 확인하고, 조회 시점 이후 어떤 속성(attribute)이 변경되었는지 파악할 수 있도록 `isDirty`, `isClean`, `wasChanged` 메서드를 제공합니다.
 
 <!-- The `isDirty` method determines if any of the model's attributes have been changed since the model was retrieved. You may pass a specific attribute name or an array of attributes to the `isDirty` method to determine if any of the attributes are "dirty". The `isClean` method will determine if an attribute has remained unchanged since the model was retrieved. This method also accepts an optional attribute argument: -->
-`isDirty` 메서드는, 모델이 조회된 이후 모델의 속성 중 하나라도 변경되었는지 여부를 확인합니다. 특정 속성명이나 속성명 배열을 `isDirty` 메서드에 전달하면 해당 속성의 변경 여부만 확인할 수 있습니다. 반대로, `isClean` 메서드는 조회 이후 **변경되지 않은** 속성이 있는지 확인하는 용도이며, 마찬가지로 속성명 인수를 사용 가능합니다.
+`isDirty` 메서드는, 모델이 조회된 이후 모델의 속성 중 하나라도 변경되었는지 여부를 확인합니다. 특정 속성명이나 속성명 배열을 `isDirty` 메서드에 전달하면 해당 속성의 변경 여부만 확인할 수 있습니다. 반대로, `isClean` 메서드는 속성이 조회 이후 **변경되지 않았는지** 확인하는 용도이며, 마찬가지로 속성명 인수를 사용 가능합니다.
 
 ```
 use App\Models\User;
@@ -1068,7 +1068,7 @@ protected $fillable = [
 #### Allowing Mass Assignment
 
 <!-- If you would like to make all of your attributes mass assignable, you may define your model's `$guarded` property as an empty array. If you choose to unguard your model, you should take special care to always hand-craft the arrays passed to Eloquent's `fill`, `create`, and `update` methods: -->
-모델의 모든 속성을 대량 할당 가능하게 하려면, 모델의 `$guarded` 속성을 빈 배열로 지정하면 됩니다. 다만, 절대적으로 신뢰할 수 있는 데이터만 `fill`, `create`, `update` 등에 넘기는 경우에만 사용해야 하며, 각별히 주의해야 합니다.
+모델의 모든 속성을 대량 할당 가능하게 하려면, 모델의 `$guarded` 속성을 빈 배열로 지정하면 됩니다. 모델의 보호를 해제할 경우, Eloquent의 `fill`, `create`, `update` 메서드에 전달하는 배열을 항상 직접 신중하게 구성해야 합니다.
 
 ```
 /**
@@ -1877,7 +1877,7 @@ class User extends Model
 ```
 
 <!-- If needed, you may utilize [queueable anonymous event listeners](/docs/11.x/events#queuable-anonymous-event-listeners) when registering model events. This will instruct Laravel to execute the model event listener in the background using your application's [queue](/docs/11.x/queues): -->
-필요하다면 모델 이벤트 등록 시 [queueable anonymous event listeners](/docs/11.x/events#queuable-anonymous-event-listeners)를 사용할 수도 있습니다. 이 경우, Laravel이 애플리케이션의 [queue](/docs/11.x/queues) 처리 방식에 따라 이벤트를 백그라운드에서 실행하게 됩니다.
+필요하다면 모델 이벤트 등록 시 [queueable anonymous event listeners](/docs/11.x/events#queuable-anonymous-event-listeners)를 사용할 수도 있습니다. 이 경우, Laravel이 애플리케이션의 [queue](/docs/11.x/queues)를 사용해 모델 이벤트 리스너를 백그라운드에서 실행하게 됩니다.
 
 ```
 use function Illuminate\Events\queueable;

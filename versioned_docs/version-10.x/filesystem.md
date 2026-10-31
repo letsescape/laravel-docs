@@ -658,7 +658,7 @@ $path = Storage::putFileAs(
 ```
 
 > [!WARNING]
-> 인쇄할 수 없는 문자, 잘못된 유니코드가 포함된 파일 경로는 자동으로 제거됩니다. 따라서 파일 경로를 Laravel 파일 저장 메서드에 전달하기 전에 미리 정제(sanitize)하는 것이 좋습니다. 파일 경로는 `League\Flysystem\WhitespacePathNormalizer::normalizePath`로 정규화됩니다.
+> 파일 경로에서 인쇄할 수 없는 문자와 잘못된 유니코드 문자는 자동으로 제거됩니다. 따라서 파일 경로를 Laravel 파일 저장 메서드에 전달하기 전에 미리 정제(sanitize)하는 것이 좋습니다. 파일 경로는 `League\Flysystem\WhitespacePathNormalizer::normalizePath`로 정규화됩니다.
 
 <a name="specifying-a-disk"></a>
 <!-- #### Specifying a Disk -->
@@ -818,7 +818,7 @@ $files = Storage::allFiles($directory);
 #### Get All Directories Within a Directory
 
 <!-- The `directories` method returns an array of all the directories within a given directory. Additionally, you may use the `allDirectories` method to get a list of all directories within a given directory and all of its subdirectories: -->
-`directories` 메서드는 지정한 디렉터리 내 모든 하위 디렉터리의 배열을 반환합니다. 여기에 더해, `allDirectories` 메서드를 사용하면 하위 디렉터리까지 포함한 전체 목록을 얻을 수 있습니다.
+`directories` 메서드는 지정한 디렉터리 바로 아래에 있는 모든 디렉터리의 배열을 반환합니다. 여기에 더해, `allDirectories` 메서드를 사용하면 중첩된 하위 디렉터리까지 포함한 전체 목록을 얻을 수 있습니다.
 
 ```
 $directories = Storage::directories($directory);

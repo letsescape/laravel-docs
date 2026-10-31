@@ -147,7 +147,7 @@ return view('greetings', ['name' => 'Victoria']);
 이 방식에서 전달하는 데이터는 key/value(키/값) 형태의 배열이어야 합니다. 데이터를 뷰로 전달하면, 각 키를 통해 뷰 내에서 해당 데이터를 참조할 수 있습니다. 예를 들어 `<?php echo $name; ?>` 처럼 사용할 수 있습니다.
 
 <!-- As an alternative to passing a complete array of data to the `view` helper function, you may use the `with` method to add individual pieces of data to the view. The `with` method returns an instance of the view object so that you can continue chaining methods before returning the view: -->
-또는, `view` 헬퍼 함수 대신 체이닝 가능한 `with` 메서드로 각각의 데이터를 추가하는 방법도 있습니다. `with` 메서드는 뷰 객체의 인스턴스를 반환하므로, 반환 전에 추가 메서드 체이닝이 가능합니다:
+또는, `view` 헬퍼 함수에 전체 데이터 배열을 전달하는 대신 체이닝 가능한 `with` 메서드로 각각의 데이터를 추가하는 방법도 있습니다. `with` 메서드는 뷰 객체의 인스턴스를 반환하므로, 반환 전에 추가 메서드 체이닝이 가능합니다:
 
 ```php
 return view('greeting')
@@ -323,7 +323,7 @@ View::creator('profile', ProfileCreator::class);
 ## Optimizing Views
 
 <!-- By default, Blade template views are compiled on demand. When a request is executed that renders a view, Laravel will determine if a compiled version of the view exists. If the file exists, Laravel will then determine if the uncompiled view has been modified more recently than the compiled view. If the compiled view either does not exist, or the uncompiled view has been modified, Laravel will recompile the view. -->
-기본적으로 Blade 템플릿 뷰는 요청이 들어올 때마다 필요할 때마다 컴파일됩니다. 요청 과정에서 뷰를 렌더링하게 되면, Laravel은 컴파일된 뷰 파일이 존재하는지 확인합니다. 파일이 존재하면, 원본(View) 파일이 더 최근에 수정됐는지 확인해, 필요하면 다시 컴파일합니다. 만약 컴파일된 파일이 없거나, 원본이 수정됐다면, Laravel은 뷰를 다시 컴파일합니다.
+기본적으로 Blade 템플릿 뷰는 필요할 때마다 컴파일됩니다. 요청 과정에서 뷰를 렌더링하게 되면, Laravel은 컴파일된 뷰 파일이 존재하는지 확인합니다. 파일이 존재하면, 원본(View) 파일이 더 최근에 수정됐는지 확인해, 필요하면 다시 컴파일합니다. 만약 컴파일된 파일이 없거나, 원본이 수정됐다면, Laravel은 뷰를 다시 컴파일합니다.
 
 <!-- Compiling views during the request may have a small negative impact on performance, so Laravel provides the `view:cache` Artisan command to precompile all of the views utilized by your application. For increased performance, you may wish to run this command as part of your deployment process: -->
 이러한 컴파일 과정이 요청 처리 중에 수행되면, 성능에 미세한 영향을 미칠 수 있습니다. 이를 최적화하려면, `view:cache` Artisan 명령어로 애플리케이션에서 사용하는 모든 뷰를 미리 한 번에 컴파일할 수 있습니다. 성능 향상을 위해 배포 프로세스(deployment 과정)의 일부로 이 명령어를 실행하는 것이 좋습니다:

@@ -890,7 +890,7 @@ interface UserProvider
 `retrieveById` 메서드는 일반적으로 MySQL 데이터베이스의 자동 증가 ID처럼 사용자를 나타내는 키를 받습니다. 이 메서드는 해당 ID와 일치하는 `Authenticatable` 구현을 조회해 반환해야 합니다.
 
 <!-- The `retrieveByToken` function retrieves a user by their unique `$identifier` and "remember me" `$token`, typically stored in a database column like `remember_token`. As with the previous method, the `Authenticatable` implementation with a matching token value should be returned by this method. -->
-`retrieveByToken` 메서드는 일반적으로 `remember_token` 같은 데이터베이스 컬럼에 저장된 고유한 `$identifier`와 "기억하기" `$token`을 사용해 사용자를 조회합니다. 앞선 메서드와 마찬가지로, 이 메서드도 일치하는 토큰 값을 가진 `Authenticatable` 구현을 반환해야 합니다.
+`retrieveByToken` 메서드는 일반적으로 `remember_token` 같은 데이터베이스 컬럼에 저장되는 토큰을 이용하며, 사용자의 고유한 `$identifier`와 이 "기억하기" `$token`으로 사용자를 조회합니다. 앞선 메서드와 마찬가지로, 이 메서드도 일치하는 토큰 값을 가진 `Authenticatable` 구현을 반환해야 합니다.
 
 <!-- The `updateRememberToken` method updates the `$user` instance's `remember_token` with the new `$token`. A fresh token is assigned to users on a successful "remember me" authentication attempt or when the user is logging out. -->
 `updateRememberToken` 메서드는 `$user` 인스턴스의 `remember_token` 값을 새로운 `$token`으로 갱신합니다. "기억하기" 인증이 성공했거나 사용자가 로그아웃할 때는 새로운 토큰이 사용자에게 할당됩니다.

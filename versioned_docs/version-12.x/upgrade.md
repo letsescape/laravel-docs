@@ -240,13 +240,13 @@ $tables = Schema::getTableListing(schema: 'main', schemaQualified: false);
 Laravel 12부터 몇몇 저수준 데이터베이스 클래스는 생성자에서 반드시 `Illuminate\Database\Connection` 인스턴스를 전달받아야 합니다.
 
 <!-- **These changes are primarily applicable to database package maintainers - it is extremely unlikely any of these changes affect normal application development.** -->
-**이 변경은 데이터베이스 패키지 유지보수자에게만 주로 해당하며, 일반적인 애플리케이션 개발에 영향이 갈 가능성은 극히 낮습니다.**
+**이 변경은 주로 데이터베이스 패키지 유지보수자에게 해당하며, 일반적인 애플리케이션 개발에 영향이 갈 가능성은 극히 낮습니다.**
 
 <!-- `Illuminate\Database\Schema\Blueprint` -->
 `Illuminate\Database\Schema\Blueprint`
 
 <!-- The constructor of the `Illuminate\Database\Schema\Blueprint` class now expects a `Connection` instance as its first argument. This primarily affects applications or packages that manually instantiate `Blueprint` instances. -->
-`Illuminate\Database\Schema\Blueprint` 클래스의 생성자는 이제 첫 번째 인수로 `Connection` 인스턴스를 필요로 합니다. 이것은 `Blueprint` 인스턴스를 직접 생성하는 애플리케이션 또는 패키지에만 영향을 줍니다.
+`Illuminate\Database\Schema\Blueprint` 클래스의 생성자는 이제 첫 번째 인수로 `Connection` 인스턴스를 필요로 합니다. 이것은 주로 `Blueprint` 인스턴스를 직접 생성하는 애플리케이션 또는 패키지에 영향을 줍니다.
 
 <!-- `Illuminate\Database\Grammar` -->
 `Illuminate\Database\Grammar`

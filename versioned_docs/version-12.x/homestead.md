@@ -749,7 +749,7 @@ sites:
 ```
 
 <!-- [Within your Homestead virtual machine](#connecting-via-ssh), you may use any of the supported PHP versions via the CLI: -->
-[Within your Homestead virtual machine](#connecting-via-ssh) CLI를 통해 지원되는 PHP 버전 중 아무 버전이나 사용할 수 있습니다.
+[Within your Homestead virtual machine](#connecting-via-ssh)에서는 CLI를 통해 지원되는 PHP 버전 중 아무 버전이나 사용할 수 있습니다.
 
 ```shell
 php5.6 artisan list
@@ -992,7 +992,7 @@ features:
 ```
 
 <!-- Blackfire server credentials and client credentials [require a Blackfire account](https://blackfire.io/signup). Blackfire offers various options to profile an application, including a CLI tool and browser extension. Please [review the Blackfire documentation for more details](https://blackfire.io/docs/php/integrations/laravel/index). -->
-Blackfire 서버 자격 증명과 클라이언트 자격 증명에는 [require a Blackfire account](https://blackfire.io/signup). Blackfire는 CLI 도구와 브라우저 확장을 포함해 애플리케이션을 프로파일링하는 여러 옵션을 제공합니다. 자세한 내용은 [review the Blackfire documentation for more details](https://blackfire.io/docs/php/integrations/laravel/index).
+Blackfire 서버 자격 증명과 클라이언트 자격 증명을 사용하려면 계정이 필요합니다([require a Blackfire account](https://blackfire.io/signup)). Blackfire는 CLI 도구와 브라우저 확장을 포함해 애플리케이션을 프로파일링하는 여러 옵션을 제공합니다. 자세한 내용은 [review the Blackfire documentation for more details](https://blackfire.io/docs/php/integrations/laravel/index)를 참고하십시오.
 
 <a name="network-interfaces"></a>
 <!-- ## Network Interfaces -->

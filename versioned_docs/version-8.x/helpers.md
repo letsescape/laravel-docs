@@ -1284,7 +1284,7 @@ $array = Arr::wrap(null);
 #### `data_fill()`
 
 <!-- The `data_fill` function sets a missing value within a nested array or object using "dot" notation: -->
-`data_fill` 함수는 "점(dot) 표기법"을 사용해 중첩된 배열이나 객체에 비어 있는 값을 설정합니다.
+`data_fill` 함수는 "점(dot) 표기법"을 사용해 중첩된 배열이나 객체에서 누락된 값을 채웁니다.
 
 ```
 $data = ['products' => ['desk' => ['price' => 100]]];
@@ -4559,7 +4559,7 @@ return response()->json(['foo' => 'bar'], 200, $headers);
 #### `retry()`
 
 <!-- The `retry` function attempts to execute the given callback until the given maximum attempt threshold is met. If the callback does not throw an exception, its return value will be returned. If the callback throws an exception, it will automatically be retried. If the maximum attempt count is exceeded, the exception will be thrown: -->
-`retry` 함수는 콜백을 주어진 횟수만큼 반복해서 시도합니다. 콜백이 예외를 던지지 않으면 해당 반환값을 반환하고, 예외가 발생하면 자동으로 재시도합니다. 최대 시도 횟수를 초과하면 예외가 발생합니다.
+`retry` 함수는 주어진 최대 시도 횟수에 도달할 때까지 콜백 실행을 시도합니다. 콜백이 예외를 던지지 않으면 해당 반환값을 반환하고, 예외가 발생하면 자동으로 재시도합니다. 최대 시도 횟수를 초과하면 예외가 발생합니다.
 
 ```
 return retry(5, function () {

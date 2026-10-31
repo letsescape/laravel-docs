@@ -332,7 +332,7 @@ composer require laravel/envoy --dev
 ### Slack
 
 <!-- Envoy supports sending notifications to [Slack](https://slack.com) after each task is executed. The `@slack` directive accepts a Slack hook URL and a channel / user name. You may retrieve your webhook URL by creating an "Incoming WebHooks" integration in your Slack control panel. -->
-엔보이는 모든 작업이 실행된 후 [Slack](https://slack.com)으로 알림을 보낼 수 있습니다. `@slack` 지시어는 Slack 훅(hook) URL과 채널 또는 사용자 이름을 인자로 받습니다. Slack 관리 패널에서 "Incoming WebHooks" 통합을 생성해 Webhook URL을 얻을 수 있습니다.
+엔보이는 각 작업이 실행된 후 [Slack](https://slack.com)으로 알림을 보낼 수 있습니다. `@slack` 지시어는 Slack 훅(hook) URL과 채널 또는 사용자 이름을 인자로 받습니다. Slack 관리 패널에서 "Incoming WebHooks" 통합을 생성해 Webhook URL을 얻을 수 있습니다.
 
 <!-- You should pass the entire webhook URL as the first argument given to the `@slack` directive. The second argument given to the `@slack` directive should be a channel name (`#channel`) or a user name (`@user`): -->
 `@slack` 지시어의 첫 번째 인수로 전체 Webhook URL을 전달해야 합니다. `@slack` 지시어의 두 번째 인수로는 채널명(`#channel`) 또는 사용자명(`@user`)을 전달해야 합니다:
@@ -357,7 +357,7 @@ composer require laravel/envoy --dev
 ### Discord
 
 <!-- Envoy also supports sending notifications to [Discord](https://discord.com) after each task is executed. The `@discord` directive accepts a Discord hook URL and a message. You may retrieve your webhook URL by creating a "Webhook" in your Server Settings and choosing which channel the webhook should post to. You should pass the entire Webhook URL into the `@discord` directive: -->
-엔보이는 모든 작업이 실행된 후 [Discord](https://discord.com)로도 알림을 보낼 수 있습니다. `@discord` 지시어는 Discord Webhook URL과 메시지를 인자로 받습니다. Server Settings에서 "Webhook"을 생성하고, Webhook이 게시될 채널을 선택해 Webhook URL을 얻을 수 있습니다. 전체 Webhook URL을 `@discord` 지시어에 전달하면 됩니다:
+엔보이는 각 작업이 실행된 후 [Discord](https://discord.com)로도 알림을 보낼 수 있습니다. `@discord` 지시어는 Discord Webhook URL과 메시지를 인자로 받습니다. Server Settings에서 "Webhook"을 생성하고, Webhook이 게시될 채널을 선택해 Webhook URL을 얻을 수 있습니다. 전체 Webhook URL을 `@discord` 지시어에 전달하면 됩니다:
 
 ```
 @finished
@@ -370,7 +370,7 @@ composer require laravel/envoy --dev
 ### Telegram
 
 <!-- Envoy also supports sending notifications to [Telegram](https://telegram.org) after each task is executed. The `@telegram` directive accepts a Telegram Bot ID and a Chat ID. You may retrieve your Bot ID by creating a new bot using [BotFather](https://t.me/botfather). You can retrieve a valid Chat ID using [@username_to_id_bot](https://t.me/username_to_id_bot). You should pass the entire Bot ID and Chat ID into the `@telegram` directive: -->
-엔보이는 모든 작업 실행 후 [Telegram](https://telegram.org)으로도 알림을 전송할 수 있습니다. `@telegram` 지시어는 Telegram 봇 ID와 채팅 ID를 인자로 받습니다. [BotFather](https://t.me/botfather)로 새 봇을 생성해 봇 ID를 얻을 수 있으며, [@username_to_id_bot](https://t.me/username_to_id_bot)을 사용하면 유효한 채팅 ID를 구할 수 있습니다. 두 인자를 모두 `@telegram` 지시어에 넣어 사용하세요:
+엔보이는 각 작업 실행 후 [Telegram](https://telegram.org)으로도 알림을 전송할 수 있습니다. `@telegram` 지시어는 Telegram 봇 ID와 채팅 ID를 인자로 받습니다. [BotFather](https://t.me/botfather)로 새 봇을 생성해 봇 ID를 얻을 수 있으며, [@username_to_id_bot](https://t.me/username_to_id_bot)을 사용하면 유효한 채팅 ID를 구할 수 있습니다. 두 인자를 모두 `@telegram` 지시어에 넣어 사용하세요:
 
 ```
 @finished
@@ -383,7 +383,7 @@ composer require laravel/envoy --dev
 ### Microsoft Teams
 
 <!-- Envoy also supports sending notifications to [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams) after each task is executed. The `@microsoftTeams` directive accepts a Teams Webhook (required), a message, theme color (success, info, warning, error), and an array of options. You may retrieve your Teams Webook by creating a new [incoming webhook](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook). The Teams API has many other attributes to customize your message box like title, summary, and sections. You can find more information on the [Microsoft Teams documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURL#example-of-connector-message). You should pass the entire Webhook URL into the `@microsoftTeams` directive: -->
-엔보이는 모든 작업 실행 후 [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams)로도 알림을 보낼 수 있습니다. `@microsoftTeams` 지시어는 필수로 Teams Webhook과 메시지, 테마 색상(success, info, warning, error), 그리고 옵션 배열을 받을 수 있습니다. Teams Webhook은 [incoming webhook](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)을 새로 만들어 얻을 수 있습니다. Teams API는 메시지 박스를 수정할 수 있는 title, summary, sections와 같은 여러 속성을 지원합니다. 더 자세한 내용은 [Microsoft Teams documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURL#example-of-connector-message)에서 확인할 수 있습니다. 전체 Webhook URL을 `@microsoftTeams` 지시어에 전달하도록 하세요:
+엔보이는 각 작업 실행 후 [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams)로도 알림을 보낼 수 있습니다. `@microsoftTeams` 지시어는 Teams Webhook을 필수로 받고, 메시지, 테마 색상(success, info, warning, error), 그리고 옵션 배열도 받을 수 있습니다. Teams Webhook은 [incoming webhook](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)을 새로 만들어 얻을 수 있습니다. Teams API는 메시지 박스를 수정할 수 있는 title, summary, sections와 같은 여러 속성을 지원합니다. 더 자세한 내용은 [Microsoft Teams documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURL#example-of-connector-message)에서 확인할 수 있습니다. 전체 Webhook URL을 `@microsoftTeams` 지시어에 전달하도록 하세요:
 
 ```
 @finished

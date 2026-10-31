@@ -86,7 +86,7 @@ $firstName = $user->first_name;
 #### Building Value Objects From Multiple Attributes
 
 <!-- Sometimes your accessor may need to transform multiple model attributes into a single "value object". To do so, your `get` closure may accept a second argument of `$attributes`, which will be automatically supplied to the closure and will contain an array of all of the model's current attributes: -->
-場合によっては、accessorが複数のモデル属性を 1 つの「値オブジェクト」に変換する必要がある場合があります。これを行うには、`get` クロージャーは `$attributes` の 2 番目の引数を受け入れることができます。これは自動的にクロージャーに提供され、モデルの現在の属性すべての配列が含まれます。
+場合によっては、accessorが複数のモデル属性を 1 つの「値オブジェクト」に変換する必要がある場合があります。これを行うには、`get` クロージャーは 2 番目の引数として `$attributes` を受け取ることができます。これは自動的にクロージャーに提供され、モデルの現在の属性すべての配列が含まれます。
 
 ```php
 use App\Support\Address;
@@ -304,7 +304,7 @@ if ($user->is_admin) {
 ```
 
 <!-- If you need to add a new, temporary cast at runtime, you may use the `mergeCasts` method. These cast definitions will be added to any of the casts already defined on the model: -->
-実行時に新しい一時的なcastを追加する必要がある場合は、`mergeCasts` メソッドを使用できます。これらのcast定義は、モデルですでに定義されているcastのいずれかに追加されます。
+実行時に新しい一時的なcastを追加する必要がある場合は、`mergeCasts` メソッドを使用できます。これらのcast定義は、モデルですでに定義されているcastに追加されます。
 
 ```php
 $user->mergeCasts([

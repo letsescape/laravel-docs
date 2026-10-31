@@ -1517,7 +1517,7 @@ Schema::table('users', function (Blueprint $table) {
 ```
 
 > [!WARNING]
-> 아래와 같은 컬럼 타입만 변경이 가능합니다: `bigInteger`, `binary`, `boolean`, `char`, `date`, `dateTime`, `dateTimeTz`, `decimal`, `double`, `integer`, `json`, `longText`, `mediumText`, `smallInteger`, `string`, `text`, `time`, `tinyText`, `unsignedBigInteger`, `unsignedInteger`, `unsignedSmallInteger`, `uuid`. `timestamp` 타입 컬럼은 [Doctrine type must be registered](#prerequisites)이 필요합니다.
+> 아래와 같은 컬럼 타입만 변경이 가능합니다: `bigInteger`, `binary`, `boolean`, `char`, `date`, `dateTime`, `dateTimeTz`, `decimal`, `double`, `integer`, `json`, `longText`, `mediumText`, `smallInteger`, `string`, `text`, `time`, `tinyText`, `unsignedBigInteger`, `unsignedInteger`, `unsignedSmallInteger`, `uuid`. `timestamp` 타입 컬럼을 변경하려면 Doctrine 타입을 등록해야 합니다([Doctrine type must be registered](#prerequisites)).
 
 <a name="renaming-columns"></a>
 <!-- ### Renaming Columns -->
@@ -1741,7 +1741,7 @@ Command  |  Description
 `$table->dropSpatialIndex('geo_location_spatialindex');`  |  "geo" 테이블에서 공간 인덱스를 삭제합니다 (SQLite 제외).
 
 <!-- If you pass an array of columns into a method that drops indexes, the conventional index name will be generated based on the table name, columns, and index type: -->
-여러 컬럼을 인자로 전달해 인덱스를 삭제할 경우, 일반 인덱스 이름 생성 규칙에 따라 이름이 자동 조합되어 삭제됩니다.
+여러 컬럼을 배열로 전달해 인덱스를 삭제할 경우, 일반 인덱스 이름 생성 규칙에 따라 이름이 자동 조합되어 삭제됩니다.
 
 ```
 Schema::table('geo', function (Blueprint $table) {
@@ -1860,7 +1860,7 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite는 기본적으로 외래 키 제약 조건이 비활성화되어 있습니다. SQLite를 사용할 때는 마이그레이션에서 외래 키를 생성하기 전 데이터베이스 설정에서 [enable foreign key support](/docs/9.x/database#configuration)해야 합니다. 또한, SQLite는 테이블 생성시에만 외래 키를 지원하며 [not when tables are altered](https://www.sqlite.org/omitted.html).
+> SQLite는 기본적으로 외래 키 제약 조건이 비활성화되어 있습니다. SQLite를 사용할 때는 마이그레이션에서 외래 키를 생성하기 전 데이터베이스 설정에서 외래 키 지원을 활성화해야 합니다([enable foreign key support](/docs/9.x/database#configuration)). 또한, SQLite는 테이블 생성시에만 외래 키를 지원하며 테이블을 변경할 때는 지원하지 않습니다([not when tables are altered](https://www.sqlite.org/omitted.html)).
 
 <a name="events"></a>
 <!-- ## Events -->

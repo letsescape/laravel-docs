@@ -34,7 +34,7 @@ accessor(accessors), mutator(mutators), 그리고 attribute casting을 사용하
 ### Defining An Accessor
 
 <!-- An accessor transforms an Eloquent attribute value when it is accessed. To define an accessor, create a protected method on your model to represent the accessible attribute. This method name should correspond to the "camel case" representation of the true underlying model attribute / database column when applicable. -->
-accessor는 Eloquent 속성 값을 조회할 때 값을 변환합니다. accessor를 정의하려면, 모델에서 해당 가능 속성에 대응하는 보호된(protected) 메서드를 만듭니다. 이 메서드의 이름은 실제 모델 속성이나 데이터베이스 컬럼의 "카멜 케이스(camel case)" 형태와 일치해야 합니다.
+accessor는 Eloquent 속성 값을 조회할 때 값을 변환합니다. accessor를 정의하려면, 모델에서 접근할 속성에 대응하는 보호된(protected) 메서드를 만듭니다. 이 메서드의 이름은 실제 모델 속성이나 데이터베이스 컬럼의 "카멜 케이스(camel case)" 형태와 일치해야 합니다.
 
 <!-- In this example, we'll define an accessor for the `first_name` attribute. The accessor will automatically be called by Eloquent when attempting to retrieve the value of the `first_name` attribute. All attribute accessor / mutator methods must declare a return type-hint of `Illuminate\Database\Eloquent\Casts\Attribute`: -->
 아래 예시에서는 `first_name` 속성에 대한 accessor를 정의합니다. 이 accessor는 Eloquent가 `first_name` 속성의 값을 조회할 때 자동으로 호출됩니다. 모든 속성 accessor/mutator 메서드는 반드시 `Illuminate\Database\Eloquent\Casts\Attribute` 타입힌트를 반환형으로 선언해야 합니다.
@@ -78,7 +78,7 @@ $firstName = $user->first_name;
 ```
 
 > [!NOTE]
-> 이렇게 계산된(가공된) 값들을 모델의 배열/JSON 표현에 포함하고 싶다면, [you will need to append them](/docs/9.x/eloquent-serialization#appending-values-to-json).
+> 이렇게 계산된(가공된) 값들을 모델의 배열/JSON 표현에 포함하고 싶다면, 추가 속성으로 지정해야 합니다([you will need to append them](/docs/9.x/eloquent-serialization#appending-values-to-json)).
 
 <a name="building-value-objects-from-multiple-attributes"></a>
 <!-- #### Building Value Objects From Multiple Attributes -->
@@ -474,7 +474,7 @@ protected $casts = [
 기본적으로 Eloquent는 `created_at`과 `updated_at` 컬럼을 [Carbon](https://github.com/briannesbitt/Carbon) 인스턴스로 casting합니다. Carbon은 PHP `DateTime` 클래스를 확장하며, 다양한 유용한 메서드들을 제공합니다. 추가적인 날짜 속성이 있다면, 모델의 `$casts` 배열에 추가로 날짜 cast를 정의할 수 있습니다. 보통 `datetime` 또는 `immutable_datetime` cast 타입을 사용합니다.
 
 <!-- When defining a `date` or `datetime` cast, you may also specify the date's format. This format will be used when the [model is serialized to an array or JSON](/docs/9.x/eloquent-serialization): -->
-`date` 또는 `datetime` cast를 정의할 때, 날짜 포맷도 같이 지정할 수 있습니다. 지정한 포맷은 [model is serialized to an array or JSON](/docs/9.x/eloquent-serialization) 사용됩니다.
+`date` 또는 `datetime` cast를 정의할 때, 날짜 포맷도 같이 지정할 수 있습니다. 지정한 포맷은 모델이 배열 또는 JSON으로 직렬화될 때 사용됩니다([model is serialized to an array or JSON](/docs/9.x/eloquent-serialization)).
 
 ```
 /**
@@ -552,7 +552,7 @@ protected $casts = [
 ```
 
 <!-- Once you have defined the cast on your model, the specified attribute will be automatically cast to and from an enum when you interact with the attribute: -->
-이렇게 cast를 정의하면, 해당 속성을 조회하거나 설정할 때 자동으로 Enum 타입으로 변환됩니다.
+이렇게 cast를 정의하면, 해당 속성을 조회하거나 설정할 때 Enum 타입과 원래 값 사이에서 자동으로 변환됩니다.
 
 ```
 if ($server->status == ServerStatus::Provisioned) {
@@ -598,7 +598,7 @@ protected $casts = [
 #### Key Rotation
 
 <!-- As you may know, Laravel encrypts strings using the `key` configuration value specified in your application's `app` configuration file. Typically, this value corresponds to the value of the `APP_KEY` environment variable. If you need to rotate your application's encryption key, you will need to manually re-encrypt your encrypted attributes using the new key. -->
-Laravel은 애플리케이션의 `app` 설정 파일의 `key` 설정값, 즉 보통 `APP_KEY` 환경 변수로 지정된 값을 이용해서 문자열을 암호화합니다. 만약 암호화 키를 변경해야 한다면, 새 키로 암호화된 속성 값을 직접 다시 암호화해 주어야 합니다.
+Laravel은 애플리케이션의 `app` 설정 파일의 `key` 설정값, 즉 보통 `APP_KEY` 환경 변수로 지정된 값을 이용해서 문자열을 암호화합니다. 만약 암호화 키를 변경해야 한다면, 기존에 암호화된 속성 값을 새 키로 직접 다시 암호화해 주어야 합니다.
 
 <a name="query-time-casting"></a>
 <!-- ### Query Time Casting -->

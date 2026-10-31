@@ -37,7 +37,7 @@
 ## Configuration
 
 <!-- Your application's cache configuration file is located at `config/cache.php`. In this file, you may specify which cache store you would like to be used by default throughout your application. Laravel supports popular caching backends like [Memcached](https://memcached.org), [Redis](https://redis.io), [DynamoDB](https://aws.amazon.com/dynamodb), and relational databases out of the box. In addition, a file based cache driver is available, while `array` and `null` cache drivers provide convenient cache backends for your automated tests. -->
-애플리케이션의 캐시 구성 파일은 `config/cache.php`에 있습니다. 이 파일에서는 애플리케이션 전체에서 기본적으로 사용할 캐시 저장소를 지정할 수 있습니다. Laravel는 [Memcached](https://memcached.org), [Redis](https://redis.io), [DynamoDB](https://aws.amazon.com/dynamodb)와 같은 널리 사용되는 캐싱 백엔드 및 관계형 데이터베이스를 즉시 지원합니다. 또한 파일 기반 캐시 드라이버를 사용할 수 있으며, `array` 및 `null` 캐시 드라이버는 자동화된 테스트를 위한 편리한 캐시 백엔드를 제공합니다.
+애플리케이션의 캐시 구성 파일은 `config/cache.php`에 있습니다. 이 파일에서는 애플리케이션 전체에서 기본적으로 사용할 캐시 저장소를 지정할 수 있습니다. Laravel는 [Memcached](https://memcached.org), [Redis](https://redis.io), [DynamoDB](https://aws.amazon.com/dynamodb)와 같은 널리 사용되는 캐싱 백엔드 및 관계형 데이터베이스를 기본으로 지원합니다. 또한 파일 기반 캐시 드라이버를 사용할 수 있으며, `array` 및 `null` 캐시 드라이버는 자동화된 테스트를 위한 편리한 캐시 백엔드를 제공합니다.
 
 <!-- The cache configuration file also contains a variety of other options that you may review. By default, Laravel is configured to use the `database` cache driver, which stores the serialized, cached objects in your application's database. -->
 캐시 구성 파일에는 검토할 수 있는 다양한 기타 옵션도 포함되어 있습니다. 기본적으로 Laravel는 직렬화되고 캐시된 개체를 애플리케이션 데이터베이스에 저장하는 `database` 캐시 드라이버를 사용하도록 구성됩니다.
@@ -160,7 +160,7 @@ MongoDB 구성에 대한 자세한 내용은 MongoDB [Cache and Locks documentat
 ### Obtaining a Cache Instance
 
 <!-- To obtain a cache store instance, you may use the `Cache` facade, which is what we will use throughout this documentation. The `Cache` facade provides convenient, terse access to the underlying implementations of the Laravel cache contracts: -->
-캐시 저장소 인스턴스를 얻으려면 이 문서 전체에서 사용할 `Cache` 외관을 사용할 수 있습니다. `Cache` 외관은 Laravel 캐시 계약의 기본 구현에 대한 편리하고 간결한 액세스를 제공합니다.
+캐시 저장소 인스턴스를 얻으려면 이 문서 전체에서 사용할 `Cache` 파사드를 사용할 수 있습니다. `Cache` 파사드는 Laravel 캐시 계약의 기본 구현에 대한 편리하고 간결한 액세스를 제공합니다.
 
 ```php
 <?php
@@ -284,10 +284,10 @@ $value = Cache::rememberForever('users', function () {
 `Cache::remember` 방법을 사용할 때 캐시된 값이 만료되면 일부 사용자는 응답 시간이 느려질 수 있습니다. 특정 유형의 데이터의 경우 캐시된 값이 백그라운드에서 다시 계산되는 동안 부분적으로 오래된 데이터가 제공되도록 허용하여 캐시된 값이 계산되는 동안 일부 사용자의 응답 시간이 느려지는 것을 방지하는 것이 유용할 수 있습니다. 이를 종종 "재검증 중 오래된" 패턴이라고 하며, `Cache::flexible` 메서드는 이 패턴의 구현을 제공합니다.
 
 <!-- The flexible method accepts an array that specifies how long the cached value is considered "fresh" and when it becomes "stale". The first value in the array represents the number of seconds the cache is considered fresh, while the second value defines how long it can be served as stale data before recalculation is necessary. -->
-유연한 메서드는 캐시된 값이 "최신"으로 간주되는 기간과 "부실" 상태가 되는 시기를 지정하는 배열을 허용합니다. 배열의 첫 번째 값은 캐시가 새로운 것으로 간주되는 시간(초)을 나타내고, 두 번째 값은 재계산이 필요하기 전에 오래된 데이터로 제공될 수 있는 기간을 정의합니다.
+flexible 메서드는 캐시된 값이 "최신"으로 간주되는 기간과 "오래된" 상태가 되는 시기를 지정하는 배열을 허용합니다. 배열의 첫 번째 값은 캐시가 새로운 것으로 간주되는 시간(초)을 나타내고, 두 번째 값은 재계산이 필요하기 전에 오래된 데이터로 제공될 수 있는 기간을 정의합니다.
 
 <!-- If a request is made within the fresh period (before the first value), the cache is returned immediately without recalculation. If a request is made during the stale period (between the two values), the stale value is served to the user, and a [deferred function](/docs/12.x/helpers#deferred-functions) is registered to refresh the cached value after the response is sent to the user. If a request is made after the second value, the cache is considered expired, and the value is recalculated immediately, which may result in a slower response for the user: -->
-신규 기간(첫 번째 값 이전) 내에 요청이 이루어지면 재계산 없이 즉시 캐시를 반환합니다. 오래된 값(두 값 사이) 동안 요청이 이루어지면 오래된 값을 사용자에게 제공하고, 사용자에게 응답이 전송된 후 캐시된 값을 새로 고치도록 [deferred function](/docs/12.x/helpers#deferred-functions)가 등록됩니다. 두 번째 값 이후에 요청이 이루어지면 캐시가 만료된 것으로 간주되고 값이 즉시 다시 계산되므로 사용자에 대한 응답이 느려질 수 있습니다.
+신규 기간(첫 번째 값 이전) 내에 요청이 이루어지면 재계산 없이 즉시 캐시를 반환합니다. 오래된 데이터를 제공할 수 있는 기간(두 값 사이) 동안 요청이 이루어지면 오래된 값을 사용자에게 제공하고, 사용자에게 응답이 전송된 후 캐시된 값을 새로 고치도록 [deferred function](/docs/12.x/helpers#deferred-functions)가 등록됩니다. 두 번째 값 이후에 요청이 이루어지면 캐시가 만료된 것으로 간주되고 값이 즉시 다시 계산되므로 사용자에 대한 응답이 느려질 수 있습니다.
 
 ```php
 $value = Cache::flexible('users', [5, 10], function () {
@@ -482,7 +482,7 @@ cache()->remember('users', $seconds, function () {
 ### Storing Tagged Cache Items
 
 <!-- Cache tags allow you to tag related items in the cache and then flush all cached values that have been assigned a given tag. You may access a tagged cache by passing in an ordered array of tag names. For example, let's access a tagged cache and `put` a value into the cache: -->
-캐시 태그를 사용하면 캐시의 관련 항목에 태그를 지정한 다음 특정 태그에 할당된 캐시된 값을 모두 플러시할 수 있습니다. 태그 이름의 정렬된 배열을 전달하여 태그된 캐시에 액세스할 수 있습니다. 예를 들어 태그가 지정된 캐시에 액세스하고 `put` 값을 캐시에 저장해 보겠습니다.
+캐시 태그를 사용하면 캐시의 관련 항목에 태그를 지정한 다음 특정 태그에 할당된 캐시된 값을 모두 플러시할 수 있습니다. 태그 이름의 정렬된 배열을 전달하여 태그된 캐시에 액세스할 수 있습니다. 예를 들어 태그가 지정된 캐시에 액세스하고 `put`으로 값을 캐시에 저장해 보겠습니다.
 
 ```php
 use Illuminate\Support\Facades\Cache;
@@ -663,7 +663,7 @@ Cache::funnel('foo')
 `funnel` 키는 제한되는 리소스를 식별합니다. `limit` 메서드는 최대 동시 실행을 정의합니다. `releaseAfter` 방법은 획득한 슬롯이 자동으로 해제되기 전에 안전 시간 초과를 초 단위로 설정합니다. `block` 방법은 사용 가능한 슬롯을 기다리는 시간(초)을 설정합니다.
 
 <!-- If you prefer to handle the timeout via exceptions instead of providing a failure closure, you may omit the second closure. An `Illuminate\Cache\Limiters\LimiterTimeoutException` will be thrown if the lock cannot be acquired within the specified wait time: -->
-실패 종료를 제공하는 대신 예외를 통해 시간 초과를 처리하려는 경우 두 번째 종료를 생략할 수 있습니다. 지정된 대기 시간 내에 잠금을 획득할 수 없으면 `Illuminate\Cache\Limiters\LimiterTimeoutException`가 발생합니다.
+실패 클로저를 제공하는 대신 예외를 통해 시간 초과를 처리하려는 경우 두 번째 클로저를 생략할 수 있습니다. 지정된 대기 시간 내에 잠금을 획득할 수 없으면 `Illuminate\Cache\Limiters\LimiterTimeoutException`가 발생합니다.
 
 ```php
 use Illuminate\Cache\Limiters\LimiterTimeoutException;
@@ -694,7 +694,7 @@ Cache::store('redis')->funnel('foo')
 ```
 
 > [!NOTE]
-> `funnel` 방법에는 `Illuminate\Contracts\Cache\LockProvider` 인터페이스를 구현하기 위한 캐시 저장소가 필요합니다. 잠금을 지원하지 않는 캐시 저장소와 함께 `funnel`를 사용하려고 하면 `BadMethodCallException`가 발생합니다.
+> `funnel` 방법에는 `Illuminate\Contracts\Cache\LockProvider` 인터페이스를 구현한 캐시 저장소가 필요합니다. 잠금을 지원하지 않는 캐시 저장소와 함께 `funnel`를 사용하려고 하면 `BadMethodCallException`가 발생합니다.
 
 <a name="cache-failover"></a>
 <!-- ## Cache Failover -->
@@ -724,7 +724,7 @@ CACHE_STORE=failover
 ```
 
 <!-- When a cache store operation fails and failover is activated, Laravel will dispatch the `Illuminate\Cache\Events\CacheFailedOver` event, allowing you to report or log that a cache store has failed. -->
-캐시 저장소 작업이 실패하고 장애 조치가 활성화되면 Laravel는 디스패치를 `Illuminate\Cache\Events\CacheFailedOver` 이벤트로 지정하여 캐시 저장소가 실패했음을 보고하거나 기록할 수 있습니다.
+캐시 저장소 작업이 실패하고 장애 조치가 활성화되면 Laravel은 `Illuminate\Cache\Events\CacheFailedOver` 이벤트를 디스패치하여 캐시 저장소가 실패했음을 보고하거나 기록할 수 있습니다.
 
 <a name="adding-custom-cache-drivers"></a>
 <!-- ## Adding Custom Cache Drivers -->
@@ -816,7 +816,7 @@ class AppServiceProvider extends ServiceProvider
 `extend` 메소드에 전달된 첫 번째 인수는 드라이버의 이름입니다. 이는 `config/cache.php` 구성 파일의 `driver` 옵션에 해당합니다. 두 번째 인수는 `Illuminate\Cache\Repository` 인스턴스를 반환해야 하는 클로저입니다. 클로저에는 [service container](/docs/12.x/container)의 인스턴스인 `$app` 인스턴스가 전달됩니다.
 
 <!-- Once your extension is registered, update the `CACHE_STORE` environment variable or `default` option within your application's `config/cache.php` configuration file to the name of your extension. -->
-확장이 등록되면 애플리케이션의 `config/cache.php` 구성 파일 내 `CACHE_STORE` 환경 변수 또는 `default` 옵션을 확장 이름으로 업데이트하세요.
+확장이 등록되면 애플리케이션의 `CACHE_STORE` 환경 변수 또는 `config/cache.php` 구성 파일 내 `default` 옵션을 확장 이름으로 업데이트하세요.
 
 <a name="events"></a>
 <!-- ## Events -->

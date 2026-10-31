@@ -168,7 +168,7 @@ valet use php
 #### Resetting Your Installation
 
 <!-- If you are having trouble getting your Valet installation to run properly, executing the `composer global update` command followed by `valet install` will reset your installation and can solve a variety of problems. In rare cases, it may be necessary to "hard reset" Valet by executing `valet uninstall --force` followed by `valet install`. -->
-Valet 설치가 정상적으로 작동하지 않는다면, `composer global update` 후 `valet install`을 차례로 실행하여 설치를 재설정해 볼 수 있습니다. 대부분의 문제는 이 방법으로 해결됩니다. 그래도 문제가 해결되지 않는 드문 경우에는, `valet uninstall --force` 와 `valet install`을 이어서 실행해 "강제 초기화"를 수행해야 할 수도 있습니다.
+Valet 설치가 정상적으로 작동하지 않는다면, `composer global update` 후 `valet install`을 차례로 실행하여 설치를 재설정해 볼 수 있습니다. 이 방법으로 다양한 문제를 해결할 수 있습니다. 그래도 문제가 해결되지 않는 드문 경우에는, `valet uninstall --force` 와 `valet install`을 이어서 실행해 "강제 초기화"를 수행해야 할 수도 있습니다.
 
 <a name="upgrading-valet"></a>
 <!-- ### Upgrading Valet -->
@@ -207,7 +207,7 @@ valet park
 ### The `link` Command
 
 <!-- The `link` command can also be used to serve your Laravel applications. This command is useful if you want to serve a single site in a directory and not the entire directory: -->
-`link` 명령어는 Laravel 애플리케이션을 한 개의 디렉터리만 서비스하고 싶을 때 유용합니다. 전체 디렉터리가 아닌, 특정 디렉터리에만 서비스를 연결할 수 있습니다.
+`link` 명령어는 디렉터리 내의 단일 Laravel 애플리케이션만 서비스하고 싶을 때 유용합니다. 전체 디렉터리가 아닌, 특정 디렉터리에만 서비스를 연결할 수 있습니다.
 
 
 ```
@@ -543,7 +543,7 @@ Command  | 설명
 `valet restart` | Valet 데몬을 재시작합니다.
 `valet start` | Valet 데몬을 시작합니다.
 `valet stop` | Valet 데몬을 중지합니다.
-`valet trust` | Brew와 Valet에 대해 비밀번호 없이 명령을 실행할 수 있도록 sudoers 파일을 추가합니다.
+`valet trust` | Valet 명령을 비밀번호 없이 실행할 수 있도록 Brew와 Valet용 sudoers 파일을 추가합니다.
 `valet uninstall` | Valet을 완전히 제거합니다. 수동 삭제 안내를 보여줍니다. `--force` 옵션을 사용하면 Valet의 모든 리소스를 강제 삭제합니다.
 
 <a name="valet-directories-and-files"></a>

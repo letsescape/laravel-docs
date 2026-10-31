@@ -3824,7 +3824,7 @@ Bus::assertDispatchedWithoutChain(ShipOrder::class);
 #### Testing Chain Modifications
 
 <!-- If a chained job [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain), you may use the job's `assertHasChain` method to assert that the job has the expected chain of remaining jobs: -->
-チェーンされたジョブ [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain) の場合、ジョブの `assertHasChain` メソッドを使用して、ジョブに予想される残りのジョブのチェーンがあることをアサートできます。
+チェーンされたジョブが既存のチェーンの先頭または末尾にジョブを追加する場合（[prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain)）、ジョブの `assertHasChain` メソッドを使用して、ジョブに予想される残りのジョブのチェーンがあることをアサートできます。
 
 ```php
 $job = new ProcessPodcast;
@@ -3850,7 +3850,7 @@ $job->assertDoesntHaveChain();
 #### Testing Chained Batches
 
 <!-- If your job chain [contains a batch of jobs](#chains-and-batches), you may assert that the chained batch matches your expectations by inserting a `Bus::chainedBatch` definition within your chain assertion: -->
-ジョブ チェーンが [contains a batch of jobs](#chains-and-batches) の場合、チェーン アサーション内に `Bus::chainedBatch` 定義を挿入することで、チェーンされたバッチが期待どおりであることをアサートできます。
+ジョブ チェーンにジョブのバッチが含まれている場合（[contains a batch of jobs](#chains-and-batches)）、チェーン アサーション内に `Bus::chainedBatch` 定義を挿入することで、チェーンされたバッチが期待どおりであることをアサートできます。
 
 ```php
 use App\Jobs\ShipOrder;
@@ -3949,7 +3949,7 @@ $this->assertEmpty($batch->added);
 ### Testing Job / Queue Interactions
 
 <!-- Sometimes, you may need to test that a queued job [releases itself back onto the queue](#manually-releasing-a-job). Or, you may need to test that the job deleted itself. You may test these queue interactions by instantiating the job and invoking the `withFakeQueueInteractions` method. -->
-場合によっては、キューに入れられたジョブ [releases itself back onto the queue](#manually-releasing-a-job) をテストする必要があるかもしれません。または、ジョブ自体が削除されたかどうかをテストする必要がある場合があります。ジョブをインスタンス化し、`withFakeQueueInteractions` メソッドを呼び出すことで、これらのキューの対話をテストできます。
+場合によっては、キューに入れられたジョブが自らキューに戻るかどうか（[releases itself back onto the queue](#manually-releasing-a-job)）をテストする必要があるかもしれません。または、ジョブ自体が削除されたかどうかをテストする必要がある場合があります。ジョブをインスタンス化し、`withFakeQueueInteractions` メソッドを呼び出すことで、これらのキューの対話をテストできます。
 
 <!-- Once the job's queue interactions have been faked, you may invoke the `handle` method on the job. After invoking the job, various assertion methods are available to verify the job's queue interactions: -->
 ジョブのキューの対話が偽装されると、ジョブに対して `handle` メソッドを呼び出すことができます。ジョブを呼び出した後、ジョブのキューの相互作用を検証するためにさまざまなアサーション メソッドを使用できます。

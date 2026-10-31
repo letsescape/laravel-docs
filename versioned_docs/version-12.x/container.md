@@ -111,7 +111,7 @@ Route::get('/', function (Request $request) {
 실제로 대부분의 경우에는 자동 의존성 주입과 [facades](/docs/12.x/facades)를 통해 컨테이너에서 아무것도 직접 바인딩하거나 해석하지 않고도 Laravel 애플리케이션을 쉽게 개발할 수 있습니다. **그렇다면 언제 직접 컨테이너와 상호작용해야 할까요?** 아래 두 가지 상황을 예로 들 수 있습니다.
 
 <!-- First, if you write a class that implements an interface and you wish to type-hint that interface on a route or class constructor, you must [tell the container how to resolve that interface](#binding-interfaces-to-implementations). Secondly, if you are [writing a Laravel package](/docs/12.x/packages) that you plan to share with other Laravel developers, you may need to bind your package's services into the container. -->
-첫째, 직접 인터페이스를 구현한 클래스를 작성하고 라우트나 생성자에서 해당 인터페이스를 타입힌트로 지정하려면, [tell the container how to resolve that interface](#binding-interfaces-to-implementations). 둘째, 당신이 [writing a Laravel package](/docs/12.x/packages)를 개발한다면, 패키지의 서비스를 컨테이너에 바인딩해야 할 수도 있습니다.
+첫째, 직접 인터페이스를 구현한 클래스를 작성하고 라우트나 생성자에서 해당 인터페이스를 타입힌트로 지정하려면, 컨테이너에 해당 인터페이스를 해석하는 방법을 알려주어야 합니다([tell the container how to resolve that interface](#binding-interfaces-to-implementations)). 둘째, 당신이 [writing a Laravel package](/docs/12.x/packages)를 개발한다면, 패키지의 서비스를 컨테이너에 바인딩해야 할 수도 있습니다.
 
 <a name="binding"></a>
 <!-- ## Binding -->
@@ -391,7 +391,7 @@ $this->app->when([VideoController::class, UploadController::class])
 ### Contextual Attributes
 
 <!-- Since contextual binding is often used to inject implementations of drivers or configuration values, Laravel offers a variety of contextual binding attributes that allow to inject these types of values without manually defining the contextual bindings in your service providers. -->
-컨텍스트 바인딩은 보통 드라이버 구현체나 설정값을 주입할 때 많이 사용합니다. Laravel은 이런 값을 서비스 프로바이더에서 수동으로 정의하지 않고도 속성(Attribute)으로 쉽게 주입할 수 있도록 여러 컨텍스트 바인딩 속성을 제공합니다.
+컨텍스트 바인딩은 보통 드라이버 구현체나 설정값을 주입할 때 많이 사용합니다. Laravel은 서비스 프로바이더에서 컨텍스트 바인딩을 수동으로 정의하지 않고도 이런 값을 속성(Attribute)으로 쉽게 주입할 수 있도록 여러 컨텍스트 바인딩 속성을 제공합니다.
 
 <!-- For example, the `Storage` attribute may be used to inject a specific [storage disk](/docs/12.x/filesystem): -->
 예를 들어, `Storage` 속성(Attribute)을 사용하면 특정 [storage disk](/docs/12.x/filesystem)를 주입할 수 있습니다.

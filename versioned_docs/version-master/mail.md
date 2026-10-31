@@ -710,7 +710,7 @@ public function attachments(): array
 문자열 경로로 파일을 첨부하는 방식이 간단하지만, 애플리케이션에서 첨부해야 하는 엔티티가 클래스로 표현되는 경우도 많습니다. 예를 들어 메시지에 사진을 첨부한다면, 애플리케이션에 해당 사진을 나타내는 `Photo` 모델이 있을 수 있습니다. 이런 경우 `Photo` 모델을 그대로 `attach` 메서드에 전달할 수 있다면 편리할 것입니다. Attachable 객체가 바로 이 역할을 합니다.
 
 <!-- To get started, implement the `Illuminate\Contracts\Mail\Attachable` interface on the object that will be attachable to messages. This interface dictates that your class defines a `toMailAttachment` method that returns an `Illuminate\Mail\Attachment` instance: -->
-사용하려면, 첨부할 객체에 `Illuminate\Contracts\Mail\Attachable` 인터페이스를 구현하면 됩니다. 이 인터페이스는 `toMailAttachment` 메서드를 정의해야 하며, 여기서 `Illuminate\Mail\Attachment` 인스턴스를 반환해야 합니다.
+사용하려면, 첨부할 객체에 `Illuminate\Contracts\Mail\Attachable` 인터페이스를 구현하면 됩니다. 이 인터페이스를 구현하는 클래스는 `toMailAttachment` 메서드를 정의해야 하며, 여기서 `Illuminate\Mail\Attachment` 인스턴스를 반환해야 합니다.
 
 ```php
 <?php
@@ -1000,7 +1000,7 @@ Laravel의 Markdown 컴포넌트에 완전히 새로운 테마를 적용하려�
 ## Sending Mail
 
 <!-- To send a message, use the `to` method on the `Mail` [facade](/docs/master/facades). The `to` method accepts an email address, a user instance, or a collection of users. If you pass an object or collection of objects, the mailer will automatically use their `email` and `name` properties when determining the email's recipients, so make sure these attributes are available on your objects. Once you have specified your recipients, you may pass an instance of your mailable class to the `send` method: -->
-메일을 발송하려면, `Mail` [facade](/docs/master/facades)의 `to` 메서드를 사용하세요. `to` 메서드는 이메일 주소, 사용자 인스턴스, 사용자 컬렉션을 인수로 받을 수 있습니다. 객체나 객체의 컬렉션이 전달되면, 객체의 `email`과 `name` 속성을 알아서 추출하여 수신자로 지정합니다. 수신자를 지정한 후에는, 메일러블 클래스 인스턴스를 `send` 메서드에 전달하면 됩니다.
+메일을 발송하려면, `Mail` [facade](/docs/master/facades)의 `to` 메서드를 사용하세요. `to` 메서드는 이메일 주소, 사용자 인스턴스, 사용자 컬렉션을 인수로 받을 수 있습니다. 객체나 객체의 컬렉션이 전달되면, 객체의 `email`과 `name` 속성을 알아서 추출하여 수신자로 지정하므로, 해당 속성이 객체에 있는지 확인해야 합니다. 수신자를 지정한 후에는, 메일러블 클래스 인스턴스를 `send` 메서드에 전달하면 됩니다.
 
 ```php
 <?php
@@ -1141,7 +1141,7 @@ class OrderShipped extends Mailable implements ShouldQueue
 #### Queued Mailables and Database Transactions
 
 <!-- When queued mailables are dispatched within database transactions, they may be processed by the queue before the database transaction has committed. When this happens, any updates you have made to models or database records during the database transaction may not yet be reflected in the database. In addition, any models or database records created within the transaction may not exist in the database. If your mailable depends on these models, unexpected errors can occur when the job that sends the queued mailable is processed. -->
-큐잉된 메일러블이 데이터베이스 트랜잭션 내에서 디스패치되는 경우, 큐 작업이 트랜잭션 커밋보다 먼저 처리될 수 있습니다. 이 때문에, 트랜잭션 동안 변경한 모델이나 레코드가 데이터베이스에 반영되지 않았거나, 새로 생성된 레코드는 DB에 존재하지 않을 수 있어 예상치 못한 오류가 발생할 수 있습니다.
+큐잉된 메일러블이 데이터베이스 트랜잭션 내에서 디스패치되는 경우, 큐 작업이 트랜잭션 커밋보다 먼저 처리될 수 있습니다. 이 때문에, 트랜잭션 동안 변경한 모델이나 레코드가 데이터베이스에 반영되지 않았거나, 새로 생성된 레코드는 DB에 존재하지 않을 수 있습니다. 메일러블이 이러한 모델에 의존한다면, 큐 작업 처리 시 예상치 못한 오류가 발생할 수 있습니다.
 
 <!-- If your queue connection's `after_commit` configuration option is set to `false`, you may still indicate that a particular queued mailable should be dispatched after all open database transactions have been committed by calling the `afterCommit` method when sending the mail message: -->
 큐 연결의 `after_commit` 설정 옵션이 `false`로 되어 있다면, 메일 메시지 전송 시 `afterCommit` 메서드를 호출해 모든 트랜잭션 커밋 이후 전송하도록 할 수 있습니다.
@@ -1377,7 +1377,7 @@ public function test_mailable_content(): void
 ### Testing Mailable Sending
 
 <!-- We suggest testing the content of your mailables separately from your tests that assert that a given mailable was "sent" to a specific user. Typically, the content of mailables is not relevant to the code you are testing, and it is sufficient to simply assert that Laravel was instructed to send a given mailable. -->
-메일러블의 내용을 검증하는 테스트와, 특정 메일러블이 특정 사용자에게 "발송"되었는지를 검증하는 테스트는 분리하는 것이 좋습니다. 실제로, 테스트 중인 코드와 무관한 메일 콘텐츠까지 검증할 필요는 없으므로, Laravel에서 특정 메일러블이 발송되었는지만 확인해도 충분합니다.
+메일러블의 내용을 검증하는 테스트와, 특정 메일러블이 특정 사용자에게 "발송"되었는지를 검증하는 테스트는 분리하는 것이 좋습니다. 일반적으로 메일러블의 내용은 테스트 중인 코드와 관련이 없으므로, Laravel에 특정 메일러블을 발송하도록 지시했는지만 확인해도 충분합니다.
 
 <!-- You may use the `Mail` facade's `fake` method to prevent mail from being sent. After calling the `Mail` facade's `fake` method, you may then assert that mailables were instructed to be sent to users and even inspect the data the mailables received: -->
 `Mail` 파사드의 `fake` 메서드를 호출하면 실제 메일 발송이 일어나지 않도록 막을 수 있습니다. `Mail` 파사드의 `fake` 메서드를 호출한 후에는, 메일러블이 사용자에게 발송 지시를 받았는지 검증하고, 각 메일러블이 어떤 데이터를 받았는지까지 확인할 수 있습니다.
@@ -1533,7 +1533,7 @@ Mail::assertSent(OrderShipped::class, function (OrderShipped $mail) use ($pdfDat
 ```
 
 <!-- You may have noticed that there are two methods for asserting that mail was not sent: `assertNotSent` and `assertNotQueued`. Sometimes you may wish to assert that no mail was sent **or** queued. To accomplish this, you may use the `assertNothingOutgoing` and `assertNotOutgoing` methods: -->
-메일이 발송되지 않았음을 검사하는 방법에는 `assertNotSent`와 `assertNotQueued` 두 가지가 있습니다. 때로는 메일이 발송 **또는** 큐잉되지 않았는지를 한 번에 검사하고 싶을 수 있는데, 이때는 `assertNothingOutgoing`와 `assertNotOutgoing` 메서드를 사용할 수 있습니다.
+메일이 발송되지 않았음을 검사하는 방법에는 `assertNotSent`와 `assertNotQueued` 두 가지가 있습니다. 때로는 메일의 발송 **또는** 큐잉이 전혀 이루어지지 않았는지를 한 번에 검사하고 싶을 수 있는데, 이때는 `assertNothingOutgoing`와 `assertNotOutgoing` 메서드를 사용할 수 있습니다.
 
 ```php
 Mail::assertNothingOutgoing();

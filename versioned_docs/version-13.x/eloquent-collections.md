@@ -352,7 +352,7 @@ $users->toQuery()->update([
 #### `unique($key = null, $strict = false)`
 
 <!-- The `unique` method returns all of the unique models in the collection. Any models with the same primary key as another model in the collection are removed: -->
-`unique` 메서드는 컬렉션의 고유한 모델을 모두 반환합니다. 컬렉션의 다른 모델와 동일한 기본 키를 가진 모든 모델이 제거됩니다.
+`unique` 메서드는 컬렉션의 고유한 모델을 모두 반환합니다. 컬렉션의 다른 모델과 동일한 기본 키를 가진 모든 모델이 제거됩니다.
 
 ```php
 $users = $users->unique();
@@ -374,7 +374,7 @@ $users = $users->withoutAppends();
 ## Custom Collections
 
 <!-- If you would like to use a custom `Collection` object when interacting with a given model, you may add the `CollectedBy` attribute to your model: -->
-특정 모델와 상호작용할 때 사용자 지정 `Collection` 개체를 사용하려면 모델에 `CollectedBy` 속성을 추가하면 됩니다.
+특정 모델과 상호작용할 때 사용자 지정 `Collection` 개체를 사용하려면 모델에 `CollectedBy` 속성을 추가하면 됩니다.
 
 ```php
 <?php

@@ -73,7 +73,7 @@ composer require laravel/dusk --dev
 ```
 
 > [!WARNING]
-> Dusk의 서비스 프로바이더를 수동으로 등록하는 경우 프로덕션 환경에 해당 서비스를 **절대** 등록해서는 안 됩니다. 그렇게 하면 임의의 사용자가 귀하의 애플리케이션을 인증할 수 있게 될 수 있습니다.
+> Dusk의 서비스 프로바이더를 수동으로 등록하는 경우 프로덕션 환경에 해당 서비스를 **절대** 등록해서는 안 됩니다. 그렇게 하면 임의의 사용자가 귀하의 애플리케이션에 인증된 상태로 접근할 수 있게 될 수 있습니다.
 
 <!-- After installing the Dusk package, execute the `dusk:install` Artisan command. The `dusk:install` command will create a `tests/Browser` directory, an example Dusk test, and install the Chrome Driver binary for your operating system: -->
 Dusk 패키지를 설치한 후 `dusk:install` Artisan 명령을 실행합니다. `dusk:install` 명령은 `tests/Browser` 디렉터리와 예제 Dusk 테스트를 생성하고 운영 체제에 맞는 Chrome 드라이버 바이너리를 설치합니다.
@@ -110,7 +110,7 @@ php artisan dusk:chrome-driver --detect
 ```
 
 > [!WARNING]
-> Dusk를 실행하려면 `chromedriver` 바이너리가 필요합니다. Dusk를 실행하는 데 문제가 있는 경우 `chmod -R 0755 vendor/laravel/dusk/bin/` 명령을 사용하여 바이너리가 실행 가능한지 확인해야 합니다.
+> Dusk를 실행하려면 `chromedriver` 바이너리에 실행 권한이 필요합니다. Dusk를 실행하는 데 문제가 있는 경우 `chmod -R 0755 vendor/laravel/dusk/bin/` 명령을 사용하여 바이너리에 실행 권한을 부여해야 합니다.
 
 <a name="using-other-browsers"></a>
 <!-- ### Using Other Browsers -->
@@ -171,7 +171,7 @@ php artisan dusk:make LoginTest
 ### Resetting the Database After Each Test
 
 <!-- Most of the tests you write will interact with pages that retrieve data from your application's database; however, your Dusk tests should never use the `RefreshDatabase` trait. The `RefreshDatabase` trait leverages database transactions which will not be applicable or available across HTTP requests. Instead, you have two options: the `DatabaseMigrations` trait and the `DatabaseTruncation` trait. -->
-여러분이 작성하는 대부분의 테스트는 애플리케이션 데이터베이스에서 데이터를 검색하는 페이지와 상호 작용합니다. 그러나 Dusk 테스트에서는 `RefreshDatabase` 특성을 절대 사용해서는 안 됩니다. `RefreshDatabase` 특성은 HTTP 요청에 적용할 수 없거나 사용할 수 없는 데이터베이스 트랜잭션을 활용합니다. 대신 `DatabaseMigrations` 특성과 `DatabaseTruncation` 특성이라는 두 가지 옵션이 있습니다.
+여러분이 작성하는 대부분의 테스트는 애플리케이션 데이터베이스에서 데이터를 검색하는 페이지와 상호 작용합니다. 그러나 Dusk 테스트에서는 `RefreshDatabase` 특성을 절대 사용해서는 안 됩니다. `RefreshDatabase` 특성은 HTTP 요청 간에 적용할 수 없거나 사용할 수 없는 데이터베이스 트랜잭션을 활용합니다. 대신 `DatabaseMigrations` 특성과 `DatabaseTruncation` 특성이라는 두 가지 옵션이 있습니다.
 
 <a name="reset-migrations"></a>
 <!-- #### Using Database Migrations -->
@@ -209,7 +209,7 @@ class ExampleTest extends DuskTestCase
 ```
 
 > [!WARNING]
-> SQLite 인 메모리 데이터베이스는 Dusk 테스트를 실행할 때 사용되지 않을 수 있습니다. 브라우저는 자체 프로세스 내에서 실행되므로 다른 프로세스의 메모리 내 데이터베이스에 액세스할 수 없습니다.
+> SQLite 인 메모리 데이터베이스는 Dusk 테스트를 실행할 때 사용할 수 없습니다. 브라우저는 자체 프로세스 내에서 실행되므로 다른 프로세스의 메모리 내 데이터베이스에 액세스할 수 없습니다.
 
 <a name="reset-truncation"></a>
 <!-- #### Using Database Truncation -->
@@ -251,7 +251,7 @@ class ExampleTest extends DuskTestCase
 기본적으로 이 특성은 `migrations` 테이블을 제외한 모든 테이블을 자릅니다. 잘라야 하는 테이블을 사용자 지정하려면 테스트 클래스에 `$tablesToTruncate` 속성을 정의할 수 있습니다.
 
 > [!NOTE]
-> Pest를 사용하는 경우 기본 `DuskTestCase` 클래스 또는 테스트 파일이 확장하는 모든 클래스에서 속성이나 메서드를 정의해야 합니다.
+> Pest를 사용하는 경우 기본 `DuskTestCase` 클래스 또는 테스트 파일이 확장하는 클래스에서 속성이나 메서드를 정의해야 합니다.
 
 ```php
 /**
@@ -597,7 +597,7 @@ $this->browse(function (Browser $browser) use ($user) {
 ### Authentication
 
 <!-- Often, you will be testing pages that require authentication. You can use Dusk's `loginAs` method in order to avoid interacting with your application's login screen during every test. The `loginAs` method accepts a primary key associated with your authenticatable model or an authenticatable model instance: -->
-인증이 필요한 페이지를 테스트하는 경우가 많습니다. 모든 테스트에 애플리케이션의 로그인 화면과의 상호 작용을 피하기 위해 Dusk의 `loginAs` 메서드를 사용할 수 있습니다. `loginAs` 메서드는 인증 가능한 모델 또는 인증 가능한 모델 인스턴스와 연결된 기본 키를 허용합니다.
+인증이 필요한 페이지를 테스트하는 경우가 많습니다. 모든 테스트에 애플리케이션의 로그인 화면과의 상호 작용을 피하기 위해 Dusk의 `loginAs` 메서드를 사용할 수 있습니다. `loginAs` 메서드는 인증 가능한 모델과 연결된 기본 키 또는 인증 가능한 모델 인스턴스를 허용합니다.
 
 ```php
 use App\Models\User;
@@ -817,7 +817,7 @@ $browser->type('email', 'taylor@laravel.com');
 ```
 
 <!-- Note that, although the method accepts one if necessary, we are not required to pass a CSS selector into the `type` method. If a CSS selector is not provided, Dusk will search for an `input` or `textarea` field with the given `name` attribute. -->
-메서드는 필요한 경우 하나를 허용하지만 CSS 선택기를 `type` 메서드에 전달할 필요는 없습니다. CSS 선택기가 제공되지 않으면 Dusk는 지정된 `name` 속성을 사용하여 `input` 또는 `textarea` 필드를 검색합니다.
+필요한 경우 CSS 선택기를 전달할 수 있지만 `type` 메서드에 반드시 전달해야 하는 것은 아닙니다. CSS 선택기가 제공되지 않으면 Dusk는 지정된 `name` 속성을 사용하여 `input` 또는 `textarea` 필드를 검색합니다.
 
 <!-- To append text to a field without clearing its content, you may use the `append` method: -->
 내용을 지우지 않고 필드에 텍스트를 추가하려면 `append` 메소드를 사용할 수 있습니다:
@@ -856,7 +856,7 @@ $browser->type('tags', 'foo')
 #### Dropdowns
 
 <!-- To select a value available on a `select` element, you may use the `select` method. Like the `type` method, the `select` method does not require a full CSS selector. When passing a value to the `select` method, you should pass the underlying option value instead of the display text: -->
-`select` 요소에서 사용 가능한 값을 선택하려면 `select` 방법을 사용할 수 있습니다. `type` 방법과 마찬가지로 `select` 방법에는 전체 CSS 선택기가 필요하지 않습니다. `select` 메서드에 값을 전달할 때 표시 텍스트 대신 기본 옵션 값을 전달해야 합니다.
+`select` 요소에서 사용 가능한 값을 선택하려면 `select` 방법을 사용할 수 있습니다. `type` 방법과 마찬가지로 `select` 방법에는 전체 CSS 선택기가 필요하지 않습니다. `select` 메서드에 값을 전달할 때 표시 텍스트 대신 실제 옵션 값을 전달해야 합니다.
 
 ```php
 $browser->select('size', 'Large');
@@ -917,7 +917,7 @@ $browser->attach('photo', __DIR__.'/photos/mountains.png');
 ```
 
 > [!WARNING]
-> 연결 기능을 사용하려면 서버에 `Zip` PHP 확장을 설치하고 활성화해야 합니다.
+> 파일 첨부 기능을 사용하려면 서버에 `Zip` PHP 확장을 설치하고 활성화해야 합니다.
 
 <a name="pressing-buttons"></a>
 <!-- ### Pressing Buttons -->
@@ -983,14 +983,14 @@ $browser->keys('.app', ['{command}', 'j']);
 ```
 
 > [!NOTE]
-> `{command}`와 같은 모든 수정자 키는 `{}` 문자로 래핑되며 [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php) `Facebook\WebDriver\WebDriverKeys` 클래스에 정의된 상수와 일치합니다.
+> `{command}`와 같은 모든 수정자 키는 `{}` 문자로 래핑되며 [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php)에서 확인할 수 있는 `Facebook\WebDriver\WebDriverKeys` 클래스에 정의된 상수와 일치합니다.
 
 <a name="fluent-keyboard-interactions"></a>
 <!-- #### Fluent Keyboard Interactions -->
 #### Fluent Keyboard Interactions
 
 <!-- Dusk also provides a `withKeyboard` method, allowing you to fluently perform complex keyboard interactions via the `Laravel\Dusk\Keyboard` class. The `Keyboard` class provides `press`, `release`, `type`, and `pause` methods: -->
-Dusk는 `withKeyboard` 메서드도 제공하므로 `Laravel\Dusk\Keyboard` 클래스를 통해 복잡한 키보드 상호 작용을 유창하게 수행할 수 있습니다. `Keyboard` 클래스는 `press`, `release`, `type` 및 `pause` 메서드를 제공합니다.
+Dusk는 `withKeyboard` 메서드도 제공하므로 `Laravel\Dusk\Keyboard` 클래스의 메서드를 연속으로 호출하여 복잡한 키보드 상호 작용을 수행할 수 있습니다. `Keyboard` 클래스는 `press`, `release`, `type` 및 `pause` 메서드를 제공합니다.
 
 ```php
 use Laravel\Dusk\Keyboard;
@@ -1418,7 +1418,7 @@ $browser->waitForLocation('/secret');
 ```
 
 <!-- The `waitForLocation` method can also be used to wait for the current window location to be a fully qualified URL: -->
-`waitForLocation` 메서드를 사용하여 현재 창 위치가 정규화된 URL가 될 때까지 기다릴 수도 있습니다.
+`waitForLocation` 메서드를 사용하여 현재 창 위치가 전체 URL과 일치할 때까지 기다릴 수도 있습니다.
 
 ```php
 $browser->waitForLocation('https://example.com/path');
@@ -1750,7 +1750,7 @@ $browser->assertTitleContains($title);
 #### assertUrlIs
 
 <!-- Assert that the current URL (without the query string) matches the given string: -->
-현재 URL(쿼리 문자열 제외)가 주어진 문자열과 일치하는지 확인:
+현재 URL(쿼리 문자열 제외)이 주어진 문자열과 일치하는지 확인:
 
 ```php
 $browser->assertUrlIs($url);
@@ -1882,7 +1882,7 @@ $browser->assertPathIsNot('/home');
 #### assertRouteIs
 
 <!-- Assert that the current URL matches the given [named route's](/docs/master/routing#named-routes) URL: -->
-현재 URL가 주어진 [named route's](/docs/master/routing#named-routes) URL와 일치하는지 확인합니다.
+현재 URL이 주어진 [named route's](/docs/master/routing#named-routes)의 URL과 일치하는지 확인합니다.
 
 ```php
 $browser->assertRouteIs($name, $parameters);
@@ -2253,7 +2253,7 @@ $browser->assertNotSelected($field, $value);
 #### assertSelectHasOptions
 
 <!-- Assert that the given array of values are available to be selected: -->
-주어진 값의 배열을 선택할 수 있는지 확인:
+주어진 배열의 값들을 선택할 수 있는지 확인:
 
 ```php
 $browser->assertSelectHasOptions($field, $values);
@@ -2264,7 +2264,7 @@ $browser->assertSelectHasOptions($field, $values);
 #### assertSelectMissingOptions
 
 <!-- Assert that the given array of values are not available to be selected: -->
-주어진 값의 배열을 선택할 수 없는지 확인:
+주어진 배열의 값들을 선택할 수 없는지 확인:
 
 ```php
 $browser->assertSelectMissingOptions($field, $values);
@@ -2660,7 +2660,7 @@ $browser->assertVueDoesntContain($property, $value, $componentSelector = null);
 ## Pages
 
 <!-- Sometimes, tests require several complicated actions to be performed in sequence. This can make your tests harder to read and understand. Dusk Pages allow you to define expressive actions that may then be performed on a given page via a single method. Pages also allow you to define short-cuts to common selectors for your application or for a single page. -->
-때때로 테스트에서는 여러 가지 복잡한 작업을 순서대로 수행해야 합니다. 이로 인해 테스트를 읽고 이해하기가 더 어려워질 수 있습니다. Dusk 페이지를 사용하면 단일 메서드를 통해 특정 페이지에서 수행할 수 있는 표현 작업을 정의할 수 있습니다. 또한 페이지를 사용하면 애플리케이션이나 단일 페이지에 대한 공통 선택기에 대한 바로 가기를 정의할 수 있습니다.
+때때로 테스트에서는 여러 가지 복잡한 작업을 순서대로 수행해야 합니다. 이로 인해 테스트를 읽고 이해하기가 더 어려워질 수 있습니다. Dusk 페이지를 사용하면 단일 메서드를 통해 특정 페이지에서 수행할 수 있는 의도가 명확한 작업을 정의할 수 있습니다. 또한 페이지를 사용하면 애플리케이션이나 단일 페이지에 대한 공통 선택기에 대한 바로 가기를 정의할 수 있습니다.
 
 <a name="generating-pages"></a>
 <!-- ### Generating Pages -->
@@ -2678,14 +2678,14 @@ php artisan dusk:page Login
 ### Configuring Pages
 
 <!-- By default, pages have three methods: `url`, `assert`, and `elements`. We will discuss the `url` and `assert` methods now. The `elements` method will be [discussed in more detail below](#shorthand-selectors). -->
-기본적으로 페이지에는 `url`, `assert` 및 `elements`의 세 가지 방법이 있습니다. 이제 `url` 및 `assert` 방법에 대해 논의하겠습니다. `elements` 방법은 [discussed in more detail below](#shorthand-selectors)됩니다.
+기본적으로 페이지에는 `url`, `assert` 및 `elements`의 세 가지 방법이 있습니다. 이제 `url` 및 `assert` 방법에 대해 논의하겠습니다. `elements` 방법은 [discussed in more detail below](#shorthand-selectors)에서 자세히 설명합니다.
 
 <a name="the-url-method"></a>
 <!-- #### The `url` Method -->
 #### The `url` Method
 
 <!-- The `url` method should return the path of the URL that represents the page. Dusk will use this URL when navigating to the page in the browser: -->
-`url` 메소드는 페이지를 나타내는 URL의 경로를 반환해야 합니다. Dusk는 브라우저에서 페이지를 탐색할 때 이 URL를 사용합니다.
+`url` 메소드는 페이지를 나타내는 URL의 경로를 반환해야 합니다. Dusk는 브라우저에서 페이지를 탐색할 때 이 URL을 사용합니다.
 
 ```php
 /**
@@ -2744,7 +2744,7 @@ $browser->visit('/dashboard')
 ### Shorthand Selectors
 
 <!-- The `elements` method within page classes allows you to define quick, easy-to-remember shortcuts for any CSS selector on your page. For example, let's define a shortcut for the "email" input field of the application's login page: -->
-페이지 클래스 내의 `elements` 메소드를 사용하면 페이지의 CSS 선택기에 대해 빠르고 기억하기 쉬운 단축키를 정의할 수 있습니다. 예를 들어, 애플리케이션 로그인 페이지의 "이메일" 입력 필드에 대한 바로가기를 정의해 보겠습니다.
+페이지 클래스 내의 `elements` 메소드를 사용하면 페이지의 CSS 선택기에 대해 빠르고 기억하기 쉬운 단축 이름을 정의할 수 있습니다. 예를 들어, 애플리케이션 로그인 페이지의 "이메일" 입력 필드에 대한 바로가기를 정의해 보겠습니다.
 
 ```php
 /**
@@ -2761,7 +2761,7 @@ public function elements(): array
 ```
 
 <!-- Once the shortcut has been defined, you may use the shorthand selector anywhere you would typically use a full CSS selector: -->
-단축키가 정의되면 일반적으로 전체 CSS 선택기를 사용하는 곳 어디에서나 단축 선택기를 사용할 수 있습니다.
+단축 이름이 정의되면 일반적으로 전체 CSS 선택기를 사용하는 곳 어디에서나 단축 선택기를 사용할 수 있습니다.
 
 ```php
 $browser->type('@email', 'taylor@laravel.com');
@@ -2982,7 +2982,7 @@ $datePicker->assertSee('January');
 ## Continuous Integration
 
 > [!WARNING]
-> 대부분의 Dusk 연속 통합 구성에서는 Laravel 애플리케이션이 포트 8000에 내장된 PHP 개발 서버를 사용하여 제공될 것으로 예상합니다. 따라서 계속하기 전에 연속 통합 환경에 `APP_URL` 환경 변수 값 `http://127.0.0.1:8000`가 있는지 확인해야 합니다.
+> 대부분의 Dusk 연속 통합 구성에서는 Laravel 애플리케이션이 포트 8000에서 PHP 내장 개발 서버를 사용하여 제공될 것으로 예상합니다. 따라서 계속하기 전에 연속 통합 환경에 `APP_URL` 환경 변수 값 `http://127.0.0.1:8000`가 있는지 확인해야 합니다.
 
 <a name="running-tests-on-heroku-ci"></a>
 <!-- ### Heroku CI -->

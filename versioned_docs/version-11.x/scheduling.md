@@ -56,7 +56,7 @@ Schedule::call(new DeleteRecentUsers)->daily();
 ```
 
 <!-- If you prefer to reserve your `routes/console.php` file for command definitions only, you may use the `withSchedule` method in your application's `bootstrap/app.php` file to define your scheduled tasks. This method accepts a closure that receives an instance of the scheduler: -->
-만약 `routes/console.php` 파일을 명령어 정의 전용으로만 사용하고 싶을 경우, 애플리케이션의 `bootstrap/app.php` 파일에서 `withSchedule` 메서드를 사용해 예약 작업을 정의할 수 있습니다. 이 메서드는 스케줄러 인스턴스를 받는 클로저를 인자로 제공합니다:
+만약 `routes/console.php` 파일을 명령어 정의 전용으로만 사용하고 싶을 경우, 애플리케이션의 `bootstrap/app.php` 파일에서 `withSchedule` 메서드를 사용해 예약 작업을 정의할 수 있습니다. 이 메서드는 스케줄러 인스턴스를 받는 클로저를 인자로 받습니다:
 
 ```
 use Illuminate\Console\Scheduling\Schedule;
@@ -245,7 +245,7 @@ Schedule::command('foo')
 | `->days(array\|mixed);`                    | 특정 요일에만 작업을 제한적으로 실행합니다.         |
 | `->between($startTime, $endTime);`         | 지정된 시간 사이에만 작업을 실행합니다.             |
 | `->unlessBetween($startTime, $endTime);`   | 지정된 시간 사이에는 작업을 실행하지 않습니다.      |
-| `->when(Closure);`                         | 주어진 진위(closed) 테스트 결과에 따라 실행합니다.   |
+| `->when(Closure);`                         | 주어진 참·거짓 테스트 결과에 따라 실행합니다.   |
 | `->environments($env);`                    | 특정 환경에서만 작업을 실행합니다.                  |
 
 <!-- </div> -->
@@ -305,7 +305,7 @@ Schedule::command('emails:send')
 #### Truth Test Constraints
 
 <!-- The `when` method may be used to limit the execution of a task based on the result of a given truth test. In other words, if the given closure returns `true`, the task will execute as long as no other constraining conditions prevent the task from running: -->
-`when` 메서드는 주어진 조건을 클로저로 전달했을 때, 클로저가 `true`를 반환하면 작업이 실행되도록 제한합니다. (다른 제약 조건이 없을 때):
+`when` 메서드는 주어진 조건을 클로저로 전달했을 때, 클로저가 `true`를 반환하면 작업이 실행되도록 제한합니다. (다른 제약 조건이 실행을 막지 않을 때):
 
 ```
 Schedule::command('emails:send')->daily()->when(function () {
@@ -701,7 +701,7 @@ Schedule::command('emails:send')
 ## Events
 
 <!-- Laravel dispatches a variety of [events](/docs/11.x/events) during the scheduling process. You may [define listeners](/docs/11.x/events) for any of the following events: -->
-Laravel은 스케줄링 과정에서 다양한 [events](/docs/11.x/events)를 발생시킵니다. 다음의 이벤트에 대해 [define listeners](/docs/11.x/events)할 수 있습니다:
+Laravel은 스케줄링 과정에서 다양한 [events](/docs/11.x/events)를 발생시킵니다. 다음의 이벤트에 대해 [define listeners](/docs/11.x/events) 문서를 참고해 리스너를 정의할 수 있습니다:
 
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">

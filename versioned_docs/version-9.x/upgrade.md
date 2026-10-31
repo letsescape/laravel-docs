@@ -47,7 +47,7 @@
 #### Estimated Upgrade Time: 30 Minutes
 
 > [!NOTE]
-> 가능한 모든 중요한 변경 사항(breaking change)을 문서화하려고 노력했으나, 일부 변경 사항은 프레임워크의 잘 사용하지 않는 부분에 영향을 줄 수 있으므로 실제로는 일부만이 여러분의 애플리케이션에 영향을 줄 수 있습니다. 시간을 절약하고 싶다면, [Laravel Shift](https://laravelshift.com/)를 활용하여 업그레이드 작업을 자동화할 수 있습니다.
+> 가능한 모든 호환성을 깨뜨리는 변경 사항(breaking change)을 문서화하려고 노력했으나, 일부 변경 사항은 프레임워크의 잘 사용하지 않는 부분에 영향을 줄 수 있으므로 실제로는 일부만이 여러분의 애플리케이션에 영향을 줄 수 있습니다. 시간을 절약하고 싶다면, [Laravel Shift](https://laravelshift.com/)를 활용하여 업그레이드 작업을 자동화할 수 있습니다.
 
 <a name="updating-dependencies"></a>
 <!-- ### Updating Dependencies -->
@@ -221,7 +221,7 @@ Blade 템플릿 내에서 `LazyCollection` 인스턴스를 반복(iterate)할 �
 **영향 가능성: 낮음**
 
 <!-- The new `@checked`, `@disabled`, and `@selected` Blade directives may conflict with Vue events of the same name. You may use `@@` to escape the directives and avoid this conflict: `@@selected`. -->
-새로운 `@checked`, `@disabled`, `@selected` Blade 디렉티브는 동일한 이름의 Vue 이벤트와 충돌할 수 있습니다. 충돌을 피하려면 디렉티브 앞에 `@@`를 붙여 이스케이프 해주세요: `@@selected`.
+새로운 `@checked`, `@disabled`, `@selected` Blade 디렉티브는 동일한 이름의 Vue 이벤트와 충돌할 수 있습니다. 충돌을 피하려면 디렉티브를 `@@`로 이스케이프 해주세요: `@@selected`.
 
 <!-- ### Collections -->
 ### Collections
@@ -842,7 +842,7 @@ SMTP 트랜스포트의 스트림 관련 옵션 설정이 더 이상 지원되�
 **영향 가능성: 낮음**
 
 <!-- Laravel's dependency on `opis/closure` has been replaced by `laravel/serializable-closure`. This should not cause any breaking change in your application unless you are interacting with the `opis/closure` library directly. In addition, the previously deprecated `Illuminate\Queue\SerializableClosureFactory` and `Illuminate\Queue\SerializableClosure` classes have been removed. If you are interacting with `opis/closure` library directly or using any of the removed classes, you may use [Laravel Serializable Closure](https://github.com/laravel/serializable-closure) instead. -->
-Laravel의 `opis/closure` 의존성이 `laravel/serializable-closure`로 대체되었습니다. 애플리케이션에서 `opis/closure` 라이브러리를 직접 다루지 않는 한 기존 코드를 그대로 사용하는 대부분의 경우 특별한 문제는 없습니다. 단, 직접 `opis/closure` 라이브러리를 직접적으로 사용하거나, 기존에 deprecated된 `Illuminate\Queue\SerializableClosureFactory` 또는 `Illuminate\Queue\SerializableClosure` 클래스를 사용 중이라면, [Laravel Serializable Closure](https://github.com/laravel/serializable-closure)로 전환해 주셔야 합니다.
+Laravel의 `opis/closure` 의존성이 `laravel/serializable-closure`로 대체되었습니다. 애플리케이션에서 `opis/closure` 라이브러리를 직접 다루지 않는 한 기존 코드를 그대로 사용하는 대부분의 경우 특별한 문제는 없습니다. 단, `opis/closure` 라이브러리를 직접 사용하거나, deprecated되었다가 제거된 `Illuminate\Queue\SerializableClosureFactory` 또는 `Illuminate\Queue\SerializableClosure` 클래스를 사용 중이라면, [Laravel Serializable Closure](https://github.com/laravel/serializable-closure)를 대신 사용할 수 있습니다.
 
 <!-- #### The Failed Job Provider `flush` Method -->
 #### The Failed Job Provider `flush` Method

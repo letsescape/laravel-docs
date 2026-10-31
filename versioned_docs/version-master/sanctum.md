@@ -359,7 +359,7 @@ Sanctum은 Laravel 기반 API와 통신해야 하는 싱글 페이지 애플리�
 별도의 하위 도메인에서 실행되는 SPA에서 애플리케이션 인증에 문제가 있다면, CORS(Cross-Origin Resource Sharing) 또는 세션 쿠키 설정이 잘못되었을 가능성이 높습니다.
 
 <!-- The `config/cors.php` configuration file is not published by default. If you need to customize Laravel's CORS options, you should publish the complete `cors` configuration file using the `config:publish` Artisan command: -->
-`config/cors.php` 설정 파일은 기본적으로 공개되지 않습니다. Laravel의 CORS 옵션을 사용자 지정해야 한다면, `config:publish` Artisan 명령어를 사용하여 전체 `cors` 설정 파일을 공개해야 합니다.
+`config/cors.php` 설정 파일은 기본적으로 퍼블리시되지 않습니다. Laravel의 CORS 옵션을 사용자 지정해야 한다면, `config:publish` Artisan 명령어를 사용하여 전체 `cors` 설정 파일을 퍼블리시해야 합니다.
 
 ```shell
 php artisan config:publish cors
@@ -454,7 +454,7 @@ return Application::configure(basePath: dirname(__DIR__))
 ```
 
 <!-- Next, in order for Pusher's authorization requests to succeed, you will need to provide a custom Pusher `authorizer` when initializing [Laravel Echo](/docs/master/broadcasting#client-side-installation). This allows your application to configure Pusher to use the `axios` instance that is [properly configured for cross-domain requests](#cors-and-cookies): -->
-다음으로 Pusher의 인가 요청이 성공하려면 [Laravel Echo](/docs/master/broadcasting#client-side-installation)를 초기화할 때 사용자 지정 Pusher `authorizer`를 제공해야 합니다. 이를 통해 애플리케이션은 Pusher가 [properly configured for cross-domain requests](#cors-and-cookies) `axios` 인스턴스를 사용하도록 구성할 수 있습니다.
+다음으로 Pusher의 인가 요청이 성공하려면 [Laravel Echo](/docs/master/broadcasting#client-side-installation)를 초기화할 때 사용자 지정 Pusher `authorizer`를 제공해야 합니다. 이를 통해 애플리케이션은 Pusher가 [properly configured for cross-domain requests](#cors-and-cookies) 안내에 따라 설정된 `axios` 인스턴스를 사용하도록 구성할 수 있습니다.
 
 ```js
 window.Echo = new Echo({

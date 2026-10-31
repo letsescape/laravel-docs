@@ -335,7 +335,7 @@ Route::post('/user/profile', function () {
 #### Redirecting With Input
 
 <!-- You may use the `withInput` method provided by the `RedirectResponse` instance to flash the current request's input data to the session before redirecting the user to a new location. This is typically done if the user has encountered a validation error. Once the input has been flashed to the session, you may easily [retrieve it](/docs/11.x/requests#retrieving-old-input) during the next request to repopulate the form: -->
-`RedirectResponse` 인스턴스가 제공하는 `withInput` 메서드를 사용하면, 현재 요청의 입력값(input data)을 세션에 플래시하여 사용자가 다른 위치로 리다이렉트된 후에도 폼 데이터를 쉽게 복원할 수 있습니다. 보통 유효성 검증에 실패한 경우 이 방법을 사용합니다. 입력값이 세션에 저장되면, 다음 요청에서 [retrieve it](/docs/11.x/requests#retrieving-old-input)가 간편해집니다.
+`RedirectResponse` 인스턴스가 제공하는 `withInput` 메서드를 사용하면, 현재 요청의 입력값(input data)을 세션에 플래시하여 사용자가 다른 위치로 리다이렉트된 후에도 폼 데이터를 쉽게 복원할 수 있습니다. 보통 유효성 검증에 실패한 경우 이 방법을 사용합니다. 입력값이 세션에 저장되면, 다음 요청에서 이를 간편하게 가져와([retrieve it](/docs/11.x/requests#retrieving-old-input)) 폼을 다시 채울 수 있습니다.
 
 ```
 return back()->withInput();
@@ -449,7 +449,7 @@ Route::get('/stream', function () {
 #### Streamed JSON Responses
 
 <!-- If you need to stream JSON data incrementally, you may utilize the `streamJson` method. This method is especially useful for large datasets that need to be sent progressively to the browser in a format that can be easily parsed by JavaScript: -->
-JSON 데이터를 점진적으로(streaming) 전송해야 한다면 `streamJson` 메서드를 사용할 수 있습니다. 이 방법은 대용량 데이터를 자바스크립트 등에서 점차적으로 파싱 처리가 필요한 경우에 유용합니다.
+JSON 데이터를 점진적으로(streaming) 전송해야 한다면 `streamJson` 메서드를 사용할 수 있습니다. 이 방법은 자바스크립트에서 쉽게 파싱할 수 있는 형식으로 대용량 데이터를 브라우저에 점진적으로 전송해야 하는 경우에 유용합니다.
 
 ```
 use App\Models\User;

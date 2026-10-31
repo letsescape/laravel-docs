@@ -104,7 +104,7 @@ public function register()
 ```
 
 <!-- Finally, you should also prevent the Telescope package from being [auto-discovered](/docs/9.x/packages#package-discovery) by adding the following to your `composer.json` file: -->
-마지막으로, `composer.json` 파일 내의 extra 항목에 아래와 같이 추가하여 텔레스코프 패키지가 [auto-discovered](/docs/9.x/packages#package-discovery) 되지 않도록 해야 합니다:
+마지막으로, `composer.json` 파일에 아래와 같이 추가하여 텔레스코프 패키지가 [auto-discovered](/docs/9.x/packages#package-discovery) 되지 않도록 해야 합니다:
 
 ```json
 "extra": {

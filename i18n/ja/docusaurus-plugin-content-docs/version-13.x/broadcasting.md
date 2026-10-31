@@ -99,7 +99,7 @@ Laravel は、標準で複数のブロードキャストドライバをサポー
 イベント ブロードキャストを有効にすると、[defining broadcast events](#defining-broadcast-events) と [listening for events](#listening-for-events) について詳しく学ぶことができます。 Laravel の React、Vue、または Svelte [starter kits](/docs/13.x/starter-kits) を使用している場合は、Echo の [useEcho hook](#using-react-or-vue) を使用してイベントをリッスンできます。
 
 > [!NOTE]
-> イベントをブロードキャストする前に、まず[queue worker](/docs/13.x/queues)を設定して実行してください。すべてのイベントのブロードキャストはキューに入れたジョブを通じて行われるため、ブロードキャストされるイベントによってアプリケーションのレスポンスタイムが大きく影響を受けることはありません。
+> イベントをブロードキャストする前に、まず[queue worker](/docs/13.x/queues)を設定して実行してください。すべてのイベントはキューに入れたジョブを通じてブロードキャストされるため、イベントのブロードキャストによってアプリケーションのレスポンスタイムが大きく損なわれることはありません。ただし、Mercure ドライバは例外で、デフォルトでは[broadcasts events synchronously](#mercure-synchronous-broadcasting)処理を行います。
 
 <a name="server-side-installation"></a>
 <!-- ## Server Side Installation -->
@@ -302,6 +302,34 @@ MERCURE_ENCRYPTION_KEY=<your-32-byte-encryption-key>
 
 <!-- Finally, you are ready to install and configure [Laravel Echo](#client-side-installation), which will receive the broadcast events on the client-side. -->
 最後に、クライアント側でブロードキャストイベントを受信する [Laravel Echo](#client-side-installation) をインストールして設定する準備が整いました。
+
+<a name="mercure-frankenphp"></a>
+<!-- #### FrankenPHP's Built-In Hub -->
+#### FrankenPHP's Built-In Hub
+
+<!-- [FrankenPHP](https://frankenphp.dev) includes a built-in Mercure hub. When your application is served by FrankenPHP, you may leave the `MERCURE_URL` and `MERCURE_PUBLIC_URL` environment variables empty. Laravel then publishes updates directly to the hub, without any HTTP request, and browsers subscribe to `/.well-known/mercure` on your application's domain. When using [Laravel Octane](/docs/13.x/octane), the built-in hub is configured automatically. -->
+[FrankenPHP](https://frankenphp.dev) には Mercure ハブが組み込まれています。アプリケーションを FrankenPHP で実行している場合、環境変数 `MERCURE_URL` と `MERCURE_PUBLIC_URL` は空のままで構いません。その場合、Laravel は HTTP リクエストを介さずにハブへ直接更新を公開し、ブラウザはアプリケーションのドメイン上にある `/.well-known/mercure` を購読します。[Laravel Octane](/docs/13.x/octane) を使用する場合、組み込みのハブは自動的に設定されます。
+
+<!-- Publishing directly to the built-in hub is only possible from requests served by FrankenPHP. To broadcast events from other processes, such as Artisan commands or queue workers, configure the URL of the hub: -->
+組み込みのハブへの直接公開は、FrankenPHP が処理するリクエストからのみ可能です。Artisan コマンドやキューワーカーなど、ほかのプロセスからイベントをブロードキャストするには、ハブの URL を設定してください。
+
+```ini
+MERCURE_URL="${APP_URL}/.well-known/mercure"
+```
+
+<a name="mercure-synchronous-broadcasting"></a>
+<!-- #### Synchronous Broadcasting -->
+#### Synchronous Broadcasting
+
+<!-- Unlike other drivers, the Mercure driver broadcasts events immediately instead of queueing them, so it doesn't require a queue worker. Publishing an update is fast, since the hub dispatches it to subscribers asynchronously. To broadcast events using your [queue](#broadcast-queue) instead, set the `MERCURE_ASYNC` environment variable to `true`: -->
+ほかのドライバとは異なり、Mercure ドライバはイベントをキューに入れず、ただちにブロードキャストするため、キューワーカーは必要ありません。ハブが購読者への更新の配信を非同期で行うため、更新の公開は高速です。代わりに [queue](#broadcast-queue) を使ってイベントをブロードキャストするには、環境変数 `MERCURE_ASYNC` を `true` に設定します。
+
+```ini
+MERCURE_ASYNC=true
+```
+
+<!-- Since queue workers publish updates over HTTP, `MERCURE_ASYNC` requires the `MERCURE_URL` environment variable. When using FrankenPHP's built-in hub, set it to the URL of the hub, [as described above](#mercure-frankenphp). -->
+キューワーカーは HTTP 経由で更新を公開するため、`MERCURE_ASYNC` を使用するには環境変数 `MERCURE_URL` が必要です。FrankenPHP の組み込みハブを使用する場合は、[as described above](#mercure-frankenphp)、この変数にハブの URL を設定してください。
 
 <a name="client-side-installation"></a>
 <!-- ## Client Side Installation -->

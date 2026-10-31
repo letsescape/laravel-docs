@@ -1351,7 +1351,7 @@ $plural = Str::plural('child');
 ```
 
 <!-- You may provide an integer as a second argument to the function to retrieve the singular or plural form of the string: -->
-두 번째 인수로 정수를 입력하면, 해당 값이 1이면 단수형을, 1이 아니면 복수형을 반환합니다.
+두 번째 인수로 정수를 전달하여 문자열의 단수형 또는 복수형을 가져올 수 있습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -1385,7 +1385,7 @@ $plural = Str::pluralStudly('UserFeedback');
 ```
 
 <!-- You may provide an integer as a second argument to the function to retrieve the singular or plural form of the string: -->
-두 번째 인수로 정수를 입력하면, 해당 값이 1이면 단수형을, 1이 아니면 복수형을 반환합니다.
+두 번째 인수로 정수를 전달하여 문자열의 단수형 또는 복수형을 가져올 수 있습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -1882,7 +1882,7 @@ $base64 = Str::toBase64('Laravel');
 #### `Str::transliterate()`
 
 <!-- The `Str::transliterate` method will attempt to convert a given string into its closest ASCII representation: -->
-`Str::transliterate` 메서드는 주어진 문자열을 가장 가까운 ASCII 문자로 변환합니다.
+`Str::transliterate` 메서드는 주어진 문자열을 가장 가까운 ASCII 표현으로 변환하려고 시도합니다.
 
 ```
 use Illuminate\Support\Str;
@@ -2171,7 +2171,7 @@ $snake = str()->snake('FooBar');
 #### `trans()`
 
 <!-- The `trans` function translates the given translation key using your [language files](/docs/11.x/localization): -->
-`trans` 함수는 지정한 번역 키를 사용해서 [language files](/docs/11.x/localization)의 내용을 번역합니다.
+`trans` 함수는 [language files](/docs/11.x/localization)을 사용해서 지정한 번역 키를 번역합니다.
 
 ```
 echo trans('messages.welcome');
@@ -2475,7 +2475,7 @@ $contains = Str::of('This is my name')->contains('my');
 ```
 
 <!-- You may also pass an array of values to determine if the given string contains any of the values in the array: -->
-값들의 배열을 전달하여, 배열 안에 하나라도 포함되는지 확인할 수 있습니다.
+값들의 배열을 전달하여, 주어진 문자열이 배열 안의 값 중 하나라도 포함하는지 확인할 수 있습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -2624,7 +2624,7 @@ $result = Str::of('Laravel')->exactly('Laravel');
 #### `excerpt`
 
 <!-- The `excerpt` method extracts an excerpt from the string that matches the first instance of a phrase within that string: -->
-`excerpt` 메서드는 문자열 안에서 지정한 구절을 기준으로 해당 구절이 포함된 일부만 잘라서 반환합니다.
+`excerpt` 메서드는 문자열 안에서 지정한 구절이 처음 나타나는 위치를 기준으로 해당 구절이 포함된 일부만 잘라서 반환합니다.
 
 ```
 use Illuminate\Support\Str;
@@ -3168,7 +3168,7 @@ $padded = Str::of('James')->padBoth(10);
 #### `padLeft`
 
 <!-- The `padLeft` method wraps PHP's `str_pad` function, padding the left side of a string with another string until the final string reaches the desired length: -->
-`padLeft` 메서드는 PHP의 `str_pad` 함수를 감싸고 있으며, 문자열의 왼쪽(앞쪽)을 지정한 문장열로 채워, 최종적으로 지정한 길이가 되도록 만듭니다.
+`padLeft` 메서드는 PHP의 `str_pad` 함수를 감싸고 있으며, 문자열의 왼쪽(앞쪽)을 지정한 문자열로 채워, 최종적으로 지정한 길이가 되도록 만듭니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4034,7 +4034,7 @@ $string = Str::of('Framework')->whenNotEmpty(function (Stringable $string) {
 #### `whenStartsWith`
 
 <!-- The `whenStartsWith` method invokes the given closure if the string starts with the given sub-string. The closure will receive the fluent string instance: -->
-`whenStartsWith` 메서드는 현재 문자열이 주어진 하위 문자열로 시작할 경우, 전달한 클로저를 실행합니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenStartsWith` 메서드는 현재 문자열이 주어진 하위 문자열로 시작할 경우, 전달한 클로저를 실행합니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4052,7 +4052,7 @@ $string = Str::of('disney world')->whenStartsWith('disney', function (Stringable
 #### `whenEndsWith`
 
 <!-- The `whenEndsWith` method invokes the given closure if the string ends with the given sub-string. The closure will receive the fluent string instance: -->
-`whenEndsWith` 메서드는 현재 문자열이 주어진 하위 문자열로 끝날 경우, 전달한 클로저를 실행합니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenEndsWith` 메서드는 현재 문자열이 주어진 하위 문자열로 끝날 경우, 전달한 클로저를 실행합니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4070,7 +4070,7 @@ $string = Str::of('disney world')->whenEndsWith('world', function (Stringable $s
 #### `whenExactly`
 
 <!-- The `whenExactly` method invokes the given closure if the string exactly matches the given string. The closure will receive the fluent string instance: -->
-`whenExactly` 메서드는 현재 문자열이 전달된 문자열과 정확하게 일치할 경우, 클로저를 실행합니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenExactly` 메서드는 현재 문자열이 전달된 문자열과 정확하게 일치할 경우, 클로저를 실행합니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4088,7 +4088,7 @@ $string = Str::of('laravel')->whenExactly('laravel', function (Stringable $strin
 #### `whenNotExactly`
 
 <!-- The `whenNotExactly` method invokes the given closure if the string does not exactly match the given string. The closure will receive the fluent string instance: -->
-`whenNotExactly` 메서드는 현재 문자열이 전달된 문자열과 정확히 일치하지 않을 경우, 클로저를 실행합니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenNotExactly` 메서드는 현재 문자열이 전달된 문자열과 정확히 일치하지 않을 경우, 클로저를 실행합니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4106,7 +4106,7 @@ $string = Str::of('framework')->whenNotExactly('laravel', function (Stringable $
 #### `whenIs`
 
 <!-- The `whenIs` method invokes the given closure if the string matches a given pattern. Asterisks may be used as wildcard values. The closure will receive the fluent string instance: -->
-`whenIs` 메서드는 현재 문자열이 주어진 패턴과 일치할 때 클로저를 실행합니다. 패턴에서 별표(*)는 와일드카드로 사용할 수 있습니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenIs` 메서드는 현재 문자열이 주어진 패턴과 일치할 때 클로저를 실행합니다. 패턴에서 별표(*)는 와일드카드로 사용할 수 있습니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4124,7 +4124,7 @@ $string = Str::of('foo/bar')->whenIs('foo/*', function (Stringable $string) {
 #### `whenIsAscii`
 
 <!-- The `whenIsAscii` method invokes the given closure if the string is 7 bit ASCII. The closure will receive the fluent string instance: -->
-`whenIsAscii` 메서드는 문자열이 7비트 ASCII일 경우, 클로저를 실행합니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenIsAscii` 메서드는 문자열이 7비트 ASCII일 경우, 클로저를 실행합니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4142,7 +4142,7 @@ $string = Str::of('laravel')->whenIsAscii(function (Stringable $string) {
 #### `whenIsUlid`
 
 <!-- The `whenIsUlid` method invokes the given closure if the string is a valid ULID. The closure will receive the fluent string instance: -->
-`whenIsUlid` 메서드는 문자열이 유효한 ULID일 경우, 클로저를 실행합니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenIsUlid` 메서드는 문자열이 유효한 ULID일 경우, 클로저를 실행합니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4159,7 +4159,7 @@ $string = Str::of('01gd6r360bp37zj17nxb55yv40')->whenIsUlid(function (Stringable
 #### `whenIsUuid`
 
 <!-- The `whenIsUuid` method invokes the given closure if the string is a valid UUID. The closure will receive the fluent string instance: -->
-`whenIsUuid` 메서드는 문자열이 유효한 UUID일 경우, 클로저를 실행합니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenIsUuid` 메서드는 문자열이 유효한 UUID일 경우, 클로저를 실행합니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4177,7 +4177,7 @@ $string = Str::of('a0a2a2d2-0b87-4a18-83f2-2529882be2de')->whenIsUuid(function (
 #### `whenTest`
 
 <!-- The `whenTest` method invokes the given closure if the string matches the given regular expression. The closure will receive the fluent string instance: -->
-`whenTest` 메서드는 현재 문자열이 주어진 정규 표현식과 일치할 때, 클로저를 실행합니다. 이 클로저는 유창한 문자열 인스턴스를 인수로 받습니다.
+`whenTest` 메서드는 현재 문자열이 주어진 정규 표현식과 일치할 때, 클로저를 실행합니다. 이 클로저는 플루언트 문자열 인스턴스를 인수로 받습니다.
 
 ```
 use Illuminate\Support\Str;

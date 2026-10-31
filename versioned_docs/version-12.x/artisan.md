@@ -282,7 +282,7 @@ class SendEmails extends Command implements Isolatable
 ```
 
 <!-- When you mark a command as `Isolatable`, Laravel automatically makes the `--isolated` option available for the command without needing to explicitly define it in the command's options. When the command is invoked with that option, Laravel will ensure that no other instances of that command are already running. Laravel accomplishes this by attempting to acquire an atomic lock using your application's default cache driver. If other instances of the command are running, the command will not execute; however, the command will still exit with a successful exit status code: -->
-명령어를 `Isolatable`로 표시하면 해당 명령어의 옵션에 `--isolated`가 자동으로 추가되며, 이 옵션을 명시적으로 선언할 필요가 없습니다. 해당 옵션으로 명령어를 실행하면, Laravel은 해당 명령어가 이미 실행 중인지 확인하여, 실행 중이 아니라면 원자적(atomic) 락을 기본 캐시 드라이버를 통해 획득합니다. 이미 다른 인스턴스가 실행 중이면 명령어는 실행되지 않지만, 성공 상태 코드로 종료됩니다:
+명령어를 `Isolatable`로 표시하면 해당 명령어의 옵션에 `--isolated`가 자동으로 추가되며, 이 옵션을 명시적으로 선언할 필요가 없습니다. 해당 옵션으로 명령어를 실행하면, Laravel은 기본 캐시 드라이버를 통해 원자적(atomic) 락 획득을 시도하여 다른 명령어 인스턴스가 이미 실행 중이지 않도록 보장합니다. 이미 다른 인스턴스가 실행 중이면 명령어는 실행되지 않지만, 성공 상태 코드로 종료됩니다:
 
 ```shell
 php artisan mail:send 1 --isolated
@@ -725,7 +725,7 @@ $name = $this->anticipate('What is your address?', function (string $input) {
 #### Multiple Choice Questions
 
 <!-- If you need to give the user a predefined set of choices when asking a question, you may use the `choice` method. You may set the array index of the default value to be returned if no option is chosen by passing the index as the third argument to the method: -->
-사용자에게 미리 정해진 선택지 중에서 선택을 요청하려면 `choice` 메서드를 사용하세요. 세 번째 인수로 선택지에서 기본값으로 표시할 인덱스를 전달할 수 있습니다:
+사용자에게 미리 정해진 선택지 중에서 선택을 요청하려면 `choice` 메서드를 사용하세요. 세 번째 인수로 사용자가 아무 선택지도 고르지 않았을 때 반환할 기본값의 배열 인덱스를 전달할 수 있습니다:
 
 ```php
 $name = $this->choice(
@@ -922,7 +922,7 @@ Route::post('/mail', function () {
 #### Passing Boolean Values
 
 <!-- If you need to specify the value of an option that does not accept string values, such as the `--force` flag on the `migrate:refresh` command, you should pass `true` or `false` as the value of the option: -->
-문자열 값이 필요한 옵션이 아닌, 예를 들어 `migrate:refresh` 명령어의 `--force` 플래그와 동시에 사용하고 싶다면, 옵션 값을 `true` 혹은 `false`로 전달할 수 있습니다:
+`migrate:refresh` 명령어의 `--force` 플래그처럼 문자열 값을 받지 않는 옵션의 값을 지정하려면, 옵션 값으로 `true` 혹은 `false`를 전달해야 합니다:
 
 ```php
 $exitCode = Artisan::call('migrate:refresh', [

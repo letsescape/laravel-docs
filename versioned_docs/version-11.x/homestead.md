@@ -269,7 +269,7 @@ provider: virtualbox
 
 
 > [!WARNING]
-> Apple 실리콘(M1/M2) 칩을 사용하는 경우 Parallels 공급자를 반드시 사용해야 합니다.
+> Apple 실리콘 칩을 사용하는 경우 Parallels 공급자를 반드시 사용해야 합니다.
 
 <a name="configuring-shared-folders"></a>
 <!-- #### Configuring Shared Folders -->
@@ -354,7 +354,7 @@ Homestead 가상머신을 프로비저닝한 뒤에 `sites` 속성을 수정했�
 Homestead는 자동 호스트명 해석을 위해 `mDNS`를 사용하여 호스트명을 퍼블리시합니다. 예를 들어, `Homestead.yaml` 파일에 `hostname: homestead`를 설정했다면, `homestead.local` 주소로 접속할 수 있습니다. macOS, iOS, 그리고 대부분의 Linux 데스크톱 배포판에는 `mDNS` 지원이 기본 내장되어 있습니다. Windows 사용자의 경우, [Bonjour Print Services for Windows](https://support.apple.com/kb/DL999?viewlocale=en_US&locale=en_US)를 추가로 설치해야 합니다.
 
 <!-- Using automatic hostnames works best for [per project installations](#per-project-installation) of Homestead. If you host multiple sites on a single Homestead instance, you may add the "domains" for your web sites to the `hosts` file on your machine. The `hosts` file will redirect requests for your Homestead sites into your Homestead virtual machine. On macOS and Linux, this file is located at `/etc/hosts`. On Windows, it is located at `C:\Windows\System32\drivers\etc\hosts`. The lines you add to this file will look like the following: -->
-[per project installations](#per-project-installation) 방식의 Homestead에서 자동 호스트명을 사용하는 것이 가장 편리합니다. 하나의 Homestead 인스턴스에 여러 사이트를 운영하는 경우, 웹사이트의 "도메인"을 자신의 컴퓨터 `hosts` 파일에 추가해야 합니다. 이 `hosts` 파일은 Homestead 사이트로 향하는 요청을 Homestead 가상 머신으로 리다이렉트해 줍니다. macOS나 Linux는 `/etc/hosts` 위치에, Windows는 `C:\Windows\System32\drivers\etc\hosts`에 해당 파일이 있습니다. 다음과 같은 형식으로 추가하면 됩니다:
+[per project installations](#per-project-installation) 방식의 Homestead에서 자동 호스트명을 사용하는 것이 가장 편리합니다. 하나의 Homestead 인스턴스에 여러 사이트를 운영하는 경우, 웹사이트의 "도메인"을 자신의 컴퓨터 `hosts` 파일에 추가할 수 있습니다. 이 `hosts` 파일은 Homestead 사이트로 향하는 요청을 Homestead 가상 머신으로 리다이렉트해 줍니다. macOS나 Linux는 `/etc/hosts` 위치에, Windows는 `C:\Windows\System32\drivers\etc\hosts`에 해당 파일이 있습니다. 다음과 같은 형식으로 추가하면 됩니다:
 
 ```
 192.168.56.56  homestead.test
@@ -476,7 +476,7 @@ features:
 #### Elasticsearch
 
 <!-- You may specify a supported version of Elasticsearch, which must be an exact version number (major.minor.patch). The default installation will create a cluster named 'homestead'. You should never give Elasticsearch more than half of the operating system's memory, so make sure your Homestead virtual machine has at least twice the Elasticsearch allocation. -->
-Elasticsearch의 지원되는 버전(정확한 major.minor.patch 형태의 버전 번호)을 지정할 수 있습니다. 기본 설치 시 클러스터 이름은 'homestead'로 생성됩니다. Elasticsearch는 운영체제 메모리의 절반 이상을 할당하면 안 되므로, Homestead 가상머신의 메모리가 할당량의 두 배 이상이 되도록 조정하세요.
+Elasticsearch의 지원되는 버전(정확한 major.minor.patch 형태의 버전 번호)을 지정할 수 있습니다. 기본 설치 시 클러스터 이름은 'homestead'로 생성됩니다. Elasticsearch는 운영체제 메모리의 절반을 초과하여 할당하면 안 되므로, Homestead 가상머신의 메모리가 할당량의 두 배 이상이 되도록 조정하세요.
 
 > [!NOTE]
 > [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current)를 참고하여 환경 설정을 커스터마이즈하는 방법을 확인할 수 있습니다.
@@ -538,7 +538,7 @@ git pull origin release
 ```
 
 <!-- These commands pull the latest Homestead code from the GitHub repository, fetch the latest tags, and then check out the latest tagged release. You can find the latest stable release version on Homestead's [GitHub releases page](https://github.com/laravel/homestead/releases). -->
-위 명령들은 GitHub 저장소에서 최신 Homestead 코드를 가져오고, 최신 태그를 설치한 뒤 최신 릴리스 버전을 체크아웃합니다. Homestead의 안정화된 최신 릴리스 버전은 [GitHub releases page](https://github.com/laravel/homestead/releases)에서 확인할 수 있습니다.
+위 명령들은 GitHub 저장소에서 최신 Homestead 코드를 가져오고, 최신 태그를 가져온 뒤 최신 릴리스 버전을 체크아웃합니다. Homestead의 안정화된 최신 릴리스 버전은 [GitHub releases page](https://github.com/laravel/homestead/releases)에서 확인할 수 있습니다.
 
 <!-- If you have installed Homestead via your project's `composer.json` file, you should ensure your `composer.json` file contains `"laravel/homestead": "^12"` and update your dependencies: -->
 만약 프로젝트의 `composer.json` 파일을 통해 Homestead를 설치한 경우, `composer.json` 파일이 `"laravel/homestead": "^12"`를 포함하는지 확인한 뒤 아래와 같이 의존성을 업데이트하세요:
@@ -602,7 +602,7 @@ sites:
 > 사이트 추가 시 반드시 먼저 해당 프로젝트의 [folder mapping](#configuring-shared-folders)이 설정되어 있는지 확인하세요.
 
 <!-- If Vagrant is not automatically managing your "hosts" file, you may need to add the new site to that file as well. On macOS and Linux, this file is located at `/etc/hosts`. On Windows, it is located at `C:\Windows\System32\drivers\etc\hosts`: -->
-만약 Vagrant가 자동으로 "hosts" 파일을 관리하지 않는다면, 새 사이트 정보도 추가로 hosts 파일에 등록해야 합니다. macOS나 Linux의 경우 `/etc/hosts`, Windows의 경우 `C:\Windows\System32\drivers\etc\hosts`에 다음과 같이 입력하세요:
+만약 Vagrant가 자동으로 "hosts" 파일을 관리하지 않는다면, 새 사이트 정보도 추가로 hosts 파일에 등록해야 할 수 있습니다. macOS나 Linux의 경우 `/etc/hosts`, Windows의 경우 `C:\Windows\System32\drivers\etc\hosts`에 다음과 같이 입력하세요:
 
 ```
 192.168.56.56  homestead.test

@@ -279,7 +279,7 @@ $this->actingAs($user, 'web');
 ```
 
 <!-- If you would like to ensure the request is unauthenticated, you may use the `actingAsGuest` method: -->
-リクエストが認証されていないことを確認したい場合は、`actingAsGuest` メソッドを使用できます。
+未認証の状態でリクエストを実行したい場合は、`actingAsGuest` メソッドを使用できます。
 
 ```php
 $this->actingAsGuest();
@@ -1301,7 +1301,7 @@ $response->assertCreated();
 #### assertDontSee
 
 <!-- Assert that the given string is not contained within the response returned by the application. This assertion will automatically escape the given string unless you pass a second argument of `false`: -->
-指定された文字列がアプリケーションから返された応答に含まれていないことをアサートします。このアサーションは、`false` の 2 番目の引数を渡さない限り、指定された文字列を自動的にエスケープします。
+指定された文字列がアプリケーションから返された応答に含まれていないことをアサートします。このアサーションは、2 番目の引数に `false` を渡さない限り、指定された文字列を自動的にエスケープします。
 
 ```php
 $response->assertDontSee($value, $escape = true);
@@ -1312,7 +1312,7 @@ $response->assertDontSee($value, $escape = true);
 #### assertDontSeeText
 
 <!-- Assert that the given string is not contained within the response text. This assertion will automatically escape the given string unless you pass a second argument of `false`. This method will pass the response content to the `strip_tags` PHP function before making the assertion: -->
-指定された文字列が応答テキストに含まれていないことをアサートします。このアサーションは、`false` の 2 番目の引数を渡さない限り、指定された文字列を自動的にエスケープします。このメソッドは、アサーションを行う前に、応答コンテンツを `strip_tags` PHP 関数に渡します。
+指定された文字列が応答テキストに含まれていないことをアサートします。このアサーションは、2 番目の引数に `false` を渡さない限り、指定された文字列を自動的にエスケープします。このメソッドは、アサーションを行う前に、応答コンテンツを `strip_tags` PHP 関数に渡します。
 
 ```php
 $response->assertDontSeeText($value, $escape = true);
@@ -1962,7 +1962,7 @@ $response->assertRequestTimeout();
 #### assertSee
 
 <!-- Assert that the given string is contained within the response. This assertion will automatically escape the given string unless you pass a second argument of `false`: -->
-指定された文字列が応答内に含まれていることをアサートします。このアサーションは、`false` の 2 番目の引数を渡さない限り、指定された文字列を自動的にエスケープします。
+指定された文字列が応答内に含まれていることをアサートします。このアサーションは、2 番目の引数に `false` を渡さない限り、指定された文字列を自動的にエスケープします。
 
 ```php
 $response->assertSee($value, $escape = true);
@@ -1973,7 +1973,7 @@ $response->assertSee($value, $escape = true);
 #### assertSeeInOrder
 
 <!-- Assert that the given strings are contained in order within the response. This assertion will automatically escape the given strings unless you pass a second argument of `false`: -->
-指定された文字列が応答内に順番に含まれていることをアサートします。このアサーションは、`false` の 2 番目の引数を渡さない限り、指定された文字列を自動的にエスケープします。
+指定された文字列が応答内に順番に含まれていることをアサートします。このアサーションは、2 番目の引数に `false` を渡さない限り、指定された文字列を自動的にエスケープします。
 
 ```php
 $response->assertSeeInOrder(array $values, $escape = true);
@@ -1984,7 +1984,7 @@ $response->assertSeeInOrder(array $values, $escape = true);
 #### assertSeeText
 
 <!-- Assert that the given string is contained within the response text. This assertion will automatically escape the given string unless you pass a second argument of `false`. The response content will be passed to the `strip_tags` PHP function before the assertion is made: -->
-指定された文字列が応答テキストに含まれていることをアサートします。このアサーションは、`false` の 2 番目の引数を渡さない限り、指定された文字列を自動的にエスケープします。応答コンテンツは、アサーションが行われる前に `strip_tags` PHP 関数に渡されます。
+指定された文字列が応答テキストに含まれていることをアサートします。このアサーションは、2 番目の引数に `false` を渡さない限り、指定された文字列を自動的にエスケープします。応答コンテンツは、アサーションが行われる前に `strip_tags` PHP 関数に渡されます。
 
 ```php
 $response->assertSeeText($value, $escape = true);
@@ -1995,7 +1995,7 @@ $response->assertSeeText($value, $escape = true);
 #### assertSeeTextInOrder
 
 <!-- Assert that the given strings are contained in order within the response text. This assertion will automatically escape the given strings unless you pass a second argument of `false`. The response content will be passed to the `strip_tags` PHP function before the assertion is made: -->
-指定された文字列が応答テキスト内に順番に含まれていることを確認します。このアサーションは、`false` の 2 番目の引数を渡さない限り、指定された文字列を自動的にエスケープします。応答コンテンツは、アサーションが行われる前に `strip_tags` PHP 関数に渡されます。
+指定された文字列が応答テキスト内に順番に含まれていることを確認します。このアサーションは、2 番目の引数に `false` を渡さない限り、指定された文字列を自動的にエスケープします。応答コンテンツは、アサーションが行われる前に `strip_tags` PHP 関数に渡されます。
 
 ```php
 $response->assertSeeTextInOrder(array $values, $escape = true);

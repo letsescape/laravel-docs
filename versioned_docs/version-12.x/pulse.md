@@ -38,7 +38,7 @@
 ## Installation
 
 > [!WARNING]
-> Pulse의 1차 저장소 구현에서는 현재 MySQL, MariaDB, PostgreSQL 데이터베이스가 필요합니다. 다른 데이터베이스 엔진을 사용하는 경우, Pulse 데이터를 위해 별도의 MySQL, MariaDB, 또는 PostgreSQL 데이터베이스를 준비해야 합니다.
+> Pulse의 공식 저장소 구현에서는 현재 MySQL, MariaDB, PostgreSQL 데이터베이스가 필요합니다. 다른 데이터베이스 엔진을 사용하는 경우, Pulse 데이터를 위해 별도의 MySQL, MariaDB, 또는 PostgreSQL 데이터베이스를 준비해야 합니다.
 
 <!-- You may install Pulse using the Composer package manager: -->
 Composer 패키지 관리자를 사용하여 Pulse를 설치할 수 있습니다:
@@ -252,7 +252,7 @@ Pulse가 사용자 정보를 어떻게 조회하고 표시하는지 사용자 �
 #### Slow Jobs
 
 <!-- The `<livewire:pulse.slow-jobs />` card shows the queued jobs in your application that exceed the configured threshold, which is 1,000ms by default. See the [slow jobs recorder](#slow-jobs-recorder) documentation for more information. -->
-`<livewire:pulse.slow-jobs />` 카드는 기본값으로 1,000ms 임계값을 초과한 대기 작업을 표시합니다. 자세한 내용은 [slow jobs recorder](#slow-jobs-recorder) 문서를 참고하세요.
+`<livewire:pulse.slow-jobs />` 카드는 설정된 임계값(기본값 1,000ms)을 초과한 큐 작업을 표시합니다. 자세한 내용은 [slow jobs recorder](#slow-jobs-recorder) 문서를 참고하세요.
 
 <a name="slow-queries-card"></a>
 <!-- #### Slow Queries -->
@@ -336,7 +336,7 @@ php artisan pulse:restart
 [sample rate](#sampling)과 무시할 키 패턴을 선택적으로 조정할 수 있습니다.
 
 <!-- You may also configure key grouping so that similar keys are grouped as a single entry. For example, you may wish to remove unique IDs from keys caching the same type of information. Groups are configured using a regular expression to "find and replace" parts of the key. An example is included in the configuration file: -->
-비슷한 키를 하나의 엔트리로 그룹화하는 키 그룹화도 설정할 수 있습니다. 예를 들어, 동일한 유형의 정보를 캐싱하는 고유 ID를 키에서 제거할 수 있습니다. 그룹은 정규 표현식으로 키 일부를 "찾아 바꾸기" 방식으로 구성합니다. 설정 파일에 예시가 포함되어 있습니다:
+비슷한 키를 하나의 엔트리로 그룹화하는 키 그룹화도 설정할 수 있습니다. 예를 들어, 동일한 유형의 정보를 캐싱하는 키에서 고유 ID를 제거할 수 있습니다. 그룹은 정규 표현식으로 키 일부를 "찾아 바꾸기" 방식으로 구성합니다. 설정 파일에 예시가 포함되어 있습니다:
 
 ```php
 Recorders\CacheInteractions::class => [
@@ -423,7 +423,7 @@ Recorders\SlowOutgoingRequests::class => [
 정규 표현식 패턴이 요청의 URL과 일치하지 않으면 `'default'` 값이 사용됩니다.
 
 <!-- You may also configure URL grouping so that similar URLs are grouped as a single entry. For example, you may wish to remove unique IDs from URL paths or group by domain only. Groups are configured using a regular expression to "find and replace" parts of the URL. Some examples are included in the configuration file: -->
-또한 유사한 URL을 하나의 엔트리로 그룹화할 수도 있습니다. 예를 들어, 고유 ID가 포함된 URL 경로나 도메인별로 그룹화할 수 있습니다. 그룹은 정규 표현식으로 URL 일부를 "찾아 바꾸기"하는 방식으로 구성합니다. 설정 파일에 몇 가지 예시가 포함되어 있습니다:
+또한 유사한 URL을 하나의 엔트리로 그룹화할 수도 있습니다. 예를 들어, URL 경로에서 고유 ID를 제거하거나 도메인만을 기준으로 그룹화할 수 있습니다. 그룹은 정규 표현식으로 URL 일부를 "찾아 바꾸기"하는 방식으로 구성합니다. 설정 파일에 몇 가지 예시가 포함되어 있습니다:
 
 ```php
 Recorders\SlowOutgoingRequests::class => [
@@ -513,7 +513,7 @@ Pulse 설정 파일에서 모니터링할 디렉터리도 사용자 지정할 �
 #### User Jobs
 
 <!-- The `UserJobs` recorder captures information about the users dispatching jobs in your application for display on the [Application Usage](#application-usage-card) card. -->
-`UserJobs` 레코더는 사용자가 디스패치한 작업의 정보를 [Application Usage](#application-usage-card) 카드에 표시하기 위해 캡처합니다.
+`UserJobs` 레코더는 작업을 디스패치한 사용자 정보를 [Application Usage](#application-usage-card) 카드에 표시하기 위해 캡처합니다.
 
 <!-- You may optionally adjust the [sample rate](#sampling) and ignored job patterns. -->
 [sample rate](#sampling), 무시할 작업 패턴을 선택적으로 조정할 수 있습니다.
@@ -523,7 +523,7 @@ Pulse 설정 파일에서 모니터링할 디렉터리도 사용자 지정할 �
 #### User Requests
 
 <!-- The `UserRequests` recorder captures information about the users making requests to your application for display on the [Application Usage](#application-usage-card) card. -->
-`UserRequests` 레코더는 사용자가 보낸 요청 정보를 [Application Usage](#application-usage-card) 카드에 표시하기 위해 캡처합니다.
+`UserRequests` 레코더는 애플리케이션에 요청을 보낸 사용자 정보를 [Application Usage](#application-usage-card) 카드에 표시하기 위해 캡처합니다.
 
 <!-- You may optionally adjust the [sample rate](#sampling) and ignored URL patterns. -->
 [sample rate](#sampling), 무시할 URL 패턴을 선택적으로 조정할 수 있습니다.
@@ -610,7 +610,7 @@ php artisan pulse:work
 > `pulse:work` 프로세스를 항상 백그라운드에서 실행하려면 Supervisor와 같은 프로세스 모니터를 이용해 Pulse 워커가 중단되지 않도록 해야 합니다.
 
 <!-- As the `pulse:work` command is a long-lived process, it will not see changes to your codebase without being restarted. You should gracefully restart the command by calling the `pulse:restart` command during your application's deployment process: -->
-`pulse:work` 명령어는 장기 실행 프로세스이므로 코드베이스 변경을 바로 감지하지 않습니다. 애플리케이션 배포 과정에서 `pulse:restart` 명령어를 호출해 프로세스를 정상적으로 재시작해야 합니다:
+`pulse:work` 명령어는 장기 실행 프로세스이므로 재시작하지 않으면 코드베이스 변경을 감지하지 못합니다. 애플리케이션 배포 과정에서 `pulse:restart` 명령어를 호출해 프로세스를 정상적으로 재시작해야 합니다:
 
 ```shell
 php artisan pulse:restart
@@ -627,7 +627,7 @@ php artisan pulse:restart
 기본적으로 Pulse는 애플리케이션에서 발생하는 모든 관련 이벤트를 수집합니다. 트래픽이 많은 애플리케이션에서는 긴 기간 동안 수백만 개의 데이터베이스 행이 대시보드에서 집계될 수 있습니다.
 
 <!-- You may instead choose to enable "sampling" on certain Pulse data recorders. For example, setting the sample rate to `0.1` on the [User Requests](#user-requests-recorder) recorder will mean that you only record approximately 10% of the requests to your application. In the dashboard, the values will be scaled up and prefixed with a `~` to indicate that they are an approximation. -->
-이 경우, 일부 Pulse 데이터 레코더에서 "샘플링"을 활성화할 수 있습니다. 예를 들어, [User Requests](#user-requests-recorder) 레코더의 샘플링 비율을 `0.1`로 설정하면 전체 요청 중 약 10%만 저장합니다. 대시보드에서는 값 앞에 `~`가 붙으며, 이는 값이 추정치임을 의미합니다.
+이 경우, 일부 Pulse 데이터 레코더에서 "샘플링"을 활성화할 수 있습니다. 예를 들어, [User Requests](#user-requests-recorder) 레코더의 샘플링 비율을 `0.1`로 설정하면 전체 요청 중 약 10%만 저장합니다. 대시보드에서는 값을 전체 규모에 맞게 확대하여 표시하고 값 앞에 `~`를 붙여 추정치임을 나타냅니다.
 
 <!-- In general, the more entries you have for a particular metric, the lower you can safely set the sample rate without sacrificing too much accuracy. -->
 집계 데이터가 많을수록 샘플링 비율을 더 낮춰도 정확도에 크게 영향을 주지 않습니다.
@@ -767,7 +767,7 @@ laravel({
 #### CSS Files
 
 <!-- For other use cases, including Pulse cards contained within a package, you may instruct Pulse to load additional stylesheets by defining a `css` method on your Livewire component that returns the file path to your CSS file: -->
-Pulse 카드가 패키지에 포함된 등 다양한 경우, Livewire 컴포넌트에 `css` 메서드를 정의해 추가 스타일시트를 Pulse에 포함할 수 있습니다:
+Pulse 카드가 패키지에 포함된 등 다양한 경우, Livewire 컴포넌트에 CSS 파일 경로를 반환하는 `css` 메서드를 정의해 추가 스타일시트를 Pulse에 포함할 수 있습니다:
 
 ```php
 class TopSellers extends Card

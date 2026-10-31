@@ -216,7 +216,7 @@ APP_URL=eyJpdiI6...
 ```
 
 <!-- Using the readable format allows you to see which environment variables exist without exposing sensitive data. It also makes reviewing pull requests much easier since you can see which variables were added, removed, or renamed without needing to decrypt the file. -->
-가독성 있는 형식을 사용하면 예민한 데이터는 보호하면서도, 어떤 환경 변수가 있는지 쉽게 파악할 수 있습니다. 덕분에 pull request를 리뷰할 때도 어떤 변수가 추가, 삭제, 수정되었는지 암호를 해제할 필요 없이 확인할 수 있습니다.
+가독성 있는 형식을 사용하면 예민한 데이터는 보호하면서도, 어떤 환경 변수가 있는지 쉽게 파악할 수 있습니다. 덕분에 pull request를 리뷰할 때도 어떤 변수가 추가, 삭제되었거나 이름이 변경되었는지 암호를 해제할 필요 없이 확인할 수 있습니다.
 
 <!-- When decrypting environment files, Laravel automatically detects which format was used, so no additional options are needed for the `env:decrypt` command. -->
 환경 파일을 복호화할 때는 Laravel이 사용된 형식을 자동으로 감지하므로, `env:decrypt` 명령어에 추가 옵션이 필요하지 않습니다.
@@ -319,7 +319,7 @@ Config::collection('config-key');
 구성이 캐싱되면, 애플리케이션의 `.env` 파일은 요청이나 Artisan 명령 실행 시 프레임워크에 의해 로드되지 않습니다. 따라서 `env` 함수는 외부 시스템 환경 변수만 반환하게 됩니다.
 
 <!-- For this reason, you should ensure you are only calling the `env` function from within your application's configuration (`config`) files. You can see many examples of this by examining Laravel's default configuration files. Configuration values may be accessed from anywhere in your application using the `config` function [described above](#accessing-configuration-values). -->
-이런 이유로, `env` 함수는 반드시 애플리케이션의 구성(`config`) 파일 안에서만 호출해야 합니다. 자세한 내용은 위의 [described above](#accessing-configuration-values) 섹션을 참고하세요. 구성 값은 애플리케이션 어디서든 `config` 함수를 통해 접근하면 됩니다.
+이런 이유로, `env` 함수는 반드시 애플리케이션의 구성(`config`) 파일 안에서만 호출해야 합니다. Laravel의 기본 구성 파일을 살펴보면 이러한 사용 예를 많이 볼 수 있습니다. 자세한 내용은 위의 [described above](#accessing-configuration-values) 섹션을 참고하세요. 구성 값은 애플리케이션 어디서든 `config` 함수를 통해 접근하면 됩니다.
 
 <!-- The `config:clear` command may be used to purge the cached configuration: -->
 캐싱된 구성을 삭제하려면 `config:clear` 명령어를 사용합니다.

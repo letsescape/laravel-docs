@@ -2306,7 +2306,7 @@ php artisan migrate
 ### Defining Batchable Jobs
 
 <!-- To define a batchable job, you should [create a queueable job](#creating-jobs) as normal; however, you should add the `Illuminate\Bus\Batchable` trait to the job class. This trait provides access to a `batch` method which may be used to retrieve the current batch that the job is executing within: -->
-배치 가능한 작업을 정의하려면 일반적인 방식으로 [create a queueable job](#creating-jobs)합니다. 다만 작업 클래스에 `Illuminate\Bus\Batchable` 트레이트를 추가해야 합니다. 이 트레이트는 현재 작업이 실행되고 있는 배치를 가져오는 데 사용할 수 있는 `batch` 메서드에 접근할 수 있게 해줍니다.
+배치 가능한 작업을 정의하려면 [create a queueable job](#creating-jobs) 문서에 따라 일반적인 큐 작업을 생성합니다. 다만 작업 클래스에 `Illuminate\Bus\Batchable` 트레이트를 추가해야 합니다. 이 트레이트는 현재 작업이 실행되고 있는 배치를 가져오는 데 사용할 수 있는 `batch` 메서드에 접근할 수 있게 해줍니다.
 
 ```php
 <?php
@@ -2378,7 +2378,7 @@ return $batch->id;
 ```
 
 <!-- The batch's ID, which may be accessed via the `$batch->id` property, may be used to [query the Laravel command bus](#inspecting-batches) for information about the batch after it has been dispatched. -->
-`$batch->id` 속성으로 접근할 수 있는 배치의 ID는 배치가 디스패치된 뒤 해당 배치 정보를 [query the Laravel command bus](#inspecting-batches)하는 데 사용할 수 있습니다.
+`$batch->id` 속성으로 접근할 수 있는 배치의 ID는 배치가 디스패치된 뒤 [query the Laravel command bus](#inspecting-batches) 문서의 설명에 따라 해당 배치 정보를 조회하는 데 사용할 수 있습니다.
 
 > [!WARNING]
 > 배치 콜백은 직렬화된 후 Laravel 큐에 의해 나중에 실행되므로 콜백 내에서 `$this` 변수를 사용해서는 안 됩니다. 또한 배치 잡은 데이터베이스 트랜잭션으로 래핑되므로 암시적 커밋을 발생시키는 데이터베이스 문을 잡 내에서 실행해서는 안 됩니다.
@@ -2820,7 +2820,7 @@ php artisan queue:work -v
 ```
 
 <!-- Remember, queue workers are long-lived processes and store the booted application state in memory. As a result, they will not notice changes in your code base after they have been started. So, during your deployment process, be sure to [restart your queue workers](#queue-workers-and-deployment). In addition, remember that any static state created or modified by your application will not be automatically reset between jobs. -->
-큐 워커는 오래 실행되는 프로세스이며 부팅된 애플리케이션 상태를 메모리에 저장한다는 점을 기억하십시오. 따라서 시작된 이후에는 코드베이스의 변경 사항을 감지하지 못합니다. 그러므로 배포 과정에서 반드시 [restart your queue workers](#queue-workers-and-deployment)해야 합니다. 또한 애플리케이션에서 생성하거나 수정한 모든 정적 상태는 작업 사이에 자동으로 초기화되지 않는다는 점도 기억해야 합니다.
+큐 워커는 오래 실행되는 프로세스이며 부팅된 애플리케이션 상태를 메모리에 저장한다는 점을 기억하십시오. 따라서 시작된 이후에는 코드베이스의 변경 사항을 감지하지 못합니다. 그러므로 배포 과정에서 반드시 [restart your queue workers](#queue-workers-and-deployment) 문서에 따라 큐 워커를 재시작해야 합니다. 또한 애플리케이션에서 생성하거나 수정한 모든 정적 상태는 작업 사이에 자동으로 초기화되지 않는다는 점도 기억해야 합니다.
 
 <!-- Alternatively, you may run the `queue:listen` command. When using the `queue:listen` command, you don't have to manually restart the worker when you want to reload your updated code or reset the application state; however, this command is significantly less efficient than the `queue:work` command: -->
 또는 `queue:listen` 명령어를 실행할 수 있습니다. `queue:listen` 명령어를 사용하면 업데이트된 코드를 다시 로드하거나 애플리케이션 상태를 초기화하고 싶을 때 워커를 수동으로 재시작할 필요가 없습니다. 하지만 이 명령어는 `queue:work` 명령어보다 훨씬 비효율적입니다.
@@ -2834,7 +2834,7 @@ php artisan queue:listen
 #### Running Multiple Queue Workers
 
 <!-- To assign multiple workers to a queue and process jobs concurrently, you should simply start multiple `queue:work` processes. This can either be done locally via multiple tabs in your terminal or in production using your process manager's configuration settings. [When using Supervisor](#supervisor-configuration), you may use the `numprocs` configuration value. -->
-하나의 큐에 여러 워커를 할당하고 작업을 동시에 처리하려면 여러 `queue:work` 프로세스를 시작하면 됩니다. 로컬에서는 터미널의 여러 탭을 통해 실행할 수 있고, 프로덕션에서는 프로세스 매니저의 설정을 통해 실행할 수 있습니다. [When using Supervisor](#supervisor-configuration)는 `numprocs` 설정 값을 사용할 수 있습니다.
+하나의 큐에 여러 워커를 할당하고 작업을 동시에 처리하려면 여러 `queue:work` 프로세스를 시작하면 됩니다. 로컬에서는 터미널의 여러 탭을 통해 실행할 수 있고, 프로덕션에서는 프로세스 매니저의 설정을 통해 실행할 수 있습니다. Supervisor를 사용할 때는 [When using Supervisor](#supervisor-configuration) 문서에 설명된 `numprocs` 설정 값을 사용할 수 있습니다.
 
 <a name="specifying-the-connection-queue"></a>
 <!-- #### Specifying the Connection and Queue -->
@@ -3222,7 +3222,7 @@ Supervisor에 대한 자세한 내용은 [Supervisor documentation](http://super
 ## Dealing With Failed Jobs
 
 <!-- Sometimes your queued jobs will fail. Don't worry, things don't always go as planned! Laravel includes a convenient way to [specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout). After an asynchronous job has exceeded this number of attempts, it will be inserted into the `failed_jobs` database table. [Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching) that fail are not stored in this table and their exceptions are immediately handled by the application. -->
-큐에 등록한 잡이 실패하는 경우가 있습니다. 걱정하지 마세요. 항상 일이 계획대로 진행되지는 않습니다! Laravel은 [specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout)할 수 있는 편리한 방법을 제공합니다. 비동기 잡이 이 시도 횟수를 초과하면 `failed_jobs` 데이터베이스 테이블에 삽입됩니다. 실패한 [Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching)는 이 테이블에 저장되지 않으며, 해당 예외는 애플리케이션에서 즉시 처리합니다.
+큐에 등록한 잡이 실패하는 경우가 있습니다. 걱정하지 마세요. 항상 일이 계획대로 진행되지는 않습니다! Laravel은 [specify the maximum number of times a job should be attempted](#max-job-attempts-and-timeout) 문서에서 설명하는 최대 시도 횟수를 지정할 수 있는 편리한 방법을 제공합니다. 비동기 잡이 이 시도 횟수를 초과하면 `failed_jobs` 데이터베이스 테이블에 삽입됩니다. 실패한 [Synchronously dispatched jobs](/docs/13.x/queues#synchronous-dispatching)는 이 테이블에 저장되지 않으며, 해당 예외는 애플리케이션에서 즉시 처리합니다.
 
 <!-- A migration to create the `failed_jobs` table is typically already present in new Laravel applications. However, if your application does not contain a migration for this table, you may use the `make:queue-failed-table` command to create the migration: -->
 `failed_jobs` 테이블을 생성하는 마이그레이션은 일반적으로 새 Laravel 애플리케이션에 이미 포함되어 있습니다. 하지만 애플리케이션에 이 테이블을 위한 마이그레이션이 없다면 `make:queue-failed-table` 명령어를 사용하여 마이그레이션을 만들 수 있습니다.
@@ -3824,7 +3824,7 @@ Bus::assertDispatchedWithoutChain(ShipOrder::class);
 #### Testing Chain Modifications
 
 <!-- If a chained job [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain), you may use the job's `assertHasChain` method to assert that the job has the expected chain of remaining jobs: -->
-체인으로 연결된 작업이 [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain)한다면, 해당 작업의 `assertHasChain` 메서드를 사용하여 작업에 예상한 나머지 작업 체인이 있는지 검증할 수 있습니다.
+체인으로 연결된 작업이 [prepends or appends jobs to an existing chain](#adding-jobs-to-the-chain) 문서의 설명대로 기존 체인의 앞이나 뒤에 작업을 추가한다면, 해당 작업의 `assertHasChain` 메서드를 사용하여 작업에 예상한 나머지 작업 체인이 있는지 검증할 수 있습니다.
 
 ```php
 $job = new ProcessPodcast;
@@ -3850,7 +3850,7 @@ $job->assertDoesntHaveChain();
 #### Testing Chained Batches
 
 <!-- If your job chain [contains a batch of jobs](#chains-and-batches), you may assert that the chained batch matches your expectations by inserting a `Bus::chainedBatch` definition within your chain assertion: -->
-작업 체인에 [contains a batch of jobs](#chains-and-batches) 있다면, 체인 검증 안에 `Bus::chainedBatch` 정의를 삽입하여 체인된 배치가 기대한 내용과 일치하는지 검증할 수 있습니다.
+작업 체인에 작업 배치가 포함되어 있다면([contains a batch of jobs](#chains-and-batches)), 체인 검증 안에 `Bus::chainedBatch` 정의를 삽입하여 체인된 배치가 기대한 내용과 일치하는지 검증할 수 있습니다.
 
 ```php
 use App\Jobs\ShipOrder;

@@ -98,7 +98,7 @@ Route::get('/user', function (Request $request) {
 #### Available Router Methods
 
 <!-- The router allows you to register routes that respond to any HTTP verb: -->
-라우터는 모든 HTTP HTTP 동사(버브)에 응답하는 라우트를 등록할 수 있습니다.
+라우터는 모든 HTTP 동사(버브)에 응답하는 라우트를 등록할 수 있습니다.
 
 ```
 Route::get($uri, $callback);
@@ -838,7 +838,7 @@ Route::get('/categories/{category}', function (Category $category) {
 ### Explicit Binding
 
 <!-- You are not required to use Laravel's implicit, convention based model resolution in order to use model binding. You can also explicitly define how route parameters correspond to models. To register an explicit binding, use the router's `model` method to specify the class for a given parameter. You should define your explicit model bindings at the beginning of the `boot` method of your `AppServiceProvider` class: -->
-모델 바인딩을 위해 꼭 Laravel의 암묵적(규칙 기반) 모델 바인딩만을 사용할 필요는 없습니다. 라우트 파라미터와 모델을 연결하는 방식을 직접 명시적으로 정의할 수도 있습니다. 명시적 바인딩을 등록하려면 라우터의 `model` 메서드로 해당 파라미터에 사용할 모델 클래스를 지정합니다. 보통 이 코드는 `AppServiceProvider`의 `boot` 메서드에서 작성합니다.
+모델 바인딩을 위해 꼭 Laravel의 암묵적(규칙 기반) 모델 바인딩만을 사용할 필요는 없습니다. 라우트 파라미터와 모델을 연결하는 방식을 직접 명시적으로 정의할 수도 있습니다. 명시적 바인딩을 등록하려면 라우터의 `model` 메서드로 해당 파라미터에 사용할 모델 클래스를 지정합니다. 보통 이 코드는 `AppServiceProvider`의 `boot` 메서드 시작 부분에서 작성합니다.
 
 ```
 use App\Models\User;
@@ -910,7 +910,7 @@ public function resolveRouteBinding($value, $field = null)
 ```
 
 <!-- If a route is utilizing [implicit binding scoping](#implicit-model-binding-scoping), the `resolveChildRouteBinding` method will be used to resolve the child binding of the parent model: -->
-라운트에서 [implicit binding scoping](#implicit-model-binding-scoping)을 사용할 경우, 부모 모델에서 자식 바인딩을 해결할 때는 `resolveChildRouteBinding` 메서드가 호출됩니다.
+라우트에서 [implicit binding scoping](#implicit-model-binding-scoping)을 사용할 경우, 부모 모델에서 자식 바인딩을 해결할 때는 `resolveChildRouteBinding` 메서드가 호출됩니다.
 
 ```
 /**

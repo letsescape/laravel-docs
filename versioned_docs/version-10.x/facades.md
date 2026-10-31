@@ -160,7 +160,7 @@ public function test_basic_example(): void
 Laravel 애플리케이션에서 파사드는 컨테이너에 등록된 객체에 접근하는 역할을 합니다. 이를 가능하게 하는 핵심은 `Facade` 클래스에 있습니다. Laravel의 모든 기본 파사드 및 커스텀 파사드는 기본적으로 `Illuminate\Support\Facades\Facade` 클래스를 확장(extends)합니다.
 
 <!-- The `Facade` base class makes use of the `__callStatic()` magic-method to defer calls from your facade to an object resolved from the container. In the example below, a call is made to the Laravel cache system. By glancing at this code, one might assume that the static `get` method is being called on the `Cache` class: -->
-`Facade` 기본 클래스는 PHP의 매직 메서드인 `__callStatic()`을 활용하여, 파사드를 통한 메서드 호출을 서비스 컨테이너에서 해결된 객체로 위임합니다. 아래 예제는 Laravel의 캐시(Cache) 시스템을 사용하는 코드입니다. 이 코드를 보면 마치 `Cache` 클래스에서 정적 메서드 `get`을 호출하는 것처럼 보이지만
+`Facade` 기본 클래스는 PHP의 매직 메서드인 `__callStatic()`을 활용하여, 파사드를 통한 메서드 호출을 서비스 컨테이너에서 해결된 객체로 위임합니다. 아래 예제는 Laravel의 캐시(Cache) 시스템을 사용하는 코드입니다. 이 코드를 보면 마치 `Cache` 클래스에서 정적 메서드 `get`을 호출하는 것처럼 보일 수 있습니다.
 
 ```
 <?php

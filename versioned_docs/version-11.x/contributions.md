@@ -135,10 +135,10 @@ Laravel 프레임워크의 [GitHub discussion board](https://github.com/laravel/
 ## Which Branch?
 
 <!-- **All** bug fixes should be sent to the latest version that supports bug fixes (currently `11.x`). Bug fixes should **never** be sent to the `master` branch unless they fix features that exist only in the upcoming release. -->
-**모든** 버그 수정은 버그 수정이 지원되는 최신 버전(현재는 `11.x`)에 보내져야 합니다. 이미 공개된 버그 수정에 대해서는 **절대로** `master` 브랜치로 pull request를 보내면 안 되며, 오직 차기 릴리스에만 해당되는 새로운 버그 수정인 경우에만 예외가 적용됩니다.
+**모든** 버그 수정은 버그 수정이 지원되는 최신 버전(현재는 `11.x`)에 보내져야 합니다. 오직 차기 릴리스에만 존재하는 기능을 수정하는 경우가 아니라면, 버그 수정은 **절대로** `master` 브랜치로 보내면 안 됩니다.
 
 <!-- **Minor** features that are **fully backward compatible** with the current release may be sent to the latest stable branch (currently `11.x`). -->
-**완전히 하위 호환이 보장되는** **경미한** 기능 추가의 경우에도 최신 안정 브랜치(현재는 `11.x`)로 보내야 합니다.
+**완전히 하위 호환이 보장되는** **경미한** 기능 추가의 경우에도 최신 안정 브랜치(현재는 `11.x`)로 보낼 수 있습니다.
 
 <!-- **Major** new features or features with breaking changes should always be sent to the `master` branch, which contains the upcoming release. -->
 **주요** 신규 기능이나 기존 기능에 변경(하위 호환성 파괴)이 있는 경우에는 항상 차기 릴리스가 준비되는 `master` 브랜치로 보내야 합니다.

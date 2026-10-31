@@ -204,7 +204,7 @@ select * from users where id > 15 order by id asc limit 15;
 - Query expressions in "order by" clauses are supported only if they are aliased and added to the "select" clause as well.
 -->
 - `simplePaginate`처럼, 커서 페이지네이션은 "다음"과 "이전" 링크만 지원하고, 페이지 번호가 있는 링크는 지원하지 않습니다.
-- 정렬 기준이 적어도 하나의 유니크 컬럼(또는 유니크 컬럼들의 조합)에 기반해야 합니다. `null` 값이 포함된 컬럼은 사용할 수 없습니다.
+- 정렬 기준이 적어도 하나의 유니크 컬럼(또는 조합했을 때 유일한 값을 갖는 컬럼들)에 기반해야 합니다. `null` 값이 포함된 컬럼은 사용할 수 없습니다.
 - "order by"에 사용된 쿼리 표현식은 반드시 alias로 지정해서 "select" 구문에도 추가되어야 지원됩니다.
 
 <a name="manually-creating-a-paginator"></a>

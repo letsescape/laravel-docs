@@ -59,7 +59,7 @@ class ExampleTest extends TestCase
 ## Model Factories
 
 <!-- When testing, you may need to insert a few records into your database before executing your test. Instead of manually specifying the value of each column when you create this test data, Laravel allows you to define a set of default attributes for each of your [Eloquent models](/docs/9.x/eloquent) using [model factories](/docs/9.x/eloquent-factories). -->
-테스트를 진행할 때 테스트 실행 전에 데이터베이스에 몇 개의 레코드를 삽입해야 할 때가 있습니다. 이때 일일이 각 컬럼의 값을 지정해서 테스트 데이터를 만들 필요 없이, Laravel의 [Eloquent models](/docs/9.x/eloquent)를 이용하면 각 [model factories](/docs/9.x/eloquent-factories)에 대해 기본 속성(attribute) 세트를 미리 정의하여 손쉽게 테스트 데이터를 생성할 수 있습니다.
+테스트를 진행할 때 테스트 실행 전에 데이터베이스에 몇 개의 레코드를 삽입해야 할 때가 있습니다. 이때 일일이 각 컬럼의 값을 지정해서 테스트 데이터를 만들 필요 없이, Laravel의 각 [Eloquent models](/docs/9.x/eloquent)에 대한 기본 속성(attribute) 세트를 [model factories](/docs/9.x/eloquent-factories)를 이용해 미리 정의하여 손쉽게 테스트 데이터를 생성할 수 있습니다.
 
 <!-- To learn more about creating and utilizing model factories to create models, please consult the complete [model factory documentation](/docs/9.x/eloquent-factories). Once you have defined a model factory, you may utilize the factory within your test to create models: -->
 모델 팩토리의 생성 및 활용 방법은 [model factory documentation](/docs/9.x/eloquent-factories)를 참고해 주세요. 팩토리를 정의해두었다면, 테스트 내에서 다음과 같이 팩토리를 활용해 모델을 생성할 수 있습니다:
@@ -80,7 +80,7 @@ public function test_models_can_be_instantiated()
 ## Running Seeders
 
 <!-- If you would like to use [database seeders](/docs/9.x/seeding) to populate your database during a feature test, you may invoke the `seed` method. By default, the `seed` method will execute the `DatabaseSeeder`, which should execute all of your other seeders. Alternatively, you pass a specific seeder class name to the `seed` method: -->
-기능 테스트(Feature Test) 도중에 [database seeders](/docs/9.x/seeding)를 사용하여 데이터베이스를 채우고 싶다면, `seed` 메서드를 호출하면 됩니다. 기본적으로 `seed` 메서드는 `DatabaseSeeder`를 실행하며, 이를 통해 여러분이 정의한 모든 시더가 실행됩니다. 원한다면, 특정 시더 클래스명을 `seed` 메서드에 파라미터로 전달하여 일부 시더만 실행할 수도 있습니다:
+기능 테스트(Feature Test) 도중에 [database seeders](/docs/9.x/seeding)를 사용하여 데이터베이스를 채우고 싶다면, `seed` 메서드를 호출하면 됩니다. 기본적으로 `seed` 메서드는 `DatabaseSeeder`를 실행하며, 이 안에서 여러분이 정의한 다른 모든 시더를 실행하도록 해야 합니다. 원한다면, 특정 시더 클래스명을 `seed` 메서드에 파라미터로 전달하여 일부 시더만 실행할 수도 있습니다:
 
 ```
 <?php

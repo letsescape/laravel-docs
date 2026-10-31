@@ -210,7 +210,7 @@ return URL::signedRoute('unsubscribe', ['user' => 1], absolute: false);
 ```
 
 <!-- If you would like to generate a temporary signed route URL that expires after a specified amount of time, you may use the `temporarySignedRoute` method. When Laravel validates a temporary signed route URL, it will ensure that the expiration timestamp that is encoded into the signed URL has not elapsed: -->
-지정한 시간 이후 만료되는 임시 서명 라우트 URL을 생성하려면 `temporarySignedRoute` 메서드를 사용합니다. 이때 Laravel은 서명된 URL에서 인코딩된 만료 타임스탬프가 경과하지 않았는지 검사합니다:
+지정한 시간 이후 만료되는 임시 서명 라우트 URL을 생성하려면 `temporarySignedRoute` 메서드를 사용합니다. Laravel은 임시 서명 라우트 URL을 검증할 때 서명된 URL에 인코딩된 만료 타임스탬프가 경과하지 않았는지 검사합니다:
 
 ```php
 use Illuminate\Support\Facades\URL;
@@ -265,6 +265,9 @@ Route::post('/unsubscribe/{user}', function (Request $request) {
     // ...
 })->name('unsubscribe')->middleware('signed:relative');
 ```
+
+> [!WARNING]
+> 서명은 URL의 경로와 쿼리 문자열만 포함합니다. 폼이나 JSON 요청 본문과 같은 다른 요청 입력은 서명되지 않으므로 사용자가 자유롭게 수정할 수 있습니다. Laravel은 이러한 입력 소스를 하나로 병합하고 쿼리 문자열보다 요청 본문을 우선하므로, `query` 이외의 메서드(예: `input`, `all`)나 동적 요청 프로퍼티를 사용해 입력을 가져오면 서명된 쿼리 문자열 값을 덮어쓰는 서명되지 않은 값이 반환될 수 있습니다. 따라서 `$request->query('email')`처럼 항상 `query` 메서드로 서명된 값을 가져와야 합니다. 특별히 조작된 `GET` 요청에는 JSON 요청 본문이 포함될 수도 있으므로 `GET` 요청도 예외가 아닙니다.
 
 <a name="responding-to-invalid-signed-routes"></a>
 <!-- #### Responding to Invalid Signed Routes -->

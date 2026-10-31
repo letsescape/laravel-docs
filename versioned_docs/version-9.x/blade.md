@@ -1170,7 +1170,7 @@ class Alert extends Component
 #### Conditionally Merge Classes
 
 <!-- Sometimes you may wish to merge classes if a given condition is `true`. You can accomplish this via the `class` method, which accepts an array of classes where the array key contains the class or classes you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the rendered class list: -->
-어떤 조건이 `true`인 경우에만 클래스를 병합하고 싶다면, `class` 메서드를 사용할 수 있습니다. 이 메서드는 클래스명(혹은 클래스들의 배열)과 불리언 조건을 key-value 배열로 받습니다. 배열 인덱스가 숫자인 요소는 항상 클래스 목록에 추가됩니다.
+어떤 조건이 `true`인 경우에만 클래스를 병합하고 싶다면, `class` 메서드를 사용할 수 있습니다. 이 메서드는 추가할 하나 이상의 클래스명을 키로, 불리언 조건식을 값으로 하는 배열을 받습니다. 배열 인덱스가 숫자인 요소는 항상 클래스 목록에 추가됩니다.
 
 ```blade
 <div {{ $attributes->class(['p-4', 'bg-red' => $hasError]) }}>
@@ -1251,7 +1251,7 @@ class Alert extends Component
 ```
 
 <!-- Conversely, the `whereDoesntStartWith` method may be used to exclude all attributes whose keys begin with a given string: -->
-반대로, 특정 문자열로 시작하지 않는 속성만 제외하고 싶을 때는 `whereDoesntStartWith` 메서드가 유용합니다.
+반대로, 키가 특정 문자열로 시작하는 모든 속성을 제외하고 싶을 때는 `whereDoesntStartWith` 메서드가 유용합니다.
 
 ```blade
 {{ $attributes->whereDoesntStartWith('wire:model') }}
@@ -1478,7 +1478,7 @@ php artisan make:component Alert --inline
 ### Manually Registering Components
 
 > [!WARNING]
-> 아래 문서 내용은 주로 Blade 컴포넌트를 포함하는 Laravel 패키지를 작성하는 분들에게 해당됩니다. 패키지 개발이 목적이 아니라면, 컴포넌트 관련 문서 중 이 부분은 생략하셔도 무방합니다.
+> 아래 문서 내용은 주로 Blade 컴포넌트를 포함하는 Laravel 패키지를 작성하는 분들에게 해당됩니다. 패키지 개발이 목적이 아니라면, 컴포넌트 관련 문서 중 이 부분은 관련이 없을 수 있습니다.
 
 <!-- When writing components for your own application, components are automatically discovered within the `app/View/Components` directory and `resources/views/components` directory. -->
 애플리케이션에서 자체적으로 작성하는 컴포넌트는 `app/View/Components` 디렉터리와 `resources/views/components` 디렉터리 내에서 자동으로 검색되어 등록됩니다.
@@ -2162,7 +2162,7 @@ class AppServiceProvider extends ServiceProvider
 Blade에서 객체를 "echo"로 출력하려고 하면, 해당 객체의 `__toString` 메서드가 호출됩니다. [`__toString`](https://www.php.net/manual/en/language.oop5.magic.php#object.tostring) 메서드는 PHP에 내장된 "매직 메서드" 중 하나입니다. 하지만, 사용 중인 클래스가 서드파티 라이브러리의 것이라서 `__toString` 메서드를 직접 수정할 수 없는 경우도 있습니다.
 
 <!-- In these cases, Blade allows you to register a custom echo handler for that particular type of object. To accomplish this, you should invoke Blade's `stringable` method. The `stringable` method accepts a closure. This closure should type-hint the type of object that it is responsible for rendering. Typically, the `stringable` method should be invoked within the `boot` method of your application's `AppServiceProvider` class: -->
-이럴 때 Blade는 해당 타입의 객체를 위한 커스텀 echo 핸들러를 등록할 수 있습니다. 이를 위해서는 Blade의 `stringable` 메서드를 사용하면 됩니다. `stringable` 메서드는 클로저를 인수로 받으며, 이 클로저는 랜더링할 객체의 타입을 타입힌트로 지정할 수 있습니다. 일반적으로 `stringable` 메서드는 애플리케이션의 `AppServiceProvider` 클래스의 `boot` 메서드 안에서 호출합니다.
+이럴 때 Blade는 해당 타입의 객체를 위한 커스텀 echo 핸들러를 등록할 수 있습니다. 이를 위해서는 Blade의 `stringable` 메서드를 사용하면 됩니다. `stringable` 메서드는 클로저를 인수로 받으며, 이 클로저는 렌더링할 객체의 타입을 타입힌트로 지정해야 합니다. 일반적으로 `stringable` 메서드는 애플리케이션의 `AppServiceProvider` 클래스의 `boot` 메서드 안에서 호출합니다.
 
 ```
 use Illuminate\Support\Facades\Blade;

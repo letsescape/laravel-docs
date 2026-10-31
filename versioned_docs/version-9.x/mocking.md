@@ -688,7 +688,7 @@ Notification::assertSentOnDemand(
 ## Queue Fake
 
 <!-- You may use the `Queue` facade's `fake` method to prevent queued jobs from being pushed to the queue. Most likely, it is sufficient to simply assert that Laravel was instructed to push a given job to the queue since the queued jobs themselves may be tested in another test class. -->
-`Queue` 파사드의 `fake` 메서드를 사용하면, 큐잉된 잡이 실제로 큐에 쌓이지 않게 할 수 있습니다. 대부분의 경우, "잡 자체"의 동작은 별도 테스트 클래스에서 검증하고, 여기서는 잡이 큐에 쌓였는지 여부만 assert(검증)하면 충분합니다.
+`Queue` 파사드의 `fake` 메서드를 사용하면, 큐잉된 잡이 실제로 큐에 쌓이지 않게 할 수 있습니다. 대부분의 경우, "잡 자체"의 동작은 별도 테스트 클래스에서 검증하고, 여기서는 잡을 큐에 넣도록 지시했는지 여부만 assert(검증)하면 충분합니다.
 
 <!-- After calling the `Queue` facade's `fake` method, you may then assert that the application attempted to push jobs to the queue: -->
 `Queue` 파사드의 `fake` 메서드 호출 후, 애플리케이션이 실제로 잡을 큐에 푸시(push)하려고 했는지 다양한 방식으로 검증 가능합니다.

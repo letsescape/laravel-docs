@@ -402,7 +402,7 @@ public function boot(): void
 ```
 
 > [!NOTE]
-> `dehydrating` 콜백 안에서는 절대 `Context` 파사드를 사용하지 마십시오. 그렇게 하면 현재 프로세스의 컨텍스트가 변경될 수 있습니다. 반드시 콜백에 전달되는 저장소(repository) 인스턴스만 조작해야 합니다.
+> `dehydrating` 콜백 안에서는 절대 `Context` 파사드를 사용하지 마십시오. 그렇게 하면 현재 프로세스의 컨텍스트가 변경됩니다. 반드시 콜백에 전달되는 저장소(repository) 인스턴스만 조작해야 합니다.
 
 <a name="hydrated"></a>
 <!-- ### Hydrated -->

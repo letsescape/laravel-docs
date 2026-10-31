@@ -641,7 +641,7 @@ public function getRouteKeyName()
 #### Custom Keys & Scoping
 
 <!-- When implicitly binding multiple Eloquent models in a single route definition, you may wish to scope the second Eloquent model such that it must be a child of the previous Eloquent model. For example, consider this route definition that retrieves a blog post by slug for a specific user: -->
-한 번에 여러 Eloquent 모델을 암묵적으로 바인딩할 때, 두 번째 모델이 첫 번째 모델의 자식이어야만 조회되게 스코핑하고 싶을 수 있습니다. 예를 들면, 특정 사용자의 슬러그로 블로그 포스트를 조회하는 경우입니다.
+한 번에 여러 Eloquent 모델을 암묵적으로 바인딩할 때, 두 번째 모델이 첫 번째 모델의 자식이어야만 조회되게 스코핑하고 싶을 수 있습니다. 예를 들면, 특정 사용자의 블로그 포스트를 슬러그로 조회하는 경우입니다.
 
 ```
 use App\Models\Post;
@@ -742,7 +742,7 @@ Route::get('/categories/{category}', function (Category $category) {
 ### Explicit Binding
 
 <!-- You are not required to use Laravel's implicit, convention based model resolution in order to use model binding. You can also explicitly define how route parameters correspond to models. To register an explicit binding, use the router's `model` method to specify the class for a given parameter. You should define your explicit model bindings at the beginning of the `boot` method of your `RouteServiceProvider` class: -->
-암묵적(컨벤션 기반) 모델 바인딩을 굳이 쓸 필요 없이, 직접 모델 바인딩을 원하는 방식으로 정의할 수도 있습니다. 명시적 모델 바인딩은 라우터의 `model` 메서드를 사용하여 파라미터명을 해당 모델 클래스로 지정합니다. 보통은 `RouteServiceProvider` 클래스의 `boot` 메서드에서 등록하는 것이 좋습니다.
+암묵적(컨벤션 기반) 모델 바인딩을 굳이 쓸 필요 없이, 직접 모델 바인딩을 원하는 방식으로 정의할 수도 있습니다. 명시적 모델 바인딩은 라우터의 `model` 메서드를 사용하여 파라미터명을 해당 모델 클래스로 지정합니다. 보통은 `RouteServiceProvider` 클래스의 `boot` 메서드 시작 부분에서 등록하는 것이 좋습니다.
 
 ```
 use App\Models\User;
@@ -930,7 +930,7 @@ RateLimiter::for('uploads', function (Request $request) {
 #### Segmenting Rate Limits
 
 <!-- Sometimes you may wish to segment rate limits by some arbitrary value. For example, you may wish to allow users to access a given route 100 times per minute per IP address. To accomplish this, you may use the `by` method when building your rate limit: -->
-경우에 따라 IP 주소 등 임의의 값별로 요청 제한을 세분화하고 싶을 수 있습니다. 이럴 때는 제한 빌더에 `by` 메서드를 체이닝하여 구현할 수 있습니다.
+경우에 따라 IP 주소 등 임의의 값별로 요청 제한을 세분화하고 싶을 수 있습니다. 예를 들어, 특정 라우트에 IP 주소별로 분당 100회 접근하도록 허용할 수 있습니다. 이럴 때는 제한 빌더에 `by` 메서드를 체이닝하여 구현할 수 있습니다.
 
 ```
 RateLimiter::for('uploads', function (Request $request) {
@@ -941,7 +941,7 @@ RateLimiter::for('uploads', function (Request $request) {
 ```
 
 <!-- To illustrate this feature using another example, we can limit access to the route to 100 times per minute per authenticated user ID or 10 times per minute per IP address for guests: -->
-다른 예시로, 인증 사용자는 1분에 100회, 비인증 사용자는 1분에 10회로 제한할 수도 있습니다.
+다른 예시로, 인증 사용자는 사용자 ID별로 1분에 100회, 비인증 사용자는 IP 주소별로 1분에 10회로 제한할 수도 있습니다.
 
 ```
 RateLimiter::for('uploads', function (Request $request) {

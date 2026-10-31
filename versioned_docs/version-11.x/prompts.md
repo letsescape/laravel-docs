@@ -982,7 +982,7 @@ $response = spin(
 ## Progress Bars
 
 <!-- For long running tasks, it can be helpful to show a progress bar that informs users how complete the task is. Using the `progress` function, Laravel will display a progress bar and advance its progress for each iteration over a given iterable value: -->
-오래 걸리는 작업의 경우, 진행률 표시줄을 통해 작업이 얼마나 진행되었는지 사용자에게 안내할 수 있습니다. `progress` 함수를 사용하면, 주어진 이터러블 항목을 반복(iteration)할 때마다 Laravel이 진행 상황을 보여주는 진행률 표시줄을 자동으로 표시합니다.
+오래 걸리는 작업의 경우, 진행률 표시줄을 통해 작업이 얼마나 진행되었는지 사용자에게 안내할 수 있습니다. `progress` 함수를 사용하면, Laravel이 진행률 표시줄을 표시하고 주어진 이터러블 항목을 반복(iteration)할 때마다 진행률을 증가시킵니다.
 
 ```php
 use function Laravel\Prompts\progress;

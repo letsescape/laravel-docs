@@ -230,7 +230,7 @@ $value = Cache::remember('users', $seconds, function () {
 캐시에 항목이 없으면, `remember` 메서드에 전달한 클로저가 실행되고 그 결과가 캐시에 저장됩니다.
 
 <!-- You may use the `rememberForever` method to retrieve an item from the cache or store it forever if it does not exist: -->
-항목을 영구적으로 저장하거나 조회하려면 `rememberForever` 메서드를 사용할 수 있습니다.
+캐시에서 항목을 조회하거나, 없으면 영구적으로 저장하려면 `rememberForever` 메서드를 사용할 수 있습니다.
 
 ```
 $value = Cache::rememberForever('users', function () {
@@ -499,7 +499,7 @@ Cache::lock('foo', 10)->block(5, function () {
 ### Managing Locks Across Processes
 
 <!-- Sometimes, you may wish to acquire a lock in one process and release it in another process. For example, you may acquire a lock during a web request and wish to release the lock at the end of a queued job that is triggered by that request. In this scenario, you should pass the lock's scoped "owner token" to the queued job so that the job can re-instantiate the lock using the given token. -->
-경우에 따라 한 프로세스에서 락을 획득하고, 다른 프로세스에서 락을 해제하고 싶을 수도 있습니다. 예를 들어, 웹 요청 도중 락을 획득하고, 해당 요청에 의해 트리거된 큐 작업(잡)의 마지막에서 락을 해제하기를 원할 수 있습니다. 이럴 때는 락의 범위(owner) 토큰을 잡(job)으로 전달한 후, 해당 토큰을 이용해 락을 다시 생성해 해제하면 됩니다.
+경우에 따라 한 프로세스에서 락을 획득하고, 다른 프로세스에서 락을 해제하고 싶을 수도 있습니다. 예를 들어, 웹 요청 도중 락을 획득하고, 해당 요청에 의해 트리거된 큐 작업(잡)의 마지막에서 락을 해제하기를 원할 수 있습니다. 이럴 때는 락의 소유자(owner) 토큰을 잡(job)으로 전달한 후, 해당 토큰을 이용해 락을 다시 생성해 해제하면 됩니다.
 
 <!-- In the example below, we will dispatch a queued job if a lock is successfully acquired. In addition, we will pass the lock's owner token to the queued job via the lock's `owner` method: -->
 아래 예시에서는, 락을 성공적으로 획득하면 큐 작업을 디스패치합니다. 그리고 락의 `owner` 메서드를 통해 락의 소유자 토큰을 큐 작업으로 전달합니다.

@@ -283,7 +283,7 @@ SCOUT_DRIVER=collection
 ### Batch Import
 
 <!-- If you are installing Scout into an existing project, you may already have database records you need to import into your indexes. Scout provides a `scout:import` Artisan command that you may use to import all of your existing records into your search indexes: -->
-기존 프로젝트에 Scout를 도입할 경우, 이미 존재하는 데이터베이스 레코드를 전체 인덱스에 임포트해야 할 수 있습니다. 이럴 때는 Scout가 제공하는 `scout:import` Artisan 명령어를 사용해, 기존 레코드를 모두 검색 인덱스로 가져올 수 있습니다.
+기존 프로젝트에 Scout를 도입할 경우, 이미 존재하는 데이터베이스 레코드를 인덱스에 임포트해야 할 수 있습니다. 이럴 때는 Scout가 제공하는 `scout:import` Artisan 명령어를 사용해, 기존 레코드를 모두 검색 인덱스로 가져올 수 있습니다.
 
 ```
 php artisan scout:import "App\Models\Post"
@@ -321,7 +321,7 @@ protected function makeAllSearchableUsing($query)
 ### Adding Records
 
 <!-- Once you have added the `Laravel\Scout\Searchable` trait to a model, all you need to do is `save` or `create` a model instance and it will automatically be added to your search index. If you have configured Scout to [use queues](#queueing) this operation will be performed in the background by your queue worker: -->
-`Laravel\Scout\Searchable` 트레이트가 추가된 모델은, 단순히 인스턴스를 `save` 혹은 `create`만 하면 자동으로 검색 인덱스에 추가됩니다. 만약 Scout를 [use queues](#queueing), 이 작업은 백그라운드 큐 워커가 처리합니다.
+`Laravel\Scout\Searchable` 트레이트가 추가된 모델은, 단순히 인스턴스를 `save` 혹은 `create`만 하면 자동으로 검색 인덱스에 추가됩니다. 만약 Scout에서 [use queues](#queueing)를 설정했다면, 이 작업은 백그라운드 큐 워커가 처리합니다.
 
 ```
 use App\Models\Order;
@@ -442,7 +442,7 @@ $orders->unsearchable();
 ### Pausing Indexing
 
 <!-- Sometimes you may need to perform a batch of Eloquent operations on a model without syncing the model data to your search index. You may do this using the `withoutSyncingToSearch` method. This method accepts a single closure which will be immediately executed. Any model operations that occur within the closure will not be synced to the model's index: -->
-여러 개의 Eloquent 모델을 한꺼번에 다뤄야 하지만, 이 동안에는 검색 인덱스와의 동기화를 일시적으로 중단하고 싶은 경우가 있습니다. 이런 경우에는 `withoutSyncingToSearch` 메서드를 사용하면 됩니다. 이 메서드는 하나의 클로저를 인자로 받으며, 클로저 내부에서 실행되는 모든 모델 동작은 인덱스에 반영되지 않습니다.
+여러 개의 Eloquent 모델을 한꺼번에 다뤄야 하지만, 이 동안에는 검색 인덱스와의 동기화를 일시적으로 중단하고 싶은 경우가 있습니다. 이런 경우에는 `withoutSyncingToSearch` 메서드를 사용하면 됩니다. 이 메서드는 하나의 클로저를 인자로 받아 즉시 실행하며, 클로저 내부에서 실행되는 모든 모델 동작은 인덱스에 반영되지 않습니다.
 
 ```
 use App\Models\Order;
@@ -479,7 +479,7 @@ public function shouldBeSearchable()
 ## Searching
 
 <!-- You may begin searching a model using the `search` method. The search method accepts a single string that will be used to search your models. You should then chain the `get` method onto the search query to retrieve the Eloquent models that match the given search query: -->
-모델 검색은 `search` 메서드로 시작할 수 있습니다. 이 메서드는 하나의 문자열을 입력받아 해당 문자열이 포함된 모델을 검색합니다. 이후, `get` 메서드를 체이닝하여 원하는 검색 쿼리의 Eloquent 모델을 반환받을 수 있습니다.
+모델 검색은 `search` 메서드로 시작할 수 있습니다. 이 메서드는 하나의 문자열을 입력받아 해당 문자열로 모델을 검색합니다. 이후, `get` 메서드를 체이닝하여 원하는 검색 쿼리의 Eloquent 모델을 반환받을 수 있습니다.
 
 ```
 use App\Models\Order;
@@ -488,7 +488,7 @@ $orders = Order::search('Star Trek')->get();
 ```
 
 <!-- Since Scout searches return a collection of Eloquent models, you may even return the results directly from a route or controller and they will automatically be converted to JSON: -->
-Scout의 검색 결과는 Eloquent 모델 컬렉션으로 반환되어 별도의 처리 없이 바로 JSON으로 변환해 라우트나 컨트롤러에서 직접 반환할 수 있습니다.
+Scout의 검색 결과는 Eloquent 모델 컬렉션이므로 라우트나 컨트롤러에서 직접 반환하면 자동으로 JSON으로 변환됩니다.
 
 ```
 use App\Models\Order;
@@ -601,7 +601,7 @@ Route::get('/orders', function (Request $request) {
 ```
 
 <!-- When this configuration option is `true`, Scout will not remove soft deleted models from the search index. Instead, it will set a hidden `__soft_deleted` attribute on the indexed record. Then, you may use the `withTrashed` or `onlyTrashed` methods to retrieve the soft deleted records when searching: -->
-이 설정이 `true`면, Scout는 소프트 삭제된 모델을 검색 인덱스에서 제거하지 않고, 인덱스에 숨겨진 `__soft_deleted` 속성을 추가합니다. 그리고 검색할 때는 `withTrashed` 또는 `onlyTrashed` 메서드를 사용해 소프트 삭제된 데이터도 함께 조회할 수 있습니다.
+이 설정이 `true`면, Scout는 소프트 삭제된 모델을 검색 인덱스에서 제거하지 않고, 인덱스에 숨겨진 `__soft_deleted` 속성을 추가합니다. 그리고 검색할 때는 `withTrashed` 또는 `onlyTrashed` 메서드를 사용해 소프트 삭제된 데이터를 조회할 수 있습니다.
 
 ```
 use App\Models\Order;
@@ -672,7 +672,7 @@ abstract public function flush($model);
 #### Registering The Engine
 
 <!-- Once you have written your custom engine, you may register it with Scout using the `extend` method of the Scout engine manager. Scout's engine manager may be resolved from the Laravel service container. You should call the `extend` method from the `boot` method of your `App\Providers\AppServiceProvider` class or any other service provider used by your application: -->
-커스텀 엔진을 모두 구현했다면, Scout 엔진 매니저의 `extend` 메서드로 Scout에 등록할 수 있습니다. 엔진 매니저는 Laravel 서비스 컨테이너에서 resolve할 수 있습니다. 보통 `App\Providers\AppServiceProvider` 클래스의 `boot` 메서드나, 애플리케이션에서 사용하는 다른 서비스 프로바이더에서 `extend`를 호출합니다.
+커스텀 엔진을 모두 구현했다면, Scout 엔진 매니저의 `extend` 메서드로 Scout에 등록할 수 있습니다. 엔진 매니저는 Laravel 서비스 컨테이너에서 resolve할 수 있습니다. 보통 `App\Providers\AppServiceProvider` 클래스나 애플리케이션에서 사용하는 다른 서비스 프로바이더의 `boot` 메서드에서 `extend`를 호출합니다.
 
 ```
 use App\ScoutExtensions\MySqlSearchEngine

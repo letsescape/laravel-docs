@@ -157,7 +157,7 @@ public function test_console_command(): void
 ```
 
 <!-- The `expectsOutputToContain` and `doesntExpectOutputToContain` methods may be used to make assertions against a portion of the output: -->
-`expectsOutputToContain` 및 `doesntExpectOutputToContain` 메서드를 사용하면, 출력 결과의 일부 문자열만 포함됐는지 또는 포함되지 않았는지 검증할 수 있습니다.
+`expectsOutputToContain` 및 `doesntExpectOutputToContain` 메서드를 사용하면, 출력 결과에 특정 문자열이 포함됐는지 또는 포함되지 않았는지 검증할 수 있습니다.
 
 ```php tab=Pest
 test('console command', function () {

@@ -2575,7 +2575,7 @@ class MainPipelineTests(unittest.TestCase):
                 "translate_text",
                 side_effect=translated,
             ):
-                issues = main._translate_one(change, cfg, "prompt", dest)
+                issues = main._translate_one(change, cfg, "prompt", dest, locale="ko")
 
             self.assertEqual(issues, [])
             self.assertEqual(len(sent), 1)
@@ -2643,10 +2643,11 @@ class MainPipelineTests(unittest.TestCase):
                 main.translate,
                 "translate_text",
                 side_effect=translated,
-            ):
-                issues = main._translate_one(change, cfg, "prompt", dest)
+            ) as provider:
+                issues = main._translate_one(change, cfg, "prompt", dest, locale="ja")
 
             self.assertEqual(issues, [])
+            self.assertEqual(provider.call_count, 1)
             self.assertEqual(
                 dest.read_text(encoding="utf-8"),
                 "<!-- | Feature | Providers | |---|---| "
@@ -2657,6 +2658,58 @@ class MainPipelineTests(unittest.TestCase):
                 "| 文章 | OpenAI、OpenAI Compatible、Anthropic |\n"
                 "| 画像 | OpenAI |\n",
             )
+
+    def test_translate_one_rejects_untranslated_prose_in_a_product_table_row(self):
+        """제품명이 보존되어도 영어 설명문이 남은 행은 저장하지 않는지 검증."""
+
+        old_row = "| Text | OpenAI Compatible, Cohere | Use the old provider. |"
+        new_row = (
+            "| Text | OpenAI Compatible, Cohere | "
+            "Use the configured provider to generate a response. |"
+        )
+        old_source = (
+            "| Feature | Providers | Description |\n"
+            "|---|---|---|\n"
+            f"{old_row}\n"
+        )
+        source = old_source.replace(old_row, new_row)
+        existing = (
+            "| 기능 | 프로바이더 | 설명 |\n"
+            "|---|---|---|\n"
+            "| 텍스트 | OpenAI Compatible, Cohere | 이전 프로바이더를 사용합니다. |\n"
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = "i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md"
+            source_path = root / path
+            source_path.parent.mkdir(parents=True)
+            source_path.write_text(source, encoding="utf-8")
+            dest = root / "versioned_docs/version-13.x/example.md"
+            dest.parent.mkdir(parents=True)
+            dest.write_text(existing, encoding="utf-8")
+            change = diff.SourceChange(
+                path=path,
+                status="M",
+                hunks=diff.hunks_between(old_source, source),
+            )
+            cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+            response = (
+                f"<!-- {new_row} -->\n"
+                f"{new_row.replace('| Text |', '| 텍스트 |')}\n"
+            )
+
+            with patch.object(main, "REPO_ROOT", root), patch.object(
+                main.translate,
+                "translate_request",
+                return_value=response,
+            ):
+                issues = main._translate_one(change, cfg, "prompt", dest, locale="ko")
+
+            self.assertTrue(
+                any("provider target language mismatch" in issue for issue in issues)
+            )
+            self.assertEqual(dest.read_text(encoding="utf-8"), existing)
 
     def test_translate_one_replaces_split_paragraph_and_following_warning(self):
         """분리된 문단과 뒤따르는 경고 블록을 함께 교체하는지 검증."""

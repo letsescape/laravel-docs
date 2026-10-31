@@ -85,7 +85,7 @@ class UserController extends Controller
 #### Simple Pagination
 
 <!-- The `paginate` method counts the total number of records matched by the query before retrieving the records from the database. This is done so that the paginator knows how many pages of records there are in total. However, if you do not plan to show the total number of pages in your application's UI then the record count query is unnecessary. -->
-`paginate` 메서드는 데이터베이스에 쿼리를 실행하기 전에, 조건에 일치하는 전체 레코드 개수를 먼저 계산합니다. 이렇게 하면 전체 페이지 수를 알 수 있습니다. 하지만, 만약 UI에서 전체 페이지 수를 보여줄 필요가 없다면, 이 추가 쿼리는 불필요할 수 있습니다.
+`paginate` 메서드는 데이터베이스에서 레코드를 조회하기 전에, 조건에 일치하는 전체 레코드 개수를 먼저 계산합니다. 이렇게 하면 전체 페이지 수를 알 수 있습니다. 하지만, 만약 UI에서 전체 페이지 수를 보여줄 필요가 없다면, 이 추가 쿼리는 불필요할 수 있습니다.
 
 <!-- Therefore, if you only need to display simple "Next" and "Previous" links in your application's UI, you may use the `simplePaginate` method to perform a single, efficient query: -->
 따라서 애플리케이션의 UI에 단순히 "다음"과 "이전" 링크만 표시하면 된다면, 보다 효율적인 단일 쿼리를 수행하는 `simplePaginate` 메서드를 사용할 수 있습니다.

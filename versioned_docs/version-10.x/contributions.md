@@ -17,7 +17,7 @@
 ## Bug Reports
 
 <!-- To encourage active collaboration, Laravel strongly encourages pull requests, not just bug reports. Pull requests will only be reviewed when marked as "ready for review" (not in the "draft" state) and all tests for new features are passing. Lingering, non-active pull requests left in the "draft" state will be closed after a few days. -->
-Laravel은 적극적인 협업을 위해, 단순한 버그 리포트 뿐만 아니라 풀 리퀘스트(Pull Request)를 보내는 것을 강력하게 권장합니다. 풀 리퀘스트를 리뷰받으려면 반드시 "ready for review"(검토 준비 완료) 상태여야 하며, "draft"(초안) 상태에서는 리뷰되지 않습니다. 새로운 기능을 추가하는 경우, 모든 테스트가 통과해야만 리뷰가 진행됩니다. 오랜 기간 동안 "draft" 상태로 비활성화되어 있는 풀 리퀘스트는 며칠 후에 닫힐 수 있습니다.
+Laravel은 적극적인 협업을 위해, 단순한 버그 리포트 뿐만 아니라 풀 리퀘스트(Pull Request)를 보내는 것을 강력하게 권장합니다. 풀 리퀘스트를 리뷰받으려면 반드시 "ready for review"(검토 준비 완료) 상태여야 하며, "draft"(초안) 상태에서는 리뷰되지 않습니다. 새로운 기능을 추가하는 경우, 모든 테스트가 통과해야만 리뷰가 진행됩니다. 오랜 기간 동안 "draft" 상태로 비활성화되어 있는 풀 리퀘스트는 며칠 후에 닫힙니다.
 
 <!-- However, if you file a bug report, your issue should contain a title and a clear description of the issue. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a bug report is to make it easy for yourself - and others - to replicate the bug and develop a fix. -->
 그럼에도 불구하고 버그 리포트를 제출할 때에는, 이슈 제목과 문제에 대한 명확한 설명을 포함해야 합니다. 또한 문제를 재현할 수 있도록 관련 정보와 문제를 보여주는 코드 샘플을 최대한 자세히 첨부하는 것이 좋습니다. 버그 리포트의 목적은 본인은 물론 다른 사람들이 문제를 쉽게 재현하고 해결 방법을 찾을 수 있도록 돕는 것입니다.
@@ -93,7 +93,7 @@ Laravel의 소스코드는 GitHub에서 관리되고 있으며, 다양한 Larave
 ## Support Questions
 
 <!-- Laravel's GitHub issue trackers are not intended to provide Laravel help or support. Instead, use one of the following channels: -->
-Laravel의 GitHub 이슈 트래커는 Laravel 사용 관련 질문이나 지원 요청을 위한 공간이 아닙니다. 아래의 공식 지원 채널 중 하나를 이용해 주세요.
+Laravel의 GitHub 이슈 트래커는 Laravel 사용 관련 질문이나 지원 요청을 위한 공간이 아닙니다. 아래의 지원 채널 중 하나를 이용해 주세요.
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -167,7 +167,7 @@ Laravel은 [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted
 ### PHPDoc
 
 <!-- Below is an example of a valid Laravel documentation block. Note that the `@param` attribute is followed by two spaces, the argument type, two more spaces, and finally the variable name: -->
-아래는 Laravel에서 올바른 문서화 블록의 예시입니다. `@param` 속성 뒤에 공백 2개, 인수 타입, 공백 2개, 마지막으로 변수 이름이 오오는 것에 유의하세요.
+아래는 Laravel에서 올바른 문서화 블록의 예시입니다. `@param` 속성 뒤에 공백 2개, 인수 타입, 공백 2개, 마지막으로 변수 이름이 오는 것에 유의하세요.
 
 ```
 /**

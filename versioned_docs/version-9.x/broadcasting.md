@@ -100,7 +100,7 @@ Laravel의 이벤트 브로드캐스팅을 사용하려면, 먼저 Laravel 애�
 #### Queue Configuration
 
 <!-- You will also need to configure and run a [queue worker](/docs/9.x/queues). All event broadcasting is done via queued jobs so that the response time of your application is not seriously affected by events being broadcast. -->
-[queue worker](/docs/9.x/queues)를 설정하고 실행하는 것도 필요합니다. 모든 브로드캐스트 로직은 큐에 저장된 작업을 통해 처리되며, 이를 통해 브로드캐스트 작업이 애플리케이션의 응답 속도에 영향을 주지 않도록 할 수 있습니다.
+[queue worker](/docs/9.x/queues)를 설정하고 실행하는 것도 필요합니다. 모든 브로드캐스트 로직은 큐에 저장된 작업을 통해 처리되며, 이를 통해 브로드캐스트 작업이 애플리케이션의 응답 속도에 큰 영향을 주지 않도록 할 수 있습니다.
 
 <a name="pusher-channels"></a>
 
@@ -396,7 +396,7 @@ public function broadcastOn()
 #### Authorizing Channels
 
 <!-- Remember, users must be authorized to listen on private channels. We may define our channel authorization rules in our application's `routes/channels.php` file. In this example, we need to verify that any user attempting to listen on the private `orders.1` channel is actually the creator of the order: -->
-비공개 채널에 구독하려면 인증이 필요하다는 점을 꼭 기억하세요. 애플리케이션의 `routes/channels.php` 파일에서 채널 인가 규칙을 정의할 수 있습니다. 아래 예제에서는, `orders.1` 비공개 채널을 구독하려는 사용자가 해당 주문의 실제 작성자인지 확인하는 검증 로직입니다.
+비공개 채널에 구독하려면 인가가 필요하다는 점을 꼭 기억하세요. 애플리케이션의 `routes/channels.php` 파일에서 채널 인가 규칙을 정의할 수 있습니다. 아래 예제에서는, `orders.1` 비공개 채널을 구독하려는 사용자가 해당 주문의 실제 작성자인지 확인하는 검증 로직입니다.
 
 ```
 use App\Models\Order;
@@ -771,7 +771,7 @@ Broadcast::channel('orders.{order}', function ($user, Order $order) {
 #### Authorization Callback Authentication
 
 <!-- Private and presence broadcast channels authenticate the current user via your application's default authentication guard. If the user is not authenticated, channel authorization is automatically denied and the authorization callback is never executed. However, you may assign multiple, custom guards that should authenticate the incoming request if necessary: -->
-프라이빗 채널과 프레즌스 채널은 애플리케이션의 기본 인증 가드를 이용하여 현재 사용자를 인증합니다. 사용자가 인증되지 않은 경우에는 채널 인증이 자동으로 거부되며, 인증 콜백은 절대 실행되지 않습니다. 만약 필요하다면, 들어오는 요청을 인증할 여러 개의 커스텀 가드를 지정할 수도 있습니다.
+프라이빗 채널과 프레즌스 채널은 애플리케이션의 기본 인증 가드를 이용하여 현재 사용자를 인증합니다. 사용자가 인증되지 않은 경우에는 채널 인가가 자동으로 거부되며, 인가 콜백은 절대 실행되지 않습니다. 만약 필요하다면, 들어오는 요청을 인증할 여러 개의 커스텀 가드를 지정할 수도 있습니다.
 
 ```
 Broadcast::channel('channel', function () {
@@ -981,7 +981,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening For Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-특정 이벤트 리스닝만 중지하고 [leaving the channel](#leaving-a-channel) 싶다면, `stopListening` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 특정 이벤트 리스닝만 중지하고 싶다면, `stopListening` 메서드를 사용할 수 있습니다.
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1039,7 +1039,7 @@ Echo.channel('orders')
 ## Presence Channels
 
 <!-- Presence channels build on the security of private channels while exposing the additional feature of awareness of who is subscribed to the channel. This makes it easy to build powerful, collaborative application features such as notifying users when another user is viewing the same page or listing the inhabitants of a chat room. -->
-프레즌스 채널은 프라이빗 채널의 보안은 그대로 유지하면서, 누가 채널에 구독 중인지-aware(인지)할 수 있도록 해주는 추가 기능을 제공합니다. 예를 들어, 같은 페이지를 보고 있는 사용자를 실시간 알림으로 보여주거나, 채팅방의 참가자 목록을 실시간으로 나열하는 등 협업 기능을 간편하게 구현할 수 있습니다.
+프레즌스 채널은 프라이빗 채널의 보안은 그대로 유지하면서, 누가 채널에 구독 중인지 알 수 있도록 해주는 추가 기능을 제공합니다. 예를 들어, 같은 페이지를 보고 있는 사용자를 실시간 알림으로 보여주거나, 채팅방의 참가자 목록을 실시간으로 나열하는 등 협업 기능을 간편하게 구현할 수 있습니다.
 
 <a name="authorizing-presence-channels"></a>
 
@@ -1344,7 +1344,7 @@ public function broadcastWith($event)
 먼저 `private` 메서드로 채널 인스턴스를 획득한 뒤, `listen` 메서드에 수신할 이벤트명을 전달하세요. 대개 `private` 메서드로 지정하는 채널명은 Laravel의 [model broadcasting conventions](#model-broadcasting-conventions)를 따라야 합니다.
 
 <!-- Once you have obtained a channel instance, you may use the `listen` method to listen for a particular event. Since model broadcast events are not associated with an "actual" event within your application's `App\Events` directory, the [event name](#model-broadcasting-event-conventions) must be prefixed with a `.` to indicate it does not belong to a particular namespace. Each model broadcast event has a `model` property which contains all of the broadcastable properties of the model: -->
-채널 인스턴스를 얻었으면, 그 위에 `listen` 메서드를 호출해 원하는 이벤트명을 전송받을 수 있습니다. 모델 브로드캐스트 이벤트는 앱의 `App\Events` 폴더 내에 실제 이벤트가 존재하지 않으므로, [event name](#model-broadcasting-event-conventions) 앞에는 반드시 `.`(점)을 붙여 네임스페이스가 없음을 명시해야 합니다. 각 모델 브로드캐스트 이벤트는 `model` 속성에 모델의 브로드캐스트 가능한 모든 속성을 담고 있습니다.
+채널 인스턴스를 얻었으면, 그 위에 `listen` 메서드를 호출해 원하는 이벤트를 수신할 수 있습니다. 모델 브로드캐스트 이벤트는 앱의 `App\Events` 폴더 내에 실제 이벤트가 존재하지 않으므로, [event name](#model-broadcasting-event-conventions) 앞에는 반드시 `.`(점)을 붙여 네임스페이스가 없음을 명시해야 합니다. 각 모델 브로드캐스트 이벤트는 `model` 속성에 모델의 브로드캐스트 가능한 모든 속성을 담고 있습니다.
 
 ```js
 Echo.private(`App.Models.User.${this.user.id}`)

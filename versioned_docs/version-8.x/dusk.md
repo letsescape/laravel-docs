@@ -108,7 +108,7 @@ php artisan dusk:chrome-driver --detect
 
 > <!-- {note} Dusk requires the `chromedriver` binaries to be executable. If you're having problems running Dusk, you should ensure the binaries are executable using the following command: `chmod -R 0755 vendor/laravel/dusk/bin/`. -->
 > [!NOTE]
-> Dusk는 `chromedriver` 바이너리가 실행 가능해야 합니다. Dusk 실행에 문제가 있다면 다음 명령어를 사용해 바이너리를 실행 가능하게 설정했는지 확인해야 합니다. `chmod -R 0755 vendor/laravel/dusk/bin/`.
+> Dusk는 `chromedriver` 바이너리가 실행 가능해야 합니다. Dusk 실행에 문제가 있다면 다음 명령어를 사용해 바이너리를 실행 가능하게 설정해야 합니다. `chmod -R 0755 vendor/laravel/dusk/bin/`.
 
 <a name="using-other-browsers"></a>
 <!-- ### Using Other Browsers -->
@@ -821,7 +821,7 @@ $browser->keys('.app', ['{command}', 'j']);
 ```
 
 > [!TIP]
-> `{command}` 같은 모든 modifier 키는 `{}` 문자로 감싸며, [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php) `Facebook\WebDriver\WebDriverKeys` 클래스에 정의된 상수와 일치합니다.
+> `{command}` 같은 모든 modifier 키는 `{}` 문자로 감싸며, [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php)에서 확인할 수 있는 `Facebook\WebDriver\WebDriverKeys` 클래스에 정의된 상수와 일치합니다.
 
 <a name="using-the-mouse"></a>
 <!-- ### Using The Mouse -->
@@ -1126,7 +1126,7 @@ $browser->waitForLocation('/secret');
 ```
 
 <!-- The `waitForLocation` method can also be used to wait for the current window location to be a fully qualified URL: -->
-`waitForLocation` 메서드는 현재 창 위치가 정규화된 전체 URL이 될 때까지 기다리는 데도 사용할 수 있습니다.
+`waitForLocation` 메서드는 현재 창 위치가 전체 URL과 일치할 때까지 기다리는 데도 사용할 수 있습니다.
 
 ```
 $browser->waitForLocation('https://example.com/path');
@@ -1418,7 +1418,7 @@ $browser->assertUrlIs($url);
 #### assertSchemeIs
 
 <!-- Assert that the current URL scheme matches the given scheme: -->
-현재 URL 스키마가 주어진 스키마와 일치하는지 어서션합니다.
+현재 URL 스킴이 주어진 스킴과 일치하는지 어서션합니다.
 
 ```
 $browser->assertSchemeIs($scheme);
@@ -1429,7 +1429,7 @@ $browser->assertSchemeIs($scheme);
 #### assertSchemeIsNot
 
 <!-- Assert that the current URL scheme does not match the given scheme: -->
-현재 URL 스키마가 주어진 스키마와 일치하지 않는지 어서션합니다.
+현재 URL 스킴이 주어진 스킴과 일치하지 않는지 어서션합니다.
 
 ```
 $browser->assertSchemeIsNot($scheme);
@@ -1865,7 +1865,7 @@ $browser->assertNotSelected($field, $value);
 #### assertSelectHasOptions
 
 <!-- Assert that the given array of values are available to be selected: -->
-주어진 값 배열을 선택할 수 있다고 단언합니다:
+주어진 배열의 값들을 선택할 수 있다고 단언합니다:
 
 ```
 $browser->assertSelectHasOptions($field, $values);
@@ -1876,7 +1876,7 @@ $browser->assertSelectHasOptions($field, $values);
 #### assertSelectMissingOptions
 
 <!-- Assert that the given array of values are not available to be selected: -->
-주어진 값 배열을 선택할 수 없다고 단언합니다:
+주어진 배열의 값들을 선택할 수 없다고 단언합니다:
 
 ```
 $browser->assertSelectMissingOptions($field, $values);
@@ -2260,7 +2260,7 @@ php artisan dusk:page Login
 ### Configuring Pages
 
 <!-- By default, pages have three methods: `url`, `assert`, and `elements`. We will discuss the `url` and `assert` methods now. The `elements` method will be [discussed in more detail below](#shorthand-selectors). -->
-기본적으로 페이지에는 `url`, `assert`, `elements` 세 가지 메서드가 있습니다. 여기서는 `url`과 `assert` 메서드를 살펴보겠습니다. `elements` 메서드는 [discussed in more detail below](#shorthand-selectors).
+기본적으로 페이지에는 `url`, `assert`, `elements` 세 가지 메서드가 있습니다. 여기서는 `url`과 `assert` 메서드를 살펴보겠습니다. `elements` 메서드는 [discussed in more detail below](#shorthand-selectors)에서 자세히 설명합니다.
 
 <a name="the-url-method"></a>
 <!-- #### The `url` Method -->

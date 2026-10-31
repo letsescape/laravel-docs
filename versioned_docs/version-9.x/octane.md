@@ -300,7 +300,7 @@ php artisan octane:start --workers=4 --task-workers=6
 ### Specifying The Max Request Count
 
 <!-- To help prevent stray memory leaks, Octane gracefully restarts any worker once it has handled 500 requests. To adjust this number, you may use the `--max-requests` option: -->
-메모리 누수 방지를 돕기 위해, Octane은 각 워커가 500개의 요청을 처리하면 자동으로 모아서 재시작합니다. 이 수치는 `--max-requests` 옵션으로 조정할 수 있습니다.
+메모리 누수 방지를 돕기 위해, Octane은 각 워커가 500개의 요청을 처리하면 정상적으로 재시작합니다. 이 수치는 `--max-requests` 옵션으로 조정할 수 있습니다.
 
 ```shell
 php artisan octane:start --max-requests=250
@@ -421,7 +421,7 @@ public function register()
 ```
 
 <!-- In this example, if the `Service` instance is resolved during the application boot process, the HTTP request will be injected into the service and that same request will be held by the `Service` instance on subsequent requests. Therefore, all headers, input, and query string data will be incorrect, as well as all other request data. -->
-이 경우, `Service` 인스턴스가 애플리케이션 부트 과정 중에 해석되면, HTTP request가 서비스 객체에 주입되고, 이후의 모든 요청에서도 같은 `Service` 인스턴스가 동일한(만들어진 시점의) request를 참조하게 됩니다. 이 때문에 헤더, 입력값, 쿼리스트링 등 모든 요청 데이터가 틀릴 수 있습니다.
+이 경우, `Service` 인스턴스가 애플리케이션 부트 과정 중에 해석되면, HTTP request가 서비스 객체에 주입되고, 이후의 모든 요청에서도 같은 `Service` 인스턴스가 동일한(만들어진 시점의) request를 참조하게 됩니다. 이 때문에 헤더, 입력값, 쿼리스트링 등 모든 요청 데이터가 틀리게 됩니다.
 
 <!-- As a work-around, you could either stop registering the binding as a singleton, or you could inject a request resolver closure into the service that always resolves the current request instance. Or, the most recommended approach is simply to pass the specific request information your object needs to one of the object's methods at runtime: -->
 해결 방법으로는, 바인딩을 싱글턴으로 등록하지 않거나, 서비스 객체에 언제나 현재 request 인스턴스를 반환하는 클로저를 주입하는 것입니다. 또는, 가장 추천하는 방식은 필요한 request 정보만 런타임에 객체의 메서드로 전달하는 것입니다.
@@ -498,7 +498,7 @@ $this->app->singleton(Service::class, function () {
 ### Managing Memory Leaks
 
 <!-- Remember, Octane keeps your application in memory between requests; therefore, adding data to a statically maintained array will result in a memory leak. For example, the following controller has a memory leak since each request to the application will continue to add data to the static `$data` array: -->
-Octane은 애플리케이션을 요청 사이에서도 메모리에 보관하므로, 정적(static) 배열에 데이터를 추가하면 메모리 누수가 발생할 수 있습니다. 예를 들어 아래 컨트롤러 코드는 static `$data` 배열에 값을 계속 추가하여 요청이 올 때마다 메모리가 누적됩니다.
+Octane은 애플리케이션을 요청 사이에서도 메모리에 보관하므로, 정적(static) 배열에 데이터를 추가하면 메모리 누수가 발생합니다. 예를 들어 아래 컨트롤러 코드는 static `$data` 배열에 값을 계속 추가하여 요청이 올 때마다 메모리가 누적됩니다.
 
 ```php
 use App\Service;

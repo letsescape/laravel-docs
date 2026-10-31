@@ -56,7 +56,7 @@ class ExampleTest extends TestCase
 ## Model Factories
 
 <!-- When testing, you may need to insert a few records into your database before executing your test. Instead of manually specifying the value of each column when you create this test data, Laravel allows you to define a set of default attributes for each of your [Eloquent models](/docs/10.x/eloquent) using [model factories](/docs/10.x/eloquent-factories). -->
-테스트를 할 때, 미리 몇 개의 레코드를 데이터베이스에 삽입해야 할 때가 있습니다. 직접 테스트 데이터를 만들 때 컬럼의 값을 일일이 지정하지 않고도, Laravel의 [Eloquent models](/docs/10.x/eloquent)를 사용하면 각 [model factories](/docs/10.x/eloquent-factories)마다 기본 속성(attribute) 세트를 정의할 수 있습니다.
+테스트를 할 때, 미리 몇 개의 레코드를 데이터베이스에 삽입해야 할 때가 있습니다. 직접 테스트 데이터를 만들 때 컬럼의 값을 일일이 지정하지 않고도, Laravel의 각 [Eloquent models](/docs/10.x/eloquent)에 대한 기본 속성(attribute) 세트를 [model factories](/docs/10.x/eloquent-factories)를 사용해 정의할 수 있습니다.
 
 <!-- To learn more about creating and utilizing model factories to create models, please consult the complete [model factory documentation](/docs/10.x/eloquent-factories). Once you have defined a model factory, you may utilize the factory within your test to create models: -->
 모델 팩토리를 만들고 사용하는 방법에 대한 자세한 내용은 [model factory documentation](/docs/10.x/eloquent-factories)를 참고하세요. 팩토리를 정의한 뒤 테스트에서 다음과 같이 활용할 수 있습니다.
@@ -77,7 +77,7 @@ public function test_models_can_be_instantiated(): void
 ## Running Seeders
 
 <!-- If you would like to use [database seeders](/docs/10.x/seeding) to populate your database during a feature test, you may invoke the `seed` method. By default, the `seed` method will execute the `DatabaseSeeder`, which should execute all of your other seeders. Alternatively, you pass a specific seeder class name to the `seed` method: -->
-[database seeders](/docs/10.x/seeding)를 사용해 기능 테스트 도중 데이터베이스를 채우고 싶다면, `seed` 메서드를 호출하면 됩니다. 기본적으로 `seed` 메서드는 `DatabaseSeeder`를 실행하며, 이 안에서 모든 시더들이 실행될 수 있습니다. 필요하다면 특정 시더 클래스 이름을 `seed` 메서드에 직접 전달할 수도 있습니다.
+[database seeders](/docs/10.x/seeding)를 사용해 기능 테스트 도중 데이터베이스를 채우고 싶다면, `seed` 메서드를 호출하면 됩니다. 기본적으로 `seed` 메서드는 `DatabaseSeeder`를 실행하며, 이 안에서 다른 모든 시더들을 실행하도록 해야 합니다. 필요하다면 특정 시더 클래스 이름을 `seed` 메서드에 직접 전달할 수도 있습니다.
 
 ```
 <?php

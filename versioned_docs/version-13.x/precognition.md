@@ -675,7 +675,7 @@ class StoreUserRequest extends FormRequest
 기본적으로 Laravel Precognition은 precognitive 유효성 검증 요청 중 파일을 업로드하거나 유효성 검증하지 않습니다. 이렇게 하면 큰 파일이 불필요하게 여러 번 업로드되는 것을 방지할 수 있습니다.
 
 <!-- Because of this behavior, you should ensure that your application [customizes the corresponding form request's validation rules](#customizing-validation-rules) to specify the field is only required for full form submissions: -->
-이 동작 때문에, 애플리케이션에서 [customizes the corresponding form request's validation rules](#customizing-validation-rules)하여 해당 필드가 전체 폼 제출에서만 필수임을 지정해야 합니다.
+이 동작 때문에, 애플리케이션에서 [customizes the corresponding form request's validation rules](#customizing-validation-rules)에 설명된 대로 유효성 검증 규칙을 조정하여 해당 필드가 전체 폼 제출에서만 필수임을 지정해야 합니다.
 
 ```php
 /**

@@ -195,7 +195,7 @@ Route::post('/reset-password', function (Request $request) {
 ## Deleting Expired Tokens
 
 <!-- Password reset tokens that have expired will still be present within your database. However, you may easily delete these records using the `auth:clear-resets` Artisan command: -->
-만료된 비밀번호 재설정 토큰도 데이터베이스에 남아 있을 수 있습니다. 하지만 `auth:clear-resets` 아티즌 명령어를 사용해 이러한 레코드를 쉽게 삭제할 수 있습니다.
+만료된 비밀번호 재설정 토큰도 데이터베이스에 남아 있습니다. 하지만 `auth:clear-resets` 아티즌 명령어를 사용해 이러한 레코드를 쉽게 삭제할 수 있습니다.
 
 ```
 php artisan auth:clear-resets

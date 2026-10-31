@@ -155,7 +155,7 @@ Route::get('/home', function () {
 ```
 
 > [!NOTE]
-> HTTP 요청 인스턴스를 통한 세션 접근과 글로벌 `session` 헬퍼 사용에는 실질적인 차이가 거의 없습니다. 두 방법 모두 테스트 코드에서 `assertSessionHas` 메서드(모든 테스트 케이스에서 사용 가능)를 통해 [testable](/docs/11.x/testing)할 수 있습니다.
+> HTTP 요청 인스턴스를 통한 세션 접근과 글로벌 `session` 헬퍼 사용에는 실질적인 차이가 거의 없습니다. 두 방법 모두 테스트 코드에서 `assertSessionHas` 메서드(모든 테스트 케이스에서 사용 가능)를 통해 테스트할 수 있습니다([testable](/docs/11.x/testing)).
 
 <a name="retrieving-all-session-data"></a>
 <!-- #### Retrieving All Session Data -->
@@ -342,7 +342,7 @@ $request->session()->invalidate();
 기본적으로 Laravel에서는 동일한 세션을 사용하는 요청이 동시에 실행될 수 있습니다. 예를 들어 HTTP 라이브러리를 써서 두 개의 HTTP 요청을 동시에 보내면, 이 요청들은 동시에 처리됩니다. 대부분의 애플리케이션에서는 문제가 없지만, 서로 다른 엔드포인트에 동시에 요청을 보내고 둘 다 세션에 데이터를 기록하는 일부 경우에는 세션 데이터가 손실될 수 있습니다.
 
 <!-- To mitigate this, Laravel provides functionality that allows you to limit concurrent requests for a given session. To get started, you may simply chain the `block` method onto your route definition. In this example, an incoming request to the `/profile` endpoint would acquire a session lock. While this lock is being held, any incoming requests to the `/profile` or `/order` endpoints which share the same session ID will wait for the first request to finish executing before continuing their execution: -->
-이를 방지하기 위해 Laravel은 세션별 동시 요청을 제한할 수 있는 기능을 제공합니다. 사용 방법은 간단히 라우트 정의에 `block` 메서드를 체이닝하면 됩니다. 아래 예시에서는 `/profile` 엔드포인트로의 들어오는 요청이 세션 락을 획득하게 됩니다. 이 락이 유지되는 동안, 같은 세션 ID를 공유하는 `/profile` 또는 `/order` 엔드포인트로 들어오는 다른 요청들은 첫 번째 요청이 완료될 때까지 대기하게 됩니다.
+이를 방지하기 위해 Laravel은 세션별 동시 요청을 제한할 수 있는 기능을 제공합니다. 사용 방법은 간단히 라우트 정의에 `block` 메서드를 체이닝하면 됩니다. 아래 예시에서는 `/profile` 엔드포인트로 들어오는 요청이 세션 락을 획득하게 됩니다. 이 락이 유지되는 동안, 같은 세션 ID를 공유하는 `/profile` 또는 `/order` 엔드포인트로 들어오는 다른 요청들은 첫 번째 요청이 완료될 때까지 대기하게 됩니다.
 
 ```
 Route::post('/profile', function () {
@@ -416,7 +416,7 @@ Laravel은 확장 기능을 둘 기본 디렉토리를 제공하지 않으니, �
 - `open` 메서드는 보통 파일 기반 세션 저장 시스템에서 사용합니다. Laravel에도 `file` 세션 드라이버가 포함되어 있으므로, 이 메서드는 비워 두어도 무방합니다.
 - `close` 메서드는 `open`과 마찬가지로 대개 신경 쓸 필요가 없습니다. 대부분의 드라이버에서는 필요 없습니다.
 - `read` 메서드는 주어진 `$sessionId`에 대응되는 세션 데이터를 문자열 형태로 반환해야 합니다. 세션 데이터의 직렬화나 인코딩 처리는 직접 하지 않아도 되며, Laravel이 알아서 처리합니다.
-- `write` 메서드는 `$sessionId`에 대응되는 `$data` 문자열을 MongoDB 등 영구 저장소에 기록해야 합니다. 마찬가지로, 직접 직렬화 처리를 하지 않아도 됩니다.
+- `write` 메서드는 `$sessionId`에 대응되는 `$data` 문자열을 MongoDB 등 영구 저장소에 기록해야 합니다. 마찬가지로, 직접 직렬화 처리를 해서는 안 됩니다.
 - `destroy` 메서드는 `$sessionId`에 대응되는 데이터를 영구 저장소에서 삭제합니다.
 - `gc` 메서드는 주어진 `$lifetime`(UNIX 타임스탬프)보다 오래된 모든 세션 데이터를 삭제해야 합니다. Memcached, Redis처럼 자동 만료되는 시스템의 경우 비워 둬도 괜찮습니다.
 

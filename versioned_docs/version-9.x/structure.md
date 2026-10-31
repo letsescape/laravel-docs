@@ -103,7 +103,7 @@
 `web.php` 파일에는 `RouteServiceProvider`가 `web` 미들웨어 그룹에 포함시키는 라우트들이 정의되어 있습니다. 이 그룹은 세션 상태, CSRF 보호, 쿠키 암호화 기능을 제공합니다. 애플리케이션에서 stateless RESTful API를 제공하지 않는다면, 대부분의 라우트는 이 `web.php` 파일에 정의하게 됩니다.
 
 <!-- The `api.php` file contains routes that the `RouteServiceProvider` places in the `api` middleware group. These routes are intended to be stateless, so requests entering the application through these routes are intended to be authenticated [via tokens](/docs/9.x/sanctum) and will not have access to session state. -->
-`api.php` 파일에는 `RouteServiceProvider`가 `api` 미들웨어 그룹에 배치하는 라우트가 들어 있습니다. 이 라우트들은 상태를 저장하지 않는 용도로 설계되어 있기 때문에, 토큰을 통한 [via tokens](/docs/9.x/sanctum)이 필요하며 세션 상태에는 접근할 수 없습니다.
+`api.php` 파일에는 `RouteServiceProvider`가 `api` 미들웨어 그룹에 배치하는 라우트가 들어 있습니다. 이 라우트들은 상태를 저장하지 않는 용도로 설계되어 있기 때문에, 토큰을 통한 인증([via tokens](/docs/9.x/sanctum))이 필요하며 세션 상태에는 접근할 수 없습니다.
 
 <!-- The `console.php` file is where you may define all of your closure based console commands. Each closure is bound to a command instance allowing a simple approach to interacting with each command's IO methods. Even though this file does not define HTTP routes, it defines console based entry points (routes) into your application. -->
 `console.php` 파일에서는 클로저(익명 함수) 형태의 콘솔 명령어들을 정의할 수 있습니다. 각 클로저는 명령어 인스턴스에 바인딩되므로, 명령어의 IO 관련 메서드와 쉽게 상호작용할 수 있습니다. 이 파일은 HTTP 라우트가 아니라 애플리케이션에 대한 콘솔 기반의 진입점(라우트) 역할을 합니다.

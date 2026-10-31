@@ -411,7 +411,7 @@ Log::stack(['slack', $channel])->info('Something happened!');
 기존 채널에서 Monolog 구성을 완전히 제어해야 하는 경우도 있습니다. 예를 들어, Laravel 기본 `single` 채널에서 사용하는 Monolog `FormatterInterface` 구현을 직접 설정하고 싶을 때가 그렇습니다.
 
 <!-- To get started, define a `tap` array on the channel's configuration. The `tap` array should contain a list of classes that should have an opportunity to customize (or "tap" into) the Monolog instance after it is created. There is no conventional location where these classes should be placed, so you are free to create a directory within your application to contain these classes: -->
-먼저 채널 설정에 `tap` 배열을 정의하세요. `tap` 배열에는 Monolog 인스턴스가 생성된 직후 사용자 지정할 클래스들이 명시됩니다. 이러한 클래스들은 원하는 위치에 만들어도 무방합니다:
+먼저 채널 설정에 `tap` 배열을 정의하세요. `tap` 배열에는 생성된 Monolog 인스턴스를 사용자 지정할 클래스 목록을 넣습니다. 이러한 클래스들은 원하는 위치에 만들어도 무방합니다:
 
 ```php
 'single' => [

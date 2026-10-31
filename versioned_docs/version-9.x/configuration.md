@@ -332,7 +332,7 @@ https://example.com/1630542a-246b-4b66-afa1-dd72a4c43515
 배포 과정에서 `php artisan down` 명령어를 활용할 때, 사용자가 Composer 의존성이나 기타 인프라 구성 요소가 업데이트되는 도중 애플리케이션에 접근하면 에러가 발생할 수 있습니다. 이는 Laravel이 점검 모드 여부 판별과 화면 렌더링을 위해 일부 코어 기능을 부팅해야 하기 때문입니다.
 
 <!-- For this reason, Laravel allows you to pre-render a maintenance mode view that will be returned at the very beginning of the request cycle. This view is rendered before any of your application's dependencies have loaded. You may pre-render a template of your choice using the `down` command's `render` option: -->
-이 문제를 방지하기 위해, Laravel은 서버가 실제 부팅되기 전에 바로 반환되는 점검 모드 화면(뷰)을 미리 렌더링할 수 있습니다. `down` 명령어의 `render` 옵션을 사용해 원하는 템플릿을 미리 렌더링할 수 있습니다.
+이 문제를 방지하기 위해, Laravel은 요청 처리의 가장 초기에 반환되는 점검 모드 화면(뷰)을 미리 렌더링할 수 있습니다. 이 화면은 애플리케이션의 의존성이 로드되기 전에 표시됩니다. `down` 명령어의 `render` 옵션을 사용해 원하는 템플릿을 미리 렌더링할 수 있습니다.
 
 ```shell
 php artisan down --render="errors::503"

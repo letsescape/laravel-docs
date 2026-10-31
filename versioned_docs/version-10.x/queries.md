@@ -44,7 +44,7 @@
 Laravel의 데이터베이스 쿼리 빌더는 데이터베이스 쿼리를 쉽고 유연하게 생성하고 실행할 수 있는 편리한 인터페이스를 제공합니다. 이를 통해 애플리케이션 내에서 대부분의 데이터베이스 작업을 수행할 수 있으며, Laravel에서 지원하는 모든 데이터베이스 시스템과 완벽하게 호환됩니다.
 
 <!-- The Laravel query builder uses PDO parameter binding to protect your application against SQL injection attacks. There is no need to clean or sanitize strings passed to the query builder as query bindings. -->
-Laravel 쿼리 빌더는 PDO 파라미터 바인딩 방식을 사용하여, SQL 인젝션 공격으로부터 애플리케이션을 안전하게 보호합니다. 쿼리 빌더에 전달되는 문자열은 별도로 정리(clean)하거나 정제(sanitize)할 필요가 없습니다.
+Laravel 쿼리 빌더는 PDO 파라미터 바인딩 방식을 사용하여, SQL 인젝션 공격으로부터 애플리케이션을 안전하게 보호합니다. 쿼리 빌더에 쿼리 바인딩으로 전달되는 문자열은 별도로 정리(clean)하거나 정제(sanitize)할 필요가 없습니다.
 
 > [!WARNING]
 > PDO는 컬럼명 바인딩을 지원하지 않습니다. 따라서 쿼리에서 참조하는 컬럼명(특히 "order by"에 사용되는 컬럼명 등)에 사용자 입력이 직접 사용되지 않도록 절대 주의해야 합니다.
@@ -1312,7 +1312,7 @@ $id = DB::table('users')->insertGetId(
 ```
 
 > [!WARNING]
-> PostgreSQL을 사용하는 경우 `insertGetId` 메서드는 자동 증가 컬럼의 이름이 반드시 `id`여야 합니다. 만약 다른 "시퀀스"에서 ID를 가져오고 싶다면, `insertGetId` 메서드의 두 번째 인수로 컬럼명을 전달할 수 있습니다.
+> PostgreSQL을 사용하는 경우 `insertGetId` 메서드는 기본적으로 자동 증가 컬럼의 이름이 `id`라고 가정합니다. 만약 다른 "시퀀스"에서 ID를 가져오고 싶다면, `insertGetId` 메서드의 두 번째 인수로 컬럼명을 전달할 수 있습니다.
 
 <a name="upserts"></a>
 <!-- ### Upserts -->
@@ -1448,7 +1448,7 @@ PostgreSQL 데이터베이스를 잘라내기(truncate)할 때는 `CASCADE` 동�
 ## Pessimistic Locking
 
 <!-- The query builder also includes a few functions to help you achieve "pessimistic locking" when executing your `select` statements. To execute a statement with a "shared lock", you may call the `sharedLock` method. A shared lock prevents the selected rows from being modified until your transaction is committed: -->
-쿼리 빌더는 `select` 문을 실행할 때 "비관적 잠금"을 구현하는 데 도움이 되는 여러 함수도 제공합니다. "공유 잠금(shared lock)"이 필요할 때는 `sharedLock` 메서드를 호출할 수 있습니다. 공유 잠금은 선택된 행이 트랜잭션이 커밋될 때까지 변경되지 않도록 방지합니다.
+쿼리 빌더는 `select` 문을 실행할 때 "비관적 잠금"을 구현하는 데 도움이 되는 여러 함수도 제공합니다. "공유 잠금(shared lock)"이 필요할 때는 `sharedLock` 메서드를 호출할 수 있습니다. 공유 잠금은 선택된 행이 트랜잭션이 커밋될 때까지 변경되는 것을 방지합니다.
 
 ```
 DB::table('users')

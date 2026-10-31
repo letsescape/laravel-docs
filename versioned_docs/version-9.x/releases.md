@@ -104,7 +104,7 @@ _Symfony Mailer 지원은 [Dries Vints](https://github.com/driesvints)_, [James 
 _Flysystem 3.x 지원은 [Dries Vints](https://github.com/driesvints)가 기여하였습니다._
 
 <!-- Laravel 9.x upgrades our upstream Flysystem dependency to Flysystem 3.x. Flysystem powers all of filesystem interactions offered by the `Storage` facade. -->
-Laravel 9.x는 Flysystem의 상위 의존성을 Flysystem 3.x로 업그레이드했습니다. Flysystem은 `Storage` 파사드를 통해 제공되는 모든 파일 시스템 기능의 핵심 역할을 합니다.
+Laravel 9.x는 의존 패키지인 Flysystem을 3.x로 업그레이드했습니다. Flysystem은 `Storage` 파사드를 통해 제공되는 모든 파일 시스템 기능의 핵심 역할을 합니다.
 
 <!-- Please review the [upgrade guide](/docs/9.x/upgrade#flysystem-3) to learn more about ensuring your application is compatible with Flysystem 3.x. -->
 Flysystem 3.x와 호환되는지 확인하려면 [upgrade guide](/docs/9.x/upgrade#flysystem-3)를 참고하세요.
@@ -195,7 +195,7 @@ protected $casts = [
 ```
 
 <!-- Once you have defined the cast on your model, the specified attribute will be automatically cast to and from an enum when you interact with the attribute: -->
-cast가 지정되면 해당 속성은 Enum 인스턴스로 자동 변환되어 접근·저장할 수 있습니다.
+cast가 지정되면 해당 속성에 접근하거나 값을 저장할 때 속성 값과 Enum 인스턴스 사이의 변환이 자동으로 이루어집니다.
 
 ```
 if ($server->status == ServerStatus::Provisioned) {
@@ -448,7 +448,7 @@ public function boot()
 _중첩 배열 입력에 대한 유효성 검사 개선은 [Steve Bauman](https://github.com/stevebauman)이 기여하였습니다._
 
 <!-- Sometimes you may need to access the value for a given nested array element when assigning validation rules to the attribute. You may now accomplish this using the `Rule::forEach` method. The `forEach` method accepts a closure that will be invoked for each iteration of the array attribute under validation and will receive the attribute's value and explicit, fully-expanded attribute name. The closure should return an array of rules to assign to the array element: -->
-유효성 검사 규칙에서 중첩 배열 요소의 값을 참조해야 할 때가 있습니다. 이제 `Rule::forEach` 메서드를 사용해 이런 유효성 검사를 쉽게 구현할 수 있습니다. `forEach`는 배열 요소마다 클로저를 호출하며, 해당 요소의 값과 완전한 속성명을 인자로 전달합니다. 클로저는 반환된 배열에 해당 요소에 적용할 규칙을 명시합니다.
+유효성 검사 규칙에서 중첩 배열 요소의 값을 참조해야 할 때가 있습니다. 이제 `Rule::forEach` 메서드를 사용해 이런 유효성 검사를 쉽게 구현할 수 있습니다. `forEach`는 배열 요소마다 클로저를 호출하며, 해당 요소의 값과 완전한 속성명을 인자로 전달합니다. 클로저는 해당 요소에 적용할 규칙을 담은 배열을 반환해야 합니다.
 
 ```
 use App\Rules\HasPermission;

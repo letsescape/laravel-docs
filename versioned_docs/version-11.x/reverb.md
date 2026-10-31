@@ -194,7 +194,7 @@ php artisan reverb:restart
 Reverb는 [Laravel Pulse](/docs/11.x/pulse)와의 통합을 통해 서버의 연결 수와 메시지 처리 현황을 모니터링할 수 있습니다.
 
 <!-- To enable the integration, you should first ensure you have [installed Pulse](/docs/11.x/pulse#installation). Then, add any of Reverb's recorders to your application's `config/pulse.php` configuration file: -->
-통합을 활성화하려면, 먼저 [installed Pulse](/docs/11.x/pulse#installation)한 뒤, Reverb의 recorder를 애플리케이션의 `config/pulse.php` 설정 파일에 추가해야 합니다.
+통합을 활성화하려면, 먼저 [installed Pulse](/docs/11.x/pulse#installation)에 따라 Pulse를 설치한 뒤, Reverb의 recorder를 애플리케이션의 `config/pulse.php` 설정 파일에 추가해야 합니다.
 
 ```php
 use Laravel\Reverb\Pulse\Recorders\ReverbConnections;
@@ -232,7 +232,7 @@ use Laravel\Reverb\Pulse\Recorders\ReverbMessages;
 ## Running Reverb in Production
 
 <!-- Due to the long-running nature of WebSocket servers, you may need to make some optimizations to your server and hosting environment to ensure your Reverb server can effectively handle the optimal number of connections for the resources available on your server. -->
-WebSocket 서버의 특성상 오랜 시간 실행되는 프로세스이므로, 서버의 자원(메모리 등) 상황에서 적절한 연결 수를 효과적으로 처리할 수 있도록 서버와 호스팅 환경에 몇 가지 최적화가 필요합니다.
+WebSocket 서버의 특성상 오랜 시간 실행되는 프로세스이므로, 서버의 자원(메모리 등) 상황에서 적절한 연결 수를 효과적으로 처리할 수 있도록 서버와 호스팅 환경에 몇 가지 최적화가 필요할 수 있습니다.
 
 > [!NOTE]
 > 여러분의 사이트를 [Laravel Forge](https://forge.laravel.com)에서 관리 중이라면, "Application" 패널에서 Reverb 통합 기능을 활성화하여 서버를 자동으로 최적화할 수 있습니다. 해당 통합을 켜면 Forge에서 필요한 확장 프로그램 설치와 연결 수 한도 조정까지 자동으로 처리해주어 운영 환경 준비가 완료됩니다.
@@ -371,7 +371,7 @@ REVERB_SCALING_ENABLED=true
 ```
 
 <!-- Next, you should have a dedicated, central Redis server to which all of the Reverb servers will communicate. Reverb will use the [default Redis connection configured for your application](/docs/11.x/redis#configuration) to publish messages to all of your Reverb servers. -->
-그리고 모든 Reverb 서버가 통신할 수 있게, 하나의 중앙 Redis 서버를 반드시 운영해야 합니다. 메시지 전파에는 [default Redis connection configured for your application](/docs/11.x/redis#configuration)이 자동으로 사용됩니다.
+그리고 모든 Reverb 서버가 통신할 수 있게, 하나의 전용 중앙 Redis 서버를 반드시 운영해야 합니다. 메시지 전파에는 [default Redis connection configured for your application](/docs/11.x/redis#configuration)이 자동으로 사용됩니다.
 
 <!-- Once you have enabled Reverb's scaling option and configured a Redis server, you may simply invoke the `reverb:start` command on multiple servers that are able to communicate with your Redis server. These Reverb servers should be placed behind a load balancer that distributes incoming requests evenly among the servers. -->
 이제 리버브 스케일링 옵션과 Redis 서버를 준비했다면, Redis 서버와 통신 가능한 여러 서버에서 동시에 `reverb:start` 명령어를 실행하면 됩니다. 이들 Reverb 서버는 반드시 로드밸런서 뒤에 위치하여, 들어오는 요청이 서버들 사이에 고르게 분산되도록 해야 합니다.

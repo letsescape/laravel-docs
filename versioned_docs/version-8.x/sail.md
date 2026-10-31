@@ -39,7 +39,7 @@
 Sail의 핵심은 프로젝트 루트에 위치한 `docker-compose.yml` 파일과 `sail` 스크립트입니다. 이 `sail` 스크립트는 `docker-compose.yml`에 정의된 Docker 컨테이너들과 편리하게 상호작용할 수 있는 CLI 기능을 제공합니다.
 
 <!-- Laravel Sail is supported on macOS, Linux, and Windows (via [WSL2](https://docs.microsoft.com/en-us/windows/wsl/about)). -->
-Laravel Sail은 macOS, Linux, Windows(및 [WSL2](https://docs.microsoft.com/en-us/windows/wsl/about)) 환경에서 지원됩니다.
+Laravel Sail은 macOS, Linux, Windows([WSL2](https://docs.microsoft.com/en-us/windows/wsl/about)를 통해) 환경에서 지원됩니다.
 
 <a name="installation"></a>
 <!-- ## Installation & Setup -->
@@ -245,7 +245,7 @@ sail yarn
 ### MySQL
 
 <!-- As you may have noticed, your application's `docker-compose.yml` file contains an entry for a MySQL container. This container uses a [Docker volume](https://docs.docker.com/storage/volumes/) so that the data stored in your database is persisted even when stopping and restarting your containers. In addition, when the MySQL container is starting, it will ensure a database exists whose name matches the value of your `DB_DATABASE` environment variable. -->
-애플리케이션의 `docker-compose.yml` 파일에는 MySQL 컨테이너가 포함되어 있습니다. 이 컨테이너는 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용해 데이터베이스의 데이터가 컨테이너를 중지ㆍ재시작해도 보존되도록 합니다. 또한 MySQL 컨테이너가 시작될 때, 여러분의 `DB_DATABASE` 환경 변수 값과 동일한 데이터베이스가 자동으로 생성됩니다.
+애플리케이션의 `docker-compose.yml` 파일에는 MySQL 컨테이너가 포함되어 있습니다. 이 컨테이너는 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용해 데이터베이스의 데이터가 컨테이너를 중지ㆍ재시작해도 보존되도록 합니다. 또한 MySQL 컨테이너가 시작될 때, 여러분의 `DB_DATABASE` 환경 변수 값과 같은 이름의 데이터베이스가 존재하도록 보장합니다.
 
 <!-- Once you have started your containers, you may connect to the MySQL instance within your application by setting your `DB_HOST` environment variable within your application's `.env` file to `mysql`. -->
 컨테이너가 모두 실행된 후, 애플리케이션 내에서 MySQL 인스턴스에 접속하려면 `.env` 파일에서 `DB_HOST`를 `mysql`로 지정하면 됩니다.
@@ -268,7 +268,7 @@ sail yarn
 ### MeiliSearch
 
 <!-- If you chose to install the [MeiliSearch](https://www.meilisearch.com) service when installing Sail, your application's `docker-compose.yml` file will contain an entry for this powerful search-engine that is [compatible](https://github.com/meilisearch/meilisearch-laravel-scout) with [Laravel Scout](/docs/8.x/scout). Once you have started your containers, you may connect to the MeiliSearch instance within your application by setting your `MEILISEARCH_HOST` environment variable to `http://meilisearch:7700`. -->
-Sail 설치 시 [MeiliSearch](https://www.meilisearch.com) 서비스를 함께 설치하도록 선택했다면, 애플리케이션의 `docker-compose.yml` 파일에 MeiliSearch 컨테이너 설정이 추가됩니다. MeiliSearch는 [compatible](https://github.com/meilisearch/meilisearch-laravel-scout)과 [Laravel Scout](/docs/8.x/scout)되며, 강력한 검색 엔진을 제공합니다. 컨테이너 실행 후 `MEILISEARCH_HOST` 환경 변수 값을 `http://meilisearch:7700`으로 설정하면 애플리케이션 내에서 MeiliSearch에 연결할 수 있습니다.
+Sail 설치 시 [MeiliSearch](https://www.meilisearch.com) 서비스를 함께 설치하도록 선택했다면, 애플리케이션의 `docker-compose.yml` 파일에 MeiliSearch 컨테이너 설정이 추가됩니다. MeiliSearch는 [Laravel Scout](/docs/8.x/scout)와 호환되며([compatible](https://github.com/meilisearch/meilisearch-laravel-scout)), 강력한 검색 엔진을 제공합니다. 컨테이너 실행 후 `MEILISEARCH_HOST` 환경 변수 값을 `http://meilisearch:7700`으로 설정하면 애플리케이션 내에서 MeiliSearch에 연결할 수 있습니다.
 
 <!-- From your local machine, you may access MeiliSearch's web based administration panel by navigating to `http://localhost:7700` in your web browser. -->
 로컬 컴퓨터에서 MeiliSearch의 웹 기반 관리 패널은 브라우저에서 `http://localhost:7700`으로 접속해 사용합니다.
@@ -496,7 +496,7 @@ protected $proxies = '*';
 
 
 > [!TIP]
-> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)에서 제공하는 오픈소스 터널링 서비스 [BeyondCode](https://beyondco.de)를 사용합니다.
+> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)를 사용하며, Expose는 [BeyondCode](https://beyondco.de)가 만든 오픈소스 터널링 서비스입니다.
 
 <a name="debugging-with-xdebug"></a>
 <!-- ## Debugging With Xdebug -->
@@ -513,7 +513,7 @@ SAIL_XDEBUG_MODE=develop,debug
 #### Linux Host IP Configuration
 
 <!-- Internally, the `XDEBUG_CONFIG` environment variable is defined as `client_host=host.docker.internal` so that Xdebug will be properly configured for Mac and Windows (WSL2). If your local machine is running Linux, you will need to manually define this environment variable. -->
-내부적으로 `XDEBUG_CONFIG` 환경 변수는 `client_host=host.docker.internal`로 설정되어 Mac과 Windows(WSL2) 환경에 맞게 작동합니다. 하지만 리눅스 사용자의 경우, 이 환경 변수를 별도로 지정해야 할 수 있습니다.
+내부적으로 `XDEBUG_CONFIG` 환경 변수는 `client_host=host.docker.internal`로 설정되어 Mac과 Windows(WSL2) 환경에 맞게 작동합니다. 하지만 리눅스 사용자의 경우, 이 환경 변수를 별도로 지정해야 합니다.
 
 <!-- First, you should determine the correct host IP address to add to the environment variable by running the following command. Typically, the `<container-name>` should be the name of the container that serves your application and often ends with `_laravel.test_1`: -->
 먼저 아래 명령어로 올바른 호스트 IP 주소를 확인합니다. `<container-name>`에는 보통 `_laravel.test_1`로 끝나는 애플리케이션 컨테이너의 이름을 입력합니다.

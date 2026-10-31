@@ -171,7 +171,7 @@ Slack의 API는 [different types of access tokens](https://api.slack.com/authent
 기본적으로, `slack` 드라이버는 `user` 토큰을 생성하며, 드라이버의 `user` 메서드를 호출하면 사용자 정보를 반환합니다.
 
 <!-- Bot tokens are primarily useful if your application will be sending notifications to external Slack workspaces that are owned by your application's users. To generate a bot token, invoke the `asBotUser` method before redirecting the user to Slack for authentication: -->
-봇 토큰(Bot token)은 애플리케이션이 외부 Slack 워크스페이스(여러분의 애플리케이션 사용자가 소유한 워크스페이스)에 알림을 전송해야 할 때 유용합니다. 봇 토큰을 생성하려면, 사용자를 Slack으로 인증시키기 전에 `asBotUser` 메서드를 호출해야 합니다:
+봇 토큰(Bot token)은 애플리케이션이 외부 Slack 워크스페이스(여러분의 애플리케이션 사용자가 소유한 워크스페이스)에 알림을 전송해야 할 때 유용합니다. 봇 토큰을 생성하려면, 사용자를 인증을 위해 Slack으로 리디렉션하기 전에 `asBotUser` 메서드를 호출해야 합니다:
 
 ```
 return Socialite::driver('slack')
@@ -188,7 +188,7 @@ $user = Socialite::driver('slack')->asBotUser()->user();
 ```
 
 <!-- When generating a bot token, the `user` method will still return a `Laravel\Socialite\Two\User` instance; however, only the `token` property will be hydrated. This token may be stored in order to [send notifications to the authenticated user's Slack workspaces](/docs/11.x/notifications#notifying-external-slack-workspaces). -->
-봇 토큰을 생성할 때도, `user` 메서드는 여전히 `Laravel\Socialite\Two\User` 인스턴스를 반환합니다. 단, 이 경우에는 오직 `token` 속성만 값이 채워집니다. 이렇게 획득한 토큰은 [send notifications to the authenticated user's Slack workspaces](/docs/11.x/notifications#notifying-external-slack-workspaces) 사용할 수 있습니다.
+봇 토큰을 생성할 때도, `user` 메서드는 여전히 `Laravel\Socialite\Two\User` 인스턴스를 반환합니다. 단, 이 경우에는 오직 `token` 속성만 값이 채워집니다. 이렇게 획득한 토큰은 [send notifications to the authenticated user's Slack workspaces](/docs/11.x/notifications#notifying-external-slack-workspaces)에 활용할 수 있도록 저장해 둘 수 있습니다.
 
 <a name="optional-parameters"></a>
 <!-- ### Optional Parameters -->
@@ -247,7 +247,7 @@ Route::get('/auth/callback', function () {
 #### Retrieving User Details From a Token
 
 <!-- If you already have a valid access token for a user, you can retrieve their user details using Socialite's `userFromToken` method: -->
-이미 사용자의 액세스 토큰이 있다면, Socialite의 `userFromToken` 메서드를 사용해 사용자 정보를 가져올 수 있습니다:
+이미 사용자의 유효한 액세스 토큰이 있다면, Socialite의 `userFromToken` 메서드를 사용해 사용자 정보를 가져올 수 있습니다:
 
 ```
 use Laravel\Socialite\Facades\Socialite;

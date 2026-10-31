@@ -163,7 +163,7 @@ Pulse 대시보드는 [Livewire](https://livewire.laravel.com/)를 기반으로 
 필드와 아바타 이미지는 애플리케이션의 `App\Providers\AppServiceProvider` 클래스에서 `Pulse::user` 메서드를 호출하여 커스터마이즈할 수 있습니다.
 
 <!-- The `user` method accepts a closure which will receive the `Authenticatable` model to be displayed and should return an array containing `name`, `extra`, and `avatar` information for the user: -->
-`user` 메서드는 표시할 `Authenticatable` 모델을 인자로 받는 클로저를 인수로 받고, `name`, `extra`, `avatar` 정보를 담은 배열을 반환해야 합니다.
+`user` 메서드는 클로저를 인수로 받습니다. 이 클로저는 표시할 `Authenticatable` 모델을 인자로 받고, `name`, `extra`, `avatar` 정보를 담은 배열을 반환해야 합니다.
 
 ```php
 use Laravel\Pulse\Facades\Pulse;
@@ -238,7 +238,7 @@ Pulse가 사용자 정보를 어떻게 조회하고 표시하는지 커스터마
 #### Queues
 
 <!-- The `<livewire:pulse.queues />` card shows the throughput of the queues in your application, including the number of jobs queued, processing, processed, released, and failed. See the [queues recorder](#queues-recorder) documentation for more information. -->
-`<livewire:pulse.queues />` 카드는 애플리케이션에서 큐된 작업의 처리량, 즉 대기중, 처리중, 완료됨, 반려됨, 실패된 작업 수를 보여줍니다. 자세한 정보는 [queues recorder](#queues-recorder) 문서를 참고하세요.
+`<livewire:pulse.queues />` 카드는 애플리케이션에서 큐된 작업의 처리량, 즉 대기중, 처리중, 완료됨, 큐로 반환됨, 실패된 작업 수를 보여줍니다. 자세한 정보는 [queues recorder](#queues-recorder) 문서를 참고하세요.
 
 <a name="slow-requests-card"></a>
 <!-- #### Slow Requests -->
@@ -423,7 +423,7 @@ Recorders\SlowOutgoingRequests::class => [
 요청 URL이 어떠한 정규식 패턴에도 매칭되지 않으면 `'default'` 값이 사용됩니다.
 
 <!-- You may also configure URL grouping so that similar URLs are grouped as a single entry. For example, you may wish to remove unique IDs from URL paths or group by domain only. Groups are configured using a regular expression to "find and replace" parts of the URL. Some examples are included in the configuration file: -->
-또한, URL 경로나 도메인별로 비슷한 요청을 하나의 엔트리로 그룹화할 수 있습니다. 예를 들어, 고유 ID가 포함된 URL 경로나 도메인 단위로 그룹화할 수 있으며, 정규식을 사용해 URL의 일부를 치환하는 방식으로 구성할 수 있습니다. 설정 파일에 여러 예시가 포함되어 있습니다.
+또한, URL 경로나 도메인별로 비슷한 요청을 하나의 엔트리로 그룹화할 수 있습니다. 예를 들어, URL 경로에서 고유 ID를 제거하거나 도메인만을 기준으로 그룹화할 수 있으며, 정규식을 사용해 URL의 일부를 치환하는 방식으로 구성할 수 있습니다. 설정 파일에 여러 예시가 포함되어 있습니다.
 
 ```php
 Recorders\SlowOutgoingRequests::class => [

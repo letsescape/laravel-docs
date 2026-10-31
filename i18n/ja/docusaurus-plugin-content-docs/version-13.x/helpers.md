@@ -4155,7 +4155,7 @@ use Illuminate\Support\Timebox;
 ### URI
 
 <!-- Laravel's `Uri` class provides a convenient and fluent interface for creating and manipulating URIs. This class wraps the functionality provided by the underlying League URI package and integrates seamlessly with Laravel's routing system. -->
-Laravel の `Uri` クラスは、URI を作成および操作するための便利で流暢なインターフェイスを提供します。このクラスは、基礎となる League URI パッケージによって提供される機能をラップし、Laravel のルーティング システムとシームレスに統合します。
+Laravel の `Uri` クラスは、メソッドを連鎖させて URI を作成および操作できる便利なインターフェイスを提供します。このクラスは、基礎となる League URI パッケージによって提供される機能をラップし、Laravel のルーティング システムとシームレスに統合します。
 
 <!-- You can create a `Uri` instance easily using static methods: -->
 静的メソッドを使用して、`Uri` インスタンスを簡単に作成できます。
@@ -4181,7 +4181,7 @@ $uri = $request->uri();
 ```
 
 <!-- Once you have a URI instance, you can fluently modify it: -->
-URI インスタンスを取得したら、それをスムーズに変更できます。
+URI インスタンスを取得したら、メソッドを連鎖させて変更できます。
 
 ```php
 $uri = Uri::of('https://example.com')

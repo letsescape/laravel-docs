@@ -90,7 +90,7 @@ Laravel 11.x는 최소 PHP 8.2 버전이 필요합니다.
 _이 간결한 애플리케이션 구조는 [Taylor Otwell](https://github.com/taylorotwell)과 [Nuno Maduro](https://github.com/nunomaduro)가 개발했습니다._
 
 <!-- Laravel 11 introduces a streamlined application structure for **new** Laravel applications, without requiring any changes to existing applications. The new application structure is intended to provide a leaner, more modern experience, while retaining many of the concepts that Laravel developers are already familiar with. Below we will discuss the highlights of Laravel's new application structure. -->
-Laravel 11에서는 **새로운** Laravel 애플리케이션을 위한 더욱 간결한 프로젝트 구조가 도입되었습니다. 기존 애플리케이션의 수정 없이 적용 가능하며, Laravel 개발자들이 익숙한 주요 개념들을 그대로 유지하면서도 더 현대적이고 가벼운 개발 경험을 제공합니다. 아래에서는 Laravel의 새로운 애플리케이션 구조의 핵심 사항을 살펴봅니다.
+Laravel 11에서는 **새로운** Laravel 애플리케이션을 위한 더욱 간결한 프로젝트 구조가 도입되었습니다. 기존 애플리케이션은 구조를 변경할 필요가 없습니다. 새로운 구조는 Laravel 개발자들이 익숙한 주요 개념들을 그대로 유지하면서도 더 현대적이고 가벼운 개발 경험을 제공합니다. 아래에서는 Laravel의 새로운 애플리케이션 구조의 핵심 사항을 살펴봅니다.
 
 <!-- #### The Application Bootstrap File -->
 #### The Application Bootstrap File
@@ -128,7 +128,7 @@ return Application::configure(basePath: dirname(__DIR__))
 #### Opt-in API and Broadcast Routing
 
 <!-- The `api.php` and `channels.php` route files are no longer present by default, as many applications do not require these files. Instead, they may be created using simple Artisan commands: -->
-이제 `api.php`와 `channels.php` 라우트 파일은 기본적으로 포함되지 않으며, 많은 애플리케이션에서 필요하지 않기 때문입니다. 이 파일들이 필요할 경우, 아래와 같이 간단한 아티즌 명령어로 생성할 수 있습니다.
+이제 `api.php`와 `channels.php` 라우트 파일은 기본적으로 포함되지 않습니다. 많은 애플리케이션에서 필요하지 않기 때문입니다. 이 파일들이 필요할 경우, 아래와 같이 간단한 아티즌 명령어로 생성할 수 있습니다.
 
 ```shell
 php artisan install:api
@@ -214,7 +214,7 @@ abstract class Controller
 #### Application Defaults
 
 <!-- By default, new Laravel applications use SQLite for database storage, as well as the `database` driver for Laravel's session, cache, and queue. This allows you to begin building your application immediately after creating a new Laravel application, without being required to install additional software or create additional database migrations. -->
-이제 새로 생성하는 Laravel 애플리케이션은 기본적으로 데이터베이스 저장소로 SQLite를, 그리고 세션, 캐시, 큐에는 `database` 드라이버를 사용합니다. 이를 통해 추가 소프트웨어 설치나 별도의 데이터베이스 마이그레이션을 진행하지 않고도 바로 개발을 시작할 수 있습니다.
+이제 새로 생성하는 Laravel 애플리케이션은 기본적으로 데이터베이스 저장소로 SQLite를, 그리고 세션, 캐시, 큐에는 `database` 드라이버를 사용합니다. 이를 통해 추가 소프트웨어 설치나 별도의 데이터베이스 마이그레이션 작성 없이도 바로 개발을 시작할 수 있습니다.
 
 <!-- In addition, over time, the `database` drivers for these Laravel services have become robust enough for production usage in many application contexts; therefore, they provide a sensible, unified choice for both local and production applications. -->
 또한 시간이 흐르면서, 이러한 Laravel 서비스의 `database` 드라이버들도 실제 운영 환경에서 충분히 사용할 수 있을 정도로 견고해졌기 때문에, 로컬 개발 뿐만 아니라 프로덕션에서도 일관된 선택지가 됩니다.
@@ -312,7 +312,7 @@ _자동 비밀번호 재해시 기능은 [Stephen Rees-Carter](https://github.co
 Laravel의 기본 비밀번호 해시 알고리즘은 bcrypt입니다. bcrypt 해시의 "work factor"(연산 횟수)는 `config/hashing.php` 파일이나 `BCRYPT_ROUNDS` 환경변수로 조절할 수 있습니다.
 
 <!-- Typically, the bcrypt work factor should be increased over time as CPU / GPU processing power increases. If you increase the bcrypt work factor for your application, Laravel will now gracefully and automatically rehash user passwords as users authenticate with your application. -->
-보통 CPU나 GPU 성능이 발전함에 따라 bcrypt work factor를 높여 주어야 합니다. Laravel 11에서는 애플리케이션의 work factor가 변경된 경우, 사용자가 인증할 때마다 자동으로 비밀번호를 재해시합니다.
+보통 CPU나 GPU 성능이 발전함에 따라 bcrypt work factor를 높여 주어야 합니다. Laravel 11에서는 애플리케이션의 work factor를 높이면 사용자가 인증할 때 자동으로 비밀번호를 재해시합니다.
 
 <a name="prompt-validation"></a>
 <!-- ### Prompt Validation -->
@@ -395,7 +395,7 @@ php artisan make:trait
 _모델 cast 개선은 [Nuno Maduro](https://github.com/nunomaduro)가 기여했습니다._
 
 <!-- Laravel 11 supports defining your model's casts using a method instead of a property. This allows for streamlined, fluent cast definitions, especially when using casts with arguments: -->
-Laravel 11부터는 모델의 cast(cast)를 속성이 아니라 메서드로 정의할 수 있습니다. 이를 통해, 특히 인수(arguments)를 사용하는 cast 정의가 훨씬 더 간결하고 직관적으로 바뀝니다.
+Laravel 11부터는 모델의 cast를 속성이 아니라 메서드로 정의할 수 있습니다. 이를 통해, 특히 인수(arguments)를 사용하는 cast 정의가 훨씬 더 간결하고 직관적으로 바뀝니다.
 
 ```
 /**

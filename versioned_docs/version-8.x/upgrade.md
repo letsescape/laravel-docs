@@ -531,7 +531,7 @@ class RouteServiceProvider extends ServiceProvider
 **영향 가능성: 낮음**
 
 <!-- Laravel's dependency on `dragonmantank/cron-expression` has been updated from `2.x` to `3.x`. This should not cause any breaking change in your application unless you are interacting with the `cron-expression` library directly. If you are interacting with this library directly, please review its [change log](https://github.com/dragonmantank/cron-expression/blob/master/CHANGELOG.md). -->
-Laravel에서 사용하는 `dragonmantank/cron-expression` 패키지의 의존성이 `2.x`에서 `3.x`로 상향되었습니다. Laravel 내부 동작에는 영향을 주지 않으나 `cron-expression` 라이브러리와 직접 상호작용 중이라면 [change log](https://github.com/dragonmantank/cron-expression/blob/master/CHANGELOG.md)을 꼭 확인하세요.
+Laravel에서 사용하는 `dragonmantank/cron-expression` 패키지의 의존성이 `2.x`에서 `3.x`로 상향되었습니다. 이 변경은 일반적으로 애플리케이션의 하위 호환성을 깨뜨리지 않지만, `cron-expression` 라이브러리와 직접 상호작용 중이라면 [change log](https://github.com/dragonmantank/cron-expression/blob/master/CHANGELOG.md)을 꼭 확인하세요.
 
 <a name="session"></a>
 <!-- ### Session -->

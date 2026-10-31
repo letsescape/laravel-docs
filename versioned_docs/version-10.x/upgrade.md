@@ -62,7 +62,7 @@
 #### Estimated Upgrade Time: 10 Minutes
 
 > [!NOTE]
-> 가능한 모든 주요 변경사항을 문서화하려 노력했습니다. 다만, 일부 변경사항은 프레임워크의 드물게 쓰이는 부분에 해당하므로 실제로 여러분의 애플리케이션에 영향을 주는 경우는 일부일 수 있습니다. 시간을 절약하고 싶으시다면 [Laravel Shift](https://laravelshift.com/)를 이용해 애플리케이션 업그레이드를 자동화하실 수 있습니다.
+> 가능한 모든 하위 호환성이 깨지는 변경사항을 문서화하려 노력했습니다. 다만, 일부 변경사항은 프레임워크의 드물게 쓰이는 부분에 해당하므로 실제로 여러분의 애플리케이션에 영향을 주는 경우는 일부일 수 있습니다. 시간을 절약하고 싶으시다면 [Laravel Shift](https://laravelshift.com/)를 이용해 애플리케이션 업그레이드를 자동화하실 수 있습니다.
 
 <a name="updating-dependencies"></a>
 <!-- ### Updating Dependencies -->

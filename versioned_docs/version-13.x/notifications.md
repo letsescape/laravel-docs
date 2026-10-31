@@ -162,7 +162,7 @@ public function via(object $notifiable): array
 ### Queueing Notifications
 
 > [!WARNING]
-> 알림을 큐에 넣기 전에 큐를 설정하고 [start a worker](/docs/13.x/queues#running-the-queue-worker)해야 합니다.
+> 알림을 큐에 넣기 전에 큐를 설정하고 [start a worker](/docs/13.x/queues#running-the-queue-worker)에 따라 워커를 시작해야 합니다.
 
 <!-- Sending notifications can take time, especially if the channel needs to make an external API call to deliver the notification. To speed up your application's response time, let your notification be queued by adding the `ShouldQueue` interface and `Queueable` trait to your class. The interface and trait are already imported for all notifications generated using the `make:notification` command, so you may immediately add them to your notification class: -->
 알림 전송에는 시간이 걸릴 수 있습니다. 특히 채널이 알림을 전달하기 위해 외부 API 호출을 해야 한다면 더 그렇습니다. 애플리케이션의 응답 시간을 빠르게 하려면 알림 클래스에 `ShouldQueue` 인터페이스와 `Queueable` 트레이트를 추가하여 알림이 큐에 들어가도록 하십시오. `make:notification` 명령어로 생성된 모든 알림에는 이 인터페이스와 트레이트가 이미 import되어 있으므로, 바로 알림 클래스에 추가할 수 있습니다.
@@ -1418,7 +1418,7 @@ useEchoNotification(
 ```
 
 <!-- You may also specify the shape of the notification payload data, providing greater type safety and editing convenience: -->
-알림 페이로드 데이터의 구조를 지정하여 더 높은 타입 안정성과 편집 편의성을 얻을 수도 있습니다.
+알림 페이로드 데이터의 구조를 지정하여 더 높은 타입 안전성과 편집 편의성을 얻을 수도 있습니다.
 
 ```ts
 type InvoicePaidNotification = {
@@ -1643,7 +1643,7 @@ App이 생성된 동일한 Slack 워크스페이스로만 알림을 보내면 �
 #### App Distribution
 
 <!-- If your application will be sending notifications to external Slack workspaces that are owned by your application's users, you will need to "distribute" your App via Slack. App distribution can be managed from your App's "Manage Distribution" tab within Slack. Once your App has been distributed, you may use [Socialite](/docs/13.x/socialite) to [obtain Slack Bot tokens](/docs/13.x/socialite#slack-bot-scopes) on behalf of your application's users. -->
-애플리케이션 사용자가 소유한 외부 Slack 워크스페이스로 알림을 보내야 한다면, Slack을 통해 App을 "배포"해야 합니다. App 배포는 Slack의 "Manage Distribution" 탭에서 관리할 수 있습니다. App이 배포된 후에는 [Socialite](/docs/13.x/socialite)를 사용하여 애플리케이션 사용자를 대신해 [obtain Slack Bot tokens](/docs/13.x/socialite#slack-bot-scopes).
+애플리케이션 사용자가 소유한 외부 Slack 워크스페이스로 알림을 보내야 한다면, Slack을 통해 App을 "배포"해야 합니다. App 배포는 Slack의 "Manage Distribution" 탭에서 관리할 수 있습니다. App이 배포된 후에는 [Socialite](/docs/13.x/socialite)를 사용하여 애플리케이션 사용자를 대신해 [obtain Slack Bot tokens](/docs/13.x/socialite#slack-bot-scopes)에 설명된 봇 토큰을 얻을 수 있습니다.
 
 <a name="formatting-slack-notifications"></a>
 <!-- ### Formatting Slack Notifications -->
@@ -1727,10 +1727,10 @@ public function toSlack(object $notifiable): SlackMessage
 ### Slack Interactivity
 
 <!-- Slack's Block Kit notification system provides powerful features to [handle user interaction](https://api.slack.com/interactivity/handling). To utilize these features, your Slack App should have "Interactivity" enabled and a "Request URL" configured that points to a URL served by your application. These settings can be managed from the "Interactivity & Shortcuts" App management tab within Slack. -->
-Slack의 Block Kit 알림 시스템은 [handle user interaction](https://api.slack.com/interactivity/handling)할 수 있는 강력한 기능을 제공합니다. 이 기능을 사용하려면 Slack App에서 "Interactivity"를 활성화하고, 애플리케이션이 제공하는 URL을 가리키는 "Request URL"을 설정해야 합니다. 이러한 설정은 Slack의 "Interactivity & Shortcuts" App 관리 탭에서 관리할 수 있습니다.
+Slack의 Block Kit 알림 시스템은 [handle user interaction](https://api.slack.com/interactivity/handling)에 설명된 사용자 상호작용을 처리할 수 있는 강력한 기능을 제공합니다. 이 기능을 사용하려면 Slack App에서 "Interactivity"를 활성화하고, 애플리케이션이 제공하는 URL을 가리키는 "Request URL"을 설정해야 합니다. 이러한 설정은 Slack의 "Interactivity & Shortcuts" App 관리 탭에서 관리할 수 있습니다.
 
 <!-- In the following example, which utilizes the `actionsBlock` method, Slack will send a `POST` request to your "Request URL" with a payload containing the Slack user who clicked the button, the ID of the clicked button, and more. Your application can then determine the action to take based on the payload. You should also [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack) was made by Slack: -->
-다음 예시는 `actionsBlock` 메서드를 사용합니다. Slack은 버튼을 클릭한 Slack 사용자, 클릭된 버튼의 ID 등을 포함한 페이로드와 함께 "Request URL"로 `POST` 요청을 보냅니다. 그러면 애플리케이션은 페이로드를 바탕으로 수행할 작업을 결정할 수 있습니다. 또한 해당 요청이 Slack에서 온 것인지 [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack)해야 합니다.
+다음 예시는 `actionsBlock` 메서드를 사용합니다. Slack은 버튼을 클릭한 Slack 사용자, 클릭된 버튼의 ID 등을 포함한 페이로드와 함께 "Request URL"로 `POST` 요청을 보냅니다. 그러면 애플리케이션은 페이로드를 바탕으로 수행할 작업을 결정할 수 있습니다. 또한 해당 요청이 Slack에서 온 것인지 [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack)에 따라 검증해야 합니다.
 
 ```php
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;
@@ -1863,7 +1863,7 @@ class User extends Authenticatable
 > 외부 Slack 워크스페이스로 알림을 보내기 전에 Slack App이 [distributed](#slack-app-distribution)되어 있어야 합니다.
 
 <!-- Of course, you will often want to send notifications to the Slack workspaces owned by your application's users. To do so, you will first need to obtain a Slack OAuth token for the user. Thankfully, [Laravel Socialite](/docs/13.x/socialite) includes a Slack driver that will allow you to easily authenticate your application's users with Slack and [obtain a bot token](/docs/13.x/socialite#slack-bot-scopes). -->
-물론 애플리케이션 사용자가 소유한 Slack 워크스페이스로 알림을 보내고 싶은 경우가 많습니다. 이를 위해서는 먼저 사용자에 대한 Slack OAuth 토큰을 얻어야 합니다. 다행히 [Laravel Socialite](/docs/13.x/socialite)는 Slack 드라이버를 포함하고 있어 애플리케이션 사용자를 Slack으로 쉽게 인증하고 [obtain a bot token](/docs/13.x/socialite#slack-bot-scopes).
+물론 애플리케이션 사용자가 소유한 Slack 워크스페이스로 알림을 보내고 싶은 경우가 많습니다. 이를 위해서는 먼저 사용자에 대한 Slack OAuth 토큰을 얻어야 합니다. 다행히 [Laravel Socialite](/docs/13.x/socialite)는 Slack 드라이버를 포함하고 있어 애플리케이션 사용자를 Slack으로 쉽게 인증하고 [obtain a bot token](/docs/13.x/socialite#slack-bot-scopes)에 설명된 봇 토큰을 얻을 수 있습니다.
 
 <!-- Once you have obtained the bot token and stored it within your application's database, you may utilize the `SlackRoute::make` method to route a notification to the user's workspace. In addition, your application will likely need to offer an opportunity for the user to specify which channel notifications should be sent to: -->
 봇 토큰을 얻어 애플리케이션 데이터베이스에 저장했다면, `SlackRoute::make` 메서드를 사용하여 사용자의 워크스페이스로 알림을 라우팅할 수 있습니다. 또한 애플리케이션은 사용자가 알림을 받을 채널을 지정할 수 있는 기능도 제공해야 할 가능성이 높습니다.

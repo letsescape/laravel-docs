@@ -250,7 +250,7 @@ use Redis;
 ## Interacting With Redis
 
 <!-- You may interact with Redis by calling various methods on the `Redis` [facade](/docs/8.x/facades). The `Redis` facade supports dynamic methods, meaning you may call any [Redis command](https://redis.io/commands) on the facade and the command will be passed directly to Redis. In this example, we will call the Redis `GET` command by calling the `get` method on the `Redis` facade: -->
-`Redis` [facade](/docs/8.x/facades)를 통해 다양한 방식으로 Redis와 상호작용할 수 있습니다. `Redis` 파사드는 동적으로 메서드를 지원하므로, [Redis command](https://redis.io/commands)라면 어떤 것이든 파사드를 통해 직접 실행할 수 있습니다. 아래 예시에서는 Redis의 `GET` 명령 대신 `Redis` 파사드의 `get` 메서드를 호출하는 방식을 보여줍니다:
+`Redis` [facade](/docs/8.x/facades)를 통해 다양한 방식으로 Redis와 상호작용할 수 있습니다. `Redis` 파사드는 동적으로 메서드를 지원하므로, [Redis command](https://redis.io/commands)라면 어떤 것이든 파사드를 통해 직접 실행할 수 있습니다. 아래 예시에서는 Redis의 `GET` 명령을 실행하기 위해 `Redis` 파사드의 `get` 메서드를 호출하는 방식을 보여줍니다:
 
 ```
 <?php
@@ -364,7 +364,7 @@ LUA, 2, 'first-counter', 'second-counter');
 ### Pipelining Commands
 
 <!-- Sometimes you may need to execute dozens of Redis commands. Instead of making a network trip to your Redis server for each command, you may use the `pipeline` method. The `pipeline` method accepts one argument: a closure that receives a Redis instance. You may issue all of your commands to this Redis instance and they will all be sent to the Redis server at the same time to reduce network trips to the server. The commands will still be executed in the order they were issued: -->
-여러 개의 Redis 명령어를 한 번에 실행해야 할 때가 있습니다. 이때 각 명령어마다 서버와 통신하는 대신, `pipeline` 메서드를 사용하면 한 번에 여러 명령을 전송해 성능을 높일 수 있습니다. `pipeline` 메서드는 하나의 클로저를 받으며, 이 클로저 내에서 모든 명령어를 발행하면 해당 명령어들이 서버로 한 번에 전송되어 통신 횟수가 줄어듭니다. 명령어는 요청한 순서대로 실행됩니다:
+여러 개의 Redis 명령어를 한 번에 실행해야 할 때가 있습니다. 이때 각 명령어마다 서버와 통신하는 대신, `pipeline` 메서드를 사용하면 한 번에 여러 명령을 전송해 성능을 높일 수 있습니다. `pipeline` 메서드는 Redis 인스턴스를 전달받는 하나의 클로저를 받으며, 이 클로저 내에서 모든 명령어를 발행하면 해당 명령어들이 서버로 한 번에 전송되어 통신 횟수가 줄어듭니다. 명령어는 요청한 순서대로 실행됩니다:
 
 ```
 use Illuminate\Support\Facades\Redis;
@@ -384,7 +384,7 @@ Redis::pipeline(function ($pipe) {
 Laravel은 Redis의 `publish`와 `subscribe` 명령어를 편리하게 사용할 수 있도록 기능을 제공합니다. 이 명령어들은 특정 "채널"에서 메시지를 수신할 수 있게 해주며, 다른 애플리케이션이나 다른 프로그래밍 언어를 통해 해당 채널로 메시지를 전송할 수도 있어 여러 애플리케이션, 프로세스 간의 손쉬운 통신이 가능합니다.
 
 <!-- First, let's setup a channel listener using the `subscribe` method. We'll place this method call within an [Artisan command](/docs/8.x/artisan) since calling the `subscribe` method begins a long-running process: -->
-먼저 `subscribe` 메서드를 통해 채널 리스너(listener)를 설정해보겠습니다. `subscribe` 메서드는 장시간 실행되는 프로세스이므로, [Artisan command](/docs/8.x/artisan) 안에 배치하는 것이 좋습니다:
+먼저 `subscribe` 메서드를 통해 채널 리스너(listener)를 설정해보겠습니다. `subscribe` 메서드를 호출하면 장시간 실행되는 프로세스가 시작되므로, [Artisan command](/docs/8.x/artisan) 안에 배치하는 것이 좋습니다:
 
 ```
 <?php

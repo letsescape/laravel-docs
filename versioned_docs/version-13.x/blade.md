@@ -429,7 +429,7 @@ Switch 문은 `@switch`, `@case`, `@break`, `@default` 및 `@endswitch` 지시�
 > `foreach` 루프를 반복하는 동안 [loop variable](#the-loop-variable)를 사용하여 루프를 통해 첫 번째 또는 마지막 반복에 있는지와 같은 루프에 대한 귀중한 정보를 얻을 수 있습니다.
 
 <!-- When using loops you may also skip the current iteration or end the loop using the `@continue` and `@break` directives: -->
-루프를 사용할 때 현재 반복을 건너뛰거나 `@continue` 및 `@break` 지시문을 사용하여 루프를 종료할 수도 있습니다.
+루프를 사용할 때 `@continue` 지시문으로 현재 반복을 건너뛰거나 `@break` 지시문으로 루프를 종료할 수도 있습니다.
 
 ```blade
 @foreach ($users as $user)
@@ -991,7 +991,7 @@ App\View\Components\Card\Body
 ### Passing Data to Components
 
 <!-- You may pass data to Blade components using HTML attributes. Hard-coded, primitive values may be passed to the component using simple HTML attribute strings. PHP expressions and variables should be passed to the component via attributes that use the `:` character as a prefix: -->
-HTML 속성을 사용하여 Blade 컴포넌트에 데이터를 전달할 수 있습니다. 하드 코딩된 기본 값은 간단한 HTML 속성 문자열을 사용하여 컴포넌트에 전달될 수 있습니다. PHP 표현식과 변수는 `:` 문자를 접두사로 사용하는 속성을 통해 컴포넌트에 전달되어야 합니다.
+HTML 속성을 사용하여 Blade 컴포넌트에 데이터를 전달할 수 있습니다. 하드 코딩된 기본형 값은 간단한 HTML 속성 문자열을 사용하여 컴포넌트에 전달될 수 있습니다. PHP 표현식과 변수는 `:` 문자를 접두사로 사용하는 속성을 통해 컴포넌트에 전달되어야 합니다.
 
 ```blade
 <x-alert type="error" :message="$message"/>
@@ -2127,6 +2127,9 @@ Blade를 사용하면 다른 뷰 또는 레이아웃의 다른 위치에 렌더�
     @stack('scripts')
 </head>
 ```
+
+<!-- The `@stack` directive renders the content that has been pushed at the moment it is reached. Content pushed afterwards, such as from a component rendered below the `@stack` directive in the same layout component, will not be included. If you need to push from such components, place the `@stack` directive after them, for example at the end of the `<body>` tag. -->
+`@stack` 지시문은 실행 흐름이 해당 지시문에 도달한 시점까지 푸시된 콘텐츠를 렌더링합니다. 같은 레이아웃 컴포넌트에서 `@stack` 지시문 아래에 렌더링되는 컴포넌트가 푸시하는 콘텐츠처럼, 그 이후에 푸시된 콘텐츠는 포함되지 않습니다. 이런 컴포넌트에서 콘텐츠를 푸시해야 한다면, `@stack` 지시문을 해당 컴포넌트 뒤에 배치하세요. 예를 들어 `<body>` 태그 끝부분에 배치할 수 있습니다.
 
 <!-- If you would like to prepend content onto the beginning of a stack, you should use the `@prepend` directive: -->
 스택 시작 부분에 콘텐츠를 추가하려면 `@prepend` 지시문을 사용해야 합니다.

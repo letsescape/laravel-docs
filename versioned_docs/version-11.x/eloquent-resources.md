@@ -313,7 +313,7 @@ public function toArray(Request $request): array
 ```
 
 > [!NOTE]
-> 연관관계를 미리 로드되어 있는 경우에만 포함하고자 한다면, [conditional relationships](#conditional-relationships) 문서를 참고하세요.
+> 연관관계가 미리 로드되어 있는 경우에만 포함하고자 한다면, [conditional relationships](#conditional-relationships) 문서를 참고하세요.
 
 <a name="writing-resource-collections"></a>
 <!-- #### Resource Collections -->
@@ -804,7 +804,7 @@ public function toArray(Request $request): array
 ### Adding Meta Data
 
 <!-- Some JSON API standards require the addition of meta data to your resource and resource collections responses. This often includes things like `links` to the resource or related resources, or meta data about the resource itself. If you need to return additional meta data about a resource, include it in your `toArray` method. For example, you might include `links` information when transforming a resource collection: -->
-일부 JSON API 표준에서는 리소스 및 리소스 컬렉션 응답에 메타 데이터를 추가해야 하는 경우가 있습니다. 여기에는 종종 리소스에 대한 `links`나 관련 리소스, 또는 리소스 자체에 대한 메타 정보 등이 포함됩니다. 리소스에 추가 메타 데이터를 반환해야 한다면, `toArray` 메서드 내부에 포함시키면 됩니다. 예를 들어, 리소스 컬렉션을 변환하는 과정에서 `links` 정보를 포함시킬 수 있습니다.
+일부 JSON API 표준에서는 리소스 및 리소스 컬렉션 응답에 메타 데이터를 추가해야 하는 경우가 있습니다. 여기에는 종종 리소스나 관련 리소스에 대한 `links`, 또는 리소스 자체에 대한 메타 정보 등이 포함됩니다. 리소스에 추가 메타 데이터를 반환해야 한다면, `toArray` 메서드 내부에 포함시키면 됩니다. 예를 들어, 리소스 컬렉션을 변환하는 과정에서 `links` 정보를 포함시킬 수 있습니다.
 
 ```
 /**

@@ -425,7 +425,7 @@ axios.post('/oauth/clients', data)
 #### `PUT /oauth/clients/{client-id}`
 
 <!-- This route is used to update clients. It requires two pieces of data: the client's `name` and a `redirect` URL. The `redirect` URL is where the user will be redirected after approving or denying a request for authorization. The route will return the updated client instance: -->
-이 라우트는 클라이언트 정보를 업데이트하는 데 사용됩니다. 클라이언트의 `name`과 `redirect` URL 정보가 필요하며, 여기서도 사용자가 인가 후 리다이렉트될 URL이 `redirect`입니다. 라우트는 변경된 클라이언트 인스턴스를 반환합니다:
+이 라우트는 클라이언트 정보를 업데이트하는 데 사용됩니다. 클라이언트의 `name`과 `redirect` URL 정보가 필요하며, 여기서도 사용자가 인가 요청을 승인하거나 거부한 뒤 리다이렉트될 URL이 `redirect`입니다. 라우트는 변경된 클라이언트 인스턴스를 반환합니다:
 
 ```js
 const data = {
@@ -600,7 +600,7 @@ axios.get('/oauth/tokens')
 #### `DELETE /oauth/tokens/{token-id}`
 
 <!-- This route may be used to revoke authorized access tokens and their related refresh tokens: -->
-이 라우트는 액세스 토큰과 관련된 refresh 토큰도 함께 폐기할 때 사용합니다:
+이 라우트는 인가된 액세스 토큰과 관련된 refresh 토큰도 함께 폐기할 때 사용합니다:
 
 ```js
 axios.delete('/oauth/tokens/' + tokenId);
@@ -735,7 +735,7 @@ $codeChallenge = strtr(rtrim($encoded, '='), '+/', '-_');
 #### Redirecting For Authorization
 
 <!-- Once a client has been created, you may use the client ID and the generated code verifier and code challenge to request an authorization code and access token from your application. First, the consuming application should make a redirect request to your application's `/oauth/authorize` route: -->
-클라이언트가 생성되면, 클라이언트 ID와 생성한 코드 검증자, 코드 챌리지를 사용하여 애플리케이션에서 인가 코드와 엑세스 토큰을 요청할 수 있습니다. 먼저, 클라이언트를 사용하는 애플리케이션에서 `/oauth/authorize` 경로로 리다이렉트 요청을 보냅니다.
+클라이언트가 생성되면, 클라이언트 ID와 생성한 코드 검증자, 코드 챌린지를 사용하여 애플리케이션에서 인가 코드와 엑세스 토큰을 요청할 수 있습니다. 먼저, 클라이언트를 사용하는 애플리케이션에서 `/oauth/authorize` 경로로 리다이렉트 요청을 보냅니다.
 
 ```
 use Illuminate\Http\Request;
@@ -874,7 +874,7 @@ $response = Http::asForm()->post('http://passport-app.test/oauth/token', [
 ### Customizing The User Provider
 
 <!-- If your application uses more than one [authentication user provider](/docs/9.x/authentication#introduction), you may specify which user provider the password grant client uses by providing a `--provider` option when creating the client via the `artisan passport:client --password` command. The given provider name should match a valid provider defined in your application's `config/auth.php` configuration file. You can then [protect your route using middleware](#via-middleware) to ensure that only users from the guard's specified provider are authorized. -->
-애플리케이션에서 [authentication user provider](/docs/9.x/authentication#introduction)를 사용한다면, `artisan passport:client --password` 명령어로 클라이언트 생성 시 `--provider` 옵션을 추가해 사용할 프로바이더를 지정할 수 있습니다. 이때 지정하는 프로바이더 이름은 `config/auth.php`에 정의된 유효한 프로바이더여야 합니다. 이후 해당 가드의 프로바이더에 속한 사용자만 접근할 수 있도록 [protect your route using middleware](#via-middleware)할 수 있습니다.
+애플리케이션에서 둘 이상의 [authentication user provider](/docs/9.x/authentication#introduction)를 사용한다면, `artisan passport:client --password` 명령어로 클라이언트 생성 시 `--provider` 옵션을 추가해 사용할 프로바이더를 지정할 수 있습니다. 이때 지정하는 프로바이더 이름은 `config/auth.php`에 정의된 유효한 프로바이더여야 합니다. 이후 해당 가드의 프로바이더에 속한 사용자만 접근할 수 있도록 [protect your route using middleware](#via-middleware)할 수 있습니다.
 
 <a name="customizing-the-username-field"></a>
 <!-- ### Customizing The Username Field -->
@@ -951,7 +951,7 @@ class User extends Authenticatable
 > 임플리싯 그랜트 토큰 사용 역시 더 이상 권장하지 않습니다. [a grant type that is currently recommended by OAuth2 Server](https://oauth2.thephpleague.com/authorization-server/which-grant/)을 선택해야 합니다.
 
 <!-- The implicit grant is similar to the authorization code grant; however, the token is returned to the client without exchanging an authorization code. This grant is most commonly used for JavaScript or mobile applications where the client credentials can't be securely stored. To enable the grant, call the `enableImplicitGrant` method in the `boot` method of your application's `App\Providers\AuthServiceProvider` class: -->
-임플리싯 그랜트는 인가 코드 그랜트와 비슷하지만, 인가 코드 교환 과정 없이 곧바로 토큰이 클라이언트에 반환됩니다. 이 방식은 보통 JavaScript 애플리케이션 또는 클라이언트 시크릿을 안전하게 저장할 수 없는 모바일 앱에서 사용됩니다. 임플리싯 그랜트를 활성화하려면, 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `enableImplicitGrant` 메서드를 호출하면 됩니다.
+임플리싯 그랜트는 인가 코드 그랜트와 비슷하지만, 인가 코드 교환 과정 없이 곧바로 토큰이 클라이언트에 반환됩니다. 이 방식은 보통 클라이언트 시크릿을 안전하게 저장할 수 없는 JavaScript 애플리케이션 또는 모바일 앱에서 사용됩니다. 임플리싯 그랜트를 활성화하려면, 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `enableImplicitGrant` 메서드를 호출하면 됩니다.
 
 ```
 /**
@@ -1108,7 +1108,7 @@ $token = $user->createToken('My Token', ['place-orders'])->accessToken;
 #### JSON API
 
 <!-- Passport also includes a JSON API for managing personal access tokens. You may pair this with your own frontend to offer your users a dashboard for managing personal access tokens. Below, we'll review all of the API endpoints for managing personal access tokens. For convenience, we'll use [Axios](https://github.com/mzabriskie/axios) to demonstrate making HTTP requests to the endpoints. -->
-Passport는 개인 액세스 토큰 관리를 위한 JSON API도 제공합니다. 이를 프론트엔드에 연동하면, 사용자가 대시보드에서 직접 발급·관리가 가능합니다. 아래에서는 개인 액세스 토큰 관리를 위한 모든 API 엔드포인트를 살펴봅니다. 예시에서는 HTTP 요청을 위해 [Axios](https://github.com/mzabriskie/axios)를 사용합니다.
+Passport는 개인 액세스 토큰 관리를 위한 JSON API도 제공합니다. 이를 프론트엔드에 연동하면, 사용자가 대시보드에서 직접 토큰을 발급하고 관리할 수 있습니다. 아래에서는 개인 액세스 토큰 관리를 위한 모든 API 엔드포인트를 살펴봅니다. 예시에서는 HTTP 요청을 위해 [Axios](https://github.com/mzabriskie/axios)를 사용합니다.
 
 <!-- The JSON API is guarded by the `web` and `auth` middleware; therefore, it may only be called from your own application. It is not able to be called from an external source. -->
 이 JSON API는 `web`과 `auth` 미들웨어로 보호되어 있으므로, 반드시 자체 애플리케이션에서만 호출 가능하며 외부에서는 접근할 수 없습니다.
@@ -1248,7 +1248,7 @@ return $response->json();
 ## Token Scopes
 
 <!-- Scopes allow your API clients to request a specific set of permissions when requesting authorization to access an account. For example, if you are building an e-commerce application, not all API consumers will need the ability to place orders. Instead, you may allow the consumers to only request authorization to access order shipment statuses. In other words, scopes allow your application's users to limit the actions a third-party application can perform on their behalf. -->
-스코프는 API 클라이언트가 계정 접근 권한을 요청할 때, 필요한 권한(permit)의 범위를 지정할 수 있게 해줍니다. 예를 들어, 이커머스 애플리케이션에서는 모든 API 소비자에게 주문 권한이 반드시 필요하지 않을 수 있습니다. 대신 사용자가 원하는 주요 기능(예: 주문의 배송 상태 조회)만 권한을 요청할 수 있습니다. 즉, 스코프를 통해 외부 애플리케이션이 사용자 대신 수행할 수 있는 작업을 제한할 수 있습니다.
+스코프는 API 클라이언트가 계정 접근 권한을 요청할 때, 필요한 권한(permit)의 범위를 지정할 수 있게 해줍니다. 예를 들어, 이커머스 애플리케이션에서는 모든 API 소비자에게 주문 권한이 반드시 필요하지 않을 수 있습니다. 대신 API 소비자가 주문의 배송 상태에 접근할 권한만 요청하도록 허용할 수 있습니다. 즉, 스코프를 통해 외부 애플리케이션이 사용자 대신 수행할 수 있는 작업을 제한할 수 있습니다.
 
 <a name="defining-scopes"></a>
 <!-- ### Defining Scopes -->
@@ -1308,7 +1308,7 @@ Passport::setDefaultScope([
 #### When Requesting Authorization Codes
 
 <!-- When requesting an access token using the authorization code grant, consumers should specify their desired scopes as the `scope` query string parameter. The `scope` parameter should be a space-delimited list of scopes: -->
-Authorization code grant 방식을 사용하여 액세스 토큰을 요청할 때, 사용자는 자신이 원하는 스코프(scope)를 `scope` 쿼리 스트링 파라미터로 지정해야 합니다. `scope` 파라미터 값은 스코프 이름을 공백으로 구분하여 나열합니다.
+Authorization code grant 방식을 사용하여 액세스 토큰을 요청할 때, API 클라이언트는 원하는 스코프(scope)를 `scope` 쿼리 스트링 파라미터로 지정해야 합니다. `scope` 파라미터 값은 스코프 이름을 공백으로 구분하여 나열합니다.
 
 ```
 Route::get('/redirect', function () {
@@ -1377,7 +1377,7 @@ Route::get('/orders', function () {
 #### Checking Scopes On A Token Instance
 
 <!-- Once an access token authenticated request has entered your application, you may still check if the token has a given scope using the `tokenCan` method on the authenticated `App\Models\User` instance: -->
-액세스 토큰이 인증된 요청이 애플리케이션에 들어오면, 인증된 `App\Models\User` 인스턴스의 `tokenCan` 메서드를 사용하여 해당 토큰이 특정 스코프를 가지고 있는지 추가로 확인할 수 있습니다.
+액세스 토큰으로 인증된 요청이 애플리케이션에 들어오면, 인증된 `App\Models\User` 인스턴스의 `tokenCan` 메서드를 사용하여 해당 토큰이 특정 스코프를 가지고 있는지 추가로 확인할 수 있습니다.
 
 ```
 use Illuminate\Http\Request;
@@ -1428,7 +1428,7 @@ Passport::hasScope('place-orders');
 ## Consuming Your API With JavaScript
 
 <!-- When building an API, it can be extremely useful to be able to consume your own API from your JavaScript application. This approach to API development allows your own application to consume the same API that you are sharing with the world. The same API may be consumed by your web application, mobile applications, third-party applications, and any SDKs that you may publish on various package managers. -->
-API를 개발할 때, 자바스크립트 애플리케이션에서 직접 자신의 API를 소비할 수 있다면 매우 편리합니다. 이 방식의 API 개발은, 여러분이 직접 배포하는 웹 애플리케이션, 모바일 앱, 서드파티 앱, 각종 패키지 매니저에 공개한 SDK 등 모두가 동일한 API를 활용할 수 있게 해줍니다.
+API를 개발할 때, 자바스크립트 애플리케이션에서 직접 자신의 API를 소비할 수 있다면 매우 편리합니다. 이 방식의 API 개발은, 여러분의 웹 애플리케이션, 모바일 앱, 서드파티 앱, 각종 패키지 매니저에 공개한 SDK 등 모두가 동일한 API를 활용할 수 있게 해줍니다.
 
 <!-- Typically, if you want to consume your API from your JavaScript application, you would need to manually send an access token to the application and pass it with each request to your application. However, Passport includes a middleware that can handle this for you. All you need to do is add the `CreateFreshApiToken` middleware to your `web` middleware group in your `app/Http/Kernel.php` file: -->
 일반적으로 자바스크립트 애플리케이션에서 API를 사용하려면 액세스 토큰을 수동으로 전달하고, 매 요청마다 토큰을 포함시켜야 합니다. 하지만 Passport에서는 이러한 과정을 대신 처리해 주는 미들웨어를 제공합니다. `app/Http/Kernel.php` 파일의 `web` 미들웨어 그룹에 `CreateFreshApiToken` 미들웨어를 추가해 주세요.

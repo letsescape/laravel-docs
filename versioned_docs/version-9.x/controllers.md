@@ -485,7 +485,7 @@ public function boot()
 ```
 
 <!-- Laravel's pluralizer supports [several different languages which you may configure based on your needs](/docs/9.x/localization#pluralization-language). Once the verbs and pluralization language have been customized, a resource route registration such as `Route::resource('publicacion', PublicacionController::class)` will produce the following URIs: -->
-Laravel의 복수화 기능은 [several different languages which you may configure based on your needs](/docs/9.x/localization#pluralization-language)하며, 필요에 따라 설정할 수 있습니다. 동사와 복수화 언어를 변경한 뒤에는, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`와 같이 등록하면 다음과 같은 URI가 생성됩니다.
+Laravel의 복수화 기능은 [several different languages which you may configure based on your needs](/docs/9.x/localization#pluralization-language)를 지원하며, 필요에 따라 설정할 수 있습니다. 동사와 복수화 언어를 변경한 뒤에는, 예를 들어 `Route::resource('publicacion', PublicacionController::class)`와 같이 등록하면 다음과 같은 URI가 생성됩니다.
 
 ```
 /publicacion/crear
@@ -498,7 +498,7 @@ Laravel의 복수화 기능은 [several different languages which you may config
 ### Supplementing Resource Controllers
 
 <!-- If you need to add additional routes to a resource controller beyond the default set of resource routes, you should define those routes before your call to the `Route::resource` method; otherwise, the routes defined by the `resource` method may unintentionally take precedence over your supplemental routes: -->
-기본 리소스 라우트 외에 추가적인 라우트를 컨트롤러에 등록해야 할 경우, `Route::resource`를 호출하기 **이전에** 직접 추가 라우트를 정의해야 합니다. 그렇지 않으면 `resource` 메서드로 정의된 라우트가 의도치 않게 덮어쓸 수 있습니다.
+기본 리소스 라우트 외에 추가적인 라우트를 컨트롤러에 등록해야 할 경우, `Route::resource`를 호출하기 **이전에** 직접 추가 라우트를 정의해야 합니다. 그렇지 않으면 `resource` 메서드로 정의된 라우트가 의도치 않게 추가 라우트보다 우선 적용될 수 있습니다.
 
 ```
 use App\Http\Controller\PhotoController;

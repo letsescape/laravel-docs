@@ -116,7 +116,7 @@ Route::post('/user/profile', function () {
 ```
 
 <!-- You may use the `withInput` method provided by the `RedirectResponse` instance to flash the current request's input data to the session before redirecting the user to a new location. Once the input has been flashed to the session, you may easily [retrieve it](/docs/8.x/requests#retrieving-old-input) during the next request: -->
-`RedirectResponse` 인스턴스에서 제공하는 `withInput` 메서드를 사용하면, 현재 요청의 입력 데이터를 세션에 플래시(임시 저장)한 후 새로운 위치로 리디렉션할 수 있습니다. 이렇게 입력값을 세션에 플래시하면, 다음 요청에서 [retrieve it](/docs/8.x/requests#retrieving-old-input) 있습니다.
+`RedirectResponse` 인스턴스에서 제공하는 `withInput` 메서드를 사용하면, 현재 요청의 입력 데이터를 세션에 플래시(임시 저장)한 후 새로운 위치로 리디렉션할 수 있습니다. 이렇게 입력값을 세션에 플래시하면, 다음 요청에서 쉽게 다시 가져올 수 있습니다([retrieve it](/docs/8.x/requests#retrieving-old-input)).
 
 ```
 return back()->withInput();

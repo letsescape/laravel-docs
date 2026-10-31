@@ -52,7 +52,7 @@ Laravel Sanctum은 사용자 API 토큰을 하나의 데이터베이스 테이�
 #### SPA Authentication
 
 <!-- Second, Sanctum exists to offer a simple way to authenticate single page applications (SPAs) that need to communicate with a Laravel powered API. These SPAs might exist in the same repository as your Laravel application or might be an entirely separate repository, such as an SPA created using Next.js or Nuxt. -->
-두 번째로, Sanctum은 Laravel 기반 API와 통신해야 하는 SPA(싱글 페이지 애플리케이션)를 간편하게 인증할 수 있는 방법을 제공합니다. 이런 SPA는 Laravel 애플리케이션과 같은 저장소(repository)에 있을 수도 있고, Next.js, Nuxt와 같이 완전히 별도의 저장소일 수도 있습니다.
+두 번째로, Sanctum은 Laravel 기반 API와 통신해야 하는 SPA(싱글 페이지 애플리케이션)를 간편하게 인증할 수 있는 방법을 제공합니다. 이런 SPA는 Laravel 애플리케이션과 같은 저장소(repository)에 있을 수도 있고, Next.js나 Nuxt로 만든 SPA처럼 완전히 별도의 저장소에 있을 수도 있습니다.
 
 <!-- For this feature, Sanctum does not use tokens of any kind. Instead, Sanctum uses Laravel's built-in cookie based session authentication services. Typically, Sanctum utilizes Laravel's `web` authentication guard to accomplish this. This provides the benefits of CSRF protection, session authentication, as well as protects against leakage of the authentication credentials via XSS. -->
 이 기능에서는 어떠한 종류의 토큰도 사용하지 않습니다. Sanctum은 Laravel의 기본 쿠키 기반 세션 인증 서비스를 활용합니다. 보통 Sanctum은 Laravel의 `web` 인증 가드를 사용해 이 작업을 수행합니다. 이 방식은 CSRF 보호, 세션 인증, 그리고 XSS를 통한 인증 자격 증명의 노출을 방지하는 이점을 제공합니다.
@@ -140,7 +140,7 @@ class User extends Authenticatable
 ```
 
 <!-- To issue a token, you may use the `createToken` method. The `createToken` method returns a `Laravel\Sanctum\NewAccessToken` instance. API tokens are hashed using SHA-256 hashing before being stored in your database, but you may access the plain-text value of the token using the `plainTextToken` property of the `NewAccessToken` instance. You should display this value to the user immediately after the token has been created: -->
-토큰을 발급하려면, `createToken` 메서드를 사용하면 됩니다. `createToken` 메서드는 `Laravel\Sanctum\NewAccessToken` 인스턴스를 반환합니다. 토큰은 데이터베이스에 저장되기 전에 SHA-256 해시로 암호화되지만, `NewAccessToken` 인스턴스의 `plainTextToken` 속성을 사용하여 토큰의 평문 값을 바로 확인할 수 있습니다. 토큰이 생성된 직후, 이 값을 반드시 사용자에게 보여주어야 합니다:
+토큰을 발급하려면, `createToken` 메서드를 사용하면 됩니다. `createToken` 메서드는 `Laravel\Sanctum\NewAccessToken` 인스턴스를 반환합니다. 토큰은 데이터베이스에 저장되기 전에 SHA-256으로 해싱되지만, `NewAccessToken` 인스턴스의 `plainTextToken` 속성을 사용하여 토큰의 평문 값을 바로 확인할 수 있습니다. 토큰이 생성된 직후, 이 값을 반드시 사용자에게 보여주어야 합니다:
 
 ```
 use Illuminate\Http\Request;
@@ -248,7 +248,7 @@ return $request->user()->id === $server->user_id &&
 ### Protecting Routes
 
 <!-- To protect routes so that all incoming requests must be authenticated, you should attach the `sanctum` authentication guard to your protected routes within your `routes/web.php` and `routes/api.php` route files. This guard will ensure that incoming requests are authenticated as either stateful, cookie authenticated requests or contain a valid API token header if the request is from a third party. -->
-모든 들어오는 요청에 인증을 강제하려면, `routes/web.php` 또는 `routes/api.php` 라우트 파일의 보호하려는 라우트에 `sanctum` 인증 가드를 붙이세요. 이 가드는 들어오는 요청이 상태를 가진 쿠키 기반 인증(세션)인지, 아니면 서드파티 요청으로 토큰 헤더가 포함된 요청인지를 확인하여 인증합니다.
+모든 들어오는 요청에 인증을 강제하려면, `routes/web.php` 또는 `routes/api.php` 라우트 파일의 보호하려는 라우트에 `sanctum` 인증 가드를 붙이세요. 이 가드는 들어오는 요청이 상태를 가진 쿠키 기반 인증(세션)으로 인증되었거나, 서드파티 요청인 경우 유효한 API 토큰 헤더를 포함하는지 확인합니다.
 
 <!-- You may be wondering why we suggest that you authenticate the routes within your application's `routes/web.php` file using the `sanctum` guard. Remember, Sanctum will first attempt to authenticate incoming requests using Laravel's typical session authentication cookie. If that cookie is not present then Sanctum will attempt to authenticate the request using a token in the request's `Authorization` header. In addition, authenticating all requests using Sanctum ensures that we may always call the `tokenCan` method on the currently authenticated user instance: -->
 왜 `routes/web.php`에도 `sanctum` 가드를 붙여서 인증을 권장하는지 궁금할 수 있습니다. Sanctum은 우선, 일반적인 Laravel 세션 인증 쿠키로 요청을 인증하려 시도합니다. 만약 쿠키가 없다면 요청의 `Authorization` 헤더 토큰을 확인합니다. 이처럼 모든 요청을 Sanctum으로 인증 처리하면, 현재 인증된 사용자 인스턴스에서 항상 `tokenCan` 메서드를 호출할 수 있다는 장점이 있습니다:
@@ -398,7 +398,7 @@ axios.get('/sanctum/csrf-cookie').then(response => {
 ```
 
 <!-- During this request, Laravel will set an `XSRF-TOKEN` cookie containing the current CSRF token. This token should then be URL decoded and passed in an `X-XSRF-TOKEN` header on subsequent requests, which some HTTP client libraries like Axios and the Angular HttpClient will do automatically for you. If your JavaScript HTTP library does not set the value for you, you will need to manually set the `X-XSRF-TOKEN` header to match the URL decoded value of the `XSRF-TOKEN` cookie that is set by this route. -->
-이 요청을 통해 Laravel은 현재의 CSRF 토큰이 담긴 `XSRF-TOKEN` 쿠키를 세팅합니다. 이 토큰은 URL 디코딩 처리 후, 이후 요청에서 `X-XSRF-TOKEN` 헤더로 전달되어야 하며, axios나 Angular HttpClient와 같은 일부 HTTP 클라이언트 라이브러리는 이를 자동으로 처리합니다. 만약 사용하는 JavaScript HTTP 라이브러리가 자동으로 헤더를 추가하지 않는다면, 직접 쿠키에서 `XSRF-TOKEN` 값을 읽어와 `X-XSRF-TOKEN` 헤더에 셋팅해야 합니다.
+이 요청을 통해 Laravel은 현재의 CSRF 토큰이 담긴 `XSRF-TOKEN` 쿠키를 세팅합니다. 이 토큰은 URL 디코딩 처리 후, 이후 요청에서 `X-XSRF-TOKEN` 헤더로 전달되어야 하며, axios나 Angular HttpClient와 같은 일부 HTTP 클라이언트 라이브러리는 이를 자동으로 처리합니다. 만약 사용하는 JavaScript HTTP 라이브러리가 자동으로 헤더를 추가하지 않는다면, 직접 쿠키에서 `XSRF-TOKEN` 값을 읽어와 URL 디코딩한 뒤 `X-XSRF-TOKEN` 헤더에 설정해야 합니다.
 
 <a name="logging-in"></a>
 <!-- #### Logging In -->
@@ -451,7 +451,7 @@ return Application::configure(basePath: dirname(__DIR__))
 ```
 
 <!-- Next, in order for Pusher's authorization requests to succeed, you will need to provide a custom Pusher `authorizer` when initializing [Laravel Echo](/docs/11.x/broadcasting#client-side-installation). This allows your application to configure Pusher to use the `axios` instance that is [properly configured for cross-domain requests](#cors-and-cookies): -->
-그리고 Pusher의 인가 요청(authorization request)이 성공하도록, [Laravel Echo](/docs/11.x/broadcasting#client-side-installation) 초기화 시 `axios`를 [properly configured for cross-domain requests](#cors-and-cookies) 인스턴스로 지정하는 커스텀 Pusher `authorizer`를 등록해야 합니다:
+그리고 Pusher의 인가 요청(authorization request)이 성공하도록, [Laravel Echo](/docs/11.x/broadcasting#client-side-installation) 초기화 시 커스텀 Pusher `authorizer`를 등록해야 합니다. 이를 통해 Pusher가 [properly configured for cross-domain requests](#cors-and-cookies) 안내에 따라 설정된 `axios` 인스턴스를 사용하도록 구성할 수 있습니다:
 
 ```js
 window.Echo = new Echo({

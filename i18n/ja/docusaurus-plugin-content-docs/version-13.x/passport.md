@@ -405,7 +405,7 @@ Route::get('/redirect', function (Request $request) {
 `prompt` パラメータは、Passport アプリケーションの認証動作を指定するために使用できます。
 
 <!-- If the `prompt` value is `none`, Passport will always throw an authentication error if the user is not already authenticated with the Passport application. If the value is `consent`, Passport will always display the authorization approval screen, even if all scopes were previously granted to the consuming application. When the value is `login`, the Passport application will always prompt the user to re-login to the application, even if they already have an existing session. -->
-`prompt` 値が `none` の場合、ユーザーが Passport アプリケーションでまだ認証されていない場合、Passport は常に認証エラーをスローします。値が `consent` の場合、すべてのスコープが使用側アプリケーションに以前に付与されていたとしても、Passport は常に認証承認画面を表示します。値が `login` の場合、Passport アプリケーションは、ユーザーがすでに既存のセッションを持っている場合でも、常にユーザーにアプリケーションへの再ログインを要求します。
+`prompt` 値が `none` の場合、ユーザーが Passport アプリケーションでまだ認証されていない場合、Passport は常に認証エラーをスローします。値が `consent` の場合、すべてのスコープが使用側アプリケーションに以前に付与されていたとしても、Passport は常に認可承認画面を表示します。値が `login` の場合、Passport アプリケーションは、ユーザーがすでに既存のセッションを持っている場合でも、常にユーザーにアプリケーションへの再ログインを要求します。
 
 <!-- If no `prompt` value is provided, the user will be prompted for authorization only if they have not previously authorized access to the consuming application for the requested scopes. -->
 `prompt` 値が指定されていない場合、ユーザーは、要求されたスコープの使用アプリケーションへのアクセスを以前に承認していない場合にのみ、承認を求められます。
@@ -421,7 +421,7 @@ Route::get('/redirect', function (Request $request) {
 認可リクエストを受信すると、Passport は `prompt` パラメータ (存在する場合) の値に基づいて自動的に応答し、ユーザーに認可リクエストを承認または拒否できるテンプレートを表示する場合があります。リクエストを承認すると、使用側アプリケーションによって指定された `redirect_uri` にリダイレクトされます。 `redirect_uri` は、クライアントの作成時に指定された `redirect` URL と一致する必要があります。
 
 <!-- Sometimes you may wish to skip the authorization prompt, such as when authorizing a first-party client. You may accomplish this by [extending the `Client` model](#overriding-default-models) and defining a `skipsAuthorization` method. If `skipsAuthorization` returns `true` the client will be approved and the user will be redirected back to the `redirect_uri` immediately, unless the consuming application has explicitly set the `prompt` parameter when redirecting for authorization: -->
-ファーストパーティクライアントを認可する場合など、認可プロンプトをスキップしたい場合があります。これは、[extending the `Client` model](#overriding-default-models) と `skipsAuthorization` メソッドを定義することで実現できます。 `skipsAuthorization` が `true` を返した場合、クライアントは承認され、ユーザーはすぐに `redirect_uri` にリダイレクトされます。 ただし、使用側アプリケーションが認可のためにリダイレクトするときに `prompt` パラメーターを明示的に設定していない限り、次のようになります。
+ファーストパーティクライアントを認可する場合など、認可プロンプトをスキップしたい場合があります。これは、[extending the `Client` model](#overriding-default-models) と `skipsAuthorization` メソッドを定義することで実現できます。 `skipsAuthorization` が `true` を返した場合、使用側アプリケーションが認可のためにリダイレクトするときに `prompt` パラメーターを明示的に設定していない限り、クライアントは承認され、ユーザーはすぐに `redirect_uri` にリダイレクトされます。
 
 ```php
 <?php
@@ -578,7 +578,7 @@ User::find($userId)->tokens()->each(function (Token $token) {
 php artisan passport:purge
 
 # Only purge tokens expired for more than 6 hours...
-php artisan passport:purge --hours=6
+php artisan passport:purge --expired --hours=6
 
 # Only purge revoked tokens, auth codes, and device codes...
 php artisan passport:purge --revoked
@@ -623,7 +623,7 @@ php artisan passport:client --public
 #### Code Verifier and Code Challenge
 
 <!-- As this authorization grant does not provide a client secret, developers will need to generate a combination of a code verifier and a code challenge in order to request a token. -->
-この認可付与ではクライアント シークレットが提供されないため、開発者はトークンを要求するためにコード検証ツールとコード チャレンジの組み合わせを生成する必要があります。
+この認可付与ではクライアント シークレットが提供されないため、開発者はトークンを要求するためにコードベリファイアとコード チャレンジの組み合わせを生成する必要があります。
 
 <!-- The code verifier should be a random string of between 43 and 128 characters containing letters, numbers, and `"-"`, `"."`, `"_"`, `"~"` characters, as defined in the [RFC 7636 specification](https://tools.ietf.org/html/rfc7636). -->
 コード検証子は、[RFC 7636 specification](https://tools.ietf.org/html/rfc7636) で定義されているように、文字、数字、および `"-"`、`"."`、`"_"`、`"~"` を含む 43 ～ 128 文字のランダムな文字列である必要があります。
@@ -642,7 +642,7 @@ $codeChallenge = strtr(rtrim($encoded, '='), '+/', '-_');
 #### Redirecting for Authorization
 
 <!-- Once a client has been created, you may use the client ID and the generated code verifier and code challenge to request an authorization code and access token from your application. First, the consuming application should make a redirect request to your application's `/oauth/authorize` route: -->
-クライアントが作成されたら、クライアント ID と生成されたコード検証ツールおよびコード チャレンジを使用して、アプリケーションから認可コードとアクセス トークンをリクエストできます。まず、使用側アプリケーションは、アプリケーションの `/oauth/authorize` ルートへのリダイレクト リクエストを作成する必要があります。
+クライアントが作成されたら、クライアント ID と生成されたコードベリファイアおよびコード チャレンジを使用して、アプリケーションから認可コードとアクセス トークンをリクエストできます。まず、使用側アプリケーションは、アプリケーションの `/oauth/authorize` ルートへのリダイレクト リクエストを作成する必要があります。
 
 ```php
 use Illuminate\Http\Request;
@@ -1359,7 +1359,7 @@ Route::get('/orders', function () {
 #### Check for Any Scopes
 
 <!-- The `Laravel\Passport\Http\Middleware\CheckTokenForAnyScope` middleware may be assigned to a route to verify that the incoming request's access token has *at least one* of the listed scopes: -->
-`Laravel\Passport\Http\Middleware\CheckTokenForAnyScope` ミドルウェアをルートに割り当てて、受信リクエストのアクセス トークンにリストされているスコープの * 少なくとも 1 つ* があることを確認できます。
+`Laravel\Passport\Http\Middleware\CheckTokenForAnyScope` ミドルウェアをルートに割り当てて、受信リクエストのアクセス トークンにリストされているスコープの *少なくとも 1 つ* があることを確認できます。
 
 ```php
 use Laravel\Passport\Http\Middleware\CheckTokenForAnyScope;
@@ -1434,7 +1434,7 @@ Passport::scopeIds();
 ```
 
 <!-- The `scopes` method will return an array of all defined scopes as instances of `Laravel\Passport\Scope`: -->
-`scopes` メソッドは、定義されたすべてのスコープの配列を `Laravel\Passport\Scope` のインスタンスとして返します。
+`scopes` メソッドは、定義されたすべてのスコープを `Laravel\Passport\Scope` のインスタンスの配列として返します。
 
 ```php
 Passport::scopes();

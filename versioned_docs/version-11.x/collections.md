@@ -1163,7 +1163,7 @@ $collection->each(function (int $item, int $key) {
 #### `eachSpread()`
 
 <!-- The `eachSpread` method iterates over the collection's items, passing each nested item value into the given callback: -->
-`eachSpread` 메서드는 컬렉션의 항목(배열 형태)을 펼쳐서(closing unpacking) 각각의 값들을 콜백에 전달하며 순회합니다.
+`eachSpread` 메서드는 컬렉션의 항목(배열 형태)을 펼쳐서(unpacking) 각각의 값들을 콜백에 전달하며 순회합니다.
 
 ```
 $collection = collect([['John Doe', 35], ['Jane Doe', 33]]);
@@ -1403,7 +1403,7 @@ $flattened->all();
 #### `flatten()`
 
 <!-- The `flatten` method flattens a multi-dimensional collection into a single dimension: -->
-`flatten` 메서드는 다차원 컬렉션을 한 단계의 단일 컬렉션으로 평탄화합니다.
+`flatten` 메서드는 다차원 컬렉션을 1차원 컬렉션으로 평탄화합니다.
 
 ```
 $collection = collect([
@@ -1494,7 +1494,7 @@ $collection->forget(['name', 'framework']);
 ```
 
 > [!WARNING]
-> 대부분의 다른 컬렉션 메서드와 달리, `forget`은 새로운 컬렉션을 반환하지 않고, 호출된 컬렉션 자체를 수정합니다.
+> 대부분의 다른 컬렉션 메서드와 달리, `forget`은 새로운 컬렉션을 반환하지 않고, 호출된 컬렉션 자체를 수정하고 반환합니다.
 
 <a name="method-forpage"></a>
 <!-- #### `forPage()` -->
@@ -1730,7 +1730,7 @@ $collection->implode(function (array $item, int $key) {
 #### `intersect()`
 
 <!-- The `intersect` method removes any values from the original collection that are not present in the given `array` or collection. The resulting collection will preserve the original collection's keys: -->
-`intersect` 메서드는 원본 컬렉션에 존재하지 않는 값을 모두 제거합니다. 즉, 주어진 `array` 또는 컬렉션에 포함된 값만 남게 됩니다. 결과 컬렉션은 원본 컬렉션의 키를 그대로 유지합니다.
+`intersect` 메서드는 주어진 배열 또는 컬렉션에 존재하지 않는 값을 원본 컬렉션에서 모두 제거합니다. 즉, 주어진 `array` 또는 컬렉션에 포함된 값만 남게 됩니다. 결과 컬렉션은 원본 컬렉션의 키를 그대로 유지합니다.
 
 ```
 $collection = collect(['Desk', 'Sofa', 'Chair']);
@@ -1743,7 +1743,7 @@ $intersect->all();
 ```
 
 > [!NOTE]
-> 이 메서드는 [Eloquent Collections](/docs/11.x/eloquent-collections#method-intersect)을 사용할 때 동작이 다를 수 있습니다.
+> 이 메서드는 [Eloquent Collections](/docs/11.x/eloquent-collections#method-intersect)을 사용할 때 동작이 다릅니다.
 
 <a name="method-intersectusing"></a>
 <!-- #### `intersectUsing()` -->
@@ -2380,7 +2380,7 @@ $filtered->all();
 `pad` 메서드는 배열의 길이가 지정된 크기에 도달할 때까지 주어진 값으로 배열을 채웁니다. 이 메서드는 PHP의 [array_pad](https://secure.php.net/manual/en/function.array-pad.php) 함수와 유사하게 동작합니다.
 
 <!-- To pad to the left, you should specify a negative size. No padding will take place if the absolute value of the given size is less than or equal to the length of the array: -->
-배열을 왼쪽(시작 부분)으로 패딩하려면, 크기를 음수로 지정해야 합니다. 만약 배열의 길이가 지정된 크기보다 크거나 같으면 패딩이 적용되지 않습니다:
+배열을 왼쪽(시작 부분)으로 패딩하려면, 크기를 음수로 지정해야 합니다. 만약 배열의 길이가 지정된 크기의 절댓값보다 크거나 같으면 패딩이 적용되지 않습니다:
 
 ```
 $collection = collect(['A', 'B', 'C']);
@@ -3970,14 +3970,14 @@ $collection->all();
 #### `unlessEmpty()`
 
 <!-- Alias for the [`whenNotEmpty`](#method-whennotempty) method. -->
-[`whenNotEmpty`](#method-whennotempty) 메서드의 별칭(aliase)입니다.
+[`whenNotEmpty`](#method-whennotempty) 메서드의 별칭(alias)입니다.
 
 <a name="method-unlessnotempty"></a>
 <!-- #### `unlessNotEmpty()` -->
 #### `unlessNotEmpty()`
 
 <!-- Alias for the [`whenEmpty`](#method-whenempty) method. -->
-[`whenEmpty`](#method-whenempty) 메서드의 별칭(aliase)입니다.
+[`whenEmpty`](#method-whenempty) 메서드의 별칭(alias)입니다.
 
 <a name="method-unwrap"></a>
 <!-- #### `unwrap()` -->
@@ -4609,7 +4609,7 @@ LazyCollection::make(function () {
 ### The Enumerable Contract
 
 <!-- Almost all methods available on the `Collection` class are also available on the `LazyCollection` class. Both of these classes implement the `Illuminate\Support\Enumerable` contract, which defines the following methods: -->
-대부분의 `Collection` 클래스에서 사용할 수 있는 메서드는 `LazyCollection` 클래스에서도 사용 가능합니다. 이 두 클래스는 모두 `Illuminate\Support\Enumerable` 계약을 구현하며, 아래와 같은 메서드를 정의합니다:
+`Collection` 클래스에서 사용할 수 있는 거의 모든 메서드는 `LazyCollection` 클래스에서도 사용 가능합니다. 이 두 클래스는 모두 `Illuminate\Support\Enumerable` 계약을 구현하며, 아래와 같은 메서드를 정의합니다:
 
 
 
@@ -4919,7 +4919,7 @@ $array = $lazyCollection->take(3)->all();
 #### `throttle()`
 
 <!-- The `throttle` method will throttle the lazy collection such that each value is returned after the specified number of seconds. This method is especially useful for situations where you may be interacting with external APIs that rate limit incoming requests: -->
-`throttle` 메서드는 지연(lazy) 컬렉션을 지정한 초(sec)만큼 간격을 두고 반환하게 만듭니다. 이 메서드는 외부 API와 연동하며 요청 속도를 제한해야 하는 상황(예: 외부에서 인입되는 요청의 처리 속도 제한)에서 특히 유용합니다.
+`throttle` 메서드는 지연(lazy) 컬렉션의 각 값을 지정한 초(sec)만큼 간격을 두고 반환하게 만듭니다. 이 메서드는 수신 요청의 빈도를 제한하는 외부 API와 연동하는 상황에서 특히 유용합니다.
 
 ```php
 use App\Models\User;

@@ -135,7 +135,7 @@ return URL::signedRoute('unsubscribe', ['user' => 1]);
 ```
 
 <!-- If you would like to generate a temporary signed route URL that expires after a specified amount of time, you may use the `temporarySignedRoute` method. When Laravel validates a temporary signed route URL, it will ensure that the expiration timestamp that is encoded into the signed URL has not elapsed: -->
-지정한 시간 후 만료되는 임시 서명 URL을 만들고 싶다면 `temporarySignedRoute` 메서드를 사용할 수 있습니다. 이 경우 Laravel은 서명된 URL 안에 암호화된 만료 타임스탬프가 아직 유효한지 확인합니다.
+지정한 시간 후 만료되는 임시 서명 URL을 만들고 싶다면 `temporarySignedRoute` 메서드를 사용할 수 있습니다. Laravel은 임시 서명 URL을 검증할 때 서명된 URL 안에 인코딩된 만료 타임스탬프가 아직 유효한지 확인합니다.
 
 ```
 use Illuminate\Support\Facades\URL;
@@ -165,7 +165,7 @@ Route::get('/unsubscribe/{user}', function (Request $request) {
 ```
 
 <!-- Sometimes, you may need to allow your application's frontend to append data to a signed URL, such as when performing client-side pagination. Therefore, you can specify request query parameters that should be ignored when validating a signed URL using the `hasValidSignatureWhileIgnoring` method. Remember, ignoring parameters allows anyone to modify those parameters on the request: -->
-때로는, 프론트엔드에서 페이지네이션 등으로 URL에 데이터를 추가해야 할 수도 있습니다. 이럴 경우, 인증에서 무시해야 할 쿼리 파라미터를 `hasValidSignatureWhileIgnoring` 메서드에 지정할 수 있습니다. 단, 무시된 파라미터는 누구나 자유롭게 수정할 수 있다는 점을 주의하세요.
+때로는, 프론트엔드에서 페이지네이션 등으로 URL에 데이터를 추가해야 할 수도 있습니다. 이럴 경우, 서명 검증에서 무시해야 할 쿼리 파라미터를 `hasValidSignatureWhileIgnoring` 메서드에 지정할 수 있습니다. 단, 무시된 파라미터는 누구나 자유롭게 수정할 수 있다는 점을 주의하세요.
 
 ```
 if (! $request->hasValidSignatureWhileIgnoring(['page', 'order'])) {

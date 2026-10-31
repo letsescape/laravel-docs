@@ -172,7 +172,7 @@ php artisan folio:page "users/[id]"
 ```
 
 <!-- To capture multiple segments, you can prefix the encapsulated segment with three dots `...`: -->
-여러 개의 경로 세그먼트를 한 번에 캡쳐하려면, 대괄호 앞에 점 세 개(`...`)를 추가합니다.
+여러 개의 경로 세그먼트를 한 번에 캡쳐하려면, 대괄호 안의 세그먼트 이름 앞에 점 세 개(`...`)를 추가합니다.
 
 ```bash
 php artisan folio:page "users/[...ids]"
@@ -226,7 +226,7 @@ Windows 환경에서는 모델명과 키를 구분할 때 `-`를 사용해야 �
 #### Model Location
 
 <!-- By default, Folio will search for your model within your application's `app/Models` directory. However, if needed, you may specify the fully-qualified model class name in your template's filename: -->
-기본적으로 Folio는 모델을 애플리케이션의 `app/Models` 디렉터리 안에서 찾습니다. 하지만 필요하다면, 템플릿 파일명에 완전한 네임스페이스를 적어줄 수도 있습니다.
+기본적으로 Folio는 모델을 애플리케이션의 `app/Models` 디렉터리 안에서 찾습니다. 하지만 필요하다면, 템플릿 파일명에 네임스페이스를 포함한 전체 모델 클래스 이름을 적어줄 수도 있습니다.
 
 ```bash
 php artisan folio:page "users/[.App.Models.User]"
@@ -263,7 +263,7 @@ withTrashed();
 기본적으로 Folio는 페이지 Blade 템플릿의 내용을 요청에 대한 응답으로 반환합니다. 하지만, 필요하다면 페이지 템플릿 내부에서 `render` 함수를 호출해 응답을 자유롭게 커스터마이즈할 수 있습니다.
 
 <!-- The `render` function accepts a closure which will receive the `View` instance being rendered by Folio, allowing you to add additional data to the view or customize the entire response. In addition to receiving the `View` instance, any additional route parameters or model bindings will also be provided to the `render` closure: -->
-`render` 함수는 클로저를 인자로 받으며, 이 클로저에는 Folio가 렌더링한 `View` 인스턴스가 전달됩니다. 이를 활용해 뷰에 추가 데이터를 넘기거나 응답 자체를 수정할 수 있습니다. `View` 인스턴스를 전달받는 것 외에도, 추가 라우트 파라미터나 모델 바인딩 값도 `render` 클로저에 함께 전달됩니다:
+`render` 함수는 클로저를 인자로 받으며, 이 클로저에는 Folio가 렌더링하는 `View` 인스턴스가 전달됩니다. 이를 활용해 뷰에 추가 데이터를 넘기거나 응답 자체를 수정할 수 있습니다. `View` 인스턴스를 전달받는 것 외에도, 추가 라우트 파라미터나 모델 바인딩 값도 `render` 클로저에 함께 전달됩니다:
 
 ```php
 <?php
@@ -389,4 +389,4 @@ Folio::path(resource_path('views/pages'))->middleware([
 ## Route Caching
 
 <!-- When using Folio, you should always take advantage of [Laravel's route caching capabilities](/docs/11.x/routing#route-caching). Folio listens for the `route:cache` Artisan command to ensure that Folio page definitions and route names are properly cached for maximum performance. -->
-Folio를 사용할 때는 [Laravel's route caching capabilities](/docs/11.x/routing#route-caching)을 꼭 활용해야 합니다. Folio는 `route:cache` 아티즌 명령어를 감지하여, Folio 페이지 정의와 라우트 이름이 최대한 빠르게 동작할 수 있도록 제대로 캐싱됩니다.
+Folio를 사용할 때는 [Laravel's route caching capabilities](/docs/11.x/routing#route-caching)을 꼭 활용해야 합니다. Folio는 `route:cache` 아티즌 명령어를 감지하여, 최대 성능을 위해 Folio 페이지 정의와 라우트 이름이 제대로 캐싱되도록 합니다.

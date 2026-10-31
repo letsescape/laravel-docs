@@ -532,7 +532,7 @@ $request->whenFilled('name', function ($input) {
 ```
 
 <!-- A second closure may be passed to the `whenFilled` method that will be executed if the specified value is not "filled": -->
-마찬가지로, `whenFilled` 메서드에 두 번째 클로저를 전달하면 값이 비어있을 때 실행됩니다.
+마찬가지로, `whenFilled` 메서드에 두 번째 클로저를 전달하면 값이 없거나 비어있을 때 실행됩니다.
 
 ```
 $request->whenFilled('name', function ($input) {
@@ -723,7 +723,7 @@ $extension = $request->photo->extension();
 업로드된 파일을 저장하려면, 보통 [filesystems](/docs/8.x/filesystem) 중 하나를 사용하게 됩니다. `UploadedFile` 클래스의 `store` 메서드를 통해 파일을 디스크(로컬 디스크, Amazon S3 등)에 저장할 수 있습니다.
 
 <!-- The `store` method accepts the path where the file should be stored relative to the filesystem's configured root directory. This path should not contain a filename, since a unique ID will automatically be generated to serve as the filename. -->
-`store` 메서드는 저장할 경로(디스크의 설정된 루트 디렉터리를 기준으로 한 상대 경로)를 받으며, 파일명은 자동으로 고유 값으로 생성됩니다.
+`store` 메서드는 저장할 경로(디스크의 설정된 루트 디렉터리를 기준으로 한 상대 경로)를 받으며, 이 경로에는 파일명을 포함하지 않아야 합니다. 파일명은 자동으로 고유 값으로 생성됩니다.
 
 <!-- The `store` method also accepts an optional second argument for the name of the disk that should be used to store the file. The method will return the path of the file relative to the disk's root: -->
 `store` 메서드의 두 번째 인자로 사용할 디스크 이름을 지정할 수도 있습니다. 반환 값은 저장된 파일의 경로(지정한 디스크 기준)입니다.

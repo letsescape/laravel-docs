@@ -296,7 +296,7 @@ folders:
 ```
 
 > [!WARNING]
-> Homestead 사용 시 `.`(현재 디렉터리)를 절대로 마운트해서는 안 됩니다. 그렇게 하면 Vagrant가 현재 폴더를 `/vagrant`로 매핑하지 않아, 선택적 기능들이 제대로 동작하지 않거나 예기치 않은 문제가 발생할 수 있습니다.
+> Homestead 사용 시 `.`(현재 디렉터리)를 절대로 마운트해서는 안 됩니다. 그렇게 하면 Vagrant가 현재 폴더를 `/vagrant`로 매핑하지 않아, 선택적 기능들이 제대로 동작하지 않고 프로비저닝 중 예기치 않은 문제가 발생합니다.
 
 <!-- To enable [NFS](https://www.vagrantup.com/docs/synced-folders/nfs.html), you may add a `type` option to your folder mapping: -->
 [NFS](https://www.vagrantup.com/docs/synced-folders/nfs.html) 공유 기능을 활성화하려면 매핑에 `type` 옵션을 추가할 수 있습니다.
@@ -338,7 +338,7 @@ sites:
 ```
 
 <!-- If you change the `sites` property after provisioning the Homestead virtual machine, you should execute the `vagrant reload --provision` command in your terminal to update the Nginx configuration on the virtual machine. -->
-`sites` 속성을 변경한 경우에는 Homestead 가상 머신에서 `vagrant reload --provision` 명령어를 실행해야 Nginx 설정이 갱신됩니다.
+Homestead 가상 머신을 프로비저닝한 뒤에 `sites` 속성을 변경한 경우에는 터미널에서 `vagrant reload --provision` 명령어를 실행해야 가상 머신의 Nginx 설정이 갱신됩니다.
 
 > [!WARNING]
 > Homestead 스크립트는 최대한 멱등성(idempotency)을 지키도록 설계되었습니다. 하지만 프로비저닝 중 문제가 발생한다면 `vagrant destroy && vagrant up` 명령어로 가상 머신을 삭제 후 재생성하면 문제를 해결할 수 있습니다.
@@ -351,7 +351,7 @@ sites:
 Homestead는 자동 호스트네임 해석을 위해 `mDNS`를 이용해 호스트네임을 게시합니다. 만약 `Homestead.yaml` 파일에서 `hostname: homestead`로 설정하면, 해당 호스트는 `homestead.local` 주소로 접근할 수 있습니다. macOS, iOS, Linux 데스크톱에는 기본적으로 `mDNS` 지원이 내장되어 있습니다. Windows를 사용하는 경우 [Bonjour Print Services for Windows](https://support.apple.com/kb/DL999?viewlocale=en_US&locale=en_US)를 추가로 설치해야 합니다.
 
 <!-- Using automatic hostnames works best for [per project installations](#per-project-installation) of Homestead. If you host multiple sites on a single Homestead instance, you may add the "domains" for your web sites to the `hosts` file on your machine. The `hosts` file will redirect requests for your Homestead sites into your Homestead virtual machine. On macOS and Linux, this file is located at `/etc/hosts`. On Windows, it is located at `C:\Windows\System32\drivers\etc\hosts`. The lines you add to this file will look like the following: -->
-자동 호스트네임 기능은 [per project installations](#per-project-installation)에서 가장 효과적으로 동작합니다. 하나의 Homestead 인스턴스에서 여러 사이트를 운영한다면, 웹 사이트별 "domains"를 로컬 컴퓨터의 `hosts` 파일에 추가해야 합니다. `hosts` 파일은 Homestead 사이트로의 요청을 가상 머신으로 연결해 줍니다. macOS 및 Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts`에 위치해 있습니다. 아래와 같이 추가하면 됩니다.
+자동 호스트네임 기능은 [per project installations](#per-project-installation)에서 가장 효과적으로 동작합니다. 하나의 Homestead 인스턴스에서 여러 사이트를 운영한다면, 웹 사이트별 "domains"를 로컬 컴퓨터의 `hosts` 파일에 추가할 수 있습니다. `hosts` 파일은 Homestead 사이트로의 요청을 가상 머신으로 연결해 줍니다. macOS 및 Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts`에 위치해 있습니다. 아래와 같이 추가하면 됩니다.
 
 ```
 192.168.56.56  homestead.test
@@ -472,7 +472,7 @@ features:
 #### Elasticsearch
 
 <!-- You may specify a supported version of Elasticsearch, which must be an exact version number (major.minor.patch). The default installation will create a cluster named 'homestead'. You should never give Elasticsearch more than half of the operating system's memory, so make sure your Homestead virtual machine has at least twice the Elasticsearch allocation. -->
-지원되는 Elasticsearch 버전을 명확하게(major.minor.patch) 지정할 수 있습니다. 기본 설치는 클러스터 이름으로 'homestead'를 할당합니다. Elasticsearch에는 운영체제 메모리의 반 이상을 할당하면 안 되므로, Homestead 가상 머신의 메모리 용량이 Elasticsearch 할당량의 두 배 이상이 되도록 해야 합니다.
+지원되는 Elasticsearch 버전을 명확하게(major.minor.patch) 지정할 수 있습니다. 기본 설치는 클러스터 이름으로 'homestead'를 할당합니다. Elasticsearch에는 운영체제 메모리의 반을 초과하여 할당하면 안 되므로, Homestead 가상 머신의 메모리 용량이 Elasticsearch 할당량의 두 배 이상이 되도록 해야 합니다.
 
 > [!NOTE]
 > [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current)를 참고하면 다양한 구성 방법을 확인할 수 있습니다.
@@ -603,7 +603,7 @@ sites:
 > [folder mapping](#configuring-shared-folders)을 통해 프로젝트 폴더 매핑이 선행되어 있어야 합니다.
 
 <!-- If Vagrant is not automatically managing your "hosts" file, you may need to add the new site to that file as well. On macOS and Linux, this file is located at `/etc/hosts`. On Windows, it is located at `C:\Windows\System32\drivers\etc\hosts`: -->
-Vagrant가 "hosts" 파일을 자동으로 관리하지 않는 경우, 추가한 새 사이트도 hosts 파일에 등록해야 합니다. macOS, Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts`입니다.
+Vagrant가 "hosts" 파일을 자동으로 관리하지 않는 경우, 추가한 새 사이트도 hosts 파일에 등록해야 할 수 있습니다. macOS, Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts`입니다.
 
 ```
 192.168.56.56  homestead.test
@@ -792,7 +792,7 @@ php82
 ### Creating Databases
 
 <!-- Homestead can automatically create any databases needed by your application. If a database service is running during the provisioning process, Homestead will ensure each database in your `Homestead.yaml` configuration file is created if it doesn't already exist: -->
-Homestead는 여러분의 애플리케이션에서 필요로 하는 데이터베이스를 자동으로 생성할 수 있습니다. 데이터베이스 서비스가 실행 중이라면, `Homestead.yaml`에 등록된 모든 데이터베이스가(존재하지 않는 경우) 자동으로 생성됩니다.
+Homestead는 여러분의 애플리케이션에서 필요로 하는 데이터베이스를 자동으로 생성할 수 있습니다. 프로비저닝 중 데이터베이스 서비스가 실행 중이라면, `Homestead.yaml`에 등록된 모든 데이터베이스가(존재하지 않는 경우) 자동으로 생성됩니다.
 
 ```yaml
 databases:
@@ -930,7 +930,7 @@ features:
 ### Sharing Your Environment
 
 <!-- Sometimes you may wish to share what you're currently working on with coworkers or a client. Vagrant has built-in support for this via the `vagrant share` command; however, this will not work if you have multiple sites configured in your `Homestead.yaml` file. -->
-동료나 고객과 현재 작업 중인 내용을 공유하고 싶을 때가 있습니다. Vagrant는 `vagrant share` 명령어를 통해 기본 공유 기능을 제공합니다. 단, `Homestead.yaml` 파일에 여러 사이트가 등록되어 있을 경우 이 기능이 동작하지 않을 수 있습니다.
+동료나 고객과 현재 작업 중인 내용을 공유하고 싶을 때가 있습니다. Vagrant는 `vagrant share` 명령어를 통해 기본 공유 기능을 제공합니다. 단, `Homestead.yaml` 파일에 여러 사이트가 등록되어 있을 경우 이 기능이 동작하지 않습니다.
 
 <!-- To solve this problem, Homestead includes its own `share` command. To get started, [SSH into your Homestead virtual machine](#connecting-via-ssh) via `vagrant ssh` and execute the `share homestead.test` command. This command will share the `homestead.test` site from your `Homestead.yaml` configuration file. You may substitute any of your other configured sites for `homestead.test`: -->
 이 문제를 해결하기 위해 Homestead는 별도의 `share` 명령어를 제공합니다. `vagrant ssh`로 [SSH into your Homestead virtual machine](#connecting-via-ssh)한 다음, `share homestead.test` 명령을 실행하세요. 이 명령은 `Homestead.yaml` 설정 파일에 등록된 `homestead.test` 사이트를 공유합니다. `homestead.test` 대신 설정해 둔 다른 사이트로 대체할 수 있습니다.
@@ -967,7 +967,7 @@ Homestead는 [Xdebug](https://xdebug.org)를 사용한 단계별 디버깅을 �
 IDE별로 디버깅 활성화 안내를 따라야 하며, 브라우저를 Xdebug가 인식할 수 있도록 확장 프로그램이나 [bookmarklet](https://www.jetbrains.com/phpstorm/marklets/)으로 설정해야 합니다.
 
 > [!WARNING]
-> Xdebug가 활성화되면 PHP 실행이 크게 느려질 수 있습니다. Xdebug를 비활성화하려면 `sudo phpdismod xdebug`를 실행한 후 FPM 서비스를 재시작하세요.
+> Xdebug가 활성화되면 PHP 실행이 크게 느려집니다. Xdebug를 비활성화하려면 Homestead 가상 머신 안에서 `sudo phpdismod xdebug`를 실행한 후 FPM 서비스를 재시작하세요.
 
 <a name="autostarting-xdebug"></a>
 <!-- #### Autostarting Xdebug -->
@@ -998,7 +998,7 @@ PHP CLI 애플리케이션을 디버깅하려면 가상 머신 내부에서 `xph
 ### Profiling Applications with Blackfire
 
 <!-- [Blackfire](https://blackfire.io/docs/introduction) is a service for profiling web requests and CLI applications. It offers an interactive user interface which displays profile data in call-graphs and timelines. It is built for use in development, staging, and production, with no overhead for end users. In addition, Blackfire provides performance, quality, and security checks on code and `php.ini` configuration settings. -->
-[Blackfire](https://blackfire.io/docs/introduction)은 웹 요청과 CLI 애플리케이션의 성능 프로파일링을 위한 서비스입니다. 인터랙티브 UI를 제공해 호출 그래프, 타임라인 등으로 프로파일 정보를 시각화해줍니다. 개발/스테이징/운영 환경 모두에서 추가 부하 없이 사용할 수 있습니다. 또한 Blackfire는 코드와 `php.ini` 설정에 대한 성능, 품질, 보안 점검 기능도 제공합니다.
+[Blackfire](https://blackfire.io/docs/introduction)은 웹 요청과 CLI 애플리케이션의 성능 프로파일링을 위한 서비스입니다. 인터랙티브 UI를 제공해 호출 그래프, 타임라인 등으로 프로파일 정보를 시각화해줍니다. 개발/스테이징/운영 환경 모두에서 사용할 수 있으며, 최종 사용자에게는 추가 부하가 없습니다. 또한 Blackfire는 코드와 `php.ini` 설정에 대한 성능, 품질, 보안 점검 기능도 제공합니다.
 
 <!-- The [Blackfire Player](https://blackfire.io/docs/player/index) is an open-source Web Crawling, Web Testing, and Web Scraping application which can work jointly with Blackfire in order to script profiling scenarios. -->
 [Blackfire Player](https://blackfire.io/docs/player/index)는 크롤링, 테스트, 스크레이핑용 오픈소스 도구로, Blackfire와 함께 시나리오 기반의 프로파일링도 가능합니다.

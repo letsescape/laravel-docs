@@ -949,7 +949,7 @@ $contains = Arr::hasAny($array, ['category', 'product.discount']);
 #### `Arr::isAssoc()`
 
 <!-- The `Arr::isAssoc` method returns `true` if the given array is an associative array. An array is considered "associative" if it doesn't have sequential numerical keys beginning with zero: -->
-`Arr::isAssoc` 메서드는 주어진 배열이 연관 배열(associative array)인지 여부를 `true`로 반환합니다. 배열의 키가 0부터 시작하는 순차적인 숫자가 아니면 연관 배열로 간주합니다:
+`Arr::isAssoc` 메서드는 주어진 배열이 연관 배열(associative array)이면 `true`를 반환합니다. 배열의 키가 0부터 시작하는 순차적인 숫자가 아니면 연관 배열로 간주합니다:
 
 ```
 use Illuminate\Support\Arr;
@@ -1405,7 +1405,7 @@ $sorted = Arr::sortRecursive($array);
 #### `Arr::toCssClasses()`
 
 <!-- The `Arr::toCssClasses` conditionally compiles a CSS class string. The method accepts an array of classes where the array key contains the class or classes you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the rendered class list: -->
-`Arr::toCssClasses` 메서드는 조건에 따라 CSS 클래스 문자열을 동적으로 만듭니다. 이 메서드는, 배열의 키에 추가하고 싶은 클래스 이름 또는 클래스들, 값에는 조건식을 설정합니다. 배열 요소의 키가 숫자인 경우에는 해당 항목이 항상 결과 클래스 리스트에 포함됩니다:
+`Arr::toCssClasses` 메서드는 조건에 따라 CSS 클래스 문자열을 동적으로 만듭니다. 이 메서드는 키에 추가하고 싶은 클래스 이름 또는 클래스들을, 값에 불리언 조건식을 설정한 배열을 받습니다. 배열 요소의 키가 숫자인 경우에는 해당 항목이 항상 결과 클래스 리스트에 포함됩니다:
 
 ```
 use Illuminate\Support\Arr;
@@ -1568,7 +1568,7 @@ $price = data_get($data, 'products.desk.price');
 ```
 
 <!-- The `data_get` function also accepts a default value, which will be returned if the specified key is not found: -->
-`data_get` 함수는 기본값도 지정할 수 있습니다. 지정한 키가 존재하지 않을 경우 두 번째 인자로 넘긴 기본값이 반환됩니다.
+`data_get` 함수는 기본값도 지정할 수 있습니다. 지정한 키가 존재하지 않을 경우 세 번째 인자로 넘긴 기본값이 반환됩니다.
 
 ```
 $discount = data_get($data, 'products.desk.discount', 0);
@@ -2551,7 +2551,7 @@ $replaced = Str::replace('8.x', '9.x', $string);
 #### `Str::replaceArray()`
 
 <!-- The `Str::replaceArray` method replaces a given value in the string sequentially using an array: -->
-`Str::replaceArray` 메서드는 문자열 내의 특정 값을, 배열에 담아서 순차적으로 바꿉니다.
+`Str::replaceArray` 메서드는 문자열 내의 특정 값을 배열의 값으로 순차적으로 바꿉니다.
 
 ```
 use Illuminate\Support\Str;
@@ -2769,7 +2769,7 @@ $count = Str::substrCount('If you like ice cream, you will like snow cones.', 'l
 #### `Str::substrReplace()`
 
 <!-- The `Str::substrReplace` method replaces text within a portion of a string, starting at the position specified by the third argument and replacing the number of characters specified by the fourth argument. Passing `0` to the method's fourth argument will insert the string at the specified position without replacing any of the existing characters in the string: -->
-`Str::substrReplace` 메서드는 문자열의 일부 구간에, 선택한 텍스트로 교체해줍니다. 세 번째 인수로는 시작 위치를, 네 번째 인수로는 교체할 문자 수를 지정합니다. 네 번째 인수에 `0`을 전달하면, 기존 문자를 지우지 않고 해당 위치에 새로운 문자열을 삽입합니다.
+`Str::substrReplace` 메서드는 문자열의 일부 구간을 선택한 텍스트로 교체해줍니다. 세 번째 인수로는 시작 위치를, 네 번째 인수로는 교체할 문자 수를 지정합니다. 네 번째 인수에 `0`을 전달하면, 기존 문자를 지우지 않고 해당 위치에 새로운 문자열을 삽입합니다.
 
 ```
 use Illuminate\Support\Str;
@@ -2984,7 +2984,7 @@ echo trans_choice('messages.notifications', $unreadCount);
 ## Fluent Strings
 
 <!-- Fluent strings provide a more fluent, object-oriented interface for working with string values, allowing you to chain multiple string operations together using a more readable syntax compared to traditional string operations. -->
-플루언트 문자열은 문자열 값을 더 유창하고 객체 지향적으로 다룰 수 있는 인터페이스를 제공합니다. 이를 사용하면 여러 문자열 작업을 전통적인 방식보다 가독성 높게 체이닝하여 연결해서 사용할 수 있습니다.
+플루언트 문자열은 메서드를 이어 호출하여 문자열 값을 다룰 수 있는 객체 지향적 인터페이스를 제공합니다. 이를 사용하면 여러 문자열 작업을 전통적인 방식보다 가독성 높게 체이닝하여 연결해서 사용할 수 있습니다.
 
 <a name="method-fluent-str-after"></a>
 <!-- #### `after` -->
@@ -3279,7 +3279,7 @@ $result = Str::of('This is my name')->endsWith('name');
 ```
 
 <!-- You may also pass an array of values to determine if the given string ends with any of the values in the array: -->
-여러 값을 배열로 전달하면, 그 중 하나라도 해당 값으로 끝나는지 확인할 수 있습니다:
+여러 값을 배열로 전달하면, 문자열이 그중 하나의 값으로 끝나는지 확인할 수 있습니다:
 
 ```
 use Illuminate\Support\Str;
@@ -3794,7 +3794,7 @@ $padded = Str::of('James')->padRight(10);
 #### `pipe`
 
 <!-- The `pipe` method allows you to transform the string by passing its current value to the given callable: -->
-`pipe` 메서드는 현재 문자열 값을 전달하여, 주어진 콜러블(callable)로 변환할 수 있도록 해줍니다.
+`pipe` 메서드는 현재 문자열 값을 주어진 콜러블(callable)에 전달하여 문자열을 변환할 수 있도록 해줍니다.
 
 ```
 use Illuminate\Support\Str;
@@ -3955,7 +3955,7 @@ $replaced = Str::of('(+1) 501-555-1000')->replaceMatches('/[^A-Za-z0-9]++/', '')
 ```
 
 <!-- The `replaceMatches` method also accepts a closure that will be invoked with each portion of the string matching the given pattern, allowing you to perform the replacement logic within the closure and return the replaced value: -->
-`replaceMatches` 메서드는 클로저를 전달하여 패턴과 일치하는 각 부분에 대해 교체 로직을 직접 작성할 수도 있습니다. 이때 클로저에서 원하는 값으로 반환할 수 있습니다.
+`replaceMatches` 메서드는 클로저를 전달하여 패턴과 일치하는 각 부분에 대해 교체 로직을 직접 작성할 수도 있습니다. 이때 클로저에서 원하는 값을 반환할 수 있습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -4629,7 +4629,7 @@ $url = asset('img/photo.jpg');
 ```
 
 <!-- You can configure the asset URL host by setting the `ASSET_URL` variable in your `.env` file. This can be useful if you host your assets on an external service like Amazon S3 or another CDN: -->
-.asset URL의 호스트는 `.env` 파일의 `ASSET_URL` 변수를 설정하여 변경할 수 있습니다. 이는 Amazon S3나 다른 CDN 등 외부 서비스에서 asset 파일을 제공할 경우 유용하게 사용할 수 있습니다.
+asset URL의 호스트는 `.env` 파일의 `ASSET_URL` 변수를 설정하여 변경할 수 있습니다. 이는 Amazon S3나 다른 CDN 등 외부 서비스에서 asset 파일을 제공할 경우 유용하게 사용할 수 있습니다.
 
 ```
 // ASSET_URL=http://example.com/assets
@@ -4820,7 +4820,7 @@ $user = auth('admin')->user();
 #### `back()`
 
 <!-- The `back` function generates a [redirect HTTP response](/docs/9.x/responses#redirects) to the user's previous location: -->
-`back` 함수는 사용자를 [redirect HTTP response](/docs/9.x/responses#redirects)로 리디렉션하는 HTTP 응답을 생성합니다.
+`back` 함수는 사용자의 이전 위치로 이동하는 [redirect HTTP response](/docs/9.x/responses#redirects)를 생성합니다.
 
 ```
 return back($status = 302, $headers = [], $fallback = '/');

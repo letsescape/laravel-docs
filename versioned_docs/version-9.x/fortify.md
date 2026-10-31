@@ -153,7 +153,7 @@ Fortify는 기본적으로 로그인 화면, 회원가입 화면 등 뷰를 반�
 #### Disabling Views & Password Reset
 
 <!-- If you choose to disable Fortify's views and you will be implementing password reset features for your application, you should still define a route named `password.reset` that is responsible for displaying your application's "reset password" view. This is necessary because Laravel's `Illuminate\Auth\Notifications\ResetPassword` notification will generate the password reset URL via the `password.reset` named route. -->
-Fortify의 뷰를 비활성화하더라도 비밀번호 재설정 기능을 구현한다면 `password.reset` 이름을 가진 라우트를 반드시 정의해야 합니다. 이는 Laravel의 `Illuminate\Auth\Notifications\ResetPassword` 알림이 `password.reset` 라우트를 이용해 비밀번호 재설정 URL을 생성하기 때문입니다.
+Fortify의 뷰를 비활성화하더라도 비밀번호 재설정 기능을 구현한다면 비밀번호 재설정 화면을 표시하는 `password.reset` 이름의 라우트를 반드시 정의해야 합니다. 이는 Laravel의 `Illuminate\Auth\Notifications\ResetPassword` 알림이 `password.reset` 라우트를 이용해 비밀번호 재설정 URL을 생성하기 때문입니다.
 
 <a name="authentication"></a>
 <!-- ## Authentication -->

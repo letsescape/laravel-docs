@@ -146,7 +146,7 @@ resources/js/
 ```
 
 <!-- To publish additional shadcn components, first [find the component you want to publish](https://ui.shadcn.com). Then, publish the component using `npx`: -->
-추가 shadcn 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://ui.shadcn.com). 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
+추가 shadcn 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://ui.shadcn.com)에서 게시할 컴포넌트를 찾으세요. 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
 
 ```shell
 npx shadcn@latest add switch
@@ -228,7 +228,7 @@ resources/js/
 ```
 
 <!-- To publish additional shadcn-svelte components, first [find the component you want to publish](https://www.shadcn-svelte.com). Then, publish the component using `npx`: -->
-추가 shadcn-svelte 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://www.shadcn-svelte.com). 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
+추가 shadcn-svelte 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://www.shadcn-svelte.com)에서 게시할 컴포넌트를 찾으세요. 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
 
 ```shell
 npx shadcn-svelte@latest add switch
@@ -307,7 +307,7 @@ resources/js/
 ```
 
 <!-- To publish additional shadcn-vue components, first [find the component you want to publish](https://www.shadcn-vue.com). Then, publish the component using `npx`: -->
-추가 shadcn-vue 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://www.shadcn-vue.com). 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
+추가 shadcn-vue 컴포넌트를 게시하려면 먼저 [find the component you want to publish](https://www.shadcn-vue.com)에서 게시할 컴포넌트를 찾으세요. 그런 다음 `npx`를 사용하여 컴포넌트를 게시합니다.
 
 ```shell
 npx shadcn-vue@latest add switch
@@ -393,7 +393,7 @@ resources/views
 #### Available Layouts
 
 <!-- The Livewire starter kit includes two different primary layouts for you to choose from: a "sidebar" layout and a "header" layout. The sidebar layout is the default, but you can switch to the header layout by modifying the layout that is used by your application's `resources/views/layouts/app.blade.php` file. In addition, you should add the `container` attribute to the main Flux component: -->
-Livewire 스타터 키트에는 선택할 수 있는 두 가지 기본 레이아웃이 포함되어 있습니다. 바로 "sidebar" 레이아웃과 "header" 레이아웃입니다. 기본값은 sidebar 레이아웃이지만, 애플리케이션의 `resources/views/layouts/app.blade.php` 파일에서 사용하는 레이아웃을 수정하여 header 레이아웃으로 전환할 수 있습니다. 또한 기본 Flux 컴포넌트에 `container` 속성을 추가해야 합니다.
+Livewire 스타터 키트에는 선택할 수 있는 두 가지 기본 레이아웃이 포함되어 있습니다. 바로 "sidebar" 레이아웃과 "header" 레이아웃입니다. 기본값은 sidebar 레이아웃이지만, 애플리케이션의 `resources/views/layouts/app.blade.php` 파일에서 사용하는 레이아웃을 수정하여 header 레이아웃으로 전환할 수 있습니다. 또한 메인 Flux 컴포넌트에 `container` 속성을 추가해야 합니다.
 
 ```blade
 <x-layouts::app.header>
@@ -583,7 +583,7 @@ React, Svelte, Vue, Livewire 스타터 키트는 팀 지원 기능을 포함하�
 </div>
 
 <!-- Using WorkOS as your authentication provider [requires a WorkOS account](https://workos.com). WorkOS offers free authentication for applications up to 1 million monthly active users. -->
-WorkOS를 인증 제공자로 사용하려면 [requires a WorkOS account](https://workos.com)이 필요합니다. WorkOS는 월간 활성 사용자 100만 명 이하의 애플리케이션에 무료 인증을 제공합니다.
+WorkOS를 인증 제공자로 사용하려면 [requires a WorkOS account](https://workos.com)에 설명된 대로 WorkOS 계정이 필요합니다. WorkOS는 월간 활성 사용자 100만 명 이하의 애플리케이션에 무료 인증을 제공합니다.
 
 <!-- To use WorkOS AuthKit as your application's authentication provider, select the WorkOS option when creating your new starter kit powered application via `laravel new`. -->
 WorkOS AuthKit을 애플리케이션의 인증 제공자로 사용하려면, `laravel new`를 통해 새 스타터 키트 기반 애플리케이션을 만들 때 WorkOS 옵션을 선택하십시오.
