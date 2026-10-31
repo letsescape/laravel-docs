@@ -77,7 +77,7 @@ for (const {locale, prefix, label} of locales) {
           expect(value('html', 'lang')).toBe(locale);
           const title = value('head title', null);
           const ogTitle = value('head meta[property="og:title"]');
-          expect(title === ogTitle || (!version && title === `${ogTitle} | Laravel`)).toBe(true);
+          if (!version) expect(title === ogTitle || title === `${ogTitle} | Laravel`).toBe(true);
           expect(new URL(value('head link[rel="canonical"]', 'href')).href).toBe(`${origin}${route}`);
           expect(value('head meta[property="og:site_name"]')).toBe(`Laravel ${label}`);
           const query = route === `${prefix}/q/`;
@@ -92,6 +92,7 @@ for (const {locale, prefix, label} of locales) {
             expect(heading).toHaveLength(1);
             const name = normalizedText(heading.text());
             expect(name).not.toBe('');
+            expect(ogTitle).toBe(normalizedText(sourceRoutes!.get(route) ?? name));
             expect(title).toBe(normalizedText(`${sourceRoutes!.get(route) ?? name} — Laravel ${version} ${label}`));
           }
           const robots = $('head meta[name="robots"]').toArray()
