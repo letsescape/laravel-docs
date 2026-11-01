@@ -10,6 +10,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {mkdtemp, rm} from 'node:fs/promises';
 import test from 'node:test';
+import {load} from 'cheerio';
 
 import {
   canonicalSlug,
@@ -105,8 +106,14 @@ test('redirectHtml encodes HTML attributes and script data separately', () => {
 
   assert.ok(html.includes('x&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&amp;&quot;'));
   assert.ok(html.includes('x\\u003c/script\\u003e\\u003cscript\\u003ealert(1)'));
-  assert.equal((html.match(/<script>/g) ?? []).length, 1);
-  assert.equal((html.match(/<\/script>/g) ?? []).length, 1);
+  for (const input of [
+    target,
+    '/docs/13.x/x</ScRiPt ><ScRiPt data-test="x">alert(1)</ScRiPt>&"',
+  ]) {
+    const $ = load(redirectHtml(input));
+    assert.equal($('script').length, 1);
+    assert.equal($('a').attr('href'), input);
+  }
 });
 
 test('planRedirects excludes Docusaurus-private documents', async (t) => {
