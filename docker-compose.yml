@@ -9,6 +9,7 @@ services:
 
   # 문서 동기화·번역
   translate:
+    profiles: [translation]
     build:
       context: .
       dockerfile: Dockerfile.translate

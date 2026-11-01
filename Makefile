@@ -105,7 +105,7 @@ init: ## 프로젝트 환경 설정
 	fi
 	@if [ -f docker-compose.yml ]; then \
 		echo "[init] starting docker containers..."; \
-		docker compose up -d; \
+		docker compose up -d build; \
 	fi
 	@echo "[init] installing npm packages..."
 	@docker run --rm -v $$(pwd):/app -w /app node:24-alpine sh -c "apk add --no-cache git && npm install"
