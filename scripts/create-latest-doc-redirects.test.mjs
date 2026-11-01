@@ -112,6 +112,11 @@ test('redirectHtml encodes HTML attributes and script data separately', () => {
   ]) {
     const $ = load(redirectHtml(input));
     assert.equal($('script').length, 1);
+    assert.ok(
+      $('script').text().endsWith(
+        ' + window.location.search + window.location.hash)',
+      ),
+    );
     assert.equal($('a').attr('href'), input);
   }
 });
