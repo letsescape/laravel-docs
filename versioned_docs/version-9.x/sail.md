@@ -201,7 +201,7 @@ sail composer require laravel/sanctum
 #### Installing Composer Dependencies For Existing Applications
 
 <!-- If you are developing an application with a team, you may not be the one that initially creates the Laravel application. Therefore, none of the application's Composer dependencies, including Sail, will be installed after you clone the application's repository to your local computer. -->
-여러 명이 함께 개발하는 프로젝트에서는, 자신이 직접 Laravel 애플리케이션을 생성하지 않았을 가능성이 높습니다. 이 경우, 애플리케이션의 Composer 의존성(즉, Sail을 포함한 모든 패키지)이 새로 clone한 로컬 컴퓨터에 설치되지 않은 상태일 수 있습니다.
+여러 명이 함께 개발하는 프로젝트에서는, 자신이 직접 Laravel 애플리케이션을 생성하지 않았을 가능성이 높습니다. 이 경우, 애플리케이션의 Composer 의존성(즉, Sail을 포함한 모든 패키지)은 로컬 컴퓨터에 저장소를 clone한 직후에는 설치되지 않은 상태입니다.
 
 <!-- You may install the application's dependencies by navigating to the application's directory and executing the following command. This command uses a small Docker container containing PHP and Composer to install the application's dependencies: -->
 이런 경우, 애플리케이션 디렉터리로 이동한 후 아래 명령어를 실행해 Composer 의존성을 설치할 수 있습니다. 이 명령어는 PHP와 Composer가 들어있는 작은 Docker 컨테이너를 사용합니다.
@@ -274,7 +274,7 @@ sail yarn
 ### Redis
 
 <!-- Your application's `docker-compose.yml` file also contains an entry for a [Redis](https://redis.io) container. This container uses a [Docker volume](https://docs.docker.com/storage/volumes/) so that the data stored in your Redis data is persisted even when stopping and restarting your containers. Once you have started your containers, you may connect to the Redis instance within your application by setting your `REDIS_HOST` environment variable within your application's `.env` file to `redis`. -->
-애플리케이션의 `docker-compose.yml` 파일엔 [Redis](https://redis.io) 컨테이너도 포함되어 있습니다. 이 컨테이너 역시 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용해 데이터를 보존합니다. 컨테이너가 모두 시작되면, `.env` 파일의 `REDIS_HOST` 변수 값을 `redis`로 설정해 애플리케이션에서 Redis 인스턴스에 접속할 수 있습니다.
+애플리케이션의 `docker-compose.yml` 파일엔 [Redis](https://redis.io) 컨테이너도 포함되어 있습니다. 이 컨테이너 역시 [Docker volume](https://docs.docker.com/storage/volumes/)을 사용해 컨테이너를 중지하거나 재시작해도 데이터를 보존합니다. 컨테이너가 모두 시작되면, `.env` 파일의 `REDIS_HOST` 변수 값을 `redis`로 설정해 애플리케이션에서 Redis 인스턴스에 접속할 수 있습니다.
 
 <!-- To connect to your application's Redis database from your local machine, you may use a graphical database management application such as [TablePlus](https://tableplus.com). By default, the Redis database is accessible at `localhost` port 6379. -->
 로컬 컴퓨터에서는 [TablePlus](https://tableplus.com)와 같은 GUI 도구로 Redis 데이터베이스에 접속할 수 있습니다. 기본적으로 Redis는 `localhost`, 포트 6379에서 접근할 수 있습니다.
@@ -284,7 +284,7 @@ sail yarn
 ### MeiliSearch
 
 <!-- If you chose to install the [MeiliSearch](https://www.meilisearch.com) service when installing Sail, your application's `docker-compose.yml` file will contain an entry for this powerful search-engine that is [compatible](https://github.com/meilisearch/meilisearch-laravel-scout) with [Laravel Scout](/docs/9.x/scout). Once you have started your containers, you may connect to the MeiliSearch instance within your application by setting your `MEILISEARCH_HOST` environment variable to `http://meilisearch:7700`. -->
-Sail 설치할 때 [MeiliSearch](https://www.meilisearch.com) 서비스를 선택했다면, 애플리케이션의 `docker-compose.yml` 파일에 강력한 검색 엔진인 MeiliSearch 컨테이너가 추가됩니다. MeiliSearch는 [compatible](https://github.com/meilisearch/meilisearch-laravel-scout) 와 [Laravel Scout](/docs/9.x/scout)됩니다. 컨테이너가 모두 시작되면, .env 파일의 `MEILISEARCH_HOST` 환경 변수 값을 `http://meilisearch:7700`으로 설정해 사용합니다.
+Sail 설치할 때 [MeiliSearch](https://www.meilisearch.com) 서비스를 선택했다면, 애플리케이션의 `docker-compose.yml` 파일에 강력한 검색 엔진인 MeiliSearch 컨테이너가 추가됩니다. MeiliSearch는 [Laravel Scout](/docs/9.x/scout)와 호환됩니다([compatible](https://github.com/meilisearch/meilisearch-laravel-scout)). 컨테이너가 모두 시작되면, .env 파일의 `MEILISEARCH_HOST` 환경 변수 값을 `http://meilisearch:7700`으로 설정해 사용합니다.
 
 <!-- From your local machine, you may access MeiliSearch's web based administration panel by navigating to `http://localhost:7700` in your web browser. -->
 로컬 컴퓨터에서 MeiliSearch의 웹 관리 패널에 접속하려면 브라우저에서 `http://localhost:7700`으로 이동하면 됩니다.
@@ -317,7 +317,7 @@ AWS_URL=http://localhost:9000/local
 ```
 
 <!-- You may create buckets via the MinIO console, which is available at `http://localhost:8900`. The default username for the MinIO console is `sail` while the default password is `password`. -->
-MinIO의 콘솔(관리자 페이지)은 `http://localhost:8900`에서 접속할 수 있으며, 기본 사용자명은 `sail`, 비밀번호는 `password`입니다.
+버킷을 생성할 수 있는 MinIO의 콘솔(관리자 페이지)은 `http://localhost:8900`에서 접속할 수 있으며, 기본 사용자명은 `sail`, 비밀번호는 `password`입니다.
 
 > [!WARNING]
 > `temporaryUrl` 메서드를 이용해 임시 저장소 URL을 생성하는 기능은 MinIO 사용 시 지원되지 않습니다.
@@ -343,7 +343,7 @@ sail artisan test
 ```
 
 <!-- By default, Sail will create a dedicated `testing` database so that your tests do not interfere with the current state of your database. In a default Laravel installation, Sail will also configure your `phpunit.xml` file to use this database when executing your tests: -->
-Sail은 기본적으로 테스트 실행 시 기존 데이터베이스와 충돌하지 않도록 전용 `testing` 데이터베이스를 생성하고, 애플리케이션의 `phpunit.xml` 파일에도 이를 사용하도록 자동으로 설정합니다.
+Sail은 기본적으로 테스트 실행 시 기존 데이터베이스와 충돌하지 않도록 전용 `testing` 데이터베이스를 생성합니다. 기본 Laravel 설치에서는 애플리케이션의 `phpunit.xml` 파일에도 이를 사용하도록 자동으로 설정합니다.
 
 ```xml
 <env name="DB_DATABASE" value="testing"/>
@@ -525,7 +525,7 @@ sail share --subdomain=my-sail-site
 ```
 
 > [!NOTE]
-> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)에서 제공하는 오픈소스 터널링 서비스 [BeyondCode](https://beyondco.de)를 기반으로 동작합니다.
+> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)를 기반으로 동작하며, Expose는 [BeyondCode](https://beyondco.de)가 만든 오픈소스 터널링 서비스입니다.
 
 <a name="debugging-with-xdebug"></a>
 <!-- ## Debugging With Xdebug -->
@@ -542,7 +542,7 @@ SAIL_XDEBUG_MODE=develop,debug,coverage
 #### Linux Host IP Configuration
 
 <!-- Internally, the `XDEBUG_CONFIG` environment variable is defined as `client_host=host.docker.internal` so that Xdebug will be properly configured for Mac and Windows (WSL2). If your local machine is running Linux, you should ensure that you are running Docker Engine 17.06.0+ and Compose 1.16.0+. Otherwise, you will need to manually define this environment variable as shown below. -->
-내부적으로 `XDEBUG_CONFIG` 환경 변수는 `client_host=host.docker.internal`로 지정되어 있어서 Mac 및 Windows(WSL2) 환경에서 자동으로 Xdebug가 동작합니다. 만약 로컬 머신이 Linux라면, Docker Engine 17.06.0+ 및 Compose 1.16.0+ 버전 이상을 사용하는지 확인해야 하며, 그렇지 않다면 아래와 같이 환경 변수를 수동으로 정의해야 할 수도 있습니다.
+내부적으로 `XDEBUG_CONFIG` 환경 변수는 `client_host=host.docker.internal`로 지정되어 있어서 Mac 및 Windows(WSL2) 환경에서 자동으로 Xdebug가 동작합니다. 만약 로컬 머신이 Linux라면, Docker Engine 17.06.0+ 및 Compose 1.16.0+ 버전 이상을 사용하는지 확인해야 하며, 그렇지 않다면 아래와 같이 환경 변수를 수동으로 정의해야 합니다.
 
 <!-- First, you should determine the correct host IP address to add to the environment variable by running the following command. Typically, the `<container-name>` should be the name of the container that serves your application and often ends with `_laravel.test_1`: -->
 가장 먼저 아래 명령어로 환경 변수에 추가할 올바른 호스트 IP 주소를 알아내야 합니다. `<container-name>`에는 애플리케이션을 구동하는 컨테이너명을 입력합니다. 일반적으로 `_laravel.test_1`로 끝나는 이름입니다.
@@ -584,7 +584,7 @@ sail debug migrate
 PhpStorm을 사용하는 경우, [zero-configuration debugging](https://www.jetbrains.com/help/phpstorm/zero-configuration-debugging.html)에 대해 JetBrain 공식 문서를 참고하면 도움이 됩니다.
 
 > [!WARNING]
-> Laravel Sail은 애플리케이션을 서비스할 때 `artisan serve`를 사용합니다. `artisan serve` 명령은 Laravel 8.53.0 버전부터서만 `XDEBUG_CONFIG` 및 `XDEBUG_MODE` 변수를 인식합니다. 8.52.0 이하의 버전은 이 변수를 지원하지 않아 디버깅 연결이 불가능합니다.
+> Laravel Sail은 애플리케이션을 서비스할 때 `artisan serve`를 사용합니다. `artisan serve` 명령은 Laravel 8.53.0 버전부터만 `XDEBUG_CONFIG` 및 `XDEBUG_MODE` 변수를 인식합니다. 8.52.0 이하의 버전은 이 변수를 지원하지 않아 디버깅 연결이 불가능합니다.
 
 <a name="sail-customization"></a>
 <!-- ## Customization -->
@@ -598,7 +598,7 @@ sail artisan sail:publish
 ```
 
 <!-- After running this command, the Dockerfiles and other configuration files used by Laravel Sail will be placed within a `docker` directory in your application's root directory. After customizing your Sail installation, you may wish to change the image name for the application container in your application's `docker-compose.yml` file. After doing so, rebuild your application's containers using the `build` command. Assigning a unique name to the application image is particularly important if you are using Sail to develop multiple Laravel applications on a single machine: -->
-명령 실행 후, Laravel Sail에 사용되는 Dockerfile과 기타 설정 파일들이 애플리케이션의 루트에 `docker` 디렉터리 내부에 생성됩니다. 커스터마이즈를 마친 뒤에는 `docker-compose.yml` 파일에서 애플리케이션 컨테이너의 이미지 이름 변경을 고려할 수 있고, 변경 후에는 반드시 `build` 명령어로 컨테이너를 다시 빌드해야 합니다. 여러 개의 Laravel 애플리케이션을 한 컴퓨터에서 개발할 때, 이미지를 고유하게 지정하는 것이 특히 중요합니다.
+명령 실행 후, Laravel Sail에 사용되는 Dockerfile과 기타 설정 파일들이 애플리케이션의 루트에 있는 `docker` 디렉터리 내부에 생성됩니다. 커스터마이즈를 마친 뒤에는 `docker-compose.yml` 파일에서 애플리케이션 컨테이너의 이미지 이름 변경을 고려할 수 있고, 변경 후에는 반드시 `build` 명령어로 컨테이너를 다시 빌드해야 합니다. 여러 개의 Laravel 애플리케이션을 한 컴퓨터에서 개발할 때, 이미지를 고유하게 지정하는 것이 특히 중요합니다.
 
 ```shell
 sail build --no-cache

@@ -187,7 +187,7 @@ Precognition으로 폼의 일부 필드만 검증하고 있다면, 오류를 직
 ```
 
 <!-- Of course, you may also execute code in reaction to the response to the form submission. The form's `submit` function returns an Axios request promise. This provides a convenient way to access the response payload, reset the form inputs on successful submission, or handle a failed request: -->
-물론, 폼 제출(response)에 대한 처리가 필요하다면, `submit` 함수는 Axios 요청 프라미스를 반환하므로, 이를 이용해 응답 데이터 접근, 폼 초기화, 오류 처리 등을 할 수 있습니다.
+물론, 폼 제출의 응답(response)에 대한 처리가 필요하다면, `submit` 함수는 Axios 요청 프라미스를 반환하므로, 이를 이용해 응답 데이터 접근, 제출 성공 시 폼 초기화, 오류 처리 등을 할 수 있습니다.
 
 ```js
 const submit = () => form.submit()
@@ -636,7 +636,7 @@ form.validate('users.*.*');
 precognitive 요청이 올 때, `isPrecognitive` 메서드를 활용해 유효성 검증 규칙을 사용자 지정할 수 있습니다.
 
 <!-- For example, on a user creation form, we may want to validate that a password is "uncompromised" only on the final form submission. For precognitive validation requests, we will simply validate that the password is required and has a minimum of 8 characters. Using the `isPrecognitive` method, we can customize the rules defined by our form request: -->
-예를 들어, 사용자 등록 폼에서는 최종 제출 시에만 비밀번호의 "uncompromised(유출되지 않았는지)" 검증을 하고 싶고, precognitive 요청에는 필수 및 최소 길이 확인만 하고 싶을 때, `isPrecognitive`를 활용해 폼 리퀘스트의 규칙을 다음과 같이 변경할 수 있습니다.
+예를 들어, 사용자 등록 폼에서는 최종 제출 시에만 비밀번호의 "uncompromised(유출되지 않았는지)" 검증을 하고 싶고, precognitive 요청에는 필수 및 최소 8자 길이 확인만 하고 싶을 때, `isPrecognitive`를 활용해 폼 리퀘스트의 규칙을 다음과 같이 변경할 수 있습니다.
 
 ```php
 <?php
@@ -676,7 +676,7 @@ class StoreUserRequest extends FormRequest
 기본적으로 Precognition은 precognitive 유효성 검증 요청 시 파일을 업로드하거나 검증하지 않습니다. 이로 인해 큰 파일이 불필요하게 여러 번 업로드되는 것을 방지할 수 있습니다.
 
 <!-- Because of this behavior, you should ensure that your application [customizes the corresponding form request's validation rules](#customizing-validation-rules) to specify the field is only required for full form submissions: -->
-따라서, [customizes the corresponding form request's validation rules](#customizing-validation-rules)하여 파일 필드는 전체 폼 제출시에만 필수로 처리되도록 해야 합니다.
+따라서, [customizes the corresponding form request's validation rules](#customizing-validation-rules)에 설명된 대로 유효성 검증 규칙을 조정하여 파일 필드는 전체 폼 제출시에만 필수로 처리되도록 해야 합니다.
 
 ```php
 /**

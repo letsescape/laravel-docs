@@ -606,7 +606,7 @@ $stripeCustomer = $user->updateStripeCustomer($options);
 ### Balances
 
 <!-- Stripe allows you to credit or debit a customer's "balance". Later, this balance will be credited or debited on new invoices. To check the customer's total balance you may use the `balance` method that is available on your billable model. The `balance` method will return a formatted string representation of the balance in the customer's currency: -->
-Stripe에서는 고객의 "잔고(balance)"에 대한 적립(credit) 또는 차감(debit)이 가능합니다. 이렇게 적립·차감된 금액은 새로운 인보이스 결제 시 자동으로 반영됩니다. 고객의 전체 잔고를 확인하려면, 청구 모델에서 제공하는 `balance` 메서드를 사용할 수 있습니다. `balance` 메서드는 고객 통화 단위로 포맷된 문자열을 반환합니다.
+Stripe에서는 고객의 "잔고(balance)"에 크레딧(청구액 차감)이나 데빗(청구액 가산)을 반영할 수 있습니다. 이 금액은 새로운 인보이스 결제 시 자동으로 반영됩니다. 고객의 전체 잔고를 확인하려면, 청구 모델에서 제공하는 `balance` 메서드를 사용할 수 있습니다. `balance` 메서드는 고객 통화 단위로 포맷된 문자열을 반환합니다.
 
 ```
 $balance = $user->balance();
@@ -620,7 +620,7 @@ $user->creditBalance(500, 'Premium customer top-up.');
 ```
 
 <!-- Providing a value to the `debitBalance` method will debit the customer's balance: -->
-`debitBalance` 메서드를 사용하면 해당 금액만큼 고객 잔고를 차감합니다.
+`debitBalance` 메서드를 사용하면 해당 금액만큼 고객 잔고에 데빗을 반영하여 청구액을 늘립니다.
 
 ```
 $user->debitBalance(300, 'Bad usage penalty.');
@@ -669,7 +669,7 @@ $taxId = $user->createTaxId('eu_vat', 'BE0123456789');
 ```
 
 <!-- The `createTaxId` method will immediately add the VAT ID to the customer's account. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation); however, this is an asynchronous process. You can be notified of verification updates by subscribing to the `customer.tax_id.updated` webhook event and inspecting [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification). For more information on handling webhooks, please consult the [documentation on defining webhook handlers](#handling-stripe-webhooks). -->
-`createTaxId` 메서드는 고객의 계정에 즉시 VAT ID를 추가합니다. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation)되지만, 이 과정은 비동기적으로 처리됩니다. 검증 결과가 업데이트될 때 알림을 받으려면, `customer.tax_id.updated` 웹훅 이벤트를 구독하고 [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification)를 확인하면 됩니다. 웹훅 처리 방법에 대해서는 [documentation on defining webhook handlers](#handling-stripe-webhooks)를 참고하십시오.
+`createTaxId` 메서드는 고객의 계정에 즉시 VAT ID를 추가합니다. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation)에 설명된 VAT ID 검증도 Stripe에서 수행하지만, 이 과정은 비동기적으로 처리됩니다. 검증 결과가 업데이트될 때 알림을 받으려면, `customer.tax_id.updated` 웹훅 이벤트를 구독하고 [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification)를 확인하면 됩니다. 웹훅 처리 방법에 대해서는 [documentation on defining webhook handlers](#handling-stripe-webhooks)를 참고하십시오.
 
 <!-- You may delete a tax ID using the `deleteTaxId` method: -->
 세금 ID를 삭제하려면 `deleteTaxId` 메서드를 사용하면 됩니다.
@@ -731,7 +731,7 @@ public function stripeName(): string|null
 ### Billing Portal
 
 <!-- Stripe offers [an easy way to set up a billing portal](https://stripe.com/docs/billing/subscriptions/customer-portal) so that your customer can manage their subscription, payment methods, and view their billing history. You can redirect your users to the billing portal by invoking the `redirectToBillingPortal` method on the billable model from a controller or route: -->
-Stripe는 [an easy way to set up a billing portal](https://stripe.com/docs/billing/subscriptions/customer-portal)을 제공합니다. 이를 통해 고객이 직접 자신의 구독, 결제 수단, 결제 내역을 관리할 수 있습니다. 컨트롤러나 라우트에서 Billable 모델의 `redirectToBillingPortal` 메서드를 호출하면 손쉽게 사용자를 청구 포털로 리디렉션할 수 있습니다.
+Stripe는 [an easy way to set up a billing portal](https://stripe.com/docs/billing/subscriptions/customer-portal)을 제공합니다. 이를 통해 고객이 직접 자신의 구독과 결제 수단을 관리하고 결제 내역을 조회할 수 있습니다. 컨트롤러나 라우트에서 Billable 모델의 `redirectToBillingPortal` 메서드를 호출하면 손쉽게 사용자를 청구 포털로 리디렉션할 수 있습니다.
 
 ```
 use Illuminate\Http\Request;
@@ -1247,7 +1247,7 @@ Stripe 대시보드 자체에서도 구독을 생성할 수 있습니다. 이렇
 또한 Stripe 대시보드에서는 한 종류의 구독 타입만 생성할 수 있습니다. 애플리케이션에서 서로 다른 타입의 여러 구독을 제공한다면, 대시보드를 통해서는 한 타입만 추가할 수 있다는 점에 유의하세요.
 
 <!-- Finally, you should always make sure to only add one active subscription per type of subscription offered by your application. If a customer has two `default` subscriptions, only the most recently added subscription will be used by Cashier even though both would be synced with your application's database. -->
-마지막으로, 애플리케이션에서 지원하는 각 구독 타입마다 고객에게 한 개의 활성 구독만 존재하도록 반드시 관리해야 합니다. 만약 고객에게 `default` 타입의 구독이 두 개 있다면, Cashier는 최근에 추가된 구독만 사용하며, 이전 구독은 데이터베이스에 이력 용도로만 남습니다.
+마지막으로, 애플리케이션에서 지원하는 각 구독 타입마다 고객에게 한 개의 활성 구독만 존재하도록 반드시 관리해야 합니다. 만약 고객에게 `default` 타입의 구독이 두 개 있다면, 두 구독이 모두 데이터베이스와 동기화되더라도 Cashier는 최근에 추가된 구독만 사용합니다.
 
 <a name="checking-subscription-status"></a>
 
@@ -1421,7 +1421,7 @@ public function register(): void
 ```
 
 > [!WARNING]
-> 구독이 `incomplete` 상태일 때는 결제가 확인되기 전까지 구독 상태를 변경할 수 없습니다. 따라서, 구독이 `incomplete` 상태면 `swap` 및 `updateQuantity` 메서드는 예외를 발생시킵니다.
+> 구독이 `incomplete` 상태일 때는 결제가 확인되기 전까지 구독을 변경할 수 없습니다. 따라서, 구독이 `incomplete` 상태면 `swap` 및 `updateQuantity` 메서드는 예외를 발생시킵니다.
 
 <a name="subscription-scopes"></a>
 
@@ -1836,7 +1836,7 @@ $user->subscription('default')->reportUsage(15);
 ```
 
 <!-- If your application offers multiple prices on a single subscription, you will need to use the `reportUsageFor` method to specify the metered price you want to report usage for: -->
-애플리케이션에서 한 구독에 여러 가격이 있을 경우, `reportUsageFor` 메서드로 보고하려는 계량 가격을 명시할 수 있습니다.
+애플리케이션에서 한 구독에 여러 가격이 있을 경우, `reportUsageFor` 메서드로 보고하려는 계량 가격을 명시해야 합니다.
 
 ```
 $user = User::find(1);
@@ -2355,7 +2355,7 @@ class StripeEventListener
 ```
 
 <!-- Once your listener has been defined, you may register it within your application's `EventServiceProvider`: -->
-리스너를 정의한 후에는, 애플리케이션의 `EventServiceProvider`에 등록해야 합니다.
+리스너를 정의한 후에는, 애플리케이션의 `EventServiceProvider`에 등록할 수 있습니다.
 
 ```
 <?php
@@ -2874,7 +2874,7 @@ Route::get('/subscription-checkout', function (Request $request) {
 ```
 
 > [!WARNING]
-> Stripe Checkout을 통한 구독 시작 시에는 모든 구독 청구 옵션이 지원되지 않습니다. 구독 빌더의 `anchorBillingCycleOn` 메서드 사용, 청구금액 할당 방식(proration behavior), 결제 방식(payment behavior) 지정은 Stripe Checkout 세션에서는 효과가 없습니다. 어떤 파라미터를 사용할 수 있는지 확인하려면 [the Stripe Checkout Session API documentation](https://stripe.com/docs/api/checkout/sessions/create)를 참고하십시오.
+> Stripe Checkout을 통한 구독 시작 시에는 구독 청구 옵션이 모두 지원되는 것은 아닙니다. 구독 빌더의 `anchorBillingCycleOn` 메서드 사용, 청구금액 할당 방식(proration behavior), 결제 방식(payment behavior) 지정은 Stripe Checkout 세션에서는 효과가 없습니다. 어떤 파라미터를 사용할 수 있는지 확인하려면 [the Stripe Checkout Session API documentation](https://stripe.com/docs/api/checkout/sessions/create)를 참고하십시오.
 
 <a name="stripe-checkout-trial-periods"></a>
 
@@ -2914,7 +2914,7 @@ $checkout = $user->collectTaxIds()->checkout('price_tshirt');
 ```
 
 <!-- When this method is invoked, a new checkbox will be available to the customer that allows them to indicate if they're purchasing as a company. If so, they will have the opportunity to provide their Tax ID number. -->
-이 메서드를 호출하면, 고객이 기업 ID로 구매하는 경우를 체크할 수 있는 새로운 체크박스가 나타나며, 고객은 자신의 세금 ID 번호도 입력할 수 있게 됩니다.
+이 메서드를 호출하면, 고객이 회사로 구매하는지 표시할 수 있는 새로운 체크박스가 나타나며, 회사로 구매하는 경우 자신의 세금 ID 번호도 입력할 수 있게 됩니다.
 
 > [!WARNING]
 > 애플리케이션 서비스 프로바이더에서 [automatic tax collection](#tax-configuration)을 이미 구성했다면, 이 기능은 자동으로 활성화됩니다. 이런 경우 `collectTaxIds` 메서드를 따로 호출할 필요가 없습니다.
@@ -2957,7 +2957,7 @@ Route::get('/product-checkout', function (Request $request) {
 ```
 
 <!-- After a guest checkout has been completed, Stripe can dispatch a `checkout.session.completed` webhook event, so make sure to [configure your Stripe webhook](https://dashboard.stripe.com/webhooks) to actually send this event to your application. Once the webhook has been enabled within the Stripe dashboard, you may [handle the webhook with Cashier](#handling-stripe-webhooks). The object contained in the webhook payload will be a [`checkout` object](https://stripe.com/docs/api/checkout/sessions/object) that you may inspect in order to fulfill your customer's order. -->
-게스트 체크아웃이 완료된 후, Stripe는 `checkout.session.completed` 웹훅 이벤트를 전송할 수 있습니다. 따라서 [configure your Stripe webhook](https://dashboard.stripe.com/webhooks)하여 해당 이벤트가 애플리케이션에 올바르게 전달되도록 해야 합니다. Stripe 대시보드에서 웹훅을 등록했다면, 이후에는 [handle the webhook with Cashier](#handling-stripe-webhooks)하면 됩니다. 웹훅 페이로드에는 [`checkout` object](https://stripe.com/docs/api/checkout/sessions/object)가 담기며, 이를 활용해 고객 주문 처리가 가능합니다.
+게스트 체크아웃이 완료된 후, Stripe는 `checkout.session.completed` 웹훅 이벤트를 전송할 수 있습니다. 따라서 [configure your Stripe webhook](https://dashboard.stripe.com/webhooks)을 참고하여 웹훅을 설정하고 해당 이벤트가 애플리케이션에 올바르게 전달되도록 해야 합니다. Stripe 대시보드에서 웹훅을 등록했다면, 이후에는 [handle the webhook with Cashier](#handling-stripe-webhooks)에 따라 웹훅을 처리하면 됩니다. 웹훅 페이로드에는 [`checkout` object](https://stripe.com/docs/api/checkout/sessions/object)가 담기며, 이를 활용해 고객 주문 처리가 가능합니다.
 
 <a name="handling-failed-payments"></a>
 
@@ -2985,7 +2985,7 @@ try {
 ```
 
 <!-- On the payment confirmation page, the customer will be prompted to enter their credit card information again and perform any additional actions required by Stripe, such as "3D Secure" confirmation. After confirming their payment, the user will be redirected to the URL provided by the `redirect` parameter specified above. Upon redirection, `message` (string) and `success` (integer) query string variables will be added to the URL. The payment page currently supports the following payment method types: -->
-결제 확인 페이지에서는 고객에게 다시 카드 정보를 입력하도록 안내하거나, Stripe가 요구하는 "3D Secure" 같은 추가 조치를 진행하도록 유도합니다. 결제 완료 후에는 위 코드 예시의 `redirect` 파라미터로 지정한 URL로 다시 이동됩니다. 이때 URL에는 `message`(문자열)와 `success`(정수형) 쿼리 스트링 변수가 추가됩니다. 현재 결제 페이지에서 지원하는 결제 방법은 다음과 같습니다.
+결제 확인 페이지에서는 고객에게 다시 카드 정보를 입력하고 Stripe가 요구하는 "3D Secure" 같은 추가 조치를 진행하도록 안내합니다. 결제 완료 후에는 위 코드 예시의 `redirect` 파라미터로 지정한 URL로 다시 이동됩니다. 이때 URL에는 `message`(문자열)와 `success`(정수형) 쿼리 스트링 변수가 추가됩니다. 현재 결제 페이지에서 지원하는 결제 방법은 다음과 같습니다.
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -3087,7 +3087,7 @@ $subscription->withPaymentConfirmationOptions([
 ### Payments Requiring Additional Confirmation
 
 <!-- SCA regulations often require extra verification in order to confirm and process a payment. When this happens, Cashier will throw a `Laravel\Cashier\Exceptions\IncompletePayment` exception that informs you that extra verification is needed. More information on how to handle these exceptions be found can be found in the documentation on [handling failed payments](#handling-failed-payments). -->
-SCA 규정이 적용되는 경우, 결제 처리를 위해 추가 인증이 필요합니다. 이런 상황이 발생하면 Cashier는 `Laravel\Cashier\Exceptions\IncompletePayment` 예외를 발생시켜, 더 많은 인증이 필요함을 알립니다. 이러한 예외 처리는 [handling failed payments](#handling-failed-payments) 문서에서도 자세히 다루고 있습니다.
+SCA 규정에 따라 결제 처리를 위해 추가 인증이 필요한 경우가 많습니다. 이런 상황이 발생하면 Cashier는 `Laravel\Cashier\Exceptions\IncompletePayment` 예외를 발생시켜, 더 많은 인증이 필요함을 알립니다. 이러한 예외 처리는 [handling failed payments](#handling-failed-payments) 문서에서도 자세히 다루고 있습니다.
 
 <!-- Payment confirmation screens presented by Stripe or Cashier may be tailored to a specific bank or card issuer's payment flow and can include additional card confirmation, a temporary small charge, separate device authentication, or other forms of verification. -->
 Stripe 또는 Cashier가 제공하는 결제 인증 화면은 은행 또는 카드사별 결제 플로우에 따라 맞춤 적용될 수 있습니다. 여기에는 카드 추가 인증, 소액 임시 결제, 별도 디바이스 인증 등 다양한 인증 절차가 포함될 수 있습니다.
@@ -3116,10 +3116,10 @@ CASHIER_PAYMENT_NOTIFICATION=Laravel\Cashier\Notifications\ConfirmPayment
 ```
 
 <!-- To ensure that off-session payment confirmation notifications are delivered, verify that [Stripe webhooks are configured](#handling-stripe-webhooks) for your application and the `invoice.payment_action_required` webhook is enabled in your Stripe dashboard. In addition, your `Billable` model should also use Laravel's `Illuminate\Notifications\Notifiable` trait. -->
-오프 세션 결제 인증 알림이 제대로 동작하려면, [Stripe webhooks are configured](#handling-stripe-webhooks)되어 있어야 하며 Stripe 대시보드에서 `invoice.payment_action_required` 웹훅도 반드시 활성화해야 합니다. 또한, 여러분의 `Billable` 모델에도 Laravel의 `Illuminate\Notifications\Notifiable` 트레이트가 사용되어 있어야 합니다.
+오프 세션 결제 인증 알림이 제대로 동작하려면, [Stripe webhooks are configured](#handling-stripe-webhooks)에 따라 웹훅이 설정되어 있어야 하며 Stripe 대시보드에서 `invoice.payment_action_required` 웹훅도 반드시 활성화해야 합니다. 또한, 여러분의 `Billable` 모델에도 Laravel의 `Illuminate\Notifications\Notifiable` 트레이트가 사용되어 있어야 합니다.
 
 > [!WARNING]
-> 알림(Notification)은 고객이 직접 결제 인증을 수행하는 경우에도 전송될 수 있습니다. Stripe에서는 결제 처리가 수동(manual)로 이루어졌는지, "off-session"으로 이루어졌는지 구분하지 않기 때문입니다. 만약 고객이 결제 후 결제 페이지를 다시 방문한다면 "결제 성공" 메시지만 노출되며, 동일 결제를 중복해서 확인하여 이중 결제가 발생하지는 않습니다.
+> 알림(Notification)은 고객이 직접 결제 인증을 수행하는 경우에도 전송됩니다. Stripe에서는 결제 처리가 수동(manual)로 이루어졌는지, "off-session"으로 이루어졌는지 구분하지 않기 때문입니다. 만약 고객이 결제 후 결제 페이지를 다시 방문한다면 "결제 성공" 메시지만 노출되며, 동일 결제를 중복해서 확인하여 이중 결제가 발생하지는 않습니다.
 
 <a name="stripe-sdk"></a>
 

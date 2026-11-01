@@ -394,7 +394,7 @@ SCOUT_DRIVER=database
 #### Customizing Database Searching Strategies
 
 <!-- By default, the database engine will execute a "where like" query against every model attribute that you have [configured as searchable](#configuring-searchable-data). However, in some situations, this may result in poor performance. Therefore, the database engine's search strategy can be configured so that some specified columns utilize full text search queries or only use "where like" constraints to search the prefixes of strings (`example%`) instead of searching within the entire string (`%example%`). -->
-기본적으로 데이터베이스 엔진은 [configured as searchable](#configuring-searchable-data) 모든 속성에 대해 "where like" 쿼리를 실행합니다. 하지만 이 방식은 상황에 따라 성능 저하를 유발할 수 있습니다. 따라서 특정 컬럼은 전체 텍스트 검색을, 또 어떤 컬럼은 문자열 접두어로만 "where like" 제한을 적용하도록 전략을 지정할 수 있습니다(예: `example%`로 접두어 검색, `%example%`처럼 전체 문자열 내부 검색 대상 아님).
+기본적으로 데이터베이스 엔진은 [configured as searchable](#configuring-searchable-data)로 설정한 모든 속성에 대해 "where like" 쿼리를 실행합니다. 하지만 이 방식은 상황에 따라 성능 저하를 유발할 수 있습니다. 따라서 특정 컬럼은 전체 텍스트 검색을, 또 어떤 컬럼은 문자열 접두어로만 "where like" 제한을 적용하도록 전략을 지정할 수 있습니다(예: `example%`로 접두어 검색, `%example%`처럼 전체 문자열 내부 검색 대상 아님).
 
 <!-- To define this behavior, you may assign PHP attributes to your model's `toSearchableArray` method. Any columns that are not assigned additional search strategy behavior will continue to use the default "where like" strategy: -->
 이 동작은 모델의 `toSearchableArray` 메서드에 PHP attributes를 추가해서 정의할 수 있습니다. 별도 전략이 할당되지 않은 컬럼은 기본 "where like" 전략을 사용합니다.
@@ -618,7 +618,7 @@ $orders->unsearchable();
 ### Pausing Indexing
 
 <!-- Sometimes you may need to perform a batch of Eloquent operations on a model without syncing the model data to your search index. You may do this using the `withoutSyncingToSearch` method. This method accepts a single closure which will be immediately executed. Any model operations that occur within the closure will not be synced to the model's index: -->
-때로는 한 번에 여러 Eloquent 작업을 수행하되, 이 작업들이 일시적으로 검색 인덱스와 동기화되지 않도록 하고 싶을 수 있습니다. 이럴 때는 `withoutSyncingToSearch` 메서드를 사용하면 됩니다. 이 메서드는 하나의 클로저를 인자로 받고, 해당 클로저 안에서 일어난 모든 모델 작업은 인덱스로 동기화되지 않습니다.
+때로는 한 번에 여러 Eloquent 작업을 수행하되, 이 작업들이 일시적으로 검색 인덱스와 동기화되지 않도록 하고 싶을 수 있습니다. 이럴 때는 `withoutSyncingToSearch` 메서드를 사용하면 됩니다. 이 메서드는 하나의 클로저를 인자로 받아 즉시 실행하며, 해당 클로저 안에서 일어난 모든 모델 작업은 인덱스로 동기화되지 않습니다.
 
 ```
 use App\Models\Order;
@@ -875,7 +875,7 @@ abstract public function flush($model);
 #### Registering The Engine
 
 <!-- Once you have written your custom engine, you may register it with Scout using the `extend` method of the Scout engine manager. Scout's engine manager may be resolved from the Laravel service container. You should call the `extend` method from the `boot` method of your `App\Providers\AppServiceProvider` class or any other service provider used by your application: -->
-커스텀 엔진을 구현했다면, Scout 엔진 매니저의 `extend` 메서드를 사용해서 등록하면 됩니다. Scout 엔진 매니저는 Laravel 서비스 컨테이너에서 해결할 수 있습니다. `extend` 메서드는 보통 `App\Providers\AppServiceProvider`의 `boot` 메서드나, 기타 서비스 프로바이더에서 호출할 수 있습니다.
+커스텀 엔진을 구현했다면, Scout 엔진 매니저의 `extend` 메서드를 사용해서 등록하면 됩니다. Scout 엔진 매니저는 Laravel 서비스 컨테이너에서 해결할 수 있습니다. `extend` 메서드는 보통 `App\Providers\AppServiceProvider`나 기타 서비스 프로바이더의 `boot` 메서드에서 호출할 수 있습니다.
 
 ```
 use App\ScoutExtensions\MySqlSearchEngine

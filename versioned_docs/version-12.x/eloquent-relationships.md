@@ -724,7 +724,7 @@ return $this->throughEnvironments()->hasDeployments();
 #### Key Conventions
 
 <!-- Typical Eloquent foreign key conventions will be used when performing the relationship's queries. If you would like to customize the keys of the relationship, you may pass them as the third and fourth arguments to the `hasManyThrough` method. The third argument is the name of the foreign key on the intermediate model. The fourth argument is the name of the foreign key on the final model. The fifth argument is the local key, while the sixth argument is the local key of the intermediate model: -->
-Eloquent 기본값을 사용하지 않고, 직접 키를 지정하려면 `hasManyThrough`의 3-6번째 인수로 다음을 전달하세요:
+Eloquent 기본값을 사용하지 않고, 직접 키를 지정하려면 `hasManyThrough`의 3-6번째 인수로 각각 중간 모델의 외래 키, 최종 모델의 외래 키, 로컬 키, 중간 모델의 로컬 키 이름을 전달하세요:
 
 ```php
 class Application extends Model
@@ -938,7 +938,7 @@ class Role extends Model
 ```
 
 <!-- As you can see, the relationship is defined exactly the same as its `User` model counterpart with the exception of referencing the `App\Models\User` model. Since we're reusing the `belongsToMany` method, all of the usual table and key customization options are available when defining the "inverse" of many-to-many relationships. -->
-사용법/옵션/커스텀화는 `User` 모델에서 `App\Models\User` 모델을 참조한다는 점만 제외하면 동일하며, `belongsToMany` 메서드를 재사용하므로 일반적인 테이블 및 키 커스터마이징 옵션도 모두 사용할 수 있습니다.
+사용법/옵션/커스텀화는 `User` 모델에서의 정의와 동일하며, 참조하는 모델이 `App\Models\User`라는 점만 다릅니다. `belongsToMany` 메서드를 재사용하므로 일반적인 테이블 및 키 커스터마이징 옵션도 모두 사용할 수 있습니다.
 
 <a name="retrieving-intermediate-table-columns"></a>
 <!-- ### Retrieving Intermediate Table Columns -->
@@ -1458,7 +1458,7 @@ public function oldestImage(): MorphOne
 기본적으로 `latestOfMany`와 `oldestOfMany` 메서드는 정렬 가능해야 하는 모델의 기본키(primary key)를 기준으로 가장 최신 또는 가장 오래된 관련 모델을 조회합니다. 하지만 때로는 다른 정렬 기준을 사용해 더 큰 연관관계에서 단일 모델을 조회하고 싶을 수 있습니다.
 
 <!-- For example, using the `ofMany` method, you may retrieve the user's most "liked" image. The `ofMany` method accepts the sortable column as its first argument and which aggregate function (`min` or `max`) to apply when querying for the related model: -->
-예를 들어 `ofMany` 메서드를 사용하면 사용자가 가장 많이 "좋아요"한 이미지를 가져올 수 있습니다. `ofMany` 메서드는 첫 번째 인수로 정렬할 컬럼을 받고, 관련 모델을 쿼리할 때 적용할 집계 함수(`min` 또는 `max`)를 받습니다:
+예를 들어 `ofMany` 메서드를 사용하면 사용자의 이미지 중 "좋아요"를 가장 많이 받은 이미지를 가져올 수 있습니다. `ofMany` 메서드는 첫 번째 인수로 정렬할 컬럼을 받고, 관련 모델을 쿼리할 때 적용할 집계 함수(`min` 또는 `max`)를 받습니다:
 
 ```php
 /**
@@ -1953,7 +1953,7 @@ $comments = Comment::whereHasMorph(
 ```
 
 <!-- Sometimes you may want to query for the children of a "morph to" relationship's parent. You may accomplish this using the `whereMorphedTo` and `whereNotMorphedTo` methods, which will automatically determine the proper morph type mapping for the given model. These methods accept the name of the `morphTo` relationship as their first argument and the related parent model as their second argument: -->
-때로는 "morph to" 관계의 부모 자식을 쿼리하고 싶을 수 있습니다. `whereMorphedTo`와 `whereNotMorphedTo` 메서드를 사용하면 적절한 morph 타입 매핑을 자동으로 결정합니다. 첫 번째 인수로 `morphTo` 관계명을, 두 번째 인수로 관련 부모 모델을 전달합니다:
+때로는 "morph to" 관계에서 특정 부모에 속한 자식들을 쿼리하고 싶을 수 있습니다. `whereMorphedTo`와 `whereNotMorphedTo` 메서드를 사용하면 적절한 morph 타입 매핑을 자동으로 결정합니다. 첫 번째 인수로 `morphTo` 관계명을, 두 번째 인수로 관련 부모 모델을 전달합니다:
 
 ```php
 $comments = Comment::whereMorphedTo('commentable', $post)
@@ -2155,7 +2155,7 @@ $activities->loadMorphCount('parentable', [
 ## Eager Loading
 
 <!-- When accessing Eloquent relationships as properties, the related models are "lazy loaded". This means the relationship data is not actually loaded until you first access the property. However, Eloquent can "eager load" relationships at the time you query the parent model. Eager loading alleviates the "N + 1" query problem. To illustrate the N + 1 query problem, consider a `Book` model that "belongs to" to an `Author` model: -->
-Eloquent 관계를 속성으로 접근하면, 관련 모델은 "지연 로드(lazy load)"됩니다. 즉, 속성에 처음 접근할 때까지 관계 데이터가 실제로 로드되지 않습니다. 하지만 Eloquent에서는 부모 모델 쿼리 시점에 관계를 "즉시 로드(eager load)"할 수 있습니다. 즉시 로드는 "N + 1" 쿼리 문제를 해결합니다. N + 1 쿼리 문제를 설명하기 위해, `Author`에 "속하는(belongs to)" `Book` 모델을 생각해봅시다:
+Eloquent 관계를 속성으로 접근하면, 관련 모델은 "지연 로드(lazy load)"됩니다. 즉, 속성에 처음 접근할 때까지 관계 데이터가 실제로 로드되지 않습니다. 하지만 Eloquent에서는 부모 모델 쿼리 시점에 관계를 "즉시 로드(eager load)"할 수 있습니다. 즉시 로드는 "N + 1" 쿼리 문제를 완화합니다. N + 1 쿼리 문제를 설명하기 위해, `Author`에 "속하는(belongs to)" `Book` 모델을 생각해봅시다:
 
 ```php
 <?php
@@ -2487,7 +2487,7 @@ class ActivityFeed extends Model
 ```
 
 <!-- In this example, let's assume `Event`, `Photo`, and `Post` models may create `ActivityFeed` models. Additionally, let's assume that `Event` models belong to a `Calendar` model, `Photo` models are associated with `Tag` models, and `Post` models belong to an `Author` model. -->
-이 예제에서 `Event`, `Photo`, `Post` 모델이 `ActivityFeed`를 생성할 수 있다고 가정합니다. `Event`는 `Calendar`에, `Photo`는 `Tag`에, `Post`는 `Author`에 속합니다.
+이 예제에서 `Event`, `Photo`, `Post` 모델이 `ActivityFeed`를 생성할 수 있다고 가정합니다. `Event`는 `Calendar`에 속하고, `Photo`는 `Tag`와 연관되며, `Post`는 `Author`에 속합니다.
 
 <!-- Using these model definitions and relationships, we may retrieve `ActivityFeed` model instances and eager load all `parentable` models and their respective nested relationships: -->
 이 모델 정의와 관계를 사용하여 `ActivityFeed` 인스턴스를 조회한 뒤, 모든 `parentable` 모델과 각각의 중첩 관계를 즉시 로드합니다:
@@ -2707,7 +2707,7 @@ $user->posts()->createManyQuietly([
 ```
 
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/12.x/eloquent#upserts). -->
-`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용하여 [create and update models on relationships](/docs/12.x/eloquent#upserts)할 수도 있습니다.
+`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용하여 [create and update models on relationships](/docs/12.x/eloquent#upserts)에 설명된 것처럼 연관관계에서 모델을 생성하거나 수정할 수도 있습니다.
 
 > [!NOTE]
 > `create` 메서드를 사용하기 전에 [mass assignment](/docs/12.x/eloquent#mass-assignment) 문서를 반드시 확인하세요.

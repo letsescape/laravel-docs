@@ -388,7 +388,7 @@ Facades\Redis::pipeline(function (Redis $pipe) {
 Laravel은 Redis의 `publish`와 `subscribe` 명령을 간편하게 사용할 수 있는 인터페이스를 제공합니다. 이를 통해 특정 "채널"에서 메시지를 구독(listen)하거나, 메시지를 발행(publish)할 수 있습니다. 이를 활용해 다른 애플리케이션이나 타 프로그래밍 언어와도 손쉽게 통신이 가능합니다.
 
 <!-- First, let's setup a channel listener using the `subscribe` method. We'll place this method call within an [Artisan command](/docs/10.x/artisan) since calling the `subscribe` method begins a long-running process: -->
-먼저, `subscribe` 메서드를 이용해 채널 리스너를 설정해봅니다. `subscribe`는 장시간 실행되는 프로세스이므로, [Artisan command](/docs/10.x/artisan) 안에 구현하는 것이 일반적입니다.
+먼저, `subscribe` 메서드를 이용해 채널 리스너를 설정해봅니다. `subscribe`를 호출하면 장시간 실행되는 프로세스가 시작되므로, [Artisan command](/docs/10.x/artisan) 안에 구현하는 것이 일반적입니다.
 
 ```
 <?php

@@ -63,6 +63,9 @@ php artisan octane:install
 <!-- [FrankenPHP](https://frankenphp.dev) is a PHP application server, written in Go, that supports modern web features like early hints, Brotli, and Zstandard compression. When you install Octane and choose FrankenPHP as your server, Octane will automatically download and install the FrankenPHP binary for you. -->
 [FrankenPHP](https://frankenphp.dev)는 Go 언어로 작성된 PHP 애플리케이션 서버로, early hints, Brotli, Zstandard 압축 등 최신 웹 기능을 지원합니다. Octane과 함께 FrankenPHP를 서버로 선택하면, 필요 시 Octane이 FrankenPHP 바이너리를 자동으로 다운로드 및 설치합니다.
 
+> [!WARNING]
+> FrankenPHP 정적 바이너리에는 자체 PHP 사본이 포함되어 있으므로, 시스템의 PHP를 업데이트해도 Octane이 사용하는 PHP 버전은 업데이트되지 않습니다. `./frankenphp version` 명령어로 번들에 포함된 PHP 버전을 확인할 수 있습니다. PHP 보안 업데이트를 적용하려면 프로젝트 루트 디렉터리에서 `frankenphp` 바이너리를 삭제하고 `php artisan octane:install --server=frankenphp` Artisan 명령어를 실행해 최신 릴리스를 다운로드한 다음 Octane을 다시 시작합니다. FrankenPHP가 시스템 전체에 설치되어 있다면 설치할 때 사용한 방법으로 업데이트합니다.
+
 <a name="frankenphp-via-laravel-sail"></a>
 <!-- #### FrankenPHP via Laravel Sail -->
 #### FrankenPHP via Laravel Sail
@@ -113,7 +116,7 @@ services:
 ```
 
 <!-- Typically, you should access your FrankenPHP Sail application via `https://localhost`, as using `https://127.0.0.1` requires additional configuration and is [discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker). -->
-보통 FrankenPHP Sail 애플리케이션은 `https://localhost`로 접근해야 합니다. `https://127.0.0.1`로 접근하려면 추가 설정이 필요하며, 이는 [discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker).
+보통 FrankenPHP Sail 애플리케이션은 `https://localhost`로 접근해야 합니다. `https://127.0.0.1`로 접근하려면 추가 설정이 필요하며, 이 방식은 권장하지 않습니다([discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker)).
 
 <a name="frankenphp-via-docker"></a>
 <!-- #### FrankenPHP via Docker -->
@@ -342,7 +345,7 @@ stopwaitsecs=3600
 > 서버 설정을 직접 관리하거나 다양한 서비스를 직접 구성하는 것에 익숙하지 않다면, [Laravel Cloud](https://cloud.laravel.com)를 참고하세요. Laravel Cloud는 완전 관리형 Laravel Octane 서비스를 제공합니다.
 
 <!-- In production environments, you should serve your Octane application behind a traditional web server such as Nginx or Apache. Doing so will allow the web server to serve your static assets such as images and stylesheets, as well as manage your SSL certificate termination. -->
-운영 환경에서는 Octane 애플리케이션을 Nginx 또는 Apache와 같은 전통적인 웹 서버 뒤에서 서비스하는 것이 좋습니다. 이렇게 하면 정적 자산(이미지, 스타일시트 등) 서비스와 SSL 인증서 종료를 전통적 웹 서버에서 처리할 수 있습니다.
+운영 환경에서는 Octane 애플리케이션을 Nginx 또는 Apache와 같은 전통적인 웹 서버 뒤에서 서비스하는 것이 좋습니다. 이렇게 하면 정적 자산(이미지, 스타일시트 등) 서비스와 SSL 종단 처리를 전통적 웹 서버에서 처리할 수 있습니다.
 
 <!-- In the Nginx configuration example below, Nginx will serve the site's static assets and proxy requests to the Octane server that is running on port 8000: -->
 아래 Nginx 설정 예시에서 Nginx는 사이트의 정적 자산을 서비스하고, 8000번 포트에서 실행 중인 Octane 서버로 요청을 프록시합니다:

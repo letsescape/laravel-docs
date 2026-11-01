@@ -141,7 +141,7 @@ public function store(Request $request)
 ```
 
 <!-- As you can see, the validation rules are passed into the `validate` method. Don't worry - all available validation rules are [documented](#available-validation-rules). Again, if the validation fails, the proper response will automatically be generated. If the validation passes, our controller will continue executing normally. -->
-위에서 볼 수 있듯, 유효성 검증 규칙은 `validate` 메서드에 배열로 전달됩니다. 걱정하지 마세요 - 모든 사용 가능한 유효성 검증 규칙은 [documented](#available-validation-rules). 다시 한번, 검증에 실패하면 적절한 응답이 자동으로 생성됩니다. 만약 검증에 성공한다면, 컨트롤러는 정상적으로 실행을 계속합니다.
+위에서 볼 수 있듯, 유효성 검증 규칙은 `validate` 메서드에 배열로 전달됩니다. 걱정하지 마세요 - 모든 사용 가능한 유효성 검증 규칙은 [documented](#available-validation-rules)되어 있습니다. 다시 한번, 검증에 실패하면 적절한 응답이 자동으로 생성됩니다. 만약 검증에 성공한다면, 컨트롤러는 정상적으로 실행을 계속합니다.
 
 <!-- Alternatively, validation rules may be specified as arrays of rules instead of a single `|` delimited string: -->
 또한, 규칙을 단일 `|` 구분 문자열 대신 배열 형태로 지정할 수도 있습니다.
@@ -251,7 +251,7 @@ Laravel 내장 유효성 검증 규칙마다 오류 메시지가 함께 제공�
 #### XHR Requests & Validation
 
 <!-- In this example, we used a traditional form to send data to the application. However, many applications receive XHR requests from a JavaScript powered frontend. When using the `validate` method during an XHR request, Laravel will not generate a redirect response. Instead, Laravel generates a JSON response containing all of the validation errors. This JSON response will be sent with a 422 HTTP status code. -->
-이 예시에서는 전통적인 폼을 통해 데이터를 애플리케이션으로 전송했습니다. 하지만, 많은 현대 애플리케이션에서는 자바스크립트 기반 프론트엔드에서 XHR 요청을 보냅니다. 이런 경우, `validate` 메서드를 사용할 때 Laravel은 리다이렉트 대신 모든 유효성 검증 오류를 포함한 JSON 응답을 반환합니다. 이 응답은 HTTP 상태 코드 422와 함께 전송됩니다.
+이 예시에서는 전통적인 폼을 통해 데이터를 애플리케이션으로 전송했습니다. 하지만, 많은 애플리케이션에서는 자바스크립트 기반 프론트엔드로부터 XHR 요청을 받습니다. 이런 경우, `validate` 메서드를 사용할 때 Laravel은 리다이렉트 대신 모든 유효성 검증 오류를 포함한 JSON 응답을 반환합니다. 이 응답은 HTTP 상태 코드 422와 함께 전송됩니다.
 
 <a name="the-at-error-directive"></a>
 <!-- #### The `@error` Directive -->
@@ -305,7 +305,7 @@ Laravel은 전역 헬퍼 함수인 `old`도 제공합니다. 뷰(특히 [Blade t
 ### A Note On Optional Fields
 
 <!-- By default, Laravel includes the `TrimStrings` and `ConvertEmptyStringsToNull` middleware in your application's global middleware stack. These middleware are listed in the stack by the `App\Http\Kernel` class. Because of this, you will often need to mark your "optional" request fields as `nullable` if you do not want the validator to consider `null` values as invalid. For example: -->
-기본적으로, Laravel은 전역 미들웨어 스택에 `TrimStrings`와 `ConvertEmptyStringsToNull` 미들웨어를 포함합니다. 이들은 `App\Http\Kernel` 클래스에서 정의되어 있습니다. 그래서, 선택(필수 아님) 필드에 대해 값이 `null`일 때도 검증에서 오류가 나길 원하지 않는다면 해당 필드를 반드시 `nullable`로 지정해야 합니다. 예를 들면 다음과 같습니다.
+기본적으로, Laravel은 전역 미들웨어 스택에 `TrimStrings`와 `ConvertEmptyStringsToNull` 미들웨어를 포함합니다. 이들은 `App\Http\Kernel` 클래스에서 정의되어 있습니다. 그래서, 선택(필수 아님) 필드에 대해 값이 `null`일 때도 검증에서 오류가 나길 원하지 않는다면 해당 필드를 `nullable`로 지정해야 하는 경우가 많습니다. 예를 들면 다음과 같습니다.
 
 ```
 $request->validate([
@@ -1181,21 +1181,21 @@ Validator::make($request->all(), [
 #### alpha
 
 <!-- The field under validation must be entirely alphabetic characters. -->
-검증 중인 필드는 영문 알파벳 문자만을 포함해야 합니다.
+검증 중인 필드는 알파벳 문자만을 포함해야 합니다.
 
 <a name="rule-alpha-dash"></a>
 <!-- #### alpha_dash -->
 #### alpha_dash
 
 <!-- The field under validation may have alpha-numeric characters, as well as dashes and underscores. -->
-검증 중인 필드는 영문자, 숫자, 대시(-), 언더스코어(_)만 포함할 수 있습니다.
+검증 중인 필드는 알파벳 문자, 숫자, 대시(-), 언더스코어(_)만 포함할 수 있습니다.
 
 <a name="rule-alpha-num"></a>
 <!-- #### alpha_num -->
 #### alpha_num
 
 <!-- The field under validation must be entirely alpha-numeric characters. -->
-검증 중인 필드는 영문자와 숫자만 포함해야 합니다.
+검증 중인 필드는 알파벳 문자와 숫자만 포함해야 합니다.
 
 <a name="rule-array"></a>
 <!-- #### array -->
@@ -1224,10 +1224,10 @@ Validator::make($input, [
 ```
 
 <!-- In general, you should always specify the array keys that are allowed to be present within your array. Otherwise, the validator's `validate` and `validated` methods will return all of the validated data, including the array and all of its keys, even if those keys were not validated by other nested array validation rules. -->
-일반적으로 배열의 허용 키 목록을 명시적으로 지정하는 것이 좋습니다. 지정하지 않으면, 검증기의 `validate` 및 `validated` 메서드는 배열과 모든 키를 포함한 검증 데이터를 반환하며, 별도의 중첩 배열 검증 규칙이 없다면 허용되지 않은 키도 함께 반환될 수 있습니다.
+일반적으로 배열의 허용 키 목록을 명시적으로 지정하는 것이 좋습니다. 지정하지 않으면, 검증기의 `validate` 및 `validated` 메서드는 배열과 모든 키를 포함한 검증 데이터를 반환하며, 다른 중첩 배열 검증 규칙으로 검증되지 않은 키도 함께 반환합니다.
 
 <!-- If you would like, you may instruct Laravel's validator to never include unvalidated array keys in the "validated" data it returns, even if you use the `array` rule without specifying a list of allowed keys. To accomplish this, you may call the validator's `excludeUnvalidatedArrayKeys` method in the `boot` method of your application's `AppServiceProvider`. After doing so, the validator will include array keys in the "validated" data it returns only when those keys were specifically validated by [nested array rules](#validating-arrays): -->
-만약 `array` 규칙에서 별도의 허용 키 목록을 지정하지 않았을 때도, 검증 데이터에 유효하지 않은 배열 키를 포함하고 싶지 않다면, 애플리케이션의 `AppServiceProvider`의 `boot` 메서드에서 검증기의 `excludeUnvalidatedArrayKeys` 메서드를 호출하여 언제나 유효성 검증되지 않은 배열 키를 반환 데이터에서 제외하도록 할 수 있습니다. 이렇게 하면, 검증 결과 데이터에는 반드시 [nested array rules](#validating-arrays)으로 검증한 키만 포함됩니다.
+만약 `array` 규칙에서 별도의 허용 키 목록을 지정하지 않았을 때도, 검증 데이터에 유효성 검증되지 않은 배열 키를 포함하고 싶지 않다면, 애플리케이션의 `AppServiceProvider`의 `boot` 메서드에서 검증기의 `excludeUnvalidatedArrayKeys` 메서드를 호출하여 언제나 유효성 검증되지 않은 배열 키를 반환 데이터에서 제외하도록 할 수 있습니다. 이렇게 하면, 검증 결과 데이터에는 반드시 [nested array rules](#validating-arrays)으로 검증한 키만 포함됩니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -1271,7 +1271,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 #### before\_or\_equal:_date_
 
 <!-- The field under validation must be a value preceding or equal to the given date. The dates will be passed into the PHP `strtotime` function in order to be converted into a valid `DateTime` instance. In addition, like the [`after`](#rule-after) rule, the name of another field under validation may be supplied as the value of `date`. -->
-검증 중인 필드는 주어진 날짜 이전이거나 동일한 값이어야 합니다. 사용 방법과 동작은 [`after`](#rule-after) 규칙과 동일하며, 내부적으로 PHP `strtotime`으로 날짜를 유효한 `DateTime` 인스턴스로 평가합니다. `date` 값으로 다른 필드명을 사용할 수도 있습니다.
+검증 중인 필드는 주어진 날짜 이전이거나 동일한 값이어야 합니다. 내부적으로 PHP `strtotime`으로 날짜를 유효한 `DateTime` 인스턴스로 평가합니다. [`after`](#rule-after) 규칙과 마찬가지로 `date` 값으로 다른 필드명을 사용할 수도 있습니다.
 
 <a name="rule-between"></a>
 <!-- #### between:_min_,_max_ -->
@@ -1292,7 +1292,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 #### confirmed
 
 <!-- The field under validation must have a matching field of `{field}_confirmation`. For example, if the field under validation is `password`, a matching `password_confirmation` field must be present in the input. -->
-검증 중인 필드는 `{field}_confirmation`으로 끝나는 동일한 이름의 필드를 입력 값에서 반드시 가져야 하며, 두 필드의 값이 일치해야 합니다. 예를 들어, `password` 필드를 검증할 때 `password_confirmation` 필드도 함께 받아야 합니다.
+검증 중인 필드에는 `{field}_confirmation`이라는 이름의 필드가 입력 값에 반드시 있어야 하며, 두 필드의 값이 일치해야 합니다. 예를 들어, `password` 필드를 검증할 때 `password_confirmation` 필드도 함께 받아야 합니다.
 
 <a name="rule-current-password"></a>
 <!-- #### current_password -->
@@ -1507,7 +1507,7 @@ _anotherfield_에 해당하는 필드가 _value_와 같으면, 해당 필드는 
 #### exclude_unless:_anotherfield_,_value_
 
 <!-- The field under validation will be excluded from the request data returned by the `validate` and `validated` methods unless _anotherfield_'s field is equal to _value_. If _value_ is `null` (`exclude_unless:name,null`), the field under validation will be excluded unless the comparison field is `null` or the comparison field is missing from the request data. -->
-_anotherfield_ 필드가 _value_와 같지 않다면, 해당 필드는 `validate`, `validated` 메서드로 반환되는 데이터에서 제외됩니다. _value_가 `null`(`exclude_unless:name,null`)이면, 비교 대상 필드가 `null`이거나 요청 데이터에 없을 때 해당 필드는 제외됩니다.
+_anotherfield_ 필드가 _value_와 같지 않다면, 해당 필드는 `validate`, `validated` 메서드로 반환되는 데이터에서 제외됩니다. _value_가 `null`(`exclude_unless:name,null`)이면, 비교 대상 필드가 `null`이거나 요청 데이터에 없을 때 해당 필드는 제외되지 않습니다.
 
 <a name="rule-exclude-without"></a>
 <!-- #### exclude_without:_anotherfield_ -->
@@ -1742,7 +1742,7 @@ Validator::make($input, [
 #### mimes:_foo_,_bar_,...
 
 <!-- The file under validation must have a MIME type corresponding to one of the listed extensions. -->
-해당 파일의 확장자가 나열된 목록과 대응하는 MIME 타입이어야 합니다.
+해당 파일은 나열된 확장자 중 하나에 대응하는 MIME 타입을 가져야 합니다.
 
 <a name="basic-usage-of-mime-rule"></a>
 <!-- #### Basic Usage Of MIME Rule -->
@@ -1849,14 +1849,14 @@ Validator::make($data, [
 #### prohibited_if:_anotherfield_,_value_,...
 
 <!-- The field under validation must be empty or not present if the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 _value_와 같을 경우, 이 필드는 비어 있거나 존재하지 않아야 합니다.
+_anotherfield_ 필드가 지정한 _value_ 중 하나와 같을 경우, 이 필드는 비어 있거나 존재하지 않아야 합니다.
 
 <a name="rule-prohibited-unless"></a>
 <!-- #### prohibited_unless:_anotherfield_,_value_,... -->
 #### prohibited_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be empty or not present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 _value_와 같지 않을 경우, 이 필드는 비어 있거나 존재하지 않아야 합니다.
+_anotherfield_ 필드가 지정한 _value_ 중 어느 것과도 같지 않을 경우, 이 필드는 비어 있거나 존재하지 않아야 합니다.
 
 <a name="rule-prohibits"></a>
 <!-- #### prohibits:_anotherfield_,... -->
@@ -1907,7 +1907,7 @@ _anotherfield_ 필드가 _value_와 같지 않을 경우, 이 필드는 비어 �
 #### required_if:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty if the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 _value_ 값일 때, 해당 필드는 반드시 존재하며 비어 있으면 안 됩니다.
+_anotherfield_ 필드가 지정한 _value_ 값 중 하나와 같을 때, 해당 필드는 반드시 존재하며 비어 있으면 안 됩니다.
 
 <!-- If you would like to construct a more complex condition for the `required_if` rule, you may use the `Rule::requiredIf` method. This method accepts a boolean or a closure. When passed a closure, the closure should return `true` or `false` to indicate if the field under validation is required: -->
 `required_if` 규칙에 더 복잡한 조건을 사용하고 싶을 땐 `Rule::requiredIf` 메서드를 사용할 수 있습니다. 이 메서드는 불리언 값이나 클로저를 받고, 클로저는 해당 필드가 필수인지 판단해 `true` 또는 `false`를 반환해야 합니다.
@@ -1932,7 +1932,7 @@ Validator::make($request->all(), [
 #### required_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty unless the _anotherfield_ field is equal to any _value_. This also means _anotherfield_ must be present in the request data unless _value_ is `null`. If _value_ is `null` (`required_unless:name,null`), the field under validation will be required unless the comparison field is `null` or the comparison field is missing from the request data. -->
-_anotherfield_ 필드가 _value_가 아닌 경우에 해당 필드는 반드시 존재하며 비어 있으면 안 됩니다. 즉, _anotherfield_도 _value_가 `null`이 아닌 한 요청 데이터에 반드시 포함되어야 합니다. _value_가 `null`(`required_unless:name,null`)이면, 비교 대상 필드가 `null`이거나 데이터에 없는 경우에만 해당 필드를 요구하지 않습니다.
+_anotherfield_ 필드가 지정한 _value_ 중 어느 것과도 같지 않은 경우에 해당 필드는 반드시 존재하며 비어 있으면 안 됩니다. 즉, _anotherfield_도 _value_가 `null`이 아닌 한 요청 데이터에 반드시 포함되어야 합니다. _value_가 `null`(`required_unless:name,null`)이면, 비교 대상 필드가 `null`이거나 데이터에 없는 경우에만 해당 필드를 요구하지 않습니다.
 
 <a name="rule-required-with"></a>
 <!-- #### required_with:_foo_,_bar_,... -->
@@ -2067,7 +2067,7 @@ Validator::make($data, [
 ```
 
 > [!NOTE]
-> `ignore` 메서드에 사용자 입력값을 직접 사용해서는 절대 안 됩니다. 반드시 Eloquent 모델에서 얻거나 시스템이 생성한 고유 키 값(예: 증가하는 ID, UUID)만 사용해야 합니다. 그렇지 않으면 애플리케이션이 SQL 인젝션 공격에 취약해질 수 있습니다.
+> `ignore` 메서드에 사용자 입력값을 직접 사용해서는 절대 안 됩니다. 반드시 Eloquent 모델에서 얻은 자동 증가 ID나 UUID 등 시스템이 생성한 고유 키 값만 사용해야 합니다. 그렇지 않으면 애플리케이션이 SQL 인젝션 공격에 취약해질 수 있습니다.
 
 <!-- Instead of passing the model key's value to the `ignore` method, you may also pass the entire model instance. Laravel will automatically extract the key from the model: -->
 모델의 키 값 자체를 전달하지 않고, 모델 인스턴스 전체를 `ignore` 메서드에 넘길 수도 있습니다. 이 경우 Laravel이 자동으로 키 값을 추출합니다.
@@ -2338,7 +2338,7 @@ $validator = Validator::make($request->all(), [
 ```
 
 <!-- The `Password` rule object allows you to easily customize the password complexity requirements for your application, such as specifying that passwords require at least one letter, number, symbol, or characters with mixed casing: -->
-`Password` 규칙 객체를 사용하면, 비밀번호가 최소 한 글자, 숫자, 특수 기호, 대소문자 혼합 등 다양한 복잡성 요구사항을 손쉽게 지정할 수 있습니다.
+`Password` 규칙 객체를 사용하면, 비밀번호에 최소 한 글자, 숫자, 특수 기호, 대소문자 혼합 등 다양한 복잡성 요구사항을 손쉽게 지정할 수 있습니다.
 
 ```
 // Require at least 8 characters...

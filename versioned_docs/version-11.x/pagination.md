@@ -98,7 +98,7 @@ $users = DB::table('users')->simplePaginate(15);
 ### Paginating Eloquent Results
 
 <!-- You may also paginate [Eloquent](/docs/11.x/eloquent) queries. In this example, we will paginate the `App\Models\User` model and indicate that we plan to display 15 records per page. As you can see, the syntax is nearly identical to paginating query builder results: -->
-[Eloquent](/docs/11.x/eloquent) 쿼리에도 페이지네이션을 적용할 수 있습니다. 예를 들어, `App\Models\User` 모델을 페이지네이션 하면서 한 페이지에 15개씩 표시하도록 할 수 있습니다. 보시는 것처럼 쿼리 빌더와 almost 동일한 방법으로 사용할 수 있습니다.
+[Eloquent](/docs/11.x/eloquent) 쿼리에도 페이지네이션을 적용할 수 있습니다. 예를 들어, `App\Models\User` 모델을 페이지네이션 하면서 한 페이지에 15개씩 표시하도록 할 수 있습니다. 보시는 것처럼 쿼리 빌더와 거의 동일한 방법으로 사용할 수 있습니다.
 
 ```
 use App\Models\User;

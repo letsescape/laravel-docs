@@ -60,7 +60,7 @@
 [sending email](/docs/10.x/mail) 기능 외에도, Laravel은 이메일, SMS([Vonage](https://www.vonage.com/communications-apis/) - 이전 명칭 Nexmo), [Slack](https://slack.com) 등 다양한 전달 채널을 통한 알림 전송을 지원합니다. 또한, [community built notification channels](https://laravel-notification-channels.com/about/#suggesting-a-new-channel)도 제공되어 수십 가지 채널로 알림을 전송할 수 있습니다! 알림은 데이터베이스에 저장하여 웹 인터페이스에서 사용자가 확인할 수 있도록 할 수도 있습니다.
 
 <!-- Typically, notifications should be short, informational messages that notify users of something that occurred in your application. For example, if you are writing a billing application, you might send an "Invoice Paid" notification to your users via the email and SMS channels. -->
-일반적으로, 알림은 애플리케이션에서 발생한 어떤 일을 사용자에게 알리는 짧고 정보성 메시지입니다. 예를 들어, 요금 청구 애플리케이션을 개발 중이라면, "인보이스 결제 완료"와 같은 알림을 이메일 및 SMS 채널을 통해 사용자에게 보낼 수 있습니다.
+일반적으로, 알림은 애플리케이션에서 발생한 어떤 일을 사용자에게 알리는 짧은 정보성 메시지여야 합니다. 예를 들어, 요금 청구 애플리케이션을 개발 중이라면, "인보이스 결제 완료"와 같은 알림을 이메일 및 SMS 채널을 통해 사용자에게 보낼 수 있습니다.
 
 <a name="generating-notifications"></a>
 <!-- ## Generating Notifications -->
@@ -118,7 +118,7 @@ $user->notify(new InvoicePaid($invoice));
 ### Using the Notification Facade
 
 <!-- Alternatively, you may send notifications via the `Notification` [facade](/docs/10.x/facades). This approach is useful when you need to send a notification to multiple notifiable entities such as a collection of users. To send notifications using the facade, pass all of the notifiable entities and the notification instance to the `send` method: -->
-또 다른 방법으로, `Notification` [facade](/docs/10.x/facades)를 사용하여 알림을 전송할 수 있습니다. 이 방식은 여러 notifiable 엔터티(예: 여러 사용자 컬렉션)에게 알림을 보내야 할 때 유용합니다. 파사드의 `send` 메서드에 notifiable 엔터티와 알림 인스턴스를 전달하면 됩니다:
+또 다른 방법으로, `Notification` [facade](/docs/10.x/facades)를 사용하여 알림을 전송할 수 있습니다. 이 방식은 여러 notifiable 엔터티(예: 여러 사용자로 이루어진 컬렉션)에게 알림을 보내야 할 때 유용합니다. 파사드의 `send` 메서드에 notifiable 엔터티와 알림 인스턴스를 전달하면 됩니다:
 
 ```
 use Illuminate\Support\Facades\Notification;
@@ -163,7 +163,7 @@ public function via(object $notifiable): array
 ### Queueing Notifications
 
 > [!WARNING]
-> 알림을 큐잉하기 전에 큐를 설정하고 [start a worker](/docs/10.x/queues#running-the-queue-worker)해야 합니다.
+> 알림을 큐잉하기 전에 큐를 설정하고 [start a worker](/docs/10.x/queues#running-the-queue-worker)에 따라 워커를 시작해야 합니다.
 
 <!-- Sending notifications can take time, especially if the channel needs to make an external API call to deliver the notification. To speed up your application's response time, let your notification be queued by adding the `ShouldQueue` interface and `Queueable` trait to your class. The interface and trait are already imported for all notifications generated using the `make:notification` command, so you may immediately add them to your notification class: -->
 특히 외부 API 호출이 필요한 채널의 경우 알림을 보내는 데 시간이 소요될 수 있습니다. 애플리케이션의 응답 속도를 높이려면, 알림 클래스에 `ShouldQueue` 인터페이스와 `Queueable` 트레이트를 추가하여 알림을 큐에 넘기도록 설정하세요. `make:notification` 명령어로 생성한 알림 클래스에는 이미 이 인터페이스와 트레이트가 import 되어 있으므로, 바로 추가해서 사용할 수 있습니다:
@@ -760,7 +760,7 @@ Amazon SES를 이용해 이메일을 전송하는 경우, `metadata` 메서드�
 ### Customizing the Symfony Message
 
 <!-- The `withSymfonyMessage` method of the `MailMessage` class allows you to register a closure which will be invoked with the Symfony Message instance before sending the message. This gives you an opportunity to deeply customize the message before it is delivered: -->
-`MailMessage` 클래스의 `withSymfonyMessage` 메서드를 사용하면, 메시지를 전송하기 전에 Symfony Message 인스턴스로 클로저를 전달해 메시지를 더욱 세밀하게 커스터마이징할 수 있습니다.
+`MailMessage` 클래스의 `withSymfonyMessage` 메서드를 사용하면, 메시지를 전송하기 전에 Symfony Message 인스턴스를 전달받아 호출될 클로저를 등록해 메시지를 더욱 세밀하게 커스터마이징할 수 있습니다.
 
 ```
 use Symfony\Component\Mime\Email;
@@ -1402,7 +1402,7 @@ composer require laravel/slack-notification-channel
 #### App Distribution
 
 <!-- If your application will be sending notifications to external Slack workspaces that are owned by your application's users, you will need to "distribute" your App via Slack. App distribution can be managed from your App's "Manage Distribution" tab within Slack. Once your App has been distributed, you may use [Socialite](/docs/10.x/socialite) to [obtain Slack Bot tokens](/docs/10.x/socialite#slack-bot-scopes) on behalf of your application's users. -->
-애플리케이션이 사용자의 외부 Slack 워크스페이스로 알림을 보내야 한다면, Slack을 통해 앱을 "배포"해야 합니다. 앱 배포는 Slack 내 "Manage Distribution" 탭에서 관리할 수 있습니다. 앱이 배포된 후에는, [Socialite](/docs/10.x/socialite)를 사용하여 [obtain Slack Bot tokens](/docs/10.x/socialite#slack-bot-scopes)을 사용자 계정 대신 발급받을 수 있습니다.
+애플리케이션이 사용자의 외부 Slack 워크스페이스로 알림을 보내야 한다면, Slack을 통해 앱을 "배포"해야 합니다. 앱 배포는 Slack 내 "Manage Distribution" 탭에서 관리할 수 있습니다. 앱이 배포된 후에는, [Socialite](/docs/10.x/socialite)를 사용하여 애플리케이션 사용자를 대신해 [obtain Slack Bot tokens](/docs/10.x/socialite#slack-bot-scopes)에 설명된 봇 토큰을 발급받을 수 있습니다.
 
 <a name="formatting-slack-notifications"></a>
 <!-- ### Formatting Slack Notifications -->
@@ -1448,7 +1448,7 @@ public function toSlack(object $notifiable): SlackMessage
 Slack의 Block Kit 알림 시스템은 [handle user interaction](https://api.slack.com/interactivity/handling)를 위한 강력한 기능을 제공합니다. 이러한 기능을 활용하려면 Slack 앱의 "Interactivity"를 활성화하고, 애플리케이션이 서비스하는 URL을 "Request URL"로 설정해야 합니다. 관련 설정은 Slack 앱 관리 메뉴의 "Interactivity & Shortcuts" 탭에서 찾을 수 있습니다.
 
 <!-- In the following example, which utilizes the `actionsBlock` method, Slack will send a `POST` request to your "Request URL" with a payload containing the Slack user who clicked the button, the ID of the clicked button, and more. Your application can then determine the action to take based on the payload. You should also [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack) was made by Slack: -->
-아래 예시는 `actionsBlock` 메서드를 이용한 것으로, Slack은 버튼 클릭 시 "Request URL"로 해당 Slack 사용자의 정보, 클릭된 버튼 ID 등 다양한 데이터를 포함한 `POST` 요청을 전송합니다. 애플리케이션은 수신된 payload를 바탕으로 필요한 작업을 수행할 수 있습니다. 또한, 이 요청이 Slack에서 온 것임을 반드시 [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack)해야 합니다.
+아래 예시는 `actionsBlock` 메서드를 이용한 것으로, Slack은 버튼 클릭 시 "Request URL"로 해당 Slack 사용자의 정보, 클릭된 버튼 ID 등 다양한 데이터를 포함한 `POST` 요청을 전송합니다. 애플리케이션은 수신된 payload를 바탕으로 필요한 작업을 수행할 수 있습니다. 또한, 이 요청이 Slack에서 온 것임을 반드시 [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack)에 따라 검증해야 합니다.
 
 ```
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;
@@ -1584,13 +1584,13 @@ class User extends Authenticatable
 ### Notifying External Slack Workspaces
 
 > [!NOTE]
-> 외부 Slack 워크스페이스로 알림을 보내기 전에, Slack 앱을 반드시 [distributed](#slack-app-distribution)해야 합니다.
+> 외부 Slack 워크스페이스로 알림을 보내기 전에, Slack 앱을 반드시 배포해야 합니다([distributed](#slack-app-distribution)).
 
 <!-- Of course, you will often want to send notifications to the Slack workspaces owned by your application's users. To do so, you will first need to obtain a Slack OAuth token for the user. Thankfully, [Laravel Socialite](/docs/10.x/socialite) includes a Slack driver that will allow you to easily authenticate your application's users with Slack and [obtain a bot token](/docs/10.x/socialite#slack-bot-scopes). -->
 애플리케이션의 사용자가 소유한 Slack 워크스페이스로 알림을 보내고 싶은 경우가 많습니다. 이를 위해서는 먼저 해당 사용자의 Slack OAuth 토큰을 발급받아야 합니다. 다행히도, [Laravel Socialite](/docs/10.x/socialite)의 Slack 드라이버를 이용하면 손쉽게 사용자 인증 및 [obtain a bot token](/docs/10.x/socialite#slack-bot-scopes)이 가능합니다.
 
 <!-- Once you have obtained the bot token and stored it within your application's database, you may utilize the `SlackRoute::make` method to route a notification to the user's workspace. In addition, your application will likely need to offer an opportunity for the user to specify which channel notifications should be sent to: -->
-봇 토큰을 발급받아 애플리케이션 데이터베이스에 저장한 후에는, `SlackRoute::make` 메서드를 이용해 알림을 사용자의 워크스페이스로 라우팅할 수 있습니다. 또한, 사용자에게 알림이 전송될 채널을 지정하는 UI를 제공할 수도 있습니다.
+봇 토큰을 발급받아 애플리케이션 데이터베이스에 저장한 후에는, `SlackRoute::make` 메서드를 이용해 알림을 사용자의 워크스페이스로 라우팅할 수 있습니다. 또한, 사용자에게 알림이 전송될 채널을 지정하는 UI를 제공해야 할 수도 있습니다.
 
 ```
 <?php
@@ -1715,7 +1715,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- You may pass a closure to the `assertSentTo` or `assertNotSentTo` methods in order to assert that a notification was sent that passes a given "truth test". If at least one notification was sent that passes the given truth test then the assertion will be successful: -->
-알림이 보냈는지 검사하는 `assertSentTo`, `assertNotSentTo` 메서드에 클로저를 전달해, 특정 조건(진리값 테스트)에 맞는 알림이 하나라도 전송되었는지까지 검증할 수 있습니다. 주어진 조건에 맞는 알림이 하나라도 있으면 해당 검증은 통과하게 됩니다.
+알림이 전송되었는지 검사하는 `assertSentTo`, `assertNotSentTo` 메서드에 클로저를 전달해, 특정 조건(진리값 테스트)에 맞는 알림이 하나라도 전송되었는지까지 검증할 수 있습니다. 주어진 조건에 맞는 알림이 하나라도 있으면 해당 검증은 통과하게 됩니다.
 
 ```
 Notification::assertSentTo(

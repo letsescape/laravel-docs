@@ -222,7 +222,7 @@ if ($response->allowed()) {
 ```
 
 <!-- When using the `Gate::authorize` method, which throws an `AuthorizationException` if the action is not authorized, the error message provided by the authorization response will be propagated to the HTTP response: -->
-`Gate::authorize` 메서드를 사용할 때, 인가에 실패하면 발생하는 `AuthorizationException`의 에러 메시지는 인가 응답에서 제공한 메시지가 HTTP 응답으로 전달됩니다:
+`Gate::authorize` 메서드를 사용할 때 인가에 실패하면 `AuthorizationException`이 발생하며, 인가 응답에서 제공한 에러 메시지가 HTTP 응답으로 전달됩니다:
 
 ```
 Gate::authorize('edit-settings');
@@ -286,7 +286,7 @@ Gate::before(function (User $user, string $ability) {
 `before` 클로저에서 null이 아닌 값을 반환하면, 해당 값이 인가 검사 결과로 사용됩니다.
 
 <!-- You may use the `after` method to define a closure to be executed after all other authorization checks: -->
-또한, 모든 인가 검사 후에 실행할 수 있는 `after` 메서드도 정의할 수 있습니다:
+또한, `after` 메서드로 모든 인가 검사 후에 실행할 클로저를 정의할 수 있습니다:
 
 ```
 use App\Models\User;
@@ -354,7 +354,7 @@ php artisan make:policy PostPolicy --model=Post
 #### Policy Discovery
 
 <!-- By default, Laravel automatically discover policies as long as the model and policy follow standard Laravel naming conventions. Specifically, the policies must be in a `Policies` directory at or above the directory that contains your models. So, for example, the models may be placed in the `app/Models` directory while the policies may be placed in the `app/Policies` directory. In this situation, Laravel will check for policies in `app/Models/Policies` then `app/Policies`. In addition, the policy name must match the model name and have a `Policy` suffix. So, a `User` model would correspond to a `UserPolicy` policy class. -->
-Laravel은 기본적으로 모델과 정책이 표준 네이밍 규칙을 따르고 있으면 정책을 자동으로 발견합니다. 구체적으로, 정책은 모델이 들어 있는 디렉터리이거나 그 상위에 위치한 `Policies` 디렉터리에 있어야 합니다. 예를 들어 모델이 `app/Models` 디렉터리에 있고 정책이 `app/Policies` 디렉터리에 있다면, Laravel은 `app/Models/Policies`를 먼저, 그다음 `app/Policies`에서 정책을 찾습니다. 또한 정책 이름은 모델 이름과 일치하고 `Policy` 접미사가 붙어야 합니다. 예를 들어 `User` 모델이라면 관련 정책 클래스는 `UserPolicy`가 됩니다.
+Laravel은 기본적으로 모델과 정책이 표준 네이밍 규칙을 따르고 있으면 정책을 자동으로 발견합니다. 구체적으로, 정책은 모델이 들어 있는 디렉터리 또는 그 상위 디렉터리의 `Policies` 디렉터리에 있어야 합니다. 예를 들어 모델이 `app/Models` 디렉터리에 있고 정책이 `app/Policies` 디렉터리에 있다면, Laravel은 `app/Models/Policies`를 먼저, 그다음 `app/Policies`에서 정책을 찾습니다. 또한 정책 이름은 모델 이름과 일치하고 `Policy` 접미사가 붙어야 합니다. 예를 들어 `User` 모델이라면 관련 정책 클래스는 `UserPolicy`가 됩니다.
 
 <!-- If you would like to define your own policy discovery logic, you may register a custom policy discovery callback using the `Gate::guessPolicyNamesUsing` method. Typically, this method should be called from the `boot` method of your application's `AppServiceProvider`: -->
 정책 자동 발견 로직을 직접 정의하고 싶다면, `Gate::guessPolicyNamesUsing` 메서드를 사용해 커스텀 콜백을 등록할 수 있습니다. 이 메서드는 보통 애플리케이션의 `AppServiceProvider`의 `boot` 메서드 내부에서 호출합니다:

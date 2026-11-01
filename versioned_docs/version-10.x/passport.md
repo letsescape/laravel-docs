@@ -224,7 +224,7 @@ Passport::hashClientSecrets();
 ```
 
 <!-- Once enabled, all of your client secrets will only be displayable to the user immediately after they are created. Since the plain-text client secret value is never stored in the database, it is not possible to recover the secret's value if it is lost. -->
-이 기능을 활성화하면, 각 클라이언트 생성 직후에만 해시되지 않은(본문 그대로의) 시크릿 값을 확인할 수 있습니다. 평문 시크릿 값이 데이터베이스에 저장되지 않으므로, 시크릿 값을 분실했을 경우 복구는 불가능합니다.
+이 기능을 활성화하면, 각 클라이언트 시크릿 생성 직후에만 해시되지 않은(평문 그대로의) 시크릿 값을 확인할 수 있습니다. 평문 시크릿 값이 데이터베이스에 저장되지 않으므로, 시크릿 값을 분실했을 경우 복구는 불가능합니다.
 
 <a name="token-lifetimes"></a>
 <!-- ### Token Lifetimes -->
@@ -365,14 +365,14 @@ http://example.com/callback,http://examplefoo.com/callback
 다만, Passport의 JSON API와 프론트엔드를 연동해서, 사용자가 클라이언트를 직접 관리할 수 있는 대시보드를 만들어줘야 합니다. 아래에서는 각 엔드포인트 별로 클라이언트 관리에 사용되는 API를 정리합니다. 예제에서는 [Axios](https://github.com/axios/axios)를 사용해 HTTP 요청 예시를 보여줍니다.
 
 <!-- The JSON API is guarded by the `web` and `auth` middleware; therefore, it may only be called from your own application. It is not able to be called from an external source. -->
-JSON API는 반드시 `web` 미들웨어와 `auth` 미들웨어를 통과해야 하므로, 반드시 여러분의 애플리케이션 내부에서만 호출할 수 있습니다. 외부 애플리케이션이나 사용자는 접근할 수 없습니다.
+JSON API는 반드시 `web` 미들웨어와 `auth` 미들웨어를 통과해야 하므로, 반드시 여러분의 애플리케이션 내부에서만 호출할 수 있습니다. 외부에서는 호출할 수 없습니다.
 
 <a name="get-oauthclients"></a>
 <!-- #### `GET /oauth/clients` -->
 #### `GET /oauth/clients`
 
 <!-- This route returns all of the clients for the authenticated user. This is primarily useful for listing all of the user's clients so that they may edit or delete them: -->
-이 라우트는 인증된 사용자가 생성한 모든 클라이언트 목록을 반환합니다. 클라이언트 관리 대시보드에서 사용자가 클라이언트를 확인, 편집, 삭제할 때 주로 활용됩니다.
+이 라우트는 인증된 사용자의 모든 클라이언트 목록을 반환합니다. 클라이언트 관리 대시보드에서 사용자가 클라이언트를 확인, 편집, 삭제할 때 주로 활용됩니다.
 
 ```js
 axios.get('/oauth/clients')
@@ -500,7 +500,7 @@ php artisan vendor:publish --tag=passport-views
 ```
 
 <!-- Sometimes you may wish to skip the authorization prompt, such as when authorizing a first-party client. You may accomplish this by [extending the `Client` model](#overriding-default-models) and defining a `skipsAuthorization` method. If `skipsAuthorization` returns `true` the client will be approved and the user will be redirected back to the `redirect_uri` immediately, unless the consuming application has explicitly set the `prompt` parameter when redirecting for authorization: -->
-일부 상황에서는, 예를 들어 1차 클라이언트(자신이 만든 서비스 등)를 인가할 때처럼 인가 프롬프트를 건너뛰고 싶을 수도 있습니다. 이 경우 [extending the `Client` model](#overriding-default-models)한 뒤 `skipsAuthorization` 메서드를 정의하면 됩니다. `skipsAuthorization`이 `true`를 반환하면, 소비 애플리케이션이 인가 리다이렉트 시 `prompt` 파라미터를 명시적으로 설정하지 않은 한, 클라이언트가 승인되고 사용자는 즉시 `redirect_uri`로 리다이렉트됩니다.
+일부 상황에서는, 예를 들어 퍼스트 파티 클라이언트(자신이 만든 서비스 등)를 인가할 때처럼 인가 프롬프트를 건너뛰고 싶을 수도 있습니다. 이 경우 [extending the `Client` model](#overriding-default-models)한 뒤 `skipsAuthorization` 메서드를 정의하면 됩니다. `skipsAuthorization`이 `true`를 반환하면, 소비 애플리케이션이 인가 리다이렉트 시 `prompt` 파라미터를 명시적으로 설정하지 않은 한, 클라이언트가 승인되고 사용자는 즉시 `redirect_uri`로 리다이렉트됩니다.
 
 ```
 <?php
@@ -676,7 +676,7 @@ protected function schedule(Schedule $schedule): void
 ## Authorization Code Grant With PKCE
 
 <!-- The Authorization Code grant with "Proof Key for Code Exchange" (PKCE) is a secure way to authenticate single page applications or native applications to access your API. This grant should be used when you can't guarantee that the client secret will be stored confidentially or in order to mitigate the threat of having the authorization code intercepted by an attacker. A combination of a "code verifier" and a "code challenge" replaces the client secret when exchanging the authorization code for an access token. -->
-"Proof Key for Code Exchange"(PKCE)가 포함된 인증 코드 그랜트는, 싱글 페이지 애플리케이션(SPA)이나 네이티브 애플리케이션처럼 클라이언트 비밀을 안전하게 보관할 수 없는 경우, 또는 인가 코드가 공격자에게 가로채지는 것을 방지하고 싶을 때 안전하게 API를 인증할 수 있는 방식입니다. 이 방식에서는 클라이언트 비밀 대신, "코드 검증자(code verifier)"와 "코드 챌린지(code challenge)"의 조합을 사용하여 인가 코드를 액세스 토큰으로 교환합니다.
+"Proof Key for Code Exchange"(PKCE)가 포함된 인증 코드 그랜트는 싱글 페이지 애플리케이션(SPA)이나 네이티브 애플리케이션이 API에 접근할 수 있도록 안전하게 인증하는 방식입니다. 클라이언트 비밀이 안전하게 보관된다고 보장할 수 없거나, 공격자가 인가 코드를 가로채는 위협을 완화하려는 경우 이 방식을 사용해야 합니다. 이 방식에서는 클라이언트 비밀 대신, "코드 검증자(code verifier)"와 "코드 챌린지(code challenge)"의 조합을 사용하여 인가 코드를 액세스 토큰으로 교환합니다.
 
 <a name="creating-a-auth-pkce-grant-client"></a>
 <!-- ### Creating the Client -->
@@ -754,7 +754,7 @@ Route::get('/redirect', function (Request $request) {
 #### Converting Authorization Codes to Access Tokens
 
 <!-- If the user approves the authorization request, they will be redirected back to the consuming application. The consumer should verify the `state` parameter against the value that was stored prior to the redirect, as in the standard Authorization Code Grant. -->
-사용자가 인가 요청을 승인하면, 사용자는 다시 사용 애플리케이션으로 리다이렉트됩니다. 이때, 표준 인증 코드 그랜트와 마찬가지로, 사용자는 리다이렉트 전에 세션에 저장한 `state` 값을 확인해야 합니다.
+사용자가 인가 요청을 승인하면, 사용자는 다시 사용 애플리케이션으로 리다이렉트됩니다. 이때, 표준 인증 코드 그랜트와 마찬가지로, 사용 애플리케이션은 `state` 파라미터를 리다이렉트 전에 저장한 값과 비교하여 검증해야 합니다.
 
 <!-- If the state parameter matches, the consumer should issue a `POST` request to your application to request an access token. The request should include the authorization code that was issued by your application when the user approved the authorization request along with the originally generated code verifier: -->
 state 파라미터가 일치하면, 발급받은 인가 코드와 함께 처음 생성한 코드 검증자를 포함하여 애플리케이션에 `POST` 요청을 보내 액세스 토큰을 요청해야 합니다.
@@ -793,7 +793,7 @@ Route::get('/callback', function (Request $request) {
 > 패스워드 그랜트 토큰 사용은 더 이상 권장하지 않습니다. 대신 [a grant type that is currently recommended by OAuth2 Server](https://oauth2.thephpleague.com/authorization-server/which-grant/)을 선택하시기 바랍니다.
 
 <!-- The OAuth2 password grant allows your other first-party clients, such as a mobile application, to obtain an access token using an email address / username and password. This allows you to issue access tokens securely to your first-party clients without requiring your users to go through the entire OAuth2 authorization code redirect flow. -->
-OAuth2 패스워드 그랜트를 통해, 모바일 애플리케이션과 같은 1차 애플리케이션에서 이메일 주소/사용자명과 비밀번호로 액세스 토큰을 받을 수 있습니다. 이 방법을 사용하면 사용자가 전체 OAuth2 인가 코드 리다이렉트 과정을 거치지 않고도, 1차 애플리케이션에 안전하게 액세스 토큰을 발급할 수 있습니다.
+OAuth2 패스워드 그랜트를 통해, 모바일 애플리케이션과 같은 자사 애플리케이션에서 이메일 주소/사용자명과 비밀번호로 액세스 토큰을 받을 수 있습니다. 이 방법을 사용하면 사용자가 전체 OAuth2 인가 코드 리다이렉트 과정을 거치지 않고도, 자사 애플리케이션에 안전하게 액세스 토큰을 발급할 수 있습니다.
 
 <a name="creating-a-password-grant-client"></a>
 <!-- ### Creating a Password Grant Client -->
@@ -927,7 +927,7 @@ class User extends Authenticatable
 > 임플리시트 그랜트 토큰 사용은 더 이상 권장하지 않습니다. 대신 [a grant type that is currently recommended by OAuth2 Server](https://oauth2.thephpleague.com/authorization-server/which-grant/)을 사용하세요.
 
 <!-- The implicit grant is similar to the authorization code grant; however, the token is returned to the client without exchanging an authorization code. This grant is most commonly used for JavaScript or mobile applications where the client credentials can't be securely stored. To enable the grant, call the `enableImplicitGrant` method in the `boot` method of your application's `App\Providers\AuthServiceProvider` class: -->
-임플리시트(Implicit) 그랜트는 인증 코드 그랜트와 비슷하지만, 인가 코드를 교환하는 절차 없이 바로 토큰이 클라이언트로 반환됩니다. 이 방식은 클라이언트 비밀을 안전하게 저장할 수 없는 JavaScript 또는 모바일 애플리케이션에서 주로 사용됩니다. 이 방식을 활성화하려면, 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `enableImplicitGrant` 메서드를 호출하세요.
+임플리시트(Implicit) 그랜트는 인가 코드 그랜트와 비슷하지만, 인가 코드를 교환하는 절차 없이 바로 토큰이 클라이언트로 반환됩니다. 이 방식은 클라이언트 비밀을 안전하게 저장할 수 없는 JavaScript 또는 모바일 애플리케이션에서 주로 사용됩니다. 이 방식을 활성화하려면, 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `enableImplicitGrant` 메서드를 호출하세요.
 
 ```
 /**
@@ -1035,7 +1035,7 @@ return $response->json()['access_token'];
 경우에 따라 사용자가 인가 코드 리다이렉트 흐름을 거치지 않고 직접 자신의 액세스 토큰을 발급받고 싶어할 수 있습니다. 사용자에게 애플리케이션의 UI를 통해 직접 토큰을 발급하게 하면, API 테스트 또는 보다 간편하게 액세스 토큰을 발급하고자 할 때 유용할 수 있습니다.
 
 > [!NOTE]
-> 애플리케이션이 주로 개인 액세스 토큰 발급 용도로 Passport를 사용한다면, Laravel의 경량 1차 API 토큰 라이브러리인 [Laravel Sanctum](/docs/10.x/sanctum) 사용을 고려해보세요.
+> 애플리케이션이 주로 개인 액세스 토큰 발급 용도로 Passport를 사용한다면, Laravel에서 직접 제공하는 경량 API 토큰 라이브러리인 [Laravel Sanctum](/docs/10.x/sanctum) 사용을 고려해보세요.
 
 <a name="creating-a-personal-access-client"></a>
 <!-- ### Creating a Personal Access Client -->
@@ -1140,7 +1140,7 @@ axios.post('/oauth/personal-access-tokens', data)
 #### `DELETE /oauth/personal-access-tokens/{token-id}`
 
 <!-- This route may be used to revoke personal access tokens: -->
-이 경로는 개인 액세스 토큰을 폐기(삭제)할 때 사용합니다.
+이 경로는 개인 액세스 토큰을 폐기할 때 사용합니다.
 
 ```js
 axios.delete('/oauth/personal-access-tokens/' + tokenId);
@@ -1155,7 +1155,7 @@ axios.delete('/oauth/personal-access-tokens/' + tokenId);
 ### Via Middleware
 
 <!-- Passport includes an [authentication guard](/docs/10.x/authentication#adding-custom-guards) that will validate access tokens on incoming requests. Once you have configured the `api` guard to use the `passport` driver, you only need to specify the `auth:api` middleware on any routes that should require a valid access token: -->
-Passport에는 요청이 들어왓을 때 액세스 토큰을 검증해주는 [authentication guard](/docs/10.x/authentication#adding-custom-guards)가 포함되어 있습니다. `api` 가드를 `passport` 드라이버로 설정한 경우, 유효한 액세스 토큰이 필요한 라우트에 `auth:api` 미들웨어만 지정하면 됩니다.
+Passport에는 요청이 들어왔을 때 액세스 토큰을 검증해주는 [authentication guard](/docs/10.x/authentication#adding-custom-guards)가 포함되어 있습니다. `api` 가드를 `passport` 드라이버로 설정한 경우, 유효한 액세스 토큰이 필요한 라우트에 `auth:api` 미들웨어만 지정하면 됩니다.
 
 ```
 Route::get('/user', function () {
@@ -1195,7 +1195,7 @@ Route::get('/customer', function () {
 ```
 
 > [!NOTE]
-> Passport에서 여러 사용자(providers)를 사용하는 방법에 대한 자세한 내용은 [password grant documentation](#customizing-the-user-provider)를 참고하세요.
+> Passport에서 여러 사용자 프로바이더를 사용하는 방법에 대한 자세한 내용은 [password grant documentation](#customizing-the-user-provider)를 참고하세요.
 
 <a name="passing-the-access-token"></a>
 <!-- ### Passing the Access Token -->
@@ -1227,7 +1227,7 @@ return $response->json();
 ### Defining Scopes
 
 <!-- You may define your API's scopes using the `Passport::tokensCan` method in the `boot` method of your application's `App\Providers\AuthServiceProvider` class. The `tokensCan` method accepts an array of scope names and scope descriptions. The scope description may be anything you wish and will be displayed to users on the authorization approval screen: -->
-API의 스코프는 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `Passport::tokensCan` 메서드를 사용해 정의할 수 있습니다. `tokensCan` 메서드에는 스코프 이름과 설명(사용자에게 표시될 내용)을 배열로 지정합니다.
+API의 스코프는 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `Passport::tokensCan` 메서드를 사용해 정의할 수 있습니다. `tokensCan` 메서드에는 스코프 이름과 설명(사용자에게 표시될 내용)을 배열로 지정합니다. 스코프 설명은 원하는 내용으로 작성할 수 있으며, 인가 승인 화면에 표시됩니다.
 
 ```
 /**
@@ -1443,7 +1443,7 @@ public function boot(): void
 #### CSRF Protection
 
 <!-- When using this method of authentication, you will need to ensure a valid CSRF token header is included in your requests. The default Laravel JavaScript scaffolding includes an Axios instance, which will automatically use the encrypted `XSRF-TOKEN` cookie value to send an `X-XSRF-TOKEN` header on same-origin requests. -->
-이 인증 방식을 이용할 때는, 요청에 유효한 CSRF 토큰 헤더가 반드시 포함되어야 합니다. 기본 Laravel JavaScript 스캐폴딩은 Axios 인스턴스를 포함하며, 이 인스턴스는 암호화된 `XSRF-TOKEN` 쿠키 값을 자동으로 읽어 같은 도메인 요청의 `X-XSRF-TOKEN` 헤더로 전송합니다.
+이 인증 방식을 이용할 때는, 요청에 유효한 CSRF 토큰 헤더가 반드시 포함되어야 합니다. 기본 Laravel JavaScript 스캐폴딩은 Axios 인스턴스를 포함하며, 이 인스턴스는 암호화된 `XSRF-TOKEN` 쿠키 값을 자동으로 읽어 동일 출처 요청의 `X-XSRF-TOKEN` 헤더로 전송합니다.
 
 > [!NOTE]
 > 만약 `X-XSRF-TOKEN` 대신 `X-CSRF-TOKEN` 헤더를 보내고 싶다면, `csrf_token()`에서 제공하는 암호화되지 않은 토큰을 사용해야 합니다.

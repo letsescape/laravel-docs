@@ -369,7 +369,7 @@ $stripeCustomer = $user->updateStripeCustomer($options);
 ### Balances
 
 <!-- Stripe allows you to credit or debit a customer's "balance". Later, this balance will be credited or debited on new invoices. To check the customer's total balance you may use the `balance` method that is available on your billable model. The `balance` method will return a formatted string representation of the balance in the customer's currency: -->
-Stripe에서는 고객의 "잔액"에 금액을 더하거나 뺄 수 있습니다. 이후 새로 발행되는 인보이스에서 해당 잔액이 차감/증가하게 됩니다. 고객의 전체 잔액을 확인하려면, 청구가 가능한 모델에서 제공하는 `balance` 메서드를 사용할 수 있습니다. `balance` 메서드는 고객의 화폐 단위로 포맷된 문자열을 반환합니다.
+Stripe에서는 고객의 "잔액"에 크레딧(청구액 차감)이나 데빗(청구액 가산)을 반영할 수 있습니다. 이후 새로 발행되는 인보이스에 해당 잔액이 적용됩니다. 고객의 전체 잔액을 확인하려면, 청구가 가능한 모델에서 제공하는 `balance` 메서드를 사용할 수 있습니다. `balance` 메서드는 고객의 화폐 단위로 포맷된 문자열을 반환합니다.
 
 ```
 $balance = $user->balance();
@@ -383,7 +383,7 @@ $user->applyBalance(-500, 'Premium customer top-up.');
 ```
 
 <!-- Providing a positive value to the `applyBalance` method will debit the customer's balance: -->
-`applyBalance` 메서드에 양수 값을 전달하면 고객의 잔액이 차감(데빗)됩니다.
+`applyBalance` 메서드에 양수 값을 전달하면 고객의 잔액에 데빗이 반영되어 청구액이 늘어납니다.
 
 ```
 $user->applyBalance(300, 'Bad usage penalty.');
@@ -432,7 +432,7 @@ $taxId = $user->createTaxId('eu_vat', 'BE0123456789');
 ```
 
 <!-- The `createTaxId` method will immediately add the VAT ID to the customer's account. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation); however, this is an asynchronous process. You can be notified of verification updates by subscribing to the `customer.tax_id.updated` webhook event and inspecting [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification). For more information on handling webhooks, please consult the [documentation on defining webhook handlers](#handling-stripe-webhooks). -->
-`createTaxId` 메서드를 사용하면 VAT ID가 즉시 고객 계정에 추가됩니다. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation)되는데, 이 과정은 비동기로 처리됩니다. `customer.tax_id.updated` webhook 이벤트를 받아 [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification)를 확인하면 검증 결과를 실시간으로 알릴 수 있습니다. Webhook 처리 방법에 대해서는 [documentation on defining webhook handlers](#handling-stripe-webhooks)를 참고하시기 바랍니다.
+`createTaxId` 메서드를 사용하면 VAT ID가 즉시 고객 계정에 추가됩니다. [Verification of VAT IDs is also done by Stripe](https://stripe.com/docs/invoicing/customer/tax-ids#validation)에 설명된 VAT ID 검증도 Stripe에서 수행하는데, 이 과정은 비동기로 처리됩니다. `customer.tax_id.updated` webhook 이벤트를 받아 [the VAT IDs `verification` parameter](https://stripe.com/docs/api/customer_tax_ids/object#tax_id_object-verification)를 확인하면 검증 결과를 실시간으로 알릴 수 있습니다. Webhook 처리 방법에 대해서는 [documentation on defining webhook handlers](#handling-stripe-webhooks)를 참고하시기 바랍니다.
 
 <!-- You may delete a tax ID using the `deleteTaxId` method: -->
 세금 ID를 삭제하고 싶을 때는 `deleteTaxId` 메서드를 사용하면 됩니다.
@@ -841,7 +841,7 @@ Route::post('/user/subscribe', function (Request $request) {
 ```
 
 <!-- The first argument passed to the `newSubscription` method should be the internal name of the subscription. If your application only offers a single subscription, you might call this `default` or `primary`. This subscription name is only for internal application usage and is not meant to be shown to users. In addition, it should not contain spaces and it should never be changed after creating the subscription. The second argument is the specific price the user is subscribing to. This value should correspond to the price's identifier in Stripe. -->
-`newSubscription` 메서드의 첫 번째 인수는 구독의 내부 이름입니다. 애플리케이션에서 단일 구독만 제공한다면 `default`나 `primary` 등 의미 있는 이름을 사용할 수 있습니다. 이 구독 이름은 내부적으로만 사용되며 사용자에게 노출하지 않습니다. 또한, 이름에 공백이 없어야 하고, 구독을 생성한 이후에는 변경하지 않는 것이 좋습니다. 두 번째 인수는 사용자가 구독할 Stripe 가격(Price)의 식별자입니다.
+`newSubscription` 메서드의 첫 번째 인수는 구독의 내부 이름입니다. 애플리케이션에서 단일 구독만 제공한다면 `default`나 `primary` 등 의미 있는 이름을 사용할 수 있습니다. 이 구독 이름은 내부적으로만 사용되며 사용자에게 노출하지 않습니다. 또한, 이름에 공백이 없어야 하고, 구독을 생성한 이후에는 변경해서는 안 됩니다. 두 번째 인수는 사용자가 구독할 Stripe 가격(Price)의 식별자입니다.
 
 <!-- The `create` method, which accepts [a Stripe payment method identifier](#storing-payment-methods) or Stripe `PaymentMethod` object, will begin the subscription as well as update your database with the billable model's Stripe customer ID and other relevant billing information. -->
 `create` 메서드는 [a Stripe payment method identifier](#storing-payment-methods) 또는 Stripe `PaymentMethod` 객체를 받아, 구독을 시작하고 billable 모델의 Stripe 고객 ID 및 관련 결제 정보를 데이터베이스에 저장합니다.
@@ -862,7 +862,7 @@ $user->newSubscription('default', 'price_monthly')->createAndSendInvoice();
 ```
 
 <!-- The amount of time a customer has to pay their invoice before their subscription is canceled is determined by your subscription and invoice settings within the [Stripe dashboard](https://dashboard.stripe.com/settings/billing/automatic). -->
-고객이 인보이스를 결제하지 않아 구독이 만료되기까지의 유예 기간은 [Stripe dashboard](https://dashboard.stripe.com/settings/billing/automatic) 내 구독 및 인보이스 설정을 통해 관리할 수 있습니다.
+고객이 인보이스를 결제하지 않아 구독이 취소되기까지의 기간은 [Stripe dashboard](https://dashboard.stripe.com/settings/billing/automatic) 내 구독 및 인보이스 설정을 통해 관리할 수 있습니다.
 
 <a name="subscription-quantities"></a>
 
@@ -942,7 +942,7 @@ $user->newSubscription('default', 'price_monthly')->add();
 Stripe 대시보드에서도 구독을 생성할 수 있습니다. 이 경우, Cashier가 새로 추가된 구독을 동기화하고 구독 이름을 `default`로 지정합니다. 대시보드에서 생성된 구독의 이름을 커스터마이징하려면, [extend the `WebhookController`](/docs/8.x/billing#defining-webhook-event-handlers)하고 `newSubscriptionName` 메서드를 오버라이드해야 합니다.
 
 <!-- In addition, you may only create one type of subscription via the Stripe dashboard. If your application offers multiple subscriptions that use different names, only one type of subscription may be added through the Stripe dashboard. -->
-또한, Stripe 대시보드에서는 한 종류의 구독만 생성할 수 있습니다. 애플리케이션이 여러 구독을 지원하는 경우, 각 이름별로 하나의 구독만 Stripe 대시보드를 통해 추가할 수 있습니다.
+또한, Stripe 대시보드에서는 한 종류의 구독만 생성할 수 있습니다. 애플리케이션이 서로 다른 이름의 여러 구독을 지원하더라도, Stripe 대시보드를 통해서는 한 가지 종류의 구독만 추가할 수 있습니다.
 
 <!-- Finally, you should always make sure to only add one active subscription per type of subscription offered by your application. If customer has two `default` subscriptions, only the most recently added subscription will be used by Cashier even though both would be synced with your application's database. -->
 마지막으로, 애플리케이션에서 제공하는 각 구독 종류별로 항상 활성화된 구독이 하나만 존재하도록 관리해야 합니다. 만약 고객에게 두 개의 `default` 구독이 있을 경우, Cashier에서는 가장 최근에 추가된 구독만을 사용하며, 두 구독 모두 애플리케이션의 데이터베이스와 동기화됩니다.
@@ -1198,7 +1198,7 @@ $user->subscription('default')->swapAndInvoice('price_yearly');
 #### Prorations
 
 <!-- By default, Stripe prorates charges when swapping between prices. The `noProrate` method may be used to update the subscription's price without prorating the charges: -->
-Stripe에서는 기본적으로 가격 변경 시 요금을 일할계산(proration)합니다. 일할계산(co)는 하지 않고 가격만 즉시 변경하고 싶다면 `noProrate` 메서드를 사용할 수 있습니다.
+Stripe에서는 기본적으로 가격 변경 시 요금을 일할계산(proration)합니다. 일할계산은 하지 않고 가격만 즉시 변경하고 싶다면 `noProrate` 메서드를 사용할 수 있습니다.
 
 ```
 $user->subscription('default')->noProrate()->swap('price_yearly');
@@ -1288,7 +1288,7 @@ Route::post('/user/subscribe', function (Request $request) {
 ```
 
 <!-- In the example above, the customer will have two prices attached to their `default` subscription. Both prices will be charged on their respective billing intervals. If necessary, you may use the `quantity` method to indicate a specific quantity for each price: -->
-위 예제에서는 고객의 `default` 구독에 2가지 가격 항목이 추가되어, 각기 다른 청구 주기로 요금이 부과됩니다. 가격마다 별도의 수량이 필요하면 `quantity` 메서드를 사용해 추가로 지정할 수 있습니다.
+위 예제에서는 고객의 `default` 구독에 2가지 가격 항목이 추가되어, 각 가격에 정해진 청구 주기로 요금이 부과됩니다. 가격마다 별도의 수량이 필요하면 `quantity` 메서드를 사용해 추가로 지정할 수 있습니다.
 
 ```
 $user = User::find(1);
@@ -1561,7 +1561,7 @@ $usageRecords = $user->subscription('default')->usageRecordsFor('price_metered')
 > 세율을 직접 계산하지 않고도 [automatically calculate taxes using Stripe Tax](#tax-configuration)할 수 있습니다.
 
 <!-- To specify the tax rates a user pays on a subscription, you should implement the `taxRates` method on your billable model and return an array containing the Stripe tax rate IDs. You can define these tax rates in [your Stripe dashboard](https://dashboard.stripe.com/test/tax-rates): -->
-구독에 대해 사용자가 지불해야 할 세율을 지정하려면, 청구 가능 모델에서 `taxRates` 메서드를 구현하고 Stripe 세금 ID 배열을 반환해야 합니다. 이 세율 ID는 [your Stripe dashboard](https://dashboard.stripe.com/test/tax-rates)에서 정의할 수 있습니다.
+구독에 대해 사용자가 지불해야 할 세율을 지정하려면, 청구 가능 모델에서 `taxRates` 메서드를 구현하고 Stripe 세율 ID 배열을 반환해야 합니다. 이 세율 ID는 [your Stripe dashboard](https://dashboard.stripe.com/test/tax-rates)에서 정의할 수 있습니다.
 
 ```
 /**
@@ -1596,7 +1596,7 @@ public function priceTaxRates()
 ```
 
 > [!NOTE]
-> `taxRates` 메서드는 구독 요금에만 적용됩니다. Cashier로 "일회성" 결제를 진행할 경우, 해당 시점에 직접 세금을 지정해주어야 합니다.
+> `taxRates` 메서드는 구독 요금에만 적용됩니다. Cashier로 "일회성" 결제를 진행할 경우, 해당 시점에 직접 세율을 지정해주어야 합니다.
 
 <a name="syncing-tax-rates"></a>
 
@@ -1722,7 +1722,7 @@ $user->subscription('default')->resume();
 ```
 
 <!-- If the customer cancels a subscription and then resumes that subscription before the subscription has fully expired the customer will not be billed immediately. Instead, their subscription will be re-activated and they will be billed on the original billing cycle. -->
-고객이 구독을 취소한 뒤 구독 만료 전 재개하는 경우에는 바로 결제되지 않고, 원래 결제 주기에 맞추어 구독이 다시 활성화되어 요금이 청구됩니다.
+고객이 구독을 취소한 뒤 구독 만료 전 재개하는 경우에는 바로 결제되지 않고, 구독이 다시 활성화되고 원래 결제 주기에 맞추어 요금이 청구됩니다.
 
 <a name="subscription-trials"></a>
 
@@ -1812,7 +1812,7 @@ $user = User::create([
 ```
 
 > [!NOTE]
-> 청구 가능 모델 클래스 정의에 [date cast](/docs/8.x/eloquent-mutators##date-casting)에서 `trial_ends_at` 속성을 날짜로 변환하는 casting 설정을 꼭 추가하세요.
+> 청구 가능 모델 클래스 정의에 [date cast](/docs/8.x/eloquent-mutators##date-casting)를 사용하여 `trial_ends_at` 속성을 날짜로 변환하는 casting 설정을 꼭 추가하세요.
 
 <!-- Cashier refers to this type of trial as a "generic trial", since it is not attached to any existing subscription. The `onTrial` method on the billable model instance will return `true` if the current date is not past the value of `trial_ends_at`: -->
 Cashier에서는 이런 체험을 '일반(generic) 체험'으로 부르며, 아직 실제 구독과 연결되지 않은 상태입니다. 청구 가능 모델 인스턴스의 `onTrial` 메서드는 현재 날짜가 `trial_ends_at` 값보다 이전일 때 `true`를 반환합니다.
@@ -2434,7 +2434,7 @@ Route::get('/subscription-checkout', function (Request $request) {
 ```
 
 <!-- Just as with product checkouts, you may customize the success and cancellation URLs: -->
-상품 체크아웃과 동일하게, 결제 성공·실패(취소) 시 리디렉션될 URL을 직접 지정할 수도 있습니다.
+상품 체크아웃과 동일하게, 결제 성공·취소 시 리디렉션될 URL을 직접 지정할 수도 있습니다.
 
 ```
 use Illuminate\Http\Request;
@@ -2504,7 +2504,7 @@ $checkout = $user->collectTaxIds()->checkout('price_tshirt');
 ```
 
 <!-- When this method is invoked, a new checkbox will be available to the customer that allows them to indicate if they're purchasing as a company. If so, they will have the opportunity to provide their Tax ID number. -->
-이 메서드를 사용하면, 고객이 회사로 구매하는 경우임을 표시하고 해당 세금 ID 번호를 입력할 수 있는 새로운 체크박스가 결제 페이지에 나타납니다.
+이 메서드를 사용하면, 고객이 회사로 구매하는지 표시할 수 있는 새로운 체크박스가 결제 페이지에 나타납니다. 회사로 구매하는 경우 해당 세금 ID 번호를 입력할 수 있습니다.
 
 > [!NOTE]
 > 이미 애플리케이션의 서비스 프로바이더에서 [automatic tax collection](#tax-configuration)를 설정했다면, 이 기능은 자동으로 활성화되므로 `collectTaxIds` 메서드를 별도로 호출할 필요가 없습니다.
@@ -2630,7 +2630,7 @@ Stripe 또는 Cashier에서 표시하는 결제 확인 화면은 결제 은행�
 #### Incomplete and Past Due State
 
 <!-- When a payment needs additional confirmation, the subscription will remain in an `incomplete` or `past_due` state as indicated by its `stripe_status` database column. Cashier will automatically activate the customer's subscription as soon as payment confirmation is complete and your application is notified by Stripe via webhook of its completion. -->
-추가 인증이 필요한 결제가 발생하면, 구독은 `stripe_status` 데이터베이스 컬럼 값으로 `incomplete` 또는 `past_due` 상태로 유지됩니다. Cashier는 Stripe로부터 결제 완료 웹훅을 받아 인증이 완료된 즉시 자동으로 해당 구독을 활성화합니다.
+추가 인증이 필요한 결제가 발생하면, 구독은 `stripe_status` 데이터베이스 컬럼 값으로 `incomplete` 또는 `past_due` 상태로 유지됩니다. Cashier는 결제 인증이 완료되고 Stripe로부터 완료 웹훅을 받는 즉시 자동으로 해당 구독을 활성화합니다.
 
 <!-- For more information on `incomplete` and `past_due` states, please refer to [our additional documentation on these states](#incomplete-and-past-due-status). -->
 `incomplete` 및 `past_due` 상태에 대한 자세한 정보는 [our additional documentation on these states](#incomplete-and-past-due-status)를 참고하세요.
@@ -2648,10 +2648,10 @@ CASHIER_PAYMENT_NOTIFICATION=Laravel\Cashier\Notifications\ConfirmPayment
 ```
 
 <!-- To ensure that off-session payment confirmation notifications are delivered, verify that [Stripe webhooks are configured](#handling-stripe-webhooks) for your application and the `invoice.payment_action_required` webhook is enabled in your Stripe dashboard. In addition, your `Billable` model should also use Laravel's `Illuminate\Notifications\Notifiable` trait. -->
-오프세션 결제 확인 알림이 정상적으로 전송되려면, [Stripe webhooks are configured](#handling-stripe-webhooks)이 완료되어 있어야 하고, Stripe 대시보드에서 `invoice.payment_action_required` 웹훅도 활성화되어야 합니다. 또한, `Billable` 모델이 Laravel의 `Illuminate\Notifications\Notifiable` 트레이트도 사용하고 있어야 합니다.
+오프세션 결제 확인 알림이 정상적으로 전송되려면, [Stripe webhooks are configured](#handling-stripe-webhooks)에 따른 웹훅 설정이 완료되어 있어야 하고, Stripe 대시보드에서 `invoice.payment_action_required` 웹훅도 활성화되어야 합니다. 또한, `Billable` 모델이 Laravel의 `Illuminate\Notifications\Notifiable` 트레이트도 사용하고 있어야 합니다.
 
 > [!NOTE]
-> 추가 인증이 필요한 결제를 고객이 직접 진행할 때도 알림이 전송됩니다. Stripe에서는 결제가 수동(수기)으로 이루어졌는지, 오프세션 결제인지 구분할 수 없습니다. 따라서 고객이 결제 페이지를 이미 확인한 뒤 방문하더라도 단순히 "결제 성공" 메시지 하나만 표시됩니다. 동일한 결제를 두 번 확정해 이중 결제가 발생하는 일은 없으니 안심하셔도 됩니다.
+> 추가 인증이 필요한 결제를 고객이 직접 진행할 때도 알림이 전송됩니다. Stripe에서는 결제가 수동(수기)으로 이루어졌는지, 오프세션 결제인지 구분할 수 없습니다. 따라서 고객이 결제를 이미 확인한 뒤 결제 페이지를 방문하더라도 단순히 "결제 성공" 메시지 하나만 표시됩니다. 동일한 결제를 두 번 확정해 이중 결제가 발생하는 일은 없으니 안심하셔도 됩니다.
 
 <a name="stripe-sdk"></a>
 
@@ -2691,7 +2691,7 @@ $prices = Cashier::stripe()->prices->all();
 ## Testing
 
 <!-- When testing an application that uses Cashier, you may mock the actual HTTP requests to the Stripe API; however, this requires you to partially re-implement Cashier's own behavior. Therefore, we recommend allowing your tests to hit the actual Stripe API. While this is slower, it provides more confidence that your application is working as expected and any slow tests may be placed within their own PHPUnit testing group. -->
-Cashier를 사용하는 애플리케이션을 테스트할 때 Stripe API로 실제 HTTP 요청을 보내는 대신 mocking(가짜 응답 처리)을 할 수도 있지만, 이 경우 Cashier의 동작을 직접 일부분 재구현해야 합니다. 따라서, Cashier 기반 테스트는 실제 Stripe API와 통신하도록 두는 방법을 권장합니다. 이 경우 속도는 느릴 수 있지만, 실제 환경과 동일하게 동작하는지 제대로 검증할 수 있으며, 느린 테스트는 별도의 PHPUnit 테스트 그룹으로 분리해 운영하는 것이 좋습니다.
+Cashier를 사용하는 애플리케이션을 테스트할 때 Stripe API로 실제 HTTP 요청을 보내는 대신 mocking(가짜 응답 처리)을 할 수도 있지만, 이 경우 Cashier의 동작을 직접 일부분 재구현해야 합니다. 따라서, Cashier 기반 테스트는 실제 Stripe API와 통신하도록 두는 방법을 권장합니다. 이 경우 속도는 느릴 수 있지만, 애플리케이션이 예상대로 동작한다는 확신을 높일 수 있으며, 느린 테스트는 별도의 PHPUnit 테스트 그룹으로 분리해 운영하는 것이 좋습니다.
 
 <!-- When testing, remember that Cashier itself already has a great test suite, so you should only focus on testing the subscription and payment flow of your own application and not every underlying Cashier behavior. -->
 테스트를 작성할 때 Cashier 자체는 이미 우수한 테스트 스위트를 포함하고 있으니, 애플리케이션 내 구독·결제 흐름에만 집중해 테스트 코드를 작성하면 됩니다.

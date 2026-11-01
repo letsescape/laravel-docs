@@ -407,7 +407,7 @@ APP_MAINTENANCE_STORE=database
 배포 중 `php artisan down` 명령어를 사용하는 경우, Composer 의존성 설치나 관련 인프라가 업데이트되는 동안 사용자가 접속하면 에러 페이지가 나타날 수 있습니다. 이는 점검 모드 판단 및 화면 렌더링에 Laravel의 많은 컴포넌트가 초기화되어야 하기 때문입니다.
 
 <!-- For this reason, Laravel allows you to pre-render a maintenance mode view that will be returned at the very beginning of the request cycle. This view is rendered before any of your application's dependencies have loaded. You may pre-render a template of your choice using the `down` command's `render` option: -->
-이런 문제를 막기 위해 Laravel은 점검 모드 초기 단계에서 반환될 미리 렌더링된 화면을 준비할 수 있게 해줍니다. 이 화면은 애플리케이션의 의존성 로드 이전에 가장 먼저 출력됩니다. `down` 명령어의 `render` 옵션을 활용해 원하는 템플릿을 미리 렌더링할 수 있습니다.
+이런 문제를 막기 위해 Laravel은 요청 처리 초기 단계에서 반환될 미리 렌더링된 화면을 준비할 수 있게 해줍니다. 이 화면은 애플리케이션의 의존성 로드 이전에 가장 먼저 출력됩니다. `down` 명령어의 `render` 옵션을 활용해 원하는 템플릿을 미리 렌더링할 수 있습니다.
 
 ```shell
 php artisan down --render="errors::503"

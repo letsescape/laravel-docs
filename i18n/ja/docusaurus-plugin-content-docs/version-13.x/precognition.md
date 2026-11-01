@@ -710,7 +710,7 @@ form.validateFiles();
 ## Managing Side-Effects
 
 <!-- When adding the `HandlePrecognitiveRequests` middleware to a route, you should consider if there are any side-effects in _other_ middleware that should be skipped during a precognitive request. -->
-`HandlePrecognitiveRequests` ミドルウェアをルートに追加するときは、予測リクエスト中にスキップする必要がある他のミドルウェアに副作用があるかどうかを考慮する必要があります。
+`HandlePrecognitiveRequests` ミドルウェアをルートに追加するときは、予測リクエスト中にスキップする必要がある副作用が他のミドルウェアにあるかどうかを考慮する必要があります。
 
 <!-- For example, you may have a middleware that increments the total number of "interactions" each user has with your application, but you may not want precognitive requests to be counted as an interaction. To accomplish this, we may check the request's `isPrecognitive` method before incrementing the interaction count: -->
 たとえば、各ユーザーがアプリケーションと行う「インタラクション」の合計数を増加させるミドルウェアがある場合でも、事前認識リクエストをインタラクションとしてカウントしたくない場合があります。これを実現するには、インタラクション数を増やす前に、リクエストの `isPrecognitive` メソッドをチェックします。

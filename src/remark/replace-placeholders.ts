@@ -3,7 +3,7 @@ import type {Transformer} from 'unified';
 import type {VFile} from 'vfile';
 import {visit} from 'unist-util-visit';
 
-import {staleLinkResolution} from '../../scripts/stale-links.mjs';
+import {staleLinkResolution} from '../utils/stale-links.mjs';
 
 /**
  * 파일 경로에서 버전 세그먼트 추출

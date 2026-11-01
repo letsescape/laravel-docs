@@ -165,7 +165,7 @@ Laravel의 기본 큐 시스템과 달리, Horizon에서는 세 가지 워커 �
 ```
 
 <!-- The `autoScalingStrategy` configuration value determines if Horizon will assign more worker processes to queues based on the total amount of time it will take to clear the queue (`time` strategy) or by the total number of jobs on the queue (`size` strategy). -->
-`autoScalingStrategy` 옵션은 Horizon이 큐를 얼마나 빨리 처리할지 결정할 때, 큐를 비우는 데 걸리는 총 시간( `time` 전략 )을 기준으로 할지, 아니면 큐에 쌓인 작업의 총 개수( `size` 전략 )를 기준으로 할지 결정합니다.
+`autoScalingStrategy` 옵션은 Horizon이 큐에 워커 프로세스를 더 할당할지 결정할 때, 큐를 비우는 데 걸리는 총 시간( `time` 전략 )을 기준으로 할지, 아니면 큐에 쌓인 작업의 총 개수( `size` 전략 )를 기준으로 할지 결정합니다.
 
 <!-- The `balanceMaxShift` and `balanceCooldown` configuration values determine how quickly Horizon will scale to meet worker demand. In the example above, a maximum of one new process will be created or destroyed every three seconds. You are free to tweak these values as necessary based on your application's needs. -->
 `balanceMaxShift`와 `balanceCooldown` 설정은 Horizon이 워커 수를 얼마나 빠르게 조정할지를 정의합니다. 위 예시에서는 3초마다 최대 1개의 신규 프로세스가 생성되거나 종료됩니다. 이 값들은 애플리케이션의 필요에 맞게 조정할 수 있습니다.
@@ -291,7 +291,7 @@ php artisan horizon:status
 ```
 
 <!-- You may gracefully terminate the Horizon process using the `horizon:terminate` Artisan command. Any jobs that are currently being processed by will be completed and then Horizon will stop executing: -->
-Horizon 프로세스를 우아하게 종료하려면 `horizon:terminate` 명령어를 사용합니다. 이 명령을 실행하면, 현재 처리 중인 작업만 완료한 뒤 Horizon이 더 이상 실행을 멈춥니다.
+Horizon 프로세스를 우아하게 종료하려면 `horizon:terminate` 명령어를 사용합니다. 이 명령을 실행하면, 현재 처리 중인 작업만 완료한 뒤 Horizon이 실행을 멈춥니다.
 
 ```shell
 php artisan horizon:terminate
@@ -355,7 +355,7 @@ Supervisor 설정에서 `stopwaitsecs` 값이 가장 오래 걸리는 작업의 
 #### Starting Supervisor
 
 <!-- Once the configuration file has been created, you may update the Supervisor configuration and start the monitored processes using the following commands: -->
-설정 파일을 만들었다면, 아래 명령어로 Supervisor 설정을 갱신하고, 모니터링을 시작할 수 있습니다.
+설정 파일을 만들었다면, 아래 명령어로 Supervisor 설정을 갱신하고, 모니터링 대상 프로세스를 시작할 수 있습니다.
 
 ```shell
 sudo supervisorctl reread

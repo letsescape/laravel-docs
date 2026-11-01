@@ -516,7 +516,7 @@ $user = User::factory()
 #### Pivot Table Attributes
 
 <!-- If you need to define attributes that should be set on the pivot / intermediate table linking the models, you may use the `hasAttached` method. This method accepts an array of pivot table attribute names and values as its second argument: -->
-연결 테이블(피벗 테이블)에 값을 지정해야 한다면, `hasAttached` 메서드를 사용하세요. 두 번째 인수로 피벗 테이블 속성명의 배열을 전달할 수 있습니다.
+연결 테이블(피벗 테이블)에 값을 지정해야 한다면, `hasAttached` 메서드를 사용하세요. 두 번째 인수로 피벗 테이블 속성명과 값의 배열을 전달할 수 있습니다.
 
 ```
 use App\Models\Role;
@@ -679,7 +679,7 @@ public function definition()
 ## Running Seeders
 
 <!-- If you would like to use [database seeders](/docs/8.x/seeding) to populate your database during a feature test, you may invoke the `seed` method. By default, the `seed` method will execute the `DatabaseSeeder`, which should execute all of your other seeders. Alternatively, you pass a specific seeder class name to the `seed` method: -->
-[database seeders](/docs/8.x/seeding)를 활용해 기능 테스트 중에 데이터베이스를 채우고 싶다면, `seed` 메서드를 호출하면 됩니다. 기본적으로 `seed` 메서드만 실행하면 `DatabaseSeeder` 클래스가 실행되어 다른 모든 시더도 자동 실행됩니다. 특정 시더만 실행하고 싶을 땐 시더 클래스명을 `seed` 메서드에 직접 넘겨주면 됩니다.
+[database seeders](/docs/8.x/seeding)를 활용해 기능 테스트 중에 데이터베이스를 채우고 싶다면, `seed` 메서드를 호출하면 됩니다. 기본적으로 `seed` 메서드는 `DatabaseSeeder` 클래스를 실행하며, 이 안에서 다른 모든 시더를 실행하도록 해야 합니다. 특정 시더만 실행하고 싶을 땐 시더 클래스명을 `seed` 메서드에 직접 넘겨주면 됩니다.
 
 ```
 <?php

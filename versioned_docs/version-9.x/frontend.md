@@ -52,7 +52,7 @@ Laravel에서는 이처럼 HTML을 렌더링하는 방식을 [views](/docs/9.x/v
 ```
 
 <!-- When building applications in this fashion, form submissions and other page interactions typically receive an entirely new HTML document from the server and the entire page is re-rendered by the browser. Even today, many applications may be perfectly suited to having their frontends constructed in this way using simple Blade templates. -->
-이와 같이 애플리케이션을 개발하면, 폼 제출이나 페이지 내 다른 상호작용 시마다 서버로부터 새로운 HTML 문서를 받아와 브라우저 전체를 다시 렌더링하게 됩니다. 실제로 오늘날에도 많은 애플리케이션에서는 이처럼 Blade 템플릿을 이용해 프론트엔드를 구성하는 방식이 충분히 적합한 경우가 많습니다.
+이와 같이 애플리케이션을 개발할 때는 폼 제출이나 페이지 내 다른 상호작용이 발생하면 일반적으로 서버로부터 새로운 HTML 문서를 받아와 브라우저가 전체 페이지를 다시 렌더링하게 됩니다. 실제로 오늘날에도 많은 애플리케이션에서는 이처럼 Blade 템플릿을 이용해 프론트엔드를 구성하는 방식이 충분히 적합한 경우가 많습니다.
 
 <a name="growing-expectations"></a>
 <!-- #### Growing Expectations -->
@@ -62,10 +62,10 @@ Laravel에서는 이처럼 HTML을 렌더링하는 방식을 [views](/docs/9.x/v
 하지만 웹 애플리케이션에 대한 사용자들의 기대치가 점점 높아지면서, 좀 더 역동적이고 세련된 상호작용을 제공하는 프론트엔드가 필요해진 경우가 많아졌습니다. 이런 흐름에서, 일부 개발자들은 Vue나 React 같은 자바스크립트 프레임워크를 활용해 프론트엔드를 구축하고 있습니다.
 
 <!-- Others, preferring to stick with the backend language they are comfortable with, have developed solutions that allow the construction of modern web application UIs while still primarily utilizing their backend language of choice. For example, in the [Rails](https://rubyonrails.org/) ecosystem, this has spurred the creation of libraries such as [Turbo](https://turbo.hotwired.dev/) [Hotwire](https://hotwired.dev/), and [Stimulus](https://stimulus.hotwired.dev/). -->
-반면, 익숙한 백엔드 언어를 계속 사용하고 싶은 개발자들은 백엔드 언어만으로도 현대적인 웹 UI를 구현할 수 있는 솔루션을 만들어내기도 했습니다. 예를 들어, [Rails](https://rubyonrails.org/) 생태계에서는 이러한 필요로 인해 [Turbo](https://turbo.hotwired.dev/), [Hotwire](https://hotwired.dev/), [Stimulus](https://stimulus.hotwired.dev/) 같은 라이브러리가 등장했습니다.
+반면, 익숙한 백엔드 언어를 계속 사용하고 싶은 개발자들은 주로 백엔드 언어를 사용해 현대적인 웹 UI를 구현할 수 있는 솔루션을 만들어내기도 했습니다. 예를 들어, [Rails](https://rubyonrails.org/) 생태계에서는 이러한 필요로 인해 [Turbo](https://turbo.hotwired.dev/), [Hotwire](https://hotwired.dev/), [Stimulus](https://stimulus.hotwired.dev/) 같은 라이브러리가 등장했습니다.
 
 <!-- Within the Laravel ecosystem, the need to create modern, dynamic frontends by primarily using PHP has led to the creation of [Laravel Livewire](https://laravel-livewire.com) and [Alpine.js](https://alpinejs.dev/). -->
-Laravel 생태계에서도 PHP만을 주로 활용하여 동적이고 현대적인 프론트엔드를 만들기 위한 노력의 결과로 [Laravel Livewire](https://laravel-livewire.com)와 [Alpine.js](https://alpinejs.dev/)가 등장했습니다.
+Laravel 생태계에서도 PHP를 주로 활용하여 동적이고 현대적인 프론트엔드를 만들기 위한 노력의 결과로 [Laravel Livewire](https://laravel-livewire.com)와 [Alpine.js](https://alpinejs.dev/)가 등장했습니다.
 
 <a name="livewire"></a>
 <!-- ### Livewire -->
@@ -144,7 +144,7 @@ Laravel과 Livewire로도 충분히 현대적인 프론트엔드를 만들 수 �
 ### Inertia
 
 <!-- Thankfully, Laravel offers the best of both worlds. [Inertia](https://inertiajs.com) bridges the gap between your Laravel application and your modern Vue or React frontend, allowing you to build full-fledged, modern frontends using Vue or React while leveraging Laravel routes and controllers for routing, data hydration, and authentication — all within a single code repository. With this approach, you can enjoy the full power of both Laravel and Vue / React without crippling the capabilities of either tool. -->
-다행히도 Laravel은 두 가지 방식의 장점을 모두 누릴 수 있는 해법을 제공합니다. [Inertia](https://inertiajs.com)는 Laravel 애플리케이션과 Vue/React 프론트엔드 사이의 간극을 연결해주는 브릿지 역할을 합니다. 즉, Laravel 라우트와 컨트롤러를 이용해 프론트엔드를 빌드하면서, 현대적인 Vue/React로 구성된 완성도 높은 프론트엔드 UI를 하나의 코드 저장소에서 함께 관리할 수 있게 해줍니다. 이렇게 하면 Laravel과 Vue/React 각각의 장점을 모두 활용할 수 있으며, 어느 한쪽의 능력도 희생하지 않아도 됩니다.
+다행히도 Laravel은 두 가지 방식의 장점을 모두 누릴 수 있는 해법을 제공합니다. [Inertia](https://inertiajs.com)는 Laravel 애플리케이션과 Vue/React 프론트엔드 사이의 간극을 연결해주는 브릿지 역할을 합니다. 즉, Laravel 라우트와 컨트롤러로 라우팅, 데이터 하이드레이션, 인증을 처리하면서, 현대적인 Vue/React로 구성된 완성도 높은 프론트엔드 UI를 하나의 코드 저장소에서 함께 관리할 수 있게 해줍니다. 이렇게 하면 Laravel과 Vue/React 각각의 장점을 모두 활용할 수 있으며, 어느 한쪽의 능력도 희생하지 않아도 됩니다.
 
 <!-- After installing Inertia into your Laravel application, you will write routes and controllers like normal. However, instead of returning a Blade template from your controller, you will return an Inertia page: -->
 Laravel 애플리케이션에 Inertia를 설치한 후, 기존과 마찬가지로 라우트와 컨트롤러를 작성하되, 컨트롤러에서는 Blade 템플릿 대신 Inertia 페이지를 반환하게 됩니다.

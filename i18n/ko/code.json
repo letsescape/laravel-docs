@@ -1,4 +1,10 @@
 {
+  "navbar.version.development": {
+    "message": "master (개발 버전)"
+  },
+  "navbar.version.label": {
+    "message": "문서 버전: {version}"
+  },
   "theme.ErrorPageContent.title": {
     "message": "페이지에 오류가 발생하였습니다.",
     "description": "The title of the fallback page when the page crashed"

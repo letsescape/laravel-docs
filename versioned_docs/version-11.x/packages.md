@@ -110,7 +110,7 @@ Laravel 애플리케이션의 `bootstrap/providers.php` 파일에는 Laravel이 
 ### Configuration
 
 <!-- Typically, you will need to publish your package's configuration file to the application's `config` directory. This will allow users of your package to easily override your default configuration options. To allow your configuration files to be published, call the `publishes` method from the `boot` method of your service provider: -->
-대부분의 경우, 패키지의 설정 파일을 애플리케이션의 `config` 디렉터리로 퍼블리싱할 필요가 있습니다. 이렇게 하면 패키지 사용자가 제공한 기본 설정을 쉽게 덮어쓸 수 있습니다. 설정 파일을 퍼블리시하려면, 서비스 프로바이더의 `boot` 메서드에서 `publishes` 메서드를 호출합니다.
+대부분의 경우, 패키지의 설정 파일을 애플리케이션의 `config` 디렉터리로 퍼블리싱할 필요가 있습니다. 이렇게 하면 패키지 사용자가 패키지에서 제공하는 기본 설정을 쉽게 덮어쓸 수 있습니다. 설정 파일을 퍼블리시하려면, 서비스 프로바이더의 `boot` 메서드에서 `publishes` 메서드를 호출합니다.
 
 ```
 /**

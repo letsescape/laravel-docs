@@ -112,7 +112,7 @@ services:
 ```
 
 <!-- Typically, you should access your FrankenPHP Sail application via `https://localhost`, as using `https://127.0.0.1` requires additional configuration and is [discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker). -->
-보통 FrankenPHP Sail 애플리케이션은 `https://localhost`로 접근해야 합니다. `https://127.0.0.1`로 접근하려면 추가 설정이 필요하며, 이는 [discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker).
+보통 FrankenPHP Sail 애플리케이션은 `https://localhost`로 접근해야 합니다. `https://127.0.0.1`로 접근하려면 추가 설정이 필요하며, 이 방식은 권장하지 않습니다([discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker)).
 
 <a name="frankenphp-via-docker"></a>
 <!-- #### FrankenPHP via Docker -->

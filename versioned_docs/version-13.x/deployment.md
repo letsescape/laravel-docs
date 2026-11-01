@@ -98,6 +98,10 @@ server {
         fastcgi_hide_header X-Powered-By;
     }
 
+    location ~ \.php$ {
+        return 404;
+    }
+
     location ~ /\.(?!well-known).* {
         deny all;
     }
@@ -207,7 +211,7 @@ php artisan view:cache
 ## Reloading Services
 
 > [!NOTE]
-> [Laravel Cloud](https://cloud.laravel.com)에 배포하는 경우 모든 서비스의 중단 없는 다시 로드가 자동으로 처리되므로 `reload` 명령어를 사용할 필요가 없습니다.
+> [Laravel Cloud](https://cloud.laravel.com)에 배포하는 경우 모든 서비스가 정상 종료 절차를 거쳐 자동으로 다시 로드되므로 `reload` 명령어를 사용할 필요가 없습니다.
 
 <!-- After deploying a new version of your application, any long-running services such as queue workers, Laravel Reverb, or Laravel Octane should be reloaded / restarted to use the new code. Laravel provides a single `reload` Artisan command that will terminate these services: -->
 애플리케이션의 새 버전을 배포한 후에는 queue worker, Laravel Reverb, Laravel Octane과 같이 오래 실행되는 서비스가 새 코드를 사용하도록 다시 로드하거나 다시 시작해야 합니다. Laravel은 이러한 서비스를 종료하는 하나의 `reload` Artisan 명령어를 제공합니다.

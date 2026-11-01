@@ -56,7 +56,7 @@
 Laravel은 [sending email](/docs/8.x/mail) 기능을 기본적으로 제공할 뿐만 아니라, 이메일, SMS([Vonage](https://www.vonage.com/communications-apis/), 예전 명칭은 Nexmo), [Slack](https://slack.com) 등 다양한 전달 채널을 통한 알림 발송도 지원합니다. 또한, [community built notification channels](https://laravel-notification-channels.com/about/#suggesting-a-new-channel)도 마련되어 있어, 수십 가지 이상의 채널로 알림을 손쉽게 전송할 수 있습니다! 알림은 데이터베이스에 저장해 웹 인터페이스 내에서 사용자에게 보여줄 수도 있습니다.
 
 <!-- Typically, notifications should be short, informational messages that notify users of something that occurred in your application. For example, if you are writing a billing application, you might send an "Invoice Paid" notification to your users via the email and SMS channels. -->
-일반적으로 알림은 애플리케이션에서 어떤 일이 발생했음을 사용자가 빠르게 알 수 있도록 해주는 짧고 정보성 메시지입니다. 예를 들어, 결제 관련 애플리케이션을 만든다면, 사용자의 청구서가 결제됨을 "Invoice Paid(청구서 결제 완료)" 알림을 이메일이나 SMS 채널을 통해 전달할 수 있습니다.
+일반적으로 알림은 애플리케이션에서 어떤 일이 발생했음을 사용자가 빠르게 알 수 있도록 해주는 짧은 정보성 메시지여야 합니다. 예를 들어, 결제 관련 애플리케이션을 만든다면, 사용자의 청구서가 결제되면 "Invoice Paid(청구서 결제 완료)" 알림을 이메일과 SMS 채널을 통해 전달할 수 있습니다.
 
 <a name="generating-notifications"></a>
 <!-- ## Generating Notifications -->
@@ -160,7 +160,7 @@ public function via($notifiable)
 ### Queueing Notifications
 
 > [!NOTE]
-> 알림을 큐에 등록하기 전에, 반드시 큐 설정을 마치고 [start a worker](/docs/8.x/queues)해야 합니다.
+> 알림을 큐에 등록하기 전에, 반드시 큐 설정을 마치고 [start a worker](/docs/8.x/queues)에 따라 워커를 시작해야 합니다.
 
 <!-- Sending notifications can take time, especially if the channel needs to make an external API call to deliver the notification. To speed up your application's response time, let your notification be queued by adding the `ShouldQueue` interface and `Queueable` trait to your class. The interface and trait are already imported for all notifications generated using the `make:notification` command, so you may immediately add them to your notification class: -->
 알림을 보내는 작업은, 외부 API 호출 등이 수반될 경우 시간이 오래 걸릴 수 있습니다. 애플리케이션의 응답 속도를 높이고 싶다면, 알림을 큐에 등록해서 백그라운드로 처리할 수 있습니다. 이를 위해서는 알림 클래스에 `ShouldQueue` 인터페이스와 `Queueable` 트레잇을 추가해야 합니다. `make:notification` 명령으로 생성한 알림 클래스에는 해당 인터페이스와 트레잇이 이미 임포트되어 있으니, 바로 아래와 같이 사용하시면 됩니다.
@@ -970,7 +970,7 @@ $user->unreadNotifications->markAsRead();
 ```
 
 <!-- You may also use a mass-update query to mark all of the notifications as read without retrieving them from the database: -->
-모든 알림을 한 번에 읽음 처리하려면, 직접 데이터베이스에 대해 대량 업데이트 쿼리를 실행할 수도 있습니다.
+데이터베이스에서 알림을 가져오지 않고 모든 알림을 한 번에 읽음 처리하려면, 직접 데이터베이스에 대해 대량 업데이트 쿼리를 실행할 수도 있습니다.
 
 ```
 $user = App\Models\User::find(1);

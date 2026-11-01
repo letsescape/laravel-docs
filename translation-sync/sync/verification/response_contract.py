@@ -2943,7 +2943,10 @@ def _protected_cell_matches(source: str, translated: str) -> bool:
 
 
 def _table_language_is_valid(
-    source_block: Block, translated_block: Block, locale: str
+    source_block: Block,
+    translated_block: Block,
+    locale: str,
+    table_row_headers: tuple[str, ...],
 ) -> bool:
     """표의 산문 셀이 로캘별 언어 기준을 충족하는지 여부."""
 
@@ -2963,6 +2966,8 @@ def _table_language_is_valid(
         _table_line_signature(line)[0] == "separator"
         for line in source_block.lines
     )
+    if has_header_row or len(source_lines) != 1:
+        table_row_headers = ()
     for row_index, (source_line, translated_line) in enumerate(
         zip(source_lines, translated_lines, strict=False)
     ):
@@ -2972,11 +2977,13 @@ def _table_language_is_valid(
             zip(source_cells, translated_cells, strict=False)
         ):
             header = source_headers[column] if column < len(source_headers) else None
+            if table_row_headers:
+                header = table_row_headers[column]
             if not _table_cell_language_is_valid(
                 source_cell,
                 translated_cell,
                 locale,
-                header=header if row_index > 0 else None,
+                header=header if row_index > 0 or table_row_headers else None,
                 is_data_cell=row_index > 0 or not has_header_row,
             ):
                 return False
@@ -3698,6 +3705,7 @@ def _provider_table_block_result(
     source_block: Block,
     translated_block: Block,
     locale: str | None,
+    table_row_headers: tuple[str, ...],
 ) -> tuple[list[str], bool]:
     """일반 Markdown 표 블록의 행 중복·목표 언어 결과 수집.
 
@@ -3719,7 +3727,9 @@ def _provider_table_block_result(
         issues.append("provider duplicate table row")
     language_missing = bool(
         locale is not None
-        and not _table_language_is_valid(source_block, translated_block, locale)
+        and not _table_language_is_valid(
+            source_block, translated_block, locale, table_row_headers
+        )
     )
     return issues, language_missing
 
@@ -3757,6 +3767,7 @@ def _provider_block_pair_result(
     source_block: Block,
     translated_block: Block,
     locale: str | None,
+    table_row_headers: tuple[str, ...],
 ) -> tuple[list[str], bool]:
     """대응 소유 블록의 보호 내용·목표 언어 결과 수집.
 
@@ -3779,7 +3790,9 @@ def _provider_block_pair_result(
     translated_body = _normalized_body(translated_block)
     source_kind = _text_kind(source_block.lines[0])
     if source_kind == "table":
-        return _provider_table_block_result(source_block, translated_block, locale)
+        return _provider_table_block_result(
+            source_block, translated_block, locale, table_row_headers
+        )
     if _is_indented_literal_block(source_block):
         return (
             [_PROVIDER_PROTECTED_TERM_MISMATCH]
@@ -3815,6 +3828,7 @@ def _provider_block_issues(
     source_blocks: list[Block],
     translated_blocks: list[Block],
     locale: str | None,
+    table_row_headers: tuple[str, ...],
 ) -> list[str]:
     """모든 대응 소유 블록의 보호 내용·목표 언어 이슈 수집.
 
@@ -3838,6 +3852,7 @@ def _provider_block_issues(
             source_block,
             translated_block,
             locale,
+            table_row_headers if len(source_blocks) == 1 else (),
         )
         issues.extend(block_issues)
         target_language_missing = target_language_missing or language_missing
@@ -3852,6 +3867,7 @@ def verify(
     *,
     locale: str | None = None,
     contract_version: int = RESPONSE_CONTRACT_VERSION,
+    table_row_headers: tuple[str, ...] = (),
 ) -> list[str]:
     """단일 신규 provider 응답의 결정적 위반 목록."""
 
@@ -3872,7 +3888,11 @@ def verify(
     )
     issues.extend(_provider_link_issues(text, source))
     issues.extend(_provider_comment_issues(text, source))
-    issues.extend(_provider_block_issues(source_blocks, translated_blocks, locale))
+    issues.extend(
+        _provider_block_issues(
+            source_blocks, translated_blocks, locale, table_row_headers
+        )
+    )
     return issues
 
 

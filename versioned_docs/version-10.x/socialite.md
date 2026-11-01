@@ -88,7 +88,7 @@ Route::get('/auth/callback', function () {
 ```
 
 <!-- The `redirect` method provided by the `Socialite` facade takes care of redirecting the user to the OAuth provider, while the `user` method will examine the incoming request and retrieve the user's information from the provider after they have approved the authentication request. -->
-`Socialite` 파사드의 `redirect` 메서드는 사용자를 해당 OAuth 제공자로 리다이렉트하고, `user` 메서드는 인증 승인 후 제공자로부터 사용자의 정보를 가져옵니다.
+`Socialite` 파사드의 `redirect` 메서드는 사용자를 해당 OAuth 제공자로 리다이렉트하고, `user` 메서드는 전달받은 요청을 검사하고 인증 승인 후 제공자로부터 사용자의 정보를 가져옵니다.
 
 <a name="authentication-and-storage"></a>
 <!-- ### Authentication and Storage -->
@@ -121,7 +121,7 @@ Route::get('/auth/callback', function () {
 ```
 
 > [!NOTE]
-> 특정 OAuth 제공자로부터 어떤 사용자 정보를 제공하는지 더 자세한 내용은 [retrieving user details](#retrieving-user-details) 문서를 참고해 주세요.
+> 특정 OAuth 제공자가 어떤 사용자 정보를 제공하는지 더 자세한 내용은 [retrieving user details](#retrieving-user-details) 문서를 참고해 주세요.
 
 <a name="access-scopes"></a>
 <!-- ### Access Scopes -->
@@ -188,7 +188,7 @@ $user = Socialite::driver('slack')->asBotUser()->user();
 ```
 
 <!-- When generating a bot token, the `user` method will still return a `Laravel\Socialite\Two\User` instance; however, only the `token` property will be hydrated. This token may be stored in order to [send notifications to the authenticated user's Slack workspaces](/docs/10.x/notifications#notifying-external-slack-workspaces). -->
-봇 토큰을 생성할 때는 `user` 메서드가 여전히 `Laravel\Socialite\Two\User` 인스턴스를 반환하지만, 오직 `token` 속성만 채워집니다. 이 토큰을 저장해 두었다가 [send notifications to the authenticated user's Slack workspaces](/docs/10.x/notifications#notifying-external-slack-workspaces) 사용할 수 있습니다.
+봇 토큰을 생성할 때는 `user` 메서드가 여전히 `Laravel\Socialite\Two\User` 인스턴스를 반환하지만, 오직 `token` 속성만 채워집니다. 이 토큰을 저장해 두었다가 [send notifications to the authenticated user's Slack workspaces](/docs/10.x/notifications#notifying-external-slack-workspaces)에 사용할 수 있습니다.
 
 <a name="optional-parameters"></a>
 <!-- ### Optional Parameters -->

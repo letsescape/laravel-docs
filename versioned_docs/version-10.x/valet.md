@@ -199,7 +199,7 @@ Valet 3에서 Valet 4로 업그레이드하는 경우, 아래 단계를 따라 �
 - If you use PHP 7.1 - 7.4 to serve your sites, make sure you still use Homebrew to install a version of PHP that's 8.0 or higher, as Valet will use this version, even if it's not your primary linked version, to run some of its scripts.
 -->
 - 사이트별 PHP 버전을 커스터마이즈하기 위해 `.valetphprc` 파일을 추가했다면, 각 `.valetphprc` 파일명을 `.valetrc`로 변경하고 기존 `.valetrc` 파일 내용 앞에 `php=`를 추가하세요.
-- 커스텀 드라이버를 사용하는 경우, 네임스페이스, 확장자, 타입 힌트, 반환값 등 새로운 드라이버 시스템에 맞게 드라이버를 업데이트하세요. Valet의 [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php)를 참고할 수 있습니다.
+- 커스텀 드라이버를 사용하는 경우, 네임스페이스, 상속 관계, 타입 힌트, 반환 타입 힌트 등 새로운 드라이버 시스템에 맞게 드라이버를 업데이트하세요. Valet의 [SampleValetDriver](https://github.com/laravel/valet/blob/d7787c025e60abc24a5195dc7d4c5c6f2d984339/cli/stubs/SampleValetDriver.php)를 참고할 수 있습니다.
 - PHP 7.1~7.4로 사이트를 운영 중이라면, 여전히 Homebrew를 통해 PHP 8.0 이상 버전을 설치해야 합니다. Valet은 주 연결 버전이 아니더라도, 일부 스크립트 실행에 이 버전을 사용합니다.
 
 <!-- </div> -->
@@ -414,7 +414,7 @@ Valet은 기본적으로 외부 인터넷으로부터 개발 머신이 노출되
 로컬 네트워크 내 다른 기기가 해당 머신의 Valet 사이트에 직접(IP 주소를 통해서, 예: `192.168.1.10/application.test`) 접속할 수 있게 하려면, 각 사이트의 Nginx 설정 파일을 수동으로 수정해야 합니다. 80번, 443번 포트의 `listen` 설정에서 `127.0.0.1:` 프리픽스를 제거하세요. 두 포트의 `listen` 설정 모두에 적용됩니다.
 
 <!-- If you have not run `valet secure` on the project, you can open up network access for all non-HTTPS sites by editing the `/usr/local/etc/nginx/valet/valet.conf` file. However, if you're serving the project site over HTTPS (you have run `valet secure` for the site) then you should edit the `~/.config/valet/Nginx/app-name.test` file. -->
-프로젝트에서 `valet secure`를 실행하지 않았다면 `/usr/local/etc/nginx/valet/valet.conf` 파일을 수정해서 네트워크 접근을 열 수 있습니다. 만약 `valet secure`로 사이트를 HTTPS로 서비스 중이라면 `~/.config/valet/Nginx/app-name.test` 파일을 수정해야 합니다.
+프로젝트에서 `valet secure`를 실행하지 않았다면 `/usr/local/etc/nginx/valet/valet.conf` 파일을 수정해서 모든 비 HTTPS 사이트의 네트워크 접근을 열 수 있습니다. 만약 `valet secure`로 사이트를 HTTPS로 서비스 중이라면 `~/.config/valet/Nginx/app-name.test` 파일을 수정해야 합니다.
 
 <!-- Once you have updated your Nginx configuration, run the `valet restart` command to apply the configuration changes. -->
 Nginx 설정을 저장한 후에는 `valet restart` 명령어를 실행해 변경사항을 적용합니다.
@@ -447,7 +447,7 @@ return [
 ## Proxying Services
 
 <!-- Sometimes you may wish to proxy a Valet domain to another service on your local machine. For example, you may occasionally need to run Valet while also running a separate site in Docker; however, Valet and Docker can't both bind to port 80 at the same time. -->
-때때로 Valet 도메인을 로컬 머신의 다른 서비스로 프록시하고 싶을 때가 있습니다. 예를 들어, Docker를 실행하면서 Valet도 함께 사용하려는 경우, Valet과 Docker 모두 80번 포트를 사용할 수 없어 충돌이 발생할 수 있습니다.
+때때로 Valet 도메인을 로컬 머신의 다른 서비스로 프록시하고 싶을 때가 있습니다. 예를 들어, Docker를 실행하면서 Valet도 함께 사용하려는 경우, Valet과 Docker가 동시에 80번 포트를 사용할 수 없어 충돌이 발생할 수 있습니다.
 
 <!-- To solve this, you may use the `proxy` command to generate a proxy. For example, you may proxy all traffic from `http://elasticsearch.test` to `http://127.0.0.1:9200`: -->
 이럴 때 `proxy` 명령어를 활용해 프록시를 생성할 수 있습니다. 예를 들어, `http://elasticsearch.test`로 들어오는 모든 트래픽을 `http://127.0.0.1:9200`으로 프록시할 수 있습니다:
@@ -617,7 +617,7 @@ Command  | Description
 `valet start` | Valet 데몬을 시작합니다.
 `valet stop` | Valet 데몬을 중지합니다.
 `valet trust` | Brew 및 Valet에 대해 sudoers 파일을 추가, 비밀번호 입력 없이 Valet 명령어를 실행할 수 있게 합니다.
-`valet uninstall` | Valet을 제거합니다. 강제 삭제를 원하면 `--force` 옵션을 사용해 모든 리소스도 함께 삭제합니다.
+`valet uninstall` | Valet을 제거합니다. 수동 제거 방법을 안내하며, 강제 삭제를 원하면 `--force` 옵션을 사용해 모든 리소스도 함께 삭제합니다.
 
 <!-- </div> -->
 </div>
@@ -718,7 +718,7 @@ PHP-FPM 풀 설정 파일입니다.
 ### Disk Access
 
 <!-- Since macOS 10.14, [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf). These restrictions include the Desktop, Documents, and Downloads directories. In addition, network volume and removable volume access is restricted. Therefore, Valet recommends your site folders are located outside of these protected locations. -->
-macOS 10.14부터는 [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf)됩니다. 예를 들어, 데스크탑, Documents, Downloads 디렉터리와 네트워크/이동식 볼륨에도 제한이 적용됩니다. 따라서 Valet에서는 사이트 폴더를 이러한 보호된 위치 밖에 두는 것을 권장합니다.
+macOS 10.14부터는 [access to some files and directories is restricted by default](https://manuals.info.apple.com/MANUALS/1000/MA1902/en_US/apple-platform-security-guide.pdf)에 설명된 대로 일부 파일과 디렉터리에 대한 접근이 기본적으로 제한됩니다. 예를 들어, 데스크탑, Documents, Downloads 디렉터리와 네트워크/이동식 볼륨에도 제한이 적용됩니다. 따라서 Valet에서는 사이트 폴더를 이러한 보호된 위치 밖에 두는 것을 권장합니다.
 
 <!-- However, if you wish to serve sites from within one of those locations, you will need to give Nginx "Full Disk Access". Otherwise, you may encounter server errors or other unpredictable behavior from Nginx, especially when serving static assets. Typically, macOS will automatically prompt you to grant Nginx full access to these locations. Or, you may do so manually via `System Preferences` > `Security & Privacy` > `Privacy` and selecting `Full Disk Access`. Next, enable any `nginx` entries in the main window pane. -->
 하지만, 반드시 위 폴더 내에서 사이트를 서비스해야 한다면, Nginx에 “전체 디스크 접근 권한(Full Disk Access)”을 부여해야 하며, 그렇지 않으면 정적 자산 서비스 등에서 서버 오류를 겪을 수 있습니다. 일반적으로 macOS에서는 이러한 권한 필요 시 자동으로 Nginx에 접근 권한 부여를 요청하지만, 수동으로 부여하려면 `System Preferences` > `Security & Privacy` > `Privacy` 탭에서 `Full Disk Access`를 선택하고, 메인 창에서 `nginx` 항목에 체크하세요.

@@ -142,7 +142,7 @@ public function store(Request $request): RedirectResponse
 ```
 
 <!-- As you can see, the validation rules are passed into the `validate` method. Don't worry - all available validation rules are [documented](#available-validation-rules). Again, if the validation fails, the proper response will automatically be generated. If the validation passes, our controller will continue executing normally. -->
-보시다시피 유효성 검증 규칙은 `validate` 메서드에 전달됩니다. 걱정하지 마십시오. 사용 가능한 모든 유효성 검증 규칙은 [documented](#available-validation-rules). 다시 말해 유효성 검증에 실패하면 적절한 응답이 자동으로 생성됩니다. 유효성 검증을 통과하면 컨트롤러는 정상적으로 계속 실행됩니다.
+보시다시피 유효성 검증 규칙은 `validate` 메서드에 전달됩니다. 걱정하지 마십시오. 사용 가능한 모든 유효성 검증 규칙은 [documented](#available-validation-rules)되어 있습니다. 다시 말해 유효성 검증에 실패하면 적절한 응답이 자동으로 생성됩니다. 유효성 검증을 통과하면 컨트롤러는 정상적으로 계속 실행됩니다.
 
 <!-- Alternatively, validation rules may be specified as arrays of rules instead of a single `|` delimited string: -->
 또는 유효성 검증 규칙을 하나의 `|` 구분 문자열 대신 규칙 배열로 지정할 수도 있습니다.
@@ -211,7 +211,7 @@ $request->validate([
 ### Displaying the Validation Errors
 
 <!-- So, what if the incoming request fields do not pass the given validation rules? As mentioned previously, Laravel will automatically redirect the user back to their previous location. In addition, all of the validation errors and [request input](/docs/master/requests#retrieving-old-input) will automatically be [flashed to the session](/docs/master/session#flash-data). -->
-그렇다면 들어오는 요청 필드가 주어진 유효성 검증 규칙을 통과하지 못하면 어떻게 될까요? 앞서 언급했듯이 Laravel은 사용자를 이전 위치로 자동 리다이렉트합니다. 또한 모든 유효성 검증 오류와 [request input](/docs/master/requests#retrieving-old-input)이 자동으로 [flashed to the session](/docs/master/session#flash-data).
+그렇다면 들어오는 요청 필드가 주어진 유효성 검증 규칙을 통과하지 못하면 어떻게 될까요? 앞서 언급했듯이 Laravel은 사용자를 이전 위치로 자동 리다이렉트합니다. 또한 모든 유효성 검증 오류와 [request input](/docs/master/requests#retrieving-old-input)이 자동으로 [flashed to the session](/docs/master/session#flash-data)됩니다.
 
 <!-- An `$errors` variable is shared with all of your application's views by the `Illuminate\View\Middleware\ShareErrorsFromSession` middleware, which is provided by the `web` middleware group. When this middleware is applied an `$errors` variable will always be available in your views, allowing you to conveniently assume the `$errors` variable is always defined and can be safely used. The `$errors` variable will be an instance of `Illuminate\Support\MessageBag`. For more information on working with this object, [check out its documentation](#working-with-error-messages). -->
 `$errors` 변수는 `web` 미들웨어 그룹에서 제공하는 `Illuminate\View\Middleware\ShareErrorsFromSession` 미들웨어에 의해 애플리케이션의 모든 뷰와 공유됩니다. 이 미들웨어가 적용되면 `$errors` 변수는 항상 뷰에서 사용할 수 있으므로, `$errors` 변수가 항상 정의되어 있으며 안전하게 사용할 수 있다고 편리하게 가정할 수 있습니다. `$errors` 변수는 `Illuminate\Support\MessageBag` 인스턴스입니다. 이 객체를 다루는 방법에 대한 자세한 내용은 [check out its documentation](#working-with-error-messages)를 확인하십시오.
@@ -296,7 +296,7 @@ Laravel의 내장 유효성 검증 규칙에는 각각 애플리케이션의 `la
 ### Repopulating Forms
 
 <!-- When Laravel generates a redirect response due to a validation error, the framework will automatically [flash all of the request's input to the session](/docs/master/session#flash-data). This is done so that you may conveniently access the input during the next request and repopulate the form that the user attempted to submit. -->
-Laravel이 유효성 검증 오류 때문에 리다이렉트 응답을 생성하면, 프레임워크는 자동으로 [flash all of the request's input to the session](/docs/master/session#flash-data). 이렇게 하는 이유는 다음 요청에서 해당 입력에 편리하게 접근하여 사용자가 제출하려고 했던 폼을 다시 채울 수 있도록 하기 위해서입니다.
+Laravel이 유효성 검증 오류 때문에 리다이렉트 응답을 생성하면, 프레임워크는 자동으로 [flash all of the request's input to the session](/docs/master/session#flash-data)합니다. 이렇게 하는 이유는 다음 요청에서 해당 입력에 편리하게 접근하여 사용자가 제출하려고 했던 폼을 다시 채울 수 있도록 하기 위해서입니다.
 
 <!-- To retrieve flashed input from the previous request, invoke the `old` method on an instance of `Illuminate\Http\Request`. The `old` method will pull the previously flashed input data from the [session](/docs/master/session): -->
 이전 요청에서 플래시된 입력을 가져오려면 `Illuminate\Http\Request` 인스턴스에서 `old` 메서드를 호출합니다. `old` 메서드는 이전에 플래시된 입력 데이터를 [session](/docs/master/session)에서 가져옵니다.
@@ -769,7 +769,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 ### Automatic Redirection
 
 <!-- If you would like to create a validator instance manually but still take advantage of the automatic redirection offered by the HTTP request's `validate` method, you may call the `validate` method on an existing validator instance. If validation fails, the user will automatically be redirected or, in the case of an XHR request, a [JSON response will be returned](#validation-error-response-format): -->
-validator 인스턴스를 수동으로 생성하되 HTTP 요청의 `validate` 메서드가 제공하는 자동 리다이렉션도 활용하고 싶다면, 기존 validator 인스턴스에서 `validate` 메서드를 호출할 수 있습니다. 유효성 검증에 실패하면 사용자는 자동으로 리다이렉트되며, XHR 요청인 경우 [JSON response will be returned](#validation-error-response-format).
+validator 인스턴스를 수동으로 생성하되 HTTP 요청의 `validate` 메서드가 제공하는 자동 리다이렉션도 활용하고 싶다면, 기존 validator 인스턴스에서 `validate` 메서드를 호출할 수 있습니다. 유효성 검증에 실패하면 사용자는 자동으로 리다이렉트되며, XHR 요청인 경우 JSON 응답이 반환됩니다([JSON response will be returned](#validation-error-response-format)).
 
 ```php
 Validator::make($request->all(), [
@@ -2481,7 +2481,7 @@ _anotherfield_ 필드가 어떤 _value_와 같으면, 유효성 검증 대상 �
 #### missing_unless:_anotherfield_,_value_
 
 <!-- The field under validation must not be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 어떤 _value_와 같지 않으면, 유효성 검증 대상 필드는 존재하지 않아야 합니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면, 유효성 검증 대상 필드는 존재하지 않아야 합니다.
 
 <a name="rule-missing-with"></a>
 <!-- #### missing_with:_foo_,_bar_,... -->
@@ -2502,7 +2502,7 @@ _anotherfield_ 필드가 어떤 _value_와 같지 않으면, 유효성 검증 �
 #### not_in:_foo_,_bar_,...
 
 <!-- The field under validation must not be included in the given list of values. The `Rule::notIn` method may be used to fluently construct the rule: -->
-유효성 검증 중인 필드는 주어진 값 목록에 포함되어서는 안 됩니다. `Rule::notIn` 메서드를 사용하여 규칙을 유창하게 구성할 수 있습니다.
+유효성 검증 중인 필드는 주어진 값 목록에 포함되어서는 안 됩니다. `Rule::notIn` 메서드를 사용하여 규칙을 플루언트 방식으로 구성할 수 있습니다.
 
 ```php
 use Illuminate\Validation\Rule;
@@ -2568,7 +2568,7 @@ Validator::make($data, [
 #### present_unless:_anotherfield_,_value_
 
 <!-- The field under validation must be present unless the _anotherfield_ field is equal to any _value_. -->
-유효성 검증 중인 필드는 _anotherfield_ 필드가 어떤 _value_ 와 같지 않은 한 존재해야 합니다.
+유효성 검증 중인 필드는 _anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 존재해야 합니다.
 
 <a name="rule-present-with"></a>
 <!-- #### present_with:_foo_,_bar_,... -->
@@ -2666,7 +2666,7 @@ Validator::make($request->all(), [
 #### prohibited_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be missing or empty unless the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
-유효성 검증 중인 필드는 _anotherfield_ 필드가 어떤 _value_ 와 같지 않은 한 누락되었거나 비어 있어야 합니다. 필드는 다음 기준 중 하나를 충족하면 "비어 있음"으로 간주됩니다.
+유효성 검증 중인 필드는 _anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 누락되었거나 비어 있어야 합니다. 필드는 다음 기준 중 하나를 충족하면 "비어 있음"으로 간주됩니다.
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -2690,7 +2690,7 @@ Validator::make($request->all(), [
 #### prohibits:_anotherfield_,...
 
 <!-- If the field under validation is not missing or empty, all fields in _anotherfield_ must be missing or empty. A field is "empty" if it meets one of the following criteria: -->
-유효성 검증 중인 필드가 누락되었거나 비어 있지 않다면, _anotherfield_ 에 있는 모든 필드는 누락되었거나 비어 있어야 합니다. 필드는 다음 기준 중 하나를 충족하면 "비어 있음"으로 간주됩니다.
+유효성 검증 중인 필드가 존재하고 비어 있지 않다면, _anotherfield_ 에 있는 모든 필드는 누락되었거나 비어 있어야 합니다. 필드는 다음 기준 중 하나를 충족하면 "비어 있음"으로 간주됩니다.
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -2788,7 +2788,7 @@ Validator::make($request->all(), [
 #### required_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty unless the _anotherfield_ field is equal to any _value_. This also means _anotherfield_ must be present in the request data unless _value_ is `null`. If _value_ is `null` (`required_unless:name,null`), the field under validation will be required unless the comparison field is `null` or the comparison field is missing from the request data. -->
-유효성 검증 중인 필드는 _anotherfield_ 필드가 어떤 _value_ 와 같지 않은 한 존재해야 하며 비어 있으면 안 됩니다. 이는 _value_ 가 `null`이 아닌 한 _anotherfield_ 도 요청 데이터에 존재해야 한다는 의미이기도 합니다. _value_ 가 `null`인 경우(`required_unless:name,null`), 비교 대상 필드가 `null`이거나 요청 데이터에 존재하지 않는 경우를 제외하고 유효성 검증 중인 필드는 필수입니다.
+유효성 검증 중인 필드는 _anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 존재해야 하며 비어 있으면 안 됩니다. 이는 _value_ 가 `null`이 아닌 한 _anotherfield_ 도 요청 데이터에 존재해야 한다는 의미이기도 합니다. _value_ 가 `null`인 경우(`required_unless:name,null`), 비교 대상 필드가 `null`이거나 요청 데이터에 존재하지 않는 경우를 제외하고 유효성 검증 중인 필드는 필수입니다.
 
 <a name="rule-required-with"></a>
 <!-- #### required_with:_foo_,_bar_,... -->
@@ -2875,7 +2875,7 @@ Validator::make($request->all(), [
 유효성 검증 중인 필드는 `DateTimeZone::listIdentifiers` 메서드 기준으로 유효한 시간대 식별자여야 합니다.
 
 <!-- The arguments [accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php) may also be provided to this validation rule: -->
-[accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php)도 이 유효성 검증 규칙에 제공할 수 있습니다.
+[accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php)에서 설명하는 인수도 이 유효성 검증 규칙에 제공할 수 있습니다.
 
 ```php
 'timezone' => 'required|timezone:all';
@@ -2926,7 +2926,7 @@ Validator::make($request->all(), [
 때로는 unique 유효성 검증 중에 주어진 ID를 무시하고 싶을 수 있습니다. 예를 들어 사용자의 이름, 이메일 주소, 위치를 포함하는 "프로필 업데이트" 화면을 생각해 보겠습니다. 이메일 주소가 고유한지 확인하고 싶을 것입니다. 하지만 사용자가 이메일 필드는 변경하지 않고 이름 필드만 변경했다면, 해당 사용자가 이미 문제의 이메일 주소 소유자이므로 유효성 검증 오류가 발생하지 않아야 합니다.
 
 <!-- To instruct the validator to ignore the user's ID, we'll use the `Rule` class to fluently define the rule. In this example, we'll also specify the validation rules as an array instead of using the `|` character to delimit the rules: -->
-Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용하여 규칙을 유창하게 정의합니다. 이 예제에서는 규칙을 구분하기 위해 `|` 문자를 사용하는 대신, 유효성 검증 규칙도 배열로 지정합니다.
+Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용하여 규칙을 메서드 체이닝 방식으로 정의합니다. 이 예제에서는 규칙을 구분하기 위해 `|` 문자를 사용하는 대신, 유효성 검증 규칙도 배열로 지정합니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -3057,7 +3057,7 @@ $validator = Validator::make($data, [
 ```
 
 <!-- Alternatively, you may use the `exclude_unless` rule to not validate a given field unless another field has a given value: -->
-또는 다른 필드가 특정 값을 가지지 않는 한 특정 필드를 검증하지 않으려면 `exclude_unless` 규칙을 사용할 수 있습니다:
+또는 다른 필드가 특정 값을 갖지 않을 때 특정 필드를 검증하지 않으려면 `exclude_unless` 규칙을 사용할 수 있습니다:
 
 ```php
 $validator = Validator::make($data, [
@@ -3287,7 +3287,7 @@ Validator::validate($input, [
 ## Validating Files
 
 <!-- Laravel provides a variety of validation rules that may be used to validate uploaded files, such as `mimes`, `image`, `min`, and `max`. While you are free to specify these rules individually when validating files, Laravel also offers a fluent file validation rule builder that you may find convenient: -->
-Laravel은 업로드된 파일을 검증하는 데 사용할 수 있는 `mimes`, `image`, `min`, `max` 같은 다양한 유효성 검증 규칙을 제공합니다. 파일을 검증할 때 이러한 규칙을 각각 지정해도 되지만, Laravel은 편리하게 사용할 수 있는 유창한 파일 유효성 검증 규칙 빌더도 제공합니다:
+Laravel은 업로드된 파일을 검증하는 데 사용할 수 있는 `mimes`, `image`, `min`, `max` 같은 다양한 유효성 검증 규칙을 제공합니다. 파일을 검증할 때 이러한 규칙을 각각 지정해도 되지만, Laravel은 편리하게 사용할 수 있는 플루언트 파일 유효성 검증 규칙 빌더도 제공합니다:
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -3426,7 +3426,7 @@ Password::min(8)->uncompromised()
 내부적으로 `Password` 규칙 객체는 [k-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) 모델을 사용하여, 사용자의 개인정보나 보안을 희생하지 않고 [haveibeenpwned.com](https://haveibeenpwned.com) 서비스를 통해 비밀번호가 유출되었는지 판단합니다.
 
 <!-- By default, if a password appears at least once in a data leak, it will be considered compromised. You can customize this threshold using the first argument of the `uncompromised` method: -->
-기본적으로 비밀번호가 데이터 유출에 최소 한 번이라도 나타나면 손상된 것으로 간주됩니다. `uncompromised` 메서드의 첫 번째 인수를 사용하여 이 임계값을 사용자 정의할 수 있습니다:
+기본적으로 비밀번호가 데이터 유출에 최소 한 번이라도 나타나면 유출된 것으로 간주됩니다. `uncompromised` 메서드의 첫 번째 인수를 사용하여 이 임계값을 사용자 정의할 수 있습니다:
 
 ```php
 // Ensure the password appears less than 3 times in the same data leak...

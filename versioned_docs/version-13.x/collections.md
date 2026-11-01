@@ -3139,7 +3139,7 @@ $slice->all();
 #### `sliding()`
 
 <!-- The `sliding` method returns a new collection of chunks representing a "sliding window" view of the items in the collection: -->
-`sliding` 메서드는 컬렉션에 있는 항목의 "슬라이딩 창" 뷰을 나타내는 새로운 청크 컬렉션을 반환합니다.
+`sliding` 메서드는 컬렉션에 있는 항목의 "슬라이딩 창" 뷰를 나타내는 새로운 청크 컬렉션을 반환합니다.
 
 ```php
 $collection = collect([1, 2, 3, 4, 5]);
@@ -3928,7 +3928,7 @@ $unique->values()->all();
 #### `unless()`
 
 <!-- The `unless` method will execute the given callback unless the first argument given to the method evaluates to `true`. The collection instance and the first argument given to the `unless` method will be provided to the closure: -->
-`unless` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가되지 않는 한 지정된 콜백을 실행합니다. `unless` 메서드에 제공된 컬렉션 인스턴스와 첫 번째 인수는 클로저에 제공됩니다.
+`unless` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가되지 않는 한 지정된 콜백을 실행합니다. `unless` 메서드는 컬렉션 인스턴스와 전달받은 첫 번째 인수를 클로저에 제공합니다.
 
 ```php
 $collection = collect([1, 2, 3]);
@@ -4049,7 +4049,7 @@ $values->all();
 #### `when()`
 
 <!-- The `when` method will execute the given callback when the first argument given to the method evaluates to `true`. The collection instance and the first argument given to the `when` method will be provided to the closure: -->
-`when` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가될 때 지정된 콜백을 실행합니다. `when` 메서드에 제공된 컬렉션 인스턴스와 첫 번째 인수는 클로저에 제공됩니다.
+`when` 메서드는 메서드에 제공된 첫 번째 인수가 `true`로 평가될 때 지정된 콜백을 실행합니다. `when` 메서드는 컬렉션 인스턴스와 전달받은 첫 번째 인수를 클로저에 제공합니다.
 
 ```php
 $collection = collect([1, 2, 3]);
@@ -4117,7 +4117,7 @@ $collection->all();
 ```
 
 <!-- A second closure may be passed to the `whenEmpty` method that will be executed when the collection is not empty: -->
-컬렉션이 비어 있지 않을 때 실행될 `whenEmpty` 메서드에 두 번째 클로저가 전달될 수 있습니다.
+`whenEmpty` 메서드에 두 번째 클로저를 전달할 수 있습니다. 이 클로저는 컬렉션이 비어 있지 않을 때 실행됩니다.
 
 ```php
 $collection = collect(['Michael', 'Tom']);
@@ -4166,7 +4166,7 @@ $collection->all();
 ```
 
 <!-- A second closure may be passed to the `whenNotEmpty` method that will be executed when the collection is empty: -->
-두 번째 클로저는 컬렉션이 비어 있을 때 실행될 `whenNotEmpty` 메서드에 전달될 수 있습니다.
+`whenNotEmpty` 메서드에 두 번째 클로저를 전달할 수 있습니다. 이 클로저는 컬렉션이 비어 있을 때 실행됩니다.
 
 ```php
 $collection = collect();

@@ -88,7 +88,7 @@ Laravel의 이벤트 브로드캐스팅을 사용하려면, Laravel 애플리케
 애플리케이션에서 사용하는 브로드캐스팅 관련 모든 설정은 `config/broadcasting.php` 파일에 저장됩니다. 만약 이 디렉터리가 애플리케이션에 없다면, `install:broadcasting` Artisan 명령어를 실행하면 자동으로 생성됩니다.
 
 <!-- Laravel supports several broadcast drivers out of the box: [Laravel Reverb](/docs/11.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), and a `log` driver for local development and debugging. Additionally, a `null` driver is included which allows you to disable broadcasting during testing. A configuration example is included for each of these drivers in the `config/broadcasting.php` configuration file. -->
-Laravel은 기본적으로 여러 브로드캐스트 드라이버를 지원합니다: [Laravel Reverb](/docs/11.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), 그리고 로컬 개발/디버깅 용도의 `log` 드라이버가 제공됩니다. 추가로, 브로드캐스팅을 비활성화할 수 있는 `null` 드라이버도 포함되어 있습니다. 각 드라이버별 설정 예시는 `config/broadcasting.php` 파일 안에 미리 들어 있습니다.
+Laravel은 기본적으로 여러 브로드캐스트 드라이버를 지원합니다: [Laravel Reverb](/docs/11.x/reverb), [Pusher Channels](https://pusher.com/channels), [Ably](https://ably.com), 그리고 로컬 개발/디버깅 용도의 `log` 드라이버가 제공됩니다. 추가로, 테스트 중 브로드캐스팅을 비활성화할 수 있는 `null` 드라이버도 포함되어 있습니다. 각 드라이버별 설정 예시는 `config/broadcasting.php` 파일 안에 미리 들어 있습니다.
 
 <a name="installation"></a>
 
@@ -111,7 +111,7 @@ php artisan install:broadcasting
 #### Queue Configuration
 
 <!-- Before broadcasting any events, you should first configure and run a [queue worker](/docs/11.x/queues). All event broadcasting is done via queued jobs so that the response time of your application is not seriously affected by events being broadcast. -->
-이벤트를 브로드캐스트하기 전에, 반드시 [queue worker](/docs/11.x/queues)를 먼저 설정하고 실행해야 합니다. 모든 이벤트 브로드캐스팅 작업이 큐 작업으로 처리되기 때문에, 이벤트 브로드캐스트가 애플리케이션의 응답 속도에 영향을 주지 않습니다.
+이벤트를 브로드캐스트하기 전에, 반드시 [queue worker](/docs/11.x/queues)를 먼저 설정하고 실행해야 합니다. 모든 이벤트 브로드캐스팅 작업이 큐 작업으로 처리되기 때문에, 이벤트 브로드캐스트가 애플리케이션의 응답 속도에 큰 영향을 주지 않습니다.
 
 <a name="reverb"></a>
 
@@ -1066,7 +1066,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening for Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-특정 이벤트에 대한 리스닝만 중단하고 싶고, [leaving the channel](#leaving-a-channel) 싶을 때는 `stopListening` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 특정 이벤트에 대한 리스닝만 중단하고 싶을 때는 `stopListening` 메서드를 사용할 수 있습니다.
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1132,7 +1132,7 @@ Echo.channel('orders')
 ### Authorizing Presence Channels
 
 <!-- All presence channels are also private channels; therefore, users must be [authorized to access them](#authorizing-channels). However, when defining authorization callbacks for presence channels, you will not return `true` if the user is authorized to join the channel. Instead, you should return an array of data about the user. -->
-프리즌스 채널은 프라이빗 채널이기 때문에 [authorized to access them](#authorizing-channels)합니다. 하지만 프리즌스 채널의 인가 콜백에서는, 단순히 수신 요건을 만족할 때 `true`를 반환하는 대신, 사용자의 정보를 담은 배열을 반환해야 합니다.
+프리즌스 채널은 프라이빗 채널이기 때문에 사용자는 [authorized to access them](#authorizing-channels)에 설명된 인가를 받아야 합니다. 하지만 프리즌스 채널의 인가 콜백에서는, 단순히 수신 요건을 만족할 때 `true`를 반환하는 대신, 사용자의 정보를 담은 배열을 반환해야 합니다.
 
 <!-- The data returned by the authorization callback will be made available to the presence channel event listeners in your JavaScript application. If the user is not authorized to join the presence channel, you should return `false` or `null`: -->
 인가 콜백에서 반환한 데이터는 자바스크립트 애플리케이션의 프리즌스 채널 이벤트 리스너에서 활용할 수 있습니다. 만약 사용자가 해당 프리즌스 채널을 수신할 자격이 없다면, `false` 또는 `null`을 반환해야 합니다.

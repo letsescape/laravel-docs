@@ -26,6 +26,7 @@
     - [Specifying Attributes in Language Files](#specifying-attribute-in-language-files)
     - [Specifying Values in Language Files](#specifying-values-in-language-files)
 - [Available Validation Rules](#available-validation-rules)
+    - [Rule Builders](#rule-builders)
 - [Conditionally Adding Rules](#conditionally-adding-rules)
 - [Validating Arrays](#validating-arrays)
     - [Validating Nested Array Input](#validating-nested-array-input)
@@ -816,7 +817,7 @@ if ($validator->stopOnFirstFailure()->fails()) {
 ### Automatic Redirection
 
 <!-- If you would like to create a validator instance manually but still take advantage of the automatic redirection offered by the HTTP request's `validate` method, you may call the `validate` method on an existing validator instance. If validation fails, the user will automatically be redirected or, in the case of an XHR request, a [JSON response will be returned](#validation-error-response-format): -->
-Validator 인스턴스를 수동으로 생성하면서도 HTTP request의 `validate` 메서드가 제공하는 자동 리디렉션을 활용하고 싶다면, 기존 validator 인스턴스에서 `validate` 메서드를 호출할 수 있습니다. 유효성 검증이 실패하면 사용자는 자동으로 리디렉션되며, XHR 요청의 경우 [JSON response will be returned](#validation-error-response-format).
+Validator 인스턴스를 수동으로 생성하면서도 HTTP request의 `validate` 메서드가 제공하는 자동 리디렉션을 활용하고 싶다면, 기존 validator 인스턴스에서 `validate` 메서드를 호출할 수 있습니다. 유효성 검증이 실패하면 사용자는 자동으로 리디렉션되며, XHR 요청의 경우 JSON 응답이 반환됩니다([JSON response will be returned](#validation-error-response-format)).
 
 ```php
 Validator::make($request->all(), [
@@ -1357,6 +1358,43 @@ The credit card number field is required when payment type is credit card.
 [Sometimes](#validating-when-present)
 </div>
 
+<a name="rule-builders"></a>
+<!-- ### Rule Builders -->
+### Rule Builders
+
+<!-- In addition to strings, many validation rules may be defined using methods on the `Illuminate\Validation\Rule` class. These methods offer IDE autocompletion and may be combined with string rules: -->
+문자열뿐 아니라 `Illuminate\Validation\Rule` 클래스의 메서드를 사용해 여러 유효성 검증 규칙을 정의할 수 있습니다. 이러한 메서드는 IDE 자동 완성을 지원하며 문자열 규칙과 함께 사용할 수도 있습니다:
+
+```php
+use Illuminate\Validation\Rule;
+
+'name' => [Rule::required(), Rule::string()->max(255)],
+'terms' => [Rule::accepted()],
+'enabled' => [Rule::boolean()],
+'website' => [Rule::nullable(), Rule::activeUrl()],
+```
+
+<!-- Method names use camel case, such as `Rule::hexColor()`, `Rule::macAddress()`, and `Rule::requiredArrayKeys(['name', 'email'])`. Rules that depend on other fields accept the field names or comparison values as arguments: -->
+메서드 이름은 `Rule::hexColor()`, `Rule::macAddress()`, `Rule::requiredArrayKeys(['name', 'email'])`처럼 카멜 케이스를 사용합니다. 다른 필드에 따라 달라지는 규칙은 필드 이름이나 비교 값을 인수로 받습니다:
+
+```php
+'terms' => [Rule::acceptedIf('account_type', ['personal', 'business'])],
+'nickname' => [Rule::excludeWith('name')],
+'email' => [Rule::requiredWithout(['phone', 'mobile'])],
+'settings' => [Rule::presentIf('account_type', 'business')],
+```
+
+<!-- The `acceptedIf`, `declinedIf`, `missingIf`, `missingUnless`, `presentIf`, and `presentUnless` methods accept a comparison value or an array of comparison values. Methods such as `requiredWith`, `requiredWithAll`, `requiredWithout`, `requiredWithoutAll`, `missingWith`, `missingWithAll`, `presentWith`, `presentWithAll`, and `prohibits` accept an array of field names or multiple field name arguments. -->
+`acceptedIf`, `declinedIf`, `missingIf`, `missingUnless`, `presentIf`, `presentUnless` 메서드는 비교 값 하나 또는 비교 값 배열을 받습니다. `requiredWith`, `requiredWithAll`, `requiredWithout`, `requiredWithoutAll`, `missingWith`, `missingWithAll`, `presentWith`, `presentWithAll`, `prohibits` 등의 메서드는 필드 이름 배열이나 여러 필드 이름 인수를 받습니다.
+
+<!-- Regular expressions may also be defined using the `regex` and `notRegex` methods: -->
+`regex` 및 `notRegex` 메서드로 정규식도 정의할 수 있습니다:
+
+```php
+'username' => [Rule::required(), Rule::regex('/^[a-z]+$/i')],
+'code' => [Rule::notRegex('/^test-/i')],
+```
+
 <a name="rule-accepted"></a>
 <!-- #### accepted -->
 #### accepted
@@ -1646,15 +1684,29 @@ use Illuminate\Validation\Rule;
 'foo' => ['boolean:strict']
 ```
 
+<!-- Alternatively, you may use the `Rule::boolean` method, passing `true` to enable strict validation: -->
+또는 `true`를 전달해 엄격한 유효성 검증을 활성화하는 `Rule::boolean` 메서드를 사용할 수도 있습니다.
+
+```php
+'foo' => [Rule::boolean(true)],
+```
+
 <a name="rule-confirmed"></a>
 <!-- #### confirmed -->
 #### confirmed
 
 <!-- The field under validation must have a matching field of `{field}_confirmation`. For example, if the field under validation is `password`, a matching `password_confirmation` field must be present in the input. -->
-유효성 검증 중인 필드에는 `{field}_confirmation` 형식의 일치하는 필드가 있어야 합니다. 예를 들어 유효성 검증 중인 필드가 `password`라면, 입력값 안에 일치하는 `password_confirmation` 필드가 있어야 합니다.
+검증 대상 필드에는 `{field}_confirmation` 형식의 이름을 가진 일치하는 필드가 있어야 합니다. 예를 들어 검증 대상 필드가 `password`라면 입력에 `password_confirmation` 필드가 있어야 합니다.
 
 <!-- You may also pass a custom confirmation field name. For example, `confirmed:repeat_username` will expect the field `repeat_username` to match the field under validation. -->
-사용자 지정 확인 필드 이름을 전달할 수도 있습니다. 예를 들어 `confirmed:repeat_username`은 `repeat_username` 필드가 유효성 검증 중인 필드와 일치할 것으로 기대합니다.
+사용자 지정 확인 필드 이름을 전달할 수도 있습니다. 예를 들어 `confirmed:repeat_username`은 `repeat_username` 필드가 검증 대상 필드와 일치해야 합니다.
+
+<!-- You may also use the `Rule::confirmed` method, specifying a custom confirmation field via the `customField` method: -->
+`customField` 메서드로 사용자 지정 확인 필드를 지정하는 `Rule::confirmed` 메서드를 사용할 수도 있습니다.
+
+```php
+'username' => [Rule::confirmed()->customField('repeat_username')],
+```
 
 <a name="rule-contains"></a>
 <!-- #### contains:_foo_,_bar_,... -->
@@ -1707,6 +1759,13 @@ Validator::make($data, [
 'password' => ['current_password:api']
 ```
 
+<!-- Alternatively, you may use the `Rule::currentPassword` method and specify the authentication guard via the `guard` method: -->
+또는 `Rule::currentPassword` 메서드를 사용하고 `guard` 메서드로 인증 가드를 지정할 수 있습니다.
+
+```php
+'password' => [Rule::currentPassword()->guard('api')],
+```
+
 <a name="rule-date"></a>
 <!-- #### date -->
 #### date
@@ -1720,6 +1779,18 @@ Validator::make($data, [
 
 <!-- The field under validation must be equal to the given date. The dates will be passed into the PHP `strtotime` function in order to be converted into a valid `DateTime` instance. -->
 유효성 검증 중인 필드는 주어진 날짜와 같아야 합니다. 날짜는 유효한 `DateTime` 인스턴스로 변환하기 위해 PHP `strtotime` 함수에 전달됩니다.
+
+<!-- For convenience, date-based rules may be constructed using the fluent `date` rule builder: -->
+편의를 위해 fluent `date` 규칙 빌더를 사용해 날짜 기반 규칙을 구성할 수 있습니다.
+
+```php
+use Illuminate\Validation\Rule;
+
+'start_date' => [Rule::date()->equals('2026-01-01')],
+```
+
+<!-- The `equals` method accepts a date string, a `DateTimeInterface` instance, or the name of another field to compare against. -->
+`equals` 메서드는 날짜 문자열, `DateTimeInterface` 인스턴스 또는 비교할 다른 필드의 이름을 인수로 받습니다.
 
 <a name="rule-date-format"></a>
 <!-- #### date_format:_format_,... -->
@@ -1866,6 +1937,13 @@ distinct는 기본적으로 느슨한 변수 비교를 사용합니다. 엄격�
 
 ```php
 'foo.*.id' => ['distinct:ignore_case']
+```
+
+<!-- Alternatively, you may use the `Rule::distinct` method, chaining the `strict` and `ignoreCase` methods as needed: -->
+또는 필요에 따라 `strict` 및 `ignoreCase` 메서드를 연결해 `Rule::distinct` 메서드를 사용할 수도 있습니다.
+
+```php
+'foo.*.id' => [Rule::distinct()->strict()->ignoreCase()],
 ```
 
 <a name="rule-doesnt-start-with"></a>
@@ -2050,7 +2128,7 @@ Validator::make($request->all(), [
 #### exclude_unless:_anotherfield_,_value_
 
 <!-- The field under validation will be excluded from the request data returned by the `validate` and `validated` methods unless _anotherfield_'s field is equal to _value_. If _value_ is `null` (`exclude_unless:name,null`), the field under validation will be excluded unless the comparison field is `null` or the comparison field is missing from the request data. -->
-유효성 검증 중인 필드는 _anotherfield_ 필드가 _value_와 같지 않은 한 `validate` 및 `validated` 메서드가 반환하는 요청 데이터에서 제외됩니다. _value_가 `null`(`exclude_unless:name,null`)이면, 비교 대상 필드가 `null`이거나 요청 데이터에 비교 대상 필드가 없는 경우를 제외하고 유효성 검증 중인 필드는 제외됩니다.
+유효성 검증 중인 필드는 _anotherfield_ 필드가 _value_와 같지 않으면 `validate` 및 `validated` 메서드가 반환하는 요청 데이터에서 제외됩니다. _value_가 `null`(`exclude_unless:name,null`)이면, 비교 대상 필드가 `null`이거나 요청 데이터에 비교 대상 필드가 없는 경우를 제외하고 유효성 검증 중인 필드는 제외됩니다.
 
 <!-- If complex conditional exclusion logic is required, you may utilize the `Rule::excludeUnless` method. This method accepts a boolean or a closure. When given a closure, the closure should return `true` or `false` to indicate if the field under validation should not be excluded: -->
 복잡한 조건부 제외 로직이 필요한 경우 `Rule::excludeUnless` 메서드를 사용할 수 있습니다. 이 메서드는 boolean 또는 closure를 받습니다. closure가 주어지면, 해당 closure는 유효성 검증 중인 필드를 제외하지 않아야 하는지 나타내기 위해 `true` 또는 `false`를 반환해야 합니다.
@@ -2300,6 +2378,15 @@ Validator::make($input, [
 <!-- The field under validation must be an IP address. -->
 유효성 검증 중인 필드는 IP 주소여야 합니다.
 
+<!-- You may also use the `Rule::ip` method, optionally restricting the IP version to `4` or `6`: -->
+`Rule::ip` 메서드를 사용할 수도 있으며, 선택적으로 IP 버전을 `4` 또는 `6`으로 제한할 수 있습니다:
+
+```php
+'ip_address' => [Rule::ip()],
+'ipv4_address' => [Rule::ip()->version(4)],
+'ipv6_address' => [Rule::ip()->version(6)],
+```
+
 <a name="ipv4"></a>
 <!-- #### ipv4 -->
 #### ipv4
@@ -2409,6 +2496,9 @@ Validator::make($input, [
 <!-- This validation rule does not verify agreement between the MIME type and the extension the user assigned to the file. For example, the `mimes:png` validation rule would consider a file containing valid PNG content to be a valid PNG image, even if the file is named `photo.txt`. If you would like to validate the user-assigned extension of the file, you may use the [extensions](#rule-extensions) rule. -->
 이 유효성 검증 규칙은 MIME 타입과 사용자가 파일에 지정한 확장자가 일치하는지 확인하지 않습니다. 예를 들어 `mimes:png` 유효성 검증 규칙은 파일 이름이 `photo.txt`이더라도, 파일 내용이 유효한 PNG 콘텐츠라면 유효한 PNG 이미지로 간주합니다. 사용자가 지정한 파일 확장자를 검증하려면 [extensions](#rule-extensions) 규칙을 사용할 수 있습니다.
 
+> [!WARNING]
+> 이미지 유효성 검증을 통과하더라도 파일을 `.php` 확장자로 저장하면 PHP로 실행될 수 있습니다. GIF 또는 JPEG 매직 바이트로 시작하는 파일은 PHP 페이로드를 포함하면서도 `mimes:gif` 또는 `mimes:jpg` 유효성 검증을 통과할 수 있습니다. 업로드한 파일을 저장할 때는 항상 시스템이 생성한 파일 이름(예: `hashName()`)을 사용하고, 웹 서버에서 스토리지 디렉터리 내 PHP 실행을 차단하도록 설정하세요.
+
 <a name="rule-min"></a>
 <!-- #### min:_value_ -->
 #### min:_value_
@@ -2449,7 +2539,7 @@ _anotherfield_ 필드가 임의의 _value_와 같으면 유효성 검증 대상 
 #### missing_unless:_anotherfield_,_value_
 
 <!-- The field under validation must not be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 존재하지 않아야 합니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 유효성 검증 대상 필드는 존재하지 않아야 합니다.
 
 <a name="rule-missing-with"></a>
 <!-- #### missing_with:_foo_,_bar_,... -->
@@ -2470,7 +2560,7 @@ _anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유�
 #### not_in:_foo_,_bar_,...
 
 <!-- The field under validation must not be included in the given list of values. The `Rule::notIn` method may be used to fluently construct the rule: -->
-유효성 검증 대상 필드는 주어진 값 목록에 포함되면 안 됩니다. `Rule::notIn` 메서드를 사용하여 유창한 방식으로 규칙을 구성할 수 있습니다.
+유효성 검증 대상 필드는 주어진 값 목록에 포함되면 안 됩니다. `Rule::notIn` 메서드를 사용하여 플루언트 방식으로 규칙을 구성할 수 있습니다.
 
 ```php
 use Illuminate\Validation\Rule;
@@ -2533,7 +2623,7 @@ _anotherfield_ 필드가 임의의 _value_와 같으면 유효성 검증 대상 
 #### present_unless:_anotherfield_,_value_
 
 <!-- The field under validation must be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 존재해야 합니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 유효성 검증 대상 필드는 존재해야 합니다.
 
 <a name="rule-present-with"></a>
 <!-- #### present_with:_foo_,_bar_,... -->
@@ -2617,7 +2707,7 @@ _anotherfield_ 필드가 `"no"`, `"off"`, `0`, `"0"`, `false`, 또는 `"false"`�
 #### prohibited_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be missing or empty unless the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 유효성 검증 대상 필드는 없거나 비어 있어야 합니다. 필드는 다음 조건 중 하나를 만족하면 "비어 있음"으로 간주됩니다.
 
 <div class="content-list" markdown="1">
 
@@ -2731,7 +2821,7 @@ _anotherfield_ 필드가 `"no"`, `"off"`, `0`, `"0"`, `false`, 또는 `"false"`�
 #### required_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty unless the _anotherfield_ field is equal to any _value_. This also means _anotherfield_ must be present in the request data unless _value_ is `null`. If _value_ is `null` (`required_unless:name,null`), the field under validation will be required unless the comparison field is `null` or the comparison field is missing from the request data. -->
-_anotherfield_ 필드가 임의의 _value_와 같은 경우가 아니라면 유효성 검증 대상 필드는 존재하고 비어 있지 않아야 합니다. 이는 _value_가 `null`이 아닌 한 _anotherfield_도 요청 데이터에 존재해야 한다는 뜻입니다. _value_가 `null`인 경우(`required_unless:name,null`), 비교 필드가 `null`이거나 요청 데이터에 없는 경우를 제외하면 유효성 검증 대상 필드는 필수입니다.
+_anotherfield_ 필드가 주어진 _value_ 중 어느 것과도 같지 않으면 유효성 검증 대상 필드는 존재하고 비어 있지 않아야 합니다. 이는 _value_가 `null`이 아닌 한 _anotherfield_도 요청 데이터에 존재해야 한다는 뜻입니다. _value_가 `null`인 경우(`required_unless:name,null`), 비교 필드가 `null`이거나 요청 데이터에 없는 경우를 제외하면 유효성 검증 대상 필드는 필수입니다.
 
 <!-- If you would like to construct a more complex condition for the `required_unless` rule, you may use the `Rule::requiredUnless` method. This method accepts a boolean or a closure. When passed a closure, the closure should return `true` or `false` to indicate if the field under validation is not required: -->
 `required_unless` 규칙에 더 복잡한 조건을 구성하려면 `Rule::requiredUnless` 메서드를 사용할 수 있습니다. 이 메서드는 불리언 또는 클로저를 받습니다. 클로저가 전달되면, 해당 클로저는 유효성 검증 대상 필드가 필수가 아닌지 나타내기 위해 `true` 또는 `false`를 반환해야 합니다.
@@ -2827,7 +2917,7 @@ Validator::make($request->all(), [
 유효성 검증 대상 필드는 문자열이어야 합니다. 필드가 `null`도 허용되도록 하려면 해당 필드에 `nullable` 규칙을 지정해야 합니다.
 
 <!-- For convenience, string validation rules may also be constructed using the fluent `Rule::string()` rule builder: -->
-편의를 위해 문자열 유효성 검증 규칙은 유창한 `Rule::string()` 규칙 빌더를 사용하여 구성할 수도 있습니다.
+편의를 위해 문자열 유효성 검증 규칙은 플루언트 `Rule::string()` 규칙 빌더를 사용하여 구성할 수도 있습니다.
 
 ```php
 use Illuminate\Validation\Rule;
@@ -2860,6 +2950,13 @@ use Illuminate\Validation\Rule;
 'timezone' => ['required', 'timezone:Africa'];
 
 'timezone' => ['required', 'timezone:per_country,US'];
+```
+
+<!-- Alternatively, you may use the `Rule::timezone` method, passing any `listIdentifiers` arguments as an array: -->
+또는 `listIdentifiers` 인수를 배열로 전달해 `Rule::timezone` 메서드를 사용할 수도 있습니다.
+
+```php
+'timezone' => [Rule::timezone(['per_country', 'US'])],
 ```
 
 <a name="rule-unique"></a>
@@ -2902,7 +2999,7 @@ use Illuminate\Validation\Rule;
 때로는 unique 유효성 검증 중에 지정한 ID를 무시하고 싶을 수 있습니다. 예를 들어 사용자의 이름, 이메일 주소, 위치를 포함하는 "프로필 수정" 화면을 생각해 보겠습니다. 일반적으로 이메일 주소가 고유한지 확인하고 싶을 것입니다. 하지만 사용자가 이메일 필드는 그대로 두고 이름 필드만 변경했다면, 해당 사용자가 이미 그 이메일 주소의 소유자이므로 유효성 검증 오류가 발생해서는 안 됩니다.
 
 <!-- To instruct the validator to ignore the user's ID, we'll use the `Rule` class to fluently define the rule. -->
-Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용해 규칙을 유연하게 정의합니다.
+Validator가 사용자의 ID를 무시하도록 지시하려면 `Rule` 클래스를 사용해 규칙을 플루언트 방식으로 정의합니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;
@@ -2990,6 +3087,13 @@ Rule::unique('users')->withoutTrashed('was_deleted_at');
 'game' => ['url:minecraft,steam'],
 ```
 
+<!-- Alternatively, you may use the `Rule::url` method, specifying the allowed protocols via the `protocols` method: -->
+또는 허용할 프로토콜을 `protocols` 메서드로 지정해 `Rule::url` 메서드를 사용할 수도 있습니다.
+
+```php
+'url' => [Rule::url()->protocols(['http', 'https'])],
+```
+
 <a name="rule-ulid"></a>
 <!-- #### ulid -->
 #### ulid
@@ -3009,6 +3113,13 @@ Rule::unique('users')->withoutTrashed('was_deleted_at');
 
 ```php
 'uuid' => ['uuid:4']
+```
+
+<!-- Alternatively, you may use the `Rule::uuid` method and specify the UUID version via the `version` method: -->
+또는 `Rule::uuid` 메서드를 사용하고 `version` 메서드로 UUID 버전을 지정할 수도 있습니다.
+
+```php
+'uuid' => [Rule::uuid()->version(4)],
 ```
 
 <a name="conditionally-adding-rules"></a>
@@ -3033,7 +3144,7 @@ $validator = Validator::make($data, [
 ```
 
 <!-- Alternatively, you may use the `exclude_unless` rule to not validate a given field unless another field has a given value: -->
-또는 `exclude_unless` 규칙을 사용해, 다른 필드가 특정 값을 가지지 않는 한 주어진 필드를 검증하지 않도록 할 수 있습니다.
+또는 `exclude_unless` 규칙을 사용해, 다른 필드가 특정 값을 갖지 않을 때 주어진 필드를 검증하지 않도록 할 수 있습니다.
 
 ```php
 $validator = Validator::make($data, [
@@ -3201,7 +3312,7 @@ $validator = Validator::make($request->all(), [
 #### Accessing Nested Array Data
 
 <!-- Sometimes you may need to access the value for a given nested array element when assigning validation rules to the attribute. You may accomplish this using the `Rule::forEach` method. The `forEach` method accepts a closure that will be invoked for each iteration of the array attribute under validation and will receive the attribute's value and explicit, fully-expanded attribute name. The closure should return an array of rules to assign to the array element: -->
-때로는 속성에 유효성 검증 규칙을 할당할 때 주어진 중첩 배열 요소의 값에 접근해야 할 수 있습니다. 이는 `Rule::forEach` 메서드를 사용해 수행할 수 있습니다. `forEach` 메서드는 유효성 검증 중인 배열 속성의 각 반복마다 호출되는 클로저를 받으며, 속성의 값과 명시적으로 완전히 확장된 속성 이름을 전달받습니다. 클로저는 배열 요소에 할당할 규칙 배열을 반환해야 합니다.
+때로는 속성에 유효성 검증 규칙을 할당할 때 주어진 중첩 배열 요소의 값에 접근해야 할 수 있습니다. 이는 `Rule::forEach` 메서드를 사용해 수행할 수 있습니다. `forEach` 메서드는 유효성 검증 중인 배열 속성의 각 반복마다 호출되는 클로저를 받으며, 이 클로저는 속성의 값과 명시적으로 완전히 확장된 속성 이름을 전달받습니다. 클로저는 배열 요소에 할당할 규칙 배열을 반환해야 합니다.
 
 ```php
 use App\Rules\HasPermission;
@@ -3263,7 +3374,7 @@ Validator::validate($input, [
 ## Validating Files
 
 <!-- Laravel provides a variety of validation rules that may be used to validate uploaded files, such as `mimes`, `image`, `min`, and `max`. While you are free to specify these rules individually when validating files, Laravel also offers a fluent file validation rule builder that you may find convenient: -->
-Laravel은 업로드된 파일을 검증하는 데 사용할 수 있는 `mimes`, `image`, `min`, `max`와 같은 다양한 유효성 검증 규칙을 제공합니다. 파일을 검증할 때 이러한 규칙을 개별적으로 지정해도 되지만, Laravel은 편리하게 사용할 수 있는 유연한 파일 유효성 검증 규칙 빌더도 제공합니다.
+Laravel은 업로드된 파일을 검증하는 데 사용할 수 있는 `mimes`, `image`, `min`, `max`와 같은 다양한 유효성 검증 규칙을 제공합니다. 파일을 검증할 때 이러한 규칙을 개별적으로 지정해도 되지만, Laravel은 편리하게 사용할 수 있는 플루언트 파일 유효성 검증 규칙 빌더도 제공합니다.
 
 ```php
 use Illuminate\Support\Facades\Validator;

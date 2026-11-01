@@ -73,7 +73,7 @@ Laravel과 주요 1차 제공 패키지들은 [Semantic Versioning](https://semv
 ## Laravel 12
 
 <!-- Laravel 12 continues the improvements made in Laravel 11.x by updating upstream dependencies and introducing new starter kits for React, Svelte, Vue, and Livewire, including the option of using [WorkOS AuthKit](https://authkit.com) for user authentication. The WorkOS variant of our starter kits offers social authentication, passkeys, and SSO support. -->
-Laravel 12는 기존 Laravel 11.x의 개선 사항을 바탕으로 업스트림 의존성 업데이트와 함께 React, Svelte, Vue, Livewire에 대한 새로운 스타터 키트(starter kits)를 도입하였습니다. 이 스타터 키트에는 사용자인증을 위한 [WorkOS AuthKit](https://authkit.com)을 옵션으로 제공합니다. WorkOS로 제공되는 스타터 키트는 소셜 인증, 패스키(passkey), SSO(싱글 사인온) 지원을 포함합니다.
+Laravel 12는 기존 Laravel 11.x의 개선 사항을 바탕으로 업스트림 의존성 업데이트와 함께 React, Svelte, Vue, Livewire에 대한 새로운 스타터 키트(starter kits)를 도입하였습니다. 이 스타터 키트는 사용자 인증을 위한 [WorkOS AuthKit](https://authkit.com)을 옵션으로 제공합니다. WorkOS로 제공되는 스타터 키트는 소셜 인증, 패스키(passkey), SSO(싱글 사인온) 지원을 포함합니다.
 
 <a name="minimal-breaking-changes"></a>
 <!-- ### Minimal Breaking Changes -->

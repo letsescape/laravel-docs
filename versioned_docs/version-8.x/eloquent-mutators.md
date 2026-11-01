@@ -88,14 +88,14 @@ public function getFullNameAttribute()
 ```
 
 > [!TIP]
-> 계산된 속성이 모델의 배열 또는 JSON 표현에 포함되게 하려면, [you will need to append them](/docs/8.x/eloquent-serialization#appending-values-to-json).
+> 계산된 속성이 모델의 배열 또는 JSON 표현에 포함되게 하려면, 추가 속성으로 지정해야 합니다([you will need to append them](/docs/8.x/eloquent-serialization#appending-values-to-json)).
 
 <a name="defining-a-mutator"></a>
 <!-- ### Defining A Mutator -->
 ### Defining A Mutator
 
 <!-- A mutator transforms an Eloquent attribute value when it is set. To define a mutator, define a `set{Attribute}Attribute` method on your model where `{Attribute}` is the "studly" cased name of the column you wish to access. -->
-mutator는 Eloquent 속성의 값을 설정(할당)할 때 해당 값을 변환합니다. mutator를 정의하려면 모델에 `set{Attribute}Attribute` 형태로 메서드를 추가합니다. `{Attribute}`에는 대문자로 시작하는 컬럼명을 사용해야 합니다.
+mutator는 Eloquent 속성의 값을 설정(할당)할 때 해당 값을 변환합니다. mutator를 정의하려면 모델에 `set{Attribute}Attribute` 형태로 메서드를 추가합니다. `{Attribute}`에는 컬럼명을 StudlyCase로 변환한 이름을 사용해야 합니다.
 
 <!-- Let's define a mutator for the `first_name` attribute. This mutator will be automatically called when we attempt to set the value of the `first_name` attribute on the model: -->
 예를 들어, `first_name` 속성에 대해 mutator를 정의하겠습니다. 이 mutator는 모델에서 `first_name` 값을 설정할 때 자동으로 호출됩니다.
@@ -377,7 +377,7 @@ protected $casts = [
 기본적으로 Eloquent는 `created_at`, `updated_at` 컬럼을 [Carbon](https://github.com/briannesbitt/Carbon) 객체로 casting합니다. Carbon은 PHP의 `DateTime` 클래스를 확장한 라이브러리로, 다양한 날짜 관련 유틸리티 기능을 제공합니다. 모델의 `$casts` 속성 배열에 추가적으로 다른 날짜 속성들을 등록해서 자동으로 casting하도록 할 수 있습니다. 일반적으로 날짜는 `datetime` 또는 `immutable_datetime` casting 타입으로 변환하는 것이 권장됩니다.
 
 <!-- When defining a `date` or `datetime` cast, you may also specify the date's format. This format will be used when the [model is serialized to an array or JSON](/docs/8.x/eloquent-serialization): -->
-`date` 또는 `datetime` cast를 정의할 때, 날짜 형식을 지정할 수도 있습니다. 이 형식은 [model is serialized to an array or JSON](/docs/8.x/eloquent-serialization) 적용됩니다.
+`date` 또는 `datetime` cast를 정의할 때, 날짜 형식을 지정할 수도 있습니다. 이 형식은 모델이 배열 또는 JSON으로 직렬화될 때 적용됩니다([model is serialized to an array or JSON](/docs/8.x/eloquent-serialization)).
 
 ```
 /**
@@ -455,7 +455,7 @@ protected $casts = [
 ```
 
 <!-- Once you have defined the cast on your model, the specified attribute will be automatically cast to and from an enum when you interact with the attribute: -->
-casting을 정의하면 해당 속성은 접근/설정할 때 자동으로 enum 타입으로 변환되어 다룰 수 있습니다.
+casting을 정의하면 해당 속성은 접근/설정할 때 enum 타입과 원래 값 사이에서 자동으로 변환됩니다.
 
 ```
 if ($server->status == ServerStatus::provisioned) {

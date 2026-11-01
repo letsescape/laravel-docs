@@ -38,7 +38,7 @@ Laravel의 [facades](/docs/11.x/facades)와 헬퍼 함수는 Laravel의 서비�
 컨트랙트와 파사드 중 어떤 것을 사용할지 결정하는 것은 개발자 개인 또는 팀의 취향에 달려 있습니다. 두 방식 모두 견고하고 테스트 가능한 Laravel 애플리케이션을 만드는 데 사용할 수 있습니다. 컨트랙트와 파사드는 서로 배타적인 것이 아니므로, 애플리케이션의 일부에서는 파사드를, 다른 부분에서는 컨트랙트에 의존하는 방식이 가능합니다. 클래스의 책임만 잘 분리한다면, 컨트랙트와 파사드 사용에 따른 실제 차이는 거의 없습니다.
 
 <!-- In general, most applications can use facades without issue during development. If you are building a package that integrates with multiple PHP frameworks you may wish to use the `illuminate/contracts` package to define your integration with Laravel's services without the need to require Laravel's concrete implementations in your package's `composer.json` file. -->
-일반적으로 대부분의 애플리케이션은 개발 단계에서 파사드를 사용해도 괜찮습니다. 만약 여러 PHP 프레임워크와 연동되는 패키지를 개발한다면, `illuminate/contracts` 패키지를 통해 Laravel의 구체적인 구현체를 패키지의 `composer.json`에 의존하지 않고 서비스 연동을 정의할 수 있습니다.
+일반적으로 대부분의 애플리케이션은 개발 단계에서 파사드를 사용해도 괜찮습니다. 만약 여러 PHP 프레임워크와 연동되는 패키지를 개발한다면, `illuminate/contracts` 패키지를 통해 Laravel의 구체적인 구현체를 패키지의 `composer.json`에 의존성으로 추가하지 않고 서비스 연동을 정의할 수 있습니다.
 
 <a name="how-to-use-contracts"></a>
 <!-- ## How to Use Contracts -->

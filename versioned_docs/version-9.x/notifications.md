@@ -162,7 +162,7 @@ public function via($notifiable)
 ### Queueing Notifications
 
 > [!WARNING]
-> 알림을 큐로 처리하기 전에 반드시 큐 구성을 마치고, [start a worker](/docs/9.x/queues)해야 합니다.
+> 알림을 큐로 처리하기 전에 반드시 큐 구성을 마치고, [start a worker](/docs/9.x/queues)에 따라 워커를 시작해야 합니다.
 
 <!-- Sending notifications can take time, especially if the channel needs to make an external API call to deliver the notification. To speed up your application's response time, let your notification be queued by adding the `ShouldQueue` interface and `Queueable` trait to your class. The interface and trait are already imported for all notifications generated using the `make:notification` command, so you may immediately add them to your notification class: -->
 알림을 보내는 과정은 시간이 꽤 걸릴 수 있습니다. 특히 외부 API 호출을 해야 할 때 더 그렇습니다. 애플리케이션의 응답 속도를 빠르게 유지하기 위해, 알림을 큐로 보내서 비동기 처리하도록 할 수 있습니다. 이를 위해서는 `ShouldQueue` 인터페이스와 `Queueable` 트레이트를 알림 클래스에 추가하세요. 이 인터페이스와 트레이트는 `make:notification` 명령어로 생성된 알림 클래스에 이미 임포트되어 있으니 바로 추가할 수 있습니다:
@@ -192,7 +192,7 @@ $user->notify(new InvoicePaid($invoice));
 ```
 
 <!-- When queueing notifications, a queued job will be created for each recipient and channel combination. For example, six jobs will be dispatched to the queue if your notification has three recipients and two channels. -->
-알림을 큐에 등록하면, 수신자와 채널 조합별로 각각의 대기열(job)이 생성됩니다. 예를 들어, 수신자가 3명이고 두 개의 채널로 보낼 경우, 총 6개의 작업이 큐에 할당됩니다.
+알림을 큐에 등록하면, 수신자와 채널 조합별로 각각의 큐 작업(job)이 생성됩니다. 예를 들어, 수신자가 3명이고 두 개의 채널로 보낼 경우, 총 6개의 작업이 큐에 할당됩니다.
 
 <a name="delaying-notifications"></a>
 <!-- #### Delaying Notifications -->
@@ -936,7 +936,7 @@ View Invoice
 #### Panel Component
 
 <!-- The panel component renders the given block of text in a panel that has a slightly different background color than the rest of the notification. This allows you to draw attention to a given block of text: -->
-패널 컴포넌트는 전달된 텍스트 블록을 다른 부분과 확연히 다른 배경색을 갖는 패널 안쪽에 표시합니다. 이를 통해 특정 부분의 텍스트를 강조할 수 있습니다.
+패널 컴포넌트는 전달된 텍스트 블록을 다른 부분과 약간 다른 배경색을 갖는 패널 안쪽에 표시합니다. 이를 통해 특정 부분의 텍스트를 강조할 수 있습니다.
 
 ```blade
 <x-mail::panel>
@@ -1051,7 +1051,7 @@ public function toArray($notifiable)
 #### `toDatabase` Vs. `toArray`
 
 <!-- The `toArray` method is also used by the `broadcast` channel to determine which data to broadcast to your JavaScript powered frontend. If you would like to have two different array representations for the `database` and `broadcast` channels, you should define a `toDatabase` method instead of a `toArray` method. -->
-`toArray` 메서드는 `broadcast` 채널에서도 데이터를 수집하는 데에 사용됩니다. 만약 `database` 채널과 `broadcast` 채널에서 서로 다른 데이터 구조를 반환하고 싶다면, `toArray` 대신 `toDatabase` 메서드를 별도로 정의해야 합니다.
+`toArray` 메서드는 `broadcast` 채널에서도 JavaScript 기반 프론트엔드로 브로드캐스트할 데이터를 결정하는 데 사용됩니다. 만약 `database` 채널과 `broadcast` 채널에서 서로 다른 데이터 구조를 반환하고 싶다면, `toArray` 대신 `toDatabase` 메서드를 별도로 정의해야 합니다.
 
 <a name="accessing-the-notifications"></a>
 <!-- ### Accessing The Notifications -->
@@ -1087,7 +1087,7 @@ foreach ($user->unreadNotifications as $notification) {
 ### Marking Notifications As Read
 
 <!-- Typically, you will want to mark a notification as "read" when a user views it. The `Illuminate\Notifications\Notifiable` trait provides a `markAsRead` method, which updates the `read_at` column on the notification's database record: -->
-일반적으로 사용자가 알림을 확인(조회)하면 해당 알림의 상태를 "읽음(read)"으로 표시하게 됩니다. `Illuminate\Notifications\Notifiable` 트레이트의 `markAsRead` 메서드를 사용하면, 알림의 데이터베이스 레코드의 `read_at` 컬럼을 업데이트하여 읽음 처리할 수 있습니다.
+일반적으로 사용자가 알림을 확인(조회)하면 해당 알림의 상태를 "읽음(read)"으로 표시하고 싶을 것입니다. `Illuminate\Notifications\Notifiable` 트레이트의 `markAsRead` 메서드를 사용하면, 알림의 데이터베이스 레코드의 `read_at` 컬럼을 업데이트하여 읽음 처리할 수 있습니다.
 
 ```
 $user = App\Models\User::find(1);
@@ -1255,7 +1255,7 @@ composer require laravel/vonage-notification-channel guzzlehttp/guzzle
 이 패키지에는 [configuration file](https://github.com/laravel/vonage-notification-channel/blob/3.x/config/vonage.php)이 포함되어 있습니다. 하지만 반드시 이 설정 파일을 직접 애플리케이션에 복사할 필요는 없습니다. `VONAGE_KEY`, `VONAGE_SECRET` 환경 변수를 통해 공개키와 시크릿키를 지정해주면 충분합니다.
 
 <!-- After defining your keys, you should set a `VONAGE_SMS_FROM` environment variable that defines the phone number that your SMS messages should be sent from by default. You may generate this phone number within the Vonage control panel: -->
-키를 정의한 후에는, SMS를 전송할 기본 전화번호를 결정하기 위해 `VONAGE_SMS_FROM` 환경 변수를 설정해야 합니다. 이 번호는 Vonage 관리자 패널에서 생성할 수 있습니다.
+키를 정의한 후에는, SMS의 기본 발신 전화번호를 지정하기 위해 `VONAGE_SMS_FROM` 환경 변수를 설정해야 합니다. 이 번호는 Vonage 관리자 패널에서 생성할 수 있습니다.
 
 ```
 VONAGE_SMS_FROM=15556666666

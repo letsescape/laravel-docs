@@ -17,7 +17,7 @@
 ## Bug Reports
 
 <!-- To encourage active collaboration, Laravel strongly encourages pull requests, not just bug reports. Pull requests will only be reviewed when marked as "ready for review" (not in the "draft" state) and all tests for new features are passing. Lingering, non-active pull requests left in the "draft" state will be closed after a few days. -->
-Laravel에서는 활발한 협업을 장려하기 위해 단순한 버그 리포트만이 아닌, Pull Request(기능·수정 코드 기여)를 적극적으로 권장합니다. Pull Request는 "Ready for review"(리뷰 준비 완료) 상태로 표시되어야만 검토되며, "draft"(초안) 상태이거나 신규 기능 관련 모든 테스트가 통과하지 않은 경우 검토 대상이 아닙니다. 며칠간 비활성 상태로 남아 있는 draft Pull Request는 자동으로 닫힐 수 있습니다.
+Laravel에서는 활발한 협업을 장려하기 위해 단순한 버그 리포트만이 아닌, Pull Request(기능·수정 코드 기여)를 적극적으로 권장합니다. Pull Request는 "Ready for review"(리뷰 준비 완료) 상태로 표시되어야만 검토되며, "draft"(초안) 상태이거나 신규 기능 관련 모든 테스트가 통과하지 않은 경우 검토 대상이 아닙니다. 비활성 상태로 남아 있는 draft Pull Request는 며칠 후에 닫힙니다.
 
 <!-- However, if you file a bug report, your issue should contain a title and a clear description of the issue. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a bug report is to make it easy for yourself - and others - to replicate the bug and develop a fix. -->
 버그 리포트를 등록할 경우에는, 반드시 제목과 구체적이고 명확한 설명을 포함해 주세요. 문제를 재현할 수 있는 코드 샘플과 관련 정보를 최대한 자세히 제공해 주셔야 합니다. 버그 리포트의 목적은 작성자 본인과 다른 사람들이 해당 버그를 쉽게 재현하고, 문제를 수정하는 데 도움을 주는 데 있습니다.

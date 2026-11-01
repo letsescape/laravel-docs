@@ -9,7 +9,7 @@ import {
 import {basename, isAbsolute, relative, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-import {DEFAULT_PARSE_FRONT_MATTER} from '@docusaurus/utils';
+import {parseDocumentFrontMatter} from '../src/utils/document-front-matter.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const locales = ['', 'ja'];
@@ -36,7 +36,7 @@ export const canonicalSlug = (slug, sourceName) => {
 };
 
 export const frontMatterSlug = async (content, sourceName) => {
-  const {frontMatter} = await DEFAULT_PARSE_FRONT_MATTER({
+  const {frontMatter} = await parseDocumentFrontMatter({
     filePath: sourceName,
     fileContent: content,
   });

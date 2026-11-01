@@ -703,7 +703,7 @@ $value = $request->cookie('name');
 이 동작을 모든 요청에 적용하고 싶지 않다면, 애플리케이션의 미들웨어 스택에서 두 미들웨어를 `App\Http\Kernel` 클래스의 `$middleware` 속성에서 제거하면 됩니다.
 
 <!-- If you would like to disable string trimming and empty string conversion for a subset of requests to your application, you may use the `skipWhen` method offered by both middleware. This method accepts a closure which should return `true` or `false` to indicate if input normalization should be skipped. Typically, the `skipWhen` method should be invoked in the `boot` method of your application's `AppServiceProvider`. -->
-특정 요청에 한해서만 trim 또는 빈 문자열 변환을 적용하지 않으려면, 두 미들웨어가 제공하는 `skipWhen` 메서드를 사용할 수 있습니다. 이 메서드는 클로저를 받아 input 정규화를 건너뛸지 여부(`true`/`false`)를 반환합니다. 일반적으로 `AppServiceProvider`의 `boot` 메서드에서 `skipWhen`을 호출합니다.
+특정 요청에 한해서만 trim 또는 빈 문자열 변환을 적용하지 않으려면, 두 미들웨어가 제공하는 `skipWhen` 메서드를 사용할 수 있습니다. 이 메서드는 input 정규화를 건너뛸지 여부(`true`/`false`)를 반환하는 클로저를 받습니다. 일반적으로 `AppServiceProvider`의 `boot` 메서드에서 `skipWhen`을 호출합니다.
 
 ```php
 use App\Http\Middleware\TrimStrings;

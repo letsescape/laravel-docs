@@ -237,7 +237,7 @@ forge        hard  nofile  10000
 ### Event Loop
 
 <!-- Under the hood, Reverb uses a ReactPHP event loop to manage WebSocket connections on the server. By default, this event loop is powered by `stream_select`, which doesn't require any additional extensions. However, `stream_select` is typically limited to 1,024 open files. As such, if you plan to handle more than 1,000 concurrent connections, you will need to use an alternative event loop not bound by the same restrictions. -->
-리버브는 내부적으로 ReactPHP 이벤트 루프(event loop)를 사용해 서버에서 WebSocket 연결을 관리합니다. 기본적으로는 추가 확장 모듈이 필요 없는 `stream_select` 기반의 루프가 동작합니다. 하지만 `stream_select`는 일반적으로 1,024개의 오픈 파일까지만 지원합니다. 따라서 1,000개 이상의 동시 연결이 필요하다면 제한을 받지 않는 다른 이벤트 루프를 사용해야 합니다.
+리버브는 내부적으로 ReactPHP 이벤트 루프(event loop)를 사용해 서버에서 WebSocket 연결을 관리합니다. 기본적으로는 추가 확장 모듈이 필요 없는 `stream_select` 기반의 루프가 동작합니다. 하지만 `stream_select`는 일반적으로 1,024개의 오픈 파일까지만 지원합니다. 따라서 1,000개를 초과하는 동시 연결이 필요하다면 제한을 받지 않는 다른 이벤트 루프를 사용해야 합니다.
 
 <!-- Reverb will automatically switch to an `ext-event`, `ext-ev`, or `ext-uv` powered loop when available. All of these PHP extensions are available for install via PECL: -->
 리버브는 `ext-event`, `ext-ev`, 또는 `ext-uv` PHP 확장 프로그램이 설치되어 있을 경우 자동으로 이를 사용하도록 전환합니다. 이 확장들은 PECL을 통해 설치할 수 있습니다.
@@ -317,7 +317,7 @@ events {
 ### Process Management
 
 <!-- In most cases, you should use a process manager such as Supervisor to ensure the Reverb server is continually running. If you are using Supervisor to run Reverb, you should update the `minfds` setting of your server's `supervisor.conf` file to ensure Supervisor is able to open the files required to handle connections to your Reverb server: -->
-대부분의 경우, 리버브 서버가 항상 실행되도록 Supervisor 같은 프로세스 관리 도구를 사용하는 것이 좋습니다. Supervisor로 리버브를 실행하는 경우, 서버의 `supervisor.conf` 파일에서 `minfds` 옵션 값을 늘려, 리버브 서버가 필요한 만큼 파일을 열 수 있도록 해야 합니다.
+대부분의 경우, 리버브 서버가 항상 실행되도록 Supervisor 같은 프로세스 관리 도구를 사용하는 것이 좋습니다. Supervisor로 리버브를 실행하는 경우, 서버의 `supervisor.conf` 파일에서 `minfds` 옵션 값을 늘려, Supervisor가 리버브 서버의 연결을 처리하는 데 필요한 만큼 파일을 열 수 있도록 해야 합니다.
 
 ```ini
 [supervisord]

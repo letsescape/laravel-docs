@@ -111,7 +111,7 @@ Laravel を API バックエンドとして利用する SPA を構築してい�
 オリジンのみモードを使用する場合、オリジン検証に失敗したリクエストは、通常 CSRF トークンの不一致に関連付けられる `419` 応答ではなく、`403` HTTP 応答を受け取ります。
 
 > [!WARNING]
-> `Sec-Fetch-Site` ヘッダーは、安全な (HTTPS) 接続を介してブラウザーによってのみ送信されます。アプリケーションが HTTPS 経由で提供されない場合、オリジン検証は利用できず、ミドルウェアは CSRF トークン検証に戻ります。
+> `Sec-Fetch-Site` ヘッダーは、ブラウザーが安全な (HTTPS) 接続を使用している場合にのみ送信されます。アプリケーションが HTTPS 経由で提供されない場合、オリジン検証は利用できず、ミドルウェアは CSRF トークン検証に戻ります。
 
 <!-- If your application needs to accept requests from subdomains (for example, `dashboard.example.com` accepting requests from `example.com`), you may allow same-site requests in addition to same-origin requests: -->
 アプリケーションがサブドメインからのリクエストを受け入れる必要がある場合 (たとえば、`dashboard.example.com` が `example.com` からのリクエストを受け入れる)、同一オリジンのリクエストに加えて同一サイトのリクエストを許可できます。

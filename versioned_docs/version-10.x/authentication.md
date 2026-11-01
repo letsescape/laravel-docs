@@ -124,7 +124,7 @@ Passport는 OAuth2 인증 제공자로, 다양한 OAuth2 "grant type" 지원을 
 **Sanctum**
 
 <!-- In response to the complexity of OAuth2 and developer confusion, we set out to build a simpler, more streamlined authentication package that could handle both first-party web requests from a web browser and API requests via tokens. This goal was realized with the release of [Laravel Sanctum](/docs/10.x/sanctum), which should be considered the preferred and recommended authentication package for applications that will be offering a first-party web UI in addition to an API, or will be powered by a single-page application (SPA) that exists separately from the backend Laravel application, or applications that offer a mobile client. -->
-OAuth2의 복잡성과 혼란을 해결하기 위해, 더 간결하고 직관적인 인증 패키지인 [Laravel Sanctum](/docs/10.x/sanctum)이 만들어졌습니다. Sanctum은 웹 브라우저에서의 1차 요청과 API 토큰을 활용한 요청 모두를 처리할 수 있어, 웹 UI와 API를 동시에 제공하거나, 백엔드와 분리된 SPA, 모바일 클라이언트를 지원하는 애플리케이션에 가장 적합합니다.
+OAuth2의 복잡성과 혼란을 해결하기 위해, 더 간결하고 직관적인 인증 패키지인 [Laravel Sanctum](/docs/10.x/sanctum)이 만들어졌습니다. Sanctum은 웹 브라우저에서의 자사 웹 요청과 API 토큰을 활용한 요청 모두를 처리할 수 있어, 자사 웹 UI와 API를 동시에 제공하거나, 백엔드와 분리된 SPA, 모바일 클라이언트를 지원하는 애플리케이션에 가장 적합합니다.
 
 <!-- Laravel Sanctum is a hybrid web / API authentication package that can manage your application's entire authentication process. This is possible because when Sanctum based applications receive a request, Sanctum will first determine if the request includes a session cookie that references an authenticated session. Sanctum accomplishes this by calling Laravel's built-in authentication services which we discussed earlier. If the request is not being authenticated via a session cookie, Sanctum will inspect the request for an API token. If an API token is present, Sanctum will authenticate the request using that token. To learn more about this process, please consult Sanctum's ["how it works"](/docs/10.x/sanctum#how-it-works) documentation. -->
 Sanctum 기반 애플리케이션은 요청을 받을 때, 우선 세션 쿠키로 인증된 세션이 있는지 확인하며, 있다면 앞서 살펴본 Laravel의 내장 인증 서비스를 호출해 처리합니다. 만약 세션 쿠키가 인증되지 않은 경우라면, Sanctum은 해당 요청에 API 토큰이 있는지 검사하고, 있으면 해당 토큰으로 인증합니다. 자세한 내용은 Sanctum의 ["how it works"](/docs/10.x/sanctum#how-it-works)를 참고하세요.
@@ -143,7 +143,7 @@ Sanctum은 저희가 [Laravel Jetstream](https://jetstream.laravel.com) 스타�
 외부에서 API를 활용하는 경우라면, 애플리케이션 특성에 맞게 [Passport](/docs/10.x/passport) 또는 [Sanctum](/docs/10.x/sanctum) 중 하나를 선택해 API 토큰 인증을 적용하세요. 대부분의 경우, 간단하고 완성도 높은 API 인증/SPA 인증/모바일 인증 기능과 "scope(혹은 ability)"도 제공하는 Sanctum을 추천합니다.
 
 <!-- If you are building a single-page application (SPA) that will be powered by a Laravel backend, you should use [Laravel Sanctum](/docs/10.x/sanctum). When using Sanctum, you will either need to [manually implement your own backend authentication routes](#authenticating-users) or utilize [Laravel Fortify](/docs/10.x/fortify) as a headless authentication backend service that provides routes and controllers for features such as registration, password reset, email verification, and more. -->
-Laravel을 백엔드로 사용하는 SPA를 개발하는 경우에도 [Laravel Sanctum](/docs/10.x/sanctum)이 가장 적합합니다. 이 때, [manually implement your own backend authentication routes](#authenticating-users), [Laravel Fortify](/docs/10.x/fortify)를 헤드리스 인증 백엔드로 이용할 수 있습니다. Fortify는 회원가입, 비밀번호 재설정, 이메일 인증 등 다양한 라우트와 컨트롤러도 제공합니다.
+Laravel을 백엔드로 사용하는 SPA를 개발하는 경우에도 [Laravel Sanctum](/docs/10.x/sanctum)이 가장 적합합니다. 이 때, [manually implement your own backend authentication routes](#authenticating-users)하거나, [Laravel Fortify](/docs/10.x/fortify)를 헤드리스 인증 백엔드로 이용할 수 있습니다. Fortify는 회원가입, 비밀번호 재설정, 이메일 인증 등 다양한 라우트와 컨트롤러도 제공합니다.
 
 <!-- Passport may be chosen when your application absolutely needs all of the features provided by the OAuth2 specification. -->
 반드시 OAuth2의 모든 기능이 필요한 특별한 경우라면 Passport를 선택하세요.
@@ -156,7 +156,7 @@ Laravel을 백엔드로 사용하는 SPA를 개발하는 경우에도 [Laravel S
 ## Authentication Quickstart
 
 > [!WARNING]
-> 이 섹션에서는 [Laravel application starter kits](/docs/10.x/starter-kits)를 이용해 인증 시스템을 구축하는 방법을 설명합니다. 스타터 키트에는 빠른 시작을 돕는 UI 뼈대가 포함되어 있습니다. Laravel 인증 시스템을 직접 구현하고 싶으시다면 [manually authenticating users](#authenticating-users) 문서를 참고하세요.
+> 이 섹션에서는 [Laravel application starter kits](/docs/10.x/starter-kits)를 이용해 인증 시스템을 구축하는 방법을 설명합니다. 스타터 키트에는 빠른 시작을 돕는 UI 뼈대가 포함되어 있습니다. Laravel 인증 시스템과 직접 연동하고 싶으시다면 [manually authenticating users](#authenticating-users) 문서를 참고하세요.
 
 <a name="install-a-starter-kit"></a>
 <!-- ### Install a Starter Kit -->
@@ -333,7 +333,7 @@ class LoginController extends Controller
 ```
 
 <!-- The `attempt` method accepts an array of key / value pairs as its first argument. The values in the array will be used to find the user in your database table. So, in the example above, the user will be retrieved by the value of the `email` column. If the user is found, the hashed password stored in the database will be compared with the `password` value passed to the method via the array. You should not hash the incoming request's `password` value, since the framework will automatically hash the value before comparing it to the hashed password in the database. An authenticated session will be started for the user if the two hashed passwords match. -->
-`attempt` 메서드는 첫 번째 인자로 key/value 쌍의 배열을 받습니다. 이 배열의 값은 사용자를 데이터베이스에서 찾는 데 사용됩니다. 위 예시에서는 `email` 컬럼 값을 기준으로 사용자를 조회하고, 데이터베이스에 저장된 해시된 비밀번호와 배열로 전달된 `password` 값을 비교합니다. 들어온 요청의 `password` 값은 직접 해싱할 필요가 없습니다. 프레임워크가 비교 전에 자동으로 입력값을 해시하기 때문입니다. 두 해시된 비밀번호가 일치하면 사용자의 인증 세션이 시작됩니다.
+`attempt` 메서드는 첫 번째 인자로 key/value 쌍의 배열을 받습니다. 이 배열의 값은 사용자를 데이터베이스에서 찾는 데 사용됩니다. 위 예시에서는 `email` 컬럼 값을 기준으로 사용자를 조회하고, 데이터베이스에 저장된 해시된 비밀번호와 배열로 전달된 `password` 값을 비교합니다. 들어온 요청의 `password` 값은 직접 해싱하면 안 됩니다. 프레임워크가 비교 전에 자동으로 입력값을 해시하기 때문입니다. 두 해시된 비밀번호가 일치하면 사용자의 인증 세션이 시작됩니다.
 
 <!-- Remember, Laravel's authentication services will retrieve users from your database based on your authentication guard's "provider" configuration. In the default `config/auth.php` configuration file, the Eloquent user provider is specified and it is instructed to use the `App\Models\User` model when retrieving users. You may change these values within your configuration file based on the needs of your application. -->
 Laravel 인증 서비스는 각 가드의 프로바이더 설정에 따라 사용자를 데이터베이스에서 조회합니다. 기본 `config/auth.php`에서는 Eloquent 사용자 프로바이더가 지정되어 있고, 사용자를 조회할 때 `App\Models\User` 모델을 사용합니다. 필요에 따라 설정 파일을 수정하면 됩니다.
@@ -413,7 +413,7 @@ if (Auth::guard('admin')->attempt($credentials)) {
 많은 웹 애플리케이션에서 로그인 폼에 "로그인 상태 유지(remember me)" 체크박스를 제공합니다. 이런 기능을 구현하려면 `attempt` 메서드의 두 번째 인자로 불리언 값을 넘기면 됩니다.
 
 <!-- When this value is `true`, Laravel will keep the user authenticated indefinitely or until they manually logout. Your `users` table must include the string `remember_token` column, which will be used to store the "remember me" token. The `users` table migration included with new Laravel applications already includes this column: -->
-이 값이 `true`면, 사용자는 명시적으로 로그아웃하거나 삭제할 때까지 인증 상태로 유지됩니다. `users` 테이블에는 "remember me" 토큰을 저장하는 데 사용되는 문자열 `remember_token` 컬럼이 반드시 존재해야 합니다. Laravel 신규 프로젝트에 포함된 `users` 테이블 마이그레이션에는 이미 이 컬럼이 포함되어 있습니다.
+이 값이 `true`면, 사용자는 명시적으로 로그아웃할 때까지 인증 상태로 무기한 유지됩니다. `users` 테이블에는 "remember me" 토큰을 저장하는 데 사용되는 문자열 `remember_token` 컬럼이 반드시 존재해야 합니다. Laravel 신규 프로젝트에 포함된 `users` 테이블 마이그레이션에는 이미 이 컬럼이 포함되어 있습니다.
 
 ```
 use Illuminate\Support\Facades\Auth;
@@ -640,7 +640,7 @@ Auth::logoutOtherDevices($currentPassword);
 ### Configuration
 
 <!-- After confirming their password, a user will not be asked to confirm their password again for three hours. However, you may configure the length of time before the user is re-prompted for their password by changing the value of the `password_timeout` configuration value within your application's `config/auth.php` configuration file. -->
-비밀번호를 한 번 확인한 뒤에는 3시간 동안 같은 요청이 발생해도 다시 묻지 않습니다. 이 재확인까지의 시간은 앱의 `config/auth.php` 설정 파일에서 `password_timeout` 값을 변경하여 조정할 수 있습니다.
+비밀번호를 한 번 확인한 뒤에는 3시간 동안 다시 묻지 않습니다. 이 재확인까지의 시간은 앱의 `config/auth.php` 설정 파일에서 `password_timeout` 값을 변경하여 조정할 수 있습니다.
 
 <a name="password-confirmation-routing"></a>
 <!-- ### Routing -->

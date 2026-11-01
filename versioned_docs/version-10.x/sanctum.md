@@ -150,7 +150,7 @@ public function boot(): void
 ## API Token Authentication
 
 > [!NOTE]
-> 여러분의 1차 서비스(1st-party) SPA를 API 토큰으로 인증하면 안 됩니다. 대신 Sanctum의 내장 [SPA authentication features](#spa-authentication)을 사용하십시오.
+> 여러분이 직접 소유한 서비스(1st-party)의 SPA를 API 토큰으로 인증하면 안 됩니다. 대신 Sanctum의 내장 [SPA authentication features](#spa-authentication)을 사용하십시오.
 
 <a name="issuing-api-tokens"></a>
 <!-- ### Issuing API Tokens -->
@@ -172,7 +172,7 @@ class User extends Authenticatable
 ```
 
 <!-- To issue a token, you may use the `createToken` method. The `createToken` method returns a `Laravel\Sanctum\NewAccessToken` instance. API tokens are hashed using SHA-256 hashing before being stored in your database, but you may access the plain-text value of the token using the `plainTextToken` property of the `NewAccessToken` instance. You should display this value to the user immediately after the token has been created: -->
-토큰을 발급하려면, `createToken` 메서드를 사용할 수 있습니다. `createToken` 메서드는 `Laravel\Sanctum\NewAccessToken` 인스턴스를 반환합니다. API 토큰은 데이터베이스에 저장되기 전에 SHA-256 해시로 암호화되지만, `NewAccessToken` 인스턴스의 `plainTextToken` 속성을 통해 평문 토큰 값을 얻을 수 있습니다. 이 값은 토큰 생성 직후 사용자에게 반드시 보여주어야 합니다.
+토큰을 발급하려면, `createToken` 메서드를 사용할 수 있습니다. `createToken` 메서드는 `Laravel\Sanctum\NewAccessToken` 인스턴스를 반환합니다. API 토큰은 데이터베이스에 저장되기 전에 SHA-256으로 해싱되지만, `NewAccessToken` 인스턴스의 `plainTextToken` 속성을 통해 평문 토큰 값을 얻을 수 있습니다. 이 값은 토큰 생성 직후 사용자에게 반드시 보여주어야 합니다.
 
 ```
 use Illuminate\Http\Request;
@@ -248,7 +248,7 @@ Route::get('/orders', function () {
 #### First-Party UI Initiated Requests
 
 <!-- For convenience, the `tokenCan` method will always return `true` if the incoming authenticated request was from your first-party SPA and you are using Sanctum's built-in [SPA authentication](#spa-authentication). -->
-편의를 위해, 요청이 여러분의 1차 서비스 SPA로부터 오고, 내장 [SPA authentication](#spa-authentication)을 사용 중이라면, `tokenCan` 메서드는 항상 `true`를 반환합니다.
+편의를 위해, 인증된 요청이 여러분이 직접 소유한 SPA로부터 오고, Sanctum의 내장 [SPA authentication](#spa-authentication)을 사용 중이라면, `tokenCan` 메서드는 항상 `true`를 반환합니다.
 
 <!-- However, this does not necessarily mean that your application has to allow the user to perform the action. Typically, your application's [authorization policies](/docs/10.x/authorization#creating-policies) will determine if the token has been granted the permission to perform the abilities as well as check that the user instance itself should be allowed to perform the action. -->
 하지만, 이것이 해당 사용자가 실제로 해당 작업을 수행할 수 있다는 의미는 아닙니다. 실제 권한 부여 여부는 일반적으로 [authorization policies](/docs/10.x/authorization#creating-policies)에서 판단하게 됩니다. 즉, 토큰이 필요한 권한을 가지고 있는지와 동시에, 사용자가 해당 리소스에 대해 실제로 작업할 수 있는지도 확인해야 합니다.
@@ -262,7 +262,7 @@ return $request->user()->id === $server->user_id &&
 ```
 
 <!-- At first, allowing the `tokenCan` method to be called and always return `true` for first-party UI initiated requests may seem strange; however, it is convenient to be able to always assume an API token is available and can be inspected via the `tokenCan` method. By taking this approach, you may always call the `tokenCan` method within your application's authorizations policies without worrying about whether the request was triggered from your application's UI or was initiated by one of your API's third-party consumers. -->
-처음에는 1차 서비스 UI에서 온 요청에 대해 항상 `tokenCan`가 `true`를 반환하는 것이 어색해 보일 수 있습니다. 하지만, 이 방식 덕분에 "항상 API 토큰이 있다고 가정하고 `tokenCan` 메서드를 호출할 수 있다"고 믿을 수 있습니다. 이로 인해, 요청이 여러분의 UI에서 오든, 외부 타사 API 클라이언트에서 오든 관계없이, 인가 정책 내부에서 `tokenCan`과 같은 메서드를 항상 동일하게 호출할 수 있다는 장점이 있습니다.
+처음에는 직접 소유한 서비스의 UI에서 온 요청에 대해 항상 `tokenCan`가 `true`를 반환하는 것이 어색해 보일 수 있습니다. 하지만, 이 방식 덕분에 "항상 API 토큰이 있다고 가정하고 `tokenCan` 메서드를 호출할 수 있다"고 믿을 수 있습니다. 이로 인해, 요청이 여러분의 UI에서 오든, 외부 타사 API 클라이언트에서 오든 관계없이, 인가 정책 내부에서 `tokenCan`과 같은 메서드를 항상 동일하게 호출할 수 있다는 장점이 있습니다.
 
 <a name="protecting-routes"></a>
 <!-- ### Protecting Routes -->
@@ -272,7 +272,7 @@ return $request->user()->id === $server->user_id &&
 모든 들어오는 요청이 인증되도록 라우트를 보호하려면, 보호가 필요한 라우트를 `routes/web.php` 혹은 `routes/api.php` 파일에서 `sanctum` 인증 가드를 사용하도록 설정하면 됩니다. 이 가드는 요청이 세션 기반 쿠키 인증이든, 혹은 외부에서 오는 유효한 API 토큰이든 모두 처리합니다.
 
 <!-- You may be wondering why we suggest that you authenticate the routes within your application's `routes/web.php` file using the `sanctum` guard. Remember, Sanctum will first attempt to authenticate incoming requests using Laravel's typical session authentication cookie. If that cookie is not present then Sanctum will attempt to authenticate the request using a token in the request's `Authorization` header. In addition, authenticating all requests using Sanctum ensures that we may always call the `tokenCan` method on the currently authenticated user instance: -->
-왜 `routes/web.php`에서도 `sanctum` 가드로 인증하라고 권장하는지 궁금할 수 있습니다. 그 이유는, Sanctum이 먼저 Laravel 기본 세션 인증 쿠키로 인증을 시도하고, 쿠키가 없으면 요청의 `Authorization` 헤더에 토큰이 있는지 확인하기 때문입니다. 이 방식 덕분에 언제든 현재 인증된 사용자 인스턴스에서 `tokenCan` 메서드를 호출할 수 있습니다.
+왜 `routes/web.php`에서도 `sanctum` 가드로 인증하라고 권장하는지 궁금할 수 있습니다. 그 이유는, Sanctum이 먼저 Laravel 기본 세션 인증 쿠키로 인증을 시도하고, 쿠키가 없으면 요청의 `Authorization` 헤더에 있는 토큰으로 인증을 시도하기 때문입니다. 이 방식 덕분에 언제든 현재 인증된 사용자 인스턴스에서 `tokenCan` 메서드를 호출할 수 있습니다.
 
 ```
 use Illuminate\Http\Request;
@@ -321,7 +321,7 @@ return $user->createToken(
 ```
 
 <!-- If you have configured a token expiration time for your application, you may also wish to [schedule a task](/docs/10.x/scheduling) to prune your application's expired tokens. Thankfully, Sanctum includes a `sanctum:prune-expired` Artisan command that you may use to accomplish this. For example, you may configure a scheduled tasks to delete all expired token database records that have been expired for at least 24 hours: -->
-토큰에 만료시간을 설정한 경우, 애플리케이션의 만료된 토큰들을 정기적으로 삭제하는 [schedule a task](/docs/10.x/scheduling)을 추가하는 것이 좋습니다. Sanctum에는 이를 위한 `sanctum:prune-expired` Artisan 명령어가 제공됩니다. 예를 들어, 24시간 동안 만료된 토큰을 매일 한 번 삭제하려면 아래와 같이 스케줄을 구성할 수 있습니다.
+토큰에 만료시간을 설정한 경우, 애플리케이션의 만료된 토큰들을 정기적으로 삭제하는 [schedule a task](/docs/10.x/scheduling)을 추가하는 것이 좋습니다. Sanctum에는 이를 위한 `sanctum:prune-expired` Artisan 명령어가 제공됩니다. 예를 들어, 만료된 지 24시간 이상 지난 모든 토큰 레코드를 매일 한 번 삭제하려면 아래와 같이 스케줄을 구성할 수 있습니다.
 
 ```php
 $schedule->command('sanctum:prune-expired --hours=24')->daily();
@@ -423,7 +423,7 @@ axios.get('/sanctum/csrf-cookie').then(response => {
 CSRF 보호가 초기화된 후, 이제 Laravel 애플리케이션의 `/login` 라우트로 `POST` 요청을 보내 인증을 진행하면 됩니다. 이 `/login` 라우트는 [implemented manually](/docs/10.x/authentication#authenticating-users)할 수도 있고, [Laravel Fortify](/docs/10.x/fortify) 같은 헤드리스 인증 패키지를 사용할 수도 있습니다.
 
 <!-- If the login request is successful, you will be authenticated and subsequent requests to your application's routes will automatically be authenticated via the session cookie that the Laravel application issued to your client. In addition, since your application already made a request to the `/sanctum/csrf-cookie` route, subsequent requests should automatically receive CSRF protection as long as your JavaScript HTTP client sends the value of the `XSRF-TOKEN` cookie in the `X-XSRF-TOKEN` header. -->
-로그인 요청이 성공하면 인증된 상태가 되며, 이후의 모든 요청은 Laravel이 발급한 세션 쿠키를 통해 자동으로 인증이 처리됩니다. 그리고 이미 `/sanctum/csrf-cookie` 라우트로 요청을 보냈으므로, 이 후의 요청은 Javascript HTTP 클라이언트가 `XSRF-TOKEN` 쿠키 값을 `X-XSRF-TOKEN` 헤더에 포함해서 CSRF 보호도 계속 유지됩니다.
+로그인 요청이 성공하면 인증된 상태가 되며, 이후의 모든 요청은 Laravel이 발급한 세션 쿠키를 통해 자동으로 인증이 처리됩니다. 그리고 이미 `/sanctum/csrf-cookie` 라우트로 요청을 보냈으므로, 이후 요청에서 Javascript HTTP 클라이언트가 `XSRF-TOKEN` 쿠키 값을 `X-XSRF-TOKEN` 헤더에 포함하는 한 CSRF 보호도 계속 유지됩니다.
 
 <!-- Of course, if your user's session expires due to lack of activity, subsequent requests to the Laravel application may receive 401 or 419 HTTP error response. In this case, you should redirect the user to your SPA's login page. -->
 사용자의 세션이 만료(예: 장시간 미활동 등)되면 이후 요청에 대해 401 또는 419 HTTP 오류가 반환될 수 있습니다. 이 경우 사용자를 다시 SPA 로그인 페이지로 리다이렉트해야 합니다.
@@ -458,7 +458,7 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 ```
 
 <!-- Next, in order for Pusher's authorization requests to succeed, you will need to provide a custom Pusher `authorizer` when initializing [Laravel Echo](/docs/10.x/broadcasting#client-side-installation). This allows your application to configure Pusher to use the `axios` instance that is [properly configured for cross-domain requests](#cors-and-cookies): -->
-이후, Pusher의 인가 요청이 정상 동작하려면 [Laravel Echo](/docs/10.x/broadcasting#client-side-installation) 초기화 시 커스텀 Pusher `authorizer`를 구현해야 합니다. 이렇게 하면 [properly configured for cross-domain requests](#cors-and-cookies) `axios` 인스턴스를 사용하도록 Pusher를 구성할 수 있습니다.
+이후, Pusher의 인가 요청이 정상 동작하려면 [Laravel Echo](/docs/10.x/broadcasting#client-side-installation) 초기화 시 커스텀 Pusher `authorizer`를 구현해야 합니다. 이렇게 하면 [properly configured for cross-domain requests](#cors-and-cookies) 안내에 따라 설정된 `axios` 인스턴스를 사용하도록 Pusher를 구성할 수 있습니다.
 
 ```js
 window.Echo = new Echo({

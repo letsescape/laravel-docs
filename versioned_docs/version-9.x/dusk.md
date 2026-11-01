@@ -68,7 +68,7 @@ composer require --dev laravel/dusk
 ```
 
 > [!WARNING]
-> Dusk의 서비스 프로바이더를 수동으로 등록하는 경우, **절대로** 운영(프로덕션) 환경에서는 등록하지 마십시오. 이를 등록하면 임의의 사용자가 애플리케이션에 인증 없이 접근할 수 있게 되어 보안에 큰 문제가 발생할 수 있습니다.
+> Dusk의 서비스 프로바이더를 수동으로 등록하는 경우, **절대로** 운영(프로덕션) 환경에서는 등록하지 마십시오. 이를 등록하면 임의의 사용자가 애플리케이션에 인증된 상태로 접근할 수 있게 되어 보안에 큰 문제가 발생할 수 있습니다.
 
 <!-- After installing the Dusk package, execute the `dusk:install` Artisan command. The `dusk:install` command will create a `tests/Browser` directory, an example Dusk test, and install the Chrome Driver binary for your operating system: -->
 Dusk 패키지를 설치한 후, `dusk:install` 아티즌 명령어를 실행합니다. `dusk:install` 명령어는 `tests/Browser` 디렉토리와 예시 Dusk 테스트, 그리고 현재 운영체제에 맞는 ChromeDriver 바이너리를 생성/설치해줍니다:
@@ -105,7 +105,7 @@ php artisan dusk:chrome-driver --detect
 ```
 
 > [!WARNING]
-> Dusk에서 사용하는 `chromedriver` 바이너리는 실행 가능해야 합니다. Dusk 실행에 문제가 생긴다면 아래의 커맨드로 바이너리에 실행 권한이 부여되어 있는지 확인하세요: `chmod -R 0755 vendor/laravel/dusk/bin/`.
+> Dusk에서 사용하는 `chromedriver` 바이너리는 실행 가능해야 합니다. Dusk 실행에 문제가 생긴다면 아래의 커맨드로 바이너리에 실행 권한을 부여하세요: `chmod -R 0755 vendor/laravel/dusk/bin/`.
 
 <a name="using-other-browsers"></a>
 <!-- ### Using Other Browsers -->
@@ -1113,7 +1113,7 @@ $browser->waitFor('.selector', 1);
 ```
 
 <!-- You may also wait until the element matching the given selector contains the given text: -->
-또한, 지정한 셀렉터가 지정된 텍스트를 포함할 때까지 기다릴 수도 있습니다.
+또한, 지정한 셀렉터와 일치하는 요소가 지정된 텍스트를 포함할 때까지 기다릴 수도 있습니다.
 
 ```
 // Wait a maximum of five seconds for the selector to contain the given text...
@@ -1124,7 +1124,7 @@ $browser->waitForTextIn('.selector', 'Hello World', 1);
 ```
 
 <!-- You may also wait until the element matching the given selector is missing from the page: -->
-또는 지정한 셀렉터가 페이지에서 사라질 때까지도 대기할 수 있습니다.
+또는 지정한 셀렉터와 일치하는 요소가 페이지에서 사라질 때까지도 대기할 수 있습니다.
 
 ```
 // Wait a maximum of five seconds until the selector is missing...
@@ -1135,7 +1135,7 @@ $browser->waitUntilMissing('.selector', 1);
 ```
 
 <!-- Or, you may wait until the element matching the given selector is enabled or disabled: -->
-셀렉터가 활성화(Enabled) 또는 비활성화(Disabled)될 때까지 기다릴 수도 있습니다.
+셀렉터와 일치하는 요소가 활성화(Enabled) 또는 비활성화(Disabled)될 때까지 기다릴 수도 있습니다.
 
 ```
 // Wait a maximum of five seconds until the selector is enabled...
@@ -2028,7 +2028,7 @@ $browser->assertNotSelected($field, $value);
 #### assertSelectHasOptions
 
 <!-- Assert that the given array of values are available to be selected: -->
-지정한 값 배열이 드롭다운에서 선택 가능 옵션으로 존재하는지 확인합니다.
+지정한 배열의 값들이 드롭다운에서 선택 가능 옵션으로 존재하는지 확인합니다.
 
 ```
 $browser->assertSelectHasOptions($field, $values);
@@ -2039,7 +2039,7 @@ $browser->assertSelectHasOptions($field, $values);
 #### assertSelectMissingOptions
 
 <!-- Assert that the given array of values are not available to be selected: -->
-지정한 값 배열이 드롭다운에서 선택 가능 옵션으로 존재하지 않는지 확인합니다.
+지정한 배열의 값들이 드롭다운에서 선택 가능 옵션으로 존재하지 않는지 확인합니다.
 
 ```
 $browser->assertSelectMissingOptions($field, $values);
@@ -2407,7 +2407,7 @@ $browser->assertVueDoesNotContain($property, $value, $componentSelector = null);
 ## Pages
 
 <!-- Sometimes, tests require several complicated actions to be performed in sequence. This can make your tests harder to read and understand. Dusk Pages allow you to define expressive actions that may then be performed on a given page via a single method. Pages also allow you to define short-cuts to common selectors for your application or for a single page. -->
-테스트를 작성하다보면 여러 복잡한 동작을 순서대로 수행해야 할 때가 있습니다. 이런 경우 테스트의 가독성과 관리가 어려워질 수 있습니다. Dusk의 Page 기능을 활용하면 개별 페이지에 대해 표현력 있는 여러 동작을 하나의 메서드로 간단히 정의하여 실행할 수 있습니다. 또한 페이지별, 혹은 애플리케이션 전체에서 자주 사용되는 셀렉터에 대한 단축키(쇼트컷)도 정의할 수 있습니다.
+테스트를 작성하다보면 여러 복잡한 동작을 순서대로 수행해야 할 때가 있습니다. 이런 경우 테스트의 가독성과 관리가 어려워질 수 있습니다. Dusk의 Page 기능을 활용하면 개별 페이지에 대해 표현력 있는 여러 동작을 하나의 메서드로 간단히 정의하여 실행할 수 있습니다. 또한 페이지별, 혹은 애플리케이션 전체에서 자주 사용되는 셀렉터에 대한 단축 이름(쇼트컷)도 정의할 수 있습니다.
 
 <a name="generating-pages"></a>
 <!-- ### Generating Pages -->
@@ -2425,7 +2425,7 @@ php artisan dusk:page Login
 ### Configuring Pages
 
 <!-- By default, pages have three methods: `url`, `assert`, and `elements`. We will discuss the `url` and `assert` methods now. The `elements` method will be [discussed in more detail below](#shorthand-selectors). -->
-기본적으로, 페이지에는 `url`, `assert`, `elements`라는 세 가지 메서드가 존재합니다. 여기서 `url`, `assert` 메서드에 대해 먼저 설명합니다. `elements` 메서드에 대해서는 [discussed in more detail below](#shorthand-selectors).
+기본적으로, 페이지에는 `url`, `assert`, `elements`라는 세 가지 메서드가 존재합니다. 여기서 `url`, `assert` 메서드에 대해 먼저 설명합니다. `elements` 메서드에 대해서는 [discussed in more detail below](#shorthand-selectors)에서 자세히 설명합니다.
 
 <a name="the-url-method"></a>
 <!-- #### The `url` Method -->
@@ -2495,7 +2495,7 @@ $browser->visit('/dashboard')
 ### Shorthand Selectors
 
 <!-- The `elements` method within page classes allows you to define quick, easy-to-remember shortcuts for any CSS selector on your page. For example, let's define a shortcut for the "email" input field of the application's login page: -->
-페이지 클래스의 `elements` 메서드를 통해, 페이지에서 자주 사용하는 CSS 셀렉터에 대해 쉽고 기억하기 좋은 단축키를 정의할 수 있습니다. 예를 들어, 애플리케이션 로그인 페이지의 "email" 입력 필드에 대해 다음과 같이 단축키를 정의할 수 있습니다.
+페이지 클래스의 `elements` 메서드를 통해, 페이지에서 자주 사용하는 CSS 셀렉터에 대해 쉽고 기억하기 좋은 단축 이름을 정의할 수 있습니다. 예를 들어, 애플리케이션 로그인 페이지의 "email" 입력 필드에 대해 다음과 같이 단축 이름을 정의할 수 있습니다.
 
 ```
 /**
@@ -2512,7 +2512,7 @@ public function elements()
 ```
 
 <!-- Once the shortcut has been defined, you may use the shorthand selector anywhere you would typically use a full CSS selector: -->
-이렇게 단축키를 정의하면 기존의 CSS 셀렉터 대신 이 단축키를 언제든 사용할 수 있습니다.
+이렇게 단축 이름을 정의하면 기존의 CSS 셀렉터 대신 이 단축 이름을 언제든 사용할 수 있습니다.
 
 ```
 $browser->type('@email', 'taylor@laravel.com');
@@ -2523,7 +2523,7 @@ $browser->type('@email', 'taylor@laravel.com');
 #### Global Shorthand Selectors
 
 <!-- After installing Dusk, a base `Page` class will be placed in your `tests/Browser/Pages` directory. This class contains a `siteElements` method which may be used to define global shorthand selectors that should be available on every page throughout your application: -->
-Dusk를 설치하면 기본 `Page` 클래스가 `tests/Browser/Pages` 디렉터리에 생성됩니다. 이 클래스에는 글로벌 단축키를 위한 `siteElements` 메서드가 포함되어 있는데, 애플리케이션 전체에서 모든 페이지가 공유할 수 있는 단축 셀렉터를 정의할 수 있습니다.
+Dusk를 설치하면 기본 `Page` 클래스가 `tests/Browser/Pages` 디렉터리에 생성됩니다. 이 클래스에는 글로벌 단축 이름을 위한 `siteElements` 메서드가 포함되어 있는데, 애플리케이션 전체에서 모든 페이지가 공유할 수 있는 단축 셀렉터를 정의할 수 있습니다.
 
 ```
 /**

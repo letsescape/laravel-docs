@@ -430,7 +430,7 @@ vendor\\bin\\homestead make
 ### Installing Optional Features
 
 <!-- Optional software is installed using the `features` option within your `Homestead.yaml` file. Most features can be enabled or disabled with a boolean value, while some features allow multiple configuration options: -->
-옵션 소프트웨어는 `Homestead.yaml` 파일의 `features` 옵션을 통해 설치할 수 있습니다. 대부분의 기능은 true/false 값으로 활성화 또는 비활성화를 결정하며, 일부 기능은 추가 구성 옵션이 필요합니다.
+옵션 소프트웨어는 `Homestead.yaml` 파일의 `features` 옵션을 통해 설치할 수 있습니다. 대부분의 기능은 true/false 값으로 활성화 또는 비활성화를 결정하며, 일부 기능은 여러 구성 옵션을 지원합니다.
 
 
 <!--
@@ -512,7 +512,7 @@ vendor\\bin\\homestead make
 #### Elasticsearch
 
 <!-- You may specify a supported version of Elasticsearch, which must be an exact version number (major.minor.patch). The default installation will create a cluster named 'homestead'. You should never give Elasticsearch more than half of the operating system's memory, so make sure your Homestead virtual machine has at least twice the Elasticsearch allocation. -->
-지원되는 Elasticsearch 버전을 정확하게 지정하여 설치할 수 있습니다(예: major.minor.patch 형식). 기본적으로 'homestead'라는 이름의 클러스터가 생성됩니다. Elasticsearch는 OS 메모리의 절반 이상을 할당하면 안 되므로, Homestead 가상머신 메모리는 Elasticsearch에서 필요한 용량의 두 배 이상이 필요합니다.
+지원되는 Elasticsearch 버전을 정확하게 지정하여 설치할 수 있습니다(예: major.minor.patch 형식). 기본적으로 'homestead'라는 이름의 클러스터가 생성됩니다. Elasticsearch는 OS 메모리의 절반을 초과하여 할당하면 안 되므로, Homestead 가상머신 메모리는 Elasticsearch에서 필요한 용량의 두 배 이상이 필요합니다.
 
 > [!TIP]
 > [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current)에서 상세한 설정 방법을 확인할 수 있습니다.
@@ -751,7 +751,7 @@ ports:
 
 
 <!-- Below is a list of additional Homestead service ports that you may wish to map from your host machine to your Vagrant box: -->
-아래는 호스트 머신과 Vagrant 박스 간에 맵핑이 필요한 주요 Homestead 서비스 포트 목록입니다.
+아래는 호스트 머신에서 Vagrant 박스로 추가 매핑할 수 있는 주요 Homestead 서비스 포트 목록입니다.
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -851,7 +851,7 @@ backup: true
 ### Configuring Cron Schedules
 
 <!-- Laravel provides a convenient way to [schedule cron jobs](/docs/8.x/scheduling) by scheduling a single `schedule:run` Artisan command to run every minute. The `schedule:run` command will examine the job schedule defined in your `App\Console\Kernel` class to determine which scheduled tasks to run. -->
-Laravel은 [schedule cron jobs](/docs/8.x/scheduling)을 매우 간편하게 할 수 있도록, 매 분마다 `schedule:run` 아티즌 명령만 실행하면 됩니다. `schedule:run` 명령은 `App\Console\Kernel` 클래스에 정의된 예약 작업을 검사하여 실행할 작업이 있으면 실행합니다.
+Laravel에서는 [schedule cron jobs](/docs/8.x/scheduling)을 간편하게 처리하도록, `schedule:run` 아티즌 명령을 매 분마다 실행하도록 예약하면 됩니다. `schedule:run` 명령은 `App\Console\Kernel` 클래스에 정의된 예약 작업을 검사하여 실행할 작업이 있으면 실행합니다.
 
 <!-- If you would like the `schedule:run` command to be run for a Homestead site, you may set the `schedule` option to `true` when defining the site: -->
 특정 Homestead 사이트에서 `schedule:run` 명령을 매 분마다 실행하려면, 사이트 정의 시 `schedule` 옵션을 `true`로 지정하면 됩니다.
@@ -960,7 +960,7 @@ features:
 ### Sharing Your Environment
 
 <!-- Sometimes you may wish to share what you're currently working on with coworkers or a client. Vagrant has built-in support for this via the `vagrant share` command; however, this will not work if you have multiple sites configured in your `Homestead.yaml` file. -->
-동료나 클라이언트와 현재 개발 중인 사이트를 임시로 공유하고 싶을 때가 있습니다. Vagrant의 기본 `vagrant share` 명령을 이용할 수 있지만, `Homestead.yaml` 파일에 여러 사이트가 등록된 경우에는 제대로 동작하지 않을 수 있습니다.
+동료나 클라이언트와 현재 개발 중인 사이트를 임시로 공유하고 싶을 때가 있습니다. Vagrant의 기본 `vagrant share` 명령을 이용할 수 있지만, `Homestead.yaml` 파일에 여러 사이트가 등록된 경우에는 제대로 동작하지 않습니다.
 
 <!-- To solve this problem, Homestead includes its own `share` command. To get started, [SSH into your Homestead virtual machine](#connecting-via-ssh) via `vagrant ssh` and execute the `share homestead.test` command. This command will share the `homestead.test` site from your `Homestead.yaml` configuration file. You may substitute any of your other configured sites for `homestead.test`: -->
 이 문제를 해결하기 위해, Homestead는 자체적인 `share` 명령을 제공합니다. 먼저 `vagrant ssh`로 [SSH into your Homestead virtual machine](#connecting-via-ssh)한 뒤 `share homestead.test` 명령을 실행하세요. 이 명령은 `Homestead.yaml` 설정 파일에 등록된 `homestead.test` 사이트를 공유합니다. `homestead.test` 대신 설정해 둔 다른 사이트로 대체할 수 있습니다.
@@ -992,14 +992,14 @@ Homestead에는 [Xdebug](https://xdebug.org) 기반의 스텝 디버깅 기능�
 기본적으로 Xdebug는 이미 실행 중이며, 언제든 연결을 대기합니다. CLI에서 Xdebug를 사용하려면, Homestead 가상머신 내에서 `sudo phpenmod xdebug` 명령을 실행하세요. 이후 IDE에서 디버깅을 활성화하면 됩니다. 브라우저 확장이나 [bookmarklet](https://www.jetbrains.com/phpstorm/marklets/)을 사용해 Xdebug 트리거도 가능합니다.
 
 > [!NOTE]
-> Xdebug가 활성화되면 PHP 실행 속도가 크게 느려질 수 있습니다. 사용을 중지하려면 `sudo phpdismod xdebug` 명령으로 비활성화하고, FPM 서비스를 재시작하세요.
+> Xdebug가 활성화되면 PHP 실행 속도가 크게 느려집니다. 사용을 중지하려면 `sudo phpdismod xdebug` 명령으로 비활성화하고, FPM 서비스를 재시작하세요.
 
 <a name="autostarting-xdebug"></a>
 <!-- #### Autostarting Xdebug -->
 #### Autostarting Xdebug
 
 <!-- When debugging functional tests that make requests to the web server, it is easier to autostart debugging rather than modifying tests to pass through a custom header or cookie to trigger debugging. To force Xdebug to start automatically, modify the `/etc/php/7.x/fpm/conf.d/20-xdebug.ini` file inside your Homestead virtual machine and add the following configuration: -->
-웹서버를 통한 통합 테스트(퍼스트널 테스트)에서 디버깅을 좀 더 쉽게 하려면, Xdebug를 자동 시작하도록 설정할 수 있습니다. Homestead 가상머신 내부의 `/etc/php/7.x/fpm/conf.d/20-xdebug.ini` 파일을 수정하여 아래 설정을 추가합니다.
+웹 서버에 요청을 보내는 기능 테스트에서 디버깅을 좀 더 쉽게 하려면, Xdebug를 자동 시작하도록 설정할 수 있습니다. Homestead 가상머신 내부의 `/etc/php/7.x/fpm/conf.d/20-xdebug.ini` 파일을 수정하여 아래 설정을 추가합니다.
 
 ```ini
 ; If Homestead.yaml contains a different subnet for the IP address, this address may be different...

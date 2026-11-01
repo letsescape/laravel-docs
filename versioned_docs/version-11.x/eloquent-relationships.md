@@ -120,7 +120,7 @@ return $this->hasOne(Phone::class, 'foreign_key');
 ```
 
 <!-- Additionally, Eloquent assumes that the foreign key should have a value matching the primary key column of the parent. In other words, Eloquent will look for the value of the user's `id` column in the `user_id` column of the `Phone` record. If you would like the relationship to use a primary key value other than `id` or your model's `$primaryKey` property, you may pass a third argument to the `hasOne` method: -->
-또한 Eloquent는 기본적으로 외래 키의 값은 부모 모델의 기본 키 컬럼(primary key) 값과 일치해야 한다고 가정합니다. 즉, Eloquent는 `Phone` 레코드의 `user_id` 컬럼 값이 사용자의 `id` 컬럼과 동일한지를 기준으로 연관관계를 찾습니다. 만약 기본 키 컬럼이 `id`가 아니거나, 모델의 `$primaryKey` 속성 이외의 값을 사용하고 싶다면, `hasOne` 메서드의 세 번째 인수로 로컬 키를 지정할 수 있습니다.
+또한 Eloquent는 기본적으로 외래 키의 값은 부모 모델의 기본 키 컬럼(primary key) 값과 일치해야 한다고 가정합니다. 즉, Eloquent는 `Phone` 레코드의 `user_id` 컬럼 값이 사용자의 `id` 컬럼과 동일한지를 기준으로 연관관계를 찾습니다. 만약 `id`나 모델의 `$primaryKey` 속성으로 지정된 기본 키 외의 컬럼을 사용하고 싶다면, `hasOne` 메서드의 세 번째 인수로 로컬 키를 지정할 수 있습니다.
 
 ```
 return $this->hasOne(Phone::class, 'foreign_key', 'local_key');
@@ -430,7 +430,7 @@ $posts = Post::whereBelongsTo($user)->get();
 ```
 
 <!-- You may also provide a [collection](/docs/11.x/eloquent-collections) instance to the `whereBelongsTo` method. When doing so, Laravel will retrieve models that belong to any of the parent models within the collection: -->
-또한, `whereBelongsTo` 메서드에는 [collection](/docs/11.x/eloquent-collections) 인스턴스를 바로 전달할 수 있습니다. 이럴 경우, 컬렉션에 포함된 모든 부모 모델에 소속된 하위 모델을 한 번에 불러옵니다.
+또한, `whereBelongsTo` 메서드에는 [collection](/docs/11.x/eloquent-collections) 인스턴스를 바로 전달할 수 있습니다. 이럴 경우, 컬렉션에 포함된 부모 모델 중 하나에 소속된 하위 모델을 한 번에 불러옵니다.
 
 ```
 $users = User::where('vip', true)->get();
@@ -492,7 +492,7 @@ public function largestOrder(): HasOne
 ```
 
 > [!WARNING]
-> PostgreSQL은 UUID 컬럼에 대해 `MAX` 함수를 지원하지 않으므로, PostgreSQL UUID 컬럼을 사용하는 환경에서는 one-of-many 관계를 사용할 수 없습니다.
+> PostgreSQL은 UUID 컬럼에 대해 `MAX` 함수를 지원하지 않으므로, PostgreSQL UUID 컬럼과 one-of-many 관계를 함께 사용할 수 없습니다.
 
 <a name="converting-many-relationships-to-has-one-relationships"></a>
 <!-- #### Converting "Many" Relationships to Has One Relationships -->
@@ -524,7 +524,7 @@ public function largestOrder(): HasOne
 #### Advanced Has One of Many Relationships
 
 <!-- It is possible to construct more advanced "has one of many" relationships. For example, a `Product` model may have many associated `Price` models that are retained in the system even after new pricing is published. In addition, new pricing data for the product may be able to be published in advance to take effect at a future date via a `published_at` column. -->
-조금 더 복잡한 "has one of many" 관계도 정의할 수 있습니다. 예를 들어, `Product` 모델에는 여러 개의 `Price` 모델이 연관되어 있으며, 신제품 가격이 미리 등록되어 미래 시점에 적용될 수도 있습니다(`published_at` 컬럼 참고). 이런 상황에서는, 아직 적용되지 않은 미래 가격은 제외하고, 가장 마지막에 등록된(발행일이 현재보다 이전인) 가격 중, 발행일이 같으면 ID가 큰 가격을 가져오고 싶을 수 있습니다.
+조금 더 복잡한 "has one of many" 관계도 정의할 수 있습니다. 예를 들어, `Product` 모델에는 여러 개의 `Price` 모델이 연관되어 있으며, 새로운 가격이 미리 등록되어 미래 시점에 적용될 수도 있습니다(`published_at` 컬럼 참고). 이런 상황에서는, 아직 적용되지 않은 미래 가격은 제외하고, 가장 마지막에 등록된(발행일이 현재보다 이전인) 가격 중, 발행일이 같으면 ID가 큰 가격을 가져오고 싶을 수 있습니다.
 
 <!-- So, in summary, we need to retrieve the latest published pricing where the published date is not in the future. In addition, if two prices have the same published date, we will prefer the price with the greatest ID. To accomplish this, we must pass an array to the `ofMany` method that contains the sortable columns which determine the latest price. In addition, a closure will be provided as the second argument to the `ofMany` method. This closure will be responsible for adding additional publish date constraints to the relationship query: -->
 이럴 때는, `ofMany` 메서드에 배열 형태로 여러 기준 컬럼을 지정하고, `ofMany` 메서드의 두 번째 인수로 Publish Date에 대한 추가 제약이 포함된 클로저를 전달해서 복잡한 관계를 정의할 수 있습니다.
@@ -1112,7 +1112,7 @@ public $incrementing = true;
 ## Polymorphic Relationships
 
 <!-- A polymorphic relationship allows the child model to belong to more than one type of model using a single association. For example, imagine you are building an application that allows users to share blog posts and videos. In such an application, a `Comment` model might belong to both the `Post` and `Video` models. -->
-다형성(polymorphic) 관계를 사용하면, 하나의 자식 모델이 단일 연관 컬럼을 통해 여러 타입의 부모 모델과 연결될 수 있습니다. 예를 들어, 블로그 게시글과 동영상을 공유할 수 있는 애플리케이션을 만든다고 가정하면, `Comment` 모델은 `Post` 모델과 `Video` 모델 모두와 연관될 수 있습니다.
+다형성(polymorphic) 관계를 사용하면, 하나의 자식 모델이 단일 연관관계를 통해 여러 타입의 부모 모델과 연결될 수 있습니다. 예를 들어, 블로그 게시글과 동영상을 공유할 수 있는 애플리케이션을 만든다고 가정하면, `Comment` 모델은 `Post` 모델과 `Video` 모델 모두와 연관될 수 있습니다.
 
 <a name="one-to-one-polymorphic-relations"></a>
 <!-- ### One to One (Polymorphic) -->
@@ -1123,7 +1123,7 @@ public $incrementing = true;
 #### Table Structure
 
 <!-- A one-to-one polymorphic relation is similar to a typical one-to-one relation; however, the child model can belong to more than one type of model using a single association. For example, a blog `Post` and a `User` may share a polymorphic relation to an `Image` model. Using a one-to-one polymorphic relation allows you to have a single table of unique images that may be associated with posts and users. First, let's examine the table structure: -->
-일대일 다형성 관계는 일반적인 일대일(one-to-one) 관계와 유사하지만, 자식 모델이 단일 연관 컬럼을 사용해 여러 타입의 부모 모델과 연관될 수 있다는 점이 다릅니다. 예를 들어, 블로그의 `Post`와 `User`는 공통적으로 `Image` 모델과 다형성 관계를 가질 수 있습니다. 이를 통해 하나의 이미지 테이블을 두고, 게시글이나 유저 모두 특정 이미지에 연결 가능한 구조가 됩니다. 테이블 구조는 다음과 같습니다.
+일대일 다형성 관계는 일반적인 일대일(one-to-one) 관계와 유사하지만, 자식 모델이 단일 연관관계를 사용해 여러 타입의 부모 모델과 연관될 수 있다는 점이 다릅니다. 예를 들어, 블로그의 `Post`와 `User`는 공통적으로 `Image` 모델과 다형성 관계를 가질 수 있습니다. 이를 통해 하나의 이미지 테이블을 두고, 게시글이나 유저 모두 특정 이미지에 연결 가능한 구조가 됩니다. 테이블 구조는 다음과 같습니다.
 
 ```
 posts
@@ -1254,7 +1254,7 @@ public function imageable(): MorphTo
 #### Table Structure
 
 <!-- A one-to-many polymorphic relation is similar to a typical one-to-many relation; however, the child model can belong to more than one type of model using a single association. For example, imagine users of your application can "comment" on posts and videos. Using polymorphic relationships, you may use a single `comments` table to contain comments for both posts and videos. First, let's examine the table structure required to build this relationship: -->
-일대다 다형성 관계 역시 일반적인 일대다 관계와 유사하지만, 자식 모델이 단일 연관 컬럼을 통해 여러 타입의 부모 모델과 연결될 수 있다는 점이 다릅니다. 예를 들어, 여러분의 애플리케이션에서 사용자가 게시글과 동영상 모두에 "댓글(comment)"을 남길 수 있다고 가정해봅시다. 다형성 관계를 사용하면, 단 하나의 `comments` 테이블이 게시글과 동영상을 모두 참조하는 구조를 만들 수 있습니다. 요구되는 테이블 구조는 다음과 같습니다.
+일대다 다형성 관계 역시 일반적인 일대다 관계와 유사하지만, 자식 모델이 단일 연관관계를 통해 여러 타입의 부모 모델과 연결될 수 있다는 점이 다릅니다. 예를 들어, 여러분의 애플리케이션에서 사용자가 게시글과 동영상 모두에 "댓글(comment)"을 남길 수 있다고 가정해봅시다. 다형성 관계를 사용하면, 단 하나의 `comments` 테이블이 게시글과 동영상을 모두 참조하는 구조를 만들 수 있습니다. 요구되는 테이블 구조는 다음과 같습니다.
 
 ```
 posts
@@ -1348,7 +1348,7 @@ foreach ($post->comments as $comment) {
 ```
 
 <!-- You may also retrieve the parent of a polymorphic child model by accessing the name of the method that performs the call to `morphTo`. In this case, that is the `commentable` method on the `Comment` model. So, we will access that method as a dynamic relationship property in order to access the comment's parent model: -->
-다형적(child) 모델에서 부모 모델을 조회할 때는 `morphTo`를 호출하는 메서드명을 동적 속성으로 조회하면 됩니다. 이 예시의 경우 `Comment` 모델의 `commentable` 메서드가 해당합니다. 즉, 이 메서드를 동적 관계 속성으로 접근함으로써 댓글의 부모 모델을 얻을 수 있습니다.
+다형적 자식(child) 모델에서 부모 모델을 조회할 때는 `morphTo`를 호출하는 메서드명을 동적 속성으로 조회하면 됩니다. 이 예시의 경우 `Comment` 모델의 `commentable` 메서드가 해당합니다. 즉, 이 메서드를 동적 관계 속성으로 접근함으로써 댓글의 부모 모델을 얻을 수 있습니다.
 
 ```
 use App\Models\Comment;
@@ -1466,7 +1466,7 @@ public function bestImage(): MorphOne
 #### Table Structure
 
 <!-- Many-to-many polymorphic relations are slightly more complicated than "morph one" and "morph many" relationships. For example, a `Post` model and `Video` model could share a polymorphic relation to a `Tag` model. Using a many-to-many polymorphic relation in this situation would allow your application to have a single table of unique tags that may be associated with posts or videos. First, let's examine the table structure required to build this relationship: -->
-다대다(polymorphic) 관계는 "morph one"이나 "morph many" 관계보다 약간 더 복잡합니다. 예를 들어, `Post` 모델과 `Video` 모델이 공통의 다형적 관계를 통해 `Tag` 모델과 연결될 수 있습니다. 이렇게 하면, 포스트나 비디오에 공통적으로 태그를 단일 테이블에 저장하여 재활용할 수 있습니다. 먼저, 이 관계를 구성하기 위한 테이블 구조를 살펴보겠습니다.
+다대다 다형성(polymorphic) 관계는 "morph one"이나 "morph many" 관계보다 약간 더 복잡합니다. 예를 들어, `Post` 모델과 `Video` 모델이 공통의 다형적 관계를 통해 `Tag` 모델과 연결될 수 있습니다. 이렇게 하면, 포스트나 비디오에 공통적으로 태그를 단일 테이블에 저장하여 재활용할 수 있습니다. 먼저, 이 관계를 구성하기 위한 테이블 구조를 살펴보겠습니다.
 
 ```
 posts
@@ -1633,7 +1633,7 @@ $class = Relation::getMorphedModel($alias);
 ### Dynamic Relationships
 
 <!-- You may use the `resolveRelationUsing` method to define relations between Eloquent models at runtime. While not typically recommended for normal application development, this may occasionally be useful when developing Laravel packages. -->
-`resolveRelationUsing` 메서드를 사용하면 Eloquent 모델 간의 관계를 런타임 시점에 정의할 수 있습니다. 일반적인 애플리케이션 개발에서는 자주 사용하지 않지만, Laravel 패키지 개발 시에는 유용할 수 있습니다.
+`resolveRelationUsing` 메서드를 사용하면 Eloquent 모델 간의 관계를 런타임 시점에 정의할 수 있습니다. 일반적인 애플리케이션 개발에서는 보통 권장되지 않지만, Laravel 패키지 개발 시에는 유용할 수 있습니다.
 
 <!-- The `resolveRelationUsing` method accepts the desired relationship name as its first argument. The second argument passed to the method should be a closure that accepts the model instance and returns a valid Eloquent relationship definition. Typically, you should configure dynamic relationships within the boot method of a [service provider](/docs/11.x/providers): -->
 `resolveRelationUsing` 메서드는 첫 번째 인수로 관계명을, 두 번째 인수로 모델 인스턴스를 받아 유효한 Eloquent 관계를 반환하는 클로저를 받습니다. 보통 동적 관계는 [service provider](/docs/11.x/providers)의 boot 메서드에서 설정합니다.
@@ -1745,7 +1745,7 @@ where user_id = ? and (active = 1 or votes >= 100)
 ### Relationship Methods vs. Dynamic Properties
 
 <!-- If you do not need to add additional constraints to an Eloquent relationship query, you may access the relationship as if it were a property. For example, continuing to use our `User` and `Post` example models, we may access all of a user's posts like so: -->
-Eloquent 관계 쿼리에 추가 제약 조건을 줄 필요가 없다면, 기껏 쿼리 메서드를 호출할 필요 없이 관계를 속성처럼 접근할 수 있습니다. 예를 들어 `User`와 `Post` 예시에서, 사용자 모든 포스트를 아래와 같이 간단하게 조회할 수 있습니다.
+Eloquent 관계 쿼리에 추가 제약 조건을 줄 필요가 없다면, 굳이 쿼리 메서드를 호출할 필요 없이 관계를 속성처럼 접근할 수 있습니다. 예를 들어 `User`와 `Post` 예시에서, 사용자 모든 포스트를 아래와 같이 간단하게 조회할 수 있습니다.
 
 ```
 use App\Models\User;
@@ -1758,7 +1758,7 @@ foreach ($user->posts as $post) {
 ```
 
 <!-- Dynamic relationship properties perform "lazy loading", meaning they will only load their relationship data when you actually access them. Because of this, developers often use [eager loading](#eager-loading) to pre-load relationships they know will be accessed after loading the model. Eager loading provides a significant reduction in SQL queries that must be executed to load a model's relations. -->
-동적 관계 속성은 "지연 로딩(lazy loading)" 방식으로 동작합니다. 즉, 실제로 속성에 접근할 때에만 관련 데이터가 쿼리되어 가져옵니다. 이런 이유로, 모델을 미리 로딩한 뒤 곧바로 관계 데이터를 사용할 경우 [eager loading](#eager-loading)을 자주 활용합니다. eager loading은 쿼리 수를 크게 줄여 주므로 성능에 많은 도움이 됩니다.
+동적 관계 속성은 "지연 로딩(lazy loading)" 방식으로 동작합니다. 즉, 실제로 속성에 접근할 때에만 관련 데이터를 쿼리해 가져옵니다. 이런 이유로, 모델을 미리 로딩한 뒤 곧바로 관계 데이터를 사용할 경우 [eager loading](#eager-loading)을 자주 활용합니다. eager loading은 쿼리 수를 크게 줄여 주므로 성능에 많은 도움이 됩니다.
 
 <a name="querying-relationship-existence"></a>
 <!-- ### Querying Relationship Existence -->
@@ -1900,7 +1900,7 @@ $comments = Comment::whereDoesntHaveMorph(
 ```
 
 <!-- You may occasionally need to add query constraints based on the "type" of the related polymorphic model. The closure passed to the `whereHasMorph` method may receive a `$type` value as its second argument. This argument allows you to inspect the "type" of the query that is being built: -->
-경우에 따라 다형적(parent) 모델의 "타입"에 따라 추가 쿼리 조건을 지정하고 싶을 수도 있습니다. 이럴 때는 `whereHasMorph`에 넘기는 클로저의 두 번째 인수로 `$type` 값을 받을 수 있습니다. 이 값을 이용해 해당 쿼리 대상의 타입에 따라 컬럼이나 조건을 다르게 지정할 수 있습니다.
+경우에 따라 다형성 부모(parent) 모델의 "타입"에 따라 추가 쿼리 조건을 지정하고 싶을 수도 있습니다. 이럴 때는 `whereHasMorph`에 넘기는 클로저의 두 번째 인수로 `$type` 값을 받을 수 있습니다. 이 값을 이용해 해당 쿼리 대상의 타입에 따라 컬럼이나 조건을 다르게 지정할 수 있습니다.
 
 ```
 use Illuminate\Database\Eloquent\Builder;
@@ -2120,7 +2120,7 @@ $activities->loadMorphCount('parentable', [
 ## Eager Loading
 
 <!-- When accessing Eloquent relationships as properties, the related models are "lazy loaded". This means the relationship data is not actually loaded until you first access the property. However, Eloquent can "eager load" relationships at the time you query the parent model. Eager loading alleviates the "N + 1" query problem. To illustrate the N + 1 query problem, consider a `Book` model that "belongs to" to an `Author` model: -->
-Eloquent 관계를 프로퍼티처럼 접근하면, 관련 모델은 "지연 로드(lazy loaded)"됩니다. 즉, 관계 데이터를 처음 접근하기 전까지는 실제로 로드되지 않습니다. 하지만, 부모 모델을 쿼리할 때 "사전 로딩(eager loading)"을 할 수도 있습니다. 사전 로딩은 이른바 "N + 1" 쿼리 문제를 해결합니다. N + 1 쿼리 문제를 보여주는 예로, `Book` 모델이 `Author` 모델에 "belongs to" 관계를 맺고 있다고 가정해봅니다.
+Eloquent 관계를 프로퍼티처럼 접근하면, 관련 모델은 "지연 로드(lazy loaded)"됩니다. 즉, 관계 데이터를 처음 접근하기 전까지는 실제로 로드되지 않습니다. 하지만, 부모 모델을 쿼리할 때 "사전 로딩(eager loading)"을 할 수도 있습니다. 사전 로딩은 이른바 "N + 1" 쿼리 문제를 완화합니다. N + 1 쿼리 문제를 보여주는 예로, `Book` 모델이 `Author` 모델에 "belongs to" 관계를 맺고 있다고 가정해봅니다.
 
 ```
 <?php
@@ -2623,7 +2623,7 @@ $user->posts()->createManyQuietly([
 ```
 
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/11.x/eloquent#upserts). -->
-또한 관계에서 [create and update models on relationships](/docs/11.x/eloquent#upserts)할 때 `findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용할 수도 있습니다.
+또한 관계에서 [create and update models on relationships](/docs/11.x/eloquent#upserts)에 설명된 모델 생성 및 수정 작업을 할 때 `findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용할 수도 있습니다.
 
 > [!NOTE]
 > `create` 메서드를 사용하기 전에 [mass assignment](/docs/11.x/eloquent#mass-assignment) 관련 문서를 반드시 참고하시기 바랍니다.
@@ -2781,7 +2781,7 @@ $user->roles()->updateExistingPivot($roleId, [
 모델이 `belongsTo` 또는 `belongsToMany` 관계를 통해 다른 모델과 연결되어 있는 경우(예: `Comment` 모델이 `Post` 모델에 소속된 경우), 자식 모델이 업데이트될 때 부모 모델의 타임스탬프를 함께 갱신하면 유용한 경우가 있습니다.
 
 <!-- For example, when a `Comment` model is updated, you may want to automatically "touch" the `updated_at` timestamp of the owning `Post` so that it is set to the current date and time. To accomplish this, you may add a `touches` property to your child model containing the names of the relationships that should have their `updated_at` timestamps updated when the child model is updated: -->
-예를 들어, `Comment` 모델이 업데이트될 때, 그에 소속된 `Post`의 `updated_at` 타임스탬프를 현재 일시로 자동 갱신하고 싶을 수 있습니다. 이를 위해 자식 모델에 `touches` 속성을 추가하고, 자식 모델이 업데이트될 때 `updated_at` 타임스탬프를 함께 갱신할 관계의 이름을 배열로 지정하면 됩니다.
+예를 들어, `Comment` 모델이 업데이트될 때, 해당 모델이 소속된 `Post`의 `updated_at` 타임스탬프를 현재 일시로 자동 갱신하고 싶을 수 있습니다. 이를 위해 자식 모델에 `touches` 속성을 추가하고, 자식 모델이 업데이트될 때 `updated_at` 타임스탬프를 함께 갱신할 관계의 이름을 배열로 지정하면 됩니다.
 
 ```
 <?php

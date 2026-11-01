@@ -159,7 +159,7 @@ class FlightFactory extends Factory
 상태 조작 메서드를 사용하면 모델 팩토리에 어떤 조합으로든 적용할 수 있는 개별 수정 사항을 정의할 수 있습니다. 예를 들어 `Database\Factories\UserFactory` 팩토리는 기본 속성 값 중 하나를 변경하는 `suspended` 상태 메서드를 가질 수 있습니다.
 
 <!-- State transformation methods typically call the `state` method provided by Laravel's base factory class. The `state` method accepts a closure which will receive the array of raw attributes defined for the factory and should return an array of attributes to modify: -->
-상태 변환 메서드는 일반적으로 Laravel의 기본 팩토리 클래스가 제공하는 `state` 메서드를 호출합니다. `state` 메서드는 팩토리에 정의된 원시 속성 배열을 전달받는 클로저를 인수로 받으며, 수정할 속성 배열을 반환해야 합니다.
+상태 변환 메서드는 일반적으로 Laravel의 기본 팩토리 클래스가 제공하는 `state` 메서드를 호출합니다. `state` 메서드는 팩토리에 정의된 원시 속성 배열을 전달받는 클로저를 인수로 받으며, 이 클로저는 수정할 속성 배열을 반환해야 합니다.
 
 ```php
 use Illuminate\Database\Eloquent\Factories\Factory;

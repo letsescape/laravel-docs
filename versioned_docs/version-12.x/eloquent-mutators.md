@@ -39,7 +39,7 @@ accessor, mutator, 그리고 attribute casting은 Eloquent 모델 인스턴스�
 accessor는 Eloquent 속성의 값을 조회할 때 변환하는 역할을 합니다. accessor를 정의하려면, 모델에 보호된(protected) 메서드를 만들어 해당 속성을 나타내세요. 이 메서드의 이름은 실제 모델 속성 또는 데이터베이스 컬럼의 "카멜 케이스(camel case)" 표현과 일치해야 합니다.
 
 <!-- In this example, we'll define an accessor for the `first_name` attribute. The accessor will automatically be called by Eloquent when attempting to retrieve the value of the `first_name` attribute. All attribute accessor / mutator methods must declare a return type-hint of `Illuminate\Database\Eloquent\Casts\Attribute`: -->
-예를 들어, 여기서는 `first_name` 속성에 대한 accessor를 정의합니다. 이 accessor는 Eloquent가 `first_name` 속성 값을 조회할 때 자동으로 호출됩니다. 모든 속성 accessor/mutator 메서드는 반드시 `Illuminate\Database\Eloquent\Casts\Attribute` 타입 힌트를 반환해야 합니다:
+예를 들어, 여기서는 `first_name` 속성에 대한 accessor를 정의합니다. 이 accessor는 Eloquent가 `first_name` 속성 값을 조회할 때 자동으로 호출됩니다. 모든 속성 accessor/mutator 메서드는 반드시 `Illuminate\Database\Eloquent\Casts\Attribute` 반환 타입 힌트를 선언해야 합니다:
 
 ```php
 <?php
@@ -78,7 +78,7 @@ $firstName = $user->first_name;
 ```
 
 > [!NOTE]
-> 이와 같이 계산된 값을 모델의 배열/JSON 표현에 포함시키고 싶다면, [you will need to append them](/docs/12.x/eloquent-serialization#appending-values-to-json) 합니다.
+> 이와 같이 계산된 값을 모델의 배열/JSON 표현에 포함시키고 싶다면, 추가 속성으로 지정해야 합니다([you will need to append them](/docs/12.x/eloquent-serialization#appending-values-to-json)).
 
 <a name="building-value-objects-from-multiple-attributes"></a>
 <!-- #### Building Value Objects From Multiple Attributes -->
@@ -420,7 +420,7 @@ $user->save();
 ```
 
 <!-- To update a single field of a JSON attribute with a more terse syntax, you may [make the attribute mass assignable](/docs/12.x/eloquent#mass-assignment-json-columns) and use the `->` operator when calling the `update` method: -->
-JSON 속성의 개별 필드를 더 쉽게 업데이트하려면, [make the attribute mass assignable](/docs/12.x/eloquent#mass-assignment-json-columns) `update` 메서드에서 `->` 연산자를 사용할 수 있습니다:
+JSON 속성의 개별 필드를 더 쉽게 업데이트하려면, 속성을 대량 할당 가능하게 설정하고([make the attribute mass assignable](/docs/12.x/eloquent#mass-assignment-json-columns)) `update` 메서드에서 `->` 연산자를 사용할 수 있습니다:
 
 ```php
 $user = User::find(1);
@@ -638,7 +638,7 @@ return $user->uuid;
 기본적으로 Eloquent는 `created_at`과 `updated_at` 컬럼을 [Carbon](https://github.com/briannesbitt/Carbon) 인스턴스로 변환합니다. Carbon은 PHP `DateTime` 클래스를 확장한 강력한 날짜 처리 라이브러리입니다. 추가로 날짜 속성을 casting하려면, `casts` 메서드에 해당 속성과 cast 타입을 지정해 주세요. 일반적으로 날짜는 `datetime` 또는 `immutable_datetime` cast 타입을 사용합니다.
 
 <!-- When defining a `date` or `datetime` cast, you may also specify the date's format. This format will be used when the [model is serialized to an array or JSON](/docs/12.x/eloquent-serialization): -->
-`date` 혹은 `datetime` cast를 정의할 때, 날짜 포맷을 지정할 수도 있습니다. 이 포맷은 [model is serialized to an array or JSON](/docs/12.x/eloquent-serialization) 사용됩니다:
+`date` 혹은 `datetime` cast를 정의할 때, 날짜 포맷을 지정할 수도 있습니다. 이 포맷은 모델이 배열 또는 JSON으로 직렬화될 때 사용됩니다([model is serialized to an array or JSON](/docs/12.x/eloquent-serialization)).
 
 ```php
 /**
@@ -716,7 +716,7 @@ protected function casts(): array
 ```
 
 <!-- Once you have defined the cast on your model, the specified attribute will be automatically cast to and from an enum when you interact with the attribute: -->
-cast가 정의되면, 해당 속성에 값을 지정하거나 조회할 때 자동으로 Enum 인스턴스로 변환됩니다:
+cast가 정의되면, 해당 속성에 값을 지정하거나 조회할 때 Enum 인스턴스와 원래 값 사이에서 자동으로 변환됩니다:
 
 ```php
 if ($server->status == ServerStatus::Provisioned) {
@@ -1126,7 +1126,7 @@ protected function casts(): array
 ```
 
 <!-- Objects that implement the `Castable` interface must define a `castUsing` method that returns the class name of the custom caster class that is responsible for casting to and from the `Castable` class: -->
-`Castable` 인터페이스를 구현한 객체는, `Castable` 클래스로부터 casting할 때/casting할 때 어떤 커스텀 caster 클래스를 사용할지 결정하는 `castUsing` 메서드를 정의해야 합니다:
+`Castable` 인터페이스를 구현한 객체는, `Castable` 클래스와의 양방향 casting을 담당하는 커스텀 caster 클래스의 이름을 반환하는 `castUsing` 메서드를 정의해야 합니다:
 
 ```php
 <?php

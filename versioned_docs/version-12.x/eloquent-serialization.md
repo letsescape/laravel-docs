@@ -61,7 +61,7 @@ return $users->toArray();
 ### Serializing to JSON
 
 <!-- To convert a model to JSON, you should use the `toJson` method. Like `toArray`, the `toJson` method is recursive, so all attributes and relations will be converted to JSON. You may also specify any JSON encoding options that are [supported by PHP](https://secure.php.net/manual/en/function.json-encode.php): -->
-모델을 JSON으로 변환하려면 `toJson` 메서드를 사용합니다. `toArray`와 마찬가지로, `toJson`도 재귀적으로 모든 속성과 연관관계를 JSON으로 변환합니다. 또한 [supported by PHP](https://secure.php.net/manual/en/function.json-encode.php) 모든 JSON 인코딩 옵션을 지정할 수 있습니다:
+모델을 JSON으로 변환하려면 `toJson` 메서드를 사용합니다. `toArray`와 마찬가지로, `toJson`도 재귀적으로 모든 속성과 연관관계를 JSON으로 변환합니다. 또한 [supported by PHP](https://secure.php.net/manual/en/function.json-encode.php)에 나열된 모든 JSON 인코딩 옵션을 지정할 수 있습니다:
 
 ```php
 use App\Models\User;
@@ -181,7 +181,7 @@ return $user->setHidden(['email', 'password', 'remember_token'])->toArray();
 ## Appending Values to JSON
 
 <!-- Occasionally, when converting models to arrays or JSON, you may wish to add attributes that do not have a corresponding column in your database. To do so, first define an [accessor](/docs/12.x/eloquent-mutators) for the value: -->
-가끔 모델을 배열이나 JSON으로 변환할 때, 데이터베이스 컬럼에 직접 대응되는 속성이 없는 값을 추가하고 싶을 수 있습니다. 이런 경우, 먼저 해당 값에 대한 [accessor](/docs/12.x/eloquent-mutators)를 정의하세요:
+가끔 모델을 배열이나 JSON으로 변환할 때, 데이터베이스에 대응되는 컬럼이 없는 속성을 추가하고 싶을 수 있습니다. 이런 경우, 먼저 해당 값에 대한 [accessor](/docs/12.x/eloquent-mutators)를 정의하세요:
 
 ```php
 <?php

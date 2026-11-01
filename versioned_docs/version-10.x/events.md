@@ -543,7 +543,7 @@ class SendShipmentNotification implements ShouldQueue
 큐 리스너가 에러로 인해 계속 재시도되는 것을 원치 않을 때, Laravel은 다양한 방식으로 재시도 횟수 또는 제한시간을 지정할 수 있습니다.
 
 <!-- You may define a `$tries` property on your listener class to specify how many times the listener may be attempted before it is considered to have failed: -->
-리스너 클래스에 `$tries` 속성을 추가하면, 해당 리스너가 최대 몇 번까지 재시도될지 지정할 수 있습니다:
+리스너 클래스에 `$tries` 속성을 추가하면, 해당 리스너가 최대 몇 번까지 시도될지 지정할 수 있습니다:
 
 ```
 <?php

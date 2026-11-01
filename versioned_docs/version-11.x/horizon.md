@@ -159,7 +159,7 @@ Laravel의 기본 큐 시스템과 달리, 호라이즌에서는 세 가지 워�
 기본값인 `auto` 전략은 각각의 큐가 현재 얼마 만큼의 대기 작업을 가지고 있는지에 따라 큐별 워커 프로세스 수를 자동으로 조절합니다. 예를 들어, `notifications` 큐에 1,000개의 대기 작업이 있고, `render` 큐가 비어 있다면, 호라이즌은 워커를 `notifications` 큐에 더 많이 할당하여 큐가 비워질 때까지 처리합니다.
 
 <!-- When using the `auto` strategy, you may define the `minProcesses` and `maxProcesses` configuration options to control the minimum number of processes per queue and the maximum number of worker processes in total Horizon should scale up and down to: -->
-`auto` 전략을 사용할 때는, 큐당 워커 최소/최대 수(`minProcesses`, `maxProcesses`)도 직접 지정할 수 있습니다. 이것은 각 큐에 할당될 워커의 최소 수와 호라이즌 전체 워커 수의 최대치로, 상황에 따라 워커 수를 자동으로 늘이거나 줄입니다.
+`auto` 전략을 사용할 때는, 큐당 최소 워커 수와 전체 최대 워커 수(`minProcesses`, `maxProcesses`)도 직접 지정할 수 있습니다. 이것은 각 큐에 할당될 워커의 최소 수와 호라이즌 전체 워커 수의 최대치로, 상황에 따라 워커 수를 자동으로 늘이거나 줄입니다.
 
 ```
 'environments' => [
@@ -360,7 +360,7 @@ Supervisor 설정 시, `stopwaitsecs` 값이 가장 오래 걸리는 작업의 �
 #### Starting Supervisor
 
 <!-- Once the configuration file has been created, you may update the Supervisor configuration and start the monitored processes using the following commands: -->
-설정 파일을 만들었으면, 다음 명령어들로 Supervisor 설정을 갱신하고 감시 프로세스를 시작할 수 있습니다.
+설정 파일을 만들었으면, 다음 명령어들로 Supervisor 설정을 갱신하고 감시 대상 프로세스를 시작할 수 있습니다.
 
 ```shell
 sudo supervisorctl reread

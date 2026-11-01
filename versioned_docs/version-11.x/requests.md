@@ -279,7 +279,7 @@ if ($request->accepts(['text/html', 'application/json'])) {
 ```
 
 <!-- You may use the `prefers` method to determine which content type out of a given array of content types is most preferred by the request. If none of the provided content types are accepted by the request, `null` will be returned: -->
-여러 콘텐츠 타입 중 요청자가 가장 선호하는 타입을 확인하려면 `prefers` 메서드를 사용합니다. 전달한 타입 중 요청이 지원하지 않는다면 `null`을 반환합니다.
+여러 콘텐츠 타입 중 요청자가 가장 선호하는 타입을 확인하려면 `prefers` 메서드를 사용합니다. 전달한 타입 중 요청이 지원하는 타입이 없다면 `null`을 반환합니다.
 
 ```
 $preferred = $request->prefers(['text/html', 'application/json']);

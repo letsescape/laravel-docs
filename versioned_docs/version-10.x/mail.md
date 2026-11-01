@@ -933,7 +933,7 @@ This is the panel content.
 ### Customizing the Components
 
 <!-- You may export all of the Markdown mail components to your own application for customization. To export the components, use the `vendor:publish` Artisan command to publish the `laravel-mail` asset tag: -->
-모든 마크다운 메일 컴포넌트를 내 애플리케이션으로 직접 내보내(Export) 하여 자유롭게 커스터마이즈할 수 있습니다. 컴포넌트 파일을 내보내려면, `laravel-mail` 에셋 태그를 지정하여 `vendor:publish` Artisan 명령어를 실행하세요.
+모든 마크다운 메일 컴포넌트를 내 애플리케이션으로 직접 내보내(Export) 자유롭게 커스터마이즈할 수 있습니다. 컴포넌트 파일을 내보내려면, `laravel-mail` 에셋 태그를 지정하여 `vendor:publish` Artisan 명령어를 실행하세요.
 
 ```shell
 php artisan vendor:publish --tag=laravel-mail
@@ -1276,7 +1276,7 @@ public function test_mailable_content(): void
 특정 사용자를 대상으로 한 메일러블이 실제로 "발송"되었는지를 확인하는 테스트와, 메일러블의 콘텐츠 자체를 테스트하는 코드는 별도로 분리해서 관리하는 것이 좋습니다. 일반적으로 메일러블의 실제 내용은 테스트하려는 코드와 직접적인 관련이 없는 경우가 많으므로, Laravel이 특정 메일러블을 발송하도록 지시받았는지만 확인해도 충분합니다.
 
 <!-- You may use the `Mail` facade's `fake` method to prevent mail from being sent. After calling the `Mail` facade's `fake` method, you may then assert that mailables were instructed to be sent to users and even inspect the data the mailables received: -->
-메일이 실제로 발송되는 것을 방지하려면 `Mail` 파사드의 `fake` 메서드를 사용할 수 있습니다. `Mail` 파사드의 `fake` 메서드를 호출한 후에는, 메일러블이 특정 사용자에게 발송되었는지 검증할 수 있으며, 메일러블이 받은 데이터를 직접 확인할 수도 있습니다.
+메일이 실제로 발송되는 것을 방지하려면 `Mail` 파사드의 `fake` 메서드를 사용할 수 있습니다. `Mail` 파사드의 `fake` 메서드를 호출한 후에는, 메일러블이 특정 사용자에게 발송되도록 지시되었는지 검증할 수 있으며, 메일러블이 받은 데이터를 직접 확인할 수도 있습니다.
 
 ```
 <?php
@@ -1403,7 +1403,7 @@ Mail::assertNotOutgoing(function (OrderShipped $mail) use ($order) {
 #### HELO / Mailtrap / Mailpit
 
 <!-- Alternatively, you may use a service like [HELO](https://usehelo.com) or [Mailtrap](https://mailtrap.io) and the `smtp` driver to send your email messages to a "dummy" mailbox where you may view them in a true email client. This approach has the benefit of allowing you to actually inspect the final emails in Mailtrap's message viewer. -->
-또 다른 방법으로, [HELO](https://usehelo.com)나 [Mailtrap](https://mailtrap.io) 같은 서비스를 `smtp` 드라이버와 함께 사용하면, 진짜 이메일 클라이언트처럼 메일을 전송해볼 수 있는 "가상" 사서함으로 이메일이 전달됩니다. 이런 방법은 Mailtrap의 메시지 뷰어에서 실제 발송되는 이메일을 직접 확인할 수 있다는 장점이 있습니다.
+또 다른 방법으로, [HELO](https://usehelo.com)나 [Mailtrap](https://mailtrap.io) 같은 서비스를 `smtp` 드라이버와 함께 사용하면, 이메일을 "가상" 사서함으로 전송하고 실제 이메일 클라이언트에서 확인할 수 있습니다. 이런 방법은 Mailtrap의 메시지 뷰어에서 실제 발송되는 이메일을 직접 확인할 수 있다는 장점이 있습니다.
 
 <!-- If you are using [Laravel Sail](/docs/10.x/sail), you may preview your messages using [Mailpit](https://github.com/axllent/mailpit). When Sail is running, you may access the Mailpit interface at: `http://localhost:8025`. -->
 [Laravel Sail](/docs/10.x/sail)을 사용한다면, [Mailpit](https://github.com/axllent/mailpit)으로 메시지를 미리보기 할 수도 있습니다. Sail이 실행 중이라면, 다음 주소에서 Mailpit 인터페이스에 접근할 수 있습니다: `http://localhost:8025`

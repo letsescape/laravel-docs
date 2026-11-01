@@ -228,7 +228,7 @@ php artisan horizon:continue
 ```
 
 <!-- You may also pause and continue specific Horizon [supervisors](#supervisors) using the `horizon:pause-supervisor` and `horizon:continue-supervisor` Artisan commands: -->
-특정 Horizon [supervisors](#supervisors)만 선택적으로 일시 중지 혹은 재시작할 수도 있습니다. 이때는 `horizon:pause-supervisor`, `horizon:continue-supervisor` 명령을 사용합니다.
+특정 Horizon [supervisors](#supervisors)만 선택적으로 일시 중지 혹은 재개할 수도 있습니다. 이때는 `horizon:pause-supervisor`, `horizon:continue-supervisor` 명령을 사용합니다.
 
 ```
 php artisan horizon:pause-supervisor supervisor-1
@@ -306,7 +306,7 @@ stopwaitsecs=3600
 #### Starting Supervisor
 
 <!-- Once the configuration file has been created, you may update the Supervisor configuration and start the monitored processes using the following commands: -->
-설정 파일 생성이 끝나면, 다음 명령어들을 통해 Supervisor 설정을 갱신하고 감시 프로세스를 시작할 수 있습니다.
+설정 파일 생성이 끝나면, 다음 명령어들을 통해 Supervisor 설정을 갱신하고 감시 대상 프로세스를 시작할 수 있습니다.
 
 
 <!--     sudo supervisorctl reread -->

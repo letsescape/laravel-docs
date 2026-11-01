@@ -836,7 +836,7 @@ $progress->finish();
 Laravel Prompts는 macOS, Linux, 그리고 WSL 환경의 Windows에서 지원됩니다. 다만, Windows 순정 PHP에서는 기술적 한계로 아직 Laravel Prompts를 직접 사용할 수 없습니다.
 
 <!-- For this reason, Laravel Prompts supports falling back to an alternative implementation such as the [Symfony Console Question Helper](https://symfony.com/doc/current/components/console/helpers/questionhelper.html). -->
-이러한 환경에서는 [Symfony Console Question Helper](https://symfony.com/doc/current/components/console/helpers/questionhelper.html)와 같은 대체 구현체로 자동 전환됩니다.
+이러한 이유로 Laravel Prompts는 [Symfony Console Question Helper](https://symfony.com/doc/current/components/console/helpers/questionhelper.html)와 같은 대체 구현체로 전환하는 기능을 지원합니다.
 
 > [!NOTE]
 > Laravel 프레임워크와 함께 Laravel Prompts를 사용할 때는, 각 프롬프트에 맞는 대체 동작(fallback)이 이미 설정되어 있으며, 지원되지 않는 환경에서 자동으로 활성화됩니다.
@@ -861,7 +861,7 @@ Prompt::fallbackWhen(
 #### Fallback Behavior
 
 <!-- If you are not using Laravel or need to customize the fallback behavior, you may pass a closure to the `fallbackUsing` static method on each prompt class: -->
-Laravel이 아닌 환경에서 직접 대체 동작을 지정하려면, 각 프롬프트 클래스의 `fallbackUsing` 정적 메서드에 클로저를 전달할 수 있습니다.
+Laravel을 사용하지 않거나 대체 동작을 직접 지정하려면, 각 프롬프트 클래스의 `fallbackUsing` 정적 메서드에 클로저를 전달할 수 있습니다.
 
 ```php
 use Laravel\Prompts\TextPrompt;
@@ -892,5 +892,5 @@ TextPrompt::fallbackUsing(function (TextPrompt $prompt) use ($input, $output) {
 ```
 
 <!-- Fallbacks must be configured individually for each prompt class. The closure will receive an instance of the prompt class and must return an appropriate type for the prompt. -->
-대체 동작은 각 프롬프트 클래스별로 따로 설정해야 하며, 입력값 및 반환값 타입 역시 각 프롬프트에 맞게 맞춰야 합니다.
+대체 동작은 각 프롬프트 클래스별로 따로 설정해야 합니다. 클로저는 해당 프롬프트 클래스의 인스턴스를 전달받으며, 프롬프트에 맞는 타입의 값을 반환해야 합니다.
 

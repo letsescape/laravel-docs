@@ -41,7 +41,7 @@ $names = User::all()->reject(function (User $user) {
 #### Eloquent Collection Conversion
 
 <!-- While most Eloquent collection methods return a new instance of an Eloquent collection, the `collapse`, `flatten`, `flip`, `keys`, `pluck`, and `zip` methods return a [base collection](/docs/11.x/collections) instance. Likewise, if a `map` operation returns a collection that does not contain any Eloquent models, it will be converted to a base collection instance. -->
-대부분의 Eloquent 컬렉션 메서드는 항상 새로운 Eloquent 컬렉션 인스턴스를 반환합니다. 하지만 `collapse`, `flatten`, `flip`, `keys`, `pluck`, `zip` 같은 메서드는 [base collection](/docs/11.x/collections) 인스턴스를 반환합니다. 그리고 `map` 연산 결과가 Eloquent 모델이 아니라면, 해당 결과 컬렉션도 기본 컬렉션 인스턴스로 변환됩니다.
+대부분의 Eloquent 컬렉션 메서드는 항상 새로운 Eloquent 컬렉션 인스턴스를 반환합니다. 하지만 `collapse`, `flatten`, `flip`, `keys`, `pluck`, `zip` 같은 메서드는 [base collection](/docs/11.x/collections) 인스턴스를 반환합니다. 그리고 `map` 연산 결과 컬렉션에 Eloquent 모델이 하나도 없다면, 해당 결과 컬렉션도 기본 컬렉션 인스턴스로 변환됩니다.
 
 <a name="available-methods"></a>
 <!-- ## Available Methods -->
@@ -105,7 +105,7 @@ $names = User::all()->reject(function (User $user) {
 #### `append($attributes)`
 
 <!-- The `append` method may be used to indicate that an attribute should be [appended](/docs/11.x/eloquent-serialization#appending-values-to-json) for every model in the collection. This method accepts an array of attributes or a single attribute: -->
-`append` 메서드는 컬렉션 내의 모든 모델에 대해 [appended](/docs/11.x/eloquent-serialization#appending-values-to-json)할 때 사용합니다. 이 메서드는 속성의 배열 또는 단일 속성을 인자로 받을 수 있습니다.
+`append` 메서드는 컬렉션 내의 모든 모델에 속성이 추가되도록 지정할 때 사용할 수 있습니다([appended](/docs/11.x/eloquent-serialization#appending-values-to-json)). 이 메서드는 속성의 배열 또는 단일 속성을 인자로 받을 수 있습니다.
 
 ```
 $users->append('team');
@@ -250,7 +250,7 @@ $users->modelKeys();
 #### `makeVisible($attributes)`
 
 <!-- The `makeVisible` method [makes attributes visible](/docs/11.x/eloquent-serialization#hiding-attributes-from-json) that are typically "hidden" on each model in the collection: -->
-`makeVisible` 메서드는 기본적으로 "숨김(hidden)" 처리된 속성들을 [makes attributes visible](/docs/11.x/eloquent-serialization#hiding-attributes-from-json)합니다.
+`makeVisible` 메서드는 기본적으로 "숨김(hidden)" 처리된 속성들을 표시합니다([makes attributes visible](/docs/11.x/eloquent-serialization#hiding-attributes-from-json)).
 
 ```
 $users = $users->makeVisible(['address', 'phone_number']);
@@ -261,7 +261,7 @@ $users = $users->makeVisible(['address', 'phone_number']);
 #### `makeHidden($attributes)`
 
 <!-- The `makeHidden` method [hides attributes](/docs/11.x/eloquent-serialization#hiding-attributes-from-json) that are typically "visible" on each model in the collection: -->
-`makeHidden` 메서드는 기본적으로 "보임(visible)" 처리된 속성들을 [hides attributes](/docs/11.x/eloquent-serialization#hiding-attributes-from-json)합니다.
+`makeHidden` 메서드는 기본적으로 "보임(visible)" 처리된 속성들을 숨깁니다([hides attributes](/docs/11.x/eloquent-serialization#hiding-attributes-from-json)).
 
 ```
 $users = $users->makeHidden(['address', 'phone_number']);
@@ -283,7 +283,7 @@ $users = $users->only([1, 2, 3]);
 #### `setVisible($attributes)`
 
 <!-- The `setVisible` method [temporarily overrides](/docs/11.x/eloquent-serialization#temporarily-modifying-attribute-visibility) all of the visible attributes on each model in the collection: -->
-`setVisible` 메서드는 컬렉션 내 모든 모델의 보이는 속성(visible attributes)을 [temporarily overrides](/docs/11.x/eloquent-serialization#temporarily-modifying-attribute-visibility).
+`setVisible` 메서드는 컬렉션 내 모든 모델의 보이는 속성(visible attributes)을 일시적으로 재정의합니다([temporarily overrides](/docs/11.x/eloquent-serialization#temporarily-modifying-attribute-visibility)).
 
 ```
 $users = $users->setVisible(['id', 'name']);
@@ -294,7 +294,7 @@ $users = $users->setVisible(['id', 'name']);
 #### `setHidden($attributes)`
 
 <!-- The `setHidden` method [temporarily overrides](/docs/11.x/eloquent-serialization#temporarily-modifying-attribute-visibility) all of the hidden attributes on each model in the collection: -->
-`setHidden` 메서드는 컬렉션 내 모든 모델의 숨긴 속성(hidden attributes)을 [temporarily overrides](/docs/11.x/eloquent-serialization#temporarily-modifying-attribute-visibility).
+`setHidden` 메서드는 컬렉션 내 모든 모델의 숨긴 속성(hidden attributes)을 일시적으로 재정의합니다([temporarily overrides](/docs/11.x/eloquent-serialization#temporarily-modifying-attribute-visibility)).
 
 ```
 $users = $users->setHidden(['email', 'password', 'remember_token']);

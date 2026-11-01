@@ -66,7 +66,7 @@ Laravel은 매우 뛰어난 확장성을 자랑합니다. PHP의 확장 친화�
 #### An Agent Ready Framework
 
 <!-- Laravel's opinionated conventions and well-defined structure make it an ideal framework for [AI assisted development](/docs/12.x/ai) using tools like Cursor and Claude Code. When you ask an AI agent to add a controller, it knows exactly where to place it. When you need a new migration, the naming conventions and file locations are predictable. This consistency eliminates the guesswork that often trips up AI tools in more flexible frameworks. -->
-Laravel은 명확한 규칙과 잘 정의된 구조를 갖추고 있어, Cursor나 Claude Code와 같은 도구를 활용한 [AI assisted development](/docs/12.x/ai)에 최적화되어 있습니다. 예를 들어, AI 에이전트에게 컨트롤러를 추가하라고 명령하면, 어디에 추가해야 하는지 정확히 알 수 있습니다. 마이그레이션 파일 역시 이름 규칙과 디렉터리 구조가 예측 가능해 AI 도구가 실수 없이 작업을 수행할 수 있습니다.
+Laravel은 명확한 규칙과 잘 정의된 구조를 갖추고 있어, Cursor나 Claude Code와 같은 도구를 활용한 [AI assisted development](/docs/12.x/ai)에 최적화되어 있습니다. 예를 들어, AI 에이전트에게 컨트롤러를 추가하라고 명령하면, 어디에 추가해야 하는지 정확히 알 수 있습니다. 마이그레이션 파일 역시 이름 규칙과 디렉터리 구조가 예측 가능하므로, AI 도구가 이름과 위치를 추측할 필요가 없습니다.
 
 <!-- Beyond file organization, Laravel's expressive syntax and comprehensive documentation give AI agents the context they need to generate accurate, idiomatic code. Features like Eloquent relationships, form requests, and middleware follow patterns that agents can reliably understand and replicate. The result is AI-generated code that looks like it was written by a seasoned Laravel developer, not stitched together from generic PHP snippets. -->
 파일 구조뿐만 아니라, 표현력 있는 문법과 포괄적인 문서 덕분에 AI 에이전트는 필요한 맥락 정보를 충분히 얻어 올바른 코드, 즉 Laravel 스타일의 코드를 만들어낼 수 있습니다. Eloquent 연관 관계, 폼 리퀘스트, 미들웨어와 같은 기능 역시 예측 가능한 패턴을 따르므로, AI가 쉽게 이해하고 활용할 수 있습니다. 그 결과, AI가 작성한 코드도 숙련된 Laravel 개발자가 작성한 것처럼 자연스럽게 만들어집니다.

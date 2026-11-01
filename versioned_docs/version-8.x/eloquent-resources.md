@@ -92,7 +92,7 @@ class UserResource extends JsonResource
 각 리소스 클래스는 `toArray` 메서드를 정의하며, 이 메서드는 해당 리소스를 라우트나 컨트롤러 메서드에서 응답으로 반환할 때 JSON으로 변환되어야 할 속성들의 배열을 반환합니다.
 
 <!-- Note that we can access model properties directly from the `$this` variable. This is because a resource class will automatically proxy property and method access down to the underlying model for convenient access. Once the resource is defined, it may be returned from a route or controller. The resource accepts the underlying model instance via its constructor: -->
-리소스 클래스 내에서 `$this` 변수로 모델의 속성에 직접 접근할 수 있습니다. 이는 리소스 클래스가 프로퍼티 및 메서드 접근 권한을 자동으로 내부 모델에 전달해주기 때문입니다. 정의한 리소스는 라우트나 컨트롤러에서 다음과 같이 반환할 수 있습니다. 리소스 생성자에는 변환 대상이 되는 모델 인스턴스를 전달합니다.
+리소스 클래스 내에서 `$this` 변수로 모델의 속성에 직접 접근할 수 있습니다. 이는 리소스 클래스가 프로퍼티 및 메서드 접근을 자동으로 내부 모델에 위임해주기 때문입니다. 정의한 리소스는 라우트나 컨트롤러에서 다음과 같이 반환할 수 있습니다. 리소스 생성자에는 변환 대상이 되는 모델 인스턴스를 전달합니다.
 
 ```
 use App\Http\Resources\UserResource;
@@ -173,7 +173,7 @@ Route::get('/users', function () {
 #### Preserving Collection Keys
 
 <!-- When returning a resource collection from a route, Laravel resets the collection's keys so that they are in numerical order. However, you may add a `preserveKeys` property to your resource class indicating whether a collection's original keys should be preserved: -->
-라우트에서 리소스 컬렉션을 반환하면, Laravel은 기본적으로 컬렉션의 키를 숫자 순서대로 재정렬합니다. 그러나 컬렉션의 원래 키를 그대로 유지하려면 리소스 클래스에 `preserveKeys` 속성을 추가하면 됩니다.
+라우트에서 리소스 컬렉션을 반환하면, Laravel은 기본적으로 컬렉션의 키를 숫자 순서대로 재설정합니다. 그러나 컬렉션의 원래 키를 그대로 유지하려면 리소스 클래스에 `preserveKeys` 속성을 추가하면 됩니다.
 
 ```
 <?php
@@ -313,7 +313,7 @@ public function toArray($request)
 ```
 
 > [!TIP]
-> 연관관계를 로드된 경우에만 포함하려면, [conditional relationships](#conditional-relationships) 문서를 참고하세요.
+> 연관관계가 로드된 경우에만 포함하려면, [conditional relationships](#conditional-relationships) 문서를 참고하세요.
 
 <a name="writing-resource-collections"></a>
 <!-- #### Resource Collections -->

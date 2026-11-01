@@ -47,7 +47,7 @@ Laravel의 인증의 핵심은 "가드(guard)"와 "프로바이더(provider)"로
 애플리케이션의 인증 설정 파일은 `config/auth.php`에 위치합니다. 이 파일에는 Laravel의 인증 서비스 동작을 조정할 수 있는 여러 옵션이 잘 설명되어 있습니다.
 
 > [!NOTE]
-> 가드와 프로바이더는 "권한(roles)"과 "퍼미션(permissions)" 개념과는 다릅니다. 권한을 기반으로 사용자 액션을 인가하는 방법에 대해서는 [authorization](/docs/9.x/authorization) 문서를 참고하세요.
+> 가드와 프로바이더는 "역할(roles)"과 "퍼미션(permissions)" 개념과는 다릅니다. 권한을 기반으로 사용자 액션을 인가하는 방법에 대해서는 [authorization](/docs/9.x/authorization) 문서를 참고하세요.
 
 <a name="starter-kits"></a>
 <!-- ### Starter Kits -->
@@ -83,7 +83,7 @@ Laravel은 인증과 관련된 몇 가지 패키지를 제공합니다. 본격�
 먼저, 인증이 어떻게 동작하는지 생각해봅시다. 사용자가 웹 브라우저를 통해 아이디와 비밀번호를 로그인 폼에 입력하면, 인증에 성공하면 해당 사용자의 정보가 [session](/docs/9.x/session)에 저장됩니다. 이때 세션 ID가 담긴 쿠키가 브라우저에 발급되어 이후의 요청마다 애플리케이션이 해당 사용자를 정확히 식별할 수 있게 됩니다. 세션 쿠키를 받은 뒤, 애플리케이션은 ID로 세션 데이터를 조회해서 인증 정보를 확인하고 사용자를 "인증됨" 상태로 처리합니다.
 
 <!-- When a remote service needs to authenticate to access an API, cookies are not typically used for authentication because there is no web browser. Instead, the remote service sends an API token to the API on each request. The application may validate the incoming token against a table of valid API tokens and "authenticate" the request as being performed by the user associated with that API token. -->
-원격 서비스에서 애플리케이션의 API에 접근하기 위해 인증이 필요한 경우, 일반적으로 웹 브라우저가 없으므로 쿠키를 직접 사용할 수 없습니다. 대신 원격 서비스는 각 요청마다 API 토큰을 전송하며, 애플리케이션은 들어온 토큰을 저장된 토큰과 비교, 해당 토큰에 연결된 사용자를 인증하게 됩니다.
+원격 서비스에서 애플리케이션의 API에 접근하기 위해 인증이 필요한 경우, 웹 브라우저가 없으므로 일반적으로 인증에 쿠키를 사용하지 않습니다. 대신 원격 서비스는 각 요청마다 API 토큰을 전송하며, 애플리케이션은 들어온 토큰을 저장된 토큰과 비교, 해당 토큰에 연결된 사용자를 인증하게 됩니다.
 
 <a name="laravels-built-in-browser-authentication-services"></a>
 <!-- #### Laravel's Built-in Browser Authentication Services -->
@@ -118,7 +118,7 @@ Laravel은 API 토큰 관리를 돕는 두 가지 패키지, [Passport](/docs/9.
 **Passport**
 
 <!-- Passport is an OAuth2 authentication provider, offering a variety of OAuth2 "grant types" which allow you to issue various types of tokens. In general, this is a robust and complex package for API authentication. However, most applications do not require the complex features offered by the OAuth2 spec, which can be confusing for both users and developers. In addition, developers have been historically confused about how to authenticate SPA applications or mobile applications using OAuth2 authentication providers like Passport. -->
-Passport는 OAuth2 인증 공급자 역할을 하며, 여러 OAuth2 "그랜트 타입"을 제공합니다. 이는 API 인증에 robust하고 복잡한 솔루션이지만, 실제로 대부분의 애플리케이션에서는 OAuth2 사양의 복잡한 기능이 필요하지 않습니다. 또한, SPA나 모바일 앱에서 OAuth2와 Passport를 이용한 인증이 다소 어렵거나 혼란스러울 수 있습니다.
+Passport는 OAuth2 인증 공급자 역할을 하며, 여러 OAuth2 "그랜트 타입"을 제공합니다. 이는 API 인증에 강력하고 복잡한 솔루션이지만, 실제로 대부분의 애플리케이션에서는 OAuth2 사양의 복잡한 기능이 필요하지 않습니다. 또한, SPA나 모바일 앱에서 OAuth2와 Passport를 이용한 인증이 다소 어렵거나 혼란스러울 수 있습니다.
 
 <!-- **Sanctum** -->
 **Sanctum**
@@ -127,7 +127,7 @@ Passport는 OAuth2 인증 공급자 역할을 하며, 여러 OAuth2 "그랜트 �
 OAuth2의 복잡함과 개발자들이 경험한 혼란을 해결하고자, 웹 브라우저 기반의 1st-party 요청과 API 토큰 기반 요청을 모두 간단하게 처리할 수 있는 인증 패키지인 [Laravel Sanctum](/docs/9.x/sanctum)을 만들게 되었습니다. API와 웹 UI를 모두 제공하거나, SPA(싱글 페이지 애플리케이션)가 백엔드 Laravel과 분리되어 있거나 모바일 클라이언트를 지원하는 경우에 가장 적합한 인증 패키지입니다.
 
 <!-- Laravel Sanctum is a hybrid web / API authentication package that can manage your application's entire authentication process. This is possible because when Sanctum based applications receive a request, Sanctum will first determine if the request includes a session cookie that references an authenticated session. Sanctum accomplishes this by calling Laravel's built-in authentication services which we discussed earlier. If the request is not being authenticated via a session cookie, Sanctum will inspect the request for an API token. If an API token is present, Sanctum will authenticate the request using that token. To learn more about this process, please consult Sanctum's ["how it works"](/docs/9.x/sanctum#how-it-works) documentation. -->
-Sanctum은 웹/API 인증을 모두 아우르는 하이브리드 패키지입니다. Sanctum을 사용하는 애플리케이션은 요청이 들어오면 우선 세션 쿠키가 존재하는지 확인하여 인증된 세션인가를 확인합니다(이 과정에서 앞서 설명한 Laravel 내장 인증 서비스가 사용됨). 세션 쿠키가 없으면 API 토큰이 첨부되어 있는지도 확인해, 있다면 그 토큰을 인증에 사용합니다. 자세한 내용은 Sanctum의 ["how it works"](/docs/9.x/sanctum#how-it-works) 문서를 참고하세요.
+Sanctum은 웹/API 인증을 모두 아우르는 하이브리드 패키지입니다. Sanctum을 사용하는 애플리케이션은 요청이 들어오면 우선 세션 쿠키가 존재하는지 확인하여 인증된 세션인가를 확인합니다(이 과정에서 앞서 설명한 Laravel 내장 인증 서비스가 사용됨). 세션 쿠키로 인증되지 않으면 API 토큰이 첨부되어 있는지도 확인해, 있다면 그 토큰을 인증에 사용합니다. 자세한 내용은 Sanctum의 ["how it works"](/docs/9.x/sanctum#how-it-works) 문서를 참고하세요.
 
 <!-- Laravel Sanctum is the API package we have chosen to include with the [Laravel Jetstream](https://jetstream.laravel.com) application starter kit because we believe it is the best fit for the majority of web application's authentication needs. -->
 Sanctum은 [Laravel Jetstream](https://jetstream.laravel.com)에서도 기본적으로 포함되어 있으며, 많은 웹 애플리케이션의 다양한 인증 요구에 가장 잘 어울리는 솔루션입니다.
@@ -149,7 +149,7 @@ Laravel 백엔드를 사용하는 SPA를 개발한다면, [Laravel Sanctum](/doc
 OAuth2의 모든 정교한 기능이 꼭 필요하다면 Passport를 선택하세요.
 
 <!-- And, if you would like to get started quickly, we are pleased to recommend [Laravel Breeze](/docs/9.x/starter-kits#laravel-breeze) as a quick way to start a new Laravel application that already uses our preferred authentication stack of Laravel's built-in authentication services and Laravel Sanctum. -->
-빠르게 시작하고 싶다면, [Laravel Breeze](/docs/9.x/starter-kits#laravel-breeze)로 바로 시작해서 내장 인증 서비스와 Sanctum이 모두 적용된 스타킹 상태의 새로운 Laravel 앱을 만들 것을 추천합니다.
+빠르게 시작하고 싶다면, [Laravel Breeze](/docs/9.x/starter-kits#laravel-breeze)로 바로 시작해서 내장 인증 서비스와 Sanctum이 모두 적용된 새로운 Laravel 앱을 만들 것을 추천합니다.
 
 <a name="authentication-quickstart"></a>
 <!-- ## Authentication Quickstart -->
@@ -334,7 +334,7 @@ class LoginController extends Controller
 ```
 
 <!-- The `attempt` method accepts an array of key / value pairs as its first argument. The values in the array will be used to find the user in your database table. So, in the example above, the user will be retrieved by the value of the `email` column. If the user is found, the hashed password stored in the database will be compared with the `password` value passed to the method via the array. You should not hash the incoming request's `password` value, since the framework will automatically hash the value before comparing it to the hashed password in the database. An authenticated session will be started for the user if the two hashed passwords match. -->
-`attempt` 메서드는 배열 형태의 키/값 쌍을 첫 번째 인수로 받습니다. 이 배열의 값이 데이터베이스에서 사용자를 조회하는 데 사용됩니다. 위 예시에서는 `email` 컬럼으로 사용자를 찾고, 사용자가 존재하면 데이터베이스에 저장된 해시된 비밀번호와 배열로 전달된 `password` 값을 비교합니다. 들어온 요청의 `password` 값은 직접 해시 처리할 필요가 없습니다. 프레임워크가 비교 전에 자동으로 해싱하기 때문입니다. 두 해시된 비밀번호가 일치하면 인증된 세션이 시작됩니다.
+`attempt` 메서드는 배열 형태의 키/값 쌍을 첫 번째 인수로 받습니다. 이 배열의 값이 데이터베이스에서 사용자를 조회하는 데 사용됩니다. 위 예시에서는 `email` 컬럼으로 사용자를 찾고, 사용자가 존재하면 데이터베이스에 저장된 해시된 비밀번호와 배열로 전달된 `password` 값을 비교합니다. 들어온 요청의 `password` 값은 직접 해시 처리하면 안 됩니다. 프레임워크가 비교 전에 자동으로 해싱하기 때문입니다. 두 해시된 비밀번호가 일치하면 인증된 세션이 시작됩니다.
 
 <!-- Remember, Laravel's authentication services will retrieve users from your database based on your authentication guard's "provider" configuration. In the default `config/auth.php` configuration file, the Eloquent user provider is specified and it is instructed to use the `App\Models\User` model when retrieving users. You may change these values within your configuration file based on the needs of your application. -->
 Laravel의 인증 서비스는 지정된 인증 가드의 "프로바이더" 설정에 따라 사용자를 조회합니다. 기본적으로는 `config/auth.php`에 Eloquent 사용자 프로바이더가 설정되어 있으며, 이 경우 `App\Models\User` 모델을 사용합니다. 애플리케이션 상황에 따라 이 값을 자유롭게 변경할 수 있습니다.
@@ -343,7 +343,7 @@ Laravel의 인증 서비스는 지정된 인증 가드의 "프로바이더" 설�
 `attempt` 메서드의 반환값은 인증 성공 시 `true`, 실패 시 `false`입니다.
 
 <!-- The `intended` method provided by Laravel's redirector will redirect the user to the URL they were attempting to access before being intercepted by the authentication middleware. A fallback URI may be given to this method in case the intended destination is not available. -->
-`intended` 메서드는 인증 미들웨어에 의해 가로채기 전 사용자가 진입하려 했던 URL로 리다이렉트해 줍니다. 만약 해당 URL이 없다면 두 번째 인자로 지정한 URI로 이동합니다.
+`intended` 메서드는 인증 미들웨어에 의해 가로채기 전 사용자가 진입하려 했던 URL로 리다이렉트해 줍니다. 만약 해당 URL이 없다면 대체 URI를 인자로 지정할 수 있습니다.
 
 <a name="specifying-additional-conditions"></a>
 <!-- #### Specifying Additional Conditions -->
@@ -375,7 +375,7 @@ if (Auth::attempt([
 > 위 예시에서 `email` 컬럼을 사용하는 것은 단순한 예시일 뿐이며, 필수값이 아닙니다. 사용자의 "아이디" 역할을 하는 컬럼명으로 자유롭게 변경할 수 있습니다.
 
 <!-- The `attemptWhen` method, which receives a closure as its second argument, may be used to perform more extensive inspection of the potential user before actually authenticating the user. The closure receives the potential user and should return `true` or `false` to indicate if the user may be authenticated: -->
-더 심화된 사용자를 검사해야 한다면, 클로저를 두 번째 인자로 받는 `attemptWhen` 메서드를 사용할 수 있습니다. 이 클로저는 사용자를 인자로 받아, 인증 가능 여부를 `true` 또는 `false`로 반환하게 하면 됩니다.
+인증 전에 사용자를 더 정밀하게 검사해야 한다면, 클로저를 두 번째 인자로 받는 `attemptWhen` 메서드를 사용할 수 있습니다. 이 클로저는 사용자를 인자로 받아, 인증 가능 여부를 `true` 또는 `false`로 반환하게 하면 됩니다.
 
 ```
 if (Auth::attemptWhen([
@@ -600,7 +600,7 @@ public function logout(Request $request)
 ### Invalidating Sessions On Other Devices
 
 <!-- Laravel also provides a mechanism for invalidating and "logging out" a user's sessions that are active on other devices without invalidating the session on their current device. This feature is typically utilized when a user is changing or updating their password and you would like to invalidate sessions on other devices while keeping the current device authenticated. -->
-Laravel은 현재 기기 외의 모든 다른 기기에서 로그인된 사용자의 세션을 무효화(즉시 로그아웃)할 수 있는 기능도 제공합니다. 주로 사용자가 비밀번호를 변경하는 순간 다른 기기에서의 세션만 만료시키고, 현재 기기는 계속 인증되도록 처리할 때 쓰입니다.
+Laravel은 현재 기기 외의 모든 다른 기기에서 로그인된 사용자의 세션을 무효화(로그아웃)할 수 있는 기능도 제공합니다. 주로 사용자가 비밀번호를 변경하는 순간 다른 기기에서의 세션만 만료시키고, 현재 기기는 계속 인증되도록 처리할 때 쓰입니다.
 
 <!-- Before getting started, you should make sure that the `Illuminate\Session\Middleware\AuthenticateSession` middleware is included on the routes that should receive session authentication. Typically, you should place this middleware on a route group definition so that it can be applied to the majority of your application's routes. By default, the `AuthenticateSession` middleware may be attached to a route using the `auth.session` route middleware key as defined in your application's HTTP kernel: -->
 우선, `Illuminate\Session\Middleware\AuthenticateSession` 미들웨어가 세션 인증을 적용할 라우트에 포함되어 있는지 확인하세요. 일반적으로 앱 대부분의 라우트에 일괄 적용할 수 있도록 라우트 그룹 정의에 이 미들웨어를 지정하는 것이 좋습니다. 기본적으로 `AuthenticateSession` 미들웨어는 애플리케이션의 HTTP 커널에 정의된 `auth.session` 라우트 미들웨어 키를 사용해 라우트에 적용할 수 있습니다.
@@ -623,7 +623,7 @@ Auth::logoutOtherDevices($currentPassword);
 ```
 
 <!-- When the `logoutOtherDevices` method is invoked, the user's other sessions will be invalidated entirely, meaning they will be "logged out" of all guards they were previously authenticated by. -->
-`logoutOtherDevices` 메서드를 호출하면, 그 사용자로 인증된 모든 다른 세션이 강제로 만료되어, 등록된 모든 가드에서 로그아웃 처리됩니다.
+`logoutOtherDevices` 메서드를 호출하면, 그 사용자로 인증된 모든 다른 세션이 강제로 만료되어, 기존에 인증된 모든 가드에서 로그아웃 처리됩니다.
 
 <a name="password-confirmation"></a>
 <!-- ## Password Confirmation -->
@@ -695,7 +695,7 @@ Route::post('/confirm-password', function (Request $request) {
 ### Protecting Routes
 
 <!-- You should ensure that any route that performs an action which requires recent password confirmation is assigned the `password.confirm` middleware. This middleware is included with the default installation of Laravel and will automatically store the user's intended destination in the session so that the user may be redirected to that location after confirming their password. After storing the user's intended destination in the session, the middleware will redirect the user to the `password.confirm` [named route](/docs/9.x/routing#named-routes): -->
-최근 비밀번호 재확인이 필요한 라우트는 반드시 `password.confirm` 미들웨어를 할당해야 합니다. 이 미들웨어는 Laravel에 기본 내장되어 있으며, 사용자의 원래 목적지를 세션에 저장했다가 인증 완료 후 리다이렉트될 수 있도록 처리합니다. 지정된 미들웨어에 의해, 인증되지 않은 사용자는 `password.confirm` [named route](/docs/9.x/routing#named-routes)로 리다이렉트됩니다.
+최근 비밀번호 재확인이 필요한 라우트는 반드시 `password.confirm` 미들웨어를 할당해야 합니다. 이 미들웨어는 Laravel에 기본 내장되어 있으며, 사용자의 원래 목적지를 세션에 저장했다가 인증 완료 후 리다이렉트될 수 있도록 처리합니다. 지정된 미들웨어에 의해, 최근에 비밀번호를 확인하지 않은 사용자는 `password.confirm` [named route](/docs/9.x/routing#named-routes)로 리다이렉트됩니다.
 
 ```
 Route::get('/settings', function () {

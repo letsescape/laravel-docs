@@ -19,7 +19,7 @@
 [Redis](https://redis.io)는 오픈 소스의 고급 키-값 저장소입니다. 키에 [strings](https://redis.io/topics/data-types#strings), [hashes](https://redis.io/topics/data-types#hashes), [lists](https://redis.io/topics/data-types#lists), [sets](https://redis.io/topics/data-types#sets), [sorted sets](https://redis.io/topics/data-types#sorted-sets) 등 다양한 데이터 구조를 저장할 수 있어서 종종 데이터 구조 서버라고도 불립니다.
 
 <!-- Before using Redis with Laravel, we encourage you to install and use the [phpredis](https://github.com/phpredis/phpredis) PHP extension via PECL. The extension is more complex to install compared to "user-land" PHP packages but may yield better performance for applications that make heavy use of Redis. If you are using [Laravel Sail](/docs/9.x/sail), this extension is already installed in your application's Docker container. -->
-Laravel에서 Redis를 사용하려면 [phpredis](https://github.com/phpredis/phpredis) PHP 확장 프로그램을 PECL을 통해 설치해서 사용하는 것을 권장합니다. 이 확장 프로그램은 일반 사용자용 PHP 패키지에 비해 설치가 다소 복잡하지만, Redis를 많이 활용하는 애플리케이션에서는 더 나은 성능을 기대할 수 있습니다. 만약 [Laravel Sail](/docs/9.x/sail)을 사용한다면, 해당 확장 프로그램이 이미 애플리케이션의 Docker 컨테이너에 설치되어 있습니다.
+Laravel에서 Redis를 사용하려면 [phpredis](https://github.com/phpredis/phpredis) PHP 확장 프로그램을 PECL을 통해 설치해서 사용하는 것을 권장합니다. 이 확장 프로그램은 사용자 영역에서 실행되는 PHP 패키지에 비해 설치가 다소 복잡하지만, Redis를 많이 활용하는 애플리케이션에서는 더 나은 성능을 기대할 수 있습니다. 만약 [Laravel Sail](/docs/9.x/sail)을 사용한다면, 해당 확장 프로그램이 이미 애플리케이션의 Docker 컨테이너에 설치되어 있습니다.
 
 <!-- If you are unable to install the phpredis extension, you may install the `predis/predis` package via Composer. Predis is a Redis client written entirely in PHP and does not require any additional extensions: -->
 phpredis 확장 프로그램을 설치할 수 없는 경우, Composer를 통해 `predis/predis` 패키지를 설치하여 사용할 수 있습니다. Predis는 PHP로만 작성된 Redis 클라이언트로, 별도의 추가 확장 프로그램이 필요하지 않습니다:
@@ -388,7 +388,7 @@ Redis::pipeline(function ($pipe) {
 Laravel은 Redis의 `publish`와 `subscribe` 명령어를 손쉽게 사용할 수 있는 인터페이스를 제공합니다. 이 명령어들을 사용하면 특정 "채널"에서 메시지를 실시간으로 주고받을 수 있습니다. 다른 애플리케이션이나 심지어 다른 프로그래밍 언어로도 자유롭게 채널에 메시지를 발행(publish)할 수 있기 때문에, 여러 애플리케이션과 프로세스 간의 통신이 매우 쉽습니다.
 
 <!-- First, let's setup a channel listener using the `subscribe` method. We'll place this method call within an [Artisan command](/docs/9.x/artisan) since calling the `subscribe` method begins a long-running process: -->
-먼저, `subscribe` 메서드를 활용해 채널 리스너(listener)를 설정해봅니다. `subscribe` 메서드는 프로그램이 계속 실행되는 장기 실행 프로세스이기 때문에 [Artisan command](/docs/9.x/artisan) 안에 구현하는 것이 보통입니다:
+먼저, `subscribe` 메서드를 활용해 채널 리스너(listener)를 설정해봅니다. `subscribe` 메서드를 호출하면 장기 실행 프로세스가 시작되기 때문에 [Artisan command](/docs/9.x/artisan) 안에 구현하는 것이 보통입니다:
 
 ```
 <?php

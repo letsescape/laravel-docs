@@ -38,6 +38,7 @@ const safeElements = new Set([
   'kbd',
   'li',
   'mark',
+  'nav',
   'ol',
   'p',
   'pre',

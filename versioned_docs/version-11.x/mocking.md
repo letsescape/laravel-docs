@@ -273,7 +273,7 @@ $this->travelTo(now()->subDays(10), function () {
 ```
 
 <!-- The `freezeTime` method may be used to freeze the current time. Similarly, the `freezeSecond` method will freeze the current time but at the start of the current second: -->
-현재 시간을 고정(freeze)하려면 `freezeTime` 메서드를 사용할 수 있습니다. 이와 비슷하게, `freezeSecond` 메서드는 현재 초 단위에서 시간을 고정합니다.
+현재 시간을 고정(freeze)하려면 `freezeTime` 메서드를 사용할 수 있습니다. 이와 비슷하게, `freezeSecond` 메서드는 현재 초의 시작 시각으로 시간을 고정합니다.
 
 ```
 use Illuminate\Support\Carbon;

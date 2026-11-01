@@ -100,7 +100,7 @@ Laravel의 이벤트 브로드캐스팅을 사용하려면, Laravel 애플리케
 #### Queue Configuration
 
 <!-- You will also need to configure and run a [queue worker](/docs/8.x/queues). All event broadcasting is done via queued jobs so that the response time of your application is not seriously affected by events being broadcast. -->
-또한, [queue worker](/docs/8.x/queues)를 설정하고 실행해야 합니다. 모든 이벤트 브로드캐스팅은 큐에 등록된 작업(queued job)을 통해 이루어지므로, 이벤트 브로드캐스트로 인해 애플리케이션 응답속도에 영향을 미치지 않게 할 수 있습니다.
+또한, [queue worker](/docs/8.x/queues)를 설정하고 실행해야 합니다. 모든 이벤트 브로드캐스팅은 큐에 등록된 작업(queued job)을 통해 이루어지므로, 이벤트 브로드캐스트로 인해 애플리케이션 응답속도에 큰 영향을 미치지 않게 할 수 있습니다.
 
 <a name="pusher-channels"></a>
 
@@ -206,7 +206,7 @@ BROADCAST_DRIVER=ably
 ### Pusher Channels
 
 <!-- [Laravel Echo](https://github.com/laravel/echo) is a JavaScript library that makes it painless to subscribe to channels and listen for events broadcast by your server-side broadcasting driver. You may install Echo via the NPM package manager. In this example, we will also install the `pusher-js` package since we will be using the Pusher Channels broadcaster: -->
-[Laravel Echo](https://github.com/laravel/echo)는 서버 사이드 브로드캐스토가 브로드캐스트하는 이벤트를 손쉽게 구독하고 수신할 수 있게 해주는 JavaScript 라이브러리입니다. Echo는 NPM 패키지 매니저로 설치할 수 있습니다. 여기서는 Pusher Channels 브로드캐스터를 사용할 것이므로, `pusher-js` 패키지도 함께 설치합니다:
+[Laravel Echo](https://github.com/laravel/echo)는 서버 사이드 브로드캐스터가 브로드캐스트하는 이벤트를 손쉽게 구독하고 수신할 수 있게 해주는 JavaScript 라이브러리입니다. Echo는 NPM 패키지 매니저로 설치할 수 있습니다. 여기서는 Pusher Channels 브로드캐스터를 사용할 것이므로, `pusher-js` 패키지도 함께 설치합니다:
 
 ```bash
 npm install --save-dev laravel-echo pusher-js
@@ -551,7 +551,7 @@ public function broadcastWith()
 ### Broadcast Queue
 
 <!-- By default, each broadcast event is placed on the default queue for the default queue connection specified in your `queue.php` configuration file. You may customize the queue connection and name used by the broadcaster by defining `connection` and `queue` properties on your event class: -->
-기본적으로 모든 브로드캐스트 이벤트는 `queue.php` 설정 파일에 지정된 기본 큐의 기본 커넥션에 등록됩니다. 브로드캐스터에서 사용할 큐 커넥션과 큐 이름을 이벤트 클래스의 `connection` 및 `queue` 속성을 통해 직접 지정할 수도 있습니다:
+기본적으로 모든 브로드캐스트 이벤트는 `queue.php` 설정 파일에 지정된 기본 큐 커넥션의 기본 큐에 등록됩니다. 브로드캐스터에서 사용할 큐 커넥션과 큐 이름을 이벤트 클래스의 `connection` 및 `queue` 속성을 통해 직접 지정할 수도 있습니다:
 
 ```
 /**
@@ -766,7 +766,7 @@ Broadcast::channel('orders.{order}', function ($user, Order $order) {
 #### Authorization Callback Authentication
 
 <!-- Private and presence broadcast channels authenticate the current user via your application's default authentication guard. If the user is not authenticated, channel authorization is automatically denied and the authorization callback is never executed. However, you may assign multiple, custom guards that should authenticate the incoming request if necessary: -->
-프라이빗 및 프리즌스 브로드캐스트 채널은 애플리케이션의 기본 인증 가드(guard)를 통해 현재 사용자를 인증합니다. 사용자가 인증되지 않았다면 채널 인증은 자동으로 거부되며, 인증 콜백이 실행되지 않습니다. 하지만 필요하다면 여러 개의 커스텀 가드를 지정해서, 해당 요청을 인증 처리하도록 할 수 있습니다.
+프라이빗 및 프리즌스 브로드캐스트 채널은 애플리케이션의 기본 인증 가드(guard)를 통해 현재 사용자를 인증합니다. 사용자가 인증되지 않았다면 채널 인가는 자동으로 거부되며, 인가 콜백이 실행되지 않습니다. 하지만 필요하다면 여러 개의 커스텀 가드를 지정해서, 해당 요청을 인증 처리하도록 할 수 있습니다.
 
 ```
 Broadcast::channel('channel', function () {
@@ -885,7 +885,7 @@ axios.post('/task', task)
 #### Configuration
 
 <!-- When you initialize a Laravel Echo instance, a socket ID is assigned to the connection. If you are using a global [Axios](https://github.com/mzabriskie/axios) instance to make HTTP requests from your JavaScript application, the socket ID will automatically be attached to every outgoing request as a `X-Socket-ID` header. Then, when you call the `toOthers` method, Laravel will extract the socket ID from the header and instruct the broadcaster to not broadcast to any connections with that socket ID. -->
-Laravel Echo 인스턴스를 초기화하면, 연결에 socket ID가 부여됩니다. 자바스크립트 애플리케이션에서 [Axios](https://github.com/mzabriskie/axios)와 같은 전역 인스턴스를 사용해 HTTP 요청을 보낼 경우, 각 요청 헤더에 자동으로 `X-Socket-ID` 값이 추가됩니다. 그러면 `toOthers` 메서드는 이 socket ID를 활용해, 해당 ID를 가진 접속자에게는 브로드캐스트를 하지 않도록 지시합니다.
+Laravel Echo 인스턴스를 초기화하면, 연결에 socket ID가 부여됩니다. 자바스크립트 애플리케이션에서 전역 [Axios](https://github.com/mzabriskie/axios) 인스턴스를 사용해 HTTP 요청을 보낼 경우, 각 요청 헤더에 자동으로 `X-Socket-ID` 값이 추가됩니다. 그러면 `toOthers` 메서드는 이 socket ID를 활용해, 해당 ID를 가진 접속자에게는 브로드캐스트를 하지 않도록 지시합니다.
 
 <!-- If you are not using a global Axios instance, you will need to manually configure your JavaScript application to send the `X-Socket-ID` header with all outgoing requests. You may retrieve the socket ID using the `Echo.socketId` method: -->
 전역 Axios 인스턴스를 사용하지 않는 경우, 자바스크립트 애플리케이션에서 모든 요청 시 수동으로 `X-Socket-ID` 헤더를 추가해야 합니다. 이때는 `Echo.socketId` 메서드를 사용해 socket ID를 얻을 수 있습니다.

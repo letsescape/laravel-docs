@@ -819,7 +819,7 @@ return $response->json();
 #### Displaying the Verification URI and User Code
 
 <!-- Once a device code request has been obtained, the consuming device should instruct the user to use another device and visit the provided `verification_uri` and enter the `user_code` in order to approve the authorization request. -->
-device code 요청을 받은 후, 소비하는 디바이스는 사용자에게 다른 디바이스를 사용하여 제공된 `verification_uri`에 방문하고 `user_code`를 입력해서 인가 요청을 승인하도록 안내해야 합니다.
+device code 요청 결과를 받은 후, 소비하는 디바이스는 사용자에게 다른 디바이스를 사용하여 제공된 `verification_uri`에 방문하고 `user_code`를 입력해서 인가 요청을 승인하도록 안내해야 합니다.
 
 <a name="polling-token-request"></a>
 <!-- #### Polling Token Request -->

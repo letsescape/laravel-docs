@@ -23,7 +23,7 @@
 ## Introduction
 
 <!-- Laravel provides a very fluent API for making HTTP requests to your application and examining the responses. For example, take a look at the feature test defined below: -->
-Laravel은 애플리케이션에 HTTP 요청을 보내고, 그 응답을 검사할 수 있는 매우 유창한(Fluent) API를 제공합니다. 예를 들어, 아래에 정의된 기능 테스트를 살펴보십시오.
+Laravel은 애플리케이션에 HTTP 요청을 보내고, 그 응답을 검사할 수 있는 플루언트(Fluent) API를 제공합니다. 예를 들어, 아래에 정의된 기능 테스트를 살펴보십시오.
 
 ```
 <?php
@@ -339,7 +339,7 @@ $this->assertTrue($response['created']);
 #### Asserting Exact JSON Matches
 
 <!-- As previously mentioned, the `assertJson` method may be used to assert that a fragment of JSON exists within the JSON response. If you would like to verify that a given array **exactly matches** the JSON returned by your application, you should use the `assertExactJson` method: -->
-앞서 설명했듯이, `assertJson` 메서드는 JSON 응답에 일부만 포함되어 있는지 검사합니다. 응답 JSON과 지정한 배열이 **정확히 일치하는지** 확인하고 싶다면 `assertExactJson` 메서드를 사용해야 합니다.
+앞서 설명했듯이, `assertJson` 메서드는 JSON 응답에 특정 조각이 포함되어 있는지 검사합니다. 응답 JSON과 지정한 배열이 **정확히 일치하는지** 확인하고 싶다면 `assertExactJson` 메서드를 사용해야 합니다.
 
 ```
 <?php
@@ -412,7 +412,7 @@ $response->assertJsonPath('team.owner.name', fn ($name) => strlen($name) >= 3);
 ### Fluent JSON Testing
 
 <!-- Laravel also offers a beautiful way to fluently test your application's JSON responses. To get started, pass a closure to the `assertJson` method. This closure will be invoked with an instance of `Illuminate\Testing\Fluent\AssertableJson` which can be used to make assertions against the JSON that was returned by your application. The `where` method may be used to make assertions against a particular attribute of the JSON, while the `missing` method may be used to assert that a particular attribute is missing from the JSON: -->
-Laravel은 애플리케이션의 JSON 응답을 유창하게 테스트할 수 있는 기능도 제공합니다. 먼저, `assertJson` 메서드에 클로저를 전달합니다. 이 클로저는 `Illuminate\Testing\Fluent\AssertableJson` 인스턴스를 받아, 반환된 JSON에 대해 assertion을 할 수 있습니다. `where` 메서드는 JSON의 특정 속성에 대한 assertion을, `missing` 메서드는 특정 속성이 JSON에서 누락되었는지 확인합니다.
+Laravel은 애플리케이션의 JSON 응답을 플루언트 방식으로 테스트할 수 있는 기능도 제공합니다. 먼저, `assertJson` 메서드에 클로저를 전달합니다. 이 클로저는 `Illuminate\Testing\Fluent\AssertableJson` 인스턴스를 받아, 반환된 JSON에 대해 assertion을 할 수 있습니다. `where` 메서드는 JSON의 특정 속성에 대한 assertion을, `missing` 메서드는 특정 속성이 JSON에서 누락되었는지 확인합니다.
 
 ```
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -498,7 +498,7 @@ Route::get('/users', function () {
 ```
 
 <!-- In these situations, we may use the fluent JSON object's `has` method to make assertions against the users included in the response. For example, let's assert that the JSON response contains three users. Next, we'll make some assertions about the first user in the collection using the `first` method. The `first` method accepts a closure which receives another assertable JSON string that we can use to make assertions about the first object in the JSON collection: -->
-이 경우, 유창한 JSON 객체의 `has` 메서드를 사용해 응답에 포함된 사용자 수를 assertion 할 수 있습니다. 예를 들어, JSON 응답에 3명의 사용자가 포함되었는지 assertion 하고, 이어 `first` 메서드를 사용해 컬렉션의 첫 번째 사용자에 대해 추가 검증을 할 수 있습니다. `first` 메서드는 클로저를 받아, 해당 JSON 컬렉션의 첫 번째 객체에 대한 assertion을 할 수 있습니다.
+이 경우, 플루언트 JSON 객체의 `has` 메서드를 사용해 응답에 포함된 사용자 수를 assertion 할 수 있습니다. 예를 들어, JSON 응답에 3명의 사용자가 포함되었는지 assertion 하고, 이어 `first` 메서드를 사용해 컬렉션의 첫 번째 사용자에 대해 추가 검증을 할 수 있습니다. `first` 메서드는 클로저를 받아, 해당 JSON 컬렉션의 첫 번째 객체에 대한 assertion을 할 수 있습니다.
 
 ```
 $response
@@ -1033,7 +1033,7 @@ $response->assertJson(array $data, $strict = false);
 ```
 
 <!-- The `assertJson` method converts the response to an array and utilizes `PHPUnit::assertArraySubset` to verify that the given array exists within the JSON response returned by the application. So, if there are other properties in the JSON response, this test will still pass as long as the given fragment is present. -->
-`assertJson` 메서드는 응답을 배열로 변환한 뒤, `PHPUnit::assertArraySubset`을 활용해 지정한 배열이 응답 JSON 내에 존재하는지 검증합니다. 즉, JSON 응답에 다른 속성이 있더라도, 지정한 데이터 일부만 존재한다면 이 테스트는 통과합니다.
+`assertJson` 메서드는 응답을 배열로 변환한 뒤, `PHPUnit::assertArraySubset`을 활용해 지정한 배열이 응답 JSON 내에 존재하는지 검증합니다. 즉, JSON 응답에 다른 속성이 있더라도, 지정한 데이터 조각이 존재한다면 이 테스트는 통과합니다.
 
 <a name="assert-json-count"></a>
 <!-- #### assertJsonCount -->
@@ -1494,7 +1494,7 @@ $response->assertSessionHasAll(array $data);
 ```
 
 <!-- For example, if your application's session contains `name` and `status` keys, you may assert that both exist and have the specified values like so: -->
-예를 들어, 애플리케이션의 세션에 `name`과 `status` 키가 들어 있다면, 아래와 같이 두 값이 모두 존재하고 각각의 값을 가지고 있는지 assert할 수 있습니다.
+예를 들어, 애플리케이션의 세션에 `name`과 `status` 키가 들어 있다면, 아래와 같이 두 키가 모두 존재하고 각각 지정한 값을 가지고 있는지 assert할 수 있습니다.
 
 ```
 $response->assertSessionHasAll([
@@ -1569,7 +1569,7 @@ $response->assertSessionDoesntHaveErrors($keys = [], $format = null, $errorBag =
 ```
 
 > [!NOTE]
-> 더 범용적으로 사용할 수 있는 [assertValid](#assert-valid) 메서드는 유효성 검사 오류가 JSON 형태로 반환되거나, 세션에 플래시된 경우 모두 해당 키에 대한 에러가 없는지 검증할 수 있습니다.
+> 더 범용적으로 사용할 수 있는 [assertValid](#assert-valid) 메서드는 응답에 JSON 형태로 반환된 유효성 검사 오류가 없고 세션에도 오류가 플래시되지 않았는지 함께 검증할 수 있습니다.
 
 <a name="assert-session-missing"></a>
 <!-- #### assertSessionMissing -->

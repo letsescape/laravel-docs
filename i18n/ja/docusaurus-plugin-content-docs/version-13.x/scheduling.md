@@ -246,7 +246,7 @@ Schedule::command('foo')
 | `->days(array\|mixed);`                  | タスクを特定の日に限定します。                       |
 | `->between($startTime, $endTime);`       | タスクを開始時間と終了時間の間に実行するように制限します。     |
 | `->unlessBetween($startTime, $endTime);` | 開始時刻と終了時刻の間にタスクが実行されないように制限します。 |
-| `->when(Closure);`                       | 真実のテストに基づいてタスクを制限します。                  |
+| `->when(Closure);`                       | 真理値テストに基づいてタスクを制限します。                  |
 | `->environments($env);`                  | タスクを特定の環境に限定します。               |
 
 </div>
@@ -379,7 +379,7 @@ Schedule::command('emails:send')->withoutOverlapping();
 ```
 
 <!-- In this example, the `emails:send` [Artisan command](/docs/13.x/artisan) will be run every minute if it is not already running. The `withoutOverlapping` method is especially useful if you have tasks that vary drastically in their execution time, preventing you from predicting exactly how long a given task will take. -->
-この例では、`emails:send` [Artisan command](/docs/13.x/artisan) がまだ実行されていない場合、1 分ごとに実行されます。 `withoutOverlapping` メソッドは、実行時間が大幅に異なるタスクがあり、特定のタスクにかかる時間を正確に予測できない場合に特に便利です。
+この例では、`emails:send` [Artisan command](/docs/13.x/artisan) が実行中でなければ、1 分ごとに実行されます。 `withoutOverlapping` メソッドは、実行時間が大幅に異なるタスクがあり、特定のタスクにかかる時間を正確に予測できない場合に特に便利です。
 
 <!-- If needed, you may specify how many minutes must pass before the "without overlapping" lock expires. By default, the lock will expire after 24 hours: -->
 必要に応じて、「重複なし」ロックの有効期限が切れるまでに何分経過するかを指定できます。デフォルトでは、ロックは 24 時間後に期限切れになります。
@@ -570,7 +570,7 @@ Schedule::call(function () {
 ```
 
 <!-- When sub-minute tasks are defined within your application, the `schedule:run` command will continue running until the end of the current minute instead of exiting immediately. This allows the command to invoke all required sub-minute tasks throughout the minute. -->
-アプリケーション内で 1 分未満のタスクが定義されている場合、`schedule:run` コマンドはすぐに終了するのではなく、現在の 1 分間が終了するまで実行を続けます。これにより、コマンドは 1 分を通して必要なすべてのサブタスク タスクを呼び出すことができます。
+アプリケーション内で 1 分未満のタスクが定義されている場合、`schedule:run` コマンドはすぐに終了するのではなく、現在の 1 分間が終了するまで実行を続けます。これにより、コマンドはその 1 分間を通して、1 分未満の間隔で実行する必要があるタスクをすべて呼び出すことができます。
 
 <!-- Since sub-minute tasks that take longer than expected to run could delay the execution of later sub-minute tasks, it is recommended that all sub-minute tasks dispatch queued jobs or background commands to handle the actual task processing: -->
 実行に予想よりも時間がかかる 1 分未満のタスクは、後続の 1 分未満のタスクの実行を遅らせる可能性があるため、すべての 1 分未満のタスクがキューに入れられたジョブまたはバックグラウンド コマンドをディスパッチして、実際のタスク処理を処理することをお勧めします。

@@ -108,7 +108,7 @@ php artisan make:factory PostFactory
 팩토리를 정의한 후에는, 모델이 `Illuminate\Database\Eloquent\Factories\HasFactory` 트레이트를 사용할 때 제공되는 정적 `factory` 메서드를 통해 해당 모델의 팩토리 인스턴스를 생성할 수 있습니다.
 
 <!-- The `HasFactory` trait's `factory` method will use conventions to determine the proper factory for the model the trait is assigned to. Specifically, the method will look for a factory in the `Database\Factories` namespace that has a class name matching the model name and is suffixed with `Factory`. If these conventions do not apply to your particular application or factory, you may add the `UseFactory` attribute to the model to manually specify the model's factory: -->
-`HasFactory` 트레이트의 `factory` 메서드는 모델에 할당된 팩토리에 적합한 클래스를 찾기 위해 약속된 네이밍 룰을 사용합니다. 즉, `Database\Factories` 네임스페이스 내에서, 모델 이름과 동일하며 `Factory`로 끝나는 클래스명을 찾습니다. 만약 이 규칙이 해당 애플리케이션의 상황에 맞지 않는다면, 모델에 `UseFactory` 속성을 추가하여 팩토리를 직접 지정할 수 있습니다:
+`HasFactory` 트레이트의 `factory` 메서드는 트레이트가 적용된 모델에 적합한 팩토리를 찾기 위해 약속된 네이밍 룰을 사용합니다. 즉, `Database\Factories` 네임스페이스 내에서, 모델 이름과 동일하며 `Factory`로 끝나는 클래스명을 찾습니다. 만약 이 규칙이 해당 애플리케이션의 상황에 맞지 않는다면, 모델에 `UseFactory` 속성을 추가하여 팩토리를 직접 지정할 수 있습니다:
 
 ```php
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -266,7 +266,7 @@ $user = User::factory()->make();
 ```
 
 <!-- You may create a collection of many models using the `count` method: -->
-`count` 메서드를 활용하면 여러 개의 모델 컬렉션을 생성할 수 있습니다:
+`count` 메서드를 활용하면 여러 모델을 담은 컬렉션을 생성할 수 있습니다:
 
 ```php
 $users = User::factory()->count(3)->make();
@@ -543,7 +543,7 @@ $user = User::factory()
 #### Pivot Table Attributes
 
 <!-- If you need to define attributes that should be set on the pivot / intermediate table linking the models, you may use the `hasAttached` method. This method accepts an array of pivot table attribute names and values as its second argument: -->
-모델을 연결하는 중간 테이블(피벗 테이블)에 속성을 추가로 지정해야 한다면, `hasAttached` 메서드를 사용할 수 있습니다. 이 메서드는 두 번째 인수에 피벗 테이블의 속성명과 값을 배열로 전달합니다:
+모델을 연결하는 중간 테이블(피벗 테이블)에 속성을 추가로 지정해야 한다면, `hasAttached` 메서드를 사용할 수 있습니다. 이 메서드는 두 번째 인수로 피벗 테이블의 속성명과 값을 배열로 전달받습니다:
 
 ```php
 use App\Models\Role;

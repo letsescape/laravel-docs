@@ -28,7 +28,7 @@ for (const {locale, prefix, siteName, language} of [
       await expect(page).toHaveTitle(title);
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('h1')).toHaveText('Routing');
-      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Routing');
       const description = await page.locator('meta[name="description"]').getAttribute('content');
       expect(description).toMatch(locale === 'ko' ? /[가-힣]/ : /[ぁ-んァ-ン一-龠]/);
       expect(description).not.toMatch(/^[-*]|Introduction/);
@@ -43,7 +43,7 @@ for (const {locale, prefix, siteName, language} of [
       expect(await page.evaluate(() => Reflect.get(window, '__seoNavigationMarker'))).toBe(true);
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('h1')).toHaveText('Eloquent: Getting Started');
-      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', destinationTitle);
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Eloquent: Getting Started');
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${host}${prefix}/docs/${version}/eloquent/`);
       await expect(page.locator('meta[name="description"]')).not.toHaveAttribute('content', description!);
       const destinationDescription = await page.locator('meta[name="description"]').getAttribute('content');

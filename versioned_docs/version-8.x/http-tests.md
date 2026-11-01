@@ -283,7 +283,7 @@ $response = $this->withoutExceptionHandling()->get('/');
 ```
 
 <!-- In addition, if you would like to ensure that your application is not utilizing features that have been deprecated by the PHP language or the libraries your application is using, you may invoke the `withoutDeprecationHandling` method before making your request. When deprecation handling is disabled, deprecation warnings will be converted to exceptions, thus causing your test to fail: -->
-또한, 애플리케이션이 PHP나 의존 라이브러리에서 더 이상 권장되지 않는(deprecated) 기능을 사용하고 있는지 확인하고 싶다면, 요청 전에 `withoutDeprecationHandling` 메서드를 사용할 수 있습니다. 이 기능이 비활성화되어 있으면, deprecated 경고가 예외로 변환되어 테스트가 실패합니다.
+또한, 애플리케이션이 PHP나 의존 라이브러리에서 더 이상 권장되지 않는(deprecated) 기능을 사용하고 있는지 확인하고 싶다면, 요청 전에 `withoutDeprecationHandling` 메서드를 사용할 수 있습니다. 지원 중단 경고 처리가 비활성화되어 있으면, deprecated 경고가 예외로 변환되어 테스트가 실패합니다.
 
 ```
 $response = $this->withoutDeprecationHandling()->get('/');
@@ -372,7 +372,7 @@ class ExampleTest extends TestCase
 #### Asserting On JSON Paths
 
 <!-- If you would like to verify that the JSON response contains the given data at a specified path, you should use the `assertJsonPath` method: -->
-JSON 응답의 특정 경로에 데이터가 존재하는지 검사하고 싶다면, `assertJsonPath` 메서드를 사용하면 됩니다.
+JSON 응답의 특정 경로에 지정한 데이터가 포함되어 있는지 검사하고 싶다면, `assertJsonPath` 메서드를 사용하면 됩니다.
 
 ```
 <?php
@@ -517,7 +517,7 @@ Route::get('/users', function () {
 ```
 
 <!-- When testing these routes, you may use the `has` method to assert against the number of items in the collection. In addition, you may use the `has` method to scope a chain of assertions: -->
-이러한 경우, `has` 메서드를 사용해 컬렉션 항목 개수를 검사할 수 있습니다. 또, `has` 메서드를 연결(chain)해 다양한 assert를 이어갈 수도 있습니다.
+이러한 경우, `has` 메서드를 사용해 컬렉션 항목 개수를 검사할 수 있습니다. 또, `has` 메서드를 사용해 assert 체인의 범위를 지정할 수도 있습니다.
 
 ```
 $response

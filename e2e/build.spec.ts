@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {existsSync, readdirSync, readFileSync} from 'node:fs';
 import {join, relative, resolve, sep} from 'node:path';
-import {DEFAULT_PARSE_FRONT_MATTER} from '@docusaurus/utils';
+import {parseDocumentFrontMatter} from '../src/utils/document-front-matter.mjs';
 import {load} from 'cheerio';
 import versions from '../versions.json';
 
@@ -29,7 +29,7 @@ test.beforeAll(async () => {
         if (!entry.isFile() || !entry.name.endsWith('.md') || entry.name.startsWith('_') ||
           ['documentation.md', 'readme.md'].includes(entry.name)) continue;
         const filePath = join(sourceDir, entry.name);
-        const {frontMatter} = await DEFAULT_PARSE_FRONT_MATTER({filePath, fileContent: readFileSync(filePath, 'utf8')});
+        const {frontMatter} = await parseDocumentFrontMatter({filePath, fileContent: readFileSync(filePath, 'utf8')});
         const rawSlug = Object.hasOwn(frontMatter, 'slug') ? frontMatter.slug : entry.name.slice(0, -3);
         expect(typeof rawSlug, filePath).toBe('string');
         const slug = String(rawSlug).replace(/^\//, '');
@@ -77,7 +77,7 @@ for (const {locale, prefix, label} of locales) {
           expect(value('html', 'lang')).toBe(locale);
           const title = value('head title', null);
           const ogTitle = value('head meta[property="og:title"]');
-          expect(title === ogTitle || (!version && title === `${ogTitle} | Laravel`)).toBe(true);
+          if (!version) expect(title === ogTitle || title === `${ogTitle} | Laravel`).toBe(true);
           expect(new URL(value('head link[rel="canonical"]', 'href')).href).toBe(`${origin}${route}`);
           expect(value('head meta[property="og:site_name"]')).toBe(`Laravel ${label}`);
           const query = route === `${prefix}/q/`;
@@ -92,6 +92,7 @@ for (const {locale, prefix, label} of locales) {
             expect(heading).toHaveLength(1);
             const name = normalizedText(heading.text());
             expect(name).not.toBe('');
+            expect(ogTitle).toBe(normalizedText(sourceRoutes!.get(route) ?? name));
             expect(title).toBe(normalizedText(`${sourceRoutes!.get(route) ?? name} — Laravel ${version} ${label}`));
           }
           const robots = $('head meta[name="robots"]').toArray()

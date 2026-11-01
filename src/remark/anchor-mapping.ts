@@ -1,8 +1,58 @@
 import type {Transformer} from 'unified';
-import type {Html, Paragraph, Root} from 'mdast';
+import type {Heading, Html, Paragraph, Root} from 'mdast';
+import {createSlugger, parseMarkdownHeadingId} from '@docusaurus/utils';
+import {load} from 'cheerio';
+import {toString} from 'mdast-util-to-string';
 import {visit} from 'unist-util-visit';
 
 const ANCHOR_RE = /<a\s+name=["']([^"']+)["']\s*(?:\/?>|>\s*<\/a>)/;
+
+function headingText(heading: Heading): string {
+  const children = heading.children.filter((child) => child.type !== 'html');
+  return toString(children.length ? children : heading);
+}
+
+function explicitHeadingId(heading: Heading): string | undefined {
+  const last = heading.children.at(-1);
+  const comment = last?.type === 'html'
+    ? /^<!--([\s\S]*)-->$/.exec(last.value)?.[1].trim().split(' ')[0]
+    : undefined;
+  return (comment?.startsWith('#') ? comment.slice(1) : undefined) ||
+    parseMarkdownHeadingId(headingText(heading)).id;
+}
+
+function assignAutomaticHeadingIds(tree: Root): void {
+  const reserved = new Set<string>();
+  const automatic: Heading[] = [];
+  visit(tree, 'html', (node: Html) => {
+    const $ = load(node.value, null, false);
+    $('[id], a[name]').each((_, element) => {
+      const id = $(element).attr('id');
+      const name = element.tagName === 'a' ? $(element).attr('name') : undefined;
+      if (id) reserved.add(id);
+      if (name) reserved.add(name);
+    });
+  });
+  visit(tree, 'heading', (heading: Heading) => {
+    const id = explicitHeadingId(heading);
+    if (id) {
+      if (heading.depth > 1) reserved.add(id);
+    } else {
+      automatic.push(heading);
+    }
+  });
+
+  const slugs = createSlugger();
+  for (const heading of automatic) {
+    const text = headingText(heading);
+    let id = slugs.slug(text);
+    // H1은 slug 순서에만 참여하고, 테마에서 DOM id를 제거한다.
+    if (heading.depth === 1) continue;
+    while (reserved.has(id)) id = slugs.slug(text);
+    reserved.add(id);
+    heading.children.push({type: 'html', value: `<!-- #${id} -->`});
+  }
+}
 
 /**
  * Laravel 원본 관행인 `<a name="xxx"></a>` 형태의 HTML 앵커를 다음 헤딩의 ID로 매핑하는 remark 플러그인
@@ -20,6 +70,7 @@ const ANCHOR_RE = /<a\s+name=["']([^"']+)["']\s*(?:\/?>|>\s*<\/a>)/;
  * - 해당 `paragraph` 이후 다음 `heading` 노드에 Docusaurus heading ID 주석 주입
  * - TOC와 실제 HTML 헤딩 ID를 같은 값으로 설정
  * - 같은 `paragraph`의 추가 앵커는 별도 `id`로 보존
+ * - 명시한 ID와 별칭을 예약하고, 충돌하는 자동 헤딩 ID에만 접미사 부여
  */
 export default function anchorMappingPlugin(): Transformer<Root> {
   return (tree) => {
@@ -57,5 +108,6 @@ export default function anchorMappingPlugin(): Transformer<Root> {
         }
       }
     });
+    assignAutomaticHeadingIds(tree);
   };
 }

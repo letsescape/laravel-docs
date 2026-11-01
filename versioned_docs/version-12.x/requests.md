@@ -488,7 +488,7 @@ $elapsed = $request->date('elapsed', '!H:i', 'Europe/Madrid');
 ```
 
 <!-- If the input value is present but has an invalid format, an `InvalidArgumentException` will be thrown; therefore, it is recommended that you validate the input before invoking the `date` method. -->
-입력값 존재는 하지만 형식이 올바르지 않으면 `InvalidArgumentException`이 발생하니, `date` 메서드를 사용하기 전에 반드시 유효성 검증을 선행하는 것이 좋습니다.
+입력값이 존재하지만 형식이 올바르지 않으면 `InvalidArgumentException`이 발생하니, `date` 메서드를 사용하기 전에 유효성 검증을 선행하는 것이 좋습니다.
 
 <a name="retrieving-enum-input-values"></a>
 <!-- #### Retrieving Enum Input Values -->
@@ -511,7 +511,7 @@ $status = $request->enum('status', Status::class, Status::Pending);
 ```
 
 <!-- If the input value is an array of values that correspond to a PHP enum, you may use the `enums` method to retrieve the array of values as enum instances: -->
-만약 입력값이 여러 개의 enum 배열이라면, `enums` 메서드를 사용해 배열 전체를 enum 인스턴스 배열로 받을 수 있습니다.
+만약 입력값이 PHP enum에 해당하는 값들의 배열이라면, `enums` 메서드를 사용해 배열 전체를 enum 인스턴스 배열로 받을 수 있습니다.
 
 ```php
 use App\Enums\Product;
@@ -877,7 +877,7 @@ $extension = $request->photo->extension();
 업로드된 파일을 저장하려면 보통 미리 설정된 [filesystems](/docs/12.x/filesystem) 중 하나를 사용합니다. `UploadedFile` 클래스의 `store` 메서드는 업로드 파일을 로컬/클라우드 저장소(예: Amazon S3)의 디스크로 이동시킵니다.
 
 <!-- The `store` method accepts the path where the file should be stored relative to the filesystem's configured root directory. This path should not contain a filename, since a unique ID will automatically be generated to serve as the filename. -->
-`store` 메서드는 파일이 저장될 경로를 파일 시스템의 루트 디렉터리 기준으로 지정하며, 파일 이름은 별도로 지정하지 않아도 자동으로 고유한 이름이 생성됩니다.
+`store` 메서드는 파일이 저장될 경로를 파일 시스템의 루트 디렉터리 기준으로 지정하며, 이 경로에는 파일 이름을 포함하지 않아야 합니다. 파일 이름은 자동으로 고유한 이름이 생성됩니다.
 
 <!-- The `store` method also accepts an optional second argument for the name of the disk that should be used to store the file. The method will return the path of the file relative to the disk's root: -->
 또한 `store` 메서드는 파일을 저장할 디스크 이름을 선택적인 두 번째 인수로 받을 수도 있습니다. 반환 값은 해당 디스크 루트에 대한 경로입니다.
@@ -957,7 +957,7 @@ Amazon AWS 등의 "클라우드" 로드 밸런서를 사용할 경우 실제 밸
 기본적으로 Laravel은 HTTP 요청의 `Host` 헤더 내용과 상관없이 들어오는 모든 요청을 처리하고, 절대 URL을 자동 생성할 때 `Host` 값을 사용합니다.
 
 <!-- Typically, you should configure your web server, such as Nginx or Apache, to only send requests to your application that match a given hostname. However, if you do not have the ability to customize your web server directly and need to instruct Laravel to only respond to certain hostnames, you may do so by enabling the `Illuminate\Http\Middleware\TrustHosts` middleware for your application. -->
-일반적으로 Nginx, Apache와 같은 웹서버에서 요청을 특정 호스트네임에만 전달하도록 설정해야 합니다. 하지만 웹서버 설정 변경이 불가능하거나, Laravel에서 지정된 호스트에만 응답하도록 제한하고 싶을 때는, `Illuminate\Http\Middleware\TrustHosts` 미들웨어를 활성화해야 합니다.
+일반적으로 Nginx, Apache와 같은 웹서버에서 특정 호스트네임과 일치하는 요청만 애플리케이션에 전달하도록 설정해야 합니다. 하지만 웹서버 설정 변경이 불가능하거나, Laravel에서 지정된 호스트에만 응답하도록 제한하고 싶을 때는, `Illuminate\Http\Middleware\TrustHosts` 미들웨어를 활성화해야 합니다.
 
 <!-- To enable the `TrustHosts` middleware, you should invoke the `trustHosts` middleware method in your application's `bootstrap/app.php` file. Using the `at` argument of this method, you may specify the hostnames that your application should respond to. The hostname string is treated as a regular expression. Incoming requests with other `Host` headers will be rejected: -->
 `TrustHosts` 미들웨어를 사용하려면, 애플리케이션의 `bootstrap/app.php` 파일에서 `trustHosts` 미들웨어 메서드를 호출하세요. 이 메서드의 `at` 인수에 애플리케이션이 응답할 호스트네임을 지정합니다. 호스트네임 문자열은 정규식으로 처리됩니다. 다른 `Host` 헤더로 들어오는 요청은 거부됩니다.

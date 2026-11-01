@@ -567,14 +567,14 @@ sail share --subdomain=my-sail-site
 ```
 
 > [!NOTE]
-> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)에서 만든 오픈 소스 터널링 서비스인 [BeyondCode](https://beyondco.de)를 기반으로 동작합니다.
+> `share` 명령어는 [Expose](https://github.com/beyondcode/expose)를 기반으로 동작하며, Expose는 [BeyondCode](https://beyondco.de)가 만든 오픈 소스 터널링 서비스입니다.
 
 <a name="debugging-with-xdebug"></a>
 <!-- ## Debugging With Xdebug -->
 ## Debugging With Xdebug
 
 <!-- Laravel Sail's Docker configuration includes support for [Xdebug](https://xdebug.org/), a popular and powerful debugger for PHP. To enable Xdebug, ensure you have [published your Sail configuration](#sail-customization). Then, add the following variables to your application's `.env` file to configure Xdebug: -->
-Laravel Sail의 Docker 설정에는 PHP에서 널리 사용되는 강력한 디버거인 [Xdebug](https://xdebug.org/) 지원이 포함되어 있습니다. Xdebug를 활성화하려면 먼저 [published your Sail configuration](#sail-customization) 확인합니다. 그런 다음 Xdebug를 설정하기 위해 애플리케이션의 `.env` 파일에 다음 변수를 추가합니다.
+Laravel Sail의 Docker 설정에는 PHP에서 널리 사용되는 강력한 디버거인 [Xdebug](https://xdebug.org/) 지원이 포함되어 있습니다. Xdebug를 활성화하려면 먼저 [published your Sail configuration](#sail-customization)의 절차에 따라 Sail 설정을 게시했는지 확인합니다. 그런 다음 Xdebug를 설정하기 위해 애플리케이션의 `.env` 파일에 다음 변수를 추가합니다.
 
 ```ini
 SAIL_XDEBUG_MODE=develop,debug,coverage
@@ -651,7 +651,7 @@ sail debug migrate
 PhpStorm을 사용하고 있다면 [zero-configuration debugging](https://www.jetbrains.com/help/phpstorm/zero-configuration-debugging.html)에 대한 JetBrains 문서를 확인하세요.
 
 > [!WARNING]
-> Laravel Sail은 애플리케이션을 제공하기 위해 `artisan serve`에 의존합니다. `artisan serve` 명령어는 Laravel 버전 8.53.0부터 `XDEBUG_CONFIG`와 `XDEBUG_MODE` 변수만 허용합니다. 이전 Laravel 버전(8.52.0 이하)은 이러한 변수를 지원하지 않으며 디버그 연결도 허용하지 않습니다.
+> Laravel Sail은 애플리케이션을 제공하기 위해 `artisan serve`에 의존합니다. `artisan serve` 명령어는 Laravel 버전 8.53.0부터 `XDEBUG_CONFIG`와 `XDEBUG_MODE` 변수를 허용합니다. 이전 Laravel 버전(8.52.0 이하)은 이러한 변수를 지원하지 않으며 디버그 연결도 허용하지 않습니다.
 
 <a name="sail-customization"></a>
 <!-- ## Customization -->

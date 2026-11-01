@@ -473,7 +473,7 @@ return User::all()->toResourceCollection();
 ### Data Wrapping
 
 <!-- By default, your outermost resource is wrapped in a `data` key when the resource response is converted to JSON. So, for example, a typical resource collection response looks like the following: -->
-デフォルトでは、リソース応答が JSON に変換されるときに、最も外側のリソースは `data` キーでラップされます。たとえば、一般的なリソース収集の応答は次のようになります。
+デフォルトでは、リソース応答が JSON に変換されるときに、最も外側のリソースは `data` キーでラップされます。たとえば、一般的なリソース コレクションの応答は次のようになります。
 
 ```json
 {
@@ -925,7 +925,7 @@ public function toArray(Request $request): array
 ```
 
 <!-- When returning additional meta data from your resources, you never have to worry about accidentally overriding the `links` or `meta` keys that are automatically added by Laravel when returning paginated responses. Any additional `links` you define will be merged with the links provided by the paginator. -->
-リソースから追​​加のメタデータを返す場合、ページ分割された応答を返すときに Laravel によって自動的に追加される `links` キーまたは `meta` キーを誤ってオーバーライドすることを心配する必要はありません。追加で定義した `links` は、ページネータによって提供されるリンクとマージされます。
+リソースから追加のメタデータを返す場合、ページ分割された応答を返すときに Laravel によって自動的に追加される `links` キーまたは `meta` キーを誤ってオーバーライドすることを心配する必要はありません。追加で定義した `links` は、ページネータによって提供されるリンクとマージされます。
 
 <a name="top-level-meta-data"></a>
 <!-- #### Top Level Meta Data -->

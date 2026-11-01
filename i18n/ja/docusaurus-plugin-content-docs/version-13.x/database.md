@@ -7,6 +7,7 @@
     - [Pooled PostgreSQL Connections](#pooled-postgresql-connections)
 - [Running SQL Queries](#running-queries)
     - [Using Multiple Database Connections](#using-multiple-database-connections)
+    - [Running Analytical Queries on Vitess](#running-analytical-queries-on-vitess)
     - [Listening for Query Events](#listening-for-query-events)
     - [Monitoring Cumulative Query Time](#monitoring-cumulative-query-time)
 - [Database Transactions](#database-transactions)
@@ -154,6 +155,55 @@ driver://username:password@host:port/database?options
 
 <!-- The `sticky` option is an *optional* value that can be used to allow the immediate reading of records that have been written to the database during the current request cycle. If the `sticky` option is enabled and a "write" operation has been performed against the database during the current request cycle, any further "read" operations will use the "write" connection. This ensures that any data written during the request cycle can be immediately read back from the database during that same request. It is up to you to decide if this is the desired behavior for your application. -->
 `sticky` オプションは、現在のリクエスト サイクル中にデータベースに書き込まれたレコードの即時読み取りを許可するために使用できる *オプション* の値です。 `sticky` オプションが有効で、現在のリクエスト サイクル中にデータベースに対して「書き込み」操作が実行された場合、それ以降の「読み取り」操作では「書き込み」接続が使用されます。これにより、リクエスト サイクル中に書き込まれたデータは、同じリクエスト中にデータベースから即座に読み戻されることが保証されます。これがアプリケーションにとって望ましい動作であるかどうかを判断するのはあなた次第です。
+
+<a name="preventing-stale-database-reads"></a>
+<!-- #### Preventing Stale Database Reads -->
+#### Preventing Stale Database Reads
+
+<!-- While the `sticky` option only affects the current request, the `Illuminate\Foundation\Http\Middleware\PreventStaleDatabaseReads` middleware allows subsequent requests in the same session to read recently written data from the write connection. This can help prevent users from seeing stale data while your read replicas catch up with the write database. -->
+`sticky` オプションの影響は現在のリクエストに限られますが、`Illuminate\Foundation\Http\Middleware\PreventStaleDatabaseReads` ミドルウェアを使うと、同じセッション内の後続リクエストでも、書き込み接続から直近に書き込まれたデータを読み取れます。これにより、リードレプリカが書き込みデータベースに追いつくまでの間、ユーザーに古いデータが表示されるのを防ぎやすくなります。
+
+<!-- To enable this behavior, append the middleware to the `web` middleware group in your application's `bootstrap/app.php` file: -->
+この動作を有効にするには、アプリケーションの `bootstrap/app.php` ファイルで、`web` ミドルウェアグループに次のミドルウェアを追加します。
+
+```php
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\PreventStaleDatabaseReads;
+
+->withMiddleware(function (Middleware $middleware): void {
+    $middleware->web(append: [
+        PreventStaleDatabaseReads::class,
+    ]);
+})
+```
+
+<!-- The middleware tracks writes to the default database connection in the user's session. By default, requests within two seconds of a write will use the write connection for reads on that connection. You may customize this duration using the middleware's `for` method: -->
+このミドルウェアは、ユーザーのセッション内でデフォルトのデータベース接続への書き込みを記録します。デフォルトでは、書き込みから2秒以内のリクエストでは、その接続の読み取りにも書き込み接続を使用します。この期間は、ミドルウェアの `for` メソッドで変更できます。
+
+```php
+$middleware->web(append: [
+    PreventStaleDatabaseReads::for(5),
+]);
+```
+
+<!-- Since this middleware relies on the session, it must run after the `Illuminate\Session\Middleware\StartSession` middleware. It does not affect reads made by other sessions or on other database connections. -->
+このミドルウェアはセッションを利用するため、`Illuminate\Session\Middleware\StartSession` ミドルウェアの後に実行する必要があります。他のセッションによる読み取りや、別のデータベース接続での読み取りには影響しません。
+
+<a name="using-the-write-connection-for-reads"></a>
+<!-- #### Using the Write Connection for Reads -->
+#### Using the Write Connection for Reads
+
+<!-- If you need to ensure that all reads on a connection use the write database while executing a callback, you may use the connection's `usingWritePdo` method: -->
+コールバックの実行中、その接続でのすべての読み取りに書き込みデータベースを使う必要がある場合は、接続の `usingWritePdo` メソッドを使用できます。
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$users = DB::connection()->usingWritePdo(fn ($connection) => $connection->table('users')->get());
+```
+
+<!-- This also applies to Eloquent queries and relationship queries executed within the callback using the same connection. The method returns the callback's result and restores the connection's previous read preference when the callback finishes, even if an exception is thrown. -->
+同じ接続を使ってコールバック内で実行する Eloquent クエリやリレーションクエリにも適用されます。このメソッドはコールバックの戻り値を返し、例外が発生した場合も含め、コールバックの終了時に接続の読み取り設定を元に戻します。
 
 <a name="pooled-postgresql-connections"></a>
 <!-- ### Pooled PostgreSQL Connections -->
@@ -385,6 +435,33 @@ $users = DB::connection('sqlite')->select(/* ... */);
 
 ```php
 $pdo = DB::connection()->getPdo();
+```
+
+<a name="running-analytical-queries-on-vitess"></a>
+<!-- ### Running Analytical Queries on Vitess -->
+### Running Analytical Queries on Vitess
+
+<!-- When using a Vitess database, such as PlanetScale, you may use the `olap` method to execute analytical queries using the OLAP workload: -->
+Vitess データベース（PlanetScale など）を使用している場合は、`olap` メソッドを使って OLAP ワークロードで分析クエリを実行できます。
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$totals = DB::connection('mysql')->olap(fn ($connection) => $connection->table('orders')
+    ->selectRaw('customer_id, sum(total) as total')
+    ->groupBy('customer_id')
+    ->get()
+);
+```
+
+<!-- Laravel sets the workload on both the read and write connections, then resets it to OLTP when the callback finishes, even if an exception is thrown. The `olap` method returns the callback's result. On MySQL connections that are not using Vitess, the callback is executed without changing the workload. -->
+Laravel は読み取り接続と書き込み接続の両方にワークロードを設定し、例外が発生した場合も含め、コールバックの完了後に OLTP へ戻します。`olap` メソッドはコールバックの戻り値を返します。Vitess を使用していない MySQL 接続では、ワークロードを変更せずにコールバックを実行します。
+
+<!-- You may determine whether a MySQL connection is using Vitess via the `isVitess` method: -->
+`isVitess` メソッドを使うと、MySQL 接続で Vitess が使用されているかどうかを確認できます。
+
+```php
+$isVitess = DB::connection('mysql')->isVitess();
 ```
 
 <a name="listening-for-query-events"></a>

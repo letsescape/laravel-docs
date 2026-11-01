@@ -205,7 +205,7 @@ sail composer require laravel/sanctum
 #### Installing Composer Dependencies for Existing Applications
 
 <!-- If you are developing an application with a team, you may not be the one that initially creates the Laravel application. Therefore, none of the application's Composer dependencies, including Sail, will be installed after you clone the application's repository to your local computer. -->
-여러 명이 함께 개발하는 프로젝트라면, 처음 Laravel 프로젝트를 만든 사람이 아닐 수 있습니다. 따라서, 애플리케이션의 Composer 의존성(즉, Sail 포함)이 프로젝트 복제 후 설치되어 있지 않을 수 있습니다.
+여러 명이 함께 개발하는 프로젝트라면, 처음 Laravel 프로젝트를 만든 사람이 아닐 수 있습니다. 따라서, 애플리케이션의 Composer 의존성(즉, Sail 포함)은 프로젝트 복제 직후에는 설치되어 있지 않습니다.
 
 <!-- You may install the application's dependencies by navigating to the application's directory and executing the following command. This command uses a small Docker container containing PHP and Composer to install the application's dependencies: -->
 이런 경우 애플리케이션 디렉터리 안에서 다음 명령어를 실행해 의존 패키지를 설치할 수 있습니다. 이 명령어는 PHP와 Composer가 포함된 작은 Docker 컨테이너를 사용합니다.
@@ -288,7 +288,7 @@ sail yarn
 ### Meilisearch
 
 <!-- If you chose to install the [Meilisearch](https://www.meilisearch.com) service when installing Sail, your application's `docker-compose.yml` file will contain an entry for this powerful search-engine that is [compatible](https://github.com/meilisearch/meilisearch-laravel-scout) with [Laravel Scout](/docs/10.x/scout). Once you have started your containers, you may connect to the Meilisearch instance within your application by setting your `MEILISEARCH_HOST` environment variable to `http://meilisearch:7700`. -->
-Sail 설치 시 [Meilisearch](https://www.meilisearch.com) 서비스를 선택했다면, 애플리케이션의 `docker-compose.yml` 파일에 이 강력한 검색엔진에 대한 항목이 추가됩니다. Meilisearch는 [compatible](https://github.com/meilisearch/meilisearch-laravel-scout)와 [Laravel Scout](/docs/10.x/scout)됩니다. 컨테이너를 시작한 후, 애플리케이션의 `MEILISEARCH_HOST` 환경변수를 `http://meilisearch:7700`으로 설정해 연결할 수 있습니다.
+Sail 설치 시 [Meilisearch](https://www.meilisearch.com) 서비스를 선택했다면, 애플리케이션의 `docker-compose.yml` 파일에 이 강력한 검색엔진에 대한 항목이 추가됩니다. Meilisearch는 [Laravel Scout](/docs/10.x/scout)와 호환됩니다([compatible](https://github.com/meilisearch/meilisearch-laravel-scout)). 컨테이너를 시작한 후, 애플리케이션의 `MEILISEARCH_HOST` 환경변수를 `http://meilisearch:7700`으로 설정해 연결할 수 있습니다.
 
 <!-- From your local machine, you may access Meilisearch's web based administration panel by navigating to `http://localhost:7700` in your web browser. -->
 로컬 머신에서는 브라우저로 `http://localhost:7700`에 접속해 Meilisearch 웹 관리자 패널에 접근할 수 있습니다.
@@ -331,7 +331,7 @@ AWS_USE_PATH_STYLE_ENDPOINT=true
 ```
 
 <!-- In order for Laravel's Flysystem integration to generate proper URLs when using MinIO, you should define the `AWS_URL` environment variable so that it matches your application's local URL and includes the bucket name in the URL path: -->
-Laravel의 Flysystem 연동에서 MinIO를 사용할 때 올바른 URL을 생성하려면, `AWS_URL` 환경 변수를 애플리케이션의 로컬 주소와 버킷 이름까지 포함해 지정해야 합니다.
+Laravel의 Flysystem 연동에서 MinIO를 사용할 때 올바른 URL을 생성하려면, `AWS_URL` 환경 변수를 애플리케이션의 로컬 주소와 일치하고 URL 경로에 버킷 이름이 포함되도록 지정해야 합니다.
 
 ```ini
 AWS_URL=http://localhost:9000/local
@@ -428,7 +428,7 @@ selenium:
 ## Previewing Emails
 
 <!-- Laravel Sail's default `docker-compose.yml` file contains a service entry for [Mailpit](https://github.com/axllent/mailpit). Mailpit intercepts emails sent by your application during local development and provides a convenient web interface so that you can preview your email messages in your browser. When using Sail, Mailpit's default host is `mailpit` and is available via port 1025: -->
-Laravel Sail의 기본 `docker-compose.yml` 파일에는 [Mailpit](https://github.com/axllent/mailpit) 서비스 항목이 포함되어 있습니다. Mailpit은 로컬 개발 중 애플리케이션에서 발송된 이메일을 가로채어, 브라우저에서 이메일 메시지를 미리볼 수 있는 웹 인터페이스를 제공합니다. Sail 사용 시 Mailpit의 호스트명은 `mailpit`이고, 포트는 1025입니다.
+Laravel Sail의 기본 `docker-compose.yml` 파일에는 [Mailpit](https://github.com/axllent/mailpit) 서비스 항목이 포함되어 있습니다. Mailpit은 로컬 개발 중 애플리케이션에서 발송된 이메일을 가로채어, 브라우저에서 이메일 메시지를 미리볼 수 있는 웹 인터페이스를 제공합니다. Sail 사용 시 Mailpit의 기본 호스트명은 `mailpit`이고, 포트는 1025입니다.
 
 ```ini
 MAIL_HOST=mailpit

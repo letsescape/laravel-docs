@@ -44,7 +44,7 @@ Laravel Sanctum은 두 가지 별개의 문제를 해결하기 위해 만들어�
 첫 번째로, Sanctum은 OAuth 같은 복잡한 방식을 사용하지 않고도 사용자에게 API 토큰을 발급할 수 있게 해 주는 단순한 패키지입니다. 이 기능은 GitHub 등에서 제공하는 "개인 액세스 토큰(Personal Access Token)"에서 영감을 받았습니다. 예를 들어, 애플리케이션의 '계정 설정' 화면에서 사용자가 본인의 API 토큰을 직접 발급받을 수 있는 기능이 있다고 생각해보겠습니다. 이런 경우에 Sanctum을 활용하여 토큰을 생성하고 관리할 수 있습니다. 이러한 토큰은 보통 매우 긴 유효기간(수년 이상)을 가지지만, 사용자가 언제든 직접 폐기(삭제)할 수 있습니다.
 
 <!-- Laravel Sanctum offers this feature by storing user API tokens in a single database table and authenticating incoming HTTP requests via the `Authorization` header which should contain a valid API token. -->
-Laravel Sanctum은 사용자 API 토큰을 단일 데이터베이스 테이블에 저장하고, 클라이언트의 HTTP 요청에는 `Authorization` 헤더에 유효한 API 토큰을 포함시켜 인증을 처리합니다.
+Laravel Sanctum은 사용자 API 토큰을 단일 데이터베이스 테이블에 저장하고, 들어오는 HTTP 요청의 `Authorization` 헤더에 포함된 유효한 API 토큰을 이용해 인증을 처리합니다.
 
 <a name="how-it-works-spa-authentication"></a>
 <!-- #### SPA Authentication -->
@@ -469,10 +469,10 @@ window.Echo = new Echo({
 ### Issuing API Tokens
 
 <!-- To get started, create a route that accepts the user's email / username, password, and device name, then exchanges those credentials for a new Sanctum token. The "device name" given to this endpoint is for informational purposes and may be any value you wish. In general, the device name value should be a name the user would recognize, such as "Nuno's iPhone 12". -->
-먼저, 사용자의 이메일/이름, 비밀번호, 그리고 기기 이름(device name)을 받아서 새로운 Sanctum 토큰을 발급해주는 라우트를 만듭니다. 이때의 "기기 이름" 값은 단순 참고용으로 어떤 문자열이든 지정할 수 있지만, 사용자가 쉽게 식별할 수 있게(예: "민수의 iPhone 12") 지정하는 것이 좋습니다.
+먼저, 사용자의 이메일/사용자명, 비밀번호, 그리고 기기 이름(device name)을 받아서 새로운 Sanctum 토큰을 발급해주는 라우트를 만듭니다. 이때의 "기기 이름" 값은 단순 참고용으로 어떤 문자열이든 지정할 수 있지만, 사용자가 쉽게 식별할 수 있게(예: "민수의 iPhone 12") 지정하는 것이 좋습니다.
 
 <!-- Typically, you will make a request to the token endpoint from your mobile application's "login" screen. The endpoint will return the plain-text API token which may then be stored on the mobile device and used to make additional API requests: -->
-보통은 모바일 앱의 "로그인" 화면에서 이 엔드포인트로 요청을 보내 토큰을 받고, 발급된 API 토큰을 디바이스에 저장하여 이후 추가적인 API 요청에 사용합니다.
+보통은 모바일 앱의 "로그인" 화면에서 이 엔드포인트로 요청을 보내 평문 API 토큰을 받고, 발급된 API 토큰을 디바이스에 저장하여 이후 추가적인 API 요청에 사용합니다.
 
 ```
 use App\Models\User;

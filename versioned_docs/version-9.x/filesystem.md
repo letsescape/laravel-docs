@@ -259,7 +259,7 @@ Storage::put('avatars/1', $content);
 ```
 
 <!-- If your application interacts with multiple disks, you may use the `disk` method on the `Storage` facade to work with files on a particular disk: -->
-애플리케이션이 여러 디스크를 사용한다면, `Storage` 파사드의 `disk` 메서드를 활용하여 특정 디스크에 파일을 다룰 수 있습니다:
+애플리케이션이 여러 디스크를 사용한다면, `Storage` 파사드의 `disk` 메서드를 활용하여 특정 디스크에서 파일을 다룰 수 있습니다:
 
 ```
 Storage::disk('s3')->put('avatars/1', $content);
@@ -779,7 +779,7 @@ $files = Storage::allFiles($directory);
 #### Get All Directories Within A Directory
 
 <!-- The `directories` method returns an array of all the directories within a given directory. Additionally, you may use the `allDirectories` method to get a list of all directories within a given directory and all of its subdirectories: -->
-`directories` 메서드는 지정한 디렉터리의 모든 하위 디렉터리 배열을 반환합니다. `allDirectories` 메서드를 사용하면 지정 디렉터리와 모든 하위 디렉터리를 포함한 전체 목록을 얻을 수 있습니다:
+`directories` 메서드는 지정한 디렉터리 바로 아래에 있는 모든 디렉터리의 배열을 반환합니다. `allDirectories` 메서드를 사용하면 지정한 디렉터리 안에 있는 디렉터리의 전체 목록을 중첩된 하위 디렉터리까지 얻을 수 있습니다:
 
 ```
 $directories = Storage::directories($directory);

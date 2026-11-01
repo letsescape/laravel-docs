@@ -99,7 +99,7 @@ Horizon을 실행하면, 현재 애플리케이션이 동작하는 환경에 맞
 #### Supervisors
 
 <!-- As you can see in Horizon's default configuration file, each environment can contain one or more "supervisors". By default, the configuration file defines this supervisor as `supervisor-1`; however, you are free to name your supervisors whatever you want. Each supervisor is essentially responsible for "supervising" a group of worker processes and takes care of balancing worker processes across queues. -->
-Horizon의 기본 설정 파일을 보면, 각 환경에 하나 이상의 "supervisor"를 포함할 수 있습니다. 기본적으로는 `supervisor-1`이라는 이름으로 정의되어 있지만, supervisor 이름은 원하는 대로 정할 수 있습니다. supervisor는 여러 워커 프로세스 그룹을 "감독"하며, 각각의 큐에 워커가 균등하게 할당되도록 관리합니다.
+Horizon의 기본 설정 파일을 보면, 각 환경에 하나 이상의 "supervisor"를 포함할 수 있습니다. 기본적으로는 `supervisor-1`이라는 이름으로 정의되어 있지만, supervisor 이름은 원하는 대로 정할 수 있습니다. 각 supervisor는 하나의 워커 프로세스 그룹을 "감독"하며, 각각의 큐에 워커가 적절히 분배되도록 관리합니다.
 
 <!-- You may add additional supervisors to a given environment if you would like to define a new group of worker processes that should run in that environment. You may choose to do this if you would like to define a different balancing strategy or worker process count for a given queue used by your application. -->
 특정 환경에서 워커 프로세스 그룹을 새로 정의하고 싶다면 supervisor를 추가해 사용할 수 있습니다. 예를 들어 큐마다 서로 다른 부하 분산 전략이나, 워커 프로세스 수를 설정하고 싶을 때 유용합니다.

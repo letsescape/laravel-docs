@@ -1,0 +1,168 @@
+.notice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 5.5rem;
+  color: #b42318;
+  background: linear-gradient(90deg, #fff1f1, #fff 60%);
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+:global(html[data-security-notice-initially-dismissed='true']) .notice {
+  display: none;
+}
+
+.content,
+.message,
+.actions,
+.githubLink,
+.link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+
+.message {
+  color: inherit;
+  font-weight: 500;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.message:hover {
+  color: inherit;
+}
+
+.actions {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  transform: translateY(-50%);
+  gap: calc(0.25rem + 3px);
+}
+
+.githubLink {
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 0.3rem;
+  color: inherit;
+}
+
+.githubLink:hover {
+  color: inherit;
+}
+
+.githubLink svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.link {
+  min-height: 1.625rem;
+  padding: 0.25rem 0.625rem;
+  color: #1b1b18;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 1px rgb(0 0 0 / 3%), 0 1px 2px rgb(0 0 0 / 6%);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1rem;
+  white-space: nowrap;
+}
+
+.link:hover {
+  color: #b42318;
+  border-color: currentColor;
+  text-decoration: none;
+}
+
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.375rem;
+  color: #8d8d86;
+  background: transparent;
+  cursor: pointer;
+}
+
+.close svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.close:hover,
+.githubLink:hover {
+  background: rgb(180 35 24 / 10%);
+}
+
+.message:focus-visible,
+.link:focus-visible,
+.githubLink:focus-visible,
+.close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+[data-theme='dark'] .notice {
+  color: #ffb4a5;
+  background: linear-gradient(90deg, #2e1714, #171717);
+  border-color: #62302a;
+}
+
+[data-theme='dark'] .link {
+  color: #ffb4a5;
+  background: #281b19;
+  border-color: #935044;
+}
+
+[data-theme='dark'] .link:hover {
+  border-color: currentColor;
+}
+
+[data-theme='dark'] .close {
+  color: #a1a09a;
+}
+
+@media (min-width: 997px) {
+  :global(html:not([data-security-notice-initially-dismissed='true'])) .notice ~ :global(.main-wrapper .theme-doc-sidebar-container .menu) {
+    margin-bottom: 2.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .notice {
+    padding: 0.5rem 5.25rem 0.5rem 1.25rem;
+  }
+
+  .content {
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .message {
+    min-width: 0;
+    gap: 0.25rem;
+  }
+
+  .link {
+    flex-shrink: 0;
+  }
+}

@@ -43,7 +43,7 @@
 Laravel의 데이터베이스 쿼리 빌더는 데이터베이스 쿼리를 쉽고 유연하게 생성 및 실행할 수 있는 편리한 인터페이스를 제공합니다. 이 빌더는 애플리케이션에서 대부분의 데이터베이스 작업을 수행하는 데 사용할 수 있으며, Laravel이 지원하는 모든 데이터베이스 시스템과 완벽하게 호환됩니다.
 
 <!-- The Laravel query builder uses PDO parameter binding to protect your application against SQL injection attacks. There is no need to clean or sanitize strings passed to the query builder as query bindings. -->
-Laravel 쿼리 빌더는 PDO 파라미터 바인딩을 사용하여 SQL 인젝션 공격으로부터 애플리케이션을 안전하게 보호합니다. 별도로 쿼리 빌더에 전달하는 문자열 값을 정리(clean)하거나 필터링(sanitize)할 필요는 없습니다.
+Laravel 쿼리 빌더는 PDO 파라미터 바인딩을 사용하여 SQL 인젝션 공격으로부터 애플리케이션을 안전하게 보호합니다. 별도로 쿼리 빌더에 쿼리 바인딩으로 전달하는 문자열 값을 정리(clean)하거나 필터링(sanitize)할 필요는 없습니다.
 
 > [!WARNING]
 > PDO는 컬럼 이름 바인딩을 지원하지 않습니다. 따라서, 쿼리에서 참조하는 컬럼 이름(특히 "order by" 컬럼명 등)에 사용자의 입력값이 사용되도록 허용해서는 안 됩니다.
@@ -183,7 +183,7 @@ DB::table('users')->orderBy('id')->chunk(100, function ($users) {
 ```
 
 <!-- If you are updating database records while chunking results, your chunk results could change in unexpected ways. If you plan to update the retrieved records while chunking, it is always best to use the `chunkById` method instead. This method will automatically paginate the results based on the record's primary key: -->
-청크 처리를 하면서 동시에 데이터베이스 레코드를 업데이트할 경우, 의도치 않게 참조 대상이 변경될 수 있습니다. 이처럼 청크 처리 중에 레코드를 수정할 계획이라면 `chunkById` 메서드를 사용하는 것이 가장 안전합니다. 이 메서드는 자동으로 기본 키를 기준으로 페이지네이션 처리하여 레코드를 나눕니다.
+청크 처리를 하면서 동시에 데이터베이스 레코드를 업데이트할 경우, 의도치 않게 청크 결과가 변경될 수 있습니다. 이처럼 청크 처리 중에 레코드를 수정할 계획이라면 `chunkById` 메서드를 사용하는 것이 가장 안전합니다. 이 메서드는 자동으로 기본 키를 기준으로 페이지네이션 처리하여 레코드를 나눕니다.
 
 ```
 DB::table('users')->where('active', false)
@@ -290,7 +290,7 @@ $users = DB::table('users')
 ```
 
 <!-- The `distinct` method allows you to force the query to return distinct results: -->
-특정 컬럼의 중복을 제거하고 싶다면 `distinct` 메서드를 사용할 수 있습니다.
+쿼리 결과의 중복을 제거하고 싶다면 `distinct` 메서드를 사용할 수 있습니다.
 
 ```
 $users = DB::table('users')->distinct()->get();
@@ -540,7 +540,7 @@ $users = DB::table('users')
 ```
 
 <!-- For convenience, if you want to verify that a column is `=` to a given value, you may pass the value as the second argument to the `where` method. Laravel will assume you would like to use the `=` operator: -->
-편의를 위해 컬럼이 `=`와 같은지 확인하고 싶다면, `where` 메서드의 두 번째 인자로 값을 바로 전달할 수 있습니다. Laravel은 내부적으로 `=` 연산자를 자동으로 사용합니다.
+편의를 위해 컬럼 값이 주어진 값과 같은지 `=`로 비교하고 싶다면, `where` 메서드의 두 번째 인자로 값을 바로 전달할 수 있습니다. Laravel은 내부적으로 `=` 연산자를 자동으로 사용합니다.
 
 ```
 $users = DB::table('users')->where('votes', 100)->get();
@@ -1106,7 +1106,7 @@ $users = DB::table('users')
 #### The `skip` & `take` Methods
 
 <!-- You may use the `skip` and `take` methods to limit the number of results returned from the query or to skip a given number of results in the query: -->
-`skip` 및 `take` 메서드를 사용하면 결과의 시작 위치(오프셋)와 반한 개수를 제한할 수 있습니다.
+`skip` 및 `take` 메서드를 사용하면 결과의 시작 위치(오프셋)와 반환 개수를 제한할 수 있습니다.
 
 ```
 $users = DB::table('users')->skip(10)->take(5)->get();
@@ -1140,10 +1140,10 @@ $users = DB::table('users')
 ```
 
 <!-- The `when` method only executes the given closure when the first argument is `true`. If the first argument is `false`, the closure will not be executed. So, in the example above, the closure given to the `when` method will only be invoked if the `role` field is present on the incoming request and evaluates to `true`. -->
-`when` 메서드는 첫 번째 인수(condition)가 `true`일 때만 전달된 클로저를 실행합니다. `false`면 클로저는 실행되지 않습니다. 위 예시에서는, 요청에 `role` 필드가 존재하고 값이 `true`일 때만 `when` 메서드에 전달된 클로저가 실행되어 쿼리에 조건이 추가됩니다.
+`when` 메서드는 첫 번째 인수(condition)가 `true`일 때만 전달된 클로저를 실행합니다. `false`면 클로저는 실행되지 않습니다. 위 예시에서는, 요청에 `role` 필드가 존재하고 값이 `true`로 평가될 때만 `when` 메서드에 전달된 클로저가 실행되어 쿼리에 조건이 추가됩니다.
 
 <!-- You may pass another closure as the third argument to the `when` method. This closure will only execute if the first argument evaluates as `false`. To illustrate how this feature may be used, we will use it to configure the default ordering of a query: -->
-또한 `when` 메서드의 세 번째 인수로 또 다른 클로저를 전달할 수 있습니다. 이 클로저는 첫 번째 인수가 `false`일 때 실행됩니다. 이 기능을 활용해 쿼리의 기본 정렬 방식을 지정할 수 있습니다.
+또한 `when` 메서드의 세 번째 인수로 또 다른 클로저를 전달할 수 있습니다. 이 클로저는 첫 번째 인수가 `false`로 평가될 때만 실행됩니다. 이 기능을 활용해 쿼리의 기본 정렬 방식을 지정할 수 있습니다.
 
 ```
 $sortByVotes = $request->input('sort_by_votes');
@@ -1182,7 +1182,7 @@ DB::table('users')->insert([
 ```
 
 <!-- The `insertOrIgnore` method will ignore errors while inserting records into the database. When using this method, you should be aware that duplicate record errors will be ignored and other types of errors may also be ignored depending on the database engine. For example, `insertOrIgnore` will [bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution): -->
-`insertOrIgnore` 메서드는 레코드를 추가하는 중에 발생하는 일부 에러를 무시합니다. 이 메서드를 사용할 때는 중복 레코드 오류는 무시되며 그 밖의 다른 오류도 데이터베이스 엔진에 따라 무시될 수 있다는 점에 유의해야 합니다. 예를 들어, `insertOrIgnore`는 [bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution)합니다.
+`insertOrIgnore` 메서드는 레코드를 추가하는 중에 발생하는 일부 에러를 무시합니다. 이 메서드를 사용할 때는 중복 레코드 오류는 무시되며 그 밖의 다른 오류도 데이터베이스 엔진에 따라 무시될 수 있다는 점에 유의해야 합니다. 예를 들어, `insertOrIgnore`는 MySQL의 엄격 모드를 우회합니다([bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution)).
 
 ```
 DB::table('users')->insertOrIgnore([
@@ -1216,7 +1216,7 @@ $id = DB::table('users')->insertGetId(
 ```
 
 > [!WARNING]
-> PostgreSQL에서 `insertGetId` 메서드를 사용할 경우, 자동 증가 컬럼명이 반드시 `id`여야 합니다. 만약 다른 "시퀀스"에서 ID 값을 얻고 싶다면, 해당 컬럼명을 `insertGetId` 메서드의 두 번째 인수로 넘길 수 있습니다.
+> PostgreSQL에서 `insertGetId` 메서드를 사용할 경우, 기본적으로 자동 증가 컬럼명이 `id`라고 가정합니다. 만약 다른 "시퀀스"에서 ID 값을 얻고 싶다면, 해당 컬럼명을 `insertGetId` 메서드의 두 번째 인수로 넘길 수 있습니다.
 
 <a name="upserts"></a>
 <!-- ### Upserts -->

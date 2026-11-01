@@ -264,6 +264,7 @@ class TableRowChange:
     row_ordinal: int
     row_count: int
     table_count: int
+    headers: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -5301,6 +5302,7 @@ def _source_table_row_change(
                 row_ordinal=rows.index(index),
                 row_count=len(rows),
                 table_count=len(tables),
+                headers=_table_row_cells(old_source_lines[rows[0]]),
             )
     return None
 

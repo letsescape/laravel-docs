@@ -94,7 +94,7 @@ public function run(): void
 ### Calling Additional Seeders
 
 <!-- Within the `DatabaseSeeder` class, you may use the `call` method to execute additional seed classes. Using the `call` method allows you to break up your database seeding into multiple files so that no single seeder class becomes too large. The `call` method accepts an array of seeder classes that should be executed: -->
-`DatabaseSeeder` 클래스 안에서는 `call` 메서드를 이용해 추가 시더 클래스를 실행할 수 있습니다. `call` 메서드를 활요하면 데이터베이스 시딩 로직을 여러 파일로 쪼개어, 한 시더 클래스가 너무 방대해지는 것을 방지할 수 있습니다. `call` 메서드는 실행해야 할 시더 클래스를 배열로 받습니다.
+`DatabaseSeeder` 클래스 안에서는 `call` 메서드를 이용해 추가 시더 클래스를 실행할 수 있습니다. `call` 메서드를 활용하면 데이터베이스 시딩 로직을 여러 파일로 쪼개어, 한 시더 클래스가 너무 방대해지는 것을 방지할 수 있습니다. `call` 메서드는 실행해야 할 시더 클래스를 배열로 받습니다.
 
 ```
 /**

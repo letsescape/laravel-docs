@@ -378,7 +378,7 @@ form.setValidationTimeout(3000);
 위와 같이 각 입력의 `blur` 이벤트에서 개별 검증을 할 수 있지만, 사용자가 아직 만지지 않은 입력값이 남아 있는 상태에서, "다음 단계"로 넘어가기에 앞서 모든 표시 입력값을 검증해야 하는 경우가 있습니다.
 
 <!-- To do this with Precognition, you should call the `validate` method passing the field names you wish to validate to the `only` configuration key. You may handle the validation result with `onSuccess` or `onValidationError` callbacks: -->
-이럴 때는 `validate` 메서드에 `only` 옵션을 사용해서 검증할 입력값 배열을 지정하고, 결과에 따라 `onSuccess`, `onValidationError` 콜백을 등록하면 됩니다.
+이럴 때는 `validate` 메서드에 `only` 옵션을 사용해서 검증할 입력 필드 이름의 배열을 지정하고, 결과에 따라 `onSuccess`, `onValidationError` 콜백을 등록하면 됩니다.
 
 ```jsx
 <button
@@ -437,7 +437,7 @@ npm install laravel-precognition-react-inertia
 설치가 완료되면, 프리코그니션의 `useForm` 함수가 Inertia의 [form helper](https://inertiajs.com/forms#form-helper)에 앞서 설명한 실시간 유효성 검증 기능을 더해 반환합니다.
 
 <!-- The form helper's `submit` method has been streamlined, removing the need to specify the HTTP method or URL. Instead, you may pass Inertia's [visit options](https://inertiajs.com/manual-visits) as the first and only argument. In addition, the `submit` method does not return a Promise as seen in the React example above. Instead, you may provide any of Inertia's supported [event callbacks](https://inertiajs.com/manual-visits#event-callbacks) in the visit options given to the `submit` method: -->
-폼 헬퍼의 `submit` 메서드는 HTTP 메서드나 URL을 지정할 필요 없이 Inertia의 [visit options](https://inertiajs.com/manual-visits)를 첫 번째(그리고 유일한) 인자로 전달합니다. 또한 `submit` 메서드는 위 React 예시와 달리 Promise를 반환하지 않습니다. 대신, `submit` 메서드에 전달하는 visit 옵션에 Inertia에서 제공하는 [event callbacks](https://inertiajs.com/manual-visits#event-callbacks)을 지정할 수 있습니다.
+폼 헬퍼의 `submit` 메서드는 HTTP 메서드나 URL을 지정할 필요 없이 Inertia의 [visit options](https://inertiajs.com/manual-visits)를 첫 번째(그리고 유일한) 인자로 받습니다. 또한 `submit` 메서드는 위 React 예시와 달리 Promise를 반환하지 않습니다. 대신, `submit` 메서드에 전달하는 visit 옵션에 Inertia에서 제공하는 [event callbacks](https://inertiajs.com/manual-visits#event-callbacks)을 지정할 수 있습니다.
 
 ```js
 import { useForm } from 'laravel-precognition-react-inertia';
@@ -546,7 +546,7 @@ form.setValidationTimeout(3000);
 ```
 
 <!-- When a validation request is in-flight, the form's `validating` property will be `true`: -->
-유효성 검증 요청이 진행 중인지 여부는 폼의 `validating` 속성이 `true`로 표시됩니다.
+유효성 검증 요청이 진행 중일 때는 폼의 `validating` 속성이 `true`가 됩니다.
 
 ```html
 <template x-if="form.validating">
@@ -733,7 +733,7 @@ class StoreUserRequest extends FormRequest
 기본적으로, Laravel 프리코그니션은 프리코그니티브 유효성 검증 요청 시 파일 업로드나 파일 유효성 검증을 수행하지 않습니다. 이로 인해 대용량 파일이 불필요하게 여러 번 업로드되는 일을 방지할 수 있습니다.
 
 <!-- Because of this behavior, you should ensure that your application [customizes the corresponding form request's validation rules](#customizing-validation-rules) to specify the field is only required for full form submissions: -->
-이런 동작 특성 때문에, [customizes the corresponding form request's validation rules](#customizing-validation-rules) 해서, 실제 폼 전체 제출 시에만 해당 필드가 필수로 요구되도록 처리해야 합니다.
+이런 동작 특성 때문에, [customizes the corresponding form request's validation rules](#customizing-validation-rules)에 설명된 대로 유효성 검증 규칙을 조정해서, 실제 폼 전체 제출 시에만 해당 필드가 필수로 요구되도록 처리해야 합니다.
 
 ```php
 /**

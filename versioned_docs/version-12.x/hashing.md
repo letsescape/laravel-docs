@@ -17,7 +17,7 @@
 Laravel `Hash` [facade](/docs/12.x/facades)는 사용자 비밀번호 저장을 위한 안전한 Bcrypt와 Argon2 해싱을 제공합니다. [Laravel application starter kits](/docs/12.x/starter-kits)를 사용하는 경우, 기본적으로 가입 및 인증 시 Bcrypt가 사용됩니다.
 
 <!-- Bcrypt is a great choice for hashing passwords because its "work factor" is adjustable, which means that the time it takes to generate a hash can be increased as hardware power increases. When hashing passwords, slow is good. The longer an algorithm takes to hash a password, the longer it takes malicious users to generate "rainbow tables" of all possible string hash values that may be used in brute force attacks against applications. -->
-Bcrypt는 "작업 계수(work factor)"를 조정할 수 있기 때문에 비밀번호 해싱에 매우 적합합니다. 작업 계수는 해시 생성에 걸리는 시간을 의미하며, 하드웨어 성능이 향상됨에 따라 이 시간을 늘릴 수 있습니다. 비밀번호 해싱에서는 느린 것이 오히려 좋습니다. 알고리즘이 비밀번호 해싱에 오래 걸릴수록 악의적인 사용자가 모든 가능한 문자열 해시 값을 포함하는 "레인보우 테이블(rainbow table)"을 생성하는 데 걸리는 시간도 길어지기 때문이며, 이는 무차별 대입 공격 방어에 유리합니다.
+Bcrypt는 "작업 계수(work factor)"를 조정할 수 있기 때문에 비밀번호 해싱에 매우 적합합니다. 작업 계수를 조정하면 하드웨어 성능이 향상됨에 따라 해시 생성에 걸리는 시간을 늘릴 수 있습니다. 비밀번호 해싱에서는 느린 것이 오히려 좋습니다. 알고리즘이 비밀번호 해싱에 오래 걸릴수록 악의적인 사용자가 모든 가능한 문자열 해시 값을 포함하는 "레인보우 테이블(rainbow table)"을 생성하는 데 걸리는 시간도 길어지기 때문이며, 이는 무차별 대입 공격 방어에 유리합니다.
 
 <a name="configuration"></a>
 <!-- ## Configuration -->

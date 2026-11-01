@@ -230,7 +230,7 @@ $value = Cache::remember('users', $seconds, function () {
 지정한 항목이 캐시에 없으면, `remember` 메서드에 전달한 클로저가 실행되어 그 반환값이 캐시에 저장됩니다.
 
 <!-- You may use the `rememberForever` method to retrieve an item from the cache or store it forever if it does not exist: -->
-항목을 영구적으로 저장하거나 없으면 가져오는 작업은 `rememberForever` 메서드로 할 수 있습니다:
+캐시에서 항목을 가져오거나 없으면 영구적으로 저장하는 작업은 `rememberForever` 메서드로 할 수 있습니다:
 
 ```
 $value = Cache::rememberForever('users', function () {
@@ -268,7 +268,7 @@ Cache::put('key', 'value');
 ```
 
 <!-- Instead of passing the number of seconds as an integer, you may also pass a `DateTime` instance representing the desired expiration time of the cached item: -->
-정수형 초(for 만료시간) 대신 캐시 만료 시점을 나타내는 `DateTime` 인스턴스를 전달할 수도 있습니다:
+만료 시간을 나타내는 초 단위 정수 대신 캐시 만료 시점을 나타내는 `DateTime` 인스턴스를 전달할 수도 있습니다:
 
 ```
 Cache::put('key', 'value', now()->addMinutes(10));

@@ -2178,7 +2178,7 @@ dog.
 #### `Str::words()`
 
 <!-- The `Str::words` method limits the number of words in a string. An additional string may be passed to this method via its third argument to specify which string should be appended to the end of the truncated string: -->
-`Str::words` メソッドは、文字列内の単語数を制限します。追加の文字列を 3 番目の引数を介してこのメ​​ソッドに渡し、切り詰められた文字列の末尾に追加する文字列を指定できます。
+`Str::words` メソッドは、文字列内の単語数を制限します。追加の文字列を 3 番目の引数を介してこのメソッドに渡し、切り詰められた文字列の末尾に追加する文字列を指定できます。
 
 ```php
 use Illuminate\Support\Str;

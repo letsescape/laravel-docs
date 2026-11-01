@@ -102,7 +102,7 @@ $result = Process::input('Hello World')->run('cat');
 #### Timeouts
 
 <!-- By default, processes will throw an instance of `Illuminate\Process\Exceptions\ProcessTimedOutException` after executing for more than 60 seconds. However, you can customize this behavior via the `timeout` method: -->
-기본적으로 프로세스는 60초 이상 실행될 경우 `Illuminate\Process\Exceptions\ProcessTimedOutException` 예외를 던집니다. 이 동작은 `timeout` 메서드로 변경할 수 있습니다.
+기본적으로 프로세스는 60초를 초과하여 실행될 경우 `Illuminate\Process\Exceptions\ProcessTimedOutException` 예외를 던집니다. 이 동작은 `timeout` 메서드로 변경할 수 있습니다.
 
 ```php
 $result = Process::timeout(120)->run('bash import.sh');
@@ -339,7 +339,7 @@ $result = $process->wait();
 ## Concurrent Processes
 
 <!-- Laravel also makes it a breeze to manage a pool of concurrent, asynchronous processes, allowing you to easily execute many tasks simultaneously. To get started, invoke the `pool` method, which accepts a closure that receives an instance of `Illuminate\Process\Pool`. -->
-Laravel은 여러 개의 비동기 프로세스 풀(pool)을 손쉽게 관리할 수 있도록 지원합니다. 즉, 동시에 여러 작업을 병렬로 실행할 수 있습니다. 시작하려면, `Illuminate\Process\Pool` 인스턴스를 인자로 받는 클로저를 `pool` 메서드에 전달하세요.
+Laravel은 여러 비동기 프로세스를 포함하는 풀(pool)을 손쉽게 관리할 수 있도록 지원합니다. 즉, 동시에 여러 작업을 병렬로 실행할 수 있습니다. 시작하려면, `Illuminate\Process\Pool` 인스턴스를 인자로 받는 클로저를 `pool` 메서드에 전달하세요.
 
 <!-- Within this closure, you may define the processes that belong to the pool. Once a process pool is started via the `start` method, you may access the [collection](/docs/10.x/collections) of running processes via the `running` method: -->
 이 클로저 내부에서 풀에 포함시킬 프로세스들을 정의합니다. 풀을 `start` 메서드로 실행하면, `running` 메서드를 통해 실행 중인 모든 프로세스 [collection](/docs/10.x/collections)에 접근할 수 있습니다.
@@ -450,7 +450,7 @@ Route::get('/import', function () {
 ```
 
 <!-- When testing this route, we can instruct Laravel to return a fake, successful process result for every invoked process by calling the `fake` method on the `Process` facade with no arguments. In addition, we can even [assert](#available-assertions) that a given process was "run": -->
-이 라우트를 테스트할 때, `Process` 파사드의 `fake` 메서드를 인자 없이 호출하면 모든 프로세스 호출에 대해 성공한 가짜 결과가 반환됩니다. 또한, 특정 프로세스가 실제로 실행되었는지 [assert](#available-assertions)로 검증할 수도 있습니다.
+이 라우트를 테스트할 때, `Process` 파사드의 `fake` 메서드를 인자 없이 호출하면 모든 프로세스 호출에 대해 성공한 가짜 결과가 반환됩니다. 또한, 특정 프로세스가 호출되었는지 [assert](#available-assertions)로 검증할 수도 있습니다.
 
 ```php
 <?php
@@ -517,7 +517,7 @@ Process::fake([
 ```
 
 <!-- If you do not need to customize the exit code or error output of a faked process, you may find it more convenient to specify the fake process results as simple strings: -->
-입출력, 종료 코드를 별도로 정의할 필요가 없다면, 결과값을 간단히 문자열로 지정할 수도 있습니다.
+에러 출력, 종료 코드를 별도로 정의할 필요가 없다면, 결과값을 간단히 문자열로 지정할 수도 있습니다.
 
 ```php
 Process::fake([

@@ -356,7 +356,7 @@ AWS_USE_PATH_STYLE_ENDPOINT=true
 ## Running Tests
 
 <!-- Laravel provides amazing testing support out of the box, and you may use Sail's `test` command to run your applications [feature and unit tests](/docs/13.x/testing). Any CLI options that are accepted by Pest / PHPUnit may also be passed to the `test` command: -->
-Laravel はすぐに使える素晴らしいテストサポートを提供しており、Sail の `test` コマンドを使用してアプリケーション [feature and unit tests](/docs/13.x/testing) を実行できます。 Pest / PHPUnit によって受け入れられる CLI オプションはすべて、`test` コマンドに渡すこともできます。
+Laravel はすぐに使える素晴らしいテストサポートを提供しており、Sail の `test` コマンドを使用してアプリケーションの [feature and unit tests](/docs/13.x/testing) を実行できます。 Pest / PHPUnit によって受け入れられる CLI オプションはすべて、`test` コマンドに渡すこともできます。
 
 ```shell
 sail test

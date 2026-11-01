@@ -435,7 +435,7 @@ Flight::chunk(200, function ($flights) {
 `chunk` 메서드의 첫 번째 인자는 한 번에 가져올 레코드 수이며, 두 번째 인자로 전달된 클로저는 데이터베이스에서 각각의 덩어리가 반환될 때마다 호출됩니다. 덩어리마다 별도의 쿼리가 실행되어 레코드가 반환되고, 이 레코드들은 클로저로 전달됩니다.
 
 <!-- If you are filtering the results of the `chunk` method based on a column that you will also be updating while iterating over the results, you should use the `chunkById` method. Using the `chunk` method in these scenarios could lead to unexpected and inconsistent results. Internally, the `chunkById` method will always retrieve models with an `id` column greater than the last model in the previous chunk: -->
-만약 결과 집합에서 특정 컬럼을 기준으로, 해당 컬럼을 반복문에서 직접 업데이트할 때는, `chunk` 대신 `chunkById` 메서드를 사용하는 것이 안전합니다. 이런 경우에 `chunk`를 사용하면 예기치 못한 결과가 나올 수 있습니다. 내부적으로 `chunkById`는 이전 덩어리의 마지막 모델보다 큰 `id` 값을 가진 모델만 조회하여 안전하게 동작합니다.
+특정 컬럼을 기준으로 결과를 필터링하면서 해당 컬럼을 반복문에서 직접 업데이트할 때는, `chunk` 대신 `chunkById` 메서드를 사용하는 것이 안전합니다. 이런 경우에 `chunk`를 사용하면 예기치 못한 결과가 나올 수 있습니다. 내부적으로 `chunkById`는 이전 덩어리의 마지막 모델보다 큰 `id` 값을 가진 모델만 조회하여 안전하게 동작합니다.
 
 ```php
 Flight::where('departed', true)
@@ -460,7 +460,7 @@ foreach (Flight::lazy() as $flight) {
 ```
 
 <!-- If you are filtering the results of the `lazy` method based on a column that you will also be updating while iterating over the results, you should use the `lazyById` method. Internally, the `lazyById` method will always retrieve models with an `id` column greater than the last model in the previous chunk: -->
-`lazy` 메서드로 반환된 데이터를 반복하면서, 동시에 해당 컬럼을 업데이트하는 경우에는 `lazyById` 메서드를 사용해야 합니다. `lazyById`는 내부적으로 이전 덩어리의 마지막 모델보다 큰 `id`를 가진 레코드만을 조회하여, 일관성을 보장합니다.
+`lazy` 메서드의 결과를 특정 컬럼을 기준으로 필터링하고, 결과를 반복하면서 해당 컬럼을 업데이트하는 경우에는 `lazyById` 메서드를 사용해야 합니다. `lazyById`는 내부적으로 이전 덩어리의 마지막 모델보다 큰 `id`를 가진 레코드만을 조회합니다.
 
 ```php
 Flight::where('departed', true)
@@ -482,7 +482,7 @@ Flight::where('departed', true)
 `cursor` 메서드는 단 하나의 데이터베이스 쿼리만 실행하지만, 실제로 데이터를 반복할 때마다 한 번씩 한 개의 Eloquent 모델이 적재되어 메모리에 오릅니다. 따라서 순회 도중에는 항상 오직 하나의 모델만 메모리에 유지됩니다.
 
 > [!NOTE]
-> `cursor` 메서드는 한 번에 하나의 모델만 메모리 상에 올려놓기 때문에, 연관관계(eager loading)는 지원하지 않습니다. 연관관계를 미리 로드해야 한다면 [the `lazy` method](#streaming-results-lazily)를 사용하는 것이 좋습니다.
+> `cursor` 메서드는 한 번에 하나의 모델만 메모리 상에 올려놓기 때문에, 연관관계의 즉시 로딩(eager loading)은 지원하지 않습니다. 연관관계를 미리 로드해야 한다면 [the `lazy` method](#streaming-results-lazily)를 사용하는 것이 좋습니다.
 
 <!-- Internally, the `cursor` method uses PHP [generators](https://www.php.net/manual/en/language.generators.overview.php) to implement this functionality: -->
 내부적으로 `cursor` 메서드는 PHP의 [generators](https://www.php.net/manual/en/language.generators.overview.php)를 사용하여 이 기능을 구현합니다.
@@ -511,7 +511,7 @@ foreach ($users as $user) {
 ```
 
 <!-- Although the `cursor` method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). If you're dealing with a very large number of Eloquent records, consider using [the `lazy` method](#streaming-results-lazily) instead. -->
-비록 `cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만, 결국에는 메모리가 부족할 수 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)입니다. 정말 방대한 수의 Eloquent 레코드를 다뤄야 한다면 [the `lazy` method](#streaming-results-lazily)를 사용하는 것이 더 안전합니다.
+비록 `cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만, 결국에는 메모리가 부족할 수 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)에 설명된 PDO 드라이버의 쿼리 결과 버퍼링 때문입니다. 정말 방대한 수의 Eloquent 레코드를 다뤄야 한다면 [the `lazy` method](#streaming-results-lazily)를 사용하는 것이 더 안전합니다.
 
 <a name="advanced-subqueries"></a>
 <!-- ### Advanced Subqueries -->
@@ -649,7 +649,7 @@ $flight = Flight::firstOrNew(
 ### Retrieving Aggregates
 
 <!-- When interacting with Eloquent models, you may also use the `count`, `sum`, `max`, and other [aggregate methods](/docs/8.x/queries#aggregates) provided by the Laravel [query builder](/docs/8.x/queries). As you might expect, these methods return a scalar value instead of an Eloquent model instance: -->
-Eloquent 모델을 사용할 때, Laravel [aggregate methods](/docs/8.x/queries#aggregates)가 제공하는 `count`, `sum`, `max`와 같은 [query builder](/docs/8.x/queries)를 사용할 수도 있습니다. 예상할 수 있듯이, 이러한 메서드는 Eloquent 모델 인스턴스를 반환하는 대신 스칼라(단일 값) 값을 반환합니다.
+Eloquent 모델을 사용할 때, Laravel [query builder](/docs/8.x/queries)가 제공하는 `count`, `sum`, `max`와 같은 [aggregate methods](/docs/8.x/queries#aggregates)를 사용할 수도 있습니다. 예상할 수 있듯이, 이러한 메서드는 Eloquent 모델 인스턴스를 반환하는 대신 스칼라(단일 값) 값을 반환합니다.
 
 ```
 $count = Flight::where('active', 1)->count();
@@ -759,7 +759,7 @@ Flight::where('active', 1)
 Eloquent는 모델의 내부 상태를 확인하고, 모델이 처음 조회되었을 때와 비교하여 속성이 어떻게 변경되었는지 파악할 수 있도록 `isDirty`, `isClean`, `wasChanged` 메서드를 제공합니다.
 
 <!-- The `isDirty` method determines if any of the model's attributes have been changed since the model was retrieved. You may pass a specific attribute name to the `isDirty` method to determine if a particular attribute is dirty. The `isClean` will determine if an attribute has remained unchanged since the model was retrieved. This method also accepts an optional attribute argument: -->
-`isDirty` 메서드는 모델 인스턴스가 조회된 이후, 모델의 속성 중 하나라도 변경되었는지 여부를 판단합니다. 특정 속성명이나 속성명 배열을 `isDirty` 메서드에 전달하여 그 속성만 변경되었는지 확인할 수도 있습니다. 반대로, `isClean` 메서드는 속성이 변경되지 않았음을 확인하는 데 사용하며, 이 역시 속성명을 인수로 받을 수 있습니다.
+`isDirty` 메서드는 모델 인스턴스가 조회된 이후, 모델의 속성 중 하나라도 변경되었는지 여부를 판단합니다. 특정 속성명이나 속성명 배열을 `isDirty` 메서드에 전달하여 해당 속성이 변경되었는지 확인할 수도 있습니다. 반대로, `isClean` 메서드는 속성이 변경되지 않았음을 확인하는 데 사용하며, 이 역시 속성명을 인수로 받을 수 있습니다.
 
 ```
 use App\Models\User;
@@ -787,7 +787,7 @@ $user->isClean(); // true
 ```
 
 <!-- The `wasChanged` method determines if any attributes were changed when the model was last saved within the current request cycle. If needed, you may pass an attribute name to see if a particular attribute was changed: -->
-`wasChanged` 메서드는 현재 요청 사이클에서 마지막으로 저장(save)될 때 어떤 속성이 실제로 변경되었는지를 확인합니다. 필요하다면 속성명을 지정해, 특정 속성이 변경되었는지 알 수 있습니다.
+`wasChanged` 메서드는 현재 요청 사이클에서 마지막으로 저장(save)될 때 실제로 변경된 속성이 있는지를 확인합니다. 필요하다면 속성명을 지정해, 특정 속성이 변경되었는지 알 수 있습니다.
 
 ```
 $user = User::create([
@@ -882,7 +882,7 @@ $flight->fill(['name' => 'Amsterdam to Frankfurt']);
 #### Mass Assignment & JSON Columns
 
 <!-- When assigning JSON columns, each column's mass assignable key must be specified in your model's `$fillable` array. For security, Laravel does not support updating nested JSON attributes when using the `guarded` property: -->
-JSON 컬럼에 대량 할당을 적용할 때는, 각 컬럼명을 모델의 `$fillable` 배열에 반드시 명시해야 합니다. 보안상, Laravel은 `guarded` 속성을 사용할 때 중첩된 JSON 속성에 대한 대량 업데이트를 지원하지 않습니다.
+JSON 컬럼에 대량 할당을 적용할 때는, 각 컬럼의 대량 할당 가능한 키를 모델의 `$fillable` 배열에 반드시 명시해야 합니다. 보안상, Laravel은 `guarded` 속성을 사용할 때 중첩된 JSON 속성에 대한 대량 업데이트를 지원하지 않습니다.
 
 ```
 /**
@@ -1164,7 +1164,7 @@ class Flight extends Model
 ```
 
 <!-- When marking models as `Prunable`, you may also define a `pruning` method on the model. This method will be called before the model is deleted. This method can be useful for deleting any additional resources associated with the model, such as stored files, before the model is permanently removed from the database: -->
-모델에 `Prunable`을 지정하면, `pruning` 메서드도 정의할 수 있습니다. 이 메서드는 모델이 실제 삭제되기 전에 호출되며, 모델에 연결된 기타 리소스(예: 저장된 파일 등)를 데이터베이스에서 영구적으로 제거하기 전에 미리 삭제하는 용도로 사용할 수 있습니다.
+모델에 `Prunable`을 지정하면, `pruning` 메서드도 정의할 수 있습니다. 이 메서드는 모델이 실제 삭제되기 전에 호출되며, 모델을 데이터베이스에서 영구적으로 제거하기 전에 모델에 연결된 기타 리소스(예: 저장된 파일 등)를 미리 삭제하는 용도로 사용할 수 있습니다.
 
 ```
 /**
@@ -1220,7 +1220,7 @@ php artisan model:prune --pretend
 ```
 
 > [!NOTE]
-> 소프트 삭제된 모델이 프루너블(prunable) 쿼리에 해당될 경우, 실제로 영구 삭제(`forceDelete`) 처리가 됩니다.
+> 소프트 삭제를 사용하는 모델이 프루너블(prunable) 쿼리에 해당될 경우, 실제로 영구 삭제(`forceDelete`) 처리가 됩니다.
 
 <a name="mass-pruning"></a>
 <!-- #### Mass Pruning -->

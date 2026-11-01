@@ -390,7 +390,7 @@ php artisan scout:sync-index-settings
 ### Configuring the Model ID
 
 <!-- By default, Scout will use the primary key of the model as the model's unique ID / key that is stored in the search index. If you need to customize this behavior, you may override the `getScoutKey` and the `getScoutKeyName` methods on the model: -->
-기본적으로, Scout는 모델의 기본 키(primary key)를 고유 ID/키로 사용하여 검색 인덱스에 저장합니다. 이 동작을 변경하려면 모델의`getScoutKey`와 `getScoutKeyName` 메서드를 오버라이드하면 됩니다.
+기본적으로, Scout는 모델의 기본 키(primary key)를 고유 ID/키로 사용하여 검색 인덱스에 저장합니다. 이 동작을 변경하려면 모델의 `getScoutKey`와 `getScoutKeyName` 메서드를 오버라이드하면 됩니다.
 
 ```
 <?php
@@ -495,7 +495,7 @@ SCOUT_DRIVER=database
 #### Customizing Database Searching Strategies
 
 <!-- By default, the database engine will execute a "where like" query against every model attribute that you have [configured as searchable](#configuring-searchable-data). However, in some situations, this may result in poor performance. Therefore, the database engine's search strategy can be configured so that some specified columns utilize full text search queries or only use "where like" constraints to search the prefixes of strings (`example%`) instead of searching within the entire string (`%example%`). -->
-기본적으로, 데이터베이스 엔진은 [configured as searchable](#configuring-searchable-data) 모든 모델 속성에 대해 "where like" 쿼리를 실행합니다. 하지만, 경우에 따라 이렇게 하면 성능이 저하될 수 있습니다. 이를 위해 공통 전략 대신, 일부 컬럼에는 전체 텍스트 검색 쿼리를 사용하거나, 전체 문자열(`%example%`)이 아니라 문자열의 접두어만(예: `example%`) 검색하는 "where like" 제약 조건만 사용하도록 지정할 수 있습니다.
+기본적으로, 데이터베이스 엔진은 [configured as searchable](#configuring-searchable-data)로 설정한 모든 모델 속성에 대해 "where like" 쿼리를 실행합니다. 하지만, 경우에 따라 이렇게 하면 성능이 저하될 수 있습니다. 이를 위해 공통 전략 대신, 일부 컬럼에는 전체 텍스트 검색 쿼리를 사용하거나, 전체 문자열(`%example%`)이 아니라 문자열의 접두어만(예: `example%`) 검색하는 "where like" 제약 조건만 사용하도록 지정할 수 있습니다.
 
 <!-- To define this behavior, you may assign PHP attributes to your model's `toSearchableArray` method. Any columns that are not assigned additional search strategy behavior will continue to use the default "where like" strategy: -->
 이 동작을 지정하려면, 모델의 `toSearchableArray` 메서드 위에 PHP 속성(attributes)을 할당하면 됩니다. 각 컬럼에 별도의 검색 전략을 적용하지 않으면 기본 "where like" 전략이 계속 사용됩니다.
@@ -593,7 +593,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 모델 일괄 인덱싱 시 큐를 사용하는 경우에는 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 큐에서 작업을 수행하면 [not restored](/docs/10.x/queues#handling-relationships)입니다.
+> 모델 일괄 인덱싱 시 큐를 사용하는 경우에는 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 큐 작업이 모델 컬렉션을 처리할 때는 관계가 복원되지 않습니다([not restored](/docs/10.x/queues#handling-relationships)).
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -617,7 +617,7 @@ $order->save();
 #### Adding Records via Query
 
 <!-- If you would like to add a collection of models to your search index via an Eloquent query, you may chain the `searchable` method onto the Eloquent query. The `searchable` method will [chunk the results](/docs/10.x/eloquent#chunking-results) of the query and add the records to your search index. Again, if you have configured Scout to use queues, all of the chunks will be imported in the background by your queue workers: -->
-Eloquent 쿼리를 이용해 여러 모델을 한꺼번에 검색 인덱스에 추가하고 싶다면, Eloquent 쿼리 뒤에 `searchable` 메서드를 연결하면 됩니다. `searchable` 메서드는 쿼리 결과를 [chunk the results](/docs/10.x/eloquent#chunking-results) 각각 인덱스에 추가합니다. Scout에서 큐를 사용할 때는 각 청크가 큐 워커를 통해 백그라운드에서 처리됩니다.
+Eloquent 쿼리를 이용해 여러 모델을 한꺼번에 검색 인덱스에 추가하고 싶다면, Eloquent 쿼리 뒤에 `searchable` 메서드를 연결하면 됩니다. `searchable` 메서드는 쿼리 결과를 [chunk the results](/docs/10.x/eloquent#chunking-results)로 나누어 각각 인덱스에 추가합니다. Scout에서 큐를 사용할 때는 각 청크가 큐 워커를 통해 백그라운드에서 처리됩니다.
 
 ```
 use App\Models\Order;
@@ -722,7 +722,7 @@ Order::where('price', '>', 100)->unsearchable();
 ```
 
 <!-- If you would like to remove the search index records for all of the models in a relationship, you may invoke the `unsearchable` on the relationship instance: -->
-관계에 속한 모든 모델의 검색 인덱스를 삭제하고 싶다면, 관계 인스턴스에 `unsearchable`을 호출하면 됩니다.
+관계에 속한 모든 모델의 검색 인덱스 레코드를 삭제하고 싶다면, 관계 인스턴스에 `unsearchable`을 호출하면 됩니다.
 
 ```
 $user->orders()->unsearchable();
@@ -771,7 +771,7 @@ public function shouldBeSearchable(): bool
 `shouldBeSearchable` 메서드는 `save`, `create`, 쿼리, 관계 등을 통해 모델을 다룰 때에만 적용됩니다. 개별적으로 모델이나 컬렉션에 직접적으로 `searchable`을 호출하는 경우에는 `shouldBeSearchable` 메서드의 동작이 무시됩니다.
 
 > [!WARNING]
-> "database" 엔진을 사용할 때는 `shouldBeSearchable` 메서드가 적용되지 않습니다. "database" 엔진에서는 모든 데이터가 항상 데이터베이스에 저장되기 때문입니다. 이와 유사한 동작이 필요하다면 [where clauses](#where-clauses)을 활용해야 합니다.
+> "database" 엔진을 사용할 때는 `shouldBeSearchable` 메서드가 적용되지 않습니다. "database" 엔진에서는 모든 검색 가능한 데이터가 항상 데이터베이스에 저장되기 때문입니다. 이와 유사한 동작이 필요하다면 [where clauses](#where-clauses)을 활용해야 합니다.
 
 <a name="searching"></a>
 <!-- ## Searching -->
@@ -959,7 +959,7 @@ Order::search(
 #### Customizing the Eloquent Results Query
 
 <!-- After Scout retrieves a list of matching Eloquent models from your application's search engine, Eloquent is used to retrieve all of the matching models by their primary keys. You may customize this query by invoking the `query` method. The `query` method accepts a closure that will receive the Eloquent query builder instance as an argument: -->
-Scout는 검색 엔진에서 일치하는 Eloquent 모델의 primary key 목록을 가져온 후, Eloquent를 통해 이 key에 해당하는 모든 모델을 실제로 쿼리합니다. 이때 쿼리를 커스터마이징하고 싶다면 `query` 메서드를 사용할 수 있습니다. `query` 메서드는 Eloquent 쿼리 빌더 인스턴스를 인자로 받아 클로저를 실행합니다.
+Scout는 검색 엔진에서 일치하는 Eloquent 모델의 primary key 목록을 가져온 후, Eloquent를 통해 이 key에 해당하는 모든 모델을 실제로 쿼리합니다. 이때 쿼리를 커스터마이징하고 싶다면 `query` 메서드를 사용할 수 있습니다. `query` 메서드는 Eloquent 쿼리 빌더 인스턴스를 인자로 받는 클로저를 전달받습니다.
 
 ```php
 use App\Models\Order;
@@ -1005,7 +1005,7 @@ abstract public function flush($model);
 #### Registering the Engine
 
 <!-- Once you have written your custom engine, you may register it with Scout using the `extend` method of the Scout engine manager. Scout's engine manager may be resolved from the Laravel service container. You should call the `extend` method from the `boot` method of your `App\Providers\AppServiceProvider` class or any other service provider used by your application: -->
-커스텀 엔진을 작성했다면, Scout 엔진 매니저의 `extend` 메서드를 사용해 엔진을 등록할 수 있습니다. Scout 엔진 매니저는 Laravel 서비스 컨테이너에서 주입받을 수 있습니다. 보통 `App\Providers\AppServiceProvider` 클래스의 `boot` 메서드에서, 또는 애플리케이션에서 사용하는 다른 서비스 프로바이더에서 `extend` 메서드를 아래와 같이 호출합니다.
+커스텀 엔진을 작성했다면, Scout 엔진 매니저의 `extend` 메서드를 사용해 엔진을 등록할 수 있습니다. Scout 엔진 매니저는 Laravel 서비스 컨테이너에서 주입받을 수 있습니다. 보통 `App\Providers\AppServiceProvider` 클래스 또는 애플리케이션에서 사용하는 다른 서비스 프로바이더의 `boot` 메서드에서 `extend` 메서드를 아래와 같이 호출합니다.
 
 ```
 use App\ScoutExtensions\MySqlSearchEngine;

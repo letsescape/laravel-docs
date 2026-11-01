@@ -11,7 +11,7 @@
 ## Versioning Scheme
 
 <!-- Laravel and its other first-party packages follow [Semantic Versioning](https://semver.org). Major framework releases are released every year (~February), while minor and patch releases may be released as often as every week. Minor and patch releases should **never** contain breaking changes. -->
-Laravel 및 공식 서드파티 패키지는 [Semantic Versioning](https://semver.org)을 따릅니다. 프레임워크의 메이저 릴리스는 매년(대략 2월)에 제공되며, 마이너 및 패치 릴리스는 매주처럼 자주 나올 수 있습니다. 마이너 및 패치 릴리스에는 **절대** 하위 호환성을 깨뜨리는 변경 사항이 포함되어서는 안 됩니다.
+Laravel 및 공식 패키지는 [Semantic Versioning](https://semver.org)을 따릅니다. 프레임워크의 메이저 릴리스는 매년(대략 2월)에 제공되며, 마이너 및 패치 릴리스는 매주처럼 자주 나올 수 있습니다. 마이너 및 패치 릴리스에는 **절대** 하위 호환성을 깨뜨리는 변경 사항이 포함되어서는 안 됩니다.
 
 <!-- When referencing the Laravel framework or its components from your application or package, you should always use a version constraint such as `^8.0`, since major releases of Laravel do include breaking changes. However, we strive to always ensure you may update to a new major release in one day or less. -->
 애플리케이션이나 패키지에서 Laravel 프레임워크 또는 Laravel 컴포넌트를 참조할 때는 항상 `^8.0`과 같은 버전 제약 조건을 사용하는 것이 좋습니다. Laravel의 메이저 릴리스에는 하위 호환성을 깨뜨리는 변경이 포함될 수 있기 때문입니다. 물론, 새로운 메이저 릴리스로 하루 이내에 업데이트할 수 있도록 최대한 노력하고 있습니다.

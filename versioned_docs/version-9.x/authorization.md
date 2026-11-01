@@ -29,7 +29,7 @@
 ## Introduction
 
 <!-- In addition to providing built-in [authentication](/docs/9.x/authentication) services, Laravel also provides a simple way to authorize user actions against a given resource. For example, even though a user is authenticated, they may not be authorized to update or delete certain Eloquent models or database records managed by your application. Laravel's authorization features provide an easy, organized way of managing these types of authorization checks. -->
-Laravel은 기본적인 [authentication](/docs/9.x/authentication) 기능을 제공할 뿐만 아니라, 특정 리소스에 대해 사용자의 액션을 인가(authorization)하는 방법도 간단하게 제공합니다. 예를 들어, 사용자가 인증(authentication)은 되어 있더라도 모든 Eloquent 모델이나 데이터베이스 레코드를 수정 또는 삭제할 권한이 있을 수는 없습니다. Laravel의 인가 기능은 이러한 인가 확인 과정을 쉽고 체계적으로 관리할 수 있도록 해줍니다.
+Laravel은 기본적인 [authentication](/docs/9.x/authentication) 기능을 제공할 뿐만 아니라, 특정 리소스에 대해 사용자의 액션을 인가(authorization)하는 방법도 간단하게 제공합니다. 예를 들어, 사용자가 인증(authentication)은 되어 있더라도 특정 Eloquent 모델이나 데이터베이스 레코드를 수정 또는 삭제할 권한이 없을 수 있습니다. Laravel의 인가 기능은 이러한 인가 확인 과정을 쉽고 체계적으로 관리할 수 있도록 해줍니다.
 
 <!-- Laravel provides two primary ways of authorizing actions: [gates](#gates) and [policies](#creating-policies). Think of gates and policies like routes and controllers. Gates provide a simple, closure-based approach to authorization while policies, like controllers, group logic around a particular model or resource. In this documentation, we'll explore gates first and then examine policies. -->
 Laravel은 두 가지 주요 인가 방법을 제공합니다: [gates](#gates)와 [policies](#creating-policies)입니다. 게이트와 정책을 라우트와 컨트롤러에 비유할 수 있습니다. 게이트는 간단하고 클로저로 작성하는 인가 방식이며, 정책은 컨트롤러처럼 특정 모델이나 리소스를 중심으로 인가 로직을 묶는 방식입니다. 이 문서에서는 먼저 게이트를, 그 다음 정책을 살펴봅니다.
@@ -686,7 +686,7 @@ class PostController extends Controller
 ```
 
 <!-- If a [policy is registered](#registering-policies) for the given model, the `can` method will automatically call the appropriate policy and return the boolean result. If no policy is registered for the model, the `can` method will attempt to call the closure-based Gate matching the given action name. -->
-해당 모델에 [policy is registered](#registering-policies), `can` 메서드는 자동으로 적절한 정책을 호출해 불리언 결과를 반환합니다. 만약 정책이 없다면, `can` 메서드는 액션 이름과 일치하는 클로저 기반 게이트를 호출하려 시도합니다.
+해당 모델에 [policy is registered](#registering-policies)되어 있다면, `can` 메서드는 자동으로 적절한 정책을 호출해 불리언 결과를 반환합니다. 만약 정책이 없다면, `can` 메서드는 액션 이름과 일치하는 클로저 기반 게이트를 호출하려 시도합니다.
 
 <a name="user-model-actions-that-dont-require-models"></a>
 <!-- #### Actions That Don't Require Models -->

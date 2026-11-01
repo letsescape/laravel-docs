@@ -1070,7 +1070,7 @@ RateLimiter::for('uploads', function (Request $request) {
 Laravel은 들어오는 요청에 대한 속도 제한뿐 아니라, `after` 메서드를 사용하여 응답을 기준으로 속도를 제한할 수도 있습니다. 이는 유효성 검증 오류, 404 응답, 또는 그 밖의 특정 HTTP 상태 코드처럼 특정 응답만 속도 제한에 포함하고 싶을 때 유용합니다.
 
 <!-- The `after` method accepts a closure that receives the response and should return `true` if the response should be counted toward the rate limit, or `false` if it should be ignored. This is particularly useful for preventing enumeration attacks by limiting consecutive 404 responses, or allowing users to retry requests that fail validation without exhausting their rate limit on an endpoint that should only throttle successful operations: -->
-`after` 메서드는 응답을 받는 클로저를 인수로 받으며, 해당 응답을 속도 제한에 포함해야 한다면 `true`, 무시해야 한다면 `false`를 반환해야 합니다. 이는 연속된 404 응답을 제한하여 열거 공격을 방지하거나, 성공한 작업만 제한해야 하는 엔드포인트에서 유효성 검증에 실패한 요청을 속도 제한 소진 없이 다시 시도할 수 있게 할 때 특히 유용합니다.
+`after` 메서드는 응답을 받는 클로저를 인수로 받으며, 이 클로저는 해당 응답을 속도 제한에 포함해야 한다면 `true`, 무시해야 한다면 `false`를 반환해야 합니다. 이는 연속된 404 응답을 제한하여 열거 공격을 방지하거나, 성공한 작업만 제한해야 하는 엔드포인트에서 유효성 검증에 실패한 요청을 속도 제한 소진 없이 다시 시도할 수 있게 할 때 특히 유용합니다.
 
 ```php
 use Illuminate\Cache\RateLimiting\Limit;

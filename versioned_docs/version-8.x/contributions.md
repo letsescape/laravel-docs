@@ -17,7 +17,7 @@
 ## Bug Reports
 
 <!-- To encourage active collaboration, Laravel strongly encourages pull requests, not just bug reports. "Bug reports" may also be sent in the form of a pull request containing a failing test. Pull requests will only be reviewed when marked as "ready for review" (not in the "draft" state) and all tests for new features are passing. Lingering, non-active pull requests left in the "draft" state will be closed after a few days. -->
-Laravel은 활발한 협업을 장려하기 위해, 단순한 버그 리포팅이 아닌 바로 직접 pull request로 기여하는 것을 적극 권장합니다. 실패하는 테스트를 포함하는 pull request 형태로 "버그 리포트"를 제출해도 좋습니다. pull request는 "ready for review"(검토 준비 완료) 상태일 때만 리뷰가 이루어지며, 새 기능을 위한 모든 테스트가 통과해야 합니다. 오랜 기간 비활성화되어 "draft"(임시) 상태로 남아있는 pull request는 며칠 후 종료될 수 있습니다.
+Laravel은 활발한 협업을 장려하기 위해, 단순한 버그 리포팅이 아닌 바로 직접 pull request로 기여하는 것을 적극 권장합니다. 실패하는 테스트를 포함하는 pull request 형태로 "버그 리포트"를 제출해도 좋습니다. pull request는 "ready for review"(검토 준비 완료) 상태일 때만 리뷰가 이루어지며, 새 기능을 위한 모든 테스트가 통과해야 합니다. 오랜 기간 비활성화되어 "draft"(임시) 상태로 남아있는 pull request는 며칠 후 종료됩니다.
 
 <!-- However, if you file a bug report, your issue should contain a title and a clear description of the issue. You should also include as much relevant information as possible and a code sample that demonstrates the issue. The goal of a bug report is to make it easy for yourself - and others - to replicate the bug and develop a fix. -->
 만약 버그 리포트를 제출한다면, 해당 이슈에는 제목과 문제를 명확하게 설명하는 내용이 반드시 포함되어야 합니다. 또한, 최대한 관련 정보를 상세하게 넣고, 문제를 재현할 수 있는 코드 예시도 제공해주셔야 합니다. 버그 리포트의 목적은 자신뿐 아니라 다른 사람들이 쉽게 버그를 재현하고, 수정할 수 있도록 돕는 데 있습니다.
@@ -82,7 +82,7 @@ Laravel 소스 코드는 GitHub에서 관리되며, Laravel의 각 프로젝트�
 ## Support Questions
 
 <!-- Laravel's GitHub issue trackers are not intended to provide Laravel help or support. Instead, use one of the following channels: -->
-Laravel의 GitHub 이슈 트래커는 Laravel 관련 질문이나 일반적인 지원 요청을 위한 공간이 아닙니다. 이런 경우에는 아래 공식 커뮤니티 채널 중 하나를 이용해주세요:
+Laravel의 GitHub 이슈 트래커는 Laravel 관련 질문이나 일반적인 지원 요청을 위한 공간이 아닙니다. 이런 경우에는 아래 커뮤니티 채널 중 하나를 이용해주세요:
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -125,7 +125,7 @@ Laravel의 기본 동작에 새로운 기능을 제안하거나 기존 기능을
 **모든** 버그 수정은 항상 최신 안정(stable) 브랜치로 보내야 하며, 오직 앞으로 배포될 신규 릴리스에서만 존재하는 기능을 고칠 때에만 `master` 브랜치로 버그 수정을 보내야 합니다.
 
 <!-- **Minor** features that are **fully backward compatible** with the current release may be sent to the latest stable branch. -->
-**완전히 하위 호환되는 소규모(minor) 기능**의 경우에도 최신 안정 브랜치로 pull request를 보내야 합니다.
+**완전히 하위 호환되는 소규모(minor) 기능**의 경우에도 최신 안정 브랜치로 pull request를 보낼 수 있습니다.
 
 <!-- **Major** new features should always be sent to the `master` branch, which contains the upcoming release. -->
 **대규모(major) 신규 기능**은 항상 향후 릴리스를 위한 `master` 브랜치로 보내야 합니다.

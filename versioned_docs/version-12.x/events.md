@@ -36,7 +36,7 @@
 Laravel의 이벤트는 간단한 관찰자 패턴 구현을 제공하므로 애플리케이션 내에서 발생하는 다양한 이벤트를 구독하고 수신할 수 있습니다. 이벤트 클래스는 일반적으로 `app/Events` 디렉터리에 저장되고 해당 리스너는 `app/Listeners`에 저장됩니다. Artisan 콘솔 명령을 사용하여 이벤트 및 리스너를 생성할 때 이러한 디렉토리가 생성되므로 애플리케이션에 이러한 디렉토리가 표시되지 않더라도 걱정하지 마십시오.
 
 <!-- Events serve as a great way to decouple various aspects of your application, since a single event can have multiple listeners that do not depend on each other. For example, you may wish to send a Slack notification to your user each time an order has shipped. Instead of coupling your order processing code to your Slack notification code, you can raise an `App\Events\OrderShipped` event which a listener can receive and use to dispatch a Slack notification. -->
-이벤트는 단일 이벤트가 서로 의존하지 않는 여러 리스너를 가질 수 있으므로 애플리케이션의 다양한 측면을 분리하는 훌륭한 방법으로 사용됩니다. 예를 들어, 주문이 디스패치될 때마다 사용자에게 Slack 알림을 보내려고 할 수 있습니다. 주문 처리 코드를 Slack 알림 코드에 연결하는 대신 리스너가 Slack 알림을 디스패치에 수신하고 사용할 수 있는 `App\Events\OrderShipped` 이벤트를 발생시킬 수 있습니다.
+이벤트는 단일 이벤트가 서로 의존하지 않는 여러 리스너를 가질 수 있으므로 애플리케이션의 다양한 측면을 분리하는 훌륭한 방법으로 사용됩니다. 예를 들어, 주문이 배송될 때마다 사용자에게 Slack 알림을 보내려고 할 수 있습니다. 주문 처리 코드를 Slack 알림 코드에 연결하는 대신 리스너가 수신하여 Slack 알림을 디스패치하는 데 사용할 수 있는 `App\Events\OrderShipped` 이벤트를 발생시킬 수 있습니다.
 
 <a name="generating-events-and-listeners"></a>
 <!-- ## Generating Events and Listeners -->
@@ -52,7 +52,7 @@ php artisan make:listener SendPodcastNotification --event=PodcastProcessed
 ```
 
 <!-- For convenience, you may also invoke the `make:event` and `make:listener` Artisan commands without additional arguments. When you do so, Laravel will automatically prompt you for the class name and, when creating a listener, the event it should listen to: -->
-편의를 위해 추가 인수 없이 `make:event` 및 `make:listener` Artisan 명령을 호출할 수도 있습니다. 그렇게 하면 Laravel가 자동으로 클래스 이름을 묻는 메시지를 표시하며, 리스너를 생성할 때 수신해야 하는 이벤트는 다음과 같습니다.
+편의를 위해 추가 인수 없이 `make:event` 및 `make:listener` Artisan 명령을 호출할 수도 있습니다. 그렇게 하면 Laravel은 자동으로 클래스 이름을 묻고, 리스너를 생성할 때는 수신해야 하는 이벤트도 묻습니다.
 
 ```shell
 php artisan make:event
@@ -217,7 +217,7 @@ Event::listen(queueable(function (PodcastProcessed $event) {
 ```
 
 <!-- If you would like to handle anonymous queued listener failures, you may provide a closure to the `catch` method while defining the `queueable` listener. This closure will receive the event instance and the `Throwable` instance that caused the listener's failure: -->
-익명 대기 리스너 오류를 처리하려면 `queueable` 리스너를 정의하는 동안 `catch` 메서드에 대한 클로저를 제공할 수 있습니다. 이 클로저는 리스너의 실패를 일으킨 이벤트 인스턴스와 `Throwable` 인스턴스를 수신합니다.
+익명 대기 리스너 오류를 처리하려면 `queueable` 리스너를 정의하는 동안 `catch` 메서드에 대한 클로저를 제공할 수 있습니다. 이 클로저는 이벤트 인스턴스와 리스너의 실패를 일으킨 `Throwable` 인스턴스를 수신합니다.
 
 ```php
 use App\Events\PodcastProcessed;
@@ -310,7 +310,7 @@ class SendShipmentNotification
 ```
 
 > [!NOTE]
-> 이벤트 리스너는 생성자에 필요한 종속성을 유형 힌트할 수도 있습니다. 모든 이벤트 리스너는 Laravel [service container](/docs/12.x/container)를 통해 확인되므로 종속성이 자동으로 주입됩니다.
+> 이벤트 리스너는 생성자에 필요한 종속성을 유형 힌트할 수도 있습니다. 모든 이벤트 리스너는 Laravel [service container](/docs/12.x/container)를 통해 생성되므로 종속성이 자동으로 주입됩니다.
 
 <a name="stopping-the-propagation-of-an-event"></a>
 <!-- #### Stopping The Propagation Of An Event -->
@@ -344,7 +344,7 @@ class SendShipmentNotification implements ShouldQueue
 ```
 
 <!-- That's it! Now, when an event handled by this listener is dispatched, the listener will automatically be queued by the event dispatcher using Laravel's [queue system](/docs/12.x/queues). If no exceptions are thrown when the listener is executed by the queue, the queued job will automatically be deleted after it has finished processing. -->
-그게 다야! 이제 이 리스너가 처리하는 이벤트가 디스패치이면 리스너는 Laravel의 [queue system](/docs/12.x/queues)을 사용하여 이벤트 디스패처에 의해 자동으로 큐에 추가됩니다. 리스너가 큐에 의해 실행될 때 예외가 발생하지 않으면 대기 중인 작업은 처리가 완료된 후 자동으로 삭제됩니다.
+이것으로 충분합니다. 이제 이 리스너가 처리하는 이벤트가 디스패치되면 리스너는 Laravel의 [queue system](/docs/12.x/queues)을 사용하여 이벤트 디스패처에 의해 자동으로 큐에 추가됩니다. 리스너가 큐에 의해 실행될 때 예외가 발생하지 않으면 대기 중인 작업은 처리가 완료된 후 자동으로 삭제됩니다.
 
 <a name="customizing-the-queue-connection-queue-name"></a>
 <!-- #### Customizing The Queue Connection, Name, & Delay -->
@@ -387,7 +387,7 @@ class SendShipmentNotification implements ShouldQueue
 ```
 
 <!-- If you would like to define the listener's queue connection, queue name, or delay at runtime, you may define `viaConnection`, `viaQueue`, or `withDelay` methods on the listener: -->
-리스너의 큐 연결, 큐 이름 또는 런타임 지연을 정의하려는 경우 리스너에서 `viaConnection`, `viaQueue` 또는 `withDelay` 메서드를 정의할 수 있습니다.
+리스너의 큐 연결, 큐 이름 또는 지연 시간을 런타임에 정의하려는 경우 리스너에서 `viaConnection`, `viaQueue` 또는 `withDelay` 메서드를 정의할 수 있습니다.
 
 ```php
 /**
@@ -487,10 +487,10 @@ class SendShipmentNotification implements ShouldQueue
 ### Queued Event Listeners and Database Transactions
 
 <!-- When queued listeners are dispatched within database transactions, they may be processed by the queue before the database transaction has committed. When this happens, any updates you have made to models or database records during the database transaction may not yet be reflected in the database. In addition, any models or database records created within the transaction may not exist in the database. If your listener depends on these models, unexpected errors can occur when the job that dispatches the queued listener is processed. -->
-큐에 있는 리스너가 데이터베이스 트랜잭션 내의 디스패치인 경우 데이터베이스 트랜잭션이 커밋되기 전에 큐에 의해 처리될 수 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델 또는 데이터베이스 레코드에 대해 수행한 업데이트가 아직 데이터베이스에 반영되지 않을 수 있습니다. 또한 트랜잭션 내에서 생성된 모델 또는 데이터베이스 레코드가 데이터베이스에 존재하지 않을 수도 있습니다. 리스너가 이러한 모델에 의존하는 경우 큐에 있는 디스패치인 작업이 처리될 때 예기치 않은 오류가 발생할 수 있습니다.
+큐에 넣는 리스너가 데이터베이스 트랜잭션 내에서 디스패치되면 데이터베이스 트랜잭션이 커밋되기 전에 큐에 의해 처리될 수 있습니다. 이런 일이 발생하면 데이터베이스 트랜잭션 중에 모델 또는 데이터베이스 레코드에 대해 수행한 업데이트가 아직 데이터베이스에 반영되지 않을 수 있습니다. 또한 트랜잭션 내에서 생성된 모델 또는 데이터베이스 레코드가 데이터베이스에 존재하지 않을 수도 있습니다. 리스너가 이러한 모델에 의존하는 경우 큐 리스너를 디스패치하는 작업이 처리될 때 예기치 않은 오류가 발생할 수 있습니다.
 
 <!-- If your queue connection's `after_commit` configuration option is set to `false`, you may still indicate that a particular queued listener should be dispatched after all open database transactions have been committed by implementing the `ShouldQueueAfterCommit` interface on the listener class: -->
-큐 연결의 `after_commit` 구성 옵션이 `false`로 설정된 경우에도 리스너 클래스에서 `ShouldQueueAfterCommit` 인터페이스를 구현하여 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 후에도 대기 중인 특정 리스너가 디스패치여야 함을 나타낼 수 있습니다.
+큐 연결의 `after_commit` 구성 옵션이 `false`로 설정된 경우에도 리스너 클래스에서 `ShouldQueueAfterCommit` 인터페이스를 구현하여 열려 있는 모든 데이터베이스 트랜잭션이 커밋된 후에 특정 큐 리스너가 디스패치되어야 함을 나타낼 수 있습니다.
 
 ```php
 <?php
@@ -577,7 +577,7 @@ class SendShipmentNotification implements ShouldQueue, ShouldBeEncrypted
 > 고유한 리스너에는 [locks](/docs/12.x/cache#atomic-locks)을 지원하는 캐시 드라이버가 필요합니다. 현재 `memcached`, `redis`, `dynamodb`, `database`, `file` 및 `array` 캐시 드라이버는 원자 잠금을 지원합니다.
 
 <!-- Sometimes, you may want to ensure that only one instance of a specific listener is on the queue at any point in time. You may do so by implementing the `ShouldBeUnique` interface on your listener class: -->
-때로는 특정 리스너의 인스턴스 하나만 특정 시점에 큐에 있는지 확인하고 싶을 수도 있습니다. 리스너 클래스에 `ShouldBeUnique` 인터페이스를 구현하면 됩니다:
+때로는 특정 리스너의 인스턴스가 어느 시점에도 큐에 하나만 존재하도록 보장하고 싶을 수도 있습니다. 리스너 클래스에 `ShouldBeUnique` 인터페이스를 구현하면 됩니다:
 
 ```php
 <?php
@@ -640,7 +640,7 @@ class AcquireProductKey implements ShouldQueue, ShouldBeUnique
 위의 예에서 `AcquireProductKey` 리스너는 라이선스 ID별로 고유합니다. 따라서 동일한 라이선스에 대한 리스너의 새로운 디스패치는 기존 리스너의 처리가 완료될 때까지 무시됩니다. 이렇게 하면 동일한 라이선스에 대해 중복된 제품 키를 획득하는 것을 방지할 수 있습니다. 또한 기존 리스너가 1시간 이내에 처리되지 않으면 고유 잠금이 해제되고 동일한 고유 키를 가진 다른 리스너가 대기할 수 있습니다.
 
 > [!WARNING]
-> 여러 웹 서버 또는 컨테이너에서 애플리케이션 디스패치 이벤트를 사용하는 경우 Laravel가 리스너가 고유한지 정확하게 확인할 수 있도록 모든 서버가 동일한 중앙 캐시 서버와 통신하는지 확인해야 합니다.
+> 애플리케이션이 여러 웹 서버 또는 컨테이너에서 이벤트를 디스패치하는 경우 Laravel이 리스너가 고유한지 정확하게 확인할 수 있도록 모든 서버가 동일한 중앙 캐시 서버와 통신하는지 확인해야 합니다.
 
 <a name="keeping-listeners-unique-until-processing-begins"></a>
 <!-- #### Keeping Listeners Unique Until Processing Begins -->
@@ -669,7 +669,7 @@ class AcquireProductKey implements ShouldQueue, ShouldBeUniqueUntilProcessing
 #### Unique Listener Locks
 
 <!-- Behind the scenes, when a `ShouldBeUnique` listener is dispatched, Laravel attempts to acquire a [lock](/docs/12.x/cache#atomic-locks) with the `uniqueId` key. If the lock is already held, the listener is not dispatched. This lock is released when the listener completes processing or fails all of its retry attempts. By default, Laravel will use the default cache driver to obtain this lock. However, if you wish to use another driver for acquiring the lock, you may define a `uniqueVia` method that returns the cache driver that should be used: -->
-뒤에서는 `ShouldBeUnique` 리스너가 디스패치일 때 Laravel가 `uniqueId` 키를 사용하여 [lock](/docs/12.x/cache#atomic-locks)을 획득하려고 시도합니다. 잠금이 이미 유지된 경우 리스너는 디스패치가 아닙니다. 이 잠금은 리스너가 처리를 완료하거나 모든 재시도 시도에 실패하면 해제됩니다. 기본적으로 Laravel는 기본 캐시 드라이버를 사용하여 이 잠금을 획득합니다. 그러나 잠금 획득을 위해 다른 드라이버를 사용하려는 경우 사용해야 하는 캐시 드라이버를 반환하는 `uniqueVia` 메서드를 정의할 수 있습니다.
+내부적으로 `ShouldBeUnique` 리스너가 디스패치될 때 Laravel이 `uniqueId` 키를 사용하여 [lock](/docs/12.x/cache#atomic-locks)을 획득하려고 시도합니다. 잠금이 이미 유지된 경우 리스너는 디스패치되지 않습니다. 이 잠금은 리스너가 처리를 완료하거나 모든 재시도 시도에 실패하면 해제됩니다. 기본적으로 Laravel는 기본 캐시 드라이버를 사용하여 이 잠금을 획득합니다. 그러나 잠금 획득을 위해 다른 드라이버를 사용하려는 경우 사용해야 하는 캐시 드라이버를 반환하는 `uniqueVia` 메서드를 정의할 수 있습니다.
 
 ```php
 <?php
@@ -702,7 +702,7 @@ class AcquireProductKey implements ShouldQueue, ShouldBeUnique
 ### Handling Failed Jobs
 
 <!-- Sometimes your queued event listeners may fail. If the queued listener exceeds the maximum number of attempts as defined by your queue worker, the `failed` method will be called on your listener. The `failed` method receives the event instance and the `Throwable` that caused the failure: -->
-때때로 대기 중인 이벤트 리스너가 실패할 수 있습니다. 큐에 있는 리스너가 큐 워커에 정의된 최대 시도 횟수를 초과하는 경우 `failed` 메서드가 리스너에서 호출됩니다. `failed` 메서드는 오류를 일으킨 이벤트 인스턴스와 `Throwable`를 수신합니다.
+때때로 대기 중인 이벤트 리스너가 실패할 수 있습니다. 큐에 있는 리스너가 큐 워커에 정의된 최대 시도 횟수를 초과하는 경우 `failed` 메서드가 리스너에서 호출됩니다. `failed` 메서드는 이벤트 인스턴스와 오류를 일으킨 `Throwable`를 수신합니다.
 
 ```php
 <?php
@@ -875,7 +875,7 @@ class SendShipmentNotification implements ShouldQueue
 ```
 
 <!-- In this example, the listener will be retried up to 25 times. However, the listener will fail if three unhandled exceptions are thrown by the listener. -->
-이 예에서는 리스너가 최대 25번까지 재시도됩니다. 그러나 리스너에서 처리되지 않은 세 가지 예외가 발생하면 리스너가 실패합니다.
+이 예에서는 리스너가 최대 25번까지 재시도됩니다. 그러나 리스너에서 처리되지 않은 예외가 세 번 발생하면 리스너가 실패합니다.
 
 <a name="specifying-queued-listener-timeout"></a>
 <!-- #### Specifying Queued Listener Timeout -->
@@ -930,7 +930,7 @@ class SendShipmentNotification implements ShouldQueue
 ## Dispatching Events
 
 <!-- To dispatch an event, you may call the static `dispatch` method on the event. This method is made available on the event by the `Illuminate\Foundation\Events\Dispatchable` trait. Any arguments passed to the `dispatch` method will be passed to the event's constructor: -->
-디스패치 및 이벤트를 수행하려면 이벤트에서 정적 `dispatch` 메서드를 호출할 수 있습니다. 이 방법은 `Illuminate\Foundation\Events\Dispatchable` 특성을 통해 이벤트에서 사용할 수 있습니다. `dispatch` 메소드에 전달된 모든 인수는 이벤트의 생성자에 전달됩니다.
+이벤트를 디스패치하려면 이벤트에서 정적 `dispatch` 메서드를 호출할 수 있습니다. 이 방법은 `Illuminate\Foundation\Events\Dispatchable` 특성을 통해 이벤트에서 사용할 수 있습니다. `dispatch` 메소드에 전달된 모든 인수는 이벤트의 생성자에 전달됩니다.
 
 ```php
 <?php
@@ -970,17 +970,17 @@ OrderShipped::dispatchUnless($condition, $order);
 ```
 
 > [!NOTE]
-> 테스트할 때 실제로 리스너를 트리거하지 않고 특정 이벤트가 디스패치였다고 주장하는 것이 도움이 될 수 있습니다. Laravel의 [built-in testing helpers](#testing)를 사용하면 문제가 해결됩니다.
+> 테스트할 때 실제로 리스너를 트리거하지 않고 특정 이벤트가 디스패치되었는지 검증하는 것이 도움이 될 수 있습니다. Laravel의 [built-in testing helpers](#testing)를 사용하면 문제가 해결됩니다.
 
 <a name="dispatching-events-after-database-transactions"></a>
 <!-- ### Dispatching Events After Database Transactions -->
 ### Dispatching Events After Database Transactions
 
 <!-- Sometimes, you may want to instruct Laravel to only dispatch an event after the active database transaction has committed. To do so, you may implement the `ShouldDispatchAfterCommit` interface on the event class. -->
-때로는 활성 데이터베이스 트랜잭션이 커밋된 후 디스패치 및 이벤트만 수행하도록 Laravel에 지시할 수도 있습니다. 이렇게 하려면 이벤트 클래스에 `ShouldDispatchAfterCommit` 인터페이스를 구현할 수 있습니다.
+때로는 활성 데이터베이스 트랜잭션이 커밋된 후에만 이벤트를 디스패치하도록 Laravel에 지시할 수도 있습니다. 이렇게 하려면 이벤트 클래스에 `ShouldDispatchAfterCommit` 인터페이스를 구현할 수 있습니다.
 
 <!-- This interface instructs Laravel to not dispatch the event until the current database transaction is committed. If the transaction fails, the event will be discarded. If no database transaction is in progress when the event is dispatched, the event will be dispatched immediately: -->
-이 인터페이스는 현재 데이터베이스 트랜잭션이 커밋될 때까지 이벤트를 디스패치하지 않도록 Laravel에 지시합니다. 거래가 실패하면 이벤트가 폐기됩니다. 이벤트가 디스패치일 때 진행 중인 데이터베이스 트랜잭션이 없으면 이벤트는 즉시 디스패치가 됩니다.
+이 인터페이스는 현재 데이터베이스 트랜잭션이 커밋될 때까지 이벤트를 디스패치하지 않도록 Laravel에 지시합니다. 트랜잭션이 실패하면 이벤트가 폐기됩니다. 이벤트가 디스패치될 때 진행 중인 데이터베이스 트랜잭션이 없으면 이벤트는 즉시 디스패치됩니다.
 
 ```php
 <?php
@@ -1028,7 +1028,7 @@ Event::defer(function () {
 ```
 
 <!-- All events triggered within the closure will be dispatched after the closure is executed. This ensures that event listeners have access to all related records that were created during the deferred execution. If an exception occurs within the closure, the deferred events will not be dispatched. -->
-클로저 내에서 트리거된 모든 이벤트는 클로저가 실행된 후 디스패치가 됩니다. 이렇게 하면 이벤트 리스너가 지연된 실행 중에 생성된 모든 관련 레코드에 액세스할 수 있습니다. 클로저 내에서 예외가 발생하면 지연된 이벤트는 디스패치가 아닙니다.
+클로저 내에서 트리거된 모든 이벤트는 클로저 실행이 끝난 후 디스패치됩니다. 이렇게 하면 이벤트 리스너가 지연된 실행 중에 생성된 모든 관련 레코드에 액세스할 수 있습니다. 클로저 내에서 예외가 발생하면 지연된 이벤트는 디스패치되지 않습니다.
 
 <!-- To defer only specific events, pass an array of events as the second argument to the `defer` method: -->
 특정 이벤트만 연기하려면 이벤트 배열을 `defer` 메서드의 두 번째 인수로 전달합니다.
@@ -1095,7 +1095,7 @@ class UserEventSubscriber
 ```
 
 <!-- If your event listener methods are defined within the subscriber itself, you may find it more convenient to return an array of events and method names from the subscriber's `subscribe` method. Laravel will automatically determine the subscriber's class name when registering the event listeners: -->
-이벤트 리스너 메서드가 구독자 자체 내에 정의된 경우 구독자의 `subscribe` 메서드에서 이벤트 배열과 메서드 이름을 반환하는 것이 더 편리할 수 있습니다. Laravel는 이벤트 리스너를 등록할 때 구독자의 클래스 이름을 자동으로 결정합니다.
+이벤트 리스너 메서드가 구독자 자체 내에 정의된 경우 구독자의 `subscribe` 메서드에서 이벤트와 메서드 이름으로 이루어진 배열을 반환하는 것이 더 편리할 수 있습니다. Laravel는 이벤트 리스너를 등록할 때 구독자의 클래스 이름을 자동으로 결정합니다.
 
 ```php
 <?php
@@ -1169,7 +1169,7 @@ class AppServiceProvider extends ServiceProvider
 디스패치 이벤트 코드를 테스트할 때 Laravel에 이벤트의 리스너를 실제로 실행하지 않도록 지시할 수 있습니다. 왜냐하면 리스너의 코드는 해당 디스패치 코드와 별도로 직접 테스트할 수 있기 때문입니다. 물론 리스너 자체를 테스트하려면 리스너 인스턴스를 인스턴스화하고 테스트에서 `handle` 메서드를 직접 호출할 수 있습니다.
 
 <!-- Using the `Event` facade's `fake` method, you may prevent listeners from executing, execute the code under test, and then assert which events were dispatched by your application using the `assertDispatched`, `assertNotDispatched`, and `assertNothingDispatched` methods: -->
-`Event` 파사드의 `fake` 메소드를 사용하면 리스너 실행을 방지하고 테스트인 코드를 실행한 다음 `assertDispatched`, `assertNotDispatched` 및 `assertNothingDispatched` 메소드를 사용하여 애플리케이션에서 어떤 이벤트가 디스패치인지 확인할 수 있습니다.
+`Event` 파사드의 `fake` 메소드를 사용하면 리스너 실행을 방지하고 테스트 대상 코드를 실행한 다음 `assertDispatched`, `assertNotDispatched` 및 `assertNothingDispatched` 메소드를 사용하여 애플리케이션에서 어떤 이벤트가 디스패치되었는지 확인할 수 있습니다.
 
 ```php tab=Pest
 <?php
@@ -1240,7 +1240,7 @@ class ExampleTest extends TestCase
 ```
 
 <!-- You may pass a closure to the `assertDispatched` or `assertNotDispatched` methods in order to assert that an event was dispatched that passes a given "truth test". If at least one event was dispatched that passes the given truth test then the assertion will be successful: -->
-이벤트가 주어진 "진실 테스트"를 통과한 디스패치였다고 주장하기 위해 `assertDispatched` 또는 `assertNotDispatched` 메소드에 클로저를 전달할 수 있습니다. 적어도 하나의 이벤트가 주어진 진리 테스트를 통과하는 디스패치라면 어설션은 성공합니다.
+주어진 조건을 만족하는 이벤트가 디스패치되었는지 검증하기 위해 `assertDispatched` 또는 `assertNotDispatched` 메소드에 클로저를 전달할 수 있습니다. 주어진 조건을 만족하는 이벤트가 하나 이상 디스패치되었다면 어설션은 성공합니다.
 
 ```php
 Event::assertDispatched(function (OrderShipped $event) use ($order) {
@@ -1249,7 +1249,7 @@ Event::assertDispatched(function (OrderShipped $event) use ($order) {
 ```
 
 <!-- If you would simply like to assert that an event listener is listening to a given event, you may use the `assertListening` method: -->
-이벤트 리스너가 주어진 이벤트를 듣고 있다고 주장하고 싶다면 `assertListening` 메소드를 사용할 수 있습니다:
+이벤트 리스너가 주어진 이벤트를 수신하고 있는지 검증하려면 `assertListening` 메소드를 사용할 수 있습니다:
 
 ```php
 Event::assertListening(

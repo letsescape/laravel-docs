@@ -95,7 +95,7 @@ return View::make('greeting', ['name' => 'James']);
 ### Nested View Directories
 
 <!-- Views may also be nested within subdirectories of the `resources/views` directory. "Dot" notation may be used to reference nested views. For example, if your view is stored at `resources/views/admin/profile.blade.php`, you may return it from one of your application's routes / controllers like so: -->
-뷰는 `resources/views` 디렉터리의 하위 폴더(서브디렉터리)에 중첩해 저장할 수도 있습니다. 이때 중첩된 뷰 파일을 참조할 때는 "점(·) 표기법(dot notation)"을 사용할 수 있습니다. 예를 들어, 뷰가 `resources/views/admin/profile.blade.php`에 위치한다면, 아래와 같이 해당 뷰를 반환할 수 있습니다.
+뷰는 `resources/views` 디렉터리의 하위 폴더(서브디렉터리)에 중첩해 저장할 수도 있습니다. 이때 중첩된 뷰 파일을 참조할 때는 "점(.) 표기법(dot notation)"을 사용할 수 있습니다. 예를 들어, 뷰가 `resources/views/admin/profile.blade.php`에 위치한다면, 아래와 같이 해당 뷰를 반환할 수 있습니다.
 
 ```
 return view('admin.profile', $data);

@@ -204,7 +204,7 @@ foreach ($users as $user) {
 #### Selecting Scalar Values
 
 <!-- Sometimes your database query may result in a single, scalar value. Instead of being required to retrieve the query's scalar result from a record object, Laravel allows you to retrieve this value directly using the `scalar` method: -->
-가끔은 데이터베이스 쿼리 결과가 단일 값, 즉 스칼라 값일 때도 있습니다. 이럴 때는 결과 배열에서 값을 꺼낼 필요 없이, Laravel의 `scalar` 메서드를 사용해 바로 값을 얻을 수 있습니다.
+가끔은 데이터베이스 쿼리 결과가 단일 값, 즉 스칼라 값일 때도 있습니다. 이럴 때는 레코드 객체에서 값을 꺼낼 필요 없이, Laravel의 `scalar` 메서드를 사용해 바로 값을 얻을 수 있습니다.
 
 ```
 $burgers = DB::scalar(
@@ -382,7 +382,7 @@ class AppServiceProvider extends ServiceProvider
 ### Monitoring Cumulative Query Time
 
 <!-- A common performance bottleneck of modern web applications is the amount of time they spend querying databases. Thankfully, Laravel can invoke a closure or callback of your choice when it spends too much time querying the database during a single request. To get started, provide a query time threshold (in milliseconds) and closure to the `whenQueryingForLongerThan` method. You may invoke this method in the `boot` method of a [service provider](/docs/10.x/providers): -->
-현대 웹 애플리케이션의 성능 병목 원인 중 하나는 데이터베이스 쿼리 수행에 소요되는 시간입니다. Laravel은 한 번의 요청 중 데이터베이스 쿼리 수행 시간이 너무 길어진 경우, 지정한 클로저나 콜백을 실행하게 할 수 있습니다. 시작하려면, `whenQueryingForLongerThan` 메서드에 시간 임계값(밀리초 단위)과 클로저를 지정하세요. 이 메서드는 [service provider](/docs/10.x/providers)의 `boot` 메서드에서 호출하면 됩니다.
+현대 웹 애플리케이션의 성능 병목 원인 중 하나는 데이터베이스 쿼리 수행에 소요되는 시간입니다. Laravel은 한 번의 요청 중 누적 데이터베이스 쿼리 수행 시간이 너무 길어진 경우, 지정한 클로저나 콜백을 실행하게 할 수 있습니다. 시작하려면, `whenQueryingForLongerThan` 메서드에 시간 임계값(밀리초 단위)과 클로저를 지정하세요. 이 메서드는 [service provider](/docs/10.x/providers)의 `boot` 메서드에서 호출하면 됩니다.
 
 ```
 <?php
@@ -421,7 +421,7 @@ class AppServiceProvider extends ServiceProvider
 ## Database Transactions
 
 <!-- You may use the `transaction` method provided by the `DB` facade to run a set of operations within a database transaction. If an exception is thrown within the transaction closure, the transaction will automatically be rolled back and the exception is re-thrown. If the closure executes successfully, the transaction will automatically be committed. You don't need to worry about manually rolling back or committing while using the `transaction` method: -->
-여러 작업을 하나의 데이터베이스 트랜잭션 내에서 실행하려면, `DB` 파사드의 `transaction` 메서드를 사용할 수 있습니다. 트랜잭션 클로저 안에서 예외가 발생하면 트랜잭션이 자동으로 롤백되고, 예외가 다시 반환됩니다. 클로저가 문제없이 실행되면 트랜잭션은 자동으로 커밋됩니다. 즉, `transaction` 메서드를 사용할 때는 직접 롤백이나 커밋을 신경 쓸 필요가 없습니다.
+여러 작업을 하나의 데이터베이스 트랜잭션 내에서 실행하려면, `DB` 파사드의 `transaction` 메서드를 사용할 수 있습니다. 트랜잭션 클로저 안에서 예외가 발생하면 트랜잭션이 자동으로 롤백되고, 예외가 다시 던져집니다. 클로저가 문제없이 실행되면 트랜잭션은 자동으로 커밋됩니다. 즉, `transaction` 메서드를 사용할 때는 직접 롤백이나 커밋을 신경 쓸 필요가 없습니다.
 
 ```
 use Illuminate\Support\Facades\DB;

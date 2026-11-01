@@ -125,7 +125,7 @@ Route::get('/', function (Request $request) {
 **그렇다면 언제 직접 컨테이너와 상호작용하는 것이 필요할까요?** 대표적으로 두 가지 상황이 있습니다.
 
 <!-- First, if you write a class that implements an interface and you wish to type-hint that interface on a route or class constructor, you must [tell the container how to resolve that interface](#binding-interfaces-to-implementations). Secondly, if you are [writing a Laravel package](/docs/8.x/packages) that you plan to share with other Laravel developers, you may need to bind your package's services into the container. -->
-첫 번째는, 어떤 클래스를 특정 인터페이스를 구현하도록 만들고, 그 인터페이스에 타입힌트할 때입니다. 이런 경우에는 반드시 [tell the container how to resolve that interface](#binding-interfaces-to-implementations)해 주어야 합니다.
+첫 번째는, 어떤 클래스를 특정 인터페이스를 구현하도록 만들고, 그 인터페이스에 타입힌트할 때입니다. 이런 경우에는 반드시 컨테이너에 해당 인터페이스를 해석하는 방법을 알려주어야 합니다([tell the container how to resolve that interface](#binding-interfaces-to-implementations)).
 두 번째는, [writing a Laravel package](/docs/8.x/packages)를 작성해 다른 Laravel 개발자와 공유하려는 경우로, 이 경우 패키지의 서비스를 컨테이너에 바인딩해야 할 수 있습니다.
 
 <a name="binding"></a>
@@ -320,7 +320,7 @@ $this->app->when(ReportAggregator::class)
 ### Binding Typed Variadics
 
 <!-- Occasionally, you may have a class that receives an array of typed objects using a variadic constructor argument: -->
-간혹 하나의 클래스에서 가변 인자(variadic, ...$args)를 통해 여러 타입 객체 배열을 전달받을 수도 있습니다.
+간혹 하나의 클래스 생성자에서 가변 인자(variadic, ...$args)를 통해 특정 타입의 객체 배열을 전달받을 수도 있습니다.
 
 ```
 <?php
@@ -503,7 +503,7 @@ public function __construct(Container $container)
 ### Automatic Injection
 
 <!-- Alternatively, and importantly, you may type-hint the dependency in the constructor of a class that is resolved by the container, including [controllers](/docs/8.x/controllers), [event listeners](/docs/8.x/events), [middleware](/docs/8.x/middleware), and more. Additionally, you may type-hint dependencies in the `handle` method of [queued jobs](/docs/8.x/queues). In practice, this is how most of your objects should be resolved by the container. -->
-또한 도메인 객체의 생성자(예: [controllers](/docs/8.x/controllers), [event listeners](/docs/8.x/events), [middleware](/docs/8.x/middleware) 등)에서 의존성을 타입힌트하면, 대부분의 의존성이 자동으로 주입됩니다. [queued jobs](/docs/8.x/queues)의 `handle` 메서드도 마찬가지입니다. 실제로는 이런 방식으로 대부분의 객체를 컨테이너가 자동으로 해석하도록 구현하는 것이 가장 좋습니다.
+또한 컨테이너가 해석하는 클래스의 생성자(예: [controllers](/docs/8.x/controllers), [event listeners](/docs/8.x/events), [middleware](/docs/8.x/middleware) 등)에서 의존성을 타입힌트하면, 의존성이 자동으로 주입됩니다. [queued jobs](/docs/8.x/queues)의 `handle` 메서드도 마찬가지입니다. 실제로는 이런 방식으로 대부분의 객체를 컨테이너가 자동으로 해석하도록 구현하는 것이 가장 좋습니다.
 
 <!-- For example, you may type-hint a repository defined by your application in a controller's constructor. The repository will automatically be resolved and injected into the class: -->
 예를 들어, 컨트롤러의 생성자에서 저장소(Repository)를 타입힌트로 명시하면, 이 저장소는 자동으로 해석되어 주입됩니다.

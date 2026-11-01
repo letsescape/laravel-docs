@@ -172,7 +172,7 @@ Route::get('/home', function () {
 ```
 
 > [!NOTE]
-> HTTP 요청 인스턴스를 통한 세션 사용과 전역 `session` 헬퍼를 사용하는 것 사이에는 실질적인 차이가 거의 없습니다. 두 방식 모두 테스트 케이스에서 `assertSessionHas` 메서드를 이용해 [testable](/docs/10.x/testing)할 수 있습니다.
+> HTTP 요청 인스턴스를 통한 세션 사용과 전역 `session` 헬퍼를 사용하는 것 사이에는 실질적인 차이가 거의 없습니다. 두 방식 모두 테스트 케이스에서 `assertSessionHas` 메서드를 이용해 테스트할 수 있습니다([testable](/docs/10.x/testing)).
 
 <a name="retrieving-all-session-data"></a>
 <!-- #### Retrieving All Session Data -->
@@ -433,7 +433,7 @@ class MongoSessionHandler implements \SessionHandlerInterface
 - `open` 메서드는 주로 파일 기반 세션 저장소에서 사용됩니다. Laravel이 이미 `file` 세션 드라이버를 제공하기 때문에, 대부분의 경우 이 부분은 비워도 무방합니다.
 - `close` 메서드는 `open`과 비슷하게 대개 무시할 수 있습니다. 대부분의 드라이버에서 코드 작성이 필요하지 않습니다.
 - `read` 메서드는 주어진 `$sessionId`와 연결된 세션 데이터를 문자열 형태로 반환해야 합니다. 데이터 직렬화 등 부가적인 처리는 할 필요가 없습니다. Laravel이 알아서 처리해줍니다.
-- `write` 메서드는 `$sessionId`와 연결된 `$data` 문자열을 MongoDB나 다른 영구 저장소에 기록해야 합니다. 여기서도 별도의 직렬화 처리는 필요 없습니다. 이미 Laravel이 처리합니다.
+- `write` 메서드는 `$sessionId`와 연결된 `$data` 문자열을 MongoDB나 다른 영구 저장소에 기록해야 합니다. 여기서도 별도로 직렬화해서는 안 됩니다. 이미 Laravel이 처리합니다.
 - `destroy` 메서드는 주어진 `$sessionId`와 연관된 데이터를 영구 저장소에서 제거해야 합니다.
 - `gc`(garbage collection) 메서드는 주어진 `$lifetime` UNIX 타임스탬프보다 오래된 모든 세션 데이터를 삭제해야 합니다. Memcached나 Redis처럼 자동으로 만료되는 시스템의 경우, 이 메서드는 비워둬도 괜찮습니다.
 

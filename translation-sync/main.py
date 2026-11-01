@@ -669,6 +669,8 @@ def _contract_issues(
     cfg: config.Config,
     change: diff.SourceChange,
     locale: str | None,
+    *,
+    table_row_headers: tuple[str, ...] = (),
 ) -> list[str]:
     """프로바이더 응답을 현재 로케일과 고정된 응답 계약으로 검증."""
 
@@ -682,6 +684,7 @@ def _contract_issues(
         contract_source,
         locale=None if cfg.provider == "identity" else locale,
         contract_version=response_contract.RESPONSE_CONTRACT_VERSION,
+        table_row_headers=table_row_headers,
     )
 
 
@@ -1043,6 +1046,12 @@ def _translate_block_change(
             cfg,
             change,
             locale,
+            table_row_headers=(
+                block_change.table_row.headers
+                if block_change.table_row is not None
+                and block_change.table_row.row_ordinal > 0
+                else ()
+            ),
         )
         translate.require_run_deadline(deadline)
         if contract_issues:

@@ -40,7 +40,7 @@ const resources = [
   {name: 'News', url: 'https://laravel-news.com'},
   {name: 'Community', url: 'https://laravel.com/community'},
   {name: 'Larabelles', url: 'https://www.larabelles.com'},
-  {name: 'Learn', url: 'https://bootcamp.laravel.com'},
+  {name: 'Learn', url: 'https://laravel.com/learn'},
   {name: 'Jobs', url: 'https://larajobs.com'},
   {name: 'Careers', url: 'https://laravel.com/careers'},
   {name: 'Trust', url: 'https://trust.laravel.com'},
@@ -152,30 +152,47 @@ export default function FooterSection({
 
           <div className="footer-columns-right">
             {isDocs ? (
-              <div className="footer-column">
-                <h4>Community</h4>
-                <ul>
-                  {community.map(item => (
-                    <li key={item.name}>
-                      {item.url ? (
-                        <FooterLink href={item.url}>{item.name}</FooterLink>
-                      ) : (
-                        <span className="footer-note">
-                          {item.noteId ? (
-                            <Translate
-                              id={item.noteId}
-                              description="문서 푸터 - 비공식 개인 사이트 안내">
-                              {item.name}
-                            </Translate>
-                          ) : (
-                            item.name
-                          )}
-                        </span>
-                      )}
+              <>
+                <div className="footer-column">
+                  <h4>Community</h4>
+                  <ul>
+                    {community.map(item => (
+                      <li key={item.name}>
+                        {item.url ? (
+                          <FooterLink href={item.url}>{item.name}</FooterLink>
+                        ) : (
+                          <span className="footer-note">
+                            {item.noteId ? (
+                              <Translate
+                                id={item.noteId}
+                                description="문서 푸터 - 비공식 개인 사이트 안내">
+                                {item.name}
+                              </Translate>
+                            ) : (
+                              item.name
+                            )}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="footer-column">
+                  <h4>GitHub</h4>
+                  <ul>
+                    <li>
+                      <FooterLink href="https://github.com/letsescape/laravel-docs">
+                        Documentation
+                      </FooterLink>
                     </li>
-                  ))}
-                </ul>
-              </div>
+                    <li>
+                      <FooterLink href="https://github.com/letsescape/laravel-chat">
+                        Chat
+                      </FooterLink>
+                    </li>
+                  </ul>
+                </div>
+              </>
             ) : (
               <>
                 {/* Products column */}

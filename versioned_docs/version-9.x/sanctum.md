@@ -107,7 +107,7 @@ php artisan migrate
 #### Migration Customization
 
 <!-- If you are not going to use Sanctum's default migrations, you should call the `Sanctum::ignoreMigrations` method in the `register` method of your `App\Providers\AppServiceProvider` class. You may export the default migrations by executing the following command: `php artisan vendor:publish --tag=sanctum-migrations` -->
-Sanctum의 기본 마이그레이션을 사용하지 않을 예정이라면, `App\Providers\AppServiceProvider` 클래스의 `register` 메서드에서 `Sanctum::ignoreMigrations` 메서드를 호출해야 합니다. 또는, 아래 명령어로 기본 마이그레이션 파일만 따로 내보낼 수도 있습니다: `php artisan vendor:publish --tag=sanctum-migrations`
+Sanctum의 기본 마이그레이션을 사용하지 않을 예정이라면, `App\Providers\AppServiceProvider` 클래스의 `register` 메서드에서 `Sanctum::ignoreMigrations` 메서드를 호출해야 합니다. 또한, 아래 명령어로 기본 마이그레이션 파일만 따로 내보낼 수도 있습니다: `php artisan vendor:publish --tag=sanctum-migrations`
 
 <a name="configuration"></a>
 <!-- ## Configuration -->
@@ -274,7 +274,7 @@ return $request->user()->id === $server->user_id &&
 모든 들어오는 요청에 대해 인증을 강제하려면, `routes/web.php` 또는 `routes/api.php` 라우트 파일에서 보호하려는 라우트에 `sanctum` 인증 가드를 적용해야 합니다. 이 가드를 사용하면 요청이 상태를 가진(쿠키 기반 인증) 요청이든, 또는 외부에서 오는 API 토큰 인증이든 모두 처리할 수 있습니다.
 
 <!-- You may be wondering why we suggest that you authenticate the routes within your application's `routes/web.php` file using the `sanctum` guard. Remember, Sanctum will first attempt to authenticate incoming requests using Laravel's typical session authentication cookie. If that cookie is not present then Sanctum will attempt to authenticate the request using a token in the request's `Authorization` header. In addition, authenticating all requests using Sanctum ensures that we may always call the `tokenCan` method on the currently authenticated user instance: -->
-특히 `routes/web.php` 파일에서 `sanctum` 가드를 직접 사용하도록 안내하는 이유는, Sanctum이 우선적으로 Laravel의 일반적인 세션 인증 쿠키를 통해 인증을 시도하기 때문입니다. 만약 쿠키가 없다면 그 다음에 요청의 `Authorization` 헤더에 토큰이 있는지 확인합니다. 이렇게 모든 요청에 대해 Sanctum으로 인증하면, 언제든지 현재 인증된 사용자 인스턴스에서 `tokenCan` 메서드를 사용할 수 있습니다:
+특히 `routes/web.php` 파일에서 `sanctum` 가드를 직접 사용하도록 안내하는 이유는, Sanctum이 우선적으로 Laravel의 일반적인 세션 인증 쿠키를 통해 인증을 시도하기 때문입니다. 만약 쿠키가 없다면 그 다음에 요청의 `Authorization` 헤더에 있는 토큰으로 인증을 시도합니다. 이렇게 모든 요청에 대해 Sanctum으로 인증하면, 언제든지 현재 인증된 사용자 인스턴스에서 `tokenCan` 메서드를 사용할 수 있습니다:
 
 ```
 use Illuminate\Http\Request;
@@ -325,7 +325,7 @@ $schedule->command('sanctum:prune-expired --hours=24')->daily();
 ## SPA Authentication
 
 <!-- Sanctum also exists to provide a simple method of authenticating single page applications (SPAs) that need to communicate with a Laravel powered API. These SPAs might exist in the same repository as your Laravel application or might be an entirely separate repository. -->
-Sanctum은 Laravel 기반 API와 통신해야 하는 싱글 페이지 애플리케이션(SPA)을 간단하게 인증하기 위한 메서드도 제공합니다. 이 SPA는 Laravel 애플리케이션과 같은 저장소에 있을 수도, 별도의 저장소일 수도 있습니다.
+Sanctum은 Laravel 기반 API와 통신해야 하는 싱글 페이지 애플리케이션(SPA)을 간단하게 인증하기 위한 방법도 제공합니다. 이 SPA는 Laravel 애플리케이션과 같은 저장소에 있을 수도, 별도의 저장소일 수도 있습니다.
 
 <!-- For this feature, Sanctum does not use tokens of any kind. Instead, Sanctum uses Laravel's built-in cookie based session authentication services. This approach to authentication provides the benefits of CSRF protection, session authentication, as well as protects against leakage of the authentication credentials via XSS. -->
 이 기능에서는 별도 토큰을 사용하지 않고, Laravel의 내장 쿠키 기반 세션 인증 서비스를 그대로 활용합니다. 이런 접근 방식은 CSRF 보호, 세션 인증, 인증 자격 증명의 XSS(스크립트 삽입 공격)로 인한 유출 방지 등 여러 장점을 제공합니다.
@@ -367,7 +367,7 @@ Sanctum은 Laravel 기반 API와 통신해야 하는 싱글 페이지 애플리�
 #### CORS & Cookies
 
 <!-- If you are having trouble authenticating with your application from a SPA that executes on a separate subdomain, you have likely misconfigured your CORS (Cross-Origin Resource Sharing) or session cookie settings. -->
-별도의 서브도메인에서 실행되는 SPA가 인증에 실패한다면, CORS(크로스 도메인) 또는 세션 쿠키 설정이 잘못되었을 가능성이 높습니다.
+별도의 서브도메인에서 실행되는 SPA가 인증에 실패한다면, CORS(교차 출처 리소스 공유) 또는 세션 쿠키 설정이 잘못되었을 가능성이 높습니다.
 
 <!-- You should ensure that your application's CORS configuration is returning the `Access-Control-Allow-Credentials` header with a value of `True`. This may be accomplished by setting the `supports_credentials` option within your application's `config/cors.php` configuration file to `true`. -->
 CORS 설정에서 `Access-Control-Allow-Credentials` 헤더가 `True`로 반환되고 있는지 확인하세요. 이는 `config/cors.php`의 `supports_credentials` 옵션을 `true`로 설정해 처리할 수 있습니다.
@@ -449,7 +449,7 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 ```
 
 <!-- Next, in order for Pusher's authorization requests to succeed, you will need to provide a custom Pusher `authorizer` when initializing [Laravel Echo](/docs/9.x/broadcasting#client-side-installation). This allows your application to configure Pusher to use the `axios` instance that is [properly configured for cross-domain requests](#cors-and-cookies): -->
-그리고, Pusher의 인가 요청이 제대로 동작하려면 [Laravel Echo](/docs/9.x/broadcasting#client-side-installation)를 초기화할 때 `axios`가 [properly configured for cross-domain requests](#cors-and-cookies) 세팅되었는지, 그리고 다음 예시처럼 커스텀 Pusher `authorizer`를 지정해야 합니다:
+그리고, Pusher의 인가 요청이 제대로 동작하려면 [Laravel Echo](/docs/9.x/broadcasting#client-side-installation)를 초기화할 때 커스텀 Pusher `authorizer`를 지정해야 합니다. 이렇게 하면 Pusher가 [properly configured for cross-domain requests](#cors-and-cookies) 안내에 따라 설정된 `axios` 인스턴스를 사용하도록 구성할 수 있습니다:
 
 ```js
 window.Echo = new Echo({
@@ -491,7 +491,7 @@ Sanctum 토큰을 이용해 모바일 애플리케이션에서도 API 요청 인
 우선, 사용자의 이메일/유저명, 비밀번호, 디바이스명을 받아 새로운 Sanctum 토큰을 발급해주는 라우트를 만듭니다. 이때 "디바이스명"은 토큰을 식별하기 위한 용도로 사용자에게 의미 있는 값을 넣으면 됩니다. (예: "Nuno의 iPhone 12"와 같이)
 
 <!-- Typically, you will make a request to the token endpoint from your mobile application's "login" screen. The endpoint will return the plain-text API token which may then be stored on the mobile device and used to make additional API requests: -->
-일반적으로 모바일 앱의 "로그인" 화면에서 토큰 엔드포인트로 해당 정보를 보내 토큰을 받게 되며, 앱 내에 이 토큰을 저장하고 추가적인 API 요청에 활용합니다:
+일반적으로 모바일 앱의 "로그인" 화면에서 토큰 엔드포인트로 해당 정보를 보내 평문 API 토큰을 받게 되며, 앱 내에 이 토큰을 저장하고 추가적인 API 요청에 활용합니다:
 
 ```
 use App\Models\User;

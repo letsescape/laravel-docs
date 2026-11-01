@@ -16,7 +16,7 @@ export default function DocItemMetadata(): ReactNode {
       image={assets.image ?? frontMatter.image}
     >
       <title>{title}</title>
-      <meta property="og:title" content={title} />
+      <meta property="og:title" content={metadata.title} />
     </PageMetadata>
   );
 }

@@ -390,7 +390,7 @@ class AuthServiceProvider extends ServiceProvider
 #### Policy Auto-Discovery
 
 <!-- Instead of manually registering model policies, Laravel can automatically discover policies as long as the model and policy follow standard Laravel naming conventions. Specifically, the policies must be in a `Policies` directory at or above the directory that contains your models. So, for example, the models may be placed in the `app/Models` directory while the policies may be placed in the `app/Policies` directory. In this situation, Laravel will check for policies in `app/Models/Policies` then `app/Policies`. In addition, the policy name must match the model name and have a `Policy` suffix. So, a `User` model would correspond to a `UserPolicy` policy class. -->
-모델 정책을 일일이 수동으로 등록하는 대신, Laravel이 정해진 네이밍 규칙을 따르면 자동으로 정책을 찾아 등록해줄 수 있습니다. 구체적으로, 정책 클래스는 모델이 존재하는 디렉터리의 상위 또는 동일 레벨의 `Policies` 디렉터리에 위치해야 하며, 예를 들어 모델이 `app/Models`에 있다면, 정책은 `app/Policies`에 둘 수 있습니다. 이때 Laravel은 `app/Models/Policies`와 `app/Policies`에서 정책을 찾습니다. 또한 정책 클래스명은 모델명에 `Policy`를 붙인 이름이어야 합니다(예: `User` 모델 ⇒ `UserPolicy`).
+모델 정책을 일일이 수동으로 등록하는 대신, 모델과 정책이 정해진 네이밍 규칙을 따르면 Laravel이 자동으로 정책을 찾아 등록해줄 수 있습니다. 구체적으로, 정책 클래스는 모델이 존재하는 디렉터리의 상위 또는 동일 레벨의 `Policies` 디렉터리에 위치해야 하며, 예를 들어 모델이 `app/Models`에 있다면, 정책은 `app/Policies`에 둘 수 있습니다. 이때 Laravel은 `app/Models/Policies`에서 먼저 정책을 찾고, 그다음 `app/Policies`에서 찾습니다. 또한 정책 클래스명은 모델명에 `Policy`를 붙인 이름이어야 합니다(예: `User` 모델 ⇒ `UserPolicy`).
 
 <!-- If you would like to define your own policy discovery logic, you may register a custom policy discovery callback using the `Gate::guessPolicyNamesUsing` method. Typically, this method should be called from the `boot` method of your application's `AuthServiceProvider`: -->
 자동 검색 방식을 직접 정의하고 싶다면, `Gate::guessPolicyNamesUsing` 메서드에 콜백을 등록하면 됩니다. 이 메서드는 보통 애플리케이션의 `AuthServiceProvider`의 `boot` 메서드에서 호출합니다.
@@ -488,7 +488,7 @@ if ($response->allowed()) {
 ```
 
 <!-- When using the `Gate::authorize` method, which throws an `AuthorizationException` if the action is not authorized, the error message provided by the authorization response will be propagated to the HTTP response: -->
-`Gate::authorize` 메서드를 사용할 때, 인가되지 않은 경우 발생하는 `AuthorizationException`에는 정책 응답에서 정의한 에러 메시지가 HTTP 응답에 포함됩니다.
+`Gate::authorize` 메서드를 사용할 때 인가되지 않으면 `AuthorizationException`이 발생하며, 정책 응답에서 정의한 에러 메시지가 HTTP 응답에 포함됩니다.
 
 ```
 Gate::authorize('update', $post);
@@ -651,7 +651,7 @@ class PostController extends Controller
 ```
 
 <!-- If a [policy is registered](#registering-policies) for the given model, the `can` method will automatically call the appropriate policy and return the boolean result. If no policy is registered for the model, the `can` method will attempt to call the closure-based Gate matching the given action name. -->
-해당 모델에 대해 [policy is registered](#registering-policies) 있다면, `can` 메서드는 자동으로 적절한 정책을 호출해 불리언 결과를 반환합니다. 만약 정책이 등록되어 있지 않다면, `can` 메서드는 해당 동작 이름과 일치하는 클로저 기반 게이트를 호출하려 시도합니다.
+해당 모델에 대해 [policy is registered](#registering-policies)되어 있다면, `can` 메서드는 자동으로 적절한 정책을 호출해 불리언 결과를 반환합니다. 만약 정책이 등록되어 있지 않다면, `can` 메서드는 해당 동작 이름과 일치하는 클로저 기반 게이트를 호출하려 시도합니다.
 
 <a name="user-model-actions-that-dont-require-models"></a>
 <!-- #### Actions That Don't Require Models -->

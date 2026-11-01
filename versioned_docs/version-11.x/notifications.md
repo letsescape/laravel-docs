@@ -163,7 +163,7 @@ public function via(object $notifiable): array
 ### Queueing Notifications
 
 > [!WARNING]
-> 알림 큐 처리를 위해서는 먼저 큐 설정을 완료하고 [start a worker](/docs/11.x/queues#running-the-queue-worker)해야 합니다.
+> 알림 큐 처리를 위해서는 먼저 큐 설정을 완료하고 [start a worker](/docs/11.x/queues#running-the-queue-worker)에 따라 워커를 시작해야 합니다.
 
 <!-- Sending notifications can take time, especially if the channel needs to make an external API call to deliver the notification. To speed up your application's response time, let your notification be queued by adding the `ShouldQueue` interface and `Queueable` trait to your class. The interface and trait are already imported for all notifications generated using the `make:notification` command, so you may immediately add them to your notification class: -->
 특정 채널에서 외부 API 호출이나 기타 작업이 필요할 경우, 알림 전송 과정에 시간이 오래 걸릴 수 있습니다. 애플리케이션의 응답 속도를 높이려면 알림에 `ShouldQueue` 인터페이스와 `Queueable` 트레이트를 추가해 큐에 작업을 맡기는 것이 좋습니다. 이 인터페이스와 트레이트는 `make:notification` 명령으로 생성된 알림 클래스에는 이미 임포트되어 있으니 바로 사용할 수 있습니다.
@@ -311,7 +311,7 @@ public function viaQueues(): array
 #### Queued Notification Middleware
 
 <!-- Queued notifications may define middleware [just like queued jobs](/docs/11.x/queues#job-middleware). To get started, define a `middleware` method on your notification class. The `middleware` method will receive `$notifiable` and `$channel` variables, which allow you to customize the returned middleware based on the notification's destination: -->
-큐에 등록된 알림에도 [just like queued jobs](/docs/11.x/queues#job-middleware)를 정의할 수 있습니다. 우선 알림 클래스에 `middleware` 메서드를 구현하면 됩니다. `middleware` 메서드는 `$notifiable`, `$channel` 변수를 전달받으므로, 알림의 대상 및 채널에 따라 미들웨어를 다르게 지정할 수 있습니다.
+큐에 등록된 알림에도 [just like queued jobs](/docs/11.x/queues#job-middleware)에서 설명하는 것처럼 미들웨어를 정의할 수 있습니다. 우선 알림 클래스에 `middleware` 메서드를 구현하면 됩니다. `middleware` 메서드는 `$notifiable`, `$channel` 변수를 전달받으므로, 알림의 대상 및 채널에 따라 미들웨어를 다르게 지정할 수 있습니다.
 
 ```
 use Illuminate\Queue\Middleware\RateLimited;
@@ -339,7 +339,7 @@ public function middleware(object $notifiable, string $channel)
 데이터베이스 트랜잭션 내부에서 큐 알림을 디스패치하면, 큐에서 알림을 처리하는 시점에 아직 트랜잭션이 커밋되지 않았을 수 있습니다. 그럴 경우, 트랜잭션 중 업데이트한 모델이나 레코드가 데이터베이스에 반영되지 않아 모델을 참조할 때 문제가 발생할 수 있습니다. 트랜잭션 내에서 생성된 모델·레코드 역시 데이터베이스에 존재하지 않을 수 있습니다. 이처럼 알림이 이러한 모델에 의존한다면, 알림을 처리하는 과정에서 예기치 않은 오류가 발생할 수 있습니다.
 
 <!-- If your queue connection's `after_commit` configuration option is set to `false`, you may still indicate that a particular queued notification should be dispatched after all open database transactions have been committed by calling the `afterCommit` method when sending the notification: -->
-만약 큐 커넥션의 `after_commit` 설정이 `false`로 돼 있다면, 알림을 전송할 때 `afterCommit` 메서드를 호출해 해당 알림이 모든 열린 데이터베이스 트랜잭션이 커밋된 후에 디스패치하도록 지정할 수 있습니다.
+만약 큐 커넥션의 `after_commit` 설정이 `false`로 돼 있다면, 알림을 전송할 때 `afterCommit` 메서드를 호출해 해당 알림이 모든 열린 데이터베이스 트랜잭션이 커밋된 후에 디스패치되도록 지정할 수 있습니다.
 
 ```
 use App\Notifications\InvoicePaid;
@@ -781,7 +781,7 @@ Amazon SES를 사용하여 이메일을 발송하는 경우, 메시지에 [SES "
 ### Customizing the Symfony Message
 
 <!-- The `withSymfonyMessage` method of the `MailMessage` class allows you to register a closure which will be invoked with the Symfony Message instance before sending the message. This gives you an opportunity to deeply customize the message before it is delivered: -->
-`MailMessage` 클래스의 `withSymfonyMessage` 메서드를 사용하면, 메시지 전송 전 Symfony Message 인스턴스에 접근해 클로저를 실행할 수 있습니다. 이를 통해 메시지가 전송되기 전에 세부적으로 원하는 설정을 적용할 수 있습니다.
+`MailMessage` 클래스의 `withSymfonyMessage` 메서드를 사용하면, 메시지 전송 전 Symfony Message 인스턴스를 받아 실행될 클로저를 등록할 수 있습니다. 이를 통해 메시지가 전송되기 전에 세부적으로 원하는 설정을 적용할 수 있습니다.
 
 ```
 use Symfony\Component\Mime\Email;
@@ -906,7 +906,7 @@ public function toMail(object $notifiable): MailMessage
 ### Writing the Message
 
 <!-- Markdown mail notifications use a combination of Blade components and Markdown syntax which allow you to easily construct notifications while leveraging Laravel's pre-crafted notification components: -->
-마크다운 메일 알림은 Blade 컴포넌트와 마크다운 문법을 함께 활용합니다. 이를 통해 사용자 정의 메시지를 쉽고, Laravel이 제공하는 여러 알림용 컴포넌트도 간단히 사용할 수 있습니다.
+마크다운 메일 알림은 Blade 컴포넌트와 마크다운 문법을 함께 활용합니다. 이를 통해 사용자 정의 메시지를 쉽게 작성하고, Laravel이 제공하는 여러 알림용 컴포넌트도 간단히 사용할 수 있습니다.
 
 ```blade
 <x-mail::message>
@@ -1026,7 +1026,7 @@ php artisan migrate
 ```
 
 > [!NOTE]
-> 알림 엔터티가 [UUID or ULID primary keys](/docs/11.x/eloquent#uuid-and-ulid-keys)를 사용하는 경우, 알림 테이블 마이그레이션에서 `morphs` 메서드 대신 [`uuidMorphs`](/docs/11.x/migrations#column-method-uuidMorphs) 또는 [`ulidMorphs`](/docs/11.x/migrations#column-method-ulidMorphs)를 사용해야 합니다.
+> 알림을 받을 모델이 [UUID or ULID primary keys](/docs/11.x/eloquent#uuid-and-ulid-keys)를 사용하는 경우, 알림 테이블 마이그레이션에서 `morphs` 메서드 대신 [`uuidMorphs`](/docs/11.x/migrations#column-method-uuidMorphs) 또는 [`ulidMorphs`](/docs/11.x/migrations#column-method-ulidMorphs)를 사용해야 합니다.
 
 <a name="formatting-database-notifications"></a>
 <!-- ### Formatting Database Notifications -->
@@ -1085,7 +1085,7 @@ public function initialDatabaseReadAtValue(): ?Carbon
 ### Accessing the Notifications
 
 <!-- Once notifications are stored in the database, you need a convenient way to access them from your notifiable entities. The `Illuminate\Notifications\Notifiable` trait, which is included on Laravel's default `App\Models\User` model, includes a `notifications` [Eloquent relationship](/docs/11.x/eloquent-relationships) that returns the notifications for the entity. To fetch notifications, you may access this method like any other Eloquent relationship. By default, notifications will be sorted by the `created_at` timestamp with the most recent notifications at the beginning of the collection: -->
-알림이 데이터베이스에 저장된 후에는, notifiable 엔티티에서 알림을 편리하게 조회할 필요가 있습니다. Laravel의 기본 `App\Models\User` 모델에 포함된 `Illuminate\Notifications\Notifiable` 트레이트에는, 해당 엔티티의 알림들을 반환하는 `notifications` [Eloquent relationship](/docs/11.x/eloquent-relationships)가 정의되어 있습니다. 다른 컬렉션 관계처럼 이 메서드를 사용해 알림을 가져올 수 있습니다. 알림은 기본적으로 `created_at` 타임스탬프 내림차순(최신 순)으로 정렬되어 컬렉션 앞부분에 나타납니다.
+알림이 데이터베이스에 저장된 후에는, notifiable 엔티티에서 알림을 편리하게 조회할 필요가 있습니다. Laravel의 기본 `App\Models\User` 모델에 포함된 `Illuminate\Notifications\Notifiable` 트레이트에는, 해당 엔티티의 알림들을 반환하는 `notifications` [Eloquent relationship](/docs/11.x/eloquent-relationships)가 정의되어 있습니다. 다른 Eloquent 연관관계처럼 이 메서드를 사용해 알림을 가져올 수 있습니다. 알림은 기본적으로 `created_at` 타임스탬프 내림차순(최신 순)으로 정렬되어 컬렉션 앞부분에 나타납니다.
 
 ```
 $user = App\Models\User::find(1);
@@ -1163,7 +1163,7 @@ $user->notifications()->delete();
 ### Formatting Broadcast Notifications
 
 <!-- The `broadcast` channel broadcasts notifications using Laravel's [event broadcasting](/docs/11.x/broadcasting) services, allowing your JavaScript powered frontend to catch notifications in realtime. If a notification supports broadcasting, you can define a `toBroadcast` method on the notification class. This method will receive a `$notifiable` entity and should return a `BroadcastMessage` instance. If the `toBroadcast` method does not exist, the `toArray` method will be used to gather the data that should be broadcast. The returned data will be encoded as JSON and broadcast to your JavaScript powered frontend. Let's take a look at an example `toBroadcast` method: -->
-`broadcast` 채널은 Laravel의 [event broadcasting](/docs/11.x/broadcasting) 서비스를 이용해 알림을 브로드캐스팅하며, 브라우저의 자바스크립트 프런트엔드에서 실시간으로 알림을 받을 수 있게 해줍니다. 해당 알림 클래스에 `toBroadcast` 메서드를 정의하면 브로드캐스팅을 지원할 수 있습니다. 이 메서드는 `$notifiable` 엔티티를 받아서 `BroadcastMessage` 인스턴스를 반환해야 합니다. 만약 `toBroadcast` 메서드가 없다면, 브로드캐스트에 사용할 데이터는 `toArray` 메서드가 대신 사용됩니다. 반환된 데이터는 JSON으로 인코딩되어 자바스크립트 프런트엔드로 전송됩니다. 아래는 예시 `toBroadcast` 메서드입니다.
+`broadcast` 채널은 Laravel의 [event broadcasting](/docs/11.x/broadcasting) 서비스를 이용해 알림을 브로드캐스팅하며, 브라우저의 자바스크립트 프런트엔드에서 실시간으로 알림을 받을 수 있게 해줍니다. 해당 알림 클래스에 `toBroadcast` 메서드를 정의하면 브로드캐스팅을 지원할 수 있습니다. 이 메서드는 `$notifiable` 엔티티를 받아서 `BroadcastMessage` 인스턴스를 반환해야 합니다. 만약 `toBroadcast` 메서드가 없다면, 브로드캐스트에 사용할 데이터를 가져오는 데 `toArray` 메서드가 대신 사용됩니다. 반환된 데이터는 JSON으로 인코딩되어 자바스크립트 프런트엔드로 전송됩니다. 아래는 예시 `toBroadcast` 메서드입니다.
 
 ```
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -1431,7 +1431,7 @@ App이 생성된 동일한 Slack 워크스페이스에만 알림을 전송하려
 #### App Distribution
 
 <!-- If your application will be sending notifications to external Slack workspaces that are owned by your application's users, you will need to "distribute" your App via Slack. App distribution can be managed from your App's "Manage Distribution" tab within Slack. Once your App has been distributed, you may use [Socialite](/docs/11.x/socialite) to [obtain Slack Bot tokens](/docs/11.x/socialite#slack-bot-scopes) on behalf of your application's users. -->
-애플리케이션이 외부 Slack 워크스페이스(즉, 여러분의 애플리케이션 사용자들이 소유한 워크스페이스)로 알림을 전송해야 하는 경우, Slack을 통해 App을 "배포(distribute)"해야 합니다. App 배포는 Slack의 "Manage Distribution" 탭에서 관리할 수 있습니다. App이 배포되면 [Socialite](/docs/11.x/socialite)를 활용해 [obtain Slack Bot tokens](/docs/11.x/socialite#slack-bot-scopes)받을 수 있습니다.
+애플리케이션이 외부 Slack 워크스페이스(즉, 여러분의 애플리케이션 사용자들이 소유한 워크스페이스)로 알림을 전송해야 하는 경우, Slack을 통해 App을 "배포(distribute)"해야 합니다. App 배포는 Slack의 "Manage Distribution" 탭에서 관리할 수 있습니다. App이 배포되면 [Socialite](/docs/11.x/socialite)를 활용해 애플리케이션 사용자를 대신해 [obtain Slack Bot tokens](/docs/11.x/socialite#slack-bot-scopes)에 설명된 봇 토큰을 받을 수 있습니다.
 
 <a name="formatting-slack-notifications"></a>
 <!-- ### Formatting Slack Notifications -->
@@ -1519,7 +1519,7 @@ public function toSlack(object $notifiable): SlackMessage
 Slack의 Block Kit 알림 시스템은 [handle user interaction](https://api.slack.com/interactivity/handling)와 같은 강력한 기능을 제공합니다. 이를 활용하려면 Slack App의 "Interactivity"를 활성화하고, 애플리케이션에서 제공하는 URL을 "Request URL"로 등록해야 합니다. 이 설정은 Slack의 "Interactivity & Shortcuts" App 관리 탭에서 할 수 있습니다.
 
 <!-- In the following example, which utilizes the `actionsBlock` method, Slack will send a `POST` request to your "Request URL" with a payload containing the Slack user who clicked the button, the ID of the clicked button, and more. Your application can then determine the action to take based on the payload. You should also [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack) was made by Slack: -->
-아래 예제에서 `actionsBlock` 메서드를 사용하면, Slack은 사용자가 버튼을 클릭할 때 "Request URL"로 버튼을 클릭한 Slack 사용자, 버튼의 ID 등 다양한 정보를 포함한 `POST` 요청을 전송합니다. 애플리케이션은 이 데이터를 바탕으로 적합한 동작을 결정할 수 있습니다. 또한, [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack)해야 합니다.
+아래 예제에서 `actionsBlock` 메서드를 사용하면, Slack은 사용자가 버튼을 클릭할 때 "Request URL"로 버튼을 클릭한 Slack 사용자, 버튼의 ID 등 다양한 정보를 포함한 `POST` 요청을 전송합니다. 애플리케이션은 이 데이터를 바탕으로 적합한 동작을 결정할 수 있습니다. 또한, [verify the request](https://api.slack.com/authentication/verifying-requests-from-slack)에 따라 해당 요청이 Slack에서 전송되었는지 검증해야 합니다.
 
 ```
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;
@@ -1556,7 +1556,7 @@ public function toSlack(object $notifiable): SlackMessage
 #### Confirmation Modals
 
 <!-- If you would like users to be required to confirm an action before it is performed, you may invoke the `confirm` method when defining your button. The `confirm` method accepts a message and a closure which receives a `ConfirmObject` instance: -->
-특정 행동을 수행하기 전에 사용자가 확실히 확인하도록 만들고 싶다면, 버튼을 정의할 때 `confirm` 메서드를 호출하세요. `confirm` 메서드는 메시지와 함께 `ConfirmObject` 인스턴스를 전달하는 클로저를 인자로 받습니다.
+특정 행동을 수행하기 전에 사용자가 확실히 확인하도록 만들고 싶다면, 버튼을 정의할 때 `confirm` 메서드를 호출하세요. `confirm` 메서드는 메시지와 함께 `ConfirmObject` 인스턴스를 전달받는 클로저를 인자로 받습니다.
 
 ```
 use Illuminate\Notifications\Slack\BlockKit\Blocks\ActionsBlock;
@@ -1657,7 +1657,7 @@ class User extends Authenticatable
 > 외부 Slack 워크스페이스로 알림을 전송하기 전에, Slack App이 [distributed](#slack-app-distribution)되어야 합니다.
 
 <!-- Of course, you will often want to send notifications to the Slack workspaces owned by your application's users. To do so, you will first need to obtain a Slack OAuth token for the user. Thankfully, [Laravel Socialite](/docs/11.x/socialite) includes a Slack driver that will allow you to easily authenticate your application's users with Slack and [obtain a bot token](/docs/11.x/socialite#slack-bot-scopes). -->
-실무에서는 애플리케이션 사용자가 소유한 Slack 워크스페이스로 알림을 전송해야 할 때가 많습니다. 이를 위해 사용자로부터 Slack OAuth 토큰을 획득해야 합니다. [Laravel Socialite](/docs/11.x/socialite)에서는 Slack 드라이버를 지원하므로, 쉽게 애플리케이션 사용자의 Slack 인증을 처리하고 [obtain a bot token](/docs/11.x/socialite#slack-bot-scopes)할 수 있습니다.
+실무에서는 애플리케이션 사용자가 소유한 Slack 워크스페이스로 알림을 전송해야 할 때가 많습니다. 이를 위해 사용자로부터 Slack OAuth 토큰을 획득해야 합니다. [Laravel Socialite](/docs/11.x/socialite)에서는 Slack 드라이버를 지원하므로, 쉽게 애플리케이션 사용자의 Slack 인증을 처리하고 [obtain a bot token](/docs/11.x/socialite#slack-bot-scopes)에 설명된 봇 토큰을 획득할 수 있습니다.
 
 <!-- Once you have obtained the bot token and stored it within your application's database, you may utilize the `SlackRoute::make` method to route a notification to the user's workspace. In addition, your application will likely need to offer an opportunity for the user to specify which channel notifications should be sent to: -->
 bot 토큰을 받아 데이터베이스에 저장했다면, `SlackRoute::make` 메서드를 통해 해당 사용자의 워크스페이스로 알림을 직접 라우팅할 수 있습니다. 이와 더불어, 실제로 알림이 전송될 채널을 사용자가 직접 지정하도록 하는 UI를 제공하는 것이 일반적입니다.
@@ -1746,7 +1746,7 @@ $user->notify(new InvoicePaid($invoice));
 알림이 실제로 전송되는 것을 방지하려면 `Notification` 파사드의 `fake` 메서드를 사용할 수 있습니다. 일반적으로 알림 전송은 테스트 대상 코드와 직접적으로 연관이 없으므로, Laravel이 특정 알림을 보내도록 동작하도록 지시받았는지를 assert(확인)하는 것만으로도 충분합니다.
 
 <!-- After calling the `Notification` facade's `fake` method, you may then assert that notifications were instructed to be sent to users and even inspect the data the notifications received: -->
-`Notification` 파사드의 `fake` 메서드 호출 이후에는, 알림이 전송되었는지, 올바른 데이터가 전달되었는지 등을 다음과 같이 검증할 수 있습니다.
+`Notification` 파사드의 `fake` 메서드 호출 이후에는, 사용자에게 알림을 보내도록 지시되었는지 검증하고 알림이 받은 데이터도 다음과 같이 검사할 수 있습니다.
 
 ```php tab=Pest
 <?php

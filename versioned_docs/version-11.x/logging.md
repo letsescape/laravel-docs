@@ -102,7 +102,7 @@ Laravel의 로깅은 "채널(channel)" 기반으로 동작합니다. 각 채널�
 | 이름           | 설명                                                                      | 기본값   |
 | -------------- | ------------------------------------------------------------------------- | -------- |
 | `bubble`       | 메시지 처리 후, 다른 채널로도 메시지가 전달될지 여부를 결정                | `true`   |
-| `locking`      | 기록 전 로그 파일을 잠글지 시도할지 여부                                  | `false`  |
+| `locking`      | 기록 전 로그 파일 잠금을 시도할지 여부                                  | `false`  |
 | `permission`   | 로그 파일 권한 지정                                                       | `0644`   |
 
 <!-- </div> -->
@@ -143,7 +143,7 @@ Laravel의 로깅은 "채널(channel)" 기반으로 동작합니다. 각 채널�
 ### Logging Deprecation Warnings
 
 <!-- PHP, Laravel, and other libraries often notify their users that some of their features have been deprecated and will be removed in a future version. If you would like to log these deprecation warnings, you may specify your preferred `deprecations` log channel using the `LOG_DEPRECATIONS_CHANNEL` environment variable, or within your application's `config/logging.php` configuration file: -->
-PHP, Laravel 및 기타 라이브러리는 사용이 중단(deprecated)된 기능이 있다면, 머지않아 제거될 예정임을 사용자에게 알리는 경고를 제공합니다. 이런 사용 중단 경고도 로그로 남기고 싶다면, `LOG_DEPRECATIONS_CHANNEL` 환경 변수나, 애플리케이션의 `config/logging.php` 파일 내에서 원하는 `deprecations` 로그 채널을 설정할 수 있습니다.
+PHP, Laravel 및 기타 라이브러리는 사용이 중단(deprecated)된 기능이 있다면, 향후 버전에서 제거될 예정임을 사용자에게 알리는 경고를 제공합니다. 이런 사용 중단 경고도 로그로 남기고 싶다면, `LOG_DEPRECATIONS_CHANNEL` 환경 변수나, 애플리케이션의 `config/logging.php` 파일 내에서 원하는 `deprecations` 로그 채널을 설정할 수 있습니다.
 
 ```
 'deprecations' => [
@@ -288,7 +288,7 @@ Log::info('User {id} failed to login.', ['id' => $user->id]);
 ```
 
 <!-- Occasionally, you may wish to specify some contextual information that should be included with all subsequent log entries in a particular channel. For example, you may wish to log a request ID that is associated with each incoming request to your application. To accomplish this, you may call the `Log` facade's `withContext` method: -->
-때로는, 특정 요청에 대한 식별자 등 모든 이후의 로그 항목에 추가적으로 포함되어야 하는 컨텍스트 정보를 설정하고 싶을 수 있습니다. 이럴 때는 `Log` 파사드의 `withContext` 메서드를 사용하면 됩니다.
+때로는, 특정 요청에 대한 식별자 등 특정 채널의 모든 이후 로그 항목에 추가적으로 포함되어야 하는 컨텍스트 정보를 설정하고 싶을 수 있습니다. 이럴 때는 `Log` 파사드의 `withContext` 메서드를 사용하면 됩니다.
 
 ```
 <?php

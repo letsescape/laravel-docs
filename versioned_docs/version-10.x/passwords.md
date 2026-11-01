@@ -119,7 +119,7 @@ Route::post('/forgot-password', function (Request $request) {
 아마도 `Password` 파사드의 `sendResetLink` 메서드를 호출할 때 Laravel이 어떻게 데이터베이스에 저장된 사용자 정보를 찾는지 궁금할 수 있습니다. Laravel의 비밀번호 브로커는 인증 시스템의 "사용자 공급자(user provider)"를 활용해서 데이터베이스 레코드를 가져옵니다. 비밀번호 브로커가 사용하는 사용자 공급자는 `config/auth.php` 설정 파일의 `passwords` 설정 배열 내에서 지정할 수 있습니다. 사용자 공급자를 직접 만들어 쓰고 싶다면 [authentication documentation](/docs/10.x/authentication#adding-custom-user-providers)를 참고하세요.
 
 > [!NOTE]
-> 비밀번호 재설정 로직을 직접 구현하는 경우, 각 뷰와 라우트를 스스로 정의해야 합니다. 필요한 인증·인증 검증 로직이 모두 포함된 사전 구축된 스캐폴딩이 필요하다면 [Laravel application starter kits](/docs/10.x/starter-kits)를 살펴보세요.
+> 비밀번호 재설정 로직을 직접 구현하는 경우, 각 뷰와 라우트를 스스로 정의해야 합니다. 필요한 인증 및 검증 로직이 모두 포함된 사전 구축된 스캐폴딩이 필요하다면 [Laravel application starter kits](/docs/10.x/starter-kits)를 살펴보세요.
 
 <a name="resetting-the-password"></a>
 <!-- ### Resetting the Password -->
@@ -199,7 +199,7 @@ Route::post('/reset-password', function (Request $request) {
 ## Deleting Expired Tokens
 
 <!-- Password reset tokens that have expired will still be present within your database. However, you may easily delete these records using the `auth:clear-resets` Artisan command: -->
-만료된 비밀번호 재설정 토큰도 데이터베이스에 남아 있을 수 있습니다. 이 기록은 `auth:clear-resets` 아티즌 명령어로 쉽게 삭제할 수 있습니다.
+만료된 비밀번호 재설정 토큰도 데이터베이스에 남아 있습니다. 이 기록은 `auth:clear-resets` 아티즌 명령어로 쉽게 삭제할 수 있습니다.
 
 ```shell
 php artisan auth:clear-resets

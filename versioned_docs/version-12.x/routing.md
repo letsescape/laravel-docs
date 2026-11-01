@@ -126,7 +126,7 @@ Route::any('/', function () {
 ```
 
 > [!NOTE]
-> 동일한 URI를 공유하는 여러 개의 라우트를 정의하는 경우 `get`, `post`, `put`, `patch`, `delete` 및 `options` 메서드를 사용하는 라우트는 `any`를 사용하는 라우트보다 먼저 정의되어야 하며, `match` 및 `redirect` 방법. 이렇게 하면 들어오는 요청이 올바른 라우트와 일치하는지 확인할 수 있습니다.
+> 동일한 URI를 공유하는 여러 개의 라우트를 정의하는 경우 `get`, `post`, `put`, `patch`, `delete` 및 `options` 메서드를 사용하는 라우트는 `any`, `match` 및 `redirect` 메서드를 사용하는 라우트보다 먼저 정의되어야 합니다. 이렇게 하면 들어오는 요청이 올바른 라우트와 일치하게 됩니다.
 
 <a name="dependency-injection"></a>
 <!-- #### Dependency Injection -->
@@ -190,7 +190,7 @@ Route::permanentRedirect('/here', '/there');
 ### View Routes
 
 <!-- If your route only needs to return a [view](/docs/12.x/views), you may use the `Route::view` method. Like the `redirect` method, this method provides a simple shortcut so that you do not have to define a full route or controller. The `view` method accepts a URI as its first argument and a view name as its second argument. In addition, you may provide an array of data to pass to the view as an optional third argument: -->
-라우트가 [view](/docs/12.x/views)만 반환해야 하는 경우 `Route::view` 메서드를 사용할 수 있습니다. `redirect` 방법과 마찬가지로 이 방법은 전체 라우트 또는 컨트롤러를 정의할 필요가 없도록 간단한 바로 가기를 제공합니다. `view` 메소드는 URI를 첫 번째 인수로, 뷰 이름을 두 번째 인수로 승인합니다. 또한 선택적 세 번째 인수로 뷰에 전달할 데이터 배열을 제공할 수 있습니다.
+라우트가 [view](/docs/12.x/views)만 반환해야 하는 경우 `Route::view` 메서드를 사용할 수 있습니다. `redirect` 방법과 마찬가지로 이 방법은 전체 라우트 또는 컨트롤러를 정의할 필요가 없도록 간단한 바로 가기를 제공합니다. `view` 메소드는 URI를 첫 번째 인수로, 뷰 이름을 두 번째 인수로 받습니다. 또한 선택적 세 번째 인수로 뷰에 전달할 데이터 배열을 제공할 수 있습니다.
 
 ```php
 Route::view('/welcome', 'welcome');
@@ -435,7 +435,7 @@ public function boot(): void
 ```
 
 <!-- Once the pattern has been defined, it is automatically applied to all routes using that parameter name: -->
-패턴이 정의되면 해당 매개변수 이름을 사용하여 모든 라우트에 자동으로 적용됩니다.
+패턴이 정의되면 해당 매개변수 이름을 사용하는 모든 라우트에 자동으로 적용됩니다.
 
 ```php
 Route::get('/user/{id}', function (string $id) {
@@ -464,7 +464,7 @@ Route::get('/search/{search}', function (string $search) {
 ## Named Routes
 
 <!-- Named routes allow the convenient generation of URLs or redirects for specific routes. You may specify a name for a route by chaining the `name` method onto the route definition: -->
-라우트라는 이름을 사용하면 특정 라우트에 대한 URL 또는 리디렉션을 편리하게 생성할 수 있습니다. `name` 메소드를 라우트 정의에 연결하여 라우트의 이름을 지정할 수 있습니다.
+이름이 지정된 라우트를 사용하면 특정 라우트에 대한 URL 또는 리디렉션을 편리하게 생성할 수 있습니다. `name` 메소드를 라우트 정의에 연결하여 라우트의 이름을 지정할 수 있습니다.
 
 ```php
 Route::get('/user/profile', function () {
@@ -564,7 +564,7 @@ public function handle(Request $request, Closure $next): Response
 라우트 그룹을 사용하면 각 개별 라우트에서 해당 속성을 정의할 필요 없이 다수의 라우트에서 미들웨어와 같은 라우트 속성을 공유할 수 있습니다.
 
 <!-- Nested groups attempt to intelligently "merge" attributes with their parent group. Middleware and `where` conditions are merged while names and prefixes are appended. Namespace delimiters and slashes in URI prefixes are automatically added where appropriate. -->
-중첩된 그룹은 속성을 상위 그룹과 지능적으로 "병합"하려고 시도합니다. 미들웨어 및 `where` 조건은 이름과 접두사가 추가되는 동안 병합됩니다. URI 접두사의 네임스페이스 구분 기호와 슬래시는 적절한 곳에 자동으로 추가됩니다.
+중첩된 그룹은 속성을 상위 그룹과 지능적으로 "병합"하려고 시도합니다. 미들웨어 및 `where` 조건은 병합되고, 이름과 접두사는 뒤에 덧붙여집니다. 네임스페이스 구분 기호와 URI 접두사의 슬래시는 적절한 곳에 자동으로 추가됩니다.
 
 <a name="route-group-middleware"></a>
 <!-- ### Middleware -->
@@ -661,7 +661,7 @@ Route::name('admin.')->group(function () {
 ### Implicit Binding
 
 <!-- Laravel automatically resolves Eloquent models defined in routes or controller actions whose type-hinted variable names match a route segment name. For example: -->
-Laravel는 라우트에 정의된 Eloquent 모델 또는 유형 힌트 변수 이름이 라우트 세그먼트 이름과 일치하는 컨트롤러 작업을 자동으로 해결합니다. 예를 들어:
+Laravel는 라우트나 컨트롤러 작업에 정의된 Eloquent 모델 중 유형 힌트 변수 이름이 라우트 세그먼트 이름과 일치하는 모델을 자동으로 해결합니다. 예를 들어:
 
 ```php
 use App\Models\User;
@@ -739,7 +739,7 @@ public function getRouteKeyName(): string
 #### Custom Keys and Scoping
 
 <!-- When implicitly binding multiple Eloquent models in a single route definition, you may wish to scope the second Eloquent model such that it must be a child of the previous Eloquent model. For example, consider this route definition that retrieves a blog post by slug for a specific user: -->
-단일 라우트 정의에서 여러 Eloquent 모델을 암시적으로 바인딩하는 경우 두 번째 Eloquent 모델의 범위를 지정하여 이전 Eloquent 모델의 하위 항목이어야 할 수 있습니다. 예를 들어, 특정 사용자에 대한 슬러그로 블로그 게시물을 검색하는 다음 라우트 정의를 고려해 보세요.
+단일 라우트 정의에서 여러 Eloquent 모델을 암시적으로 바인딩하는 경우 두 번째 Eloquent 모델이 이전 Eloquent 모델의 자식이어야 하도록 범위를 제한하고 싶을 수 있습니다. 예를 들어, 특정 사용자의 블로그 게시물을 슬러그로 검색하는 다음 라우트 정의를 고려해 보세요.
 
 ```php
 use App\Models\Post;
@@ -867,7 +867,7 @@ Route::get('/users/{user}', function (User $user) {
 ```
 
 <!-- Since we have bound all `{user}` parameters to the `App\Models\User` model, an instance of that class will be injected into the route. So, for example, a request to `users/1` will inject the `User` instance from the database which has an ID of `1`. -->
-모든 `{user}` 매개변수를 `App\Models\User` 모델에 바인딩했으므로 해당 클래스의 인스턴스가 라우트에 주입됩니다. 예를 들어 `users/1`에 대한 요청은 ID가 `1`인 데이터베이스에서 `User` 인스턴스를 삽입합니다.
+모든 `{user}` 매개변수를 `App\Models\User` 모델에 바인딩했으므로 해당 클래스의 인스턴스가 라우트에 주입됩니다. 예를 들어 `users/1`에 대한 요청은 데이터베이스에서 ID가 `1`인 `User` 인스턴스를 가져와 라우트에 주입합니다.
 
 <!-- If a matching model instance is not found in the database, a 404 HTTP response will be automatically generated. -->
 일치하는 모델 인스턴스가 데이터베이스에서 발견되지 않으면 404 HTTP 응답이 자동으로 생성됩니다.
@@ -877,7 +877,7 @@ Route::get('/users/{user}', function (User $user) {
 #### Customizing the Resolution Logic
 
 <!-- If you wish to define your own model binding resolution logic, you may use the `Route::bind` method. The closure you pass to the `bind` method will receive the value of the URI segment and should return the instance of the class that should be injected into the route. Again, this customization should take place in the `boot` method of your application's `AppServiceProvider`: -->
-자신만의 모델 바인딩 확인 논리를 정의하려면 `Route::bind` 메서드를 사용할 수 있습니다. `bind` 메소드에 전달한 클로저는 URI 세그먼트의 값을 수신하고 라우트에 주입되어야 하는 클래스의 인스턴스를 반환해야 합니다. 다시 말하지만, 이 사용자 지정는 애플리케이션 `AppServiceProvider`의 `boot` 메소드에서 수행되어야 합니다.
+자신만의 모델 바인딩 확인 논리를 정의하려면 `Route::bind` 메서드를 사용할 수 있습니다. `bind` 메소드에 전달한 클로저는 URI 세그먼트의 값을 수신하고 라우트에 주입되어야 하는 클래스의 인스턴스를 반환해야 합니다. 다시 말하지만, 이 사용자 지정은 애플리케이션 `AppServiceProvider`의 `boot` 메소드에서 수행되어야 합니다.
 
 ```php
 use App\Models\User;
@@ -1056,7 +1056,7 @@ RateLimiter::for('login', function (Request $request) {
 ```
 
 <!-- If you're assigning multiple rate limits segmented by identical `by` values, you should ensure that each `by` value is unique. The easiest way to achieve this is to prefix the values given to the `by` method: -->
-동일한 `by` 값으로 분할된 여러 비율 제한을 할당하는 경우 각 `by` 값이 고유한지 확인해야 합니다. 이를 달성하는 가장 쉬운 방법은 `by` 메소드에 지정된 값을 접두어로 붙이는 것입니다.
+동일한 `by` 값으로 분할된 여러 비율 제한을 할당하는 경우 각 `by` 값이 고유한지 확인해야 합니다. 이를 달성하는 가장 쉬운 방법은 `by` 메소드에 지정된 값에 접두어를 붙이는 것입니다.
 
 ```php
 RateLimiter::for('uploads', function (Request $request) {
@@ -1072,10 +1072,10 @@ RateLimiter::for('uploads', function (Request $request) {
 #### Response-Based Rate Limiting
 
 <!-- In addition to rate limiting incoming requests, Laravel allows you to rate limit based on the response using the `after` method. This is useful when you only want to count certain responses toward the rate limit, such as validation errors, 404 responses, or other specific HTTP status codes. -->
-들어오는 요청의 속도를 제한하는 것 외에도 Laravel을 사용하면 `after` 메서드를 사용하여 응답을 기반으로 속도를 제한할 수 있습니다. 이는 유효성 검사 오류, 404 응답 또는 기타 특정 HTTP 상태 코드와 같은 비율 제한에 대한 특정 응답만 계산하려는 경우에 유용합니다.
+들어오는 요청의 속도를 제한하는 것 외에도 Laravel을 사용하면 `after` 메서드를 사용하여 응답을 기반으로 속도를 제한할 수 있습니다. 이는 유효성 검사 오류, 404 응답 또는 기타 특정 HTTP 상태 코드처럼 특정 응답만 속도 제한에 포함하려는 경우에 유용합니다.
 
 <!-- The `after` method accepts a closure that receives the response and should return `true` if the response should be counted toward the rate limit, or `false` if it should be ignored. This is particularly useful for preventing enumeration attacks by limiting consecutive 404 responses, or allowing users to retry requests that fail validation without exhausting their rate limit on an endpoint that should only throttle successful operations: -->
-`after` 메소드는 응답을 수신하는 클로저를 승인하고 응답이 속도 제한에 포함되어야 하는 경우 `true`를 반환해야 하고 무시해야 하는 경우 `false`를 반환해야 합니다. 이는 연속 404 응답을 제한하여 열거형 공격을 방지하거나 성공적인 작업만 제한해야 하는 엔드포인트에서 속도 제한을 소진하지 않고 사용자가 유효성 검사에 실패한 요청을 재시도할 수 있도록 허용하는 데 특히 유용합니다.
+`after` 메소드는 응답을 수신하는 클로저를 인수로 받으며, 이 클로저는 응답이 속도 제한에 포함되어야 하는 경우 `true`를 반환해야 하고 무시해야 하는 경우 `false`를 반환해야 합니다. 이는 연속 404 응답을 제한하여 열거 공격을 방지하거나 성공적인 작업만 제한해야 하는 엔드포인트에서 속도 제한을 소진하지 않고 사용자가 유효성 검사에 실패한 요청을 재시도할 수 있도록 허용하는 데 특히 유용합니다.
 
 ```php
 use Illuminate\Cache\RateLimiting\Limit;

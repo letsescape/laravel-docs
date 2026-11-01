@@ -1135,7 +1135,7 @@ Mail::to($request->user())
 ```
 
 <!-- This method will automatically take care of pushing a job onto the queue so the message is sent in the background. You will need to [configure your queues](/docs/13.x/queues) before using this feature. -->
-이 메서드는 메시지가 백그라운드에서 전송되도록 job을 큐에 넣는 작업을 자동으로 처리합니다. 이 기능을 사용하기 전에 [configure your queues](/docs/13.x/queues)해야 합니다.
+이 메서드는 메시지가 백그라운드에서 전송되도록 job을 큐에 넣는 작업을 자동으로 처리합니다. 이 기능을 사용하기 전에 [configure your queues](/docs/13.x/queues)에 따라 큐를 설정해야 합니다.
 
 <a name="delayed-message-queueing"></a>
 <!-- #### Delayed Message Queueing -->

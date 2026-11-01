@@ -41,7 +41,7 @@
 Laravel의 데이터베이스 쿼리 빌더는 데이터베이스 쿼리를 쉽고 유연하게 작성하고 실행할 수 있는 편리한 인터페이스를 제공합니다. 이 빌더는 애플리케이션에서 대부분의 데이터베이스 작업을 수행할 수 있게 해주며, Laravel이 지원하는 모든 데이터베이스 시스템과 완벽하게 호환됩니다.
 
 <!-- The Laravel query builder uses PDO parameter binding to protect your application against SQL injection attacks. There is no need to clean or sanitize strings passed to the query builder as query bindings. -->
-Laravel 쿼리 빌더는 PDO의 파라미터 바인딩을 활용하여, SQL 인젝션 공격으로부터 애플리케이션을 안전하게 보호합니다. 쿼리 빌더에 전달되는 문자열을 따로 정제(clean)하거나 필터링(sanitize)할 필요가 없습니다.
+Laravel 쿼리 빌더는 PDO의 파라미터 바인딩을 활용하여, SQL 인젝션 공격으로부터 애플리케이션을 안전하게 보호합니다. 쿼리 빌더에 쿼리 바인딩으로 전달되는 문자열을 따로 정제(clean)하거나 필터링(sanitize)할 필요가 없습니다.
 
 > [!NOTE]
 > PDO는 컬럼명 바인딩을 지원하지 않습니다. 따라서 쿼리에서 참조되는 컬럼명(특히 "order by"처럼) 자체를 사용자 입력에 따라 동적으로 결정하게 해서는 안 됩니다.
@@ -195,7 +195,7 @@ DB::table('users')->where('active', false)
 ```
 
 > [!NOTE]
-> 청크 콜백 내에서 기본 키나 외래 키 값을 변경 또는 삭제하는 경우, 쿼리 결과에 영향을 줄 수 있으니 주의해야 합니다. 이로 인해 일부 레코드가 결과에서 누락될 수 있습니다.
+> 청크 콜백 내에서 레코드를 업데이트하거나 삭제할 때, 기본 키나 외래 키 값의 변경이 청크 쿼리에 영향을 줄 수 있으니 주의해야 합니다. 이로 인해 일부 레코드가 결과에서 누락될 수 있습니다.
 
 <a name="streaming-results-lazily"></a>
 <!-- ### Streaming Results Lazily -->
@@ -225,7 +225,7 @@ DB::table('users')->where('active', false)
 ```
 
 > [!NOTE]
-> 순회 중 기본 키나 외래 키를 수정하거나 삭제하면, 이후 실행되는 청크 쿼리에 영향을 줄 수 있으니 주의해야 합니다. 이로 인해 일부 레코드가 누락될 수 있습니다.
+> 순회 중 레코드를 수정하거나 삭제할 때, 기본 키나 외래 키의 변경이 이후 실행되는 청크 쿼리에 영향을 줄 수 있으니 주의해야 합니다. 이로 인해 일부 레코드가 누락될 수 있습니다.
 
 <a name="aggregates"></a>
 <!-- ### Aggregates -->
@@ -243,7 +243,7 @@ $price = DB::table('orders')->max('price');
 ```
 
 <!-- Of course, you may combine these methods with other clauses to fine-tune how your aggregate value is calculated: -->
-물론, 이 메서드들은 다른 조건과도 조합해 사용할 수 있습니다. 예를 들어, 특정 조건을 만족하는 데이터에만 집계합 동작하도록 만들 수 있습니다.
+물론, 이 메서드들은 다른 조건과도 조합해 사용할 수 있습니다. 예를 들어, 특정 조건을 만족하는 데이터에만 집계가 동작하도록 만들 수 있습니다.
 
 ```
 $price = DB::table('orders')
@@ -537,7 +537,7 @@ $users = DB::table('users')
 ```
 
 <!-- For convenience, if you want to verify that a column is `=` to a given value, you may pass the value as the second argument to the `where` method. Laravel will assume you would like to use the `=` operator: -->
-간편하게, 컬럼이 `=` 인지 비교하고 싶다면, `where`의 두 번째 인자에 값을 바로 넘기면 됩니다. Laravel은 자동으로 `=` 연산자를 사용합니다.
+간편하게, 컬럼 값이 주어진 값과 같은지 `=`로 비교하고 싶다면, `where`의 두 번째 인자에 값을 바로 넘기면 됩니다. Laravel은 자동으로 `=` 연산자를 사용합니다.
 
 ```
 $users = DB::table('users')->where('votes', 100)->get();
@@ -1114,7 +1114,7 @@ DB::table('users')->insertOrIgnore([
 ```
 
 > [!NOTE]
-> `insertOrIgnore`는 중복 레코드뿐만 아니라 데이터베이스 엔진에 따라 다른 유형의 오류도 무시할 수 있습니다. 예를 들어, `insertOrIgnore`는 MySQL의 스트릭트 모드를 [bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution)합니다.
+> `insertOrIgnore`는 중복 레코드뿐만 아니라 데이터베이스 엔진에 따라 다른 유형의 오류도 무시할 수 있습니다. 예를 들어, `insertOrIgnore`는 MySQL의 스트릭트 모드를 우회합니다([bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution)).
 
 <a name="auto-incrementing-ids"></a>
 <!-- #### Auto-Incrementing IDs -->
@@ -1130,7 +1130,7 @@ $id = DB::table('users')->insertGetId(
 ```
 
 > [!NOTE]
-> PostgreSQL을 사용할 경우, `insertGetId` 메서드는 자동 증가 컬럼의 이름이 반드시 `id`여야 한다고 가정합니다. 다른 "sequence"에서 ID를 조회하고 싶다면, `insertGetId` 메서드의 두 번째 인자로 컬럼명을 지정하면 됩니다.
+> PostgreSQL을 사용할 경우, `insertGetId` 메서드는 기본적으로 자동 증가 컬럼의 이름이 `id`라고 가정합니다. 다른 "sequence"에서 ID를 조회하고 싶다면, `insertGetId` 메서드의 두 번째 인자로 컬럼명을 지정하면 됩니다.
 
 <a name="upserts"></a>
 <!-- ### Upserts -->

@@ -1222,7 +1222,7 @@ Echo.private(`orders.${this.order.id}`)
 #### Stop Listening for Events
 
 <!-- If you would like to stop listening to a given event without [leaving the channel](#leaving-a-channel), you may use the `stopListening` method: -->
-[leaving the channel](#leaving-a-channel) 특정 이벤트의 수신만 중지하려면 `stopListening` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 특정 이벤트의 수신만 중지하려면 `stopListening` 메서드를 사용할 수 있습니다.
 
 ```js
 Echo.private(`orders.${this.order.id}`)
@@ -1503,7 +1503,7 @@ const status = useConnectionStatus();
 ### Authorizing Presence Channels
 
 <!-- All presence channels are also private channels; therefore, users must be [authorized to access them](#authorizing-channels). However, when defining authorization callbacks for presence channels, you will not return `true` if the user is authorized to join the channel. Instead, you should return an array of data about the user. -->
-모든 프레즌스 채널은 비공개 채널이기도 합니다. 따라서 사용자는 해당 채널에 접근하도록 [authorized to access them](#authorizing-channels). 하지만 프레즌스 채널의 인가 콜백을 정의할 때는 사용자가 채널에 참여할 수 있더라도 `true`를 반환하지 않습니다. 대신 사용자에 대한 데이터 배열을 반환해야 합니다.
+모든 프레즌스 채널은 비공개 채널이기도 합니다. 따라서 사용자는 [authorized to access them](#authorizing-channels)에 설명된 인가를 받아야 합니다. 하지만 프레즌스 채널의 인가 콜백을 정의할 때는 사용자가 채널에 참여할 수 있더라도 `true`를 반환하지 않습니다. 대신 사용자에 대한 데이터 배열을 반환해야 합니다.
 
 <!-- The data returned by the authorization callback will be made available to the presence channel event listeners in your JavaScript application. If the user is not authorized to join the presence channel, you should return `false` or `null`: -->
 인가 콜백에서 반환된 데이터는 JavaScript 애플리케이션의 프레즌스 채널 이벤트 리스너에서 사용할 수 있게 됩니다. 사용자가 프레즌스 채널에 참여할 권한이 없다면 `false` 또는 `null`을 반환해야 합니다.
@@ -1964,7 +1964,7 @@ channel().notification((notification) => {
 #### Stop Listening for Notifications
 
 <!-- If you would like to stop listening to notifications without [leaving the channel](#leaving-a-channel), you may use the `stopListeningForNotification` method: -->
-[leaving the channel](#leaving-a-channel) 알림 수신을 중지하고 싶다면 `stopListeningForNotification` 메서드를 사용할 수 있습니다.
+[leaving the channel](#leaving-a-channel) 없이 알림 수신을 중지하고 싶다면 `stopListeningForNotification` 메서드를 사용할 수 있습니다.
 
 ```js
 const callback = (notification) => {

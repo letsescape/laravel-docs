@@ -231,7 +231,7 @@ protected function discoverEventsWithin()
 #### Event Discovery In Production
 
 <!-- In production, it is not efficient for the framework to scan all of your listeners on every request. Therefore, during your deployment process, you should run the `event:cache` Artisan command to cache a manifest of all of your application's events and listeners. This manifest will be used by the framework to speed up the event registration process. The `event:clear` command may be used to destroy the cache. -->
-프로덕션 환경에서 매 요청마다 모든 리스너를 일일이 스캔하는 것은 비효율적입니다. 따라서 배포(delpoy) 시점에 `event:cache` Artisan 명령어를 실행하여, 모든 이벤트와 리스너 정보를 캐시(Manifest)로 저장해 두는 것이 좋습니다. 이렇게 하면 프레임워크가 이벤트 등록을 훨씬 빠르게 처리할 수 있습니다. 저장해둔 캐시는 `event:clear` 명령어로 제거할 수 있습니다.
+프로덕션 환경에서 매 요청마다 모든 리스너를 일일이 스캔하는 것은 비효율적입니다. 따라서 배포(deploy) 시점에 `event:cache` Artisan 명령어를 실행하여, 모든 이벤트와 리스너 정보를 캐시(Manifest)로 저장해 두는 것이 좋습니다. 이렇게 하면 프레임워크가 이벤트 등록을 훨씬 빠르게 처리할 수 있습니다. 저장해둔 캐시는 `event:clear` 명령어로 제거할 수 있습니다.
 
 <a name="defining-events"></a>
 <!-- ## Defining Events -->

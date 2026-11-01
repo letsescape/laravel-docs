@@ -96,7 +96,7 @@ php vendor/bin/envoy
 ### Multiple Servers
 
 <!-- Envoy allows you to easily run a task across multiple servers. First, add additional servers to your `@servers` declaration. Each server should be assigned a unique name. Once you have defined your additional servers you may list each of the servers in the task's `on` array: -->
-Envoy를 사용하면 하나의 태스크를 여러 서버에 걸쳐서 동시에 실행할 수 있습니다. 먼저, `@servers` 선언에 서버를 추가하고, 각 서버에 고유한 이름을 지정합니다. 이후 태스크의 `on` 배열에 실행될 서버의 이름을 나열합니다:
+Envoy를 사용하면 하나의 태스크를 여러 서버에 걸쳐서 실행할 수 있습니다. 먼저, `@servers` 선언에 서버를 추가하고, 각 서버에 고유한 이름을 지정합니다. 이후 태스크의 `on` 배열에 실행될 서버의 이름을 나열합니다:
 
 ```blade
 @servers(['web-1' => '192.168.1.1', 'web-2' => '192.168.1.2'])
@@ -353,7 +353,7 @@ Envoy는 각 태스크 실행 후 [Slack](https://slack.com)으로 알림을 전
 ### Discord
 
 <!-- Envoy also supports sending notifications to [Discord](https://discord.com) after each task is executed. The `@discord` directive accepts a Discord hook URL and a message. You may retrieve your webhook URL by creating a "Webhook" in your Server Settings and choosing which channel the webhook should post to. You should pass the entire Webhook URL into the `@discord` directive: -->
-Envoy는 [Discord](https://discord.com)에도 태스크 실행 후 알림을 보낼 수 있습니다. `@discord` 지시어는 Discord 웹후크 URL과 메시지를 받습니다. 웹후크 URL은 디스코드 서버의 "Webhook"을 생성해서 얻을 수 있습니다. 해당 URL을 `@discord` 지시어에 그대로 전달하면 됩니다:
+Envoy는 [Discord](https://discord.com)에도 태스크 실행 후 알림을 보낼 수 있습니다. `@discord` 지시어는 Discord 웹후크 URL과 메시지를 받습니다. 웹후크 URL은 디스코드 서버 설정에서 "Webhook"을 생성하고 메시지를 게시할 채널을 선택하여 얻을 수 있습니다. 해당 URL을 `@discord` 지시어에 그대로 전달하면 됩니다:
 
 ```blade
 @finished
@@ -379,7 +379,7 @@ Envoy는 [Telegram](https://telegram.org) 알림도 지원합니다. `@telegram`
 ### Microsoft Teams
 
 <!-- Envoy also supports sending notifications to [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams) after each task is executed. The `@microsoftTeams` directive accepts a Teams Webhook (required), a message, theme color (success, info, warning, error), and an array of options. You may retrieve your Teams Webhook by creating a new [incoming webhook](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook). The Teams API has many other attributes to customize your message box like title, summary, and sections. You can find more information on the [Microsoft Teams documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURL#example-of-connector-message). You should pass the entire Webhook URL into the `@microsoftTeams` directive: -->
-Envoy는 [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams) 알림도 지원합니다. `@microsoftTeams` 지시어에는 Teams 웹후크(필수), 메시지, 테마 색상(success, info, warning, error), 옵션 배열을 인자로 전달할 수 있습니다. Teams 웹후크 URL은 [incoming webhook](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)을 생성해서 가져야 합니다. Teams API에서는 메시지 박스 타이틀, 요약, 섹션 등 다양한 속성도 커스터마이즈할 수 있습니다. 자세한 내용은 [Microsoft Teams documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURL#example-of-connector-message)를 참고하십시오. 웹후크 URL을 `@microsoftTeams` 지시어에 입력하면 됩니다:
+Envoy는 [Microsoft Teams](https://www.microsoft.com/en-us/microsoft-teams) 알림도 지원합니다. `@microsoftTeams` 지시어에는 Teams 웹후크(필수), 메시지, 테마 색상(success, info, warning, error), 옵션 배열을 인자로 전달할 수 있습니다. Teams 웹후크 URL은 [incoming webhook](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)을 생성해서 얻을 수 있습니다. Teams API에서는 메시지 박스 타이틀, 요약, 섹션 등 다양한 속성도 커스터마이즈할 수 있습니다. 자세한 내용은 [Microsoft Teams documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using?tabs=cURL#example-of-connector-message)를 참고하십시오. 웹후크 URL을 `@microsoftTeams` 지시어에 입력하면 됩니다:
 
 ```blade
 @finished

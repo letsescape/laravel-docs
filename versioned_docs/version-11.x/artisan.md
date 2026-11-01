@@ -1035,4 +1035,4 @@ php artisan stub:publish
 ## Events
 
 <!-- Artisan dispatches three events when running commands: `Illuminate\Console\Events\ArtisanStarting`, `Illuminate\Console\Events\CommandStarting`, and `Illuminate\Console\Events\CommandFinished`. The `ArtisanStarting` event is dispatched immediately when Artisan starts running. Next, the `CommandStarting` event is dispatched immediately before a command runs. Finally, the `CommandFinished` event is dispatched once a command finishes executing. -->
-Artisan은 명령어 실행 시 세 가지 이벤트를 발생시킵니다: `Illuminate\Console\Events\ArtisanStarting`, `Illuminate\Console\Events\CommandStarting`, `Illuminate\Console\Events\CommandFinished`입니다. `ArtisanStarting` 이벤트는 Artisan이 실행을 시작할 때 바로 발생하며, 그 다음엔서 각 명령어가 실행되기 직전에 `CommandStarting` 이벤트가 발생합니다. 마지막으로 명령어 실행이 끝나면 `CommandFinished` 이벤트가 발생합니다.
+Artisan은 명령어 실행 시 세 가지 이벤트를 발생시킵니다: `Illuminate\Console\Events\ArtisanStarting`, `Illuminate\Console\Events\CommandStarting`, `Illuminate\Console\Events\CommandFinished`입니다. `ArtisanStarting` 이벤트는 Artisan이 실행을 시작할 때 바로 발생하며, 그 다음에 각 명령어가 실행되기 직전에 `CommandStarting` 이벤트가 발생합니다. 마지막으로 명령어 실행이 끝나면 `CommandFinished` 이벤트가 발생합니다.

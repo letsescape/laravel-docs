@@ -55,8 +55,8 @@ composer require laravel/boost --dev
 php artisan boost:install
 ```
 
-<!-- The `boost:install` command will generate the relevant agent guideline and skill files for the coding agents you selected during the installation process. -->
-`boost:install` コマンドは、インストール プロセス中に選択したコーディング エージェントに関連するエージェント ガイドラインとスキル ファイルを生成します。
+<!-- The `boost:install` command will generate the relevant agent guideline and skill files for the coding agents you selected during the installation process. If a guideline file such as `CLAUDE.md` or `AGENTS.md` already exists, Boost only replaces the content inside its `<laravel-boost-guidelines>` block, so anything you have written outside of that block is preserved. -->
+`boost:install` コマンドは、インストール時に選択したコーディングエージェント向けのガイドラインファイルとスキルファイルを生成します。`CLAUDE.md` や `AGENTS.md` などのガイドラインファイルがすでにある場合、Boost が置き換えるのは `<laravel-boost-guidelines>` ブロック内の内容だけなので、ブロックの外に書いた内容は保持されます。
 
 <!-- Once Laravel Boost has been installed, you're ready to start coding with Cursor, Claude Code, or your AI agent of choice. -->
 Laravel Boost がインストールされたら、Cursor、Claude Code、または選択した AI エージェントを使用してコーディングを開始する準備が整います。
@@ -84,12 +84,6 @@ claude mcp add -s local -t stdio laravel-boost php artisan boost:mcp
 Codex support is typically enabled automatically. If you find it isn't, open a shell in the project's directory and run the following command:
 
 codex mcp add laravel-boost -- php "artisan" "boost:mcp"
-```
-
-```text tab=Gemini CLI
-Gemini CLI support is typically enabled automatically. If you find it isn't, open a shell in the project's directory and run the following command:
-
-gemini mcp add -s project -t stdio laravel-boost php artisan boost:mcp
 ```
 
 ```text tab=GitHub Copilot (VS Code)
@@ -130,11 +124,11 @@ Composer の「post-update-cmd」スクリプトにこのプロセスを追加�
 }
 ```
 
-<!-- By default, the `boost:update` command will only update the existing Boost resources already published within your application. If you would like Boost to scan your application for any newly installed packages and offer to publish their corresponding guidelines and skills, you may use the `--discover` option: -->
-デフォルトでは、`boost:update` コマンドは、アプリケーション内ですでに公開されている既存の Boost リソースのみを更新します。 Boost でアプリケーションをスキャンして新しくインストールされたパッケージを探し、対応するガイドラインとスキルの公開を提案したい場合は、`--discover` オプションを使用できます。
+<!-- By default, the `boost:update` command will also scan your application for any newly installed packages and offer to publish their corresponding guidelines and skills. This prompt is skipped when the command runs non-interactively, such as from a Composer script. If you would like Boost to only update the existing Boost resources already published within your application, you may use the `--no-discover` option: -->
+デフォルトでは、`boost:update` コマンドはアプリケーションをスキャンして新しくインストールされたパッケージも検出し、対応するガイドラインやスキルの公開を提案します。Composer スクリプトから実行する場合など、コマンドを非対話形式で実行すると、この確認は省略されます。アプリケーション内ですでに公開されている既存の Boost リソースだけを更新するには、`--no-discover` オプションを使用してください。
 
 ```shell
-php artisan boost:update --discover
+php artisan boost:update --no-discover
 ```
 
 <a name="mcp-server"></a>

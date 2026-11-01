@@ -171,7 +171,7 @@ class NewApi
 ```
 
 <!-- If you would like to manually resolve an instance of a class based feature, you may invoke the `instance` method on the `Feature` facade: -->
-클래스 기반 기능 플래그의 인스턴스를 직접 사용해서 값을 확인하고 싶다면, `Feature` 파사드의 `instance` 메서드를 사용할 수 있습니다.
+클래스 기반 기능 플래그의 인스턴스를 직접 가져오고 싶다면, `Feature` 파사드의 `instance` 메서드를 사용할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\Feature;
@@ -186,7 +186,7 @@ $instance = Feature::instance(NewApi::class);
 #### Customizing the Stored Feature Name
 
 <!-- By default, Pennant will store the feature class's fully qualified class name. If you would like to decouple the stored feature name from the application's internal structure, you may specify a `$name` property on the feature class. The value of this property will be stored in place of the class name: -->
-기본적으로 Pennant는 해당 기능 플래그 클래스의 전체 경로가 포함된 클래스명을 기능 이름으로 저장합니다. 만약 기능 플래그 이름을 애플리케이션 내부 구조에서 분리해서 관리하고 싶다면, 클래스 내에 `$name` 속성을 지정할 수 있습니다. 이 속성의 값이 클래스명이 아닌 저장소에 기록됩니다.
+기본적으로 Pennant는 해당 기능 플래그 클래스의 전체 경로가 포함된 클래스명을 기능 이름으로 저장합니다. 만약 기능 플래그 이름을 애플리케이션 내부 구조에서 분리해서 관리하고 싶다면, 클래스 내에 `$name` 속성을 지정할 수 있습니다. 이 속성의 값이 클래스명 대신 저장소에 기록됩니다.
 
 ```php
 <?php
@@ -475,7 +475,7 @@ public function boot(): void
 ### Intercepting Feature Checks
 
 <!-- Sometimes it can be useful to perform some in-memory checks before retrieving the stored value of a given feature. Imagine you are developing a new API behind a feature flag and want the ability to disable the new API without losing any of the resolved feature values in storage. If you notice a bug in the new API, you could easily disable it for everyone except internal team members, fix the bug, and then re-enable the new API for the users that previously had access to the feature. -->
-경우에 따라, 저장된 기능 값에 접근하기 전에 별도의 메모리 내 체크를 먼저 실행하고 싶을 수 있습니다. 예를 들어, 새로운 API를 기능 플래그로 관리하고 있는데, 치명적인 버그가 발생하면 누적된 플래그 값은 그대로 두고 모든 사용자에게 일괄적으로 일시 정지(disable)하고 싶을 수 있습니다. 이럴 때는, 내부 팀원만 사용하도록 잠시 한정했다가, 버그를 고친 후 다시 다른 사용자에게 접근을 개방할 수도 있습니다.
+경우에 따라, 저장된 기능 값에 접근하기 전에 별도의 메모리 내 체크를 먼저 실행하고 싶을 수 있습니다. 예를 들어, 새로운 API를 기능 플래그로 관리하고 있는데, 치명적인 버그가 발생하면 누적된 플래그 값은 그대로 두고 모든 사용자에게 일괄적으로 일시 정지(disable)하고 싶을 수 있습니다. 이럴 때는, 내부 팀원만 사용하도록 잠시 한정했다가, 버그를 고친 후 이전에 이 기능을 사용할 수 있었던 사용자에게 다시 접근을 허용할 수도 있습니다.
 
 <!-- You can achieve this with a [class-based feature's](#class-based-features) `before` method. When present, the `before` method is always run in-memory before retrieving the value from storage. If a non-`null` value is returned from the method, it will be used in place of the feature's stored value for the duration of the request: -->
 이러한 요구는 [class-based feature's](#class-based-features)의 `before` 메서드를 사용하여 처리할 수 있습니다. `before` 메서드는 항상 메모리 내에서 먼저 실행되며, 만약 이 메서드가 `null`이 아닌 값을 반환하면, 해당 요청 동안에는 저장된 기능 값 대신 그 값을 사용하게 됩니다.
@@ -578,7 +578,7 @@ return Feature::for($user)->active('new-api')
 ```
 
 <!-- Of course, feature scopes are not limited to "users". Imagine you have built a new billing experience that you are rolling out to entire teams rather than individual users. Perhaps you would like the oldest teams to have a slower rollout than the newer teams. Your feature resolution closure might look something like the following: -->
-스코프는 "사용자"에만 국한되지 않습니다. 예를 들어, 팀 단위로 새로운 결제 경험을 단계적으로 적용하려고 할 수 있습니다. 이때 오래된 팀부터 순차적으로 적용 속도를 조절하고 싶다면, 다음과 같이 플래그 해석 클로저를 작성할 수 있습니다.
+스코프는 "사용자"에만 국한되지 않습니다. 예를 들어, 팀 단위로 새로운 결제 경험을 단계적으로 적용하려고 할 수 있습니다. 이때 오래된 팀에는 새 팀보다 더 천천히 적용하고 싶다면, 다음과 같이 플래그 해석 클로저를 작성할 수 있습니다.
 
 ```php
 use App\Models\Team;
@@ -657,7 +657,7 @@ Feature::for($user->team)->active('billing-v2');
 ### Nullable Scope
 
 <!-- If the scope you provide when checking a feature is `null` and the feature's definition does not support `null` via a nullable type or by including `null` in a union type, Pennant will automatically return `false` as the feature's result value. -->
-특정 기능의 사용 여부를 확인할 때 전달하는 스코프(scope)가 `null`이고, 해당 기능 정의에서 nullable 타입으로 `null`을 지원하지 않거나 union 타입에 `null`이 포함되어 있지 않다면, Pennant는 자동으로 해당 기능의 결과값을 `false`로 반환합니다.
+특정 기능의 사용 여부를 확인할 때 전달하는 스코프(scope)가 `null`이고, 해당 기능 정의에서 nullable 타입이나 union 타입에 `null`을 포함하는 방식으로 `null`을 지원하지 않는다면, Pennant는 자동으로 해당 기능의 결과값을 `false`로 반환합니다.
 
 <!-- So, if the scope you are passing to a feature is potentially `null` and you want the feature's value resolver to be invoked, you should account for that in your feature's definition. A `null` scope may occur if you check a feature within an Artisan command, queued job, or unauthenticated route. Since there is usually not an authenticated user in these contexts, the default scope will be `null`. -->
 따라서, 기능의 스코프가 상황에 따라 `null`이 될 수 있고, 기능 값 해결(resolver)을 꼭 실행하고 싶다면, 기능 정의에서 이를 고려해주어야 합니다. Artisan 명령어, 큐에 등록된 작업, 인증되지 않은 라우트에서 기능을 체크하는 경우 `null` 스코프가 발생할 수 있습니다. 이러한 경우에는 일반적으로 인증된 사용자가 없어, 기본 스코프가 `null`이 됩니다.
@@ -746,7 +746,7 @@ Feature::useMorphMap();
 지금까지는 기능이 "활성/비활성"의 이진(boolean) 상태인 것으로만 설명했지만, Pennant는 더 복합적인(리치) 값을 저장하는 것도 지원합니다.
 
 <!-- For example, imagine you are testing three new colors for the "Buy now" button of your application. Instead of returning `true` or `false` from the feature definition, you may instead return a string: -->
-예를 들어, 애플리케이션의 "Buy now" 버튼 색상을 A/B 테스트한다고 가정하면, 기능 정의에서 `true` 혹은 `false` 값을 반환하는 대신 문자열 값을 반환할 수 있습니다.
+예를 들어, 애플리케이션의 "Buy now" 버튼에 세 가지 새로운 색상을 테스트한다고 가정하면, 기능 정의에서 `true` 혹은 `false` 값을 반환하는 대신 문자열 값을 반환할 수 있습니다.
 
 ```php
 use Illuminate\Support\Arr;
@@ -878,7 +878,7 @@ Feature::all();
 ## Eager Loading
 
 <!-- Although Pennant keeps an in-memory cache of all resolved features for a single request, it is still possible to encounter performance issues. To alleviate this, Pennant offers the ability to eager load feature values. -->
-Pennant는 한 번의 요청 동안 모든 기능 값을 인메모리로 캐시하지만, 상황에 따라 성능 이슈가 발생할 수 있습니다. 이를 개선하기 위해 Pennant는 이그저 로딩(Eager loading) 기능 값 선불러오기 기능을 제공합니다.
+Pennant는 한 번의 요청 동안 이미 해석된 모든 기능 값을 인메모리로 캐시하지만, 상황에 따라 성능 이슈가 발생할 수 있습니다. 이를 개선하기 위해 Pennant는 이그저 로딩(Eager loading) 기능 값 선불러오기 기능을 제공합니다.
 
 <!-- To illustrate this, imagine that we are checking if a feature is active within a loop: -->
 예를 들어, 반복문 내에서 각 사용자마다 해당 기능 활성 여부를 체크한다고 가정해 보겠습니다.
@@ -984,7 +984,7 @@ Feature::deactivateForEveryone('new-api');
 ```
 
 > [!NOTE]
-> 이 메서드는 Pennant 저장소 드라이버에 저장되어 있는 기능 값만 업데이트합니다. 애플리케이션의 기능 정의 변경도 필요하다면 함께 처리해 주어야 합니다.
+> 이 메서드는 Pennant 저장소 드라이버에 저장되어 있는 기능 값만 업데이트합니다. 애플리케이션의 기능 정의도 함께 변경해야 합니다.
 
 <a name="purging-features"></a>
 <!-- ### Purging Features -->
@@ -1254,7 +1254,7 @@ Pennant는 기능 플래그를 추적하는 데 유용한 다양한 이벤트를
 ### `Laravel\Pennant\Events\FeatureRetrieved`
 
 <!-- This event is dispatched whenever a [feature is checked](#checking-features). This event may be useful for creating and tracking metrics against a feature flag's usage throughout your application. -->
-이벤트는 [feature is checked](#checking-features)마다 발생합니다. 이 이벤트는 기능 플래그의 사용에 대한 측정 및 모니터링 메트릭을 수집할 때 유용합니다.
+이벤트는 기능을 확인할 때마다 발생합니다([feature is checked](#checking-features)). 이 이벤트는 기능 플래그의 사용에 대한 측정 및 모니터링 메트릭을 수집할 때 유용합니다.
 
 <!-- ### `Laravel\Pennant\Events\FeatureResolved` -->
 ### `Laravel\Pennant\Events\FeatureResolved`
@@ -1302,7 +1302,7 @@ class AppServiceProvider extends ServiceProvider
 ### `Laravel\Pennant\Events\UnexpectedNullScopeEncountered`
 
 <!-- This event is dispatched when a `null` scope is passed to a feature definition that [doesn't support null](#nullable-scope). -->
-이 이벤트는 [doesn't support null](#nullable-scope) 기능 정의에 `null` 스코프가 전달될 때 발생합니다.
+이 이벤트는 null을 지원하지 않는 기능 정의([doesn't support null](#nullable-scope))에 `null` 스코프가 전달될 때 발생합니다.
 
 <!-- This situation is handled gracefully and the feature will return `false`. However, if you would like to opt out of this feature's default graceful behavior, you may register a listener for this event in the `boot` method of your application's `AppServiceProvider`: -->
 이 상황은 시스템이 문제 없이 적절하게 처리하며, 기능은 `false`를 반환합니다. 하지만, 만약 해당 기능의 기본적인 예외 처리 동작을 사용하고 싶지 않다면, 애플리케이션의 `AppServiceProvider` 클래스의 `boot` 메서드에서 이 이벤트의 리스너를 등록할 수 있습니다.

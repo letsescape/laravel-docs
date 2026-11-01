@@ -130,7 +130,7 @@ class FlightFactory extends Factory
 상태(state) 조작 메서드를 사용하면 하나의 모델 팩토리에 대해 다양한 변경점을 조합해서 적용할 수 있습니다. 예를 들어, `Database\Factories\UserFactory` 팩토리에 기본 속성 중 하나를 변경하는 `suspended` 상태 메서드를 정의할 수 있습니다.
 
 <!-- State transformation methods typically call the `state` method provided by Laravel's base factory class. The `state` method accepts a closure which will receive the array of raw attributes defined for the factory and should return an array of attributes to modify: -->
-상태 변환 메서드는 일반적으로 Laravel의 팩토리 기본 클래스에서 제공하는 `state` 메서드를 호출합니다. `state` 메서드는 팩토리에 정의된 속성 배열을 입력으로 받는 클로저(익명 함수)를 인자로 받고, 수정할 속성을 포함한 배열을 반환해야 합니다:
+상태 변환 메서드는 일반적으로 Laravel의 팩토리 기본 클래스에서 제공하는 `state` 메서드를 호출합니다. `state` 메서드는 팩토리에 정의된 속성 배열을 입력으로 받는 클로저(익명 함수)를 인자로 받고, 이 클로저는 수정할 속성을 포함한 배열을 반환해야 합니다:
 
 ```
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -234,7 +234,7 @@ $user = User::factory()->make();
 ```
 
 <!-- You may create a collection of many models using the `count` method: -->
-`count` 메서드를 이용하면 여러 개의 모델 컬렉션을 생성할 수 있습니다:
+`count` 메서드를 이용하면 여러 모델을 담은 컬렉션을 생성할 수 있습니다:
 
 ```
 $users = User::factory()->count(3)->make();
@@ -371,7 +371,7 @@ $users = User::factory()
 ### Has Many Relationships
 
 <!-- Next, let's explore building Eloquent model relationships using Laravel's fluent factory methods. First, let's assume our application has an `App\Models\User` model and an `App\Models\Post` model. Also, let's assume that the `User` model defines a `hasMany` relationship with `Post`. We can create a user that has three posts using the `has` method provided by the Laravel's factories. The `has` method accepts a factory instance: -->
-이제 Laravel의 fluet한 팩토리 메서드를 사용해서 Eloquent 모델 간의 연관관계를 어떻게 구성할 수 있는지 알아보겠습니다. 먼저, `App\Models\User` 모델과 `App\Models\Post` 모델을 간단히 가정하겠습니다. 그리고 `User` 모델이 `Post`와 `hasMany` 연관관계를 가진다고 하면, 아래와 같이 `has` 메서드로 게시글 3개를 가진 사용자를 생성할 수 있습니다. `has` 메서드에는 팩토리 인스턴스를 전달합니다:
+이제 Laravel의 fluent한 팩토리 메서드를 사용해서 Eloquent 모델 간의 연관관계를 어떻게 구성할 수 있는지 알아보겠습니다. 먼저, `App\Models\User` 모델과 `App\Models\Post` 모델을 간단히 가정하겠습니다. 그리고 `User` 모델이 `Post`와 `hasMany` 연관관계를 가진다고 하면, 아래와 같이 `has` 메서드로 게시글 3개를 가진 사용자를 생성할 수 있습니다. `has` 메서드에는 팩토리 인스턴스를 전달합니다:
 
 ```
 use App\Models\Post;
@@ -431,7 +431,7 @@ $user = User::factory()
 ```
 
 <!-- You may provide a closure based state transformation if your state change requires access to the parent model: -->
-상태 변환에서 부모 모델에 접근이 필요한 경우, 클로저로 두 번째 인자를 전달할 수도 있습니다:
+상태 변환에서 부모 모델에 접근이 필요한 경우, 두 번째 인자로 클로저를 전달할 수도 있습니다:
 
 ```
 $user = User::factory()

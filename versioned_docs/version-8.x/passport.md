@@ -52,7 +52,7 @@
 [Laravel Passport](https://github.com/laravel/passport)는 Laravel 애플리케이션을 위한 완전한 OAuth2 서버 구현을 몇 분 만에 구축할 수 있도록 해줍니다. Passport는 Andy Millington과 Simon Hamp가 관리하는 [League OAuth2 server](https://github.com/thephpleague/oauth2-server) 위에 구축되어 있습니다.
 
 > [!NOTE]
-> 이 문서는 독자가 이미 OAuth2에 대해 어느 정도 알고 있다는 것을 전제로 작성되었습니다. OAuth2에 대해 전혀 모르실 경우, 계속 읽기 전에 먼저 일반적인 [terminology](https://oauth2.thephpleague.com/terminology/)을 익히시길 권장합니다.
+> 이 문서는 독자가 이미 OAuth2에 대해 어느 정도 알고 있다는 것을 전제로 작성되었습니다. OAuth2에 대해 전혀 모르실 경우, 계속 읽기 전에 먼저 OAuth2의 일반적인 [terminology](https://oauth2.thephpleague.com/terminology/)와 기능을 익히시길 권장합니다.
 
 <a name="passport-or-sanctum"></a>
 <!-- ### Passport Or Sanctum? -->
@@ -112,7 +112,7 @@ class User extends Authenticatable
 ```
 
 <!-- Next, you should call the `Passport::routes` method within the `boot` method of your `App\Providers\AuthServiceProvider`. This method will register the routes necessary to issue access tokens and revoke access tokens, clients, and personal access tokens: -->
-이제 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드 안에서 `Passport::routes` 메서드를 호출해야 합니다. 이 메서드는 액세스 토큰 발급∙취소, 클라이언트 관리, 퍼스널 액세스 토큰 관련 경로를 자동으로 등록합니다.
+이제 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드 안에서 `Passport::routes` 메서드를 호출해야 합니다. 이 메서드는 액세스 토큰을 발급하고 액세스 토큰, 클라이언트 및 퍼스널 액세스 토큰을 취소하는 데 필요한 경로를 등록합니다.
 
 ```
 <?php
@@ -183,7 +183,7 @@ php artisan passport:install --uuids
 ### Deploying Passport
 
 <!-- When deploying Passport to your application's servers for the first time, you will likely need to run the `passport:keys` command. This command generates the encryption keys Passport needs in order to generate access tokens. The generated keys are not typically kept in source control: -->
-애플리케이션 서버에 처음으로 Passport를 배포할 때는 `passport:keys` 명령어를 실행해야 합니다. 이 명령어는 액세스 토큰 생성에 필요한 암호화 키를 생성합니다. 이 키들은 보통 소스 코드 저장소에 커밋하지 않습니다.
+애플리케이션 서버에 처음으로 Passport를 배포할 때는 보통 `passport:keys` 명령어를 실행해야 합니다. 이 명령어는 액세스 토큰 생성에 필요한 암호화 키를 생성합니다. 이 키들은 보통 소스 코드 저장소에 커밋하지 않습니다.
 
 ```
 php artisan passport:keys
@@ -346,7 +346,7 @@ public function boot()
 ## Issuing Access Tokens
 
 <!-- Using OAuth2 via authorization codes is how most developers are familiar with OAuth2. When using authorization codes, a client application will redirect a user to your server where they will either approve or deny the request to issue an access token to the client. -->
-대부분의 개발자는 OAuth2를 사용할 때 권한 코드(authorization code)를 이용하는 방식에 익숙합니다. 이 방법을 사용하면, 클라이언트 애플리케이션이 사용자를 여러분의 서버로 리디렉션하고, 사용자는 해당 요청을 허용하거나 거부한 뒤 클라이언트에게 액세스 토큰을 발급할 수 있습니다.
+대부분의 개발자는 OAuth2를 사용할 때 권한 코드(authorization code)를 이용하는 방식에 익숙합니다. 이 방법을 사용하면, 클라이언트 애플리케이션이 사용자를 여러분의 서버로 리디렉션하고, 사용자는 클라이언트에 액세스 토큰을 발급해 달라는 요청을 허용하거나 거부합니다.
 
 <a name="managing-clients"></a>
 <!-- ### Managing Clients -->
@@ -408,7 +408,7 @@ axios.get('/oauth/clients')
 #### `POST /oauth/clients`
 
 <!-- This route is used to create new clients. It requires two pieces of data: the client's `name` and a `redirect` URL. The `redirect` URL is where the user will be redirected after approving or denying a request for authorization. -->
-이 엔드포인트는 신규 클라이언트 생성을 위한 것으로, 클라이언트의 `name`과 `redirect` URL 두 개의 데이터가 필요합니다. `redirect` URL은 사용자가 인증 요청을 허용/거부한 뒤 리디렉션될 위치입니다.
+이 엔드포인트는 신규 클라이언트 생성을 위한 것으로, 클라이언트의 `name`과 `redirect` URL 두 개의 데이터가 필요합니다. `redirect` URL은 사용자가 인가 요청을 허용/거부한 뒤 리디렉션될 위치입니다.
 
 <!-- When a client is created, it will be issued a client ID and client secret. These values will be used when requesting access tokens from your application. The client creation route will return the new client instance: -->
 클라이언트가 생성되면 클라이언트 ID와 시크릿이 발급됩니다. 이 값들은 이후 액세스 토큰을 요청할 때 사용됩니다. 경로 호출 시 새로운 클라이언트 인스턴스를 반환합니다.
@@ -433,7 +433,7 @@ axios.post('/oauth/clients', data)
 #### `PUT /oauth/clients/{client-id}`
 
 <!-- This route is used to update clients. It requires two pieces of data: the client's `name` and a `redirect` URL. The `redirect` URL is where the user will be redirected after approving or denying a request for authorization. The route will return the updated client instance: -->
-이 엔드포인트는 클라이언트를 수정할 때 사용합니다. 클라이언트의 `name`과 `redirect` URL 두 가지 데이터가 필수입니다. `redirect` URL은 사용자가 인증 요청을 승인하거나 거부한 뒤 리디렉션될 주소입니다. 이 라우트는 갱신된 클라이언트 인스턴스를 반환합니다.
+이 엔드포인트는 클라이언트를 수정할 때 사용합니다. 클라이언트의 `name`과 `redirect` URL 두 가지 데이터가 필수입니다. `redirect` URL은 사용자가 인가 요청을 승인하거나 거부한 뒤 리디렉션될 주소입니다. 이 라우트는 갱신된 클라이언트 인스턴스를 반환합니다.
 
 ```
 const data = {
@@ -502,17 +502,17 @@ Route::get('/redirect', function (Request $request) {
 #### Approving The Request
 
 <!-- When receiving authorization requests, Passport will automatically display a template to the user allowing them to approve or deny the authorization request. If they approve the request, they will be redirected back to the `redirect_uri` that was specified by the consuming application. The `redirect_uri` must match the `redirect` URL that was specified when the client was created. -->
-인증 요청을 수신하면 Passport가 자동으로 템플릿 화면을 렌더링하여 사용자가 인증 요청을 허용(Approve) 또는 거부(Deny)할 수 있게 해줍니다. 요청을 승인하면, 사용자는 소비 애플리케이션이 지정한 `redirect_uri`로 돌아가게 됩니다. 이 `redirect_uri`는 클라이언트 생성 시 지정한 `redirect` URL과 반드시 일치해야 합니다.
+인가 요청을 수신하면 Passport가 자동으로 템플릿 화면을 렌더링하여 사용자가 인가 요청을 허용(Approve) 또는 거부(Deny)할 수 있게 해줍니다. 요청을 승인하면, 사용자는 소비 애플리케이션이 지정한 `redirect_uri`로 돌아가게 됩니다. 이 `redirect_uri`는 클라이언트 생성 시 지정한 `redirect` URL과 반드시 일치해야 합니다.
 
 <!-- If you would like to customize the authorization approval screen, you may publish Passport's views using the `vendor:publish` Artisan command. The published views will be placed in the `resources/views/vendor/passport` directory: -->
-인증 승인 화면을 커스터마이즈하고 싶다면 `vendor:publish` 아티즌 명령어로 Passport의 뷰 파일을 퍼블리시할 수 있습니다. 퍼블리시된 뷰들은 `resources/views/vendor/passport` 디렉토리에 위치하게 됩니다.
+인가 승인 화면을 커스터마이즈하고 싶다면 `vendor:publish` 아티즌 명령어로 Passport의 뷰 파일을 퍼블리시할 수 있습니다. 퍼블리시된 뷰들은 `resources/views/vendor/passport` 디렉토리에 위치하게 됩니다.
 
 ```
 php artisan vendor:publish --tag=passport-views
 ```
 
 <!-- Sometimes you may wish to skip the authorization prompt, such as when authorizing a first-party client. You may accomplish this by [extending the `Client` model](#overriding-default-models) and defining a `skipsAuthorization` method. If `skipsAuthorization` returns `true` the client will be approved and the user will be redirected back to the `redirect_uri` immediately: -->
-실제 운영에서는, 실제로 신뢰할 만한 1st party 클라이언트를 인증할 경우, 이 승인 알림 단계를 건너뛰고 싶을 수 있습니다. 이럴 때는 [extending the `Client` model](#overriding-default-models)하고, `skipsAuthorization` 메서드를 정의할 수 있습니다. `skipsAuthorization`이 `true`를 반환하면, 클라이언트가 승인되고 사용자는 인증 프롬프트 없이 즉시 `redirect_uri`로 리디렉션됩니다.
+1st party 클라이언트를 인가할 때처럼 승인 요청 단계를 건너뛰고 싶을 수 있습니다. 이럴 때는 [extending the `Client` model](#overriding-default-models)하고, `skipsAuthorization` 메서드를 정의할 수 있습니다. `skipsAuthorization`이 `true`를 반환하면, 클라이언트가 승인되고 사용자는 인가 프롬프트 없이 즉시 `redirect_uri`로 리디렉션됩니다.
 
 ```
 <?php
@@ -540,7 +540,7 @@ class Client extends BaseClient
 #### Converting Authorization Codes To Access Tokens
 
 <!-- If the user approves the authorization request, they will be redirected back to the consuming application. The consumer should first verify the `state` parameter against the value that was stored prior to the redirect. If the state parameter matches then the consumer should issue a `POST` request to your application to request an access token. The request should include the authorization code that was issued by your application when the user approved the authorization request: -->
-사용자가 인증 요청을 승인하면, 사용자는 외부 애플리케이션으로 다시 리디렉션됩니다. 외부 애플리케이션에서는 우선 리디렉션 전에 저장해두었던 값과 `state` 파라미터를 비교하여 검증해야 합니다. state 파라미터가 일치하면, 외부 애플리케이션은 액세스 토큰을 요청하기 위해 애플리케이션에 `POST` 요청을 보내야 합니다. 이 요청에는 사용자가 인증 요청을 승인할 때 애플리케이션이 발급한 권한 코드(authorization code)가 포함되어야 합니다.
+사용자가 인가 요청을 승인하면, 사용자는 외부 애플리케이션으로 다시 리디렉션됩니다. 외부 애플리케이션에서는 우선 리디렉션 전에 저장해두었던 값과 `state` 파라미터를 비교하여 검증해야 합니다. state 파라미터가 일치하면, 외부 애플리케이션은 액세스 토큰을 요청하기 위해 애플리케이션에 `POST` 요청을 보내야 합니다. 이 요청에는 사용자가 인가 요청을 승인할 때 애플리케이션이 발급한 권한 코드(authorization code)가 포함되어야 합니다.
 
 ```
 use Illuminate\Http\Request;
@@ -577,14 +577,14 @@ Route::get('/callback', function (Request $request) {
 #### JSON API
 
 <!-- Passport also includes a JSON API for managing authorized access tokens. You may pair this with your own frontend to offer your users a dashboard for managing access tokens. For convenience, we'll use [Axios](https://github.com/mzabriskie/axios) to demonstrate making HTTP requests to the endpoints. The JSON API is guarded by the `web` and `auth` middleware; therefore, it may only be called from your own application. -->
-Passport는 인증된 액세스 토큰 관리용 JSON API도 제공합니다. 여러분이 직접 개발하는 프론트엔드에서 이 API를 활용하면, 사용자가 본인의 액세스 토큰을 일괄 관리하는 대시보드를 구축할 수 있습니다. HTTP 요청 예시는 [Axios](https://github.com/mzabriskie/axios)를 활용합니다. 이 API 역시 `web` 및 `auth` 미들웨어로 보호되어, 애플리케이션 내부에서만 사용할 수 있습니다.
+Passport는 인가된 액세스 토큰 관리용 JSON API도 제공합니다. 여러분이 직접 개발하는 프론트엔드에서 이 API를 활용하면, 사용자가 본인의 액세스 토큰을 일괄 관리하는 대시보드를 구축할 수 있습니다. HTTP 요청 예시는 [Axios](https://github.com/mzabriskie/axios)를 활용합니다. 이 API 역시 `web` 및 `auth` 미들웨어로 보호되어, 애플리케이션 내부에서만 사용할 수 있습니다.
 
 <a name="get-oauthtokens"></a>
 <!-- #### `GET /oauth/tokens` -->
 #### `GET /oauth/tokens`
 
 <!-- This route returns all of the authorized access tokens that the authenticated user has created. This is primarily useful for listing all of the user's tokens so that they can revoke them: -->
-이 엔드포인트는 인증된 사용자가 생성한 모든 액세스 토큰 목록을 반환합니다. 주로 사용자에게 자신의 토큰 목록을 보여주고, 필요시 개별적으로 취소(revoke)하도록 할 때 유용합니다.
+이 엔드포인트는 인증된 사용자가 생성한 모든 인가된 액세스 토큰 목록을 반환합니다. 주로 사용자에게 자신의 토큰 목록을 보여주고, 필요시 개별적으로 취소(revoke)하도록 할 때 유용합니다.
 
 ```
 axios.get('/oauth/tokens')
@@ -598,7 +598,7 @@ axios.get('/oauth/tokens')
 #### `DELETE /oauth/tokens/{token-id}`
 
 <!-- This route may be used to revoke authorized access tokens and their related refresh tokens: -->
-이 엔드포인트를 이용해, 인증된 액세스 토큰과 관련된 리프레시 토큰을 함께 취소할 수 있습니다.
+이 엔드포인트를 이용해, 인가된 액세스 토큰과 관련된 리프레시 토큰을 함께 취소할 수 있습니다.
 
 ```
 axios.delete('/oauth/tokens/' + tokenId);
@@ -766,10 +766,10 @@ Route::get('/redirect', function (Request $request) {
 #### Converting Authorization Codes To Access Tokens
 
 <!-- If the user approves the authorization request, they will be redirected back to the consuming application. The consumer should verify the `state` parameter against the value that was stored prior to the redirect, as in the standard Authorization Code Grant. -->
-사용자가 인증 요청을 승인하면, 사용자는 소비 애플리케이션으로 다시 리디렉션됩니다. 이때 표준 인증 코드 그랜트와 마찬가지로, 소비 애플리케이션에서는 이전에 저장한 `state` 값과 리디렉션된 값이 일치하는지 검증해야 합니다.
+사용자가 인가 요청을 승인하면, 사용자는 소비 애플리케이션으로 다시 리디렉션됩니다. 이때 표준 인증 코드 그랜트와 마찬가지로, 소비 애플리케이션에서는 이전에 저장한 `state` 값과 리디렉션된 값이 일치하는지 검증해야 합니다.
 
 <!-- If the state parameter matches, the consumer should issue a `POST` request to your application to request an access token. The request should include the authorization code that was issued by your application when the user approved the authorization request along with the originally generated code verifier: -->
-state 파라미터가 일치한다면, 소비 애플리케이션에서는 액세스 토큰을 요청하는 `POST` 요청을 애플리케이션에 전송해야 합니다. 이 요청에는 사용자가 인증 요청을 승인할 때 발급 받은 인증 코드와, 처음에 생성한 코드 검증자(code verifier)를 포함해야 합니다.
+state 파라미터가 일치한다면, 소비 애플리케이션에서는 액세스 토큰을 요청하는 `POST` 요청을 애플리케이션에 전송해야 합니다. 이 요청에는 사용자가 인가 요청을 승인할 때 발급 받은 인증 코드와, 처음에 생성한 코드 검증자(code verifier)를 포함해야 합니다.
 
 ```
 use Illuminate\Http\Request;
@@ -805,7 +805,7 @@ Route::get('/callback', function (Request $request) {
 > 패스워드 그랜트 토큰(password grant tokens)은 더 이상 사용을 권장하지 않습니다. 대신, [a grant type that is currently recommended by OAuth2 Server](https://oauth2.thephpleague.com/authorization-server/which-grant/)을 사용하시기 바랍니다.
 
 <!-- The OAuth2 password grant allows your other first-party clients, such as a mobile application, to obtain an access token using an email address / username and password. This allows you to issue access tokens securely to your first-party clients without requiring your users to go through the entire OAuth2 authorization code redirect flow. -->
-OAuth2 패스워드 그랜트는 다른 1st-party 클라이언트(예: 모바일 애플리케이션)에서 이메일 주소/사용자명과 비밀번호로 액세스 토큰을 발급받을 수 있게 해줍니다. 이를 통해, 모든 OAuth2 인증 코드 리디렉션 과정을 거치지 않고도 안전하게 토큰을 발급할 수 있습니다.
+OAuth2 패스워드 그랜트는 다른 1st-party 클라이언트(예: 모바일 애플리케이션)에서 이메일 주소/사용자명과 비밀번호로 액세스 토큰을 발급받을 수 있게 해줍니다. 이를 통해, 전체 OAuth2 인가 코드 리디렉션 과정을 거치지 않고도 안전하게 토큰을 발급할 수 있습니다.
 
 <a name="creating-a-password-grant-client"></a>
 <!-- ### Creating A Password Grant Client -->
@@ -868,7 +868,7 @@ $response = Http::asForm()->post('http://passport-app.test/oauth/token', [
 ### Customizing The User Provider
 
 <!-- If your application uses more than one [authentication user provider](/docs/8.x/authentication#introduction), you may specify which user provider the password grant client uses by providing a `--provider` option when creating the client via the `artisan passport:client --password` command. The given provider name should match a valid provider defined in your application's `config/auth.php` configuration file. You can then [protect your route using middleware](#via-middleware) to ensure that only users from the guard's specified provider are authorized. -->
-애플리케이션에서 2개 이상의 [authentication user provider](/docs/8.x/authentication#introduction)를 사용하는 경우, `artisan passport:client --password` 명령어로 클라이언트를 생성할 때 `--provider` 옵션을 통해 어떤 프로바이더를 사용할 것인지 지정할 수 있습니다. 지정한 프로바이더명은 애플리케이션의 `config/auth.php` 설정 파일에 정의된 유효한 프로바이더와 일치해야 합니다. 이후 [protect your route using middleware](#via-middleware)도 할 수 있습니다.
+애플리케이션에서 2개 이상의 [authentication user provider](/docs/8.x/authentication#introduction)를 사용하는 경우, `artisan passport:client --password` 명령어로 클라이언트를 생성할 때 `--provider` 옵션을 통해 어떤 프로바이더를 사용할 것인지 지정할 수 있습니다. 지정한 프로바이더명은 애플리케이션의 `config/auth.php` 설정 파일에 정의된 유효한 프로바이더와 일치해야 합니다. 이후 [protect your route using middleware](#via-middleware)하여 해당 가드에 지정된 프로바이더의 사용자만 접근할 수 있도록 할 수 있습니다.
 
 <a name="customizing-the-username-field"></a>
 <!-- ### Customizing The Username Field -->
@@ -945,7 +945,7 @@ class User extends Authenticatable
 > 임플리시트 그랜트 토큰(implicit grant tokens)은 더 이상 사용을 권장하지 않습니다. 대신, [a grant type that is currently recommended by OAuth2 Server](https://oauth2.thephpleague.com/authorization-server/which-grant/)을 사용하시기 바랍니다.
 
 <!-- The implicit grant is similar to the authorization code grant; however, the token is returned to the client without exchanging an authorization code. This grant is most commonly used for JavaScript or mobile applications where the client credentials can't be securely stored. To enable the grant, call the `enableImplicitGrant` method in the `boot` method of your application's `App\Providers\AuthServiceProvider` class: -->
-임플리시트 그랜트는 인증 코드 그랜트와 유사하지만, 인증 코드를 교환하는 절차 없이 바로 토큰이 클라이언트에 전달된다는 점이 다릅니다. 이 방식은 클라이언트 자격증명을 안전하게 저장할 수 없는 JavaScript 또는 모바일 애플리케이션에서 주로 사용됩니다. 임플리시트 그랜트를 활성화하려면, 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `enableImplicitGrant` 메서드를 호출하세요.
+임플리시트 그랜트는 인가 코드 그랜트와 유사하지만, 인가 코드를 교환하는 절차 없이 바로 토큰이 클라이언트에 전달된다는 점이 다릅니다. 이 방식은 클라이언트 자격증명을 안전하게 저장할 수 없는 JavaScript 또는 모바일 애플리케이션에서 주로 사용됩니다. 임플리시트 그랜트를 활성화하려면, 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `enableImplicitGrant` 메서드를 호출하세요.
 
 ```
 /**
@@ -1055,10 +1055,10 @@ return $response->json()['access_token'];
 ## Personal Access Tokens
 
 <!-- Sometimes, your users may want to issue access tokens to themselves without going through the typical authorization code redirect flow. Allowing users to issue tokens to themselves via your application's UI can be useful for allowing users to experiment with your API or may serve as a simpler approach to issuing access tokens in general. -->
-사용자가 일반적인 인증 코드 리디렉션 과정을 거치지 않고, 직접 자신의 액세스 토큰을 발급 받을 수 있도록 허용해야 할 때가 있습니다. 예를 들어, 사용자가 API를 실험하거나, 액세스 토큰을 보다 단순하게 발급받는 등 다양한 목적으로 이 기능을 제공할 수 있습니다.
+사용자가 일반적인 인증 코드 리디렉션 과정을 거치지 않고, 직접 자신의 액세스 토큰을 발급받고 싶어 할 때가 있습니다. 예를 들어, 사용자가 API를 실험하거나, 액세스 토큰을 보다 단순하게 발급받는 등 다양한 목적으로 이 기능을 제공할 수 있습니다.
 
 > [!TIP]
-> 애플리케이션에서 주로 개인 액세스 토큰 발급만 필요하다면, Passport 대신 [Laravel Sanctum](/docs/8.x/sanctum) 사용을 고려해보세요. Sanctum은 Laravel에서 직접 제공하는 경량의 API 토큰 발급 라이브러리입니다.
+> 애플리케이션에서 주로 개인 액세스 토큰 발급을 위해 Passport를 사용한다면, Passport 대신 [Laravel Sanctum](/docs/8.x/sanctum) 사용을 고려해보세요. Sanctum은 Laravel에서 직접 제공하는 경량의 API 토큰 발급 라이브러리입니다.
 
 <a name="creating-a-personal-access-client"></a>
 <!-- ### Creating A Personal Access Client -->
@@ -1250,7 +1250,7 @@ return $response->json();
 ### Defining Scopes
 
 <!-- You may define your API's scopes using the `Passport::tokensCan` method in the `boot` method of your application's `App\Providers\AuthServiceProvider` class. The `tokensCan` method accepts an array of scope names and scope descriptions. The scope description may be anything you wish and will be displayed to users on the authorization approval screen: -->
-`App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `Passport::tokensCan` 메서드를 사용해 API의 스코프를 등록할 수 있습니다. `tokensCan`은 스코프명과 해당 스코프의 설명이 담긴 배열을 인수로 받습니다. 이 설명은 인증 승인 화면에서 사용자에게 표시됩니다.
+`App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `Passport::tokensCan` 메서드를 사용해 API의 스코프를 등록할 수 있습니다. `tokensCan`은 스코프명과 해당 스코프의 설명이 담긴 배열을 인수로 받습니다. 이 설명은 인가 승인 화면에서 사용자에게 표시됩니다.
 
 ```
 /**
@@ -1358,7 +1358,7 @@ Route::get('/orders', function () {
 #### Check For Any Scopes
 
 <!-- The `scope` middleware may be assigned to a route to verify that the incoming request's access token has *at least one* of the listed scopes: -->
-`scope` 미들웨어를 사용하면, 요청의 액세스 토큰에 나열된 범위 중 하나라도 있으면 인증을 허용합니다:
+`scope` 미들웨어를 라우트에 할당하면, 요청의 액세스 토큰에 나열된 범위 중 하나 이상이 있는지 확인할 수 있습니다:
 
 ```
 Route::get('/orders', function () {

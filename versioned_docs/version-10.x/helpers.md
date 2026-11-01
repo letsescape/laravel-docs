@@ -1183,7 +1183,7 @@ $chunk = Arr::take($array, -2);
 #### `Arr::toCssClasses()`
 
 <!-- The `Arr::toCssClasses` method conditionally compiles a CSS class string. The method accepts an array of classes where the array key contains the class or classes you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the rendered class list: -->
-`Arr::toCssClasses` 메서드는 조건에 따라 CSS 클래스 문자열을 동적으로 조합해 반환합니다. 이 메서드는 배열로 클래스를 받아들이며, 배열의 키는 추가할 클래스(여러 개 가능)를, 값은 불리언 표현식입니다. 만약 배열 요소의 키가 숫자라면, 해당 항목은 언제나 최종 클래스 리스트에 포함됩니다.
+`Arr::toCssClasses` 메서드는 조건에 따라 CSS 클래스 문자열을 동적으로 조합해 반환합니다. 이 메서드는 배열로 클래스를 받아들이며, 배열의 키는 추가할 클래스(여러 개 가능)이고, 값은 불리언 표현식입니다. 만약 배열 요소의 키가 숫자라면, 해당 항목은 언제나 최종 클래스 리스트에 포함됩니다.
 
 ```
 use Illuminate\Support\Arr;
@@ -1205,7 +1205,7 @@ $classes = Arr::toCssClasses($array);
 #### `Arr::toCssStyles()`
 
 <!-- The `Arr::toCssStyles` conditionally compiles a CSS style string. The method accepts an array of classes where the array key contains the class or classes you wish to add, while the value is a boolean expression. If the array element has a numeric key, it will always be included in the rendered class list: -->
-`Arr::toCssStyles` 메서드는 조건에 따라 CSS 스타일 문자열을 동적으로 조합합니다. 이 메서드 역시 배열로 스타일을 받아들이며, 배열의 키는 추가할 스타일(여러 개 가능)을, 값은 불리언 표현식입니다. 만약 배열 요소의 키가 숫자라면, 해당 항목은 언제나 최종 스타일 리스트에 포함됩니다.
+`Arr::toCssStyles` 메서드는 조건에 따라 CSS 스타일 문자열을 동적으로 조합합니다. 이 메서드 역시 배열로 스타일을 받아들이며, 배열의 키는 추가할 스타일(여러 개 가능)이고, 값은 불리언 표현식입니다. 만약 배열 요소의 키가 숫자라면, 해당 항목은 언제나 최종 스타일 리스트에 포함됩니다.
 
 ```php
 use Illuminate\Support\Arr;
@@ -1807,7 +1807,7 @@ $path = app_path('Http/Controllers/Controller.php');
 #### `base_path()`
 
 <!-- The `base_path` function returns the fully qualified path to your application's root directory. You may also use the `base_path` function to generate a fully qualified path to a given file relative to the project root directory: -->
-`base_path` 함수는 애플리케이션의 루트 디렉터리에 대한 전체 경로를 반환합니다. 마찬가지로, `base_path` 함수에 특정 파일 경로를 전달하면 프로젝트 루트에 대한 전체 경로를 생성할 수 있습니다.
+`base_path` 함수는 애플리케이션의 루트 디렉터리에 대한 전체 경로를 반환합니다. 마찬가지로, `base_path` 함수에 프로젝트 루트 기준의 상대 파일 경로를 전달하면 해당 파일의 전체 경로를 생성할 수 있습니다.
 
 ```
 $path = base_path();
@@ -2006,7 +2006,7 @@ $url = secure_url('user/profile', [1]);
 #### `to_route()`
 
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/10.x/responses#redirects) for a given [named route](/docs/10.x/routing#named-routes): -->
-`to_route` 함수는 지정한 [redirect HTTP response](/docs/10.x/responses#redirects)에 대해 [named route](/docs/10.x/routing#named-routes)을 생성합니다.
+`to_route` 함수는 [redirect HTTP response](/docs/10.x/responses#redirects)를 생성하여 지정한 [named route](/docs/10.x/routing#named-routes)로 리다이렉트합니다.
 
 ```
 return to_route('users.show', ['user' => 1]);
@@ -2148,7 +2148,7 @@ return back();
 #### `bcrypt()`
 
 <!-- The `bcrypt` function [hashes](/docs/10.x/hashing) the given value using Bcrypt. You may use this function as an alternative to the `Hash` facade: -->
-`bcrypt` 함수는 [hashes](/docs/10.x/hashing)합니다. 이 함수는 `Hash` 파사드의 대체로 사용할 수 있습니다.
+`bcrypt` 함수는 Bcrypt를 사용하여 주어진 값을 해싱합니다([hashes](/docs/10.x/hashing)). 이 함수는 `Hash` 파사드의 대체로 사용할 수 있습니다.
 
 ```
 $password = bcrypt('my-secret-password');
@@ -2184,7 +2184,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/10.x/broadcasting) the given [event](/docs/10.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [broadcasts](/docs/10.x/broadcasting)를 리스너들에게 [event](/docs/10.x/events)합니다.
+`broadcast` 함수는 [broadcasts](/docs/10.x/broadcasting) 기능을 사용해 주어진 [event](/docs/10.x/events)를 리스너들에게 브로드캐스트합니다.
 
 ```
 broadcast(new UserRegistered($user));
@@ -2294,7 +2294,7 @@ $token = csrf_token();
 #### `decrypt()`
 
 <!-- The `decrypt` function [decrypts](/docs/10.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`decrypt` 함수는 [decrypts](/docs/10.x/encryption)합니다. 이 함수는 `Crypt` 파사드의 대체로 사용할 수 있습니다.
+`decrypt` 함수는 주어진 값을 복호화합니다([decrypts](/docs/10.x/encryption)). 이 함수는 `Crypt` 파사드의 대체로 사용할 수 있습니다.
 
 ```
 $password = decrypt($value);
@@ -2359,7 +2359,7 @@ dump($value1, $value2, $value3, ...);
 #### `encrypt()`
 
 <!-- The `encrypt` function [encrypts](/docs/10.x/encryption) the given value. You may use this function as an alternative to the `Crypt` facade: -->
-`encrypt` 함수는 [encrypts](/docs/10.x/encryption)합니다. 이 함수는 `Crypt` 파사드의 대체로 사용할 수 있습니다.
+`encrypt` 함수는 주어진 값을 암호화합니다([encrypts](/docs/10.x/encryption)). 이 함수는 `Crypt` 파사드의 대체로 사용할 수 있습니다.
 
 ```
 $secret = encrypt('my-secret-value');
@@ -2491,7 +2491,7 @@ logger()->error('You are not allowed here.');
 #### `method_field()`
 
 <!-- The `method_field` function generates an HTML `hidden` input field containing the spoofed value of the form's HTTP verb. For example, using [Blade syntax](/docs/10.x/blade): -->
-`method_field` 함수는 폼의 HTTP 메서드를 스푸핑(가짜로 설정)하기 위해 사용되는 값으로, HTML `hidden` 타입의 입력 필드를 생성합니다. 예를 들어, [Blade syntax](/docs/10.x/blade)에서는 아래와 같이 사용할 수 있습니다.
+`method_field` 함수는 폼의 HTTP 메서드를 스푸핑(가짜로 설정)하기 위한 값을 담은 HTML `hidden` 타입의 입력 필드를 생성합니다. 예를 들어, [Blade syntax](/docs/10.x/blade)에서는 아래와 같이 사용할 수 있습니다.
 
 ```
 <form method="POST">
@@ -2515,7 +2515,7 @@ $now = now();
 #### `old()`
 
 <!-- The `old` function [retrieves](/docs/10.x/requests#retrieving-input) an [old input](/docs/10.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 세션에 플래시된 [retrieves](/docs/10.x/requests#retrieving-input)을 [old input](/docs/10.x/requests#old-input).
+`old` 함수는 [retrieves](/docs/10.x/requests#retrieving-input) 기능을 사용해 세션에 플래시된 [old input](/docs/10.x/requests#old-input) 값을 가져옵니다.
 
 ```
 $value = old('value');

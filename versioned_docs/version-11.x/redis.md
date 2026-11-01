@@ -201,7 +201,7 @@ Predis를 사용할 때는 클라이언트 사이드 샤딩(client-side sharding
 ### PhpRedis
 
 <!-- By default, Laravel will use the PhpRedis extension to communicate with Redis. The client that Laravel will use to communicate with Redis is dictated by the value of the `redis.client` configuration option, which typically reflects the value of the `REDIS_CLIENT` environment variable: -->
-Laravel에서는 기본적으로 PhpRedis 확장 프로그램을 사용해서 Redis와 통신합니다. 어떤 클라이언트를 사용할지는 `redis.client` 설정 값(주로 `REDIS_CLIENT` 환경 변수에 반영됨)에 의해 결정됩니다:
+Laravel에서는 기본적으로 PhpRedis 확장 프로그램을 사용해서 Redis와 통신합니다. 어떤 클라이언트를 사용할지는 `redis.client` 설정 값(주로 `REDIS_CLIENT` 환경 변수의 값을 반영함)에 의해 결정됩니다:
 
 ```
 'redis' => [

@@ -124,7 +124,7 @@ Name | Description                                                       | Defau
 -->
 이름 | 설명                                                       | 기본값
 ------------- |-------------------------------------------------------------------| -------------
-`days` | 일자별 로그 파일을 며칠간 보관할지 여부 | `7`
+`days` | 일자별 로그 파일의 보관 일수 | `7`
 
 <a name="configuring-the-papertrail-channel"></a>
 <!-- #### Configuring The Papertrail Channel -->
@@ -148,7 +148,7 @@ Name | Description                                                       | Defau
 ### Logging Deprecation Warnings
 
 <!-- PHP, Laravel, and other libraries often notify their users that some of their features have been deprecated and will be removed in a future version. If you would like to log these deprecation warnings, you may specify your preferred `deprecations` log channel in your application's `config/logging.php` configuration file: -->
-PHP, Laravel, 그리고 기타 라이브러리들은 일부 기능이 더 이상 사용되지 않으며 미래에 제거될 예정임을(deprecated) 개발자에게 알립니다. 이러한 deprecation 경고를 로그로 남기고 싶다면, 애플리케이션의 `config/logging.php` 파일에서 원하는 `deprecations` 로그 채널을 지정할 수 있습니다:
+PHP, Laravel, 그리고 기타 라이브러리들은 일부 기능이 더 이상 권장되지 않으며 향후 버전에서 제거될 예정임을(deprecated) 개발자에게 알립니다. 이러한 deprecation 경고를 로그로 남기고 싶다면, 애플리케이션의 `config/logging.php` 파일에서 원하는 `deprecations` 로그 채널을 지정할 수 있습니다:
 
 ```
 'deprecations' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),

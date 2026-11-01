@@ -2751,7 +2751,7 @@ $user->posts()->createManyQuietly([
 ```
 
 <!-- You may also use the `findOrNew`, `firstOrNew`, `firstOrCreate`, and `updateOrCreate` methods to [create and update models on relationships](/docs/13.x/eloquent#upserts). -->
-`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용해 [create and update models on relationships](/docs/13.x/eloquent#upserts)할 수도 있습니다.
+`findOrNew`, `firstOrNew`, `firstOrCreate`, `updateOrCreate` 메서드를 사용해 [create and update models on relationships](/docs/13.x/eloquent#upserts)에 설명된 것처럼 연관관계에서 모델을 생성하거나 수정할 수도 있습니다.
 
 > [!NOTE]
 > `create` 메서드를 사용하기 전에 반드시 [mass assignment](/docs/13.x/eloquent#mass-assignment) 문서를 검토하세요.

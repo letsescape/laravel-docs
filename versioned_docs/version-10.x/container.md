@@ -111,7 +111,7 @@ Route::get('/', function (Request $request) {
 실제로, 자동 의존성 주입과 [facades](/docs/10.x/facades)의 조합 덕분에, Laravel 애플리케이션을 개발하면서 **직접** 컨테이너에서 바인딩하거나 해석(resolving)하지 않고도 대부분의 요구를 충족할 수 있습니다. **그렇다면 언제 직접 컨테이너에 접근해야 할까요?** 대표적으로 두 가지 상황을 살펴보겠습니다.
 
 <!-- First, if you write a class that implements an interface and you wish to type-hint that interface on a route or class constructor, you must [tell the container how to resolve that interface](#binding-interfaces-to-implementations). Secondly, if you are [writing a Laravel package](/docs/10.x/packages) that you plan to share with other Laravel developers, you may need to bind your package's services into the container. -->
-첫 번째는, 어떤 클래스가 인터페이스를 구현하고 있고, 해당 인터페이스를 라우트나 생성자에서 타입힌트로 사용하고 싶을 때입니다. 이 경우에는 [tell the container how to resolve that interface](#binding-interfaces-to-implementations)을 컨테이너에 명시해야 합니다. 두 번째는, [writing a Laravel package](/docs/10.x/packages)를 작성하여 다른 개발자와 공유하고자 할 때입니다. 이럴 때는 패키지에서 제공하는 서비스들을 컨테이너에 바인딩해 주어야 합니다.
+첫 번째는, 어떤 클래스가 인터페이스를 구현하고 있고, 해당 인터페이스를 라우트나 생성자에서 타입힌트로 사용하고 싶을 때입니다. 이 경우에는 해당 인터페이스를 해석하는 방법을 컨테이너에 명시해야 합니다([tell the container how to resolve that interface](#binding-interfaces-to-implementations)). 두 번째는, [writing a Laravel package](/docs/10.x/packages)를 작성하여 다른 개발자와 공유하고자 할 때입니다. 이럴 때는 패키지에서 제공하는 서비스들을 컨테이너에 바인딩해야 할 수도 있습니다.
 
 <a name="binding"></a>
 <!-- ## Binding -->
@@ -261,7 +261,7 @@ public function __construct(
 ### Contextual Binding
 
 <!-- Sometimes you may have two classes that utilize the same interface, but you wish to inject different implementations into each class. For example, two controllers may depend on different implementations of the `Illuminate\Contracts\Filesystem\Filesystem` [contract](/docs/10.x/contracts). Laravel provides a simple, fluent interface for defining this behavior: -->
-두 개 이상의 클래스가 동일한 인터페이스를 사용하지만, 각각 다른 구현체를 주입하고 싶을 때가 있습니다. 예를 들어, 두 컨트롤러가 `Illuminate\Contracts\Filesystem\Filesystem` [contract](/docs/10.x/contracts)에 의존하지만, 각기 다른 파일 시스템 드라이버(예: local vs s3)를 쓰고 싶을 수 있습니다. Laravel에서는 이를 위한 간단한 유창한(fluid) 인터페이스를 제공합니다.
+두 개 이상의 클래스가 동일한 인터페이스를 사용하지만, 각각 다른 구현체를 주입하고 싶을 때가 있습니다. 예를 들어, 두 컨트롤러가 `Illuminate\Contracts\Filesystem\Filesystem` [contract](/docs/10.x/contracts)에 의존하지만, 각기 다른 파일 시스템 드라이버(예: local vs s3)를 쓰고 싶을 수 있습니다. Laravel에서는 이를 위한 간단한 유창한(fluent) 인터페이스를 제공합니다.
 
 ```
 use App\Http\Controllers\PhotoController;

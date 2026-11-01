@@ -50,7 +50,7 @@ APP_PREVIOUS_KEYS="base64:2nLsGFGzyoae2ax3EF2Lyq/hH6QghBGLIq5uL+Gp8/w="
 #### Encrypting a Value
 
 <!-- You may encrypt a value using the `encryptString` method provided by the `Crypt` facade. All encrypted values are encrypted using OpenSSL and the AES-256-CBC cipher. Furthermore, all encrypted values are signed with a message authentication code (MAC). The integrated message authentication code will prevent the decryption of any values that have been tampered with by malicious users: -->
-`Crypt` 파사드에서 제공하는 `encryptString` 메서드를 사용하여 값을 암호화할 수 있습니다. 저장되는 모든 값은 OpenSSL의 AES-256-CBC 암호화 방식을 사용하여 보호되고, 메시지 인증 코드(MAC)로 서명됩니다. 통합된 메시지 인증 기능 덕분에 악의적인 사용자가 값을 변조했다면, 해당 값의 복호화가 불가능해집니다.
+`Crypt` 파사드에서 제공하는 `encryptString` 메서드를 사용하여 값을 암호화할 수 있습니다. 암호화된 모든 값은 OpenSSL의 AES-256-CBC 암호화 방식을 사용하여 보호되고, 메시지 인증 코드(MAC)로 서명됩니다. 통합된 메시지 인증 기능 덕분에 악의적인 사용자가 값을 변조했다면, 해당 값의 복호화가 불가능해집니다.
 
 ```
 <?php

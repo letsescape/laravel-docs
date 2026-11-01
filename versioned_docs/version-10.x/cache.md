@@ -230,7 +230,7 @@ $value = Cache::remember('users', $seconds, function () {
 만약 캐시에 해당 아이템이 없다면, `remember` 메서드에 전달한 클로저가 실행되고 그 결과가 캐시에 저장됩니다.
 
 <!-- You may use the `rememberForever` method to retrieve an item from the cache or store it forever if it does not exist: -->
-항상 캐시에 값을 가져오거나, 없으면 영구적으로 저장하고 싶다면 `rememberForever` 메서드를 사용할 수 있습니다:
+캐시에서 값을 가져오거나, 없으면 영구적으로 저장하고 싶다면 `rememberForever` 메서드를 사용할 수 있습니다:
 
 ```
 $value = Cache::rememberForever('users', function () {

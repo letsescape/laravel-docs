@@ -1295,7 +1295,7 @@ $flattened->all();
 #### `flatten()`
 
 <!-- The `flatten` method flattens a multi-dimensional collection into a single dimension: -->
-`flatten` 메서드는 다차원 컬렉션을 한 단계로 평탄화합니다.
+`flatten` 메서드는 다차원 컬렉션을 1차원으로 평탄화합니다.
 
 ```
 $collection = collect([
@@ -1618,7 +1618,7 @@ $collection->implode(function (array $item, int $key) {
 #### `intersect()`
 
 <!-- The `intersect` method removes any values from the original collection that are not present in the given `array` or collection. The resulting collection will preserve the original collection's keys: -->
-`intersect` 메서드는 원본 컬렉션에 존재하지 않는 값들을 제거하고, 지정한 `array`나 컬렉션에 포함된 값들만 남깁니다. 최종 컬렉션의 키는 원본 컬렉션의 키를 그대로 유지합니다.
+`intersect` 메서드는 원본 컬렉션에서 지정한 `array`나 컬렉션에 존재하지 않는 값들을 제거하고, 포함된 값들만 남깁니다. 최종 컬렉션의 키는 원본 컬렉션의 키를 그대로 유지합니다.
 
 ```
 $collection = collect(['Desk', 'Sofa', 'Chair']);
@@ -1631,7 +1631,7 @@ $intersect->all();
 ```
 
 > [!NOTE]
-> 이 메서드는 [Eloquent Collections](/docs/10.x/eloquent-collections#method-intersect)에서 다르게 동작할 수 있습니다.
+> 이 메서드는 [Eloquent Collections](/docs/10.x/eloquent-collections#method-intersect)에서 다르게 동작합니다.
 
 <a name="method-intersectAssoc"></a>
 <!-- #### `intersectAssoc()` -->
@@ -2187,7 +2187,7 @@ $filtered->all();
 `only`와 반대되는 동작을 원한다면 [except](#method-except) 메서드를 참고하세요.
 
 > [!NOTE]
-> 이 메서드는 [Eloquent Collections](/docs/10.x/eloquent-collections#method-only)에서 사용할 때 동작 방식이 다를 수 있습니다.
+> 이 메서드는 [Eloquent Collections](/docs/10.x/eloquent-collections#method-only)에서 사용할 때 동작 방식이 다릅니다.
 
 <a name="method-pad"></a>
 <!-- #### `pad()` -->
@@ -2584,7 +2584,7 @@ $collection->all();
 #### `reduce()`
 
 <!-- The `reduce` method reduces the collection to a single value, passing the result of each iteration into the subsequent iteration: -->
-`reduce` 메서드는 컬렉션을 단일 값으로 축약(reduce)합니다. 각 반복에서 이전 반복의 결과를 다음 반복에 전달합니다.
+`reduce` 메서드는 컬렉션을 단일 값으로 축약(reduce)합니다. 각 반복의 결과를 다음 반복에 전달합니다.
 
 ```
 $collection = collect([1, 2, 3]);
@@ -2875,7 +2875,7 @@ $collection->all();
 #### `skipUntil()`
 
 <!-- The `skipUntil` method skips over items from the collection until the given callback returns `true` and then returns the remaining items in the collection as a new collection instance: -->
-`skipUntil` 메서드는 주어진 콜백이 `true`를 반환할 때까지 컬렉션의 요소를 건너뛰고, 그 이후의 요소들로 새로운 컬렉션을 반환합니다.
+`skipUntil` 메서드는 주어진 콜백이 `true`를 반환할 때까지 컬렉션의 요소를 건너뛰고, 해당 요소부터 남은 요소들로 새로운 컬렉션을 반환합니다.
 
 ```
 $collection = collect([1, 2, 3, 4]);
@@ -3067,7 +3067,7 @@ $sorted->values()->all();
 ```
 
 <!-- If your sorting needs are more advanced, you may pass a callback to `sort` with your own algorithm. Refer to the PHP documentation on [`uasort`](https://secure.php.net/manual/en/function.uasort.php#refsect1-function.uasort-parameters), which is what the collection's `sort` method calls utilizes internally. -->
-더 복잡한 정렬이 필요하다면, `sort` 메서드에 콜백을 전달하여 원하는 방식대로 정렬 알고리즘을 작성할 수 있습니다. 컬렉션의 `sort` 메서드가 내부적으로 사용하는 PHP의 [`uasort`](https://secure.php.net/manual/en/function.uasort.php#refsect1-function.uasort-parameters)를 사용합니다.
+더 복잡한 정렬이 필요하다면, `sort` 메서드에 콜백을 전달하여 원하는 방식대로 정렬 알고리즘을 작성할 수 있습니다. 컬렉션의 `sort` 메서드가 내부적으로 사용하는 PHP의 [`uasort`](https://secure.php.net/manual/en/function.uasort.php#refsect1-function.uasort-parameters) 함수 문서를 참고하세요.
 
 > [!NOTE]
 > 중첩 배열이나 객체 컬렉션을 정렬하려면 [`sortBy`](#method-sortby), [`sortByDesc`](#method-sortbydesc) 메서드를 사용하세요.
@@ -3253,7 +3253,7 @@ $sorted->values()->all();
 ```
 
 <!-- Unlike `sort`, you may not pass a closure to `sortDesc`. Instead, you should use the [`sort`](#method-sort) method and invert your comparison. -->
-`sort`와 달리, `sortDesc`에는 콜백을 전달할 수 없습니다. 대신 [`sort`](#method-sort) 메서드에 음수 방향으로 비교를 구현해 사용해야 합니다.
+`sort`와 달리, `sortDesc`에는 콜백을 전달할 수 없습니다. 대신 [`sort`](#method-sort) 메서드에서 비교 방향을 반대로 구현해 사용해야 합니다.
 
 <a name="method-sortkeys"></a>
 <!-- #### `sortKeys()` -->
@@ -3595,7 +3595,7 @@ $collection->toArray();
 ```
 
 > [!WARNING]
-> `toArray`는 컬렉션 내에 있는 `Arrayable` 인스턴스의 중첩 객체도 모두 배열로 변환합니다. 컬렉션의 내부 원본 배열을 그대로 가져오고 싶다면 [`all`](#method-all) 메서드를 사용하세요.
+> `toArray`는 컬렉션 내에 있는 중첩 객체 중 `Arrayable` 인스턴스도 모두 배열로 변환합니다. 컬렉션의 내부 원본 배열을 그대로 가져오고 싶다면 [`all`](#method-all) 메서드를 사용하세요.
 
 <a name="method-tojson"></a>
 <!-- #### `toJson()` -->

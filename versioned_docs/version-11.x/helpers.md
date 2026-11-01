@@ -681,7 +681,7 @@ $contains = Arr::hasAny($array, ['category', 'product.discount']);
 #### `Arr::isAssoc()`
 
 <!-- The `Arr::isAssoc` method returns `true` if the given array is an associative array. An array is considered "associative" if it doesn't have sequential numerical keys beginning with zero: -->
-`Arr::isAssoc` 메서드는 주어진 배열이 연관 배열(associative array)인지 여부를 반환합니다. 배열의 키가 0부터 시작해서 순차적이지 않은 경우, 연관 배열로 간주됩니다:
+`Arr::isAssoc` 메서드는 주어진 배열이 연관 배열(associative array)인지 여부를 반환합니다. 배열의 키가 0부터 시작하는 순차적인 숫자 키가 아닌 경우, 연관 배열로 간주됩니다:
 
 ```
 use Illuminate\Support\Arr;
@@ -740,7 +740,7 @@ $joined = Arr::join($array, ', ', ' and ');
 #### `Arr::keyBy()`
 
 <!-- The `Arr::keyBy` method keys the array by the given key. If multiple items have the same key, only the last one will appear in the new array: -->
-`Arr::keyBy` 메서드는 배열의 지정된 키를 이용해 새로운 배열의 키로 할당합니다. 동일한 키가 여러 번 등장할 경우, 마지막 값만의 값이 최종적으로 할당됩니다:
+`Arr::keyBy` 메서드는 배열의 지정된 키를 이용해 새로운 배열의 키로 할당합니다. 동일한 키가 여러 번 등장할 경우, 마지막 값만 최종적으로 할당됩니다:
 
 ```
 use Illuminate\Support\Arr;
@@ -1875,7 +1875,7 @@ $number = Number::spell(11, after: 10);
 ```
 
 <!-- The `until` argument allows you to specify a value before which all numbers should be spelled out: -->
-`until` 인수를 사용하면, 특정 값 이하까지는 단어로, 그 이상은 숫자로 표기할 수 있습니다.
+`until` 인수를 사용하면, 특정 값 미만은 단어로, 그 이상은 숫자로 표기할 수 있습니다.
 
 ```
 $number = Number::spell(5, until: 10);
@@ -2195,7 +2195,7 @@ $url = secure_url('user/profile', [1]);
 #### `to_route()`
 
 <!-- The `to_route` function generates a [redirect HTTP response](/docs/11.x/responses#redirects) for a given [named route](/docs/11.x/routing#named-routes): -->
-`to_route` 함수는 주어진 [redirect HTTP response](/docs/11.x/responses#redirects)로의 [named route](/docs/11.x/routing#named-routes)을 생성합니다.
+`to_route` 함수는 [redirect HTTP response](/docs/11.x/responses#redirects)를 생성하여 주어진 [named route](/docs/11.x/routing#named-routes)로 리다이렉트합니다.
 
 ```
 return to_route('users.show', ['user' => 1]);
@@ -2372,7 +2372,7 @@ blank(false);
 #### `broadcast()`
 
 <!-- The `broadcast` function [broadcasts](/docs/11.x/broadcasting) the given [event](/docs/11.x/events) to its listeners: -->
-`broadcast` 함수는 주어진 [broadcasts](/docs/11.x/broadcasting)를 [event](/docs/11.x/events)하여 리스너들에게 전달합니다.
+`broadcast` 함수는 [broadcasts](/docs/11.x/broadcasting) 기능을 사용해 주어진 [event](/docs/11.x/events)를 리스너들에게 브로드캐스트합니다.
 
 ```
 broadcast(new UserRegistered($user));
@@ -2743,7 +2743,7 @@ $now = now();
 #### `old()`
 
 <!-- The `old` function [retrieves](/docs/11.x/requests#retrieving-input) an [old input](/docs/11.x/requests#old-input) value flashed into the session: -->
-`old` 함수는 [retrieves](/docs/11.x/requests#retrieving-input) [old input](/docs/11.x/requests#old-input)을 조회합니다.
+`old` 함수는 [retrieves](/docs/11.x/requests#retrieving-input) 기능을 사용해 세션에 플래시된 [old input](/docs/11.x/requests#old-input) 값을 조회합니다.
 
 ```
 $value = old('value');
@@ -2979,7 +2979,7 @@ return response()->json(['foo' => 'bar'], 200, $headers);
 #### `retry()`
 
 <!-- The `retry` function attempts to execute the given callback until the given maximum attempt threshold is met. If the callback does not throw an exception, its return value will be returned. If the callback throws an exception, it will automatically be retried. If the maximum attempt count is exceeded, the exception will be thrown: -->
-`retry` 함수는 지정한 최대 시도 횟수만큼 콜백을 반복 실행합니다. 콜백이 예외를 발생시키지 않으면 해당 반환값이 반환됩니다. 만약 예외가 발생하면 자동으로 재시도하며, 최대 시도 횟수를 초과하면 예외가 다시 발생합니다.
+`retry` 함수는 지정한 최대 시도 횟수에 도달할 때까지 콜백 실행을 시도합니다. 콜백이 예외를 발생시키지 않으면 해당 반환값이 반환됩니다. 만약 예외가 발생하면 자동으로 재시도하며, 최대 시도 횟수를 초과하면 예외가 다시 발생합니다.
 
 ```
 return retry(5, function () {

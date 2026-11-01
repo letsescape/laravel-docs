@@ -37,7 +37,7 @@ accessor, mutator, attribute casting은 Eloquent 모델 인스턴스에서 속�
 accessor는 Eloquent 속성 값을 접근할 때 값을 가공합니다. accessor를 정의하려면, 모델에서 접근할 속성에 해당하는 protected 메서드를 생성합니다. 이 메서드의 이름은 실제 모델 속성/데이터베이스 컬럼의 "카멜 케이스(camel case)" 형식이어야 합니다.
 
 <!-- In this example, we'll define an accessor for the `first_name` attribute. The accessor will automatically be called by Eloquent when attempting to retrieve the value of the `first_name` attribute. All attribute accessor / mutator methods must declare a return type-hint of `Illuminate\Database\Eloquent\Casts\Attribute`: -->
-아래 예시는 `first_name` 속성에 accessor를 정의하는 방법입니다. 이 accessor는 Eloquent에서 `first_name`의 값을 조회하려 할 때 자동으로 호출됩니다. accessor/mutator 메서드는 반드시 `Illuminate\Database\Eloquent\Casts\Attribute` 타입 힌트를 반환해야 합니다.
+아래 예시는 `first_name` 속성에 accessor를 정의하는 방법입니다. 이 accessor는 Eloquent에서 `first_name`의 값을 조회하려 할 때 자동으로 호출됩니다. accessor/mutator 메서드는 반드시 `Illuminate\Database\Eloquent\Casts\Attribute` 반환 타입 힌트를 선언해야 합니다.
 
 ```
 <?php
@@ -483,7 +483,7 @@ protected $casts = [
 기본적으로 Eloquent는 `created_at`, `updated_at` 컬럼을 [Carbon](https://github.com/briannesbitt/Carbon) 인스턴스(이 객체는 PHP의 `DateTime`을 확장하고 다양한 유틸리티 메서드를 제공합니다)로 casting합니다. 그 외에도 더 많은 속성을 모델의 `$casts` 배열에 추가해서 날짜 casting이 가능합니다. 일반적으로 날짜 관련 속성은 `datetime` 또는 `immutable_datetime` cast 타입을 사용합니다.
 
 <!-- When defining a `date` or `datetime` cast, you may also specify the date's format. This format will be used when the [model is serialized to an array or JSON](/docs/10.x/eloquent-serialization): -->
-`date` 또는 `datetime` casting 타입을 지정할 때, 날짜 포맷을 옵션으로 함께 설정할 수도 있습니다. 이 포맷은 [model is serialized to an array or JSON](/docs/10.x/eloquent-serialization) 적용됩니다.
+`date` 또는 `datetime` casting 타입을 지정할 때, 날짜 포맷을 옵션으로 함께 설정할 수도 있습니다. 이 포맷은 모델이 배열 또는 JSON으로 직렬화될 때 적용됩니다([model is serialized to an array or JSON](/docs/10.x/eloquent-serialization)).
 
 ```
 /**
@@ -555,7 +555,7 @@ protected $casts = [
 ```
 
 <!-- Once you have defined the cast on your model, the specified attribute will be automatically cast to and from an enum when you interact with the attribute: -->
-cast를 지정하면, 해당 속성은 자동으로 Enum 인스턴스로 변환되어 읽고 쓸 수 있습니다.
+cast를 지정하면, 해당 속성을 읽고 쓸 때 Enum 인스턴스와 원래 값 사이에서 자동으로 변환됩니다.
 
 ```
 if ($server->status == ServerStatus::Provisioned) {

@@ -88,7 +88,7 @@ Fortify를 설치하면, 사용자 인터페이스에서 Fortify가 등록하는
 Laravel Sanctum은 API 토큰 관리 및 세션 쿠키/토큰을 통한 기존 사용자 인증만 담당합니다. 회원가입, 비밀번호 재설정 등과 같은 라우트는 제공하지 않습니다.
 
 <!-- If you are attempting to manually build the authentication layer for an application that offers an API or serves as the backend for a single-page application, it is entirely possible that you will utilize both Laravel Fortify (for user registration, password reset, etc.) and Laravel Sanctum (API token management, session authentication). -->
-API를 제공하거나, SPA(싱글 페이지 애플리케이션)의 백엔드로 인증 계층을 직접 구축하려는 경우, Fortify(회원가입, 비밀번호 재설정 등)와 Sanctum(API 토큰 관리, 세션 인증)를 모두 활용하는 것이 일반적입니다.
+API를 제공하거나, SPA(싱글 페이지 애플리케이션)의 백엔드로 인증 계층을 직접 구축하려는 경우, Fortify(회원가입, 비밀번호 재설정 등)와 Sanctum(API 토큰 관리, 세션 인증)를 함께 사용할 수 있습니다.
 
 <a name="installation"></a>
 <!-- ## Installation -->
@@ -232,7 +232,7 @@ Fortify에서 사용할 인증 가드는 애플리케이션의 `fortify` 설정 
 ### Customizing the Authentication Pipeline
 
 <!-- Laravel Fortify authenticates login requests through a pipeline of invokable classes. If you would like, you may define a custom pipeline of classes that login requests should be piped through. Each class should have an `__invoke` method which receives the incoming `Illuminate\Http\Request` instance and, like [middleware](/docs/13.x/middleware), a `$next` variable that is invoked in order to pass the request to the next class in the pipeline. -->
-Laravel Fortify는 로그인 요청을 여러 `__invoke` 메서드를 가진 클래스의 파이프라인을 거쳐 인증합니다. 원하는 경우 로그인 요청이 거치는 파이프라인 클래스를 커스텀할 수 있습니다. 각 클래스는 들어오는 `Illuminate\Http\Request` 인스턴스와, 그 요청을 다음 파이프라인 클래스에 넘기는 `$next` 변수를 인수로 받습니다([middleware](/docs/13.x/middleware)와 비슷한 방식입니다).
+Laravel Fortify는 로그인 요청을 `__invoke` 메서드를 가진 여러 클래스의 파이프라인을 거쳐 인증합니다. 원하는 경우 로그인 요청이 거치는 파이프라인 클래스를 커스텀할 수 있습니다. 각 클래스의 해당 메서드는 들어오는 `Illuminate\Http\Request` 인스턴스와, 요청을 다음 파이프라인 클래스에 넘기기 위해 호출하는 `$next` 변수를 인수로 받아야 합니다([middleware](/docs/13.x/middleware)와 비슷한 방식입니다).
 
 <!-- To define your custom pipeline, you may use the `Fortify::authenticateThrough` method. This method accepts a closure which should return the array of classes to pipe the login request through. Typically, this method should be called from the `boot` method of your `App\Providers\FortifyServiceProvider` class. -->
 커스텀 파이프라인 정의 방법은 `Fortify::authenticateThrough` 메서드를 사용합니다. 이 메서드는 로그인 요청을 거칠 클래스 배열을 반환하는 클로저를 인수로 받습니다. 일반적으로 `App\Providers\FortifyServiceProvider` 클래스의 `boot` 메서드에서 호출합니다.
@@ -281,7 +281,7 @@ Fortify::authenticateThrough(function (Request $request) {
 로그인에 성공하면 Fortify는 `fortify` 설정 파일 내의 `home` 옵션에 지정된 URI로 리디렉션합니다. 로그인 요청이 XHR일 경우 200 HTTP 응답을 반환합니다. 사용자가 로그아웃하면 `/`로 이동하게 됩니다.
 
 <!-- If you need advanced customization of this behavior, you may bind implementations of the `LoginResponse` and `LogoutResponse` contracts into the Laravel [service container](/docs/13.x/container). Typically, this should be done within the `register` method of your application's `App\Providers\FortifyServiceProvider` class: -->
-이 동작을 더 세밀하게 사용자 지정해야 한다면, Laravel [service container](/docs/13.x/container)에 `LoginResponse`, `LogoutResponse` 계약의 인스턴스를 바인딩해서 구현할 수 있습니다. 주로 `App\Providers\FortifyServiceProvider` 클래스의 `register` 메서드에서 이 바인딩을 처리합니다.
+이 동작을 더 세밀하게 사용자 지정해야 한다면, Laravel [service container](/docs/13.x/container)에 `LoginResponse`, `LogoutResponse` 계약의 구현체를 바인딩해서 구현할 수 있습니다. 주로 `App\Providers\FortifyServiceProvider` 클래스의 `register` 메서드에서 이 바인딩을 처리합니다.
 
 ```php
 use Laravel\Fortify\Contracts\LogoutResponse;
@@ -363,7 +363,7 @@ JavaScript 프론트엔드에서 사용할 경우, `/user/two-factor-qr-code` �
 #### Confirming Two-Factor Authentication
 
 <!-- In addition to displaying the user's two-factor authentication QR code, you should provide a text input where the user can supply a valid authentication code to "confirm" their two-factor authentication configuration. This code should be provided to the Laravel application via a POST request to the `/user/confirmed-two-factor-authentication` endpoint defined by Fortify. -->
-QR 코드를 보여줄 뿐 아니라, 사용자가 인증 코드를 입력해서 2단계 인증 구성을 "확인"할 수 있는 입력란을 제공해야 합니다. 이 코드는 Fortify가 제공하는 `/user/confirmed-two-factor-authentication` 엔드포인트로 POST 요청을 보내야 하며,
+QR 코드를 보여줄 뿐 아니라, 사용자가 인증 코드를 입력해서 2단계 인증 구성을 "확인"할 수 있는 입력란을 제공해야 합니다. 이 코드는 Fortify가 제공하는 `/user/confirmed-two-factor-authentication` 엔드포인트에 POST 요청으로 전달해야 합니다.
 
 <!-- If the request is successful, the user will be redirected back to the previous URL and the `status` session variable will be set to `two-factor-authentication-confirmed`: -->
 성공 시 이전 URL로 리디렉션되고, 세션 변수 `status`에는 `two-factor-authentication-confirmed`가 저장됩니다.
@@ -713,7 +713,7 @@ public function boot(): void
 ```
 
 <!-- Fortify will take care of defining the `/forgot-password` endpoint that returns this view. Your `forgot-password` template should include a form that makes a POST request to the `/forgot-password` endpoint. -->
-Fortify가 `/forgot-password` 엔드포인트를 정의해 뷰를 반환합니다. `forgot-password` 템플릿에는 `/forgot-password`로 POST 요청을 보내는 폼이 있어야 하며,
+Fortify가 `/forgot-password` 엔드포인트를 정의해 뷰를 반환합니다. `forgot-password` 템플릿에는 `/forgot-password`로 POST 요청을 보내는 폼이 있어야 합니다.
 
 <!-- The `/forgot-password` endpoint expects a string `email` field. The name of this field / database column should match the `email` configuration value within your application's `fortify` configuration file. -->
 `/forgot-password` 엔드포인트는 문자열 타입의 `email` 필드를 요구합니다. 이 필드명/DB 컬럼명은 애플리케이션의 `fortify` 설정 파일의 `email` 설정값과 일치해야 합니다.
@@ -770,7 +770,7 @@ public function boot(): void
 ```
 
 <!-- Fortify will take care of defining the route to display this view. Your `reset-password` template should include a form that makes a POST request to `/reset-password`. -->
-Fortify가 이 뷰를 보여주는 라우트를 등록합니다. `reset-password` 템플릿에는 `/reset-password`로 POST 요청을 보내는 폼이 있어야 하며,
+Fortify가 이 뷰를 보여주는 라우트를 등록합니다. `reset-password` 템플릿에는 `/reset-password`로 POST 요청을 보내는 폼이 있어야 합니다.
 
 <!-- The `/reset-password` endpoint expects a string `email` field, a `password` field, a `password_confirmation` field, and a hidden field named `token` that contains the value of `request()->route('token')`. The name of the "email" field / database column should match the `email` configuration value defined within your application's `fortify` configuration file. -->
 `/reset-password` 엔드포인트는 문자열 타입의 `email`, `password`, `password_confirmation` 필드와 함께, 숨겨진 필드 `token`(값은 `request()->route('token')`)을 요구합니다. "email" 필드명/DB 컬럼명은 애플리케이션의 `fortify` 설정 파일에 정의된 `email` 설정값과 일치해야 합니다.
@@ -800,8 +800,8 @@ XHR 요청인 경우 200 HTTP 응답을 반환합니다.
 <!-- ### Customizing Password Resets -->
 ### Customizing Password Resets
 
-<!-- The password reset process may be customized by modifying the `App\Actions\ResetUserPassword` action that was generated when you installed Laravel Fortify. -->
-비밀번호 재설정 프로세스는 Fortify 설치 시 생성된 `App\Actions\ResetUserPassword` 액션을 수정하여 사용자 지정할 수 있습니다.
+<!-- The password reset process may be customized by modifying the `App\Actions\Fortify\ResetUserPassword` action that was generated when you installed Laravel Fortify. -->
+비밀번호 재설정 프로세스는 Fortify 설치 시 생성된 `App\Actions\Fortify\ResetUserPassword` 액션을 수정하여 사용자 지정할 수 있습니다.
 
 <a name="email-verification"></a>
 <!-- ## Email Verification -->

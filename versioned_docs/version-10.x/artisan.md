@@ -700,7 +700,7 @@ $name = $this->anticipate('What is your name?', ['Taylor', 'Dayle']);
 ```
 
 <!-- Alternatively, you may pass a closure as the second argument to the `anticipate` method. The closure will be called each time the user types an input character. The closure should accept a string parameter containing the user's input so far, and return an array of options for auto-completion: -->
-또는, `anticipate` 메서드의 두 번째 인수로 클로저를 전달하면 사용자가 입력할 때마다 호출되어 자동 완성 옵션을 동적으로 반환할 수 있습니다.
+또는, `anticipate` 메서드의 두 번째 인수로 클로저를 전달하면 사용자가 문자를 입력할 때마다 호출됩니다. 이 클로저는 지금까지 사용자가 입력한 내용을 문자열 매개변수로 받아, 자동 완성 옵션 배열을 반환해야 합니다.
 
 ```
 $name = $this->anticipate('What is your address?', function (string $input) {
@@ -841,7 +841,7 @@ $bar->finish();
 ## Registering Commands
 
 <!-- All of your console commands are registered within your application's `App\Console\Kernel` class, which is your application's "console kernel". Within the `commands` method of this class, you will see a call to the kernel's `load` method. The `load` method will scan the `app/Console/Commands` directory and automatically register each command it contains with Artisan. You are even free to make additional calls to the `load` method to scan other directories for Artisan commands: -->
-모든 콘솔 명령어는 애플리케이션의 `App\Console\Kernel` 클래스(즉, 콘솔 커널)에서 등록됩니다. 이 클래스의 `commands` 메서드에서 커널의 `load` 메서드를 호출합니다. `load` 메서드는 `app/Console/Commands` 디렉터리를 스캔하여, 해당 폴더의 모든 클래스를 자동으로 아티즌에 등록합니다. 필요하다면 여러 디렉터리를 추가로 스캔하도록 `load` 메서드를 여러 번 호출할 수도 있습니다.
+모든 콘솔 명령어는 애플리케이션의 `App\Console\Kernel` 클래스(즉, 콘솔 커널)에서 등록됩니다. 이 클래스의 `commands` 메서드에서 커널의 `load` 메서드를 호출합니다. `load` 메서드는 `app/Console/Commands` 디렉터리를 스캔하여, 해당 폴더의 모든 명령어를 자동으로 아티즌에 등록합니다. 필요하다면 여러 디렉터리를 추가로 스캔하도록 `load` 메서드를 여러 번 호출할 수도 있습니다.
 
 ```
 /**
@@ -1030,4 +1030,4 @@ php artisan stub:publish
 ## Events
 
 <!-- Artisan dispatches three events when running commands: `Illuminate\Console\Events\ArtisanStarting`, `Illuminate\Console\Events\CommandStarting`, and `Illuminate\Console\Events\CommandFinished`. The `ArtisanStarting` event is dispatched immediately when Artisan starts running. Next, the `CommandStarting` event is dispatched immediately before a command runs. Finally, the `CommandFinished` event is dispatched once a command finishes executing. -->
-아티즌 명령어가 실행될 때는 세 가지 이벤트가 발생합니다: `Illuminate\Console\Events\ArtisanStarting`, `Illuminate\Console\Events\CommandStarting`, `Illuminate\Console\Events\CommandFinished`입니다. `ArtisanStarting` 이벤트는 아티즌이 실제로 실행을 시작할 때 즉시 발생하고, `CommandStarting` 이벤트는 각 명령어가 실행 직전에, 마지막으로 `CommandFinished` 이벤트는 명령어 실행이 종료된 직후 발생합니다.
+아티즌 명령어가 실행될 때는 세 가지 이벤트가 발생합니다: `Illuminate\Console\Events\ArtisanStarting`, `Illuminate\Console\Events\CommandStarting`, `Illuminate\Console\Events\CommandFinished`입니다. `ArtisanStarting` 이벤트는 아티즌이 실제로 실행을 시작할 때 즉시 발생하고, `CommandStarting` 이벤트는 각 명령어가 실행되기 직전에, 마지막으로 `CommandFinished` 이벤트는 명령어 실행이 종료된 직후 발생합니다.

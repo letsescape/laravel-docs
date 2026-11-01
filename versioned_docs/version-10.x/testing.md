@@ -30,7 +30,7 @@ Laravel은 처음부터 테스트를 염두에 두고 설계된 프레임워크�
 ## Environment
 
 <!-- When running tests, Laravel will automatically set the [configuration environment](/docs/10.x/configuration#environment-configuration) to `testing` because of the environment variables defined in the `phpunit.xml` file. Laravel also automatically configures the session and cache to the `array` driver so that no session or cache data will be persisted while testing. -->
-테스트를 실행할 때 Laravel은 `phpunit.xml` 파일에 정의된 환경 변수 덕분에 [configuration environment](/docs/10.x/configuration#environment-configuration)이 자동으로 `testing`으로 전환됩니다. 또한 세션과 캐시 설정이 자동으로 `array` 드라이버로 변경되어, 테스트 중에는 세션이나 캐시 데이터가 실제로 저장되지 않습니다.
+테스트를 실행할 때 Laravel의 `phpunit.xml` 파일에 정의된 환경 변수 덕분에 [configuration environment](/docs/10.x/configuration#environment-configuration)이 자동으로 `testing`으로 전환됩니다. 또한 세션과 캐시 설정이 자동으로 `array` 드라이버로 변경되어, 테스트 중에는 세션이나 캐시 데이터가 영구적으로 저장되지 않습니다.
 
 <!-- You are free to define other testing environment configuration values as necessary. The `testing` environment variables may be configured in your application's `phpunit.xml` file, but make sure to clear your configuration cache using the `config:clear` Artisan command before running your tests! -->
 필요하다면 추가적인 테스트 환경 설정값도 자유롭게 정의할 수 있습니다. `testing` 환경 변수는 애플리케이션의 `phpunit.xml` 파일에서 설정할 수 있지만, 테스트 실행 전에 `config:clear` 아티즌 명령어로 설정 캐시를 반드시 비워야 합니다.
@@ -149,7 +149,7 @@ php artisan test --parallel --processes=4
 ```
 
 > [!WARNING]
-> 병렬 테스트 실행 시 일부 PHPUnit 옵션(예: `--do-not-cache-result`)은 사용할 수 없습니다.
+> 병렬 테스트 실행 시 일부 PHPUnit 옵션(예: `--do-not-cache-result`)은 사용할 수 없을 수 있습니다.
 
 <a name="parallel-testing-and-databases"></a>
 <!-- #### Parallel Testing and Databases -->

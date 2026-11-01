@@ -143,7 +143,7 @@ Laravel의 로깅은 "채널(channels)" 기반으로 동작합니다. 각 채널
 ### Logging Deprecation Warnings
 
 <!-- PHP, Laravel, and other libraries often notify their users that some of their features have been deprecated and will be removed in a future version. If you would like to log these deprecation warnings, you may specify your preferred `deprecations` log channel using the `LOG_DEPRECATIONS_CHANNEL` environment variable, or within your application's `config/logging.php` configuration file: -->
-PHP, Laravel 및 다른 라이브러리들은 언제 제거될 예정인 기능 등에 대해 사용 중단(deprecation) 경고를 알리는 경우가 많습니다. 이러한 경고를 로그에 기록하고자 한다면, `LOG_DEPRECATIONS_CHANNEL` 환경 변수나 `config/logging.php` 설정 파일에 선호하는 `deprecations` 로그 채널을 지정할 수 있습니다:
+PHP, Laravel 및 다른 라이브러리는 일부 기능이 더 이상 권장되지 않으며 향후 버전에서 제거될 예정임을 사용자에게 알리는 경우가 많습니다. 이러한 경고를 로그에 기록하고자 한다면, `LOG_DEPRECATIONS_CHANNEL` 환경 변수나 `config/logging.php` 설정 파일에 선호하는 `deprecations` 로그 채널을 지정할 수 있습니다:
 
 ```php
 'deprecations' => [
@@ -398,7 +398,7 @@ Log::build([
 ```
 
 <!-- You may also wish to include an on-demand channel in an on-demand logging stack. This can be achieved by including your on-demand channel instance in the array passed to the `stack` method: -->
-즉석 채널을 포함하는 스택을 만들고 싶다면, `stack` 메서드에 즉석 채널 인스턴스를 포함시키면 됩니다:
+즉석 채널을 포함하는 스택을 만들고 싶다면, `stack` 메서드에 전달하는 배열에 즉석 채널 인스턴스를 포함시키면 됩니다:
 
 ```php
 use Illuminate\Support\Facades\Log;
@@ -423,7 +423,7 @@ Log::stack(['slack', $channel])->info('Something happened!');
 기존 채널에서 Monolog 구성을 완전히 제어해야 하는 경우도 있습니다. 예를 들어, Laravel 기본 `single` 채널에서 사용하는 Monolog `FormatterInterface` 구현을 직접 설정하고 싶을 때가 그렇습니다.
 
 <!-- To get started, define a `tap` array on the channel's configuration. The `tap` array should contain a list of classes that should have an opportunity to customize (or "tap" into) the Monolog instance after it is created. There is no conventional location where these classes should be placed, so you are free to create a directory within your application to contain these classes: -->
-먼저 채널 설정에 `tap` 배열을 정의하세요. `tap` 배열에는 Monolog 인스턴스가 생성된 직후 사용자 지정할 클래스들이 명시됩니다. 이러한 클래스들은 원하는 위치에 만들어도 무방합니다:
+먼저 채널 설정에 `tap` 배열을 정의하세요. `tap` 배열에는 생성된 Monolog 인스턴스를 사용자 지정할 클래스 목록을 넣습니다. 이러한 클래스들은 원하는 위치에 만들어도 무방합니다:
 
 ```php
 'single' => [

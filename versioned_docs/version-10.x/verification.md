@@ -97,7 +97,7 @@ Route::get('/email/verify', function () {
 ```
 
 <!-- The route that returns the email verification notice should be named `verification.notice`. It is important that the route is assigned this exact name since the `verified` middleware [included with Laravel](#protecting-routes) will automatically redirect to this route name if a user has not verified their email address. -->
-위와 같이 이메일 인증 안내를 반환하는 라우트의 이름은 반드시 `verification.notice`이어야 합니다. 이 이름은 중요하며, [included with Laravel](#protecting-routes) `verified` 미들웨어는 사용자가 이메일 인증을 완료하지 않았다면 자동으로 이 라우트로 리디렉션합니다.
+위와 같이 이메일 인증 안내를 반환하는 라우트의 이름은 반드시 `verification.notice`이어야 합니다. 이 이름은 중요하며, Laravel에 포함된 `verified` 미들웨어([included with Laravel](#protecting-routes))는 사용자가 이메일 인증을 완료하지 않았다면 자동으로 이 라우트로 리디렉션합니다.
 
 > [!NOTE]
 > 이메일 인증을 수동으로 구현하는 경우, 인증 안내 뷰의 내용은 직접 정의해야 합니다. 인증 및 이메일 인증 뷰를 포함한 전체 스캐폴딩이 필요하다면 [Laravel application starter kits](/docs/10.x/starter-kits)을 확인해 보세요.

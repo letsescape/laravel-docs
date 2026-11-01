@@ -52,7 +52,7 @@ Laravel에서는 이런 HTML 렌더링 방식도 계속 지원하며, [views](/d
 ```
 
 <!-- When building applications in this fashion, form submissions and other page interactions typically receive an entirely new HTML document from the server and the entire page is re-rendered by the browser. Even today, many applications may be perfectly suited to having their frontends constructed in this way using simple Blade templates. -->
-이런 방식으로 애플리케이션을 구축하면, 폼 제출 등의 페이지 상호작용이 발생할 때마다 서버에서 완전히 새로운 HTML 문서를 받아오고, 브라우저가 전체 페이지를 다시 렌더링하게 됩니다. 오늘날에도 많은 애플리케이션이 단순한 Blade 템플릿으로 프론트엔드를 구성해도 충분히 적합할 때가 많습니다.
+이런 방식으로 애플리케이션을 구축할 때는 폼 제출 등의 페이지 상호작용이 발생하면 일반적으로 서버에서 완전히 새로운 HTML 문서를 받아오고, 브라우저가 전체 페이지를 다시 렌더링하게 됩니다. 오늘날에도 많은 애플리케이션이 단순한 Blade 템플릿으로 프론트엔드를 구성해도 충분히 적합할 때가 많습니다.
 
 <a name="growing-expectations"></a>
 <!-- #### Growing Expectations -->
@@ -65,7 +65,7 @@ Laravel에서는 이런 HTML 렌더링 방식도 계속 지원하며, [views](/d
 반면, 자신이 익숙한 백엔드 언어를 계속 사용하고 싶어하는 개발자들은, 주로 백엔드 언어를 이용하면서도 현대적인 웹 앱 UI를 만들 수 있는 솔루션을 개발하기도 했습니다. 예를 들어, [Rails](https://rubyonrails.org/) 생태계에서는 [Turbo](https://turbo.hotwired.dev/), [Hotwire](https://hotwired.dev/), [Stimulus](https://stimulus.hotwired.dev/)와 같은 라이브러리가 탄생했습니다.
 
 <!-- Within the Laravel ecosystem, the need to create modern, dynamic frontends by primarily using PHP has led to the creation of [Laravel Livewire](https://livewire.laravel.com) and [Alpine.js](https://alpinejs.dev/). -->
-Laravel 생태계에서는 PHP만으로도 현대적이고 동적인 프론트엔드를 구축하려는 요구가 [Laravel Livewire](https://livewire.laravel.com)와 [Alpine.js](https://alpinejs.dev/) 같은 도구의 탄생으로 이어졌습니다.
+Laravel 생태계에서는 주로 PHP를 사용해 현대적이고 동적인 프론트엔드를 구축하려는 요구가 [Laravel Livewire](https://livewire.laravel.com)와 [Alpine.js](https://alpinejs.dev/) 같은 도구의 탄생으로 이어졌습니다.
 
 <a name="livewire"></a>
 <!-- ### Livewire -->

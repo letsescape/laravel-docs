@@ -657,7 +657,7 @@ Route::get('/users/{user}/posts/{post:slug}', function (User $user, Post $post) 
 커스텀 키 값에 대한 암묵적 바인딩이 중첩 파라미터로 사용될 때, Laravel은 해당 모델이 반드시 상위 모델의 자식(연관관계 기반)인지 자동으로 쿼리를 스코핑합니다. 이 예시에서는 `User` 모델에 `posts`(파라미터명의 복수형)라는 연관관계가 있다고 가정하고, 이를 활용해 `Post` 모델을 조회합니다.
 
 <!-- If you wish, you may instruct Laravel to scope "child" bindings even when a custom key is not provided. To do so, you may invoke the `scopeBindings` method when defining your route: -->
-커스텀 키를 지정하지 않은 경우에도 자식 바인딩을 적용하고 싶음면, 라우트 정의 시 `scopeBindings` 메서드를 체이닝하면 됩니다.
+커스텀 키를 지정하지 않은 경우에도 자식 바인딩을 적용하고 싶으면, 라우트 정의 시 `scopeBindings` 메서드를 체이닝하면 됩니다.
 
 ```
 use App\Models\Post;

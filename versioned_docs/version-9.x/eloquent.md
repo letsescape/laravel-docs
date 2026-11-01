@@ -634,7 +634,7 @@ Flight::where('departed', true)
 `cursor` 메서드는 단 한 번의 데이터베이스 쿼리만을 실행하지만, 실제로 각 Eloquent 모델이 반복 처리될 때까지 메모리에 로드(하이드레이트)하지 않습니다. 따라서 반복이 진행되는 동안 한 시점에 한 개의 Eloquent 모델만 메모리에 유지됩니다.
 
 > [!WARNING]
-> `cursor` 메서드는 항상 한 번에 한 개의 Eloquent 모델만 메모리에 보관하기 때문에, 연관관계(eager loading)를 사용할 수 없습니다. 연관관계를 함께 로드해야 하는 경우 [the `lazy` method](#chunking-using-lazy-collections)를 대신 사용하는 것이 좋습니다.
+> `cursor` 메서드는 항상 한 번에 한 개의 Eloquent 모델만 메모리에 보관하기 때문에, 연관관계의 즉시 로딩(eager loading)을 사용할 수 없습니다. 연관관계를 함께 로드해야 하는 경우 [the `lazy` method](#chunking-using-lazy-collections)를 대신 사용하는 것이 좋습니다.
 
 <!-- Internally, the `cursor` method uses PHP [generators](https://www.php.net/manual/en/language.generators.overview.php) to implement this functionality: -->
 내부적으로 `cursor` 메서드는 PHP의 [generators](https://www.php.net/manual/en/language.generators.overview.php)를 사용하여 이 기능을 제공합니다.
@@ -663,7 +663,7 @@ foreach ($users as $user) {
 ```
 
 <!-- Although the `cursor` method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). If you're dealing with a very large number of Eloquent records, consider using [the `lazy` method](#chunking-using-lazy-collections) instead. -->
-`cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만(한 번에 하나의 모델만 메모리에 저장), 결국에는 메모리가 모두 사용될 수도 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)입니다. 매우 많은 수의 Eloquent 레코드를 다뤄야 한다면, [the `lazy` method](#chunking-using-lazy-collections)를 사용하는 것을 고려하세요.
+`cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만(한 번에 하나의 모델만 메모리에 저장), 결국에는 메모리가 모두 사용될 수도 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)에 설명된 PDO 드라이버의 쿼리 결과 버퍼링 때문입니다. 매우 많은 수의 Eloquent 레코드를 다뤄야 한다면, [the `lazy` method](#chunking-using-lazy-collections)를 사용하는 것을 고려하세요.
 
 <a name="advanced-subqueries"></a>
 <!-- ### Advanced Subqueries -->
@@ -804,7 +804,7 @@ $flight = Flight::firstOrNew(
 ### Retrieving Aggregates
 
 <!-- When interacting with Eloquent models, you may also use the `count`, `sum`, `max`, and other [aggregate methods](/docs/9.x/queries#aggregates) provided by the Laravel [query builder](/docs/9.x/queries). As you might expect, these methods return a scalar value instead of an Eloquent model instance: -->
-Eloquent 모델을 사용할 때도, Laravel [aggregate methods](/docs/9.x/queries#aggregates)에서 제공하는 `count`, `sum`, `max` 등 [query builder](/docs/9.x/queries)를 사용할 수 있습니다. 이 메서드들은 Eloquent 모델 인스턴스가 아닌 스칼라 값을 반환합니다.
+Eloquent 모델을 사용할 때도, Laravel [query builder](/docs/9.x/queries)에서 제공하는 `count`, `sum`, `max` 등 [aggregate methods](/docs/9.x/queries#aggregates)를 사용할 수 있습니다. 이 메서드들은 Eloquent 모델 인스턴스가 아닌 스칼라 값을 반환합니다.
 
 ```
 $count = Flight::where('active', 1)->count();
@@ -1122,7 +1122,7 @@ Flight::upsert([
 
 ```
 > [!WARNING]
-> SQL Server를 제외한 모든 데이터베이스에서는 `upsert` 메서드의 두 번째 인자 컬럼이 반드시 "primary" 또는 "unique" 인덱스를 가져야 합니다. 또한, MariaDB 및 MySQL 드라이버는 `upsert` 메서드의 두 번째 인자를 무시하고, 해당 테이블의 "primary" 및 "unique" 인덱스를 자동으로 사용해 기존 레코드 판별에 활용합니다.
+> SQL Server를 제외한 모든 데이터베이스에서는 `upsert` 메서드의 두 번째 인자 컬럼이 반드시 "primary" 또는 "unique" 인덱스를 가져야 합니다. 또한, MySQL 드라이버는 `upsert` 메서드의 두 번째 인자를 무시하고, 해당 테이블의 "primary" 및 "unique" 인덱스를 자동으로 사용해 기존 레코드 판별에 활용합니다.
 
 <a name="deleting-models"></a>
 <!-- ## Deleting Models -->
@@ -1349,7 +1349,7 @@ class Flight extends Model
 ```
 
 <!-- When marking models as `Prunable`, you may also define a `pruning` method on the model. This method will be called before the model is deleted. This method can be useful for deleting any additional resources associated with the model, such as stored files, before the model is permanently removed from the database: -->
-`Prunable`로 지정한 모델에는 `pruning` 메서드를 추가로 정의할 수도 있습니다. 이 메서드는 모델이 삭제되기 **전**에 호출되며, 저장된 파일 등 모델과 연관된 추가 리소스를 데이터베이스에서 영구 삭제되기 전에 정리하는 데 유용합니다.
+`Prunable`로 지정한 모델에는 `pruning` 메서드를 추가로 정의할 수도 있습니다. 이 메서드는 모델이 삭제되기 **전**에 호출되며, 저장된 파일 등 모델과 연관된 추가 리소스를 모델이 데이터베이스에서 영구 삭제되기 전에 정리하는 데 유용합니다.
 
 ```
 /**
@@ -1405,7 +1405,7 @@ php artisan model:prune --pretend
 ```
 
 > [!WARNING]
-> 소프트 삭제된 모델이라도 prunable 쿼리에 일치할 경우, `forceDelete`로 **영구 삭제**됩니다.
+> 소프트 삭제 기능을 사용하는 모델은 prunable 쿼리에 일치할 경우, `forceDelete`로 **영구 삭제**됩니다.
 
 <a name="mass-pruning"></a>
 <!-- #### Mass Pruning -->

@@ -71,7 +71,7 @@ Laravel이 제공하는 거의 모든 주요 기능은 서비스 프로바이더
 ### Routing
 
 <!-- Once the application has been bootstrapped and all service providers have been registered, the `Request` will be handed off to the router for dispatching. The router will dispatch the request to a route or controller, as well as run any route specific middleware. -->
-애플리케이션이 부트스트랩되고 모든 서비스 프로바이더가 등록되면, `Request`는 라우터에게 전달되어 요청을 디스패치합니다. 라우터는 요청을 라우트나 컨트롤러로 전달하고, 라우트에 지정된 미들웨어를 실행합니다.
+애플리케이션이 부트스트랩되고 모든 서비스 프로바이더가 등록되면, `Request`는 디스패치를 위해 라우터에 전달됩니다. 라우터는 요청을 라우트나 컨트롤러로 전달하고, 라우트에 지정된 미들웨어를 실행합니다.
 
 <!-- Middleware provide a convenient mechanism for filtering or examining HTTP requests entering your application. For example, Laravel includes a middleware that verifies if the user of your application is authenticated. If the user is not authenticated, the middleware will redirect the user to the login screen. However, if the user is authenticated, the middleware will allow the request to proceed further into the application. Some middleware are assigned to all routes within the application, like `PreventRequestsDuringMaintenance`, while some are only assigned to specific routes or route groups. You can learn more about middleware by reading the complete [middleware documentation](/docs/master/middleware). -->
 미들웨어는 애플리케이션으로 들어오는 HTTP 요청을 필터링하거나 검사하는 편리한 메커니즘을 제공합니다. 예를 들어, Laravel에는 사용자가 인증되었는지 확인하는 미들웨어가 포함되어 있습니다. 인증이 되어 있지 않으면 이 미들웨어는 사용자를 로그인 화면으로 리다이렉트합니다. 인증된 경우 요청이 애플리케이션 내부로 계속 진행됩니다. 어떤 미들웨어는 `PreventRequestsDuringMaintenance`처럼 애플리케이션 내 모든 라우트에 할당되어 있고, 어떤 미들웨어는 특정 라우트나 라우트 그룹에만 할당되어 있습니다. 미들웨어에 대한 자세한 내용은 전체 [middleware documentation](/docs/master/middleware)를 참고하세요.

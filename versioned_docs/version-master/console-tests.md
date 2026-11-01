@@ -18,7 +18,7 @@ HTTP 테스트를 단순화하는 것 외에도, Laravel은 애플리케이션�
 ## Success / Failure Expectations
 
 <!-- To get started, let's explore how to make assertions regarding an Artisan command's exit code. To accomplish this, we will use the `artisan` method to invoke an Artisan command from our test. Then, we will use the `assertExitCode` method to assert that the command completed with a given exit code: -->
-먼저, Artisan 명령어의 종료 코드(exit code)에 대한 검증(assertion)을 어떻게 작성하는지 살펴보겠습니다. 이를 위해 테스트 내에서 `artisan` 메서드를 사용해 Artisan 명령어를 실행한 뒤, `assertExitCode` 메서드를 이용하여명령어가 특정 종료 코드로 완료되었는지 검증할 수 있습니다:
+먼저, Artisan 명령어의 종료 코드(exit code)에 대한 검증(assertion)을 어떻게 작성하는지 살펴보겠습니다. 이를 위해 테스트 내에서 `artisan` 메서드를 사용해 Artisan 명령어를 실행한 뒤, `assertExitCode` 메서드를 이용하여 명령어가 특정 종료 코드로 완료되었는지 검증할 수 있습니다:
 
 ```php tab=Pest
 test('console command', function () {
@@ -157,7 +157,7 @@ public function test_console_command(): void
 ```
 
 <!-- The `expectsOutputToContain` and `doesntExpectOutputToContain` methods may be used to make assertions against a portion of the output: -->
-`expectsOutputToContain` 및 `doesntExpectOutputToContain` 메서드는 출력 결과 중 일부 문자열만을 포함하거나 포함하지 않는지 검증할 때 사용할 수 있습니다:
+`expectsOutputToContain` 및 `doesntExpectOutputToContain` 메서드는 출력 결과에 특정 문자열이 포함되거나 포함되지 않는지 검증할 때 사용할 수 있습니다:
 
 ```php tab=Pest
 test('console command', function () {

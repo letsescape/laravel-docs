@@ -377,7 +377,7 @@ QR 코드 표시와 함께, 사용자가 직접 인증 코드를 입력하는 �
 #### Displaying the Recovery Codes
 
 <!-- You should also display the user's two factor recovery codes. These recovery codes allow the user to authenticate if they lose access to their mobile device. If you are using Blade to render your application's frontend, you may access the recovery codes via the authenticated user instance: -->
-이중 인증 사용자는, 만약 기기에 접근할 수 없게 된 경우 리커버리 코드를 이용해 인증할 수 있습니다. Blade 프론트엔드에서는 인증된 사용자 인스턴스를 통해 다음과 같이 리커버리 코드를 조회할 수 있습니다.
+사용자의 이중 인증 리커버리 코드도 표시해야 합니다. 이중 인증 사용자는, 만약 기기에 접근할 수 없게 된 경우 리커버리 코드를 이용해 인증할 수 있습니다. Blade 프론트엔드에서는 인증된 사용자 인스턴스를 통해 다음과 같이 리커버리 코드를 조회할 수 있습니다.
 
 ```php
 (array) $request->user()->recoveryCodes()
@@ -627,7 +627,7 @@ public function boot(): void
 ```
 
 <!-- Fortify will take care of defining the route that displays this view when a user is redirected to the `/email/verify` endpoint by Laravel's built-in `verified` middleware. -->
-Fortify는 `/email/verify` 엔드포인트에 연결되어, 사용자가 Laravel의 내장 `verified` 미들웨어 적용 라우트에 접근할 때 해당 뷰를 보여줍니다.
+Fortify는 `/email/verify` 엔드포인트로 사용자가 Laravel의 내장 `verified` 미들웨어에 의해 리디렉션될 때 해당 뷰를 표시하는 라우트를 정의합니다.
 
 <!-- Your `verify-email` template should include an informational message instructing the user to click the email verification link that was sent to their email address. -->
 `verify-email` 템플릿에서는 이메일 인증 메일의 링크를 클릭해야 한다는 안내 메시지를 포함해야 합니다.

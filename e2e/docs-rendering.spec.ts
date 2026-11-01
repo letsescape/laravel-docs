@@ -103,6 +103,35 @@ test.describe('Docs rendering', () => {
     expect(box!.y).toBeLessThan(220);
   });
 
+  for (const locale of ['', '/ja']) {
+    test(`${locale || 'ko'} repeated validation headings have distinct working permalinks`, async ({page}) => {
+      await page.goto(`${locale}${docsPath('validation')}`);
+      await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+      await page.evaluate(() => document.fonts.ready);
+
+      const headings = page.getByRole('heading', {
+        level: 4,
+        name: 'Stopping on First Validation Failure',
+      });
+      await expect(headings).toHaveCount(2);
+      const ids = await headings.evaluateAll((elements) => elements.map((element) => element.id));
+      expect(ids[0]).toBe('stopping-on-first-validation-failure');
+      expect(ids[1]).not.toBe('');
+      expect(ids[1]).not.toBe(ids[0]);
+      for (const id of ids) {
+        await expect(page.locator(`[id="${id}"]`)).toHaveCount(1);
+      }
+
+      const secondHeading = headings.nth(1);
+      await secondHeading.locator('.hash-link').click();
+      await expect(page).toHaveURL((url) => url.hash === `#${ids[1]}`);
+      await expect.poll(() => secondHeading.evaluate((element) => element.getBoundingClientRect().top))
+        .toBeLessThan(220);
+      expect((await secondHeading.boundingBox())!.y).toBeGreaterThanOrEqual(0);
+      expect((await headings.first().boundingBox())!.y).toBeLessThan(0);
+    });
+  }
+
   test('table of contents links point to rendered heading ids', async ({page}) => {
     await page.goto(docsPath());
 

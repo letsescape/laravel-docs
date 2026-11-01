@@ -195,7 +195,7 @@ php artisan reverb:restart
 Reverb는 [Laravel Pulse](/docs/master/pulse)와의 통합 기능을 통해 모니터링할 수 있습니다. Reverb의 Pulse 통합을 활성화하면, 서버에서 처리 중인 연결 수와 메시지 수를 추적할 수 있습니다.
 
 <!-- To enable the integration, you should first ensure you have [installed Pulse](/docs/master/pulse#installation). Then, add any of Reverb's recorders to your application's `config/pulse.php` configuration file: -->
-통합을 활성화하려면, 우선 [installed Pulse](/docs/master/pulse#installation)했는지 확인하십시오. 그런 다음, Reverb의 레코더(recorder)를 애플리케이션의 `config/pulse.php` 구성 파일에 추가하면 됩니다:
+통합을 활성화하려면, 우선 [installed Pulse](/docs/master/pulse#installation)에 따라 Pulse를 설치했는지 확인하십시오. 그런 다음, Reverb의 레코더(recorder)를 애플리케이션의 `config/pulse.php` 구성 파일에 추가하면 됩니다:
 
 ```php
 use Laravel\Reverb\Pulse\Recorders\ReverbConnections;
@@ -233,7 +233,7 @@ use Laravel\Reverb\Pulse\Recorders\ReverbMessages;
 ## Running Reverb in Production
 
 <!-- Due to the long-running nature of WebSocket servers, you may need to make some optimizations to your server and hosting environment to ensure your Reverb server can effectively handle the optimal number of connections for the resources available on your server. -->
-WebSocket 서버의 지속적인 실행 특성 때문에, 서버와 호스팅 환경을 최적화하여 사용할 수 있는 리소스 범위 내에서 Reverb 서버가 최적의 연결 수를 처리할 수 있도록 해야 합니다.
+WebSocket 서버의 지속적인 실행 특성 때문에, 사용할 수 있는 리소스 범위 내에서 Reverb 서버가 최적의 연결 수를 처리할 수 있도록 서버와 호스팅 환경을 최적화해야 할 수 있습니다.
 
 > [!NOTE]
 > [Laravel Cloud](https://cloud.laravel.com)는 Laravel Reverb 클러스터가 제공하는 완전 관리형 WebSocket 인프라를 통해, 인프라 관리 없이 Reverb 기반 애플리케이션을 스케일 확장 및 배포할 수 있습니다.
@@ -270,7 +270,7 @@ forge        hard  nofile  10000
 ### Event Loop
 
 <!-- Under the hood, Reverb uses a ReactPHP event loop to manage WebSocket connections on the server. By default, this event loop is powered by `stream_select`, which doesn't require any additional extensions. However, `stream_select` is typically limited to 1,024 open files. As such, if you plan to handle more than 1,000 concurrent connections, you will need to use an alternative event loop not bound to the same restrictions. -->
-내부적으로 Reverb는 ReactPHP 이벤트 루프를 사용하여 서버에서 WebSocket 연결을 관리합니다. 기본적으로 이 이벤트 루프는 별도의 확장 없이 사용 가능한 `stream_select`를 사용하여 동작합니다. 하지만, `stream_select`는 일반적으로 1,024개의 열린 파일까지만 지원합니다. 따라서, 1,000개 이상의 동시 연결을 처리하려면 동일한 제약에 묶이지 않는 대안 이벤트 루프를 사용해야 합니다.
+내부적으로 Reverb는 ReactPHP 이벤트 루프를 사용하여 서버에서 WebSocket 연결을 관리합니다. 기본적으로 이 이벤트 루프는 별도의 확장 없이 사용 가능한 `stream_select`를 사용하여 동작합니다. 하지만, `stream_select`는 일반적으로 1,024개의 열린 파일까지만 지원합니다. 따라서, 1,000개를 초과하는 동시 연결을 처리하려면 동일한 제약에 묶이지 않는 대안 이벤트 루프를 사용해야 합니다.
 
 <!-- Reverb will automatically switch to an `ext-uv` powered loop when available. This PHP extension is available for install via PECL: -->
 Reverb는 사용 가능한 경우 자동으로 `ext-uv` 기반 루프로 전환합니다. 해당 PHP 확장은 PECL을 통해 설치할 수 있습니다:
@@ -382,7 +382,7 @@ Reverb 스케일링 옵션을 활성화하고 Redis 서버를 구성했다면, R
 ## Events
 
 <!-- Reverb dispatches internal events during the lifecycle of a connection and message handling. You may [listen for these events](/docs/master/events) to perform actions when connections are managed or messages are exchanged. -->
-Reverb는 연결 및 메시지 처리의 라이프사이클 동안 내부적으로 이벤트를 디스패치(dispatch)합니다. 이러한 이벤트에 [listen for these events](/docs/master/events)하여, 연결 관리나 메시지 교환 시 특정 동작을 수행할 수 있습니다.
+Reverb는 연결 및 메시지 처리의 라이프사이클 동안 내부적으로 이벤트를 디스패치(dispatch)합니다. 이러한 이벤트를 수신([listen for these events](/docs/master/events))하여, 연결 관리나 메시지 교환 시 특정 동작을 수행할 수 있습니다.
 
 <!-- The following events are dispatched by Reverb: -->
 Reverb에서 디스패치되는 주요 이벤트는 다음과 같습니다:

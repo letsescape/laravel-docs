@@ -293,7 +293,7 @@ npm run build
 ```
 
 <!-- If you are running the development server in [Sail](/docs/12.x/sail) on WSL2, you may need some [additional configuration](#configuring-hmr-in-sail-on-wsl2) options. -->
-[Sail](/docs/12.x/sail)에서 개발 서버를 실행한다면 [additional configuration](#configuring-hmr-in-sail-on-wsl2)이 필요할 수 있습니다.
+WSL2 환경의 [Sail](/docs/12.x/sail)에서 개발 서버를 실행한다면 [additional configuration](#configuring-hmr-in-sail-on-wsl2)이 필요할 수 있습니다.
 
 <a name="working-with-scripts"></a>
 <!-- ## Working With JavaScript -->
@@ -406,7 +406,7 @@ export default defineConfig({
 ```
 
 <!-- You will need to ensure that any files containing JSX have a `.jsx` or `.tsx` extension, remembering to update your entry point, if required, as [shown above](#configuring-vite). -->
-JSX가 포함된 파일은 반드시 `.jsx` 또는 `.tsx` 확장자를 사용해야 하며, 진입점 파일도 위 예시처럼 변경해야 합니다. ([shown above](#configuring-vite))
+JSX가 포함된 파일은 반드시 `.jsx` 또는 `.tsx` 확장자를 사용해야 하며, 필요한 경우 진입점 파일도 위 예시처럼 변경해야 합니다. ([shown above](#configuring-vite))
 
 <!-- You will also need to include the additional `@viteReactRefresh` Blade directive alongside your existing `@vite` directive. -->
 또한 기존 `@vite` 디렉티브와 함께 `@viteReactRefresh` Blade 디렉티브도 추가해야 합니다.
@@ -492,7 +492,7 @@ Inertia에서 Vite의 코드 스플리팅 기능을 사용할 경우 [asset pref
 Vite를 사용할 때 애플리케이션의 HTML, CSS, JS에서 에셋을 참조할 때 몇 가지 주의사항이 있습니다. 먼저, 절대경로로 에셋을 참조하는 경우 Vite가 번들링 빌드에 포함하지 않으므로 반드시 public 디렉터리에 있어야 합니다. [dedicated CSS entrypoint](#configuring-vite)을 사용할 때도 절대 경로 사용을 피해야 하며, 개발 중에는 브라우저가 public 디렉터리가 아니라 Vite 개발 서버에서 해당 경로를 찾게 되기 때문입니다.
 
 <!-- When referencing relative asset paths, you should remember that the paths are relative to the file where they are referenced. Any assets referenced via a relative path will be re-written, versioned, and bundled by Vite. -->
-상대경로로 에셋을 참조할 경우, 해당 파일을 기준으로 경로가 평가됩니다. 상대경로로 참조된 에셋들은 Vite가 자동으로 재작성, 버전 부여(bundling)합니다.
+상대경로로 에셋을 참조할 경우, 해당 파일을 기준으로 경로가 평가됩니다. 상대경로로 참조된 에셋들은 Vite가 자동으로 재작성하고, 버전을 부여하며, 번들링합니다.
 
 <!-- Consider the following project structure: -->
 프로젝트 구조 예시:
@@ -527,7 +527,7 @@ resources/
 > Laravel의 [starter kits](/docs/12.x/starter-kits)에는 올바르게 설정된 Tailwind 및 Vite 구성이 이미 포함되어 있습니다. Starter Kit을 사용하지 않고 Tailwind와 Laravel을 사용하려면 [Tailwind's installation guide for Laravel](https://tailwindcss.com/docs/guides/laravel)를 참고하세요.
 
 <!-- All Laravel applications already include Tailwind and a properly configured `vite.config.js` file. So, you only need to start the Vite development server or run the `dev` Composer command, which will start both the Laravel and Vite development servers: -->
-모든 Laravel 애플리케이션에는 이미 Tailwind와 적절하게 구성된 `vite.config.js` 파일이 포함되어 있습니다. 따라서 Vite 개발 서버를 시작하거나, 아래와 같이 Composer를 통해 `dev` 명령어를 실행하면 Laravel과 Vite 개발 서버가 모두 자동으로 시작됩니다.
+모든 Laravel 애플리케이션에는 이미 Tailwind와 적절하게 구성된 `vite.config.js` 파일이 포함되어 있습니다. 따라서 Vite 개발 서버를 시작하거나, 아래와 같이 Composer를 통해 `dev` 명령어를 실행하면 됩니다. 이 명령어는 Laravel과 Vite 개발 서버를 모두 시작합니다.
 
 ```shell
 composer run dev
@@ -754,14 +754,14 @@ ASSET_URL=https://cdn.example.com
 ```
 
 <!-- After configuring the asset URL, all re-written URLs to your assets will be prefixed with the configured value: -->
-이로써 모든 에셋 URL은 설정한 값이 접두어로 자동 추가됩니다.
+이로써 재작성된 모든 에셋 URL은 설정한 값이 접두어로 자동 추가됩니다.
 
 ```text
 https://cdn.example.com/build/assets/app.9dce8d17.js
 ```
 
 <!-- Remember that [absolute URLs are not re-written by Vite](#url-processing), so they will not be prefixed. -->
-[absolute URLs are not re-written by Vite](#url-processing) 접두어가 붙지 않음을 기억하세요.
+[absolute URLs are not re-written by Vite](#url-processing)에 설명된 대로 절대 URL은 재작성되지 않으므로 접두어가 붙지 않음을 기억하세요.
 
 <a name="environment-variables"></a>
 <!-- ## Environment Variables -->
@@ -786,7 +786,7 @@ import.meta.env.VITE_SENTRY_DSN_PUBLIC
 ## Disabling Vite in Tests
 
 <!-- Laravel's Vite integration will attempt to resolve your assets while running your tests, which requires you to either run the Vite development server or build your assets. -->
-Laravel의 Vite 통합 기능은 테스트 수행 시에도 에셋 리졸브를 시도합니다. 이때 Vite 개발 서버가 실행 중이 아니거나 에셋이 빌드되지 않았다면 문제가 생길 수 있습니다.
+Laravel의 Vite 통합 기능은 테스트 수행 시에도 에셋 리졸브를 시도합니다. 따라서 Vite 개발 서버를 실행하거나 에셋을 빌드해야 합니다.
 
 <!-- If you would prefer to mock Vite during testing, you may call the `withoutVite` method, which is available for any tests that extend Laravel's `TestCase` class: -->
 테스트 중에는 Vite를 mocking 하고 싶다면, `TestCase` 클래스를 상속하는 모든 테스트에서 `withoutVite` 메서드를 호출할 수 있습니다.
@@ -893,7 +893,7 @@ php artisan inertia:start-ssr
 ### Content Security Policy (CSP) Nonce
 
 <!-- If you wish to include a [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) on your script and style tags as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may generate or specify a nonce using the `useCspNonce` method within a custom [middleware](/docs/12.x/middleware): -->
-[nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) 적용을 위해 스크립트 및 스타일 태그에 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)을 추가하려면, 커스텀 [middleware](/docs/12.x/middleware)에서 `useCspNonce` 메서드를 호출하면 됩니다.
+[Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)의 일부로 스크립트 및 스타일 태그에 [nonce attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)을 추가하려면, 커스텀 [middleware](/docs/12.x/middleware)에서 `useCspNonce` 메서드를 호출하면 됩니다.
 
 ```php
 <?php
@@ -927,7 +927,7 @@ class AddContentSecurityPolicyHeaders
 `useCspNonce` 호출 후에는, Laravel이 자동으로 모든 스크립트 및 스타일 태그에 `nonce` 속성을 부여합니다.
 
 <!-- If you need to specify the nonce elsewhere, including the [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy) included with Laravel's [starter kits](/docs/12.x/starter-kits), you may retrieve it using the `cspNonce` method: -->
-다른 곳에서도 nonce 값이 필요하다면, Laravel의 [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy)에 포함된 [starter kits](/docs/12.x/starter-kits)처럼, `cspNonce` 메서드로 값을 얻어 사용할 수 있습니다.
+다른 곳에서도 nonce 값이 필요하다면, Laravel의 [starter kits](/docs/12.x/starter-kits)에 포함된 [Ziggy `@route` directive](https://github.com/tighten/ziggy#using-routes-with-a-content-security-policy)처럼, `cspNonce` 메서드로 값을 얻어 사용할 수 있습니다.
 
 ```blade
 @routes(nonce: Vite::cspNonce())
@@ -1074,7 +1074,7 @@ export default defineConfig({
 ### Dev Server Cross-Origin Resource Sharing (CORS)
 
 <!-- If you are experiencing Cross-Origin Resource Sharing (CORS) issues in the browser while fetching assets from the Vite dev server, you may need to grant your custom origin access to the dev server. Vite combined with the Laravel plugin allows the following origins without any additional configuration: -->
-브라우저에서 Vite 개발 서버의 에셋을 불러올 때 CORS(Cross-Origin Resource Sharing) 오류가 발생한다면, 개발 서버가 외부 도메인 요청을 허용할 수 있게 설정해야 합니다. Laravel 플러그인 및 Vite에서는 다음과 같은 Origin은 별도 설정 없이 자동으로 허용됩니다.
+브라우저에서 Vite 개발 서버의 에셋을 불러올 때 CORS(Cross-Origin Resource Sharing) 오류가 발생한다면, 사용 중인 출처(origin)가 개발 서버에 접근할 수 있도록 허용해야 할 수 있습니다. Laravel 플러그인 및 Vite에서는 다음과 같은 Origin은 별도 설정 없이 자동으로 허용됩니다.
 
 <!--
 - `::1`

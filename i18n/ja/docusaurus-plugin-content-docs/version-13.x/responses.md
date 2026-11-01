@@ -753,7 +753,7 @@ const stream = useStream("chat");
 ```
 
 <!-- Each time the `useStream` hook is used, a random `id` is generated to identify the stream. This is sent back to the server with each request in the `X-STREAM-ID` header. When consuming the same stream from multiple components, you can read and write to the stream by providing your own `id`: -->
-`useStream` フックが使用されるたびに、ストリームを識別するためにランダムな `id` が生成されます。これは、`X-STREAM-ID` ヘッダー内の各リクエストとともにサーバーに返送されます。複数のコンポーネントから同じストリームを使用する場合、独自の `id` を提供することで、ストリームの読み取りと書き込みを行うことができます。
+`useStream` フックが使用されるたびに、ストリームを識別するためにランダムな `id` が生成されます。これは、各リクエストの `X-STREAM-ID` ヘッダーに含めてサーバーに送信されます。複数のコンポーネントから同じストリームを使用する場合、独自の `id` を提供することで、ストリームの読み取りと書き込みを行うことができます。
 
 ```tsx tab=React
 // App.tsx

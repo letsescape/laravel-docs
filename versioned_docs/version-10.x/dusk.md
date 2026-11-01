@@ -107,7 +107,7 @@ php artisan dusk:chrome-driver --detect
 ```
 
 > [!WARNING]
-> Dusk는 `chromedriver` 바이너리가 실행 가능해야 제대로 동작합니다. Dusk 실행에 문제가 있다면 다음 명령어로 바이너리에 실행 권한이 부여되어 있는지 확인하십시오: `chmod -R 0755 vendor/laravel/dusk/bin/`.
+> Dusk는 `chromedriver` 바이너리가 실행 가능해야 제대로 동작합니다. Dusk 실행에 문제가 있다면 다음 명령어로 바이너리에 실행 권한을 부여하십시오: `chmod -R 0755 vendor/laravel/dusk/bin/`.
 
 <a name="using-other-browsers"></a>
 <!-- ### Using Other Browsers -->
@@ -926,7 +926,7 @@ $browser->keys('.app', ['{command}', 'j']);
 ```
 
 > [!NOTE]
-> `{command}`와 같은 모든 수정 키는 `{}` 기호로 감싸집니다. 이 값들은 `Facebook\WebDriver\WebDriverKeys` 클래스에 정의되어 있으며, [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php).
+> `{command}`와 같은 모든 수정 키는 `{}` 기호로 감싸집니다. 이 값들은 `Facebook\WebDriver\WebDriverKeys` 클래스에 정의되어 있으며, [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php)에서 확인할 수 있습니다.
 
 <a name="fluent-keyboard-interactions"></a>
 <!-- #### Fluent Keyboard Interactions -->
@@ -1110,7 +1110,7 @@ $browser->dragOffset('.selector', $x = 10, $y = 10);
 ### JavaScript Dialogs
 
 <!-- Dusk provides various methods to interact with JavaScript Dialogs. For example, you may use the `waitForDialog` method to wait for a JavaScript dialog to appear. This method accepts an optional argument indicating how many seconds to wait for the dialog to appear: -->
-Dusk는 JavaScript 대화상자와 상호작용할 수 있는 다양한 메서드를 제공합니다. 예를 들어, `waitForDialog` 메서드를 사용하면 JavaScript 대화상자가 나타날 때까지 지정한 시간(초)만큼 대기할 수 있습니다.
+Dusk는 JavaScript 대화상자와 상호작용할 수 있는 다양한 메서드를 제공합니다. 예를 들어, `waitForDialog` 메서드를 사용하면 JavaScript 대화상자가 나타날 때까지 대기할 수 있으며, 대기 시간(초)을 선택적 인수로 지정할 수 있습니다.
 
 ```
 $browser->waitForDialog($seconds = null);
@@ -1473,7 +1473,7 @@ $browser->waitForEvent('resize', 'window', 5);
 #### Waiting With a Callback
 
 <!-- Many of the "wait" methods in Dusk rely on the underlying `waitUsing` method. You may use this method directly to wait for a given closure to return `true`. The `waitUsing` method accepts the maximum number of seconds to wait, the interval at which the closure should be evaluated, the closure, and an optional failure message: -->
-Dusk의 많은 "wait" 관련 메서드는 내부적으로 `waitUsing` 메서드를 기반으로 작동합니다. 이 메서드를 직접 사용하면, 주어진 클로저가 `true`를 반환할 때까지 기다릴 수 있습니다. `waitUsing` 메서드는 기다릴 최대 시간(초), 클로저를 평가할 간격(초), 클로저, 그리고 실패 시 표시할 메시지를 인자로 받습니다.
+Dusk의 많은 "wait" 관련 메서드는 내부적으로 `waitUsing` 메서드를 기반으로 작동합니다. 이 메서드를 직접 사용하면, 주어진 클로저가 `true`를 반환할 때까지 기다릴 수 있습니다. `waitUsing` 메서드는 기다릴 최대 시간(초), 클로저를 평가할 간격, 클로저, 그리고 선택적으로 실패 시 표시할 메시지를 인자로 받습니다.
 
 ```
 $browser->waitUsing(10, 1, function () use ($something) {
@@ -2158,7 +2158,7 @@ $browser->assertNotSelected($field, $value);
 #### assertSelectHasOptions
 
 <!-- Assert that the given array of values are available to be selected: -->
-전달한 값들의 배열이 선택 가능한 옵션으로 존재하는지 확인합니다.
+전달한 배열의 값들이 선택 가능한 옵션으로 존재하는지 확인합니다.
 
 ```
 $browser->assertSelectHasOptions($field, $values);
@@ -2169,7 +2169,7 @@ $browser->assertSelectHasOptions($field, $values);
 #### assertSelectMissingOptions
 
 <!-- Assert that the given array of values are not available to be selected: -->
-전달한 값들의 배열이 선택 가능한 옵션으로 존재하지 않는지 확인합니다.
+전달한 배열의 값들이 선택 가능한 옵션으로 존재하지 않는지 확인합니다.
 
 ```
 $browser->assertSelectMissingOptions($field, $values);
@@ -2545,7 +2545,7 @@ $browser->assertVueDoesntContain($property, $value, $componentSelector = null);
 ## Pages
 
 <!-- Sometimes, tests require several complicated actions to be performed in sequence. This can make your tests harder to read and understand. Dusk Pages allow you to define expressive actions that may then be performed on a given page via a single method. Pages also allow you to define short-cuts to common selectors for your application or for a single page. -->
-테스트에서는 여러 복잡한 작업을 연속적으로 처리해야 할 때가 있습니다. 이런 경우 테스트 코드를 읽거나 이해하기 어려워질 수 있습니다. Dusk의 페이지(Pages) 기능을 사용하면, 한 페이지에서 수행할 수 있는 동작을 명확하게 정의해서 하나의 메서드로 처리할 수 있습니다. 또한, 페이지별로 또는 애플리케이션 전체에서 자주 사용하는 셀렉터에 대한 단축키를 정의할 수도 있습니다.
+테스트에서는 여러 복잡한 작업을 연속적으로 처리해야 할 때가 있습니다. 이런 경우 테스트 코드를 읽거나 이해하기 어려워질 수 있습니다. Dusk의 페이지(Pages) 기능을 사용하면, 한 페이지에서 수행할 수 있는 동작을 명확하게 정의해서 하나의 메서드로 처리할 수 있습니다. 또한, 페이지별로 또는 애플리케이션 전체에서 자주 사용하는 셀렉터에 대한 단축 이름을 정의할 수도 있습니다.
 
 <a name="generating-pages"></a>
 <!-- ### Generating Pages -->
@@ -2563,7 +2563,7 @@ php artisan dusk:page Login
 ### Configuring Pages
 
 <!-- By default, pages have three methods: `url`, `assert`, and `elements`. We will discuss the `url` and `assert` methods now. The `elements` method will be [discussed in more detail below](#shorthand-selectors). -->
-기본적으로 페이지에는 `url`, `assert`, `elements`라는 세 개의 메서드가 포함되어 있습니다. 여기서는 `url`과 `assert` 메서드에 대해 먼저 설명하고, `elements` 메서드에 대해서는 [discussed in more detail below](#shorthand-selectors).
+기본적으로 페이지에는 `url`, `assert`, `elements`라는 세 개의 메서드가 포함되어 있습니다. 여기서는 `url`과 `assert` 메서드에 대해 먼저 설명하고, `elements` 메서드에 대해서는 [discussed in more detail below](#shorthand-selectors)에서 자세히 설명합니다.
 
 <a name="the-url-method"></a>
 <!-- #### The `url` Method -->
@@ -2629,7 +2629,7 @@ $browser->visit('/dashboard')
 ### Shorthand Selectors
 
 <!-- The `elements` method within page classes allows you to define quick, easy-to-remember shortcuts for any CSS selector on your page. For example, let's define a shortcut for the "email" input field of the application's login page: -->
-페이지 클래스의 `elements` 메서드를 사용하면, 페이지에 있는 어떤 CSS 셀렉터든 쉽고 기억하기 쉬운 단축키로 정의할 수 있습니다. 예를 들어, 애플리케이션 로그인 페이지의 "email" 입력 필드에 대해 단축키를 정의할 수 있습니다.
+페이지 클래스의 `elements` 메서드를 사용하면, 페이지에 있는 어떤 CSS 셀렉터든 쉽고 기억하기 쉬운 단축 이름으로 정의할 수 있습니다. 예를 들어, 애플리케이션 로그인 페이지의 "email" 입력 필드에 대해 단축 이름을 정의할 수 있습니다.
 
 ```
 /**
@@ -2646,7 +2646,7 @@ public function elements(): array
 ```
 
 <!-- Once the shortcut has been defined, you may use the shorthand selector anywhere you would typically use a full CSS selector: -->
-이렇게 단축키를 정의한 뒤에는, CSS 셀렉터를 쓸 때마다 전체 셀렉터 대신 단축키를 사용할 수 있습니다.
+이렇게 단축 이름을 정의한 뒤에는, CSS 셀렉터를 쓸 때마다 전체 셀렉터 대신 단축 이름을 사용할 수 있습니다.
 
 ```
 $browser->type('@email', 'taylor@laravel.com');

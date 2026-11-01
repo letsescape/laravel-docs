@@ -338,7 +338,7 @@ npm install --save-dev @vitejs/plugin-vue
 ```
 
 <!-- You may then include the plugin in your `vite.config.js` configuration file. There are a few additional options you will need when using the Vue plugin with Laravel: -->
-이후 `vite.config.js` 설정 파일에 해당 플러그인을 포함하면 됩니다. 또한, Laravel과 함께 Vue 플러그인을 사용할 때 몇 가지 옵션을 추가로 지정해주는 것이 좋습니다.
+이후 `vite.config.js` 설정 파일에 해당 플러그인을 포함하면 됩니다. 또한, Laravel과 함께 Vue 플러그인을 사용할 때 몇 가지 추가 옵션을 지정해야 합니다.
 
 ```js
 import { defineConfig } from 'vite';
@@ -560,7 +560,7 @@ export default defineConfig({
 ```
 
 <!-- When the `refresh` option is `true`, saving files in the following directories will trigger the browser to perform a full page refresh while you are running `npm run dev`: -->
-`refresh` 옵션을 `true`로 설정하면 아래 경로의 파일을 저장할 때, `npm run dev`로 실행 중인 브라우저에서 전체 페이지가 새로고침됩니다.
+`refresh` 옵션을 `true`로 설정하면 `npm run dev`가 실행되는 동안 아래 경로의 파일을 저장할 때 브라우저에서 전체 페이지가 새로고침됩니다.
 
 <!--
 - `app/View/Components/**`
@@ -622,7 +622,7 @@ export default defineConfig({
 ### Aliases
 
 <!-- It is common in JavaScript applications to [create aliases](#aliases) to regularly referenced directories. But, you may also create aliases to use in Blade by using the `macro` method on the `Illuminate\Support\Facades\Vite` class. Typically, "macros" should be defined within the `boot` method of a [service provider](/docs/9.x/providers): -->
-자바스크립트에서는 [create aliases](#aliases) 자주 접근하는 경로를 편리하게 사용할 수 있습니다. 이와 비슷하게, Blade에서도 별칭을 사용할 수 있습니다. 이를 위해서는
+자바스크립트에서는 [create aliases](#aliases)에서 설명하는 별칭을 만들어 자주 접근하는 경로를 편리하게 사용할 수 있습니다. 이와 비슷하게, Blade에서도 별칭을 사용할 수 있습니다. 이를 위해서는
 `Illuminate\Support\Facades\Vite` 클래스의 `macro` 메서드를 활용하면 됩니다. 보통 [service provider](/docs/9.x/providers)의 `boot` 메서드에서 "매크로"를 등록합니다.
 
 ```
@@ -657,14 +657,14 @@ ASSET_URL=https://cdn.example.com
 ```
 
 <!-- After configuring the asset URL, all re-written URLs to your assets will be prefixed with the configured value: -->
-이렇게 설정한 후에는 모든 에셋 URL이 해당 값으로 프리픽스되어 사용됩니다.
+이렇게 설정한 후에는 재작성된 모든 에셋 URL이 해당 값으로 프리픽스되어 사용됩니다.
 
 ```nothing
 https://cdn.example.com/build/assets/app.9dce8d17.js
 ```
 
 <!-- Remember that [absolute URLs are not re-written by Vite](#url-processing), so they will not be prefixed. -->
-[absolute URLs are not re-written by Vite](#url-processing), 프리픽스가 적용되지 않는다는 점을 기억해야 합니다.
+[absolute URLs are not re-written by Vite](#url-processing)에 설명된 대로 절대 URL은 재작성되지 않으므로 프리픽스가 적용되지 않는다는 점을 기억해야 합니다.
 
 <a name="environment-variables"></a>
 
@@ -989,7 +989,7 @@ Vite 생태계의 일부 플러그인은 /로 시작하는 URL이 항상 Vite �
 ```
 
 <!-- The `vite-imagetools` plugin is expecting that the output URL will be intercepted by Vite and the plugin may then handle all URLs that start with `/@imagetools`. If you are using plugins that are expecting this behaviour, you will need to manually correct the URLs. You can do this in your `vite.config.js` file by using the `transformOnServe` option. -->
-`vite-imagetools` 플러그인은 `/@imagetools`로 시작하는 URL을 Vite가 가로채서 해당 플러그인이 처리하기를 기대합니다. 이런 동작을 원하는 플러그인을 사용할 때는 URL을 수동으로 교정해야 할 수 있습니다. 이 때는
+`vite-imagetools` 플러그인은 `/@imagetools`로 시작하는 URL을 Vite가 가로채서 해당 플러그인이 처리하기를 기대합니다. 이런 동작을 원하는 플러그인을 사용할 때는 URL을 수동으로 교정해야 합니다. 이 때는
 `vite.config.js`의 `transformOnServe` 옵션을 활용하면 됩니다.
 
 <!-- In this particular example, we will append the dev server URL to all occurrences of `/@imagetools` within the generated code: -->

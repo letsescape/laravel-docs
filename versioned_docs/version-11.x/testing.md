@@ -30,7 +30,7 @@ Laravel은 테스트를 염두에 두고 설계되었습니다. 실제로 [Pest]
 ## Environment
 
 <!-- When running tests, Laravel will automatically set the [configuration environment](/docs/11.x/configuration#environment-configuration) to `testing` because of the environment variables defined in the `phpunit.xml` file. Laravel also automatically configures the session and cache to the `array` driver so that no session or cache data will be persisted while testing. -->
-테스트를 실행할 때, Laravel은 `phpunit.xml` 파일에 정의된 환경 변수로 인해 [configuration environment](/docs/11.x/configuration#environment-configuration)이 자동으로 `testing`으로 지정됩니다. Laravel은 세션 및 캐시 드라이버도 자동으로 `array`로 설정하므로, 테스트 중에는 세션이나 캐시 데이터가 실제로 저장되지 않습니다.
+테스트를 실행할 때, Laravel의 `phpunit.xml` 파일에 정의된 환경 변수로 인해 [configuration environment](/docs/11.x/configuration#environment-configuration)이 자동으로 `testing`으로 지정됩니다. Laravel은 세션 및 캐시 드라이버도 자동으로 `array`로 설정하므로, 테스트 중에는 세션이나 캐시 데이터가 영구적으로 저장되지 않습니다.
 
 <!-- You are free to define other testing environment configuration values as necessary. The `testing` environment variables may be configured in your application's `phpunit.xml` file, but make sure to clear your configuration cache using the `config:clear` Artisan command before running your tests! -->
 필요에 따라 자유롭게 추가적인 테스트 환경 설정값을 지정할 수 있습니다. `testing` 환경 변수는 애플리케이션의 `phpunit.xml` 파일에서 설정할 수 있지만, 테스트를 실행하기 전에 반드시 `config:clear` 아티즌 명령어로 설정 캐시를 비워야 합니다!

@@ -341,7 +341,7 @@ sites:
 ```
 
 <!-- If you change the `sites` property after provisioning the Homestead virtual machine, you should execute the `vagrant reload --provision` command in your terminal to update the Nginx configuration on the virtual machine. -->
-`sites` 속성을 수정한 후에는 Homestead 가상 머신 내의 Nginx 설정을 업데이트하기 위해 터미널에서 `vagrant reload --provision` 명령을 실행해야 합니다.
+Homestead 가상 머신을 프로비저닝한 뒤에 `sites` 속성을 수정했다면, 가상 머신 내의 Nginx 설정을 업데이트하기 위해 터미널에서 `vagrant reload --provision` 명령을 실행해야 합니다.
 
 > [!WARNING]
 > Homestead 스크립트는 가능한 한 idempotent(중복 실행해도 동일한 결과)하도록 설계되어 있지만, 프로비저닝 과정에서 문제가 발생한다면 `vagrant destroy && vagrant up` 명령으로 가상 머신을 삭제 후 재생성하는 것이 좋습니다.
@@ -354,7 +354,7 @@ sites:
 Homestead는 `mDNS`를 이용해 자동으로 호스트네임을 게시합니다. 만약 `Homestead.yaml`에 `hostname: homestead`를 지정하면, `homestead.local`에서 접근할 수 있습니다. macOS, iOS, 대부분의 Linux 데스크톱 배포판에는 기본적으로 `mDNS`가 지원됩니다. Windows 사용자는 [Bonjour Print Services for Windows](https://support.apple.com/kb/DL999?viewlocale=en_US&locale=en_US)를 설치해야 합니다.
 
 <!-- Using automatic hostnames works best for [per project installations](#per-project-installation) of Homestead. If you host multiple sites on a single Homestead instance, you may add the "domains" for your web sites to the `hosts` file on your machine. The `hosts` file will redirect requests for your Homestead sites into your Homestead virtual machine. On macOS and Linux, this file is located at `/etc/hosts`. On Windows, it is located at `C:\Windows\System32\drivers\etc\hosts`. The lines you add to this file will look like the following: -->
-자동 호스트네임 기능은 [per project installations](#per-project-installation)에 가장 적합합니다. 여러 사이트를 하나의 Homestead 인스턴스 내에 호스팅할 경우, 각 사이트의 도메인 이름을 운영 체제의 `hosts` 파일에 직접 추가해야 합니다. 이 `hosts` 파일은 Homestead 사이트로 향하는 요청을 Homestead 가상 머신으로 리다이렉트합니다. 이 파일은 macOS 및 Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts` 경로에 있습니다. 다음과 같이 추가하면 됩니다.
+자동 호스트네임 기능은 [per project installations](#per-project-installation)에 가장 적합합니다. 여러 사이트를 하나의 Homestead 인스턴스 내에 호스팅할 경우, 각 사이트의 도메인 이름을 운영 체제의 `hosts` 파일에 직접 추가할 수 있습니다. 이 `hosts` 파일은 Homestead 사이트로 향하는 요청을 Homestead 가상 머신으로 리다이렉트합니다. 이 파일은 macOS 및 Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts` 경로에 있습니다. 다음과 같이 추가하면 됩니다.
 
 ```
 192.168.56.56  homestead.test
@@ -476,7 +476,7 @@ features:
 #### Elasticsearch
 
 <!-- You may specify a supported version of Elasticsearch, which must be an exact version number (major.minor.patch). The default installation will create a cluster named 'homestead'. You should never give Elasticsearch more than half of the operating system's memory, so make sure your Homestead virtual machine has at least twice the Elasticsearch allocation. -->
-지원되는 버전의 Elasticsearch를 명확히 지정할 수 있으며, 반드시 정확한 버전 번호(major.minor.patch)여야 합니다. 기본적으로 'homestead'라는 이름의 클러스터가 생성됩니다. Elasticsearch에 운영체제 메모리의 절반 이상을 할당하면 안 되므로, Homestead 가상 머신의 메모리를 Elasticsearch 할당량의 두 배 이상으로 설정해야 합니다.
+지원되는 버전의 Elasticsearch를 명확히 지정할 수 있으며, 반드시 정확한 버전 번호(major.minor.patch)여야 합니다. 기본적으로 'homestead'라는 이름의 클러스터가 생성됩니다. Elasticsearch에 운영체제 메모리의 절반을 초과하여 할당하면 안 되므로, Homestead 가상 머신의 메모리를 Elasticsearch 할당량의 두 배 이상으로 설정해야 합니다.
 
 > [!NOTE]
 > [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current)를 참고하여 설정을 자유롭게 커스터마이징할 수 있습니다.
@@ -599,10 +599,10 @@ sites:
 ```
 
 > [!WARNING]
-> 해당 프로젝트 폴더가 [folder mapping](#configuring-shared-folders)되어 있는지 꼭 확인하세요.
+> 사이트를 추가하기 전에 해당 프로젝트 폴더가 [folder mapping](#configuring-shared-folders)되어 있는지 꼭 확인하세요.
 
 <!-- If Vagrant is not automatically managing your "hosts" file, you may need to add the new site to that file as well. On macOS and Linux, this file is located at `/etc/hosts`. On Windows, it is located at `C:\Windows\System32\drivers\etc\hosts`: -->
-Vagrant가 자동으로 "hosts" 파일을 관리하지 않는 경우, 새 사이트를 직접 등록해야 합니다. macOS, Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts` 경로를 사용합니다.
+Vagrant가 자동으로 "hosts" 파일을 관리하지 않는 경우, 새 사이트를 직접 등록해야 할 수 있습니다. macOS, Linux에서는 `/etc/hosts`, Windows에서는 `C:\Windows\System32\drivers\etc\hosts` 경로를 사용합니다.
 
 ```
 192.168.56.56  homestead.test
@@ -948,7 +948,7 @@ Homestead에는 [Xdebug](https://xdebug.org)를 통한 단계별(스텝) 디버�
 기본적으로 Xdebug는 이미 실행 중이며, 연결을 기다리고 있습니다. CLI(명령줄)에서 Xdebug를 활성화하려면 Homestead 가상 머신 안에서 `sudo phpenmod xdebug` 명령을 실행하면 됩니다. 이후에는 사용하는 IDE 설명서에 따라 디버깅을 사용하면 됩니다. 마지막으로, 브라우저에서 Xdebug를 활성화하려면 브라우저 확장 프로그램이나 [bookmarklet](https://www.jetbrains.com/phpstorm/marklets/)을 사용할 수도 있습니다.
 
 > [!WARNING]
-> Xdebug가 활성화되면 PHP의 실행 속도가 매우 느려질 수 있습니다. 비활성화하려면 Homestead 가상 머신에서 `sudo phpdismod xdebug`를 실행하고 FPM 서비스를 재시작하면 됩니다.
+> Xdebug가 활성화되면 PHP의 실행 속도가 매우 느려집니다. 비활성화하려면 Homestead 가상 머신에서 `sudo phpdismod xdebug`를 실행하고 FPM 서비스를 재시작하면 됩니다.
 
 <a name="autostarting-xdebug"></a>
 <!-- #### Autostarting Xdebug -->
@@ -979,7 +979,7 @@ PHP CLI 애플리케이션을 디버깅하려면, Homestead 가상 머신 안에
 ### Profiling Applications With Blackfire
 
 <!-- [Blackfire](https://blackfire.io/docs/introduction) is a service for profiling web requests and CLI applications. It offers an interactive user interface which displays profile data in call-graphs and timelines. It is built for use in development, staging, and production, with no overhead for end users. In addition, Blackfire provides performance, quality, and security checks on code and `php.ini` configuration settings. -->
-[Blackfire](https://blackfire.io/docs/introduction)는 웹 요청과 CLI 애플리케이션의 성능을 분석(프로파일링)할 수 있는 서비스입니다. 인터랙티브한 UI에서 호출 그래프, 실행 타임라인 등 다양한 프로파일 데이터를 확인할 수 있으며, 개발·테스트·운영 환경 모두에서 사용할 수 있습니다. 또한 Blackfire는 코드와 `php.ini` 설정에 대한 성능, 품질, 보안 체크도 제공합니다.
+[Blackfire](https://blackfire.io/docs/introduction)는 웹 요청과 CLI 애플리케이션의 성능을 분석(프로파일링)할 수 있는 서비스입니다. 인터랙티브한 UI에서 호출 그래프, 실행 타임라인 등 다양한 프로파일 데이터를 확인할 수 있으며, 개발·스테이징·운영 환경 모두에서 사용할 수 있으며, 최종 사용자에게는 오버헤드가 없습니다. 또한 Blackfire는 코드와 `php.ini` 설정에 대한 성능, 품질, 보안 체크도 제공합니다.
 
 <!-- The [Blackfire Player](https://blackfire.io/docs/player/index) is an open-source Web Crawling, Web Testing, and Web Scraping application which can work jointly with Blackfire in order to script profiling scenarios. -->
 [Blackfire Player](https://blackfire.io/docs/player/index)는 오픈소스 웹 크롤링, 웹 테스트, 웹 스크래핑 도구로 Blackfire와 연계해 프로파일링 시나리오를 스크립트로 자동화할 수 있습니다.

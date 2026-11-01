@@ -6,6 +6,7 @@
     - [Pooled PostgreSQL Connections](#pooled-postgresql-connections)
 - [Running SQL Queries](#running-queries)
     - [Using Multiple Database Connections](#using-multiple-database-connections)
+    - [Running Analytical Queries on Vitess](#running-analytical-queries-on-vitess)
     - [Listening for Query Events](#listening-for-query-events)
     - [Monitoring Cumulative Query Time](#monitoring-cumulative-query-time)
 - [Database Transactions](#database-transactions)
@@ -129,6 +130,47 @@ You only need to place items in the `read` and `write` arrays if you wish to ove
 #### The `sticky` Option
 
 The `sticky` option is an *optional* value that can be used to allow the immediate reading of records that have been written to the database during the current request cycle. If the `sticky` option is enabled and a "write" operation has been performed against the database during the current request cycle, any further "read" operations will use the "write" connection. This ensures that any data written during the request cycle can be immediately read back from the database during that same request. It is up to you to decide if this is the desired behavior for your application.
+
+<a name="preventing-stale-database-reads"></a>
+#### Preventing Stale Database Reads
+
+While the `sticky` option only affects the current request, the `Illuminate\Foundation\Http\Middleware\PreventStaleDatabaseReads` middleware allows subsequent requests in the same session to read recently written data from the write connection. This can help prevent users from seeing stale data while your read replicas catch up with the write database.
+
+To enable this behavior, append the middleware to the `web` middleware group in your application's `bootstrap/app.php` file:
+
+```php
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\PreventStaleDatabaseReads;
+
+->withMiddleware(function (Middleware $middleware): void {
+    $middleware->web(append: [
+        PreventStaleDatabaseReads::class,
+    ]);
+})
+```
+
+The middleware tracks writes to the default database connection in the user's session. By default, requests within two seconds of a write will use the write connection for reads on that connection. You may customize this duration using the middleware's `for` method:
+
+```php
+$middleware->web(append: [
+    PreventStaleDatabaseReads::for(5),
+]);
+```
+
+Since this middleware relies on the session, it must run after the `Illuminate\Session\Middleware\StartSession` middleware. It does not affect reads made by other sessions or on other database connections.
+
+<a name="using-the-write-connection-for-reads"></a>
+#### Using the Write Connection for Reads
+
+If you need to ensure that all reads on a connection use the write database while executing a callback, you may use the connection's `usingWritePdo` method:
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$users = DB::connection()->usingWritePdo(fn ($connection) => $connection->table('users')->get());
+```
+
+This also applies to Eloquent queries and relationship queries executed within the callback using the same connection. The method returns the callback's result and restores the connection's previous read preference when the callback finishes, even if an exception is thrown.
 
 <a name="pooled-postgresql-connections"></a>
 ### Pooled PostgreSQL Connections
@@ -326,6 +368,29 @@ You may access the raw, underlying PDO instance of a connection using the `getPd
 
 ```php
 $pdo = DB::connection()->getPdo();
+```
+
+<a name="running-analytical-queries-on-vitess"></a>
+### Running Analytical Queries on Vitess
+
+When using a Vitess database, such as PlanetScale, you may use the `olap` method to execute analytical queries using the OLAP workload:
+
+```php
+use Illuminate\Support\Facades\DB;
+
+$totals = DB::connection('mysql')->olap(fn ($connection) => $connection->table('orders')
+    ->selectRaw('customer_id, sum(total) as total')
+    ->groupBy('customer_id')
+    ->get()
+);
+```
+
+Laravel sets the workload on both the read and write connections, then resets it to OLTP when the callback finishes, even if an exception is thrown. The `olap` method returns the callback's result. On MySQL connections that are not using Vitess, the callback is executed without changing the workload.
+
+You may determine whether a MySQL connection is using Vitess via the `isVitess` method:
+
+```php
+$isVitess = DB::connection('mysql')->isVitess();
 ```
 
 <a name="listening-for-query-events"></a>

@@ -337,7 +337,7 @@ Route::post('/user/profile', function () {
 #### Redirecting With Input
 
 <!-- You may use the `withInput` method provided by the `RedirectResponse` instance to flash the current request's input data to the session before redirecting the user to a new location. This is typically done if the user has encountered a validation error. Once the input has been flashed to the session, you may easily [retrieve it](/docs/10.x/requests#retrieving-old-input) during the next request to repopulate the form: -->
-사용자가 입력한 값을 새로운 위치로 리다이렉트할 때 플래시로 세션에 전달하고 싶다면, `RedirectResponse` 인스턴스의 `withInput` 메서드를 사용할 수 있습니다. 이 방식은 보통 유효성 검증에서 에러가 발생했을 때 입력값을 다시 채워줄 때 사용합니다. 입력값이 세션에 플래시된 뒤에는, 다음 요청에서 쉽게 [retrieve it](/docs/10.x/requests#retrieving-old-input) 폼을 자동으로 채워줄 수 있습니다.
+사용자를 새로운 위치로 리다이렉트하기 전에 현재 요청의 입력값을 세션에 플래시하고 싶다면, `RedirectResponse` 인스턴스의 `withInput` 메서드를 사용할 수 있습니다. 이 방식은 보통 유효성 검증에서 에러가 발생했을 때 입력값을 다시 채워줄 때 사용합니다. 입력값이 세션에 플래시된 뒤에는, 다음 요청에서 쉽게 가져와([retrieve it](/docs/10.x/requests#retrieving-old-input)) 폼을 다시 채워줄 수 있습니다.
 
 ```
 return back()->withInput();

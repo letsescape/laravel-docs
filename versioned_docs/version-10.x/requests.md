@@ -473,7 +473,7 @@ $elapsed = $request->date('elapsed', '!H:i', 'Europe/Madrid');
 #### Retrieving Enum Input Values
 
 <!-- Input values that correspond to [PHP enums](https://www.php.net/manual/en/language.types.enumerations.php) may also be retrieved from the request. If the request does not contain an input value with the given name or the enum does not have a backing value that matches the input value, `null` will be returned. The `enum` method accepts the name of the input value and the enum class as its first and second arguments: -->
-[PHP enums](https://www.php.net/manual/en/language.types.enumerations.php)과 연결되는 입력값도 요청에서 받아올 수 있습니다. 해당 이름의 입력값이 없거나 enum의 값과 일치하는 백킹 값이 없다면 `null`이 반환됩니다. `enum` 메서드는 입력값의 이름과 enum 클래스를 첫 번째, 두 번째 인자로 받습니다.
+[PHP enums](https://www.php.net/manual/en/language.types.enumerations.php)과 연결되는 입력값도 요청에서 받아올 수 있습니다. 해당 이름의 입력값이 없거나 enum에 입력값과 일치하는 백킹 값이 없다면 `null`이 반환됩니다. `enum` 메서드는 입력값의 이름과 enum 클래스를 첫 번째, 두 번째 인자로 받습니다.
 
 ```
 use App\Enums\Status;

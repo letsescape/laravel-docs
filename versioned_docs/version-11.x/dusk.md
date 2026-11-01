@@ -107,7 +107,7 @@ php artisan dusk:chrome-driver --detect
 ```
 
 > [!WARNING]
-> Dusk를 사용하려면 `chromedriver` 바이너리에 실행 권한이 필요합니다. Dusk 실행에 문제가 있다면 아래 명령어로 실행 권한이 올바른지 확인하세요: `chmod -R 0755 vendor/laravel/dusk/bin/`.
+> Dusk를 사용하려면 `chromedriver` 바이너리에 실행 권한이 필요합니다. Dusk 실행에 문제가 있다면 아래 명령어로 실행 권한을 부여하세요: `chmod -R 0755 vendor/laravel/dusk/bin/`.
 
 <a name="using-other-browsers"></a>
 <!-- ### Using Other Browsers -->
@@ -904,7 +904,7 @@ $browser->radio('size', 'large');
 ### Attaching Files
 
 <!-- The `attach` method may be used to attach a file to a `file` input element. Like many other input related methods, a full CSS selector is not required. If a CSS selector match can't be found, Dusk will search for a `file` input with a matching `name` attribute: -->
-`attach` 메서드를 사용하면 `file` input 요소에 파일을 첨부할 수 있습니다. 역시, 전체 CSS 셀렉터 없이 `name` 속성이 일치하는 `file` 입력을 자동으로 찾습니다.
+`attach` 메서드를 사용하면 `file` input 요소에 파일을 첨부할 수 있습니다. 역시, 전체 CSS 셀렉터는 필수가 아닙니다. CSS 셀렉터와 일치하는 항목을 찾을 수 없으면 `name` 속성이 일치하는 `file` 입력을 자동으로 찾습니다.
 
 ```
 $browser->attach('photo', __DIR__.'/photos/mountains.png');
@@ -977,7 +977,7 @@ $browser->keys('.app', ['{command}', 'j']);
 ```
 
 > [!NOTE]
-> `{command}`와 같은 modifier 키는 모두 `{}`로 감싸며, 이는 `Facebook\WebDriver\WebDriverKeys` 클래스에 정의된 상수와 일치합니다. 해당 상수 목록은 [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php).
+> `{command}`와 같은 modifier 키는 모두 `{}`로 감싸며, 이는 `Facebook\WebDriver\WebDriverKeys` 클래스에 정의된 상수와 일치합니다. 해당 상수 목록은 [found on GitHub](https://github.com/php-webdriver/php-webdriver/blob/master/lib/WebDriverKeys.php)에서 확인할 수 있습니다.
 
 <a name="fluent-keyboard-interactions"></a>
 <!-- #### Fluent Keyboard Interactions -->
@@ -1073,7 +1073,7 @@ $browser->clickAtXPath('//div[@class = "selector"]');
 ```
 
 <!-- The `clickAtPoint` method may be used to click on the topmost element at a given pair of coordinates relative to the viewable area of the browser: -->
-`clickAtPoint` 메서드는 브라우저에서 보이는 영역 내의 지정한 좌표(픽셀 위치)에 가장 가까운 요소를 클릭합니다.
+`clickAtPoint` 메서드는 브라우저에서 보이는 영역을 기준으로 지정한 좌표(픽셀 위치)에 있는 최상단 요소를 클릭합니다.
 
 ```
 $browser->clickAtPoint($x = 0, $y = 0);
@@ -1150,7 +1150,7 @@ $browser->dragDown('.selector', $pixels = 10);
 ```
 
 <!-- Finally, you may drag an element by a given offset: -->
-마지막으로, 지정한 만큼 좌표(오프셋)만큼 요소를 드래그할 수도 있습니다.
+마지막으로, 지정한 오프셋만큼 요소를 드래그할 수도 있습니다.
 
 ```
 $browser->dragOffset('.selector', $x = 10, $y = 10);
@@ -1270,7 +1270,7 @@ $browser->pauseIf(App::environment('production'), 1000);
 ```
 
 <!-- Likewise, if you need to pause the test unless a given condition is `true`, you may use the `pauseUnless` method: -->
-반대로, 특정 조건이 `true`가 아니라면 대기하려면 `pauseUnless` 메서드를 사용할 수 있습니다.
+반대로, 특정 조건이 `true`가 아닐 때 대기하려면 `pauseUnless` 메서드를 사용할 수 있습니다.
 
 ```
 $browser->pauseUnless(App::environment('testing'), 1000);
@@ -1281,7 +1281,7 @@ $browser->pauseUnless(App::environment('testing'), 1000);
 #### Waiting for Selectors
 
 <!-- The `waitFor` method may be used to pause the execution of the test until the element matching the given CSS or Dusk selector is displayed on the page. By default, this will pause the test for a maximum of five seconds before throwing an exception. If necessary, you may pass a custom timeout threshold as the second argument to the method: -->
-`waitFor` 메서드는 주어진 CSS 또는 Dusk 셀렉터가 페이지에 표시될 때까지 테스트 실행을 멈춥니다. 기본적으로 최대 5초 동안 대기하며, 그 후에도 나타나지 않으면 예외가 발생합니다. 필요하다면 두 번째 인자로 타임아웃(초)를 지정할 수 있습니다.
+`waitFor` 메서드는 주어진 CSS 또는 Dusk 셀렉터와 일치하는 요소가 페이지에 표시될 때까지 테스트 실행을 멈춥니다. 기본적으로 최대 5초 동안 대기하며, 그 후에도 나타나지 않으면 예외가 발생합니다. 필요하다면 두 번째 인자로 타임아웃(초)를 지정할 수 있습니다.
 
 ```
 // Wait a maximum of five seconds for the selector...
@@ -1524,7 +1524,7 @@ $browser->waitForEvent('resize', 'window', 5);
 #### Waiting With a Callback
 
 <!-- Many of the "wait" methods in Dusk rely on the underlying `waitUsing` method. You may use this method directly to wait for a given closure to return `true`. The `waitUsing` method accepts the maximum number of seconds to wait, the interval at which the closure should be evaluated, the closure, and an optional failure message: -->
-Dusk의 다양한 "wait" 계열 메서드는 내부적으로 `waitUsing` 메서드를 사용합니다. 이 메서드를 직접 활용하여, 특정 클로저가 `true`를 반환할 때까지 기다릴 수 있습니다. `waitUsing`에는 대기할 최대 초, 클로저 평가 간격(초), 클로저, 그리고 실패 시 표시할 메시지를 전달합니다.
+Dusk의 다양한 "wait" 계열 메서드는 내부적으로 `waitUsing` 메서드를 사용합니다. 이 메서드를 직접 활용하여, 특정 클로저가 `true`를 반환할 때까지 기다릴 수 있습니다. `waitUsing`에는 대기할 최대 초, 클로저 평가 간격, 클로저, 그리고 선택적으로 실패 시 표시할 메시지를 전달합니다.
 
 ```
 $browser->waitUsing(10, 1, function () use ($something) {
@@ -2236,7 +2236,7 @@ $browser->assertNotSelected($field, $value);
 #### assertSelectHasOptions
 
 <!-- Assert that the given array of values are available to be selected: -->
-지정한 값 배열이 선택 가능 옵션으로 존재하는지 확인합니다.
+지정한 배열의 값들이 선택 가능 옵션으로 존재하는지 확인합니다.
 
 ```
 $browser->assertSelectHasOptions($field, $values);
@@ -2247,7 +2247,7 @@ $browser->assertSelectHasOptions($field, $values);
 #### assertSelectMissingOptions
 
 <!-- Assert that the given array of values are not available to be selected: -->
-지정한 값 배열이 선택 가능 옵션으로 존재하지 않는지 확인합니다.
+지정한 배열의 값들이 선택 가능 옵션으로 존재하지 않는지 확인합니다.
 
 ```
 $browser->assertSelectMissingOptions($field, $values);
@@ -2621,7 +2621,7 @@ $browser->assertVueIsNot($property, $value, $componentSelector = null);
 #### assertVueContains
 
 <!-- Assert that a given Vue component data property is an array and contains the given value: -->
-지정한 Vue 컴포넌트 데이터 속성이 배열일 때, 해당 배열에 특정 값이 포함되어 있는지 확인합니다.
+지정한 Vue 컴포넌트 데이터 속성이 배열이며, 해당 배열에 특정 값이 포함되어 있는지 확인합니다.
 
 ```
 $browser->assertVueContains($property, $value, $componentSelector = null);
@@ -2632,7 +2632,7 @@ $browser->assertVueContains($property, $value, $componentSelector = null);
 #### assertVueDoesntContain
 
 <!-- Assert that a given Vue component data property is an array and does not contain the given value: -->
-지정한 Vue 컴포넌트 데이터 속성이 배열일 때, 해당 배열에 특정 값이 포함되어 있지 않은지 확인합니다.
+지정한 Vue 컴포넌트 데이터 속성이 배열이며, 해당 배열에 특정 값이 포함되어 있지 않은지 확인합니다.
 
 ```
 $browser->assertVueDoesntContain($property, $value, $componentSelector = null);
@@ -2661,7 +2661,7 @@ php artisan dusk:page Login
 ### Configuring Pages
 
 <!-- By default, pages have three methods: `url`, `assert`, and `elements`. We will discuss the `url` and `assert` methods now. The `elements` method will be [discussed in more detail below](#shorthand-selectors). -->
-기본적으로, 각 페이지는 `url`, `assert`, `elements`라는 세 가지 메서드를 가집니다. 여기에서는 `url`과 `assert` 메서드를 먼저 살펴보고, `elements` 메서드는 [discussed in more detail below](#shorthand-selectors).
+기본적으로, 각 페이지는 `url`, `assert`, `elements`라는 세 가지 메서드를 가집니다. 여기에서는 `url`과 `assert` 메서드를 먼저 살펴보고, `elements` 메서드는 [discussed in more detail below](#shorthand-selectors)에서 자세히 설명합니다.
 
 <a name="the-url-method"></a>
 <!-- #### The `url` Method -->
@@ -2727,7 +2727,7 @@ $browser->visit('/dashboard')
 ### Shorthand Selectors
 
 <!-- The `elements` method within page classes allows you to define quick, easy-to-remember shortcuts for any CSS selector on your page. For example, let's define a shortcut for the "email" input field of the application's login page: -->
-페이지 클래스의 `elements` 메서드를 사용하면, 페이지 내에서 자주 사용하는 CSS 선택자에 대해 빠르고 기억하기 쉬운 단축키(별칭)를 정의할 수 있습니다. 예를 들어, 로그인 페이지의 "이메일" 입력 필드에 대한 단축키를 다음과 같이 정의할 수 있습니다.
+페이지 클래스의 `elements` 메서드를 사용하면, 페이지 내에서 자주 사용하는 CSS 선택자에 대해 빠르고 기억하기 쉬운 단축 이름(별칭)을 정의할 수 있습니다. 예를 들어, 로그인 페이지의 "이메일" 입력 필드에 대한 단축 이름을 다음과 같이 정의할 수 있습니다.
 
 ```
 /**
@@ -2744,7 +2744,7 @@ public function elements(): array
 ```
 
 <!-- Once the shortcut has been defined, you may use the shorthand selector anywhere you would typically use a full CSS selector: -->
-단축키가 정의된 후에는, 평소 전체 CSS 선택자를 사용하는 곳 어디에서든 이 단축 선택자를 사용할 수 있습니다.
+단축 이름이 정의된 후에는, 평소 전체 CSS 선택자를 사용하는 곳 어디에서든 이 단축 선택자를 사용할 수 있습니다.
 
 ```
 $browser->type('@email', 'taylor@laravel.com');

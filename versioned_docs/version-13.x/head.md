@@ -69,7 +69,7 @@ Head::title($post->title)
 ```
 
 <!-- Render the resolved tags in your layout: -->
-레이아웃에 확인된 태그를 렌더링합니다:
+레이아웃에 결정된 태그를 렌더링합니다:
 
 ```blade
 <head>
@@ -82,7 +82,7 @@ Head::title($post->title)
 ## Resolution Precedence
 
 <!-- Page metadata resolves from five layers, listed from lowest to highest priority: -->
-페이지 메타데이터는 우선순위가 낮은 계층부터 높은 계층 순으로 나열된 다음 다섯 계층에서 확인됩니다:
+페이지 메타데이터는 우선순위가 낮은 계층부터 높은 계층 순으로 나열된 다음 다섯 계층을 바탕으로 결정됩니다:
 
 <!-- 1. Page defaults 2. Route group metadata 3. Route metadata 4. Runtime metadata 5. Error metadata -->
 1. 페이지 기본값
@@ -92,7 +92,7 @@ Head::title($post->title)
 5. 오류 메타데이터
 
 <!-- Higher layers replace lower layers field by field. For example, a runtime title replaces the route title without replacing the route description. The sections that follow describe how to set metadata at each layer. For information about rendering the resolved metadata in Blade, Livewire, and Inertia, see [Rendering](#rendering). -->
-상위 레이어는 필드별로 하위 레이어를 대체합니다. 예를 들어 런타임 제목은 라우트 설명을 대체하지 않고 라우트 제목을 대체합니다. 이어지는 섹션에서는 각 레이어에서 메타데이터를 설정하는 방법을 설명합니다. Blade, Livewire, Inertia에서 확인된 메타데이터를 렌더링하는 방법은 [Rendering](#rendering)을 참고하세요.
+상위 레이어는 필드별로 하위 레이어를 대체합니다. 예를 들어 런타임 제목은 라우트 설명을 대체하지 않고 라우트 제목을 대체합니다. 이어지는 섹션에서는 각 레이어에서 메타데이터를 설정하는 방법을 설명합니다. Blade, Livewire, Inertia에서 결정된 메타데이터를 렌더링하는 방법은 [Rendering](#rendering)을 참고하세요.
 
 <a name="defining-metadata"></a>
 <!-- ## Defining Metadata -->
@@ -276,7 +276,7 @@ Head::ogImage('/images/cover.jpg', alt: 'Draft cover')
 기본 설정에서 상속된 Open Graph 미디어는 대체 수단으로 사용됩니다. 라우트, 런타임 또는 오류 메타데이터가 동일한 타입의 미디어를 자체적으로 정의하면 기본 미디어는 병합되지 않고 대체되므로, 페이지의 `og:image`가 사이트 전체의 기본 이미지보다 우선합니다.
 
 <!-- You may fluently define conditional metadata using the `when` and `unless` methods: -->
-`when` 및 `unless` 메서드를 사용하면 조건부 메타데이터를 유창하게 정의할 수 있습니다:
+`when` 및 `unless` 메서드를 연결하여 조건부 메타데이터를 정의할 수 있습니다:
 
 ```php
 Head::title($post->title)
@@ -730,7 +730,7 @@ Head::schema(
 Laravel Head는 현재 응답의 페이지 메타데이터를 태그로 변환합니다. 이러한 태그가 렌더링되는 방식은 애플리케이션 스택에 따라 달라집니다.
 
 <!-- The HTML renderer powers the `@head` directive and the rendered elements that Laravel Head shares with Inertia via the `head` prop. The array renderer powers `Head::toArray()` for applications that need the resolved metadata as structured data. -->
-HTML 렌더러는 `@head` 디렉티브와 Laravel Head가 `head` prop을 통해 Inertia와 공유하는 렌더링된 요소를 처리합니다. 배열 렌더러는 확인된 메타데이터를 구조화된 데이터로 사용해야 하는 애플리케이션을 위해 `Head::toArray()`를 처리합니다.
+HTML 렌더러는 `@head` 디렉티브와 Laravel Head가 `head` prop을 통해 Inertia와 공유하는 렌더링된 요소를 처리합니다. 배열 렌더러는 결정된 메타데이터를 구조화된 데이터로 사용해야 하는 애플리케이션을 위해 `Head::toArray()`를 처리합니다.
 
 <a name="blade"></a>
 <!-- ### Blade -->
@@ -769,7 +769,7 @@ Livewire 애플리케이션은 문서 레이아웃에서 동일한 `@head` 디�
 ```
 
 <!-- No Livewire-specific configuration is required. Laravel Head metadata is resolved per request, and the resolver is request-scoped. Therefore, each `wire:navigate` visit fetches a fresh document whose `@head` output reflects the destination route's metadata. Pages visited using `wire:navigate` receive the appropriate route, runtime, and error metadata without requiring component-level head code. -->
-Livewire 전용 설정은 필요하지 않습니다. Laravel Head 메타데이터는 요청마다 확인되며, resolver는 요청 범위로 동작합니다. 따라서 각 `wire:navigate` 방문은 대상 라우트의 메타데이터가 반영된 `@head` 출력을 포함하는 새로운 문서를 가져옵니다. `wire:navigate`를 사용해 방문한 페이지는 컴포넌트 수준의 head 코드 없이 적절한 라우트, 런타임 및 오류 메타데이터를 받습니다.
+Livewire 전용 설정은 필요하지 않습니다. Laravel Head 메타데이터는 요청마다 결정되며, resolver는 요청 범위로 동작합니다. 따라서 각 `wire:navigate` 방문은 대상 라우트의 메타데이터가 반영된 `@head` 출력을 포함하는 새로운 문서를 가져옵니다. `wire:navigate`를 사용해 방문한 페이지는 컴포넌트 수준의 head 코드 없이 적절한 라우트, 런타임 및 오류 메타데이터를 받습니다.
 
 <a name="inertia"></a>
 <!-- ### Inertia -->
@@ -847,7 +847,7 @@ public function boot(): void
 #### Static Inertia Tags
 
 <!-- Most tags should live in defaults, route metadata, or runtime metadata so Laravel Head can resolve the right value for each page. Use Inertia globals only for document tags rendered in the first HTML response and left unchanged by Inertia for the rest of the session. -->
-대부분의 태그는 기본값, 라우트 메타데이터 또는 런타임 메타데이터에 정의해야 Laravel Head가 각 페이지에 맞는 값을 확인할 수 있습니다. Inertia 전역 변수는 첫 번째 HTML 응답에서 렌더링되고 나머지 세션 동안 Inertia가 변경하지 않는 문서 태그에만 사용하세요.
+대부분의 태그는 기본값, 라우트 메타데이터 또는 런타임 메타데이터에 정의해야 Laravel Head가 각 페이지에 맞는 값을 결정할 수 있습니다. Inertia 전역 태그는 첫 번째 HTML 응답에서 렌더링되고 나머지 세션 동안 Inertia가 변경하지 않는 문서 태그에만 사용하세요.
 
 <!-- Register them in a service provider with `Head::inertiaGlobals()`: -->
 서비스 프로바이더에서 `Head::inertiaGlobals()`를 사용해 등록합니다:
@@ -870,4 +870,4 @@ Head::inertiaGlobals(function (HeadBuilder $head) {
 Inertia 전역은 `head` prop에서 제외되고 `data-inertia` 소유권 속성 없이 렌더링되며 첫 번째 응답 이후에는 업데이트되지 않습니다. 이러한 전역은 뷰포트, 색 구성표, 파비콘, 터치 아이콘, 매니페스트처럼 안정적인 브라우저 힌트에 적합합니다. 태그가 페이지별로 다르거나 SEO와 관련이 있거나 나중에 재정의될 수 있다면 대신 `defaults`, 라우트 메타데이터 또는 런타임 메타데이터에 지정하세요.
 
 <!-- Applications that need the resolved metadata as structured data instead of rendered tags may call `Head::toArray()`. The returned data includes titles, Open Graph values, JSON-LD schemas, and other resolved metadata. -->
-렌더링된 태그 대신 확인된 메타데이터를 구조화된 데이터로 사용해야 하는 애플리케이션은 `Head::toArray()`를 호출할 수 있습니다. 반환되는 데이터에는 제목, Open Graph 값, JSON-LD 스키마 및 기타 확인된 메타데이터가 포함됩니다.
+렌더링된 태그 대신 결정된 메타데이터를 구조화된 데이터로 사용해야 하는 애플리케이션은 `Head::toArray()`를 호출할 수 있습니다. 반환되는 데이터에는 제목, Open Graph 값, JSON-LD 스키마 및 기타 결정된 메타데이터가 포함됩니다.

@@ -170,7 +170,7 @@ Route::get('/profile', function () {
 기본 제공되는 이메일 인증 알림은 대부분의 애플리케이션에 충분하지만, 이메일 메시지의 내용을 커스터마이즈할 수도 있습니다.
 
 <!-- To get started, pass a closure to the `toMailUsing` method provided by the `Illuminate\Auth\Notifications\VerifyEmail` notification. The closure will receive the notifiable model instance that is receiving the notification as well as the signed email verification URL that the user must visit to verify their email address. The closure should return an instance of `Illuminate\Notifications\Messages\MailMessage`. Typically, you should call the `toMailUsing` method from the `boot` method of your application's `App\Providers\AuthServiceProvider` class: -->
-먼저, `Illuminate\Auth\Notifications\VerifyEmail` 알림 클래스에서 제공하는 `toMailUsing` 메서드에 클로저(익명 함수)를 전달하면 됩니다. 이 클로저는 알림을 받을 대상 모델 인스턴스와, 사용자가 인증해야 할 서명된 이메일 인증 URL을 인자로 받습니다. 그리고 이 함수는 `Illuminate\Notifications\Messages\MailMessage` 인스턴스를 반환해야 합니다. 일반적으로, 이 코드는 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `toMailUsing` 메서드를 호출하는 방식으로 작성하는 것이 좋습니다:
+먼저, `Illuminate\Auth\Notifications\VerifyEmail` 알림 클래스에서 제공하는 `toMailUsing` 메서드에 클로저(익명 함수)를 전달하면 됩니다. 이 클로저는 알림을 받을 대상 모델 인스턴스와, 사용자가 이메일 주소를 인증하기 위해 방문해야 할 서명된 이메일 인증 URL을 인자로 받습니다. 그리고 이 함수는 `Illuminate\Notifications\Messages\MailMessage` 인스턴스를 반환해야 합니다. 일반적으로, 이 코드는 애플리케이션의 `App\Providers\AuthServiceProvider` 클래스의 `boot` 메서드에서 `toMailUsing` 메서드를 호출하는 방식으로 작성하는 것이 좋습니다:
 
 ```
 use Illuminate\Auth\Notifications\VerifyEmail;

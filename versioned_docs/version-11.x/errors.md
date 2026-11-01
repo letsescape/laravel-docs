@@ -498,7 +498,7 @@ use Throwable;
 ## HTTP Exceptions
 
 <!-- Some exceptions describe HTTP error codes from the server. For example, this may be a "page not found" error (404), an "unauthorized error" (401), or even a developer generated 500 error. In order to generate such a response from anywhere in your application, you may use the `abort` helper: -->
-일부 예외는 서버에서 HTTP 에러 코드를 나타냅니다. 예를 들어, "페이지를 찾을 수 없음"(404), "권한 없음"(401), 또는 개발자가 의도적으로 발생시키는 500 에러 등이 있습니다. 이러한 응답을 코드의 어느 위치에서든 만들고 싶다면 `abort` 헬퍼를 사용할 수 있습니다.
+일부 예외는 서버에서 HTTP 에러 코드를 나타냅니다. 예를 들어, "페이지를 찾을 수 없음"(404), "인증되지 않음"(401), 또는 개발자가 의도적으로 발생시키는 500 에러 등이 있습니다. 이러한 응답을 코드의 어느 위치에서든 만들고 싶다면 `abort` 헬퍼를 사용할 수 있습니다.
 
 ```
 abort(404);

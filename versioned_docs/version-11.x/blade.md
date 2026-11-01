@@ -70,7 +70,7 @@ Route::get('/', function () {
 ### Supercharging Blade With Livewire
 
 <!-- Want to take your Blade templates to the next level and build dynamic interfaces with ease? Check out [Laravel Livewire](https://livewire.laravel.com). Livewire allows you to write Blade components that are augmented with dynamic functionality that would typically only be possible via frontend frameworks like React or Vue, providing a great approach to building modern, reactive frontends without the complexities, client-side rendering, or build steps of many JavaScript frameworks. -->
-블레이드 템플릿을 한 단계 더 발전시키고 동적인 인터페이스를 손쉽게 만들어보고 싶으신가요? [Laravel Livewire](https://livewire.laravel.com)를 참고해보세요. Livewire를 사용하면 일반적으로 프론트엔드 프레임워크(React, Vue 등)에서만 가능했던 동적 기능이 값에 의해 보강된 Blade 컴포넌트를 작성할 수 있습니다. 이를 통해 별도의 복잡한 자바스크립트 프레임워크의 클라이언트 렌더링이나 빌드 과정 없이도 현대적인 반응형 프론트엔드를 훨씬 수월하게 구현할 수 있습니다.
+블레이드 템플릿을 한 단계 더 발전시키고 동적인 인터페이스를 손쉽게 만들어보고 싶으신가요? [Laravel Livewire](https://livewire.laravel.com)를 참고해보세요. Livewire를 사용하면 일반적으로 프론트엔드 프레임워크(React, Vue 등)에서만 가능했던 동적 기능이 추가된 Blade 컴포넌트를 작성할 수 있습니다. 이를 통해 별도의 복잡한 자바스크립트 프레임워크의 클라이언트 렌더링이나 빌드 과정 없이도 현대적인 반응형 프론트엔드를 훨씬 수월하게 구현할 수 있습니다.
 
 <a name="displaying-data"></a>
 
@@ -144,7 +144,7 @@ Hello, {!! $name !!}.
 ```
 
 > [!WARNING]
-> 사용자로부터 입력받은 데이터를 에코할 때는 특히 주의해야 합니다. 사용자 제공 데이터를 표시할 때는 반드시 XSS 공격을 막기 위해 이스케이프된 이중 중괄호 구문을 사용하는 것이 안전합니다.
+> 사용자로부터 입력받은 데이터를 에코할 때는 특히 주의해야 합니다. 사용자 제공 데이터를 표시할 때는 일반적으로 XSS 공격을 막기 위해 이스케이프된 이중 중괄호 구문을 사용하는 것이 안전합니다.
 
 <a name="blade-and-javascript-frameworks"></a>
 
@@ -1570,7 +1570,7 @@ php artisan make:component Alert --inline
 ### Manually Registering Components
 
 > [!WARNING]
-> 다음 문서는 주로 뷰 컴포넌트가 포함된 Laravel 패키지를 작성하는 경우에만 해당됩니다. 패키지 개발이 아니라면 이 부분은 대부분 해당되지 않습니다.
+> 다음 문서는 주로 뷰 컴포넌트가 포함된 Laravel 패키지를 작성하는 경우에 해당됩니다. 패키지 개발이 아니라면 이 부분은 관련이 없을 수 있습니다.
 
 <!-- When writing components for your own application, components are automatically discovered within the `app/View/Components` directory and `resources/views/components` directory. -->
 애플리케이션에서 컴포넌트를 직접 작성하는 경우, `app/View/Components` 디렉터리와 `resources/views/components` 디렉터리에 있는 컴포넌트들은 자동으로 인식됩니다.

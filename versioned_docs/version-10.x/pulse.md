@@ -171,7 +171,7 @@ php artisan vendor:publish --tag=pulse-dashboard
 필드나 아바타 경로를 직접 커스터마이즈하려면, 애플리케이션의 `App\Providers\AppServiceProvider` 클래스에서 `Pulse::user` 메서드를 사용하여 설정할 수 있습니다.
 
 <!-- The `user` method accepts a closure which will receive the `Authenticatable` model to be displayed and should return an array containing `name`, `extra`, and `avatar` information for the user: -->
-`user` 메서드는 클로저를 인자로 받으며, 표시할 `Authenticatable` 모델을 받아 `name`, `extra`, `avatar` 정보를 가진 배열을 반환해야 합니다.
+`user` 메서드는 클로저를 인자로 받습니다. 이 클로저는 표시할 `Authenticatable` 모델을 받아 `name`, `extra`, `avatar` 정보를 가진 배열을 반환해야 합니다.
 
 ```php
 use Laravel\Pulse\Facades\Pulse;
@@ -426,7 +426,7 @@ Recorders\OutgoingRequests::class => [
 #### Servers
 
 <!-- The `Servers` recorder captures CPU, memory, and storage usage of the servers that power your application for display on the [Servers](#servers-card) card. This recorder requires the [`pulse:check` command](#capturing-entries) to be running on each of the servers you wish to monitor. -->
-`Servers` 레코더는 애플리케이션이 동작하는 서버의 CPU, 메모리, 저장소 사용량을 수집하여 [Servers](#servers-card)에 표시합니다. 이 레코더는 [`pulse:check` command](#capturing-entries)이 필요합니다.
+`Servers` 레코더는 애플리케이션이 동작하는 서버의 CPU, 메모리, 저장소 사용량을 수집하여 [Servers](#servers-card)에 표시합니다. 이 레코더를 사용하려면 모니터링할 각 서버에서 [`pulse:check` command](#capturing-entries)를 실행해야 합니다.
 
 <!-- Each reporting server must have a unique name. By default, Pulse will use the value returned by PHP's `gethostname` function. If you wish to customize this, you may set the `PULSE_SERVER_NAME` environment variable: -->
 각 서버마다 고유한 이름이 지정되어야 하며, 기본적으로는 PHP의 `gethostname` 함수 값을 사용합니다. 이름을 직접 지정하려면 `PULSE_SERVER_NAME` 환경변수를 설정하면 됩니다.
@@ -443,7 +443,7 @@ Pulse 설정 파일에서 모니터링할 디렉터리도 커스터마이즈할 
 #### User Jobs
 
 <!-- The `UserJobs` recorder captures information about the users dispatching jobs in your application for display on the [Application Usage](#application-usage-card) card. -->
-`UserJobs` 레코더는 애플리케이션에서 사용자가 디스패치한 작업 정보를 수집하여 [Application Usage](#application-usage-card)에 표시합니다.
+`UserJobs` 레코더는 애플리케이션에서 작업을 디스패치한 사용자 정보를 수집하여 [Application Usage](#application-usage-card)에 표시합니다.
 
 <!-- You may optionally adjust the [sample rate](#sampling) and ignored job patterns. -->
 [sample rate](#sampling), 무시할 작업 패턴을 옵션으로 설정할 수 있습니다.
@@ -564,7 +564,7 @@ Pulse는 기본적으로 애플리케이션에서 발생하는 모든 관련 이
 ### Trimming
 
 <!-- Pulse will automatically trim its stored entries once they are outside of the dashboard window. Trimming occurs when ingesting data using a lottery system which may be customized in the Pulse [configuration file](#configuration). -->
-Pulse는 대시보드에서 조회하지 않는 기간 데이터는 자동으로 삭제(트리밍)합니다. 트리밍은 데이터를 수집할 때마다 추첨 방식(lottery system)으로 이루어지며, Pulse [configuration file](#configuration)에서 조정할 수 있습니다.
+Pulse는 대시보드의 표시 기간을 벗어난 저장 엔트리를 자동으로 삭제(트리밍)합니다. 트리밍은 데이터를 수집할 때마다 추첨 방식(lottery system)으로 이루어지며, Pulse [configuration file](#configuration)에서 조정할 수 있습니다.
 
 <a name="pulse-exceptions"></a>
 <!-- ### Handling Pulse Exceptions -->
@@ -814,7 +814,7 @@ class TopSellers extends Card
 ```
 
 <!-- The `aggregate` method returns return a collection of PHP `stdClass` objects. Each object will contain the `key` property captured earlier, along with keys for each of the requested aggregates: -->
-`aggregate` 메서드는 PHP `stdClass` 객체 컬렉션을 반환합니다. 각 객체는 이전에 지정한 `key` 속성과, 요청한 각 집계값이 키로 포함되어 있습니다.
+`aggregate` 메서드는 PHP `stdClass` 객체 컬렉션을 반환합니다. 각 객체에는 이전에 지정한 `key` 속성과 요청한 각 집계에 해당하는 키가 포함되어 있습니다.
 
 ```
 @foreach ($topSellers as $seller)

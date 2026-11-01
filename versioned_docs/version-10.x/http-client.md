@@ -305,7 +305,7 @@ $response = Http::connectTimeout(3)->get(/* ... */);
 ### Retries
 
 <!-- If you would like the HTTP client to automatically retry the request if a client or server error occurs, you may use the `retry` method. The `retry` method accepts the maximum number of times the request should be attempted and the number of milliseconds that Laravel should wait in between attempts: -->
-클라이언트 오류 또는 서버 오류가 발생하면 HTTP 클라이언트가 자동으로 요청을 재시도하도록 `retry` 메서드를 사용할 수 있습니다. 이 `retry` 메서드는 요청을 최대 몇 번 재시도할지와, 각 시도 사이 대기 시간을 밀리초(ms) 단위로 받습니다:
+클라이언트 오류 또는 서버 오류가 발생하면 HTTP 클라이언트가 자동으로 요청을 재시도하도록 `retry` 메서드를 사용할 수 있습니다. 이 `retry` 메서드는 요청을 시도할 최대 횟수와, 각 시도 사이 대기 시간을 밀리초(ms) 단위로 받습니다:
 
 ```
 $response = Http::retry(3, 100)->post(/* ... */);
@@ -375,7 +375,7 @@ $response = Http::retry(3, 100, throw: false)->post(/* ... */);
 ### Error Handling
 
 <!-- Unlike Guzzle's default behavior, Laravel's HTTP client wrapper does not throw exceptions on client or server errors (`400` and `500` level responses from servers). You may determine if one of these errors was returned using the `successful`, `clientError`, or `serverError` methods: -->
-Guzzle의 기본 동작과 달리, Laravel HTTP 클라이언트 래퍼는 클라이언트/서버 에러(`400`·`500` 상태) 발생 시 예외를 자동으로 던지지 않습니다. 이러한 오류가 반환됐는지 확인하려면 `successful`, `clientError`, `serverError` 등의 메서드를 사용할 수 있습니다:
+Guzzle의 기본 동작과 달리, Laravel HTTP 클라이언트 래퍼는 클라이언트/서버 에러(`400`·`500`번대 상태) 발생 시 예외를 자동으로 던지지 않습니다. 이러한 오류가 반환됐는지 확인하려면 `successful`, `clientError`, `serverError` 등의 메서드를 사용할 수 있습니다:
 
 ```
 // Determine if the status code is >= 200 and < 300...
@@ -618,7 +618,7 @@ $response = Http::github()->get('/');
 ## Testing
 
 <!-- Many Laravel services provide functionality to help you easily and expressively write tests, and Laravel's HTTP client is no exception. The `Http` facade's `fake` method allows you to instruct the HTTP client to return stubbed / dummy responses when requests are made. -->
-Laravel의 여러 서비스는 테스트를 쉽게 할 수 있도록 다양한 기능을 제공합니다. HTTP 클라이언트도 예외는 아니며, `Http` 파사드의 `fake` 메서드를 이용하면 요청 시 미리 지정한 더미(dummpy) 응답을 반환하도록 가짜처리(stubbing/faking)할 수 있습니다.
+Laravel의 여러 서비스는 테스트를 쉽게 할 수 있도록 다양한 기능을 제공합니다. HTTP 클라이언트도 예외는 아니며, `Http` 파사드의 `fake` 메서드를 이용하면 요청 시 미리 지정한 더미(dummy) 응답을 반환하도록 가짜처리(stubbing/faking)할 수 있습니다.
 
 <a name="faking-responses"></a>
 <!-- ### Faking Responses -->

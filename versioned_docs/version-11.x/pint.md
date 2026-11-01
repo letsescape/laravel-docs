@@ -67,14 +67,14 @@ Pint는 수정된 모든 파일 목록을 상세하게 보여줍니다. `-v` 옵
 ```
 
 <!-- If you would like Pint to only modify the files that differ from the provided branch according to Git, you may use the `--diff=[branch]` option. This can be effectively used in your CI environment (like GitHub actions) to save time by only inspecting new or modified files: -->
-Git 상의 특정 브랜치와 비교하여 변경된 파일(새로 생성되었거나 수정된 파일)만 검사하고 싶을 때는 `--diff=[branch]` 옵션을 사용할 수 있습니다. 이 옵션은 GitHub Actions와 같은 CI 환경에서 시간 단축에 효과적입니다.
+Git 상의 특정 브랜치와 비교하여 변경된 파일(새로 생성되었거나 수정된 파일)만 수정하고 싶을 때는 `--diff=[branch]` 옵션을 사용할 수 있습니다. 이 옵션은 GitHub Actions와 같은 CI 환경에서 시간 단축에 효과적입니다.
 
 ```shell
 ./vendor/bin/pint --diff=main
 ```
 
 <!-- If you would like Pint to only modify the files that have uncommitted changes according to Git, you may use the `--dirty` option: -->
-Git에서 커밋되지 않은 변경 사항이 있는 파일만 검사하려면 `--dirty` 옵션을 사용합니다.
+Git에서 커밋되지 않은 변경 사항이 있는 파일만 수정하려면 `--dirty` 옵션을 사용합니다.
 
 ```shell
 ./vendor/bin/pint --dirty

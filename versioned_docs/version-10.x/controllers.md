@@ -230,7 +230,7 @@ DELETE    | `/photos/{photo}`      | destroy      | photos.destroy
 #### Customizing Missing Model Behavior
 
 <!-- Typically, a 404 HTTP response will be generated if an implicitly bound resource model is not found. However, you may customize this behavior by calling the `missing` method when defining your resource route. The `missing` method accepts a closure that will be invoked if an implicitly bound model can not be found for any of the resource's routes: -->
-일반적으로, 암묵적으로 바인딩된 리소스 모델을 찾지 못하면 404 HTTP 응답이 반환됩니다. 하지만, 리소스 라우트를 정의할 때 `missing` 메서드를 호출해 이 동작을 원하는 대로 정의할 수 있습니다. `missing` 메서드는 클로저를 받으며, 리소스의 어떤 라우트에서든 암묵적으로 바인딩된 모델을 찾을 수 없는 경우 호출됩니다.
+일반적으로, 암묵적으로 바인딩된 리소스 모델을 찾지 못하면 404 HTTP 응답이 반환됩니다. 하지만, 리소스 라우트를 정의할 때 `missing` 메서드를 호출해 이 동작을 원하는 대로 정의할 수 있습니다. `missing` 메서드는 클로저를 받으며, 이 클로저는 리소스의 어떤 라우트에서든 암묵적으로 바인딩된 모델을 찾을 수 없는 경우 호출됩니다.
 
 ```
 use App\Http\Controllers\PhotoController;
@@ -486,7 +486,7 @@ public function boot(): void
 ```
 
 <!-- Laravel's pluralizer supports [several different languages which you may configure based on your needs](/docs/10.x/localization#pluralization-language). Once the verbs and pluralization language have been customized, a resource route registration such as `Route::resource('publicacion', PublicacionController::class)` will produce the following URIs: -->
-Laravel의 복수화(pluralizer) 기능은 [several different languages which you may configure based on your needs](/docs/10.x/localization#pluralization-language)합니다. 동사 및 복수화 언어를 변경하면, `Route::resource('publicacion', PublicacionController::class)`와 같은 리소스 라우트를 등록할 때 다음과 같은 URI가 생성됩니다.
+Laravel의 복수화(pluralizer) 기능은 [several different languages which you may configure based on your needs](/docs/10.x/localization#pluralization-language)를 지원합니다. 동사 및 복수화 언어를 변경하면, `Route::resource('publicacion', PublicacionController::class)`와 같은 리소스 라우트를 등록할 때 다음과 같은 URI가 생성됩니다.
 
 ```
 /publicacion/crear
@@ -499,7 +499,7 @@ Laravel의 복수화(pluralizer) 기능은 [several different languages which yo
 ### Supplementing Resource Controllers
 
 <!-- If you need to add additional routes to a resource controller beyond the default set of resource routes, you should define those routes before your call to the `Route::resource` method; otherwise, the routes defined by the `resource` method may unintentionally take precedence over your supplemental routes: -->
-기본 리소스 라우트 외에 특정 컨트롤러에 추가적인 라우트를 등록하려면, 반드시 `Route::resource`를 호출하기 전에 추가 라우트를 먼저 정의해야 합니다. 그렇지 않으면, `resource` 메서드가 만드는 라우트가 보충 라우트를 덮어쓸 수 있습니다.
+기본 리소스 라우트 외에 특정 컨트롤러에 추가적인 라우트를 등록하려면, 반드시 `Route::resource`를 호출하기 전에 추가 라우트를 먼저 정의해야 합니다. 그렇지 않으면, `resource` 메서드가 만드는 라우트가 의도치 않게 보충 라우트보다 우선 적용될 수 있습니다.
 
 ```
 use App\Http\Controller\PhotoController;

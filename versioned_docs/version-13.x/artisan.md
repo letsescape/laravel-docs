@@ -130,7 +130,7 @@ Tinker는 셸 안에서 실행할 수 있는 Artisan 명령어를 결정하기 �
 ## Writing Commands
 
 <!-- In addition to the commands provided with Artisan, you may build your own custom commands. Commands are typically stored in the `app/Console/Commands` directory; however, you are free to choose your own storage location as long as you instruct Laravel to [scan other directories for Artisan commands](#registering-commands). -->
-Artisan에서 제공하는 명령어 외에도 직접 커스텀 명령어를 만들 수 있습니다. 명령어는 일반적으로 `app/Console/Commands` 디렉터리에 저장되지만, Laravel에 [scan other directories for Artisan commands](#registering-commands) 지시한다면 원하는 저장 위치를 자유롭게 선택할 수 있습니다.
+Artisan에서 제공하는 명령어 외에도 직접 커스텀 명령어를 만들 수 있습니다. 명령어는 일반적으로 `app/Console/Commands` 디렉터리에 저장되지만, Laravel이 다른 디렉터리에서도 Artisan 명령어를 검색하도록 지시하면([scan other directories for Artisan commands](#registering-commands)) 원하는 저장 위치를 자유롭게 선택할 수 있습니다.
 
 <a name="generating-commands"></a>
 <!-- ### Generating Commands -->

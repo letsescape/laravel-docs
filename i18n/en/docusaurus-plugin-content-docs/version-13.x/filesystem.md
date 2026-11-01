@@ -169,7 +169,7 @@ Laravel's Flysystem integrations work great with SFTP; however, a sample configu
     // 'hostFingerprint' => env('SFTP_HOST_FINGERPRINT'),
     // 'maxTries' => 4,
     // 'passphrase' => env('SFTP_PASSPHRASE'),
-    // 'port' => env('SFTP_PORT', 22),
+    // 'port' => (int) env('SFTP_PORT', 22),
     // 'root' => env('SFTP_ROOT', ''),
     // 'timeout' => 30,
     // 'useAgent' => true,
@@ -624,6 +624,9 @@ $path = Storage::putFileAs(
     'avatars', $request->file('avatar'), $request->user()->id
 );
 ```
+
+> [!WARNING]
+> Never derive the filename argument of `storeAs` or `putFileAs` from user-supplied input. An attacker could supply a name such as `shell.php`, causing the stored file to be executed as PHP if it is web-accessible. Use `hashName()` or a system-generated identifier for the stored filename, and persist the original name separately if you need to display it.
 
 > [!WARNING]
 > Unprintable and invalid unicode characters will automatically be removed from file paths. Therefore, you may wish to sanitize your file paths before passing them to Laravel's file storage methods. File paths are normalized using the `League\Flysystem\WhitespacePathNormalizer::normalizePath` method.

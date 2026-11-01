@@ -701,7 +701,7 @@ Feature::when('purchase-button',
 ```
 
 <!-- Likewise, when calling the conditional `unless` method, the feature's rich value will be provided to the optional second closure: -->
-마찬가지로, 조건부 `unless` 메서드를 호출할 때도 기능의 리치 값이 선택적으로 두 번째 클로저로 전달됩니다.
+마찬가지로, 조건부 `unless` 메서드를 호출할 때도 기능의 리치 값이 선택적 인자인 두 번째 클로저로 전달됩니다.
 
 ```
 Feature::unless('purchase-button',
@@ -1106,13 +1106,13 @@ Pennant는 애플리케이션 전반에서 기능 플래그(feature flag)를 추
 ### `Laravel\Pennant\Events\RetrievingKnownFeature`
 
 <!-- This event is dispatched the first time a known feature is retrieved during a request for a specific scope. This event can be useful to create and track metrics against the feature flags that are being used throughout your application. -->
-이 이벤트는 특정 스코프 내에서 이미 알려진(정의된) 기능을 처음으로 조회할 때 발생합니다. 기능 플래그 사용에 대한 메트릭을 생성/추적하려는 경우 유용하게 활용할 수 있습니다.
+이 이벤트는 한 요청 중 특정 스코프에 대해 이미 알려진(정의된) 기능을 처음으로 조회할 때 발생합니다. 기능 플래그 사용에 대한 메트릭을 생성/추적하려는 경우 유용하게 활용할 수 있습니다.
 
 <!-- ### `Laravel\Pennant\Events\RetrievingUnknownFeature` -->
 ### `Laravel\Pennant\Events\RetrievingUnknownFeature`
 
 <!-- This event is dispatched the first time an unknown feature is retrieved during a request for a specific scope. This event can be useful if you have intended to remove a feature flag, but may have accidentally left some stray references to it throughout your application. -->
-이 이벤트는 특정 스코프 내에서 아직 알려지지 않은(정의되지 않은) 기능을 처음으로 조회할 때 발생합니다. 기능 플래그를 삭제했지만, 애플리케이션 곳곳에 남아 있는 사용 흔적을 감지/디버깅할 때 유용합니다.
+이 이벤트는 한 요청 중 특정 스코프에 대해 아직 알려지지 않은(정의되지 않은) 기능을 처음으로 조회할 때 발생합니다. 기능 플래그를 삭제했지만, 애플리케이션 곳곳에 남아 있는 사용 흔적을 감지/디버깅할 때 유용합니다.
 
 <!-- For example, you may find it useful to listen for this event and `report` or throw an exception when it occurs: -->
 예를 들어, 이 이벤트를 감지해 `report`하거나 예외를 발생시키도록 할 수 있습니다.

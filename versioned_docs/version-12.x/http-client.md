@@ -187,7 +187,7 @@ $response = Http::withBody(
 #### Multi-Part Requests
 
 <!-- If you would like to send files as multi-part requests, you should call the `attach` method before making your request. This method accepts the name of the file and its contents. If needed, you may provide a third argument which will be considered the file's filename, while a fourth argument may be used to provide headers associated with the file: -->
-다중 부분 요청으로 파일을 보내려면 요청하기 전에 `attach` 메서드를 호출해야 합니다. 이 메소드는 파일 이름과 내용을 승인합니다. 필요한 경우 파일의 파일 이름으로 간주되는 세 번째 인수를 제공할 수 있으며, 네 번째 인수는 파일과 관련된 헤더를 제공하는 데 사용될 수 있습니다.
+다중 부분 요청으로 파일을 보내려면 요청하기 전에 `attach` 메서드를 호출해야 합니다. 이 메소드는 파일 이름과 내용을 인수로 받습니다. 필요한 경우 파일의 파일 이름으로 간주되는 세 번째 인수를 제공할 수 있으며, 네 번째 인수는 파일과 관련된 헤더를 제공하는 데 사용될 수 있습니다.
 
 ```php
 $response = Http::attach(
@@ -269,7 +269,7 @@ $response = Http::withDigestAuth('taylor@laravel.com', 'secret')->post(/* ... */
 #### Bearer Tokens
 
 <!-- If you would like to quickly add a bearer token to the request's `Authorization` header, you may use the `withToken` method: -->
-요청의 `Authorization` 헤더에 전달자 토큰을 빠르게 추가하려면 `withToken` 메소드를 사용할 수 있습니다.
+요청의 `Authorization` 헤더에 Bearer 토큰을 빠르게 추가하려면 `withToken` 메소드를 사용할 수 있습니다.
 
 ```php
 $response = Http::withToken('token')->post(/* ... */);
@@ -287,7 +287,7 @@ $response = Http::timeout(3)->get(/* ... */);
 ```
 
 <!-- If the given timeout is exceeded, an instance of `Illuminate\Http\Client\ConnectionException` will be thrown. -->
-지정된 시간 초과가 초과되면 `Illuminate\Http\Client\ConnectionException` 인스턴스가 발생합니다.
+지정한 제한 시간을 초과하면 `Illuminate\Http\Client\ConnectionException` 인스턴스가 발생합니다.
 
 <!-- You may specify the maximum number of seconds to wait while trying to connect to a server using the `connectTimeout` method. The default is 10 seconds: -->
 `connectTimeout` 방법을 사용하여 서버에 연결을 시도하는 동안 대기할 최대 시간(초)을 지정할 수 있습니다. 기본값은 10초입니다.
@@ -914,7 +914,7 @@ Http::fake(function (Request $request) {
 응답을 속일 때 애플리케이션이 올바른 데이터나 헤더를 보내고 있는지 확인하기 위해 때때로 클라이언트가 받는 요청을 검사하고 싶을 수도 있습니다. `Http::fake`를 호출한 후 `Http::assertSent` 메서드를 호출하여 이를 수행할 수 있습니다.
 
 <!-- The `assertSent` method accepts a closure which will receive an `Illuminate\Http\Client\Request` instance and should return a boolean value indicating if the request matches your expectations. In order for the test to pass, at least one request must have been issued matching the given expectations: -->
-`assertSent` 메소드는 `Illuminate\Http\Client\Request` 인스턴스를 수신하는 클로저를 승인하고 요청이 기대와 일치하는지 나타내는 부울 값을 반환해야 합니다. 테스트를 통과하려면 주어진 기대와 일치하는 요청이 하나 이상 발행되어야 합니다.
+`assertSent` 메소드는 `Illuminate\Http\Client\Request` 인스턴스를 받는 클로저를 인수로 받으며, 이 클로저는 요청이 기대와 일치하는지 나타내는 부울 값을 반환해야 합니다. 테스트를 통과하려면 주어진 기대와 일치하는 요청이 하나 이상 발행되어야 합니다.
 
 ```php
 use Illuminate\Http\Client\Request;
@@ -1040,7 +1040,7 @@ Http::get('https://laravel.com');
 ```
 
 <!-- Sometimes, you may wish to prevent most stray requests while still allowing specific requests to execute. To accomplish this, you may pass an array of URL patterns to the `allowStrayRequests` method. Any request matching one of the given patterns will be allowed, while all other requests will continue to throw an exception: -->
-때로는 특정 요청의 실행을 허용하면서 대부분의 잘못된 요청을 방지하고 싶을 수도 있습니다. 이를 수행하려면 URL 패턴 배열을 `allowStrayRequests` 메서드에 전달할 수 있습니다. 지정된 패턴 중 하나와 일치하는 요청은 허용되지만 다른 모든 요청은 계속해서 예외가 발생합니다.
+때로는 특정 요청의 실행을 허용하면서 대부분의 예기치 않은 요청을 방지하고 싶을 수도 있습니다. 이를 수행하려면 URL 패턴 배열을 `allowStrayRequests` 메서드에 전달할 수 있습니다. 지정된 패턴 중 하나와 일치하는 요청은 허용되지만 다른 모든 요청은 계속해서 예외가 발생합니다.
 
 ```php
 use Illuminate\Support\Facades\Http;

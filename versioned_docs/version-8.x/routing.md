@@ -215,7 +215,7 @@ Route::get('/user/{id}', function (Request $request, $id) {
 ### Optional Parameters
 
 <!-- Occasionally you may need to specify a route parameter that may not always be present in the URI. You may do so by placing a `?` mark after the parameter name. Make sure to give the route's corresponding variable a default value: -->
-때로는 라우트 파라미터가 항상 URI에 존재하지 않도록 하고 싶을 수 있습니다. 이럴 때는 파라미터 이름 뒤에 `?`를 붙이면 됩니다. 또한, 해당 변수를 받는 인자에 기본값을 지정해야 합니다.
+때로는 라우트 파라미터가 URI에 없어도 되도록 하고 싶을 수 있습니다. 이럴 때는 파라미터 이름 뒤에 `?`를 붙이면 됩니다. 또한, 해당 변수를 받는 인자에 기본값을 지정해야 합니다.
 
 ```
 Route::get('/user/{name?}', function ($name = null) {

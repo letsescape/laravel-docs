@@ -43,13 +43,13 @@
 ## Introduction
 
 <!-- Laravel's database query builder provides a convenient, fluent interface to creating and running database queries. It can be used to perform most database operations in your application and works perfectly with all of Laravel's supported database systems. -->
-Laravel의 데이터베이스 쿼리 빌더는 데이터베이스 쿼리를 생성하고 실행하는 데 편리하고 유창한 인터페이스를 제공합니다. 이는 애플리케이션에서 대부분의 데이터베이스 작업을 수행하는 데 사용할 수 있으며 Laravel가 지원하는 모든 데이터베이스 시스템과 완벽하게 작동합니다.
+Laravel의 데이터베이스 쿼리 빌더는 데이터베이스 쿼리를 생성하고 실행하는 데 편리한 메서드 체이닝 인터페이스를 제공합니다. 이는 애플리케이션에서 대부분의 데이터베이스 작업을 수행하는 데 사용할 수 있으며 Laravel이 지원하는 모든 데이터베이스 시스템과 완벽하게 작동합니다.
 
 <!-- The Laravel query builder uses PDO parameter binding to protect your application against SQL injection attacks. There is no need to clean or sanitize strings passed to the query builder as query bindings. -->
-Laravel 쿼리 빌더는 PDO 매개변수 바인딩을 사용하여 SQL 주입 공격으로부터 애플리케이션을 보호합니다. 쿼리 빌더에 쿼리 바인딩으로 전달된 문자열을 정리하거나 정리할 필요가 없습니다.
+Laravel 쿼리 빌더는 PDO 매개변수 바인딩을 사용하여 SQL 주입 공격으로부터 애플리케이션을 보호합니다. 쿼리 빌더에 쿼리 바인딩으로 전달된 문자열을 정리하거나 정제할 필요가 없습니다.
 
 > [!WARNING]
-> PDO는 바인딩 열 이름을 지원하지 않습니다. 따라서 "순서 기준" 열을 포함하여 쿼리에서 참조하는 열 이름을 사용자 입력이 지시하도록 허용해서는 안 됩니다.
+> PDO는 열 이름 바인딩을 지원하지 않습니다. 따라서 "순서 기준" 열을 포함하여 쿼리에서 참조하는 열 이름을 사용자 입력이 지시하도록 허용해서는 안 됩니다.
 
 <a name="running-database-queries"></a>
 <!-- ## Running Database Queries -->
@@ -98,7 +98,7 @@ foreach ($users as $user) {
 ```
 
 > [!NOTE]
-> Laravel 컬렉션은 데이터 매핑 및 축소를 위한 다양하고 매우 강력한 방법을 제공합니다. Laravel 컬렉션에 대한 자세한 내용은 [collection documentation](/docs/12.x/collections)를 확인하세요.
+> Laravel 컬렉션은 데이터 매핑 및 축소를 위한 다양하고 매우 강력한 메서드를 제공합니다. Laravel 컬렉션에 대한 자세한 내용은 [collection documentation](/docs/12.x/collections)를 확인하세요.
 
 <a name="retrieving-a-single-row-column-from-a-table"></a>
 <!-- #### Retrieving a Single Row / Column From a Table -->
@@ -114,7 +114,7 @@ return $user->email;
 ```
 
 <!-- If you would like to retrieve a single row from a database table, but throw an `Illuminate\Database\RecordNotFoundException` if no matching row is found, you may use the `firstOrFail` method. If the `RecordNotFoundException` is not caught, a 404 HTTP response is automatically sent back to the client: -->
-데이터베이스 테이블에서 단일 행을 검색하고 싶지만 일치하는 행이 없으면 `Illuminate\Database\RecordNotFoundException`를 발생시키는 경우 `firstOrFail` 메소드를 사용할 수 있습니다. `RecordNotFoundException`가 포착되지 않으면 404 HTTP 응답이 자동으로 클라이언트에 다시 전송됩니다.
+데이터베이스 테이블에서 단일 행을 검색할 때 일치하는 행이 없으면 `Illuminate\Database\RecordNotFoundException`을 발생시키고 싶다면 `firstOrFail` 메소드를 사용할 수 있습니다. `RecordNotFoundException`이 포착되지 않으면 404 HTTP 응답이 자동으로 클라이언트에 다시 전송됩니다.
 
 ```php
 $user = DB::table('users')->where('name', 'John')->firstOrFail();
@@ -167,7 +167,7 @@ foreach ($titles as $name => $title) {
 ### Chunking Results
 
 <!-- If you need to work with thousands of database records, consider using the `chunk` method provided by the `DB` facade. This method retrieves a small chunk of results at a time and feeds each chunk into a closure for processing. For example, let's retrieve the entire `users` table in chunks of 100 records at a time: -->
-수천 개의 데이터베이스 레코드로 작업해야 하는 경우 `DB` 파사드에서 제공하는 `chunk` 메서드 사용을 고려해보세요. 이 방법은 한 번에 작은 결과 덩어리를 검색하고 처리를 위해 각 덩어리를 클로저에 공급합니다. 예를 들어, 한 번에 100개의 레코드 청크로 전체 `users` 테이블을 검색해 보겠습니다.
+수천 개의 데이터베이스 레코드로 작업해야 하는 경우 `DB` 파사드에서 제공하는 `chunk` 메서드 사용을 고려해보세요. 이 메서드는 한 번에 작은 결과 덩어리를 검색하고 처리를 위해 각 덩어리를 클로저에 공급합니다. 예를 들어, 한 번에 100개의 레코드 청크로 전체 `users` 테이블을 검색해 보겠습니다.
 
 ```php
 use Illuminate\Support\Collection;
@@ -206,7 +206,7 @@ DB::table('users')->where('active', false)
 ```
 
 <!-- Since the `chunkById` and `lazyById` methods add their own "where" conditions to the query being executed, you should typically [logically group](#logical-grouping) your own conditions within a closure: -->
-`chunkById` 및 `lazyById` 메소드는 실행 중인 쿼리에 자체 "where" 조건을 추가하므로 일반적으로 클로저 내에서 자체 조건을 [logically group](#logical-grouping)해야 합니다.
+`chunkById` 및 `lazyById` 메소드는 실행 중인 쿼리에 자체 "where" 조건을 추가하므로 일반적으로 클로저 내에서 자체 조건을 논리적으로 묶어야 합니다([logically group](#logical-grouping)).
 
 ```php
 DB::table('users')->where(function ($query) {
@@ -258,7 +258,7 @@ DB::table('users')->where('active', false)
 ### Aggregates
 
 <!-- The query builder also provides a variety of methods for retrieving aggregate values like `count`, `max`, `min`, `avg`, and `sum`. You may call any of these methods after constructing your query: -->
-쿼리 빌더는 `count`, `max`, `min`, `avg` 및 `sum`와 같은 집계 값을 검색하기 위한 다양한 방법도 제공합니다. 쿼리를 구성한 후 다음 메소드 중 하나를 호출할 수 있습니다.
+쿼리 빌더는 `count`, `max`, `min`, `avg` 및 `sum`과 같은 집계 값을 검색하기 위한 다양한 메서드도 제공합니다. 쿼리를 구성한 후 다음 메소드 중 하나를 호출할 수 있습니다.
 
 ```php
 use Illuminate\Support\Facades\DB;
@@ -269,7 +269,7 @@ $price = DB::table('orders')->max('price');
 ```
 
 <!-- Of course, you may combine these methods with other clauses to fine-tune how your aggregate value is calculated: -->
-물론, 이러한 방법을 다른 절과 결합하여 집계 값이 계산되는 방식을 세부적으로 조정할 수 있습니다.
+물론, 이러한 메서드를 다른 절과 결합하여 집계 값이 계산되는 방식을 세부적으로 조정할 수 있습니다.
 
 ```php
 $price = DB::table('orders')
@@ -352,14 +352,14 @@ $users = DB::table('users')
 ### Raw Methods
 
 <!-- Instead of using the `DB::raw` method, you may also use the following methods to insert a raw expression into various parts of your query. **Remember, Laravel cannot guarantee that any query using raw expressions is protected against SQL injection vulnerabilities.** -->
-`DB::raw` 방법을 사용하는 대신 다음 방법을 사용하여 쿼리의 다양한 부분에 원시 표현식을 삽입할 수도 있습니다. **Laravel는 원시 표현식을 사용하는 쿼리가 SQL 주입 취약점으로부터 보호된다는 점을 보장할 수 없습니다.**
+`DB::raw` 메서드를 사용하는 대신 다음 메서드를 사용하여 쿼리의 다양한 부분에 원시 표현식을 삽입할 수도 있습니다. **Laravel은 원시 표현식을 사용하는 쿼리가 SQL 주입 취약점으로부터 보호된다는 점을 보장할 수 없습니다.**
 
 <a name="selectraw"></a>
 <!-- #### `selectRaw` -->
 #### `selectRaw`
 
 <!-- The `selectRaw` method can be used in place of `addSelect(DB::raw(/* ... */))`. This method accepts an optional array of bindings as its second argument: -->
-`selectRaw` 방법은 `addSelect(DB::raw(/* ... */))` 대신 사용할 수 있습니다. 이 메소드는 두 번째 인수로 선택적 바인딩 배열을 허용합니다.
+`selectRaw` 메서드는 `addSelect(DB::raw(/* ... */))` 대신 사용할 수 있습니다. 이 메소드는 두 번째 인수로 선택적 바인딩 배열을 허용합니다.
 
 ```php
 $orders = DB::table('orders')
@@ -465,7 +465,7 @@ $users = DB::table('users')
 #### Cross Join Clause
 
 <!-- You may use the `crossJoin` method to perform a "cross join". Cross joins generate a cartesian product between the first table and the joined table: -->
-`crossJoin` 방법을 사용하여 "교차 조인"을 수행할 수 있습니다. 교차 조인은 첫 번째 테이블과 조인된 테이블 사이에 데카르트 곱을 생성합니다.
+`crossJoin` 메서드를 사용하여 "교차 조인"을 수행할 수 있습니다. 교차 조인은 첫 번째 테이블과 조인된 테이블 사이에 데카르트 곱을 생성합니다.
 
 ```php
 $sizes = DB::table('sizes')
@@ -489,7 +489,7 @@ DB::table('users')
 ```
 
 <!-- If you would like to use a "where" clause on your joins, you may use the `where` and `orWhere` methods provided by the `JoinClause` instance. Instead of comparing two columns, these methods will compare the column against a value: -->
-조인에 "where" 절을 사용하려면 `JoinClause` 인스턴스에서 제공하는 `where` 및 `orWhere` 메서드를 사용할 수 있습니다. 두 열을 비교하는 대신 다음 방법은 열을 값과 비교합니다.
+조인에 "where" 절을 사용하려면 `JoinClause` 인스턴스에서 제공하는 `where` 및 `orWhere` 메서드를 사용할 수 있습니다. 두 열을 비교하는 대신 다음 메서드는 열을 값과 비교합니다.
 
 ```php
 DB::table('users')
@@ -564,7 +564,7 @@ $users = DB::table('users')
 ```
 
 <!-- In addition to the `union` method, the query builder provides a `unionAll` method. Queries that are combined using the `unionAll` method will not have their duplicate results removed. The `unionAll` method has the same method signature as the `union` method. -->
-`union` 메소드 외에도 쿼리 빌더는 `unionAll` 메소드를 제공합니다. `unionAll` 방법을 사용하여 결합된 쿼리는 중복 결과가 제거되지 않습니다. `unionAll` 메서드는 `union` 메서드와 동일한 메서드 서명을 갖습니다.
+`union` 메소드 외에도 쿼리 빌더는 `unionAll` 메소드를 제공합니다. `unionAll` 메서드를 사용하여 결합된 쿼리는 중복 결과가 제거되지 않습니다. `unionAll` 메서드는 `union` 메서드와 동일한 메서드 서명을 갖습니다.
 
 <a name="basic-where-clauses"></a>
 <!-- ## Basic Where Clauses -->
@@ -578,7 +578,7 @@ $users = DB::table('users')
 쿼리 빌더의 `where` 메소드를 사용하여 쿼리에 "where" 절을 추가할 수 있습니다. `where` 메서드에 대한 가장 기본적인 호출에는 세 가지 인수가 필요합니다. 첫 번째 인수는 열의 이름입니다. 두 번째 인수는 데이터베이스가 지원하는 연산자 중 하나일 수 있는 연산자입니다. 세 번째 인수는 열의 값과 비교할 값입니다.
 
 <!-- For example, the following query retrieves users where the value of the `votes` column is equal to `100` and the value of the `age` column is greater than `35`: -->
-예를 들어, 다음 쿼리는 `votes` 열의 값이 `100`와 같고 `age` 열의 값이 `35`보다 큰 사용자를 검색합니다.
+예를 들어, 다음 쿼리는 `votes` 열의 값이 `100`과 같고 `age` 열의 값이 `35`보다 큰 사용자를 검색합니다.
 
 ```php
 $users = DB::table('users')
@@ -588,7 +588,7 @@ $users = DB::table('users')
 ```
 
 <!-- For convenience, if you want to verify that a column is `=` to a given value, you may pass the value as the second argument to the `where` method. Laravel will assume you would like to use the `=` operator: -->
-편의상 해당 열이 주어진 값에 대해 `=`인지 확인하려는 경우 해당 값을 `where` 메서드의 두 번째 인수로 전달할 수 있습니다. Laravel는 `=` 연산자를 사용한다고 가정합니다.
+편의상 해당 열의 값이 주어진 값과 같은지 `=`로 비교하려는 경우 해당 값을 `where` 메서드의 두 번째 인수로 전달할 수 있습니다. Laravel은 `=` 연산자를 사용한다고 가정합니다.
 
 ```php
 $users = DB::table('users')->where('votes', 100)->get();
@@ -632,10 +632,10 @@ $users = DB::table('users')->where([
 ```
 
 > [!WARNING]
-> PDO는 바인딩 열 이름을 지원하지 않습니다. 따라서 "순서 기준" 열을 포함하여 쿼리에서 참조하는 열 이름을 사용자 입력이 지시하도록 허용해서는 안 됩니다.
+> PDO는 열 이름 바인딩을 지원하지 않습니다. 따라서 "순서 기준" 열을 포함하여 쿼리에서 참조하는 열 이름을 사용자 입력이 지시하도록 허용해서는 안 됩니다.
 
 > [!WARNING]
-> MySQL 및 MariaDB는 문자열-번호 비교에서 자동으로 문자열을 정수로 타입 변환합니다. 이 과정에서 숫자가 아닌 문자열이 `0`로 변환되어 예상치 못한 결과가 발생할 수 있습니다. 예를 들어 테이블에 값이 `aaa`인 `secret` 열이 있고 `User::where('secret', 0)`를 실행하면 해당 행이 반환됩니다. 이를 방지하려면 쿼리에서 사용하기 전에 모든 값이 적절한 유형으로 변환되었는지 확인하세요.
+> MySQL 및 MariaDB는 문자열과 숫자 비교에서 자동으로 문자열을 정수로 타입 변환합니다. 이 과정에서 숫자가 아닌 문자열이 `0`으로 변환되어 예상치 못한 결과가 발생할 수 있습니다. 예를 들어 테이블에 값이 `aaa`인 `secret` 열이 있고 `User::where('secret', 0)`를 실행하면 해당 행이 반환됩니다. 이를 방지하려면 쿼리에서 사용하기 전에 모든 값이 적절한 유형으로 변환되었는지 확인하세요.
 
 <a name="or-where-clauses"></a>
 <!-- ### Or Where Clauses -->
@@ -681,7 +681,7 @@ select * from users where votes > 100 or (name = 'Abigail' and votes > 50)
 ### Where Not Clauses
 
 <!-- The `whereNot` and `orWhereNot` methods may be used to negate a given group of query constraints. For example, the following query excludes products that are on clearance or which have a price that is less than ten: -->
-`whereNot` 및 `orWhereNot` 메소드는 지정된 쿼리 제약 조건 그룹을 무효화하는 데 사용될 수 있습니다. 예를 들어, 다음 쿼리는 재고 정리 중이거나 가격이 10보다 낮은 제품을 제외합니다.
+`whereNot` 및 `orWhereNot` 메소드는 지정된 쿼리 제약 조건 그룹을 부정하는 데 사용될 수 있습니다. 예를 들어, 다음 쿼리는 재고 정리 중이거나 가격이 10보다 낮은 제품을 제외합니다.
 
 ```php
 $products = DB::table('products')
@@ -697,7 +697,7 @@ $products = DB::table('products')
 ### Where Any / All / None Clauses
 
 <!-- Sometimes you may need to apply the same query constraints to multiple columns. For example, you may want to retrieve all records where any columns in a given list are `LIKE` a given value. You may accomplish this using the `whereAny` method: -->
-때로는 동일한 쿼리 제약 조건을 여러 열에 적용해야 할 수도 있습니다. 예를 들어, 주어진 목록의 열이 `LIKE` 주어진 값인 모든 레코드를 검색할 수 있습니다. `whereAny` 방법을 사용하여 이 작업을 수행할 수 있습니다.
+때로는 동일한 쿼리 제약 조건을 여러 열에 적용해야 할 수도 있습니다. 예를 들어, 주어진 목록의 열 중 하나라도 주어진 값과 `LIKE` 조건으로 일치하는 모든 레코드를 검색할 수 있습니다. `whereAny` 메서드를 사용하여 이 작업을 수행할 수 있습니다.
 
 ```php
 $users = DB::table('users')
@@ -780,7 +780,7 @@ WHERE published = true AND NOT (
 ### JSON Where Clauses
 
 <!-- Laravel also supports querying JSON column types on databases that provide support for JSON column types. Currently, this includes MariaDB 10.3+, MySQL 8.0+, PostgreSQL 12.0+, SQL Server 2017+, and SQLite 3.39.0+. To query a JSON column, use the `->` operator: -->
-Laravel는 JSON 열 유형에 대한 지원을 제공하는 데이터베이스에서 JSON 열 유형 쿼리도 지원합니다. 현재 여기에는 MariaDB 10.3+, MySQL 8.0+, PostgreSQL 12.0+, SQL Server 2017+ 및 SQLite 3.39.0+가 포함됩니다. JSON 열을 쿼리하려면 `->` 연산자를 사용하세요.
+Laravel은 JSON 열 유형에 대한 지원을 제공하는 데이터베이스에서 JSON 열 유형 쿼리도 지원합니다. 현재 여기에는 MariaDB 10.3+, MySQL 8.0+, PostgreSQL 12.0+, SQL Server 2017+ 및 SQLite 3.39.0+가 포함됩니다. JSON 열을 쿼리하려면 `->` 연산자를 사용하세요.
 
 ```php
 $users = DB::table('users')
@@ -793,7 +793,7 @@ $users = DB::table('users')
 ```
 
 <!-- You may use the `whereJsonContains` and `whereJsonDoesntContain` methods to query JSON arrays: -->
-쿼리 JSON 배열에 `whereJsonContains` 및 `whereJsonDoesntContain` 방법을 사용할 수 있습니다.
+JSON 배열을 쿼리할 때 `whereJsonContains` 및 `whereJsonDoesntContain` 메서드를 사용할 수 있습니다.
 
 ```php
 $users = DB::table('users')
@@ -832,7 +832,7 @@ $users = DB::table('users')
 ```
 
 <!-- Finally, you may use `whereJsonLength` method to query JSON arrays by their length: -->
-마지막으로, 길이에 따라 쿼리 JSON 배열에 `whereJsonLength` 방법을 사용할 수 있습니다.
+마지막으로, JSON 배열의 길이를 기준으로 쿼리할 때 `whereJsonLength` 메서드를 사용할 수 있습니다.
 
 ```php
 $users = DB::table('users')
@@ -852,7 +852,7 @@ $users = DB::table('users')
 **whereLike / orWhereLike / whereNotLike / orWhereNotLike**
 
 <!-- The `whereLike` method allows you to add "LIKE" clauses to your query for pattern matching. These methods provide a database-agnostic way of performing string matching queries, with the ability to toggle case-sensitivity. By default, string matching is case-insensitive: -->
-`whereLike` 메소드를 사용하면 패턴 일치를 위해 쿼리에 "LIKE" 절을 추가할 수 있습니다. 이러한 방법은 대소문자 구분을 전환하는 기능과 함께 문자열 일치 쿼리를 수행하는 데이터베이스에 구애받지 않는 방법을 제공합니다. 기본적으로 문자열 일치는 대소문자를 구분하지 않습니다.
+`whereLike` 메소드를 사용하면 패턴 일치를 위해 쿼리에 "LIKE" 절을 추가할 수 있습니다. 이러한 메서드는 대소문자 구분을 전환하는 기능과 함께 문자열 일치 쿼리를 수행하는 데이터베이스에 구애받지 않는 방법을 제공합니다. 기본적으로 문자열 일치는 대소문자를 구분하지 않습니다.
 
 ```php
 $users = DB::table('users')
@@ -963,7 +963,7 @@ $users = DB::table('users')
 **whereNotBetween / orWhereNotBetween**
 
 <!-- The `whereNotBetween` method verifies that a column's value lies outside of two values: -->
-`whereNotBetween` 메서드는 열 값이 두 값 외부에 있는지 확인합니다.
+`whereNotBetween` 메서드는 열 값이 두 값으로 지정한 범위 밖에 있는지 확인합니다.
 
 ```php
 $users = DB::table('users')
@@ -984,7 +984,7 @@ $patients = DB::table('patients')
 ```
 
 <!-- The `whereNotBetweenColumns` method verifies that a column's value lies outside the two values of two columns in the same table row: -->
-`whereNotBetweenColumns` 메서드는 열 값이 동일한 테이블 행에 있는 두 열의 두 값 외부에 있는지 확인합니다.
+`whereNotBetweenColumns` 메서드는 열 값이 동일한 테이블 행에 있는 두 열의 두 값으로 지정한 범위 밖에 있는지 확인합니다.
 
 ```php
 $patients = DB::table('patients')
@@ -1005,7 +1005,7 @@ $products = DB::table('products')
 ```
 
 <!-- The `whereValueNotBetween` method verifies that a value lies outside the values of two columns in the same table row: -->
-`whereValueNotBetween` 메서드는 값이 동일한 테이블 행에 있는 두 열의 값 외부에 있는지 확인합니다.
+`whereValueNotBetween` 메서드는 값이 동일한 테이블 행에 있는 두 열의 값으로 지정한 범위 밖에 있는지 확인합니다.
 
 ```php
 $products = DB::table('products')
@@ -1026,7 +1026,7 @@ $users = DB::table('users')
 ```
 
 <!-- The `whereNotNull` method verifies that the column's value is not `NULL`: -->
-`whereNotNull` 메소드는 열의 값이 `NULL`가 아닌지 확인합니다.
+`whereNotNull` 메소드는 열의 값이 `NULL`이 아닌지 확인합니다.
 
 ```php
 $users = DB::table('users')
@@ -1056,7 +1056,7 @@ $users = DB::table('users')
 ```
 
 <!-- The `whereDay` method may be used to compare a column's value against a specific day of the month: -->
-`whereDay` 메소드는 열의 값을 특정 날짜와 비교하는 데 사용할 수 있습니다.
+`whereDay` 메소드는 열 값의 일(day) 부분을 특정 일과 비교하는 데 사용할 수 있습니다.
 
 ```php
 $users = DB::table('users')
@@ -1209,7 +1209,7 @@ select * from users where name = 'John' and (votes > 100 or title = 'Admin')
 ### Where Exists Clauses
 
 <!-- The `whereExists` method allows you to write "where exists" SQL clauses. The `whereExists` method accepts a closure which will receive a query builder instance, allowing you to define the query that should be placed inside of the "exists" clause: -->
-`whereExists` 메소드를 사용하면 "존재하는 위치" SQL 절을 작성할 수 있습니다. `whereExists` 메소드는 쿼리 빌더 인스턴스를 수신하는 클로저를 허용하므로 "exists" 절 내부에 배치되어야 하는 쿼리를 정의할 수 있습니다.
+`whereExists` 메소드를 사용하면 "where exists" SQL 절을 작성할 수 있습니다. `whereExists` 메소드는 쿼리 빌더 인스턴스를 수신하는 클로저를 허용하므로 "exists" 절 내부에 배치되어야 하는 쿼리를 정의할 수 있습니다.
 
 ```php
 $users = DB::table('users')
@@ -1283,7 +1283,7 @@ $incomes = Income::where('amount', '<', function (Builder $query) {
 ### Full Text Where Clauses
 
 > [!WARNING]
-> 절이 현재 MariaDB, MySQL 및 PostgreSQL에서 지원되는 전체 텍스트입니다.
+> 전체 텍스트 where 절은 현재 MariaDB, MySQL 및 PostgreSQL에서 지원됩니다.
 
 <!-- The `whereFullText` and `orWhereFullText` methods may be used to add full text "where" clauses to a query for columns that have [full text indexes](/docs/12.x/migrations#available-index-types). These methods will be transformed into the appropriate SQL for the underlying database system by Laravel. For example, a `MATCH AGAINST` clause will be generated for applications utilizing MariaDB or MySQL: -->
 `whereFullText` 및 `orWhereFullText` 메서드는 [full text indexes](/docs/12.x/migrations#available-index-types)가 있는 열의 쿼리에 전체 텍스트 "where" 절을 추가하는 데 사용할 수 있습니다. 이러한 메소드는 Laravel에 의해 기본 데이터베이스 시스템에 적합한 SQL로 변환됩니다. 예를 들어, MariaDB 또는 MySQL을 활용하는 애플리케이션에 대해 `MATCH AGAINST` 절이 생성됩니다.
@@ -1302,7 +1302,7 @@ $users = DB::table('users')
 > 벡터 유사성 절은 현재 `pgvector` 확장을 사용하는 PostgreSQL 연결에서만 지원됩니다. 벡터 열 및 인덱스 정의에 대한 자세한 내용은 [migration documentation](/docs/12.x/migrations#available-column-types)를 참조하세요.
 
 <!-- The `whereVectorSimilarTo` method filters results by cosine similarity to a given vector and orders the results by relevance. The `minSimilarity` threshold should be a value between `0.0` and `1.0`, where `1.0` is identical: -->
-`whereVectorSimilarTo` 방법은 주어진 벡터에 대한 코사인 유사성을 기준으로 결과를 필터링하고 관련성에 따라 결과를 정렬합니다. `minSimilarity` 임계값은 `0.0`와 `1.0` 사이의 값이어야 합니다. 여기서 `1.0`는 동일합니다.
+`whereVectorSimilarTo` 메서드는 주어진 벡터에 대한 코사인 유사성을 기준으로 결과를 필터링하고 관련성에 따라 결과를 정렬합니다. `minSimilarity` 임계값은 `0.0`과 `1.0` 사이의 값이어야 합니다. 여기서 `1.0`은 두 벡터가 동일함을 나타냅니다.
 
 ```php
 $documents = DB::table('documents')
@@ -1312,7 +1312,7 @@ $documents = DB::table('documents')
 ```
 
 <!-- When a plain string is given as the vector argument, Laravel will automatically generate embeddings for it using the [Laravel AI SDK](/docs/12.x/ai-sdk#embeddings): -->
-일반 문자열이 벡터 인수로 제공되면 Laravel는 [Laravel AI SDK](/docs/12.x/ai-sdk#embeddings)를 사용하여 자동으로 임베딩을 생성합니다.
+일반 문자열이 벡터 인수로 제공되면 Laravel은 [Laravel AI SDK](/docs/12.x/ai-sdk#embeddings)를 사용하여 자동으로 임베딩을 생성합니다.
 
 ```php
 $documents = DB::table('documents')
@@ -1346,7 +1346,7 @@ $documents = DB::table('documents')
 ```
 
 <!-- When utilizing PostgreSQL, the `pgvector` extension must be loaded before `vector` columns can be created: -->
-PostgreSQL를 활용하는 경우 `vector` 열을 생성하기 전에 `pgvector` 확장을 로드해야 합니다.
+PostgreSQL을 활용하는 경우 `vector` 열을 생성하기 전에 `pgvector` 확장을 로드해야 합니다.
 
 ```php
 Schema::ensureVectorExtensionExists();
@@ -1365,7 +1365,7 @@ Schema::ensureVectorExtensionExists();
 #### The `orderBy` Method
 
 <!-- The `orderBy` method allows you to sort the results of the query by a given column. The first argument accepted by the `orderBy` method should be the column you wish to sort by, while the second argument determines the direction of the sort and may be either `asc` or `desc`: -->
-`orderBy` 방법을 사용하면 주어진 열을 기준으로 쿼리의 결과를 정렬할 수 있습니다. `orderBy` 메소드에서 허용하는 첫 번째 인수는 정렬하려는 열이어야 하며, 두 번째 인수는 정렬 방향을 결정하며 `asc` 또는 `desc`일 수 있습니다.
+`orderBy` 메서드를 사용하면 주어진 열을 기준으로 쿼리의 결과를 정렬할 수 있습니다. `orderBy` 메소드에서 허용하는 첫 번째 인수는 정렬하려는 열이어야 하며, 두 번째 인수는 정렬 방향을 결정하며 `asc` 또는 `desc`일 수 있습니다.
 
 ```php
 $users = DB::table('users')
@@ -1407,7 +1407,7 @@ $corporations = DB::table('corporations')
 #### The `latest` and `oldest` Methods
 
 <!-- The `latest` and `oldest` methods allow you to easily order results by date. By default, the result will be ordered by the table's `created_at` column. Or, you may pass the column name that you wish to sort by: -->
-`latest` 및 `oldest` 방법을 사용하면 결과를 날짜별로 쉽게 정렬할 수 있습니다. 기본적으로 결과는 테이블의 `created_at` 열을 기준으로 정렬됩니다. 또는 정렬하려는 열 이름을 전달할 수도 있습니다.
+`latest` 및 `oldest` 메서드를 사용하면 결과를 날짜별로 쉽게 정렬할 수 있습니다. 기본적으로 결과는 테이블의 `created_at` 열을 기준으로 정렬됩니다. 또는 정렬하려는 열 이름을 전달할 수도 있습니다.
 
 ```php
 $user = DB::table('users')
@@ -1420,7 +1420,7 @@ $user = DB::table('users')
 #### Random Ordering
 
 <!-- The `inRandomOrder` method may be used to sort the query results randomly. For example, you may use this method to fetch a random user: -->
-`inRandomOrder` 방법은 쿼리 결과를 무작위로 정렬하는 데 사용될 수 있습니다. 예를 들어, 이 메소드를 사용하여 임의의 사용자를 가져올 수 있습니다:
+`inRandomOrder` 메서드는 쿼리 결과를 무작위로 정렬하는 데 사용될 수 있습니다. 예를 들어, 이 메소드를 사용하여 임의의 사용자를 가져올 수 있습니다:
 
 ```php
 $randomUser = DB::table('users')
@@ -1520,7 +1520,7 @@ $users = DB::table('users')
 ## Conditional Clauses
 
 <!-- Sometimes you may want certain query clauses to apply to a query based on another condition. For instance, you may only want to apply a `where` statement if a given input value is present on the incoming HTTP request. You may accomplish this using the `when` method: -->
-때로는 특정 쿼리 절을 다른 조건에 따라 쿼리에 적용하기를 원할 수도 있습니다. 예를 들어, 들어오는 HTTP 요청에 지정된 입력 값이 있는 경우에만 `where` 문을 적용할 수 있습니다. `when` 방법을 사용하여 이 작업을 수행할 수 있습니다.
+때로는 특정 쿼리 절을 다른 조건에 따라 쿼리에 적용하기를 원할 수도 있습니다. 예를 들어, 들어오는 HTTP 요청에 지정된 입력 값이 있는 경우에만 `where` 문을 적용할 수 있습니다. `when` 메서드를 사용하여 이 작업을 수행할 수 있습니다.
 
 ```php
 $role = $request->input('role');
@@ -1575,7 +1575,7 @@ DB::table('users')->insert([
 ```
 
 <!-- The `insertOrIgnore` method will ignore errors while inserting records into the database. When using this method, you should be aware that duplicate record errors will be ignored and other types of errors may also be ignored depending on the database engine. For example, `insertOrIgnore` will [bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution): -->
-`insertOrIgnore` 메소드는 데이터베이스에 레코드를 삽입하는 동안 오류를 무시합니다. 이 방법을 사용할 경우 중복 레코드 오류는 무시되며, 데이터베이스 엔진에 따라 다른 유형의 오류도 무시될 수 있다는 점을 유의해야 합니다. 예를 들어, `insertOrIgnore`는 [bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution)합니다.
+`insertOrIgnore` 메소드는 데이터베이스에 레코드를 삽입하는 동안 오류를 무시합니다. 이 메서드를 사용할 경우 중복 레코드 오류는 무시되며, 데이터베이스 엔진에 따라 다른 유형의 오류도 무시될 수 있다는 점을 유의해야 합니다. 예를 들어, `insertOrIgnore`는 MySQL의 엄격 모드를 우회합니다([bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution)).
 
 ```php
 DB::table('users')->insertOrIgnore([
@@ -1609,7 +1609,7 @@ $id = DB::table('users')->insertGetId(
 ```
 
 > [!WARNING]
-> PostgreSQL를 사용할 때 `insertGetId` 메서드는 자동 증가 열의 이름이 `id`일 것으로 예상합니다. 다른 "시퀀스"에서 ID를 검색하려면 열 이름을 `insertGetId` 메소드의 두 번째 매개변수로 전달할 수 있습니다.
+> PostgreSQL을 사용할 때 `insertGetId` 메서드는 자동 증가 열의 이름이 `id`일 것으로 예상합니다. 다른 "시퀀스"에서 ID를 검색하려면 열 이름을 `insertGetId` 메소드의 두 번째 매개변수로 전달할 수 있습니다.
 
 <a name="upserts"></a>
 <!-- ### Upserts -->
@@ -1630,7 +1630,7 @@ DB::table('flights')->upsert(
 ```
 
 <!-- In the example above, Laravel will attempt to insert two records. If a record already exists with the same `departure` and `destination` column values, Laravel will update that record's `price` column. -->
-위의 예에서 Laravel는 두 개의 레코드를 삽입하려고 시도합니다. 동일한 `departure` 및 `destination` 열 값을 가진 레코드가 이미 존재하는 경우 Laravel는 해당 레코드의 `price` 열을 업데이트합니다.
+위의 예에서 Laravel은 두 개의 레코드를 삽입하려고 시도합니다. 동일한 `departure` 및 `destination` 열 값을 가진 레코드가 이미 존재하는 경우 Laravel은 해당 레코드의 `price` 열을 업데이트합니다.
 
 > [!WARNING]
 > SQL Server를 제외한 모든 데이터베이스에서는 `upsert` 메서드의 두 번째 인수 열에 "기본" 또는 "고유" 인덱스가 있어야 합니다. 또한 MariaDB 및 MySQL 데이터베이스 드라이버는 `upsert` 메서드의 두 번째 인수를 무시하고 항상 테이블의 "기본" 및 "고유" 인덱스를 사용하여 기존 레코드를 검색합니다.
@@ -1701,7 +1701,7 @@ $affected = DB::table('users')
 ### Increment and Decrement
 
 <!-- The query builder also provides convenient methods for incrementing or decrementing the value of a given column. Both of these methods accept at least one argument: the column to modify. A second argument may be provided to specify the amount by which the column should be incremented or decremented: -->
-쿼리 빌더는 지정된 열의 값을 늘리거나 줄이는 편리한 방법도 제공합니다. 이 두 가지 방법 모두 최소한 하나의 인수(수정할 열)를 허용합니다. 열이 증가하거나 감소해야 하는 양을 지정하기 위해 두 번째 인수가 제공될 수 있습니다.
+쿼리 빌더는 지정된 열의 값을 늘리거나 줄이는 편리한 메서드도 제공합니다. 이 두 가지 메서드 모두 최소한 하나의 인수(수정할 열)를 허용합니다. 열이 증가하거나 감소해야 하는 양을 지정하기 위해 두 번째 인수가 제공될 수 있습니다.
 
 ```php
 DB::table('users')->increment('votes');
@@ -1758,7 +1758,7 @@ DB::table('users')
 ```
 
 <!-- Alternatively, you may use the `lockForUpdate` method. A "for update" lock prevents the selected records from being modified or from being selected with another shared lock: -->
-또는 `lockForUpdate` 방법을 사용할 수도 있습니다. "업데이트용" 잠금은 선택한 레코드가 수정되거나 다른 공유 잠금으로 선택되는 것을 방지합니다.
+또는 `lockForUpdate` 메서드를 사용할 수도 있습니다. "업데이트용" 잠금은 선택한 레코드가 수정되거나 다른 공유 잠금으로 선택되는 것을 방지합니다.
 
 ```php
 DB::table('users')
@@ -1832,7 +1832,7 @@ DB::table('flights')
 ```
 
 <!-- You may like to extract the destination filtering that is common between the queries into a reusable object: -->
-쿼리 간에 공통적인 대상 필터링을 재사용 가능한 객체로 추출하고 싶을 수도 있습니다.
+쿼리 간에 공통적인 목적지 필터링을 재사용 가능한 객체로 추출하고 싶을 수도 있습니다.
 
 ```php
 <?php

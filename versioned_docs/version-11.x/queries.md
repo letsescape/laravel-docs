@@ -204,7 +204,7 @@ DB::table('users')->where('active', false)
 ```
 
 <!-- Since the `chunkById` and `lazyById` methods add their own "where" conditions to the query being executed, you should typically [logically group](#logical-grouping) your own conditions within a closure: -->
-`chunkById`와 `lazyById` 메서드는 쿼리 실행 시 자체적으로 "where" 조건을 추가합니다. 따라서 직접 조건문을 추가할 때는 [logically group](#logical-grouping)이 필요합니다.
+`chunkById`와 `lazyById` 메서드는 쿼리 실행 시 자체적으로 "where" 조건을 추가합니다. 따라서 직접 조건문을 추가할 때는 일반적으로 클로저 안에서 조건을 논리적으로 묶어야 합니다([logically group](#logical-grouping)).
 
 ```php
 DB::table('users')->where(function ($query) {
@@ -350,7 +350,7 @@ $users = DB::table('users')
 ### Raw Methods
 
 <!-- Instead of using the `DB::raw` method, you may also use the following methods to insert a raw expression into various parts of your query. **Remember, Laravel cannot guarantee that any query using raw expressions is protected against SQL injection vulnerabilities.** -->
-`DB::raw` 메서드 대신 다음과 같은 메서드들을 이용해 쿼리의 여러 부분에 raw 표현식을 삽입할 수 있습니다. **주의: Raw 표현식이 들어가는 쿼리는 Laravel이 SQL 인젝션을 방지해줄 수 없으므로 사용 시 각별한 주의가 필요합니다.**
+`DB::raw` 메서드 대신 다음과 같은 메서드들을 이용해 쿼리의 여러 부분에 raw 표현식을 삽입할 수 있습니다. **주의: Raw 표현식이 들어가는 쿼리는 Laravel이 SQL 인젝션 방지를 보장할 수 없으므로 사용 시 각별한 주의가 필요합니다.**
 
 <a name="selectraw"></a>
 <!-- #### `selectRaw` -->
@@ -979,7 +979,7 @@ $users = DB::table('users')
 **whereDate / whereMonth / whereDay / whereYear / whereTime**
 
 <!-- The `whereDate` method may be used to compare a column's value against a date: -->
-`whereDate` 메서드는 컬럼 값이 특정 날짜와 같은지 비교할 때 사용합니다.
+`whereDate` 메서드는 컬럼 값을 특정 날짜와 비교할 때 사용합니다.
 
 ```
 $users = DB::table('users')
@@ -988,7 +988,7 @@ $users = DB::table('users')
 ```
 
 <!-- The `whereMonth` method may be used to compare a column's value against a specific month: -->
-`whereMonth` 메서드는 컬럼 값이 특정 월과 같은지 비교할 때 사용합니다.
+`whereMonth` 메서드는 컬럼 값을 특정 월과 비교할 때 사용합니다.
 
 ```
 $users = DB::table('users')
@@ -997,7 +997,7 @@ $users = DB::table('users')
 ```
 
 <!-- The `whereDay` method may be used to compare a column's value against a specific day of the month: -->
-`whereDay` 메서드는 컬럼 값이 특정 일과 같은지 비교할 때 사용합니다.
+`whereDay` 메서드는 컬럼 값을 특정 일과 비교할 때 사용합니다.
 
 ```
 $users = DB::table('users')
@@ -1006,7 +1006,7 @@ $users = DB::table('users')
 ```
 
 <!-- The `whereYear` method may be used to compare a column's value against a specific year: -->
-`whereYear` 메서드는 컬럼 값이 특정 연도와 같은지 비교할 때 사용합니다.
+`whereYear` 메서드는 컬럼 값을 특정 연도와 비교할 때 사용합니다.
 
 ```
 $users = DB::table('users')
@@ -1015,7 +1015,7 @@ $users = DB::table('users')
 ```
 
 <!-- The `whereTime` method may be used to compare a column's value against a specific time: -->
-`whereTime` 메서드는 컬럼 값이 특정 시간과 같은지 비교할 때 사용합니다.
+`whereTime` 메서드는 컬럼 값을 특정 시간과 비교할 때 사용합니다.
 
 ```
 $users = DB::table('users')
@@ -1355,7 +1355,7 @@ $users = DB::table('users')
 ```
 
 <!-- To build more advanced `having` statements, see the [`havingRaw`](#raw-methods) method. -->
-보다 고급스러운 `having` 조건이 필요하다면 [`havingRaw`](#raw-methods) 메서드를 참고하십시오.
+보다 고급 `having` 조건이 필요하다면 [`havingRaw`](#raw-methods) 메서드를 참고하십시오.
 
 <a name="limit-and-offset"></a>
 <!-- ### Limit and Offset -->
@@ -1442,7 +1442,7 @@ DB::table('users')->insert([
 ```
 
 <!-- The `insertOrIgnore` method will ignore errors while inserting records into the database. When using this method, you should be aware that duplicate record errors will be ignored and other types of errors may also be ignored depending on the database engine. For example, `insertOrIgnore` will [bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution): -->
-`insertOrIgnore` 메서드는 레코드를 데이터베이스에 삽입할 때 발생하는 오류를 무시합니다. 이 메서드를 사용할 때는, 중복 레코드 오류뿐만 아니라, 데이터베이스 엔진에 따라 다른 종류의 오류들도 무시될 수 있다는 점을 유의해야 합니다. 예를 들어, `insertOrIgnore`는 [bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution).
+`insertOrIgnore` 메서드는 레코드를 데이터베이스에 삽입할 때 발생하는 오류를 무시합니다. 이 메서드를 사용할 때는, 중복 레코드 오류뿐만 아니라, 데이터베이스 엔진에 따라 다른 종류의 오류들도 무시될 수 있다는 점을 유의해야 합니다. 예를 들어, `insertOrIgnore`는 MySQL의 엄격 모드를 우회합니다([bypass MySQL's strict mode](https://dev.mysql.com/doc/refman/en/sql-mode.html#ignore-effect-on-execution)).
 
 ```
 DB::table('users')->insertOrIgnore([
@@ -1476,7 +1476,7 @@ $id = DB::table('users')->insertGetId(
 ```
 
 > [!WARNING]
-> PostgreSQL을 사용할 경우 `insertGetId` 메서드는 자동 증가 컬럼명이 반드시 `id`이어야 합니다. 다른 "시퀀스"로부터 ID 값을 가져오고 싶다면, `insertGetId` 메서드의 두 번째 매개변수로 컬럼명을 전달하십시오.
+> PostgreSQL을 사용할 경우 `insertGetId` 메서드는 기본적으로 자동 증가 컬럼명이 `id`라고 가정합니다. 다른 "시퀀스"로부터 ID 값을 가져오고 싶다면, `insertGetId` 메서드의 두 번째 매개변수로 컬럼명을 전달하십시오.
 
 <a name="upserts"></a>
 <!-- ### Upserts -->

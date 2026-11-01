@@ -98,7 +98,7 @@
 선택적으로, `install:api` 및 `install:broadcasting` Artisan 명령어를 통해 API 라우트(`api.php`) 및 브로드캐스팅 채널(`channels.php`)용 라우트 파일을 추가로 설치할 수 있습니다.
 
 <!-- The `api.php` file contains routes that are intended to be stateless, so requests entering the application through these routes are intended to be authenticated [via tokens](/docs/12.x/sanctum) and will not have access to session state. -->
-`api.php` 파일은 상태 비저장이며, 이 경로를 통해 들어오는 요청은 [via tokens](/docs/12.x/sanctum)을 통해 인증되어야 하고 세션 상태에 접근하지 않습니다.
+`api.php` 파일에는 상태를 저장하지 않도록 설계된 라우트가 정의되어 있으며, 이 경로를 통해 들어오는 요청은 [via tokens](/docs/12.x/sanctum)을 통해 인증되어야 하고 세션 상태에 접근하지 않습니다.
 
 <!-- The `channels.php` file is where you may register all of the [event broadcasting](/docs/12.x/broadcasting) channels that your application supports. -->
 `channels.php` 파일은 애플리케이션이 지원하는 모든 [event broadcasting](/docs/12.x/broadcasting) 채널을 등록하는 곳입니다.
@@ -138,7 +138,7 @@
 기본적으로 `app` 디렉토리 내에는 `Http`, `Models`, `Providers` 디렉토리가 있습니다. 하지만 시간이 지나면서 Artisan의 make 명령어를 사용해 클래스를 생성할 때 다양한 다른 디렉토리들이 app 내부에 생성됩니다. 예를 들어, `app/Console` 디렉토리는 `make:command` Artisan 명령어를 실행해 명령 클래스가 생성되기 전까지는 존재하지 않습니다.
 
 <!-- Both the `Console` and `Http` directories are further explained in their respective sections below, but think of the `Console` and `Http` directories as providing an API into the core of your application. The HTTP protocol and CLI are both mechanisms to interact with your application, but do not actually contain application logic. In other words, they are two ways of issuing commands to your application. The `Console` directory contains all of your Artisan commands, while the `Http` directory contains your controllers, middleware, and requests. -->
-`Console` 및 `Http` 디렉토리는 아래에서 각각 더 자세히 설명하지만, `Console` 및 `Http` 디렉토리는 애플리케이션 핵심에 API 역할을 합니다. HTTP 프로토콜과 CLI는 모두 애플리케이션과 상호작용하는 방식이지만, 실제 애플리케이션 로직은 포함하지 않습니다. 즉, 애플리케이션에 명령을 전달하는 두 가지 방법입니다. `Console` 디렉토리에는 모든 Artisan 명령어가, `Http` 디렉토리에는 컨트롤러, 미들웨어, 요청 클래스가 있습니다.
+`Console` 및 `Http` 디렉토리는 아래에서 각각 더 자세히 설명하지만, `Console` 및 `Http` 디렉토리는 애플리케이션 핵심에 접근하는 API 역할을 합니다. HTTP 프로토콜과 CLI는 모두 애플리케이션과 상호작용하는 방식이지만, 실제 애플리케이션 로직은 포함하지 않습니다. 즉, 애플리케이션에 명령을 전달하는 두 가지 방법입니다. `Console` 디렉토리에는 모든 Artisan 명령어가, `Http` 디렉토리에는 컨트롤러, 미들웨어, 요청 클래스가 있습니다.
 
 > [!NOTE]
 > `app` 디렉토리 내 많은 클래스들은 Artisan 명령어를 통해 생성할 수 있습니다. 사용 가능한 명령어를 확인하려면 터미널에서 `php artisan list make` 명령어를 실행하세요.

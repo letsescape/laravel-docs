@@ -111,7 +111,7 @@ return User::findOrFail($id)->toResource();
 ```
 
 <!-- When invoking the `toResource` method, Laravel will attempt to locate a resource that matches the model's name and is optionally suffixed with `Resource` within the `Http\Resources` namespace closest to the model's namespace. -->
-`toResource` 메서드를 호출하면, Laravel은 모델 이름과 일치하며 `Resource`로 끝나는 리소스를 해당 모델 네임스페이스와 가장 가까운 `Http\Resources` 네임스페이스에서 찾으려 시도합니다.
+`toResource` 메서드를 호출하면, Laravel은 모델 이름과 일치하고 선택적으로 `Resource` 접미사가 붙은 리소스를 해당 모델 네임스페이스와 가장 가까운 `Http\Resources` 네임스페이스에서 찾으려 시도합니다.
 
 <!-- If your resource class doesn't follow this naming convention or is located in a different namespace, you may specify the default resource for the model using the `UseResource` attribute: -->
 만약 리소스 클래스가 이 네이밍 규칙을 따르지 않거나, 다른 네임스페이스에 위치한다면, 모델에 `UseResource` 속성을 사용하여 기본 리소스를 지정할 수 있습니다:
@@ -259,7 +259,7 @@ return User::all()->toResourceCollection();
 #### Preserving Collection Keys
 
 <!-- When returning a resource collection from a route, Laravel resets the collection's keys so that they are in numerical order. However, you may add a `preserveKeys` property to your resource class indicating whether a collection's original keys should be preserved: -->
-라우트에서 리소스 컬렉션을 반환할 때, Laravel은 기본적으로 컬렉션의 키를 숫자 순서대로 재정렬합니다. 그러나 원래의 컬렉션 키를 그대로 유지하려면, 리소스 클래스에 `preserveKeys` 속성을 추가하면 됩니다:
+라우트에서 리소스 컬렉션을 반환할 때, Laravel은 기본적으로 컬렉션의 키를 숫자 순서대로 재설정합니다. 그러나 원래의 컬렉션 키를 그대로 유지하려면, 리소스 클래스에 `preserveKeys` 속성을 추가하면 됩니다:
 
 ```php
 <?php
@@ -849,7 +849,7 @@ public function toArray(Request $request): array
 #### Conditional Pivot Information
 
 <!-- In addition to conditionally including relationship information in your resource responses, you may conditionally include data from the intermediate tables of many-to-many relationships using the `whenPivotLoaded` method. The `whenPivotLoaded` method accepts the name of the pivot table as its first argument. The second argument should be a closure that returns the value to be returned if the pivot information is available on the model: -->
-연관관계 정보 뿐만 아니라, 다대다 관계의 중간 테이블에 있는 데이터를 조건부로 포함할 때는 `whenPivotLoaded` 메서드를 사용할 수 있습니다. `whenPivotLoaded` 메서드는 첫 번째 인수로 피벗 테이블 이름을, 두 번째 인수로는 사용할 값 반환용 클로저를 전달합니다:
+연관관계 정보 뿐만 아니라, 다대다 관계의 중간 테이블에 있는 데이터를 조건부로 포함할 때는 `whenPivotLoaded` 메서드를 사용할 수 있습니다. `whenPivotLoaded` 메서드는 첫 번째 인수로 피벗 테이블 이름을, 두 번째 인수로는 모델에서 피벗 정보를 사용할 수 있을 때 반환할 값을 반환하는 클로저를 받습니다:
 
 ```php
 /**

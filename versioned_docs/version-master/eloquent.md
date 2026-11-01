@@ -632,7 +632,7 @@ foreach ($users as $user) {
 ```
 
 <!-- Although the `cursor` method uses far less memory than a regular query (by only holding a single Eloquent model in memory at a time), it will still eventually run out of memory. This is [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php). If you're dealing with a very large number of Eloquent records, consider using [the `lazy` method](#chunking-using-lazy-collections) instead. -->
-`cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만(한 번에 하나의 Eloquent 모델만 메모리에 유지하기 때문입니다), 결국에는 여전히 메모리가 부족해질 수 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)입니다. 매우 많은 수의 Eloquent 레코드를 다루고 있다면 대신 [the `lazy` method](#chunking-using-lazy-collections)를 사용하는 것을 고려하세요.
+`cursor` 메서드는 일반 쿼리보다 훨씬 적은 메모리를 사용하지만(한 번에 하나의 Eloquent 모델만 메모리에 유지하기 때문입니다), 결국에는 여전히 메모리가 부족해질 수 있습니다. 이는 [due to PHP's PDO driver internally caching all raw query results in its buffer](https://www.php.net/manual/en/mysqlinfo.concepts.buffering.php)에 설명된 PDO 드라이버의 쿼리 결과 버퍼링 때문입니다. 매우 많은 수의 Eloquent 레코드를 다루고 있다면 대신 [the `lazy` method](#chunking-using-lazy-collections)를 사용하는 것을 고려하세요.
 
 <a name="advanced-subqueries"></a>
 <!-- ### Advanced Subqueries -->
@@ -773,7 +773,7 @@ $flight = Flight::firstOrNew(
 ### Retrieving Aggregates
 
 <!-- When interacting with Eloquent models, you may also use the `count`, `sum`, `max`, and other [aggregate methods](/docs/master/queries#aggregates) provided by the Laravel [query builder](/docs/master/queries). As you might expect, these methods return a scalar value instead of an Eloquent model instance: -->
-Eloquent 모델과 상호작용할 때 Laravel [aggregate methods](/docs/master/queries#aggregates)가 제공하는 `count`, `sum`, `max` 및 기타 [query builder](/docs/master/queries)도 사용할 수 있습니다. 예상할 수 있듯이, 이 메서드들은 Eloquent 모델 인스턴스 대신 스칼라 값을 반환합니다:
+Eloquent 모델과 상호작용할 때 Laravel [query builder](/docs/master/queries)가 제공하는 `count`, `sum`, `max` 및 기타 [aggregate methods](/docs/master/queries#aggregates)도 사용할 수 있습니다. 예상할 수 있듯이, 이 메서드들은 Eloquent 모델 인스턴스 대신 스칼라 값을 반환합니다:
 
 ```php
 $count = Flight::where('active', 1)->count();
@@ -1406,7 +1406,7 @@ Schedule::command('model:prune', [
 ```
 
 <!-- You may test your `prunable` query by executing the `model:prune` command with the `--pretend` option. When pretending, the `model:prune` command will simply report how many records would be pruned if the command were to actually run: -->
-`--pretend` 옵션과 함께 `model:prune` 명령어를 실행하여 `prunable` 쿼리를 테스트할 수 있습니다. 가장 실행 시에는 `model:prune` 명령어가 실제로 실행되었을 때 몇 개의 레코드가 가지치기될지만 보고합니다.
+`--pretend` 옵션과 함께 `model:prune` 명령어를 실행하여 `prunable` 쿼리를 테스트할 수 있습니다. 모의 실행 시에는 `model:prune` 명령어가 실제로 실행되었을 때 몇 개의 레코드가 가지치기될지만 보고합니다.
 
 ```shell
 php artisan model:prune --pretend

@@ -13,7 +13,7 @@
 [data-theme='dark'] .hp-footer {
   --hp-bg: #0a0a0a;
   --hp-text: #EDEDEC;
-  --hp-text-secondary: #706f6c;
+  --hp-text-secondary: #908f8b;
   --hp-accent: #f53003;
   --hp-border: #3E3E3A;
 }
@@ -23,7 +23,7 @@
 }
 
 .hp-footer a {
-  color: #908f8b !important;
+  color: var(--hp-text-secondary) !important;
   text-decoration: none !important;
   transition: color 0.2s;
 }
@@ -69,15 +69,16 @@
 
 .footer-brand-bottom {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 2rem;
   font-size: 1.125rem;
-  color: #908f8b;
+  color: var(--hp-text-secondary);
   margin-top: 4rem;
 }
 
 .footer-brand-bottom a {
-  color: #908f8b !important;
+  color: var(--hp-text-secondary) !important;
 }
 
 .footer-social {
@@ -188,6 +189,43 @@
   display: block;
 }
 
+.hp-footer:not(.hp-footer--docs) .footer-brand p {
+  font-size: 1.25rem;
+}
+
+.hp-footer:not(.hp-footer--docs) .footer-columns-right {
+  flex-wrap: wrap;
+}
+
+.hp-footer:not(.hp-footer--docs) .footer-columns-right,
+.hp-footer:not(.hp-footer--docs) .footer-column h4,
+.hp-footer:not(.hp-footer--docs) .footer-column a,
+.hp-footer:not(.hp-footer--docs) .footer-brand-bottom {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.hp-footer:not(.hp-footer--docs) .footer-column li:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 1080px) {
+  .hp-footer:not(.hp-footer--docs) .container {
+    max-width: 1280px;
+    padding-inline: 2rem;
+  }
+
+  .hp-footer:not(.hp-footer--docs) .footer-top {
+    gap: 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hp-footer:not(.hp-footer--docs) .container {
+    padding-inline: 4rem;
+  }
+}
+
 @media (max-width: 1079.98px) {
   .footer-top {
     flex-direction: column;
@@ -215,8 +253,12 @@
 
 @media (max-width: 768px) {
   .hp-footer .footer-brand p {
-    font-size: 1.125rem !important;
+    font-size: 1.125rem;
     margin-bottom: 1.5rem;
+  }
+
+  [data-theme='light'] .hp-footer .footer-brand p {
+    color: #d92a03 !important;
   }
 
   .footer-top {
@@ -247,6 +289,18 @@
   .hp-footer .footer-brand {
     width: 100%;
     flex-basis: 100%;
+  }
+
+  .hp-footer .footer-column a {
+    white-space: normal;
+  }
+
+  .hp-footer:not(.hp-footer--docs) .footer-columns-right {
+    display: flex;
+  }
+
+  .hp-footer:not(.hp-footer--docs) .footer-column {
+    flex-basis: calc(50% - 0.75rem);
   }
 }
 

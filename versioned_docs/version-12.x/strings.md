@@ -4083,7 +4083,7 @@ $email = Str::of('ⓣⓔⓢⓣ@ⓛⓐⓡⓐⓥⓔⓛ.ⓒⓞⓜ')->transliterate(
 <!-- #### `trim` -->
 #### `trim`
 <!-- The `trim` method trims the given string. Unlike PHP's native `trim` function, Laravel's `trim` method also removes unicode whitespace characters: -->
-`trim` 메서드는 주어진 문자열의 앞뒤를 잘라냅니다. PHP의 기본 `trim` 함수와 달리, Laravel의 `trim` 메서드는 유니코드 공백 문자도 제거합니다:
+`trim` 메서드는 주어진 문자열의 앞뒤에서 공백 또는 지정한 문자를 제거합니다. PHP의 기본 `trim` 함수와 달리, Laravel의 `trim` 메서드는 유니코드 공백 문자도 제거합니다:
 
 ```php
 use Illuminate\Support\Str;
@@ -4101,7 +4101,7 @@ $string = Str::of('/Laravel/')->trim('/');
 <!-- #### `ltrim` -->
 #### `ltrim`
 <!-- The `ltrim` method trims the left side of the string. Unlike PHP's native `ltrim` function, Laravel's `ltrim` method also removes unicode whitespace characters: -->
-`ltrim` 메서드는 문자열의 왼쪽을 잘라냅니다. PHP의 기본 `ltrim` 함수와 달리, Laravel의 `ltrim` 메서드는 유니코드 공백 문자도 제거합니다:
+`ltrim` 메서드는 문자열의 왼쪽에서 공백 또는 지정한 문자를 제거합니다. PHP의 기본 `ltrim` 함수와 달리, Laravel의 `ltrim` 메서드는 유니코드 공백 문자도 제거합니다:
 
 ```php
 use Illuminate\Support\Str;
@@ -4118,7 +4118,7 @@ $string = Str::of('/Laravel/')->ltrim('/');
 <!-- #### `rtrim` -->
 #### `rtrim`
 <!-- The `rtrim` method trims the right side of the given string. Unlike PHP's native `rtrim` function, Laravel's `rtrim` method also removes unicode whitespace characters: -->
-`rtrim` 메서드는 주어진 문자열의 오른쪽 끝을 잘라냅니다. PHP 네이티브 `rtrim` 함수와 달리, Laravel의 `rtrim` 메서드는 유니코드 공백 문자도 제거합니다.
+`rtrim` 메서드는 주어진 문자열의 오른쪽 끝에서 공백 또는 지정한 문자를 제거합니다. PHP 네이티브 `rtrim` 함수와 달리, Laravel의 `rtrim` 메서드는 유니코드 공백 문자도 제거합니다.
 
 ```php
 use Illuminate\Support\Str;

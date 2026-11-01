@@ -266,6 +266,9 @@ Route::post('/unsubscribe/{user}', function (Request $request) {
 })->name('unsubscribe')->middleware('signed:relative');
 ```
 
+> [!WARNING]
+> 署名の対象になるのは URL のパスとクエリ文字列だけです。フォームや JSON リクエストボディなど、それ以外のリクエスト入力は署名されず、ユーザーが自由に変更できます。Laravel はこれらの入力元をまとめ、クエリ文字列よりリクエストボディを優先するため、`query` 以外のメソッド（`input`、`all`、動的なリクエストプロパティなど）で入力を取得すると、署名されていない値が返され、署名済みのクエリ文字列の値が上書きされる可能性があります。そのため、`$request->query('email')` のように、署名済みの値は必ず `query` メソッドで取得してください。これは `GET` リクエストにも当てはまります。細工された `GET` リクエストには、JSON リクエストボディを含めることもできるためです。
+
 <a name="responding-to-invalid-signed-routes"></a>
 <!-- #### Responding to Invalid Signed Routes -->
 #### Responding to Invalid Signed Routes
@@ -412,4 +415,3 @@ URL のデフォルト値を設定すると、Laravel による暗黙的なモ�
     );
 })
 ```
-

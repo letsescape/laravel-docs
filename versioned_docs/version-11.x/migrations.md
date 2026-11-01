@@ -1847,7 +1847,7 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite에서는 기본적으로 외래 키 제약조건이 비활성화되어 있습니다. SQLite를 사용할 경우, 마이그레이션에서 외래 키를 생성/사용하기 전에 반드시 데이터베이스 설정에서 [enable foreign key support](/docs/11.x/database#configuration)해야 합니다.
+> SQLite에서는 기본적으로 외래 키 제약조건이 비활성화되어 있습니다. SQLite를 사용할 경우, 마이그레이션에서 외래 키를 생성/사용하기 전에 반드시 데이터베이스 설정에서 외래 키 지원을 활성화해야 합니다([enable foreign key support](/docs/11.x/database#configuration)).
 
 <a name="events"></a>
 <!-- ## Events -->
@@ -1865,7 +1865,7 @@ Schema::withoutForeignKeyConstraints(function () {
 | `Illuminate\Database\Events\MigrationsEnded`    | 마이그레이션 배치 실행이 완료되었음을 알립니다.            |
 | `Illuminate\Database\Events\MigrationStarted`   | 개별 마이그레이션이 곧 실행될 예정임을 알립니다.           |
 | `Illuminate\Database\Events\MigrationEnded`     | 개별 마이그레이션 실행이 완료되었음을 알립니다.            |
-| `Illuminate\Database\Events\NoPendingMigrations`| 실행할 마이그레이션이 없는 명령어가 감지되었음을 알립니다.  |
+| `Illuminate\Database\Events\NoPendingMigrations`| 마이그레이션 명령어가 실행할 마이그레이션을 찾지 못했음을 알립니다.  |
 | `Illuminate\Database\Events\SchemaDumped`       | 데이터베이스 스키마 덤프 작업이 완료되었음을 알립니다.     |
 | `Illuminate\Database\Events\SchemaLoaded`       | 기존 데이터베이스 스키마 덤프가 로드되었음을 알립니다.      |
 

@@ -104,7 +104,7 @@ $result = Process::input('Hello World')->run('cat');
 #### Timeouts
 
 <!-- By default, processes will throw an instance of `Illuminate\Process\Exceptions\ProcessTimedOutException` after executing for more than 60 seconds. However, you can customize this behavior via the `timeout` method: -->
-기본적으로, 프로세스는 60초 이상 실행되면 `Illuminate\Process\Exceptions\ProcessTimedOutException` 예외를 던집니다. 이 동작은 `timeout` 메서드를 통해 조정할 수 있습니다:
+기본적으로, 프로세스는 60초를 초과하여 실행되면 `Illuminate\Process\Exceptions\ProcessTimedOutException` 예외를 던집니다. 이 동작은 `timeout` 메서드를 통해 조정할 수 있습니다:
 
 ```php
 $result = Process::timeout(120)->run('bash import.sh');
@@ -199,7 +199,7 @@ if (Process::run('ls -la')->seeInOutput('laravel')) {
 #### Disabling Process Output
 
 <!-- If your process is writing a significant amount of output that you are not interested in, you can conserve memory by disabling output retrieval entirely. To accomplish this, invoke the `quietly` method while building the process: -->
-프로세스가 관심 없는 많은 양의 출력을 생성한다면, 메모리를 절약하기 위해 출력 수집 자체를 비활성화할 수 있습니다. 이를 위해 `quietly` 메서드를 과정 빌드 시 호출하면 됩니다:
+프로세스가 관심 없는 많은 양의 출력을 생성한다면, 메모리를 절약하기 위해 출력 수집 자체를 비활성화할 수 있습니다. 이를 위해 `quietly` 메서드를 프로세스를 구성할 때 호출하면 됩니다:
 
 ```php
 use Illuminate\Support\Facades\Process;
@@ -374,7 +374,7 @@ while ($process->running()) {
 ## Concurrent Processes
 
 <!-- Laravel also makes it a breeze to manage a pool of concurrent, asynchronous processes, allowing you to easily execute many tasks simultaneously. To get started, invoke the `pool` method, which accepts a closure that receives an instance of `Illuminate\Process\Pool`. -->
-Laravel에서는 여러 개의 동시 비동기 프로세스 풀(Pool)을 손쉽게 관리할 수 있어, 여러 작업을 동시에 실행할 수 있습니다. 시작하려면 `Illuminate\Process\Pool` 인스턴스를 받는 클로저를 인수로 전달해 `pool` 메서드를 호출합니다.
+Laravel에서는 동시에 실행되는 여러 비동기 프로세스의 풀(Pool)을 손쉽게 관리할 수 있어, 여러 작업을 동시에 실행할 수 있습니다. 시작하려면 `Illuminate\Process\Pool` 인스턴스를 받는 클로저를 인수로 전달해 `pool` 메서드를 호출합니다.
 
 <!-- Within this closure, you may define the processes that belong to the pool. Once a process pool is started via the `start` method, you may access the [collection](/docs/master/collections) of running processes via the `running` method: -->
 이 클로저 안에서 풀에 포함될 프로세스들을 정의할 수 있습니다. 프로세스 풀을 `start` 메서드로 시작하면, `running` 메서드를 통해 실행 중인 프로세스의 [collection](/docs/master/collections)을 확인할 수 있습니다:
@@ -647,7 +647,7 @@ Process::fake([
 ### Available Assertions
 
 <!-- As [previously discussed](#faking-processes), Laravel provides several process assertions for your feature tests. We'll discuss each of these assertions below. -->
-[previously discussed](#faking-processes), Laravel에서는 여러 가지 프로세스 assertion을 이용해 기능 테스트를 작성할 수 있습니다. 아래에서는 각 assertion에 대해 살펴봅니다.
+앞서 설명한 것처럼([previously discussed](#faking-processes)), Laravel에서는 여러 가지 프로세스 assertion을 이용해 기능 테스트를 작성할 수 있습니다. 아래에서는 각 assertion에 대해 살펴봅니다.
 
 <a name="assert-process-ran"></a>
 <!-- #### assertRan -->

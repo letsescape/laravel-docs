@@ -16,8 +16,8 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "test:markdown-links": "node --test scripts/markdown-link-utils.test.mjs src/remark/anchor-mapping.test.mjs src/utils/document-seo.test.mjs",
-    "test:security": "node --test scripts/create-latest-doc-redirects.test.mjs src/remark/validate-local-assets.test.mjs src/rehype/safe-html.test.mjs",
+    "test:markdown-links": "node --test scripts/markdown-link-utils.test.mjs src/remark/anchor-mapping.test.mjs src/remark/document-toc.test.mjs src/utils/document-seo.test.mjs",
+    "test:security": "node --test src/utils/document-front-matter.test.mjs scripts/create-latest-doc-redirects.test.mjs src/remark/validate-local-assets.test.mjs src/rehype/safe-html.test.mjs",
     "test:e2e": "playwright test",
     "test:e2e:docker": "docker run --rm --ipc=host -v \"$PWD:/work\" -v laravel-docs-playwright-node-modules:/work/node_modules -w /work -p 3000:3000 mcr.microsoft.com/playwright:v1.64.0-noble bash -lc \"npm ci && NODE_OPTIONS=--max-old-space-size=4096 PLAYWRIGHT_PORT=3000 npx playwright test\"",
     "test:e2e:ui": "playwright test --ui",
@@ -45,6 +45,8 @@
     "@docusaurus/tsconfig": "^3.10.2",
     "@docusaurus/types": "^3.10.1",
     "@docusaurus/utils": "^3.10.2",
+    "mdast-util-to-string": "^4.0.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "remark-parse": "^11.0.0",
@@ -53,6 +55,7 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "@mozilla/readability": "^0.6.0",
     "@playwright/test": "^1.61.1",
     "@types/mdast": "^4.0.4",
     "cheerio": "1.2.0",

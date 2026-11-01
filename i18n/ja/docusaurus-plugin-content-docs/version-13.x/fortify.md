@@ -232,7 +232,7 @@ public function boot(): void
 ### Customizing the Authentication Pipeline
 
 <!-- Laravel Fortify authenticates login requests through a pipeline of invokable classes. If you would like, you may define a custom pipeline of classes that login requests should be piped through. Each class should have an `__invoke` method which receives the incoming `Illuminate\Http\Request` instance and, like [middleware](/docs/13.x/middleware), a `$next` variable that is invoked in order to pass the request to the next class in the pipeline. -->
-Laravel Fortify は、呼び出し可能なクラスのパイプラインを通じてログインリクエストを認証します。必要に応じて、ログイン要求がパイプされるクラスのカスタム パイプラインを定義できます。各クラスには、受信 `Illuminate\Http\Request` インスタンスを受け取る `__invoke` メソッドと、[middleware](/docs/13.x/middleware) と同様に、パイプライン内の次のクラスにリクエストを渡すために呼び出される `$next` 変数が必要です。
+Laravel Fortify は、呼び出し可能なクラスのパイプラインを通じてログインリクエストを認証します。必要に応じて、ログイン要求がパイプされるクラスのカスタム パイプラインを定義できます。各クラスには、受信 `Illuminate\Http\Request` インスタンスと、[middleware](/docs/13.x/middleware) と同様にパイプライン内の次のクラスにリクエストを渡すために呼び出される `$next` 変数を受け取る `__invoke` メソッドが必要です。
 
 <!-- To define your custom pipeline, you may use the `Fortify::authenticateThrough` method. This method accepts a closure which should return the array of classes to pipe the login request through. Typically, this method should be called from the `boot` method of your `App\Providers\FortifyServiceProvider` class. -->
 カスタム パイプラインを定義するには、`Fortify::authenticateThrough` メソッドを使用できます。このメソッドは、ログイン要求をパイプ処理するクラスの配列を返すクロージャを受け入れます。通常、このメソッドは、`App\Providers\FortifyServiceProvider` クラスの `boot` メソッドから呼び出す必要があります。
@@ -729,7 +729,7 @@ Fortify は、このビューを返す `/forgot-password` エンドポイント�
 リクエストが成功した後に `/forgot-password` エンドポイントにリダイレクトされた後、`status` セッション変数を使用して、パスワードリセット リンク リクエスト試行のステータスを表示できます。
 
 <!-- The value of the `$status` session variable will match one of the translation strings defined within your application's `passwords` [language file](/docs/13.x/localization). If you would like to customize this value and have not published Laravel's language files, you may do so via the `lang:publish` Artisan command: -->
-`$status` セッション変数の値は、アプリケーションの `passwords` [language file](/docs/13.x/localization) 内で定義された変換文字列の 1 つと一致します。この値をカスタマイズしたいが、Laravel の言語ファイルを公開していない場合は、`lang:publish` Artisan コマンドを使用してカスタマイズできます。
+`$status` セッション変数の値は、アプリケーションの `passwords` [language file](/docs/13.x/localization) 内で定義された翻訳文字列の 1 つと一致します。この値をカスタマイズしたいが、Laravel の言語ファイルを公開していない場合は、`lang:publish` Artisan コマンドを使用してカスタマイズできます。
 
 ```html
 @if (session('status'))
@@ -800,8 +800,8 @@ Fortify は、このビューを表示するルートの定義を処理します
 <!-- ### Customizing Password Resets -->
 ### Customizing Password Resets
 
-<!-- The password reset process may be customized by modifying the `App\Actions\ResetUserPassword` action that was generated when you installed Laravel Fortify. -->
-パスワードのリセットプロセスは、Laravel Fortify のインストール時に生成された `App\Actions\ResetUserPassword` アクションを変更することでカスタマイズできます。
+<!-- The password reset process may be customized by modifying the `App\Actions\Fortify\ResetUserPassword` action that was generated when you installed Laravel Fortify. -->
+パスワードリセットのプロセスは、Laravel Fortify のインストール時に生成された `App\Actions\Fortify\ResetUserPassword` アクションを変更することでカスタマイズできます。
 
 <a name="email-verification"></a>
 <!-- ## Email Verification -->

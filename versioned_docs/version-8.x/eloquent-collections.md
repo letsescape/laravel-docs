@@ -212,7 +212,7 @@ $users->modelKeys();
 #### `makeVisible($attributes)`
 
 <!-- The `makeVisible` method [makes attributes visible](/docs/8.x/eloquent-serialization#hiding-attributes-from-json) that are typically "hidden" on each model in the collection: -->
-`makeVisible` 메서드는 컬렉션 내 각 모델에서 평소 "숨겨진" 상태인 [makes attributes visible](/docs/8.x/eloquent-serialization#hiding-attributes-from-json)합니다.
+`makeVisible` 메서드는 컬렉션 내 각 모델에서 평소 "숨겨진" 상태인 속성을 표시합니다([makes attributes visible](/docs/8.x/eloquent-serialization#hiding-attributes-from-json)).
 
 ```
 $users = $users->makeVisible(['address', 'phone_number']);
@@ -223,7 +223,7 @@ $users = $users->makeVisible(['address', 'phone_number']);
 #### `makeHidden($attributes)`
 
 <!-- The `makeHidden` method [hides attributes](/docs/8.x/eloquent-serialization#hiding-attributes-from-json) that are typically "visible" on each model in the collection: -->
-`makeHidden` 메서드는 컬렉션 내 각 모델에서 평소 "보이는" 상태인 [hides attributes](/docs/8.x/eloquent-serialization#hiding-attributes-from-json)합니다.
+`makeHidden` 메서드는 컬렉션 내 각 모델에서 평소 "보이는" 상태인 속성을 숨깁니다([hides attributes](/docs/8.x/eloquent-serialization#hiding-attributes-from-json)).
 
 ```
 $users = $users->makeHidden(['address', 'phone_number']);

@@ -172,7 +172,7 @@ php artisan folio:page "users/[id]"
 ```
 
 <!-- To capture multiple segments, you can prefix the encapsulated segment with three dots `...`: -->
-여러 세그먼트를 캡처하려면, 대괄호 안 세그먼트 이름 앞에 `...` 세 개를 붙이면 됩니다:
+여러 세그먼트를 캡처하려면, 대괄호 안 세그먼트 이름 앞에 점 세 개(`...`)를 붙이면 됩니다:
 
 ```shell
 php artisan folio:page "users/[...ids]"

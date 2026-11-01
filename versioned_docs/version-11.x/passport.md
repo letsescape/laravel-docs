@@ -586,7 +586,7 @@ return $response->json();
 ### Revoking Tokens
 
 <!-- You may revoke a token by using the `revokeAccessToken` method on the `Laravel\Passport\TokenRepository`. You may revoke a token's refresh tokens using the `revokeRefreshTokensByAccessTokenId` method on the `Laravel\Passport\RefreshTokenRepository`. These classes may be resolved using Laravel's [service container](/docs/11.x/container): -->
-토큰을 폐기하려면, `Laravel\Passport\TokenRepository`의 `revokeAccessToken` 메서드를 사용하면 됩니다. 리프레시 토큰만 폐기하려면 `Laravel\Passport\RefreshTokenRepository`의 `revokeRefreshTokensByAccessTokenId` 메서드를 사용할 수 있습니다. 이 클래스들은 Laravel의 [service container](/docs/11.x/container)를 통해 resolve할 수 있습니다:
+토큰을 폐기하려면, `Laravel\Passport\TokenRepository`의 `revokeAccessToken` 메서드를 사용하면 됩니다. 특정 액세스 토큰에 연결된 리프레시 토큰을 폐기하려면 `Laravel\Passport\RefreshTokenRepository`의 `revokeRefreshTokensByAccessTokenId` 메서드를 사용할 수 있습니다. 이 클래스들은 Laravel의 [service container](/docs/11.x/container)를 통해 resolve할 수 있습니다:
 
 ```
 use Laravel\Passport\TokenRepository;
@@ -637,7 +637,7 @@ Schedule::command('passport:purge')->hourly();
 ## Authorization Code Grant With PKCE
 
 <!-- The Authorization Code grant with "Proof Key for Code Exchange" (PKCE) is a secure way to authenticate single page applications or native applications to access your API. This grant should be used when you can't guarantee that the client secret will be stored confidentially or in order to mitigate the threat of having the authorization code intercepted by an attacker. A combination of a "code verifier" and a "code challenge" replaces the client secret when exchanging the authorization code for an access token. -->
-"Proof Key for Code Exchange(PKCE)"가 적용된 인증 코드 그랜트 방식은, 단일 페이지 애플리케이션(SPA)이나 네이티브 애플리케이션에서 안전하게 API를 인증할 수 있는 방법입니다. 클라이언트 시크릿을 안전하게 관리하기 어렵거나, 인증 코드가 공격자에게 탈취되는 것을 방지할 필요가 있을 때 추천합니다. 이 방식에서는 "코드 검증자(code verifier)"와 "코드 챌린지(code challenge)"의 조합이 클라이언트 시크릿을 대신하여 인증 코드와 액세스 토큰을 교환할 때 사용됩니다.
+"Proof Key for Code Exchange(PKCE)"가 적용된 인증 코드 그랜트 방식은, 단일 페이지 애플리케이션(SPA)이나 네이티브 애플리케이션이 API에 접근할 수 있도록 안전하게 인증하는 방법입니다. 클라이언트 시크릿을 안전하게 관리하기 어렵거나, 공격자의 인증 코드 탈취에 따른 위협을 완화할 필요가 있을 때 추천합니다. 이 방식에서는 "코드 검증자(code verifier)"와 "코드 챌린지(code challenge)"의 조합이 클라이언트 시크릿을 대신하여 인증 코드와 액세스 토큰을 교환할 때 사용됩니다.
 
 <a name="creating-a-auth-pkce-grant-client"></a>
 
@@ -786,7 +786,7 @@ php artisan passport:client --password
 ### Requesting Tokens
 
 <!-- Once you have created a password grant client, you may request an access token by issuing a `POST` request to the `/oauth/token` route with the user's email address and password. Remember, this route is already registered by Passport so there is no need to define it manually. If the request is successful, you will receive an `access_token` and `refresh_token` in the JSON response from the server: -->
-패스워드 그랜트 클라이언트를 생성한 후에는, 사용자의 이메일/아이디와 비밀번호를 포함하여 `/oauth/token` 경로로 `POST` 요청을 보내 엑세스 토큰을 요청할 수 있습니다. 이 경로는 Passport가 이미 등록해두었으므로 별도의 라우트 정의는 필요하지 않습니다. 요청이 성공하면, 서버의 JSON 응답에서 `access_token`과 `refresh_token`을 받게 됩니다.
+패스워드 그랜트 클라이언트를 생성한 후에는, 사용자의 이메일 주소와 비밀번호를 포함하여 `/oauth/token` 경로로 `POST` 요청을 보내 엑세스 토큰을 요청할 수 있습니다. 이 경로는 Passport가 이미 등록해두었으므로 별도의 라우트 정의는 필요하지 않습니다. 요청이 성공하면, 서버의 JSON 응답에서 `access_token`과 `refresh_token`을 받게 됩니다.
 
 ```
 use Illuminate\Support\Facades\Http;
@@ -1012,7 +1012,7 @@ return $response->json()['access_token'];
 때로는 사용자가 전형적인 인가 코드 리다이렉트 과정을 거치지 않고, 직접 자신의 액세스 토큰을 발급받고 싶어할 수 있습니다. 애플리케이션의 UI를 통해 사용자가 직접 토큰을 발급받을 수 있도록 하는 것은 API 사용 테스트나, 보다 단순한 토큰 발급 방식으로도 유용할 수 있습니다.
 
 > [!NOTE]
-> 애플리케이션에서 주로 개인 액세스 토큰 발급을 위해 Passport를 사용한다면, [Laravel Sanctum](/docs/11.x/sanctum)도 함께 고려해보세요. Sanctum은 첫파티에서 제공되는 API 액세스 토큰 발급용 경량 라이브러리입니다.
+> 애플리케이션에서 주로 개인 액세스 토큰 발급을 위해 Passport를 사용한다면, [Laravel Sanctum](/docs/11.x/sanctum)도 함께 고려해보세요. Sanctum은 Laravel에서 직접 제공하는 API 액세스 토큰 발급용 경량 라이브러리입니다.
 
 <a name="creating-a-personal-access-client"></a>
 <!-- ### Creating a Personal Access Client -->
@@ -1163,7 +1163,7 @@ Route::get('/user', function () {
 ```
 
 <!-- The following route will utilize the `api-customers` guard, which uses the `customers` user provider, to authenticate incoming requests: -->
-아래와 같은 라우트에서는 `api-customers` 가드(즉, `customers` 사용자 공급자)를 사용하여 들어오는 요청을 인증하게 됩니다.
+아래와 같은 라우트에서는 `customers` 사용자 공급자를 사용하는 `api-customers` 가드로 들어오는 요청을 인증하게 됩니다.
 
 ```
 Route::get('/customer', function () {

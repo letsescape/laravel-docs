@@ -430,7 +430,7 @@ public function report(): bool
 애플리케이션이 매우 많은 수의 예외를 보고한다면, 실제로 로그에 기록되거나 애플리케이션의 외부 오류 추적 서비스로 전송되는 예외 수를 제한하고 싶을 수 있습니다.
 
 <!-- To take a random sample rate of exceptions, you may use the `throttle` exception method in your application's `bootstrap/app.php` file. The `throttle` method receives a closure that should return a `Lottery` instance: -->
-예외를 무작위 샘플 비율로 처리하려면 애플리케이션의 `bootstrap/app.php` 파일에서 `throttle` 예외 메서드를 사용할 수 있습니다. `throttle` 메서드는 `Lottery` 인스턴스를 반환해야 하는 클로저를 받습니다.
+예외를 일정 비율로 무작위 샘플링하려면 애플리케이션의 `bootstrap/app.php` 파일에서 `throttle` 예외 메서드를 사용할 수 있습니다. `throttle` 메서드는 `Lottery` 인스턴스를 반환해야 하는 클로저를 받습니다.
 
 ```php
 use Illuminate\Support\Lottery;
@@ -519,7 +519,7 @@ use Throwable;
 ## HTTP Exceptions
 
 <!-- Some exceptions describe HTTP error codes from the server. For example, this may be a "page not found" error (404), an "unauthorized error" (401), or even a developer generated 500 error. In order to generate such a response from anywhere in your application, you may use the `abort` helper: -->
-일부 예외는 서버의 HTTP 오류 코드를 설명합니다. 예를 들어 "페이지를 찾을 수 없음" 오류(404), "인가되지 않음" 오류(401), 또는 개발자가 발생시킨 500 오류일 수 있습니다. 애플리케이션 어디에서든 이러한 응답을 생성하려면 `abort` 헬퍼를 사용할 수 있습니다.
+일부 예외는 서버의 HTTP 오류 코드를 설명합니다. 예를 들어 "페이지를 찾을 수 없음" 오류(404), "인증되지 않음" 오류(401), 또는 개발자가 발생시킨 500 오류일 수 있습니다. 애플리케이션 어디에서든 이러한 응답을 생성하려면 `abort` 헬퍼를 사용할 수 있습니다.
 
 ```php
 abort(404);

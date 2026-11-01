@@ -117,7 +117,7 @@ services:
 ```
 
 <!-- Typically, you should access your FrankenPHP Sail application via `https://localhost`, as using `https://127.0.0.1` requires additional configuration and is [discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker). -->
-일반적으로 FrankenPHP Sail 애플리케이션에는 `https://localhost`로 접근해야 하며, `https://127.0.0.1`을 사용하려면 추가 설정이 필요하므로 [discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker).
+일반적으로 FrankenPHP Sail 애플리케이션에는 `https://localhost`로 접근해야 하며, `https://127.0.0.1`을 사용하려면 추가 설정이 필요하고 이 방식은 권장되지 않습니다([discouraged](https://frankenphp.dev/docs/known-issues/#using-https127001-with-docker)).
 
 <a name="frankenphp-via-docker"></a>
 <!-- #### FrankenPHP via Docker -->
@@ -463,7 +463,7 @@ Octane은 애플리케이션을 한 번만 실행해서 메모리에 유지하�
 이러한 특성 때문에, 서비스 컨테이너나 Request 인스턴스를 객체의 생성자에 직접 주입하는 경우에는 특별히 주의해야 합니다. 만약 그렇게 한다면, 해당 객체가 이후의 요청에서도 "오래된" 컨테이너나 Request 인스턴스를 계속 사용할 수 있습니다.
 
 <!-- Octane will automatically handle resetting any first-party framework state between requests. However, Octane does not always know how to reset the global state created by your application. Therefore, you should be aware of how to build your application in a way that is Octane friendly. Below, we will discuss the most common situations that may cause problems while using Octane. -->
-Octane은 프레임워크의 기본 상태(예: Laravel이 관리하는 자체 상태)는 매 요청마다 자동으로 초기화하지만, 여러분이 만든 글로벌/정적 상태는 Octane이 자동으로 감지하여 초기화할 수 없습니다. 따라서 Octane 친화적인 방식으로 애플리케이션을 개발해야 합니다. 다음은 Octane에서 종종 문제가 되는 상황들에 대한 설명입니다.
+Octane은 프레임워크의 기본 상태(예: Laravel이 관리하는 자체 상태)는 매 요청마다 자동으로 초기화하지만, 여러분이 만든 글로벌/정적 상태는 Octane이 항상 자동으로 초기화할 수 있는 것은 아닙니다. 따라서 Octane 친화적인 방식으로 애플리케이션을 개발해야 합니다. 다음은 Octane에서 종종 문제가 되는 상황들에 대한 설명입니다.
 
 <a name="container-injection"></a>
 <!-- ### Container Injection -->
@@ -488,7 +488,7 @@ public function register(): void
 ```
 
 <!-- In this example, if the `Service` instance is resolved during the application boot process, the container will be injected into the service and that same container will be held by the `Service` instance on subsequent requests. This **may** not be a problem for your particular application; however, it can lead to the container unexpectedly missing bindings that were added later in the boot cycle or by a subsequent request. -->
-이 예시에서 `Service` 인스턴스가 애플리케이션 부팅 과정 중에 생성되면, 해당 시점의 컨테이너가 서비스 객체에 주입되고, 이후의 모든 요청에서도 똑같은(최초의) 컨테이너 인스턴스를 계속 사용하게 됩니다. 이렇게 해도 문제없는 경우가 대부분이지만, 일부 상황에서는 부팅 중 추가되거나 이후의 요청에서 추가된 바인딩들을 `Service` 인스턴스가 알지 못해 의도치 않은 버그가 발생할 수 있습니다.
+이 예시에서 `Service` 인스턴스가 애플리케이션 부팅 과정 중에 생성되면, 해당 시점의 컨테이너가 서비스 객체에 주입되고, 이후의 모든 요청에서도 똑같은(최초의) 컨테이너 인스턴스를 계속 사용하게 됩니다. 이렇게 해도 문제가 되지 않을 수 있지만, 일부 상황에서는 부팅 중 추가되거나 이후의 요청에서 추가된 바인딩들을 `Service` 인스턴스가 알지 못해 의도치 않은 버그가 발생할 수 있습니다.
 
 <!-- As a work-around, you could either stop registering the binding as a singleton, or you could inject a container resolver closure into the service that always resolves the current container instance: -->
 이 문제를 피하는 방법은 싱글톤으로 등록하지 않거나, 컨테이너 인스턴스를 항상 현재 시점 것으로 가져오는 클로저(resolver)를 생성자에 주입하는 것입니다.
@@ -611,7 +611,7 @@ $this->app->singleton(Service::class, function () {
 ### Managing Memory Leaks
 
 <!-- Remember, Octane keeps your application in memory between requests; therefore, adding data to a statically maintained array will result in a memory leak. For example, the following controller has a memory leak since each request to the application will continue to add data to the static `$data` array: -->
-Octane은 애플리케이션을 요청 사이에도 메모리에 계속 유지하므로, static 배열 등에 데이터를 추가하는 경우 메모리 누수가 발생할 수 있습니다. 아래 컨트롤러는 매 요청마다 static `$data` 배열에 데이터를 쌓아 메모리 누수가 생기는 예시입니다.
+Octane은 애플리케이션을 요청 사이에도 메모리에 계속 유지하므로, static 배열 등에 데이터를 추가하는 경우 메모리 누수가 발생합니다. 아래 컨트롤러는 매 요청마다 static `$data` 배열에 데이터를 쌓아 메모리 누수가 생기는 예시입니다.
 
 ```php
 use App\Service;
@@ -700,7 +700,7 @@ Octane::tick('simple-ticker', fn () => ray('Ticking...'))
 > 이 기능은 [Swoole](#swoole)이 필요합니다.
 
 <!-- When using Swoole, you may leverage the Octane cache driver, which provides read and write speeds of up to 2 million operations per second. Therefore, this cache driver is an excellent choice for applications that need extreme read / write speeds from their caching layer. -->
-Swoole을 사용할 경우, Octane 캐시 드라이버를 사용할 수 있으며, 초당 200만 건 이상의 읽기/쓰기 속도를 제공합니다. 그래서 초고속 캐싱이 필요한 애플리케이션에서는 매우 훌륭한 선택지입니다.
+Swoole을 사용할 경우, Octane 캐시 드라이버를 사용할 수 있으며, 초당 최대 200만 건의 읽기/쓰기 속도를 제공합니다. 그래서 초고속 캐싱이 필요한 애플리케이션에서는 매우 훌륭한 선택지입니다.
 
 <!-- This cache driver is powered by [Swoole tables](https://www.swoole.co.uk/docs/modules/swoole-table). All data stored in the cache is available to all workers on the server. However, the cached data will be flushed when the server is restarted: -->
 이 캐시 드라이버는 [Swoole tables](https://www.swoole.co.uk/docs/modules/swoole-table)을 기반으로 동작합니다. 캐시에 저장된 모든 데이터는 서버의 모든 워커에서 접근할 수 있습니다. 단, 서버가 재시작되면 캐시 데이터는 모두 초기화됩니다.

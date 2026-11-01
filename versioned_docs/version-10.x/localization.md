@@ -173,7 +173,7 @@ return [
 ### Using Translation Strings as Keys
 
 <!-- For applications with a large number of translatable strings, defining every string with a "short key" can become confusing when referencing the keys in your views and it is cumbersome to continually invent keys for every translation string supported by your application. -->
-번역할 문자열의 수가 많은 애플리케이션의 경우, 각각의 문자열에 짧은 키(short key)를 지정하는 것이 하드코딩할 때 혼란을 일으키거나, 모든 번역 문자열마다 새로운 키를 만들어야 해서 번거로울 수 있습니다.
+번역할 문자열의 수가 많은 애플리케이션의 경우, 각각의 문자열에 짧은 키(short key)를 지정하면 뷰에서 키를 참조할 때 혼란을 일으키거나, 모든 번역 문자열마다 새로운 키를 만들어야 해서 번거로울 수 있습니다.
 
 <!-- For this reason, Laravel also provides support for defining translation strings using the "default" translation of the string as the key. Language files that use translation strings as keys are stored as JSON files in the `lang` directory. For example, if your application has a Spanish translation, you should create a `lang/es.json` file: -->
 이런 이유로, Laravel에서는 번역 문자열의 "원래 내용" 자체를 키로 사용해서 번역을 정의하는 방식도 지원합니다. 이렇게 번역 문자열을 키로 사용하는 언어 파일은 `lang` 디렉터리 내에 JSON 파일로 저장됩니다. 예를 들어, 스페인어 번역이 필요한 경우 `lang/es.json` 파일을 생성할 수 있습니다.
@@ -188,7 +188,7 @@ return [
 #### Key / File Conflicts
 
 <!-- You should not define translation string keys that conflict with other translation filenames. For example, translating `__('Action')` for the "NL" locale while a `nl/action.php` file exists but a `nl.json` file does not exist will result in the translator returning the entire contents of `nl/action.php`. -->
-다른 번역 파일 이름과 충돌하는 번역 문자열 키를 절대 정의하지 마십시오. 예를 들어, "NL" 로케일에서 `__('Action')`을 번역하려 할 때 `nl/action.php` 파일이 있는 상태에서 `nl.json` 파일이 없다면, 번역기는 `nl/action.php` 전체 내용을 반환할 수 있습니다.
+다른 번역 파일 이름과 충돌하는 번역 문자열 키를 절대 정의하지 마십시오. 예를 들어, "NL" 로케일에서 `__('Action')`을 번역하려 할 때 `nl/action.php` 파일이 있는 상태에서 `nl.json` 파일이 없다면, 번역기는 `nl/action.php` 전체 내용을 반환합니다.
 
 <a name="retrieving-translation-strings"></a>
 <!-- ## Retrieving Translation Strings -->
@@ -215,7 +215,7 @@ echo __('I love programming.');
 이 역시 마찬가지로, 번역 문자열이 존재하지 않으면 `__` 함수는 전달받은 번역 문자열 키를 그대로 반환합니다.
 
 <!-- If you are using the [Blade templating engine](/docs/10.x/blade), you may use the `{{ }}` echo syntax to display the translation string: -->
-[Blade templating engine](/docs/10.x/blade)을 사용할 때는 `{{ }}` 이코(echo) 문법으로 번역 문자열을 화면에 출력할 수 있습니다.
+[Blade templating engine](/docs/10.x/blade)을 사용할 때는 `{{ }}` 에코(echo) 문법으로 번역 문자열을 화면에 출력할 수 있습니다.
 
 ```
 {{ __('messages.welcome') }}

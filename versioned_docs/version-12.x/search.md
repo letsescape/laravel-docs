@@ -329,10 +329,10 @@ $articles = Article::search('Laravel')->get();
 ### Third-Party Engines
 
 <!-- Scout also supports third-party search engines such as [Algolia](https://www.algolia.com/), [Meilisearch](https://www.meilisearch.com), and [Typesense](https://typesense.org). These dedicated search services offer advanced features like typo tolerance, faceted filtering, geo-search, and custom ranking rules — features that become important at very large scale or when you need a highly polished search-as-you-type experience. -->
-Scout는 [Algolia](https://www.algolia.com/), [Meilisearch](https://www.meilisearch.com), [Typesense](https://typesense.org) 등 외부 검색 엔진도 지원합니다. 이런 전문 검색 서비스는 오탈자 허용, 파셋 필터링, 위치 기반 검색, 사용자 맞춤 정렬 규칙 등 고급 기능을 제공하며, 대규모 또는 고성능 실시간 검색이 필요한 서비스에서 유용합니다.
+Scout는 [Algolia](https://www.algolia.com/), [Meilisearch](https://www.meilisearch.com), [Typesense](https://typesense.org) 등 외부 검색 엔진도 지원합니다. 이런 전문 검색 서비스는 오탈자 허용, 파셋 필터링, 위치 기반 검색, 사용자 맞춤 정렬 규칙 등 고급 기능을 제공하며, 대규모 서비스나 입력하는 동안 결과를 보여주는 정교한 검색 경험이 필요한 경우에 유용합니다.
 
 <!-- Since Scout provides a unified API across all of its drivers, switching from the database engine to a third-party engine later requires minimal code changes. You may start with the database engine and migrate to a third-party service only if your application's needs outgrow what the database can provide. -->
-Scout는 모든 드라이버에 대해 통일된 API를 제공하므로, 이후 외부 엔진으로 교체할 때도 코드 수정이 최소화됩니다. 처음에는 내장 데이터베이스 엔진으로 시작하고, 애플리케이션 규모가 커져 데이터베이스 한계를 넘어서면 외부 서비스로 전환해도 무방합니다.
+Scout는 모든 드라이버에 대해 통일된 API를 제공하므로, 이후 외부 엔진으로 교체할 때도 코드 수정이 최소화됩니다. 처음에는 내장 데이터베이스 엔진으로 시작하고, 애플리케이션의 검색 요구가 데이터베이스에서 제공할 수 있는 기능을 넘어서면 외부 서비스로 전환해도 무방합니다.
 
 <!-- For complete details on configuring third-party engines, consult the [Scout documentation](/docs/12.x/scout). -->
 서드파티 엔진 설정 등 자세한 내용은 [Scout documentation](/docs/12.x/scout)를 참고하십시오.

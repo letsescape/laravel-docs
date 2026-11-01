@@ -12,7 +12,7 @@ import {
   relativeTargetPath,
   sourceUrl,
 } from './anchor-routes.mjs';
-import {staleLinkResolution} from './stale-links.mjs';
+import {staleLinkResolution} from '../src/utils/stale-links.mjs';
 
 assert.deepEqual(
   extractMarkdownLinks('<!-- [Hidden](/docs/13.x/mcp#client) -->\n[Visible](#ok)'),

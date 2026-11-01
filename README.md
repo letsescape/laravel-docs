@@ -49,7 +49,9 @@ docker build -t laravel-docs .
 docker run -p 3000:3000 laravel-docs
 ```
 
-`make init`과 `make dev`는 사이트 빌드와 npm 패키지 설치를 수행합니다. 기본 `docker compose up`은 사이트 빌드 서비스만 실행합니다. Docker 번역은 `make translate` 또는 `translation` profile을 명시해 실행합니다.
+`build` 서비스는 웹사이트의 정적 파일을 생성하고 종료합니다. `translate` 서비스는 원문 동기화·번역 스크립트를 실행하고 결과를 작업 트리에 기록합니다.
+
+`make init`과 `make dev`는 `build` 서비스와 npm 패키지 설치를 실행합니다. 기본 `docker compose up`도 `build` 서비스만 실행합니다. Docker 번역은 `make translate`로 실행합니다. 이 명령은 `translate` 서비스만 실행하고 종료 후 컨테이너를 제거합니다.
 
 ### 문서 갱신
 

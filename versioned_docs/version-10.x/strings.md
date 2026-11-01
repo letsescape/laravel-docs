@@ -774,7 +774,7 @@ $html = Str::inlineMarkdown('**Laravel**');
 #### Markdown Security
 
 <!-- By default, Markdown supports raw HTML, which will expose Cross-Site Scripting (XSS) vulnerabilities when used with raw user input. As per the [CommonMark Security documentation](https://commonmark.thephpleague.com/security/), you may use the `html_input` option to either escape or strip raw HTML, and the `allow_unsafe_links` option to specify whether to allow unsafe links. If you need to allow some raw HTML, you should pass your compiled Markdown through an HTML Purifier: -->
-기본적으로 마크다운은 순수 HTML을 지원합니다. 그러나 사용자 입력을 그대로 사용할 경우, 이는 교차 사이트 스크립팅(XSS) 취약점에 노출될 수 있습니다. [CommonMark Security documentation](https://commonmark.thephpleague.com/security/)에 따르면, `html_input` 옵션을 사용해 순수 HTML을 이스케이프하거나 제거(stript)할 수 있고, `allow_unsafe_links` 옵션으로 위험한 링크 허용 여부를 지정할 수 있습니다. 만약 일부 순수 HTML만 허용해야 한다면, 마크다운이 변환된 결과를 HTML Purifier에 통과시키는 것이 좋습니다.
+기본적으로 마크다운은 순수 HTML을 지원합니다. 그러나 사용자 입력을 그대로 사용할 경우, 이는 교차 사이트 스크립팅(XSS) 취약점에 노출될 수 있습니다. [CommonMark Security documentation](https://commonmark.thephpleague.com/security/)에 따르면, `html_input` 옵션을 사용해 순수 HTML을 이스케이프하거나 제거(strip)할 수 있고, `allow_unsafe_links` 옵션으로 위험한 링크 허용 여부를 지정할 수 있습니다. 만약 일부 순수 HTML만 허용해야 한다면, 마크다운이 변환된 결과를 HTML Purifier에 통과시키는 것이 좋습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -1053,7 +1053,7 @@ $string = Str::mask('taylor@example.com', '*', 3);
 ```
 
 <!-- If needed, you provide a negative number as the third argument to the `mask` method, which will instruct the method to begin masking at the given distance from the end of the string: -->
-`mask` 메서드의 세 번째 인수로 음수를 전달하면, 문자열 끝에서부터 마스킹이 시작됩니다.
+`mask` 메서드의 세 번째 인수로 음수를 전달하면, 문자열 끝에서부터 지정한 거리만큼 떨어진 위치에서 마스킹이 시작됩니다.
 
 ```
 $string = Str::mask('taylor@example.com', '*', -15, 3);
@@ -1411,7 +1411,7 @@ $replaced = Str::replaceMatches('/\d/', function (array $matches) {
 #### `Str::replaceStart()`
 
 <!-- The `Str::replaceStart` method replaces the first occurrence of the given value only if the value appears at the start of the string: -->
-`Str::replaceStart` 메서드는 문자열의 시작 부분에만 지정한 값이 있을 때에만 이 값을 교체합니다.
+`Str::replaceStart` 메서드는 지정한 값이 문자열의 시작 부분에 있을 때에만 그 부분을 교체합니다.
 
 ```
 use Illuminate\Support\Str;
@@ -1430,7 +1430,7 @@ $replaced = Str::replaceStart('World', 'Laravel', 'Hello World');
 #### `Str::replaceEnd()`
 
 <!-- The `Str::replaceEnd` method replaces the last occurrence of the given value only if the value appears at the end of the string: -->
-`Str::replaceEnd` 메서드는 문자열의 끝 부분에만 지정한 값이 있을 때에만 이 값을 교체합니다.
+`Str::replaceEnd` 메서드는 지정한 값이 문자열의 끝 부분에 있을 때에만 그 부분을 교체합니다.
 
 ```
 use Illuminate\Support\Str;
@@ -1956,7 +1956,7 @@ echo trans('messages.welcome');
 #### `trans_choice()`
 
 <!-- The `trans_choice` function translates the given translation key with inflection: -->
-`trans_choice` 함수는 변환 키에 맞게 복수/단수 등 어형을 적용하여 번역합니다.
+`trans_choice` 함수는 번역 키에 맞게 복수/단수 등 어형을 적용하여 번역합니다.
 
 ```
 echo trans_choice('messages.notifications', $unreadCount);
@@ -2296,7 +2296,7 @@ $result = Str::of('This is my name')->endsWith('name');
 ```
 
 <!-- You may also pass an array of values to determine if the given string ends with any of the values in the array: -->
-배열로 여러 값을 전달하여, 전달된 값 중 하나라도 해당 문자열로 끝나는지 확인할 수도 있습니다.
+배열로 여러 값을 전달하여, 해당 문자열이 전달된 값 중 하나로 끝나는지 확인할 수도 있습니다.
 
 ```
 use Illuminate\Support\Str;
@@ -2453,7 +2453,7 @@ $result = Str::of('ü')->isAscii();
 #### `isEmpty`
 
 <!-- The `isEmpty` method determines if the given string is empty: -->
-`isEmpty` 메서드는 주어진 문자열이 비어있는지(공백만 포함하는지) 판별합니다.
+`isEmpty` 메서드는 주어진 문자열이 비어있는지 판별합니다.
 
 ```
 use Illuminate\Support\Str;
@@ -2833,7 +2833,7 @@ $padded = Str::of('Laravel')->newLine()->append('Framework');
 #### `padBoth`
 
 <!-- The `padBoth` method wraps PHP's `str_pad` function, padding both sides of a string with another string until the final string reaches the desired length: -->
-`padBoth` 메서드는 PHP의 `str_pad` 함수를 감싸 양쪽에서 문자열을 지정한 길이만큼 다른 문자열로 채웁니다.
+`padBoth` 메서드는 PHP의 `str_pad` 함수를 감싸 최종 문자열이 지정한 길이가 될 때까지 문자열의 양쪽을 다른 문자열로 채웁니다.
 
 ```
 use Illuminate\Support\Str;
@@ -2852,7 +2852,7 @@ $padded = Str::of('James')->padBoth(10);
 #### `padLeft`
 
 <!-- The `padLeft` method wraps PHP's `str_pad` function, padding the left side of a string with another string until the final string reaches the desired length: -->
-`padLeft` 메서드는 PHP의 `str_pad` 함수를 감싸 왼쪽에서 문자열을 지정한 길이만큼 다른 문자열로 채웁니다.
+`padLeft` 메서드는 PHP의 `str_pad` 함수를 감싸 최종 문자열이 지정한 길이가 될 때까지 문자열의 왼쪽을 다른 문자열로 채웁니다.
 
 ```
 use Illuminate\Support\Str;
@@ -2871,7 +2871,7 @@ $padded = Str::of('James')->padLeft(10);
 #### `padRight`
 
 <!-- The `padRight` method wraps PHP's `str_pad` function, padding the right side of a string with another string until the final string reaches the desired length: -->
-`padRight` 메서드는 PHP의 `str_pad` 함수를 감싸 오른쪽에서 문자열을 지정한 길이만큼 다른 문자열로 채웁니다.
+`padRight` 메서드는 PHP의 `str_pad` 함수를 감싸 최종 문자열이 지정한 길이가 될 때까지 문자열의 오른쪽을 다른 문자열로 채웁니다.
 
 ```
 use Illuminate\Support\Str;

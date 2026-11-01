@@ -461,7 +461,7 @@ Storage::putFile('photos', new File('/path/to/photo'), 'public');
 #### Prepending & Appending To Files
 
 <!-- The `prepend` and `append` methods allow you to write to the beginning or end of a file: -->
-`prepend` 및 `append` 메서드는 파일 앞쪽이나 뒷쪽에 데이터를 추가할 수 있습니다.
+`prepend` 및 `append` 메서드는 파일 앞쪽이나 뒤쪽에 데이터를 추가할 수 있습니다.
 
 ```
 Storage::prepend('file.log', 'Prepended Text');
@@ -588,7 +588,7 @@ $extension = $file->getClientOriginalExtension();
 ```
 
 <!-- However, keep in mind that the `getClientOriginalName` and `getClientOriginalExtension` methods are considered unsafe, as the file name and extension may be tampered with by a malicious user. For this reason, you should typically prefer the `hashName` and `extension` methods to get a name and an extension for the given file upload: -->
-단, `getClientOriginalName`과 `getClientOriginalExtension` 메서드는 사용자가 심어놓은 악성 파일명, 확장자일 수 있으므로 안전하지 않습니다. 보통은 `hashName`과 `extension` 메서드를 사용해 안전하게 무작위 파일명, 확장자를 구하는 것이 좋습니다.
+단, `getClientOriginalName`과 `getClientOriginalExtension` 메서드는 사용자가 심어놓은 악성 파일명, 확장자일 수 있으므로 안전하지 않습니다. 보통은 `hashName`과 `extension` 메서드를 사용해 안전하게 파일명과 확장자를 구하는 것이 좋습니다.
 
 ```
 $file = $request->file('avatar');

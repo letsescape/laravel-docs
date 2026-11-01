@@ -372,7 +372,7 @@ $options = [
 인라인 결제에서 사용할 수 있는 다양한 옵션은 Paddle의 [guide on Inline Checkout](https://developer.paddle.com/guides/how-tos/checkout/inline-checkout) 및 [parameter reference](https://developer.paddle.com/reference/paddle-js/parameters)를 참고하시기 바랍니다.
 
 > [!WARNING]
-> 커스텀 옵션으로 `passthrough` 옵션을 사용하고 싶다면, 반드시 key/value 배열 형태로 전달해야 합니다. Cashier가 자동으로 해당 배열을 JSON 문자열로 변환해줍니다. 단, `customer_id` passthrough 옵션은 Cashier 내부적으로 사용되므로 별도로 지정하실 필요가 없습니다.
+> 커스텀 옵션으로 `passthrough` 옵션을 사용하고 싶다면, 반드시 key/value 배열 형태로 전달해야 합니다. Cashier가 자동으로 해당 배열을 JSON 문자열로 변환해줍니다. 단, `customer_id` passthrough 옵션은 Cashier 내부용으로 예약되어 있습니다.
 
 <a name="manually-rendering-an-inline-checkout"></a>
 <!-- #### Manually Rendering An Inline Checkout -->
@@ -486,7 +486,7 @@ $prices = Cashier::productPrices([123, 456], ['customer_country' => 'BE']);
 #### Customers
 
 <!-- If a user is already a customer and you would like to display the prices that apply to that customer, you may do so by retrieving the prices directly from the customer instance: -->
-이미 가입한 사용자가 있다면, 해당 고객에게 적용되는 가격을 그 고객 인스턴스에서 직접 조회할 수 있습니다.
+이미 고객으로 등록된 사용자가 있다면, 해당 고객에게 적용되는 가격을 그 고객 인스턴스에서 직접 조회할 수 있습니다.
 
 ```
 use App\Models\User;
@@ -975,7 +975,7 @@ $user->subscription('default')->noProrate()->updateQuantity(10);
 ### Subscription Modifiers
 
 <!-- Subscription modifiers allow you to implement [metered billing](https://developer.paddle.com/guides/how-tos/subscriptions/metered-billing#using-subscription-price-modifiers) or extend subscriptions with add-ons. -->
-구독 모디파이어를 이용하면 [metered billing](https://developer.paddle.com/guides/how-tos/subscriptions/metered-billing#using-subscription-price-modifiers)나, 구독에 추가 요소(Add-on)를 더할 수 있습니다.
+구독 모디파이어를 이용하면 [metered billing](https://developer.paddle.com/guides/how-tos/subscriptions/metered-billing#using-subscription-price-modifiers)을 구현하거나 구독에 추가 요소(Add-on)를 더할 수 있습니다.
 
 <!-- For example, you might want to offer a "Premium Support" add-on with your standard subscription. You can create this modifier like so: -->
 예를 들어, 표준 구독에 "프리미엄 지원(Premium Support)" 추가 기능을 제공하고 싶다면 아래와 같이 모디파이어를 생성할 수 있습니다.
@@ -1230,7 +1230,7 @@ if ($user->onTrial()) {
 ```
 
 <!-- Once you are ready to create an actual subscription for the user, you may use the `newSubscription` method as usual: -->
-사용자의 실제 구독 생성을 준비가 끝났다면, 기존과 동일하게 `newSubscription` 메서드를 사용해 구독을 생성할 수 있습니다.
+사용자의 실제 구독을 생성할 준비가 끝났다면, 기존과 동일하게 `newSubscription` 메서드를 사용해 구독을 생성할 수 있습니다.
 
 ```
 use Illuminate\Http\Request;
@@ -1273,7 +1273,7 @@ if ($user->onGenericTrial()) {
 Paddle은 다양한 이벤트가 발생할 때 웹훅을 통해 애플리케이션에 알릴 수 있습니다. 기본적으로 Cashier 서비스 제공자가 Cashier의 웹훅 컨트롤러를 가리키는 라우트를 등록합니다. 이 컨트롤러가 모든 웹훅 요청을 처리합니다.
 
 <!-- By default, this controller will automatically handle cancelling subscriptions that have too many failed charges ([as defined by your Paddle dunning settings](https://vendors.paddle.com/recover-settings#dunning-form-id)), subscription updates, and payment method changes; however, as we'll soon discover, you can extend this controller to handle any Paddle webhook event you like. -->
-기본적으로 이 컨트롤러는 결제 실패(지나치게 많이 실패한 경우 - [as defined by your Paddle dunning settings](https://vendors.paddle.com/recover-settings#dunning-form-id) 기준), 구독 갱신, 결제 정보 변경 등의 이벤트를 자동으로 처리합니다. 물론 여러분이 원하는 어떤 Paddle 웹훅 이벤트든 컨트롤러를 확장해서 직접 처리할 수도 있습니다.
+기본적으로 이 컨트롤러는 결제 실패가 지나치게 많은 구독의 취소([as defined by your Paddle dunning settings](https://vendors.paddle.com/recover-settings#dunning-form-id) 기준), 구독 갱신, 결제 정보 변경 등의 이벤트를 자동으로 처리합니다. 물론 여러분이 원하는 어떤 Paddle 웹훅 이벤트든 컨트롤러를 확장해서 직접 처리할 수도 있습니다.
 
 <!-- To ensure your application can handle Paddle webhooks, be sure to [configure the webhook URL in the Paddle control panel](https://vendors.paddle.com/alerts-webhooks). By default, Cashier's webhook controller responds to the `/paddle/webhook` URL path. The full list of all webhooks you should enable in the Paddle control panel are: -->
 애플리케이션이 Paddle 웹훅을 올바르게 처리하려면, 반드시 [configure the webhook URL in the Paddle control panel](https://vendors.paddle.com/alerts-webhooks)해야 합니다. Cashier의 기본 웹훅 컨트롤러는 `/paddle/webhook` 경로를 사용합니다. Paddle 관리 패널에서 활성화해야 하는 모든 웹훅 목록은 아래와 같습니다.
@@ -1588,7 +1588,7 @@ $nextPayment = $subscription->nextPayment();
 ```
 
 <!-- Both of these methods will return an instance of `Laravel\Paddle\Payment`; however, `nextPayment` will return `null` when the billing cycle has ended (such as when a subscription has been cancelled): -->
-이 두 메서드는 모두 `Laravel\Paddle\Payment` 인스턴스를 반환합니다. 단, 구독이 해지되어 결제 주기가 끝난 경우 `nextPayment`는 `null`을 반환합니다.
+이 두 메서드는 모두 `Laravel\Paddle\Payment` 인스턴스를 반환합니다. 단, 구독이 해지되는 등 결제 주기가 끝난 경우 `nextPayment`는 `null`을 반환합니다.
 
 ```blade
 Next payment: {{ $nextPayment->amount() }} due on {{ $nextPayment->date()->format('d/m/Y') }}
@@ -1599,7 +1599,7 @@ Next payment: {{ $nextPayment->amount() }} due on {{ $nextPayment->date()->forma
 ## Handling Failed Payments
 
 <!-- Subscription payments fail for various reasons, such as expired cards or a card having insufficient funds. When this happens, we recommend that you let Paddle handle payment failures for you. Specifically, you may [setup Paddle's automatic billing emails](https://vendors.paddle.com/subscription-settings) in your Paddle dashboard. -->
-구독 결제는 카드 만료, 한도 초과 등 다양한 원인으로 실패할 수 있습니다. 이런 경우에는 Paddle에서 결제 실패 처리를 담당하도록 하는 것이 좋습니다. Paddle 대시보드에서 [setup Paddle's automatic billing emails](https://vendors.paddle.com/subscription-settings) 설정을 통해 처리할 수 있습니다.
+구독 결제는 카드 만료, 잔액 부족 등 다양한 원인으로 실패할 수 있습니다. 이런 경우에는 Paddle에서 결제 실패 처리를 담당하도록 하는 것이 좋습니다. Paddle 대시보드에서 [setup Paddle's automatic billing emails](https://vendors.paddle.com/subscription-settings) 설정을 통해 처리할 수 있습니다.
 
 <!-- Alternatively, you can perform more precise customization by [listening](/docs/9.x/events) for the `subscription_payment_failed` Paddle event via the `WebhookReceived` event dispatched by Cashier. You should also ensure the "Subscription Payment Failed" option is enabled in the Webhook settings of your Paddle dashboard: -->
 그리고, 더 세밀한 제어가 필요하다면 Cashier에서 디스패치하는 `WebhookReceived` 이벤트를 [listening](/docs/9.x/events)하여 `subscription_payment_failed` Paddle 이벤트를 직접 처리할 수도 있습니다. Paddle 대시보드의 Webhook 설정에서 "Subscription Payment Failed" 옵션이 활성화되어 있는지도 확인하세요.

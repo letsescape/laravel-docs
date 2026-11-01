@@ -270,7 +270,7 @@ $response = $this->withoutExceptionHandling()->get('/');
 ```
 
 <!-- In addition, if you would like to ensure that your application is not utilizing features that have been deprecated by the PHP language or the libraries your application is using, you may invoke the `withoutDeprecationHandling` method before making your request. When deprecation handling is disabled, deprecation warnings will be converted to exceptions, thus causing your test to fail: -->
-또한, 애플리케이션이나 사용하는 라이브러리가 PHP에서 더 이상 권장되지 않는(deprecated) 기능을 사용하는지 검사하고 싶을 때는, 요청 전에 `withoutDeprecationHandling` 메서드를 사용할 수 있습니다. deprecation handling이 비활성화되면, deprecated 경고가 예외로 변환되어 테스트가 실패하게 됩니다:
+또한, 애플리케이션이 PHP나 사용하는 라이브러리에서 더 이상 권장되지 않는(deprecated) 기능을 사용하지 않는지 검사하고 싶을 때는, 요청 전에 `withoutDeprecationHandling` 메서드를 사용할 수 있습니다. deprecation handling이 비활성화되면, deprecated 경고가 예외로 변환되어 테스트가 실패하게 됩니다:
 
 ```
 $response = $this->withoutDeprecationHandling()->get('/');
@@ -660,7 +660,7 @@ UploadedFile::fake()->create(
 ## Testing Views
 
 <!-- Laravel also allows you to render a view without making a simulated HTTP request to the application. To accomplish this, you may call the `view` method within your test. The `view` method accepts the view name and an optional array of data. The method returns an instance of `Illuminate\Testing\TestView`, which offers several methods to conveniently make assertions about the view's contents: -->
-Laravel은 실제 HTTP 요청을 보내지 않고도 뷰를 렌더링하여 테스트할 수 있게 해줍니다. 이를 위해 테스트 코드 안에서 `view` 메서드를 호출하면 됩니다. `view` 메서드는 뷰 이름과 선택적으로 데이터를 담은 배열을 인수로 받으며, 반환값으로 `Illuminate\Testing\TestView` 클래스의 인스턴스를 제공합니다. 이 객체는 뷰 내용에 대해 여러 assert 메서드를 편리하게 사용할 수 있게 해줍니다.
+Laravel은 HTTP 요청을 시뮬레이션하지 않고도 뷰를 렌더링하여 테스트할 수 있게 해줍니다. 이를 위해 테스트 코드 안에서 `view` 메서드를 호출하면 됩니다. `view` 메서드는 뷰 이름과 선택적으로 데이터를 담은 배열을 인수로 받으며, 반환값으로 `Illuminate\Testing\TestView` 클래스의 인스턴스를 제공합니다. 이 객체는 뷰 내용에 대해 여러 assert 메서드를 편리하게 사용할 수 있게 해줍니다.
 
 ```
 <?php
@@ -739,7 +739,7 @@ $view->assertSee('Taylor');
 ### Response Assertions
 
 <!-- Laravel's `Illuminate\Testing\TestResponse` class provides a variety of custom assertion methods that you may utilize when testing your application. These assertions may be accessed on the response that is returned by the `json`, `get`, `post`, `put`, and `delete` test methods: -->
-Laravel의 `Illuminate\Testing\TestResponse` 클래스는 애플리케이션 테스트 중에 활용할 수 있는 다양한 커스텀 어서션 메서드를 제공합니다. 이 어서션들은 테스트에서 반환되는 `json`, `get`, `post`, `put`, `delete` 등의 응답(Response) 객체에서 사용할 수 있습니다.
+Laravel의 `Illuminate\Testing\TestResponse` 클래스는 애플리케이션 테스트 중에 활용할 수 있는 다양한 커스텀 어서션 메서드를 제공합니다. 이 어서션들은 `json`, `get`, `post`, `put`, `delete` 등의 테스트 메서드가 반환하는 응답(Response) 객체에서 사용할 수 있습니다.
 
 
 <!-- <div class="collection-method-list" markdown="1"> -->
@@ -1716,7 +1716,7 @@ $response->assertSessionDoesntHaveErrors($keys = [], $format = null, $errorBag =
 ```
 
 > [!NOTE]
-> 보다 일반적인 [assertValid](#assert-valid) 메서드는, 응답에 유효성 검증 오류가 JSON으로 반환된 경우 **그리고** 오류가 세션에 플래시되지 않은 경우 모두 검사할 때 사용할 수 있습니다.
+> 보다 일반적인 [assertValid](#assert-valid) 메서드는, 응답에 JSON으로 반환된 유효성 검증 오류가 없는지 **그리고** 세션에 플래시된 오류가 없는지 모두 검사할 때 사용할 수 있습니다.
 
 <a name="assert-session-missing"></a>
 <!-- #### assertSessionMissing -->

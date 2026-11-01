@@ -312,7 +312,7 @@ npm run build
 ```
 
 <!-- If you are running the development server in [Sail](/docs/10.x/sail) on WSL2, you may need some [additional configuration](#configuring-hmr-in-sail-on-wsl2) options. -->
-[Sail](/docs/10.x/sail)을 WSL2 환경에서 개발 서버를 실행하는 경우 [additional configuration](#configuring-hmr-in-sail-on-wsl2)이 필요할 수 있습니다.
+WSL2 환경의 [Sail](/docs/10.x/sail)에서 개발 서버를 실행하는 경우 [additional configuration](#configuring-hmr-in-sail-on-wsl2)이 필요할 수 있습니다.
 
 <a name="working-with-scripts"></a>
 <!-- ## Working With JavaScript -->
@@ -661,7 +661,7 @@ ASSET_URL=https://cdn.example.com
 ```
 
 <!-- After configuring the asset URL, all re-written URLs to your assets will be prefixed with the configured value: -->
-설정 후, 에셋의 경로는 지정한 값으로 자동으로 접두어가 붙어 출력됩니다:
+설정 후, 재작성된 에셋의 경로는 지정한 값으로 자동으로 접두어가 붙어 출력됩니다:
 
 ```nothing
 https://cdn.example.com/build/assets/app.9dce8d17.js
@@ -776,7 +776,7 @@ node bootstrap/ssr/ssr.js
 ```
 
 <!-- If you are using [SSR with Inertia](https://inertiajs.com/server-side-rendering), you may instead use the `inertia:start-ssr` Artisan command to start the SSR server: -->
-[SSR with Inertia](https://inertiajs.com/server-side-rendering), `inertia:start-ssr` Artisan 명령어로도 SSR 서버를 시작할 수 있습니다:
+[SSR with Inertia](https://inertiajs.com/server-side-rendering)을 사용하는 경우, `inertia:start-ssr` Artisan 명령어로도 SSR 서버를 시작할 수 있습니다:
 
 ```sh
 php artisan inertia:start-ssr
@@ -794,7 +794,7 @@ php artisan inertia:start-ssr
 ### Content Security Policy (CSP) Nonce
 
 <!-- If you wish to include a [`nonce` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce) on your script and style tags as part of your [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you may generate or specify a nonce using the `useCspNonce` method within a custom [middleware](/docs/10.x/middleware): -->
-[`nonce` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)의 일부로서, 스크립트와 스타일 태그에 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)을 포함하고 싶다면, 커스텀 [middleware](/docs/10.x/middleware)에서 `useCspNonce` 메서드로 nonce를 생성 또는 지정할 수 있습니다:
+[Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)의 일부로서, 스크립트와 스타일 태그에 [`nonce` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)을 포함하고 싶다면, 커스텀 [middleware](/docs/10.x/middleware)에서 `useCspNonce` 메서드로 nonce를 생성 또는 지정할 수 있습니다:
 
 ```php
 <?php
@@ -923,7 +923,7 @@ Vite::useStyleTagAttributes(fn (string $src, string $url, array|null $chunk, arr
 ```
 
 > [!WARNING]
-> Vite 개발 서버가 동작하는 동안에는 `$chunk`, `$manifest` 인자가 `null` 값이 될 수 있습니다.
+> Vite 개발 서버가 동작하는 동안에는 `$chunk`, `$manifest` 인자가 `null` 값이 됩니다.
 
 <a name="advanced-customization"></a>
 <!-- ## Advanced Customization -->
@@ -985,10 +985,10 @@ Vite 에코시스템 내 일부 플러그인들은 슬래시(/)로 시작하는 
 ```
 
 <!-- The `vite-imagetools` plugin is expecting that the output URL will be intercepted by Vite and the plugin may then handle all URLs that start with `/@imagetools`. If you are using plugins that are expecting this behaviour, you will need to manually correct the URLs. You can do this in your `vite.config.js` file by using the `transformOnServe` option. -->
-이 때 `vite-imagetools` 플러그인은 `/@imagetools`로 시작하는 URL이 Vite에 의해 가로채진다고 기대합니다. 이러한 플러그인과 함께 사용할 때는 URL을 수동으로 수정해야 할 수 있습니다. `vite.config.js`의 `transformOnServe` 옵션을 사용하면 해결할 수 있습니다.
+이 때 `vite-imagetools` 플러그인은 `/@imagetools`로 시작하는 URL이 Vite에 의해 가로채진다고 기대합니다. 이러한 플러그인과 함께 사용할 때는 URL을 수동으로 수정해야 합니다. `vite.config.js`의 `transformOnServe` 옵션을 사용하면 해결할 수 있습니다.
 
 <!-- In this particular example, we will prepend the dev server URL to all occurrences of `/@imagetools` within the generated code: -->
-아래 예시처럼, 생성된 코드 내의 `/@imagetools` 부분을 dev 서버 URL로 교체할 수 있습니다:
+아래 예시처럼, 생성된 코드 내의 모든 `/@imagetools` 앞에 dev 서버 URL을 붙입니다:
 
 ```js
 import { defineConfig } from 'vite';

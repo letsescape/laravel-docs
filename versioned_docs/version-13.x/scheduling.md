@@ -29,7 +29,7 @@
 이전에는 서버에서 스케줄링해야 하는 각 작업마다 cron 설정 항목을 작성했을 수 있습니다. 하지만 이렇게 하면 작업 스케줄이 더 이상 소스 관리에 포함되지 않고, 기존 cron 항목을 확인하거나 새 항목을 추가하려면 서버에 SSH로 접속해야 하므로 금방 번거로워질 수 있습니다.
 
 <!-- Laravel's command scheduler offers a fresh approach to managing scheduled tasks on your server. The scheduler allows you to fluently and expressively define your command schedule within your Laravel application itself. When using the scheduler, only a single cron entry is needed on your server. Your task schedule is typically defined in your application's `routes/console.php` file. -->
-Laravel의 명령어 스케줄러는 서버의 스케줄된 작업을 관리하는 새로운 방식을 제공합니다. 스케줄러를 사용하면 Laravel 애플리케이션 안에서 명령어 스케줄을 유창하고 표현력 있게 정의할 수 있습니다. 스케줄러를 사용할 때 서버에는 하나의 cron 항목만 필요합니다. 작업 스케줄은 일반적으로 애플리케이션의 `routes/console.php` 파일에 정의합니다.
+Laravel의 명령어 스케줄러는 서버의 스케줄된 작업을 관리하는 새로운 방식을 제공합니다. 스케줄러를 사용하면 Laravel 애플리케이션 안에서 메서드 체이닝을 통해 명령어 스케줄을 명확하게 정의할 수 있습니다. 스케줄러를 사용할 때 서버에는 하나의 cron 항목만 필요합니다. 작업 스케줄은 일반적으로 애플리케이션의 `routes/console.php` 파일에 정의합니다.
 
 <a name="defining-schedules"></a>
 <!-- ## Defining Schedules -->
@@ -414,7 +414,7 @@ Schedule::command('report:generate')
 ```
 
 <!-- To apply `onOneServer` to all scheduled tasks, you may call the `alwaysOnOneServer` method in the `boot` method of your application's `AppServiceProvider`: -->
-모든 예약 작업에 `onOneServer`를 적용하려면 애플리케이션의 `AppServiceProvider`에서 `boot` 메서드를 호출할 때 `alwaysOnOneServer` 메서드를 호출하면 됩니다.
+모든 예약 작업에 `onOneServer`를 적용하려면 애플리케이션의 `AppServiceProvider`에 있는 `boot` 메서드 안에서 `alwaysOnOneServer` 메서드를 호출하면 됩니다.
 
 ```php
 use Illuminate\Support\Facades\Schedule;
@@ -747,7 +747,7 @@ Schedule::command('emails:send')
 ## Events
 
 <!-- Laravel dispatches a variety of [events](/docs/13.x/events) during the scheduling process. You may [define listeners](/docs/13.x/events) for any of the following events: -->
-Laravel은 스케줄링 과정에서 다양한 [events](/docs/13.x/events)를 디스패치합니다. 다음 이벤트에 대해 [define listeners](/docs/13.x/events)할 수 있습니다.
+Laravel은 스케줄링 과정에서 다양한 [events](/docs/13.x/events)를 디스패치합니다. 다음 이벤트에 대해 [define listeners](/docs/13.x/events) 문서를 참고해 리스너를 정의할 수 있습니다.
 
 <div class="overflow-auto">
 

@@ -211,7 +211,7 @@ $request->validate([
 ### Displaying the Validation Errors
 
 <!-- So, what if the incoming request fields do not pass the given validation rules? As mentioned previously, Laravel will automatically redirect the user back to their previous location. In addition, all of the validation errors and [request input](/docs/10.x/requests#retrieving-old-input) will automatically be [flashed to the session](/docs/10.x/session#flash-data). -->
-그렇다면, 들어온 요청의 필드 값이 지정한 유효성 검증 규칙을 통과하지 못한다면 어떻게 될까요? 앞서 언급했듯이, Laravel은 자동으로 사용자를 이전 위치로 리다이렉트합니다. 뿐만 아니라, 모든 유효성 검증 에러와 [request input](/docs/10.x/requests#retrieving-old-input)이 자동으로 [flashed to the session](/docs/10.x/session#flash-data).
+그렇다면, 들어온 요청의 필드 값이 지정한 유효성 검증 규칙을 통과하지 못한다면 어떻게 될까요? 앞서 언급했듯이, Laravel은 자동으로 사용자를 이전 위치로 리다이렉트합니다. 뿐만 아니라, 모든 유효성 검증 에러와 [request input](/docs/10.x/requests#retrieving-old-input)이 자동으로 [flashed to the session](/docs/10.x/session#flash-data)됩니다.
 
 <!-- An `$errors` variable is shared with all of your application's views by the `Illuminate\View\Middleware\ShareErrorsFromSession` middleware, which is provided by the `web` middleware group. When this middleware is applied an `$errors` variable will always be available in your views, allowing you to conveniently assume the `$errors` variable is always defined and can be safely used. The `$errors` variable will be an instance of `Illuminate\Support\MessageBag`. For more information on working with this object, [check out its documentation](#working-with-error-messages). -->
 `Illuminate\View\Middleware\ShareErrorsFromSession` 미들웨어에 의해 `$errors` 변수는 애플리케이션의 모든 뷰(view)에서 항상 사용할 수 있도록 자동으로 공유됩니다. 이 미들웨어는 `web` 미들웨어 그룹에 포함되어 있습니다. 따라서 여러분은 뷰 파일에서 `$errors` 변수를 항상 사용할 수 있고 `$errors` 변수가 정의되어 있다고 가정하고 안전하게 사용할 수 있습니다. `$errors` 변수는 `Illuminate\Support\MessageBag` 클래스의 인스턴스입니다. 이 객체를 사용하는 방법이 궁금하다면 [check out its documentation](#working-with-error-messages)를 참고하세요.
@@ -251,7 +251,7 @@ Laravel에서 기본적으로 제공하는 유효성 검증 규칙마다 각각�
 또한, 이 파일을 원하는 언어 디렉토리로 복사하여 에러 메시지를 애플리케이션 언어에 맞게 번역할 수도 있습니다. Laravel의 다국어 지원 기능에 대해 더 자세히 알고 싶다면 [localization documentation](/docs/10.x/localization)를 참고하세요.
 
 > [!WARNING]
-> 기본적으로 Laravel 애플리케이션의 기본 구조(스캐폴딩)에는 `lang` 디렉토리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면, `lang:publish` 아티즌 명령어로 해당 파일을 퍼블리시해야 합니다.
+> 기본적으로 Laravel 애플리케이션의 기본 구조(스캐폴딩)에는 `lang` 디렉토리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면, `lang:publish` 아티즌 명령어로 해당 파일을 퍼블리시할 수 있습니다.
 
 <a name="quick-xhr-requests-and-validation"></a>
 <!-- #### XHR Requests and Validation -->
@@ -436,7 +436,7 @@ public function store(StorePostRequest $request): RedirectResponse
 때로는, 초기 유효성 검증이 완료된 이후에 추가 검증을 해야 할 수도 있습니다. 이럴 땐 폼 리퀘스트의 `after` 메서드를 사용합니다.
 
 <!-- The `after` method should return an array of callables or closures which will be invoked after validation is complete. The given callables will receive an `Illuminate\Validation\Validator` instance, allowing you to raise additional error messages if necessary: -->
-`after` 메서드는 콜러블(callable) 또는 클로저(closure)의 배열을 반환해야 하며, 유효성 검증 완료 후에 호출됩니다. 이 콜러블에는 `Illuminate\Validation\Validator` 인스턴스가 전달되므로, 필요시 추가 에러 메시지를 등록할 수 있습니다:
+`after` 메서드는 유효성 검증 완료 후에 호출될 콜러블(callable) 또는 클로저(closure)의 배열을 반환해야 합니다. 이 콜러블에는 `Illuminate\Validation\Validator` 인스턴스가 전달되므로, 필요시 추가 에러 메시지를 등록할 수 있습니다:
 
 ```
 use Illuminate\Validation\Validator;
@@ -987,13 +987,13 @@ if ($errors->has('email')) {
 Laravel의 기본 유효성 검사 규칙은 각각의 에러 메시지가 애플리케이션의 `lang/en/validation.php` 파일에 위치합니다. 만약 프로젝트에 `lang` 디렉터리가 없다면, `lang:publish` Artisan 명령어로 생성할 수 있습니다.
 
 <!-- Within the `lang/en/validation.php` file, you will find a translation entry for each validation rule. You are free to change or modify these messages based on the needs of your application. -->
-`lang/en/validation.php` 파일에는 각 유효성 검사 규칙별로 변환 항목이 존재합니다. 애플리케이션의 요구에 따라 이 메시지들을 자유롭게 수정할 수 있습니다.
+`lang/en/validation.php` 파일에는 각 유효성 검사 규칙별로 번역 항목이 존재합니다. 애플리케이션의 요구에 따라 이 메시지들을 자유롭게 수정할 수 있습니다.
 
 <!-- In addition, you may copy this file to another language directory to translate the messages for your application's language. To learn more about Laravel localization, check out the complete [localization documentation](/docs/10.x/localization). -->
 또한, 이 파일을 다른 언어 디렉터리로 복사해 애플리케이션 언어에 맞도록 메시지를 번역할 수 있습니다. Laravel의 지역화에 관해 더 자세히 알고 싶다면 [localization documentation](/docs/10.x/localization)를 참고하세요.
 
 > [!WARNING]
-> 기본적으로 Laravel 앱 스캐폴딩(기본 코드 구조)에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면 `lang:publish` Artisan 명령어를 사용하여 파일을 배포해야 합니다.
+> 기본적으로 Laravel 앱 스캐폴딩(기본 코드 구조)에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면 `lang:publish` Artisan 명령어를 사용하여 파일을 배포할 수 있습니다.
 
 <a name="custom-messages-for-specific-attributes"></a>
 <!-- #### Custom Messages for Specific Attributes -->
@@ -1025,7 +1025,7 @@ Laravel의 기본 에러 메시지에는 보통 `:attribute` 플레이스홀더�
 ```
 
 > [!WARNING]
-> 기본적으로 Laravel 앱 스캐폴딩에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면 `lang:publish` Artisan 명령어를 사용해야 합니다.
+> 기본적으로 Laravel 앱 스캐폴딩에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면 `lang:publish` Artisan 명령어를 사용할 수 있습니다.
 
 <a name="specifying-values-in-language-files"></a>
 <!-- ### Specifying Values in Language Files -->
@@ -1059,7 +1059,7 @@ The credit card number field is required when payment type is cc.
 ```
 
 > [!WARNING]
-> 기본적으로 Laravel 앱 스캐폴딩에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면 `lang:publish` Artisan 명령어를 사용해야 합니다.
+> 기본적으로 Laravel 앱 스캐폴딩에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 커스터마이즈하려면 `lang:publish` Artisan 명령어를 사용할 수 있습니다.
 
 <!-- After defining this value, the validation rule will produce the following error message: -->
 이렇게 값을 정의하면 유효성 검사 규칙이 다음과 같은 에러 메시지를 보여주게 됩니다.
@@ -1314,7 +1314,7 @@ The credit card number field is required when payment type is credit card.
 #### after:_date_
 
 <!-- The field under validation must be a value after a given date. The dates will be passed into the `strtotime` PHP function in order to be converted to a valid `DateTime` instance: -->
-해당 필드는 지정한 날짜 이후의 값이어야 합니다. 전달된 날짜 문자열은 내부적으로 `strtotime` PHP 함수로 변환되어 유효한 `DateTime` 인스턴스와 비교됩니다.
+해당 필드는 지정한 날짜 이후의 값이어야 합니다. 전달된 날짜 문자열은 유효한 `DateTime` 인스턴스로 변환되도록 내부적으로 `strtotime` PHP 함수에 전달됩니다.
 
 ```
 'start_date' => 'required|date|after:tomorrow'
@@ -1353,7 +1353,7 @@ The credit card number field is required when payment type is credit card.
 #### alpha_dash
 
 <!-- The field under validation must be entirely Unicode alpha-numeric characters contained in [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), [`\p{N}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=), as well as ASCII dashes (`-`) and ASCII underscores (`_`). -->
-해당 필드는 [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), [`\p{N}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)에 포함된 유니코드 영문자, 숫자 그리고 ASCII 대시(`-`), 언더스코어(`_`)만을 포함해야 합니다.
+해당 필드는 [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), [`\p{N}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)에 포함된 유니코드 알파벳 문자, 숫자 그리고 ASCII 대시(`-`), 언더스코어(`_`)만을 포함해야 합니다.
 
 <!-- To restrict this validation rule to characters in the ASCII range (`a-z` and `A-Z`), you may provide the `ascii` option to the validation rule: -->
 이 규칙을 ASCII 범위(`a-z` 및 `A-Z`)로 제한하고 싶다면, 마찬가지로 `ascii` 옵션을 사용할 수 있습니다.
@@ -1367,7 +1367,7 @@ The credit card number field is required when payment type is credit card.
 #### alpha_num
 
 <!-- The field under validation must be entirely Unicode alpha-numeric characters contained in [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), and [`\p{N}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=). -->
-해당 필드는 [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), [`\p{N}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)에 포함된 유니코드 영문자 또는 숫자만을 포함해야 합니다.
+해당 필드는 [`\p{L}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AL%3A%5D&g=&i=), [`\p{M}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AM%3A%5D&g=&i=), [`\p{N}`](https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AN%3A%5D&g=&i=)에 포함된 유니코드 알파벳 문자 또는 숫자만을 포함해야 합니다.
 
 <!-- To restrict this validation rule to characters in the ASCII range (`a-z` and `A-Z`), you may provide the `ascii` option to the validation rule: -->
 ASCII 범위(`a-z` 및 `A-Z`)만 허용할 경우 `ascii` 옵션을 지정하세요.
@@ -1568,7 +1568,7 @@ _ratio_ 값은 width(가로)을 height(세로)로 나눈 비율로 표현하며,
 ```
 
 <!-- Since this rule requires several arguments, you may use the `Rule::dimensions` method to fluently construct the rule: -->
-이 규칙은 여러 인자를 필요로 하므로, `Rule::dimensions` 메서드를 사용해 유창하게(rule chaining) 규칙을 정의할 수 있습니다.
+이 규칙은 여러 인자를 필요로 하므로, `Rule::dimensions` 메서드를 사용해 플루언트 방식(rule chaining)으로 규칙을 정의할 수 있습니다.
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -1746,7 +1746,7 @@ Validator::make($request->all(), [
 #### exclude_unless:_anotherfield_,_value_
 
 <!-- The field under validation will be excluded from the request data returned by the `validate` and `validated` methods unless _anotherfield_'s field is equal to _value_. If _value_ is `null` (`exclude_unless:name,null`), the field under validation will be excluded unless the comparison field is `null` or the comparison field is missing from the request data. -->
-_anotherfield_ 필드가 _value_와 같지 않으면, 검증 대상 필드는 `validate` 및 `validated`가 반환하는 요청 데이터에서 제외됩니다. _value_가 `null`(예: `exclude_unless:name,null`)인 경우, 비교 필드가 `null`이거나 요청 데이터에서 해당 필드가 없으면 제외됩니다.
+_anotherfield_ 필드가 _value_와 같지 않으면, 검증 대상 필드는 `validate` 및 `validated`가 반환하는 요청 데이터에서 제외됩니다. _value_가 `null`(예: `exclude_unless:name,null`)인 경우, 비교 필드가 `null`이거나 요청 데이터에서 해당 필드가 없으면 제외되지 않습니다.
 
 <a name="rule-exclude-with"></a>
 <!-- #### exclude_with:_anotherfield_ -->
@@ -1842,7 +1842,7 @@ Validator::make($data, [
 ```
 
 > [!WARNING]
-> 사용자 정의 확장자만으로 파일을 검증하는 것은 권장되지 않습니다. 이 규칙은 보통 [`mimes`](#rule-mimes)나 [`mimetypes`](#rule-mimetypes) 규칙과 결합해서 사용하는 것이 바람직합니다.
+> 사용자가 지정한 확장자만으로 파일을 검증하는 방식에 절대 의존해서는 안 됩니다. 이 규칙은 보통 [`mimes`](#rule-mimes)나 [`mimetypes`](#rule-mimetypes) 규칙과 결합해서 사용하는 것이 바람직합니다.
 
 <a name="rule-file"></a>
 <!-- #### file -->
@@ -1891,7 +1891,7 @@ Validator::make($data, [
 #### in:_foo_,_bar_,...
 
 <!-- The field under validation must be included in the given list of values. Since this rule often requires you to `implode` an array, the `Rule::in` method may be used to fluently construct the rule: -->
-검증 대상 필드는 지정된 값 목록 중 하나에 포함되어야 합니다. 이 규칙은 배열 값을 `implode`해야 하는 경우가 많기 때문에, `Rule::in` 메서드를 활용해 좀 더 읽기 쉽게 규칙을 작성할 수 있습니다.
+검증 대상 필드는 지정된 값 목록에 포함되어야 합니다. 이 규칙은 배열 값을 `implode`해야 하는 경우가 많기 때문에, `Rule::in` 메서드를 활용해 좀 더 읽기 쉽게 규칙을 작성할 수 있습니다.
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -1906,7 +1906,7 @@ Validator::make($data, [
 ```
 
 <!-- When the `in` rule is combined with the `array` rule, each value in the input array must be present within the list of values provided to the `in` rule. In the following example, the `LAS` airport code in the input array is invalid since it is not contained in the list of airports provided to the `in` rule: -->
-`in` 규칙이 `array` 규칙과 함께 사용되면, 입력 배열의 각각의 값이 반드시 `in` 규칙에 지정된 값 목록 중 하나에 포함되어야 합니다. 아래 예시에서 입력값 배열 중 `LAS`는 `in` 규칙에 제공된 리스트에 없으므로 유효하지 않습니다.
+`in` 규칙이 `array` 규칙과 함께 사용되면, 입력 배열의 각각의 값이 반드시 `in` 규칙에 지정된 값 목록에 포함되어야 합니다. 아래 예시에서 입력값 배열 중 `LAS`는 `in` 규칙에 제공된 리스트에 없으므로 유효하지 않습니다.
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -2090,7 +2090,7 @@ Validator::make($input, [
 #### missing_unless:_anotherfield_,_value_
 
 <!-- The field under validation must not be present unless the _anotherfield_ field is equal to any _value_. -->
-_anotherfield_ 필드가 _value_ 중 하나와 같지 않으면, 검증 대상 필드는 존재해서는 안 됩니다.
+_anotherfield_ 필드가 _value_ 중 어느 것과도 같지 않으면, 검증 대상 필드는 존재해서는 안 됩니다.
 
  <a name="rule-missing-with"></a>
 <!-- #### missing_with:_foo_,_bar_,... -->
@@ -2171,7 +2171,7 @@ _다른 필드_가 지정한 _값_ 중 하나와 같을 때 검증 대상 필드
 #### present_unless:_anotherfield_,_value_
 
 <!-- The field under validation must be present unless the _anotherfield_ field is equal to any _value_. -->
-_다른 필드_가 지정한 _값_ 중 하나와 같지 않을 때, 검증 대상 필드는 반드시 포함되어야 합니다.
+_다른 필드_가 지정한 _값_ 중 어느 것과도 같지 않을 때, 검증 대상 필드는 반드시 포함되어야 합니다.
 
 <a name="rule-present-with"></a>
 <!-- #### present_with:_foo_,_bar_,... -->
@@ -2256,7 +2256,7 @@ Validator::make($request->all(), [
 #### prohibited_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be missing or empty unless the _anotherfield_ field is equal to any _value_. A field is "empty" if it meets one of the following criteria: -->
-_다른 필드_가 지정한 _값_ 중 하나와 **같지 않을 때만**, 검증 대상 필드는 **존재하지 않거나 비어 있어야** 합니다. "비어 있음"의 기준은 다음 중 하나입니다:
+_다른 필드_가 지정한 _값_ 중 어느 것과도 **같지 않을 때만**, 검증 대상 필드는 **존재하지 않거나 비어 있어야** 합니다. "비어 있음"의 기준은 다음 중 하나입니다:
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -2280,7 +2280,7 @@ _다른 필드_가 지정한 _값_ 중 하나와 **같지 않을 때만**, 검�
 #### prohibits:_anotherfield_,...
 
 <!-- If the field under validation is not missing or empty, all fields in _anotherfield_ must be missing or empty. A field is "empty" if it meets one of the following criteria: -->
-검증 대상 필드가 **존재하거나 비어 있지 않으면**, _anotherfield_에 지정된 모든 필드는 **존재하지 않거나 비어 있어야** 합니다. "비어 있음"의 기준은 아래와 같습니다:
+검증 대상 필드가 **존재하고 비어 있지 않으면**, _anotherfield_에 지정된 모든 필드는 **존재하지 않거나 비어 있어야** 합니다. "비어 있음"의 기준은 아래와 같습니다:
 
 <!-- <div class="content-list" markdown="1"> -->
 <div class="content-list" markdown="1">
@@ -2371,7 +2371,7 @@ _다른 필드_가 `"yes"`, `"on"`, `1`, `"1"`, `true`, `"true"` 중 하나의 �
 #### required_unless:_anotherfield_,_value_,...
 
 <!-- The field under validation must be present and not empty unless the _anotherfield_ field is equal to any _value_. This also means _anotherfield_ must be present in the request data unless _value_ is `null`. If _value_ is `null` (`required_unless:name,null`), the field under validation will be required unless the comparison field is `null` or the comparison field is missing from the request data. -->
-_다른 필드_가 지정된 _값_ 중 하나와 **같지 않을 때만** 검증 대상 필드는 반드시 존재해야 하며 비어 있으면 안 됩니다. 또한 _anotherfield_는 _value_가 `null`이 아닌 한 요청 데이터에 반드시 존재해야 합니다. 만약 _value_가 `null`(`required_unless:name,null`)이라면, 비교 대상 필드 값이 `null`이거나 요청 데이터에 해당 필드가 없을 경우에만 검증 대상 필드가 필수로 간주되지 않습니다.
+_다른 필드_가 지정된 _값_ 중 어느 것과도 **같지 않을 때만** 검증 대상 필드는 반드시 존재해야 하며 비어 있으면 안 됩니다. 또한 _anotherfield_는 _value_가 `null`이 아닌 한 요청 데이터에 반드시 존재해야 합니다. 만약 _value_가 `null`(`required_unless:name,null`)이라면, 비교 대상 필드 값이 `null`이거나 요청 데이터에 해당 필드가 없을 경우에만 검증 대상 필드가 필수로 간주되지 않습니다.
 
 <a name="rule-required-with"></a>
 <!-- #### required_with:_foo_,_bar_,... -->
@@ -2458,7 +2458,7 @@ _다른 필드_가 지정된 _값_ 중 하나와 **같지 않을 때만** 검증
 검증 대상 필드는 `DateTimeZone::listIdentifiers` 메서드 기준의 **유효한 타임존 식별자**여야 합니다.
 
 <!-- The arguments [accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php) may also be provided to this validation rule: -->
-또한, [accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php)를 이 유효성 검사 규칙에 추가로 전달할 수 있습니다.
+또한, [accepted by the `DateTimeZone::listIdentifiers` method](https://www.php.net/manual/en/datetimezone.listidentifiers.php)에서 설명하는 인수를 이 유효성 검사 규칙에 추가로 전달할 수 있습니다.
 
 ```
 'timezone' => 'required|timezone:all';
@@ -2524,7 +2524,7 @@ Validator::make($data, [
 ```
 
 > [!WARNING]
-> **사용자가 직접 입력하는 값은 절대로 `ignore` 메서드에 전달해서는 안 됩니다.** 반드시 자동 증가 ID나 UUID 등 시스템에서 관리하는 고유값을 전달해야 하며, 그렇지 않으면 SQL 인젝션 공격에 취약해질 수 있습니다.
+> **사용자가 제어할 수 있는 요청 입력값은 절대로 `ignore` 메서드에 전달해서는 안 됩니다.** 반드시 Eloquent 모델 인스턴스의 자동 증가 ID나 UUID 등 시스템에서 생성한 고유 ID만 전달해야 하며, 그렇지 않으면 SQL 인젝션 공격에 취약해질 수 있습니다.
 
 <!-- Instead of passing the model key's value to the `ignore` method, you may also pass the entire model instance. Laravel will automatically extract the key from the model: -->
 `ignore` 메서드에 모델의 키 값 대신 **모델 인스턴스 전체**를 전달할 수도 있으며, 이 경우 Laravel이 자동으로 키 값을 추출합니다.
@@ -2562,7 +2562,7 @@ Rule::unique('users', 'email_address')->ignore($user->id)
 #### uppercase
 
 <!-- The field under validation must be uppercase. -->
-검증 대상 필드는 **영문 대문자**여야 합니다.
+검증 대상 필드는 **대문자**여야 합니다.
 
 <a name="rule-url"></a>
 <!-- #### url -->
@@ -2849,7 +2849,7 @@ Validator::validate($input, [
 ## Validating Files
 
 <!-- Laravel provides a variety of validation rules that may be used to validate uploaded files, such as `mimes`, `image`, `min`, and `max`. While you are free to specify these rules individually when validating files, Laravel also offers a fluent file validation rule builder that you may find convenient: -->
-Laravel은 업로드된 파일을 검증할 수 있도록 `mimes`, `image`, `min`, `max` 등 다양한 유효성 검사 규칙을 제공합니다. 각각의 규칙을 개별적으로 지정하여 파일을 검증할 수도 있지만, Laravel이 제공하는 유창한(fluid) 파일 유효성 검증 규칙 빌더를 활용하면 더욱 편리합니다:
+Laravel은 업로드된 파일을 검증할 수 있도록 `mimes`, `image`, `min`, `max` 등 다양한 유효성 검사 규칙을 제공합니다. 각각의 규칙을 개별적으로 지정하여 파일을 검증할 수도 있지만, Laravel이 제공하는 플루언트(fluent) 파일 유효성 검증 규칙 빌더를 활용하면 더욱 편리합니다:
 
 ```
 use Illuminate\Support\Facades\Validator;
@@ -2927,7 +2927,7 @@ $validator = Validator::make($request->all(), [
 ```
 
 <!-- The `Password` rule object allows you to easily customize the password complexity requirements for your application, such as specifying that passwords require at least one letter, number, symbol, or characters with mixed casing: -->
-`Password` 규칙 객체를 사용하면 비밀번호에 최소 하나 이상의 영문자, 숫자, 특수문자 또는 대·소문자 혼합과 같은 복잡성 요구사항을 손쉽게 지정할 수 있습니다.
+`Password` 규칙 객체를 사용하면 비밀번호에 최소 하나 이상의 문자, 숫자, 특수문자 또는 대·소문자 혼합과 같은 복잡성 요구사항을 손쉽게 지정할 수 있습니다.
 
 ```
 // Require at least 8 characters...

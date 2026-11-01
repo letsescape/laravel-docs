@@ -30,24 +30,24 @@
 ## Introduction
 
 <!-- Migrations are like version control for your database, allowing your team to define and share the application's database schema definition. If you have ever had to tell a teammate to manually add a column to their local database schema after pulling in your changes from source control, you've faced the problem that database migrations solve. -->
-마이그레이션은 데이터베이스의 버전 제어와 유사하므로 팀이 애플리케이션의 데이터베이스 스키마 정의를 정의하고 공유할 수 있습니다. 소스 제어에서 변경 사항을 가져온 후 팀 동료에게 로컬 데이터베이스 스키마에 열을 수동으로 추가하라고 지시해야 한다면 데이터베이스 마이그레이션이 해결하는 문제에 직면한 것입니다.
+마이그레이션은 데이터베이스의 버전 제어와 유사하므로 팀이 애플리케이션의 데이터베이스 스키마를 정의하고 공유할 수 있습니다. 소스 제어에서 변경 사항을 가져온 후 팀 동료에게 로컬 데이터베이스 스키마에 열을 수동으로 추가하라고 지시해야 한다면 데이터베이스 마이그레이션이 해결하는 문제에 직면한 것입니다.
 
 <!-- The Laravel `Schema` [facade](/docs/master/facades) provides database agnostic support for creating and manipulating tables across all of Laravel's supported database systems. Typically, migrations will use this facade to create and modify database tables and columns. -->
-Laravel `Schema` [facade](/docs/master/facades)는 Laravel가 지원하는 모든 데이터베이스 시스템에서 테이블을 생성하고 조작하기 위한 데이터베이스 독립적 지원을 제공합니다. 일반적으로 마이그레이션은 이 외관을 사용하여 데이터베이스 테이블과 열을 생성하고 수정합니다.
+Laravel `Schema` [facade](/docs/master/facades)는 Laravel이 지원하는 모든 데이터베이스 시스템에서 테이블을 생성하고 조작하기 위한 데이터베이스 독립적 지원을 제공합니다. 일반적으로 마이그레이션은 이 파사드를 사용하여 데이터베이스 테이블과 열을 생성하고 수정합니다.
 
 <a name="generating-migrations"></a>
 <!-- ## Generating Migrations -->
 ## Generating Migrations
 
 <!-- You may use the `make:migration` [Artisan command](/docs/master/artisan) to generate a database migration. The new migration will be placed in your `database/migrations` directory. Each migration filename contains a timestamp that allows Laravel to determine the order of the migrations: -->
-`make:migration` [Artisan command](/docs/master/artisan)을 사용하여 데이터베이스 마이그레이션을 생성할 수 있습니다. 새로운 마이그레이션은 `database/migrations` 디렉토리에 배치됩니다. 각 마이그레이션 파일 이름에는 Laravel가 마이그레이션의 순서를 결정할 수 있도록 하는 타임스탬프가 포함되어 있습니다.
+`make:migration` [Artisan command](/docs/master/artisan)을 사용하여 데이터베이스 마이그레이션을 생성할 수 있습니다. 새로운 마이그레이션은 `database/migrations` 디렉토리에 배치됩니다. 각 마이그레이션 파일 이름에는 Laravel이 마이그레이션의 순서를 결정할 수 있도록 하는 타임스탬프가 포함되어 있습니다.
 
 ```shell
 php artisan make:migration create_flights_table
 ```
 
 <!-- Laravel will use the name of the migration to attempt to guess the name of the table and whether or not the migration will be creating a new table. If Laravel is able to determine the table name from the migration name, Laravel will pre-fill the generated migration file with the specified table. Otherwise, you may simply specify the table in the migration file manually. -->
-Laravel는 마이그레이션의 이름을 사용하여 테이블 이름과 마이그레이션이 새 테이블을 생성할지 여부를 추측합니다. Laravel가 마이그레이션 이름에서 테이블 이름을 확인할 수 있는 경우 Laravel는 생성된 마이그레이션 파일을 지정된 테이블로 미리 채웁니다. 그렇지 않으면 마이그레이션 파일에 테이블을 수동으로 지정할 수도 있습니다.
+Laravel은 마이그레이션의 이름을 사용하여 테이블 이름과 마이그레이션이 새 테이블을 생성할지 여부를 추측합니다. Laravel이 마이그레이션 이름에서 테이블 이름을 확인할 수 있는 경우 Laravel은 생성된 마이그레이션 파일을 지정된 테이블로 미리 채웁니다. 그렇지 않으면 마이그레이션 파일에 테이블을 수동으로 지정할 수도 있습니다.
 
 <!-- If you would like to specify a custom path for the generated migration, you may use the `--path` option when executing the `make:migration` command. The given path should be relative to your application's base path. -->
 생성된 마이그레이션에 대한 사용자 지정 경로를 지정하려면 `make:migration` 명령을 실행할 때 `--path` 옵션을 사용할 수 있습니다. 지정된 경로는 애플리케이션의 기본 경로에 상대적이어야 합니다.
@@ -60,7 +60,7 @@ Laravel는 마이그레이션의 이름을 사용하여 테이블 이름과 마�
 ### Squashing Migrations
 
 <!-- As you build your application, you may accumulate more and more migrations over time. This can lead to your `database/migrations` directory becoming bloated with potentially hundreds of migrations. If you would like, you may "squash" your migrations into a single SQL file. To get started, execute the `schema:dump` command: -->
-애플리케이션을 구축하면 시간이 지남에 따라 점점 더 많은 마이그레이션이 축적될 수 있습니다. 이로 인해 `database/migrations` 디렉토리가 잠재적으로 수백 개의 마이그레이션로 인해 부풀어오르게 될 수 있습니다. 원하는 경우 마이그레이션을 단일 SQL 파일로 "스쿼시"할 수 있습니다. 시작하려면 `schema:dump` 명령을 실행하십시오.
+애플리케이션을 구축하면 시간이 지남에 따라 점점 더 많은 마이그레이션이 축적될 수 있습니다. 이로 인해 `database/migrations` 디렉토리가 잠재적으로 수백 개의 마이그레이션으로 인해 부풀어오르게 될 수 있습니다. 원하는 경우 마이그레이션을 단일 SQL 파일로 "스쿼시"할 수 있습니다. 시작하려면 `schema:dump` 명령을 실행하십시오.
 
 ```shell
 php artisan schema:dump
@@ -70,7 +70,7 @@ php artisan schema:dump --prune
 ```
 
 <!-- When you execute this command, Laravel will write a "schema" file to your application's `database/schema` directory. The schema file's name will correspond to the database connection. Now, when you attempt to migrate your database and no other migrations have been executed, Laravel will first execute the SQL statements in the schema file of the database connection you are using. After executing the schema file's SQL statements, Laravel will execute any remaining migrations that were not part of the schema dump. -->
-이 명령을 실행하면 Laravel는 애플리케이션의 `database/schema` 디렉터리에 "스키마" 파일을 작성합니다. 스키마 파일의 이름은 데이터베이스 연결에 해당합니다. 이제 데이터베이스 마이그레이션을 시도하고 다른 마이그레이션이 실행되지 않은 경우 Laravel는 먼저 사용 중인 데이터베이스 연결의 스키마 파일에 있는 SQL 문을 실행합니다. 스키마 파일의 SQL 문을 실행한 후 Laravel는 스키마 덤프의 일부가 아닌 나머지 마이그레이션을 실행합니다.
+이 명령을 실행하면 Laravel은 애플리케이션의 `database/schema` 디렉터리에 "스키마" 파일을 작성합니다. 스키마 파일의 이름은 데이터베이스 연결에 해당합니다. 이제 데이터베이스 마이그레이션을 시도하고 다른 마이그레이션이 실행되지 않은 경우 Laravel은 먼저 사용 중인 데이터베이스 연결의 스키마 파일에 있는 SQL 문을 실행합니다. 스키마 파일의 SQL 문을 실행한 후 Laravel은 스키마 덤프의 일부가 아닌 나머지 마이그레이션을 실행합니다.
 
 <!-- If your application's tests use a different database connection than the one you typically use during local development, you should ensure you have dumped a schema file using that database connection so that your tests are able to build your database. You may wish to do this after dumping the database connection you typically use during local development: -->
 애플리케이션의 테스트에서 로컬 개발 중에 일반적으로 사용하는 것과 다른 데이터베이스 연결을 사용하는 경우 테스트에서 데이터베이스를 구축할 수 있도록 해당 데이터베이스 연결을 사용하여 스키마 파일을 덤프했는지 확인해야 합니다. 로컬 개발 중에 일반적으로 사용하는 데이터베이스 연결을 덤프한 후 이 작업을 수행할 수 있습니다.
@@ -91,10 +91,10 @@ php artisan schema:dump --database=testing --prune
 ## Migration Structure
 
 <!-- A migration class contains two methods: `up` and `down`. The `up` method is used to add new tables, columns, or indexes to your database, while the `down` method should reverse the operations performed by the `up` method. -->
-마이그레이션 클래스에는 `up` 및 `down`라는 두 가지 메서드가 포함되어 있습니다. `up` 방법은 데이터베이스에 새 테이블, 열 또는 인덱스를 추가하는 데 사용되는 반면, `down` 방법은 `up` 방법으로 수행된 작업을 반대로 해야 합니다.
+마이그레이션 클래스에는 `up` 및 `down`이라는 두 가지 메서드가 포함되어 있습니다. `up` 메서드는 데이터베이스에 새 테이블, 열 또는 인덱스를 추가하는 데 사용되는 반면, `down` 메서드는 `up` 메서드로 수행된 작업을 반대로 해야 합니다.
 
 <!-- Within both of these methods, you may use the Laravel schema builder to expressively create and modify tables. To learn about all of the methods available on the `Schema` builder, [check out its documentation](#creating-tables). For example, the following migration creates a `flights` table: -->
-이 두 가지 방법 모두에서 Laravel 스키마 빌더를 사용하여 테이블을 명시적으로 생성하고 수정할 수 있습니다. `Schema` 빌더에서 사용할 수 있는 모든 방법에 대해 알아보려면 [check out its documentation](#creating-tables)하세요. 예를 들어, 다음 마이그레이션은 `flights` 테이블을 생성합니다.
+이 두 가지 메서드 모두에서 Laravel 스키마 빌더를 사용하여 테이블을 표현력 있는 코드로 생성하고 수정할 수 있습니다. `Schema` 빌더에서 사용할 수 있는 모든 메서드에 대해 알아보려면 문서를 확인하세요([check out its documentation](#creating-tables)). 예를 들어, 다음 마이그레이션은 `flights` 테이블을 생성합니다.
 
 ```php
 <?php
@@ -177,14 +177,14 @@ public function shouldRun(): bool
 ## Running Migrations
 
 <!-- To run all of your outstanding migrations, execute the `migrate` Artisan command: -->
-미해결 마이그레이션을 모두 실행하려면 `migrate` Artisan 명령을 실행하세요.
+아직 실행되지 않은 마이그레이션을 모두 실행하려면 `migrate` Artisan 명령을 실행하세요.
 
 ```shell
 php artisan migrate
 ```
 
 <!-- If you would like to see which migrations have already run and which are still pending, you may use the `migrate:status` Artisan command: -->
-이미 실행된 마이그레이션와 아직 보류 중인 마이그레이션을 확인하려면 `migrate:status` Artisan 명령을 사용할 수 있습니다.
+이미 실행된 마이그레이션과 아직 보류 중인 마이그레이션을 확인하려면 `migrate:status` Artisan 명령을 사용할 수 있습니다.
 
 ```shell
 php artisan migrate:status
@@ -212,7 +212,7 @@ php artisan migrate --pretend
 여러 서버에 애플리케이션을 배포하고 배포 프로세스의 일부로 마이그레이션을 실행하는 경우 두 서버가 동시에 데이터베이스 마이그레이션을 시도하는 것을 원하지 않을 것입니다. 이를 방지하려면 `migrate` 명령을 호출할 때 `isolated` 옵션을 사용할 수 있습니다.
 
 <!-- When the `isolated` option is provided, Laravel will acquire an atomic lock using your application's cache driver before attempting to run your migrations. All other attempts to run the `migrate` command while that lock is held will not execute; however, the command will still exit with a successful exit status code: -->
-`isolated` 옵션이 제공되면 Laravel는 마이그레이션 실행을 시도하기 전에 애플리케이션의 캐시 드라이버를 사용하여 원자 잠금을 획득합니다. 해당 잠금이 유지되는 동안 `migrate` 명령을 실행하려는 다른 모든 시도는 실행되지 않습니다. 그러나 명령은 성공적인 종료 상태 코드로 종료됩니다.
+`isolated` 옵션이 제공되면 Laravel은 마이그레이션 실행을 시도하기 전에 애플리케이션의 캐시 드라이버를 사용하여 원자 잠금을 획득합니다. 해당 잠금이 유지되는 동안 `migrate` 명령을 실행하려는 다른 모든 시도는 실행되지 않습니다. 그러나 명령은 성공적인 종료 상태 코드로 종료됩니다.
 
 ```shell
 php artisan migrate --isolated
@@ -251,7 +251,7 @@ php artisan migrate:rollback --step=5
 ```
 
 <!-- You may roll back a specific "batch" of migrations by providing the `batch` option to the `rollback` command, where the `batch` option corresponds to a batch value within your application's `migrations` database table. For example, the following command will roll back all migrations in batch three: -->
-`batch` 옵션을 `rollback` 명령에 제공하여 마이그레이션의 특정 "배치"를 롤백할 수 있습니다. 여기서 `batch` 옵션은 응용 프로그램의 `migrations` 데이터베이스 테이블 내의 배치 값에 해당합니다. 예를 들어 다음 명령은 배치 3개의 모든 마이그레이션을 롤백합니다.
+`batch` 옵션을 `rollback` 명령에 제공하여 마이그레이션의 특정 "배치"를 롤백할 수 있습니다. 여기서 `batch` 옵션은 응용 프로그램의 `migrations` 데이터베이스 테이블 내의 배치 값에 해당합니다. 예를 들어 다음 명령은 배치 3에 속한 모든 마이그레이션을 롤백합니다.
 
 ```shell
 php artisan migrate:rollback --batch=3
@@ -276,7 +276,7 @@ php artisan migrate:reset
 #### Roll Back and Migrate Using a Single Command
 
 <!-- The `migrate:refresh` command will roll back all of your migrations and then execute the `migrate` command. This command effectively re-creates your entire database: -->
-`migrate:refresh` 명령은 모든 마이그레이션을 롤백한 다음 `migrate` 명령을 실행합니다. 이 명령은 전체 데이터베이스를 효과적으로 다시 생성합니다.
+`migrate:refresh` 명령은 모든 마이그레이션을 롤백한 다음 `migrate` 명령을 실행합니다. 이 명령은 전체 데이터베이스를 사실상 다시 생성합니다.
 
 ```shell
 php artisan migrate:refresh
@@ -463,7 +463,7 @@ Schema::dropIfExists('users');
 #### Renaming Tables With Foreign Keys
 
 <!-- Before renaming a table, you should verify that any foreign key constraints on the table have an explicit name in your migration files instead of letting Laravel assign a convention based name. Otherwise, the foreign key constraint name will refer to the old table name. -->
-테이블 이름을 바꾸기 전에 Laravel가 규칙 기반 이름을 할당하도록 하는 대신 테이블의 외래 키 제약 조건에 마이그레이션 파일에 명시적인 이름이 있는지 확인해야 합니다. 그렇지 않으면 외래 키 제약 조건 이름이 이전 테이블 이름을 참조합니다.
+테이블 이름을 바꾸기 전에 Laravel이 규칙 기반 이름을 할당하도록 하는 대신 마이그레이션 파일에서 테이블의 외래 키 제약 조건에 명시적인 이름이 지정되어 있는지 확인해야 합니다. 그렇지 않으면 외래 키 제약 조건 이름이 이전 테이블 이름을 참조합니다.
 
 <a name="columns"></a>
 <!-- ## Columns -->
@@ -490,7 +490,7 @@ Schema::table('users', function (Blueprint $table) {
 ### Available Column Types
 
 <!-- The schema builder blueprint offers a variety of methods that correspond to the different types of columns you can add to your database tables. Each of the available methods are listed in the table below: -->
-스키마 작성기 청사진은 데이터베이스 테이블에 추가할 수 있는 다양한 유형의 열에 해당하는 다양한 방법을 제공합니다. 사용 가능한 각 방법은 아래 표에 나열되어 있습니다.
+스키마 빌더의 Blueprint는 데이터베이스 테이블에 추가할 수 있는 다양한 유형의 열에 해당하는 다양한 메서드를 제공합니다. 사용 가능한 각 메서드는 아래 표에 나열되어 있습니다.
 
 <a name="booleans-method-list"></a>
 <!-- #### Boolean Types -->
@@ -743,7 +743,7 @@ Schema::table('users', function (Blueprint $table) {
 #### `bigIncrements()`
 
 <!-- The `bigIncrements` method creates an auto-incrementing `UNSIGNED BIGINT` (primary key) equivalent column: -->
-`bigIncrements` 메소드는 자동 증가 `UNSIGNED BIGINT`(기본 키) 해당 열을 생성합니다.
+`bigIncrements` 메소드는 자동 증가 `UNSIGNED BIGINT`(기본 키)에 해당하는 열을 생성합니다.
 
 ```php
 $table->bigIncrements('id');
@@ -754,7 +754,7 @@ $table->bigIncrements('id');
 #### `bigInteger()`
 
 <!-- The `bigInteger` method creates a `BIGINT` equivalent column: -->
-`bigInteger` 메소드는 `BIGINT` 해당 열을 생성합니다.
+`bigInteger` 메소드는 `BIGINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->bigInteger('votes');
@@ -765,14 +765,14 @@ $table->bigInteger('votes');
 #### `binary()`
 
 <!-- The `binary` method creates a `BLOB` equivalent column: -->
-`binary` 메소드는 `BLOB` 해당 열을 생성합니다.
+`binary` 메소드는 `BLOB`에 해당하는 열을 생성합니다.
 
 ```php
 $table->binary('photo');
 ```
 
 <!-- When utilizing MySQL, MariaDB, or SQL Server, you may pass `length` and `fixed` arguments to create `VARBINARY` or `BINARY` equivalent column: -->
-MySQL, MariaDB 또는 SQL Server를 활용하는 경우 `length` 및 `fixed` 인수를 전달하여 `VARBINARY` 또는 `BINARY` 해당 열을 생성할 수 있습니다.
+MySQL, MariaDB 또는 SQL Server를 활용하는 경우 `length` 및 `fixed` 인수를 전달하여 `VARBINARY` 또는 `BINARY`에 해당하는 열을 생성할 수 있습니다.
 
 ```php
 $table->binary('data', length: 16); // VARBINARY(16)
@@ -785,7 +785,7 @@ $table->binary('data', length: 16, fixed: true); // BINARY(16)
 #### `boolean()`
 
 <!-- The `boolean` method creates a `BOOLEAN` equivalent column: -->
-`boolean` 메소드는 `BOOLEAN` 해당 열을 생성합니다.
+`boolean` 메소드는 `BOOLEAN`에 해당하는 열을 생성합니다.
 
 ```php
 $table->boolean('confirmed');
@@ -796,7 +796,7 @@ $table->boolean('confirmed');
 #### `char()`
 
 <!-- The `char` method creates a `CHAR` equivalent column with of a given length: -->
-`char` 메소드는 주어진 길이의 `CHAR` 해당 열을 생성합니다.
+`char` 메소드는 주어진 길이의 `CHAR`에 해당하는 열을 생성합니다.
 
 ```php
 $table->char('name', length: 100);
@@ -807,7 +807,7 @@ $table->char('name', length: 100);
 #### `dateTimeTz()`
 
 <!-- The `dateTimeTz` method creates a `DATETIME` (with timezone) equivalent column with an optional fractional seconds precision: -->
-`dateTimeTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `DATETIME`(시간대 포함) 해당 열을 생성합니다.
+`dateTimeTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `DATETIME`(시간대 포함)에 해당하는 열을 생성합니다.
 
 ```php
 $table->dateTimeTz('created_at', precision: 0);
@@ -829,7 +829,7 @@ $table->dateTime('created_at', precision: 0);
 #### `date()`
 
 <!-- The `date` method creates a `DATE` equivalent column: -->
-`date` 메소드는 `DATE` 해당 열을 생성합니다.
+`date` 메소드는 `DATE`에 해당하는 열을 생성합니다.
 
 ```php
 $table->date('created_at');
@@ -840,7 +840,7 @@ $table->date('created_at');
 #### `decimal()`
 
 <!-- The `decimal` method creates a `DECIMAL` equivalent column with the given precision (total digits) and scale (decimal digits): -->
-`decimal` 메소드는 주어진 정밀도(총 자릿수)와 소수 자릿수(십진수)를 사용하여 `DECIMAL`에 해당하는 열을 생성합니다.
+`decimal` 메소드는 주어진 정밀도(총 자릿수)와 스케일(소수 자릿수)를 사용하여 `DECIMAL`에 해당하는 열을 생성합니다.
 
 ```php
 $table->decimal('amount', total: 8, places: 2);
@@ -851,7 +851,7 @@ $table->decimal('amount', total: 8, places: 2);
 #### `double()`
 
 <!-- The `double` method creates a `DOUBLE` equivalent column: -->
-`double` 메소드는 `DOUBLE` 해당 열을 생성합니다.
+`double` 메소드는 `DOUBLE`에 해당하는 열을 생성합니다.
 
 ```php
 $table->double('amount');
@@ -893,7 +893,7 @@ $table->float('amount', precision: 53);
 #### `foreignId()`
 
 <!-- The `foreignId` method creates an `UNSIGNED BIGINT` equivalent column: -->
-`foreignId` 메소드는 `UNSIGNED BIGINT` 해당 열을 생성합니다.
+`foreignId` 메소드는 `UNSIGNED BIGINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->foreignId('user_id');
@@ -904,7 +904,7 @@ $table->foreignId('user_id');
 #### `foreignIdFor()`
 
 <!-- The `foreignIdFor` method adds a `{column}_id` equivalent column for a given model class. The column type will be `UNSIGNED BIGINT`, `CHAR(36)`, or `CHAR(26)` depending on the model key type: -->
-`foreignIdFor` 메소드는 지정된 모델 클래스에 대해 `{column}_id` 해당 열을 추가합니다. 열 유형은 모델 키 유형에 따라 `UNSIGNED BIGINT`, `CHAR(36)` 또는 `CHAR(26)`입니다.
+`foreignIdFor` 메소드는 지정된 모델 클래스에 대해 `{column}_id`에 해당하는 열을 추가합니다. 열 유형은 모델 키 유형에 따라 `UNSIGNED BIGINT`, `CHAR(36)` 또는 `CHAR(26)`입니다.
 
 ```php
 $table->foreignIdFor(User::class);
@@ -915,7 +915,7 @@ $table->foreignIdFor(User::class);
 #### `foreignUlid()`
 
 <!-- The `foreignUlid` method creates a `ULID` equivalent column: -->
-`foreignUlid` 메소드는 `ULID` 해당 열을 생성합니다.
+`foreignUlid` 메소드는 `ULID`에 해당하는 열을 생성합니다.
 
 ```php
 $table->foreignUlid('user_id');
@@ -926,7 +926,7 @@ $table->foreignUlid('user_id');
 #### `foreignUuid()`
 
 <!-- The `foreignUuid` method creates a `UUID` equivalent column: -->
-`foreignUuid` 메소드는 `UUID` 해당 열을 생성합니다.
+`foreignUuid` 메소드는 `UUID`에 해당하는 열을 생성합니다.
 
 ```php
 $table->foreignUuid('user_id');
@@ -944,7 +944,7 @@ $table->geography('coordinates', subtype: 'point', srid: 4326);
 ```
 
 > [!NOTE]
-> 공간 유형 지원은 데이터베이스 드라이버에 따라 다릅니다. 데이터베이스 설명서를 참조하세요. 응용 프로그램이 PostgreSQL 데이터베이스를 활용하는 경우 `geography` 방법을 사용하기 전에 [PostGIS](https://postgis.net) 확장을 설치해야 합니다.
+> 공간 유형 지원은 데이터베이스 드라이버에 따라 다릅니다. 데이터베이스 설명서를 참조하세요. 응용 프로그램이 PostgreSQL 데이터베이스를 활용하는 경우 `geography` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장을 설치해야 합니다.
 
 <a name="column-method-geometry"></a>
 <!-- #### `geometry()` -->
@@ -958,7 +958,7 @@ $table->geometry('positions', subtype: 'point', srid: 0);
 ```
 
 > [!NOTE]
-> 공간 유형 지원은 데이터베이스 드라이버에 따라 다릅니다. 데이터베이스 설명서를 참조하세요. 응용 프로그램이 PostgreSQL 데이터베이스를 활용하는 경우 `geometry` 방법을 사용하기 전에 [PostGIS](https://postgis.net) 확장을 설치해야 합니다.
+> 공간 유형 지원은 데이터베이스 드라이버에 따라 다릅니다. 데이터베이스 설명서를 참조하세요. 응용 프로그램이 PostgreSQL 데이터베이스를 활용하는 경우 `geometry` 메서드를 사용하기 전에 [PostGIS](https://postgis.net) 확장을 설치해야 합니다.
 
 <a name="column-method-id"></a>
 <!-- #### `id()` -->
@@ -976,7 +976,7 @@ $table->id();
 #### `increments()`
 
 <!-- The `increments` method creates an auto-incrementing `UNSIGNED INTEGER` equivalent column as a primary key: -->
-`increments` 메소드는 자동 증가 `UNSIGNED INTEGER` 해당 열을 기본 키로 생성합니다.
+`increments` 메소드는 자동 증가 `UNSIGNED INTEGER`에 해당하는 열을 기본 키로 생성합니다.
 
 ```php
 $table->increments('id');
@@ -987,7 +987,7 @@ $table->increments('id');
 #### `integer()`
 
 <!-- The `integer` method creates an `INTEGER` equivalent column: -->
-`integer` 메소드는 `INTEGER` 해당 열을 생성합니다.
+`integer` 메소드는 `INTEGER`에 해당하는 열을 생성합니다.
 
 ```php
 $table->integer('votes');
@@ -998,21 +998,21 @@ $table->integer('votes');
 #### `ipAddress()`
 
 <!-- The `ipAddress` method creates a `VARCHAR` equivalent column: -->
-`ipAddress` 메소드는 `VARCHAR` 해당 열을 생성합니다.
+`ipAddress` 메소드는 `VARCHAR`에 해당하는 열을 생성합니다.
 
 ```php
 $table->ipAddress('visitor');
 ```
 
 <!-- When using PostgreSQL, an `INET` column will be created. -->
-PostgreSQL를 사용하면 `INET` 열이 생성됩니다.
+PostgreSQL을 사용하면 `INET` 열이 생성됩니다.
 
 <a name="column-method-json"></a>
 <!-- #### `json()` -->
 #### `json()`
 
 <!-- The `json` method creates a `JSON` equivalent column: -->
-`json` 메소드는 `JSON` 해당 열을 생성합니다.
+`json` 메소드는 `JSON`에 해당하는 열을 생성합니다.
 
 ```php
 $table->json('options');
@@ -1026,7 +1026,7 @@ SQLite를 사용하면 `TEXT` 열이 생성됩니다.
 #### `jsonb()`
 
 <!-- The `jsonb` method creates a `JSONB` equivalent column: -->
-`jsonb` 메소드는 `JSONB` 해당 열을 생성합니다.
+`jsonb` 메소드는 `JSONB`에 해당하는 열을 생성합니다.
 
 ```php
 $table->jsonb('options');
@@ -1040,7 +1040,7 @@ SQLite를 사용하면 `TEXT` 열이 생성됩니다.
 #### `longText()`
 
 <!-- The `longText` method creates a `LONGTEXT` equivalent column: -->
-`longText` 메소드는 `LONGTEXT` 해당 열을 생성합니다.
+`longText` 메소드는 `LONGTEXT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->longText('description');
@@ -1058,7 +1058,7 @@ $table->longText('data')->charset('binary'); // LONGBLOB
 #### `macAddress()`
 
 <!-- The `macAddress` method creates a column that is intended to hold a MAC address. Some database systems, such as PostgreSQL, have a dedicated column type for this type of data. Other database systems will use a string equivalent column: -->
-`macAddress` 메소드는 MAC 주소를 보유하기 위한 열을 생성합니다. PostgreSQL와 같은 일부 데이터베이스 시스템에는 이러한 유형의 데이터에 대한 전용 열 유형이 있습니다. 다른 데이터베이스 시스템에서는 해당 문자열 열을 사용합니다.
+`macAddress` 메소드는 MAC 주소를 보유하기 위한 열을 생성합니다. PostgreSQL과 같은 일부 데이터베이스 시스템에는 이러한 유형의 데이터에 대한 전용 열 유형이 있습니다. 다른 데이터베이스 시스템에서는 해당 문자열 열을 사용합니다.
 
 ```php
 $table->macAddress('device');
@@ -1069,7 +1069,7 @@ $table->macAddress('device');
 #### `mediumIncrements()`
 
 <!-- The `mediumIncrements` method creates an auto-incrementing `UNSIGNED MEDIUMINT` equivalent column as a primary key: -->
-`mediumIncrements` 메소드는 자동 증가 `UNSIGNED MEDIUMINT` 해당 열을 기본 키로 생성합니다.
+`mediumIncrements` 메소드는 자동 증가 `UNSIGNED MEDIUMINT`에 해당하는 열을 기본 키로 생성합니다.
 
 ```php
 $table->mediumIncrements('id');
@@ -1080,7 +1080,7 @@ $table->mediumIncrements('id');
 #### `mediumInteger()`
 
 <!-- The `mediumInteger` method creates a `MEDIUMINT` equivalent column: -->
-`mediumInteger` 메소드는 `MEDIUMINT` 해당 열을 생성합니다.
+`mediumInteger` 메소드는 `MEDIUMINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->mediumInteger('votes');
@@ -1091,7 +1091,7 @@ $table->mediumInteger('votes');
 #### `mediumText()`
 
 <!-- The `mediumText` method creates a `MEDIUMTEXT` equivalent column: -->
-`mediumText` 메소드는 `MEDIUMTEXT` 해당 열을 생성합니다.
+`mediumText` 메소드는 `MEDIUMTEXT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->mediumText('description');
@@ -1109,10 +1109,10 @@ $table->mediumText('data')->charset('binary'); // MEDIUMBLOB
 #### `morphs()`
 
 <!-- The `morphs` method is a convenience method that adds a `{column}_id` equivalent column and a `{column}_type` `VARCHAR` equivalent column. The column type for the `{column}_id` will be `UNSIGNED BIGINT`, `CHAR(36)`, or `CHAR(26)` depending on the model key type. -->
-`morphs` 메소드는 `{column}_id` 해당 컬럼과 `{column}_type` `VARCHAR` 해당 컬럼을 추가하는 편의 메소드이다. `{column}_id`의 열 유형은 모델 키 유형에 따라 `UNSIGNED BIGINT`, `CHAR(36)` 또는 `CHAR(26)`입니다.
+`morphs` 메소드는 `{column}_id`에 해당하는 컬럼과 `{column}_type` `VARCHAR`에 해당하는 컬럼을 추가하는 편의 메소드이다. `{column}_id`의 열 유형은 모델 키 유형에 따라 `UNSIGNED BIGINT`, `CHAR(36)` 또는 `CHAR(26)`입니다.
 
 <!-- This method is intended to be used when defining the columns necessary for a polymorphic [Eloquent relationship](/docs/master/eloquent-relationships). In the following example, `taggable_id` and `taggable_type` columns would be created: -->
-이 방법은 다형성 [Eloquent relationship](/docs/master/eloquent-relationships)에 필요한 열을 정의할 때 사용하기 위한 것입니다. 다음 예에서는 `taggable_id` 및 `taggable_type` 열이 생성됩니다.
+이 메서드는 다형성 [Eloquent relationship](/docs/master/eloquent-relationships)에 필요한 열을 정의할 때 사용하기 위한 것입니다. 다음 예에서는 `taggable_id` 및 `taggable_type` 열이 생성됩니다.
 
 ```php
 $table->morphs('taggable');
@@ -1123,7 +1123,7 @@ $table->morphs('taggable');
 #### `nullableMorphs()`
 
 <!-- The method is similar to the [morphs](#column-method-morphs) method; however, the columns that are created will be "nullable": -->
-이 방법은 [morphs](#column-method-morphs) 방법과 유사합니다. 그러나 생성된 열은 "nullable"입니다.
+이 메서드는 [morphs](#column-method-morphs) 메서드와 유사합니다. 그러나 생성된 열은 "nullable"입니다.
 
 ```php
 $table->nullableMorphs('taggable');
@@ -1134,7 +1134,7 @@ $table->nullableMorphs('taggable');
 #### `nullableUlidMorphs()`
 
 <!-- The method is similar to the [ulidMorphs](#column-method-ulidMorphs) method; however, the columns that are created will be "nullable": -->
-이 방법은 [ulidMorphs](#column-method-ulidMorphs) 방법과 유사합니다. 그러나 생성된 열은 "nullable"입니다.
+이 메서드는 [ulidMorphs](#column-method-ulidMorphs) 메서드와 유사합니다. 그러나 생성된 열은 "nullable"입니다.
 
 ```php
 $table->nullableUlidMorphs('taggable');
@@ -1145,7 +1145,7 @@ $table->nullableUlidMorphs('taggable');
 #### `nullableUuidMorphs()`
 
 <!-- The method is similar to the [uuidMorphs](#column-method-uuidMorphs) method; however, the columns that are created will be "nullable": -->
-이 방법은 [uuidMorphs](#column-method-uuidMorphs) 방법과 유사합니다. 그러나 생성된 열은 "nullable"입니다.
+이 메서드는 [uuidMorphs](#column-method-uuidMorphs) 메서드와 유사합니다. 그러나 생성된 열은 "nullable"입니다.
 
 ```php
 $table->nullableUuidMorphs('taggable');
@@ -1156,7 +1156,7 @@ $table->nullableUuidMorphs('taggable');
 #### `rememberToken()`
 
 <!-- The `rememberToken` method creates a nullable, `VARCHAR(100)` equivalent column that is intended to store the current "remember me" [authentication token](/docs/master/authentication#remembering-users): -->
-`rememberToken` 메서드는 현재 "기억하기"[authentication token](/docs/master/authentication#remembering-users)을 저장하기 위한 nullable `VARCHAR(100)` 해당 열을 생성합니다.
+`rememberToken` 메서드는 현재 "기억하기"[authentication token](/docs/master/authentication#remembering-users)을 저장하기 위한 nullable `VARCHAR(100)`에 해당하는 열을 생성합니다.
 
 ```php
 $table->rememberToken();
@@ -1178,7 +1178,7 @@ $table->set('flavors', ['strawberry', 'vanilla']);
 #### `smallIncrements()`
 
 <!-- The `smallIncrements` method creates an auto-incrementing `UNSIGNED SMALLINT` equivalent column as a primary key: -->
-`smallIncrements` 메소드는 자동 증가 `UNSIGNED SMALLINT` 해당 열을 기본 키로 생성합니다.
+`smallIncrements` 메소드는 자동 증가 `UNSIGNED SMALLINT`에 해당하는 열을 기본 키로 생성합니다.
 
 ```php
 $table->smallIncrements('id');
@@ -1189,7 +1189,7 @@ $table->smallIncrements('id');
 #### `smallInteger()`
 
 <!-- The `smallInteger` method creates a `SMALLINT` equivalent column: -->
-`smallInteger` 메소드는 `SMALLINT` 해당 열을 생성합니다.
+`smallInteger` 메소드는 `SMALLINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->smallInteger('votes');
@@ -1200,7 +1200,7 @@ $table->smallInteger('votes');
 #### `softDeletesTz()`
 
 <!-- The `softDeletesTz` method adds a nullable `deleted_at` `TIMESTAMP` (with timezone) equivalent column with an optional fractional seconds precision. This column is intended to store the `deleted_at` timestamp needed for Eloquent's "soft delete" functionality: -->
-`softDeletesTz` 메소드는 선택적 소수 초 정밀도를 사용하여 null 허용 `deleted_at` `TIMESTAMP`(시간대 포함) 해당 열을 추가합니다. 이 열은 Eloquent의 "일시 삭제" 기능에 필요한 `deleted_at` 타임스탬프를 저장하기 위한 것입니다.
+`softDeletesTz` 메소드는 선택적 소수 초 정밀도를 사용하여 null 허용 `deleted_at` `TIMESTAMP`(시간대 포함)에 해당하는 열을 추가합니다. 이 열은 Eloquent의 "소프트 삭제" 기능에 필요한 `deleted_at` 타임스탬프를 저장하기 위한 것입니다.
 
 ```php
 $table->softDeletesTz('deleted_at', precision: 0);
@@ -1211,7 +1211,7 @@ $table->softDeletesTz('deleted_at', precision: 0);
 #### `softDeletes()`
 
 <!-- The `softDeletes` method adds a nullable `deleted_at` `TIMESTAMP` equivalent column with an optional fractional seconds precision. This column is intended to store the `deleted_at` timestamp needed for Eloquent's "soft delete" functionality: -->
-`softDeletes` 메서드는 선택적 소수 초 정밀도를 사용하여 null 허용 `deleted_at` `TIMESTAMP` 해당 열을 추가합니다. 이 열은 Eloquent의 "일시 삭제" 기능에 필요한 `deleted_at` 타임스탬프를 저장하기 위한 것입니다.
+`softDeletes` 메서드는 선택적 소수 초 정밀도를 사용하여 null 허용 `deleted_at` `TIMESTAMP`에 해당하는 열을 추가합니다. 이 열은 Eloquent의 "소프트 삭제" 기능에 필요한 `deleted_at` 타임스탬프를 저장하기 위한 것입니다.
 
 ```php
 $table->softDeletes('deleted_at', precision: 0);
@@ -1222,7 +1222,7 @@ $table->softDeletes('deleted_at', precision: 0);
 #### `string()`
 
 <!-- The `string` method creates a `VARCHAR` equivalent column of the given length: -->
-`string` 메소드는 지정된 길이의 `VARCHAR` 해당 열을 생성합니다.
+`string` 메소드는 지정된 길이의 `VARCHAR`에 해당하는 열을 생성합니다.
 
 ```php
 $table->string('name', length: 100);
@@ -1233,7 +1233,7 @@ $table->string('name', length: 100);
 #### `text()`
 
 <!-- The `text` method creates a `TEXT` equivalent column: -->
-`text` 메소드는 `TEXT` 해당 열을 생성합니다.
+`text` 메소드는 `TEXT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->text('description');
@@ -1251,7 +1251,7 @@ $table->text('data')->charset('binary'); // BLOB
 #### `timeTz()`
 
 <!-- The `timeTz` method creates a `TIME` (with timezone) equivalent column with an optional fractional seconds precision: -->
-`timeTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `TIME`(시간대 포함) 해당 열을 생성합니다.
+`timeTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `TIME`(시간대 포함)에 해당하는 열을 생성합니다.
 
 ```php
 $table->timeTz('sunrise', precision: 0);
@@ -1273,7 +1273,7 @@ $table->time('sunrise', precision: 0);
 #### `timestampTz()`
 
 <!-- The `timestampTz` method creates a `TIMESTAMP` (with timezone) equivalent column with an optional fractional seconds precision: -->
-`timestampTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `TIMESTAMP`(시간대 포함) 해당 열을 생성합니다.
+`timestampTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `TIMESTAMP`(시간대 포함)에 해당하는 열을 생성합니다.
 
 ```php
 $table->timestampTz('added_at', precision: 0);
@@ -1295,7 +1295,7 @@ $table->timestamp('added_at', precision: 0);
 #### `timestampsTz()`
 
 <!-- The `timestampsTz` method creates `created_at` and `updated_at` `TIMESTAMP` (with timezone) equivalent columns with an optional fractional seconds precision: -->
-`timestampsTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `created_at` 및 `updated_at` `TIMESTAMP`(시간대 포함) 해당 열을 생성합니다.
+`timestampsTz` 메소드는 선택적 소수 초 정밀도를 사용하여 `created_at` 및 `updated_at` `TIMESTAMP`(시간대 포함)에 해당하는 열을 생성합니다.
 
 ```php
 $table->timestampsTz(precision: 0);
@@ -1306,7 +1306,7 @@ $table->timestampsTz(precision: 0);
 #### `timestamps()`
 
 <!-- The `timestamps` method creates `created_at` and `updated_at` `TIMESTAMP` equivalent columns with an optional fractional seconds precision: -->
-`timestamps` 메소드는 선택적 소수 초 정밀도를 사용하여 `created_at` 및 `updated_at` `TIMESTAMP` 해당 열을 생성합니다.
+`timestamps` 메소드는 선택적 소수 초 정밀도를 사용하여 `created_at` 및 `updated_at` `TIMESTAMP`에 해당하는 열을 생성합니다.
 
 ```php
 $table->timestamps(precision: 0);
@@ -1317,7 +1317,7 @@ $table->timestamps(precision: 0);
 #### `tinyIncrements()`
 
 <!-- The `tinyIncrements` method creates an auto-incrementing `UNSIGNED TINYINT` equivalent column as a primary key: -->
-`tinyIncrements` 메소드는 자동 증가 `UNSIGNED TINYINT` 해당 열을 기본 키로 생성합니다.
+`tinyIncrements` 메소드는 자동 증가 `UNSIGNED TINYINT`에 해당하는 열을 기본 키로 생성합니다.
 
 ```php
 $table->tinyIncrements('id');
@@ -1328,7 +1328,7 @@ $table->tinyIncrements('id');
 #### `tinyInteger()`
 
 <!-- The `tinyInteger` method creates a `TINYINT` equivalent column: -->
-`tinyInteger` 메소드는 `TINYINT` 해당 열을 생성합니다.
+`tinyInteger` 메소드는 `TINYINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->tinyInteger('votes');
@@ -1339,7 +1339,7 @@ $table->tinyInteger('votes');
 #### `tinyText()`
 
 <!-- The `tinyText` method creates a `TINYTEXT` equivalent column: -->
-`tinyText` 메소드는 `TINYTEXT` 해당 열을 생성합니다.
+`tinyText` 메소드는 `TINYTEXT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->tinyText('notes');
@@ -1357,7 +1357,7 @@ $table->tinyText('data')->charset('binary'); // TINYBLOB
 #### `unsignedBigInteger()`
 
 <!-- The `unsignedBigInteger` method creates an `UNSIGNED BIGINT` equivalent column: -->
-`unsignedBigInteger` 메소드는 `UNSIGNED BIGINT` 해당 열을 생성합니다.
+`unsignedBigInteger` 메소드는 `UNSIGNED BIGINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->unsignedBigInteger('votes');
@@ -1368,7 +1368,7 @@ $table->unsignedBigInteger('votes');
 #### `unsignedInteger()`
 
 <!-- The `unsignedInteger` method creates an `UNSIGNED INTEGER` equivalent column: -->
-`unsignedInteger` 메소드는 `UNSIGNED INTEGER` 해당 열을 생성합니다.
+`unsignedInteger` 메소드는 `UNSIGNED INTEGER`에 해당하는 열을 생성합니다.
 
 ```php
 $table->unsignedInteger('votes');
@@ -1379,7 +1379,7 @@ $table->unsignedInteger('votes');
 #### `unsignedMediumInteger()`
 
 <!-- The `unsignedMediumInteger` method creates an `UNSIGNED MEDIUMINT` equivalent column: -->
-`unsignedMediumInteger` 메소드는 `UNSIGNED MEDIUMINT` 해당 열을 생성합니다.
+`unsignedMediumInteger` 메소드는 `UNSIGNED MEDIUMINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->unsignedMediumInteger('votes');
@@ -1390,7 +1390,7 @@ $table->unsignedMediumInteger('votes');
 #### `unsignedSmallInteger()`
 
 <!-- The `unsignedSmallInteger` method creates an `UNSIGNED SMALLINT` equivalent column: -->
-`unsignedSmallInteger` 메소드는 `UNSIGNED SMALLINT` 해당 열을 생성합니다.
+`unsignedSmallInteger` 메소드는 `UNSIGNED SMALLINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->unsignedSmallInteger('votes');
@@ -1401,7 +1401,7 @@ $table->unsignedSmallInteger('votes');
 #### `unsignedTinyInteger()`
 
 <!-- The `unsignedTinyInteger` method creates an `UNSIGNED TINYINT` equivalent column: -->
-`unsignedTinyInteger` 메소드는 `UNSIGNED TINYINT` 해당 열을 생성합니다.
+`unsignedTinyInteger` 메소드는 `UNSIGNED TINYINT`에 해당하는 열을 생성합니다.
 
 ```php
 $table->unsignedTinyInteger('votes');
@@ -1412,10 +1412,10 @@ $table->unsignedTinyInteger('votes');
 #### `ulidMorphs()`
 
 <!-- The `ulidMorphs` method is a convenience method that adds a `{column}_id` `CHAR(26)` equivalent column and a `{column}_type` `VARCHAR` equivalent column. -->
-`ulidMorphs` 메서드는 `{column}_id` `CHAR(26)` 해당 열과 `{column}_type` `VARCHAR` 해당 열을 추가하는 편의 메서드입니다.
+`ulidMorphs` 메서드는 `{column}_id` `CHAR(26)`에 해당하는 열과 `{column}_type` `VARCHAR`에 해당하는 열을 추가하는 편의 메서드입니다.
 
 <!-- This method is intended to be used when defining the columns necessary for a polymorphic [Eloquent relationship](/docs/master/eloquent-relationships) that use ULID identifiers. In the following example, `taggable_id` and `taggable_type` columns would be created: -->
-이 방법은 ULID 식별자를 사용하는 다형성 [Eloquent relationship](/docs/master/eloquent-relationships)에 필요한 열을 정의할 때 사용하기 위한 것입니다. 다음 예에서는 `taggable_id` 및 `taggable_type` 열이 생성됩니다.
+이 메서드는 ULID 식별자를 사용하는 다형성 [Eloquent relationship](/docs/master/eloquent-relationships)에 필요한 열을 정의할 때 사용하기 위한 것입니다. 다음 예에서는 `taggable_id` 및 `taggable_type` 열이 생성됩니다.
 
 ```php
 $table->ulidMorphs('taggable');
@@ -1426,10 +1426,10 @@ $table->ulidMorphs('taggable');
 #### `uuidMorphs()`
 
 <!-- The `uuidMorphs` method is a convenience method that adds a `{column}_id` `CHAR(36)` equivalent column and a `{column}_type` `VARCHAR` equivalent column. -->
-`uuidMorphs` 메서드는 `{column}_id` `CHAR(36)` 해당 열과 `{column}_type` `VARCHAR` 해당 열을 추가하는 편의 메서드입니다.
+`uuidMorphs` 메서드는 `{column}_id` `CHAR(36)`에 해당하는 열과 `{column}_type` `VARCHAR`에 해당하는 열을 추가하는 편의 메서드입니다.
 
 <!-- This method is intended to be used when defining the columns necessary for a [polymorphic Eloquent relationship](/docs/master/eloquent-relationships#polymorphic-relationships) that use UUID identifiers. In the following example, `taggable_id` and `taggable_type` columns would be created: -->
-이 방법은 UUID 식별자를 사용하는 [polymorphic Eloquent relationship](/docs/master/eloquent-relationships#polymorphic-relationships)에 필요한 열을 정의할 때 사용하기 위한 것입니다. 다음 예에서는 `taggable_id` 및 `taggable_type` 열이 생성됩니다.
+이 메서드는 UUID 식별자를 사용하는 [polymorphic Eloquent relationship](/docs/master/eloquent-relationships#polymorphic-relationships)에 필요한 열을 정의할 때 사용하기 위한 것입니다. 다음 예에서는 `taggable_id` 및 `taggable_type` 열이 생성됩니다.
 
 ```php
 $table->uuidMorphs('taggable');
@@ -1440,7 +1440,7 @@ $table->uuidMorphs('taggable');
 #### `ulid()`
 
 <!-- The `ulid` method creates a `ULID` equivalent column: -->
-`ulid` 메소드는 `ULID` 해당 열을 생성합니다.
+`ulid` 메소드는 `ULID`에 해당하는 열을 생성합니다.
 
 ```php
 $table->ulid('id');
@@ -1451,7 +1451,7 @@ $table->ulid('id');
 #### `uuid()`
 
 <!-- The `uuid` method creates a `UUID` equivalent column: -->
-`uuid` 메소드는 `UUID` 해당 열을 생성합니다.
+`uuid` 메소드는 `UUID`에 해당하는 열을 생성합니다.
 
 ```php
 $table->uuid('id');
@@ -1462,14 +1462,14 @@ $table->uuid('id');
 #### `vector()`
 
 <!-- The `vector` method creates a `vector` equivalent column: -->
-`vector` 메소드는 `vector` 해당 열을 생성합니다.
+`vector` 메소드는 `vector`에 해당하는 열을 생성합니다.
 
 ```php
 $table->vector('embedding', dimensions: 100);
 ```
 
 <!-- When utilizing PostgreSQL, the `pgvector` extension must be loaded before `vector` columns can be created: -->
-PostgreSQL를 활용하는 경우 `vector` 열을 생성하기 전에 `pgvector` 확장을 로드해야 합니다.
+PostgreSQL을 활용하는 경우 `vector` 열을 생성하기 전에 `pgvector` 확장을 로드해야 합니다.
 
 ```php
 Schema::ensureVectorExtensionExists();
@@ -1480,7 +1480,7 @@ Schema::ensureVectorExtensionExists();
 #### `year()`
 
 <!-- The `year` method creates a `YEAR` equivalent column: -->
-`year` 메소드는 `YEAR` 해당 열을 생성합니다.
+`year` 메소드는 `YEAR`에 해당하는 열을 생성합니다.
 
 ```php
 $table->year('birth_year');
@@ -1516,7 +1516,7 @@ Schema::table('users', function (Blueprint $table) {
 | `->collation('utf8mb4_unicode_ci')` | 열의 데이터 정렬을 지정합니다.                                                            |
 | `->comment('my comment')` | 열(MariaDB / MySQL / PostgreSQL)에 설명을 추가합니다.                                      |
 | `->default($value)` | 열의 "기본값"을 지정합니다.                                                      |
-| `->first()` | 테이블(MariaDB / MySQL)에 "첫 번째" 열을 배치합니다.                                       |
+| `->first()` | 열을 테이블(MariaDB / MySQL)의 "첫 번째" 위치에 배치합니다.                                       |
 | `->from($integer)` | 자동 증가 필드(MariaDB / MySQL / PostgreSQL)의 시작 값을 설정합니다.           |
 | `->instant()` | 인스턴트 작업(MySQL)을 사용하여 열을 추가하거나 수정합니다.                                   |
 | `->invisible()` | 열을 `SELECT *` 쿼리 (MariaDB / MySQL)에 "보이지 않게" 만듭니다.                           |
@@ -1527,7 +1527,7 @@ Schema::table('users', function (Blueprint $table) {
 | `->useCurrent()` | `CURRENT_TIMESTAMP`를 기본값으로 사용하도록 `TIMESTAMP` 열을 설정합니다.                           |
 | `->useCurrentOnUpdate()` | 레코드가 업데이트될 때 `CURRENT_TIMESTAMP`를 사용하도록 `TIMESTAMP` 열을 설정합니다(MariaDB / MySQL). |
 | `->virtualAs($expression)` | 가상 생성 열(MariaDB / MySQL / SQLite)을 만듭니다.                                  |
-| `->generatedAs($expression)` | 지정된 순서 옵션(PostgreSQL)을 사용하여 ID 열을 만듭니다.                        |
+| `->generatedAs($expression)` | 지정된 시퀀스 옵션(PostgreSQL)을 사용하여 ID 열을 만듭니다.                        |
 | `->always()` | ID 열(PostgreSQL)에 대한 입력보다 시퀀스 값의 우선순위를 정의합니다.      |
 
 <!-- </div> -->
@@ -1538,7 +1538,7 @@ Schema::table('users', function (Blueprint $table) {
 #### Default Expressions
 
 <!-- The `default` modifier accepts a value or an `Illuminate\Database\Query\Expression` instance. Using an `Expression` instance will prevent Laravel from wrapping the value in quotes and allow you to use database specific functions. One situation where this is particularly useful is when you need to assign default values to JSON columns: -->
-`default` 수정자는 값 또는 `Illuminate\Database\Query\Expression` 인스턴스를 허용합니다. `Expression` 인스턴스를 사용하면 Laravel가 값을 따옴표로 묶는 것을 방지하고 데이터베이스 관련 기능을 사용할 수 있습니다. 이것이 특히 유용한 상황 중 하나는 JSON 열에 기본값을 할당해야 하는 경우입니다.
+`default` 수정자는 값 또는 `Illuminate\Database\Query\Expression` 인스턴스를 허용합니다. `Expression` 인스턴스를 사용하면 Laravel이 값을 따옴표로 묶는 것을 방지하고 데이터베이스별 함수를 사용할 수 있습니다. 이것이 특히 유용한 상황 중 하나는 JSON 열에 기본값을 할당해야 하는 경우입니다.
 
 ```php
 <?php
@@ -1604,7 +1604,7 @@ $table->string('name')->nullable()->instant();
 #### DDL Locking
 
 <!-- When using MySQL, you may chain the `lock` modifier onto column, index, or foreign key definitions to control table locking during schema operations. MySQL supports several lock modes: `none` allows concurrent reads and writes, `shared` allows concurrent reads but blocks writes, `exclusive` blocks all concurrent access, and `default` lets MySQL choose the most appropriate mode: -->
-MySQL을 사용하는 경우 `lock` 수정자를 열, 인덱스 또는 외래 키 정의에 연결하여 스키마 작업 중 테이블 잠금을 제어할 수 있습니다. MySQL는 여러 잠금 모드를 지원합니다. `none`는 동시 읽기 및 쓰기를 허용하고, `shared`는 동시 읽기를 허용하지만 쓰기를 차단하며, `exclusive`는 모든 동시 액세스를 차단하고, `default`는 MySQL가 가장 적절한 모드를 선택할 수 있도록 합니다.
+MySQL을 사용하는 경우 `lock` 수정자를 열, 인덱스 또는 외래 키 정의에 연결하여 스키마 작업 중 테이블 잠금을 제어할 수 있습니다. MySQL은 여러 잠금 모드를 지원합니다. `none`은 동시 읽기 및 쓰기를 허용하고, `shared`는 동시 읽기를 허용하지만 쓰기를 차단하며, `exclusive`는 모든 동시 액세스를 차단하고, `default`는 MySQL이 가장 적절한 모드를 선택할 수 있도록 합니다.
 
 ```php
 $table->string('name')->lock('none');
@@ -1624,7 +1624,7 @@ $table->string('name')->instant()->lock('none');
 ### Modifying Columns
 
 <!-- The `change` method allows you to modify the type and attributes of existing columns. For example, you may wish to increase the size of a `string` column. To see the `change` method in action, let's increase the size of the `name` column from 25 to 50. To accomplish this, we simply define the new state of the column and then call the `change` method: -->
-`change` 방법을 사용하면 기존 열의 유형과 속성을 수정할 수 있습니다. 예를 들어, `string` 열의 크기를 늘릴 수 있습니다. `change` 메서드가 실제로 작동하는 모습을 보려면 `name` 열의 크기를 25에서 50으로 늘려 보겠습니다. 이를 달성하려면 열의 새 상태를 정의한 다음 `change` 메서드를 호출하기만 하면 됩니다.
+`change` 메서드를 사용하면 기존 열의 유형과 속성을 수정할 수 있습니다. 예를 들어, `string` 열의 크기를 늘릴 수 있습니다. `change` 메서드가 실제로 작동하는 모습을 보려면 `name` 열의 크기를 25에서 50으로 늘려 보겠습니다. 이를 달성하려면 열의 새 상태를 정의한 다음 `change` 메서드를 호출하기만 하면 됩니다.
 
 ```php
 Schema::table('users', function (Blueprint $table) {
@@ -1692,7 +1692,7 @@ Schema::table('users', function (Blueprint $table) {
 #### Available Command Aliases
 
 <!-- Laravel provides several convenient methods related to dropping common types of columns. Each of these methods is described in the table below: -->
-Laravel는 일반적인 유형의 열 삭제와 관련된 몇 가지 편리한 방법을 제공합니다. 각 방법은 아래 표에 설명되어 있습니다.
+Laravel은 일반적인 유형의 열 삭제와 관련된 몇 가지 편리한 메서드를 제공합니다. 각 메서드는 아래 표에 설명되어 있습니다.
 
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
@@ -1730,21 +1730,21 @@ Schema::table('users', function (Blueprint $table) {
 ```
 
 <!-- Alternatively, you may create the index after defining the column. To do so, you should call the `unique` method on the schema builder blueprint. This method accepts the name of the column that should receive a unique index: -->
-또는 열을 정의한 후 인덱스를 생성할 수도 있습니다. 이렇게 하려면 스키마 빌더 청사진에서 `unique` 메서드를 호출해야 합니다. 이 메소드는 고유 인덱스를 수신해야 하는 열의 이름을 허용합니다.
+또는 열을 정의한 후 인덱스를 생성할 수도 있습니다. 이렇게 하려면 스키마 빌더의 Blueprint에서 `unique` 메서드를 호출해야 합니다. 이 메소드는 고유 인덱스를 수신해야 하는 열의 이름을 허용합니다.
 
 ```php
 $table->unique('email');
 ```
 
 <!-- You may even pass an array of columns to an index method to create a compound (or composite) index: -->
-복합(또는 복합) 인덱스를 생성하기 위해 열 배열을 인덱스 메소드에 전달할 수도 있습니다:
+복합 인덱스를 생성하기 위해 열 배열을 인덱스 메소드에 전달할 수도 있습니다:
 
 ```php
 $table->index(['account_id', 'created_at']);
 ```
 
 <!-- When creating an index, Laravel will automatically generate an index name based on the table, column names, and the index type, but you may pass a second argument to the method to specify the index name yourself: -->
-인덱스를 생성할 때 Laravel는 테이블, 열 이름 및 인덱스 유형을 기반으로 인덱스 이름을 자동으로 생성하지만, 인덱스 이름을 직접 지정하기 위해 메서드에 두 번째 인수를 전달할 수도 있습니다.
+인덱스를 생성할 때 Laravel은 테이블, 열 이름 및 인덱스 유형을 기반으로 인덱스 이름을 자동으로 생성하지만, 인덱스 이름을 직접 지정하기 위해 메서드에 두 번째 인수를 전달할 수도 있습니다.
 
 ```php
 $table->unique('email', 'unique_email');
@@ -1755,7 +1755,7 @@ $table->unique('email', 'unique_email');
 #### Available Index Types
 
 <!-- Laravel's schema builder blueprint class provides methods for creating each type of index supported by Laravel. Each index method accepts an optional second argument to specify the name of the index. If omitted, the name will be derived from the names of the table and column(s) used for the index, as well as the index type. Each of the available index methods is described in the table below: -->
-Laravel의 스키마 빌더 청사진 클래스는 Laravel에서 지원하는 각 유형의 인덱스를 생성하는 방법을 제공합니다. 각 인덱스 메소드는 인덱스 이름을 지정하기 위해 선택적 두 번째 인수를 허용합니다. 생략하면 인덱스에 사용된 테이블 및 열 이름과 인덱스 유형에서 이름이 파생됩니다. 사용 가능한 각 인덱스 방법은 아래 표에 설명되어 있습니다.
+Laravel의 스키마 빌더의 Blueprint 클래스는 Laravel에서 지원하는 각 유형의 인덱스를 생성하는 메서드를 제공합니다. 각 인덱스 메소드는 인덱스 이름을 지정하기 위해 선택적 두 번째 인수를 허용합니다. 생략하면 인덱스에 사용된 테이블 및 열 이름과 인덱스 유형에서 이름이 파생됩니다. 사용 가능한 각 인덱스 메서드는 아래 표에 설명되어 있습니다.
 
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
@@ -1785,14 +1785,14 @@ $table->string('email')->unique()->online();
 ```
 
 <!-- When using PostgreSQL, this adds the `CONCURRENTLY` option to the index creation statement. When using SQL Server, this adds the `WITH (online = on)` option. -->
-PostgreSQL를 사용하는 경우 인덱스 생성 문에 `CONCURRENTLY` 옵션이 추가됩니다. SQL Server를 사용하는 경우 `WITH (online = on)` 옵션이 추가됩니다.
+PostgreSQL을 사용하는 경우 인덱스 생성 문에 `CONCURRENTLY` 옵션이 추가됩니다. SQL Server를 사용하는 경우 `WITH (online = on)` 옵션이 추가됩니다.
 
 <a name="renaming-indexes"></a>
 <!-- ### Renaming Indexes -->
 ### Renaming Indexes
 
 <!-- To rename an index, you may use the `renameIndex` method provided by the schema builder blueprint. This method accepts the current index name as its first argument and the desired name as its second argument: -->
-인덱스 이름을 바꾸려면 스키마 빌더 청사진에서 제공하는 `renameIndex` 방법을 사용할 수 있습니다. 이 메소드는 현재 인덱스 이름을 첫 번째 인수로, 원하는 이름을 두 번째 인수로 받아들입니다.
+인덱스 이름을 바꾸려면 스키마 빌더의 Blueprint에서 제공하는 `renameIndex` 메서드를 사용할 수 있습니다. 이 메소드는 현재 인덱스 이름을 첫 번째 인수로, 원하는 이름을 두 번째 인수로 받아들입니다.
 
 ```php
 $table->renameIndex('from', 'to')
@@ -1803,7 +1803,7 @@ $table->renameIndex('from', 'to')
 ### Dropping Indexes
 
 <!-- To drop an index, you must specify the index's name. By default, Laravel automatically assigns an index name based on the table name, the name of the indexed column, and the index type. Here are some examples: -->
-인덱스를 삭제하려면 인덱스 이름을 지정해야 합니다. 기본적으로 Laravel는 테이블 이름, 인덱싱된 열 이름 및 인덱스 유형을 기반으로 인덱스 이름을 자동으로 할당합니다. 다음은 몇 가지 예입니다.
+인덱스를 삭제하려면 인덱스 이름을 지정해야 합니다. 기본적으로 Laravel은 테이블 이름, 인덱싱된 열 이름 및 인덱스 유형을 기반으로 인덱스 이름을 자동으로 할당합니다. 다음은 몇 가지 예입니다.
 
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
@@ -1820,7 +1820,7 @@ $table->renameIndex('from', 'to')
 </div>
 
 <!-- If you pass an array of columns into a method that drops indexes, the conventional index name will be generated based on the table name, columns, and index type: -->
-인덱스를 삭제하는 메서드에 열 배열을 전달하면 테이블 이름, 열 및 인덱스 유형을 기반으로 기존 인덱스 이름이 생성됩니다.
+인덱스를 삭제하는 메서드에 열 배열을 전달하면 테이블 이름, 열 및 인덱스 유형을 기반으로 규칙에 따른 인덱스 이름이 생성됩니다.
 
 ```php
 Schema::table('geo', function (Blueprint $table) {
@@ -1833,7 +1833,7 @@ Schema::table('geo', function (Blueprint $table) {
 ### Foreign Key Constraints
 
 <!-- Laravel also provides support for creating foreign key constraints, which are used to force referential integrity at the database level. For example, let's define a `user_id` column on the `posts` table that references the `id` column on a `users` table: -->
-Laravel는 또한 데이터베이스 수준에서 참조 무결성을 강제하는 데 사용되는 외래 키 제약 조건 생성을 지원합니다. 예를 들어, `users` 테이블의 `id` 열을 참조하는 `posts` 테이블에 `user_id` 열을 정의해 보겠습니다.
+Laravel은 또한 데이터베이스 수준에서 참조 무결성을 강제하는 데 사용되는 외래 키 제약 조건 생성을 지원합니다. 예를 들어, `users` 테이블의 `id` 열을 참조하는 `posts` 테이블에 `user_id` 열을 정의해 보겠습니다.
 
 ```php
 use Illuminate\Database\Schema\Blueprint;
@@ -1847,7 +1847,7 @@ Schema::table('posts', function (Blueprint $table) {
 ```
 
 <!-- Since this syntax is rather verbose, Laravel provides additional, terser methods that use conventions to provide a better developer experience. When using the `foreignId` method to create your column, the example above can be rewritten like so: -->
-이 구문은 다소 장황하므로 Laravel는 더 나은 개발자 환경을 제공하기 위해 규칙을 사용하는 더 간결한 추가 방법을 제공합니다. `foreignId` 메소드를 사용하여 열을 생성할 때 위의 예는 다음과 같이 다시 작성할 수 있습니다.
+이 구문은 다소 장황하므로 Laravel은 더 나은 개발자 환경을 제공하기 위해 규칙을 사용하는 더 간결한 추가 메서드를 제공합니다. `foreignId` 메소드를 사용하여 열을 생성할 때 위의 예는 다음과 같이 다시 작성할 수 있습니다.
 
 ```php
 Schema::table('posts', function (Blueprint $table) {
@@ -1882,7 +1882,7 @@ $table->foreignId('user_id')
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">
 
-| 방법 | 설명 |
+| 메서드 | 설명 |
 | ----------------------------- | ------------------------------------------------- |
 | `$table->cascadeOnUpdate();` | 업데이트는 계단식으로 이루어져야 합니다.                           |
 | `$table->restrictOnUpdate();` | 업데이트를 제한해야 합니다.                     |
@@ -1928,7 +1928,7 @@ $table->dropForeign(['user_id']);
 #### Toggling Foreign Key Constraints
 
 <!-- You may enable or disable foreign key constraints within your migrations by using the following methods: -->
-다음 방법을 사용하여 마이그레이션 내에서 외래 키 제약 조건을 활성화하거나 비활성화할 수 있습니다.
+다음 메서드를 사용하여 마이그레이션 내에서 외래 키 제약 조건을 활성화하거나 비활성화할 수 있습니다.
 
 ```php
 Schema::enableForeignKeyConstraints();
@@ -1941,14 +1941,14 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite는 기본적으로 외래 키 제약 조건을 비활성화합니다. SQLite를 사용하는 경우 마이그레이션에서 생성을 시도하기 전에 데이터베이스 구성에서 [enable foreign key support](/docs/master/database#configuration)했는지 확인하세요.
+> SQLite는 기본적으로 외래 키 제약 조건을 비활성화합니다. SQLite를 사용하는 경우 마이그레이션에서 생성을 시도하기 전에 데이터베이스 구성에서 외래 키 지원을 활성화했는지 확인하세요([enable foreign key support](/docs/master/database#configuration)).
 
 <a name="events"></a>
 <!-- ## Events -->
 ## Events
 
 <!-- For convenience, each migration operation will dispatch an [event](/docs/master/events). All of the following events extend the base `Illuminate\Database\Events\MigrationEvent` class: -->
-편의상 각 마이그레이션 작업은 디스패치 및 [event](/docs/master/events)입니다. 다음 이벤트는 모두 기본 `Illuminate\Database\Events\MigrationEvent` 클래스를 확장합니다.
+편의상 각 마이그레이션 작업은 [event](/docs/master/events)를 디스패치합니다. 다음 이벤트는 모두 기본 `Illuminate\Database\Events\MigrationEvent` 클래스를 확장합니다.
 
 <!-- <div class="overflow-auto"> -->
 <div class="overflow-auto">

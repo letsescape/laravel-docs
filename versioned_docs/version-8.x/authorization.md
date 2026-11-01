@@ -602,7 +602,7 @@ class PostController extends Controller
 ```
 
 <!-- If a [policy is registered](#registering-policies) for the given model, the `can` method will automatically call the appropriate policy and return the boolean result. If no policy is registered for the model, the `can` method will attempt to call the closure-based Gate matching the given action name. -->
-해당 모델에 대해 [policy is registered](#registering-policies) 있다면, `can` 메서드는 자동으로 적절한 정책 메서드를 호출해서 결과를 반환합니다. 등록된 정책이 없다면, `can` 메서드는 클로저 기반 게이트에 해당하는 행위 이름이 있는지 찾아 호출합니다.
+해당 모델에 대해 [policy is registered](#registering-policies)되어 있다면, `can` 메서드는 자동으로 적절한 정책 메서드를 호출해서 결과를 반환합니다. 등록된 정책이 없다면, `can` 메서드는 클로저 기반 게이트에 해당하는 행위 이름이 있는지 찾아 호출합니다.
 
 <a name="user-model-actions-that-dont-require-models"></a>
 <!-- #### Actions That Don't Require Models -->
@@ -713,7 +713,7 @@ public function create(Request $request)
 [resource controllers](/docs/8.x/controllers#resource-controllers)를 사용할 때, 컨트롤러의 생성자에 `authorizeResource` 메서드를 활용할 수 있습니다. 이 메서드는 적절한 `can` 미들웨어 정의를 리소스 컨트롤러의 각 메서드에 자동으로 적용합니다.
 
 <!-- The `authorizeResource` method accepts the model's class name as its first argument, and the name of the route / request parameter that will contain the model's ID as its second argument. You should ensure your [resource controller](/docs/8.x/controllers#resource-controllers) is created using the `--model` flag so that it has the required method signatures and type hints: -->
-`authorizeResource` 메서드는 첫 번째 인수로 모델의 클래스명, 두 번째 인수로는 라우트/요청 파라미터 이름을 받습니다. 필요에 따라 [resource controller](/docs/8.x/controllers#resource-controllers) 생성 시 `--model` 플래그를 사용하면, 필수 시그니처와 타입힌트가 자동으로 생성됩니다:
+`authorizeResource` 메서드는 첫 번째 인수로 모델의 클래스명, 두 번째 인수로는 모델의 ID를 담을 라우트/요청 파라미터 이름을 받습니다. 필수 시그니처와 타입힌트를 갖추도록 [resource controller](/docs/8.x/controllers#resource-controllers)를 `--model` 플래그를 사용해 생성해야 합니다:
 
 ```
 <?php
