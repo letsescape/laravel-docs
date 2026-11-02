@@ -52,7 +52,7 @@
     "remark-parse": "^11.0.0",
     "typescript": "^7.0.2",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.1.0"
+    "unist-util-visit": "^5.2.0"
   },
   "devDependencies": {
     "@mozilla/readability": "^0.6.0",
