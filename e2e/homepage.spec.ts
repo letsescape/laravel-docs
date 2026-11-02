@@ -9,6 +9,43 @@ async function expectNoHorizontalScroll(page: Page, maxWidth: number) {
   expect(scrollWidth).toBeLessThanOrEqual(maxWidth + 2);
 }
 
+for (const locale of ['ko', 'ja']) {
+  test(`${locale} homepage code can scroll to the end of long lines`, async ({page}) => {
+    await page.goto(locale === 'ko' ? '/' : '/ja/');
+    await expect(page.locator('html')).toHaveAttribute('data-has-hydrated', 'true');
+    await page.getByRole('button', {name: 'AI SDK', exact: true}).click();
+    await page.getByRole('tab', {name: 'SalesCoach.php', exact: true}).click();
+    const panel = page.getByRole('tabpanel', {name: 'SalesCoach.php', exact: true});
+
+    for (const width of [390, 768, 997, 1024, 1280, 1920]) {
+      for (const fontSize of [16, 32]) {
+        await page.setViewportSize({width, height: 900});
+        await page.evaluate(async (size) => {
+          document.documentElement.style.fontSize = `${size}px`;
+          await document.fonts.ready;
+        }, fontSize);
+        const layout = await panel.evaluate((element) => {
+          element.scrollLeft = element.scrollWidth;
+          const box = element.getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(element.querySelector('code')!);
+          return {
+            left: box.left,
+            right: box.right,
+            textRight: range.getBoundingClientRect().right,
+          };
+        });
+        const context = `${locale}, ${width}px viewport, ${fontSize}px text`;
+        expect(layout.left, context).toBeGreaterThanOrEqual(0);
+        expect(layout.right, context).toBeLessThanOrEqual(width + 1);
+        expect(layout.textRight, context).toBeGreaterThan(layout.left);
+        expect(layout.textRight, context).toBeLessThanOrEqual(layout.right + 1);
+        await expectNoHorizontalScroll(page, width);
+      }
+    }
+  });
+}
+
 test('Korean homepage text keeps words together when wrapping', async ({page}) => {
   await page.goto('/');
   const subtitle = page.locator('.hero-subtitle');
