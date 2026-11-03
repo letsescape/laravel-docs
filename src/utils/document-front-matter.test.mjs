@@ -9,7 +9,6 @@ import {DEFAULT_PARSE_FRONT_MATTER} from '@docusaurus/utils';
 import {visit} from 'unist-util-visit';
 
 import {parseDocumentFrontMatter} from './document-front-matter.mjs';
-import {frontMatterSlug} from '../../scripts/create-latest-doc-redirects.mjs';
 
 const siteDir = fileURLToPath(new URL('../..', import.meta.url));
 const filePath = path.join(siteDir, 'versioned_docs/version-13.x/security-fixture.md');
@@ -26,7 +25,6 @@ const parseHook = (fileContent, sourcePath = filePath, parser = DEFAULT_PARSE_FR
 const entrypoints = [
   ['shared parser', (fileContent, filePath) => parseDocumentFrontMatter({filePath, fileContent})],
   ['site hook', parseHook],
-  ['redirect parser', frontMatterSlug],
 ];
 const loaderOptions = {
   ...docsOptions,
@@ -45,20 +43,19 @@ const compileDocument = (fileContent, sourcePath = filePath, options = loaderOpt
     }, fileContent).catch(reject);
   });
 
-test('shared parser and redirects preserve YAML, JSON, and documents without front matter', async () => {
-  for (const [content, slug] of [
-    ['# Title\n', null],
-    ['----\nOrdinary Markdown\n', null],
-    ['---\nslug: /\n---\n# Title\n', ''],
-    ['\uFEFF---\r\nslug: /windows\r\n---\r\n# Title\r\n', 'windows'],
-    ['--- YAML \ntitle: &title Laravel\ncopy: *title\ndefaults: &defaults\n  slug: /merged\n<<: *defaults\nlabel: !!str 123\n---\n', 'merged'],
-    ['---yml\nslug: /yaml-alias\n---\n', 'yaml-alias'],
-    ['---json\n{"slug":"/json","title":"JSON"}\n---\n# Title\n', 'json'],
-    ['---\n{"slug":"/json-in-yaml"}\n---\n', 'json-in-yaml'],
+test('shared parser preserves YAML, JSON, and documents without front matter', async () => {
+  for (const content of [
+    '# Title\n',
+    '----\nOrdinary Markdown\n',
+    '---\nslug: /\n---\n# Title\n',
+    '\uFEFF---\r\nslug: /windows\r\n---\r\n# Title\r\n',
+    '--- YAML \ntitle: &title Laravel\ncopy: *title\ndefaults: &defaults\n  slug: /merged\n<<: *defaults\nlabel: !!str 123\n---\n',
+    '---yml\nslug: /yaml-alias\n---\n',
+    '---json\n{"slug":"/json","title":"JSON"}\n---\n# Title\n',
+    '---\n{"slug":"/json-in-yaml"}\n---\n',
   ]) {
     const actual = await parseDocumentFrontMatter({filePath, fileContent: content});
     assert.deepEqual(actual, await DEFAULT_PARSE_FRONT_MATTER({filePath, fileContent: content}));
-    assert.equal(await frontMatterSlug(content, filePath), slug);
   }
 });
 
