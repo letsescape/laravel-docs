@@ -165,6 +165,7 @@ const config: Config = {
   themes: [],
 
   plugins: [
+    ['./src/plugins/latest-doc-redirects.mjs', {latestVersion: LATEST_STABLE}],
     [
       '@docusaurus/plugin-content-docs',
       {
