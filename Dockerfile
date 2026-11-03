@@ -1,4 +1,4 @@
-# 사이트 빌드용 Node Docker (Docusaurus build)
+# 사이트 빌드용 Node Docker (Docusaurus build/serve)
 FROM node:24-alpine
 
 RUN apk add --no-cache git
@@ -15,6 +15,7 @@ COPY docs ./docs
 COPY i18n ./i18n
 COPY src ./src
 COPY static ./static
+COPY scripts ./scripts
 COPY translation-sync/stale-links.json ./translation-sync/stale-links.json
 COPY versioned_docs ./versioned_docs
 COPY versioned_sidebars ./versioned_sidebars
