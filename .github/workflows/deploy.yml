@@ -93,6 +93,10 @@ jobs:
           cache: npm
       - name: Setup Pages
         uses: actions/configure-pages@v6
+      - name: Setup uv and Python 3.14
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          python-version: '3.14'
       - name: Install dependencies
         run: npm ci
       - name: Markdown processing tests

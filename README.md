@@ -35,6 +35,8 @@ npm run typecheck
 
 번역 동기화 Python 단위 테스트와 사이트 검증은 각각 실행
 
+아래 Makefile 검증 명령에는 `uv`와 Python 3.14가 필요합니다. `uv`를 먼저 설치하세요. Python 3.14가 없으면 `uv`가 자동으로 설치합니다.
+
 ```bash
 make translation-test # 번역 동기화 Python 단위 테스트
 make site-check       # 링크 유틸리티 + 타입 + 빌드 + 앵커 검사

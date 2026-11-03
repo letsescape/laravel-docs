@@ -1,7 +1,7 @@
 """번역 문서 초안과 원문 구조의 결정적 Python 검증.
 
 문서와 번역 내용 검증은 Python이 담당.
-Docusaurus build 산출물 검증은 JS validate-anchors.mjs가 담당.
+Docusaurus 빌드 HTML의 앵커 검증은 독립 CLI anchors.py가 담당.
 
 최종 문서에 허용되지 않는 잔존 pattern 검사 및 위반 목록 반환.
 빈 목록은 성공.

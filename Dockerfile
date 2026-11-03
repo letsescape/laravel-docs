@@ -1,7 +1,7 @@
 # 사이트 빌드용 Node Docker (Docusaurus build/serve)
 FROM node:24-alpine
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git python3 uv
 
 WORKDIR /app
 ENV NODE_OPTIONS=--max-old-space-size=4096
@@ -15,8 +15,8 @@ COPY docs ./docs
 COPY i18n ./i18n
 COPY src ./src
 COPY static ./static
-COPY scripts ./scripts
 COPY translation-sync/stale-links.json ./translation-sync/stale-links.json
+COPY translation-sync/sync/verification/anchors.py ./translation-sync/sync/verification/anchors.py
 COPY versioned_docs ./versioned_docs
 COPY versioned_sidebars ./versioned_sidebars
 
