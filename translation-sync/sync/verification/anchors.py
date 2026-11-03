@@ -82,8 +82,13 @@ def validate_anchors(build_root):
         for href, line in page.links:
             if "#" not in href:
                 continue
-            target = urlsplit(urljoin(source_url, href))
-            if target.scheme not in {"http", "https"} or origin(target) != site_origin:
+            try:
+                target = urlsplit(urljoin(source_url, href))
+                if target.scheme not in {"http", "https"} or origin(target) != site_origin:
+                    continue
+            except ValueError as error:
+                total += 1
+                broken.append(f"{relative}:{line} -> {href}: {error}")
                 continue
             path = unquote(target.path)
             local_path = path.removeprefix(base_path)
