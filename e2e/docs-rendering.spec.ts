@@ -23,7 +23,7 @@ test.describe('Docs rendering', () => {
     const document = await request.head(`${docsPath()}/`);
     expect(document.status()).toBe(200);
     expect(document.headers()['content-type']).toContain('text/html');
-    expect((await document.body()).length).toBe(0);
+    expect(await document.body()).toHaveLength(0);
 
     const asset = await request.get('/img/favicon.png');
     expect(asset.status()).toBe(200);
