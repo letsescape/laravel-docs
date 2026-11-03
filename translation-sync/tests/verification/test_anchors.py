@@ -110,11 +110,26 @@ class HtmlAnchorTests(unittest.TestCase):
         self.assertIn("anchor id/name not found", broken[0])
         self.assertIn("target HTML missing", broken[1])
 
+    def test_reports_malformed_urls_and_continues_checking_later_links(self):
+        self.write("docs/13.x/index.html", """
+<a href="https://example.test:abc/docs/13.x/#bad">Invalid port</a>
+<a href="https://[::1/docs/13.x/#bad">Invalid IPv6</a>
+<h2 id="ok">Valid anchor</h2>
+<a href="#ok">Valid link</a>
+<a href="#missing">Missing anchor</a>
+""")
+        total, broken = anchors.validate_anchors(self.root)
+        self.assertEqual(total, 4)
+        self.assertEqual(len(broken), 3)
+        self.assertIn("docs/13.x/index.html:2 -> https://example.test:abc/docs/13.x/#bad", broken[0])
+        self.assertIn("docs/13.x/index.html:3 -> https://[::1/docs/13.x/#bad", broken[1])
+        self.assertIn("docs/13.x/index.html:6 -> #missing: anchor id/name not found", broken[2])
+
     def test_rejects_invalid_fragment_and_path_encoding(self):
         self.write("docs/13.x/index.html", """
-<a href="#%E0%A4%A">Invalid UTF-8</a>
+<a href="#%E0%A4">Invalid UTF-8</a>
 <a href="#%ZZ">Invalid escape</a>
-<a href="/docs/13.x/%E0%A4%A/#id">Invalid path</a>
+<a href="/docs/13.x/%E0%A4/#id">Invalid path</a>
 """)
         total, broken = anchors.validate_anchors(self.root)
         self.assertEqual(total, 3)
