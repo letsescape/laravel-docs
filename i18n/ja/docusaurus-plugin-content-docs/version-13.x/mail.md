@@ -1631,11 +1631,11 @@ Mail::assertNotOutgoing(function (OrderShipped $mail) use ($order) {
 電子メールを送信する代わりに、`log` メール ドライバは検査のためにすべての電子メール メッセージをログ ファイルに書き込みます。通常、このドライバはローカル開発中にのみ使用されます。環境ごとのアプリケーションの構成の詳細については、[configuration documentation](/docs/13.x/configuration#environment-configuration) を確認してください。
 
 <a name="mailtrap"></a>
-<!-- #### HELO / Mailtrap / Mailpit -->
-#### HELO / Mailtrap / Mailpit
+<!-- #### HELO / Mailtrap Email Sandbox / Mailpit -->
+#### HELO / Mailtrap Email Sandbox / Mailpit
 
-<!-- Alternatively, you may use a service like [HELO](https://usehelo.com) or [Mailtrap](https://mailtrap.io) and the `smtp` driver to send your email messages to a "dummy" mailbox where you may view them in a true email client. This approach has the benefit of allowing you to actually inspect the final emails in Mailtrap's message viewer. -->
-あるいは、[HELO](https://usehelo.com) や [Mailtrap](https://mailtrap.io) などのサービスと `smtp` ドライバを使用して、電子メール メッセージを「ダミー」メールボックスに送信し、実際の電子メール クライアントで表示することもできます。このアプローチには、Mailtrap のメッセージ ビューアで最終的な電子メールを実際に検査できるという利点があります。
+<!-- Alternatively, you may use a service like [HELO](https://usehelo.com) or [Mailtrap Email Sandbox](https://mailtrap.io/email-sandbox/) and the `smtp` driver to send your email messages to a "dummy" mailbox where you may view them in a true email client. This approach has the benefit of allowing you to actually inspect the final emails in Mailtrap Email Sandbox's message viewer. -->
+あるいは、[HELO](https://usehelo.com) や [Mailtrap Email Sandbox](https://mailtrap.io/email-sandbox/) などのサービスと `smtp` ドライバを使用して、メールを「ダミー」のメールボックスに送信すれば、実際のメールクライアントで確認できます。この方法なら、Mailtrap Email Sandbox のメッセージビューアで最終的なメールを実際に確認できます。
 
 <!-- If you are using [Laravel Sail](/docs/13.x/sail), you may preview your messages using [Mailpit](https://github.com/axllent/mailpit). When Sail is running, you may access the Mailpit interface at: `http://localhost:8025`. -->
 [Laravel Sail](/docs/13.x/sail) を使用している場合は、[Mailpit](https://github.com/axllent/mailpit) を使用してメッセージをプレビューできます。 Sail の実行中は、`http://localhost:8025` で Mailpit インターフェイスにアクセスできます。

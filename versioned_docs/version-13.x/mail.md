@@ -1628,11 +1628,11 @@ Mail::assertNotOutgoing(function (OrderShipped $mail) use ($order) {
 이메일을 전송하는 대신, `log` 메일 드라이버는 모든 이메일 메시지를 검사할 수 있도록 로그 파일에 기록합니다. 일반적으로 이 드라이버는 로컬 개발 중에만 사용합니다. 환경별로 애플리케이션을 설정하는 방법에 대한 자세한 내용은 [configuration documentation](/docs/13.x/configuration#environment-configuration)를 확인하십시오.
 
 <a name="mailtrap"></a>
-<!-- #### HELO / Mailtrap / Mailpit -->
-#### HELO / Mailtrap / Mailpit
+<!-- #### HELO / Mailtrap Email Sandbox / Mailpit -->
+#### HELO / Mailtrap Email Sandbox / Mailpit
 
-<!-- Alternatively, you may use a service like [HELO](https://usehelo.com) or [Mailtrap](https://mailtrap.io) and the `smtp` driver to send your email messages to a "dummy" mailbox where you may view them in a true email client. This approach has the benefit of allowing you to actually inspect the final emails in Mailtrap's message viewer. -->
-또는 [HELO](https://usehelo.com)나 [Mailtrap](https://mailtrap.io) 같은 서비스와 `smtp` 드라이버를 사용하여, 실제 이메일 클라이언트에서 확인할 수 있는 "더미" 메일함으로 이메일 메시지를 보낼 수 있습니다. 이 방식은 Mailtrap의 메시지 뷰어에서 최종 이메일을 실제로 검사할 수 있다는 장점이 있습니다.
+<!-- Alternatively, you may use a service like [HELO](https://usehelo.com) or [Mailtrap Email Sandbox](https://mailtrap.io/email-sandbox/) and the `smtp` driver to send your email messages to a "dummy" mailbox where you may view them in a true email client. This approach has the benefit of allowing you to actually inspect the final emails in Mailtrap Email Sandbox's message viewer. -->
+또는 [HELO](https://usehelo.com)나 [Mailtrap Email Sandbox](https://mailtrap.io/email-sandbox/) 같은 서비스와 `smtp` 드라이버를 사용하여 실제 이메일 클라이언트에서 확인할 수 있는 "더미" 메일함으로 이메일 메시지를 보낼 수 있습니다. 이 방식은 Mailtrap Email Sandbox의 메시지 뷰어에서 최종 이메일을 직접 확인할 수 있다는 장점이 있습니다.
 
 <!-- If you are using [Laravel Sail](/docs/13.x/sail), you may preview your messages using [Mailpit](https://github.com/axllent/mailpit). When Sail is running, you may access the Mailpit interface at: `http://localhost:8025`. -->
 [Laravel Sail](/docs/13.x/sail)을 사용하고 있다면 [Mailpit](https://github.com/axllent/mailpit)을 사용하여 메시지를 미리 볼 수 있습니다. Sail이 실행 중이면 다음 주소에서 Mailpit 인터페이스에 접근할 수 있습니다: `http://localhost:8025`.

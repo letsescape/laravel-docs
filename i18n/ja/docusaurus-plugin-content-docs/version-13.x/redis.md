@@ -90,6 +90,26 @@ Redis 接続を表す単一の URL を定義しない限り、構成ファイル
 ],
 ```
 
+<a name="key-prefixes"></a>
+<!-- #### Key Prefixes -->
+#### Key Prefixes
+
+<!-- Laravel prefixes every key it stores in Redis using the `prefix` option of your Redis configuration. By default, this prefix is derived from your application's name. If several instances of the same application share a Redis server, such as a production and a staging environment hosted on the same machine, they will use the same prefix and read each other's data. For example, the queue worker of one instance may process jobs that were dispatched by another instance. -->
+Laravel は Redis に保存するすべてのキーに、Redis の設定にある `prefix` オプションを使ってプレフィックスを付けます。デフォルトでは、このプレフィックスはアプリケーション名から生成されます。同じアプリケーションの複数のインスタンスが、たとえば同じマシン上の本番環境とステージング環境のように、1つの Redis サーバーを共有すると、同じプレフィックスを使うため、互いのデータを読み取ってしまいます。たとえば、一方のインスタンスのキューワーカーが、もう一方のインスタンスからディスパッチされたジョブを処理する可能性があります。
+
+<!-- To avoid this, give each instance a unique prefix using the `REDIS_PREFIX` environment variable, or point each instance to its own Redis databases using the `REDIS_DB` and `REDIS_CACHE_DB` environment variables: -->
+これを避けるには、`REDIS_PREFIX` 環境変数を使って各インスタンスに一意のプレフィックスを設定するか、`REDIS_DB` と `REDIS_CACHE_DB` 環境変数を使って各インスタンスをそれぞれ専用の Redis データベースに接続してください。
+
+```ini
+REDIS_PREFIX=laravel-staging-database-
+```
+
+<!-- If your application uses [Horizon](/docs/13.x/horizon), Horizon stores its own data under a separate prefix, which may be configured using the `HORIZON_PREFIX` environment variable. -->
+アプリケーションで [Horizon](/docs/13.x/horizon) を使用している場合、Horizon は専用のプレフィックスを使ってデータを保存します。このプレフィックスは `HORIZON_PREFIX` 環境変数で設定できます。
+
+> [!WARNING]
+> 既存のアプリケーションのプレフィックスを変更すると、以前のプレフィックスで保存されていたキュー内のジョブやキャッシュ値は無視されます。
+
 <a name="configuring-the-connection-scheme"></a>
 <!-- #### Configuring the Connection Scheme -->
 #### Configuring the Connection Scheme
