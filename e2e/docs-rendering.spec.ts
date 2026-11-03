@@ -19,6 +19,33 @@ test.describe('Docs rendering', () => {
     await expect(page.getByRole('heading', {level: 1})).toContainText('Installation');
   });
 
+  test('preview serves document HEAD requests and static assets', async ({request}) => {
+    const document = await request.head(`${docsPath()}/`);
+    expect(document.status()).toBe(200);
+    expect(document.headers()['content-type']).toContain('text/html');
+    expect(await document.body()).toHaveLength(0);
+
+    const asset = await request.get('/img/favicon.png');
+    expect(asset.status()).toBe(200);
+    expect(asset.headers()['content-type']).toContain('image/png');
+    expect((await asset.body()).length).toBeGreaterThan(0);
+  });
+
+  test('preview returns the built 404 page for a missing path', async ({request}) => {
+    const response = await request.get('/preview-test-missing-page/');
+    expect(response.status()).toBe(404);
+    expect(response.headers()['content-type']).toContain('text/html');
+    expect(await response.text()).toContain('Laravel');
+  });
+
+  test('preview survives malformed request paths and Host headers', async ({request}) => {
+    const malformedPath = await request.get('/%E0%A4%A');
+    expect(malformedPath.status()).toBe(400);
+    const malformedHost = await request.get('/', {headers: {host: '['}});
+    expect(malformedHost.status()).toBe(400);
+    expect((await request.get('/')).status()).toBe(200);
+  });
+
   test('collections page renders Laravel-specific HTML, anchors, and admonitions', async ({page}) => {
     await page.goto(docsPath('collections'));
 

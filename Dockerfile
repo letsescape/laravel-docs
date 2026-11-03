@@ -15,7 +15,6 @@ COPY docs ./docs
 COPY i18n ./i18n
 COPY src ./src
 COPY static ./static
-COPY scripts ./scripts
 COPY translation-sync/stale-links.json ./translation-sync/stale-links.json
 COPY translation-sync/sync/verification/anchors.py ./translation-sync/sync/verification/anchors.py
 COPY versioned_docs ./versioned_docs

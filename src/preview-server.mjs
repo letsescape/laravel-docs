@@ -79,8 +79,15 @@ const server = createServer((req, res) => {
 
   const fallbackHost = `${host}:${port}`;
   const requestHost = req.headers.host || fallbackHost;
-  const url = new URL(req.url || '/', `http://${requestHost}`);
-  const pathFromRoot = safeJoin(BUILD_ROOT, url.pathname.replace(/^\/+/, ''));
+  let pathFromRoot;
+  try {
+    const url = new URL(req.url || '/', `http://${requestHost}`);
+    pathFromRoot = safeJoin(BUILD_ROOT, url.pathname.replace(/^\/+/, ''));
+  } catch {
+    res.writeHead(400, {'content-type': 'text/plain; charset=utf-8'});
+    res.end('Bad request');
+    return;
+  }
   if (!pathFromRoot) {
     notFound(req, res);
     return;
