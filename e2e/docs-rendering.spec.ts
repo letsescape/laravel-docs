@@ -38,6 +38,62 @@ test.describe('Docs rendering', () => {
     expect(await response.text()).toContain('Laravel');
   });
 
+  for (const {locale, prefix, title, homeLabel} of [
+    {locale: 'ko', prefix: '', title: '페이지를 찾을 수 없습니다.', homeLabel: '메인 페이지로 이동 →'},
+    {locale: 'ja', prefix: '/ja', title: 'ページが見つかりません', homeLabel: 'メインページへ移動 →'},
+  ]) {
+    test(`${locale} missing page keeps its locale and returns to its homepage`, async ({page}) => {
+      const path = `${prefix}/verification-missing-page/?check=1#section`;
+      const response = await page.goto(path);
+      expect(response?.status()).toBe(404);
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.getByRole('heading', {level: 1})).toHaveText(title);
+      await expect(page.getByRole('link', {name: homeLabel})).toHaveAttribute('href', `${prefix}/`);
+      await expect(page).toHaveURL((url) => `${url.pathname}${url.search}${url.hash}` === path);
+      await page.waitForURL((url) => url.pathname === `${prefix}/`);
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+    });
+
+    test(`${locale} missing versioned document preserves its address and 404 page`, async ({page}) => {
+      const path = `${prefix}/docs/11.x/verification-missing-page/?check=1#section`;
+      const response = await page.goto(path);
+      expect(response?.status()).toBe(404);
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.getByRole('heading', {level: 1})).toHaveText(title);
+      await page.waitForTimeout(3500);
+      const original = new URL(page.url());
+      expect(`${original.pathname}${original.search}${original.hash}`).toBe(path);
+      await expect(page.getByRole('heading', {level: 1})).toHaveText(title);
+    });
+  }
+
+  test('Japanese missing unversioned document keeps its query and fragment', async ({page}) => {
+    await page.goto('/ja/docs/verification-missing-page/?check=1#section');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
+    await expect(page.getByRole('heading', {level: 1})).toHaveText('ページが見つかりません');
+    await page.waitForTimeout(3500);
+    const original = new URL(page.url());
+    expect(normalizePathname(original.pathname)).toBe(`/ja${docsPath('verification-missing-page')}`);
+    expect(original.search).toBe('?check=1');
+    expect(original.hash).toBe('#section');
+  });
+
+  test('404 return paths cannot leave the locale or use malformed URLs', async ({page}) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    for (const [path, target] of [
+      ['/404.html?from=%2F%2Fexample.com%2F', '/'],
+      ['/404.html?from=%2F%2F%5B', '/'],
+      ['/ja/404.html?from=%2Fja%2F..%2Fdocs%2F11.x%2Fmissing%2F', '/ja/'],
+    ]) {
+      await page.goto(path);
+      const origin = new URL(page.url()).origin;
+      await page.waitForURL((url) => url.pathname === target);
+      expect(new URL(page.url()).origin).toBe(origin);
+    }
+    expect(errors).toEqual([]);
+  });
+
   test('preview survives malformed request paths and Host headers', async ({request}) => {
     const malformedPath = await request.get('/%E0%A4%A');
     expect(malformedPath.status()).toBe(400);
