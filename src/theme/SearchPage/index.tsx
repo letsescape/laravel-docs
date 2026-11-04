@@ -126,6 +126,10 @@ function SearchVersionSelectList({
         return (
           <select
             key={pluginId}
+            aria-label={translate({
+              id: 'navbar.version.label',
+              message: 'Documentation version: {version}',
+            }, {version: docsSearchVersionsHelpers.searchVersions[pluginId]!})}
             onChange={(e) =>
               docsSearchVersionsHelpers.setSearchVersion(
                 pluginId,
@@ -225,7 +229,7 @@ type ResultDispatcherState = {
 type ResultDispatcher =
   | {type: 'reset'; value?: undefined}
   | {type: 'loading'; value?: undefined}
-  | {type: 'update'; value: ResultDispatcherState}
+  | {type: 'update'; value: ResultDispatcherState; searchVersions: Record<string, string>}
   | {type: 'advance'; value?: undefined};
 
 function getSearchPageTitle(searchQuery: string | undefined): string {
@@ -280,7 +284,8 @@ function SearchPageContent(): ReactNode {
           return {...prevState, loading: true};
         }
         case 'update': {
-          if (searchQuery !== data.value.query) {
+          if (searchQuery !== data.value.query ||
+              data.searchVersions !== docsSearchVersionsHelpers.searchVersions) {
             return prevState;
           }
 
@@ -362,6 +367,7 @@ function SearchPageContent(): ReactNode {
 
       searchResultStateDispatcher({
         type: 'update',
+        searchVersions: docsSearchVersionsHelpers.searchVersions,
         value: {
           items,
           query,
@@ -434,10 +440,12 @@ function SearchPageContent(): ReactNode {
     if (searchQuery) {
       searchResultStateDispatcher({type: 'loading'});
 
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         makeSearch();
       }, 300);
+      return () => clearTimeout(timeout);
     }
+    return undefined;
   }, [searchQuery, docsSearchVersionsHelpers.searchVersions, makeSearch]);
 
   useEffect(() => {
