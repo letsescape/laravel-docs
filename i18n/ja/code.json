@@ -201,7 +201,7 @@
     "description": "The first paragraph of the 404 page"
   },
   "theme.NotFound.p2": {
-    "message": "メインページに移動します。",
+    "message": "URLを確認するか、メインページから探してください。",
     "description": "The 2nd paragraph of the 404 page"
   },
   "theme.NotFound.goHome": {
