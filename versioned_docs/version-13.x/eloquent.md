@@ -35,6 +35,7 @@
     - [Global Scopes](#global-scopes)
     - [Local Scopes](#local-scopes)
     - [Pending Attributes](#pending-attributes)
+    - [After Query Callbacks](#after-query-callbacks)
 - [Comparing Models](#comparing-models)
 - [Events](#events)
     - [Using Closures](#events-using-closures)
@@ -1926,6 +1927,24 @@ $draft->hidden; // true
 $query->withAttributes([
     'hidden' => true,
 ], asConditions: false);
+```
+
+<a name="after-query-callbacks"></a>
+<!-- ### After Query Callbacks -->
+### After Query Callbacks
+
+<!-- The `afterQuery` method allows you to register a closure that will be invoked with the results of the query after it has been executed. This is particularly useful within [local scopes](#local-scopes), as it allows the scope to modify the models it retrieves: -->
+`afterQuery` 메서드를 사용하면 쿼리 실행 후 결과와 함께 호출될 클로저를 등록할 수 있습니다. 이 기능은 [local scopes](#local-scopes)에서 특히 유용합니다. 스코프에서 조회한 모델을 수정할 수 있기 때문입니다.
+
+```php
+#[Scope]
+protected function matching(Builder $query, string $term): void
+{
+    // Add a blog post excerpt property on each Post in the resulting collection...
+    $query->whereFullText('body', $term)->afterQuery(function (Collection $posts) use ($term) {
+        $posts->each(fn (Post $post) => $post->excerpt = Str::excerpt($post->body, $term));
+    });
+}
 ```
 
 <a name="comparing-models"></a>

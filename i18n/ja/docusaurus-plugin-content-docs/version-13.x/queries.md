@@ -1429,6 +1429,19 @@ $user = DB::table('users')
     ->first();
 ```
 
+<a name="sequence-ordering"></a>
+<!-- #### Sequence Ordering -->
+#### Sequence Ordering
+
+<!-- The `inOrderOf` method allows you to order query results using a sequence of values, such as strings or enums: -->
+`inOrderOf` メソッドを使うと、文字列や enum などの値の並び順に従ってクエリ結果を並べ替えられます。
+
+```php
+$orders = DB::table('orders')
+    ->inOrderOf('status', [OrderStatus::Shipped, OrderStatus::Delivered, OrderStatus::Cancelled])
+    ->get();
+```
+
 <a name="random-ordering"></a>
 <!-- #### Random Ordering -->
 #### Random Ordering
