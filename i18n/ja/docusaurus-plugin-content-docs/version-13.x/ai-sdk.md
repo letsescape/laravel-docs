@@ -1140,6 +1140,22 @@ foreach ($stream as $event) {
 );
 ```
 
+<!-- Each event is broadcast under its type, such as `stream_start`, `text_delta`, `tool_call`, `tool_result`, and `stream_end`. Errors returned by the provider are always broadcast as `error`, and the provider's own error code is available in the payload's `type` key. When a queued broadcast fails, a `stream_failed` event is broadcast so your frontend can stop waiting for the response. Since these are [custom broadcast names](/docs/13.x/broadcasting#broadcast-name), you should prefix them with a `.` when [listening with Laravel Echo](/docs/13.x/broadcasting#listening-for-events): -->
+イベントはそれぞれのタイプでブロードキャストされます。たとえば、`stream_start`、`text_delta`、`tool_call`、`tool_result`、`stream_end` です。プロバイダから返されたエラーは常に `error` としてブロードキャストされ、プロバイダ固有のエラーコードはペイロードの `type` キーで確認できます。キューに入れたブロードキャストが失敗すると、`stream_failed` イベントがブロードキャストされるため、フロントエンドで応答を待つ処理を停止できます。これらは[custom broadcast names](/docs/13.x/broadcasting#broadcast-name)なので、[listening with Laravel Echo](/docs/13.x/broadcasting#listening-for-events)際は、名前の先頭に `.` を付けてください。
+
+```js
+Echo.channel('channel-name')
+    .listen('.text_delta', (event) => {
+        // event.delta...
+    })
+    .listen('.error', (event) => {
+        // event.type, event.message...
+    })
+    .listen('.stream_failed', (event) => {
+        // ...
+    });
+```
+
 <a name="skipping-oversized-events"></a>
 <!-- #### Skipping Oversized Events -->
 #### Skipping Oversized Events

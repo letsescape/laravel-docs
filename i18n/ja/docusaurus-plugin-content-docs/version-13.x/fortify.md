@@ -267,8 +267,14 @@ Fortify::authenticateThrough(function (Request $request) {
 <!-- By default, Fortify will throttle authentication attempts using the `EnsureLoginIsNotThrottled` middleware. This middleware throttles attempts that are unique to a username and IP address combination. -->
 デフォルトでは、Fortify は `EnsureLoginIsNotThrottled` ミドルウェアを使用して認証試行を抑制します。このミドルウェアは、ユーザー名と IP アドレスの組み合わせに固有の試行を抑制します。
 
-<!-- Some applications may require a different approach to throttling authentication attempts, such as throttling by IP address alone. Therefore, Fortify allows you to specify your own [rate limiter](/docs/13.x/routing#rate-limiting) via the `fortify.limiters.login` configuration option. Of course, this configuration option is located in your application's `config/fortify.php` configuration file. -->
-一部のアプリケーションでは、IP アドレスのみによるスロットルなど、認証試行をスロットルするための別のアプローチが必要な場合があります。したがって、Fortify では、`fortify.limiters.login` 構成オプションを介して独自の [rate limiter](/docs/13.x/routing#rate-limiting) を指定できます。もちろん、この構成オプションはアプリケーションの `config/fortify.php` 構成ファイルにあります。
+<!-- Some applications may require a different approach to throttling authentication attempts, such as throttling by IP address alone. Therefore, Fortify allows you to specify your own [rate limiter](/docs/13.x/routing#rate-limiting) via the `fortify.limiters.login` configuration option. -->
+アプリケーションによっては、IP アドレスだけで制限するなど、認証試行を制限する方法を変える必要がある場合があります。そのため、Fortify では `fortify.limiters.login` 設定オプションを使って、独自の [rate limiter](/docs/13.x/routing#rate-limiting) を指定できます。
+
+<!-- When a custom login rate limiter is configured, Fortify automatically applies the corresponding `throttle` middleware to its login route, so you do not need to attach this middleware manually. -->
+ログイン用のカスタム rate limiter を設定すると、Fortify は対応する `throttle` ミドルウェアをログインルートに自動で適用するため、手動でこのミドルウェアを追加する必要はありません。
+
+<!-- This configuration option is available in your application's `config/fortify.php` configuration file. -->
+この設定オプションは、アプリケーションの `config/fortify.php` 設定ファイルで利用できます。
 
 > [!NOTE]
 > スロットリング、[two-factor authentication](/docs/13.x/fortify#two-factor-authentication)、および外部 Web アプリケーション ファイアウォール (WAF) を組み合わせて利用すると、正規のアプリケーション ユーザーに最も堅牢な防御が提供されます。

@@ -267,8 +267,14 @@ Fortify::authenticateThrough(function (Request $request) {
 <!-- By default, Fortify will throttle authentication attempts using the `EnsureLoginIsNotThrottled` middleware. This middleware throttles attempts that are unique to a username and IP address combination. -->
 기본적으로 Fortify는 `EnsureLoginIsNotThrottled` 미들웨어로 로그인 시도 횟수를 제한합니다. 이 미들웨어는 사용자명과 IP 조합별로 로그인 시도를 제한합니다.
 
-<!-- Some applications may require a different approach to throttling authentication attempts, such as throttling by IP address alone. Therefore, Fortify allows you to specify your own [rate limiter](/docs/13.x/routing#rate-limiting) via the `fortify.limiters.login` configuration option. Of course, this configuration option is located in your application's `config/fortify.php` configuration file. -->
-일부 애플리케이션에서는, 예를 들어 IP별로만 인증 시도를 제한하는 등 다른 방식의 인증 제한(스로틀링)이 필요할 수 있습니다. Fortify는 `fortify.limiters.login` 설정 옵션을 통해 직접 [rate limiter](/docs/13.x/routing#rate-limiting)를 지정할 수 있습니다. 이 옵션은 `config/fortify.php` 파일에 있습니다.
+<!-- Some applications may require a different approach to throttling authentication attempts, such as throttling by IP address alone. Therefore, Fortify allows you to specify your own [rate limiter](/docs/13.x/routing#rate-limiting) via the `fortify.limiters.login` configuration option. -->
+일부 애플리케이션에서는 IP 주소만으로 제한하는 등 인증 시도를 제한하는 다른 방식이 필요할 수 있습니다. 따라서 Fortify에서는 `fortify.limiters.login` 설정 옵션을 통해 직접 [rate limiter](/docs/13.x/routing#rate-limiting)를 지정할 수 있습니다.
+
+<!-- When a custom login rate limiter is configured, Fortify automatically applies the corresponding `throttle` middleware to its login route, so you do not need to attach this middleware manually. -->
+사용자 지정 로그인 rate limiter를 설정하면 Fortify가 로그인 라우트에 해당하는 `throttle` 미들웨어를 자동으로 적용하므로, 이 미들웨어를 직접 추가할 필요가 없습니다.
+
+<!-- This configuration option is available in your application's `config/fortify.php` configuration file. -->
+이 설정 옵션은 애플리케이션의 `config/fortify.php` 설정 파일에서 사용할 수 있습니다.
 
 > [!NOTE]
 > 인증 제한, [two-factor authentication](/docs/13.x/fortify#two-factor-authentication), 외부 웹 애플리케이션 방화벽(WAF)을 함께 적용할 때 애플리케이션의 보안이 가장 강력하게 보호됩니다.

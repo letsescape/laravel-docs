@@ -528,6 +528,20 @@ $delay = $request->interval('delay', Unit::Minute);
 <!-- If the input value is present but has an invalid format, an `InvalidArgumentException` will be thrown; therefore, it is recommended that you validate the input before invoking the `interval` method. -->
 입력 값이 존재하지만 형식이 유효하지 않으면 `InvalidArgumentException`이 발생합니다. 따라서 `interval` 메서드를 호출하기 전에 입력 값을 유효성 검증하는 것이 좋습니다.
 
+<a name="retrieving-uuid-input-values"></a>
+<!-- #### Retrieving UUID Input Values -->
+#### Retrieving UUID Input Values
+
+<!-- Input values containing UUIDs may be retrieved as `Ramsey\Uuid\UuidInterface` instances using the `uuid` method. If the request does not contain an input value with the given name, `null` will be returned: -->
+UUID가 포함된 입력 값은 `uuid` 메서드를 사용해 `Ramsey\Uuid\UuidInterface` 인스턴스로 가져올 수 있습니다. 요청에 지정된 이름의 입력 값이 없으면 `null`이 반환됩니다.
+
+```php
+$orderId = $request->uuid('order_id');
+```
+
+<!-- If the input value is present but is not a valid UUID, an `InvalidArgumentException` will be thrown; therefore, it is recommended that you validate the input before invoking the `uuid` method. -->
+입력 값이 있지만 유효한 UUID가 아니면 `InvalidArgumentException`이 발생합니다. 따라서 `uuid` 메서드를 호출하기 전에 입력 값을 유효성 검증하는 것이 좋습니다.
+
 <a name="retrieving-enum-input-values"></a>
 <!-- #### Retrieving Enum Input Values -->
 #### Retrieving Enum Input Values
