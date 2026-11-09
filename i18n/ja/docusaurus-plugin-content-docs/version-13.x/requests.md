@@ -332,7 +332,7 @@ Route::get('/', function (ServerRequestInterface $request) {
 ```
 
 > [!NOTE]
-> ルートまたはコントローラから PSR-7 応答インスタンスを返すと、それは自動的に Laravel 応答インスタンスに変換され、フレームワークによって表示されます。
+> ルートまたはコントローラから PSR-7 レスポンスインスタンスを返すと、Laravel のレスポンスインスタンスに自動的に変換され、フレームワークによって表示されます。
 
 <a name="input"></a>
 <!-- ## Input -->
@@ -530,18 +530,20 @@ $delay = $request->interval('delay', Unit::Minute);
 入力値が存在するものの形式が無効な場合は、`InvalidArgumentException` がスローされます。したがって、`interval` メソッドを呼び出す前に入力を検証することをお勧めします。
 
 <a name="retrieving-uuid-input-values"></a>
-<!-- #### Retrieving UUID Input Values -->
-#### Retrieving UUID Input Values
+<!-- #### Retrieving UUID and ULID Input Values -->
+#### Retrieving UUID and ULID Input Values
 
-<!-- Input values containing UUIDs may be retrieved as `Ramsey\Uuid\UuidInterface` instances using the `uuid` method. If the request does not contain an input value with the given name, `null` will be returned: -->
-UUIDを含む入力値は、`uuid` メソッドを使って `Ramsey\Uuid\UuidInterface` のインスタンスとして取得できます。指定した名前の入力値がリクエストに含まれていない場合は、`null` を返します。
+<!-- Input values containing UUIDs or ULIDs may be retrieved using the `uuid` and `ulid` methods, which return `Ramsey\Uuid\UuidInterface` and `Symfony\Component\Uid\Ulid` instances respectively. If the request does not contain an input value with the given name, `null` will be returned: -->
+UUID または ULID を含む入力値は、`uuid` メソッドと `ulid` メソッドで取得できます。これらのメソッドは、それぞれ `Ramsey\Uuid\UuidInterface` と `Symfony\Component\Uid\Ulid` のインスタンスを返します。指定した名前の入力値がリクエストに含まれていない場合は、`null` を返します。
 
 ```php
 $orderId = $request->uuid('order_id');
+
+$eventId = $request->ulid('event_id');
 ```
 
-<!-- If the input value is present but is not a valid UUID, an `InvalidArgumentException` will be thrown; therefore, it is recommended that you validate the input before invoking the `uuid` method. -->
-入力値が存在していても、有効な UUID でない場合は `InvalidArgumentException` がスローされます。そのため、`uuid` メソッドを呼び出す前に入力を検証することをお勧めします。
+<!-- If the input value is present but is not a valid UUID or ULID, an `InvalidArgumentException` will be thrown; therefore, it is recommended that you validate the input before invoking these methods. -->
+入力値が存在するものの、有効な UUID または ULID ではない場合、`InvalidArgumentException` がスローされます。そのため、これらのメソッドを呼び出す前に入力値をバリデーションすることをおすすめします。
 
 <a name="retrieving-enum-input-values"></a>
 <!-- #### Retrieving Enum Input Values -->
@@ -604,7 +606,7 @@ $input = $request->except('credit_card');
 ```
 
 > [!WARNING]
-> `only` メソッドは、要求したすべてのキーと値のペアを返します。ただし、リクエストに存在しないキーと値のペアは返されません。
+> `only` メソッドは指定したすべてのキーと値のペアを返します。ただし、リクエストに含まれていないキーと値のペアは返しません。
 
 <a name="input-presence"></a>
 <!-- ### Input Presence -->
@@ -961,7 +963,7 @@ $path = $request->photo->storeAs('images', 'filename.jpg', 's3');
 ```
 
 > [!NOTE]
-> Laravel のファイルストレージの詳細については、完全な [file storage documentation](/docs/13.x/filesystem) を確認してください。
+> Laravelでのファイルストレージについて詳しくは、[file storage documentation](/docs/13.x/filesystem)をご覧ください。
 
 <a name="configuring-trusted-proxies"></a>
 <!-- ## Configuring Trusted Proxies -->
@@ -997,7 +999,7 @@ TLS / SSL 証明書を終了するロード バランサーの背後でアプリ
 ```
 
 > [!NOTE]
-> AWS Elastic Load Balancing を使用している場合、`headers` 値は `Request::HEADER_X_FORWARDED_AWS_ELB` である必要があります。ロード バランサーが [RFC 7239](https://www.rfc-editor.org/rfc/rfc7239#section-4) の標準 `Forwarded` ヘッダーを使用する場合、`headers` の値は `Request::HEADER_FORWARDED` である必要があります。 `headers` 値で使用できる定数の詳細については、[trusting proxies](https://symfony.com/doc/current/deployment/proxies.html) に関する Symfony のドキュメントを確認してください。
+> AWS Elastic Load Balancing を使用している場合、`headers` の値には `Request::HEADER_X_FORWARDED_AWS_ELB` を指定します。ロードバランサーが [RFC 7239](https://www.rfc-editor.org/rfc/rfc7239#section-4) の標準 `Forwarded` ヘッダーを使用している場合、`headers` の値には `Request::HEADER_FORWARDED` を指定します。`headers` の値に指定できる定数について詳しくは、Symfony の[trusting proxies](https://symfony.com/doc/current/deployment/proxies.html)に関するドキュメントを参照してください。
 
 <a name="trusting-all-proxies"></a>
 <!-- #### Trusting All Proxies -->

@@ -2040,6 +2040,9 @@ public function handle(Request $request): Response
 }
 ```
 
+<!-- For guidance on securing MCP clients and servers, see the MCP [Security Best Practices](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices). -->
+MCP 클라이언트와 서버를 보호하는 방법은 MCP [Security Best Practices](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices)를 참조하세요.
+
 <a name="client"></a>
 <!-- ## MCP Client -->
 ## MCP Client

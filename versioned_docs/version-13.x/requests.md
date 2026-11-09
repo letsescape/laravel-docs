@@ -332,7 +332,7 @@ Route::get('/', function (ServerRequestInterface $request) {
 ```
 
 > [!NOTE]
-> 라우트나 컨트롤러에서 PSR-7 응답 인스턴스를 반환하면, 프레임워크가 이를 자동으로 Laravel 응답 인스턴스로 다시 변환하여 표시합니다.
+> 라우트나 컨트롤러에서 PSR-7 응답 인스턴스를 반환하면 Laravel 응답 인스턴스로 자동 변환되어 프레임워크에서 표시됩니다.
 
 <a name="input"></a>
 <!-- ## Input -->
@@ -460,6 +460,7 @@ $name = $request->string('name')->trim();
 ```php
 $perPage = $request->integer('per_page');
 ```
+
 <a name="retrieving-boolean-input-values"></a>
 <!-- #### Retrieving Boolean Input Values -->
 #### Retrieving Boolean Input Values
@@ -529,18 +530,20 @@ $delay = $request->interval('delay', Unit::Minute);
 입력 값이 존재하지만 형식이 유효하지 않으면 `InvalidArgumentException`이 발생합니다. 따라서 `interval` 메서드를 호출하기 전에 입력 값을 유효성 검증하는 것이 좋습니다.
 
 <a name="retrieving-uuid-input-values"></a>
-<!-- #### Retrieving UUID Input Values -->
-#### Retrieving UUID Input Values
+<!-- #### Retrieving UUID and ULID Input Values -->
+#### Retrieving UUID and ULID Input Values
 
-<!-- Input values containing UUIDs may be retrieved as `Ramsey\Uuid\UuidInterface` instances using the `uuid` method. If the request does not contain an input value with the given name, `null` will be returned: -->
-UUID가 포함된 입력 값은 `uuid` 메서드를 사용해 `Ramsey\Uuid\UuidInterface` 인스턴스로 가져올 수 있습니다. 요청에 지정된 이름의 입력 값이 없으면 `null`이 반환됩니다.
+<!-- Input values containing UUIDs or ULIDs may be retrieved using the `uuid` and `ulid` methods, which return `Ramsey\Uuid\UuidInterface` and `Symfony\Component\Uid\Ulid` instances respectively. If the request does not contain an input value with the given name, `null` will be returned: -->
+UUID 또는 ULID가 포함된 입력 값은 `uuid` 및 `ulid` 메서드로 가져올 수 있으며, 각각 `Ramsey\Uuid\UuidInterface` 및 `Symfony\Component\Uid\Ulid` 인스턴스를 반환합니다. 요청에 지정된 이름의 입력 값이 없으면 `null`을 반환합니다:
 
 ```php
 $orderId = $request->uuid('order_id');
+
+$eventId = $request->ulid('event_id');
 ```
 
-<!-- If the input value is present but is not a valid UUID, an `InvalidArgumentException` will be thrown; therefore, it is recommended that you validate the input before invoking the `uuid` method. -->
-입력 값이 있지만 유효한 UUID가 아니면 `InvalidArgumentException`이 발생합니다. 따라서 `uuid` 메서드를 호출하기 전에 입력 값을 유효성 검증하는 것이 좋습니다.
+<!-- If the input value is present but is not a valid UUID or ULID, an `InvalidArgumentException` will be thrown; therefore, it is recommended that you validate the input before invoking these methods. -->
+입력값이 존재하지만 유효한 UUID 또는 ULID가 아니라면 `InvalidArgumentException`이 발생합니다. 따라서 이러한 메서드를 호출하기 전에 입력값을 유효성 검증하는 것이 좋습니다.
 
 <a name="retrieving-enum-input-values"></a>
 <!-- #### Retrieving Enum Input Values -->
@@ -603,7 +606,7 @@ $input = $request->except('credit_card');
 ```
 
 > [!WARNING]
-> `only` 메서드는 요청한 모든 키 / 값 쌍을 반환합니다. 다만 요청에 존재하지 않는 키 / 값 쌍은 반환하지 않습니다.
+> `only` 메서드는 요청한 모든 키/값 쌍을 반환하지만, 요청에 포함되지 않은 키/값 쌍은 반환하지 않습니다.
 
 <a name="input-presence"></a>
 <!-- ### Input Presence -->
@@ -958,8 +961,9 @@ $path = $request->photo->storeAs('images', 'filename.jpg');
 
 $path = $request->photo->storeAs('images', 'filename.jpg', 's3');
 ```
+
 > [!NOTE]
-> Laravel의 파일 저장소에 대한 자세한 내용은 전체 [file storage documentation](/docs/13.x/filesystem)를 확인하세요.
+> Laravel의 파일 저장소에 관한 자세한 내용은 전체 [file storage documentation](/docs/13.x/filesystem)를 참조하세요.
 
 <a name="configuring-trusted-proxies"></a>
 <!-- ## Configuring Trusted Proxies -->
@@ -995,7 +999,7 @@ TLS / SSL 인증서를 종료하는 로드 밸런서 뒤에서 애플리케이�
 ```
 
 > [!NOTE]
-> AWS Elastic Load Balancing을 사용하고 있다면 `headers` 값은 `Request::HEADER_X_FORWARDED_AWS_ELB`이어야 합니다. 로드 밸런서가 [RFC 7239](https://www.rfc-editor.org/rfc/rfc7239#section-4)의 표준 `Forwarded` 헤더를 사용한다면 `headers` 값은 `Request::HEADER_FORWARDED`이어야 합니다. `headers` 값에 사용할 수 있는 상수에 대한 자세한 내용은 Symfony의 [trusting proxies](https://symfony.com/doc/current/deployment/proxies.html) 문서를 확인하세요.
+> AWS Elastic Load Balancing을 사용하는 경우 `headers` 값은 `Request::HEADER_X_FORWARDED_AWS_ELB`여야 합니다. 로드 밸런서가 [RFC 7239](https://www.rfc-editor.org/rfc/rfc7239#section-4)의 표준 `Forwarded` 헤더를 사용하는 경우 `headers` 값은 `Request::HEADER_FORWARDED`여야 합니다. `headers` 값에 사용할 수 있는 상수에 대한 자세한 내용은 Symfony 문서의 [trusting proxies](https://symfony.com/doc/current/deployment/proxies.html)을 참고하세요.
 
 <a name="trusting-all-proxies"></a>
 <!-- #### Trusting All Proxies -->

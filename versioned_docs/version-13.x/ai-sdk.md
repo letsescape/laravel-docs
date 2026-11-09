@@ -1891,8 +1891,8 @@ foreach ($stream as $event) {
 }
 ```
 
-<!-- Response values such as `text`, `usage`, and `toolResults` ignore preliminary events. The [Vercel protocol](#stream-protocols) renders them as native streaming tool output, so `useChat` displays the progress without any custom code, while the AG-UI protocol reports them as activity snapshots. The completed response's text, reasoning, citations, and usage include those of the sub-agent. -->
-`text`, `usage`, `toolResults`와 같은 응답 값은 중간 결과 이벤트를 무시합니다. [Vercel protocol](#stream-protocols)은 이러한 이벤트를 네이티브 스트리밍 툴 출력으로 렌더링하므로 `useChat`은 별도의 커스텀 코드 없이 진행 상황을 표시하며, AG-UI protocol은 이를 활동 스냅샷으로 보고합니다. 완료된 응답의 텍스트, 추론, 인용, 사용량에는 하위 에이전트의 값도 포함됩니다.
+<!-- Response values such as `text`, `usage`, and `toolResults` ignore preliminary events. The [Vercel protocol](#stream-protocols) renders them as native streaming tool output, so `useChat` displays the progress without any custom code, while the AG-UI protocol reports them as activity snapshots. The sub-agent's final text becomes the tool call's result, which is available through the completed response's `toolResults`. The completed response's `text`, `reasoning`, `citations`, and `usage` only include the parent agent's own output. To track the usage of a sub-agent, you may listen for the `AgentStreamed` [event](#events) and compare the event's `prompt->parentInvocationId` with the parent response's `invocationId`. -->
+`text`, `usage`, `toolResults`와 같은 응답 값은 중간 결과 이벤트를 무시합니다. [Vercel protocol](#stream-protocols)은 이러한 이벤트를 네이티브 스트리밍 도구 출력으로 렌더링하므로 `useChat`은 별도의 커스텀 코드 없이 진행 상황을 표시하며, AG-UI protocol은 이를 활동 스냅샷으로 보고합니다. 하위 에이전트의 최종 텍스트는 도구 호출의 결과가 되며, 완료된 응답의 `toolResults`에서 확인할 수 있습니다. 완료된 응답의 `text`, `reasoning`, `citations`, `usage`에는 상위 에이전트 자체의 출력만 포함됩니다. 하위 에이전트의 사용량을 추적하려면 `AgentStreamed` [event](#events)를 수신하고 이벤트의 `prompt->parentInvocationId`를 상위 응답의 `invocationId`와 비교하면 됩니다.
 
 <a name="middleware"></a>
 <!-- ### Middleware -->
