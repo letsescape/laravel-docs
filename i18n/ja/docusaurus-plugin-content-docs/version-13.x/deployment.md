@@ -3,6 +3,7 @@
 
 - [Introduction](#introduction)
 - [Server Requirements](#server-requirements)
+    - [Laravel PHP Requirements](#laravel-php-requirements)
 - [Server Configuration](#server-configuration)
     - [Nginx](#nginx)
     - [FrankenPHP](#frankenphp)
@@ -28,28 +29,54 @@ Laravel アプリケーションを本番環境にデプロイする準備がで
 <!-- ## Server Requirements -->
 ## Server Requirements
 
-<!-- The Laravel framework has a few system requirements. You should ensure that your web server has the following minimum PHP version and extensions: -->
-Laravel フレームワークにはいくつかのシステム要件があります。 Web サーバーに次の最小 PHP バージョンと拡張機能が備わっていることを確認する必要があります。
+<a name="laravel-php-requirements"></a>
+<!-- ### Laravel PHP Requirements -->
+### Laravel PHP Requirements
+
+<!-- Laravel 13 requires PHP 8.3 or higher. Your server must be running a supported version of PHP and have the PHP extensions required by the Laravel framework. -->
+Laravel 13 では PHP 8.3 以上が必要です。サーバーではサポート対象のバージョンの PHP を実行し、Laravel フレームワークに必要な PHP 拡張機能をインストールしておく必要があります。
+
+<!-- For Laravel 13, the minimum PHP requirement is: -->
+Laravel 13 の最低 PHP 要件は次のとおりです。
 
 <div class="content-list" markdown="1">
 
-<!-- - PHP >= 8.3 - Ctype PHP Extension - cURL PHP Extension - DOM PHP Extension - Fileinfo PHP Extension - Filter PHP Extension - Hash PHP Extension - Mbstring PHP Extension - OpenSSL PHP Extension - PCRE PHP Extension - PDO PHP Extension - Session PHP Extension - Tokenizer PHP Extension - XML PHP Extension -->
+<!-- - PHP >= 8.3 -->
 - PHP >= 8.3
+
+</div>
+
+<!-- Laravel also requires the following PHP extensions: -->
+Laravel では、次の PHP 拡張機能も必要です。
+
+<div class="content-list" markdown="1">
+
+<!-- - Ctype PHP Extension - cURL PHP Extension - DOM PHP Extension - Fileinfo PHP Extension - Filter PHP Extension - Hash PHP Extension - Mbstring PHP Extension - OpenSSL PHP Extension - PCRE PHP Extension - PDO PHP Extension - Session PHP Extension - Tokenizer PHP Extension - XML PHP Extension -->
 - Ctype PHP 拡張機能
 - cURL PHP 拡張機能
 - DOM PHP 拡張機能
-- ファイル情報 PHP 拡張機能
-- PHP 拡張機能のフィルター
-- ハッシュ PHP 拡張機能
+- Fileinfo PHP 拡張機能
+- Filter PHP 拡張機能
+- Hash PHP 拡張機能
 - Mbstring PHP 拡張機能
 - OpenSSL PHP 拡張機能
 - PCRE PHP 拡張機能
 - PDO PHP 拡張機能
-- セッション PHP 拡張機能
-- トークナイザー PHP 拡張機能
+- Session PHP 拡張機能
+- Tokenizer PHP 拡張機能
 - XML PHP 拡張機能
 
 </div>
+
+<!-- You can check the PHP version installed on your server with: -->
+サーバーにインストールされている PHP のバージョンは、次のコマンドで確認できます:
+
+```shell
+php -v
+```
+
+<!-- Your PHP version must be 8.3 or higher to run Laravel 13. -->
+Laravel 13 を実行するには、PHP 8.3 以上が必要です。
 
 <a name="server-configuration"></a>
 <!-- ## Server Configuration -->
@@ -165,7 +192,7 @@ php artisan config:cache
 このコマンドは、Laravel のすべての設定ファイルを単一のキャッシュされたファイルに結合します。これにより、設定値をロードするときにフレームワークがファイルシステムにアクセスする必要がある回数が大幅に削減されます。
 
 > [!WARNING]
-> デプロイメントプロセス中に `config:cache` コマンドを実行する場合は、構成ファイル内からのみ `env` 関数を呼び出していることを確認する必要があります。構成がキャッシュされると、`.env` ファイルはロードされなくなり、`.env` 変数に対する `env` 関数の呼び出しはすべて `null` を返します。
+> デプロイ時に `config:cache` コマンドを実行する場合は、`env` 関数を設定ファイル内でのみ呼び出していることを確認してください。設定をキャッシュすると `.env` ファイルは読み込まれなくなり、`.env` の変数に対する `env` 関数の呼び出しはすべて `null` を返します。
 
 <a name="caching-events"></a>
 <!-- ### Caching Events -->
@@ -211,7 +238,7 @@ php artisan view:cache
 ## Reloading Services
 
 > [!NOTE]
-> [Laravel Cloud](https://cloud.laravel.com) にデプロイする場合、すべてのサービスの正常なリロードが自動的に処理されるため、`reload` コマンドを使用する必要はありません。
+> [Laravel Cloud](https://cloud.laravel.com) にデプロイする場合、`reload` コマンドを使う必要はありません。すべてのサービスのグレースフルリロードは自動的に処理されます。
 
 <!-- After deploying a new version of your application, any long-running services such as queue workers, Laravel Reverb, or Laravel Octane should be reloaded / restarted to use the new code. Laravel provides a single `reload` Artisan command that will terminate these services: -->
 アプリケーションの新しいバージョンをデプロイした後、キューワーカー、Laravel Reverb、Laravel Octane などの長時間実行されるサービスは、新しいコードを使用するために再ロード/再起動する必要があります。 Laravel は、これらのサービスを終了する単一の `reload` Artisan コマンドを提供します。
@@ -231,7 +258,7 @@ php artisan reload
 `config/app.php` 構成ファイルのデバッグ オプションにより、エラーに関する情報が実際にユーザーにどの程度表示されるかが決まります。デフォルトでは、このオプションは、アプリケーションの `.env` ファイルに保存されている `APP_DEBUG` 環境変数の値を尊重するように設定されています。
 
 > [!WARNING]
-> **運用環境では、この値は常に `false` である必要があります。本番環境で `APP_DEBUG` 変数が `true` に設定されている場合、機密の構成値がアプリケーションのエンド ユーザーに公開される危険があります。**
+> **本番環境では、この値は常に `false` にしてください。本番環境で `APP_DEBUG` 変数が `true` に設定されていると、機密性の高い設定値がアプリケーションのエンドユーザーに漏えいするおそれがあります。**
 
 <a name="the-health-route"></a>
 <!-- ## The Health Route -->

@@ -3,6 +3,7 @@
 
 - [Introduction](#introduction)
 - [Server Requirements](#server-requirements)
+    - [Laravel PHP Requirements](#laravel-php-requirements)
 - [Server Configuration](#server-configuration)
     - [Nginx](#nginx)
     - [FrankenPHP](#frankenphp)
@@ -28,28 +29,54 @@ Laravel 애플리케이션을 프로덕션에 배포할 준비가 되었다면, 
 <!-- ## Server Requirements -->
 ## Server Requirements
 
-<!-- The Laravel framework has a few system requirements. You should ensure that your web server has the following minimum PHP version and extensions: -->
-Laravel 프레임워크에는 몇 가지 시스템 요구 사항이 있습니다. 웹 서버에 다음의 최소 PHP 버전과 확장이 있는지 확인해야 합니다.
+<a name="laravel-php-requirements"></a>
+<!-- ### Laravel PHP Requirements -->
+### Laravel PHP Requirements
+
+<!-- Laravel 13 requires PHP 8.3 or higher. Your server must be running a supported version of PHP and have the PHP extensions required by the Laravel framework. -->
+Laravel 13을 사용하려면 PHP 8.3 이상이 필요합니다. 서버에서 지원되는 PHP 버전을 실행하고 Laravel 프레임워크에 필요한 PHP 확장 기능을 설치해야 합니다.
+
+<!-- For Laravel 13, the minimum PHP requirement is: -->
+Laravel 13의 최소 PHP 요구 사항은 다음과 같습니다:
 
 <div class="content-list" markdown="1">
 
-<!-- - PHP >= 8.3 - Ctype PHP Extension - cURL PHP Extension - DOM PHP Extension - Fileinfo PHP Extension - Filter PHP Extension - Hash PHP Extension - Mbstring PHP Extension - OpenSSL PHP Extension - PCRE PHP Extension - PDO PHP Extension - Session PHP Extension - Tokenizer PHP Extension - XML PHP Extension -->
+<!-- - PHP >= 8.3 -->
 - PHP >= 8.3
-- Ctype PHP Extension
-- cURL PHP Extension
-- DOM PHP Extension
-- Fileinfo PHP Extension
-- Filter PHP Extension
-- Hash PHP Extension
-- Mbstring PHP Extension
-- OpenSSL PHP Extension
-- PCRE PHP Extension
-- PDO PHP Extension
-- Session PHP Extension
-- Tokenizer PHP Extension
-- XML PHP Extension
 
 </div>
+
+<!-- Laravel also requires the following PHP extensions: -->
+Laravel에는 다음 PHP 확장 기능도 필요합니다:
+
+<div class="content-list" markdown="1">
+
+<!-- - Ctype PHP Extension - cURL PHP Extension - DOM PHP Extension - Fileinfo PHP Extension - Filter PHP Extension - Hash PHP Extension - Mbstring PHP Extension - OpenSSL PHP Extension - PCRE PHP Extension - PDO PHP Extension - Session PHP Extension - Tokenizer PHP Extension - XML PHP Extension -->
+- Ctype PHP 확장
+- cURL PHP 확장
+- DOM PHP 확장
+- Fileinfo PHP 확장
+- Filter PHP 확장
+- Hash PHP 확장
+- Mbstring PHP 확장
+- OpenSSL PHP 확장
+- PCRE PHP 확장
+- PDO PHP 확장
+- Session PHP 확장
+- Tokenizer PHP 확장
+- XML PHP 확장
+
+</div>
+
+<!-- You can check the PHP version installed on your server with: -->
+서버에 설치된 PHP 버전은 다음 명령어로 확인할 수 있습니다:
+
+```shell
+php -v
+```
+
+<!-- Your PHP version must be 8.3 or higher to run Laravel 13. -->
+Laravel 13을 실행하려면 PHP 버전이 8.3 이상이어야 합니다.
 
 <a name="server-configuration"></a>
 <!-- ## Server Configuration -->
@@ -165,7 +192,7 @@ php artisan config:cache
 이 명령어는 Laravel의 모든 설정 파일을 하나의 캐시된 파일로 결합합니다. 이를 통해 설정 값을 로드할 때 프레임워크가 파일 시스템에 접근해야 하는 횟수가 크게 줄어듭니다.
 
 > [!WARNING]
-> 배포 과정에서 `config:cache` 명령어를 실행한다면, `env` 함수는 설정 파일 안에서만 호출해야 합니다. 설정이 캐싱되면 `.env` 파일은 로드되지 않으며, `.env` 변수에 대한 모든 `env` 함수 호출은 `null`을 반환합니다.
+> 배포 과정에서 `config:cache` 명령어를 실행한다면, `env` 함수는 설정 파일 내에서만 호출해야 합니다. 설정이 캐시되면 `.env` 파일이 로드되지 않으며, `.env` 변수에 대한 `env` 함수 호출은 모두 `null`을 반환합니다.
 
 <a name="caching-events"></a>
 <!-- ### Caching Events -->
@@ -211,7 +238,7 @@ php artisan view:cache
 ## Reloading Services
 
 > [!NOTE]
-> [Laravel Cloud](https://cloud.laravel.com)에 배포하는 경우 모든 서비스가 정상 종료 절차를 거쳐 자동으로 다시 로드되므로 `reload` 명령어를 사용할 필요가 없습니다.
+> [Laravel Cloud](https://cloud.laravel.com)에 배포할 때는 `reload` 명령어를 사용할 필요가 없습니다. 모든 서비스의 정상적인 재로드가 자동으로 처리되기 때문입니다.
 
 <!-- After deploying a new version of your application, any long-running services such as queue workers, Laravel Reverb, or Laravel Octane should be reloaded / restarted to use the new code. Laravel provides a single `reload` Artisan command that will terminate these services: -->
 애플리케이션의 새 버전을 배포한 후에는 queue worker, Laravel Reverb, Laravel Octane과 같이 오래 실행되는 서비스가 새 코드를 사용하도록 다시 로드하거나 다시 시작해야 합니다. Laravel은 이러한 서비스를 종료하는 하나의 `reload` Artisan 명령어를 제공합니다.
@@ -231,7 +258,7 @@ php artisan reload
 `config/app.php` 설정 파일의 debug 옵션은 오류에 대한 정보를 사용자에게 실제로 얼마나 표시할지 결정합니다. 기본적으로 이 옵션은 애플리케이션의 `.env` 파일에 저장된 `APP_DEBUG` 환경 변수 값을 따르도록 설정되어 있습니다.
 
 > [!WARNING]
-> **프로덕션 환경에서는 이 값이 항상 `false`여야 합니다. 프로덕션에서 `APP_DEBUG` 변수가 `true`로 설정되어 있으면, 애플리케이션의 최종 사용자에게 민감한 설정 값이 노출될 위험이 있습니다.**
+> **운영 환경에서는 이 값을 항상 `false`로 설정해야 합니다. 운영 환경에서 `APP_DEBUG` 변수가 `true`로 설정되면 애플리케이션의 최종 사용자에게 민감한 설정 값이 노출될 위험이 있습니다.**
 
 <a name="the-health-route"></a>
 <!-- ## The Health Route -->

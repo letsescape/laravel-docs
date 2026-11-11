@@ -381,6 +381,110 @@ public function toSearchableArray(): array
 > [!WARNING]
 > 컬럼에 [full text index](/docs/13.x/migrations#available-index-types)가 지정되었는지 확인한 후, 해당 컬럼에 전문 검색 쿼리 제약 조건을 지정해야 합니다.
 
+<a name="postgresql-full-text-search"></a>
+<!-- #### PostgreSQL Full-Text Search -->
+#### PostgreSQL Full-Text Search
+
+<!-- When using PostgreSQL, Scout can search stored `tsvector` columns for indexed, weighted full-text search. To get started, use the `searchable` method in a migration to add a generated `search_vector` column and its GIN index: -->
+PostgreSQL을 사용하는 경우 Scout는 저장된 `tsvector` 컬럼을 검색해 인덱싱된 가중치 적용 전문 검색을 수행할 수 있습니다. 먼저 마이그레이션에서 `searchable` 메서드를 사용해 생성된 `search_vector` 컬럼과 GIN 인덱스를 추가합니다.
+
+```php
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+Schema::table('posts', function (Blueprint $table) {
+    $table->searchable(['title' => 'A', 'body' => 'D']);
+});
+```
+
+<!-- Column weights range from `A` (highest) to `D` (lowest). You may also pass a list of column names without weights, such as `['title', 'body']`, to assign each column the default weight of `D`. PostgreSQL automatically updates the generated column when the source columns change. -->
+컬럼 가중치는 `A`(가장 높음)부터 `D`(가장 낮음)까지 지정할 수 있습니다. 가중치를 지정하지 않은 컬럼 이름 목록(예: `['title', 'body']`)을 전달하면 각 컬럼에 기본 가중치인 `D`가 적용됩니다. 원본 컬럼이 변경되면 PostgreSQL이 생성된 컬럼을 자동으로 업데이트합니다.
+
+<!-- Next, apply the `SearchUsingFullText` attribute to your model's `toSearchableArray` method, setting the `vector` option to `true`: -->
+다음으로 모델의 `toSearchableArray` 메서드에 `SearchUsingFullText` 속성을 적용하고 `vector` 옵션을 `true`로 설정합니다.
+
+```php
+use Laravel\Scout\Attributes\SearchUsingFullText;
+
+/**
+ * Get the indexable data array for the model.
+ *
+ * @return array<string, mixed>
+ */
+#[SearchUsingFullText(['search_vector'], ['vector' => true])]
+public function toSearchableArray(): array
+{
+    return ['search_vector' => null];
+}
+```
+
+<!-- Only the column name is needed; Scout searches the stored value directly. Return only the vector column to avoid adding `LIKE` clauses for other attributes, which can prevent PostgreSQL from using the GIN index. -->
+컬럼 이름만 지정하면 됩니다. Scout는 저장된 값을 직접 검색합니다. 다른 속성에 대한 `LIKE` 절이 추가되면 PostgreSQL이 GIN 인덱스를 사용하지 못할 수 있으므로 벡터 컬럼만 반환합니다.
+
+<!-- The `searchable` method also accepts a text search configuration, columns for trigram indexes, and a custom vector column name: -->
+`searchable` 메서드에는 텍스트 검색 설정, 트라이그램 인덱스용 컬럼, 사용자 지정 벡터 컬럼 이름도 전달할 수 있습니다.
+
+```php
+$table->searchable(
+    columns: ['title' => 'A', 'body' => 'D'],
+    language: 'english',
+    trigram: ['title'],
+    tsvector: 'search_vector',
+);
+```
+
+<!-- To remove the generated column and its indexes when rolling back a migration, use the `dropSearchable` method, passing the same trigram columns and vector column name: -->
+마이그레이션을 롤백할 때 생성된 컬럼과 인덱스를 제거하려면 같은 트라이그램 컬럼과 벡터 컬럼 이름을 전달해 `dropSearchable` 메서드를 사용합니다.
+
+```php
+Schema::table('posts', function (Blueprint $table) {
+    $table->dropSearchable(trigram: ['title'], tsvector: 'search_vector');
+});
+```
+
+<!-- #### PostgreSQL Search Options -->
+#### PostgreSQL Search Options
+
+<!-- You may customize PostgreSQL full-text search using the second argument to the `SearchUsingFullText` attribute: -->
+`SearchUsingFullText` 속성의 두 번째 인수를 사용해 PostgreSQL 전문 검색을 사용자 지정할 수 있습니다.
+
+<!-- | Option | Description | Default | | --- | --- | --- | | `vector` | Whether the full-text columns are stored `tsvector` columns. | `false` | | `language` | The text search configuration, such as `english` or `public.english_unaccent`. | `english` | | `mode` | The query syntax: `plain`, `phrase`, `websearch`, or `raw`. | `plain` | | `rank` | The ranking function: `ts_rank` or `ts_rank_cd`. | `ts_rank` | | `trigram` | A column name or array of columns for typo-tolerant matching. | None | | `trigram_mode` | Whether trigram matching is used as a `fallback` or blended with full-text matches using `blend`. | `fallback` | -->
+| 옵션 | 설명 | 기본값 |
+| --- | --- | --- |
+| `vector` | 전문 검색 컬럼이 저장된 `tsvector` 컬럼인지 여부입니다. | `false` |
+| `language` | `english` 또는 `public.english_unaccent`와 같은 텍스트 검색 설정입니다. | `english` |
+| `mode` | 쿼리 구문입니다. `plain`, `phrase`, `websearch`, `raw` 중 하나를 지정합니다. | `plain` |
+| `rank` | 순위 계산 함수입니다. `ts_rank` 또는 `ts_rank_cd`를 지정합니다. | `ts_rank` |
+| `trigram` | 오타를 허용하는 매칭에 사용할 컬럼 이름 또는 컬럼 배열입니다. | None |
+| `trigram_mode` | 트라이그램 매칭을 `fallback`으로 사용하거나, `blend`를 사용해 전문 검색 결과와 결합할지 여부입니다. | `fallback` |
+
+<!-- The `plain` mode searches for all query terms, while `phrase` matches terms in order. The `websearch` mode supports web search syntax, such as quoted phrases and excluded terms, and `raw` accepts PostgreSQL `tsquery` syntax. When searching a stored vector column, the `language` must match the text search configuration used to generate the column. -->
+`plain` 모드는 쿼리의 모든 용어를 검색하고, `phrase` 모드는 용어가 지정된 순서로 일치하는지 확인합니다. `websearch` 모드는 따옴표로 묶은 구문이나 제외할 용어 같은 웹 검색 구문을 지원하며, `raw`는 PostgreSQL `tsquery` 구문을 허용합니다. 저장된 벡터 컬럼을 검색할 때는 `language`가 해당 컬럼을 생성하는 데 사용된 텍스트 검색 설정과 일치해야 합니다.
+
+<!-- To enable typo tolerance, specify trigram columns in both the migration and the attribute options: -->
+오타 허용 기능을 사용하려면 마이그레이션과 속성 옵션 모두에 트라이그램 컬럼을 지정합니다.
+
+```php
+#[SearchUsingFullText(['search_vector'], ['vector' => true, 'trigram' => ['title']])]
+public function toSearchableArray(): array
+{
+    return ['search_vector' => null];
+}
+```
+
+<!-- By default, Scout retries searches using trigram matching only when the initial search returns no results. Set `trigram_mode` to `blend` to include trigram matches alongside full-text matches and incorporate trigram similarity into relevance ranking. -->
+기본적으로 Scout는 최초 검색 결과가 없을 때만 트라이그램 매칭을 사용해 검색을 다시 시도합니다. 전문 검색 결과에 트라이그램 매칭 결과도 포함하고 관련도 순위에 트라이그램 유사도를 반영하려면 `trigram_mode`를 `blend`로 설정합니다.
+
+> [!WARNING]
+> 트라이그램 매칭을 사용하려면 연결의 검색 경로에서 `pg_trgm` 확장을 사용할 수 있어야 합니다. 트라이그램 컬럼을 지정하면 `searchable` 마이그레이션 메서드가 확장을 생성하므로 마이그레이션을 실행하는 데이터베이스 사용자에게 확장을 생성할 권한이 있어야 합니다.
+
+<!-- You may override the `mode`, `language`, `rank`, `trigram`, and `trigram_mode` options for an individual search using the `options` method: -->
+`options` 메서드를 사용하면 개별 검색에서 `mode`, `language`, `rank`, `trigram`, `trigram_mode` 옵션을 재정의할 수 있습니다.
+
+```php
+$posts = Post::search('"laravel scout"')->options(['mode' => 'websearch'])->get();
+```
+
 <a name="collection-engine"></a>
 <!-- ### Collection Engine -->
 ### Collection Engine

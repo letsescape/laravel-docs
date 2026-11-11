@@ -2500,6 +2500,55 @@ $response->assertOk();
 $response->assertSee('The current weather in New York City is 72°F and sunny.');
 ```
 
+<!-- For tools that return [structured content](#structured-responses), you may assert counts, values at specific paths, and the structure of the response: -->
+[structured content](#structured-responses)을 반환하는 툴의 경우, 항목 수와 특정 경로의 값, 응답 구조를 확인할 수 있습니다.
+
+```php
+$response
+    ->assertStructuredContentCount(2, 'data')
+    ->assertStructuredContentPath('data.0.location', 'New York City')
+    ->assertStructuredContentPaths([
+        'data.0.temperature' => 72,
+        'data.1.temperature' => 68,
+    ])
+    ->assertStructuredContentStructure([
+        'data' => [
+            '*' => ['location', 'temperature'],
+        ],
+    ]);
+```
+
+<!-- Paths support "dot" notation. The `assertStructuredContentPath` method also accepts a closure to determine if the value passes a given truth test: -->
+경로에는 "dot" 표기법을 사용할 수 있습니다. `assertStructuredContentPath` 메서드에는 값이 지정된 참 조건을 만족하는지 확인하는 클로저도 전달할 수 있습니다.
+
+```php
+$response->assertStructuredContentPath('data.0.temperature', fn (int $temperature): bool => $temperature > 70);
+```
+
+<!-- The following structured content assertions are available: -->
+다음 구조화 콘텐츠 어설션을 사용할 수 있습니다.
+
+<!-- | Method | Description | | --- | --- | | `assertExactStructuredContent($data)` | Assert that the structured content matches the given array exactly. | | `assertSimilarStructuredContent($data)` | Assert that the structured content matches the given array, ignoring order. | | `assertStructuredContentCount($count, $key = null)` | Assert the number of items, optionally at a given key. | | `assertStructuredContentPath($path, $expect)` | Assert the value at a given path. | | `assertStructuredContentPaths($paths)` | Assert multiple path / value pairs. | | `assertStructuredContentPathCanonicalizing($path, $expect)` | Assert the values at a given path, ignoring order. | | `assertStructuredContentPathsCanonicalizing($paths)` | Assert multiple path / value pairs, ignoring order. | | `assertStructuredContentFragment($data)` | Assert that a fragment appears anywhere in the structured content. | | `assertStructuredContentFragments($data)` | Assert that each given fragment appears in the structured content. | | `assertStructuredContentMissing($data)` | Assert that a fragment does not appear in the structured content. | | `assertStructuredContentMissingExact($data)` | Assert that an exact fragment does not appear in the structured content. | | `assertStructuredContentMissingPath($path)` | Assert that a path does not exist. | | `assertStructuredContentMissingPaths($paths)` | Assert that multiple paths do not exist. | | `assertStructuredContentStructure($structure)` | Assert that the given keys exist, allowing additional keys. | | `assertExactStructuredContentStructure($structure)` | Assert that only the given keys exist. | | `assertStructuredContentIsArray($key = null)` | Assert that the structured content, optionally at a given key, is a JSON array. | | `assertStructuredContentIsObject($key = null)` | Assert that the structured content, optionally at a given key, is a JSON object. | -->
+| 메서드 | 설명 |
+| --- | --- |
+| `assertExactStructuredContent($data)` | 구조화 콘텐츠가 지정된 배열과 정확히 일치하는지 확인합니다. |
+| `assertSimilarStructuredContent($data)` | 순서를 무시하고 구조화 콘텐츠가 지정된 배열과 일치하는지 확인합니다. |
+| `assertStructuredContentCount($count, $key = null)` | 항목 수를 확인합니다. 지정한 키의 항목 수도 확인할 수 있습니다. |
+| `assertStructuredContentPath($path, $expect)` | 지정된 경로의 값을 확인합니다. |
+| `assertStructuredContentPaths($paths)` | 여러 경로와 값의 쌍을 확인합니다. |
+| `assertStructuredContentPathCanonicalizing($path, $expect)` | 순서를 무시하고 지정된 경로의 값을 확인합니다. |
+| `assertStructuredContentPathsCanonicalizing($paths)` | 순서를 무시하고 여러 경로와 값의 쌍을 확인합니다. |
+| `assertStructuredContentFragment($data)` | 구조화 콘텐츠의 어느 위치에든 지정된 조각이 있는지 확인합니다. |
+| `assertStructuredContentFragments($data)` | 구조화 콘텐츠에 지정된 각 조각이 있는지 확인합니다. |
+| `assertStructuredContentMissing($data)` | 구조화 콘텐츠에 지정된 조각이 없는지 확인합니다. |
+| `assertStructuredContentMissingExact($data)` | 구조화 콘텐츠에 지정된 조각과 정확히 일치하는 내용이 없는지 확인합니다. |
+| `assertStructuredContentMissingPath($path)` | 지정된 경로가 존재하지 않는지 확인합니다. |
+| `assertStructuredContentMissingPaths($paths)` | 지정된 여러 경로가 존재하지 않는지 확인합니다. |
+| `assertStructuredContentStructure($structure)` | 지정된 키가 존재하는지 확인합니다. 추가 키가 있어도 됩니다. |
+| `assertExactStructuredContentStructure($structure)` | 지정된 키만 존재하는지 확인합니다. |
+| `assertStructuredContentIsArray($key = null)` | 구조화 콘텐츠가 JSON 배열인지 확인합니다. 지정한 키의 값도 확인할 수 있습니다. |
+| `assertStructuredContentIsObject($key = null)` | 구조화 콘텐츠가 JSON 객체인지 확인합니다. 지정한 키의 값도 확인할 수 있습니다. |
+
 <!-- You may assert that a response contains an error using the `assertHasErrors` method: -->
 `assertHasErrors` 메서드를 사용해 응답에 오류가 포함되어 있는지 확인할 수 있습니다.
 

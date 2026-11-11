@@ -139,6 +139,19 @@ class AppServiceProvider extends ServiceProvider
 Hello, {!! $name !!}.
 ```
 
+<!-- Alternatively, you may wrap a string in an instance of `Illuminate\Support\HtmlString`. Blade will not escape these instances, even when displayed using the `{{ }}` statement: -->
+또는 문자열을 `Illuminate\Support\HtmlString`의 인스턴스로 감쌀 수 있습니다. Blade는 `{{ }}` 구문으로 출력하더라도 이러한 인스턴스를 이스케이프하지 않습니다.
+
+```php
+use Illuminate\Support\HtmlString;
+
+$name = new HtmlString('<strong>Taylor</strong>');
+```
+
+```blade
+Hello, {{ $name }}.
+```
+
 > [!WARNING]
 > 애플리케이션 사용자가 제공한 콘텐츠를 에코할 때는 매우 주의하세요. 사용자 제공 데이터를 표시할 때 XSS 공격을 방지하려면 일반적으로 이스케이프된 이중 중괄호 구문을 사용해야 합니다.
 

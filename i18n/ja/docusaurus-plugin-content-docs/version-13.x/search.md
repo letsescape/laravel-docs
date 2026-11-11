@@ -26,8 +26,8 @@
 <!-- Almost every application needs search. Whether your users are searching a knowledge base for relevant articles, exploring a product catalog, or asking natural-language questions against a corpus of documents, Laravel provides built-in tools to handle each of these scenarios — and you often don't need any external services to get there. -->
 ほぼすべてのアプリケーションには検索が必要です。ユーザーがナレッジベースで関連記事を検索したり、製品カタログを調べたり、ドキュメントのコーパスに対して自然言語で質問したりする場合でも、Laravel はこれらの各シナリオを処理するための組み込みツールを提供します。多くの場合、そこに到達するために外部サービスは必要ありません。
 
-<!-- Most applications will find that the built-in database-powered options provided by Laravel are more than sufficient — external search services are only necessary when you need features like typo tolerance, faceted filtering, or geo-search at massive scale. -->
-ほとんどのアプリケーションでは、Laravel が提供する組み込みのデータベースを利用したオプションで十分であることがわかります。外部の検索サービスは、タイプミスの許容、ファセット フィルタリング、または大規模な地理検索などの機能が必要な場合にのみ必要です。
+<!-- Most applications will find that the built-in database-powered options provided by Laravel are more than sufficient — external search services are only necessary when you need features like faceted filtering or geo-search at massive scale. -->
+ほとんどのアプリケーションでは、Laravel 標準のデータベースを利用した機能で十分です。ファセットフィルタリングや大規模な地理検索などの機能が必要な場合に限り、外部の検索サービスが必要になります。
 
 <a name="introduction-full-text-search"></a>
 <!-- #### Full-Text Search -->
@@ -325,6 +325,9 @@ $articles = Article::search('Laravel')->get();
 
 <!-- The database engine is a great choice when your search needs are moderate and you want the convenience of Scout's automatic index syncing without deploying an external service. It handles the most common search use cases well, including filtering, pagination, and soft-deleted record handling. For complete details, consult the [Scout documentation](/docs/13.x/scout#database-engine). -->
 データベース エンジンは、検索ニーズが中程度で、外部サービスを展開せずに Scout の自動インデックス同期の利便性が必要な場合に最適です。フィルタリング、ページネーション、論理的に削除されたレコードの処理など、最も一般的な検索の使用例を適切に処理します。詳細については、[Scout documentation](/docs/13.x/scout#database-engine) を参照してください。
+
+<!-- On PostgreSQL, Scout also supports [weighted full-text search and typo tolerance](/docs/13.x/scout#postgresql-full-text-search) using stored `tsvector` columns and the `pg_trgm` extension. -->
+PostgreSQL では、Scout は保存済みの `tsvector` カラムと `pg_trgm` 拡張機能を使用した[weighted full-text search and typo tolerance](/docs/13.x/scout#postgresql-full-text-search)にも対応しています。
 
 <a name="third-party-engines"></a>
 <!-- ### Third-Party Engines -->

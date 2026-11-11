@@ -2500,6 +2500,55 @@ $response->assertOk();
 $response->assertSee('The current weather in New York City is 72°F and sunny.');
 ```
 
+<!-- For tools that return [structured content](#structured-responses), you may assert counts, values at specific paths, and the structure of the response: -->
+[structured content](#structured-responses) を返すツールでは、件数、特定のパスにある値、応答の構造をアサートできます。
+
+```php
+$response
+    ->assertStructuredContentCount(2, 'data')
+    ->assertStructuredContentPath('data.0.location', 'New York City')
+    ->assertStructuredContentPaths([
+        'data.0.temperature' => 72,
+        'data.1.temperature' => 68,
+    ])
+    ->assertStructuredContentStructure([
+        'data' => [
+            '*' => ['location', 'temperature'],
+        ],
+    ]);
+```
+
+<!-- Paths support "dot" notation. The `assertStructuredContentPath` method also accepts a closure to determine if the value passes a given truth test: -->
+パスには「ドット」記法を使えます。また、`assertStructuredContentPath` メソッドにはクロージャも渡せます。クロージャを使うと、値が指定した真偽条件を満たすかどうかを判定できます。
+
+```php
+$response->assertStructuredContentPath('data.0.temperature', fn (int $temperature): bool => $temperature > 70);
+```
+
+<!-- The following structured content assertions are available: -->
+次の構造化コンテンツのアサーションを使用できます。
+
+<!-- | Method | Description | | --- | --- | | `assertExactStructuredContent($data)` | Assert that the structured content matches the given array exactly. | | `assertSimilarStructuredContent($data)` | Assert that the structured content matches the given array, ignoring order. | | `assertStructuredContentCount($count, $key = null)` | Assert the number of items, optionally at a given key. | | `assertStructuredContentPath($path, $expect)` | Assert the value at a given path. | | `assertStructuredContentPaths($paths)` | Assert multiple path / value pairs. | | `assertStructuredContentPathCanonicalizing($path, $expect)` | Assert the values at a given path, ignoring order. | | `assertStructuredContentPathsCanonicalizing($paths)` | Assert multiple path / value pairs, ignoring order. | | `assertStructuredContentFragment($data)` | Assert that a fragment appears anywhere in the structured content. | | `assertStructuredContentFragments($data)` | Assert that each given fragment appears in the structured content. | | `assertStructuredContentMissing($data)` | Assert that a fragment does not appear in the structured content. | | `assertStructuredContentMissingExact($data)` | Assert that an exact fragment does not appear in the structured content. | | `assertStructuredContentMissingPath($path)` | Assert that a path does not exist. | | `assertStructuredContentMissingPaths($paths)` | Assert that multiple paths do not exist. | | `assertStructuredContentStructure($structure)` | Assert that the given keys exist, allowing additional keys. | | `assertExactStructuredContentStructure($structure)` | Assert that only the given keys exist. | | `assertStructuredContentIsArray($key = null)` | Assert that the structured content, optionally at a given key, is a JSON array. | | `assertStructuredContentIsObject($key = null)` | Assert that the structured content, optionally at a given key, is a JSON object. | -->
+| メソッド | 説明 |
+| --- | --- |
+| `assertExactStructuredContent($data)` | 構造化コンテンツが指定した配列と完全に一致することをアサートします。 |
+| `assertSimilarStructuredContent($data)` | 順序を無視して、構造化コンテンツが指定した配列と一致することをアサートします。 |
+| `assertStructuredContentCount($count, $key = null)` | 項目数をアサートします。必要に応じて、指定したキーの項目数を対象にできます。 |
+| `assertStructuredContentPath($path, $expect)` | 指定したパスの値をアサートします。 |
+| `assertStructuredContentPaths($paths)` | 複数のパスと値の組み合わせをアサートします。 |
+| `assertStructuredContentPathCanonicalizing($path, $expect)` | 順序を無視して、指定したパスの値をアサートします。 |
+| `assertStructuredContentPathsCanonicalizing($paths)` | 順序を無視して、複数のパスと値の組み合わせをアサートします。 |
+| `assertStructuredContentFragment($data)` | 構造化コンテンツ内のどこかに指定した断片が含まれることをアサートします。 |
+| `assertStructuredContentFragments($data)` | 指定した各断片が構造化コンテンツに含まれることをアサートします。 |
+| `assertStructuredContentMissing($data)` | 指定した断片が構造化コンテンツに含まれないことをアサートします。 |
+| `assertStructuredContentMissingExact($data)` | 指定した断片と完全に一致するものが構造化コンテンツに含まれないことをアサートします。 |
+| `assertStructuredContentMissingPath($path)` | 指定したパスが存在しないことをアサートします。 |
+| `assertStructuredContentMissingPaths($paths)` | 複数のパスが存在しないことをアサートします。 |
+| `assertStructuredContentStructure($structure)` | 追加のキーを許容しつつ、指定したキーが存在することをアサートします。 |
+| `assertExactStructuredContentStructure($structure)` | 指定したキーだけが存在することをアサートします。 |
+| `assertStructuredContentIsArray($key = null)` | 構造化コンテンツが JSON 配列であることをアサートします。必要に応じて、指定したキーの値を対象にできます。 |
+| `assertStructuredContentIsObject($key = null)` | 構造化コンテンツが JSON オブジェクトであることをアサートします。必要に応じて、指定したキーの値を対象にできます。 |
+
 <!-- You may assert that a response contains an error using the `assertHasErrors` method: -->
 `assertHasErrors` メソッドを使用して、応答にエラーが含まれていることをアサートできます。
 

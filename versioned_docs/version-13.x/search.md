@@ -26,8 +26,8 @@
 <!-- Almost every application needs search. Whether your users are searching a knowledge base for relevant articles, exploring a product catalog, or asking natural-language questions against a corpus of documents, Laravel provides built-in tools to handle each of these scenarios — and you often don't need any external services to get there. -->
 거의 모든 애플리케이션에는 검색 기능이 필요합니다. 사용자가 관련된 글을 찾거나, 상품 카탈로그를 탐색하거나, 자연어로 문서 집합에 질문을 하는 등 다양한 상황에서 Laravel은 이러한 시나리오를 처리할 수 있는 내장 도구를 제공합니다. 그리고 대부분의 경우, 외부 서비스를 추가하지 않고도 충분합니다.
 
-<!-- Most applications will find that the built-in database-powered options provided by Laravel are more than sufficient — external search services are only necessary when you need features like typo tolerance, faceted filtering, or geo-search at massive scale. -->
-대부분의 애플리케이션은 Laravel이 제공하는 데이터베이스 기반 내장 옵션만으로 충분합니다. 대규모에서 오탈자 허용, 파셋 필터링, 위치(geo) 기반 검색 등 특수한 기능이 필요할 때만 외부 검색 서비스를 도입하면 됩니다.
+<!-- Most applications will find that the built-in database-powered options provided by Laravel are more than sufficient — external search services are only necessary when you need features like faceted filtering or geo-search at massive scale. -->
+대부분의 애플리케이션은 Laravel이 제공하는 데이터베이스 기반 내장 옵션만으로 충분합니다. 대규모 환경에서 파셋 필터링이나 위치 기반 검색 같은 기능이 필요할 때만 외부 검색 서비스를 도입하면 됩니다.
 
 <a name="introduction-full-text-search"></a>
 <!-- #### Full-Text Search -->
@@ -325,6 +325,9 @@ $articles = Article::search('Laravel')->get();
 
 <!-- The database engine is a great choice when your search needs are moderate and you want the convenience of Scout's automatic index syncing without deploying an external service. It handles the most common search use cases well, including filtering, pagination, and soft-deleted record handling. For complete details, consult the [Scout documentation](/docs/13.x/scout#database-engine). -->
 데이터베이스 엔진은 일반적인 범위의 검색 요구에 적합하며, Scout의 인덱스 자동 동기화 편리함을 누리고자 할 때 적합합니다. 필터링, 페이지네이션, 소프트 삭제 레코드 처리 등 주요 검색 기능도 잘 지원합니다. 자세한 내용은 [Scout documentation](/docs/13.x/scout#database-engine)를 참고하세요.
+
+<!-- On PostgreSQL, Scout also supports [weighted full-text search and typo tolerance](/docs/13.x/scout#postgresql-full-text-search) using stored `tsvector` columns and the `pg_trgm` extension. -->
+PostgreSQL에서 Scout는 저장된 `tsvector` 컬럼과 `pg_trgm` 확장 기능을 사용해 [weighted full-text search and typo tolerance](/docs/13.x/scout#postgresql-full-text-search)도 지원합니다.
 
 <a name="third-party-engines"></a>
 <!-- ### Third-Party Engines -->

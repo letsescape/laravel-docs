@@ -92,7 +92,7 @@ Hello, {{ $name }}.
 ```
 
 > [!NOTE]
-> Blade の `{{ }}` エコー ステートメントでは、XSS 攻撃を防ぐため、出力するデータが PHP の `htmlspecialchars` 関数で自動的に処理されます。
+> Blade の `{{ }}` による出力は、XSS 攻撃を防ぐため、PHP の `htmlspecialchars` 関数を通して自動的に出力されます。
 
 <!-- You are not limited to displaying the contents of the variables passed to the view. You may also echo the results of any PHP function. In fact, you can put any PHP code you wish inside of a Blade echo statement: -->
 ビューに渡された変数の内容を表示することに限定されません。任意の PHP 関数の結果をエコーすることもできます。実際、Blade echo ステートメント内に任意の PHP コードを含めることができます。
@@ -139,8 +139,21 @@ class AppServiceProvider extends ServiceProvider
 Hello, {!! $name !!}.
 ```
 
+<!-- Alternatively, you may wrap a string in an instance of `Illuminate\Support\HtmlString`. Blade will not escape these instances, even when displayed using the `{{ }}` statement: -->
+または、文字列を `Illuminate\Support\HtmlString` のインスタンスでラップすることもできます。`{{ }}` 構文で表示する場合でも、Blade はこれらのインスタンスをエスケープしません。
+
+```php
+use Illuminate\Support\HtmlString;
+
+$name = new HtmlString('<strong>Taylor</strong>');
+```
+
+```blade
+Hello, {{ $name }}.
+```
+
 > [!WARNING]
-> アプリケーションのユーザーが提供したコンテンツをエコーする場合は、十分に注意してください。ユーザーが指定したデータを表示するときに XSS 攻撃を防ぐには、通常、エスケープされた二重中括弧構文を使用する必要があります。
+> アプリケーションのユーザーが入力した内容を出力する際は、十分に注意してください。ユーザーが入力したデータを表示するときは、XSS 攻撃を防ぐため、通常はエスケープ処理を行う二重波括弧構文を使用してください。
 
 <a name="blade-and-javascript-frameworks"></a>
 <!-- ### Blade and JavaScript Frameworks -->
@@ -201,7 +214,7 @@ Laravel アプリケーション スケルトンの最新バージョンには�
 ```
 
 > [!WARNING]
-> `Js::from` メソッドは、既存の変数を JSON としてレンダリングする場合にのみ使用してください。 Blade テンプレートは正規表現に基づいており、複雑な表現をディレクティブに渡そうとすると、予期しないエラーが発生する可能性があります。
+> `Js::from` メソッドは、既存の変数を JSON として出力する場合にのみ使用してください。Blade のテンプレート処理は正規表現に基づいているため、ディレクティブに複雑な式を渡すと、予期しない問題が発生することがあります。
 
 <a name="the-at-verbatim-directive"></a>
 <!-- #### The `@verbatim` Directive -->
@@ -426,7 +439,7 @@ switch ステートメントは、`@switch`、`@case`、`@break`、`@default`、
 ```
 
 > [!NOTE]
-> `foreach` ループを反復しているときに、[loop variable](#the-loop-variable) を使用して、ループの最初の反復にいるか最後の反復にいるかなど、ループに関する貴重な情報を取得できます。
+> `foreach` ループの実行中は、[loop variable](#the-loop-variable)を使って、現在がループの最初または最後の反復かどうかなど、ループに関する有用な情報を取得できます。
 
 <!-- When using loops you may also skip the current iteration or end the loop using the `@continue` and `@break` directives: -->
 ループを使用する場合、`@continue` および `@break` ディレクティブを使用して、現在の反復をスキップしたり、ループを終了したりすることもできます。
@@ -617,7 +630,7 @@ switch ステートメントは、`@switch`、`@case`、`@break`、`@default`、
 ### Including Subviews
 
 > [!NOTE]
-> `@include` ディレクティブは自由に使用できますが、Blade [components](#components) は同様の機能を提供し、データや属性のバインディングなど、`@include` ディレクティブよりも優れたいくつかの利点を提供します。
+> `@include` ディレクティブは自由に使用できますが、Blade の [components](#components) も同様の機能を提供し、データや属性のバインディングなど、`@include` ディレクティブにはない利点があります。
 
 <!-- Blade's `@include` directive allows you to include a Blade view from within another view. All variables that are available to the parent view will be made available to the included view: -->
 Blade の `@include` ディレクティブを使用すると、別のビュー内から Blade ビューを含めることができます。親ビューで使用できるすべての変数は、組み込まれたビューでも使用できるようになります。
@@ -670,7 +683,7 @@ Blade の `@include` ディレクティブを使用すると、別のビュー�
 ```
 
 > [!WARNING]
-> Blade ビューでは、`__DIR__` 定数と `__FILE__` 定数を使用しないでください。これらの定数は、キャッシュされコンパイルされたビューの場所を参照するためです。
+> Blade ビューでは `__DIR__` 定数と `__FILE__` 定数を使わないでください。これらはキャッシュされたコンパイル済みビューの保存場所を参照するためです。
 
 <a name="rendering-views-for-collections"></a>
 <!-- #### Rendering Views for Collections -->
@@ -694,7 +707,7 @@ Blade の `@each` ディレクティブを使用して、ループとインク�
 ```
 
 > [!WARNING]
-> `@each` を介してレンダリングされたビューは、親ビューから変数を継承しません。子ビューでこれらの変数が必要な場合は、代わりに `@foreach` および `@include` ディレクティブを使用する必要があります。
+> `@each` でレンダリングされるビューは、親ビューの変数を引き継ぎません。子ビューでこれらの変数が必要な場合は、代わりに `@foreach` と `@include` ディレクティブを使用してください。
 
 <a name="the-once-directive"></a>
 <!-- ### The `@once` Directive -->
@@ -878,7 +891,7 @@ php artisan make:component Forms/Input
 #### Manually Registering Package Components
 
 <!-- When writing components for your own application, components are automatically discovered within the `app/View/Components` directory and `resources/views/components` directory. -->
-独自のアプリケーションのコンポーネントを作成する場合、コンポーネントは `app/View/Components` ディレクトリおよび `resources/views/components` ディレクトリ内で自動的に検出されます。
+アプリケーション独自のコンポーネントを作成すると、`app/View/Components` ディレクトリと `resources/views/components` ディレクトリ内のコンポーネントが自動的に検出されます。
 
 <!-- However, if you are building a package that utilizes Blade components, you will need to manually register your component class and its HTML tag alias. You should typically register your components in the `boot` method of your package's service provider: -->
 ただし、Blade コンポーネントを利用するパッケージを構築している場合は、コンポーネント クラスとその HTML タグ エイリアスを手動で登録する必要があります。通常、コンポーネントはパッケージのサービスプロバイダの `boot` メソッドに登録する必要があります。
@@ -896,14 +909,14 @@ public function boot(): void
 ```
 
 <!-- Once your component has been registered, it may be rendered using its tag alias: -->
-コンポーネントが登録されると、そのタグ エイリアスを使用してレンダリングできます。
+コンポーネントを登録すると、そのタグエイリアスを使ってレンダリングできます。
 
 ```blade
 <x-package-alert/>
 ```
 
 <!-- Alternatively, you may use the `componentNamespace` method to autoload component classes by convention. For example, a `Nightshade` package might have `Calendar` and `ColorPicker` components that reside within the `Nightshade\Views\Components` namespace: -->
-あるいは、`componentNamespace` メソッドを使って、規約に従ってコンポーネントクラスを自動ロードすることもできます。たとえば、`Nightshade` パッケージの `Calendar` コンポーネントと `ColorPicker` コンポーネントは、`Nightshade\Views\Components` 名前空間に配置できます。
+また、`componentNamespace` メソッドを使うと、規約に基づいてコンポーネントクラスを自動ロードできます。たとえば、`Nightshade` パッケージには、`Nightshade\Views\Components` 名前空間に属する `Calendar` コンポーネントや `ColorPicker` コンポーネントが含まれることがあります。
 
 ```php
 use Illuminate\Support\Facades\Blade;
@@ -918,7 +931,7 @@ public function boot(): void
 ```
 
 <!-- This will allow the usage of package components by their vendor namespace using the `package-name::` syntax: -->
-これにより、`package-name::` 構文を使用して、ベンダー名前空間によるパッケージ コンポーネントの使用が許可されます。
+これにより、`package-name::` 構文を使って、ベンダ名前空間からパッケージのコンポーネントを利用できるようになります。
 
 ```blade
 <x-nightshade::calendar />
@@ -926,7 +939,7 @@ public function boot(): void
 ```
 
 <!-- Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation. -->
-Blade は、コンポーネント名をパスカルケースに変換することで、このコンポーネントにリンクされているクラスを自動的に検出します。サブディレクトリは、「ドット」表記を使用してサポートされています。
+Blade はコンポーネント名を PascalCase に変換して、このコンポーネントに紐づくクラスを自動的に検出します。「ドット記法」を使えば、サブディレクトリも指定できます。
 
 <a name="rendering-components"></a>
 <!-- ### Rendering Components -->
@@ -1158,7 +1171,7 @@ return function (array $data) {
 ```
 
 > [!WARNING]
-> `$data` 配列内の要素は、`render` メソッドによって返される Blade 文字列に直接埋め込まないでください。埋め込むと、悪意のある属性コンテンツを介してリモート コードが実行される可能性があります。
+> `$data` 配列の要素を `render` メソッドが返す Blade 文字列に直接埋め込んではいけません。悪意のある属性の内容を利用して、リモートコード実行を引き起こされる可能性があります。
 
 <!-- The `componentName` is equal to the name used in the HTML tag after the `x-` prefix. So `<x-alert />`'s `componentName` will be `alert`. The `attributes` element will contain all of the attributes that were present on the HTML tag. The `slot` element is an `Illuminate\View\ComponentSlot` instance with the contents of the component's slot. -->
 `componentName` は、HTML タグの `x-` プレフィックスに続く名前と同じです。つまり、`<x-alert />` の `componentName` は `alert` になります。`attributes` 要素には、HTML タグに指定されたすべての属性が含まれます。`slot` 要素は、コンポーネントのスロットの内容を持つ `Illuminate\View\ComponentSlot` インスタンスです。
@@ -1239,7 +1252,7 @@ class Alert extends Component
 ```
 
 > [!WARNING]
-> 現時点では、コンポーネント タグ内での `@env` などのディレクティブの使用はサポートされていません。たとえば、`<x-alert :live="@env('production')"/>` はコンパイルされません。
+> 現時点では、コンポーネントタグ内での `@env` などのディレクティブの使用はサポートされていません。たとえば、`<x-alert :live="@env('production')"/>` はコンパイルされません。
 
 <a name="default-merged-attributes"></a>
 <!-- #### Default / Merged Attributes -->
@@ -1293,7 +1306,7 @@ class Alert extends Component
 ```
 
 > [!NOTE]
-> マージされた属性を受け取るべきではない他の HTML 要素のクラスを条件付きでコンパイルする必要がある場合は、[@class directive](#conditional-classes) を使用できます。
+> 属性をマージしたくない別の HTML 要素にクラスを条件付きで適用する場合は、[@class directive](#conditional-classes) を使用できます。
 
 <a name="non-class-attribute-merging"></a>
 <!-- #### Non-Class Attribute Merging -->
@@ -1619,10 +1632,10 @@ php artisan make:component Alert --inline
 ### Manually Registering Components
 
 > [!WARNING]
-> コンポーネントの手動登録に関する次のドキュメントは、主にビューコンポーネントを含む Laravel パッケージを作成する人に適用されます。パッケージを作成していない場合、コンポーネントのドキュメントのこの部分は関係ない可能性があります。
+> コンポーネントを手動で登録する方法に関する以下のドキュメントは、主にビューコンポーネントを含む Laravel パッケージを作成する方向けです。パッケージを作成していない場合、このコンポーネントに関するドキュメントは関係ないことがあります。
 
 <!-- When writing components for your own application, components are automatically discovered within the `app/View/Components` directory and `resources/views/components` directory. -->
-独自のアプリケーションのコンポーネントを作成する場合、コンポーネントは `app/View/Components` ディレクトリおよび `resources/views/components` ディレクトリ内で自動的に検出されます。
+独自のアプリケーションでコンポーネントを作成すると、`app/View/Components` ディレクトリと `resources/views/components` ディレクトリ内のコンポーネントが自動的に検出されます。
 
 <!-- However, if you are building a package that utilizes Blade components or placing components in non-conventional directories, you will need to manually register your component class and its HTML tag alias so that Laravel knows where to find the component. You should typically register your components in the `boot` method of your package's service provider: -->
 ただし、Blade コンポーネントを利用するパッケージを構築する場合、またはコンポーネントを従来とは異なるディレクトリに配置する場合は、Laravel がコンポーネントの場所を認識できるように、コンポーネント クラスとその HTML タグのエイリアスを手動で登録する必要があります。通常、コンポーネントはパッケージのサービスプロバイダの `boot` メソッドに登録する必要があります。
@@ -1641,7 +1654,7 @@ public function boot(): void
 ```
 
 <!-- Once your component has been registered, it may be rendered using its tag alias: -->
-コンポーネントが登録されると、そのタグ エイリアスを使用してレンダリングできます。
+コンポーネントを登録すると、タグエイリアスを使ってレンダリングできます。
 
 ```blade
 <x-package-alert/>
@@ -1651,7 +1664,7 @@ public function boot(): void
 #### Autoloading Package Components
 
 <!-- Alternatively, you may use the `componentNamespace` method to autoload component classes by convention. For example, a `Nightshade` package might have `Calendar` and `ColorPicker` components that reside within the `Nightshade\Views\Components` namespace: -->
-あるいは、`componentNamespace` メソッドを使って、規約に従ってコンポーネントクラスを自動ロードすることもできます。たとえば、`Nightshade` パッケージの `Calendar` コンポーネントと `ColorPicker` コンポーネントは、`Nightshade\Views\Components` 名前空間に配置できます。
+また、`componentNamespace` メソッドを使うと、規約に従ってコンポーネントクラスを自動ロードできます。たとえば、`Nightshade` パッケージには、`Nightshade\Views\Components` 名前空間に属する `Calendar` コンポーネントや `ColorPicker` コンポーネントがあるかもしれません。
 
 ```php
 use Illuminate\Support\Facades\Blade;
@@ -1666,7 +1679,7 @@ public function boot(): void
 ```
 
 <!-- This will allow the usage of package components by their vendor namespace using the `package-name::` syntax: -->
-これにより、`package-name::` 構文を使用して、ベンダー名前空間によるパッケージ コンポーネントの使用が許可されます。
+これにより、`package-name::` 構文を使って、パッケージのコンポーネントをベンダ名前空間経由で利用できるようになります。
 
 ```blade
 <x-nightshade::calendar />
@@ -1674,7 +1687,7 @@ public function boot(): void
 ```
 
 <!-- Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation. -->
-Blade は、コンポーネント名をパスカルケースに変換することで、このコンポーネントにリンクされているクラスを自動的に検出します。サブディレクトリは、「ドット」表記を使用してサポートされています。
+Blade は、コンポーネント名をパスカルケースに変換して、このコンポーネントに関連付けられたクラスを自動的に検出します。サブディレクトリも「ドット」記法で指定できます。
 
 <a name="anonymous-components"></a>
 <!-- ## Anonymous Components -->
@@ -1806,7 +1819,7 @@ php artisan make:component forms.input --view
 ```
 
 > [!WARNING]
-> `@aware` ディレクティブは、HTML 属性を介して親コンポーネントに明示的に渡されていない親データにはアクセスできません。親コンポーネントに明示的に渡されないデフォルトの `@props` 値には、`@aware` ディレクティブからアクセスできません。
+> `@aware` ディレクティブは、HTML 属性を通じて親コンポーネントに明示的に渡されていない親データにはアクセスできません。親コンポーネントに明示的に渡されていないデフォルトの `@props` 値にも、`@aware` ディレクティブからアクセスできません。
 
 <a name="anonymous-component-paths"></a>
 <!-- ### Anonymous Component Paths -->
@@ -1995,7 +2008,7 @@ Route::get('/tasks', function () {
 この例では、`sidebar` セクションは `@@parent` ディレクティブを利用して、レイアウトのサイドバーにコンテンツを (上書きではなく) 追加しています。 `@@parent` ディレクティブは、ビューがレンダリングされるときにレイアウトのコンテンツに置き換えられます。
 
 > [!NOTE]
-> 前の例とは異なり、この `sidebar` セクションは、`@show` ではなく `@endsection` で終わります。 `@endsection` ディレクティブはセクションを定義するだけですが、`@show` はセクションを定義して **即座に出力**します。
+> 前の例とは異なり、この `sidebar` セクションは `@show` ではなく `@endsection` で終了します。`@endsection` ディレクティブはセクションを定義するだけですが、`@show` はセクションを定義し、**直ちに出力します**。
 
 <!-- The `@yield` directive also accepts a default value as its second parameter. This value will be rendered if the section being yielded is undefined: -->
 `@yield` ディレクティブは、2 番目のパラメーターとしてデフォルト値も受け入れます。この値は、出力するセクションが未定義の場合に表示されます。
@@ -2127,6 +2140,9 @@ Blade を使用すると、別のビューまたはレイアウトの別の場�
     @stack('scripts')
 </head>
 ```
+
+<!-- The `@stack` directive renders the content that has been pushed at the moment it is reached. Content pushed afterwards, such as from a component rendered below the `@stack` directive in the same layout component, will not be included. If you need to push from such components, place the `@stack` directive after them, for example at the end of the `<body>` tag. -->
+`@stack` ディレクティブに到達した時点で、そこまでに push されたコンテンツがレンダリングされます。同じレイアウトコンポーネント内で `@stack` ディレクティブより後にレンダリングされるコンポーネントから push されたコンテンツなどは含まれません。そのようなコンポーネントから push する必要がある場合は、`@stack` ディレクティブを後ろに配置してください。たとえば、`<body>` タグの末尾に配置します。
 
 <!-- If you would like to prepend content onto the beginning of a stack, you should use the `@prepend` directive: -->
 コンテンツをスタックの先頭に追加したい場合は、`@prepend` ディレクティブを使用する必要があります。
@@ -2287,7 +2303,7 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 > [!WARNING]
-> Blade ディレクティブのロジックを更新した後、キャッシュされた Blade ビューをすべて削除する必要があります。キャッシュされたBlade ビューは、`view:clear` Artisan コマンドを使用して削除できます。
+> Blade ディレクティブのロジックを更新した後は、キャッシュされた Blade ビューをすべて削除する必要があります。キャッシュされた Blade ビューは、Artisan コマンド `view:clear` で削除できます。
 
 <a name="custom-echo-handlers"></a>
 <!-- ### Custom Echo Handlers -->

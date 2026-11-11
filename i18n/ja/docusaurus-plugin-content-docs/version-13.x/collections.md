@@ -45,7 +45,7 @@ $collection = collect([1, 2, 3]);
 [make](#method-make) および [fromJson](#method-fromjson) メソッドを使用してコレクションを作成することもできます。
 
 > [!NOTE]
-> [Eloquent](/docs/13.x/eloquent) クエリの結果は、常に `Collection` インスタンスとして返されます。
+> [Eloquent](/docs/13.x/eloquent) のクエリ結果は、常に `Collection` インスタンスとして返されます。
 
 <a name="extending-collections"></a>
 <!-- ### Extending Collections -->
@@ -275,6 +275,7 @@ $translated = $collection->toLocale('es');
 <a name="method-after"></a>
 <!-- #### `after()` -->
 #### `after()`
+
 <!-- The `after` method returns the item after the given item. `null` is returned if the given item is not found or is the last item: -->
 `after` メソッドは、指定された項目の後の項目を返します。指定された項目が見つからない場合、または最後の項目である場合は、`null` が返されます。
 
@@ -300,7 +301,7 @@ collect([2, 4, 6, 8])->after('4', strict: true);
 ```
 
 <!-- Alternatively, you may provide your own closure to search for the first item that passes a given truth test: -->
-あるいは、独自のクロージャを提供して、指定された真理テストに合格する最初の項目を検索することもできます。
+指定した条件を満たす最初の項目を検索するクロージャを独自に指定することもできます。
 
 ```php
 collect([2, 4, 6, 8])->after(function (int $item, int $key) {
@@ -313,6 +314,7 @@ collect([2, 4, 6, 8])->after(function (int $item, int $key) {
 <a name="method-all"></a>
 <!-- #### `all()` -->
 #### `all()`
+
 <!-- The `all` method returns the underlying array represented by the collection: -->
 `all` メソッドは、コレクションによって表される基になる配列を返します。
 
@@ -325,12 +327,14 @@ collect([1, 2, 3])->all();
 <a name="method-average"></a>
 <!-- #### `average()` -->
 #### `average()`
+
 <!-- Alias for the [avg](#method-avg) method. -->
 [avg](#method-avg) メソッドのエイリアス。
 
 <a name="method-avg"></a>
 <!-- #### `avg()` -->
 #### `avg()`
+
 <!-- The `avg` method returns the [average value](https://en.wikipedia.org/wiki/Average) of a given key: -->
 `avg` メソッドは、指定されたキーの [average value](https://en.wikipedia.org/wiki/Average) を返します。
 
@@ -352,6 +356,7 @@ $average = collect([1, 1, 2, 4])->avg();
 <a name="method-before"></a>
 <!-- #### `before()` -->
 #### `before()`
+
 <!-- The `before` method is the opposite of the [after](#method-after) method. It returns the item before the given item. `null` is returned if the given item is not found or is the first item: -->
 `before` メソッドは、[after](#method-after) メソッドの逆です。指定された項目の前の項目を返します。指定された項目が見つからない場合、または最初の項目である場合は、`null` が返されます。
 
@@ -380,6 +385,7 @@ collect([2, 4, 6, 8])->before(function (int $item, int $key) {
 <a name="method-chunk"></a>
 <!-- #### `chunk()` -->
 #### `chunk()`
+
 <!-- The `chunk` method breaks the collection into multiple, smaller collections of a given size: -->
 `chunk` メソッドは、コレクションを指定されたサイズの複数の小さなコレクションに分割します。
 
@@ -433,6 +439,7 @@ $chunks->all();
 <a name="method-chunkwhile"></a>
 <!-- #### `chunkWhile()` -->
 #### `chunkWhile()`
+
 <!-- The `chunkWhile` method breaks the collection into multiple, smaller collections based on the evaluation of the given callback. The `$chunk` variable passed to the closure may be used to inspect the previous element: -->
 `chunkWhile` メソッドは、指定されたコールバックの評価に基づいて、コレクションを複数の小さなコレクションに分割します。クロージャに渡される `$chunk` 変数は、前の要素を検査するために使用できます。
 
@@ -451,6 +458,7 @@ $chunks->all();
 <a name="method-collapse"></a>
 <!-- #### `collapse()` -->
 #### `collapse()`
+
 <!-- The `collapse` method collapses a collection of arrays or collections into a single, flat collection: -->
 `collapse` メソッドは、配列またはコレクションのコレクションを単一のフラットなコレクションに折りたたみます。
 
@@ -471,6 +479,7 @@ $collapsed->all();
 <a name="method-collapsewithkeys"></a>
 <!-- #### `collapseWithKeys()` -->
 #### `collapseWithKeys()`
+
 <!-- The `collapseWithKeys` method flattens a collection of arrays or collections into a single collection, keeping the original keys intact. If the collection is already flat, it will return an empty collection: -->
 `collapseWithKeys` メソッドは、元のキーをそのまま保持したまま、配列またはコレクションのコレクションを 1 つのコレクションにフラット化します。コレクションがすでにフラットである場合は、空のコレクションが返されます。
 
@@ -495,6 +504,7 @@ $collapsed->all();
 <a name="method-collect"></a>
 <!-- #### `collect()` -->
 #### `collect()`
+
 <!-- The `collect` method returns a new `Collection` instance with the items currently in the collection: -->
 `collect` メソッドは、現在コレクション内の項目を含む新しい `Collection` インスタンスを返します。
 
@@ -530,11 +540,12 @@ $collection->all();
 ```
 
 > [!NOTE]
-> `collect` メソッドは、`Enumerable` のインスタンスがあり、非遅延コレクション インスタンスが必要な場合に特に便利です。 `collect()` は `Enumerable` コントラクトの一部であるため、これを安全に使用して `Collection` インスタンスを取得できます。
+> `Enumerable` のインスタンスがあり、遅延評価されないコレクションインスタンスが必要な場合、`collect` メソッドが特に便利です。`collect()` は `Enumerable` コントラクトの一部なので、`Collection` インスタンスを取得するために安心して使用できます。
 
 <a name="method-combine"></a>
 <!-- #### `combine()` -->
 #### `combine()`
+
 <!-- The `combine` method combines the values of the collection, as keys, with the values of another array or collection: -->
 `combine` メソッドは、コレクションの値をキーとして、別の配列またはコレクションの値と組み合わせます。
 
@@ -551,6 +562,7 @@ $combined->all();
 <a name="method-concat"></a>
 <!-- #### `concat()` -->
 #### `concat()`
+
 <!-- The `concat` method appends the given array or collection's values onto the end of another collection: -->
 `concat` メソッドは、指定された配列またはコレクションの値を別のコレクションの末尾に追加します。
 
@@ -570,6 +582,7 @@ $concatenated->all();
 <a name="method-contains"></a>
 <!-- #### `contains()` -->
 #### `contains()`
+
 <!-- The `contains` method determines whether the collection contains a given item. You may pass a closure to the `contains` method to determine if an element exists in the collection matching a given truth test: -->
 `contains` メソッドは、コレクションに特定の項目が含まれているかどうかを判断します。クロージャを `contains` メソッドに渡して、指定された真理値テストに一致する要素がコレクション内に存在するかどうかを判断できます。
 
@@ -621,15 +634,17 @@ $collection->contains('product', 'Bookcase');
 <a name="method-containsstrict"></a>
 <!-- #### `containsStrict()` -->
 #### `containsStrict()`
+
 <!-- This method has the same signature as the [contains](#method-contains) method; however, all values are compared using "strict" comparisons. -->
 このメソッドには、[contains](#method-contains) メソッドと同じシグネチャがあります。ただし、すべての値は「厳密な」比較を使用して比較されます。
 
 > [!NOTE]
-> [Eloquent Collections](/docs/13.x/eloquent-collections#method-contains) を使用すると、このメソッドの動作が変更されます。
+> [Eloquent Collections](/docs/13.x/eloquent-collections#method-contains) を使用すると、このメソッドの動作が変わります。
 
 <a name="method-count"></a>
 <!-- #### `count()` -->
 #### `count()`
+
 <!-- The `count` method returns the total number of items in the collection: -->
 `count` メソッドは、コレクション内の項目の合計数を返します。
 
@@ -644,6 +659,7 @@ $collection->count();
 <a name="method-countBy"></a>
 <!-- #### `countBy()` -->
 #### `countBy()`
+
 <!-- The `countBy` method counts the occurrences of values in the collection. By default, the method counts the occurrences of every element, allowing you to count certain "types" of elements in the collection: -->
 `countBy` メソッドは、コレクション内の値の出現をカウントします。デフォルトでは、このメソッドはすべての要素の出現をカウントするため、コレクション内の要素の特定の「タイプ」をカウントできます。
 
@@ -675,6 +691,7 @@ $counted->all();
 <a name="method-crossjoin"></a>
 <!-- #### `crossJoin()` -->
 #### `crossJoin()`
+
 <!-- The `crossJoin` method cross joins the collection's values among the given arrays or collections, returning a Cartesian product with all possible combinations: -->
 `crossJoin` メソッドは、指定された配列またはコレクション間でコレクションの値を交差結合し、すべての可能な組み合わせを含むデカルト積を返します。
 
@@ -717,6 +734,7 @@ $matrix->all();
 <a name="method-dd"></a>
 <!-- #### `dd()` -->
 #### `dd()`
+
 <!-- The `dd` method dumps the collection's items and ends execution of the script: -->
 `dd` メソッドは、コレクションのアイテムをダンプし、スクリプトの実行を終了します。
 
@@ -739,6 +757,7 @@ $collection->dd();
 <a name="method-diff"></a>
 <!-- #### `diff()` -->
 #### `diff()`
+
 <!-- The `diff` method compares the collection against another collection or a plain PHP `array` based on its values. This method will return the values in the original collection that are not present in the given collection: -->
 `diff` メソッドは、その値に基づいて、コレクションを別のコレクションまたはプレーンな PHP `array` と比較します。このメソッドは、指定されたコレクションに存在しない元のコレクションの値を返します。
 
@@ -753,11 +772,12 @@ $diff->all();
 ```
 
 > [!NOTE]
-> [Eloquent Collections](/docs/13.x/eloquent-collections#method-diff) を使用すると、このメソッドの動作が変更されます。
+> [Eloquent Collections](/docs/13.x/eloquent-collections#method-diff)を使用すると、このメソッドの動作が変わります。
 
 <a name="method-diffassoc"></a>
 <!-- #### `diffAssoc()` -->
 #### `diffAssoc()`
+
 <!-- The `diffAssoc` method compares the collection against another collection or a plain PHP `array` based on its keys and values. This method will return the key / value pairs in the original collection that are not present in the given collection: -->
 `diffAssoc` メソッドは、キーと値に基づいてコレクションを別のコレクションまたはプレーン PHP `array` と比較します。このメソッドは、指定されたコレクションに存在しない、元のコレクション内のキーと値のペアを返します。
 
@@ -783,6 +803,7 @@ $diff->all();
 <a name="method-diffassocusing"></a>
 <!-- #### `diffAssocUsing()` -->
 #### `diffAssocUsing()`
+
 <!-- Unlike `diffAssoc`, `diffAssocUsing` accepts a user supplied callback function for the indices comparison: -->
 `diffAssoc` とは異なり、`diffAssocUsing` はインデックス比較のためにユーザー指定のコールバック関数を受け入れます。
 
@@ -810,6 +831,7 @@ $diff->all();
 <a name="method-diffkeys"></a>
 <!-- #### `diffKeys()` -->
 #### `diffKeys()`
+
 <!-- The `diffKeys` method compares the collection against another collection or a plain PHP `array` based on its keys. This method will return the key / value pairs in the original collection that are not present in the given collection: -->
 `diffKeys` メソッドは、キーに基づいてコレクションを別のコレクションまたはプレーン PHP `array` と比較します。このメソッドは、指定されたコレクションに存在しない、元のコレクション内のキーと値のペアを返します。
 
@@ -837,6 +859,7 @@ $diff->all();
 <a name="method-doesntcontain"></a>
 <!-- #### `doesntContain()` -->
 #### `doesntContain()`
+
 <!-- The `doesntContain` method determines whether the collection does not contain a given item. You may pass a closure to the `doesntContain` method to determine if an element does not exist in the collection matching a given truth test: -->
 `doesntContain` メソッドは、コレクションに特定の項目が含まれていないかどうかを判断します。クロージャを `doesntContain` メソッドに渡して、指定された条件を満たす要素がコレクション内に存在しないかどうかを判断できます。
 
@@ -885,12 +908,14 @@ $collection->doesntContain('product', 'Bookcase');
 <a name="method-doesntcontainstrict"></a>
 <!-- #### `doesntContainStrict()` -->
 #### `doesntContainStrict()`
+
 <!-- This method has the same signature as the [doesntContain](#method-doesntcontain) method; however, all values are compared using "strict" comparisons. -->
 このメソッドには、[doesntContain](#method-doesntcontain) メソッドと同じシグネチャがあります。ただし、すべての値は「厳密な」比較を使用して比較されます。
 
 <a name="method-dot"></a>
 <!-- #### `dot()` -->
 #### `dot()`
+
 <!-- The `dot` method flattens a multi-dimensional collection into a single level collection that uses "dot" notation to indicate depth: -->
 `dot` メソッドは、多次元コレクションを、深さを示すために「ドット」表記を使用する単一レベルのコレクションに平坦化します。
 
@@ -907,6 +932,7 @@ $flattened->all();
 <a name="method-dump"></a>
 <!-- #### `dump()` -->
 #### `dump()`
+
 <!-- The `dump` method dumps the collection's items: -->
 `dump` メソッドは、コレクションの項目をダンプします。
 
@@ -929,6 +955,7 @@ $collection->dump();
 <a name="method-duplicates"></a>
 <!-- #### `duplicates()` -->
 #### `duplicates()`
+
 <!-- The `duplicates` method retrieves and returns duplicate values from the collection: -->
 `duplicates` メソッドは、コレクションから重複した値を取得して返します。
 
@@ -958,12 +985,14 @@ $employees->duplicates('position');
 <a name="method-duplicatesstrict"></a>
 <!-- #### `duplicatesStrict()` -->
 #### `duplicatesStrict()`
+
 <!-- This method has the same signature as the [duplicates](#method-duplicates) method; however, all values are compared using "strict" comparisons. -->
 このメソッドには、[duplicates](#method-duplicates) メソッドと同じシグネチャがあります。ただし、すべての値は「厳密な」比較を使用して比較されます。
 
 <a name="method-each"></a>
 <!-- #### `each()` -->
 #### `each()`
+
 <!-- The `each` method iterates over the items in the collection and passes each item to a closure: -->
 `each` メソッドは、コレクション内の項目を反復処理し、各項目をクロージャーに渡します。
 
@@ -989,6 +1018,7 @@ $collection->each(function (int $item, int $key) {
 <a name="method-eachspread"></a>
 <!-- #### `eachSpread()` -->
 #### `eachSpread()`
+
 <!-- The `eachSpread` method iterates over the collection's items, passing each nested item value into the given callback: -->
 `eachSpread` メソッドはコレクションの項目を反復処理し、ネストされた各項目の値を指定されたコールバックに渡します。
 
@@ -1012,6 +1042,7 @@ $collection->eachSpread(function (string $name, int $age) {
 <a name="method-ensure"></a>
 <!-- #### `ensure()` -->
 #### `ensure()`
+
 <!-- The `ensure` method may be used to verify that all elements of a collection are of a given type or list of types. Otherwise, an `UnexpectedValueException` will be thrown: -->
 `ensure` メソッドは、コレクションのすべての要素が指定された型、または指定された型のリストのいずれかに該当することを検証するために使用できます。それ以外の場合は、`UnexpectedValueException` がスローされます。
 
@@ -1029,11 +1060,12 @@ return $collection->ensure('int');
 ```
 
 > [!WARNING]
-> `ensure` メソッドは、異なるタイプの要素が後でコレクションに追加されないことを保証しません。
+> `ensure` メソッドは、後から異なる型の要素がコレクションに追加されないことを保証するものではありません。
 
 <a name="method-every"></a>
 <!-- #### `every()` -->
 #### `every()`
+
 <!-- The `every` method may be used to verify that all elements of a collection pass a given truth test: -->
 `every` メソッドは、コレクションのすべての要素が指定された真理テストに合格することを検証するために使用できます。
 
@@ -1061,6 +1093,7 @@ $collection->every(function (int $value, int $key) {
 <a name="method-except"></a>
 <!-- #### `except()` -->
 #### `except()`
+
 <!-- The `except` method returns all items in the collection except for those with the specified keys: -->
 `except` メソッドは、指定されたキーを持つアイテムを除く、コレクション内のすべてのアイテムを返します。
 
@@ -1078,11 +1111,12 @@ $filtered->all();
 `except` の逆については、[only](#method-only) メソッドを参照してください。
 
 > [!NOTE]
-> [Eloquent Collections](/docs/13.x/eloquent-collections#method-except) を使用すると、このメソッドの動作が変更されます。
+> このメソッドの動作は、[Eloquent Collections](/docs/13.x/eloquent-collections#method-except) を使用すると変わります。
 
 <a name="method-filter"></a>
 <!-- #### `filter()` -->
 #### `filter()`
+
 <!-- The `filter` method filters the collection using the given callback, keeping only those items that pass a given truth test: -->
 `filter` メソッドは、指定されたコールバックを使用してコレクションをフィルタリングし、指定された真実テストに合格した項目のみを保持します。
 
@@ -1115,6 +1149,7 @@ $collection->filter()->all();
 <a name="method-first"></a>
 <!-- #### `first()` -->
 #### `first()`
+
 <!-- The `first` method returns the first element in the collection that passes a given truth test: -->
 `first` メソッドは、指定された真理テストに合格したコレクション内の最初の要素を返します。
 
@@ -1138,6 +1173,7 @@ collect([1, 2, 3, 4])->first();
 <a name="method-first-or-fail"></a>
 <!-- #### `firstOrFail()` -->
 #### `firstOrFail()`
+
 <!-- The `firstOrFail` method is identical to the `first` method; however, if no result is found, an `Illuminate\Support\ItemNotFoundException` exception will be thrown: -->
 `firstOrFail` メソッドは、`first` メソッドと同じです。ただし、結果が見つからない場合は、`Illuminate\Support\ItemNotFoundException` 例外がスローされます。
 
@@ -1161,6 +1197,7 @@ collect([])->firstOrFail();
 <a name="method-first-where"></a>
 <!-- #### `firstWhere()` -->
 #### `firstWhere()`
+
 <!-- The `firstWhere` method returns the first element in the collection with the given key / value pair: -->
 `firstWhere` メソッドは、指定されたキーと値のペアを持つコレクション内の最初の要素を返します。
 
@@ -1198,6 +1235,7 @@ $collection->firstWhere('age');
 <a name="method-flatmap"></a>
 <!-- #### `flatMap()` -->
 #### `flatMap()`
+
 <!-- The `flatMap` method iterates through the collection and passes each value to the given closure. The closure is free to modify the item and return it, thus forming a new collection of modified items. Then, the array is flattened by one level: -->
 `flatMap` メソッドはコレクションを反復処理し、各値を指定されたクロージャに渡します。クロージャは自由に項目を変更して返すことができるため、変更された項目の新しいコレクションが形成されます。次に、配列は 1 レベル平坦化されます。
 
@@ -1220,6 +1258,7 @@ $flattened->all();
 <a name="method-flatten"></a>
 <!-- #### `flatten()` -->
 #### `flatten()`
+
 <!-- The `flatten` method flattens a multi-dimensional collection into a single dimension: -->
 `flatten` メソッドは、多次元コレクションを単一次元にフラット化します。
 
@@ -1275,6 +1314,7 @@ $products->values()->all();
 <a name="method-flip"></a>
 <!-- #### `flip()` -->
 #### `flip()`
+
 <!-- The `flip` method swaps the collection's keys with their corresponding values: -->
 `flip` メソッドは、コレクションのキーを対応する値と交換します。
 
@@ -1291,6 +1331,7 @@ $flipped->all();
 <a name="method-forget"></a>
 <!-- #### `forget()` -->
 #### `forget()`
+
 <!-- The `forget` method removes an item from the collection by its key: -->
 `forget` メソッドは、キーによってコレクションから項目を削除します。
 
@@ -1309,11 +1350,12 @@ $collection->forget(['name', 'framework']);
 ```
 
 > [!WARNING]
-> 他のほとんどのコレクション メソッドとは異なり、`forget` は変更された新しいコレクションを返しません。呼び出されたコレクションを変更して返します。
+> 他のほとんどのコレクションメソッドとは異なり、`forget` は変更後の新しいコレクションを返すのではなく、呼び出し元のコレクションを変更して返します。
 
 <a name="method-forpage"></a>
 <!-- #### `forPage()` -->
 #### `forPage()`
+
 <!-- The `forPage` method returns a new collection containing the items that would be present on a given page number. The method accepts the page number as its first argument and the number of items to show per page as its second argument: -->
 `forPage` メソッドは、指定されたページ番号に存在する項目を含む新しいコレクションを返します。このメソッドは、最初の引数としてページ番号を受け入れ、2 番目の引数としてページごとに表示するアイテムの数を受け入れます。
 
@@ -1330,6 +1372,7 @@ $chunk->all();
 <a name="method-fromjson"></a>
 <!-- #### `fromJson()` -->
 #### `fromJson()`
+
 <!-- The static `fromJson` method creates a new collection instance by decoding a given JSON string using the `json_decode` PHP function: -->
 静的 `fromJson` メソッドは、`json_decode` PHP 関数を使用して指定された JSON 文字列をデコードすることにより、新しいコレクション インスタンスを作成します。
 
@@ -1348,6 +1391,7 @@ $collection = Collection::fromJson($json);
 <a name="method-get"></a>
 <!-- #### `get()` -->
 #### `get()`
+
 <!-- The `get` method returns the item at a given key. If the key does not exist, `null` is returned: -->
 `get` メソッドは、指定されたキーの項目を返します。キーが存在しない場合は、`null` が返されます。
 
@@ -1384,6 +1428,7 @@ $collection->get('email', function () {
 <a name="method-groupby"></a>
 <!-- #### `groupBy()` -->
 #### `groupBy()`
+
 <!-- The `groupBy` method groups the collection's items by a given key: -->
 `groupBy` メソッドは、指定されたキーによってコレクションの項目をグループ化します。
 
@@ -1478,6 +1523,7 @@ $result = $data->groupBy(['skill', function (array $item) {
 <a name="method-has"></a>
 <!-- #### `has()` -->
 #### `has()`
+
 <!-- The `has` method determines if a given key exists in the collection: -->
 `has` メソッドは、指定されたキーがコレクションに存在するかどうかを判断します。
 
@@ -1500,6 +1546,7 @@ $collection->has(['amount', 'price']);
 <a name="method-hasany"></a>
 <!-- #### `hasAny()` -->
 #### `hasAny()`
+
 <!-- The `hasAny` method determines whether any of the given keys exist in the collection: -->
 `hasAny` メソッドは、指定されたキーのいずれかがコレクションに存在するかどうかを判断します。
 
@@ -1518,6 +1565,7 @@ $collection->hasAny(['name', 'price']);
 <a name="method-hasmany"></a>
 <!-- #### `hasMany()` -->
 #### `hasMany()`
+
 <!-- The `hasMany` method determines whether the collection contains multiple items: -->
 `hasMany` メソッドは、コレクションに複数の項目が含まれているかどうかを判断します。
 
@@ -1545,6 +1593,7 @@ collect([
 <a name="method-hassole"></a>
 <!-- #### `hasSole()` -->
 #### `hasSole()`
+
 <!-- The `hasSole` method determines if the collection contains a single item, optionally matching the given criteria: -->
 `hasSole` メソッドは、コレクションに項目がちょうど 1 つあるかどうかを判断します。オプションで条件を指定すると、その条件に一致する項目がちょうど 1 つあるかどうかを判断します。
 
@@ -1565,6 +1614,7 @@ collect([1, 2, 3])->hasSole(fn (int $item) => $item === 2);
 <a name="method-implode"></a>
 <!-- #### `implode()` -->
 #### `implode()`
+
 <!-- The `implode` method joins items in a collection. Its arguments depend on the type of items in the collection. If the collection contains arrays or objects, you should pass the key of the attributes you wish to join, and the "glue" string you wish to place between the values: -->
 `implode` メソッドは、コレクション内の項目を結合します。その引数は、コレクション内の項目のタイプによって異なります。コレクションに配列またはオブジェクトが含まれている場合は、結合する属性のキーと、値の間に配置する「接着剤」文字列を渡す必要があります。
 
@@ -1602,6 +1652,7 @@ $collection->implode(function (array $item, int $key) {
 <a name="method-intersect"></a>
 <!-- #### `intersect()` -->
 #### `intersect()`
+
 <!-- The `intersect` method removes any values from the original collection that are not present in the given array or collection. The resulting collection will preserve the original collection's keys: -->
 `intersect` メソッドは、指定された配列またはコレクションに存在しない値を元のコレクションから削除します。結果として得られるコレクションは、元のコレクションのキーを保持します。
 
@@ -1616,11 +1667,12 @@ $intersect->all();
 ```
 
 > [!NOTE]
-> [Eloquent Collections](/docs/13.x/eloquent-collections#method-intersect) を使用すると、このメソッドの動作が変更されます。
+> [Eloquent Collections](/docs/13.x/eloquent-collections#method-intersect) を使用する場合、このメソッドの動作は異なります。
 
 <a name="method-intersectusing"></a>
 <!-- #### `intersectUsing()` -->
 #### `intersectUsing()`
+
 <!-- The `intersectUsing` method removes any values from the original collection that are not present in the given array or collection, using a custom callback to compare the values. The resulting collection will preserve the original collection's keys: -->
 `intersectUsing` メソッドは、値を比較するカスタム コールバックを使用して、指定された配列またはコレクションに存在しない値を元のコレクションから削除します。結果として得られるコレクションは、元のコレクションのキーを保持します。
 
@@ -1639,6 +1691,7 @@ $intersect->all();
 <a name="method-intersectAssoc"></a>
 <!-- #### `intersectAssoc()` -->
 #### `intersectAssoc()`
+
 <!-- The `intersectAssoc` method compares the original collection against another collection or array, returning the key / value pairs that are present in all of the given collections: -->
 `intersectAssoc` メソッドは、元のコレクションを別のコレクションまたは配列と比較し、指定されたすべてのコレクションに存在するキーと値のペアを返します。
 
@@ -1663,6 +1716,7 @@ $intersect->all();
 <a name="method-intersectassocusing"></a>
 <!-- #### `intersectAssocUsing()` -->
 #### `intersectAssocUsing()`
+
 <!-- The `intersectAssocUsing` method compares the original collection against another collection or array, returning the key / value pairs that are present in both, using a custom comparison callback to compare the keys: -->
 `intersectAssocUsing` メソッドは、元のコレクションを別のコレクションまたは配列と比較し、両方に存在するキーと値のペアを返します。キーの比較には、カスタム比較コールバックを使用します。
 
@@ -1689,6 +1743,7 @@ $intersect->all();
 <a name="method-intersectbykeys"></a>
 <!-- #### `intersectByKeys()` -->
 #### `intersectByKeys()`
+
 <!-- The `intersectByKeys` method removes any keys and their corresponding values from the original collection that are not present in the given array or collection: -->
 `intersectByKeys` メソッドは、指定された配列またはコレクションに存在しないキーとそれに対応する値を元のコレクションから削除します。
 
@@ -1709,6 +1764,7 @@ $intersect->all();
 <a name="method-isempty"></a>
 <!-- #### `isEmpty()` -->
 #### `isEmpty()`
+
 <!-- The `isEmpty` method returns `true` if the collection is empty; otherwise, `false` is returned: -->
 `isEmpty` メソッドは、コレクションが空の場合は `true` を返します。それ以外の場合は、`false` が返されます。
 
@@ -1721,6 +1777,7 @@ collect([])->isEmpty();
 <a name="method-isnotempty"></a>
 <!-- #### `isNotEmpty()` -->
 #### `isNotEmpty()`
+
 <!-- The `isNotEmpty` method returns `true` if the collection is not empty; otherwise, `false` is returned: -->
 コレクションが空でない場合、`isNotEmpty` メソッドは `true` を返します。それ以外の場合は、`false` が返されます。
 
@@ -1733,6 +1790,7 @@ collect([])->isNotEmpty();
 <a name="method-join"></a>
 <!-- #### `join()` -->
 #### `join()`
+
 <!-- The `join` method joins the collection's values with a string. Using this method's second argument, you may also specify how the final element should be appended to the string: -->
 `join` メソッドは、コレクションの値を文字列と結合します。このメソッドの 2 番目の引数を使用して、最後の要素を文字列に追加する方法を指定することもできます。
 
@@ -1747,6 +1805,7 @@ collect([])->join(', ', ' and '); // ''
 <a name="method-keyby"></a>
 <!-- #### `keyBy()` -->
 #### `keyBy()`
+
 <!-- The `keyBy` method keys the collection by the given key. If multiple items have the same key, only the last one will appear in the new collection: -->
 `keyBy` メソッドは、指定されたキーによってコレクションにキーを設定します。複数の項目が同じキーを持つ場合、最後の項目だけが新しいコレクションに表示されます。
 
@@ -1789,6 +1848,7 @@ $keyed->all();
 <a name="method-keys"></a>
 <!-- #### `keys()` -->
 #### `keys()`
+
 <!-- The `keys` method returns all of the collection's keys: -->
 `keys` メソッドは、コレクションのすべてのキーを返します。
 
@@ -1808,6 +1868,7 @@ $keys->all();
 <a name="method-last"></a>
 <!-- #### `last()` -->
 #### `last()`
+
 <!-- The `last` method returns the last element in the collection that passes a given truth test: -->
 `last` メソッドは、指定された真理テストに合格したコレクション内の最後の要素を返します。
 
@@ -1831,6 +1892,7 @@ collect([1, 2, 3, 4])->last();
 <a name="method-lazy"></a>
 <!-- #### `lazy()` -->
 #### `lazy()`
+
 <!-- The `lazy` method returns a new [LazyCollection](#lazy-collections) instance from the underlying array of items: -->
 `lazy` メソッドは、基になる項目の配列から新しい [LazyCollection](#lazy-collections) インスタンスを返します。
 
@@ -1863,12 +1925,14 @@ $count = $hugeCollection
 <a name="method-macro"></a>
 <!-- #### `macro()` -->
 #### `macro()`
+
 <!-- The static `macro` method allows you to add methods to the `Collection` class at run time. Refer to the documentation on [extending collections](#extending-collections) for more information. -->
 静的 `macro` メソッドを使用すると、実行時に `Collection` クラスにメソッドを追加できます。詳細については、[extending collections](#extending-collections) のドキュメントを参照してください。
 
 <a name="method-make"></a>
 <!-- #### `make()` -->
 #### `make()`
+
 <!-- The static `make` method creates a new collection instance. See the [Creating Collections](#creating-collections) section. -->
 静的 `make` メソッドは、新しいコレクション インスタンスを作成します。 「[Creating Collections](#creating-collections)」セクションを参照してください。
 
@@ -1881,6 +1945,7 @@ $collection = Collection::make([1, 2, 3]);
 <a name="method-map"></a>
 <!-- #### `map()` -->
 #### `map()`
+
 <!-- The `map` method iterates through the collection and passes each value to the given callback. The callback is free to modify the item and return it, thus forming a new collection of modified items: -->
 `map` メソッドはコレクションを反復処理し、各値を指定されたコールバックに渡します。コールバックは自由に項目を変更して返し、変更された項目の新しいコレクションを形成します。
 
@@ -1897,11 +1962,12 @@ $multiplied->all();
 ```
 
 > [!WARNING]
-> 他のほとんどのコレクション メソッドと同様に、`map` は新しいコレクション インスタンスを返します。呼び出されるコレクションは変更されません。元のコレクションを変換する場合は、[transform](#method-transform) メソッドを使用します。
+> 他の多くのコレクションメソッドと同様に、`map` は新しいコレクションインスタンスを返し、呼び出し元のコレクションは変更しません。元のコレクションを変換したい場合は、[transform](#method-transform) メソッドを使用してください。
 
 <a name="method-mapinto"></a>
 <!-- #### `mapInto()` -->
 #### `mapInto()`
+
 <!-- The `mapInto()` method iterates over the collection, creating a new instance of the given class by passing the value into the constructor: -->
 `mapInto()` メソッドはコレクションを反復処理し、値をコンストラクターに渡すことによって、指定されたクラスの新しいインスタンスを作成します。
 
@@ -1928,6 +1994,7 @@ $currencies->all();
 <a name="method-mapspread"></a>
 <!-- #### `mapSpread()` -->
 #### `mapSpread()`
+
 <!-- The `mapSpread` method iterates over the collection's items, passing each nested item value into the given closure. The closure is free to modify the item and return it, thus forming a new collection of modified items: -->
 `mapSpread` メソッドはコレクションの項目を反復処理し、ネストされた各項目の値を指定されたクロージャに渡します。クロージャは自由に項目を変更して返すことができるため、変更された項目の新しいコレクションが形成されます。
 
@@ -1948,6 +2015,7 @@ $sequence->all();
 <a name="method-maptogroups"></a>
 <!-- #### `mapToGroups()` -->
 #### `mapToGroups()`
+
 <!-- The `mapToGroups` method groups the collection's items by the given closure. The closure should return an associative array containing a single key / value pair, thus forming a new collection of grouped values: -->
 `mapToGroups` メソッドは、指定されたクロージャによってコレクションの項目をグループ化します。クロージャは、単一のキーと値のペアを含む連想配列を返す必要があります。これらの戻り値から、グループ化された値の新しいコレクションが作成されます。
 
@@ -1988,6 +2056,7 @@ $grouped->get('Sales')->all();
 <a name="method-mapwithkeys"></a>
 <!-- #### `mapWithKeys()` -->
 #### `mapWithKeys()`
+
 <!-- The `mapWithKeys` method iterates through the collection and passes each value to the given callback. The callback should return an associative array containing a single key / value pair: -->
 `mapWithKeys` メソッドはコレクションを反復処理し、各値を指定されたコールバックに渡します。コールバックは、単一のキーと値のペアを含む連想配列を返す必要があります。
 
@@ -2022,6 +2091,7 @@ $keyed->all();
 <a name="method-max"></a>
 <!-- #### `max()` -->
 #### `max()`
+
 <!-- The `max` method returns the maximum value of a given key: -->
 `max` メソッドは、指定されたキーの最大値を返します。
 
@@ -2041,6 +2111,7 @@ $max = collect([1, 2, 3, 4, 5])->max();
 <a name="method-median"></a>
 <!-- #### `median()` -->
 #### `median()`
+
 <!-- The `median` method returns the [median value](https://en.wikipedia.org/wiki/Median) of a given key: -->
 `median` メソッドは、指定されたキーの [median value](https://en.wikipedia.org/wiki/Median) を返します。
 
@@ -2062,6 +2133,7 @@ $median = collect([1, 1, 2, 4])->median();
 <a name="method-merge"></a>
 <!-- #### `merge()` -->
 #### `merge()`
+
 <!-- The `merge` method merges the given array or collection with the original collection. If a string key in the given items matches a string key in the original collection, the given item's value will overwrite the value in the original collection: -->
 `merge` メソッドは、指定された配列またはコレクションを元のコレクションとマージします。指定された項目の文字列キーが元のコレクションの文字列キーと一致する場合、指定された項目の値は元のコレクションの値を上書きします。
 
@@ -2091,6 +2163,7 @@ $merged->all();
 <a name="method-mergerecursive"></a>
 <!-- #### `mergeRecursive()` -->
 #### `mergeRecursive()`
+
 <!-- The `mergeRecursive` method merges the given array or collection recursively with the original collection. If a string key in the given items matches a string key in the original collection, then the values for these keys are merged together into an array, and this is done recursively: -->
 `mergeRecursive` メソッドは、指定された配列またはコレクションを元のコレクションと再帰的にマージします。指定された項目の文字列キーが元のコレクションの文字列キーと一致する場合、これらのキーの値が配列にマージされ、これが再帰的に行われます。
 
@@ -2111,6 +2184,7 @@ $merged->all();
 <a name="method-min"></a>
 <!-- #### `min()` -->
 #### `min()`
+
 <!-- The `min` method returns the minimum value of a given key: -->
 `min` メソッドは、指定されたキーの最小値を返します。
 
@@ -2130,6 +2204,7 @@ $min = collect([1, 2, 3, 4, 5])->min();
 <a name="method-mode"></a>
 <!-- #### `mode()` -->
 #### `mode()`
+
 <!-- The `mode` method returns the [mode value](https://en.wikipedia.org/wiki/Mode_(statistics)) of a given key: -->
 `mode` メソッドは、指定されたキーの [mode value](https://en.wikipedia.org/wiki/Mode_(statistics)) を返します。
 
@@ -2155,6 +2230,7 @@ $mode = collect([1, 1, 2, 2])->mode();
 <a name="method-multiply"></a>
 <!-- #### `multiply()` -->
 #### `multiply()`
+
 <!-- The `multiply` method creates the specified number of copies of all items in the collection: -->
 `multiply` メソッドは、コレクション内のすべての項目の指定された数のコピーを作成します。
 
@@ -2179,6 +2255,7 @@ $users = collect([
 <a name="method-nth"></a>
 <!-- #### `nth()` -->
 #### `nth()`
+
 <!-- The `nth` method creates a new collection consisting of every n-th element: -->
 `nth` メソッドは、n 番目ごとの要素で構成される新しいコレクションを作成します。
 
@@ -2202,6 +2279,7 @@ $collection->nth(4, 1);
 <a name="method-only"></a>
 <!-- #### `only()` -->
 #### `only()`
+
 <!-- The `only` method returns the items in the collection with the specified keys: -->
 `only` メソッドは、指定されたキーを持つコレクション内の項目を返します。
 
@@ -2224,11 +2302,12 @@ $filtered->all();
 `only` の逆については、[except](#method-except) メソッドを参照してください。
 
 > [!NOTE]
-> [Eloquent Collections](/docs/13.x/eloquent-collections#method-only) を使用すると、このメソッドの動作が変更されます。
+> [Eloquent Collections](/docs/13.x/eloquent-collections#method-only) を使用すると、このメソッドの動作が変わります。
 
 <a name="method-pad"></a>
 <!-- #### `pad()` -->
 #### `pad()`
+
 <!-- The `pad` method will fill the array with the given value until the array reaches the specified size. This method behaves like the [array_pad](https://secure.php.net/manual/en/function.array-pad.php) PHP function. -->
 `pad` メソッドは、配列が指定されたサイズに達するまで、指定された値で配列を埋めます。このメソッドは、[array_pad](https://secure.php.net/manual/en/function.array-pad.php) PHP 関数と同様に動作します。
 
@@ -2254,6 +2333,7 @@ $filtered->all();
 <a name="method-partition"></a>
 <!-- #### `partition()` -->
 #### `partition()`
+
 <!-- The `partition` method may be combined with PHP array destructuring to separate elements that pass a given truth test from those that do not: -->
 `partition` メソッドを PHP 配列の分割代入と組み合わせて、指定された条件を満たす要素と満たさない要素を分離することができます。
 
@@ -2274,11 +2354,12 @@ $equalOrAboveThree->all();
 ```
 
 > [!NOTE]
-> このメソッドの動作は、[Eloquent collections](/docs/13.x/eloquent-collections#method-partition) と対話するときに変更されます。
+> このメソッドの動作は、[Eloquent collections](/docs/13.x/eloquent-collections#method-partition) を操作する場合に変わります。
 
 <a name="method-percentage"></a>
 <!-- #### `percentage()` -->
 #### `percentage()`
+
 <!-- The `percentage` method may be used to quickly determine the percentage of items in the collection that pass a given truth test: -->
 `percentage` メソッドを使用すると、コレクション内の特定の真実テストに合格したアイテムの割合を迅速に判断できます。
 
@@ -2302,6 +2383,7 @@ $percentage = $collection->percentage(fn (int $value) => $value === 1, precision
 <a name="method-pipe"></a>
 <!-- #### `pipe()` -->
 #### `pipe()`
+
 <!-- The `pipe` method passes the collection to the given closure and returns the result of the executed closure: -->
 `pipe` メソッドは、コレクションを指定されたクロージャに渡し、実行されたクロージャの結果を返します。
 
@@ -2318,6 +2400,7 @@ $piped = $collection->pipe(function (Collection $collection) {
 <a name="method-pipeinto"></a>
 <!-- #### `pipeInto()` -->
 #### `pipeInto()`
+
 <!-- The `pipeInto` method creates a new instance of the given class and passes the collection into the constructor: -->
 `pipeInto` メソッドは、指定されたクラスの新しいインスタンスを作成し、コレクションをコンストラクターに渡します。
 
@@ -2344,6 +2427,7 @@ $resource->collection->all();
 <a name="method-pipethrough"></a>
 <!-- #### `pipeThrough()` -->
 #### `pipeThrough()`
+
 <!-- The `pipeThrough` method passes the collection to the given array of closures and returns the result of the executed closures: -->
 `pipeThrough` メソッドは、コレクションを指定されたクロージャの配列に渡し、実行されたクロージャの結果を返します。
 
@@ -2367,6 +2451,7 @@ $result = $collection->pipeThrough([
 <a name="method-pluck"></a>
 <!-- #### `pluck()` -->
 #### `pluck()`
+
 <!-- The `pluck` method retrieves all of the values for a given key: -->
 `pluck` メソッドは、指定されたキーのすべての値を取得します。
 
@@ -2441,6 +2526,7 @@ $plucked->all();
 <a name="method-pop"></a>
 <!-- #### `pop()` -->
 #### `pop()`
+
 <!-- The `pop` method removes and returns the last item from the collection. If the collection is empty, `null` will be returned: -->
 `pop` メソッドは、コレクションから最後の項目を削除して返します。コレクションが空の場合、`null` が返されます。
 
@@ -2474,6 +2560,7 @@ $collection->all();
 <a name="method-prepend"></a>
 <!-- #### `prepend()` -->
 #### `prepend()`
+
 <!-- The `prepend` method adds an item to the beginning of the collection: -->
 `prepend` メソッドは、コレクションの先頭に項目を追加します。
 
@@ -2503,6 +2590,7 @@ $collection->all();
 <a name="method-pull"></a>
 <!-- #### `pull()` -->
 #### `pull()`
+
 <!-- The `pull` method removes and returns an item from the collection by its key: -->
 `pull` メソッドは、キーによってコレクションから項目を削除して返します。
 
@@ -2521,6 +2609,7 @@ $collection->all();
 <a name="method-push"></a>
 <!-- #### `push()` -->
 #### `push()`
+
 <!-- The `push` method appends an item to the end of the collection: -->
 `push` メソッドは、コレクションの末尾に項目を追加します。
 
@@ -2550,6 +2639,7 @@ $collection->all();
 <a name="method-put"></a>
 <!-- #### `put()` -->
 #### `put()`
+
 <!-- The `put` method sets the given key and value in the collection: -->
 `put` メソッドは、コレクション内の指定されたキーと値を設定します。
 
@@ -2566,6 +2656,7 @@ $collection->all();
 <a name="method-random"></a>
 <!-- #### `random()` -->
 #### `random()`
+
 <!-- The `random` method returns a random item from the collection: -->
 `random` メソッドは、コレクションからランダムな項目を返します。
 
@@ -2607,6 +2698,7 @@ $random->all();
 <a name="method-range"></a>
 <!-- #### `range()` -->
 #### `range()`
+
 <!-- The `range` method returns a collection containing integers between the specified range: -->
 `range` メソッドは、指定された範囲内の整数を含むコレクションを返します。
 
@@ -2621,6 +2713,7 @@ $collection->all();
 <a name="method-reduce"></a>
 <!-- #### `reduce()` -->
 #### `reduce()`
+
 <!-- The `reduce` method reduces the collection to a single value, passing the result of each iteration into the subsequent iteration: -->
 `reduce` メソッドは、コレクションを単一の値に減らし、各反復の結果を後続の反復に渡します。
 
@@ -2717,6 +2810,7 @@ $even = $collection->reduceInto([], function (array &$result, int $value) {
 <a name="method-reduce-spread"></a>
 <!-- #### `reduceSpread()` -->
 #### `reduceSpread()`
+
 <!-- The `reduceSpread` method reduces the collection to an array of values, passing the results of each iteration into the subsequent iteration. This method is similar to the `reduce` method; however, it can accept multiple initial values: -->
 `reduceSpread` メソッドは、コレクションを値の配列に縮小し、各反復の結果を後続の反復に渡します。このメソッドは、`reduce` メソッドに似ています。ただし、複数の初期値を受け入れることができます。
 
@@ -2737,6 +2831,7 @@ $even = $collection->reduceInto([], function (array &$result, int $value) {
 <a name="method-reject"></a>
 <!-- #### `reject()` -->
 #### `reject()`
+
 <!-- The `reject` method filters the collection using the given closure. The closure should return `true` if the item should be removed from the resulting collection: -->
 `reject` メソッドは、指定されたクロージャーを使用してコレクションをフィルターします。結果のコレクションから項目を削除する必要がある場合、クロージャは `true` を返す必要があります。
 
@@ -2758,6 +2853,7 @@ $filtered->all();
 <a name="method-replace"></a>
 <!-- #### `replace()` -->
 #### `replace()`
+
 <!-- The `replace` method behaves similarly to `merge`; however, in addition to overwriting matching items that have string keys, the `replace` method will also overwrite items in the collection that have matching numeric keys: -->
 `replace` メソッドは、`merge` と同様に動作します。ただし、`replace` メソッドは、文字列キーを持つ一致する項目を上書きするだけでなく、一致する数値キーを持つコレクション内の項目も上書きします。
 
@@ -2774,6 +2870,7 @@ $replaced->all();
 <a name="method-replacerecursive"></a>
 <!-- #### `replaceRecursive()` -->
 #### `replaceRecursive()`
+
 <!-- The `replaceRecursive` method behaves similarly to `replace`, but it will recur into arrays and apply the same replacement process to the inner values: -->
 `replaceRecursive` メソッドは `replace` と同様に動作しますが、配列内で再帰的に実行され、同じ置換プロセスが内部値に適用されます。
 
@@ -2801,6 +2898,7 @@ $replaced->all();
 <a name="method-reverse"></a>
 <!-- #### `reverse()` -->
 #### `reverse()`
+
 <!-- The `reverse` method reverses the order of the collection's items, preserving the original keys: -->
 `reverse` メソッドは、元のキーを保持したまま、コレクションの項目の順序を逆にします。
 
@@ -2825,6 +2923,7 @@ $reversed->all();
 <a name="method-search"></a>
 <!-- #### `search()` -->
 #### `search()`
+
 <!-- The `search` method searches the collection for the given value and returns its key if found. If the item is not found, `false` is returned: -->
 `search` メソッドは、コレクション内で指定された値を検索し、見つかった場合はそのキーを返します。項目が見つからない場合は、`false` が返されます。
 
@@ -2846,7 +2945,7 @@ collect([2, 4, 6, 8])->search('4', strict: true);
 ```
 
 <!-- Alternatively, you may provide your own closure to search for the first item that passes a given truth test: -->
-あるいは、独自のクロージャを提供して、指定された真理テストに合格する最初の項目を検索することもできます。
+ある条件を満たす最初のアイテムを検索するために、独自のクロージャを指定することもできます。
 
 ```php
 collect([2, 4, 6, 8])->search(function (int $item, int $key) {
@@ -2859,6 +2958,7 @@ collect([2, 4, 6, 8])->search(function (int $item, int $key) {
 <a name="method-select"></a>
 <!-- #### `select()` -->
 #### `select()`
+
 <!-- The `select` method selects the given keys from the collection, similar to an SQL `SELECT` statement: -->
 `select` メソッドは、SQL `SELECT` ステートメントと同様に、コレクションから指定されたキーを選択します。
 
@@ -2881,6 +2981,7 @@ $users->select(['name', 'role']);
 <a name="method-shift"></a>
 <!-- #### `shift()` -->
 #### `shift()`
+
 <!-- The `shift` method removes and returns the first item from the collection: -->
 `shift` メソッドは、コレクションから最初の項目を削除して返します。
 
@@ -2914,6 +3015,7 @@ $collection->all();
 <a name="method-shuffle"></a>
 <!-- #### `shuffle()` -->
 #### `shuffle()`
+
 <!-- The `shuffle` method randomly shuffles the items in the collection: -->
 `shuffle` メソッドは、コレクション内の項目をランダムにシャッフルします。
 
@@ -2930,6 +3032,7 @@ $shuffled->all();
 <a name="method-skip"></a>
 <!-- #### `skip()` -->
 #### `skip()`
+
 <!-- The `skip` method returns a new collection, with the given number of elements removed from the beginning of the collection: -->
 `skip` メソッドは、コレクションの先頭から指定された数の要素が削除された新しいコレクションを返します。
 
@@ -2946,6 +3049,7 @@ $collection->all();
 <a name="method-skipuntil"></a>
 <!-- #### `skipUntil()` -->
 #### `skipUntil()`
+
 <!-- The `skipUntil` method skips over items from the collection while the given callback returns `false`. Once the callback returns `true` all of the remaining items in the collection will be returned as a new collection: -->
 `skipUntil` メソッドは、指定されたコールバックが `false` を返す間、コレクションの項目をスキップします。コールバックが `true` を返すと、コレクション内の残りのすべての項目が新しいコレクションとして返されます。
 
@@ -2975,11 +3079,12 @@ $subset->all();
 ```
 
 > [!WARNING]
-> 指定された値が見つからない場合、またはコールバックが `true` を返さない場合、`skipUntil` メソッドは空のコレクションを返します。
+> 指定した値が見つからない場合、またはコールバックが一度も `true` を返さない場合、`skipUntil` メソッドは空のコレクションを返します。
 
 <a name="method-skipwhile"></a>
 <!-- #### `skipWhile()` -->
 #### `skipWhile()`
+
 <!-- The `skipWhile` method skips over items from the collection while the given callback returns `true`. Once the callback returns `false` all of the remaining items in the collection will be returned as a new collection: -->
 `skipWhile` メソッドは、指定されたコールバックが `true` を返す間、コレクションの項目をスキップします。コールバックが `false` を返すと、コレクション内の残りのすべての項目が新しいコレクションとして返されます。
 
@@ -3001,6 +3106,7 @@ $subset->all();
 <a name="method-slice"></a>
 <!-- #### `slice()` -->
 #### `slice()`
+
 <!-- The `slice` method returns a slice of the collection starting at the given index: -->
 `slice` メソッドは、指定されたインデックスから始まるコレクションのスライスを返します。
 
@@ -3031,6 +3137,7 @@ $slice->all();
 <a name="method-sliding"></a>
 <!-- #### `sliding()` -->
 #### `sliding()`
+
 <!-- The `sliding` method returns a new collection of chunks representing a "sliding window" view of the items in the collection: -->
 `sliding` メソッドは、コレクション内の項目の「スライディング ウィンドウ」ビューを表すチャンクの新しいコレクションを返します。
 
@@ -3069,6 +3176,7 @@ $chunks->toArray();
 <a name="method-sole"></a>
 <!-- #### `sole()` -->
 #### `sole()`
+
 <!-- The `sole` method returns the first element in the collection that passes a given truth test, but only if the truth test matches exactly one element: -->
 `sole` メソッドは、指定された条件を満たすコレクション内の最初の要素を返します。ただし、条件を満たす要素がちょうど 1 つだけの場合に限ります。
 
@@ -3113,12 +3221,14 @@ $collection->sole();
 <a name="method-some"></a>
 <!-- #### `some()` -->
 #### `some()`
+
 <!-- Alias for the [contains](#method-contains) method. -->
 [contains](#method-contains) メソッドのエイリアス。
 
 <a name="method-sort"></a>
 <!-- #### `sort()` -->
 #### `sort()`
+
 <!-- The `sort` method sorts the collection. The sorted collection keeps the original array keys, so in the following example we will use the [values](#method-values) method to reset the keys to consecutively numbered indexes: -->
 `sort` メソッドはコレクションを並べ替えます。並べ替えられたコレクションには元の配列キーが保持されるため、次の例では、[values](#method-values) メソッドを使用してキーを連続番号のインデックスにリセットします。
 
@@ -3136,11 +3246,12 @@ $sorted->values()->all();
 並べ替えのニーズがさらに高度な場合は、独自のアルゴリズムを使用して `sort` にコールバックを渡すことができます。 [uasort](https://secure.php.net/manual/en/function.uasort.php#refsect1-function.uasort-parameters) に関する PHP ドキュメントを参照してください。これは、コレクションの `sort` メソッド呼び出しが内部的に利用するものです。
 
 > [!NOTE]
-> ネストされた配列またはオブジェクトのコレクションを並べ替える必要がある場合は、[sortBy](#method-sortby) メソッドと [sortByDesc](#method-sortbydesc) メソッドを参照してください。
+> ネストした配列やオブジェクトを含むコレクションをソートする場合は、[sortBy](#method-sortby) メソッドと [sortByDesc](#method-sortbydesc) メソッドを参照してください。
 
 <a name="method-sortby"></a>
 <!-- #### `sortBy()` -->
 #### `sortBy()`
+
 <!-- The `sortBy` method sorts the collection by the given key. The sorted collection keeps the original array keys, so in the following example we will use the [values](#method-values) method to reset the keys to consecutively numbered indexes: -->
 `sortBy` メソッドは、指定されたキーでコレクションを並べ替えます。並べ替えられたコレクションには元の配列キーが保持されるため、次の例では、[values](#method-values) メソッドを使用してキーを連続番号のインデックスにリセットします。
 
@@ -3271,12 +3382,14 @@ $sorted->values()->all();
 <a name="method-sortbydesc"></a>
 <!-- #### `sortByDesc()` -->
 #### `sortByDesc()`
+
 <!-- This method has the same signature as the [sortBy](#method-sortby) method, but will sort the collection in the opposite order. -->
 このメソッドは、[sortBy](#method-sortby) メソッドと同じシグネチャを持ちますが、コレクションを逆の順序で並べ替えます。
 
 <a name="method-sortdesc"></a>
 <!-- #### `sortDesc()` -->
 #### `sortDesc()`
+
 <!-- This method will sort the collection in the opposite order as the [sort](#method-sort) method: -->
 このメソッドは、[sort](#method-sort) メソッドとは逆の順序でコレクションを並べ替えます。
 
@@ -3296,6 +3409,7 @@ $sorted->values()->all();
 <a name="method-sortkeys"></a>
 <!-- #### `sortKeys()` -->
 #### `sortKeys()`
+
 <!-- The `sortKeys` method sorts the collection by the keys of the underlying associative array: -->
 `sortKeys` メソッドは、基になる連想配列のキーによってコレクションを並べ替えます。
 
@@ -3322,12 +3436,14 @@ $sorted->all();
 <a name="method-sortkeysdesc"></a>
 <!-- #### `sortKeysDesc()` -->
 #### `sortKeysDesc()`
+
 <!-- This method has the same signature as the [sortKeys](#method-sortkeys) method, but will sort the collection in the opposite order. -->
 このメソッドは、[sortKeys](#method-sortkeys) メソッドと同じシグネチャを持ちますが、コレクションを逆の順序で並べ替えます。
 
 <a name="method-sortkeysusing"></a>
 <!-- #### `sortKeysUsing()` -->
 #### `sortKeysUsing()`
+
 <!-- The `sortKeysUsing` method sorts the collection by the keys of the underlying associative array using a callback: -->
 `sortKeysUsing` メソッドは、コールバックを使用して、基になる連想配列のキーによってコレクションを並べ替えます。
 
@@ -3357,6 +3473,7 @@ $sorted->all();
 <a name="method-splice"></a>
 <!-- #### `splice()` -->
 #### `splice()`
+
 <!-- The `splice` method removes and returns a slice of items starting at the specified index: -->
 `splice` メソッドは、指定されたインデックスから始まる項目のスライスを削除して返します。
 
@@ -3411,6 +3528,7 @@ $collection->all();
 <a name="method-split"></a>
 <!-- #### `split()` -->
 #### `split()`
+
 <!-- The `split` method breaks a collection into the given number of groups: -->
 `split` メソッドは、コレクションを指定された数のグループに分割します。
 
@@ -3427,6 +3545,7 @@ $groups->all();
 <a name="method-splitin"></a>
 <!-- #### `splitIn()` -->
 #### `splitIn()`
+
 <!-- The `splitIn` method breaks a collection into the given number of groups, filling non-terminal groups completely before allocating the remainder to the final group: -->
 `splitIn` メソッドは、コレクションを指定された数のグループに分割し、非終端グループを完全に埋めてから、残りを最後のグループに割り当てます。
 
@@ -3443,6 +3562,7 @@ $groups->all();
 <a name="method-sum"></a>
 <!-- #### `sum()` -->
 #### `sum()`
+
 <!-- The `sum` method returns the sum of all items in the collection: -->
 `sum` メソッドは、コレクション内のすべての項目の合計を返します。
 
@@ -3486,6 +3606,7 @@ $collection->sum(function (array $product) {
 <a name="method-take"></a>
 <!-- #### `take()` -->
 #### `take()`
+
 <!-- The `take` method returns a new collection with the specified number of items: -->
 `take` メソッドは、指定された数の項目を含む新しいコレクションを返します。
 
@@ -3515,6 +3636,7 @@ $chunk->all();
 <a name="method-takeuntil"></a>
 <!-- #### `takeUntil()` -->
 #### `takeUntil()`
+
 <!-- The `takeUntil` method returns items in the collection until the given callback returns `true`: -->
 `takeUntil` メソッドは、指定されたコールバックが `true` を返すまで、コレクション内の項目を返します。
 
@@ -3544,11 +3666,12 @@ $subset->all();
 ```
 
 > [!WARNING]
-> 指定された値が見つからない場合、またはコールバックが `true` を返さない場合、`takeUntil` メソッドはコレクション内のすべての項目を返します。
+> 指定した値が見つからない場合、またはコールバックが一度も `true` を返さない場合、`takeUntil` メソッドはコレクション内のすべてのアイテムを返します。
 
 <a name="method-takewhile"></a>
 <!-- #### `takeWhile()` -->
 #### `takeWhile()`
+
 <!-- The `takeWhile` method returns items in the collection until the given callback returns `false`: -->
 `takeWhile` メソッドは、指定されたコールバックが `false` を返すまで、コレクション内の項目を返します。
 
@@ -3565,11 +3688,12 @@ $subset->all();
 ```
 
 > [!WARNING]
-> コールバックが `false` を返さない場合、`takeWhile` メソッドはコレクション内のすべての項目を返します。
+> コールバックが `false` を一度も返さない場合、`takeWhile` メソッドはコレクション内のすべてのアイテムを返します。
 
 <a name="method-tap"></a>
 <!-- #### `tap()` -->
 #### `tap()`
+
 <!-- The `tap` method passes the collection to the given callback, allowing you to "tap" into the collection at a specific point and do something with the items while not affecting the collection itself. The collection is then returned by the `tap` method: -->
 `tap` メソッドは、コレクションを指定されたコールバックに渡します。これにより、コレクション自体には影響を与えずに、特定の時点でコレクションに「タップ」し、項目に対して何らかの処理を行うことができます。その後、コレクションは `tap` メソッドによって返されます。
 
@@ -3587,6 +3711,7 @@ collect([2, 4, 3, 1, 5])
 <a name="method-times"></a>
 <!-- #### `times()` -->
 #### `times()`
+
 <!-- The static `times` method creates a new collection by invoking the given closure a specified number of times: -->
 静的 `times` メソッドは、指定されたクロージャを指定された回数呼び出すことによって新しいコレクションを作成します。
 
@@ -3603,6 +3728,7 @@ $collection->all();
 <a name="method-toarray"></a>
 <!-- #### `toArray()` -->
 #### `toArray()`
+
 <!-- The `toArray` method converts the collection into a plain PHP `array`. If the collection's values are [Eloquent](/docs/13.x/eloquent) models, the models will also be converted to arrays: -->
 `toArray` メソッドは、コレクションをプレーンな PHP `array` に変換します。コレクションの値が [Eloquent](/docs/13.x/eloquent) モデルの場合、モデルも配列に変換されます。
 
@@ -3615,11 +3741,12 @@ $collection->toArray();
 ```
 
 > [!WARNING]
-> `toArray` は、`Arrayable` のインスタンスであるコレクションのネストされたオブジェクトもすべて配列に変換します。コレクションの基礎となる生の配列を取得したい場合は、代わりに [all](#method-all) メソッドを使用してください。
+> `toArray` は、コレクション内にある `Arrayable` のインスタンスであるネストしたオブジェクトもすべて配列に変換します。コレクションの元となる配列をそのまま取得するには、代わりに [all](#method-all) メソッドを使用してください。
 
 <a name="method-tojson"></a>
 <!-- #### `toJson()` -->
 #### `toJson()`
+
 <!-- The `toJson` method converts the collection into a JSON serialized string: -->
 `toJson` メソッドは、コレクションを JSON シリアル化文字列に変換します。
 
@@ -3634,6 +3761,7 @@ $collection->toJson();
 <a name="method-to-pretty-json"></a>
 <!-- #### `toPrettyJson()` -->
 #### `toPrettyJson()`
+
 <!-- The `toPrettyJson` method converts the collection into a formatted JSON string using the `JSON_PRETTY_PRINT` option: -->
 `toPrettyJson` メソッドは、`JSON_PRETTY_PRINT` オプションを使用して、コレクションをフォーマットされた JSON 文字列に変換します。
 
@@ -3646,6 +3774,7 @@ $collection->toPrettyJson();
 <a name="method-transform"></a>
 <!-- #### `transform()` -->
 #### `transform()`
+
 <!-- The `transform` method iterates over the collection and calls the given callback with each item in the collection. The items in the collection will be replaced by the values returned by the callback: -->
 `transform` メソッドはコレクションを反復処理し、コレクション内の各項目で指定されたコールバックを呼び出します。コレクション内の項目は、コールバックによって返された値に置き換えられます。
 
@@ -3662,11 +3791,12 @@ $collection->all();
 ```
 
 > [!WARNING]
-> 他のほとんどのコレクション メソッドとは異なり、`transform` はコレクション自体を変更します。代わりに新しいコレクションを作成する場合は、[map](#method-map) メソッドを使用します。
+> 他の多くのコレクションメソッドとは異なり、`transform` はコレクション自体を変更します。新しいコレクションを作成する場合は、代わりに [map](#method-map) メソッドを使用してください。
 
 <a name="method-undot"></a>
 <!-- #### `undot()` -->
 #### `undot()`
+
 <!-- The `undot` method expands a single-dimensional collection that uses "dot" notation into a multi-dimensional collection: -->
 `undot` メソッドは、「ドット」表記を使用する単一次元のコレクションを多次元のコレクションに拡張します。
 
@@ -3705,6 +3835,7 @@ $person->toArray();
 <a name="method-union"></a>
 <!-- #### `union()` -->
 #### `union()`
+
 <!-- The `union` method adds the given array to the collection. If the given array contains keys that are already in the original collection, the original collection's values will be preferred: -->
 `union` メソッドは、指定された配列をコレクションに追加します。指定された配列に元のコレクションに既に存在するキーが含まれている場合は、元のコレクションの値が優先されます。
 
@@ -3721,6 +3852,7 @@ $union->all();
 <a name="method-unique"></a>
 <!-- #### `unique()` -->
 #### `unique()`
+
 <!-- The `unique` method returns all of the unique items in the collection. The returned collection keeps the original array keys, so in the following example we will use the [values](#method-values) method to reset the keys to consecutively numbered indexes: -->
 `unique` メソッドは、コレクション内のすべての一意の項目を返します。返されたコレクションには元の配列キーが保持されているため、次の例では、[values](#method-values) メソッドを使用してキーを連続番号のインデックスにリセットします。
 
@@ -3782,17 +3914,19 @@ $unique->values()->all();
 `unique` メソッドは、項目値をチェックするときに「緩やかな」比較を使用します。つまり、整数値を持つ文字列は、同じ値の整数と等しいと見なされます。 「厳密な」比較を使用してフィルタリングするには、[uniqueStrict](#method-uniquestrict) メソッドを使用します。
 
 > [!NOTE]
-> [Eloquent Collections](/docs/13.x/eloquent-collections#method-unique) を使用すると、このメソッドの動作が変更されます。
+> [Eloquent Collections](/docs/13.x/eloquent-collections#method-unique) を使用する場合、このメソッドの動作は異なります。
 
 <a name="method-uniquestrict"></a>
 <!-- #### `uniqueStrict()` -->
 #### `uniqueStrict()`
+
 <!-- This method has the same signature as the [unique](#method-unique) method; however, all values are compared using "strict" comparisons. -->
 このメソッドには、[unique](#method-unique) メソッドと同じシグネチャがあります。ただし、すべての値は「厳密な」比較を使用して比較されます。
 
 <a name="method-unless"></a>
 <!-- #### `unless()` -->
 #### `unless()`
+
 <!-- The `unless` method will execute the given callback unless the first argument given to the method evaluates to `true`. The collection instance and the first argument given to the `unless` method will be provided to the closure: -->
 `unless` メソッドは、メソッドに指定された最初の引数が `true` と評価されない限り、指定されたコールバックを実行します。コレクション インスタンスと `unless` メソッドに指定された最初の引数がクロージャに提供されます。
 
@@ -3835,18 +3969,21 @@ $collection->all();
 <a name="method-unlessempty"></a>
 <!-- #### `unlessEmpty()` -->
 #### `unlessEmpty()`
+
 <!-- Alias for the [whenNotEmpty](#method-whennotempty) method. -->
 [whenNotEmpty](#method-whennotempty) メソッドのエイリアス。
 
 <a name="method-unlessnotempty"></a>
 <!-- #### `unlessNotEmpty()` -->
 #### `unlessNotEmpty()`
+
 <!-- Alias for the [whenEmpty](#method-whenempty) method. -->
 [whenEmpty](#method-whenempty) メソッドのエイリアス。
 
 <a name="method-unwrap"></a>
 <!-- #### `unwrap()` -->
 #### `unwrap()`
+
 <!-- The static `unwrap` method returns the collection's underlying items from the given value when applicable: -->
 静的 `unwrap` メソッドは、該当する場合、指定された値からコレクションの基礎となる項目を返します。
 
@@ -3867,6 +4004,7 @@ Collection::unwrap('John Doe');
 <a name="method-value"></a>
 <!-- #### `value()` -->
 #### `value()`
+
 <!-- The `value` method retrieves a given value from the first element of the collection: -->
 `value` メソッドは、コレクションの最初の要素から指定された値を取得します。
 
@@ -3884,6 +4022,7 @@ $value = $collection->value('price');
 <a name="method-values"></a>
 <!-- #### `values()` -->
 #### `values()`
+
 <!-- The `values` method returns a new collection with the keys reset to consecutive integers: -->
 `values` メソッドは、キーが連続した整数にリセットされた新しいコレクションを返します。
 
@@ -3908,6 +4047,7 @@ $values->all();
 <a name="method-when"></a>
 <!-- #### `when()` -->
 #### `when()`
+
 <!-- The `when` method will execute the given callback when the first argument given to the method evaluates to `true`. The collection instance and the first argument given to the `when` method will be provided to the closure: -->
 `when` メソッドは、メソッドに指定された最初の引数が `true` と評価されると、指定されたコールバックを実行します。コレクション インスタンスと `when` メソッドに指定された最初の引数がクロージャに提供されます。
 
@@ -3950,6 +4090,7 @@ $collection->all();
 <a name="method-whenempty"></a>
 <!-- #### `whenEmpty()` -->
 #### `whenEmpty()`
+
 <!-- The `whenEmpty` method will execute the given callback when the collection is empty: -->
 `whenEmpty` メソッドは、コレクションが空のときに指定されたコールバックを実行します。
 
@@ -3998,6 +4139,7 @@ $collection->all();
 <a name="method-whennotempty"></a>
 <!-- #### `whenNotEmpty()` -->
 #### `whenNotEmpty()`
+
 <!-- The `whenNotEmpty` method will execute the given callback when the collection is not empty: -->
 `whenNotEmpty` メソッドは、コレクションが空でない場合に指定されたコールバックを実行します。
 
@@ -4046,6 +4188,7 @@ $collection->all();
 <a name="method-where"></a>
 <!-- #### `where()` -->
 #### `where()`
+
 <!-- The `where` method filters the collection by a given key / value pair: -->
 `where` メソッドは、指定されたキーと値のペアによってコレクションをフィルターします。
 
@@ -4097,12 +4240,14 @@ $filtered->all();
 <a name="method-wherestrict"></a>
 <!-- #### `whereStrict()` -->
 #### `whereStrict()`
+
 <!-- This method has the same signature as the [where](#method-where) method; however, all values are compared using "strict" comparisons. -->
 このメソッドには、[where](#method-where) メソッドと同じシグネチャがあります。ただし、すべての値は「厳密な」比較を使用して比較されます。
 
 <a name="method-wherebetween"></a>
 <!-- #### `whereBetween()` -->
 #### `whereBetween()`
+
 <!-- The `whereBetween` method filters the collection by determining if a specified item value is within a given range: -->
 `whereBetween` メソッドは、指定された項目値が指定された範囲内にあるかどうかを判断して、コレクションをフィルターします。
 
@@ -4131,6 +4276,7 @@ $filtered->all();
 <a name="method-wherein"></a>
 <!-- #### `whereIn()` -->
 #### `whereIn()`
+
 <!-- The `whereIn` method removes elements from the collection that do not have a specified item value that is contained within the given array: -->
 `whereIn` メソッドは、指定された配列内に含まれる指定された項目値を持たない要素をコレクションから削除します。
 
@@ -4160,12 +4306,14 @@ $filtered->all();
 <a name="method-whereinstrict"></a>
 <!-- #### `whereInStrict()` -->
 #### `whereInStrict()`
+
 <!-- This method has the same signature as the [whereIn](#method-wherein) method; however, all values are compared using "strict" comparisons. -->
 このメソッドには、[whereIn](#method-wherein) メソッドと同じシグネチャがあります。ただし、すべての値は「厳密な」比較を使用して比較されます。
 
 <a name="method-whereinstanceof"></a>
 <!-- #### `whereInstanceOf()` -->
 #### `whereInstanceOf()`
+
 <!-- The `whereInstanceOf` method filters the collection by a given class type: -->
 `whereInstanceOf` メソッドは、指定されたクラス タイプでコレクションをフィルターします。
 
@@ -4189,6 +4337,7 @@ $filtered->all();
 <a name="method-wherenotbetween"></a>
 <!-- #### `whereNotBetween()` -->
 #### `whereNotBetween()`
+
 <!-- The `whereNotBetween` method filters the collection by determining if a specified item value is outside of a given range: -->
 `whereNotBetween` メソッドは、指定された項目の値が指定された範囲外であるかどうかを判断して、コレクションをフィルターします。
 
@@ -4216,6 +4365,7 @@ $filtered->all();
 <a name="method-wherenotin"></a>
 <!-- #### `whereNotIn()` -->
 #### `whereNotIn()`
+
 <!-- The `whereNotIn` method removes elements from the collection that have a specified item value that is contained within the given array: -->
 `whereNotIn` メソッドは、指定された配列内に含まれる指定された項目値を持つ要素をコレクションから削除します。
 
@@ -4245,12 +4395,14 @@ $filtered->all();
 <a name="method-wherenotinstrict"></a>
 <!-- #### `whereNotInStrict()` -->
 #### `whereNotInStrict()`
+
 <!-- This method has the same signature as the [whereNotIn](#method-wherenotin) method; however, all values are compared using "strict" comparisons. -->
 このメソッドには、[whereNotIn](#method-wherenotin) メソッドと同じシグネチャがあります。ただし、すべての値は「厳密な」比較を使用して比較されます。
 
 <a name="method-wherenotnull"></a>
 <!-- #### `whereNotNull()` -->
 #### `whereNotNull()`
+
 <!-- The `whereNotNull` method returns items from the collection where the given key is not `null`: -->
 `whereNotNull` メソッドは、コレクションから指定されたキーの値が `null` ではない項目を返します。
 
@@ -4280,6 +4432,7 @@ $filtered->all();
 <a name="method-wherenull"></a>
 <!-- #### `whereNull()` -->
 #### `whereNull()`
+
 <!-- The `whereNull` method returns items from the collection where the given key is `null`: -->
 `whereNull` メソッドは、コレクションから指定されたキーの値が `null` である項目を返します。
 
@@ -4306,6 +4459,7 @@ $filtered->all();
 <a name="method-wrap"></a>
 <!-- #### `wrap()` -->
 #### `wrap()`
+
 <!-- The static `wrap` method wraps the given value in a collection when applicable: -->
 静的 `wrap` メソッドは、該当する場合、指定された値をコレクションにラップします。
 
@@ -4334,6 +4488,7 @@ $collection->all();
 <a name="method-zip"></a>
 <!-- #### `zip()` -->
 #### `zip()`
+
 <!-- The `zip` method merges together the values of the given array with the values of the original collection at their corresponding index: -->
 `zip` メソッドは、指定された配列の値と、対応するインデックスの元のコレクションの値をマージします。
 
@@ -4383,7 +4538,7 @@ return $users->sum->votes;
 ### Introduction
 
 > [!WARNING]
-> Laravel の遅延コレクションについて詳しく学ぶ前に、時間をかけて [PHP generators](https://www.php.net/manual/en/language.generators.overview.php) についてよく理解してください。
+> Laravel の Lazy Collection について詳しく学ぶ前に、[PHP generators](https://www.php.net/manual/en/language.generators.overview.php) に慣れておきましょう。
 
 <!-- To supplement the already powerful `Collection` class, the `LazyCollection` class leverages PHP's [generators](https://www.php.net/manual/en/language.generators.overview.php) to allow you to work with very large datasets while keeping memory usage low. -->
 すでに強力な `Collection` クラスを補足するために、`LazyCollection` クラスは PHP の [generators](https://www.php.net/manual/en/language.generators.overview.php) を利用して、メモリ使用量を低く抑えながら非常に大規模なデータセットを操作できるようにします。
@@ -4466,10 +4621,12 @@ LazyCollection::make(function () {
 
 <div class="collection-method-list" markdown="1">
 
-<!-- [all](#method-all) [average](#method-average) [avg](#method-avg) [chunk](#method-chunk) [chunkBy](#method-chunkby) [chunkWhile](#method-chunkwhile) [collapse](#method-collapse) [collect](#method-collect) [combine](#method-combine) [concat](#method-concat) [contains](#method-contains) [containsStrict](#method-containsstrict) [count](#method-count) [countBy](#method-countBy) [crossJoin](#method-crossjoin) [dd](#method-dd) [diff](#method-diff) [diffAssoc](#method-diffassoc) [diffKeys](#method-diffkeys) [dump](#method-dump) [duplicates](#method-duplicates) [duplicatesStrict](#method-duplicatesstrict) [each](#method-each) [eachSpread](#method-eachspread) [every](#method-every) [except](#method-except) [filter](#method-filter) [first](#method-first) [firstOrFail](#method-first-or-fail) [firstWhere](#method-first-where) [flatMap](#method-flatmap) [flatten](#method-flatten) [flip](#method-flip) [forPage](#method-forpage) [get](#method-get) [groupBy](#method-groupby) [has](#method-has) [implode](#method-implode) [intersect](#method-intersect) [intersectAssoc](#method-intersectAssoc) [intersectByKeys](#method-intersectbykeys) [isEmpty](#method-isempty) [isNotEmpty](#method-isnotempty) [join](#method-join) [keyBy](#method-keyby) [keys](#method-keys) [last](#method-last) [macro](#method-macro) [make](#method-make) [map](#method-map) [mapInto](#method-mapinto) [mapSpread](#method-mapspread) [mapToGroups](#method-maptogroups) [mapWithKeys](#method-mapwithkeys) [max](#method-max) [median](#method-median) [merge](#method-merge) [mergeRecursive](#method-mergerecursive) [min](#method-min) [mode](#method-mode) [nth](#method-nth) [only](#method-only) [pad](#method-pad) [partition](#method-partition) [pipe](#method-pipe) [pluck](#method-pluck) [random](#method-random) [reduce](#method-reduce) [reduceInto](#method-reduce-into) [reject](#method-reject) [replace](#method-replace) [replaceRecursive](#method-replacerecursive) [reverse](#method-reverse) [search](#method-search) [shuffle](#method-shuffle) [skip](#method-skip) [slice](#method-slice) [sole](#method-sole) [some](#method-some) [sort](#method-sort) [sortBy](#method-sortby) [sortByDesc](#method-sortbydesc) [sortKeys](#method-sortkeys) [sortKeysDesc](#method-sortkeysdesc) [split](#method-split) [sum](#method-sum) [take](#method-take) [tap](#method-tap) [times](#method-times) [toArray](#method-toarray) [toJson](#method-tojson) [union](#method-union) [unique](#method-unique) [uniqueStrict](#method-uniquestrict) [unless](#method-unless) [unlessEmpty](#method-unlessempty) [unlessNotEmpty](#method-unlessnotempty) [unwrap](#method-unwrap) [values](#method-values) [when](#method-when) [whenEmpty](#method-whenempty) [whenNotEmpty](#method-whennotempty) [where](#method-where) [whereStrict](#method-wherestrict) [whereBetween](#method-wherebetween) [whereIn](#method-wherein) [whereInStrict](#method-whereinstrict) [whereInstanceOf](#method-whereinstanceof) [whereNotBetween](#method-wherenotbetween) [whereNotIn](#method-wherenotin) [whereNotInStrict](#method-wherenotinstrict) [wrap](#method-wrap) [zip](#method-zip) -->
+<!-- [after](#method-after) [all](#method-all) [average](#method-average) [avg](#method-avg) [before](#method-before) [chunk](#method-chunk) [chunkBy](#method-chunkby) [chunkWhile](#method-chunkwhile) [collapse](#method-collapse) [collect](#method-collect) [combine](#method-combine) [concat](#method-concat) [contains](#method-contains) [containsStrict](#method-containsstrict) [count](#method-count) [countBy](#method-countBy) [crossJoin](#method-crossjoin) [dd](#method-dd) [diff](#method-diff) [diffAssoc](#method-diffassoc) [diffAssocUsing](#method-diffassocusing) [diffKeys](#method-diffkeys) [doesntContain](#method-doesntcontain) [dump](#method-dump) [duplicates](#method-duplicates) [duplicatesStrict](#method-duplicatesstrict) [each](#method-each) [eachSpread](#method-eachspread) [every](#method-every) [except](#method-except) [filter](#method-filter) [first](#method-first) [firstOrFail](#method-first-or-fail) [firstWhere](#method-first-where) [flatMap](#method-flatmap) [flatten](#method-flatten) [flip](#method-flip) [forPage](#method-forpage) [get](#method-get) [groupBy](#method-groupby) [has](#method-has) [hasAny](#method-hasany) [hasMany](#method-hasmany) [hasSole](#method-hassole) [implode](#method-implode) [intersect](#method-intersect) [intersectUsing](#method-intersectusing) [intersectAssoc](#method-intersectAssoc) [intersectAssocUsing](#method-intersectassocusing) [intersectByKeys](#method-intersectbykeys) [isEmpty](#method-isempty) [isNotEmpty](#method-isnotempty) [join](#method-join) [keyBy](#method-keyby) [keys](#method-keys) [last](#method-last) [macro](#method-macro) [make](#method-make) [map](#method-map) [mapInto](#method-mapinto) [mapSpread](#method-mapspread) [mapToGroups](#method-maptogroups) [mapWithKeys](#method-mapwithkeys) [max](#method-max) [median](#method-median) [merge](#method-merge) [mergeRecursive](#method-mergerecursive) [min](#method-min) [mode](#method-mode) [nth](#method-nth) [only](#method-only) [pad](#method-pad) [partition](#method-partition) [pipe](#method-pipe) [pipeInto](#method-pipeinto) [pipeThrough](#method-pipethrough) [pluck](#method-pluck) [random](#method-random) [range](#method-range) [reduce](#method-reduce) [reduceInto](#method-reduce-into) [reduceSpread](#method-reduce-spread) [reject](#method-reject) [replace](#method-replace) [replaceRecursive](#method-replacerecursive) [reverse](#method-reverse) [search](#method-search) [shuffle](#method-shuffle) [skip](#method-skip) [skipUntil](#method-skipuntil) [skipWhile](#method-skipwhile) [slice](#method-slice) [sliding](#method-sliding) [sole](#method-sole) [some](#method-some) [sort](#method-sort) [sortBy](#method-sortby) [sortByDesc](#method-sortbydesc) [sortDesc](#method-sortdesc) [sortKeys](#method-sortkeys) [sortKeysDesc](#method-sortkeysdesc) [sortKeysUsing](#method-sortkeysusing) [split](#method-split) [splitIn](#method-splitin) [sum](#method-sum) [take](#method-take) [takeUntil](#method-takeuntil) [takeWhile](#method-takewhile) [tap](#method-tap) [times](#method-times) [toArray](#method-toarray) [toJson](#method-tojson) [toPrettyJson](#method-to-pretty-json) [undot](#method-undot) [union](#method-union) [unique](#method-unique) [uniqueStrict](#method-uniquestrict) [unless](#method-unless) [unlessEmpty](#method-unlessempty) [unlessNotEmpty](#method-unlessnotempty) [unwrap](#method-unwrap) [values](#method-values) [when](#method-when) [whenEmpty](#method-whenempty) [whenNotEmpty](#method-whennotempty) [where](#method-where) [whereStrict](#method-wherestrict) [whereBetween](#method-wherebetween) [whereIn](#method-wherein) [whereInStrict](#method-whereinstrict) [whereInstanceOf](#method-whereinstanceof) [whereNotBetween](#method-wherenotbetween) [whereNotIn](#method-wherenotin) [whereNotInStrict](#method-wherenotinstrict) [whereNotNull](#method-wherenotnull) [whereNull](#method-wherenull) [wrap](#method-wrap) [zip](#method-zip) -->
+[after](#method-after)
 [all](#method-all)
 [average](#method-average)
 [avg](#method-avg)
+[before](#method-before)
 [chunk](#method-chunk)
 [chunkBy](#method-chunkby)
 [chunkWhile](#method-chunkwhile)
@@ -4485,7 +4642,9 @@ LazyCollection::make(function () {
 [dd](#method-dd)
 [diff](#method-diff)
 [diffAssoc](#method-diffassoc)
+[diffAssocUsing](#method-diffassocusing)
 [diffKeys](#method-diffkeys)
+[doesntContain](#method-doesntcontain)
 [dump](#method-dump)
 [duplicates](#method-duplicates)
 [duplicatesStrict](#method-duplicatesstrict)
@@ -4504,9 +4663,14 @@ LazyCollection::make(function () {
 [get](#method-get)
 [groupBy](#method-groupby)
 [has](#method-has)
+[hasAny](#method-hasany)
+[hasMany](#method-hasmany)
+[hasSole](#method-hassole)
 [implode](#method-implode)
 [intersect](#method-intersect)
+[intersectUsing](#method-intersectusing)
 [intersectAssoc](#method-intersectAssoc)
+[intersectAssocUsing](#method-intersectassocusing)
 [intersectByKeys](#method-intersectbykeys)
 [isEmpty](#method-isempty)
 [isNotEmpty](#method-isnotempty)
@@ -4532,10 +4696,14 @@ LazyCollection::make(function () {
 [pad](#method-pad)
 [partition](#method-partition)
 [pipe](#method-pipe)
+[pipeInto](#method-pipeinto)
+[pipeThrough](#method-pipethrough)
 [pluck](#method-pluck)
 [random](#method-random)
+[range](#method-range)
 [reduce](#method-reduce)
 [reduceInto](#method-reduce-into)
+[reduceSpread](#method-reduce-spread)
 [reject](#method-reject)
 [replace](#method-replace)
 [replaceRecursive](#method-replacerecursive)
@@ -4543,21 +4711,31 @@ LazyCollection::make(function () {
 [search](#method-search)
 [shuffle](#method-shuffle)
 [skip](#method-skip)
+[skipUntil](#method-skipuntil)
+[skipWhile](#method-skipwhile)
 [slice](#method-slice)
+[sliding](#method-sliding)
 [sole](#method-sole)
 [some](#method-some)
 [sort](#method-sort)
 [sortBy](#method-sortby)
 [sortByDesc](#method-sortbydesc)
+[sortDesc](#method-sortdesc)
 [sortKeys](#method-sortkeys)
 [sortKeysDesc](#method-sortkeysdesc)
+[sortKeysUsing](#method-sortkeysusing)
 [split](#method-split)
+[splitIn](#method-splitin)
 [sum](#method-sum)
 [take](#method-take)
+[takeUntil](#method-takeuntil)
+[takeWhile](#method-takewhile)
 [tap](#method-tap)
 [times](#method-times)
 [toArray](#method-toarray)
 [toJson](#method-tojson)
+[toPrettyJson](#method-to-pretty-json)
+[undot](#method-undot)
 [union](#method-union)
 [unique](#method-unique)
 [uniqueStrict](#method-uniquestrict)
@@ -4578,13 +4756,15 @@ LazyCollection::make(function () {
 [whereNotBetween](#method-wherenotbetween)
 [whereNotIn](#method-wherenotin)
 [whereNotInStrict](#method-wherenotinstrict)
+[whereNotNull](#method-wherenotnull)
+[whereNull](#method-wherenull)
 [wrap](#method-wrap)
 [zip](#method-zip)
 
 </div>
 
 > [!WARNING]
-> コレクションを変更するメソッド (`shift`、`pop`、`prepend` など) は、`LazyCollection` クラスでは**使用できません**。
+> コレクションを変更するメソッド（`shift`、`pop`、`prepend` など）は、`LazyCollection` クラスでは利用できません。
 
 <a name="lazy-collection-methods"></a>
 <!-- ### Lazy Collection Methods -->
@@ -4596,6 +4776,7 @@ LazyCollection::make(function () {
 <a name="method-takeUntilTimeout"></a>
 <!-- #### `takeUntilTimeout()` -->
 #### `takeUntilTimeout()`
+
 <!-- The `takeUntilTimeout` method returns a new lazy collection that will enumerate values until the specified time. After that time, the collection will then stop enumerating: -->
 `takeUntilTimeout` メソッドは、指定された時間まで値を列挙する新しい遅延コレクションを返します。その後、コレクションは列挙を停止します。
 
@@ -4633,6 +4814,7 @@ Invoice::pending()->cursor()
 <a name="method-tapEach"></a>
 <!-- #### `tapEach()` -->
 #### `tapEach()`
+
 <!-- While the `each` method calls the given callback for each item in the collection right away, the `tapEach` method only calls the given callback as the items are being pulled out of the list one by one: -->
 `each` メソッドは、コレクション内の各項目に対して指定されたコールバックをすぐに呼び出しますが、`tapEach` メソッドは、項目がリストから 1 つずつ取り出されるときにのみ、指定されたコールバックを呼び出します。
 
@@ -4653,6 +4835,7 @@ $array = $lazyCollection->take(3)->all();
 <a name="method-throttle"></a>
 <!-- #### `throttle()` -->
 #### `throttle()`
+
 <!-- The `throttle` method will throttle the lazy collection such that each value is returned after the specified number of seconds. This method is especially useful for situations where you may be interacting with external APIs that rate limit incoming requests: -->
 `throttle` メソッドは、指定された秒数の後に各値が返されるように遅延コレクションを調整します。このメソッドは、受信リクエストをレート制限する外部 API と対話する可能性がある状況で特に役立ちます。
 
@@ -4670,6 +4853,7 @@ User::where('vip', true)
 <a name="method-remember"></a>
 <!-- #### `remember()` -->
 #### `remember()`
+
 <!-- The `remember` method returns a new lazy collection that will remember any values that have already been enumerated and will not retrieve them again on subsequent collection enumerations: -->
 `remember` メソッドは、すでに列挙された値を記憶し、後続のコレクション列挙ではそれらの値を再度取得しない、新しい遅延コレクションを返します。
 
@@ -4689,6 +4873,7 @@ $users->take(20)->all();
 <a name="method-with-heartbeat"></a>
 <!-- #### `withHeartbeat()` -->
 #### `withHeartbeat()`
+
 <!-- The `withHeartbeat` method allows you to execute a callback at regular time intervals while a lazy collection is being enumerated. This is particularly useful for long-running operations that require periodic maintenance tasks, such as extending locks or sending progress updates: -->
 `withHeartbeat` メソッドを使用すると、遅延コレクションが列挙されている間、一定の時間間隔でコールバックを実行できます。これは、ロックの有効期間の延長や進行状況の更新の送信など、定期的なメンテナンス タスクを必要とする長時間実行の操作に特に役立ちます。
 
