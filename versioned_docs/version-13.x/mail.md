@@ -975,6 +975,9 @@ Thanks,<br>
 > [!NOTE]
 > Markdown 이메일을 작성할 때는 과도한 들여쓰기를 사용하지 마십시오. Markdown 표준에 따라 Markdown 파서는 들여쓰기된 내용을 코드 블록으로 렌더링합니다.
 
+> [!WARNING]
+> Blade의 `{{ }}` 에코 문은 HTML은 이스케이프하지만 Markdown은 이스케이프하지 않으므로, 링크나 이미지 같은 사용자 제공 데이터의 Markdown 구문이 이메일에 렌더링됩니다. 링크와 이미지 구문을 이스케이프하려면 `AppServiceProvider`의 `boot` 메서드에서 `Illuminate\Mail\Markdown::withSecuredEncoding()`을 호출하세요.
+
 <a name="button-component"></a>
 <!-- #### Button Component -->
 #### Button Component

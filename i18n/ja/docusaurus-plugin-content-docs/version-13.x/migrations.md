@@ -53,7 +53,7 @@ Laravel は移行の名前を使用して、テーブルの名前と、移行に
 生成された移行のカスタム パスを指定したい場合は、`make:migration` コマンドを実行するときに `--path` オプションを使用できます。指定されたパスは、アプリケーションのベース パスに対する相対パスである必要があります。
 
 > [!NOTE]
-> Migration stub は[stub publishing](/docs/13.x/artisan#stub-customization)を使ってカスタマイズできます。
+> マイグレーションのスタブは、[stub publishing](/docs/13.x/artisan#stub-customization)を使ってカスタマイズできます。
 
 <a name="squashing-migrations"></a>
 <!-- ### Squashing Migrations -->
@@ -84,7 +84,7 @@ php artisan schema:dump --database=testing --prune
 チームの他の新しい開発者がアプリケーションの初期データベース構造を迅速に作成できるように、データベース スキーマ ファイルをソース管理にコミットする必要があります。
 
 > [!WARNING]
-> MariaDB、MySQL、PostgreSQL、SQLite のデータベースでのみマイグレーションの圧縮を利用でき、各データベースのコマンドラインクライアントを使用します。
+> マイグレーションのスカッシュは、MariaDB、MySQL、PostgreSQL、SQLite のデータベースでのみ利用でき、各データベースのコマンドラインクライアントを使用します。
 
 <a name="migration-structure"></a>
 <!-- ## Migration Structure -->
@@ -219,7 +219,7 @@ php artisan migrate --isolated
 ```
 
 > [!WARNING]
-> この機能を利用するには、アプリケーションのデフォルトのキャッシュドライバに `memcached`、`redis`、`dynamodb`、`database`、`file`、または `array` を使用する必要があります。また、すべてのサーバーが同じ中央キャッシュサーバーと通信している必要があります。
+> この機能を利用するには、アプリケーションのデフォルトキャッシュドライバとして `memcached`、`redis`、`dynamodb`、`database`、`file`、または `array` を使用している必要があります。また、すべてのサーバーが同じ中央キャッシュサーバーと通信している必要があります。
 
 <a name="forcing-migrations-to-run-in-production"></a>
 <!-- #### Forcing Migrations to Run in Production -->
@@ -313,7 +313,7 @@ php artisan migrate:fresh --database=admin
 ```
 
 > [!WARNING]
-> `migrate:fresh` コマンドは、プレフィックスに関係なくデータベースのすべてのテーブルを削除します。他のアプリケーションと共有しているデータベースで開発する場合は、このコマンドの使用に注意してください。
+> `migrate:fresh` コマンドは、プレフィックスにかかわらず、データベース内のすべてのテーブルを削除します。他のアプリケーションと共有しているデータベースで開発する場合は、このコマンドの使用に注意してください。
 
 <a name="tables"></a>
 <!-- ## Tables -->
@@ -870,7 +870,7 @@ $table->geography('coordinates', subtype: 'point', srid: 4326);
 ```
 
 > [!NOTE]
-> 空間型のサポート状況はデータベースドライバによって異なります。詳しくは、使用するデータベースのドキュメントを確認してください。PostgreSQL データベースを使用する場合、`geography` メソッドを使う前に [PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
+> 空間型のサポートはデータベースドライバによって異なります。詳しくは、使用するデータベースのドキュメントを参照してください。PostgreSQL データベースを使用するアプリケーションでは、`geography` メソッドを使用する前に [PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
 
 <a name="column-method-geometry"></a>
 <!-- #### `geometry()` -->
@@ -884,7 +884,7 @@ $table->geometry('positions', subtype: 'point', srid: 0);
 ```
 
 > [!NOTE]
-> 空間型のサポート状況はデータベースドライバによって異なります。詳しくは、使用するデータベースのドキュメントを参照してください。PostgreSQL データベースを使用する場合は、`geometry` メソッドを使う前に [PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
+> 空間型のサポートはデータベースドライバによって異なります。詳しくは、使用するデータベースのドキュメントを参照してください。アプリケーションで PostgreSQL データベースを使用する場合は、`geometry` メソッドを使用する前に [PostGIS](https://postgis.net) 拡張機能をインストールする必要があります。
 
 <a name="column-method-id"></a>
 <!-- #### `id()` -->
@@ -945,7 +945,7 @@ $table->json('options');
 ```
 
 <!-- When using SQLite, a `TEXT` column will be created. -->
-SQLiteを使用する場合、`TEXT` カラムが作成されます。
+SQLite を使用する場合、`TEXT` カラムが作成されます。
 
 <a name="column-method-jsonb"></a>
 <!-- #### `jsonb()` -->
@@ -1498,7 +1498,7 @@ return new class extends Migration
 ```
 
 > [!WARNING]
-> デフォルト式のサポートは、データベースドライバ、データベースのバージョン、フィールド型によって異なります。詳しくは、使用するデータベースのドキュメントを参照してください。
+> デフォルト式のサポートは、データベースドライバ、データベースのバージョン、フィールドの型によって異なります。データベースのドキュメントを参照してください。
 
 <a name="column-order"></a>
 <!-- #### Column Order -->
@@ -1907,7 +1907,7 @@ Schema::withoutForeignKeyConstraints(function () {
 ```
 
 > [!WARNING]
-> SQLite では、デフォルトで外部キー制約が無効になっています。SQLite を使用する場合は、マイグレーションで外部キー制約を作成する前に、データベース設定で [enable foreign key support](/docs/13.x/database#configuration) を有効にしてください。
+> SQLite では外部キー制約がデフォルトで無効になっています。マイグレーションで外部キー制約を作成する前に、データベース設定で [enable foreign key support](/docs/13.x/database#configuration) を有効にしてください。
 
 <a name="events"></a>
 <!-- ## Events -->
@@ -1918,16 +1918,17 @@ Schema::withoutForeignKeyConstraints(function () {
 
 <div class="overflow-auto">
 
-<!-- | Class | Description | | ------------------------------------------------ | ------------------------------------------------ | | `Illuminate\Database\Events\DatabaseRefreshed` | The `migrate:fresh` or `migrate:refresh` command has finished. | | `Illuminate\Database\Events\MigrationsStarted` | A batch of migrations is about to be executed. | | `Illuminate\Database\Events\MigrationsEnded` | A batch of migrations has finished. | | `Illuminate\Database\Events\MigrationStarted` | A single migration is about to be executed. | | `Illuminate\Database\Events\MigrationEnded` | A single migration has finished. | | `Illuminate\Database\Events\NoPendingMigrations` | A migration command found no pending migrations. | | `Illuminate\Database\Events\SchemaDumped` | A database schema dump has finished. | | `Illuminate\Database\Events\SchemaLoaded` | An existing database schema dump has loaded. | -->
-| クラス                                           | 説明                                           |
+<!-- | Class | Description | | ------------------------------------------------ | ------------------------------------------------ | | `Illuminate\Database\Events\DatabaseRefreshed` | The `migrate:fresh` or `migrate:refresh` command has finished. | | `Illuminate\Database\Events\MigrationsStarted` | A batch of migrations is about to be executed. | | `Illuminate\Database\Events\MigrationsEnded` | A batch of migrations has finished. | | `Illuminate\Database\Events\MigrationStarted` | A single migration is about to be executed. | | `Illuminate\Database\Events\MigrationEnded` | A single migration has finished. | | `Illuminate\Database\Events\MigrationFailed` | A single migration has failed. | | `Illuminate\Database\Events\NoPendingMigrations` | A migration command found no pending migrations. | | `Illuminate\Database\Events\SchemaDumped` | A database schema dump has finished. | | `Illuminate\Database\Events\SchemaLoaded` | An existing database schema dump has loaded. | -->
+| クラス                                           | 説明                                               |
 | ------------------------------------------------ | ------------------------------------------------ |
 | `Illuminate\Database\Events\DatabaseRefreshed`   | `migrate:fresh` または `migrate:refresh` コマンドが完了しました。 |
-| `Illuminate\Database\Events\MigrationsStarted`   | マイグレーションの一括実行が開始される直前です。   |
-| `Illuminate\Database\Events\MigrationsEnded`     | マイグレーションの一括実行が完了しました。              |
-| `Illuminate\Database\Events\MigrationStarted`    | 1つのマイグレーションの実行が開始される直前です。      |
-| `Illuminate\Database\Events\MigrationEnded`      | 1つのマイグレーションの実行が完了しました。                 |
-| `Illuminate\Database\Events\NoPendingMigrations` | マイグレーションコマンドの実行時に、未実行のマイグレーションがありませんでした。 |
-| `Illuminate\Database\Events\SchemaDumped`        | データベーススキーマのダンプが完了しました。             |
-| `Illuminate\Database\Events\SchemaLoaded`        | 既存のデータベーススキーマダンプを読み込みました。     |
+| `Illuminate\Database\Events\MigrationsStarted`   | マイグレーションのバッチ実行が開始されようとしています。   |
+| `Illuminate\Database\Events\MigrationsEnded`     | マイグレーションのバッチ実行が完了しました。              |
+| `Illuminate\Database\Events\MigrationStarted`    | 1つのマイグレーションが実行されようとしています。          |
+| `Illuminate\Database\Events\MigrationEnded`      | 1つのマイグレーションが完了しました。                    |
+| `Illuminate\Database\Events\MigrationFailed`     | 1つのマイグレーションが失敗しました。                    |
+| `Illuminate\Database\Events\NoPendingMigrations` | マイグレーションコマンドで、未実行のマイグレーションが見つかりませんでした。 |
+| `Illuminate\Database\Events\SchemaDumped`        | データベーススキーマのダンプが完了しました。              |
+| `Illuminate\Database\Events\SchemaLoaded`        | 既存のデータベーススキーマのダンプが読み込まれました。      |
 
 </div>

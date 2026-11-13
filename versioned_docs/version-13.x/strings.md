@@ -129,7 +129,7 @@ Laravel에는 문자열 값을 조작하기 위한 다양한 함수가 포함되
 
 <div class="collection-method-list" markdown="1">
 
-<!-- [after](#method-fluent-str-after) [afterLast](#method-fluent-str-after-last) [apa](#method-fluent-str-apa) [append](#method-fluent-str-append) [ascii](#method-fluent-str-ascii) [basename](#method-fluent-str-basename) [before](#method-fluent-str-before) [beforeLast](#method-fluent-str-before-last) [between](#method-fluent-str-between) [betweenFirst](#method-fluent-str-between-first) [camel](#method-fluent-str-camel) [charAt](#method-fluent-str-char-at) [classBasename](#method-fluent-str-class-basename) [chopStart](#method-fluent-str-chop-start) [chopEnd](#method-fluent-str-chop-end) [contains](#method-fluent-str-contains) [containsAll](#method-fluent-str-contains-all) [counted](#method-fluent-str-counted) [decrypt](#method-fluent-str-decrypt) [deduplicate](#method-fluent-str-deduplicate) [dirname](#method-fluent-str-dirname) [doesntContain](#method-fluent-str-doesnt-contain) [doesntEndWith](#method-fluent-str-doesnt-end-with) [doesntStartWith](#method-fluent-str-doesnt-start-with) [encrypt](#method-fluent-str-encrypt) [endsWith](#method-fluent-str-ends-with) [exactly](#method-fluent-str-exactly) [excerpt](#method-fluent-str-excerpt) [explode](#method-fluent-str-explode) [finish](#method-fluent-str-finish) [fromBase64](#method-fluent-str-from-base64) [hash](#method-fluent-str-hash) [headline](#method-fluent-str-headline) [initials](#method-fluent-str-initials) [inlineMarkdown](#method-fluent-str-inline-markdown) [is](#method-fluent-str-is) [isAscii](#method-fluent-str-is-ascii) [isEmpty](#method-fluent-str-is-empty) [isNotEmpty](#method-fluent-str-is-not-empty) [isJson](#method-fluent-str-is-json) [isUlid](#method-fluent-str-is-ulid) [isUrl](#method-fluent-str-is-url) [isUuid](#method-fluent-str-is-uuid) [kebab](#method-fluent-str-kebab) [lcfirst](#method-fluent-str-lcfirst) [length](#method-fluent-str-length) [limit](#method-fluent-str-limit) [lower](#method-fluent-str-lower) [markdown](#method-fluent-str-markdown) [mask](#method-fluent-str-mask) [match](#method-fluent-str-match) [matchAll](#method-fluent-str-match-all) [isMatch](#method-fluent-str-is-match) [newLine](#method-fluent-str-new-line) [padBoth](#method-fluent-str-padboth) [padLeft](#method-fluent-str-padleft) [padRight](#method-fluent-str-padright) [pipe](#method-fluent-str-pipe) [plural](#method-fluent-str-plural) [position](#method-fluent-str-position) [prepend](#method-fluent-str-prepend) [remove](#method-fluent-str-remove) [repeat](#method-fluent-str-repeat) [replace](#method-fluent-str-replace) [replaceArray](#method-fluent-str-replace-array) [replaceFirst](#method-fluent-str-replace-first) [replaceLast](#method-fluent-str-replace-last) [replaceMatches](#method-fluent-str-replace-matches) [replaceStart](#method-fluent-str-replace-start) [replaceEnd](#method-fluent-str-replace-end) [scan](#method-fluent-str-scan) [singular](#method-fluent-str-singular) [slug](#method-fluent-str-slug) [snake](#method-fluent-str-snake) [split](#method-fluent-str-split) [squish](#method-fluent-str-squish) [start](#method-fluent-str-start) [startsWith](#method-fluent-str-starts-with) [stripTags](#method-fluent-str-strip-tags) [studly](#method-fluent-str-studly) [substr](#method-fluent-str-substr) [substrReplace](#method-fluent-str-substrreplace) [swap](#method-fluent-str-swap) [take](#method-fluent-str-take) [tap](#method-fluent-str-tap) [test](#method-fluent-str-test) [title](#method-fluent-str-title) [toBase64](#method-fluent-str-to-base64) [toHtmlString](#method-fluent-str-to-html-string) [toUri](#method-fluent-str-to-uri) [transliterate](#method-fluent-str-transliterate) [trim](#method-fluent-str-trim) [ltrim](#method-fluent-str-ltrim) [rtrim](#method-fluent-str-rtrim) [ucfirst](#method-fluent-str-ucfirst) [ucsplit](#method-fluent-str-ucsplit) [ucwords](#method-fluent-str-ucwords) [unwrap](#method-fluent-str-unwrap) [upper](#method-fluent-str-upper) [when](#method-fluent-str-when) [whenContains](#method-fluent-str-when-contains) [whenContainsAll](#method-fluent-str-when-contains-all) [whenDoesntEndWith](#method-fluent-str-when-doesnt-end-with) [whenDoesntStartWith](#method-fluent-str-when-doesnt-start-with) [whenEmpty](#method-fluent-str-when-empty) [whenNotEmpty](#method-fluent-str-when-not-empty) [whenStartsWith](#method-fluent-str-when-starts-with) [whenEndsWith](#method-fluent-str-when-ends-with) [whenExactly](#method-fluent-str-when-exactly) [whenNotExactly](#method-fluent-str-when-not-exactly) [whenIs](#method-fluent-str-when-is) [whenIsAscii](#method-fluent-str-when-is-ascii) [whenIsUlid](#method-fluent-str-when-is-ulid) [whenIsUuid](#method-fluent-str-when-is-uuid) [whenTest](#method-fluent-str-when-test) [wordCount](#method-fluent-str-word-count) [words](#method-fluent-str-words) [wrap](#method-fluent-str-wrap) -->
+<!-- [after](#method-fluent-str-after) [afterLast](#method-fluent-str-after-last) [apa](#method-fluent-str-apa) [append](#method-fluent-str-append) [ascii](#method-fluent-str-ascii) [basename](#method-fluent-str-basename) [before](#method-fluent-str-before) [beforeLast](#method-fluent-str-before-last) [between](#method-fluent-str-between) [betweenFirst](#method-fluent-str-between-first) [camel](#method-fluent-str-camel) [charAt](#method-fluent-str-char-at) [classBasename](#method-fluent-str-class-basename) [chopStart](#method-fluent-str-chop-start) [chopEnd](#method-fluent-str-chop-end) [contains](#method-fluent-str-contains) [containsAll](#method-fluent-str-contains-all) [counted](#method-fluent-str-counted) [decrypt](#method-fluent-str-decrypt) [deduplicate](#method-fluent-str-deduplicate) [dirname](#method-fluent-str-dirname) [doesntContain](#method-fluent-str-doesnt-contain) [doesntEndWith](#method-fluent-str-doesnt-end-with) [doesntStartWith](#method-fluent-str-doesnt-start-with) [encrypt](#method-fluent-str-encrypt) [endsWith](#method-fluent-str-ends-with) [exactly](#method-fluent-str-exactly) [excerpt](#method-fluent-str-excerpt) [explode](#method-fluent-str-explode) [finish](#method-fluent-str-finish) [fromBase64](#method-fluent-str-from-base64) [hash](#method-fluent-str-hash) [headline](#method-fluent-str-headline) [initials](#method-fluent-str-initials) [inlineMarkdown](#method-fluent-str-inline-markdown) [is](#method-fluent-str-is) [isAscii](#method-fluent-str-is-ascii) [isBlank](#method-fluent-str-is-blank) [isNotBlank](#method-fluent-str-is-not-blank) [isEmpty](#method-fluent-str-is-empty) [isNotEmpty](#method-fluent-str-is-not-empty) [isJson](#method-fluent-str-is-json) [isUlid](#method-fluent-str-is-ulid) [isUrl](#method-fluent-str-is-url) [isUuid](#method-fluent-str-is-uuid) [kebab](#method-fluent-str-kebab) [lcfirst](#method-fluent-str-lcfirst) [length](#method-fluent-str-length) [limit](#method-fluent-str-limit) [lower](#method-fluent-str-lower) [markdown](#method-fluent-str-markdown) [mask](#method-fluent-str-mask) [match](#method-fluent-str-match) [matchAll](#method-fluent-str-match-all) [isMatch](#method-fluent-str-is-match) [newLine](#method-fluent-str-new-line) [padBoth](#method-fluent-str-padboth) [padLeft](#method-fluent-str-padleft) [padRight](#method-fluent-str-padright) [pipe](#method-fluent-str-pipe) [plural](#method-fluent-str-plural) [position](#method-fluent-str-position) [prepend](#method-fluent-str-prepend) [remove](#method-fluent-str-remove) [repeat](#method-fluent-str-repeat) [replace](#method-fluent-str-replace) [replaceArray](#method-fluent-str-replace-array) [replaceFirst](#method-fluent-str-replace-first) [replaceLast](#method-fluent-str-replace-last) [replaceMatches](#method-fluent-str-replace-matches) [replaceStart](#method-fluent-str-replace-start) [replaceEnd](#method-fluent-str-replace-end) [scan](#method-fluent-str-scan) [singular](#method-fluent-str-singular) [slug](#method-fluent-str-slug) [snake](#method-fluent-str-snake) [split](#method-fluent-str-split) [squish](#method-fluent-str-squish) [start](#method-fluent-str-start) [startsWith](#method-fluent-str-starts-with) [stripTags](#method-fluent-str-strip-tags) [studly](#method-fluent-str-studly) [substr](#method-fluent-str-substr) [substrReplace](#method-fluent-str-substrreplace) [swap](#method-fluent-str-swap) [take](#method-fluent-str-take) [tap](#method-fluent-str-tap) [test](#method-fluent-str-test) [title](#method-fluent-str-title) [toBase64](#method-fluent-str-to-base64) [toHtmlString](#method-fluent-str-to-html-string) [toUri](#method-fluent-str-to-uri) [transliterate](#method-fluent-str-transliterate) [trim](#method-fluent-str-trim) [ltrim](#method-fluent-str-ltrim) [rtrim](#method-fluent-str-rtrim) [ucfirst](#method-fluent-str-ucfirst) [ucsplit](#method-fluent-str-ucsplit) [ucwords](#method-fluent-str-ucwords) [unwrap](#method-fluent-str-unwrap) [upper](#method-fluent-str-upper) [when](#method-fluent-str-when) [whenContains](#method-fluent-str-when-contains) [whenContainsAll](#method-fluent-str-when-contains-all) [whenDoesntEndWith](#method-fluent-str-when-doesnt-end-with) [whenDoesntStartWith](#method-fluent-str-when-doesnt-start-with) [whenEmpty](#method-fluent-str-when-empty) [whenNotEmpty](#method-fluent-str-when-not-empty) [whenStartsWith](#method-fluent-str-when-starts-with) [whenEndsWith](#method-fluent-str-when-ends-with) [whenExactly](#method-fluent-str-when-exactly) [whenNotExactly](#method-fluent-str-when-not-exactly) [whenIs](#method-fluent-str-when-is) [whenIsAscii](#method-fluent-str-when-is-ascii) [whenIsUlid](#method-fluent-str-when-is-ulid) [whenIsUuid](#method-fluent-str-when-is-uuid) [whenTest](#method-fluent-str-when-test) [wordCount](#method-fluent-str-word-count) [words](#method-fluent-str-words) [wrap](#method-fluent-str-wrap) -->
 [after](#method-fluent-str-after)
 [afterLast](#method-fluent-str-after-last)
 [apa](#method-fluent-str-apa)
@@ -167,6 +167,8 @@ Laravel에는 문자열 값을 조작하기 위한 다양한 함수가 포함되
 [inlineMarkdown](#method-fluent-str-inline-markdown)
 [is](#method-fluent-str-is)
 [isAscii](#method-fluent-str-is-ascii)
+[isBlank](#method-fluent-str-is-blank)
+[isNotBlank](#method-fluent-str-is-not-blank)
 [isEmpty](#method-fluent-str-is-empty)
 [isNotEmpty](#method-fluent-str-is-not-empty)
 [isJson](#method-fluent-str-is-json)
@@ -3009,6 +3011,48 @@ $result = Str::of('Taylor')->isAscii();
 $result = Str::of('ü')->isAscii();
 
 // false
+```
+
+<a name="method-fluent-str-is-blank"></a>
+<!-- #### `isBlank` -->
+#### `isBlank`
+
+<!-- The `isBlank` method determines if the given string is blank. A string is considered blank if it is empty or only contains whitespace: -->
+`isBlank` 메서드는 주어진 문자열이 공백 문자열인지 확인합니다. 문자열이 비어 있거나 공백 문자만 포함하면 공백 문자열로 간주합니다.
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('   ')->isBlank();
+
+// true
+
+$result = Str::of('<p> </p>')->stripTags()->isBlank();
+
+// true
+
+$result = Str::of('0')->isBlank();
+
+// false
+```
+
+<a name="method-fluent-str-is-not-blank"></a>
+<!-- #### `isNotBlank` -->
+#### `isNotBlank`
+
+<!-- The `isNotBlank` method determines if the given string is not blank: -->
+`isNotBlank` 메서드는 주어진 문자열이 공백 문자열이 아닌지 확인합니다.
+
+```php
+use Illuminate\Support\Str;
+
+$result = Str::of('   ')->isNotBlank();
+
+// false
+
+$result = Str::of('Laravel')->isNotBlank();
+
+// true
 ```
 
 <a name="method-fluent-str-is-empty"></a>

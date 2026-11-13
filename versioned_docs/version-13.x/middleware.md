@@ -146,6 +146,28 @@ use App\Http\Middleware\EnsureTokenIsValid;
 <!-- The `$middleware` object provided to the `withMiddleware` closure is an instance of `Illuminate\Foundation\Configuration\Middleware` and is responsible for managing the middleware assigned to your application's routes. The `append` method adds the middleware to the end of the list of global middleware. If you would like to add a middleware to the beginning of the list, you should use the `prepend` method. -->
 `withMiddleware` 클로저에 제공되는 `$middleware` 객체는 `Illuminate\Foundation\Configuration\Middleware`의 인스턴스이며, 애플리케이션 라우트에 할당된 Middleware를 관리하는 역할을 합니다. `append` 메서드는 Middleware를 전역 Middleware 목록의 끝에 추가합니다. Middleware를 목록의 앞에 추가하고 싶다면 `prepend` 메서드를 사용해야 합니다.
 
+<!-- If a middleware needs to run at a specific point in Laravel's default global middleware stack, you may use the `insertBefore` and `insertAfter` methods. Both methods accept the middleware already in the stack that you want to position against, followed by the middleware you want to insert: -->
+미들웨어를 Laravel의 기본 전역 미들웨어 스택에서 특정 위치에 실행해야 한다면 `insertBefore` 및 `insertAfter` 메서드를 사용할 수 있습니다. 두 메서드 모두 스택에 이미 있는 미들웨어를 기준으로 지정한 다음, 삽입할 미들웨어를 전달받습니다.
+
+```php
+use App\Http\Middleware\SanitizeInput;
+use App\Http\Middleware\StripCrossOriginReferer;
+use Illuminate\Foundation\Http\Middleware\TrimStrings;
+use Illuminate\Http\Middleware\TrustProxies;
+
+->withMiddleware(function (Middleware $middleware): void {
+    $middleware->insertAfter(TrustProxies::class, StripCrossOriginReferer::class);
+
+    $middleware->insertBefore(TrimStrings::class, SanitizeInput::class);
+})
+```
+
+<!-- You may also pass an array of middleware as the second argument to either method. -->
+두 메서드 모두 두 번째 인수로 미들웨어 배열을 전달할 수도 있습니다.
+
+> [!WARNING]
+> 기준으로 지정한 미들웨어가 전역 미들웨어 스택에 없으면 아무것도 삽입되지 않습니다.
+
 <a name="manually-managing-laravels-default-global-middleware"></a>
 <!-- #### Manually Managing Laravel's Default Global Middleware -->
 #### Manually Managing Laravel's Default Global Middleware
@@ -334,6 +356,16 @@ $middleware->web(replace: [
 $middleware->web(remove: [
     StartSession::class,
 ]);
+```
+
+<!-- If you need a middleware to run at a particular position within a group, you may use the `insertBeforeInGroup` and `insertAfterInGroup` methods: -->
+그룹 내 특정 위치에서 미들웨어를 실행해야 한다면 `insertBeforeInGroup` 및 `insertAfterInGroup` 메서드를 사용할 수 있습니다.
+
+```php
+use App\Http\Middleware\EnsureUserIsSubscribed;
+use Illuminate\Session\Middleware\StartSession;
+
+$middleware->insertAfterInGroup('web', StartSession::class, EnsureUserIsSubscribed::class);
 ```
 
 <a name="manually-managing-laravels-default-middleware-groups"></a>

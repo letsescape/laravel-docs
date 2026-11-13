@@ -231,8 +231,8 @@ if ($request->hasHeader('X-Header-Name')) {
 }
 ```
 
-<!-- For convenience, the `bearerToken` method may be used to retrieve a bearer token from the `Authorization` header. If no such header is present, an empty string will be returned: -->
-便宜上、`bearerToken` メソッドを使用して、`Authorization` ヘッダーからベアラー トークンを取得できます。そのようなヘッダーが存在しない場合は、空の文字列が返されます。
+<!-- For convenience, the `bearerToken` method may be used to retrieve a bearer token from the `Authorization` header. If no token is present, `null` will be returned: -->
+便宜上、`bearerToken` メソッドを使って `Authorization` ヘッダーからベアラートークンを取得できます。トークンが存在しない場合は、`null` が返されます:
 
 ```php
 $token = $request->bearerToken();

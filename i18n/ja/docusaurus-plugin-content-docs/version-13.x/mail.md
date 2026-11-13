@@ -977,6 +977,9 @@ Thanks,<br>
 > [!NOTE]
 > Markdown メールを作成するときは、過剰なインデントを使用しないでください。 Markdown 標準に従って、Markdown パーサーはインデントされたコンテンツをコード ブロックとしてレンダリングします。
 
+> [!WARNING]
+> Blade の `{{ }}` による出力は HTML をエスケープしますが、Markdown はエスケープしません。そのため、リンクや画像などのユーザー入力データに含まれる Markdown 構文がメール内でレンダリングされます。リンクや画像の構文をエスケープするには、`AppServiceProvider` の `boot` メソッドで `Illuminate\Mail\Markdown::withSecuredEncoding()` を呼び出してください。
+
 <a name="button-component"></a>
 <!-- #### Button Component -->
 #### Button Component
