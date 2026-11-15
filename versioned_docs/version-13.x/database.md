@@ -156,6 +156,19 @@ driver://username:password@host:port/database?options
 <!-- The `sticky` option is an *optional* value that can be used to allow the immediate reading of records that have been written to the database during the current request cycle. If the `sticky` option is enabled and a "write" operation has been performed against the database during the current request cycle, any further "read" operations will use the "write" connection. This ensures that any data written during the request cycle can be immediately read back from the database during that same request. It is up to you to decide if this is the desired behavior for your application. -->
 `sticky` 옵션은 *선택적인* 값으로, 현재 요청 사이클 동안 데이터베이스에 기록한 레코드를 즉시 다시 읽을 수 있도록 해줍니다. `sticky` 옵션이 활성화되어 있고 현재 요청 사이클에서 "write" 작업이 수행되었다면, 이후의 모든 "read" 작업도 "write" 연결을 사용하게 됩니다. 이렇게 하면 한 요청 내에서 데이터가 저장되면 즉시 해당 데이터를 같은 요청 안에서 다시 읽을 수 있습니다. 이 동작이 애플리케이션에 필요한지 여부는 직접 판단해서 설정하면 됩니다.
 
+<!-- If you need to perform write operations without triggering stickiness for subsequent reads (for example, updating job progress or recording audit timestamps), you may execute the operations within the `withoutAffectingStickiness` method: -->
+후속 읽기 작업에 스티키 동작을 적용하지 않고 쓰기 작업을 수행해야 한다면(예: 잡 진행 상태를 업데이트하거나 감사 타임스탬프를 기록하는 경우), `withoutAffectingStickiness` 메서드 안에서 작업을 실행할 수 있습니다.
+
+```php
+use Illuminate\Support\Facades\DB;
+
+DB::withoutAffectingStickiness(function () {
+    DB::table('jobs')->where('id', $jobId)->update(['started_at' => now()]);
+});
+
+// Subsequent reads will continue using the read connection...
+```
+
 <a name="preventing-stale-database-reads"></a>
 <!-- #### Preventing Stale Database Reads -->
 #### Preventing Stale Database Reads

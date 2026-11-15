@@ -551,8 +551,8 @@ class Post extends Model
 <!-- #### Configuring the Model ID -->
 #### Configuring the Model ID
 
-<!-- By default, Scout will use the primary key of the model as the model's unique ID / key that is stored in the search index. If you need to customize this behavior when using a third-party engine, you may override the `getScoutKey` and the `getScoutKeyName` methods on the model: -->
-기본적으로 Scout는 모델의 기본 키를 검색 인덱스에 저장되는 모델의 고유 ID / 키로 사용합니다. 서드파티 엔진을 사용할 때 이 동작을 사용자 정의해야 한다면 모델의 `getScoutKey` 및 `getScoutKeyName` 메서드를 재정의할 수 있습니다.
+<!-- By default, Scout will use the primary key of the model as the model's unique ID / key that is stored in the search index. If you need to customize this behavior when using a third-party engine, you may override the `getScoutKey`, `getScoutKeyName`, and `getScoutKeyType` methods on the model. The `getScoutKeyType` method tells Scout how to query for the models matching your search results, so it should return `string` when your custom key is not an integer: -->
+기본적으로 Scout는 모델의 기본 키를 검색 인덱스에 저장되는 모델의 고유 ID / 키로 사용합니다. 서드파티 엔진을 사용할 때 이 동작을 사용자 정의해야 한다면 모델의 `getScoutKey`, `getScoutKeyName`, `getScoutKeyType` 메서드를 재정의할 수 있습니다. `getScoutKeyType` 메서드는 검색 결과와 일치하는 모델을 Scout가 어떤 방식으로 조회할지 지정하므로, 사용자 정의 키가 정수가 아니라면 `string`을 반환해야 합니다.
 
 ```php
 <?php
@@ -581,11 +581,19 @@ class User extends Model
     {
         return 'email';
     }
+
+    /**
+     * Get the key type used to query the model.
+     */
+    public function getScoutKeyType(): string
+    {
+        return 'string';
+    }
 }
 ```
 
 > [!NOTE]
-> 데이터베이스 엔진을 사용할 때는 `getScoutKey` 및 `getScoutKeyName` 메서드가 아무런 영향을 주지 않습니다. 데이터베이스 엔진은 항상 모델의 기본 키를 사용합니다.
+> 데이터베이스 엔진을 사용할 때는 `getScoutKey`, `getScoutKeyName`, `getScoutKeyType` 메서드가 아무런 영향을 주지 않습니다. 데이터베이스 엔진은 항상 모델의 기본 키를 사용합니다.
 
 <a name="algolia-configuration"></a>
 <!-- ### Algolia -->

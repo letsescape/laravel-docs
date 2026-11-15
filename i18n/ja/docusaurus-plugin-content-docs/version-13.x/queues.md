@@ -1809,8 +1809,40 @@ public function retryUntil(): DateTime
 <!-- If both `retryUntil` and `tries` are defined, Laravel gives precedence to the `retryUntil` method. -->
 `retryUntil` と `tries` の両方が定義されている場合、Laravel は `retryUntil` メソッドを優先します。
 
+<!-- Alternatively, you may define a relative retry window using the `RetryFor` attribute on your job class: -->
+ジョブクラスに `RetryFor` 属性を指定して、相対的な再試行期間を定義することもできます。
+
+```php
+<?php
+
+namespace App\Jobs;
+
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\RetryFor;
+
+#[RetryFor(hours: 1)]
+class ProcessPodcast implements ShouldQueue
+{
+    use Queueable;
+}
+```
+
+<!-- The first argument specifies the duration in seconds, or you may pass named `minutes` and `hours` arguments: -->
+最初の引数には秒単位の期間を指定します。または、名前付き引数 `minutes` と `hours` を渡すこともできます。
+
+```php
+#[RetryFor(90)]
+#[RetryFor(minutes: 10)]
+#[RetryFor(hours: 4)]
+#[RetryFor(hours: 1, minutes: 30)]
+```
+
+<!-- If a `retryUntil` method or property is defined on the job class, it takes precedence over the `RetryFor` attribute. -->
+ジョブクラスに `retryUntil` メソッドまたはプロパティが定義されている場合は、`RetryFor` 属性よりも優先されます。
+
 > [!NOTE]
-> `Tries` 属性や `retryUntil` メソッドは、[queued event listeners](/docs/13.x/events#queued-event-listeners) や [queued notifications](/docs/13.x/notifications#queueing-notifications) にも定義できます。
+> `Tries` 属性、`RetryFor` 属性、または `retryUntil` メソッドは、[queued event listeners](/docs/13.x/events#queued-event-listeners) や [queued notifications](/docs/13.x/notifications#queueing-notifications) にも定義できます。
 
 <a name="max-exceptions"></a>
 <!-- #### Max Exceptions -->

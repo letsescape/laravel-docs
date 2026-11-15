@@ -1000,8 +1000,8 @@ class ExampleTest extends TestCase
 }
 ```
 
-<!-- The `TestView` class provides the following assertion methods: `assertSee`, `assertSeeInOrder`, `assertSeeText`, `assertSeeTextInOrder`, `assertDontSee`, and `assertDontSeeText`. -->
-`TestView` クラスは、`assertSee`、`assertSeeInOrder`、`assertSeeText`、`assertSeeTextInOrder`、`assertDontSee`、および `assertDontSeeText` のアサーション メソッドを提供します。
+<!-- The `TestView` class provides the following assertion methods: `assertSee`, `assertSeeHtml`, `assertSeeHtmlInOrder`, `assertSeeInOrder`, `assertSeeText`, `assertSeeTextInOrder`, `assertDontSee`, `assertDontSeeHtml`, and `assertDontSeeText`. -->
+`TestView` クラスは、次のアサーションメソッドを提供します: `assertSee`、`assertSeeHtml`、`assertSeeHtmlInOrder`、`assertSeeInOrder`、`assertSeeText`、`assertSeeTextInOrder`、`assertDontSee`、`assertDontSeeHtml`、`assertDontSeeText`。
 
 <!-- If needed, you may get the raw, rendered view contents by casting the `TestView` instance to a string: -->
 必要に応じて、`TestView` インスタンスを文字列にcastすることで、生のレンダリングされたビューのコンテンツを取得できます。
@@ -1110,7 +1110,7 @@ Laravel の `Illuminate\Testing\TestResponse` クラスは、アプリケーシ�
 
 <div class="collection-method-list" markdown="1">
 
-<!-- [assertAccepted](#assert-accepted) [assertBadRequest](#assert-bad-request) [assertClientError](#assert-client-error) [assertConflict](#assert-conflict) [assertCookie](#assert-cookie) [assertCookieExpired](#assert-cookie-expired) [assertCookieNotExpired](#assert-cookie-not-expired) [assertCookieMissing](#assert-cookie-missing) [assertCreated](#assert-created) [assertDontSee](#assert-dont-see) [assertDontSeeText](#assert-dont-see-text) [assertDownload](#assert-download) [assertExactJson](#assert-exact-json) [assertExactJsonStructure](#assert-exact-json-structure) [assertFailedDependency](#assert-failed-dependency) [assertForbidden](#assert-forbidden) [assertFound](#assert-found) [assertGone](#assert-gone) [assertHeader](#assert-header) [assertHeaderContains](#assert-header-contains) [assertHeaderMissing](#assert-header-missing) [assertInternalServerError](#assert-internal-server-error) [assertJson](#assert-json) [assertJsonCount](#assert-json-count) [assertJsonFragment](#assert-json-fragment) [assertJsonIsArray](#assert-json-is-array) [assertJsonIsObject](#assert-json-is-object) [assertJsonMissing](#assert-json-missing) [assertJsonMissingExact](#assert-json-missing-exact) [assertJsonMissingValidationErrors](#assert-json-missing-validation-errors) [assertJsonPath](#assert-json-path) [assertJsonPaths](#assert-json-paths) [assertJsonMissingPath](#assert-json-missing-path) [assertJsonMissingPaths](#assert-json-missing-paths) [assertJsonStructure](#assert-json-structure) [assertJsonValidationErrors](#assert-json-validation-errors) [assertJsonValidationErrorFor](#assert-json-validation-error-for) [assertLocation](#assert-location) [assertMethodNotAllowed](#assert-method-not-allowed) [assertMovedPermanently](#assert-moved-permanently) [assertContent](#assert-content) [assertNoContent](#assert-no-content) [assertStreamed](#assert-streamed) [assertStreamedContent](#assert-streamed-content) [assertNotFound](#assert-not-found) [assertOk](#assert-ok) [assertPaymentRequired](#assert-payment-required) [assertPlainCookie](#assert-plain-cookie) [assertRedirect](#assert-redirect) [assertRedirectBack](#assert-redirect-back) [assertRedirectBackWithErrors](#assert-redirect-back-with-errors) [assertRedirectBackWithoutErrors](#assert-redirect-back-without-errors) [assertRedirectContains](#assert-redirect-contains) [assertRedirectToRoute](#assert-redirect-to-route) [assertRedirectToSignedRoute](#assert-redirect-to-signed-route) [assertRequestTimeout](#assert-request-timeout) [assertSee](#assert-see) [assertSeeInOrder](#assert-see-in-order) [assertSeeText](#assert-see-text) [assertSeeTextInOrder](#assert-see-text-in-order) [assertServerError](#assert-server-error) [assertServiceUnavailable](#assert-service-unavailable) [assertSessionHas](#assert-session-has) [assertSessionHasInput](#assert-session-has-input) [assertSessionHasAll](#assert-session-has-all) [assertSessionHasErrors](#assert-session-has-errors) [assertSessionHasErrorsIn](#assert-session-has-errors-in) [assertSessionHasNoErrors](#assert-session-has-no-errors) [assertSessionDoesntHaveErrors](#assert-session-doesnt-have-errors) [assertSessionMissing](#assert-session-missing) [assertSessionMissingInput](#assert-session-missing-input) [assertStatus](#assert-status) [assertSuccessful](#assert-successful) [assertTooManyRequests](#assert-too-many-requests) [assertUnauthorized](#assert-unauthorized) [assertUnprocessable](#assert-unprocessable) [assertUnsupportedMediaType](#assert-unsupported-media-type) [assertValid](#assert-valid) [assertInvalid](#assert-invalid) [assertViewHas](#assert-view-has) [assertViewHasAll](#assert-view-has-all) [assertViewIs](#assert-view-is) [assertViewMissing](#assert-view-missing) -->
+<!-- [assertAccepted](#assert-accepted) [assertBadRequest](#assert-bad-request) [assertClientError](#assert-client-error) [assertConflict](#assert-conflict) [assertCookie](#assert-cookie) [assertCookieExpired](#assert-cookie-expired) [assertCookieNotExpired](#assert-cookie-not-expired) [assertCookieMissing](#assert-cookie-missing) [assertCreated](#assert-created) [assertDontSee](#assert-dont-see) [assertDontSeeHtml](#assert-dont-see-html) [assertDontSeeText](#assert-dont-see-text) [assertDownload](#assert-download) [assertExactJson](#assert-exact-json) [assertExactJsonStructure](#assert-exact-json-structure) [assertFailedDependency](#assert-failed-dependency) [assertForbidden](#assert-forbidden) [assertFound](#assert-found) [assertGone](#assert-gone) [assertHeader](#assert-header) [assertHeaderContains](#assert-header-contains) [assertHeaderMissing](#assert-header-missing) [assertInternalServerError](#assert-internal-server-error) [assertJson](#assert-json) [assertJsonCount](#assert-json-count) [assertJsonFragment](#assert-json-fragment) [assertJsonIsArray](#assert-json-is-array) [assertJsonIsObject](#assert-json-is-object) [assertJsonMissing](#assert-json-missing) [assertJsonMissingExact](#assert-json-missing-exact) [assertJsonMissingValidationErrors](#assert-json-missing-validation-errors) [assertJsonPath](#assert-json-path) [assertJsonPaths](#assert-json-paths) [assertJsonMissingPath](#assert-json-missing-path) [assertJsonMissingPaths](#assert-json-missing-paths) [assertJsonStructure](#assert-json-structure) [assertJsonValidationErrors](#assert-json-validation-errors) [assertJsonValidationErrorFor](#assert-json-validation-error-for) [assertLocation](#assert-location) [assertMethodNotAllowed](#assert-method-not-allowed) [assertMovedPermanently](#assert-moved-permanently) [assertContent](#assert-content) [assertNoContent](#assert-no-content) [assertStreamed](#assert-streamed) [assertStreamedContent](#assert-streamed-content) [assertNotFound](#assert-not-found) [assertOk](#assert-ok) [assertPaymentRequired](#assert-payment-required) [assertPlainCookie](#assert-plain-cookie) [assertRedirect](#assert-redirect) [assertRedirectBack](#assert-redirect-back) [assertRedirectBackWithErrors](#assert-redirect-back-with-errors) [assertRedirectBackWithoutErrors](#assert-redirect-back-without-errors) [assertRedirectContains](#assert-redirect-contains) [assertRedirectToRoute](#assert-redirect-to-route) [assertRedirectToSignedRoute](#assert-redirect-to-signed-route) [assertRequestTimeout](#assert-request-timeout) [assertSee](#assert-see) [assertSeeHtml](#assert-see-html) [assertSeeHtmlInOrder](#assert-see-html-in-order) [assertSeeInOrder](#assert-see-in-order) [assertSeeText](#assert-see-text) [assertSeeTextInOrder](#assert-see-text-in-order) [assertServerError](#assert-server-error) [assertServiceUnavailable](#assert-service-unavailable) [assertSessionHas](#assert-session-has) [assertSessionHasInput](#assert-session-has-input) [assertSessionHasAll](#assert-session-has-all) [assertSessionHasErrors](#assert-session-has-errors) [assertSessionHasErrorsIn](#assert-session-has-errors-in) [assertSessionHasNoErrors](#assert-session-has-no-errors) [assertSessionDoesntHaveErrors](#assert-session-doesnt-have-errors) [assertSessionMissing](#assert-session-missing) [assertSessionMissingInput](#assert-session-missing-input) [assertStatus](#assert-status) [assertSuccessful](#assert-successful) [assertTooManyRequests](#assert-too-many-requests) [assertUnauthorized](#assert-unauthorized) [assertUnprocessable](#assert-unprocessable) [assertUnsupportedMediaType](#assert-unsupported-media-type) [assertValid](#assert-valid) [assertInvalid](#assert-invalid) [assertViewHas](#assert-view-has) [assertViewHasAll](#assert-view-has-all) [assertViewIs](#assert-view-is) [assertViewMissing](#assert-view-missing) -->
 [assertAccepted](#assert-accepted)
 [assertBadRequest](#assert-bad-request)
 [assertClientError](#assert-client-error)
@@ -1121,6 +1121,7 @@ Laravel の `Illuminate\Testing\TestResponse` クラスは、アプリケーシ�
 [assertCookieMissing](#assert-cookie-missing)
 [assertCreated](#assert-created)
 [assertDontSee](#assert-dont-see)
+[assertDontSeeHtml](#assert-dont-see-html)
 [assertDontSeeText](#assert-dont-see-text)
 [assertDownload](#assert-download)
 [assertExactJson](#assert-exact-json)
@@ -1168,6 +1169,8 @@ Laravel の `Illuminate\Testing\TestResponse` クラスは、アプリケーシ�
 [assertRedirectToSignedRoute](#assert-redirect-to-signed-route)
 [assertRequestTimeout](#assert-request-timeout)
 [assertSee](#assert-see)
+[assertSeeHtml](#assert-see-html)
+[assertSeeHtmlInOrder](#assert-see-html-in-order)
 [assertSeeInOrder](#assert-see-in-order)
 [assertSeeText](#assert-see-text)
 [assertSeeTextInOrder](#assert-see-text-in-order)
@@ -1305,6 +1308,17 @@ $response->assertCreated();
 
 ```php
 $response->assertDontSee($value, $escape = true);
+```
+
+<a name="assert-dont-see-html"></a>
+<!-- #### assertDontSeeHtml -->
+#### assertDontSeeHtml
+
+<!-- Assert that the given HTML string is not contained within the response returned by the application. This assertion is an alias to `assertDontSee` with its escape argument set to `false`: -->
+アプリケーションが返すレスポンスに、指定した HTML 文字列が含まれていないことを検証します。このアサーションは、escape 引数を `false` に設定した `assertDontSee` のエイリアスです。
+
+```php
+$response->assertDontSeeHtml($value);
 ```
 
 <a name="assert-dont-see-text"></a>
@@ -1966,6 +1980,28 @@ $response->assertRequestTimeout();
 
 ```php
 $response->assertSee($value, $escape = true);
+```
+
+<a name="assert-see-html"></a>
+<!-- #### assertSeeHtml -->
+#### assertSeeHtml
+
+<!-- Assert that the given HTML string or array of HTML strings are contained within the response. This assertion is an alias to `assertSee` with its escape argument set to `false`: -->
+指定した HTML 文字列または HTML 文字列の配列がレスポンスに含まれていることを検証します。このアサーションは、エスケープ引数を `false` に設定した `assertSee` のエイリアスです。
+
+```php
+$response->assertSeeHtml($value);
+```
+
+<a name="assert-see-html-in-order"></a>
+<!-- #### assertSeeHtmlInOrder -->
+#### assertSeeHtmlInOrder
+
+<!-- Assert that the given HTML strings are contained in order within the response. This assertion is an alias to `assertSeeInOrder` with its escape argument set to `false`: -->
+指定した HTML 文字列がレスポンスに順番どおり含まれていることを検証します。このアサーションは、エスケープ引数を `false` に設定した `assertSeeInOrder` のエイリアスです。
+
+```php
+$response->assertSeeHtmlInOrder(array $values);
 ```
 
 <a name="assert-see-in-order"></a>

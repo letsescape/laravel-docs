@@ -1809,8 +1809,40 @@ public function retryUntil(): DateTime
 <!-- If both `retryUntil` and `tries` are defined, Laravel gives precedence to the `retryUntil` method. -->
 `retryUntil`과 `tries`가 모두 정의되어 있으면 Laravel은 `retryUntil` 메서드를 우선합니다.
 
+<!-- Alternatively, you may define a relative retry window using the `RetryFor` attribute on your job class: -->
+또는 잡 클래스에 `RetryFor` 속성을 사용해 상대적인 재시도 기간을 정의할 수 있습니다.
+
+```php
+<?php
+
+namespace App\Jobs;
+
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\RetryFor;
+
+#[RetryFor(hours: 1)]
+class ProcessPodcast implements ShouldQueue
+{
+    use Queueable;
+}
+```
+
+<!-- The first argument specifies the duration in seconds, or you may pass named `minutes` and `hours` arguments: -->
+첫 번째 인수는 초 단위의 기간을 지정합니다. 또는 이름이 지정된 `minutes`와 `hours` 인수를 전달할 수 있습니다.
+
+```php
+#[RetryFor(90)]
+#[RetryFor(minutes: 10)]
+#[RetryFor(hours: 4)]
+#[RetryFor(hours: 1, minutes: 30)]
+```
+
+<!-- If a `retryUntil` method or property is defined on the job class, it takes precedence over the `RetryFor` attribute. -->
+잡 클래스에 `retryUntil` 메서드나 프로퍼티가 정의되어 있으면 `RetryFor` 속성보다 우선 적용됩니다.
+
 > [!NOTE]
-> [queued event listeners](/docs/13.x/events#queued-event-listeners)와 [queued notifications](/docs/13.x/notifications#queueing-notifications)에 `Tries` 속성을 정의하거나 `retryUntil` 메서드를 정의할 수도 있습니다.
+> [queued event listeners](/docs/13.x/events#queued-event-listeners)와 [queued notifications](/docs/13.x/notifications#queueing-notifications)에 `Tries` 또는 `RetryFor` 속성을 정의하거나 `retryUntil` 메서드를 정의할 수도 있습니다.
 
 <a name="max-exceptions"></a>
 <!-- #### Max Exceptions -->

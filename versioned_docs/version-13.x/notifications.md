@@ -358,8 +358,8 @@ class InvoicePaid extends Notification implements ShouldQueue, ShouldBeEncrypted
 }
 ```
 
-<!-- In addition to defining these attributes directly on your notification class, you may also define `backoff` and `retryUntil` methods to specify the backoff strategy and retry timeout for the queued notification job: -->
-이러한 속성을 알림 클래스에 직접 정의하는 것 외에도, `backoff`와 `retryUntil` 메서드를 정의하여 큐에 등록된 알림 작업의 백오프 전략과 재시도 제한 시간을 지정할 수 있습니다.
+<!-- In addition to defining these attributes directly on your notification class, you may also define the `RetryFor` attribute or define `backoff` and `retryUntil` methods to specify the backoff strategy and retry timeout for the queued notification job: -->
+이러한 속성을 알림 클래스에 직접 정의하는 것 외에도, `RetryFor` 속성을 정의하거나 `backoff`와 `retryUntil` 메서드를 정의하여 큐에 등록된 알림 작업의 백오프 전략과 재시도 제한 시간을 지정할 수 있습니다:
 
 ```php
 use DateTime;
