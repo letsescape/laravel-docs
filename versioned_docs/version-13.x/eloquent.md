@@ -802,6 +802,31 @@ $flight = Flight::where('legs', '>', 3)->firstOr(function () {
 });
 ```
 
+<a name="retrieving-single-column-values"></a>
+<!-- #### Retrieving Single Column Values -->
+#### Retrieving Single Column Values
+
+<!-- If you don't need an entire model, you may retrieve the value of a single column from the first model matching the query using the `value` method. If no matching model is found, `null` is returned: -->
+전체 모델이 필요하지 않다면 `value` 메서드를 사용해 쿼리와 일치하는 첫 번째 모델의 단일 컬럼 값을 가져올 수 있습니다. 일치하는 모델이 없으면 `null`을 반환합니다.
+
+```php
+$name = Flight::where('active', 1)->value('name');
+```
+
+<!-- The `valueOrFail` method behaves like `value`; however, if no result is found, an `Illuminate\Database\Eloquent\ModelNotFoundException` will be thrown: -->
+`valueOrFail` 메서드는 `value`와 동일하게 동작하지만, 결과가 없으면 `Illuminate\Database\Eloquent\ModelNotFoundException`을 발생시킵니다.
+
+```php
+$name = Flight::where('active', 1)->valueOrFail('name');
+```
+
+<!-- The `soleValue` method retrieves the column's value only if exactly one model matches the query. If no result is found, an `Illuminate\Database\Eloquent\ModelNotFoundException` will be thrown. If more than one model matches, an `Illuminate\Database\MultipleRecordsFoundException` will be thrown: -->
+`soleValue` 메서드는 쿼리와 정확히 하나의 모델이 일치하는 경우에만 컬럼 값을 가져옵니다. 결과가 없으면 `Illuminate\Database\Eloquent\ModelNotFoundException`을 발생시킵니다. 둘 이상의 모델이 일치하면 `Illuminate\Database\MultipleRecordsFoundException`을 발생시킵니다.
+
+```php
+$name = Flight::where('number', 'FR 900')->soleValue('name');
+```
+
 <a name="not-found-exceptions"></a>
 <!-- #### Not Found Exceptions -->
 #### Not Found Exceptions
@@ -1291,7 +1316,7 @@ Flight::destroy(collect([1, 2, 3]));
 Flight::forceDestroy(1);
 ```
 
-> [!WARNING]
+> [!NOTE]
 > `destroy` 메서드는 각 모델에 대해 `deleting` 및 `deleted` 이벤트가 올바르게 디스패치되도록 각 모델을 개별적으로 로드한 뒤 `delete` 메서드를 호출합니다.
 
 <a name="deleting-models-using-queries"></a>

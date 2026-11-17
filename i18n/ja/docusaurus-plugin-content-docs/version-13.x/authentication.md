@@ -147,8 +147,8 @@ Laravel バックエンドを利用するシングルページ アプリケー�
 <!-- ## Authentication Quickstart -->
 ## Authentication Quickstart
 
-> [!WARNING]
-> ドキュメントのこの部分では、[Laravel application starter kits](/docs/13.x/starter-kits) を介したユーザーの認証について説明します。これには、すぐに開始できるようにする UI スキャフォールディングが含まれています。 Laravel の認証システムと直接統合したい場合は、[manually authenticating users](#authenticating-users) のドキュメントを確認してください。
+> [!NOTE]
+> このドキュメントでは、すぐに始められるよう UI のスキャフォールディングを含む [Laravel application starter kits](/docs/13.x/starter-kits) を使ったユーザー認証について説明します。Laravel の認証システムと直接連携する場合は、[manually authenticating users](#authenticating-users) のドキュメントを確認してください。
 
 <a name="install-a-starter-kit"></a>
 <!-- ### Install a Starter Kit -->
@@ -375,8 +375,8 @@ if (Auth::attempt([
 }
 ```
 
-> [!WARNING]
-> これらの例では、`email` は必須のオプションではなく、単に例として使用されています。データベーステーブルの「ユーザー名」に対応する列名を使用する必要があります。
+> [!NOTE]
+> これらの例では、`email` は必須のオプションではなく、例として使用しているだけです。データベーステーブルで「ユーザー名」に対応する列名を使用してください。
 
 <!-- The `attemptWhen` method, which receives a closure as its second argument, may be used to perform more extensive inspection of the potential user before actually authenticating the user. The closure receives the potential user and should return `true` or `false` to indicate if the user may be authenticated: -->
 2 番目の引数としてクロージャを受け取る `attemptWhen` メソッドは、実際にユーザーを認証する前に、潜在的なユーザーのより広範な検査を実行するために使用できます。クロージャーは潜在的なユーザーを受け取り、ユーザーが認証されているかどうかを示す `true` または `false` を返す必要があります。

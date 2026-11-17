@@ -1961,7 +1961,7 @@ $multiplied->all();
 // [2, 4, 6, 8, 10]
 ```
 
-> [!WARNING]
+> [!NOTE]
 > 대부분의 다른 컬렉션 메서드와 마찬가지로 `map`은 새로운 컬렉션 인스턴스를 반환하며, 호출된 컬렉션을 수정하지 않습니다. 원래 컬렉션을 변환하려면 [transform](#method-transform) 메서드를 사용하세요.
 
 <a name="method-mapinto"></a>
@@ -4537,8 +4537,8 @@ return $users->sum->votes;
 <!-- ### Introduction -->
 ### Introduction
 
-> [!WARNING]
-> Laravel의 지연 컬렉션에 대해 더 알아보기 전에 [PHP generators](https://www.php.net/manual/en/language.generators.overview.php)를 익히는 시간을 가지세요.
+> [!NOTE]
+> Laravel의 지연 컬렉션에 대해 더 알아보기 전에 [PHP generators](https://www.php.net/manual/en/language.generators.overview.php)에 익숙해지는 시간을 가지세요.
 
 <!-- To supplement the already powerful `Collection` class, the `LazyCollection` class leverages PHP's [generators](https://www.php.net/manual/en/language.generators.overview.php) to allow you to work with very large datasets while keeping memory usage low. -->
 이미 강력한 `Collection` 클래스를 보완하기 위해 `LazyCollection` 클래스는 PHP의 [generators](https://www.php.net/manual/en/language.generators.overview.php)를 활용하여 메모리 사용량을 낮게 유지하면서 매우 큰 데이터 세트로 작업할 수 있도록 해줍니다.

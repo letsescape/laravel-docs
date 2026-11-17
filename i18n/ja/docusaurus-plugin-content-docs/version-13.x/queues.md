@@ -2231,6 +2231,31 @@ $this->release(10);
 $this->release(now()->plus(seconds: 10));
 ```
 
+<!-- If your job defines a [backoff](#dealing-with-failed-jobs), you may use the `releaseUsingBackoff` method to release the job using the delay that its backoff specifies for the current attempt. When the backoff is an array and the job has been attempted more times than the array has values, the last value is used. If the job does not define a backoff, it is released for immediate processing: -->
+ジョブで [backoff](#dealing-with-failed-jobs) を定義している場合は、`releaseUsingBackoff` メソッドを使うと、現在の試行に対して backoff で指定された遅延時間を使ってジョブをキューに戻せます。backoff が配列で、ジョブの試行回数が配列の要素数を超えている場合は、最後の値が使われます。ジョブで backoff を定義していない場合は、すぐに処理されるようキューに戻されます。
+
+```php
+use Illuminate\Queue\Attributes\Backoff;
+
+#[Backoff([10, 30, 60])]
+class CheckPaymentStatus implements ShouldQueue
+{
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        if ($this->payment->isPending()) {
+            $this->releaseUsingBackoff();
+
+            return;
+        }
+
+        // ...
+    }
+}
+```
+
 <a name="manually-failing-a-job"></a>
 <!-- #### Manually Failing a Job -->
 #### Manually Failing a Job

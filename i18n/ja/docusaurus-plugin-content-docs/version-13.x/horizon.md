@@ -711,8 +711,8 @@ stopwaitsecs=3600
 <!-- When defining your Supervisor configuration, you should ensure that the value of `stopwaitsecs` is greater than the number of seconds consumed by your longest running job. Otherwise, Supervisor may kill the job before it is finished processing. -->
 Supervisor構成を定義するときは、`stopwaitsecs` の値が、最も長く実行されているジョブで消費される秒数よりも大きいことを確認する必要があります。そうしないと、Supervisorがジョブの処理が完了する前にジョブを強制終了する可能性があります。
 
-> [!WARNING]
-> 上記の例は Ubuntu ベースのサーバーでは有効ですが、Supervisor の設定ファイルに期待される場所や拡張子は、ほかのサーバー OS では異なる場合があります。詳しくは、使用しているサーバーのドキュメントを確認してください。
+> [!NOTE]
+> 上記の例は Ubuntu ベースのサーバーでは有効ですが、Supervisor の設定ファイルの配置場所や拡張子は、ほかのサーバー OS では異なる場合があります。詳しくは、サーバーのドキュメントを確認してください。
 
 <a name="starting-supervisor"></a>
 <!-- #### Starting Supervisor -->
@@ -829,7 +829,7 @@ class SendRenderNotifications implements ShouldQueue
 <!-- ## Notifications -->
 ## Notifications
 
-> [!WARNING]
+> [!NOTE]
 > Horizon で Slack または SMS 通知を送信するよう設定する場合は、[prerequisites for the relevant notification channel](/docs/13.x/notifications) を確認してください。
 
 <!-- If you would like to be notified when one of your queues has a long wait time, you may use the `Horizon::routeMailNotificationsTo`, `Horizon::routeSlackNotificationsTo`, and `Horizon::routeSmsNotificationsTo` methods. You may call these methods from the `boot` method of your application's `App\Providers\HorizonServiceProvider`: -->

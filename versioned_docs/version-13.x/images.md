@@ -38,8 +38,8 @@ $path = Image::fromStorage('avatars/photo.jpg', 'public')
     ->storePublicly('avatars', 'public');
 ```
 
-> [!WARNING]
-> 이미지 조작은 CPU와 메모리를 많이 사용할 수 있습니다. 업로드를 수신하는 HTTP 요청 중에 처리하는 대신 대규모 이미지 처리 작업을 [queued job](/docs/13.x/queues)에서 수행하는 것을 고려하세요.
+> [!NOTE]
+> 이미지 조작은 CPU와 메모리를 많이 사용할 수 있습니다. 업로드를 수신하는 HTTP 요청 중에 처리하는 대신 대규모 이미지 처리 작업은 [queued job](/docs/13.x/queues)에서 수행하는 것을 고려하세요.
 
 <a name="installation"></a>
 <!-- ## Installation -->

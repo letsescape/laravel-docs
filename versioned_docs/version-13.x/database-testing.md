@@ -224,6 +224,16 @@ Laravel은 [Pest](https://pestphp.com) 또는 [PHPUnit](https://phpunit.de) 기�
 $this->assertDatabaseCount('users', 5);
 ```
 
+<!-- You may also pass an array of tables and their expected record counts to assert the counts of several tables at once. Model class names may be used in place of table names: -->
+여러 테이블의 레코드 수를 한 번에 확인하려면 테이블과 예상 레코드 수를 배열로 전달할 수도 있습니다. 테이블 이름 대신 모델 클래스명을 사용할 수 있습니다.
+
+```php
+$this->assertDatabaseCount([
+    'users' => 5,
+    Post::class => 10,
+]);
+```
+
 <a name="assert-database-empty"></a>
 <!-- #### assertDatabaseEmpty -->
 #### assertDatabaseEmpty

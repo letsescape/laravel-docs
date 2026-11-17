@@ -472,6 +472,26 @@ $perPage = $request->integer('per_page');
 $archived = $request->boolean('archived');
 ```
 
+<a name="retrieving-input-values-strictly"></a>
+<!-- #### Retrieving Input Values Strictly -->
+#### Retrieving Input Values Strictly
+
+<!-- The `string`, `integer`, `float`, and `boolean` methods cast whatever input they receive. For example, `?count=abc` is cast to `0` by the `integer` method, while `?name[]=taylor` causes the `string` method to trigger an "Array to string conversion" error. If you would rather receive the default value when the input does not have the expected type, you may pass `strict: true` to these methods: -->
+`string`、`integer`、`float`、`boolean` メソッドは、受け取った入力をそのままキャストします。たとえば、`?count=abc` は `integer` メソッドによって `0` にキャストされます。一方、`?name[]=taylor` を渡すと、`string` メソッドで「Array to string conversion」エラーが発生します。入力が期待する型でない場合にデフォルト値を受け取りたいときは、これらのメソッドに `strict: true` を渡します。
+
+```php
+$count = $request->integer('count', 5, strict: true);
+
+$price = $request->float('price', strict: true);
+
+$name = $request->string('name', 'Guest', strict: true);
+
+$archived = $request->boolean('archived', strict: true);
+```
+
+<!-- When strict, the `integer` and `float` methods return the default unless the input is a valid integer or number, the `string` method returns the default unless the input is a string or a number, and the `boolean` method returns the default unless the input is one of `1`, `true`, `on`, `yes`, `0`, `false`, `off`, or `no`. -->
+厳密モードでは、入力が有効な整数または数値でない限り `integer` メソッドと `float` メソッドはデフォルト値を返します。`string` メソッドは、入力が文字列または数値でない限りデフォルト値を返します。`boolean` メソッドは、入力が `1`、`true`、`on`、`yes`、`0`、`false`、`off`、`no` のいずれでもない場合にデフォルト値を返します。
+
 <a name="retrieving-array-input-values"></a>
 <!-- #### Retrieving Array Input Values -->
 #### Retrieving Array Input Values

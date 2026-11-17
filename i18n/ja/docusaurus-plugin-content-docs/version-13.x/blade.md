@@ -92,7 +92,7 @@ Hello, {{ $name }}.
 ```
 
 > [!NOTE]
-> Blade の `{{ }}` による出力は、XSS 攻撃を防ぐため、PHP の `htmlspecialchars` 関数を通して自動的に出力されます。
+> XSS 攻撃を防ぐため、Blade の `{{ }}` による出力は自動的に PHP の `htmlspecialchars` 関数を通して処理されます。
 
 <!-- You are not limited to displaying the contents of the variables passed to the view. You may also echo the results of any PHP function. In fact, you can put any PHP code you wish inside of a Blade echo statement: -->
 ビューに渡された変数の内容を表示することに限定されません。任意の PHP 関数の結果をエコーすることもできます。実際、Blade echo ステートメント内に任意の PHP コードを含めることができます。
@@ -153,7 +153,7 @@ Hello, {{ $name }}.
 ```
 
 > [!WARNING]
-> アプリケーションのユーザーが入力した内容を出力する際は、十分に注意してください。ユーザーが入力したデータを表示するときは、XSS 攻撃を防ぐため、通常はエスケープ処理を行う二重波括弧構文を使用してください。
+> アプリケーションのユーザーが入力した内容を出力する際は、十分に注意してください。ユーザー入力データを表示するときは、通常、XSS 攻撃を防ぐためにエスケープされる二重波括弧構文を使用します。
 
 <a name="blade-and-javascript-frameworks"></a>
 <!-- ### Blade and JavaScript Frameworks -->
@@ -214,7 +214,7 @@ Laravel アプリケーション スケルトンの最新バージョンには�
 ```
 
 > [!WARNING]
-> `Js::from` メソッドは、既存の変数を JSON として出力する場合にのみ使用してください。Blade のテンプレート処理は正規表現に基づいているため、ディレクティブに複雑な式を渡すと、予期しない問題が発生することがあります。
+> `Js::from` メソッドは、既存の変数を JSON として出力する場合にのみ使用してください。Blade のテンプレート処理は正規表現に基づいているため、ディレクティブに複雑な式を渡すと、予期しないエラーが発生することがあります。
 
 <a name="the-at-verbatim-directive"></a>
 <!-- #### The `@verbatim` Directive -->
@@ -439,7 +439,7 @@ switch ステートメントは、`@switch`、`@case`、`@break`、`@default`、
 ```
 
 > [!NOTE]
-> `foreach` ループの実行中は、[loop variable](#the-loop-variable)を使って、現在がループの最初または最後の反復かどうかなど、ループに関する有用な情報を取得できます。
+> `foreach` ループの実行中は、[loop variable](#the-loop-variable) を使って、ループの最初または最後の反復かどうかなど、ループに関する有用な情報を取得できます。
 
 <!-- When using loops you may also skip the current iteration or end the loop using the `@continue` and `@break` directives: -->
 ループを使用する場合、`@continue` および `@break` ディレクティブを使用して、現在の反復をスキップしたり、ループを終了したりすることもできます。
@@ -630,7 +630,7 @@ switch ステートメントは、`@switch`、`@case`、`@break`、`@default`、
 ### Including Subviews
 
 > [!NOTE]
-> `@include` ディレクティブは自由に使用できますが、Blade の [components](#components) も同様の機能を提供し、データや属性のバインディングなど、`@include` ディレクティブにはない利点があります。
+> `@include` ディレクティブを自由に使用できますが、Blade の [components](#components) も同様の機能を提供し、データや属性のバインディングなど、`@include` ディレクティブにはない利点があります。
 
 <!-- Blade's `@include` directive allows you to include a Blade view from within another view. All variables that are available to the parent view will be made available to the included view: -->
 Blade の `@include` ディレクティブを使用すると、別のビュー内から Blade ビューを含めることができます。親ビューで使用できるすべての変数は、組み込まれたビューでも使用できるようになります。
@@ -683,7 +683,7 @@ Blade の `@include` ディレクティブを使用すると、別のビュー�
 ```
 
 > [!WARNING]
-> Blade ビューでは `__DIR__` 定数と `__FILE__` 定数を使わないでください。これらはキャッシュされたコンパイル済みビューの保存場所を参照するためです。
+> Blade ビューでは `__DIR__` 定数と `__FILE__` 定数の使用を避けてください。これらはキャッシュされたコンパイル済みビューの保存場所を参照するためです。
 
 <a name="rendering-views-for-collections"></a>
 <!-- #### Rendering Views for Collections -->
@@ -891,7 +891,7 @@ php artisan make:component Forms/Input
 #### Manually Registering Package Components
 
 <!-- When writing components for your own application, components are automatically discovered within the `app/View/Components` directory and `resources/views/components` directory. -->
-アプリケーション独自のコンポーネントを作成すると、`app/View/Components` ディレクトリと `resources/views/components` ディレクトリ内のコンポーネントが自動的に検出されます。
+アプリケーション用のコンポーネントを作成すると、`app/View/Components` ディレクトリと `resources/views/components` ディレクトリ内のコンポーネントが自動的に検出されます。
 
 <!-- However, if you are building a package that utilizes Blade components, you will need to manually register your component class and its HTML tag alias. You should typically register your components in the `boot` method of your package's service provider: -->
 ただし、Blade コンポーネントを利用するパッケージを構築している場合は、コンポーネント クラスとその HTML タグ エイリアスを手動で登録する必要があります。通常、コンポーネントはパッケージのサービスプロバイダの `boot` メソッドに登録する必要があります。
@@ -909,14 +909,14 @@ public function boot(): void
 ```
 
 <!-- Once your component has been registered, it may be rendered using its tag alias: -->
-コンポーネントを登録すると、そのタグエイリアスを使ってレンダリングできます。
+コンポーネントを登録すると、タグエイリアスを使ってレンダリングできます:
 
 ```blade
 <x-package-alert/>
 ```
 
 <!-- Alternatively, you may use the `componentNamespace` method to autoload component classes by convention. For example, a `Nightshade` package might have `Calendar` and `ColorPicker` components that reside within the `Nightshade\Views\Components` namespace: -->
-また、`componentNamespace` メソッドを使うと、規約に基づいてコンポーネントクラスを自動ロードできます。たとえば、`Nightshade` パッケージには、`Nightshade\Views\Components` 名前空間に属する `Calendar` コンポーネントや `ColorPicker` コンポーネントが含まれることがあります。
+また、`componentNamespace` メソッドを使うと、規約に従ってコンポーネントクラスを自動的に読み込めます。たとえば、`Nightshade` パッケージには、`Nightshade\Views\Components` 名前空間に配置された `Calendar` と `ColorPicker` コンポーネントがあるかもしれません。
 
 ```php
 use Illuminate\Support\Facades\Blade;
@@ -931,7 +931,7 @@ public function boot(): void
 ```
 
 <!-- This will allow the usage of package components by their vendor namespace using the `package-name::` syntax: -->
-これにより、`package-name::` 構文を使って、ベンダ名前空間からパッケージのコンポーネントを利用できるようになります。
+これにより、`package-name::` 構文を使って、ベンダーの名前空間を指定してパッケージのコンポーネントを利用できるようになります。
 
 ```blade
 <x-nightshade::calendar />
@@ -939,7 +939,7 @@ public function boot(): void
 ```
 
 <!-- Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation. -->
-Blade はコンポーネント名を PascalCase に変換して、このコンポーネントに紐づくクラスを自動的に検出します。「ドット記法」を使えば、サブディレクトリも指定できます。
+Blade はコンポーネント名をパスカルケースに変換して、このコンポーネントに紐付けられたクラスを自動的に検出します。「ドット」記法を使えば、サブディレクトリも指定できます。
 
 <a name="rendering-components"></a>
 <!-- ### Rendering Components -->
@@ -1136,49 +1136,6 @@ public function isSelected(string $option): bool
 </option>
 ```
 
-<a name="using-attributes-slots-within-component-class"></a>
-<!-- #### Accessing Attributes and Slots Within Component Classes -->
-#### Accessing Attributes and Slots Within Component Classes
-
-<!-- Blade components also allow you to access the component name, attributes, and slot inside the class's render method. However, in order to access this data, you should return a closure from your component's `render` method: -->
-Blade コンポーネントを使用すると、クラスの render メソッド内のコンポーネント名、属性、スロットにアクセスすることもできます。ただし、このデータにアクセスするには、コンポーネントの `render` メソッドからクロージャを返す必要があります。
-
-```php
-use Closure;
-
-/**
- * Get the view / contents that represent the component.
- */
-public function render(): Closure
-{
-    return function () {
-        return '<div {{ $attributes }}>Components content</div>';
-    };
-}
-```
-
-<!-- The closure returned by your component's `render` method may also receive a `$data` array as its only argument. This array will contain several elements that provide information about the component: -->
-コンポーネントの `render` メソッドによって返されるクロージャは、唯一の引数として `$data` 配列を受け取ることもあります。この配列には、コンポーネントに関する情報を提供するいくつかの要素が含まれます。
-
-```php
-return function (array $data) {
-    // $data['componentName'];
-    // $data['attributes'];
-    // $data['slot'];
-
-    return '<div {{ $attributes }}>Components content</div>';
-};
-```
-
-> [!WARNING]
-> `$data` 配列の要素を `render` メソッドが返す Blade 文字列に直接埋め込んではいけません。悪意のある属性の内容を利用して、リモートコード実行を引き起こされる可能性があります。
-
-<!-- The `componentName` is equal to the name used in the HTML tag after the `x-` prefix. So `<x-alert />`'s `componentName` will be `alert`. The `attributes` element will contain all of the attributes that were present on the HTML tag. The `slot` element is an `Illuminate\View\ComponentSlot` instance with the contents of the component's slot. -->
-`componentName` は、HTML タグの `x-` プレフィックスに続く名前と同じです。つまり、`<x-alert />` の `componentName` は `alert` になります。`attributes` 要素には、HTML タグに指定されたすべての属性が含まれます。`slot` 要素は、コンポーネントのスロットの内容を持つ `Illuminate\View\ComponentSlot` インスタンスです。
-
-<!-- The closure should return a string. If the returned string corresponds to an existing view, that view will be rendered; otherwise, the returned string will be evaluated as an inline Blade view. -->
-クロージャは文字列を返す必要があります。返された文字列が既存のビューに対応する場合、そのビューがレンダリングされます。それ以外の場合、返された文字列はインライン Blade ビューとして評価されます。
-
 <a name="additional-dependencies"></a>
 <!-- #### Additional Dependencies -->
 #### Additional Dependencies
@@ -1252,7 +1209,7 @@ class Alert extends Component
 ```
 
 > [!WARNING]
-> 現時点では、コンポーネントタグ内での `@env` などのディレクティブの使用はサポートされていません。たとえば、`<x-alert :live="@env('production')"/>` はコンパイルされません。
+> 現時点では、コンポーネントタグ内で `@env` などのディレクティブは使用できません。たとえば、`<x-alert :live="@env('production')"/>` はコンパイルされません。
 
 <a name="default-merged-attributes"></a>
 <!-- #### Default / Merged Attributes -->
@@ -1306,7 +1263,7 @@ class Alert extends Component
 ```
 
 > [!NOTE]
-> 属性をマージしたくない別の HTML 要素にクラスを条件付きで適用する場合は、[@class directive](#conditional-classes) を使用できます。
+> 属性のマージ対象にすべきでないほかの HTML 要素でクラスを条件付きでコンパイルする必要がある場合は、[@class directive](#conditional-classes)を使用できます。
 
 <a name="non-class-attribute-merging"></a>
 <!-- #### Non-Class Attribute Merging -->
@@ -1586,22 +1543,27 @@ Blade コンポーネントと同様に、スロットにも CSS クラス名な
 <!-- ### Inline Component Views -->
 ### Inline Component Views
 
-<!-- For very small components, it may feel cumbersome to manage both the component class and the component's view template. For this reason, you may return the component's markup directly from the `render` method: -->
-非常に小さなコンポーネントの場合、コンポーネント クラスとコンポーネントのビュー テンプレートの両方を管理するのが面倒に感じる場合があります。このため、コンポーネントのマークアップを `render` メソッドから直接返すことができます。
+<!-- For very small components, it may feel cumbersome to manage both the component class and the component's view template. For this reason, you may return the component's markup directly from the `render` method by wrapping it in an `Illuminate\View\RawTemplate` instance: -->
+小規模なコンポーネントでは、コンポーネントクラスとビューのテンプレートの両方を管理するのが煩雑に感じられるかもしれません。そのため、コンポーネントのマークアップを `Illuminate\View\RawTemplate` インスタンスでラップすれば、`render` メソッドから直接返せます。
 
 ```php
+use Illuminate\View\RawTemplate;
+
 /**
  * Get the view / contents that represent the component.
  */
-public function render(): string
+public function render(): RawTemplate
 {
-    return <<<'blade'
+    return new RawTemplate(<<<'blade'
         <div class="alert alert-danger">
             {{ $slot }}
         </div>
-    blade;
+    blade);
 }
 ```
+
+> [!WARNING]
+> `RawTemplate` は Blade としてコンパイル・実行されるため、注入されたコンテンツによってリモートコード実行が可能になるおそれがあります。信頼できないデータからテンプレートを決して作成しないでください。代わりに、データをコンポーネントに渡し、Blade のエスケープ構文 `{{ }}` を使って表示してください。
 
 <a name="generating-inline-view-components"></a>
 <!-- #### Generating Inline View Components -->
@@ -1613,6 +1575,45 @@ public function render(): string
 ```shell
 php artisan make:component Alert --inline
 ```
+
+<a name="using-attributes-slots-within-component-class"></a>
+<!-- #### Accessing Attributes and Slots in Inline Views -->
+#### Accessing Attributes and Slots in Inline Views
+
+<!-- If you need the component name, attributes, or slot inside the class's `render` method, you may return a closure instead. The closure receives a `$data` array as its only argument: -->
+クラスの `render` メソッド内でコンポーネント名、属性、またはスロットが必要な場合は、代わりにクロージャを返せます。このクロージャは、唯一の引数として `$data` 配列を受け取ります。
+
+```php
+use Closure;
+use Illuminate\View\RawTemplate;
+
+/**
+ * Get the view / contents that represent the component.
+ */
+public function render(): Closure
+{
+    return function (array $data) {
+        // $data['componentName'];
+        // $data['attributes'];
+        // $data['slot'];
+
+        if ($data['slot']->isEmpty()) {
+            return new RawTemplate('<div {{ $attributes }}>No content provided.</div>');
+        }
+
+        return new RawTemplate('<div {{ $attributes }}>{{ $slot }}</div>');
+    };
+}
+```
+
+<!-- The `componentName` is equal to the name used in the HTML tag after the `x-` prefix. So `<x-alert />`'s `componentName` will be `alert`. The `attributes` element will contain all of the attributes that were present on the HTML tag. The `slot` element is an `Illuminate\View\ComponentSlot` instance with the contents of the component's slot. -->
+`componentName` は、HTML タグの `x-` プレフィックスに続く名前と同じです。つまり、`<x-alert />` の `componentName` は `alert` になります。`attributes` 要素には、HTML タグに指定されたすべての属性が含まれます。`slot` 要素は、コンポーネントのスロットの内容を持つ `Illuminate\View\ComponentSlot` インスタンスです。
+
+<!-- The closure should return either the name of a view or a `RawTemplate` instance. -->
+クロージャは、ビュー名または `RawTemplate` インスタンスを返す必要があります。
+
+> [!WARNING]
+> `$data` 配列の要素には、コンポーネントに渡された属性やスロットの内容が含まれるため、信頼できないデータとして扱ってください。クロージャが返すテンプレートに埋め込んではいけません。リモートコード実行につながるおそれがあります。
 
 <a name="dynamic-components"></a>
 <!-- ### Dynamic Components -->
@@ -1631,11 +1632,11 @@ php artisan make:component Alert --inline
 <!-- ### Manually Registering Components -->
 ### Manually Registering Components
 
-> [!WARNING]
-> コンポーネントを手動で登録する方法に関する以下のドキュメントは、主にビューコンポーネントを含む Laravel パッケージを作成する方向けです。パッケージを作成していない場合、このコンポーネントに関するドキュメントは関係ないことがあります。
+> [!NOTE]
+> コンポーネントを手動で登録する方法についての以下の説明は、主にビューコンポーネントを含む Laravel パッケージを作成する方向けです。パッケージを作成していない場合、このコンポーネントに関する説明は関係ないかもしれません。
 
 <!-- When writing components for your own application, components are automatically discovered within the `app/View/Components` directory and `resources/views/components` directory. -->
-独自のアプリケーションでコンポーネントを作成すると、`app/View/Components` ディレクトリと `resources/views/components` ディレクトリ内のコンポーネントが自動的に検出されます。
+独自のアプリケーションでコンポーネントを作成する場合、`app/View/Components` ディレクトリと `resources/views/components` ディレクトリ内のコンポーネントが自動的に検出されます。
 
 <!-- However, if you are building a package that utilizes Blade components or placing components in non-conventional directories, you will need to manually register your component class and its HTML tag alias so that Laravel knows where to find the component. You should typically register your components in the `boot` method of your package's service provider: -->
 ただし、Blade コンポーネントを利用するパッケージを構築する場合、またはコンポーネントを従来とは異なるディレクトリに配置する場合は、Laravel がコンポーネントの場所を認識できるように、コンポーネント クラスとその HTML タグのエイリアスを手動で登録する必要があります。通常、コンポーネントはパッケージのサービスプロバイダの `boot` メソッドに登録する必要があります。
@@ -1654,7 +1655,7 @@ public function boot(): void
 ```
 
 <!-- Once your component has been registered, it may be rendered using its tag alias: -->
-コンポーネントを登録すると、タグエイリアスを使ってレンダリングできます。
+コンポーネントを登録すると、タグエイリアスを使ってレンダリングできます:
 
 ```blade
 <x-package-alert/>
@@ -1664,7 +1665,7 @@ public function boot(): void
 #### Autoloading Package Components
 
 <!-- Alternatively, you may use the `componentNamespace` method to autoload component classes by convention. For example, a `Nightshade` package might have `Calendar` and `ColorPicker` components that reside within the `Nightshade\Views\Components` namespace: -->
-また、`componentNamespace` メソッドを使うと、規約に従ってコンポーネントクラスを自動ロードできます。たとえば、`Nightshade` パッケージには、`Nightshade\Views\Components` 名前空間に属する `Calendar` コンポーネントや `ColorPicker` コンポーネントがあるかもしれません。
+また、`componentNamespace` メソッドを使うと、規約に従ってコンポーネントクラスをオートロードできます。たとえば、`Nightshade` パッケージの `Calendar` コンポーネントと `ColorPicker` コンポーネントが `Nightshade\Views\Components` 名前空間に配置されているとします。
 
 ```php
 use Illuminate\Support\Facades\Blade;
@@ -1679,7 +1680,7 @@ public function boot(): void
 ```
 
 <!-- This will allow the usage of package components by their vendor namespace using the `package-name::` syntax: -->
-これにより、`package-name::` 構文を使って、パッケージのコンポーネントをベンダ名前空間経由で利用できるようになります。
+これにより、`package-name::` 構文を使い、ベンダーの名前空間を指定してパッケージのコンポーネントを利用できます。
 
 ```blade
 <x-nightshade::calendar />
@@ -1687,7 +1688,7 @@ public function boot(): void
 ```
 
 <!-- Blade will automatically detect the class that's linked to this component by pascal-casing the component name. Subdirectories are also supported using "dot" notation. -->
-Blade は、コンポーネント名をパスカルケースに変換して、このコンポーネントに関連付けられたクラスを自動的に検出します。サブディレクトリも「ドット」記法で指定できます。
+Blade は、コンポーネント名をパスカルケースに変換して、このコンポーネントに紐づくクラスを自動的に検出します。サブディレクトリも「ドット」記法で指定できます。
 
 <a name="anonymous-components"></a>
 <!-- ## Anonymous Components -->
@@ -1819,7 +1820,7 @@ php artisan make:component forms.input --view
 ```
 
 > [!WARNING]
-> `@aware` ディレクティブは、HTML 属性を通じて親コンポーネントに明示的に渡されていない親データにはアクセスできません。親コンポーネントに明示的に渡されていないデフォルトの `@props` 値にも、`@aware` ディレクティブからアクセスできません。
+> `@aware` ディレクティブは、HTML 属性を介して親コンポーネントに明示的に渡されていない親データにはアクセスできません。親コンポーネントに明示的に渡されていないデフォルトの `@props` 値にも、`@aware` ディレクティブからアクセスできません。
 
 <a name="anonymous-component-paths"></a>
 <!-- ### Anonymous Component Paths -->
@@ -2008,7 +2009,7 @@ Route::get('/tasks', function () {
 この例では、`sidebar` セクションは `@@parent` ディレクティブを利用して、レイアウトのサイドバーにコンテンツを (上書きではなく) 追加しています。 `@@parent` ディレクティブは、ビューがレンダリングされるときにレイアウトのコンテンツに置き換えられます。
 
 > [!NOTE]
-> 前の例とは異なり、この `sidebar` セクションは `@show` ではなく `@endsection` で終了します。`@endsection` ディレクティブはセクションを定義するだけですが、`@show` はセクションを定義し、**直ちに出力します**。
+> 前の例とは異なり、この `sidebar` セクションは `@show` ではなく `@endsection` で終わります。`@endsection` ディレクティブはセクションを定義するだけですが、`@show` はセクションを定義し、**直ちに出力します**。
 
 <!-- The `@yield` directive also accepts a default value as its second parameter. This value will be rendered if the section being yielded is undefined: -->
 `@yield` ディレクティブは、2 番目のパラメーターとしてデフォルト値も受け入れます。この値は、出力するセクションが未定義の場合に表示されます。
@@ -2209,6 +2210,9 @@ return Blade::render(
 );
 ```
 
+> [!WARNING]
+> `render` メソッドに渡したテンプレート文字列は Blade としてコンパイルされ、実行されます。そのため、コンテンツを注入されるとリモートコード実行につながるおそれがあります。信頼できないデータからテンプレートを組み立ててはいけません。代わりに、メソッドの第2引数でデータを渡し、Blade のエスケープ構文 `{{ }}` を使って表示してください。
+
 <a name="rendering-blade-fragments"></a>
 <!-- ## Rendering Blade Fragments -->
 ## Rendering Blade Fragments
@@ -2303,7 +2307,7 @@ class AppServiceProvider extends ServiceProvider
 ```
 
 > [!WARNING]
-> Blade ディレクティブのロジックを更新した後は、キャッシュされた Blade ビューをすべて削除する必要があります。キャッシュされた Blade ビューは、Artisan コマンド `view:clear` で削除できます。
+> Blade ディレクティブのロジックを更新した後は、キャッシュされた Blade ビューをすべて削除する必要があります。キャッシュされた Blade ビューは、`view:clear` Artisan コマンドで削除できます。
 
 <a name="custom-echo-handlers"></a>
 <!-- ### Custom Echo Handlers -->

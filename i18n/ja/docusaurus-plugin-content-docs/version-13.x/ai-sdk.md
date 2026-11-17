@@ -2438,8 +2438,8 @@ $response = (new FileAssistant)
     ]));
 ```
 
-> [!IMPORTANT]
-> 一時停止中のターンは、一時停止した参加者ではなく、その会話と保留中のツール呼び出しによって識別されます。そのため、再開する前に、[complete approval flow](#complete-approval-flow)のようにアプリケーションで会話へのアクセスを認可するか、conversation store の `conversationBelongsTo` メソッドを使ってアクセス権を確認してください。
+> [!WARNING]
+> 一時停止中のターンは、一時停止した参加者ではなく、会話と保留中のツール呼び出しに基づいて照合されます。そのため、再開する前に、[complete approval flow](#complete-approval-flow)の例のようにアプリケーションで会話へのアクセスを認可するか、conversation store の `conversationBelongsTo` メソッドを使ってアクセス権を確認してください。
 
 <!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
 ブール値の `true` と `false` は、それぞれ承認と拒否の略記として使用できます。保留中のすべてのツール呼び出しには、判定を与える必要があります。不明なツール呼び出し ID、判定が指定されていないツール呼び出し ID、またはすでに解決済みのツール呼び出し ID があると、`ApprovalMismatchException` がスローされます。明示的な判定がない呼び出しに対しては、`approveRemaining` または `rejectRemaining` メソッドを使用してデフォルトの判定を指定できます。

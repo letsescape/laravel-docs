@@ -468,8 +468,26 @@ class Post extends Model
 }
 ```
 
+Alternatively, you may specify the model's index using the `SearchableAs` attribute. When using this attribute, the `prefix` defined in your application's `scout` configuration file will still be prepended to the index name:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Attributes\SearchableAs;
+use Laravel\Scout\Searchable;
+
+#[SearchableAs('posts_index')]
+class Post extends Model
+{
+    use Searchable;
+}
+```
+
 > [!NOTE]
-> The `searchableAs` method has no effect when using the database engine, which always searches the model's database table directly.
+> The `searchableAs` method and `SearchableAs` attribute have no effect when using the database engine, which always searches the model's database table directly.
 
 <a name="configuring-the-model-id"></a>
 #### Configuring the Model ID
@@ -911,7 +929,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> The `makeAllSearchableUsing` method may not be applicable when using a queue to batch import models. Relationships are [not restored](/docs/{{version}}/queues#handling-relationships) when model collections are processed by jobs.
+> When using a queue to batch import models, relationships eager loaded by the `makeAllSearchableUsing` method are [retrieved again in their entirety](/docs/{{version}}/queues#handling-relationships) when the job is processed, so any constraints applied to them are lost. If you need to constrain a relationship, eager load it in the [`makeSearchableUsing`](#modifying-records-before-importing) method instead, which runs within the job.
 
 <a name="adding-records"></a>
 ### Adding Records

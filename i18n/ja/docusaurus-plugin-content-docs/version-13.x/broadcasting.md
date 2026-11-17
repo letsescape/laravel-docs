@@ -1951,7 +1951,7 @@ window.Pusher = Pusher;
 <!-- ## Model Broadcasting -->
 ## Model Broadcasting
 
-> [!WARNING]
+> [!NOTE]
 > モデルのブロードキャストに関する以下のドキュメントを読む前に、Laravel のモデルブロードキャストサービスの一般的な概念と、ブロードキャストイベントを手動で作成してリッスンする方法を理解しておくことをおすすめします。
 
 <!-- It is common to broadcast events when your application's [Eloquent models](/docs/13.x/eloquent) are created, updated, or deleted. Of course, this can easily be accomplished by manually [defining custom events for Eloquent model state changes](/docs/13.x/eloquent#events) and marking those events with the `ShouldBroadcast` interface. -->

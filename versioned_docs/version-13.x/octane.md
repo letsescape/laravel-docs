@@ -610,8 +610,8 @@ $service->method($request->input('name'));
 <!-- The global `request` helper will always return the request the application is currently handling and is therefore safe to use within your application. -->
 글로벌 `request` 헬퍼는 항상 현재 애플리케이션이 처리 중인 최신 request를 반환하므로 안전하게 사용할 수 있습니다.
 
-> [!WARNING]
-> 컨트롤러 메서드나 라우트 클로저에서 `Illuminate\Http\Request` 인스턴스를 타입힌트하는 것은 안전합니다.
+> [!NOTE]
+> 컨트롤러 메서드나 라우트 클로저에서 `Illuminate\Http\Request` 인스턴스를 타입힌트해도 괜찮습니다.
 
 <a name="configuration-repository-injection"></a>
 <!-- ### Configuration Repository Injection -->

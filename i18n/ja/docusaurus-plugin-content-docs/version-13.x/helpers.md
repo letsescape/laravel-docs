@@ -4201,6 +4201,7 @@ $uri = Uri::of('https://example.com')
 `Uri` クラスを使用すると、基になる URI のさまざまなコンポーネントを簡単に検査することもできます。
 
 ```php
+$origin = $uri->origin();
 $scheme = $uri->scheme();
 $authority = $uri->authority();
 $host = $uri->host();

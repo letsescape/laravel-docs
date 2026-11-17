@@ -127,6 +127,13 @@ $user = DB::table('users')->where('name', 'John')->firstOrFail();
 $email = DB::table('users')->where('name', 'John')->value('email');
 ```
 
+<!-- The `soleValue` method retrieves the column's value only if exactly one row matches the query. If no matching row is found, an `Illuminate\Database\RecordsNotFoundException` will be thrown. If more than one row matches, an `Illuminate\Database\MultipleRecordsFoundException` will be thrown: -->
+`soleValue` 메서드는 쿼리와 일치하는 행이 정확히 하나인 경우에만 컬럼 값을 가져옵니다. 일치하는 행을 찾지 못하면 `Illuminate\Database\RecordsNotFoundException` 예외가 발생합니다. 둘 이상의 행이 일치하면 `Illuminate\Database\MultipleRecordsFoundException` 예외가 발생합니다:
+
+```php
+$email = DB::table('users')->where('name', 'John')->soleValue('email');
+```
+
 <!-- To retrieve a single row by its `id` column value, use the `find` method: -->
 `id` 열 값으로 단일 행을 검색하려면 `find` 메서드를 사용합니다.
 
@@ -944,7 +951,7 @@ select * from comments where user_id in (
 )
 ```
 
-> [!WARNING]
+> [!NOTE]
 > 쿼리에 대규모 정수 바인딩 배열을 추가하는 경우 `whereIntegerInRaw` 또는 `whereIntegerNotInRaw` 메서드를 사용하면 메모리 사용량을 크게 줄일 수 있습니다.
 
 <!-- **whereBetween / orWhereBetween** -->

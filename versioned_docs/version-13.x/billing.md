@@ -1830,8 +1830,8 @@ $user->meters();
 <!-- ### Subscription Taxes -->
 ### Subscription Taxes
 
-> [!WARNING]
-> 세율을 수동으로 계산하는 대신 [automatically calculate taxes using Stripe Tax](#tax-configuration)할 수 있습니다.
+> [!NOTE]
+> 세율을 직접 계산하는 대신 [automatically calculate taxes using Stripe Tax](#tax-configuration)를 이용해 세금을 자동으로 계산할 수 있습니다.
 
 <!-- To specify the tax rates a user pays on a subscription, you should implement the `taxRates` method on your billable model and return an array containing the Stripe tax rate IDs. You can define these tax rates in [your Stripe dashboard](https://dashboard.stripe.com/test/tax-rates): -->
 사용자가 구독에 대해 지불하는 세율을 지정하려면 결제 가능 모델에 `taxRates` 메서드를 구현하고 Stripe 세율 ID가 포함된 배열을 반환해야 합니다. 이러한 세율은 [your Stripe dashboard](https://dashboard.stripe.com/test/tax-rates)에서 정의할 수 있습니다.
@@ -2781,8 +2781,8 @@ $checkout = $user->collectTaxIds()->checkout('price_tshirt');
 <!-- When this method is invoked, a new checkbox will be available to the customer that allows them to indicate if they're purchasing as a company. If so, they will have the opportunity to provide their Tax ID number. -->
 이 메서드가 호출되면 고객에게 회사로 구매하는지 표시할 수 있는 새 체크박스가 제공됩니다. 회사로 구매하는 경우 Tax ID 번호를 입력할 수 있습니다.
 
-> [!WARNING]
-> 애플리케이션의 서비스 프로바이더에서 이미 [automatic tax collection](#tax-configuration)를 설정했다면 이 기능은 자동으로 활성화되며 `collectTaxIds` 메서드를 호출할 필요가 없습니다.
+> [!NOTE]
+> 애플리케이션의 서비스 프로바이더에서 [automatic tax collection](#tax-configuration)을 이미 설정했다면 이 기능은 자동으로 활성화되므로 `collectTaxIds` 메서드를 호출할 필요가 없습니다.
 
 <a name="guest-checkouts"></a>
 <!-- ### Guest Checkouts -->
@@ -2926,8 +2926,8 @@ $subscription->withPaymentConfirmationOptions([
 <!-- If your business or one of your customers is based in Europe you will need to abide by the EU's Strong Customer Authentication (SCA) regulations. These regulations were imposed in September 2019 by the European Union to prevent payment fraud. Luckily, Stripe and Cashier are prepared for building SCA compliant applications. -->
 비즈니스 또는 고객 중 한 명이 유럽에 기반을 두고 있다면 EU의 Strong Customer Authentication(SCA) 규정을 준수해야 합니다. 이 규정은 결제 사기를 방지하기 위해 유럽연합이 2019년 9월에 도입했습니다. 다행히 Stripe와 Cashier는 SCA를 준수하는 애플리케이션을 구축할 준비가 되어 있습니다.
 
-> [!WARNING]
-> 시작하기 전에 [Stripe's guide on PSD2 and SCA](https://stripe.com/guides/strong-customer-authentication)와 [documentation on the new SCA APIs](https://stripe.com/docs/strong-customer-authentication)를 검토하십시오.
+> [!NOTE]
+> 시작하기 전에 [Stripe's guide on PSD2 and SCA](https://stripe.com/guides/strong-customer-authentication)와 [documentation on the new SCA APIs](https://stripe.com/docs/strong-customer-authentication)를 검토하세요.
 
 <a name="payments-requiring-additional-confirmation"></a>
 <!-- ### Payments Requiring Additional Confirmation -->

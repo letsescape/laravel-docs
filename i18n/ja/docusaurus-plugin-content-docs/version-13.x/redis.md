@@ -475,7 +475,7 @@ $value = Redis::eval(<<<'LUA'
 LUA, 2, 'first-counter', 'second-counter');
 ```
 
-> [!WARNING]
+> [!NOTE]
 > Redis スクリプトの詳細については、[Redis documentation](https://redis.io/commands/eval) を参照してください。
 
 <a name="pipelining-commands"></a>

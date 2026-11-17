@@ -310,7 +310,7 @@ class User extends Model
 ### Database Engine
 
 > [!WARNING]
-> 데이터베이스 엔진은 현재 MySQL과 PostgreSQL을 지원하며, 두 엔진 모두 빠른 전체 텍스트 컬럼 인덱싱을 지원합니다.
+> 데이터베이스 엔진은 현재 MySQL과 PostgreSQL을 지원하며, 두 엔진 모두 빠른 전문 검색 컬럼 인덱싱을 지원합니다.
 
 <!-- The `database` engine uses MySQL / PostgreSQL full-text indexes and `LIKE` clauses to search your existing database directly. For many applications, this is the simplest and most practical way to add search — no external service or additional infrastructure required. -->
 `database` 엔진은 MySQL / PostgreSQL 전체 텍스트 인덱스와 `LIKE` 절을 사용하여 기존 데이터베이스를 직접 검색합니다. 많은 애플리케이션에서 검색을 추가하는 가장 단순하고 실용적인 방법입니다. 외부 서비스나 추가 인프라가 필요하지 않습니다.
@@ -379,7 +379,7 @@ public function toSearchableArray(): array
 ```
 
 > [!WARNING]
-> 컬럼에 [full text index](/docs/13.x/migrations#available-index-types)가 지정되었는지 확인한 후, 해당 컬럼에 전문 검색 쿼리 제약 조건을 지정해야 합니다.
+> 열에 전문 검색 제약 조건을 지정하기 전에 해당 열에 [full text index](/docs/13.x/migrations#available-index-types)가 지정되어 있는지 확인하세요.
 
 <a name="postgresql-full-text-search"></a>
 <!-- #### PostgreSQL Full-Text Search -->
@@ -476,7 +476,7 @@ public function toSearchableArray(): array
 기본적으로 Scout는 최초 검색 결과가 없을 때만 트라이그램 매칭을 사용해 검색을 다시 시도합니다. 전문 검색 결과에 트라이그램 매칭 결과도 포함하고 관련도 순위에 트라이그램 유사도를 반영하려면 `trigram_mode`를 `blend`로 설정합니다.
 
 > [!WARNING]
-> 트라이그램 매칭을 사용하려면 연결의 검색 경로에서 `pg_trgm` 확장을 사용할 수 있어야 합니다. 트라이그램 컬럼을 지정하면 `searchable` 마이그레이션 메서드가 확장을 생성하므로 마이그레이션을 실행하는 데이터베이스 사용자에게 확장을 생성할 권한이 있어야 합니다.
+> 트라이그램 매칭을 사용하려면 연결의 검색 경로에서 `pg_trgm` 확장을 사용할 수 있어야 합니다. 트라이그램 컬럼을 지정하면 `searchable` 마이그레이션 메서드가 확장을 생성하므로, 마이그레이션을 실행하는 데이터베이스 사용자에게 확장 생성 권한이 있어야 합니다.
 
 <!-- You may override the `mode`, `language`, `rank`, `trigram`, and `trigram_mode` options for an individual search using the `options` method: -->
 `options` 메서드를 사용하면 개별 검색에서 `mode`, `language`, `rank`, `trigram`, `trigram_mode` 옵션을 재정의할 수 있습니다.
@@ -544,8 +544,27 @@ class Post extends Model
 }
 ```
 
+<!-- Alternatively, you may specify the model's index using the `SearchableAs` attribute. When using this attribute, the `prefix` defined in your application's `scout` configuration file will still be prepended to the index name: -->
+또는 `SearchableAs` 속성을 사용해 모델의 인덱스를 지정할 수 있습니다. 이 속성을 사용해도 애플리케이션의 `scout` 설정 파일에 정의된 `prefix`가 인덱스 이름 앞에 추가됩니다.
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Attributes\SearchableAs;
+use Laravel\Scout\Searchable;
+
+#[SearchableAs('posts_index')]
+class Post extends Model
+{
+    use Searchable;
+}
+```
+
 > [!NOTE]
-> 데이터베이스 엔진을 사용하는 경우 `searchableAs` 메서드는 아무런 영향을 주지 않습니다. 데이터베이스 엔진은 항상 모델의 데이터베이스 테이블을 직접 검색합니다.
+> 데이터베이스 엔진을 사용할 때는 `searchableAs` 메서드와 `SearchableAs` 속성이 아무런 영향을 미치지 않습니다. 데이터베이스 엔진은 항상 모델의 데이터베이스 테이블을 직접 검색합니다.
 
 <a name="configuring-the-model-id"></a>
 <!-- #### Configuring the Model ID -->
@@ -593,7 +612,7 @@ class User extends Model
 ```
 
 > [!NOTE]
-> 데이터베이스 엔진을 사용할 때는 `getScoutKey`, `getScoutKeyName`, `getScoutKeyType` 메서드가 아무런 영향을 주지 않습니다. 데이터베이스 엔진은 항상 모델의 기본 키를 사용합니다.
+> `getScoutKey`, `getScoutKeyName`, `getScoutKeyType` 메서드는 데이터베이스 엔진을 사용할 때는 아무런 영향을 미치지 않습니다. 데이터베이스 엔진은 항상 모델의 기본 키를 사용합니다.
 
 <a name="algolia-configuration"></a>
 <!-- ### Algolia -->
@@ -991,7 +1010,7 @@ source 속성은 모델의 `toSearchableArray` 출력에 포함되어야 합니�
 ## Third-Party Engine Indexing
 
 > [!NOTE]
-> 이 절에서 설명하는 인덱싱 기능은 주로 타사 엔진(Algolia, Meilisearch, Typesense 또는 Turbopuffer)을 사용할 때 관련이 있습니다. 데이터베이스 엔진은 데이터베이스 테이블을 직접 검색하므로 인덱스를 수동으로 관리할 필요가 없습니다.
+> 이 섹션에서 설명하는 인덱싱 기능은 주로 타사 엔진(Algolia, Meilisearch, Typesense 또는 Turbopuffer)을 사용할 때 관련이 있습니다. 데이터베이스 엔진은 데이터베이스 테이블을 직접 검색하므로 인덱스를 수동으로 관리할 필요가 없습니다.
 
 <a name="batch-import"></a>
 <!-- ### Batch Import -->
@@ -1038,7 +1057,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 큐를 사용해 모델을 일괄 가져오는 경우 `makeAllSearchableUsing` 메서드가 적용되지 않을 수 있습니다. 잡이 모델 컬렉션을 처리할 때 연관관계는 [not restored](/docs/13.x/queues#handling-relationships) 상태입니다.
+> 큐를 사용해 모델을 일괄 가져올 때, `makeAllSearchableUsing` 메서드에서 미리 로드한 연관관계는 작업이 처리될 때 [retrieved again in their entirety](/docs/13.x/queues#handling-relationships) 적용한 제약 조건이 사라집니다. 연관관계를 제한해야 한다면 작업 내에서 실행되는 [`makeSearchableUsing`](#modifying-records-before-importing) 메서드에서 대신 미리 로드하세요.
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -1240,7 +1259,7 @@ public function shouldBeSearchable(): bool
 `shouldBeSearchable` 메서드는 `save` 및 `create` 메서드, 쿼리 또는 연관관계를 통해 모델을 조작할 때만 적용됩니다. `searchable` 메서드를 사용하여 모델이나 컬렉션을 직접 검색 가능하게 만들면 `shouldBeSearchable` 메서드의 결과를 덮어씁니다.
 
 > [!WARNING]
-> Scout의 "database" 엔진을 사용할 때는 `shouldBeSearchable` 메서드가 적용되지 않습니다. 검색 가능한 데이터가 항상 데이터베이스에 저장되기 때문입니다. database 엔진에서 비슷한 동작을 구현하려면 [where clauses](#where-clauses)를 사용해야 합니다.
+> Scout의 "database" 엔진에서는 `shouldBeSearchable` 메서드를 사용할 수 없습니다. 검색 가능한 데이터가 항상 데이터베이스에 저장되기 때문입니다. 데이터베이스 엔진에서 비슷한 동작을 구현하려면 대신 [where clauses](#where-clauses)를 사용해야 합니다.
 
 <a name="searching"></a>
 <!-- ## Searching -->
@@ -1367,7 +1386,7 @@ $orders = Order::search('Star Trek')->whereNotIn(
 ```
 
 > [!WARNING]
-> 애플리케이션에서 Meilisearch를 사용한다면 Scout의 "where" 절을 사용하기 전에 애플리케이션의 [filterable attributes](#meilisearch-index-settings)를 반드시 구성해야 합니다.
+> 애플리케이션에서 Meilisearch를 사용한다면 Scout의 "where" 절을 사용하기 전에 애플리케이션의 [filterable attributes](#meilisearch-index-settings)를 설정해야 합니다.
 
 <a name="customizing-the-eloquent-results-query"></a>
 <!-- #### Customizing the Eloquent Results Query -->
@@ -1441,7 +1460,7 @@ Route::get('/orders', function (Request $request) {
 ```
 
 > [!WARNING]
-> 검색 엔진은 Eloquent 모델의 전역 스코프 정의를 알지 못하므로 Scout 페이지네이션을 사용하는 애플리케이션에서는 전역 스코프를 사용하지 않아야 합니다. 또는 Scout로 검색할 때 전역 스코프의 제약 조건을 다시 적용해야 합니다.
+> 검색 엔진은 Eloquent 모델의 전역 스코프 정의를 알지 못하므로 Scout 페이지네이션을 사용하는 애플리케이션에서는 전역 스코프를 사용하지 않는 것이 좋습니다. 또는 Scout로 검색할 때 전역 스코프의 제약 조건을 다시 적용해야 합니다.
 
 <a name="soft-deleting"></a>
 <!-- ### Soft Deleting -->
@@ -1468,7 +1487,7 @@ $orders = Order::search('Star Trek')->onlyTrashed()->get();
 ```
 
 > [!NOTE]
-> 소프트 삭제된 모델을 `forceDelete`를 사용해 영구 삭제하면 Scout가 검색 인덱스에서 자동으로 제거합니다.
+> 소프트 삭제된 모델을 `forceDelete`로 영구 삭제하면 Scout가 검색 인덱스에서 자동으로 제거합니다.
 
 <a name="customizing-engine-searches"></a>
 <!-- ### Customizing Engine Searches -->

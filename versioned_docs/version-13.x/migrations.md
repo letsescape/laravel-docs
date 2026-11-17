@@ -1497,7 +1497,7 @@ return new class extends Migration
 };
 ```
 
-> [!WARNING]
+> [!NOTE]
 > 기본값 표현 지원 여부는 데이터베이스 드라이버, 데이터베이스 버전, 필드 타입에 따라 달라집니다. 자세한 내용은 해당 데이터베이스의 문서를 참고하세요.
 
 <a name="column-order"></a>

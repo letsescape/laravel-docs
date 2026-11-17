@@ -127,6 +127,13 @@ $user = DB::table('users')->where('name', 'John')->firstOrFail();
 $email = DB::table('users')->where('name', 'John')->value('email');
 ```
 
+<!-- The `soleValue` method retrieves the column's value only if exactly one row matches the query. If no matching row is found, an `Illuminate\Database\RecordsNotFoundException` will be thrown. If more than one row matches, an `Illuminate\Database\MultipleRecordsFoundException` will be thrown: -->
+`soleValue` メソッドは、クエリに一致する行がちょうど1行の場合に限り、カラムの値を取得します。一致する行が見つからない場合は `Illuminate\Database\RecordsNotFoundException` がスローされます。一致する行が2行以上ある場合は `Illuminate\Database\MultipleRecordsFoundException` がスローされます。
+
+```php
+$email = DB::table('users')->where('name', 'John')->soleValue('email');
+```
+
 <!-- To retrieve a single row by its `id` column value, use the `find` method: -->
 `id` 列の値によって単一行を取得するには、`find` メソッドを使用します。
 
@@ -944,8 +951,8 @@ select * from comments where user_id in (
 )
 ```
 
-> [!WARNING]
-> クエリに大量の整数バインディングを追加する場合は、`whereIntegerInRaw` または `whereIntegerNotInRaw` メソッドを使用すると、メモリ使用量を大幅に削減できます。
+> [!NOTE]
+> クエリに大量の整数バインディングを追加する場合は、`whereIntegerInRaw` または `whereIntegerNotInRaw` メソッドを使うと、メモリ使用量を大幅に削減できます。
 
 <!-- **whereBetween / orWhereBetween** -->
 **whereBetween / orWhereBetween**

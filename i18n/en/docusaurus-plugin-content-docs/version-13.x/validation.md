@@ -32,6 +32,7 @@
     - [Error Message Indexes and Positions](#error-message-indexes-and-positions)
 - [Validating Files](#validating-files)
 - [Validating Passwords](#validating-passwords)
+- [Deriving Rules From JSON Schemas](#deriving-rules-from-json-schemas)
 - [Custom Validation Rules](#custom-validation-rules)
     - [Using Rule Objects](#using-rule-objects)
     - [Using Closures](#using-closures)
@@ -210,7 +211,7 @@ Within the `lang/en/validation.php` file, you will find a translation entry for 
 
 In addition, you may copy this file to another language directory to translate the messages for your application's language. To learn more about Laravel localization, check out the complete [localization documentation](/docs/{{version}}/localization).
 
-> [!WARNING]
+> [!NOTE]
 > By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
 
 <a name="quick-xhr-requests-and-validation"></a>
@@ -956,7 +957,7 @@ Within the `lang/en/validation.php` file, you will find a translation entry for 
 
 In addition, you may copy this file to another language directory to translate the messages for your application's language. To learn more about Laravel localization, check out the complete [localization documentation](/docs/{{version}}/localization).
 
-> [!WARNING]
+> [!NOTE]
 > By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
 
 <a name="custom-messages-for-specific-attributes"></a>
@@ -984,7 +985,7 @@ Many of Laravel's built-in error messages include an `:attribute` placeholder th
 ],
 ```
 
-> [!WARNING]
+> [!NOTE]
 > By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
 
 <a name="specifying-values-in-language-files"></a>
@@ -1014,7 +1015,7 @@ Instead of displaying `cc` as the payment type value, you may specify a more use
 ],
 ```
 
-> [!WARNING]
+> [!NOTE]
 > By default, the Laravel application skeleton does not include the `lang` directory. If you would like to customize Laravel's language files, you may publish them via the `lang:publish` Artisan command.
 
 After defining this value, the validation rule will produce the following error message:
@@ -3083,6 +3084,63 @@ Password::defaults(function () {
 
     // ...
 });
+```
+
+<a name="deriving-rules-from-json-schemas"></a>
+## Deriving Rules From JSON Schemas
+
+If your application describes data schemas using Laravel's [JSON Schema](/docs/{{version}}/ai-sdk#tool-input-schemas) builder or raw JSON Schema definitions (such as tool inputs in [Laravel MCP](/docs/{{version}}/mcp#tool-input-schemas)), you may use the `JsonSchema::rules` method to automatically derive Laravel validation rules from an object schema:
+
+```php
+use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Validator;
+
+$schema = JsonSchema::object(fn ($s) => [
+    'name' => $s->string()->max(50)->required(),
+    'age' => $s->integer()->min(18),
+    'role' => $s->string()->enum(['admin', 'user'])->required(),
+]);
+
+$validator = Validator::make($request->all(), JsonSchema::rules($schema));
+```
+
+The `JsonSchema::rules` method also accepts a raw JSON Schema array:
+
+```php
+use Illuminate\JsonSchema\JsonSchema;
+
+$rules = JsonSchema::rules([
+    'type' => 'object',
+    'properties' => [
+        'email' => ['type' => 'string', 'format' => 'email'],
+    ],
+    'required' => ['email'],
+]);
+
+// ['email' => ['required', 'string', 'email']]
+```
+
+You may use the derived rules anywhere Laravel accepts validation rules, including within your [form request's](#creating-form-requests) `rules` method:
+
+```php
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\JsonSchema\JsonSchema;
+
+class StoreUserRequest extends FormRequest
+{
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return JsonSchema::rules(JsonSchema::object(fn ($s) => [
+            'name' => $s->string()->max(50)->required(),
+            'email' => $s->string()->email()->required(),
+        ]));
+    }
+}
 ```
 
 <a name="custom-validation-rules"></a>

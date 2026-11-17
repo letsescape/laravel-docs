@@ -33,6 +33,7 @@
     - [Error Message Indexes and Positions](#error-message-indexes-and-positions)
 - [Validating Files](#validating-files)
 - [Validating Passwords](#validating-passwords)
+- [Deriving Rules From JSON Schemas](#deriving-rules-from-json-schemas)
 - [Custom Validation Rules](#custom-validation-rules)
     - [Using Rule Objects](#using-rule-objects)
     - [Using Closures](#using-closures)
@@ -241,8 +242,8 @@ Laravel에 내장된 각 유효성 검증 규칙에는 애플리케이션의 `la
 <!-- In addition, you may copy this file to another language directory to translate the messages for your application's language. To learn more about Laravel localization, check out the complete [localization documentation](/docs/13.x/localization). -->
 또한 이 파일을 다른 언어 디렉터리로 복사해 애플리케이션 언어에 맞게 메시지를 번역할 수 있습니다. Laravel 현지화에 대해 더 알아보려면 전체 [localization documentation](/docs/13.x/localization)를 확인하세요.
 
-> [!WARNING]
-> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 정의하려면 `lang:publish` Artisan 명령어를 통해 게시할 수 있습니다.
+> [!NOTE]
+> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 지정하려면 `lang:publish` Artisan 명령어로 게시할 수 있습니다.
 
 <a name="quick-xhr-requests-and-validation"></a>
 <!-- #### XHR Requests and Validation -->
@@ -1079,8 +1080,8 @@ Laravel의 각 내장 validation rule에는 애플리케이션의 `lang/en/valid
 <!-- In addition, you may copy this file to another language directory to translate the messages for your application's language. To learn more about Laravel localization, check out the complete [localization documentation](/docs/13.x/localization). -->
 또한 이 파일을 다른 언어 디렉터리로 복사하여 애플리케이션 언어에 맞게 메시지를 번역할 수 있습니다. Laravel 현지화에 대해 더 알아보려면 전체 [localization documentation](/docs/13.x/localization)를 확인하십시오.
 
-> [!WARNING]
-> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 정의하려면 `lang:publish` Artisan 명령어를 통해 게시할 수 있습니다.
+> [!NOTE]
+> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 정의하려면 `lang:publish` Artisan 명령어로 게시할 수 있습니다.
 
 <a name="custom-messages-for-specific-attributes"></a>
 <!-- #### Custom Messages for Specific Attributes -->
@@ -1111,8 +1112,8 @@ Laravel의 내장 오류 메시지 중 다수는 유효성 검증 중인 필드 
 ],
 ```
 
-> [!WARNING]
-> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 정의하려면 `lang:publish` Artisan 명령어를 통해 게시할 수 있습니다.
+> [!NOTE]
+> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 정의하려면 `lang:publish` Artisan 명령어로 게시할 수 있습니다.
 
 <a name="specifying-values-in-language-files"></a>
 <!-- ### Specifying Values in Language Files -->
@@ -1145,8 +1146,8 @@ The credit card number field is required when payment type is cc.
 ],
 ```
 
-> [!WARNING]
-> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 정의하려면 `lang:publish` Artisan 명령어를 통해 게시할 수 있습니다.
+> [!NOTE]
+> 기본적으로 Laravel 애플리케이션 스켈레톤에는 `lang` 디렉터리가 포함되어 있지 않습니다. Laravel의 언어 파일을 사용자 정의하려면 `lang:publish` Artisan 명령어로 게시할 수 있습니다.
 
 <!-- After defining this value, the validation rule will produce the following error message: -->
 이 값을 정의한 후에는 validation rule이 다음 오류 메시지를 생성합니다:
@@ -3590,6 +3591,67 @@ Password::defaults(function () {
 
     // ...
 });
+```
+
+<a name="deriving-rules-from-json-schemas"></a>
+<!-- ## Deriving Rules From JSON Schemas -->
+## Deriving Rules From JSON Schemas
+
+<!-- If your application describes data schemas using Laravel's [JSON Schema](/docs/13.x/ai-sdk#tool-input-schemas) builder or raw JSON Schema definitions (such as tool inputs in [Laravel MCP](/docs/13.x/mcp#tool-input-schemas)), you may use the `JsonSchema::rules` method to automatically derive Laravel validation rules from an object schema: -->
+애플리케이션에서 Laravel의 [JSON Schema](/docs/13.x/ai-sdk#tool-input-schemas) 빌더 또는 원시 JSON Schema 정의(예: [Laravel MCP](/docs/13.x/mcp#tool-input-schemas)의 도구 입력)를 사용해 데이터 스키마를 설명하는 경우, `JsonSchema::rules` 메서드를 사용하면 객체 스키마에서 Laravel 유효성 검증 규칙을 자동으로 도출할 수 있습니다.
+
+```php
+use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Validator;
+
+$schema = JsonSchema::object(fn ($s) => [
+    'name' => $s->string()->max(50)->required(),
+    'age' => $s->integer()->min(18),
+    'role' => $s->string()->enum(['admin', 'user'])->required(),
+]);
+
+$validator = Validator::make($request->all(), JsonSchema::rules($schema));
+```
+
+<!-- The `JsonSchema::rules` method also accepts a raw JSON Schema array: -->
+`JsonSchema::rules` 메서드는 원시 JSON Schema 배열도 받습니다.
+
+```php
+use Illuminate\JsonSchema\JsonSchema;
+
+$rules = JsonSchema::rules([
+    'type' => 'object',
+    'properties' => [
+        'email' => ['type' => 'string', 'format' => 'email'],
+    ],
+    'required' => ['email'],
+]);
+
+// ['email' => ['required', 'string', 'email']]
+```
+
+<!-- You may use the derived rules anywhere Laravel accepts validation rules, including within your [form request's](#creating-form-requests) `rules` method: -->
+도출한 규칙은 Laravel에서 유효성 검증 규칙을 사용할 수 있는 곳이면 어디서나 사용할 수 있으며, [form request's](#creating-form-requests) `rules` 메서드에서도 사용할 수 있습니다.
+
+```php
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\JsonSchema\JsonSchema;
+
+class StoreUserRequest extends FormRequest
+{
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return JsonSchema::rules(JsonSchema::object(fn ($s) => [
+            'name' => $s->string()->max(50)->required(),
+            'email' => $s->string()->email()->required(),
+        ]));
+    }
+}
 ```
 
 <a name="custom-validation-rules"></a>

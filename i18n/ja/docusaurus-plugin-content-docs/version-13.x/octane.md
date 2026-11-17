@@ -610,8 +610,8 @@ $service->method($request->input('name'));
 <!-- The global `request` helper will always return the request the application is currently handling and is therefore safe to use within your application. -->
 グローバル `request` ヘルパは、アプリケーションが現在処理しているリクエストを常に返すため、アプリケーション内で安全に使用できます。
 
-> [!WARNING]
-> コントローラのメソッドとルート クロージャで `Illuminate\Http\Request` インスタンスをタイプヒントすることは許容されます。
+> [!NOTE]
+> コントローラのメソッドやルートのクロージャで `Illuminate\Http\Request` インスタンスをタイプヒントしても問題ありません。
 
 <a name="configuration-repository-injection"></a>
 <!-- ### Configuration Repository Injection -->

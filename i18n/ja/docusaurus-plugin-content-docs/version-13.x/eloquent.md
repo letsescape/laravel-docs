@@ -803,6 +803,31 @@ $flight = Flight::where('legs', '>', 3)->firstOr(function () {
 });
 ```
 
+<a name="retrieving-single-column-values"></a>
+<!-- #### Retrieving Single Column Values -->
+#### Retrieving Single Column Values
+
+<!-- If you don't need an entire model, you may retrieve the value of a single column from the first model matching the query using the `value` method. If no matching model is found, `null` is returned: -->
+モデル全体が必要ない場合は、`value` メソッドを使って、クエリに一致する最初のモデルから単一カラムの値を取得できます。一致するモデルが見つからない場合は、`null` が返されます。
+
+```php
+$name = Flight::where('active', 1)->value('name');
+```
+
+<!-- The `valueOrFail` method behaves like `value`; however, if no result is found, an `Illuminate\Database\Eloquent\ModelNotFoundException` will be thrown: -->
+`valueOrFail` メソッドの動作は `value` と同じですが、結果が見つからない場合は `Illuminate\Database\Eloquent\ModelNotFoundException` がスローされます。
+
+```php
+$name = Flight::where('active', 1)->valueOrFail('name');
+```
+
+<!-- The `soleValue` method retrieves the column's value only if exactly one model matches the query. If no result is found, an `Illuminate\Database\Eloquent\ModelNotFoundException` will be thrown. If more than one model matches, an `Illuminate\Database\MultipleRecordsFoundException` will be thrown: -->
+`soleValue` メソッドは、クエリに一致するモデルがちょうど1つの場合にのみ、カラムの値を取得します。結果が見つからない場合は `Illuminate\Database\Eloquent\ModelNotFoundException` がスローされます。一致するモデルが複数ある場合は `Illuminate\Database\MultipleRecordsFoundException` がスローされます。
+
+```php
+$name = Flight::where('number', 'FR 900')->soleValue('name');
+```
+
 <a name="not-found-exceptions"></a>
 <!-- #### Not Found Exceptions -->
 #### Not Found Exceptions
@@ -1293,8 +1318,8 @@ Flight::destroy(collect([1, 2, 3]));
 Flight::forceDestroy(1);
 ```
 
-> [!WARNING]
-> `destroy` メソッドは、各モデルを個別にロードし、`delete` メソッドを呼び出して、`deleting` および `deleted` イベントがモデルごとに適切にディスパッチされるようにします。
+> [!NOTE]
+> `destroy` メソッドは各モデルを個別にロードして `delete` メソッドを呼び出すため、モデルごとに `deleting` イベントと `deleted` イベントが正しくディスパッチされます。
 
 <a name="deleting-models-using-queries"></a>
 <!-- #### Deleting Models Using Queries -->

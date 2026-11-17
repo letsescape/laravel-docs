@@ -147,8 +147,8 @@ Laravel 백엔드로 구동되는 단일 페이지 애플리케이션(SPA)을 �
 <!-- ## Authentication Quickstart -->
 ## Authentication Quickstart
 
-> [!WARNING]
-> 문서의 이 부분에서는 빠르게 시작할 수 있도록 UI scaffolding이 포함된 [Laravel application starter kits](/docs/13.x/starter-kits)로 사용자를 인증하는 방법을 설명합니다. Laravel의 인증 시스템과 직접 통합하려면 [manually authenticating users](#authenticating-users) 문서를 참고하세요.
+> [!NOTE]
+> 문서의 이 부분에서는 빠르게 시작할 수 있도록 UI 스캐폴딩이 포함된 [Laravel application starter kits](/docs/13.x/starter-kits)를 통해 사용자를 인증하는 방법을 설명합니다. Laravel의 인증 시스템과 직접 통합하려면 [manually authenticating users](#authenticating-users) 문서를 참고하세요.
 
 <a name="install-a-starter-kit"></a>
 <!-- ### Install a Starter Kit -->
@@ -375,8 +375,8 @@ if (Auth::attempt([
 }
 ```
 
-> [!WARNING]
-> 이 예에서 `email`는 필수 옵션이 아니며 단지 예로서 사용됩니다. 데이터베이스 테이블의 "사용자 이름"에 해당하는 열 이름을 사용해야 합니다.
+> [!NOTE]
+> 이 예에서 `email`은 필수 옵션이 아니라 예시로 사용한 것일 뿐입니다. 데이터베이스 테이블에서 "사용자 이름"에 해당하는 열 이름을 사용해야 합니다.
 
 <!-- The `attemptWhen` method, which receives a closure as its second argument, may be used to perform more extensive inspection of the potential user before actually authenticating the user. The closure receives the potential user and should return `true` or `false` to indicate if the user may be authenticated: -->
 두 번째 인수로 클로저를 수신하는 `attemptWhen` 메서드는 실제로 사용자를 인증하기 전에 잠재적인 사용자에 대한 보다 광범위한 검사를 수행하는 데 사용될 수 있습니다. 클로저는 잠재적인 사용자를 수신하고 사용자가 인증될 수 있는지 여부를 나타내기 위해 `true` 또는 `false`를 반환해야 합니다.

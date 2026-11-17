@@ -1961,8 +1961,8 @@ $multiplied->all();
 // [2, 4, 6, 8, 10]
 ```
 
-> [!WARNING]
-> 他の多くのコレクションメソッドと同様に、`map` は新しいコレクションインスタンスを返し、呼び出し元のコレクションは変更しません。元のコレクションを変換したい場合は、[transform](#method-transform) メソッドを使用してください。
+> [!NOTE]
+> 他の多くのコレクションメソッドと同様に、`map` は新しいコレクションインスタンスを返し、呼び出し元のコレクションは変更しません。元のコレクションを変換する場合は、[transform](#method-transform) メソッドを使用してください。
 
 <a name="method-mapinto"></a>
 <!-- #### `mapInto()` -->
@@ -4537,7 +4537,7 @@ return $users->sum->votes;
 <!-- ### Introduction -->
 ### Introduction
 
-> [!WARNING]
+> [!NOTE]
 > Laravel の Lazy Collection について詳しく学ぶ前に、[PHP generators](https://www.php.net/manual/en/language.generators.overview.php) に慣れておきましょう。
 
 <!-- To supplement the already powerful `Collection` class, the `LazyCollection` class leverages PHP's [generators](https://www.php.net/manual/en/language.generators.overview.php) to allow you to work with very large datasets while keeping memory usage low. -->

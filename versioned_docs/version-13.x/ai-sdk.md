@@ -2438,8 +2438,8 @@ $response = (new FileAssistant)
     ]));
 ```
 
-> [!IMPORTANT]
-> 일시 중지된 턴은 일시 중지한 참여자가 아니라 해당 턴의 대화와 대기 중인 툴 호출을 기준으로 매칭됩니다. 따라서 애플리케이션에서 턴을 재개하기 전에 대화에 접근할 권한을 확인해야 합니다. 이는 [complete approval flow](#complete-approval-flow)에 나와 있으며, conversation store의 `conversationBelongsTo` 메서드로 접근 권한을 확인할 수도 있습니다.
+> [!WARNING]
+> 일시 중지된 턴은 일시 중지한 참여자가 아니라 해당 턴의 대화와 대기 중인 툴 호출을 기준으로 매칭됩니다. 따라서 애플리케이션은 턴을 재개하기 전에 대화에 접근할 권한을 확인해야 합니다. [complete approval flow](#complete-approval-flow)에서 설명한 것처럼 권한을 확인하거나, conversation store의 `conversationBelongsTo` 메서드로 접근 권한을 검증할 수 있습니다.
 
 <!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
 불리언 값인 `true`와 `false`는 승인과 거부를 나타내는 축약형으로 사용할 수 있습니다. 대기 중인 모든 도구 호출에는 결정을 내려야 합니다. 알 수 없거나 누락된 도구 호출 ID 또는 이미 해결된 도구 호출 ID를 전달하면 `ApprovalMismatchException`이 발생합니다. 명시적인 결정을 내리지 않은 호출에는 `approveRemaining` 또는 `rejectRemaining` 메서드를 사용해 기본값을 지정할 수 있습니다:

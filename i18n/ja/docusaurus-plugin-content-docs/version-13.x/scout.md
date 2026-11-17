@@ -310,7 +310,7 @@ class User extends Model
 ### Database Engine
 
 > [!WARNING]
-> データベースエンジンが現在サポートしているのは MySQL と PostgreSQL です。どちらも高速な全文カラムインデックスに対応しています。
+> 現在、データベースエンジンは MySQL と PostgreSQL をサポートしており、どちらも高速な全文カラムインデックスに対応しています。
 
 <!-- The `database` engine uses MySQL / PostgreSQL full-text indexes and `LIKE` clauses to search your existing database directly. For many applications, this is the simplest and most practical way to add search — no external service or additional infrastructure required. -->
 `database` エンジンは、MySQL / PostgreSQL フルテキスト インデックスと `LIKE` 句を使用して、既存のデータベースを直接検索します。多くのアプリケーションにとって、これは検索を追加する最も簡単で実用的な方法であり、外部サービスや追加のインフラストラクチャは必要ありません。
@@ -476,7 +476,7 @@ public function toSearchableArray(): array
 デフォルトでは、最初の検索で結果が得られなかった場合に限り、Scout はトライグラム照合を使って検索を再試行します。全文検索の結果にトライグラム照合の結果も含め、関連度のランキングにトライグラムの類似度を反映するには、`trigram_mode` を `blend` に設定します。
 
 > [!WARNING]
-> トライグラム照合には、接続の検索パス上で `pg_trgm` 拡張機能を利用できる必要があります。トライグラム用カラムを指定すると、`searchable` マイグレーションメソッドが拡張機能を作成するため、マイグレーションを実行するデータベースユーザーには拡張機能を作成する権限が必要です。
+> Trigram matching を使うには、接続の search path 上で `pg_trgm` 拡張機能を利用できる必要があります。trigram カラムを指定すると、`searchable` マイグレーションメソッドが拡張機能を作成するため、マイグレーションを実行するデータベースユーザーには拡張機能を作成する権限が必要です。
 
 <!-- You may override the `mode`, `language`, `rank`, `trigram`, and `trigram_mode` options for an individual search using the `options` method: -->
 `options` メソッドを使うと、個々の検索で `mode`、`language`、`rank`、`trigram`、`trigram_mode` オプションを上書きできます。
@@ -544,8 +544,27 @@ class Post extends Model
 }
 ```
 
+<!-- Alternatively, you may specify the model's index using the `SearchableAs` attribute. When using this attribute, the `prefix` defined in your application's `scout` configuration file will still be prepended to the index name: -->
+モデルのインデックスは、`SearchableAs` 属性を使って指定することもできます。この属性を使用しても、アプリケーションの `scout` 設定ファイルで定義した `prefix` はインデックス名の先頭に付加されます:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Attributes\SearchableAs;
+use Laravel\Scout\Searchable;
+
+#[SearchableAs('posts_index')]
+class Post extends Model
+{
+    use Searchable;
+}
+```
+
 > [!NOTE]
-> `searchableAs` メソッドはデータベースエンジンを使用する場合、効果がありません。データベースエンジンは常にモデルのデータベーステーブルを直接検索します。
+> データベースエンジンを使用する場合、`searchableAs` メソッドと `SearchableAs` 属性は効果がありません。データベースエンジンは常にモデルのデータベーステーブルを直接検索するためです。
 
 <a name="configuring-the-model-id"></a>
 <!-- #### Configuring the Model ID -->
@@ -593,7 +612,7 @@ class User extends Model
 ```
 
 > [!NOTE]
-> データベースエンジンを使用する場合、`getScoutKey`、`getScoutKeyName`、`getScoutKeyType` メソッドは効果がありません。データベースエンジンでは常にモデルの主キーが使用されます。
+> データベースエンジンを使用する場合、`getScoutKey`、`getScoutKeyName`、`getScoutKeyType` メソッドは効果がありません。データベースエンジンは常にモデルの主キーを使用します。
 
 <a name="algolia-configuration"></a>
 <!-- ### Algolia -->
@@ -991,7 +1010,7 @@ use App\Models\Article;
 ## Third-Party Engine Indexing
 
 > [!NOTE]
-> このセクションで説明するインデックス機能は、主にサードパーティの検索エンジン（Algolia、Meilisearch、Typesense、Turbopuffer）を使用する場合に関係します。データベースエンジンはデータベーステーブルを直接検索するため、手動でインデックスを管理する必要はありません。
+> このセクションで説明するインデックス機能は、主にサードパーティのエンジン（Algolia、Meilisearch、Typesense、Turbopuffer）を使用する場合に関係します。データベースエンジンはデータベースのテーブルを直接検索するため、手動でインデックスを管理する必要はありません。
 
 <a name="batch-import"></a>
 <!-- ### Batch Import -->
@@ -1038,7 +1057,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> `makeAllSearchableUsing` メソッドは、キューを使ってモデルを一括インポートする場合には適用できないことがあります。ジョブがモデルのコレクションを処理するとき、リレーションは復元されません（[not restored](/docs/13.x/queues#handling-relationships)）。
+> キューを使ってモデルを一括インポートする場合、`makeAllSearchableUsing` メソッドで Eager Load したリレーションは、ジョブの処理時に[retrieved again in their entirety](/docs/13.x/queues#handling-relationships)されるため、適用した制約は失われます。リレーションに制約を適用する必要がある場合は、代わりにジョブ内で実行される [`makeSearchableUsing`](#modifying-records-before-importing) メソッドで Eager Load してください。
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -1085,7 +1104,7 @@ $orders->searchable();
 ```
 
 > [!NOTE]
-> `searchable` メソッドは「upsert」操作と見なせます。つまり、モデルのレコードがインデックスにすでに存在する場合は更新され、存在しない場合は検索インデックスに追加されます。
+> `searchable` メソッドは「アップサート」操作と考えることができます。つまり、モデルのレコードがすでにインデックスに存在する場合は更新され、存在しない場合はインデックスに追加されます。
 
 <a name="updating-records"></a>
 <!-- ### Updating Records -->
@@ -1240,7 +1259,7 @@ public function shouldBeSearchable(): bool
 `shouldBeSearchable` メソッドは、`save` および `create` メソッド、クエリ、または関係を通じてモデルを操作する場合にのみ適用されます。 `searchable` メソッドを使用してモデルまたはコレクションを直接検索可能にすると、`shouldBeSearchable` メソッドの結果がオーバーライドされます。
 
 > [!WARNING]
-> Scout の「database」エンジンを使用する場合、検索可能なデータは常にデータベースに保存されるため、`shouldBeSearchable` メソッドは適用されません。database エンジンで同様の動作を実現するには、代わりに [where clauses](#where-clauses) を使用してください。
+> Scout の「database」エンジンを使用する場合、`shouldBeSearchable` メソッドは適用されません。検索可能なデータは常にデータベースに保存されるためです。database エンジンで同様の動作を実現するには、代わりに [where clauses](#where-clauses) を使用してください。
 
 <a name="searching"></a>
 <!-- ## Searching -->
@@ -1441,7 +1460,7 @@ Route::get('/orders', function (Request $request) {
 ```
 
 > [!WARNING]
-> 検索エンジンは Eloquent モデルのグローバルスコープの定義を認識しないため、Scout のページネーションを利用するアプリケーションではグローバルスコープを使用しないでください。使用する場合は、Scout で検索するときにグローバルスコープの制約を再現してください。
+> 検索エンジンは Eloquent モデルのグローバルスコープの定義を認識しないため、Scout のページネーションを使用するアプリケーションではグローバルスコープを使用しないでください。または、Scout で検索する際にグローバルスコープの制約を再現してください。
 
 <a name="soft-deleting"></a>
 <!-- ### Soft Deleting -->
@@ -1468,7 +1487,7 @@ $orders = Order::search('Star Trek')->onlyTrashed()->get();
 ```
 
 > [!NOTE]
-> ソフトデリートされたモデルを `forceDelete` で完全に削除すると、Scout が検索インデックスから自動的に削除します。
+> 論理削除されたモデルを `forceDelete` で完全に削除すると、Scout は自動的に検索インデックスから削除します。
 
 <a name="customizing-engine-searches"></a>
 <!-- ### Customizing Engine Searches -->
