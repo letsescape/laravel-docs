@@ -72,6 +72,7 @@ PHP, Laravel 생태계, Docusaurus Markdown/MDX 구조, 한국어 기술 문서 
 - Markdown 링크의 대상 URL, path, query string, fragment는 수정하지 않습니다.
 - Markdown 링크는 `[`, `]`, `(`, `)`, 표시 텍스트, 대상을 포함한 문법 전체를 원문과 문자 단위로 유지합니다. 링크 대상을 추측해 확장하거나 다른 경로로 바꾸지 않습니다. 예를 들어 `[atomic locks](#atomic-locks)`를 `[atomic locks](/docs/{{version}}/cache#atomic-locks)`로 바꾸면 안 됩니다.
 - 링크 앞뒤의 한국어 문장은 자연스럽게 연결하고, 필요한 조사는 링크 뒤에 붙입니다.
+  링크 표시 텍스트가 동작이나 조건을 설명하면, 그 의미를 한국어 본문에도 명시하고 원문 링크를 곁들입니다.
   예: `[facade](/docs/{{version}}/facades)는 ...`
 - `documentation.md`의 category/doc label과 사이드바 label은 영어 원문을 그대로 둡니다.
 - `documentation.md`와 사이드바 항목 순서를 임의로 바꾸거나 알파벳순으로 정렬하지 않습니다.
