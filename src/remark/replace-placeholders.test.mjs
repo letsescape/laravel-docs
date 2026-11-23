@@ -83,6 +83,24 @@ test('renderer retires a removed API link without losing its label', async () =>
   assert.deepEqual(tree.children[0].children, [{type: 'inlineCode', value: 'assertSimilarJson'}]);
 });
 
+test('renderer repairs the AI SDK schema link without changing the MCP schema link', async () => {
+  const markdown = [
+    '[JSON Schema](/docs/{{version}}/ai-sdk#tool-input-schemas)',
+    '[Laravel MCP](/docs/{{version}}/mcp#tool-input-schemas)',
+  ].join('\n\n');
+  for (const root of ['versioned_docs', 'i18n/ja/docusaurus-plugin-content-docs']) {
+    const tree = await processor.run(processor.parse(markdown), {
+      path: `/repo/${root}/version-13.x/validation.md`,
+    });
+    const links = [];
+    visit(tree, 'link', (node) => links.push(node.url));
+    assert.deepEqual(links, [
+      '/docs/13.x/ai-sdk#tools',
+      '/docs/13.x/mcp#tool-input-schemas',
+    ]);
+  }
+});
+
 for (const version of ['13.x', 'master', '12.x']) {
   for (const label of ['Core Development Discussion', '코어 개발 논의', 'コア開発の議論']) {
     const link = `[${label}](#core-development-discussion)`;

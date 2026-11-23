@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,6 +14,16 @@ from sync.runtime.process import ProcessTreeCleanupError
 
 class DiffTests(unittest.TestCase):
     """diff 동작과 경계 조건 테스트 모음."""
+
+    def setUp(self):
+        """Git 훅의 환경이 임시 저장소로 전파되지 않도록 격리."""
+
+        environment = {
+            key: value
+            for key, value in os.environ.items()
+            if not key.startswith("GIT_")
+        }
+        self.enterContext(patch.dict(os.environ, environment, clear=True))
 
     def test_process_tree_failure_is_a_controlled_git_error(self):
         """프로세스 트리 정리 실패를 제어된 Git 오류로 변환하는지 검증."""
@@ -579,6 +590,59 @@ class DiffTests(unittest.TestCase):
                 ("add", "New.", None, 3),
             ],
         )
+
+
+class GitFixtureIsolationTests(unittest.TestCase):
+    """Git 훅 환경에서 fixture가 부모 저장소를 변경하지 않는지 검증."""
+
+    def test_fixture_preserves_parent_repository(self):
+        """훅의 저장소·인덱스 환경을 전달해도 부모 설정과 index 보존."""
+
+        environment = {
+            key: value
+            for key, value in os.environ.items()
+            if not key.startswith("GIT_")
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary)
+            subprocess.run(
+                ["git", "init", str(parent)],
+                env=environment,
+                check=True,
+                capture_output=True,
+            )
+            (parent / "sentinel.txt").write_text("keep\n", encoding="utf-8")
+            subprocess.run(
+                ["git", "-C", str(parent), "add", "sentinel.txt"],
+                env=environment,
+                check=True,
+                capture_output=True,
+            )
+            git_dir = parent / ".git"
+            snapshots = {
+                name: (git_dir / name).read_bytes() for name in ("config", "index")
+            }
+            environment.update(
+                GIT_DIR=str(git_dir),
+                GIT_INDEX_FILE=str(git_dir / "index"),
+            )
+            result = subprocess.run(
+                [
+                    sys.executable, "-m", "unittest", "discover",
+                    "-s", "tests/source", "-p", "test_diff.py",
+                    "-k", "test_changed_sources_normalizes_real_git_rename",
+                ],
+                cwd=Path(__file__).resolve().parents[2],
+                env=environment,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=False,
+            )
+            for name, expected in snapshots.items():
+                self.assertEqual((git_dir / name).read_bytes(), expected, name)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("Ran 1 test", result.stderr)
 
 
 if __name__ == "__main__":
