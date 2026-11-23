@@ -630,6 +630,18 @@ Storage::disk('local')->moveToDisk(
 );
 ```
 
+<!-- If you need to specify [visibility](#file-visibility) or driver-specific options, such as S3's `CacheControl` header, for the file on the destination disk, you may pass them as the fourth argument. You may provide a string to specify only the visibility, or an array of options: -->
+保存先ディスク上のファイルに [visibility](#file-visibility) や、S3 の `CacheControl` ヘッダーなどドライバ固有のオプションを指定する場合は、第4引数として渡せます。visibility だけを指定するには文字列を、オプションを複数指定するには配列を渡します。
+
+```php
+Storage::disk('local')->moveToDisk('s3', 'tmp/avatar.jpg', 'avatars/1.jpg', 'public');
+
+Storage::disk('local')->copyToDisk('s3', 'tmp/report.pdf', 'reports/report.pdf', [
+    'visibility' => 'private',
+    'CacheControl' => 'max-age=31536000',
+]);
+```
+
 <a name="automatic-streaming"></a>
 <!-- ### Automatic Streaming -->
 ### Automatic Streaming

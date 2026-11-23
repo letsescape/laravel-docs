@@ -360,9 +360,6 @@ Head::og(type: OgType::Article, title: $post->title)
 <!-- You may pass image MIME types as `ImageType` enum cases anywhere the API accepts an image `type`, such as `ImageType::Svg`, `ImageType::Png`, `ImageType::Jpeg`, and `ImageType::Webp`. -->
 이미지 `type`을 허용하는 API의 모든 곳에서 `ImageType::Svg`, `ImageType::Png`, `ImageType::Jpeg`, `ImageType::Webp`와 같은 `ImageType` enum 케이스로 이미지 MIME 타입을 전달할 수 있습니다.
 
-> [!NOTE]
-> 문서의 `title`과 `description`은 누락된 `og:title`과 `og:description` 값을 자동으로 채웁니다.
-
 <!-- For a single Open Graph image with no other attributes, you may pass the `image` named argument to the `og` method: -->
 다른 속성 없이 Open Graph 이미지 하나만 지정하려면 `og` 메서드에 `image` 이름 지정 인수를 전달할 수 있습니다:
 
@@ -377,6 +374,35 @@ Head::og(
 
 <!-- The `og(image: ...)` and `ogImage(...)` calls write to the same underlying image list, so you may use whichever is more expressive at the call site. You may use the [`meta`](#custom-tags) method for custom Open Graph extensions such as product or article properties. -->
 `og(image: ...)` 및 `ogImage(...)` 호출은 동일한 내부 이미지 목록에 기록하므로, 호출 위치에서 더 표현력이 높은 방식을 사용하면 됩니다. 제품 또는 아티클 속성과 같은 사용자 지정 Open Graph 확장에는 [`meta`](#custom-tags) 메서드를 사용할 수 있습니다.
+
+> [!NOTE]
+> 문서의 `title`과 `description`은 값이 누락된 `og:title`과 `og:description`을 자동으로 채웁니다.
+
+<!-- When a page renders Open Graph tags without a `url`, Laravel Head uses the page's [canonical URL](#defaults) as the `og:url` value. Since the canonical URL is resolved for each request, you may register both in your defaults: -->
+페이지에서 `url` 없이 Open Graph 태그를 렌더링하면 Laravel Head는 페이지의 [canonical URL](#defaults)을 `og:url` 값으로 사용합니다. canonical URL은 요청마다 확인되므로 기본값에 두 항목을 모두 등록할 수 있습니다:
+
+```php
+use Laravel\Head\Enums\OgType;
+use Laravel\Head\Facades\Head;
+use Laravel\Head\HeadBuilder;
+
+Head::defaults(fn (HeadBuilder $head) => $head
+    ->canonical()
+    ->og(siteName: 'Laravel', type: OgType::Website));
+```
+
+<!-- For a request to `/pricing`, this renders: -->
+`/pricing` 요청에는 다음과 같이 렌더링됩니다:
+
+```html
+<link rel="canonical" href="https://example.com/pricing">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Laravel">
+<meta property="og:url" content="https://example.com/pricing">
+```
+
+<!-- If no canonical URL is set, `og:url` is omitted. An explicit `url` passed to the `og` method always takes precedence over the canonical URL. -->
+표준 URL을 설정하지 않으면 `og:url`이 생략됩니다. `og` 메서드에 명시적으로 전달한 `url`은 항상 표준 URL보다 우선합니다.
 
 <a name="twitter-cards"></a>
 <!-- ### X / Twitter Cards -->
@@ -825,7 +851,7 @@ createInertiaApp({
 이는 [server-side rendering (SSR)](https://inertiajs.com/docs/v3/advanced/server-side-rendering) 여부와 관계없이 작동합니다. 애플리케이션에 별도의 SSR 진입점이 있다면 해당 진입점에서도 `serverHead`를 활성화해야 합니다. Laravel Head는 순서와 관계없이 `@head`와 `<x-inertia::head />` 사이에서 페이지가 관리하는 요소의 중복을 자동으로 제거하면서, JavaScript SSR이 생성한 다른 head 요소는 그대로 유지합니다.
 
 > [!NOTE]
-> 기존 Inertia 애플리케이션에 Laravel Head를 추가할 때는 `resources/js/app.tsx`와 `resources/js/ssr.tsx`에서 모든 title 콜백을 제거하여 Laravel Head가 최종 문서 제목을 관리하도록 해야 합니다. 또한 Inertia의 [`<Head>` component](https://inertiajs.com/docs/v3/the-basics/title-and-meta)가 관리하는 태그를 Laravel Head로 옮겨 두 도구가 동일한 요소를 정의하지 않도록 해야 합니다.
+> 기존 Inertia 애플리케이션에 Laravel Head를 추가할 때는 Laravel Head가 최종 문서 제목을 관리할 수 있도록 `resources/js/app.tsx`와 `resources/js/ssr.tsx`의 title 콜백을 제거하고, Inertia의 [`<Head>` component](https://inertiajs.com/docs/v3/the-basics/title-and-meta)가 관리하는 태그를 Laravel Head로 옮겨 두 기능이 같은 요소를 정의하지 않도록 합니다.
 
 <!-- The `head` prop is omitted from partial reload responses, so Inertia retains the last full page's head. Instant visits likewise retain the current head until the background response arrives. If your application already uses the `head` prop, change its name in a service provider: -->
 부분 재로드 응답에서는 `head` prop이 생략되므로 Inertia는 마지막 전체 페이지의 head를 유지합니다. 즉시 방문에서도 백그라운드 응답이 도착할 때까지 현재 head를 유지합니다. 애플리케이션에서 이미 `head` prop을 사용하고 있다면 서비스 프로바이더에서 이름을 변경합니다:

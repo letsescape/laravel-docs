@@ -310,7 +310,7 @@ class User extends Model
 ### Database Engine
 
 > [!WARNING]
-> 現在、データベースエンジンは MySQL と PostgreSQL をサポートしており、どちらも高速な全文カラムインデックスに対応しています。
+> 現在、このデータベースエンジンは MySQL と PostgreSQL をサポートしており、どちらも高速な全文カラムインデックス作成に対応しています。
 
 <!-- The `database` engine uses MySQL / PostgreSQL full-text indexes and `LIKE` clauses to search your existing database directly. For many applications, this is the simplest and most practical way to add search — no external service or additional infrastructure required. -->
 `database` エンジンは、MySQL / PostgreSQL フルテキスト インデックスと `LIKE` 句を使用して、既存のデータベースを直接検索します。多くのアプリケーションにとって、これは検索を追加する最も簡単で実用的な方法であり、外部サービスや追加のインフラストラクチャは必要ありません。
@@ -379,7 +379,7 @@ public function toSearchableArray(): array
 ```
 
 > [!WARNING]
-> カラムに全文検索クエリ制約を指定する前に、そのカラムに [full text index](/docs/13.x/migrations#available-index-types) が設定されていることを確認してください。
+> カラムに全文検索クエリ制約を指定する前に、そのカラムに [full text index](/docs/13.x/migrations#available-index-types) が作成されていることを確認してください。
 
 <a name="postgresql-full-text-search"></a>
 <!-- #### PostgreSQL Full-Text Search -->
@@ -476,7 +476,7 @@ public function toSearchableArray(): array
 デフォルトでは、最初の検索で結果が得られなかった場合に限り、Scout はトライグラム照合を使って検索を再試行します。全文検索の結果にトライグラム照合の結果も含め、関連度のランキングにトライグラムの類似度を反映するには、`trigram_mode` を `blend` に設定します。
 
 > [!WARNING]
-> Trigram matching を使うには、接続の search path 上で `pg_trgm` 拡張機能を利用できる必要があります。trigram カラムを指定すると、`searchable` マイグレーションメソッドが拡張機能を作成するため、マイグレーションを実行するデータベースユーザーには拡張機能を作成する権限が必要です。
+> トライグラム照合を使うには、接続の検索パス上で `pg_trgm` 拡張機能を利用できる必要があります。トライグラムカラムを指定すると、マイグレーションの `searchable` メソッドが拡張機能を作成するため、マイグレーションを実行するデータベースユーザーには拡張機能を作成する権限が必要です。
 
 <!-- You may override the `mode`, `language`, `rank`, `trigram`, and `trigram_mode` options for an individual search using the `options` method: -->
 `options` メソッドを使うと、個々の検索で `mode`、`language`、`rank`、`trigram`、`trigram_mode` オプションを上書きできます。
@@ -564,7 +564,7 @@ class Post extends Model
 ```
 
 > [!NOTE]
-> データベースエンジンを使用する場合、`searchableAs` メソッドと `SearchableAs` 属性は効果がありません。データベースエンジンは常にモデルのデータベーステーブルを直接検索するためです。
+> データベースエンジンを使用する場合、`searchableAs` メソッドと `SearchableAs` 属性は効果がありません。データベースエンジンは常にモデルのデータベーステーブルを直接検索します。
 
 <a name="configuring-the-model-id"></a>
 <!-- #### Configuring the Model ID -->
@@ -610,9 +610,6 @@ class User extends Model
     }
 }
 ```
-
-> [!NOTE]
-> データベースエンジンを使用する場合、`getScoutKey`、`getScoutKeyName`、`getScoutKeyType` メソッドは効果がありません。データベースエンジンは常にモデルの主キーを使用します。
 
 <a name="algolia-configuration"></a>
 <!-- ### Algolia -->
@@ -1010,7 +1007,7 @@ use App\Models\Article;
 ## Third-Party Engine Indexing
 
 > [!NOTE]
-> このセクションで説明するインデックス機能は、主にサードパーティのエンジン（Algolia、Meilisearch、Typesense、Turbopuffer）を使用する場合に関係します。データベースエンジンはデータベースのテーブルを直接検索するため、手動でインデックスを管理する必要はありません。
+> このセクションで説明するインデックス機能は、主にサードパーティ製エンジン（Algolia、Meilisearch、Typesense、Turbopuffer）を使用する場合に関係します。データベースエンジンはデータベースのテーブルを直接検索するため、手動でインデックスを管理する必要はありません。
 
 <a name="batch-import"></a>
 <!-- ### Batch Import -->
@@ -1057,7 +1054,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> キューを使ってモデルを一括インポートする場合、`makeAllSearchableUsing` メソッドで Eager Load したリレーションは、ジョブの処理時に全件が再取得されます（[retrieved again in their entirety](/docs/13.x/queues#handling-relationships)）。そのため、適用した制約は失われます。リレーションに制約を適用する必要がある場合は、代わりにジョブ内で実行される [`makeSearchableUsing`](#modifying-records-before-importing) メソッドで Eager Load してください。
+> キューを使ってモデルを一括インポートする場合、`makeAllSearchableUsing` メソッドで Eager Load したリレーションは、ジョブの実行時に[retrieved again in their entirety](/docs/13.x/queues#handling-relationships)ため、適用した制約は失われます。リレーションに制約を適用する必要がある場合は、代わりにジョブ内で実行される [`makeSearchableUsing`](#modifying-records-before-importing) メソッドで Eager Load してください。
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -1104,7 +1101,7 @@ $orders->searchable();
 ```
 
 > [!NOTE]
-> `searchable` メソッドは「アップサート」操作と考えることができます。つまり、モデルのレコードがすでにインデックスに存在する場合は更新され、存在しない場合はインデックスに追加されます。
+> `searchable` メソッドは「upsert」操作と考えることができます。つまり、モデルのレコードがすでにインデックスに存在する場合は更新され、検索インデックスに存在しない場合は追加されます。
 
 <a name="updating-records"></a>
 <!-- ### Updating Records -->
@@ -1259,7 +1256,7 @@ public function shouldBeSearchable(): bool
 `shouldBeSearchable` メソッドは、`save` および `create` メソッド、クエリ、または関係を通じてモデルを操作する場合にのみ適用されます。 `searchable` メソッドを使用してモデルまたはコレクションを直接検索可能にすると、`shouldBeSearchable` メソッドの結果がオーバーライドされます。
 
 > [!WARNING]
-> Scout の「database」エンジンを使用する場合、`shouldBeSearchable` メソッドは適用されません。検索可能なデータは常にデータベースに保存されるためです。database エンジンで同様の動作を実現するには、代わりに [where clauses](#where-clauses) を使用してください。
+> Scout の "database" エンジンを使用する場合、`shouldBeSearchable` メソッドは適用されません。検索可能なデータは常にデータベースに保存されるためです。database エンジンで同様の動作を実現するには、代わりに [where clauses](#where-clauses) を使用してください。
 
 <a name="searching"></a>
 <!-- ## Searching -->
@@ -1386,7 +1383,7 @@ $orders = Order::search('Star Trek')->whereNotIn(
 ```
 
 > [!WARNING]
-> アプリケーションで Meilisearch を使用している場合、Scout の「where」句を使う前に、アプリケーションの [filterable attributes](#meilisearch-index-settings) を設定する必要があります。
+> Scout を使用するアプリケーションでは、「where」句を使う前に、アプリケーションの [filterable attributes](#meilisearch-index-settings) を設定する必要があります。
 
 <a name="customizing-the-eloquent-results-query"></a>
 <!-- #### Customizing the Eloquent Results Query -->
@@ -1460,7 +1457,7 @@ Route::get('/orders', function (Request $request) {
 ```
 
 > [!WARNING]
-> 検索エンジンは Eloquent モデルのグローバルスコープの定義を認識しないため、Scout のページネーションを使用するアプリケーションではグローバルスコープを使用しないでください。または、Scout で検索する際にグローバルスコープの制約を再現してください。
+> 検索エンジンは Eloquent モデルのグローバルスコープの定義を認識しないため、Scout のページネーションを使うアプリケーションではグローバルスコープを使用しないでください。または、Scout で検索する際にグローバルスコープの制約を再現してください。
 
 <a name="soft-deleting"></a>
 <!-- ### Soft Deleting -->
@@ -1487,7 +1484,7 @@ $orders = Order::search('Star Trek')->onlyTrashed()->get();
 ```
 
 > [!NOTE]
-> 論理削除されたモデルを `forceDelete` で完全に削除すると、Scout は自動的に検索インデックスから削除します。
+> ソフトデリートされたモデルを `forceDelete` で完全に削除すると、Scout は検索インデックスから自動的に削除します。
 
 <a name="customizing-engine-searches"></a>
 <!-- ### Customizing Engine Searches -->
