@@ -6,6 +6,7 @@ import {toString} from 'mdast-util-to-string';
 import {visit} from 'unist-util-visit';
 
 const ANCHOR_RE = /<a\s+name=["']([^"']+)["']\s*(?:\/?>|>\s*<\/a>)/;
+type MappedAnchor = {anchor: Html; heading: Heading; id: Html};
 
 function headingText(heading: Heading): string {
   const children = heading.children.filter((child) => child.type !== 'html');
@@ -21,7 +22,7 @@ function explicitHeadingId(heading: Heading): string | undefined {
     parseMarkdownHeadingId(headingText(heading)).id;
 }
 
-function assignAutomaticHeadingIds(tree: Root): void {
+function assignAutomaticHeadingIds(tree: Root, mapped: Map<string, MappedAnchor[]>): void {
   const reserved = new Set<string>();
   const automatic: Heading[] = [];
   visit(tree, 'html', (node: Html) => {
@@ -41,6 +42,25 @@ function assignAutomaticHeadingIds(tree: Root): void {
       automatic.push(heading);
     }
   });
+
+  for (const [id, entries] of mapped) {
+    if (entries.length < 2) continue;
+    const matching = entries.find(({heading}) =>
+      createSlugger().slug(parseMarkdownHeadingId(headingText(heading)).text) === id);
+    for (const entry of entries) {
+      if (entry === (matching ?? entries[0])) continue;
+      const text = parseMarkdownHeadingId(headingText(entry.heading)).text;
+      const slugs = createSlugger();
+      let unique = slugs.slug(text);
+      while (reserved.has(unique)) unique = slugs.slug(text);
+      reserved.add(unique);
+      entry.anchor.value = entry.anchor.value.replace(
+        /name=(["'])[^"']+\1/,
+        (_match, quote: string) => `name=${quote}${unique}${quote}`,
+      );
+      entry.id.value = `<!-- #${unique} -->`;
+    }
+  }
 
   const slugs = createSlugger();
   for (const heading of automatic) {
@@ -71,9 +91,11 @@ function assignAutomaticHeadingIds(tree: Root): void {
  * - TOC와 실제 HTML 헤딩 ID를 같은 값으로 설정
  * - 같은 `paragraph`의 추가 앵커는 별도 `id`로 보존
  * - 명시한 ID와 별칭을 예약하고, 충돌하는 자동 헤딩 ID에만 접미사 부여
+ * - 중복 이름은 제목이 일치하는 헤딩에 유지하고, 나머지 헤딩과 원본 앵커에 고유 ID 부여
  */
 export default function anchorMappingPlugin(): Transformer<Root> {
   return (tree) => {
+    const mapped = new Map<string, MappedAnchor[]>();
     visit(tree, 'paragraph', (para: Paragraph, index, parent) => {
       if (!parent || index == null) return;
       const first = para.children[0];
@@ -95,7 +117,11 @@ export default function anchorMappingPlugin(): Transformer<Root> {
           }
           // Docusaurus heading 플러그인은 후행 `<!-- #id -->`를 명시적 ID로 사용
           // TOC 수집 전에 `data.id`와 `hProperties.id`를 함께 설정
-          next.children.push({type: 'html', value: `<!-- #${anchorId} -->`} as Html);
+          const id: Html = {type: 'html', value: `<!-- #${anchorId} -->`};
+          next.children.push(id);
+          const entries = mapped.get(anchorId) ?? [];
+          entries.push({anchor: first, heading: next, id});
+          mapped.set(anchorId, entries);
           break;
         }
         // 다음 앵커가 먼저 나오면 현재 앵커에 헤딩 없음 — 중단
@@ -108,6 +134,6 @@ export default function anchorMappingPlugin(): Transformer<Root> {
         }
       }
     });
-    assignAutomaticHeadingIds(tree);
+    assignAutomaticHeadingIds(tree, mapped);
   };
 }

@@ -72,6 +72,17 @@ export default function replacePlaceholdersPlugin(): Transformer<Root> {
 
     const listParagraphs = new Set<Paragraph>();
     visit(tree, 'paragraph', (node, _index, parent) => {
+      let inHtmlAnchor = false;
+      node.children = node.children.flatMap((child) => {
+        if (child.type === 'html') {
+          if (/^<a(?:\s|>)/i.test(child.value)) {
+            inHtmlAnchor = !/<\/a\s*>$/i.test(child.value);
+          } else if (/^<\/a\s*>$/i.test(child.value)) {
+            inHtmlAnchor = false;
+          }
+        }
+        return inHtmlAnchor && child.type === 'link' ? child.children : [child];
+      });
       if (parent?.type === 'listItem') listParagraphs.add(node);
     });
 

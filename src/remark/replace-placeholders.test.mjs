@@ -3,6 +3,9 @@ import test from 'node:test';
 
 import {unified} from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
 import {visit} from 'unist-util-visit';
 
 import replacePlaceholdersPlugin from './replace-placeholders.ts';
@@ -47,6 +50,20 @@ assert.deepEqual(
 );
 
 const processor = unified().use(remarkParse).use(replacePlaceholdersPlugin);
+test('contribution email renders one visible link and preserves ordinary links', async () => {
+  const markdown = '<a href="mailto:security@laravel.com">security@laravel.com</a> ' +
+    'taylor@laravel.com [문서](https://laravel.com/docs)';
+  const renderer = unified().use(remarkParse).use(remarkGfm)
+    .use(replacePlaceholdersPlugin).use(remarkRehype, {allowDangerousHtml: true}).use(rehypeRaw);
+  const tree = await renderer.run(renderer.parse(markdown), {path: '/repo/versioned_docs/version-13.x/contributions.md'});
+  const links = [];
+  visit(tree, 'element', (node) => { if (node.tagName === 'a') links.push(node); });
+  assert.deepEqual(links.map((node) => node.properties.href), [
+    'mailto:security@laravel.com', 'mailto:taylor@laravel.com', 'https://laravel.com/docs',
+  ]);
+  assert.equal(links[0].children[0].value, 'security@laravel.com');
+});
+
 test('renderer replaces version, installation, and stale links while preserving code examples', async () => {
   const markdown = [
     'Version {{version}}',

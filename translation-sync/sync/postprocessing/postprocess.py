@@ -528,7 +528,8 @@ def _stale_link_replacement(
         )
         return True, replacement
     image = "!" if link.image else ""
-    label = link.label
+    label_start = link.start + (2 if link.image else 1)
+    label = text[label_start : label_start + len(link.label)]
     if standalone_list and target.startswith("#"):
         label = _heading_label_for_fragment(text, target[1:]) or label
     return True, f"{image}[{label}]({target}{link.title})"

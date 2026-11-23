@@ -154,11 +154,13 @@ class PostprocessTests(unittest.TestCase):
                 "[Recursive](#method-array-sort-recursive-desc)\n"
                 "[Logger](/docs/10.x/errors#logging)\n"
                 "[Stringable](/docs/10.x/helpers#fluent-strings)\n"
+                "[`Illuminate\\Support\\Stringable`](/docs/10.x/helpers#fluent-strings)\n"
                 "[Migration](/docs/10.x/migrations#writing-migrations)\n",
                 "[Controller](#actions-handled-by-resource-controllers)\n"
                 "[Recursive](#method-array-sort-recursive)\n"
                 "[Logger](/docs/10.x/logging)\n"
                 "[Stringable](/docs/10.x/strings)\n"
+                "[`Illuminate\\Support\\Stringable`](/docs/10.x/strings)\n"
                 "[Migration](/docs/10.x/migrations#generating-migrations)\n",
             ),
             (

@@ -101,16 +101,29 @@ test('preserves authored IDs and skips reserved suffixes', async () => {
   assert.equal(headings[3].children[0].value, 'Other');
 });
 
-test('keeps existing duplicate declarations while avoiding them for automatic headings', async () => {
+test('gives repeated declarations distinct targets while avoiding automatic heading collisions', async () => {
   const elements = await renderElements(
     '<a name="section"></a>\n\n## First\n\n' +
       '<a name="section"></a>\n\n## Second\n\n## Section',
   );
   assert.deepEqual(
     elements.filter((node) => node.tagName === 'h2').map((node) => node.properties.id),
-    ['section', 'section', 'section-1'],
+    ['section', 'second', 'section-1'],
   );
 });
+
+for (const [id, first, second, expected] of [
+  ['updating-telescope', 'Updating Passport', 'Updating Telescope', ['updating-passport', 'updating-telescope']],
+  ['on-demand-notifications', 'On-Demand Notifications', 'On-Demand Notifications', ['on-demand-notifications', 'on-demand-notifications-1']],
+]) {
+  test(`repairs repeated ${id} heading targets`, async () => {
+    const elements = await renderElements(
+      `<a name="${id}"></a>\n\n#### ${first}\n\n<a name="${id}"></a>\n\n#### ${second}`,
+    );
+    assert.deepEqual(elements.filter((node) => node.tagName === 'h4').map((node) => node.properties.id), expected);
+    assert.deepEqual(elements.filter((node) => node.properties.name).map((node) => node.properties.name), expected);
+  });
+}
 
 test('keeps native slugs for formatted and localized headings', async () => {
   const elements = await renderElements(
