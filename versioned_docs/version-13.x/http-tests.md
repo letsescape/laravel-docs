@@ -1315,7 +1315,7 @@ $response->assertDontSee($value, $escape = true);
 #### assertDontSeeHtml
 
 <!-- Assert that the given HTML string is not contained within the response returned by the application. This assertion is an alias to `assertDontSee` with its escape argument set to `false`: -->
-애플리케이션이 반환한 응답에 지정한 HTML 문자열이 포함되어 있지 않은지 확인합니다. 이 단언은 이스케이프 인수를 `false`로 설정한 `assertDontSee`의 별칭입니다.
+애플리케이션이 반환한 응답에 지정한 HTML 문자열이 포함되어 있지 않은지 확인합니다. 이 어설션은 이스케이프 인수를 `false`로 설정한 `assertDontSee`의 별칭입니다.
 
 ```php
 $response->assertDontSeeHtml($value);
@@ -1987,7 +1987,7 @@ $response->assertSee($value, $escape = true);
 #### assertSeeHtml
 
 <!-- Assert that the given HTML string or array of HTML strings are contained within the response. This assertion is an alias to `assertSee` with its escape argument set to `false`: -->
-주어진 HTML 문자열 또는 HTML 문자열 배열이 응답에 포함되어 있는지 확인합니다. 이 어서션은 escape 인수를 `false`로 설정한 `assertSee`의 별칭입니다:
+주어진 HTML 문자열 또는 HTML 문자열 배열이 응답에 포함되어 있는지 확인합니다. 이 어설션은 이스케이프 인수를 `false`로 설정한 `assertSee`의 별칭입니다:
 
 ```php
 $response->assertSeeHtml($value);
@@ -1998,7 +1998,7 @@ $response->assertSeeHtml($value);
 #### assertSeeHtmlInOrder
 
 <!-- Assert that the given HTML strings are contained in order within the response. This assertion is an alias to `assertSeeInOrder` with its escape argument set to `false`: -->
-주어진 HTML 문자열이 지정된 순서대로 응답에 포함되어 있는지 확인합니다. 이 어서션은 escape 인수를 `false`로 설정한 `assertSeeInOrder`의 별칭입니다:
+주어진 HTML 문자열이 지정된 순서대로 응답에 포함되어 있는지 확인합니다. 이 어설션은 이스케이프 인수를 `false`로 설정한 `assertSeeInOrder`의 별칭입니다:
 
 ```php
 $response->assertSeeHtmlInOrder(array $values);

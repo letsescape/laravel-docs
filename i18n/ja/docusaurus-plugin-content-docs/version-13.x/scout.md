@@ -1057,7 +1057,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> キューを使ってモデルを一括インポートする場合、`makeAllSearchableUsing` メソッドで Eager Load したリレーションは、ジョブの処理時に[retrieved again in their entirety](/docs/13.x/queues#handling-relationships)されるため、適用した制約は失われます。リレーションに制約を適用する必要がある場合は、代わりにジョブ内で実行される [`makeSearchableUsing`](#modifying-records-before-importing) メソッドで Eager Load してください。
+> キューを使ってモデルを一括インポートする場合、`makeAllSearchableUsing` メソッドで Eager Load したリレーションは、ジョブの処理時に全件が再取得されます（[retrieved again in their entirety](/docs/13.x/queues#handling-relationships)）。そのため、適用した制約は失われます。リレーションに制約を適用する必要がある場合は、代わりにジョブ内で実行される [`makeSearchableUsing`](#modifying-records-before-importing) メソッドで Eager Load してください。
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->

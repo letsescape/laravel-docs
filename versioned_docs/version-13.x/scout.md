@@ -455,7 +455,7 @@ Schema::table('posts', function (Blueprint $table) {
 | `language` | `english` 또는 `public.english_unaccent`와 같은 텍스트 검색 설정입니다. | `english` |
 | `mode` | 쿼리 구문입니다. `plain`, `phrase`, `websearch`, `raw` 중 하나를 지정합니다. | `plain` |
 | `rank` | 순위 계산 함수입니다. `ts_rank` 또는 `ts_rank_cd`를 지정합니다. | `ts_rank` |
-| `trigram` | 오타를 허용하는 매칭에 사용할 컬럼 이름 또는 컬럼 배열입니다. | None |
+| `trigram` | 오타를 허용하는 매칭에 사용할 컬럼 이름 또는 컬럼 배열입니다. | 없음 |
 | `trigram_mode` | 트라이그램 매칭을 `fallback`으로 사용하거나, `blend`를 사용해 전문 검색 결과와 결합할지 여부입니다. | `fallback` |
 
 <!-- The `plain` mode searches for all query terms, while `phrase` matches terms in order. The `websearch` mode supports web search syntax, such as quoted phrases and excluded terms, and `raw` accepts PostgreSQL `tsquery` syntax. When searching a stored vector column, the `language` must match the text search configuration used to generate the column. -->
@@ -1057,7 +1057,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 큐를 사용해 모델을 일괄 가져올 때, `makeAllSearchableUsing` 메서드에서 미리 로드한 연관관계는 작업이 처리될 때 [retrieved again in their entirety](/docs/13.x/queues#handling-relationships) 적용한 제약 조건이 사라집니다. 연관관계를 제한해야 한다면 작업 내에서 실행되는 [`makeSearchableUsing`](#modifying-records-before-importing) 메서드에서 대신 미리 로드하세요.
+> 큐를 사용해 모델을 일괄 가져오면 `makeAllSearchableUsing` 메서드에서 미리 로드한 연관관계는 작업 처리 시 전체가 다시 조회됩니다([retrieved again in their entirety](/docs/13.x/queues#handling-relationships)). 따라서 적용했던 제약 조건이 사라집니다. 연관관계에 제약 조건을 적용하려면 작업 내에서 실행되는 [`makeSearchableUsing`](#modifying-records-before-importing) 메서드에서 대신 미리 로드하세요.
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
