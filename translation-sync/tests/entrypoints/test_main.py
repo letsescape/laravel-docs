@@ -1984,6 +1984,70 @@ class MainPipelineTests(unittest.TestCase):
             self.assertIn("이제 번역해야 하는 새 문장입니다.", written)
             self.assertNotIn("예전 번역입니다.", written)
 
+    def test_recreation_preserves_only_unchanged_warnings_in_place(self):
+        """전체 재번역에서도 같은 위치의 원문이 그대로인 경고만 보존."""
+
+        kept = "> [!WARNING]\n> Configure the filter before searching.\n"
+        edited = "> [!WARNING]\n> Use the old filter.\n"
+        moved = "> [!WARNING]\n> Check your indexes.\n"
+        previous = (
+            '# Search\n\n<a name="filters"></a>\n\n' + kept
+            + '\n<a name="options"></a>\n\n' + edited
+            + '\n<a name="indexes"></a>\n\n' + moved
+            + '\n<a name="obsolete"></a>\n\n> [!NOTE]\n> Old note.\n'
+        )
+        source = previous.replace("old filter", "new filter").replace(
+            'name="indexes"', 'name="setup"'
+        ).removesuffix("> [!NOTE]\n> Old note.\n")
+        existing = previous.replace("# Search", "<!-- # Search -->\n# Search").replace(
+            "Configure the filter before searching.", "검색 전에 필터를 설정하세요."
+        ).replace("Use the old filter.", "기존 필터를 사용하세요.").replace(
+            "Check your indexes.", "인덱스를 확인하세요."
+        ).replace("Old note.", "이전 안내입니다.")
+        change = diff.SourceChange(
+            path="i18n/en/docusaurus-plugin-content-docs/version-13.x/example.md",
+            status="M",
+            hunks=diff.hunks_between(previous, source),
+        )
+        cfg = config.Config(provider="cli", values={"TRANSLATION_PROVIDER": "cli"})
+        translated = {
+            edited.replace("old filter", "new filter"): "> [!WARNING]\n> 새 필터를 사용하세요.\n",
+            moved: "> [!WARNING]\n> 검색 인덱스를 확인하세요.\n",
+        }
+        with tempfile.TemporaryDirectory() as tmp, patch.object(main, "REPO_ROOT", Path(tmp)):
+            src = Path(tmp) / change.path
+            src.parent.mkdir(parents=True)
+            src.write_text(source, encoding="utf-8")
+            dest = main._ko_output(change)
+            dest.parent.mkdir(parents=True)
+            dest.write_text(existing, encoding="utf-8")
+            with patch.object(main.translate, "translate_request") as provider:
+                provider.side_effect = lambda request, *_args, **_kwargs: translated[request.source]
+                issues = main._translate_one(change, cfg, "prompt", dest, locale="ko")
+            self.assertEqual(issues, [])
+            self.assertEqual([c.args[0].source for c in provider.call_args_list], list(translated))
+            written = dest.read_text(encoding="utf-8")
+            self.assertIn("검색 전에 필터를 설정하세요.", written)
+            self.assertIn("새 필터를 사용하세요.", written)
+            self.assertIn("검색 인덱스를 확인하세요.", written)
+            self.assertNotIn("이전 안내입니다.", written)
+
+    def test_recreation_skips_warnings_with_ambiguous_or_shifted_positions(self):
+        """위치가 달라졌거나 기존 경고를 구별할 수 없으면 다시 번역한다."""
+
+        warning = "> [!WARNING]\n> Check the index.\n"
+        source = "## Search\n\n" + warning
+        existing = source.replace("Check the index.", "인덱스를 확인하세요.")
+        for current, localized in (
+            (source.replace("## Search", "## Import"), existing),
+            (source, existing.replace("## Search", "## Search\n\n다른 문단입니다.")),
+            (source + "\n## Import\n\n" + warning, existing),
+            (source, existing + "\n> [!WARNING]\n> 다른 경고입니다.\n"),
+        ):
+            with self.subTest(current=current, localized=localized):
+                hunks = diff.hunks_between(source, current)
+                self.assertEqual(main.patch_utils.reusable_admonitions(hunks, current, localized), {})
+
     def test_recreation_rejects_short_reusable_block_in_wrong_locale(self):
         """짧은 타 언어 블록을 기존 승인 번역으로 재사용하지 않음."""
 

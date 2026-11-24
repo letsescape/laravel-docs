@@ -1054,7 +1054,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> 큐를 사용해 모델을 일괄 가져올 때 `makeAllSearchableUsing` 메서드에서 즉시 로드한 연관관계는 작업을 처리할 때 [retrieved again in their entirety](/docs/13.x/queues#handling-relationships), 적용한 제약 조건이 사라집니다. 연관관계를 제약해야 한다면 작업 내에서 실행되는 [`makeSearchableUsing`](#modifying-records-before-importing) 메서드에서 즉시 로드하세요.
+> 큐를 사용해 모델을 일괄 가져오면 `makeAllSearchableUsing` 메서드에서 미리 로드한 연관관계는 작업 처리 시 전체가 다시 조회됩니다([retrieved again in their entirety](/docs/13.x/queues#handling-relationships)). 따라서 적용했던 제약 조건이 사라집니다. 연관관계에 제약 조건을 적용하려면 작업 내에서 실행되는 [`makeSearchableUsing`](#modifying-records-before-importing) 메서드에서 대신 미리 로드하세요.
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->

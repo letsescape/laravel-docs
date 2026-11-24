@@ -1054,7 +1054,7 @@ protected function makeAllSearchableUsing(Builder $query): Builder
 ```
 
 > [!WARNING]
-> キューを使ってモデルを一括インポートする場合、`makeAllSearchableUsing` メソッドで Eager Load したリレーションは、ジョブの実行時に[retrieved again in their entirety](/docs/13.x/queues#handling-relationships)ため、適用した制約は失われます。リレーションに制約を適用する必要がある場合は、代わりにジョブ内で実行される [`makeSearchableUsing`](#modifying-records-before-importing) メソッドで Eager Load してください。
+> キューを使ってモデルを一括インポートする場合、`makeAllSearchableUsing` メソッドで Eager Load したリレーションは、ジョブの処理時に全件が再取得されます（[retrieved again in their entirety](/docs/13.x/queues#handling-relationships)）。そのため、適用した制約は失われます。リレーションに制約を適用する必要がある場合は、代わりにジョブ内で実行される [`makeSearchableUsing`](#modifying-records-before-importing) メソッドで Eager Load してください。
 
 <a name="adding-records"></a>
 <!-- ### Adding Records -->
@@ -1383,7 +1383,7 @@ $orders = Order::search('Star Trek')->whereNotIn(
 ```
 
 > [!WARNING]
-> Scout を使用するアプリケーションでは、「where」句を使う前に、アプリケーションの [filterable attributes](#meilisearch-index-settings) を設定する必要があります。
+> アプリケーションで Meilisearch を使用している場合、Scout の「where」句を使う前に、アプリケーションの [filterable attributes](#meilisearch-index-settings) を設定する必要があります。
 
 <a name="customizing-the-eloquent-results-query"></a>
 <!-- #### Customizing the Eloquent Results Query -->

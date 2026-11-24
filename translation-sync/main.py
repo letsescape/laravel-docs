@@ -1232,8 +1232,7 @@ def _reused_create_block(
 ) -> str | None:
     """영어 원문이 그대로인 owner의 기존 번역 블록 재사용 결과.
 
-    canonical annotation이 정확히 하나이고 기존 문서에서 유일하게 대응하며
-    응답 계약을 그대로 통과할 때만 재사용한다.
+    원문 주석 또는 위치가 일치한 경고문의 기존 번역을 응답 계약으로 검증한다.
     """
 
     if not reusable:
@@ -1244,9 +1243,12 @@ def _reused_create_block(
         placeholders,
     )
     required = response_contract._required_comments(annotation_source)
-    if len(required) != 1:
+    if len(required) == 1:
+        candidate = reusable.get(required[0])
+    elif owner.kind == "admonition" and not required:
+        candidate = reusable.get(owner.source.rstrip("\r\n"))
+    else:
         return None
-    candidate = reusable.get(required[0])
     if candidate is None:
         return None
     english_view = postprocess.postprocess(
@@ -1268,7 +1270,7 @@ def _reused_create_block(
     if (
         cfg.provider != "identity"
         and locale is not None
-        and not _document_is_in_locale(candidate, locale)
+        and response_contract.target_script_ratio(candidate, locale) < 0.10
     ):
         return None
     return candidate
@@ -1299,7 +1301,9 @@ def _degraded_create_target(
         dict(preprocessed.placeholders)
     )
     plan = patch_utils.build_create_plan(preprocessed.text)
-    reusable = MappingProxyType(_annotated_locale_blocks(existing))
+    reusable = _annotated_locale_blocks(existing)
+    if existing:
+        reusable.update(patch_utils.reusable_admonitions(change.hunks, source, existing))
     _preflight_create_plan(
         change,
         plan,
@@ -1326,7 +1330,7 @@ def _degraded_create_target(
         placeholders=placeholders,
         block_requests=MappingProxyType({}),
         preserved_front_matter=preserved,
-        reusable_blocks=reusable,
+        reusable_blocks=MappingProxyType(reusable),
     )
 
 

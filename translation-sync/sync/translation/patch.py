@@ -11,7 +11,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from enum import Enum
 
-from ..annotation.annotate import Block, split_blocks
+from ..annotation.annotate import Block, split_blocks, strip_annotations
 from ..common.markdown import (
     closes_fence,
     fence_token,
@@ -644,6 +644,51 @@ def reconstruct_source_pair(
     source_lines = source_text.splitlines()
     old_source_lines = _reverse_apply_hunks(source_lines, hunks)
     return _lines_text(old_source_lines, source_text), source_text
+
+
+def _positioned_admonitions(text: str) -> dict[tuple[str, str, str], tuple[int, str]]:
+    """한 절 안에서 유형이 유일한 경고문의 블록 위치와 본문."""
+
+    blocks = split_blocks(text.splitlines())
+    anchors = Counter(block.lines[0] for block in blocks if block.kind == "anchor")
+    found: dict[tuple[str, str, str], list[tuple[int, str]]] = {}
+    anchor = heading = ""
+    start = 0
+    for index, block in enumerate(blocks):
+        if block.kind == "anchor":
+            anchor, heading, start = block.lines[0], "", index
+        elif block.kind == "heading":
+            heading = block.lines[0]
+        elif block.kind == "text" and anchors[anchor] <= 1:
+            marker = _ADMONITION_MARKER_RE.fullmatch(block.lines[0].strip())
+            if marker:
+                key = (anchor, heading, marker.group(1).upper())
+                found.setdefault(key, []).append((index - start, "\n".join(block.lines)))
+    return {key: entries[0] for key, entries in found.items() if len(entries) == 1}
+
+
+def reusable_admonitions(
+    hunks: tuple[DiffHunk, ...], source: str, existing: str,
+) -> dict[str, str]:
+    """이전·현재 원문과 기존 번역의 위치가 일치하는 미변경 경고문 수집."""
+
+    try:
+        previous, _ = reconstruct_source_pair(hunks, source)
+    except PatchError:
+        return {}
+    before = _positioned_admonitions(previous)
+    localized = _positioned_admonitions(strip_annotations(existing, source=previous))
+    reusable: dict[str, str] = {}
+    for key, (offset, body) in _positioned_admonitions(source).items():
+        candidate = localized.get(key)
+        if (
+            before.get(key) == (offset, body)
+            and candidate is not None
+            and candidate[0] == offset
+            and source.count(body) == 1
+        ):
+            reusable[body] = candidate[1]
+    return reusable
 
 
 @dataclass(frozen=True)
