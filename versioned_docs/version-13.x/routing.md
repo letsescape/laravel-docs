@@ -387,8 +387,8 @@ Route::get('/user/{id}/{name}', function (string $id, string $name) {
 })->where(['id' => '[0-9]+', 'name' => '[a-z]+']);
 ```
 
-<!-- For convenience, some commonly used regular expression patterns have helper methods that allow you to quickly add pattern constraints to your routes: -->
-편의를 위해 자주 사용되는 일부 정규 표현식 패턴에는 라우트에 패턴 제약을 빠르게 추가할 수 있는 헬퍼 메서드가 제공됩니다.
+<!-- For convenience, the `whereNumber`, `whereAlpha`, `whereAlphaNumeric`, `whereUuid`, `whereUlid`, and `whereIn` methods add common pattern constraints to your routes: -->
+편의를 위해 `whereNumber`, `whereAlpha`, `whereAlphaNumeric`, `whereUuid`, `whereUlid`, `whereIn` 메서드로 라우트에 일반적인 패턴 제약을 추가할 수 있습니다:
 
 ```php
 Route::get('/user/{id}/{name}', function (string $id, string $name) {
