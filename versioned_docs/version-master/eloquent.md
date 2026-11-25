@@ -401,6 +401,38 @@ class Flight extends Model
 }
 ```
 
+<!-- If your default values need to be determined at runtime, you may define a `defaults` method on your model instead. Like the `$attributes` property, the values returned by the `defaults` method should also be in their raw, "storable" format. -->
+기본값을 런타임에 결정해야 한다면 모델에 `defaults` 메서드를 정의할 수도 있습니다. `$attributes` 프로퍼티와 마찬가지로 `defaults` 메서드가 반환하는 값도 원시 "저장 가능한" 형식이어야 합니다.
+
+```php
+<?php
+
+namespace App\Models;
+
+use App\Enums\FlightStatus;
+use Illuminate\Database\Eloquent\Model;
+
+class Flight extends Model
+{
+    /**
+     * Get the default attribute values for the model.
+     *
+     * @return array<string, mixed>
+     */
+    protected function defaults(): array
+    {
+        return [
+            'status' => FlightStatus::Scheduled->value,
+            'seats' => config('flights.default_seats'),
+            'departs_at' => now()->addDay()->toDateTimeString(),
+        ];
+    }
+}
+```
+
+> [!NOTE]
+> 모델에 `$attributes` 프로퍼티와 `defaults` 메서드가 모두 정의되어 있으면 `defaults` 메서드가 반환하는 값을 우선합니다.
+
 <a name="configuring-eloquent-strictness"></a>
 <!-- ### Configuring Eloquent Strictness -->
 ### Configuring Eloquent Strictness

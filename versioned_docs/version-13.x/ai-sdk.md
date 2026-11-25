@@ -335,7 +335,7 @@ AI SDK는 다양한 기능에서 여러 프로바이더를 지원합니다. 다�
 
 <div class="overflow-auto">
 
-<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, OpenAI Compatible, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, OpenAI Compatible, Gemini, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
 | 기능 | 프로바이더 |
 |---|---|
 | 텍스트 | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere |
@@ -344,7 +344,7 @@ AI SDK는 다양한 기능에서 여러 프로바이더를 지원합니다. 다�
 | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter |
 | 임베딩 | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
 | 리랭킹 | Cohere, Jina, VoyageAI, Bedrock, OpenRouter |
-| 분류 | OpenAI, OpenAI Compatible, TypeSafe, OpenRouter |
+| 분류 | OpenAI, OpenAI Compatible, Gemini, TypeSafe, OpenRouter |
 | 파일 | OpenAI, Anthropic, Gemini, Azure, OpenRouter |
 
 </div>
@@ -510,8 +510,19 @@ foreach ($response->steps as $step) {
 }
 ```
 
+<!-- Image, transcription, embeddings, reranking, classification, and file responses expose the same `raw` property. For example, you may read the cost that OpenRouter reports for a request: -->
+이미지, 전사, 임베딩, 리랭킹, 분류 및 파일 응답은 모두 동일한 `raw` 프로퍼티를 제공합니다. 예를 들어 OpenRouter가 요청에 대해 보고하는 비용을 확인할 수 있습니다:
+
+```php
+use Laravel\Ai\Embeddings;
+
+$response = Embeddings::for(['Hello world'])->generate(provider: 'openrouter');
+
+$response->raw?->json('usage.cost');
+```
+
 > [!NOTE]
-> 응답을 스트리밍할 때, HTTP 클라이언트 대신 AWS SDK를 통해 API를 호출하는 Bedrock provider를 사용할 때, 그리고 `withRawResponse`를 통해 명시적으로 제공하지 않은 가짜 응답에서는 `raw` 프로퍼티가 `null`입니다.
+> `raw` 프로퍼티는 응답을 스트리밍할 때, HTTP 클라이언트 대신 AWS SDK를 통해 API를 호출하는 Bedrock 프로바이더를 사용할 때, 임베딩이 전부 [cache](#caching-embeddings)에서 제공될 때, 직렬화된 응답을 사용할 때, 그리고 `withRawResponse`를 통해 명시적으로 제공하지 않은 모의 응답을 사용할 때 `null`입니다.
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -1355,6 +1366,20 @@ class SupportAgent implements Agent, HasTools
 
 <!-- When Laravel derives the maximum number of steps automatically, this attribute adds one step for the repaired call. Explicit `MaxSteps` limits are unchanged. -->
 Laravel이 최대 단계 수를 자동으로 계산할 때 이 속성은 복구된 호출을 위해 단계 하나를 추가합니다. 명시적으로 지정한 `MaxSteps` 제한은 변경되지 않습니다.
+
+<a name="handling-tool-failures"></a>
+<!-- #### Handling Tool Failures -->
+#### Handling Tool Failures
+
+<!-- When a tool throws an exception, the agent's run continues. The exception is reported to your application's exception handler, a `ToolFailed` [event](#events) is dispatched, and the model receives the failure as the tool's result, allowing it to explain what went wrong or try another approach. For example, if a tool throws an exception with the message "Order 1234 can no longer be refunded.", the model receives: -->
+도구에서 예외가 발생해도 에이전트 실행은 계속됩니다. 예외는 애플리케이션의 예외 핸들러에 전달되고 `ToolFailed` [event](#events)가 디스패치되며, 모델은 도구의 결과로 실패 내용을 전달받아 무엇이 잘못되었는지 설명하거나 다른 방법을 시도할 수 있습니다. 예를 들어 도구에서 "Order 1234는 더 이상 환불할 수 없습니다."라는 메시지와 함께 예외가 발생하면 모델은 다음 내용을 전달받습니다.
+
+```text
+The tool call failed: Order 1234 can no longer be refunded.
+```
+
+<!-- The failed result is available through the response's `toolResults`, and streamed responses emit it as a failed `tool_result` event. [Sub-agents](#sub-agents) used as tools are handled the same way when they throw. -->
+실패한 결과는 응답의 `toolResults`에서 확인할 수 있으며, 스트리밍 응답에서는 실패한 `tool_result` 이벤트로 전달됩니다. 도구로 사용된 [Sub-agents](#sub-agents)가 예외를 발생시키는 경우에도 같은 방식으로 처리됩니다.
 
 <a name="similarity-search"></a>
 <!-- #### Similarity Search -->
@@ -2323,7 +2348,7 @@ class SalesCoach implements Agent
 ## Human Tool Approval
 
 > [!WARNING]
-> 실행을 재개할 때는 일시 중지된 턴의 기록을 사용할 수 있어야 도구 승인을 처리할 수 있습니다. `RemembersConversations` 트레이트를 사용하는 에이전트처럼 `Conversational` 에이전트를 사용하거나, 애플리케이션의 프런트엔드에서 [`withMessages` method](#conversation-context)을 사용해 기록을 제공해야 합니다. 둘 다 하지 않는 에이전트는 도구가 일시 중지될 때 `ApprovalNotResumableException`을 발생시킵니다.
+> 도구 승인을 받으려면 실행을 재개할 때 일시 중지된 턴의 이력을 사용할 수 있어야 합니다. `RemembersConversations` 트레이트를 사용하는 에이전트와 같은 `Conversational` 에이전트를 사용하거나, 애플리케이션 프런트엔드에서 [`withMessages` method](#conversation-context)를 사용해 이력을 제공해야 합니다. 둘 다 하지 않는 에이전트는 도구가 일시 중지되면 `ApprovalNotResumableException`을 발생시킵니다.
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 민감하거나 되돌릴 수 없는 작업을 수행하는 툴은 실행 전에 사람의 승인을 요구할 수 있습니다. 툴을 승인 가능하게 만들려면 `Approvable` 컨트랙트를 구현하고 `InteractsWithApprovals` 트레이트를 사용합니다. 승인 가능한 툴은 기본적으로 승인이 필요합니다:
@@ -2439,7 +2464,7 @@ $response = (new FileAssistant)
 ```
 
 > [!WARNING]
-> 일시 중지된 턴은 일시 중지한 참여자가 아니라 해당 턴의 대화와 대기 중인 툴 호출을 기준으로 매칭됩니다. 따라서 애플리케이션은 턴을 재개하기 전에 대화에 접근할 권한을 확인해야 합니다. [complete approval flow](#complete-approval-flow)에서 설명한 것처럼 권한을 확인하거나, conversation store의 `conversationBelongsTo` 메서드로 접근 권한을 검증할 수 있습니다.
+> 일시 중지된 턴은 일시 중지한 참여자가 아니라 해당 대화와 대기 중인 툴 호출을 기준으로 매칭됩니다. 따라서 대화를 재개하기 전에 애플리케이션에서 해당 대화에 대한 접근 권한을 확인해야 합니다. [complete approval flow](#complete-approval-flow)에 나온 것처럼 처리하거나, 대화 스토어의 `conversationBelongsTo` 메서드를 사용해 접근 권한을 확인하세요.
 
 <!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
 불리언 값인 `true`와 `false`는 승인과 거부를 나타내는 축약형으로 사용할 수 있습니다. 대기 중인 모든 도구 호출에는 결정을 내려야 합니다. 알 수 없거나 누락된 도구 호출 ID 또는 이미 해결된 도구 호출 ID를 전달하면 `ApprovalMismatchException`이 발생합니다. 명시적인 결정을 내리지 않은 호출에는 `approveRemaining` 또는 `rejectRemaining` 메서드를 사용해 기본값을 지정할 수 있습니다:
@@ -3156,8 +3181,8 @@ $result->meta->provider;
 <!-- ### Classifying Images -->
 ### Classifying Images
 
-<!-- When using the OpenAI, OpenAI-compatible, TypeSafe, or OpenRouter providers, images may be classified alongside the given content by passing them as the second argument to the `of` method. Images may be created using the same [file classes used for attachments](#attachments): -->
-OpenAI, OpenAI-compatible, TypeSafe 또는 OpenRouter 프로바이더를 사용할 때는 이미지를 `of` 메서드의 두 번째 인수로 전달해 주어진 콘텐츠와 함께 분류할 수 있습니다. 이미지는 [file classes used for attachments](#attachments)를 사용해 만들 수 있습니다.
+<!-- When using the OpenAI, OpenAI-compatible, Gemini, TypeSafe, or OpenRouter providers, images may be classified alongside the given content by passing them as the second argument to the `of` method. Images may be created using the same [file classes used for attachments](#attachments): -->
+OpenAI, OpenAI-compatible, Gemini, TypeSafe 또는 OpenRouter 프로바이더를 사용할 때는 이미지를 `of` 메서드의 두 번째 인수로 전달해 주어진 콘텐츠와 함께 분류할 수 있습니다. 이미지는 [file classes used for attachments](#attachments)와 동일한 클래스를 사용해 만들 수 있습니다.
 
 ```php
 use Laravel\Ai\Classification;
@@ -3476,7 +3501,7 @@ $document->fileId;
 ```
 
 > [!NOTE]
-> 일반적으로 이전에 저장한 파일을 벡터 스토어에 추가하면 반환되는 문서 ID는 파일에 기존에 할당된 ID와 일치합니다. 하지만 일부 벡터 스토리지 프로바이더는 새롭고 다른 "문서 ID"를 반환할 수 있습니다. 따라서 나중에 참조할 수 있도록 두 ID를 모두 데이터베이스에 저장하는 것이 좋습니다.
+> 일반적으로 벡터 스토어에 이미 저장된 파일을 추가하면 반환된 문서 ID는 이전에 할당된 ID와 일치합니다. 하지만 일부 벡터 스토리지 프로바이더는 새로운 "문서 ID"를 반환할 수 있습니다. 따라서 나중에 참조할 수 있도록 두 ID를 모두 데이터베이스에 저장하는 것이 좋습니다.
 
 <!-- When adding a file to a Gemini store, Laravel waits for the import to finish so that the document is searchable once the call returns. A `Laravel\Ai\Exceptions\AiException` will be thrown if the import fails or exceeds five minutes, so you may wish to add Gemini files from a [queued job](/docs/13.x/queues). -->
 Gemini 스토어에 파일을 추가하면 Laravel은 호출이 반환된 후 문서를 검색할 수 있도록 가져오기가 완료될 때까지 기다립니다. 가져오기에 실패하거나 5분을 초과하면 `Laravel\Ai\Exceptions\AiException`이 발생하므로, [queued job](/docs/13.x/queues)에서 Gemini 파일을 추가하는 것이 좋습니다.
@@ -3687,7 +3712,7 @@ $response->reasoning; // 'They asked about pricing.'
 ```
 
 > [!NOTE]
-> `Agent::fake()`를 구조화 출력을 반환하는 에이전트에서 호출했을 때 가짜 출력을 명시적으로 제공하지 않았다면, Laravel은 에이전트에 정의된 출력 스키마에 맞는 가짜 데이터를 자동으로 생성합니다.
+> 구조화된 출력을 반환하는 에이전트에서 `Agent::fake()`를 호출했을 때 가짜 출력을 명시적으로 제공하지 않았다면, Laravel은 에이전트에 정의된 출력 스키마와 일치하는 가짜 데이터를 자동으로 생성합니다.
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 에이전트에 프롬프트를 전달한 후에는 수신된 프롬프트에 대해 검증할 수 있습니다.

@@ -37,6 +37,7 @@
 - [Collection Model Serialization Restores Eager-Loaded Relations](#collection-model-serialization-restores-eager-loaded-relations)
 - [`Container::call` and Nullable Class Defaults](#containercall-and-nullable-class-defaults)
 - [Domain Route Registration Precedence](#domain-route-registration-precedence)
+- [Global Scope Removal in Nested Where Conditions](#global-scope-removal-in-nested-where-conditions)
 - [`JobAttempted` Event Exception Payload](#jobattempted-event-exception-payload)
 - [Manager `extend` Callback Binding](#manager-extend-callback-binding)
 - [MySQL `DELETE` Queries With `JOIN`, `ORDER BY`, and `LIMIT`](#mysql-delete-queries-with-join-order-by-and-limit)
@@ -630,6 +631,32 @@ pagination::simple-bootstrap-3
 
 <!-- If your application references the old pagination view names directly, update those references. -->
 애플리케이션에서 이전 페이지네이션 뷰 이름을 직접 참조하고 있다면, 해당 참조를 업데이트하십시오.
+
+<a name="eloquent-global-scopes"></a>
+<!-- ### Eloquent Global Scopes -->
+### Eloquent Global Scopes
+
+<a name="global-scope-removal-in-nested-where-conditions"></a>
+<!-- #### Global Scope Removal in Nested Where Conditions -->
+#### Global Scope Removal in Nested Where Conditions
+
+<!-- **Likelihood Of Impact: Low** -->
+**영향 가능성: 낮음**
+
+<!-- Global scopes removed inside a nested `where` closure now apply to the whole query. In previous versions, Laravel silently ignored them and still applied the scope to the outer query. This affects closures passed to `where`, `orWhere`, `whereNot`, and `orWhereNot` that call `withoutGlobalScope`, `withoutGlobalScopes`, or a local scope that removes a global scope, such as `onlyTrashed`: -->
+중첩된 `where` 클로저 안에서 제거한 전역 스코프는 이제 전체 쿼리에 적용됩니다. 이전 버전에서는 Laravel이 해당 제거를 조용히 무시하고 바깥 쿼리에 스코프를 계속 적용했습니다. 이 변경은 `withoutGlobalScope`, `withoutGlobalScopes` 또는 `onlyTrashed`처럼 전역 스코프를 제거하는 로컬 스코프를 호출하는 `where`, `orWhere`, `whereNot`, `orWhereNot`에 전달된 클로저에 영향을 줍니다.
+
+```php
+User::where(function ($query) {
+    $query->withoutGlobalScope('active');
+})->get();
+
+// Laravel <= 12.x: the "active" scope is still applied
+// Laravel >= 13.x: the "active" scope is removed from the entire query
+```
+
+<!-- Because the scope is no longer applied to the outer query, these queries may now return records they previously excluded. If your application relied on the old behavior, remove the scope removal from the nested closure. If you meant to remove the scope, call it on the outer builder instead, for example `User::withoutGlobalScope('active')->where(...)`. -->
+이제 바깥 쿼리에 스코프가 적용되지 않으므로, 이전에는 제외되었던 레코드가 쿼리 결과에 포함될 수 있습니다. 애플리케이션이 이전 동작에 의존하고 있었다면 중첩 클로저에서 스코프를 제거하는 부분을 삭제하십시오. 스코프를 제거하려는 의도였다면 `User::withoutGlobalScope('active')->where(...)`처럼 바깥 빌더에서 호출하십시오.
 
 <a name="miscellaneous"></a>
 <!-- ### Miscellaneous -->

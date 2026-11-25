@@ -41,8 +41,10 @@
     - [App Tool Visibility](#app-tool-visibility)
     - [App Configuration](#app-configuration)
     - [Building Apps With Boost](#building-apps-with-boost)
+- [Skills](#skills)
 - [Metadata](#metadata)
 - [Icons](#icons)
+- [Client Capabilities](#client-capabilities)
 - [Authentication](#authentication)
     - [OAuth 2.1](#oauth)
     - [Sanctum](#sanctum)
@@ -834,6 +836,48 @@ class CurrentWeatherTool extends Tool
 
 <!-- When using web-based servers, streaming responses automatically open an SSE (Server-Sent Events) stream, sending each yielded message as an event to the client. -->
 Web ベースのサーバーを使用する場合、ストリーミング応答は自動的に SSE (Server-Sent Events) ストリームを開き、生成された各メッセージをイベントとしてクライアントに送信します。
+
+<!-- To emit standard MCP progress notifications (`notifications/progress`), yield `Response::progress` from your generator. You may provide the current progress value along with optional `total` and `message` arguments: -->
+標準の MCP 進捗通知（`notifications/progress`）を送信するには、ジェネレータから `Response::progress` を yield します。現在の進捗値に加えて、任意で `total` と `message` 引数を指定できます。
+
+```php
+<?php
+
+namespace App\Mcp\Tools;
+
+use Generator;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\Server\Tool;
+
+class ImportFilesTool extends Tool
+{
+    /**
+     * Handle the tool request.
+     *
+     * @return \Generator<int, \Laravel\Mcp\Response>
+     */
+    public function handle(Request $request): Generator
+    {
+        $files = $request->array('files');
+
+        foreach ($files as $index => $file) {
+            yield Response::progress(
+                $index + 1,
+                total: count($files),
+                message: "Importing {$file}...",
+            );
+
+            $this->import($file);
+        }
+
+        yield Response::text('All files imported.');
+    }
+}
+```
+
+<!-- The server automatically attaches the request's `_meta.progressToken` to each progress notification. If the client did not include a `progressToken` with the request, progress notifications are omitted. -->
+サーバーは各進捗通知に、リクエストの `_meta.progressToken` を自動的に付与します。クライアントがリクエストに `progressToken` を含めなかった場合、進捗通知は送信されません。
 
 <a name="prompts"></a>
 <!-- ## Prompts -->
@@ -1763,6 +1807,80 @@ Laravel MCP には、MCP アプリを構築するための専用の [Boost](/doc
 <!-- For the complete protocol reference, including the full client-side API and schema details, see the official [MCP Apps documentation](https://modelcontextprotocol.io/extensions/apps/overview). -->
 完全なクライアント側 API とスキーマの詳細を含む完全なプロトコル リファレンスについては、公式 [MCP Apps documentation](https://modelcontextprotocol.io/extensions/apps/overview) を参照してください。
 
+<a name="skills"></a>
+<!-- ## Skills -->
+## Skills
+
+<!-- Laravel MCP supports serving [Agent Skills](https://agentskills.io/specification) through the [MCP Skills extension](https://skills.extensions.modelcontextprotocol.io/specification/beta/skills) (`io.modelcontextprotocol/skills`). Clients discover skills via `skills/list` and `skills/get` and read their files through `resources/read`. -->
+Laravel MCP では、[MCP Skills extension](https://skills.extensions.modelcontextprotocol.io/specification/beta/skills)（`io.modelcontextprotocol/skills`）を通じて [Agent Skills](https://agentskills.io/specification) を提供できます。クライアントは `skills/list` と `skills/get` でスキルを検出し、`resources/read` でそのファイルを読み取ります。
+
+<!-- Each skill lives in a directory containing a `SKILL.md` file with YAML frontmatter (`name` matching the directory name, and `description`) along with any supporting files: -->
+各スキルは、YAML frontmatter（ディレクトリ名と一致する `name` と `description`）を含む `SKILL.md` ファイルと、必要に応じて補助ファイルを格納したディレクトリに配置します。
+
+```markdown
+---
+name: release-checklist
+description: Prepare a release using the bundled checklist.
+---
+
+# Release Checklist
+
+Read [the checklist](references/checklist.md) before preparing a release.
+```
+
+<!-- You may register skill directories directly on your server using the `$skills` property. Relative paths resolve from `resource_path()`, and defining `$skills` automatically advertises the skills extension and `resources` capability: -->
+`$skills` プロパティを使って、スキルのディレクトリをサーバーに直接登録できます。相対パスは `resource_path()` を基準に解決されます。また、`$skills` を定義すると、skills 拡張と `resources` capability が自動的に通知されます。
+
+```php
+use App\Mcp\Skills\ReleaseChecklist;
+use Laravel\Mcp\Server;
+
+class ProjectServer extends Server
+{
+    protected array $skills = [
+        'skills/house-style',
+        ReleaseChecklist::class,
+    ];
+}
+```
+
+<!-- When a skill needs conditional registration or a custom URI, scaffold a `Skill` class and `SKILL.md` file using the `make:mcp-skill` Artisan command: -->
+スキルを条件付きで登録したい場合やカスタム URI が必要な場合は、Artisan コマンド `make:mcp-skill` を使って `Skill` クラスと `SKILL.md` ファイルのひな形を作成します。
+
+```shell
+php artisan make:mcp-skill ReleaseChecklist
+```
+
+<!-- You may define a `shouldRegister` method (resolved through the container) to hide the skill from all skill and resource endpoints when it returns `false`, and use the `#[Uri]` attribute to customize its URI (defaulting to `skill://{name}/SKILL.md`): -->
+`shouldRegister` メソッド（コンテナ経由で解決されます）を定義すると、戻り値が `false` の場合に、すべてのスキルおよびリソースのエンドポイントからそのスキルを非表示にできます。また、`#[Uri]` 属性を使って URI を変更できます（デフォルトは `skill://{name}/SKILL.md` です）。
+
+```php
+<?php
+
+namespace App\Mcp\Skills;
+
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Server\Attributes\Uri;
+use Laravel\Mcp\Server\Skill;
+
+#[Uri('skill://engineering/release-checklist/SKILL.md')]
+class ReleaseChecklist extends Skill
+{
+    public function path(): string
+    {
+        return 'skills/release-checklist';
+    }
+
+    public function shouldRegister(Request $request): bool
+    {
+        return $request->user()?->can('prepare-releases') ?? false;
+    }
+}
+```
+
+<!-- Only `SKILL.md` appears in `resources/list`, while all supporting files in the directory are readable through `resources/read`. Dotfiles and symbolic links are skipped, and each skill is limited to 512 files and 16 MiB. -->
+`resources/list` に表示されるのは `SKILL.md` だけですが、ディレクトリ内の補助ファイルはすべて `resources/read` で読み取れます。ドットファイルとシンボリックリンクはスキップされ、各スキルのファイル数は 512 個、サイズは 16 MiB までに制限されます。
+
 <a name="metadata"></a>
 <!-- ## Metadata -->
 ## Metadata
@@ -1879,6 +1997,33 @@ class CurrentWeatherTool extends Tool
 - 相対パスは、Laravel の `asset` ヘルパを使用して URL に解決されます。
 
 </div>
+
+<a name="client-capabilities"></a>
+<!-- ## Client Capabilities -->
+## Client Capabilities
+
+<!-- MCP clients advertise their capabilities during initialization and include them on requests. Inside any tool, prompt, or resource handler, you may inspect whether the connected client declared a capability using the `clientSupports` method on the `Laravel\Mcp\Request` instance, using "dot" notation for nested capabilities: -->
+MCP クライアントは初期化時に自身のケイパビリティを通知し、リクエストにもその情報を含めます。ツール、プロンプト、リソースの各ハンドラ内では、`Laravel\Mcp\Request` インスタンスの `clientSupports` メソッドを使い、接続中のクライアントが特定のケイパビリティを宣言しているか確認できます。ネストされたケイパビリティは「ドット」記法で指定します。
+
+```php
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+
+/**
+ * Handle the tool request.
+ */
+public function handle(Request $request): Response
+{
+    if ($request->clientSupports('sampling.tools')) {
+        // ...
+    }
+
+    return Response::text('Done.');
+}
+```
+
+<!-- Capability objects declared as arrays (including empty objects such as `['sampling' => ['tools' => []]]`) evaluate to `true`. Boolean capability flags are returned as declared, so `['roots' => ['listChanged' => true]]` returns `true` for `roots.listChanged` while `['sampling' => ['enabled' => false]]` returns `false` for `sampling.enabled`. -->
+配列として宣言されたケイパビリティオブジェクトは、`['sampling' => ['tools' => []]]` のような空のオブジェクトも含め、`true` として評価されます。ブール値のケイパビリティフラグは宣言された値のまま返されるため、`['roots' => ['listChanged' => true]]` の場合、`roots.listChanged` は `true` を返し、`['sampling' => ['enabled' => false]]` の場合、`sampling.enabled` は `false` を返します。
 
 <a name="authentication"></a>
 <!-- ## Authentication -->
@@ -2483,6 +2628,15 @@ $response = WeatherServer::resource(...);
 $response = WeatherServer::actingAs($user)->tool(...);
 ```
 
+<!-- To simulate a client that advertises specific [client capabilities](#client-capabilities), chain the `withClientCapabilities` method before invoking a tool, prompt, resource, or completion. By default, the test client declares no capabilities: -->
+特定の [client capabilities](#client-capabilities) を通知するクライアントをシミュレートするには、ツール、プロンプト、リソース、または補完を呼び出す前に `withClientCapabilities` メソッドをチェーンします。デフォルトでは、テストクライアントは何のケイパビリティも宣言しません。
+
+```php
+$response = WeatherServer::withClientCapabilities([
+    'sampling' => ['tools' => []],
+])->tool(CurrentWeatherTool::class);
+```
+
 <!-- Once you receive the response, you may use various assertion methods to verify the content and status of the response. -->
 応答を受信したら、さまざまなアサーション メソッドを使用して、応答の内容とステータスを確認できます。
 
@@ -2567,6 +2721,17 @@ $response->assertHasErrors([
 $response->assertHasNoErrors();
 ```
 
+<!-- To assert that a JSON-RPC error response carries a specific error code and, optionally, error `data`, use the `assertErrorCode` method: -->
+JSON-RPC エラー応答に特定のエラーコードと、必要に応じてエラー `data` が含まれていることをアサートするには、`assertErrorCode` メソッドを使用します。
+
+```php
+$response->assertErrorCode(-32602);
+
+$response->assertErrorCode(-32021, [
+    'requiredCapabilities' => ['sampling' => []],
+]);
+```
+
 <!-- You may assert that a response contains specific metadata using the `assertName()`, `assertTitle()`, and `assertDescription()` methods: -->
 `assertName()`、`assertTitle()`、および `assertDescription()` メソッドを使用して、応答に特定のメタデータが含まれていることをアサートできます。
 
@@ -2591,6 +2756,15 @@ $response->assertSentNotification('processing/progress', [
 ]);
 
 $response->assertNotificationCount(5);
+```
+
+<!-- For streaming tools that yield `Response::progress`, you may assert the emitted progress notifications using the `assertSentProgress` method: -->
+ストリーミングツールが `Response::progress` を yield する場合は、`assertSentProgress` メソッドを使って、送信された進捗通知を検証できます。
+
+```php
+$response
+    ->assertSentProgress(1, total: 2, message: 'Importing report.csv...')
+    ->assertSentProgress(2, total: 2);
 ```
 
 <!-- Finally, if you wish to inspect the raw response content, you may use the `dd` or `dump` methods to output the response for debugging purposes: -->

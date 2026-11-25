@@ -594,6 +594,48 @@ use App\Enums\Product;
 $products = $request->enums('products', Product::class);
 ```
 
+<a name="retrieving-model-input-values"></a>
+<!-- #### Retrieving Model Input Values -->
+#### Retrieving Model Input Values
+
+<!-- When using [form requests](/docs/13.x/validation#form-request-validation), you may retrieve Eloquent models using the identifiers present in the request's input. The `model` method returns `null` if the input is empty or no matching record exists, while the `modelOrFail` method throws an `Illuminate\Database\Eloquent\ModelNotFoundException`. If the input value is an array of identifiers, you may use the `models` method to retrieve an Eloquent collection of the matching records: -->
+[form requests](/docs/13.x/validation#form-request-validation)를 사용할 때 요청 입력값에 포함된 식별자를 사용해 Eloquent 모델을 조회할 수 있습니다. 입력값이 비어 있거나 일치하는 레코드가 없으면 `model` 메서드는 `null`을 반환하고, `modelOrFail` 메서드는 `Illuminate\Database\Eloquent\ModelNotFoundException`을 발생시킵니다. 입력값이 식별자 배열이라면 `models` 메서드를 사용해 일치하는 레코드로 구성된 Eloquent 컬렉션을 조회할 수 있습니다.
+
+```php
+use App\Models\User;
+
+$user = $request->model('user_id', User::class);
+
+$user = $request->modelOrFail('user_id', User::class);
+
+$users = $request->models('user_ids', User::class);
+```
+
+<!-- If you omit the model class, Laravel will guess it from the input key by removing any `_id` or `_ids` suffix and converting the remaining name to its singular, "studly" case form. The model is resolved from your application's `Models` namespace, falling back to the application's root namespace if no such model exists: -->
+모델 클래스를 생략하면 Laravel은 입력 키에서 `_id` 또는 `_ids` 접미사를 제거하고, 남은 이름을 단수형 스터들리 케이스로 변환해 모델을 추론합니다. 모델은 애플리케이션의 `Models` 네임스페이스에서 확인하며, 해당 모델이 없으면 애플리케이션의 루트 네임스페이스에서 찾습니다.
+
+```php
+$user = $request->model('user_id'); // App\Models\User
+
+$users = $request->models('user_ids'); // Collection<App\Models\User>
+```
+
+<!-- You may also pass a closure to constrain the query used to retrieve the models. The closure receives an Eloquent query builder instance, and its conditions are grouped together before the identifiers from the request input are applied. The closure may be given as the second argument, or as the third argument after an explicit model class: -->
+클로저를 전달해 모델을 조회하는 쿼리를 제한할 수도 있습니다. 클로저는 Eloquent 쿼리 빌더 인스턴스를 받으며, 요청 입력값의 식별자를 적용하기 전에 클로저의 조건을 하나로 묶습니다. 클로저는 두 번째 인수로 전달하거나, 모델 클래스를 명시한 경우 세 번째 인수로 전달할 수 있습니다.
+
+```php
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+
+$user = $request->model('user_id', function (Builder $query) use ($request) {
+    $query->where('team_id', $request->user()->team_id);
+});
+
+$author = $request->modelOrFail('author_id', User::class, function (Builder $query) use ($request) {
+    $query->where('team_id', $request->user()->team_id);
+});
+```
+
 <a name="retrieving-input-via-dynamic-properties"></a>
 <!-- #### Retrieving Input via Dynamic Properties -->
 #### Retrieving Input via Dynamic Properties

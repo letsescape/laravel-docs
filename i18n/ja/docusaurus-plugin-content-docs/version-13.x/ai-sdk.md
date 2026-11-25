@@ -335,7 +335,7 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 
 <div class="overflow-auto">
 
-<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, OpenAI Compatible, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
+<!-- | Feature | Providers | |---|---| | Text | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere | | Images | OpenAI, Gemini, xAI, Azure, Bedrock, OpenRouter | | TTS | OpenAI, ElevenLabs, Gemini, Mistral, OpenRouter | | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter | | Embeddings | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter | | Reranking | Cohere, Jina, VoyageAI, Bedrock, OpenRouter | | Classification | OpenAI, OpenAI Compatible, Gemini, TypeSafe, OpenRouter | | Files | OpenAI, Anthropic, Gemini, Azure, OpenRouter | -->
 | 機能 | プロバイダ |
 |---|---|
 | テキスト | OpenAI, OpenAI Compatible, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, OpenRouter, Cohere |
@@ -344,7 +344,7 @@ AI SDK は、その機能全体にわたってさまざまなプロバイダを�
 | STT | OpenAI, OpenAI Compatible, ElevenLabs, Groq, Mistral, Gemini, OpenRouter |
 | 埋め込み | OpenAI, OpenAI Compatible, Gemini, Azure, Bedrock, Cohere, Mistral, Jina, VoyageAI, Ollama, OpenRouter |
 | リランキング | Cohere, Jina, VoyageAI, Bedrock, OpenRouter |
-| 分類 | OpenAI, OpenAI Compatible, TypeSafe, OpenRouter |
+| 分類 | OpenAI, OpenAI Compatible, Gemini, TypeSafe, OpenRouter |
 | ファイル | OpenAI, Anthropic, Gemini, Azure, OpenRouter |
 
 </div>
@@ -510,8 +510,19 @@ foreach ($response->steps as $step) {
 }
 ```
 
+<!-- Image, transcription, embeddings, reranking, classification, and file responses expose the same `raw` property. For example, you may read the cost that OpenRouter reports for a request: -->
+画像、文字起こし、埋め込み、リランキング、分類、ファイルの各レスポンスでは、同じ `raw` プロパティを利用できます。たとえば、リクエストに対して OpenRouter が報告するコストを読み取れます。
+
+```php
+use Laravel\Ai\Embeddings;
+
+$response = Embeddings::for(['Hello world'])->generate(provider: 'openrouter');
+
+$response->raw?->json('usage.cost');
+```
+
 > [!NOTE]
-> ストリーミングでレスポンスを返す場合、HTTP クライアントではなく AWS SDK 経由で API を呼び出す Bedrock プロバイダを使用する場合、および `withRawResponse` で明示的に指定していないフェイクレスポンスの場合、`raw` プロパティは `null` です。
+> `raw` プロパティは、レスポンスをストリーミングしている場合、HTTP クライアントではなく AWS SDK 経由で API を呼び出す Bedrock プロバイダを使用している場合、[cache](#caching-embeddings)からのみ提供された埋め込みの場合、シリアライズ済みレスポンスの場合、および `withRawResponse` で明示的に指定されていないフェイクレスポンスの場合は、`null` です。
 
 <a name="conversation-context"></a>
 <!-- ### Conversation Context -->
@@ -559,7 +570,7 @@ $response = (new SalesCoach)
 #### Remembering Conversations
 
 > [!WARNING]
-> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドで AI SDK のマイグレーションを公開して実行してください。このマイグレーションにより、会話を保存するために必要なデータベーステーブルが作成されます。
+> `RemembersConversations` トレイトを使用する前に、`vendor:publish` Artisan コマンドで AI SDK のマイグレーションを公開し、実行してください。このマイグレーションによって、会話を保存するために必要なデータベーステーブルが作成されます。
 
 <!-- If you would like Laravel to automatically store and retrieve conversation history for your agent, you may use the `RemembersConversations` trait. This trait provides a simple way to persist conversation messages to the database without manually implementing the `Conversational` interface: -->
 Laravel にエージェントの会話履歴を自動的に保存および取得させたい場合は、`RemembersConversations` トレイトを使用できます。このトレイトは、`Conversational` インターフェイスを手動で実装せずに、データベースに会話メッセージを永続化する簡単な方法を提供します。
@@ -1355,6 +1366,20 @@ class SupportAgent implements Agent, HasTools
 
 <!-- When Laravel derives the maximum number of steps automatically, this attribute adds one step for the repaired call. Explicit `MaxSteps` limits are unchanged. -->
 Laravel がステップの最大数を自動的に算出する場合、この属性によって修復された呼び出し用のステップが1つ追加されます。明示的に指定した `MaxSteps` の制限は変わりません。
+
+<a name="handling-tool-failures"></a>
+<!-- #### Handling Tool Failures -->
+#### Handling Tool Failures
+
+<!-- When a tool throws an exception, the agent's run continues. The exception is reported to your application's exception handler, a `ToolFailed` [event](#events) is dispatched, and the model receives the failure as the tool's result, allowing it to explain what went wrong or try another approach. For example, if a tool throws an exception with the message "Order 1234 can no longer be refunded.", the model receives: -->
+ツールで例外が発生しても、エージェントの実行は続行されます。例外はアプリケーションの例外ハンドラに報告され、`ToolFailed` [event](#events) がディスパッチされます。また、モデルはツールの結果として失敗内容を受け取るため、何が問題だったのかを説明したり、別の方法を試したりできます。たとえば、ツールが「Order 1234 can no longer be refunded.」というメッセージの例外をスローすると、モデルは次の内容を受け取ります。
+
+```text
+The tool call failed: Order 1234 can no longer be refunded.
+```
+
+<!-- The failed result is available through the response's `toolResults`, and streamed responses emit it as a failed `tool_result` event. [Sub-agents](#sub-agents) used as tools are handled the same way when they throw. -->
+失敗した結果はレスポンスの `toolResults` から取得でき、ストリーミングレスポンスでは失敗した `tool_result` イベントとして送出されます。ツールとして使用する [Sub-agents](#sub-agents) が例外をスローした場合も、同じように処理されます。
 
 <a name="similarity-search"></a>
 <!-- #### Similarity Search -->
@@ -2323,7 +2348,7 @@ class SalesCoach implements Agent
 ## Human Tool Approval
 
 > [!WARNING]
-> ツールの承認後に実行を再開するには、一時停止したターンの履歴を利用できる必要があります。`RemembersConversations` トレイトを使うエージェントなどの `Conversational` エージェントを使用するか、アプリケーションのフロントエンドから [`withMessages` method](#conversation-context) を使って履歴を渡してください。どちらも行わないエージェントは、ツールの実行が一時停止したときに `ApprovalNotResumableException` をスローします。
+> ツールの承認後に実行を再開するには、一時停止したターンの履歴を利用できる必要があります。`RemembersConversations` トレイトを使用するエージェントなど、`Conversational` エージェントを使用するか、アプリケーションのフロントエンドから [`withMessages` method](#conversation-context) を使って履歴を渡してください。どちらも行わないエージェントは、ツールが一時停止したときに `ApprovalNotResumableException` をスローします。
 
 <!-- Tools that perform sensitive or irreversible actions may require human approval before they are executed. To make a tool approvable, implement the `Approvable` contract and use the `InteractsWithApprovals` trait. Approvable tools require approval by default: -->
 機密性の高い操作や取り消せない操作を実行するツールでは、実行前に人間の承認が必要になる場合があります。ツールを承認可能にするには、`Approvable` コントラクトを実装し、`InteractsWithApprovals` トレイトを使用します。承認可能なツールは、デフォルトで承認が必要です。
@@ -2439,7 +2464,7 @@ $response = (new FileAssistant)
 ```
 
 > [!WARNING]
-> 一時停止中のターンは、一時停止した参加者ではなく、会話と保留中のツール呼び出しに基づいて照合されます。そのため、再開する前に、[complete approval flow](#complete-approval-flow)の例のようにアプリケーションで会話へのアクセスを認可するか、conversation store の `conversationBelongsTo` メソッドを使ってアクセス権を確認してください。
+> 一時停止されたターンは、一時停止した参加者ではなく、会話と保留中のツール呼び出しに基づいて照合されます。そのため、ターンを再開する前に、[complete approval flow](#complete-approval-flow) の例のように会話へのアクセスを認可するか、会話ストアの `conversationBelongsTo` メソッドを使ってアクセス権を確認してください。
 
 <!-- The boolean values `true` and `false` may be used as shorthand for approval and rejection. Every pending tool call must receive a decision. Unknown, missing, or previously resolved tool call IDs will cause an `ApprovalMismatchException` to be thrown. You may provide a default for calls without an explicit decision using the `approveRemaining` or `rejectRemaining` methods: -->
 ブール値の `true` と `false` は、それぞれ承認と拒否の略記として使用できます。保留中のすべてのツール呼び出しには、判定を与える必要があります。不明なツール呼び出し ID、判定が指定されていないツール呼び出し ID、またはすでに解決済みのツール呼び出し ID があると、`ApprovalMismatchException` がスローされます。明示的な判定がない呼び出しに対しては、`approveRemaining` または `rejectRemaining` メソッドを使用してデフォルトの判定を指定できます。
@@ -3156,8 +3181,8 @@ $result->meta->provider;
 <!-- ### Classifying Images -->
 ### Classifying Images
 
-<!-- When using the OpenAI, OpenAI-compatible, TypeSafe, or OpenRouter providers, images may be classified alongside the given content by passing them as the second argument to the `of` method. Images may be created using the same [file classes used for attachments](#attachments): -->
-OpenAI、OpenAI互換、TypeSafe、またはOpenRouterプロバイダを使用する場合、画像を `of` メソッドの第2引数として渡すことで、指定したコンテンツと併せて画像を分類できます。画像は、[file classes used for attachments](#attachments) と同じクラスを使って作成できます。
+<!-- When using the OpenAI, OpenAI-compatible, Gemini, TypeSafe, or OpenRouter providers, images may be classified alongside the given content by passing them as the second argument to the `of` method. Images may be created using the same [file classes used for attachments](#attachments): -->
+OpenAI、OpenAI互換、Gemini、TypeSafe、またはOpenRouterプロバイダを使用する場合、画像を `of` メソッドの第2引数に渡すと、指定したコンテンツとあわせて分類できます。画像は[file classes used for attachments](#attachments)を使って作成できます。
 
 ```php
 use Laravel\Ai\Classification;
@@ -3476,7 +3501,7 @@ $document->fileId;
 ```
 
 > [!NOTE]
-> ベクトルストアに以前保存したファイルを追加すると、通常、返されるドキュメント ID はファイルに以前割り当てられた ID と同じです。ただし、ベクトルストレージプロバイダによっては、新しい異なる「ドキュメント ID」が返される場合があります。そのため、後で参照できるよう、両方の ID を常にデータベースに保存しておくことをおすすめします。
+> 通常、保存済みのファイルをベクトルストアに追加すると、返されるドキュメント ID は以前に割り当てられた ID と一致します。ただし、ベクトルストレージプロバイダによっては、新しい別の「ドキュメント ID」を返す場合があります。そのため、後で参照できるよう、両方の ID をデータベースに保存しておくことをおすすめします。
 
 <!-- When adding a file to a Gemini store, Laravel waits for the import to finish so that the document is searchable once the call returns. A `Laravel\Ai\Exceptions\AiException` will be thrown if the import fails or exceeds five minutes, so you may wish to add Gemini files from a [queued job](/docs/13.x/queues). -->
 Gemini ストアにファイルを追加すると、Laravel はインポートが完了するまで待機するため、呼び出しが返ると同時にドキュメントを検索できます。インポートに失敗した場合や5分を超えた場合は `Laravel\Ai\Exceptions\AiException` がスローされるため、Gemini ファイルは [queued job](/docs/13.x/queues) から追加するとよいでしょう。
@@ -3687,7 +3712,7 @@ $response->reasoning; // 'They asked about pricing.'
 ```
 
 > [!NOTE]
-> 構造化出力を返すエージェントに対して `Agent::fake()` を呼び出し、フェイク出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致するフェイクデータを自動的に生成します。
+> 構造化出力を返すエージェントに対して `Agent::fake()` を呼び出し、偽の出力を明示的に指定していない場合、Laravel はエージェントに定義された出力スキーマに一致する偽のデータを自動的に生成します。
 
 <!-- After prompting the agent, you may make assertions about the prompts that were received: -->
 エージェントにプロンプトを出した後、受け取ったプロンプトについてアサーションを行うことができます。
